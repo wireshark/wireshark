@@ -2,7 +2,7 @@
  * Routines for SNA
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-sna.c,v 1.25 2001/01/25 06:14:14 guy Exp $
+ * $Id: packet-sna.c,v 1.26 2001/03/13 21:34:24 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -416,7 +416,7 @@ dissect_fid0_1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree	*bf_tree;
 	proto_item	*bf_item;
 	guint8		th_0;
-	guint8		*ptr;
+	const guint8	*ptr;
 
 	const int bytes_in_header = 10;
 
@@ -471,7 +471,7 @@ dissect_fid2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree	*bf_tree;
 	proto_item	*bf_item;
 	guint8		th_0=0, daf=0, oaf=0;
-	guint8		*ptr;
+	const guint8	*ptr;
 
 	const int bytes_in_header = 6;
 

@@ -1,7 +1,7 @@
 /* packet-vines.c
  * Routines for Banyan VINES protocol packet disassembly
  *
- * $Id: packet-vines.c,v 1.24 2001/02/04 10:29:49 guy Exp $
+ * $Id: packet-vines.c,v 1.25 2001/03/13 21:34:24 gram Exp $
  *
  * Don Lafontaine <lafont02@cn.ca>
  *
@@ -199,7 +199,7 @@ dissect_vines(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree *vip_tree;
 	proto_item *ti;
 /*	gchar      tos_str[32]; */
-	guint8     *dst_addr, *src_addr;
+	const guint8     *dst_addr, *src_addr;
 	int  is_broadcast = 0;
 	int  hops = 0;
 	tvbuff_t *next_tvb;

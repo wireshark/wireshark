@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB 
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.13 2001/02/01 06:20:25 guy Exp $
+ * $Id: packet-ieee80211.c,v 1.14 2001/03/13 21:34:23 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -376,7 +376,7 @@ get_tagged_parameter_tree (proto_tree * tree, tvbuff_t *tvb, int start, int size
 static void
 add_fixed_field (proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
 {
-  guint8 *dataptr;
+  const guint8 *dataptr;
   char out_buff[SHORT_STR];
   guint16 *temp16;
   proto_item *cap_item;
@@ -518,8 +518,8 @@ add_fixed_field (proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
 static int
 add_tagged_field (proto_tree * tree, tvbuff_t * tvb, int offset)
 {
-  guint8 *tag_info_ptr;
-  guint8 *tag_data_ptr;
+  const guint8 *tag_info_ptr;
+  const guint8 *tag_data_ptr;
   guint32 tag_no, tag_len;
   int i, n;
   char out_buff[SHORT_STR];
@@ -727,7 +727,7 @@ static void
 dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 {
   guint16 fcf, flags;
-  guint8 *src = NULL, *dst = NULL;
+  const guint8 *src = NULL, *dst = NULL;
   proto_item *ti;
   proto_item *flag_item;
   proto_item *fc_item;

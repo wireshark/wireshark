@@ -1,7 +1,7 @@
 /* packet-eth.c
  * Routines for ethernet packet disassembly
  *
- * $Id: packet-eth.c,v 1.60 2001/02/08 07:08:05 guy Exp $
+ * $Id: packet-eth.c,v 1.61 2001/03/13 21:34:23 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -146,7 +146,7 @@ dissect_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   int        		orig_captured_len;
   proto_item		*ti;
-  guint8		*dst, *src;
+  const guint8		*dst, *src;
   const guint8		*pd;
 
   guint16		etype;

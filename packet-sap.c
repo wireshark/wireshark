@@ -4,7 +4,7 @@
  *
  * Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-sap.c,v 1.19 2001/01/25 06:14:14 guy Exp $
+ * $Id: packet-sap.c,v 1.20 2001/03/13 21:34:23 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -135,7 +135,7 @@ dissect_sap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         guint8 vers_flags;
         guint8 auth_len;
         guint16 tmp1;
-        guint8 *addr;
+        const guint8 *addr;
         guint8 auth_flags;
         tvbuff_t *next_tvb;
 

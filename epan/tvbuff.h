@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.h,v 1.10 2000/12/27 12:48:27 guy Exp $
+ * $Id: tvbuff.h,v 1.11 2001/03/13 21:34:27 gram Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@xiexie.org>
  *
@@ -268,7 +268,7 @@ guint8* tvb_memdup(tvbuff_t*, gint offset, gint length);
  * and the pointer to the newly-contiguous data is returned. This dynamically-
  * allocated memory will be freed when the tvbuff is freed, after the
  * tvbuff_free_cb_t() is called, if any. */
-guint8* tvb_get_ptr(tvbuff_t*, gint offset, gint length);
+const guint8* tvb_get_ptr(tvbuff_t*, gint offset, gint length);
 
 /* Find first occurence of any of the needles in tvbuff, starting at offset.
  * Searches at most maxlength number of bytes; if maxlength is -1, searches

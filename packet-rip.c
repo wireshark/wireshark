@@ -2,7 +2,7 @@
  * Routines for RIPv1 and RIPv2 packet disassembly
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-rip.c,v 1.23 2001/01/22 08:03:45 guy Exp $
+ * $Id: packet-rip.c,v 1.24 2001/03/13 21:34:23 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -140,7 +140,7 @@ dissect_ip_rip_vektor(tvbuff_t *tvb, int offset, guint8 version,
 {
     proto_item *ti;
     proto_tree *rip_vektor_tree;
-    guint8 *ip;
+    const guint8 *ip;
     guint32 metric;
 
     ip = tvb_get_ptr(tvb, offset+4, 4);

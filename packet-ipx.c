@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-ipx.c,v 1.78 2001/02/27 07:28:47 guy Exp $
+ * $Id: packet-ipx.c,v 1.79 2001/03/13 21:34:23 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -284,7 +284,7 @@ dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree	*ipx_tree;
 	proto_item	*ti;
 
-	guint8		*src_net_node, *dst_net_node;
+	const guint8	*src_net_node, *dst_net_node;
 
 	guint8		ipx_type, ipx_hops;
 	guint16		ipx_length;

@@ -2,7 +2,7 @@
  * Routines for Token-Ring packet disassembly
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-tr.c,v 1.60 2001/02/23 17:19:52 gram Exp $
+ * $Id: packet-tr.c,v 1.61 2001/03/13 21:34:24 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -141,8 +141,8 @@ static dissector_handle_t llc_handle;
  */
 int check_for_old_linux_tvb(tvbuff_t *tvb)
 {
-	guint8	*data;
-	int	x, bytes;
+	const guint8	*data;
+	int		x, bytes;
 
 	/* Restrict our looping to the boundaries of the frame */
 	bytes = tvb_length(tvb);

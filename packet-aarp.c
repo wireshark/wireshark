@@ -1,7 +1,7 @@
 /* packet-aarp.c
  * Routines for Appletalk ARP packet disassembly
  *
- * $Id: packet-aarp.c,v 1.28 2001/01/22 00:20:29 guy Exp $
+ * $Id: packet-aarp.c,v 1.29 2001/03/13 21:34:23 gram Exp $
  *
  * Simon Wilkinson <sxw@dcs.ed.ac.uk>
  *
@@ -101,7 +101,7 @@ atalkid_to_str(const guint8 *ad) {
 }
 
 static gchar *
-aarphrdaddr_to_str(guint8 *ad, int ad_len, guint16 type) {
+aarphrdaddr_to_str(const guint8 *ad, int ad_len, guint16 type) {
   if ((type == AARPHRD_ETHER || type == AARPHRD_TR) && ad_len == 6) {
     /* Ethernet address (or Token Ring address, which is the same type
        of address). */
@@ -111,7 +111,7 @@ aarphrdaddr_to_str(guint8 *ad, int ad_len, guint16 type) {
 }
 
 static gchar *
-aarpproaddr_to_str(guint8 *ad, int ad_len, guint16 type) {
+aarpproaddr_to_str(const guint8 *ad, int ad_len, guint16 type) {
   if (type == ETHERTYPE_ATALK && ad_len == 4) {
     /* IP address.  */
     return atalkid_to_str(ad);
@@ -138,7 +138,7 @@ dissect_aarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   proto_item  *ti;
   gchar       *op_str;
   int         sha_offset, spa_offset, tha_offset, tpa_offset;
-  guint8      *sha_val, *spa_val, *tha_val, *tpa_val;
+  const guint8      *sha_val, *spa_val, *tha_val, *tpa_val;
   gchar       *sha_str, *spa_str, *tha_str, *tpa_str;
 
   if(check_col(pinfo->fd, COL_PROTOCOL))

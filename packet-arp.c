@@ -1,7 +1,7 @@
 /* packet-arp.c
  * Routines for ARP packet disassembly
  *
- * $Id: packet-arp.c,v 1.42 2001/01/09 06:31:33 guy Exp $
+ * $Id: packet-arp.c,v 1.43 2001/03/13 21:34:23 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -151,7 +151,7 @@ static const value_string atmop_vals[] = {
 #define	ATMARP_LEN_MASK	0x3F	/* length of {sub}address in type/length */
 
 gchar *
-arphrdaddr_to_str(guint8 *ad, int ad_len, guint16 type)
+arphrdaddr_to_str(const guint8 *ad, int ad_len, guint16 type)
 {
   if (ad_len == 0)
     return "<No address>";
@@ -165,7 +165,7 @@ arphrdaddr_to_str(guint8 *ad, int ad_len, guint16 type)
 }
 
 static gchar *
-arpproaddr_to_str(guint8 *ad, int ad_len, guint16 type)
+arpproaddr_to_str(const guint8 *ad, int ad_len, guint16 type)
 {
   if (ad_len == 0)
     return "<No address>";
@@ -180,7 +180,7 @@ arpproaddr_to_str(guint8 *ad, int ad_len, guint16 type)
 #define	MAX_E164_STR_LEN		20
 
 static gchar *
-atmarpnum_to_str(guint8 *ad, int ad_tl)
+atmarpnum_to_str(const guint8 *ad, int ad_tl)
 {
   int           ad_len = ad_tl & ATMARP_LEN_MASK;
   static gchar  str[N_ATMARPNUM_TO_STR_STRINGS][MAX_E164_STR_LEN+3+1];
@@ -218,7 +218,7 @@ atmarpnum_to_str(guint8 *ad, int ad_tl)
 }
 
 static gchar *
-atmarpsubaddr_to_str(guint8 *ad, int ad_tl)
+atmarpsubaddr_to_str(const guint8 *ad, int ad_tl)
 {
   int           ad_len = ad_tl & ATMARP_LEN_MASK;
 
@@ -403,8 +403,8 @@ dissect_atmarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   gchar       *op_str;
   int         sha_offset, ssa_offset, spa_offset;
   int         tha_offset, tsa_offset, tpa_offset;
-  guint8      *sha_val, *ssa_val, *spa_val;
-  guint8      *tha_val, *tsa_val, *tpa_val;
+  const guint8      *sha_val, *ssa_val, *spa_val;
+  const guint8      *tha_val, *tsa_val, *tpa_val;
   gchar       *sha_str, *ssa_str, *spa_str;
   gchar       *tha_str, *tsa_str, *tpa_str;
   proto_tree  *tl_tree;
@@ -647,7 +647,7 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_item  *ti;
   gchar       *op_str;
   int         sha_offset, spa_offset, tha_offset, tpa_offset;
-  guint8      *sha_val, *spa_val, *tha_val, *tpa_val;
+  const guint8      *sha_val, *spa_val, *tha_val, *tpa_val;
   gchar       *sha_str, *spa_str, *tha_str, *tpa_str;
 
   CHECK_DISPLAY_AS_DATA(proto_arp, tvb, pinfo, tree);
@@ -748,7 +748,7 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* inform resolv.c module of the new discovered addresses */
 
     u_int ip;
-    guint8 *mac;
+    const guint8 *mac;
 
     /* add sender address in all cases */
 

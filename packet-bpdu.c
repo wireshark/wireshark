@@ -1,7 +1,7 @@
 /* packet-bpdu.c
  * Routines for BPDU (Spanning Tree Protocol) disassembly
  *
- * $Id: packet-bpdu.c,v 1.23 2001/02/08 07:32:11 guy Exp $
+ * $Id: packet-bpdu.c,v 1.24 2001/03/13 21:34:23 gram Exp $
  *
  * Copyright 1999 Christophe Tronche <ch.tronche@computer.org>
  * 
@@ -86,11 +86,11 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
       guint8  bpdu_type;
       guint8  flags;
       guint16 root_identifier_bridge_priority;
-      guint8  *root_identifier_mac;
+      const guint8  *root_identifier_mac;
       gchar   *root_identifier_mac_str;
       guint32 root_path_cost;
       guint16 bridge_identifier_bridge_priority;
-      guint8  *bridge_identifier_mac;
+      const guint8  *bridge_identifier_mac;
       gchar   *bridge_identifier_mac_str;
       guint16 port_identifier;
       double message_age;

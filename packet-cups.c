@@ -5,7 +5,7 @@
 * Charles Levert <charles@comm.polymtl.ca>
 * Copyright 2001 Charles Levert
 *
-* $Id: packet-cups.c,v 1.1 2001/03/11 02:08:30 guy Exp $
+* $Id: packet-cups.c,v 1.2 2001/03/13 21:34:23 gram Exp $
 *
 * 
 * This program is free software; you can redistribute it and/or
@@ -136,9 +136,9 @@ static guint get_hex_uint(tvbuff_t *tvb, gint offset,
     gint *next_offset);
 static void get_space(tvbuff_t *tvb, gint offset,
     gint *next_offset);
-static guint8* get_quoted_string(tvbuff_t *tvb, gint offset,
+static const guint8* get_quoted_string(tvbuff_t *tvb, gint offset,
     gint *next_offset, guint *len);
-static guint8* get_unquoted_string(tvbuff_t *tvb, gint offset,
+static const guint8* get_unquoted_string(tvbuff_t *tvb, gint offset,
     gint *next_offset, guint *len);
 
 /**********************************************************************/
@@ -153,7 +153,7 @@ dissect_cups(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	gint		next_offset;
 	guint		len;
 	unsigned int	u;
-	guint8		*str;
+	const guint8	*str;
 	cups_ptype_t	ptype;
 	unsigned int	state;
 
@@ -287,11 +287,11 @@ get_space(tvbuff_t *tvb, gint offset, gint *next_offset)
 	return;
 }
 
-static guint8*
+static const guint8*
 get_quoted_string(tvbuff_t *tvb, gint offset, gint *next_offset, guint *len)
 {
 	int c;
-	guint8* s = 0;
+	const guint8* s = NULL;
 	guint l = 0;
 	gint o;
 
@@ -312,10 +312,10 @@ get_quoted_string(tvbuff_t *tvb, gint offset, gint *next_offset, guint *len)
 	return s;
 }
 
-static guint8*
+static const guint8*
 get_unquoted_string(tvbuff_t *tvb, gint offset, gint *next_offset, guint *len)
 {
-	guint8* s = 0;
+	const guint8* s = NULL;
 	guint l = 0;
 	gint o;
 

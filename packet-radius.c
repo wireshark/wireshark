@@ -2,7 +2,7 @@
  * Routines for RADIUS packet disassembly
  * Copyright 1999 Johan Feyaerts
  *
- * $Id: packet-radius.c,v 1.27 2001/02/20 08:10:14 guy Exp $
+ * $Id: packet-radius.c,v 1.28 2001/03/13 21:34:23 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -486,7 +486,7 @@ gchar *rdconvertbufftostr(gchar *dest, tvbuff_t *tvb, int offset, int length)
 /*converts the raw buffer into printable text */
 	guint32 i;
 	guint32 totlen=0;
-	guint8 *pd = tvb_get_ptr(tvb, offset, length);
+	const guint8 *pd = tvb_get_ptr(tvb, offset, length);
 
         dest[0]='"';
         dest[1]=0;
@@ -519,7 +519,7 @@ gchar *rd_value_to_str(e_avphdr *avph, tvbuff_t *tvb, int offset)
   gchar *cont;
   value_string *valstrarr;
   guint32 intval;
-  guint8 *pd;
+  const guint8 *pd;
   guint8 tag;
 
 /* prints the values of the attribute value pairs into a text buffer */

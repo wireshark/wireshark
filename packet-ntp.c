@@ -2,7 +2,7 @@
  * Routines for NTP packet dissection
  * Copyright 1999, Nathan Neulinger <nneul@umr.edu>
  *
- * $Id: packet-ntp.c,v 1.25 2001/01/22 08:03:45 guy Exp $
+ * $Id: packet-ntp.c,v 1.26 2001/03/13 21:34:23 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -221,7 +221,7 @@ static gint ett_ntp_flags = -1;
  * returns pointer to filled buffer.
  */
 static char *
-ntp_fmt_ts(guint8 *reftime, char* buff)
+ntp_fmt_ts(const guint8 *reftime, char* buff)
 {
 	guint32 tempstmp, tempfrac;
 	time_t temptime;
@@ -260,11 +260,11 @@ dissect_ntp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	gint8		precision;
 	double		rootdelay;
 	double		rootdispersion;
-	guint8		*refid;
-	guint8		*reftime;
-	guint8		*org;
-	guint8		*rec;
-	guint8		*xmt;
+	const guint8	*refid;
+	const guint8	*reftime;
+	const guint8	*org;
+	const guint8	*rec;
+	const guint8	*xmt;
 	gchar		buff[NTP_TS_SIZE];
 	int		i;
 

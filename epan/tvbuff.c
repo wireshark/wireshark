@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.c,v 1.14 2000/12/27 12:48:27 guy Exp $
+ * $Id: tvbuff.c,v 1.15 2001/03/13 21:34:27 gram Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@xiexie.org>
  *
@@ -936,7 +936,7 @@ tvb_memdup(tvbuff_t *tvb, gint offset, gint length)
 
 
 	
-guint8*
+const guint8*
 tvb_get_ptr(tvbuff_t *tvb, gint offset, gint length)
 {
 	return ensure_contiguous(tvb, offset, length);

@@ -1,5 +1,5 @@
 /*
- * $Id: ftype-tvbuff.c,v 1.4 2001/03/02 17:17:56 gram Exp $
+ * $Id: ftype-tvbuff.c,v 1.5 2001/03/13 21:34:28 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -60,7 +60,7 @@ len(fvalue_t *fv)
 static void
 slice(fvalue_t *fv, GByteArray *bytes, guint offset, guint length)
 {
-	guint8* data;
+	const guint8* data;
 
 	if (fv->value.tvb) {
 		TRY {

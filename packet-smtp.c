@@ -1,7 +1,7 @@
 /* packet-smtp.c
  * Routines for SMTP packet disassembly
  *
- * $Id: packet-smtp.c,v 1.15 2001/01/25 06:14:14 guy Exp $
+ * $Id: packet-smtp.c,v 1.16 2001/03/13 21:34:23 gram Exp $
  *
  * Copyright (c) 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  *
@@ -167,7 +167,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     conversation_t          *conversation;
     struct smtp_request_key request_key, *new_request_key;
     struct smtp_request_val *request_val;
-    char                    *line;
+    const char              *line;
     int                     linelen;
     gboolean                eom_seen = FALSE;
     gint                    next_offset;
