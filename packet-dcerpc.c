@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.40 2002/03/18 07:56:06 guy Exp $
+ * $Id: packet-dcerpc.c,v 1.41 2002/03/19 11:10:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2118,7 +2118,7 @@ proto_register_dcerpc (void)
         { &hf_dcerpc_cn_sec_addr_len,
           { "Scndry Addr len", "dcerpc.cn_sec_addr_len", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
         { &hf_dcerpc_cn_sec_addr,
-          { "Scndry Addr", "dcerpc.cn_sec_addr", FT_BYTES, BASE_NONE, NULL, 0x0, "", HFILL }},
+          { "Scndry Addr", "dcerpc.cn_sec_addr", FT_STRINGZ, BASE_NONE, NULL, 0x0, "", HFILL }},
         { &hf_dcerpc_cn_num_results,
           { "Num results", "dcerpc.cn_num_results", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},
         { &hf_dcerpc_cn_ack_result,
