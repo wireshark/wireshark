@@ -1545,7 +1545,7 @@ dissect_vendor_cablelabs_suboption(proto_tree *v_tree, tvbuff_t *tvb,
 		/* 30 */ {"Unassigned (CableHome)", special, NULL},
 		/* *** 31-50: PacketCable *** */
 		/* 31 */ {"MTA MAC Address", special, NULL},
-		/* 32 */ {"Correlation ID", string, NULL},
+		/* 32 */ {"Correlation ID", val_u_long, NULL},
 		/* 33-50 {"Unassigned (PacketCable)", special, NULL}, */
 		/* *** 51-127: CableLabs *** */
 		/* 51-127 {"Unassigned (CableLabs)", special, NULL}, */
@@ -1645,6 +1645,18 @@ dissect_vendor_cablelabs_suboption(proto_tree *v_tree, tvbuff_t *tvb,
 				"Suboption %d: %s = 0x%s", subopt,
 				o43cablelabs_opt[subopt].text,
 				tvb_bytes_to_str(tvb, suboptoff, subopt_len));
+			break;
+
+		case val_u_long:
+			if (subopt_len != 4) {
+				proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
+					"Suboption %d: suboption length isn't 4", subopt);
+				break;
+			}
+			proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
+				"Suboption %d: %s = %u", subopt,
+				o43cablelabs_opt[subopt].text,
+				tvb_get_ntohl(tvb, suboptoff));
 			break;
 
 		default:
