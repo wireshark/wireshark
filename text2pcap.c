@@ -6,7 +6,7 @@
  *
  * (c) Copyright 2001 Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: text2pcap.c,v 1.14 2002/01/30 10:19:43 guy Exp $
+ * $Id: text2pcap.c,v 1.15 2002/04/13 18:36:23 guy Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -941,7 +941,9 @@ help (char *progname)
             "                   verification tag (in DECIMAL).\n"
             "                   Automatically prepends Ethernet and IP headers as well\n"
             "                   Example: -s 30,40,34\n"
-            " -S srcp,dstp,tag: Same as -s srcp,dstp,tag but also prepends a DATA chunk header.\n"
+            " -S srcp,dstp,ppi: Prepend dummy SCTP header with specified dest/source ports and\n"
+            "                   verification tag 0. It also prepends a dummy SCTP DATA chunk header\n"
+            "                   with payload protocol identifier ppi.\n"
             "                   Example: -S 30,40,34\n"                               
             " -t timefmt      : Treats the text before the packet as a date/time code; the\n"
             "                   specified argument is a format string of the sort supported\n"
@@ -999,11 +1001,45 @@ parse_options (int argc, char *argv[])
             hdr_ethernet_proto = 0x800;
             break;
             
-        case 'S':
-            hdr_data_chunk = TRUE;
         case 's':
-            hdr_sctp = TRUE;
-            hdr_sctp_src = strtol(optarg, &p, 10);
+            hdr_sctp       = TRUE;
+            hdr_sctp_src   = strtol(optarg, &p, 10);
+            if (p == optarg || (*p != ',' && *p != '\0')) {
+                fprintf(stderr, "Bad src port for '-%c'\n", c);
+                help(argv[0]);
+            }
+            if (*p == '\0') {
+                fprintf(stderr, "No dest port specified for '-%c'\n", c);
+                help(argv[0]);
+            }
+            p++;
+            optarg = p;
+            hdr_sctp_dest = strtol(optarg, &p, 10);
+            if (p == optarg || (*p != ',' && *p != '\0')) {
+                fprintf(stderr, "Bad dest port for '-s'\n");
+                help(argv[0]);
+            }            
+            if (*p == '\0') {
+                fprintf(stderr, "No tag specified for '-%c'\n", c);
+                help(argv[0]);
+            }
+            p++;
+            optarg = p;
+            hdr_sctp_tag = strtol(optarg, &p, 10);
+            if (p == optarg || *p != '\0') {
+                fprintf(stderr, "Bad tag for '-%c'\n", c);
+                help(argv[0]);
+            }
+
+            hdr_ip = TRUE;
+            hdr_ip_proto = 132;
+            hdr_ethernet = TRUE;
+            hdr_ethernet_proto = 0x800;
+            break;
+        case 'S':
+            hdr_sctp       = TRUE;
+            hdr_data_chunk = TRUE;
+            hdr_sctp_src   = strtol(optarg, &p, 10);
             if (p == optarg || (*p != ',' && *p != '\0')) {
                 fprintf(stderr, "Bad src port for '-%c'\n", c);
                 help(argv[0]);
@@ -1019,14 +1055,14 @@ parse_options (int argc, char *argv[])
                 fprintf(stderr, "Bad dest port for '-s'\n");
                 help(argv[0]);
             }            if (*p == '\0') {
-                fprintf(stderr, "No dest port specified for '-%c'\n", c);
+                fprintf(stderr, "No ppi specified for '-%c'\n", c);
                 help(argv[0]);
             }
             p++;
             optarg = p;
-            hdr_sctp_tag = strtol(optarg, &p, 10);
+            hdr_data_chunk_ppid = strtol(optarg, &p, 10);
             if (p == optarg || *p != '\0') {
-                fprintf(stderr, "Bad tag for '-%c'\n", c);
+                fprintf(stderr, "Bad ppi for '-%c'\n", c);
                 help(argv[0]);
             }
 

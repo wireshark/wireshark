@@ -137,17 +137,23 @@ appropriate Ethernet and IP headers with each packet. Example: I<-u
 
 =item -s srcport,destport,tag
 
-Include dummy SCTP headers before each packet.  Specify the source and
-destination SCTP ports, and verification tag, for the packet in decimal. 
-Use this option if your dump is the SCTP payload of a packet but does not
-include any SCTP, IP or Ethernet headers.  Note that this automatically
-includes appropriate Ethernet and IP headers with each packet.  A CRC32C
-checksum will be put into the SCTP header.
+Include dummy SCTP headers before each packet.  Specify, in decimal, the
+source and destination SCTP ports, and verification tag, for the packet. 
+Use this option if your dump is the SCTP payload of a packet but does
+not include any SCTP, IP or Ethernet headers.  Note that this
+automatically includes appropriate Ethernet and IP headers with each
+packet.  A CRC32C checksum will be put into the SCTP header.
 
-=item -S srcport,destport,tag
+=item -S srcport,destport,ppi
 
-Like B<-s>, but it also includes the DATA chunk header, for input files
-that contain only the SCTP payload.
+Include dummy SCTP headers before each packet.  Specify, in decimal, the
+source and destination SCTP ports, and a verification tag of 0, for the
+packet, and prepend a dummy SCTP DATA chunk header with a payload
+protocol identifier if I<ppi>.  Use this option if your dump is the SCTP
+payload of a packet but does not include any SCTP, IP or Ethernet
+headers.  Note that this automatically includes appropriate Ethernet and
+IP headers with each packet.  A CRC32C checksum will be put into the
+SCTP header.
 
 =item -t timefmt
 
