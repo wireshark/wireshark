@@ -109,7 +109,7 @@ static gint hf_fr_pid   = -1;
 static gint hf_fr_snaptype = -1;
 static gint hf_fr_chdlctype = -1;
 
-static dissector_handle_t eth_handle;
+static dissector_handle_t eth_withfcs_handle;
 static dissector_handle_t gprs_ns_handle;
 static dissector_handle_t data_handle;
 
@@ -435,7 +435,7 @@ dissect_fr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   case RAW_ETHER:
     next_tvb = tvb_new_subset(tvb, offset, -1, -1);
     if (address != 0)
-      call_dissector(eth_handle, next_tvb, pinfo, tree);
+      call_dissector(eth_withfcs_handle, next_tvb, pinfo, tree);
     else
       dissect_lapf(next_tvb, pinfo, tree);
     break;
@@ -716,6 +716,14 @@ void proto_register_fr(void)
   register_dissector("fr", dissect_fr, proto_fr);
 
   frencap_module = prefs_register_protocol(proto_fr, NULL);
+  /*
+   * XXX - this should really be per-circuit - I've seen at least one
+   * capture where different DLCIs have different encapsulations - but
+   * we don't yet have any support for per-circuit encapsulations.
+   *
+   * Even with that, though, we might want a default encapsulation,
+   * so that people dealing with GPRS can make gprs-ns the default.
+   */
   prefs_register_enum_preference(frencap_module, "encap", "Encapsulation",
 				 "Encapsulation", &fr_encap,
 				 fr_encap_options, FALSE);
@@ -732,7 +740,7 @@ void proto_reg_handoff_fr(void)
   fr_phdr_handle = create_dissector_handle(dissect_fr_phdr, proto_fr);
   dissector_add("wtap_encap", WTAP_ENCAP_FRELAY_WITH_PHDR, fr_phdr_handle);
 
-  eth_handle = find_dissector("eth");
+  eth_withfcs_handle = find_dissector("eth_withfcs");
   gprs_ns_handle = find_dissector("gprs_ns");
   data_handle = find_dissector("data");
 

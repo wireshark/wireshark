@@ -307,7 +307,7 @@ static gint ett_sflow_extended_data = -1;
 static gint ett_sflow_sampled_header = -1;
 
 /* dissectors for other protocols */
-static dissector_handle_t eth_handle;
+static dissector_handle_t eth_withoutfcs_handle;
 static dissector_handle_t tr_handle;
 static dissector_handle_t fddi_handle;
 static dissector_handle_t fr_handle;
@@ -375,7 +375,7 @@ dissect_sflow_sampled_header(tvbuff_t *tvb, packet_info *pinfo,
 	TRY {
 		switch (header_proto) {
 		case SFLOW_HEADER_ETHERNET:
-			call_dissector(eth_handle, next_tvb, pinfo, sflow_header_tree);
+			call_dissector(eth_withoutfcs_handle, next_tvb, pinfo, sflow_header_tree);
 			break;
 		case SFLOW_HEADER_TOKENRING:
 			call_dissector(tr_handle, next_tvb, pinfo, sflow_header_tree);
@@ -1050,7 +1050,7 @@ proto_reg_handoff_sflow(void)
 {
 	dissector_handle_t sflow_handle;
 
-	eth_handle = find_dissector("eth");
+	eth_withoutfcs_handle = find_dissector("eth_withoutfcs");
 	tr_handle = find_dissector("tr");
 	fddi_handle = find_dissector("fddi");
 	fr_handle = find_dissector("fr");

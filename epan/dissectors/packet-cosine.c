@@ -46,7 +46,7 @@ static int hf_err = -1;
 
 static gint ett_raw = -1;
 
-static dissector_handle_t eth_handle;
+static dissector_handle_t eth_withoutfcs_handle;
 static dissector_handle_t ppp_hdlc_handle;
 static dissector_handle_t llc_handle;
 static dissector_handle_t chdlc_handle;
@@ -112,7 +112,7 @@ dissect_cosine(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   switch (pseudo_header->cosine.encap) {
   case COSINE_ENCAP_ETH:
-    	  call_dissector(eth_handle, tvb_new_subset(tvb, 0, -1, -1),
+    	  call_dissector(eth_withoutfcs_handle, tvb_new_subset(tvb, 0, -1, -1),
 			 pinfo, tree);
 	  break;
   case COSINE_ENCAP_ATM:
@@ -181,7 +181,7 @@ proto_reg_handoff_cosine(void)
   /*
    * Get handles for dissectors.
    */
-  eth_handle = find_dissector("eth");
+  eth_withoutfcs_handle = find_dissector("eth_withoutfcs");
   ppp_hdlc_handle = find_dissector("ppp_hdlc");
   llc_handle = find_dissector("llc");
   chdlc_handle = find_dissector("chdlc");

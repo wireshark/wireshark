@@ -31,6 +31,7 @@
 #include "packet-isl.h"
 #include "packet-eth.h"
 #include "packet-tr.h"
+#include "packet-frame.h"
 #include "etypes.h"
 
 /*
@@ -67,6 +68,7 @@ static int hf_isl_dst_route_descriptor = -1;
 static int hf_isl_src_route_descriptor = -1;
 static int hf_isl_fcs_not_incl = -1;
 static int hf_isl_esize = -1;
+static int hf_isl_trailer = -1;
 
 static gint ett_isl = -1;
 
@@ -77,7 +79,7 @@ static gint ett_isl = -1;
 #define	TYPE_FDDI	0x2
 #define	TYPE_ATM	0x3
 
-static dissector_handle_t eth_handle;
+static dissector_handle_t eth_withfcs_handle;
 static dissector_handle_t tr_handle;
 static dissector_handle_t data_handle;
 
@@ -137,16 +139,18 @@ static const true_false_string explorer_tfs = {
 	"Data frame"
 };
 
-static void
-dissect_isl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+void
+dissect_isl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int fcs_len)
 {
-  proto_tree *fh_tree = NULL;
+  proto_tree *volatile fh_tree = NULL;
   proto_item *ti;
   guint8 type;
-  guint16 length;
-  gint crc_offset;
+  volatile guint16 length;
   gint captured_length;
-  tvbuff_t *next_tvb;
+  tvbuff_t *volatile payload_tvb;
+  tvbuff_t *volatile next_tvb;
+  tvbuff_t *volatile trailer_tvb;
+  const char *saved_proto;
 
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "ISL");
@@ -178,38 +182,65 @@ dissect_isl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_item_hidden(fh_tree, hf_isl_addr, tvb, 6, 6, FALSE);
   }
   length = tvb_get_ntohs(tvb, 12);
-  if (tree) {
+  if (tree)
     proto_tree_add_uint(fh_tree, hf_isl_len, tvb, 12, 2, length);
 
+  if (length != 0) {
+    /* The length field was set; it's like an 802.3 length field, so
+       treat it similarly, by constructing a tvbuff containing only
+       the data specified by the length field. */
+
+    TRY {
+      payload_tvb = tvb_new_subset(tvb, 14, length, length);
+      trailer_tvb = tvb_new_subset(tvb, 14 + length, -1, -1);
+    }
+    CATCH2(BoundsError, ReportedBoundsError) {
+      /* Either:
+
+	  the packet doesn't have "length" bytes worth of
+	  captured data left in it - or it may not even have
+	  "length" bytes worth of data in it, period -
+	  so the "tvb_new_subset()" creating "payload_tvb"
+	  threw an exception
+
+         or
+
+	  the packet has exactly "length" bytes worth of
+	  captured data left in it, so the "tvb_new_subset()"
+	  creating "trailer_tvb" threw an exception.
+
+         In either case, this means that all the data in the frame
+         is within the length value, so we give all the data to the
+         next protocol and have no trailer. */
+      payload_tvb = tvb_new_subset(tvb, 14, -1, length);
+      trailer_tvb = NULL;
+    }
+    ENDTRY;
+  } else {
+    /* The length field is 0; make it the length remaining in the packet
+       after the first 14 bytes. */
+    length = tvb_reported_length_remaining(tvb, 14);
+    payload_tvb = tvb_new_subset(tvb, 14, -1, -1);
+    trailer_tvb = NULL;
+  }
+
+  if (tree) {
     /* This part looks sort of like a SNAP-encapsulated LLC header... */
-    proto_tree_add_text(fh_tree, tvb, 14, 1, "DSAP: 0x%X", tvb_get_guint8(tvb, 14));
-    proto_tree_add_text(fh_tree, tvb, 15, 1, "SSAP: 0x%X", tvb_get_guint8(tvb, 15));
-    proto_tree_add_text(fh_tree, tvb, 16, 1, "Control: 0x%X", tvb_get_guint8(tvb, 16));
+    proto_tree_add_text(fh_tree, payload_tvb, 0, 1, "DSAP: 0x%X", tvb_get_guint8(tvb, 14));
+    proto_tree_add_text(fh_tree, payload_tvb, 1, 1, "SSAP: 0x%X", tvb_get_guint8(tvb, 15));
+    proto_tree_add_text(fh_tree, payload_tvb, 2, 1, "Control: 0x%X", tvb_get_guint8(tvb, 16));
 
     /* ...but this is the manufacturer's ID portion of the source address
        field (which is, admittedly, an OUI). */
-    proto_tree_add_item(fh_tree, hf_isl_hsa, tvb, 17, 3, FALSE);
+    proto_tree_add_item(fh_tree, hf_isl_hsa, payload_tvb, 3, 3, FALSE);
   }
   if (check_col(pinfo->cinfo, COL_INFO))
     col_add_fstr(pinfo->cinfo, COL_INFO, "VLAN ID: 0x%04X",
 		 tvb_get_ntohs(tvb, 20) >> 1);
   if (tree) {
-    proto_tree_add_item(fh_tree, hf_isl_vlan_id, tvb, 20, 2, FALSE);
-    proto_tree_add_item(fh_tree, hf_isl_bpdu, tvb, 20, 2, FALSE);
-    proto_tree_add_item(fh_tree, hf_isl_index, tvb, 22, 2, FALSE);
-
-    /* Now for the encapsulated frame's CRC, which is at the *end* of the
-       packet; "length" is the length of the frame, not including the
-       first 14 bytes of the frame, but including the encapsulated
-       frame's CRC, which is 4 bytes long, so the offset of the
-       encapsulated CRC is "length + 14 - 4".
-
-       We check for the CRC and display it only if we have that data,
-       rather than throwing an exception before we've dissected any
-       of the rest of the frame. */
-    crc_offset = length + 14 - 4;
-    if (tvb_bytes_exist(tvb, crc_offset, 4))
-      proto_tree_add_item(fh_tree, hf_isl_crc, tvb, crc_offset, 4, FALSE);
+    proto_tree_add_item(fh_tree, hf_isl_vlan_id, payload_tvb, 6, 2, FALSE);
+    proto_tree_add_item(fh_tree, hf_isl_bpdu, payload_tvb, 6, 2, FALSE);
+    proto_tree_add_item(fh_tree, hf_isl_index, payload_tvb, 8, 2, FALSE);
   }
 
   switch (type) {
@@ -217,46 +248,73 @@ dissect_isl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   case TYPE_ETHER:
     /* The length of the encapsulated frame is the length from the
        header, minus 12 bytes for the part of the ISL header that
-       follows the length and 4 bytes for the encapsulated frame
-       CRC. */
-    if (length >= 12+4) {
+       follows the length. */
+    if (length >= 12) {
       /* Well, we at least had that much data in the frame.  Try
          dissecting what's left as an Ethernet frame. */
-      length -= 12+4;
+      length -= 12;
 
       /* Trim the captured length. */
-      captured_length = tvb_length_remaining(tvb, ISL_HEADER_SIZE);
-      if (captured_length > 4) {
-        /* Subtract the encapsulated frame CRC. */
-        captured_length -= 4;
+      captured_length = tvb_length_remaining(payload_tvb, 12);
 
-        /* Make sure it's not bigger than the actual length. */
-        if (captured_length > length)
-          captured_length = length;
+      /* Make sure it's not bigger than the actual length. */
+      if (captured_length > length)
+        captured_length = length;
 
-        next_tvb = tvb_new_subset(tvb, ISL_HEADER_SIZE, captured_length, length);
+      next_tvb = tvb_new_subset(payload_tvb, 12, captured_length, length);
 
-        call_dissector(eth_handle, next_tvb, pinfo, tree);
+      /* Dissect the payload as an Etherner frame.
+
+        Catch BoundsError and ReportedBoundsError, so that if the
+        reported length of "next_tvb" was reduced by some dissector
+        before an exception was thrown, we can still put in an item
+        for the trailer. */
+      saved_proto = pinfo->current_proto;
+      TRY {
+        /* Frames encapsulated in ISL include an FCS. */
+        call_dissector(eth_withfcs_handle, next_tvb, pinfo, tree);
       }
+      CATCH(BoundsError) {
+       /* Somebody threw BoundsError, which means that dissecting the payload
+          found that the packet was cut off by a snapshot length before the
+          end of the payload.  The trailer comes after the payload, so *all*
+          of the trailer is cut off - don't bother adding the trailer, just
+          rethrow the exception so it gets reported. */
+       RETHROW;
+      }
+      CATCH_ALL {
+        /* Well, somebody threw an exception other than BoundsError.
+           Show the exception, and then drive on to show the trailer,
+           restoring the protocol value that was in effect before we
+           called the subdissector. */
+        show_exception(next_tvb, pinfo, tree, EXCEPT_CODE);
+        pinfo->current_proto = saved_proto;
+      }
+      ENDTRY;
+
+      /* Now add the Ethernet trailer and FCS.
+         XXX - do this only if we're encapsulated in Ethernet? */
+      add_ethernet_trailer(fh_tree, hf_isl_trailer, tvb, trailer_tvb, fcs_len);
     }
     break;
 
   case TYPE_TR:
     if (tree) {
-      proto_tree_add_item(fh_tree, hf_isl_src_vlan_id, tvb, 24, 2, FALSE);
-      proto_tree_add_item(fh_tree, hf_isl_explorer, tvb, 24, 2, FALSE);
-      proto_tree_add_item(fh_tree, hf_isl_dst_route_descriptor, tvb, 26, 2, FALSE);
-      proto_tree_add_item(fh_tree, hf_isl_src_route_descriptor, tvb, 28, 2, FALSE);
-      proto_tree_add_item(fh_tree, hf_isl_fcs_not_incl, tvb, 30, 1, FALSE);
-      proto_tree_add_item(fh_tree, hf_isl_esize, tvb, 30, 1, FALSE);
+      proto_tree_add_item(fh_tree, hf_isl_src_vlan_id, payload_tvb, 10, 2, FALSE);
+      proto_tree_add_item(fh_tree, hf_isl_explorer, payload_tvb, 10, 2, FALSE);
+      proto_tree_add_item(fh_tree, hf_isl_dst_route_descriptor, payload_tvb, 12, 2, FALSE);
+      proto_tree_add_item(fh_tree, hf_isl_src_route_descriptor, payload_tvb, 14, 2, FALSE);
+      /* This doesn't appear to be present in at least one capture I've seen. */
+      proto_tree_add_item(fh_tree, hf_isl_fcs_not_incl, payload_tvb, 16, 1, FALSE);
+      proto_tree_add_item(fh_tree, hf_isl_esize, payload_tvb, 16, 1, FALSE);
     }
-    next_tvb = tvb_new_subset(tvb, 31, -1, -1);
+    next_tvb = tvb_new_subset(payload_tvb, 17, -1, -1);
     call_dissector(tr_handle, next_tvb, pinfo, tree);
     break;
 
   default:
-    next_tvb = tvb_new_subset(tvb, ISL_HEADER_SIZE, -1, -1);
-    call_dissector(data_handle,next_tvb, pinfo, tree);
+    next_tvb = tvb_new_subset(payload_tvb, 12, -1, -1);
+    call_dissector(data_handle, next_tvb, pinfo, tree);
     break;
   }
 }
@@ -321,6 +379,10 @@ proto_register_isl(void)
 	{ &hf_isl_esize,
 	{ "Esize",	"isl.esize", FT_UINT8, BASE_DEC, NULL,
 		0x3F, "Frame size for frames less than 64 bytes", HFILL }},
+	{ &hf_isl_trailer,
+	{ "Trailer",	"isl.trailer", FT_BYTES, BASE_NONE, NULL, 0x0,
+		"Ethernet Trailer or Checksum", HFILL }},
+
   };
   static gint *ett[] = {
 	&ett_isl,
@@ -329,8 +391,6 @@ proto_register_isl(void)
   proto_isl = proto_register_protocol("Cisco ISL", "ISL", "isl");
   proto_register_field_array(proto_isl, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
-
-  register_dissector("isl", dissect_isl, proto_isl);
 }
 
 void
@@ -339,7 +399,7 @@ proto_reg_handoff_isl(void)
   /*
    * Get handles for the Ethernet and Token Ring dissectors.
    */
-  eth_handle = find_dissector("eth");
+  eth_withfcs_handle = find_dissector("eth_withfcs");
   tr_handle = find_dissector("tr");
   data_handle = find_dissector("data");
 }

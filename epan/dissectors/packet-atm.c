@@ -59,7 +59,7 @@ static gint ett_aal1 = -1;
 static gint ett_aal3_4 = -1;
 static gint ett_oamaal = -1;
 
-static dissector_handle_t eth_handle;
+static dissector_handle_t eth_withoutfcs_handle;
 static dissector_handle_t tr_handle;
 static dissector_handle_t llc_handle;
 static dissector_handle_t sscop_handle;
@@ -668,7 +668,7 @@ dissect_lane(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* Dissect as Ethernet */
     next_tvb_le_client	= tvb_new_subset(tvb, 2, -1, -1);
-    call_dissector(eth_handle, next_tvb_le_client, pinfo, tree);
+    call_dissector(eth_withoutfcs_handle, next_tvb_le_client, pinfo, tree);
     break;
 
   case TRAF_ST_LANE_802_5:
@@ -1622,7 +1622,7 @@ proto_reg_handoff_atm(void)
 	 * Get handles for the Ethernet, Token Ring, LLC, SSCOP, LANE,
 	 * and ILMI dissectors.
 	 */
-	eth_handle = find_dissector("eth");
+	eth_withoutfcs_handle = find_dissector("eth_withoutfcs");
 	tr_handle = find_dissector("tr");
 	llc_handle = find_dissector("llc");
 	sscop_handle = find_dissector("sscop");

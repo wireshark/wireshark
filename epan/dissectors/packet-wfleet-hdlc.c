@@ -40,7 +40,7 @@ static int hf_wfleet_hdlc_cmd = -1;
 
 static gint ett_wfleet_hdlc = -1;
 
-dissector_handle_t eth_handle;
+dissector_handle_t eth_withoutfcs_handle;
 
 static const value_string wfleet_hdlc_cmd_vals[] = {
   { 0x03, "Un-numbered I frame"},
@@ -84,7 +84,7 @@ dissect_wfleet_hdlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   next_tvb = tvb_new_subset(tvb, 2, -1, -1);
 
-  call_dissector(eth_handle, next_tvb, pinfo, tree);
+  call_dissector(eth_withoutfcs_handle, next_tvb, pinfo, tree);
 
 }
 
@@ -123,5 +123,5 @@ proto_reg_handoff_wfleet_hdlc(void)
    * Find the eth dissector and save a ref to it
    */
 
-  eth_handle = find_dissector("eth");
+  eth_withoutfcs_handle = find_dissector("eth_withoutfcs");
 }

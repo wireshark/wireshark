@@ -122,7 +122,7 @@ static int hf_docsis_ehdr_grants = -1;
 static int hf_docsis_reserved = -1;
 
 static dissector_handle_t docsis_handle;
-static dissector_handle_t eth_handle;
+static dissector_handle_t eth_withoutfcs_handle;
 static dissector_handle_t data_handle;
 static dissector_handle_t docsis_mgmt_handle;
 static dissector_table_t docsis_dissector_table;
@@ -513,7 +513,7 @@ dissect_docsis (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	  if (pdulen > 0)
 	    {
 	      next_tvb = tvb_new_subset (tvb, hdrlen, captured_length, pdulen);
-	      call_dissector (eth_handle, next_tvb, pinfo, tree);
+	      call_dissector (eth_withoutfcs_handle, next_tvb, pinfo, tree);
 	    }
 	  if (concatlen > 0)
 	    {
@@ -765,7 +765,7 @@ proto_reg_handoff_docsis (void)
   dissector_add ("wtap_encap", WTAP_ENCAP_DOCSIS, docsis_handle);
 
   docsis_mgmt_handle = find_dissector ("docsis_mgmt");
-  eth_handle = find_dissector ("eth");
+  eth_withoutfcs_handle = find_dissector ("eth_withoutfcs");
 }
 
 /* Start the functions we need for the plugin stuff */

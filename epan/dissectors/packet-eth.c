@@ -54,7 +54,6 @@ static int hf_eth_trailer = -1;
 static gint ett_ieee8023 = -1;
 static gint ett_ether2 = -1;
 
-static dissector_handle_t isl_handle;
 static dissector_handle_t fw1_handle;
 static heur_dissector_list_t heur_subdissector_list;
 
@@ -213,7 +212,7 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		tvb_get_guint8(tvb, 2) == 0x0C &&
 		tvb_get_guint8(tvb, 3) == 0x00 &&
 		tvb_get_guint8(tvb, 4) == 0x00 ) {
-      call_dissector(isl_handle, tvb, pinfo, tree);
+      dissect_isl(tvb, pinfo, tree, fcs_len);
       goto end_of_eth;
     }
   }
@@ -396,12 +395,19 @@ dissect_eth_maybefcs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   dissect_eth_common(tvb, pinfo, tree, pinfo->pseudo_header->eth.fcs_len);
 }
 
-/* Called by other dissectors - for now, we assume Ethernet encapsulated
-   inside other protocols doesn't include the FCS. */
+/* Called by other dissectors  This one's for encapsulated Ethernet
+   packets that don't include an FCS. */
 static void
-dissect_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_eth_withoutfcs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   dissect_eth_common(tvb, pinfo, tree, 0);
+}
+
+/* ...and this one's for encapsulated packets that do. */
+static void
+dissect_eth_withfcs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  dissect_eth_common(tvb, pinfo, tree, 4);
 }
 
 void
@@ -454,27 +460,27 @@ proto_register_eth(void)
             "Whether packets should be interpreted as coming from CheckPoint FireWall-1 monitor file if they look as if they do",
             &eth_interpret_as_fw1_monitor);
 
-	register_dissector("eth", dissect_eth, proto_eth);
+	register_dissector("eth_withoutfcs", dissect_eth_withoutfcs, proto_eth);
+	register_dissector("eth_withfcs", dissect_eth_withfcs, proto_eth);
 	eth_tap = register_tap("eth");
 }
 
 void
 proto_reg_handoff_eth(void)
 {
-	dissector_handle_t eth_handle, eth_maybefcs_handle;
+	dissector_handle_t eth_maybefcs_handle, eth_withoutfcs_handle;
 
 	/*
-	 * Get a handle for the ISL dissector.
+	 * Get a handle for the Firewall-1 dissector.
 	 */
-	isl_handle = find_dissector("isl");
 	fw1_handle = find_dissector("fw1");
 
 	eth_maybefcs_handle = create_dissector_handle(dissect_eth_maybefcs,
 	    proto_eth);
 	dissector_add("wtap_encap", WTAP_ENCAP_ETHERNET, eth_maybefcs_handle);
 
-	eth_handle = find_dissector("eth");
-	dissector_add("ethertype", ETHERTYPE_ETHBRIDGE, eth_handle);
-	dissector_add("chdlctype", ETHERTYPE_ETHBRIDGE, eth_handle);
-	dissector_add("gre.proto", ETHERTYPE_ETHBRIDGE, eth_handle);
+	eth_withoutfcs_handle = find_dissector("eth_withoutfcs");
+	dissector_add("ethertype", ETHERTYPE_ETHBRIDGE, eth_withoutfcs_handle);
+	dissector_add("chdlctype", ETHERTYPE_ETHBRIDGE, eth_withoutfcs_handle);
+	dissector_add("gre.proto", ETHERTYPE_ETHBRIDGE, eth_withoutfcs_handle);
 }

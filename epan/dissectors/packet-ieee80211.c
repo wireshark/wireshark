@@ -504,7 +504,7 @@ static const fragment_items frag_items = {
 
 static dissector_handle_t llc_handle;
 static dissector_handle_t ipx_handle;
-static dissector_handle_t eth_handle;
+static dissector_handle_t eth_withoutfcs_handle;
 static dissector_handle_t data_handle;
 
 /* ************************************************************************* */
@@ -2492,7 +2492,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
         break;
 
       case ENCAP_ETHERNET:
-        call_dissector(eth_handle, next_tvb, pinfo, tree);
+        call_dissector(eth_withoutfcs_handle, next_tvb, pinfo, tree);
         break;
 
       case ENCAP_IPX:
@@ -3226,7 +3226,7 @@ proto_reg_handoff_ieee80211(void)
    */
   llc_handle = find_dissector("llc");
   ipx_handle = find_dissector("ipx");
-  eth_handle = find_dissector("eth");
+  eth_withoutfcs_handle = find_dissector("eth_withoutfcs");
   data_handle = find_dissector("data");
 
   ieee80211_handle = find_dissector("wlan");

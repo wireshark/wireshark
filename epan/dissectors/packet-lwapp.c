@@ -74,7 +74,7 @@ static gint hf_lwapp_control_type = -1;
 static gint hf_lwapp_control_seq_no = -1;
 static gint hf_lwapp_control_length = -1;
 
-static dissector_handle_t eth_handle;
+static dissector_handle_t eth_withoutfcs_handle;
 static dissector_handle_t wlan_handle;
 static dissector_handle_t wlan_bsfc_handle;
 static dissector_handle_t data_handle;
@@ -331,7 +331,7 @@ static void dissect_lwapp_l3(tvbuff_t *tvb, packet_info *pinfo,
 
     /* Dissect as Ethernet */
     next_client	= tvb_new_subset(tvb, 0, -1, -1);
-    call_dissector(eth_handle, next_client, pinfo, tree);
+    call_dissector(eth_withoutfcs_handle, next_client, pinfo, tree);
     return;
 
 } /* dissect_lwapp_l3*/
@@ -543,7 +543,7 @@ proto_reg_handoff_lwapp(void)
     /*
      * Get handles for the Ethernet and wireless dissectors.
      */
-    eth_handle = find_dissector("eth");
+    eth_withoutfcs_handle = find_dissector("eth_withoutfcs");
     wlan_handle = find_dissector("wlan");
     wlan_bsfc_handle = find_dissector("wlan_bsfc");
     data_handle = find_dissector("data");

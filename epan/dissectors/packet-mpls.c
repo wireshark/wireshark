@@ -120,7 +120,7 @@ static hf_register_info mplsf_info[] = {
 
 static dissector_handle_t ipv4_handle;
 static dissector_handle_t ipv6_handle;
-static dissector_handle_t eth_handle;
+static dissector_handle_t eth_withoutfcs_handle;
 static dissector_handle_t data_handle;
 static dissector_table_t ppp_subdissector_table;
 
@@ -252,7 +252,7 @@ dissect_mpls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     } else if (ipvers == 1) {
       dissect_mpls_control(next_tvb, pinfo, tree);
     } else {
-      call_dissector(eth_handle, next_tvb, pinfo, tree);
+      call_dissector(eth_withoutfcs_handle, next_tvb, pinfo, tree);
     }
 }
 
@@ -280,7 +280,7 @@ proto_reg_handoff_mpls(void)
 	 */
 	ipv4_handle = find_dissector("ip");
 	ipv6_handle = find_dissector("ipv6");
-	eth_handle = find_dissector("eth");
+	eth_withoutfcs_handle = find_dissector("eth_withoutfcs");
         data_handle = find_dissector("data");
         ppp_subdissector_table = find_dissector_table("ppp.protocol");
 

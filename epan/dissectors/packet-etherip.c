@@ -37,7 +37,7 @@ static int hf_etherip_ver = -1;
 
 static gint ett_etherip = -1;
 
-static dissector_handle_t eth_handle;
+static dissector_handle_t eth_withoutfcs_handle;
 
 #ifndef offsetof
 #define	offsetof(type, member)	((size_t)(&((type *)0)->member))
@@ -92,7 +92,7 @@ dissect_etherip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /* Set the tvbuff for the payload after the header */
   next_tvb = tvb_new_subset(tvb, sizeof(etheriph), -1, -1);
 
-  call_dissector(eth_handle, next_tvb, pinfo, tree);
+  call_dissector(eth_withoutfcs_handle, next_tvb, pinfo, tree);
 }
 
 void
@@ -120,7 +120,7 @@ proto_reg_handoff_etherip(void)
 {
   dissector_handle_t etherip_handle;
 
-  eth_handle = find_dissector("eth");
+  eth_withoutfcs_handle = find_dissector("eth_withoutfcs");
   etherip_handle = find_dissector("etherip");
   dissector_add("ip.proto", IP_PROTO_ETHERIP, etherip_handle);
 }

@@ -80,7 +80,8 @@ static dissector_table_t subdissector_table;
 static dissector_table_t xid_subdissector_table;
 
 static dissector_handle_t bpdu_handle;
-static dissector_handle_t eth_handle;
+static dissector_handle_t eth_withoutfcs_handle;
+static dissector_handle_t eth_withfcs_handle;
 static dissector_handle_t fddi_handle;
 static dissector_handle_t tr_handle;
 static dissector_handle_t data_handle;
@@ -512,10 +513,16 @@ dissect_snap(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 		switch (etype) {
 
 		case BPID_ETH_WITH_FCS:
+			next_tvb = tvb_new_subset(tvb, offset+5+bridge_pad,
+			    -1, -1);
+			call_dissector(eth_withfcs_handle, next_tvb, pinfo,
+			    tree);
+			break;
+
 		case BPID_ETH_WITHOUT_FCS:
 			next_tvb = tvb_new_subset(tvb, offset+5+bridge_pad,
 			    -1, -1);
-			call_dissector(eth_handle, next_tvb, pinfo, tree);
+			call_dissector(eth_withoutfcs_handle, next_tvb, pinfo, tree);
 			break;
 
 		case BPID_802_5_WITH_FCS:
@@ -720,7 +727,8 @@ proto_reg_handoff_llc(void)
 	 * dissectors.
 	 */
 	bpdu_handle = find_dissector("bpdu");
-	eth_handle = find_dissector("eth");
+	eth_withoutfcs_handle = find_dissector("eth_withoutfcs");
+	eth_withfcs_handle = find_dissector("eth_withfcs");
 	fddi_handle = find_dissector("fddi");
 	tr_handle = find_dissector("tr");
 	data_handle = find_dissector("data");

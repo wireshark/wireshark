@@ -45,7 +45,7 @@ static const value_string encaps_vals[] = {
   {ASCEND_PFX_WDD,   "Ethernet"    },
   {0,                NULL          } };
 
-static dissector_handle_t eth_handle;
+static dissector_handle_t eth_withoutfcs_handle;
 static dissector_handle_t ppp_hdlc_handle;
 
 static void
@@ -108,7 +108,7 @@ dissect_ascend(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       call_dissector(ppp_hdlc_handle, tvb, pinfo, tree);
       break;
     case ASCEND_PFX_WDD:
-      call_dissector(eth_handle, tvb, pinfo, tree);
+      call_dissector(eth_withoutfcs_handle, tvb, pinfo, tree);
       break;
     default:
       break;
@@ -161,7 +161,7 @@ proto_reg_handoff_ascend(void)
   /*
    * Get handles for the Ethernet and PPP-in-HDLC-like-framing dissectors.
    */
-  eth_handle = find_dissector("eth");
+  eth_withoutfcs_handle = find_dissector("eth_withoutfcs");
   ppp_hdlc_handle = find_dissector("ppp_hdlc");
 
   ascend_handle = create_dissector_handle(dissect_ascend, proto_ascend);
