@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.79 2002/12/31 21:37:29 guy Exp $
+ * $Id: proto.c,v 1.80 2003/01/21 19:20:49 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2225,7 +2225,7 @@ proto_set_cant_disable(int proto_id)
 }
 
 /* for use with static arrays only, since we don't allocate our own copies
-of the header_field_info struct contained withing the hf_register_info struct */
+of the header_field_info struct contained within the hf_register_info struct */
 void
 proto_register_field_array(int parent, hf_register_info *hf, int num_records)
 {
