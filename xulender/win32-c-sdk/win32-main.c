@@ -92,6 +92,7 @@
 #include "font-util.h"
 #include "goto-util.h"
 #include "packet-win-util.h"
+#include "proto-util.h"
 
 #include "ethereal-main.h"
 #include "capture-dialog.h"
@@ -1656,6 +1657,9 @@ win32_main_wnd_proc(HWND hw_mainwin, UINT msg, WPARAM w_param, LPARAM l_param)
 			break;
 		    case IDM_ETHEREAL_MAIN_ANALYZE_PAF_ORNOTSELECTED:
 			match_selected_ptree_cb(MATCH_SELECTED_OR_NOT);
+			break;
+		    case IDM_ETHEREAL_MAIN_ANALYZE_ENAPROTO:
+			enabled_protocols_dialog_init(hw_mainwin);
 			break;
 
 		    case IDM_ETHEREAL_MAIN_ABOUT_ETHEREAL:

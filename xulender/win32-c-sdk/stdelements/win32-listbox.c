@@ -55,6 +55,17 @@ typedef struct _listrow_data_t {
 #define WIN32_LISTBOX_DATA "_win32_listbox_data"
 #define MAX_ITEM_TEXT 256
 
+#ifndef ListView_SetCheckState
+# define ListView_SetCheckState(hwndLV, i, fCheck) \
+    ListView_SetItemState(hwndLV, i, INDEXTOSTATEIMAGEMASK((fCheck)+1), LVIS_STATEIMAGEMASK)
+#endif
+
+#ifndef ListView_GetCheckState
+# define ListView_GetCheckState(hwndLV, i) \
+  ((((UINT)(SNDMSG((hwndLV), LVM_GETITEMSTATE, (WPARAM)(i), LVIS_STATEIMAGEMASK))) >> 12) -1)
+#endif
+
+
 /*
  * Public routines
  */
@@ -365,6 +376,41 @@ win32_listbox_set_row_colors(win32_element_t *listbox, gint row, color_t *fg, co
 	lr->fg = g_memdup(fg, sizeof(*lr->fg));
 	lr->bg = g_memdup(bg, sizeof(*lr->bg));
     }
+}
+
+gpointer
+win32_listbox_enable_checkboxes(win32_element_t *listbox, gboolean enable) {
+    listbox_data_t *ld;
+    DWORD style;
+
+    win32_element_assert(listbox);
+    ld = (listbox_data_t *) win32_element_get_data(listbox, WIN32_LISTBOX_DATA);
+    
+    style = ListView_GetExtendedListViewStyle(ld->listview);
+    if (enable)
+	style |= LVS_EX_CHECKBOXES;
+    else
+	style &= ~LVS_EX_CHECKBOXES;
+
+    ListView_SetExtendedListViewStyle(ld->listview, style);
+}
+
+void win32_listbox_set_row_checked(win32_element_t *listbox, gint row, gboolean checked) {
+    listbox_data_t *ld;
+
+    win32_element_assert(listbox);
+    ld = (listbox_data_t *) win32_element_get_data(listbox, WIN32_LISTBOX_DATA);
+    
+    ListView_SetCheckState(ld->listview, row, checked);
+}
+
+gboolean win32_listbox_get_row_checked(win32_element_t *listbox, gint row) {
+    listbox_data_t *ld;
+
+    win32_element_assert(listbox);
+    ld = (listbox_data_t *) win32_element_get_data(listbox, WIN32_LISTBOX_DATA);
+    
+    return ListView_GetCheckState(ld->listview, row);
 }
 
 /*

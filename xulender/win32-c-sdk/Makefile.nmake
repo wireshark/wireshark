@@ -47,7 +47,8 @@ GENERATED_OBJECTS = \
 	goto-packet-dialog.obj \
 	packet-window.obj \
 	preferences-dialog.obj \
-	progress-dialog.obj
+	progress-dialog.obj \
+	proto-util.obj
 
 LOCAL_OBJECTS = \
 	ethereal-byteview.obj \

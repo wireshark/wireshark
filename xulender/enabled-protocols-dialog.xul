@@ -11,8 +11,8 @@
 	id="enabled-protocols.protolist"
 	flex="1"
 	class="bottom_spacing"
-	onselect="filter_dialog_list_select"
-	ondoubleclick="filter_dialog_list_dclick"
+	onselect="enabled_protocols_dialog_status_toggled"
+	ondoubleclick="enabled_protocols_dialog_status_dclick"
       >
 	<listhead>
 	  <listheader label="Status" />

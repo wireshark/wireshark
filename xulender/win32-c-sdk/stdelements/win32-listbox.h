@@ -49,6 +49,21 @@ void win32_listbox_set_row_data(win32_element_t *listbox, gint row, gpointer dat
 void win32_listbox_set_row_colors(win32_element_t *listbox, gint row, color_t *fg, color_t *bg);
 
 /*
+ * Enable checkboxes for the listbox (first column only).
+ */
+gpointer win32_listbox_enable_checkboxes(win32_element_t *listbox, gboolean enable);
+
+/*
+ * Check/uncheck a row.
+ */
+void win32_listbox_set_row_checked(win32_element_t *listbox, gint row, gboolean checked);
+
+/*
+ * Check/uncheck a row.
+ */
+gboolean win32_listbox_get_row_checked(win32_element_t *listbox, gint row);
+
+/*
  * Fetch the data pointer associated with a row.
  */
 gpointer win32_listbox_get_row_data(win32_element_t *listbox, gint row);
