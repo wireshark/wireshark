@@ -1,7 +1,7 @@
 /* airopeek9.c
  * Routines for opening AiroPeek V9 files
  *
- * $Id: airopeek9.c,v 1.1 2003/12/02 19:37:05 guy Exp $
+ * $Id: airopeek9.c,v 1.2 2003/12/02 20:27:14 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -75,13 +75,24 @@ static gboolean airopeek_seek_read_v9(wtap *wth, long seek_off,
 
 static int wtap_file_read_pattern (wtap *wth, char *pattern, int *err)
 {
-    char c;
+    int c;
     char *cp;
 
     cp = pattern;
     while (*cp)
     {
-	wtap_file_read_unknown_bytes(&c, 1, wth->fh, err);
+	c = file_getc(wth->fh);
+	if (c == EOF) {
+	    if (file_eof(wth->fh))
+		return 0;	/* EOF */
+	    else {
+		/* We (presumably) got an error (there's no equivalent to
+		   "ferror()" in zlib, alas, so we don't have a wrapper
+		   to check for an error). */
+		*err = file_error(wth->fh);
+		return -1;	/* error */
+	    }
+	}
 	if (c == *cp)
 	    cp++;
 	else
@@ -92,20 +103,31 @@ static int wtap_file_read_pattern (wtap *wth, char *pattern, int *err)
 		cp = pattern;
 	}
     }
-    return (*cp == '\0' ? TRUE : FALSE);
+    return (*cp == '\0' ? 1 : 0);
 }
 
 
 static int wtap_file_read_till_separator (wtap *wth, char *buffer, int buflen,
 					char *separators, int *err)
 {
-    char c;
+    int c;
     char *cp;
     int i;
 
     for (cp = buffer, i = 0; i < buflen; i++, cp++)
     {
-	wtap_file_read_unknown_bytes(&c, 1, wth->fh, err);
+	c = file_getc(wth->fh);
+	if (c == EOF) {
+	    if (file_eof(wth->fh))
+		return 0;	/* EOF */
+	    else {
+		/* We (presumably) got an error (there's no equivalent to
+		   "ferror()" in zlib, alas, so we don't have a wrapper
+		   to check for an error). */
+		*err = file_error(wth->fh);
+		return -1;	/* error */
+	    }
+	}
 	if (strchr (separators, c))
 	{
 	    *cp = '\0';
@@ -118,40 +140,107 @@ static int wtap_file_read_till_separator (wtap *wth, char *buffer, int buflen,
 }
 
 
-static gboolean wtap_file_read_number (wtap *wth, guint32 *num, int *err)
+static int wtap_file_read_number (wtap *wth, guint32 *num, int *err)
 {
+    int ret;
     char str_num[12];
     unsigned long long value;
     char *p;
 
-    wtap_file_read_till_separator (wth, str_num, sizeof (str_num)-1, "<", err);
+    ret = wtap_file_read_till_separator (wth, str_num, sizeof (str_num)-1, "<",
+					 err);
+    if (ret != 1) {
+	/* 0 means EOF, which means "not a valid AiroPeek V9 file";
+	   -1 means error, and "err" has been set. */
+	return ret;
+    }
     value = strtoul (str_num, &p, 10);
     if (p == str_num || value > UINT_MAX)
-	return FALSE;
+	return 0;
     *num = value;
-    return TRUE;
+    return 1;
 }
 
 
 int airopeek9_open(wtap *wth, int *err)
 {
     airopeek_section_header_t ap_hdr;
+    int ret;
     guint32 fileVersion;
     guint32 mediaType;
     int file_encap;
 
     wtap_file_read_unknown_bytes(&ap_hdr, sizeof(ap_hdr), wth->fh, err);
 
-    if (memcmp (ap_hdr.section_id, "\177ver", sizeof(ap_hdr.section_id)) ||
-	wtap_file_read_pattern (wth, "<FileVersion>", err) == FALSE ||
-	wtap_file_read_number (wth, &fileVersion, err) == FALSE ||
-	fileVersion != 9 ||
-	wtap_file_read_pattern (wth, "<MediaType>", err) == FALSE ||
-	wtap_file_read_number (wth, &mediaType, err) == FALSE)
-	return 0;
+    if (memcmp (ap_hdr.section_id, "\177ver", sizeof(ap_hdr.section_id)) != 0)
+	return 0;	/* doesn't begin with a "\177ver" section */
 
-    if (wtap_file_read_pattern (wth, "pkts", err) == FALSE)
-	return 0;
+    /*
+     * XXX - we should get the length of the "\177ver" section, check
+     * that it's followed by a little-endian 0x00000200, and then,
+     * when reading the XML, make sure we don't go past the end of
+     * that section, and skip to the end of tha section when
+     * we have the file version (and possibly check to make sure all
+     * tags are properly opened and closed).
+     */
+    ret = wtap_file_read_pattern (wth, "<FileVersion>", err);
+    if (ret != 1) {
+	/* 0 means EOF, which means "not a valid AiroPeek V9 file";
+	   -1 means error, and "err" has been set. */
+	return ret;
+    }
+    ret = wtap_file_read_number (wth, &fileVersion, err);
+    if (ret != 1) {
+	/* 0 means EOF, which means "not a valid AiroPeek V9 file";
+	   -1 means error, and "err" has been set. */
+	return ret;
+    }
+
+    /* If we got this far, we assume it's an AiroPeek V9 file. */
+    if (fileVersion != 9) {
+	/* We only support version 9 and later. */
+	g_message("airopeekv9: version %u unsupported", fileVersion);
+	*err = WTAP_ERR_UNSUPPORTED;
+	return -1;
+    }
+
+    /*
+     * XXX - once we've skipped the "\177ver" section, we should
+     * check for a "sess" section and fail if we don't see it.
+     * Then we should get the length of the "sess" section, check
+     * that it's followed by a little-endian 0x00000200, and then,
+     * when reading the XML, make sure we don't go past the end of
+     * that section, and skip to the end of tha section when
+     * we have the file version (and possibly check to make sure all
+     * tags are properly opened and closed).
+     */
+    ret = wtap_file_read_pattern (wth, "<MediaType>", err);
+    if (ret == -1)
+	return -1;
+    if (ret == 0) {
+	g_message("airopeekv9: <MediaType> tag not found");
+	*err = WTAP_ERR_UNSUPPORTED;
+	return -1;
+    }
+    /* XXX - this appears to be 0, which is also the media type for
+       802.11 in the older AiroPeek format; should we require it to be
+       0?  And should we check the MediaSubType value as well? */
+    ret = wtap_file_read_number (wth, &mediaType, err);
+    if (ret == -1)
+	return -1;
+    if (ret == 0) {
+	g_message("airopeekv9: <MediaType> value not found");
+	*err = WTAP_ERR_UNSUPPORTED;
+	return -1;
+    }
+
+    ret = wtap_file_read_pattern (wth, "pkts", err);
+    if (ret == -1)
+	return -1;
+    if (ret == 0) {
+	*err = WTAP_ERR_SHORT_READ;
+	return -1;
+    }
 
     /* skip 8 zero bytes */
     if (file_seek (wth->fh, 8L, SEEK_CUR, err) == -1)
