@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *  2002 structure and command dissectors by Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-netlogon.c,v 1.19 2002/05/03 11:16:55 sahlberg Exp $
+ * $Id: packet-dcerpc-netlogon.c,v 1.20 2002/05/04 10:41:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -435,7 +435,7 @@ netlogon_dissect_CYPHER_BLOCK(tvbuff_t *tvb, int offset,
 static int
 netlogon_dissect_8_unknown_bytes(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *parent_tree,
-			char *drep)
+			char *drep _U_)
 {
 	proto_item *item=NULL;
 	proto_tree *tree=NULL;
@@ -461,7 +461,7 @@ netlogon_dissect_8_unknown_bytes(tvbuff_t *tvb, int offset,
 static int
 netlogon_dissect_NETLOGON_CREDENTIAL(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *parent_tree,
-			char *drep)
+			char *drep _U_)
 {
 	proto_item *item=NULL;
 	proto_tree *tree=NULL;
@@ -514,7 +514,7 @@ netlogon_dissect_NETLOGON_AUTHENTICATOR(tvbuff_t *tvb, int offset,
 static int
 netlogon_dissect_USER_SESSION_KEY(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *parent_tree,
-			char *drep)
+			char *drep _U_)
 {
 	proto_item *item=NULL;
 	proto_tree *tree=NULL;
@@ -542,7 +542,7 @@ netlogon_dissect_USER_SESSION_KEY(tvbuff_t *tvb, int offset,
 static int
 netlogon_dissect_ENCRYPTED_LM_OWF_PASSWORD(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *parent_tree,
-			char *drep)
+			char *drep _U_)
 {
 	proto_item *item=NULL;
 	proto_tree *tree=NULL;
@@ -570,7 +570,7 @@ netlogon_dissect_ENCRYPTED_LM_OWF_PASSWORD(tvbuff_t *tvb, int offset,
 static int
 netlogon_dissect_LM_OWF_PASSWORD(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *parent_tree,
-			char *drep)
+			char *drep _U_)
 {
 	proto_item *item=NULL;
 	proto_tree *tree=NULL;
@@ -598,7 +598,7 @@ netlogon_dissect_LM_OWF_PASSWORD(tvbuff_t *tvb, int offset,
 static int
 netlogon_dissect_NT_OWF_PASSWORD(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *parent_tree,
-			char *drep)
+			char *drep _U_)
 {
 	proto_item *item=NULL;
 	proto_tree *tree=NULL;
