@@ -1,7 +1,7 @@
 /* packet-diameter.c
  * Routines for DIAMETER packet disassembly
  *
- * $Id: packet-diameter.c,v 1.1 2000/07/30 07:16:03 guy Exp $
+ * $Id: packet-diameter.c,v 1.2 2000/07/31 04:09:54 guy Exp $
  *
  * Copyright (c) 2000 by David Frascone <chaos@mindspring.com>
  *
@@ -38,6 +38,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include <time.h>
 #include <glib.h>
 #include "packet.h"
 #include "resolv.h"
@@ -503,7 +504,7 @@ void dissect_diameter(const u_char *pd, int offset, frame_data *fd,
   if (gbl_commandCodeInHeader) 
     hdrlength=sizeof(e_diameterhdr);
   else
-    hdrlength = sizeof(e_diameterhdr) - (2 * sizeof(uint32_t));
+    hdrlength = sizeof(e_diameterhdr) - (2 * sizeof(guint32));
 
   memcpy(&dh,&pd[offset],hdrlength);
   /* Fix byte ordering in our static structure */
