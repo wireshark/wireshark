@@ -2,7 +2,7 @@
  * Routines for socks versions 4 &5  packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-socks.c,v 1.47 2003/10/15 19:57:26 guy Exp $
+ * $Id: packet-socks.c,v 1.48 2003/10/15 20:07:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -387,7 +387,7 @@ socks_udp_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
        		proto_tree_add_text( socks_tree, tvb, offset, 2, "Reserved");
 		offset += 2;
 
-       		proto_tree_add_text( socks_tree, tvb, offset, 1, "Fragment Number: %d", tvb_get_guint8(tvb, offset));
+       		proto_tree_add_text( socks_tree, tvb, offset, 1, "Fragment Number: %u", tvb_get_guint8(tvb, offset));
 		++offset;
 
 
@@ -456,7 +456,7 @@ display_socks_v4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if (compare_packet( hash_info->connect_row)){
 
 		proto_tree_add_text( tree, tvb, offset, 1,
-				"Version: %u ", hash_info->version);
+				"Version: %u", hash_info->version);
 		++offset;
 		command = tvb_get_guint8(tvb, offset);
 
@@ -545,23 +545,25 @@ display_socks_v5(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 		temp = tvb_get_guint8(tvb, offset);	/* Get Auth method count */
 							/* build auth tree */
-		ti = proto_tree_add_text( tree, tvb, offset, 1,
+		ti = proto_tree_add_text( tree, tvb, offset, -1,
 				"Client Authentication Methods");
 
 		AuthTree = proto_item_add_subtree(ti, ett_socks_auth);
 
 		proto_tree_add_text( AuthTree, tvb, offset, 1,
-				"Count: %u ", temp);
+				"Count: %u", temp);
 		++offset;
 
 		for( i = 0; i  < temp; ++i) {
 
 			AuthMethodStr = get_auth_method_name(
-				tvb_get_guint8( tvb, offset + i));
-			proto_tree_add_text( AuthTree, tvb, offset + i, 1,
-				"Method[%d]: %u (%s)", i,
-				tvb_get_guint8( tvb, offset + i), AuthMethodStr);
+				tvb_get_guint8( tvb, offset));
+			proto_tree_add_text( AuthTree, tvb, offset, 1,
+				"Method[%u]: %u (%s)", i,
+				tvb_get_guint8( tvb, offset), AuthMethodStr);
+			++offset;
 		}
+		proto_item_set_end( ti, tvb, offset);
 		return;
 	}					/* Get accepted auth method */
 	else if (compare_packet( hash_info->auth_method_row)) {
@@ -574,6 +576,7 @@ display_socks_v5(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	}					/* handle user/password auth */
 	else if (compare_packet( hash_info->user_name_auth_row)) {
 
+						/* process user name	*/
 		offset += display_string( tvb, offset, tree,
 				"User name");
 						/* process password	*/
@@ -607,7 +610,7 @@ display_socks_v5(tvbuff_t *tvb, int offset, packet_info *pinfo,
 /*XXX Add remote port for search somehow */
 						/* Do remote port	*/
 		proto_tree_add_text( tree, tvb, offset, 2,
-				"%sPort: %d",
+				"%sPort: %u",
 				(compare_packet( hash_info->bind_reply_row) ?
 					"Remote Host " : ""),
 				 tvb_get_ntohs(tvb, offset));
@@ -996,7 +999,7 @@ dissect_socks(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
 /*XXX		if ( hash_info->port != -1) */
 		if ( hash_info->port != 0)
-			col_append_fstr(pinfo->cinfo, COL_INFO, ", Remote Port: %d",
+			col_append_fstr(pinfo->cinfo, COL_INFO, ", Remote Port: %u",
 				hash_info->port);
 	}
 
