@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.178 2003/03/01 07:15:04 sharpe Exp $
+ * $Id: packet-tcp.c,v 1.179 2003/03/01 08:28:59 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -104,6 +104,7 @@ static int hf_tcp_segment_multiple_tails = -1;
 static int hf_tcp_segment_too_long_fragment = -1;
 static int hf_tcp_segment_error = -1;
 static int hf_tcp_option_mss = -1;
+static int hf_tcp_option_mss_val = -1;
 static int hf_tcp_option_window_scale = -1;
 static int hf_tcp_option_sack_perm = -1;
 static int hf_tcp_option_sack = -1;
@@ -1534,6 +1535,8 @@ dissect_tcpopt_maxseg(const ip_tcp_opt *optp, tvbuff_t *tvb,
   mss = tvb_get_ntohs(tvb, offset + 2);
   proto_tree_add_boolean_hidden(opt_tree, hf_tcp_option_mss, tvb, offset,
 				optlen, TRUE);
+  proto_tree_add_uint_hidden(opt_tree, hf_tcp_option_mss_val, tvb, offset,
+			     optlen, mss);
   proto_tree_add_text(opt_tree, tvb, offset,      optlen,
 			"%s: %u bytes", optp->name, mss);
   tcp_info_append_uint(pinfo, "MSS", mss);
@@ -2329,6 +2332,9 @@ proto_register_tcp(void)
 		{ &hf_tcp_option_mss,
 		  { "TCP MSS Option", "tcp.options.mss", FT_BOOLEAN, 
 		    BASE_NONE, NULL, 0x0, "TCP MSS Option", HFILL }},
+		{ &hf_tcp_option_mss_val,
+		  { "TCP MSS Option Value", "tcp.options.mss_val", FT_UINT16,
+		    BASE_DEC, NULL, 0x0, "TCP MSS Option Value", HFILL}},
 		{ &hf_tcp_option_window_scale,
 		  { "TCP Window Scale Option", "tcp.options.wscale", 
 		    FT_BOOLEAN, 
