@@ -27,6 +27,7 @@ S<[ B<-R> display filter expression ]>
 S<[ B<-s> snaplen ]>
 S<[ B<-S> ]>
 S<[ B<-t> time stamp format ]>
+S<[ B<-T> pdml|ps|text ]>
 S<[ B<-v> ]>
 S<[ B<-V> ]>
 S<[ B<-w> savefile ]>
@@ -353,6 +354,13 @@ actual time the packet was captured, with no date displayed; the
 absolute date and time is the actual time and date the packet was
 captured.  The delta time is the time since the previous packet was
 captured.  The default is relative.
+
+=item -T
+
+Set the format of the print-out when viewing packet data. The "text"
+format is the default format, and works in summary mode and in verbose
+mode (-V). The postscript (ps) and pdml (XML) formats work only in
+verbose mode; thus, they require the use of the -V option.
 
 =item -v
 

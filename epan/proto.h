@@ -1,7 +1,7 @@
 /* proto.h
  * Definitions for protocol display
  *
- * $Id: proto.h,v 1.53 2003/12/04 19:53:54 guy Exp $
+ * $Id: proto.h,v 1.54 2003/12/06 06:09:13 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -37,6 +37,9 @@
 #include "nstime.h"
 #include "tvbuff.h"
 #include "ftypes/ftypes.h"
+
+/* The header-field index for the special text pseudo-field */
+extern int hf_text_only;
 
 struct _value_string;
 
@@ -600,8 +603,13 @@ extern gint proto_registrar_get_length(int n);
 extern gboolean proto_check_for_protocol_or_field(proto_tree* tree, int id);
 
 /* Return GPtrArray* of field_info pointers for all hfindex that appear in
- * tree. */
+ * tree. Only works with primed trees, and is fast. */
 extern GPtrArray* proto_get_finfo_ptr_array(proto_tree *tree, int hfindex);
+
+/* Return GPtrArray* of field_info pointers for all hfindex that appear in
+ * tree. Works with any tree, primed or unprimed, and is slower than
+ * proto_get_finfo_ptr_array because it has to search through the tree. */
+extern GPtrArray* proto_find_finfo(proto_tree *tree, int hfindex);
 
 /* Dumps a glossary of the protocol registrations to STDOUT */
 extern void proto_registrar_dump_protocols(void);

@@ -1,7 +1,7 @@
 /* print.h
  * Definitions for printing packet analysis trees.
  *
- * $Id: print.h,v 1.30 2003/09/10 22:23:58 guy Exp $
+ * $Id: print.h,v 1.31 2003/12/06 06:09:10 gram Exp $
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -31,6 +31,7 @@
 
 #define PR_FMT_TEXT 0
 #define PR_FMT_PS   1
+#define PR_FMT_PDML 2
 
 typedef struct {
   gboolean	to_file;	/* TRUE if we're printing to a file */

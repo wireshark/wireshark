@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.125 2003/12/04 19:53:53 guy Exp $
+ * $Id: proto.c,v 1.126 2003/12/06 06:09:12 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3310,6 +3310,46 @@ proto_get_finfo_ptr_array(proto_tree *tree, int id)
 	return g_hash_table_lookup(PTREE_DATA(tree)->interesting_hfids,
 	    GINT_TO_POINTER(id));
 }
+
+
+/* Helper struct and function for proto_find_info() */
+typedef struct {
+	GPtrArray	*array;
+	int		id;
+} ffdata_t;
+
+static gboolean
+find_finfo(proto_node *node, gpointer data)
+{
+	field_info *fi = PITEM_FINFO(node);
+	if (fi && fi->hfinfo) {
+		if (fi->hfinfo->id == ((ffdata_t*)data)->id) {
+			g_ptr_array_add(((ffdata_t*)data)->array, fi);
+		}
+	}
+
+	/* Don't stop traversing. */
+	return FALSE;
+}
+
+/* Return GPtrArray* of field_info pointers for all hfindex that appear in a tree.
+ * This works on any proto_tree, primed or unprimed, but actually searches
+ * the tree, so it is slower than using proto_get_finfo_ptr_array on a primed tree.
+ * The caller does need to free the returned GPtrArray with
+ * g_ptr_array_free(<array>, FALSE).
+ */
+GPtrArray*
+proto_find_finfo(proto_tree *tree, int id)
+{
+	ffdata_t	ffdata;
+
+	ffdata.array = g_ptr_array_new();
+	ffdata.id = id;
+
+	proto_tree_traverse_pre_order(tree, find_finfo, &ffdata);
+
+	return ffdata.array;
+}	
 
 
 typedef struct {

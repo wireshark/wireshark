@@ -2,7 +2,7 @@
  *
  * Top-most dissector. Decides dissector based on Wiretap Encapsulation Type.
  *
- * $Id: packet-frame.c,v 1.41 2003/10/25 07:17:26 guy Exp $
+ * $Id: packet-frame.c,v 1.42 2003/12/06 06:09:10 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -35,13 +35,13 @@
 #include "prefs.h"
 #include "tap.h"
 
-static int proto_frame = -1;
-static int hf_frame_arrival_time = -1;
+int proto_frame = -1;
+int hf_frame_arrival_time = -1;
 static int hf_frame_time_delta = -1;
 static int hf_frame_time_relative = -1;
-static int hf_frame_number = -1;
-static int hf_frame_packet_len = -1;
-static int hf_frame_capture_len = -1;
+int hf_frame_number = -1;
+int hf_frame_packet_len = -1;
+int hf_frame_capture_len = -1;
 static int hf_frame_p2p_dir = -1;
 static int hf_frame_file_off = -1;
 static int hf_frame_marked = -1;

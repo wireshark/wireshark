@@ -1,7 +1,7 @@
 /* print.c
  * Routines for printing packet analysis trees.
  *
- * $Id: print.c,v 1.63 2003/12/04 10:59:33 guy Exp $
+ * $Id: print.c,v 1.64 2003/12/06 06:09:10 gram Exp $
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -40,8 +40,12 @@
 #include "ps.h"
 #include "util.h"
 #include "packet-data.h"
+#include "packet-frame.h"
+
+#define PDML_VERSION "0"
 
 static void proto_tree_print_node(proto_node *node, gpointer data);
+static void proto_tree_print_node_pdml(proto_node *node, gpointer data);
 static void print_hex_data_buffer(FILE *fh, register const guchar *cp,
     register guint length, char_enc encoding, gint format);
 static void ps_clean_string(unsigned char *out, const unsigned char *in,
@@ -54,8 +58,11 @@ typedef struct {
 	gboolean	print_all_levels;
 	gboolean	print_hex_for_data;
 	char_enc	encoding;
-	gint		format;		/* text or PostScript */
+	gint		format;
+	epan_dissect_t	*edt;
 } print_data;
+
+static void print_pdml_geninfo(proto_tree *tree, print_data *pdata);
 
 FILE *open_print_dest(int to_file, const char *dest)
 {
@@ -79,7 +86,9 @@ void close_print_dest(int to_file, FILE *fh)
 		pclose(fh);
 }
 
-void proto_tree_print(print_args_t *print_args, epan_dissect_t *edt,
+
+void
+proto_tree_print(print_args_t *print_args, epan_dissect_t *edt,
     FILE *fh)
 {
 	print_data data;
@@ -94,8 +103,22 @@ void proto_tree_print(print_args_t *print_args, epan_dissect_t *edt,
 	    /* If we're printing the entire packet in hex, don't
 	       print uninterpreted data fields in hex as well. */
 	data.format = print_args->format;
+	data.edt = edt;
 
-	proto_tree_children_foreach(edt->tree, proto_tree_print_node, &data);
+	if (data.format == PR_FMT_PDML) {
+
+		fprintf(fh, "<packet>\n");
+
+		/* Print a "geninfo" protocol as required by PDML */
+		print_pdml_geninfo(edt->tree, &data);
+
+		proto_tree_children_foreach(edt->tree, proto_tree_print_node_pdml, &data);
+
+		fprintf(fh, "</packet>\n\n");
+	}
+	else {
+		proto_tree_children_foreach(edt->tree, proto_tree_print_node, &data);
+	}
 }
 
 /*
@@ -177,6 +200,269 @@ void proto_tree_print_node(proto_node *node, gpointer data)
 		}
 	}
 }
+
+/* Print a string, escaping out certain characters that need to
+ * escaped out for XML. */
+static void
+print_escaped_xml(FILE *fh, char *unescaped_string)
+{
+	unsigned char *p;
+
+	for (p = unescaped_string; *p != '\0'; p++) {
+		switch (*p) {
+			case '&':
+				fputs("&amp;", fh);
+				break;
+			case '<':
+				fputs("&lt;", fh);
+				break;
+			case '>':
+				fputs("&gt;", fh);
+				break;
+			case '"':
+				fputs("&quot;", fh);
+				break;
+			default:
+				fputc(*p, fh);
+		}
+	}
+}
+
+static void
+print_field_hex_value(print_data *pdata, field_info *fi)
+{
+	int i;
+	const guint8 *pd;
+
+	/* Find the data for this field. */
+	pd = get_field_data(pdata->src_list, fi);
+
+	/* Print a simple hex dump */
+	for (i = 0 ; i < fi->length; i++) {
+		fprintf(pdata->fh, "%02x", pd[i]);
+	}
+}
+
+
+/* Print a tree's data, and any child nodes, as PDML */
+static void
+proto_tree_print_node_pdml(proto_node *node, gpointer data)
+{
+	field_info	*fi = PITEM_FINFO(node);
+	print_data	*pdata = (print_data*) data;
+	gchar		*label_ptr;
+	gchar		label_str[ITEM_LABEL_LENGTH];
+	char		*dfilter_string;
+	int		chop_len;
+	int		i;
+
+	for (i = -1; i < pdata->level; i++) {
+		fputs("  ", pdata->fh);
+	}
+
+	/* Text label. It's printed as a field with no name. */
+	if (fi->hfinfo->id == hf_text_only) {
+		/* Get the text */
+		if (fi->rep) {
+			label_ptr = fi->rep->representation;
+		}
+		else {
+			label_ptr = "";
+		}
+
+		fputs("<field show=\"", pdata->fh);
+		print_escaped_xml(pdata->fh, label_ptr);
+
+		fprintf(pdata->fh, "\" size=\"%d", fi->length);
+		fprintf(pdata->fh, "\" pos=\"%d", fi->start);
+
+		fputs("\" value=\"", pdata->fh);
+		print_field_hex_value(pdata, fi);
+
+		if (node->first_child != NULL) {
+			fputs("\">\n", pdata->fh);
+		}
+		else {
+			fputs("\"/>\n", pdata->fh);
+		}
+	}
+	/* Uninterpreted data, i.e., the "Data" protocol, is
+	 * printed as a field instead of a protocol. */
+	else if (fi->hfinfo->id == proto_data) {
+
+		fputs("<field name=\"data\" value=\"", pdata->fh);
+
+		print_field_hex_value(pdata, fi);
+
+		fputs("\"/>\n", pdata->fh);
+
+	}
+	/* Normal protocols and fields */
+	else {
+		if (fi->hfinfo->type == FT_PROTOCOL) {
+			fputs("<proto name=\"", pdata->fh);
+		}
+		else {
+			fputs("<field name=\"", pdata->fh);
+		}
+		print_escaped_xml(pdata->fh, fi->hfinfo->abbrev);
+
+		if (fi->rep) {
+			fputs("\" showname=\"", pdata->fh);
+			print_escaped_xml(pdata->fh, fi->rep->representation);
+		}
+		else {
+			label_ptr = label_str;
+			proto_item_fill_label(fi, label_str);
+			fputs("\" showname=\"", pdata->fh);
+			print_escaped_xml(pdata->fh, label_ptr);
+		}
+
+		fprintf(pdata->fh, "\" size=\"%d", fi->length);
+		fprintf(pdata->fh, "\" pos=\"%d", fi->start);
+/*		fprintf(pdata->fh, "\" id=\"%d", fi->hfinfo->id);*/
+
+		if (fi->hfinfo->type != FT_PROTOCOL) {
+			/* Field */
+
+			/* XXX - this is a hack until we can juse call
+			 * fvalue_to_string_repr() for *all* FT_* types. */
+			dfilter_string = proto_construct_dfilter_string(fi,
+					pdata->edt);
+			chop_len = strlen(fi->hfinfo->abbrev) + 4; /* for " == " */
+
+			/* XXX - Remove double-quotes. Again, once we can call
+			 * fvalue_to_string_repr(), we can ask it not to
+			 * produce the version for display-filters, and thus,
+			 * no double-quotes. */
+			if (dfilter_string[strlen(dfilter_string)-1] == '"') {
+				dfilter_string[strlen(dfilter_string)-1] = '\0';
+				chop_len++;
+			}
+
+			fputs("\" show=\"", pdata->fh);
+			print_escaped_xml(pdata->fh, &dfilter_string[chop_len]);
+		}
+
+		if (fi->hfinfo->type != FT_PROTOCOL && fi->length > 0) {
+			fputs("\" value=\"", pdata->fh);
+			print_field_hex_value(pdata, fi);
+		}
+
+		if (node->first_child != NULL) {
+			fputs("\">\n", pdata->fh);
+		}
+		else if (fi->hfinfo->id == proto_data) {
+			fputs("\">\n", pdata->fh);
+		}
+		else {
+			fputs("\"/>\n", pdata->fh);
+		}
+	}
+
+	/* We always pring all levels for PDML. Recurse here. */
+	if (node->first_child != NULL) {
+		pdata->level++;
+		proto_tree_children_foreach(node,
+				proto_tree_print_node_pdml, pdata);
+		pdata->level--;
+	}
+
+	if (node->first_child != NULL) {
+		for (i = -1; i < pdata->level; i++) {
+			fputs("  ", pdata->fh);
+		}
+		if (fi->hfinfo->type == FT_PROTOCOL) {
+			fputs("</proto>\n", pdata->fh);
+		}
+		else {
+			fputs("</field>\n", pdata->fh);
+		}
+	}
+}
+
+/* Print info for a 'geninfo' pseudo-protocol. This is required by
+ * the PDML spec. The information is contained in Ethereal's 'frame' protocol,
+ * but we produce a 'geninfo' protocol in the PDML to conform to spec.
+ * The 'frame' protocol follows the 'geninfo' protocol in the PDML. */
+static void
+print_pdml_geninfo(proto_tree *tree, print_data *pdata)
+{
+	guint32 num, len, caplen;
+	nstime_t *timestamp;
+	GPtrArray *finfo_array;
+	field_info *frame_finfo;
+
+	/* Get frame protocol's finfo. */
+	finfo_array = proto_find_finfo(tree, proto_frame);
+	if (g_ptr_array_len(finfo_array) < 1) {
+		return;
+	}
+	frame_finfo = finfo_array->pdata[0];
+	g_ptr_array_free(finfo_array, FALSE);
+
+	/* frame.number --> geninfo.num */
+	finfo_array = proto_find_finfo(tree, hf_frame_number);
+	if (g_ptr_array_len(finfo_array) < 1) {
+		return;
+	}
+	num = fvalue_get_integer(&((field_info*)finfo_array->pdata[0])->value);
+	g_ptr_array_free(finfo_array, FALSE);
+
+	/* frame.pkt_len --> geninfo.len */
+	finfo_array = proto_find_finfo(tree, hf_frame_packet_len);
+	if (g_ptr_array_len(finfo_array) < 1) {
+		return;
+	}
+	len = fvalue_get_integer(&((field_info*)finfo_array->pdata[0])->value);
+	g_ptr_array_free(finfo_array, FALSE);
+
+	/* frame.cap_len --> geninfo.caplen */
+	finfo_array = proto_find_finfo(tree, hf_frame_capture_len);
+	if (g_ptr_array_len(finfo_array) < 1) {
+		return;
+	}
+	caplen = fvalue_get_integer(&((field_info*)finfo_array->pdata[0])->value);
+	g_ptr_array_free(finfo_array, FALSE);
+
+	/* frame.time --> geninfo.timestamp */
+	finfo_array = proto_find_finfo(tree, hf_frame_arrival_time);
+	if (g_ptr_array_len(finfo_array) < 1) {
+		return;
+	}
+	timestamp = fvalue_get(&((field_info*)finfo_array->pdata[0])->value);
+	g_ptr_array_free(finfo_array, FALSE);
+
+	/* Print geninfo start */
+	fprintf(pdata->fh,
+"  <proto name=\"geninfo\" pos=\"1\" showname=\"General information\" size=\"%u\">\n",
+		frame_finfo->length);
+
+	/* Print geninfo.num */
+	fprintf(pdata->fh,
+"    <field name=\"num\" pos=\"1\" show=\"%u\" showname=\"Number\" value=\"%x\" size=\"%u\"/>\n",
+		num, num, frame_finfo->length);
+
+	/* Print geninfo.len */
+	fprintf(pdata->fh,
+"    <field name=\"len\" pos=\"1\" show=\"%u\" showname=\"Packet Length\" value=\"%x\" size=\"%u\"/>\n",
+		len, len, frame_finfo->length);
+
+	/* Print geninfo.caplen */
+	fprintf(pdata->fh,
+"    <field name=\"caplen\" pos=\"1\" show=\"%u\" showname=\"Captured Length\" value=\"%x\" size=\"%u\"/>\n",
+		caplen, caplen, frame_finfo->length);
+
+	/* Print geninfo.timestamp */
+	fprintf(pdata->fh,
+"    <field name=\"timestamp\" pos=\"1\" show=\"%s\" showname=\"Captured Time\" value=\"%d.%09d\" size=\"%u\"/>\n",
+		abs_time_to_str(timestamp), (int) timestamp->secs, timestamp->nsecs, frame_finfo->length);
+
+	/* Print geninfo end */
+	fprintf(pdata->fh,
+"  </proto>\n");
+}
+
 
 void print_hex_data(FILE *fh, gint format, epan_dissect_t *edt)
 {
@@ -346,19 +632,32 @@ void ps_clean_string(unsigned char *out, const unsigned char *in,
 	}
 }
 
-void print_preamble(FILE *fh, gint format)
+/* Some formats need stuff at the beginning of the output */
+void
+print_preamble(FILE *fh, gint format)
 {
 	if (format == PR_FMT_PS)
 		print_ps_preamble(fh);
+	else if (format == PR_FMT_PDML) {
+		fputs("<?xml version=\"1.0\"?>\n", fh);
+		fputs("<pdml version=\"" PDML_VERSION "\" ", fh);
+		fprintf(fh, "creator=\"%s/%s\">\n", PACKAGE, VERSION);
+	}
 }
 
-void print_finale(FILE *fh, gint format)
+/* Some formats need stuff at the end of the output */
+void
+print_finale(FILE *fh, gint format)
 {
 	if (format == PR_FMT_PS)
 		print_ps_finale(fh);
+	else if (format == PR_FMT_PDML) {
+		fputs("</pdml>\n", fh);
+	}
 }
 
-void print_line(FILE *fh, int indent, gint format, char *line)
+void
+print_line(FILE *fh, int indent, gint format, char *line)
 {
 	char		space[MAX_INDENT+1];
 	int		i;
@@ -368,7 +667,8 @@ void print_line(FILE *fh, int indent, gint format, char *line)
 	if (format == PR_FMT_PS) {
 		ps_clean_string(psbuffer, line, MAX_PS_LINE_LENGTH);
 		fprintf(fh, "%d (%s) putline\n", indent, psbuffer);
-	} else {
+	}
+	else if (format == PR_FMT_TEXT) {
 		/* Prepare the tabs for printing, depending on tree level */
 		num_spaces = indent * 4;
 		if (num_spaces > MAX_INDENT) {
@@ -383,5 +683,8 @@ void print_line(FILE *fh, int indent, gint format, char *line)
 		fputs(space, fh);
 		fputs(line, fh);
 		putc('\n', fh);
+	}
+	else {
+		g_assert_not_reached();
 	}
 }

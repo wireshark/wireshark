@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.206 2003/12/02 23:14:30 guy Exp $
+ * $Id: tethereal.c,v 1.207 2003/12/06 06:09:10 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -117,6 +117,7 @@ static gboolean verbose;
 static gboolean print_hex;
 static gboolean line_buffered;
 static guint32 cul_bytes = 0;
+static int print_format;
 
 #ifdef HAVE_LIBPCAP
 typedef struct _loop_data {
@@ -243,13 +244,15 @@ print_usage(gboolean print_ver)
   fprintf(stderr, "\t[ -f <capture filter> ] [ -F <output file type> ] [ -i <interface> ]\n");
   fprintf(stderr, "\t[ -N <resolving> ] [ -o <preference setting> ] ... [ -r <infile> ]\n");
   fprintf(stderr, "\t[ -R <read filter> ] [ -s <snaplen> ] [ -t <time stamp format> ]\n");
-  fprintf(stderr, "\t[ -w <savefile> ] [ -y <link type> ] [ -z <statistics string> ]\n");
+  fprintf(stderr, "\t[ -T pdml|ps|text ] [ -w <savefile> ] [ -y <link type> ]\n");
+  fprintf(stderr, "\t[ -z <statistics string> ]\n");
 #else
   fprintf(stderr, "\nt%s [ -vh ] [ -lnVx ]\n", PACKAGE);
   fprintf(stderr, "\t[ -d %s ] ...\n", decode_as_arg_template);
   fprintf(stderr, "\t[ -F <output file type> ] [ -N <resolving> ]\n");
   fprintf(stderr, "\t[ -o <preference setting> ] ... [ -r <infile> ] [ -R <read filter> ]\n");
-  fprintf(stderr, "\t[ -t <time stamp format> ] [ -w <savefile> ] [ -z <statistics string> ]\n");
+  fprintf(stderr, "\t[ -t <time stamp format> ] [ -T pdml|ps|text ] [ -w <savefile> ]\n");
+  fprintf(stderr, "\t[ -z <statistics string> ]\n");
 #endif
   fprintf(stderr, "Valid file type arguments to the \"-F\" flag:\n");
   for (i = 0; i < WTAP_NUM_FILE_TYPES; i++) {
@@ -909,8 +912,11 @@ main(int argc, char *argv[])
   runtime_info_str = g_string_new("Running ");
   get_runtime_version_info(runtime_info_str);
 
+  /* Print format defaults to this. */
+  print_format = PR_FMT_TEXT;
+
   /* Now get our args */
-  while ((opt = getopt(argc, argv, "a:b:c:d:Df:F:hi:lLnN:o:pqr:R:s:St:vw:Vxy:z:")) != -1) {
+  while ((opt = getopt(argc, argv, "a:b:c:d:Df:F:hi:lLnN:o:pqr:R:s:St:T:vw:Vxy:z:")) != -1) {
     switch (opt) {
       case 'a':        /* autostop criteria */
 #ifdef HAVE_LIBPCAP
@@ -1159,6 +1165,19 @@ main(int argc, char *argv[])
           exit(1);
         }
         break;
+      case 'T':        /* printing Type */
+        if (strcmp(optarg, "text") == 0)
+		print_format = PR_FMT_TEXT;
+	else if (strcmp(optarg, "pdml") == 0)
+		print_format = PR_FMT_PDML;
+	else if (strcmp(optarg, "ps") == 0)
+		print_format = PR_FMT_PS;
+	else {
+		fprintf(stderr, "tethereal: Invalid -T parameter.\n");
+		fprintf(stderr, "It must be \"ps\", \"text\" or \"pdml\".\n");
+		exit(1);
+	}
+	break;
       case 'v':        /* Show version and exit */
         printf("t%s %s\n%s\n%s\n", PACKAGE, VERSION, comp_info_str->str,
                runtime_info_str->str);
@@ -1212,6 +1231,14 @@ main(int argc, char *argv[])
         arg_error = TRUE;
         break;
     }
+  }
+
+  /* If printing PDML or PostScript, for the time-being, we require -V */
+  if (print_format == PR_FMT_PDML || print_format == PR_FMT_PS) {
+	  if (! verbose) {
+		fprintf(stderr, "tethereal: Using -Tps or -Tpdml requires -V\n");
+		exit(1);
+	  }
   }
 
   /* If no capture filter or read filter has been specified, and there are
@@ -2201,8 +2228,10 @@ load_cap_file(capture_file *cf, int out_file_type)
   } else {
     args.cf = cf;
     args.pdh = NULL;
+    print_preamble(stdout, print_format);
     success = wtap_loop(cf->wth, 0, wtap_dispatch_cb_print, (guchar *) &args,
  			&err);
+    print_finale(stdout, print_format);
   }
   if (!success) {
     /* Print up a message box noting that the read failed somewhere along
@@ -2515,7 +2544,7 @@ wtap_dispatch_cb_print(guchar *user, const struct wtap_pkthdr *phdr,
     if (verbose) {
       /* Print the information in the protocol tree. */
       print_args.to_file = TRUE;
-      print_args.format = PR_FMT_TEXT;
+      print_args.format = print_format;
       print_args.print_summary = FALSE;
       print_args.print_hex = print_hex;
       print_args.expand_all = TRUE;
