@@ -80,6 +80,7 @@ Joerg Mayer      <jmayer[AT]loplof.de> {
 	Define __USE_XOPEN in files that use "strptime()"
 	Various signed vs. unsigned fixes
 	Crank up the warning level in GCC
+	Skinny (Official Name: SCCP)
 }
 
 Martin Maciaszek <fastjack[AT]i-s-o.net> {
