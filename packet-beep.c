@@ -1,7 +1,7 @@
 /* packet-beep.c
  * Routines for BEEP packet disassembly
  *
- * $Id: packet-beep.c,v 1.8 2002/04/29 09:40:05 guy Exp $
+ * $Id: packet-beep.c,v 1.9 2002/06/13 07:32:32 guy Exp $
  *
  * Copyright (c) 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  * Modified 2001 Darren New <dnew@invisible.net> for BEEP.
@@ -470,9 +470,11 @@ dissect_beep_int(tvbuff_t *tvb, int offset,
 
   memset(int_buff, '\0', sizeof(int_buff));
 
-  tvb_memcpy(tvb, int_buff, offset, MIN(sizeof(int_buff), i));
+  tvb_memcpy(tvb, int_buff, offset, MIN(sizeof(int_buff) - 1, i));
 
-  sscanf(int_buff, "%d", &ival);  /* FIXME: Dangerous */
+  /* XXX - is this still "Dangerous" now that we don't copy to the
+     last byte of "int_buff[]"? */
+  sscanf(int_buff, "%d", &ival);
 
   if (tree) {
     proto_tree_add_uint(tree, hf, tvb, offset, i, ival);
