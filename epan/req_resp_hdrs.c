@@ -282,8 +282,10 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, packet_info *pinfo,
 					/* We couldn't get the chunk size,
 					 * so stop trying.
 					 */
+					g_free(chunk_string);
 					return TRUE;
 				}
+				g_free(chunk_string);
 
 				if (chunk_size == 0) {
 					/*
