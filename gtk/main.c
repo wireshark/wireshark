@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.281 2003/02/17 07:50:49 oabad Exp $
+ * $Id: main.c,v 1.282 2003/03/01 10:18:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -230,9 +230,25 @@ goto_framenum_cb(GtkWidget *w _U_, gpointer data _U_)
 	hfinfo = finfo_selected->hfinfo;
 	g_assert(hfinfo);
 	if (hfinfo->type == FT_FRAMENUM) {
-		framenum = fvalue_get_integer(finfo_selected->value);
-		if (framenum != 0)
-			packet_list_set_selected_row(framenum - 1);
+	    framenum = fvalue_get_integer(finfo_selected->value);
+	    if (framenum != 0) {
+		switch (goto_frame(&cfile, framenum)) {
+
+		case NO_SUCH_FRAME:
+		    simple_dialog(ESD_TYPE_CRIT, NULL,
+			    "There is no frame with that frame number.");
+		    break;
+
+		case FRAME_NOT_DISPLAYED:
+		    /* XXX - add it to the display filter? */
+		    simple_dialog(ESD_TYPE_CRIT, NULL,
+			    "The frame with that frame number is not currently being displayed.");
+		    return;
+
+		case FOUND_FRAME:
+		    break;
+		}
+	    }
 	}
     }
 }
