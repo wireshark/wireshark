@@ -1,7 +1,7 @@
 #! /usr/bin/python
 # -*- python -*-
 #
-# $Id: plugin_gen.py,v 1.2 2003/08/18 20:17:55 guy Exp $
+# $Id: plugin_gen.py,v 1.3 2003/08/23 07:34:31 guy Exp $
 #
 # mmelchior@xs4all.nl
 #
@@ -54,7 +54,7 @@ while 1:
         # print "=      ", decl
         matchobj = pattName.match(decl)
         if matchobj:
-            count += 1
+            count = count + 1
             name = matchobj.group(1)
             # print "       ", name
             f2.write("#define %s (*p_%s)\n" % (name, name))
@@ -62,7 +62,7 @@ while 1:
             f4.write("addr_%s p_%s;\n" % (name, name))
             f5.write(replace("typedef %s\n" % decl, name, "(*addr_%s)" % name))
             f6.write(name)
-            pos += len(name) + 2
+            pos = pos + len(name) + 2
             if pos > 60:
                 pos = 0
                 f6.write(",\n")
