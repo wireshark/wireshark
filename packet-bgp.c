@@ -2,7 +2,7 @@
  * Routines for BGP packet dissection.
  * Copyright 1999, Jun-ichiro itojun Hagino <itojun@itojun.org>
  *
- * $Id: packet-bgp.c,v 1.83 2004/01/05 19:31:43 ulfl Exp $
+ * $Id: packet-bgp.c,v 1.84 2004/01/06 02:29:36 guy Exp $
  *
  * Supports:
  * RFC1771 A Border Gateway Protocol 4 (BGP-4)
@@ -451,7 +451,7 @@ decode_prefix6(proto_tree *tree, int hf_addr, tvbuff_t *tvb, gint offset,
  * Decode an MPLS label stack
  * XXX - Should we convert "buf" to a GString?
  */
-static int
+static guint
 decode_MPLS_stack(tvbuff_t *tvb, gint offset, char *buf, size_t buflen)
 {
     guint32     label_entry;    /* an MPLS label enrty (label + COS field + stack bit   */
@@ -627,8 +627,8 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
     proto_tree          *prefix_tree;
     int                 total_length;       /* length of the entire item */
     int                 length;             /* length of the prefix address, in bytes */
-    guint8              plen;               /* length of the prefix address, in bits */
-    int                 labnum;             /* number of labels             */
+    guint               plen;               /* length of the prefix address, in bits */
+    guint               labnum;             /* number of labels             */
     int                 ce_id,labblk_off;
     union {
        guint8 addr_bytes[4];
@@ -896,7 +896,7 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
         case SAFNUM_LAB_VPNUNICAST:
         case SAFNUM_LAB_VPNMULCAST:
         case SAFNUM_LAB_VPNUNIMULC:
-            plen =  (guint8) tvb_get_ntohs(tvb,offset);
+            plen =  tvb_get_ntohs(tvb,offset);
             rd_type=tvb_get_ntohs(tvb,offset+2);
             ce_id=tvb_get_ntohs(tvb,offset+10);
             labblk_off=tvb_get_ntohs(tvb,offset+12);
