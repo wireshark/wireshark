@@ -1,7 +1,7 @@
 /* capture.h
  * Definitions for packet capture windows
  *
- * $Id: capture.h,v 1.24 2000/10/11 06:01:14 guy Exp $
+ * $Id: capture.h,v 1.25 2001/02/11 09:28:15 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -42,7 +42,7 @@ extern gboolean capture_child;	/* if this is the child for "-S" */
 void   do_capture(char *capfile_name);
 
 /* Do the low-level work of a capture. */
-int    capture(void);
+int    capture(gboolean *stats_known, struct pcap_stat *stats);
 
 /* Stop a capture from a menu item. */
 void   capture_stop(void);

@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.178 2001/02/08 03:55:45 guy Exp $
+ * $Id: main.c,v 1.179 2001/02/11 09:28:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -693,6 +693,8 @@ main(int argc, char *argv[])
   gchar               *save_file = NULL;
   GList               *if_list;
   gchar                err_str[PCAP_ERRBUF_SIZE];
+  gboolean             stats_known;
+  struct pcap_stat     stats;
 #else
   gboolean             capture_option_specified = FALSE;
 #endif
@@ -1226,7 +1228,8 @@ main(int argc, char *argv[])
        a temporary file and fork off *another* child process (so don't
        call "do_capture()"). */
 
-       capture();
+       /* XXX - hand these stats to the parent process */
+       capture(&stats_known, &stats);
 
        /* The capture is done; there's nothing more for us to do. */
        gtk_exit(0);

@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.65 2001/02/10 09:08:14 guy Exp $
+ * $Id: tethereal.c,v 1.66 2001/02/11 09:28:15 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -544,6 +544,7 @@ capture(int packet_count, int out_file_type)
   static const char ppamsg[] = "can't find PPA for ";
   char       *libpcap_warn;
 #endif
+  struct pcap_stat stats;
 
   /* Initialize the table of conversations. */
   epan_conversation_init();
@@ -660,12 +661,19 @@ capture(int packet_count, int out_file_type)
   printf("Capturing on %s\n", cfile.iface);
 
   inpkts = pcap_loop(ld.pch, packet_count, capture_pcap_cb, (u_char *) &ld);
-  pcap_close(ld.pch);
 
-  /* Send a newline if we were printing packet counts to stdout */
   if (cfile.save_file != NULL) {
+    /* We're saving to a file, which means we're printing packet counts
+       to the standard output.  Send a newline so that we move to the
+       line after the packet count. */
     printf("\n");
   }
+
+  /* Get the capture statistics, and, if any packets were dropped, report
+     that. */
+  if (pcap_stats(ld.pch, &stats) >= 0)
+    printf("%u packets dropped\n", stats.ps_drop);
+  pcap_close(ld.pch);
 
   return TRUE;
 
@@ -1364,6 +1372,7 @@ open_cap_file(char *fname, gboolean is_tempfile, capture_file *cf)
 
   cf->cd_t      = wtap_file_type(cf->wth);
   cf->count     = 0;
+  cf->drops_known = FALSE;
   cf->drops     = 0;
   cf->esec      = 0;
   cf->eusec     = 0;

@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.138 2001/02/10 09:08:14 guy Exp $
+ * $Id: capture.c,v 1.139 2001/02/11 09:28:15 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -268,6 +268,8 @@ do_capture(char *capfile_name)
   char *msg;
   int err;
   int capture_succeeded;
+  gboolean stats_known;
+  struct pcap_stat stats;
 
   if (capfile_name != NULL) {
     /* Try to open/create the specified file for use as a capture buffer. */
@@ -556,7 +558,7 @@ do_capture(char *capfile_name)
     }
   } else {
     /* Not sync mode. */
-    capture_succeeded = capture();
+    capture_succeeded = capture(&stats_known, &stats);
     if (quit_after_cap) {
       /* DON'T unlink the save file.  Presumably someone wants it. */
       gtk_exit(0);
@@ -566,6 +568,39 @@ do_capture(char *capfile_name)
       if ((err = open_cap_file(cfile.save_file, is_tempfile, &cfile)) == 0) {
         /* Set the read filter to NULL. */
         cfile.rfcode = NULL;
+
+        /* Get the packet-drop statistics.
+
+           XXX - there are currently no packet-drop statistics stored
+           in libpcap captures, and that's what we're reading.
+
+           At some point, we will add support in Wiretap to return
+	   packet-drop statistics for capture file formats that store it,
+	   and will make "read_cap_file()" get those statistics from
+	   Wiretap.  We clear the statistics (marking them as "not known")
+	   in "open_cap_file()", and "read_cap_file()" will only fetch
+	   them and mark them as known if Wiretap supplies them, so if
+	   we get the statistics now, after calling "open_cap_file()" but
+	   before calling "read_cap_file()", the values we store will
+	   be used by "read_cap_file()".
+
+           If a future libpcap capture file format stores the statistics,
+           we'll put them into the capture file that we write, and will
+	   thus not have to set them here - "read_cap_file()" will get
+	   them from the file and use them. */
+        if (stats_known) {
+          cfile.drops_known = TRUE;
+
+          /* XXX - on some systems, libpcap doesn't bother filling in
+             "ps_ifdrop" - it doesn't even set it to zero - so we don't
+             bother looking at it.
+
+             Ideally, libpcap would have an interface that gave us
+             several statistics - perhaps including various interface
+             error statistics - and would tell us which of them it
+             supplies, allowing us to display only the ones it does. */
+          cfile.drops = stats.ps_drop;
+        }
         switch (read_cap_file(&cfile, &err)) {
 
         case READ_SUCCESS:
@@ -1111,7 +1146,7 @@ static loop_data   ld;
 /* Do the low-level work of a capture.
    Returns TRUE if it succeeds, FALSE otherwise. */
 int
-capture(void)
+capture(gboolean *stats_known, struct pcap_stat *stats)
 {
   GtkWidget  *cap_w, *main_vb, *stop_bt, *counts_tb;
   pcap_t     *pch;
@@ -1144,7 +1179,7 @@ capture(void)
       const gchar *title;
       gint *value_ptr;
       GtkWidget *label, *value, *percent;
-  } stats[] = {
+  } counts[] = {
       { "Total", &ld.counts.total },
       { "SCTP", &ld.counts.sctp },
       { "TCP", &ld.counts.tcp },
@@ -1158,7 +1193,7 @@ capture(void)
       { "Other", &ld.counts.other }
   };
 
-#define N_STATS (sizeof stats / sizeof stats[0])
+#define N_COUNTS (sizeof counts / sizeof counts[0])
 
   /* Initialize Windows Socket if we are in a WIN32 OS 
      This needs to be done before querying the interface for network/netmask */
@@ -1191,6 +1226,9 @@ capture(void)
   ld.counts.vines   = 0;
   ld.counts.other   = 0;
   ld.pdh            = NULL;
+
+  /* We haven't yet gotten the capture statistics. */
+  *stats_known      = FALSE;
 
   /* Open the network interface to capture from it. */
   pch = pcap_open_live(cfile.iface, cfile.snap, promisc_mode,
@@ -1375,33 +1413,33 @@ capture(void)
   gtk_widget_show(main_vb);
 
   /* Individual statistic elements */
-  counts_tb = gtk_table_new(N_STATS, 3, TRUE);
+  counts_tb = gtk_table_new(N_COUNTS, 3, TRUE);
   gtk_box_pack_start(GTK_BOX(main_vb), counts_tb, TRUE, TRUE, 3);
   gtk_widget_show(counts_tb);
 
-  for (i = 0; i < N_STATS; i++) {
-      stats[i].label = gtk_label_new(stats[i].title);
-      gtk_misc_set_alignment(GTK_MISC(stats[i].label), 0.0f, 0.0f);
+  for (i = 0; i < N_COUNTS; i++) {
+      counts[i].label = gtk_label_new(counts[i].title);
+      gtk_misc_set_alignment(GTK_MISC(counts[i].label), 0.0f, 0.0f);
 
-      stats[i].value = gtk_label_new("0");
-      gtk_misc_set_alignment(GTK_MISC(stats[i].value), 0.0f, 0.0f);
+      counts[i].value = gtk_label_new("0");
+      gtk_misc_set_alignment(GTK_MISC(counts[i].value), 0.0f, 0.0f);
 
-      stats[i].percent = gtk_label_new("0.0%");
-      gtk_misc_set_alignment(GTK_MISC(stats[i].percent), 0.0f, 0.0f);
+      counts[i].percent = gtk_label_new("0.0%");
+      gtk_misc_set_alignment(GTK_MISC(counts[i].percent), 0.0f, 0.0f);
 
       gtk_table_attach_defaults(GTK_TABLE(counts_tb),
-                                stats[i].label, 0, 1, i, i + 1);
+                                counts[i].label, 0, 1, i, i + 1);
 
       gtk_table_attach(GTK_TABLE(counts_tb),
-                       stats[i].value,
+                       counts[i].value,
                        1, 2, i, i + 1, 0, 0, 5, 0);
 
       gtk_table_attach_defaults(GTK_TABLE(counts_tb),
-                                stats[i].percent, 2, 3, i, i + 1);
+                                counts[i].percent, 2, 3, i, i + 1);
 
-      gtk_widget_show(stats[i].label);
-      gtk_widget_show(stats[i].value);
-      gtk_widget_show(stats[i].percent);
+      gtk_widget_show(counts[i].label);
+      gtk_widget_show(counts[i].value);
+      gtk_widget_show(counts[i].percent);
   }
 
   /* allow user to either click a stop button, or the close button on
@@ -1506,16 +1544,16 @@ capture(void)
     if (cur_time > upd_time) {
       upd_time = cur_time;
 
-      for (i = 0; i < N_STATS; i++) {
+      for (i = 0; i < N_COUNTS; i++) {
           snprintf(label_str, sizeof(label_str), "%d",
-                   *stats[i].value_ptr);
+                   *counts[i].value_ptr);
 
-          gtk_label_set(GTK_LABEL(stats[i].value), label_str);
+          gtk_label_set(GTK_LABEL(counts[i].value), label_str);
 
           snprintf(label_str, sizeof(label_str), "(%.1f%%)",
-                   pct(*stats[i].value_ptr, ld.counts.total));
+                   pct(*counts[i].value_ptr, ld.counts.total));
 
-          gtk_label_set(GTK_LABEL(stats[i].percent), label_str);
+          gtk_label_set(GTK_LABEL(counts[i].percent), label_str);
       }
 
       /* do sync here, too */
@@ -1561,7 +1599,13 @@ capture(void)
     close(pipe_fd);
   else
 #endif
+  {
+    /* Get the capture statistics, so we know how many packets were
+       dropped. */
+    if (pcap_stats(pch, stats) >= 0)
+      *stats_known = TRUE;
     pcap_close(pch);
+  }
 
 #ifdef WIN32
   /* Shut down windows sockets */

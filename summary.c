@@ -1,7 +1,7 @@
 /* summary.c
  * Routines for capture file summary info
  *
- * $Id: summary.c,v 1.19 2000/08/21 18:20:11 deniel Exp $
+ * $Id: summary.c,v 1.20 2001/02/11 09:28:15 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -94,6 +94,7 @@ summary_fill_in(summary_tally *st)
   st->snap = cfile.snap;
   st->elapsed_time = secs_usecs(cfile.esec, cfile.eusec);
   st->packet_count = cfile.count;
+  st->drops_known = cfile.drops_known;
   st->drops = cfile.drops;
   st->iface = cfile.iface;
   st->dfilter = cfile.dfilter;

@@ -1,7 +1,7 @@
 /* summary_dlg.c
  * Routines for capture file summary window
  *
- * $Id: summary_dlg.c,v 1.8 2000/08/21 18:20:19 deniel Exp $
+ * $Id: summary_dlg.c,v 1.9 2001/02/11 09:28:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -142,8 +142,10 @@ summary_open_cb(GtkWidget *w, gpointer d)
   }
 
   /* Dropped count */
-  snprintf(string_buff, SUM_STR_MAX, "Dropped packets: %i", summary.drops);
-  add_string_to_box(string_buff, data_box);
+  if (summary.drops_known) {
+    snprintf(string_buff, SUM_STR_MAX, "Dropped packets: %u", summary.drops);
+    add_string_to_box(string_buff, data_box);
+  }
 
   /* Byte count */
   snprintf(string_buff, SUM_STR_MAX, "Bytes of traffic: %d", summary.bytes);

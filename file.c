@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.231 2001/02/10 09:08:14 guy Exp $
+ * $Id: file.c,v 1.232 2001/02/11 09:28:15 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -170,6 +170,7 @@ open_cap_file(char *fname, gboolean is_tempfile, capture_file *cf)
 
   cf->cd_t      = wtap_file_type(cf->wth);
   cf->count     = 0;
+  cf->drops_known = FALSE;
   cf->drops     = 0;
   cf->esec      = 0;
   cf->eusec     = 0;
@@ -265,7 +266,8 @@ set_display_filename(capture_file *cf)
 {
   gchar  *name_ptr;
   size_t  msg_len;
-  gchar  *done_fmt = " File: %s  Drops: %u";
+  static const gchar done_fmt_nodrops[] = " File: %s";
+  static const gchar done_fmt_drops[] = " File: %s  Drops: %u";
   gchar  *done_msg;
   gchar  *win_name_fmt = "%s - Ethereal";
   gchar  *win_name;
@@ -280,9 +282,15 @@ set_display_filename(capture_file *cf)
     name_ptr = "<capture>";
   }
 
-  msg_len = strlen(name_ptr) + strlen(done_fmt) + 64;
-  done_msg = g_malloc(msg_len);
-  snprintf(done_msg, msg_len, done_fmt, name_ptr, cf->drops);
+  if (cf->drops_known) {
+    msg_len = strlen(name_ptr) + strlen(done_fmt_drops) + 64;
+    done_msg = g_malloc(msg_len);
+    snprintf(done_msg, msg_len, done_fmt_drops, name_ptr, cf->drops);
+  } else {
+    msg_len = strlen(name_ptr) + strlen(done_fmt_nodrops);
+    done_msg = g_malloc(msg_len);
+    snprintf(done_msg, msg_len, done_fmt_nodrops, name_ptr);
+  }
   gtk_statusbar_push(GTK_STATUSBAR(info_bar), file_ctx, done_msg);
   g_free(done_msg);
 
