@@ -4,11 +4,7 @@
  * Copyright 2002, Tim Potter <tpot@samba.org>
  * Copyright 2002, Richard Sharpe <rsharpe@ns.aus.com>
  *
-<<<<<<< packet-spnego.c
- * $Id: packet-spnego.c,v 1.8 2002/08/29 00:35:55 sharpe Exp $
-=======
- * $Id: packet-spnego.c,v 1.8 2002/08/29 00:35:55 sharpe Exp $
->>>>>>> 1.7
+ * $id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
