@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.367 2004/01/23 16:07:37 ulfl Exp $
+ * $Id: main.c,v 1.368 2004/01/23 19:53:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2739,8 +2739,9 @@ not_xlfd:
 }
 #endif
 
-
-char *font_zoom(char *gui_font_name)
+/* Given a font name, construct the name of a bigger version of that font. */
+static char *
+font_zoom(char *gui_font_name)
 {
     char new_font_name[200];
     char *font_name_dup;
@@ -2765,12 +2766,12 @@ char *font_zoom(char *gui_font_name)
 #endif
 
 #if GTK_MAJOR_VERSION >= 2
-    font_name_dup = strdup(gui_font_name);
+    font_name_dup = g_strdup(gui_font_name);
     font_name_p = font_name_dup;
 
     /* find the start of the font_size string */
     font_name_p = strrchr(font_name_dup, ' ');
-    *font_name_p = 0;
+    *font_name_p = '\0';
     font_name_p++;
 
     /* calculate the new font size */
@@ -2781,9 +2782,9 @@ char *font_zoom(char *gui_font_name)
     sprintf(new_font_name, "%s %u", font_name_dup, font_point_size_l);
     g_free(font_name_dup);
 
-    return strdup(new_font_name);
+    return g_strdup(new_font_name);
 #else
-    font_name_dup = strdup(gui_font_name);
+    font_name_dup = g_strdup(gui_font_name);
     font_name_p = font_name_dup;
 
     minus_chars = 0;
@@ -2795,6 +2796,12 @@ char *font_zoom(char *gui_font_name)
     }
 
     if (minus_chars != 14) {
+        /*
+         * Not a valid XLFD font name.
+         * XXX - can we try scaling it by looking for a size at the end
+         * and tweaking that?  Unfortunately, some fonts have numbers
+         * at the end that aren't, as far as I know, sizes, e.g. "nil2".
+         */
         return NULL;
     }
 
@@ -2873,97 +2880,96 @@ char *font_zoom(char *gui_font_name)
         font_spacing, font_aver_width, font_charset_reg, font_charset_encoding);
     g_free(font_name_dup);
 
-    return strdup(new_font_name);
+    return g_strdup(new_font_name);
 #endif
 }
-
 
 void
 font_apply(void) {
     char *gui_font_name;
 #if GTK_MAJOR_VERSION < 2
-	GdkFont *new_r_font, *new_b_font;
-	char *bold_font_name;
-	GdkFont *old_r_font = NULL, *old_b_font = NULL;
+    GdkFont *new_r_font, *new_b_font;
+    char *bold_font_name;
+    GdkFont *old_r_font = NULL, *old_b_font = NULL;
 #else
-	PangoFontDescription *new_r_font, *new_b_font;
-	PangoFontDescription *old_r_font = NULL, *old_b_font = NULL;
+    PangoFontDescription *new_r_font, *new_b_font;
+    PangoFontDescription *old_r_font = NULL, *old_b_font = NULL;
 #endif
-
 
     /* convert font name to reflect the zoom level */
     gui_font_name = font_zoom(prefs.PREFS_GUI_FONT_NAME);
     if (gui_font_name == NULL) {
+    	/*
+    	 * This means the font name isn't an XLFD font name.
+    	 * We just report that for now as a font not available in
+    	 * multiple sizes.
+    	 */
         simple_dialog(ESD_TYPE_WARN, NULL,
-            "Font name: \"%s\" invalid, please update your font setting in Edit->Preferences!",
+            "Your current font isn't available in any other sizes.\n"
+            "Please update your font setting in Edit->Preferences!",
             gui_font_name);
         return;
     }
 
-	/* XXX - what if the world changed out from under
-	   us, so that one or both of these fonts cannot
-	   be loaded? */
 #if GTK_MAJOR_VERSION < 2
-	new_r_font = gdk_font_load(gui_font_name);
-	bold_font_name = font_boldify(gui_font_name);
-	new_b_font = gdk_font_load(bold_font_name);
+    new_r_font = gdk_font_load(gui_font_name);
+    bold_font_name = font_boldify(gui_font_name);
+    new_b_font = gdk_font_load(bold_font_name);
 #else
-	new_r_font = pango_font_description_from_string(gui_font_name);
-	new_b_font = pango_font_description_copy(new_r_font);
-	pango_font_description_set_weight(new_b_font,
-		PANGO_WEIGHT_BOLD);
+    new_r_font = pango_font_description_from_string(gui_font_name);
+    new_b_font = pango_font_description_copy(new_r_font);
+    pango_font_description_set_weight(new_b_font, PANGO_WEIGHT_BOLD);
 #endif
     if (new_r_font == NULL || new_b_font == NULL) {
         simple_dialog(ESD_TYPE_WARN, NULL,
             "Font name: \"%s\" invalid, cannot load font!", 
             gui_font_name);
-    /* We're no longer using the new fonts; unreference them. */
+        /* We're no longer using the new fonts; unreference them. */
 #if GTK_MAJOR_VERSION < 2
-	    if (new_r_font != NULL)
-		    gdk_font_unref(new_r_font);
-	    if (new_b_font != NULL)
-		    gdk_font_unref(new_b_font);
+        if (new_r_font != NULL)
+            gdk_font_unref(new_r_font);
+        if (new_b_font != NULL)
+            gdk_font_unref(new_b_font);
 #else
-	    if (new_r_font != NULL)
-		    pango_font_description_free(new_r_font);
-	    if (new_b_font != NULL)
-		    pango_font_description_free(new_b_font);
+        if (new_r_font != NULL)
+            pango_font_description_free(new_r_font);
+        if (new_b_font != NULL)
+            pango_font_description_free(new_b_font);
 #endif
         g_free(gui_font_name);
+        return;
     }
 
     /* the font(s) seem to be ok */
-	set_plist_font(new_r_font);
-	set_ptree_font_all(new_r_font);
-	old_r_font = m_r_font;
-	old_b_font = m_b_font;
-	set_fonts(new_r_font, new_b_font);
+    set_plist_font(new_r_font);
+    set_ptree_font_all(new_r_font);
+    old_r_font = m_r_font;
+    old_b_font = m_b_font;
+    set_fonts(new_r_font, new_b_font);
 #if GTK_MAJOR_VERSION < 2
-	g_free(bold_font_name);
+    g_free(bold_font_name);
 #endif
 
-	/* Redraw the hex dump windows. */
-	redraw_hex_dump_all();
+    /* Redraw the hex dump windows. */
+    redraw_hex_dump_all();
 
     /* Redraw the "Follow TCP Stream" windows. */
-	follow_redraw_all();
+    follow_redraw_all();
 
     /* We're no longer using the old fonts; unreference them. */
 #if GTK_MAJOR_VERSION < 2
-	if (old_r_font != NULL)
-		gdk_font_unref(old_r_font);
-	if (old_b_font != NULL)
-		gdk_font_unref(old_b_font);
+    if (old_r_font != NULL)
+        gdk_font_unref(old_r_font);
+    if (old_b_font != NULL)
+        gdk_font_unref(old_b_font);
 #else
-	if (old_r_font != NULL)
-		pango_font_description_free(old_r_font);
-	if (old_b_font != NULL)
-		pango_font_description_free(old_b_font);
+    if (old_r_font != NULL)
+        pango_font_description_free(old_r_font);
+    if (old_b_font != NULL)
+        pango_font_description_free(old_b_font);
 #endif
     g_free(gui_font_name);
 }
-
-
 
 
 #ifdef WIN32
