@@ -3528,7 +3528,7 @@ dissect_chap( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree ) {
   proto_tree *value_tree;
 
   guint8 code, id, value_size;
-  guint16 length;
+  gint32 length;
   int offset;
 
   code = tvb_get_guint8(tvb, 0);
@@ -3594,6 +3594,7 @@ dissect_chap( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree ) {
 	    offset+=value_size;
 	    length-=value_size;
 	    if (length > 0) {
+		  tvb_ensure_bytes_exist(tvb, offset, length);
 	      proto_tree_add_text(field_tree, tvb, offset, length,
 				  "Name (%u byte%s)", length,
 				  plurality(length, "", "s"));
