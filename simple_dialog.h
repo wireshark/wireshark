@@ -2,7 +2,7 @@
  * Definitions for alert box routines with toolkit-independent APIs but
  * toolkit-dependent implementations.
  *
- * $Id: simple_dialog.h,v 1.14 2004/06/04 20:04:34 ulfl Exp $
+ * $Id: simple_dialog.h,v 1.15 2004/06/04 21:12:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -84,7 +84,7 @@ extern gpointer simple_dialog(ESD_TYPE_E type, gint btn_mask,
  * @param ap parameters
  * @return the newly created dialog
  */
-extern gpointer vsimple_dialog(gint type, gint btn_mask,
+extern gpointer vsimple_dialog(ESD_TYPE_E type, gint btn_mask,
    const gchar *msg_format, va_list ap);
 #else
 /** Create and show a simple dialog.

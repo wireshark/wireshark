@@ -1,7 +1,7 @@
 /* simple_dialog.c
  * Simple message dialog box routines.
  *
- * $Id: simple_dialog.c,v 1.35 2004/05/26 03:49:24 ulfl Exp $
+ * $Id: simple_dialog.c,v 1.36 2004/06/04 21:12:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -248,7 +248,7 @@ display_queued_messages(void)
  */
 
 gpointer
-vsimple_dialog(gint type, gint btn_mask, const gchar *msg_format, va_list ap)
+vsimple_dialog(ESD_TYPE_E type, gint btn_mask, const gchar *msg_format, va_list ap)
 {
   gchar             *message;
   queued_message_t *queued_message;
@@ -296,7 +296,7 @@ vsimple_dialog(gint type, gint btn_mask, const gchar *msg_format, va_list ap)
 }
 
 gpointer
-simple_dialog(gint type, gint btn_mask, const gchar *msg_format, ...)
+simple_dialog(ESD_TYPE_E type, gint btn_mask, const gchar *msg_format, ...)
 {
   va_list ap;
   gpointer ret;
