@@ -3,7 +3,7 @@
  * By Steve Limkemann <stevelim@dgtech.com>
  * Copyright 1998 Steve Limkemann
  *
- * $Id: packet-gryphon.c,v 1.30 2002/05/01 06:15:44 guy Exp $
+ * $Id: packet-gryphon.c,v 1.31 2002/05/01 06:46:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -265,6 +265,20 @@ dissect_gryphon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 }
 
+static const value_string src_dest[] = {
+    {SD_CARD,   	"Card"},
+    {SD_SERVER,     	"Server"},
+    {SD_CLIENT,		"Client"},
+    {SD_SCHED,		"Scheduler"},
+    {SD_SCRIPT,		"Script Processor"},
+    {SD_PGM,     	"Program Loader"},
+    {SD_USDT,     	"USDT Server"},
+    {SD_BLM,	    	"Bus Load Monitoring"},
+    {SD_FLIGHT,   	"Flight Recorder"},
+    {SD_RESP,     	"Message Responder"},
+    {0,			NULL}
+};
+
 static void
 dissect_gryphon_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     gboolean is_msgresp_add)
@@ -278,19 +292,6 @@ dissect_gryphon_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     int		    msglen, msgpad;
     unsigned int    src, dest, i, frmtyp;
     guint8	    flags;
-    static const value_string src_dest[] = {
-	    {SD_CARD,   	"Card"},
-	    {SD_SERVER,     	"Server"},
-	    {SD_CLIENT,		"Client"},
-	    {SD_SCHED,		"Scheduler"},
-	    {SD_SCRIPT,		"Script Processor"},
-	    {SD_PGM,     	"Program Loader"},
-	    {SD_USDT,     	"USDT Server"},
-	    {SD_BLM,	    	"Bus Load Monitoring"},
-	    {SD_FLIGHT,   	"Flight Recorder"},
-	    {SD_RESP,     	"Message Responder"},
-	    {-1,		"- unknown -"},
-	    };
 
     if (!is_msgresp_add) {
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
@@ -336,28 +337,18 @@ dissect_gryphon_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     header_item = proto_tree_add_text(gryphon_tree, tvb, offset, MSG_HDR_SZ, "Header");
     header_tree = proto_item_add_subtree(header_item, ett_gryphon_header);
-    for (i = 0; i < SIZEOF(src_dest); i++) {
-	if (src_dest[i].value == src)
-	    break;
-    }
-    if (i >= SIZEOF(src_dest))
-	i = SIZEOF(src_dest) - 1;
     proto_tree_add_text(header_tree, tvb, offset, 2,
-	"Source: %s, channel %u", src_dest[i].strptr,
+	"Source: %s, channel %u",
+	val_to_str(src, src_dest, "Unknown (0x%02x)"),
 	tvb_get_guint8(tvb, offset + 1));
     proto_tree_add_uint_hidden(header_tree, hf_gryph_src, tvb,
 	offset, 1, src);
     proto_tree_add_uint_hidden(header_tree, hf_gryph_srcchan, tvb,
 	offset+1, 1, tvb_get_guint8(tvb, offset + 1));
 
-    for (i = 0; i < SIZEOF(src_dest); i++) {
-	if (src_dest[i].value == dest)
-	    break;
-    }
-    if (i >= SIZEOF(src_dest))
-	i = SIZEOF(src_dest) - 1;
     proto_tree_add_text(header_tree, tvb, offset+2, 2,
-	"Destination: %s, channel %u", src_dest[i].strptr,
+	"Destination: %s, channel %u",
+	val_to_str(dest, src_dest, "Unknown (0x%02x)"),
 	tvb_get_guint8(tvb, offset + 3));
     proto_tree_add_uint_hidden(header_tree, hf_gryph_dest, tvb,
 	offset+2, 1, dest);
@@ -371,20 +362,14 @@ dissect_gryphon_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (is_msgresp_add) {
 	localItem = proto_tree_add_text(header_tree, tvb, offset+6, 1, "Flags");
 	localTree = proto_item_add_subtree (localItem, ett_gryphon_flags);
-	if (flags & DONT_WAIT_FOR_RESP) {
-	    proto_tree_add_text(localTree, tvb, offset+6, 1,
-		    	    "1... .... = Don't wait for response");
-	} else {
-	    proto_tree_add_text(localTree, tvb, offset+6, 1,
-		    	    "0... .... = Wait for response");
-	}
-	if (flags & WAIT_FOR_PREV_RESP) {
-	    proto_tree_add_text(localTree, tvb, offset+6, 1,
-		    	    ".1.. .... = Wait for previous responses");
-	} else {
-	    proto_tree_add_text(localTree, tvb, offset+6, 1,
-		    	    ".0.. .... = Don't wait for previous responses");
-	}
+	proto_tree_add_text(localTree, tvb, offset+6, 1, "%s",
+	    decode_boolean_bitfield(flags, DONT_WAIT_FOR_RESP, 8,
+		"Don't wait for response",
+		"Wait for response"));
+	proto_tree_add_text(localTree, tvb, offset+6, 1, "%s",
+	    decode_boolean_bitfield(flags, WAIT_FOR_PREV_RESP, 8,
+		"Wait for previous responses",
+		"Don't wait for previous responses"));
     }
     proto_tree_add_text(header_tree, tvb, offset+7, 1, "reserved");
 
@@ -508,7 +493,7 @@ static const value_string responses[] = {
 	{RESP_UNAVAILABLE,	"Unavailable"},
 	{RESP_BUF_FULL,		"Buffer full"},
 	{RESP_NO_SUCH_JOB,	"No such job"},
-	{-1,	    	    	"- unknown -"},
+	{0,	    	    	NULL},
 	};
 	
 static const value_string filter_data_types[] = {
@@ -518,7 +503,7 @@ static const value_string filter_data_types[] = {
 	{FILTER_DATA_TYPE_EXTRA_DATA,	"data message extra data"},
 	{FILTER_EVENT_TYPE_HEADER,  	"event message header"},
 	{FILTER_EVENT_TYPE_DATA,    	"event message"},
-	{-1,	    	    	    	"- unknown -"},
+	{0,	    	    	    	NULL},
 	};
 
 static const value_string operators[] = {
@@ -536,27 +521,27 @@ static const value_string operators[] = {
 	{DIG_LOW_TO_HIGH,    	"Digital, low to high transistion"},
 	{DIG_HIGH_TO_LOW,    	"Digital, high to low transistion"},
 	{DIG_TRANSITION,     	"Digital, change of state"},
-	{-1,	    	    	"- unknown -"},
+	{0,	    	    	NULL},
 	};
 
 static const value_string modes[] = {
 	{FILTER_OFF_PASS_ALL,	"Filter off, pass all messages"},
 	{FILTER_OFF_BLOCK_ALL,	"Filter off, block all messages"},
 	{FILTER_ON, 	    	"Filter on"},
-	{-1,	    	    	"- unknown -"},
+	{0,	    	    	NULL},
 	};
 
 static const value_string dmodes[] = {
 	{DEFAULT_FILTER_BLOCK,	"Block"},
 	{DEFAULT_FILTER_PASS,	"Pass"},
-	{-1,	    	    	"- unknown -"},
+	{0,	    	    	NULL},
 	};
 
 static const value_string filtacts[] = {
 	{DELETE_FILTER,     	"Delete"},
 	{ACTIVATE_FILTER,   	"Activate"},
 	{DEACTIVATE_FILTER, 	"Deactivate"},
-	{-1,	    	    	"- unknown -"},
+	{0,	    	    	NULL},
 	};
 
 static const value_string ioctls[] = {
@@ -641,7 +626,7 @@ static const value_string ioctls[] = {
 	{GUBPSETINTERBYTE,  	"GUBPSETINTERBYTE"},
 	{GUBPGETNACKMODE,   	"GUBPGETNACKMODE"},
 	{GUBPSETNACKMODE,   	"GUBPSETNACKMODE"},
-	{-1, 	    	    	"- unknown -"},
+	{0, 	    	    	NULL},
 	};
 
 
@@ -690,7 +675,7 @@ static int
 decode_response(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
 {
     int     	    cmd, msglen;
-    unsigned int    i, j, resp;
+    unsigned int    i, resp;
     proto_tree	    *ft;
     proto_item	    *ti;
 
@@ -717,13 +702,8 @@ decode_response(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
     msglen -= 4;
     
     resp = tvb_get_ntohl (tvb, offset);
-    for (j = 0; j < SIZEOF(responses); j++) {
-    	if (responses[j].value == resp)
-	    break;
-    }
-    if (j >= SIZEOF(responses))
-    	j = SIZEOF(responses) - 1;
-    proto_tree_add_text (pt, tvb, offset, 4, "Status: %s", responses[j].strptr);
+    proto_tree_add_text (pt, tvb, offset, 4, "Status: %s",
+	val_to_str(resp, responses, "Unknown (0x%08x)"));
     offset += 4;
     msglen -= 4;
 
@@ -760,16 +740,31 @@ decode_data(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
     item1 = proto_tree_add_text(tree, tvb, offset+5, 1, "Mode: %d", mode);
     if (mode) {
 	tree1 = proto_item_add_subtree (item1, ett_gryphon_flags);
-	if (mode & 0x80)
-	    proto_tree_add_text(tree1, tvb, offset+5, 1, "1... .... = Transmitted message");
-	if (mode & 0x40)
-	    proto_tree_add_text(tree1, tvb, offset+5, 1, ".1.. .... = Received message");
-	if (mode & 0x20)
-	    proto_tree_add_text(tree1, tvb, offset+5, 1, "..1. .... = Local message");
-	if (mode & 0x10)
-	    proto_tree_add_text(tree1, tvb, offset+5, 1, "...1 .... = Remote message");
-	if (mode & 0x01)
-	    proto_tree_add_text(tree1, tvb, offset+5, 1, ".... ...1 = Internal message");
+	if (mode & 0x80) {
+	    proto_tree_add_text(tree1, tvb, offset+5, 1, "%s",
+		decode_boolean_bitfield(mode, 0x80, 8,
+		    "Transmitted message", NULL));
+	}
+	if (mode & 0x40) {
+	    proto_tree_add_text(tree1, tvb, offset+5, 1, "%s",
+		decode_boolean_bitfield(mode, 0x40, 8,
+		    "Received message", NULL));
+	}
+	if (mode & 0x20) {
+	    proto_tree_add_text(tree1, tvb, offset+5, 1, "%s",
+		decode_boolean_bitfield(mode, 0x20, 8,
+		    "Local message", NULL));
+	}
+	if (mode & 0x10) {
+	    proto_tree_add_text(tree1, tvb, offset+5, 1, "%s",
+		decode_boolean_bitfield(mode, 0x10, 8,
+		    "Remote message", NULL));
+	}
+	if (mode & 0x01) {
+	    proto_tree_add_text(tree1, tvb, offset+5, 1, "%s",
+		decode_boolean_bitfield(mode, 0x01, 8,
+		    "Internal message", NULL));
+	}
     }
     proto_tree_add_text(tree, tvb, offset+6, 1, "Priority: %u",
 	tvb_get_guint8(tvb, offset+6));
@@ -932,17 +927,12 @@ static int
 cmd_ioctl(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
 {
     int		    msglen;
-    unsigned int    ioctl, i;
+    unsigned int    ioctl;
 
     msglen = tvb_reported_length_remaining(tvb, offset);
     ioctl = tvb_get_ntohl(tvb, offset);
-    for (i = 0; i < SIZEOF(ioctls); i++) {
-	if (ioctls[i].value == ioctl)
-	    break;
-    }
-    if (i >= SIZEOF(ioctls))
-	i = SIZEOF(ioctls) - 1;
-    proto_tree_add_text(pt, tvb, offset, 4, "IOCTL: %s", ioctls[i].strptr);
+    proto_tree_add_text(pt, tvb, offset, 4, "IOCTL: %s",
+	val_to_str(ioctl, ioctls, "Unknown (0x%08x)"));
     offset += 4;
     msglen -= 4;
     if (msglen > 0) {
@@ -999,7 +989,7 @@ static int
 cmd_modfilt(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
 {
     guint8	    filter_handle;
-    unsigned char   action, i;
+    unsigned char   action;
 
     filter_handle = tvb_get_guint8(tvb, offset);
     if (filter_handle)
@@ -1008,13 +998,8 @@ cmd_modfilt(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
     else
     	proto_tree_add_text(pt, tvb, offset, 1, "Filter handles: all");
     action = tvb_get_guint8(tvb, offset + 1);
-    for (i = 0; i < SIZEOF(filtacts); i++) {
-	if (filtacts[i].value == action)
-	    break;
-    }
-    if (i >= SIZEOF(filtacts))
-	i = SIZEOF(filtacts) - 1;
-    proto_tree_add_text(pt, tvb, offset+1, 1, "Action: %s filter", filtacts[i].strptr);
+    proto_tree_add_text(pt, tvb, offset+1, 1, "Action: %s filter",
+	val_to_str(action, filtacts, "Unknown (%u)"));
     proto_tree_add_text(pt, tvb, offset+2, 2, "reserved");
     offset += 4;
     return offset;
@@ -1041,17 +1026,11 @@ resp_filthan(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
 static int
 dfiltmode(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
 {
-    unsigned int    i;
     unsigned char   mode;
     
     mode = tvb_get_guint8(tvb, offset);
-    for (i = 0; i < SIZEOF(modes); i++) {
-	if (dmodes[i].value == mode)
-	    break;
-    }
-    if (i >= SIZEOF(dmodes))
-	i = SIZEOF(dmodes) - 1;
-    proto_tree_add_text(pt, tvb, offset, 1, "Filter mode: %s", dmodes[i].strptr);
+    proto_tree_add_text(pt, tvb, offset, 1, "Filter mode: %s",
+	val_to_str(mode, dmodes, "Unknown (%u)"));
     proto_tree_add_text(pt, tvb, offset+1, 3, "reserved");
     offset += 4;
     return offset;
@@ -1060,17 +1039,11 @@ dfiltmode(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
 static int
 filtmode(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
 {
-    unsigned int    i;
     unsigned char   mode;
     
     mode = tvb_get_guint8(tvb, offset);
-    for (i = 0; i < SIZEOF(modes); i++) {
-	if (modes[i].value == mode)
-	    break;
-    }
-    if (i >= SIZEOF(modes))
-	i = SIZEOF(modes) - 1;
-    proto_tree_add_text(pt, tvb, offset, 1, "Filter mode: %s", modes[i].strptr);
+    proto_tree_add_text(pt, tvb, offset, 1, "Filter mode: %s",
+	val_to_str(mode, dmodes, "Unknown (%u)"));
     proto_tree_add_text(pt, tvb, offset+1, 3, "reserved");
     offset += 4;
     return offset;
@@ -1180,7 +1153,7 @@ resp_config(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
     proto_tree	*ft;
     int     	devices;
     int     	i;
-    unsigned int j, x;
+    unsigned int x;
     
     static const value_string protocol_types[] = {
 	{GDUMMY * 256 + GDGDMARKONE,	"Dummy device driver"},
@@ -1194,7 +1167,7 @@ resp_config(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
 	{GKWP2000 * 256 + GDEHC12KWP,  	"Keyword protocol 2000"},
 	{GHONDA * 256 + GDGHC08,    	"Honda UART, DG HC08 subtype"},
 	{GFORDUBP * 256 + GDGUBP08, 	"Ford UBP, DG HC08 subtype"},
-	{-1,	    	    	    	"- unknown -"},
+	{0,	    	    	    	NULL},
     };
 
     proto_tree_add_text(pt, tvb, offset, 20, "Device name: %.20s",
@@ -1233,13 +1206,8 @@ resp_config(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
 	offset += 20;
 
     	x = tvb_get_ntohs(tvb, offset);
-	for (j = 0; j < SIZEOF(protocol_types); j++) {
-	    if (protocol_types[j].value == x)
-	    	break;
-	}
-	if (j >= SIZEOF(protocol_types))
-	    j = SIZEOF(protocol_types) -1;
-	proto_tree_add_text(ft, tvb, offset, 2, "Protocol type & subtype: %s", protocol_types[j].strptr);
+	proto_tree_add_text(ft, tvb, offset, 2, "Protocol type & subtype: %s",
+	    val_to_str(x, protocol_types, "Unknown (0x%04x)"));
 	offset += 2;
 
 	proto_tree_add_text(ft, tvb, offset, 1, "Channel ID: %u",
@@ -1490,7 +1458,6 @@ cmd_modresp(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
     unsigned char   action;
     unsigned char   dest = tvb_get_guint8(tvb, offset-5);
     guint8	    resp_handle;
-    unsigned int    i;
 
     resp_handle = tvb_get_guint8(tvb, offset);
     if (resp_handle)
@@ -1501,13 +1468,8 @@ cmd_modresp(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
     else
     	proto_tree_add_text(pt, tvb, offset, 1, "Response handles: all");
     action = tvb_get_guint8(tvb, offset+1);
-    for (i = 0; i < SIZEOF(filtacts); i++) {
-	if (filtacts[i].value == action)
-	    break;
-    }
-    if (i >= SIZEOF(filtacts))
-	i = SIZEOF(filtacts) - 1;
-    proto_tree_add_text(pt, tvb, offset+1, 1, "Action: %s response", filtacts[i].strptr);
+    proto_tree_add_text(pt, tvb, offset+1, 1, "Action: %s response",
+	val_to_str(action, filtacts, "Unknown (%u)"));
     proto_tree_add_text(pt, tvb, offset+2, 2, "reserved");
     offset += 4;
     return offset;
@@ -1851,7 +1813,7 @@ speed(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
 static int
 filter_block(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
 {
-    unsigned int    type, operator, i;
+    unsigned int    type, operator;
     int     length, padding;
     
     proto_tree_add_text(pt, tvb, offset, 2, "Filter field starts at byte %u",
@@ -1859,22 +1821,12 @@ filter_block(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
     length = tvb_get_ntohs(tvb, offset+2);
     proto_tree_add_text(pt, tvb, offset+2, 2, "Filter field is %d bytes long", length);
     type = tvb_get_guint8(tvb, offset+4);
-    for (i = 0; i < SIZEOF(filter_data_types); i++) {
-	if (filter_data_types[i].value == type)
-	    break;
-    }
-    if (i >= SIZEOF(filter_data_types))
-	i = SIZEOF(filter_data_types) - 1;
-    proto_tree_add_text(pt, tvb, offset+4, 1, "Filtering on %s", filter_data_types[i].strptr);
+    proto_tree_add_text(pt, tvb, offset+4, 1, "Filtering on %s",
+	val_to_str(type, filter_data_types, "Unknown (0x%02x)"));
 
     operator = tvb_get_guint8(tvb, offset+5);
-    for (i = 0; i < SIZEOF(operators); i++) {
-	if (operators[i].value == operator)
-	    break;
-    }
-    if (i >= SIZEOF(operators))
-	i = SIZEOF(operators) - 1;
-    proto_tree_add_text(pt, tvb, offset+5, 1, "Type of comparison: %s", operators[i].strptr);
+    proto_tree_add_text(pt, tvb, offset+5, 1, "Type of comparison: %s",
+	val_to_str(operator, operators, "Unknown (%u)"));
     proto_tree_add_text(pt, tvb, offset+6, 2, "reserved");
     offset += 8;
     
@@ -1947,13 +1899,13 @@ proto_register_gryphon(void)
 {
     static hf_register_info hf[] = {
 	{ &hf_gryph_src,
-	{ "Source",           "gryph.src", FT_UINT8, BASE_DEC, NULL, 0x0,
+	{ "Source",           "gryph.src", FT_UINT8, BASE_HEX, VALS(src_dest), 0x0,
 	    	"", HFILL }},
 	{ &hf_gryph_srcchan,
 	{ "Source channel",   "gryph.srcchan", FT_UINT8, BASE_DEC, NULL, 0x0,
 	    	"", HFILL }},
 	{ &hf_gryph_dest,
-	{ "Destination",      "gryph.dest", FT_UINT8, BASE_DEC, NULL, 0x0,
+	{ "Destination",      "gryph.dest", FT_UINT8, BASE_HEX, VALS(src_dest), 0x0,
 	    	"", HFILL }},
 	{ &hf_gryph_destchan,
 	{ "Destination channel", "gryph.dstchan", FT_UINT8, BASE_DEC, NULL, 0x0,
