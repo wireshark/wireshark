@@ -1,7 +1,7 @@
 /* packet-nlsp.c
  * Routines for NetWare Link Services Protocol
  *
- * $Id: packet-nlsp.c,v 1.5 2003/04/06 02:31:35 guy Exp $
+ * $Id: packet-nlsp.c,v 1.6 2003/04/20 01:14:42 gerald Exp $
  *
  * Based on ISIS dissector by Stuart Stanley <stuarts@mxmail.net>
  *
@@ -1585,20 +1585,20 @@ proto_register_nlsp(void)
 	    { &hf_nlsp_hello_circuit_type,
 	      { "Circuit Type", "nlsp.hello.circuit_type", FT_UINT8, BASE_DEC,
 	        VALS(nlsp_hello_circuit_type_vals), NLSP_HELLO_CTYPE_MASK,
-		NULL, HFILL }},
+		"", HFILL }},
 
 	    { &hf_nlsp_hello_holding_timer,
 	      { "Holding Timer", "nlsp.hello.holding_timer", FT_UINT8, BASE_DEC,
-	        NULL, 0x0, NULL, HFILL }},
+	        NULL, 0x0, "", HFILL }},
 
 	    { &hf_nlsp_hello_holding_timer,
 	      { "Holding Timer", "nlsp.hello.holding_timer", FT_UINT8, BASE_DEC,
-	        NULL, 0x0, NULL, HFILL }},
+	        NULL, 0x0, "", HFILL }},
 
 	    { &hf_nlsp_hello_priority,
 	      { "Priority", "nlsp.hello.priority", FT_UINT8, BASE_DEC,
 	        NULL, NLSP_HELLO_PRIORITY_MASK,
-		NULL, HFILL }},
+		"", HFILL }},
 
 	    { &hf_nlsp_lsp_sequence_number,
 	      { "Sequence Number", "nlsp.sequence_number",
