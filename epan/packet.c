@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.32 2001/04/01 22:01:34 hagbard Exp $
+ * $Id: packet.c,v 1.33 2001/04/01 23:11:43 hagbard Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -72,7 +72,6 @@
 #include "timestamp.h"
 
 #include "atalk-utils.h"
-#include "packet-frame.h"
 #include "ipv6-utils.h"
 #include "sna-utils.h"
 #include "osi-utils.h"
@@ -82,12 +81,14 @@
 #include "tvbuff.h"
 #include "plugins.h"
 
+static gint proto_malformed = -1;
 static dissector_handle_t frame_handle = NULL;
 
 void
 packet_init(void)
 {
   frame_handle = find_dissector("frame");
+  proto_malformed = proto_get_id_by_filter_name("malformed");
 }
 
 void
@@ -152,8 +153,13 @@ dissect_packet(tvbuff_t **p_tvb, union wtap_pseudo_header *pseudo_header,
 		g_assert_not_reached();
 	}
 	CATCH(ReportedBoundsError) {
+	  if(proto_malformed != -1){
 		proto_tree_add_protocol_format(tree, proto_malformed, *p_tvb, 0, 0,
 				"[Malformed Frame: Packet Length]" );
+	  }
+	  else {
+	    g_assert_not_reached();
+	  }
 	}
 	ENDTRY;
 
