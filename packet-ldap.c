@@ -1,7 +1,7 @@
 /* packet-ldap.c
  * Routines for ldap packet dissection
  *
- * $Id: packet-ldap.c,v 1.48 2002/11/12 21:37:22 guy Exp $
+ * $Id: packet-ldap.c,v 1.49 2002/11/25 19:20:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1231,7 +1231,8 @@ static void dissect_ldap_request_modifyrdn(ASN1_SCK *a, proto_tree *tree,
 
   if (a->offset < (int) (start + length)) {
     /* LDAP V3 Modify DN operation, with newSuperior */
-    if (read_string(a, tree, hf_ldap_message_modrdn_superior, 0, 0, ASN1_UNI, ASN1_OTS) != ASN1_ERR_NOERROR)
+    /*      "newSuperior     [0] LDAPDN OPTIONAL" (0x80) */
+    if (read_string(a, tree, hf_ldap_message_modrdn_superior, 0, 0, ASN1_CTX, 0) != ASN1_ERR_NOERROR)
       return;
   }
 }

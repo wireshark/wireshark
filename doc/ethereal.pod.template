@@ -1599,6 +1599,7 @@ B<http://www.ethereal.com>.
   Brian Ginsbach           <ginsbach [AT] cray.com>
   Dave Richards            <d_m_richards [AT] attbi.com>
   Martin Regner            <martin.regner [AT] chello.se>
+  Jason Greene             <jason [AT] inetgurus.net>
 
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to give his
 permission to use his version of snprintf.c.
