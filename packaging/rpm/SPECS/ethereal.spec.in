@@ -14,14 +14,14 @@ URL:		http://www.ethereal.com/
 BuildRoot:	/tmp/ethereal-%{PACKAGE_VERSION}-root
 Packager:	FastJack <fastjack@i-s-o.net>
 Requires:	gtk2
-Requires:	libpcap
+Requires:	libpcap openssl
 
 %description
 Ethereal is a network traffic analyzer for Unix-ish operating systems.
 
 %prep
 %setup
-CFLAGS="$RPM_OPT_FLAGS" ./configure --prefix=%prefix
+CFLAGS="$RPM_OPT_FLAGS" ./configure --prefix=%prefix --with-ssl=/usr --with-krb5
 make
 
 %install
@@ -46,8 +46,11 @@ rm -rf $RPM_BUILD_ROOT
 %prefix/man/*/*
 
 %changelog
+* Thu Oct 28 2004 Joerg Mayer
+- Add openssl requirement (heimdal and net-snmp are still automatic)
+
 * Tue Jul 20 2004 Joerg Mayer
-- Redo install and files section to actually work with normal bulids
+- Redo install and files section to actually work with normal builds
 
 * Sat Feb 07 2004 Joerg Mayer
 - in case there are shared libs: include them
