@@ -1,7 +1,7 @@
 /* dcerpc_stat.c
  * dcerpc_stat   2002 Ronnie Sahlberg
  *
- * $Id: dcerpc_stat.c,v 1.6 2003/04/23 08:20:05 guy Exp $
+ * $Id: dcerpc_stat.c,v 1.7 2003/04/24 23:17:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -37,6 +37,8 @@
 #include "menu.h"
 #include "epan/packet_info.h"
 #include "simple_dialog.h"
+#include "dlg_utils.h"
+#include "ui_util.h"
 #include "tap.h"
 #include "../register.h"
 #include "packet-dcerpc.h"
@@ -532,16 +534,25 @@ dlg_destroy_cb(void)
 
 
 static void
+dlg_cancel_cb(GtkWidget *cancel_bt _U_, gpointer parent_w)
+{
+	gtk_widget_destroy(GTK_WIDGET(parent_w));
+}
+
+
+static void
 gtk_dcerpcstat_cb(GtkWidget *w _U_, gpointer d _U_)
 {
-	/* if the window is already open, bring it to front */
+	GtkWidget *bbox, *cancel_button;
+
+	/* if the window is already open, bring it to front and
+	   un-minimize it, as necessary */
 	if(dlg){
-		gdk_window_raise(dlg->window);
+		reactivate_window(dlg);
 		return;
 	}
 
-	dlg=gtk_window_new(GTK_WINDOW_TOPLEVEL);
-	gtk_window_set_title(GTK_WINDOW(dlg), "DCE-RPC RTT Statistics");
+	dlg=dlg_window_new("Ethereal: DCE-RPC RTT Statistics");
 	SIGNAL_CONNECT(dlg, "destroy", dlg_destroy_cb, NULL);
 	dlg_box=gtk_vbox_new(FALSE, 0);
 	gtk_container_add(GTK_CONTAINER(dlg), dlg_box);
@@ -598,13 +609,45 @@ gtk_dcerpcstat_cb(GtkWidget *w _U_, gpointer d _U_)
 	gtk_widget_show(filter_box);
 
 
+	bbox=gtk_hbutton_box_new();
+	gtk_button_box_set_layout (GTK_BUTTON_BOX (bbox), GTK_BUTTONBOX_END);
+	gtk_button_box_set_spacing(GTK_BUTTON_BOX(bbox), 5);
+	gtk_container_add(GTK_BOX(dlg_box), bbox);
+	gtk_widget_show(bbox);
+
 	/* the start button */
 	start_button=gtk_button_new_with_label("Create Stat");
 	SIGNAL_CONNECT_OBJECT(start_button, "clicked", 
                               dcerpcstat_start_button_clicked, NULL);
-
-	gtk_box_pack_start(GTK_BOX(dlg_box), start_button, TRUE, TRUE, 0);
+	GTK_WIDGET_SET_FLAGS(start_button, GTK_CAN_DEFAULT);
+	gtk_box_pack_start(GTK_BOX(bbox), start_button, TRUE, TRUE, 0);
+	gtk_widget_grab_default(start_button);
 	gtk_widget_show(start_button);
+
+#if GTK_MAJOR_VERSION < 2
+	cancel_button=gtk_button_new_with_label("Cancel");
+#else
+	cancel_button=gtk_button_new_from_stock(GTK_STOCK_CANCEL);
+#endif
+	SIGNAL_CONNECT(cancel_button, "clicked", dlg_cancel_cb, dlg);
+	GTK_WIDGET_SET_FLAGS(cancel_button, GTK_CAN_DEFAULT);
+	gtk_box_pack_start(GTK_BOX(bbox), cancel_button, TRUE, TRUE, 0);
+	gtk_widget_show(cancel_button);
+
+	/* Catch the "activate" signal on the filter text entry, so that
+	   if the user types Return there, we act as if the "Create Stat"
+	   button had been selected, as happens if Return is typed if some
+	   widget that *doesn't* handle the Return key has the input
+	   focus. */
+	dlg_set_activate(filter_entry, start_button);
+
+	/* Catch the "key_press_event" signal in the window, so that we can
+	   catch the ESC key being pressed and act as if the "Cancel" button
+	   had been selected. */
+	dlg_set_cancel(dlg, cancel_button);
+
+	/* Give the initial focus to the "Filter" entry box. */
+	gtk_widget_grab_focus(filter_entry);
 
 	gtk_widget_show_all(dlg);
 }
