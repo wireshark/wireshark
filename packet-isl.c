@@ -1,7 +1,7 @@
 /* packet-isl.c
  * Routines for Cisco ISL Ethernet header disassembly
  *
- * $Id: packet-isl.c,v 1.22 2001/01/21 20:16:01 guy Exp $
+ * $Id: packet-isl.c,v 1.23 2001/01/21 22:10:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -154,10 +154,6 @@ dissect_isl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   const guint8 *compat_pd;
   int compat_offset;
 
-  CHECK_DISPLAY_AS_DATA(proto_isl, tvb, pinfo, tree);
-
-  pinfo->current_proto = "ISL";
-  
   if (check_col(pinfo->fd, COL_PROTOCOL))
     col_set_str(pinfo->fd, COL_PROTOCOL, "ISL");
   if (check_col(pinfo->fd, COL_INFO))

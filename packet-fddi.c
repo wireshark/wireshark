@@ -3,7 +3,7 @@
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
- * $Id: packet-fddi.c,v 1.47 2001/01/10 09:07:35 guy Exp $
+ * $Id: packet-fddi.c,v 1.48 2001/01/21 22:10:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -234,9 +234,6 @@ dissect_fddi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   u_char     src_swapped[6], dst_swapped[6];
   tvbuff_t   *next_tvb;
 
-  CHECK_DISPLAY_AS_DATA(proto_fddi, tvb, pinfo, tree);
-
-  pinfo->current_proto = "FDDI";
   if (check_col(pinfo->fd, COL_PROTOCOL))
     col_set_str(pinfo->fd, COL_PROTOCOL, "FDDI");
 

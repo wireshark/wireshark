@@ -1,7 +1,7 @@
 /* packet-ppp.c
  * Routines for ppp packet disassembly
  *
- * $Id: packet-ppp.c,v 1.54 2001/01/14 08:25:14 guy Exp $
+ * $Id: packet-ppp.c,v 1.55 2001/01/21 22:10:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -48,10 +48,9 @@
 static int proto_ppp = -1;
 
 static gint ett_ppp = -1;
-static gint ett_ipcp = -1;
-static gint ett_ipcp_options = -1;
-static gint ett_ipcp_ipaddrs_opt = -1;
-static gint ett_ipcp_compressprot_opt = -1;
+
+static int proto_lcp = -1;
+
 static gint ett_lcp = -1;
 static gint ett_lcp_options = -1;
 static gint ett_lcp_mru_opt = -1;
@@ -65,7 +64,12 @@ static gint ett_lcp_callback_opt = -1;
 static gint ett_lcp_multilink_ep_disc_opt = -1;
 static gint ett_lcp_internationalization_opt = -1;
 
-static dissector_table_t subdissector_table;
+static int proto_ipcp = -1;
+
+static gint ett_ipcp = -1;
+static gint ett_ipcp_options = -1;
+static gint ett_ipcp_ipaddrs_opt = -1;
+static gint ett_ipcp_compressprot_opt = -1;
 
 static int proto_mp = -1;
 static int hf_mp_frag_first = -1;
@@ -74,6 +78,8 @@ static int hf_mp_sequence_num = -1;
 
 static int ett_mp = -1;
 static int ett_mp_flags = -1;
+
+static dissector_table_t subdissector_table;
 
 /* options */
 static gint ppp_fcs_decode = 0; /* 0 = No FCS, 1 = 16 bit FCS, 2 = 32 bit FCS */
@@ -637,14 +643,15 @@ fcs16(register guint16 fcs,
          guint32 len)
 {
     guint8 val;
+
     /* Check for Invalid Length */
-    if(len == 0)
-        return(0x0000);
+    if (len == 0)
+        return (0x0000);
     while (len--) {
-		val = tvb_get_guint8(tvbuff, offset++);
-		fcs = (guint16)((fcs >> 8) & 0x00ff) ^
+	val = tvb_get_guint8(tvbuff, offset++);
+	fcs = (guint16)((fcs >> 8) & 0x00ff) ^
             fcstab_16[((guint16)(fcs ^ (guint16)((val) & 0x00ff)) & 0x00ff)];
-	}
+    }
 
     return (fcs ^ 0xffff);
 }
@@ -661,9 +668,10 @@ fcs32(guint32 fcs,
          guint32 len)
 {
     guint8 val;
+
     /* Check for invalid Length */
-    if(len <= 0)
-        return(0x00000000);
+    if (len == 0)
+        return (0x00000000);
 
     while (len--) {
 	val = tvb_get_guint8(tvbuff, offset++);
@@ -1027,8 +1035,7 @@ static void dissect_ipcp_addr_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
 }
 
 static void
-dissect_cp( tvbuff_t *tvb, const char *proto_short_name,
-	const char *proto_long_name, int proto_subtree_index,
+dissect_cp( tvbuff_t *tvb, int proto_id, int proto_subtree_index,
 	const value_string *proto_vals, int options_subtree_index,
 	const ip_tcp_opt *opts, int nopts, packet_info *pinfo, proto_tree *tree ) {
   proto_item *ti;
@@ -1046,12 +1053,12 @@ dissect_cp( tvbuff_t *tvb, const char *proto_short_name,
   length = tvb_get_ntohs(tvb, 2);
 
   if(check_col(pinfo->fd, COL_INFO))
-	col_add_fstr(pinfo->fd, COL_INFO, "%sCP %s", proto_short_name,
+	col_add_fstr(pinfo->fd, COL_INFO, "%s %s",
+		proto_get_protocol_short_name(proto_id),
 		val_to_str(code, proto_vals, "Unknown"));
 
   if(tree) {
-    ti = proto_tree_add_text(tree, tvb, 0, 4, "%s Control Protocol",
-				proto_long_name);
+    ti = proto_tree_add_item(tree, proto_id, tvb, 0, length, FALSE);
     fh_tree = proto_item_add_subtree(ti, proto_subtree_index);
     proto_tree_add_text(fh_tree, tvb, 0, 1, "Code: %s (0x%02x)",
       val_to_str(code, proto_vals, "Unknown"), code);
@@ -1173,31 +1180,27 @@ dissect_ppp_stuff( tvbuff_t *tvb, packet_info *pinfo,
 
   /* do lookup with the subdissector table */
   if (dissector_try_port(subdissector_table, ppp_prot, next_tvb, pinfo, tree))
-      return TRUE;
+    return TRUE;
 
-  /* XXX - make "dissect_lcp()" and "dissect_ipcp()", have them just
-     call "dissect_cp()", and register them as well?
-
-     We can do that for "dissect_mp()", too. */
-  switch (ppp_prot) {
-    case PPP_MP:
-      dissect_mp(next_tvb, pinfo, tree);
-      return TRUE;
-    case PPP_LCP:
-      dissect_cp(next_tvb, "L", "Link", ett_lcp, lcp_vals, ett_lcp_options,
-		lcp_opts, N_LCP_OPTS, pinfo, tree);
-      return TRUE;
-    case PPP_IPCP:
-      dissect_cp(next_tvb, "IP", "IP", ett_ipcp, cp_vals, ett_ipcp_options,
-		ipcp_opts, N_IPCP_OPTS, pinfo, tree);
-      return TRUE;
-    default:
-      if (check_col(pinfo->fd, COL_INFO))
-        col_add_fstr(pinfo->fd, COL_INFO, "PPP %s (0x%04x)",
+  if (check_col(pinfo->fd, COL_INFO))
+    col_add_fstr(pinfo->fd, COL_INFO, "PPP %s (0x%04x)",
 		val_to_str(ppp_prot, ppp_vals, "Unknown"), ppp_prot);
-      dissect_data(next_tvb, 0, pinfo, tree);
-      return FALSE;
-  }
+  dissect_data(next_tvb, 0, pinfo, tree);
+  return FALSE;
+}
+
+static void
+dissect_lcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  dissect_cp(tvb, proto_lcp, ett_lcp, lcp_vals, ett_lcp_options,
+	     lcp_opts, N_LCP_OPTS, pinfo, tree);
+}
+
+static void
+dissect_ipcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  dissect_cp(tvb, proto_ipcp, ett_ipcp, cp_vals, ett_ipcp_options,
+	     ipcp_opts, N_IPCP_OPTS, pinfo, tree);
 }
 
 #define MP_FRAG_MASK     0xC0
@@ -1205,6 +1208,11 @@ dissect_ppp_stuff( tvbuff_t *tvb, packet_info *pinfo,
 #define MP_FRAG_FIRST    0x80
 #define MP_FRAG_LAST     0x40
 #define MP_FRAG_RESERVED 0x3f
+
+static const true_false_string frag_truth = {
+  "Yes",
+  "No"
+};
 
 /* According to RFC 1717, the length the MP header isn't indicated anywhere
    in the header itself.  It starts out at four bytes and can be
@@ -1217,20 +1225,16 @@ dissect_mp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree *mp_tree, *hdr_tree, *fh_tree = NULL;
   proto_item *ti;
   guint8      flags;
-  guint32     seq;
-  gchar       *flag_str;
-  int         first, last;
-  tvbuff_t	*next_tvb;
+  gchar      *flag_str;
+  tvbuff_t   *next_tvb;
 
-  CHECK_DISPLAY_AS_DATA(proto_mp, tvb, pinfo, tree);
-
-  flags = tvb_get_guint8(tvb, 0);
-  first = flags && MP_FRAG_FIRST;
-  last  = flags && MP_FRAG_LAST;
-  seq   = tvb_get_ntoh24(tvb, 1);
+  if (check_col(pinfo->fd, COL_PROTOCOL))
+    col_set_str(pinfo->fd, COL_PROTOCOL, "PPP MP");
 
   if (check_col(pinfo->fd, COL_INFO))
-    col_add_fstr(pinfo->fd, COL_INFO, "PPP Multilink");
+    col_set_str(pinfo->fd, COL_INFO, "PPP Multilink");
+
+  flags = tvb_get_guint8(tvb, 0);
 
   if (tree) {
     switch (flags) {
@@ -1252,26 +1256,22 @@ dissect_mp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     ti = proto_tree_add_text(mp_tree, tvb, 0, 1, "Fragment: 0x%2X (%s)",
       flags, flag_str);
     hdr_tree = proto_item_add_subtree(ti, ett_mp_flags);
-    proto_tree_add_boolean_format(hdr_tree, hf_mp_frag_first, tvb, 0, 1, first,
-      "%s", decode_boolean_bitfield(flags, MP_FRAG_FIRST, sizeof(flags) * 8,
-        "first", "not first"));
-    proto_tree_add_boolean_format(hdr_tree, hf_mp_frag_last, tvb, 0, 1, last,
-      "%s", decode_boolean_bitfield(flags, MP_FRAG_LAST, sizeof(flags) * 8,
-        "last", "not last"));
+    proto_tree_add_boolean(hdr_tree, hf_mp_frag_first, tvb, 0, 1, flags);
+    proto_tree_add_boolean(hdr_tree, hf_mp_frag_last, tvb, 0, 1, flags),
     proto_tree_add_text(hdr_tree, tvb, 0, 1, "%s",
       decode_boolean_bitfield(flags, MP_FRAG_RESERVED, sizeof(flags) * 8,
         "reserved", "reserved"));
-    proto_tree_add_uint(mp_tree, hf_mp_sequence_num, tvb,  1, 3, seq);
- }
+    proto_tree_add_item(mp_tree, hf_mp_sequence_num, tvb,  1, 3, FALSE);
+  }
 
   next_tvb = tvb_new_subset(tvb, 4, -1, -1);
 
   if (tvb_length(next_tvb) > 0) {
-	  if (tree) {
-	    ti = proto_tree_add_item(tree, proto_ppp, next_tvb, 0, 1, FALSE);
-	    fh_tree = proto_item_add_subtree(ti, ett_ppp);
-	  }
-	  dissect_ppp_stuff(next_tvb, pinfo, tree, fh_tree);
+    if (tree) {
+      ti = proto_tree_add_item(tree, proto_ppp, next_tvb, 0, 1, FALSE);
+      fh_tree = proto_item_add_subtree(ti, ett_ppp);
+    }
+    dissect_ppp_stuff(next_tvb, pinfo, tree, fh_tree);
   }
 }
 
@@ -1298,12 +1298,10 @@ dissect_ppp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree ) {
   int        proto_offset;
   tvbuff_t   *next_tvb;
   guint8     byte0;
+  int        rx_fcs_offset;
   guint32    rx_fcs_exp;
   guint32    rx_fcs_got;
 
-  CHECK_DISPLAY_AS_DATA(proto_ppp, tvb, pinfo, tree);
-
-  pinfo->current_proto = "PPP";
   byte0 = tvb_get_guint8(tvb, 0);
 
   if (byte0 == 0xff) {
@@ -1356,33 +1354,26 @@ dissect_ppp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree ) {
   }
 
   /* Calculate the FCS check */
+  /* XXX - deal with packets cut off by the snapshot length */
   if (ppp_fcs_decode == FCS_16) {
-    rx_fcs_got = 0;
-    rx_fcs_exp = fcs16(0xFFFF, tvb, 0, tvb_length(tvb) - 2);
-    rx_fcs_got = tvb_get_guint8(tvb, tvb_length(tvb) - 2) |
-        (tvb_get_guint8(tvb, tvb_length(tvb) - 1) << 8);
-  	if (rx_fcs_got != rx_fcs_exp) {
-      proto_tree_add_text(fh_tree, tvb, tvb_length(tvb) - 2, 2, "FCS 16: %04x (incorrect, should be %04x)", rx_fcs_got, rx_fcs_exp);
-  	}
-  	else {
-      proto_tree_add_text(fh_tree, tvb, tvb_length(tvb) - 2, 2, "FCS 16: %04x (correct)", rx_fcs_got);
-  	}
+    rx_fcs_offset = tvb_length(tvb) - 2;
+    rx_fcs_exp = fcs16(0xFFFF, tvb, 0, rx_fcs_offset);
+    rx_fcs_got = tvb_get_letohs(tvb, rx_fcs_offset);
+    if (rx_fcs_got != rx_fcs_exp) {
+      proto_tree_add_text(fh_tree, tvb, rx_fcs_offset, 2, "FCS 16: %04x (incorrect, should be %04x)", rx_fcs_got, rx_fcs_exp);
+    } else {
+      proto_tree_add_text(fh_tree, tvb, rx_fcs_offset, 2, "FCS 16: %04x (correct)", rx_fcs_got);
+    }
+  } else if (ppp_fcs_decode == FCS_32) {
+    rx_fcs_offset = tvb_length(tvb) - 4;
+    rx_fcs_exp = fcs32(0xFFFFFFFF, tvb, 0, rx_fcs_offset);
+    rx_fcs_got = tvb_get_letohl(tvb, rx_fcs_offset);
+    if (rx_fcs_got != rx_fcs_exp) {
+      proto_tree_add_text(fh_tree, tvb, rx_fcs_offset, 4, "FCS 32: %08x (incorrect, should be %08x) ", rx_fcs_got, rx_fcs_exp);
+    } else {
+      proto_tree_add_text(fh_tree, tvb, rx_fcs_offset, 4, "FCS 32: %08x (correct)", rx_fcs_got);
+    }
   }
-  else if(ppp_fcs_decode == FCS_32) {
-    rx_fcs_got = 0;
-    rx_fcs_exp = fcs32(0xFFFFFFFF, tvb, 0, tvb_length(tvb) - 4);
-    rx_fcs_got = tvb_get_guint8(tvb, tvb_length(tvb) - 4) |
-        (tvb_get_guint8(tvb, tvb_length(tvb) - 3) << 8) |
-        (tvb_get_guint8(tvb, tvb_length(tvb) - 2) << 16) | 
-        (tvb_get_guint8(tvb, tvb_length(tvb) - 1) << 24);
-  	if (rx_fcs_got != rx_fcs_exp) {
-      proto_tree_add_text(fh_tree, tvb, tvb_length(tvb) - 4, 4, "FCS 32: %08x (incorrect, should be %08x) ", rx_fcs_got, rx_fcs_exp);
-  	}
-  	else {
-      proto_tree_add_text(fh_tree, tvb, tvb_length(tvb) - 4, 4, "FCS 32: %08x (correct)", rx_fcs_got);
-  	}
-  }
-
 }
 
 void
@@ -1394,22 +1385,6 @@ proto_register_ppp(void)
         };*/
 	static gint *ett[] = {
 		&ett_ppp,
-		&ett_ipcp,
-		&ett_ipcp_options,
-		&ett_ipcp_ipaddrs_opt,
-		&ett_ipcp_compressprot_opt,
-		&ett_lcp,
-		&ett_lcp_options,
-		&ett_lcp_mru_opt,
-		&ett_lcp_async_map_opt,
-		&ett_lcp_authprot_opt,
-		&ett_lcp_qualprot_opt,
-		&ett_lcp_magicnum_opt,
-		&ett_lcp_fcs_alternatives_opt,
-		&ett_lcp_numbered_mode_opt,
-		&ett_lcp_callback_opt,
-		&ett_lcp_multilink_ep_disc_opt,
-		&ett_lcp_internationalization_opt,
 	};
 
 	static enum_val_t ppp_options[] = {
@@ -1444,16 +1419,25 @@ proto_register_ppp(void)
 }
 
 void
+proto_reg_handoff_ppp(void)
+{
+  dissector_add("wtap_encap", WTAP_ENCAP_PPP, dissect_ppp, proto_ppp);
+  dissector_add("wtap_encap", WTAP_ENCAP_PPP_WITH_PHDR, dissect_ppp, proto_ppp);
+  dissector_add("fr.ietf", NLPID_PPP, dissect_ppp, proto_ppp);
+  dissector_add("gre.proto", ETHERTYPE_PPP, dissect_ppp, proto_ppp);
+}
+
+void
 proto_register_mp(void)
 {
   static hf_register_info hf[] = {
     { &hf_mp_frag_first,
-    { "First fragment",		"mp.first",	FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-    	"" }},
+    { "First fragment",		"mp.first",	FT_BOOLEAN, 8,
+        TFS(&frag_truth), MP_FRAG_FIRST, "" }},
 
     { &hf_mp_frag_last,
-    { "Last fragment",		"mp.last",	FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-    	"" }},
+    { "Last fragment",		"mp.last",	FT_BOOLEAN, 8,
+        TFS(&frag_truth), MP_FRAG_LAST, "" }},
 
     { &hf_mp_sequence_num,
     { "Sequence number",	"mp.seq",	FT_UINT24, BASE_DEC, NULL, 0x0,
@@ -1470,10 +1454,57 @@ proto_register_mp(void)
 }
 
 void
-proto_reg_handoff_ppp(void)
+proto_reg_handoff_mp(void)
 {
-  dissector_add("wtap_encap", WTAP_ENCAP_PPP, dissect_ppp, proto_ppp);
-  dissector_add("wtap_encap", WTAP_ENCAP_PPP_WITH_PHDR, dissect_ppp, proto_ppp);
-  dissector_add("fr.ietf", NLPID_PPP, dissect_ppp, proto_ppp);
-  dissector_add("gre.proto", ETHERTYPE_PPP, dissect_ppp, proto_ppp);
+  dissector_add("ppp.protocol", PPP_MP, dissect_mp, proto_mp);
+}
+
+void
+proto_register_lcp(void)
+{
+  static gint *ett[] = {
+    &ett_lcp,
+    &ett_lcp_options,
+    &ett_lcp_mru_opt,
+    &ett_lcp_async_map_opt,
+    &ett_lcp_authprot_opt,
+    &ett_lcp_qualprot_opt,
+    &ett_lcp_magicnum_opt,
+    &ett_lcp_fcs_alternatives_opt,
+    &ett_lcp_numbered_mode_opt,
+    &ett_lcp_callback_opt,
+    &ett_lcp_multilink_ep_disc_opt,
+    &ett_lcp_internationalization_opt,
+  };
+
+  proto_lcp = proto_register_protocol("PPP Link Control Protocol", "PPP LCP",
+				      "lcp");
+  proto_register_subtree_array(ett, array_length(ett));
+}
+
+void
+proto_reg_handoff_lcp(void)
+{
+  dissector_add("ppp.protocol", PPP_LCP, dissect_lcp, proto_lcp);
+}
+
+void
+proto_register_ipcp(void)
+{
+  static gint *ett[] = {
+    &ett_ipcp,
+    &ett_ipcp_options,
+    &ett_ipcp_ipaddrs_opt,
+    &ett_ipcp_compressprot_opt,
+  };
+
+  proto_ipcp = proto_register_protocol("PPP IP Control Protocol", "PPP IPCP",
+				      "ipcp");
+  proto_register_subtree_array(ett, array_length(ett));
+}
+
+void
+proto_reg_handoff_ipcp(void)
+{
+  dissector_add("ppp.protocol", PPP_IPCP, dissect_ipcp, proto_ipcp);
 }

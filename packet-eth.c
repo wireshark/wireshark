@@ -1,7 +1,7 @@
 /* packet-eth.c
  * Routines for ethernet packet disassembly
  *
- * $Id: packet-eth.c,v 1.58 2001/01/21 20:16:01 guy Exp $
+ * $Id: packet-eth.c,v 1.59 2001/01/21 22:10:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -158,11 +158,8 @@ dissect_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   tvbuff_t		*volatile trailer_tvb;
   proto_tree		*volatile fh_tree = NULL;
 
-  CHECK_DISPLAY_AS_DATA(proto_eth, tvb, pinfo, tree);
-
   tvb_compat(tvb, &pd, (int*)&eth_offset);
 
-  pinfo->current_proto = "Ethernet";
   orig_captured_len = pinfo->captured_len;
 
   if (check_col(pinfo->fd, COL_PROTOCOL))
