@@ -2,7 +2,7 @@
  * Routines for Microsoft Proxy packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-msproxy.c,v 1.28 2002/04/02 01:28:14 guy Exp $
+ * $Id: packet-msproxy.c,v 1.29 2002/05/01 08:14:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -318,7 +318,7 @@ static void add_msproxy_conversation( packet_info *pinfo,
 
 
 static int display_application_name(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree) {
+	proto_tree *tree) {
 	
 /* display the application name in the proto tree.   			*/
 
@@ -377,7 +377,7 @@ static char *get_msproxy_cmd_name( int cmd, int direction) {
 
 
 
-static void dissect_user_info_2(tvbuff_t *tvb, int offset, packet_info *pinfo,
+static void dissect_user_info_2(tvbuff_t *tvb, int offset,
 	proto_tree *tree) {
 
 /* decode the user, application, computer name  */
@@ -414,20 +414,20 @@ static void dissect_user_info_2(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 
 static void dissect_msproxy_request_1(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree) {
+	proto_tree *tree) {
 
 /* decode the request _1 structure  */
 
 
 	offset += 182;
 
-	dissect_user_info_2( tvb, offset, pinfo, tree);
+	dissect_user_info_2( tvb, offset, tree);
 
 }
 
 
 
-static void dissect_bind(tvbuff_t *tvb, int offset, packet_info *pinfo,
+static void dissect_bind(tvbuff_t *tvb, int offset,
 	 proto_tree *tree, hash_entry_t *conv_info) {
 
 /* decode the bind request   */
@@ -457,14 +457,14 @@ static void dissect_bind(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			FALSE);
 
 		offset += 82;
-		display_application_name( tvb, offset, pinfo, tree);
+		display_application_name( tvb, offset, tree);
 	}
 }
 
 
 
 static void dissect_auth(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree) {
+	proto_tree *tree) {
 
 /* decode the authorization request  */
 
@@ -480,7 +480,7 @@ static void dissect_auth(tvbuff_t *tvb, int offset,
 
 
 static void dissect_tcp_bind(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, hash_entry_t *conv_info) {
+	proto_tree *tree, hash_entry_t *conv_info) {
 
 /* decode the bind packet. Set the protocol type in the conversation 	*/
 /* information so the bind_info can use it to create the payload	*/
@@ -500,13 +500,13 @@ static void dissect_tcp_bind(tvbuff_t *tvb, int offset,
 			FALSE);
 
 		offset += 96;
-		display_application_name( tvb, offset, pinfo, tree);
+		display_application_name( tvb, offset, tree);
 	}
 }
 
 
 static void dissect_request_connect(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, hash_entry_t *conv_info) {
+	proto_tree *tree, hash_entry_t *conv_info) {
 
 /* decode the connect request, display  */
 
@@ -537,13 +537,12 @@ static void dissect_request_connect(tvbuff_t *tvb, int offset,
 	
 		offset += 84;
 
-		display_application_name( tvb, offset, pinfo, tree);
+		display_application_name( tvb, offset, tree);
 	}
 }
 
 
-static void dissect_bind_info_ack(tvbuff_t *tvb, int offset, packet_info *pinfo,
-	proto_tree *tree, hash_entry_t *conv_info) {
+static void dissect_bind_info_ack(tvbuff_t *tvb, int offset, proto_tree *tree) {
 
 /* decode the client bind info ack  */
 
@@ -575,13 +574,13 @@ static void dissect_bind_info_ack(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			offset, 4, FALSE);
 
 		offset += 78;
-		display_application_name( tvb, offset, pinfo, tree);
+		display_application_name( tvb, offset, tree);
 	}
 }
 
 
 static void dissect_request_resolve(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree) {
+	proto_tree *tree) {
 
 /* dissect the request resolve structure */
 /* display a string with a length, characters encoding */
@@ -614,7 +613,7 @@ static void dissect_request_resolve(tvbuff_t *tvb, int offset,
 
 
 static void dissect_udp_bind(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, hash_entry_t *conv_info) {
+	proto_tree *tree, hash_entry_t *conv_info) {
 
 /* Dissect the udp bind request.  Load the protocol id (PT_UDP) and the	*/
 /* remote address so bind_info can use it to create conversation 	*/
@@ -643,12 +642,12 @@ static void dissect_udp_bind(tvbuff_t *tvb, int offset,
 	offset += 96;
 	
 	if ( tree)
-		display_application_name( tvb, offset, pinfo, tree);
+		display_application_name( tvb, offset, tree);
 }	
  
 
 static void dissect_udp_assoc(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, hash_entry_t *conv_info) {
+	proto_tree *tree, hash_entry_t *conv_info) {
 
 /* dissect the udp associate request. And load client port into 	*/
 /* conversation data structure for later.				*/
@@ -665,11 +664,11 @@ static void dissect_udp_assoc(tvbuff_t *tvb, int offset,
 	offset += 90;
 
 	if ( tree) 
-		display_application_name( tvb, offset, pinfo, tree);
+		display_application_name( tvb, offset, tree);
 }	
  
 
-static void dissect_msproxy_request(tvbuff_t *tvb, packet_info *pinfo,
+static void dissect_msproxy_request(tvbuff_t *tvb,
 	proto_tree *tree, hash_entry_t *conv_info) {
 
 	int offset = 0;
@@ -714,44 +713,43 @@ static void dissect_msproxy_request(tvbuff_t *tvb, packet_info *pinfo,
 
 	switch (cmd){ 
 		case MSPROXY_AUTH:
-			dissect_auth( tvb, offset, pinfo, tree);
+			dissect_auth( tvb, offset, tree);
 			break;
 			
 		case MSPROXY_BIND:
-			dissect_bind( tvb, offset, pinfo, tree, conv_info);
+			dissect_bind( tvb, offset, tree, conv_info);
 			break;
 
 		case MSPROXY_UDP_BIND_REQ:
-			dissect_udp_bind( tvb, offset, pinfo, tree, conv_info);
+			dissect_udp_bind( tvb, offset, tree, conv_info);
 			break;
 	
 		case MSPROXY_AUTH_2:	/*$$ this is probably wrong place for this */
 		case MSPROXY_TCP_BIND:
-			dissect_tcp_bind( tvb, offset, pinfo, tree, conv_info);
+			dissect_tcp_bind( tvb, offset, tree, conv_info);
 			break;
 	
 		case MSPROXY_RESOLVE:
-			dissect_request_resolve( tvb, offset, pinfo, tree);
+			dissect_request_resolve( tvb, offset, tree);
 			break;
 	
 		case MSPROXY_CONNECT:
 		case MSPROXY_LISTEN:
-			dissect_request_connect( tvb, offset, pinfo, tree,
+			dissect_request_connect( tvb, offset, tree,
 				conv_info);
 			break;
 	
 		case MSPROXY_BINDINFO_ACK:
-			dissect_bind_info_ack( tvb, offset, pinfo, tree,
-				conv_info);
+			dissect_bind_info_ack( tvb, offset, tree);
 			break;
 
 		case MSPROXY_HELLO:
 		case MSPROXY_HELLO_2:
-			dissect_msproxy_request_1( tvb, offset, pinfo, tree);
+			dissect_msproxy_request_1( tvb, offset, tree);
 			break;
 
 		case  MSPROXY_UDPASSOCIATE:
-			dissect_udp_assoc( tvb, offset, pinfo, tree, conv_info);
+			dissect_udp_assoc( tvb, offset, tree, conv_info);
 			break;
 		default:
 			if ( tree)
@@ -762,8 +760,7 @@ static void dissect_msproxy_request(tvbuff_t *tvb, packet_info *pinfo,
 
 
 
-static void dissect_hello_ack(tvbuff_t *tvb, int offset, packet_info *pinfo,
-	proto_tree *tree, hash_entry_t *conv_info) {
+static void dissect_hello_ack(tvbuff_t *tvb, int offset, proto_tree *tree) {
 
 /* decode the hello acknowledge packet  */
 
@@ -783,7 +780,7 @@ static void dissect_hello_ack(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 
 static void dissect_user_info_ack(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree) {
+	proto_tree *tree) {
 
 /* decode the  response _2 structure  */
 
@@ -796,7 +793,7 @@ static void dissect_user_info_ack(tvbuff_t *tvb, int offset,
 
 
 static void dissect_udpassociate_ack(tvbuff_t *tvb, int offset, 
-	packet_info *pinfo, proto_tree *tree) {
+	proto_tree *tree) {
 
 	offset += 6;
 
@@ -813,13 +810,13 @@ static void dissect_udpassociate_ack(tvbuff_t *tvb, int offset,
 			offset, 4, FALSE);
 
 		offset += 96;
-		display_application_name( tvb, offset, pinfo, tree);
+		display_application_name( tvb, offset, tree);
 	}
 }
 
 
 
-static void dissect_auth_1_ack(tvbuff_t *tvb, int offset, packet_info *pinfo,
+static void dissect_auth_1_ack(tvbuff_t *tvb, int offset,
 	proto_tree *tree) {
 
 	offset += 134;
@@ -837,7 +834,7 @@ static void dissect_auth_1_ack(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 
 static void dissect_msproxy_response_4( tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree) {
+	proto_tree *tree) {
 
 /* decode the response _4 structure  */
 
@@ -874,7 +871,7 @@ static void dissect_connect_ack( tvbuff_t *tvb, int offset, packet_info *pinfo,
 			offset, 4, FALSE);
 		offset += 80;
 
-		display_application_name( tvb, offset, pinfo, tree);
+		display_application_name( tvb, offset, tree);
 	}
 
 	add_msproxy_conversation( pinfo, conv_info);
@@ -882,8 +879,7 @@ static void dissect_connect_ack( tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 
 
-static void dissect_tcp_bind_ack( tvbuff_t *tvb, int offset, packet_info *pinfo,
-	proto_tree *tree) {
+static void dissect_tcp_bind_ack( tvbuff_t *tvb, int offset, proto_tree *tree) {
 
 /* decode the tcp bind */
 
@@ -907,7 +903,7 @@ static void dissect_tcp_bind_ack( tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 		offset += 88;
 
-		display_application_name( tvb, offset, pinfo, tree);
+		display_application_name( tvb, offset, tree);
 	}
 }
 
@@ -953,7 +949,7 @@ static void dissect_bind_info( tvbuff_t *tvb, int offset, packet_info *pinfo,
 			offset, 4, FALSE);
 
 		offset += 78;
-		display_application_name( tvb, offset, pinfo, tree);
+		display_application_name( tvb, offset, tree);
 		
 	}
 	
@@ -962,8 +958,7 @@ static void dissect_bind_info( tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 
 
-static void dissect_resolve(tvbuff_t *tvb, int offset, packet_info *pinfo,
-	proto_tree *tree) {
+static void dissect_resolve(tvbuff_t *tvb, int offset, proto_tree *tree) {
 
 /* dissect the  response resolve structure */
 /* display a string with a length, characters encoding */
@@ -1037,30 +1032,30 @@ static void dissect_msproxy_response(tvbuff_t *tvb, packet_info *pinfo,
 	
 	switch (cmd) {
 		case MSPROXY_HELLO_ACK:
-			dissect_hello_ack( tvb, offset, pinfo, tree, conv_info);
+			dissect_hello_ack( tvb, offset, tree);
 			break;
 	
 		case MSPROXY_USERINFO_ACK:
-			dissect_user_info_ack( tvb, offset, pinfo, tree);
+			dissect_user_info_ack( tvb, offset, tree);
 			break;
 			
 		case MSPROXY_AUTH_1_ACK:
-			dissect_auth_1_ack( tvb, offset, pinfo, tree);
+			dissect_auth_1_ack( tvb, offset, tree);
 			break;
 
 /* this also handle the MSPROXY_BIND_ACK ??? check this */
 
 		case MSPROXY_UDPASSOCIATE_ACK:			
-			dissect_udpassociate_ack( tvb, offset, pinfo, tree);
+			dissect_udpassociate_ack( tvb, offset, tree);
 			break;
 		
 		case MSPROXY_AUTH_2_ACK:
 		case MSPROXY_AUTH_2_ACK2:
-			dissect_msproxy_response_4( tvb, offset, pinfo, tree);
+			dissect_msproxy_response_4( tvb, offset, tree);
 			break;
 
 		case MSPROXY_TCP_BIND_ACK:
-			dissect_tcp_bind_ack( tvb, offset, pinfo, tree);
+			dissect_tcp_bind_ack( tvb, offset, tree);
 			break;
 
 		case MSPROXY_CONNECT_ACK:
@@ -1073,7 +1068,7 @@ static void dissect_msproxy_response(tvbuff_t *tvb, packet_info *pinfo,
 			break;
 	
 		case MSPROXY_RESOLVE_ACK:
-			dissect_resolve( tvb, offset, pinfo, tree);
+			dissect_resolve( tvb, offset, tree);
 			break;
 		
 		case MSPROXY_CONNECT_AUTHFAILED:
@@ -1152,7 +1147,7 @@ static void dissect_msproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if ( pinfo->srcport == UDP_PORT_MSPROXY)
 		dissect_msproxy_response( tvb, pinfo, msproxy_tree, hash_info);
 	else
-		dissect_msproxy_request( tvb, pinfo, msproxy_tree, hash_info);
+		dissect_msproxy_request( tvb, msproxy_tree, hash_info);
 }
 
 
