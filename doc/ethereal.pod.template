@@ -31,7 +31,7 @@ S<[ B<-w> savefile]>
 
 B<Ethereal> is a network protocol analyzer based on the B<GTK+> GUI toolkit.  It lets
 you interactively browse packet data from a live network or from a previously saved
-capture file. Ethereal nows how to read B<pcap> / B<tcpdump> formatted capture files,
+capture file. Ethereal knows how to read B<pcap> / B<tcpdump> formatted capture files,
 as well as those of B<snoop>, B<LanAlyzer>, uncompressed B<Sniffer>,
 Microsoft B<Network Monitor>, AIX's B<iptrace>, B<NetXray>, and B<Sniffer Pro>.
 
@@ -41,15 +41,17 @@ Microsoft B<Network Monitor>, AIX's B<iptrace>, B<NetXray>, and B<Sniffer Pro>.
 
 =item -B
 
-Sets the initial height of the byte view (bottom) pane
+Sets the initial height of the byte view (bottom) pane.
 
 =item -b
 
-The bold font name used for packet fied display.
+Sets the name of the bold font used for the data in the byte view
+pane that corresponds to the field selected in the protocol tree pane.
 
 =item -c
 
-The default number of packets to read when capturing live data.
+Sets the default number of packets to read when capturing live
+data.
 
 =item -F
 
@@ -59,7 +61,7 @@ packets actually captured.
 
 =item -f
 
-Sets a filter expression.
+Sets the capture filter expression.
 
 =item -G
 
@@ -71,37 +73,36 @@ Prints the version and options and exits.
 
 =item -i
 
-The name of the interface to use for live packet capture.  It should match
-one of the names listed in "B<netstat -i>" or "B<ifconfig -a>".
+Sets the name of the interface to use for live packet capture.  It
+should match one of the names listed in "B<netstat -i>" or "B<ifconfig -a>".
 
 =item -k
 
-Start the capture session immediately, this option requires 
+Starts the capture session immediately; this option requires 
 the B<-i> and B<-w> parameters.
 
 =item -m
 
-The font name used by B<Ethereal>.
+Sets the name of the font used by B<Ethereal> for most text.
 
 =item -n
 
-Disable network object name resolution (such as hostname, TCP and UDP port
+Disables network object name resolution (such as hostname, TCP and UDP port
 names).
 
 =item -P
 
-Sets the initial height of the packet list (top) pane
+Sets the initial height of the packet list (top) pane.
 
 =item -Q
 
-Exit after the end of capture session (useful in batch mode with B<-c> 
-option for instance), this option requires the B<-i> and B<-w> 
-parameters.
+Causes B<Ethereal> to exit after the end of capture session (useful in
+batch mode with B<-c> option for instance); this option requires the
+B<-i> and B<-w> parameters.
 
 =item -r
 
-Read packet data from I<file>.  Currently, B<Ethereal> only understands
-B<pcap> / B<tcpdump> formatted files.
+Reads packet data from I<file>.
 
 =item -S
 
@@ -112,13 +113,13 @@ synchronized with the capture session without human operation
 
 =item -s
 
-The default snapshot length to use when capturing live data.  No more than
-I<snaplen> bytes of each network packet will be read into memory, or saved
-to disk.
+Sets the default snapshot length to use when capturing live data. 
+No more than I<snaplen> bytes of each network packet will be read into
+memory, or saved to disk.
 
 =item -T
 
-Sets the initial height of the tree view (top) pane
+Sets the initial height of the tree view (middle) pane
 
 =item -t
 
