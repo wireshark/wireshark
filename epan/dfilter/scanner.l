@@ -1,6 +1,6 @@
 %{
 /*
- * $Id: scanner.l,v 1.8 2003/07/25 03:44:01 gram Exp $
+ * $Id: scanner.l,v 1.9 2003/08/27 15:23:04 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -77,6 +77,7 @@ GString* quoted_string = NULL;
 "lt"				return simple(TOKEN_TEST_LT);
 "<="				return simple(TOKEN_TEST_LE);
 "le"				return simple(TOKEN_TEST_LE);
+"contains"			return simple(TOKEN_TEST_CONTAINS);
 
 "!"				return simple(TOKEN_TEST_NOT);
 "not"				return simple(TOKEN_TEST_NOT);
@@ -221,6 +222,7 @@ simple(int token)
 		case TOKEN_TEST_GE:
 		case TOKEN_TEST_LT:
 		case TOKEN_TEST_LE:
+		case TOKEN_TEST_CONTAINS:
 		case TOKEN_TEST_NOT:
 		case TOKEN_TEST_AND:
 		case TOKEN_TEST_OR:

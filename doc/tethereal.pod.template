@@ -599,6 +599,11 @@ abbreviations:
     ge, >=    Greater than or Equal to
     le, <=    Less than or Equal to
 
+An additional operater exists that is expressed only in English, not
+punctuation:
+
+    contains  Does the protocol, byte-string, or string contain a value
+
 Furthermore, each protocol field is typed. The types are:
 
     Unsigned integer (either 8-bit, 16-bit, 24-bit, or 32-bit)
@@ -695,7 +700,7 @@ Use of octal to look for "HEAD":
 This means that you must escape backslashes with backslashes inside
 double quotes:
 
-    smb.path == "\\\\SERVER\\SHARE"
+    smb.path contains "\\\\SERVER\\SHARE"
 
 to look for \\SERVER\SHARE in "smb.path".
 

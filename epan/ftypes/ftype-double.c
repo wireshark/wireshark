@@ -1,5 +1,5 @@
 /*
- * $Id: ftype-double.c,v 1.10 2003/07/31 03:52:43 guy Exp $
+ * $Id: ftype-double.c,v 1.11 2003/08/27 15:23:06 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -51,7 +51,7 @@ value_get_floating(fvalue_t *fv)
 }
 
 static gboolean
-val_from_unparsed(fvalue_t *fv, char *s, LogFunc logfunc)
+val_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, LogFunc logfunc)
 {
 	char    *endptr = NULL;
 
@@ -181,6 +181,7 @@ ftype_register_double(void)
 		cmp_ge,
 		cmp_lt,
 		cmp_le,
+		NULL,				/* cmp_contains */
 
 		NULL,
 		NULL,
@@ -211,6 +212,7 @@ ftype_register_double(void)
 		cmp_ge,
 		cmp_lt,
 		cmp_le,
+		NULL,				/* cmp_contains */
 
 		NULL,
 		NULL,

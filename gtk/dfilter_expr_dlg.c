@@ -7,7 +7,7 @@
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com> and
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: dfilter_expr_dlg.c,v 1.35 2003/08/25 00:15:02 guy Exp $
+ * $Id: dfilter_expr_dlg.c,v 1.36 2003/08/27 15:23:10 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -280,6 +280,9 @@ show_relations(GtkWidget *relation_label, GtkWidget *relation_list,
 	if (ftype_can_le(ftype) ||
 	    (ftype_can_slice(ftype) && ftype_can_le(FT_BYTES)))
 		add_relation_list(relation_list, "<=");
+	if (ftype_can_contains(ftype) ||
+	    (ftype_can_slice(ftype) && ftype_can_contains(FT_BYTES)))
+		add_relation_list(relation_list, "contains");
 
 	/*
 	 * And show the list.
@@ -883,6 +886,8 @@ dfilter_expr_dlg_accept_cb(GtkWidget *w, gpointer filter_te_arg)
         can_compare = ftype_can_ge(ftype);
     else if (strcmp(item_str, "<=") == 0)
         can_compare = ftype_can_le(ftype);
+    else if (strcmp(item_str, "contains") == 0)
+        can_compare = ftype_can_contains(ftype);
     else
         can_compare = TRUE;	/* not a comparison */
     if (!can_compare) {
@@ -928,8 +933,14 @@ dfilter_expr_dlg_accept_cb(GtkWidget *w, gpointer filter_te_arg)
          * for the type of the field; if a range string was
          * specified, must be valid for FT_BYTES.
          */
-        fvalue = fvalue_from_unparsed(ftype, stripped_value_str,
-                                    dfilter_report_bad_value);
+    	if (strcmp(item_str, "contains") == 0) {
+		fvalue = fvalue_from_unparsed(ftype, stripped_value_str, TRUE,
+					    dfilter_report_bad_value);
+	}
+	else {
+		fvalue = fvalue_from_unparsed(ftype, stripped_value_str, FALSE,
+					    dfilter_report_bad_value);
+	}
         if (fvalue == NULL) {
             /*
              * It's not valid.

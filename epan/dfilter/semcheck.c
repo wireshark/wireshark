@@ -1,5 +1,5 @@
 /*
- * $Id: semcheck.c,v 1.18 2003/07/25 03:44:01 gram Exp $
+ * $Id: semcheck.c,v 1.19 2003/08/27 15:23:04 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -260,6 +260,7 @@ is_bytes_type(enum ftenum type)
  * and possibly some modifications of syntax tree nodes. */
 static void
 check_relation_LHS_FIELD(const char *relation_string, FtypeCanFunc can_func,
+		gboolean allow_partial_value,
 		stnode_t *st_node, stnode_t *st_arg1, stnode_t *st_arg2)
 {
 	stnode_t		*new_st;
@@ -318,7 +319,7 @@ check_relation_LHS_FIELD(const char *relation_string, FtypeCanFunc can_func,
 	}
 	else if (type2 == STTYPE_UNPARSED) {
 		s = stnode_data(st_arg2);
-		fvalue = fvalue_from_unparsed(ftype1, s, dfilter_fail);
+		fvalue = fvalue_from_unparsed(ftype1, s, allow_partial_value, dfilter_fail);
 		if (!fvalue) {
 			/* check value_string */
 			fvalue = mk_fvalue_from_val_string(hfinfo1, s);
@@ -358,7 +359,8 @@ check_relation_LHS_FIELD(const char *relation_string, FtypeCanFunc can_func,
 }
 
 static void
-check_relation_LHS_STRING(FtypeCanFunc can_func _U_, stnode_t *st_node,
+check_relation_LHS_STRING(FtypeCanFunc can_func _U_, gboolean allow_partial_value _U_,
+		stnode_t *st_node,
 		stnode_t *st_arg1, stnode_t *st_arg2)
 {
 	stnode_t		*new_st;
@@ -389,7 +391,7 @@ check_relation_LHS_STRING(FtypeCanFunc can_func _U_, stnode_t *st_node,
 		sttype_test_set2_args(st_node, new_st, st_arg2);
 		stnode_free(st_arg1);
 	}
-	else if (type2 == STTYPE_STRING) {
+	else if (type2 == STTYPE_STRING || type2 == STTYPE_UNPARSED) {
 		/* Well now that's silly... */
 		dfilter_fail("Neither \"%s\" nor \"%s\" are field or protocol names.",
 				stnode_data(st_arg1),
@@ -412,7 +414,8 @@ check_relation_LHS_STRING(FtypeCanFunc can_func _U_, stnode_t *st_node,
 }
 
 static void
-check_relation_LHS_UNPARSED(FtypeCanFunc can_func _U_, stnode_t *st_node,
+check_relation_LHS_UNPARSED(FtypeCanFunc can_func _U_, gboolean allow_partial_value,
+		stnode_t *st_node,
 		stnode_t *st_arg1, stnode_t *st_arg2)
 {
 	stnode_t		*new_st;
@@ -430,7 +433,7 @@ check_relation_LHS_UNPARSED(FtypeCanFunc can_func _U_, stnode_t *st_node,
 		ftype2 = hfinfo2->type;
 
 		s = stnode_data(st_arg1);
-		fvalue = fvalue_from_unparsed(ftype2, s, dfilter_fail);
+		fvalue = fvalue_from_unparsed(ftype2, s, allow_partial_value, dfilter_fail);
 		if (!fvalue) {
 			/* check value_string */
 			fvalue = mk_fvalue_from_val_string(hfinfo2, s);
@@ -443,7 +446,7 @@ check_relation_LHS_UNPARSED(FtypeCanFunc can_func _U_, stnode_t *st_node,
 		sttype_test_set2_args(st_node, new_st, st_arg2);
 		stnode_free(st_arg1);
 	}
-	else if (type2 == STTYPE_STRING) {
+	else if (type2 == STTYPE_STRING || type2 == STTYPE_UNPARSED) {
 		/* Well now that's silly... */
 		dfilter_fail("Neither \"%s\" nor \"%s\" are field or protocol names.",
 				stnode_data(st_arg1),
@@ -451,8 +454,9 @@ check_relation_LHS_UNPARSED(FtypeCanFunc can_func _U_, stnode_t *st_node,
 		THROW(TypeError);
 	}
 	else if (type2 == STTYPE_RANGE) {
+		/* XXX - is this right? */
 		s = stnode_data(st_arg1);
-		fvalue = fvalue_from_unparsed(FT_BYTES, s, dfilter_fail);
+		fvalue = fvalue_from_unparsed(FT_BYTES, s, allow_partial_value, dfilter_fail);
 		if (!fvalue) {
 			THROW(TypeError);
 		}
@@ -529,7 +533,8 @@ check_drange_sanity(stnode_t *st)
 }
 
 static void
-check_relation_LHS_RANGE(FtypeCanFunc can_func _U_, stnode_t *st_node,
+check_relation_LHS_RANGE(FtypeCanFunc can_func _U_, gboolean allow_partial_value,
+		stnode_t *st_node,
 		stnode_t *st_arg1, stnode_t *st_arg2)
 {
 	stnode_t		*new_st;
@@ -589,7 +594,7 @@ check_relation_LHS_RANGE(FtypeCanFunc can_func _U_, stnode_t *st_node,
 	}
 	else if (type2 == STTYPE_UNPARSED) {
 		s = stnode_data(st_arg2);
-		fvalue = fvalue_from_unparsed(FT_BYTES, s, dfilter_fail);
+		fvalue = fvalue_from_unparsed(FT_BYTES, s, allow_partial_value, dfilter_fail);
 		if (!fvalue) {
 			THROW(TypeError);
 		}
@@ -609,21 +614,26 @@ check_relation_LHS_RANGE(FtypeCanFunc can_func _U_, stnode_t *st_node,
 
 /* Check the semantics of any relational test. */
 static void
-check_relation(const char *relation_string, FtypeCanFunc can_func, stnode_t *st_node,
+check_relation(const char *relation_string, gboolean allow_partial_value,
+		FtypeCanFunc can_func, stnode_t *st_node,
 		stnode_t *st_arg1, stnode_t *st_arg2)
 {
 	switch (stnode_type_id(st_arg1)) {
 		case STTYPE_FIELD:
-			check_relation_LHS_FIELD(relation_string, can_func, st_node, st_arg1, st_arg2);
+			check_relation_LHS_FIELD(relation_string, can_func,
+					allow_partial_value, st_node, st_arg1, st_arg2);
 			break;
 		case STTYPE_STRING:
-			check_relation_LHS_STRING(can_func, st_node, st_arg1, st_arg2);
+			check_relation_LHS_STRING(can_func,
+					allow_partial_value, st_node, st_arg1, st_arg2);
 			break;
 		case STTYPE_RANGE:
-			check_relation_LHS_RANGE(can_func, st_node, st_arg1, st_arg2);
+			check_relation_LHS_RANGE(can_func,
+					allow_partial_value, st_node, st_arg1, st_arg2);
 			break;
 		case STTYPE_UNPARSED:
-			check_relation_LHS_UNPARSED(can_func, st_node, st_arg1, st_arg2);
+			check_relation_LHS_UNPARSED(can_func,
+					allow_partial_value, st_node, st_arg1, st_arg2);
 			break;
 
 		case STTYPE_UNINITIALIZED:
@@ -664,23 +674,29 @@ check_test(stnode_t *st_node)
 			break;
 
 		case TEST_OP_EQ:
-			check_relation("==", ftype_can_eq, st_node, st_arg1, st_arg2);
+			check_relation("==", FALSE, ftype_can_eq, st_node, st_arg1, st_arg2);
 			break;
 		case TEST_OP_NE:
-			check_relation("!=", ftype_can_ne, st_node, st_arg1, st_arg2);
+			check_relation("!=", FALSE, ftype_can_ne, st_node, st_arg1, st_arg2);
 			break;
 		case TEST_OP_GT:
-			check_relation(">", ftype_can_gt, st_node, st_arg1, st_arg2);
+			check_relation(">", FALSE, ftype_can_gt, st_node, st_arg1, st_arg2);
 			break;
 		case TEST_OP_GE:
-			check_relation(">=", ftype_can_ge, st_node, st_arg1, st_arg2);
+			check_relation(">=", FALSE, ftype_can_ge, st_node, st_arg1, st_arg2);
 			break;
 		case TEST_OP_LT:
-			check_relation("<", ftype_can_lt, st_node, st_arg1, st_arg2);
+			check_relation("<", FALSE, ftype_can_lt, st_node, st_arg1, st_arg2);
 			break;
 		case TEST_OP_LE:
-			check_relation("<=", ftype_can_le, st_node, st_arg1, st_arg2);
+			check_relation("<=", FALSE, ftype_can_le, st_node, st_arg1, st_arg2);
 			break;
+		case TEST_OP_CONTAINS:
+			check_relation("contains", TRUE, ftype_can_contains, st_node, st_arg1, st_arg2);
+			break;
+
+		default:
+			g_assert_not_reached();
 	}
 }
 

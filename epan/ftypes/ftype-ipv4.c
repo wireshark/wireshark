@@ -1,5 +1,5 @@
 /*
- * $Id: ftype-ipv4.c,v 1.12 2003/07/31 04:18:01 guy Exp $
+ * $Id: ftype-ipv4.c,v 1.13 2003/08/27 15:23:07 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -45,7 +45,7 @@ value_get(fvalue_t *fv)
 }
 
 static gboolean
-val_from_unparsed(fvalue_t *fv, char *s, LogFunc logfunc)
+val_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, LogFunc logfunc)
 {
 	guint32	addr;
 	unsigned int nmask_bits;
@@ -99,7 +99,7 @@ val_from_unparsed(fvalue_t *fv, char *s, LogFunc logfunc)
 		}
 
 		/* XXX - this is inefficient */
-		nmask_fvalue = fvalue_from_unparsed(FT_UINT32, net_str, logfunc);
+		nmask_fvalue = fvalue_from_unparsed(FT_UINT32, net_str, FALSE, logfunc);
 		g_free(s_copy);
 		if (!nmask_fvalue) {
 			return FALSE;
@@ -202,6 +202,7 @@ ftype_register_ipv4(void)
 		cmp_ge,
 		cmp_lt,
 		cmp_le,
+		NULL,				/* cmp_contains */
 
 		NULL,
 		NULL,

@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.c,v 1.48 2003/08/08 08:19:50 guy Exp $
+ * $Id: tvbuff.c,v 1.49 2003/08/27 15:23:02 gram Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -2140,4 +2140,34 @@ tvbuff_t *
 tvb_get_ds_tvb(tvbuff_t *tvb)
 {
 	return tvb->ds_tvb;
+}
+
+/* Find a needle tvbuff within a haystack tvbuff. */
+gint
+tvb_find_tvb(tvbuff_t *haystack_tvb, tvbuff_t *needle_tvb, gint haystack_offset)
+{
+	guint		haystack_abs_offset, haystack_abs_length;
+	const guint8	*haystack_data;
+	const guint8	*needle_data;
+	const guint 	needle_len = needle_tvb->length;
+	const guint8	*location;
+
+	/* Get pointers to the tvbuffs' data. */
+	haystack_data = tvb_get_ptr(haystack_tvb, 0, -1);
+	needle_data = tvb_get_ptr(needle_tvb, 0, -1);
+
+	check_offset_length(haystack_tvb, haystack_offset, -1,
+			&haystack_abs_offset, &haystack_abs_length);
+
+	location = epan_memmem(haystack_data + haystack_abs_offset, haystack_abs_length,
+			needle_data, needle_len);
+
+	if (location) {
+		return location - haystack_data;
+	}
+	else {
+		return -1;
+	}
+
+	return -1;
 }

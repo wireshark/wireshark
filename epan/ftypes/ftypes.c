@@ -1,5 +1,5 @@
 /*
- * $Id: ftypes.c,v 1.10 2003/07/25 03:44:03 gram Exp $
+ * $Id: ftypes.c,v 1.11 2003/08/27 15:23:08 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -198,6 +198,15 @@ ftype_can_le(enum ftenum ftype)
 	return ft->cmp_le ? TRUE : FALSE;
 }
 
+gboolean
+ftype_can_contains(enum ftenum ftype)
+{
+	ftype_t	*ft;
+
+	ft = ftype_lookup(ftype);
+	return ft->cmp_contains ? TRUE : FALSE;
+}
+
 /* ---------------------------------------------------------- */
 
 /* Allocate and initialize an fvalue_t, given an ftype */
@@ -236,13 +245,13 @@ fvalue_free(fvalue_t *fv)
 }
 
 fvalue_t*
-fvalue_from_unparsed(ftenum_t ftype, char *s, LogFunc logfunc)
+fvalue_from_unparsed(ftenum_t ftype, char *s, gboolean allow_partial_value, LogFunc logfunc)
 {
 	fvalue_t	*fv;
 
 	fv = fvalue_new(ftype);
 	if (fv->ftype->val_from_unparsed) {
-		if (fv->ftype->val_from_unparsed(fv, s, logfunc)) {
+		if (fv->ftype->val_from_unparsed(fv, s, allow_partial_value, logfunc)) {
 			return fv;
 		}
 	}
@@ -506,4 +515,12 @@ fvalue_le(fvalue_t *a, fvalue_t *b)
 	/* XXX - check compatibility of a and b */
 	g_assert(a->ftype->cmp_le);
 	return a->ftype->cmp_le(a, b);
+}
+
+gboolean
+fvalue_contains(fvalue_t *a, fvalue_t *b)
+{
+	/* XXX - check compatibility of a and b */
+	g_assert(a->ftype->cmp_contains);
+	return a->ftype->cmp_contains(a, b);
 }

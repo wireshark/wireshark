@@ -1,7 +1,7 @@
 /* strutil.c
  * String utility routines
  *
- * $Id: strutil.c,v 1.11 2003/08/01 01:39:00 guy Exp $
+ * $Id: strutil.c,v 1.12 2003/08/27 15:23:02 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -300,4 +300,35 @@ bytes_to_str_punct(const guint8 *bd, int bd_len, gchar punct) {
   }
   *p = '\0';
   return cur;
+}
+
+/* Return the first occurrence of needle in haystack.
+ * If not found, return NULL.
+ * If either haystack or needle has 0 length, return NULL.
+ * Algorithm copied from GNU's glibc 2.3.2 memcmp() */
+const guint8 *
+epan_memmem(const guint8 *haystack, guint haystack_len,
+		const guint8 *needle, guint needle_len)
+{
+	const guint8 *begin;
+	const guint8 *const last_possible
+		= haystack + haystack_len - needle_len;
+
+	if (needle_len == 0) {
+		return NULL;
+	}
+
+	if (needle_len > haystack_len) {
+		return NULL;
+	}
+
+	for (begin = haystack ; begin <= last_possible; ++begin) {
+		if (begin[0] == needle[0] &&
+			!memcmp(&begin[1], needle + 1,
+				needle_len - 1)) {
+			return begin;
+		}
+	}
+
+	return NULL;
 }

@@ -1,7 +1,7 @@
 /* ftypes.h
  * Definitions for field types
  *
- * $Id: ftypes.h,v 1.18 2003/07/25 03:44:04 gram Exp $
+ * $Id: ftypes.h,v 1.19 2003/08/27 15:23:08 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -120,6 +120,9 @@ ftype_can_lt(enum ftenum ftype);
 gboolean
 ftype_can_le(enum ftenum ftype);
 
+gboolean
+ftype_can_contains(enum ftenum ftype);
+
 /* ---------------- FVALUE ----------------- */
 
 #include <epan/ipv4.h>
@@ -141,6 +144,11 @@ typedef struct {
 		nstime_t	time;
 		tvbuff_t	*tvb;
 	} value;
+
+	/* The following is provided for private use
+	 * by the fvalue. */
+	gboolean	fvalue_gboolean1;
+
 } fvalue_t;
 
 fvalue_t*
@@ -152,10 +160,10 @@ fvalue_free(fvalue_t *fv);
 typedef void (*LogFunc)(char*,...);
 
 fvalue_t*
-fvalue_from_unparsed(ftenum_t ftype, char *s, LogFunc log);
+fvalue_from_unparsed(ftenum_t ftype, char *s, gboolean allow_partial_value, LogFunc logfunc);
 
 fvalue_t*
-fvalue_from_string(ftenum_t ftype, char *s, LogFunc log);
+fvalue_from_string(ftenum_t ftype, char *s, LogFunc logfunc);
 
 /* Returns the length of the string required to hold the
  * string representation of the the field value.
@@ -212,6 +220,9 @@ fvalue_lt(fvalue_t *a, fvalue_t *b);
 
 gboolean
 fvalue_le(fvalue_t *a, fvalue_t *b);
+
+gboolean
+fvalue_contains(fvalue_t *a, fvalue_t *b);
 
 guint
 fvalue_length(fvalue_t *fv);

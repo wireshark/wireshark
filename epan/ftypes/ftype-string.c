@@ -1,5 +1,5 @@
 /*
- * $Id: ftype-string.c,v 1.12 2003/07/30 22:25:35 guy Exp $
+ * $Id: ftype-string.c,v 1.13 2003/08/27 15:23:07 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -117,6 +117,32 @@ val_from_string(fvalue_t *fv, char *s, LogFunc logfunc _U_)
 	return TRUE;
 }
 
+static gboolean
+val_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, LogFunc logfunc)
+{
+	fvalue_t *fv_bytes;
+	/* Does this look like a byte-string? */
+	fv_bytes = fvalue_from_unparsed(FT_BYTES, s, TRUE, NULL);
+	if (fv_bytes) {
+		/* Copy the bytes over to a string and terminate it
+		 * with a NUL. XXX - what if the user embeds a NUL
+		 * in the middle of the byte string? */
+		int num_bytes = fv_bytes->value.bytes->len;
+
+		fv->value.string = g_malloc(num_bytes + 1);
+		memcpy(fv->value.string, fv->value.bytes->data, num_bytes);
+		fv->value.string[num_bytes] = '\0';
+
+		fvalue_free(fv_bytes);
+		return TRUE;
+	}
+	else {
+		/* Just turn it into a string */
+		return val_from_string(fv, s, logfunc);
+	}
+	g_assert_not_reached();
+}
+
 static guint
 len(fvalue_t *fv)
 {
@@ -170,6 +196,25 @@ cmp_le(fvalue_t *a, fvalue_t *b)
 	return (strcmp(a->value.string, b->value.string) <= 0);
 }
 
+static gboolean
+cmp_contains(fvalue_t *fv_a, fvalue_t *fv_b)
+{
+	/* According to
+	* http://www.introl.com/introl-demo/Libraries/C/ANSI_C/string/strstr.html
+	* strstr() returns a non-NULL value if needle is an empty
+	* string. We don't that behavior for cmp_contains. */
+	if (strlen(fv_b->value.string) == 0) {
+		return FALSE;
+	}
+
+	if (strstr(fv_a->value.string, fv_b->value.string)) {
+		return TRUE;
+	}
+	else {
+		return FALSE;
+	}
+}
+
 void
 ftype_register_string(void)
 {
@@ -180,7 +225,7 @@ ftype_register_string(void)
 		0,				/* wire_size */
 		string_fvalue_new,		/* new_value */
 		string_fvalue_free,		/* free_value */
-		val_from_string,		/* val_from_unparsed */
+		val_from_unparsed,		/* val_from_unparsed */
 		val_from_string,		/* val_from_string */
 		string_to_repr,			/* val_to_string_repr */
 		string_repr_len,		/* len_string_repr */
@@ -199,6 +244,7 @@ ftype_register_string(void)
 		cmp_ge,
 		cmp_lt,
 		cmp_le,
+		cmp_contains,			/* cmp_contains */
 
 		len,
 		slice,
@@ -209,7 +255,7 @@ ftype_register_string(void)
 		0,
 		string_fvalue_new,
 		string_fvalue_free,
-		val_from_string,		/* val_from_unparsed */
+		val_from_unparsed,		/* val_from_unparsed */
 		val_from_string,		/* val_from_string */
 		NULL,				/* val_to_string_repr */
 		NULL,				/* len_string_repr */
@@ -228,6 +274,7 @@ ftype_register_string(void)
 		cmp_ge,
 		cmp_lt,
 		cmp_le,
+		cmp_contains,			/* cmp_contains */
 
 		len,
 		slice,
@@ -238,7 +285,7 @@ ftype_register_string(void)
 		0,
 		string_fvalue_new,
 		string_fvalue_free,
-		val_from_string,		/* val_from_unparsed */
+		val_from_unparsed,		/* val_from_unparsed */
 		val_from_string,		/* val_from_string */
 		NULL,				/* val_to_string_repr */
 		NULL,				/* len_string_repr */
@@ -257,6 +304,7 @@ ftype_register_string(void)
 		cmp_ge,
 		cmp_lt,
 		cmp_le,
+		cmp_contains,			/* cmp_contains */
 
 		len,
 		slice,

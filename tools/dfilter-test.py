@@ -4,7 +4,7 @@ Test-suite to test ethereal's dfilter mechanism.
 """
 
 #
-# $Id: dfilter-test.py,v 1.2 2003/07/25 03:44:05 gram Exp $
+# $Id: dfilter-test.py,v 1.3 2003/08/27 15:23:11 gram Exp $
 #
 # Copyright (C) 2003 by Gilbert Ramirez <gram@alumni.rice.edu>
 #  
@@ -454,6 +454,22 @@ class Bytes(Test):
 		return self.DFilterCount(pkt_nfs,
 			"nfs.fattr3.size == 264000", 0)
 
+        def ck_contains_1(self):
+		return self.DFilterCount(pkt_ipx_rip,
+			"ipx.src.node contains a3", 1)
+
+	def ck_contains_2(self):
+		return self.DFilterCount(pkt_ipx_rip,
+			"ipx.src.node contains a3:e3", 1)
+
+	def ck_contains_3(self):
+		return self.DFilterCount(pkt_ipx_rip,
+			"ipx.src.node contains 00:aa:00:a3:e3:a4", 1)
+
+	def ck_contains_4(self):
+		return self.DFilterCount(pkt_ipx_rip,
+			"ipx.src.node contains aa:e3", 0)
+
 
 	tests = [
 		ck_eq_1,
@@ -482,6 +498,10 @@ class Bytes(Test):
 		ck_bytes_2,
 		ck_uint64_1,
 		ck_uint64_2,
+		ck_contains_1,
+		ck_contains_2,
+		ck_contains_3,
+		ck_contains_4,
 		]
 
 
@@ -967,6 +987,29 @@ class String(Test):
 		return self.DFilterCount(pkt_tftp,
 			'tftp.type == "junk"', 0)
 
+        def ck_contains_1(self):
+		return self.DFilterCount(pkt_http,
+			'http.request.method contains "E"', 1)
+
+	def ck_contains_2(self):
+		return self.DFilterCount(pkt_http,
+			'http.request.method contains "EA"', 1)
+
+	def ck_contains_3(self):
+		return self.DFilterCount(pkt_http,
+			'http.request.method contains "HEAD"', 1)
+
+	def ck_contains_4(self):
+		return self.DFilterCount(pkt_http,
+			'http.request.method contains "POST"', 0)
+
+	def ck_contains_5(self):
+		return self.DFilterCount(pkt_http,
+			'http.request.method contains 50:4f:53:54"', 0) # "POST"
+
+	def ck_contains_6(self):
+		return self.DFilterCount(pkt_http,
+	'http.request.method contains 48:45:41:44"', 1) # "HEAD"
 
 
 	tests = [
@@ -995,6 +1038,11 @@ class String(Test):
 #		ck_slice_8,
 		ck_stringz_1,
 		ck_stringz_2,
+		ck_contains_1,
+		ck_contains_2,
+		ck_contains_3,
+		ck_contains_4,
+		ck_contains_5,
 		]
 
 
@@ -1124,6 +1172,26 @@ class TVB(Test):
 			"ip[-1] == 0x86", 0)
 
 
+        def ck_contains_1(self):
+		return self.DFilterCount(pkt_http,
+			"eth contains 6b", 1)
+
+	def ck_contains_2(self):
+		return self.DFilterCount(pkt_http,
+			"eth contains 09:6b:88", 1)
+
+	def ck_contains_3(self):
+		return self.DFilterCount(pkt_http,
+			"eth contains 00:e0:81:00:b0:28:00:09:6b:88:f5:c9:08:00", 1)
+
+	def ck_contains_4(self):
+		return self.DFilterCount(pkt_http,
+			"eth contains ff:ff:ff", 0)
+
+	def ck_contains_5(self):
+		return self.DFilterCount(pkt_http,
+			'http contains "HEAD"', 1)
+
 
 	tests = [
 		ck_slice_1,
@@ -1132,6 +1200,11 @@ class TVB(Test):
 # XXX
 #		ck_slice_4,
 #		ck_slice_5,
+		ck_contains_1,
+		ck_contains_2,
+		ck_contains_3,
+		ck_contains_4,
+		ck_contains_5,
 		]
 
 

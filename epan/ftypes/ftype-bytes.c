@@ -1,5 +1,5 @@
 /*
- * $Id: ftype-bytes.c,v 1.16 2003/07/25 03:44:02 gram Exp $
+ * $Id: ftype-bytes.c,v 1.17 2003/08/27 15:23:05 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -28,6 +28,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <epan/resolv.h>
+#include <epan/strutil.h>
 #include <epan/int-64bit.h>
 
 #define ETHER_LEN	6
@@ -129,7 +130,7 @@ is_byte_sep(guint8 c)
 }
 
 static gboolean
-val_from_unparsed(fvalue_t *fv, char *s, LogFunc logfunc)
+bytes_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, LogFunc logfunc)
 {
 	GByteArray	*bytes;
 	guint8		val;
@@ -226,7 +227,7 @@ val_from_unparsed(fvalue_t *fv, char *s, LogFunc logfunc)
 }
 
 static gboolean
-ether_from_unparsed(fvalue_t *fv, char *s, LogFunc logfunc)
+ether_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value, LogFunc logfunc)
 {
 	guint8	*mac;
 
@@ -235,7 +236,18 @@ ether_from_unparsed(fvalue_t *fv, char *s, LogFunc logfunc)
 	 * up as an Ethernet host name if it does, and if that fails,
 	 * we'll log a message.
 	 */
-	if (val_from_unparsed(fv, s, NULL)) {
+	if (bytes_from_unparsed(fv, s, TRUE, NULL)) {
+		if (fv->value.bytes->len > ETHER_LEN) {
+			logfunc("\"%s\" contains too many bytes to be a valid Ethernet address.",
+			    s);
+			return FALSE;
+		}
+		else if (fv->value.bytes->len < ETHER_LEN && !allow_partial_value) {
+			logfunc("\"%s\" contains too few bytes to be a valid Ethernet address.",
+			    s);
+			return FALSE;
+		}
+
 		return TRUE;
 	}
 
@@ -251,7 +263,7 @@ ether_from_unparsed(fvalue_t *fv, char *s, LogFunc logfunc)
 }
 
 static gboolean
-ipv6_from_unparsed(fvalue_t *fv, char *s, LogFunc logfunc)
+ipv6_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, LogFunc logfunc)
 {
 	guint8	buffer[16];
 
@@ -265,7 +277,7 @@ ipv6_from_unparsed(fvalue_t *fv, char *s, LogFunc logfunc)
 }
 
 static gboolean
-u64_from_unparsed(fvalue_t *fv, char *s, LogFunc logfunc)
+u64_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, LogFunc logfunc)
 {
 	guint8	buffer[8];
 
@@ -279,7 +291,7 @@ u64_from_unparsed(fvalue_t *fv, char *s, LogFunc logfunc)
 }
 
 static gboolean
-i64_from_unparsed(fvalue_t *fv, char *s, LogFunc logfunc)
+i64_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, LogFunc logfunc)
 {
 	guint8	buffer[8];
 
@@ -577,6 +589,20 @@ cmp_le_i64(fvalue_t *fv_a, fvalue_t *fv_b)
 	return (memcmp(a->data, b->data, a->len) <= 0);
 }
 
+static gboolean
+cmp_contains(fvalue_t *fv_a, fvalue_t *fv_b)
+{
+	GByteArray	*a = fv_a->value.bytes;
+	GByteArray	*b = fv_b->value.bytes;
+
+	if (epan_memmem(a->data, a->len, b->data, b->len)) {
+		return TRUE;
+	}
+	else {
+		return FALSE;
+	}
+}
+
 void
 ftype_register_bytes(void)
 {
@@ -587,7 +613,7 @@ ftype_register_bytes(void)
 		0,				/* wire_size */
 		bytes_fvalue_new,		/* new_value */
 		bytes_fvalue_free,		/* free_value */
-		val_from_unparsed,		/* val_from_unparsed */
+		bytes_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
 		bytes_to_repr,			/* val_to_string_repr */
 		bytes_repr_len,			/* len_string_repr */
@@ -606,6 +632,7 @@ ftype_register_bytes(void)
 		cmp_ge,
 		cmp_lt,
 		cmp_le,
+		cmp_contains,
 
 		len,
 		slice,
@@ -617,7 +644,7 @@ ftype_register_bytes(void)
 		0,				/* wire_size */
 		bytes_fvalue_new,		/* new_value */
 		bytes_fvalue_free,		/* free_value */
-		val_from_unparsed,		/* val_from_unparsed */
+		bytes_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
 		bytes_to_repr,			/* val_to_string_repr */
 		bytes_repr_len,			/* len_string_repr */
@@ -636,6 +663,7 @@ ftype_register_bytes(void)
 		cmp_ge,
 		cmp_lt,
 		cmp_le,
+		cmp_contains,
 
 		len,
 		slice,
@@ -666,6 +694,7 @@ ftype_register_bytes(void)
 		cmp_ge,
 		cmp_lt,
 		cmp_le,
+		cmp_contains,
 
 		len,
 		slice,
@@ -696,6 +725,7 @@ ftype_register_bytes(void)
 		cmp_ge,
 		cmp_lt,
 		cmp_le,
+		cmp_contains,
 
 		len,
 		slice,
@@ -726,6 +756,7 @@ ftype_register_bytes(void)
 		cmp_ge,
 		cmp_lt,
 		cmp_le,
+		NULL,				/* cmp_contains */
 
 		len,
 		slice,
@@ -756,6 +787,7 @@ ftype_register_bytes(void)
 		cmp_ge_i64,
 		cmp_lt_i64,
 		cmp_le_i64,
+		NULL,				/* cmp_contains */
 
 		len,
 		slice,

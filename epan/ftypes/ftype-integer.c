@@ -1,5 +1,5 @@
 /*
- * $Id: ftype-integer.c,v 1.14 2003/07/25 03:44:02 gram Exp $
+ * $Id: ftype-integer.c,v 1.15 2003/08/27 15:23:06 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -49,7 +49,7 @@ get_integer(fvalue_t *fv)
 }
 
 static gboolean
-val_from_unparsed(fvalue_t *fv, char *s, LogFunc logfunc)
+val_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, LogFunc logfunc)
 {
 	char    *endptr;
 
@@ -78,7 +78,7 @@ val_from_unparsed(fvalue_t *fv, char *s, LogFunc logfunc)
 }
 
 static gboolean
-ipxnet_from_unparsed(fvalue_t *fv, char *s, LogFunc logfunc)
+ipxnet_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, LogFunc logfunc)
 {
 	guint32 	val;
 	gboolean	known;
@@ -88,7 +88,7 @@ ipxnet_from_unparsed(fvalue_t *fv, char *s, LogFunc logfunc)
 	 * up as an IPX network name if it does, and if that fails,
 	 * we'll log a message.
 	 */
-	if (val_from_unparsed(fv, s, NULL)) {
+	if (val_from_unparsed(fv, s, TRUE, NULL)) {
 		return TRUE;
 	}
 
@@ -242,6 +242,7 @@ ftype_register_integers(void)
 		u_cmp_ge,
 		u_cmp_lt,
 		u_cmp_le,
+		NULL,				/* cmp_contains */
 
 		NULL,				/* len */
 		NULL,				/* slice */
@@ -271,6 +272,7 @@ ftype_register_integers(void)
 		u_cmp_ge,
 		u_cmp_lt,
 		u_cmp_le,
+		NULL,				/* cmp_contains */
 
 		NULL,				/* len */
 		NULL,				/* slice */
@@ -300,6 +302,7 @@ ftype_register_integers(void)
 		u_cmp_ge,
 		u_cmp_lt,
 		u_cmp_le,
+		NULL,				/* cmp_contains */
 
 		NULL,				/* len */
 		NULL,				/* slice */
@@ -329,6 +332,7 @@ ftype_register_integers(void)
 		u_cmp_ge,
 		u_cmp_lt,
 		u_cmp_le,
+		NULL,				/* cmp_contains */
 
 		NULL,				/* len */
 		NULL,				/* slice */
@@ -358,6 +362,7 @@ ftype_register_integers(void)
 		s_cmp_ge,
 		s_cmp_lt,
 		s_cmp_le,
+		NULL,				/* cmp_contains */
 
 		NULL,				/* len */
 		NULL,				/* slice */
@@ -387,6 +392,7 @@ ftype_register_integers(void)
 		s_cmp_ge,
 		s_cmp_lt,
 		s_cmp_le,
+		NULL,				/* cmp_contains */
 
 		NULL,				/* len */
 		NULL,				/* slice */
@@ -416,6 +422,7 @@ ftype_register_integers(void)
 		s_cmp_ge,
 		s_cmp_lt,
 		s_cmp_le,
+		NULL,				/* cmp_contains */
 
 		NULL,				/* len */
 		NULL,				/* slice */
@@ -445,6 +452,7 @@ ftype_register_integers(void)
 		s_cmp_ge,
 		s_cmp_lt,
 		s_cmp_le,
+		NULL,				/* cmp_contains */
 
 		NULL,				/* len */
 		NULL,				/* slice */
@@ -474,6 +482,7 @@ ftype_register_integers(void)
 		NULL,				/* cmp_ge */
 		NULL,				/* cmp_lt */
 		NULL,				/* cmp_le */
+		NULL,				/* cmp_contains */
 
 		NULL,				/* len */
 		NULL,				/* slice */
@@ -504,6 +513,7 @@ ftype_register_integers(void)
 		u_cmp_ge,
 		u_cmp_lt,
 		u_cmp_le,
+		NULL,				/* cmp_contains */
 
 		NULL,				/* len */
 		NULL,				/* slice */
@@ -534,6 +544,7 @@ ftype_register_integers(void)
 		u_cmp_ge,
 		u_cmp_lt,
 		u_cmp_le,
+		NULL,				/* cmp_contains */
 
 		NULL,				/* len */
 		NULL,				/* slice */

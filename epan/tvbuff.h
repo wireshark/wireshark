@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.h,v 1.33 2003/06/12 08:33:31 guy Exp $
+ * $Id: tvbuff.h,v 1.34 2003/08/27 15:23:03 gram Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -434,6 +434,13 @@ extern gint tvb_memeql(tvbuff_t *tvb, gint offset, const guint8 *str,
 extern gchar *tvb_bytes_to_str(tvbuff_t *tvb, gint offset, gint len);
 
 extern tvbuff_t *tvb_get_ds_tvb(tvbuff_t *tvb);
+
+/* Locate a sub-tvbuff within another tvbuff, starting at position
+ * 'haystack_offset'. Returns the index of the beginning of 'needle' within
+ * 'haystack', or -1 if 'needle' is not found. The index is relative
+ * to the start of 'haystack', not 'haystack_offset'. */
+extern gint tvb_find_tvb(tvbuff_t *haystack_tvb, tvbuff_t *needle_tvb,
+	gint haystack_offset);
 
 /************** END OF ACCESSORS ****************/
 

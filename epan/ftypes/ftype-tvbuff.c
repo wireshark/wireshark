@@ -1,5 +1,5 @@
 /*
- * $Id: ftype-tvbuff.c,v 1.9 2003/07/25 03:44:03 gram Exp $
+ * $Id: ftype-tvbuff.c,v 1.10 2003/08/27 15:23:08 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -27,10 +27,21 @@
 #include <ftypes-int.h>
 #include <epan/gdebug.h>
 
+#define tvb_is_private	fvalue_gboolean1
+
 static void
 value_new(fvalue_t *fv)
 {
 	fv->value.tvb = NULL;
+	fv->tvb_is_private = FALSE;
+}
+
+static void
+value_free(fvalue_t *fv)
+{
+	if (fv->tvb_is_private) {
+		tvb_free_chain(fv->value.tvb);
+	}
 }
 
 
@@ -39,6 +50,66 @@ value_set(fvalue_t *fv, gpointer value, gboolean already_copied)
 {
 	g_assert(already_copied);
 	fv->value.tvb = value;
+}
+
+static void
+free_tvb_data(void *data)
+{
+	g_free(data);
+}
+
+
+static gboolean
+val_from_string(fvalue_t *fv, char *s, LogFunc logfunc _U_)
+{
+	tvbuff_t *new_tvb;
+	guint8 *private_data;
+
+	/* Make a tvbuff from the string. We can drop the
+	 * terminating NUL. */
+	private_data = g_memdup(s, strlen(s)); 
+	new_tvb = tvb_new_real_data(private_data, 
+			strlen(s), strlen(s));
+
+	/* Let the tvbuff know how to delete the data. */
+	tvb_set_free_cb(new_tvb, free_tvb_data);
+
+	/* And let us know that we need to free the tvbuff */
+	fv->tvb_is_private = TRUE;
+	fv->value.tvb = new_tvb;
+	return TRUE;
+}
+
+static gboolean
+val_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, LogFunc logfunc)
+{
+	fvalue_t *fv_bytes;
+	tvbuff_t *new_tvb;
+	guint8 *private_data;
+
+	/* Does this look like a byte string? */
+	fv_bytes = fvalue_from_unparsed(FT_BYTES, s, TRUE, NULL);
+	if (fv_bytes) {
+		/* Make a tvbuff from the bytes */
+		private_data = g_memdup(fv_bytes->value.bytes->data,
+				fv_bytes->value.bytes->len);
+		new_tvb = tvb_new_real_data(private_data, 
+				fv_bytes->value.bytes->len,
+				fv_bytes->value.bytes->len);
+
+		/* Let the tvbuff know how to delete the data. */
+		tvb_set_free_cb(new_tvb, free_tvb_data);
+
+		/* And let us know that we need to free the tvbuff */
+		fv->tvb_is_private = TRUE;
+		fv->value.tvb = new_tvb;
+		return TRUE;
+	}
+	else {
+		/* Treat it as a string. */
+		return val_from_string(fv, s, logfunc);
+	}
+	g_assert_not_reached();
 }
 
 static gpointer
@@ -74,18 +145,29 @@ slice(fvalue_t *fv, GByteArray *bytes, guint offset, guint length)
 	}
 }
 
+static gboolean
+cmp_contains(fvalue_t *fv_a, fvalue_t *fv_b)
+{
+	if (tvb_find_tvb(fv_a->value.tvb, fv_b->value.tvb, 0) > -1) {
+		return TRUE;
+	}
+	else {
+		return FALSE;
+	}
+}
+
 void
 ftype_register_tvbuff(void)
 {
 
 	static ftype_t protocol_type = {
-		"FT_PROTOCOL",
-		"protocol",
-		0,
-		value_new,
-		NULL,
-		NULL,				/* val_from_unparsed */
-		NULL,				/* val_from_string */
+		"FT_PROTOCOL",			/* name */
+		"protocol",			/* pretty_name */
+		0,				/* wire_size */
+		value_new,			/* new_value */
+		value_free,			/* free_value */
+		val_from_unparsed,		/* val_from_unparsed */
+		val_from_string,		/* val_from_string */
 		NULL,				/* val_to_string_repr */
 		NULL,				/* len_string_repr */
 
@@ -103,6 +185,7 @@ ftype_register_tvbuff(void)
 		NULL,
 		NULL,
 		NULL,
+		cmp_contains,			/* cmp_contains */
 
 		len,
 		slice,

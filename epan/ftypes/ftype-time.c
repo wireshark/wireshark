@@ -1,5 +1,5 @@
 /*
- * $Id: ftype-time.c,v 1.20 2003/07/30 22:50:39 guy Exp $
+ * $Id: ftype-time.c,v 1.21 2003/08/27 15:23:07 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -167,7 +167,7 @@ get_nsecs(char *startp, int *nsecs)
 }
 
 static gboolean
-relative_val_from_unparsed(fvalue_t *fv, char *s, LogFunc logfunc)
+relative_val_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, LogFunc logfunc)
 {
 	char    *curptr, *endptr;
 
@@ -277,6 +277,12 @@ fail:
 	return FALSE;
 }
 
+static gboolean
+absolute_val_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, LogFunc logfunc)
+{
+	return absolute_val_from_string(fv, s, logfunc);
+}
+
 static void
 time_fvalue_new(fvalue_t *fv)
 {
@@ -337,7 +343,7 @@ ftype_register_time(void)
 		0,
 		time_fvalue_new,
 		NULL,
-		absolute_val_from_string,	/* val_from_unparsed */
+		absolute_val_from_unparsed,	/* val_from_unparsed */
 		absolute_val_from_string,	/* val_from_string */
 		absolute_val_to_repr,		/* val_to_string_repr */
 		absolute_val_repr_len,		/* len_string_repr */
@@ -356,6 +362,8 @@ ftype_register_time(void)
 		cmp_ge,
 		cmp_lt,
 		cmp_le,
+		NULL,				/* cmp_contains */
+
 		NULL,
 		NULL
 	};
@@ -384,6 +392,8 @@ ftype_register_time(void)
 		cmp_ge,
 		cmp_lt,
 		cmp_le,
+		NULL,				/* cmp_contains */
+
 		NULL,
 		NULL
 	};
