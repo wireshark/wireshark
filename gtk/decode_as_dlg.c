@@ -1,6 +1,6 @@
 /* decode_as_dlg.c
  *
- * $Id: decode_as_dlg.c,v 1.32 2003/09/07 00:47:57 guy Exp $
+ * $Id: decode_as_dlg.c,v 1.33 2003/09/07 00:59:07 guy Exp $
  *
  * Routines to modify dissector tables on the fly.
  *
@@ -1279,7 +1279,7 @@ decode_add_simple_menu (GtkWidget *page, gchar *table_name)
  */
 static GtkWidget *
 decode_add_simple_page (gchar *prompt, gchar *title, gchar *table_name,
-			gint value)
+			guint value)
 {
     GtkWidget	*page, *label, *scrolled_window;
 
@@ -1287,7 +1287,7 @@ decode_add_simple_page (gchar *prompt, gchar *title, gchar *table_name,
     OBJECT_SET_DATA(page, E_PAGE_ACTION, decode_simple);
     OBJECT_SET_DATA(page, E_PAGE_TABLE, table_name);
     OBJECT_SET_DATA(page, E_PAGE_TITLE, title);
-    OBJECT_SET_DATA(page, E_PAGE_VALUE, GINT_TO_POINTER(value));
+    OBJECT_SET_DATA(page, E_PAGE_VALUE, GUINT_TO_POINTER(value));
 
     /* Always enabled */
     label = gtk_label_new(prompt);
