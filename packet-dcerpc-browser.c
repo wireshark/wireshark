@@ -2,7 +2,7 @@
  * Routines for DCERPC Browser packet disassembly
  * Copyright 2001, Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-browser.c,v 1.3 2002/05/28 13:59:20 sahlberg Exp $
+ * $Id: packet-dcerpc-browser.c,v 1.4 2002/05/30 10:06:58 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -96,13 +96,14 @@ dissect_browser_TYPE_4_data(tvbuff_t *tvb, int offset,
 
 	di=pinfo->private_data;
 	if(di->conformant_run){
-		/*just a run to handle conformant arrays, nothing to dissect */
+		/* this call is to make ethereal eat the array header for the conformant run */
+		offset =dissect_ndr_ucarray(tvb, offset, pinfo, tree, drep, NULL);
+
 		return offset;
 	}
-
-	/* this is really the length of the encoded data */
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_browser_unknown_long, &len);
+
 	proto_tree_add_item(tree, hf_browser_unknown_bytes, tvb, offset, len,
 		FALSE);
 	offset += len;
@@ -141,7 +142,9 @@ dissect_browser_TYPE_3_data(tvbuff_t *tvb, int offset,
 
 	di=pinfo->private_data;
 	if(di->conformant_run){
-		/*just a run to handle conformant arrays, nothing to dissect */
+		/* this call is to make ethereal eat the array header for the conformant run */
+		offset =dissect_ndr_ucarray(tvb, offset, pinfo, tree, drep, NULL);
+
 		return offset;
 	}
 
@@ -183,6 +186,13 @@ dissect_browser_TYPE_2(tvbuff_t *tvb, int offset,
 			char *drep)
 {
 	guint32 level;
+	dcerpc_info *di;
+
+	di=pinfo->private_data;
+	if(di->conformant_run){
+		/* ALING_TO_4_BYTES below might eat bytes otherwise */
+		return offset;
+	}
 
 	/* this is really the union switch arm */
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
@@ -741,7 +751,9 @@ dissect_browser_TYPE_9_data(tvbuff_t *tvb, int offset,
 
 	di=pinfo->private_data;
 	if(di->conformant_run){
-		/*just a run to handle conformant arrays, nothing to dissect */
+		/* this call is to make ethereal eat the array header for the conformant run */
+		offset =dissect_ndr_ucarray(tvb, offset, pinfo, tree, drep, NULL);
+
 		return offset;
 	}
 
@@ -783,6 +795,13 @@ dissect_browser_TYPE_8(tvbuff_t *tvb, int offset,
 			char *drep)
 {
 	guint32 level;
+	dcerpc_info *di;
+
+	di=pinfo->private_data;
+	if(di->conformant_run){
+		/* ALING_TO_4_BYTES below might eat bytes otherwise */
+		return offset;
+	}
 
 	/* this is really the union switch arm */
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
@@ -927,7 +946,9 @@ dissect_browser_TYPE_12_data(tvbuff_t *tvb, int offset,
 
 	di=pinfo->private_data;
 	if(di->conformant_run){
-		/*just a run to handle conformant arrays, nothing to dissect */
+		/* this call is to make ethereal eat the array header for the conformant run */
+		offset =dissect_ndr_ucarray(tvb, offset, pinfo, tree, drep, NULL);
+
 		return offset;
 	}
 
