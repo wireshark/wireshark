@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.68 2001/10/24 07:18:36 guy Exp $
+ * $Id: prefs.c,v 1.69 2001/11/03 21:37:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -53,6 +53,7 @@
 #include "prefs-int.h"
 
 /* Internal functions */
+static struct preference *find_preference(module_t *, const char *);
 static int    set_pref(gchar*, gchar*);
 static GList *get_string_list(gchar *);
 static gchar *put_string_list(GList *);
@@ -224,6 +225,18 @@ register_preference(module_t *module, const char *name, const char *title,
 	preference->description = description;
 	preference->ordinal = module->numprefs;
 
+	/*
+	 * Make sure there's not already a preference with that
+	 * name.  Crash if there is, as that's an error in the
+	 * code, and the code has to be fixed not to register
+	 * more than one preference with the same name.
+	 */
+	g_assert(find_preference(module, name) == NULL);
+
+	/*
+	 * There isn't already one with that name, so add the
+	 * preference.
+	 */
 	module->prefs = g_list_append(module->prefs, preference);
 	module->numprefs++;
 
@@ -244,11 +257,12 @@ preference_match(gconstpointer a, gconstpointer b)
 }
 
 static struct preference *
-find_preference(module_t *module, char *name)
+find_preference(module_t *module, const char *name)
 {
 	GList *list_entry;
 
-	list_entry = g_list_find_custom(module->prefs, name, preference_match);
+	list_entry = g_list_find_custom(module->prefs, (gpointer)name,
+	    preference_match);
 	if (list_entry == NULL)
 		return NULL;	/* no such preference */
 	return (struct preference *) list_entry->data;
