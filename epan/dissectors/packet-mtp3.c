@@ -247,7 +247,7 @@ mtp3_addr_to_str_buf(
   const guint8		*data,
   gchar			*buf)
 {
-  mtp3_addr_pc_t	*addr_pc_p = (mtp3_addr_pc_t *) data;
+  const mtp3_addr_pc_t	*addr_pc_p = (const mtp3_addr_pc_t *)data;
 
   switch (mtp3_net_addr_fmt)
   {
