@@ -1,6 +1,6 @@
 %{
 /*
- * $Id: scanner.l,v 1.18 2004/05/08 22:03:43 guy Exp $
+ * $Id: scanner.l,v 1.19 2004/06/03 07:17:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -46,7 +46,7 @@
 static int set_lval(int token, gpointer data);
 static int set_lval_int(int token, char *s);
 static int simple(int token);
-static gboolean str_to_guint32(char *s, guint32* pint);
+static gboolean str_to_gint32(char *s, gint32* pint);
 GString* quoted_string = NULL;
 
 %}
@@ -122,6 +122,22 @@ GString* quoted_string = NULL;
 <RANGE_INT,RANGE_PUNCT>"]"		{
 	BEGIN(INITIAL);
 	return simple(TOKEN_RBRACKET);
+}
+
+	/* Error if none of the above while scanning a range (slice) */
+
+<RANGE_PUNCT>[^:\-,\]]+		{
+	dfilter_fail("Invalid string \"%s\" found while scanning slice.", yytext);
+	return SCAN_FAILED;
+}
+
+	/* XXX It would be nice to be able to match an entire non-integer string,
+	 * but beware of Flex's "match the most text" rule.
+	 */
+
+<RANGE_INT>.	{
+	dfilter_fail("Invalid character \"%s\" found while scanning slice; expected integer.", yytext);
+	return SCAN_FAILED;
 }
 
 \"					{
@@ -285,7 +301,7 @@ set_lval_int(int token, char *s)
 	sttype_id_t	type_id = STTYPE_UNINITIALIZED;
 	guint32		val;
 
-	if (!str_to_guint32(s, &val)) {
+	if (!str_to_gint32(s, &val)) {
 		return SCAN_FAILED;
 	}	
 
@@ -303,12 +319,12 @@ set_lval_int(int token, char *s)
 
 
 static gboolean
-str_to_guint32(char *s, guint32* pint)
+str_to_gint32(char *s, gint32* pint)
 {
 	char    *endptr;
-	guint32	integer;
+	gint32	integer;
 
-	integer = strtoul(s, &endptr, 0);
+	integer = strtol(s, &endptr, 0);
 
 	if (endptr == s || *endptr != '\0') {
 		/* This isn't a valid number. */
@@ -316,8 +332,11 @@ str_to_guint32(char *s, guint32* pint)
 		return FALSE;
 	}
 	if (errno == ERANGE) {
-		if (integer == ULONG_MAX) {
+		if (integer == LONG_MAX) {
 			dfilter_fail("\"%s\" causes an integer overflow.", s);
+		}
+		else if (integer == LONG_MIN) {
+			dfilter_fail("\"%s\" causes an integer underflow.", s);
 		}
 		else {
 			dfilter_fail("\"%s\" is not an integer.", s);
