@@ -1,7 +1,7 @@
 /* packet-slowprotocols.c
  * Routines for EtherType (0x8809) Slow Protocols disassembly.
  *
- * $Id: packet-slowprotocols.c,v 1.1 2002/06/13 07:18:47 guy Exp $
+ * $Id: packet-slowprotocols.c,v 1.2 2002/06/13 21:20:24 guy Exp $
  *
  * Copyright 2002 Steve Housley <steve_housley@3com.com>
  * 
@@ -652,7 +652,7 @@ proto_register_lacpdu(void)
     { &hf_lacpdu_flags_a_defaulted,
       { "Defaulted",		"lacp.actorState.defaulted",
 	FT_BOOLEAN,	8,		TFS(&yesno),	LACPDU_FLAGS_DEFAULTED,
-      	"1 = Actor Rx machine is using DEFAULT Partner info, 0 = using info in Rx'd LACPDU"}},
+      	"1 = Actor Rx machine is using DEFAULT Partner info, 0 = using info in Rx'd LACPDU", HFILL }},
 
 
     { &hf_lacpdu_flags_a_expired,
@@ -745,7 +745,7 @@ proto_register_lacpdu(void)
     { &hf_lacpdu_flags_p_defaulted,
       { "Defaulted",		"lacp.partnerState.defaulted",
 	FT_BOOLEAN,	8,		TFS(&yesno),	LACPDU_FLAGS_DEFAULTED,
-      	"1 = Actor Rx machine is using DEFAULT Partner info, 0 = using info in Rx'd LACPDU"}},
+      	"1 = Actor Rx machine is using DEFAULT Partner info, 0 = using info in Rx'd LACPDU", HFILL }},
 
 
     { &hf_lacpdu_flags_p_expired,
