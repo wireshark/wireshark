@@ -1,6 +1,6 @@
 /* snoop.h
  *
- * $Id: snoop.h,v 1.2 1999/08/19 05:31:35 guy Exp $
+ * $Id: snoop.h,v 1.3 1999/12/04 03:36:22 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -22,3 +22,4 @@
  */
 
 int snoop_open(wtap *wth, int *err);
+int snoop_dump_open(wtap_dumper *wdh, int *err);

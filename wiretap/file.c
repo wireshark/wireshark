@@ -1,6 +1,6 @@
 /* file.c
  *
- * $Id: file.c,v 1.29 1999/11/10 19:47:56 gram Exp $
+ * $Id: file.c,v 1.30 1999/12/04 03:36:21 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -207,10 +207,20 @@ wtap_dumper* wtap_dump_fdopen(int fd, int filetype, int encap, int snaplen,
 	return wtap_dump_open_common(fh, filetype, encap, snaplen, err);
 }
 
+const static struct dump_type {
+	guint	type;
+	int	(*dump_open)(wtap_dumper *, int *);
+} dump_open_table[] = {
+	{ WTAP_FILE_PCAP,	libpcap_dump_open },
+	{ WTAP_FILE_SNOOP,	snoop_dump_open },
+	{ 0,			NULL }
+};
+
 static wtap_dumper* wtap_dump_open_common(FILE *fh, int filetype, int encap,
 					int snaplen, int *err)
 {
 	wtap_dumper *wdh;
+	const struct dump_type *dtp;
 
 	wdh = g_malloc(sizeof (wtap_dumper));
 	if (wdh == NULL) {
@@ -225,24 +235,22 @@ static wtap_dumper* wtap_dump_open_common(FILE *fh, int filetype, int encap,
 	wdh->snaplen = snaplen;
 	wdh->encap = encap;
 
-	switch (filetype) {
-
-	case WTAP_FILE_PCAP:
-		if (!libpcap_dump_open(wdh, err))
-			goto fail;
-		break;
-
-	default:
-		/* We currently only support dumping "libpcap" files */
-		*err = WTAP_ERR_UNSUPPORTED_FILE_TYPE;
-		goto fail;
+	for (dtp = &dump_open_table[0]; dtp->dump_open != NULL; dtp++) {
+		if (filetype == dtp->type) {
+			if (!(*dtp->dump_open)(wdh, err)) {
+				/* The attempt failed. */
+				g_free(wdh);
+				fclose(fh);
+				return NULL;
+			}
+			return wdh;	/* success! */
+		}
 	}
-	return wdh;
 
-fail:
+	*err = WTAP_ERR_UNSUPPORTED_FILE_TYPE;
 	g_free(wdh);
 	fclose(fh);
-	return NULL;	/* XXX - provide a reason why we failed */
+	return NULL;
 }
 
 FILE* wtap_dump_file(wtap_dumper *wdh)

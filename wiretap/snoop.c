@@ -1,6 +1,6 @@
 /* snoop.c
  *
- * $Id: snoop.c,v 1.17 1999/11/27 06:03:46 guy Exp $
+ * $Id: snoop.c,v 1.18 1999/12/04 03:36:21 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -56,6 +56,9 @@ struct snooprec_hdr {
 };
 
 static int snoop_read(wtap *wth, int *err);
+static int snoop_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
+    const u_char *pd, int *err);
+static int snoop_dump_close(wtap_dumper *wdh, int *err);
 
 /*
  * See
@@ -345,4 +348,130 @@ static int snoop_read(wtap *wth, int *err)
 	}
 
 	return data_offset;
+}
+
+/* Returns 1 on success, 0 on failure; sets "*err" to an error code on
+   failure */
+int snoop_dump_open(wtap_dumper *wdh, int *err)
+{
+	struct snoop_hdr file_hdr;
+	static const int wtap_encap[] = {
+		-1,		/* WTAP_ENCAP_UNKNOWN -> unsupported */
+		0x04,		/* WTAP_ENCAP_ETHERNET -> DL_ETHER */
+		0x02,		/* WTAP_ENCAP_TR -> DL_TPR */
+		-1,		/* WTAP_ENCAP_SLIP -> unsupported */
+		-1,		/* WTAP_ENCAP_PPP -> unsupported */
+		0x08,		/* WTAP_ENCAP_FDDI -> DL_FDDI */
+		0x08,		/* WTAP_ENCAP_FDDI_BITSWAPPED -> DL_FDDI */
+		-1,		/* WTAP_ENCAP_RAW_IP -> unsupported */
+		-1,		/* WTAP_ENCAP_ARCNET -> unsupported */
+		-1,		/* WTAP_ENCAP_ATM_RFC1483 -> unsupported */
+		-1,		/* WTAP_ENCAP_LINUX_ATM_CLIP -> unsupported */
+		-1,		/* WTAP_ENCAP_LAPB -> unsupported*/
+		-1,		/* WTAP_ENCAP_ATM_SNIFFER -> unsupported */
+		0		/* WTAP_ENCAP_NULL -> DLT_NULL */
+	};
+	#define NUM_WTAP_ENCAPS (sizeof wtap_encap / sizeof wtap_encap[0])
+	int nwritten;
+
+	/* Per-packet encapsulations aren't supported. */
+	if (wdh->encap == WTAP_ENCAP_PER_PACKET) {
+		*err = WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED;
+		return 0;
+	}
+
+	if (wdh->encap < 0 || wdh->encap >= NUM_WTAP_ENCAPS
+	    || wtap_encap[wdh->encap] == -1) {
+		*err = WTAP_ERR_UNSUPPORTED_ENCAP;
+		return 0;
+	}
+
+	/* This is a snoop file */
+	wdh->subtype_write = snoop_dump;
+	wdh->subtype_close = snoop_dump_close;
+
+	/* Write the file header. */
+	nwritten = fwrite(&snoop_magic, 1, sizeof snoop_magic, wdh->fh);
+	if (nwritten != sizeof snoop_magic) {
+		if (nwritten < 0)
+			*err = errno;
+		else
+			*err = WTAP_ERR_SHORT_WRITE;
+		return 0;
+	}
+
+	/* current "snoop" format is 2 */
+	file_hdr.version = 2;
+	file_hdr.network = wtap_encap[wdh->encap];
+	nwritten = fwrite(&file_hdr, 1, sizeof file_hdr, wdh->fh);
+	if (nwritten != sizeof file_hdr) {
+		if (nwritten < 0)
+			*err = errno;
+		else
+			*err = WTAP_ERR_SHORT_WRITE;
+		return 0;
+	}
+
+	return 1;
+}
+
+/* Write a record for a packet to a dump file.
+   Returns 1 on success, 0 on failure. */
+static int snoop_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
+    const u_char *pd, int *err)
+{
+	struct snooprec_hdr rec_hdr;
+	int nwritten;
+	int reclen;
+	int padlen;
+	static char zeroes[4];
+
+	/* Record length = header length plus data length... */
+	reclen = sizeof rec_hdr + phdr->caplen;
+
+	/* ... plus enough bytes to pad it to a 4-byte boundary. */
+	padlen = ((reclen + 3) & ~3) - reclen;
+	reclen += padlen;
+
+	rec_hdr.orig_len = htonl(phdr->len);
+	rec_hdr.incl_len = htonl(phdr->caplen);
+	rec_hdr.rec_len = htonl(reclen);
+	rec_hdr.cum_drops = 0;
+	rec_hdr.ts_sec = htonl(phdr->ts.tv_sec);
+	rec_hdr.ts_usec = htonl(phdr->ts.tv_usec);
+	nwritten = fwrite(&rec_hdr, 1, sizeof rec_hdr, wdh->fh);
+	if (nwritten != sizeof rec_hdr) {
+		if (nwritten < 0)
+			*err = errno;
+		else
+			*err = WTAP_ERR_SHORT_WRITE;
+		return 0;
+	}
+	nwritten = fwrite(pd, 1, phdr->caplen, wdh->fh);
+	if (nwritten != phdr->caplen) {
+		if (nwritten < 0)
+			*err = errno;
+		else
+			*err = WTAP_ERR_SHORT_WRITE;
+		return 0;
+	}
+
+	/* Now write the padding. */
+	nwritten = fwrite(zeroes, 1, padlen, wdh->fh);
+	if (nwritten != padlen) {
+		if (nwritten < 0)
+			*err = errno;
+		else
+			*err = WTAP_ERR_SHORT_WRITE;
+		return 0;
+	}
+	return 1;
+}
+
+/* Finish writing to a dump file.
+   Returns 1 on success, 0 on failure. */
+static int snoop_dump_close(wtap_dumper *wdh, int *err)
+{
+	/* Nothing to do here. */
+	return 1;
 }
