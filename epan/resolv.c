@@ -1,7 +1,7 @@
 /* resolv.c
  * Routines for network object lookup
  *
- * $Id: resolv.c,v 1.28 2000/08/19 08:26:03 guy Exp $
+ * $Id: resolv.c,v 1.1 2000/09/28 03:28:53 gram Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *

@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.229 2000/09/27 05:17:56 gram Exp $
+# $Id: Makefile.am,v 1.230 2000/09/28 03:28:45 gram Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -282,8 +282,6 @@ ETHEREAL_COMMON_SOURCES = \
 	ptvcursor.h	\
 	register.c     \
 	register.h     \
-	resolv.c       \
-	resolv.h       \
 	smb.h          \
 	timestamp.h    \
 	util.c         \

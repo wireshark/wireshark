@@ -2,7 +2,7 @@
 # Automake file for the EPAN library
 # (Ethereal Protocol ANalyzer Library)
 #
-# $Id: Makefile.am,v 1.4 2000/09/28 03:16:15 gram Exp $
+# $Id: Makefile.am,v 1.5 2000/09/28 03:28:53 gram Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -55,6 +55,8 @@ libepan_a_SOURCES = \
 	plugins.h		\
 	proto.c			\
 	proto.h			\
+	resolv.c		\
+	resolv.h		\
 	strutil.c		\
 	strutil.h		\
 	tvbtest.c		\
