@@ -1,6 +1,6 @@
 /* epan.h
  *
- * $Id: epan.h,v 1.13 2002/08/28 20:40:44 jmayer Exp $
+ * $Id: epan.h,v 1.14 2002/09/09 21:04:06 guy Exp $
  *
  * Ethereal Protocol Analyzer Library
  *
@@ -19,7 +19,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- *
  */
 
 #ifndef EPAN_H
@@ -64,7 +63,7 @@ epan_dissect_run(epan_dissect_t *edt, void* pseudo_header,
         const guint8* data, frame_data *fd, column_info *cinfo);
 
 void
-epan_dissect_prime_dfilter(epan_dissect_t *edt, dfilter_t*);
+epan_dissect_prime_dfilter(epan_dissect_t *edt, const dfilter_t*);
 
 void
 epan_dissect_fill_in_columns(epan_dissect_t *edt);

@@ -1,9 +1,8 @@
 /* epan.h
  *
- * $Id: epan.c,v 1.20 2002/09/04 09:40:29 sahlberg Exp $
+ * $Id: epan.c,v 1.21 2002/09/09 21:04:06 guy Exp $
  *
  * Ethereal Protocol Analyzer Library
- *
  */
 
 #ifdef HAVE_CONFIG_H
@@ -120,7 +119,7 @@ epan_dissect_free(epan_dissect_t* edt)
 }
 
 void
-epan_dissect_prime_dfilter(epan_dissect_t *edt, dfilter_t* dfcode)
+epan_dissect_prime_dfilter(epan_dissect_t *edt, const dfilter_t* dfcode)
 {
 	dfilter_prime_proto_tree(dfcode, edt->tree);
 }

@@ -1,5 +1,5 @@
 /*
- * $Id: dfilter.c,v 1.11 2002/08/28 20:40:55 jmayer Exp $
+ * $Id: dfilter.c,v 1.12 2002/09/09 21:04:15 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -297,7 +297,7 @@ dfilter_apply_edt(dfilter_t *df, epan_dissect_t* edt)
 
 
 void
-dfilter_prime_proto_tree(dfilter_t *df, proto_tree *tree)
+dfilter_prime_proto_tree(const dfilter_t *df, proto_tree *tree)
 {
     int i;
 

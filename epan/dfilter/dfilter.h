@@ -1,5 +1,5 @@
 /*
- * $Id: dfilter.h,v 1.6 2002/08/28 20:40:55 jmayer Exp $
+ * $Id: dfilter.h,v 1.7 2002/09/09 21:04:15 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -78,7 +78,7 @@ dfilter_apply(dfilter_t *df, proto_tree *tree);
 
 /* Prime a proto_tree using the fields/protocols used in a dfilter. */
 void
-dfilter_prime_proto_tree(dfilter_t *df, proto_tree *tree);
+dfilter_prime_proto_tree(const dfilter_t *df, proto_tree *tree);
 
 /* Print bytecode of dfilter to stdout */
 void
