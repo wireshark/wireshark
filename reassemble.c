@@ -1,7 +1,7 @@
 /* reassemble.c
  * Routines for {fragment,segment} reassembly
  *
- * $Id: reassemble.c,v 1.11 2002/04/17 04:54:30 guy Exp $
+ * $Id: reassemble.c,v 1.12 2002/04/17 08:25:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -38,7 +38,13 @@ typedef struct _fragment_key {
 	guint32	id;
 } fragment_key;
 
+typedef struct _reassembled_key {
+	guint32 frame;
+	guint32	id;
+} reassembled_key;
+
 static GMemChunk *fragment_key_chunk = NULL;
+static GMemChunk *reassembled_key_chunk = NULL;
 static GMemChunk *fragment_data_chunk = NULL;
 static int fragment_init_count = 200;
 
@@ -96,9 +102,43 @@ fragment_hash(gconstpointer k)
 	return hash_val;
 }
 
+static gint
+reassembled_equal(gconstpointer k1, gconstpointer k2)
+{
+	reassembled_key* key1 = (reassembled_key*) k1;
+	reassembled_key* key2 = (reassembled_key*) k2;
+
+	/*key.frame is the first item to compare since item is most
+	  likely to differ between sessions, thus shortcircuiting
+	  the comparasion of addresses.
+	*/
+	return ( ( (key1->frame == key2->frame) &&
+		   (key1->id    == key2->id)
+		 ) ?
+		 TRUE : FALSE);
+}
+
+static guint
+reassembled_hash(gconstpointer k)
+{
+	reassembled_key* key = (reassembled_key*) k;
+	guint hash_val;
+
+	hash_val = 0;
+
+/* 	The frame number is probably good enough as a hash value;
+	there's probably not going to be too many reassembled
+	packets that end at the same frame.
+*/
+
+	hash_val = key->frame;
+
+	return hash_val;
+}
+
 /*
- * For a hash table entry, free the address data to which the key refers
- * and the fragment data to which the value refers.
+ * For a fragment hash table entry, free the address data to which the key
+ * refers and the fragment data to which the value refers.
  * (The actual key and value structures get freed by "reassemble_init()".)
  */
 static gboolean
@@ -134,6 +174,25 @@ free_all_fragments(gpointer key_arg, gpointer value, gpointer user_data _U_)
 }
 
 /*
+ * For a reassembled-packet hash table entry, free the fragment data
+ * to which the value refers.
+ * (The actual key and value structures get freed by "reassemble_init()".)
+ */
+static gboolean
+free_all_reassembled_fragments(gpointer key_arg _U_, gpointer value,
+			       gpointer user_data _U_)
+{
+	fragment_data *fd_head;
+
+	for (fd_head = value; fd_head != NULL; fd_head = fd_head->next) {
+		if(fd_head->data && !(fd_head->flags&FD_NOT_MALLOCED))
+			g_free(fd_head->data);
+	}
+
+	return TRUE;
+}
+
+/*
  * Initialize a fragment table.
  */
 void
@@ -157,6 +216,29 @@ fragment_table_init(GHashTable **fragment_table)
 }
 
 /*
+ * Initialize a reassembled-packet table.
+ */
+void
+reassembled_table_init(GHashTable **reassembled_table)
+{
+	if (*reassembled_table != NULL) {
+		/*
+		 * The reassembled-packet hash table exists.
+		 * 
+		 * Remove all entries and free fragment data for
+		 * each entry.  (The key and value data is freed
+		 * by "reassemble_init()".)
+		 */
+		g_hash_table_foreach_remove(*reassembled_table,
+				free_all_reassembled_fragments, NULL);
+	} else {
+		/* The fragment table does not exist. Create it */
+		*reassembled_table = g_hash_table_new(reassembled_hash,
+				reassembled_equal);
+	}
+}
+
+/*
  * Free up all space allocated for fragment keys and data.
  */
 void
@@ -164,11 +246,17 @@ reassemble_init(void)
 {
 	if (fragment_key_chunk != NULL)
 		g_mem_chunk_destroy(fragment_key_chunk);
+	if (reassembled_key_chunk != NULL)
+		g_mem_chunk_destroy(reassembled_key_chunk);
 	if (fragment_data_chunk != NULL)
 		g_mem_chunk_destroy(fragment_data_chunk);
 	fragment_key_chunk = g_mem_chunk_new("fragment_key_chunk",
 	    sizeof(fragment_key),
 	    fragment_init_count * sizeof(fragment_key),
+	    G_ALLOC_ONLY);
+	reassembled_key_chunk = g_mem_chunk_new("reassembled_key_chunk",
+	    sizeof(reassembled_key),
+	    fragment_init_count * sizeof(reassembled_key),
 	    G_ALLOC_ONLY);
 	fragment_data_chunk = g_mem_chunk_new("fragment_data_chunk",
 	    sizeof(fragment_data),
@@ -304,6 +392,7 @@ fragment_set_partial_reassembly(packet_info *pinfo, guint32 id, GHashTable *frag
 		fd_head->flags |= FD_PARTIAL_REASSEMBLY;
 	}
 }
+
 /*
  * This function adds a new fragment to the fragment hash table.
  * If this is the first fragment seen for this datagram, a new entry
@@ -554,15 +643,194 @@ fragment_add(tvbuff_t *tvb, int offset, packet_info *pinfo, guint32 id,
 	return fd_head;
 }
 
+/*
+ * This function adds a new fragment to the entry for a reassembly
+ * operation.
+ *
+ * The list of fragments for a specific datagram is kept sorted for
+ * easier handling.
+ *
+ * Returns TRUE if we have all the fragments, FALSE otherwise.
+ *
+ * This function assumes frag_number being a block sequence number.
+ * The bsn for the first block is 0.
+ */
+static gboolean
+fragment_add_seq_work(fragment_data *fd_head, tvbuff_t *tvb, int offset,
+	     packet_info *pinfo, guint32 id, guint32 frag_number,
+	     guint32 frag_data_len, gboolean more_frags)
+{
+	fragment_data *fd;
+	fragment_data *fd_i;
+	fragment_data *last_fd;
+	guint32 max, dfpos, size;
 
+	/* create new fd describing this fragment */
+	fd = g_mem_chunk_alloc(fragment_data_chunk);
+	fd->next = NULL;
+	fd->flags = 0;
+	fd->frame = pinfo->fd->num;
+	fd->offset = frag_number;
+	fd->len  = frag_data_len;
+	fd->data = NULL;
+
+	if (!more_frags) {  
+		/*
+		 * This is the tail fragment in the sequence.
+		 */
+		if (fd_head->datalen) {
+			/* ok we have already seen other tails for this packet
+			 * it might be a duplicate.
+			 */
+			if (fd_head->datalen != fd->offset ){
+				/* Oops, this tail indicates a different packet
+				 * len than the previous ones. Somethings wrong
+				 */
+				fd->flags      |= FD_MULTIPLETAILS;
+				fd_head->flags |= FD_MULTIPLETAILS;
+			}
+		} else {
+			/* this was the first tail fragment, now we know the
+			 * length of the packet
+			 */
+			fd_head->datalen = fd->offset;
+		}
+	}
+
+	/* If the packet is already defragmented, this MUST be an overlap.
+         * The entire defragmented packet is in fd_head->data
+	 * Even if we have previously defragmented this packet, we still check
+	 * check it. Someone might play overlap and TTL games.
+         */
+	if (fd_head->flags & FD_DEFRAGMENTED) {
+		fd->flags      |= FD_OVERLAP;
+		fd_head->flags |= FD_OVERLAP;
+
+		/* make sure its not too long */
+		if (fd->offset > fd_head->datalen) {
+			fd->flags      |= FD_TOOLONGFRAGMENT;
+			fd_head->flags |= FD_TOOLONGFRAGMENT;
+			LINK_FRAG(fd_head,fd);
+			return TRUE;
+		}
+		/* make sure it doesnt conflict with previous data */
+		dfpos=0;
+		for (fd_i=fd_head->next;fd_i->offset!=fd->offset;fd_i=fd_i->next) {
+		  dfpos += fd_i->len;
+		}
+		if(fd_i->datalen!=fd->datalen){
+			fd->flags      |= FD_OVERLAPCONFLICT;
+			fd_head->flags |= FD_OVERLAPCONFLICT;
+			LINK_FRAG(fd_head,fd);
+			return TRUE;
+		}
+		if ( memcmp(fd_head->data+dfpos,
+			tvb_get_ptr(tvb,offset,fd->len),fd->len) ){
+			fd->flags      |= FD_OVERLAPCONFLICT;
+			fd_head->flags |= FD_OVERLAPCONFLICT;
+			LINK_FRAG(fd_head,fd);
+			return TRUE;
+		}
+		/* it was just an overlap, link it and return */
+		LINK_FRAG(fd_head,fd);
+		return TRUE;
+	}
+
+	/* If we have reached this point, the packet is not defragmented yet.
+         * Save all payload in a buffer until we can defragment.
+	 * XXX - what if we didn't capture the entire fragment due
+	 * to a too-short snapshot length?
+	 */
+	fd->data = g_malloc(fd->len);
+	tvb_memcpy(tvb, fd->data, offset, fd->len);
+	LINK_FRAG(fd_head,fd);
+
+
+	if( !(fd_head->datalen) ){
+		/* if we dont know the datalen, there are still missing
+		 * packets. Cheaper than the check below.
+		 */
+		return NULL;
+	}
+
+
+	/* check if we have received the entire fragment
+	 * this is easy since the list is sorted and the head is faked.
+	 */
+	max = 0;
+	for(fd_i=fd_head->next;fd_i;fd_i=fd_i->next) {
+	  if ( fd_i->offset==max ){
+	    max++;
+	  }
+	}
+	/* max will now be datalen+1 if all fragments have been seen */
+
+	if (max <= fd_head->datalen) {
+		/* we have not received all packets yet */
+		return FALSE;
+	}
+
+
+	if (max > (fd_head->datalen+1)) {
+		/* oops, too long fragment detected */
+		fd->flags      |= FD_TOOLONGFRAGMENT;
+		fd_head->flags |= FD_TOOLONGFRAGMENT;
+	}
+
+
+	/* we have received an entire packet, defragment it and
+         * free all fragments 
+         */
+	size=0;
+	last_fd=NULL;
+	for(fd_i=fd_head->next;fd_i;fd_i=fd_i->next) {
+	  if(!last_fd || last_fd->offset!=fd_i->offset){
+	    size+=fd_i->len;
+	  }
+	  last_fd=fd_i;
+	}
+	fd_head->data = g_malloc(size);
+	fd_head->len = size;		/* record size for caller	*/
+
+	/* add all data fragments */
+	last_fd=NULL;
+	for (dfpos=0,fd_i=fd_head->next;fd_i;fd_i=fd_i->next) {
+	  if (fd_i->len) {
+	    if(!last_fd || last_fd->offset!=fd_i->offset){
+	      memcpy(fd_head->data+dfpos,fd_i->data,fd_i->len);
+	      dfpos += fd_i->len;
+	    } else {
+	      /* duplicate/retransmission/overlap */
+	      if( (last_fd->len!=fd_i->datalen)
+		  || memcmp(last_fd->data, fd_i->data, last_fd->len) ){
+			fd->flags      |= FD_OVERLAPCONFLICT;
+			fd_head->flags |= FD_OVERLAPCONFLICT;
+	      }
+	    }
+	    last_fd=fd_i;
+	  }
+	}
+
+	/* we have defragmented the pdu, now free all fragments*/
+	for (fd_i=fd_head->next;fd_i;fd_i=fd_i->next) {
+	  if(fd_i->data){
+	    g_free(fd_i->data);
+	    fd_i->data=NULL;
+	  }
+	}
+
+	/* mark this packet as defragmented.
+           allows us to skip any trailing fragments */
+	fd_head->flags |= FD_DEFRAGMENTED;
+
+	return TRUE;
+}
 
 /*
  * This function adds a new fragment to the fragment hash table.
  * If this is the first fragment seen for this datagram, a new entry
  * is created in the hash table, otherwise this fragment is just added
  * to the linked list of fragments for this packet.
- * The list of fragments for a specific datagram is kept sorted for
- * easier handling.
  *
  * Returns a pointer to the head of the fragment data list if we have all the
  * fragments, NULL otherwise.
@@ -627,163 +895,171 @@ fragment_add_seq(tvbuff_t *tvb, int offset, packet_info *pinfo, guint32 id,
 		g_hash_table_insert(fragment_table, new_key, fd_head);
 	}
 
-	/* create new fd describing this fragment */
-	fd = g_mem_chunk_alloc(fragment_data_chunk);
-	fd->next = NULL;
-	fd->flags = 0;
-	fd->frame = pinfo->fd->num;
-	fd->offset = frag_number;
-	fd->len  = frag_data_len;
-	fd->data = NULL;
-
-	if (!more_frags) {  
+	if (fragment_add_seq_work(fd_head, tvb, offset, pinfo, id,
+				  frag_number, frag_data_len, more_frags)) {
 		/*
-		 * This is the tail fragment in the sequence.
+		 * Reassembly is complete.
 		 */
-		if (fd_head->datalen) {
-			/* ok we have already seen other tails for this packet
-			 * it might be a duplicate.
-			 */
-			if (fd_head->datalen != fd->offset ){
-				/* Oops, this tail indicates a different packet
-				 * len than the previous ones. Somethings wrong
-				 */
-				fd->flags      |= FD_MULTIPLETAILS;
-				fd_head->flags |= FD_MULTIPLETAILS;
-			}
-		} else {
-			/* this was the first tail fragment, now we know the
-			 * length of the packet
-			 */
-			fd_head->datalen = fd->offset;
-		}
-	}
-
-	/* If the packet is already defragmented, this MUST be an overlap.
-         * The entire defragmented packet is in fd_head->data
-	 * Even if we have previously defragmented this packet, we still check
-	 * check it. Someone might play overlap and TTL games.
-         */
-	if (fd_head->flags & FD_DEFRAGMENTED) {
-		fd->flags      |= FD_OVERLAP;
-		fd_head->flags |= FD_OVERLAP;
-
-		/* make sure its not too long */
-		if (fd->offset > fd_head->datalen) {
-			fd->flags      |= FD_TOOLONGFRAGMENT;
-			fd_head->flags |= FD_TOOLONGFRAGMENT;
-			LINK_FRAG(fd_head,fd);
-			return (fd_head);
-		}
-		/* make sure it doesnt conflict with previous data */
-		dfpos=0;
-		for (fd_i=fd_head->next;fd_i->offset!=fd->offset;fd_i=fd_i->next) {
-		  dfpos += fd_i->len;
-		}
-		if(fd_i->datalen!=fd->datalen){
-			fd->flags      |= FD_OVERLAPCONFLICT;
-			fd_head->flags |= FD_OVERLAPCONFLICT;
-			LINK_FRAG(fd_head,fd);
-			return (fd_head);
-		}
-		if ( memcmp(fd_head->data+dfpos,
-			tvb_get_ptr(tvb,offset,fd->len),fd->len) ){
-			fd->flags      |= FD_OVERLAPCONFLICT;
-			fd_head->flags |= FD_OVERLAPCONFLICT;
-			LINK_FRAG(fd_head,fd);
-			return (fd_head);
-		}
-		/* it was just an overlap, link it and return */
-		LINK_FRAG(fd_head,fd);
-		return (fd_head);
-	}
-
-	/* If we have reached this point, the packet is not defragmented yet.
-         * Save all payload in a buffer until we can defragment.
-	 * XXX - what if we didn't capture the entire fragment due
-	 * to a too-short snapshot length?
-	 */
-	fd->data = g_malloc(fd->len);
-	tvb_memcpy(tvb, fd->data, offset, fd->len);
-	LINK_FRAG(fd_head,fd);
-
-
-	if( !(fd_head->datalen) ){
-		/* if we dont know the datalen, there are still missing
-		 * packets. Cheaper than the check below.
+		return fd_head;
+	} else {
+		/*
+		 * Reassembly isn't complete.
 		 */
 		return NULL;
 	}
+}
 
+/*
+ * This function adds fragment_data structure to a reassembled-packet
+ * hash table, using the reassembly ID and frame number as the key.
+ */
+static void
+fragment_reassembled(fragment_data *fd_head, packet_info *pinfo, guint32 id,
+	     GHashTable *reassembled_table)
+{
+	reassembled_key *new_key;
 
-	/* check if we have received the entire fragment
-	 * this is easy since the list is sorted and the head is faked.
+	new_key = g_mem_chunk_alloc(reassembled_key_chunk);
+	new_key->frame = pinfo->fd->num;
+	new_key->id = id;
+	g_hash_table_insert(reassembled_table, new_key, fd_head);
+}
+
+/*
+ * This function adds a new fragment to the fragment hash table.
+ * If this is the first fragment seen for this datagram, a new
+ * "fragment_data" structure is allocated to refer to the reassembled,
+ * packet, and:
+ *
+ *	if "more_frags" is false, the structure is not added to
+ *	the hash table, and not given any fragments to refer to,
+ *	but is just returned;
+ *
+ *	if "more_frags" is true, this fragment is added to the linked
+ *	list of fragments for this packet, and the "fragment_data"
+ *	structure is put into the hash table.
+ *
+ * Otherwise, this fragment is just added to the linked list of fragments
+ * for this packet.
+ *
+ * Returns a pointer to the head of the fragment data list, and removes
+ * that from the fragment hash table if necessary and adds it to the
+ * table of reassembled fragments, if we have all the fragments or if
+ * this is the only fragment and "more_frags" is false, returns NULL
+ * otherwise.
+ *
+ * This function assumes frag_number being a block sequence number.
+ * The bsn for the first block is 0.
+ */
+fragment_data *
+fragment_add_seq_check(tvbuff_t *tvb, int offset, packet_info *pinfo,
+	     guint32 id, GHashTable *fragment_table,
+	     GHashTable *reassembled_table, guint32 frag_number,
+	     guint32 frag_data_len, gboolean more_frags)
+{
+	reassembled_key reass_key;
+	fragment_key key, *new_key, *old_key;
+	gpointer orig_key, value;
+	fragment_data *fd_head;
+	fragment_data *fd;
+	fragment_data *fd_i;
+	fragment_data *last_fd;
+	guint32 max, dfpos, size;
+
+	/*
+	 * Have we already seen this frame?
+	 * If so, look for it in the table of reassembled packets.
 	 */
-	max = 0;
-	for(fd_i=fd_head->next;fd_i;fd_i=fd_i->next) {
-	  if ( fd_i->offset==max ){
-	    max++;
-	  }
-	}
-	/* max will now be datalen+1 if all fragments have been seen */
+	if (pinfo->fd->flags.visited) {
+		reass_key.frame = pinfo->fd->num;
+		reass_key.id = id;
 
-	if (max <= fd_head->datalen) {
-		/* we have not received all packets yet */
+		return g_hash_table_lookup(reassembled_table, &reass_key);
+	}
+
+	/* create key to search hash with */
+	key.src = pinfo->src;
+	key.dst = pinfo->dst;
+	key.id  = id;
+
+	if (!g_hash_table_lookup_extended(fragment_table, &key,
+					  &orig_key, &value)) {
+		/* not found, this must be the first snooped fragment for this
+                 * packet. Create list-head.
+		 */
+		fd_head=g_mem_chunk_alloc(fragment_data_chunk);
+
+		/* head/first structure in list only holds no other data than
+                 * 'datalen' then we don't have to change the head of the list
+                 * even if we want to keep it sorted
+                 */
+		fd_head->next=NULL;
+		fd_head->datalen=0;
+		fd_head->offset=0;
+		fd_head->len=0;
+		fd_head->flags=FD_BLOCKSEQUENCE;
+		fd_head->data=NULL;
+
+		if (!more_frags) {
+			/*
+			 * This is the last snooped fragment for this
+			 * packet as well; that means it's the only
+			 * fragment.  Just add it to the table of
+			 * reassembled packets, and return it.
+			 */
+			fragment_reassembled(fd_head, pinfo, id,
+			       reassembled_table);
+			return fd_head;
+		}
+
+		/*
+		 * We're going to use the key to insert the fragment,
+		 * so allocate a structure for it, and copy the
+		 * addresses, allocating new buffers for the address
+		 * data.
+		 */
+		new_key = g_mem_chunk_alloc(fragment_key_chunk);
+		COPY_ADDRESS(&new_key->src, &key.src);
+		COPY_ADDRESS(&new_key->dst, &key.dst);
+		new_key->id = key.id;
+		g_hash_table_insert(fragment_table, new_key, fd_head);
+	} else {
+		/*
+		 * We found it.
+		 */
+		fd_head = value;
+	}
+
+	if (fragment_add_seq_work(fd_head, tvb, offset, pinfo, id,
+				  frag_number, frag_data_len, more_frags)) {
+		/*
+		 * Reassembly is complete.
+		 * Remove this from the table of in-progress
+		 * reassemblies, add it to the table of
+		 * reassembled packets, and return it.
+		 */
+
+		/*
+		 * Free up the copies of the addresses from the old key.
+		 */
+		old_key = orig_key;
+		g_free((gpointer)old_key->src.data);
+		g_free((gpointer)old_key->dst.data);
+
+		/*
+		 * Remove the entry from the fragment table.
+		 */
+		g_hash_table_remove(fragment_table, &key);
+
+		/*
+		 * Add it to the table of reassembled packets.
+		 */
+		fragment_reassembled(fd_head, pinfo, id, reassembled_table);
+		return fd_head;
+	} else {
+		/*
+		 * Reassembly isn't complete.
+		 */
 		return NULL;
 	}
-
-
-	if (max > (fd_head->datalen+1)) {
-		/* oops, too long fragment detected */
-		fd->flags      |= FD_TOOLONGFRAGMENT;
-		fd_head->flags |= FD_TOOLONGFRAGMENT;
-	}
-
-
-	/* we have received an entire packet, defragment it and
-         * free all fragments 
-         */
-	size=0;
-	last_fd=NULL;
-	for(fd_i=fd_head->next;fd_i;fd_i=fd_i->next) {
-	  if(!last_fd || last_fd->offset!=fd_i->offset){
-	    size+=fd_i->len;
-	  }
-	  last_fd=fd_i;
-	}
-	fd_head->data = g_malloc(size);
-	fd_head->len = size;		/* record size for caller	*/
-
-	/* add all data fragments */
-	last_fd=NULL;
-	for (dfpos=0,fd_i=fd_head->next;fd_i;fd_i=fd_i->next) {
-	  if (fd_i->len) {
-	    if(!last_fd || last_fd->offset!=fd_i->offset){
-	      memcpy(fd_head->data+dfpos,fd_i->data,fd_i->len);
-	      dfpos += fd_i->len;
-	    } else {
-	      /* duplicate/retransmission/overlap */
-	      if( (last_fd->len!=fd_i->datalen)
-		  || memcmp(last_fd->data, fd_i->data, last_fd->len) ){
-			fd->flags      |= FD_OVERLAPCONFLICT;
-			fd_head->flags |= FD_OVERLAPCONFLICT;
-	      }
-	    }
-	    last_fd=fd_i;
-	  }
-	}
-
-	/* we have defragmented the pdu, now free all fragments*/
-	for (fd_i=fd_head->next;fd_i;fd_i=fd_i->next) {
-	  if(fd_i->data){
-	    g_free(fd_i->data);
-	    fd_i->data=NULL;
-	  }
-	}
-
-	/* mark this packet as defragmented.
-           allows us to skip any trailing fragments */
-	fd_head->flags |= FD_DEFRAGMENTED;
-
-	return fd_head;
 }

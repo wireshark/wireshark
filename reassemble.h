@@ -1,7 +1,7 @@
 /* reassemble.h
  * Declarations of outines for {fragment,segment} reassembly
  *
- * $Id: reassemble.h,v 1.5 2002/04/17 04:54:30 guy Exp $
+ * $Id: reassemble.h,v 1.6 2002/04/17 08:25:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -67,6 +67,11 @@ typedef struct _fragment_data {
 void fragment_table_init(GHashTable **fragment_table);
 
 /*
+ * Initialize a reassembled-packet table.
+ */
+void reassembled_table_init(GHashTable **reassembled_table);
+
+/*
  * Free up all space allocated for fragment keys and data.
  */
 void reassemble_init(void);
@@ -91,6 +96,38 @@ fragment_data *fragment_add(tvbuff_t *tvb, int offset, packet_info *pinfo,
 fragment_data *fragment_add_seq(tvbuff_t *tvb, int offset, packet_info *pinfo,
     guint32 id, GHashTable *fragment_table, guint32 frag_number,
     guint32 frag_data_len, gboolean more_frags);
+
+/*
+ * This function adds a new fragment to the fragment hash table.
+ * If this is the first fragment seen for this datagram, a new
+ * "fragment_data" structure is allocated to refer to the reassembled,
+ * packet, and:
+ *
+ *	if "more_frags" is false, the structure is not added to
+ *	the hash table, and not given any fragments to refer to,
+ *	but is just returned;
+ *
+ *	if "more_frags" is true, this fragment is added to the linked
+ *	list of fragments for this packet, and the "fragment_data"
+ *	structure is put into the hash table.
+ *
+ * Otherwise, this fragment is just added to the linked list of fragments
+ * for this packet.
+ *
+ * Returns a pointer to the head of the fragment data list, and removes
+ * that from the fragment hash table if necessary and adds it to the
+ * table of reassembled fragments, if we have all the fragments or if
+ * this is the only fragment and "more_frags" is false, returns NULL
+ * otherwise.
+ *
+ * This function assumes frag_number being a block sequence number.
+ * The bsn for the first block is 0.
+ */
+fragment_data *
+fragment_add_seq_check(tvbuff_t *tvb, int offset, packet_info *pinfo,
+	     guint32 id, GHashTable *fragment_table,
+	     GHashTable *reassembled_table, guint32 frag_number,
+	     guint32 frag_data_len, gboolean more_frags);
 
 /* to specify how much to reassemble, for fragmentation where last fragment can not be 
  * identified by flags or such.
@@ -129,5 +166,3 @@ fragment_get(packet_info *pinfo, guint32 id, GHashTable *fragment_table);
  */
 unsigned char *
 fragment_delete(packet_info *pinfo, guint32 id, GHashTable *fragment_table);
-
-

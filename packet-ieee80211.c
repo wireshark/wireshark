@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB 
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.54 2002/04/13 18:41:47 guy Exp $
+ * $Id: packet-ieee80211.c,v 1.55 2002/04/17 08:25:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -32,7 +32,6 @@
  * Marco Molteni
  * Lena-Marie Nilsson     
  * Magnus Hultman-Persson
- *
  */
 
 #ifdef HAVE_CONFIG_H
@@ -65,10 +64,19 @@
 #include <epan/proto.h>
 #include <epan/packet.h>
 #include <epan/resolv.h>
+#include "prefs.h"
+#include "reassemble.h"
 #include "packet-ipx.h"
 #include "packet-llc.h"
 #include "packet-ieee80211.h"
 #include "etypes.h"
+
+/* Defragment fragmented 802.11 datagrams */
+static gboolean wlan_defragment = TRUE;
+
+/* Tables for reassembly of fragments. */
+static GHashTable *wlan_fragment_table = NULL;
+static GHashTable *wlan_reassembled_table = NULL;
 
 /* ************************************************************************* */
 /*                          Miscellaneous Constants                          */
@@ -286,6 +294,16 @@ static int hf_seq_number = -1;
 /* ************************************************************************* */
 static int hf_fcs = -1;
 
+/* ************************************************************************* */
+/*                   Header values for reassembly                            */
+/* ************************************************************************* */
+static int hf_fragments = -1;
+static int hf_fragment = -1;
+static int hf_fragment_overlap = -1;
+static int hf_fragment_overlap_conflict = -1;
+static int hf_fragment_multiple_tails = -1;
+static int hf_fragment_too_long_fragment = -1;
+static int hf_fragment_error = -1;
 
 
 static int proto_wlan_mgt = -1;
@@ -337,6 +355,8 @@ static gint ett_80211 = -1;
 static gint ett_proto_flags = -1;
 static gint ett_cap_tree = -1;
 static gint ett_fc_tree = -1;
+static gint ett_fragments = -1;
+static gint ett_fragment = -1;
 
 static gint ett_80211_mgt = -1;
 static gint ett_fixed_parameters = -1;
@@ -1061,6 +1081,67 @@ set_dst_addr_cols(packet_info *pinfo, const guint8 *addr, char *type)
 		     ether_to_str(addr), type);
 }
 
+static void
+show_fragments(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+	       fragment_data *fd_head)
+{
+  guint32 offset;
+  fragment_data *fd;
+  proto_tree *ft;
+  proto_item *fi;
+
+  fi = proto_tree_add_item(tree, hf_fragments, tvb, 0, -1, FALSE);
+  ft = proto_item_add_subtree(fi, ett_fragments);
+  offset = 0;
+  for (fd = fd_head->next; fd != NULL; fd = fd->next){
+    if (fd->flags & (FD_OVERLAP|FD_OVERLAPCONFLICT|FD_MULTIPLETAILS|FD_TOOLONGFRAGMENT) ) {
+      /*
+       * This fragment has some flags set; create a subtree for it and
+       * display the flags.
+       */
+      proto_tree *fet = NULL;
+      proto_item *fei = NULL;
+      int hf;
+
+      if (fd->flags & (FD_OVERLAPCONFLICT|FD_MULTIPLETAILS|FD_TOOLONGFRAGMENT) ) {
+	hf = hf_fragment_error;
+      } else {
+	hf = hf_fragment;
+      }
+      fei = proto_tree_add_none_format(ft, hf, tvb, offset, fd->len,
+				       "Frame:%u payload:%u-%u",
+				       fd->frame, offset, offset+fd->len-1);
+      fet = proto_item_add_subtree(fei, ett_fragment);
+      if (fd->flags&FD_OVERLAP)
+	proto_tree_add_boolean(fet, hf_fragment_overlap, tvb, 0, 0, TRUE);
+      if (fd->flags&FD_OVERLAPCONFLICT) {
+	proto_tree_add_boolean(fet, hf_fragment_overlap_conflict, tvb, 0, 0,
+			       TRUE);
+      }
+      if (fd->flags&FD_MULTIPLETAILS) {
+	proto_tree_add_boolean(fet, hf_fragment_multiple_tails, tvb, 0, 0,
+			       TRUE);
+      }
+      if (fd->flags&FD_TOOLONGFRAGMENT) {
+	proto_tree_add_boolean(fet, hf_fragment_too_long_fragment, tvb, 0, 0,
+			       TRUE);
+      }
+    } else {
+      /*
+       * Nothing of interest for this fragment.
+       */
+      proto_tree_add_none_format(ft, hf_fragment, tvb, offset, fd->len,
+				 "Frame:%u payload:%u-%u",
+				 fd->frame, offset, offset+fd->len-1);
+    }
+    offset += fd->len;
+  }
+  if (fd_head->flags & (FD_OVERLAPCONFLICT|FD_MULTIPLETAILS|FD_TOOLONGFRAGMENT) ) {
+    if (check_col(pinfo->cinfo, COL_INFO))
+      col_set_str(pinfo->cinfo, COL_INFO, "[Illegal fragments]");
+  }
+}
+
 /* ************************************************************************* */
 /*                          Dissect 802.11 frame                             */
 /* ************************************************************************* */
@@ -1070,6 +1151,9 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 			  gboolean has_radio_information)
 {
   guint16 fcf, flags, frame_type_subtype;
+  guint16 seq_control;
+  guint32 seq_number, frag_number;
+  gboolean more_frags;
   const guint8 *src = NULL, *dst = NULL;
   proto_item *ti = NULL;
   proto_item *flag_item;
@@ -1078,7 +1162,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
   proto_tree *flag_tree;
   proto_tree *fc_tree;
   guint16 hdr_len;
-  tvbuff_t *next_tvb;
+  tvbuff_t *volatile next_tvb;
   guint32 addr_type;
   volatile gboolean is_802_2;
 
@@ -1098,6 +1182,9 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
       col_set_str (pinfo->cinfo, COL_INFO,
           val_to_str(frame_type_subtype, frame_type_subtype_vals,
               "Unrecognized (Reserved frame)"));
+
+  flags = COOK_FLAGS (fcf);
+  more_frags = HAVE_FRAGMENTS (flags);
 
   /* Add the radio information, if present, and the FC to the current tree */
   if (tree)
@@ -1146,8 +1233,6 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 			   tvb, 0, 1,
 			   COOK_FRAME_SUBTYPE (fcf));
 
-      flags = COOK_FLAGS (fcf);
-
       flag_item =
 	proto_tree_add_uint_format (fc_tree, hf_fc_flags, tvb, 1, 1,
 				    flags, "Flags: 0x%X", flags);
@@ -1184,6 +1269,10 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
    * Decode the part of the frame header that isn't the same for all
    * frame types.
    */
+  seq_control = 0;
+  frag_number = 0;
+  seq_number = 0;
+
   switch (frame_type_subtype)
     {
 
@@ -1209,6 +1298,10 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
       SET_ADDRESS(&pinfo->dl_dst, AT_ETHER, 6, dst);
       SET_ADDRESS(&pinfo->dst, AT_ETHER, 6, dst);
 
+      seq_control = tvb_get_letohs(tvb, 22);
+      frag_number = COOK_FRAGMENT_NUMBER(seq_control);
+      seq_number = COOK_SEQUENCE_NUMBER(seq_control);
+
       if (tree)
 	{
 	  proto_tree_add_ether (hdr_tree, hf_addr_da, tvb, 4, 6, dst);
@@ -1223,12 +1316,10 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 				tvb_get_ptr (tvb, 16, 6));
 
 	  proto_tree_add_uint (hdr_tree, hf_frag_number, tvb, 22, 2,
-			       COOK_FRAGMENT_NUMBER (tvb_get_letohs
-						     (tvb, 22)));
+			       frag_number);
 
 	  proto_tree_add_uint (hdr_tree, hf_seq_number, tvb, 22, 2,
-			       COOK_SEQUENCE_NUMBER (tvb_get_letohs
-						     (tvb, 22)));
+			       seq_number);
 	}
       break;
 
@@ -1359,6 +1450,10 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
       SET_ADDRESS(&pinfo->dl_dst, AT_ETHER, 6, dst);
       SET_ADDRESS(&pinfo->dst, AT_ETHER, 6, dst);
 
+      seq_control = tvb_get_letohs(tvb, 22);
+      frag_number = COOK_FRAGMENT_NUMBER(seq_control);
+      seq_number = COOK_SEQUENCE_NUMBER(seq_control);
+
       /* Now if we have a tree we start adding stuff */
       if (tree)
 	{
@@ -1373,11 +1468,9 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 	      proto_tree_add_ether (hdr_tree, hf_addr_bssid, tvb, 16, 6,
 				    tvb_get_ptr (tvb, 16, 6));
 	      proto_tree_add_uint (hdr_tree, hf_frag_number, tvb, 22, 2,
-				   COOK_FRAGMENT_NUMBER (tvb_get_letohs
-							 (tvb, 22)));
+				   frag_number);
 	      proto_tree_add_uint (hdr_tree, hf_seq_number, tvb, 22, 2,
-				   COOK_SEQUENCE_NUMBER (tvb_get_letohs
-							 (tvb, 22)));
+				   seq_number);
 
 	      /* add items for wlan.addr filter */
 	      proto_tree_add_ether_hidden(hdr_tree, hf_addr, tvb, 4, 6, dst);
@@ -1391,11 +1484,9 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 				    tvb_get_ptr (tvb, 10, 6));
 	      proto_tree_add_ether (hdr_tree, hf_addr_sa, tvb, 16, 6, src);
 	      proto_tree_add_uint (hdr_tree, hf_frag_number, tvb, 22, 2,
-				   COOK_FRAGMENT_NUMBER (tvb_get_letohs
-							 (tvb, 22)));
+				   frag_number);
 	      proto_tree_add_uint (hdr_tree, hf_seq_number, tvb, 22, 2,
-				   COOK_SEQUENCE_NUMBER (tvb_get_letohs
-							 (tvb, 22)));
+				   seq_number);
 
 	      /* add items for wlan.addr filter */
 	      proto_tree_add_ether_hidden(hdr_tree, hf_addr, tvb, 4, 6, dst);
@@ -1410,11 +1501,9 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 	      proto_tree_add_ether (hdr_tree, hf_addr_da, tvb, 16, 6, dst);
 
 	      proto_tree_add_uint (hdr_tree, hf_frag_number, tvb, 22, 2,
-				   COOK_FRAGMENT_NUMBER (tvb_get_letohs
-							 (tvb, 22)));
+				   frag_number);
 	      proto_tree_add_uint (hdr_tree, hf_seq_number, tvb, 22, 2,
-				   COOK_SEQUENCE_NUMBER (tvb_get_letohs
-							 (tvb, 22)));
+				   seq_number);
 
 	      /* add items for wlan.addr filter */
 	      proto_tree_add_ether_hidden(hdr_tree, hf_addr, tvb, 10, 6, src);
@@ -1429,11 +1518,9 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 				    tvb_get_ptr (tvb, 10, 6));
 	      proto_tree_add_ether (hdr_tree, hf_addr_da, tvb, 16, 6, dst);
 	      proto_tree_add_uint (hdr_tree, hf_frag_number, tvb, 22, 2,
-				   COOK_FRAGMENT_NUMBER (tvb_get_letohs
-							 (tvb, 22)));
+				   frag_number);
 	      proto_tree_add_uint (hdr_tree, hf_seq_number, tvb, 22, 2,
-				   COOK_SEQUENCE_NUMBER (tvb_get_letohs
-							 (tvb, 22)));
+				   seq_number);
 	      proto_tree_add_ether (hdr_tree, hf_addr_sa, tvb, 24, 6, src);
 
 	      /* add items for wlan.addr filter */
@@ -1527,7 +1614,99 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
   /*
    * Now dissect the body of a non-WEP-encrypted frame.
    */
-  next_tvb = tvb_new_subset (tvb, hdr_len, -1, -1);
+
+  /*
+   * Do defragmentation if "wlan_defragment" is true.
+   *
+   * We have to do some special handling to catch frames that
+   * have the "More Fragments" indicator not set but that
+   * don't show up as reassembled and don't have any other
+   * fragments present.  Some networking interfaces appear
+   * to do reassembly even when you're capturing raw packets
+   * *and* show the reassembled packet without the "More
+   * Fragments" indicator set *but* with a non-zero fragment
+   * number.
+   *
+   * (This could get some false positives if we really *did* only
+   * capture the last fragment of a fragmented packet, but that's
+   * life.)
+   *
+   * XXX - what about short frames?
+   */
+  if (wlan_defragment && (more_frags || frag_number != 0)) {
+    gboolean save_fragmented;
+    fragment_data *fd_head;
+    unsigned char *buf;
+
+    save_fragmented = pinfo->fragmented;
+    pinfo->fragmented = TRUE;
+
+    /*
+     * If we've already seen this frame, look it up in the
+     * table of reassembled packets, otherwise add it to
+     * whatever reassembly is in progress, if any, and see
+     * if it's done.
+     */
+    fd_head = fragment_add_seq_check(tvb, hdr_len, pinfo, seq_number,
+				     wlan_fragment_table,
+				     wlan_reassembled_table,
+				     frag_number,
+				     tvb_length_remaining(tvb, hdr_len),
+				      more_frags);
+    if (fd_head != NULL) {
+      /*
+       * Either this is reassembled or it wasn't fragmented
+       * (see comment above about some networking interfaces).
+       * In either case, it's now in the table of reassembled
+       * packets.
+       *
+       * If the "fragment_data" structure doesn't have a list of
+       * fragments, we assume it's a placeholder to mark those
+       * not-really-fragmented packets, and just treat this as
+       * a non-fragmented frame.
+       */
+      if (fd_head->next != NULL) {
+        next_tvb = tvb_new_real_data(fd_head->data, fd_head->len, fd_head->len);
+        tvb_set_child_real_data_tvbuff(tvb, next_tvb);
+        add_new_data_source(pinfo->fd, next_tvb, "Reassembled 802.11");
+
+	/* Show all fragments. */
+	show_fragments(next_tvb, pinfo, hdr_tree, fd_head);
+      } else {
+      	/*
+      	 * Not fragmented, really.
+      	 * Show it as a regular frame.
+      	 */
+	next_tvb = tvb_new_subset (tvb, hdr_len, -1, -1);
+      }
+      pinfo->fragmented = FALSE;
+    } else {
+      /*
+       * Not yet reassembled.
+       */
+      pinfo->fragmented = save_fragmented;
+      next_tvb = NULL;
+    }
+  } else {
+    /*
+     * XXX - how do we know it's the last fragment?
+     */
+    if (frag_number != 0) {
+      /* Just show this as a fragment. */
+      next_tvb = NULL;
+    } else
+      next_tvb = tvb_new_subset (tvb, hdr_len, -1, -1);
+  }
+
+  if (next_tvb == NULL) {
+    /* Just show this as a fragment. */
+    if (check_col(pinfo->cinfo, COL_INFO))
+      col_set_str(pinfo->cinfo, COL_INFO, "Fragmented IEEE 802.11 frame");
+    next_tvb = tvb_new_subset (tvb, hdr_len, -1, -1);
+    call_dissector(data_handle, next_tvb, pinfo, tree);
+    return;
+  }
+
   switch (COOK_FRAME_TYPE (fcf))
     {
 
@@ -1558,14 +1737,6 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 
       }
       ENDTRY;
-
-      if (COOK_FRAGMENT_NUMBER(tvb_get_letohs(tvb, 22)) > 0) {
-	/* Just show this as a fragment. */
-	if (check_col(pinfo->cinfo, COL_INFO))
-	  col_add_fstr(pinfo->cinfo, COL_INFO, "Fragmented IEEE 802.11 frame");
-	call_dissector(data_handle, next_tvb, pinfo, tree);
-	break;
-      }
 
       if (is_802_2)
         call_dissector(llc_handle, next_tvb, pinfo, tree);
@@ -1602,6 +1773,13 @@ static void
 dissect_ieee80211_fixed (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 {
   dissect_ieee80211_common (tvb, pinfo, tree, TRUE, FALSE);
+}
+
+static void
+wlan_defragment_init(void)
+{
+  fragment_table_init(&wlan_fragment_table);
+  reassembled_table_init(&wlan_reassembled_table);
 }
 
 void
@@ -1878,6 +2056,38 @@ proto_register_wlan (void)
      {"Frame Check Sequence (not verified)", "wlan.fcs", FT_UINT32, BASE_HEX,
       NULL, 0, "", HFILL }},
 
+    {&hf_fragment_overlap,
+      {"Fragment overlap", "wlan.fragment.overlap", FT_BOOLEAN, BASE_NONE,
+       NULL, 0x0, "Fragment overlaps with other fragments", HFILL }},
+
+    {&hf_fragment_overlap_conflict,
+      {"Conflicting data in fragment overlap", "wlan.fragment.overlap.conflict",
+       FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+       "Overlapping fragments contained conflicting data", HFILL }},
+
+    {&hf_fragment_multiple_tails,
+      {"Multiple tail fragments found", "wlan.fragment.multipletails",
+       FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+       "Several tails were found when defragmenting the packet", HFILL }},
+
+    {&hf_fragment_too_long_fragment,
+      {"Fragment too long", "wlan.fragment.toolongfragment",
+       FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+       "Fragment contained data past end of packet", HFILL }},
+
+    {&hf_fragment_error,
+      {"Defragmentation error", "wlan.fragment.error",
+       FT_NONE, BASE_NONE, NULL, 0x0,
+       "Defragmentation error due to illegal fragments", HFILL }},
+
+    {&hf_fragment,
+      {"802.11 Fragment", "wlan.fragment", FT_NONE, BASE_NONE, NULL, 0x0,
+       "802.11 Fragment", HFILL }},
+
+    {&hf_fragments,
+      {"802.11 Fragments", "wlan.fragments", FT_NONE, BASE_NONE, NULL, 0x0,
+       "WTP Fragments", HFILL }},
+
     {&hf_wep_iv,
      {"Initialization Vector", "wlan.wep.iv", FT_UINT24, BASE_HEX, NULL, 0,
       "Initialization Vector", HFILL }},
@@ -1996,12 +2206,15 @@ proto_register_wlan (void)
     &ett_80211,
     &ett_fc_tree,
     &ett_proto_flags,
+    &ett_fragments,
+    &ett_fragment,
     &ett_80211_mgt,
     &ett_fixed_parameters,
     &ett_tagged_parameters,
     &ett_wep_parameters,
     &ett_cap_tree,
   };
+  module_t *wlan_module;
 
   proto_wlan = proto_register_protocol ("IEEE 802.11 wireless LAN",
 					"IEEE 802.11", "wlan");
@@ -2013,6 +2226,14 @@ proto_register_wlan (void)
 
   register_dissector("wlan", dissect_ieee80211, proto_wlan);
   register_dissector("wlan_fixed", dissect_ieee80211_fixed, proto_wlan);
+  register_init_routine(wlan_defragment_init);
+
+  /* Register configuration options */
+  wlan_module = prefs_register_protocol(proto_wlan, NULL);
+  prefs_register_bool_preference(wlan_module, "defragment",
+	"Reassemble fragmented 802.11 datagrams",
+	"Whether fragmented 802.11 datagrams should be reassembled",
+	&wlan_defragment);
 }
 
 void
