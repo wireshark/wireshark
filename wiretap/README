@@ -1,4 +1,4 @@
-$Id: README,v 1.8 1999/01/27 14:54:09 gram Exp $
+$Id: README,v 1.9 1999/01/30 09:44:21 guy Exp $
 
 Wiretap is a library that is being developed as a future replacement for
 libpcap, the current standard Unix library for packet capturing. Libpcap is
@@ -51,9 +51,22 @@ Sniffer manuals tend to document only the format for the Sniffer model
 they document. Token-Ring and ethernet seems to work well, though.
 If you have an ATM Sniffer file, both Guy and I would be *very*
 interested in receiving a sample. (see 'AUTHORS' file for our e-mail
-addresses). When using LANE, the ATM Sniffer appears to record the emulated
-LAN information; that is, only the ethernet or token-ring information is
-stored in the trace file, not any information about ATM cells.
+addresses).
+
+ATM sniffers are claimed by the manual to record a mixture of cells and
+frames; there's currently no "raw ATM" encapsulation in wiretap to allow
+us to return that directly, so we assume that the traffic of interest is
+all LANE or all RFC 1483 traffic, search in the file for the first AAL5
+frame that's either LANE or RFC 1483, set the encapsulation based on
+which of those we saw, and discard all non-AAL5 cells as well as AAL5
+frames not of the specified type.  We also discard the 2-byte LANE
+header at the front of the frame, leaving only the emulated Ethernet or
+Token Ring frame.
+
+Given that wiretap now returns packet encapsulation types on a
+per-packet basis, we could, instead, discard all non-AAL5 cells and AAL5
+frames that are neither LANE nor RFC 1483, and return the appropriate
+encapsulation for the packet as we read it.
 
 LANalyzer
 ---------
