@@ -28,8 +28,6 @@
 #ifndef __PACKET_SMB_COMMON_H__
 #define __PACKET_SMB_COMMON_H__
 
-#include "smb.h"
-
 int display_unicode_string(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_index, char **data);
 
 int display_ms_string(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_index, char **data);
