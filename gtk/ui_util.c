@@ -1,7 +1,7 @@
 /* ui_util.c
  * UI utility routines
  *
- * $Id: ui_util.c,v 1.28 2004/07/04 12:15:41 ulfl Exp $
+ * $Id: ui_util.c,v 1.29 2004/07/07 05:36:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -175,6 +175,37 @@ window_new_with_geom(GtkWindowType type, const gchar *title, const gchar *geom_n
       window_set_geometry(win, &geom);
     }
   }
+
+  return win;
+}
+
+
+#if GTK_MAJOR_VERSION < 2
+/* We can't set the decorations until the window is realized. */
+static void
+window_notitle_realize_cb (GtkWidget *win, gpointer data _U_)
+{
+  gdk_window_set_decorations(win->window, 0);
+}
+#endif
+
+
+/* Create a new window for a splash screen; it's a main window, with no title,
+   positioned in the center of the screen. */
+GtkWidget *
+splash_window_new(void)
+{
+  GtkWidget *win;
+
+  win = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+#if GTK_MAJOR_VERSION >= 2
+  gtk_window_set_decorated(GTK_WINDOW(win), FALSE);
+#else
+  SIGNAL_CONNECT(win, "realize", window_notitle_realize_cb, NULL);
+#endif
+
+  /* set the initial position (must be done, before show is called!) */
+  gtk_window_set_position(GTK_WINDOW(win), GTK_WIN_POS_CENTER);
 
   return win;
 }

@@ -1,7 +1,7 @@
 /* ui_util.h
  * Definitions for UI utility routines
  *
- * $Id: ui_util.h,v 1.15 2004/07/04 12:15:41 ulfl Exp $
+ * $Id: ui_util.h,v 1.16 2004/07/07 05:36:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -105,7 +105,7 @@
  */
 extern GtkWidget *window_new(GtkWindowType type, const gchar *title);
 
-/** Same as window_new(), but will keep it's geometry values (size, position, ...).
+/** Same as window_new(), but will keep its geometry values (size, position, ...).
  *  Be sure to use window_present() and window_destroy() appropriately!
  * 
  * @param type window type, typical GTK_WINDOW_TOPLEVEL 
@@ -114,6 +114,12 @@ extern GtkWidget *window_new(GtkWindowType type, const gchar *title);
  * @return the newly created window
  */
 extern GtkWidget *window_new_with_geom(GtkWindowType type, const gchar *title, const gchar *geom_name);
+
+/** Create a new splash window, with no icon or title bar.
+ *
+ * @return the newly created window
+ */
+extern GtkWidget *splash_window_new(void);
 
 /** Present the created window on the top of the screen. This will put the window on top and 
  * (if available) set previously saved position and size.

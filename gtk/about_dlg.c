@@ -1,6 +1,6 @@
 /* about_dlg.c
  *
- * $Id: about_dlg.c,v 1.21 2004/07/06 19:16:04 gerald Exp $
+ * $Id: about_dlg.c,v 1.22 2004/07/07 05:36:10 guy Exp $
  *
  * Ulf Lamping <ulf.lamping@web.de>
  *
@@ -93,12 +93,7 @@ splash_new(char *message)
 
     GtkWidget *main_vb;
 
-    win = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-    gtk_window_set_title(GTK_WINDOW(win), "Ethereal");
-#if GTK_MAJOR_VERSION >= 2
-    gtk_window_set_decorated(GTK_WINDOW(win), FALSE);
-#endif
-    gtk_window_set_position(GTK_WINDOW(win), GTK_WIN_POS_CENTER);
+    win = splash_window_new();
 
     main_vb = gtk_vbox_new(FALSE, 6);
     gtk_container_border_width(GTK_CONTAINER(main_vb), 24);
