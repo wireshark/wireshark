@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.53 2002/02/18 22:26:29 guy Exp $
+ * $Id: proto.c,v 1.54 2002/02/27 08:57:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -66,8 +66,6 @@ static char* hfinfo_uint_vals_format(header_field_info *hfinfo);
 static char* hfinfo_uint_format(header_field_info *hfinfo);
 static char* hfinfo_int_vals_format(header_field_info *hfinfo);
 static char* hfinfo_int_format(header_field_info *hfinfo);
-
-static gboolean check_for_protocol_or_field_id(GNode *node, gpointer data);
 
 static proto_item*
 proto_tree_add_node(proto_tree *tree, field_info *fi);

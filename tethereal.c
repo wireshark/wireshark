@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.127 2002/02/24 09:25:34 guy Exp $
+ * $Id: tethereal.c,v 1.128 2002/02/27 08:57:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1227,8 +1227,6 @@ fill_in_fdata(frame_data *fdata, capture_file *cf,
 	const struct wtap_pkthdr *phdr,
 	const union wtap_pseudo_header *pseudo_header, long offset)
 {
-  int i;
-
   fdata->next = NULL;
   fdata->prev = NULL;
   fdata->pfd = NULL;

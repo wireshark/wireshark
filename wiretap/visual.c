@@ -2,7 +2,7 @@
  * File read and write routines for Visual Networks cap files.
  * Copyright (c) 2001, Tom Nisbet  tnisbet@visualnetworks.com
  *
- * $Id: visual.c,v 1.1 2001/12/04 22:28:19 guy Exp $
+ * $Id: visual.c,v 1.2 2002/02/27 08:57:25 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -220,7 +220,6 @@ static gboolean visual_read(wtap *wth, int *err, long *data_offset)
     int bytes_read;
     struct visual_pkt_hdr vpkt_hdr;
     int phdr_size = sizeof(vpkt_hdr);
-    int rec_offset;
     time_t  secs;
     guint32 usecs;
     double  t;
@@ -376,7 +375,7 @@ static int visual_seek_read (wtap *wth, long seek_off,
 /* Check for media types that may be written in Visual file format. 
    Returns 0 if the specified encapsulation type is supported,
    an error indication otherwise. */
-int visual_dump_can_write_encap(int filetype, int encap)
+int visual_dump_can_write_encap(int encap)
 {
     /* Per-packet encapsulations aren't supported. */
     if (encap == WTAP_ENCAP_PER_PACKET)
@@ -564,7 +563,6 @@ static gboolean visual_dump_close(wtap_dumper *wdh, int *err)
     struct visual_file_hdr vfile_hdr;
     const char *magicp;
     size_t magic_size;
-    struct tm *tm;
 
     /* If the visual structure was never allocated then nothing useful
        can be done. */

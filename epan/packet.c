@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.64 2002/02/27 00:26:29 guy Exp $
+ * $Id: packet.c,v 1.65 2002/02/27 08:57:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -734,7 +734,6 @@ dissector_table_foreach (char *name,
 void
 dissector_table_foreach_handle(char *name, DATFunc_handle func, gpointer user_data)
 {
-	dissector_foreach_info_t info;
 	dissector_table_t sub_dissectors = find_dissector_table( name);
 	GSList *tmp;
 

@@ -5,7 +5,7 @@
  *
  * Based on the code that handles netmon files.
  *
- * $Id: visual.h,v 1.2 2001/12/05 21:42:42 guy Exp $
+ * $Id: visual.h,v 1.3 2002/02/27 08:57:25 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -30,6 +30,6 @@
 
 int visual_open(wtap *wth, int *err);
 gboolean visual_dump_open(wtap_dumper *wdh, int *err);
-int visual_dump_can_write_encap(int filetype, int encap);
+int visual_dump_can_write_encap(int encap);
 
 #endif

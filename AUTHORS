@@ -82,6 +82,8 @@ Joerg Mayer      <jmayer[AT]loplof.de> {
 	Crank up the warning level in GCC
 	Skinny (Official Name: SCCP)
 	Remove trailing blanks from hex dump in print/Tethereal
+	Remove unused variables and declarations of non-existent
+	    functions
 }
 
 Martin Maciaszek <fastjack[AT]i-s-o.net> {

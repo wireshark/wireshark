@@ -1,6 +1,6 @@
 /* file.c
  *
- * $Id: file.c,v 1.80 2002/01/23 06:32:52 guy Exp $
+ * $Id: file.c,v 1.81 2002/02/27 08:57:25 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -266,7 +266,7 @@ success:
 static const struct file_type_info {
 	const char *name;
 	const char *short_name;
-	int	(*can_write_encap)(int, int);
+	int	(*can_write_encap)(int);
 	int	(*dump_open)(wtap_dumper *, int *);
 } dump_open_table[WTAP_NUM_FILE_TYPES] = {
 	/* WTAP_FILE_UNKNOWN */
@@ -441,7 +441,7 @@ gboolean wtap_dump_can_write_encap(int filetype, int encap)
 	    || dump_open_table[filetype].can_write_encap == NULL)
 		return FALSE;
 
-	if ((*dump_open_table[filetype].can_write_encap)(filetype, encap) != 0)
+	if ((*dump_open_table[filetype].can_write_encap)(encap) != 0)
 		return FALSE;
 
 	return TRUE;
@@ -529,7 +529,7 @@ static gboolean wtap_dump_open_check(int filetype, int encap, int *err)
 
 	/* OK, we know how to write that type; can we write the specified
 	   encapsulation type? */
-	*err = (*dump_open_table[filetype].can_write_encap)(filetype, encap);
+	*err = (*dump_open_table[filetype].can_write_encap)(encap);
 	if (*err != 0)
 		return FALSE;
 

@@ -2,7 +2,7 @@
  * Routines for opening EtherPeek (and TokenPeek?) files
  * Copyright (c) 2001, Daniel Thompson <d.thompson@gmx.net>
  *
- * $Id: etherpeek.c,v 1.16 2002/02/15 11:35:13 guy Exp $
+ * $Id: etherpeek.c,v 1.17 2002/02/27 08:57:24 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -138,11 +138,6 @@ int etherpeek_open(wtap *wth, int *err)
 {
 	etherpeek_header_t ep_hdr;
 	struct timeval reference_time;
-	static const int etherpeek_v7_encap[] = {
-		WTAP_ENCAP_ETHERNET,
-		WTAP_ENCAP_TOKEN_RING,
-	};
-	#define NUM_ETHERPEEK_V7_ENCAPS (sizeof etherpeek_v7_encap / sizeof etherpeek_v7_encap[0])
 	int file_encap;
 
 	/* EtherPeek files do not start with a magic value large enough
@@ -335,7 +330,6 @@ static gboolean etherpeek_read_v7(wtap *wth, int *err, long *data_offset)
 	guint8  status;
 	etherpeek_utime timestamp;
 	double  t;
-	unsigned int i;
 
 	wtap_file_read_expected_bytes(ep_pkt, sizeof(ep_pkt), wth->fh, err);
 	wth->data_offset += sizeof(ep_pkt);

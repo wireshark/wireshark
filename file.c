@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.263 2002/02/24 06:45:12 guy Exp $
+ * $Id: file.c,v 1.264 2002/02/27 08:57:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -623,7 +623,7 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
 	gboolean refilter)
 {
   apply_color_filter_args args;
-  gint          i, row;
+  gint          row;
   gboolean	create_proto_tree = FALSE;
   epan_dissect_t *edt;
   GdkColor      fg, bg;
