@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.107 2001/12/18 19:09:02 gram Exp $
+ * $Id: tethereal.c,v 1.108 2001/12/21 19:51:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -929,10 +929,12 @@ capture(int packet_count, int out_file_type)
     if (packet_count == 0) {
       ld.go = FALSE;
     } else if (cnd_eval(cnd_stop_timeout) == TRUE) {
+      /* The specified capture time has elapsed; stop the capture. */
       ld.go = FALSE;
-    } else if ((cnd_eval(cnd_stop_capturesize, 
+    } else if (ld.pdh != NULL && (cnd_eval(cnd_stop_capturesize, 
                   (guint32)wtap_get_bytes_dumped(ld.pdh))) == TRUE){
-      /* A capture stop condition has become true. */
+      /* We're saving the capture to a file, and the capture file reached
+         its maximum size. */
       if (cfile.ringbuffer_on) {
         /* Switch to the next ringbuffer file */
         if (ringbuf_switch_file(&cfile, &ld.pdh, &err) == TRUE) {
