@@ -2,7 +2,7 @@
  *  packet-radiotap.c
  *	Decode packets with a Radiotap header
  *
- * $Id: packet-radiotap.c,v 1.3 2004/02/01 04:29:07 jmayer Exp $
+ * $Id: packet-radiotap.c,v 1.4 2004/07/05 09:29:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -266,7 +266,7 @@ dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 #define BITNO_4(x) (((x) >> 2) ? 2 + BITNO_2((x) >> 2) : BITNO_2((x)))
 #define BITNO_2(x) (((x) & 2) ? 1 : 0)
 #define BIT(n)	(1 << n)
-    proto_tree *radiotap_tree;
+    proto_tree *radiotap_tree = NULL;
     proto_item *ti;
     int offset;
     guint32 version;
@@ -295,21 +295,24 @@ dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	ti = proto_tree_add_protocol_format(tree, proto_radiotap,
 	      tvb, 0, length, "Radiotap Header");
 	radiotap_tree = proto_item_add_subtree(ti, ett_radiotap);
+    }
 
-	for (; present; present = next_present) {
-	    /* clear the least significant bit that is set */
-	    next_present = present & (present - 1);
+    for (; present; present = next_present) {
+	/* clear the least significant bit that is set */
+	next_present = present & (present - 1);
 
-	    /* extract the least significant bit that is set */
-	    bit = BITNO_32(present ^ next_present);
+	/* extract the least significant bit that is set */
+	bit = BITNO_32(present ^ next_present);
 
-	    switch (bit) {
-	    case IEEE80211_RADIOTAP_FLAGS:
+	switch (bit) {
+	case IEEE80211_RADIOTAP_FLAGS:
+	    if (tree) {
 		proto_tree_add_uint(radiotap_tree, hf_radiotap_preamble,
 			tvb, 0, 0, (tvb_get_guint8(tvb, offset) &
 				IEEE80211_RADIOTAP_F_SHORTPRE) != 0);
-		offset++;
-		/* XXX CFP, WEP, FRAG */
+	    }
+	    offset++;
+	    /* XXX CFP, WEP, FRAG */
 #if 0
       capability = tvb_get_letohs (tvb, offset);
 
@@ -343,39 +346,58 @@ dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       proto_tree_add_boolean (cap_tree, ff_dsss_ofdm, tvb, offset, 2,
 			      capability);
 #endif
-		break;
-	    case IEEE80211_RADIOTAP_RATE:
-		rate = tvb_get_guint8(tvb, offset) & 0x7f;
+	    break;
+	case IEEE80211_RADIOTAP_RATE:
+	    rate = tvb_get_guint8(tvb, offset) & 0x7f;
+	    if (check_col(pinfo->cinfo, COL_TX_RATE)) {
+		col_add_fstr(pinfo->cinfo, COL_TX_RATE, "%d.%d",
+		    rate / 2, rate & 1 ? 5 : 0);
+	    }
+	    if (tree) {
 		proto_tree_add_uint_format(radiotap_tree, hf_radiotap_datarate,
 			tvb, offset, 1, tvb_get_guint8(tvb, offset), 
 			"Datarate: %d.%d Mbps", rate / 2, rate & 1 ? 5 : 0);
-		offset++;
-		break;
-	    case IEEE80211_RADIOTAP_DBM_ANTSIGNAL:
-	    case IEEE80211_RADIOTAP_DB_ANTSIGNAL:
-		/* XXX distinguish units */
+	    }
+	    offset++;
+	    break;
+	case IEEE80211_RADIOTAP_DBM_ANTSIGNAL:
+	case IEEE80211_RADIOTAP_DB_ANTSIGNAL:
+	    /* XXX distinguish units */
+	    if (check_col(pinfo->cinfo, COL_RSSI)) {
+		col_add_fstr(pinfo->cinfo, COL_RSSI, "%d",
+		    tvb_get_guint8(tvb, offset));
+	    }
+	    if (tree) {
 		proto_tree_add_int(radiotap_tree, hf_radiotap_antsignal,
 				   tvb, offset, 1, tvb_get_guint8(tvb, offset));
-		offset++;
-		break;
-	    case IEEE80211_RADIOTAP_DBM_ANTNOISE:
-	    case IEEE80211_RADIOTAP_DB_ANTNOISE:
-		/* XXX distinguish units */
+	    }
+	    offset++;
+	    break;
+	case IEEE80211_RADIOTAP_DBM_ANTNOISE:
+	case IEEE80211_RADIOTAP_DB_ANTNOISE:
+	    /* XXX distinguish units */
+	    if (tree) {
 		proto_tree_add_int(radiotap_tree, hf_radiotap_antnoise,
 				   tvb, offset, 1, tvb_get_guint8(tvb, offset));
-		offset++;
-		break;
-	    case IEEE80211_RADIOTAP_ANTENNA:
+	    }
+	    offset++;
+	    break;
+	case IEEE80211_RADIOTAP_ANTENNA:
+	    if (tree) {
 		proto_tree_add_uint(radiotap_tree, hf_radiotap_antenna,
 				   tvb, offset, 1, tvb_get_guint8(tvb, offset));
-		offset++;
-		break;
-	    case IEEE80211_RADIOTAP_DBM_TX_POWER:
+	    }
+	    offset++;
+	    break;
+	case IEEE80211_RADIOTAP_DBM_TX_POWER:
+	    if (tree) {
 		proto_tree_add_int(radiotap_tree, hf_radiotap_txpower,
 				   tvb, offset, 1, tvb_get_guint8(tvb, offset));
-		offset++;
-		break;
-	    case IEEE80211_RADIOTAP_CHANNEL:
+	    }
+	    offset++;
+	    break;
+	case IEEE80211_RADIOTAP_CHANNEL:
+	    if (tree) {
 		freq = tvb_get_letohs(tvb, offset);
 		flags = tvb_get_letohs(tvb, offset+2);
 	        proto_tree_add_uint_format(radiotap_tree, hf_radiotap_channel_frequency,
@@ -383,30 +405,32 @@ dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			"Channel: %u (chan %u)", freq, ieee80211_mhz2ieee(freq, flags));
 	        proto_tree_add_uint(radiotap_tree, hf_radiotap_channel_flags,
 			tvb, offset+2, 2, flags);
-		offset+=4;
-		break;
-	    case IEEE80211_RADIOTAP_FHSS:
-	    case IEEE80211_RADIOTAP_LOCK_QUALITY:
-	    case IEEE80211_RADIOTAP_TX_ATTENUATION:
-	    case IEEE80211_RADIOTAP_DB_TX_ATTENUATION:
+	    }
+	    offset+=4;
+	    break;
+	case IEEE80211_RADIOTAP_FHSS:
+	case IEEE80211_RADIOTAP_LOCK_QUALITY:
+	case IEEE80211_RADIOTAP_TX_ATTENUATION:
+	case IEEE80211_RADIOTAP_DB_TX_ATTENUATION:
 #if 0
-		tvb_get_letohs(tvb, offset);
+	    tvb_get_letohs(tvb, offset);
 #endif
-		offset+=2;
-		break;
-	    case IEEE80211_RADIOTAP_TSFT:
+	    offset+=2;
+	    break;
+	case IEEE80211_RADIOTAP_TSFT:
+	    if (tree) {
 		proto_tree_add_item(radiotap_tree, hf_radiotap_mactime,
 				    tvb, offset, 8, FALSE);
-		offset+=8;
-		break;
-	    default:
-		/*
-		 * This indicates a field whose size we do not
-		 * know, so we cannot proceed.
-		 */
-		next_present = 0;
-		continue;
 	    }
+	    offset+=8;
+	    break;
+	default:
+	    /*
+	     * This indicates a field whose size we do not
+	     * know, so we cannot proceed.
+	     */
+	    next_present = 0;
+	    continue;
 	}
     }
 

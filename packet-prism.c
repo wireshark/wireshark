@@ -9,7 +9,7 @@
  *
  * By Tim Newsham
  *
- * $Id: packet-prism.c,v 1.11 2004/02/14 20:55:23 guy Exp $
+ * $Id: packet-prism.c,v 1.12 2004/07/05 09:29:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -122,23 +122,27 @@ capture_prism(const guchar *pd, int offset, int len, packet_counts *ld)
  * below more readable
  */
 #define IFHELP(size, name, var, str) \
-        proto_tree_add_uint_format(prism_tree, hf_prism_ ## name, \
-            tvb, offset, size, hdr.var, str, hdr.var);		  \
+        if(tree) {						  \
+            proto_tree_add_uint_format(prism_tree, hf_prism_ ## name, \
+                tvb, offset, size, hdr.var, str, hdr.var);		  \
+        }								  \
         offset += (size)
 #define INTFIELD(size, name, str)	IFHELP(size, name, name, str)
 #define VALFIELD(name, str) \
-        proto_tree_add_uint_format(prism_tree, hf_prism_ ## name ## _data, \
-            tvb, offset, 12, hdr.name.data,				   \
-            str ": 0x%x (DID 0x%x, Status 0x%x, Length 0x%x)",		   \
-            hdr.name.data, hdr.name.did,				   \
-            hdr.name.status, hdr.name.len);				   \
+        if(tree) {						  \
+            proto_tree_add_uint_format(prism_tree, hf_prism_ ## name ## _data, \
+                tvb, offset, 12, hdr.name.data,				   \
+                str ": 0x%x (DID 0x%x, Status 0x%x, Length 0x%x)",	   \
+                hdr.name.data, hdr.name.did,				   \
+                hdr.name.status, hdr.name.len);				   \
+        }								   \
         offset += 12
 
 static void
 dissect_prism(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     struct prism_hdr hdr;
-    proto_tree *prism_tree;
+    proto_tree *prism_tree = NULL;
     proto_item *ti;
     tvbuff_t *next_tvb;
     int offset;
@@ -169,24 +173,35 @@ dissect_prism(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         ti = proto_tree_add_protocol_format(tree, proto_prism,
             tvb, 0, sizeof hdr, "Prism Monitoring Header");
         prism_tree = proto_item_add_subtree(ti, ett_prism);
+    }
 
-        INTFIELD(4, msgcode, "Message Code: %d");
-        INTFIELD(4, msglen, "Message Length: %d");
+    INTFIELD(4, msgcode, "Message Code: %d");
+    INTFIELD(4, msglen, "Message Length: %d");
+    if(tree) {
         proto_tree_add_text(prism_tree, tvb, offset, sizeof hdr.devname,
             "Device: %s", hdr.devname);
-        offset += sizeof hdr.devname;
-
-        VALFIELD(hosttime, "Host Time");
-        VALFIELD(mactime, "MAC Time");
-        VALFIELD(channel, "Channel");
-        VALFIELD(rssi, "RSSI");
-        VALFIELD(sq, "SQ");
-        VALFIELD(signal, "Signal");
-        VALFIELD(noise, "Noise");
-        VALFIELD(rate, "Rate");
-        VALFIELD(istx, "IsTX");
-        VALFIELD(frmlen, "Frame Length");
     }
+    offset += sizeof hdr.devname;
+
+    VALFIELD(hosttime, "Host Time");
+    VALFIELD(mactime, "MAC Time");
+    VALFIELD(channel, "Channel");
+    VALFIELD(rssi, "RSSI");
+    if (check_col(pinfo->cinfo, COL_RSSI)) {
+      col_add_fstr(pinfo->cinfo, COL_RSSI, "%d",
+		   hdr.rssi.data);
+    }
+
+    VALFIELD(sq, "SQ");
+    VALFIELD(signal, "Signal");
+    VALFIELD(noise, "Noise");
+    if (check_col(pinfo->cinfo, COL_TX_RATE)) {
+      col_add_fstr(pinfo->cinfo, COL_TX_RATE, "%d.%d",
+		   hdr.rate.data / 10, hdr.rate.data % 10);
+    }
+    VALFIELD(rate, "Rate");
+    VALFIELD(istx, "IsTX");
+    VALFIELD(frmlen, "Frame Length");
 
     /* dissect the 802.11 header next */
     next_tvb = tvb_new_subset(tvb, sizeof hdr, -1, -1);

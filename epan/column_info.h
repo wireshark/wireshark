@@ -1,7 +1,7 @@
 /* column.h
  * Definitions for column structures and routines
  *
- * $Id: column_info.h,v 1.12 2004/01/31 04:10:04 guy Exp $
+ * $Id: column_info.h,v 1.13 2004/07/05 09:29:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -93,6 +93,8 @@ enum {
   COL_SRCIDX,         /* Src port idx - Cisco MDS-specific */
   COL_DSTIDX,         /* Dst port idx - Cisco MDS-specific */
   COL_VSAN,           /* VSAN - Cisco MDS-specific */
+  COL_TX_RATE,        /* IEEE 802.11 - TX rate in Mbps */
+  COL_RSSI,           /* IEEE 802.11 - received signal strength */
   NUM_COL_FMTS        /* Should always be last */
 };
 

@@ -1,7 +1,7 @@
 /* column.c
  * Routines for handling column preferences
  *
- * $Id: column.c,v 1.47 2004/03/18 19:04:30 obiot Exp $
+ * $Id: column.c,v 1.48 2004/07/05 09:29:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -53,7 +53,7 @@ col_format_to_string(gint fmt) {
                      "%rd", "%ud", "%hd", "%rhd", "%uhd", "%nd", "%rnd",
                      "%und", "%S", "%rS", "%uS", "%D", "%rD", "%uD", "%p",
                      "%i", "%L", "%B", "%XO", "%XR", "%I", "%c", "%Xs", 
-                     "%Xd", "%V" };
+                     "%Xd", "%V", "%x", "%e" };
                      
   if (fmt < 0 || fmt > NUM_COL_FMTS)
     return NULL;
@@ -105,6 +105,8 @@ static gchar *dlist[NUM_COL_FMTS] = {
 	"Src PortIdx",
 	"Dst PortIdx",
 	"VSAN",
+	"IEEE 802.11 TX rate",
+	"IEEE 802.11 RSSI",
 };
 
 gchar *
@@ -186,6 +188,12 @@ get_column_format_matches(gboolean *fmt_list, gint format) {
       break;
     case COL_VSAN:
       fmt_list[COL_VSAN] = TRUE;
+      break;
+    case COL_TX_RATE:
+      fmt_list[COL_TX_RATE] = TRUE;
+      break;
+    case COL_RSSI:
+      fmt_list[COL_RSSI] = TRUE;
       break;
     default:
       break;
@@ -282,6 +290,12 @@ get_column_longest_string(gint format)
       break;
     case COL_VSAN:
       return "000000";
+      break;
+    case COL_TX_RATE:
+      return "108.0";
+      break;
+    case COL_RSSI:
+      return "100";
       break;
     default: /* COL_INFO */
       return "Source port: kerberos-master  Destination port: kerberos-master";
@@ -413,6 +427,12 @@ get_column_format_from_str(gchar *str) {
         break;
       case 'V':
         return COL_VSAN;
+        break;
+      case 'x':
+        return COL_TX_RATE;
+        break;
+      case 'e':
+        return COL_RSSI;
         break;
     }
     cptr++;

@@ -7,10 +7,14 @@
  *  additional fields, is designed to be non-hardware-specific, and more 
  *  importantly, version and length fields so it can be extended later 
  *  without breaking anything.
+ *
+ *  See
+ *
+ *	http://www.shaftnet.org/~pizza/software/capturefrm.txt
  * 
  * By Solomon Peachy
  *
- * $Id: packet-wlancap.c,v 1.4 2004/01/29 10:58:28 guy Exp $
+ * $Id: packet-wlancap.c,v 1.5 2004/07/05 09:29:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -205,6 +209,17 @@ dissect_wlancap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if(check_col(pinfo->cinfo, COL_INFO))
         col_add_fstr(pinfo->cinfo, COL_INFO, "AVS WLAN Capture v%x, Length %d",version, length);
+
+    if (check_col(pinfo->cinfo, COL_TX_RATE)) {
+      guint32 txrate = tvb_get_ntohl(tvb, offset + 32);
+      col_add_fstr(pinfo->cinfo, COL_TX_RATE, "%d.%d",
+		   txrate / 10, txrate % 10);
+    }
+    if (check_col(pinfo->cinfo, COL_RSSI)) {
+      /* XXX cook ssi_signal (Based on type; ie format) */
+      col_add_fstr(pinfo->cinfo, COL_RSSI, "%d",
+		   tvb_get_ntohl(tvb, offset + 48));
+    }
 
     /* Dissect the packet */
     if (tree) {

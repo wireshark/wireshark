@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.112 2004/07/04 03:46:01 guy Exp $
+ * $Id: packet-ieee80211.c,v 1.113 2004/07/05 09:29:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1449,6 +1449,19 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
     col_set_str (pinfo->cinfo, COL_PROTOCOL, "IEEE 802.11");
   if (check_col (pinfo->cinfo, COL_INFO))
     col_clear (pinfo->cinfo, COL_INFO);
+
+  /* Add the radio information, if present, to the column information */
+  if (has_radio_information) {
+    if (check_col(pinfo->cinfo, COL_TX_RATE)) {
+	col_add_fstr(pinfo->cinfo, COL_TX_RATE, "%g",
+	   .5*pinfo->pseudo_header->ieee_802_11.data_rate);
+    }
+    if (check_col(pinfo->cinfo, COL_RSSI)) {
+      /* XX - this is a percentage, not a dBm or normalized or raw RSSI */
+      col_add_fstr(pinfo->cinfo, COL_RSSI, "%u",
+	   pinfo->pseudo_header->ieee_802_11.signal_level);
+    }
+  }
 
   fcf = tvb_get_letohs (tvb, 0);
   if (wlan_broken_fc) {
