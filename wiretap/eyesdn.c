@@ -1,6 +1,6 @@
 /* eyesdn.c
  *
- * $Id: eyesdn.c,v 1.2 2004/02/12 21:25:07 guy Exp $
+ * $Id: eyesdn.c,v 1.3 2004/02/13 19:19:13 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -85,13 +85,8 @@ static const unsigned char eyesdn_hdr_magic[]  =
 { 'E', 'y', 'e', 'S', 'D', 'N'};
 #define EYESDN_HDR_MAGIC_SIZE  (sizeof(eyesdn_hdr_magic)  / sizeof(eyesdn_hdr_magic[0]))
 
-/* Magic text for start of packet */
-static const unsigned char eyesdn_rec_magic[]  = { 0xff };
-#define EYESDN_REC_MAGIC_SIZE  (sizeof eyesdn_rec_magic  / sizeof eyesdn_rec_magic[0])
-
-#define EYESDN_HEADER_LINES_TO_CHECK	1
+/* Size of a record header */
 #define EYESDN_HDR_LENGTH		12
-#define EYESDN_LINE_LENGTH		12
 
 /*
  * XXX - is this the biggest packet we can get?
