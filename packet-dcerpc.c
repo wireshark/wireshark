@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.64 2002/06/24 09:23:39 guy Exp $
+ * $Id: packet-dcerpc.c,v 1.65 2002/07/09 20:49:27 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -96,6 +96,7 @@ static const true_false_string flags_set_truth = {
 static const value_string authn_protocol_vals[] = {
 	{ 0, "None" },
 	{ 1, "Kerberos 5" },
+	{ 10, "NTLMSSP" },
 	{ 0, NULL }
 };
 
@@ -390,6 +391,8 @@ static gint ett_dcerpc_dg_flags2 = -1;
 static gint ett_dcerpc_pointer_data = -1;
 static gint ett_dcerpc_fragments = -1;
 static gint ett_dcerpc_fragment = -1;
+
+static dissector_handle_t ntlmssp_handle=NULL;
 
 fragment_items dcerpc_frag_items = {
 	&ett_dcerpc_fragments,
@@ -1304,6 +1307,7 @@ dissect_dcerpc_cn_auth (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
     int offset;
     guint8 auth_pad_len;
     guint8 auth_level;
+    guint8 auth_type;
 
     /*
      * Initially set "*auth_level_p" to -1 to indicate that we haven't
@@ -1327,7 +1331,7 @@ dissect_dcerpc_cn_auth (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
         offset = hdr->frag_len - (hdr->auth_len + 8);
         
         offset = dissect_dcerpc_uint8 (tvb, offset, pinfo, dcerpc_tree, hdr->drep,
-                                       hf_dcerpc_auth_type, NULL);
+                                       hf_dcerpc_auth_type, &auth_type);
         offset = dissect_dcerpc_uint8 (tvb, offset, pinfo, dcerpc_tree, hdr->drep,
                                        hf_dcerpc_auth_level, &auth_level);
         if (auth_level_p != NULL)
@@ -1339,7 +1343,17 @@ dissect_dcerpc_cn_auth (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
         offset = dissect_dcerpc_uint32 (tvb, offset, pinfo, dcerpc_tree, hdr->drep,
                                         hf_dcerpc_auth_ctx_id, NULL);
 
-        proto_tree_add_text (dcerpc_tree, tvb, offset, hdr->auth_len, "Auth Data");
+	/* Dissect NTLMSSP Parameters if the auth_type is 10 and this is a
+	   BIND request, BIND response, or AUTH3)
+	*/
+	if ((auth_type == 10) &&
+	    ((hdr->ptype == PDU_BIND) || (hdr->ptype == PDU_BIND_ACK) ||
+	     (hdr->ptype == PDU_AUTH3))) {
+	  tvbuff_t *ntlmssp_tvb;
+	  ntlmssp_tvb=tvb_new_subset(tvb, offset, hdr->auth_len,
+				     hdr->auth_len);
+	  call_dissector(ntlmssp_handle, ntlmssp_tvb, pinfo, dcerpc_tree);
+	}
 
         /* figure out where the auth padding starts */
         offset = hdr->frag_len - (hdr->auth_len + 8 + auth_pad_len);
@@ -3466,4 +3480,5 @@ proto_reg_handoff_dcerpc (void)
     heur_dissector_add ("netbios", dissect_dcerpc_cn_pk, proto_dcerpc);
     heur_dissector_add ("udp", dissect_dcerpc_dg, proto_dcerpc);
     heur_dissector_add ("smb_transact", dissect_dcerpc_cn_bs, proto_dcerpc);
+    ntlmssp_handle = find_dissector("ntlmssp");
 }
