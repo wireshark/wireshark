@@ -905,6 +905,11 @@ static gboolean config_gogkey(AVPL* avpl) {
 		return FALSE;
 	}
 
+	if (! g_hash_table_lookup(matecfg->gopcfgs,on) ) {
+		report_error("MATE: GogKey: no such Gop %s in On",on);
+		return FALSE;
+	}
+	
 	rename_avpl(avpl,name);
 
 	gogkeys = (LoAL*) g_hash_table_lookup(matecfg->gogs_by_gopname,on);
