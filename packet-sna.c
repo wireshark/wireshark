@@ -3,7 +3,7 @@
  * Gilbert Ramirez <gram@alumni.rice.edu>
  * Jochen Friedrich <jochen@scram.de>
  *
- * $Id: packet-sna.c,v 1.50 2004/02/25 23:13:55 guy Exp $
+ * $Id: packet-sna.c,v 1.51 2004/02/27 09:02:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -808,7 +808,7 @@ static void dissect_fid (tvbuff_t*, packet_info*, proto_tree*, proto_tree*);
 static void dissect_nlp (tvbuff_t*, packet_info*, proto_tree*, proto_tree*);
 static void dissect_gds (tvbuff_t*, packet_info*, proto_tree*, proto_tree*);
 static void dissect_rh (tvbuff_t*, int, proto_tree*);
-static void dissect_control(tvbuff_t*, proto_tree*, int, enum parse);
+static void dissect_control(tvbuff_t*, int, int, proto_tree*, int, enum parse);
 
 /* --------------------------------------------------------------------
  * Chapter 2 High-Performance Routing (HPR) Headers
@@ -849,8 +849,7 @@ dissect_optional_0d(tvbuff_t *tvb, proto_tree *tree)
 	while (tvb_offset_exists(tvb, offset)) {
 		len = tvb_get_guint8(tvb, offset+0);
 		if (len) {
-			dissect_control(tvb_new_subset(tvb, offset, len, -1),
-			    tree, 1, LT);
+			dissect_control(tvb, offset, len, tree, 1, LT);
 			pad = (len+3) & 0xfffc;
 			if (pad > len)
 				proto_tree_add_text(tree, tvb, offset+len,
@@ -1001,8 +1000,7 @@ dissect_optional_14(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree_add_item(sub_tree, hf_sna_nlp_opti_14_si_alive,
 	    tvb, offset+12, 4, FALSE);
 
-	dissect_control(tvb_new_subset(tvb, offset+16,
-			    len-16, -1), sub_tree, 1, LT);
+	dissect_control(tvb, offset+16, len-16, sub_tree, 1, LT);
 
 	pad = (len+3) & 0xfffc;
 	if (pad > len)
@@ -1046,8 +1044,7 @@ dissect_optional_14(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	while (num) {
 		sublen = tvb_get_guint8(tvb, offset);
 		if (sublen) {
-			dissect_control(tvb_new_subset(tvb, offset,
-			    sublen, -1), sub_tree, 1, LT);
+			dissect_control(tvb, offset, sublen, sub_tree, 1, LT);
 		} else {
 			/* Invalid */
 			call_dissector(data_handle,
@@ -1357,9 +1354,7 @@ dissect_nlp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	if (((thdr_9 & 0x18) == 0x08) && ((thdr_len << 2) > subindex)) {
 		counter = tvb_get_guint8(tvb, index + subindex);
 		if (tvb_get_guint8(tvb, index+subindex+1) == 5)
-			dissect_control(
-			    tvb_new_subset(tvb, index + subindex,
-			    counter+2, -1), nlp_tree, 1, LT);
+			dissect_control(tvb, index + subindex, counter+2, nlp_tree, 1, LT);
 		else
 			call_dissector(data_handle,
 			    tvb_new_subset(tvb, index + subindex, counter+2,
@@ -1435,8 +1430,7 @@ dissect_xid2(tvbuff_t *tvb, proto_tree *tree)
 
 	while (tvb_offset_exists(tvb, offset)) {
 		dlen = tvb_get_guint8(tvb, offset+1);
-		dissect_control(tvb_new_subset(tvb, offset, dlen+2, -1),
-		    tree, 0, KL);
+		dissect_control(tvb, offset, dlen+2, tree, 0, KL);
 		offset += (dlen + 2);
 	}
 }
@@ -1538,8 +1532,7 @@ dissect_xid3(tvbuff_t *tvb, proto_tree *tree)
 
 	while (tvb_offset_exists(tvb, offset)) {
 		dlen = tvb_get_guint8(tvb, offset+1);
-		dissect_control(tvb_new_subset(tvb, offset, dlen+2, -1),
-		    tree, 0, KL);
+		dissect_control(tvb, offset, dlen+2, tree, 0, KL);
 		offset += (dlen+2);
 	}
 }
@@ -2389,8 +2382,7 @@ dissect_control_05hpr(tvbuff_t *tvb, proto_tree *tree, int hpr,
 			len = tvb_get_guint8(tvb, offset+1);
 		}
 		if (len) {
-			dissect_control(tvb_new_subset(tvb, offset, len, -1),
-			    tree, hpr, parse);
+			dissect_control(tvb, offset, len, tree, hpr, parse);
 			pad = (len+3) & 0xfffc;
 			if (pad > len)
 				proto_tree_add_text(tree, tvb, offset+len,
@@ -2433,12 +2425,23 @@ dissect_control_0e(tvbuff_t *tvb, proto_tree *tree)
 }
 
 static void
-dissect_control(tvbuff_t *tvb, proto_tree *tree, int hpr, enum parse parse)
+dissect_control(tvbuff_t *parent_tvb, int offset, int control_len,
+    proto_tree *tree, int hpr, enum parse parse)
 {
+	tvbuff_t	*tvb;
+	gint		length, reported_length;
 	proto_tree	*sub_tree;
 	proto_item	*sub_item;
 	int		len, key;
 	gint		ett;
+
+	length = tvb_length_remaining(parent_tvb, offset);
+	reported_length = tvb_reported_length_remaining(parent_tvb, offset);
+	if (control_len < length)
+		length = control_len;
+	if (control_len < reported_length)
+		reported_length = control_len;
+	tvb = tvb_new_subset(parent_tvb, offset, length, reported_length);
 
 	sub_tree = NULL;
 
