@@ -1,7 +1,7 @@
 /* util.c
  * Utility routines
  *
- * $Id: util.c,v 1.20 1999/09/23 05:20:18 guy Exp $
+ * $Id: util.c,v 1.21 1999/09/24 04:14:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -213,6 +213,10 @@ try_tempfile(char *namebuf, int namebuflen, const char *dir, const char *pfx)
 	int tmp_fd;
 
 	if (namebuflen < namelen) {
+		/* Stick in a truncated name, so that if this error is
+		   reported with the file name, you at least get
+		   something. */
+		snprintf(namebuf, namebuflen, "%s%s%s", dir, pfx, suffix);
 		errno = ENAMETOOLONG;
 		return -1;
 	}
