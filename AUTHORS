@@ -1796,6 +1796,10 @@ Niklas Ogren <niklas.ogren [AT] 71.se> {
 	H.263 support for RTP
 }
 
+Jesper Peterson <jesper [AT] endace.com> {
+	Cisco HDLC FCS support
+}
+
 And assorted fixes and enhancements by the people listed above and by:
 
 	Pavel Roskin <proski [AT] gnu.org>
