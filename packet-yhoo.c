@@ -2,7 +2,7 @@
  * Routines for yahoo messenger packet dissection
  * Copyright 1999, Nathan Neulinger <nneul@umr.edu>
  *
- * $Id: packet-yhoo.c,v 1.1 1999/10/14 01:28:25 guy Exp $
+ * $Id: packet-yhoo.c,v 1.2 1999/10/14 03:12:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -45,102 +45,146 @@
 #include "packet-yhoo.h"
 
 static int proto_yhoo = -1;
+static int hf_yhoo_version = -1;
+static int hf_yhoo_len = -1;
+static int hf_yhoo_service = -1;
+static int hf_yhoo_connection_id = -1;
+static int hf_yhoo_magic_id = -1;
+static int hf_yhoo_unknown1 = -1;
+static int hf_yhoo_msgtype = -1;
+static int hf_yhoo_nick1 = -1;
+static int hf_yhoo_nick2 = -1;
+static int hf_yhoo_content = -1;
 
-static unsigned int yahoo_makeint(unsigned char *data)
-{
-    if (data)
-    {
-        return ((data[3] << 24) + (data[2] << 16) + (data[1] << 8) + (data[0]));
-    }
-    return 0;
-}
+static const value_string yhoo_service_vals[] = {
+	{YAHOO_SERVICE_LOGON, "Pager Logon"},
+	{YAHOO_SERVICE_LOGOFF, "Pager Logoff"},
+	{YAHOO_SERVICE_ISAWAY, "Is Away"},
+	{YAHOO_SERVICE_ISBACK, "Is Back"},
+	{YAHOO_SERVICE_IDLE, "Idle"},
+	{YAHOO_SERVICE_MESSAGE, "Message"},
+	{YAHOO_SERVICE_IDACT, "Activate Identity"},
+	{YAHOO_SERVICE_IDDEACT, "Deactivate Identity"},
+	{YAHOO_SERVICE_MAILSTAT, "Mail Status"},
+	{YAHOO_SERVICE_USERSTAT, "User Status"},
+	{YAHOO_SERVICE_NEWMAIL, "New Mail"},
+	{YAHOO_SERVICE_CHATINVITE, "Chat Invitation"},
+	{YAHOO_SERVICE_CALENDAR, "Calendar Reminder"},
+	{YAHOO_SERVICE_NEWPERSONALMAIL, "New Personals Mail"},
+	{YAHOO_SERVICE_NEWCONTACT, "New Friend"},
+	{YAHOO_SERVICE_GROUPRENAME, "Group Renamed"},
+	{YAHOO_SERVICE_ADDIDENT, "Add Identity"},
+	{YAHOO_SERVICE_ADDIGNORE, "Add Ignore"},
+	{YAHOO_SERVICE_PING, "Ping"},
+	{YAHOO_SERVICE_SYSMESSAGE, "System Message"},
+	{YAHOO_SERVICE_CONFINVITE, "Conference Invitation"},
+	{YAHOO_SERVICE_CONFLOGON, "Conference Logon"},
+	{YAHOO_SERVICE_CONFDECLINE, "Conference Decline"},
+	{YAHOO_SERVICE_CONFLOGOFF, "Conference Logoff"},
+	{YAHOO_SERVICE_CONFMSG, "Conference Message"},
+	{YAHOO_SERVICE_CHATLOGON, "Chat Logon"},
+	{YAHOO_SERVICE_CHATLOGOFF, "Chat Logoff"},
+	{YAHOO_SERVICE_CHATMSG, "Chat Message"},
+	{YAHOO_SERVICE_FILETRANSFER, "File Transfer"},
+	{0, NULL}
+};
+
+static const value_string yhoo_msgtype_vals[] = {
+	{YAHOO_MSGTYPE_NONE, "None"},
+	{YAHOO_MSGTYPE_NORMAL, "Normal"},
+	{YAHOO_MSGTYPE_BOUNCE, "Bounce"},
+	{YAHOO_MSGTYPE_STATUS, "Status Update"},
+	{YAHOO_MSGTYPE_OFFLINE, "Request Offline"},
+	{0, NULL}
+};
 
 void
 dissect_yhoo(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
 	proto_tree      *yhoo_tree, *ti;
 	struct yahoo_rawpacket *pkt;
-	int max_data = pi.captured_len - offset;
 
 	/* get at least a full packet structure */
-	pkt = (struct yahoo_rawpacket *) &pd[offset];
+	if ( !BYTES_ARE_IN_FRAME(offset, sizeof(struct yahoo_rawpacket)) )
+		return;
 
+	pkt = (struct yahoo_rawpacket *) &pd[offset];
+	
 	if (check_col(fd, COL_PROTOCOL))
 		col_add_str(fd, COL_PROTOCOL, "YHOO");
 
-	if (check_col(fd, COL_INFO)) {
-		if ( max_data > sizeof(struct yahoo_rawpacket) )
-		{
-			col_add_fstr(fd, COL_INFO, "%s: Service #%u", (pi.match_port == pi.destport)?"Request" : "Response", 
-				yahoo_makeint(pkt->service));
-		}
-		else
-		{
-			col_add_fstr(fd, COL_INFO, "%s: too short", (pi.match_port == pi.destport)? "Request" : "Response");
-		}
-	}
+	if (check_col(fd, COL_INFO))
+		col_add_fstr(fd, COL_INFO, 
+			"%s: %s", 
+			( strncmp(pkt->version, "YPNS", 4) == 0 ) ? "Request" : "Response",
+			val_to_str(pletohl(pkt->service),
+				 yhoo_service_vals, "Unknown Service: %u")
+		);
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_yhoo, offset, END_OF_FRAME, NULL);
 		yhoo_tree = proto_item_add_subtree(ti, ETT_YHOO);
 
-		if ( max_data > sizeof(struct yahoo_rawpacket) )
-		{
-			int fieldoff;
-
-			fieldoff = offset;
-			proto_tree_add_text(yhoo_tree, 
-				fieldoff, 8, "Protocol Version: %s", pkt->version);
-
-			fieldoff += 8;
-			proto_tree_add_text(yhoo_tree, 
-				fieldoff, 4, "Packet Length: %u", yahoo_makeint(pkt->len));
-
-			fieldoff += 4;
-			proto_tree_add_text(yhoo_tree, 
-				fieldoff, 4, "Service Type: %u", yahoo_makeint(pkt->service));
-
-			fieldoff += 4;
-			proto_tree_add_text(yhoo_tree, 
-				fieldoff, 4, "Connection ID: %X", yahoo_makeint(pkt->connection_id));
-
-			fieldoff += 4;
-			proto_tree_add_text(yhoo_tree, 
-				fieldoff, 4, "Magic ID: %X", yahoo_makeint(pkt->magic_id));
-
-			fieldoff += 4;
-			proto_tree_add_text(yhoo_tree, 
-				fieldoff, 4, "Unknown 1: %X", yahoo_makeint(pkt->unknown1));
-		
-			fieldoff += 4;
-			proto_tree_add_text(yhoo_tree, 
-				fieldoff, 4, "Message Type: %d", yahoo_makeint(pkt->msgtype));
-		
-			fieldoff += 4;
-			proto_tree_add_text(yhoo_tree, 
-				fieldoff, 36, "Nick 1: %s", pkt->nick1);
-		
-			fieldoff += 36;
-			proto_tree_add_text(yhoo_tree, 
-				fieldoff, 36, "Nick 2: %s", pkt->nick2);
-		
-			fieldoff += 36;
-			proto_tree_add_text(yhoo_tree, fieldoff, END_OF_FRAME, 
-				"Content: %s", pkt->content);
-		}
+		proto_tree_add_item(yhoo_tree, hf_yhoo_version, 
+			offset, 8, pkt->version);
+		proto_tree_add_item(yhoo_tree, hf_yhoo_len, 
+			offset+8, 4, pletohl(pkt->len));
+		proto_tree_add_item(yhoo_tree, hf_yhoo_service, 
+			offset+12, 4, pletohl(pkt->service));
+		proto_tree_add_item(yhoo_tree, hf_yhoo_connection_id, 
+			offset+16, 4, pletohl(pkt->connection_id));
+		proto_tree_add_item(yhoo_tree, hf_yhoo_magic_id, 
+			offset+20, 4, pletohl(pkt->magic_id));
+		proto_tree_add_item(yhoo_tree, hf_yhoo_unknown1, 
+			offset+24, 4, pletohl(pkt->unknown1));
+		proto_tree_add_item(yhoo_tree, hf_yhoo_msgtype, 
+			offset+28, 4, pletohl(pkt->msgtype));
+		proto_tree_add_item(yhoo_tree, hf_yhoo_nick1, 
+			offset+32, 36, pkt->nick1);
+		proto_tree_add_item(yhoo_tree, hf_yhoo_nick2, 
+			offset+68, 36, pkt->nick2);
+		proto_tree_add_item(yhoo_tree, hf_yhoo_content, 
+			offset+104, END_OF_FRAME, pkt->content);
 	}
 }
 
 void
 proto_register_yhoo(void)
 {
-/*        static hf_register_info hf[] = {
-                { &variable,
-                { "Name",           "yhoo.abbreviation", TYPE, VALS_POINTER }},
-        };*/
+	static hf_register_info hf[] = {
+			{ &hf_yhoo_service, {	
+				"Service Type", "yhoo.service", FT_UINT32, BASE_DEC,
+				VALS(yhoo_service_vals), 0, "Service Type" }},
+			{ &hf_yhoo_msgtype, {	
+				"Message Type", "yhoo.msgtype", FT_UINT32, BASE_DEC,
+				VALS(yhoo_msgtype_vals), 0, "Message Type Flags" }},
+			{ &hf_yhoo_connection_id, {	
+				"Connection ID", "yhoo.connection_id", FT_UINT32, BASE_HEX,
+				NULL, 0, "Connection ID" }},
+			{ &hf_yhoo_magic_id, {	
+				"Magic ID", "yhoo.magic_id", FT_UINT32, BASE_HEX,
+				NULL, 0, "Magic ID" }},
+			{ &hf_yhoo_unknown1, {	
+				"Connection ID", "yhoo.unknown1", FT_UINT32, BASE_HEX,
+				NULL, 0, "Unknown 1" }},
+			{ &hf_yhoo_len, {	
+				"Packet Length", "yhoo.len", FT_UINT32, BASE_DEC,
+				NULL, 0, "Packet Length" }},
+			{ &hf_yhoo_nick1, {	
+				"Real Nick (nick1)", "yhoo.nick1", FT_STRING, 0,
+				NULL, 0, "Real Nick (nick1)" }},
+			{ &hf_yhoo_nick2, {	
+				"Active Nick (nick2)", "yhoo.nick2", FT_STRING, 0,
+				NULL, 0, "Active Nick (nick2)" }},
+			{ &hf_yhoo_content, {	
+				"Content", "yhoo.content", FT_STRING, 0,
+				NULL, 0, "Data portion of the packet" }},
+			{ &hf_yhoo_version, {	
+				"Version", "yhoo.version", FT_STRING, 0,
+				NULL, 0, "Packet version identifier" }},
+        };
 
-        proto_yhoo = proto_register_protocol("Yahoo Messenger Protocol", "yhoo");
+	proto_yhoo = proto_register_protocol("Yahoo Messenger Protocol", "yhoo");
 
-	/* the following is for filtering - see packet-tcp.c */
- /*       proto_register_field_array(proto_yhoo, hf, array_length(hf));*/
+	proto_register_field_array(proto_yhoo, hf, array_length(hf));
 }

@@ -1,7 +1,7 @@
 /* packet-yhoo.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet-yhoo.h,v 1.1 1999/10/14 01:28:26 guy Exp $
+ * $Id: packet-yhoo.h,v 1.2 1999/10/14 03:12:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -63,6 +63,7 @@
 #define YAHOO_SERVICE_FILETRANSFER 70
 
 /* Message flags */
+#define YAHOO_MSGTYPE_NONE 1
 #define YAHOO_MSGTYPE_NORMAL 1
 #define YAHOO_MSGTYPE_BOUNCE 2
 #define YAHOO_MSGTYPE_STATUS 4
@@ -80,26 +81,6 @@ struct yahoo_rawpacket
 	char nick1[36];
 	char nick2[36];
 	char content[1];			/* was zero, had problems with aix xlc */
-};
-
-/* Misc contants */
-#define YAHOO_PACKET_HEADER_SIZE 104	/* size of a standard header */
-
-/* Constants for status codes */
-enum
-{
-	YAHOO_STATUS_AVAILABLE,
-	YAHOO_STATUS_BRB,
-	YAHOO_STATUS_BUSY,
-	YAHOO_STATUS_NOTATHOME,
-	YAHOO_STATUS_NOTATDESK,
-	YAHOO_STATUS_NOTINOFFICE,
-	YAHOO_STATUS_ONPHONE,
-	YAHOO_STATUS_ONVACATION,
-	YAHOO_STATUS_OUTTOLUNCH,
-	YAHOO_STATUS_STEPPEDOUT,
-	YAHOO_STATUS_INVISIBLE = 12,
-	YAHOO_STATUS_IDLE = 999
 };
 
 #endif
