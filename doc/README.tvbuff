@@ -1,0 +1,132 @@
+$Id: README.tvbuff,v 1.1 2000/05/15 06:48:16 gram Exp $
+
+TVBUFFs and Exceptions
+
+This document describes the changes made to the Ethereal dissector routines
+in post-0.8.8. All protocol dissectors need to be modified, but can be modified
+one at a time. During this transition time, this document will stand apart
+from 'README.developer'. Once all the protocol dissectors are converted to
+use the new tvbuff routines, the information in this document will be merged
+into 'README.developer'.
+
+While Ethereal does a grand job of dissecting frames that are complete,
+it has done only a mediocre job of dissecting partial frames. Frames can
+be incomplete for two reasons: the user used a capture length which is smaller
+than the MTU of the interface (which is the default behavior of tcpdump, BTW),
+or the frame on the wire is corrupted. In either case, Ethereal should
+gracefully handle the incomplete frame.
+
+With the aid of two C preprocessor macros,  BYTES_ARE_IN_FRAME() and
+IS_DATA_IN_FRAME(), dissector authors are supposed to check that the data
+they are trying to read from the frame actually exists. Some dissectors
+used these macros diligently, and others not. In the end we realized that
+depending on human diligence would get us nowhere and that a programmed solution
+would be necessary.
+
+The idea was to encapsulate the byte array which represented the data in the
+frame with a "class" that would check the enforce limits regarding the boundaries
+of the byte array. In the event of an improper data access, it is not enough
+to return an error condition since we knew that it would be impractical to
+check this error flags after every data access. Instead, we needed to implement
+exceptions in Ethereal. Other languages (Java, C++, Python) have exceptions, but
+we had to introduce an exception library and some magic C preprocess macros
+to implement them in C.
+
+The encapsulating class is called a "tvbuff", or "testy, virtual(-izable) buffer".
+They are testy in that they get mad when an attempt is made to access data beyond
+the bounds of their array. In that case, they thrown a BoundsError exception.
+
+They are virtualizable in that new tvbuff's can be made from other tvbuffs, while
+only the original tvbuff may have data. That is, the new tvbuff has virtual data.
+
+There are three types of tvbuffs, defined by an enum in tvbuff.h.
+
+A TVBUFF_REAL_DATA contains a guint8* that points to real data.
+The data is allocated by the user and is contiguous, since is an array of guint8's.
+
+A TVBUFF_SUBSET has a backing tvbuff. The TVBUFF_SUBSET is a "window"
+through which the program sees only a portion of the backing tvbuff. 
+
+A TVBUFF_COMPOSITE combines multiple tvbuffs sequentually to produce
+a larger byte array.
+
+
+The top-most dissector, dissect_packet(), creates a TVBUFF_REAL_DATA that points
+the frame's data. As each dissector completes its portion of the protocl analysis,
+it is expected to create a new tvbuff of type TVBUFF_SUBSET which contains
+the payload portion of the protocol (that is, the bytes that are relevant to
+the next dissector).
+
+The syntax for creating a new TVBUFF_SUBSET is:
+
+next_tvb = tvb_new_subset(tvb, offset, length)
+
+Where:
+	tvb is the tvbuff that the dissector has been working on. It can be
+	a tvbuff of any type.
+
+	next_tvb is the new TVBUFF_SUBSET.
+
+	offset is the byte offset of 'tvb' at which the new tvbuff should start.
+	The first byte is the 0th byte.
+
+	length is the number of bytes in the new TVBUFF_SUBSET. A length argument
+	of -1 says to use as many bytes as are available in 'tvb'.
+
+The tvb_new_subset() function will throw a BoundsError if the offset/length pair
+that you specify go beyond the bounds of 'tvb'.
+
+
+The tvbuff is an opaque structure. It's definition is in tvbuff.c, not tvbuff.h, so
+you can't easily access its members. You must use one of the provided accessor methods
+to retrieve data from the tvbuff. All accessors will throw a BoundsError if
+an attempt is made to read beyond the boundaries of the data in the tvbuff.  The
+accessors are:
+
+
+Single-byte accessor:
+
+guint8  tvb_get_guint8(tvbuff_t*, gint offset);
+
+Network-to-host-order access for shorts (guint16), longs (guint24), and
+24-bit ints:
+
+guint16 tvb_get_ntohs(tvbuff_t*, gint offset);
+guint32 tvb_get_ntohl(tvbuff_t*, gint offset);
+guint32 tvb_get_ntoh24(tvbuff_t*, gint offset);
+
+Little-Endian-to-host-order access for shorts (guint16), longs (guint24), and
+24-bit ints:
+
+guint16 tvb_get_letohs(tvbuff_t*, gint offset);
+guint32 tvb_get_letohl(tvbuff_t*, gint offset);
+guint32 tvb_get_letoh24(tvbuff_t*, gint offset);
+
+
+Copying memory:
+guint8* tvb_memcpy(tvbuff_t*, guint8* target, gint offset, gint length);
+guint8* tvb_memdup(tvbuff_t*, gint offset, gint length);
+
+
+Pointer-retrieval:
+/* WARNING! This function is possibly expensive, temporarily allocating
+ * another copy of the packet data. Furthermore, it's dangerous because once
+ * this pointer is given to the user, there's no guarantee that the user will
+ * honor the 'length' and not overstep the boundaries of the buffer.
+ */ 
+guint8* tvb_get_ptr(tvbuff_t*, gint offset, gint length);
+
+The reason that tvb_get_ptr() have to allocate a copy of its data only occurs
+with TVBUFF_COMPOSITES. If the user request a pointer to a range of bytes that
+spans the member tvbuffs that make up the TVBUFF_COMPOSITE, the data will have
+to be copied to another memory region to assure that all the bytes are contiguous.
+
+
+Exceptions
+
+The exception module from Kazlib was copied into the Ethereal tree. A header file
+"exceptions.h" was created which defines C preprocess macros that make the usage
+of the exception functions easier. The exception routines in Kazlib have a lot of
+features, but in Ethereal we only need a subset of those features, so the macros
+hide the complexity of the Kazlib calls, and try to emulate the syntax of languages
+which have native support for exceptions.
