@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.236 2003/12/13 18:05:48 gerald Exp $
+# $Id: configure.in,v 1.237 2003/12/16 23:00:33 guy Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -659,11 +659,20 @@ if test "x$NETSNMPCONFIG" != "xno" -a "x$NETSNMPCONFIG" != "x" -a -x "$NETSNMPCO
 	dnl other choices for flags to use here: could also use
 	dnl --prefix or --exec-prefix if you don't want the full list.
 
+	#
+	# Save the current settings of CFLAGS and CPPFLAGS, and add
+	# the output of "$NETSNMPCONFIG --cflags" to it, so that when
+	# searching for the Net-SNMP headers, we look in whatever
+	# directory that output specifies.
+	#
+	ethereal_save_CFLAGS="$CFLAGS"
+	ethereal_save_CPPFLAGS="$CPPFLAGS"
+	CFLAGS="$CFLAGS `$NETSNMPCONFIG --cflags`"
+	CPPFLAGS="$CPPFLAGS `$NETSNMPCONFIG --cflags`"
+
 	AC_CHECK_HEADERS(net-snmp/net-snmp-config.h net-snmp/library/default_store.h)
 	if test "x$ac_cv_header_net_snmp_net_snmp_config_h" = "xyes" -a "x$ac_cv_header_net_snmp_library_default_store_h" = "xyes" ; then
-		CFLAGS="$CFLAGS `net-snmp-config --cflags`"
-		CPPFLAGS="$CPPLAGS `net-snmp-config --cflags`"
-		SNMP_LIBS=`net-snmp-config --libs`
+		SNMP_LIBS=`$NETSNMPCONFIG --libs`
 		AC_DEFINE(HAVE_NET_SNMP, 1, [Define to enable support for NET-SNMP])
 		have_net_snmp="yes"
 	else
@@ -673,6 +682,14 @@ if test "x$NETSNMPCONFIG" != "xno" -a "x$NETSNMPCONFIG" != "x" -a -x "$NETSNMPCO
 		# headers.  This would likely be a broken system to
 		# try and use anyway.
 		NETSNMPCONFIG="no"
+
+		#
+		# Restore the versions of CFLAGS and CPPFLAGS before
+		# we added the output of '$NETSNMPCONFIG --cflags",
+		# as we didn't actually find Net-SNMP there.
+		#
+		CFLAGS="$ethereal_save_CFLAGS"
+		CPPFLAGS="$ethereal_save_CPPFLAGS"
 	fi	
 else
 	AC_MSG_CHECKING(whether to use UCD SNMP library if available)
