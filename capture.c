@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.68 1999/09/23 06:27:19 guy Exp $
+ * $Id: capture.c,v 1.69 1999/09/23 07:04:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -106,11 +106,18 @@ do_capture(void)
   guint byte_count;
   char *msg;
 
-  /* Choose a random name for the capture buffer */
-  if (cf.save_file && !cf.user_saved) {
-	unlink(cf.save_file); /* silently ignore error */
-	g_free(cf.save_file);
+  if (fork_mode) {
+    /* "capture()" will be run in the child; close the capture now. */
+    close_cap_file(&cf, info_bar, file_ctx);
   }
+
+  /* Get rid of the old capture file. */
+  if (cf.save_file && !cf.user_saved) {
+    unlink(cf.save_file); /* silently ignore error */
+    g_free(cf.save_file);
+  }
+
+  /* Choose a random name for the capture buffer */
   cf.save_file_fd = create_tempfile(tmpname, sizeof tmpname, "ether");
   if (cf.save_file_fd == -1) {
     simple_dialog(ESD_TYPE_WARN, NULL,
@@ -121,7 +128,7 @@ do_capture(void)
   cf.save_file = g_strdup(tmpname);
   cf.user_saved = 0;
   
-  if( fork_mode ){	/*  use fork() for capture */
+  if (fork_mode) {	/*  use fork() for capture */
     int  fork_child;
     char ssnap[24];
     char scount[24];	/* need a constant for len of numbers */
@@ -132,8 +139,9 @@ do_capture(void)
     sprintf(scount,"%d",cf.count);
     sprintf(save_file_fd,"%d",cf.save_file_fd);
     signal(SIGCHLD, SIG_IGN);
-    if (sync_mode) pipe(sync_pipe);
-    if((fork_child = fork()) == 0){
+    if (sync_mode)
+      pipe(sync_pipe);
+    if ((fork_child = fork()) == 0) {
       /* args: -k -- capture
        * -i interface specification
        * -w file to write
@@ -259,6 +267,7 @@ capture(void)
 
   close_cap_file(&cf, info_bar, file_ctx);
 
+  /* Open the network interface to capture from it. */
   pch = pcap_open_live(cf.iface, cf.snap, 1, 250, err_str);
 
   if (pch == NULL) {
@@ -273,37 +282,40 @@ capture(void)
       "The capture session could not be initiated (%s).\n"
       "Please check to make sure you have sufficient permissions, and that\n"
       "you have the proper interface specified.", err_str);
-    goto fatal_error;
+    goto error;
   }
 
   if (cf.cfilter) {
+    /* A capture filter was specified; set it up. */
     if (pcap_lookupnet (cf.iface, &netnum, &netmask, err_str) < 0) {
       snprintf(errmsg, sizeof errmsg,
         "Can't use filter:  Couldn't obtain netmask info (%s).", err_str);
-      goto fatal_error;
+      goto error;
     }
     if (pcap_compile(pch, &cf.fcode, cf.cfilter, 1, netmask) < 0) {
       snprintf(errmsg, sizeof errmsg, "Unable to parse filter string (%s).",
 	pcap_geterr(pch));
-      goto fatal_error;
+      goto error;
     }
     if (pcap_setfilter(pch, &cf.fcode) < 0) {
       snprintf(errmsg, sizeof errmsg, "Can't install filter (%s).",
 	pcap_geterr(pch));
-      goto fatal_error;
+      goto error;
     }
   }
 
+  /* Set up to write to the capture file. */
   ld.linktype = wtap_pcap_encap_to_wtap_encap(pcap_datalink(pch));
   if (ld.linktype == WTAP_ENCAP_UNKNOWN) {
     strcpy(errmsg, "The network you're capturing from is of a type"
              " that Ethereal doesn't support.");
-    goto fatal_error;
+    goto error;
   }
   ld.pdh = wtap_dump_fdopen(cf.save_file_fd, WTAP_FILE_PCAP,
 		ld.linktype, pcap_snapshot(pch), &err);
 
-  if (ld.pdh == NULL) {  /* We have an error */
+  if (ld.pdh == NULL) {
+    /* We couldn't set up to write to the capture file. */
     switch (err) {
 
     case WTAP_ERR_CANT_OPEN:
@@ -328,11 +340,13 @@ capture(void)
       }
       break;
     }
-    goto fatal_error;
+    goto error;
   }
 
   if (sync_mode) {
-    /* Sync out the capture file, so the header makes it to the file
+    /* Well, we should be able to start capturing.
+
+       Sync out the capture file, so the header makes it to the file
        system, and send a "capture started successfully and capture
        file created" message to our parent so that they'll open the
        capture file and update its windows to indicate that we have
@@ -448,33 +462,40 @@ capture(void)
     }
   }
     
-  if (ld.pdh) {
-    if (!wtap_dump_close(ld.pdh, &err)) {
-      switch (err) {
+  if (!wtap_dump_close(ld.pdh, &err)) {
+    /* XXX - in fork mode, this may not pop up, or, if it does,
+       it may disappear as soon as we exit.
 
-      case WTAP_ERR_CANT_CLOSE:
-        strcpy(errmsg, "The file to which the capture was being saved"
-               " couldn't be closed for some unknown reason.");
-        break;
+       We should have the parent process, while it's reading
+       the packet count update messages, catch error messages
+       and pop up a message box if it sees one. */
+    switch (err) {
 
-      case WTAP_ERR_SHORT_WRITE:
-        strcpy(errmsg, "Not all the data could be written to the file"
-                 " to which the capture was being saved.");
-        break;
+    case WTAP_ERR_CANT_CLOSE:
+      simple_dialog(ESD_TYPE_WARN, NULL,
+        	"The file to which the capture was being saved"
+		" couldn't be closed for some unknown reason.");
+      break;
 
-      default:
-        if (err < 0) {
-          sprintf(errmsg, "The file to which the capture was being"
-                     " saved (\"%s\") could not be closed: Error %d.",
- 			cf.save_file, err);
-        } else {
-          sprintf(errmsg, "The file to which the capture was being"
-                     " saved (\"%s\") could not be closed: %s.",
- 			cf.save_file, strerror(err));
-	}
-	break;
+    case WTAP_ERR_SHORT_WRITE:
+      simple_dialog(ESD_TYPE_WARN, NULL,
+		"Not all the data could be written to the file"
+		" to which the capture was being saved.");
+      break;
+
+    default:
+      if (err < 0) {
+        simple_dialog(ESD_TYPE_WARN, NULL,
+		"The file to which the capture was being"
+		" saved (\"%s\") could not be closed: Error %d.",
+		cf.save_file, err);
+      } else {
+        simple_dialog(ESD_TYPE_WARN, NULL,
+		"The file to which the capture was being"
+		" saved (\"%s\") could not be closed: %s.",
+		cf.save_file, strerror(err));
       }
-      goto error;
+      break;
     }
   }
   pcap_close(pch);
@@ -496,12 +517,10 @@ capture(void)
   }
   return;
 
-fatal_error:
+error:
   /* We couldn't even start the capture, so get rid of the capture
      file. */
   unlink(cf.save_file); /* silently ignore error */
-
-error:
   if (sync_mode) {
     /* Send the error message to our parent, so they can display a
        dialog box containing it. */
