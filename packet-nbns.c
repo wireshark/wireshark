@@ -4,7 +4,7 @@
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  * Much stuff added by Guy Harris <guy@netapp.com>
  *
- * $Id: packet-nbns.c,v 1.16 1999/05/09 04:16:35 sharpe Exp $
+ * $Id: packet-nbns.c,v 1.17 1999/05/10 20:02:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1160,7 +1160,7 @@ static const value_string error_codes[] = {
 static int
 dissect_nbss_packet(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data)
 {
-	proto_tree	*nbss_tree;
+	proto_tree	*nbss_tree = NULL;
 	proto_item	*ti;
 	proto_tree	*field_tree;
 	proto_item	*tf;
