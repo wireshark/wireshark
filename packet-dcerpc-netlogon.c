@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *  2002 structure and command dissectors by Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-netlogon.c,v 1.27 2002/07/01 13:20:55 sahlberg Exp $
+ * $Id: packet-dcerpc-netlogon.c,v 1.28 2002/07/02 10:11:20 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1264,6 +1264,168 @@ netlogon_dissect_netlogonsamlogon_reply(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
+
+/*
+ * IDL long NetLogonSamLogoff(
+ * IDL      [in][unique][string] wchar_t *ServerName,
+ * IDL      [in][unique][string] wchar_t *ComputerName,
+ * IDL      [in][unique] AUTHENTICATOR credential,
+ * IDL      [in][unique] AUTHENTICATOR return_authenticator,
+ * IDL      [in] short logon_level,
+ * IDL      [in][ref] LEVEL logoninformation
+ * IDL );
+ */
+static int
+netlogon_dissect_netlogonsamlogoff_rqst(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	offset = netlogon_dissect_LOGONSRV_HANDLE(tvb, offset,
+		pinfo, tree, drep);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		dissect_ndr_nt_UNICODE_STRING_str, NDR_POINTER_UNIQUE,
+		"Computer Name", hf_netlogon_computer_name, 0);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		netlogon_dissect_AUTHENTICATOR, NDR_POINTER_UNIQUE,
+		"AUTHENTICATOR: credential", -1, 0);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		netlogon_dissect_AUTHENTICATOR, NDR_POINTER_UNIQUE,
+		"AUTHENTICATOR: return_authenticator", -1, 0);
+
+	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep,
+		hf_netlogon_level16, NULL);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		netlogon_dissect_LEVEL, NDR_POINTER_REF,
+		"LEVEL: logoninformation", -1, 0);
+
+	return offset;
+}
+static int
+netlogon_dissect_netlogonsamlogoff_reply(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		netlogon_dissect_AUTHENTICATOR, NDR_POINTER_UNIQUE,
+		"AUTHENTICATOR: return_authenticator", -1, 0);
+
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+				  hf_netlogon_rc, NULL);
+
+	return offset;
+}
+
+
+/*
+ * IDL long NetServerReqChallenge(
+ * IDL      [in][unique][string] wchar_t *ServerName,
+ * IDL      [in][ref][string] wchar_t *ComputerName,
+ * IDL      [in][ref] CREDENTIAL client_credential,
+ * IDL      [out][ref] CREDENTIAL server_credential
+ * IDL );
+ */
+static int
+netlogon_dissect_netserverreqchallenge_rqst(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_set_str(pinfo->cinfo, COL_INFO, 
+			    "RequestChallenge request");
+
+	offset = netlogon_dissect_LOGONSRV_HANDLE(tvb, offset,
+		pinfo, tree, drep);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		dissect_ndr_nt_UNICODE_STRING_str, NDR_POINTER_REF,
+		"Computer Name", hf_netlogon_computer_name, 0);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		netlogon_dissect_CREDENTIAL, NDR_POINTER_REF,
+		"CREDENTIAL: client challenge", -1, 0);
+
+	return offset;
+}
+static int
+netlogon_dissect_netserverreqchallenge_reply(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_set_str(pinfo->cinfo, COL_INFO, 
+			    "RequestChallenge response");
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		netlogon_dissect_CREDENTIAL, NDR_POINTER_REF,
+		"CREDENTIAL: server credential", -1, 0);
+
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+				  hf_netlogon_rc, NULL);
+
+	return offset;
+}
+
+
+static int
+netlogon_dissect_NETLOGON_SECURE_CHANNEL_TYPE(tvbuff_t *tvb, int offset,
+			packet_info *pinfo, proto_tree *tree,
+			char *drep)
+{
+	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep,
+			hf_netlogon_secure_channel_type, NULL);
+
+	return offset;
+}
+
+
+/*
+ * IDL long NetServerAuthenticate(
+ * IDL      [in][unique][string] wchar_t *ServerName,
+ * IDL      [in][ref][string] wchar_t *UserName,
+ * IDL      [in] short secure_challenge_type,
+ * IDL      [in][ref][string] wchar_t *ComputerName,
+ * IDL      [in][ref] CREDENTIAL client_challenge,
+ * IDL      [out][ref] CREDENTIAL server_challenge
+ * IDL );
+ */
+static int
+netlogon_dissect_netserverauthenticate_rqst(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	offset = netlogon_dissect_LOGONSRV_HANDLE(tvb, offset,
+		pinfo, tree, drep);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		dissect_ndr_nt_UNICODE_STRING_str, NDR_POINTER_REF,
+		"User Name", hf_netlogon_acct_name, 0);
+
+	offset = netlogon_dissect_NETLOGON_SECURE_CHANNEL_TYPE(tvb, offset,
+		pinfo, tree, drep);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		dissect_ndr_nt_UNICODE_STRING_str, NDR_POINTER_REF,
+		"Computer Name", hf_netlogon_computer_name, 0);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		netlogon_dissect_CREDENTIAL, NDR_POINTER_REF,
+		"CREDENTIAL: client challenge", -1, 0);
+
+	return offset;
+}
+static int
+netlogon_dissect_netserverauthenticate_reply(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		netlogon_dissect_CREDENTIAL, NDR_POINTER_REF,
+		"CREDENTIAL: server challenge", -1, 0);
+
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+				  hf_netlogon_rc, NULL);
+
+	return offset;
+}
 
 
 
@@ -2947,17 +3109,6 @@ netlogon_dissect_UNICODE_STRING_512(tvbuff_t *tvb, int offset,
 }
 
 static int
-netlogon_dissect_NETLOGON_SECURE_CHANNEL_TYPE(tvbuff_t *tvb, int offset,
-			packet_info *pinfo, proto_tree *tree,
-			char *drep)
-{
-		offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep,
-			hf_netlogon_secure_channel_type, NULL);
-
-	return offset;
-}
-
-static int
 netlogon_dissect_element_844_byte(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
 			char *drep)
@@ -3668,126 +3819,6 @@ netlogon_dissect_TYPE_47(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
-
-static int
-netlogon_dissect_netlogonsamlogoff_rqst(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, char *drep)
-{
-	offset = netlogon_dissect_LOGONSRV_HANDLE(tvb, offset,
-		pinfo, tree, drep);
-
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		dissect_ndr_nt_UNICODE_STRING_str, NDR_POINTER_UNIQUE,
-		"unknown string", hf_netlogon_unknown_string, 0);
-
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		netlogon_dissect_AUTHENTICATOR, NDR_POINTER_UNIQUE,
-		"AUTHENTICATOR: credential", -1, 0);
-
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		netlogon_dissect_AUTHENTICATOR, NDR_POINTER_UNIQUE,
-		"AUTHENTICATOR: return_authenticator", -1, 0);
-
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		netlogon_dissect_LEVEL, NDR_POINTER_REF,
-		"LEVEL pointer: id_ctr", -1, 0);
-
-	return offset;
-}
-
-
-static int
-netlogon_dissect_netlogonsamlogoff_reply(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, char *drep)
-{
-
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		netlogon_dissect_AUTHENTICATOR, NDR_POINTER_UNIQUE,
-		"AUTHENTICATOR: return_authenticator", -1, 0);
-
-	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
-				  hf_netlogon_rc, NULL);
-
-	return offset;
-}
-
-static int
-netlogon_dissect_netserverreqchallenge_rqst(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, char *drep)
-{
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, 
-			    "RequestChallenge request");
-
-	offset = netlogon_dissect_LOGONSRV_HANDLE(tvb, offset,
-		pinfo, tree, drep);
-
-	offset = netlogon_dissect_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
-		NDR_POINTER_REF, hf_netlogon_client_name, 0);
-
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		netlogon_dissect_CREDENTIAL, NDR_POINTER_REF,
-		"CREDENTIAL pointer: client_chal", -1, 0);
-
-	return offset;
-}
-
-
-static int
-netlogon_dissect_netserverreqchallenge_reply(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, char *drep)
-{
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, 
-			    "RequestChallenge response");
-
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		netlogon_dissect_CREDENTIAL, NDR_POINTER_REF,
-		"CREDENTIAL pointer: server_chal", -1, 0);
-
-	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
-				  hf_netlogon_rc, NULL);
-
-	return offset;
-}
-
-static int
-netlogon_dissect_netserverauthenticate_rqst(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, char *drep)
-{
-	offset = netlogon_dissect_LOGONSRV_HANDLE(tvb, offset,
-		pinfo, tree, drep);
-
-	offset = netlogon_dissect_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
-		NDR_POINTER_REF, hf_netlogon_acct_name, 0);
-
-	offset = netlogon_dissect_NETLOGON_SECURE_CHANNEL_TYPE(tvb, offset,
-		pinfo, tree, drep);
-
-	offset = netlogon_dissect_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
-		NDR_POINTER_REF, hf_netlogon_computer_name, 0);
-
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		netlogon_dissect_CREDENTIAL, NDR_POINTER_REF,
-		"CREDENTIAL pointer: client_chal", -1, 0);
-
-	return offset;
-}
-
-
-static int
-netlogon_dissect_netserverauthenticate_reply(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, char *drep)
-{
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		netlogon_dissect_CREDENTIAL, NDR_POINTER_REF,
-		"CREDENTIAL pointer: server_chal", -1, 0);
-
-	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
-				  hf_netlogon_rc, NULL);
-
-	return offset;
-}
 
 static int
 netlogon_dissect_netserverpasswordset_rqst(tvbuff_t *tvb, int offset,
@@ -5248,13 +5279,13 @@ static dcerpc_sub_dissector dcerpc_netlogon_dissectors[] = {
 	{ NETLOGON_NETLOGONSAMLOGON, "SamLogon",
 		netlogon_dissect_netlogonsamlogon_rqst,
 		netlogon_dissect_netlogonsamlogon_reply },
-	{ NETLOGON_NETLOGONSAMLOGOFF, "NETLOGONSAMLOGOFF",
+	{ NETLOGON_NETLOGONSAMLOGOFF, "SamLogoff",
 		netlogon_dissect_netlogonsamlogoff_rqst,
 		netlogon_dissect_netlogonsamlogoff_reply },
-	{ NETLOGON_NETSERVERREQCHALLENGE, "NETSERVERREQCHALLENGE",
+	{ NETLOGON_NETSERVERREQCHALLENGE, "ServerReqChallenge",
 		netlogon_dissect_netserverreqchallenge_rqst,
 		netlogon_dissect_netserverreqchallenge_reply },
-	{ NETLOGON_NETSERVERAUTHENTICATE, "NETSERVERAUTHENTICATE",
+	{ NETLOGON_NETSERVERAUTHENTICATE, "ServerAuthenticate",
 		netlogon_dissect_netserverauthenticate_rqst,
 		netlogon_dissect_netserverauthenticate_reply },
 	{ NETLOGON_NETSERVERPASSWORDSET, "NETSERVERPASSWORDSET",
@@ -5372,9 +5403,9 @@ static const value_string netlogon_opnum_vals[] = {
 	{ NETLOGON_UASLOGON, "UasLogon" },
 	{ NETLOGON_UASLOGOFF, "UasLogoff" },
 	{ NETLOGON_NETLOGONSAMLOGON, "SamLogon" },
-	{ NETLOGON_NETLOGONSAMLOGOFF, "NETLOGONSAMLOGOFF" },
-	{ NETLOGON_NETSERVERREQCHALLENGE, "NETSERVERREQCHALLENGE" },
-	{ NETLOGON_NETSERVERAUTHENTICATE, "NETSERVERAUTHENTICATE" },
+	{ NETLOGON_NETLOGONSAMLOGOFF, "SamLogoff" },
+	{ NETLOGON_NETSERVERREQCHALLENGE, "ServerReqChallenge" },
+	{ NETLOGON_NETSERVERAUTHENTICATE, "ServerAuthenticate" },
 	{ NETLOGON_NETSERVERPASSWORDSET, "NETSERVERPASSWORDSET" },
 	{ NETLOGON_NETSAMDELTAS, "NETSAMDELTAS" },
 	{ NETLOGON_DATABASESYNC, "DatabaseSync" },
