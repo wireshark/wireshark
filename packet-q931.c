@@ -2,7 +2,7 @@
  * Routines for Q.931 frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-q931.c,v 1.6 1999/11/16 11:42:48 guy Exp $
+ * $Id: packet-q931.c,v 1.7 1999/11/19 09:11:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -88,7 +88,7 @@ static gint ett_q931_ie = -1;
 #define	Q931_RESTART_ACK	0x4E
 #define	Q931_CONGESTION_CONTROL	0x79
 #define	Q931_FACILITY		0x62
-#define	Q931_INFORMATIION	0x7B
+#define	Q931_INFORMATION	0x7B
 #define	Q931_NOTIFY		0x6E
 #define	Q931_REGISTER		0x64
 #define	Q931_SEGMENT		0x60
@@ -123,7 +123,7 @@ static const value_string q931_message_type_vals[] = {
 	{ Q931_RESTART_ACK,		"RESTART ACKNOWLEDGE" },
 	{ Q931_CONGESTION_CONTROL,	"CONGESTION CONTROL" },
 	{ Q931_FACILITY,		"FACILITY" },
-	{ Q931_INFORMATIION,		"INFORMATIION" },
+	{ Q931_INFORMATION,		"INFORMATION" },
 	{ Q931_NOTIFY,			"NOTIFY" },
 	{ Q931_REGISTER,		"REGISTER" },
 	{ Q931_SEGMENT,			"SEGMENT" },
