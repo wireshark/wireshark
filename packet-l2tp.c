@@ -7,7 +7,7 @@
  * Laurent Cazalet <laurent.cazalet@mailclub.net>
  * Thomas Parvais <thomas.parvais@advalvas.be>
  *
- * $Id: packet-l2tp.c,v 1.31 2002/03/09 22:54:27 guy Exp $
+ * $Id: packet-l2tp.c,v 1.32 2002/05/30 10:09:27 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -977,27 +977,27 @@ proto_register_l2tp(void)
 {
 	static hf_register_info hf[] = {
 		{ &hf_l2tp_type,
-		{ "Type", "lt2p.type", FT_UINT16, BASE_DEC, VALS(l2tp_type_vals), 0x8000,
+		{ "Type", "l2tp.type", FT_UINT16, BASE_DEC, VALS(l2tp_type_vals), 0x8000,
 			"Type bit", HFILL }},
 
 		{ &hf_l2tp_length_bit,
-		{ "Length Bit", "lt2p.length_bit", FT_BOOLEAN, 16, TFS(&l2tp_length_bit_truth), 0x4000,
+		{ "Length Bit", "l2tp.length_bit", FT_BOOLEAN, 16, TFS(&l2tp_length_bit_truth), 0x4000,
 			"Length bit", HFILL }},
 
 		{ &hf_l2tp_seq_bit,
-		{ "Sequence Bit", "lt2p.seq_bit", FT_BOOLEAN, 16, TFS(&l2tp_seq_bit_truth), 0x0800,
+		{ "Sequence Bit", "l2tp.seq_bit", FT_BOOLEAN, 16, TFS(&l2tp_seq_bit_truth), 0x0800,
 			"Sequence bit", HFILL }},
 
 		{ &hf_l2tp_offset_bit,
-		{ "Offset bit", "lt2p.offset_bit", FT_BOOLEAN, 16, TFS(&l2tp_offset_bit_truth), 0x0200,
+		{ "Offset bit", "l2tp.offset_bit", FT_BOOLEAN, 16, TFS(&l2tp_offset_bit_truth), 0x0200,
 			"Offset bit", HFILL }},
 
 		{ &hf_l2tp_priority,
-		{ "Priority", "lt2p.priority", FT_BOOLEAN, 16, TFS(&l2tp_priority_truth), 0x0100,
+		{ "Priority", "l2tp.priority", FT_BOOLEAN, 16, TFS(&l2tp_priority_truth), 0x0100,
 			"Priority bit", HFILL }},
 
 		{ &hf_l2tp_version,
-		{ "Version", "lt2p.version", FT_UINT16, BASE_DEC, NULL, 0x000f,
+		{ "Version", "l2tp.version", FT_UINT16, BASE_DEC, NULL, 0x000f,
 			"Version", HFILL }},
 
 		{ &hf_l2tp_length,
@@ -1026,27 +1026,27 @@ proto_register_l2tp(void)
 				"payload data starts.", HFILL }},
 
 		{ &hf_l2tp_avp_mandatory,
-		{ "Mandatory", "lt2p.avp.mandatory", FT_BOOLEAN, BASE_NONE, NULL, 0,
+		{ "Mandatory", "l2tp.avp.mandatory", FT_BOOLEAN, BASE_NONE, NULL, 0,
 			"Mandatory AVP", HFILL }},
 
 		{ &hf_l2tp_avp_hidden,
-		{ "Hidden", "lt2p.avp.hidden", FT_BOOLEAN, BASE_NONE, NULL, 0,
+		{ "Hidden", "l2tp.avp.hidden", FT_BOOLEAN, BASE_NONE, NULL, 0,
 			"Hidden AVP", HFILL }},
 
 		{ &hf_l2tp_avp_length,
-		{ "Length", "lt2p.avp.length", FT_UINT16, BASE_DEC, NULL, 0,
+		{ "Length", "l2tp.avp.length", FT_UINT16, BASE_DEC, NULL, 0,
 			"AVP Length", HFILL }},
 
 		{ &hf_l2tp_avp_vendor_id,
-		{ "Vendor ID", "lt2p.avp.vendor_id", FT_UINT16, BASE_DEC, VALS(avp_vendor_id_vals), 0,
+		{ "Vendor ID", "l2tp.avp.vendor_id", FT_UINT16, BASE_DEC, VALS(avp_vendor_id_vals), 0,
 			"AVP Vendor ID", HFILL }},
 
 		{ &hf_l2tp_avp_type,
-		{ "Type", "lt2p.avp.type", FT_UINT16, BASE_DEC, VALS(avp_type_vals), 0,
+		{ "Type", "l2tp.avp.type", FT_UINT16, BASE_DEC, VALS(avp_type_vals), 0,
 			"AVP Type", HFILL }},
 
 		{ &hf_l2tp_tie_breaker,
-		{ "Tie Breaker", "lt2p.tie_breaker", FT_UINT64, BASE_HEX, NULL, 0,
+		{ "Tie Breaker", "l2tp.tie_breaker", FT_UINT64, BASE_HEX, NULL, 0,
 			"Tie Breaker", HFILL }},
 
 	};
