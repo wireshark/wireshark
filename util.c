@@ -1,7 +1,7 @@
 /* util.c
  * Utility routines
  *
- * $Id: util.c,v 1.42 2000/08/31 11:12:19 girlich Exp $
+ * $Id: util.c,v 1.43 2000/09/07 09:57:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -632,7 +632,7 @@ get_interface_list(int *err, char *err_str)
 #endif
 	}
 
-	free(ifc.ifc_buf);
+	g_free(ifc.ifc_buf);
 	close(sock);
 
 	if (il == NULL) {
