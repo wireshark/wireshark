@@ -1,0 +1,21 @@
+# x509sat.cnf
+# X509SAT conformation file
+
+# $Id: x509sat.cnf,v 1.2 2004/06/03 08:35:44 guy Exp $
+
+#.MODULE_IMPORT
+InformationFramework x509if
+
+#.EXPORTS
+
+UniqueIdentifier
+
+#.NO_EMIT
+
+#.TYPE_RENAME
+
+#.FIELD_RENAME
+
+#.END
+
+
