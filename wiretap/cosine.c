@@ -1,6 +1,6 @@
 /* cosine.c
  *
- * $Id: cosine.c,v 1.2 2002/08/06 00:59:15 guy Exp $
+ * $Id: cosine.c,v 1.3 2002/08/06 01:00:07 guy Exp $
  *
  * CoSine IPNOS L2 debug output parsing
  * Copyright (c) 2002 by Motonori Shindo <mshindo@mshindo.net>
@@ -169,7 +169,7 @@
  */
 #define COSINE_MAX_PACKET_LEN	16384
 
-static gboolean empty_line(const char *line);
+static gboolean empty_line(const guchar *line);
 static long cosine_seek_next_packet(wtap *wth, int *err, char *hdr);
 static gboolean cosine_check_file_type(wtap *wth, int *err);
 static gboolean cosine_read(wtap *wth, int *err, long *data_offset);
