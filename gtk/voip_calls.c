@@ -1556,8 +1556,6 @@ gboolean isSignal(gchar *signal, gchar *signalStr)
 */
 void mgcpCallerID(gchar *signalStr, gchar **callerId)
 {
-	gint i; 
-	gchar **resultArray;
 	gchar **arrayStr;
 	
 	/* if there is no signalStr, just return false */
@@ -1568,24 +1566,12 @@ void mgcpCallerID(gchar *signalStr, gchar **callerId)
 	if (arrayStr[0] == NULL) return;
 
 	/* look for the ci signal */
-	resultArray = g_strsplit(arrayStr[0], ",(", 10);
-
-	for (i = 0; resultArray[i]; i++) {
-		g_strstrip(resultArray[i]);
-		if (strcmp(resultArray[i], "ci") == 0){
-			if (arrayStr[1] != NULL){
-				/* free the previous "From" field of the call, and assign the new */
-				g_free(*callerId);
-				*callerId = g_strdup(arrayStr[1]);
-			}
-			g_strfreev(arrayStr);
-			g_strfreev(resultArray);
-			return;
-		}
+	if (g_strrstr(arrayStr[0], "ci(") && (arrayStr[1] != NULL) ) {
+		/* free the previous "From" field of the call, and assign the new */
+		g_free(*callerId);
+		*callerId = g_strdup(arrayStr[1]);
 	}
-
 	g_strfreev(arrayStr);
-	g_strfreev(resultArray);
 
 	return;
 }
