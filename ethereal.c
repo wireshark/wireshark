@@ -1,6 +1,6 @@
 /* ethereal.c
  *
- * $Id: ethereal.c,v 1.61 1999/07/24 02:42:51 guy Exp $
+ * $Id: ethereal.c,v 1.62 1999/07/24 03:22:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -110,12 +110,10 @@ static void print_close_cb(GtkWidget *close_bt, gpointer parent_w);
 FILE        *data_out_file = NULL;
 packet_info  pi;
 capture_file cf;
-proto_tree	*protocol_tree = NULL;
 GtkWidget   *file_sel, *packet_list, *tree_view, *byte_view, *prog_bar,
             *info_bar;
 GdkFont     *m_r_font, *m_b_font;
 guint        main_ctx, file_ctx;
-frame_data  *fd;
 gint         start_capture = 0;
 gchar        comp_info_str[256];
 gchar       *ethereal_path = NULL;
@@ -855,13 +853,8 @@ file_print_packet_cmd_cb(GtkWidget *widget, gpointer data) {
     return;
   }
 
-  if (protocol_tree == NULL) {
-    simple_dialog(ESD_TYPE_WARN, NULL,
-      "No packet is selected, so there's no packet to print.");
-    return;
-  }
   print_preamble(fh);
-  proto_tree_print(-1, (GNode*) protocol_tree, cf.pd, fd, fh);
+  proto_tree_print(-1, (GNode*) cf.protocol_tree, cf.pd, cf.fd, fh);
   print_finale(fh);
   close_print_dest(prefs.pr_dest == PR_DEST_FILE, fh);
 }
@@ -879,31 +872,7 @@ packet_list_select_cb(GtkWidget *w, gint row, gint col, gpointer evt) {
   }
 #endif
   blank_packetinfo();
-  gtk_text_freeze(GTK_TEXT(byte_view));
-  gtk_text_set_point(GTK_TEXT(byte_view), 0);
-  gtk_text_forward_delete(GTK_TEXT(byte_view),
-  gtk_text_get_length(GTK_TEXT(byte_view)));
-
-  /* get the frame data struct pointer for this frame */
-  fd = (frame_data *) gtk_clist_get_row_data(GTK_CLIST(w), row);
-  cf.selected_packet = g_list_index(cf.plist, (gpointer)fd);
-  cf.selected_row = row;
-  fseek(cf.fh, fd->file_off, SEEK_SET);
-  fread(cf.pd, sizeof(guint8), fd->cap_len, cf.fh);
-
-  /* create the logical protocol tree */
-  if (protocol_tree)
-      proto_tree_free(protocol_tree);
-  protocol_tree = proto_tree_create_root();
-  dissect_packet(cf.pd, fd, protocol_tree);
-
-  /* display the GUI protocol tree and hex dump */
-  proto_tree_draw(protocol_tree, tree_view);
-  packet_hex_print(GTK_TEXT(byte_view), cf.pd, fd->cap_len, -1, -1);
-  gtk_text_thaw(GTK_TEXT(byte_view));
-
-  /* A packet is selected, so "File/Print Packet" has something to print. */
-  set_menu_sensitivity("/File/Print Packet", TRUE);
+  select_packet(&cf, row);
 }
 
 void
@@ -930,7 +899,7 @@ tree_view_cb(GtkWidget *w) {
   gtk_text_set_point(GTK_TEXT(byte_view), 0);
   gtk_text_forward_delete(GTK_TEXT(byte_view),
     gtk_text_get_length(GTK_TEXT(byte_view)));
-  packet_hex_print(GTK_TEXT(byte_view), cf.pd, fd->cap_len, 
+  packet_hex_print(GTK_TEXT(byte_view), cf.pd, cf.fd->cap_len, 
 		   tree_selected_start, 
 		   tree_selected_len);
   

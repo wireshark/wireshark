@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.43 1999/07/24 02:42:50 guy Exp $
+ * $Id: file.c,v 1.44 1999/07/24 03:22:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -72,6 +72,7 @@
 #include "print.h"
 #include "file.h"
 #include "util.h"
+#include "gtkpacket.h"
 #include "dfilter.h"
 
 #include "packet-ncp.h"
@@ -675,16 +676,61 @@ change_time_formats(capture_file *cf)
   gtk_clist_thaw(GTK_CLIST(packet_list));
 }
 
+/* Select the packet on a given row. */
+void
+select_packet(capture_file *cf, int row)
+{
+  /* Clear out whatever's currently in the hex dump. */
+  gtk_text_freeze(GTK_TEXT(byte_view));
+  gtk_text_set_point(GTK_TEXT(byte_view), 0);
+  gtk_text_forward_delete(GTK_TEXT(byte_view),
+  gtk_text_get_length(GTK_TEXT(byte_view)));
+
+  /* Get the frame data struct pointer for this frame. */
+  cf->fd = (frame_data *) gtk_clist_get_row_data(GTK_CLIST(packet_list), row);
+
+  /* Get the data in that frame. */
+  fseek(cf->fh, cf->fd->file_off, SEEK_SET);
+  fread(cf->pd, sizeof(guint8), cf->fd->cap_len, cf->fh);
+
+  /* Mark that frame as the selected frame. */
+  cf->selected_packet = g_list_index(cf->plist, (gpointer)cf->fd);
+
+  /* Create the logical protocol tree. */
+  if (cf->protocol_tree)
+      proto_tree_free(cf->protocol_tree);
+  cf->protocol_tree = proto_tree_create_root();
+  dissect_packet(cf->pd, cf->fd, cf->protocol_tree);
+
+  /* Display the GUI protocol tree and hex dump. */
+  proto_tree_draw(cf->protocol_tree, tree_view);
+  packet_hex_print(GTK_TEXT(byte_view), cf->pd, cf->fd->cap_len, -1, -1);
+  gtk_text_thaw(GTK_TEXT(byte_view));
+
+  /* A packet is selected, so "File/Print Packet" has something to print. */
+  set_menu_sensitivity("/File/Print Packet", TRUE);
+}
+
 /* Unselect the selected packet, if any. */
 void
 unselect_packet(capture_file *cf)
 {
   cf->selected_packet = -1;	/* nothing there to be selected */
   cf->selected_row = -1;
+
+  /* Destroy the protocol tree for that packet. */
+  if (cf->protocol_tree != NULL) {
+    proto_tree_free(cf->protocol_tree);
+    cf->protocol_tree = NULL;
+  }
+
+  /* Clear the hex dump. */
   gtk_text_freeze(GTK_TEXT(byte_view));
   gtk_text_set_point(GTK_TEXT(byte_view), 0);
   gtk_text_forward_delete(GTK_TEXT(byte_view),
     gtk_text_get_length(GTK_TEXT(byte_view)));
+
+  /* Clear the protocol tree view. */
   gtk_text_thaw(GTK_TEXT(byte_view));
   gtk_tree_clear_items(GTK_TREE(tree_view), 0,
     g_list_length(GTK_TREE(tree_view)->children));
