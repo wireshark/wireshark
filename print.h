@@ -1,7 +1,7 @@
 /* print.h
  * Definitions for printing packet analysis trees.
  *
- * $Id: print.h,v 1.38 2004/04/15 19:56:15 ulfl Exp $
+ * $Id: print.h,v 1.39 2004/04/17 11:50:14 ulfl Exp $
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -32,6 +32,7 @@
 #define PR_FMT_TEXT 0
 #define PR_FMT_PS   1
 #define PR_FMT_PDML 2
+#define PR_FMT_PSML 3
 
 /* print_range, enum which frames should be printed */
 typedef enum {

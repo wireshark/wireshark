@@ -1,7 +1,7 @@
 /* print.c
  * Routines for printing packet analysis trees.
  *
- * $Id: print.c,v 1.75 2004/04/17 09:02:32 ulfl Exp $
+ * $Id: print.c,v 1.76 2004/04/17 11:50:13 ulfl Exp $
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -44,6 +44,7 @@
 #include "packet-frame.h"
 
 #define PDML_VERSION "0"
+#define PSML_VERSION "0"
 
 static void proto_tree_print_node(proto_node *node, gpointer data);
 static void proto_tree_print_node_pdml(proto_node *node, gpointer data);
@@ -51,6 +52,7 @@ static void print_hex_data_buffer(FILE *fh, register const guchar *cp,
     register guint length, char_enc encoding, gint format);
 static void ps_clean_string(unsigned char *out, const unsigned char *in,
 			int outbuf_size);
+static void print_escaped_xml(FILE *fh, char *unescaped_string);
 
 typedef struct {
 	int		            level;
@@ -93,6 +95,7 @@ proto_tree_print(print_args_t *print_args, epan_dissect_t *edt,
     FILE *fh)
 {
 	print_data data;
+	gint	i;
 
 	/* Create the output */
 	data.level = 0;
@@ -106,8 +109,12 @@ proto_tree_print(print_args_t *print_args, epan_dissect_t *edt,
 	data.format = print_args->format;
 	data.edt = edt;
 
-	if (data.format == PR_FMT_PDML) {
-
+    switch(data.format) {
+    case(PR_FMT_TEXT):  /* fall through */
+    case(PR_FMT_PS):
+		proto_tree_children_foreach(edt->tree, proto_tree_print_node, &data);
+        break;
+    case(PR_FMT_PDML):
 		fprintf(fh, "<packet>\n");
 
 		/* Print a "geninfo" protocol as required by PDML */
@@ -116,9 +123,33 @@ proto_tree_print(print_args_t *print_args, epan_dissect_t *edt,
 		proto_tree_children_foreach(edt->tree, proto_tree_print_node_pdml, &data);
 
 		fprintf(fh, "</packet>\n\n");
-	}
-	else {
-		proto_tree_children_foreach(edt->tree, proto_tree_print_node, &data);
+        break;
+    case(PR_FMT_PSML):
+        /* if this is the first packet, we have to create the PSML structure output */
+        if(edt->pi.fd->num == 1) {
+            fprintf(fh, "<structure>\n");
+
+            for(i=0; i < edt->pi.cinfo->num_cols; i++) {
+                fprintf(fh, "<section>");
+                print_escaped_xml(fh, edt->pi.cinfo->col_title[i]);
+                fprintf(fh, "</section>\n");
+            }
+
+            fprintf(fh, "</structure>\n\n");
+        }
+
+		fprintf(fh, "<packet>\n");
+
+        for(i=0; i < edt->pi.cinfo->num_cols; i++) {
+            fprintf(fh, "<section>");
+            print_escaped_xml(fh, edt->pi.cinfo->col_data[i]);
+            fprintf(fh, "</section>\n");
+        }
+
+		fprintf(fh, "</packet>\n\n");
+        break;
+    default:
+        g_assert_not_reached();
 	}
 }
 
@@ -687,6 +718,11 @@ print_preamble(FILE *fh, gint format)
 		fputs("<pdml version=\"" PDML_VERSION "\" ", fh);
 		fprintf(fh, "creator=\"%s/%s\">\n", PACKAGE, VERSION);
         break;
+    case(PR_FMT_PSML):
+		fputs("<?xml version=\"1.0\"?>\n", fh);
+		fputs("<psml version=\"" PSML_VERSION "\" ", fh);
+		fprintf(fh, "creator=\"%s/%s\">\n", PACKAGE, VERSION);
+        break;
     default:
 		g_assert_not_reached();
 	}
@@ -705,6 +741,9 @@ print_finale(FILE *fh, gint format)
         break;
     case(PR_FMT_PDML):
 		fputs("</pdml>\n", fh);
+        break;
+    case(PR_FMT_PSML):
+		fputs("</psml>\n", fh);
         break;
     default:
 		g_assert_not_reached();
@@ -741,6 +780,9 @@ print_line(FILE *fh, int indent, gint format, char *line)
 		fprintf(fh, "%d (%s) putline\n", indent, psbuffer);
         break;
     case(PR_FMT_PDML):
+        /* do nothing */
+        break;
+    case(PR_FMT_PSML):
         /* do nothing */
         break;
     default:

@@ -1,7 +1,7 @@
 /* print_dlg.c
  * Dialog boxes for printing
  *
- * $Id: print_dlg.c,v 1.66 2004/04/16 18:17:48 ulfl Exp $
+ * $Id: print_dlg.c,v 1.67 2004/04/17 11:50:14 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -83,6 +83,7 @@ static gchar * print_cmd;
 
 #define PRINT_PS_RB_KEY           "printer_ps_radio_button"
 #define PRINT_PDML_RB_KEY         "printer_pdml_radio_button"
+#define PRINT_PSML_RB_KEY         "printer_psml_radio_button"
 #define PRINT_DEST_CB_KEY         "printer_destination_check_button"
 
 #define PRINT_SUMMARY_CB_KEY      "printer_summary_check_button"
@@ -321,7 +322,7 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   GtkWidget     *main_vb;
 
   GtkWidget     *printer_fr, *printer_vb;
-  GtkWidget     *text_rb, *ps_rb, *pdml_rb;
+  GtkWidget     *text_rb, *ps_rb, *pdml_rb, *psml_rb;
   GtkWidget     *printer_tb, *dest_cb;
 #ifndef _WIN32
   GtkWidget     *cmd_lb, *cmd_te;
@@ -410,7 +411,7 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   gtk_box_pack_start(GTK_BOX(printer_vb), ps_rb, FALSE, FALSE, 0);
   gtk_widget_show(ps_rb);
 
-  pdml_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(text_rb, "PDM_L (XML)", accel_group);
+  pdml_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(text_rb, "PDM_L (XML: Packet Details Markup Language)", accel_group);
   if (print_format == PR_FMT_PDML)
     gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(pdml_rb), TRUE);
   gtk_tooltips_set_tip (tooltips, pdml_rb, (
@@ -419,6 +420,16 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
       "Usually used in combination with the \"Output to file\" option to export packet data into an XML file."), NULL);
   gtk_box_pack_start(GTK_BOX(printer_vb), pdml_rb, FALSE, FALSE, 0);
   gtk_widget_show(pdml_rb);
+
+  psml_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(text_rb, "PSML (XML: Packet Summary Markup Language)", accel_group);
+  if (print_format == PR_FMT_PSML)
+    gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(psml_rb), TRUE);
+  gtk_tooltips_set_tip (tooltips, psml_rb, (
+      "Print output in \"PSML\" (Packet Summary Markup Language), "
+      "an XML based packet summary interchange format. "
+      "Usually used in combination with the \"Output to file\" option to export packet data into an XML file."), NULL);
+  gtk_box_pack_start(GTK_BOX(printer_vb), psml_rb, FALSE, FALSE, 0);
+  gtk_widget_show(psml_rb);
 
   /* printer table */
 #ifndef _WIN32
@@ -700,6 +711,7 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
 
   OBJECT_SET_DATA(ok_bt, PRINT_PS_RB_KEY, ps_rb);
   OBJECT_SET_DATA(ok_bt, PRINT_PDML_RB_KEY, pdml_rb);
+  OBJECT_SET_DATA(ok_bt, PRINT_PSML_RB_KEY, psml_rb);
   OBJECT_SET_DATA(ok_bt, PRINT_DEST_CB_KEY, dest_cb);
 #ifndef _WIN32
   OBJECT_SET_DATA(ok_bt, PRINT_CMD_TE_KEY, cmd_te);
@@ -868,6 +880,9 @@ print_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
   button = (GtkWidget *)OBJECT_GET_DATA(ok_bt, PRINT_PDML_RB_KEY);
   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (button)))
     print_format = PR_FMT_PDML;
+  button = (GtkWidget *)OBJECT_GET_DATA(ok_bt, PRINT_PSML_RB_KEY);
+  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (button)))
+    print_format = PR_FMT_PSML;
   print_args.format = print_format;
 
   button = (GtkWidget *)OBJECT_GET_DATA(ok_bt, PRINT_SUMMARY_CB_KEY);
