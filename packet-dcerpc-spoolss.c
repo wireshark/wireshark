@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\spoolss packet disassembly
  * Copyright 2001-2002, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-spoolss.c,v 1.36 2002/06/07 03:42:02 tpot Exp $
+ * $Id: packet-dcerpc-spoolss.c,v 1.37 2002/06/07 06:10:53 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3193,8 +3193,8 @@ static int SpoolssGeneric_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 static gint ett_SYSTEM_TIME;
 
 static int
-dissect_spoolss_SYSTEM_TIME(tvbuff_t *tvb, int offset, packet_info *pinfo, 
-			    proto_tree *tree, char *drep)
+dissect_SYSTEM_TIME(tvbuff_t *tvb, int offset, packet_info *pinfo, 
+		    proto_tree *tree, char *drep)
 {
 	proto_item *item;
 	proto_tree *subtree;
@@ -3298,8 +3298,7 @@ dissect_spoolss_JOB_INFO_1(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, subtree, drep,
 				    hf_spoolss_jobpagesprinted, NULL);
 
-	offset = dissect_spoolss_SYSTEM_TIME(tvb, offset, pinfo, subtree, 
-					     drep); 
+	offset = dissect_SYSTEM_TIME(tvb, offset, pinfo, subtree, drep);
 
 	proto_item_set_len(item, offset - struct_start);
 
@@ -4434,11 +4433,12 @@ static int
 dissect_notify_info_data_buffer(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				proto_tree *tree, char *drep)
 {
-	guint32 len;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
+	guint32 len = di->levels;
 
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, tree, drep,
-		hf_spoolss_notify_info_data_buffer_len, &len);
+		hf_spoolss_notify_info_data_buffer_len, NULL);
 
 	offset = dissect_ndr_uint16s(
 		tvb, offset, pinfo, tree, drep,
@@ -4469,6 +4469,20 @@ dissect_NOTIFY_INFO_DATA_printer(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	case PRINTER_NOTIFY_DATATYPE:
 	case PRINTER_NOTIFY_PORT_NAME:
 
+		offset = dissect_ndr_uint32(
+			tvb, offset, pinfo, tree, drep,
+			hf_spoolss_notify_info_data_bufsize, &value1);
+
+		offset = dissect_ndr_pointer(
+			tvb, offset, pinfo, tree, drep,
+			dissect_notify_info_data_buffer, 
+			NDR_POINTER_UNIQUE, "String", 
+			hf_spoolss_notify_info_data_buffer, value1 / 2);
+
+		break;
+
+		/* Unknown notify data */
+
 	case PRINTER_NOTIFY_SECURITY_DESCRIPTOR: /* Secdesc */
 	case PRINTER_NOTIFY_DEVMODE: /* Device mode */
 
@@ -4480,11 +4494,9 @@ dissect_NOTIFY_INFO_DATA_printer(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			tvb, offset, pinfo, tree, drep,
 			dissect_notify_info_data_buffer, 
 			NDR_POINTER_UNIQUE, "Buffer", 
-			hf_spoolss_notify_info_data_buffer, 0);
+			hf_spoolss_notify_info_data_buffer, value1 / 2);
 
 		break;
-
-		/* Unknown notify data */
 
 	default:
 		offset = dissect_ndr_uint32(
@@ -4494,6 +4506,8 @@ dissect_NOTIFY_INFO_DATA_printer(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		offset = dissect_ndr_uint32(
 			tvb, offset, pinfo, tree, drep,
 			hf_spoolss_notify_info_data_value2, NULL);
+
+		break;
 	}
 	return offset;
 }
@@ -4520,9 +4534,36 @@ dissect_NOTIFY_INFO_DATA_job(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	case JOB_NOTIFY_STATUS_STRING:
 	case JOB_NOTIFY_DOCUMENT:
 
-	case JOB_NOTIFY_SUBMITTED: /* SYSTEMTIME */
-	case JOB_NOTIFY_DEVMODE: /* Device mode */
+		offset = dissect_ndr_uint32(
+			tvb, offset, pinfo, tree, drep,
+			hf_spoolss_notify_info_data_bufsize, &value1);
 
+		offset = dissect_ndr_pointer(
+			tvb, offset, pinfo, tree, drep,
+			dissect_notify_info_data_buffer, 
+			NDR_POINTER_UNIQUE, "String", 
+			hf_spoolss_notify_info_data_buffer, value1 / 2);
+
+		break;
+
+	case JOB_NOTIFY_SUBMITTED:
+
+		/* SYSTEM_TIME */
+
+		offset = dissect_ndr_uint32(
+			tvb, offset, pinfo, tree, drep,
+			hf_spoolss_notify_info_data_buffer_len, NULL);
+
+		offset = dissect_ndr_pointer(
+			tvb, offset, pinfo, tree, drep,
+			dissect_SYSTEM_TIME, NDR_POINTER_UNIQUE, 
+			"SYSTEM_TIME", -1, 0);
+
+		break;
+
+		/* Unknown notify data */
+
+	case JOB_NOTIFY_DEVMODE:
 
 		offset = dissect_ndr_uint32(
 			tvb, offset, pinfo, tree, drep,
@@ -4532,11 +4573,9 @@ dissect_NOTIFY_INFO_DATA_job(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			tvb, offset, pinfo, tree, drep,
 			dissect_notify_info_data_buffer, 
 			NDR_POINTER_UNIQUE, "Buffer", 
-			hf_spoolss_notify_info_data_buffer, 0);
+			hf_spoolss_notify_info_data_buffer, value1 / 2);
 
 		break;
-
-		/* Unknown notify data */
 
 	default:
 		offset = dissect_ndr_uint32(
@@ -4612,13 +4651,13 @@ dissect_NOTIFY_INFO(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		    proto_tree *tree, char *drep) 
 {
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-				    hf_spoolss_notify_info_count, NULL);
-
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 				    hf_spoolss_notify_info_version, NULL);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 				    hf_spoolss_notify_info_flags, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+				    hf_spoolss_notify_info_count, NULL);
 
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, drep,
 				     dissect_NOTIFY_INFO_DATA);
@@ -5345,10 +5384,7 @@ proto_register_dcerpc_spoolss(void)
 		  { "Version", "spoolss.notify_info.version", FT_UINT32, BASE_DEC,
 		    NULL, 0, "Version", HFILL }},		
 		{ &hf_spoolss_notify_info_flags,
-		  { "Flags", "spoolss.notify_info.flags", FT_UINT32, BASE_DEC,
-		    NULL, 0, "Flags", HFILL }},		
-		{ &hf_spoolss_notify_info_flags,
-		  { "Flags", "spoolss.notify_info.flags", FT_UINT32, BASE_DEC,
+		  { "Flags", "spoolss.notify_info.flags", FT_UINT32, BASE_HEX,
 		    NULL, 0, "Flags", HFILL }},		
 		{ &hf_spoolss_notify_info_data_type,
 		  { "Type", "spoolss.notify_info_data.type", FT_UINT16, BASE_DEC,
@@ -5369,7 +5405,7 @@ proto_register_dcerpc_spoolss(void)
 		  { "Value2", "spoolss.notify_info_data.value2", FT_UINT32, BASE_HEX,
 		    NULL, 0, "Value2", HFILL }},		
 		{ &hf_spoolss_notify_info_data_bufsize,
-		  { "Buffer size", "spoolss.notify_info_data.bufsize", FT_UINT32, BASE_HEX,
+		  { "Buffer size", "spoolss.notify_info_data.bufsize", FT_UINT32, BASE_DEC,
 		    NULL, 0, "Buffer size", HFILL }},		
 		{ &hf_spoolss_notify_info_data_buffer,
 		  { "Buffer", "spoolss.notify_info_data.buffer", FT_UINT32, BASE_HEX,
