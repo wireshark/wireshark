@@ -417,8 +417,17 @@ changed, or deleted.
 
 =item Edit:Protocols
 
-Edit the list of protocols, allowing protocol dissection to be 
-enabled or disabled.
+Allow protocol dissection to be enabled or disabled for a specific
+protocol.  Individual protocols can be enabled or disabled by
+double-clicking on them in the list.  The entire list can be enabled,
+disabled, or inverted using the buttons below the list.
+
+When a protocol is disabled, dissection in a particular packet stops
+when that protocol is reached, and Ethereal moves on to the next packet.
+Any higher-layer protocols that would otherwise have been processed will
+not be displayed.  For example, disabling TCP will prevent the dissection
+and display of TCP, HTTP, SMTP, Telnet, and any other protocol exclusively
+dependent on TCP.
 
 =item Capture:Start
 

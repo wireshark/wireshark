@@ -1,6 +1,6 @@
 /* help_dlg.c
  *
- * $Id: help_dlg.c,v 1.28 2002/11/11 15:39:05 oabad Exp $
+ * $Id: help_dlg.c,v 1.29 2002/12/01 19:11:53 gerald Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
@@ -330,12 +330,12 @@ static void insert_text(GtkWidget *w, char *buffer, int nchars)
 }
 
 static char *proto_help =
-"The protocols (and packet types) currently supported by\n"
-"Ethereal are the following:\n\n";
+"The following protocols (and packet types) are currently\n"
+"supported by Ethereal:\n\n";
 
 static char *dfilter_help =
-"The following list shows all per-protocol fields that\n"
-"can be used in a display filter:\n";
+"The following per-protocol fields can be used in display\n"
+"filters:\n";
 
 static char *cfilter_help =
 "Packet capturing is performed with the pcap library. The capture filter "
