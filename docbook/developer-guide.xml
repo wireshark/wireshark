@@ -52,15 +52,18 @@ DOCUMENT SECTION
 Ethereal Info
 -->
   <!ENTITY EtherealCurrentVersion "0.10.6">
-  <!ENTITY EtherealNextMinorVersion "0.10.7">
 
 <!--
 FILE SECTION
 -Use this section to specify the files that make up the book. Use FPI (public identifiers)
 -->
 
+<!-- These refer to graphics files and figures contained in the document -->
+
+  <!ENTITY EtherealLogo SYSTEM "./graphics/ethereal-logo.png" NDATA PNG>
 
 <!-- These are the actual files that make up the document -->
+
   <!ENTITY BookMetaInformation SYSTEM "dg-src/EDG_meta_info.xml">
   <!ENTITY Preface SYSTEM "dg-src/EDG_preface.xml">
   <!ENTITY EnvIntroduction SYSTEM "dg-src/EDG_chapter_env_intro.xml">
