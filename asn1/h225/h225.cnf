@@ -30,6 +30,9 @@ AdmissionRejectReason		ONLY_VALS ETH_VAR NO_PROT_PREFIX
 LocationRejectReason		ONLY_VALS ETH_VAR NO_PROT_PREFIX
 RegistrationRejectReason	ONLY_VALS ETH_VAR NO_PROT_PREFIX
 AliasAddress			NO_PROT_PREFIX
+PartyNumber
+PresentationIndicator
+ScreeningIndicator
 #----------------------------------------------------------------------------------------
 #.TYPE_RENAME
 CallCreditServiceControl/callStartingPoint CallCreditServiceControl_callStartingPoint
@@ -394,5 +397,7 @@ guint32 value_len;
 H221NonStandard/t35CountryCode TYPE = FT_UINT32  DISPLAY = BASE_DEC  STRINGS = VALS(T35CountryCode_vals)
 TransportAddress/ipAddress/ip  TYPE = FT_IPv4  DISPLAY = BASE_NONE  STRINGS = NULL
 TransportAddress/ip6Address/ip  TYPE = FT_IPv6  DISPLAY = BASE_NONE  STRINGS = NULL
-H245TransportAddress/h245ipAddress/h245ipv TYPE = FT_IPv4  DISPLAY = BASE_NONE  STRINGS = NULL
+H245TransportAddress/h245ipAddress/h245ipv4 TYPE = FT_IPv4  DISPLAY = BASE_NONE  STRINGS = NULL
 H245TransportAddress/h245ip6Address/h245ipv6 TYPE = FT_IPv6  DISPLAY = BASE_NONE  STRINGS = NULL
+VendorIdentifier/productId TYPE = FT_STRING DISPLAY = BASE_HEX STRINGS = NULL
+VendorIdentifier/versionId TYPE = FT_STRING DISPLAY = BASE_HEX STRINGS = NULL

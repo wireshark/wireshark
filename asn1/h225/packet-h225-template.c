@@ -2,7 +2,7 @@
  * Routines for h225 packet dissection
  * Copyright 2005, Anders Broman <anders.broman@ericsson.com>
  *
- * $Id: packet-h225-template.c 12203 2004-10-05 09:18:55Z guy $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -226,6 +226,7 @@ void proto_register_h225(void) {
   register_init_routine(&h225_init_routine);
   h225_tap = register_tap("h225");
   register_ber_oid_name("0.0.8.2250.0.2","itu-t(0) recommendation(0) h(8) h225-0(2250) version(0) 2");
+  register_ber_oid_name("0.0.8.2250.0.4","itu-t(0) recommendation(0) h(8) h225-0(2250) version(0) 4");
 
 
 }

@@ -1,6 +1,9 @@
 #.TYPE_ATTR
+PresentationIndicator    TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(h225_PresentationIndicator_vals)  BITMASK = 0
+ScreeningIndicator       TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(h225_ScreeningIndicator_vals)  BITMASK = 0
 NonStandardParameter     TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 AliasAddress             TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(AliasAddress_vals)  BITMASK = 0
+PartyNumber              TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(h225_PartyNumber_vals)  BITMASK = 0
 RasMessage               TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(RasMessage_vals)  BITMASK = 0
 #.END
 
