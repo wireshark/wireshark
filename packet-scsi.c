@@ -2,7 +2,7 @@
  * Routines for decoding SCSI CDBs and responses
  * Author: Dinesh G Dutt (ddutt@cisco.com)
  *
- * $Id: packet-scsi.c,v 1.27 2003/03/10 02:18:19 guy Exp $
+ * $Id: packet-scsi.c,v 1.28 2003/04/16 19:43:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -719,11 +719,14 @@ static const value_string scsi_cmdt_supp_val[] = {
     {0, NULL},
 };
 
+#define CODESET_BINARY	1
+#define CODESET_ASCII	2
+
 static const value_string scsi_devid_codeset_val[] = {
-    {0, "Reserved"},
-    {1, "Identifier field contains binary values"},
-    {2, "Identifier field contains ASCII graphic codes"},
-    {0, NULL},
+    {0,              "Reserved"},
+    {CODESET_BINARY, "Identifier field contains binary values"},
+    {CODESET_ASCII,  "Identifier field contains ASCII graphic codes"},
+    {0,              NULL},
 };
 
 static const value_string scsi_devid_assoc_val[] = {
@@ -1388,7 +1391,7 @@ dissect_scsi_evpd (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     proto_tree *evpd_tree;
     proto_item *ti;
     guint pcode, plen, i, idlen;
-    guint8 flags;
+    guint8 codeset, flags;
     char str[256+1];
 
     if (tree) {
@@ -1422,40 +1425,78 @@ dissect_scsi_evpd (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
             break;
         case SCSI_EVPD_DEVID:
             while (plen != 0) {
-                flags = tvb_get_guint8 (tvb, offset);
+                codeset = tvb_get_guint8 (tvb, offset) & 0x0F;
                 proto_tree_add_text (evpd_tree, tvb, offset, 1,
                                      "Code Set: %s",
-                                     val_to_str (flags & 0x0F,
+                                     val_to_str (codeset,
                                                  scsi_devid_codeset_val,
                                                  "Unknown (0x%02x)"));
-                flags = tvb_get_guint8 (tvb, offset+1);
-                proto_tree_add_text (evpd_tree, tvb, offset+1, 1,
+                plen -= 1;
+                offset += 1;
+
+                if (plen < 1) {
+                    proto_tree_add_text (evpd_tree, tvb, offset, 0,
+                                         "Product data goes past end of page");
+                    break;
+                }
+                flags = tvb_get_guint8 (tvb, offset);
+                proto_tree_add_text (evpd_tree, tvb, offset, 1,
                                      "Association: %s",
                                      val_to_str ((flags & 0x30) >> 4,
                                                  scsi_devid_assoc_val,
                                                  "Unknown (0x%02x)"));
-                proto_tree_add_text (evpd_tree, tvb, offset+1, 1,
+                proto_tree_add_text (evpd_tree, tvb, offset, 1,
                                      "Identifier Type: %s",
                                      val_to_str ((flags & 0x0F),
                                                  scsi_devid_idtype_val,
                                                  "Unknown (0x%02x)"));
-                idlen = tvb_get_guint8 (tvb, offset+3);
-                if (idlen > plen) {
-                    proto_tree_add_text (evpd_tree, tvb, offset+3, 1,
-                                         "Identifier Length: %u (greater than page length %u",
-                                         idlen, plen);
+                plen -= 1;
+                offset += 1;
+
+                /* Skip reserved byte */
+                if (plen < 1) {
+                    proto_tree_add_text (evpd_tree, tvb, offset, 0,
+                                         "Product data goes past end of page");
                     break;
                 }
-                proto_tree_add_text (evpd_tree, tvb, offset+3, 1,
-                                     "Identifier Length: %u", idlen);
-                if (idlen != 0) {
-                    proto_tree_add_text (evpd_tree, tvb, offset+4, idlen,
-                                         "Identifier: %s",
-                                         tvb_bytes_to_str (tvb, offset+4,
-                                                           idlen));
+                plen -= 1;
+                offset += 1;
+
+                if (plen < 1) {
+                    proto_tree_add_text (evpd_tree, tvb, offset, 0,
+                                         "Product data goes past end of page");
+                    break;
                 }
-                plen -= idlen;
-                offset += idlen;
+                idlen = tvb_get_guint8 (tvb, offset);
+                proto_tree_add_text (evpd_tree, tvb, offset, 1,
+                                     "Identifier Length: %u", idlen);
+                plen -= 1;
+                offset += 1;
+
+                if (idlen != 0) {
+                    if (plen < idlen) {
+                        proto_tree_add_text (evpd_tree, tvb, offset, 0,
+                                             "Product data goes past end of page");
+                        break;
+                    }
+                    if (codeset == CODESET_ASCII) {
+                        proto_tree_add_text (evpd_tree, tvb, offset, idlen,
+                                             "Identifier: %s",
+                                             tvb_format_text (tvb, offset,
+                                                              idlen));
+                    } else {
+                        /*
+                         * XXX - decode this based on the identifier type,
+                         * if the codeset is CODESET_BINARY?
+                         */
+                        proto_tree_add_text (evpd_tree, tvb, offset, idlen,
+                                             "Identifier: %s",
+                                             tvb_bytes_to_str (tvb, offset,
+                                                               idlen));
+                    }
+                    plen -= idlen;
+                    offset += idlen;
+                }
             }
             break;
         case SCSI_EVPD_DEVSERNUM:
