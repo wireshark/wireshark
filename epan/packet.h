@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.36 2001/10/31 05:59:19 guy Exp $
+ * $Id: packet.h,v 1.37 2001/10/31 07:47:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -86,8 +86,8 @@ typedef struct true_false_string {
 	char	*false_string;
 } true_false_string;
 
-void packet_init(void);
-void packet_cleanup(void);
+extern void packet_init(void);
+extern void packet_cleanup(void);
 
 /* Hash table for matching port numbers and dissectors */
 typedef GHashTable* dissector_table_t;
@@ -101,35 +101,39 @@ typedef void (*DATFunc) (gchar *table_name, gpointer key, gpointer value, gpoint
 /* Opaque structure - provides type checking but no access to components */
 typedef struct dtbl_entry dtbl_entry_t;
 
-gint dissector_get_proto (dtbl_entry_t * entry);
-gint dissector_get_initial_proto (dtbl_entry_t * entry);
-void dissector_table_foreach_changed (char *name, DATFunc func, gpointer user_data);
-void dissector_table_foreach (char *name, DATFunc func, gpointer user_data);
-void dissector_all_tables_foreach_changed (DATFunc func, gpointer user_data);
+extern gint dissector_get_proto (dtbl_entry_t * entry);
+extern gint dissector_get_initial_proto (dtbl_entry_t * entry);
+extern void dissector_table_foreach_changed (char *name, DATFunc func,
+    gpointer user_data);
+extern void dissector_table_foreach (char *name, DATFunc func,
+    gpointer user_data);
+extern void dissector_all_tables_foreach_changed (DATFunc func,
+    gpointer user_data);
 
 /* a protocol uses the function to register a sub-dissector table */
-dissector_table_t register_dissector_table(const char *name);
+extern dissector_table_t register_dissector_table(const char *name);
 
 /* Add a sub-dissector to a dissector table.  Called by the protocol routine */
 /* that wants to register a sub-dissector.  */
-void dissector_add(const char *abbrev, guint32 pattern,
+extern void dissector_add(const char *abbrev, guint32 pattern,
     dissector_t dissector, int proto);
 
 /* Add a sub-dissector to a dissector table.  Called by the protocol routine */
 /* that wants to de-register a sub-dissector.  */
-void dissector_delete(const char *name, guint32 pattern, dissector_t dissector);
+extern void dissector_delete(const char *name, guint32 pattern,
+    dissector_t dissector);
 
-void dissector_change(const char *abbrev, guint32 pattern,
+extern void dissector_change(const char *abbrev, guint32 pattern,
     dissector_t dissector, int proto);
 
 /* Reset a dissector in a sub-dissector table to its initial value. */
-void dissector_reset(const char *name, guint32 pattern);
+extern void dissector_reset(const char *name, guint32 pattern);
 
 /* Look for a given port in a given dissector table and, if found, call
    the dissector with the arguments supplied, and return TRUE, otherwise
    return FALSE. */
-gboolean dissector_try_port(dissector_table_t sub_dissectors, guint32 port,
-    tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+extern gboolean dissector_try_port(dissector_table_t sub_dissectors,
+    guint32 port, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 /* List of "heuristic" dissectors (which get handed a packet, look at it,
    and either recognize it as being for their protocol, dissect it, and
@@ -142,17 +146,18 @@ typedef gboolean (*heur_dissector_t)(tvbuff_t *, packet_info *,
 	proto_tree *);
 
 /* A protocol uses this function to register a heuristic dissector list */
-void register_heur_dissector_list(const char *name, heur_dissector_list_t *list);
+extern void register_heur_dissector_list(const char *name,
+    heur_dissector_list_t *list);
 
 /* Add a sub-dissector to a heuristic dissector list.  Called by the
    protocol routine that wants to register a sub-dissector.  */
-void heur_dissector_add(const char *name, heur_dissector_t dissector,
+extern void heur_dissector_add(const char *name, heur_dissector_t dissector,
     int proto);
 
 /* Try all the dissectors in a given heuristic dissector list until
    we find one that recognizes the protocol, in which case we return
    TRUE, or we run out of dissectors, in which case we return FALSE. */
-gboolean dissector_try_heuristic(heur_dissector_list_t sub_dissectors,
+extern gboolean dissector_try_heuristic(heur_dissector_list_t sub_dissectors,
     tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 /* List of "conversation" dissectors (they're not heuristic, but are
@@ -170,19 +175,21 @@ gboolean dissector_try_heuristic(heur_dissector_list_t sub_dissectors,
 typedef GSList *conv_dissector_list_t;
 
 /* A protocol uses this function to register a conversation dissector list */
-void register_conv_dissector_list(const char *name, conv_dissector_list_t *list);
+extern void register_conv_dissector_list(const char *name,
+    conv_dissector_list_t *list);
 
 /* Add a sub-dissector to a conversation dissector list.  Called by the
    protocol routine that wants to register a sub-dissector.  */
-void conv_dissector_add(const char *name, dissector_t dissector,
+extern void conv_dissector_add(const char *name, dissector_t dissector,
     int proto);
 
 /* Opaque structure - provides type checking but no access to components */
 typedef struct conv_dtbl_entry conv_dtbl_entry_t;
 
-gint conv_dissector_get_proto (conv_dtbl_entry_t * entry);
-void dissector_conv_foreach(char *name, DATFunc func, gpointer user_data);
-void dissector_all_conv_foreach(DATFunc func, gpointer user_data);
+extern gint conv_dissector_get_proto (conv_dtbl_entry_t * entry);
+extern void dissector_conv_foreach(char *name, DATFunc func,
+    gpointer user_data);
+extern void dissector_all_conv_foreach(DATFunc func, gpointer user_data);
 
 /* Handle for dissectors you call directly.
    This handle is opaque outside of "packet.c". */
@@ -190,19 +197,20 @@ struct dissector_handle;
 typedef struct dissector_handle *dissector_handle_t;
 
 /* Register a dissector. */
-void register_dissector(const char *name, dissector_t dissector, int proto);
+extern void register_dissector(const char *name, dissector_t dissector,
+    int proto);
 
 /* Find a dissector by name. */
-dissector_handle_t find_dissector(const char *name);
+extern dissector_handle_t find_dissector(const char *name);
 
 /* Call a dissector through a handle. */
-void call_dissector(dissector_handle_t handle, tvbuff_t *tvb,
+extern void call_dissector(dissector_handle_t handle, tvbuff_t *tvb,
     packet_info *pinfo, proto_tree *tree);
 
 /* Do all one-time initialization. */
-void dissect_init(void);
+extern void dissect_init(void);
 
-void dissect_cleanup(void);
+extern void dissect_cleanup(void);
 
 /*
  * Given a tvbuff, a packet_info *, and a length from a packet header,
@@ -210,29 +218,32 @@ void dissect_cleanup(void);
  * members of the "packet_info" structure, to reflect the specified
  * length.
  */
-void set_actual_length(tvbuff_t *tvb, packet_info *pinfo, guint specified_len);
+extern void set_actual_length(tvbuff_t *tvb, packet_info *pinfo,
+    guint specified_len);
 
 /* Allow protocols to register "init" routines, which are called before
    we make a pass through a capture file and dissect all its packets
    (e.g., when we read in a new capture file, or run a "filter packets"
    or "colorize packets" pass over the current capture file). */
-void register_init_routine(void (*func)(void));
+extern void register_init_routine(void (*func)(void));
 
 /* Call all the registered "init" routines. */
-void init_all_protocols(void);
+extern void init_all_protocols(void);
 
 /*
  * Dissectors should never modify the packet data.
  */
-void dissect_packet(tvbuff_t **p_tvb, union wtap_pseudo_header *pseudo_header,
-		const u_char *pd, frame_data *fd, proto_tree *tree);
-void dissect_data(tvbuff_t *tvb, int, packet_info *pinfo, proto_tree *tree);
+extern void dissect_packet(tvbuff_t **p_tvb,
+    union wtap_pseudo_header *pseudo_header, const u_char *pd,
+    frame_data *fd, proto_tree *tree);
+extern void dissect_data(tvbuff_t *tvb, int, packet_info *pinfo,
+    proto_tree *tree);
 
 
 /* These functions are in packet-ethertype.c */
-void capture_ethertype(guint16 etype, int offset,
+extern void capture_ethertype(guint16 etype, int offset,
 		const u_char *pd, packet_counts *ld);
-void ethertype(guint16 etype, tvbuff_t *tvb, int offset_after_ethertype,
+extern void ethertype(guint16 etype, tvbuff_t *tvb, int offset_after_ethertype,
 		packet_info *pinfo, proto_tree *tree, proto_tree *fh_tree,
 		int etype_id, int trailer_id);
 

@@ -1,7 +1,7 @@
 /* proto.h
  * Definitions for protocol display
  *
- * $Id: proto.h,v 1.18 2001/10/31 05:59:19 guy Exp $
+ * $Id: proto.h,v 1.19 2001/10/31 07:47:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -21,7 +21,6 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-
 
 #ifndef __PROTO_H__
 #define __PROTO_H__
@@ -123,307 +122,307 @@ typedef struct field_info {
 #define NullTVB NULL
 
 /* Sets up memory used by proto routines. Called at program startup */
-void proto_init(const char *plugin_dir, void (register_all_protocols)(void),
-		void (register_all_handoffs)(void));
+extern void proto_init(const char *plugin_dir,
+    void (register_all_protocols)(void), void (register_all_handoffs)(void));
 
 /* Frees memory used by proto routines. Called at program shutdown */
-void proto_cleanup(void);
+extern void proto_cleanup(void);
 
 /* Set text of proto_item after having already been created. */
 #if __GNUC__ >= 2
-void proto_item_set_text(proto_item *ti, const char *format, ...)
+extern void proto_item_set_text(proto_item *ti, const char *format, ...)
 	__attribute__((format (printf, 2, 3)));
 #else
-void proto_item_set_text(proto_item *ti, const char *format, ...);
+extern void proto_item_set_text(proto_item *ti, const char *format, ...);
 #endif
 
 /* Append to text of proto_item after having already been created. */
 #if __GNUC__ >= 2
-void proto_item_append_text(proto_item *ti, const char *format, ...)
+extern void proto_item_append_text(proto_item *ti, const char *format, ...)
 	__attribute__((format (printf, 2, 3)));
 #else
-void proto_item_append_text(proto_item *ti, const char *format, ...);
+extern void proto_item_append_text(proto_item *ti, const char *format, ...);
 #endif
 
 /* Set length of proto_item after having already been created. */
-void proto_item_set_len(proto_item *ti, gint length);
+extern void proto_item_set_len(proto_item *ti, gint length);
 
 /* Get length of proto_item. Useful after using proto_tree_add_item()
  * to add a variable-length field (e.g., FT_NSTRING_UINT8) */
-int proto_item_get_len(proto_item *ti);
+extern int proto_item_get_len(proto_item *ti);
 
 /* Creates new proto_tree root */
-proto_tree* proto_tree_create_root(void);
+extern proto_tree* proto_tree_create_root(void);
 
 /* Clear memory for entry proto_tree. Clears proto_tree struct also. */
-void proto_tree_free(proto_tree *tree);
+extern void proto_tree_free(proto_tree *tree);
 
 /* Create a subtree under an existing item; returns tree pointer */
-proto_tree* proto_item_add_subtree(proto_item *ti, gint idx);
+extern proto_tree* proto_item_add_subtree(proto_item *ti, gint idx);
 
-int
+extern int
 proto_register_field(char *name, char *abbrev, enum ftenum type, int parent,
 	struct value_string* vals);
 
-int
+extern int
 proto_register_protocol(char *name, char *short_name, char *filter_name);
 
-void
+extern void
 proto_register_field_array(int parent, hf_register_info *hf, int num_records);
 
-void
+extern void
 proto_register_subtree_array(gint **indices, int num_indices);
 
 /* Add an item to a proto_tree, using the text label registered to that item;
    the item is extracted from the tvbuff handed to it. */
-proto_item *
+extern proto_item *
 proto_tree_add_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
     gint start, gint length, gboolean little_endian);
 
-proto_item *
+extern proto_item *
 proto_tree_add_item_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb,
     gint start, gint length, gboolean little_endian);
 
 /* Add a FT_NONE to a proto_tree */
 #if __GNUC__ >= 2
-proto_item *
+extern proto_item *
 proto_tree_add_none_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, const char *format, ...)
 	__attribute__((format (printf, 6, 7)));
 #else
-proto_item *
+extern proto_item *
 proto_tree_add_none_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, const char *format, ...);
 #endif
 
 /* Add a FT_PROTOCOL to a proto_tree */
 #if __GNUC__ >= 2
-proto_item *
+extern proto_item *
 proto_tree_add_protocol_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, const char *format, ...)
 	__attribute__((format (printf, 6, 7)));
 #else
-proto_item *
+extern proto_item *
 proto_tree_add_protocol_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, const char *format, ...);
 #endif
 
 /* Add a FT_BYTES to a proto_tree */
-proto_item *
+extern proto_item *
 proto_tree_add_bytes(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, const guint8* start_ptr);
 
-proto_item *
+extern proto_item *
 proto_tree_add_bytes_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, const guint8* start_ptr);
 
 #if __GNUC__ >= 2
-proto_item *
+extern proto_item *
 proto_tree_add_bytes_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, const guint8* start_ptr, const char *format, ...)
 	__attribute__((format (printf, 7, 8)));
 #else
-proto_item *
+extern proto_item *
 proto_tree_add_bytes_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, const guint8* start_ptr, const char *format, ...);
 #endif
 
 /* Add a FT_*TIME to a proto_tree */
-proto_item *
+extern proto_item *
 proto_tree_add_time(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, nstime_t* value_ptr);
 
-proto_item *
+extern proto_item *
 proto_tree_add_time_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, nstime_t* value_ptr);
 
 #if __GNUC__ >= 2
-proto_item *
+extern proto_item *
 proto_tree_add_time_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, nstime_t* value_ptr, const char *format, ...)
 	__attribute__((format (printf, 7, 8)));
 #else
-proto_item *
+extern proto_item *
 proto_tree_add_time_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, nstime_t* value_ptr, const char *format, ...);
 #endif
 
 /* Add a FT_IPXNET to a proto_tree */
-proto_item *
+extern proto_item *
 proto_tree_add_ipxnet(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, guint32 value);
 
-proto_item *
+extern proto_item *
 proto_tree_add_ipxnet_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, guint32 value);
 
 #if __GNUC__ >= 2
-proto_item *
+extern proto_item *
 proto_tree_add_ipxnet_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, guint32 value, const char *format, ...)
 	__attribute__((format (printf, 7, 8)));
 #else
-proto_item *
+extern proto_item *
 proto_tree_add_ipxnet_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, guint32 value, const char *format, ...);
 #endif
 
 /* Add a FT_IPv4 to a proto_tree */
-proto_item *
+extern proto_item *
 proto_tree_add_ipv4(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, guint32 value);
 
-proto_item *
+extern proto_item *
 proto_tree_add_ipv4_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, guint32 value);
 
 #if __GNUC__ >= 2
-proto_item *
+extern proto_item *
 proto_tree_add_ipv4_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, guint32 value, const char *format, ...)
 	__attribute__((format (printf, 7, 8)));
 #else
-proto_item *
+extern proto_item *
 proto_tree_add_ipv4_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, guint32 value, const char *format, ...);
 #endif
 
 /* Add a FT_IPv6 to a proto_tree */
-proto_item *
+extern proto_item *
 proto_tree_add_ipv6(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, const guint8* value_ptr);
 
-proto_item *
+extern proto_item *
 proto_tree_add_ipv6_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, const guint8* value_ptr);
 
 #if __GNUC__ >= 2
-proto_item *
+extern proto_item *
 proto_tree_add_ipv6_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, const guint8* value_ptr, const char *format, ...)
 	__attribute__((format (printf, 7, 8)));
 #else
-proto_item *
+extern proto_item *
 proto_tree_add_ipv6_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, const guint8* value_ptr, const char *format, ...);
 #endif
 
 /* Add a FT_ETHER to a proto_tree */
-proto_item *
+extern proto_item *
 proto_tree_add_ether(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, const guint8* value);
 
-proto_item *
+extern proto_item *
 proto_tree_add_ether_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, const guint8* value);
 
 #if __GNUC__ >= 2
-proto_item *
+extern proto_item *
 proto_tree_add_ether_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, const guint8* value, const char *format, ...)
 	__attribute__((format (printf, 7, 8)));
 #else
-proto_item *
+extern proto_item *
 proto_tree_add_ether_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, const guint8* value, const char *format, ...);
 #endif
 
 /* Add a FT_STRING to a proto_tree */
-proto_item *
+extern proto_item *
 proto_tree_add_string(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, const char* value);
 
-proto_item *
+extern proto_item *
 proto_tree_add_string_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, const char* value);
 
 #if __GNUC__ >= 2
-proto_item *
+extern proto_item *
 proto_tree_add_string_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, const char* value, const char *format, ...)
 	__attribute__((format (printf, 7, 8)));
 #else
-proto_item *
+extern proto_item *
 proto_tree_add_string_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, const char* value, const char *format, ...);
 #endif
 
 /* Add a FT_BOOLEAN to a proto_tree */
-proto_item *
+extern proto_item *
 proto_tree_add_boolean(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, guint32 value);
 
-proto_item *
+extern proto_item *
 proto_tree_add_boolean_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, guint32 value);
 
 #if __GNUC__ >= 2
-proto_item *
+extern proto_item *
 proto_tree_add_boolean_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, guint32 value, const char *format, ...)
 	__attribute__((format (printf, 7, 8)));
 #else
-proto_item *
+extern proto_item *
 proto_tree_add_boolean_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, guint32 value, const char *format, ...);
 #endif
 
 /* Add a FT_DOUBLE to a proto_tree */
-proto_item *
+extern proto_item *
 proto_tree_add_double(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, double value);
 
-proto_item *
+extern proto_item *
 proto_tree_add_double_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, double value);
 
 #if __GNUC__ >= 2
-proto_item *
+extern proto_item *
 proto_tree_add_double_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, double value, const char *format, ...)
 	__attribute__((format (printf, 7, 8)));
 #else
-proto_item *
+extern proto_item *
 proto_tree_add_double_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, double value, const char *format, ...);
 #endif
 
 /* Add any FT_UINT* to a proto_tree */
-proto_item *
+extern proto_item *
 proto_tree_add_uint(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, guint32 value);
 
-proto_item *
+extern proto_item *
 proto_tree_add_uint_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, guint32 value);
 
 #if __GNUC__ >= 2
-proto_item *
+extern proto_item *
 proto_tree_add_uint_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, guint32 value, const char *format, ...)
 	__attribute__((format (printf, 7, 8)));
 #else
-proto_item *
+extern proto_item *
 proto_tree_add_uint_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, guint32 value, const char *format, ...);
 #endif
 
 /* Add any FT_INT* to a proto_tree */
-proto_item *
+extern proto_item *
 proto_tree_add_int(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, gint32 value);
 
-proto_item *
+extern proto_item *
 proto_tree_add_int_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, gint32 value);
 
 #if __GNUC__ >= 2
-proto_item *
+extern proto_item *
 proto_tree_add_int_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, gint32 value, const char *format, ...)
 	__attribute__((format (printf, 7, 8)));
 #else
-proto_item *
+extern proto_item *
 proto_tree_add_int_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, gint32 value, const char *format, ...);
 #endif
@@ -431,16 +430,16 @@ proto_tree_add_int_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint sta
 
 /* Add a text-only node to the proto_tree */
 #if __GNUC__ >= 2
-proto_item *
+extern proto_item *
 proto_tree_add_text(proto_tree *tree, tvbuff_t *tvb, gint start, gint length, const char *,
 	...) __attribute__((format (printf, 5, 6)));
 #else
-proto_item *
+extern proto_item *
 proto_tree_add_text(proto_tree *tree, tvbuff_t *tvb, gint start, gint length, const char *,
 	...);
 #endif
 
-proto_item *
+extern proto_item *
 proto_tree_add_text_valist(proto_tree *tree, tvbuff_t *tvb, gint start,
 	gint length, const char *format, va_list ap);
 
@@ -448,89 +447,89 @@ proto_tree_add_text_valist(proto_tree *tree, tvbuff_t *tvb, gint start,
 /* Useful for quick debugging. Also sends string to STDOUT, so don't
  * leave call to this function in production code. */
 #if __GNUC__ >= 2
-proto_item *
+extern proto_item *
 proto_tree_add_debug_text(proto_tree *tree, const char *format, ...)
 	__attribute__((format (printf, 2, 3)));
 #else
-proto_item *
+extern proto_item *
 proto_tree_add_debug_text(proto_tree *tree, const char *format, ...);
 #endif
 
-void
+extern void
 proto_item_fill_label(field_info *fi, gchar *label_str);
 
 /* Returns number of items (protocols or header fields) registered. */
-int proto_registrar_n(void);
+extern int proto_registrar_n(void);
 
 /* Returns char* to name for item # n (0-indexed) */
-char* proto_registrar_get_name(int n);
+extern char* proto_registrar_get_name(int n);
 
 /* Returns char* to abbrev for item # n (0-indexed) */
-char* proto_registrar_get_abbrev(int n);
+extern char* proto_registrar_get_abbrev(int n);
 
 /* get the header field information based upon a field or protocol id */
-header_field_info* proto_registrar_get_nth(int hfindex);
+extern header_field_info* proto_registrar_get_nth(int hfindex);
 
 /* Returns enum ftenum for item # n */
-int proto_registrar_get_ftype(int n);
+extern int proto_registrar_get_ftype(int n);
 
 /* Returns parent protocol for item # n.
  * Returns -1 if item _is_ a protocol */
-int proto_registrar_get_parent(int n);
+extern int proto_registrar_get_parent(int n);
 
 /* Is item #n a protocol? */
-gboolean proto_registrar_is_protocol(int n);
+extern gboolean proto_registrar_is_protocol(int n);
 
 /* Is item #n decoding enabled ? */
-gboolean proto_is_protocol_enabled(int proto_id);
+extern gboolean proto_is_protocol_enabled(int proto_id);
 
 /* Can item #n decoding be disabled? */
-gboolean proto_can_disable_protocol(int proto_id);
+extern gboolean proto_can_disable_protocol(int proto_id);
 
 /* Routines to use to iterate over the protocols; they return the item
  * number of the protocol in question, and keep state in "*cookie". */
-int proto_get_first_protocol(void **cookie);
-int proto_get_next_protocol(void **cookie);
+extern int proto_get_first_protocol(void **cookie);
+extern int proto_get_next_protocol(void **cookie);
 
 /* Given a protocol's filter_name, return it's proto_id */
-int proto_get_id_by_filter_name(gchar* filter_name);
+extern int proto_get_id_by_filter_name(gchar* filter_name);
 
 /* Given a protocol's item number, return its name. */
-char *proto_get_protocol_name(int n);
+extern char *proto_get_protocol_name(int n);
 
 /* Given a protocol's item number, return its short name. */
-char *proto_get_protocol_short_name(int proto_id);
+extern char *proto_get_protocol_short_name(int proto_id);
 
 /* Given a protocol's item number, return its filter name. */
-char *proto_get_protocol_filter_name(int proto_id);
+extern char *proto_get_protocol_filter_name(int proto_id);
 
 /* Enable / Disable protocol */
-void proto_set_decoding(int proto_id, gboolean enabled);
+extern void proto_set_decoding(int proto_id, gboolean enabled);
 
 /* Disable disabling of protocol */
-void proto_set_cant_disable(int proto_id);
+extern void proto_set_cant_disable(int proto_id);
 
 gpointer proto_get_protocol_dissector(int proto_id);
-void proto_set_protocol_dissector(int proto_id, gpointer dissector);
+extern void proto_set_protocol_dissector(int proto_id, gpointer dissector);
 
 /* Get length of registered field according to field type.
  * 0 means undeterminable at registration time.
  * -1 means unknown field */
-gint proto_registrar_get_length(int n);
+extern gint proto_registrar_get_length(int n);
 
 /* Checks for existence any protocol or field within a tree.
  * "Protocols" are assumed to be a child of the [empty] root node.
  * TRUE = found, FALSE = not found */
-gboolean proto_check_for_protocol_or_field(proto_tree* tree, int id);
+extern gboolean proto_check_for_protocol_or_field(proto_tree* tree, int id);
 
 /* Return GPtrArray* of field_info pointers for all hfindex that appear in
  * tree. Assume that a field will only appear under its registered parent's
  * subtree, and that the parent's subtree is a child of the
  * [empty] root node. */
-GPtrArray* proto_get_finfo_ptr_array(proto_tree *tree, int hfindex);
+extern GPtrArray* proto_get_finfo_ptr_array(proto_tree *tree, int hfindex);
 
 /* Dumps a glossary of the protocol and field registrations to STDOUT */
-void proto_registrar_dump(void);
+extern void proto_registrar_dump(void);
 
 /* Is the parsing being done for a visible proto_tree or an invisible one?
  * By setting this correctly, the proto_tree creation is sped up by not
@@ -554,20 +553,20 @@ extern int           num_tree_types;
 #define g_ptr_array_len(a)      ((a)->len)
 #endif
 
-int
+extern int
 hfinfo_bitwidth(header_field_info *hfinfo);
 
 /*
  * Returns TRUE if we can do a "match selected" on the field, FALSE
  * otherwise.
  */
-gboolean
+extern gboolean
 proto_can_match_selected(field_info *finfo);
 
-char*
+extern char*
 proto_alloc_dfilter_string(field_info *finfo, guint8 *pd);
 
-field_info*
+extern field_info*
 proto_find_field_from_offset(proto_tree *tree, guint offset, gchar *ds_name);
 
 #endif /* proto.h */

@@ -1,7 +1,7 @@
 /* prefs.h
  * Definitions for preference handling routines
  *
- * $Id: prefs.h,v 1.32 2001/10/22 22:59:23 guy Exp $
+ * $Id: prefs.h,v 1.33 2001/10/31 07:47:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -94,7 +94,7 @@ typedef struct pref_module module_t;
  * name specified at the proto_register_protocol() call in order to
  * make the "Protocol Properties..." menu item work.
  */
-module_t *prefs_register_module(const char *name, const char *title,
+extern module_t *prefs_register_module(const char *name, const char *title,
     void (*apply_cb)(void));
 
 typedef void (*module_cb)(module_t *module, gpointer user_data);
@@ -102,12 +102,12 @@ typedef void (*module_cb)(module_t *module, gpointer user_data);
 /*
  * Register that a protocol has preferences.
  */
-module_t *prefs_register_protocol(int id, void (*apply_cb)(void));
+extern module_t *prefs_register_protocol(int id, void (*apply_cb)(void));
 
 /*
  * Call a callback function, with a specified argument, for each module.
  */
-void prefs_module_foreach(module_cb callback, gpointer user_data);
+extern void prefs_module_foreach(module_cb callback, gpointer user_data);
 
 /*
  * Call the "apply" callback function for each module if any of its
@@ -115,32 +115,32 @@ void prefs_module_foreach(module_cb callback, gpointer user_data);
  * preferences have changed, as the module has been notified of that
  * fact.
  */
-void prefs_apply_all(void);
+extern void prefs_apply_all(void);
 
 struct preference;
 
 typedef struct preference pref_t;
 
 /*
- * Returns TRUE if the given protocol has registered preferences
+ * Returns TRUE if the given protocol has registered preferences.
  */
-gboolean prefs_is_registered_protocol(char *name);
+extern gboolean prefs_is_registered_protocol(char *name);
 
 /*
- * Returns the module title of a registered protocol (or NULL if unknown)
+ * Returns the module title of a registered protocol (or NULL if unknown).
  */
-const char *prefs_get_title_by_name(char *name);
+extern const char *prefs_get_title_by_name(char *name);
 
 /*
  * Register a preference with an unsigned integral value.
  */
-void prefs_register_uint_preference(module_t *module, const char *name,
+extern void prefs_register_uint_preference(module_t *module, const char *name,
     const char *title, const char *description, guint base, guint *var);
 
 /*
  * Register a preference with an Boolean value.
  */
-void prefs_register_bool_preference(module_t *module, const char *name,
+extern void prefs_register_bool_preference(module_t *module, const char *name,
     const char *title, const char *description, gboolean *var);
 
 /*
@@ -151,14 +151,14 @@ typedef struct {
 	gint	value;
 } enum_val_t;
 
-void prefs_register_enum_preference(module_t *module, const char *name,
+extern void prefs_register_enum_preference(module_t *module, const char *name,
     const char *title, const char *description, gint *var,
     const enum_val_t *enumvals, gboolean radio_buttons);
 
 /*
  * Register a preference with a character-string value.
  */
-void prefs_register_string_preference(module_t *module, const char *name,
+extern void prefs_register_string_preference(module_t *module, const char *name,
     const char *title, const char *description, char **var);
 
 typedef void (*pref_cb)(pref_t *pref, gpointer user_data);
@@ -167,12 +167,13 @@ typedef void (*pref_cb)(pref_t *pref, gpointer user_data);
  * Call a callback function, with a specified argument, for each preference
  * in a given module.
  */
-void prefs_pref_foreach(module_t *module, pref_cb callback, gpointer user_data);
+extern void prefs_pref_foreach(module_t *module, pref_cb callback,
+    gpointer user_data);
 
 /*
  * Register all non-dissector modules' preferences.
  */
-void prefs_register_modules(void);
+extern void prefs_register_modules(void);
 
 /* Read the preferences file, fill in "prefs", and return a pointer to it.
 
@@ -185,19 +186,19 @@ void prefs_register_modules(void);
    the user's preferences file, stuff the errno into "*pf_errno_return"
    and a pointer to the path of the file into "*pf_path_return", and
    return NULL. */
-e_prefs *read_prefs(int *, char **, int *, const char **);
+extern e_prefs *read_prefs(int *, char **, int *, const char **);
 
 /* Write out "prefs" to the user's preferences file, and return 0.
 
    If we got an error, stuff a pointer to the path of the preferences file
    into "*pf_path_return", and return the errno. */
-int write_prefs(const char **);
+extern int write_prefs(const char **);
 
 /* Copy a set of preferences. */
-void copy_prefs(e_prefs *dest, e_prefs *src);
+extern void copy_prefs(e_prefs *dest, e_prefs *src);
 
 /* Free a set of preferences. */
-void free_prefs(e_prefs *pr);
+extern void free_prefs(e_prefs *pr);
 
 /*
  * Given a string of the form "<pref name>:<pref value>", as might appear
@@ -212,6 +213,6 @@ void free_prefs(e_prefs *pr);
 #define PREFS_SET_SYNTAX_ERR	1	/* syntax error in string */
 #define PREFS_SET_NO_SUCH_PREF	2	/* no such preference */
 
-int prefs_set_pref(char *prefarg);
+extern int prefs_set_pref(char *prefarg);
 
 #endif /* prefs.h */
