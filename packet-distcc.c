@@ -3,7 +3,7 @@
  * Copyright 2003, Brad Hards <bradh@frogmouth.net>
  * Copyright 2003, Ronnie Sahlberg, added TCP desegmentation.
  *
- * $Id: packet-distcc.c,v 1.2 2003/05/24 20:49:58 guy Exp $
+ * $Id: packet-distcc.c,v 1.3 2003/09/03 20:58:08 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -38,7 +38,6 @@
 
 #include <epan/packet.h>
 #include <epan/strutil.h>
-#include <epan/conversation.h>
 
 #include "prefs.h"
 

@@ -9,7 +9,7 @@
  * Portions Copyright (c) by James Coe 2000-2002
  * Portions Copyright (c) Novell, Inc. 2000-2003
  *
- * $Id: packet-ncp.c,v 1.73 2003/08/25 22:14:07 guy Exp $
+ * $Id: packet-ncp.c,v 1.74 2003/09/03 20:58:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -45,7 +45,6 @@
 #include <string.h>
 #include <glib.h>
 #include <epan/packet.h>
-#include <epan/conversation.h>
 #include "prefs.h"
 #include "packet-ipx.h"
 #include "packet-tcp.h"

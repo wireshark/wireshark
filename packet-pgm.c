@@ -1,7 +1,7 @@
 /* packet-pgm.c
  * Routines for pgm packet disassembly
  *
- * $Id: packet-pgm.c,v 1.20 2003/03/12 04:04:13 gerald Exp $
+ * $Id: packet-pgm.c,v 1.21 2003/09/03 20:58:09 guy Exp $
  *
  * Copyright (c) 2000 by Talarian Corp
  *
@@ -39,7 +39,6 @@
 #include "in_cksum.h"
 #include <epan/resolv.h>
 #include <epan/strutil.h>
-#include <epan/conversation.h>
 #include "prefs.h"
 
 #include <epan/proto.h>

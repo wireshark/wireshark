@@ -2,7 +2,7 @@
  * Routines for FCIP dissection
  * Copyright 2001, Dinesh G Dutt (ddutt@cisco.com)
  *
- * $Id: packet-fcip.c,v 1.5 2003/09/02 21:10:54 guy Exp $
+ * $Id: packet-fcip.c,v 1.6 2003/09/03 20:58:08 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -35,7 +35,6 @@
 
 #include <epan/packet.h>
 #include "prefs.h"
-#include <epan/conversation.h>
 
 #define FCIP_ENCAP_HEADER_LEN                    28
 #define FCIP_MIN_HEADER_LEN                      16 /* upto frame len field */ 

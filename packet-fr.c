@@ -3,7 +3,7 @@
  *
  * Copyright 2001, Paul Ionescu	<paul@acorp.ro>
  *
- * $Id: packet-fr.c,v 1.41 2003/09/03 05:39:21 guy Exp $
+ * $Id: packet-fr.c,v 1.42 2003/09/03 20:58:08 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -52,7 +52,6 @@
 #include "oui.h"
 #include "nlpid.h"
 #include "greproto.h"
-#include <epan/conversation.h>
 
 /*
  * Bits in the address field.
