@@ -77,7 +77,13 @@ convert_string_to_hex
 copy_prefs
 crc16_ccitt_tvb
 create_dissector_handle
+create_node
+create_node_with_parent_name
 create_persconffile_dir
+create_pivot_node
+create_pivot_node_with_parent_name
+create_range_node
+create_range_node_with_parent_name
 data_out_file                   DATA
 dcerpc_add_conv_to_bind_table
 dcerpc_get_proto_hf_opnum
@@ -276,6 +282,7 @@ get_hostname6
 get_persconffile_path
 get_plugins_global_dir
 get_plugins_pers_dir
+get_parent_id_by_name
 get_systemfile_dir
 get_tcp_port
 get_tempfile_path
@@ -292,7 +299,6 @@ gsm_a_dtap_msg_ss_strings       DATA
 gsm_a_pd_str                    DATA
 gsm_map_opr_code_strings        DATA
 g_resolv_flags                  DATA
-T_h323_message_body_vals          DATA
 have_tap_listeners
 heur_dissector_add
 hex_str_to_bytes
@@ -314,6 +320,7 @@ isup_message_type_value_acro    DATA
 is_big_endian
 is_tpkt
 LocationRejectReason_vals       DATA
+manip_stat_node
 match_strval
 mkstemp
 mtp3_addr_to_str_buf
@@ -454,6 +461,7 @@ register_giop_user_module
 register_heur_dissector_list
 register_init_routine
 register_postseq_cleanup_routine
+register_stats_tree
 register_tap
 register_tap_listener
 RegistrationRejectReason_vals   DATA
@@ -485,12 +493,16 @@ sid_name_table                  DATA
 smb_cmd_vals                    DATA
 sminmpec_values                 DATA
 string_to_name_resolve
+T_h323_message_body_vals	DATA
 tap_push_tapped_queue
 tap_queue_init
 tap_queue_packet
 tcp_dissect_pdus
 test_for_directory
 test_for_fifo
+tick_pivot
+tick_range
+tick_range_with_parent_name
 time_msecs_to_str
 time_secs_to_str
 trans2_cmd_vals                 DATA
