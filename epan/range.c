@@ -37,6 +37,7 @@
 #include <epan/frame_data.h>
 
 #include <epan/range.h>
+#include <stdio.h>
 
 /* init the range struct */
 void range_init(range_t *range) {
@@ -73,7 +74,8 @@ void range_init(range_t *range) {
 
 void range_convert_str(range_t *range, const gchar *es, guint32 max_value)
 {
-    gchar     EntryStr[255], OrgStr[255], value[255], p;
+    gchar     EntryStr[MAXRANGESTRING], OrgStr[MAXRANGESTRING];
+    gchar     value[MAXRANGESTRING], p;
     guint     i, j=0;
     guint32   tmp, val;
     gboolean  hyphenseen;
@@ -239,6 +241,62 @@ gboolean value_is_in_range(range_t *range, guint32 val)
          return TRUE;
    }
    return(FALSE);
+}
+
+/* This function returns TRUE if the two given range_t's are equal.
+ */
+gboolean ranges_are_equal(range_t *a, range_t *b)
+{
+   guint i;
+
+   if (a->nranges != b->nranges)
+      return FALSE;
+
+   for (i=0; i <= a->nranges; i++) {
+      if (a->ranges[i].low != b->ranges[i].low)
+	 return FALSE;
+
+      if (a->ranges[i].high != b->ranges[i].high)
+	 return FALSE;
+   }
+
+   return TRUE;
+
+}
+
+/* This function calls the provided callback function for each value in
+ * in the range.
+ */
+void
+range_foreach(range_t *range, void (*callback)(guint32 val))
+{
+   guint32 i, j;
+
+   for (i=0; i <= range->nranges; i++) {
+      for (j = range->ranges[i].low; j <= range->ranges[i].high; j++)
+         callback(j);
+   }
+}
+
+/* This function converts a range_t to a (caller-provided) string.  */
+char *
+range_convert_range(range_t *range, char *string)
+{
+   guint32 i, k;
+
+   k = 0;
+   string[k] = '\0';
+
+   for (i=0; i <= range->nranges; i++) {
+      if (i != 0)
+	 string[k++] = ',';
+
+      k += sprintf(&string[k], "%d-%d", range->ranges[i].low,
+		   range->ranges[i].high);
+   }
+
+   return(string);
+
 }
 
 #if 0

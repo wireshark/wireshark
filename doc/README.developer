@@ -2442,6 +2442,13 @@ Then you can register the fields that can be configured by the user with these r
 	void prefs_register_string_preference(module_t *module, const char *name,
 	    const char *title, const char *description, char **var)
 
+	/* Register a preference with a range of unsigned integers (e.g.,
+	 * "1-20,30-40").
+	 */
+	void prefs_register_range_preference(module_t *module, const char *name,
+	    const char *title, const char *description, range_t *var,
+	    guint32 max_value)
+
 Where: module - Returned by the prefs_register_protocol routine
 	 name     - This is appended to the name of the protocol, with a
 		    "." between them, to construct a name that identifies
@@ -2472,6 +2479,7 @@ Where: module - Returned by the prefs_register_protocol routine
 			 preferences dialog as a set of radio buttons,
 			 FALSE if it is to be displayed as an option
 			 menu
+	 max_value - The maximum allowed value for a range (0 is the minimum).
 
 An example from packet-beep.c -
 	

@@ -580,6 +580,24 @@ prefs_register_string_preference(module_t *module, const char *name,
 }
 
 /*
+ * Register a preference with a ranged value.
+ */
+void
+prefs_register_range_preference(module_t *module, const char *name,
+    const char *title, const char *description, range_t *var,
+    guint32 max_value)
+{
+	pref_t *preference;
+
+	preference = register_preference(module, name, title, description,
+					 PREF_RANGE);
+	preference->info.max_value = max_value;
+
+	preference->varp.rangep = var;
+	memset(&preference->saved_val.rangeval, 0, sizeof(preference->saved_val.rangeval));
+}
+
+/*
  * Register a preference that used to be supported but no longer is.
  */
 void
@@ -1992,6 +2010,19 @@ set_pref(gchar *pref_name, gchar *value)
       }
       break;
 
+    case PREF_RANGE:
+    {
+      range_t newrange;
+
+      range_convert_str(&newrange, value, pref->info.max_value);
+
+      if (!ranges_are_equal(pref->varp.rangep, &newrange)) {
+	module->prefs_changed = TRUE;
+	*pref->varp.rangep = newrange;
+      }
+      break;
+    }
+
     case PREF_OBSOLETE:
       return PREFS_SET_OBSOLETE;	/* no such preference any more */
     }
@@ -2090,6 +2121,16 @@ write_pref(gpointer data, gpointer user_data)
 		fprintf(arg->pf, "%s.%s: %s\n", arg->module->name, pref->name,
 		    *pref->varp.string);
 		break;
+
+	case PREF_RANGE:
+	{
+		char range_string[MAXRANGESTRING];
+
+		fprintf(arg->pf, "# A string denoting an positive integer range (e.g., \"1-20,30-40\").\n");
+		fprintf(arg->pf, "%s.%s: %s\n", arg->module->name, pref->name,
+			range_convert_range(pref->varp.rangep, range_string));
+		break;
+	}
 
 	case PREF_OBSOLETE:
 		g_assert_not_reached();

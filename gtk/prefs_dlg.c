@@ -202,6 +202,18 @@ pref_show(pref_t *pref, gpointer user_data)
 					    pref->saved_val.string);
     break;
 
+  case PREF_RANGE:
+  {
+    char range_string[MAXRANGESTRING];
+
+    pref->saved_val.rangeval = *pref->varp.rangep;
+    range_convert_range(pref->varp.rangep, range_string);
+    pref->control = create_preference_entry(main_tb, pref->ordinal,
+					    label_string, pref->description,
+					    range_string);
+    break;
+  }
+
   case PREF_OBSOLETE:
     g_assert_not_reached();
     break;
@@ -886,6 +898,24 @@ pref_check(pref_t *pref, gpointer user_data)
     /* Value can't be bad. */
     break;
 
+  case PREF_RANGE:
+    str_val = gtk_entry_get_text(GTK_ENTRY(pref->control));
+
+    if (strlen(str_val)) {
+	range_t newrange;
+
+	range_convert_str(&newrange, str_val, pref->info.max_value);
+	if (newrange.nranges == 0) {
+	    /* If the user specified a string of non-zero length but
+	     * range_convert_str() couldn't find a single range in it,
+	     * it must be bad.
+	     */
+	    *badpref = pref;
+	    return PREFS_SET_SYNTAX_ERR;	/* range was bad */
+	}
+    }
+    break;
+
   case PREF_OBSOLETE:
     g_assert_not_reached();
     break;
@@ -960,6 +990,22 @@ pref_fetch(pref_t *pref, gpointer user_data)
     }
     break;
 
+  case PREF_RANGE:
+  {
+    range_t newrange;
+
+    str_val = gtk_entry_get_text(GTK_ENTRY(pref->control));
+    range_convert_str(&newrange, str_val, pref->info.max_value);
+
+    if (!ranges_are_equal(pref->varp.rangep, &newrange))
+    {
+      *pref_changed_p = TRUE;
+      *pref->varp.rangep = newrange;
+    }
+
+    break;
+  }
+
   case PREF_OBSOLETE:
     g_assert_not_reached();
     break;
@@ -1007,6 +1053,9 @@ pref_clean(pref_t *pref, gpointer user_data _U_)
     }
     break;
 
+  case PREF_RANGE:
+    break;
+
   case PREF_OBSOLETE:
     g_assert_not_reached();
     break;
@@ -1039,6 +1088,12 @@ prefs_main_fetch_all(GtkWidget *dlg, gboolean *must_redissect)
     case PREF_UINT:
       simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
                     "The value for \"%s\" is not a valid number.",
+                    badpref->title);
+      return FALSE;
+
+    case PREF_RANGE:
+      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                    "The value for \"%s\" is not a valid range.",
                     badpref->title);
       return FALSE;
 
@@ -1254,6 +1309,14 @@ pref_revert(pref_t *pref, gpointer user_data)
       *pref_changed_p = TRUE;
       g_free(*pref->varp.string);
       *pref->varp.string = g_strdup(pref->saved_val.string);
+    }
+    break;
+
+  case PREF_RANGE:
+    if (!ranges_are_equal(pref->varp.rangep, &pref->saved_val.rangeval))
+    {
+      *pref_changed_p = TRUE;
+      *pref->varp.rangep = pref->saved_val.rangeval;
     }
     break;
 

@@ -29,6 +29,8 @@
 
 #include "color.h"
 
+#include <epan/range.h>
+
 #define PR_DEST_CMD  0
 #define PR_DEST_FILE 1
 
@@ -273,6 +275,13 @@ extern void prefs_register_enum_preference(module_t *module, const char *name,
  */
 extern void prefs_register_string_preference(module_t *module, const char *name,
     const char *title, const char *description, char **var);
+
+/*
+ * Register a preference with a ranged value.
+ */
+extern void prefs_register_range_preference(module_t *module, const char *name,
+    const char *title, const char *description, range_t *var,
+    guint32 max_value);
 
 /*
  * Register a preference that used to be supported but no longer is.

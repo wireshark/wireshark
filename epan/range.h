@@ -35,6 +35,8 @@
 /* Range parser variables */
 #define MaxRange  30
 
+#define MAXRANGESTRING 255
+
 typedef struct range_admin_tag {
     guint32 low;
     guint32 high;
@@ -52,5 +54,11 @@ extern void range_convert_str(range_t *range, const gchar *es,
     guint32 max_value);
 
 extern gboolean value_is_in_range(range_t *range, guint32 val);
+
+extern gboolean ranges_are_equal(range_t *a, range_t *b);
+
+extern void range_foreach(range_t *range, void (*callback)(guint32 val));
+
+extern char *range_convert_range(range_t *range, char *string);
 
 #endif /* __RANGE_H__ */
