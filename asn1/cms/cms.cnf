@@ -13,6 +13,7 @@ InformationFramework x509if
 #.EXPORTS
 SignedData
 Countersignature
+IssuerAndSerialNumber
 
 #.NO_EMIT
 OtherKeyAttribute
