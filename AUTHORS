@@ -739,6 +739,7 @@ Olivier Biot <Olivier.Biot[AT]siemens.com> {
 	GSM SMS, CBS and DCS support for the SMPP dissector.
 	Display filter operator: matches (PCRE syntax)
 	Compuserve GIF image dissector
+	JPEG File Interchange Format (JFIF) dissector
 }
 
 Patrick Wolfe <pjw[AT]zocalo.cellular.ameritech.com> {
