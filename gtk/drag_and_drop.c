@@ -60,28 +60,37 @@ dnd_uri2filename(gchar *cf_name)
     gchar     esc[3];
 
 
+    /* Remove URI header.
+     * we have to remove the prefix to get a valid filename. */
+#ifdef _WIN32
     /*
-     * Remove URI header.
-     * On win32 (at least WinXP), this string looks like (UNC or local filename):
+     * On win32 (at least WinXP), this prefix looks like (UNC):
      * file:////servername/sharename/dir1/dir2/capture-file.cap
-     * or
+     * or (local filename):
      * file:///d:/dir1/dir2/capture-file.cap
-     * we have to remove the prefix to get a valid filename.
-     *
-     * On UNIX (at least KDE 3.0 Konqueror), this string looks like:
-     * file:/dir1/dir2/capture-file.cap
-     * we have to remove the file: to get a valid filename.
-     */ 
+     */
     if (strncmp("file:////", cf_name, 9) == 0) {
         /* win32 UNC: now becoming: //servername/sharename/dir1/dir2/capture-file.cap */
         cf_name += 7;
     } else if (strncmp("file:///", cf_name, 8) == 0) {
         /* win32 local: now becoming: d:/dir1/dir2/capture-file.cap */
         cf_name += 8;
-    } else if (strncmp("file:", cf_name, 5) == 0) {
-        /* unix local: now becoming: /dir1/dir2/capture-file.cap */
-        cf_name += 5;
     }
+#else
+    /*
+     * On UNIX (at least KDE 3.0 Konqueror), this prefix looks like:
+     * file:/dir1/dir2/capture-file.cap
+     *
+     * On UNIX (at least GNOME Nautilus 2.8.2), this prefix looks like:
+     * file:///dir1/dir2/capture-file.cap
+     */ 
+    if (strncmp("file:", cf_name, 5) == 0) {
+        /* now becoming: /dir1/dir2/capture-file.cap or ///dir1/dir2/capture-file.cap */
+        cf_name += 5;
+        /* shorten //////thing to /thing */
+        for(; cf_name[1] == '/'; ++cf_name);
+    }
+#endif
 
     /* 
      * unescape the escaped URI characters (spaces, ...)
