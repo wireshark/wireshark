@@ -1,7 +1,7 @@
 /* rtp_stream.h
  * RTP streams summary addition for ethereal
  *
- * $Id: rtp_stream.h,v 1.4 2004/01/25 02:24:44 guy Exp $
+ * $Id: rtp_stream.h,v 1.5 2004/01/26 19:16:30 obiot Exp $
  *
  * Copyright 2003, Alcatel Business Systems
  * By Lars Ruoff <lars.ruoff@gmx.net>
@@ -120,7 +120,7 @@ const rtpstream_tapinfo_t* rtpstream_get_info(void);
 /*
 * Cleans up memory of rtp streams tap.
 */
-void rtpstream_reset(rtpstream_tapinfo_t *tapinfo _U_);
+void rtpstream_reset(rtpstream_tapinfo_t *tapinfo);
 
 /*
 * Scans all packets for RTP streams and updates the RTP streams list.

@@ -1,7 +1,7 @@
 /* rtp_stream.c
  * RTP streams summary addition for ethereal
  *
- * $Id: rtp_stream.c,v 1.7 2004/01/25 02:24:44 guy Exp $
+ * $Id: rtp_stream.c,v 1.8 2004/01/26 19:16:30 obiot Exp $
  *
  * Copyright 2003, Alcatel Business Systems
  * By Lars Ruoff <lars.ruoff@gmx.net>
@@ -83,7 +83,7 @@ gint rtp_stream_info_cmp(gconstpointer aa, gconstpointer bb)
 
 /****************************************************************************/
 /* when there is a [re]reading of packet's */
-void rtpstream_reset(rtpstream_tapinfo_t *tapinfo _U_)
+void rtpstream_reset(rtpstream_tapinfo_t *tapinfo)
 {
 	GList* list;
 
