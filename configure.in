@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.65 1999/12/11 05:30:31 guy Exp $
+# $Id: configure.in,v 1.66 1999/12/22 17:19:04 gerald Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -13,7 +13,7 @@ AC_INIT(etypes.h)
 
 AC_PREREQ(2.13)
 
-AM_INIT_AUTOMAKE(ethereal, 0.7.9)
+AM_INIT_AUTOMAKE(ethereal, 0.8.0)
 
 dnl Check for CPU / vendor / OS
 AC_CANONICAL_HOST

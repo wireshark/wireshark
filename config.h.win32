@@ -93,7 +93,7 @@
 #define PACKAGE "ethereal"
 
 /* Version number of package */
-#define VERSION "0.7.9"
+#define VERSION "0.8.0"
 
 #define HAVE_WINSOCK_H
 #define snprintf _snprintf
