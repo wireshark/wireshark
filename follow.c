@@ -1,6 +1,6 @@
 /* follow.c
  *
- * $Id: follow.c,v 1.8 1999/06/25 02:57:42 gram Exp $
+ * $Id: follow.c,v 1.9 1999/07/07 01:41:15 guy Exp $
  *
  * Copyright 1998 Mike Hall <mlh@io.com>
  *
@@ -46,6 +46,9 @@
 extern FILE* data_out_file;
 
 gboolean incomplete_tcp_stream = FALSE;
+
+static int check_fragments( int );
+static void write_packet_data( const u_char *, int );
 
 /* this will build libpcap filter text that will only 
    pass the packets related to the stream. There is a 
@@ -180,7 +183,7 @@ reassemble_tcp( u_long sequence, u_long length, const char* data, u_long data_le
 
 /* here we search through all the frag we have collected to see if
    one fits */
-int 
+static int 
 check_fragments( int index ) {
   tcp_frag *prev = NULL;
   tcp_frag *current;
@@ -195,7 +198,7 @@ check_fragments( int index ) {
       if( prev ) {
 	prev->next = current->next;
       } else {
-	src[index] = GPOINTER_TO_UINT(current->next);
+	frags[index] = current->next;
       }
       free( current->data );
       free( current );
@@ -227,7 +230,7 @@ reset_tcp_reassembly() {
   }
 }
 
-void 
+static void 
 write_packet_data( const u_char* data, int length ) {
   fwrite( data, 1, length, data_out_file );
 }
