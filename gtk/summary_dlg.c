@@ -1,7 +1,7 @@
 /* summary_dlg.c
  * Routines for capture file summary window
  *
- * $Id: summary_dlg.c,v 1.20 2003/12/20 12:03:35 obiot Exp $
+ * $Id: summary_dlg.c,v 1.21 2003/12/21 22:32:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -145,9 +145,11 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
   }
 
   /* Packet size */
-  snprintf(string_buff, SUM_STR_MAX, "Avg. packet size: %.3f bytes",
-      summary.packet_count ? (float)summary.bytes/summary.packet_count : 0.0);
-  add_string_to_box(string_buff, data_box);
+  if (summary.packet_count > 0){
+    snprintf(string_buff, SUM_STR_MAX, "Avg. packet size: %.3f bytes",
+      (float)summary.bytes/summary.packet_count);
+    add_string_to_box(string_buff, data_box);
+  }
 
   /* Dropped count */
   if (summary.drops_known) {
@@ -202,9 +204,11 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
     }
 
     /* Packet size */
-    snprintf(string_buff, SUM_STR_MAX, "Avg. packet size: %.3f bytes",
-        summary.filtered_count ? (float) summary.filtered_bytes/summary.filtered_count : 0.0);
-    add_string_to_box(string_buff, filter_box);
+    if (summary.filtered_count > 0){
+      snprintf(string_buff, SUM_STR_MAX, "Avg. packet size: %.3f bytes",
+          (float) summary.filtered_bytes/summary.filtered_count);
+      add_string_to_box(string_buff, filter_box);
+    }
 
     /* Byte count */
     snprintf(string_buff, SUM_STR_MAX, "Bytes of traffic: %d", summary.filtered_bytes);
