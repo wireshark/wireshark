@@ -1,7 +1,7 @@
 /* packet-eth.c
  * Routines for ethernet packet disassembly
  *
- * $Id: packet-eth.c,v 1.30 2000/03/12 04:47:37 gram Exp $
+ * $Id: packet-eth.c,v 1.31 2000/03/20 21:21:33 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -47,6 +47,7 @@ static int hf_eth_dst = -1;
 static int hf_eth_src = -1;
 static int hf_eth_len = -1;
 static int hf_eth_type = -1;
+static int hf_eth_addr = -1;
 
 static gint ett_ieee8023 = -1;
 static gint ett_ether2 = -1;
@@ -198,6 +199,11 @@ dissect_eth(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
 	proto_tree_add_item(fh_tree, hf_eth_dst, offset+0, 6, &pd[offset+0]);
 	proto_tree_add_item(fh_tree, hf_eth_src, offset+6, 6, &pd[offset+6]);
+
+/* add items for eth.addr filter */
+	proto_tree_add_item_hidden(fh_tree, hf_eth_addr, offset + 0, 6, &pd[offset+0]);
+	proto_tree_add_item_hidden(fh_tree, hf_eth_addr, offset + 6, 6, &pd[offset+6]);
+
 	proto_tree_add_item(fh_tree, hf_eth_len, offset+12, 2, length);
     }
 
@@ -224,6 +230,9 @@ dissect_eth(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
 	proto_tree_add_item(fh_tree, hf_eth_dst, offset+0, 6, &pd[offset+0]);
 	proto_tree_add_item(fh_tree, hf_eth_src, offset+6, 6, &pd[offset+6]);
+/* add items for eth.addr filter */
+	proto_tree_add_item_hidden(fh_tree, hf_eth_addr, offset + 0, 6, &pd[offset+0]);
+	proto_tree_add_item_hidden(fh_tree, hf_eth_addr, offset + 6, 6, &pd[offset+6]);
     }
   }
   offset += ETH_HEADER_SIZE;
@@ -261,7 +270,11 @@ proto_register_eth(void)
 		/* registered here but handled in ethertype.c */
 		{ &hf_eth_type,
 		{ "Type",		"eth.type", FT_UINT16, BASE_HEX, VALS(etype_vals), 0x0,
-			"" }}
+			"" }},
+		{ &hf_eth_addr,
+		{ "Source or Destination Address", "eth.addr", FT_ETHER, BASE_NONE, NULL, 0x0,
+			"Source or Destination Hardware Address" }}
+
 	};
 	static gint *ett[] = {
 		&ett_ieee8023,
