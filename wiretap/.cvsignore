@@ -1,0 +1,15 @@
+configure
+aclocal.m4
+config.log
+config.h
+config.status
+stamp-h
+.deps
+stamp-h.in
+config.h.in
+Makefile.in
+Makefile
+ascend-grammar.c
+ascend-grammar.h
+ascend-scanner.c
+config.cache
