@@ -2,7 +2,7 @@
  * Routines for FC Inter-switch link services
  * Copyright 2001, Dinesh G Dutt <ddutt@cisco.com>
  *
- * $Id: packet-fcswils.c,v 1.7 2003/11/19 04:30:11 guy Exp $
+ * $Id: packet-fcswils.c,v 1.8 2003/12/04 05:40:17 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -297,6 +297,7 @@ static const value_string fc_swils_rscn_addrfmt_val[] = {
     {1, "Area Addr Format"},
     {2, "Domain Addr Format"},
     {3, "Fabric Addr Format"},
+    {0, NULL},
 };
 
 static const value_string fc_swils_rscn_detectfn_val[] = {
