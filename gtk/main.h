@@ -180,6 +180,13 @@ extern void export_psml_cmd_cb(GtkWidget *widget, gpointer data);
  */
 extern void export_pdml_cmd_cb(GtkWidget *widget, gpointer data);
 
+/** User requested "Export as CSV" by menu.
+ *
+ * @param widget parent widget (unused)
+ * @param data unused
+ */
+extern void export_csv_cmd_cb(GtkWidget *widget, gpointer data);
+
 /** User requested "Expand Tree" by menu.
  *
  * @param widget parent widget (unused)

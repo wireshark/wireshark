@@ -121,4 +121,8 @@ extern void write_psml_preamble(FILE *fh);
 extern void proto_tree_write_psml(epan_dissect_t *edt, FILE *fh);
 extern void write_psml_finale(FILE *fh);
 
+extern void write_csv_preamble(FILE *fh);
+extern void proto_tree_write_csv(epan_dissect_t *edt, FILE *fh);
+extern void write_csv_finale(FILE *fh);
+
 #endif /* print.h */

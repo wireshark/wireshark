@@ -57,7 +57,8 @@ typedef enum {
   output_action_export_text,    /* export to plain text */
   output_action_export_ps,      /* export to postscript */
   output_action_export_psml,    /* export to packet summary markup language */
-  output_action_export_pdml     /* export to packet data markup language */
+  output_action_export_pdml,    /* export to packet data markup language */
+  output_action_export_csv      /* export to csv file */
 } output_action_e;
 
 
@@ -84,6 +85,7 @@ static void print_destroy_cb(GtkWidget *win, gpointer user_data);
 #define PRINT_PS_RB_KEY           "printer_ps_radio_button"
 #define PRINT_PDML_RB_KEY         "printer_pdml_radio_button"
 #define PRINT_PSML_RB_KEY         "printer_psml_radio_button"
+#define PRINT_CSV_RB_KEY          "printer_csv_radio_button"
 #define PRINT_DEST_CB_KEY         "printer_destination_check_button"
 
 #define PRINT_SUMMARY_CB_KEY      "printer_summary_check_button"
@@ -333,6 +335,47 @@ export_pdml_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   SIGNAL_CONNECT(export_pdml_win, "destroy", print_destroy_cb, &export_pdml_win);
 }
 
+/*
+ * Keep a static pointer to the current "Export csv" window, if any, so that if
+ * somebody tries to do "File:Export to CSV" while there's already a "Export csv" window
+ * up, we just pop up the existing one, rather than creating a new one.
+ */
+static GtkWidget *export_csv_win = NULL;
+
+static print_args_t  export_csv_args;
+
+static gboolean export_csv_prefs_init = FALSE;
+
+void
+export_csv_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
+{
+  print_args_t *args = &export_csv_args;
+
+  if (export_csv_win != NULL) {
+    /* There's already a "Export csv" dialog box; reactivate it. */
+    reactivate_window(export_csv_win);
+    return;
+  }
+
+  /* get settings from preferences (and other initial values) only once */
+  if(export_csv_prefs_init == FALSE) {
+      export_csv_prefs_init     = TRUE;
+      args->format              = PR_FMT_TEXT; /* XXX */
+      args->to_file             = TRUE;
+      args->file                = g_strdup("");
+      args->cmd                 = g_strdup("");
+      args->print_summary       = FALSE;
+      args->print_dissections   = print_dissections_none;
+      args->print_hex           = FALSE;
+      args->print_formfeed      = FALSE;
+  }
+
+  /* init the printing range */
+  packet_range_init(&args->range);
+
+  export_csv_win = open_print_dialog("Ethereal: Export as \"Comma Separated Values\" File", output_action_export_csv, args);
+  SIGNAL_CONNECT(export_csv_win, "destroy", print_destroy_cb, &export_csv_win);
+}
 
 static void
 print_browse_file_cb(GtkWidget *file_bt, GtkWidget *file_te)
@@ -355,7 +398,7 @@ open_print_dialog(char *title, output_action_e action, print_args_t *args)
   GtkWidget     *main_vb;
 
   GtkWidget     *printer_fr, *printer_vb, *export_format_lb;
-  GtkWidget     *text_rb, *ps_rb, *pdml_rb, *psml_rb;
+  GtkWidget     *text_rb, *ps_rb, *pdml_rb, *psml_rb, *csv_rb;
   GtkWidget     *printer_tb, *dest_cb;
 #ifndef _WIN32
   GtkWidget     *cmd_lb, *cmd_te;
@@ -447,6 +490,16 @@ open_print_dialog(char *title, output_action_e action, print_args_t *args)
       "Usually used in combination with the \"Output to file\" option to export packet data into an XML file.", NULL);
   gtk_box_pack_start(GTK_BOX(printer_vb), psml_rb, FALSE, FALSE, 0);
   /* gtk_widget_show(psml_rb); */
+
+  csv_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(text_rb, "_CSV", accel_group);
+  if (action == output_action_export_csv)
+    gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(csv_rb), TRUE);
+  gtk_tooltips_set_tip (tooltips, csv_rb,
+      "Print output in \"Comma Separated Values\" (CSV) format, "
+      "a text format compatible with OpenOffice and Excel. "
+      "One row for each packet, with its timestamp and size.", NULL);
+  gtk_box_pack_start(GTK_BOX(printer_vb), csv_rb, FALSE, FALSE, 0);
+  /* gtk_widget_show(csv_rb); */
 
   /* printer table */
 #ifndef _WIN32
@@ -653,6 +706,7 @@ open_print_dialog(char *title, output_action_e action, print_args_t *args)
   OBJECT_SET_DATA(ok_bt, PRINT_PS_RB_KEY, ps_rb);
   OBJECT_SET_DATA(ok_bt, PRINT_PDML_RB_KEY, pdml_rb);
   OBJECT_SET_DATA(ok_bt, PRINT_PSML_RB_KEY, psml_rb);
+  OBJECT_SET_DATA(ok_bt, PRINT_CSV_RB_KEY, csv_rb);
   OBJECT_SET_DATA(ok_bt, PRINT_DEST_CB_KEY, dest_cb);
 #ifndef _WIN32
   OBJECT_SET_DATA(ok_bt, PRINT_CMD_TE_KEY, cmd_te);
@@ -766,6 +820,7 @@ print_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
   gchar             *f_name;
   gchar             *dirname;
   gboolean          export_as_pdml = FALSE, export_as_psml = FALSE;
+  gboolean          export_as_csv = FALSE;
 #ifdef _WIN32
   gboolean          win_printer = FALSE;
 #endif
@@ -823,6 +878,9 @@ print_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
   button = (GtkWidget *)OBJECT_GET_DATA(ok_bt, PRINT_PSML_RB_KEY);
   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (button)))
     export_as_psml = TRUE;
+  button = (GtkWidget *)OBJECT_GET_DATA(ok_bt, PRINT_CSV_RB_KEY);
+  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (button)))
+    export_as_csv = TRUE;
 
   button = (GtkWidget *)OBJECT_GET_DATA(ok_bt, PRINT_SUMMARY_CB_KEY);
   args->print_summary = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (button));
@@ -860,6 +918,8 @@ print_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
     status = cf_write_pdml_packets(&cfile, args);
   else if (export_as_psml)
     status = cf_write_psml_packets(&cfile, args);
+  else if (export_as_csv)
+    status = cf_write_csv_packets(&cfile, args);
   else {
     switch (args->format) {
 

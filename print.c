@@ -513,6 +513,37 @@ write_psml_finale(FILE *fh)
 	fputs("</psml>\n", fh);
 }
 
+void
+write_csv_preamble(FILE *fh _U_)
+{
+
+}
+
+void
+proto_tree_write_csv(epan_dissect_t *edt, FILE *fh)
+{
+        gint    i;
+
+        /* if this is the first packet, we have to write the CSV header */
+        if(edt->pi.fd->num == 1) {
+            for(i=0; i < edt->pi.cinfo->num_cols - 1; i++)
+	        fprintf(fh, "\"%s\", ", edt->pi.cinfo->col_title[i]);
+
+            fprintf(fh, "\"%s\"\n", edt->pi.cinfo->col_title[i]);
+        }
+
+        for(i=0; i < edt->pi.cinfo->num_cols - 1; i++)
+            fprintf(fh, "\"%s\", ", edt->pi.cinfo->col_data[i]);
+
+        fprintf(fh, "\"%s\"\n", edt->pi.cinfo->col_data[i]);
+}
+
+void
+write_csv_finale(FILE *fh _U_)
+{
+
+}
+
 /*
  * Find the data source for a specified field, and return a pointer
  * to the data in it. Returns NULL if the data is out of bounds.

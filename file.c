@@ -2115,6 +2115,77 @@ cf_write_psml_packets(capture_file *cf, print_args_t *print_args)
   return CF_PRINT_OK;
 }
 
+static gboolean
+write_csv_packet(capture_file *cf, frame_data *fdata,
+                 union wtap_pseudo_header *pseudo_header, const guint8 *pd,
+                 void *argsp)
+{
+  FILE *fh = argsp;
+  epan_dissect_t *edt;
+
+  /* Fill in the column information, but don't create the protocol tree. */
+  edt = epan_dissect_new(FALSE, FALSE);
+  epan_dissect_run(edt, pseudo_header, pd, fdata, &cf->cinfo);
+  epan_dissect_fill_in_columns(edt);
+
+  /* Write out the information in that tree. */
+  proto_tree_write_csv(edt, fh);
+
+  epan_dissect_free(edt);
+
+  return !ferror(fh);
+}
+
+cf_print_status_t
+cf_write_csv_packets(capture_file *cf, print_args_t *print_args)
+{
+  FILE        *fh;
+  psp_return_t ret;
+
+  fh = fopen(print_args->file, "w");
+  if (fh == NULL)
+    return CF_PRINT_OPEN_ERROR; /* attempt to open destination failed */
+
+  write_csv_preamble(fh);
+  if (ferror(fh)) {
+    fclose(fh);
+    return CF_PRINT_WRITE_ERROR;
+  }
+
+  /* Iterate through the list of packets, printing the packets we were
+     told to print. */
+  ret = process_specified_packets(cf, &print_args->range, "Writing CSV",
+                                  "selected packets", write_csv_packet,
+                                  fh);
+
+  switch (ret) {
+
+  case PSP_FINISHED:
+    /* Completed successfully. */
+    break;
+
+  case PSP_STOPPED:
+    /* Well, the user decided to abort the printing. */
+    break;
+
+  case PSP_FAILED:
+    /* Error while printing. */
+    fclose(fh);
+    return CF_PRINT_WRITE_ERROR;
+  }
+
+  write_csv_finale(fh);
+  if (ferror(fh)) {
+    fclose(fh);
+    return CF_PRINT_WRITE_ERROR;
+  }
+
+  /* XXX - check for an error */
+  fclose(fh);
+
+  return CF_PRINT_OK;
+}
+
 /* Scan through the packet list and change all columns that use the
    "command-line-specified" time stamp format to use the current
    value of that format. */
