@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.181 2001/03/02 17:44:07 gram Exp $
+ * $Id: main.c,v 1.182 2001/03/02 23:10:12 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -139,6 +139,7 @@ GtkWidget   *top_level, *packet_list, *tree_view, *byte_view,
             *info_bar, *tv_scrollw, *pkt_scrollw;
 static GtkWidget	*bv_scrollw;
 GdkFont     *m_r_font, *m_b_font;
+guint		m_font_height, m_font_width;
 guint        main_ctx, file_ctx, help_ctx;
 gchar        comp_info_str[256];
 gchar       *ethereal_path = NULL;
@@ -175,6 +176,19 @@ about_ethereal( GtkWidget *w, gpointer data ) {
 
 		"\nSee http://www.ethereal.com/ for more information.",
                  comp_info_str);
+}
+
+void
+set_fonts(GdkFont *regular, GdkFont *bold)
+{
+	/* Yes, assert. The code that loads the font should check
+	 * for NULL and provide its own error message. */
+	g_assert(m_r_font && m_b_font);
+	m_r_font = regular;
+	m_b_font = bold;
+
+	m_font_height = m_r_font->ascent + m_r_font->descent;
+	m_font_width = gdk_string_width(m_r_font, "0");
 }
 
 
@@ -1162,6 +1176,9 @@ main(int argc, char *argv[])
     prefs->gui_font_name = g_strdup("6x13");
   }
 
+  /* Call this for the side-effects that set_fonts() produces */
+  set_fonts(m_r_font, m_b_font);
+
 
 #ifdef HAVE_LIBPCAP
   /* Is this a "child" ethereal, which is only supposed to pop up a
@@ -1453,6 +1470,7 @@ boldify(const char *font_name)
 	return bold_font_name;
 }
 
+
 static void
 create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
 {
@@ -1560,9 +1578,6 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
   /* Byte view. */
   create_byte_view(bv_size, l_pane, &byte_view, &bv_scrollw,
 			prefs->gui_scrollbar_on_right);
-  gtk_signal_connect(GTK_OBJECT(byte_view), "button_press_event",
-		     GTK_SIGNAL_FUNC(popup_menu_handler),
-		     gtk_object_get_data(GTK_OBJECT(popup_menu_object), PM_HEXDUMP_KEY));
 
   /* Filter/info box */
   stat_hbox = gtk_hbox_new(FALSE, 1);
@@ -1615,3 +1630,5 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
 
   gtk_widget_show(top_level);
 }
+
+	

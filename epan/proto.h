@@ -1,7 +1,7 @@
 /* proto.h
  * Definitions for protocol display
  *
- * $Id: proto.h,v 1.7 2001/02/13 18:34:49 guy Exp $
+ * $Id: proto.h,v 1.8 2001/03/02 23:10:11 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -556,5 +556,8 @@ hfinfo_bitwidth(header_field_info *hfinfo);
 
 char*
 proto_alloc_dfilter_string(field_info *finfo, guint8 *pd);
+
+field_info*
+proto_find_field_from_offset(proto_tree *tree, guint offset);
 
 #endif /* proto.h */

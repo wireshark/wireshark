@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.11 2001/03/01 20:24:05 gram Exp $
+ * $Id: proto.c,v 1.12 2001/03/02 23:10:11 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -2586,6 +2586,56 @@ proto_get_finfo_ptr_array(proto_tree *tree, int id)
 
 	return sinfo.result.ptr_array;
 }
+
+
+
+typedef struct {
+	guint		offset;
+	field_info	*finfo;
+} offset_search_t;
+
+static gboolean
+check_for_offset(GNode *node, gpointer data)
+{
+	field_info		*fi = node->data;
+	offset_search_t		*offsearch = data;
+
+	/* !fi == the top most container node which holds nothing */
+	if (fi && fi->visible) {
+		if (offsearch->offset >= fi->start &&
+				offsearch->offset <= (fi->start + fi->length)) {
+
+			offsearch->finfo = fi;
+			return FALSE; /* keep traversing */
+		}
+	}
+	return FALSE; /* keep traversing */
+}
+
+/* Search a proto_tree backwards (from leaves to root) looking for the field
+ * whose start/length occupies 'offset' */
+/* XXX - I couldn't find an easy way to search backwards, so I search
+ * forwards, w/o stopping. Therefore, the last finfo I find will the be
+ * the one I want to return to the user. This algorithm is inefficient
+ * and could be re-done, but I'd have to handle all the children and
+ * siblings of each node myself. When I have more time I'll do that.
+ * (yeah right) */
+field_info*
+proto_find_field_from_offset(proto_tree *tree, guint offset)
+{
+	offset_search_t		offsearch;
+
+	offsearch.offset = offset;
+	offsearch.finfo = NULL;
+
+	g_node_traverse((GNode*)tree, G_PRE_ORDER, G_TRAVERSE_ALL, -1,
+			check_for_offset, &offsearch);
+
+	return offsearch.finfo;
+}
+
+
+
 	
 
 /* Dumps the contents of the registration database to stdout. An indepedent program can take

@@ -1,6 +1,6 @@
 /* help_dlg.c
  *
- * $Id: help_dlg.c,v 1.14 2001/02/01 22:28:58 guy Exp $
+ * $Id: help_dlg.c,v 1.15 2001/03/02 23:10:12 gram Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
@@ -345,7 +345,7 @@ static void set_help_text(GtkWidget *w, help_type_t type)
       }
     }
 
-    height = (2 + nb_lines) * (m_r_font->ascent + m_r_font->descent);
+    height = (2 + nb_lines) * m_font_height;
     gtk_widget_set_usize(GTK_WIDGET(w), 20 + width, 20 + height);
     break;
 
@@ -394,7 +394,7 @@ static void set_help_text(GtkWidget *w, help_type_t type)
 	nb_lines ++;
       }
 
-      height = (1 + nb_lines) * (m_r_font->ascent + m_r_font->descent);
+      height = (1 + nb_lines) * m_font_height;
       gtk_widget_set_usize(GTK_WIDGET(w), 20 + width, 20 + height);
 
     }

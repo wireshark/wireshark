@@ -1,7 +1,7 @@
 /* gtkglobals.h
  * GTK-related Global defines, etc.
  *
- * $Id: gtkglobals.h,v 1.11 2000/08/21 08:09:11 guy Exp $
+ * $Id: gtkglobals.h,v 1.12 2001/03/02 23:10:12 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -33,9 +33,9 @@
 extern GtkWidget   *top_level, *packet_list, *tree_view,
             *byte_view, *info_bar;
 extern GdkFont     *m_r_font, *m_b_font;
+extern guint m_font_height, m_font_width;
 
 extern GtkStyle *item_style;
-
 void set_scrollbar_placement_scrollw(GtkWidget *, int); /* 0=left, 1=right */
 void set_scrollbar_placement_all(int); /* 1=right, 0=left */
 void remember_scrolled_window(GtkWidget *);

@@ -1,7 +1,7 @@
 /* gui_prefs.c
  * Dialog box for GUI preferences
  *
- * $Id: gui_prefs.c,v 1.24 2000/11/21 23:54:09 guy Exp $
+ * $Id: gui_prefs.c,v 1.25 2001/03/02 23:10:12 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -455,8 +455,7 @@ gui_prefs_apply(GtkWidget *w)
 		set_ptree_font_all(new_r_font);
 		old_r_font = m_r_font;
 		old_b_font = m_b_font;
-		m_r_font = new_r_font;
-		m_b_font = new_b_font;
+		set_fonts(new_r_font, new_b_font);
 		g_free(bold_font_name);
 	}
 

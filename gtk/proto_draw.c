@@ -1,7 +1,7 @@
 /* proto_draw.c
  * Routines for GTK+ packet display
  *
- * $Id: proto_draw.c,v 1.26 2001/02/01 20:36:01 gram Exp $
+ * $Id: proto_draw.c,v 1.27 2001/03/02 23:10:12 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -44,6 +44,8 @@
 #include "main.h"
 #include "packet.h"
 #include "util.h"
+#include "menu.h"
+#include "keys.h"
 
 #include "colors.h"
 #include "prefs.h"
@@ -72,6 +74,163 @@ redraw_hex_dump_all(void)
   redraw_hex_dump_packet_wins();
 }
 
+	
+static void
+expand_tree(GtkCTree *ctree, GtkCTreeNode *node, gpointer user_data)
+{
+	field_info	*finfo;
+	gboolean	*val;
+
+	finfo = gtk_ctree_node_get_row_data( ctree, node );
+	g_assert(finfo);
+
+	val = &tree_is_expanded[finfo->tree_type];
+	*val = TRUE;
+}
+
+static void
+collapse_tree(GtkCTree *ctree, GtkCTreeNode *node, gpointer user_data)
+{
+	field_info	*finfo;
+	gboolean	*val;
+
+	finfo = gtk_ctree_node_get_row_data( ctree, node );
+	g_assert(finfo);
+
+	val = &tree_is_expanded[finfo->tree_type];
+	*val = FALSE;
+}
+
+/* Which byte the offset is referring to. Associates
+ * whitespace with the preceding digits. */
+static int
+byte_num(int offset, int start_point)
+{
+	return (offset - start_point) / 3;
+}
+
+
+/* If the user selected a certain byte in the byte view, try to find
+ * the item in the GUI proto_tree that corresponds to that byte, and
+ * select it. */
+static gint
+byte_view_select(GtkWidget *widget, GdkEventButton *event, gpointer data)
+{
+	GtkCTree	*ctree = GTK_CTREE(tree_view);
+	GtkCTreeNode	*node, *parent;
+	field_info	*finfo;
+	GtkText		*bv = GTK_TEXT(widget);
+	int		row, column;
+	int		byte;
+
+	/* The column of the first hex digit in the first half */
+	const int	digits_start_1 = 6;
+	/* The column of the last hex digit in the first half. */
+	const int	digits_end_1 = 28;
+
+	/* The column of the first hex digit in the second half */
+	const int	digits_start_2 = 31;
+	/* The column of the last hex digit in the second half. */
+	const int	digits_end_2 = 53;
+
+	/* The column of the first "text dump" character. */
+	const int	text_start = 57;
+	/* The column of the last "text dump" character. */
+	const int	text_end = 73;
+
+	/* Given the mouse (x,y) and the current GtkText (h,v)
+	 * adjustments, and the size of the font, figure out
+	 * which text column/row the user selected. This could be off
+	 * if the bold version of the font is bigger than the
+	 * regular version of the font. */
+	column = (bv->hadj->value + event->x) / m_font_width;
+	row = (bv->vadj->value + event->y) / m_font_height;
+
+	/* Given the column and row, determine which byte offset
+	 * the user clicked on. */
+	if (column >= digits_start_1 && column <= digits_end_1) {
+		byte = byte_num(column, digits_start_1);
+		if (byte == -1) {
+			return FALSE;
+		}
+	}
+	else if (column >= digits_start_2 && column <= digits_end_2) {
+		byte = byte_num(column, digits_start_2);
+		if (byte == -1) {
+			return FALSE;
+		}
+		byte += 8;
+	}
+	else if (column >= text_start && column <= text_end) {
+		byte = column - text_start;
+	}
+	else {
+		/* The user didn't select a hex digit or
+		 * text-dump character. */
+		return FALSE;
+	}
+
+	/* Add the number of bytes from the previous rows. */
+	byte += row * 16;
+
+
+	/* Find the finfo that corresponds to our byte. */
+	finfo = proto_find_field_from_offset(cfile.protocol_tree, byte);
+
+	if (!finfo) {
+		return FALSE;
+	}
+
+	node = gtk_ctree_find_by_row_data(ctree, NULL, finfo);
+	g_assert(node);
+
+	/* Expand and select our field's row */
+	gtk_ctree_expand(ctree, node);
+	gtk_ctree_select(ctree, node);
+	expand_tree(ctree, node, NULL);
+
+	/* ... and its parents */
+	parent = GTK_CTREE_ROW(node)->parent;
+	while (parent) {
+		gtk_ctree_expand(ctree, parent);
+		expand_tree(ctree, parent, NULL);
+		parent = GTK_CTREE_ROW(parent)->parent;
+	}
+
+	/* And position the window so the selection is visible.
+	 * Position the selection in the middle of the viewable
+	 * pane. */
+	gtk_ctree_node_moveto(ctree, node, 0, .5, 0);
+
+	return FALSE;
+}
+
+/* Calls functions for different mouse-button presses. */
+static gint
+byte_view_button_press_cb(GtkWidget *widget, GdkEvent *event, gpointer data)
+{
+	GdkEventButton *event_button = NULL;
+
+	if(widget == NULL || event == NULL || data == NULL) {
+		return FALSE;
+	}
+	
+	if(event->type == GDK_BUTTON_PRESS) {
+		event_button = (GdkEventButton *) event;
+
+		switch(event_button->button) {
+
+		case 1:
+			return byte_view_select(widget, event_button, data);
+		case 3:
+			return popup_menu_handler(widget, event, data);
+		default:
+			return FALSE;
+		}
+	}
+
+	return FALSE;
+}
 void
 create_byte_view(gint bv_size, GtkWidget *pane, GtkWidget **byte_view_p,
 		GtkWidget **bv_scrollw_p, int pos)
@@ -82,9 +241,14 @@ create_byte_view(gint bv_size, GtkWidget *pane, GtkWidget **byte_view_p,
   byte_scrollw = gtk_scrolled_window_new(NULL, NULL);
   gtk_paned_pack2(GTK_PANED(pane), byte_scrollw, FALSE, FALSE);
   gtk_widget_set_usize(byte_scrollw, -1, bv_size);
+
+  /* The horizontal scrollbar of the scroll-window doesn't seem
+   * to affect the GtkText widget at all, even when line wrapping
+   * is turned off in the GtkText widget and there is indeed more
+   * horizontal data. */
   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(byte_scrollw),
-					GTK_POLICY_NEVER,
-					GTK_POLICY_ALWAYS);
+			/* Horizontal */GTK_POLICY_NEVER,
+			/* Vertical*/	GTK_POLICY_ALWAYS);
   set_scrollbar_placement_scrollw(byte_scrollw, pos);
   remember_scrolled_window(byte_scrollw);
   gtk_widget_show(byte_scrollw);
@@ -92,8 +256,13 @@ create_byte_view(gint bv_size, GtkWidget *pane, GtkWidget **byte_view_p,
   byte_view = gtk_text_new(NULL, NULL);
   gtk_text_set_editable(GTK_TEXT(byte_view), FALSE);
   gtk_text_set_word_wrap(GTK_TEXT(byte_view), FALSE);
+  gtk_text_set_line_wrap(GTK_TEXT(byte_view), FALSE);
   gtk_container_add(GTK_CONTAINER(byte_scrollw), byte_view);
   gtk_widget_show(byte_view);
+  gtk_signal_connect(GTK_OBJECT(byte_view), "button_press_event",
+		     GTK_SIGNAL_FUNC(byte_view_button_press_cb),
+		     gtk_object_get_data(GTK_OBJECT(popup_menu_object), PM_HEXDUMP_KEY));
+
 
   *byte_view_p = byte_view;
   *bv_scrollw_p = byte_scrollw;
@@ -311,13 +480,12 @@ packet_hex_print(GtkText *bv, guint8 *pd, frame_data *fd, field_info *finfo)
   /* scroll text into position */
   gtk_text_thaw(bv); /* must thaw before adjusting scroll bars */
   if ( bstart > 0 ) {
-    int lineheight, linenum;
+    int linenum;
     float scrollval;
 
     linenum = bstart / BYTE_VIEW_WIDTH;
-    /* This is the lineheight that the GtkText widget uses when drawing text. */
-    lineheight = m_b_font->ascent + m_b_font->descent;
-    scrollval = MIN(linenum * lineheight,bv->vadj->upper - bv->vadj->page_size);
+    scrollval = MIN(linenum * m_font_height,
+		    bv->vadj->upper - bv->vadj->page_size);
 
     gtk_adjustment_set_value(bv->vadj, scrollval);
   }
@@ -500,31 +668,6 @@ void collapse_all_tree(proto_tree *protocol_tree, GtkWidget *tree_view) {
   proto_tree_draw(protocol_tree, tree_view);
 }
 
-static void
-expand_tree(GtkCTree *ctree, GList *node, gpointer user_data)
-{
-	field_info	*finfo;
-	gboolean	*val;
-
-	finfo = gtk_ctree_node_get_row_data( ctree, GTK_CTREE_NODE(node) );
-	g_assert(finfo);
-
-	val = &tree_is_expanded[finfo->tree_type];
-	*val = TRUE;
-}
-
-static void
-collapse_tree(GtkCTree *ctree, GList *node, gpointer user_data)
-{
-	field_info	*finfo;
-	gboolean	*val;
-
-	finfo = gtk_ctree_node_get_row_data( ctree, GTK_CTREE_NODE(node) );
-	g_assert(finfo);
-
-	val = &tree_is_expanded[finfo->tree_type];
-	*val = FALSE;
-}
 
 struct proto_tree_draw_info {
 	GtkCTree	*ctree;
