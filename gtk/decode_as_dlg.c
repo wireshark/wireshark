@@ -1,6 +1,6 @@
 /* decode_as_dlg.c
  *
- * $Id: decode_as_dlg.c,v 1.6 2001/04/23 17:51:37 guy Exp $
+ * $Id: decode_as_dlg.c,v 1.7 2001/05/30 06:41:08 guy Exp $
  *
  * Routines to modify dissector tables on the fly.
  *
@@ -1023,7 +1023,7 @@ decode_add_to_clist (gchar *table_name, gpointer key,
     clist = info->clist;
     if (info->conv) {
 	proto = conv_dissector_get_proto(value);
-	isold = conv_dissector_get_old_flag(value) ? "TRUE" : "FALSE";
+	isold = "FALSE";
 	isconv = "TRUE";
     } else {
 	proto = dissector_get_proto(value);

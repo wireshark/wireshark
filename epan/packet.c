@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.33 2001/04/01 23:11:43 hagbard Exp $
+ * $Id: packet.c,v 1.34 2001/05/30 06:41:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -397,63 +397,6 @@ dissector_reset(const char *name, guint32 pattern)
    If the arguments supplied don't match the arguments to the dissector,
    do the appropriate translation. */
 gboolean
-old_dissector_try_port(dissector_table_t sub_dissectors, guint32 port,
-    const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
-{
-	dtbl_entry_t *dtbl_entry;
-	tvbuff_t *tvb;
-	const char *saved_proto;
-	guint32 saved_match_port;
-
-	dtbl_entry = g_hash_table_lookup(sub_dissectors,
-	    GUINT_TO_POINTER(port));
-	if (dtbl_entry != NULL) {
-		/*
-		 * Is this protocol enabled?
-		 */
-		if (dtbl_entry->current.proto_index != -1 &&
-		    !proto_is_protocol_enabled(dtbl_entry->current.proto_index)) {
-			/*
-			 * No - pretend this dissector didn't exist,
-			 * so that other dissectors might have a chance
-			 * to dissect this packet.
-			 */
-			return FALSE;
-		}
-			
-		/*
-		 * Yes, it's enabled.
-		 */
-		saved_proto = pi.current_proto;
-		saved_match_port = pi.match_port;
-		pi.match_port = port;
-		if (dtbl_entry->current.is_old_dissector)
-			(*dtbl_entry->current.dissector.old)(pd, offset, fd, tree);
-		else {
-			/*
-			 * Old dissector calling new dissector; use
-			 * "tvb_create_from_top()" to remap.
-			 *
-			 * XXX - what about the "pd" argument?  Do
-			 * any dissectors not just pass that along and
-			 * let the "offset" argument handle stepping
-			 * through the packet?
-			 */
-			if (dtbl_entry->current.proto_index != -1) {
-				pi.current_proto =
-				    proto_get_protocol_short_name(dtbl_entry->current.proto_index);
-			}
-			tvb = tvb_create_from_top(offset);
-			(*dtbl_entry->current.dissector.new)(tvb, &pi, tree);
-		}
-		pi.current_proto = saved_proto;
-		pi.match_port = saved_match_port;
-		return TRUE;
-	} else
-		return FALSE;
-}
-
-gboolean
 dissector_try_port(dissector_table_t sub_dissectors, guint32 port,
     tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -692,21 +635,8 @@ register_dissector_table(const char *name)
 
 static GHashTable *heur_dissector_lists = NULL;
 
-/*
- * XXX - for now, we support having both "old" dissectors, with packet
- * data pointer, packet offset, frame_data pointer, and protocol tree
- * pointer arguments, and "new" dissectors, with tvbuff pointer,
- * packet_info pointer, and protocol tree pointer arguments.
- *
- * Nuke this and go back to storing a pointer to the dissector when
- * the last old-style dissector is gone.
- */
 typedef struct {
-	gboolean is_old_dissector;
-	union {
-		old_heur_dissector_t	old;
-		heur_dissector_t	new;
-	} dissector;
+	heur_dissector_t dissector;
 	int	proto_index;
 } heur_dtbl_entry_t;
 
@@ -719,25 +649,6 @@ find_heur_dissector_list(const char *name)
 }
 
 void
-old_heur_dissector_add(const char *name, old_heur_dissector_t dissector,
-    int proto)
-{
-	heur_dissector_list_t *sub_dissectors = find_heur_dissector_list(name);
-	heur_dtbl_entry_t *dtbl_entry;
-
-	/* sanity check */
-	g_assert(sub_dissectors != NULL);
-
-	dtbl_entry = g_malloc(sizeof (heur_dtbl_entry_t));
-	dtbl_entry->is_old_dissector = TRUE;
-	dtbl_entry->dissector.old = dissector;
-	dtbl_entry->proto_index = proto;
-
-	/* do the table insertion */
-	*sub_dissectors = g_slist_append(*sub_dissectors, (gpointer)dtbl_entry);
-}
-
-void
 heur_dissector_add(const char *name, heur_dissector_t dissector, int proto)
 {
 	heur_dissector_list_t *sub_dissectors = find_heur_dissector_list(name);
@@ -747,8 +658,7 @@ heur_dissector_add(const char *name, heur_dissector_t dissector, int proto)
 	g_assert(sub_dissectors != NULL);
 
 	dtbl_entry = g_malloc(sizeof (heur_dtbl_entry_t));
-	dtbl_entry->is_old_dissector = FALSE;
-	dtbl_entry->dissector.new = dissector;
+	dtbl_entry->dissector = dissector;
 	dtbl_entry->proto_index = proto;
 
 	/* do the table insertion */
@@ -763,8 +673,6 @@ dissector_try_heuristic(heur_dissector_list_t sub_dissectors,
 	const char *saved_proto;
 	GSList *entry;
 	heur_dtbl_entry_t *dtbl_entry;
-	const guint8 *pd = NULL;
-	int offset;
 
 	status = FALSE;
 	saved_proto = pinfo->current_proto;
@@ -778,27 +686,13 @@ dissector_try_heuristic(heur_dissector_list_t sub_dissectors,
 			continue;
 		}
 
-		if (dtbl_entry->is_old_dissector) {
-			/*
-			 * New dissector calling old dissector; use
-			 * "tvb_compat()" to remap.
-			 */
-			if (pd == NULL)
-				tvb_compat(tvb, &pd, &offset);
-			if ((*dtbl_entry->dissector.old)(pd, offset, pinfo->fd,
-			    tree)) {
-				status = TRUE;
-				break;
-			}
-		} else {
-			if (dtbl_entry->proto_index != -1) {
-				pinfo->current_proto =
-				    proto_get_protocol_short_name(dtbl_entry->proto_index);
-			}
-			if ((*dtbl_entry->dissector.new)(tvb, pinfo, tree)) {
-				status = TRUE;
-				break;
-			}
+		if (dtbl_entry->proto_index != -1) {
+			pinfo->current_proto =
+			    proto_get_protocol_short_name(dtbl_entry->proto_index);
+		}
+		if ((*dtbl_entry->dissector)(tvb, pinfo, tree)) {
+			status = TRUE;
+			break;
 		}
 	}
 	pinfo->current_proto = saved_proto;
@@ -824,21 +718,8 @@ register_heur_dissector_list(const char *name, heur_dissector_list_t *sub_dissec
 
 static GHashTable *conv_dissector_lists = NULL;
 
-/*
- * XXX - for now, we support having both "old" dissectors, with packet
- * data pointer, packet offset, frame_data pointer, and protocol tree
- * pointer arguments, and "new" dissectors, with tvbuff pointer,
- * packet_info pointer, and protocol tree pointer arguments.
- *
- * Nuke this and go back to storing a pointer to the dissector when
- * the last old-style dissector is gone.
- */
 struct conv_dtbl_entry {
-	gboolean is_old_dissector;
-	union {
-		old_dissector_t	old;
-		dissector_t	new;
-	} dissector;
+	dissector_t dissector;
 	int	proto_index;
 };
 
@@ -851,26 +732,6 @@ find_conv_dissector_list(const char *name)
 }
 
 void
-old_conv_dissector_add(const char *name, old_dissector_t dissector,
-    int proto)
-{
-	conv_dissector_list_t *sub_dissectors = find_conv_dissector_list(name);
-	conv_dtbl_entry_t *dtbl_entry;
-
-	/* sanity check */
-	g_assert(sub_dissectors != NULL);
-
-	dtbl_entry = g_malloc(sizeof (conv_dtbl_entry_t));
-	dtbl_entry->is_old_dissector = TRUE;
-	dtbl_entry->dissector.old = dissector;
-	dtbl_entry->proto_index = proto;
-	proto_set_protocol_dissector(proto, dissector);
-
-	/* do the table insertion */
-	*sub_dissectors = g_slist_append(*sub_dissectors, (gpointer)dtbl_entry);
-}
-
-void
 conv_dissector_add(const char *name, dissector_t dissector, int proto)
 {
 	conv_dissector_list_t *sub_dissectors = find_conv_dissector_list(name);
@@ -880,8 +741,7 @@ conv_dissector_add(const char *name, dissector_t dissector, int proto)
 	g_assert(sub_dissectors != NULL);
 
 	dtbl_entry = g_malloc(sizeof (conv_dtbl_entry_t));
-	dtbl_entry->is_old_dissector = FALSE;
-	dtbl_entry->dissector.new = dissector;
+	dtbl_entry->dissector = dissector;
 	dtbl_entry->proto_index = proto;
 	proto_set_protocol_dissector(proto, dissector);
 
@@ -904,13 +764,6 @@ register_conv_dissector_list(const char *name, conv_dissector_list_t *sub_dissec
 	*sub_dissectors = NULL;	/* initially empty */
 	g_hash_table_insert(conv_dissector_lists, (gpointer)name,
 	    (gpointer) sub_dissectors);
-}
-
-gboolean
-conv_dissector_get_old_flag (conv_dtbl_entry_t *dtbl_entry)
-{
-	g_assert(dtbl_entry);
-	return(dtbl_entry->is_old_dissector);
 }
 
 gint

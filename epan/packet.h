@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.32 2001/04/17 06:43:21 guy Exp $
+ * $Id: packet.h,v 1.33 2001/05/30 06:41:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -132,8 +132,6 @@ void dissector_reset(const char *name, guint32 pattern);
 /* Look for a given port in a given dissector table and, if found, call
    the dissector with the arguments supplied, and return TRUE, otherwise
    return FALSE. */
-gboolean old_dissector_try_port(dissector_table_t sub_dissectors, guint32 port,
-    const u_char *pd, int offset, frame_data *fd, proto_tree *tree);
 gboolean dissector_try_port(dissector_table_t sub_dissectors, guint32 port,
     tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
@@ -144,8 +142,6 @@ gboolean dissector_try_port(dissector_table_t sub_dissectors, guint32 port,
 typedef GSList *heur_dissector_list_t;
 
 /* Type of a heuristic dissector */
-typedef gboolean (*old_heur_dissector_t)(const u_char *, int, frame_data *,
-	proto_tree *);
 typedef gboolean (*heur_dissector_t)(tvbuff_t *, packet_info *,
 	proto_tree *);
 
@@ -154,8 +150,6 @@ void register_heur_dissector_list(const char *name, heur_dissector_list_t *list)
 
 /* Add a sub-dissector to a heuristic dissector list.  Called by the
    protocol routine that wants to register a sub-dissector.  */
-void old_heur_dissector_add(const char *name, old_heur_dissector_t dissector,
-    int proto);
 void heur_dissector_add(const char *name, heur_dissector_t dissector,
     int proto);
 
@@ -184,15 +178,12 @@ void register_conv_dissector_list(const char *name, conv_dissector_list_t *list)
 
 /* Add a sub-dissector to a conversation dissector list.  Called by the
    protocol routine that wants to register a sub-dissector.  */
-void old_conv_dissector_add(const char *name, old_dissector_t dissector,
-    int proto);
 void conv_dissector_add(const char *name, dissector_t dissector,
     int proto);
 
 /* Opaque structure - provides type checking but no access to components */
 typedef struct conv_dtbl_entry conv_dtbl_entry_t;
 
-gboolean conv_dissector_get_old_flag (conv_dtbl_entry_t *entry);
 gint conv_dissector_get_proto (conv_dtbl_entry_t * entry);
 void dissector_conv_foreach(char *name, DATFunc func, gpointer user_data);
 void dissector_all_conv_foreach(DATFunc func, gpointer user_data);
