@@ -1,7 +1,7 @@
 /* column-utils.c
  * Routines for column utilities.
  *
- * $Id: column-utils.c,v 1.28 2002/12/08 02:32:35 gerald Exp $
+ * $Id: column-utils.c,v 1.29 2002/12/10 00:12:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -678,6 +678,7 @@ fill_in_columns(packet_info *pinfo)
 
     case COL_PROTOCOL:	/* currently done by dissectors */
     case COL_INFO:	/* currently done by dissectors */
+    case COL_IF_DIR:	/* currently done by dissectors */
       break;
 
     case COL_PACKET_LENGTH:

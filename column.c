@@ -1,7 +1,7 @@
 /* column.c
  * Routines for handling column preferences
  *
- * $Id: column.c,v 1.38 2002/12/08 02:32:17 gerald Exp $
+ * $Id: column.c,v 1.39 2002/12/10 00:12:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -52,7 +52,7 @@ col_format_to_string(gint fmt) {
                      "%us","%hs", "%rhs", "%uhs", "%ns", "%rns", "%uns", "%d",
                      "%rd", "%ud", "%hd", "%rhd", "%uhd", "%nd", "%rnd",
                      "%und", "%S", "%rS", "%uS", "%D", "%rD", "%uD", "%p",
-                     "%i", "%L", "%XO", "%XR" };
+                     "%i", "%L", "%XO", "%XR", "%I" };
                      
   if (fmt < 0 || fmt > NUM_COL_FMTS)
     return NULL;
@@ -80,7 +80,7 @@ col_format_desc(gint fmt) {
                      "Src port (unresolved)", "Destination port",
                      "Dest port (resolved)", "Dest port (unresolved)",
                      "Protocol", "Information", "Packet length (bytes)" ,
-                     "OXID", "RXID", };
+                     "OXID", "RXID", "FW-1 monitor if/direction" };
 
   return(dlist[fmt]);
 }
@@ -143,6 +143,9 @@ get_column_format_matches(gboolean *fmt_list, gint format) {
       break;
     case COL_RXID:
       fmt_list[COL_RXID] = TRUE;
+      break;
+    case COL_IF_DIR:
+      fmt_list[COL_IF_DIR] = TRUE;
       break;
     default:
       break;
@@ -224,6 +227,9 @@ get_column_longest_string(gint format)
     case COL_OXID:
       return "000000";
       break;
+    case COL_IF_DIR:
+      return "i 00000000 I";
+      break;
     default: /* COL_INFO */
       return "Source port: kerberos-master  Destination port: kerberos-master";
       break;
@@ -255,6 +261,7 @@ get_column_resize_type(gint format) {
     case COL_UNRES_DST_PORT:
     case COL_PROTOCOL:
     case COL_PACKET_LENGTH:
+    case COL_IF_DIR:
       /* We don't want these to resize during a live capture, as that
          gets in the way of trying to look at the data while it's being
 	 captured. */
@@ -383,6 +390,9 @@ get_column_format_from_str(gchar *str) {
         break;
       case 'L':
         return COL_PACKET_LENGTH;
+        break;
+      case 'I':
+        return COL_IF_DIR;
         break;
       case 'X':
         prev_code = COL_OXID;

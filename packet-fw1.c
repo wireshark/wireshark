@@ -2,11 +2,11 @@
  * Routines for Ethernet header disassembly of FW1 "monitor" files
  * Copyright 2002, Alfred Koebler <ak@icon-sult.de>
  *
- * $Id: packet-fw1.c,v 1.5 2002/08/28 21:00:13 jmayer Exp $
+ * $Id: packet-fw1.c,v 1.6 2002/12/10 00:12:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Alfred Koebler <ak@icon-sult.de>
- * Copyright 2002 I.Consult
+ * Copyright 2002 Alfred Koebler
  *
  * To use this dissector use the command line option
  * -o eth.interpret_as_fw1_monitor:TRUE
@@ -57,6 +57,8 @@
  *    El90x1      o E190x2
  *    El90x1        E190x2 O
  *
+ * 9.12.2002
+ * Add new column with summary of FW-1 interface/direction
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -118,6 +120,18 @@ dissect_fw1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   #define	MAX_INTERFACES	20
   static char	*p_interfaces[MAX_INTERFACES];
   static int	interface_anzahl=0;
+  static char	header1[] = "FW1 Monitor";
+
+#ifdef	DID_NOT_FIND_A_PLACE_TO_START_THE_RESET_LIST_OF_INTERFACES
+  if (fw1_reset_list_of_if_on_next_begin) {
+    /* without FW1 summary delete all remembered names of interfaces */
+    for (i=0; i<interface_anzahl && i<MAX_INTERFACES; i++) {
+      free(p_interfaces[i]);
+    }
+    interface_anzahl = 0;
+    fw1_reset_list_of_if_on_next_begin = FALSE;
+  }
+#endif
 
   /* Make entries in Protocol column and Info column on summary display */
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
@@ -127,47 +141,46 @@ dissect_fw1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   etype = tvb_get_ntohs(tvb, 12);
 
-  if (tree) {
-    sprintf(header, "FW1 Monitor");
+  sprintf(header, header1);
 
-    /* fetch info to local variable */
-    direction[0] = tvb_get_guint8(tvb, 0);
-    direction[1] = 0;
-    tvb_get_nstringz0(tvb, 2, 10, interface_name);
+  /* fetch info to local variable */
+  direction[0] = tvb_get_guint8(tvb, 0);
+  direction[1] = 0;
+  tvb_get_nstringz0(tvb, 2, 10, interface_name);
 
-    if (fw1_summary_in_tree) {
-      /* Known interface name - if not, remember it */
-      found=1;
-      for (i=0; i<interface_anzahl && i<MAX_INTERFACES; i++) {
-        if ( strcmp(p_interfaces[i], interface_name) == 0 ) {
-          found=0;
-        }
-      }
-      if (found == 1 ) {
-        p_interfaces[interface_anzahl] = strdup(interface_name);
-        interface_anzahl++;
-      }
-      /* display all interfaces always in the same order */
-      for (i=0; i<interface_anzahl; i++) {
-        found=1;
-        if ( strcmp(p_interfaces[i], interface_name) == 0 ) {
-          found=0;
-        }
-        p_header = header + strlen(header);
-        sprintf(p_header, "  %c %s %c",
-  	  found==0 ? (direction[0]=='i' ? 'i' : (direction[0]=='O' ? 'O' : ' ')) : ' ',
-	  p_interfaces[i],
-	  found==0 ? (direction[0]=='I' ? 'I' : (direction[0]=='o' ? 'o' : ' ')) : ' '
-	  );
-      }
-    } else {
-      /* without FW1 summary delete all remembered names of interfaces */
-      for (i=0; i<interface_anzahl && i<MAX_INTERFACES; i++) {
-        free(p_interfaces[i]);
-      }
-      interface_anzahl = 0;
+  /* Known interface name - if not, remember it */
+  found=1;
+  for (i=0; i<interface_anzahl && i<MAX_INTERFACES; i++) {
+    if ( strcmp(p_interfaces[i], interface_name) == 0 ) {
+      found=0;
     }
+  }
+  if (found == 1 ) {
+    p_interfaces[interface_anzahl] = strdup(interface_name);
+    interface_anzahl++;
+  }
+  /* display all interfaces always in the same order */
+  for (i=0; i<interface_anzahl; i++) {
+    found=1;
+    if ( strcmp(p_interfaces[i], interface_name) == 0 ) {
+      found=0;
+    }
+    p_header = header + strlen(header);
+    sprintf(p_header, "  %c %s %c",
+	found==0 ? (direction[0]=='i' ? 'i' : (direction[0]=='O' ? 'O' : ' ')) : ' ',
+	p_interfaces[i],
+	found==0 ? (direction[0]=='I' ? 'I' : (direction[0]=='o' ? 'o' : ' ')) : ' '
+	);
+  }
 
+  if (check_col(pinfo->cinfo, COL_IF_DIR))
+    col_add_str(pinfo->cinfo, COL_IF_DIR, header + strlen(header1) + 1);
+
+  if (tree) {
+    if (!fw1_summary_in_tree) {
+      /* Do not show the summary in Protocol Tree */
+      sprintf(header, header1);
+    }
     ti = proto_tree_add_protocol_format(tree, proto_fw1, tvb, 0, ETH_HEADER_SIZE, header);
 
     /* create display subtree for the protocol */
@@ -214,7 +227,7 @@ proto_register_fw1(void)
   fw1_module = prefs_register_protocol(proto_fw1, NULL);
   prefs_register_bool_preference(fw1_module, "summary_in_tree",
             "Show FireWall-1 summary in protocol tree",
-"Whether the FireWall-1 summary line should be shown in the protocol tree",
+	    "Whether the FireWall-1 summary line should be shown in the protocol tree",
             &fw1_summary_in_tree);
 
   register_dissector("fw1", dissect_fw1, proto_fw1);
