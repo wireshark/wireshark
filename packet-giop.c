@@ -4,7 +4,7 @@
  * Laurent Deniel <deniel@worldnet.fr>
  * Craig Rodrigues <rodrigc@mediaone.net>
  *
- * $Id: packet-giop.c,v 1.21 2000/11/09 09:15:40 guy Exp $
+ * $Id: packet-giop.c,v 1.22 2000/11/09 10:50:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -386,7 +386,7 @@ dissect_target_address(tvbuff_t * tvb, int *offset, proto_tree * sub_tree,
    if(sub_tree)
    {
      proto_tree_add_text (sub_tree, tvb, *offset -2, 2,
-                 "TargetAddress Discriminant: %d", discriminant);
+                 "TargetAddress Discriminant: %u", discriminant);
    }
   
    switch (discriminant)
@@ -399,7 +399,7 @@ dissect_target_address(tvbuff_t * tvb, int *offset, proto_tree * sub_tree,
 		   if(sub_tree)
 		   {
                       proto_tree_add_text (sub_tree, tvb, *offset -len -4, 4,
-			                   "KeyAddr (object key length): %d", len);
+			                   "KeyAddr (object key length): %u", len);
                       proto_tree_add_text (sub_tree, tvb, *offset -len, len,
 			                   "KeyAddr (object key): %s", object_key);
 		   }
@@ -424,6 +424,84 @@ dissect_target_address(tvbuff_t * tvb, int *offset, proto_tree * sub_tree,
    g_free( object_key );
 }
 
+static void
+dissect_reply_body (tvbuff_t *tvb, u_int offset, packet_info *pinfo,
+		    proto_tree *tree, gboolean stream_is_big_endian,
+		    guint32 reply_status)
+{
+  u_int sequence_length;
+  u_int minor_code_value;
+  u_int completion_status;
+
+  switch (reply_status)
+    {
+    case SYSTEM_EXCEPTION:
+      if (tree)
+	{
+	  sequence_length = get_CDR_ulong(tvb, &offset, stream_is_big_endian);
+
+	  proto_tree_add_text(tree, tvb, offset-4, 4,
+			   "Exception length: %u", sequence_length);
+
+	  if (sequence_length != 0)
+	    {
+	      proto_tree_add_text(tree, tvb, offset, sequence_length,
+			   "Exception id: %s",
+			   tvb_format_text(tvb, offset, sequence_length - 1));
+	      offset += sequence_length;
+	    }
+
+	  minor_code_value = get_CDR_ulong(tvb, &offset, stream_is_big_endian);
+	  completion_status = get_CDR_ulong(tvb, &offset, stream_is_big_endian);
+	
+	  proto_tree_add_text(tree, tvb, offset-8, 4,
+			   "Minor code value: %u", minor_code_value);
+	  proto_tree_add_text(tree, tvb, offset-4, 4,
+			   "Completion Status: %u", completion_status);
+        }
+      break;
+
+    case USER_EXCEPTION:
+      if (tree)
+        {
+	  sequence_length = get_CDR_ulong(tvb, &offset, stream_is_big_endian);
+
+	  proto_tree_add_text(tree, tvb, offset-4, 4,
+			   "Exception length: %u", sequence_length);
+
+	  if (sequence_length != 0)
+	    {
+	      proto_tree_add_text(tree, tvb, offset, sequence_length,
+			   "Exception id: %s",
+			   tvb_format_text(tvb, offset, sequence_length));
+
+	      offset += sequence_length;
+	    }
+
+	  sequence_length = get_CDR_ulong(tvb, &offset, stream_is_big_endian);
+	  proto_tree_add_text(tree, tvb, offset-4, 4,
+			   "Exception member length: %u", sequence_length);
+
+	  if (sequence_length != 0)
+	    {
+	      proto_tree_add_text(tree, tvb, offset, sequence_length,
+			   "Exception member: %s",
+			   tvb_format_text(tvb, offset, sequence_length - 1));
+	    }
+
+	}
+      break;
+
+    default:
+	if (tree)
+	  {
+	    proto_tree_add_text(tree, tvb, offset,
+			   tvb_length_remaining(tvb, offset),
+			   "Reply body: <not shown>");
+	  }
+    }
+}
+
 /* The format of the Reply Header for GIOP 1.0 and 1.1
  * is documented in Section 15.4.3.1 * of the CORBA 2.4 standard.
 
@@ -443,7 +521,7 @@ dissect_giop_reply (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
   guint32 context_id;
   guint32 sequence_length;
   guint32 request_id;
-  guint8 reply_status;
+  guint32 reply_status;
   gboolean big_endian;
   proto_tree *reply_tree = NULL;
   proto_item *tf;
@@ -502,14 +580,14 @@ dissect_giop_reply (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
       if (tree)
 	{
 	  proto_tree_add_text (reply_tree, tvb, offset -4, 4,
-			       "Context id: %d", context_id);
+			       "Context id: %u", context_id);
 	}
 
       sequence_length = get_CDR_ulong(tvb, &offset, stream_is_big_endian);
       if(tree)
       {	     
 	  proto_tree_add_text (reply_tree, tvb, offset -4,
-			       4, "Sequence length: %d", sequence_length);
+			       4, "Sequence length: %u", sequence_length);
       }
 
       if(tree)
@@ -527,23 +605,32 @@ dissect_giop_reply (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
     }				/* for */
 
   request_id = get_CDR_ulong(tvb, &offset, stream_is_big_endian);
-
+  if (check_col(pinfo->fd, COL_INFO))
+    {
+      col_append_fstr(pinfo->fd, COL_INFO, " %u", request_id);
+    }
   if (tree)
     {
       proto_tree_add_text (reply_tree, tvb, offset-4, 4,
-			   "Request id: %d", request_id);
+			   "Request id: %u", request_id);
     }
 
-  reply_status = tvb_get_guint8 (tvb, offset);
+  reply_status = get_CDR_ulong(tvb, &offset, stream_is_big_endian);
+  if (check_col(pinfo->fd, COL_INFO))
+    {
+      col_append_fstr(pinfo->fd, COL_INFO, ": %s",
+			   match_strval(reply_status, reply_status_types));
+    }
   if (tree)
     {
-      proto_tree_add_text (reply_tree, tvb, offset, 1,
+      proto_tree_add_text (reply_tree, tvb, offset-4, 4,
 			   "Reply status: %s",
 			   match_strval(reply_status, reply_status_types));
 
     }
-  offset += 1;
 
+  dissect_reply_body(tvb, offset, pinfo, reply_tree, stream_is_big_endian,
+    reply_status);
 }
 
 /** The format of the GIOP 1.2 Reply header is very similar to the 1.0
@@ -567,7 +654,7 @@ dissect_giop_reply_1_2 (tvbuff_t * tvb, packet_info * pinfo,
   guint32 context_id;
   guint32 sequence_length;
   guint32 request_id;
-  guint8 reply_status;
+  guint32 reply_status;
   proto_tree *reply_tree = NULL;
   proto_item *tf;
   int i;
@@ -585,17 +672,25 @@ dissect_giop_reply_1_2 (tvbuff_t * tvb, packet_info * pinfo,
     }
 
   request_id = get_CDR_ulong(tvb, &offset, stream_is_big_endian);
+  if (check_col(pinfo->fd, COL_INFO))
+    {
+      col_append_fstr(pinfo->fd, COL_INFO, " %u", request_id);
+    }
   if (tree)
     {
       proto_tree_add_text (reply_tree, tvb, offset-4, 4,
-			   "Request id: %d", request_id);
+			   "Request id: %u", request_id);
     }
 
-  reply_status = tvb_get_guint8 (tvb, offset);
-  offset += 1;
+  reply_status = get_CDR_ulong(tvb, &offset, stream_is_big_endian);
+  if (check_col(pinfo->fd, COL_INFO))
+    {
+      col_append_fstr(pinfo->fd, COL_INFO, ": %s",
+			   match_strval(reply_status, reply_status_types));
+    }
   if (tree)
     {
-      proto_tree_add_text (reply_tree, tvb, offset-1, 1,
+      proto_tree_add_text (reply_tree, tvb, offset-4, 4,
 			   "Reply status: %s",
 			   match_strval(reply_status, reply_status_types));
 
@@ -610,14 +705,14 @@ dissect_giop_reply_1_2 (tvbuff_t * tvb, packet_info * pinfo,
       if (tree)
 	{
 	  proto_tree_add_text (reply_tree, tvb, offset -4, 4,
-			       "Context id: %d", context_id);
+			       "Context id: %u", context_id);
 	}
 
       sequence_length = get_CDR_ulong(tvb, &offset, stream_is_big_endian);
       if (tree)
       {
 	  proto_tree_add_text (reply_tree, tvb, offset- 4,
-			       4, "Sequence length: %d", sequence_length);
+			       4, "Sequence length: %u", sequence_length);
       }
 
       offset += sequence_length;
@@ -632,6 +727,9 @@ dissect_giop_reply_1_2 (tvbuff_t * tvb, packet_info * pinfo,
       }
 
     }				/* for */
+
+  dissect_reply_body(tvb, offset, pinfo, reply_tree, stream_is_big_endian,
+    reply_status);
 }
 
 static void
@@ -657,10 +755,14 @@ dissect_giop_cancel_request (tvbuff_t * tvb, packet_info * pinfo,
     }
 
   request_id = get_CDR_ulong(tvb, &offset, stream_is_big_endian);
+  if (check_col(pinfo->fd, COL_INFO))
+    {
+      col_append_fstr(pinfo->fd, COL_INFO, " %u", request_id);
+    }
   if (tree)
     {
       proto_tree_add_text (cancel_request_tree, tvb, offset-4, 4,
-			   "Request id: %d", request_id);
+			   "Request id: %u", request_id);
     }
 
 
@@ -721,14 +823,14 @@ dissect_giop_request_1_1 (tvbuff_t * tvb, packet_info * pinfo,
       if (tree)
 	{
 	  proto_tree_add_text (request_tree, tvb, offset-4, 4,
-			       "Context id: %d", context_id);
+			       "Context id: %u", context_id);
 	}
 
        sequence_length = get_CDR_ulong(tvb, &offset, stream_is_big_endian);
        if(tree)
 	{
 	   proto_tree_add_text (request_tree, tvb, offset-4, 4, 
-			        "Sequence length: %d", sequence_length);
+			        "Sequence length: %u", sequence_length);
 	}
 
         offset +=  sequence_length;
@@ -743,18 +845,27 @@ dissect_giop_request_1_1 (tvbuff_t * tvb, packet_info * pinfo,
     } /* for */
 
   request_id = get_CDR_ulong(tvb, &offset, stream_is_big_endian);
+  if (check_col(pinfo->fd, COL_INFO))
+    {
+      col_append_fstr(pinfo->fd, COL_INFO, " %u", request_id);
+    }
   if (tree)
     {
       proto_tree_add_text (request_tree, tvb, offset-4, 4,
-			   "Request id: %d", request_id);
+			   "Request id: %u", request_id);
     }
 
   response_expected = tvb_get_guint8( tvb, offset );
   offset += 1;
+  if (check_col(pinfo->fd, COL_INFO))
+    {
+      col_append_fstr(pinfo->fd, COL_INFO, " (%s)",
+		response_expected ? "two-way" : "one-way");
+    }
   if (tree)
     {
       proto_tree_add_text (request_tree, tvb, offset-1, 1,
-			   "Response expected: %d", response_expected);
+			   "Response expected: %u", response_expected);
     }
 
   if( header->GIOP_version.minor > 0)
@@ -773,7 +884,7 @@ dissect_giop_request_1_1 (tvbuff_t * tvb, packet_info * pinfo,
   if(tree)
   {
          proto_tree_add_text (request_tree, tvb, offset-4, 4,
-         /**/                 "Object Key length: %d", len);
+         /**/                 "Object Key length: %u", len);
   } 
 
   if( len > 0)
@@ -794,12 +905,16 @@ dissect_giop_request_1_1 (tvbuff_t * tvb, packet_info * pinfo,
   if(tree)
   {
          proto_tree_add_text (request_tree, tvb, offset -4, 4,
-         /**/                 "Operation length: %d", len);
+         /**/                 "Operation length: %u", len);
   } 
 
   if( len > 0)
   {
        get_CDR_octet_seq(tvb, &operation, &offset, len);
+       if (check_col(pinfo->fd, COL_INFO))
+       {
+         col_append_fstr(pinfo->fd, COL_INFO, ": %s", operation);
+       }
        if(tree)
        {
          proto_tree_add_text (request_tree, tvb, offset - len, len,
@@ -813,7 +928,7 @@ dissect_giop_request_1_1 (tvbuff_t * tvb, packet_info * pinfo,
   if(tree)
   {
          proto_tree_add_text (request_tree, tvb, offset-4, 4,
-         /**/                 "Requesting Principal Length: %d", len);
+         /**/                 "Requesting Principal Length: %u", len);
   } 
 
   if( len > 0)
@@ -872,10 +987,14 @@ dissect_giop_request_1_2 (tvbuff_t * tvb, packet_info * pinfo,
     }
 
   request_id = get_CDR_ulong(tvb, &offset, stream_is_big_endian);
+  if (check_col(pinfo->fd, COL_INFO))
+    {
+      col_append_fstr(pinfo->fd, COL_INFO, " %u", request_id);
+    }
   if (request_tree)
     {
       proto_tree_add_text (request_tree, tvb, offset-4, 4,
-			   "Request id: %d", request_id);
+			   "Request id: %u", request_id);
     }
 
   response_flags = tvb_get_guint8( tvb, offset );
@@ -883,7 +1002,7 @@ dissect_giop_request_1_2 (tvbuff_t * tvb, packet_info * pinfo,
   if (request_tree)
     {
       proto_tree_add_text (request_tree, tvb, offset-1, 1,
-			   "Response flags: %s (%d)",
+			   "Response flags: %s (%u)",
 			        match_strval(response_flags, sync_scope),  
 			        response_flags);
     }
@@ -902,12 +1021,16 @@ dissect_giop_request_1_2 (tvbuff_t * tvb, packet_info * pinfo,
   if(tree)
   {
          proto_tree_add_text (request_tree, tvb, offset -4, 4,
-         /**/                 "Operation length: %d", len);
+         /**/                 "Operation length: %u", len);
   } 
 
   if( len > 0)
   {
        get_CDR_octet_seq(tvb, &operation, &offset, len);
+       if (check_col(pinfo->fd, COL_INFO))
+       {
+         col_append_fstr(pinfo->fd, COL_INFO, ": %s", operation);
+       }
        if(request_tree)
        {
          proto_tree_add_text (request_tree, tvb, offset - len, len,
@@ -920,8 +1043,9 @@ dissect_giop_request_1_2 (tvbuff_t * tvb, packet_info * pinfo,
 }
 
 static void
-dissect_giop_locate_request( tvbuff_t * tvb, proto_tree * tree, 
-			MessageHeader * header, gboolean stream_is_big_endian)
+dissect_giop_locate_request( tvbuff_t * tvb, packet_info * pinfo,
+			proto_tree * tree, MessageHeader * header,
+			gboolean stream_is_big_endian)
 {
   guint32 offset = 0;
   guint32 request_id;
@@ -943,10 +1067,14 @@ dissect_giop_locate_request( tvbuff_t * tvb, proto_tree * tree,
     }
 
   request_id = get_CDR_ulong(tvb, &offset, stream_is_big_endian);
+  if (check_col(pinfo->fd, COL_INFO))
+    {
+      col_append_fstr(pinfo->fd, COL_INFO, " %u", request_id);
+    }
   if (locate_request_tree)
     {
       proto_tree_add_text (locate_request_tree, tvb, offset-4, 4,
-			   "Request id: %d", request_id);
+			   "Request id: %u", request_id);
     }
 
   if(header->GIOP_version.minor < 2)
@@ -974,8 +1102,9 @@ dissect_giop_locate_request( tvbuff_t * tvb, proto_tree * tree,
 }
 
 static void
-dissect_giop_locate_reply( tvbuff_t * tvb, proto_tree * tree, 
-			MessageHeader * header, gboolean stream_is_big_endian)
+dissect_giop_locate_reply( tvbuff_t * tvb, packet_info * pinfo,
+			proto_tree * tree, MessageHeader * header,
+			gboolean stream_is_big_endian)
 {
   guint32 offset = 0;
   guint32 request_id;
@@ -996,10 +1125,14 @@ dissect_giop_locate_reply( tvbuff_t * tvb, proto_tree * tree,
     }
 
   request_id = get_CDR_ulong(tvb, &offset, stream_is_big_endian);
+  if (check_col(pinfo->fd, COL_INFO))
+    {
+      col_append_fstr(pinfo->fd, COL_INFO, " %u", request_id);
+    }
   if (locate_reply_tree)
     {
       proto_tree_add_text (locate_reply_tree, tvb, offset-4, 4,
-			   "Request id: %d", request_id);
+			   "Request id: %u", request_id);
     }
 
   locate_status = get_CDR_ulong(tvb, &offset, stream_is_big_endian);
@@ -1015,7 +1148,7 @@ dissect_giop_locate_reply( tvbuff_t * tvb, proto_tree * tree,
 }
 
 static void
-dissect_giop_fragment( tvbuff_t * tvb, proto_tree * tree, 
+dissect_giop_fragment( tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 			MessageHeader * header, gboolean stream_is_big_endian)
 {
   guint32 offset = 0;
@@ -1036,10 +1169,14 @@ dissect_giop_fragment( tvbuff_t * tvb, proto_tree * tree,
     }
 
   request_id = get_CDR_ulong(tvb, &offset, stream_is_big_endian);
+  if (check_col(pinfo->fd, COL_INFO))
+    {
+      col_append_fstr(pinfo->fd, COL_INFO, " %u", request_id);
+    }
   if (fragment_tree )
     {
       proto_tree_add_text (fragment_tree, tvb, offset-4, 4,
-			   "Request id: %d", request_id);
+			   "Request id: %u", request_id);
     }
 
 				   
@@ -1105,7 +1242,7 @@ dissect_giop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
          "GIOP"? */
       if (check_col (pinfo->fd, COL_INFO))
 	{
-	  col_add_fstr (pinfo->fd, COL_INFO, "Version %d.%d",
+	  col_add_fstr (pinfo->fd, COL_INFO, "Version %u.%u",
 			header.GIOP_version.major, header.GIOP_version.minor);
 	}
       if (tree)
@@ -1115,7 +1252,7 @@ dissect_giop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	  clnp_tree = proto_item_add_subtree (ti, ett_giop);
 	  proto_tree_add_text (clnp_tree, giop_header_tvb, 0,
 			       tvb_length (giop_header_tvb),
-			       "Version %d.%d not supported",
+			       "Version %u.%u not supported",
 			       header.GIOP_version.major,
 			       header.GIOP_version.minor);
 	}
@@ -1137,7 +1274,7 @@ dissect_giop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
       proto_tree_add_text (clnp_tree, giop_header_tvb, offset, 4,
 			   "Magic number: %s", GIOP_MAGIC);
       proto_tree_add_text (clnp_tree, giop_header_tvb, 4, 2,
-			   "Version: %d.%d",
+			   "Version: %u.%u",
 			   header.GIOP_version.major,
 			   header.GIOP_version.minor);
       switch (minor_version)
@@ -1173,7 +1310,7 @@ dissect_giop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
   if (check_col (pinfo->fd, COL_INFO)) 
   { 
-      col_add_fstr (pinfo->fd, COL_INFO, "GIOP %d.%d %s",
+      col_add_fstr (pinfo->fd, COL_INFO, "GIOP %u.%u %s",
                     header.GIOP_version.major, header.GIOP_version.minor,
                     match_strval(header.message_type, giop_message_types));
   }
@@ -1213,15 +1350,15 @@ dissect_giop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 				    &header, stream_is_big_endian);
 	break;
     case LocateRequest:
-	dissect_giop_locate_request(payload_tvb, tree, &header,
+	dissect_giop_locate_request(payload_tvb, pinfo, tree, &header,
 				    stream_is_big_endian);
 	break;
     case LocateReply:
-	dissect_giop_locate_reply(payload_tvb, tree, &header,
+	dissect_giop_locate_reply(payload_tvb, pinfo, tree, &header,
 				  stream_is_big_endian);
 	break;
     case Fragment:
-        dissect_giop_fragment(payload_tvb, tree, &header,
+        dissect_giop_fragment(payload_tvb, pinfo, tree, &header,
 			      stream_is_big_endian);
         break;	
     default:
