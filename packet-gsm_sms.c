@@ -11,7 +11,7 @@
  *   Technical realization of Short Message Service (SMS)
  *   (3GPP TS 23.040 version 5.4.0 Release 5)
  *
- * $Id: packet-gsm_sms.c,v 1.7 2003/12/13 23:55:29 guy Exp $
+ * $Id: packet-gsm_sms.c,v 1.8 2003/12/14 00:04:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1389,10 +1389,10 @@ dis_field_fcs(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 oct)
 
 static int
 char_7bit_unpack(unsigned int offset, unsigned int in_length, unsigned int out_length,
-		     unsigned char *input, unsigned char *output)
+		     const guint8 *input, unsigned char *output)
 {
     unsigned char *out_num = output; /* Current pointer to the output buffer */
-    unsigned char *in_num = input;  /* Current pointer to the input buffer */
+    const guint8 *in_num = input;    /* Current pointer to the input buffer */
     unsigned char rest = 0x00;
     int bits;
 
@@ -1821,7 +1821,7 @@ dis_field_ud(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 length, gb
 	{
 	    out_len =
 		char_7bit_unpack(fill_bits, length, sizeof(bigbuf),
-		    (guchar*) (tvb_get_ptr(tvb, offset, length)), bigbuf);
+		    tvb_get_ptr(tvb, offset, length), bigbuf);
 	    bigbuf[out_len] = '\0';
 	    char_ascii_decode(bigbuf, bigbuf, out_len);
 
@@ -1829,8 +1829,8 @@ dis_field_ud(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 length, gb
 	}
 	else if (eight_bit)
 	{
-	    proto_tree_add_text(subtree, tvb, offset, length, "%.*s",
-	        (int)length, tvb_get_ptr(tvb, offset, length));
+	    proto_tree_add_text(subtree, tvb, offset, length, "%s",
+	        tvb_format_text(tvb, offset, length));
 	}
 	else if (ucs2)
 	{
