@@ -439,14 +439,17 @@ WinXP style on your screen.
 
 Problems with MS Visual C++ Version 7 / VC.NET
 ----------------------------------------------
-Beside licensing problems with these compilers, there are known problems with DLL's.
-If Ethereal is compiled with MSVC Version 7, there are conflicts in the MSVCRT DLL's,
-The MSVCRT.DLL includes the standard ANSI-C functions like fopen, malloc, etc.. MSVCRT.DLL
-is shipped with the MSVC 6 compiler versions, and dynamically linked to prebuild DLL's like 
-the one's for gtk, glib and such. The MSVC 7 compiler now uses and ships MSVCRT71.DLL with 
-it, which is incompatible with MSVCRT.DLL. So when using the MSVC 7 compiler, some parts of
-the Ethereal code uses MSVCRT71.DLL, and some others (indirectly from e.g. the gtk DLL) will
-use MSVCRT.DLL. This will result in incorrect file handles and such.
+
+Beside licensing problems with these compilers, there are known problems
+with DLL's.  If Ethereal is compiled with MSVC Version 7, there are
+conflicts in the MSVCRT DLL's, The MSVCRT.DLL includes the standard
+ANSI-C functions like fopen, malloc, etc..  MSVCRT.DLL is shipped with
+the MSVC 6 compiler versions, and dynamically linked to prebuild DLL's
+like the one's for gtk, glib and such.  The MSVC 7 compiler now uses and
+ships MSVCRT71.DLL with it, which is incompatible with MSVCRT.DLL.  So
+when using the MSVC 7 compiler, some parts of the Ethereal code uses
+MSVCRT71.DLL, and some others (indirectly from e.g. the gtk DLL) will
+use MSVCRT.DLL.  This will result in incorrect file handles and such.
 
 The same problem seems to apply on all MSVC compilers after version 6, like the
 "Microsoft Visual C++ Toolkit 2003".
