@@ -1,7 +1,7 @@
 /* ftypes.h
  * Definitions for field types
  *
- * $Id: ftypes.h,v 1.28 2003/12/10 21:12:02 gerald Exp $
+ * $Id: ftypes.h,v 1.29 2004/01/25 17:22:57 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -142,6 +142,7 @@ typedef struct _fvalue_t {
 		gdouble		floating;
 		gchar		*string;
 		GByteArray	*bytes;
+		GString		*gstring;
 		ipv4_addr	ipv4;
 		nstime_t	time;
 		tvbuff_t	*tvb;

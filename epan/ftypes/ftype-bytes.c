@@ -1,5 +1,5 @@
 /*
- * $Id: ftype-bytes.c,v 1.23 2004/01/25 17:07:57 jmayer Exp $
+ * $Id: ftype-bytes.c,v 1.24 2004/01/25 17:22:57 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -558,7 +558,7 @@ cmp_contains(fvalue_t *fv_a, fvalue_t *fv_b)
 static gboolean
 cmp_matches(fvalue_t *fv_a, fvalue_t *fv_b)
 {
-	GByteArray *a = fv_a->value.bytes;
+	GString *a = fv_a->value.gstring;
 	pcre_tuple_t *pcre = fv_b->value.re;
 	int options = 0;
 	int rc;
@@ -576,7 +576,7 @@ cmp_matches(fvalue_t *fv_a, fvalue_t *fv_b)
 	rc = pcre_exec(
 		pcre->re,	/* Compiled PCRE */
 		pcre->ex,	/* PCRE extra from pcre_study() */
-		(const char *) a->data,	/* The data to check for the pattern... */
+		a->str,		/* The data to check for the pattern... */
 		a->len,		/* ... and its length */
 		0,			/* Start offset within data */
 		options,	/* PCRE options */
