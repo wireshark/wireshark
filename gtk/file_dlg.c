@@ -1,7 +1,7 @@
 /* file_dlg.c
  * Dialog boxes for handling files
  *
- * $Id: file_dlg.c,v 1.81 2004/01/10 17:28:46 ulfl Exp $
+ * $Id: file_dlg.c,v 1.82 2004/01/14 14:28:25 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -994,7 +994,8 @@ file_save_as_ok_cb(GtkWidget *w _U_, GtkFileSelection *fs) {
 void
 file_save_as_destroy(void)
 {
-  gtk_widget_destroy(file_save_as_w);
+  if (file_save_as_w)
+    gtk_widget_destroy(file_save_as_w);
 }
 
 static void
