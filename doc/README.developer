@@ -39,14 +39,15 @@ the function in a header file, even if this requires that you not make
 it inline on any platform.
 
 Don't use "uchar", "u_char", "ushort", "u_short", "uint", "u_int",
-"ulong", or "u_long"; they aren't defined on all platforms.  If you want
-an 8-bit unsigned quantity, use "guint8"; if you want an 8-bit character
-value with the 8th bit not interpreted as a sign bit, use "guchar"; if
-you want a 16-bit unsigned quantity, use "guint16"; if you want a 32-bit
-unsigned quantity, use "guint32"; and if you want an "int-sized"
-unsigned quantity, use "guint".  Use "%d", "%u", "%x", and "%o" to print
-those types; don't use "%ld", "%lu", "%lx", or "%lo", as longs are 64
-bits long on many platforms, but "guint32" is 32 bits long.
+"ulong", "u_long" or "boolean"; they aren't defined on all platforms.
+If you want an 8-bit unsigned quantity, use "guint8"; if you want an
+8-bit character value with the 8th bit not interpreted as a sign bit,
+use "guchar"; if you want a 16-bit unsigned quantity, use "guint16";
+if you want a 32-bit unsigned quantity, use "guint32"; and if you want
+an "int-sized" unsigned quantity, use "guint"; if you want a boolean,
+use "gboolean".  Use "%d", "%u", "%x", and "%o" to print those types;
+don't use "%ld", "%lu", "%lx", or "%lo", as longs are 64 bits long on
+many platforms, but "guint32" is 32 bits long.
 
 Don't use "long" to mean "signed 32-bit integer", and don't use
 "unsigned long" to mean "unsigned 32-bit integer"; "long"s are 64 bits
