@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.89 2001/08/02 08:48:46 guy Exp $
+ * $Id: packet-smb.c,v 1.90 2001/08/02 09:30:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -8986,16 +8986,10 @@ dissect_transact2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
     new_request_key -> pid          = si.pid;
 
     request_val = g_mem_chunk_alloc(smb_request_vals);
-    request_val -> mid = si.mid;
     request_val -> last_transact2_command = 0xFFFF;
 
     g_hash_table_insert(smb_request_hash, new_request_key, request_val);
     
-  }
-  else { /* Update the transact request */
-
-    request_val -> mid = si.mid;
-
   }
 
   si.request_val = request_val;  /* Save this for later */
@@ -9742,7 +9736,6 @@ dissect_transact_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *p
     new_request_key -> pid          = si.pid;
 
     request_val = g_mem_chunk_alloc(smb_request_vals);
-    request_val -> mid = si.mid;
     request_val -> last_transact_command = NULL;
     request_val -> last_param_descrip = NULL;
     request_val -> last_data_descrip = NULL;

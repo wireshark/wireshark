@@ -2,7 +2,7 @@
  * Defines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: smb.h,v 1.6 2001/01/29 08:14:42 sharpe Exp $
+ * $Id: smb.h,v 1.7 2001/08/02 09:30:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -630,7 +630,6 @@
 struct smb_request_val {
   guint16 last_transact2_command;
   gchar *last_transact_command;
-  guint16 mid;
   guint16 last_lanman_cmd;
   gchar *last_param_descrip;   /* Keep these descriptors around */
   gchar *last_data_descrip;
