@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.56 1999/10/16 20:59:03 deniel Exp $
+ * $Id: packet-ip.c,v 1.57 1999/10/22 03:52:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -172,6 +172,9 @@ typedef struct _e_ip {
   guint32 ip_src;
   guint32 ip_dst;
 } e_ip;
+
+/* Minimum IP header length. */
+#define	IPH_MIN_LEN	20
 
 /* IP flags. */
 #define IP_CE		0x8000		/* Flag: "Congestion"		*/
@@ -679,7 +682,12 @@ dissect_ip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   int        advance;
   guint8     nxt;
 
-  /* To do: check for runts, errs, etc. */
+  /* To do: check for errs, etc. */
+  if (!BYTES_ARE_IN_FRAME(offset, IPH_MIN_LEN)) {
+    dissect_data(pd, offset, fd, tree);
+    return;
+  }
+
   /* Avoids alignment problems on many architectures. */
   memcpy(&iph, &pd[offset], sizeof(e_ip));
   iph.ip_len = ntohs(iph.ip_len);
@@ -698,6 +706,7 @@ dissect_ip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   if (pi.captured_len > len)
     pi.captured_len = len;
 
+  /* XXX - check to make sure this is at least IPH_MIN_LEN. */
   hlen = lo_nibble(iph.ip_v_hl) * 4;	/* IP header length, in bytes */
   
   switch (iph.ip_p) {
