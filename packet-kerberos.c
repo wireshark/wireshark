@@ -575,6 +575,17 @@ printf("woohoo decrypted keytype:%d in frame:%d\n", keytype, pinfo->fd->num);
 #define KRB5_NT_SMTP_NAME      7
 #define KRB5_NT_ENTERPRISE    10
 
+/*
+ * MS specific name types, from
+ *
+ *	http://msdn.microsoft.com/library/en-us/security/security/kerb_external_name.asp
+ */
+#define KRB5_NT_MS_PRINCIPAL		-128	
+#define KRB5_NT_MS_PRINCIPAL_AND_SID	-129
+#define KRB5_NT_ENT_PRINCIPAL_AND_SID	-130
+#define KRB5_NT_PRINCIPAL_AND_SID 	-131
+#define KRB5_NT_SRV_INST_AND_SID	-132
+
 /* error table constants */
 /* I prefixed the krb5_err.et constant names with KRB5_ET_ for these */
 #define KRB5_ET_KRB5KDC_ERR_NONE                         0
@@ -747,6 +758,11 @@ static const value_string krb5_princ_types[] = {
     { KRB5_NT_X500_PRINCIPAL       , "Encoded X.509 Distinguished Name" },
     { KRB5_NT_SMTP_NAME            , "SMTP Name" },
     { KRB5_NT_ENTERPRISE           , "Enterprise Name" },
+    { KRB5_NT_MS_PRINCIPAL         , "NT 4.0 style name (MS specific)" },
+    { KRB5_NT_MS_PRINCIPAL_AND_SID , "NT 4.0 style name with SID (MS specific)"},
+    { KRB5_NT_ENT_PRINCIPAL_AND_SID, "UPN and SID (MS specific)"},
+    { KRB5_NT_PRINCIPAL_AND_SID    , "Principal name and SID (MS specific)"},
+    { KRB5_NT_SRV_INST_AND_SID     , "SPN and SID (MS specific)"},
     { 0                            , NULL },
 };
 
@@ -1335,10 +1351,11 @@ dissect_krb5_pvno(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offse
  *                     name-string[1]   SEQUENCE OF GeneralString
  * }
  */
-static guint32 name_type;
 static int 
 dissect_krb5_name_type(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
 {
+	guint32 name_type;
+
 	offset=dissect_ber_integer(pinfo, tree, tvb, offset, hf_krb_name_type, &name_type);
 	if(tree){
 		proto_item_append_text(tree, " (%s):", 
@@ -3439,7 +3456,7 @@ proto_register_kerberos(void)
 	    "Type", "kerberos.pac.signature.type", FT_INT32, BASE_DEC,
 	    NULL, 0, "PAC Signature Type", HFILL }},
 	{ &hf_krb_name_type, {
-	    "Name-type", "kerberos.name_type", FT_UINT32, BASE_DEC,
+	    "Name-type", "kerberos.name_type", FT_INT32, BASE_DEC,
 	    VALS(krb5_princ_types), 0, "Type of principal name", HFILL }},
 	{ &hf_krb_lr_type, {
 	    "Lr-type", "kerberos.lr_type", FT_UINT32, BASE_DEC,
