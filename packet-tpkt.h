@@ -5,7 +5,7 @@
  * Copyright 2000, Philips Electronics N.V.
  * Andreas Sikkema <andreas.sikkema@philips.com>
  *
- * $Id: packet-tpkt.h,v 1.4 2001/06/12 06:31:14 guy Exp $
+ * $Id: packet-tpkt.h,v 1.5 2002/02/02 02:51:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -28,8 +28,11 @@
 
 /*
  * Check whether this could be a TPKT-encapsulated PDU.
+ * Returns -1 if it's not.
+ * Sets "*offset" to the offset of the first byte past the TPKT header,
+ * and returns the length from the TPKT header, if it is.
  */
-gboolean is_tpkt( tvbuff_t *tvb, unsigned int* offset );
+int is_tpkt( tvbuff_t *tvb, int *offset );
 
 
 /*
@@ -38,8 +41,6 @@ gboolean is_tpkt( tvbuff_t *tvb, unsigned int* offset );
  *
  * Returns -1 if TPKT isn't enabled, otherwise returns the PDU length
  * from the TPKT header.
- *
- * Sets "*offset" to the offset following the TPKT header.
  */
-int dissect_tpkt_header( tvbuff_t *tvb, unsigned int* offset,
-    packet_info *pinfo, proto_tree *tree );
+int dissect_tpkt_header( tvbuff_t *tvb, int offset, packet_info *pinfo,
+    proto_tree *tree );

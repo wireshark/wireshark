@@ -2,7 +2,7 @@
  * Routines for Q.931 frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-q931.c,v 1.35 2002/01/24 09:20:50 guy Exp $
+ * $Id: packet-q931.c,v 1.36 2002/02/02 02:51:20 guy Exp $
  *
  * Modified by Andreas Sikkema for possible use with H.323
  *
@@ -106,7 +106,7 @@ static gint ett_q931_ie = -1;
 #define	Q931_STATUS_ENQUIRY	0x75
 
 static const value_string q931_message_type_vals[] = {
-  { Q931_ESCAPE,		"ESCAPE" },
+	{ Q931_ESCAPE,			"ESCAPE" },
 	{ Q931_ALERTING,		"ALERTING" },
 	{ Q931_CALL_PROCEEDING,		"CALL PROCEEDING" },
 	{ Q931_CONNECT,			"CONNECT" },
@@ -2096,9 +2096,10 @@ static const value_string q931_codeset_vals[] = {
 
 static gboolean
 q931_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-    gboolean started_heuristic)
+    gboolean is_heuristic)
 {
 	int		offset = 0;
+	int		q931_offset;
 	proto_tree	*q931_tree = NULL;
 	proto_item	*ti;
 	proto_tree	*ie_tree;
@@ -2130,96 +2131,61 @@ q931_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	 */
 #endif
 
-	protocol_discriminator = tvb_get_guint8( tvb, offset );
-	    /* Keep the protocol discriminator for later use */
-
-	if ( started_heuristic ) {
+	if ( is_heuristic ) {
 		/*
-		 * The heuristic Q.931 message should conform to this
+		 * The heuristic Q.931 dissector checks for TPKT-encapsulated
+		 * Q.931 packets.
 		 */
-		if ( protocol_discriminator != NLPID_Q_931 ) 
-			return FALSE;
-
-		if ( ! is_tpkt( tvb, &offset ) ) 
-			return FALSE;
-
-		if ( tvb_length_remaining( tvb, offset ) <= 3 ) 
-			return FALSE;
-	}
-
-	/* 
-	 * The first byte should be < 8 (3 is TPKT, rest is Q.931)
-	 */
-	if ( protocol_discriminator < NLPID_Q_931 ) {
-		/*
-		 * The minimum length of a Q.931 message is 3:
-		 * 1 byte for the protocol discriminator,
-		 * 1 for the call_reference length,
-		 * and one for the message type.
-		 */
-		if ( tvb_length_remaining( tvb, offset ) <= 3 ) 
-			return FALSE;
-
-		/* 
-		 * OK, there are a couple of bytes available, but is there 
-		 * also a protocol discriminator?
-		 */
-		if ( tvb_length_remaining( tvb, offset ) > 4 ) {
-			/* Reread the protocol discriminator */
-			protocol_discriminator =
-			    tvb_get_guint8( tvb, offset + 4);
-		} else {
-		      /* No discriminator available */
-		      protocol_discriminator = 0;
-		}
-
-		/*
-		 * If it's not H.323 related Q.931 no heuristic action needed
- 		 * Dangerous, there might be other uses for this code.....
-		 */
-		if (started_heuristic && protocol_discriminator != NLPID_Q_931) 
-			return FALSE;
-
-		/*
-		 * Always check if it's a real TPKT message
-		 */
-		if ( ! is_tpkt( tvb, &offset ) ) 
-			return FALSE;
-
-		lv_tpkt_len = dissect_tpkt_header( tvb, &offset, pinfo, tree );
+		q931_offset = offset;
+		lv_tpkt_len = is_tpkt( tvb, &q931_offset );
 		if (lv_tpkt_len == -1) {
 			/*
-			 * TPKT isn't enabled.
+			 * It's not a TPKT packet; reject it.
 			 */
 			return FALSE;
 		}
 
 		/*
-		 * Check if it's an empty TPKT message (the next one might be a 
-		 * real Q.931 message)
-		 * Skip TPKT length!
+		 * The minimum length of a Q.931 message is 3:
+		 * 1 byte for the protocol discriminator,
+		 * 1 for the call_reference length,
+		 * and one for the message type.
+		 *
+		 * Check that we have that many bytes past the
+		 * TPKT header.
 		 */
-		if ( tvb_length_remaining( tvb, offset ) < lv_tpkt_len - 4 ) {
-			return TRUE;
+		if ( !tvb_bytes_exist( tvb, q931_offset, 3 ) )
+			return FALSE;
+
+		/*
+		 * And check that we have that many bytes in the TPKT
+		 * packet.
+		 */
+		if (lv_tpkt_len < 3)
+			return FALSE;
+
+		/* Read the protocol discriminator */
+		protocol_discriminator = tvb_get_guint8(tvb, q931_offset);
+		if (protocol_discriminator != NLPID_Q_931) {
+			/* Doesn't look like Q.931 inside TPKT */
+			return FALSE;
 		}
 
 		/*
-		 * Reset the current_proto variable because dissect_tpkt
-		 * messed with it
+		 * Dissect the TPKT header.
 		 */
-		if ( started_heuristic )
-			pinfo->current_proto = "Q.931 HEUR";
-		else 
-			pinfo->current_proto = "Q.931";
-	}
+		dissect_tpkt_header( tvb, offset, pinfo, tree );
 
-	/*
-	 * The minimum length of a Q.931 message is
-	 * 3, 1 byte for the protocol discr. 1 for the call_reference length,
-	 * and one for the message type.
-	 */
-	if ( tvb_length_remaining( tvb, offset ) <= 3 ) {
-		return FALSE;
+		offset = q931_offset;
+
+		/*
+		 * Reset the current_proto variable because
+		 * "dissect_tpkt_header()" messed with it.
+		 */
+		pinfo->current_proto = "Q.931";
+	} else {
+		protocol_discriminator = tvb_get_guint8( tvb, offset );
+		/* Keep the protocol discriminator for later use */
 	}
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
@@ -2358,6 +2324,8 @@ q931_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		 * IE having the values 0x7E and 0x05 resp.
 		 * See http://www.mbuf.org/~moto/h323/h323decoder.html
 		 *
+		 * XXX - should we base this on whether this is the
+		 * heuristic dissector or not?
 		 */
 
 		if ( ( tvb_get_guint8( tvb, offset ) == 0x7E ) && 
@@ -2599,7 +2567,7 @@ dissect_q931_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 *
 	 * which says it's for "h323hostcall"?
 	 */
-	pinfo->current_proto = "Q.931 HEUR";
+	pinfo->current_proto = "Q.931";
 	return q931_dissector(tvb, pinfo, tree, TRUE);
 }
 

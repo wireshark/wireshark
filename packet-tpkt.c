@@ -7,7 +7,7 @@
  * Routine to dissect RFC 1006 TPKT packet containing OSI TP PDU
  * Copyright 2001, Martin Thomas <Martin_A_Thomas@yahoo.com>
  *
- * $Id: packet-tpkt.c,v 1.10 2002/01/21 07:36:44 guy Exp $
+ * $Id: packet-tpkt.c,v 1.11 2002/02/02 02:51:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -64,39 +64,13 @@ static dissector_handle_t osi_tp_handle;
 
 /*
  * Check whether this could be a TPKT-encapsulated PDU.
- */
-gboolean
-is_tpkt( tvbuff_t *tvb, unsigned int* offset )
-{
-	/* There should at least be 4 bytes left in the frame */
-	if ( (*offset) + 4 > tvb_length( tvb ) )
-		return FALSE;	/* there isn't */
-	/* 
-	 * The first octet should be 3 and the second one should be 0 
-	 * The H.323 implementers guide suggests that this migh not 
-	 * always be the case....
-	 */
-	if ( ! ( ( tvb_get_guint8( tvb, ( *offset ) ) == 3 ) && 
-		 ( tvb_get_guint8( tvb, ( *offset ) + 1 ) == 0 ) ) )
-		return FALSE;	/* They're not */
-
-	return TRUE;
-}
-
-/*
- * Dissect the TPKT header; called from the TPKT dissector, as well as
- * from dissectors such as the dissector for Q.931-over-TCP.
- *
- * Returns -1 if TPKT isn't enabled, otherwise returns the PDU length
- * from the TPKT header.
- *
- * Sets "*offset" to the offset following the TPKT header.
+ * Returns -1 if it's not.
+ * Sets "*offset" to the offset of the first byte past the TPKT header,
+ * and returns the length from the TPKT header, if it is.
  */
 int
-dissect_tpkt_header( tvbuff_t *tvb, unsigned int* offset, packet_info *pinfo, proto_tree *tree )
+is_tpkt( tvbuff_t *tvb, int *offset )
 {
-	proto_item *ti            = NULL;
-	proto_tree *tpkt_tree     = NULL;
 	guint16 data_len;
 
 	/*
@@ -106,13 +80,45 @@ dissect_tpkt_header( tvbuff_t *tvb, unsigned int* offset, packet_info *pinfo, pr
 	if (!proto_is_protocol_enabled(proto_tpkt))
 		return -1;
 
+	/* There should at least be 4 bytes left in the frame */
+	if ( (*offset) + 4 > (int)tvb_length( tvb ) )
+		return -1;	/* there aren't */
+
+	/*
+	 * The first octet should be 3 and the second one should be 0 
+	 * The H.323 implementers guide suggests that this might not 
+	 * always be the case....
+	 */
+	if ( ! ( ( tvb_get_guint8( tvb, ( *offset ) ) == 3 ) && 
+		 ( tvb_get_guint8( tvb, ( *offset ) + 1 ) == 0 ) ) )
+		return -1;	/* They're not */
+
+	data_len = tvb_get_ntohs( tvb, ( *offset ) + 2 );
+
+	*offset += 4;
+	return data_len;
+}
+
+/*
+ * Dissect the TPKT header; called from the TPKT dissector, as well as
+ * from dissectors such as the dissector for Q.931-over-TCP.
+ *
+ * Returns the PDU length from the TPKT header.
+ */
+int
+dissect_tpkt_header( tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree )
+{
+	proto_item *ti            = NULL;
+	proto_tree *tpkt_tree     = NULL;
+	guint16 data_len;
+
 	pinfo->current_proto = "TPKT";
 
 	if ( check_col( pinfo->cinfo, COL_PROTOCOL ) ) {
 		col_set_str( pinfo->cinfo, COL_PROTOCOL, "TPKT" );
 	}
 	
-	data_len = tvb_get_ntohs( tvb, (*offset) + 2 );
+	data_len = tvb_get_ntohs( tvb, offset + 2 );
 
 	if ( check_col( pinfo->cinfo, COL_INFO) ) {
 		col_add_fstr( pinfo->cinfo, COL_INFO, "TPKT Data length = %u",
@@ -120,27 +126,26 @@ dissect_tpkt_header( tvbuff_t *tvb, unsigned int* offset, packet_info *pinfo, pr
 	}
 
 	if ( tree ) {
-		ti = proto_tree_add_item( tree, proto_tpkt, tvb, (*offset), 4,
+		ti = proto_tree_add_item( tree, proto_tpkt, tvb, offset, 4,
 		    FALSE );
 		tpkt_tree = proto_item_add_subtree( ti, ett_tpkt );
 		/* Version 1st octet */
 		proto_tree_add_item( tpkt_tree, hf_tpkt_version, tvb,
-		    (*offset), 1, FALSE );
-		(*offset)++;
+		    offset, 1, FALSE );
+		offset++;
 		/* Reserved octet*/
 		proto_tree_add_item( tpkt_tree, hf_tpkt_reserved, tvb,
-		    (*offset), 1, FALSE );
-		(*offset)++;
+		    offset, 1, FALSE );
+		offset++;
 	}
 	else {
-		(*offset) += 2;
+		offset += 2;
 	}
 
 	if ( tree )
 		proto_tree_add_uint( tpkt_tree, hf_tpkt_length, tvb,
-		    (*offset), 2, data_len );
+		    offset, 2, data_len );
 
-	(*offset) += 2;
 	return data_len;
 }
 
@@ -157,7 +162,8 @@ dissect_tpkt( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	tvbuff_t *next_tvb;
 
 	/* Dissect the TPKT header. */
-	tpkt_len = dissect_tpkt_header(tvb, &offset, pinfo, tree);
+	tpkt_len = dissect_tpkt_header(tvb, offset, pinfo, tree);
+	offset += 4;
 
 	/*
 	 * Now hand the minimum of (what's in this frame, what the TPKT
