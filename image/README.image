@@ -13,8 +13,8 @@ clist_descend.xpm		indicators
 dn_arrow.xpm			Up and down arrows (originally intended for
 up_arrow.xpm			filter dialogs - not currently used)
 
-eexcl3d64.xpm			3D Exclamation point icon (used in warning
-				and error dialogs)
+eexcl3d64.xpm			3D Exclamation point icon (originally intended 
+				for warning and error dialogs - not currently used)
 
 eicon3d16.xpm			3D Ethereal logo in various sizes with
 eicon3d32.xpm			transparent background, high color
@@ -48,3 +48,8 @@ editcap.rc.in
 mergecap.rc.in
 tethereal.rc.in
 text2pcap.rc.in
+
+stock_dialog_error_48.xpm		GTK2 default icons for simple_dialog, from:
+stock_dialog_info_48.xpm		"ftp://ftp.gtk.org/pub/gtk/v2.0/gtk+-2.0.6.tar.bz2"
+stock_dialog_question_48.xpm	in the zip directory "gtk+-2.0.6/gtk/stock-icons"
+stock_dialog_warning_48.xpm
