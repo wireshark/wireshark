@@ -2725,6 +2725,9 @@ is_widget_visible(GtkWidget *widget, gpointer data)
 }
 
 
+#if 0
+/* XXX - There seems to be some disagreement about if and how this feature should be implemented.
+   As I currently don't have the time to continue this, it's temporarily disabled. - ULFL */
 GtkWidget *
 welcome_item(gchar *stock_item, gchar * label, gchar * message, GtkSignalFunc callback, void *callback_data)
 {
@@ -2839,6 +2842,16 @@ welcome_new(void)
 
     return welcome_scrollw;
 }
+#endif /* 0 */
+
+GtkWidget *
+welcome_new(void)
+{
+    /* this is just a dummy to fill up window space, simply showing nothing */
+    return scrolled_window_new(NULL, NULL);
+}
+
+
 
 /*
  * XXX - this doesn't appear to work with the paned widgets in
