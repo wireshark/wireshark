@@ -1,7 +1,7 @@
 /* column.h
  * Definitions for column handling routines
  *
- * $Id: column.h,v 1.3 1999/07/22 21:14:13 guy Exp $
+ * $Id: column.h,v 1.4 1999/07/28 03:29:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -31,14 +31,21 @@ typedef struct _fmt_data {
   gchar *fmt;
 } fmt_data;
 
-gint       get_column_format(gint);
-gchar     *get_column_title(gint);
-gchar     *col_format_to_pref_str();
-void       get_column_format_matches(gboolean *, gint);
-gint       get_column_width(gint format, GdkFont *font);
-GtkWidget *column_prefs_show();
-void       column_prefs_ok(GtkWidget *);
-void       column_prefs_save(GtkWidget *);
-void       column_prefs_cancel(GtkWidget *);
+enum col_resize_type {
+  RESIZE_AUTO,          /* Automatically resize */
+  RESIZE_LIVE,          /* Automatically resize even during live capture */
+  RESIZE_MANUAL         /* Don't automatically resize */
+};
+
+gint                 get_column_format(gint);
+enum col_resize_type get_column_resize_type(gint);
+gchar               *get_column_title(gint);
+gchar               *col_format_to_pref_str(void);
+void                 get_column_format_matches(gboolean *, gint);
+gint                 get_column_width(gint format, GdkFont *font);
+GtkWidget           *column_prefs_show(void);
+void                 column_prefs_ok(GtkWidget *);
+void                 column_prefs_save(GtkWidget *);
+void                 column_prefs_cancel(GtkWidget *);
 
 #endif /* column.h */

@@ -1,6 +1,6 @@
 /* ethereal.c
  *
- * $Id: ethereal.c,v 1.65 1999/07/28 01:35:25 gerald Exp $
+ * $Id: ethereal.c,v 1.66 1999/07/28 03:29:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -983,7 +983,6 @@ main(int argc, char *argv[])
   gint                 pl_size = 280, tv_size = 95, bv_size = 75;
   gchar               *rc_file, *cf_name = NULL;
   e_prefs             *prefs;
-  gint                *col_fmt;
   gchar              **col_title;
 
   ethereal_path = argv[0];
@@ -1015,8 +1014,10 @@ main(int argc, char *argv[])
   cf.snap		= MAX_PACKET_SIZE;
   cf.count		= 0;
   cf.cinfo.num_cols	= prefs->num_cols;
+  cf.cinfo.col_fmt      = (gint *) g_malloc(sizeof(gint) * cf.cinfo.num_cols);
   cf.cinfo.fmt_matx	= (gboolean **) g_malloc(sizeof(gboolean *) * cf.cinfo.num_cols);
   cf.cinfo.col_data	= (gchar **) g_malloc(sizeof(gchar *) * cf.cinfo.num_cols);
+  cf.cinfo.col_width	= (gint *) g_malloc(sizeof(gint) * cf.cinfo.num_cols);
 
   /* Assemble the compile-time options */
   snprintf(comp_info_str, 256,
@@ -1146,15 +1147,14 @@ main(int argc, char *argv[])
 #endif
 
   /* Build the column format array */  
-  col_fmt   = (gint *) g_malloc(sizeof(gint) * cf.cinfo.num_cols);
   col_title = (gchar **) g_malloc(sizeof(gchar *) * cf.cinfo.num_cols);
   
   for (i = 0; i < cf.cinfo.num_cols; i++) {
-    col_fmt[i]   = get_column_format(i);
+    cf.cinfo.col_fmt[i] = get_column_format(i);
     col_title[i] = g_strdup(get_column_title(i));
     cf.cinfo.fmt_matx[i] = (gboolean *) g_malloc0(sizeof(gboolean) *
       NUM_COL_FMTS);
-    get_column_format_matches(cf.cinfo.fmt_matx[i], col_fmt[i]);
+    get_column_format_matches(cf.cinfo.fmt_matx[i], cf.cinfo.col_fmt[i]);
     cf.cinfo.col_data[i] = (gchar *) g_malloc(sizeof(gchar) * COL_MAX_LEN);
   }
 
@@ -1228,11 +1228,18 @@ main(int argc, char *argv[])
   gtk_signal_connect(GTK_OBJECT(packet_list), "unselect_row",
     GTK_SIGNAL_FUNC(packet_list_unselect_cb), NULL);
   for (i = 0; i < cf.cinfo.num_cols; i++) {
-    gtk_clist_set_column_width(GTK_CLIST(packet_list), i,
-      get_column_width(get_column_format(i), pl_style->font));
-    if (col_fmt[i] == COL_NUMBER)
+    if (get_column_resize_type(cf.cinfo.col_fmt[i]) != RESIZE_MANUAL)
+      gtk_clist_set_column_auto_resize(GTK_CLIST(packet_list), i, TRUE);
+
+    /* Right-justify the packet number column. */
+    if (cf.cinfo.col_fmt[i] == COL_NUMBER)
       gtk_clist_set_column_justification(GTK_CLIST(packet_list), i, 
         GTK_JUSTIFY_RIGHT);
+
+    /* Save static column sizes to use during a "-S" capture, so that
+       the columns don't resize during a live capture. */
+    cf.cinfo.col_width[i] = get_column_width(get_column_format(i),
+						pl_style->font);
   }
   gtk_widget_set_usize(packet_list, -1, pl_size);
   gtk_paned_add1(GTK_PANED(u_pane), packet_sw);

@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.46 1999/07/27 02:04:37 guy Exp $
+ * $Id: file.c,v 1.47 1999/07/28 03:29:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -95,6 +95,9 @@ static void wtap_dispatch_cb(u_char *, const struct wtap_pkthdr *, int,
 #ifdef HAVE_LIBPCAP
 static gint tail_timeout_cb(gpointer);
 #endif
+
+static void freeze_clist(capture_file *cf);
+static void thaw_clist(capture_file *cf);
 
 int
 open_cap_file(char *fname, capture_file *cf) {
@@ -210,12 +213,12 @@ load_cap_file(char *fname, capture_file *cf) {
   
   err = open_cap_file(fname, cf);
   if ((err == 0) && (cf->cd_t != WTAP_FILE_UNKNOWN)) {
-    gtk_clist_freeze(GTK_CLIST(packet_list));
+    freeze_clist(cf);
     wtap_loop(cf->wth, 0, wtap_dispatch_cb, (u_char *) cf);
     wtap_close(cf->wth);
     cf->wth = NULL;
     cf->fh = fopen(fname, "r");
-    gtk_clist_thaw(GTK_CLIST(packet_list));
+    thaw_clist(cf);
   }
   
   gtk_timeout_remove(timeout);
@@ -289,7 +292,7 @@ cap_file_input_cb (gpointer data, gint source, GdkInputCondition condition) {
 
     wtap_loop(cf->wth, 0, wtap_dispatch_cb, (u_char *) cf);      
 
-    gtk_clist_thaw(GTK_CLIST(packet_list));
+    thaw_clist(cf);
 
     wtap_close(cf->wth);
     cf->wth = NULL;
@@ -350,6 +353,7 @@ tail_timeout_cb(gpointer data) {
 int
 tail_cap_file(char *fname, capture_file *cf) {
   int     err;
+  int     i;
 
   close_cap_file(cf, info_bar, file_ctx);
 
@@ -362,6 +366,17 @@ tail_cap_file(char *fname, capture_file *cf) {
     set_menu_sensitivity("/File/Open...", FALSE);
     set_menu_sensitivity("/Capture/Start...", FALSE);
     set_menu_sensitivity("/Tools/Capture...", FALSE);
+
+    for (i = 0; i < cf->cinfo.num_cols; i++) {
+      if (get_column_resize_type(cf->cinfo.col_fmt[i]) == RESIZE_LIVE)
+        gtk_clist_set_column_auto_resize(GTK_CLIST(packet_list), i, TRUE);
+      else {
+        gtk_clist_set_column_auto_resize(GTK_CLIST(packet_list), i, FALSE);
+        gtk_clist_set_column_width(GTK_CLIST(packet_list), i,
+				cf->cinfo.col_width[i]);
+        gtk_clist_set_column_resizeable(GTK_CLIST(packet_list), i, TRUE);
+      }
+    }
 
     cf->fh = fopen(fname, "r");
     tail_timeout_id = -1;
@@ -648,7 +663,7 @@ change_time_formats(capture_file *cf)
 
   /* Freeze the packet list while we redo it, so we don't get any
      screen updates while it happens. */
-  gtk_clist_freeze(GTK_CLIST(packet_list));
+  freeze_clist(cf);
 
   /*
    * Iterate through the list of packets, calling a routine
@@ -673,7 +688,7 @@ change_time_formats(capture_file *cf)
   }
 
   /* Unfreeze the packet list. */
-  gtk_clist_thaw(GTK_CLIST(packet_list));
+  thaw_clist(cf);
 }
 
 /* Select the packet on a given row. */
@@ -737,6 +752,39 @@ unselect_packet(capture_file *cf)
 
   /* No packet is selected, so "File/Print Packet" has nothing to print. */
   set_menu_sensitivity("/File/Print Packet", FALSE);
+}
+
+static void
+freeze_clist(capture_file *cf)
+{
+  int i;
+
+  /* Make the column sizes static, so they don't adjust while
+     we're reading the capture file (freezing the clist doesn't
+     seem to suffice). */
+  for (i = 0; i < cf->cinfo.num_cols; i++)
+    gtk_clist_set_column_auto_resize(GTK_CLIST(packet_list), i, FALSE);
+  gtk_clist_freeze(GTK_CLIST(packet_list));
+}
+
+static void
+thaw_clist(capture_file *cf)
+{
+  int i;
+
+  /* Make the column sizes dynamic, so that they adjust to the
+     appropriate sizes. */
+  for (i = 0; i < cf->cinfo.num_cols; i++) {
+    if (get_column_resize_type(cf->cinfo.col_fmt[i]) != RESIZE_MANUAL)
+      gtk_clist_set_column_auto_resize(GTK_CLIST(packet_list), i, TRUE);
+  }
+  gtk_clist_thaw(GTK_CLIST(packet_list));
+
+  /* Hopefully, the columns have now gotten their appropriate sizes;
+     make them resizeable - a column that auto-resizes cannot be
+     resized by the user, and *vice versa*. */
+  for (i = 0; i < cf->cinfo.num_cols; i++)
+    gtk_clist_set_column_resizeable(GTK_CLIST(packet_list), i, TRUE);
 }
 
 /* Tries to mv a file. If unsuccessful, tries to cp the file.

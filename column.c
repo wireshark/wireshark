@@ -1,7 +1,7 @@
 /* column.c
  * Routines for handling column preferences
  *
- * $Id: column.c,v 1.19 1999/07/23 08:29:23 guy Exp $
+ * $Id: column.c,v 1.20 1999/07/28 03:29:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -229,6 +229,60 @@ get_column_width(gint format, GdkFont *font) {
     default: /* COL_INFO */
       return (gdk_string_width(font, "Source port: kerberos-master  "
         "Destination port: kerberos-master"));
+      break;
+  }
+}
+
+enum col_resize_type
+get_column_resize_type(gint format) {
+  switch (format) {
+    case COL_NUMBER:
+    case COL_CLS_TIME:
+    case COL_ABS_TIME:
+    case COL_REL_TIME:
+    case COL_DELTA_TIME:
+    case COL_DEF_SRC_PORT:
+    case COL_RES_SRC_PORT:
+    case COL_UNRES_SRC_PORT:
+    case COL_DEF_DST_PORT:
+    case COL_RES_DST_PORT:
+    case COL_UNRES_DST_PORT:
+    case COL_PROTOCOL:
+    case COL_PACKET_LENGTH:
+      /* We don't want these to resize during a live capture, as that
+         gets in the way of trying to look at the data while it's being
+	 captured. */
+      return (RESIZE_AUTO);
+      break;
+    case COL_DEF_SRC:
+    case COL_RES_SRC:
+    case COL_UNRES_SRC:
+    case COL_DEF_DL_SRC:
+    case COL_RES_DL_SRC:
+    case COL_UNRES_DL_SRC:
+    case COL_DEF_NET_SRC:
+    case COL_RES_NET_SRC:
+    case COL_UNRES_NET_SRC:
+    case COL_DEF_DST:
+    case COL_RES_DST:
+    case COL_UNRES_DST:
+    case COL_DEF_DL_DST:
+    case COL_RES_DL_DST:
+    case COL_UNRES_DL_DST:
+    case COL_DEF_NET_DST:
+    case COL_RES_NET_DST:
+    case COL_UNRES_NET_DST:
+      /* We don't want these to resize dynamically; if they get resolved
+         to names, those names could be very long, and auto-resizing
+	 columns showing those names may leave too little room for
+	 other columns such as the "Info" column. */
+      return (RESIZE_MANUAL);
+      break;
+    default: /* COL_INFO */
+      /* We want this to resize dynamically, even during a live capture,
+         because otherewise you won't be able to see all that's in
+	 it. */
+      return (RESIZE_LIVE);
       break;
   }
 }
