@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.91 2003/06/11 21:24:53 gram Exp $
+ * $Id: proto.c,v 1.92 2003/06/11 21:48:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3694,6 +3694,7 @@ proto_construct_dfilter_string(field_info *finfo, epan_dissect_t *edt)
 
 		case FT_PROTOCOL:
 			buf = g_strdup(finfo->hfinfo->abbrev);
+			break;
 
 		default:
 			/*
