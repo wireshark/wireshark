@@ -10,7 +10,7 @@
  * - support for reassembly
  * - code cleanup
  *
- * $Id: packet-sctp.c,v 1.36 2002/05/18 20:33:53 guy Exp $
+ * $Id: packet-sctp.c,v 1.37 2002/05/30 08:34:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2449,7 +2449,7 @@ proto_register_sctp(void)
   sctp_port_dissector_table = register_dissector_table("sctp.port", "SCTP port", FT_UINT16, BASE_DEC);
   sctp_ppi_dissector_table  = register_dissector_table("sctp.ppi",  "SCTP payload protocol identifier", FT_UINT32, BASE_HEX);
 
-};
+}
 
 void
 proto_reg_handoff_sctp(void)

@@ -11,7 +11,7 @@
  * This file is based on packet-aim.c, which is
  * Copyright 2000, Ralf Hoelzer <ralf@well.com>
  *
- * $Id: packet-skinny.c,v 1.18 2002/05/05 00:16:32 guy Exp $
+ * $Id: packet-skinny.c,v 1.19 2002/05/30 08:34:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2440,7 +2440,7 @@ proto_register_skinny(void)
     "Desegment all SCCP messages spanning multiple TCP segments",
     "Whether the SCCP dissector should desegment all messages spanning multiple TCP segments",
     &skinny_desegment);
-};
+}
 
 void
 proto_reg_handoff_skinny(void)

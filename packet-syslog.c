@@ -3,7 +3,7 @@
  *
  * Copyright 2000, Gerald Combs <gerald@ethereal.com>
  *
- * $Id: packet-syslog.c,v 1.17 2002/05/15 06:51:07 guy Exp $
+ * $Id: packet-syslog.c,v 1.18 2002/05/30 08:34:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -241,7 +241,7 @@ void proto_register_syslog(void)
   /* Required function calls to register the header fields and subtrees used */
   proto_register_field_array(proto_syslog, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
-};
+}
 
 void
 proto_reg_handoff_syslog(void)

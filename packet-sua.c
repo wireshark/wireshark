@@ -6,7 +6,7 @@
  *
  * Copyright 2000, Michael Tüxen <Michael.Tuexen@icn.siemens.de>
  *
- * $Id: packet-sua.c,v 1.6 2002/01/24 09:20:52 guy Exp $
+ * $Id: packet-sua.c,v 1.7 2002/05/30 08:34:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2754,7 +2754,7 @@ proto_register_sua(void)
 				 "SUA Version",
 				 &sua_version,
 				 sua_options, FALSE);
-};
+}
 
 void
 proto_reg_handoff_sua(void)

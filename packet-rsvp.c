@@ -3,7 +3,7 @@
  *
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-rsvp.c,v 1.64 2002/05/18 02:05:47 gerald Exp $
+ * $Id: packet-rsvp.c,v 1.65 2002/05/30 08:34:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -199,7 +199,7 @@ enum rsvp_classes {
     RSVP_CLASS_SESSION_ATTRIBUTE = 207,
     RSVP_CLASS_GENERALIZED_UNI,
     RSVP_CLASS_DCLASS = 225,
-    RSVP_CLASS_LSP_TUNNEL_IF_ID = 227,
+    RSVP_CLASS_LSP_TUNNEL_IF_ID = 227
 };
 
 static value_string rsvp_class_vals[] = { 
@@ -316,7 +316,7 @@ enum {
     RSVP_SESSION_TYPE_IPV4_LSP = 7,
     RSVP_SESSION_TYPE_IPV6_LSP,
 
-    RSVP_SESSION_TYPE_IPV4_UNI = 9,
+    RSVP_SESSION_TYPE_IPV4_UNI = 9
 };
 
 /*

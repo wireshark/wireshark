@@ -6,7 +6,7 @@
  *       In particular I have not had an opportunity to see how it 
  *       responds to SRVLOC over TCP.
  *
- * $Id: packet-srvloc.c,v 1.29 2002/01/24 09:20:51 guy Exp $
+ * $Id: packet-srvloc.c,v 1.30 2002/05/30 08:34:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -530,7 +530,7 @@ proto_register_srvloc(void)
 					   "SRVLOC", "srvloc");
     proto_register_field_array(proto_srvloc, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
-};
+}
 
 void
 proto_reg_handoff_srvloc(void)
