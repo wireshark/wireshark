@@ -2,7 +2,7 @@
  * Helpers for ASN.1/BER dissection
  * Ronnie Sahlberg (C) 2004
  *
- * $Id: packet-ber.c,v 1.6 2004/03/26 00:21:53 guy Exp $
+ * $Id: packet-ber.c,v 1.7 2004/05/03 22:55:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -883,8 +883,10 @@ int dissect_ber_bitstring(gboolean implicit_tag, packet_info *pinfo, proto_tree 
 			if (nb->bit < (8*len-pad)) {
 				val = tvb_get_guint8(tvb, offset + nb->bit/8);
 				val &= 0x80 >> (nb->bit%8);
-				b0 = (nb->gb0 == -1) ? nb->bit/8 : nb->gb0/8;
-				b1 = (nb->gb1 == -1) ? nb->bit/8 : nb->gb1/8;
+				b0 = (nb->gb0 == -1) ? nb->bit/8 :
+						       ((guint32)nb->gb0)/8;
+				b1 = (nb->gb1 == -1) ? nb->bit/8 :
+						       ((guint32)nb->gb1)/8;
 				proto_tree_add_item(tree, *(nb->p_id), tvb, offset + b0, b1 - b0 + 1, FALSE);
 			} else {  /* 8.6.2.4 */
 				val = 0;
