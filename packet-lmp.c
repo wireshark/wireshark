@@ -3,7 +3,7 @@
  *
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-lmp.c,v 1.2 2002/04/14 23:04:03 guy Exp $
+ * $Id: packet-lmp.c,v 1.3 2002/04/24 20:18:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -60,7 +60,6 @@
 #include <epan/tvbuff.h>
 #include <epan/packet.h>
 #include "in_cksum.h"
-#include "ieee-float.h"
 #include "etypes.h"
 #include "ipproto.h"
 
@@ -1054,7 +1053,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    proto_tree_add_text(lmp_object_tree, tvb, offset2+10, 2, 
 					"Verify Transport Mechanism: 0x%0x", tvb_get_ntohs(tvb, offset2+10));
 		    proto_tree_add_text(lmp_object_tree, tvb, offset2+12, 4, 
-					"Transmission Rate: %ld", tvb_ieee_to_long(tvb, offset2+12));
+					"Transmission Rate: %f", tvb_get_ntohieee_float(tvb, offset2+12));
 		    proto_tree_add_text(lmp_object_tree, tvb, offset2+16, 4, 
 					"Wavelength: %d", tvb_get_ntohl(tvb, offset2+4));
 		    break;
@@ -1208,13 +1207,13 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    switch(tvb_get_guint8(tvb, offset2+l)) {
 		    case 1: 
 			proto_item_set_text(ti2, "Interface Switching Capability: "
-					    "Switching Cap: %s, Encoding Type: %s, Min BW: %ld, Max BW: %ld", 
+					    "Switching Cap: %s, Encoding Type: %s, Min BW: %f, Max BW: %f", 
 					    val_to_str(tvb_get_guint8(tvb, offset2+l+2), 
 						       gmpls_switching_type_str, "Unknown (%d)"),
 					    val_to_str(tvb_get_guint8(tvb, offset2+l+3), 
 						       gmpls_lsp_enc_str, "Unknown (%d)"),
-					    tvb_ieee_to_long(tvb, offset2+l+4), 
-					    tvb_ieee_to_long(tvb, offset2+l+8));
+					    tvb_get_ntohieee_float(tvb, offset2+l+4), 
+					    tvb_get_ntohieee_float(tvb, offset2+l+8));
 			proto_tree_add_item(lmp_subobj_tree, 
 					    lmp_filter[LMPF_VAL_DATA_LINK_SUBOBJ_SWITCHING_TYPE],
 					    tvb, offset2+l+2, 1, FALSE);
@@ -1222,11 +1221,11 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					    lmp_filter[LMPF_VAL_DATA_LINK_SUBOBJ_LSP_ENCODING],
 					    tvb, offset2+l+3, 1, FALSE);
 			proto_tree_add_text(lmp_subobj_tree, tvb, offset2+l+4, 4, 
-					    "Minimum Reservable Bandwidth: %ld bytes/s", 
-					    tvb_ieee_to_long(tvb, offset2+l+4));
+					    "Minimum Reservable Bandwidth: %f bytes/s", 
+					    tvb_get_ntohieee_float(tvb, offset2+l+4));
 			proto_tree_add_text(lmp_subobj_tree, tvb, offset2+l+8, 4, 
-					    "Maximum Reservable Bandwidth: %ld bytes/s", 
-					    tvb_ieee_to_long(tvb, offset2+l+8));
+					    "Maximum Reservable Bandwidth: %f bytes/s", 
+					    tvb_get_ntohieee_float(tvb, offset2+l+8));
 			break;
 
 		    case 2:
