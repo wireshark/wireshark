@@ -2,7 +2,7 @@
  * Routines for X11 dissection
  * Copyright 2000, Christophe Tronche <ch.tronche@computer.org>
  *
- * $Id: packet-x11.c,v 1.35 2002/04/14 21:44:48 guy Exp $
+ * $Id: packet-x11.c,v 1.36 2002/04/14 22:08:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -629,11 +629,11 @@ static struct maskStruct {
 #define FIELD32(name) (field32(tvb, offsetp, t, hf_x11_##name))
 
 #define BITFIELD(TYPE, position, name) {\
+  int unused;\
+  int save = *offsetp;\
+  proto_tree_add_item(lastMask._tree, hf_x11_##position##_##name, tvb, lastMask._offset, \
+                      lastMask._zone, little_endian); \
   if (lastMask._value & proto_registrar_get_nth(hf_x11_##position##_##name) -> bitmask) {\
-       int unused;\
-       int save = *offsetp;\
-       proto_tree_add_item(lastMask._tree, hf_x11_##position##_##name, tvb, lastMask._offset, \
-                           lastMask._zone, little_endian); \
        TYPE(name);\
        unused = save + 4 - *offsetp;\
        if (unused)\
