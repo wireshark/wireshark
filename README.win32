@@ -200,7 +200,7 @@ and optional:
 
     adns-1.0-win32-03.zip                 C:\ethereal-win32-libs
     pcre-4.4.zip                          C:\ethereal-win32-libs
-    zlib121-dll.zip                       C:\ethereal-win32-libs\zlib121-dll
+    zlib122-dll.zip                       C:\ethereal-win32-libs\zlib122-dll
 
 (to use the default locations, the directories in question should be
 created, and each zip file should be unpacked into the corresponding
