@@ -1,7 +1,7 @@
 /* simple_dialog.c
  * Simple message dialog box routines.
  *
- * $Id: simple_dialog.c,v 1.27 2004/02/12 22:24:28 guy Exp $
+ * $Id: simple_dialog.c,v 1.28 2004/02/23 00:05:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -58,6 +58,14 @@ static void simple_dialog_cancel_cb(GtkWidget *, gpointer);
  * msg_format : Sprintf-style format of the text displayed in the dialog.
  * ...        : Argument list for msg_format
  *
+ *
+ * XXX - if we haven't yet put up the main window, we should just
+ * queue up the message, etc., and wait until the main window pops up
+ * (or until we figure out that we're in a capture child and aren't
+ * going to pop up a main window) and pop up the alert boxes then, so
+ * that even stuff popped up before we put up the main window (such
+ * as file-open or file-read errors from dissectors' init routines)
+ * shows up on top.
  */
 
 gpointer
