@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.104 2004/01/27 08:06:11 guy Exp $
+ * $Id: packet-ieee80211.c,v 1.105 2004/02/18 07:56:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -418,6 +418,7 @@ static const fragment_items frag_items = {
 
 static dissector_handle_t llc_handle;
 static dissector_handle_t ipx_handle;
+static dissector_handle_t eth_handle;
 static dissector_handle_t data_handle;
 
 /* ************************************************************************* */
@@ -1237,6 +1238,12 @@ set_dst_addr_cols(packet_info *pinfo, const guint8 *addr, char *type)
 		     ether_to_str(addr), type);
 }
 
+typedef enum {
+    ENCAP_802_2,
+    ENCAP_IPX,
+    ENCAP_ETHERNET
+} encap_t;
+
 /* ************************************************************************* */
 /*                          Dissect 802.11 frame                             */
 /* ************************************************************************* */
@@ -1263,7 +1270,8 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
   gboolean save_fragmented;
   tvbuff_t *volatile next_tvb = NULL;
   guint32 addr_type;
-  volatile gboolean is_802_2;
+  volatile encap_t encap_type;
+  guint8 octet1, octet2;
 
   if (check_col (pinfo->cinfo, COL_PROTOCOL))
     col_set_str (pinfo->cinfo, COL_PROTOCOL, "IEEE 802.11");
@@ -1957,15 +1965,37 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
          and just stick the payload into an 802.11 frame.  I've seen
          captures that show frames of that sort.
 
-         This means we have to do the same check for Netware 802.3 -
-         or, if you will, "Netware 802.11" - that we do in the
-         Ethernet dissector, i.e. checking for 0xffff as the first
-         four bytes of the payload and, if we find it, treating it
-         as an IPX frame. */
-      is_802_2 = TRUE;
+         We also handle some odd form of encapsulation in which a
+         complete Ethernet frame is encapsulated within an 802.11
+         data frame, with no 802.2 header.  This has been seen
+         from some hardware.
+
+         So, if the packet doesn't start with 0xaa 0xaa:
+
+           we first use the same scheme that linux-wlan-ng does to detect
+           those encapsulated Ethernet frames, namely looking to see whether
+           the frame either starts with 6 octets that match the destination
+           address from the 802.11 header or has 6 octets that match the
+           source address from the 802.11 header following the first 6 octets,
+           and, if so, treat it as an encapsulated Ethernet frame;
+
+           otherwise, we use the same scheme that we use in the Ethernet
+           dissector to recognize Netware 802.3 frames, namely checking
+           whether the packet starts with 0xff 0xff and, if so, treat it
+           as an encapsulated IPX frame. */
+      encap_type = ENCAP_802_2;
       TRY {
-        if (tvb_get_ntohs(next_tvb, 0) == 0xffff)
-          is_802_2 = FALSE;
+      	octet1 = tvb_get_guint8(next_tvb, 0);
+      	octet2 = tvb_get_guint8(next_tvb, 1);
+        if (octet1 != 0xaa || octet2 != 0xaa) {
+          src = tvb_get_ptr (next_tvb, 6, 6);
+          dst = tvb_get_ptr (next_tvb, 0, 6);
+          if (memcmp(src, pinfo->dl_src.data, 6) == 0 ||
+              memcmp(dst, pinfo->dl_dst.data, 6) == 0)
+            encap_type = ENCAP_ETHERNET;
+          else if (octet1 == 0xff && octet2 == 0xff)
+            encap_type = ENCAP_IPX;
+        }
       }
       CATCH2(BoundsError, ReportedBoundsError) {
 	    ; /* do nothing */
@@ -1973,10 +2003,20 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
       }
       ENDTRY;
 
-      if (is_802_2)
+      switch (encap_type) {
+
+      case ENCAP_802_2:
         call_dissector(llc_handle, next_tvb, pinfo, tree);
-      else
+        break;
+
+      case ENCAP_ETHERNET:
+        call_dissector(eth_handle, next_tvb, pinfo, tree);
+        break;
+
+      case ENCAP_IPX:
         call_dissector(ipx_handle, next_tvb, pinfo, tree);
+        break;
+      }
       break;
     }
   pinfo->fragmented = save_fragmented;
@@ -2570,10 +2610,11 @@ proto_reg_handoff_ieee80211(void)
   dissector_handle_t ieee80211_radio_handle;
 
   /*
-   * Get handles for the LLC and IPX dissectors.
+   * Get handles for the LLC, IPX and Ethernet  dissectors.
    */
   llc_handle = find_dissector("llc");
   ipx_handle = find_dissector("ipx");
+  eth_handle = find_dissector("eth");
   data_handle = find_dissector("data");
 
   ieee80211_handle = find_dissector("wlan");
