@@ -7,7 +7,7 @@
  * Copyright 2002, Tim Potter <tpot@samba.org>
  * Copyright 1999, Andrew Tridgell <tridge@samba.org>
  *
- * $Id: packet-http.c,v 1.101 2004/05/04 06:21:17 guy Exp $
+ * $Id: packet-http.c,v 1.102 2004/05/04 07:12:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -799,13 +799,6 @@ basic_response_dissector(tvbuff_t *tvb, proto_tree *tree, int resp_strlen)
 
 /*
  * Dissect the http data chunks and add them to the tree.
- *
- * XXX - this needs to handle chunked responses that take more than
- * one packet.  To do that, the chunked data reassembly would have to be
- * done in "req_resp_hdrs_do_reassembly()", before we actually do any
- * dissection - once you start building the protocol tree, you can't
- * do reassembly, as you can't just say "oops, sorry, forget about
- * the stuff I've added to the protocol tree, I need to get more data".
  */
 static int
 chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
@@ -1522,11 +1515,11 @@ proto_register_http(void)
 	    "of a request spanning multiple TCP segments",
 	    &http_desegment_headers);
 	prefs_register_bool_preference(http_module, "desegment_body",
-	    "Trust the \"Content-length:\" header and desegment HTTP "
-	    "bodies\nspanning multiple TCP segments",
+	    "Desegment HTTP bodies spanning multiple TCP segments",
 	    "Whether the HTTP dissector should use the "
-	    "\"Content-length:\" value to desegment the body "
-	    "of a request spanning multiple TCP segments",
+	    "\"Content-length:\" value, if present, to desegment "
+	    "the body of a request spanning multiple TCP segments, "
+	    "and desegment chunked data spanning multiple TCP segments",
 	    &http_desegment_body);
 
 	http_handle = create_dissector_handle(dissect_http, proto_http);
