@@ -2,7 +2,7 @@
  * Routines for Q.2931 frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-q2931.c,v 1.24 2002/05/01 08:40:22 guy Exp $
+ * $Id: packet-q2931.c,v 1.25 2002/05/24 08:08:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -329,6 +329,12 @@ static const value_string q2931_aal1_err_correction_method_vals[] = {
 	{ 0x00, NULL }
 };
 
+static const value_string q2931_aal_mode_vals[] = {
+	{ 0x00, "Streaming" },
+	{ 0x01, "Message" },
+	{ 0x00, NULL }
+};
+
 static const value_string q2931_sscs_type_vals[] = {
 	{ 0x00, "Null" },
 	{ 0x01, "Data SSCS based on SSCOP (assured operation)" },
@@ -480,6 +486,18 @@ dissect_q2931_aal_parameters_ie(tvbuff_t *tvb, int offset, int len,
 			    "MID range: %u - %u", low_mid, high_mid);
 			offset += 5;
 			len -= 5;
+			break;
+
+		case 0x83:	/* Mode identifier for AAL3/4 and AAL5 */
+			if (len < 2)
+				return;
+			value = tvb_get_guint8(tvb, offset + 1);
+			proto_tree_add_text(tree, tvb, offset, 2,
+			    "Mode: %s",
+			    val_to_str(value, q2931_aal_mode_vals,
+			    "Unknown (0x%02X)"));
+			offset += 2;
+			len -= 2;
 			break;
 
 		case 0x84:	/* SSCS type identifier for AAL3/4 and AAL5 */
