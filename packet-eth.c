@@ -1,7 +1,7 @@
 /* packet-eth.c
  * Routines for ethernet packet disassembly
  *
- * $Id: packet-eth.c,v 1.18 1999/08/24 06:10:05 guy Exp $
+ * $Id: packet-eth.c,v 1.19 1999/09/15 06:26:42 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -66,6 +66,11 @@ capture_eth(const u_char *pd, guint32 cap_len, packet_counts *ld) {
   guint16 etype;
   int     offset = ETH_HEADER_SIZE;
   int     ethhdr_type;	/* the type of ethernet frame */
+
+  if (cap_len < ETH_HEADER_SIZE) {
+    ld->other++;
+    return;
+  }
   
   etype = (pd[12] << 8) | pd[13];
 
@@ -107,6 +112,11 @@ dissect_eth(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   proto_tree *fh_tree = NULL;
   proto_item *ti;
   int        ethhdr_type;	/* the type of ethernet frame */
+  
+  if (fd->cap_len < ETH_HEADER_SIZE) {
+    dissect_data(pd, offset, fd, tree);
+    return;
+  }
 
   if (check_col(fd, COL_RES_DL_DST))
     col_add_str(fd, COL_RES_DL_DST, get_ether_name((u_char *)&pd[offset+0]));

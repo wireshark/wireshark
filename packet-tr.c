@@ -2,7 +2,7 @@
  * Routines for Token-Ring packet disassembly
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-tr.c,v 1.25 1999/09/15 06:13:20 gram Exp $
+ * $Id: packet-tr.c,v 1.26 1999/09/15 06:26:42 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -55,7 +55,9 @@ static int hf_tr_direction = -1;
 static int hf_tr_rif = -1;
 static int hf_tr_rif_ring = -1;
 static int hf_tr_rif_bridge = -1;
-	
+
+#define TR_MAX_HEADER_LEN 32
+
 static const value_string ac_vals[] = {
 	{ 0,	"Token" },
 	{ 0x10,	"Frame" },
@@ -158,6 +160,11 @@ capture_tr(const u_char *pd, guint32 cap_len, packet_counts *ld) {
 	/* The trn_hdr struct, as separate variables */
 	guint8			trn_fc;		/* field control field */
 	guint8			trn_shost[6];	/* source host */
+
+	if (cap_len < TR_MAX_HEADER_LEN) {
+		ld->other++;
+		return;
+	}
 
 	if ((x = check_for_old_linux(pd)))
 	{
@@ -286,6 +293,11 @@ dissect_tr(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	
 	/* Token-Ring Strings */
 	char *fc[] = { "MAC", "LLC", "Reserved", "Unknown" };
+
+	if (fd->cap_len < TR_MAX_HEADER_LEN) {
+		dissect_data(pd, offset, fd, tree);
+		return;
+	}
 
 	if ((x = check_for_old_linux(pd)))
 	{
