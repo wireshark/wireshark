@@ -1,7 +1,7 @@
 /* packet_list.c
  * packet list related functions   2002 Olivier Abad
  *
- * $Id: packet_list.c,v 1.13 2004/01/28 10:19:36 guy Exp $
+ * $Id: packet_list.c,v 1.14 2004/01/28 10:37:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -95,8 +95,7 @@ typedef struct column_arrows {
 
 GtkWidget *packet_list;
 
-/* GTKClist compare routine, overrides default to allow numeric comparison */
-
+/* EthClist compare routine, overrides default to allow numeric comparison */
 
 #define COMPARE_NUM(n1, n2)	(((n1) < (n2)) ? -1 : \
 				 ((n1) > (n2)) ? 1 : \
