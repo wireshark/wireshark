@@ -1,7 +1,7 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
  *
- * $Id: packet-dns.c,v 1.114 2003/12/17 08:59:15 guy Exp $
+ * $Id: packet-dns.c,v 1.115 2003/12/17 22:30:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1761,43 +1761,50 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
 	cur_offset += 2;
 	rr_len -= 2;
 
-	key_item = proto_tree_add_text(
-		rr_tree, tvb, cur_offset, tkey_keylen, "Key Data");
+	if (tkey_keylen != 0) {
+		key_item = proto_tree_add_text(
+			rr_tree, tvb, cur_offset, tkey_keylen, "Key Data");
 
-	key_tree = proto_item_add_subtree(key_item, ett_t_key);
+		key_tree = proto_item_add_subtree(key_item, ett_t_key);
 
-	switch(tkey_mode) {
-	case TKEYMODE_GSSAPI: {
-		tvbuff_t *gssapi_tvb;
+		switch(tkey_mode) {
+		case TKEYMODE_GSSAPI: {
+			tvbuff_t *gssapi_tvb;
 
-		/*
-		 * XXX - in at least one capture, this appears to
-		 * be an NTLMSSP blob, with no ASN.1 in it, in
-		 * a query.
-		 *
-		 * See RFC 3645 which might indicate what's going on here.
-		 * (The key is an output_token from GSS_Init_sec_context.)
-		 *
-		 * How the heck do we know what method is being used,
-		 * so we know how to decode the key?  Do we have to
-		 * look at the algorithm name, e.g. "gss.microsoft.com"?
-		 */
-		gssapi_tvb = tvb_new_subset(
-			tvb, cur_offset, tkey_keylen, tkey_keylen);
+			/*
+			 * XXX - in at least one capture, this appears to
+			 * be an NTLMSSP blob, with no ASN.1 in it, in
+			 * a query.
+			 *
+			 * See RFC 3645 which might indicate what's going
+			 * on here.  (The key is an output_token from
+			 * GSS_Init_sec_context.)
+			 *
+			 * How the heck do we know what method is being
+			 * used, so we know how to decode the key?  Do we
+			 * have to look at the algorithm name, e.g.
+			 * "gss.microsoft.com"?  The SMB dissector
+			 * checks whether the security blob begins
+			 * with "NTLMSSP" in some cases.
+			 */
+			gssapi_tvb = tvb_new_subset(
+				tvb, cur_offset, tkey_keylen, tkey_keylen);
 
-		call_dissector(gssapi_handle, gssapi_tvb, pinfo, key_tree);
+			call_dissector(gssapi_handle, gssapi_tvb, pinfo,
+				key_tree);
 
-		break;
+			break;
+		}
+		default:
+
+			/* No dissector for this key mode */
+
+			break;
+		}
+
+		cur_offset += tkey_keylen;
+		rr_len -= tkey_keylen;
 	}
-	default:
-
-		/* No dissector for this key mode */
-
-		break;
-	}
-
-	cur_offset += tkey_keylen;
-	rr_len -= tkey_keylen;
 
 	if (rr_len < 2)
 	  goto bad_rr;
