@@ -2,7 +2,7 @@
  * Routines for the Generic Routing Encapsulation (GRE) protocol
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-gre.c,v 1.8 1999/12/08 21:38:14 guy Exp $
+ * $Id: packet-gre.c,v 1.9 1999/12/09 02:53:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -56,6 +56,7 @@ static gint ett_gre_flags = -1;
 #define GH_B_VER	0x0007
 
 #define GRE_PPP		0x880B
+#define	GRE_IP		0x0800
 
 static int calc_len(guint16, int);
 static void add_flags_and_ver(proto_tree *, guint16, int, int);
@@ -67,17 +68,18 @@ dissect_gre(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   guint16	type	      = pntohs(pd + offset + sizeof(flags_and_ver));
   static const value_string typevals[] = {
     { GRE_PPP, "PPP" },
+    { GRE_IP,  "IP" },
     { 0,       NULL  }
   };
+  guint16	sre_af;
+  guint8	sre_length;
 
   if (check_col(fd, COL_PROTOCOL))
     col_add_str(fd, COL_PROTOCOL, "GRE");
 	
   if (check_col(fd, COL_INFO)) {
-    if (type == GRE_PPP)
-      col_add_str(fd, COL_INFO, "Encapsulated PPP");
-    else
-      col_add_str(fd, COL_INFO, "Encapsulated unknown");
+    col_add_fstr(fd, COL_INFO, "Encapsulated %s",
+        val_to_str(type, typevals, "0x%04X (unknown)"));
   }
 		
   if (IS_DATA_IN_FRAME(offset) && tree) {
@@ -94,7 +96,9 @@ dissect_gre(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     }
     else {
       is_ppp = 0;
-      ti = proto_tree_add_item(tree, proto_gre, offset, calc_len(flags_and_ver, 1), NULL);
+      ti = proto_tree_add_item_format(tree, proto_gre, offset, calc_len(flags_and_ver, 1),
+        NULL, "Generic Routing Encapsulation (%s)",
+        val_to_str(type, typevals, "0x%04X - unknown"));
       gre_tree = proto_item_add_subtree(ti, ett_gre);
       add_flags_and_ver(gre_tree, flags_and_ver, offset, 0);
     }
@@ -158,19 +162,30 @@ dissect_gre(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     }
 
     if (flags_and_ver & GH_B_R) {
-      proto_tree_add_text(gre_tree, offset, sizeof(guint16),
-			  "Address family: %u", pntohs(pd + offset));
-      offset += sizeof(guint16);
-      proto_tree_add_text(gre_tree, offset, 1,
+      for (;;) {
+      	sre_af = pntohs(pd + offset);
+        proto_tree_add_text(gre_tree, offset, sizeof(guint16),
+  			  "Address family: %u", sre_af);
+        offset += sizeof(guint16);
+        proto_tree_add_text(gre_tree, offset, 1,
 			  "SRE offset: %u", pd[offset++]);
-      proto_tree_add_text(gre_tree, offset, 1,
-			  "SRE length: %u", pd[offset++]);
+	sre_length = pd[offset];
+        proto_tree_add_text(gre_tree, offset, sizeof(guint8),
+			  "SRE length: %u", sre_length);
+	offset += sizeof(guint8);
+	if (sre_af == 0 && sre_length == 0)
+	  break;
+	offset += sre_length;
+      }
     }
 
     switch (type) {
        case GRE_PPP:
  	dissect_payload_ppp(pd, offset, fd, tree);
  	break;
+       case GRE_IP:
+        dissect_ip(pd, offset, fd, tree);
+        break;
       default:
 	dissect_data(pd, offset, fd, gre_tree);
     }
