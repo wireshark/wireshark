@@ -511,7 +511,8 @@ static int rtp_packet(void *user_data_arg, packet_info *pinfo, epan_dissect_t *e
 	else if (rtpinfo->info_version !=2)
 		return 0;
 	/* is it the forward direction?  */
-	else if (user_data->ssrc_fwd == rtpinfo->info_sync_src)  {
+	else if (user_data->ssrc_fwd == rtpinfo->info_sync_src &&
+		CMP_ADDRESS(&(user_data->ip_src_fwd), &(pinfo->net_src)) == 0)  {
 #ifdef USE_CONVERSATION_GRAPH
 		vp.time = ((double)pinfo->fd->rel_secs + (double)pinfo->fd->rel_usecs/1000000);
 		vp.fnumber = pinfo->fd->num;
@@ -526,7 +527,8 @@ static int rtp_packet(void *user_data_arg, packet_info *pinfo, epan_dissect_t *e
 			&(user_data->forward.statinfo), pinfo, rtpinfo);
 	}
 	/* is it the reversed direction? */
-	else if (user_data->ssrc_rev == rtpinfo->info_sync_src) {
+	else if (user_data->ssrc_rev == rtpinfo->info_sync_src &&
+		CMP_ADDRESS(&(user_data->ip_src_rev), &(pinfo->net_src)) == 0)  {
 #ifdef USE_CONVERSATION_GRAPH
 		vp.time = ((double)pinfo->fd->rel_secs + (double)pinfo->fd->rel_usecs/1000000);
 		vp.fnumber = pinfo->fd->num;
