@@ -1,6 +1,6 @@
 /* netmon.c
  *
- * $Id: netmon.c,v 1.54 2002/05/04 10:00:18 guy Exp $
+ * $Id: netmon.c,v 1.55 2002/06/04 21:55:38 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -113,6 +113,7 @@ static gboolean netmon_read_atm_pseudoheader(FILE_T fh,
     union wtap_pseudo_header *pseudo_header, int *err);
 static gboolean netmon_read_rec_data(FILE_T fh, u_char *pd, int length,
     int *err);
+static void netmon_sequential_close(wtap *wth);
 static void netmon_close(wtap *wth);
 static gboolean netmon_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     const union wtap_pseudo_header *pseudo_header, const u_char *pd, int *err);
@@ -204,6 +205,7 @@ int netmon_open(wtap *wth, int *err)
 	wth->capture.netmon = g_malloc(sizeof(netmon_t));
 	wth->subtype_read = netmon_read;
 	wth->subtype_seek_read = netmon_seek_read;
+	wth->subtype_sequential_close = netmon_sequential_close;
 	wth->subtype_close = netmon_close;
 	wth->file_encap = netmon_encap[hdr.network];
 	wth->snapshot_length = 0;	/* not available in header */
@@ -530,11 +532,23 @@ netmon_read_rec_data(FILE_T fh, u_char *pd, int length, int *err)
 	return TRUE;
 }
 
+/* Throw away the frame table used by the sequential I/O stream. */
+static void
+netmon_sequential_close(wtap *wth)
+{
+	if (wth->capture.netmon->frame_table != NULL) {
+		g_free(wth->capture.netmon->frame_table);
+		wth->capture.netmon->frame_table = NULL;
+	}
+}
+
+/* Close stuff used by the random I/O stream, if any, and free up any
+   private data structures.  (If there's a "sequential_close" routine
+   for a capture file type, it'll be called before the "close" routine
+   is called, so we don't have to free the frame table here.) */
 static void
 netmon_close(wtap *wth)
 {
-	if (wth->capture.netmon->frame_table != NULL)
-		g_free(wth->capture.netmon->frame_table);
 	g_free(wth->capture.netmon);
 }
 
