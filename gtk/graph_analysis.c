@@ -281,8 +281,11 @@ static void dialog_graph_draw(graph_analysis_data_t* user_data)
         big_layout = gtk_widget_create_pango_layout(user_data->dlg.draw_area, label_string);
         small_layout = gtk_widget_create_pango_layout(user_data->dlg.draw_area, label_string);
 
-		pango_layout_set_font_description(big_layout, pango_font_description_from_string("Helvetica-Bold 8"));
-		pango_layout_set_font_description(small_layout, pango_font_description_from_string("Helvetica-Bold 7"));
+        /* XXX - to prevent messages like "Couldn't load font x, falling back to y", I've changed font 
+           description from "Helvetica-Bold 8" to "Helvetica,Sans,Bold 8", this seems to be 
+           conforming to the API, see http://developer.gnome.org/doc/API/2.0/pango/pango-Fonts.html */
+		pango_layout_set_font_description(big_layout, pango_font_description_from_string("Helvetica,Sans,Bold 8"));
+		pango_layout_set_font_description(small_layout, pango_font_description_from_string("Helvetica,Sans,Bold 7"));
 
         pango_layout_get_pixel_size(layout, &label_width, &label_height);
 #endif
