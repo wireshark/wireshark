@@ -582,14 +582,6 @@ printf("INTEGERnew dissect_ber_integer_new(%s) entered implicit_tag:%d len:%d\n"
 	return offset;
 }
 
-/* XXX kludge until we fix up asn2eth and rebuild everything */
-int
-dissect_ber_integer(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id, guint32 *value)
-{
-  return dissect_ber_integer_new(FALSE, pinfo, tree, tvb, offset, hf_id, value);
-}
-
-
 
 int
 dissect_ber_boolean(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id)
