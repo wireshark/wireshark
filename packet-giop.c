@@ -9,7 +9,7 @@
  * Frank Singleton <frank.singleton@ericsson.com>
  * Trevor Shepherd <eustrsd@am1.ericsson.se>
  *
- * $Id: packet-giop.c,v 1.58 2002/04/24 21:28:52 guy Exp $
+ * $Id: packet-giop.c,v 1.59 2002/05/02 19:39:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -328,7 +328,7 @@ static void decode_IIOP_IOR_profile(tvbuff_t *tvb, packet_info *pinfo, proto_tre
                                     guint32 boundary, gboolean new_endianess, gchar *repobuf,
                                     gboolean store_flag);
 
-static void decode_ServiceContextList(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset,
+static void decode_ServiceContextList(tvbuff_t *tvb, proto_tree *tree, int *offset,
                                       gboolean stream_is_be, guint32 boundary);
 
 static void decode_TaggedProfile(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset,
@@ -342,8 +342,7 @@ static void decode_SystemExceptionReplyBody (tvbuff_t *tvb, proto_tree *tree, gi
                                              guint32 boundary);
 
 static void dissect_tk_objref_params(tvbuff_t *tvb, proto_tree *tree, gint *offset, 
-                                     gboolean stream_is_big_endian, guint32 boundary,
-                                     MessageHeader * header);
+                                     gboolean stream_is_big_endian, guint32 boundary);
 
 static void dissect_tk_struct_params(tvbuff_t *tvb, proto_tree *tree, gint *offset, 
                                      gboolean stream_is_big_endian, guint32 boundary,
@@ -354,8 +353,7 @@ static void dissect_tk_union_params(tvbuff_t *tvb, proto_tree *tree, gint *offse
                                     MessageHeader * header );
  
 static void dissect_tk_enum_params(tvbuff_t *tvb, proto_tree *tree, gint *offset, 
-                                   gboolean stream_is_big_endian, guint32 boundary,
-                                   MessageHeader * header);
+                                   gboolean stream_is_big_endian, guint32 boundary);
 
 static void dissect_tk_sequence_params(tvbuff_t *tvb, proto_tree *tree, gint *offset, 
 			               gboolean stream_is_big_endian, guint32 boundary,
@@ -382,12 +380,10 @@ static void dissect_tk_value_box_params(tvbuff_t *tvb, proto_tree *tree, gint *o
 					MessageHeader * header);
 
 static void dissect_tk_native_params(tvbuff_t *tvb, proto_tree *tree, gint *offset, 
-			             gboolean stream_is_big_endian, guint32 boundary,
-				     MessageHeader * header);
+			             gboolean stream_is_big_endian, guint32 boundary);
 
 static void dissect_tk_abstract_interface_params(tvbuff_t *tvb, proto_tree *tree, gint *offset, 
-			                         gboolean stream_is_big_endian, guint32 boundary,
-						 MessageHeader * header);
+			                         gboolean stream_is_big_endian, guint32 boundary);
 
 
 static void dissect_typecode_string_param(tvbuff_t *tvb, proto_tree *tree, gint *offset, 
@@ -2476,7 +2472,7 @@ guint32 get_CDR_typeCode(tvbuff_t *tvb, proto_tree *tree, gint *offset,
   case tk_Principal: /* empty parameter list */
     break;
   case tk_objref: /* complex parameter list */
-    dissect_tk_objref_params(tvb, tree, offset, stream_is_big_endian, boundary, header );
+    dissect_tk_objref_params(tvb, tree, offset, stream_is_big_endian, boundary);
     break;
   case tk_struct: /* complex parameter list */
     dissect_tk_struct_params(tvb, tree, offset, stream_is_big_endian, boundary, header );
@@ -2485,7 +2481,7 @@ guint32 get_CDR_typeCode(tvbuff_t *tvb, proto_tree *tree, gint *offset,
     dissect_tk_union_params(tvb, tree, offset, stream_is_big_endian, boundary, header );
     break;
   case tk_enum: /* complex parameter list */
-    dissect_tk_enum_params(tvb, tree, offset, stream_is_big_endian, boundary, header );
+    dissect_tk_enum_params(tvb, tree, offset, stream_is_big_endian, boundary);
     break;
 
   case tk_string: /* simple parameter list */
@@ -2545,10 +2541,10 @@ guint32 get_CDR_typeCode(tvbuff_t *tvb, proto_tree *tree, gint *offset,
     dissect_tk_value_box_params(tvb, tree, offset, stream_is_big_endian, boundary, header );
     break;
   case tk_native: /* complex parameter list */
-    dissect_tk_native_params(tvb, tree, offset, stream_is_big_endian, boundary, header );
+    dissect_tk_native_params(tvb, tree, offset, stream_is_big_endian, boundary);
     break;
   case tk_abstract_interface: /* complex parameter list */
-    dissect_tk_abstract_interface_params(tvb, tree, offset, stream_is_big_endian, boundary, header );
+    dissect_tk_abstract_interface_params(tvb, tree, offset, stream_is_big_endian, boundary );
     break;
   default:
     g_warning("giop: Unknown TCKind %u \n", val);
@@ -2769,7 +2765,7 @@ guint32 get_CDR_wstring(tvbuff_t *tvb, gchar **seq, int *offset, gboolean stream
 
 static void
 dissect_target_address(tvbuff_t * tvb, packet_info *pinfo, int *offset, proto_tree * tree, 
-		       MessageHeader * header, gboolean stream_is_big_endian)
+		       gboolean stream_is_big_endian)
 {
    guint16 discriminant;
    gchar *object_key;
@@ -2994,7 +2990,7 @@ dissect_reply_body (tvbuff_t *tvb, u_int offset, packet_info *pinfo,
  */
 
 static void dissect_giop_reply (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
-				proto_tree * clnp_tree, MessageHeader * header,
+				MessageHeader * header,
 				gboolean stream_is_big_endian) {
 
   guint32 offset = 0;
@@ -3018,7 +3014,7 @@ static void dissect_giop_reply (tvbuff_t * tvb, packet_info * pinfo, proto_tree 
    * Decode IOP::ServiceContextList
    */
   
-  decode_ServiceContextList(tvb, pinfo, reply_tree, &offset,stream_is_big_endian, GIOP_HEADER_SIZE);
+  decode_ServiceContextList(tvb, reply_tree, &offset,stream_is_big_endian, GIOP_HEADER_SIZE);
 
   request_id = get_CDR_ulong(tvb, &offset, stream_is_big_endian,GIOP_HEADER_SIZE);
 
@@ -3078,7 +3074,7 @@ static void dissect_giop_reply (tvbuff_t * tvb, packet_info * pinfo, proto_tree 
  */
 
 static void dissect_giop_reply_1_2 (tvbuff_t * tvb, packet_info * pinfo,
-				    proto_tree * tree, proto_tree * clnp_tree,
+				    proto_tree * tree,
 				    MessageHeader * header,
 				    gboolean stream_is_big_endian) {
 
@@ -3125,7 +3121,7 @@ static void dissect_giop_reply_1_2 (tvbuff_t * tvb, packet_info * pinfo,
    * Decode IOP::ServiceContextList
    */
 
-  decode_ServiceContextList(tvb, pinfo, reply_tree, &offset,stream_is_big_endian, GIOP_HEADER_SIZE);
+  decode_ServiceContextList(tvb, reply_tree, &offset,stream_is_big_endian, GIOP_HEADER_SIZE);
 
   /*
    * GIOP 1.2 Reply body must fall on an 8 octet alignment.
@@ -3159,8 +3155,8 @@ static void dissect_giop_reply_1_2 (tvbuff_t * tvb, packet_info * pinfo,
 
 
 static void dissect_giop_cancel_request (tvbuff_t * tvb, packet_info * pinfo,
-			proto_tree * tree, proto_tree * clnp_tree,
-			MessageHeader * header, gboolean stream_is_big_endian) {
+			proto_tree * tree,
+			gboolean stream_is_big_endian) {
 
   u_int offset = 0;
   guint32 request_id;
@@ -3202,7 +3198,7 @@ static void dissect_giop_cancel_request (tvbuff_t * tvb, packet_info * pinfo,
  */
 static void
 dissect_giop_request_1_1 (tvbuff_t * tvb, packet_info * pinfo,
-			proto_tree * tree, proto_tree * clnp_tree,
+			proto_tree * tree,
 			MessageHeader * header, gboolean stream_is_big_endian)
 {
   guint32 offset = 0;
@@ -3243,7 +3239,7 @@ dissect_giop_request_1_1 (tvbuff_t * tvb, packet_info * pinfo,
    * Decode IOP::ServiceContextList
    */
   
-  decode_ServiceContextList(tvb, pinfo, request_tree, &offset,stream_is_big_endian, GIOP_HEADER_SIZE);
+  decode_ServiceContextList(tvb, request_tree, &offset,stream_is_big_endian, GIOP_HEADER_SIZE);
 
 
   request_id = get_CDR_ulong(tvb, &offset, stream_is_big_endian,GIOP_HEADER_SIZE);
@@ -3432,7 +3428,7 @@ dissect_giop_request_1_1 (tvbuff_t * tvb, packet_info * pinfo,
  */
 static void
 dissect_giop_request_1_2 (tvbuff_t * tvb, packet_info * pinfo,
-			proto_tree * tree, proto_tree * clnp_tree,
+			proto_tree * tree,
 			MessageHeader * header, gboolean stream_is_big_endian)
 {
   guint32 offset = 0;
@@ -3484,7 +3480,7 @@ dissect_giop_request_1_2 (tvbuff_t * tvb, packet_info * pinfo,
    }
   g_free(reserved);
 
-  dissect_target_address(tvb, pinfo, &offset, request_tree, header, stream_is_big_endian);
+  dissect_target_address(tvb, pinfo, &offset, request_tree, stream_is_big_endian);
 
   /* length of operation string */ 
   len = get_CDR_string(tvb, &operation, &offset, stream_is_big_endian,GIOP_HEADER_SIZE);
@@ -3519,7 +3515,7 @@ dissect_giop_request_1_2 (tvbuff_t * tvb, packet_info * pinfo,
    * Decode IOP::ServiceContextList
    */
 
-  decode_ServiceContextList(tvb, pinfo, request_tree, &offset,  stream_is_big_endian, GIOP_HEADER_SIZE);
+  decode_ServiceContextList(tvb, request_tree, &offset,  stream_is_big_endian, GIOP_HEADER_SIZE);
 
   /*
    * GIOP 1.2 Request body must fall on an 8 octet alignment, taking into
@@ -3626,7 +3622,7 @@ dissect_giop_locate_request( tvbuff_t * tvb, packet_info * pinfo,
   }
   else     /* GIOP 1.2 and higher */
   {
-      dissect_target_address(tvb, pinfo, &offset, locate_request_tree, header,
+      dissect_target_address(tvb, pinfo, &offset, locate_request_tree, 
 			     stream_is_big_endian);
 
   }
@@ -3711,7 +3707,7 @@ dissect_giop_locate_reply( tvbuff_t * tvb, packet_info * pinfo,
 
 static void
 dissect_giop_fragment( tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
-			MessageHeader * header, gboolean stream_is_big_endian)
+			gboolean stream_is_big_endian)
 {
   guint32 offset = 0;
   guint32 request_id;
@@ -3904,12 +3900,12 @@ gboolean dissect_giop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree) {
     case Request:
       if(header.GIOP_version.minor < 2)
       {
-	   dissect_giop_request_1_1 (payload_tvb, pinfo, tree, clnp_tree,
+	   dissect_giop_request_1_1 (payload_tvb, pinfo, tree,
 				     &header, stream_is_big_endian);
       }
       else
       {    
-           dissect_giop_request_1_2 (payload_tvb, pinfo, tree, clnp_tree,
+           dissect_giop_request_1_2 (payload_tvb, pinfo, tree,
 				     &header, stream_is_big_endian);
       }
       
@@ -3919,18 +3915,18 @@ gboolean dissect_giop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree) {
     case Reply:
       if(header.GIOP_version.minor < 2)
 	{
-           dissect_giop_reply (payload_tvb, pinfo, tree, clnp_tree, &header,
+           dissect_giop_reply (payload_tvb, pinfo, tree, &header,
 			       stream_is_big_endian);
 	}
       else
         {
-	   dissect_giop_reply_1_2 (payload_tvb, pinfo, tree, clnp_tree,
+	   dissect_giop_reply_1_2 (payload_tvb, pinfo, tree,
 				   &header, stream_is_big_endian);
 	}
       break;
     case CancelRequest:
-        dissect_giop_cancel_request(payload_tvb, pinfo, tree, clnp_tree,
-				    &header, stream_is_big_endian);
+        dissect_giop_cancel_request(payload_tvb, pinfo, tree,
+				    stream_is_big_endian);
 	break;
     case LocateRequest:
 	dissect_giop_locate_request(payload_tvb, pinfo, tree, &header,
@@ -3941,7 +3937,7 @@ gboolean dissect_giop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree) {
 				  stream_is_big_endian);
 	break;
     case Fragment:
-        dissect_giop_fragment(payload_tvb, pinfo, tree, &header,
+        dissect_giop_fragment(payload_tvb, pinfo, tree,
 			      stream_is_big_endian);
         break;	
     default:
@@ -4606,6 +4602,7 @@ static void decode_IIOP_IOR_profile(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
 
 
+#if 0
 void dissect_SID_BI_DIR_IIOP(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset,
 			       MessageHeader *header, gchar *operation, guint32 boundary) {
 
@@ -4613,7 +4610,7 @@ void dissect_SID_BI_DIR_IIOP(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
 };
 
-
+#endif
 
 
 /*
@@ -4645,7 +4642,7 @@ void dissect_SID_BI_DIR_IIOP(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
 
 
-void decode_ServiceContextList(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset,
+void decode_ServiceContextList(tvbuff_t *tvb, proto_tree *ptree, int *offset,
 			       gboolean stream_is_be, guint32 boundary) {
 
   guint32 seqlen;		/* sequence length  */
@@ -4795,8 +4792,7 @@ static void decode_SystemExceptionReplyBody (tvbuff_t *tvb, proto_tree *tree, gi
  */
 
 static void dissect_tk_objref_params(tvbuff_t *tvb, proto_tree *tree, gint *offset, 
-			             gboolean stream_is_big_endian, guint32 boundary,
-				     MessageHeader * header) {
+			             gboolean stream_is_big_endian, guint32 boundary) {
 
   guint32  new_boundary;             /* new boundary for encapsulation */
   gboolean new_stream_is_big_endian; /* new endianness for encapsulation */
@@ -4923,8 +4919,7 @@ static void dissect_tk_union_params(tvbuff_t *tvb, proto_tree *tree, gint *offse
 
 
 static void dissect_tk_enum_params(tvbuff_t *tvb, proto_tree *tree, gint *offset, 
-			           gboolean stream_is_big_endian, guint32 boundary,
-				   MessageHeader * header) {
+			           gboolean stream_is_big_endian, guint32 boundary) {
 
   guint32  new_boundary;             /* new boundary for encapsulation */
   gboolean new_stream_is_big_endian; /* new endianness for encapsulation */
@@ -5182,8 +5177,7 @@ static void dissect_tk_value_box_params(tvbuff_t *tvb, proto_tree *tree, gint *o
 
 
 static void dissect_tk_native_params(tvbuff_t *tvb, proto_tree *tree, gint *offset, 
-			             gboolean stream_is_big_endian, guint32 boundary,
-				     MessageHeader * header) {
+			             gboolean stream_is_big_endian, guint32 boundary) {
 
   guint32  new_boundary;             /* new boundary for encapsulation */
   gboolean new_stream_is_big_endian; /* new endianness for encapsulation */
@@ -5207,8 +5201,7 @@ static void dissect_tk_native_params(tvbuff_t *tvb, proto_tree *tree, gint *offs
 
 
 static void dissect_tk_abstract_interface_params(tvbuff_t *tvb, proto_tree *tree, gint *offset, 
-			                         gboolean stream_is_big_endian, guint32 boundary,
-						 MessageHeader * header) {
+			                         gboolean stream_is_big_endian, guint32 boundary) {
 
   guint32  new_boundary;              /* new boundary for encapsulation */
   gboolean new_stream_is_big_endian;  /* new endianness for encapsulation */
