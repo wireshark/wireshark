@@ -2,7 +2,7 @@
  * Routines for LPR and LPRng packet disassembly
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-lpd.c,v 1.13 1999/11/16 11:42:38 guy Exp $
+ * $Id: packet-lpd.c,v 1.14 1999/12/15 23:47:30 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -43,7 +43,9 @@ static int hf_lpd_request = -1;
 
 static gint ett_lpd = -1;
 
-enum lpr_type { request, response };
+enum lpr_type { request, response, unknown };
+
+static char* find_printer_string(const u_char *pd, int offset, int frame_length);
 
 void
 dissect_lpd(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
@@ -51,8 +53,7 @@ dissect_lpd(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	proto_tree	*lpd_tree;
 	proto_item	*ti;
 	enum lpr_type	lpr_packet_type;
-	char		*newline, *printer, *line_pos;
-	int			substr_len, curr_offset;
+	char		*printer;
 
 	/* This information comes from the LPRng HOWTO, which also describes
 		RFC 1179. http://www.astart.com/lprng/LPRng-HOWTO.html */
@@ -83,7 +84,7 @@ dissect_lpd(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		lpr_packet_type = request;
 	}
 	else {
-		lpr_packet_type = response;
+		lpr_packet_type = unknown;
 	}
 
 	if (check_col(fd, COL_PROTOCOL))
@@ -92,8 +93,11 @@ dissect_lpd(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		if (lpr_packet_type == request) {
 			col_add_str(fd, COL_INFO, lpd_client_code[pd[offset]]);
 		}
-		else {
+		else if (lpr_packet_type == response) {
 			col_add_str(fd, COL_INFO, "LPD response");
+		}
+		else {
+			col_add_str(fd, COL_INFO, "LPD continuation");
 		}
 	}
 
@@ -103,61 +107,70 @@ dissect_lpd(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		lpd_tree = proto_item_add_subtree(ti, ett_lpd);
 
 		if (lpr_packet_type == response) {
-		  proto_tree_add_item_hidden(lpd_tree, hf_lpd_response, 
-					     0, 0, TRUE);
+		  proto_tree_add_item_hidden(lpd_tree, hf_lpd_response, 0, 0, TRUE);
 		} else {
-		  proto_tree_add_item_hidden(lpd_tree, hf_lpd_request, 
-					     0, 0, TRUE);
+		  proto_tree_add_item_hidden(lpd_tree, hf_lpd_request, 0, 0, TRUE);
 		}
 
 		if (lpr_packet_type == request) {
-			if (pd[offset] <= 9) {
+			printer = find_printer_string(pd, offset+1, END_OF_FRAME);
+
+			if (pd[offset] <= 9 && printer) {
 				proto_tree_add_text(lpd_tree, offset,		1,
 					lpd_client_code[pd[offset]]);
+				proto_tree_add_text(lpd_tree, offset+1,
+					strlen(printer), "Printer/options: %s", printer);
 			}
 			else {
-				proto_tree_add_text(lpd_tree, offset,		1,
-					lpd_client_code[0]);
+				dissect_data(pd, offset, fd, tree);
 			}
-			printer = g_strdup(&pd[offset+1]);
 
-			/* get rid of the new-line so that the tree prints out nicely */
-			if (printer[END_OF_FRAME - 2] == 0x0a) {
-				printer[END_OF_FRAME - 2] = 0;
+			if (printer) 
+				g_free(printer);
+		}
+		else if (lpr_packet_type == response) {
+			int response = pd[offset];
+
+			if (response <= 3) {
+				proto_tree_add_text(lpd_tree, offset, 2, "Response: %s",
+					lpd_server_code[response]);
 			}
-			proto_tree_add_text(lpd_tree, offset+1,
-					END_OF_FRAME - 1,
-					/*"Printer/options: %s", &pd[offset+1]);*/
-					"Printer/options: %s", printer);
-			g_free(printer);
+			else {
+				dissect_data(pd, offset, fd, tree);
+			}
 		}
 		else {
-			if (pd[offset] <= 3) {
-				proto_tree_add_text(lpd_tree, offset, 2, "Response: %s",
-					lpd_server_code[pd[offset]]);
-			}
-			else {
-				printer = strdup(&pd[offset]);
-				line_pos = printer;
-				curr_offset = offset;
-				while (IS_DATA_IN_FRAME(curr_offset)) {
-					newline = strchr(line_pos, '\n');
-					if (!newline) {
-						proto_tree_add_text(lpd_tree, curr_offset,
-							END_OF_FRAME, "Text: %s", line_pos);
-						break;
-					}
-					*newline = 0;
-					substr_len = strlen(line_pos);
-					proto_tree_add_text(lpd_tree, curr_offset, substr_len + 1,
-						"Text: %s", line_pos);
-					curr_offset += substr_len + 1;
-					line_pos = newline + 1;
-				}
-			}
+				dissect_data(pd, offset, fd, tree);
 		}
 	}
 }
+
+
+static char*
+find_printer_string(const u_char *pd, int offset, int frame_length)
+{
+	int	i, final_offset;
+	char	c;
+	char	*string;
+	int	bytes;
+
+	final_offset = offset + frame_length;
+
+	/* try to find end of string, either 0x0a or 0x00 */
+	for (i = offset; i < final_offset; i++) {
+		c = pd[i];
+		if (c == '\x00' || c == '\x0a') {
+			bytes = i - offset;
+			string = g_malloc(bytes+1);
+			memcpy(string, &pd[offset], bytes);
+			string[bytes] = 0;
+			return string;
+		}
+	}
+
+	return NULL;
+}
+
 
 void
 proto_register_lpd(void)
@@ -181,3 +194,4 @@ proto_register_lpd(void)
   proto_register_field_array(proto_lpd, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 }
+
