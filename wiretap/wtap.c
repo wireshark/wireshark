@@ -1,6 +1,6 @@
 /* wtap.c
  *
- * $Id: wtap.c,v 1.76 2003/01/03 06:45:45 guy Exp $
+ * $Id: wtap.c,v 1.77 2003/01/03 22:31:26 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -157,6 +157,9 @@ static const struct encap_type_info {
 
 	/* WTAP_ENCAP_WFLEET_HDLC */
 	{ "Wellfleet HDLC", "whdlc" },
+
+	/* WTAP_ENCAP_SDLC */
+	{ "SDLC", "sdlc" },
 };
 
 /* Name that should be somewhat descriptive. */

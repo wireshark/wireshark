@@ -1,6 +1,6 @@
 /* ngsniffer.c
  *
- * $Id: ngsniffer.c,v 1.98 2003/01/03 20:42:52 guy Exp $
+ * $Id: ngsniffer.c,v 1.99 2003/01/03 22:31:26 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -774,6 +774,10 @@ process_rec_header2_v45(wtap *wth, unsigned char *buffer, guint16 length,
 	 * it's ISDN and the channel number indicates which channel it is.
 	 */
 	switch (buffer[4]) {
+
+	case NET_SDLC:
+		wth->file_encap = WTAP_ENCAP_SDLC;
+		break;
 
 	case NET_HDLC:
 		wth->file_encap = WTAP_ENCAP_LAPB;
