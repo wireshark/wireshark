@@ -107,8 +107,8 @@ static const value_string fcencap_proto_vals[] = {
     {0, NULL},
 };
 
-static guint fcip_header_2_bytes[2] = {FCIP_ENCAP_PROTO_VER,
-                                       FCIP_ENCAP_PROTO_VER};
+static const guint fcip_header_2_bytes[2] = {FCIP_ENCAP_PROTO_VER,
+                                             FCIP_ENCAP_PROTO_VER};
 
 static int proto_fcip          = -1;
 
@@ -216,8 +216,8 @@ NXT_BYTE: while (bytes_remaining) {
         /*
          * Tests a, b and c
          */
-        if (memcmp ((void *)tvb_get_ptr (tvb, offset, 8),
-                    (void *)fcip_header_2_bytes, 8) != 0) {
+        if (tvb_memeql(tvb, offset, (const guint8 *)fcip_header_2_bytes,
+                       8) != 0) {
             offset++;
             bytes_remaining--;
             goto NXT_BYTE;
@@ -287,8 +287,8 @@ NXT_BYTE: while (bytes_remaining) {
         if (bytes_remaining >= (frame_len)) {
             if (tvb_bytes_exist (tvb, offset+frame_len, 8)) {
                 /* The start of the next header matches what we wish to see */ 
-                if (memcmp ((void *)tvb_get_ptr (tvb, offset+frame_len, 8),
-                            (void *)fcip_header_2_bytes, 8) == 0) {
+                if (tvb_memeql (tvb, offset+frame_len,
+                                (const guint8 *)fcip_header_2_bytes, 8) == 0) {
                     return (offset);
                 }
                 else {
