@@ -1,7 +1,7 @@
 /* packet-smtp.c
  * Routines for SMTP packet disassembly
  *
- * $Id: packet-smtp.c,v 1.20 2001/09/03 10:33:07 guy Exp $
+ * $Id: packet-smtp.c,v 1.21 2001/11/13 04:34:38 guy Exp $
  *
  * Copyright (c) 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  *
@@ -75,10 +75,6 @@ struct smtp_proto_data {
 
 static int smtp_packet_init_count = 100;
 
-struct smtp_request_key {
-  guint32 conversation;
-};
-
 /*
  * State information stored with a conversation.
  */
@@ -87,66 +83,17 @@ struct smtp_request_val {
   guint16 crlf_seen;     /* Have we seen a CRLF on the end of a packet */
 };
 
-GHashTable *smtp_request_hash = NULL;
-GMemChunk  *smtp_request_keys = NULL;
 GMemChunk  *smtp_request_vals = NULL;
 GMemChunk  *smtp_packet_infos = NULL;
-
-/* Hash Functions */
-gint
-smtp_equal(gconstpointer v, gconstpointer w)
-{
-  struct smtp_request_key *v1 = (struct smtp_request_key *)v;
-  struct smtp_request_key *v2 = (struct smtp_request_key *)w;
-
-#if defined(DEBUG_SMTP_HASH)
-  printf("Comparing %08X\n      and %08X\n",
-	 v1->conversation, v2->conversation);
-#endif
-
-  if (v1->conversation == v2->conversation)
-    return 1;
-
-  return 0;
-
-}
-
-static guint
-smtp_hash(gconstpointer v)
-{
-  struct smtp_request_key *key = (struct smtp_request_key *)v;
-  guint val;
-
-  val = key->conversation;
-
-#if defined(DEBUG_SMTP_HASH)
-  printf("SMTP Hash calculated as %u\n", val);
-#endif
-
-  return val;
-
-}
 
 static void
 smtp_init_protocol(void)
 {
-#if defined(DEBUG_SMTP_HASH)
-  printf("Initializing SMTP hashtable area\n");
-#endif
-
-  if (smtp_request_hash)
-    g_hash_table_destroy(smtp_request_hash);
-  if (smtp_request_keys)
-    g_mem_chunk_destroy(smtp_request_keys);
   if (smtp_request_vals)
     g_mem_chunk_destroy(smtp_request_vals);
   if (smtp_packet_infos)
     g_mem_chunk_destroy(smtp_packet_infos);
 
-  smtp_request_hash = g_hash_table_new(smtp_hash, smtp_equal);
-  smtp_request_keys = g_mem_chunk_new("smtp_request_keys",
-				       sizeof(struct smtp_request_key),
-				       smtp_packet_init_count * sizeof(struct smtp_request_key), G_ALLOC_AND_FREE);
   smtp_request_vals = g_mem_chunk_new("smtp_request_vals", 
 				      sizeof(struct smtp_request_val),
 				      smtp_packet_init_count * sizeof(struct smtp_request_val), G_ALLOC_AND_FREE);
@@ -165,7 +112,6 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     int                     offset = 0;
     int                     request = 0;
     conversation_t          *conversation;
-    struct smtp_request_key request_key, *new_request_key;
     struct smtp_request_val *request_val;
     const char              *line;
     int                     linelen;
@@ -224,23 +170,21 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       }
 
-      /* 
-       * Check for and insert an entry in the request table if does not exist
+      /*
+       * Is there a request structure attached to this conversation?
        */
-      request_key.conversation = conversation->index;
+      request_val = conversation_get_proto_data(conversation, proto_smtp);
 
-      request_val = (struct smtp_request_val *)g_hash_table_lookup(smtp_request_hash, &request_key);
-      
-      if (!request_val) { /* Create one */
+      if (!request_val) {
 
-	new_request_key = g_mem_chunk_alloc(smtp_request_keys);
-	new_request_key->conversation = conversation->index;
-
+        /*
+         * No - create one and attach it.
+         */
 	request_val = g_mem_chunk_alloc(smtp_request_vals);
 	request_val->reading_data = FALSE;
 	request_val->crlf_seen = 0;
 
-	g_hash_table_insert(smtp_request_hash, new_request_key, request_val);
+	conversation_add_proto_data(conversation, proto_smtp, request_val);
 
       }
 
