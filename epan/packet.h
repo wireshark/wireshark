@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.10 2000/11/19 08:54:35 guy Exp $
+ * $Id: packet.h,v 1.11 2000/11/21 14:15:21 girlich Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -320,8 +320,6 @@ void register_init_routine(void (*func)(void));
 
 /* Call all the registered "init" routines. */
 void init_all_protocols(void);
-
-void init_dissect_rpc(void);
 
 /*
  * Dissectors should never modify the packet data.
