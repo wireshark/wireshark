@@ -165,7 +165,7 @@ void voip_calls_reset(voip_calls_tapinfo_t *tapinfo)
 }
 
 /****************************************************************************/
-void graph_analysis_data_init(){
+void graph_analysis_data_init(void){
 	the_tapinfo_struct.graph_analysis = g_malloc(sizeof(graph_analysis_info_t));
 	the_tapinfo_struct.graph_analysis->nconv = 0;
 	the_tapinfo_struct.graph_analysis->list = NULL;
@@ -184,7 +184,7 @@ void graph_analysis_data_init(){
  * The second solution is cleaner and probably easier to implement, 
  * leaving the current rtp analysis feature untouched.
  */
-void add_rtp_streams_graph()
+void add_rtp_streams_graph(void)
 {
 	rtp_stream_info_t *strinfo;
 	GList *strinfo_list;

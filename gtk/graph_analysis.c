@@ -958,7 +958,7 @@ void get_nodes(graph_analysis_data_t* user_data)
 
 /****************************************************************************/
 /* XXX only handles IPv4, should add IPv6 support */
-graph_analysis_data_t* graph_analysis_init()
+graph_analysis_data_t* graph_analysis_init(void)
 {
 	graph_analysis_data_t* user_data;
 	/* init */

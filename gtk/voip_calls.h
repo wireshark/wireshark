@@ -195,8 +195,8 @@ void isup_calls_reset(voip_calls_tapinfo_t *tapinfo);
 void mtp3_calls_reset(voip_calls_tapinfo_t *tapinfo);
 void q931_calls_reset(voip_calls_tapinfo_t *tapinfo);
 
-void graph_analysis_data_init();
+void graph_analysis_data_init(void);
 
-void add_rtp_streams_graph();
+void add_rtp_streams_graph(void);
 
 #endif /*VOIP_CALLS_H_INCLUDED*/

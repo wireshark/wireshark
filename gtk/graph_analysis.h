@@ -113,7 +113,7 @@ typedef struct _graph_analysis_data_t {
 	guint32 num_items;
 } graph_analysis_data_t;
 
-graph_analysis_data_t* graph_analysis_init();
+graph_analysis_data_t* graph_analysis_init(void);
 void graph_analysis_create(graph_analysis_data_t* user_data);
 void graph_analysis_update(graph_analysis_data_t* user_data);
 
