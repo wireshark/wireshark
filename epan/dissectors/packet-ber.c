@@ -58,6 +58,8 @@ static gint hf_ber_id_uni_tag = -1;
 static gint hf_ber_id_tag = -1;
 static gint hf_ber_length = -1;
 static gint hf_ber_bitstring_padding = -1;
+static gint hf_ber_unknown_PrintableString = -1;
+static gint hf_ber_unknown_INTEGER = -1;
 
 static gint ett_ber_octet_string = -1;
 
@@ -149,6 +151,48 @@ get_ber_oid_name(char *oid)
 	return g_hash_table_lookup(oid_table, oid);
 }
 
+
+/* this function tries to dissect an unknown blob as much as possible.
+ * everytime this function is called it is a failure to implement a proper
+ * dissector in ethereal.
+ * something is missing, so dont become too comfy with this one,
+ * when it is called it is a BAD thing  not a good thing.
+ * It can not handle IMPLICIT tags nor non-UNIVERSAL classes
+ */
+static int
+dissect_unknown_ber(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree)
+{
+	int start_offset;
+	guint8 class;
+	gboolean pc, ind;
+	guint32 tag;
+	guint32 len;
+
+	start_offset=offset;
+
+	offset=dissect_ber_identifier(pinfo, NULL, tvb, offset, &class, &pc, &tag);
+	offset=dissect_ber_length(pinfo, NULL, tvb, offset, &len, &ind);
+
+	if(class!=BER_CLASS_UNI){
+		/* some printout here? aborting dissection */
+		return tvb_length(tvb);
+	}
+
+	switch(tag){
+	case BER_UNI_TAG_INTEGER:
+		offset = dissect_ber_integer_new(FALSE, pinfo, tree, tvb, start_offset, hf_ber_unknown_INTEGER, NULL);
+		break;
+	case BER_UNI_TAG_PrintableString:
+		offset = dissect_ber_octet_string(FALSE, pinfo, tree, tvb, start_offset, hf_ber_unknown_PrintableString, NULL);
+		break;
+	default:
+		offset += len;
+	}
+	
+	return offset;
+}
+
+
 int
 call_ber_oid_callback(char *oid, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
@@ -157,6 +201,7 @@ call_ber_oid_callback(char *oid, tvbuff_t *tvb, int offset, packet_info *pinfo, 
 	next_tvb = tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), tvb_length_remaining(tvb, offset));
 	if(!dissector_try_string(ber_oid_dissector_table, oid, next_tvb, pinfo, tree)){
 		proto_tree_add_text(tree, next_tvb, 0, tvb_length_remaining(tvb, offset), "BER: Dissector for OID:%s not implemented. Contact Ethereal developers if you want this supported", oid);
+		dissect_unknown_ber(pinfo, next_tvb, offset, tree);
 	}
 
 	/*XXX until we change the #.REGISTER signature for _PDU()s 
@@ -1457,6 +1502,12 @@ proto_register_ber(void)
 	{ &hf_ber_length, {
 	    "Length", "ber.length", FT_UINT32, BASE_DEC,
 	    NULL, 0, "Length of contents", HFILL }},
+	{ &hf_ber_unknown_PrintableString, {
+	    "Unknown PrintableString", "ber.unknown.PrintableString", FT_STRING, BASE_NONE,
+	    NULL, 0, "This is an unknown PrintableString", HFILL }},
+	{ &hf_ber_unknown_INTEGER, {
+	    "Unknown INTEGER", "ber.unknown.INTEGER", FT_UINT32, BASE_DEC,
+	    NULL, 0, "This is an unknown INTEGER", HFILL }},
 
     };
 
