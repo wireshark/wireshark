@@ -3,7 +3,7 @@
 /* dfilter-scanner.l
  * Scanner for display filters
  *
- * $Id: dfilter-scanner.l,v 1.22 1999/10/15 05:46:17 itojun Exp $
+ * $Id: dfilter-scanner.l,v 1.23 1999/10/17 01:54:19 itojun Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -159,6 +159,11 @@ le|\<\=		{ dfilter_lval.operand = TOK_LE; return TOK_LE; }
 }
 
 
+0[xX][A-Fa-f0-9]+ {			/* hex values */
+	dfilter_lval.string = g_strdup(yytext);
+	return T_VAL_NUMBER_STRING;
+}
+
 [A-Za-z0-9\:][A-Za-z0-9\.\_\-\:]+ {
 	/* looks like a protocol, field name, or hostname */
 
@@ -167,11 +172,7 @@ le|\<\=		{ dfilter_lval.operand = TOK_LE; return TOK_LE; }
 	dfilter_lval.variable.id = dfilter_lookup_token(yytext);
 	if (dfilter_lval.variable.id < 0) {
 		dfilter_lval.string = g_strdup(yytext);
-		if (strncmp("0x", yytext, 2) == 0
-		 || strncmp("0X", yytext, 2) == 0) {
-			return T_VAL_NUMBER_STRING;
-		} else
-			return T_VAL_UNQUOTED_STRING;
+		return T_VAL_UNQUOTED_STRING;
 	}
 	
 	ftype = proto_registrar_get_ftype(dfilter_lval.variable.id);
@@ -250,11 +251,6 @@ le|\<\=		{ dfilter_lval.operand = TOK_LE; return TOK_LE; }
 	return T_VAL_NUMBER_STRING;
 }
 
-
-0[xX][A-Fa-f0-9]+ {			/* hex values */
-	dfilter_lval.string = g_strdup(yytext);
-	return T_VAL_NUMBER_STRING;
-}
 
 [0-9\:\.]+ {
 	dfilter_lval.string = g_strdup(yytext);
