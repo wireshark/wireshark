@@ -1,7 +1,7 @@
 /* reassemble.c
  * Routines for {fragment,segment} reassembly
  *
- * $Id: reassemble.c,v 1.23 2002/08/28 21:00:41 jmayer Exp $
+ * $Id: reassemble.c,v 1.24 2002/10/17 20:51:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -723,8 +723,12 @@ fragment_add_seq_work(fragment_data *fd_head, tvbuff_t *tvb, int offset,
 		}
 		/* make sure it doesnt conflict with previous data */
 		dfpos=0;
+		last_fd=NULL;
 		for (fd_i=fd_head->next;fd_i->offset!=fd->offset;fd_i=fd_i->next) {
-		  dfpos += fd_i->len;
+		  if (!last_fd || last_fd->offset!=fd_i->offset){
+		    dfpos += fd_i->len;
+		  }
+		  last_fd=fd_i;
 		}
 		if(fd_i->datalen!=fd->datalen){
 			fd->flags      |= FD_OVERLAPCONFLICT;
@@ -732,6 +736,7 @@ fragment_add_seq_work(fragment_data *fd_head, tvbuff_t *tvb, int offset,
 			LINK_FRAG(fd_head,fd);
 			return TRUE;
 		}
+		g_assert(fd_head->len >= dfpos + fd->len);
 		if ( memcmp(fd_head->data+dfpos,
 			tvb_get_ptr(tvb,offset,fd->len),fd->len) ){
 			fd->flags      |= FD_OVERLAPCONFLICT;
