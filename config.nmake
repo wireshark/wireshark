@@ -1,4 +1,4 @@
-# $Id: config.nmake,v 1.64 2003/11/15 11:39:57 ulfl Exp $
+# $Id: config.nmake,v 1.65 2003/12/01 17:17:51 gerald Exp $
 
 VERSION=0.9.16
 #
@@ -54,7 +54,7 @@ GTK_DIR=C:\ethereal-win32-libs\gtk+
 # If you don't have Zlib, comment this line out, so that Zlib isn't
 # defined.
 #
-ZLIB_DIR=C:\ethereal-win32-libs\zlib-114
+ZLIB_DIR=C:\ethereal-win32-libs\zlib121-dll
 
 PCAP_DIR=C:\ethereal-win32-libs\WPdpack
 NET_SNMP_DIR=C:\ethereal-win32-libs\net-snmp-5.0.6
@@ -147,8 +147,8 @@ WPCAP_CONSTIFIED=
 !ENDIF
 
 !IFDEF ZLIB_DIR
-ZLIB_CFLAGS=/I$(ZLIB_DIR)
-ZLIB_LIBS=$(ZLIB_DIR)\zlib.lib
+ZLIB_CFLAGS=/I$(ZLIB_DIR)\include
+ZLIB_LIBS=$(ZLIB_DIR)\lib\zdll.lib
 # Nmake uses carets to escape special characters
 ZLIB_CONFIG=^#define HAVE_LIBZ 1
 !else
