@@ -1,7 +1,7 @@
 /* packet-diameter.c
  * Routines for DIAMETER packet disassembly
  *
- * $Id: packet-diameter.c,v 1.5 2000/08/13 14:08:08 deniel Exp $
+ * $Id: packet-diameter.c,v 1.6 2000/10/21 03:24:37 guy Exp $
  *
  * Copyright (c) 2000 by David Frascone <chaos@mindspring.com>
  *
@@ -70,9 +70,9 @@ typedef enum {
 #undef SCTP_DISSECTORS_ENABLED
 
 #define UDP_PORT_DIAMETER	2645
-#define TCP_PORT_DIAMETER	2645
+#define TCP_PORT_DIAMETER	1812
 #ifdef SCTP_DISSECTORS_ENABLED
-#define SCTP_PORT_DIAMETER	2645
+#define SCTP_PORT_DIAMETER	1812
 #endif
 /* #define UDP_PORT_DIAMETER	1812  -- Compiling this in breaks RADIUS */
 
@@ -481,9 +481,6 @@ static void dissect_attribute_value_pairs(const u_char *pd, int offset,
 			    avph.avp_length - dataOffset, valstr);
 		}
 		offset=offset+avph.avp_length + fixAmt;
-		if (avph.avp_length == 0) {
-			break;
-		}
 	}
 }
 
@@ -522,6 +519,8 @@ void dissect_diameter(const u_char *pd, int offset, frame_data *fd,
       dh.u.new.nextReceived = ntohs(dh.u.new.nextReceived);
       nextSend = dh.u.new.nextSend;
       nextReceived = dh.u.new.nextReceived;
+    } else {
+        hdrlength -= 4;
     }
     commandCode = dh.u.new.commandCode;
   } else {
@@ -530,6 +529,8 @@ void dissect_diameter(const u_char *pd, int offset, frame_data *fd,
       dh.u.old.nextReceived = ntohs(dh.u.old.nextReceived);
       nextSend = dh.u.old.nextSend;
       nextReceived = dh.u.old.nextReceived;
+    } else {
+        hdrlength -= 4;
     }
     memcpy(&commandCode, &pd[offset+COMMAND_CODE_OFFSET], 4);
     commandCode = ntohl(commandCode);
@@ -542,15 +543,26 @@ void dissect_diameter(const u_char *pd, int offset, frame_data *fd,
   if (check_col(fd, COL_PROTOCOL))
     col_add_str(fd, COL_PROTOCOL, "DIAMETER");
   if (check_col(fd, COL_INFO)) {
-    if (DIAM_FLAGS_A & dh.flagsVer) {
-      sprintf(buffer,"ACK (id=%d, l=%d, s=%d, r=%d)",
-	      dh.identifier, dh.pktLength, nextSend,
-	      nextReceived);
+    if (DIAM_FLAGS_W & dh.flagsVer) {
+       if (DIAM_FLAGS_A & dh.flagsVer) {
+         sprintf(buffer,"ACK (id=%d, l=%d, s=%d, r=%d)",
+	         dh.identifier, dh.pktLength, nextSend,
+	         nextReceived);
+       } else {
+         sprintf(buffer,"%s(%d) (id=%d, l=%d, s=%d, r=%d)",
+	         codestrval,commandCode, dh.identifier, dh.pktLength,
+	         nextSend, nextReceived);
+       }
     } else {
-      sprintf(buffer,"%s(%d) (id=%d, l=%d, s=%d, r=%d)",
-	      codestrval,commandCode, dh.identifier, dh.pktLength,
-	      nextSend, nextReceived);
-    }
+       if (DIAM_FLAGS_A & dh.flagsVer) {
+         sprintf(buffer,"ACK (id=%d, l=%d)",
+	         dh.identifier, dh.pktLength);
+       } else {
+         sprintf(buffer,"%s(%d) (id=%d, l=%d)",
+	         codestrval,commandCode,
+		dh.identifier, dh.pktLength);
+       }
+   }
     col_add_fstr(fd,COL_INFO,buffer);
   }
   
@@ -745,8 +757,10 @@ proto_reg_handoff_diameter(void)
 
 	strcpy(gbl_diameterString, "Diameter Protocol");
 
-	old_dissector_add("udp.port", gbl_diameterUdpPort, dissect_diameter);
+        /* g_warning ("Diameter: Adding tcp dissector to port %d",
+		gbl_diameterTcpPort); */
 	old_dissector_add("tcp.port", gbl_diameterTcpPort, dissect_diameter);
+	old_dissector_add("udp.port", gbl_diameterUdpPort, dissect_diameter);
 #ifdef SCTP_DISSECTORS_ENABLED
 	old_dissector_add("sctp.srcport", gbl_diameterSctpPort, dissect_diameter);
 	old_dissector_add("sctp.destport", gbl_diameterSctpPort, dissect_diameter);
