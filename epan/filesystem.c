@@ -1,7 +1,7 @@
 /* filesystem.c
  * Filesystem utility routines
  *
- * $Id: filesystem.c,v 1.20 2002/08/28 20:40:44 jmayer Exp $
+ * $Id: filesystem.c,v 1.21 2003/03/25 23:46:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -235,7 +235,7 @@ get_datafile_dir(void)
 	 * Now we attempt to get the full pathname of the currently running
 	 * program, under the assumption that we're running an installed
 	 * version of the program.  If we fail, we don't change "datafile_dir",
-	 * and thus end up using DATAFILE_DIR.
+	 * and thus end up using the default.
 	 *
 	 * XXX - does NSIS put the installation directory into
 	 * "\HKEY_LOCAL_MACHINE\SOFTWARE\Ethereal\InstallDir"?
