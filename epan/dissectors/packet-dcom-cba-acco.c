@@ -499,7 +499,6 @@ dissect_ICBAAccoServer_Connect_resp(tvbuff_t *tvb, int offset,
 							&u32ArraySize);
 
 		/* array of CONNECTOUTs */
-		u32Idx;
 		while(u32ArraySize--) {
 			sub_item = proto_tree_add_item(tree, hf_cba_connectout, tvb, offset, 8, FALSE);
 			sub_tree = proto_item_add_subtree(sub_item, ett_cba_connectout);
@@ -990,7 +989,6 @@ dissect_ICBAAccoServerSRT_Connect_resp(tvbuff_t *tvb, int offset,
 							&u32ArraySize);
 
 		/* array of CONNECTOUTs */
-		u32Idx;
 		while(u32ArraySize--) {
 			sub_item = proto_tree_add_item(tree, hf_cba_connectout, tvb, offset, 8, FALSE);
 			sub_tree = proto_item_add_subtree(sub_item, ett_cba_connectout);
