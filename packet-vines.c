@@ -1,7 +1,7 @@
 /* packet-vines.c
  * Routines for Banyan VINES protocol packet disassembly
  *
- * $Id: packet-vines.c,v 1.62 2004/01/05 19:31:44 ulfl Exp $
+ * $Id: packet-vines.c,v 1.63 2004/01/06 02:51:13 guy Exp $
  *
  * Don Lafontaine <lafont02@cn.ca>
  *
@@ -869,7 +869,7 @@ dissect_vines_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree *vines_arp_tree = NULL;
 	proto_item *ti;
 	guint8   version;
-	guint8   packet_type;
+	guint16  packet_type;
 	guint16  metric;
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
