@@ -1,7 +1,7 @@
 /* frame_data.c
  * Routines for packet disassembly
  *
- * $Id: frame_data.c,v 1.3 2002/08/28 20:40:44 jmayer Exp $
+ * $Id: frame_data.c,v 1.4 2002/11/27 22:44:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -79,10 +79,12 @@ frame_data_cleanup(void)
  */
 static gint p_compare(gconstpointer a, gconstpointer b)
 {
+  const frame_proto_data *ap = (const frame_proto_data *)a;
+  const frame_proto_data *bp = (const frame_proto_data *)b;
 
-  if (((frame_proto_data *)a) -> proto > ((frame_proto_data *)b) -> proto)
+  if (ap -> proto > bp -> proto)
     return 1;
-  else if (((frame_proto_data *)a) -> proto == ((frame_proto_data *)b) -> proto)
+  else if (ap -> proto == bp -> proto)
     return 0;
   else
     return -1;

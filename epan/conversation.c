@@ -1,7 +1,7 @@
 /* conversation.c
  * Routines for building lists of packets that are part of a "conversation"
  *
- * $Id: conversation.c,v 1.21 2002/10/29 07:22:55 guy Exp $
+ * $Id: conversation.c,v 1.22 2002/11/27 22:44:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -94,7 +94,7 @@ static GMemChunk *conv_proto_data_area = NULL;
 static guint
 conversation_hash_exact(gconstpointer v)
 {
-	conversation_key *key = (conversation_key *)v;
+	const conversation_key *key = (const conversation_key *)v;
 	guint hash_val;
 	int i;
 
@@ -118,8 +118,8 @@ conversation_hash_exact(gconstpointer v)
 static gint
 conversation_match_exact(gconstpointer v, gconstpointer w)
 {
-	conversation_key *v1 = (conversation_key *)v;
-	conversation_key *v2 = (conversation_key *)w;
+	const conversation_key *v1 = (const conversation_key *)v;
+	const conversation_key *v2 = (const conversation_key *)w;
 
 	if (v1->ptype != v2->ptype)
 		return 0;	/* different types of port */
@@ -171,7 +171,7 @@ conversation_match_exact(gconstpointer v, gconstpointer w)
 static guint
 conversation_hash_no_addr2(gconstpointer v)
 {
-	conversation_key *key = (conversation_key *)v;
+	const conversation_key *key = (const conversation_key *)v;
 	guint hash_val;
 	int i;
 
@@ -195,8 +195,8 @@ conversation_hash_no_addr2(gconstpointer v)
 static gint
 conversation_match_no_addr2(gconstpointer v, gconstpointer w)
 {
-	conversation_key *v1 = (conversation_key *)v;
-	conversation_key *v2 = (conversation_key *)w;
+	const conversation_key *v1 = (const conversation_key *)v;
+	const conversation_key *v2 = (const conversation_key *)w;
 
 	if (v1->ptype != v2->ptype)
 		return 0;	/* different types of port */
@@ -229,7 +229,7 @@ conversation_match_no_addr2(gconstpointer v, gconstpointer w)
 static guint
 conversation_hash_no_port2(gconstpointer v)
 {
-	conversation_key *key = (conversation_key *)v;
+	const conversation_key *key = (const conversation_key *)v;
 	guint hash_val;
 	int i;
 
@@ -254,8 +254,8 @@ conversation_hash_no_port2(gconstpointer v)
 static gint
 conversation_match_no_port2(gconstpointer v, gconstpointer w)
 {
-	conversation_key *v1 = (conversation_key *)v;
-	conversation_key *v2 = (conversation_key *)w;
+	const conversation_key *v1 = (const conversation_key *)v;
+	const conversation_key *v2 = (const conversation_key *)w;
 
 	if (v1->ptype != v2->ptype)
 		return 0;	/* different types of port */
@@ -288,7 +288,7 @@ conversation_match_no_port2(gconstpointer v, gconstpointer w)
 static guint
 conversation_hash_no_addr2_or_port2(gconstpointer v)
 {
-	conversation_key *key = (conversation_key *)v;
+	const conversation_key *key = (const conversation_key *)v;
 	guint hash_val;
 	int i;
 
@@ -310,8 +310,8 @@ conversation_hash_no_addr2_or_port2(gconstpointer v)
 static gint
 conversation_match_no_addr2_or_port2(gconstpointer v, gconstpointer w)
 {
-	conversation_key *v1 = (conversation_key *)v;
-	conversation_key *v2 = (conversation_key *)w;
+	const conversation_key *v1 = (const conversation_key *)v;
+	const conversation_key *v2 = (const conversation_key *)w;
 
 	if (v1->ptype != v2->ptype)
 		return 0;	/* different types of port */
@@ -834,9 +834,12 @@ find_conversation(address *addr_a, address *addr_b, port_type ptype,
 static gint
 p_compare(gconstpointer a, gconstpointer b)
 {
-	if (((conv_proto_data *)a)->proto > ((conv_proto_data *)b)->proto)
+	const conv_proto_data *ap = (const conv_proto_data *)a;
+	const conv_proto_data *bp = (const conv_proto_data *)b;
+
+	if (ap->proto > bp->proto)
 		return 1;
-	else if (((conv_proto_data *)a)->proto == ((conv_proto_data *)b)->proto)
+	else if (ap->proto == bp->proto)
 		return 0;
 	else
 		return -1;

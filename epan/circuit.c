@@ -1,7 +1,7 @@
 /* circuit.c
  * Routines for building lists of packets that are part of a "circuit"
  *
- * $Id: circuit.c,v 1.4 2002/11/08 01:00:07 guy Exp $
+ * $Id: circuit.c,v 1.5 2002/11/27 22:44:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -62,7 +62,7 @@ static GMemChunk *circuit_proto_data_area = NULL;
 static guint
 circuit_hash(gconstpointer v)
 {
-	circuit_key *key = (circuit_key *)v;
+	const circuit_key *key = (const circuit_key *)v;
 
 	return key->ctype ^ key->circuit_id;
 }
@@ -73,8 +73,8 @@ circuit_hash(gconstpointer v)
 static gint
 circuit_match(gconstpointer v, gconstpointer w)
 {
-	circuit_key *v1 = (circuit_key *)v;
-	circuit_key *v2 = (circuit_key *)w;
+	const circuit_key *v1 = (const circuit_key *)v;
+	const circuit_key *v2 = (const circuit_key *)w;
 
 	return v1->ctype == v2->ctype && v1->circuit_id == v2->circuit_id;
 }
@@ -236,9 +236,12 @@ close_circuit(circuit_t *circuit, guint32 last_frame)
 static gint
 p_compare(gconstpointer a, gconstpointer b)
 {
-	if (((circuit_proto_data *)a)->proto > ((circuit_proto_data *)b)->proto)
+	const circuit_proto_data *ap = (const circuit_proto_data *)a;
+	const circuit_proto_data *bp = (const circuit_proto_data *)b;
+
+	if (ap->proto > bp->proto)
 		return 1;
-	else if (((circuit_proto_data *)a)->proto == ((circuit_proto_data *)b)->proto)
+	else if (ap->proto == bp->proto)
 		return 0;
 	else
 		return -1;
