@@ -1,7 +1,7 @@
 /* packet-dec-bpdu.c
  * Routines for DEC BPDU (DEC Spanning Tree Protocol) disassembly
  *
- * $Id: packet-dec-bpdu.c,v 1.1 2001/01/05 19:00:37 guy Exp $
+ * $Id: packet-dec-bpdu.c,v 1.2 2001/01/05 20:46:44 guy Exp $
  *
  * Copyright 2001 Paul Ionescu <paul@acorp.ro>
  * 
@@ -101,18 +101,18 @@ dissect_dec_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 			    	"DEC Spanning Tree Protocol");
 	    bpdu_tree = proto_item_add_subtree(ti, ett_dec_bpdu);
 
-	    proto_tree_add_text(bpdu_tree, tvb, BPDU_DEC_CODE, 1, "Protocol ID: %d (%s)",
+	    proto_tree_add_text(bpdu_tree, tvb, BPDU_DEC_CODE, 1, "Protocol ID: 0x%02x (%s)",
 	         protocol_identifier,
 	         protocol_identifier==0xe1?"DEC Spanning Tree Protocol":
 	         "Unknown protocol, the dissection may be wrong");
 
-	    proto_tree_add_text(bpdu_tree, tvb, BPDU_TYPE,1, "BPDU Type: %d (%s)", bpdu_type,
+	    proto_tree_add_text(bpdu_tree, tvb, BPDU_TYPE,1, "BPDU Type: %u (%s)", bpdu_type,
 	    	(bpdu_type==25?"Hello Packet":(bpdu_type==2?"Topology change notice":"Unknown")));
 
-	    proto_tree_add_text(bpdu_tree, tvb, BPDU_VERSION,1, "BPDU Version: %d (%s)",
+	    proto_tree_add_text(bpdu_tree, tvb, BPDU_VERSION,1, "BPDU Version: %u (%s)",
 	    	protocol_version,protocol_version==1?"DEC STP Version 1":"Unknown Version");
 
-	    proto_tree_add_text(bpdu_tree, tvb, BPDU_FLAGS,1, "Flags: %d",flags);
+	    proto_tree_add_text(bpdu_tree, tvb, BPDU_FLAGS,1, "Flags: 0x%02x",flags);
 
 	    if (flags & 0x80)
 		  proto_tree_add_text(bpdu_tree, tvb, BPDU_FLAGS, 1, "      1... ....  Use short timers");
@@ -121,25 +121,25 @@ dissect_dec_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	    if (flags & 0x01)
 		  proto_tree_add_text(bpdu_tree, tvb, BPDU_FLAGS, 1, "      .... ...1  Topology Change");
 	    
-	    proto_tree_add_text(bpdu_tree, tvb, BPDU_ROOT_PRI,2, "Root priority: %d",
+	    proto_tree_add_text(bpdu_tree, tvb, BPDU_ROOT_PRI,2, "Root priority: %u",
 	    	tvb_get_ntohs(tvb,BPDU_ROOT_PRI));
 	    proto_tree_add_text(bpdu_tree, tvb, BPDU_ROOT_MAC,6, "Root MAC: %s",
 	    	ether_to_str(tvb_get_ptr(tvb,BPDU_ROOT_MAC,6)));
-	    proto_tree_add_text(bpdu_tree, tvb, BPDU_ROOT_PATH_COST,2, "Root path cost: %d",
+	    proto_tree_add_text(bpdu_tree, tvb, BPDU_ROOT_PATH_COST,2, "Root path cost: %u",
 	    	tvb_get_ntohs(tvb,BPDU_ROOT_PATH_COST));
-	    proto_tree_add_text(bpdu_tree, tvb, BPDU_BRIDGE_PRI,2, "Root priority: %d",
+	    proto_tree_add_text(bpdu_tree, tvb, BPDU_BRIDGE_PRI,2, "Root priority: %u",
 	    	tvb_get_ntohs(tvb,BPDU_BRIDGE_PRI));
 	    proto_tree_add_text(bpdu_tree, tvb, BPDU_BRIDGE_MAC,6, "Root MAC: %s",
 	    	ether_to_str(tvb_get_ptr(tvb,BPDU_BRIDGE_MAC,6)));
-	    proto_tree_add_text(bpdu_tree, tvb, BPDU_PORT_IDENTIFIER,1, "Port identifier: %d",
+	    proto_tree_add_text(bpdu_tree, tvb, BPDU_PORT_IDENTIFIER,1, "Port identifier: %u",
 	    	tvb_get_guint8(tvb,BPDU_PORT_IDENTIFIER));
-	    proto_tree_add_text(bpdu_tree, tvb, BPDU_MESSAGE_AGE,1, "Age: %d",
+	    proto_tree_add_text(bpdu_tree, tvb, BPDU_MESSAGE_AGE,1, "Age: %u",
 	    	tvb_get_guint8(tvb,BPDU_MESSAGE_AGE));
-	    proto_tree_add_text(bpdu_tree, tvb, BPDU_HELLO_TIME,1, "Hello time: %d",
+	    proto_tree_add_text(bpdu_tree, tvb, BPDU_HELLO_TIME,1, "Hello time: %u",
 	    	tvb_get_guint8(tvb,BPDU_HELLO_TIME));
-	    proto_tree_add_text(bpdu_tree, tvb, BPDU_MAX_AGE,1, "Max Age: %d",
+	    proto_tree_add_text(bpdu_tree, tvb, BPDU_MAX_AGE,1, "Max Age: %u",
 	    	tvb_get_guint8(tvb,BPDU_MAX_AGE));
-	    proto_tree_add_text(bpdu_tree, tvb, BPDU_FORWARD_DELAY,1, "Forward Delay: %d",
+	    proto_tree_add_text(bpdu_tree, tvb, BPDU_FORWARD_DELAY,1, "Forward Delay: %u",
 	    	tvb_get_guint8(tvb,BPDU_FORWARD_DELAY));
 
       }
@@ -148,15 +148,12 @@ dissect_dec_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 void
 proto_register_dec_bpdu(void)
 {
-
   static gint *ett[] = {
     &ett_dec_bpdu,
   };
 
   proto_dec_bpdu = proto_register_protocol("DEC Spanning Tree Protocol", "DEC_STP", "dec_stp");
   proto_register_subtree_array(ett, array_length(ett));
-
-  register_dissector("dec_bpdu", dissect_dec_bpdu);
 }
 
 void
