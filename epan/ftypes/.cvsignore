@@ -4,3 +4,4 @@ Makefile
 Makefile.in
 *.lib
 *.obj
+*.pdb

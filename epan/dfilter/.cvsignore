@@ -8,3 +8,4 @@ Makefile.in
 grammar.c
 *.lib
 *.obj
+*.pdb

@@ -16,3 +16,4 @@ stamp-h
 config.log
 *.lib
 *.obj
+*.pdb
