@@ -24,8 +24,8 @@
 # We include dependencies on ../config.h in order to
 # capture when $(VERSION) changes.
 
-ethereal-tmp.pod: $(srcdir)/ethereal.pod $(top_srcdir)/AUTHORS-SHORT-FORMAT
-	cat $(srcdir)/ethereal.pod $(top_srcdir)/AUTHORS-SHORT-FORMAT > ethereal-tmp.pod
+ethereal-tmp.pod: $(srcdir)/ethereal.pod $(top_builddir)/AUTHORS-SHORT-FORMAT
+	cat $(srcdir)/ethereal.pod $(top_builddir)/AUTHORS-SHORT-FORMAT > ethereal-tmp.pod
 
 ../ethereal.1: ethereal-tmp.pod ../config.h
 	$(POD2MAN)                     \

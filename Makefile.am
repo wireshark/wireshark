@@ -308,7 +308,7 @@ svnversion.h: FORCE
 # Build the short version of the authors file for the about dialog
 #
 AUTHORS-SHORT: AUTHORS make-authors-short.pl
-	$(PERL) $(srcdir)/perlnoutf.pl $(srcdir)/make-authors-short.pl < AUTHORS > AUTHORS-SHORT
+	$(PERL) $(srcdir)/perlnoutf.pl $(srcdir)/make-authors-short.pl < $(srcdir)/AUTHORS > AUTHORS-SHORT
 
 #
 # Build the short version of the authors file with formatting codes for the
