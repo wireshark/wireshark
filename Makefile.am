@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.379 2001/11/12 08:58:43 guy Exp $
+# $Id: Makefile.am,v 1.380 2001/11/15 20:35:23 gram Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -365,6 +365,14 @@ noinst_HEADERS = \
 	packet-mount.h \
 	packet-mrdisc.h \
 	packet-msnip.h \
+    packet-msrpc-dfs.h \
+    packet-msrpc-lsa.h \
+    packet-msrpc-netlogon.h \
+    packet-msrpc-reg.h \
+    packet-msrpc-samr.h \
+    packet-msrpc-spoolss.h \
+    packet-msrpc-srvsvc.h \
+    packet-msrpc-wkssvc.h \
 	packet-ncp-int.h \
 	packet-netbios.h \
 	packet-nfs.h   \
@@ -374,6 +382,7 @@ noinst_HEADERS = \
 	packet-null.h  \
 	packet-osi.h   \
 	packet-osi-options.h \
+	packet-pcnfsd.h \
 	packet-pgm.h   \
 	packet-pim.h   \
 	packet-portmap.h   \
