@@ -1,4 +1,4 @@
-$Id: NEWS,v 1.153 2004/07/06 19:17:01 gerald Exp $
+$Id: NEWS,v 1.154 2004/07/07 00:09:51 obiot Exp $
 
 == July ??, 2004
 
@@ -90,7 +90,7 @@ SSL,
 T.35,
 TCP,
 VRRP,
-WBXML,
+WBXML (User-Agent Profile),
 WSP,
 X11,
 
