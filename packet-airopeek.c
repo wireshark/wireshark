@@ -1,7 +1,7 @@
 /* packet-airopeek.c
  * Routines for AiroPeek capture file dissection
  *
- * $Id: packet-airopeek.c,v 1.2 2002/02/15 11:37:56 guy Exp $
+ * $Id: packet-airopeek.c,v 1.3 2002/02/22 07:15:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -57,6 +57,7 @@ dissect_airopeek(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint8 data_rate;
 	guint8 signal_strength;
 	tvbuff_t *next_tvb;
+	gint length, reported_length;
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "AiroPeek");
@@ -82,8 +83,19 @@ dissect_airopeek(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    "Signal Strength: %u%%", signal_strength);
 	}
 
-	/* dissect the 802.11 header next */
-	next_tvb = tvb_new_subset(tvb, 4, -1, -1);
+	/*
+	 * Dissect the 802.11 header and data.
+	 * The last 4 bytes appear to be random data - the length might
+	 * include the FCS - so we reduce the length by 4.
+	 */
+	length = tvb_ensure_length_remaining(tvb, 4);
+	reported_length = tvb_reported_length_remaining(tvb, 4);
+	if (reported_length < 4)
+		THROW(ReportedBoundsError);
+	reported_length -= 4;
+	if (length > reported_length)
+		length = reported_length;
+	next_tvb = tvb_new_subset(tvb, 4, length, reported_length);
 	call_dissector(ieee80211_handle, next_tvb, pinfo, tree);
 }
 
