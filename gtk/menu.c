@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.38 2000/08/15 21:35:34 guy Exp $
+ * $Id: menu.c,v 1.39 2000/08/16 19:15:11 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -144,7 +144,6 @@ static int nmenu_items = sizeof(menu_items) / sizeof(menu_items[0]);
 /* packet list popup */
 static GtkItemFactoryEntry packet_list_menu_items[] =
 {
-	{"/Match Selected", NULL, GTK_MENU_FUNC(match_selected_cb), 0, NULL},
 	{"/Follow TCP Stream", NULL, GTK_MENU_FUNC(follow_stream_cb), 0, NULL},
 	{"/Filters...", NULL, GTK_MENU_FUNC(filter_dialog_cb), 0, NULL},
 	{"/<separator>", NULL, NULL, 0, "<Separator>"},
@@ -156,11 +155,12 @@ static GtkItemFactoryEntry packet_list_menu_items[] =
 
 static GtkItemFactoryEntry tree_view_menu_items[] =
 {
-	{"/Match Selected", NULL, GTK_MENU_FUNC(match_selected_cb), 0, NULL},
-	{"/Resolve Name", NULL, GTK_MENU_FUNC(resolve_name_cb), 0, NULL},
-	{"/Protocol Properties...", NULL, GTK_MENU_FUNC(properties_cb), 0, NULL},
 	{"/Follow TCP Stream", NULL, GTK_MENU_FUNC(follow_stream_cb), 0, NULL},
 	{"/Filters...", NULL, GTK_MENU_FUNC(filter_dialog_cb), 0, NULL},
+	{"/<separator>", NULL, NULL, 0, "<Separator>"},
+	{"/Resolve Name", NULL, GTK_MENU_FUNC(resolve_name_cb), 0, NULL},
+	{"/Protocol Properties...", NULL, GTK_MENU_FUNC(properties_cb), 0, NULL},
+	{"/Match Selected", NULL, GTK_MENU_FUNC(match_selected_cb), 0, NULL},
 	{"/<separator>", NULL, NULL, 0, "<Separator>"},
 	{"/Collapse All", NULL, GTK_MENU_FUNC(collapse_all_cb), 0, NULL},
 	{"/Expand All", NULL, GTK_MENU_FUNC(expand_all_cb), 0, NULL}
