@@ -4,7 +4,7 @@
  * for ISAKMP (RFC 2407)
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-isakmp.c,v 1.54 2002/05/01 10:05:02 guy Exp $
+ * $Id: packet-isakmp.c,v 1.55 2002/05/20 01:29:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -202,7 +202,7 @@ struct isakmp_hdr {
 };
 
 struct udp_encap_hdr {
-  guint8	non_ike_marker[8];
+  guint8	non_esp_marker[4];
   guint32	esp_SPI;
 };
 
@@ -320,7 +320,7 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree *		isakmp_tree = NULL;
   struct udp_encap_hdr * encap_hdr;
   guint32		len;
-  static const guint8	non_ike_marker[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
+  static const guint8	non_esp_marker[4] = { 0, 0, 0, 0 };
   tvbuff_t *		next_tvb;
 
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
@@ -338,55 +338,21 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     
   encap_hdr = (struct udp_encap_hdr *)tvb_get_ptr(tvb, 0, sizeof(struct udp_encap_hdr));
   
-  if (encap_hdr->non_ike_marker[0] == 0xFF) {
+  if (encap_hdr->non_esp_marker[0] == 0xFF) {
     if (check_col(pinfo->cinfo, COL_INFO)) 
       col_set_str(pinfo->cinfo, COL_INFO, "UDP encapsulated IPSec - NAT Keepalive");
     return;
   }
-  if (memcmp(encap_hdr->non_ike_marker,non_ike_marker,8) == 0) {
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-      if (encap_hdr->esp_SPI != 0)
+  if (memcmp(encap_hdr->non_esp_marker,non_esp_marker,4) == 0) {
+    if (check_col(pinfo->cinfo, COL_INFO)) 
           col_set_str(pinfo->cinfo, COL_INFO, "UDP encapsulated IPSec - ESP");
-      else
-         col_set_str(pinfo->cinfo, COL_INFO, "UDP encapsulated IPSec - AH");
-    } 
     if (tree)
       proto_tree_add_text(isakmp_tree, tvb, offset,
-			  sizeof(encap_hdr->non_ike_marker),
-			  "Non-IKE-Marker");
-    offset += sizeof(encap_hdr->non_ike_marker);
-      
-    if (encap_hdr->esp_SPI != 0) {
-      next_tvb = tvb_new_subset(tvb, offset, -1, -1);
-      call_dissector(esp_handle, next_tvb, pinfo, tree);
-    } else {
-      if (tree)
-        proto_tree_add_text(isakmp_tree, tvb, offset,
-			    sizeof(encap_hdr->esp_SPI),
-			    "Non-ESP-Marker");
-      offset += sizeof(encap_hdr->esp_SPI);
-
-      if (tree)
-        proto_tree_add_text(isakmp_tree, tvb, offset, 1,
-			    "AH Envelope Version: %u",
-			    tvb_get_guint8(tvb, offset) >> 4);
-      offset += 1;
-
-      if (tree)
-        proto_tree_add_text(isakmp_tree, tvb, offset, 1,
-			    "AH Envelope Header Length: %u",
-			    (tvb_get_guint8(tvb, offset) & 0xF)*4);
-      offset += 1;
-
-      if (tree)
-        proto_tree_add_text(isakmp_tree, tvb, offset, 2,
-			    "AH Envelope Identification: 0x%04X",
-			    tvb_get_ntohs(tvb, offset));
-      offset += 2;
-
-      next_tvb = tvb_new_subset(tvb, offset, -1, -1);
-      call_dissector(ah_handle, next_tvb, pinfo, tree);
-    }
+			  sizeof(encap_hdr->non_esp_marker),
+			  "Non-ESP-Marker");
+    offset += sizeof(encap_hdr->non_esp_marker);
+    next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+    call_dissector(esp_handle, next_tvb, pinfo, tree);
     return;
   }
 
