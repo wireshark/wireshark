@@ -2,7 +2,7 @@
  * Routines for lapb frame disassembly
  * Olivier Abad <abad@daba.dhis.net>
  *
- * $Id: packet-lapb.c,v 1.15 2000/05/19 23:06:09 gram Exp $
+ * $Id: packet-lapb.c,v 1.16 2000/05/25 08:45:53 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -50,60 +50,76 @@ static gint ett_lapb = -1;
 static gint ett_lapb_control = -1;
 
 void
-dissect_lapb(const union wtap_pseudo_header *pseudo_header, const u_char *pd,
-		frame_data *fd, proto_tree *tree)
+dissect_lapb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    proto_tree *lapb_tree, *ti;
-    int is_response;
+    proto_tree		*lapb_tree, *ti;
+    int			is_response;
+    guint8		byte0;
+    const guint8	*this_pd;
+    int			this_offset;
+    tvbuff_t		*next_tvb;
+    const guint8	*next_pd;
+    int			next_offset;
 
-    if (check_col(fd, COL_PROTOCOL))
-	col_add_str(fd, COL_PROTOCOL, "LAPB");
+    pinfo->current_proto = "LAPB";
 
-    if(check_col(fd, COL_RES_DL_SRC))
-	col_add_fstr(fd, COL_RES_DL_SRC, "0x%02X", pd[0]);
-    if (pd[0] != 0x01 && pd[0] != 0x03) /* invalid LAPB frame */
+    if (check_col(pinfo->fd, COL_PROTOCOL))
+	col_add_str(pinfo->fd, COL_PROTOCOL, "LAPB");
+
+    if (pinfo->pseudo_header->x25.flags & FROM_DCE) {
+	if(check_col(pinfo->fd, COL_RES_DL_DST))
+	    col_add_str(pinfo->fd, COL_RES_DL_DST, "DTE");
+	if(check_col(pinfo->fd, COL_RES_DL_SRC))
+	    col_add_str(pinfo->fd, COL_RES_DL_SRC, "DCE");
+    }
+    else {
+	if(check_col(pinfo->fd, COL_RES_DL_DST))
+	    col_add_str(pinfo->fd, COL_RES_DL_DST, "DCE");
+	if(check_col(pinfo->fd, COL_RES_DL_SRC))
+	    col_add_str(pinfo->fd, COL_RES_DL_SRC, "DTE");
+    }
+
+    byte0 = tvb_get_guint8(tvb, 0);
+
+    if(check_col(pinfo->fd, COL_RES_DL_SRC))
+	col_add_fstr(pinfo->fd, COL_RES_DL_SRC, "0x%02X", byte0);
+
+    if (byte0 != 0x01 && byte0 != 0x03) /* invalid LAPB frame */
     {
-	if (check_col(fd, COL_INFO))
-	    col_add_str(fd, COL_INFO, "Invalid LAPB frame");
+	if (check_col(pinfo->fd, COL_INFO))
+	    col_add_str(pinfo->fd, COL_INFO, "Invalid LAPB frame");
 	if (tree)
-	    ti = proto_tree_add_protocol_format(tree, proto_lapb, NullTVB, 0, fd->cap_len,
-			                    "Invalid LAPB frame");
+	    ti = proto_tree_add_protocol_format(tree, proto_lapb, tvb, 0,
+			    tvb_length(tvb), "Invalid LAPB frame");
 	return;
     }
 
-    if (pseudo_header->x25.flags & FROM_DCE) {
-	if(check_col(fd, COL_RES_DL_DST))
-	    col_add_str(fd, COL_RES_DL_DST, "DTE");
-	if(check_col(fd, COL_RES_DL_SRC))
-	    col_add_str(fd, COL_RES_DL_SRC, "DCE");
-    }
-    else {
-	if(check_col(fd, COL_RES_DL_DST))
-	    col_add_str(fd, COL_RES_DL_DST, "DCE");
-	if(check_col(fd, COL_RES_DL_SRC))
-	    col_add_str(fd, COL_RES_DL_SRC, "DTE");
-    }
-
-    if (((pseudo_header->x25.flags & FROM_DCE) && pd[0] == 0x01) ||
-       (!(pseudo_header->x25.flags & FROM_DCE) && pd[0] == 0x03))
+    if (((pinfo->pseudo_header->x25.flags & FROM_DCE) && byte0 == 0x01) ||
+       (!(pinfo->pseudo_header->x25.flags & FROM_DCE) && byte0 == 0x03))
 	is_response = TRUE;
     else
 	is_response = FALSE;
 
     if (tree) {
-	ti = proto_tree_add_protocol_format(tree, proto_lapb, NullTVB, 0, 2,
+	ti = proto_tree_add_protocol_format(tree, proto_lapb, tvb, 0, 2,
 					    "LAPB");
 	lapb_tree = proto_item_add_subtree(ti, ett_lapb);
-	proto_tree_add_uint_format(lapb_tree, hf_lapb_address, NullTVB, 0, 1, pd[0],
-				       "Address: 0x%02X", pd[0]);
+	proto_tree_add_uint_format(lapb_tree, hf_lapb_address, tvb, 0, 1, byte0,
+				       "Address: 0x%02X", byte0);
     }
     else
         lapb_tree = NULL;
-    dissect_xdlc_control(pd, 1, fd, lapb_tree, hf_lapb_control,
+
+    tvb_compat(tvb, &this_pd, &this_offset);
+    dissect_xdlc_control(this_pd, this_offset+1, pinfo->fd, lapb_tree, hf_lapb_control,
 	    ett_lapb_control, is_response, FALSE);
 
     /* not end of frame ==> X.25 */
-    if (fd->cap_len > 2) dissect_x25(pseudo_header, pd, 2, fd, tree);
+    if (tvb_length(tvb) > 2) {
+	    next_tvb = tvb_new_subset(tvb, 2, -1, -1);
+	    tvb_compat(next_tvb, &next_pd, &next_offset);
+	    dissect_x25(pinfo->pseudo_header, next_pd, next_offset, pinfo->fd, tree);
+    }
 }
 
 void
