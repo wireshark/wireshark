@@ -1,6 +1,6 @@
 /* libpcap.c
  *
- * $Id: libpcap.c,v 1.114 2004/02/12 19:49:08 guy Exp $
+ * $Id: libpcap.c,v 1.115 2004/02/19 08:02:06 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -45,10 +45,19 @@
 #endif
 
 /*
- * The link-layer header on ATM packets.
+ * The link-layer header on SunATM packets.
  */
 struct sunatm_hdr {
 	guint8	flags;		/* destination and traffic type */
+	guint8	vpi;		/* VPI */
+	guint16	vci;		/* VCI */
+};
+
+/*
+ * The link-layer header on Nokia IPSO ATM packets.
+ */
+struct nokiaatm_hdr {
+	guint8	flags;		/* destination */
 	guint8	vpi;		/* VPI */
 	guint16	vci;		/* VCI */
 };
@@ -87,9 +96,11 @@ static gboolean libpcap_seek_read(wtap *wth, long seek_off,
 static int libpcap_read_header(wtap *wth, int *err, gchar **err_info,
     struct pcaprec_ss990915_hdr *hdr);
 static void adjust_header(wtap *wth, struct pcaprec_hdr *hdr);
-static void libpcap_get_atm_pseudoheader(const struct sunatm_hdr *atm_phdr,
+static void libpcap_get_sunatm_pseudoheader(const struct sunatm_hdr *atm_phdr,
     union wtap_pseudo_header *pseudo_header);
-static gboolean libpcap_read_atm_pseudoheader(FILE_T fh,
+static gboolean libpcap_read_sunatm_pseudoheader(FILE_T fh,
+    union wtap_pseudo_header *pseudo_header, int *err);
+static gboolean libpcap_read_nokiaatm_pseudoheader(FILE_T fh,
     union wtap_pseudo_header *pseudo_header, int *err);
 static gboolean libpcap_get_irda_pseudoheader(const struct irda_sll_hdr *irda_phdr,
     union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info);
@@ -659,8 +670,19 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 			break;
 		}
 	}
+
+	/*
+	 * We treat a DLT_ value of 13 specially - it appears that in
+	 * Nokia libpcap format, it's some form of ATM with what I
+	 * suspect is a pseudo-header (even though Nokia's IPSO is
+	 * based on FreeBSD, which #defines DLT_SLIP_BSDOS as 13).
+	 *
+	 * We don't yet know whether this is a Nokia capture, so if
+	 * "wtap_pcap_encap_to_wtap_encap()" returned WTAP_ENCAP_UNKNOWN
+	 * but "hdr.network" is 13, we don't treat that as an error yet.
+	 */
 	file_encap = wtap_pcap_encap_to_wtap_encap(hdr.network);
-	if (file_encap == WTAP_ENCAP_UNKNOWN) {
+	if (file_encap == WTAP_ENCAP_UNKNOWN && hdr.network != 13) {
 		*err = WTAP_ERR_UNSUPPORTED_ENCAP;
 		*err_info = g_strdup_printf("pcap: network type %u unknown or unsupported",
 		    hdr.network);
@@ -894,6 +916,22 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 		}
 	}
 
+	if (hdr.network == 13) {
+		/*
+		 * OK, if this was a Nokia capture, make it
+		 * WTAP_ENCAP_ATM_PDUS, otherwise return
+		 * an error.
+		 */
+		if (wth->file_type == WTAP_FILE_PCAP_NOKIA)
+			wth->file_encap = WTAP_ENCAP_ATM_PDUS;
+		else {
+			*err = WTAP_ERR_UNSUPPORTED_ENCAP;
+			*err_info = g_strdup_printf("pcap: network type %u unknown or unsupported",
+			    hdr.network);
+			return -1;
+		}
+	}
+
 	return 1;
 }
 
@@ -1039,26 +1077,57 @@ static gboolean libpcap_read(wtap *wth, int *err, gchar **err_info,
 	switch (wth->file_encap) {
 
 	case WTAP_ENCAP_ATM_PDUS:
-		if (packet_size < sizeof (struct sunatm_hdr)) {
+		if (wth->file_type == WTAP_FILE_PCAP_NOKIA) {
 			/*
-			 * Uh-oh, the packet isn't big enough to even
-			 * have a pseudo-header.
+			 * Nokia IPSO ATM.
 			 */
-			*err = WTAP_ERR_BAD_RECORD;
-			*err_info = g_strdup_printf("libpcap: SunATM file has a %u-byte packet, too small to have even an ATM pseudo-header\n",
-			    packet_size);
-			return FALSE;
-		}
-		if (!libpcap_read_atm_pseudoheader(wth->fh, &wth->pseudo_header,
-		    err))
-			return FALSE;	/* Read error */
+			if (packet_size < sizeof (struct nokiaatm_hdr)) {
+				/*
+				 * Uh-oh, the packet isn't big enough to even
+				 * have a pseudo-header.
+				 */
+				*err = WTAP_ERR_BAD_RECORD;
+				*err_info = g_strdup_printf("libpcap: Nokia IPSO ATM file has a %u-byte packet, too small to have even an ATM pseudo-header\n",
+				    packet_size);
+				return FALSE;
+			}
+			if (!libpcap_read_nokiaatm_pseudoheader(wth->fh,
+			    &wth->pseudo_header, err))
+				return FALSE;	/* Read error */
 
-		/*
-		 * Don't count the pseudo-header as part of the packet.
-		 */
-		orig_size -= sizeof (struct sunatm_hdr);
-		packet_size -= sizeof (struct sunatm_hdr);
-		wth->data_offset += sizeof (struct sunatm_hdr);
+			/*
+			 * Don't count the pseudo-header as part of the
+			 * packet.
+			 */
+			orig_size -= sizeof (struct nokiaatm_hdr);
+			packet_size -= sizeof (struct nokiaatm_hdr);
+			wth->data_offset += sizeof (struct nokiaatm_hdr);
+		} else {
+			/*
+			 * SunATM.
+			 */
+			if (packet_size < sizeof (struct sunatm_hdr)) {
+				/*
+				 * Uh-oh, the packet isn't big enough to even
+				 * have a pseudo-header.
+				 */
+				*err = WTAP_ERR_BAD_RECORD;
+				*err_info = g_strdup_printf("libpcap: SunATM file has a %u-byte packet, too small to have even an ATM pseudo-header\n",
+				    packet_size);
+				return FALSE;
+			}
+			if (!libpcap_read_sunatm_pseudoheader(wth->fh,
+			    &wth->pseudo_header, err))
+				return FALSE;	/* Read error */
+
+			/*
+			 * Don't count the pseudo-header as part of the
+			 * packet.
+			 */
+			orig_size -= sizeof (struct sunatm_hdr);
+			packet_size -= sizeof (struct sunatm_hdr);
+			wth->data_offset += sizeof (struct sunatm_hdr);
+		}
 		break;
 
 	case WTAP_ENCAP_ETHERNET:
@@ -1113,14 +1182,29 @@ static gboolean libpcap_read(wtap *wth, int *err, gchar **err_info,
 	wth->phdr.len = orig_size;
 	wth->phdr.pkt_encap = wth->file_encap;
 
-	/*
-	 * If this is ATM LANE traffic, try to guess what type of LANE
-	 * traffic it is based on the packet contents.
-	 */
-	if (wth->file_encap == WTAP_ENCAP_ATM_PDUS &&
-	    wth->pseudo_header.atm.type == TRAF_LANE) {
-		atm_guess_lane_type(buffer_start_ptr(wth->frame_buffer),
-		    wth->phdr.caplen, &wth->pseudo_header);
+	if (wth->file_encap == WTAP_ENCAP_ATM_PDUS) {
+		if (wth->file_type == WTAP_FILE_PCAP_NOKIA) {
+			/*
+			 * Nokia IPSO ATM.
+			 *
+			 * Guess the traffic type based on the packet
+			 * contents.
+			 */
+			atm_guess_traffic_type(buffer_start_ptr(wth->frame_buffer),
+			    wth->phdr.caplen, &wth->pseudo_header);
+		} else {
+			/*
+			 * SunATM.
+			 *
+			 * If this is ATM LANE traffic, try to guess what
+			 * type of LANE traffic it is based on the packet
+			 * contents.
+			 */
+			if (wth->pseudo_header.atm.type == TRAF_LANE) {
+				atm_guess_lane_type(buffer_start_ptr(wth->frame_buffer),
+				    wth->phdr.caplen, &wth->pseudo_header);
+			}
+		}
 	}
 
 	return TRUE;
@@ -1137,10 +1221,24 @@ libpcap_seek_read(wtap *wth, long seek_off,
 	switch (wth->file_encap) {
 
 	case WTAP_ENCAP_ATM_PDUS:
-		if (!libpcap_read_atm_pseudoheader(wth->random_fh, pseudo_header,
-		    err)) {
-			/* Read error */
-			return FALSE;
+		if (wth->file_type == WTAP_FILE_PCAP_NOKIA) {
+			/*
+			 * Nokia IPSO ATM.
+			 */
+			if (!libpcap_read_nokiaatm_pseudoheader(wth->random_fh,
+			    pseudo_header, err)) {
+				/* Read error */
+				return FALSE;
+			}
+		} else {
+			/*
+			 * SunATM.
+			 */
+			if (!libpcap_read_sunatm_pseudoheader(wth->random_fh,
+			    pseudo_header, err)) {
+				/* Read error */
+				return FALSE;
+			}
 		}
 		break;
 
@@ -1166,13 +1264,27 @@ libpcap_seek_read(wtap *wth, long seek_off,
 	if (!libpcap_read_rec_data(wth->random_fh, pd, length, err))
 		return FALSE;	/* failed */
 
-	/*
-	 * If this is ATM LANE traffic, try to guess what type of LANE
-	 * traffic it is based on the packet contents.
-	 */
-	if (wth->file_encap == WTAP_ENCAP_ATM_PDUS &&
-	    pseudo_header->atm.type == TRAF_LANE)
-		atm_guess_lane_type(pd, length, pseudo_header);
+	if (wth->file_encap == WTAP_ENCAP_ATM_PDUS) {
+		if (wth->file_type == WTAP_FILE_PCAP_NOKIA) {
+			/*
+			 * Nokia IPSO ATM.
+			 *
+			 * Guess the traffic type based on the packet
+			 * contents.
+			 */
+			atm_guess_traffic_type(pd, length, pseudo_header);
+		} else {
+			/*
+			 * SunATM.
+			 *
+			 * If this is ATM LANE traffic, try to guess what
+			 * type of LANE traffic it is based on the packet
+			 * contents.
+			 */
+			if (pseudo_header->atm.type == TRAF_LANE)
+				atm_guess_lane_type(pd, length, pseudo_header);
+		}
+	}
 	return TRUE;
 }
 
@@ -1301,7 +1413,7 @@ adjust_header(wtap *wth, struct pcaprec_hdr *hdr)
 }
 
 static void
-libpcap_get_atm_pseudoheader(const struct sunatm_hdr *atm_phdr,
+libpcap_get_sunatm_pseudoheader(const struct sunatm_hdr *atm_phdr,
     union wtap_pseudo_header *pseudo_header)
 {
 	guint8	vpi;
@@ -1310,11 +1422,6 @@ libpcap_get_atm_pseudoheader(const struct sunatm_hdr *atm_phdr,
 	vpi = atm_phdr->vpi;
 	vci = pntohs(&atm_phdr->vci);
 
-	/*
-	 * The lower 4 bits of the first byte of the header indicate
-	 * the type of traffic, as per the "atmioctl.h" header in
-	 * SunATM.
-	 */
 	switch (atm_phdr->flags & 0x0F) {
 
 	case 0x01:	/* LANE */
@@ -1381,8 +1488,8 @@ libpcap_get_atm_pseudoheader(const struct sunatm_hdr *atm_phdr,
 }
 
 static gboolean
-libpcap_read_atm_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
-    int *err)
+libpcap_read_sunatm_pseudoheader(FILE_T fh,
+    union wtap_pseudo_header *pseudo_header, int *err)
 {
 	struct sunatm_hdr atm_phdr;
 	int	bytes_read;
@@ -1396,7 +1503,42 @@ libpcap_read_atm_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header
 		return FALSE;
 	}
 
-	libpcap_get_atm_pseudoheader(&atm_phdr, pseudo_header);
+	libpcap_get_sunatm_pseudoheader(&atm_phdr, pseudo_header);
+
+	return TRUE;
+}
+
+static gboolean
+libpcap_read_nokiaatm_pseudoheader(FILE_T fh,
+    union wtap_pseudo_header *pseudo_header, int *err)
+{
+	struct nokiaatm_hdr atm_phdr;
+	int	bytes_read;
+	guint8	vpi;
+	guint16	vci;
+
+	errno = WTAP_ERR_CANT_READ;
+	bytes_read = file_read(&atm_phdr, 1, sizeof (struct nokiaatm_hdr), fh);
+	if (bytes_read != sizeof (struct nokiaatm_hdr)) {
+		*err = file_error(fh);
+		if (*err == 0)
+			*err = WTAP_ERR_SHORT_READ;
+		return FALSE;
+	}
+
+	vpi = atm_phdr.vpi;
+	vci = pntohs(&atm_phdr.vci);
+
+	pseudo_header->atm.vpi = vpi;
+	pseudo_header->atm.vci = vci;
+	pseudo_header->atm.channel = (atm_phdr.flags & 0x80) ? 0 : 1;
+
+	/* We don't have this information */
+	pseudo_header->atm.flags = 0;
+	pseudo_header->atm.cells = 0;
+	pseudo_header->atm.aal5t_u2u = 0;
+	pseudo_header->atm.aal5t_len = 0;
+	pseudo_header->atm.aal5t_chksum = 0;
 
 	return TRUE;
 }
@@ -1561,7 +1703,7 @@ wtap_process_pcap_packet(gint linktype, const struct pcap_pkthdr *phdr,
 			*err = WTAP_ERR_BAD_RECORD;
 			return NULL;
 		}
-		libpcap_get_atm_pseudoheader((const struct sunatm_hdr *)pd,
+		libpcap_get_sunatm_pseudoheader((const struct sunatm_hdr *)pd,
 		    pseudo_header);
 
 		/*
