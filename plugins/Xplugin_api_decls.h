@@ -250,3 +250,6 @@ addr_decode_enumerated_bitfield_shifted p_decode_enumerated_bitfield_shifted;
 addr_dissect_xdlc_control p_dissect_xdlc_control;
 addr_find_protocol_by_id p_find_protocol_by_id;
 addr_tvb_strsize p_tvb_strsize;
+addr_report_open_failure p_report_open_failure;
+addr_report_read_failure p_report_read_failure;
+addr_dissect_per_bit_string p_dissect_per_bit_string;

@@ -250,3 +250,6 @@
 #define dissect_xdlc_control (*p_dissect_xdlc_control)
 #define find_protocol_by_id (*p_find_protocol_by_id)
 #define tvb_strsize (*p_tvb_strsize)
+#define report_open_failure (*p_report_open_failure)
+#define report_read_failure (*p_report_read_failure)
+#define dissect_per_bit_string (*p_dissect_per_bit_string)

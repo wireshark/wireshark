@@ -250,3 +250,6 @@ p_decode_enumerated_bitfield_shifted = pat->p_decode_enumerated_bitfield_shifted
 p_dissect_xdlc_control = pat->p_dissect_xdlc_control;
 p_find_protocol_by_id = pat->p_find_protocol_by_id;
 p_tvb_strsize = pat->p_tvb_strsize;
+p_report_open_failure = pat->p_report_open_failure;
+p_report_read_failure = pat->p_report_read_failure;
+p_dissect_per_bit_string = pat->p_dissect_per_bit_string;

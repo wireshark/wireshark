@@ -250,3 +250,6 @@ typedef const char *(*addr_decode_enumerated_bitfield_shifted) (guint32, guint32
 typedef int (*addr_dissect_xdlc_control) (tvbuff_t *, int, packet_info *, proto_tree *, int, gint, const xdlc_cf_items *, const xdlc_cf_items *, const value_string *, const value_string *, int, int, int);
 typedef protocol_t *(*addr_find_protocol_by_id) (int);
 typedef guint (*addr_tvb_strsize) (tvbuff_t *, gint);
+typedef void (*addr_report_open_failure) (const char *, int, gboolean);
+typedef void (*addr_report_read_failure) (const char *, int);
+typedef guint32 (*addr_dissect_per_bit_string) (tvbuff_t *, guint32, packet_info *, proto_tree *, int, int, int);
