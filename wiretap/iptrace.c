@@ -1,6 +1,6 @@
 /* iptrace.c
  *
- * $Id: iptrace.c,v 1.38 2002/03/05 08:39:29 guy Exp $
+ * $Id: iptrace.c,v 1.39 2002/04/30 08:48:26 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -384,25 +384,30 @@ get_atm_pseudo_header(union wtap_pseudo_header *pseudo_header, guint8 *header)
 		decimal++;
 		Vci = strtoul(decimal, NULL, 10);
 	}
-	pseudo_header->ngsniffer_atm.Vpi = Vpi;
-	pseudo_header->ngsniffer_atm.Vci = Vci;
+
+	/* Assume it's AAL5, unless it's VPI 0 and VCI 5, in which case
+	   assume it's AAL_SIGNALLING; we know nothing more about it. */
+	if (Vpi == 0 && Vci == 5)
+		pseudo_header->atm.aal = AAL_SIGNALLING;
+	else
+		pseudo_header->atm.aal = AAL_5;
+	pseudo_header->atm.type = TRAF_UNKNOWN;
+	pseudo_header->atm.subtype = TRAF_ST_UNKNOWN;
+
+	pseudo_header->atm.vpi = Vpi;
+	pseudo_header->atm.vci = Vci;
 
 	/*
 	 * OK, which value means "DTE->DCE" and which value means
 	 * "DCE->DTE"?
 	 */
-	pseudo_header->ngsniffer_atm.channel = header[29];
+	pseudo_header->atm.channel = header[29];
 
 	/* We don't have this information */
-	pseudo_header->ngsniffer_atm.cells = 0;
-	pseudo_header->ngsniffer_atm.aal5t_u2u = 0;
-	pseudo_header->ngsniffer_atm.aal5t_len = 0;
-	pseudo_header->ngsniffer_atm.aal5t_chksum = 0;
-
-	/* Assume it's AAL5 traffic, but indicate that we don't know what
-	   it is beyond that. */
-	pseudo_header->ngsniffer_atm.AppTrafType = ATT_AAL5|ATT_HL_UNKNOWN;
-	pseudo_header->ngsniffer_atm.AppHLType = AHLT_UNKNOWN;
+	pseudo_header->atm.cells = 0;
+	pseudo_header->atm.aal5t_u2u = 0;
+	pseudo_header->atm.aal5t_len = 0;
+	pseudo_header->atm.aal5t_chksum = 0;
 }
 
 /* Given an RFC1573 (SNMP ifType) interface type,

@@ -1,6 +1,6 @@
 /* netmon.c
  *
- * $Id: netmon.c,v 1.51 2002/03/05 08:39:29 guy Exp $
+ * $Id: netmon.c,v 1.52 2002/04/30 08:48:27 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -475,6 +475,7 @@ netmon_read_atm_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
 {
 	struct netmon_atm_hdr atm_phdr;
 	int	bytes_read;
+	guint16	vpi, vci;
 
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = file_read(&atm_phdr, 1, sizeof (struct netmon_atm_hdr), fh);
@@ -485,21 +486,29 @@ netmon_read_atm_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
 		return FALSE;
 	}
 
-	pseudo_header->ngsniffer_atm.Vpi = ntohs(atm_phdr.vpi);
-	pseudo_header->ngsniffer_atm.Vci = ntohs(atm_phdr.vci);
-
-	/* We don't have this information */
-	pseudo_header->ngsniffer_atm.channel = 0;
-	pseudo_header->ngsniffer_atm.cells = 0;
-	pseudo_header->ngsniffer_atm.aal5t_u2u = 0;
-	pseudo_header->ngsniffer_atm.aal5t_len = 0;
-	pseudo_header->ngsniffer_atm.aal5t_chksum = 0;
+	vpi = ntohs(atm_phdr.vpi);
+	vci = ntohs(atm_phdr.vci);
 
 	/*
-	 * Assume it's AAL5; we know nothing more about it.
+	 * Assume it's AAL5, unless it's VPI 0 and VCI 5, in which case
+	 * assume it's AAL_SIGNALLING; we know nothing more about it.
 	 */
-	pseudo_header->ngsniffer_atm.AppTrafType = ATT_AAL5|ATT_HL_UNKNOWN;
-	pseudo_header->ngsniffer_atm.AppHLType = AHLT_UNKNOWN;
+	if (vpi == 0 && vci == 5)
+		pseudo_header->atm.aal = AAL_SIGNALLING;
+	else
+		pseudo_header->atm.aal = AAL_5;
+	pseudo_header->atm.type = TRAF_UNKNOWN;
+	pseudo_header->atm.subtype = TRAF_ST_UNKNOWN;
+
+	pseudo_header->atm.vpi = vpi;
+	pseudo_header->atm.vci = vci;
+
+	/* We don't have this information */
+	pseudo_header->atm.channel = 0;
+	pseudo_header->atm.cells = 0;
+	pseudo_header->atm.aal5t_u2u = 0;
+	pseudo_header->atm.aal5t_len = 0;
+	pseudo_header->atm.aal5t_chksum = 0;
 
 	return TRUE;
 }
@@ -671,8 +680,8 @@ static gboolean netmon_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 		 */
 		memset(&atm_hdr.dest, 0, sizeof atm_hdr.dest);
 		memset(&atm_hdr.src, 0, sizeof atm_hdr.src);
-		atm_hdr.vpi = htons(pseudo_header->ngsniffer_atm.Vpi);
-		atm_hdr.vci = htons(pseudo_header->ngsniffer_atm.Vci);
+		atm_hdr.vpi = htons(pseudo_header->atm.vpi);
+		atm_hdr.vci = htons(pseudo_header->atm.vci);
 		nwritten = fwrite(&atm_hdr, 1, sizeof atm_hdr, wdh->fh);
 		if (nwritten != sizeof atm_hdr) {
 			if (nwritten == 0 && ferror(wdh->fh))

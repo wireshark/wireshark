@@ -1,6 +1,6 @@
 /* snoop.c
  *
- * $Id: snoop.c,v 1.45 2002/04/30 06:04:33 guy Exp $
+ * $Id: snoop.c,v 1.46 2002/04/30 08:48:27 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -432,6 +432,8 @@ snoop_read_atm_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
 {
 	char	atm_phdr[4];
 	int	bytes_read;
+	guint8	vpi;
+	guint16	vci;
 
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = file_read(atm_phdr, 1, 4, fh);
@@ -442,15 +444,8 @@ snoop_read_atm_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
 		return FALSE;
 	}
 
-	pseudo_header->ngsniffer_atm.channel = (atm_phdr[0] & 0x80) ? 1 : 0;
-	pseudo_header->ngsniffer_atm.Vpi = atm_phdr[1];
-	pseudo_header->ngsniffer_atm.Vci = pntohs(&atm_phdr[2]);
-
-	/* We don't have this information */
-	pseudo_header->ngsniffer_atm.cells = 0;
-	pseudo_header->ngsniffer_atm.aal5t_u2u = 0;
-	pseudo_header->ngsniffer_atm.aal5t_len = 0;
-	pseudo_header->ngsniffer_atm.aal5t_chksum = 0;
+	vpi = atm_phdr[1];
+	vci = pntohs(&atm_phdr[2]);
 
 	/*
 	 * The lower 4 bits of the first byte of the header indicate
@@ -460,35 +455,65 @@ snoop_read_atm_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
 	switch (atm_phdr[0] & 0x0F) {
 
 	case 0x01:	/* LANE */
-		pseudo_header->ngsniffer_atm.AppTrafType = ATT_AAL5|ATT_HL_LANE;
-		pseudo_header->ngsniffer_atm.AppHLType = AHLT_UNKNOWN;
+		pseudo_header->atm.aal = AAL_5;
+		pseudo_header->atm.type = TRAF_LANE;
 		break;
 
 	case 0x02:	/* RFC 1483 LLC multiplexed traffic */
-		pseudo_header->ngsniffer_atm.AppTrafType = ATT_AAL5|ATT_HL_LLCMX;
-		pseudo_header->ngsniffer_atm.AppHLType = AHLT_UNKNOWN;
+		pseudo_header->atm.aal = AAL_5;
+		pseudo_header->atm.type = TRAF_LLCMX;
 		break;
 
 	case 0x05:	/* ILMI */
-		pseudo_header->ngsniffer_atm.AppTrafType = ATT_AAL5|ATT_HL_ILMI;
-		pseudo_header->ngsniffer_atm.AppHLType = AHLT_UNKNOWN;
+		pseudo_header->atm.aal = AAL_5;
+		pseudo_header->atm.type = TRAF_ILMI;
 		break;
 
 	case 0x06:	/* Q.2931 */
-		pseudo_header->ngsniffer_atm.AppTrafType = ATT_AAL_SIGNALLING|ATT_HL_UNKNOWN;
-		pseudo_header->ngsniffer_atm.AppHLType = AHLT_UNKNOWN;
+		pseudo_header->atm.aal = AAL_SIGNALLING;
+		pseudo_header->atm.type = TRAF_UNKNOWN;
 		break;
 
 	case 0x03:	/* MARS (RFC 2022) */
+		pseudo_header->atm.aal = AAL_5;
+		pseudo_header->atm.type = TRAF_ILMI;
+		break;
+
 	case 0x04:	/* IFMP (Ipsilon Flow Management Protocol; see RFC 1954) */
+		pseudo_header->atm.aal = AAL_5;
+		pseudo_header->atm.type = TRAF_UNKNOWN;	/* XXX - TRAF_IPSILON? */
+		break;
+
 	default:
 		/*
-		 * Assume it's AAL5; we know nothing more about it.
+		 * Assume it's AAL5, unless it's VPI 0 and VCI 5, in which
+		 * case assume it's AAL_SIGNALLING; we know nothing more
+		 * about it.
+		 *
+		 * XXX - is this necessary?  Or are we guaranteed that
+		 * all signalling traffic has a type of 0x06?
+		 *
+		 * XXX - is this guaranteed to be AAL5?  Or, if the type is
+		 * 0x00 ("raw"), might it be non-AAL5 traffic?
 		 */
-		pseudo_header->ngsniffer_atm.AppTrafType = ATT_AAL5|ATT_HL_UNKNOWN;
-		pseudo_header->ngsniffer_atm.AppHLType = AHLT_UNKNOWN;
+		if (vpi == 0 && vci == 5)
+			pseudo_header->atm.aal = AAL_SIGNALLING;
+		else
+			pseudo_header->atm.aal = AAL_5;
+		pseudo_header->atm.type = TRAF_UNKNOWN;
 		break;
 	}
+	pseudo_header->atm.subtype = TRAF_ST_UNKNOWN;
+
+	pseudo_header->atm.vpi = vpi;
+	pseudo_header->atm.vci = vci;
+	pseudo_header->atm.channel = (atm_phdr[0] & 0x80) ? 1 : 0;
+
+	/* We don't have this information */
+	pseudo_header->atm.cells = 0;
+	pseudo_header->atm.aal5t_u2u = 0;
+	pseudo_header->atm.aal5t_len = 0;
+	pseudo_header->atm.aal5t_chksum = 0;
 
 	return TRUE;
 }

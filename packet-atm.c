@@ -1,7 +1,7 @@
 /* packet-atm.c
  * Routines for ATM packet disassembly
  *
- * $Id: packet-atm.c,v 1.41 2002/03/31 21:23:47 guy Exp $
+ * $Id: packet-atm.c,v 1.42 2002/04/30 08:48:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -397,14 +397,14 @@ dissect_lane(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "ATM LANE");
 
   /* Is it LE Control, 802.3, 802.5, or "none of the above"? */
-  switch (pinfo->pseudo_header->ngsniffer_atm.AppHLType) {
+  switch (pinfo->pseudo_header->atm.subtype) {
 
-  case AHLT_LANE_LE_CTRL:
+  case TRAF_ST_LANE_LE_CTRL:
     dissect_le_control(tvb, pinfo, tree);
     break;
 
-  case AHLT_LANE_802_3:
-  case AHLT_LANE_802_3_MC:
+  case TRAF_ST_LANE_802_3:
+  case TRAF_ST_LANE_802_3_MC:
     if (check_col(pinfo->cinfo, COL_INFO))
       col_set_str(pinfo->cinfo, COL_INFO, "LE Client - Ethernet/802.3");
     dissect_le_client(tvb, tree);
@@ -414,8 +414,8 @@ dissect_lane(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     call_dissector(eth_handle, next_tvb_le_client, pinfo, tree);
     break;
 
-  case AHLT_LANE_802_5:
-  case AHLT_LANE_802_5_MC:
+  case TRAF_ST_LANE_802_5:
+  case TRAF_ST_LANE_802_5_MC:
     if (check_col(pinfo->cinfo, COL_INFO))
       col_set_str(pinfo->cinfo, COL_INFO, "LE Client - 802.5");
     dissect_le_client(tvb, tree);
@@ -428,8 +428,7 @@ dissect_lane(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   default:
     /* Dump it as raw data. */
     if (check_col(pinfo->cinfo, COL_INFO))
-      col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown LANE traffic type %x",
-		  pinfo->pseudo_header->ngsniffer_atm.AppHLType);
+      col_set_str(pinfo->cinfo, COL_INFO, "Unknown LANE traffic type");
     next_tvb		= tvb_new_subset(tvb, 0, -1, -1);
     call_dissector(data_handle,next_tvb, pinfo, tree);
     break;
@@ -444,187 +443,174 @@ dissect_ilmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 /* AAL types */
 static const value_string aal_vals[] = {
-	{ ATT_AAL_UNKNOWN,    "Unknown AAL" },
-	{ ATT_AAL1,           "AAL1" },
-	{ ATT_AAL3_4,         "AAL3/4" },
-	{ ATT_AAL5,           "AAL5" },
-	{ ATT_AAL_USER,       "User AAL" },
-	{ ATT_AAL_SIGNALLING, "Signalling AAL" },
-	{ ATT_OAMCELL,        "OAM cell" },
-	{ 0,                  NULL }
+	{ AAL_UNKNOWN,    "Unknown AAL" },
+	{ AAL_1,          "AAL1" },
+	{ AAL_2,          "AAL2" },
+	{ AAL_3_4,        "AAL3/4" },
+	{ AAL_5,          "AAL5" },
+	{ AAL_USER,       "User AAL" },
+	{ AAL_SIGNALLING, "Signalling AAL" },
+	{ AAL_OAMCELL,    "OAM cell" },
+	{ 0,              NULL }
 };
 
 /* AAL5 higher-level traffic types */
 static const value_string aal5_hltype_vals[] = {
-	{ ATT_HL_UNKNOWN, "Unknown traffic type" },
-	{ ATT_HL_LLCMX,   "LLC multiplexed" },
-	{ ATT_HL_VCMX,    "VC multiplexed" },
-	{ ATT_HL_LANE,    "LANE" },
-	{ ATT_HL_ILMI,    "ILMI" },
-	{ ATT_HL_FRMR,    "Frame Relay" },
-	{ ATT_HL_SPANS,   "FORE SPANS" },
-	{ ATT_HL_IPSILON, "Ipsilon" },
+	{ TRAF_UNKNOWN, "Unknown traffic type" },
+	{ TRAF_LLCMX,   "LLC multiplexed" },
+	{ TRAF_VCMX,    "VC multiplexed" },
+	{ TRAF_LANE,    "LANE" },
+	{ TRAF_ILMI,    "ILMI" },
+	{ TRAF_FR,      "Frame Relay" },
+	{ TRAF_SPANS,   "FORE SPANS" },
+	{ TRAF_IPSILON, "Ipsilon" },
 	{ 0,              NULL }
 };
 
 /* Traffic subtypes for VC multiplexed traffic */
 static const value_string vcmx_type_vals[] = {
-	{ AHLT_UNKNOWN,        "Unknown VC multiplexed traffic type" },
-	{ AHLT_VCMX_802_3_FCS, "802.3 FCS" },
-	{ AHLT_VCMX_802_4_FCS, "802.4 FCS" },
-	{ AHLT_VCMX_802_5_FCS, "802.5 FCS" },
-	{ AHLT_VCMX_FDDI_FCS,  "FDDI FCS" },
-	{ AHLT_VCMX_802_6_FCS, "802.6 FCS" },
-	{ AHLT_VCMX_802_3,     "802.3" },
-	{ AHLT_VCMX_802_4,     "802.4" },
-	{ AHLT_VCMX_802_5,     "802.5" },
-	{ AHLT_VCMX_FDDI,      "FDDI" },
-	{ AHLT_VCMX_802_6,     "802.6" },
-	{ AHLT_VCMX_FRAGMENTS, "Fragments" },
-	{ AHLT_VCMX_BPDU,      "BPDU" },
+	{ TRAF_ST_UNKNOWN,        "Unknown VC multiplexed traffic type" },
+	{ TRAF_ST_VCMX_802_3_FCS, "802.3 FCS" },
+	{ TRAF_ST_VCMX_802_4_FCS, "802.4 FCS" },
+	{ TRAF_ST_VCMX_802_5_FCS, "802.5 FCS" },
+	{ TRAF_ST_VCMX_FDDI_FCS,  "FDDI FCS" },
+	{ TRAF_ST_VCMX_802_6_FCS, "802.6 FCS" },
+	{ TRAF_ST_VCMX_802_3,     "802.3" },
+	{ TRAF_ST_VCMX_802_4,     "802.4" },
+	{ TRAF_ST_VCMX_802_5,     "802.5" },
+	{ TRAF_ST_VCMX_FDDI,      "FDDI" },
+	{ TRAF_ST_VCMX_802_6,     "802.6" },
+	{ TRAF_ST_VCMX_FRAGMENTS, "Fragments" },
+	{ TRAF_ST_VCMX_BPDU,      "BPDU" },
 	{ 0,                   NULL }
 };
 
 /* Traffic subtypes for LANE traffic */
 static const value_string lane_type_vals[] = {
-	{ AHLT_UNKNOWN,       "Unknown LANE traffic type" },
-	{ AHLT_LANE_LE_CTRL,  "LE Control" },
-	{ AHLT_LANE_802_3,    "802.3" },
-	{ AHLT_LANE_802_5,    "802.5" },
-	{ AHLT_LANE_802_3_MC, "802.3 multicast" },
-	{ AHLT_LANE_802_5_MC, "802.5 multicast" },
-	{ 0,                  NULL }
+	{ TRAF_ST_UNKNOWN,       "Unknown LANE traffic type" },
+	{ TRAF_ST_LANE_LE_CTRL,  "LE Control" },
+	{ TRAF_ST_LANE_802_3,    "802.3" },
+	{ TRAF_ST_LANE_802_5,    "802.5" },
+	{ TRAF_ST_LANE_802_3_MC, "802.3 multicast" },
+	{ TRAF_ST_LANE_802_5_MC, "802.5 multicast" },
+        { 0,                     NULL }
 };
 
 /* Traffic subtypes for Ipsilon traffic */
 static const value_string ipsilon_type_vals[] = {
-	{ AHLT_UNKNOWN,     "Unknown Ipsilon traffic type" },
-	{ AHLT_IPSILON_FT0, "Flow type 0" },
-	{ AHLT_IPSILON_FT1, "Flow type 1" },
-	{ AHLT_IPSILON_FT2, "Flow type 2" },
+	{ TRAF_ST_UNKNOWN,     "Unknown Ipsilon traffic type" },
+	{ TRAF_ST_IPSILON_FT0, "Flow type 0" },
+	{ TRAF_ST_IPSILON_FT1, "Flow type 1" },
+	{ TRAF_ST_IPSILON_FT2, "Flow type 2" },
 	{ 0,                NULL }
 };
-
-/*
- * We don't know what kind of traffic this is; try to guess.
- * We at least know it's AAL5....
- */
-static void
-atm_guess_content(tvbuff_t *tvb, packet_info *pinfo)
-{
-	guint8 byte0, byte1, byte2;
-
-	if (pinfo->pseudo_header->ngsniffer_atm.Vpi == 0) {
-		/*
-		 * Traffic on some PVCs with a VPI of 0 and certain
-		 * VCIs is of particular types.
-		 */
-		switch (pinfo->pseudo_header->ngsniffer_atm.Vci) {
-
-		case 5:
-			/*
-			 * Signalling AAL.
-			 */
-			pinfo->pseudo_header->ngsniffer_atm.AppTrafType =
-			    ATT_AAL_SIGNALLING;
-			return;
-
-		case 16:
-			/*
-			 * ILMI.
-			 */
-			pinfo->pseudo_header->ngsniffer_atm.AppTrafType |=
-			    ATT_HL_ILMI;
-			return;
-		}
-	}
-
-	/*
-	 * OK, we can't tell what it is based on the VPI/VCI; try
-	 * guessing based on the contents.
-	 */
-	byte0 = tvb_get_guint8(tvb, 0);
-	byte1 = tvb_get_guint8(tvb, 1);
-	byte2 = tvb_get_guint8(tvb, 2);
-	if (byte0 == 0xaa && byte1 == 0xaa && byte2 == 0x03) {
-		/*
-		 * Looks like a SNAP header; assume it's LLC multiplexed
-		 * RFC 1483 traffic.
-		 */
-		pinfo->pseudo_header->ngsniffer_atm.AppTrafType |= ATT_HL_LLCMX;
-	} else {
-		/*
-		 * Assume it's LANE.
-		 */
-		pinfo->pseudo_header->ngsniffer_atm.AppTrafType |= ATT_HL_LANE;
-		if (byte0 == 0xff && byte1 == 0x00) {
-			/*
-			 * Looks like LE Control traffic.
-			 */
-			pinfo->pseudo_header->ngsniffer_atm.AppHLType =
-			    AHLT_LANE_LE_CTRL;
-		} else {
-			/*
-			 * XXX - Ethernet, or Token Ring?
-			 * Assume Ethernet for now; if we see earlier
-			 * LANE traffic, we may be able to figure out
-			 * the traffic type from that, but there may
-			 * still be situations where the user has to
-			 * tell us.
-			 */
-			pinfo->pseudo_header->ngsniffer_atm.AppHLType =
-			    AHLT_LANE_802_3;
-		}
-	}
-}
 
 static void
 dissect_atm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   proto_tree   *atm_tree;
   proto_item   *ti;
-  guint         aal_type;
-  guint         hl_type;
+  guint8        byte0, byte1, byte2;
 
-  aal_type = pinfo->pseudo_header->ngsniffer_atm.AppTrafType & ATT_AALTYPE;
-  hl_type = pinfo->pseudo_header->ngsniffer_atm.AppTrafType & ATT_HLTYPE;
-  if (aal_type == ATT_AAL5) {
-    if (hl_type == ATT_HL_UNKNOWN ||
-	pinfo->pseudo_header->ngsniffer_atm.AppHLType == AHLT_UNKNOWN) {
+  /*
+   * The joys of a connection-oriented link layer; the type of
+   * traffic may be implied by the connection on which it's
+   * traveling, rather than being specified in the packet itself.
+   *
+   * The program that captured the traffic might, or might not,
+   * have known the traffic type; if it didn't see the connection
+   * setup and wasn't running on one of the endpoints, and wasn't
+   * later told, e.g. by the human running it, what type of traffic
+   * was on that circuit, or was running on one of the endpoints
+   * but was using, to capture the packets, a mechanism that either
+   * doesn't have access to data saying what's going over the
+   * connection or doesn't bother providing that information, it
+   * won't have known the traffic type.
+   *
+   * If we don't know the full traffic type, we try to guess it
+   * based on the VPI/VCI and/or the packet header; at some point,
+   * we should provide a mechanism by which the user can specify
+   * what sort of traffic is on a particular circuit.
+   */
+  if (pinfo->pseudo_header->atm.aal == AAL_5) {
+    if (pinfo->pseudo_header->atm.type == TRAF_UNKNOWN) {
       /*
-       * The joys of a connection-oriented link layer; the type of
-       * traffic may be implied by the connection on which it's
-       * traveling, rather than being specified in the packet itself.
+       * We don't know the traffic type at all.
+       * Try to guess it based on the VPI and VCI.
        *
-       * For this packet, the program that captured the packet didn't
-       * save the type of traffic, presumably because it didn't know
-       * the traffic type (either it didn't see the connection setup
-       * and wasn't running on one of the endpoints, and wasn't later
-       * told, e.g. by the human running it, what type of traffic was
-       * on that circuit, or was running on one of the endpoints but
-       * was using, to capture the packets, a mechanism that either
-       * doesn't have access to data saying what's going over the
-       * connection or doesn't bother providing that information).
-       *
-       * For now, we try to guess the traffic type based on the VPI/VCI
-       * or the packet header; later, we should provide a mechanism
-       * by which the user can specify what sort of traffic is on a
-       * particular circuit.
+       * VPI 0, VCI 5 should have been mapped to AAL_SIGNALLING
+       * by Wiretap.
        */
-      atm_guess_content(tvb, pinfo);
+      if (pinfo->pseudo_header->atm.vpi == 0) {
+	/*
+	 * Traffic on some PVCs with a VPI of 0 and certain
+	 * VCIs is of particular types.
+	 */
+	switch (pinfo->pseudo_header->atm.vci) {
 
+	case 16:
+	  /*
+	   * ILMI.
+	   */
+	  pinfo->pseudo_header->atm.type = TRAF_ILMI;
+	  break;
+	}
+      }
+    }
+
+    if (pinfo->pseudo_header->atm.type == TRAF_UNKNOWN) {
       /*
-       * OK, now get the AAL type and high-layer type again.
+       * OK, we can't tell what it is based on the VPI/VCI; try
+       * guessing based on the contents.
        */
-      aal_type = pinfo->pseudo_header->ngsniffer_atm.AppTrafType & ATT_AALTYPE;
-      hl_type = pinfo->pseudo_header->ngsniffer_atm.AppTrafType & ATT_HLTYPE;
+      byte0 = tvb_get_guint8(tvb, 0);
+      byte1 = tvb_get_guint8(tvb, 1);
+      byte2 = tvb_get_guint8(tvb, 2);
+      if (byte0 == 0xaa && byte1 == 0xaa && byte2 == 0x03) {
+	/*
+	 * Looks like a SNAP header; assume it's LLC multiplexed
+	 * RFC 1483 traffic.
+	 */
+	pinfo->pseudo_header->atm.type = TRAF_LLCMX;
+      } else {
+	/*
+	 * Assume it's LANE.
+	 */
+	pinfo->pseudo_header->atm.type = TRAF_LANE;
+      }
+    }
+
+    if (pinfo->pseudo_header->atm.type == TRAF_LANE &&
+	pinfo->pseudo_header->atm.subtype == TRAF_ST_UNKNOWN) {
+      /*
+       * OK, it's LANE, but we don't know what type of LANE traffic
+       * it is.  Guess based on the first two bytes.
+       */
+      byte0 = tvb_get_guint8(tvb, 0);
+      byte1 = tvb_get_guint8(tvb, 1);
+      if (byte0 == 0xff && byte1 == 0x00) {
+	/*
+	 * Looks like LE Control traffic.
+	 */
+	pinfo->pseudo_header->atm.subtype = TRAF_ST_LANE_LE_CTRL;
+      } else {
+	/*
+	 * XXX - Ethernet, or Token Ring?
+	 * Assume Ethernet for now; if we see earlier
+	 * LANE traffic, we may be able to figure out
+	 * the traffic type from that, but there may
+	 * still be situations where the user has to
+	 * tell us.
+	 */
+	pinfo->pseudo_header->atm.subtype = TRAF_ST_LANE_802_3;
+      }
     }
   }
 
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "ATM");
 
-  switch (pinfo->pseudo_header->ngsniffer_atm.channel) {
+  switch (pinfo->pseudo_header->atm.channel) {
 
   case 0:
     /* Traffic from DCE to DTE. */
@@ -644,13 +630,14 @@ dissect_atm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 
   if (check_col(pinfo->cinfo, COL_INFO)) {
-    if (aal_type == ATT_AAL5) {
+    if (pinfo->pseudo_header->atm.aal == AAL_5) {
       col_add_fstr(pinfo->cinfo, COL_INFO, "AAL5 %s",
-		val_to_str(hl_type, aal5_hltype_vals,
-				"Unknown traffic type (%x)"));
+		val_to_str(pinfo->pseudo_header->atm.type, aal5_hltype_vals,
+				"Unknown traffic type (%u)"));
     } else {
       col_add_str(pinfo->cinfo, COL_INFO,
-		val_to_str(aal_type, aal_vals, "Unknown AAL (%x)"));
+		val_to_str(pinfo->pseudo_header->atm.aal, aal_vals,
+			"Unknown AAL (%u)"));
     }
   }
 
@@ -659,40 +646,42 @@ dissect_atm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     atm_tree = proto_item_add_subtree(ti, ett_atm);
 
     proto_tree_add_text(atm_tree, tvb, 0, 0, "AAL: %s",
-	val_to_str(aal_type, aal_vals, "Unknown AAL (%x)"));
-    if (aal_type == ATT_AAL5) {
+	val_to_str(pinfo->pseudo_header->atm.aal, aal_vals,
+	"Unknown AAL (%u)"));
+    if (pinfo->pseudo_header->atm.aal == AAL_5) {
       proto_tree_add_text(atm_tree, tvb, 0, 0, "Traffic type: %s",
-	val_to_str(hl_type, aal5_hltype_vals, "Unknown AAL5 traffic type (%x)"));
-      switch (hl_type) {
+	val_to_str(pinfo->pseudo_header->atm.type, aal5_hltype_vals,
+	"Unknown AAL5 traffic type (%u)"));
+      switch (pinfo->pseudo_header->atm.type) {
 
-      case ATT_HL_LLCMX:
+      case TRAF_LLCMX:
         proto_tree_add_text(atm_tree, tvb, 0, 0, "LLC multiplexed traffic");
         break;
 
-      case ATT_HL_VCMX:
+      case TRAF_VCMX:
         proto_tree_add_text(atm_tree, tvb, 0, 0, "VC multiplexed traffic type: %s",
-		val_to_str(pinfo->pseudo_header->ngsniffer_atm.AppHLType,
-			vcmx_type_vals, "Unknown VCMX traffic type (%x)"));
+		val_to_str(pinfo->pseudo_header->atm.subtype,
+			vcmx_type_vals, "Unknown VCMX traffic type (%u)"));
         break;
 
-      case ATT_HL_LANE:
+      case TRAF_LANE:
         proto_tree_add_text(atm_tree, tvb, 0, 0, "LANE traffic type: %s",
-		val_to_str(pinfo->pseudo_header->ngsniffer_atm.AppHLType,
-			lane_type_vals, "Unknown LANE traffic type (%x)"));
+		val_to_str(pinfo->pseudo_header->atm.subtype,
+			lane_type_vals, "Unknown LANE traffic type (%u)"));
         break;
 
-      case ATT_HL_IPSILON:
+      case TRAF_IPSILON:
         proto_tree_add_text(atm_tree, tvb, 0, 0, "Ipsilon traffic type: %s",
-		val_to_str(pinfo->pseudo_header->ngsniffer_atm.AppHLType,
-			ipsilon_type_vals, "Unknown Ipsilon traffic type (%x)"));
+		val_to_str(pinfo->pseudo_header->atm.subtype,
+			ipsilon_type_vals, "Unknown Ipsilon traffic type (%u)"));
         break;
       }
     }
     proto_tree_add_uint(atm_tree, hf_atm_vpi, tvb, 0, 0,
-		pinfo->pseudo_header->ngsniffer_atm.Vpi);
+    		pinfo->pseudo_header->atm.vpi);
     proto_tree_add_uint(atm_tree, hf_atm_vci, tvb, 0, 0,
-		pinfo->pseudo_header->ngsniffer_atm.Vci);
-    switch (pinfo->pseudo_header->ngsniffer_atm.channel) {
+		pinfo->pseudo_header->atm.vci);
+    switch (pinfo->pseudo_header->atm.channel) {
 
     case 0:
       /* Traffic from DCE to DTE. */
@@ -707,10 +696,10 @@ dissect_atm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     default:
       /* Sniffers shouldn't provide anything other than 0 or 1. */
       proto_tree_add_text(atm_tree, tvb, 0, 0, "Channel: %u",
- 		pinfo->pseudo_header->ngsniffer_atm.channel);
+ 		pinfo->pseudo_header->atm.channel);
       break;
     }
-    if (pinfo->pseudo_header->ngsniffer_atm.cells != 0) {
+    if (pinfo->pseudo_header->atm.cells != 0) {
       /*
        * If the cell count is 0, assume it means we don't know how
        * many cells it was.
@@ -723,39 +712,39 @@ dissect_atm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
        * information.
        */
       proto_tree_add_text(atm_tree, tvb, 0, 0, "Cells: %u",
-		pinfo->pseudo_header->ngsniffer_atm.cells);
-      if (aal_type == ATT_AAL5) {
+		pinfo->pseudo_header->atm.cells);
+      if (pinfo->pseudo_header->atm.aal == AAL_5) {
         proto_tree_add_text(atm_tree, tvb, 0, 0, "AAL5 U2U: %u",
-		pinfo->pseudo_header->ngsniffer_atm.aal5t_u2u);
+		pinfo->pseudo_header->atm.aal5t_u2u);
         proto_tree_add_text(atm_tree, tvb, 0, 0, "AAL5 len: %u",
-		pinfo->pseudo_header->ngsniffer_atm.aal5t_len);
+		pinfo->pseudo_header->atm.aal5t_len);
         proto_tree_add_text(atm_tree, tvb, 0, 0, "AAL5 checksum: 0x%08X",
-		pinfo->pseudo_header->ngsniffer_atm.aal5t_chksum);
+		pinfo->pseudo_header->atm.aal5t_chksum);
       }
     }
   }
 
-  switch (aal_type) {
+  switch (pinfo->pseudo_header->atm.aal) {
 
-  case ATT_AAL_SIGNALLING:
+  case AAL_SIGNALLING:
     call_dissector(sscop_handle, tvb, pinfo, tree);
     break;
 
-  case ATT_AAL5:
-    switch (hl_type) {
+  case AAL_5:
+    switch (pinfo->pseudo_header->atm.type) {
 
-    case ATT_HL_LLCMX:
+    case TRAF_LLCMX:
       /* Dissect as WTAP_ENCAP_ATM_RFC1483 */
       /* The ATM iptrace capture that we have shows LLC at this point,
        * so that's what I'm calling */
       call_dissector(llc_handle, tvb, pinfo, tree);
       break;
 
-    case ATT_HL_LANE:
+    case TRAF_LANE:
       call_dissector(lane_handle, tvb, pinfo, tree);
       break;
 
-    case ATT_HL_ILMI:
+    case TRAF_ILMI:
       call_dissector(ilmi_handle, tvb, pinfo, tree);
       break;
 
