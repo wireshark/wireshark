@@ -2,7 +2,7 @@
  *
  * Routines to dissect WTP component of WAP traffic.
  *
- * $Id: packet-wtp.c,v 1.57 2003/12/22 11:55:10 obiot Exp $
+ * $Id: packet-wtp.c,v 1.58 2003/12/23 12:07:14 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1003,5 +1003,5 @@ proto_reg_handoff_wtp(void)
 
     wtp_fromudp_handle = find_dissector("wtp-udp");
     dissector_add("udp.port", UDP_PORT_WTP_WSP, wtp_fromudp_handle);
-    dissector_add("smpp.udh.port", UDP_PORT_WTP_WSP, wtp_fromudp_handle);
+    dissector_add("smpp.gsm-sms.udh.port", UDP_PORT_WTP_WSP, wtp_fromudp_handle);
 }
