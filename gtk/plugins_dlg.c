@@ -1,7 +1,7 @@
 /* plugins_dlg.c
  * Dialog boxes for plugins
  *
- * $Id: plugins_dlg.c,v 1.28 2002/11/11 15:39:05 oabad Exp $
+ * $Id: plugins_dlg.c,v 1.29 2002/12/02 10:53:34 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -100,7 +100,6 @@ tools_plugins_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
     store = gtk_list_store_new(2, G_TYPE_STRING, G_TYPE_STRING);
     plugins_scan(store);
     plugins_list = tree_view_new(GTK_TREE_MODEL(store));
-    gtk_tree_view_set_search_column(GTK_TREE_VIEW(plugins_list), 0);
     g_object_unref(G_OBJECT(store));
     gtk_container_add(GTK_CONTAINER(scrolledwindow), plugins_list);
     renderer = gtk_cell_renderer_text_new();
