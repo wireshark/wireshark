@@ -3,7 +3,7 @@
  *
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-lmp.c,v 1.6 2002/05/10 18:37:38 ashokn Exp $
+ * $Id: packet-lmp.c,v 1.7 2002/06/02 21:42:58 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -68,6 +68,7 @@
 
 #include "packet-ip.h"
 #include "packet-rsvp.h"
+#include "packet-frame.h"
 
 static int proto_lmp = -1;
 #define LMP_VER_DRAFT_CCAMP_02  2
@@ -827,8 +828,14 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			    offset+3, 1, message_type);
 	proto_tree_add_text(lmp_header_tree, tvb, offset+4, 2, "Length: %d bytes",
 			    msg_length);
-	proto_tree_add_boolean_hidden(lmp_header_tree, lmp_filter[LMPF_MSG + message_type], tvb, 
+	if (LMPF_MSG + message_type <= LMPF_MSG_CHANNEL_STATUS_RESP) {
+		proto_tree_add_boolean_hidden(lmp_header_tree, lmp_filter[LMPF_MSG + message_type], tvb, 
 				      offset+3, 1, 1);
+	} else {
+		proto_tree_add_protocol_format(lmp_header_tree, proto_malformed, tvb, offset+3, 1,
+			"Invalid message type: %u", message_type);
+		return;
+	}
 	
 	cksum = tvb_get_ntohs(tvb, offset+6);
 	if (!pinfo->fragmented && (int) tvb_length(tvb) >= msg_length) {
