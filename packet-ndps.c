@@ -2,7 +2,7 @@
  * Routines for NetWare's NDPS
  * Greg Morris <gmorris@novell.com>
  *
- * $Id: packet-ndps.c,v 1.7 2002/10/22 06:09:06 guy Exp $
+ * $Id: packet-ndps.c,v 1.8 2002/10/22 07:50:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -289,12 +289,12 @@ static const value_string qualified_name_enum[] = {
 
 
 static const value_string spx_ndps_program_vals[] = {
-    { 0x00060976, "Print Program " },
-    { 0x00060977, "Broker Program " },
-    { 0x00060978, "Registry Program " },
-    { 0x00060979, "Notify Program " },
-    { 0x0006097a, "Resource Manager Program " },
-    { 0x0006097b, "Programatic Delivery Program " },
+    { 0x00060976, "Print Program" },
+    { 0x00060977, "Broker Program" },
+    { 0x00060978, "Registry Program" },
+    { 0x00060979, "Notify Program" },
+    { 0x0006097a, "Resource Manager Program" },
+    { 0x0006097b, "Programatic Delivery Program" },
     { 0,          NULL }
 };
 
@@ -952,41 +952,60 @@ static const value_string ndps_error_types[] = {
 };
 
 static const value_string ndps_credential_enum[] = {
-	{ 0, "SIMPLE" },
+    { 0, "SIMPLE" },
     { 1, "CERTIFIED" },
     { 2, "NDPS 0" },
     { 3, "NDPS 1" },
     { 4, "NDPS 2" },
-    { 0,          NULL }
+    { 0, NULL }
 };
 
-static void
-get_string(tvbuff_t* tvb, guint offset, guint str_length, char *dest_buf)
+static int
+align_4(tvbuff_t *tvb, int aoffset)
 {
+       if(tvb_length_remaining(tvb, aoffset) > 4 )
+       {
+                return (aoffset%4);
+       }
+       return 0;
+}
+
+static int
+ndps_string(tvbuff_t* tvb, int hfinfo, proto_tree *ndps_tree, int offset)
+{
+        int     foffset = offset;
+        guint32 str_length;
+        char    buffer[1024];
         guint32 i;
         guint16 c_char;
         guint32 length_remaining = 0;
         
-        length_remaining = tvb_length_remaining(tvb, offset);
-        if(str_length > length_remaining || str_length > 1024)
+        str_length = tvb_get_ntohl(tvb, foffset);
+        foffset += 4;
+        length_remaining = tvb_length_remaining(tvb, foffset);
+        g_assert(length_remaining > 0);
+        if(str_length > (guint)length_remaining || str_length > 1024)
         {
-                strcpy(dest_buf, "<String to long to process>");
-                return;
+                proto_tree_add_string(ndps_tree, hfinfo, tvb, offset,
+                    length_remaining + 4, "<String too long to process>");
+                foffset += length_remaining;
+                return foffset;
         }
         if(str_length == 0)
         {
-            strcpy(dest_buf, "<Not Specified>");
-            return;
+       	    proto_tree_add_string(ndps_tree, hfinfo, tvb, offset,
+                4, "<Not Specified>");
+            return foffset;
         }
         for ( i = 0; i < str_length; i++ )
         {
-                c_char = tvb_get_guint8(tvb, offset );
+                c_char = tvb_get_guint8(tvb, foffset );
                 if (c_char<0x20 || c_char>0x7e)
                 {
                         if (c_char != 0x00)
                         { 
-                        c_char = 0x2e;
-                        dest_buf[i] = c_char & 0xff;
+                                c_char = 0x2e;
+                                buffer[i] = c_char & 0xff;
                         }
                         else
                         {
@@ -996,40 +1015,31 @@ get_string(tvbuff_t* tvb, guint offset, guint str_length, char *dest_buf)
                 }
                 else
                 {
-                        dest_buf[i] = c_char & 0xff;
+                        buffer[i] = c_char & 0xff;
                 }
-                offset++;
+                foffset++;
                 length_remaining--;
                 
                 if(length_remaining==1)
                 {
-                        dest_buf[i+1] = '\0';
-                        return;
+                	i++;
+                	break;
                 }        
         }
-dest_buf[i] = '\0';
-return;
+        buffer[i] = '\0';
+        proto_tree_add_string(ndps_tree, hfinfo, tvb, offset,
+                str_length + 4, buffer);
+        foffset += align_4(tvb, foffset);
+        return foffset;
 }
 
-static guint32
-align_4(tvbuff_t *tvb, guint32 aoffset)
-{
-       if(tvb_length_remaining(tvb, aoffset) > 4 )
-       {
-                return (aoffset%4);
-       }
-       return 0;
-}
-
-
-static guint32
+static int
 objectident(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
 {
     guint8      h;
     guint8      object_count;
-    guint32     name_len=0;
     guint32     object_type=0;
-    char        buffer[1024];
+    guint32     qualified_name_type;
     proto_tree  *atree;
     proto_item  *aitem;
 
@@ -1049,34 +1059,22 @@ objectident(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
         case 0:         /* None */
             break;
         case 1:         /* Printer Contained Object ID */
-            name_len = tvb_get_ntohl(tvb, foffset);
-            foffset += 4;
-            get_string(tvb, foffset, name_len, buffer);
-            proto_tree_add_string(atree, hf_printer_name, tvb, foffset, 
-            name_len, buffer);
-            foffset += name_len;
-            foffset += align_4(tvb, foffset);
-            proto_tree_add_uint(atree, hf_ndps_object, tvb, foffset, 
-            4, tvb_get_ntohl(tvb, foffset));
+            foffset = ndps_string(tvb, hf_printer_name, atree, foffset);
+            proto_tree_add_item(atree, hf_ndps_object, tvb, foffset, 
+            4, FALSE);
             foffset += 4;
             break;
         case 2:         /* Document Identifier */
-            name_len = tvb_get_ntohl(tvb, foffset);
+            foffset = ndps_string(tvb, hf_printer_name, atree, foffset);
+            proto_tree_add_item(atree, hf_ndps_object, tvb, foffset, 
+            4, FALSE);
             foffset += 4;
-            get_string(tvb, foffset, name_len, buffer);
-            proto_tree_add_string(atree, hf_printer_name, tvb, foffset, 
-            name_len, buffer);
-            foffset += name_len;
-            foffset += align_4(tvb, foffset);
-            proto_tree_add_uint(atree, hf_ndps_object, tvb, foffset, 
-            4, tvb_get_ntohl(tvb, foffset));
-            foffset += 4;
-            proto_tree_add_uint(atree, hf_ndps_document_number, tvb, foffset, 
-            4, tvb_get_ntohl(tvb, foffset));
+            proto_tree_add_item(atree, hf_ndps_document_number, tvb, foffset, 
+            4, FALSE);
             foffset += 4;
             break;
         case 3:         /* Object Identifier */
-            proto_tree_add_uint(atree, hf_oid_struct_size, tvb, foffset, 4, FALSE);
+            proto_tree_add_item(atree, hf_oid_struct_size, tvb, foffset, 4, FALSE);
             foffset += tvb_get_ntohl(tvb, foffset);   /* Need to decode later */
             if (foffset > tvb_length_remaining(tvb, foffset)) {
                 return foffset;
@@ -1084,122 +1082,59 @@ objectident(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
             foffset += 4;
             break;
         case 4:         /* Object Name */
-            name_len = tvb_get_ntohl(tvb, foffset);
-            foffset += 4;
-            get_string(tvb, foffset, name_len, buffer);
-            proto_tree_add_string(atree, hf_object_name, tvb, foffset, 
-            name_len, buffer);
-            foffset += name_len;
-            foffset += align_4(tvb, foffset);
+            foffset = ndps_string(tvb, hf_object_name, atree, foffset);
             if (foffset > tvb_length_remaining(tvb, foffset)) {
                 return foffset;
             }
-            proto_tree_add_uint(atree, hf_ndps_nameorid, tvb, foffset, 
-            4, tvb_get_ntohl(tvb, foffset));
-            name_len = tvb_get_ntohl(tvb, foffset);
-            foffset += 4;
-            get_string(tvb, foffset, name_len, buffer);
-            proto_tree_add_string(atree, hf_local_object_name, tvb, foffset, 
-            name_len, buffer);
-            foffset += name_len;
-            foffset += align_4(tvb, foffset);
+            proto_tree_add_item(atree, hf_ndps_nameorid, tvb, foffset, 
+            4, FALSE);
+            foffset = ndps_string(tvb, hf_local_object_name, atree, foffset);
             break;
         case 5:         /* Name or Object ID */
-            proto_tree_add_uint(atree, hf_ndps_nameorid, tvb, foffset, 
-            4, tvb_get_ntohl(tvb, foffset));
-            name_len = tvb_get_ntohl(tvb, foffset);
+            proto_tree_add_item(atree, hf_ndps_nameorid, tvb, foffset, 
+            4, FALSE);
             foffset += 4;
-            get_string(tvb, foffset, name_len, buffer);
-            proto_tree_add_string(atree, hf_local_object_name, tvb, foffset, 
-            name_len, buffer);
-            foffset += name_len;
-            foffset += align_4(tvb, foffset);
+            foffset = ndps_string(tvb, hf_local_object_name, atree, foffset);
             break;
         case 6:         /* Simple Name */
-            name_len = tvb_get_ntohl(tvb, foffset);
-            foffset += 4;
-            get_string(tvb, foffset, name_len, buffer);
-            proto_tree_add_string(atree, hf_object_name, tvb, foffset, 
-            name_len, buffer);
-            foffset += name_len;
-            foffset += align_4(tvb, foffset);
+            foffset = ndps_string(tvb, hf_object_name, atree, foffset);
             break;
         case 7:         /* Printer Configuration Object ID */
-            name_len = tvb_get_ntohl(tvb, foffset);
-            foffset += 4;
-            get_string(tvb, foffset, name_len, buffer);
-            proto_tree_add_string(atree, hf_printer_name, tvb, foffset, 
-            name_len, buffer);
-            foffset += name_len;
-            foffset += align_4(tvb, foffset);
+            foffset = ndps_string(tvb, hf_printer_name, atree, foffset);
+            qualified_name_type = tvb_get_ntohl(tvb, foffset);
             proto_tree_add_uint(atree, hf_ndps_qualified_name, tvb, foffset, 
-            4, tvb_get_ntohl(tvb, foffset));
-            if (tvb_get_ntohl(tvb, foffset) != 0) {
-               if (tvb_get_ntohl(tvb, foffset) == 1) {
-                    name_len = tvb_get_ntohl(tvb, foffset);
-                    foffset += 4;
-                    get_string(tvb, foffset, name_len, buffer);
-                    proto_tree_add_string(atree, hf_printer_name, tvb, foffset, 
-                    name_len, buffer);
+            4, qualified_name_type);
+            foffset += 4;
+            if (qualified_name_type != 0) {
+               if (qualified_name_type == 1) {
+                    foffset = ndps_string(tvb, hf_printer_name, atree, foffset);
                 }
                 else
                 {
-                    name_len = tvb_get_ntohl(tvb, foffset);
-                    foffset += 4;
-                    get_string(tvb, foffset, name_len, buffer);
-                    proto_tree_add_string(atree, hf_ndps_context, tvb, foffset, 
-                    name_len, buffer);
-                    foffset += name_len;
-                    foffset += align_4(tvb, foffset);
-                    name_len = tvb_get_ntohl(tvb, foffset);
-                    foffset += 4;
-                    get_string(tvb, foffset, name_len, buffer);
-                    proto_tree_add_string(atree, hf_ndps_tree, tvb, foffset, 
-                    name_len, buffer);
+                    foffset = ndps_string(tvb, hf_ndps_context, atree, foffset);
+                    foffset = ndps_string(tvb, hf_ndps_tree, atree, foffset);
                 }
-                foffset += name_len;
-                foffset += align_4(tvb, foffset);
             }
             break;
         case 8:         /* Qualified Name */
+            qualified_name_type = tvb_get_ntohl(tvb, foffset);
             proto_tree_add_uint(atree, hf_ndps_qualified_name, tvb, foffset, 
-            4, tvb_get_ntohl(tvb, foffset));
-            if (tvb_get_ntohl(tvb, foffset) != 0) {
-                if (tvb_get_ntohl(tvb, foffset) == 1) {
-                    name_len = tvb_get_ntohl(tvb, foffset);
-                    foffset += 4;
-                    get_string(tvb, foffset, name_len, buffer);
-                    proto_tree_add_string(atree, hf_printer_name, tvb, foffset, 
-                    name_len, buffer);
+            4, qualified_name_type);
+            foffset += 4;
+            if (qualified_name_type != 0) {
+                if (qualified_name_type == 1) {
+                    foffset = ndps_string(tvb, hf_printer_name, atree, foffset);
                 }
                 else
                 {
-                    name_len = tvb_get_ntohl(tvb, foffset);
-                    foffset += 4;
-                    get_string(tvb, foffset, name_len, buffer);
-                    proto_tree_add_string(atree, hf_ndps_context, tvb, foffset, 
-                    name_len, buffer);
-                    foffset += name_len;
-                    foffset += align_4(tvb, foffset);
-                    name_len = tvb_get_ntohl(tvb, foffset);
-                    foffset += 4;
-                    get_string(tvb, foffset, name_len, buffer);
-                    proto_tree_add_string(atree, hf_ndps_tree, tvb, foffset, 
-                    name_len, buffer);
+                    foffset = ndps_string(tvb, hf_ndps_context, atree, foffset);
+                    foffset = ndps_string(tvb, hf_ndps_tree, atree, foffset);
                 }
-                foffset += name_len;
-                foffset += align_4(tvb, foffset);
             }
             break;
         case 9:         /* Event Object ID */
-            name_len = tvb_get_ntohl(tvb, foffset);
-            foffset += 4;
-            get_string(tvb, foffset, name_len, buffer);
-            proto_tree_add_string(atree, hf_object_name, tvb, foffset, 
-            name_len, buffer);
-            foffset += name_len;
-            foffset += align_4(tvb, foffset);
-            proto_tree_add_uint(atree, hf_oid_struct_size, tvb, foffset, 4, FALSE);
+            foffset = ndps_string(tvb, hf_object_name, atree, foffset);
+            proto_tree_add_item(atree, hf_oid_struct_size, tvb, foffset, 4, FALSE);
             foffset += tvb_get_ntohl(tvb, foffset);   /* Need to decode later */
             if (foffset > tvb_length_remaining(tvb, foffset)) {
                 return foffset;
@@ -1212,17 +1147,16 @@ objectident(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
     return foffset;
 }
 
-static guint32
+static int
 address_item(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
 {
     guint32     address_type=0;
+    guint32     qualified_name_type;
     guint32     transport_type=0;
-    guint32     name_len=0;
     guint32     octet_len=0;
-    char        buffer[1024];
 
     address_type = tvb_get_ntohl(tvb, foffset); 
-    proto_tree_add_item(ndps_tree, hf_address_type, tvb, foffset, 4, FALSE);
+    proto_tree_add_uint(ndps_tree, hf_address_type, tvb, foffset, 4, address_type);
     foffset += 4;
     switch(address_type)
     {
@@ -1234,33 +1168,19 @@ address_item(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
     case 5:
     case 6:
     case 7:
+        qualified_name_type = tvb_get_ntohl(tvb, foffset);
         proto_tree_add_uint(ndps_tree, hf_ndps_qualified_name, tvb, foffset, 
-        4, tvb_get_ntohl(tvb, foffset));
-        if (tvb_get_ntohl(tvb, foffset) != 0) {
-            if (tvb_get_ntohl(tvb, foffset) == 1) {
-                name_len = tvb_get_ntohl(tvb, foffset);
-                foffset += 4;
-                get_string(tvb, foffset, name_len, buffer);
-                proto_tree_add_string(ndps_tree, hf_printer_name, tvb, foffset, 
-                name_len, buffer);
+        4, qualified_name_type);
+        foffset += 4;
+        if (qualified_name_type != 0) {
+            if (qualified_name_type == 1) {
+                foffset = ndps_string(tvb, hf_printer_name, ndps_tree, foffset);
             }
             else
             {
-                name_len = tvb_get_ntohl(tvb, foffset);
-                foffset += 4;
-                get_string(tvb, foffset, name_len, buffer);
-                proto_tree_add_string(ndps_tree, hf_ndps_context, tvb, foffset, 
-                name_len, buffer);
-                foffset += name_len;
-                foffset += align_4(tvb, foffset);
-                name_len = tvb_get_ntohl(tvb, foffset);
-                foffset += 4;
-                get_string(tvb, foffset, name_len, buffer);
-                proto_tree_add_string(ndps_tree, hf_ndps_tree, tvb, foffset, 
-                name_len, buffer);
+                foffset = ndps_string(tvb, hf_ndps_context, ndps_tree, foffset);
+                foffset = ndps_string(tvb, hf_ndps_tree, ndps_tree, foffset);
             }
-            foffset += name_len;
-            foffset += align_4(tvb, foffset);
         }
         break;
     case 8:
@@ -1268,13 +1188,7 @@ address_item(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
     case 10:
     case 11:
     case 12:
-        name_len = tvb_get_ntohl(tvb, foffset);
-        foffset += 4;
-        get_string(tvb, foffset, name_len, buffer);
-        proto_tree_add_string(ndps_tree, hf_object_name, tvb, foffset, 
-        name_len, buffer);
-        foffset += name_len;
-        foffset += align_4(tvb, foffset);
+        foffset = ndps_string(tvb, hf_object_name, ndps_tree, foffset);
         break;
     case 13:
         proto_tree_add_item(ndps_tree, hf_ndps_attrib_boolean, tvb, foffset, 4, FALSE);
@@ -1289,26 +1203,19 @@ address_item(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
         proto_tree_add_item(ndps_tree, hf_ndps_address, tvb, foffset, 4, FALSE);
         foffset += 4;
         octet_len = tvb_get_ntohl(tvb, foffset);
-        foffset += 4;
-        proto_tree_add_item(ndps_tree, hf_ndps_add_bytes, tvb, foffset, octet_len, FALSE);
-        foffset += octet_len;
+        proto_tree_add_item(ndps_tree, hf_ndps_add_bytes, tvb, foffset, 4, FALSE);
+        foffset += octet_len + 4;
         break;
     case 16:
     case 17:
     default:
-        name_len = tvb_get_ntohl(tvb, foffset);
-        foffset += 4;
-        get_string(tvb, foffset, name_len, buffer);
-        proto_tree_add_string(ndps_tree, hf_object_name, tvb, foffset, 
-        name_len, buffer);
-        foffset += name_len;
-        foffset += align_4(tvb, foffset);
+        foffset = ndps_string(tvb, hf_object_name, ndps_tree, foffset);
         break;
     }
     return foffset;
 }
 
-static guint32
+static int
 attribute_value(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
 {
     guint8      h;
@@ -1317,9 +1224,10 @@ attribute_value(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
     guint8      number_of_values=0;
     guint8      number_of_items=0;
     guint8      number_of_items2=0;
-    guint32     name_len=0;
     guint32     attribute_type=0;
-    char        buffer[1024];
+    guint32     qualified_name_type;
+    guint32     integer_or_oid;
+    guint32     event_object_type;
     proto_tree  *atree;
     proto_item  *aitem;
     proto_tree  *btree;
@@ -1349,44 +1257,22 @@ attribute_value(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
         case 102:         /* File Path */
         case 103:         /* Uniform Resource Identifier */
         case 108:         /* Extended Resource Identifier */
-            name_len = tvb_get_ntohl(tvb, foffset);
-            foffset += 4;
-            get_string(tvb, foffset, name_len, buffer);
-            proto_tree_add_string(atree, hf_object_name, tvb, foffset, 
-            name_len, buffer);
-            foffset += name_len;
-            foffset += align_4(tvb, foffset);
+            foffset = ndps_string(tvb, hf_object_name, atree, foffset);
             break;
         case 4:         /* Message */
         case 5:         /* Error Message */
         case 38:         /* Name or OID */
-            proto_tree_add_uint(atree, hf_ndps_nameorid, tvb, foffset, 
-            4, tvb_get_ntohl(tvb, foffset));
-            name_len = tvb_get_ntohl(tvb, foffset);
+            proto_tree_add_item(atree, hf_ndps_nameorid, tvb, foffset, 
+            4, FALSE);
             foffset += 4;
-            get_string(tvb, foffset, name_len, buffer);
-            proto_tree_add_string(atree, hf_local_object_name, tvb, foffset, 
-            name_len, buffer);
-            foffset += name_len;
-            foffset += align_4(tvb, foffset);
+            foffset = ndps_string(tvb, hf_local_object_name, atree, foffset);
             break;
         case 7:         /* Distinguished Name */
-            name_len = tvb_get_ntohl(tvb, foffset);
+            foffset = ndps_string(tvb, hf_object_name, atree, foffset);
+            proto_tree_add_item(atree, hf_ndps_nameorid, tvb, foffset, 
+            4, FALSE);
             foffset += 4;
-            get_string(tvb, foffset, name_len, buffer);
-            proto_tree_add_string(atree, hf_object_name, tvb, foffset, 
-            name_len, buffer);
-            foffset += name_len;
-            foffset += align_4(tvb, foffset);
-            proto_tree_add_uint(atree, hf_ndps_nameorid, tvb, foffset, 
-            4, tvb_get_ntohl(tvb, foffset));
-            name_len = tvb_get_ntohl(tvb, foffset);
-            foffset += 4;
-            get_string(tvb, foffset, name_len, buffer);
-            proto_tree_add_string(atree, hf_local_object_name, tvb, foffset, 
-            name_len, buffer);
-            foffset += name_len;
-            foffset += align_4(tvb, foffset);
+            foffset = ndps_string(tvb, hf_local_object_name, atree, foffset);
             break;
         case 8:         /* Distinguished Name Seq */
         case 39:         /* Name or OID Seq */
@@ -1396,23 +1282,12 @@ attribute_value(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
-                name_len = tvb_get_ntohl(tvb, foffset);
-                foffset += 4;
-                get_string(tvb, foffset, name_len, buffer);
-                proto_tree_add_string(btree, hf_object_name, tvb, foffset, 
-                name_len, buffer);
-                foffset += name_len;
-                foffset += align_4(tvb, foffset);
+                foffset = ndps_string(tvb, hf_object_name, btree, foffset);
             }
-            proto_tree_add_uint(atree, hf_ndps_nameorid, tvb, foffset, 
-            4, tvb_get_ntohl(tvb, foffset));
-            name_len = tvb_get_ntohl(tvb, foffset);
+            proto_tree_add_item(atree, hf_ndps_nameorid, tvb, foffset, 
+            4, FALSE);
             foffset += 4;
-            get_string(tvb, foffset, name_len, buffer);
-            proto_tree_add_string(atree, hf_local_object_name, tvb, foffset, 
-            name_len, buffer);
-            foffset += name_len;
-            foffset += align_4(tvb, foffset);
+            foffset = ndps_string(tvb, hf_local_object_name, atree, foffset);
             break;
         case 9:         /* Delta Time */
         case 10:         /* Time */
@@ -1490,7 +1365,7 @@ attribute_value(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
             foffset += 4;
             break;
         case 36:         /* Object Identifier */
-            proto_tree_add_uint(atree, hf_oid_struct_size, tvb, foffset, 4, FALSE);
+            proto_tree_add_item(atree, hf_oid_struct_size, tvb, foffset, 4, FALSE);
             foffset += tvb_get_ntohl(tvb, foffset);   /* Need to decode later */
             if (foffset > tvb_length_remaining(tvb, foffset)) {
                 break;
@@ -1504,7 +1379,7 @@ attribute_value(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
-                proto_tree_add_uint(btree, hf_oid_struct_size, tvb, foffset, 4, FALSE);
+                proto_tree_add_item(btree, hf_oid_struct_size, tvb, foffset, 4, FALSE);
                 foffset += tvb_get_ntohl(tvb, foffset);   /* Need to decode later */
                 if (foffset > tvb_length_remaining(tvb, foffset)) {
                     break;
@@ -1519,13 +1394,7 @@ attribute_value(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
-                name_len = tvb_get_ntohl(tvb, foffset);
-                foffset += 4;
-                get_string(tvb, foffset, name_len, buffer);
-                proto_tree_add_string(btree, hf_object_name, tvb, foffset, 
-                name_len, buffer);
-                foffset += name_len;
-                foffset += align_4(tvb, foffset);
+                foffset = ndps_string(tvb, hf_object_name, btree, foffset);
             }
             break;
         case 42:         /* Realization */
@@ -1547,15 +1416,10 @@ attribute_value(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
             }
             else
             {
-                proto_tree_add_uint(atree, hf_ndps_nameorid, tvb, foffset, 
-                4, tvb_get_ntohl(tvb, foffset));
-                name_len = tvb_get_ntohl(tvb, foffset);
+                proto_tree_add_item(atree, hf_ndps_nameorid, tvb, foffset, 
+                4, FALSE);
                 foffset += 4;
-                get_string(tvb, foffset, name_len, buffer);
-                proto_tree_add_string(atree, hf_local_object_name, tvb, foffset, 
-                name_len, buffer);
-                foffset += name_len;
-                foffset += align_4(tvb, foffset);
+                foffset = ndps_string(tvb, hf_local_object_name, atree, foffset);
             }
             proto_tree_add_item(atree, hf_ndps_dim_flag, tvb, foffset, 8, FALSE);
             foffset += 4;
@@ -1566,15 +1430,10 @@ attribute_value(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
             proto_tree_add_item(atree, hf_ndps_xydim_value, tvb, foffset, 8, FALSE);
             foffset += 4;
             if (tvb_get_ntohl(tvb, foffset-4) == 1) {
-                proto_tree_add_uint(atree, hf_ndps_nameorid, tvb, foffset, 
-                4, tvb_get_ntohl(tvb, foffset));
-                name_len = tvb_get_ntohl(tvb, foffset);
+                proto_tree_add_item(atree, hf_ndps_nameorid, tvb, foffset, 
+                4, FALSE);
                 foffset += 4;
-                get_string(tvb, foffset, name_len, buffer);
-                proto_tree_add_string(atree, hf_local_object_name, tvb, foffset, 
-                name_len, buffer);
-                foffset += name_len;
-                foffset += align_4(tvb, foffset);
+                foffset = ndps_string(tvb, hf_local_object_name, atree, foffset);
             }
             else
             {
@@ -1604,15 +1463,10 @@ attribute_value(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
             }
             else
             {
-                proto_tree_add_uint(atree, hf_ndps_nameorid, tvb, foffset, 
-                4, tvb_get_ntohl(tvb, foffset));
-                name_len = tvb_get_ntohl(tvb, foffset);
+                proto_tree_add_item(atree, hf_ndps_nameorid, tvb, foffset, 
+                4, FALSE);
                 foffset += 4;
-                get_string(tvb, foffset, name_len, buffer);
-                proto_tree_add_string(atree, hf_local_object_name, tvb, foffset, 
-                name_len, buffer);
-                foffset += name_len;
-                foffset += align_4(tvb, foffset);
+                foffset = ndps_string(tvb, hf_local_object_name, atree, foffset);
             }
             proto_tree_add_item(atree, hf_ndps_dim_flag, tvb, foffset, 8, FALSE);
             foffset += 4;
@@ -1659,7 +1513,7 @@ attribute_value(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
             }
             else
             {
-                proto_tree_add_uint(atree, hf_oid_struct_size, tvb, foffset, 4, FALSE);
+                proto_tree_add_item(atree, hf_oid_struct_size, tvb, foffset, 4, FALSE);
                 foffset += tvb_get_ntohl(tvb, foffset);   /* Need to decode later */
                 if (foffset > tvb_length_remaining(tvb, foffset)) {
                     break;
@@ -1668,7 +1522,7 @@ attribute_value(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
             }
             break;
         case 52:         /* OID Cardinal Map */
-            proto_tree_add_uint(atree, hf_oid_struct_size, tvb, foffset, 4, FALSE);
+            proto_tree_add_item(atree, hf_oid_struct_size, tvb, foffset, 4, FALSE);
             foffset += tvb_get_ntohl(tvb, foffset);   /* Need to decode later */
             if (foffset > tvb_length_remaining(tvb, foffset)) {
                 break;
@@ -1686,22 +1540,18 @@ attribute_value(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
             }
             else
             {
-                proto_tree_add_uint(atree, hf_ndps_nameorid, tvb, foffset, 
-                4, tvb_get_ntohl(tvb, foffset));
-                name_len = tvb_get_ntohl(tvb, foffset);
+                proto_tree_add_item(atree, hf_ndps_nameorid, tvb, foffset, 
+                4, FALSE);
                 foffset += 4;
-                get_string(tvb, foffset, name_len, buffer);
-                proto_tree_add_string(atree, hf_local_object_name, tvb, foffset, 
-                name_len, buffer);
-                foffset += name_len;
-                foffset += align_4(tvb, foffset);
+                foffset = ndps_string(tvb, hf_local_object_name, atree, foffset);
             }
             break;
         case 54:         /* Positive Integer or OID */
-            proto_tree_add_item(atree, hf_ndps_integer_or_oid, tvb, foffset, 4, FALSE);
+            integer_or_oid = tvb_get_ntohl(tvb, foffset);
+            proto_tree_add_uint(atree, hf_ndps_integer_or_oid, tvb, foffset, 4, integer_or_oid);
             foffset += 4;
-            if (tvb_get_ntohl(tvb, foffset-4)==0) {
-                proto_tree_add_uint(atree, hf_oid_struct_size, tvb, foffset, 4, FALSE);
+            if (integer_or_oid==0) {
+                proto_tree_add_item(atree, hf_oid_struct_size, tvb, foffset, 4, FALSE);
                 foffset += tvb_get_ntohl(tvb, foffset);   /* Need to decode later */
                 if (foffset > tvb_length_remaining(tvb, foffset)) {
                     break;
@@ -1719,33 +1569,19 @@ attribute_value(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
             foffset += 4;
             proto_tree_add_item(atree, hf_ndps_persistence, tvb, foffset, 4, FALSE);
             foffset += 4;
+            qualified_name_type = tvb_get_ntohl(tvb, foffset);
             proto_tree_add_uint(atree, hf_ndps_qualified_name, tvb, foffset, 
-            4, tvb_get_ntohl(tvb, foffset));
-            if (tvb_get_ntohl(tvb, foffset) != 0) {
-                if (tvb_get_ntohl(tvb, foffset) == 1) {
-                    name_len = tvb_get_ntohl(tvb, foffset);
-                    foffset += 4;
-                    get_string(tvb, foffset, name_len, buffer);
-                    proto_tree_add_string(atree, hf_printer_name, tvb, foffset, 
-                    name_len, buffer);
+            4, qualified_name_type);
+            foffset += 4;
+            if (qualified_name_type != 0) {
+                if (qualified_name_type == 1) {
+                    foffset = ndps_string(tvb, hf_printer_name, atree, foffset);
                 }
                 else
                 {
-                    name_len = tvb_get_ntohl(tvb, foffset);
-                    foffset += 4;
-                    get_string(tvb, foffset, name_len, buffer);
-                    proto_tree_add_string(atree, hf_ndps_context, tvb, foffset, 
-                    name_len, buffer);
-                    foffset += name_len;
-                    foffset += align_4(tvb, foffset);
-                    name_len = tvb_get_ntohl(tvb, foffset);
-                    foffset += 4;
-                    get_string(tvb, foffset, name_len, buffer);
-                    proto_tree_add_string(atree, hf_ndps_tree, tvb, foffset, 
-                    name_len, buffer);
+                    foffset = ndps_string(tvb, hf_ndps_context, atree, foffset);
+                    foffset = ndps_string(tvb, hf_ndps_tree, atree, foffset);
                 }
-                foffset += name_len;
-                foffset += align_4(tvb, foffset);
             }
             bitem = proto_tree_add_item(atree, hf_ndps_item_count, tvb, foffset, 4, FALSE);
             btree = proto_item_add_subtree(bitem, ett_ndps);
@@ -1755,15 +1591,10 @@ attribute_value(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
             {
                 proto_tree_add_item(btree, hf_ndps_language_id, tvb, foffset, 4, FALSE);
                 foffset += 4;
-                proto_tree_add_uint(btree, hf_ndps_nameorid, tvb, foffset, 
-                4, tvb_get_ntohl(tvb, foffset));
-                name_len = tvb_get_ntohl(tvb, foffset);
+                proto_tree_add_item(btree, hf_ndps_nameorid, tvb, foffset, 
+                4, FALSE);
                 foffset += 4;
-                get_string(tvb, foffset, name_len, buffer);
-                proto_tree_add_string(btree, hf_local_object_name, tvb, foffset, 
-                name_len, buffer);
-                foffset += name_len;
-                foffset += align_4(tvb, foffset);
+                foffset = ndps_string(tvb, hf_local_object_name, btree, foffset);
             }
             bitem = proto_tree_add_item(atree, hf_ndps_item_count, tvb, foffset, 4, FALSE);
             btree = proto_item_add_subtree(bitem, ett_ndps);
@@ -1776,11 +1607,12 @@ attribute_value(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
                 foffset += 4;*/
                 proto_tree_add_item(btree, hf_ndps_event_type, tvb, foffset, 4, FALSE);
                 foffset += 4;
-                proto_tree_add_item(btree, hf_ndps_event_object_identifier, tvb, foffset, 4, FALSE);
+                event_object_type = tvb_get_ntohl(tvb, foffset);
+                proto_tree_add_uint(btree, hf_ndps_event_object_identifier, tvb, foffset, 4, event_object_type);
                 foffset += 4;
-                if(tvb_get_ntohl(tvb, foffset-4)==0)
+                if(event_object_type==0)
                 {
-                    proto_tree_add_uint(btree, hf_oid_struct_size, tvb, foffset, 4, FALSE);
+                    proto_tree_add_item(btree, hf_oid_struct_size, tvb, foffset, 4, FALSE);
                     foffset += tvb_get_ntohl(tvb, foffset);   /* Need to decode later */
                     if (foffset > tvb_length_remaining(tvb, foffset)) {
                         break;
@@ -1789,54 +1621,38 @@ attribute_value(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
                 }
                 else
                 {
-                    citem = proto_tree_add_item(btree, hf_ndps_item_count, tvb, foffset, 4, FALSE);
-                    ctree = proto_item_add_subtree(citem, ett_ndps);
                     number_of_items2 = tvb_get_ntohl(tvb, foffset);
+                    citem = proto_tree_add_uint(btree, hf_ndps_item_count, tvb, foffset, 4, number_of_items2);
+                    ctree = proto_item_add_subtree(citem, ett_ndps);
                     foffset += 4;
                     for (j = 1 ; j <= number_of_items2; j++ )
                     {
-                        proto_tree_add_uint(ctree, hf_oid_struct_size, tvb, foffset, 4, FALSE);
+                        proto_tree_add_item(ctree, hf_oid_struct_size, tvb, foffset, 4, FALSE);
                         foffset += tvb_get_ntohl(tvb, foffset);   /* Need to decode later */
                         if (foffset > tvb_length_remaining(tvb, foffset)) {
                             break;
                         }
                         foffset += 4;
+                        qualified_name_type = tvb_get_ntohl(tvb, foffset);
                         proto_tree_add_uint(ctree, hf_ndps_qualified_name, tvb, foffset, 
-                        4, tvb_get_ntohl(tvb, foffset));
-                        if (tvb_get_ntohl(tvb, foffset) != 0) {
-                            if (tvb_get_ntohl(tvb, foffset) == 1) {
-                                name_len = tvb_get_ntohl(tvb, foffset);
-                                foffset += 4;
-                                get_string(tvb, foffset, name_len, buffer);
-                                proto_tree_add_string(ctree, hf_printer_name, tvb, foffset, 
-                                name_len, buffer);
+                        4, qualified_name_type);
+                        foffset += 4;
+                        if (qualified_name_type != 0) {
+                            if (qualified_name_type == 1) {
+                                foffset = ndps_string(tvb, hf_printer_name, ctree, foffset);
                             }
                             else
                             {
-                                name_len = tvb_get_ntohl(tvb, foffset);
-                                foffset += 4;
-                                get_string(tvb, foffset, name_len, buffer);
-                                proto_tree_add_string(ctree, hf_ndps_context, tvb, foffset, 
-                                name_len, buffer);
-                                foffset += name_len;
-                                foffset += align_4(tvb, foffset);
-                                name_len = tvb_get_ntohl(tvb, foffset);
-                                foffset += 4;
-                                get_string(tvb, foffset, name_len, buffer);
-                                proto_tree_add_string(ctree, hf_ndps_tree, tvb, foffset, 
-                                name_len, buffer);
+                                foffset = ndps_string(tvb, hf_ndps_context, ctree, foffset);
+                                foffset = ndps_string(tvb, hf_ndps_tree, ctree, foffset);
                             }
-                            foffset += name_len;
-                            foffset += align_4(tvb, foffset);
                         }
                     }
                 }
             }
             break;
         case 56:         /* Octet String */
-            name_len = tvb_get_ntohl(tvb, foffset);
-            foffset += 4;
-            proto_tree_add_item(atree, hf_ndps_octet_string, tvb, foffset, name_len, FALSE);
+            proto_tree_add_item(atree, hf_ndps_octet_string, tvb, foffset, 4, FALSE);
             break;
         case 59:         /* Method Delivery Address */
         case 60:         /* Object Identification */
@@ -2076,9 +1892,8 @@ dissect_ndps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                            foffset, 2, record_mark);
             foffset += 2;
             ndps_length = tvb_get_ntohs(tvb, foffset);
-            proto_tree_add_uint_format(ndps_tree, hf_ndps_length, tvb,
-                           foffset, 2, ndps_length,
-                           "Length of NDPS Packet: %d", ndps_length);
+            proto_tree_add_uint(ndps_tree, hf_ndps_length, tvb,
+                           foffset, 2, ndps_length);
             foffset += 2;
             ndps_xid = tvb_get_ntohl(tvb, foffset);
             proto_tree_add_uint(ndps_tree, hf_ndps_xid, tvb, foffset, 4, ndps_xid);
@@ -2186,7 +2001,6 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
     ndps_req_hash_value	*request_value = NULL;
     conversation_t		*conversation;
     guint32             name_len;
-    char                buffer[1024];
     guint32             cred_type;
 
     if (!pinfo->fd->flags.visited) 
@@ -2227,58 +2041,45 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
             proto_tree_add_item(ndps_tree, hf_ndps_cred_type, tvb, foffset, 4, FALSE);
             foffset += 4;
             name_len = tvb_get_ntohl(tvb, foffset);
-            foffset += 4;
-            get_string(tvb, foffset, name_len, buffer);
-            proto_tree_add_string(ndps_tree, hf_ndps_server_name, tvb, foffset, 
-            name_len, buffer);
-            foffset += name_len;
-            foffset += align_4(tvb, foffset);
+            foffset = ndps_string(tvb, hf_ndps_server_name, ndps_tree, foffset);
             if(name_len == 0)
             {
                 foffset += 2;
             }
             else
             {
+#if 0
                 foffset += 4;
+#else
+		/*
+		 * In at least one capture I've seen, this is the correct
+		 * thing to do.
+		 */
+                foffset += 2;
+#endif
             }
-            proto_tree_add_uint(ndps_tree, hf_ndps_connection, tvb, foffset, 
-            2, tvb_get_ntohs(tvb, foffset));
+            proto_tree_add_item(ndps_tree, hf_ndps_connection, tvb, foffset, 
+            2, FALSE);
             foffset += 2;
-            name_len = tvb_get_ntohl(tvb, foffset);
-            foffset += 4;
-            get_string(tvb, foffset, name_len, buffer);
-            proto_tree_add_string(ndps_tree, hf_ndps_pa_name, tvb, foffset, 
-            name_len, buffer);
-            foffset += name_len;
-            foffset += align_4(tvb, foffset);
+            foffset = ndps_string(tvb, hf_ndps_pa_name, ndps_tree, foffset);
             foffset += 8;   /* Don't know what these 8 bytes signify */
-            proto_tree_add_uint(ndps_tree, hf_ndps_items, tvb, foffset,
-            4, tvb_get_ntohl(tvb, foffset));
+            proto_tree_add_item(ndps_tree, hf_ndps_items, tvb, foffset,
+            4, FALSE);
             foffset += 4;
-            name_len = tvb_get_ntohl(tvb, foffset);
-            foffset += 4;
-            get_string(tvb, foffset, name_len, buffer);
-            proto_tree_add_string(ndps_tree, hf_ndps_context, tvb, foffset, 
-            name_len, buffer);
-            foffset += name_len;
-            foffset += align_4(tvb, foffset);
-            name_len = tvb_get_ntohl(tvb, foffset);
-            foffset += 4;
-            get_string(tvb, foffset, name_len, buffer);
-            proto_tree_add_string(ndps_tree, hf_ndps_tree, tvb, foffset, 
-            name_len, buffer);
+            foffset = ndps_string(tvb, hf_ndps_context, ndps_tree, foffset);
+            foffset = ndps_string(tvb, hf_ndps_tree, ndps_tree, foffset);
             break;
         case 0x00000003:    /* Unbind */
-            proto_tree_add_uint(ndps_tree, hf_ndps_object, tvb, foffset, 
-            4, tvb_get_ntohl(tvb, foffset));
+            proto_tree_add_item(ndps_tree, hf_ndps_object, tvb, foffset, 
+            4, FALSE);
             break;
         case 0x00000004:    /* Print */
         case 0x00000005:    /* Modify Job */
         case 0x00000006:    /* Cancel Job */
             break;
         case 0x00000007:    /* List Object Attributes */
-            proto_tree_add_uint(ndps_tree, hf_ndps_object, tvb, foffset, 
-            4, tvb_get_ntohl(tvb, foffset));
+            proto_tree_add_item(ndps_tree, hf_ndps_object, tvb, foffset, 
+            4, FALSE);
             break;
         case 0x00000008:    /* Promote Job */
         case 0x00000009:    /* Interrupt */
@@ -2373,29 +2174,20 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
         switch(ndps_func)
         {
         case 0x00000001:    /* Bind */
-            proto_tree_add_uint(ndps_tree, hf_ndps_cred_type, tvb, foffset, 
-            4, tvb_get_ntohl(tvb, foffset));
+            proto_tree_add_item(ndps_tree, hf_ndps_cred_type, tvb, foffset, 
+            4, FALSE);
             foffset += 4;
             name_len = tvb_get_ntohl(tvb, foffset);
-            foffset += 4;
-            get_string(tvb, foffset, name_len, buffer);
-            proto_tree_add_string(ndps_tree, hf_ndps_server_name, tvb, foffset, 
-            name_len, buffer);
-            foffset += name_len;
-            foffset += align_4(tvb, foffset);
+            foffset = ndps_string(tvb, hf_ndps_server_name, ndps_tree, foffset);
             if(name_len == 0)
             {
                 foffset += 2;
             }
             foffset += 2;
-            proto_tree_add_uint(ndps_tree, hf_ndps_connection, tvb, foffset, 
-            2, tvb_get_ntohs(tvb, foffset));
+            proto_tree_add_item(ndps_tree, hf_ndps_connection, tvb, foffset, 
+            2, FALSE);
             foffset += 2;
-            name_len = tvb_get_ntohl(tvb, foffset);
-            foffset += 4;
-            get_string(tvb, foffset, name_len, buffer);
-            proto_tree_add_string(ndps_tree, hf_ndps_pa_name, tvb, foffset, 
-            name_len, buffer);
+            foffset = ndps_string(tvb, hf_ndps_pa_name, ndps_tree, foffset);
             break;
         case 0x00000002:    /* Unbind */
         case 0x00000003:    /* Add Resource File */
@@ -2440,9 +2232,7 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, gui
     guint32                 ndps_func=0;
     guint32                 ndps_prog=0;
     guint32                 error_val=0;
-    guint32                 name_len=0;
     guint32                 problem_type=0;
-    char                    buffer[1024];
     
     if (!pinfo->fd->flags.visited) {
         /* Find the conversation whence the request would have come. */
@@ -2492,11 +2282,7 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, gui
             case 0x00000002:    /* Bind PA */
                 proto_tree_add_item(ndps_tree, hf_ndps_object, tvb, foffset, 4, FALSE);
                 foffset += 4;
-                name_len = tvb_get_ntohl(tvb, foffset);
-                foffset += 4;
-                get_string(tvb, foffset, name_len, buffer);
-                proto_tree_add_string(ndps_tree, hf_ndps_pa_name, tvb, foffset, 
-                name_len, buffer);
+                foffset = ndps_string(tvb, hf_ndps_pa_name, ndps_tree, foffset);
                 break;
             case 0x00000003:    /* Unbind */
             case 0x00000004:    /* Print */
@@ -2687,7 +2473,7 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, gui
         case 2:                 /* Access Error */
             proto_tree_add_item(ndps_tree, hf_access_problem_type, tvb, foffset, 4, FALSE);
             foffset += 4;
-            proto_tree_add_uint(ndps_tree, hf_oid_struct_size, tvb, foffset, 4, FALSE);
+            proto_tree_add_item(ndps_tree, hf_oid_struct_size, tvb, foffset, 4, FALSE);
             foffset += tvb_get_ntohl(tvb, foffset);   /* Need to decode later */
             if (foffset > tvb_length_remaining(tvb, foffset)) {
                 break;
@@ -2697,15 +2483,9 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, gui
             if (foffset > tvb_length_remaining(tvb, foffset)) {
                 break;
             }
-            proto_tree_add_uint(ndps_tree, hf_ndps_nameorid, tvb, foffset, 
-            4, tvb_get_ntohl(tvb, foffset));
-            name_len = tvb_get_ntohl(tvb, foffset);
-            foffset += 4;
-            get_string(tvb, foffset, name_len, buffer);
-            proto_tree_add_string(ndps_tree, hf_local_object_name, tvb, foffset, 
-            name_len, buffer);
-            foffset += name_len;
-            foffset += align_4(tvb, foffset);
+            proto_tree_add_item(ndps_tree, hf_ndps_nameorid, tvb, foffset, 
+            4, FALSE);
+            foffset = ndps_string(tvb, hf_local_object_name, ndps_tree, foffset);
             break;
         case 3:                 /* Printer Error */
             proto_tree_add_item(ndps_tree, hf_printer_problem_type, tvb, foffset, 4, FALSE);
@@ -2714,15 +2494,10 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, gui
             if (foffset > tvb_length_remaining(tvb, foffset)) {
                 break;
             }
-            proto_tree_add_uint(ndps_tree, hf_ndps_nameorid, tvb, foffset, 
-            4, tvb_get_ntohl(tvb, foffset));
-            name_len = tvb_get_ntohl(tvb, foffset);
+            proto_tree_add_item(ndps_tree, hf_ndps_nameorid, tvb, foffset, 
+            4, FALSE);
             foffset += 4;
-            get_string(tvb, foffset, name_len, buffer);
-            proto_tree_add_string(ndps_tree, hf_local_object_name, tvb, foffset, 
-            name_len, buffer);
-            foffset += name_len;
-            foffset += align_4(tvb, foffset);
+            foffset = ndps_string(tvb, hf_local_object_name, ndps_tree, foffset);
             break;
         case 4:                 /* Selection Error */
             proto_tree_add_item(ndps_tree, hf_selection_problem_type, tvb, foffset, 4, FALSE);
@@ -2731,21 +2506,16 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, gui
             /*if (foffset > tvb_length_remaining(tvb, foffset)) {
                 break;
             }
-            proto_tree_add_uint(ndps_tree, hf_oid_struct_size, tvb, foffset, 4, FALSE);
+            proto_tree_add_item(ndps_tree, hf_oid_struct_size, tvb, foffset, 4, FALSE);
             foffset += tvb_get_ntohl(tvb, foffset);*/   /* Need to decode later */
             /*if (foffset > tvb_length_remaining(tvb, foffset)) {
                 break;
             }
             foffset += 4; 
-            proto_tree_add_uint(ndps_tree, hf_ndps_nameorid, tvb, foffset, 
-            4, tvb_get_ntohl(tvb, foffset));
-            name_len = tvb_get_ntohl(tvb, foffset);
+            proto_tree_add_item(ndps_tree, hf_ndps_nameorid, tvb, foffset, 
+            4, FALSE);
             foffset += 4;
-            get_string(tvb, foffset, name_len, buffer);
-            proto_tree_add_string(ndps_tree, hf_local_object_name, tvb, foffset, 
-            name_len, buffer);
-            foffset += name_len;
-            foffset += align_4(tvb, foffset); */
+            foffset = ndps_string(tvb, hf_local_object_name, ndps_tree, foffset); */
             break;
         case 5:                 /* Document Access Error */
             proto_tree_add_item(ndps_tree, hf_doc_access_problem_type, tvb, foffset, 4, FALSE);
@@ -2753,45 +2523,35 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, gui
             if (foffset > tvb_length_remaining(tvb, foffset)) {
                 break;
             }
-            proto_tree_add_uint(ndps_tree, hf_ndps_nameorid, tvb, foffset, 
-            4, tvb_get_ntohl(tvb, foffset));
-            name_len = tvb_get_ntohl(tvb, foffset);
+            proto_tree_add_item(ndps_tree, hf_ndps_nameorid, tvb, foffset, 
+            4, FALSE);
             foffset += 4;
-            get_string(tvb, foffset, name_len, buffer);
-            proto_tree_add_string(ndps_tree, hf_local_object_name, tvb, foffset, 
-            name_len, buffer);
-            foffset += name_len;
-            foffset += align_4(tvb, foffset);
+            foffset = ndps_string(tvb, hf_local_object_name, ndps_tree, foffset);
             break;
         case 6:                 /* Attribute Error */
             proto_tree_add_item(ndps_tree, hf_attribute_problem_type, tvb, foffset, 4, FALSE);
             foffset += 4;
-            aitem = proto_tree_add_uint(ndps_tree, hf_ndps_item_count, tvb, foffset, 4, FALSE);
+            aitem = proto_tree_add_item(ndps_tree, hf_ndps_item_count, tvb, foffset, 4, FALSE);
             atree = proto_item_add_subtree(aitem, ett_ndps);
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
-                proto_tree_add_uint(atree, hf_oid_struct_size, tvb, foffset, 4, FALSE);
+                proto_tree_add_item(atree, hf_oid_struct_size, tvb, foffset, 4, FALSE);
                 foffset += tvb_get_ntohl(tvb, foffset);   /* Need to decode later */
                 if (foffset > tvb_length_remaining(tvb, foffset)) {
                     break;
                 }
                 foffset += 4; 
-                proto_tree_add_uint(atree, hf_ndps_nameorid, tvb, foffset, 
-                4, tvb_get_ntohl(tvb, foffset));
-                name_len = tvb_get_ntohl(tvb, foffset);
+                proto_tree_add_item(atree, hf_ndps_nameorid, tvb, foffset, 
+                4, FALSE);
                 foffset += 4;
-                get_string(tvb, foffset, name_len, buffer);
-                proto_tree_add_string(atree, hf_local_object_name, tvb, foffset, 
-                name_len, buffer);
-                foffset += name_len;
-                foffset += align_4(tvb, foffset);
+                foffset = ndps_string(tvb, hf_local_object_name, atree, foffset);
                 foffset = objectident(tvb, atree, foffset);
             }
             break;
         case 7:                 /* Update Error */
             proto_tree_add_item(ndps_tree, hf_update_problem_type, tvb, foffset, 4, FALSE);
-            proto_tree_add_uint(ndps_tree, hf_oid_struct_size, tvb, foffset, 4, FALSE);
+            proto_tree_add_item(ndps_tree, hf_oid_struct_size, tvb, foffset, 4, FALSE);
             foffset += tvb_get_ntohl(tvb, foffset);   /* Need to decode later */
             if (foffset > tvb_length_remaining(tvb, foffset)) {
                 break;
@@ -2801,15 +2561,10 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, gui
             if (foffset > tvb_length_remaining(tvb, foffset)) {
                 break;
             }
-            proto_tree_add_uint(ndps_tree, hf_ndps_nameorid, tvb, foffset, 
-            4, tvb_get_ntohl(tvb, foffset));
-            name_len = tvb_get_ntohl(tvb, foffset);
+            proto_tree_add_item(ndps_tree, hf_ndps_nameorid, tvb, foffset, 
+            4, FALSE);
             foffset += 4;
-            get_string(tvb, foffset, name_len, buffer);
-            proto_tree_add_string(ndps_tree, hf_local_object_name, tvb, foffset, 
-            name_len, buffer);
-            foffset += name_len;
-            foffset += align_4(tvb, foffset);
+            foffset = ndps_string(tvb, hf_local_object_name, ndps_tree, foffset);
             break;
         default:
             break;
@@ -2835,7 +2590,7 @@ proto_register_ndps(void)
 
         { &hf_ndps_length,
         { "Record Length",    "ndps.record_length",
-           FT_UINT16,    BASE_HEX,   NULL,   0x0,
+           FT_UINT16,    BASE_DEC,   NULL,   0x0,
            "Record Length", HFILL }},
         
         { &hf_ndps_xid,
@@ -2955,7 +2710,7 @@ proto_register_ndps(void)
 
         { &hf_ndps_auth_null,
         { "Auth Null",    "ndps.auth_null",
-          FT_BYTES,    BASE_HEX,   NULL,   0x0,
+          FT_BYTES,    BASE_NONE,   NULL,   0x0,
           "Auth Null", HFILL }},
 
         { &hf_ndps_rpc_accept,
@@ -3095,7 +2850,7 @@ proto_register_ndps(void)
 
         { &hf_ndps_abort_flag,
         { "Abort?",    "ndps.ndps_abort",
-          FT_BOOLEAN,    BASE_HEX,   NULL,   0x0,
+          FT_BOOLEAN,    BASE_NONE,   NULL,   0x0,
           "Abort?", HFILL }},
 
         { &hf_obj_attribute_type,
@@ -3120,22 +2875,22 @@ proto_register_ndps(void)
 
         { &hf_ndps_n64,
         { "Value",    "ndps.n64",
-          FT_BYTES,    BASE_HEX,   NULL,   0x0,
+          FT_BYTES,    BASE_NONE,   NULL,   0x0,
           "Value", HFILL }},
 
         { &hf_ndps_lower_range_n64,
         { "Lower Range",    "ndps.lower_range_n64",
-          FT_BYTES,    BASE_HEX,   NULL,   0x0,
+          FT_BYTES,    BASE_NONE,   NULL,   0x0,
           "Lower Range", HFILL }},
 
         { &hf_ndps_upper_range_n64,
         { "Upper Range",    "ndps.upper_range_n64",
-          FT_BYTES,    BASE_HEX,   NULL,   0x0,
+          FT_BYTES,    BASE_NONE,   NULL,   0x0,
           "Upper Range", HFILL }},
 
         { &hf_ndps_attrib_boolean,
         { "Value?",    "ndps.ndps_attrib_boolean",
-          FT_BOOLEAN,    BASE_HEX,   NULL,   0x0,
+          FT_BOOLEAN,    BASE_NONE,   NULL,   0x0,
           "Value?", HFILL }},
 
         { &hf_ndps_realization,
@@ -3145,12 +2900,12 @@ proto_register_ndps(void)
 
         { &hf_ndps_xdimension_n64,
         { "X Dimension",    "ndps.xdimension_n64",
-          FT_BYTES,    BASE_HEX,   NULL,   0x0,
+          FT_BYTES,    BASE_NONE,   NULL,   0x0,
           "X Dimension", HFILL }},
 
         { &hf_ndps_ydimension_n64,
         { "Y Dimension",    "ndps.xdimension_n64",
-          FT_BYTES,    BASE_HEX,   NULL,   0x0,
+          FT_BYTES,    BASE_NONE,   NULL,   0x0,
           "Y Dimension", HFILL }},
 
         { &hf_ndps_dim_value,
@@ -3175,22 +2930,22 @@ proto_register_ndps(void)
 
         { &hf_ndps_xmin_n64,
         { "Minimum X Dimension",    "ndps.xmin_n64",
-          FT_BYTES,    BASE_HEX,   NULL,   0x0,
+          FT_BYTES,    BASE_NONE,   NULL,   0x0,
           "Minimum X Dimension", HFILL }},
 
         { &hf_ndps_xmax_n64,
         { "Maximum X Dimension",    "ndps.xmax_n64",
-          FT_BYTES,    BASE_HEX,   NULL,   0x0,
+          FT_BYTES,    BASE_NONE,   NULL,   0x0,
           "Maximum X Dimension", HFILL }},
 
         { &hf_ndps_ymin_n64,
         { "Minimum Y Dimension",    "ndps.ymin_n64",
-          FT_BYTES,    BASE_HEX,   NULL,   0x0,
+          FT_BYTES,    BASE_NONE,   NULL,   0x0,
           "Minimum Y Dimension", HFILL }},
 
         { &hf_ndps_ymax_n64,
         { "Maximum Y Dimension",    "ndps.ymax_n64",
-          FT_BYTES,    BASE_HEX,   NULL,   0x0,
+          FT_BYTES,    BASE_NONE,   NULL,   0x0,
           "Maximum Y Dimension", HFILL }},
 
         { &hf_ndps_edge_value,
@@ -3239,9 +2994,9 @@ proto_register_ndps(void)
           "Address", HFILL }},
 
         { &hf_ndps_add_bytes,
-        { "Address Length",    "ndps.add_bytes",
-          FT_BYTES,    BASE_HEX,   NULL,   0x0,
-          "Address Length", HFILL }},
+        { "Address Bytes",    "ndps.add_bytes",
+          FT_UINT_BYTES,    BASE_NONE,   NULL,   0x0,
+          "Address Bytes", HFILL }},
 
         { &hf_ndps_event_type,
         { "Event Type",    "ndps.ndps_event_type",
@@ -3255,7 +3010,7 @@ proto_register_ndps(void)
 
         { &hf_ndps_octet_string,
         { "Octet String",    "ndps.octet_string",
-          FT_BYTES,    BASE_HEX,   NULL,   0x0,
+          FT_UINT_BYTES,    BASE_NONE,   NULL,   0x0,
           "Octet String", HFILL }},
 
         { &hf_ndps_scope,
