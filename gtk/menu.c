@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.150 2004/01/27 19:46:52 ulfl Exp $
+ * $Id: menu.c,v 1.151 2004/01/27 20:58:18 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -138,7 +138,7 @@ static GtkItemFactoryEntry menu_items[] =
                              0, GTK_STOCK_SAVE_AS),
     ITEM_FACTORY_ENTRY("/File/<separator>", NULL, NULL, 0, "<Separator>", NULL),
     ITEM_FACTORY_ENTRY("/File/_Export", NULL, NULL, 0, "<Branch>", NULL),
-    ITEM_FACTORY_ENTRY("/File/_Export/_Raw Packet Data...", "<control>H", savehex_cb,
+    ITEM_FACTORY_ENTRY("/File/_Export/_Selected Packet Bytes...", "<control>H", savehex_cb,
                              0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/File/<separator>", NULL, NULL, 0, "<Separator>", NULL),
     ITEM_FACTORY_STOCK_ENTRY("/File/_Print...", "<control>P", file_print_cmd_cb,
@@ -366,7 +366,7 @@ static GtkItemFactoryEntry tree_view_menu_items[] =
     ITEM_FACTORY_ENTRY("/<separator>", NULL, NULL, 0, "<Separator>", NULL),
     ITEM_FACTORY_ENTRY("/_Resolve Name", NULL, resolve_name_cb, 0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/_Go To Corresponding Packet", NULL, goto_framenum_cb, 0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/_Export As _Raw Packet Data...", NULL, savehex_cb,
+    ITEM_FACTORY_ENTRY("/_Export Selected Packet Bytes...", NULL, savehex_cb,
                        0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Protocol Properties...", NULL, properties_cb,
                        0, NULL, NULL),
@@ -408,7 +408,7 @@ static GtkItemFactoryEntry hexdump_menu_items[] =
     ITEM_FACTORY_ENTRY("/Decode As...", NULL, decode_as_cb, 0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Display Filters...", NULL, dfilter_dialog_cb,
                        0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Save Highlighted Data...", NULL, savehex_cb,
+    ITEM_FACTORY_ENTRY("/Export Selected Packet Bytes...", NULL, savehex_cb,
                        0, NULL, NULL)
 };
 

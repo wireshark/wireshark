@@ -1,7 +1,7 @@
 /* proto_draw.c
  * Routines for GTK+ packet display
  *
- * $Id: proto_draw.c,v 1.83 2004/01/27 20:36:48 guy Exp $
+ * $Id: proto_draw.c,v 1.84 2004/01/27 20:58:19 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -762,13 +762,34 @@ savehex_save_clicked_cb(GtkWidget * w, gpointer data);
 /* Launch the dialog box to put up the file selection box etc */
 void savehex_cb(GtkWidget * w _U_, gpointer data _U_)
 {
+	int start, end, len;
+	const guint8 *data_p = NULL;
+    gchar label[200];
 
-	GtkWidget   *dlg_box;
+    GtkWidget   *bv;
+	GtkWidget   *dlg_box, *dlg_lb;
 	GtkWidget   *file_box, *file_bt = NULL;
 	GtkWidget   *bbox, *save_button, *cancel_button;
 	GtkTooltips *tooltips;
 
-	/* if the window is already open, bring it to front */
+
+    /* don't show up the dialog, if no data has to be saved */
+	bv = get_notebook_bv_ptr(byte_nb_ptr);
+	if (bv == NULL) {
+      /* shouldn't happen */
+      simple_dialog(ESD_TYPE_WARN, NULL, "Could not find the corresponding text window!");
+	  return;
+	}
+	end = GPOINTER_TO_INT(OBJECT_GET_DATA(bv, E_BYTE_VIEW_START_KEY));
+	start = GPOINTER_TO_INT(OBJECT_GET_DATA(bv, E_BYTE_VIEW_END_KEY));
+	data_p = get_byte_view_data_and_length(GTK_WIDGET(bv), &len);
+
+	if (data_p == NULL || start == -1 || start > end) {
+        simple_dialog(ESD_TYPE_WARN, NULL, "No data selected to save!");
+		return;
+	}
+
+    /* if the window is already open, bring it to front */
 	if(savehex_dlg){
 		gdk_window_raise(savehex_dlg->window);
 		return;
@@ -781,13 +802,20 @@ void savehex_cb(GtkWidget * w _U_, gpointer data _U_)
 	 * browse button, along with OK and Cancel
 	 */
 
-	savehex_dlg=dlg_window_new("Ethereal: Save Highlighted Data to File");
+	savehex_dlg=dlg_window_new("Ethereal: Export Selected Packet Bytes");
 	SIGNAL_CONNECT(savehex_dlg, "destroy", savehex_dlg_destroy_cb, NULL);
 
 	dlg_box=gtk_vbox_new(FALSE, 10);
 	gtk_container_border_width(GTK_CONTAINER(dlg_box), 10);
 	gtk_container_add(GTK_CONTAINER(savehex_dlg), dlg_box);
 	gtk_widget_show(dlg_box);
+
+    /* label */
+    g_snprintf(label, sizeof(label), "Will save %u %s of raw binary data to file:", 
+        end - start, plurality(end - start, "byte", "bytes"));
+    dlg_lb = gtk_label_new(label);
+	gtk_box_pack_start(GTK_BOX(dlg_box), dlg_lb, FALSE, FALSE, 0);
+	gtk_widget_show(dlg_lb);
 
 	/* File entry box */
 	file_box=gtk_hbox_new(FALSE, 3);
@@ -802,7 +830,7 @@ void savehex_cb(GtkWidget * w _U_, gpointer data _U_)
 	/* File Browse button */
 	file_bt=BUTTON_NEW_FROM_STOCK(ETHEREAL_STOCK_BROWSE);
 	SIGNAL_CONNECT(file_bt, "clicked", select_file_cb,
-		       "Ethereal: Save Highlighted Data to File");
+		       "Ethereal: Export Selected Packet Bytes");
 
 	/* file entry for print dialog */
 	OBJECT_SET_DATA(file_bt, E_FILE_TE_PTR_KEY, file_entry);
@@ -825,9 +853,11 @@ void savehex_cb(GtkWidget * w _U_, gpointer data _U_)
     SIGNAL_CONNECT_OBJECT(save_button, "clicked",
                               savehex_save_clicked_cb, NULL);
 	gtk_widget_grab_default(save_button);
+	gtk_tooltips_set_tip (tooltips, save_button, ("Save the data to the specified file"), NULL);
 
 	cancel_button = OBJECT_GET_DATA(bbox, GTK_STOCK_CANCEL);
 	SIGNAL_CONNECT(cancel_button, "clicked", savehex_dlg_cancel_cb, savehex_dlg);
+	gtk_tooltips_set_tip (tooltips, cancel_button, ("Cancel save and quit dialog"), NULL);
 
 	/* Catch the "activate" signal on the filter text entry, so that
 	   if the user types Return there, we act as if the "Create Stat"
@@ -1585,7 +1615,7 @@ tree_view_select(GtkWidget *widget, GdkEventButton *event)
 
             gtk_ctree_select(ctree, node);
         } else {
-            return TRUE;	/* XXX - FALSE? */
+            return FALSE;
         }
 #else
         GtkTreeSelection    *sel;
@@ -1599,7 +1629,7 @@ tree_view_select(GtkWidget *widget, GdkEventButton *event)
             sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(widget));
             gtk_tree_selection_select_path(sel, path);
         } else {
-            return TRUE;	/* XXX - FALSE? */
+            return FALSE;
         }
 #endif
     return TRUE;
