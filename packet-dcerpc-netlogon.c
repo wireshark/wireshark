@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *  2002 structure and command dissectors by Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-netlogon.c,v 1.12 2002/03/24 12:25:39 guy Exp $
+ * $Id: packet-dcerpc-netlogon.c,v 1.13 2002/04/17 07:52:26 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -186,7 +186,8 @@ static gint ett_USER_SESSION_KEY = -1;
 static gint ett_BLOB = -1;
 static gint ett_rid_array = -1;
 static gint ett_attrib_array = -1;
-static gint ett_nt_unicode_string = -1;
+
+extern gint ett_nt_unicode_string;
 
 static e_uuid_t uuid_dcerpc_netlogon = {
         0x12345678, 0x1234, 0xabcd,
@@ -5230,6 +5231,13 @@ static dcerpc_sub_dissector dcerpc_netlogon_dissectors[] = {
         {0, NULL, NULL,  NULL },
 };
 
+static void netlogon_init(void)
+{
+	/* Initialise DCERPC/SMB data structures */
+
+	dcerpc_smb_init();
+}
+
 void 
 proto_register_dcerpc_netlogon(void)
 {
@@ -5648,14 +5656,16 @@ static hf_register_info hf[] = {
 		&ett_BLOB,
 		&ett_rid_array,
 		&ett_attrib_array,
-		&ett_nt_unicode_string,
         };
 
         proto_dcerpc_netlogon = proto_register_protocol(
                 "Microsoft Network Logon", "NETLOGON", "rpc_netlogon");
 
-        proto_register_field_array (proto_dcerpc_netlogon, hf, array_length (hf));
+        proto_register_field_array(proto_dcerpc_netlogon, hf, 
+				   array_length(hf));
         proto_register_subtree_array(ett, array_length(ett));
+
+	register_init_routine(netlogon_init);
 }
 
 void

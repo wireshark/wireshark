@@ -2,7 +2,7 @@
  * Routines for DCERPC over SMB packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-nt.c,v 1.25 2002/04/16 02:02:04 tpot Exp $
+ * $Id: packet-dcerpc-nt.c,v 1.26 2002/04/17 07:52:26 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -391,8 +391,9 @@ extern int hf_nt_str_off;
 extern int hf_nt_str_max_len;
 extern int hf_nt_string_length;
 extern int hf_nt_string_size;
-extern gint ett_nt_unicode_string;
 
+gint ett_nt_unicode_string = -1;
+static gint ett_nt_policy_hnd = -1;
 
 /* this function will dissect the
      [size_is(size/2), length_is(len/2), ptr] unsigned short *string;
@@ -714,6 +715,9 @@ void dcerpc_smb_store_pol(const guint8 *policy_hnd, char *name, int open_frame,
 	pol_hash_key *key;
 	pol_hash_value *value;
 
+	if (is_null_pol(policy_hnd))
+		return;
+
 	/* Look up existing value */
 
 	key = g_mem_chunk_alloc(pol_hash_key_chunk);
@@ -861,10 +865,22 @@ void dcerpc_smb_init(void)
 {
 	static gboolean done_init;
 
+	static gint *ett[] = {
+		&ett_nt_unicode_string,
+		&ett_nt_policy_hnd,
+	};
+
+
 	if (done_init)
 		return;
 
+	/* Initialise policy handle hash */
+
 	init_pol_hash();
+
+	/* Register ett's */
+
+	proto_register_subtree_array(ett, array_length(ett));
 
 	done_init = TRUE;
 }
@@ -908,6 +924,58 @@ dissect_ntstatus(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 					   "Unknown error"));
 	if (pdata)
 		*pdata = status;
+
+	return offset;
+}
+
+/* Dissect a NT policy handle */
+
+int
+dissect_nt_policy_hnd(tvbuff_t *tvb, gint offset, packet_info *pinfo,
+		      proto_tree *tree, char *drep, int hfindex, 
+		      e_ctx_hnd *pdata)
+{
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
+	proto_item *item;
+	proto_tree *subtree;
+	e_ctx_hnd hnd;
+	int open_frame = 0, close_frame = 0;
+	char *name;
+
+	/* Add to proto tree */
+
+	item = proto_tree_add_text(tree, tvb, offset, 0, "Policy Handle");
+
+	subtree = proto_item_add_subtree(item, ett_nt_policy_hnd);
+
+	offset = dissect_ndr_ctx_hnd(tvb, offset, pinfo, subtree, drep, 
+				     hfindex, &hnd); 
+
+	/* Insert request/reply information if known */
+
+	if (dcerpc_smb_fetch_pol((const guint8 *)&hnd, &name, &open_frame, 
+				 &close_frame)) {
+
+		if (open_frame)
+			proto_tree_add_text(subtree, tvb, offset, 0,
+					    "Opened in frame %d", open_frame);
+
+		if (close_frame)
+			proto_tree_add_text(subtree, tvb, offset, 0,
+					    "Closed in frame %d", close_frame);
+	}
+
+	/* Store request/reply information */
+		
+	if (di->request)
+		dcerpc_smb_store_pol((const guint8 *)&hnd, NULL, 0,
+				     pinfo->fd->num); 
+	else
+		dcerpc_smb_store_pol((const guint8 *)&hnd, NULL, 
+				     pinfo->fd->num, 0);
+
+	if (pdata)
+		*pdata = hnd;
 
 	return offset;
 }
