@@ -2,7 +2,7 @@
  * Routines for OSPF packet disassembly
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-ospf.c,v 1.55 2002/01/24 09:20:50 guy Exp $
+ * $Id: packet-ospf.c,v 1.56 2002/02/14 02:32:14 ashokn Exp $
  *
  * At this time, this module is able to analyze OSPF
  * packets as specified in RFC2328. MOSPF (RFC1584) and other
@@ -736,6 +736,11 @@ enum {
     MPLS_LINK_MAX_RES_BW,
     MPLS_LINK_UNRES_BW,
     MPLS_LINK_COLOR,
+    MPLS_LINK_LOCAL_ID = 11,
+    MPLS_LINK_REMOTE_ID,
+    MPLS_LINK_PROTECTION = 14,
+    MPLS_LINK_IF_SWITCHING_DESC,
+    MPLS_LINK_SHARED_RISK_GROUP,
 };
 
 static const value_string mpls_link_stlv_str[] = {
@@ -748,8 +753,19 @@ static const value_string mpls_link_stlv_str[] = {
     {MPLS_LINK_MAX_RES_BW, "Maximum Reservable Bandwidth"},
     {MPLS_LINK_UNRES_BW, "Unreserved Bandwidth"},
     {MPLS_LINK_COLOR, "Resource Class/Color"},
+    {MPLS_LINK_LOCAL_ID, "Link Local Identifier"},
+    {MPLS_LINK_REMOTE_ID, "Link Remote Identifier"},
+    {MPLS_LINK_PROTECTION, "Link Protection Type"},
+    {MPLS_LINK_IF_SWITCHING_DESC, "Interface Switching Capability Descriptor"},
+    {MPLS_LINK_SHARED_RISK_GROUP, "Shared Risk Link Group"},
     {0, NULL},
 };
+
+/*
+ * From packet-rsvp.c
+ */
+extern const value_string gmpls_lsp_enc_str[];
+extern const value_string gmpls_switching_type_str[];
 
 /* 
  * Dissect MPLS/TE opaque LSA 
@@ -892,8 +908,47 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, int offset, proto_tree *tree,
 					stlv_len);
 		    for (i = 0; i < 8; i++) {
 			proto_tree_add_text(stlv_tree, tvb, stlv_offset+4+(i*4), 4,
-					    "Pri %d: %ld", i,
-					    tvb_ieee_to_long(tvb, stlv_offset + 4 + i*4));
+					    "Pri %d: %ld bytes/s (%lld bits/s)", i,
+					    tvb_ieee_to_long(tvb, stlv_offset + 4 + i*4),
+					    tvb_ieee_to_long(tvb, stlv_offset + 4 + i*4) * 8);
+		    }
+		    break;
+
+		case MPLS_LINK_LOCAL_ID:
+		case MPLS_LINK_REMOTE_ID:
+		    ti = proto_tree_add_text(tlv_tree, tvb, stlv_offset, stlv_len+4,
+					     "%s: %d (0x%x)", stlv_name,
+					     tvb_get_ntohl(tvb, stlv_offset + 4),
+					     tvb_get_ntohl(tvb, stlv_offset + 4));
+		    stlv_tree = proto_item_add_subtree(ti, ett_ospf_lsa_mpls_link_stlv);
+		    proto_tree_add_text(stlv_tree, tvb, stlv_offset, 2,
+					"TLV Type: %u: %s", stlv_type, stlv_name);
+		    proto_tree_add_text(stlv_tree, tvb, stlv_offset+2, 2, "TLV Length: %u",
+					stlv_len);
+		    proto_tree_add_text(stlv_tree, tvb, stlv_offset+4, 4, "%s: %d (0x%x)", stlv_name,
+					tvb_get_ntohl(tvb, stlv_offset + 4),
+					tvb_get_ntohl(tvb, stlv_offset + 4));
+		    break;
+
+		case MPLS_LINK_IF_SWITCHING_DESC:
+		    ti = proto_tree_add_text(tlv_tree, tvb, stlv_offset, stlv_len+4,
+					     "%s", stlv_name);
+		    stlv_tree = proto_item_add_subtree(ti, ett_ospf_lsa_mpls_link_stlv);
+		    proto_tree_add_text(stlv_tree, tvb, stlv_offset, 2,
+					"TLV Type: %u: %s", stlv_type, stlv_name);
+		    proto_tree_add_text(stlv_tree, tvb, stlv_offset+2, 2, "TLV Length: %u",
+					stlv_len);
+		    proto_tree_add_text(stlv_tree, tvb, stlv_offset+4, 1, "Switching Type: %s", 
+					val_to_str(tvb_get_guint8(tvb,stlv_offset+4), 
+						   gmpls_switching_type_str, "Unknown (%d)"));
+		    proto_tree_add_text(stlv_tree, tvb, stlv_offset+5, 1, "Encoding: %s", 
+					val_to_str(tvb_get_guint8(tvb,stlv_offset+5), 
+						   gmpls_lsp_enc_str, "Unknown (%d)"));
+		    for (i = 0; i < 8; i++) {
+			proto_tree_add_text(stlv_tree, tvb, stlv_offset+8+(i*4), 4,
+					    "Pri %d: %ld bytes/s (%lld bits/s)", i,
+					    tvb_ieee_to_long(tvb, stlv_offset + 4 + i*4),
+					    tvb_ieee_to_long(tvb, stlv_offset + 4 + i*4) * 8);
 		    }
 		    break;
 

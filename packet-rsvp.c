@@ -3,7 +3,7 @@
  *
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-rsvp.c,v 1.54 2002/02/02 11:52:41 guy Exp $
+ * $Id: packet-rsvp.c,v 1.55 2002/02/14 02:32:14 ashokn Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -369,7 +369,7 @@ static value_string adspec_params[] = {
     { 0, NULL }
 };
 
-static const value_string gmpls_lsp_enc_str[] = {
+const value_string gmpls_lsp_enc_str[] = {
     { 1, "Packet"},
     { 2, "Ethernet v2/DIX"},
     { 3, "ANSI PDH"},
@@ -384,7 +384,7 @@ static const value_string gmpls_lsp_enc_str[] = {
     { 0, NULL }
 };
 
-static const value_string gmpls_switching_type_str[] = {
+const value_string gmpls_switching_type_str[] = {
     {  1, "Packet-Switch Capable-1 (PSC-1)"},
     {  2, "Packet-Switch Capable-2 (PSC-2)"},
     {  3, "Packet-Switch Capable-3 (PSC-3)"},
