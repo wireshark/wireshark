@@ -1,7 +1,7 @@
 ;
 ; ethereal.nsi
 ;
-; $Id: ethereal.nsi,v 1.47 2004/02/09 18:23:25 ulfl Exp $
+; $Id: ethereal.nsi,v 1.48 2004/02/16 19:07:10 ulfl Exp $
 
  
 !ifdef MAKENSIS_MODERN_UI
@@ -208,6 +208,8 @@ File "${GTK2_DIR}\lib\pango\1.2.0\modules\pango-*.dll"
 SetOutPath $INSTDIR\help
 File "..\..\help\toc"
 File "..\..\help\overview.txt"
+File "..\..\help\getting_started.txt"
+File "..\..\help\capturing.txt"
 File "..\..\help\capture_filters.txt"
 File "..\..\help\display_filters.txt"
 File "..\..\help\well_known.txt"
