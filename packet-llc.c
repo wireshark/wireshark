@@ -2,7 +2,7 @@
  * Routines for IEEE 802.2 LLC layer
  * Gilbert Ramirez <gramirez@tivoli.com>
  *
- * $Id: packet-llc.c,v 1.39 2000/01/12 20:00:19 guy Exp $
+ * $Id: packet-llc.c,v 1.40 2000/01/22 21:49:50 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -36,6 +36,7 @@
 #include "packet.h"
 #include "oui.h"
 #include "xdlc.h"
+#include "etypes.h"
 	
 static int proto_llc = -1;
 static int hf_llc_dsap = -1;
@@ -157,8 +158,8 @@ const value_string oui_vals[] = {
 http://www.cisco.com/univercd/cc/td/doc/product/software/ios113ed/113ed_cr/ibm_r/brprt1/brsrb.htm
 */
 	{ OUI_CISCO,       "Cisco" },
-	{ 0x0000f8,        "Cisco 90-Compatible" },
-	{ 0x0080c2,        "Bridged Frame-Relay" }, /* RFC 2427 */
+	{ OUI_CISCO_90,    "Cisco IOS 9.0 Compatible" },
+	{ OUI_BFR,         "Bridged Frame-Relay" }, /* RFC 2427 */
 	{ OUI_ATM_FORUM,   "ATM Forum" },
 	{ OUI_APPLE_ATALK, "Apple (AppleTalk)" },
 	{ 0,               NULL }
@@ -250,7 +251,10 @@ capture_llc(const u_char *pd, int offset, guint32 cap_len, packet_counts *ld) {
 				capture_ethertype(etype, offset+8, pd,
 				    cap_len, ld);
 				break;
-
+			case OUI_CISCO:
+				capture_ethertype(etype,
+						offset + 8, pd, cap_len, ld);
+				break;
 			default:
 				ld->other++;
 				break;

@@ -2,11 +2,11 @@
  * Definitions of OUIs
  * Gilbert Ramirez <gramirez@tivoli.com>
  *
- * $Id: oui.h,v 1.3 2000/01/12 19:37:24 guy Exp $
+ * $Id: oui.h,v 1.4 2000/01/22 21:49:50 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
- * Copyright 1998 Gerald Combs
+ * Copyright 1998 - 2000 Gerald Combs
  *
  * 
  * This program is free software; you can redistribute it and/or
@@ -25,7 +25,9 @@
  */
 
 #define	OUI_ENCAP_ETHER	0x000000	/* encapsulated Ethernet */
-#define	OUI_CISCO	0x00000C	/* Cisco */
+#define	OUI_CISCO	0x00000C	/* Cisco (future use) */
+#define	OUI_CISCO_90	0x0000F8	/* Cisco (IOS 9.0 and above?) */
+#define OUI_BFR		0x0080C2	/* Bridged Frame-Relay, RFC 2427 */
 #define	OUI_ATM_FORUM	0x00A03E	/* ATM Forum */
 #define	OUI_APPLE_ATALK	0x080007	/* Appletalk */
 
