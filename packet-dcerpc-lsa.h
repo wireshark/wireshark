@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\lsarpc packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-lsa.h,v 1.7 2002/08/09 09:27:33 sahlberg Exp $
+ * $Id: packet-dcerpc-lsa.h,v 1.8 2002/08/21 21:31:15 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -99,5 +99,20 @@ int
 lsa_dissect_LSA_SECRET(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *parent_tree,
 			char *drep);
+
+/* Specific access rights */
+
+#define POLICY_VIEW_LOCAL_INFORMATION    0x00000001
+#define POLICY_VIEW_AUDIT_INFORMATION    0x00000002
+#define POLICY_GET_PRIVATE_INFORMATION   0x00000004
+#define POLICY_TRUST_ADMIN               0x00000008
+#define POLICY_CREATE_ACCOUNT            0x00000010
+#define POLICY_CREATE_SECRET             0x00000020
+#define POLICY_CREATE_PRIVILEGE          0x00000040
+#define POLICY_SET_DEFAULT_QUOTA_LIMITS  0x00000080
+#define POLICY_SET_AUDIT_REQUIREMENTS    0x00000100
+#define POLICY_AUDIT_LOG_ADMIN           0x00000200
+#define POLICY_SERVER_ADMIN              0x00000400
+#define POLICY_LOOKUP_NAMES              0x00000800
 
 #endif /* packet-dcerpc-lsa.h */

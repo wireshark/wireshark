@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\spoolss packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-spoolss.h,v 1.10 2002/06/24 08:01:07 tpot Exp $
+ * $Id: packet-dcerpc-spoolss.h,v 1.11 2002/08/21 21:31:14 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -298,5 +298,13 @@
 #define PRINTER_CONTROL_RESUME		0x00000002
 #define PRINTER_CONTROL_PURGE		0x00000003
 #define PRINTER_CONTROL_SET_STATUS	0x00000004
+
+/* Specific access rights */
+
+#define SERVER_ACCESS_ADMINISTER	0x00000001
+#define SERVER_ACCESS_ENUMERATE		0x00000002
+#define PRINTER_ACCESS_ADMINISTER	0x00000004
+#define PRINTER_ACCESS_USE		0x00000008
+#define JOB_ACCESS_ADMINISTER		0x00000010
 
 #endif /* packet-dcerpc-spoolss.h */

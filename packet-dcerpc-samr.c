@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *   2002 Added all command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-samr.c,v 1.54 2002/08/13 07:59:33 tpot Exp $
+ * $Id: packet-dcerpc-samr.c,v 1.55 2002/08/21 21:31:15 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -199,6 +199,245 @@ static e_uuid_t uuid_dcerpc_samr = {
 
 static guint16 ver_dcerpc_samr = 1;
 
+/* Dissect connect specific access rights */
+
+static gint hf_access_connect_unknown_01 = -1;
+static gint hf_access_connect_shutdown_server = -1;
+static gint hf_access_connect_unknown_04 = -1;
+static gint hf_access_connect_unknown_08 = -1;
+static gint hf_access_connect_enum_domains = -1;
+static gint hf_access_connect_open_domain = -1;
+
+static int
+specific_rights_connect(tvbuff_t *tvb, gint offset, proto_tree *tree,
+			guint32 access)
+{
+	proto_tree_add_boolean(
+		tree, hf_access_connect_open_domain, 
+		tvb, offset, 4, access);
+
+	proto_tree_add_boolean(
+		tree, hf_access_connect_enum_domains, 
+		tvb, offset, 4, access);
+
+	proto_tree_add_boolean(
+		tree, hf_access_connect_unknown_08, 
+		tvb, offset, 4, access);
+
+	proto_tree_add_boolean(
+		tree, hf_access_connect_unknown_04, 
+		tvb, offset, 4, access);
+
+	proto_tree_add_boolean(
+		tree, hf_access_connect_shutdown_server, 
+		tvb, offset, 4, access);
+
+	proto_tree_add_boolean(
+		tree, hf_access_connect_unknown_01, 
+		tvb, offset, 4, access);
+
+	return offset;
+}
+
+/* Dissect domain specific access rights */
+
+static gint hf_access_domain_lookup_info1 = -1;
+static gint hf_access_domain_set_info1 = -1;
+static gint hf_access_domain_lookup_info2 = -1;
+static gint hf_access_domain_set_info2 = -1;
+static gint hf_access_domain_create_user = -1;
+static gint hf_access_domain_create_group = -1;
+static gint hf_access_domain_create_alias = -1;
+static gint hf_access_domain_unknown_80 = -1;
+static gint hf_access_domain_enum_accounts = -1;
+static gint hf_access_domain_open_account = -1;
+static gint hf_access_domain_set_info3 = -1;
+
+static int
+specific_rights_domain(tvbuff_t *tvb, gint offset, proto_tree *tree,
+		       guint32 access)
+{
+	proto_tree_add_boolean(
+		tree, hf_access_domain_set_info3, 
+		tvb, offset, 4, access);
+
+	proto_tree_add_boolean(
+		tree, hf_access_domain_open_account, 
+		tvb, offset, 4, access);
+
+	proto_tree_add_boolean(
+		tree, hf_access_domain_enum_accounts, 
+		tvb, offset, 4, access);
+
+	proto_tree_add_boolean(
+		tree, hf_access_domain_unknown_80, 
+		tvb, offset, 4, access);
+
+	proto_tree_add_boolean(
+		tree, hf_access_domain_create_alias, 
+		tvb, offset, 4, access);
+
+	proto_tree_add_boolean(
+		tree, hf_access_domain_create_group, 
+		tvb, offset, 4, access);
+
+	proto_tree_add_boolean(
+		tree, hf_access_domain_create_user, 
+		tvb, offset, 4, access);
+	
+	proto_tree_add_boolean(
+		tree, hf_access_domain_set_info2, 
+		tvb, offset, 4, access);
+	
+	proto_tree_add_boolean(
+		tree, hf_access_domain_lookup_info2, 
+		tvb, offset, 4, access);
+	
+	proto_tree_add_boolean(
+		tree, hf_access_domain_set_info1, 
+		tvb, offset, 4, access);
+	
+	proto_tree_add_boolean(
+		tree, hf_access_domain_lookup_info1, 
+		tvb, offset, 4, access);
+	
+	return offset;
+}
+
+/* Dissect user specific access rights */
+
+static gint hf_access_user_get_name_etc = -1;
+static gint hf_access_user_get_locale = -1;
+static gint hf_access_user_get_loc_com = -1;
+static gint hf_access_user_get_logoninfo = -1;
+static gint hf_access_user_unknown_10 = -1;
+static gint hf_access_user_set_attributes = -1;
+static gint hf_access_user_change_password = -1;
+static gint hf_access_user_set_password = -1;
+static gint hf_access_user_get_groups = -1;
+static gint hf_access_user_unknown_200 = -1;
+static gint hf_access_user_unknown_400 = -1;
+
+static int
+specific_rights_user(tvbuff_t *tvb, gint offset, proto_tree *tree,
+		     guint32 access)
+{
+	proto_tree_add_boolean(
+		tree, hf_access_user_unknown_400, 
+		tvb, offset, 4, access);
+	
+	proto_tree_add_boolean(
+		tree, hf_access_user_unknown_200, 
+		tvb, offset, 4, access);
+	
+	proto_tree_add_boolean(
+		tree, hf_access_user_get_groups, 
+		tvb, offset, 4, access);
+	
+	proto_tree_add_boolean(
+		tree, hf_access_user_set_password, 
+		tvb, offset, 4, access);
+	
+	proto_tree_add_boolean(
+		tree, hf_access_user_change_password, 
+		tvb, offset, 4, access);
+	
+	proto_tree_add_boolean(
+		tree, hf_access_user_set_attributes, 
+		tvb, offset, 4, access);
+	
+	proto_tree_add_boolean(
+		tree, hf_access_user_unknown_10, 
+		tvb, offset, 4, access);
+	
+	proto_tree_add_boolean(
+		tree, hf_access_user_get_logoninfo, 
+		tvb, offset, 4, access);
+	
+	proto_tree_add_boolean(
+		tree, hf_access_user_get_loc_com, 
+		tvb, offset, 4, access);
+	
+	proto_tree_add_boolean(
+		tree, hf_access_user_get_locale, 
+		tvb, offset, 4, access);
+	
+	proto_tree_add_boolean(
+		tree, hf_access_user_get_name_etc, 
+		tvb, offset, 4, access);
+
+	return offset;
+}
+
+/* Dissect alias specific access rights */
+
+static gint hf_access_alias_add_member = -1;
+static gint hf_access_alias_remove_member = -1;
+static gint hf_access_alias_get_members = -1;
+static gint hf_access_alias_lookup_info = -1;
+static gint hf_access_alias_set_info = -1;
+
+static int
+specific_rights_alias(tvbuff_t *tvb, gint offset, proto_tree *tree,
+		      guint32 access)
+{
+	proto_tree_add_boolean(
+		tree, hf_access_alias_set_info, 
+		tvb, offset, 4, access);
+
+	proto_tree_add_boolean(
+		tree, hf_access_alias_lookup_info, 
+		tvb, offset, 4, access);
+
+	proto_tree_add_boolean(
+		tree, hf_access_alias_get_members, 
+		tvb, offset, 4, access);
+
+	proto_tree_add_boolean(
+		tree, hf_access_alias_remove_member, 
+		tvb, offset, 4, access);
+
+	proto_tree_add_boolean(
+		tree, hf_access_alias_add_member, 
+		tvb, offset, 4, access);	
+
+	return offset;
+}
+
+/* Dissect group specific access rights */
+
+static gint hf_access_group_lookup_info = -1;
+static gint hf_access_group_set_info = -1;
+static gint hf_access_group_add_member = -1;
+static gint hf_access_group_remove_member = -1;
+static gint hf_access_group_get_members = -1;
+
+static int
+specific_rights_group(tvbuff_t *tvb, gint offset, proto_tree *tree,
+		      guint32 access)
+{
+	proto_tree_add_boolean(
+		tree, hf_access_group_get_members, 
+		tvb, offset, 4, access);	
+	
+	proto_tree_add_boolean(
+		tree, hf_access_group_remove_member, 
+		tvb, offset, 4, access);	
+	
+	proto_tree_add_boolean(
+		tree, hf_access_group_add_member, 
+		tvb, offset, 4, access);	
+	
+	proto_tree_add_boolean(
+		tree, hf_access_group_set_info, 
+		tvb, offset, 4, access);	
+	
+	proto_tree_add_boolean(
+		tree, hf_access_group_lookup_info, 
+		tvb, offset, 4, access);	
+	
+	return offset;
+}
 
 int
 dissect_ndr_nt_SID(tvbuff_t *tvb, int offset, 
@@ -918,8 +1157,10 @@ samr_dissect_connect2_rqst(tvbuff_t *tvb, int offset,
 			samr_dissect_connect2_server, NDR_POINTER_UNIQUE,
 			"Server", hf_samr_server, 1);
 
-        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-                                     hf_samr_access, NULL);
+	offset = dissect_nt_access_mask(
+		tvb, offset, pinfo, tree, drep, hf_samr_access, 
+		specific_rights_connect);
+
 	return offset;
 }
 
@@ -934,8 +1175,11 @@ samr_dissect_connect4_rqst(tvbuff_t *tvb, int offset,
 
 	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 				     hf_samr_unknown_long, NULL);
-        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-                                     hf_samr_access, NULL);
+
+	offset = dissect_nt_access_mask(
+		tvb, offset, pinfo, tree, drep, hf_samr_access, 
+		specific_rights_connect);
+
 	return offset;
 }
 
@@ -1099,8 +1343,10 @@ samr_dissect_open_domain_rqst(tvbuff_t *tvb, int offset,
         offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
 				       hf_samr_hnd, NULL, FALSE, FALSE);
 
-        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-                                     hf_samr_access, NULL);
+	offset = dissect_nt_access_mask(
+		tvb, offset, pinfo, tree, drep, hf_samr_access, 
+		specific_rights_domain);
+
         offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			dissect_ndr_nt_SID, NDR_POINTER_REF,
 			"SID:", -1, 0);
@@ -1206,8 +1452,9 @@ samr_dissect_create_alias_in_domain_rqst(tvbuff_t *tvb, int offset,
 			samr_dissect_pointer_UNICODE_STRING, NDR_POINTER_REF,
 			"Account Name", hf_samr_acct_name, 0);
 
-        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-                                     hf_samr_access, NULL);
+	offset = dissect_nt_access_mask(
+		tvb, offset, pinfo, tree, drep, hf_samr_access,
+		specific_rights_alias);
 
 	return offset;
 }
@@ -1498,9 +1745,12 @@ samr_dissect_create_user2_in_domain_rqst(tvbuff_t *tvb, int offset,
         offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			samr_dissect_pointer_UNICODE_STRING, NDR_POINTER_REF,
 			"Account Name", hf_samr_acct_name, 0);
+
 	offset = dissect_ndr_nt_acct_ctrl(tvb, offset, pinfo, tree, drep);
-	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_samr_access, NULL);
+
+	offset = dissect_nt_access_mask(
+		tvb, offset, pinfo, tree, drep, hf_samr_access,
+		specific_rights_user);
 
 	return offset;
 }
@@ -1517,8 +1767,12 @@ samr_dissect_create_user2_in_domain_reply(tvbuff_t *tvb, int offset,
 
 	dcerpc_smb_store_pol_name(&policy_hnd, "CreateUser2 handle");
 
+	offset = dissect_nt_access_mask(
+		tvb, offset, pinfo, tree, drep, hf_samr_access_granted,
+		specific_rights_user);
+
         offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-                                     hf_samr_access_granted, NULL);
+                                     hf_samr_unknown_long, NULL);
 
         offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
                                      hf_samr_rid, NULL);
@@ -3954,8 +4208,9 @@ samr_dissect_open_group_rqst(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
 				       hf_samr_hnd, NULL, FALSE, FALSE);
 
-	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_samr_access, NULL);
+	offset = dissect_nt_access_mask(
+		tvb, offset, pinfo, tree, drep, hf_samr_access,
+		specific_rights_group);
 
 	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 			hf_samr_rid, &rid);
@@ -3997,8 +4252,9 @@ samr_dissect_open_alias_rqst(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
 				       hf_samr_hnd, NULL, FALSE, FALSE);
 
-	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_samr_access, NULL);
+	offset = dissect_nt_access_mask(
+		tvb, offset, pinfo, tree, drep, hf_samr_access,
+		specific_rights_alias);
 
 	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 			hf_samr_rid, &rid);
@@ -4067,8 +4323,9 @@ samr_dissect_create_group_in_domain_rqst(tvbuff_t *tvb, int offset,
 			samr_dissect_pointer_UNICODE_STRING, NDR_POINTER_REF,
 			"Account Name", hf_samr_acct_name, 0);
 
-        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-                                     hf_samr_access, NULL);
+	offset = dissect_nt_access_mask(
+		tvb, offset, pinfo, tree, drep, hf_samr_access,
+		specific_rights_group);
 
 	return offset;
 }
@@ -4576,7 +4833,6 @@ proto_register_dcerpc_samr(void)
  		{ "Expired flag", "samr.pwd_Expired", FT_UINT8, BASE_HEX, 
  		NULL, 0x0, "Flag indicating if the password for this account has expired or not", HFILL }},
 
-	/* XXX - is this a standard NT access mask? */
 	{ &hf_samr_access,
 		{ "Access Mask", "samr.access", FT_UINT32, BASE_HEX, 
 		NULL, 0x0, "Access", HFILL }},
@@ -4731,8 +4987,202 @@ proto_register_dcerpc_samr(void)
 
 	{ &hf_nt_acb_autolock, {
 		"", "nt.acb.autolock", FT_BOOLEAN, 32,
-		TFS(&tfs_nt_acb_autolock), 0x0400, "If this account has been autolocked", HFILL }}
+		TFS(&tfs_nt_acb_autolock), 0x0400, "If this account has been autolocked", HFILL }},
+
+        /* Object specific access rights */
+
+	{ &hf_access_domain_lookup_info1,
+	  { "Lookup info1", "samr_access_mask.domain_lookup_info1",
+	    FT_BOOLEAN, 32, TFS(&flags_set_truth),
+	    DOMAIN_ACCESS_LOOKUP_INFO_1, "Lookup info1", HFILL }},
+
+	{ &hf_access_domain_set_info1,
+	  { "Set info1", "samr_access_mask.domain_set_info1",
+	    FT_BOOLEAN, 32, TFS(&flags_set_truth),
+	    DOMAIN_ACCESS_SET_INFO_1, "Set info1", HFILL }},
+
+	{ &hf_access_domain_lookup_info2,
+	  { "Lookup info2", "samr_access_mask.domain_lookup_info2",
+	    FT_BOOLEAN, 32, TFS(&flags_set_truth),
+	    DOMAIN_ACCESS_LOOKUP_INFO_2, "Lookup info2", HFILL }},
+
+	{ &hf_access_domain_set_info2,
+	  { "Set info2", "samr_access_mask.domain_set_info2",
+	    FT_BOOLEAN, 32, TFS(&flags_set_truth),
+	    DOMAIN_ACCESS_SET_INFO_2, "Set info2", HFILL }},
+
+	{ &hf_access_domain_create_user,
+	  { "Create user", "samr_access_mask.domain_create_user",
+	    FT_BOOLEAN, 32, TFS(&flags_set_truth),
+	    DOMAIN_ACCESS_CREATE_USER, "Create user", HFILL }},
+
+	{ &hf_access_domain_create_group,
+	  { "Create group", "samr_access_mask.domain_create_group",
+	    FT_BOOLEAN, 32, TFS(&flags_set_truth),
+	    DOMAIN_ACCESS_CREATE_GROUP, "Create group", HFILL }},
+
+	{ &hf_access_domain_create_alias,
+	  { "Create alias", "samr_access_mask.domain_create_alias",
+	    FT_BOOLEAN, 32, TFS(&flags_set_truth),
+	    DOMAIN_ACCESS_CREATE_ALIAS, "Create alias", HFILL }},
+
+	{ &hf_access_domain_unknown_80,
+	  { "Unknown 0x80", "samr_access_mask.domain_unknown_80",
+	    FT_BOOLEAN, 32, TFS(&flags_set_truth),
+	    DOMAIN_ACCESS_UNKNOWN_80, "Unknown 0x80", HFILL }},
+
+	{ &hf_access_domain_enum_accounts,
+	  { "Enum accounts", "samr_access_mask.domain_enum_accounts",
+	    FT_BOOLEAN, 32, TFS(&flags_set_truth),
+	    DOMAIN_ACCESS_ENUM_ACCOUNTS, "Enum accounts", HFILL }},
+
+	{ &hf_access_domain_open_account,
+	  { "Open account", "samr_access_mask.domain_open_account",
+	    FT_BOOLEAN, 32, TFS(&flags_set_truth),
+	    DOMAIN_ACCESS_OPEN_ACCOUNT, "Open account", HFILL }},
+
+	{ &hf_access_domain_set_info3,
+	  { "Set info3", "samr_access_mask.domain_set_info3",
+	    FT_BOOLEAN, 32, TFS(&flags_set_truth),
+	    DOMAIN_ACCESS_SET_INFO_3, "Set info3", HFILL }},
+
+	{ &hf_access_user_get_name_etc,
+	  { "Get name, etc", "samr_access_mask.user_get_name_etc",
+	    FT_BOOLEAN, 32, TFS(&flags_set_truth),
+	    USER_ACCESS_GET_NAME_ETC, "Get name, etc", HFILL }},
+
+	{ &hf_access_user_get_locale,
+	  { "Get locale", "samr_access_mask.user_get_locale",
+	    FT_BOOLEAN, 32, TFS(&flags_set_truth),
+	    USER_ACCESS_GET_LOCALE, "Get locale", HFILL }},
+
+	{ &hf_access_user_get_loc_com,
+	  { "Set loc com", "samr_access_mask.user_set_loc_com",
+	    FT_BOOLEAN, 32, TFS(&flags_set_truth),
+	    USER_ACCESS_SET_LOC_COM, "Set loc com", HFILL }},
+
+	{ &hf_access_user_get_logoninfo,
+	  { "Get logon info", "samr_access_mask.user_get_logoninfo",
+	    FT_BOOLEAN, 32, TFS(&flags_set_truth),
+	    USER_ACCESS_GET_LOGONINFO, "Get logon info", HFILL }},
+
+	{ &hf_access_user_unknown_10,
+	  { "Unknown 0x10", "samr_access_mask.user_unknown_10",
+	    FT_BOOLEAN, 32, TFS(&flags_set_truth),
+	    USER_ACCESS_UNKNOWN_10, "Unknown 0x10", HFILL }},
+
+	{ &hf_access_user_set_attributes,
+	  { "Set attributes", "samr_access_mask.user_set_attributes",
+	    FT_BOOLEAN, 32, TFS(&flags_set_truth),
+	    USER_ACCESS_SET_ATTRIBUTES, "Set attributes", HFILL }},
+
+	{ &hf_access_user_change_password,
+	  { "Change password", "samr_access_mask.user_change_password",
+	    FT_BOOLEAN, 32, TFS(&flags_set_truth),
+	    USER_ACCESS_CHANGE_PASSWORD, "Change password", HFILL }},
+
+	{ &hf_access_user_set_password,
+	  { "Set password", "samr_access_mask.user_set_password",
+	    FT_BOOLEAN, 32, TFS(&flags_set_truth),
+	    USER_ACCESS_SET_PASSWORD, "Set password", HFILL }},
+
+	{ &hf_access_user_get_groups,
+	  { "Get groups", "samr_access_mask.user_get_groups",
+	    FT_BOOLEAN, 32, TFS(&flags_set_truth),
+	    USER_ACCESS_GET_GROUPS, "Get groups", HFILL }},
+
+	{ &hf_access_user_unknown_200,
+	  { "Unknown 0x200", "samr_access_mask.user_unknown_200",
+	    FT_BOOLEAN, 32, TFS(&flags_set_truth),
+	    USER_ACCESS_UNKNOWN_200, "Unknown 0x200", HFILL }},
+
+	{ &hf_access_user_unknown_400,
+	  { "Unknown 0x400", "samr_access_mask.user_unknown_400",
+	    FT_BOOLEAN, 32, TFS(&flags_set_truth),
+	    USER_ACCESS_UNKNOWN_400, "Unknown 0x400", HFILL }},
+
+	{ &hf_access_group_lookup_info,
+	  { "Lookup info", "samr_access_mask.group_lookup_info",
+	    FT_BOOLEAN, 32, TFS(&flags_set_truth),
+	    GROUP_ACCESS_LOOKUP_INFO, "Lookup info", HFILL }},
+
+	{ &hf_access_group_set_info,
+	  { "Get info", "samr_access_mask.group_set_info",
+	    FT_BOOLEAN, 32, TFS(&flags_set_truth),
+	    GROUP_ACCESS_SET_INFO, "Get info", HFILL }},
+
+	{ &hf_access_group_add_member,
+	  { "Add member", "samr_access_mask.group_add_member",
+	    FT_BOOLEAN, 32, TFS(&flags_set_truth),
+	    GROUP_ACCESS_ADD_MEMBER, "Add member", HFILL }},
+
+	{ &hf_access_group_remove_member,
+	  { "Remove member", "samr_access_mask.group_remove_member",
+	    FT_BOOLEAN, 32, TFS(&flags_set_truth),
+	    GROUP_ACCESS_REMOVE_MEMBER, "Remove member", HFILL }},
+
+	{ &hf_access_group_get_members,
+	  { "Get members", "samr_access_mask.group_get_members",
+	    FT_BOOLEAN, 32, TFS(&flags_set_truth),
+	    GROUP_ACCESS_GET_MEMBERS, "Get members", HFILL }},
+
+	{ &hf_access_alias_add_member,
+	  { "Add member", "samr_access_mask.alias_add_member",
+	    FT_BOOLEAN, 32, TFS(&flags_set_truth),
+	    ALIAS_ACCESS_ADD_MEMBER, "Add member", HFILL }},
+
+	{ &hf_access_alias_remove_member,
+	  { "Remove member", "samr_access_mask.alias_remove_member",
+	    FT_BOOLEAN, 32, TFS(&flags_set_truth),
+	    ALIAS_ACCESS_REMOVE_MEMBER, "Remove member", HFILL }},
+
+	{ &hf_access_alias_get_members,
+	  { "Get members", "samr_access_mask.alias_get_members",
+	    FT_BOOLEAN, 32, TFS(&flags_set_truth),
+	    ALIAS_ACCESS_GET_MEMBERS, "Get members", HFILL }},
+
+	{ &hf_access_alias_lookup_info,
+	  { "Lookup info", "samr_access_mask.alias_lookup_info",
+	    FT_BOOLEAN, 32, TFS(&flags_set_truth),
+	    ALIAS_ACCESS_LOOKUP_INFO, "Lookup info", HFILL }},
+
+	{ &hf_access_alias_set_info,
+	  { "Set info", "samr_access_mask.alias_set_info",
+	    FT_BOOLEAN, 32, TFS(&flags_set_truth),
+	    ALIAS_ACCESS_SET_INFO, "Set info", HFILL }},
+
+	{ &hf_access_connect_unknown_01,
+	  { "Unknown 0x01", "samr_access_mask.connect_unknown_01",
+	    FT_BOOLEAN, 32, TFS(&flags_set_truth),
+	    SAMR_ACCESS_UNKNOWN_1, "Unknown 0x01", HFILL }},
+
+	{ &hf_access_connect_shutdown_server,
+	  { "Shutdown server", "samr_access_mask.connect_shutdown_server",
+	    FT_BOOLEAN, 32, TFS(&flags_set_truth),
+	    SAMR_ACCESS_SHUTDOWN_SERVER, "Shutdown server", HFILL }},
+
+	{ &hf_access_connect_unknown_04,
+	  { "Unknown 0x04", "samr_access_mask.connect_unknown_04",
+	    FT_BOOLEAN, 32, TFS(&flags_set_truth),
+	    SAMR_ACCESS_UNKNOWN_4, "Unknown 0x04", HFILL }},
+
+	{ &hf_access_connect_unknown_08,
+	  { "Unknown 0x08", "samr_access_mask.connect_unknown_08",
+	    FT_BOOLEAN, 32, TFS(&flags_set_truth),
+	    SAMR_ACCESS_UNKNOWN_8, "Unknown 0x08", HFILL }},
+
+	{ &hf_access_connect_enum_domains,
+	  { "Enum domains", "samr_access_mask.connect_enum_domains",
+	    FT_BOOLEAN, 32, TFS(&flags_set_truth),
+	    SAMR_ACCESS_ENUM_DOMAINS, "Enum domains", HFILL }},
+
+	{ &hf_access_connect_open_domain,
+	  { "Open domain", "samr_access_mask.connect_open_domain",
+	    FT_BOOLEAN, 32, TFS(&flags_set_truth),
+	    SAMR_ACCESS_OPEN_DOMAIN, "Open domain", HFILL }}
+
         };
+
         static gint *ett[] = {
                 &ett_dcerpc_samr,
 		&ett_samr_user_dispinfo_1,

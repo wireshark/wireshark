@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *  2002  Added LSA command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-lsa.c,v 1.54 2002/08/09 09:27:33 sahlberg Exp $
+ * $Id: packet-dcerpc-lsa.c,v 1.55 2002/08/21 21:31:15 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -384,13 +384,78 @@ lsa_dissect_SECURITY_QUALITY_OF_SERVICE(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
+/* Dissect LSA specific access rights */
+
+static gint hf_view_local_info = -1;
+static gint hf_view_audit_info = -1;
+static gint hf_get_private_info = -1;
+static gint hf_trust_admin = -1;
+static gint hf_create_account = -1;
+static gint hf_create_secret = -1;
+static gint hf_create_priv = -1;
+static gint hf_set_default_quota_limits = -1;
+static gint hf_set_audit_requirements = -1;
+static gint hf_server_admin = -1;
+static gint hf_lookup_names = -1;
+
+static int 
+lsa_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree,
+		    guint32 access)
+{
+	proto_tree_add_boolean(
+		tree, hf_lookup_names,
+		tvb, offset, 4, access);
+
+	proto_tree_add_boolean(
+		tree, hf_server_admin,
+		tvb, offset, 4, access);
+
+	proto_tree_add_boolean(
+		tree, hf_set_audit_requirements,
+		tvb, offset, 4, access);
+
+	proto_tree_add_boolean(
+		tree, hf_set_default_quota_limits,
+		tvb, offset, 4, access);
+
+	proto_tree_add_boolean(
+		tree, hf_create_priv,
+		tvb, offset, 4, access);
+
+	proto_tree_add_boolean(
+		tree, hf_create_secret,
+		tvb, offset, 4, access);
+
+	proto_tree_add_boolean(
+		tree, hf_create_account,
+		tvb, offset, 4, access);
+
+	proto_tree_add_boolean(
+		tree, hf_trust_admin,
+		tvb, offset, 4, access);
+
+	proto_tree_add_boolean(
+		tree, hf_get_private_info,
+		tvb, offset, 4, access);
+
+	proto_tree_add_boolean(
+		tree, hf_view_audit_info,
+		tvb, offset, 4, access);
+
+	proto_tree_add_boolean(
+		tree, hf_view_local_info,
+		tvb, offset, 4, access);
+
+	return offset;
+}
+
 static int
 lsa_dissect_ACCESS_MASK(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
-	/* XXX is this some bitmask ?*/
-	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_lsa_access_mask, NULL);
+	offset = dissect_nt_access_mask(
+		tvb, offset, pinfo, tree, drep, hf_lsa_access_mask, 
+		lsa_specific_rights);
 
 	return offset;
 }
@@ -4363,8 +4428,63 @@ proto_register_dcerpc_lsa(void)
 
 	{ &hf_lsa_remove_all,
 		{ "Remove All", "lsa.remove_all", FT_UINT8, BASE_DEC, 
-		NULL, 0x0, "Flag whether all rights should be removed or only the specified ones", HFILL }}
-	};
+		NULL, 0x0, "Flag whether all rights should be removed or only the specified ones", HFILL }},
+	
+	{ &hf_view_local_info,
+	        { "View local info", "lsa.access_mask.view_local_info", 
+		  FT_BOOLEAN, 32, TFS(&flags_set_truth), POLICY_VIEW_LOCAL_INFORMATION, 
+		  "View local info", HFILL }},
+
+	{ &hf_view_audit_info,
+	        { "View audit info", "lsa.access_mask.view_audit_info", 
+		  FT_BOOLEAN, 32, TFS(&flags_set_truth), POLICY_VIEW_AUDIT_INFORMATION, 
+		  "View audit info", HFILL }},
+
+	{ &hf_get_private_info,
+	        { "Get private info", "lsa.access_mask.get_privateinfo", 
+		  FT_BOOLEAN, 32, TFS(&flags_set_truth), POLICY_GET_PRIVATE_INFORMATION, 
+		  "Get private info", HFILL }},
+
+	{ &hf_trust_admin,
+	        { "Trust admin", "lsa.access_mask.trust_admin", 
+		  FT_BOOLEAN, 32, TFS(&flags_set_truth), POLICY_TRUST_ADMIN, 
+		  "Trust admin", HFILL }},
+
+	{ &hf_create_account,
+	        { "Create account", "lsa.access_mask.create_account", 
+		  FT_BOOLEAN, 32, TFS(&flags_set_truth), POLICY_CREATE_ACCOUNT, 
+		  "Create account", HFILL }},
+
+	{ &hf_create_secret,
+	        { "Create secret", "lsa.access_mask.create_secret", 
+		  FT_BOOLEAN, 32, TFS(&flags_set_truth), POLICY_CREATE_SECRET, 
+		  "Create secret", HFILL }},
+
+	{ &hf_create_priv,
+	        { "Create privilege", "lsa.access_mask.create_priv", 
+		  FT_BOOLEAN, 32, TFS(&flags_set_truth), POLICY_CREATE_PRIVILEGE, 
+		  "Create privilege", HFILL }},
+
+	{ &hf_set_default_quota_limits,
+	        { "Set default quota limits", "lsa.access_mask.set_default_quota_limits", 
+		  FT_BOOLEAN, 32, TFS(&flags_set_truth), POLICY_SET_DEFAULT_QUOTA_LIMITS, 
+		  "Set default quota limits", HFILL }},
+
+	{ &hf_set_audit_requirements,
+	        { "Set audit requirements", "lsa.access_mask.set_audit_requirements", 
+		  FT_BOOLEAN, 32, TFS(&flags_set_truth), POLICY_SET_AUDIT_REQUIREMENTS, 
+		  "Set audit requirements", HFILL }},
+
+	{ &hf_server_admin,
+	        { "Server admin", "lsa.access_mask.server_admin", 
+		  FT_BOOLEAN, 32, TFS(&flags_set_truth), POLICY_SERVER_ADMIN, 
+		  "Server admin", HFILL }},
+
+	{ &hf_lookup_names,
+	        { "Lookup names", "lsa.access_mask.lookup_names", 
+		  FT_BOOLEAN, 32, TFS(&flags_set_truth), POLICY_LOOKUP_NAMES, 
+		  "Lookup names", HFILL }}
+};
 
         static gint *ett[] = {
 		&ett_dcerpc_lsa,

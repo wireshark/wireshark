@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\spoolss packet disassembly
  * Copyright 2001-2002, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-spoolss.c,v 1.47 2002/07/10 02:59:38 tpot Exp $
+ * $Id: packet-dcerpc-spoolss.c,v 1.48 2002/08/21 21:31:14 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -143,6 +143,7 @@ static int hf_spoolss_outputfile = -1;
 static int hf_spoolss_datatype = -1;
 static int hf_spoolss_textstatus = -1;
 static int hf_spoolss_level = -1;
+static int hf_access_required = -1;
 
 /* Print job */
 
@@ -479,6 +480,43 @@ static int hf_spoolss_enumforms_num = -1;
 
 static int hf_spoolss_printerdata_size = -1;
 static int hf_spoolss_printerdata_data = -1;
+
+/*
+ * Dissect SPOOLSS specific access rights 
+ */
+
+static int hf_server_access_admin = -1;
+static int hf_server_access_enum = -1;
+static int hf_printer_access_admin = -1;
+static int hf_printer_access_use = -1;
+static int hf_job_access_admin = -1;
+
+static int 
+spoolss_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree,
+			guint32 access)
+{
+	proto_tree_add_boolean(
+		tree, hf_job_access_admin,
+		tvb, offset, 4, access);
+
+	proto_tree_add_boolean(
+		tree, hf_printer_access_use,
+		tvb, offset, 4, access);
+	
+	proto_tree_add_boolean(
+		tree, hf_printer_access_admin,
+		tvb, offset, 4, access);
+	
+	proto_tree_add_boolean(
+		tree, hf_server_access_enum,
+		tvb, offset, 4, access);
+
+	proto_tree_add_boolean(
+		tree, hf_server_access_admin,
+		tvb, offset, 4, access);
+	
+	return offset;
+}
 
 /* 
  * Routines to dissect a spoolss BUFFER 
@@ -1768,7 +1806,8 @@ static int prs_PRINTER_DEFAULT(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	GList *child_dp_list = NULL;
 	proto_item *item;
 	proto_tree *subtree;
-	guint32 ptr = 0, access;
+	guint32 ptr = 0;
+	char drep = 0x10;
 
 	item = proto_tree_add_text(tree, tvb, offset, 0, "PRINTER_DEFAULT");
 
@@ -1786,10 +1825,11 @@ static int prs_PRINTER_DEFAULT(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = prs_DEVMODE_CTR(tvb, offset, pinfo, subtree,
 				 &child_dp_list, NULL);
 		
-	offset = prs_uint32(tvb, offset, pinfo, subtree, &access, NULL);
+	dissect_nt_access_mask(
+		tvb, offset, pinfo, subtree, &drep, hf_access_required,
+		spoolss_specific_rights);
 
-	proto_tree_add_text(subtree, tvb, offset - 4, 4, 
-			    "Access required: 0x%08x", access);
+	offset += 4;
 
 	offset = prs_referents(tvb, offset, pinfo, subtree, dp_list,
 			       &child_dp_list, NULL);
@@ -6554,7 +6594,37 @@ proto_register_dcerpc_spoolss(void)
 		  { "Data", "spoolss.printerdata.data", FT_BYTES, 
 		    BASE_HEX, NULL, 0, "Data", HFILL }},
 
-		
+		/* Specific access rights */
+
+		{ &hf_access_required,
+		  { "Access required", "spoolss.access_required",
+		    FT_UINT32, BASE_HEX, NULL, 0x0, "Access REQUIRED", 
+		    HFILL }},
+
+		{ &hf_server_access_admin,
+		  { "Server admin", "spoolss.access_mask.server_admin",
+		    FT_BOOLEAN, 32, TFS(&flags_set_truth), 
+		    SERVER_ACCESS_ADMINISTER, "Server admin", HFILL }},
+
+		{ &hf_server_access_enum,
+		  { "Server enum", "spoolss.access_mask.server_enum",
+		    FT_BOOLEAN, 32, TFS(&flags_set_truth), 
+		    SERVER_ACCESS_ENUMERATE, "Server enum", HFILL }},
+
+		{ &hf_printer_access_admin,
+		  { "Printer admin", "spoolss.access_mask.printer_admin",
+		    FT_BOOLEAN, 32, TFS(&flags_set_truth), 
+		    PRINTER_ACCESS_ADMINISTER, "Printer admin", HFILL }},
+
+		{ &hf_printer_access_use,
+		  { "Printer use", "spoolss.access_mask.printer_use",
+		    FT_BOOLEAN, 32, TFS(&flags_set_truth), 
+		    PRINTER_ACCESS_USE, "Printer use", HFILL }},
+
+		{ &hf_job_access_admin,
+		  { "Job admin", "spoolss.access_mask.job_admin",
+		    FT_BOOLEAN, 32, TFS(&flags_set_truth), 
+		    JOB_ACCESS_ADMINISTER, "Job admin", HFILL }}
 	};
 
         static gint *ett[] = {
