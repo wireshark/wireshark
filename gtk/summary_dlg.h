@@ -1,7 +1,7 @@
 /* summary_dlg.h
  * Routines for capture file summary window
  *
- * $Id: summary_dlg.h,v 1.1 1999/12/10 04:21:04 gram Exp $
+ * $Id: summary_dlg.h,v 1.2 2000/04/01 09:16:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -27,6 +27,5 @@
 #define __SUMMARY_DLG_H__
 
 void summary_open_cb(GtkWidget *w, gpointer d);
-void summary_destroy_cb(GtkWidget *w, gpointer d);
 
 #endif /* __SUMMARY_DLG_H__ */

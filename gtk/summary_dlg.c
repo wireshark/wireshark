@@ -1,7 +1,7 @@
 /* summary_dlg.c
  * Routines for capture file summary window
  *
- * $Id: summary_dlg.c,v 1.1 1999/12/10 04:21:04 gram Exp $
+ * $Id: summary_dlg.c,v 1.2 2000/04/01 09:16:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -79,11 +79,6 @@ summary_open_cb(GtkWidget *w, gpointer d)
   seconds = summary.stop_time - summary.start_time;
   sum_open_w = gtk_window_new(GTK_WINDOW_TOPLEVEL);
   gtk_window_set_title(GTK_WINDOW(sum_open_w), "Ethereal: Summary");
-
-  gtk_signal_connect( GTK_OBJECT(sum_open_w), "delete_event",
-	GTK_SIGNAL_FUNC(summary_destroy_cb), NULL);
-  gtk_signal_connect( GTK_OBJECT(sum_open_w), "destroy",
-	GTK_SIGNAL_FUNC(summary_destroy_cb), NULL);
 
   /* Container for each row of widgets */
   main_vb = gtk_vbox_new(FALSE, 3);
@@ -206,11 +201,4 @@ summary_open_cb(GtkWidget *w, gpointer d)
 
   gtk_window_set_position(GTK_WINDOW(sum_open_w), GTK_WIN_POS_MOUSE);
   gtk_widget_show(sum_open_w);
-}
-
-void
-summary_destroy_cb(GtkWidget *win, gpointer data)
-{
-  gtk_grab_remove(GTK_WIDGET(win));
-  gtk_widget_destroy(GTK_WIDGET(win));
 }
