@@ -1,7 +1,7 @@
 ;
 ; ethereal.nsi
 ;
-; $Id: ethereal.nsi,v 1.5 2002/08/30 15:32:27 gerald Exp $
+; $Id: ethereal.nsi,v 1.6 2002/09/29 18:16:42 gerald Exp $
 
 ; ============================================================================
 ; Header configuration
@@ -150,8 +150,8 @@ Section "Start Menu Shortcuts"
 ;-------------------------------------------
 CreateDirectory "$SMPROGRAMS\Ethereal"
 
-Delete "$SMPROGRAMS\Ethereal\Ethereal Home Page.lnk"
-WriteINIStr "$SMPROGRAMS\Ethereal\Ethereal Home Page.url" \
+Delete "$SMPROGRAMS\Ethereal\Ethereal Web Site.lnk"
+WriteINIStr "$SMPROGRAMS\Ethereal\Ethereal Web Site.url" \
           "InternetShortcut" "URL" "http://www.ethereal.com/"
 CreateShortCut "$SMPROGRAMS\Ethereal\Ethereal.lnk" "$INSTDIR\ethereal.exe"
 CreateShortCut "$SMPROGRAMS\Ethereal\Ethereal Documentation.lnk" "$INSTDIR\ethereal.html"
