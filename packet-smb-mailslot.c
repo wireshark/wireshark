@@ -2,7 +2,7 @@
  * Routines for SMB mailslot packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-smb-mailslot.c,v 1.25 2001/11/26 04:52:51 hagbard Exp $
+ * $Id: packet-smb-mailslot.c,v 1.26 2001/11/27 05:14:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -77,8 +77,8 @@ dissect_mailslot_smb(tvbuff_t *mshdr_tvb, tvbuff_t *setup_tvb,
 	smb_info_t *smb_info;
 	smb_transact_info_t *tri;
 	int             trans_subcmd;
-	proto_tree      *tree = 0;
-	proto_item      *item;
+	proto_tree      *tree = NULL;
+	proto_item      *item = NULL;
 	guint16         opcode;
 	int             offset = 0;
 	int             len;
@@ -97,6 +97,10 @@ dissect_mailslot_smb(tvbuff_t *mshdr_tvb, tvbuff_t *setup_tvb,
 		/* Interim reply */
 		col_set_str(pinfo->fd, COL_INFO, "Interim reply");
 		return TRUE;
+	}
+
+	if (check_col(pinfo->fd, COL_INFO)) {
+		col_clear(pinfo->fd, COL_INFO);
 	}
 
 	smb_info = pinfo->private_data;
@@ -123,18 +127,24 @@ dissect_mailslot_smb(tvbuff_t *mshdr_tvb, tvbuff_t *setup_tvb,
 	if (tri != NULL)
 		tri->trans_subcmd = trans_subcmd;
 
-	/* do the opcode field */
-	opcode = tvb_get_letohs(setup_tvb, offset);
-
-	if (check_col(pinfo->fd, COL_INFO)) {
-		  col_add_str(pinfo->fd, COL_INFO,
-		      val_to_str(opcode, opcode_vals, "Unknown opcode: 0x%04x"));
-	}
-
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, proto_smb_msp, mshdr_tvb,
 			0, tvb_length(mshdr_tvb), FALSE);
 		tree = proto_item_add_subtree(item, ett_smb_msp);
+	}
+
+	/* Only do these ones if we have them. For fragmented SMB Transactions
+	   we may only have the setup area for the first fragment
+	*/
+	if(mshdr_tvb && setup_tvb){
+		/* do the opcode field */
+		opcode = tvb_get_letohs(setup_tvb, offset);
+
+		if (check_col(pinfo->fd, COL_INFO)) {
+			col_add_str(pinfo->fd, COL_INFO,
+				    val_to_str(opcode, opcode_vals, "Unknown opcode: 0x%04x"));
+		}
+
 
 		/* These are in the setup words; use "setup_tvb". */
 
@@ -156,6 +166,7 @@ dissect_mailslot_smb(tvbuff_t *mshdr_tvb, tvbuff_t *setup_tvb,
 		   starts at the same place "setup_tvb" does. */
 
 		/* size */
+		/* this is actually bytecount in the SMB Transaction command */
 		proto_tree_add_item(tree, hf_size, mshdr_tvb, offset, 2, TRUE);
 		offset += 2;
 
