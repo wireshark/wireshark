@@ -1,6 +1,6 @@
 /* file.h
  *
- * $Id: file.h,v 1.1 1999/09/22 01:28:04 ashokn Exp $
+ * $Id: file.h,v 1.2 1999/09/22 07:37:46 ashokn Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -34,6 +34,8 @@
 #define file_read(buf, bsize, count, file) gzread((file),(buf),((count)*(bsize)))
 #define file_write(buf, bsize, count, file) gzwrite((file),(buf),((count)*(bsize)))
 #define file_close gzclose
+#define file_tell gztell
+#define file_getc gzgetc
 static inline int file_error(void *fh) {
     int errnum;
     gzerror(fh, &errnum);
@@ -50,6 +52,8 @@ static inline int file_error(void *fh) {
 #define file_write fwrite
 #define file_close fclose
 #define file_error ferror
+#define file_tell ftell
+#define file_getc fgetc
 #endif /* HAVE_LIBZ */
 
 #endif /* __FILE_H__ */

@@ -9,6 +9,10 @@
 #include "wtap.h"
 #include "ascend.h"
 #include "ascend-grammar.h"
+#include "file.h"
+
+void *yy_fh;
+#define YY_INPUT(buf,result,max_size) { int c = file_getc(yy_fh);  result = (c==EOF) ? YY_NULL : (buf[0] = c, 1); } 
 
 struct ascend_phdr *pseudo_header;
 
@@ -18,6 +22,7 @@ int mul, scratch;
 
 /* %option debug */
 %option nostdinit
+%option noyywrap
 
 D [0-9]
 H [A-Fa-f0-9]
@@ -215,8 +220,8 @@ int ascendwrap() { return 1; };
 
 void ascend_init_lexer(FILE *fh, FILE *nfh)
 {
-  yyin = fh;
+  yyrestart(0);
   yyout = nfh;
-  yyrestart(fh);
+  yy_fh = fh;
   BEGIN(INITIAL);
 }

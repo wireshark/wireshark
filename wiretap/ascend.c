@@ -1,6 +1,6 @@
 /* ascend.c
  *
- * $Id: ascend.c,v 1.5 1999/09/13 03:49:04 gerald Exp $
+ * $Id: ascend.c,v 1.6 1999/09/22 07:37:46 ashokn Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -26,6 +26,7 @@
 #include "wtap.h"
 #include "buffer.h"
 #include "ascend.h"
+#include "file.h"
 
 #include <sys/stat.h>
 #include <unistd.h>
@@ -86,12 +87,12 @@ static int ascend_seek(wtap *wth, int max_seek)
   int byte, bytes_read = 0, date_off = 0;
   int x_level = 0, r_level = 0, w1_level = 0, w2_level = 0;
 
-  while (((byte = fgetc(wth->fh)) != EOF) && bytes_read < max_seek) {
+  while (((byte = file_getc(wth->fh)) != EOF) && bytes_read < max_seek) {
     if (byte == ascend_xmagic[x_level]) {
       x_level++;
       if (x_level >= ASCEND_X_SIZE) {
-        fseek(wth->fh, -(ASCEND_X_SIZE), SEEK_CUR);
-        return ftell(wth->fh) + 1;
+        file_seek(wth->fh, -(ASCEND_X_SIZE), SEEK_CUR);
+        return file_tell(wth->fh) + 1;
       }
     } else {
       x_level = 0;
@@ -99,8 +100,8 @@ static int ascend_seek(wtap *wth, int max_seek)
     if (byte == ascend_rmagic[r_level]) {
       r_level++;
       if (r_level >= ASCEND_R_SIZE) {
-        fseek(wth->fh, -(ASCEND_R_SIZE), SEEK_CUR);
-        return ftell(wth->fh) + 1;
+        file_seek(wth->fh, -(ASCEND_R_SIZE), SEEK_CUR);
+        return file_tell(wth->fh) + 1;
       }
     } else {
       r_level = 0;
@@ -108,7 +109,7 @@ static int ascend_seek(wtap *wth, int max_seek)
     if (byte == ascend_w1magic[w1_level]) {
       w1_level++;
       if (w1_level >= ASCEND_W1_SIZE) {
-        date_off = ftell(wth->fh) - ASCEND_W1_SIZE + 1;
+        date_off = file_tell(wth->fh) - ASCEND_W1_SIZE + 1;
       }
     } else {
       w1_level = 0;
@@ -116,7 +117,7 @@ static int ascend_seek(wtap *wth, int max_seek)
     if (byte == ascend_w2magic[w2_level]) {
       w2_level++;
       if (w2_level >= ASCEND_W2_SIZE && date_off) {
-        fseek(wth->fh, date_off - 1, SEEK_SET);
+        file_seek(wth->fh, date_off - 1, SEEK_SET);
         return date_off;
       }
     } else {
@@ -133,7 +134,7 @@ int ascend_open(wtap *wth, int *err)
   int offset;
   struct stat statbuf;
 
-  fseek(wth->fh, 0, SEEK_SET);
+  file_seek(wth->fh, 0, SEEK_SET);
   offset = ascend_seek(wth, ASCEND_MAX_SEEK);
   if (offset < 1) {
     return 0;
@@ -150,9 +151,11 @@ int ascend_open(wtap *wth, int *err)
      from reporting packet times near the epoch, we subtract the first
      packet's timestamp from the capture file's ctime, which gives us an
      offset that we can apply to each packet.
+
+     NOTE: Since we can't fstat a compressed file, assume that the first
+     packet time is 0 and other packets are relative to this.
    */
-  fstat(fileno(wth->fh), &statbuf);
-  wth->capture.ascend->inittime = statbuf.st_ctime;
+  wth->capture.ascend->inittime = 0;
   wth->capture.ascend->adjusted = 0;
   wth->capture.ascend->seek_add = -1;
 
@@ -168,12 +171,12 @@ static int ascend_read(wtap *wth, int *err)
   guint8 *buf = buffer_start_ptr(wth->frame_buffer);
   ascend_pkthdr header;
 
-  /* (f)lex reads large chunks of the file into memory, so ftell() doesn't
+  /* (f)lex reads large chunks of the file into memory, so file_tell() doesn't
      give us the correct location of the packet.  Instead, we seek to the 
      location of the last packet and try to find the next packet.  In
      addition, we fool around with the seek offset in case a valid packet
      starts at the beginning of the file.  */  
-  fseek(wth->fh, wth->data_offset + wth->capture.ascend->seek_add, SEEK_SET);
+  file_seek(wth->fh, wth->data_offset + wth->capture.ascend->seek_add, SEEK_SET);
   wth->capture.ascend->seek_add = 0;
   offset = ascend_seek(wth, ASCEND_MAX_SEEK);
   if (offset < 1) {
@@ -188,8 +191,7 @@ static int ascend_read(wtap *wth, int *err)
 
   if (! wth->capture.ascend->adjusted) {
     wth->capture.ascend->adjusted = 1;
-    if (wth->capture.ascend->inittime > header.secs)
-      wth->capture.ascend->inittime -= header.secs;
+    wth->capture.ascend->inittime = -header.secs;
   }
   wth->phdr.ts.tv_sec = header.secs + wth->capture.ascend->inittime;
   wth->phdr.ts.tv_usec = header.usecs;
@@ -203,6 +205,6 @@ static int ascend_read(wtap *wth, int *err)
 
 int ascend_seek_read (FILE *fh, int seek_off, guint8 *pd, int len)
 {
-  fseek(fh, seek_off - 1, SEEK_SET);
+  file_seek(fh, seek_off - 1, SEEK_SET);
   return parse_ascend(fh, pd, NULL, NULL, len);
 }
