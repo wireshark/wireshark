@@ -2,7 +2,7 @@
  * Routines for SNMP (simple network management protocol)
  * D.Jorand (c) 1998
  *
- * $Id: packet-snmp.c,v 1.11 1999/10/25 20:50:19 guy Exp $
+ * $Id: packet-snmp.c,v 1.12 1999/10/27 02:05:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -858,9 +858,19 @@ dissect_snmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	}
 }
 
+#endif /* WITH_SNMP: CMU or UCD */
+
+/*
+ * Allow the stuff that builds "register.c" to scan "packet-snmp.c" even
+ * if we're not enabling SNMP decoding (for "canned" source distributions
+ * such as BSD ports, it may be a pain to arrange that it be scanned only
+ * if SNMP is being used), by having "proto_register_snmp()" always be
+ * defined, but not do anything if SNMP decoding isn't enabled.
+ */
 void
 proto_register_snmp(void)
 {
+#if defined(WITH_SNMP_CMU) || defined(WITH_SNMP_UCD)
 /*        static hf_register_info hf[] = {
                 { &variable,
                 { "Name",           "snmp.abbreviation", TYPE, VALS_POINTER }},
@@ -869,6 +879,5 @@ proto_register_snmp(void)
 	init_mib();
         proto_snmp = proto_register_protocol("Simple Network Management Protocol", "snmp");
  /*       proto_register_field_array(proto_snmp, hf, array_length(hf));*/
-}
-
 #endif /* WITH_SNMP: CMU or UCD */
+}
