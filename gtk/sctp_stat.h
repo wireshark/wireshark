@@ -23,9 +23,15 @@
  */
  
 #include <epan/dissectors/packet-sctp.h>
+#ifdef HAVE_SYS_TYPES_H
 #include <sys/types.h>
+#endif
+#ifdef HAVE_SYS_SOCKET_H
 #include <sys/socket.h>
+#endif
+#ifndef WIN32
 #include <netinet/in.h>
+#endif
 
 #define SCTP_DATA_CHUNK_ID               0
 #define SCTP_INIT_CHUNK_ID               1
