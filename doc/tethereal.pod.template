@@ -7,6 +7,7 @@ Tethereal - Dump and analyze network traffic
 
 B<tethereal>
 S<[ B<-c> count ]>
+S<[ B<-D> ]>
 S<[ B<-f> capture filter expression ]>
 S<[ B<-F> file format ]>
 S<[ B<-h> ]>
@@ -107,6 +108,15 @@ B<-r> flag was specified).
 
 Sets the default number of packets to read when capturing live
 data.
+
+=item -D
+
+Prints a list of the interfaces on which B<Tethereal> can capture, and
+exits.  Note that "can capture" means that B<Tethereal> was able to open
+that device to do a live capture; if, on your system, a program doing a
+network capture must be run from an account with special privileges (for
+example, as root), then, if B<Tethereal> is run with the B<-D> flag and
+is not run from such an account, it will not list any interfaces.
 
 =item -f
 

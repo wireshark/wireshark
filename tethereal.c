@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.70 2001/03/24 09:24:41 guy Exp $
+ * $Id: tethereal.c,v 1.71 2001/03/27 06:16:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -145,7 +145,7 @@ print_usage(void)
   fprintf(stderr, "This is GNU t%s %s, compiled with %s\n", PACKAGE,
 	  VERSION, comp_info_str);
 #ifdef HAVE_LIBPCAP
-  fprintf(stderr, "t%s [ -vVhlp ] [ -c count ] [ -f <capture filter> ]\n", PACKAGE);
+  fprintf(stderr, "t%s [ -DvVhlp ] [ -c count ] [ -f <capture filter> ]\n", PACKAGE);
   fprintf(stderr, "\t[ -F <capture file type> ] [ -i interface ] [ -n ]\n");
   fprintf(stderr, "\t[ -o <preference setting> ] ... [ -r infile ] [ -R <read filter> ]\n");
   fprintf(stderr, "\t[ -s snaplen ] [ -t <time stamp format> ] [ -w savefile ] [ -x ]\n");
@@ -187,7 +187,7 @@ main(int argc, char *argv[])
 #ifdef HAVE_LIBPCAP
   gboolean             capture_filter_specified = FALSE;
   int                  packet_count = 0;
-  GList               *if_list;
+  GList               *if_list, *if_entry;
   gchar                err_str[PCAP_ERRBUF_SIZE];
 #else
   gboolean             capture_option_specified = FALSE;
@@ -303,6 +303,28 @@ main(int argc, char *argv[])
         capture_option_specified = TRUE;
         arg_error = TRUE;
 #endif
+        break;
+      case 'D':        /* Print a list of capture devices */
+        if_list = get_interface_list(&err, err_str);
+        if (if_list == NULL) {
+            switch (err) {
+
+            case CANT_GET_INTERFACE_LIST:
+                fprintf(stderr, "tethereal: Can't get list of interfaces: %s\n",
+			err_str);
+                break;
+
+            case NO_INTERFACES_FOUND:
+                fprintf(stderr, "tethereal: There are no interfaces on which a capture can be done\n");
+                break;
+            }
+            exit(2);
+        }
+        for (if_entry = g_list_first(if_list); if_entry != NULL;
+		if_entry = g_list_next(if_entry))
+          printf("%s\n", (char *)if_entry->data);
+        free_interface_list(if_list);
+        exit(0);
         break;
       case 'f':
 #ifdef HAVE_LIBPCAP
