@@ -9,7 +9,6 @@
 .deps
 .gdb_history
 .libs
-FAQTMP*
 Makefile
 Makefile.in
 aclocal.m4
