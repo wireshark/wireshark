@@ -1,15 +1,13 @@
 /* packet-dtp.c
- * Routines for the disassembly for Dynamic Trunking Protocol
+ * Routines for the disassembly for Cisco Dynamic Trunking Protocol
  *
- * $Id:$
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
- *
  * DTP support added by Charlie Lenahan <clenahan@fortresstech.com>
- *
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -90,7 +88,7 @@ dissect_dtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree_add_item(dtp_tree, hf_dtp_version, tvb, offset, 1, FALSE);
 	offset += 1;
 
-	while (tvb_length_remaining(tvb, offset) ) {
+	while (tvb_reported_length_remaining(tvb, offset) > 0) {
 		int type, length, valuelength;
 
 		type = tvb_get_ntohs(tvb, offset);
@@ -128,8 +126,8 @@ dissect_dtp_tlv(tvbuff_t *tvb, int offset, int length,
 
 	case TRUNK_NAME_NUM:
 		if (length > 0) {
-			proto_item_set_text(ti, "Trunk Name: %s", tvb_get_ptr(tvb, offset,length));
-			proto_tree_add_text(tree, tvb, offset, length, "Trunk Name: %s", tvb_get_ptr(tvb, offset,length));
+			proto_item_set_text(ti, "Trunk Name: %s", tvb_format_text(tvb, offset, length - 1));
+			proto_tree_add_text(tree, tvb, offset, length, "Trunk Name: %s", tvb_format_text(tvb, offset, length - 1));
 		} else {
 			proto_item_set_text(ti, "Trunk Name: Bad length %u", length);
 			proto_tree_add_text(tree, tvb, offset, length, "Trunk Name: Bad length %u", length);
@@ -155,7 +153,7 @@ dissect_dtp_tlv(tvbuff_t *tvb, int offset, int length,
 		break;
 
 	case TYPE_3_NUM:
-		if (length > 0 ) {
+		if (length > 0) {
 			proto_item_set_text(ti,
 			    "Type 3: 0x%02x",
 			    tvb_get_guint8(tvb, offset));
@@ -177,8 +175,8 @@ dissect_dtp_tlv(tvbuff_t *tvb, int offset, int length,
 		if (length == 6) {
 	                const guint8 *macptr=tvb_get_ptr(tvb,offset,length);
 
-			proto_item_set_text(ti, "Some MAC: %2.2x:%2.2x:%2.2x:%2.2x:%2.2x:%2.2x", 
-                    		macptr[0], macptr[1], macptr[2], macptr[3], macptr[4], macptr[5]);
+			proto_item_set_text(ti, "Some MAC: %s",
+				ether_to_str(macptr));	/* XXX - resolve? */
             		proto_tree_add_ether(tree, hf_dtp_some_mac, tvb, offset,length,macptr);
 		} else {
 			proto_item_set_text(ti,
@@ -223,9 +221,9 @@ proto_register_dtp(void)
 		&ett_dtp_tlv,
 	};
 
-    proto_dtp = proto_register_protocol("Dynamic Trunking Protocol", "DTP", "dtp");
-    proto_register_field_array(proto_dtp, hf, array_length(hf));
-    proto_register_subtree_array(ett, array_length(ett));
+	proto_dtp = proto_register_protocol("Dynamic Trunking Protocol", "DTP", "dtp");
+	proto_register_field_array(proto_dtp, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
 }
 
 void
