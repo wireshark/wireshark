@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\spoolss packet disassembly
  * Copyright 2001-2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-spoolss.c,v 1.73 2003/01/28 06:42:20 tpot Exp $
+ * $Id: packet-dcerpc-spoolss.c,v 1.74 2003/01/28 22:51:54 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -181,18 +181,7 @@ static int hf_spoolss_time_msec = -1;
 
 /* Printer data */
 
-static int hf_spoolss_printerdata_key = -1;
-static int hf_spoolss_printerdata_value = -1;
-static int hf_spoolss_printerdata_type = -1;
 static int hf_spoolss_printerdata_size = -1;
-
-/* enumprinterdata */
-
-static int hf_spoolss_enumprinterdata_index = -1;
-static int hf_spoolss_enumprinterdata_value_offered = -1;
-static int hf_spoolss_enumprinterdata_data_offered = -1;
-static int hf_spoolss_enumprinterdata_value_needed = -1;
-static int hf_spoolss_enumprinterdata_data_needed = -1;
 
 /* enumprinterdataex */
 
@@ -268,13 +257,6 @@ static int hf_spoolss_rrpcn_unk1 = -1;
 
 static int hf_spoolss_replyopenprinter_unk0 = -1;
 static int hf_spoolss_replyopenprinter_unk1 = -1;
-
-static const value_string devmode_orientation_vals[] =
-{
-	{ DEVMODE_ORIENTATION_PORTRAIT, "Portrait" },
-	{ DEVMODE_ORIENTATION_LANDSCAPE, "Landscape" },
-	{ 0, NULL }
-};
 
 static const value_string printer_status_vals[] =
 {
@@ -585,42 +567,87 @@ static int hf_spoolss_getprinter_averageppm = -1;
 static int hf_spoolss_getprinter_guid = -1;
 static int hf_spoolss_getprinter_action = -1;
 
+/* Userlevel */
+
+static int hf_spoolss_userlevel_size = -1;
+static int hf_spoolss_userlevel_client = -1;
+static int hf_spoolss_userlevel_user = -1;
+static int hf_spoolss_userlevel_build = -1;
+static int hf_spoolss_userlevel_major = -1;
+static int hf_spoolss_userlevel_minor = -1;
+static int hf_spoolss_userlevel_processor = -1;
+
+/* Setprinterdataex */
+
+static int hf_spoolss_setprinterdataex_max_len = -1;
+static int hf_spoolss_setprinterdataex_real_len = -1;
+static int hf_spoolss_setprinterdataex_data = -1;
+
+/* spool printer info */
+
+static int hf_spoolss_spool_printer_info_devmode_ptr = -1;
+static int hf_spoolss_spool_printer_info_secdesc_ptr = -1;
+
+/* Security descriptor buffer */
+
+static int hf_spoolss_secdescbuf_maxlen = -1;
+static int hf_spoolss_secdescbuf_undoc = -1;
+static int hf_spoolss_secdescbuf_len = -1;
+
+/*
+ * New hf index values
+ */
+
+/* Printer data */
+
+static int hf_printerdata = -1;
+static int hf_printerdata_key = -1;
+static int hf_printerdata_value = -1;
+static int hf_printerdata_type = -1;
+static int hf_printerdata_size = -1; /* Length of printer data */
+static int hf_printerdata_data = -1;
+static int hf_printerdata_data_sz = -1;
+static int hf_printerdata_data_dword = -1;
+
 /* Devicemode */
 
-static int hf_spoolss_devmode_size = -1;
-static int hf_spoolss_devmode_spec_version = -1;
-static int hf_spoolss_devmode_driver_version = -1;
-static int hf_spoolss_devmode_size2 = -1;
-static int hf_spoolss_devmode_driver_extra_len = -1;
-static int hf_spoolss_devmode_fields = -1;
-static int hf_spoolss_devmode_orientation = -1;
-static int hf_spoolss_devmode_paper_size = -1;
-static int hf_spoolss_devmode_paper_width = -1;
-static int hf_spoolss_devmode_paper_length = -1;
-static int hf_spoolss_devmode_scale = -1;
-static int hf_spoolss_devmode_copies = -1;
-static int hf_spoolss_devmode_default_source = -1;
-static int hf_spoolss_devmode_print_quality = -1;
-static int hf_spoolss_devmode_color = -1;
-static int hf_spoolss_devmode_duplex = -1;
-static int hf_spoolss_devmode_y_resolution = -1;
-static int hf_spoolss_devmode_tt_option = -1;
-static int hf_spoolss_devmode_collate = -1;
-static int hf_spoolss_devmode_log_pixels = -1;
-static int hf_spoolss_devmode_bits_per_pel = -1;
-static int hf_spoolss_devmode_pels_width = -1;
-static int hf_spoolss_devmode_pels_height = -1;
-static int hf_spoolss_devmode_display_flags = -1;
-static int hf_spoolss_devmode_display_freq = -1;
-static int hf_spoolss_devmode_icm_method = -1;
-static int hf_spoolss_devmode_icm_intent = -1;
-static int hf_spoolss_devmode_media_type = -1;
-static int hf_spoolss_devmode_dither_type = -1;
-static int hf_spoolss_devmode_reserved1 = -1;
-static int hf_spoolss_devmode_reserved2 = -1;
-static int hf_spoolss_devmode_panning_width = -1;
-static int hf_spoolss_devmode_panning_height = -1;
-static int hf_spoolss_devmode_driver_extra = -1;
+static int hf_devmodectr_size = -1;
+
+static int hf_devmode = -1;
+static int hf_devmode_size = -1;
+static int hf_devmode_spec_version = -1;
+static int hf_devmode_driver_version = -1;
+static int hf_devmode_size2 = -1;
+static int hf_devmode_driver_extra_len = -1;
+static int hf_devmode_fields = -1;
+static int hf_devmode_orientation = -1;
+static int hf_devmode_paper_size = -1;
+static int hf_devmode_paper_width = -1;
+static int hf_devmode_paper_length = -1;
+static int hf_devmode_scale = -1;
+static int hf_devmode_copies = -1;
+static int hf_devmode_default_source = -1;
+static int hf_devmode_print_quality = -1;
+static int hf_devmode_color = -1;
+static int hf_devmode_duplex = -1;
+static int hf_devmode_y_resolution = -1;
+static int hf_devmode_tt_option = -1;
+static int hf_devmode_collate = -1;
+static int hf_devmode_log_pixels = -1;
+static int hf_devmode_bits_per_pel = -1;
+static int hf_devmode_pels_width = -1;
+static int hf_devmode_pels_height = -1;
+static int hf_devmode_display_flags = -1;
+static int hf_devmode_display_freq = -1;
+static int hf_devmode_icm_method = -1;
+static int hf_devmode_icm_intent = -1;
+static int hf_devmode_media_type = -1;
+static int hf_devmode_dither_type = -1;
+static int hf_devmode_reserved1 = -1;
+static int hf_devmode_reserved2 = -1;
+static int hf_devmode_panning_width = -1;
+static int hf_devmode_panning_height = -1;
+static int hf_devmode_driver_extra = -1;
 
 static int hf_devmode_fields_orientation = -1;
 static int hf_devmode_fields_papersize = -1;
@@ -651,36 +678,7 @@ static int hf_devmode_fields_dithertype = -1;
 static int hf_devmode_fields_panningwidth = -1;
 static int hf_devmode_fields_panningheight = -1;
 
-/* Devicemode ctr */
-
-static int hf_spoolss_devmodectr_size = -1;
-
-/* Userlevel */
-
-static int hf_spoolss_userlevel_size = -1;
-static int hf_spoolss_userlevel_client = -1;
-static int hf_spoolss_userlevel_user = -1;
-static int hf_spoolss_userlevel_build = -1;
-static int hf_spoolss_userlevel_major = -1;
-static int hf_spoolss_userlevel_minor = -1;
-static int hf_spoolss_userlevel_processor = -1;
-
-/* Setprinterdataex */
-
-static int hf_spoolss_setprinterdataex_max_len = -1;
-static int hf_spoolss_setprinterdataex_real_len = -1;
-static int hf_spoolss_setprinterdataex_data = -1;
-
-/* spool printer info */
-
-static int hf_spoolss_spool_printer_info_devmode_ptr = -1;
-static int hf_spoolss_spool_printer_info_secdesc_ptr = -1;
-
-/* Security descriptor buffer */
-
-static int hf_spoolss_secdescbuf_maxlen = -1;
-static int hf_spoolss_secdescbuf_undoc = -1;
-static int hf_spoolss_secdescbuf_len = -1;
+/****************************************************************************/
 
 static void
 spoolss_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree,
@@ -962,19 +960,65 @@ static gint ett_printerdata_value = -1;
 
 static int dissect_printerdata_data(tvbuff_t *tvb, int offset,
 				    packet_info *pinfo, proto_tree *tree,
-				    char *drep _U_)
+				    char *drep _U_, guint32 type)
 {
 	proto_item *item;
 	proto_tree *subtree;
 	guint32 size;
 
-	item = proto_tree_add_text(tree, tvb, offset, 0, "Printer data");
+	item = proto_tree_add_text(tree, tvb, offset, 0, "Data");
+
 	subtree = proto_item_add_subtree(item, ett_printerdata_data);
 
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, subtree, drep,
-		hf_spoolss_printerdata_size, &size);
+		hf_printerdata_size, &size);
 
+	if (size) {
+
+		offset = dissect_ndr_uint8s(
+			tvb, offset, pinfo, subtree, drep,
+			hf_printerdata_data, size, NULL);
+		
+		switch(type) {
+		case DCERPC_REG_SZ: {
+			char *data = fake_unicode(tvb, offset - size, size/2);
+			
+			proto_item_append_text(item, ": %s", data);
+
+			if (check_col(pinfo->cinfo, COL_INFO))
+				col_append_fstr(
+					pinfo->cinfo, COL_INFO, " = %s", data);
+
+			proto_tree_add_string_hidden(
+				tree, hf_printerdata_data_sz, tvb,
+				offset - size, size, data);
+
+			g_free(data);
+
+			break;
+		}
+		case DCERPC_REG_DWORD: {
+			guint32 data = tvb_get_letohl(tvb, offset - size);
+
+			proto_item_append_text(item, ": 0x%08x", data);
+
+			if (check_col(pinfo->cinfo, COL_INFO))
+				col_append_fstr(
+					pinfo->cinfo, COL_INFO, " = 0x%08x", 
+					data);
+
+			proto_tree_add_uint_hidden(
+				tree, hf_printerdata_data_dword, tvb,
+				offset - size, 4, data);
+
+			break;
+		}
+		default:
+			break;
+		}
+	}
+	
 	if (size)
 		offset = dissect_ndr_uint8s(
 			tvb, offset, pinfo, subtree, drep,
@@ -1001,6 +1045,9 @@ static int SpoolssGetPrinterData_q(tvbuff_t *tvb, int offset,
 		proto_tree_add_text(tree, tvb, offset, 0,
 				    "Reply in frame %u", dcv->rep_frame);
 
+	proto_tree_add_uint_hidden(
+		tree, hf_printerdata, tvb, offset, 0, 1);
+
 	/* Parse packet */
 
 	offset = dissect_nt_policy_hnd(
@@ -1008,13 +1055,13 @@ static int SpoolssGetPrinterData_q(tvbuff_t *tvb, int offset,
 		FALSE, FALSE);
 
 	offset = dissect_unistr2(
-		tvb, offset, pinfo, tree, drep, hf_spoolss_printerdata_value,
+		tvb, offset, pinfo, tree, drep, hf_printerdata_value,
 		&value_name);
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", value_name);
 
-	g_free(value_name);
+	dcv->private_data = value_name;
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 				    hf_spoolss_offered, NULL);
@@ -1030,17 +1077,31 @@ static int SpoolssGetPrinterData_r(tvbuff_t *tvb, int offset,
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
+	guint32 type;
 
 	if (dcv->req_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0,
 				    "Request in frame %u", dcv->req_frame);
 
+	proto_tree_add_uint_hidden(
+		tree, hf_printerdata, tvb, offset, 0, 1);
+
 	/* Parse packet */
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-				    hf_spoolss_printerdata_type, NULL);
+				    hf_printerdata_type, &type);
 
-	offset = dissect_printerdata_data(tvb, offset, pinfo, tree, drep);
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		char *data = dcv->private_data ? dcv->private_data : "????";
+
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", data);
+	}
+
+	if (dcv->private_data)
+		g_free(dcv->private_data);
+
+	offset = dissect_printerdata_data(
+		tvb, offset, pinfo, tree, drep, type);
 
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, tree, drep, hf_spoolss_needed, NULL);
@@ -1069,6 +1130,9 @@ static int SpoolssGetPrinterDataEx_q(tvbuff_t *tvb, int offset,
 		proto_tree_add_text(tree, tvb, offset, 0,
 				    "Reply in frame %u", dcv->rep_frame);
 
+	proto_tree_add_uint_hidden(
+		tree, hf_printerdata, tvb, offset, 0, 1);
+
 	/* Parse packet */
 
 	offset = dissect_nt_policy_hnd(
@@ -1076,7 +1140,7 @@ static int SpoolssGetPrinterDataEx_q(tvbuff_t *tvb, int offset,
 		FALSE, FALSE);
 
 	offset = dissect_unistr2(
-		tvb, offset, pinfo, tree, drep, hf_spoolss_printerdata_key,
+		tvb, offset, pinfo, tree, drep, hf_printerdata_key,
 		&key_name);
 
 	/*
@@ -1086,12 +1150,14 @@ static int SpoolssGetPrinterDataEx_q(tvbuff_t *tvb, int offset,
 	CLEANUP_PUSH(g_free, key_name);
 
 	offset = dissect_unistr2(
-		tvb, offset, pinfo, tree, drep, hf_spoolss_printerdata_value,
+		tvb, offset, pinfo, tree, drep, hf_printerdata_value,
 		&value_name);
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s/%s",
 				key_name, value_name);
+
+	dcv->private_data = g_strdup_printf("%s/%s", key_name, value_name);
 
 	/*
 	 * We're done with key_name, so we can call the cleanup handler to
@@ -1118,23 +1184,36 @@ static int SpoolssGetPrinterDataEx_r(tvbuff_t *tvb, int offset,
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
-	guint32 size;
+	guint32 size, type;
 
 	if (dcv->req_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0,
 				    "Request in frame %u", dcv->req_frame);
 
+	proto_tree_add_uint_hidden(
+		tree, hf_printerdata, tvb, offset, 0, 1);
+
 	/* Parse packet */
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-				    hf_spoolss_printerdata_type, NULL);
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, tree, drep, hf_printerdata_type, &type);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 				    hf_spoolss_printerdata_size, &size);
 
-	offset = dissect_ndr_uint8s(
-		tvb, offset, pinfo, NULL, drep,
-		hf_spoolss_printerdata_data, size, NULL);
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		char *data = dcv->private_data ? dcv->private_data : "????";
+
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", data);
+	}
+
+	if (dcv->private_data)
+		g_free(dcv->private_data);
+
+	if (size)
+		dissect_printerdata_data(tvb, offset, pinfo, tree, drep, type);
+
+	offset += size;
 
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, tree, drep, hf_spoolss_needed, NULL);
@@ -1158,10 +1237,14 @@ static int SpoolssSetPrinterData_q(tvbuff_t *tvb, int offset,
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	char *value_name = NULL;
+	guint32 type;
 
 	if (dcv->rep_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0,
 				    "Reply in frame %u", dcv->rep_frame);
+
+	proto_tree_add_uint_hidden(
+		tree, hf_printerdata, tvb, offset, 0, 1);
 
 	/* Parse packet */
 
@@ -1170,7 +1253,7 @@ static int SpoolssSetPrinterData_q(tvbuff_t *tvb, int offset,
 		FALSE, FALSE);
 
 	offset = dissect_unistr2(
-		tvb, offset, pinfo, tree, drep, hf_spoolss_printerdata_value,
+		tvb, offset, pinfo, tree, drep, hf_printerdata_value,
 		&value_name);
 
 	if (check_col(pinfo->cinfo, COL_INFO))
@@ -1179,9 +1262,10 @@ static int SpoolssSetPrinterData_q(tvbuff_t *tvb, int offset,
 	g_free(value_name);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-				    hf_spoolss_printerdata_type, NULL);
+				    hf_printerdata_type, &type);
 
-	offset = dissect_printerdata_data(tvb, offset, pinfo, tree, drep);
+	offset = dissect_printerdata_data(
+		tvb, offset, pinfo, tree, drep, type);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 				    hf_spoolss_offered, NULL);
@@ -1201,6 +1285,9 @@ static int SpoolssSetPrinterData_r(tvbuff_t *tvb, int offset,
 	if (dcv->req_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0,
 				    "Request in frame %u", dcv->req_frame);
+
+	proto_tree_add_uint_hidden(
+		tree, hf_printerdata, tvb, offset, 0, 1);
 
 	/* Parse packet */
 
@@ -1229,6 +1316,9 @@ static int SpoolssSetPrinterDataEx_q(tvbuff_t *tvb, int offset,
 		proto_tree_add_text(tree, tvb, offset, 0,
 				    "Reply in frame %u", dcv->rep_frame);
 
+	proto_tree_add_uint_hidden(
+		tree, hf_printerdata, tvb, offset, 0, 1);
+
 	/* Parse packet */
 
 	offset = dissect_nt_policy_hnd(
@@ -1236,13 +1326,13 @@ static int SpoolssSetPrinterDataEx_q(tvbuff_t *tvb, int offset,
 		FALSE, FALSE);
 
 	offset = dissect_unistr2(
-		tvb, offset, pinfo, tree, drep, hf_spoolss_printerdata_key,
+		tvb, offset, pinfo, tree, drep, hf_printerdata_key,
 		&key_name);
 
 	CLEANUP_PUSH(g_free, key_name);
 
 	offset = dissect_unistr2(
-		tvb, offset, pinfo, tree, drep, hf_spoolss_printerdata_value,
+		tvb, offset, pinfo, tree, drep, hf_printerdata_value,
 		&value_name);
 
 	if (check_col(pinfo->cinfo, COL_INFO))
@@ -1253,7 +1343,7 @@ static int SpoolssSetPrinterDataEx_q(tvbuff_t *tvb, int offset,
 	g_free(value_name);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-				    hf_spoolss_printerdata_type, NULL);
+				    hf_printerdata_type, NULL);
 
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, tree, drep,
@@ -1282,6 +1372,9 @@ static int SpoolssSetPrinterDataEx_r(tvbuff_t *tvb, int offset,
 	if (dcv->req_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0,
 				    "Request in frame %u", dcv->req_frame);
+
+	proto_tree_add_uint_hidden(
+		tree, hf_printerdata, tvb, offset, 0, 1);
 
 	/* Parse packet */
 
@@ -1331,6 +1424,280 @@ dissect_spoolss_uint16uni(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
  * DEVMODE
  */
 
+/* Devicemode orientation values */
+
+static const value_string devmode_orientation_vals[] =
+{
+	{ DEVMODE_ORIENTATION_PORTRAIT, "Portrait" },
+	{ DEVMODE_ORIENTATION_LANDSCAPE, "Landscape" },
+	{ 0, NULL }
+};
+
+/* Paper size values.  International paper sizes is a fascinating
+   topic.  No seriously!  (-: */
+
+static const value_string devmode_papersize_vals[] =
+{
+	{ DEVMODE_PAPERSIZE_LETTER, "Letter" },
+	{ DEVMODE_PAPERSIZE_LETTERSMALL, "Letter (small)" },
+	{ DEVMODE_PAPERSIZE_TABLOID, "Tabloid" },
+	{ DEVMODE_PAPERSIZE_LEDGER, "Ledger" },
+	{ DEVMODE_PAPERSIZE_LEGAL, "Legal" },
+	{ DEVMODE_PAPERSIZE_STATEMENT, "Statement" },
+	{ DEVMODE_PAPERSIZE_EXECUTIVE, "Executive" },
+	{ DEVMODE_PAPERSIZE_A3, "A3" },
+	{ DEVMODE_PAPERSIZE_A4, "A4" },
+	{ DEVMODE_PAPERSIZE_A4SMALL, "A4 (small)" },
+	{ DEVMODE_PAPERSIZE_A5, "A5" },
+	{ DEVMODE_PAPERSIZE_B4, "B4" },
+	{ DEVMODE_PAPERSIZE_B5, "B5" },
+	{ DEVMODE_PAPERSIZE_FOLIO, "Folio" },
+	{ DEVMODE_PAPERSIZE_QUARTO, "Quarto" },
+	{ DEVMODE_PAPERSIZE_10X14, "10x14" },
+	{ DEVMODE_PAPERSIZE_11X17, "11x17" },
+	{ DEVMODE_PAPERSIZE_NOTE, "Note" },
+	{ DEVMODE_PAPERSIZE_ENV9, "Envelope #9" },
+	{ DEVMODE_PAPERSIZE_ENV10, "Envelope #10" },
+	{ DEVMODE_PAPERSIZE_ENV11, "Envelope #11" },
+	{ DEVMODE_PAPERSIZE_ENV12, "Envelope #12" },
+	{ DEVMODE_PAPERSIZE_ENV14, "Envelope #14" },
+	{ DEVMODE_PAPERSIZE_CSHEET, "C sheet" },
+	{ DEVMODE_PAPERSIZE_DSHEET, "D sheet" },
+	{ DEVMODE_PAPERSIZE_ESHEET, "E sheet" },
+	{ DEVMODE_PAPERSIZE_ENVDL, "Envelope DL" },
+	{ DEVMODE_PAPERSIZE_ENVC5, "Envelope C5" },
+	{ DEVMODE_PAPERSIZE_ENVC3, "Envelope C3" },
+	{ DEVMODE_PAPERSIZE_ENVC4, "Envelope C4" },
+	{ DEVMODE_PAPERSIZE_ENVC6, "Envelope C6" },
+	{ DEVMODE_PAPERSIZE_ENVC65, "Envelope C65" },
+	{ DEVMODE_PAPERSIZE_ENVB4, "Envelope B4" },
+	{ DEVMODE_PAPERSIZE_ENVB5, "Envelope B5" },
+	{ DEVMODE_PAPERSIZE_ENVB6, "Envelope B6" },
+	{ DEVMODE_PAPERSIZE_ENVITALY, "Envelope (Italy)" },
+	{ DEVMODE_PAPERSIZE_ENVMONARCH, "Envelope (Monarch)" },
+	{ DEVMODE_PAPERSIZE_ENVPERSONAL, "Envelope (Personal)" },
+	{ DEVMODE_PAPERSIZE_FANFOLDUS, "Fanfold (US)" },
+	{ DEVMODE_PAPERSIZE_FANFOLDSTDGERMAN, "Fanfold (Std German)" },
+	{ DEVMODE_PAPERSIZE_FANFOLDLGLGERMAN, "Fanfold (Legal German)" },
+	{ DEVMODE_PAPERSIZE_ISOB4, "B4 (ISO)" },
+	{ DEVMODE_PAPERSIZE_JAPANESEPOSTCARD, "Japanese postcard" },
+	{ DEVMODE_PAPERSIZE_9X11, "9x11" },
+	{ DEVMODE_PAPERSIZE_10X11, "10x11" },
+	{ DEVMODE_PAPERSIZE_15X11, "15x11" },
+	{ DEVMODE_PAPERSIZE_ENVINVITE, "Envelope (Invite)" },
+	{ DEVMODE_PAPERSIZE_RESERVED48, "Reserved (48)" },
+	{ DEVMODE_PAPERSIZE_RESERVED49, "Reserved (49)" },
+	{ DEVMODE_PAPERSIZE_LETTEREXTRA, "Letter (Extra)" },
+	{ DEVMODE_PAPERSIZE_LEGALEXTRA, "Legal (Extra)" },
+	{ DEVMODE_PAPERSIZE_TABLOIDEXTRA, "Tabloid (Extra)" },
+	{ DEVMODE_PAPERSIZE_A4EXTRA, "A4 (Extra)" },
+	{ DEVMODE_PAPERSIZE_LETTERTRANS, "Letter (Transverse)" },
+	{ DEVMODE_PAPERSIZE_A4TRANS, "A4 (Transverse)" },
+	{ DEVMODE_PAPERSIZE_LETTEREXTRATRANS, "Letter (Extra, Transverse)" },
+	{ DEVMODE_PAPERSIZE_APLUS, "A+" },
+	{ DEVMODE_PAPERSIZE_BPLUS, "B+" },
+	{ DEVMODE_PAPERSIZE_LETTERPLUS, "Letter+" },
+	{ DEVMODE_PAPERSIZE_A4PLUS, "A4+" },
+	{ DEVMODE_PAPERSIZE_A5TRANS, "A5 (Transverse)" },
+	{ DEVMODE_PAPERSIZE_B5TRANS, "B5 (Transverse)" },
+	{ DEVMODE_PAPERSIZE_A3EXTRA, "A3 (Extra)" },
+	{ DEVMODE_PAPERSIZE_A5EXTRA, "A5 (Extra)" },
+	{ DEVMODE_PAPERSIZE_B5EXTRA, "B5 (Extra)" },
+	{ DEVMODE_PAPERSIZE_A2, "A2" },
+	{ DEVMODE_PAPERSIZE_A3TRANS, "A3 (Transverse)" },
+	{ DEVMODE_PAPERSIZE_A3EXTRATRANS, "A3 (Extra, Transverse" },
+	{ DEVMODE_PAPERSIZE_DBLJAPANESEPOSTCARD, "Double Japanese Postcard" },
+	{ DEVMODE_PAPERSIZE_A6, "A6" },
+	{ DEVMODE_PAPERSIZE_JENVKAKU2, "Japanese Envelope (Kaku #2)" },
+	{ DEVMODE_PAPERSIZE_JENVKAKU3, "Japanese Envelope (Kaku #3)" },
+	{ DEVMODE_PAPERSIZE_JENVCHOU3, "Japanese Envelope (Chou #3)" },
+	{ DEVMODE_PAPERSIZE_JENVCHOU4, "Japaneve Envelope (Chou #4)" },
+	{ DEVMODE_PAPERSIZE_LETTERROT, "Letter (Rotated)" },
+	{ DEVMODE_PAPERSIZE_A3ROT, "A3 (Rotated)" },
+	{ DEVMODE_PAPERSIZE_A4ROT, "A4 (Rotated)" },
+	{ DEVMODE_PAPERSIZE_A5ROT, "A5 (Rotated)" },
+	{ DEVMODE_PAPERSIZE_B4JISROT, "B4 (JIS, Rotated)" },
+	{ DEVMODE_PAPERSIZE_B5JISROT, "B5 (JIS, Rotated)"},
+	{ DEVMODE_PAPERSIZE_JAPANESEPOSTCARDROT, 
+	  "Japanese Postcard (Rotated)" },
+	{ DEVMODE_PAPERSIZE_DBLJAPANESEPOSTCARDROT82, 
+	  "Double Japanese Postcard (Rotated)" },
+	{ DEVMODE_PAPERSIZE_A6ROT, "A6 (Rotated)" },
+	{ DEVMODE_PAPERSIZE_JENVKAKU2ROT, 
+	  "Japanese Envelope (Kaku #2, Rotated)" },
+	{ DEVMODE_PAPERSIZE_JENVKAKU3ROT, 
+	  "Japanese Envelope (Kaku #3, Rotated)" },
+	{ DEVMODE_PAPERSIZE_JENVCHOU3ROT, 
+	  "Japanese Envelope (Chou #3, Rotated)" },
+	{ DEVMODE_PAPERSIZE_JENVCHOU4ROT, 
+	  "Japanese Envelope (Chou #4, Rotated)" },
+	{ DEVMODE_PAPERSIZE_B6JIS, "B6 (JIS)" },
+	{ DEVMODE_PAPERSIZE_B6JISROT, "B6 (JIS, Rotated)" },
+	{ DEVMODE_PAPERSIZE_12X11, "12x11" },
+	{ DEVMODE_PAPERSIZE_JENVYOU4, "Japanese Envelope (You #4)" },
+	{ DEVMODE_PAPERSIZE_JENVYOU4ROT, 
+	  "Japanese Envelope (You #4, Rotated" },
+	{ DEVMODE_PAPERSIZE_P16K, "PRC 16K" },
+	{ DEVMODE_PAPERSIZE_P32K, "PRC 32K" },
+	{ DEVMODE_PAPERSIZE_P32KBIG, "P32K (Big)" },
+	{ DEVMODE_PAPERSIZE_PENV1, "PRC Envelope #1" },
+	{ DEVMODE_PAPERSIZE_PENV2, "PRC Envelope #2" },
+	{ DEVMODE_PAPERSIZE_PENV3, "PRC Envelope #3" },
+	{ DEVMODE_PAPERSIZE_PENV4, "PRC Envelope #4" },
+	{ DEVMODE_PAPERSIZE_PENV5, "PRC Envelope #5" },
+	{ DEVMODE_PAPERSIZE_PENV6, "PRC Envelope #6" },
+	{ DEVMODE_PAPERSIZE_PENV7, "PRC Envelope #7" },
+	{ DEVMODE_PAPERSIZE_PENV8, "PRC Envelope #8" },
+	{ DEVMODE_PAPERSIZE_PENV9, "PRC Envelope #9" },
+	{ DEVMODE_PAPERSIZE_PENV10, "PRC Envelope #10" },
+	{ DEVMODE_PAPERSIZE_P16KROT, "PRC 16K (Rotated)" },
+	{ DEVMODE_PAPERSIZE_P32KROT, "PRC 32K (Rotated)" },
+	{ DEVMODE_PAPERSIZE_P32KBIGROT, "PRC 32K (Big, Rotated)" },
+	{ DEVMODE_PAPERSIZE_PENV1ROT, "PRC Envelope #1 (Rotated)" },
+	{ DEVMODE_PAPERSIZE_PENV2ROT, "PRC Envelope #2 (Rotated)" },
+	{ DEVMODE_PAPERSIZE_PENV3ROT, "PRC Envelope #3 (Rotated)" },
+	{ DEVMODE_PAPERSIZE_PENV4ROT, "PRC Envelope #4 (Rotated)" },
+	{ DEVMODE_PAPERSIZE_PENV5ROT, "PRC Envelope #5 (Rotated)" },
+	{ DEVMODE_PAPERSIZE_PENV6ROT, "PRC Envelope #6 (Rotated)" },
+	{ DEVMODE_PAPERSIZE_PENV7ROT, "PRC Envelope #7 (Rotated)" },
+	{ DEVMODE_PAPERSIZE_PENV8ROT, "PRC Envelope #8 (Rotated)" },
+	{ DEVMODE_PAPERSIZE_PENV9ROT, "PRC Envelope #9 (Rotated)" },
+	{ DEVMODE_PAPERSIZE_PENV10ROT, "PRC Envelope #10 (Rotated)" },
+	{ 0, NULL }
+};
+
+/* List of observed specversions */
+
+static const value_string devmode_specversion_vals[] =
+{
+	{ 0x0320, "Observed" },
+	{ 0x0400, "Observed" },
+	{ 0x0401, "Observed" },
+	{ 0x040d, "Observed" },
+	{ 0, NULL }
+};
+
+/* Paper sources */
+
+static const value_string devmode_papersource_vals[] =
+{
+	{ DEVMODE_PAPERSOURCE_UPPER, "Upper" },
+	{ DEVMODE_PAPERSOURCE_LOWER, "Lower" },
+	{ DEVMODE_PAPERSOURCE_MIDDLE, "Middle" },
+	{ DEVMODE_PAPERSOURCE_MANUAL, "Manual" },
+	{ DEVMODE_PAPERSOURCE_ENV, "Envelope" },
+	{ DEVMODE_PAPERSOURCE_ENVMANUAL, "Envelope Manual" },
+	{ DEVMODE_PAPERSOURCE_AUTO, "Auto" },
+	{ DEVMODE_PAPERSOURCE_TRACTOR, "Tractor" },
+	{ DEVMODE_PAPERSOURCE_SMALLFMT, "Small Format" },
+	{ DEVMODE_PAPERSOURCE_LARGEFMAT, "Large Format" },
+	{ DEVMODE_PAPERSOURCE_LARGECAP, "Large Capacity" },
+	{ DEVMODE_PAPERSOURCE_CASSETTE, "Cassette" },
+	{ DEVMODE_PAPERSOURCE_FORMSRC, "Form Source" },
+	{ 0, NULL }
+};
+
+/* Print quality */
+
+static const value_string devmode_printquality_vals[] =
+{
+	{ DEVMODE_PRINTQUALITY_HIGH, "High" },
+	{ DEVMODE_PRINTQUALITY_MEDIUM, "Medium" },
+	{ DEVMODE_PRINTQUALITY_LOW, "Low" },
+	{ DEVMODE_PRINTQUALITY_DRAFT, "Draft" },
+	{ 0, NULL }
+};
+
+/* Color */
+
+static const value_string devmode_colour_vals[] =
+{
+	{ DEVMODE_COLOUR_COLOUR, "Colour" },
+	{ DEVMODE_COLOUR_MONO, "Monochrome" },
+	{ 0, NULL }
+};
+
+/* TrueType options */
+
+static const value_string devmode_ttoption_vals[] =
+{
+	{ 0, "Not set" },
+	{ DEVMODE_TTOPTION_BITMAP, "Bitmap" },
+	{ DEVMODE_TTOPTION_DOWNLOAD, "Download" },
+	{ DEVMODE_TTOPTION_DOWNLOAD_OUTLINE, "Download outline" },
+	{ DEVMODE_TTOPTION_SUBDEV, "Substitute device fonts" },
+	{ 0, NULL }
+};
+
+/* Collate info */
+
+static const value_string devmode_collate_vals[] =
+{
+	{ DEVMODE_COLLATE_FALSE, "False" },
+	{ DEVMODE_COLLATE_TRUE, "True" },
+	{ 0, NULL }
+};
+
+/* Duplex info */
+
+static const value_string devmode_duplex_vals[] =
+{
+	{ DEVMODE_DUPLEX_SIMPLEX, "Simplex" },
+	{ DEVMODE_DUPLEX_VERT, "Vertical" },
+	{ DEVMODE_DUPLEX_HORIZ, "Horizontal" },
+	{ 0, NULL }
+};
+
+static const value_string devmode_displayflags_vals[] =
+{
+	{ 0, "Colour" },
+	{ DEVMODE_DISPLAYFLAGS_GRAYSCALE, "Grayscale" },
+	{ DEVMODE_DISPLAYFLAGS_INTERLACED, "Interlaced" },
+	{ 0, NULL }
+};
+
+static const value_string devmode_icmmethod_vals[] =
+{
+	{ DEVMODE_ICMMETHOD_NONE, "None" },
+	{ DEVMODE_ICMMETHOD_SYSTEM, "System" },
+	{ DEVMODE_ICMMETHOD_DRIVER, "Driver" },
+	{ DEVMODE_ICMMETHOD_DEVICE, "Device" },
+	{ 0, NULL }
+};
+
+static const value_string devmode_icmintent_vals[] =
+{
+	{ 0, "Not set" },
+	{ DEVMODE_ICMINTENT_SATURATE, "Saturate" },
+	{ DEVMODE_ICMINTENT_CONTRAST, "Contrast" },
+	{ DEVMODE_ICMINTENT_COLORIMETRIC, "Colorimetric" },
+	{ DEVMODE_ICMINTENT_ABS_COLORIMETRIC, "Absolute colorimetric" },
+	{ 0, NULL }
+};
+
+static const value_string devmode_mediatype_vals[] =
+{
+	{ 0, "Not set" },
+	{ DEVMODE_MEDIATYPE_STANDARD, "Standard" },
+	{ DEVMODE_MEDIATYPE_TRANSPARENCY, "Transparency" },
+	{ DEVMODE_MEDIATYPE_GLOSSY, "Glossy" },
+	{ 0, NULL }
+};
+
+static const value_string devmode_dithertype_vals[] =
+{
+	{ 0, "Not set" },
+	{ DEVMODE_DITHERTYPE_NONE, "None" },
+	{ DEVMODE_DITHERTYPE_COARSE, "Coarse" },
+	{ DEVMODE_DITHERTYPE_LINE, "Line" },
+	{ DEVMODE_DITHERTYPE_LINEART, "Line art" },
+	{ DEVMODE_DITHERTYPE_ERRORDIFFUSION, "Error diffusion" },
+	{ DEVMODE_DITHERTYPE_RESERVED6, "Reserved 6" },
+	{ DEVMODE_DITHERTYPE_RESERVED7, "Reserved 7" },
+	{ DEVMODE_DITHERTYPE_GRAYSCALE, "Grayscale" },
+	{ 0, NULL }
+};
+
 static gint ett_DEVMODE_fields;
 
 static int
@@ -1341,8 +1708,11 @@ dissect_DEVMODE_fields(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	proto_tree *subtree;
 	guint32 fields;
 
+	proto_tree_add_uint_hidden(
+		tree, hf_devmode, tvb, offset, 0, 1);
+
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, NULL, drep,
-				    hf_spoolss_devmode_fields, &fields);
+				    hf_devmode_fields, &fields);
 
 	item = proto_tree_add_text(tree, tvb, offset - 4, 4,
 				   "Fields: 0x%08x", fields);
@@ -1476,16 +1846,17 @@ static int dissect_DEVMODE(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_item *item;
 	proto_tree *subtree;
 	guint16 driver_extra;
+	gint16 print_quality;
 	guint32 fields;
 
 	if (di->conformant_run)
 		return offset;	
 
-	item = proto_tree_add_text(tree, tvb, offset, 0, "DEVMODE");
+	item = proto_tree_add_text(tree, tvb, offset, 0, "Devicemode");
 	subtree = proto_item_add_subtree(item, ett_DEVMODE);
 
 	offset = dissect_ndr_uint32(
-		tvb, offset, pinfo, subtree, drep, hf_spoolss_devmode_size, 
+		tvb, offset, pinfo, subtree, drep, hf_devmode_size, 
 		NULL);
 
 	/* The device name is stored in a 32-wchar buffer */
@@ -1496,74 +1867,83 @@ static int dissect_DEVMODE(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	offset = dissect_ndr_uint16(
 		tvb, offset, pinfo, subtree, drep, 
-		hf_spoolss_devmode_spec_version, NULL);
+		hf_devmode_spec_version, NULL);
 
 	offset = dissect_ndr_uint16(
 		tvb, offset, pinfo, subtree, drep, 
-		hf_spoolss_devmode_driver_version, NULL);
+		hf_devmode_driver_version, NULL);
 
 	offset = dissect_ndr_uint16(
 		tvb, offset, pinfo, subtree, drep, 
-		hf_spoolss_devmode_size2, NULL);
+		hf_devmode_size2, NULL);
 
 	offset = dissect_ndr_uint16(
 		tvb, offset, pinfo, subtree, drep, 
-		hf_spoolss_devmode_driver_extra_len, &driver_extra);
+		hf_devmode_driver_extra_len, &driver_extra);
 
 	offset = dissect_DEVMODE_fields(
 		tvb, offset, pinfo, subtree, drep, &fields);
 
 	offset = dissect_ndr_uint16(
 		tvb, offset, pinfo, subtree, drep, 
-		hf_spoolss_devmode_orientation, NULL);
+		hf_devmode_orientation, NULL);
 
 	offset = dissect_ndr_uint16(
 		tvb, offset, pinfo, subtree, drep, 
-		hf_spoolss_devmode_paper_size, NULL);
+		hf_devmode_paper_size, NULL);
 
 	offset = dissect_ndr_uint16(
 		tvb, offset, pinfo, subtree, drep, 
-		hf_spoolss_devmode_paper_length, NULL);
+		hf_devmode_paper_length, NULL);
 
 	offset = dissect_ndr_uint16(
 		tvb, offset, pinfo, subtree, drep, 
-		hf_spoolss_devmode_paper_width, NULL);
+		hf_devmode_paper_width, NULL);
 
 	offset = dissect_ndr_uint16(
 		tvb, offset, pinfo, subtree, drep, 
-		hf_spoolss_devmode_scale, NULL);
+		hf_devmode_scale, NULL);
 
 	offset = dissect_ndr_uint16(
 		tvb, offset, pinfo, subtree, drep, 
-		hf_spoolss_devmode_copies, NULL);
+		hf_devmode_copies, NULL);
 
 	offset = dissect_ndr_uint16(
 		tvb, offset, pinfo, subtree, drep, 
-		hf_spoolss_devmode_default_source, NULL);
+		hf_devmode_default_source, NULL);
+
+	offset = dissect_ndr_uint16(
+		tvb, offset, pinfo, NULL, drep, 
+		hf_devmode_print_quality, &print_quality);
+
+	if (print_quality < 0)
+		proto_tree_add_item(
+			subtree, hf_devmode_print_quality, tvb,
+			offset - 2, 2, drep[0] & 0x10);
+	else
+		proto_tree_add_text(
+			subtree, tvb, offset - 4, 4, 
+			"Print Quality: %d dpi", print_quality);
 
 	offset = dissect_ndr_uint16(
 		tvb, offset, pinfo, subtree, drep, 
-		hf_spoolss_devmode_print_quality, NULL);
+		hf_devmode_color, NULL);
 
 	offset = dissect_ndr_uint16(
 		tvb, offset, pinfo, subtree, drep, 
-		hf_spoolss_devmode_color, NULL);
+		hf_devmode_duplex, NULL);
 
 	offset = dissect_ndr_uint16(
 		tvb, offset, pinfo, subtree, drep, 
-		hf_spoolss_devmode_duplex, NULL);
+		hf_devmode_y_resolution, NULL);
 
 	offset = dissect_ndr_uint16(
 		tvb, offset, pinfo, subtree, drep, 
-		hf_spoolss_devmode_y_resolution, NULL);
+		hf_devmode_tt_option, NULL);
 
 	offset = dissect_ndr_uint16(
 		tvb, offset, pinfo, subtree, drep, 
-		hf_spoolss_devmode_tt_option, NULL);
-
-	offset = dissect_ndr_uint16(
-		tvb, offset, pinfo, subtree, drep, 
-		hf_spoolss_devmode_collate, NULL);
+		hf_devmode_collate, NULL);
 
 	dissect_spoolss_uint16uni(tvb, offset, pinfo, subtree, drep, NULL,
 		"Form name");
@@ -1571,67 +1951,67 @@ static int dissect_DEVMODE(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	offset = dissect_ndr_uint16(
 		tvb, offset, pinfo, subtree, drep, 
-		hf_spoolss_devmode_log_pixels, NULL);
+		hf_devmode_log_pixels, NULL);
 
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, subtree, drep, 
-		hf_spoolss_devmode_bits_per_pel, NULL);
+		hf_devmode_bits_per_pel, NULL);
 
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, subtree, drep, 
-		hf_spoolss_devmode_pels_width, NULL);
+		hf_devmode_pels_width, NULL);
 
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, subtree, drep, 
-		hf_spoolss_devmode_pels_height, NULL);
+		hf_devmode_pels_height, NULL);
 
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, subtree, drep, 
-		hf_spoolss_devmode_display_flags, NULL);
+		hf_devmode_display_flags, NULL);
 
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, subtree, drep, 
-		hf_spoolss_devmode_display_freq, NULL);
+		hf_devmode_display_freq, NULL);
 	
 	/* TODO: Some of the remaining fields are optional.  See
 	   rpc_parse/parse_spoolss.c in the Samba source for details. */
 
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, subtree, drep, 
-		hf_spoolss_devmode_icm_method, NULL);
+		hf_devmode_icm_method, NULL);
 	
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, subtree, drep, 
-		hf_spoolss_devmode_icm_intent, NULL);
+		hf_devmode_icm_intent, NULL);
 
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, subtree, drep, 
-		hf_spoolss_devmode_media_type, NULL);
+		hf_devmode_media_type, NULL);
 	
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, subtree, drep, 
-		hf_spoolss_devmode_dither_type, NULL);
+		hf_devmode_dither_type, NULL);
 
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, subtree, drep, 
-		hf_spoolss_devmode_reserved1, NULL);
+		hf_devmode_reserved1, NULL);
 	
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, subtree, drep, 
-		hf_spoolss_devmode_reserved2, NULL);
+		hf_devmode_reserved2, NULL);
 	
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, subtree, drep, 
-		hf_spoolss_devmode_panning_width, NULL);
+		hf_devmode_panning_width, NULL);
 	
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, subtree, drep, 
-		hf_spoolss_devmode_panning_height, NULL);
+		hf_devmode_panning_height, NULL);
 
 	if (driver_extra)
 		offset = dissect_ndr_uint8s(
 			tvb, offset, pinfo, subtree, drep,
-			hf_spoolss_devmode_driver_extra, driver_extra, NULL);
+			hf_devmode_driver_extra, driver_extra, NULL);
 			
 	return offset;				  
 }
@@ -1653,7 +2033,7 @@ static int dissect_DEVMODE_CTR(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	subtree = proto_item_add_subtree(item, ett_DEVMODE_CTR);
 	
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, subtree, drep,
-				    hf_spoolss_devmodectr_size, &size);
+				    hf_devmodectr_size, &size);
 
 	offset = dissect_ndr_pointer(
 		tvb, offset, pinfo, subtree, drep,
@@ -3005,7 +3385,7 @@ static int SpoolssReplyOpenPrinter_q(tvbuff_t *tvb, int offset,
 	dcv->private_data = (void *)printerlocal;
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-				    hf_spoolss_printerdata_type, NULL);
+				    hf_printerdata_type, NULL);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 				    hf_spoolss_replyopenprinter_unk0, NULL);
@@ -3587,6 +3967,13 @@ static int SpoolssAddPrinterEx_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
  * SpoolssEnumPrinterData
  */
 
+static int hf_enumprinterdata_enumindex = -1;
+static int hf_enumprinterdata_value_offered = -1;
+static int hf_enumprinterdata_data_offered = -1;
+static int hf_enumprinterdata_value_len = -1;
+static int hf_enumprinterdata_value_needed = -1;
+static int hf_enumprinterdata_data_needed = -1;
+
 static int SpoolssEnumPrinterData_q(tvbuff_t *tvb, int offset,
 				    packet_info *pinfo, proto_tree *tree,
 				    char *drep _U_)
@@ -3599,23 +3986,29 @@ static int SpoolssEnumPrinterData_q(tvbuff_t *tvb, int offset,
 		proto_tree_add_text(tree, tvb, offset, 0,
 				    "Reply in frame %u", dcv->rep_frame);
 
+	proto_tree_add_uint_hidden(
+		tree, hf_printerdata, tvb, offset, 0, 1);
+
 	/* Parse packet */
 
 	offset = dissect_nt_policy_hnd(
 		tvb, offset, pinfo, tree, drep, hf_spoolss_hnd, NULL,
 		FALSE, FALSE);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-				    hf_spoolss_enumprinterdata_index, &ndx);
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, tree, drep, 
+		hf_enumprinterdata_enumindex, &ndx);
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", index %d", ndx);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-				    hf_spoolss_enumprinterdata_value_offered, NULL);
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, tree, drep,
+		hf_enumprinterdata_value_offered, NULL);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-				    hf_spoolss_enumprinterdata_data_offered, NULL);
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, tree, drep,
+		hf_enumprinterdata_data_offered, NULL);
 
 	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
@@ -3628,7 +4021,7 @@ static int SpoolssEnumPrinterData_r(tvbuff_t *tvb, int offset,
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
-	guint32 value_len;
+	guint32 value_len, type;
 	char *value;
 	proto_item *value_item;
 	proto_tree *value_subtree;
@@ -3636,6 +4029,9 @@ static int SpoolssEnumPrinterData_r(tvbuff_t *tvb, int offset,
 	if (dcv->req_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0,
 				    "Request in frame %u", dcv->req_frame);
+
+	proto_tree_add_uint_hidden(
+		tree, hf_printerdata, tvb, offset, 0, 1);
 
 	/* Parse packet */
 
@@ -3646,31 +4042,44 @@ static int SpoolssEnumPrinterData_r(tvbuff_t *tvb, int offset,
 
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, value_subtree, drep,
-		hf_spoolss_enumprinterdataex_val_len, &value_len);
+		hf_enumprinterdata_value_len, &value_len);
 
-	offset = dissect_spoolss_uint16uni(
-		tvb, offset, pinfo, value_subtree, drep, &value, "Value name");
+	if (value_len) {
+		dissect_spoolss_uint16uni(
+			tvb, offset, pinfo, value_subtree, drep, &value, 
+			"Value name");
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", value);
+		offset += value_len * 2;
 
-	g_free(value);
+		if (check_col(pinfo->cinfo, COL_INFO) && value && value[0])
+			col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", value);
+
+		proto_item_append_text(value_item, ": %s", value);
+
+		proto_tree_add_string_hidden(
+			tree, hf_printerdata_value, tvb, offset, 0, value);
+
+		g_free(value);
+	}
 
 	proto_item_set_len(value_item, value_len * 2 + 4);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-				    hf_spoolss_enumprinterdata_value_needed, NULL);
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, tree, drep,
+		hf_enumprinterdata_value_needed, NULL);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-				    hf_spoolss_printerdata_type, NULL);
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, tree, drep, hf_printerdata_type, &type);
 
-	offset = dissect_printerdata_data(tvb, offset, pinfo, tree, drep);
+	offset = dissect_printerdata_data(
+		tvb, offset, pinfo, tree, drep, type);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-				    hf_spoolss_enumprinterdata_data_needed, NULL);
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, tree, drep,
+		hf_enumprinterdata_data_needed, NULL);
 
-	offset = dissect_doserror(tvb, offset, pinfo, tree, drep,
-				  hf_spoolss_rc, NULL);
+	offset = dissect_doserror(
+		tvb, offset, pinfo, tree, drep, hf_spoolss_rc, NULL);
 
 	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
@@ -5032,6 +5441,9 @@ static int SpoolssDeletePrinterData_q(tvbuff_t *tvb, int offset,
 		proto_tree_add_text(tree, tvb, offset, 0,
 				    "Reply in frame %u", dcv->rep_frame);
 
+	proto_tree_add_uint_hidden(
+		tree, hf_printerdata, tvb, offset, 0, 1);
+
 	/* Parse packet */
 
 	offset = dissect_nt_policy_hnd(
@@ -5039,7 +5451,7 @@ static int SpoolssDeletePrinterData_q(tvbuff_t *tvb, int offset,
 		FALSE, FALSE);
 
 	offset = dissect_unistr2(
-		tvb, offset, pinfo, tree, drep, hf_spoolss_printerdata_value,
+		tvb, offset, pinfo, tree, drep, hf_printerdata_value,
 		&value_name);
 
 	if (check_col(pinfo->cinfo, COL_INFO))
@@ -5062,6 +5474,9 @@ static int SpoolssDeletePrinterData_r(tvbuff_t *tvb, int offset,
 	if (dcv->req_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0,
 				    "Request in frame %u", dcv->req_frame);
+
+	proto_tree_add_uint_hidden(
+		tree, hf_printerdata, tvb, offset, 0, 1);
 
 	/* Parse packet */
 
@@ -6005,7 +6420,7 @@ static int SpoolssEnumPrinterKey_q(tvbuff_t *tvb, int offset,
 		FALSE, FALSE);
 
 	offset = dissect_unistr2(
-		tvb, offset, pinfo, tree, drep, hf_spoolss_printerdata_key,
+		tvb, offset, pinfo, tree, drep, hf_printerdata_key,
 		&key_name);
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
@@ -6065,6 +6480,9 @@ static int SpoolssEnumPrinterDataEx_q(tvbuff_t *tvb, int offset,
 		proto_tree_add_text(tree, tvb, offset, 0,
 				    "Reply in frame %u", dcv->rep_frame);
 
+	proto_tree_add_uint_hidden(
+		tree, hf_printerdata, tvb, offset, 0, 1);
+
 	/* Parse packet */
 
 	offset = dissect_nt_policy_hnd(
@@ -6072,7 +6490,7 @@ static int SpoolssEnumPrinterDataEx_q(tvbuff_t *tvb, int offset,
 		FALSE, FALSE);
 
 	offset = dissect_unistr2(
-		tvb, offset, pinfo, tree, drep, hf_spoolss_printerdata_key,
+		tvb, offset, pinfo, tree, drep, hf_printerdata_key,
 		&key_name);
 
 	if (check_col(pinfo->cinfo, COL_INFO))
@@ -6132,8 +6550,8 @@ dissect_spoolss_printer_enum_values(tvbuff_t *tvb, int offset,
 		"Name: %s", name);
 
 	offset = dissect_ndr_uint32(
-		tvb, offset, pinfo, subtree, drep,
-		hf_spoolss_printerdata_type, &val_type);
+		tvb, offset, pinfo, subtree, drep, hf_printerdata_type, 
+		&val_type);
 
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, subtree, drep,
@@ -6213,6 +6631,11 @@ static int SpoolssEnumPrinterDataEx_r(tvbuff_t *tvb, int offset,
 	if (dcv->req_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0,
 				    "Request in frame %u", dcv->req_frame);
+
+	proto_tree_add_uint_hidden(
+		tree, hf_printerdata, tvb, offset, 0, 1);
+
+	/* Parse packet */
 
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, tree, drep,
@@ -6684,18 +7107,6 @@ proto_register_dcerpc_spoolss(void)
 
 		/* Printer data */
 
-		{ &hf_spoolss_printerdata_key,
-		  { "Printer data key", "spoolss.printerdata.key", FT_STRING, 
-		    BASE_NONE, NULL, 0, "Printer data key", HFILL }},
-
-		{ &hf_spoolss_printerdata_value,
-		  { "Printer data value", "spoolss.printerdata.value", FT_STRING, BASE_NONE,
-		    NULL, 0, "Printer data value", HFILL }},
-
-		{ &hf_spoolss_printerdata_type,
-		  { "Printer data type", "spoolss.printerdata.type", FT_UINT32, BASE_DEC,
-		    VALS(reg_datatypes), 0, "Printer data type", HFILL }},
-
 		{ &hf_spoolss_printerdata_size,
 		  { "Printer data size", "spoolss.printerdata.size", FT_UINT32,
 		    BASE_DEC, NULL, 0, "Printer data size", HFILL }},
@@ -6713,26 +7124,6 @@ proto_register_dcerpc_spoolss(void)
 		    NULL, 0x0, "Number of bytes written", HFILL }},
 
 		/* EnumPrinterData */
-
-		{ &hf_spoolss_enumprinterdata_index,
-		  { "Enum index", "spoolss.enumprinterdata.index", FT_UINT32, BASE_DEC,
-		    NULL, 0x0, "Index for start of enumeration", HFILL }},
-
-		{ &hf_spoolss_enumprinterdata_value_offered,
-		  { "Value size offered", "spoolss.enumprinterdata.value_offered", FT_UINT32, BASE_DEC,
-		    NULL, 0x0, "Buffer size offered for printerdata value", HFILL }},
-
-		{ &hf_spoolss_enumprinterdata_data_offered,
-		  { "Data size offered", "spoolss.enumprinterdata.data_offered", FT_UINT32, BASE_DEC,
-		    NULL, 0x0, "Buffer size offered for printerdata data", HFILL }},
-
-		{ &hf_spoolss_enumprinterdata_value_needed,
-		  { "Value size needed", "spoolss.enumprinterdata.value_needed", FT_UINT32, BASE_DEC,
-		    NULL, 0x0, "Buffer size needed for printerdata value", HFILL }},
-
-		{ &hf_spoolss_enumprinterdata_data_needed,
-		  { "Data size needed", "spoolss.enumprinterdata.data_needed", FT_UINT32, BASE_DEC,
-		    NULL, 0x0, "Buffer size needed for printerdata data", HFILL }},
 
 		/* EnumprinterdataEx */
 
@@ -7213,7 +7604,7 @@ proto_register_dcerpc_spoolss(void)
 
 		{ &hf_access_required,
 		  { "Access required", "spoolss.access_required",
-		    FT_UINT32, BASE_HEX, NULL, 0x0, "Access REQUIRED",
+		    FT_UINT32, BASE_HEX, NULL, 0x0, "Access required",
 		    HFILL }},
 
 		{ &hf_server_access_admin,
@@ -7425,150 +7816,300 @@ proto_register_dcerpc_spoolss(void)
 		  { "Action", "spoolss.getprinter.action", FT_UINT32, BASE_DEC,
 		   VALS(getprinter_action_vals), 0, "Action", HFILL }},
 
+                /* Userlevel */
+
+                { &hf_spoolss_userlevel_size,
+                  { "Size", "spoolss.userlevel.size",
+                    FT_UINT32, BASE_DEC, NULL, 0, "Size", HFILL }},
+
+                { &hf_spoolss_userlevel_client,
+                  { "Client", "spoolss.userlevel.client", FT_STRING, 
+                    BASE_NONE, NULL, 0, "Client", HFILL }},
+
+                { &hf_spoolss_userlevel_user,
+                  { "User", "spoolss.userlevel.user", FT_STRING, 
+                    BASE_NONE, NULL, 0, "User", HFILL }},
+
+                { &hf_spoolss_userlevel_build,
+                  { "Build", "spoolss.userlevel.build",
+                    FT_UINT32, BASE_DEC, NULL, 0, "Build", HFILL }},
+
+                { &hf_spoolss_userlevel_major,
+                  { "Major", "spoolss.userlevel.major",
+                    FT_UINT32, BASE_DEC, NULL, 0, "Major", HFILL }},
+
+                { &hf_spoolss_userlevel_minor,
+                  { "Minor", "spoolss.userlevel.minor",
+                    FT_UINT32, BASE_DEC, NULL, 0, "Minor", HFILL }},
+
+                { &hf_spoolss_userlevel_processor,
+                  { "Processor", "spoolss.userlevel.processor",
+                    FT_UINT32, BASE_DEC, NULL, 0, "Processor", HFILL }},
+
+		/* UNISTR2 */
+
+		{ &hf_unistr2_maxlen,
+		  { "Max len", "unistr2.maxlen",
+		    FT_UINT32, BASE_DEC, NULL, 0, "Max len", HFILL }},
+
+		{ &hf_unistr2_offset,
+		  { "Offset", "unistr2.offset",
+		    FT_UINT16, BASE_DEC, NULL, 0, "Offset", HFILL }},
+
+		{ &hf_unistr2_len,
+		  { "Len", "unistr2.len",
+		    FT_UINT16, BASE_DEC, NULL, 0, "Len", HFILL }},
+
+		{ &hf_unistr2_buffer,
+		  { "Buffer", "unistr2.buffer",
+		    FT_BYTES, BASE_HEX, NULL, 0, "Buffer", HFILL }},
+
+		/* Setprinterdataex */
+
+		{ &hf_spoolss_setprinterdataex_max_len,
+		  { "Max len", "setprinterdataex.max_len",
+		    FT_UINT32, BASE_DEC, NULL, 0, "Max len", HFILL }},
+
+		{ &hf_spoolss_setprinterdataex_real_len,
+		  { "Real len", "setprinterdataex.real_len",
+		    FT_UINT32, BASE_DEC, NULL, 0, "Real len", HFILL }},
+
+		{ &hf_spoolss_setprinterdataex_data,
+		  { "Data", "setprinterdataex.data",
+		    FT_BYTES, BASE_HEX, NULL, 0, "Data", HFILL }},
+
+		/* Spool printer info */
+
+		{ &hf_spoolss_spool_printer_info_devmode_ptr,
+		  { "Devmode pointer", "spoolprinterinfo.devmode_ptr",
+		    FT_UINT32, BASE_HEX, NULL, 0, "Devmode pointer", HFILL }},
+
+		{ &hf_spoolss_spool_printer_info_secdesc_ptr,
+		  { "Secdesc pointer", "spoolprinterinfo.secdesc_ptr",
+		    FT_UINT32, BASE_HEX, NULL, 0, "Secdesc pointer", HFILL }},
+
+		/* Security descriptor buffer */
+
+		{ &hf_spoolss_secdescbuf_maxlen,
+		  { "Max len", "secdescbuf.max_len",
+		    FT_UINT32, BASE_DEC, NULL, 0, "Max len", HFILL }},
+
+		{ &hf_spoolss_secdescbuf_undoc,
+		  { "Undocumented", "secdescbuf.undoc",
+		    FT_UINT32, BASE_DEC, NULL, 0, "Undocumented", HFILL }},
+
+		{ &hf_spoolss_secdescbuf_len,
+		  { "Length", "secdescbuf.len",
+		    FT_UINT32, BASE_DEC, NULL, 0, "Length", HFILL }},
+
+		/* 
+                 * New hf index values 
+                 */
+
+		/* Printer data */
+
+		{ &hf_printerdata,
+		  { "Data", "spoolss.printerdata", FT_UINT32, 
+		    BASE_HEX, NULL, 0, "Printer data key", HFILL }},
+
+		{ &hf_printerdata_key,
+		  { "Key", "spoolss.printerdata.key", FT_STRING, 
+		    BASE_NONE, NULL, 0, "Printer data key", HFILL }},
+
+		{ &hf_printerdata_value,
+		  { "Value", "spoolss.printerdata.value", 
+		    FT_STRING, BASE_NONE, NULL, 0, "Printer data value", 
+		    HFILL }},
+
+		{ &hf_printerdata_type,
+		  { "Type", "spoolss.printerdata.type", 
+		    FT_UINT32, BASE_DEC, VALS(reg_datatypes), 0, 
+		    "Printer data type", HFILL }},
+
+		{ &hf_printerdata_size,
+		  { "Size", "spoolss.printerdata.size", 
+		    FT_UINT32, BASE_DEC, NULL, 0, "Printer data size", 
+		    HFILL }},
+
+		{ &hf_printerdata_data,
+		  { "Data", "spoolss.printerdata.data", FT_BYTES, BASE_HEX,
+		    NULL, 0x0, "Printer data", HFILL }},
+
+		{ &hf_printerdata_data_dword,
+		  { "DWORD data", "spoolss.printerdata.data.dword", 
+		    FT_UINT32, BASE_HEX, NULL, 0, "DWORD data", HFILL }},
+
+		{ &hf_printerdata_data_sz,
+		  { "String data", "spoolss.printerdata.data.sz", 
+		    FT_STRING, BASE_NONE, NULL, 0, "String data", 
+		    HFILL }},
+
 		/* Devicemode */
 
-		{ &hf_spoolss_devmode_size,
-		  { "Size", "spoolss.devicemode.size",
+		{ &hf_devmodectr_size,
+		  { "Devicemode ctr size", "spoolss.devicemodectr.size",
+		    FT_UINT32, BASE_DEC, NULL, 0, "Devicemode ctr size", 
+		    HFILL }},
+
+		{ &hf_devmode,
+		  { "Devicemode", "spoolss.devmode", FT_UINT32, 
+		    BASE_HEX, NULL, 0, "Devicemode", HFILL }},
+
+		{ &hf_devmode_size,
+		  { "Size", "spoolss.devmode.size",
 		    FT_UINT32, BASE_DEC, NULL, 0, "Size", HFILL }},
 
-		{ &hf_spoolss_devmode_spec_version,
-		  { "Spec version", "spoolss.devicemode.spec_version",
-		    FT_UINT16, BASE_DEC, NULL, 0, "Spec version", HFILL }},
+		{ &hf_devmode_spec_version,
+		  { "Spec version", "spoolss.devmode.spec_version",
+		    FT_UINT16, BASE_DEC, VALS(devmode_specversion_vals), 
+		    0, "Spec version", HFILL }},
 
-		{ &hf_spoolss_devmode_driver_version,
-		  { "Driver version", "spoolss.devicemode.driver_version",
+		{ &hf_devmode_driver_version,
+		  { "Driver version", "spoolss.devmode.driver_version",
 		    FT_UINT16, BASE_DEC, NULL, 0, "Driver version", HFILL }},
 
-		{ &hf_spoolss_devmode_size2,
-		  { "Size2", "spoolss.devicemode.size2",
+		{ &hf_devmode_size2,
+		  { "Size2", "spoolss.devmode.size2",
 		    FT_UINT16, BASE_DEC, NULL, 0, "Size2", HFILL }},
 
-		{ &hf_spoolss_devmode_driver_extra,
-		  { "Driver extra", "spoolss.devicemode.driver_extra",
+		{ &hf_devmode_driver_extra,
+		  { "Driver extra", "spoolss.devmode.driver_extra",
 		    FT_UINT16, BASE_DEC, NULL, 0, "Driver extra", HFILL }},
 
-		{ &hf_spoolss_devmode_fields,
-		  { "Fields", "spoolss.devicemode.fields",
+		{ &hf_devmode_fields,
+		  { "Fields", "spoolss.devmode.fields",
 		    FT_UINT32, BASE_HEX, NULL, 0, "Fields", HFILL }},
 
-		{ &hf_spoolss_devmode_orientation,
-		  { "Orientation", "spoolss.devicemode.orientation",
+		{ &hf_devmode_orientation,
+		  { "Orientation", "spoolss.devmode.orientation",
 		    FT_UINT16, BASE_DEC, VALS(devmode_orientation_vals), 
 		    0, "Orientation", HFILL }},
 
-		{ &hf_spoolss_devmode_paper_size,
-		  { "Paper size", "spoolss.devicemode.paper_size",
-		    FT_UINT16, BASE_DEC, NULL, 0, "Paper size", HFILL }},
+		{ &hf_devmode_paper_size,
+		  { "Paper size", "spoolss.devmode.paper_size",
+		    FT_UINT16, BASE_DEC, VALS(devmode_papersize_vals), 
+		    0, "Paper size", HFILL }},
 
-		{ &hf_spoolss_devmode_paper_width,
-		  { "Paper width", "spoolss.devicemode.paper_width",
+		{ &hf_devmode_paper_width,
+		  { "Paper width", "spoolss.devmode.paper_width",
 		    FT_UINT16, BASE_DEC, NULL, 0, "Paper width", HFILL }},
 
-		{ &hf_spoolss_devmode_paper_length,
-		  { "Paper length", "spoolss.devicemode.paper_length",
+		{ &hf_devmode_paper_length,
+		  { "Paper length", "spoolss.devmode.paper_length",
 		    FT_UINT16, BASE_DEC, NULL, 0, "Paper length", HFILL }},
 
-		{ &hf_spoolss_devmode_scale,
-		  { "Scale", "spoolss.devicemode.scale",
+		{ &hf_devmode_scale,
+		  { "Scale", "spoolss.devmode.scale",
 		    FT_UINT16, BASE_DEC, NULL, 0, "Scale", HFILL }},
 
-		{ &hf_spoolss_devmode_copies,
-		  { "Copies", "spoolss.devicemode.copies",
+		{ &hf_devmode_copies,
+		  { "Copies", "spoolss.devmode.copies",
 		    FT_UINT16, BASE_DEC, NULL, 0, "Copies", HFILL }},
 
-		{ &hf_spoolss_devmode_default_source,
-		  { "Default source", "spoolss.devicemode.default_source",
-		    FT_UINT16, BASE_DEC, NULL, 0, "Default source", HFILL }},
+		{ &hf_devmode_default_source,
+		  { "Default source", "spoolss.devmode.default_source",
+		    FT_UINT16, BASE_DEC, VALS(devmode_papersource_vals), 
+		    0, "Default source", HFILL }},
 
-		{ &hf_spoolss_devmode_print_quality,
-		  { "Print quality", "spoolss.devicemode.print_quality",
-		    FT_UINT16, BASE_DEC, NULL, 0, "Print quality", HFILL }},
+		{ &hf_devmode_print_quality,
+		  { "Print quality", "spoolss.devmode.print_quality",
+		    FT_UINT16, BASE_DEC, VALS(devmode_printquality_vals), 
+		    0, "Print quality", HFILL }},
 
-		{ &hf_spoolss_devmode_color,
-		  { "Color", "spoolss.devicemode.color",
-		    FT_UINT16, BASE_DEC, NULL, 0, "Color", HFILL }},
+		{ &hf_devmode_color,
+		  { "Color", "spoolss.devmode.color",
+		    FT_UINT16, BASE_DEC, VALS(devmode_colour_vals), 0, 
+		    "Color", HFILL }},
 
-		{ &hf_spoolss_devmode_duplex,
-		  { "Duplex", "spoolss.devicemode.duplex",
-		    FT_UINT16, BASE_DEC, NULL, 0, "Duplex", HFILL }},
+		{ &hf_devmode_duplex,
+		  { "Duplex", "spoolss.devmode.duplex",
+		    FT_UINT16, BASE_DEC, VALS(devmode_duplex_vals), 0, 
+		    "Duplex", HFILL }},
 
-		{ &hf_spoolss_devmode_y_resolution,
-		  { "Y resolution", "spoolss.devicemode.y_resolution",
+		{ &hf_devmode_y_resolution,
+		  { "Y resolution", "spoolss.devmode.y_resolution",
 		    FT_UINT16, BASE_DEC, NULL, 0, "Y resolution", HFILL }},
 
-		{ &hf_spoolss_devmode_tt_option,
-		  { "TT option", "spoolss.devicemode.tt_option",
-		    FT_UINT16, BASE_DEC, NULL, 0, "TT option", HFILL }},
+		{ &hf_devmode_tt_option,
+		  { "TT option", "spoolss.devmode.tt_option",
+		    FT_UINT16, BASE_DEC, VALS(devmode_ttoption_vals), 0, 
+		    "TT option", HFILL }},
 
-		{ &hf_spoolss_devmode_collate,
-		  { "Collate", "spoolss.devicemode.collate",
-		    FT_UINT16, BASE_DEC, NULL, 0, "Collate", HFILL }},
+		{ &hf_devmode_collate,
+		  { "Collate", "spoolss.devmode.collate",
+		    FT_UINT16, BASE_DEC, VALS(devmode_collate_vals), 0, 
+		    "Collate", HFILL }},
 
-		{ &hf_spoolss_devmode_log_pixels,
-		  { "Log pixels", "spoolss.devicemode.log_pixels",
+		{ &hf_devmode_log_pixels,
+		  { "Log pixels", "spoolss.devmode.log_pixels",
 		    FT_UINT16, BASE_DEC, NULL, 0, "Log pixels", HFILL }},
 
-		{ &hf_spoolss_devmode_bits_per_pel,
-		  { "Bits per pel", "spoolss.devicemode.bits_per_pel",
+		{ &hf_devmode_bits_per_pel,
+		  { "Bits per pel", "spoolss.devmode.bits_per_pel",
 		    FT_UINT32, BASE_DEC, NULL, 0, "Bits per pel", HFILL }},
 
-		{ &hf_spoolss_devmode_pels_width,
-		  { "Pels width", "spoolss.devicemode.pels_width",
+		{ &hf_devmode_pels_width,
+		  { "Pels width", "spoolss.devmode.pels_width",
 		    FT_UINT32, BASE_DEC, NULL, 0, "Pels width", HFILL }},
 
-		{ &hf_spoolss_devmode_pels_height,
-		  { "Pels height", "spoolss.devicemode.pels_height",
+		{ &hf_devmode_pels_height,
+		  { "Pels height", "spoolss.devmode.pels_height",
 		    FT_UINT32, BASE_DEC, NULL, 0, "Pels height", HFILL }},
 
-		{ &hf_spoolss_devmode_display_flags,
-		  { "Display flags", "spoolss.devicemode.display_flags",
-		    FT_UINT32, BASE_DEC, NULL, 0, "Display flags", HFILL }},
+		{ &hf_devmode_display_flags,
+		  { "Display flags", "spoolss.devmode.display_flags",
+		    FT_UINT32, BASE_DEC, VALS(devmode_displayflags_vals), 0, 
+		    "Display flags", HFILL }},
 
-		{ &hf_spoolss_devmode_display_freq,
-		  { "Display frequency", "spoolss.devicemode.display_freq",
+		{ &hf_devmode_display_freq,
+		  { "Display frequency", "spoolss.devmode.display_freq",
 		    FT_UINT32, BASE_DEC, NULL, 0, "Display frequency", 
 		    HFILL }},
 
-		{ &hf_spoolss_devmode_icm_method,
-		  { "ICM method", "spoolss.devicemode.icm_method",
-		    FT_UINT32, BASE_DEC, NULL, 0, "ICM method", HFILL }},
+		{ &hf_devmode_icm_method,
+		  { "ICM method", "spoolss.devmode.icm_method",
+		    FT_UINT32, BASE_DEC, VALS(devmode_icmmethod_vals), 0, 
+		    "ICM method", HFILL }},
 
-		{ &hf_spoolss_devmode_icm_intent,
-		  { "ICM intent", "spoolss.devicemode.icm_intent",
-		    FT_UINT32, BASE_DEC, NULL, 0, "ICM intent", HFILL }},
+		{ &hf_devmode_icm_intent,
+		  { "ICM intent", "spoolss.devmode.icm_intent",
+		    FT_UINT32, BASE_DEC, VALS(devmode_icmintent_vals), 0, 
+		    "ICM intent", HFILL }},
 
-		{ &hf_spoolss_devmode_media_type,
-		  { "Media type", "spoolss.devicemode.media_type",
-		    FT_UINT32, BASE_DEC, NULL, 0, "Media type", HFILL }},
+		{ &hf_devmode_media_type,
+		  { "Media type", "spoolss.devmode.media_type",
+		    FT_UINT32, BASE_DEC, VALS(devmode_mediatype_vals), 0, 
+		    "Media type", HFILL }},
 
-		{ &hf_spoolss_devmode_dither_type,
-		  { "Dither type", "spoolss.devicemode.dither_type",
-		    FT_UINT32, BASE_DEC, NULL, 0, "Dither type", HFILL }},
+		{ &hf_devmode_dither_type,
+		  { "Dither type", "spoolss.devmode.dither_type",
+		    FT_UINT32, BASE_DEC, VALS(devmode_dithertype_vals), 0, 
+		    "Dither type", HFILL }},
 
-		{ &hf_spoolss_devmode_reserved1,
-		  { "Reserved1", "spoolss.devicemode.reserved1",
+		{ &hf_devmode_reserved1,
+		  { "Reserved1", "spoolss.devmode.reserved1",
 		    FT_UINT32, BASE_DEC, NULL, 0, "Reserved1", HFILL }},
 
-		{ &hf_spoolss_devmode_reserved2,
-		  { "Reserved2", "spoolss.devicemode.reserved2",
+		{ &hf_devmode_reserved2,
+		  { "Reserved2", "spoolss.devmode.reserved2",
 		    FT_UINT32, BASE_DEC, NULL, 0, "Reserved2", HFILL }},
 
-		{ &hf_spoolss_devmode_panning_width,
-		  { "Panning width", "spoolss.devicemode.panning_width",
+		{ &hf_devmode_panning_width,
+		  { "Panning width", "spoolss.devmode.panning_width",
 		    FT_UINT32, BASE_DEC, NULL, 0, "Panning width", HFILL }},
 
-		{ &hf_spoolss_devmode_panning_height,
-		  { "Panning height", "spoolss.devicemode.panning_height",
+		{ &hf_devmode_panning_height,
+		  { "Panning height", "spoolss.devmode.panning_height",
 		    FT_UINT32, BASE_DEC, NULL, 0, "Panning height", HFILL }},
 
-		{ &hf_spoolss_devmode_driver_extra_len,
+		{ &hf_devmode_driver_extra_len,
 		  { "Driver extra length", 
-		    "spoolss.devicemode.driver_extra_len",
+		    "spoolss.devmode.driver_extra_len",
 		    FT_UINT32, BASE_DEC, NULL, 0, "Driver extra length", 
 		    HFILL }},
 
-		{ &hf_spoolss_devmode_driver_extra,
-		  { "Driver extra", "spoolss.devicemode.driver_extra",
+		{ &hf_devmode_driver_extra,
+		  { "Driver extra", "spoolss.devmode.driver_extra",
 		    FT_BYTES, BASE_HEX, NULL, 0, "Driver extra", HFILL }},
 
 		/* Devicemode fields */
@@ -7714,98 +8255,43 @@ proto_register_dcerpc_spoolss(void)
 		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
 		    DEVMODE_PANNINGHEIGHT, "Panning height", HFILL }},
 
-		/* Devicemode ctr */
+		/* EnumPrinterData RPC */
 
-		{ &hf_spoolss_devmodectr_size,
-		  { "Devicemode ctr size", "spoolss.devicemodectr.size",
-		    FT_UINT32, BASE_DEC, NULL, 0, "Devicemode ctr size", 
+		{ &hf_enumprinterdata_enumindex,
+		  { "Enum index", "spoolss.enumprinterdata.enumindex", 
+		    FT_UINT32, BASE_DEC, NULL, 0x0, 
+		    "Index for start of enumeration", HFILL }},
+
+		{ &hf_enumprinterdata_value_offered,
+		  { "Value size offered", 
+		    "spoolss.enumprinterdata.value_offered", FT_UINT32, 
+		    BASE_DEC, NULL, 0x0, 
+		    "Buffer size offered for printerdata value", HFILL }},
+
+		{ &hf_enumprinterdata_data_offered,
+		  { "Data size offered", 
+		    "spoolss.enumprinterdata.data_offered", FT_UINT32, 
+		    BASE_DEC, NULL, 0x0, 
+		    "Buffer size offered for printerdata data", HFILL }},
+
+		{ &hf_enumprinterdata_value_len,
+		  { "Value length", 
+		    "spoolss.enumprinterdata.value_len", FT_UINT32, 
+		    BASE_DEC, NULL, 0x0, 
+		    "Size of printerdata value", HFILL }},
+
+		{ &hf_enumprinterdata_value_needed,
+		  { "Value size needed", 
+		    "spoolss.enumprinterdata.value_needed", FT_UINT32, 
+		    BASE_DEC, NULL, 0x0, 
+		    "Buffer size needed for printerdata value", HFILL }},
+
+		{ &hf_enumprinterdata_data_needed,
+		  { "Data size needed", 
+		    "spoolss.enumprinterdata.data_needed", FT_UINT32, BASE_DEC,
+		    NULL, 0x0, "Buffer size needed for printerdata data", 
 		    HFILL }},
 
-                /* Userlevel */
-
-                { &hf_spoolss_userlevel_size,
-                  { "Size", "spoolss.userlevel.size",
-                    FT_UINT32, BASE_DEC, NULL, 0, "Size", HFILL }},
-
-                { &hf_spoolss_userlevel_client,
-                  { "Client", "spoolss.userlevel.client", FT_STRING, 
-                    BASE_NONE, NULL, 0, "Client", HFILL }},
-
-                { &hf_spoolss_userlevel_user,
-                  { "User", "spoolss.userlevel.user", FT_STRING, 
-                    BASE_NONE, NULL, 0, "User", HFILL }},
-
-                { &hf_spoolss_userlevel_build,
-                  { "Build", "spoolss.userlevel.build",
-                    FT_UINT32, BASE_DEC, NULL, 0, "Build", HFILL }},
-
-                { &hf_spoolss_userlevel_major,
-                  { "Major", "spoolss.userlevel.major",
-                    FT_UINT32, BASE_DEC, NULL, 0, "Major", HFILL }},
-
-                { &hf_spoolss_userlevel_minor,
-                  { "Minor", "spoolss.userlevel.minor",
-                    FT_UINT32, BASE_DEC, NULL, 0, "Minor", HFILL }},
-
-                { &hf_spoolss_userlevel_processor,
-                  { "Processor", "spoolss.userlevel.processor",
-                    FT_UINT32, BASE_DEC, NULL, 0, "Processor", HFILL }},
-
-		/* UNISTR2 */
-
-		{ &hf_unistr2_maxlen,
-		  { "Max len", "unistr2.maxlen",
-		    FT_UINT32, BASE_DEC, NULL, 0, "Max len", HFILL }},
-
-		{ &hf_unistr2_offset,
-		  { "Offset", "unistr2.offset",
-		    FT_UINT16, BASE_DEC, NULL, 0, "Offset", HFILL }},
-
-		{ &hf_unistr2_len,
-		  { "Len", "unistr2.len",
-		    FT_UINT16, BASE_DEC, NULL, 0, "Len", HFILL }},
-
-		{ &hf_unistr2_buffer,
-		  { "Buffer", "unistr2.buffer",
-		    FT_BYTES, BASE_HEX, NULL, 0, "Buffer", HFILL }},
-
-		/* Setprinterdataex */
-
-		{ &hf_spoolss_setprinterdataex_max_len,
-		  { "Max len", "setprinterdataex.max_len",
-		    FT_UINT32, BASE_DEC, NULL, 0, "Max len", HFILL }},
-
-		{ &hf_spoolss_setprinterdataex_real_len,
-		  { "Real len", "setprinterdataex.real_len",
-		    FT_UINT32, BASE_DEC, NULL, 0, "Real len", HFILL }},
-
-		{ &hf_spoolss_setprinterdataex_data,
-		  { "Data", "setprinterdataex.data",
-		    FT_BYTES, BASE_HEX, NULL, 0, "Data", HFILL }},
-
-		/* Spool printer info */
-
-		{ &hf_spoolss_spool_printer_info_devmode_ptr,
-		  { "Devmode pointer", "spoolprinterinfo.devmode_ptr",
-		    FT_UINT32, BASE_HEX, NULL, 0, "Devmode pointer", HFILL }},
-
-		{ &hf_spoolss_spool_printer_info_secdesc_ptr,
-		  { "Secdesc pointer", "spoolprinterinfo.secdesc_ptr",
-		    FT_UINT32, BASE_HEX, NULL, 0, "Secdesc pointer", HFILL }},
-
-		/* Security descriptor buffer */
-
-		{ &hf_spoolss_secdescbuf_maxlen,
-		  { "Max len", "secdescbuf.max_len",
-		    FT_UINT32, BASE_DEC, NULL, 0, "Max len", HFILL }},
-
-		{ &hf_spoolss_secdescbuf_undoc,
-		  { "Undocumented", "secdescbuf.undoc",
-		    FT_UINT32, BASE_DEC, NULL, 0, "Undocumented", HFILL }},
-
-		{ &hf_spoolss_secdescbuf_len,
-		  { "Length", "secdescbuf.len",
-		    FT_UINT32, BASE_DEC, NULL, 0, "Length", HFILL }},
 	};
 
         static gint *ett[] = {
