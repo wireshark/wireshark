@@ -1,21 +1,21 @@
 #
-# $Id: Makefile.nmake,v 1.1 2003/10/28 07:02:38 guy Exp $
+# $Id: Makefile.nmake,v 1.2 2003/10/28 19:27:49 guy Exp $
 #
 
 include ..\..\config.nmake
 
 ############### no need to modify below this line #########
 
-CFLAGS=/DHAVE_CONFIG_H /I../.. /I../../wiretap \
-	/I$(GLIB_DIR) /I$(GTK_DIR) /I$(GLIB_DIR)/gmodule \
-	/I$(GTK_DIR)\gdk /I$(GTK_DIR)\gdk\win32 \
+CFLAGS=/DHAVE_CONFIG_H /I../.. /I../../wiretap $(GLIB_CFLAGS) \
 	/I$(PCAP_DIR)\include -D_U_="" $(LOCAL_CFLAGS)
 
 OBJECTS=packet-asn1.obj 
 
 asn1.dll asn1.exp asn1.lib : packet-asn1.obj ..\plugin_api.obj
 	link -dll /out:asn1.dll packet-asn1.obj ..\plugin_api.obj \
-	$(GLIB_DIR)\glib-$(GLIB_VERSION).lib
+	$(GLIB_LIBS)
 
 clean:
 	rm -f $(OBJECTS) asn1.dll asn1.exp asn1.lib $(PDB_FILE)
+
+distclean: clean
