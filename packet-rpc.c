@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * 
- * $Id: packet-rpc.c,v 1.81 2002/01/12 10:24:47 guy Exp $
+ * $Id: packet-rpc.c,v 1.82 2002/01/19 19:15:33 guy Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -687,7 +687,7 @@ dissect_rpc_array(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	}
 
 	lock_item = proto_tree_add_item(tree, hfindex, tvb, offset,
-			0, FALSE);
+			tvb_length_remaining(tvb, offset), FALSE);
 
 	lock_tree = proto_item_add_subtree(lock_item, ett_rpc_array); 	
 
