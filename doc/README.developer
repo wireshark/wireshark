@@ -1,4 +1,4 @@
-$Id: README.developer,v 1.19 2000/11/05 07:14:40 guy Exp $
+$Id: README.developer,v 1.20 2000/11/05 09:40:18 oabad Exp $
 
 
 	
@@ -65,7 +65,7 @@ code inside
 
 is needed only if you are using the "snprintf()" function.
 
-The "$Id: README.developer,v 1.19 2000/11/05 07:14:40 guy Exp $"
+The "$Id: README.developer,v 1.20 2000/11/05 09:40:18 oabad Exp $"
 in the comment will be updated by CVS when the file is
 checked in; it will allow the RCS "ident" command to report which
 version of the file is currently checked out.
@@ -75,7 +75,7 @@ version of the file is currently checked out.
  * Routines for PROTONAME dissection
  * Copyright 2000, YOUR_NAME <YOUR_EMAIL_ADDRESS>
  *
- * $Id: README.developer,v 1.19 2000/11/05 07:14:40 guy Exp $
+ * $Id: README.developer,v 1.20 2000/11/05 09:40:18 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -1620,7 +1620,8 @@ desc          : description of the dissector (displayed in the plugin selection
                 window).
 protocol      : name of the underlying protocol (e.g. if protocol == "xxx", the
 		plugin will be called from dissect_xxx).  Only "tcp" and "udp"
-		are supported for now.
+		are supported for now. If you want to specify both tcp and udp,
+		use the following definition : "tcp udp".
 filter_string : display filter which is applied to a frame to determine if it
                 should be dissected by this plugin.
 
