@@ -465,6 +465,8 @@ EXTRA_DIST = \
 	doc/randpkt.txt		\
 	doc/tethereal.pod	\
 	doc/text2pcap.pod	\
+	docbook/Makefile.auto.am	\
+	docbook/Makefile.auto.in	\
 	doxygen.cfg.in		\
 	editcap.c		\
 	epan/libethereal.def	\
