@@ -264,13 +264,12 @@ col_add_fstr(column_info *cinfo, gint el, const gchar *format, ...) {
   va_end(ap);
 }
 
-/* Appends a vararg list to a packet info string. */
-void
-col_append_fstr(column_info *cinfo, gint el, const gchar *format, ...)
+static void
+col_do_append_sep_va_fstr(column_info *cinfo, gint el, const gchar *separator,
+			  const gchar *format, va_list ap)
 {
-  va_list ap;
   int     i;
-  size_t  len, max_len;
+  size_t  len, max_len, sep_len;
 
   g_assert(cinfo->col_first[el] >= 0);
   if (el == COL_INFO)
@@ -278,18 +277,42 @@ col_append_fstr(column_info *cinfo, gint el, const gchar *format, ...)
   else
 	max_len = COL_MAX_LEN;
 
-  va_start(ap, format);
+  if (separator == NULL)
+    sep_len = 0;
+  else
+    sep_len = strlen(separator);
   for (i = cinfo->col_first[el]; i <= cinfo->col_last[el]; i++) {
     if (cinfo->fmt_matx[i][el]) {
       /*
        * First arrange that we can append, if necessary.
        */
       COL_CHECK_APPEND(cinfo, i, max_len);
+
       len = strlen(cinfo->col_buf[i]);
+
+      /*
+       * If we have a separator, append it if the column isn't empty.
+       */
+      if (separator != NULL) {
+        if (len != 0) {
+          strncat(cinfo->col_buf[i], separator, max_len - len);
+          len += sep_len;
+        }
+      }
       vsnprintf(&cinfo->col_buf[i][len], max_len - len, format, ap);
-      cinfo->col_buf[i][max_len - 1] = '\0';
+      cinfo->col_buf[i][max_len-1] = 0;
     }
   }
+}
+
+/* Appends a vararg list to a packet info string. */
+void
+col_append_fstr(column_info *cinfo, gint el, const gchar *format, ...)
+{
+  va_list ap;
+
+  va_start(ap, format);
+  col_do_append_sep_va_fstr(cinfo, el, NULL, format, ap);
   va_end(ap);
 }
 
@@ -300,30 +323,11 @@ col_append_sep_fstr(column_info *cinfo, gint el, const gchar *separator,
 		const gchar *format, ...)
 {
   va_list ap;
-  int     i;
-  size_t  len, max_len;
 
-  g_assert(cinfo->col_first[el] >= 0);
-  if (el == COL_INFO)
-	max_len = COL_MAX_INFO_LEN;
-  else
-	max_len = COL_MAX_LEN;
-
-  if (cinfo->col_data[0]) {
-    col_append_str(cinfo, el, separator ? separator : ", ");
-  }
+  if (separator == NULL)
+    separator = ", ";    /* default */
   va_start(ap, format);
-  for (i = cinfo->col_first[el]; i <= cinfo->col_last[el]; i++) {
-    if (cinfo->fmt_matx[i][el]) {
-      /*
-       * First arrange that we can append, if necessary.
-       */
-      COL_CHECK_APPEND(cinfo, i, max_len);
-      len = strlen(cinfo->col_buf[i]);
-      vsnprintf(&cinfo->col_buf[i][len], max_len - len, format, ap);
-      cinfo->col_buf[i][max_len-1] = 0;
-    }
-  }
+  col_do_append_sep_va_fstr(cinfo, el, separator, format, ap);
   va_end(ap);
 }
 
@@ -411,11 +415,12 @@ col_add_str(column_info *cinfo, gint el, const gchar* str)
   }
 }
 
-void
-col_append_str(column_info *cinfo, gint el, const gchar* str)
+static void
+col_do_append_str(column_info *cinfo, gint el, const gchar* separator,
+    const gchar* str)
 {
   int    i;
-  size_t len, max_len;
+  size_t len, max_len, sep_len;
 
   g_assert(cinfo->col_first[el] >= 0);
   if (el == COL_INFO)
@@ -423,13 +428,29 @@ col_append_str(column_info *cinfo, gint el, const gchar* str)
   else
 	max_len = COL_MAX_LEN;
 
+  if (separator == NULL)
+    sep_len = 0;
+  else
+    sep_len = strlen(separator);
+
   for (i = cinfo->col_first[el]; i <= cinfo->col_last[el]; i++) {
     if (cinfo->fmt_matx[i][el]) {
       /*
        * First arrange that we can append, if necessary.
        */
       COL_CHECK_APPEND(cinfo, i, max_len);
+
       len = strlen(cinfo->col_buf[i]);
+
+      /*
+       * If we have a separator, append it if the column isn't empty.
+       */
+      if (separator != NULL) {
+        if (len != 0) {
+          strncat(cinfo->col_buf[i], separator, max_len - len);
+          len += sep_len;
+        }
+      }
       strncat(cinfo->col_buf[i], str, max_len - len);
       cinfo->col_buf[i][max_len - 1] = 0;
     }
@@ -437,13 +458,18 @@ col_append_str(column_info *cinfo, gint el, const gchar* str)
 }
 
 void
+col_append_str(column_info *cinfo, gint el, const gchar* str)
+{
+  col_do_append_str(cinfo, el, NULL, str);
+}
+
+void
 col_append_sep_str(column_info *cinfo, gint el, const gchar* separator,
     const gchar* str)
 {
-  if (cinfo->col_data[0]) {
-    col_append_str(cinfo, el, separator ? separator : ", ");
-  }  
-  col_append_str(cinfo, el, str);
+  if (separator == NULL)
+    separator = ", ";    /* default */
+  col_do_append_str(cinfo, el, separator, str);
 }
 
 static void
