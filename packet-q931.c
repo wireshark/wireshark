@@ -2,7 +2,7 @@
  * Routines for Q.931 frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-q931.c,v 1.58 2003/08/05 17:45:52 guy Exp $
+ * $Id: packet-q931.c,v 1.59 2003/09/03 05:28:16 guy Exp $
  *
  * Modified by Andreas Sikkema for possible use with H.323
  *
@@ -785,7 +785,7 @@ dissect_q931_bearer_capability_ie(tvbuff_t *tvb, int offset, int len,
 		       "Unknown (0x%X)"));
 		proto_tree_add_text(tree, tvb, offset, 1,
 		    "Parity: %s",
-		      val_to_str(octet & 0x08, q931_l1_parity_vals,
+		      val_to_str(octet & 0x07, q931_l1_parity_vals,
 		       "Unknown (0x%X)"));
 
 		if (octet & Q931_IE_VL_EXTENSION)
