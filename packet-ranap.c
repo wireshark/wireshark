@@ -3,7 +3,7 @@
  * Based on 3GPP TS 25.413 V3.4.0
  * Copyright 2001, Martin Held <Martin.Held@icn.siemens.de>
  *
- * $Id: packet-ranap.c,v 1.6 2001/06/18 02:17:51 guy Exp $
+ * $Id: packet-ranap.c,v 1.7 2001/09/13 20:42:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1110,7 +1110,7 @@ proto_tree_add_bitstring(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint offs
    guint8		bitstr[128];
    char			buf[256] = "\0";
    header_field_info	*hf_info_p;
-   guint		byte_span;
+   gint			byte_span;
    gint			initial_offset = offset;
 
    memset(bitstr, 0, 128); 
