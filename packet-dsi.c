@@ -2,7 +2,7 @@
  * Routines for dsi packet dissection
  * Copyright 2001, Randy McEoin <rmceoin@pe.com>
  *
- * $Id: packet-dsi.c,v 1.16 2002/04/30 22:05:33 guy Exp $
+ * $Id: packet-dsi.c,v 1.17 2002/05/01 07:07:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -159,7 +159,7 @@ static const value_string func_vals[] = {
 	from netatalk/etc/afpd/status.c
 */
 static gint 
-dissect_dsi_reply_get_status(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+dissect_dsi_reply_get_status(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
         proto_tree      *sub_tree;
 	proto_item	*ti;
@@ -344,7 +344,7 @@ dissect_dsi_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	switch (dsi_command) {
 	case DSIFUNC_STAT:
 		if (tree && (dsi_flags == DSIFL_REPLY)) {
-			dissect_dsi_reply_get_status(tvb, pinfo, dsi_tree, DSI_BLOCKSIZ);
+			dissect_dsi_reply_get_status(tvb, dsi_tree, DSI_BLOCKSIZ);
 		}
 		break;	
 	case DSIFUNC_CMD:
