@@ -1,9 +1,9 @@
 /* packet-fddi.c
  * Routines for FDDI packet disassembly
  *
- * Laurent Deniel <deniel@worldnet.fr>
+ * Laurent Deniel <laurent.deniel@free.fr>
  *
- * $Id: packet-fddi.c,v 1.59 2002/12/02 23:43:26 guy Exp $
+ * $Id: packet-fddi.c,v 1.60 2003/01/26 19:35:24 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

@@ -1,8 +1,8 @@
 /* proto_dlg.h
  *
- * $Id: proto_dlg.h,v 1.2 2002/08/28 21:03:49 jmayer Exp $
+ * $Id: proto_dlg.h,v 1.3 2003/01/26 19:35:31 deniel Exp $
  *
- * Laurent Deniel <deniel@worldnet.fr>
+ * Laurent Deniel <laurent.deniel@free.fr>
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>

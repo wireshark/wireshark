@@ -2,14 +2,14 @@
  * Routines for CORBA GIOP/IIOP packet disassembly
  *
  * Initial Code by,
- * Laurent Deniel <deniel@worldnet.fr>
+ * Laurent Deniel <laurent.deniel@free.fr>
  * Craig Rodrigues <rodrigc@mediaone.net>
  *
  * GIOP API extensions by,
  * Frank Singleton <frank.singleton@ericsson.com>
  * Trevor Shepherd <eustrsd@am1.ericsson.se>
  *
- * $Id: packet-giop.c,v 1.64 2002/12/02 23:43:26 guy Exp $
+ * $Id: packet-giop.c,v 1.65 2003/01/26 19:35:24 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

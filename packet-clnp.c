@@ -1,8 +1,8 @@
 /* packet-clnp.c
  * Routines for ISO/OSI network and transport protocol packet disassembly
  *
- * $Id: packet-clnp.c,v 1.64 2003/01/20 05:42:30 guy Exp $
- * Laurent Deniel <deniel@worldnet.fr>
+ * $Id: packet-clnp.c,v 1.65 2003/01/26 19:35:24 deniel Exp $
+ * Laurent Deniel <laurent.deniel@free.fr>
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
  * Ethereal - Network traffic analyzer

@@ -1,8 +1,8 @@
 /* help_dlg.h
  *
- * $Id: help_dlg.h,v 1.4 2002/08/28 21:03:48 jmayer Exp $
+ * $Id: help_dlg.h,v 1.5 2003/01/26 19:35:31 deniel Exp $
  *
- * Laurent Deniel <deniel@worldnet.fr>
+ * Laurent Deniel <laurent.deniel@free.fr>
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>

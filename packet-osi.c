@@ -2,8 +2,8 @@
  * Routines for ISO/OSI network and transport protocol packet disassembly
  * Main entrance point and common functions
  *
- * $Id: packet-osi.c,v 1.57 2003/01/11 10:16:22 guy Exp $
- * Laurent Deniel <deniel@worldnet.fr>
+ * $Id: packet-osi.c,v 1.58 2003/01/26 19:35:24 deniel Exp $
+ * Laurent Deniel <laurent.deniel@free.fr>
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
  * Ethereal - Network traffic analyzer

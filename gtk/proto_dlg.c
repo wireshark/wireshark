@@ -1,8 +1,8 @@
 /* proto_dlg.c
  *
- * $Id: proto_dlg.c,v 1.24 2002/12/02 11:05:58 oabad Exp $
+ * $Id: proto_dlg.c,v 1.25 2003/01/26 19:35:31 deniel Exp $
  *
- * Laurent Deniel <deniel@worldnet.fr>
+ * Laurent Deniel <laurent.deniel@free.fr>
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

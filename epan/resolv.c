@@ -1,9 +1,9 @@
 /* resolv.c
  * Routines for network object lookup
  *
- * $Id: resolv.c,v 1.29 2002/11/27 22:42:40 guy Exp $
+ * $Id: resolv.c,v 1.30 2003/01/26 19:35:29 deniel Exp $
  *
- * Laurent Deniel <deniel@worldnet.fr>
+ * Laurent Deniel <laurent.deniel@free.fr>
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

@@ -1,9 +1,9 @@
 /* resolv.h
  * Definitions for network object lookup
  *
- * $Id: resolv.h,v 1.9 2002/08/28 20:40:45 jmayer Exp $
+ * $Id: resolv.h,v 1.10 2003/01/26 19:35:29 deniel Exp $
  *
- * Laurent Deniel <deniel@worldnet.fr>
+ * Laurent Deniel <laurent.deniel@free.fr>
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

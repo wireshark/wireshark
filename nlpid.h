@@ -1,8 +1,8 @@
 /* nlpid.h
  * Definitions of OSI NLPIDs (Network Layer Protocol IDs)
- * Laurent Deniel <deniel@worldnet.fr>
+ * Laurent Deniel <laurent.deniel@free.fr>
  *
- * $Id: nlpid.h,v 1.11 2002/08/28 21:00:06 jmayer Exp $
+ * $Id: nlpid.h,v 1.12 2003/01/26 19:35:24 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
