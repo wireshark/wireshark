@@ -3,7 +3,7 @@
  * see http://ddt.sourceforge.net/
  * Olivier Abad <oabad@cybercable.fr>
  *
- * $Id: packet-ddtp.c,v 1.5 2000/05/31 05:07:00 guy Exp $
+ * $Id: packet-ddtp.c,v 1.6 2000/06/10 18:08:17 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -57,8 +57,7 @@ static int hf_ddtp_status = -1;
 
 static int ett_ddtp = -1;
 
-#define UDP_PORT_DDTP1	58800
-#define UDP_PORT_DDTP2	58801
+#define UDP_PORT_DDTP	1052
 
 static const value_string vals_ddtp_version[] = {
     { DDTP_VERSION_ERROR, "Protocol Error" },
@@ -233,6 +232,5 @@ proto_register_ddtp(void)
 void
 proto_reg_handoff_ddtp(void)
 {
-    dissector_add("udp.port", UDP_PORT_DDTP1, dissect_ddtp);
-    dissector_add("udp.port", UDP_PORT_DDTP2, dissect_ddtp);
+    dissector_add("udp.port", UDP_PORT_DDTP, dissect_ddtp);
 }
