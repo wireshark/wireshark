@@ -3,7 +3,7 @@
  * Wes Hardaker (c) 2000
  * wjhardaker@ucdavis.edu
  *
- * $Id: packet-kerberos.c,v 1.3 2000/08/13 14:08:23 deniel Exp $
+ * $Id: packet-kerberos.c,v 1.4 2000/09/06 19:05:41 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -180,12 +180,14 @@ krb_proto_tree_add_time(proto_tree *tree, int offset, int str_len,
    start = asn1p->pointer; \
    ret = asn1_header_decode (asn1p, &cls, &con, &tag, &def, &item_len); \
    if (ret != ASN1_ERR_NOERROR && ret != ASN1_ERR_EMPTY) {\
-       col_add_fstr(fd, COL_INFO, "ERROR: Problem at %s: %s", \
+       if (check_col(fd, COL_INFO)) \
+           col_add_fstr(fd, COL_INFO, "ERROR: Problem at %s: %s", \
                     token, to_error_str(ret)); \
        return; \
    } \
    if (!def) {\
-       col_add_fstr(fd, COL_INFO, "not definite: %s", token); \
+       if (check_col(fd, COL_INFO)) \
+           col_add_fstr(fd, COL_INFO, "not definite: %s", token); \
        fprintf(stderr,"not definite: %s\n", token); \
        return; \
    } \
@@ -195,7 +197,8 @@ krb_proto_tree_add_time(proto_tree *tree, int offset, int str_len,
 #define KRB_DECODE_OR_DIE(token, fn, val) \
     ret = fn (asn1p, &val, &length); \
     if (ret != ASN1_ERR_NOERROR) { \
-        col_add_fstr(fd, COL_INFO, "ERROR: Problem at %s: %s", \
+       if (check_col(fd, COL_INFO)) \
+         col_add_fstr(fd, COL_INFO, "ERROR: Problem at %s: %s", \
                      token, to_error_str(ret)); \
         return; \
     } \
