@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.155 1999/12/03 21:50:31 nneul Exp $
+ * $Id: packet.h,v 1.156 1999/12/05 20:05:45 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -288,6 +288,7 @@ void capture_netbios(const u_char *, int, guint32, packet_counts *);
 void capture_llc(const u_char *, int, guint32, packet_counts *);
 void capture_ip(const u_char *, int, guint32, packet_counts *);
 void capture_ipx(const u_char *, int, guint32, packet_counts *);
+void capture_vlan(const u_char *, int, guint32, packet_counts *);
 
 /*
  * Routines in packet-*.c

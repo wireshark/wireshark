@@ -1,7 +1,7 @@
 /* packet-vlan.c
  * Routines for VLAN 802.1Q ethernet header disassembly
  *
- * $Id: packet-vlan.c,v 1.5 1999/12/03 21:28:11 nneul Exp $
+ * $Id: packet-vlan.c,v 1.6 1999/12/05 20:05:44 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -48,6 +48,24 @@ static int hf_vlan_cfi = -1;
 static gint ett_vlan = -1;
 
 void
+capture_vlan(const u_char *pd, int offset, guint32 cap_len, packet_counts *ld ) {
+  guint32 encap_proto;
+  if ( !BYTES_ARE_IN_FRAME(offset,5) ) {
+    return; 
+  }
+  encap_proto = pntohs( &pd[offset+2] );
+  if ( encap_proto <= IEEE_802_3_MAX_LEN) {
+    if ( pd[offset+4] == 0xff && pd[offset+5] == 0xff ) {
+      capture_ipx(pd,offset+4,cap_len,ld);
+    } else {
+      capture_llc(pd,offset+4,cap_len,ld);
+    }
+  } else {
+    capture_ethertype(encap_proto, offset+4, pd, cap_len, ld);
+  }
+}
+
+void
 dissect_vlan(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   proto_tree *ti, *vlan_tree = NULL;
   guint16 tci,encap_proto;
@@ -77,18 +95,11 @@ dissect_vlan(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   }
 
   if ( encap_proto <= IEEE_802_3_MAX_LEN) {
-#if 0
     if ( pd[offset+4] == 0xff && pd[offset+5] == 0xff ) {
       dissect_ipx(pd,offset+4,fd,tree);
-		/* should capture_ipx */
 	} else {
       dissect_llc(pd,offset+4,fd,tree);
-      /* should capture_llc */
     }
-#else
-	dissect_data(pd,offset+4,fd,tree);
-	/* I don't know what to here, so am just doing as data for now */
-#endif
   } else {
     ethertype(encap_proto, offset+4, pd, fd, tree, vlan_tree, hf_vlan_etype);
   }
