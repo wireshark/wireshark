@@ -7,7 +7,7 @@
  * Laurent Cazalet <laurent.cazalet@mailclub.net>
  * Thomas Parvais <thomas.parvais@advalvas.be>
  *
- * $Id: packet-l2tp.c,v 1.11 2000/06/07 11:37:08 gram Exp $
+ * $Id: packet-l2tp.c,v 1.12 2000/06/08 19:07:13 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -821,7 +821,8 @@ proto_register_l2tp(void)
 		&ett_l2tp_avp,
 	};
 
-	proto_l2tp = proto_register_protocol ("L2TP Protocol", "l2tp");
+	proto_l2tp = proto_register_protocol(
+		"Layer 2 Tunneling Protocol", "l2tp");
 	proto_register_field_array(proto_l2tp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }
