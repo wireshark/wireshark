@@ -1825,6 +1825,7 @@ Niklas Ogren <niklas.ogren [AT] 71.se> {
 
 Jesper Peterson <jesper [AT] endace.com> {
 	Cisco HDLC FCS support
+	Support for reading Endace ERF files
 }
 
 Giles Scott <gscott2 [AT] nortelnetworks.com> {
@@ -1887,6 +1888,11 @@ Baktha Muralitharan <muralidb [AT] cisco.com> {
 
 Loïc Minier <lool [AT] dooz.org> {
 	HTTP header and payload desegmentation
+}
+
+Marcel Holtmann <marcel [AT] holtmann.org> {
+	Support for reading Linux Bluez Bluetooth stack "hcidump -w"
+	    traces
 }
 
 And assorted fixes and enhancements by the people listed above and by:

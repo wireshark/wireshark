@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.nmake,v 1.35 2003/10/10 21:31:53 guy Exp $
+# $Id: Makefile.nmake,v 1.36 2003/10/30 03:11:02 guy Exp $
 #
 
 include ..\config.nmake
@@ -25,6 +25,7 @@ OBJECTS=ascend-grammar.obj \
 	etherpeek.obj \
 	file_access.obj \
 	file_wrappers.obj \
+	hcidump.obj \
 	i4btrace.obj \
 	iptrace.obj \
 	lanalyzer.obj \

@@ -1,6 +1,6 @@
 /* wtap.h
  *
- * $Id: wtap.h,v 1.142 2003/10/25 07:17:28 guy Exp $
+ * $Id: wtap.h,v 1.143 2003/10/30 03:11:03 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -129,9 +129,10 @@
 #define WTAP_ENCAP_ENC				37
 #define WTAP_ENCAP_PFLOG			38
 #define WTAP_ENCAP_CHDLC_WITH_PHDR		39
+#define WTAP_ENCAP_BLUETOOTH_H4			40
 
 /* last WTAP_ENCAP_ value + 1 */
-#define WTAP_NUM_ENCAP_TYPES			40
+#define WTAP_NUM_ENCAP_TYPES			41
 
 /* File types that can be read by wiretap.
    We support writing some many of these file types, too, so we
@@ -172,9 +173,10 @@
 #define WTAP_FILE_COSINE			33
 #define WTAP_FILE_5VIEWS			34
 #define WTAP_FILE_ERF				35
+#define WTAP_FILE_HCIDUMP			36
 
 /* last WTAP_FILE_ value + 1 */
-#define WTAP_NUM_FILE_TYPES			36
+#define WTAP_NUM_FILE_TYPES			37
 
 /*
  * Maximum packet size we'll support.
@@ -350,7 +352,7 @@ struct ieee_802_11_phdr {
 struct cosine_phdr {
 	guint8 encap;		/* COSINE_ENCAP_* as defined above */
 	guint8 direction;	/* COSINE_DIR_*, as defined above */
-        char if_name[COSINE_MAX_IF_NAME_LEN];  /* Encap & Logical I/F name */
+	char if_name[COSINE_MAX_IF_NAME_LEN];  /* Encap & Logical I/F name */
 	guint16 pro;		/* Protocol */
 	guint16 off;		/* Offset */
 	guint16 pri;		/* Priority */
