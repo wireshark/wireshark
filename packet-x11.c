@@ -3,7 +3,7 @@
  * Copyright 2000, Christophe Tronche <ch.tronche@computer.org>
  * Copyright 2003, Michael Shuldman
  *
- * $Id: packet-x11.c,v 1.54 2004/02/25 09:31:07 guy Exp $
+ * $Id: packet-x11.c,v 1.55 2004/02/25 23:12:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1741,14 +1741,15 @@ static void listOfKeysyms(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
 
 
       for (keycode = keycode_first; keycode_count > 0;
-      ++keycode, --keycode_count) {
+           ++keycode, --keycode_count) {
 	    tti = proto_tree_add_none_format(tt, hf_item, tvb, *offsetp,
 	    keysyms_per_keycode * 4, "keysyms (keycode %d):", keycode);
 
 	    ttt = proto_item_add_subtree(tti, ett_x11_keysym);
 
+	    tvb_ensure_bytes_exist(tvb, *offsetp, 4 * keysyms_per_keycode);
 	    keycodemap[keycode]
-	    = g_malloc(sizeof(*keycodemap[keycode]) * keysyms_per_keycode);
+	        = g_malloc(sizeof(*keycodemap[keycode]) * keysyms_per_keycode);
 
 	    for(i = 0; i < keysyms_per_keycode; ++i) {
 		  /* keysymvalue = byte3 * 256 + byte4. */
@@ -1756,9 +1757,9 @@ static void listOfKeysyms(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
 
 		  proto_item_append_text(tti, " %s", keysymString(v));
 		  proto_tree_add_uint_format(ttt, hf_x11_keysyms_item_keysym,
-		  tvb, *offsetp, 4, v,
-		  "keysym (keycode %d): 0x%08x (%s)",
-		  keycode, v, keysymString(v));
+		      tvb, *offsetp, 4, v,
+		      "keysym (keycode %d): 0x%08x (%s)",
+		      keycode, v, keysymString(v));
 
 		  keycodemap[keycode][i] = v;
 		  *offsetp += 4;
