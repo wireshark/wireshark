@@ -1,7 +1,7 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.392 2004/01/17 13:09:00 jmayer Exp $
+# $Id: Makefile.nmake,v 1.393 2004/01/17 18:52:07 ulfl Exp $
 
 include config.nmake
 include <win32.mak>
@@ -570,13 +570,13 @@ $(RESOURCES): image
 
 wiretap\wiretap-$(WTAP_VERSION).lib: wiretap
 
-ethereal.exe	: config.h $(ethereal_OBJECTS) $(EXTRA_OBJECTS) epan gtk image\ethereal.res wiretap\wiretap-$(WTAP_VERSION).lib gtk\libui.lib plugins
+ethereal.exe	: config.h cvsversion.h $(ethereal_OBJECTS) $(EXTRA_OBJECTS) epan gtk image\ethereal.res wiretap\wiretap-$(WTAP_VERSION).lib gtk\libui.lib plugins
 	@echo Linking $@
 	$(LINK) @<<
 		/OUT:ethereal.exe $(guiflags) $(guilibsdll) $(LDFLAGS) /SUBSYSTEM:windows $(ethereal_LIBS) $(ethereal_OBJECTS) $(EXTRA_OBJECTS) image\ethereal.res
 <<
 
-tethereal.exe	: config.h $(tethereal_OBJECTS) $(EXTRA_OBJECTS) epan image\tethereal.res wiretap\wiretap-$(WTAP_VERSION).lib plugins
+tethereal.exe	: config.h cvsversion.h $(tethereal_OBJECTS) $(EXTRA_OBJECTS) epan image\tethereal.res wiretap\wiretap-$(WTAP_VERSION).lib plugins
 	@echo Linking $@
 	$(LINK) @<<
 		/OUT:tethereal.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console $(tethereal_LIBS) $(tethereal_OBJECTS) $(EXTRA_OBJECTS) image\tethereal.res
@@ -588,7 +588,7 @@ editcap.exe	: config.h editcap.obj getopt.obj wiretap\wiretap-$(WTAP_VERSION).li
 		/OUT:editcap.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console editcap.obj getopt.obj $(editcap_LIBS) image\editcap.res
 <<
 
-mergecap.exe	: config.h mergecap.obj getopt.obj wiretap\wiretap-$(WTAP_VERSION).lib image\mergecap.res
+mergecap.exe	: config.h cvsversion.h mergecap.obj getopt.obj wiretap\wiretap-$(WTAP_VERSION).lib image\mergecap.res
 	@echo Linking $@
 	$(LINK) @<<
 		/OUT:mergecap.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console mergecap.obj getopt.obj $(mergecap_LIBS) image\mergecap.res
@@ -748,8 +748,8 @@ clean:
 # Call distclean only, if you would like to remove ALL generated files.
 # Be sure to have python and perl installed to regenerate them.
 distclean: clean
-	rm -f x11-declarations.h x11-register-info.h packet-ncp2222.c \
-		register.c tethereal-tap-register.c 
+	rm -f cvsversion.h x11-declarations.h x11-register-info.h \
+		packet-ncp2222.c register.c tethereal-tap-register.c 
 	cd wiretap
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ../gtk
