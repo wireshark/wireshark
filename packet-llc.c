@@ -2,7 +2,7 @@
  * Routines for IEEE 802.2 LLC layer
  * Gilbert Ramirez <gramirez@tivoli.com>
  *
- * $Id: packet-llc.c,v 1.35 1999/12/14 07:22:56 guy Exp $
+ * $Id: packet-llc.c,v 1.36 1999/12/29 05:20:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -34,6 +34,7 @@
 
 #include <glib.h>
 #include "packet.h"
+#include "oui.h"
 #include "xdlc.h"
 	
 static int proto_llc = -1;
@@ -150,10 +151,7 @@ static const value_string llc_ctrl_vals[] = {
 	{ 0, NULL }
 };
 
-#define	OUI_ENCAP_ETHER	0x000000
-#define	OUI_APPLE_ATALK	0x080007
-
-static const value_string llc_oui_vals[] = {
+const value_string oui_vals[] = {
 	{ OUI_ENCAP_ETHER, "Encapsulated Ethernet" },
 /*
 http://www.cisco.com/univercd/cc/td/doc/product/software/ios113ed/113ed_cr/ibm_r/brprt1/brsrb.htm
@@ -161,6 +159,7 @@ http://www.cisco.com/univercd/cc/td/doc/product/software/ios113ed/113ed_cr/ibm_r
 	{ 0x00000c,        "Cisco" },
 	{ 0x0000f8,        "Cisco 90-Compatible" },
 	{ 0x0080c2,        "Bridged Frame-Relay" }, /* RFC 2427 */
+	{ OUI_ATM_FORUM,   "ATM Forum" },
 	{ OUI_APPLE_ATALK, "Apple (AppleTalk)" },
 	{ 0,               NULL }
 };
@@ -344,7 +343,7 @@ dissect_llc(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 		etype = pntohs(&pd[offset+6]);
 		if (check_col(fd, COL_INFO)) {
 			col_add_fstr(fd, COL_INFO, "SNAP, OUI 0x%06X (%s), PID 0x%04X",
-			    oui, val_to_str(oui, llc_oui_vals, "Unknown"),
+			    oui, val_to_str(oui, oui_vals, "Unknown"),
 			    etype);
 		}
 		if (tree) {
@@ -444,7 +443,7 @@ proto_register_llc(void)
 
 		{ &hf_llc_oui,
 		{ "Organization Code",	"llc.oui", FT_UINT24, BASE_HEX, 
-			VALS(llc_oui_vals), 0x0, ""}},
+			VALS(oui_vals), 0x0, ""}},
 
 		{ &hf_llc_pid,
 		{ "Protocol ID", "llc.pid", FT_UINT16, BASE_HEX, 

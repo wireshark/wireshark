@@ -1,7 +1,7 @@
 /* packet-atm.c
  * Routines for ATM packet disassembly
  *
- * $Id: packet-atm.c,v 1.10 1999/12/05 02:32:41 guy Exp $
+ * $Id: packet-atm.c,v 1.11 1999/12/29 05:20:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -34,6 +34,7 @@
 #include <stdio.h>
 #include <glib.h>
 #include "packet.h"
+#include "oui.h"
 #include "resolv.h"
 
 #include "packet-snmp.h"
@@ -49,6 +50,7 @@ static gint ett_atm_lane = -1;
 static gint ett_atm_lane_lc_lan_dest = -1;
 static gint ett_atm_lane_lc_lan_dest_rd = -1;
 static gint ett_atm_lane_lc_flags = -1;
+static gint ett_atm_lane_lc_tlv = -1;
 static gint ett_ilmi = -1;
 
 /*
@@ -172,7 +174,7 @@ dissect_lan_destination(const u_char *pd, int offset, const char *type, proto_tr
   tag = pntohs(&pd[offset]);
   proto_tree_add_text(dest_tree, offset, 2, "Tag: %s",
 	val_to_str(tag, le_control_landest_tag_vals,
-				"Unknown (%x)"));
+				"Unknown (0x%04X)"));
   offset += 2;
 
   switch (tag) {
@@ -198,6 +200,46 @@ dissect_lan_destination(const u_char *pd, int offset, const char *type, proto_tr
   }
 }
 
+/*
+ * TLV values in LE Control frames.
+ */
+#define	TLV_TYPE(oui, ident)		(((oui) << 8) | (ident))
+
+#define	LE_CONTROL_TIMEOUT		TLV_TYPE(OUI_ATM_FORUM, 0x01)
+#define	LE_MAX_UNK_FRAME_COUNT		TLV_TYPE(OUI_ATM_FORUM, 0x02)
+#define	LE_MAX_UNK_FRAME_TIME		TLV_TYPE(OUI_ATM_FORUM, 0x03)
+#define	LE_VCC_TIMEOUT_PERIOD		TLV_TYPE(OUI_ATM_FORUM, 0x04)
+#define	LE_MAX_RETRY_COUNT		TLV_TYPE(OUI_ATM_FORUM, 0x05)
+#define	LE_AGING_TIME			TLV_TYPE(OUI_ATM_FORUM, 0x06)
+#define	LE_FORWARD_DELAY_TIME		TLV_TYPE(OUI_ATM_FORUM, 0x07)
+#define	LE_EXPECTED_ARP_RESPONSE_TIME	TLV_TYPE(OUI_ATM_FORUM, 0x08)
+#define	LE_FLUSH_TIMEOUT		TLV_TYPE(OUI_ATM_FORUM, 0x09)
+#define	LE_PATH_SWITCHING_DELAY		TLV_TYPE(OUI_ATM_FORUM, 0x0A)
+#define	LE_LOCAL_SEGMENT_ID		TLV_TYPE(OUI_ATM_FORUM, 0x0B)
+#define	LE_MCAST_SEND_VCC_TYPE		TLV_TYPE(OUI_ATM_FORUM, 0x0C)
+#define	LE_MCAST_SEND_VCC_AVGRATE	TLV_TYPE(OUI_ATM_FORUM, 0x0D)
+#define	LE_MCAST_SEND_VCC_PEAKRATE	TLV_TYPE(OUI_ATM_FORUM, 0x0E)
+#define	LE_CONN_COMPLETION_TIMER	TLV_TYPE(OUI_ATM_FORUM, 0x0F)
+
+static const value_string le_tlv_type_vals[] = {
+	{ LE_CONTROL_TIMEOUT,		"Control Time-out" },
+	{ LE_MAX_UNK_FRAME_COUNT,	"Maximum Unknown Frame Count" },
+	{ LE_MAX_UNK_FRAME_TIME,	"Maximum Unknown Frame Time" },
+	{ LE_VCC_TIMEOUT_PERIOD,	"VCC Time-out" },
+	{ LE_MAX_RETRY_COUNT,		"Maximum Retry Count" },
+	{ LE_AGING_TIME,		"Aging Time" },
+	{ LE_FORWARD_DELAY_TIME,	"Forwarding Delay Time" },
+	{ LE_EXPECTED_ARP_RESPONSE_TIME, "Expected LE_ARP Response Time" },
+	{ LE_FLUSH_TIMEOUT,		"Flush Time-out" },
+	{ LE_PATH_SWITCHING_DELAY,	"Path Switching Delay" },
+	{ LE_LOCAL_SEGMENT_ID,		"Local Segment ID" },
+	{ LE_MCAST_SEND_VCC_TYPE,	"Mcast Send VCC Type" },
+	{ LE_MCAST_SEND_VCC_AVGRATE,	"Mcast Send VCC AvgRate" },
+	{ LE_MCAST_SEND_VCC_PEAKRATE,	"Mcast Send VCC PeakRate" },
+	{ LE_CONN_COMPLETION_TIMER,	"Connection Completion Timer" },
+	{ 0,				NULL },
+};
+
 static void
 dissect_le_control(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) 
 {
@@ -205,8 +247,13 @@ dissect_le_control(const u_char *pd, int offset, frame_data *fd, proto_tree *tre
   proto_tree *lane_tree;
   proto_item *tf;
   proto_tree *flags_tree;
+  proto_item *ttlv;
+  proto_tree *tlv_tree;
   guint16 opcode;
   guint16 flags;
+  guint8 num_tlvs;
+  guint32 tlv_type;
+  guint8 tlv_length;
 
   if (check_col(fd, COL_INFO))
     col_add_str(fd, COL_INFO, "LE Control");
@@ -231,7 +278,7 @@ dissect_le_control(const u_char *pd, int offset, frame_data *fd, proto_tree *tre
     opcode = pntohs(&pd[offset]);
     proto_tree_add_text(lane_tree, offset, 2, "Opcode: %s",
 	val_to_str(opcode, le_control_opcode_vals,
-				"Unknown (%x)"));
+				"Unknown (0x%04X)"));
     offset += 2;
 
     if (opcode == READY_QUERY || opcode == READY_IND) {
@@ -243,7 +290,7 @@ dissect_le_control(const u_char *pd, int offset, frame_data *fd, proto_tree *tre
       /* Response; decode status. */
       proto_tree_add_text(lane_tree, offset, 2, "Status: %s",
 	val_to_str(pntohs(&pd[offset]), le_control_status_vals,
-				"Unknown (%x)"));
+				"Unknown (0x%04X)"));
     }
     offset += 2;
 
@@ -282,15 +329,16 @@ dissect_le_control(const u_char *pd, int offset, frame_data *fd, proto_tree *tre
 
     proto_tree_add_text(lane_tree, offset, 1, "LAN type: %s",
 	val_to_str(pd[offset], le_control_lan_type_vals,
-				"Unknown (%x)"));
+				"Unknown (0x%02X)"));
     offset += 1;
 
     proto_tree_add_text(lane_tree, offset, 1, "Maximum frame size: %u",
 			pd[offset]);
     offset += 1;
 
+    num_tlvs = pd[offset];
     proto_tree_add_text(lane_tree, offset, 1, "Number of TLVs: %u",
-			pd[offset]);
+			num_tlvs);
     offset += 1;
 
     proto_tree_add_text(lane_tree, offset, 1, "ELAN name size: %u",
@@ -304,6 +352,19 @@ dissect_le_control(const u_char *pd, int offset, frame_data *fd, proto_tree *tre
     proto_tree_add_text(lane_tree, offset, 32, "ELAN name: %s",
     			bytes_to_str(&pd[offset], 32));
     offset += 32;
+
+    while (num_tlvs != 0) {
+      tlv_type = pntohl(&pd[offset]);
+      tlv_length = pd[offset+4];
+      ttlv = proto_tree_add_text(lane_tree, offset, 5+tlv_length, "TLV type: %s",
+	val_to_str(tlv_type, le_tlv_type_vals, "Unknown (0x%08x)"));
+      tlv_tree = proto_item_add_subtree(ttlv, ett_atm_lane_lc_tlv);
+      proto_tree_add_text(tlv_tree, offset, 4, "TLV Type: %s",
+	val_to_str(tlv_type, le_tlv_type_vals, "Unknown (0x%08x)"));
+      proto_tree_add_text(tlv_tree, offset+4, 1, "TLV Length: %u", tlv_length);
+      offset += 5+tlv_length;
+      num_tlvs--;
+    }
   }
 }
 
@@ -698,6 +759,7 @@ proto_register_atm(void)
 		&ett_atm_lane_lc_lan_dest,
 		&ett_atm_lane_lc_lan_dest_rd,
 		&ett_atm_lane_lc_flags,
+		&ett_atm_lane_lc_tlv,
 	};
 	proto_atm = proto_register_protocol("ATM", "atm");
 	proto_register_field_array(proto_atm, hf, array_length(hf));

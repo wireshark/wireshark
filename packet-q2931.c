@@ -2,7 +2,7 @@
  * Routines for Q.2931 frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-q2931.c,v 1.5 1999/11/27 04:48:13 guy Exp $
+ * $Id: packet-q2931.c,v 1.6 1999/12/29 05:19:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -36,6 +36,7 @@
 #include <glib.h>
 #include <string.h>
 #include "packet.h"
+#include "oui.h"
 #include "packet-q931.h"
 #include "packet-arp.h"
 
@@ -776,6 +777,15 @@ static const value_string q2931_uil3_tr_9577_vals[] = {
 	{ 0x00,                   NULL }
 };
 
+static const value_string lane_pid_vals[] = {
+	{ 0x0001, "LE Configuration Direct/Control Direct/Control Distribute" },
+	{ 0x0002, "Ethernet/IEEE 002.3 LE Data Direct" },
+	{ 0x0003, "IEEE 802.5 LE Data Direct" },
+	{ 0x0004, "Ethernet/IEEE 802.3 LE Multicast Send/Multicast Forward" },
+	{ 0x0005, "IEEE 802.5 LE Multicast Send/Multicast Forward" },
+	{ 0,      NULL },
+};
+
 /*
  * Dissect a broadband low layer information information element.
  */
@@ -936,22 +946,36 @@ l2_done:
 				organization_code = 
 				    pd[offset] << 16 | pd[offset+1] << 8 | pd[offset+2];
 				proto_tree_add_text(tree, offset, 3,
-				    "Organization Code: 0x%06X",
-				    organization_code);
+				    "Organization Code: 0x%06X (%s)",
+				    organization_code,
+				    val_to_str(organization_code, oui_vals,
+				        "Unknown"));
 				offset += 3;
 				len -= 3;
 
 				if (len < 2)
 					return;
 				pid = pntohs(&pd[offset]);
-				if (organization_code == 0x000000) {
+				switch (organization_code) {
+
+				case OUI_ENCAP_ETHER:
 					proto_tree_add_text(tree, offset, 2,
 					    "Ethernet type: %s",
 					    val_to_str(pid, etype_vals,
 					        "Unknown (0x%04X)"));
-				} else {
+					break;
+
+				case OUI_ATM_FORUM:
+					proto_tree_add_text(tree, offset, 2,
+					    "LANE Protocol ID: %s",
+					    val_to_str(pid, lane_pid_vals,
+					        "Unknown (0x%04X)"));
+					break;
+
+				default:
 					proto_tree_add_text(tree, offset, 2,
 					    "Protocol ID: 0x%04X", pid);
+					break;
 				}
 			}
 			break;
