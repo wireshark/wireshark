@@ -1,7 +1,7 @@
 /* packet-isis-hello.c
  * Routines for decoding isis hello packets and their CLVs
  *
- * $Id: packet-isis-hello.c,v 1.19 2001/07/02 00:19:34 guy Exp $
+ * $Id: packet-isis-hello.c,v 1.20 2001/07/02 01:41:25 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -611,7 +611,10 @@ isis_dissect_isis_hello(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	proto_item	*ti;
 	proto_tree	*hello_tree = NULL;
 	int 		len;
+	guint8		octet;
+	const guint8	*source_id;
 	guint16		pdu_length;
+	const guint8	*lan_id;
 
 	if (!proto_is_protocol_enabled(proto_isis_hello)) {
 		dissect_data(tvb, offset, pinfo, tree);
@@ -622,29 +625,31 @@ isis_dissect_isis_hello(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		ti = proto_tree_add_item(tree, proto_isis_hello, tvb,
 			offset, tvb_length_remaining(tvb, offset), FALSE);
 		hello_tree = proto_item_add_subtree(ti, ett_isis_hello);
+		octet = tvb_get_guint8(tvb, offset);
 		proto_tree_add_uint_format(hello_tree,
 			hf_isis_hello_circuit_reserved,
-			tvb, offset, 1, tvb_get_guint8(tvb, offset),
+			tvb, offset, 1, octet,
 			"Circuit type              : %s, reserved(0x%02x == 0)",
-				val_to_str(tvb_get_guint8(tvb, offset)&ISIS_HELLO_CTYPE_MASK,
+				val_to_str(octet&ISIS_HELLO_CTYPE_MASK,
 					isis_hello_circuit_type_vals,
 					"Unknown (0x%x)"),
-				tvb_get_guint8(tvb, offset)&ISIS_HELLO_CT_RESERVED_MASK
+				octet&ISIS_HELLO_CT_RESERVED_MASK
 			);
 	}
 	offset += 1;
 
 	if (tree) {
+		source_id = tvb_get_ptr(tvb, offset, id_length);
 		proto_tree_add_bytes_format(hello_tree, hf_isis_hello_source_id, tvb,
-			            offset, id_length, tvb_get_ptr(tvb, offset, id_length),
+			            offset, id_length, source_id,
 			            "SystemID{ Sender of PDU } : %s", 
-                     print_system_id( tvb_get_ptr(tvb, offset, id_length), id_length ) );
+			            print_system_id( source_id, id_length ) );
         }
 	offset += id_length;
 
 	if (tree) {
-		proto_tree_add_uint(hello_tree, hf_isis_hello_holding_timer, tvb,
-			            offset, 2, tvb_get_ntohs(tvb, offset));
+		proto_tree_add_item(hello_tree, hf_isis_hello_holding_timer, tvb,
+			            offset, 2, FALSE);
 	}
 	offset += 2;
 
@@ -657,26 +662,28 @@ isis_dissect_isis_hello(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	if (hello_type == ISIS_TYPE_PTP_HELLO) {
 		if (tree) {
-			proto_tree_add_uint(hello_tree, hf_isis_hello_local_circuit_id, tvb,
-				         offset, 1, tvb_get_guint8(tvb, offset) );
+			proto_tree_add_item(hello_tree, hf_isis_hello_local_circuit_id, tvb,
+				         offset, 1, FALSE );
 		}
 		offset += 1;
 	} else { 
 
                 if (tree) {
+                        octet = tvb_get_guint8(tvb, offset);
                         proto_tree_add_uint_format(hello_tree, hf_isis_hello_priority_reserved, tvb,
-                                    offset, 1, tvb_get_guint8(tvb, offset),
+                                    offset, 1, octet,
                                     "Priority                  : %d, reserved(0x%02x == 0)",
-                                        tvb_get_guint8(tvb, offset)&ISIS_HELLO_PRIORITY_MASK,
-                                        tvb_get_guint8(tvb, offset)&ISIS_HELLO_P_RESERVED_MASK );
+                                        octet&ISIS_HELLO_PRIORITY_MASK,
+                                        octet&ISIS_HELLO_P_RESERVED_MASK );
                 }
                 offset += 1;
 
 		if (tree) {
+			lan_id = tvb_get_ptr(tvb, offset, id_length+1);
 			proto_tree_add_bytes_format(hello_tree, hf_isis_hello_lan_id, tvb, 
-		                     offset, id_length + 1, tvb_get_ptr(tvb, offset, id_length+1),
+		                     offset, id_length + 1, lan_id,
 				         "SystemID{ Designated IS } : %s",
-					      print_system_id( tvb_get_ptr(tvb, offset, id_length+1), id_length + 1 ) );
+					      print_system_id( lan_id, id_length + 1 ) );
 		}
 		offset += id_length + 1;
 	}
@@ -685,7 +692,7 @@ isis_dissect_isis_hello(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	len -= header_length;
 	if (len < 0) {
 		isis_dissect_unknown(tvb, pinfo, tree, offset,
-			"packet header length %d went beyond packet", 
+			"Packet header length %d went beyond packet", 
 			header_length );
 		return;
 	}
