@@ -3,7 +3,7 @@
  * By Pavel Mores <pvl@uh.cz>
  * Win32 port:  rwh@unifiedtech.com
  *
- * $Id: tcp_graph.c,v 1.24 2002/11/11 15:39:06 oabad Exp $
+ * $Id: tcp_graph.c,v 1.25 2002/12/18 23:08:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3221,7 +3221,7 @@ static void tseq_stevens_initialize (struct graph *g)
 static void tseq_stevens_get_bounds (struct graph *g)
 {
 	struct segment *tmp, *last, *first;
-	double t0, tmax, y0, ymax;
+	double t, t0, tmax, y0, ymax;
 
 	for (first=g->segments; first->next; first=first->next) {
 		if (compare_headers (g->current, first, COMPARE_CURR_DIR))
@@ -3229,6 +3229,7 @@ static void tseq_stevens_get_bounds (struct graph *g)
 	}
 	last = NULL;
 	ymax = 0;
+	tmax = 0;
 	for (tmp=g->segments; tmp; tmp=tmp->next) {
 		unsigned int highest_byte_num;
 		last = tmp;
@@ -3238,6 +3239,9 @@ static void tseq_stevens_get_bounds (struct graph *g)
 			highest_byte_num = g_ntohl (tmp->tcphdr.ack_seq);
 		if (highest_byte_num > ymax)
 			ymax = highest_byte_num;
+		t = tmp->rel_secs + tmp->rel_usecs / 1000000.0;
+		if (t > tmax)
+			tmax = t;
 	}
 	if (!last) {
 		puts ("tseq_stevens_get_bounds: segment list corrupted!");
@@ -3245,7 +3249,6 @@ static void tseq_stevens_get_bounds (struct graph *g)
 	}
 
 	t0 = g->segments->rel_secs + g->segments->rel_usecs / 1000000.0;
-	tmax = last->rel_secs + last->rel_usecs / 1000000.0;
 	y0 = g_ntohl (first->tcphdr.seq);
 
 	g->bounds.x0 = t0;
@@ -3558,7 +3561,7 @@ static void tput_initialize (struct graph *g)
 	struct segment *tmp, *oldest, *last;
 	int i, sum=0;
 	double dtime, tput, tputmax=0;
-	double t0, tmax, y0, ymax;
+	double t, t0, tmax = 0, y0, ymax;
 
 	debug(DBS_FENTRY) puts ("tput_initialize()");
 
@@ -3577,10 +3580,12 @@ static void tput_initialize (struct graph *g)
 		debug(DBS_TPUT_ELMTS) printf ("tput=%f\n", tput);
 		if (tput > tputmax)
 			tputmax = tput;
+		t = tmp->rel_secs + tmp->rel_usecs / 1000000.0;
+		if (t > tmax)
+			tmax = t;
 	}
 
 	t0 = g->segments->rel_secs + g->segments->rel_usecs / 1000000.0;
-	tmax = last->rel_secs + last->rel_usecs / 1000000.0;
 	y0 = 0;
 	ymax = tputmax;
 
