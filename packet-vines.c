@@ -1,7 +1,7 @@
 /* packet-vines.c
  * Routines for Banyan VINES protocol packet disassembly
  *
- * $Id: packet-vines.c,v 1.49 2003/04/18 01:47:52 guy Exp $
+ * $Id: packet-vines.c,v 1.50 2003/04/18 03:00:28 guy Exp $
  *
  * Don Lafontaine <lafont02@cn.ca>
  *
@@ -68,6 +68,12 @@ static gint ett_vines_spp_control = -1;
 static int proto_vines_arp = -1;
 
 static gint ett_vines_arp = -1;
+
+static int proto_vines_rtp = -1;
+
+static int proto_vines_srtp = -1;
+
+static gint ett_vines_srtp = -1;
 
 void
 capture_vines(packet_counts *ld)
@@ -294,11 +300,6 @@ dissect_vines(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * Handle Vines protocols for which we don't have dissectors.
 	 */
 	switch (viph.vip_proto) {
-
-	case VIP_PROTO_RTP:
-		if (check_col(pinfo->cinfo, COL_PROTOCOL))
-			col_set_str(pinfo->cinfo, COL_PROTOCOL, "Vines RTP");
-		break;
 
 	case VIP_PROTO_ICP:
 		if (check_col(pinfo->cinfo, COL_PROTOCOL))
@@ -780,10 +781,10 @@ proto_reg_handoff_vines_spp(void)
 	dissector_add("vines_ip.protocol", VIP_PROTO_SPP, vines_spp_handle);
 }
 
-static const value_string vines_arp_version_vals[] = {
-	{ 0x0000, "Pre-5.50" },
-	{ 0x0001, "5.50" },
-	{ 0,      NULL }
+static const value_string vines_version_vals[] = {
+	{ 0x00, "Pre-5.50" },
+	{ 0x01, "5.50" },
+	{ 0,    NULL }
 };
 
 #define VARP_QUERY_REQ		0x00
@@ -792,7 +793,7 @@ static const value_string vines_arp_version_vals[] = {
 #define VARP_ASSIGNMENT_RESP	0x03
 
 static const value_string vines_arp_packet_type_vals[] = {
-	{ VARP_QUERY_REQ,        "Query request" },
+	{ VARP_QUERY_REQ,       "Query request" },
 	{ VARP_SERVICE_RESP,    "Service response" },
 	{ VARP_ASSIGNMENT_REQ,  "Assignment request" },
 	{ VARP_ASSIGNMENT_RESP, "Assignment response" },
@@ -813,14 +814,14 @@ dissect_vines_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		col_clear(pinfo->cinfo, COL_INFO);
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_vines_arp, tvb, 0, 2,
+		ti = proto_tree_add_item(tree, proto_vines_arp, tvb, 0, -1,
 		    FALSE);
 		vines_arp_tree = proto_item_add_subtree(ti, ett_vines_arp);
 
 		version = tvb_get_guint8(tvb, 0);
 		proto_tree_add_text(vines_arp_tree, tvb, 0, 1,
 				    "Version: %s (0x%02x)",
-				    val_to_str(version, vines_arp_version_vals,
+				    val_to_str(version, vines_version_vals,
 				      "Unknown"),
 				    version);
 	}
@@ -872,4 +873,128 @@ proto_reg_handoff_vines_arp(void)
 	vines_arp_handle = create_dissector_handle(dissect_vines_arp,
 	    proto_vines_arp);
 	dissector_add("vines_ip.protocol", VIP_PROTO_ARP, vines_arp_handle);
+}
+
+#define VRTP_OP_REQUEST		0x01
+#define VRTP_OP_UPDATE_RESPONSE	0x02
+#define VRTP_OP_REDIRECT	0x03
+#define VRTP_OP_REINITIALIZE	0x04
+
+static const value_string vines_rtp_operation_type_vals[] = {
+	{ VRTP_OP_REQUEST,         "Request" },
+	{ VRTP_OP_UPDATE_RESPONSE, "Update/response" },
+	{ VRTP_OP_REDIRECT,        "Redirect" },
+	{ VRTP_OP_REINITIALIZE,    "Reinitialize" },
+	{ 0,                       NULL }
+};
+
+static const value_string vines_rtp_node_type_vals[] = {
+	{ 0x01, "Host" },
+	{ 0x02, "Router" },
+	{ 0,    NULL }
+};
+
+static const value_string vines_rtp_compatibility_flags_vals[] = {
+	{ 0x00, "Same Revision" },
+	{ 0x01, "Version Mismatch" },
+	{ 0x02, "Old Neighbors" },
+	{ 0x03, "Automatic" },
+	{ 0,    NULL }
+};
+
+static void
+dissect_vines_rtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	proto_tree *vines_rtp_tree = NULL;
+	proto_item *ti;
+	guint16  version;
+	guint8   operation_type;
+	guint8   node_type;
+	guint8   compatibility_flags;
+
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "Vines RTP");
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_clear(pinfo->cinfo, COL_INFO);
+
+	/*
+	 * XXX - can the first byte of a VRTP packet be 0?
+	 * Or is that just the case for VSRTP packets?
+	 */
+	if (tvb_get_guint8(tvb, 0) != 0) {
+		proto_tree_add_item(tree, proto_vines_rtp, tvb, 0, -1,
+		    FALSE);
+		return;
+	}
+
+	/*
+	 * Assume this is Vines SRTP.
+	 */
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "Vines SRTP");
+	if (tree) {
+		ti = proto_tree_add_item(tree, proto_vines_srtp, tvb, 0, -1,
+		    FALSE);
+		vines_rtp_tree = proto_item_add_subtree(ti, ett_vines_srtp);
+
+		version = tvb_get_ntohs(tvb, 0);
+		proto_tree_add_text(vines_rtp_tree, tvb, 0, 2,
+				    "Version: %s (0x%04x)",
+				    val_to_str(version, vines_version_vals,
+				      "Unknown"),
+				    version);
+	}
+	operation_type = tvb_get_guint8(tvb, 2);
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_add_str(pinfo->cinfo, COL_INFO,
+		    val_to_str(operation_type, vines_rtp_operation_type_vals,
+		      "Unknown (0x%02x)"));
+	}
+	if (tree) {
+		proto_tree_add_text(vines_rtp_tree, tvb, 2, 1,
+				    "Operation Type: %s (0x%02x)",
+				    val_to_str(operation_type,
+				      vines_rtp_operation_type_vals,
+				      "Unknown"),
+				    operation_type);
+		node_type = tvb_get_guint8(tvb, 3);
+		proto_tree_add_text(vines_rtp_tree, tvb, 3, 1,
+				    "Node Type: %s (0x%02x)",
+				    val_to_str(node_type,
+				      vines_rtp_node_type_vals,
+				      "Unknown"),
+				    node_type);
+		compatibility_flags = tvb_get_guint8(tvb, 4);
+		proto_tree_add_text(vines_rtp_tree, tvb, 4, 1,
+				    "Compatibility Flags: %s (0x%02x)",
+				    val_to_str(compatibility_flags,
+				      vines_rtp_compatibility_flags_vals,
+				      "Unknown"),
+				    compatibility_flags);
+		proto_tree_add_text(vines_rtp_tree, tvb, 6, -1, "Data");
+	}
+}
+
+void
+proto_register_vines_rtp(void)
+{
+	static gint *ett[] = {
+		&ett_vines_srtp,
+	};
+
+	proto_vines_rtp = proto_register_protocol(
+	    "Banyan Vines RTP", "Vines RTP", "vines_rtp");
+	proto_vines_srtp = proto_register_protocol(
+	    "Banyan Vines Sequenced RTP", "Vines SRTP", "vines_srtp");
+	proto_register_subtree_array(ett, array_length(ett));
+}
+
+void
+proto_reg_handoff_vines_rtp(void)
+{
+	dissector_handle_t vines_rtp_handle;
+
+	vines_rtp_handle = create_dissector_handle(dissect_vines_rtp,
+	    proto_vines_rtp);
+	dissector_add("vines_ip.protocol", VIP_PROTO_RTP, vines_rtp_handle);
 }
