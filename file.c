@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.154 2000/01/18 08:37:55 guy Exp $
+ * $Id: file.c,v 1.155 2000/01/24 19:32:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -308,7 +308,7 @@ read_cap_file(capture_file *cf)
   wtap_close(cf->wth);
   cf->wth = NULL;
   cf->filed = open(cf->filename, O_RDONLY);
-  cf->fh = filed_open(cf->filed, "r");
+  cf->fh = filed_open(cf->filed, "rb");
   cf->current_frame = cf->first_displayed;
   thaw_clist(cf);
 
@@ -394,7 +394,7 @@ start_tail_cap_file(char *fname, gboolean is_tempfile, capture_file *cf)
        from Wiretap, which will be closed when we close the file; we
        want it to remain open even after that, so that we can read
        packet data from it. */
-    cf->fh = file_open(fname, "r");
+    cf->fh = file_open(fname, "rb");
 
     gtk_statusbar_push(GTK_STATUSBAR(info_bar), file_ctx, 
 		       " <live capture in progress>");
