@@ -356,6 +356,24 @@ all filters and presented with one column of statistics for each filter.
 This option can be used multiple times on the command line. 
 
 
+B<-z> io,users,I<type>[,I<filter>]
+
+Create a table that lists all conversations that could be seen in the capture.
+I<type> specifies which type of conversation we want to generate the 
+statistics for, currently the supported ones are
+  "eth"   Ethernet
+  "ip"    IP addresses
+  "tr"    TokenRing
+
+If the optional filter string is specified, only those packets that match the
+filter will be used in the calculations.
+
+The table is presented with one line for each conversation and displays
+number of frames/bytes in each direction as well as total number of 
+frames/bytes.
+The table is sorted according to total number of bytes.
+
+
 B<-z> proto,colinfo,I<filter>,I<field>
 
 Append all I<field> values for the packet to the COL_INFO information line.
