@@ -1150,6 +1150,10 @@ Phil Williams <csypbw[AT]comp.leeds.ac.uk> {
 	Support for looking up fields by name
 }
 
+Kevin Humphries <khumphries[AT]networld.com> {
+	Additional PIM hello options support
+}
+
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 

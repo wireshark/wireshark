@@ -2,7 +2,7 @@
  * Routines for PIM disassembly
  * (c) Copyright Jun-ichiro itojun Hagino <itojun@itojun.org>
  *
- * $Id: packet-pim.c,v 1.39 2002/02/01 07:06:32 guy Exp $
+ * $Id: packet-pim.c,v 1.40 2002/04/22 07:41:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -749,17 +749,65 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	case 0:	/*hello*/
 	  {
 	    while (tvb_reported_length_remaining(tvb, offset) >= 2) {
-		if (tvb_get_ntohs(tvb, offset) == 1 &&
-		    tvb_get_ntohs(tvb, offset + 2) == 2) {
-		    guint16 holdtime;
+		guint16 hello_opt, opt_len;
+		guint16 holdtime;
+		guint16 lan_delay;
+		guint16 override_interval;
+		guint32 priority;
+		guint32 opt_value = 0;
 
-		    holdtime = tvb_get_ntohs(tvb, offset + 4);
-		    proto_tree_add_text(pimopt_tree, tvb, offset, 6,
-			"Holdtime: %u%s", holdtime,
-			holdtime == 0xffff ? " (infty)" : "");
-		    offset += 6;
-		} else
-		    break;
+		hello_opt = tvb_get_ntohs(tvb, offset);
+		opt_len = tvb_get_ntohs(tvb, offset + 2);
+ 
+		if(opt_len == 2)
+			opt_value = tvb_get_ntohs(tvb, offset + 4);
+		if(opt_len == 4)
+			opt_value = tvb_get_ntohl(tvb, offset + 4);
+ 
+		switch(hello_opt) {
+		case 1: /* holdtime */
+			holdtime = opt_value;
+			proto_tree_add_text(pimopt_tree, tvb, offset, 4 + opt_len,
+					    "Holdtime: %u%s", holdtime,
+					    holdtime == 0xffff ? " (infty)" : "");
+			break;
+		case 2: /* LAN prune delay */
+		{
+			proto_tree *sub_tree = NULL;
+			proto_item *landelay_option;
+ 
+			landelay_option = proto_tree_add_text(pim_tree, tvb, offset, -1,
+							"LAN Prune Delay");
+			sub_tree = proto_item_add_subtree(landelay_option, ett_pim);
+ 
+			lan_delay = (opt_value & 0x7f00) >> 8;
+			override_interval = opt_value & 0xff;
+			proto_tree_add_text(sub_tree, tvb, offset, 4 + opt_len,
+					    "T bit is %s",
+					    opt_value & 0x8000 ? "set" : "not set");
+			proto_tree_add_text(sub_tree, tvb, offset, 4 + opt_len,
+					    "LAN Delay:  %u", lan_delay);
+			proto_tree_add_text(sub_tree, tvb, offset, 4 + opt_len,
+					    "Override Interval:  %u", override_interval);
+			break;
+		}
+		case 19: /* priority */
+			priority = opt_value;
+			proto_tree_add_text(pimopt_tree, tvb, offset, 4 + opt_len,
+					"DR Priority: %u", priority);
+			break;
+		case 20: /* generation ID */
+			proto_tree_add_text(pimopt_tree, tvb, offset, 4 + opt_len,
+					    "Generation ID: %d", opt_value);
+			break;
+ 
+		default:
+			proto_tree_add_text(pimopt_tree, tvb, offset, 4 + opt_len,
+					    "Unknown option: %d  len: %d  value: 0x%x",
+					    hello_opt, opt_len, opt_value);
+			break;
+		}
+		offset += 4 + opt_len;
 	    }
 	    break;
 	  }
