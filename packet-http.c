@@ -7,7 +7,7 @@
  * Copyright 2002, Tim Potter <tpot@samba.org>
  * Copyright 1999, Andrew Tridgell <tridge@samba.org>
  *
- * $Id: packet-http.c,v 1.106 2004/05/08 12:54:24 obiot Exp $
+ * $Id: packet-http.c,v 1.107 2004/05/08 12:59:02 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -734,14 +734,13 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				
 				goto body_dissected;
 			}
-+		} else if (chunks_decoded > 0) {
-+			/*
-+			 * Add a new data source for the de-chunked data.
-+			 */
-+			tvb_set_child_real_data_tvbuff(tvb, next_tvb);
-+			add_new_data_source(pinfo, next_tvb,
-+			    "De-chunked entity body");
-
+		} else if (chunks_decoded > 0) {
+			/*
+			 * Add a new data source for the de-chunked data.
+			 */
+			tvb_set_child_real_data_tvbuff(tvb, next_tvb);
+			add_new_data_source(pinfo, next_tvb,
+			    "De-chunked entity body");
 		}
 
 		/*
