@@ -1,7 +1,7 @@
 /* packet-null.c
  * Routines for null packet disassembly
  *
- * $Id: packet-null.c,v 1.19 2000/02/15 21:02:44 gram Exp $
+ * $Id: packet-null.c,v 1.20 2000/03/27 17:53:19 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -232,7 +232,7 @@ dissect_null( const u_char *pd, frame_data *fd, proto_tree *tree )
     /*
      * Hand it to PPP.
      */
-    dissect_ppp(pd, fd, tree);
+    dissect_ppp(pd, 0, fd, tree);
   } else {
     /*
      * Treat it as a normal DLT_NULL header.

@@ -1,7 +1,7 @@
 /* packet-ascend.c
  * Routines for decoding Lucent/Ascend packet traces
  *
- * $Id: packet-ascend.c,v 1.9 2000/02/15 21:01:58 gram Exp $
+ * $Id: packet-ascend.c,v 1.10 2000/03/27 17:53:18 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -93,7 +93,7 @@ dissect_ascend( const u_char *pd, frame_data *fd, proto_tree *tree ) {
   switch (fd->pseudo_header.ascend.type) {
     case ASCEND_PFX_WDS_X:
     case ASCEND_PFX_WDS_R:
-      dissect_ppp(pd, fd, tree);
+      dissect_ppp(pd, 0, fd, tree);
       break;
     case ASCEND_PFX_WDD:
       dissect_eth(pd, 0, fd, tree);

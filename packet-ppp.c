@@ -1,7 +1,7 @@
 /* packet-ppp.c
  * Routines for ppp packet disassembly
  *
- * $Id: packet-ppp.c,v 1.29 2000/03/12 04:47:48 gram Exp $
+ * $Id: packet-ppp.c,v 1.30 2000/03/27 17:53:19 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1131,14 +1131,14 @@ dissect_payload_ppp( const u_char *pd, int offset, frame_data *fd, proto_tree *t
 }
 
 void
-dissect_ppp( const u_char *pd, frame_data *fd, proto_tree *tree ) {
+dissect_ppp( const u_char *pd, int offset, frame_data *fd, proto_tree *tree ) {
   e_ppphdr   ph;
   proto_item *ti;
   proto_tree *fh_tree = NULL;
 
-  ph.ppp_addr = pd[0];
-  ph.ppp_ctl  = pd[1];
-  ph.ppp_prot = pntohs(&pd[2]);
+  ph.ppp_addr = pd[offset+0];
+  ph.ppp_ctl  = pd[offset+1];
+  ph.ppp_prot = pntohs(&pd[offset+2]);
 
   /* load the top pane info. This should be overwritten by
      the next protocol in the stack */
@@ -1159,7 +1159,7 @@ dissect_ppp( const u_char *pd, frame_data *fd, proto_tree *tree ) {
     proto_tree_add_text(fh_tree, 1, 1, "Control: %02x", ph.ppp_ctl);
   }
 
-  if (!dissect_ppp_stuff(pd, 2, fd, tree, fh_tree)) {
+  if (!dissect_ppp_stuff(pd, offset+2, fd, tree, fh_tree)) {
     if (check_col(fd, COL_PROTOCOL))
       col_add_fstr(fd, COL_PROTOCOL, "0x%04x", ph.ppp_prot);
   }
