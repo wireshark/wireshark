@@ -25,7 +25,7 @@ http://developer.novell.com/ndk/doc/ncp/
 for a badly-formatted HTML version of the same PDF.
 
 
-$Id: ncp2222.py,v 1.64 2004/02/29 08:01:21 guy Exp $
+$Id: ncp2222.py,v 1.65 2004/06/15 09:14:14 guy Exp $
 
 
 Portions Copyright (c) 2000-2002 by Gilbert Ramirez <gram@alumni.rice.edu>.
@@ -10762,7 +10762,7 @@ def define_ncp2222():
 		rec( 14, 4, LockAreasStartOffset, BE ),
 		rec( 18, 4, LockAreaLen, BE ),
 		rec( 22, 2, LockTimeout ),
-	])
+	], info_str=(LockAreaLen, "Lock Record - Length of %d", "%d"))
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x8800, 0x9600, 0xfd02, 0xfe04, 0xff01])
 	# 2222/1B, 27
@@ -10780,7 +10780,7 @@ def define_ncp2222():
 		rec( 8, 6, FileHandle ),
 		rec( 14, 4, LockAreasStartOffset ),
 		rec( 18, 4, LockAreaLen ),
-	])
+	], info_str=(LockAreaLen, "Release Lock Record - Length of %d", "%d"))
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x8800, 0x9600, 0xfd02, 0xfe04, 0xff03])
 	# 2222/1D, 29
@@ -10797,7 +10797,7 @@ def define_ncp2222():
 		rec( 8, 6, FileHandle ),
 		rec( 14, 4, LockAreasStartOffset, BE ),
 		rec( 18, 4, LockAreaLen, BE ),
-	])
+	], info_str=(LockAreaLen, "Clear Lock Record - Length of %d", "%d"))
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x8800, 0x9600, 0xfd02, 0xfe04, 0xff03])
 	# 2222/1F, 31
@@ -12607,11 +12607,11 @@ def define_ncp2222():
 			     0x9804, 0x9b03, 0x9c03, 0xbf00, 0xfd00, 0xff16])
 	# 2222/571F, 87/31
 	pkt = NCP(0x571F, "Get File Information", 'file', has_length=0)
-	pkt.Request(16, [
+	pkt.Request(15, [
 		rec( 8, 6, FileHandle  ),
 		rec( 14, 1, HandleInfoLevel ),
-		rec( 15, 1, NameSpace ),
-	])
+		#rec( 15, 1, NameSpace ),
+	], info_str=(FileHandle, "Get File Information - 0x%s", ", %s"))
 	pkt.Reply(NO_LENGTH_CHECK, [
 		rec( 8, 4, VolumeNumberLong ),
 		rec( 12, 4, DirectoryBase ),
