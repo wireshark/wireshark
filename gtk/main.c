@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.134 2000/08/15 20:46:17 deniel Exp $
+ * $Id: main.c,v 1.135 2000/08/15 22:22:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -569,6 +569,29 @@ set_scrollbar_placement_all(int pos)
 void
 set_plist_sel_browse(gboolean val)
 {
+	gboolean old_val;
+
+	old_val =
+	    (GTK_CLIST(packet_list)->selection_mode == GTK_SELECTION_SINGLE);
+
+	if (val == old_val) {
+		/*
+		 * The mode isn't changing, so don't do anything.
+		 * In particular, don't gratuitiously unselect the
+		 * current packet.
+		 *
+		 * XXX - why do we have to unselect the current packet
+		 * ourselves?  The documentation for the GtkCList at
+		 *
+		 *	http://developer.gnome.org/doc/API/gtk/gtkclist.html
+		 *
+		 * says "Note that setting the widget's selection mode to
+		 * one of GTK_SELECTION_BROWSE or GTK_SELECTION_SINGLE will
+		 * cause all the items in the GtkCList to become deselected."
+		 */
+		return;
+	}
+
 	if (finfo_selected)
 		unselect_packet(&cfile);
 
