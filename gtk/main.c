@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.314 2003/09/15 23:15:32 guy Exp $
+ * $Id: main.c,v 1.315 2003/09/15 23:20:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2075,10 +2075,10 @@ main(int argc, char *argv[])
 #ifdef HAVE_LIBPCAP
   if (start_capture) {
     /* We're supposed to do a live capture; did the user also specify
-       a capture file to read? */
+       a capture file to be read? */
     if (cf_name) {
       /* Yes - that's bogus. */
-      fprintf(stderr, "ethereal: You cannot specify both a live capture and a capture file to read.\n");
+      fprintf(stderr, "ethereal: You cannot specify both a live capture and a capture file to be read.\n");
       exit(2);
     }
        
