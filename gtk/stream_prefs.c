@@ -1,7 +1,7 @@
 /* stream_prefs.c
  * Dialog boxes for preferences for the stream window
  *
- * $Id: stream_prefs.c,v 1.7 2000/11/21 23:54:10 guy Exp $
+ * $Id: stream_prefs.c,v 1.8 2001/03/01 20:49:50 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -126,7 +126,9 @@ stream_prefs_show()
   gtk_widget_show(sample);
 
   gtk_color_selection_set_color(GTK_COLOR_SELECTION(colorsel), &scolor[CS_RED]);
-  gtk_table_attach_defaults(GTK_TABLE(main_tb), colorsel, 0, 3, 2, 3);
+  gtk_table_attach(GTK_TABLE(main_tb), colorsel, 0, 3, 2, 3,
+		  GTK_SHRINK, GTK_SHRINK, 0, 0);
+
   gtk_object_set_data(GTK_OBJECT(colorsel), STREAM_SAMPLE_KEY,
     (gpointer) sample);
   gtk_signal_connect(GTK_OBJECT(colorsel), "color-changed", 
