@@ -2,7 +2,7 @@
  * Routines for BSSGP (BSS GPRS Protocol ETSI GSM 08.18 version 6.7.1 TS 101 343 ) dissection
  * Copyright 2000, Josef Korelus <jkor@quick.cz>
  *
- * $Id: packet-bssgp.c,v 1.6 2003/10/30 19:43:15 guy Exp $
+ * $Id: packet-bssgp.c,v 1.7 2003/11/09 22:13:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -823,7 +823,7 @@ static int dcd_bssgp_bmaxms(tvbuff_t *tvb, int offset, dec_fu_param_stru_t *dprm
 		proto_tree_add_text(bmaxms_tree,tvb,offset+1,1,"Length:%u",len);
 	}
 return len+2;
-};
+}
 /*static int dcd_bssgp_bss_aind(tvbuff_t *tvb, int offset, dec_fu_param_stru_t *dprm_p){	
 };
 */
@@ -848,7 +848,7 @@ static int dcd_bssgp_bucklr(tvbuff_t *tvb, int offset, dec_fu_param_stru_t *dprm
 		proto_tree_add_text(bucklr_tree,tvb,offset+1,1,"Length:%u",len);
 	}
 return len+2;
-};
+}
 static int dcd_bssgp_bvci(tvbuff_t *tvb, int offset, dec_fu_param_stru_t *dprm_p){	
 	guint8 code=0, len=0;
 	guint16 bucket=0;
@@ -869,7 +869,7 @@ static int dcd_bssgp_bvci(tvbuff_t *tvb, int offset, dec_fu_param_stru_t *dprm_p
 		proto_tree_add_text(bvci_tree,tvb,offset+1,1,"Length:%u",len);
 	}
 return len+2;
-};
+}
 static int dcd_bssgp_bvci_n(tvbuff_t *tvb, int offset, dec_fu_param_stru_t *dprm_p){	
 	guint8 code=0, len=0;
 	guint16 bucket=0;
@@ -890,7 +890,7 @@ static int dcd_bssgp_bvci_n(tvbuff_t *tvb, int offset, dec_fu_param_stru_t *dprm
 		proto_tree_add_text(bvcin_tree,tvb,offset+1,1,"Length:%u",len);
 	}
 return len+2;
-};
+}
 static int dcd_bssgp_bvc_bsize(tvbuff_t *tvb, int offset, dec_fu_param_stru_t *dprm_p){	
 	guint8 code=0, len=0;
 	guint16 bucket=0;
@@ -911,7 +911,7 @@ static int dcd_bssgp_bvc_bsize(tvbuff_t *tvb, int offset, dec_fu_param_stru_t *d
 		proto_tree_add_text(bsize_tree,tvb,offset+1,1,"Length:%u",len);
 	}
 return len+2;
-};
+}
 /*static int dcd_bssgp_bvc_meas(tvbuff_t *tvb, int offset, dec_fu_param_stru_t *dprm_p){	
 return 4;
 };
@@ -935,7 +935,7 @@ static int dcd_bssgp_cause(tvbuff_t *tvb, int offset, dec_fu_param_stru_t *dprm_
 		proto_tree_add_text(cause_tree,tvb,offset+1,1,"Length:%u",len);
 	}
 return len+2;
-};
+}
 
 static int dcd_bssgp_cellid(tvbuff_t *tvb, int offset, dec_fu_param_stru_t *dprm_p){	
 	char mccmnc_str[8];
@@ -965,7 +965,7 @@ static int dcd_bssgp_cellid(tvbuff_t *tvb, int offset, dec_fu_param_stru_t *dprm
 	}
 	 
 	return len+2;
-};
+}
 
 /*static int dcd_bssgp_chan_need(tvbuff_t *tvb, int offset, dec_fu_param_stru_t *dprm_p){	
 };
@@ -985,7 +985,7 @@ static int dcd_bssgp_drx(tvbuff_t *tvb, int offset, dec_fu_param_stru_t *dprm_p)
 	}
 return len+2;
 	
-};
+}
 
 /*static int dcd_bssgp_emlpp_prio(tvbuff_t *tvb, int offset, dec_fu_param_stru_t *dprm_p){	
 };
@@ -1098,7 +1098,7 @@ static int dcd_bssgp_llc_pdu(tvbuff_t *tvb, int offset, dec_fu_param_stru_t *dpr
 	
 dprm_p->k=offset+k;	
 return llen+k;	
-};
+}
 
 static int dcd_bssgp_llc_frdsc(tvbuff_t *tvb, int offset, dec_fu_param_stru_t *dprm_p){	
 	guint8 code=0, len=0,frdsc=0;
@@ -1119,7 +1119,7 @@ static int dcd_bssgp_llc_frdsc(tvbuff_t *tvb, int offset, dec_fu_param_stru_t *d
 		proto_tree_add_text(frdsc_tree,tvb,offset+1,1,"Length:%u",len);
 	}
 return len+2;
-};
+}
 
 /*static int dcd_bssgp_la(tvbuff_t *tvb, int offset, dec_fu_param_stru_t *dprm_p){		
 };
@@ -1147,7 +1147,7 @@ static int dcd_bssgp_radio_acc(tvbuff_t *tvb, int offset, dec_fu_param_stru_t *d
 		proto_tree_add_text(racc_tree,tvb,offset+1,1,"Length:%u",len);
 	}
 return len+2;
-};
+}
 
 /*static int dcd_bssgp_omc_id(tvbuff_t *tvb, int offset, dec_fu_param_stru_t *dprm_p){	
 };
@@ -1278,7 +1278,7 @@ static int dcd_bssgp_radio_caus(tvbuff_t *tvb, int offset, dec_fu_param_stru_t *
 		proto_tree_add_text(racaus_tree,tvb,offset+1,1,"Length:%u",len);
 	}
 return len+2;
-};
+}
 
 /*static int dcd_bssgp_racap_upd(tvbuff_t *tvb, int offset, dec_fu_param_stru_t *dprm_p){	
 };
@@ -1307,7 +1307,7 @@ static int dcd_bssgp_ra(tvbuff_t *tvb, int offset, dec_fu_param_stru_t *dprm_p){
 		proto_tree_add_text(ra_tree,tvb,offset+1,1,"Length:%u",len);
 	}
 return len+2;
-};
+}
 
 static int dcd_bssgp_r_def_ms(tvbuff_t *tvb, int offset, dec_fu_param_stru_t *dprm_p){	
 	guint8 code=0, len=0;
@@ -1326,7 +1326,7 @@ static int dcd_bssgp_r_def_ms(tvbuff_t *tvb, int offset, dec_fu_param_stru_t *dp
 		proto_tree_add_text(rdefms_tree,tvb,offset+1,1,"Length:%u",len);
 	}
 return len+2;
-};
+}
 
 /*static int dcd_bssgp_sus_ref_num(tvbuff_t *tvb, int offset, dec_fu_param_stru_t *dprm_p){
 };
@@ -1347,7 +1347,7 @@ static int dcd_bssgp_tag(tvbuff_t *tvb, int offset, dec_fu_param_stru_t *dprm_p)
 		proto_tree_add_text(tag_tree,tvb,offset+1,1,"Length:%u",len);
 	}
 return len+2;
-};
+}
 
 static int dcd_bssgp_tlli(tvbuff_t *tvb, int offset, dec_fu_param_stru_t *dprm_p){	
 	guint32 tlli;
@@ -1386,7 +1386,7 @@ static int dcd_bssgp_tlli(tvbuff_t *tvb, int offset, dec_fu_param_stru_t *dprm_p
 		}
 	}	  
 		  return 4 + disp;
-};
+}
 /*static int dcd_bssgp_tlli_o(tvbuff_t *tvb, int offset, dec_fu_param_stru_t *dprm_p){
 	return 6;
 };	
@@ -1424,7 +1424,7 @@ static int dcd_bssgp_num_oct_aff(tvbuff_t *tvb, int offset, dec_fu_param_stru_t 
 		proto_tree_add_text(noaff_tree,tvb,offset+1,1,"Length:%u",len);
 	}
 return len+2;
-};
+}
 
 
 /* Code to actually dissect the packets */
