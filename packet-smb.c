@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.310 2003/02/25 02:00:32 tpot Exp $
+ * $Id: packet-smb.c,v 1.311 2003/03/04 23:09:59 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2245,7 +2245,10 @@ dissect_negprot_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 			   so aligned, but I've also seen captures where
 			   it is.  The captures where it appeared to be
 			   aligned may have been from buggy servers. */
-			si->unicode = (caps&SERVER_CAP_UNICODE);
+			/* However, don't get rid of existing setting */
+			si->unicode = (caps&SERVER_CAP_UNICODE) ||
+			  si->unicode;
+
 			dn = get_unicode_or_ascii_string(tvb,
 				&offset, si->unicode, &dn_len, TRUE, FALSE,
 				&bc);
