@@ -1,7 +1,7 @@
 /* gui_prefs.c
  * Dialog box for GUI preferences
  *
- * $Id: gui_prefs.c,v 1.40 2003/09/02 18:27:50 gerald Exp $
+ * $Id: gui_prefs.c,v 1.41 2003/10/14 23:20:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -27,6 +27,8 @@
 #endif
 
 #include <gtk/gtk.h>
+
+#include <string.h>
 
 #include "color.h"
 #include "color_utils.h"
@@ -56,6 +58,8 @@ static void color_cancel_cb(GtkWidget *w, gpointer data);
 static gboolean color_delete_cb(GtkWidget *prefs_w, gpointer dummy);
 static void color_destroy_cb(GtkWidget *w, gpointer data);
 static void fetch_colors(void);
+static gint fileopen_dir_changed_cb(GtkWidget *myentry _U_, GdkEvent *event, gpointer parent_w);
+static void fileopen_selected_cb(GtkWidget *mybutton_rb _U_, gpointer parent_w);
 
 #define SCROLLBAR_PLACEMENT_KEY		"scrollbar_placement"
 #define PLIST_SEL_BROWSE_KEY		"plist_sel_browse"
@@ -76,6 +80,9 @@ static void fetch_colors(void);
 #define COLOR_CALLER_PTR_KEY	"color_caller_ptr"
 #define COLOR_SAMPLE_PTR_KEY	"color_sample_ptr"
 #define COLOR_SELECTION_PTR_KEY	"color_selection_ptr"
+
+#define GUI_FILEOPEN_KEY	"fileopen_behavior"
+#define GUI_FILEOPEN_DIR_KEY	"fileopen_directory"
 
 static const enum_val_t scrollbar_placement_vals[] = {
 	{ "Left",  FALSE },
@@ -119,6 +126,12 @@ static const enum_val_t highlight_style_vals[] = {
 	{ NULL,       0 }
 };
 
+static const enum_val_t gui_fileopen_vals[] = {
+        { "Remember last directory", FO_STYLE_LAST_OPENED },
+        { "Always start in directory:", FO_STYLE_SPECIFIED },
+        { NULL,    0 }
+};
+
 /* Set to FALSE initially; set to TRUE if the user ever hits "OK" on
    the "Colors..." dialog, so that we know that they (probably) changed
    colors, and therefore that the "apply" function needs to recolor
@@ -135,13 +148,15 @@ static gboolean font_changed;
    has been set to the name of the font the user selected. */
 static gchar *new_font_name;
 
-#define GUI_TABLE_ROWS 8
+#define GUI_TABLE_ROWS 10
+
 GtkWidget*
 gui_prefs_show(void)
 {
 	GtkWidget *main_tb, *main_vb, *hbox, *font_bt, *color_bt;
 	GtkWidget *scrollbar_om, *plist_browse_om;
 	GtkWidget *ptree_browse_om, *highlight_style_om;
+        GtkWidget *fileopen_rb, *fileopen_dir_te;
 	GtkWidget *save_position_cb, *save_size_cb;
 #if GTK_MAJOR_VERSION < 2
 	GtkWidget *expander_style_om, *line_style_om;
@@ -241,6 +256,20 @@ gui_prefs_show(void)
 #endif
 	SIGNAL_CONNECT(color_bt, "clicked", color_browse_cb, NULL);
 	gtk_table_attach_defaults( GTK_TABLE(main_tb), color_bt, 2, 3, 1, 2 );
+        
+        /* Directory to default File Open dialog to */
+        fileopen_dir_te = create_preference_entry(main_tb, 9, "Directory:", NULL,
+            prefs.gui_fileopen_dir);
+        OBJECT_SET_DATA(main_vb, GUI_FILEOPEN_DIR_KEY, fileopen_dir_te);
+        SIGNAL_CONNECT(fileopen_dir_te, "focus-out-event", fileopen_dir_changed_cb, main_vb);
+
+        /* Allow user to select where they want the File Open dialog to open to by default */
+        fileopen_rb = create_preference_radio_buttons(main_tb, 8, "File Open dialog behavior:", 
+            NULL, gui_fileopen_vals, prefs.gui_fileopen_style);
+        SIGNAL_CONNECT(fileopen_rb, "clicked", fileopen_selected_cb, main_vb);
+        OBJECT_SET_DATA(main_vb, GUI_FILEOPEN_KEY, fileopen_rb);
+
+        fileopen_selected_cb(NULL, main_vb);        
 
 	/* Show 'em what we got */
 	gtk_widget_show_all(main_vb);
@@ -455,6 +484,13 @@ gui_prefs_fetch(GtkWidget *w)
 	    	GEOMETRY_POSITION_KEY));
 	prefs.gui_geometry_save_size =
 	    gtk_toggle_button_get_active(OBJECT_GET_DATA(w, GEOMETRY_SIZE_KEY));
+        prefs.gui_fileopen_style = fetch_preference_radio_buttons_val(
+            OBJECT_GET_DATA(w, GUI_FILEOPEN_KEY), gui_fileopen_vals);
+            
+        if (prefs.gui_fileopen_dir != NULL)
+                g_free(prefs.gui_fileopen_dir);
+        prefs.gui_fileopen_dir = g_strdup(gtk_entry_get_text(
+                GTK_ENTRY(OBJECT_GET_DATA(w, GUI_FILEOPEN_DIR_KEY))));
 
 	if (font_changed) {
 		if (prefs.gui_font_name != NULL)
@@ -589,6 +625,40 @@ static color_info_t color_info[MAX_HANDLED_COL] = {
 #define CS_OPACITY		3
 
 static GdkColor *curcolor = NULL;
+
+static gint
+fileopen_dir_changed_cb(GtkWidget *fileopen_entry _U_, GdkEvent *event _U_, gpointer parent_w)
+{
+    GtkWidget	*fileopen_dir_te;
+    char *lastchar;
+    gint fileopen_dir_te_length;
+    
+    fileopen_dir_te = (GtkWidget *)OBJECT_GET_DATA(parent_w, GUI_FILEOPEN_DIR_KEY);
+    fileopen_dir_te_length = strlen(gtk_entry_get_text (GTK_ENTRY(fileopen_entry)));
+    lastchar = gtk_editable_get_chars(GTK_EDITABLE(fileopen_entry), fileopen_dir_te_length-1, -1);
+    if (strcmp(lastchar, G_DIR_SEPARATOR_S) != 0)
+        gtk_entry_append_text(GTK_ENTRY(fileopen_entry), G_DIR_SEPARATOR_S);
+    return(TRUE);
+}
+
+static void
+fileopen_selected_cb(GtkWidget *mybutton_rb _U_, gpointer parent_w)
+{
+    GtkWidget	*fileopen_rb, *fileopen_dir_te;
+    
+    fileopen_rb = (GtkWidget *)OBJECT_GET_DATA(parent_w, GUI_FILEOPEN_KEY);
+    fileopen_dir_te = (GtkWidget *)OBJECT_GET_DATA(parent_w, GUI_FILEOPEN_DIR_KEY);
+    
+    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(fileopen_rb)))
+    {
+        gtk_widget_set_sensitive(GTK_WIDGET(fileopen_dir_te), TRUE);
+    }
+    else
+    {
+        gtk_widget_set_sensitive(GTK_WIDGET(fileopen_dir_te), FALSE);
+    }
+    return;
+}
 
 static void
 color_browse_cb(GtkWidget *w, gpointer data _U_)

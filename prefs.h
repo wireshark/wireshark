@@ -1,7 +1,7 @@
 /* prefs.h
  * Definitions for preference handling routines
  *
- * $Id: prefs.h,v 1.47 2003/10/02 21:06:11 guy Exp $
+ * $Id: prefs.h,v 1.48 2003/10/14 23:20:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -46,6 +46,12 @@
  */
 char string_to_name_resolve(char *string, guint32 *name_resolve);
 
+/*
+ * Modes for the starting directory in File Open dialogs.
+ */
+#define FO_STYLE_LAST_OPENED	0	/* start in last directory we looked at */
+#define FO_STYLE_SPECIFIED	1	/* start in specified directory */
+
 typedef struct _e_prefs {
   gint     pr_format;
   gint     pr_dest;
@@ -70,6 +76,9 @@ typedef struct _e_prefs {
   gint     gui_geometry_main_y;
   gint     gui_geometry_main_width;
   gint     gui_geometry_main_height;
+  gint     gui_fileopen_style;
+  gchar	   *gui_fileopen_dir;
+  gchar    *gui_fileopen_remembered_dir;
   guint32  name_resolve;
   gint     name_resolve_concurrency;
   gchar   *capture_device;

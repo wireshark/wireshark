@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.321 2003/10/10 08:39:24 sahlberg Exp $
+ * $Id: main.c,v 1.322 2003/10/14 23:20:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -145,6 +145,7 @@ static guint    main_ctx, file_ctx, help_ctx;
 static GString *comp_info_str, *runtime_info_str;
 gchar       *ethereal_path = NULL;
 gchar       *last_open_dir = NULL;
+static gboolean updated_last_open_dir = FALSE;
 static gint root_x = G_MAXINT, root_y = G_MAXINT, top_width, top_height;
 static gboolean updated_geometry = FALSE;
 
@@ -2468,46 +2469,77 @@ main(int argc, char *argv[])
 
   gtk_main();
 
-  /* If our geometry has changed, save whatever elements of it we're
-     supposed to change. */
-  if (updated_geometry) {
-    /* We've gotten an update, in the form of a configure_notify event.
-       Re-read our saved preferences, and, if the geometry preferences
-       differ from the current geometry, and we're supposed to save
-       the current values of the changed geometry item (position or
-       size), update the preference value and note that we will have
-       to write the preferences out.
-
-       XXX - Move all of this into a separate function?
-
-       XXX - should GUI stuff such as this be in a separate file? */
+  /* If the last opened directory, or our geometry, has changed, save
+     whatever we're supposed to save. */
+  if (updated_last_open_dir || updated_geometry) {
+    /* Re-read our saved preferences. */
     prefs = read_prefs(&gpf_open_errno, &gpf_read_errno, &gpf_path,
 		       &pf_open_errno, &pf_read_errno, &pf_path);
-
     if (pf_path == NULL) {
       /* We succeeded in reading the preferences. */
-      if (prefs->gui_geometry_save_position) {
-	if (prefs->gui_geometry_main_x != root_x) {
-	  prefs->gui_geometry_main_x = root_x;
-	  prefs_write_needed = TRUE;
-	}
-	if (prefs->gui_geometry_main_y != root_y) {
-	  prefs->gui_geometry_main_y = root_y;
-	  prefs_write_needed = TRUE;
+
+      if (updated_last_open_dir) {
+	/* The pathname of the last directory in which we've opened
+	   a file has changed.  If it changed from what's in the
+	   preferences file, and we're supposed to save it, update
+	   the preference value and note that we will have to write
+	   the preferences out. */
+	if (prefs->gui_fileopen_style == FO_STYLE_LAST_OPENED) {
+	  /* Yes, we're supposed to save it.
+	     Has a file been opened since Ethereal was started? */
+	  if (last_open_dir != NULL) {
+	    /* Yes.  Is the most recently navigated-to directory
+	       different from the saved directory? */
+	    if (prefs->gui_fileopen_remembered_dir == NULL ||
+	        strcmp(prefs->gui_fileopen_remembered_dir, last_open_dir) != 0) {
+	      /* Yes. */
+	      prefs->gui_fileopen_remembered_dir = last_open_dir;
+	      prefs_write_needed = TRUE;
+	    }
+	  }
 	}
       }
 
-      if (prefs->gui_geometry_save_size) {
-	if (prefs->gui_geometry_main_width != top_width) {
-	  prefs->gui_geometry_main_width = top_width;
-	  prefs_write_needed = TRUE;
+      if (updated_geometry) {
+        /* We got a geometry update, in the form of a configure_notify
+           event, so the geometry has changed.  If it changed from
+           what's in the preferences file, and we're supposed to save
+	   the current values of the changed geometry item (position or
+	   size), update the preference value and note that we will have
+	   to write the preferences out.
+
+	   XXX - should GUI stuff such as this be in a separate file? */
+	if (prefs->gui_geometry_save_position) {
+	  if (prefs->gui_geometry_main_x != root_x) {
+	    prefs->gui_geometry_main_x = root_x;
+	    prefs_write_needed = TRUE;
+	  }
+	  if (prefs->gui_geometry_main_y != root_y) {
+	    prefs->gui_geometry_main_y = root_y;
+	    prefs_write_needed = TRUE;
+	  }
 	}
-	if (prefs->gui_geometry_main_height != top_height) {
-	  prefs->gui_geometry_main_height = top_height;
-	  prefs_write_needed = TRUE;
+
+	if (prefs->gui_geometry_save_size) {
+	  if (prefs->gui_geometry_main_width != top_width) {
+	    prefs->gui_geometry_main_width = top_width;
+	    prefs_write_needed = TRUE;
+	  }
+	  if (prefs->gui_geometry_main_height != top_height) {
+	    prefs->gui_geometry_main_height = top_height;
+	    prefs_write_needed = TRUE;
+	  }
 	}
       }
+    
+      /* Save the preferences if we need to do so.
 
+         XXX - this doesn't save the preferences if you don't have a
+         preferences file.  Forcibly writing a preferences file would
+         save the current settings even if you haven't changed them,
+         meaning that if the defaults change it won't affect you.
+         Perhaps we need to keep track of what the *user* has changed,
+         and only write out *those* preferences. */
       if (prefs_write_needed) {
 	write_prefs(&pf_path);
       }
@@ -2959,22 +2991,30 @@ void
 set_last_open_dir(char *dirname)
 {
 	int len;
-
-	if (last_open_dir) {
-		g_free(last_open_dir);
-	}
+	gchar *new_last_open_dir;
 
 	if (dirname) {
 		len = strlen(dirname);
 		if (dirname[len-1] == G_DIR_SEPARATOR) {
-			last_open_dir = g_strconcat(dirname, NULL);
+			new_last_open_dir = g_strconcat(dirname, NULL);
 		}
 		else {
-			last_open_dir = g_strconcat(dirname, G_DIR_SEPARATOR_S,
-				NULL);
+			new_last_open_dir = g_strconcat(dirname,
+				G_DIR_SEPARATOR_S, NULL);
 		}
+
+		if (last_open_dir == NULL ||
+		    strcmp(last_open_dir, new_last_open_dir) != 0)
+			updated_last_open_dir = TRUE;
 	}
 	else {
-		last_open_dir = NULL;
+		new_last_open_dir = NULL;
+		if (last_open_dir != NULL)
+			updated_last_open_dir = TRUE;
 	}
+
+	if (last_open_dir) {
+		g_free(last_open_dir);
+	}
+	last_open_dir = new_last_open_dir;
 }

@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.108 2003/10/02 21:06:11 guy Exp $
+ * $Id: prefs.c,v 1.109 2003/10/14 23:20:15 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -86,6 +86,9 @@ gchar	*gui_ptree_expander_style_text[] =
 
 gchar	*gui_hex_dump_highlight_style_text[] =
 	{ "BOLD", "INVERSE", NULL };
+
+gchar	*gui_fileopen_style_text[] =
+	{ "LAST_OPENED", "SPECIFIED", NULL };
 
 /*
  * List of all modules with preference settings.
@@ -973,6 +976,9 @@ read_prefs(int *gpf_errno_return, int *gpf_read_errno_return,
     prefs.gui_geometry_main_y        =        20;
     prefs.gui_geometry_main_width    = DEF_WIDTH;
     prefs.gui_geometry_main_height   =        -1;
+    prefs.gui_fileopen_style         = FO_STYLE_LAST_OPENED;
+    prefs.gui_fileopen_dir           = g_strdup("");
+    prefs.gui_fileopen_remembered_dir = NULL;
 
 /* set the default values for the capture dialog box */
     prefs.capture_device           = NULL;
@@ -1232,31 +1238,34 @@ prefs_set_pref(char *prefarg)
 	return ret;
 }
 
-#define PRS_PRINT_FMT    "print.format"
-#define PRS_PRINT_DEST   "print.destination"
-#define PRS_PRINT_FILE   "print.file"
-#define PRS_PRINT_CMD    "print.command"
-#define PRS_COL_FMT      "column.format"
-#define PRS_STREAM_CL_FG "stream.client.fg"
-#define PRS_STREAM_CL_BG "stream.client.bg"
-#define PRS_STREAM_SR_FG "stream.server.fg"
-#define PRS_STREAM_SR_BG "stream.server.bg"
-#define PRS_GUI_SCROLLBAR_ON_RIGHT "gui.scrollbar_on_right"
-#define PRS_GUI_PLIST_SEL_BROWSE "gui.packet_list_sel_browse"
-#define PRS_GUI_PTREE_SEL_BROWSE "gui.protocol_tree_sel_browse"
-#define PRS_GUI_ALTERN_COLORS "gui.tree_view_altern_colors"
-#define PRS_GUI_PTREE_LINE_STYLE "gui.protocol_tree_line_style"
-#define PRS_GUI_PTREE_EXPANDER_STYLE "gui.protocol_tree_expander_style"
+#define PRS_PRINT_FMT                    "print.format"
+#define PRS_PRINT_DEST                   "print.destination"
+#define PRS_PRINT_FILE                   "print.file"
+#define PRS_PRINT_CMD                    "print.command"
+#define PRS_COL_FMT                      "column.format"
+#define PRS_STREAM_CL_FG                 "stream.client.fg"
+#define PRS_STREAM_CL_BG                 "stream.client.bg"
+#define PRS_STREAM_SR_FG                 "stream.server.fg"
+#define PRS_STREAM_SR_BG                 "stream.server.bg"
+#define PRS_GUI_SCROLLBAR_ON_RIGHT       "gui.scrollbar_on_right"
+#define PRS_GUI_PLIST_SEL_BROWSE         "gui.packet_list_sel_browse"
+#define PRS_GUI_PTREE_SEL_BROWSE         "gui.protocol_tree_sel_browse"
+#define PRS_GUI_ALTERN_COLORS            "gui.tree_view_altern_colors"
+#define PRS_GUI_PTREE_LINE_STYLE         "gui.protocol_tree_line_style"
+#define PRS_GUI_PTREE_EXPANDER_STYLE     "gui.protocol_tree_expander_style"
 #define PRS_GUI_HEX_DUMP_HIGHLIGHT_STYLE "gui.hex_dump_highlight_style"
-#define PRS_GUI_FONT_NAME "gui.font_name"
-#define PRS_GUI_MARKED_FG "gui.marked_frame.fg"
-#define PRS_GUI_MARKED_BG "gui.marked_frame.bg"
-#define PRS_GUI_GEOMETRY_SAVE_POSITION "gui.geometry.save.position"
-#define PRS_GUI_GEOMETRY_SAVE_SIZE     "gui.geometry.save.size"
-#define PRS_GUI_GEOMETRY_MAIN_X        "gui.geometry.main.x"
-#define PRS_GUI_GEOMETRY_MAIN_Y        "gui.geometry.main.y"
-#define PRS_GUI_GEOMETRY_MAIN_WIDTH    "gui.geometry.main.width"
-#define PRS_GUI_GEOMETRY_MAIN_HEIGHT   "gui.geometry.main.height"
+#define PRS_GUI_FONT_NAME                "gui.font_name"
+#define PRS_GUI_MARKED_FG                "gui.marked_frame.fg"
+#define PRS_GUI_MARKED_BG                "gui.marked_frame.bg"
+#define PRS_GUI_FILEOPEN_STYLE           "gui.fileopen.style"
+#define PRS_GUI_FILEOPEN_DIR             "gui.fileopen.dir"
+#define PRS_GUI_FILEOPEN_REMEMBERED_DIR  "gui.fileopen.remembered_dir"
+#define PRS_GUI_GEOMETRY_SAVE_POSITION   "gui.geometry.save.position"
+#define PRS_GUI_GEOMETRY_SAVE_SIZE       "gui.geometry.save.size"
+#define PRS_GUI_GEOMETRY_MAIN_X          "gui.geometry.main.x"
+#define PRS_GUI_GEOMETRY_MAIN_Y          "gui.geometry.main.y"
+#define PRS_GUI_GEOMETRY_MAIN_WIDTH      "gui.geometry.main.width"
+#define PRS_GUI_GEOMETRY_MAIN_HEIGHT     "gui.geometry.main.height"
 
 /*
  * This applies to more than just captures, so it's not "capture.name_resolve";
@@ -1482,18 +1491,18 @@ set_pref(gchar *pref_name, gchar *value)
             prefs.gui_altern_colors = FALSE;
     }
   } else if (strcmp(pref_name, PRS_GUI_PTREE_LINE_STYLE) == 0) {
-	  prefs.gui_ptree_line_style =
-		  find_index_from_string_array(value, gui_ptree_line_style_text, 0);
+    prefs.gui_ptree_line_style =
+	find_index_from_string_array(value, gui_ptree_line_style_text, 0);
   } else if (strcmp(pref_name, PRS_GUI_PTREE_EXPANDER_STYLE) == 0) {
-	  prefs.gui_ptree_expander_style =
-		  find_index_from_string_array(value, gui_ptree_expander_style_text, 1);
+    prefs.gui_ptree_expander_style =
+	find_index_from_string_array(value, gui_ptree_expander_style_text, 1);
   } else if (strcmp(pref_name, PRS_GUI_HEX_DUMP_HIGHLIGHT_STYLE) == 0) {
-	  prefs.gui_hex_dump_highlight_style =
-		  find_index_from_string_array(value, gui_hex_dump_highlight_style_text, 1);
+    prefs.gui_hex_dump_highlight_style =
+	find_index_from_string_array(value, gui_hex_dump_highlight_style_text, 1);
   } else if (strcmp(pref_name, PRS_GUI_FONT_NAME) == 0) {
-	  if (prefs.gui_font_name != NULL)
-		g_free(prefs.gui_font_name);
-	  prefs.gui_font_name = g_strdup(value);
+    if (prefs.gui_font_name != NULL)
+      g_free(prefs.gui_font_name);
+    prefs.gui_font_name = g_strdup(value);
   } else if (strcmp(pref_name, PRS_GUI_MARKED_FG) == 0) {
     cval = strtoul(value, NULL, 16);
     prefs.gui_marked_fg.pixel = 0;
@@ -1528,6 +1537,18 @@ set_pref(gchar *pref_name, gchar *value)
     prefs.gui_geometry_main_width = strtol(value, NULL, 10);
   } else if (strcmp(pref_name, PRS_GUI_GEOMETRY_MAIN_HEIGHT) == 0) {
     prefs.gui_geometry_main_height = strtol(value, NULL, 10);
+  } else if (strcmp(pref_name, PRS_GUI_FILEOPEN_STYLE) == 0) {
+    prefs.gui_fileopen_style =
+	find_index_from_string_array(value, gui_fileopen_style_text,
+				     FO_STYLE_LAST_OPENED);
+  } else if (strcmp(pref_name, PRS_GUI_FILEOPEN_DIR) == 0) {
+    if (prefs.gui_fileopen_dir != NULL)
+      g_free(prefs.gui_fileopen_dir);
+    prefs.gui_fileopen_dir = g_strdup(value);
+  } else if (strcmp(pref_name, PRS_GUI_FILEOPEN_REMEMBERED_DIR) == 0) {
+    if (prefs.gui_fileopen_remembered_dir != NULL)
+      g_free(prefs.gui_fileopen_remembered_dir);
+    prefs.gui_fileopen_remembered_dir = g_strdup(value);
 
 /* handle the capture options */
   } else if (strcmp(pref_name, PRS_CAP_DEVICE) == 0) {
@@ -1968,6 +1989,8 @@ write_prefs(char **pf_path_return)
     "is set to \"command\"\n"
     "%s: %s\n", PRS_PRINT_CMD, prefs.pr_cmd);
 
+  fprintf (pf, "\n######## Columns ########\n");
+  
   clp = prefs.col_list;
   col_l = NULL;
   while (clp) {
@@ -1983,6 +2006,8 @@ write_prefs(char **pf_path_return)
      refers; that's what we want, as we haven't copied those strings,
      we just referred to them.  */
   g_list_free(col_l);
+
+  fprintf (pf, "\n######## TCP Stream Window ########\n");
 
   fprintf (pf, "\n# TCP stream window color preferences.\n");
   fprintf (pf, "# Each value is a six digit hexadecimal color value in the form rrggbb.\n");
@@ -2003,6 +2028,8 @@ write_prefs(char **pf_path_return)
     (prefs.st_server_bg.green * 255 / 65535),
     (prefs.st_server_bg.blue * 255 / 65535));
 
+  fprintf (pf, "\n######## User Interface ########\n");
+  
   fprintf(pf, "\n# Vertical scrollbars should be on right side?\n");
   fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
   fprintf(pf, PRS_GUI_SCROLLBAR_ON_RIGHT ": %s\n",
@@ -2061,6 +2088,23 @@ write_prefs(char **pf_path_return)
   fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
   fprintf(pf, PRS_GUI_GEOMETRY_SAVE_SIZE ": %s\n",
 		  prefs.gui_geometry_save_size == TRUE ? "TRUE" : "FALSE");
+                  
+  fprintf(pf, "\n# Where to start the File Open dialog box.\n");
+  fprintf(pf, "# One of: LAST_OPENED, SPECIFIED\n");
+  fprintf (pf, PRS_GUI_FILEOPEN_STYLE ": %s\n",
+		  gui_fileopen_style_text[prefs.gui_fileopen_style]);
+
+  if (prefs.gui_fileopen_dir != NULL) {
+    fprintf(pf, "\n# Directory to start in when opening File Open dialog.\n");
+    fprintf(pf, PRS_GUI_FILEOPEN_DIR ": %s\n",
+                  prefs.gui_fileopen_dir);
+  }
+                  
+  if (prefs.gui_fileopen_remembered_dir != NULL) {
+    fprintf(pf, "\n# Last directory navigated to in File Open dialog.\n");
+    fprintf(pf, PRS_GUI_FILEOPEN_REMEMBERED_DIR ": %s\n",
+                  prefs.gui_fileopen_remembered_dir);
+  }
 
   fprintf(pf, "\n# Main window geometry.\n");
   fprintf(pf, "# Decimal integers.\n");
@@ -2071,6 +2115,8 @@ write_prefs(char **pf_path_return)
   fprintf(pf, PRS_GUI_GEOMETRY_MAIN_HEIGHT ": %d\n",
   		  prefs.gui_geometry_main_height);
 
+  fprintf(pf, "\n####### Name Resolution ########\n");
+  
   fprintf(pf, "\n# Resolve addresses to names?\n");
   fprintf(pf, "# TRUE or FALSE (case-insensitive), or a list of address types to resolve.\n");
   fprintf(pf, PRS_NAME_RESOLVE ": %s\n",
@@ -2082,6 +2128,8 @@ write_prefs(char **pf_path_return)
 		  prefs.name_resolve_concurrency);
 
 /* write the capture options */
+  fprintf(pf, "\n####### Capture Options ########\n");
+  
   if (prefs.capture_device != NULL) {
     fprintf(pf, "\n# Default capture device\n");
     fprintf(pf, PRS_CAP_DEVICE ": %s\n", prefs.capture_device);
@@ -2193,6 +2241,14 @@ free_prefs(e_prefs *pr)
   if (pr->gui_font_name != NULL) {
     g_free(pr->gui_font_name);
     pr->gui_font_name = NULL;
+  }
+  if (pr->gui_fileopen_dir != NULL) {
+    g_free(pr->gui_fileopen_dir);
+    pr->gui_fileopen_dir = NULL;
+  }
+  if (pr->gui_fileopen_dir != NULL) {
+    g_free(pr->gui_fileopen_remembered_dir);
+    pr->gui_fileopen_remembered_dir = NULL;
   }
   if (pr->capture_device != NULL) {
     g_free(pr->capture_device);

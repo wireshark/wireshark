@@ -1170,6 +1170,20 @@ be saved when Ethereal exits, and used when Ethereal is started again.
 If this item is selected, the size of the main Ethereal window will
 be saved when Ethereal exits, and used when Ethereal is started again.
 
+=item File Open Dialog Behavior
+
+This item allows the user to select how Ethereal handles the listing
+of the "File Open" Dialog when opening trace files.  "Remember Last
+Directory" causes Ethereal to automatically position the dialog in the
+directory of the most recently opened file, even between launches of Ethereal.
+"Always Open in Directory" allows the user to define a persistent directory
+that the dialog will always default to.
+
+=item Directory:
+
+Allows the user to specify a persistent File Open directory.  Trailing
+slashes or backslashes will automatically be added.
+
 =item Fonts
 
 The "Font..." button lets you select the font to be used for most text.
@@ -2119,6 +2133,7 @@ B<http://www.ethereal.com>.
   Gisle Vanem              <giva [AT] bgnett.no>
   Ritchie                  <ritchie [AT] tipsybottle.com>
   Aki Immonen              <aki.immonen [AT] golftalma.fi>
+  Ian Schorr               <ischorr [AT] comcast.net>
 
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to give his
 permission to use his version of snprintf.c.
