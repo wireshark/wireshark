@@ -603,8 +603,63 @@ to indicate number of frames or number of bytes per second for all packets
 matching the specified filter.
 By default only one graph will be displayed showing number of frames per second.
 
-The Y-scale shows how many frames/bytes per second was measured.
-The X-scale shows how many seconds into the capture the measurement was taken.
+The top part of the window contains the graphs and scales for the X and Y axis.
+If the graph is too long to fit inside the window there is a horizontal scrollbar below the drawing area that can scroll the graphs to the left or the right.
+The horizontal axis displays the time into the capture and the vertical axis will display the measured quantity at that time.
+
+Below the drawing area and the scrollbar are the controls.
+On the bottom left there will be five similar sets of controls to control each 
+induvidual graph such as "Display:<button>" which button will toggle that individual graph on/off. If <button> is ticked, the graph will be displayed.
+"Color:<color>" which is just a button to show which color will be used to draw that graph (color is only available in Gtk2 version) and finally
+"Filter:<filter-text>" which can be used to specify a display filter for that particular graph.
+
+If filter-text is empty then all packets will be used to calculate the quantity for that graph. If filter-text is specified only those packets that match that display filter will be considered in the calculation of quantity.
+
+
+To the right of the 5 graph controls there are four menus to control global aspects of the draw area and graphs.
+The "Unit:" menu is used to control what to measure; "frames/tick", "bytes/tick" or "advanced..."
+
+frames/tick  will measure the number of frames matching the (if specified) display filter for the graph in each measurement interval.
+
+bytes/tick   will measure the total number of bytes in all frames matching the (if specified) display filter for the graph in each measurement interval.
+
+advanced... see below
+
+
+"Tick interval:" specifies what measurement intervals to use. The default is 1 second and means that the data will be counted over 1 second intervals.
+
+"Pixels per tick:" specifies how many pixels wide each measurement interval will be in the drawing area. The default is 5 pixels per tick.
+
+"Y-scale:" controls the max value for the y-axis. Default value is "auto" which means that ethereal will try to adjust the maxvalue automatically.
+
+
+
+"advanced..."   If Unit:advanced... is selected the window will display two more controls for each of the five graphs.
+One control will be a menu where the type of calculation can be selected from SUM,COUNT,MAX,MIN and AVG, and one control, textbox, where the name of a single display filter field can be specified.
+
+The following restrictions apply to type and field combinations:
+SUM: availabel for all types of integers.
+COUNT: available for all field types.
+MAX: available for all integer and relative time fields.
+MIN: available for all integer and relative time fields.
+AVG: available for all integer and relative time fields.
+
+NOTE: due to the way this is implemented in ethereal there is a requirement that whatever field is specified in the textbox, that field MUST also be part of the filter for the graph or else the calculations will fail.
+
+Example of advanced:
+Display how NFS response time MAX/MIN/AVG changes over time:
+
+Set first graph to   filter:nfs&&rpc.time Calc:MAX rpc.time
+Set second graph to  filter:nfs&&rpc.time Calc:AVG rpc.time
+Set third graph to   filter:nfs&&rpc.time Calc:MIN rpc.time
+
+
+Example of advanced:
+Display how the average packetsize from host a.b.c.d changes over time.
+
+Set first graph to   filter:ip.addr==a.b.c.d&&frame.pkt_len  Calc:AVG frame.pkt_len
+
+
 
 
 =head2 WINDOWS

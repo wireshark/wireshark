@@ -1,7 +1,17 @@
+/* BUG:
+   since file.c does not provide other times than absolute time
+   when we get called we have to do the base_time kludge.
+   This makes the time displayed wrong if we filter since we 
+   will not see the first packet of the capture but have to base the base_time
+   on the timestamp of the first packet we see.
+
+   file.c should be updated to calculate abs time and delta before the first 
+   dissection occurs
+*/
 /* io_stat.c
  * io_stat   2002 Ronnie Sahlberg
  *
- * $Id: io_stat.c,v 1.7 2002/11/19 08:10:13 sahlberg Exp $
+ * $Id: io_stat.c,v 1.8 2002/11/29 11:37:24 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -39,6 +49,7 @@
 
 #include <gtk/gtk.h>
 #include "gtkglobals.h"
+#include "epan/epan_dissect.h"
 #include "epan/packet_info.h"
 #include "../tap.h"
 #include "../register.h"
@@ -61,23 +72,42 @@ static guint32 yscale_max[MAX_YSCALE] = {AUTO_MAX_YSCALE, 10, 20, 50, 100, 200, 
 #define DEFAULT_PIXELS_PER_TICK 2
 static guint32 pixels_per_tick[MAX_PIXELS_PER_TICK] = {1, 2, 5, 10};
 
-#define MAX_COUNT_TYPES 2
-static char *max_count_types[MAX_COUNT_TYPES] = {"frames/tick", "bytes/tick"};
+#define MAX_COUNT_TYPES 3
+#define COUNT_TYPE_ADVANCED 2
+static char *max_count_types[MAX_COUNT_TYPES] = {"frames/tick", "bytes/tick", "advanced..."};
 
 /* unit is in ms */
 #define MAX_TICK_VALUES 4
 #define DEFAULT_TICK_VALUE 2
 static guint max_tick_values[MAX_TICK_VALUES] = { 10, 100, 1000, 10000 };
 
+#define MAX_CALC_TYPES 5
+#define CALC_TYPE_SUM	0
+#define CALC_TYPE_COUNT	1
+#define CALC_TYPE_MAX	2
+#define CALC_TYPE_MIN	3
+#define CALC_TYPE_AVG	4
+static char *max_calc_types[MAX_CALC_TYPES] = {"SUM(*)", "COUNT(*)", "MAX(*)", "MIN(*)", "AVG(*)"};
 
 
 typedef struct _io_stat_item_t {
 	struct _io_stat_item_t *next;
 	struct _io_stat_item_t *prev;
 	guint32 time;	/* this is number of ms since start of capture */
-	guint32 frames;
+	guint32 frames; /* always calculated, will hold number of packets/frames*/
 	guint32 bytes;
+	gint32 int_max;
+	gint32 int_min;
+	gint32 int_tot;
+	nstime_t time_max;
+	nstime_t time_min;
+	nstime_t time_tot;
 } io_stat_item_t;
+
+typedef struct _io_stat_calc_type_t {
+	struct _io_stat_graph_t *gio;
+	int calc_type;
+} io_stat_calc_type_t;
 
 typedef struct _io_stat_graph_t {
 	struct _io_stat_t *io;
@@ -86,6 +116,11 @@ typedef struct _io_stat_graph_t {
 	GtkWidget *display_button;
 	GtkWidget *color_button;
 	GtkWidget *filter_button;
+	GtkWidget *advanced_buttons;
+	int calc_type;
+	io_stat_calc_type_t calc_types[MAX_CALC_TYPES];
+	int hf_index;
+	GtkWidget *calc_field;
 	GdkColor color;
 	GdkGC *gc;
 } io_stat_graph_t;
@@ -114,7 +149,6 @@ typedef struct _io_stat_tick_interval_t {
 typedef struct _io_stat_t {
 	int needs_redraw;
 	gint32 interval;    /* measurement interval in ms */
-	nstime_t time_base;
 	guint32 last_interval; 
 	guint32 max_interval;
 
@@ -137,7 +171,7 @@ typedef struct _io_stat_t {
 
 
 
-void init_io_stat_window(io_stat_t *io);
+static void init_io_stat_window(io_stat_t *io);
 
 /* Hash table to keep track of widget to io_stat_t mappings.
    Did it this way since i could not find a clean way to associate private 
@@ -180,36 +214,38 @@ gtk_iostat_reset(void *g)
 	gio->counts->time=0;
 	gio->counts->frames=0;
 	gio->counts->bytes=0;
+	gio->counts->int_max=0;
+	gio->counts->int_min=0;
+	gio->counts->int_tot=0;
 
 	gio->io->last_interval=0xffffffff;
 	gio->io->max_interval=0;
-	gio->io->time_base.secs=0;
-	gio->io->time_base.nsecs=0;
 }
 
 
 static int
-gtk_iostat_packet(void *g, packet_info *pinfo, epan_dissect_t *edt _U_, void *dummy _U_)
+gtk_iostat_packet(void *g, packet_info *pinfo, epan_dissect_t *edt, void *dummy _U_)
 {
 	io_stat_graph_t *git=g;
 	io_stat_item_t *it;
 	nstime_t time_delta;
 	guint32 adjusted_time;
 
-	git->io->needs_redraw=1;
-
-	if( (git->io->time_base.secs==0)&&(git->io->time_base.nsecs==0) ){
-		git->io->time_base.secs=pinfo->fd->abs_secs;
-		git->io->time_base.nsecs=pinfo->fd->abs_usecs*1000;
+	/* we sometimes get called when git is disabled.
+	   this is a bug since the tap listener should be removed first */
+	if(!git->display){
+		return 0;
 	}
+
+	git->io->needs_redraw=1;
 
 	/* the prev item before the main one is always the last interval we saw packets for */
 	it=git->counts->prev;
 
 	/* XXX for the time being, just ignore all frames that are in the past.
 	   should be fixed in the future but hopefully it is uncommon */
-	time_delta.secs=pinfo->fd->abs_secs-git->io->time_base.secs;
-	time_delta.nsecs=pinfo->fd->abs_usecs*1000-git->io->time_base.nsecs;
+	time_delta.secs=pinfo->fd->rel_secs;
+	time_delta.nsecs=pinfo->fd->rel_usecs*1000;
 	if(time_delta.nsecs<0){
 		time_delta.secs--;
 		time_delta.nsecs+=1000000000;
@@ -240,17 +276,194 @@ gtk_iostat_packet(void *g, packet_info *pinfo, epan_dissect_t *edt _U_, void *du
 		it->time=(adjusted_time/git->io->interval)*git->io->interval;
 		it->frames=0;
 		it->bytes=0;
-		
+		it->int_max=0;		
+		it->int_min=0;		
+		it->int_tot=0;
+		it->time_max.secs=0;
+		it->time_max.nsecs=0;
+		it->time_min.secs=0;
+		it->time_min.nsecs=0;
+		it->time_tot.secs=0;
+		it->time_tot.nsecs=0;
 		if(it->time>git->io->max_interval){
 			git->io->max_interval=it->time;
 		}
 	}
 
 	/* it will now give us the current structure to use to store the data in */
+
+	if(git->io->count_type==COUNT_TYPE_ADVANCED){
+		GPtrArray *gp;
+		guint i;
+
+		gp=proto_get_finfo_ptr_array(edt->tree, git->hf_index);
+		if(!gp){
+			return FALSE;
+		}
+
+		if(it->frames==0){
+			int new_int;
+			nstime_t *new_time;
+
+			switch(proto_registrar_get_ftype(git->hf_index)){
+			case FT_UINT8:
+			case FT_UINT16:
+			case FT_UINT24:
+			case FT_UINT32:
+			case FT_INT8:
+			case FT_INT16:
+			case FT_INT24:
+			case FT_INT32:
+				new_int=fvalue_get_integer(((field_info *)gp->pdata[0])->value);
+				it->int_max=new_int;
+				it->int_min=new_int;
+				it->int_tot=0;
+				break;
+			case FT_RELATIVE_TIME:
+				new_time=fvalue_get(((field_info *)gp->pdata[0])->value);
+				it->time_max.secs=new_time->secs;
+				it->time_max.nsecs=new_time->nsecs;
+				it->time_min.secs=new_time->secs;
+				it->time_min.nsecs=new_time->nsecs;
+				it->time_tot.secs=0;
+				it->time_tot.nsecs=0;
+			}
+		}
+		for(i=0;i<gp->len;i++){
+			int new_int;
+			nstime_t *new_time;
+
+			switch(proto_registrar_get_ftype(git->hf_index)){
+			case FT_UINT8:
+			case FT_UINT16:
+			case FT_UINT24:
+			case FT_UINT32:
+			case FT_INT8:
+			case FT_INT16:
+			case FT_INT24:
+			case FT_INT32:
+				new_int=fvalue_get_integer(((field_info *)gp->pdata[i])->value);
+
+				if(new_int>it->int_max){
+					it->int_max=new_int;
+				}
+				if(new_int<it->int_min){
+					it->int_min=new_int;
+				}
+				it->int_tot+=new_int;
+				break;
+			case FT_RELATIVE_TIME:
+				new_time=fvalue_get(((field_info *)gp->pdata[0])->value);
+
+				if( (new_time->secs>it->time_max.secs)
+				||( (new_time->secs==it->time_max.secs)
+				  &&(new_time->nsecs>it->time_max.nsecs))){
+					it->time_max.secs=new_time->secs;
+					it->time_max.nsecs=new_time->nsecs;
+				}
+				if( (new_time->secs<it->time_min.secs)
+				||( (new_time->secs==it->time_min.secs)
+				  &&(new_time->nsecs<it->time_min.nsecs))){
+					it->time_min.secs=new_time->secs;
+					it->time_min.nsecs=new_time->nsecs;
+				}
+				it->time_tot.secs+=new_time->secs;
+				it->time_tot.nsecs+=new_time->nsecs;
+				if(it->time_tot.nsecs>=1000000000){
+					it->time_tot.nsecs-=1000000000;
+					it->time_tot.secs++;
+				}
+
+			}
+		}
+	}
+
 	it->frames++;
 	it->bytes+=pinfo->fd->pkt_len;
 	
 	return TRUE;
+}
+
+
+static guint32
+get_it_value(io_stat_t *io, io_stat_item_t *it, int adv_type, int calc_type)
+{
+	guint32 value=0;
+
+	switch(io->count_type){
+	case 0:
+		value=it->frames;
+		break;
+	case 1:
+		value=it->bytes;
+		break;
+	case COUNT_TYPE_ADVANCED:
+		switch(adv_type){
+		case FT_UINT8:
+		case FT_UINT16:
+		case FT_UINT24:
+		case FT_UINT32:
+		case FT_INT8:
+		case FT_INT16:
+		case FT_INT24:
+		case FT_INT32:
+			switch(calc_type){
+			case CALC_TYPE_SUM:
+				value=it->int_tot;
+				break;
+			case CALC_TYPE_COUNT:
+				value=it->frames;
+				break;
+			case CALC_TYPE_MAX:
+				value=it->int_max;
+				break;
+			case CALC_TYPE_MIN:
+				value=it->int_min;
+				break;
+			case CALC_TYPE_AVG:
+				if(it->frames){
+					value=it->int_tot/it->frames;
+				} else {
+					value=0;
+				}
+				break;
+			default:
+			}
+			break;
+		case FT_RELATIVE_TIME:
+			switch(calc_type){
+			case CALC_TYPE_COUNT:
+				value=it->frames;
+				break;
+			case CALC_TYPE_MAX:
+				value=it->time_max.secs*1000000+it->time_max.nsecs/1000;
+				break;
+			case CALC_TYPE_MIN:
+				value=it->time_min.secs*1000000+it->time_min.nsecs/1000;
+				break;
+			case CALC_TYPE_AVG:
+				if(it->frames){
+#ifdef G_HAVE_UINT64
+					guint64 tmp;
+#else
+					guint32 tmp;
+#endif
+					tmp=it->time_tot.secs;
+					tmp=tmp*1000000+it->time_tot.nsecs/1000;
+					value=tmp/it->frames;
+				} else {
+					value=0;
+				}
+				break;
+			default:
+			}
+			break;
+		default:
+		}
+		break;
+	default:
+	}
+	return value;
 }
 
 static void
@@ -260,6 +473,7 @@ gtk_iostat_draw(void *g)
 	io_stat_t *io;
 	io_stat_item_t *it;
 	int i;
+	guint32 value;
 	guint32 last_interval, first_interval, interval_delta, delta_multiplier;
 	gint32 current_interval;
 	guint32 max_y;
@@ -298,20 +512,21 @@ gtk_iostat_draw(void *g)
 	if(io->max_y_units==AUTO_MAX_YSCALE){
 		guint32 max_value=0;
 		for(i=0;i<MAX_GRAPHS;i++){
-			for(it=io->graphs[i].counts;it;it=it->next){
-				switch(io->count_type){
-				case 0:
-					if(it->frames>max_value){
-						max_value=it->frames;
-					}
-					break;
-				case 1:
-					if(it->bytes>max_value){
-						max_value=it->bytes;
-					}
-					break;
-				}
+			int adv_type;
 
+			if( (!io->graphs[i].display) || (!io->graphs[i].counts) ){
+				continue;
+			}
+
+			if(io->count_type==COUNT_TYPE_ADVANCED){
+				adv_type=proto_registrar_get_ftype(io->graphs[i].hf_index);
+			}
+
+			for(it=io->graphs[i].counts;it;it=it->next){
+				value=get_it_value(io, it, adv_type, io->graphs[i].calc_type);
+				if(value>=max_value){
+					max_value=value;
+				}
 			}
 		}
 		max_y=yscale_max[MAX_YSCALE-1];
@@ -472,8 +687,14 @@ gtk_iostat_draw(void *g)
 
 	/* loop over all items */
 	for(i=MAX_GRAPHS-1;i>=0;i--){
+		int adv_type;
+
 		if( (!io->graphs[i].display) || (!io->graphs[i].counts) ){
 			continue;
+		}
+
+		if(io->count_type==COUNT_TYPE_ADVANCED){
+			adv_type=proto_registrar_get_ftype(io->graphs[i].hf_index);
 		}
 
 		/* loop over all intervals for the item */
@@ -490,20 +711,11 @@ gtk_iostat_draw(void *g)
 				continue;
 			}
 
-			switch(io->count_type){
-			case 0:
-				val=it->frames;
-				if(it->next){
-					next_val=it->next->frames;
-				}
-				break;
-			case 1:
-				val=it->bytes;
-				if(it->next){
-					next_val=it->next->bytes;
-				}
-				break;
+			val=get_it_value(io, it, adv_type, io->graphs[i].calc_type);
+			if(it->next){
+				next_val=get_it_value(io, it->next, adv_type, io->graphs[i].calc_type);
 			}
+
 
 			startx=draw_width-1-io->pixels_per_tick*((last_interval-it->time)/io->interval+1);
 			if(val>max_y){
@@ -608,8 +820,6 @@ gtk_iostat_init(char *optarg _U_)
 	io->pixels_per_tick=5;
 	io->max_y_units=AUTO_MAX_YSCALE;
 	io->count_type=0;
-	io->time_base.secs=0;
-	io->time_base.nsecs=0;
 	io->last_interval=0xffffffff;
 	io->max_interval=0;
 
@@ -620,6 +830,9 @@ gtk_iostat_init(char *optarg _U_)
 		io->graphs[i].counts->time=0;
 		io->graphs[i].counts->frames=0;
 		io->graphs[i].counts->bytes=0;
+		io->graphs[i].counts->int_max=0;
+		io->graphs[i].counts->int_min=0;
+		io->graphs[i].counts->int_tot=0;
 		io->graphs[i].gc=NULL;
 		io->graphs[i].color.pixel=col[i].pixel;
 		io->graphs[i].color.red=col[i].red;
@@ -629,6 +842,7 @@ gtk_iostat_init(char *optarg _U_)
 		io->graphs[i].display_button=NULL;
 		io->graphs[i].color_button=NULL;
 		io->graphs[i].filter_button=NULL;
+		io->graphs[i].advanced_buttons=NULL;
 		io->graphs[i].io=io;
 	}
 
@@ -638,6 +852,7 @@ gtk_iostat_init(char *optarg _U_)
 		io->graphs[0].display=0;
 		io->graphs[0].display_button=NULL;
 		io->graphs[0].filter_button=NULL;
+		io->graphs[0].advanced_buttons=NULL;
 		exit(10);
 	}			
 		
@@ -784,7 +999,7 @@ expose_event(GtkWidget *widget, GdkEventExpose *event)
 }
 
 
-void
+static void
 create_draw_area(io_stat_t *io, GtkWidget *box)
 {
 	io->draw_area=gtk_drawing_area_new();
@@ -830,7 +1045,7 @@ pixels_per_tick_select(GtkWidget *item _U_, gpointer key)
 	gtk_iostat_draw(&ppt->io->graphs[0]);
 }
 
-void 
+static void 
 create_pixels_per_tick_menu_items(io_stat_t *io, GtkWidget *menu)
 {
 	char str[5];
@@ -861,7 +1076,7 @@ yscale_select(GtkWidget *item _U_, gpointer key)
 	gtk_iostat_draw(&ys->io->graphs[0]);
 }
 
-void 
+static void 
 create_tick_interval_menu_items(io_stat_t *io, GtkWidget *menu)
 {
 	char str[15];
@@ -890,7 +1105,7 @@ create_tick_interval_menu_items(io_stat_t *io, GtkWidget *menu)
 	return;
 }
 
-void 
+static void 
 create_yscale_max_menu_items(io_stat_t *io, GtkWidget *menu)
 {
 	char str[15];
@@ -919,11 +1134,34 @@ count_type_select(GtkWidget *item _U_, gpointer key)
 	io_stat_count_type_t *ct=(io_stat_count_type_t *)key;
 
 	ct->io->count_type=ct->count_type;
+
+	if(ct->io->count_type==COUNT_TYPE_ADVANCED){
+		int i;
+		for(i=0;i<MAX_GRAPHS;i++){
+			ct->io->graphs[i].display=0;
+			gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ct->io->graphs[i].display_button), ct->io->graphs[i].display);
+			gtk_widget_show(ct->io->graphs[i].advanced_buttons);
+/* redraw the entire window so teh unhidden widgets show up, hopefully */
+{GdkRectangle update_rect;
+update_rect.x=0;
+update_rect.y=0;
+update_rect.width=ct->io->window->allocation.width;
+update_rect.height=ct->io->window->allocation.height;
+gtk_widget_draw(ct->io->window, &update_rect);
+}
+		}
+	} else {
+		int i;
+		for(i=0;i<MAX_GRAPHS;i++){
+			gtk_widget_hide(ct->io->graphs[i].advanced_buttons);
+		}
+	}
+
 	ct->io->needs_redraw=1;
 	gtk_iostat_draw(&ct->io->graphs[0]);
 }
 
-void 
+static void 
 create_frames_or_bytes_menu_items(io_stat_t *io, GtkWidget *menu)
 {
 	GtkWidget *menu_item;
@@ -940,7 +1178,7 @@ create_frames_or_bytes_menu_items(io_stat_t *io, GtkWidget *menu)
 	return;
 }
 
-void
+static void
 create_ctrl_menu(io_stat_t *io, GtkWidget *box, char *name, void (*func)(io_stat_t *io, GtkWidget *menu))
 {
 	GtkWidget *hbox;
@@ -965,7 +1203,7 @@ create_ctrl_menu(io_stat_t *io, GtkWidget *box, char *name, void (*func)(io_stat
 	gtk_widget_show(option_menu);
 }
 
-GtkWidget *
+static void
 create_ctrl_area(io_stat_t *io, GtkWidget *box)
 {
 	GtkWidget *vbox;
@@ -980,7 +1218,7 @@ create_ctrl_area(io_stat_t *io, GtkWidget *box)
 	create_ctrl_menu(io, vbox, "Pixels Per Tick:", create_pixels_per_tick_menu_items);
 	create_ctrl_menu(io, vbox, "Y-scale:", create_yscale_max_menu_items);
 
-	return vbox;
+	return;
 }
 
 
@@ -989,6 +1227,74 @@ filter_callback(GtkWidget *widget _U_, io_stat_graph_t *gio)
 {
 	char *filter;
 	int i;
+	header_field_info *hfi;
+
+	/* first check if the field string is valid */
+	if(gio->io->count_type==COUNT_TYPE_ADVANCED){
+		char *field;
+		field=(char *)gtk_entry_get_text(GTK_ENTRY(gio->calc_field));
+		/* warn and bail out if there was no field specified */
+		if(field==NULL || field[0]==0){
+			simple_dialog(ESD_TYPE_WARN, NULL, "'%s' is not a valid field name", field);
+			gio->display=0;
+			gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gio->display_button), gio->display);
+			gio->io->needs_redraw=1;
+			gtk_iostat_draw(gio);
+			return 0;
+		}
+		/* warn and bail out if the field could not be found */
+		hfi=proto_registrar_get_byname(field);
+		if(hfi==NULL){
+			simple_dialog(ESD_TYPE_WARN, NULL, "'%s' is not a valid field name", field);
+			gio->display=0;
+			gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gio->display_button), gio->display);
+			gio->io->needs_redraw=1;
+			gtk_iostat_draw(gio);
+			return 0;
+		}
+		gio->hf_index=hfi->id;
+		/* check that the type is compatible */
+		switch(hfi->type){
+		case FT_UINT8:
+		case FT_UINT16:
+		case FT_UINT24:
+		case FT_UINT32:
+		case FT_INT8:
+		case FT_INT16:
+		case FT_INT24:
+		case FT_INT32:
+			/* these types support all calculations */
+			break;
+		case FT_RELATIVE_TIME:
+			/* this type only support COUNT, MAX, MIN, AVG */
+			switch(gio->calc_type){
+			case CALC_TYPE_COUNT:
+			case CALC_TYPE_MAX:
+			case CALC_TYPE_MIN:
+			case CALC_TYPE_AVG:
+				break;
+			default:
+				simple_dialog(ESD_TYPE_WARN, NULL, "%s is not supported for %s's type", max_calc_types[gio->calc_type], field);
+				gio->display=0;
+				gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gio->display_button), gio->display);
+				gio->io->needs_redraw=1;
+				gtk_iostat_draw(gio);
+				return 0;
+			}
+			break;
+		default:
+			if(gio->calc_type!=CALC_TYPE_COUNT){
+				simple_dialog(ESD_TYPE_WARN, NULL, "Stat calculations is not supported for %s's type", field);
+				gio->display=0;
+				gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gio->display_button), gio->display);
+				gio->io->needs_redraw=1;
+				gtk_iostat_draw(gio);
+				return 0;
+			}
+		}
+
+
+	}
 
 	/* first check if the filter string is valid.  Do this by just trying
 	   to register, deregister a dummy listener. */
@@ -1043,7 +1349,106 @@ filter_callback(GtkWidget *widget _U_, io_stat_graph_t *gio)
 	return 0;
 }
 
-GtkWidget *
+
+static void
+calc_type_select(GtkWidget *item _U_, gpointer key)
+{
+	io_stat_calc_type_t *ct=(io_stat_calc_type_t *)key;
+
+	ct->gio->calc_type=ct->calc_type;
+
+	/* disable the graph */
+	ct->gio->display=0;
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ct->gio->display_button), ct->gio->display);
+
+	ct->gio->io->needs_redraw=1;
+	gtk_iostat_draw(&ct->gio->io->graphs[0]);
+}
+
+
+static void 
+create_calc_types_menu_items(io_stat_graph_t *gio, GtkWidget *menu)
+{
+	GtkWidget *menu_item;
+	int i;
+
+	for(i=0;i<MAX_CALC_TYPES;i++){
+		gio->calc_types[i].gio=gio;
+		gio->calc_types[i].calc_type=i;
+		menu_item=gtk_menu_item_new_with_label(max_calc_types[i]);
+		SIGNAL_CONNECT(menu_item, "activate", calc_type_select, &gio->calc_types[i]);
+		gtk_widget_show(menu_item);
+		gtk_menu_append(GTK_MENU(menu), menu_item);
+	}
+	return;
+}
+
+
+static void
+create_advanced_menu(io_stat_graph_t *gio, GtkWidget *box, char *name, void (*func)(io_stat_graph_t *io, GtkWidget *menu))
+{
+	GtkWidget *hbox;
+	GtkWidget *label;
+	GtkWidget *option_menu;
+	GtkWidget *menu;
+
+	hbox=gtk_hbox_new(FALSE, 0);
+	gtk_container_add(GTK_CONTAINER(box), hbox);
+	gtk_box_set_child_packing(GTK_BOX(box), hbox, FALSE, FALSE, 0, GTK_PACK_START);
+	gtk_widget_show(hbox);
+
+	label=gtk_label_new(name);
+	gtk_widget_show(label);
+	gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
+
+	option_menu=gtk_option_menu_new();
+	menu=gtk_menu_new();
+	(*func)(gio, menu);
+	gtk_option_menu_set_menu(GTK_OPTION_MENU(option_menu), menu);
+	gtk_box_pack_end(GTK_BOX(hbox), option_menu, FALSE, FALSE, 0);
+	gtk_widget_show(option_menu);
+}
+
+
+static gint
+field_callback(GtkWidget *widget _U_, io_stat_graph_t *gio)
+{
+	gio->display=0;
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gio->display_button), gio->display);
+	gio->io->needs_redraw=1;
+	gtk_iostat_draw(gio);
+	return 0;
+}
+
+
+static void
+create_advanced_field(io_stat_graph_t *gio, GtkWidget *box)
+{
+
+	gio->calc_field=gtk_entry_new_with_max_length(30);
+	gtk_box_pack_start(GTK_BOX(box), gio->calc_field, FALSE, FALSE, 0);
+	gtk_widget_show(gio->calc_field);
+	SIGNAL_CONNECT(gio->filter_button, "activate", field_callback, gio);
+}
+
+
+static void
+create_advanced_box(io_stat_graph_t *gio, GtkWidget *box)
+{
+	GtkWidget *hbox;
+
+	hbox=gtk_hbox_new(FALSE, 0);
+	gio->advanced_buttons=hbox;
+	gtk_container_add(GTK_CONTAINER(box), hbox);
+	gtk_box_set_child_packing(GTK_BOX(box), hbox, FALSE, FALSE, 0, GTK_PACK_START);
+	gtk_widget_hide(hbox);
+
+	create_advanced_menu(gio, hbox, "Calc:", create_calc_types_menu_items);
+	create_advanced_field(gio, hbox);
+}
+
+
+static void
 create_filter_box(io_stat_graph_t *gio, GtkWidget *box)
 {
 	GtkWidget *hbox;
@@ -1095,10 +1500,12 @@ create_filter_box(io_stat_graph_t *gio, GtkWidget *box)
 	gtk_widget_show(gio->filter_button);
 	SIGNAL_CONNECT(gio->filter_button, "activate", filter_callback, gio);
 
-	return hbox;
+	create_advanced_box(gio, hbox);
+
+	return;
 }
 
-GtkWidget *
+static void
 create_filter_area(io_stat_t *io, GtkWidget *box)
 {
 	GtkWidget *vbox;
@@ -1113,10 +1520,11 @@ create_filter_area(io_stat_t *io, GtkWidget *box)
 		create_filter_box(&io->graphs[i], vbox);
 	}
 
-	return vbox;
+	return;
 }
 
-void 
+
+static void 
 init_io_stat_window(io_stat_t *io)
 {
 	GtkWidget *vbox;
