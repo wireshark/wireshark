@@ -55,7 +55,7 @@ get_natural_int(const char *string, const char *name)
 
   number = strtol(string, &p, 10);
   if (p == string || *p != '\0') {
-    fprintf(stderr, "mergecap: The specified %s \"%s\" is not a decimal number\n",
+    fprintf(stderr, "mergecap: The specified %s \"%s\" isn't a decimal number\n",
 	    name, string);
     exit(1);
   }
@@ -162,7 +162,7 @@ main(int argc, char *argv[])
     case 'T':
       frame_type = wtap_short_string_to_encap(optarg);
       if (frame_type < 0) {
-      	fprintf(stderr, "mergecap: \"%s\" is not a valid encapsulation type\n",
+      	fprintf(stderr, "mergecap: \"%s\" isn't a valid encapsulation type\n",
       	    optarg);
       	exit(1);
       }
@@ -171,7 +171,7 @@ main(int argc, char *argv[])
     case 'F':
       file_type = wtap_short_string_to_file_type(optarg);
       if (file_type < 0) {
-      	fprintf(stderr, "mergecap: \"%s\" is not a valid capture file type\n",
+      	fprintf(stderr, "mergecap: \"%s\" isn't a valid capture file type\n",
       	    optarg);
       	exit(1);
       }

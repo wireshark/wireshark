@@ -1417,7 +1417,7 @@ edit_color_filter_ok_cb                (GtkButton       *button,
 
     if(!dfilter_compile(filter_text, &compiled_filter)) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                      "Filter \"%s\" did not compile correctly.\n"
+                      "Filter \"%s\" didn't compile correctly.\n"
                       " Please try again. Filter unchanged.\n%s\n", filter_name,
                       dfilter_error_msg);
     } else {

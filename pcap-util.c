@@ -426,7 +426,7 @@ set_pcap_linktype(pcap_t *pch, char *devname
 	/* Let them set it to the type it is; reject any other request. */
 	if (get_pcap_linktype(pch, devname) == dlt)
 		return NULL;	/* no error */
-	return "That DLT is not one of the DLTs supported by this device";
+	return "That DLT isn't one of the DLTs supported by this device";
 #endif
 }
 

@@ -318,7 +318,7 @@ rpcstat_init(char *optarg)
 	g_hash_table_foreach(rpc_procs, (GHFunc)rpcstat_find_procs, NULL);
 	if(rpc_min_proc==-1){
 		fprintf(stderr,"tethereal: Invalid -z rpc,rrt,%d,%d\n",rpc_program,rpc_version);
-		fprintf(stderr,"   Program:%d version:%d is not supported by tethereal.\n", rpc_program, rpc_version);
+		fprintf(stderr,"   Program:%d version:%d isn't supported by tethereal.\n", rpc_program, rpc_version);
 		exit(1);
 	}
 

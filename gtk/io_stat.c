@@ -1523,7 +1523,7 @@ filter_callback(GtkWidget *widget _U_, io_stat_graph_t *gio)
 	if(gio->io->count_type==COUNT_TYPE_ADVANCED){
 		/* warn and bail out if there was no field specified */
 		if(field==NULL || field[0]==0){
-			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "You did not specify a field name.");
+			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "You didn't specify a field name.");
 			disable_graph(gio);
 			io_stat_redraw(gio->io);
 			return 0;
@@ -1531,7 +1531,7 @@ filter_callback(GtkWidget *widget _U_, io_stat_graph_t *gio)
 		/* warn and bail out if the field could not be found */
 		hfi=proto_registrar_get_byname(field);
 		if(hfi==NULL){
-			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "'%s' is not a valid field name.", field);
+			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "'%s' isn't a valid field name.", field);
 			disable_graph(gio);
 			io_stat_redraw(gio->io);
 			return 0;

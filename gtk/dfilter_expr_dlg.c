@@ -862,11 +862,11 @@ dfilter_expr_dlg_accept_cb(GtkWidget *w, gpointer filter_te_arg)
     if (!can_compare) {
         if (range_str == NULL) {
             simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                          "That field cannot be tested with \"%s\".",
+                          "That field can't be tested with \"%s\".",
                           item_str);
         } else {
             simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                          "Ranges of that field cannot be tested with \"%s\".",
+                          "Ranges of that field can't be tested with \"%s\".",
                           item_str);
         }
         if (range_str != NULL)

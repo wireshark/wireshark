@@ -230,12 +230,12 @@ set_time_adjustment(char *optarg)
   } else {
       val = strtol(optarg, &frac, 10);
       if (frac == NULL || frac == optarg || val == LONG_MIN || val == LONG_MAX) {
-          fprintf(stderr, "editcap: \"%s\" is not a valid ime adjustment\n",
+          fprintf(stderr, "editcap: \"%s\" isn't a valid time adjustment\n",
                   optarg);
           exit(1);
       }
       if (val < 0) {            /* implies '--' since we caught '-' above  */
-          fprintf(stderr, "editcap: \"%s\" is not a valid time adjustment\n",
+          fprintf(stderr, "editcap: \"%s\" isn't a valid time adjustment\n",
                   optarg);
           exit(1);
       }
@@ -247,7 +247,7 @@ set_time_adjustment(char *optarg)
     val = strtol(&(frac[1]), &end, 10);
     if (*frac != '.' || end == NULL || end == frac
         || val < 0 || val > ONE_MILLION || val == LONG_MIN || val == LONG_MAX) {
-      fprintf(stderr, "editcap: \"%s\" is not a valid time adjustment\n",
+      fprintf(stderr, "editcap: \"%s\" isn't a valid time adjustment\n",
               optarg);
       exit(1);
     }
@@ -324,7 +324,7 @@ int main(int argc, char *argv[])
     case 'T':
       out_frame_type = wtap_short_string_to_encap(optarg);
       if (out_frame_type < 0) {
-      	fprintf(stderr, "editcap: \"%s\" is not a valid encapsulation type\n",
+      	fprintf(stderr, "editcap: \"%s\" isn't a valid encapsulation type\n",
       	    optarg);
       	exit(1);
       }
@@ -333,7 +333,7 @@ int main(int argc, char *argv[])
     case 'F':
       out_file_type = wtap_short_string_to_file_type(optarg);
       if (out_file_type < 0) {
-      	fprintf(stderr, "editcap: \"%s\" is not a valid capture file type\n",
+      	fprintf(stderr, "editcap: \"%s\" isn't a valid capture file type\n",
       	    optarg);
       	exit(1);
       }
@@ -350,7 +350,7 @@ int main(int argc, char *argv[])
     case 's':
       snaplen = strtol(optarg, &p, 10);
       if (p == optarg || *p != '\0') {
-      	fprintf(stderr, "editcap: \"%s\" is not a valid snapshot length\n",
+      	fprintf(stderr, "editcap: \"%s\" isn't a valid snapshot length\n",
       	    optarg);
       	exit(1);
       }

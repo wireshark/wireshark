@@ -3656,7 +3656,7 @@ void rtp_analysis_cb(GtkWidget *w _U_, gpointer data _U_)
         /* check if it is RTP Version 2 */
         if (!get_int_value_from_proto_tree(edt->tree, "rtp", "rtp.version", &version_fwd) || version_fwd != 2) {
                 simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                    "RTP Version != 2 is not supported!");
+                    "RTP Version != 2 isn't supported!");
                 return;
         }
 	

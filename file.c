@@ -1182,7 +1182,7 @@ filter_packets(capture_file *cf, gchar *dftext, gboolean force)
       simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, 
           "%s%s%s\n"
           "\n"
-          "The following display filter is not a valid display filter:\n%s\n"
+          "The following display filter isn't a valid display filter:\n%s\n"
           "See the help for a description of the display filter syntax.",
           simple_dialog_primary_start(), safe_dfilter_error_msg,
           simple_dialog_primary_end(), safe_dftext);
@@ -2784,7 +2784,7 @@ goto_frame(capture_file *cf, guint fnumber)
     /* that packet currently isn't displayed */
     /* XXX - add it to the set of displayed packets? */
     simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-		  "That packet is not currently being displayed.");
+		  "That packet isn't currently being displayed.");
     return FALSE;	/* we failed to go to that packet */
   }
 
@@ -3249,21 +3249,21 @@ cf_open_failure_alert_box(const char *filename, int err, gchar *err_info,
     case WTAP_ERR_RANDOM_OPEN_PIPE:
       /* Seen only when opening a capture file for reading. */
       simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-		    "The file \"%s\" is a pipe or FIFO; Ethereal cannot read pipe or FIFO files.",
+		    "The file \"%s\" is a pipe or FIFO; Ethereal can't read pipe or FIFO files.",
 		    filename);
       break;
 
     case WTAP_ERR_FILE_UNKNOWN_FORMAT:
       /* Seen only when opening a capture file for reading. */
       simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-		    "The file \"%s\" is not a capture file in a format Ethereal understands.",
+		    "The file \"%s\" isn't a capture file in a format Ethereal understands.",
 		    filename);
       break;
 
     case WTAP_ERR_UNSUPPORTED:
       /* Seen only when opening a capture file for reading. */
       simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-		    "The file \"%s\" is not a capture file in a format Ethereal understands.\n"
+		    "The file \"%s\" isn't a capture file in a format Ethereal understands.\n"
 		    "(%s)",
 		    filename, err_info);
       g_free(err_info);
@@ -3272,7 +3272,7 @@ cf_open_failure_alert_box(const char *filename, int err, gchar *err_info,
     case WTAP_ERR_CANT_WRITE_TO_PIPE:
       /* Seen only when opening a capture file for writing. */
       simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-		    "The file \"%s\" is a pipe, and %s capture files cannot be "
+		    "The file \"%s\" is a pipe, and %s capture files can't be "
 		    "written to a pipe.",
 		    filename, wtap_file_type_string(file_type));
       break;
@@ -3280,13 +3280,13 @@ cf_open_failure_alert_box(const char *filename, int err, gchar *err_info,
     case WTAP_ERR_UNSUPPORTED_FILE_TYPE:
       /* Seen only when opening a capture file for writing. */
       simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-		    "Ethereal does not support writing capture files in that format.");
+		    "Ethereal doesn't support writing capture files in that format.");
       break;
 
     case WTAP_ERR_UNSUPPORTED_ENCAP:
       if (for_writing) {
 	simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-		      "Ethereal cannot save this capture in that format.");
+		      "Ethereal can't save this capture in that format.");
       } else {
 	simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 		      "The file \"%s\" is a capture for a network type that Ethereal doesn't support.\n"
@@ -3299,7 +3299,7 @@ cf_open_failure_alert_box(const char *filename, int err, gchar *err_info,
     case WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED:
       if (for_writing) {
 	simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-		      "Ethereal cannot save this capture in that format.");
+		      "Ethereal can't save this capture in that format.");
       } else {
 	simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 		      "The file \"%s\" is a capture for a network type that Ethereal doesn't support.",
@@ -3364,11 +3364,11 @@ file_rename_error_message(int err)
   switch (err) {
 
   case ENOENT:
-    errmsg = "The path to the file \"%s\" does not exist.";
+    errmsg = "The path to the file \"%s\" doesn't exist.";
     break;
 
   case EACCES:
-    errmsg = "You do not have permission to move the capture file to \"%s\".";
+    errmsg = "You don't have permission to move the capture file to \"%s\".";
     break;
 
   default:

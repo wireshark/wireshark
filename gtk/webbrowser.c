@@ -194,7 +194,7 @@ browser_open_url (const gchar *url)
      XXX - has to be improved */
   simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK, 
       PRIMARY_TEXT_START "Web browser access not implemented." PRIMARY_TEXT_END
-      "\n\nThis Ethereal version (using the GLib 1.x toolkit) cannot access web browsers. "
+      "\n\nThis Ethereal version (using the GLib 1.x toolkit) can't access web browsers. "
       "\n\nYou may try to open the following URL in your web browser: \n\n"
       "%s",
       url);

@@ -300,7 +300,7 @@ user_font_test(gchar *font_name)
 		   Tell the user, but don't tear down the font selection
 		   dialog, so that they can try again. */
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-		   "The font you selected cannot be loaded.");
+		   "The font you selected can't be loaded.");
 
 #if GTK_MAJOR_VERSION < 2
 		g_free(bold_font_name);

@@ -657,16 +657,16 @@ file_open_error_message(int err, gboolean for_writing)
 
 	case ENOENT:
 		if (for_writing)
-			errmsg = "The path to the file \"%s\" does not exist.";
+			errmsg = "The path to the file \"%s\" doesn't exist.";
 		else
-			errmsg = "The file \"%s\" does not exist.";
+			errmsg = "The file \"%s\" doesn't exist.";
 		break;
 
 	case EACCES:
 		if (for_writing)
-			errmsg = "You do not have permission to create or write to the file \"%s\".";
+			errmsg = "You don't have permission to create or write to the file \"%s\".";
 		else
-			errmsg = "You do not have permission to read the file \"%s\".";
+			errmsg = "You don't have permission to read the file \"%s\".";
 		break;
 
 	case EISDIR:

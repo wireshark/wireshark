@@ -308,7 +308,7 @@ get_natural_int(const char *string, const char *name)
 
   number = strtol(string, &p, 10);
   if (p == string || *p != '\0') {
-    fprintf(stderr, "tethereal: The specified %s \"%s\" is not a decimal number\n",
+    fprintf(stderr, "tethereal: The specified %s \"%s\" isn't a decimal number\n",
 	    name, string);
     exit(1);
   }
@@ -1043,7 +1043,7 @@ main(int argc, char *argv[])
       case 'F':
         out_file_type = wtap_short_string_to_file_type(optarg);
         if (out_file_type < 0) {
-          fprintf(stderr, "tethereal: \"%s\" is not a valid capture file type\n",
+          fprintf(stderr, "tethereal: \"%s\" isn't a valid capture file type\n",
 			optarg);
           exit(1);
         }
@@ -1250,7 +1250,7 @@ main(int argc, char *argv[])
 #ifdef HAVE_PCAP_DATALINK_NAME_TO_VAL
         capture_opts.linktype = pcap_datalink_name_to_val(optarg);
         if (capture_opts.linktype == -1) {
-          fprintf(stderr, "tethereal: The specified data link type \"%s\" is not valid\n",
+          fprintf(stderr, "tethereal: The specified data link type \"%s\" isn't valid\n",
                   optarg);
           exit(1);
         }
@@ -1394,12 +1394,12 @@ main(int argc, char *argv[])
        did the user also specify a capture file to be read? */
     if (cf_name) {
       /* Yes - that's bogus. */
-      fprintf(stderr, "tethereal: You cannot specify -L and a capture file to be read.\n");
+      fprintf(stderr, "tethereal: You can't specify -L and a capture file to be read.\n");
       exit(1);
     }
     /* No - did they specify a ring buffer option? */
     if (capture_opts.ringbuffer_on) {
-      fprintf(stderr, "tethereal: Ring buffer requested, but a capture is not being done.\n");
+      fprintf(stderr, "tethereal: Ring buffer requested, but a capture isn't being done.\n");
       exit(1);
     }
   } else {
@@ -2337,7 +2337,7 @@ load_cap_file(capture_file *cf, int out_file_type)
       case WTAP_ERR_UNSUPPORTED_ENCAP:
       case WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED:
         fprintf(stderr,
-          "tethereal: The capture file being read cannot be written in "
+          "tethereal: The capture file being read can't be written in "
           "that format.\n");
         break;
 
@@ -3093,13 +3093,13 @@ cf_open_error_message(int err, gchar *err_info, gboolean for_writing,
 
     case WTAP_ERR_FILE_UNKNOWN_FORMAT:
       /* Seen only when opening a capture file for reading. */
-      errmsg = "The file \"%s\" is not a capture file in a format Tethereal understands.";
+      errmsg = "The file \"%s\" isn't a capture file in a format Tethereal understands.";
       break;
 
     case WTAP_ERR_UNSUPPORTED:
       /* Seen only when opening a capture file for reading. */
       snprintf(errmsg_errno, sizeof(errmsg_errno),
-               "The file \"%%s\" is not a capture file in a format Tethereal understands.\n"
+               "The file \"%%s\" isn't a capture file in a format Tethereal understands.\n"
                "(%s)", err_info);
       g_free(err_info);
       errmsg = errmsg_errno;
@@ -3108,19 +3108,19 @@ cf_open_error_message(int err, gchar *err_info, gboolean for_writing,
     case WTAP_ERR_CANT_WRITE_TO_PIPE:
       /* Seen only when opening a capture file for writing. */
       snprintf(errmsg_errno, sizeof(errmsg_errno),
-	       "The file \"%%s\" is a pipe, and %s capture files cannot be "
+	       "The file \"%%s\" is a pipe, and %s capture files can't be "
 	       "written to a pipe.", wtap_file_type_string(file_type));
       errmsg = errmsg_errno;
       break;
 
     case WTAP_ERR_UNSUPPORTED_FILE_TYPE:
       /* Seen only when opening a capture file for writing. */
-      errmsg = "Tethereal does not support writing capture files in that format.";
+      errmsg = "Tethereal doesn't support writing capture files in that format.";
       break;
 
     case WTAP_ERR_UNSUPPORTED_ENCAP:
       if (for_writing)
-        errmsg = "Tethereal cannot save this capture in that format.";
+        errmsg = "Tethereal can't save this capture in that format.";
       else {
         snprintf(errmsg_errno, sizeof(errmsg_errno),
                  "The file \"%%s\" is a capture for a network type that Tethereal doesn't support.\n"
@@ -3132,7 +3132,7 @@ cf_open_error_message(int err, gchar *err_info, gboolean for_writing,
 
     case WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED:
       if (for_writing)
-        errmsg = "Tethereal cannot save this capture in that format.";
+        errmsg = "Tethereal can't save this capture in that format.";
       else
         errmsg = "The file \"%s\" is a capture for a network type that Tethereal doesn't support.";
       break;

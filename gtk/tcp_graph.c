@@ -554,7 +554,7 @@ void tcp_graph_cb (GtkWidget *w _U_, gpointer data, guint callback_action /*grap
 		 * nor TCP over IP alone - should display some
 		 * kind of warning dialog */
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-		    "Selected packet is not a TCP segment");
+		    "Selected packet isn't a TCP segment");
 		return;
 	}
 

@@ -1099,13 +1099,13 @@ prefs_main_fetch_all(GtkWidget *dlg, gboolean *must_redissect)
 
     case PREF_UINT:
       simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                    "The value for \"%s\" is not a valid number.",
+                    "The value for \"%s\" isn't a valid number.",
                     badpref->title);
       return FALSE;
 
     case PREF_RANGE:
       simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                    "The value for \"%s\" is not a valid range.",
+                    "The value for \"%s\" isn't a valid range.",
                     badpref->title);
       return FALSE;
 

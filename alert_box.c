@@ -113,7 +113,7 @@ bad_dfilter_alert_box(const char *dftext)
   simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, 
                 "%s%s%s\n"
                 "\n"
-                "The filter expression \"%s\" is not a valid display filter.\n"
+                "The filter expression \"%s\" isn't a valid display filter.\n"
                 "See the help for a description of the display filter syntax.",
                 simple_dialog_primary_start(), dfilter_error_msg,
                 simple_dialog_primary_end(), dftext);

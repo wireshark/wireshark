@@ -109,7 +109,7 @@ protocolinfo_init(char *optarg)
 
 	hfi=proto_registrar_get_byname(field);
 	if(!hfi){
-		fprintf(stderr, "tethereal: Field \"%s\" does not exist.\n", field);
+		fprintf(stderr, "tethereal: Field \"%s\" doesn't exist.\n", field);
 		exit(1);
 	}
 

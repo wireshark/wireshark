@@ -735,7 +735,7 @@ static int capture_loop_init_filter(loop_data *ld, char *errmsg, int errmsg_len)
         g_snprintf(errmsg, errmsg_len,
           "%sInvalid capture filter: \"%s\"!%s\n"
           "\n"
-          "That string looks like a valid display filter; however, it is not a valid\n"
+          "That string looks like a valid display filter; however, it isn't a valid\n"
           "capture filter (%s).\n"
           "\n"
           "Note that display filters and capture filters don't have the same syntax,\n"
@@ -749,7 +749,7 @@ static int capture_loop_init_filter(loop_data *ld, char *errmsg, int errmsg_len)
         g_snprintf(errmsg, errmsg_len,
           "%sInvalid capture filter: \"%s\"!%s\n"
           "\n"
-          "That string is not a valid capture filter (%s).\n"
+          "That string isn't a valid capture filter (%s).\n"
           "See the help for a description of the capture filter syntax.",
           simple_dialog_primary_start(), cfile.cfilter, simple_dialog_primary_end(),
           pcap_geterr(ld->pcap_h));

@@ -1014,7 +1014,7 @@ get_natural_int(const char *string, const char *name)
 
   number = strtol(string, &p, 10);
   if (p == string || *p != '\0') {
-    fprintf(stderr, "ethereal: The specified %s \"%s\" is not a decimal number\n",
+    fprintf(stderr, "ethereal: The specified %s \"%s\" isn't a decimal number\n",
 	    name, string);
     exit(1);
   }
@@ -2088,7 +2088,7 @@ main(int argc, char *argv[])
 #ifdef HAVE_PCAP_DATALINK_NAME_TO_VAL
         capture_opts.linktype = pcap_datalink_name_to_val(optarg);
         if (capture_opts.linktype == -1) {
-          fprintf(stderr, "ethereal: The specified data link type \"%s\" is not valid\n",
+          fprintf(stderr, "ethereal: The specified data link type \"%s\" isn't valid\n",
                   optarg);
           exit(1);
         }
@@ -2192,7 +2192,7 @@ main(int argc, char *argv[])
 #ifdef HAVE_LIBPCAP
   if (start_capture && list_link_layer_types) {
     /* Specifying *both* is bogus. */
-    fprintf(stderr, "ethereal: You cannot specify both -L and a live capture.\n");
+    fprintf(stderr, "ethereal: You can't specify both -L and a live capture.\n");
     exit(1);
   }
 
@@ -2201,12 +2201,12 @@ main(int argc, char *argv[])
        did the user also specify a capture file to be read? */
     if (cf_name) {
       /* Yes - that's bogus. */
-      fprintf(stderr, "ethereal: You cannot specify -L and a capture file to be read.\n");
+      fprintf(stderr, "ethereal: You can't specify -L and a capture file to be read.\n");
       exit(1);
     }
     /* No - did they specify a ring buffer option? */
     if (capture_opts.multi_files_on) {
-      fprintf(stderr, "ethereal: Ring buffer requested, but a capture is not being done.\n");
+      fprintf(stderr, "ethereal: Ring buffer requested, but a capture isn't being done.\n");
       exit(1);
     }
   } else {
@@ -2214,7 +2214,7 @@ main(int argc, char *argv[])
        a capture file to be read? */
     if (start_capture && cf_name) {
       /* Yes - that's bogus. */
-      fprintf(stderr, "ethereal: You cannot specify both a live capture and a capture file to be read.\n");
+      fprintf(stderr, "ethereal: You can't specify both a live capture and a capture file to be read.\n");
       exit(1);
     }
 

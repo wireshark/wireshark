@@ -981,7 +981,7 @@ file_merge_cmd_cb(GtkWidget *widget, gpointer data _U_) {
     /* user didn't saved his current file, ask him */
     dialog = simple_dialog(ESD_TYPE_CONFIRMATION, ESD_BTNS_OK_CANCEL,
                 PRIMARY_TEXT_START "Save the capture file before merging to another one?" PRIMARY_TEXT_END "\n\n"
-                "A temporary capture file cannot be merged.");
+                "A temporary capture file can't be merged.");
     simple_dialog_set_cb(dialog, file_merge_answered_cb, widget);
   } else {
     /* unchanged file, just start to merge */
