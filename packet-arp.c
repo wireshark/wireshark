@@ -1,7 +1,7 @@
 /* packet-arp.c
  * Routines for ARP packet disassembly
  *
- * $Id: packet-arp.c,v 1.56 2003/02/10 21:13:13 guy Exp $
+ * $Id: packet-arp.c,v 1.57 2003/08/17 01:05:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -988,6 +988,8 @@ proto_register_arp(void)
   proto_register_subtree_array(ett, array_length(ett));
 
   atmarp_handle = create_dissector_handle(dissect_atmarp, proto_arp);
+
+  register_dissector( "arp" , dissect_arp, proto_arp );
 }
 
 void
@@ -995,10 +997,12 @@ proto_reg_handoff_arp(void)
 {
   dissector_handle_t arp_handle;
 
-  arp_handle = create_dissector_handle(dissect_arp, proto_arp);
+  arp_handle = find_dissector("arp");
+
   dissector_add("ethertype", ETHERTYPE_ARP, arp_handle);
   dissector_add("ethertype", ETHERTYPE_REVARP, arp_handle);
   dissector_add("arcnet.protocol_id", ARCNET_PROTO_ARP_1051, arp_handle);
   dissector_add("arcnet.protocol_id", ARCNET_PROTO_ARP_1201, arp_handle);
   dissector_add("arcnet.protocol_id", ARCNET_PROTO_RARP_1201, arp_handle);
+
 }

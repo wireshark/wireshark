@@ -1,9 +1,9 @@
 /* packet-artnet.c
  * Routines for ArtNET packet disassembly
  *
- * $Id: packet-artnet.c,v 1.1 2003/04/21 21:28:39 guy Exp $
+ * $Id: packet-artnet.c,v 1.2 2003/08/17 01:05:21 guy Exp $
  *
- * Copyright (c) 2003 by Erwin Rol <erwin@muffin.org>
+ * Copyright (c) 2003 by Erwin Rol <erwin@erwinrol.com>
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

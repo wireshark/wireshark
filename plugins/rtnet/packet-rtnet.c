@@ -1,9 +1,9 @@
 /* packet-rtnet.c
  * Routines for RTnet packet disassembly
  *
- * $Id: packet-rtnet.c,v 1.2 2003/07/16 02:07:18 tpot Exp $
+ * $Id: packet-rtnet.c,v 1.3 2003/08/17 01:05:21 guy Exp $
  *
- * Copyright (c) 2003 by Erwin Rol <erwin@muffin.org>
+ * Copyright (c) 2003 by Erwin Rol <erwin@erwinrol.com>
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -448,7 +448,8 @@ dissect_rtnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
       if (!next_tvb)
         next_tvb = tvb_new_subset(tvb, offset, -1, -1);
 
-      call_dissector(ip_handle, next_tvb, pinfo, tree);
+      if( tree )
+        call_dissector(ip_handle, next_tvb, pinfo, tree);
       
       break;
 
@@ -456,7 +457,8 @@ dissect_rtnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
       if (!next_tvb)
         next_tvb = tvb_new_subset(tvb, offset, -1, -1);
 
-      call_dissector(arp_handle, next_tvb, pinfo, tree);
+      if( tree )
+        call_dissector(arp_handle, next_tvb, pinfo, tree);
 
       break;
 
