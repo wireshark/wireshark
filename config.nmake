@@ -1,7 +1,7 @@
-# $Id: config.nmake,v 1.32 2002/11/01 10:01:21 guy Exp $
+# $Id: config.nmake,v 1.33 2002/12/04 04:26:12 gerald Exp $
 
-VERSION=0.9.7
-RC_VERSION=0.9.7
+VERSION=0.9.8
+RC_VERSION=0.9.8
 WTAP_VERSION=0.0
 
 GTK_VERSION=1.3

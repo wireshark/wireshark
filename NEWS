@@ -1,3 +1,62 @@
+== December ?, 2002
+
+Ethereal 0.9.8 has been released.
+
+
+New Features
+
+- The Windows installer once again includes SNMP support.
+
+- New graphs
+
+- The total running time of the capture is now displayed in the capture
+  progress dialog box.  The capture progress dialog also shows ARP packets.
+
+Bug Fixes and Updates
+
+- Windows "Update list of packets in real time" crash (SA?)
+
+- BGP infinite loop (SA)
+
+- LMP EndVerifyAck message crash (SA)
+
+- The stability of the text2pcap has been improved.
+
+- Net-SNMP linking has been improved.
+
+New Protocols
+
+ARCNET,
+PCLI,
+
+
+
+Updated Protocols
+
+AFP,
+AFS,
+BGP,
+DCERPC,
+DCERPC EPM,
+DCERPC NDR,
+DCERPC UPDATE, 
+HTTP,
+IPv6CP,
+IPX,
+NDPS,
+NDS,
+NFS,
+PPPoE,
+RSVP,
+SCSI,
+SPX,
+SRVLOC,
+WEP,
+YPSERV,
+
+
+
+
 == September 28, 2002
 
 Ethereal 0.9.7 has been released.
