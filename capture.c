@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.45 1999/08/10 20:05:39 guy Exp $
+ * $Id: capture.c,v 1.46 1999/08/10 20:13:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -524,7 +524,7 @@ capture(void) {
     gtk_box_pack_start(GTK_BOX(main_vb), gre_lb, FALSE, FALSE, 3);
     gtk_widget_show(gre_lb);
 
-    netbios_lb = gtk_label_new("NetBEUI/NBF: 0 (0.0%)");
+    netbios_lb = gtk_label_new("NetBIOS: 0 (0.0%)");
     gtk_box_pack_start(GTK_BOX(main_vb), netbios_lb, FALSE, FALSE, 3);
     gtk_widget_show(netbios_lb);
 
@@ -576,7 +576,7 @@ capture(void) {
 	  pct(ld.counts.gre, ld.counts.total));
         gtk_label_set(GTK_LABEL(gre_lb), label_str);
 
-        sprintf(label_str, "NetBEUI/NBF: %d (%.1f%%)", ld.counts.netbios,
+        sprintf(label_str, "NetBIOS: %d (%.1f%%)", ld.counts.netbios,
 	  pct(ld.counts.netbios, ld.counts.total));
         gtk_label_set(GTK_LABEL(netbios_lb), label_str);
 
