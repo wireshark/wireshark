@@ -1,7 +1,7 @@
 /* frame_data.h
  * Definitions for frame_data structures and routines
  *
- * $Id: frame_data.h,v 1.11 2004/01/09 02:57:29 obiot Exp $
+ * $Id: frame_data.h,v 1.12 2004/01/10 13:15:41 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -25,7 +25,6 @@
 #ifndef __FRAME_DATA_H__
 #define __FRAME_DATA_H__
 
-//#include "color.h"
 #include "column_info.h"
 #include "tvbuff.h"
 
