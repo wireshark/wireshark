@@ -1,7 +1,7 @@
 /* packet-icq.c
  * Routines for ICQ packet disassembly
  *
- * $Id: packet-icq.c,v 1.40 2002/02/25 07:56:59 guy Exp $
+ * $Id: packet-icq.c,v 1.41 2002/04/08 20:23:55 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -364,7 +364,7 @@ static const value_string clientCmdCode[] = {
 /*
  * All ICQv5 decryption code thanx to Sebastien Dault (daus01@gel.usherb.ca)
  */
-const u_char
+static const u_char
 table_v5 [] = {
  0x59, 0x60, 0x37, 0x6B, 0x65, 0x62, 0x46, 0x48, 0x53, 0x61, 0x4C, 0x59, 0x60, 0x57, 0x5B, 0x3D,
  0x5E, 0x34, 0x6D, 0x36, 0x50, 0x3F, 0x6F, 0x67, 0x53, 0x61, 0x4C, 0x59, 0x40, 0x47, 0x63, 0x39,

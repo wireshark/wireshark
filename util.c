@@ -1,7 +1,7 @@
 /* util.c
  * Utility routines
  *
- * $Id: util.c,v 1.54 2001/11/09 07:44:48 guy Exp $
+ * $Id: util.c,v 1.55 2002/04/08 20:23:55 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -203,6 +203,7 @@ create_tempfile(char *namebuf, int namebuflen, const char *pfx)
 /* ASCII/EBCDIC conversion tables from
  * http://www.room42.com/store/computer_center/code_tables.shtml
  */
+#if 0
 static guint8 ASCII_translate_EBCDIC [ 256 ] = {
     0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,
     0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
@@ -256,6 +257,7 @@ ASCII_to_EBCDIC1(guint8 c)
 {
 	return ASCII_translate_EBCDIC[c];
 }
+#endif
 
 static guint8 EBCDIC_translate_ASCII [ 256 ] = {
     0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,
