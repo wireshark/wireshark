@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.34 2000/08/11 13:34:44 deniel Exp $
+ * $Id: prefs.c,v 1.35 2000/08/15 20:42:09 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -226,6 +226,25 @@ find_preference(module_t *module, char *name)
 	if (list_entry == NULL)
 		return NULL;	/* no such preference */
 	return (struct preference *) list_entry->data;
+}
+
+/*
+ * Returns TRUE if the given protocol has registered preferences
+ */
+gboolean
+prefs_is_registered_protocol(char *name)
+{
+	return (find_module(name) != NULL);
+}
+
+/*
+ * Returns the module title of a registered protocol
+ */
+char *
+prefs_get_title_by_name(char *name)
+{
+	module_t *m = find_module(name);
+	return  (m) ? m->title : NULL;
 }
 
 /*

@@ -1,7 +1,7 @@
 /* prefs_dlg.h
  * Definitions for preference handling routines
  *
- * $Id: prefs_dlg.h,v 1.4 2000/08/11 13:32:59 deniel Exp $
+ * $Id: prefs_dlg.h,v 1.5 2000/08/15 20:41:59 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -29,5 +29,6 @@
 #include "prefs.h"
 
 void     prefs_cb(GtkWidget *, gpointer);
+void     properties_cb(GtkWidget *, gpointer);
 
 #endif

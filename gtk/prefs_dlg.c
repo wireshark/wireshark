@@ -1,7 +1,7 @@
 /* prefs_dlg.c
  * Routines for handling preferences
  *
- * $Id: prefs_dlg.c,v 1.17 2000/08/11 13:33:05 deniel Exp $
+ * $Id: prefs_dlg.c,v 1.18 2000/08/15 20:41:58 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -73,6 +73,14 @@ static void     prefs_main_destroy_cb(GtkWidget *, gpointer);
 #define E_COLUMN_PAGE_KEY "column_options_page"
 #define E_STREAM_PAGE_KEY "tcp_stream_options_page"
 #define E_GUI_PAGE_KEY	  "gui_options_page"
+
+#define FIRST_PROTO_PREFS_PAGE	4
+
+/* 
+ * Keep a static pointer to the notebook to be able to choose the 
+ * displayed page.
+ */
+static GtkWidget *notebook;
 
 /*
  * Keep a static pointer to the current "Preferences" window, if any, so that
@@ -260,7 +268,7 @@ prefs_cb(GtkWidget *w, gpointer dummy) {
   gtk_container_add(GTK_CONTAINER(main_vb), top_hb);
   gtk_widget_show(top_hb);
   
-  prefs_nb = gtk_notebook_new();
+  notebook = prefs_nb = gtk_notebook_new();
   gtk_container_add(GTK_CONTAINER(main_vb), prefs_nb);
   gtk_widget_show(prefs_nb);
   
@@ -602,4 +610,60 @@ prefs_main_destroy_cb(GtkWidget *win, gpointer user_data)
 
   /* Note that we no longer have a "Preferences" dialog box. */
   prefs_w = NULL;
+}
+
+struct properties_data {
+  GtkWidget *w;
+  int page_num;
+  char *title;
+};
+
+/* XXX this way of searching the correct page number is really ugly ... */
+static void
+module_search_properties(module_t *module, gpointer user_data)
+{
+  struct properties_data *p = (struct properties_data *)user_data;
+
+  if (p->title == NULL) return;
+  if (strcmp(module->title, p->title) == 0) {
+    /* found it */
+    gtk_notebook_set_page(GTK_NOTEBOOK(p->w), p->page_num);
+    p->title = NULL;
+  } else {
+    p->page_num++;
+  }
+}
+
+void
+properties_cb(GtkWidget *w, gpointer dummy) 
+{
+  gchar *title = NULL;
+  struct properties_data p;
+
+  if (finfo_selected) {
+    header_field_info *hfinfo = finfo_selected->hfinfo;
+    if (hfinfo->parent == -1) {
+      title = prefs_get_title_by_name(hfinfo->abbrev);
+    } else {
+      title =
+	prefs_get_title_by_name(proto_registrar_get_abbrev(hfinfo->parent));
+    }
+  } else {
+    return;
+  }
+  
+  if (!title) return;
+  
+  if (prefs_w != NULL) {
+    reactivate_window(prefs_w);
+  } else {
+    prefs_cb(w, dummy);
+  }
+
+  p.w = notebook;
+  p.page_num = FIRST_PROTO_PREFS_PAGE;
+  p.title = title;
+
+  prefs_module_foreach(module_search_properties, &p);
+
 }

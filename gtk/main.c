@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.133 2000/08/11 13:33:06 deniel Exp $
+ * $Id: main.c,v 1.134 2000/08/15 20:46:17 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -483,6 +483,8 @@ tree_view_select_row_cb(GtkCTree *ctree, GList *node, gint column, gpointer user
 
 	finfo_selected = finfo;
 
+	set_menus_for_selected_tree_row(TRUE);
+
 	packet_hex_print(GTK_TEXT(byte_view), cfile.pd, cfile.current_frame->cap_len, 
 		finfo->start, finfo->length, cfile.current_frame->flags.encoding);
 }
@@ -491,6 +493,7 @@ static void
 tree_view_unselect_row_cb(GtkCTree *ctree, GList *node, gint column, gpointer user_data)
 {
 	finfo_selected = NULL;
+	set_menus_for_selected_tree_row(FALSE);
 	packet_hex_print(GTK_TEXT(byte_view), cfile.pd, cfile.current_frame->cap_len, 
 		-1, -1, cfile.current_frame->flags.encoding);
 }

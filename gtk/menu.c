@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.35 2000/08/13 14:03:50 deniel Exp $
+ * $Id: menu.c,v 1.36 2000/08/15 20:41:59 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -158,6 +158,7 @@ static GtkItemFactoryEntry tree_view_menu_items[] =
 {
 	{"/Match Selected", NULL, GTK_MENU_FUNC(match_selected_cb), 0, NULL},
 	{"/Resolve Name", NULL, GTK_MENU_FUNC(resolve_name_cb), 0, NULL},
+	{"/Properties...", NULL, GTK_MENU_FUNC(properties_cb), 0, NULL},
 	{"/Follow TCP Stream", NULL, GTK_MENU_FUNC(follow_stream_cb), 0, NULL},
 	{"/Filters...", NULL, GTK_MENU_FUNC(filter_dialog_cb), 0, NULL},
 	{"/<separator>", NULL, NULL, 0, "<Separator>"},
@@ -345,5 +346,21 @@ set_menus_for_selected_packet(gboolean have_selected_packet)
   set_menu_sensitivity("/Tools/Follow TCP Stream",
       have_selected_packet ? (pi.ipproto == 6) : FALSE);
   set_menu_sensitivity("/Resolve Name", 
-      have_selected_packet && !g_resolving_actif);
+      have_selected_packet && !g_resolving_actif);  
+}
+
+/* Enable or disable menu items based on whether a tree row is selected. */
+void
+set_menus_for_selected_tree_row(gboolean have_selected_tree)
+{
+  gboolean properties = FALSE;
+  if (finfo_selected) {
+	header_field_info *hfinfo = finfo_selected->hfinfo;
+	if (hfinfo->parent == -1) {
+	  properties = prefs_is_registered_protocol(hfinfo->abbrev);
+	} else {
+	  properties = prefs_is_registered_protocol(proto_registrar_get_abbrev(hfinfo->parent));
+	}
+  }
+  set_menu_sensitivity("/Properties...", have_selected_tree && properties);
 }

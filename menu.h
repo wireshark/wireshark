@@ -2,7 +2,7 @@
  * Definitions for menu routines with toolkit-independent APIs but
  * toolkit-dependent implementations.
  *
- * $Id: menu.h,v 1.7 2000/01/03 03:56:55 guy Exp $
+ * $Id: menu.h,v 1.8 2000/08/15 20:42:09 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -51,6 +51,9 @@ void set_menus_for_captured_packets(gboolean);
 
 /* Enable or disable menu items based on whether a packet is selected. */
 void set_menus_for_selected_packet(gboolean);
+
+/* Enable or disable menu items based on whether a tree row is selected. */
+void set_menus_for_selected_tree_row(gboolean);
 
 #ifdef __cplusplus
 }

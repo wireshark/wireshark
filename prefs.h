@@ -1,7 +1,7 @@
 /* prefs.h
  * Definitions for preference handling routines
  *
- * $Id: prefs.h,v 1.17 2000/07/09 03:29:28 guy Exp $
+ * $Id: prefs.h,v 1.18 2000/08/15 20:42:10 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -86,6 +86,16 @@ void prefs_apply_all(void);
 struct preference;
 
 typedef struct preference pref_t;
+
+/*
+ * Returns TRUE if the given protocol has registered preferences
+ */
+gboolean prefs_is_registered_protocol(char *name);
+
+/*
+ * Returns the module title of a registered protocol (or NULL if unknown)
+ */
+char *prefs_get_title_by_name(char *name);
 
 /*
  * Register a preference with an unsigned integral value.
