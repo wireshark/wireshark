@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.182 2002/10/09 22:58:49 jmayer Exp $
+# $Id: configure.in,v 1.183 2002/10/22 20:06:15 jmayer Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -540,6 +540,11 @@ dnl UCD SNMP Check
 SNMP_LIBS=''
 AC_MSG_CHECKING(whether to use UCD SNMP/NET-SNMP library if available)
 
+AC_ARG_WITH(net-snmp,
+[  --with-net-snmp=PATH  use PATH as thee location of the net-snmp-config shell script that comes with the net-snmp package.],
+[netsnmpconfig=$withval]
+)
+
 AC_ARG_WITH(ucdsnmp,
 [  --with-ucdsnmp[=DIR]    use UCD SNMP/NET-SNMP client library (located in directory DIR, if supplied).  [default=yes, if present]],
 [
@@ -562,12 +567,40 @@ AC_ARG_WITH(ucdsnmp,
 	ucdsnmp_dir=
 ])
 
-if test "x$want_ucdsnmp" = "xno" ; then
-	AC_MSG_RESULT(no)
-else
-	AC_MSG_RESULT(yes)
-	AC_ETHEREAL_UCDSNMP_CHECK
+dnl try net-snmp first
+if test "x$netsnmpconfig" != "xno" ; then
+	dnl get the net-snmp-config binary
+	if test "x$netsnmpconfig" = "xyes" -o "x$netsnmpconfig" = "x" ; then
+		dnl search for it
+		AC_PATH_PROG(NETSNMPCONFIG,net-snmp-config)
+	else
+		ac_cv_prog_NETSNMPCONFIG=$netsnmpconfig
+		if test ! -x $ac_cv_prog_NETSNMPCONFIG ; then
+			AC_MSG_ERROR(Invalid net-snmp-config: $ac_cv_prog_NETSNMPCONFIG)
+		fi
+	fi
 fi
+
+if test "x$ac_cv_prog_NETSNMPCONFIG" != "xno" -a "x$ac_cv_prog_NETSNMPCONFIG" != "x" -a -x "$ac_cv_prog_NETSNMPCONFIG" ; then
+	dnl other choices for flags to use here: could also use
+	dnl --prefix or --exec-prefix if you don't want the full list.
+	CFLAGS="$CFLAGS `net-snmp-config --cflags`"
+	CPPFLAGS="$CPPLAGS `net-snmp-config --cflags`"
+	SNMP_LIBS=`net-snmp-config --libs`
+
+	# XXX: make sure we can find net-snmp/net-snmp-config.h
+	# XXX: make sure we can find net-snmp/net-snmp-includes.h
+	AC_DEFINE(HAVE_NET_SNMP)
+	AC_MSG_RESULT(yes (net-snmp))
+else
+	if test "x$want_ucdsnmp" = "xno" ; then
+		AC_MSG_RESULT(no)
+	else
+		AC_MSG_RESULT(yes (ucd-snmp))
+		AC_ETHEREAL_UCDSNMP_CHECK
+	fi
+fi
+
 AC_SUBST(SNMP_LIBS)
 
 dnl Checks for typedefs, structures, and compiler characteristics.
@@ -738,10 +771,12 @@ else
 	zlib_message="yes"
 fi
 
-if test "x$SNMP_LIBS" = "x" ; then
+if test "x$ac_cv_prog_NETSNMPCONFIG" != "xno" -a "x$ac_cv_prog_NETSNMPCONFIG" != "x" -a -x "$ac_cv_prog_NETSNMPCONFIG" ; then
+	snmp_libs_message="yes (net-snmp)"
+elif test "x$SNMP_LIBS" = "x" ; then
 	snmp_libs_message="no"
 else
-	snmp_libs_message="yes"
+	snmp_libs_message="yes (ucd-snmp)"
 fi
 
 echo ""

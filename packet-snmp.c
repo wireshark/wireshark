@@ -6,9 +6,11 @@
  *
  * See RFCs 1901, 1905, and 1906 for SNMPv2c.
  *
- * See RFCs 1905, 1906, 1909, and 1910 for SNMPv2u.
+ * See RFCs 1905, 1906, 1909, and 1910 for SNMPv2u [historic].
  *
- * $Id: packet-snmp.c,v 1.96 2002/08/28 21:00:34 jmayer Exp $
+ * See RFCs 2570-2576 for SNMPv3
+ *
+ * $Id: packet-snmp.c,v 1.97 2002/10/22 20:06:15 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -51,7 +53,12 @@
 #include "etypes.h"
 #include "packet-ipx.h"
 
-#ifdef HAVE_UCD_SNMP
+#if defined(HAVE_UCD_SNMP) || defined(HAVE_NET_SNMP)
+#define HAVE_SOME_SNMP
+#ifdef HAVE_NET_SNMP
+# include <net-snmp/net-snmp-config.h>
+# include <net-snmp/net-snmp-includes.h>
+#else
 # include <ucd-snmp/ucd-snmp-config.h>
 # include <ucd-snmp/asn1.h>
 # include <ucd-snmp/snmp_api.h>
@@ -60,7 +67,12 @@
 # include <ucd-snmp/default_store.h>
 # include <ucd-snmp/read_config.h>
 # include <ucd-snmp/tools.h>
-
+# define netsnmp_ds_set_boolean ds_set_boolean
+# define netsnmp_ds_set_int ds_set_int
+# define NETSNMP_DS_LIBRARY_ID DS_LIBRARY_ID
+# define NETSNMP_DS_LIB_NO_TOKEN_WARNINGS DS_LIB_NO_TOKEN_WARNINGS
+# define NETSNMP_DS_LIB_PRINT_SUFFIX_ONLY DS_LIB_PRINT_SUFFIX_ONLY
+#endif
    /*
     * Define values "sprint_realloc_value()" expects.
     */
@@ -441,7 +453,7 @@ format_oid(subid_t *oid, guint oid_length)
 	int len;
 	unsigned int i;
 	char *buf;
-#ifdef HAVE_UCD_SNMP
+#ifdef HAVE_SOME_SNMP
 	guchar *oid_string;
 	size_t oid_string_len;
 	size_t oid_out_len;
@@ -449,7 +461,7 @@ format_oid(subid_t *oid, guint oid_length)
 
 	result_len = oid_length * 22;
 
-#ifdef HAVE_UCD_SNMP
+#ifdef HAVE_SOME_SNMP
 	/*
 	 * Get the decoded form of the OID, and add its length to the
 	 * length of the result string.
@@ -474,7 +486,7 @@ format_oid(subid_t *oid, guint oid_length)
 		buf += len;
 	}
 
-#ifdef HAVE_UCD_SNMP
+#ifdef HAVE_SOME_SNMP
 	/*
 	 * Append the decoded form of the OID.
 	 */
@@ -485,7 +497,7 @@ format_oid(subid_t *oid, guint oid_length)
 	return result;
 }
 
-#ifdef HAVE_UCD_SNMP
+#ifdef HAVE_SOME_SNMP
 static guchar *
 check_var_length(guint vb_length, guint required_length)
 {
@@ -598,12 +610,12 @@ format_var(struct variable_list *variable, subid_t *variable_oid,
 static int
 snmp_variable_decode(proto_tree *snmp_tree,
     subid_t *variable_oid
-#ifndef HAVE_UCD_SNMP
+#ifndef HAVE_SOME_SNMP
 	_U_
 #endif
     ,
     guint variable_oid_length
-#ifndef HAVE_UCD_SNMP
+#ifndef HAVE_SOME_SNMP
 	_U_
 #endif
     ,
@@ -628,14 +640,14 @@ snmp_variable_decode(proto_tree *snmp_tree,
 
 	gchar *vb_display_string;
 
-#ifdef HAVE_UCD_SNMP
+#ifdef HAVE_SOME_SNMP
 	struct variable_list variable;
 	long value;
-#else /* HAVE_UCD_SNMP */
+#else /* HAVE_SOME_SNMP */
 	unsigned int i;
 	gchar *buf;
 	int len;
-#endif	/* HAVE_UCD_SNMP */
+#endif	/* HAVE_SOME_SNMP */
 
 	/* parse the type of the object */
 	start = asn1->offset;
@@ -666,7 +678,7 @@ snmp_variable_decode(proto_tree *snmp_tree,
 			return ret;
 		length = asn1->offset - start;
 		if (snmp_tree) {
-#ifdef HAVE_UCD_SNMP
+#ifdef HAVE_SOME_SNMP
 			value = vb_integer_value;
 			variable.val.integer = &value;
 			vb_display_string = format_var(&variable,
@@ -676,12 +688,12 @@ snmp_variable_decode(proto_tree *snmp_tree,
 			    length,
 			    "Value: %s", vb_display_string);
 			free(vb_display_string);
-#else /* HAVE_UCD_SNMP */
+#else /* HAVE_SOME_SNMP */
 			proto_tree_add_text(snmp_tree, asn1->tvb, offset,
 			    length,
 			    "Value: %s: %d (%#x)", vb_type_name,
 			    vb_integer_value, vb_integer_value);
-#endif /* HAVE_UCD_SNMP */
+#endif /* HAVE_SOME_SNMP */
 		}
 		break;
 
@@ -694,7 +706,7 @@ snmp_variable_decode(proto_tree *snmp_tree,
 			return ret;
 		length = asn1->offset - start;
 		if (snmp_tree) {
-#ifdef HAVE_UCD_SNMP
+#ifdef HAVE_SOME_SNMP
 			value = vb_uinteger_value;
 			variable.val.integer = &value;
 			vb_display_string = format_var(&variable,
@@ -704,12 +716,12 @@ snmp_variable_decode(proto_tree *snmp_tree,
 			    length,
 			    "Value: %s", vb_display_string);
 			free(vb_display_string);
-#else /* HAVE_UCD_SNMP */
+#else /* HAVE_SOME_SNMP */
 			proto_tree_add_text(snmp_tree, asn1->tvb, offset,
 			    length,
 			    "Value: %s: %u (%#x)", vb_type_name,
 			    vb_uinteger_value, vb_uinteger_value);
-#endif /* HAVE_UCD_SNMP */
+#endif /* HAVE_SOME_SNMP */
 		}
 		break;
 
@@ -725,7 +737,7 @@ snmp_variable_decode(proto_tree *snmp_tree,
 			return ret;
 		length = asn1->offset - start;
 		if (snmp_tree) {
-#ifdef HAVE_UCD_SNMP
+#ifdef HAVE_SOME_SNMP
 			variable.val.string = vb_octet_string;
 			vb_display_string = format_var(&variable,
 			    variable_oid, variable_oid_length, vb_type,
@@ -734,7 +746,7 @@ snmp_variable_decode(proto_tree *snmp_tree,
 			    length,
 			    "Value: %s", vb_display_string);
 			free(vb_display_string);
-#else /* HAVE_UCD_SNMP */
+#else /* HAVE_SOME_SNMP */
 			/*
 			 * If some characters are not printable, display
 			 * the string as bytes.
@@ -771,7 +783,7 @@ snmp_variable_decode(proto_tree *snmp_tree,
 				    (int)vb_length,
 				    SAFE_STRING(vb_octet_string));
 			}
-#endif /* HAVE_UCD_SNMP */
+#endif /* HAVE_SOME_SNMP */
 		}
 		g_free(vb_octet_string);
 		break;
@@ -794,7 +806,7 @@ snmp_variable_decode(proto_tree *snmp_tree,
 			return ret;
 		length = asn1->offset - start;
 		if (snmp_tree) {
-#ifdef HAVE_UCD_SNMP
+#ifdef HAVE_SOME_SNMP
 			variable.val.objid = vb_oid;
 			vb_display_string = format_var(&variable,
 			    variable_oid, variable_oid_length, vb_type,
@@ -803,13 +815,13 @@ snmp_variable_decode(proto_tree *snmp_tree,
 			    length,
 			    "Value: %s", vb_display_string);
 			free(vb_display_string);
-#else /* HAVE_UCD_SNMP */
+#else /* HAVE_SOME_SNMP */
 			vb_display_string = format_oid(vb_oid, vb_oid_length);
 			proto_tree_add_text(snmp_tree, asn1->tvb, offset,
 			    length,
 			    "Value: %s: %s", vb_type_name, vb_display_string);
 			g_free(vb_display_string);
-#endif /* HAVE_UCD_SNMP */
+#endif /* HAVE_SOME_SNMP */
 		}
 		g_free(vb_oid);
 		break;
@@ -2013,7 +2025,7 @@ proto_register_snmp(void)
 		&ett_secur,
 	};
 
-#ifdef HAVE_UCD_SNMP
+#ifdef HAVE_SOME_SNMP
 	/*
 	 * Suppress warnings about unknown tokens - we aren't initializing
 	 * UCD SNMP in its entirety, we're just initializing the
@@ -2022,13 +2034,15 @@ proto_register_snmp(void)
 	 * pars of the library will not be handled, and we don't want
 	 * the config file reading code to whine about that.
 	 */
-	ds_set_boolean(DS_LIBRARY_ID, DS_LIB_NO_TOKEN_WARNINGS, TRUE);
-	ds_set_int(DS_LIBRARY_ID, DS_LIB_PRINT_SUFFIX_ONLY, 2);
+	netsnmp_ds_set_boolean(NETSNMP_DS_LIBRARY_ID,
+                               NETSNMP_DS_LIB_NO_TOKEN_WARNINGS, TRUE);
+	netsnmp_ds_set_int(NETSNMP_DS_LIBRARY_ID,
+                           NETSNMP_DS_LIB_PRINT_SUFFIX_ONLY, 2);
 	register_mib_handlers();
 	read_premib_configs();
 	init_mib();
 	read_configs();
-#endif /* HAVE_UCD_SNMP */
+#endif /* HAVE_SOME_SNMP */
         proto_snmp = proto_register_protocol("Simple Network Management Protocol",
 	    "SNMP", "snmp");
         proto_smux = proto_register_protocol("SNMP Multiplex Protocol",

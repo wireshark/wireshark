@@ -469,8 +469,9 @@ Phil Techau <phil_t[AT]altavista.net> {
 	Additional NTP reference clock identifiers
 }
 
-Wes Hardaker <wjhardaker[AT]ucdavis.edu> {
+Wes Hardaker <hardaker[AT]users.sourceforge.net> {
 	Kerberos 5 support
+	occasional ucd-snmp/net-snmp help.
 }
 
 Robert Tsai <rtsai[AT]netapp.com> {

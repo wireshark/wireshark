@@ -1,7 +1,7 @@
 /* acconfig.h
  * #ifdefs to be controlled by "configure"
  *
- * $Id: acconfig.h,v 1.25 2002/08/28 21:00:05 jmayer Exp $
+ * $Id: acconfig.h,v 1.26 2002/10/22 20:06:15 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.org>
@@ -43,6 +43,8 @@
 #undef HAVE_PCAP_VERSION
 
 #undef HAVE_LIBZ
+
+#undef HAVE_NET_SNMP
 
 #undef HAVE_UCD_SNMP
 
