@@ -438,6 +438,10 @@ Johan Jorgensen <johan.jorgensen@axis.com> {
 	IEEE 802.11 support
 }
 
+Frank Singleton <frank.singleton@ericsson.com> {
+	Short integer CDR support for GIOP
+}
+
 Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 

@@ -4,7 +4,7 @@
  * Laurent Deniel <deniel@worldnet.fr>
  * Craig Rodrigues <rodrigc@mediaone.net>
  *
- * $Id: packet-giop.c,v 1.23 2000/11/12 03:11:24 guy Exp $
+ * $Id: packet-giop.c,v 1.24 2000/11/15 20:10:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -332,7 +332,7 @@ get_CDR_ushort(tvbuff_t *tvb, int *offset, gboolean stream_is_big_endian)
 {
   guint16 val;
 
-  /* unsigned long values must be aligned on a 4 byte boundary */
+  /* unsigned short values must be aligned on a 2 byte boundary */
   while( ( (*offset + GIOP_HEADER_SIZE) % 2) != 0)
 	  ++(*offset);
 
@@ -342,6 +342,34 @@ get_CDR_ushort(tvbuff_t *tvb, int *offset, gboolean stream_is_big_endian)
   *offset += 2; 
   return val; 
 }
+
+
+/* Copy a 2 octet sequence from the tvbuff 
+ * which represents a signed short value, and convert
+ * it to a signed short value, taking into account byte order.
+ * offset is first incremented so that it falls on a proper alignment
+ * boundary for unsigned short values.
+ * offset is then incremented by 2, to indicate the 2 octets which
+ * have been processed.
+ */
+
+gint16
+get_CDR_short(tvbuff_t *tvb, int *offset, gboolean stream_is_big_endian)
+{
+  gint16 val;
+
+  /* short values must be aligned on a 2 byte boundary */
+  while( ( (*offset + GIOP_HEADER_SIZE) % 2) != 0)
+	  ++(*offset);
+
+  val = (stream_is_big_endian) ? tvb_get_ntohs (tvb, *offset) :
+                                 tvb_get_letohs (tvb, *offset);
+
+  *offset += 2; 
+  return val; 
+}
+
+
 
 /* Copy a sequence of octets from the tvbuff.
  * Caller of this function must remember to free the 
