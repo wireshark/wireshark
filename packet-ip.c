@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.202 2004/02/18 06:43:00 guy Exp $
+ * $Id: packet-ip.c,v 1.203 2004/04/19 23:36:46 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -932,7 +932,9 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     tf = proto_tree_add_uint(ip_tree, hf_ip_flags, tvb, offset + 6, 1, flags);
     field_tree = proto_item_add_subtree(tf, ett_ip_off);
     proto_tree_add_boolean(field_tree, hf_ip_flags_rf, tvb, offset + 6, 1, flags);
+    if (flags & (IP_DF>>12)) proto_item_append_text(tf, " (Don't Fragment)");
     proto_tree_add_boolean(field_tree, hf_ip_flags_df, tvb, offset + 6, 1, flags);
+    if (flags & (IP_MF>>12)) proto_item_append_text(tf, " (More Fragments)");
     proto_tree_add_boolean(field_tree, hf_ip_flags_mf, tvb, offset + 6, 1, flags);
 
     proto_tree_add_uint(ip_tree, hf_ip_frag_offset, tvb, offset + 6, 2,
