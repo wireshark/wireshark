@@ -2,7 +2,7 @@
  * Routines for dsi packet dissection
  * Copyright 2001, Randy McEoin <rmceoin@pe.com>
  *
- * $Id: packet-dsi.c,v 1.27 2003/12/08 20:36:59 guy Exp $
+ * $Id: packet-dsi.c,v 1.28 2004/01/06 02:20:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -341,9 +341,8 @@ dissect_dsi_reply_get_status(tvbuff_t *tvb, proto_tree *tree, gint offset)
 		ofs++;
 		sub_tree = proto_item_add_subtree(ti, ett_dsi_vers);
 		for (i = 0; i < nbe; i++) {
-			len = tvb_get_guint8(tvb, ofs) +1;
-			proto_tree_add_item(sub_tree, hf_dsi_server_vers, tvb, ofs, 1, FALSE);
-			ofs += len;
+			ti = proto_tree_add_item(sub_tree, hf_dsi_server_vers, tvb, ofs, 1, FALSE);
+			ofs += ti->finfo->length;
 		}
 	}
 
@@ -354,9 +353,8 @@ dissect_dsi_reply_get_status(tvbuff_t *tvb, proto_tree *tree, gint offset)
 		ofs++;
 		sub_tree = proto_item_add_subtree(ti, ett_dsi_uams);
 		for (i = 0; i < nbe; i++) {
-			len = tvb_get_guint8(tvb, ofs) +1;
-			proto_tree_add_item(sub_tree, hf_dsi_server_uams, tvb, ofs, 1, FALSE);
-			ofs += len;
+			ti = proto_tree_add_item(sub_tree, hf_dsi_server_uams, tvb, ofs, 1, FALSE);
+			ofs += ti->finfo->length;
 		}
 	}
 
@@ -440,30 +438,24 @@ dissect_dsi_reply_get_status(tvbuff_t *tvb, proto_tree *tree, gint offset)
 		ofs++;
 		sub_tree = proto_item_add_subtree(ti, ett_dsi_directory);
 		for (i = 0; i < nbe; i++) {
-			len = tvb_get_guint8(tvb, ofs) +1;
-			proto_tree_add_item(sub_tree, hf_dsi_server_directory, tvb, ofs, 1, FALSE);
-			ofs += len;
+			ti = proto_tree_add_item(sub_tree, hf_dsi_server_directory, tvb, ofs, 1, FALSE);
+			ofs += ti->finfo->length;
 		}
 	}
 	if (utf_ofs) {
 		guint16 ulen;
-		char *tmp = NULL;
+		char *tmp;
 
 		ofs = utf_ofs;
 		ulen = tvb_get_ntohs(tvb, ofs);
-		if(ulen) {
-			tmp = g_malloc( ulen);
-			tvb_memcpy(tvb, tmp, ofs +2, ulen);
-			tmp[ulen] = 0;
-		}
-		ti = proto_tree_add_text(tree, tvb, ofs, ulen +2, "UTF8 server name: %s", (tmp)?tmp:"");
-		if (tmp) {
-			g_free(tmp);
-		}
+		tmp = tvb_get_string(tvb, ofs + 2, ulen);
+		ti = proto_tree_add_text(tree, tvb, ofs, ulen + 2, "UTF8 server name: %s", tmp);
 		sub_tree = proto_item_add_subtree(ti, ett_dsi_utf8_name);
-		proto_tree_add_item( sub_tree, hf_dsi_utf8_server_name_len, tvb, ofs, 2,FALSE);
+		proto_tree_add_uint(sub_tree, hf_dsi_utf8_server_name_len, tvb, ofs, 2, ulen);
 		ofs += 2;
-		proto_tree_add_item(sub_tree, hf_dsi_utf8_server_name, tvb, ofs, ulen,FALSE);
+		proto_tree_add_string(sub_tree, hf_dsi_utf8_server_name, tvb, ofs, ulen, tmp);
+		ofs += ulen;
+		g_free(tmp);
 	}
 
 	return offset;

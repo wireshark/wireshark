@@ -2,7 +2,7 @@
  * Routines for AppleTalk packet disassembly: LLAP, DDP, NBP, ATP, ASP,
  * RTMP.
  *
- * $Id: packet-atalk.c,v 1.92 2004/01/05 19:31:43 ulfl Exp $
+ * $Id: packet-atalk.c,v 1.93 2004/01/06 02:20:32 guy Exp $
  *
  * Simon Wilkinson <sxw@dcs.ed.ac.uk>
  *
@@ -253,6 +253,7 @@ static gint ett_asp_vers   = -1;
 static gint ett_asp_addr   = -1;
 static gint ett_asp_addr_line = -1;
 static gint ett_asp_directory = -1;
+static gint ett_asp_utf8_name = -1;
 static gint ett_asp_status_server_flag = -1;
 
 static guint asp_packet_init_count = 200;
@@ -886,6 +887,8 @@ dissect_atp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
 /*
 	copy and paste from dsi
+	XXX - is the format of this reply dependent on the type of server,
+	with this format being the format for AFP servers?
 */
 static gint
 dissect_asp_reply_get_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
@@ -983,9 +986,8 @@ dissect_asp_reply_get_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 		ofs++;
 		sub_tree = proto_item_add_subtree(ti, ett_asp_vers);
 		for (i = 0; i < nbe; i++) {
-			len = tvb_get_guint8(tvb, ofs) +1;
-			proto_tree_add_item(sub_tree, hf_asp_server_vers, tvb, ofs, 1, FALSE);
-			ofs += len;
+			ti = proto_tree_add_item(sub_tree, hf_asp_server_vers, tvb, ofs, 1, FALSE);
+			ofs += ti->finfo->length;
 		}
 	}
 
@@ -996,9 +998,8 @@ dissect_asp_reply_get_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 		ofs++;
 		sub_tree = proto_item_add_subtree(ti, ett_asp_uams);
 		for (i = 0; i < nbe; i++) {
-			len = tvb_get_guint8(tvb, ofs) +1;
-			proto_tree_add_item(sub_tree, hf_asp_server_uams, tvb, ofs, 1, FALSE);
-			ofs += len;
+			ti = proto_tree_add_item(sub_tree, hf_asp_server_uams, tvb, ofs, 1, FALSE);
+			ofs += ti->finfo->length;
 		}
 	}
 
@@ -1082,18 +1083,24 @@ dissect_asp_reply_get_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 		ofs++;
 		sub_tree = proto_item_add_subtree(ti, ett_asp_directory);
 		for (i = 0; i < nbe; i++) {
-			len = tvb_get_guint8(tvb, ofs) +1;
-			proto_tree_add_item(sub_tree, hf_asp_server_directory, tvb, ofs, 1, FALSE);
-			ofs += len;
+			ti = proto_tree_add_item(sub_tree, hf_asp_server_directory, tvb, ofs, 1, FALSE);
+			ofs += ti->finfo->length;
 		}
 	}
 	if (utf_ofs) {
+		guint16 ulen;
+		char *tmp;
+
 		ofs = utf_ofs;
-		len  = (guint8) tvb_get_ntohs(tvb, ofs);
-		proto_tree_add_item(tree, hf_asp_server_utf8_name_len, tvb, ofs, 2, FALSE);
+		ulen = tvb_get_ntohs(tvb, ofs);
+		tmp = tvb_get_string(tvb, ofs + 2, ulen);
+		ti = proto_tree_add_text(tree, tvb, ofs, ulen +2, "UTF8 server name: %s", tmp);
+		sub_tree = proto_item_add_subtree(ti, ett_asp_utf8_name);
+		proto_tree_add_uint(sub_tree, hf_asp_server_utf8_name_len, tvb, ofs, 2, ulen);
 		ofs += 2;		
-		proto_tree_add_item(tree, hf_asp_server_utf8_name, tvb, ofs, len, FALSE);
-		ofs += len;
+		proto_tree_add_string(sub_tree, hf_asp_server_utf8_name, tvb, ofs, ulen, tmp);
+		ofs += ulen;
+		g_free(tmp);
 	}
 	/* FIXME: offset is not updated */
 	return offset;
