@@ -1,33 +1,14 @@
-$Id: README.linux,v 1.2 1999/12/29 21:33:06 gerald Exp $
+$Id: README.linux,v 1.3 2000/01/14 08:18:58 guy Exp $
 
-The standard libpcap compiled for Linux has a timeout problem.
-If you use Ethereal with this libpcap on a not-so-busy network, at
-times you will see that the Ethereal GUI freezes. It will freeze until
-one more packet is received.
+The standard libpcap compiled for Linux has a timeout problem; it
+doesn't support the timeout argument to "pcap_open_live()".
 
-As of version 0.4 of libpcap this problem still exists. This is the
-version of libpcap that comes with the standard Linux distributions.
-If the freezing really annoys you, you can apply a patch to the libpcap
-source code.
+The current version of Ethereal attempts to work around this, so its GUI
+shouldn't freeze when capturing on a not-so-busy network.  If its GUI
+does freeze when that happens, please send a note about this, indicating
+which version of which distribution of Linux you're using, and which
+version of libpcap you're using, to ethereal-dev@zing.org.
 
-Libpcap can be obtained from ftp://ftp.ee.lbl.gov
-
-You can download the Linux patch at http://ethereal.zing.org/~gerald/
-
-Modified RedHat 6.0 and 6.1 libpcap RPMs are available at
-ftp://ethereal.zing.org/pub/ethereal/rpms
-
-
-To illustrate the problem, below is the output of strace on Ethereal
-using a stock version of libpcap, followed by a "fixed" version.
-Note that in the "fixed" version select() is called before recvfrom().
-The use of select() allows the packet capture to time out if there is
-no incoming data.
-
-30677 08:30:30 poll([{fd=4, events=POLLIN}, {fd=5, events=POLLIN}], 2, 0) = 0
-30677 08:30:30 recvfrom(8, "\0\20{\357;\333\10\0 }\200\302\10\0E\0\0(\22\23@\0\377"..., 65535, 0x20, {sa_family=17, sa_data="\10\0\0\0\0\2\0\1\3\6\10\0 }"}, [20]) = 60
-
-30914 09:05:48 poll([{fd=4, events=POLLIN}, {fd=5, events=POLLIN}], 2, 0) = 0
-30914 09:05:48 select(9, [8], NULL, NULL, {0, 250000}) = 1 (in [8], left {0, 250000})
-30914 09:05:48 recvfrom(8, "\10\0 }\200\302\0\20{\357;\333\10\0E\10\5\334-\323@\0\363"..., 65535, 0x20, {sa_family=17, sa_data="\10\0\0\0\0\2\0\1\3\6\0\20{\357"}, [20]) = 1514
-
+The current version of Ethereal should work with versions of libpcap
+that have been patched to fix the timeout problem, as well as working
+with unpatched versions.
