@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.94 2002/12/31 08:08:19 guy Exp $
+ * $Id: packet-dcerpc.c,v 1.95 2003/01/06 11:27:00 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -37,6 +37,7 @@
 #include "prefs.h"
 #include "reassemble.h"
 #include "tap.h"
+#include "packet-ntlmssp.h"
 
 static int dcerpc_tap = -1;
 
@@ -1418,9 +1419,29 @@ dcerpc_try_handoff (packet_info *pinfo, proto_tree *tree,
 		/* NTLMSSP */
 		tvbuff_t *ntlmssp_tvb;
 		ntlmssp_tvb = tvb_new_subset(tvb, offset, length, length);
-	    
+		pinfo->decrypted_data=NULL;
+
 		call_dissector(ntlmssp_enc_payload_handle, ntlmssp_tvb, pinfo,
 			       sub_tree);
+
+		if(pinfo->decrypted_data){
+			ntlmssp_decrypted_info_t *ndi=pinfo->decrypted_data;
+
+	
+		        sub_dissect = info->request ? proc->dissect_rqst : proc->dissect_resp;
+        		if (sub_dissect) {
+        		    saved_proto = pinfo->current_proto;
+        		    saved_private_data = pinfo->private_data;
+        		    pinfo->current_proto = sub_proto->name;
+        		    pinfo->private_data = (void *)info;
+
+        		    init_ndr_pointer_list(pinfo);
+        		    offset = sub_dissect (ndi->decr_tvb, 0, pinfo, ndi->decr_tree, drep);
+
+        		    pinfo->current_proto = saved_proto;
+        		    pinfo->private_data = saved_private_data;
+        		}
+		    }
 		break;
 	        }
 	    }

@@ -2,7 +2,7 @@
  * Routines for NTLM Secure Service Provider
  * Devin Heitmueller <dheitmueller@netilla.com>
  *
- * $Id: packet-ntlmssp.c,v 1.33 2002/12/31 08:05:29 guy Exp $
+ * $Id: packet-ntlmssp.c,v 1.34 2003/01/06 11:27:00 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -38,6 +38,7 @@
 #include "crypt-rc4.h"
 #include "crypt-md4.h"
 #include "crypt-des.h"
+#include "packet-ntlmssp.h"
 
 /* Message types */
 
@@ -173,6 +174,7 @@ static gint ett_ntlmssp_negotiate_flags = -1;
 static gint ett_ntlmssp_string = -1;
 static gint ett_ntlmssp_blob = -1;
 static gint ett_ntlmssp_address_list = -1;
+static gint ett_ntlmssp_decrypted_tree = -1;
 
 /* Configuration variables */
 static char *nt_password = NULL;
@@ -1148,6 +1150,7 @@ dissect_ntlmssp_verf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   return offset;
 }
 
+
 static int
 dissect_ntlmssp_encrypted_payload(tvbuff_t *tvb, 
 				  packet_info *pinfo, proto_tree *tree)
@@ -1161,6 +1164,8 @@ dissect_ntlmssp_encrypted_payload(tvbuff_t *tvb,
   rc4_state_struct *rc4_state_peer;
   ntlmssp_info *conv_ntlmssp_info = NULL;
   ntlmssp_packet_info *packet_ntlmssp_info = NULL;
+  proto_item *it;
+  static ntlmssp_decrypted_info_t ndi;
 
   encrypted_block_length = tvb_length_remaining (tvb, offset);
 
@@ -1235,12 +1240,13 @@ dissect_ntlmssp_encrypted_payload(tvbuff_t *tvb,
 		      "Decrypted NTLMSSP block");
   
   /* Show the decrypted payload in the tree */
-  if (tree) {
-    proto_tree_add_text(tree, decr_tvb, 0, -1,
+  it=proto_tree_add_text(tree, decr_tvb, 0, -1,
 			"Decrypted stub data (%d byte%s)",
 			encrypted_block_length, 
 			plurality(encrypted_block_length, "", "s"));
-  }
+  ndi.decr_tree=proto_item_add_subtree(it, ett_ntlmssp_decrypted_tree);
+  ndi.decr_tvb=decr_tvb;    
+  pinfo->decrypted_data=&ndi;
 
   offset += encrypted_block_length;
   return offset;
@@ -1419,7 +1425,8 @@ proto_register_ntlmssp(void)
     &ett_ntlmssp_negotiate_flags,
     &ett_ntlmssp_string,
     &ett_ntlmssp_blob,
-    &ett_ntlmssp_address_list
+    &ett_ntlmssp_address_list,
+    &ett_ntlmssp_decrypted_tree
   };
   module_t *ntlmssp_module;
   
