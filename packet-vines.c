@@ -1,7 +1,7 @@
 /* packet-vines.c
  * Routines for Banyan VINES protocol packet disassembly
  *
- * $Id: packet-vines.c,v 1.8 1999/10/22 08:30:03 guy Exp $
+ * $Id: packet-vines.c,v 1.9 1999/10/22 08:51:04 guy Exp $
  *
  * Don Lafontaine <lafont02@cn.ca>
  *
@@ -100,7 +100,7 @@ dissect_vines_frp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 gchar *
 vines_addr_to_str(const guint8 *addrp)
 {
-  static gchar	str[3][22];
+  static gchar	str[3][214];
   static gchar	*cur;
 
   if (cur == &str[0][0]) {
