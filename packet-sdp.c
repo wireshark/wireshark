@@ -4,7 +4,7 @@
  * Jason Lango <jal@netapp.com>
  * Liberally copied from packet-http.c, by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-sdp.c,v 1.31 2002/08/02 23:36:00 jmayer Exp $
+ * $Id: packet-sdp.c,v 1.32 2002/08/19 12:57:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -55,7 +55,6 @@ static int hf_repeat_time = -1;
 static int hf_media = -1;
 static int hf_media_title = -1;
 static int hf_unknown = -1;
-static int hf_misplaced = -1;
 static int hf_invalid = -1;
 
 /* hf_owner subfields*/
@@ -146,7 +145,7 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	gint		offset = 0;
 	gint		next_offset;
 	int		linelen;
-	guchar		section;
+	gboolean        in_media_description;
 	guchar		type;
 	guchar          delim;
 	int		datalen;
@@ -185,7 +184,7 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/*
 	 * Show the SDP message a line at a time.
 	 */
-	section = 0;
+	in_media_description = FALSE;
 	while (tvb_offset_exists(tvb, offset)) {
 		/*
 		 * Find the end of the line.
@@ -214,7 +213,6 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		switch (type) {
 		case 'v':
 		        hf = hf_protocol_version;
-			section = 'v';
 			break;
 		case 'o':
 		        hf = hf_owner;
@@ -223,14 +221,11 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		        hf = hf_session_name;
 			break;
 		case 'i':
-		        if (section == 'v'){
-			        hf = hf_session_info;
-			}
-			else if (section == 'm'){
+		        if (in_media_description) {
 			        hf = hf_media_title;
 			}
 			else{
-			        hf = hf_misplaced;
+			        hf = hf_session_info;
 			}
 			break;
 		case 'u':
@@ -250,27 +245,23 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			break;
 		case 't':
 		        hf = hf_time;
-			section = 't';
 			break;
 		case 'r':
 		        hf = hf_repeat_time;
 			break;
 		case 'm':
 		        hf = hf_media;
-			section = 'm';
+			in_media_description = TRUE;
 			break;
 		case 'k':
 		        hf = hf_encryption_key;
 			break;
 		case 'a':
-		        if (section == 'v'){
-			        hf = hf_session_attribute; 
-			}
-			else if (section == 'm'){
+		        if (in_media_description) {
 			        hf = hf_media_attribute;
 			}
 			else{
-			        hf = hf_misplaced;
+			        hf = hf_session_attribute; 
 			}
 			break;
 		case 'z':
@@ -281,7 +272,7 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			break;
 		}
 		tokenoffset = 2;
-		if( hf == hf_unknown || hf == hf_misplaced )
+		if( hf == hf_unknown )
 		  tokenoffset = 0;
 		string = g_malloc(linelen - tokenoffset + 1);
 		CLEANUP_PUSH(g_free, string);
@@ -833,10 +824,6 @@ proto_register_sdp(void)
       { "Unknown",
 	"sdp.unknown",FT_STRING, BASE_NONE, NULL, 0x0,
 	"Unknown", HFILL }},
-    { &hf_misplaced,
-      { "Misplaced",
-	"sdp.misplaced",FT_STRING, BASE_NONE, NULL, 0x0,
-	"Misplaced", HFILL }},
     { &hf_invalid,
       { "Invalid line",
 	"sdp.invalid",FT_STRING, BASE_NONE, NULL, 0x0,
