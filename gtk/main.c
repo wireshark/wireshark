@@ -30,10 +30,6 @@
 # include "config.h"
 #endif
 
-#ifdef HAVE_LIBPCAP
-#include <pcap.h>
-#endif
-
 #include <gtk/gtk.h>
 
 #include <string.h>
@@ -91,14 +87,18 @@
 #include "util.h"
 #include "clopts_common.h"
 #include "version_info.h"
-#include "capture.h"
 #include "merge.h"
+
 #ifdef HAVE_LIBPCAP
+#include <pcap.h>
 #include "pcap-util.h"
+#include "capture.h"
 #endif
+
 #ifdef _WIN32
 #include "capture-wpcap.h"
 #endif
+
 #if GTK_MAJOR_VERSION < 2 && GTK_MINOR_VERSION < 3
 #include "ethclist.h"
 #endif

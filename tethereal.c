@@ -86,9 +86,6 @@
 #include "util.h"
 #include "clopts_common.h"
 #include "version_info.h"
-#ifdef HAVE_LIBPCAP
-#include "pcap-util.h"
-#endif
 #include <epan/conversation.h>
 #include <epan/plugins.h>
 #include "register.h"
@@ -101,6 +98,8 @@
 #include <epan/timestamp.h>
 
 #ifdef HAVE_LIBPCAP
+#include <pcap.h>
+#include "pcap-util.h"
 #include <wiretap/wtap-capture.h>
 #include <wiretap/libpcap.h>
 #ifdef _WIN32

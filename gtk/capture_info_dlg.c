@@ -37,7 +37,7 @@
 #include <time.h>
 
 #include <epan/packet.h>
-#include "../capture.h"
+#include "capture.h"
 #include "globals.h"
 #include "capture_ui_utils.h"
 #include "dlg_utils.h"

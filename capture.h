@@ -22,14 +22,14 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+/* This file should only be included if libpcap is present */
+
 #ifndef __CAPTURE_H__
 #define __CAPTURE_H__
 
 /** @file
  *  Capture related things.
  */
-
-#ifdef HAVE_LIBPCAP
 
 /** Name we give to the child process when doing a "-S" capture. */
 #define	CHILD_NAME	"ethereal-capture"
@@ -155,7 +155,5 @@ capture_info    *cinfo);
 extern void capture_info_destroy(
 capture_info    *cinfo);
 
-
-#endif /* HAVE_LIBPCAP */
 
 #endif /* capture.h */
