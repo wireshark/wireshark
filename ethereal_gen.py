@@ -216,7 +216,7 @@ class ethereal_gen_C:
 
         self.gen_proto_register()
         self.gen_proto_reg_handoff(oplist)
-        self.gen_plugin_init()
+        self.gen_plugin_register()
 
         #self.dumpvars()                 # debug
         
@@ -1450,8 +1450,8 @@ class ethereal_gen_C:
     # generate code for plugin initialisation
     #
 
-    def gen_plugin_init(self):
-        self.st.out(self.template_plugin_init, description=self.description, protocol_name=self.protoname, dissector_name=self.dissname)
+    def gen_plugin_register(self):
+        self.st.out(self.template_plugin_register, description=self.description, protocol_name=self.protoname, dissector_name=self.dissname)
 
     #
     # generate  register_giop_user_module code, and register only
@@ -1705,21 +1705,16 @@ static guint32  boundary = GIOP_HEADER_SIZE;  /* initial value */
 """
 
     #
-    # plugin_init and plugin_reg_handoff templates
+    # plugin_register and plugin_reg_handoff templates
     #
 
-    template_plugin_init = """
+    template_plugin_register = """
 
-#ifndef __ETHEREAL_STATIC__
+#ifndef ENABLE_STATIC
 
 G_MODULE_EXPORT void
-plugin_register(plugin_address_table_t *pat
-#ifndef PLUGINS_NEED_ADDRESS_TABLE
-_U_
-#endif
-){
-   /* initialise the table of pointers needed in Win32 DLLs */
-   plugin_address_table_init(pat);
+plugin_register(void)
+{
    if (proto_@dissector_name@ == -1) {
      proto_register_giop_@dissector_name@();
    }
@@ -2181,8 +2176,6 @@ for (i_@aname@=0; i_@aname@ < @aval@; i_@aname@++) {
 # include "config.h"
 #endif
 
-#include "plugins/plugin_api.h"
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <gmodule.h>
@@ -2197,9 +2190,7 @@ for (i_@aname@=0; i_@aname@ < @aval@; i_@aname@++) {
 #include <epan/proto.h>
 #include "packet-giop.h"
 
-#include "plugins/plugin_api_defs.h"
-
-#ifndef __ETHEREAL_STATIC__
+#ifndef ENABLE_STATIC
 G_MODULE_EXPORT const gchar version[] = "0.0.1";
 #endif
 
