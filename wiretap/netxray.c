@@ -528,7 +528,9 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 		 *
 		 * For now, we assume that to be true for 802.11 captures
 		 * as well; it appears to be the case for at least one
-		 * such capture.
+		 * such capture - the file doesn't have 0x34 and 0x12,
+		 * and the 4 bytes at the end of the frames with 0xff
+		 * are junk, not an FCS.
 		 *
 		 * For ISDN captures, it appears, at least in some
 		 * captures, to be similar, although I haven't yet
@@ -536,16 +538,41 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 		 *
 		 * XXX - should we do this for all encapsulation types?
 		 *
-		 * XXX - is that actually a 2-byte little-endian 0x1234?
-		 * What does that field signify?
-		 *
 		 * XXX - is there some other field that *really* indicates
 		 * whether we have an FCS or not?  The check of the time
 		 * stamp is bizarre, as we're checking the middle.
 		 * Perhaps hdr.realtick[0] is 0x00, in which case time
 		 * stamp units in the range 1192960 through 1193215
 		 * correspond to captures with an FCS, but that's still
-		 * a bit bizarre.
+		 * a bit bizarre.  Note that there are captures with
+		 * a network type of 0 (Ethernet) and capture type
+		 * of 0 (NDIS) that do, and that don't, have 0x34 0x12
+		 * in them, so it's not as if NDIS captures always lack
+		 * FCSes - although the question then is whether any
+		 * NDIS captures with 0x34 0x12 have frames with an FCS;
+		 * if not, then it might be that no NDIS captures have
+		 * FCSes.
+		 *
+		 * There are also captures with a network type of 4 (WAN),
+		 * capture type of 6 (HDLC), and subtype of 2 (T1 PRI) that
+		 * do, and that don't, have 0x34 0x12, so there are at least
+		 * some captures taken with a pod that might lack an FCS.
+		 *
+		 * All captures I've seen that have 0x34 and 0x12 *and*
+		 * have at least one frame with an FCS have a value of
+		 * 0x01 in xxb[4].  No captures I've seen with a network
+		 * type of 0 (Ethernet) missing 0x34 0x12 have 0x01 there,
+		 * however.  However, there's at least one capture
+		 * without 0x34 and 0x12, with a network type of 0,
+		 * and with 0x01 in xxb[4], *without* FCSes in the
+		 * frames - the 4 bytes at the end are all zero - so it's
+		 * not as simple as "xxb[4] = 0x01 means the 4 bytes at
+		 * the end are FCSes".  Also, there's also at least one
+		 * 802.11 capture with an xxb[4] value of 0x01 with junk
+		 * rather than an FCS at the end of the frame.
+		 *
+		 * There don't seem to be any other values in xxb or xxc
+		 * that obviously correspond to frames having an FCS.
 		 */
 		if (version_major == 2) {
 			if (hdr.realtick[1] == 0x34 && hdr.realtick[2] == 0x12)
