@@ -1,6 +1,6 @@
 /* netxray.c
  *
- * $Id: netxray.c,v 1.16 1999/10/05 07:06:06 guy Exp $
+ * $Id: netxray.c,v 1.17 1999/12/14 01:12:59 nneul Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -89,6 +89,9 @@ struct netxrayrec_2_x_hdr {
 };
 
 static int netxray_read(wtap *wth, int *err);
+static gboolean netxray_dump_1_1(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
+	const u_char *pd, int *err);
+static gboolean netxray_dump_close_1_1(wtap_dumper *wdh, int *err);
 
 int netxray_open(wtap *wth, int *err)
 {
@@ -289,3 +292,147 @@ reread:
 
 	return data_offset;
 }
+
+static const int wtap_encap[] = {
+    -1,		/* WTAP_ENCAP_UNKNOWN -> unsupported */
+    0,		/* WTAP_ENCAP_ETHERNET */
+    -1,		/* WTAP_ENCAP_TR */
+    -1,		/* WTAP_ENCAP_SLIP -> unsupported */
+    -1,		/* WTAP_ENCAP_PPP -> Internetwork analyzer (synchronous) FIXME ! */
+    -1,		/* WTAP_ENCAP_FDDI -> unsupported */
+    -1,		/* WTAP_ENCAP_FDDI_BITSWAPPED */
+    -1,		/* WTAP_ENCAP_RAW_IP -> unsupported */
+    -1,		/* WTAP_ENCAP_ARCNET */
+    -1,		/* WTAP_ENCAP_ATM_RFC1483 */
+    -1,		/* WTAP_ENCAP_LINUX_ATM_CLIP */
+    -1,		/* WTAP_ENCAP_LAPB -> Internetwork analyzer (synchronous) */
+    -1,		/* WTAP_ENCAP_ATM_SNIFFER */
+    -1		/* WTAP_ENCAP_NULL -> unsupported */
+};
+#define NUM_WTAP_ENCAPS (sizeof wtap_encap / sizeof wtap_encap[0])
+
+/* Returns 0 if we could write the specified encapsulation type,
+   an error indication otherwise. */
+int netxray_dump_can_write_encap(int filetype, int encap)
+{
+    /* Per-packet encapsulations aren't supported. */
+    if (encap == WTAP_ENCAP_PER_PACKET)
+	return WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED;
+
+    if (encap < 0 || encap >= NUM_WTAP_ENCAPS || wtap_encap[encap] == -1)
+	return WTAP_ERR_UNSUPPORTED_ENCAP;
+
+    return 0;
+}
+
+/* Returns TRUE on success, FALSE on failure; sets "*err" to an error code on
+   failure */
+gboolean netxray_dump_open_1_1(wtap_dumper *wdh, int *err)
+{
+    int nwritten;
+
+    /* This is a sniffer file */
+    wdh->subtype_write = netxray_dump_1_1;
+    wdh->subtype_close = netxray_dump_close_1_1;
+
+    wdh->private.netxray = g_malloc(sizeof(netxray_dump_t));
+    wdh->private.netxray->first_frame = TRUE;
+    wdh->private.netxray->start = 0;
+
+    /* Write the file header. */
+    nwritten = fwrite(netxray_magic, 1, sizeof netxray_magic, wdh->fh);
+    if (nwritten != sizeof netxray_magic) {
+	if (nwritten < 0)
+	    *err = errno;
+	else
+	    *err = WTAP_ERR_SHORT_WRITE;
+	return FALSE;
+    }
+
+    return TRUE;
+}
+
+/* Write a record for a packet to a dump file.
+   Returns TRUE on success, FALSE on failure. */
+static gboolean netxray_dump_1_1(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
+    const u_char *pd, int *err)
+{
+	char hdr_buf[CAPTUREFILE_HEADER_SIZE - sizeof(netxray_magic)];
+    netxray_dump_t *priv = wdh->private.netxray;
+    struct netxrayrec_1_x_hdr rec_hdr;
+    int nwritten;
+    struct netxray_hdr file_hdr;
+	guint16 caplen, pktlen;
+
+    /* Sniffer files have a capture start date in the file header, and
+       have times relative to the beginning of that day in the packet
+       headers; pick the date of the first packet as the capture start
+       date. */
+    if (priv->first_frame) {
+	priv->first_frame=FALSE;
+
+	/* "sniffer" version ? */
+	memset(&file_hdr, '\0', sizeof file_hdr);
+	memcpy(file_hdr.version, vers_1_1, sizeof vers_1_1);
+	file_hdr.start_time = 0;
+	file_hdr.start_offset = CAPTUREFILE_HEADER_SIZE;
+	file_hdr.end_offset = 0;
+	file_hdr.network = wtap_encap[wdh->encap];
+
+	/* the time stuff is all muck to me, someone fill it in please */
+
+	file_hdr.timelo = 0;
+	file_hdr.timehi = 0;
+
+	memset(hdr_buf, '\0', sizeof hdr_buf);
+	memcpy(hdr_buf, &file_hdr, sizeof(file_hdr));
+
+	nwritten = fwrite(hdr_buf, 1, sizeof hdr_buf, wdh->fh);
+	if (nwritten != sizeof hdr_buf) {
+	    if (nwritten < 0)
+		*err = errno;
+	    else
+		*err = WTAP_ERR_SHORT_WRITE;
+	    return FALSE;
+	}
+    }
+
+	/* build the header for each packet */
+	memset(&rec_hdr, '\0', sizeof(rec_hdr));
+	rec_hdr.timelo = 0;
+	rec_hdr.timehi = 0;
+	pktlen = phdr->len;
+	caplen = phdr->caplen;
+	rec_hdr.orig_len = pletohs(&pktlen);
+	rec_hdr.incl_len = pletohs(&caplen);
+	
+    nwritten = fwrite(&rec_hdr, 1, sizeof(rec_hdr), wdh->fh);
+    if (nwritten != sizeof(rec_hdr)) {
+	if (nwritten < 0)
+	    *err = errno;
+	else
+	    *err = WTAP_ERR_SHORT_WRITE;
+	return FALSE;
+    }
+
+	/* write the packet data */	
+    nwritten = fwrite(pd, 1, phdr->caplen, wdh->fh);
+    if (nwritten != phdr->caplen) {
+	if (nwritten < 0)
+	    *err = errno;
+	else
+	    *err = WTAP_ERR_SHORT_WRITE;
+	return FALSE;
+    }
+	
+    return TRUE;
+}
+
+
+/* Finish writing to a dump file.
+   Returns TRUE on success, FALSE on failure. */
+static gboolean netxray_dump_close_1_1(wtap_dumper *wdh, int *err)
+{
+    return TRUE;
+}
+
