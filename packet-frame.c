@@ -2,7 +2,7 @@
  *
  * Top-most dissector. Decides dissector based on Wiretap Encapsulation Type.
  *
- * $Id: packet-frame.c,v 1.16 2001/12/24 17:06:53 gerald Exp $
+ * $Id: packet-frame.c,v 1.17 2002/01/08 07:17:55 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -158,9 +158,9 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 	CATCH(ReportedBoundsError) {
 		if (check_col(pinfo->cinfo, COL_INFO))
-			col_append_str(pinfo->cinfo, COL_INFO, "[Malformed Frame]");
+			col_append_str(pinfo->cinfo, COL_INFO, "[Malformed Packet]");
 		proto_tree_add_protocol_format(tree, proto_malformed, tvb, 0, 0,
-				"[Malformed Frame: %s]", pinfo->current_proto );
+				"[Malformed Packet: %s]", pinfo->current_proto );
 	}
 	ENDTRY;
 }
@@ -222,10 +222,10 @@ proto_register_frame(void)
 	proto_set_cant_disable(proto_frame);
 
 	proto_short = proto_register_protocol("Short Frame", "Short frame", "short");
-	proto_malformed = proto_register_protocol("Malformed Frame",
-	    "Malformed frame", "malformed");
+	proto_malformed = proto_register_protocol("Malformed Packet",
+	    "Malformed packet", "malformed");
 
-	/* "Short Frame" and "Malformed Frame" aren't really protocols,
+	/* "Short Frame" and "Malformed Packet" aren't really protocols,
 	   they're error indications; disabling them makes no sense. */
 	proto_set_cant_disable(proto_short);
 	proto_set_cant_disable(proto_malformed);
