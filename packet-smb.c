@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.346 2003/06/06 02:05:38 tpot Exp $
+ * $Id: packet-smb.c,v 1.347 2003/06/06 02:09:35 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -370,7 +370,7 @@ static int hf_smb_nt_notify_file_name = -1;
 static int hf_smb_root_dir_fid = -1;
 static int hf_smb_nt_create_disposition = -1;
 static int hf_smb_sd_length = -1;
-static int hf_smb_ea_length = -1;
+static int hf_smb_ea_list_length = -1;
 static int hf_smb_ea_flags = -1;
 static int hf_smb_ea_name_length = -1;
 static int hf_smb_ea_data_length = -1;
@@ -7998,7 +7998,7 @@ dissect_nt_trans_param_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pr
 
 		/* ea length */
 		ntd->ea_len = tvb_get_letohl(tvb, offset);
-		proto_tree_add_uint(tree, hf_smb_ea_length, tvb, offset, 4, ntd->ea_len);
+		proto_tree_add_uint(tree, hf_smb_ea_list_length, tvb, offset, 4, ntd->ea_len);
 		COUNT_BYTES(4);
 
 		/* file name len */
@@ -10648,7 +10648,7 @@ dissect_4_2_14_1(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
 	/* ea length */
 	CHECK_BYTE_COUNT_SUBR(4);
-	proto_tree_add_item(tree, hf_smb_ea_length, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_smb_ea_list_length, tvb, offset, 4, TRUE);
 	COUNT_BYTES_SUBR(4);
 
 	*trunc = FALSE;
@@ -10667,7 +10667,7 @@ dissect_4_2_14_2(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 	/* EA size */
 
 	CHECK_BYTE_COUNT_SUBR(4);
-	proto_tree_add_item(tree, hf_smb_ea_length, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_smb_ea_list_length, tvb, offset, 4, TRUE);
 	COUNT_BYTES_SUBR(4);
 
 	while (*bcp > 0) {
@@ -10836,7 +10836,7 @@ dissect_4_2_14_6(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 {
 	/* ea length */
 	CHECK_BYTE_COUNT_SUBR(4);
-	proto_tree_add_item(tree, hf_smb_ea_length, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_smb_ea_list_length, tvb, offset, 4, TRUE);
 	COUNT_BYTES_SUBR(4);
 
 	*trunc = FALSE;
@@ -11994,7 +11994,7 @@ dissect_4_3_4_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 
 	/* ea length */
 	CHECK_BYTE_COUNT_SUBR(4);
-	proto_tree_add_item(tree, hf_smb_ea_length, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_smb_ea_list_length, tvb, offset, 4, TRUE);
 	COUNT_BYTES_SUBR(4);
 
 	/* file name len */
@@ -12220,7 +12220,7 @@ dissect_4_3_4_5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 
 	/* ea length */
 	CHECK_BYTE_COUNT_SUBR(4);
-	proto_tree_add_item(tree, hf_smb_ea_length, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_smb_ea_list_length, tvb, offset, 4, TRUE);
 	COUNT_BYTES_SUBR(4);
 
 	/* file name */
@@ -12339,7 +12339,7 @@ dissect_4_3_4_6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 
 	/* ea length */
 	CHECK_BYTE_COUNT_SUBR(4);
-	proto_tree_add_item(tree, hf_smb_ea_length, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_smb_ea_list_length, tvb, offset, 4, TRUE);
 	COUNT_BYTES_SUBR(4);
 
 	/* short file name len */
@@ -13178,7 +13178,7 @@ dissect_transaction2_response_parameters(tvbuff_t *tvb, packet_info *pinfo, prot
 		offset += 2;
 
 		/* ea length */
-		proto_tree_add_item(tree, hf_smb_ea_length, tvb, offset, 4, TRUE);
+		proto_tree_add_item(tree, hf_smb_ea_list_length, tvb, offset, 4, TRUE);
 		offset += 4;
 
 		break;
@@ -17307,9 +17307,9 @@ proto_register_smb(void)
 		{ "SD Length", "smb.sd.length", FT_UINT32, BASE_DEC,
 		NULL, 0, "Total length of security descriptor", HFILL }},
 
-	{ &hf_smb_ea_length,
-		{ "EA Length", "smb.ea.length", FT_UINT32, BASE_DEC,
-		NULL, 0, "Total EA length for opened file", HFILL }},
+	{ &hf_smb_ea_list_length,
+		{ "EA List Length", "smb.ea.list_length", FT_UINT32, BASE_DEC,
+		NULL, 0, "Total length of extended attributes", HFILL }},
 
 	{ &hf_smb_ea_flags,
 		{ "EA Flags", "smb.ea.flags", FT_UINT8, BASE_HEX,
