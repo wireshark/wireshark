@@ -2,7 +2,7 @@
  * Routines for H.225 packet dissection
  * 2003  Ronnie Sahlberg
  *
- * $Id: packet-h225.c,v 1.8 2003/08/26 21:44:35 sahlberg Exp $
+ * $Id: packet-h225.c,v 1.9 2003/08/28 14:29:41 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -423,7 +423,6 @@ static int hf_h225_FacilityUUIE = -1;
 static int hf_h225_alternativeAliasAddress = -1;
 static int hf_h225_AdmissionReject = -1;
 static int hf_h225_hopCount = -1;
-static int hf_h225_parallelH245Control_item = -1;
 static int hf_h225_parallelH245Control = -1;
 static int hf_h225_language = -1;
 static int hf_h225_languages = -1;
@@ -474,7 +473,6 @@ static int hf_h225_H323_UU_PDU = -1;
 static int hf_h225_h4501SupplementaryService_item = -1;
 static int hf_h225_h4501SupplementaryService = -1;
 static int hf_h225_h245Tunneling = -1;
-static int hf_h225_h245Control_item = -1;
 static int hf_h225_h245Control = -1;
 static int hf_h225_nonStandardControl = -1;
 static int hf_h225_preGrantedARQ = -1;
@@ -766,6 +764,7 @@ static gint ett_h225_user_data = -1;
 /*bbb*/
 
 static dissector_handle_t h245_handle=NULL;
+static dissector_handle_t h245dg_handle=NULL;
 
 static guint32  ipv4_address;
 static guint32  ipv4_port;
@@ -6607,7 +6606,23 @@ dissect_h225_hopCount(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 static int
 dissect_h225_parallelH245Control_item(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_octet_string(tvb, offset, pinfo, tree, hf_h225_parallelH245Control_item, -1, -1, NULL, NULL);
+	tvbuff_t *h245_tvb;
+	guint32 h245_offset=0;
+	guint32 h245_len=0;
+
+	offset=dissect_per_octet_string(tvb, offset, pinfo, tree, -1, -1, -1, &h245_offset, &h245_len);
+
+	if(h245_len){
+		gboolean save_info;
+
+		/* dont update the INFO or PROTOCOL fields of the summary */
+		save_info=col_get_writable(pinfo->cinfo);
+		col_set_writable(pinfo->cinfo, FALSE);
+		h245_tvb = tvb_new_subset(tvb, h245_offset, h245_len, h245_len);
+		call_dissector(h245dg_handle, h245_tvb, pinfo, tree);
+		col_set_writable(pinfo->cinfo, save_info);
+	}
+
 	return offset;
 }
 
@@ -7614,7 +7629,23 @@ dissect_h225_h245Tunneling(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_
 static int
 dissect_h225_h245Control_item(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_octet_string(tvb, offset, pinfo, tree, hf_h225_h245Control_item, -1, -1, NULL, NULL);
+	tvbuff_t *h245_tvb;
+	guint32 h245_offset=0;
+	guint32 h245_len=0;
+
+	offset=dissect_per_octet_string(tvb, offset, pinfo, tree, -1, -1, -1, &h245_offset, &h245_len);
+
+	if(h245_len){
+		gboolean save_info;
+
+		/* dont update the INFO or PROTOCOL fields of the summary */
+		save_info=col_get_writable(pinfo->cinfo);
+		col_set_writable(pinfo->cinfo, FALSE);
+		h245_tvb = tvb_new_subset(tvb, h245_offset, h245_len, h245_len);
+		call_dissector(h245dg_handle, h245_tvb, pinfo, tree);
+		col_set_writable(pinfo->cinfo, save_info);
+	}
+
 	return offset;
 }
 
@@ -9302,9 +9333,6 @@ proto_register_h225(void)
 	{ &hf_h225_hopCount,
 		{ "hopCount", "h225.hopCount", FT_UINT32, BASE_DEC,
 		NULL, 0, "hopCount", HFILL }},
-	{ &hf_h225_parallelH245Control_item,
-		{ "parallelH245Control_item", "h225.parallelH245Control_item", FT_BYTES, BASE_HEX,
-		NULL, 0, "parallelH245Control_item octet string", HFILL }},
 	{ &hf_h225_parallelH245Control,
 		{ "parallelH245Control", "h225.parallelH245Control", FT_NONE, BASE_NONE,
 		NULL, 0, "parallelH245Control sequence of", HFILL }},
@@ -9455,9 +9483,6 @@ proto_register_h225(void)
 	{ &hf_h225_h245Tunneling,
 		{ "h245Tunneling", "h225.h245Tunneling", FT_BOOLEAN, 8,
 		TFS(&tfs_h245Tunneling_bit), 0x01, "h245Tunneling boolean", HFILL }},
-	{ &hf_h225_h245Control_item,
-		{ "h245Control_item", "h225.h245Control_item", FT_BYTES, BASE_HEX,
-		NULL, 0, "h245Control_item octet string", HFILL }},
 	{ &hf_h225_h245Control,
 		{ "h245Control", "h225.h245Control", FT_NONE, BASE_NONE,
 		NULL, 0, "h245Control sequence of", HFILL }},
@@ -9823,6 +9848,7 @@ proto_reg_handoff_h225(void)
 	H323UserInformation_handle=create_dissector_handle(dissect_h225_H323UserInformation, proto_h225);
 
 	h245_handle = find_dissector("h245");
+	h245dg_handle = find_dissector("h245dg");
 
 	dissector_add("udp.port", UDP_PORT_RAS1, h225ras_handle);
 	dissector_add("udp.port", UDP_PORT_RAS2, h225ras_handle);
