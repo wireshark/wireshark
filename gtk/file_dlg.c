@@ -1,7 +1,7 @@
 /* file_dlg.c
  * Dialog boxes for handling files
  *
- * $Id: file_dlg.c,v 1.15 1999/12/10 06:28:18 guy Exp $
+ * $Id: file_dlg.c,v 1.16 2000/01/01 04:28:45 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -129,6 +129,23 @@ file_open_ok_cb(GtkWidget *w, GtkFileSelection *fs) {
     return;
   }
 
+  /* Perhaps the user specified a directory instead of a file.
+   * See if we can chdir to it. */
+  if (chdir(cf_name) == 0) {
+	int	cf_name_len;
+
+	g_free(last_open_dir);
+
+	/* Append a slash, even if not needed */
+	cf_name_len = strlen(cf_name);
+	last_open_dir = g_malloc(cf_name_len + 2);
+	strcpy(last_open_dir, cf_name);
+	strcat(last_open_dir, "/");
+	g_free(cf_name);
+    	gtk_file_selection_set_filename(GTK_FILE_SELECTION(fs), last_open_dir);
+    	return;
+  }
+
   /* Try to open the capture file. */
   if ((err = open_cap_file(cf_name, FALSE, &cf)) != 0) {
     /* We couldn't open it; don't dismiss the open dialog box,
@@ -137,6 +154,7 @@ file_open_ok_cb(GtkWidget *w, GtkFileSelection *fs) {
        try again. */
     if (rfcode != NULL)
       dfilter_destroy(rfcode);
+    g_free(cf_name);
     return;
   }
 
