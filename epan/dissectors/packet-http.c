@@ -1198,7 +1198,7 @@ is_http_request_or_reply(const gchar *data, int linelen, http_type_t *type,
 			if (strncmp(data, "BDELETE", index) == 0 ||
 			    strncmp(data, "CONNECT", index) == 0 ||
 			    strncmp(data, "OPTIONS", index) == 0 ||
-				strncmp(data, "CHECKIN", index) == 0) {  /* RFC 3253 4.4, 9.4 */
+			    strncmp(data, "CHECKIN", index) == 0) {  /* RFC 3253 4.4, 9.4 */
 				*type = HTTP_REQUEST;
 				isHttpRequestOrReply = TRUE;
 			}
@@ -1206,7 +1206,8 @@ is_http_request_or_reply(const gchar *data, int linelen, http_type_t *type,
 
 		case 8:
 			if (strncmp(data, "PROPFIND", index) == 0 ||
-				strncmp(data, "CHECKOUT", index) == 0) {  /* RFC 3253 4.3, 9.3 */
+			    strncmp(data, "CHECKOUT", index) == 0 || /* RFC 3253 4.3, 9.3 */
+			    strncmp(data, "CCM_POST", index) == 0) {
 				*type = HTTP_REQUEST;
 				isHttpRequestOrReply = TRUE;
 			}
