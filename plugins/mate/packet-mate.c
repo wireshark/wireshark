@@ -278,13 +278,17 @@ proto_reg_handoff_mate(void)
 		
 		if (!mc) { 
 			mc = mate_make_config((char*)pref_mate_config_filename,proto_mate);
-			current_mate_config_filename = pref_mate_config_filename;
+			
 			if (mc) {
 				/* XXX: alignment warnings, what do they mean? */
 				proto_register_field_array(proto_mate, (hf_register_info*) mc->hfrs->data, mc->hfrs->len );
 				proto_register_subtree_array((gint**) mc->ett->data, mc->ett->len);
 				register_init_routine(init_mate);
+				if (current_mate_config_filename == NULL) initialize_mate_runtime();
 			}
+			
+			current_mate_config_filename = pref_mate_config_filename;
+
 		}
 	}
 }
