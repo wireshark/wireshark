@@ -44,7 +44,7 @@ dissect_udpencap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   tvbuff_t *next_tvb;
   proto_tree *udpencap_tree = NULL;
-  proto_item *ti;
+  proto_item *ti = NULL;
   guint32 spi;
 
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
@@ -65,9 +65,16 @@ dissect_udpencap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* SPI of zero indicates IKE traffic, otherwise it's ESP */
     tvb_memcpy(tvb, (guint8 *)&spi, 0, sizeof(spi));
     if (spi == 0) {
+      if (tree) {
+	proto_tree_add_text(udpencap_tree, tvb, 0, sizeof(spi),
+		"Non-ESP Marker");
+	proto_item_set_len(ti, sizeof(spi));
+      }
       next_tvb = tvb_new_subset(tvb, sizeof(spi), -1, -1);
       call_dissector(isakmp_handle, next_tvb, pinfo, tree);
     } else {
+      if (tree)
+	proto_item_set_len(ti, 0);
       call_dissector(esp_handle, tvb, pinfo, tree);
     }
   }
