@@ -1,7 +1,7 @@
 /* util.c
  * Utility routines
  *
- * $Id: util.c,v 1.31 2000/01/29 16:41:15 gram Exp $
+ * $Id: util.c,v 1.32 2000/01/29 19:06:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -53,6 +53,10 @@
 #  include <varargs.h>
 # endif
 # include "snprintf.h"
+#endif
+
+#ifndef WIN32
+#include <pwd.h>
 #endif
 
 #ifdef NEED_MKSTEMP
@@ -574,15 +578,16 @@ free_interface_list(GList *if_list)
 	}
 }
 
+#endif /* HAVE_LIBPCAP */
+
 const char*
 get_home_dir(void)
 {
 	char *env_value;
 	static const char *home = NULL;
-#ifdef WIN32
-	static const char *default_home = "C:";
-#else
-	static const char *default_home = "/tmp";
+#ifndef
+	uid_t uid;
+	struct passwd *pwd;
 #endif
 
 	/* Return the cached value, if available */
@@ -595,12 +600,23 @@ get_home_dir(void)
 		home = env_value;
 	}
 	else {
-		home = default_home;
+#ifdef WIN32
+		/* XXX - on NT, get the user name and append it to
+		   "C:\winnt\profiles\"?
+		   What about Windows 9x? */
+		home = "C:"
+#else
+		uid = getuid();
+		pwd = getpwuid(uid);
+		if (pwd != NULL) {
+			/* This is cached, so we don't need to worry
+			   about allocating multiple ones of them. */
+			home = g_strdup(pwd->pw_dir);
+		}
+		else
+			home = "/tmp";
+#endif
 	}
 
 	return home;
 }
-
-
-
-#endif /* HAVE_LIBPCAP */
