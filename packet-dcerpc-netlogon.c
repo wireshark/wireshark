@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *  2002 structure and command dissectors by Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-netlogon.c,v 1.29 2002/07/02 14:41:51 sahlberg Exp $
+ * $Id: packet-dcerpc-netlogon.c,v 1.30 2002/07/05 08:59:31 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -142,6 +142,7 @@ static int hf_netlogon_logon_attempts = -1;
 static int hf_netlogon_authoritative = -1;
 static int hf_netlogon_secure_channel_type = -1;
 static int hf_netlogon_logonsrv_handle = -1;
+static int hf_netlogon_delta_type = -1;
 
 static gint ett_dcerpc_netlogon = -1;
 static gint ett_NETLOGON_SECURITY_DESCRIPTOR = -1;
@@ -1902,9 +1903,8 @@ netlogon_dissect_NETLOGON_SAM_ACCOUNT_INFO(tvbuff_t *tvb, int offset,
 		tree = proto_item_add_subtree(item, ett_NETLOGON_SAM_ACCOUNT_INFO);
 	}
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		dissect_ndr_nt_UNICODE_STRING_str, NDR_POINTER_UNIQUE,
-		"User Name", hf_netlogon_acct_name, 0);
+	offset = dissect_ndr_nt_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
+		hf_netlogon_acct_name, 0);
 
 	offset = dissect_ndr_nt_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
 		hf_netlogon_full_name, 0);
@@ -3609,7 +3609,7 @@ netlogon_dissect_TYPE_20(tvbuff_t *tvb, int offset,
 		break;
 	case 5:
 		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			netlogon_dissect_NETLOGON_SAM_ACCOUNT_INFO, NDR_POINTER_PTR,
+			netlogon_dissect_NETLOGON_SAM_ACCOUNT_INFO, NDR_POINTER_UNIQUE,
 			"NETLOGON_SAM_ACCOUNT_INFO pointer:", -1, 0);
 		break;
 	case 7:
@@ -3693,6 +3693,9 @@ netlogon_dissect_SAM_DELTA(tvbuff_t *tvb, int offset,
 		tree = proto_item_add_subtree(item, ett_SAM_DELTA);
 	}
 
+	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep,
+		hf_netlogon_delta_type, NULL);
+
 	offset = netlogon_dissect_TYPE_19(tvb, offset,
 		pinfo, tree, drep);
 
@@ -3734,21 +3737,9 @@ netlogon_dissect_SAM_DELTA_ARRAY(tvbuff_t *tvb, int offset,
 
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 		netlogon_dissect_SAM_DELTA_array, NDR_POINTER_UNIQUE,
-		"unknown", -1, 0);
+		"DELTA_ENUM: deltas", -1, 0);
 
 	proto_item_set_len(item, offset-old_offset);
-	return offset;
-}
-
-static int
-netlogon_dissect_SAM_DELTA_ARRAY_ptr(tvbuff_t *tvb, int offset,
-			packet_info *pinfo, proto_tree *tree,
-			char *drep)
-{
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		netlogon_dissect_SAM_DELTA_ARRAY, NDR_POINTER_PTR,
-		"SAM_DELTA_ARRAY pointer: deltas", -1, 0);
-
 	return offset;
 }
 
@@ -3919,8 +3910,8 @@ netlogon_dissect_netsamdeltas_reply(tvbuff_t *tvb, int offset,
 		"TYPE_16 pointer: dom_mod_count", -1, 0);
 
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		netlogon_dissect_SAM_DELTA_ARRAY_ptr, NDR_POINTER_REF,
-		"SAM_DELTA_ARRAY_ptr pointer: deltas", -1, 0);
+		netlogon_dissect_SAM_DELTA_ARRAY, NDR_POINTER_UNIQUE,
+		"SAM_DELTA_ARRAY: deltas", -1, 0);
 
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
 				  hf_netlogon_rc, NULL);
@@ -3972,8 +3963,8 @@ netlogon_dissect_netlogondatabasesync_reply(tvbuff_t *tvb, int offset,
 		"ULONG pointer: unknown_ULONG", hf_netlogon_unknown_long, 0);
 
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		netlogon_dissect_SAM_DELTA_ARRAY_ptr, NDR_POINTER_REF,
-		"SAM_DELTA_ARRAY* pointer: unknown_SAM_DELTA_ARRAY", -1, 0);
+		netlogon_dissect_SAM_DELTA_ARRAY, NDR_POINTER_UNIQUE,
+		"SAM_DELTA_ARRAY: deltas", -1, 0);
 
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
 				  hf_netlogon_rc, NULL);
@@ -4342,8 +4333,8 @@ netlogon_dissect_netdatabasesync2_reply(tvbuff_t *tvb, int offset,
 		"ULONG pointer: unknown_ULONG", hf_netlogon_unknown_long, 0);
 
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		netlogon_dissect_SAM_DELTA_ARRAY_ptr, NDR_POINTER_REF,
-		"SAM_DELTA_ARRAY* pointer: unknown_SAM_DELTA_ARRAY", -1, 0);
+		netlogon_dissect_SAM_DELTA_ARRAY, NDR_POINTER_UNIQUE,
+		"SAM_DELTA_ARRAY: deltas", -1, 0);
 
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
 				  hf_netlogon_rc, NULL);
@@ -4389,8 +4380,8 @@ netlogon_dissect_netlogondatabaseredo_reply(tvbuff_t *tvb, int offset,
 		"AUTHENTICATOR: return_authenticator", -1, 0);
 
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		netlogon_dissect_SAM_DELTA_ARRAY_ptr, NDR_POINTER_REF,
-		"SAM_DELTA_ARRAY* pointer: unknown_SAM_DELTA_ARRAY", -1, 0);
+		netlogon_dissect_SAM_DELTA_ARRAY, NDR_POINTER_UNIQUE,
+		"SAM_DELTA_ARRAY: deltas", -1, 0);
 
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
 				  hf_netlogon_rc, NULL);
@@ -5780,6 +5771,10 @@ static hf_register_info hf[] = {
 	{ &hf_netlogon_secure_channel_type,
 		{ "Sec Chn Type", "netlogon.sec_chn_type", FT_UINT16, BASE_DEC, 
 		NULL, 0x0, "Secure Channel Type", HFILL }},
+
+	{ &hf_netlogon_delta_type,
+		{ "Delta Type", "netlogon.delta_type", FT_UINT16, BASE_DEC, 
+		NULL, 0x0, "Delta Type", HFILL }},
 
 	{ &hf_netlogon_blob_size,
 		{ "Size", "netlogon.blob.size", FT_UINT32, BASE_DEC, 
