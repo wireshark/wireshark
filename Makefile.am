@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.72 1999/09/14 08:06:22 guy Exp $
+# $Id: Makefile.am,v 1.73 1999/09/17 04:38:14 gram Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -22,7 +22,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-bin_PROGRAMS = ethereal randpkt
+bin_PROGRAMS = ethereal
 
 man_MANS = ethereal.1
 
@@ -157,11 +157,11 @@ ps.c: print.ps rdps
 rdps: rdps.c
 	$(CC) -o rdps $(srcdir)/rdps.c
 
-randpkt_SOURCES = \
-	randpkt.c
+randpkt.o: randpkt.c
+	$(CC) -DHAVE_CONFIG_H `glib-config --cflags` -c $(srcdir)/randpkt.c
 
-randpkt_DEPENDENCIES = wiretap/libwiretap.a
-randpkt_LDADD = wiretap/libwiretap.a
+randpkt: randpkt.o wiretap/libwiretap.a
+	$(LINK) -o randpkt randpkt.o wiretap/libwiretap.a `glib-config --libs`
 
 DISTCLEANFILES =	\
 	rdps		\

@@ -1,10 +1,13 @@
 Random Packet Generator
 -----------------------
-$Id: randpkt.txt,v 1.2 1999/09/10 15:38:58 gram Exp $
+$Id: randpkt.txt,v 1.3 1999/09/17 04:38:23 gram Exp $
 
-This small utility creates a libpcap trace file full of random packets.
+randpkt is a small utility creates a libpcap trace file full of random packets.
 You can control the number of packets, the maximum size of each packet,
-and the type of each packet.
+and the type of each packet. It is not build by default, but you
+can create it in the top-level Ethereal directory by typing:
+
+make randpkt
 
 By creating many randomized packets of a certain type, you can
 test packet sniffers to see how well they handle malformed packets.

@@ -4,7 +4,7 @@
  * Creates random packet traces. Useful for debugging sniffers by testing
  * assumptions about the veracity of the data found in the packet.
  *
- * $Id: randpkt.c,v 1.2 1999/09/10 15:38:48 gram Exp $
+ * $Id: randpkt.c,v 1.3 1999/09/17 04:38:14 gram Exp $
  *
  * Copyright (C) 1999 by Gilbert Ramirez <gram@xiexie.org>
  * 
@@ -42,7 +42,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <glib.h>
-#include <wtap.h>
+#include "wiretap/wtap.h"
 
 #define array_length(x)	(sizeof x / sizeof x[0])
 
