@@ -2,18 +2,12 @@
  * Routines for Decoding FC header for IP/FC
  * Copyright 2001, Dinesh G Dutt <ddutt@cisco.com>
  *
- * $Id: packet-ipfc.c,v 1.1 2002/12/08 02:32:17 gerald Exp $
+ * $Id: packet-ipfc.c,v 1.2 2002/12/08 21:56:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
- * Copied from WHATEVER_FILE_YOU_USED (where "WHATEVER_FILE_YOU_USED"
- * is a dissector file; if you just copied this from README.developer,
- * don't bother with the "Copied from" - you don't even need to put
- * in a "Copied from" if you copied an existing dissector, especially
- * if the bulk of the code in the new dissector is your code)
- * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
@@ -37,19 +31,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
-#endif
-
-#ifdef HAVE_NETINET_IN_H
-# include <netinet/in.h>
-#endif
-
 #include <glib.h>
-
-#ifdef NEED_SNPRINTF_H
-# include "snprintf.h"
-#endif
 
 #include <epan/packet.h>
 #include "etypes.h"
@@ -149,7 +131,7 @@ proto_reg_handoff_ipfc (void)
 
     ipfc_handle = create_dissector_handle (dissect_ipfc, proto_ipfc);
     dissector_add("fc.ftype", FC_FTYPE_IP, ipfc_handle);
+    dissector_add("wtap_encap", WTAP_ENCAP_IP_OVER_FC, ipfc_handle);
 
     data_handle = find_dissector ("data");
 }
-
