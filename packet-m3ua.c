@@ -8,7 +8,7 @@
  *
  * Copyright 2000, 2001, 2002, 2003, 2004 Michael Tuexen <tuexen [AT] fh-muenster.de>
  *
- * $Id: packet-m3ua.c,v 1.40 2004/05/24 02:25:19 guy Exp $
+ * $Id: packet-m3ua.c,v 1.41 2004/06/27 17:16:25 tuexen Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -45,6 +45,7 @@
 #include <epan/packet.h>
 #include "prefs.h"
 #include "sctpppids.h"
+#include "packet-mtp3.h"
 
 #define SCTP_PORT_M3UA         2905
 #define NETWORK_BYTE_ORDER     FALSE
@@ -412,12 +413,15 @@ dissect_affected_destinations_parameter(tvbuff_t *parameter_tvb, proto_tree *par
 {
   guint16 number_of_destinations, destination_number;
   gint destination_offset;
+  proto_item *item;
 
   number_of_destinations = (tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH) >> 2;
   destination_offset = PARAMETER_VALUE_OFFSET;
   for(destination_number=1; destination_number <= number_of_destinations; destination_number++) {
     proto_tree_add_item(parameter_tree, hf_affected_point_code_mask, parameter_tvb, destination_offset + AFFECTED_MASK_OFFSET, AFFECTED_MASK_LENGTH, NETWORK_BYTE_ORDER);
-    proto_tree_add_item(parameter_tree, hf_affected_point_code_pc,   parameter_tvb, destination_offset + AFFECTED_DPC_OFFSET,  AFFECTED_DPC_LENGTH,  NETWORK_BYTE_ORDER);
+    item = proto_tree_add_item(parameter_tree, hf_affected_point_code_pc,   parameter_tvb, destination_offset + AFFECTED_DPC_OFFSET,  AFFECTED_DPC_LENGTH,  NETWORK_BYTE_ORDER);
+    if (mtp3_pc_structured())
+      proto_item_append_text(item, " (%s)", mtp3_pc_to_str(tvb_get_ntoh24(parameter_tvb, destination_offset + AFFECTED_DPC_OFFSET)));
     destination_offset += AFFECTED_DESTINATION_LENGTH;
   }
   proto_item_append_text(parameter_item, " (%u destination%s)", number_of_destinations, plurality(number_of_destinations, "", "s"));
@@ -846,8 +850,12 @@ dissect_protocol_data_2_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, p
 static void
 dissect_concerned_destination_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
+  proto_item *item;
+
   proto_tree_add_item(parameter_tree, hf_concerned_dest_reserved, parameter_tvb, CON_DEST_RESERVED_OFFSET, CON_DEST_RESERVED_LENGTH, NETWORK_BYTE_ORDER);
-  proto_tree_add_item(parameter_tree, hf_concerned_dest_pc,       parameter_tvb, CON_DEST_PC_OFFSET,       CON_DEST_PC_LENGTH,       NETWORK_BYTE_ORDER);
+  item = proto_tree_add_item(parameter_tree, hf_concerned_dest_pc,       parameter_tvb, CON_DEST_PC_OFFSET,       CON_DEST_PC_LENGTH,       NETWORK_BYTE_ORDER);
+  if (mtp3_pc_structured())
+    proto_item_append_text(item, " (%s)", mtp3_pc_to_str(tvb_get_ntoh24(parameter_tvb, CON_DEST_PC_OFFSET)));
   proto_item_append_text(parameter_item, " (%u)", tvb_get_ntoh24(parameter_tvb, CON_DEST_PC_OFFSET));
 }
 
@@ -959,8 +967,12 @@ dissect_local_routing_key_identifier_parameter(tvbuff_t *parameter_tvb, proto_tr
 static void
 dissect_destination_point_code_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
+  proto_item *item;
+  
   proto_tree_add_item(parameter_tree, hf_dpc_mask, parameter_tvb, DPC_MASK_OFFSET, DPC_MASK_LENGTH, NETWORK_BYTE_ORDER);
-  proto_tree_add_item(parameter_tree, hf_dpc_pc,   parameter_tvb, DPC_PC_OFFSET,   DPC_PC_LENGTH,   NETWORK_BYTE_ORDER);
+  item = proto_tree_add_item(parameter_tree, hf_dpc_pc,   parameter_tvb, DPC_PC_OFFSET,   DPC_PC_LENGTH,   NETWORK_BYTE_ORDER);
+  if (mtp3_pc_structured())
+    proto_item_append_text(item, " (%s)", mtp3_pc_to_str(tvb_get_ntoh24(parameter_tvb, DPC_PC_OFFSET)));
   proto_item_append_text(parameter_item, " (%u)", tvb_get_ntoh24(parameter_tvb, DPC_PC_OFFSET));
 }
 
@@ -1014,14 +1026,17 @@ dissect_originating_point_code_list_parameter(tvbuff_t *parameter_tvb, proto_tre
 {
   guint16 length, number_of_point_codes, point_code_number;
   gint point_code_offset;
-
+  proto_item *item;
+  
   length                = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
   number_of_point_codes = (length - PARAMETER_HEADER_LENGTH) / 4;
 
   point_code_offset = PARAMETER_VALUE_OFFSET;
   for(point_code_number=1; point_code_number <= number_of_point_codes; point_code_number++) {
     proto_tree_add_item(parameter_tree, hf_opc_list_mask, parameter_tvb, point_code_offset + OPC_MASK_OFFSET, OPC_MASK_LENGTH, NETWORK_BYTE_ORDER);
-    proto_tree_add_item(parameter_tree, hf_opc_list_pc,   parameter_tvb, point_code_offset + OPC_PC_OFFSET,   OPC_PC_LENGTH,   NETWORK_BYTE_ORDER);
+    item = proto_tree_add_item(parameter_tree, hf_opc_list_pc,   parameter_tvb, point_code_offset + OPC_PC_OFFSET,   OPC_PC_LENGTH,   NETWORK_BYTE_ORDER);
+    if (mtp3_pc_structured())
+      proto_item_append_text(item, " (%s)", mtp3_pc_to_str(tvb_get_ntoh24(parameter_tvb, point_code_offset + OPC_PC_OFFSET)));
     point_code_offset += OPC_LENGTH;
   };
   proto_item_append_text(parameter_item, " (%u point code%s)", number_of_point_codes, plurality(number_of_point_codes, "", "s"));
@@ -1078,12 +1093,17 @@ dissect_protocol_data_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, pro
 {
   guint16 ulp_length;
   tvbuff_t *payload_tvb;
+  proto_item *item;
 
   ulp_length  = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH - DATA_HDR_LENGTH;
 
   if (parameter_tree) {
-    proto_tree_add_item(parameter_tree, hf_protocol_data_opc, parameter_tvb, DATA_OPC_OFFSET, DATA_OPC_LENGTH, NETWORK_BYTE_ORDER);
-    proto_tree_add_item(parameter_tree, hf_protocol_data_dpc, parameter_tvb, DATA_DPC_OFFSET, DATA_DPC_LENGTH, NETWORK_BYTE_ORDER);
+    item = proto_tree_add_item(parameter_tree, hf_protocol_data_opc, parameter_tvb, DATA_OPC_OFFSET, DATA_OPC_LENGTH, NETWORK_BYTE_ORDER);
+    if (mtp3_pc_structured())
+      proto_item_append_text(item, " (%s)", mtp3_pc_to_str(tvb_get_ntohl(parameter_tvb, DATA_OPC_OFFSET)));
+    item = proto_tree_add_item(parameter_tree, hf_protocol_data_dpc, parameter_tvb, DATA_DPC_OFFSET, DATA_DPC_LENGTH, NETWORK_BYTE_ORDER);
+    if (mtp3_pc_structured())
+      proto_item_append_text(item, " (%s)", mtp3_pc_to_str(tvb_get_ntohl(parameter_tvb, DATA_DPC_OFFSET)));
     proto_tree_add_item(parameter_tree, hf_protocol_data_si,  parameter_tvb, DATA_SI_OFFSET,  DATA_SI_LENGTH,  NETWORK_BYTE_ORDER);
     proto_tree_add_item(parameter_tree, hf_protocol_data_ni,  parameter_tvb, DATA_NI_OFFSET,  DATA_NI_LENGTH,  NETWORK_BYTE_ORDER);
     proto_tree_add_item(parameter_tree, hf_protocol_data_mp,  parameter_tvb, DATA_MP_OFFSET,  DATA_MP_LENGTH,  NETWORK_BYTE_ORDER);
