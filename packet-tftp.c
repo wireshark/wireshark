@@ -5,7 +5,7 @@
  * Craig Newell <CraigN@cheque.uq.edu.au>
  *	RFC2347 TFTP Option Extension
  *
- * $Id: packet-tftp.c,v 1.29 2001/11/03 02:19:10 guy Exp $
+ * $Id: packet-tftp.c,v 1.30 2001/11/03 02:25:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -97,6 +97,7 @@ dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	gint		offset = 0;
 	guint16		opcode;
 	u_int           i1;
+	guint16         error;
 
 	CHECK_DISPLAY_AS_DATA(proto_tftp, tvb, pinfo, tree);
 
@@ -238,20 +239,25 @@ dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  break;
 
 	case TFTP_ERROR:
+	  error = tvb_get_ntohs(tvb, offset);
 	  if (tree) {
-	    proto_tree_add_item(tftp_tree, hf_tftp_error_code, tvb, offset, 2,
-			    FALSE);
+	    proto_tree_add_uint(tftp_tree, hf_tftp_error_code, tvb, offset, 2,
+			    error);
 	  }
 	  if (check_col(pinfo->fd, COL_INFO)) {
-	    col_append_fstr(pinfo->fd, COL_INFO, ", Code: %i",
-			    tvb_get_ntohs(tvb, offset));
+	    col_append_fstr(pinfo->fd, COL_INFO, ", Code: %s",
+			    val_to_str(error, tftp_error_code_vals, "Unknown (%u)"));
 	  }
 	  offset += 2;
 
+	  i1 = tvb_strsize(tvb, offset);
 	  if (tree) {
-	    i1 = tvb_strsize(tvb, offset);
 	    proto_tree_add_item(tftp_tree, hf_tftp_error_string, tvb, offset,
 	        i1, FALSE);
+	  }
+	  if (check_col(pinfo->fd, COL_INFO)) {
+	    col_append_fstr(pinfo->fd, COL_INFO, ", Message: %s",
+			    tvb_get_ptr(tvb, offset, i1));
 	  }
 	  break;
 
