@@ -11,7 +11,7 @@
  *   Technical realization of Short Message Service (SMS)
  *   (3GPP TS 23.040 version 5.4.0 Release 5)
  *
- * $Id: packet-gsm_sms.c,v 1.9 2004/02/20 10:49:39 guy Exp $
+ * $Id: packet-gsm_sms.c,v 1.10 2004/03/05 10:06:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -79,6 +79,19 @@
 	return; \
     }
 
+#define	SMS_SHIFTMASK(m_val, m_bitmask, m_sval); \
+    { \
+	int	_temp_val = m_val; \
+	int	_temp_bm = m_bitmask; \
+	while (_temp_bm && !(_temp_bm & 0x01)) \
+	{ \
+	    _temp_bm = _temp_bm >> 1; \
+	    _temp_val = _temp_val >> 1; \
+	} \
+	m_sval = _temp_val; \
+    }
+
+
 static char *gsm_sms_proto_name = "GSM SMS TPDU (GSM 03.40)";
 static char *gsm_sms_proto_name_short = "GSM SMS";
 
@@ -145,9 +158,9 @@ my_match_strval(guint32 val, const value_string *vs, gint *idx)
 }
 
 /* 9.2.3.1 */
-#define DIS_FIELD_MTI(m_tree, m_offset) \
+#define DIS_FIELD_MTI(m_tree, m_bitmask, m_offset) \
 { \
-    other_decode_bitfield_value(bigbuf, oct, 0x03, 8); \
+    other_decode_bitfield_value(bigbuf, oct, m_bitmask, 8); \
     proto_tree_add_text(m_tree, tvb, \
 	m_offset, 1, \
 	"%s :  TP-Message-Type-Indicator", \
@@ -155,20 +168,20 @@ my_match_strval(guint32 val, const value_string *vs, gint *idx)
 }
 
 /* 9.2.3.2 */
-#define DIS_FIELD_MMS(m_tree, m_offset) \
+#define DIS_FIELD_MMS(m_tree, m_bitmask, m_offset) \
 { \
-    other_decode_bitfield_value(bigbuf, oct, 0x04, 8); \
+    other_decode_bitfield_value(bigbuf, oct, m_bitmask, 8); \
     proto_tree_add_text(m_tree, tvb, \
 	m_offset, 1, \
 	"%s :  TP-More-Messages-to-Send: %s messages are waiting for the MS in this SC", \
 	bigbuf, \
-	(oct & 0x04) ? "No more" : "More"); \
+	(oct & m_bitmask) ? "No more" : "More"); \
 }
 
 /* 9.2.3.3 */
-#define DIS_FIELD_VPF(m_tree, m_offset, m_form) \
+#define DIS_FIELD_VPF(m_tree, m_bitmask, m_offset, m_form) \
 { \
-    *m_form = (oct & 0x18) >> 3; \
+    SMS_SHIFTMASK(oct & m_bitmask, m_bitmask, *m_form); \
     switch (*m_form) \
     { \
     case 0: str = "TP-VP field not present"; break; \
@@ -176,7 +189,7 @@ my_match_strval(guint32 val, const value_string *vs, gint *idx)
     case 2: str = "TP-VP field present - relative format"; break; \
     case 3: str = "TP-VP field present - absolute format"; break; \
     } \
-    other_decode_bitfield_value(bigbuf, oct, 0x18, 8); \
+    other_decode_bitfield_value(bigbuf, oct, m_bitmask, 8); \
     proto_tree_add_text(m_tree, tvb, \
 	m_offset, 1, \
 	"%s :  TP-Validity-Period-Format: %s", \
@@ -185,25 +198,25 @@ my_match_strval(guint32 val, const value_string *vs, gint *idx)
 }
 
 /* 9.2.3.4 */
-#define DIS_FIELD_SRI(m_tree, m_offset) \
+#define DIS_FIELD_SRI(m_tree, m_bitmask, m_offset) \
 { \
-    other_decode_bitfield_value(bigbuf, oct, 0x20, 8); \
+    other_decode_bitfield_value(bigbuf, oct, m_bitmask, 8); \
     proto_tree_add_text(m_tree, tvb, \
 	m_offset, 1, \
 	"%s :  TP-Status-Report-Indication: A status report shall %sbe returned to the SME", \
 	bigbuf, \
-	(oct & 0x20) ? "" : "not "); \
+	(oct & m_bitmask) ? "" : "not "); \
 }
 
 /* 9.2.3.5 */
-#define DIS_FIELD_SRR(m_tree, m_offset) \
+#define DIS_FIELD_SRR(m_tree, m_bitmask, m_offset) \
 { \
-    other_decode_bitfield_value(bigbuf, oct, 0x20, 8); \
+    other_decode_bitfield_value(bigbuf, oct, m_bitmask, 8); \
     proto_tree_add_text(m_tree, tvb, \
 	m_offset, 1, \
 	"%s :  TP-Status-Report-Request: A status report is %srequested", \
 	bigbuf, \
-	(oct & 0x20) ? "" : "not "); \
+	(oct & m_bitmask) ? "" : "not "); \
 }
 
 /* 9.2.3.6 */
@@ -1218,14 +1231,14 @@ dis_field_st(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 oct)
 }
 
 /* 9.2.3.17 */
-#define DIS_FIELD_RP(m_tree, m_offset) \
+#define DIS_FIELD_RP(m_tree, m_bitmask, m_offset) \
 { \
-    other_decode_bitfield_value(bigbuf, oct, 0x80, 8); \
+    other_decode_bitfield_value(bigbuf, oct, m_bitmask, 8); \
     proto_tree_add_text(m_tree, tvb, \
 	m_offset, 1, \
 	"%s :  TP-Reply-Path: parameter is %sset in this SMS-SUBMIT/DELIVER", \
 	bigbuf, \
-	(oct & 0x80) ? "" : "not "); \
+	(oct & m_bitmask) ? "" : "not "); \
 }
 
 /* 9.2.3.18 */
@@ -1359,10 +1372,10 @@ dis_field_fcs(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 oct)
 }
 
 /* 9.2.3.23 */
-#define DIS_FIELD_UDHI(m_tree, m_offset, m_udhi) \
+#define DIS_FIELD_UDHI(m_tree, m_bitmask, m_offset, m_udhi) \
 { \
-    m_udhi = (oct & 0x40) >> 6; \
-    other_decode_bitfield_value(bigbuf, oct, 0x40, 8); \
+    SMS_SHIFTMASK(oct & m_bitmask, m_bitmask, m_udhi); \
+    other_decode_bitfield_value(bigbuf, oct, m_bitmask, 8); \
     proto_tree_add_text(m_tree, tvb, \
 	m_offset, 1, \
 	"%s :  TP-User-Data-Header-Indicator: %s short message", \
@@ -1608,7 +1621,7 @@ dis_iei_apa_16bit(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length
 static void
 dis_field_ud_iei(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length)
 {
-    void (*iei_fcn)(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length) = NULL;
+    void (*iei_fcn)(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length);
     guint8	oct;
     proto_item	*item;
     proto_tree	*subtree = NULL;
@@ -1618,6 +1631,8 @@ dis_field_ud_iei(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length)
 
     while (length > 2)
     {
+	iei_fcn = NULL;
+
 	oct = tvb_get_guint8(tvb, offset);
 
 	switch (oct)
@@ -1728,6 +1743,7 @@ dis_field_ud_iei(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length)
 	}
 
 	length -= 2 + iei_len;
+	offset += iei_len;
     }
 }
 
@@ -1816,6 +1832,7 @@ dis_field_ud(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 length, gb
 		    tvb_get_ptr(tvb, offset, length), bigbuf);
 	    bigbuf[out_len] = '\0';
 	    char_ascii_decode(bigbuf, bigbuf, out_len);
+	    bigbuf[udl] = '\0';
 
 	    proto_tree_add_text(subtree, tvb, offset, length, "%s", bigbuf);
 	}
@@ -1834,27 +1851,27 @@ dis_field_ud(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 length, gb
 }
 
 /* 9.2.3.25 */
-#define DIS_FIELD_RD(m_tree, m_offset) \
+#define DIS_FIELD_RD(m_tree, m_bitmask, m_offset) \
 { \
-    other_decode_bitfield_value(bigbuf, oct, 0x04, 8); \
+    other_decode_bitfield_value(bigbuf, oct, m_bitmask, 8); \
     proto_tree_add_text(m_tree, tvb, \
 	m_offset, 1, \
 	"%s :  TP-Reject-Duplicates: Instruct SC to %s duplicates", \
 	bigbuf, \
-	(oct & 0x04) ? \
+	(oct & m_bitmask) ? \
 	"reject" : \
 	"accept"); \
 }
 
 /* 9.2.3.26 */
-#define DIS_FIELD_SRQ(m_tree, m_offset) \
+#define DIS_FIELD_SRQ(m_tree, m_bitmask, m_offset) \
 { \
-    other_decode_bitfield_value(bigbuf, oct, 0x20, 8); \
+    other_decode_bitfield_value(bigbuf, oct, m_bitmask, 8); \
     proto_tree_add_text(m_tree, tvb, \
 	m_offset, 1, \
 	"%s :  TP-Status-Report-Qualifier: The SMS-STATUS-REPORT is the result of %s", \
 	bigbuf, \
-	(oct & 0x20) ? \
+	(oct & m_bitmask) ? \
 	"an SMS-COMMAND e.g. an Enquiry" : \
 	"a SMS-SUBMIT"); \
 }
@@ -1932,15 +1949,15 @@ dis_msg_deliver(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
 
     oct = tvb_get_guint8(tvb, offset);
 
-    DIS_FIELD_RP(tree, offset);
+    DIS_FIELD_SRI(tree, 0x20, offset);
 
-    DIS_FIELD_UDHI(tree, offset, udhi);
+    DIS_FIELD_UDHI(tree, 0x10, offset, udhi);
 
-    DIS_FIELD_SRI(tree, offset);
+    DIS_FIELD_RP(tree, 0x08, offset);
 
-    DIS_FIELD_MMS(tree, offset);
+    DIS_FIELD_MMS(tree, 0x04, offset);
 
-    DIS_FIELD_MTI(tree, offset);
+    DIS_FIELD_MTI(tree, 0x03, offset);
 
     offset++;
 
@@ -1997,9 +2014,9 @@ dis_msg_deliver_report(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
 
     oct = tvb_get_guint8(tvb, offset);
 
-    DIS_FIELD_UDHI(tree, offset, udhi);
+    DIS_FIELD_UDHI(tree, 0x04, offset, udhi);
 
-    DIS_FIELD_MTI(tree, offset);
+    DIS_FIELD_MTI(tree, 0x03, offset);
 
     if (length < 2)
     {
@@ -2116,17 +2133,17 @@ dis_msg_submit(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
 
     oct = tvb_get_guint8(tvb, offset);
 
-    DIS_FIELD_RP(tree, offset);
+    DIS_FIELD_SRR(tree, 0x80, offset);
 
-    DIS_FIELD_UDHI(tree, offset, udhi);
+    DIS_FIELD_UDHI(tree, 0x40, offset, udhi);
 
-    DIS_FIELD_SRR(tree, offset);
+    DIS_FIELD_RP(tree, 0x20, offset);
 
-    DIS_FIELD_VPF(tree, offset, &vp_form);
+    DIS_FIELD_VPF(tree, 0x18, offset, &vp_form);
 
-    DIS_FIELD_RD(tree, offset);
+    DIS_FIELD_RD(tree, 0x04, offset);
 
-    DIS_FIELD_MTI(tree, offset);
+    DIS_FIELD_MTI(tree, 0x03, offset);
 
     offset++;
     oct = tvb_get_guint8(tvb, offset);
@@ -2188,9 +2205,9 @@ dis_msg_submit_report(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
 
     oct = tvb_get_guint8(tvb, offset);
 
-    DIS_FIELD_UDHI(tree, offset, udhi);
+    DIS_FIELD_UDHI(tree, 0x04, offset, udhi);
 
-    DIS_FIELD_MTI(tree, offset);
+    DIS_FIELD_MTI(tree, 0x03, offset);
 
     /*
      * there does not seem to be a way to determine that this
@@ -2286,13 +2303,13 @@ dis_msg_status_report(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
 
     oct = tvb_get_guint8(tvb, offset);
 
-    DIS_FIELD_SRQ(tree, offset);
+    DIS_FIELD_SRQ(tree, 0x10, offset);
 
-    DIS_FIELD_MMS(tree, offset);
+    DIS_FIELD_MMS(tree, 0x08, offset);
 
-    DIS_FIELD_UDHI(tree, offset, udhi);
+    DIS_FIELD_UDHI(tree, 0x04, offset, udhi);
 
-    DIS_FIELD_MTI(tree, offset);
+    DIS_FIELD_MTI(tree, 0x03, offset);
 
     offset++;
     oct = tvb_get_guint8(tvb, offset);
@@ -2395,11 +2412,11 @@ dis_msg_command(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
 
     oct = tvb_get_guint8(tvb, offset);
 
-    DIS_FIELD_SRR(tree, offset);
+    DIS_FIELD_SRR(tree, 0x08, offset);
 
-    DIS_FIELD_UDHI(tree, offset, udhi);
+    DIS_FIELD_UDHI(tree, 0x04, offset, udhi);
 
-    DIS_FIELD_MTI(tree, offset);
+    DIS_FIELD_MTI(tree, 0x03, offset);
 
     offset++;
     oct = tvb_get_guint8(tvb, offset);
