@@ -40,6 +40,12 @@
 
 #include "packet-tcp.h"
 
+/*
+ * See
+ *
+ *	http://bittorrent.com/protocol.html
+ */
+
 #define BITTORRENT_MESSAGE_CHOKE			0
 #define BITTORRENT_MESSAGE_UNCHOKE			1
 #define BITTORRENT_MESSAGE_INTERESTED		2
