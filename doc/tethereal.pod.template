@@ -324,6 +324,17 @@ Example: use B<-z dcerpc,rtt,12345778-1234-abcd-ef00-0123456789ac,1.0,ip.addr==1
 RTT statistics for a specific host.
 
 
+B<-z> io,stat,I<interval>[,I<filter>][,I<filter>][,I<filter>]...
+
+Collect frame/bytes statistics for the capture in intervals of I<interval> 
+seconds.
+If no I<filter> is specified the statistics will be calculated for all frames.
+If one or more I<filters> are specified statistics will be calculated for
+all filters and presented with one column of statistics for each filter.
+
+This option can be used multiple times on the command line. 
+
+ 
 B<-z> rpc,rtt,I<program>,I<version>[,I<filter>]
 
 Collect call/reply RTT data for I<program>/I<version>.  Data collected
