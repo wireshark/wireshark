@@ -256,8 +256,8 @@ static int http_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_, epan_d
 
 /* register all http trees */
 extern void register_http_stat_trees(void) {
-	stats_tree_register("http","http","HTTP/Packet Tree", http_stats_tree_packet, http_stats_tree_init );
-	stats_tree_register("http","http_req","HTTP/Request Tree", http_req_stats_tree_packet, http_req_stats_tree_init );
-	stats_tree_register("http","http_srv","HTTP/Server Tree",http_reqs_stats_tree_packet,http_reqs_stats_tree_init);
+	stats_tree_register("http","http","HTTP/Packet Tree", http_stats_tree_packet, http_stats_tree_init, NULL );
+	stats_tree_register("http","http_req","HTTP/Request Tree", http_req_stats_tree_packet, http_req_stats_tree_init, NULL );
+	stats_tree_register("http","http_srv","HTTP/Server Tree",http_reqs_stats_tree_packet,http_reqs_stats_tree_init, NULL );
 }
 

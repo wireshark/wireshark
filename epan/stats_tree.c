@@ -182,7 +182,10 @@ extern void stats_tree_free(stats_tree* st) {
 	
 	if (st->cfg->free_tree_pr)
 		st->cfg->free_tree_pr(st);
-			
+	
+	if (st->cfg->cleanup)
+		st->cfg->cleanup(st);
+	
 	g_free(st);
 }
 
@@ -238,7 +241,8 @@ extern void stats_tree_register(guint8* tapname,
 								guint8* abbr, 
 								guint8* name,
 								stat_tree_packet_cb packet,
-								stat_tree_init_cb init ) {
+								stat_tree_init_cb init,
+								stat_tree_cleanup_cb cleanup) {
 	
 	stats_tree_cfg* cfg = g_malloc( sizeof(stats_tree_cfg) );
 
@@ -251,6 +255,7 @@ extern void stats_tree_register(guint8* tapname,
 	
 	cfg->packet = packet;
 	cfg->init = init;
+	cfg->cleanup = cleanup;
 	
 	/* these have to be filled in by implementations */
 	cfg->setup_node_pr = NULL;
@@ -356,7 +361,16 @@ extern void stats_tree_presentation(void (*registry_iterator)(gpointer,gpointer,
 									void (*draw_tree)(stats_tree*),
 									void (*reset_tree)(stats_tree*),
 									void* data) {
-	struct _stats_tree_pres_cbs d = {setup_node_pr,free_node_pr,draw_node,reset_node,new_tree_pr,free_tree_pr,draw_tree,reset_tree};
+	static struct _stats_tree_pres_cbs d;
+	
+	d.setup_node_pr = setup_node_pr;
+	d.new_tree_pr = new_tree_pr;
+	d.free_node_pr = free_node_pr;
+	d.free_tree_pr = free_tree_pr;
+	d.draw_node = draw_node;
+	d.draw_tree = draw_tree;
+	d.reset_node = reset_node;
+	d.reset_tree = reset_tree;
 	
 	if (registry) g_hash_table_foreach(registry,setup_tree_presentation,&d);
 	

@@ -46,6 +46,9 @@ typedef int  (*stat_tree_packet_cb)(stats_tree*,
 /* stats_tree initilaization callback */
 typedef void  (*stat_tree_init_cb)(stats_tree*);
 
+/* stats_tree initilaization callback */
+typedef void  (*stat_tree_cleanup_cb)(stats_tree*);
+
 /* registers a new stats tree 
  * abbr: protocol abbr
  * name: protocol name
@@ -56,7 +59,8 @@ extern void stats_tree_register(guint8* tapname,
 								guint8* abbr, 
 								guint8* name,
 								stat_tree_packet_cb packet,
-								stat_tree_init_cb init );
+								stat_tree_init_cb init,
+								stat_tree_cleanup_cb cleanup);
 
 extern int stats_tree_parent_id_by_name(stats_tree* st, const gchar* parent_name);
 

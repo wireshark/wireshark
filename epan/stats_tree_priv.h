@@ -115,7 +115,7 @@ struct _stats_tree_cfg {
 	/* dissector defined callbacks */
 	stat_tree_packet_cb packet;
 	stat_tree_init_cb init;
-
+	stat_tree_cleanup_cb cleanup;
 	
 	/*
 	 * node presentation callbacks
