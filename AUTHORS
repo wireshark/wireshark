@@ -2072,6 +2072,7 @@ Ryuji Somegawa <ryuji-so [AT] is.aist-nara.ac.jp> {
 
 metatech <metatech [AT] flashmail.com> {
 	IBM WebSphere MQ protocol support
+	IBM MQ Programmable Command Formats protocol support
 	Initial BEA Tuxedo protocol support
 }
 

@@ -3,7 +3,7 @@
  *
  * metatech <metatech@flashmail.com>
  *
- * $Id: packet-mq.c,v 1.4 2004/04/17 20:58:49 guy Exp $
+ * $Id: packet-mq.c,v 1.5 2004/05/01 21:18:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -28,7 +28,7 @@
 *
 *   IBM WebSphere MQ (formerly IBM MQSeries) is an asynchronous proprietary messaging middleware that is based on message queues.
 *   MQ can run on more than 35 platforms, amongst which UNIX, Windows and mainframes.
-*   MQ can be transported on top of TCP, UDP, NetBIOS, SPX, SNA LU 6.2, DECnet.
+*   MQ can be transported on top of TCP, UDP, HTTP, NetBIOS, SPX, SNA LU 6.2, DECnet.
 *   MQ has language bindings for C, C++, Java, .NET, COBOL, PL/I, OS/390 assembler, TAL, Visual Basic.
 *
 *   The basic MQ topology is on one side the queue manager which hosts the queues.  On the other side the 
@@ -54,15 +54,15 @@
 *   TSH MSH XQH MD [ PAYLOAD ]
 *   TSH [OD] MD [ GMO ^ PMO ] [ [XQH MD] PAYLOAD ]
 *   TSH [ SPQU ^ SPPU ^ SPGU ^ SPAU [ SPQI ^ SPQO ^ SPPI ^ SPPO ^ SPGI ^ SPGO ^ SPAI ^ SPAO]]
+*   TSH [ XA ] [ XINFO | XID ]
 *   where PAYLOAD = [ DH ] [ DLH ] [ MDE ] BUFF
 *
 *   This dissector is a beta version.  To be improved 
-*   - Merged packets do not work very well.
 *   - Translate the integers/flags into their descriptions
 *   - Find the semantics of the unknown fields
 *   - Display EBCDIC strings as ASCII
 *   - Packets which structures built on different platforms
-*   - XA protocol
+*   - Reassembly of MQ segments
 */
 
 #ifdef HAVE_CONFIG_H
@@ -72,6 +72,9 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/conversation.h>
+#include "prefs.h"
+#include "packet-tcp.h"
+#include "packet-mq.h"
 
 static int proto_mq = -1;
 static int hf_mq_tsh_structid = -1;
@@ -83,12 +86,7 @@ static int hf_mq_tsh_reserved = -1;
 static int hf_mq_tsh_luwid = -1;
 static int hf_mq_tsh_encoding = -1;
 static int hf_mq_tsh_ccsid = -1;
-static int hf_mq_tsh_unknown4 = -1;
-static int hf_mq_tsh_length = -1;
-static int hf_mq_tsh_completioncode = -1;
-static int hf_mq_tsh_reasoncode = -1;
-static int hf_mq_tsh_statuscode = -1;
-static int hf_mq_tsh_queuehandle = -1;
+static int hf_mq_tsh_padding = -1;
 static int hf_mq_tsh_tcf_confirmreq = -1;
 static int hf_mq_tsh_tcf_error = -1;
 static int hf_mq_tsh_tcf_reqclose = -1;
@@ -97,6 +95,10 @@ static int hf_mq_tsh_tcf_first = -1;
 static int hf_mq_tsh_tcf_last = -1;
 static int hf_mq_tsh_tcf_reqacc = -1;
 static int hf_mq_tsh_tcf_dlq = -1;
+static int hf_mq_api_replylength = -1;
+static int hf_mq_api_completioncode = -1;
+static int hf_mq_api_reasoncode = -1;
+static int hf_mq_api_objecthandle = -1;
 static int hf_mq_msh_structid = -1;
 static int hf_mq_msh_seqnum = -1;
 static int hf_mq_msh_datalength = -1;
@@ -180,7 +182,10 @@ static int hf_mq_spi_options_syncpoint = -1;
 static int hf_mq_spi_options_deferred = -1;
 static int hf_mq_put_length = -1;
 static int hf_mq_open_options = -1;
+static int hf_mq_ping_length = -1;
 static int hf_mq_ping_buffer = -1;
+static int hf_mq_status_length = -1;
+static int hf_mq_status_code = -1;
 static int hf_mq_od_structid = -1;
 static int hf_mq_od_version = -1;
 static int hf_mq_od_objecttype = -1;
@@ -292,10 +297,31 @@ static int hf_mq_head_ccsid = -1;
 static int hf_mq_head_format = -1;
 static int hf_mq_head_flags = -1;
 static int hf_mq_head_struct = -1;
+static int hf_mq_xa_length = -1;
+static int hf_mq_xa_returnvalue = -1;
+static int hf_mq_xa_tmflags = -1;
+static int hf_mq_xa_rmid = -1;
+static int hf_mq_xa_count = -1;
+static int hf_mq_xa_tmflags_join = -1;
+static int hf_mq_xa_tmflags_endrscan = -1;
+static int hf_mq_xa_tmflags_startrscan = -1;
+static int hf_mq_xa_tmflags_suspend = -1;
+static int hf_mq_xa_tmflags_success = -1;
+static int hf_mq_xa_tmflags_resume = -1;
+static int hf_mq_xa_tmflags_fail = -1;
+static int hf_mq_xa_tmflags_onephase = -1;
+static int hf_mq_xa_xid_formatid = -1;
+static int hf_mq_xa_xid_globalxid_length = -1;
+static int hf_mq_xa_xid_brq_length = -1;
+static int hf_mq_xa_xid_globalxid = -1;
+static int hf_mq_xa_xid_brq = -1;
+static int hf_mq_xa_xainfo_length = -1;
+static int hf_mq_xa_xainfo_value = -1;
 
 static gint ett_mq = -1;
 static gint ett_mq_tsh = -1;
 static gint ett_mq_tsh_tcf = -1;
+static gint ett_mq_api = -1;
 static gint ett_mq_msh = -1;
 static gint ett_mq_xqh = -1;
 static gint ett_mq_id = -1;
@@ -310,6 +336,7 @@ static gint ett_mq_spi_options = -1;
 static gint ett_mq_put = -1;
 static gint ett_mq_open = -1;
 static gint ett_mq_ping = -1;
+static gint ett_mq_status = -1;
 static gint ett_mq_od = -1;
 static gint ett_mq_or = -1;
 static gint ett_mq_rr = -1;
@@ -321,11 +348,26 @@ static gint ett_mq_dh = -1;
 static gint ett_mq_gmo = -1;
 static gint ett_mq_pmo = -1;
 static gint ett_mq_head = -1; /* Factorisation of common Header structure items (DH, MDE, CIH, IIH, RFH, RMH, WIH */
+static gint ett_mq_xa = -1;
+static gint ett_mq_xa_tmflags = -1;
+static gint ett_mq_xa_xid = -1;
+static gint ett_mq_xa_info = -1;
 
-static dissector_handle_t mq_handle;
+static dissector_handle_t mq_tcp_handle;
+static dissector_handle_t mq_spx_handle;
 static dissector_handle_t data_handle;
 
+static heur_dissector_list_t mq_heur_subdissector_list;
+
+static gboolean mq_desegment = TRUE;
+
 #define MQ_PORT_TCP    1414
+#define MQ_SOCKET_SPX  0x5E86
+
+#define MQ_XPT_TCP      0x02
+#define MQ_XPT_NETBIOS  0x03
+#define MQ_XPT_SPX      0x04
+#define MQ_XPT_HTTP     0x07
 
 #define MQ_STRUCTID_NULL          0x00000000
 #define MQ_STRUCTID_CIH           0x43494820
@@ -504,6 +546,44 @@ static dissector_handle_t data_handle;
 #define MQ_STATUS_E_TERMINATED_BY_REMOTE_EXIT  0x17 
 #define MQ_STATUS_E_SSL_REMOTE_BAD_CIPHER      0x18 
 
+/* These errors codes are documented in javax.transaction.xa.XAException */
+#define MQ_XA_RBROLLBACK   100
+#define MQ_XA_RBCOMMFAIL   101
+#define MQ_XA_RBDEADLOCK   102
+#define MQ_XA_RBINTEGRITY  103
+#define MQ_XA_RBOTHER      104
+#define MQ_XA_RBPROTO      105
+#define MQ_XA_RBTIMEOUT    106
+#define MQ_XA_RBTRANSIENT  107
+#define MQ_XA_RBEND        107
+#define MQ_XA_NOMIGRATE    9
+#define MQ_XA_HEURHAZ      8
+#define MQ_XA_HEURCOM      7
+#define MQ_XA_HEURRB       6 
+#define MQ_XA_HEURMIX      5
+#define MQ_XA_RETRY        4
+#define MQ_XA_RDONLY       3
+#define MQ_XA_OK           0
+#define MQ_XAER_ASYNC      -2
+#define MQ_XAER_RMERR      -3
+#define MQ_XAER_NOTA       -4
+#define MQ_XAER_INVAL      -5
+#define MQ_XAER_PROTO      -6
+#define MQ_XAER_RMFAIL     -7
+#define MQ_XAER_DUPID      -8
+#define MQ_XAER_OUTSIDE    -9
+
+/* These flags are documented in javax.transaction.xa.XAResource */
+#define MQ_XA_TMNOFLAGS     0
+#define MQ_XA_TMJOIN        0x200000
+#define MQ_XA_TMENDRSCAN    0x800000
+#define MQ_XA_TMSTARTRSCAN  0x1000000
+#define MQ_XA_TMSUSPEND     0x2000000
+#define MQ_XA_TMSUCCESS     0x4000000
+#define MQ_XA_TMRESUME      0x8000000
+#define MQ_XA_TMFAIL        0x20000000
+#define MQ_XA_TMONEPHASE    0x40000000
+
 #define MQ_PMRF_NONE              0x00 
 #define MQ_PMRF_MSG_ID            0x01 
 #define MQ_PMRF_CORREL_ID         0x02 
@@ -514,6 +594,7 @@ static dissector_handle_t data_handle;
 /* MQ structures */
 /* Undocumented structures */
 #define MQ_TEXT_TSH   "Transmission Segment Header"
+#define MQ_TEXT_API   "API Header"
 #define MQ_TEXT_ID    "Initial Data"
 #define MQ_TEXT_UID   "User Id Data"
 #define MQ_TEXT_MSH   "Message Segment Header"
@@ -522,7 +603,11 @@ static dissector_handle_t data_handle;
 #define MQ_TEXT_PUT   "MQPUT/MQGET"
 #define MQ_TEXT_OPEN  "MQOPEN/MQCLOSE"
 #define MQ_TEXT_PING  "PING"
+#define MQ_TEXT_STAT  "STATUS"
 #define MQ_TEXT_SPI   "SPI"
+#define MQ_TEXT_XA    "XA"
+#define MQ_TEXT_XID   "Xid"
+#define MQ_TEXT_XINF  "XA_info"
 
 /* Documented structures with structid */
 #define MQ_TEXT_CIH  "CICS bridge Header"
@@ -635,6 +720,35 @@ static const value_string mq_status_vals[] = {
   { 0,          NULL }
 };
 
+static const value_string mq_xaer_vals[] = {
+  { MQ_XA_RBROLLBACK,         "XA_RBROLLBACK" },
+  { MQ_XA_RBCOMMFAIL,         "XA_RBCOMMFAIL" },
+  { MQ_XA_RBDEADLOCK,         "XA_RBDEADLOCK" },
+  { MQ_XA_RBINTEGRITY,        "XA_RBINTEGRITY" },
+  { MQ_XA_RBOTHER,            "XA_RBOTHER" },
+  { MQ_XA_RBPROTO,            "XA_RBPROTO" },
+  { MQ_XA_RBTIMEOUT,          "XA_RBTIMEOUT" },
+  { MQ_XA_RBTRANSIENT,        "XA_RBTRANSIENT" },
+  { MQ_XA_RBEND,              "XA_RBEND" },
+  { MQ_XA_NOMIGRATE,          "XA_NOMIGRATE" },
+  { MQ_XA_HEURHAZ,            "XA_HEURHAZ" },
+  { MQ_XA_HEURCOM,            "XA_HEURCOM" },
+  { MQ_XA_HEURRB,             "XA_HEURRB" },
+  { MQ_XA_HEURMIX,            "XA_HEURMIX" },
+  { MQ_XA_RETRY,              "XA_RETRY" },
+  { MQ_XA_RDONLY,             "XA_RDONLY" },
+  { MQ_XA_OK,                 "XA_OK" },
+  { (guint32)MQ_XAER_ASYNC,   "XAER_ASYNC" },
+  { (guint32)MQ_XAER_RMERR,   "XAER_RMERR" },
+  { (guint32)MQ_XAER_NOTA,    "XAER_NOTA" },
+  { (guint32)MQ_XAER_INVAL,   "XAER_INVAL" },
+  { (guint32)MQ_XAER_PROTO,   "XAER_PROTO" },
+  { (guint32)MQ_XAER_RMFAIL,  "XAER_RMFAIL" },
+  { (guint32)MQ_XAER_DUPID,   "XAER_DUPID" },
+  { (guint32)MQ_XAER_OUTSIDE, "XAER_OUTSIDE" },
+  { 0,          NULL }
+};
+
 static const value_string mq_structid_vals[] = {
   { MQ_STRUCTID_CIH,         MQ_TEXT_CIH },
   { MQ_STRUCTID_DH,          MQ_TEXT_DH },
@@ -686,6 +800,12 @@ static const value_string mq_conn_version_vals[] = {
   { 0,          NULL }
 };
 
+struct mq_msg_properties {
+	gint iOffsetEncoding;     /* Message encoding */
+	gint iOffsetCcsid;        /* Message character set */
+	gint iOffsetFormat;       /* Message format */
+};
+
 static guint32 tvb_get_guint32_endian(tvbuff_t *a_tvb, gint a_iOffset, gboolean a_bLittleEndian)
 {
 	guint32 iResult;
@@ -715,7 +835,7 @@ static gint strip_trailing_blanks(guint8* a_string, gint a_size)
 }
 
 static gint
-dissect_mq_md(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean bLittleEndian, gint offset, gint* iOffsetFormat)
+dissect_mq_md(tvbuff_t *tvb, proto_tree *tree, gboolean bLittleEndian, gint offset, struct mq_msg_properties* tMsgProps)
 {
 	proto_tree	*mq_tree = NULL;
 	proto_item	*ti = NULL;
@@ -725,11 +845,10 @@ dissect_mq_md(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean bLit
 	if (tvb_length_remaining(tvb, offset) >= 4)
 	{
 		structId = tvb_get_ntohl(tvb, offset);
-		if ((structId == MQ_STRUCTID_MD || structId == MQ_STRUCTID_MD_EBCDIC) && tvb_length_remaining(tvb, offset) >= 324)
+		if ((structId == MQ_STRUCTID_MD || structId == MQ_STRUCTID_MD_EBCDIC) && tvb_length_remaining(tvb, offset) >= 8)
 		{
 			guint32 iVersionMD = 0;
 			iVersionMD = tvb_get_guint32_endian(tvb, offset + 4, bLittleEndian);
-			*iOffsetFormat = offset + 32;
 			/* Compute length according to version */
 			switch (iVersionMD) 
 			{
@@ -737,43 +856,49 @@ dissect_mq_md(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean bLit
 				case 2: iSizeMD = 364; break;
 			}
 
-			if (tree)
+			if (iSizeMD != 0 && tvb_length_remaining(tvb, offset) >= iSizeMD)
 			{
-				ti = proto_tree_add_text(tree, tvb, offset, iSizeMD, MQ_TEXT_MD);
-				mq_tree = proto_item_add_subtree(ti, ett_mq_md);
-
-				proto_tree_add_item(mq_tree, hf_mq_md_structid, tvb, offset, 4, FALSE);
-				proto_tree_add_item(mq_tree, hf_mq_md_version, tvb, offset + 4, 4, bLittleEndian);
-				proto_tree_add_item(mq_tree, hf_mq_md_report, tvb, offset + 8, 4, bLittleEndian);
-				proto_tree_add_item(mq_tree, hf_mq_md_msgtype, tvb, offset + 12, 4, bLittleEndian);
-				proto_tree_add_item(mq_tree, hf_mq_md_expiry, tvb, offset + 16, 4, bLittleEndian);
-				proto_tree_add_item(mq_tree, hf_mq_md_feedback, tvb, offset + 20, 4, bLittleEndian);
-				proto_tree_add_item(mq_tree, hf_mq_md_encoding, tvb, offset + 24, 4, bLittleEndian);
-				proto_tree_add_item(mq_tree, hf_mq_md_ccsid, tvb, offset + 28, 4, bLittleEndian);
-				proto_tree_add_item(mq_tree, hf_mq_md_format, tvb, offset + 32, 8, FALSE);
-				proto_tree_add_item(mq_tree, hf_mq_md_priority, tvb, offset + 40, 4, bLittleEndian);
-				proto_tree_add_item(mq_tree, hf_mq_md_persistence, tvb, offset + 44, 4, bLittleEndian);
-				proto_tree_add_item(mq_tree, hf_mq_md_msgid, tvb, offset + 48, 24, FALSE);
-				proto_tree_add_item(mq_tree, hf_mq_md_correlid, tvb, offset + 72, 24, FALSE);
-				proto_tree_add_item(mq_tree, hf_mq_md_backountcount, tvb, offset + 96, 4, bLittleEndian);
-				proto_tree_add_item(mq_tree, hf_mq_md_replytoq, tvb, offset + 100, 48, FALSE);
-				proto_tree_add_item(mq_tree, hf_mq_md_replytoqmgr, tvb, offset + 148, 48, FALSE);
-				proto_tree_add_item(mq_tree, hf_mq_md_userid, tvb, offset + 196, 12, FALSE);
-				proto_tree_add_item(mq_tree, hf_mq_md_acttoken, tvb, offset + 208, 32, FALSE);
-				proto_tree_add_item(mq_tree, hf_mq_md_appliddata, tvb, offset + 240, 32, FALSE);
-				proto_tree_add_item(mq_tree, hf_mq_md_putappltype, tvb, offset + 272, 4, bLittleEndian);
-				proto_tree_add_item(mq_tree, hf_mq_md_putapplname, tvb, offset + 276, 28, FALSE);
-				proto_tree_add_item(mq_tree, hf_mq_md_putdate, tvb, offset + 304, 8, FALSE);
-				proto_tree_add_item(mq_tree, hf_mq_md_puttime, tvb, offset + 312, 8, FALSE);
-				proto_tree_add_item(mq_tree, hf_mq_md_applorigindata, tvb, offset + 320, 4, FALSE);
-
-				if (iSizeMD == 364 && tvb_length_remaining(tvb, offset) >= 364)
+				tMsgProps->iOffsetEncoding = offset + 24;
+				tMsgProps->iOffsetCcsid    = offset + 28;
+				tMsgProps->iOffsetFormat   = offset + 32;
+				if (tree)
 				{
-					proto_tree_add_item(mq_tree, hf_mq_md_groupid, tvb, offset + 324, 24, FALSE);
-					proto_tree_add_item(mq_tree, hf_mq_md_msgseqnumber, tvb, offset + 348, 4, bLittleEndian);
-					proto_tree_add_item(mq_tree, hf_mq_md_offset, tvb, offset + 352, 4, bLittleEndian);
-					proto_tree_add_item(mq_tree, hf_mq_md_msgflags, tvb, offset + 356, 4, bLittleEndian);
-					proto_tree_add_item(mq_tree, hf_mq_md_originallength, tvb, offset + 360, 4, bLittleEndian);
+					ti = proto_tree_add_text(tree, tvb, offset, iSizeMD, MQ_TEXT_MD);
+					mq_tree = proto_item_add_subtree(ti, ett_mq_md);
+	
+					proto_tree_add_item(mq_tree, hf_mq_md_structid, tvb, offset, 4, FALSE);
+					proto_tree_add_item(mq_tree, hf_mq_md_version, tvb, offset + 4, 4, bLittleEndian);
+					proto_tree_add_item(mq_tree, hf_mq_md_report, tvb, offset + 8, 4, bLittleEndian);
+					proto_tree_add_item(mq_tree, hf_mq_md_msgtype, tvb, offset + 12, 4, bLittleEndian);
+					proto_tree_add_item(mq_tree, hf_mq_md_expiry, tvb, offset + 16, 4, bLittleEndian);
+					proto_tree_add_item(mq_tree, hf_mq_md_feedback, tvb, offset + 20, 4, bLittleEndian);
+					proto_tree_add_item(mq_tree, hf_mq_md_encoding, tvb, offset + 24, 4, bLittleEndian);
+					proto_tree_add_item(mq_tree, hf_mq_md_ccsid, tvb, offset + 28, 4, bLittleEndian);
+					proto_tree_add_item(mq_tree, hf_mq_md_format, tvb, offset + 32, 8, FALSE);
+					proto_tree_add_item(mq_tree, hf_mq_md_priority, tvb, offset + 40, 4, bLittleEndian);
+					proto_tree_add_item(mq_tree, hf_mq_md_persistence, tvb, offset + 44, 4, bLittleEndian);
+					proto_tree_add_item(mq_tree, hf_mq_md_msgid, tvb, offset + 48, 24, FALSE);
+					proto_tree_add_item(mq_tree, hf_mq_md_correlid, tvb, offset + 72, 24, FALSE);
+					proto_tree_add_item(mq_tree, hf_mq_md_backountcount, tvb, offset + 96, 4, bLittleEndian);
+					proto_tree_add_item(mq_tree, hf_mq_md_replytoq, tvb, offset + 100, 48, FALSE);
+					proto_tree_add_item(mq_tree, hf_mq_md_replytoqmgr, tvb, offset + 148, 48, FALSE);
+					proto_tree_add_item(mq_tree, hf_mq_md_userid, tvb, offset + 196, 12, FALSE);
+					proto_tree_add_item(mq_tree, hf_mq_md_acttoken, tvb, offset + 208, 32, FALSE);
+					proto_tree_add_item(mq_tree, hf_mq_md_appliddata, tvb, offset + 240, 32, FALSE);
+					proto_tree_add_item(mq_tree, hf_mq_md_putappltype, tvb, offset + 272, 4, bLittleEndian);
+					proto_tree_add_item(mq_tree, hf_mq_md_putapplname, tvb, offset + 276, 28, FALSE);
+					proto_tree_add_item(mq_tree, hf_mq_md_putdate, tvb, offset + 304, 8, FALSE);
+					proto_tree_add_item(mq_tree, hf_mq_md_puttime, tvb, offset + 312, 8, FALSE);
+					proto_tree_add_item(mq_tree, hf_mq_md_applorigindata, tvb, offset + 320, 4, FALSE);
+	
+					if (iVersionMD >= 2)
+					{
+						proto_tree_add_item(mq_tree, hf_mq_md_groupid, tvb, offset + 324, 24, FALSE);
+						proto_tree_add_item(mq_tree, hf_mq_md_msgseqnumber, tvb, offset + 348, 4, bLittleEndian);
+						proto_tree_add_item(mq_tree, hf_mq_md_offset, tvb, offset + 352, 4, bLittleEndian);
+						proto_tree_add_item(mq_tree, hf_mq_md_msgflags, tvb, offset + 356, 4, bLittleEndian);
+						proto_tree_add_item(mq_tree, hf_mq_md_originallength, tvb, offset + 360, 4, bLittleEndian);
+					}
 				}
 			}
 		}
@@ -783,14 +908,14 @@ dissect_mq_md(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean bLit
 
 
 static gint
-dissect_mq_or(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean bLittleEndian, gint offset, gint iNbrRecords, gint offsetOR)
+dissect_mq_or(tvbuff_t *tvb, proto_tree *tree, gint offset, gint iNbrRecords, gint offsetOR)
 {
 	proto_tree	*mq_tree = NULL;
 	proto_item	*ti = NULL;
 	gint iSizeOR = 0;
 	if (offsetOR != 0)
 	{
-		iSizeOR += iNbrRecords * 96;
+		iSizeOR = iNbrRecords * 96;
 		if (tvb_length_remaining(tvb, offset) >= iSizeOR)
 		{
 			if (tree)
@@ -813,14 +938,14 @@ dissect_mq_or(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean bLit
 }
 
 static gint
-dissect_mq_rr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean bLittleEndian, gint offset, gint iNbrRecords, gint offsetRR)
+dissect_mq_rr(tvbuff_t *tvb, proto_tree *tree, gboolean bLittleEndian, gint offset, gint iNbrRecords, gint offsetRR)
 {
 	proto_tree	*mq_tree = NULL;
 	proto_item	*ti = NULL;
 	gint iSizeRR = 0;
 	if (offsetRR != 0)
 	{
-		iSizeRR += iNbrRecords * 8;
+		iSizeRR = iNbrRecords * 8;
 		if (tvb_length_remaining(tvb, offset) >= iSizeRR)
 		{
 			if (tree)
@@ -843,7 +968,7 @@ dissect_mq_rr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean bLit
 }
 
 static gint
-dissect_mq_pmr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean bLittleEndian, gint offset, gint iNbrRecords, gint offsetPMR, guint32 recFlags)
+dissect_mq_pmr(tvbuff_t *tvb, proto_tree *tree, gboolean bLittleEndian, gint offset, gint iNbrRecords, gint offsetPMR, guint32 recFlags)
 {
 	proto_tree	*mq_tree = NULL;
 	proto_item	*ti = NULL;
@@ -912,7 +1037,7 @@ dissect_mq_gmo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean bLi
 	if (tvb_length_remaining(tvb, offset) >= 4)
 	{
 		structId = tvb_get_ntohl(tvb, offset);
-		if ((structId == MQ_STRUCTID_GMO || structId == MQ_STRUCTID_GMO_EBCDIC) && tvb_length_remaining(tvb, offset) >= 72)
+		if ((structId == MQ_STRUCTID_GMO || structId == MQ_STRUCTID_GMO_EBCDIC) && tvb_length_remaining(tvb, offset) >= 8)
 		{
 			guint32 iVersionGMO = 0;
 			iVersionGMO = tvb_get_guint32_endian(tvb, offset + 4, bLittleEndian);
@@ -924,43 +1049,46 @@ dissect_mq_gmo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean bLi
 				case 3: iSizeGMO = 100; break;
 			}
 
-			if (check_col(pinfo->cinfo, COL_INFO)) 
+			if (iSizeGMO != 0 && tvb_length_remaining(tvb, offset) >= iSizeGMO)
 			{
-				guint8* sQueue;
-				sQueue = tvb_get_string(tvb, offset + 24, 48);
-				if (strip_trailing_blanks(sQueue, 48) != 0)
+				if (check_col(pinfo->cinfo, COL_INFO)) 
 				{
-					col_append_fstr(pinfo->cinfo, COL_INFO, " Q=%s", sQueue);
+					guint8* sQueue;
+					sQueue = tvb_get_string(tvb, offset + 24, 48);
+					if (strip_trailing_blanks(sQueue, 48) != 0)
+					{
+						col_append_fstr(pinfo->cinfo, COL_INFO, " Q=%s", sQueue);
+					}
+					g_free(sQueue);
 				}
-				g_free(sQueue);
-			}
-
-			if (tree)
-			{
-				ti = proto_tree_add_text(tree, tvb, offset, iSizeGMO, MQ_TEXT_GMO);
-				mq_tree = proto_item_add_subtree(ti, ett_mq_gmo);
-
-				proto_tree_add_item(mq_tree, hf_mq_gmo_structid, tvb, offset, 4, FALSE);
-				proto_tree_add_item(mq_tree, hf_mq_gmo_version, tvb, offset + 4, 4, bLittleEndian);
-				proto_tree_add_item(mq_tree, hf_mq_gmo_options, tvb, offset + 8, 4, bLittleEndian);
-				proto_tree_add_item(mq_tree, hf_mq_gmo_waitinterval, tvb, offset + 12, 4, bLittleEndian);
-				proto_tree_add_item(mq_tree, hf_mq_gmo_signal1, tvb, offset + 16, 4, bLittleEndian);
-				proto_tree_add_item(mq_tree, hf_mq_gmo_signal2, tvb, offset + 20, 4, bLittleEndian);
-				proto_tree_add_item(mq_tree, hf_mq_gmo_resolvedqname, tvb, offset + 24, 48, FALSE);
-
-				if (iSizeGMO >= 80 && tvb_length_remaining(tvb, offset) >= 80)
+	
+				if (tree)
 				{
-					proto_tree_add_item(mq_tree, hf_mq_gmo_matchoptions, tvb, offset + 72, 4, FALSE);
-					proto_tree_add_item(mq_tree, hf_mq_gmo_groupstatus, tvb, offset + 76, 1, FALSE);
-					proto_tree_add_item(mq_tree, hf_mq_gmo_segmentstatus, tvb, offset + 77, 1, FALSE);
-					proto_tree_add_item(mq_tree, hf_mq_gmo_segmentation, tvb, offset + 78, 1, FALSE);
-					proto_tree_add_item(mq_tree, hf_mq_gmo_reserved, tvb, offset + 79, 1, FALSE);
-				}
-
-				if (iSizeGMO >= 100 && tvb_length_remaining(tvb, offset) >= 100)
-				{
-					proto_tree_add_item(mq_tree, hf_mq_gmo_msgtoken, tvb, offset + 80, 16, FALSE);
-					proto_tree_add_item(mq_tree, hf_mq_gmo_returnedlength, tvb, offset + 96, 4, bLittleEndian);
+					ti = proto_tree_add_text(tree, tvb, offset, iSizeGMO, MQ_TEXT_GMO);
+					mq_tree = proto_item_add_subtree(ti, ett_mq_gmo);
+	
+					proto_tree_add_item(mq_tree, hf_mq_gmo_structid, tvb, offset, 4, FALSE);
+					proto_tree_add_item(mq_tree, hf_mq_gmo_version, tvb, offset + 4, 4, bLittleEndian);
+					proto_tree_add_item(mq_tree, hf_mq_gmo_options, tvb, offset + 8, 4, bLittleEndian);
+					proto_tree_add_item(mq_tree, hf_mq_gmo_waitinterval, tvb, offset + 12, 4, bLittleEndian);
+					proto_tree_add_item(mq_tree, hf_mq_gmo_signal1, tvb, offset + 16, 4, bLittleEndian);
+					proto_tree_add_item(mq_tree, hf_mq_gmo_signal2, tvb, offset + 20, 4, bLittleEndian);
+					proto_tree_add_item(mq_tree, hf_mq_gmo_resolvedqname, tvb, offset + 24, 48, FALSE);
+	
+					if (iVersionGMO >= 2)
+					{
+						proto_tree_add_item(mq_tree, hf_mq_gmo_matchoptions, tvb, offset + 72, 4, FALSE);
+						proto_tree_add_item(mq_tree, hf_mq_gmo_groupstatus, tvb, offset + 76, 1, FALSE);
+						proto_tree_add_item(mq_tree, hf_mq_gmo_segmentstatus, tvb, offset + 77, 1, FALSE);
+						proto_tree_add_item(mq_tree, hf_mq_gmo_segmentation, tvb, offset + 78, 1, FALSE);
+						proto_tree_add_item(mq_tree, hf_mq_gmo_reserved, tvb, offset + 79, 1, FALSE);
+					}
+	
+					if (iVersionGMO >= 3)
+					{
+						proto_tree_add_item(mq_tree, hf_mq_gmo_msgtoken, tvb, offset + 80, 16, FALSE);
+						proto_tree_add_item(mq_tree, hf_mq_gmo_returnedlength, tvb, offset + 96, 4, bLittleEndian);
+					}
 				}
 			}
 		}
@@ -979,83 +1107,121 @@ dissect_mq_pmo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean bLi
 	if (tvb_length_remaining(tvb, offset) >= 4)
 	{
 		structId = tvb_get_ntohl(tvb, offset);
-		if ((structId == MQ_STRUCTID_PMO || structId == MQ_STRUCTID_PMO_EBCDIC) && tvb_length_remaining(tvb, offset) >= 128)
+		if ((structId == MQ_STRUCTID_PMO || structId == MQ_STRUCTID_PMO_EBCDIC) && tvb_length_remaining(tvb, offset) >= 8)
 		{
 			guint32 iVersionPMO = 0;
-			gint iNbrRecords = 0;
-			guint32 iRecFlags = 0;
 			iVersionPMO = tvb_get_guint32_endian(tvb, offset + 4, bLittleEndian);
 			/* Compute length according to version */
 			switch (iVersionPMO) 
 			{
 				case 1: iSizePMO = 128; break;
-				case 2: iSizePMO = 152; break;
+				case 2: iSizePMO = 152;break;
 			}
 
-			if (iSizePMO >= 136)
+			if (iSizePMO != 0 && tvb_length_remaining(tvb, offset) >= iSizePMO)
 			{
-				iNbrRecords = tvb_get_guint32_endian(tvb, offset + 128, bLittleEndian);
-				iRecFlags = tvb_get_guint32_endian(tvb, offset + 132, bLittleEndian);
-			}
-
-			if (check_col(pinfo->cinfo, COL_INFO)) 
-			{
-				guint8* sQueue;
-				sQueue = tvb_get_string(tvb, offset + 32, 48);
-				if (strip_trailing_blanks(sQueue, 48) != 0)
+				gint iNbrRecords = 0;
+				guint32 iRecFlags = 0;
+				if (iVersionPMO >= 2)
 				{
-					col_append_fstr(pinfo->cinfo, COL_INFO, " Q=%s", sQueue);
+					iNbrRecords = tvb_get_guint32_endian(tvb, offset + 128, bLittleEndian);
+					iRecFlags = tvb_get_guint32_endian(tvb, offset + 132, bLittleEndian);
 				}
-				g_free(sQueue);
-			}
-
-			if (tree)
-			{
-				ti = proto_tree_add_text(tree, tvb, offset, iSizePMO, MQ_TEXT_PMO);
-				mq_tree = proto_item_add_subtree(ti, ett_mq_pmo);
-				proto_tree_add_item(mq_tree, hf_mq_pmo_structid, tvb, offset, 4, FALSE);
-				proto_tree_add_item(mq_tree, hf_mq_pmo_version, tvb, offset + 4, 4, bLittleEndian);
-				proto_tree_add_item(mq_tree, hf_mq_pmo_options, tvb, offset + 8, 4, bLittleEndian);
-				proto_tree_add_item(mq_tree, hf_mq_pmo_timeout, tvb, offset + 12, 4, bLittleEndian);
-				proto_tree_add_item(mq_tree, hf_mq_pmo_context, tvb, offset + 16, 4, bLittleEndian);
-				proto_tree_add_item(mq_tree, hf_mq_pmo_knowndestcount, tvb, offset + 20, 4, bLittleEndian);
-				proto_tree_add_item(mq_tree, hf_mq_pmo_unknowndestcount, tvb, offset + 24, 4, bLittleEndian);
-				proto_tree_add_item(mq_tree, hf_mq_pmo_invaliddestcount, tvb, offset + 28, 4, bLittleEndian);
-				proto_tree_add_item(mq_tree, hf_mq_pmo_resolvedqname, tvb, offset + 32, 48, FALSE);
-				proto_tree_add_item(mq_tree, hf_mq_pmo_resolvedqmgrname, tvb, offset + 80, 48, FALSE);
-
-				if (iSizePMO >= 152 && tvb_length_remaining(tvb, offset) >= 152)
+	
+				if (check_col(pinfo->cinfo, COL_INFO)) 
 				{
-					proto_tree_add_item(mq_tree, hf_mq_pmo_recspresent, tvb, offset + 128, 4, bLittleEndian);
-					proto_tree_add_item(mq_tree, hf_mq_pmo_putmsgrecfields, tvb, offset + 132, 4, bLittleEndian);
-					proto_tree_add_item(mq_tree, hf_mq_pmo_putmsgrecoffset, tvb, offset + 136, 4, bLittleEndian);
-					proto_tree_add_item(mq_tree, hf_mq_pmo_responserecoffset, tvb, offset + 140, 4, bLittleEndian);
-					proto_tree_add_item(mq_tree, hf_mq_pmo_putmsgrecptr, tvb, offset + 144, 4, bLittleEndian);
-					proto_tree_add_item(mq_tree, hf_mq_pmo_responserecptr, tvb, offset + 148, 4, bLittleEndian);
+					guint8* sQueue;
+					sQueue = tvb_get_string(tvb, offset + 32, 48);
+					if (strip_trailing_blanks(sQueue, 48) != 0)
+					{
+						col_append_fstr(pinfo->cinfo, COL_INFO, " Q=%s", sQueue);
+					}
+					g_free(sQueue);
 				}
-
-			}
-			if (iNbrRecords > 0)
-			{
-				gint iOffsetPMR = 0;
-				gint iOffsetRR = 0;
-				gint iSizePMRRR = 0;
-
-				*iDistributionListSize = iNbrRecords;
-				iOffsetPMR = tvb_get_guint32_endian(tvb, offset + 136, bLittleEndian);
-				iOffsetRR = tvb_get_guint32_endian(tvb, offset + 140, bLittleEndian);
-				if ((iSizePMRRR = dissect_mq_pmr(tvb, pinfo, tree, bLittleEndian, offset + iSizePMO, iNbrRecords, iOffsetPMR, iRecFlags)) != 0)
-					iSizePMO += iSizePMRRR;
-				if ((iSizePMRRR = dissect_mq_rr(tvb, pinfo, tree, bLittleEndian, offset + iSizePMO, iNbrRecords, iOffsetRR)) != 0)
-					iSizePMO += iSizePMRRR;
+	
+				if (tree)
+				{
+					ti = proto_tree_add_text(tree, tvb, offset, iSizePMO, MQ_TEXT_PMO);
+					mq_tree = proto_item_add_subtree(ti, ett_mq_pmo);
+					proto_tree_add_item(mq_tree, hf_mq_pmo_structid, tvb, offset, 4, FALSE);
+					proto_tree_add_item(mq_tree, hf_mq_pmo_version, tvb, offset + 4, 4, bLittleEndian);
+					proto_tree_add_item(mq_tree, hf_mq_pmo_options, tvb, offset + 8, 4, bLittleEndian);
+					proto_tree_add_item(mq_tree, hf_mq_pmo_timeout, tvb, offset + 12, 4, bLittleEndian);
+					proto_tree_add_item(mq_tree, hf_mq_pmo_context, tvb, offset + 16, 4, bLittleEndian);
+					proto_tree_add_item(mq_tree, hf_mq_pmo_knowndestcount, tvb, offset + 20, 4, bLittleEndian);
+					proto_tree_add_item(mq_tree, hf_mq_pmo_unknowndestcount, tvb, offset + 24, 4, bLittleEndian);
+					proto_tree_add_item(mq_tree, hf_mq_pmo_invaliddestcount, tvb, offset + 28, 4, bLittleEndian);
+					proto_tree_add_item(mq_tree, hf_mq_pmo_resolvedqname, tvb, offset + 32, 48, FALSE);
+					proto_tree_add_item(mq_tree, hf_mq_pmo_resolvedqmgrname, tvb, offset + 80, 48, FALSE);
+	
+					if (iVersionPMO >= 2)
+					{
+						proto_tree_add_item(mq_tree, hf_mq_pmo_recspresent, tvb, offset + 128, 4, bLittleEndian);
+						proto_tree_add_item(mq_tree, hf_mq_pmo_putmsgrecfields, tvb, offset + 132, 4, bLittleEndian);
+						proto_tree_add_item(mq_tree, hf_mq_pmo_putmsgrecoffset, tvb, offset + 136, 4, bLittleEndian);
+						proto_tree_add_item(mq_tree, hf_mq_pmo_responserecoffset, tvb, offset + 140, 4, bLittleEndian);
+						proto_tree_add_item(mq_tree, hf_mq_pmo_putmsgrecptr, tvb, offset + 144, 4, bLittleEndian);
+						proto_tree_add_item(mq_tree, hf_mq_pmo_responserecptr, tvb, offset + 148, 4, bLittleEndian);
+					}
+	
+				}
+				if (iNbrRecords > 0)
+				{
+					gint iOffsetPMR = 0;
+					gint iOffsetRR = 0;
+					gint iSizePMRRR = 0;
+	
+					*iDistributionListSize = iNbrRecords;
+					iOffsetPMR = tvb_get_guint32_endian(tvb, offset + 136, bLittleEndian);
+					iOffsetRR = tvb_get_guint32_endian(tvb, offset + 140, bLittleEndian);
+					if ((iSizePMRRR = dissect_mq_pmr(tvb, tree, bLittleEndian, offset + iSizePMO, iNbrRecords, iOffsetPMR, iRecFlags)) != 0)
+						iSizePMO += iSizePMRRR;
+					if ((iSizePMRRR = dissect_mq_rr(tvb, tree, bLittleEndian, offset + iSizePMO, iNbrRecords, iOffsetRR)) != 0)
+						iSizePMO += iSizePMRRR;
+				}
 			}
 		}
 	}
 	return iSizePMO;
 }
 
+static gint
+dissect_mq_xid(tvbuff_t *tvb, proto_tree *tree, gboolean bLittleEndian, gint offset)
+{
+	proto_tree	*mq_tree = NULL;
+	proto_item	*ti = NULL;
+	gint iSizeXid = 0;
+	if (tvb_length_remaining(tvb, offset) >= 6)
+	{
+		guint8 iXidLength = 0;
+		guint8 iBqLength = 0;
+		iXidLength = tvb_get_guint8(tvb, offset + 4);
+		iBqLength = tvb_get_guint8(tvb, offset + 5);
+		iSizeXid = 6 + iXidLength + iBqLength;
+		
+		if (tvb_length_remaining(tvb, offset) >= iSizeXid) 
+		{
+			if (tree)
+			{
+				ti = proto_tree_add_text(tree, tvb, offset, iSizeXid, MQ_TEXT_XID);
+				mq_tree = proto_item_add_subtree(ti, ett_mq_xa_xid);
+	
+				proto_tree_add_item(mq_tree, hf_mq_xa_xid_formatid, tvb, offset, 4, bLittleEndian);
+				proto_tree_add_item(mq_tree, hf_mq_xa_xid_globalxid_length, tvb, offset + 4, 1, FALSE);
+				proto_tree_add_item(mq_tree, hf_mq_xa_xid_brq_length, tvb, offset + 5, 1, FALSE);
+				proto_tree_add_item(mq_tree, hf_mq_xa_xid_globalxid, tvb, offset + 6, iXidLength, FALSE);
+				proto_tree_add_item(mq_tree, hf_mq_xa_xid_brq, tvb, offset + 6 + iXidLength, iBqLength, FALSE);								
+			}
+			iSizeXid += (4 - (iSizeXid % 4)) % 4; /* Pad for alignment with 4 byte word boundary */
+			if (tvb_length_remaining(tvb, offset) < iSizeXid) iSizeXid = 0;
+		}
+		else iSizeXid = 0;	
+	}
+	return iSizeXid;
+}
+
 static void
-dissect_mq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_tree	*mq_tree = NULL;
 	proto_tree	*mqroot_tree = NULL;
@@ -1070,27 +1236,36 @@ dissect_mq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	gboolean bPayload = FALSE;
 	gboolean bEBCDIC = FALSE;
 	gint iDistributionListSize = 0;
-	gint iOffsetFormat = 0;
+	struct mq_msg_properties tMsgProps;
+	static gint iPreviousFrameNumber = -1;
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL)) col_set_str(pinfo->cinfo, COL_PROTOCOL, "MQ");	  
-	if (tvb_length(tvb) >= 28)
+	if (check_col(pinfo->cinfo, COL_INFO))
+	{
+		/* This is a trick to know whether this is the first PDU in this packet or not */	
+		if (iPreviousFrameNumber != (gint) pinfo->fd->num)
+			col_clear(pinfo->cinfo, COL_INFO);	  
+		else
+			col_append_str(pinfo->cinfo, COL_INFO, " | ");
+	}
+	iPreviousFrameNumber = pinfo->fd->num;
+	if (tvb_length(tvb) >= 4)
 	{
 		structId = tvb_get_ntohl(tvb, offset);
-		if (structId == MQ_STRUCTID_TSH || structId == MQ_STRUCTID_TSH_EBCDIC)
+		if ((structId == MQ_STRUCTID_TSH || structId == MQ_STRUCTID_TSH_EBCDIC) && tvb_length_remaining(tvb, offset) >= 28)
 		{
 			/* An MQ packet always starts with this structure*/
-			gint iSizeTSH = 0;
+			gint iSizeTSH = 28;
+			guint8 iControlFlags = 0;
 			if (structId == MQ_STRUCTID_TSH_EBCDIC) bEBCDIC = TRUE;
 			opcode = tvb_get_guint8(tvb, offset + 9);
-			iSizeTSH = ((opcode >= 0x80 && opcode <= 0x9F) ? 44 : 28); /* guess */
-			if (opcode == MQ_TST_STATUS && tvb_length_remaining(tvb, offset) >= 36) iSizeTSH = 36;
-			if (opcode == MQ_TST_PING && tvb_length_remaining(tvb, offset) >= 32) iSizeTSH = 32;
 			bLittleEndian = (tvb_get_guint8(tvb, offset + 8) == MQ_LITTLE_ENDIAN ? TRUE : FALSE);
 			iSegmentLength = tvb_get_ntohl(tvb, offset + 4);
+			iControlFlags = tvb_get_guint8(tvb, offset + 10);
 
 			if (check_col(pinfo->cinfo, COL_INFO)) 
 			{
-				col_add_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str(opcode, mq_opcode_vals, "Unknown (0x%02x)"));
+				col_append_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str(opcode, mq_opcode_vals, "Unknown (0x%02x)"));
 			}
 
 			if (tree)
@@ -1113,11 +1288,9 @@ dissect_mq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				/* Control flags */
 				{
 					proto_tree	*mq_tree_sub = NULL;
-					guint8 iControlFlags;
 
 					ti = proto_tree_add_item(mq_tree, hf_mq_tsh_controlflags, tvb, offset + 10, 1, FALSE);
 					mq_tree_sub = proto_item_add_subtree(ti, ett_mq_tsh_tcf);
-					iControlFlags = tvb_get_guint8(tvb, offset + 10);
 
 					proto_tree_add_boolean(mq_tree_sub, hf_mq_tsh_tcf_dlq, tvb, offset + 10, 1, iControlFlags);
 					proto_tree_add_boolean(mq_tree_sub, hf_mq_tsh_tcf_reqacc, tvb, offset + 10, 1, iControlFlags);
@@ -1133,186 +1306,223 @@ dissect_mq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				proto_tree_add_item(mq_tree, hf_mq_tsh_luwid, tvb, offset + 12, 8, FALSE);
 				proto_tree_add_item(mq_tree, hf_mq_tsh_encoding, tvb, offset + 20, 4, bLittleEndian);
 				proto_tree_add_item(mq_tree, hf_mq_tsh_ccsid, tvb, offset + 24, 2, bLittleEndian);
-				proto_tree_add_item(mq_tree, hf_mq_tsh_unknown4, tvb, offset + 26, 2, FALSE);
-
-				if (iSizeTSH >= 44 && tvb_length_remaining(tvb, offset) >= 44)
-				{
-						proto_tree_add_item(mq_tree, hf_mq_tsh_length, tvb, offset + 28, 4, FALSE);
-						proto_tree_add_item(mq_tree, hf_mq_tsh_completioncode, tvb, offset + 32, 4, bLittleEndian);
-						proto_tree_add_item(mq_tree, hf_mq_tsh_reasoncode, tvb, offset + 36, 4, bLittleEndian);
-						proto_tree_add_item(mq_tree, hf_mq_tsh_queuehandle, tvb, offset + 40, 4, bLittleEndian);
-				}
-				else if (opcode == MQ_TST_STATUS && tvb_length_remaining(tvb, offset) >= 36)
-				{
-					proto_tree_add_item(mq_tree, hf_mq_tsh_length, tvb, offset + 28, 4, bLittleEndian);
-					proto_tree_add_item(mq_tree, hf_mq_tsh_statuscode, tvb, offset + 32, 4, bLittleEndian);
-				}
-				else if (opcode == MQ_TST_PING && tvb_length_remaining(tvb, offset) >= 32)
-				{
-					proto_tree_add_item(mq_tree, hf_mq_tsh_length, tvb, offset + 28, 4, bLittleEndian);
-				}
+				proto_tree_add_item(mq_tree, hf_mq_tsh_padding, tvb, offset + 26, 2, FALSE);	
 			}
 			offset += iSizeTSH;
 
 			/* Now dissect the embedded structures */
-			if (tvb_length_remaining(tvb, offset) >= 4)
+			if (tvb_length_remaining(tvb, offset) >= 4) 
 			{
 				structId = tvb_get_ntohl(tvb, offset);
-				if ((structId == MQ_STRUCTID_MSH || structId == MQ_STRUCTID_MSH_EBCDIC) && tvb_length_remaining(tvb, offset) >= 20)
+				if (((iControlFlags & MQ_TCF_FIRST) != 0) || opcode < 0x80)
 				{
-					gint iSizeMSH = 20;
-					iSizePayload = tvb_get_guint32_endian(tvb, offset + 16, bLittleEndian);
-					bPayload = TRUE;
-					if (tree)
+					/* First MQ segment (opcodes below 0x80 never span several TSH) */
+					gint iSizeAPI = 16;
+					if (opcode >= 0x80 && opcode <= 0x9F && tvb_length_remaining(tvb, offset) >= 16)
 					{
-						ti = proto_tree_add_text(mqroot_tree, tvb, offset, iSizeMSH, MQ_TEXT_MSH);
-						mq_tree = proto_item_add_subtree(ti, ett_mq_msh);
-
-						proto_tree_add_item(mq_tree, hf_mq_msh_structid, tvb, offset + 0, 4, FALSE);
-						proto_tree_add_item(mq_tree, hf_mq_msh_seqnum, tvb, offset + 4, 4, bLittleEndian);
-						proto_tree_add_item(mq_tree, hf_mq_msh_datalength, tvb, offset + 8, 4, bLittleEndian);
-						proto_tree_add_item(mq_tree, hf_mq_msh_unknown1, tvb, offset + 12, 4, bLittleEndian);
-						proto_tree_add_item(mq_tree, hf_mq_msh_msglength, tvb, offset + 16, 4, bLittleEndian);
-					}
-					offset += iSizeMSH;
-				}
-				else if (opcode == MQ_TST_PING && tvb_length_remaining(tvb, offset) > 0)
-				{
-					if (tree)
-					{
-						ti = proto_tree_add_text(mqroot_tree, tvb, offset, -1, MQ_TEXT_PING);
-						mq_tree = proto_item_add_subtree(ti, ett_mq_ping);
-
-						proto_tree_add_item(mq_tree, hf_mq_ping_buffer, tvb, offset, -1, FALSE);
-					}
-					offset = tvb_length(tvb);
-				}
-				else if (opcode == MQ_TST_MQCONN && tvb_length_remaining(tvb, offset) >= 112)
-				{
-					gint iSizeCONN = 0;
-					/* The MQCONN structure is special because it does not start with a structid */
-					if (check_col(pinfo->cinfo, COL_INFO)) 
-					{
-						guint8* sApplicationName;
-						guint8* sQueueManager;
-						sApplicationName = tvb_get_string(tvb, offset + 48, 28);
-						if (strip_trailing_blanks(sApplicationName, 28) != 0)
+						guint32 iReturnCode = 0;
+						iReturnCode = tvb_get_guint32_endian(tvb, offset + 8, bLittleEndian);
+						if (check_col(pinfo->cinfo, COL_INFO)) 
 						{
-							col_append_fstr(pinfo->cinfo, COL_INFO, ": App=%s", sApplicationName);
+							if (iReturnCode != 0)
+								col_append_fstr(pinfo->cinfo, COL_INFO, " [RC=%d]", iReturnCode);
 						}
-						g_free(sApplicationName);
-						sQueueManager = tvb_get_string(tvb, offset, 48);
-						if (strip_trailing_blanks(sQueueManager, 48) != 0)
+
+						if (tree)
 						{
-							col_append_fstr(pinfo->cinfo, COL_INFO, " QM=%s", sQueueManager);
+							ti = proto_tree_add_text(mqroot_tree, tvb, offset, iSizeAPI, MQ_TEXT_API);
+							mq_tree = proto_item_add_subtree(ti, ett_mq_api);
+	
+							proto_tree_add_item(mq_tree, hf_mq_api_replylength, tvb, offset, 4, FALSE);
+							proto_tree_add_item(mq_tree, hf_mq_api_completioncode, tvb, offset + 4, 4, bLittleEndian);
+							proto_tree_add_item(mq_tree, hf_mq_api_reasoncode, tvb, offset + 8, 4, bLittleEndian);
+							proto_tree_add_item(mq_tree, hf_mq_api_objecthandle, tvb, offset + 12, 4, bLittleEndian);
 						}
-						g_free(sQueueManager);
+						offset += iSizeAPI;
+						structId = (tvb_length_remaining(tvb, offset) >= 4) ? tvb_get_ntohl(tvb, offset) : MQ_STRUCTID_NULL;
 					}
-
-					/*iSizeCONN = ((iVersionID == 4 || iVersionID == 6) ? 120 : 112);*/ /* guess */
-					/* The iVersionID is available in the previous ID segment, we should keep a state 
-					 * Instead we rely on the segment length announced in the TSH */
-					iSizeCONN = iSegmentLength - iSizeTSH;
-					if (iSizeCONN != 112 && iSizeCONN != 120) iSizeCONN = 120;
-
-					if (tree)
+					if ((structId == MQ_STRUCTID_MSH || structId == MQ_STRUCTID_MSH_EBCDIC) && tvb_length_remaining(tvb, offset) >= 20)
 					{
-						ti = proto_tree_add_text(mqroot_tree, tvb, offset, iSizeCONN, MQ_TEXT_CONN);
-						mq_tree = proto_item_add_subtree(ti, ett_mq_conn);
-
-						proto_tree_add_item(mq_tree, hf_mq_conn_queuemanager, tvb, offset, 48, FALSE);
-						proto_tree_add_item(mq_tree, hf_mq_conn_appname, tvb, offset + 48, 28, FALSE);
-						proto_tree_add_item(mq_tree, hf_mq_conn_apptype, tvb, offset + 76, 4, bLittleEndian);
-						proto_tree_add_item(mq_tree, hf_mq_conn_acttoken, tvb, offset + 80, 32, FALSE);
+						gint iSizeMSH = 20;
+						iSizePayload = tvb_get_guint32_endian(tvb, offset + 16, bLittleEndian);
+						bPayload = TRUE;
+						if (tree)
+						{
+							ti = proto_tree_add_text(mqroot_tree, tvb, offset, iSizeMSH, MQ_TEXT_MSH);
+							mq_tree = proto_item_add_subtree(ti, ett_mq_msh);
+	
+							proto_tree_add_item(mq_tree, hf_mq_msh_structid, tvb, offset + 0, 4, FALSE);
+							proto_tree_add_item(mq_tree, hf_mq_msh_seqnum, tvb, offset + 4, 4, bLittleEndian);
+							proto_tree_add_item(mq_tree, hf_mq_msh_datalength, tvb, offset + 8, 4, bLittleEndian);
+							proto_tree_add_item(mq_tree, hf_mq_msh_unknown1, tvb, offset + 12, 4, bLittleEndian);
+							proto_tree_add_item(mq_tree, hf_mq_msh_msglength, tvb, offset + 16, 4, bLittleEndian);
+						}
+						offset += iSizeMSH;
 					}
+					else if (opcode == MQ_TST_STATUS && tvb_length_remaining(tvb, offset) >= 8)
+					{
+						/* Some status are 28 bytes long and some are 36 bytes long */
+						guint32 iStatus = 0;
+						iStatus = tvb_get_guint32_endian(tvb, offset + 4, bLittleEndian);
 
-					if (tvb_length_remaining(tvb, offset) >= 120)
+						if (check_col(pinfo->cinfo, COL_INFO)) 
+						{
+							if (iStatus != 0)
+								col_append_fstr(pinfo->cinfo, COL_INFO, ": Code=%s", val_to_str(iStatus, mq_status_vals, "Unknown (0x%08x)"));
+						}
+						if (tree)
+						{
+							ti = proto_tree_add_text(mqroot_tree, tvb, offset, 8, MQ_TEXT_STAT);
+							mq_tree = proto_item_add_subtree(ti, ett_mq_status);
+	
+							proto_tree_add_item(mq_tree, hf_mq_status_length, tvb, offset, 4, bLittleEndian);
+							proto_tree_add_item(mq_tree, hf_mq_status_code, tvb, offset + 4, 4, bLittleEndian);
+						}
+						offset += 8;
+					}
+					else if (opcode == MQ_TST_PING && tvb_length_remaining(tvb, offset) > 4)
 					{
 						if (tree)
 						{
-							proto_tree_add_item(mq_tree, hf_mq_conn_version, tvb, offset + 112, 4, bLittleEndian);
-							proto_tree_add_item(mq_tree, hf_mq_conn_options, tvb, offset + 116, 4, bLittleEndian);
+							ti = proto_tree_add_text(mqroot_tree, tvb, offset, -1, MQ_TEXT_PING);
+							mq_tree = proto_item_add_subtree(ti, ett_mq_ping);
+	
+							proto_tree_add_item(mq_tree, hf_mq_ping_length, tvb, offset, 4, bLittleEndian);
+							proto_tree_add_item(mq_tree, hf_mq_ping_buffer, tvb, offset + 4, -1, FALSE);
+						}
+						offset = tvb_length(tvb);
+					}
+					else if (opcode == MQ_TST_MQCONN && tvb_length_remaining(tvb, offset) > 0)
+					{
+						gint iSizeCONN = 0;
+						/*iSizeCONN = ((iVersionID == 4 || iVersionID == 6) ? 120 : 112);*/ /* guess */
+						/* The iVersionID is available in the previous ID segment, we should keep a state 
+						 * Instead we rely on the segment length announced in the TSH */
+						/* The MQCONN structure is special because it does not start with a structid */
+						iSizeCONN = iSegmentLength - iSizeTSH - iSizeAPI;
+						if (iSizeCONN != 112 && iSizeCONN != 120) iSizeCONN = 0;
+	
+						if (iSizeCONN != 0 && tvb_length_remaining(tvb, offset) >= iSizeCONN)
+						{
+							if (check_col(pinfo->cinfo, COL_INFO)) 
+							{
+								guint8* sApplicationName;
+								guint8* sQueueManager;
+								sApplicationName = tvb_get_string(tvb, offset + 48, 28);
+								if (strip_trailing_blanks(sApplicationName, 28) != 0)
+								{
+									col_append_fstr(pinfo->cinfo, COL_INFO, ": App=%s", sApplicationName);
+								}
+								g_free(sApplicationName);
+								sQueueManager = tvb_get_string(tvb, offset, 48);
+								if (strip_trailing_blanks(sQueueManager, 48) != 0)
+								{
+									col_append_fstr(pinfo->cinfo, COL_INFO, " QM=%s", sQueueManager);
+								}
+								g_free(sQueueManager);
+							}
+		
+		
+							if (tree)
+							{
+								ti = proto_tree_add_text(mqroot_tree, tvb, offset, iSizeCONN, MQ_TEXT_CONN);
+								mq_tree = proto_item_add_subtree(ti, ett_mq_conn);
+		
+								proto_tree_add_item(mq_tree, hf_mq_conn_queuemanager, tvb, offset, 48, FALSE);
+								proto_tree_add_item(mq_tree, hf_mq_conn_appname, tvb, offset + 48, 28, FALSE);
+								proto_tree_add_item(mq_tree, hf_mq_conn_apptype, tvb, offset + 76, 4, bLittleEndian);
+								proto_tree_add_item(mq_tree, hf_mq_conn_acttoken, tvb, offset + 80, 32, FALSE);
+	
+								if (iSizeCONN >= 120)
+								{
+									proto_tree_add_item(mq_tree, hf_mq_conn_version, tvb, offset + 112, 4, bLittleEndian);
+									proto_tree_add_item(mq_tree, hf_mq_conn_options, tvb, offset + 116, 4, bLittleEndian);
+								}
+							}	
+							offset += iSizeCONN;
 						}
 					}
-					offset += iSizeCONN;
-				}
-				else if ((opcode == MQ_TST_MQINQ || opcode == MQ_TST_MQINQ_REPLY || opcode == MQ_TST_MQSET) && tvb_length_remaining(tvb, offset) >= 12)
-				{
-					gint iSizeINQ = 0;
-					/* The MQINQ/MQSET structure is special because it does not start with a structid */
-					iSizeINQ = iSegmentLength - iSizeTSH;
-					if (tvb_length_remaining(tvb, offset) >= iSizeINQ)
+					else if ((opcode == MQ_TST_MQINQ || opcode == MQ_TST_MQINQ_REPLY || opcode == MQ_TST_MQSET) && tvb_length_remaining(tvb, offset) >= 12)
 					{
+						/* The MQINQ/MQSET structure is special because it does not start with a structid */
+						gint iNbSelectors = 0;
+						gint iNbIntegers = 0;
+						gint iCharLen = 0;
+						gint iOffsetINQ = 0;
+						gint iSelector = 0;
+	
+						iNbSelectors = tvb_get_guint32_endian(tvb, offset, bLittleEndian);
+						iNbIntegers = tvb_get_guint32_endian(tvb, offset + 4, bLittleEndian);
+						iCharLen = tvb_get_guint32_endian(tvb, offset + 8, bLittleEndian);
+	
 						if (tree)
 						{
-							gint iNbSelectors = 0;
-							gint iNbIntegers = 0;
-							gint iCharLen = 0;
-							gint iOffsetINQ = 0;
-							gint iSelector = 0;
-							ti = proto_tree_add_text(mqroot_tree, tvb, offset, iSizeINQ, MQ_TEXT_INQ);
+							ti = proto_tree_add_text(mqroot_tree, tvb, offset, -1, MQ_TEXT_INQ);
 							mq_tree = proto_item_add_subtree(ti, ett_mq_inq);
-
-							iNbSelectors = tvb_get_guint32_endian(tvb, offset, bLittleEndian);
-							iNbIntegers = tvb_get_guint32_endian(tvb, offset + 4, bLittleEndian);
-							iCharLen = tvb_get_guint32_endian(tvb, offset + 8, bLittleEndian);
-
+	
 							proto_tree_add_item(mq_tree, hf_mq_inq_nbsel, tvb, offset, 4, bLittleEndian);
 							proto_tree_add_item(mq_tree, hf_mq_inq_nbint, tvb, offset + 4, 4, bLittleEndian);
 							proto_tree_add_item(mq_tree, hf_mq_inq_charlen, tvb, offset + 8, 4, bLittleEndian);
-							iOffsetINQ = 12; 
-							if (tvb_length_remaining(tvb, offset) >= iNbSelectors * 4)
+						}
+						iOffsetINQ = 12; 
+						if (tvb_length_remaining(tvb, offset + iOffsetINQ) >= iNbSelectors * 4)
+						{
+							if (tree)
 							{
 								for (iSelector = 0; iSelector < iNbSelectors; iSelector++)
 								{
-									proto_tree_add_item(mq_tree, hf_mq_inq_sel, tvb, offset + iOffsetINQ, 4, bLittleEndian);
-									iOffsetINQ += 4;
+									proto_tree_add_item(mq_tree, hf_mq_inq_sel, tvb, offset + iOffsetINQ + iSelector * 4, 4, bLittleEndian);
 								}
-								if (opcode == MQ_TST_MQINQ_REPLY || opcode == MQ_TST_MQSET)
+							}
+							iOffsetINQ += iNbSelectors * 4;
+							if (opcode == MQ_TST_MQINQ_REPLY || opcode == MQ_TST_MQSET)
+							{
+								gint iSizeINQValues = 0;
+								iSizeINQValues = iNbIntegers * 4 + iCharLen;
+								if (tvb_length_remaining(tvb, offset + iOffsetINQ) >= iSizeINQValues)
 								{
-									gint iSizeINQValues = 0;
-									iSizeINQValues = iNbIntegers * 4 + iCharLen;
-									if (tvb_length_remaining(tvb, offset) >= iSizeINQValues)
+									gint iInteger = 0;
+									if (tree)
 									{
-										for (iSelector = 0; iSelector < iNbIntegers; iSelector++)
+										for (iInteger = 0; iInteger < iNbIntegers; iInteger++)
 										{
-											proto_tree_add_item(mq_tree, hf_mq_inq_intvalue, tvb, offset + iOffsetINQ, 4, bLittleEndian);
-											iOffsetINQ += 4;
+											proto_tree_add_item(mq_tree, hf_mq_inq_intvalue, tvb, offset + iOffsetINQ + iInteger * 4, 4, bLittleEndian);
 										}
-										if (iCharLen != 0)
-											proto_tree_add_item(mq_tree, hf_mq_inq_charvalues, tvb, offset + iOffsetINQ, iSizeINQ - iOffsetINQ, FALSE);
+									}
+									iOffsetINQ += iNbIntegers * 4;
+									if (iCharLen != 0)
+									{
+										if (tree)
+										{
+											proto_tree_add_item(mq_tree, hf_mq_inq_charvalues, tvb, offset + iOffsetINQ, iCharLen, FALSE);
+										}
 									}
 								}
 							}
 						}
-						offset += iSizeINQ;
+						offset += tvb_length(tvb);
 					}
-				}
-				else if ((opcode == MQ_TST_SPI || opcode == MQ_TST_SPI_REPLY) && tvb_length_remaining(tvb, offset) >= 12)
-				{
-					gint iSizeSPI = 0;
-					gint iOffsetSPI = 0;
-					guint32 iSpiVerb = 0;
-					/* The SPI structure is special because it does not start with a structid */
-					iSizeSPI = iSegmentLength - iSizeTSH;
-					if (tvb_length_remaining(tvb, offset) >= iSizeSPI)
+					else if ((opcode == MQ_TST_SPI || opcode == MQ_TST_SPI_REPLY) && tvb_length_remaining(tvb, offset) >= 12)
 					{
+						gint iOffsetSPI = 0;
+						guint32 iSpiVerb = 0;
+	
 						iSpiVerb = tvb_get_guint32_endian(tvb, offset, bLittleEndian);
 						if (check_col(pinfo->cinfo, COL_INFO)) 
 						{
 							col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)", val_to_str(iSpiVerb, mq_spi_verbs_vals, "Unknown (0x%08x)"));
 						}
-
+	
 						if (tree)
 						{
 							ti = proto_tree_add_text(mqroot_tree, tvb, offset, 12, MQ_TEXT_SPI);
 							mq_tree = proto_item_add_subtree(ti, ett_mq_spi);
-
+	
 							proto_tree_add_item(mq_tree, hf_mq_spi_verb, tvb, offset, 4, bLittleEndian);
 							proto_tree_add_item(mq_tree, hf_mq_spi_version, tvb, offset + 4, 4, bLittleEndian);
 							proto_tree_add_item(mq_tree, hf_mq_spi_length, tvb, offset + 8, 4, bLittleEndian);
 						}
-
+	
 						offset += 12;
 						structId = (tvb_length_remaining(tvb, offset) >= 4) ? tvb_get_ntohl(tvb, offset) : MQ_STRUCTID_NULL;
 						if ((structId == MQ_STRUCTID_SPQU || structId == MQ_STRUCTID_SPAU_EBCDIC
@@ -1321,7 +1531,7 @@ dissect_mq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 							|| structId == MQ_STRUCTID_SPAU || structId == MQ_STRUCTID_SPAU_EBCDIC)
 							&& tvb_length_remaining(tvb, offset) >= 12)
 						{
-							gint iSizeMD = 0;
+							gint iSizeSPIMD = 0;
 							if (tree)
 							{
 								guint8* sStructId;
@@ -1329,20 +1539,20 @@ dissect_mq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 								ti = proto_tree_add_text(mqroot_tree, tvb, offset, 12, (const char*)sStructId);
 								g_free(sStructId);
 								mq_tree = proto_item_add_subtree(ti, ett_mq_spi_base);
-
+	
 								proto_tree_add_item(mq_tree, hf_mq_spi_base_structid, tvb, offset, 4, FALSE);
 								proto_tree_add_item(mq_tree, hf_mq_spi_base_version, tvb, offset + 4, 4, bLittleEndian);
 								proto_tree_add_item(mq_tree, hf_mq_spi_base_length, tvb, offset + 8, 4, bLittleEndian);
 							}
 							offset += 12;
 							structId = (tvb_length_remaining(tvb, offset) >= 4) ? tvb_get_ntohl(tvb, offset) : MQ_STRUCTID_NULL;
-
-							if ((iSizeMD = dissect_mq_md(tvb, pinfo, mqroot_tree, bLittleEndian, offset, &iOffsetFormat)) != 0)
+	
+							if ((iSizeSPIMD = dissect_mq_md(tvb, mqroot_tree, bLittleEndian, offset, &tMsgProps)) != 0)
 							{
 								gint iSizeGMO = 0;
 								gint iSizePMO = 0;
-								offset += iSizeMD;
-
+								offset += iSizeSPIMD;
+	
 								if ((iSizeGMO = dissect_mq_gmo(tvb, pinfo, mqroot_tree, bLittleEndian, offset)) != 0)
 								{
 									offset += iSizeGMO;
@@ -1353,7 +1563,7 @@ dissect_mq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 								}
 								structId = (tvb_length_remaining(tvb, offset) >= 4) ? tvb_get_ntohl(tvb, offset) : MQ_STRUCTID_NULL;
 							}
-
+	
 							if ((structId == MQ_STRUCTID_SPQO || structId == MQ_STRUCTID_SPQO_EBCDIC
 								|| structId == MQ_STRUCTID_SPQI || structId == MQ_STRUCTID_SPQI_EBCDIC
 								|| structId == MQ_STRUCTID_SPPO || structId == MQ_STRUCTID_SPPO_EBCDIC
@@ -1372,12 +1582,12 @@ dissect_mq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 									ti = proto_tree_add_text(mqroot_tree, tvb, offset, -1, (const char*)sStructId);
 									g_free(sStructId);
 									mq_tree = proto_item_add_subtree(ti, ett_mq_spi_base);
-
+	
 									proto_tree_add_item(mq_tree, hf_mq_spi_base_structid, tvb, offset, 4, FALSE);
 									proto_tree_add_item(mq_tree, hf_mq_spi_base_version, tvb, offset + 4, 4, bLittleEndian);
 									proto_tree_add_item(mq_tree, hf_mq_spi_base_length, tvb, offset + 8, 4, bLittleEndian);
 								}
-
+	
 								if (structId == MQ_STRUCTID_SPQO && tvb_length_remaining(tvb, offset) >= 16)
 								{
 									if (tree)
@@ -1385,7 +1595,7 @@ dissect_mq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 										gint iVerbNumber = 0;
 										proto_tree_add_item(mq_tree, hf_mq_spi_spqo_nbverb, tvb, offset + 12, 4, bLittleEndian);
 										iVerbNumber = tvb_get_guint32_endian(tvb, offset + 12, bLittleEndian);
-
+	
 										if (tvb_length_remaining(tvb, offset) >= iVerbNumber * 20 + 16)
 										{
 											gint iVerb = 0;
@@ -1432,11 +1642,11 @@ dissect_mq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 										{
 											proto_tree	*mq_tree_sub = NULL;
 											gint iOptionsFlags;
-
+	
 											ti = proto_tree_add_item(mq_tree, hf_mq_spi_spgo_options, tvb, offset + 12, 4, bLittleEndian);
 											mq_tree_sub = proto_item_add_subtree(ti, ett_mq_spi_options);
 											iOptionsFlags = tvb_get_guint32_endian(tvb, offset + 12, bLittleEndian);
-
+	
 											proto_tree_add_boolean(mq_tree_sub, hf_mq_spi_options_deferred, tvb, offset + 12, 4, iOptionsFlags);
 											proto_tree_add_boolean(mq_tree_sub, hf_mq_spi_options_syncpoint, tvb, offset + 12, 4, iOptionsFlags);
 											proto_tree_add_boolean(mq_tree_sub, hf_mq_spi_options_blank, tvb, offset + 12, 4, iOptionsFlags);
@@ -1455,437 +1665,421 @@ dissect_mq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 							}
 						}
 					}
-				}
-				else if ((structId == MQ_STRUCTID_ID || structId == MQ_STRUCTID_ID_EBCDIC) && tvb_length_remaining(tvb, offset) >= 44)
-				{
-					guint8 iVersionID = 0;
-					gint iSizeID = 0;
-					iVersionID = tvb_get_guint8(tvb, offset + 4);
-					iSizeID = (iVersionID < 4 ? 44 : 104); /* guess */
-					/* actually 102 but must be aligned to multiple of 4 */
-
-					if (check_col(pinfo->cinfo, COL_INFO)) 
+					else if ((opcode >= 0xA0 && opcode <= 0xB9) && tvb_length_remaining(tvb, offset) >= 16)
 					{
-						guint8* sChannel;
-						sChannel = tvb_get_string(tvb, offset + 24, 20);
-						if (strip_trailing_blanks(sChannel, 20) != 0)
+						/* The XA structures are special because they do not start with a structid */					
+						if (tree)
 						{
-							col_append_fstr(pinfo->cinfo, COL_INFO, ": CHL=%s", sChannel);
-						}
-						g_free(sChannel);
-					}
-
-					if (tree)
-					{
-						ti = proto_tree_add_text(mqroot_tree, tvb, offset, iSizeID, MQ_TEXT_ID);
-						mq_tree = proto_item_add_subtree(ti, ett_mq_id);
-
-						proto_tree_add_item(mq_tree, hf_mq_id_structid, tvb, offset, 4, FALSE);
-						proto_tree_add_item(mq_tree, hf_mq_id_level, tvb, offset + 4, 1, FALSE);
-
-						/* ID flags */
-						{
-							proto_tree	*mq_tree_sub = NULL;
-							guint8 iIDFlags;
-
-							ti = proto_tree_add_item(mq_tree, hf_mq_id_flags, tvb, offset + 5, 1, FALSE);
-							mq_tree_sub = proto_item_add_subtree(ti, ett_mq_id_icf);
-							iIDFlags = tvb_get_guint8(tvb, offset + 5);
-
-							proto_tree_add_boolean(mq_tree_sub, hf_mq_id_icf_runtime, tvb, offset + 5, 1, iIDFlags);
-							proto_tree_add_boolean(mq_tree_sub, hf_mq_id_icf_svrsec, tvb, offset + 5, 1, iIDFlags);
-							proto_tree_add_boolean(mq_tree_sub, hf_mq_id_icf_mqreq, tvb, offset + 5, 1, iIDFlags);
-							proto_tree_add_boolean(mq_tree_sub, hf_mq_id_icf_splitmsg, tvb, offset + 5, 1, iIDFlags);
-							proto_tree_add_boolean(mq_tree_sub, hf_mq_id_icf_convcap, tvb, offset + 5, 1, iIDFlags);
-							proto_tree_add_boolean(mq_tree_sub, hf_mq_id_icf_msgseq, tvb, offset + 5, 1, iIDFlags);
-						}
-
-						proto_tree_add_item(mq_tree, hf_mq_id_unknown2, tvb, offset + 6, 1, FALSE);
-
-						/* Error flags */
-						{
-							proto_tree	*mq_tree_sub = NULL;
-							guint8 iErrorFlags;
-
-							ti = proto_tree_add_item(mq_tree, hf_mq_id_ieflags, tvb, offset + 7, 1, FALSE);
-							mq_tree_sub = proto_item_add_subtree(ti, ett_mq_id_ief);
-							iErrorFlags = tvb_get_guint8(tvb, offset + 7);
-
-							proto_tree_add_boolean(mq_tree_sub, hf_mq_id_ief_hbint, tvb, offset + 7, 1, iErrorFlags);
-							proto_tree_add_boolean(mq_tree_sub, hf_mq_id_ief_seqwrap, tvb, offset + 7, 1, iErrorFlags);
-							proto_tree_add_boolean(mq_tree_sub, hf_mq_id_ief_mxmsgpb, tvb, offset + 7, 1, iErrorFlags);
-							proto_tree_add_boolean(mq_tree_sub, hf_mq_id_ief_mxmsgsz, tvb, offset + 7, 1, iErrorFlags);
-							proto_tree_add_boolean(mq_tree_sub, hf_mq_id_ief_fap, tvb, offset + 7, 1, iErrorFlags);
-							proto_tree_add_boolean(mq_tree_sub, hf_mq_id_ief_mxtrsz, tvb, offset + 7, 1, iErrorFlags);
-							proto_tree_add_boolean(mq_tree_sub, hf_mq_id_ief_enc, tvb, offset + 7, 1, iErrorFlags);
-							proto_tree_add_boolean(mq_tree_sub, hf_mq_id_ief_ccsid, tvb, offset + 7, 1, iErrorFlags);
-						}
-
-						proto_tree_add_item(mq_tree, hf_mq_id_unknown4, tvb, offset + 8, 2, FALSE);
-						proto_tree_add_item(mq_tree, hf_mq_id_maxmsgperbatch, tvb, offset + 10, 2, bLittleEndian);
-						proto_tree_add_item(mq_tree, hf_mq_id_maxtransmissionsize, tvb, offset + 12, 4, bLittleEndian);
-						proto_tree_add_item(mq_tree, hf_mq_id_maxmsgsize, tvb, offset + 16, 4, bLittleEndian);
-						proto_tree_add_item(mq_tree, hf_mq_id_sequencewrapvalue, tvb, offset + 20, 4, bLittleEndian);
-						proto_tree_add_item(mq_tree, hf_mq_id_channel, tvb, offset + 24, 20, FALSE);
-					}
-
-					if (iSizeID == 104 && tvb_length_remaining(tvb, offset) >= 104)
-					{
-						if (check_col(pinfo->cinfo, COL_INFO)) 
-						{
-							guint8* sQueueManager;
-							sQueueManager = tvb_get_string(tvb, offset + 48, 48);
-							if (strip_trailing_blanks(sQueueManager,48) != 0)
+							ti = proto_tree_add_text(mqroot_tree, tvb, offset, 16, "%s (%s)", MQ_TEXT_XA, val_to_str(opcode, mq_opcode_vals, "Unknown (0x%02x)"));
+							mq_tree = proto_item_add_subtree(ti, ett_mq_xa);
+	
+							proto_tree_add_item(mq_tree, hf_mq_xa_length, tvb, offset, 4, FALSE);
+							proto_tree_add_item(mq_tree, hf_mq_xa_returnvalue, tvb, offset + 4, 4, bLittleEndian);
+	
+							/* Transaction Manager flags */
 							{
-								col_append_fstr(pinfo->cinfo, COL_INFO, " QM=%s", sQueueManager);
+								proto_tree	*mq_tree_sub = NULL;
+								guint32 iTMFlags;
+			
+								ti = proto_tree_add_item(mq_tree, hf_mq_xa_tmflags, tvb, offset + 8, 4, bLittleEndian);
+								mq_tree_sub = proto_item_add_subtree(ti, ett_mq_xa_tmflags);
+								iTMFlags = tvb_get_guint32_endian(tvb, offset + 8, bLittleEndian);
+	
+								proto_tree_add_boolean(mq_tree_sub, hf_mq_xa_tmflags_onephase, tvb, offset + 8, 4, iTMFlags);
+								proto_tree_add_boolean(mq_tree_sub, hf_mq_xa_tmflags_fail, tvb, offset + 8, 4, iTMFlags);
+								proto_tree_add_boolean(mq_tree_sub, hf_mq_xa_tmflags_resume, tvb, offset + 8, 4, iTMFlags);
+								proto_tree_add_boolean(mq_tree_sub, hf_mq_xa_tmflags_success, tvb, offset + 8, 4, iTMFlags);
+								proto_tree_add_boolean(mq_tree_sub, hf_mq_xa_tmflags_suspend, tvb, offset + 8, 4, iTMFlags);
+								proto_tree_add_boolean(mq_tree_sub, hf_mq_xa_tmflags_startrscan, tvb, offset + 8, 4, iTMFlags);
+								proto_tree_add_boolean(mq_tree_sub, hf_mq_xa_tmflags_endrscan, tvb, offset + 8, 4, iTMFlags);
+								proto_tree_add_boolean(mq_tree_sub, hf_mq_xa_tmflags_join, tvb, offset + 8, 4, iTMFlags);
 							}
-							g_free(sQueueManager);
+	
+							proto_tree_add_item(mq_tree, hf_mq_xa_rmid, tvb, offset + 12, 4, bLittleEndian);
 						}
-
-						if (tree)
+						offset += 16;
+						if (opcode == MQ_TST_XA_START || opcode == MQ_TST_XA_END || opcode == MQ_TST_XA_PREPARE
+							|| opcode == MQ_TST_XA_COMMIT || opcode == MQ_TST_XA_ROLLBACK || opcode == MQ_TST_XA_FORGET
+							|| opcode == MQ_TST_XA_COMPLETE)
 						{
-							proto_tree_add_item(mq_tree, hf_mq_id_capflags, tvb, offset + 44, 1, FALSE);
-							proto_tree_add_item(mq_tree, hf_mq_id_unknown5, tvb, offset + 45, 1, FALSE);
-							proto_tree_add_item(mq_tree, hf_mq_id_ccsid, tvb, offset + 46, 2, bLittleEndian);
-							proto_tree_add_item(mq_tree, hf_mq_id_queuemanager, tvb, offset + 48, 48, FALSE);
-							proto_tree_add_item(mq_tree, hf_mq_id_heartbeatinterval, tvb, offset + 96, 4, bLittleEndian);
+							gint iSizeXid = 0;
+							if ((iSizeXid = dissect_mq_xid(tvb, mqroot_tree, bLittleEndian, offset)) != 0)
+								offset += iSizeXid;
 						}
-
-					}
-					offset += iSizeID;
-				}
-				else if ((structId == MQ_STRUCTID_UID || structId == MQ_STRUCTID_UID_EBCDIC) && tvb_length_remaining(tvb, offset) >= 28)
-				{
-					gint iSizeUID = 0;
-					if (check_col(pinfo->cinfo, COL_INFO)) 
-					{
-						guint8* sUserId;
-						sUserId = tvb_get_string(tvb, offset + 4, 12);
-						if (strip_trailing_blanks(sUserId, 12) != 0)
+						else if ((opcode == MQ_TST_XA_OPEN || opcode == MQ_TST_XA_CLOSE)
+							&& tvb_length_remaining(tvb, offset) >= 1)
 						{
-							col_append_fstr(pinfo->cinfo, COL_INFO, ": User=%s", sUserId);
+							guint8 iXAInfoLength = 0;
+							iXAInfoLength = tvb_get_guint8(tvb, offset);
+							if (tvb_length_remaining(tvb, offset) >= iXAInfoLength + 1)
+							{
+								if (tree)
+								{
+									ti = proto_tree_add_text(mqroot_tree, tvb, offset, iXAInfoLength + 1, MQ_TEXT_XINF);
+									mq_tree = proto_item_add_subtree(ti, ett_mq_xa_info);
+	
+									proto_tree_add_item(mq_tree, hf_mq_xa_xainfo_length, tvb, offset, 1, FALSE);
+									proto_tree_add_item(mq_tree, hf_mq_xa_xainfo_value, tvb, offset + 1, iXAInfoLength, FALSE);
+								}
+							}
+							offset += 1 + iXAInfoLength;
 						}
-						g_free(sUserId);
-					}
-
-					/* iSizeUID = (iVersionID < 5 ? 28 : 132);  guess */
-					/* The iVersionID is available in the previous ID segment, we should keep a state *
-					 * Instead we rely on the segment length announced in the TSH */
-					iSizeUID = iSegmentLength - iSizeTSH;
-					if (iSizeUID != 28 && iSizeUID != 132) iSizeUID = 132;
-
-					if (tree)
-					{
-						ti = proto_tree_add_text(mqroot_tree, tvb, offset, iSizeUID, MQ_TEXT_UID);
-						mq_tree = proto_item_add_subtree(ti, ett_mq_uid);
-
-						proto_tree_add_item(mq_tree, hf_mq_uid_structid, tvb, offset, 4, FALSE);
-						proto_tree_add_item(mq_tree, hf_mq_uid_userid, tvb, offset + 4, 12, FALSE);
-						proto_tree_add_item(mq_tree, hf_mq_uid_password, tvb, offset + 16, 12, FALSE);
-					}
-
-					if (tvb_length_remaining(tvb, offset) >= 132)
-					{
-						if (tree)
+						else if ((opcode == MQ_TST_XA_RECOVER || opcode == MQ_TST_XA_RECOVER_REPLY)
+							&& tvb_length_remaining(tvb, offset) >= 4)
 						{
-							proto_tree_add_item(mq_tree, hf_mq_uid_longuserid, tvb, offset + 28, 64, FALSE);
-							proto_tree_add_item(mq_tree, hf_mq_uid_securityid, tvb, offset + 92, 40, FALSE);
-						}
-					}
-					offset += iSizeUID;
-				}
-				if ((structId == MQ_STRUCTID_OD || structId == MQ_STRUCTID_OD_EBCDIC) && tvb_length_remaining(tvb, offset) >= 168)
-				{
-					guint32 iVersionOD = 0;
-					gint iSizeOD = 0;
-					gint iNbrRecords = 0;
-					iVersionOD = tvb_get_guint32_endian(tvb, offset + 4, bLittleEndian);
-					/* Compute length according to version */
-					switch (iVersionOD) 
-					{
-						case 1: iSizeOD = 168; break;
-						case 2: iSizeOD = 200; break;
-						case 3: iSizeOD = 336; break;
-					}
-					if (iSizeOD >= 172)
-						iNbrRecords = tvb_get_guint32_endian(tvb, offset + 168, bLittleEndian);
-
-					if (check_col(pinfo->cinfo, COL_INFO)) 
-					{
-						guint8* sQueue;
-						sQueue = tvb_get_string(tvb, offset + 12, 48);
-						if (strip_trailing_blanks(sQueue,48) != 0)
-						{
-							col_append_fstr(pinfo->cinfo, COL_INFO, " Obj=%s", sQueue);
-						}
-						g_free(sQueue);
-					}
-
-					if (tree)
-					{
-						ti = proto_tree_add_text(mqroot_tree, tvb, offset, iSizeOD, MQ_TEXT_OD);
-						mq_tree = proto_item_add_subtree(ti, ett_mq_od);
-
-						proto_tree_add_item(mq_tree, hf_mq_od_structid, tvb, offset, 4, FALSE);
-						proto_tree_add_item(mq_tree, hf_mq_od_version, tvb, offset + 4, 4, bLittleEndian);
-						proto_tree_add_item(mq_tree, hf_mq_od_objecttype, tvb, offset + 8, 4, bLittleEndian);
-						proto_tree_add_item(mq_tree, hf_mq_od_objectname, tvb, offset + 12, 48, FALSE);
-						proto_tree_add_item(mq_tree, hf_mq_od_objectqmgrname, tvb, offset + 60, 48, FALSE);
-						proto_tree_add_item(mq_tree, hf_mq_od_dynamicqname, tvb, offset + 108, 48, FALSE);
-						proto_tree_add_item(mq_tree, hf_mq_od_alternateuserid, tvb, offset + 156, 12, FALSE);
-
-						if (iSizeOD >= 200 && tvb_length_remaining(tvb, offset) >= 200)
-						{
-							proto_tree_add_item(mq_tree, hf_mq_od_recspresent, tvb, offset + 168, 4, bLittleEndian);
-							proto_tree_add_item(mq_tree, hf_mq_od_knowndestcount, tvb, offset + 172, 4, bLittleEndian);
-							proto_tree_add_item(mq_tree, hf_mq_od_unknowndestcount, tvb, offset + 176, 4, bLittleEndian);
-							proto_tree_add_item(mq_tree, hf_mq_od_invaliddestcount, tvb, offset + 180, 4, bLittleEndian);
-							proto_tree_add_item(mq_tree, hf_mq_od_objectrecoffset, tvb, offset + 184, 4, bLittleEndian);
-							proto_tree_add_item(mq_tree, hf_mq_od_responserecoffset, tvb, offset + 188, 4, bLittleEndian);
-							proto_tree_add_item(mq_tree, hf_mq_od_objectrecptr, tvb, offset + 192, 4, bLittleEndian);
-							proto_tree_add_item(mq_tree, hf_mq_od_responserecptr, tvb, offset + 196, 4, bLittleEndian);
-						}
-
-						if (iSizeOD >= 336 && tvb_length_remaining(tvb, offset) >= 336)
-						{
-							proto_tree_add_item(mq_tree, hf_mq_od_alternatesecurityid, tvb, offset + 200, 40, FALSE);
-							proto_tree_add_item(mq_tree, hf_mq_od_resolvedqname, tvb, offset + 240, 48, FALSE);
-							proto_tree_add_item(mq_tree, hf_mq_od_resolvedqmgrname, tvb, offset + 288, 48, FALSE);
-						}
-
-					}
-					offset += iSizeOD;
-
-					if (iNbrRecords > 0)
-					{
-						gint iOffsetOR = 0;
-						gint iOffsetRR = 0;
-						gint iSizeORRR = 0;
-
-						iDistributionListSize = iNbrRecords;
-						iOffsetOR = tvb_get_guint32_endian(tvb, offset - iSizeOD + 184, bLittleEndian);
-						iOffsetRR = tvb_get_guint32_endian(tvb, offset - iSizeOD + 188, bLittleEndian);
-						if ((iSizeORRR = dissect_mq_or(tvb, pinfo, mqroot_tree, bLittleEndian, offset, iNbrRecords, iOffsetOR)) != 0)
-							offset += iSizeORRR;
-						if ((iSizeORRR = dissect_mq_rr(tvb, pinfo, mqroot_tree, bLittleEndian, offset, iNbrRecords, iOffsetRR)) != 0)
-							offset += iSizeORRR;
-					}
-					structId = (tvb_length_remaining(tvb, offset) >= 4) ? tvb_get_ntohl(tvb, offset) : MQ_STRUCTID_NULL;
-				}
-				if ((opcode == MQ_TST_MQOPEN || opcode == MQ_TST_MQCLOSE 
-					|| opcode == MQ_TST_MQOPEN_REPLY || opcode == MQ_TST_MQCLOSE_REPLY) 
-					&& tvb_length_remaining(tvb, offset) >= 4)
-				{
-					if (tree)
-					{
-						ti = proto_tree_add_text(mqroot_tree, tvb, offset, 4, MQ_TEXT_OPEN);
-						mq_tree = proto_item_add_subtree(ti, ett_mq_open);
-						proto_tree_add_item(mq_tree, hf_mq_open_options, tvb, offset, 4, bLittleEndian);
-					}
-					offset += 4;
-					structId = (tvb_length_remaining(tvb, offset) >= 4) ? tvb_get_ntohl(tvb, offset) : MQ_STRUCTID_NULL;
-				}
-				if ((iSizeMD = dissect_mq_md(tvb, pinfo, mqroot_tree, bLittleEndian, offset, &iOffsetFormat)) != 0)
-				{
-					gint iSizeGMO = 0;
-					gint iSizePMO = 0;
-					offset += iSizeMD;
-
-					if ((iSizeGMO = dissect_mq_gmo(tvb, pinfo, mqroot_tree, bLittleEndian, offset)) != 0)
-					{
-						offset += iSizeGMO;
-						bPayload = TRUE;
-					}
-					else if ((iSizePMO = dissect_mq_pmo(tvb, pinfo, mqroot_tree, bLittleEndian, offset, &iDistributionListSize)) != 0)
-					{
-						offset += iSizePMO;
-						bPayload = TRUE;
-					}
-					/* Now dissect the embedded structures */
-					if (tvb_length_remaining(tvb, offset) >= 4)
-					{
-						if (bPayload == TRUE && tvb_length_remaining(tvb, offset) >= 4)
-						{
-							iSizePayload = tvb_get_guint32_endian(tvb, offset, bLittleEndian);
+							gint iNbXid = 0;
+							iNbXid = tvb_get_guint32_endian(tvb, offset, bLittleEndian);
 							if (tree)
 							{
-								ti = proto_tree_add_text(mqroot_tree, tvb, offset, 4, MQ_TEXT_PUT);
-								mq_tree = proto_item_add_subtree(ti, ett_mq_put);
-								proto_tree_add_item(mq_tree, hf_mq_put_length, tvb, offset, 4, bLittleEndian);
+								proto_tree_add_item(mq_tree, hf_mq_xa_count, tvb, offset, 4, bLittleEndian);
 							}
 							offset += 4;
+							if (opcode == MQ_TST_XA_RECOVER_REPLY)
+							{
+								gint iXid = 0;
+								for (iXid = 0; iXid < iNbXid; iXid++)
+								{
+									gint iSizeXid = 0;
+									if ((iSizeXid = dissect_mq_xid(tvb, mqroot_tree, bLittleEndian, offset)) != 0)
+										offset += iSizeXid;
+									else
+										break;									
+								}
+							}
 						}
 					}
-				}
-				if (iDistributionListSize > 0)
-				{
-					if (check_col(pinfo->cinfo, COL_INFO)) 
-						col_append_fstr(pinfo->cinfo, COL_INFO, " (Distribution List, Size=%d)", iDistributionListSize); 
-				}
-				if (bPayload == TRUE)
-				{
-					if (iSizePayload != 0 && tvb_length_remaining(tvb, offset) > 0)
+					else if ((structId == MQ_STRUCTID_ID || structId == MQ_STRUCTID_ID_EBCDIC) && tvb_length_remaining(tvb, offset) >= 5)
 					{
-						/* For the following header structures, each structure has a "format" field
-						   which announces the type of the following structure.  For dissection we 
-						   do not use it and rely on the structid instead. */
-						guint32 iHeadersLength = 0;
+						guint8 iVersionID = 0;
+						gint iSizeID = 0;
+						iVersionID = tvb_get_guint8(tvb, offset + 4);
+						iSizeID = (iVersionID < 4 ? 44 : 104); /* guess */
+						/* actually 102 but must be aligned to multiple of 4 */
+	
+						if (iSizeID != 0 && tvb_length_remaining(tvb, offset) >= iSizeID)
+						{
+							if (check_col(pinfo->cinfo, COL_INFO)) 
+							{
+								guint8* sChannel;
+								sChannel = tvb_get_string(tvb, offset + 24, 20);
+								if (strip_trailing_blanks(sChannel, 20) != 0)
+								{
+									col_append_fstr(pinfo->cinfo, COL_INFO, ": CHL=%s", sChannel);
+								}
+								g_free(sChannel);
+							}
+		
+							if (tree)
+							{
+								ti = proto_tree_add_text(mqroot_tree, tvb, offset, iSizeID, MQ_TEXT_ID);
+								mq_tree = proto_item_add_subtree(ti, ett_mq_id);
+		
+								proto_tree_add_item(mq_tree, hf_mq_id_structid, tvb, offset, 4, FALSE);
+								proto_tree_add_item(mq_tree, hf_mq_id_level, tvb, offset + 4, 1, FALSE);
+		
+								/* ID flags */
+								{
+									proto_tree	*mq_tree_sub = NULL;
+									guint8 iIDFlags;
+		
+									ti = proto_tree_add_item(mq_tree, hf_mq_id_flags, tvb, offset + 5, 1, FALSE);
+									mq_tree_sub = proto_item_add_subtree(ti, ett_mq_id_icf);
+									iIDFlags = tvb_get_guint8(tvb, offset + 5);
+		
+									proto_tree_add_boolean(mq_tree_sub, hf_mq_id_icf_runtime, tvb, offset + 5, 1, iIDFlags);
+									proto_tree_add_boolean(mq_tree_sub, hf_mq_id_icf_svrsec, tvb, offset + 5, 1, iIDFlags);
+									proto_tree_add_boolean(mq_tree_sub, hf_mq_id_icf_mqreq, tvb, offset + 5, 1, iIDFlags);
+									proto_tree_add_boolean(mq_tree_sub, hf_mq_id_icf_splitmsg, tvb, offset + 5, 1, iIDFlags);
+									proto_tree_add_boolean(mq_tree_sub, hf_mq_id_icf_convcap, tvb, offset + 5, 1, iIDFlags);
+									proto_tree_add_boolean(mq_tree_sub, hf_mq_id_icf_msgseq, tvb, offset + 5, 1, iIDFlags);
+								}
+		
+								proto_tree_add_item(mq_tree, hf_mq_id_unknown2, tvb, offset + 6, 1, FALSE);
+		
+								/* Error flags */
+								{
+									proto_tree	*mq_tree_sub = NULL;
+									guint8 iErrorFlags;
+		
+									ti = proto_tree_add_item(mq_tree, hf_mq_id_ieflags, tvb, offset + 7, 1, FALSE);
+									mq_tree_sub = proto_item_add_subtree(ti, ett_mq_id_ief);
+									iErrorFlags = tvb_get_guint8(tvb, offset + 7);
+		
+									proto_tree_add_boolean(mq_tree_sub, hf_mq_id_ief_hbint, tvb, offset + 7, 1, iErrorFlags);
+									proto_tree_add_boolean(mq_tree_sub, hf_mq_id_ief_seqwrap, tvb, offset + 7, 1, iErrorFlags);
+									proto_tree_add_boolean(mq_tree_sub, hf_mq_id_ief_mxmsgpb, tvb, offset + 7, 1, iErrorFlags);
+									proto_tree_add_boolean(mq_tree_sub, hf_mq_id_ief_mxmsgsz, tvb, offset + 7, 1, iErrorFlags);
+									proto_tree_add_boolean(mq_tree_sub, hf_mq_id_ief_fap, tvb, offset + 7, 1, iErrorFlags);
+									proto_tree_add_boolean(mq_tree_sub, hf_mq_id_ief_mxtrsz, tvb, offset + 7, 1, iErrorFlags);
+									proto_tree_add_boolean(mq_tree_sub, hf_mq_id_ief_enc, tvb, offset + 7, 1, iErrorFlags);
+									proto_tree_add_boolean(mq_tree_sub, hf_mq_id_ief_ccsid, tvb, offset + 7, 1, iErrorFlags);
+								}
+		
+								proto_tree_add_item(mq_tree, hf_mq_id_unknown4, tvb, offset + 8, 2, FALSE);
+								proto_tree_add_item(mq_tree, hf_mq_id_maxmsgperbatch, tvb, offset + 10, 2, bLittleEndian);
+								proto_tree_add_item(mq_tree, hf_mq_id_maxtransmissionsize, tvb, offset + 12, 4, bLittleEndian);
+								proto_tree_add_item(mq_tree, hf_mq_id_maxmsgsize, tvb, offset + 16, 4, bLittleEndian);
+								proto_tree_add_item(mq_tree, hf_mq_id_sequencewrapvalue, tvb, offset + 20, 4, bLittleEndian);
+								proto_tree_add_item(mq_tree, hf_mq_id_channel, tvb, offset + 24, 20, FALSE);
+							}
+		
+							if (iVersionID >= 4)
+							{
+								if (check_col(pinfo->cinfo, COL_INFO)) 
+								{
+									guint8* sQueueManager;
+									sQueueManager = tvb_get_string(tvb, offset + 48, 48);
+									if (strip_trailing_blanks(sQueueManager,48) != 0)
+									{
+										col_append_fstr(pinfo->cinfo, COL_INFO, " QM=%s", sQueueManager);
+									}
+									g_free(sQueueManager);
+								}
+		
+								if (tree)
+								{
+									proto_tree_add_item(mq_tree, hf_mq_id_capflags, tvb, offset + 44, 1, FALSE);
+									proto_tree_add_item(mq_tree, hf_mq_id_unknown5, tvb, offset + 45, 1, FALSE);
+									proto_tree_add_item(mq_tree, hf_mq_id_ccsid, tvb, offset + 46, 2, bLittleEndian);
+									proto_tree_add_item(mq_tree, hf_mq_id_queuemanager, tvb, offset + 48, 48, FALSE);
+									proto_tree_add_item(mq_tree, hf_mq_id_heartbeatinterval, tvb, offset + 96, 4, bLittleEndian);
+								}
+		
+							}
+							offset += iSizeID;
+						}
+					}
+					else if ((structId == MQ_STRUCTID_UID || structId == MQ_STRUCTID_UID_EBCDIC) && tvb_length_remaining(tvb, offset) > 0)
+					{
+						gint iSizeUID = 0;
+						/* iSizeUID = (iVersionID < 5 ? 28 : 132);  guess */
+						/* The iVersionID is available in the previous ID segment, we should keep a state *
+						 * Instead we rely on the segment length announced in the TSH */
+						iSizeUID = iSegmentLength - iSizeTSH;
+						if (iSizeUID != 28 && iSizeUID != 132) iSizeUID = 0;
+	
+						if (iSizeUID != 0 && tvb_length_remaining(tvb, offset) >= iSizeUID)
+						{
+							if (check_col(pinfo->cinfo, COL_INFO)) 
+							{
+								guint8* sUserId;
+								sUserId = tvb_get_string(tvb, offset + 4, 12);
+								if (strip_trailing_blanks(sUserId, 12) != 0)
+								{
+									col_append_fstr(pinfo->cinfo, COL_INFO, ": User=%s", sUserId);
+								}
+								g_free(sUserId);
+							}
+		
+							if (tree)
+							{
+								ti = proto_tree_add_text(mqroot_tree, tvb, offset, iSizeUID, MQ_TEXT_UID);
+								mq_tree = proto_item_add_subtree(ti, ett_mq_uid);
+		
+								proto_tree_add_item(mq_tree, hf_mq_uid_structid, tvb, offset, 4, FALSE);
+								proto_tree_add_item(mq_tree, hf_mq_uid_userid, tvb, offset + 4, 12, FALSE);
+								proto_tree_add_item(mq_tree, hf_mq_uid_password, tvb, offset + 16, 12, FALSE);
+							}
+		
+							if (iSizeUID == 132)
+							{
+								if (tree)
+								{
+									proto_tree_add_item(mq_tree, hf_mq_uid_longuserid, tvb, offset + 28, 64, FALSE);
+									proto_tree_add_item(mq_tree, hf_mq_uid_securityid, tvb, offset + 92, 40, FALSE);
+								}
+							}
+							offset += iSizeUID;
+						}
+					}
+					if ((structId == MQ_STRUCTID_OD || structId == MQ_STRUCTID_OD_EBCDIC) && tvb_length_remaining(tvb, offset) >= 8)
+					{
+						/* The OD struct can be present in several messages at different levels */
+						gint iSizeOD = 0;
+						guint32 iVersionOD = 0;
+						iVersionOD = tvb_get_guint32_endian(tvb, offset + 4, bLittleEndian);
+						/* Compute length according to version */
+						switch (iVersionOD) 
+						{
+							case 1: iSizeOD = 168; break;
+							case 2: iSizeOD = 200; break;
+							case 3: iSizeOD = 336; break;
+						}
+						
+						if (iSizeOD != 0 && tvb_length_remaining(tvb, offset) >= iSizeOD)
+						{
+							gint iNbrRecords = 0;
+							if (iVersionOD >= 2)
+								iNbrRecords = tvb_get_guint32_endian(tvb, offset + 168, bLittleEndian);
+		
+							if (check_col(pinfo->cinfo, COL_INFO)) 
+							{
+								guint8* sQueue;
+								sQueue = tvb_get_string(tvb, offset + 12, 48);
+								if (strip_trailing_blanks(sQueue,48) != 0)
+								{
+									col_append_fstr(pinfo->cinfo, COL_INFO, " Obj=%s", sQueue);
+								}
+								g_free(sQueue);
+							}
+		
+							if (tree)
+							{
+								ti = proto_tree_add_text(mqroot_tree, tvb, offset, iSizeOD, MQ_TEXT_OD);
+								mq_tree = proto_item_add_subtree(ti, ett_mq_od);
+		
+								proto_tree_add_item(mq_tree, hf_mq_od_structid, tvb, offset, 4, FALSE);
+								proto_tree_add_item(mq_tree, hf_mq_od_version, tvb, offset + 4, 4, bLittleEndian);
+								proto_tree_add_item(mq_tree, hf_mq_od_objecttype, tvb, offset + 8, 4, bLittleEndian);
+								proto_tree_add_item(mq_tree, hf_mq_od_objectname, tvb, offset + 12, 48, FALSE);
+								proto_tree_add_item(mq_tree, hf_mq_od_objectqmgrname, tvb, offset + 60, 48, FALSE);
+								proto_tree_add_item(mq_tree, hf_mq_od_dynamicqname, tvb, offset + 108, 48, FALSE);
+								proto_tree_add_item(mq_tree, hf_mq_od_alternateuserid, tvb, offset + 156, 12, FALSE);
+		
+								if (iVersionOD >= 2)
+								{
+									proto_tree_add_item(mq_tree, hf_mq_od_recspresent, tvb, offset + 168, 4, bLittleEndian);
+									proto_tree_add_item(mq_tree, hf_mq_od_knowndestcount, tvb, offset + 172, 4, bLittleEndian);
+									proto_tree_add_item(mq_tree, hf_mq_od_unknowndestcount, tvb, offset + 176, 4, bLittleEndian);
+									proto_tree_add_item(mq_tree, hf_mq_od_invaliddestcount, tvb, offset + 180, 4, bLittleEndian);
+									proto_tree_add_item(mq_tree, hf_mq_od_objectrecoffset, tvb, offset + 184, 4, bLittleEndian);
+									proto_tree_add_item(mq_tree, hf_mq_od_responserecoffset, tvb, offset + 188, 4, bLittleEndian);
+									proto_tree_add_item(mq_tree, hf_mq_od_objectrecptr, tvb, offset + 192, 4, bLittleEndian);
+									proto_tree_add_item(mq_tree, hf_mq_od_responserecptr, tvb, offset + 196, 4, bLittleEndian);
+								}
+		
+								if (iVersionOD >= 3)
+								{
+									proto_tree_add_item(mq_tree, hf_mq_od_alternatesecurityid, tvb, offset + 200, 40, FALSE);
+									proto_tree_add_item(mq_tree, hf_mq_od_resolvedqname, tvb, offset + 240, 48, FALSE);
+									proto_tree_add_item(mq_tree, hf_mq_od_resolvedqmgrname, tvb, offset + 288, 48, FALSE);
+								}
+		
+							}
+							offset += iSizeOD;
+		
+							if (iNbrRecords > 0)
+							{
+								gint iOffsetOR = 0;
+								gint iOffsetRR = 0;
+								gint iSizeORRR = 0;
+		
+								iDistributionListSize = iNbrRecords;
+								iOffsetOR = tvb_get_guint32_endian(tvb, offset - iSizeOD + 184, bLittleEndian);
+								iOffsetRR = tvb_get_guint32_endian(tvb, offset - iSizeOD + 188, bLittleEndian);
+								if ((iSizeORRR = dissect_mq_or(tvb, mqroot_tree, offset, iNbrRecords, iOffsetOR)) != 0)
+									offset += iSizeORRR;
+								if ((iSizeORRR = dissect_mq_rr(tvb, mqroot_tree, bLittleEndian, offset, iNbrRecords, iOffsetRR)) != 0)
+									offset += iSizeORRR;
+							}
+						}
+						structId = (tvb_length_remaining(tvb, offset) >= 4) ? tvb_get_ntohl(tvb, offset) : MQ_STRUCTID_NULL;
+					}
+					if ((opcode == MQ_TST_MQOPEN || opcode == MQ_TST_MQCLOSE 
+						|| opcode == MQ_TST_MQOPEN_REPLY || opcode == MQ_TST_MQCLOSE_REPLY) 
+						&& tvb_length_remaining(tvb, offset) >= 4)
+					{
+						if (tree)
+						{
+							ti = proto_tree_add_text(mqroot_tree, tvb, offset, 4, MQ_TEXT_OPEN);
+							mq_tree = proto_item_add_subtree(ti, ett_mq_open);
+							proto_tree_add_item(mq_tree, hf_mq_open_options, tvb, offset, 4, bLittleEndian);
+						}
+						offset += 4;
+						structId = (tvb_length_remaining(tvb, offset) >= 4) ? tvb_get_ntohl(tvb, offset) : MQ_STRUCTID_NULL;
+					}
+					if ((iSizeMD = dissect_mq_md(tvb, mqroot_tree, bLittleEndian, offset, &tMsgProps)) != 0)
+					{
+						gint iSizeGMO = 0;
+						gint iSizePMO = 0;
+						offset += iSizeMD;
+	
+						if ((iSizeGMO = dissect_mq_gmo(tvb, pinfo, mqroot_tree, bLittleEndian, offset)) != 0)
+						{
+							offset += iSizeGMO;
+							bPayload = TRUE;
+						}
+						else if ((iSizePMO = dissect_mq_pmo(tvb, pinfo, mqroot_tree, bLittleEndian, offset, &iDistributionListSize)) != 0)
+						{
+							offset += iSizePMO;
+							bPayload = TRUE;
+						}
 						if (tvb_length_remaining(tvb, offset) >= 4)
 						{
-							gint iSizeMD = 0;
-							structId = tvb_get_ntohl(tvb, offset);
-
-							if ((structId == MQ_STRUCTID_XQH || structId == MQ_STRUCTID_XQH_EBCDIC) && tvb_length_remaining(tvb, offset) >= 104)
+							if (bPayload == TRUE)
 							{
-								/* if MD.format == MQXMIT */
-								gint iSizeXQH = 104;
+								iSizePayload = tvb_get_guint32_endian(tvb, offset, bLittleEndian);
 								if (tree)
 								{
-									ti = proto_tree_add_text(mqroot_tree, tvb, offset, iSizeXQH, MQ_TEXT_XQH);
-									mq_tree = proto_item_add_subtree(ti, ett_mq_xqh);
-
-									proto_tree_add_item(mq_tree, hf_mq_xqh_structid, tvb, offset, 4, FALSE);
-									proto_tree_add_item(mq_tree, hf_mq_xqh_version, tvb, offset + 4, 4, bLittleEndian);
-									proto_tree_add_item(mq_tree, hf_mq_xqh_remoteq, tvb, offset + 8, 48, FALSE);
-									proto_tree_add_item(mq_tree, hf_mq_xqh_remoteqmgr, tvb, offset + 56, 48, FALSE);
+									ti = proto_tree_add_text(mqroot_tree, tvb, offset, 4, MQ_TEXT_PUT);
+									mq_tree = proto_item_add_subtree(ti, ett_mq_put);
+									proto_tree_add_item(mq_tree, hf_mq_put_length, tvb, offset, 4, bLittleEndian);
 								}
-								offset += iSizeXQH;
-								iHeadersLength += iSizeXQH;
-
-								if ((iSizeMD = dissect_mq_md(tvb, pinfo, mqroot_tree, bLittleEndian, offset, &iOffsetFormat)) != 0)
-								{
-									offset += iSizeMD;
-									iHeadersLength += iSizeMD;
-								}
-
-								structId = (tvb_length_remaining(tvb, offset) >= 4) ? tvb_get_ntohl(tvb, offset) : MQ_STRUCTID_NULL;
+								offset += 4;
 							}
-							if ((structId == MQ_STRUCTID_DH || structId == MQ_STRUCTID_DH_EBCDIC) && tvb_length_remaining(tvb, offset) >= 48)
+						}
+					}
+					if (iDistributionListSize > 0)
+					{
+						if (check_col(pinfo->cinfo, COL_INFO)) 
+							col_append_fstr(pinfo->cinfo, COL_INFO, " (Distribution List, Size=%d)", iDistributionListSize); 
+					}
+					if (bPayload == TRUE)
+					{
+						if (iSizePayload != 0 && tvb_length_remaining(tvb, offset) > 0)
+						{
+							/* For the following header structures, each structure has a "format" field
+							   which announces the type of the following structure.  For dissection we 
+							   do not use it and rely on the structid instead. */
+							guint32 iHeadersLength = 0;
+							if (tvb_length_remaining(tvb, offset) >= 4)
 							{
-								/* if MD.format == MQHDIST */
-								gint iSizeDH = 48;
-								gint iNbrRecords = 0;
-								guint32 iRecFlags = 0;
-
-								iNbrRecords = tvb_get_guint32_endian(tvb, offset + 36, bLittleEndian);
-								iRecFlags = tvb_get_guint32_endian(tvb, offset + 32, bLittleEndian);
-								iOffsetFormat = offset + 20;
-								if (tree)
+								gint iSizeMD = 0;
+								structId = tvb_get_ntohl(tvb, offset);
+	
+								if ((structId == MQ_STRUCTID_XQH || structId == MQ_STRUCTID_XQH_EBCDIC) && tvb_length_remaining(tvb, offset) >= 104)
 								{
-									ti = proto_tree_add_text(mqroot_tree, tvb, offset, iSizeDH, MQ_TEXT_DH);
-									mq_tree = proto_item_add_subtree(ti, ett_mq_dh);
-
-									proto_tree_add_item(mq_tree, hf_mq_head_structid, tvb, offset, 4, FALSE);
-									proto_tree_add_item(mq_tree, hf_mq_head_version, tvb, offset + 4, 4, bLittleEndian);
-									proto_tree_add_item(mq_tree, hf_mq_head_length, tvb, offset + 8, 4, bLittleEndian);
-									proto_tree_add_item(mq_tree, hf_mq_head_encoding, tvb, offset + 12, 4, bLittleEndian);
-									proto_tree_add_item(mq_tree, hf_mq_head_ccsid, tvb, offset + 16, 4, bLittleEndian);
-									proto_tree_add_item(mq_tree, hf_mq_head_format, tvb, offset + 20, 8, FALSE);
-									proto_tree_add_item(mq_tree, hf_mq_head_flags, tvb, offset + 28, 4, bLittleEndian);
-									proto_tree_add_item(mq_tree, hf_mq_dh_putmsgrecfields, tvb, offset + 32, 4, bLittleEndian);
-									proto_tree_add_item(mq_tree, hf_mq_dh_recspresent, tvb, offset + 36, 4, bLittleEndian);
-									proto_tree_add_item(mq_tree, hf_mq_dh_objectrecoffset , tvb, offset + 40, 4, bLittleEndian);
-									proto_tree_add_item(mq_tree, hf_mq_dh_putmsgrecoffset, tvb, offset + 44, 4, bLittleEndian);
-								}
-								offset += iSizeDH;
-								iHeadersLength += iSizeDH;
-
-								if (iNbrRecords > 0)
-								{
-									gint iOffsetOR = 0;
-									gint iOffsetPMR = 0;
-									gint iSizeORPMR = 0;
-
-									iOffsetOR = tvb_get_guint32_endian(tvb, offset - iSizeDH + 40, bLittleEndian);
-									iOffsetPMR = tvb_get_guint32_endian(tvb, offset - iSizeDH + 44, bLittleEndian);
-									if ((iSizeORPMR = dissect_mq_or(tvb, pinfo, mqroot_tree, bLittleEndian, offset, iNbrRecords, iOffsetOR)) != 0)
+									/* if MD.format == MQXMIT */
+									gint iSizeXQH = 104;
+									if (tree)
 									{
-										offset += iSizeORPMR;
-										iHeadersLength += iSizeORPMR;
+										ti = proto_tree_add_text(mqroot_tree, tvb, offset, iSizeXQH, MQ_TEXT_XQH);
+										mq_tree = proto_item_add_subtree(ti, ett_mq_xqh);
+	
+										proto_tree_add_item(mq_tree, hf_mq_xqh_structid, tvb, offset, 4, FALSE);
+										proto_tree_add_item(mq_tree, hf_mq_xqh_version, tvb, offset + 4, 4, bLittleEndian);
+										proto_tree_add_item(mq_tree, hf_mq_xqh_remoteq, tvb, offset + 8, 48, FALSE);
+										proto_tree_add_item(mq_tree, hf_mq_xqh_remoteqmgr, tvb, offset + 56, 48, FALSE);
 									}
-									if ((iSizeORPMR = dissect_mq_pmr(tvb, pinfo, mqroot_tree, bLittleEndian, offset, iNbrRecords, iOffsetPMR, iRecFlags)) != 0)
+									offset += iSizeXQH;
+									iHeadersLength += iSizeXQH;
+	
+									if ((iSizeMD = dissect_mq_md(tvb, mqroot_tree, bLittleEndian, offset, &tMsgProps)) != 0)
 									{
-										offset += iSizeORPMR;
-										iHeadersLength += iSizeORPMR;
+										offset += iSizeMD;
+										iHeadersLength += iSizeMD;
 									}
+	
+									structId = (tvb_length_remaining(tvb, offset) >= 4) ? tvb_get_ntohl(tvb, offset) : MQ_STRUCTID_NULL;
 								}
-
-								structId = (tvb_length_remaining(tvb, offset) >= 4) ? tvb_get_ntohl(tvb, offset) : MQ_STRUCTID_NULL;
-							}
-							if ((structId == MQ_STRUCTID_DLH || structId == MQ_STRUCTID_DLH_EBCDIC) && tvb_length_remaining(tvb, offset) >= 172)
-							{
-								/* if MD.format == MQDEAD */
-								gint iSizeDLH = 172;
-								iOffsetFormat = offset + 116;
-								if (tree)
+								if ((structId == MQ_STRUCTID_DH || structId == MQ_STRUCTID_DH_EBCDIC) && tvb_length_remaining(tvb, offset) >= 48)
 								{
-									ti = proto_tree_add_text(mqroot_tree, tvb, offset, iSizeDLH, MQ_TEXT_DLH);
-									mq_tree = proto_item_add_subtree(ti, ett_mq_dlh);
+									/* if MD.format == MQHDIST */
+									gint iSizeDH = 48;
+									gint iNbrRecords = 0;
+									guint32 iRecFlags = 0;
+	
+									iNbrRecords = tvb_get_guint32_endian(tvb, offset + 36, bLittleEndian);
+									iRecFlags = tvb_get_guint32_endian(tvb, offset + 32, bLittleEndian);
+									tMsgProps.iOffsetEncoding = offset + 12;
+									tMsgProps.iOffsetCcsid    = offset + 16;
+									tMsgProps.iOffsetFormat   = offset + 20;
 
-									proto_tree_add_item(mq_tree, hf_mq_dlh_structid, tvb, offset, 4, FALSE);
-									proto_tree_add_item(mq_tree, hf_mq_dlh_version, tvb, offset + 4, 4, bLittleEndian);
-									proto_tree_add_item(mq_tree, hf_mq_dlh_reason, tvb, offset + 8, 4, bLittleEndian);
-									proto_tree_add_item(mq_tree, hf_mq_dlh_destq, tvb, offset + 12, 48, FALSE);
-									proto_tree_add_item(mq_tree, hf_mq_dlh_destqmgr, tvb, offset + 60, 48, FALSE);
-									proto_tree_add_item(mq_tree, hf_mq_dlh_encoding, tvb, offset + 108, 4, bLittleEndian);
-									proto_tree_add_item(mq_tree, hf_mq_dlh_ccsid, tvb, offset + 112, 4, bLittleEndian);
-									proto_tree_add_item(mq_tree, hf_mq_dlh_format, tvb, offset + 116, 8, FALSE);
-									proto_tree_add_item(mq_tree, hf_mq_dlh_putappltype, tvb, offset + 124, 4, bLittleEndian);
-									proto_tree_add_item(mq_tree, hf_mq_dlh_putapplname, tvb, offset + 128, 28, FALSE);
-									proto_tree_add_item(mq_tree, hf_mq_dlh_putdate, tvb, offset + 156, 8, FALSE);
-									proto_tree_add_item(mq_tree, hf_mq_dlh_puttime, tvb, offset + 164, 8, FALSE);
-								}
-								offset += iSizeDLH;
-								iHeadersLength += iSizeDLH;
-								structId = (tvb_length_remaining(tvb, offset) >= 4) ? tvb_get_ntohl(tvb, offset) : MQ_STRUCTID_NULL;
-							}
-							if ((structId == MQ_STRUCTID_MDE || structId == MQ_STRUCTID_MDE_EBCDIC) && tvb_length_remaining(tvb, offset) >= 72)
-							{
-								/* if MD.format == MQHMDE */
-								gint iSizeMDE = 72;
-								iOffsetFormat = offset + 20;
-								if (tree)
-								{
-									ti = proto_tree_add_text(mqroot_tree, tvb, offset, iSizeMDE, MQ_TEXT_MDE);
-									mq_tree = proto_item_add_subtree(ti, ett_mq_mde);
-
-									proto_tree_add_item(mq_tree, hf_mq_head_structid, tvb, offset, 4, FALSE);
-									proto_tree_add_item(mq_tree, hf_mq_head_version, tvb, offset + 4, 4, bLittleEndian);
-									proto_tree_add_item(mq_tree, hf_mq_head_length, tvb, offset + 8, 4, bLittleEndian);
-									proto_tree_add_item(mq_tree, hf_mq_head_encoding, tvb, offset + 12, 4, bLittleEndian);
-									proto_tree_add_item(mq_tree, hf_mq_head_ccsid, tvb, offset + 16, 4, bLittleEndian);
-									proto_tree_add_item(mq_tree, hf_mq_head_format, tvb, offset + 20, 8, FALSE);
-									proto_tree_add_item(mq_tree, hf_mq_head_flags, tvb, offset + 28, 4, bLittleEndian);
-									proto_tree_add_item(mq_tree, hf_mq_md_groupid, tvb, offset + 32, 24, FALSE);
-									proto_tree_add_item(mq_tree, hf_mq_md_msgseqnumber, tvb, offset + 56, 4, bLittleEndian);
-									proto_tree_add_item(mq_tree, hf_mq_md_offset, tvb, offset + 60, 4, bLittleEndian);
-									proto_tree_add_item(mq_tree, hf_mq_md_msgflags, tvb, offset + 64, 4, bLittleEndian);
-									proto_tree_add_item(mq_tree, hf_mq_md_originallength, tvb, offset + 68, 4, bLittleEndian);
-								}
-								offset += iSizeMDE;
-								iHeadersLength += iSizeMDE;
-								structId = (tvb_length_remaining(tvb, offset) >= 4) ? tvb_get_ntohl(tvb, offset) : MQ_STRUCTID_NULL;
-							}
-							if ((structId == MQ_STRUCTID_CIH || structId == MQ_STRUCTID_CIH_EBCDIC
-								|| structId == MQ_STRUCTID_IIH || structId == MQ_STRUCTID_IIH_EBCDIC
-								|| structId == MQ_STRUCTID_RFH || structId == MQ_STRUCTID_RFH_EBCDIC
-								|| structId == MQ_STRUCTID_RMH || structId == MQ_STRUCTID_RMH_EBCDIC
-								|| structId == MQ_STRUCTID_WIH || structId == MQ_STRUCTID_WIH_EBCDIC)
-							 		&& tvb_length_remaining(tvb, offset) >= 12)
-							{
-								/* Dissect the generic part of the other pre-defined headers */
-								/* We assume that only one such header is present */
-								gint iSizeHeader = 0;
-								iSizeHeader = tvb_get_guint32_endian(tvb, offset + 8, bLittleEndian);
-
-							 	if (tvb_length_remaining(tvb, offset) >= iSizeHeader)
-							 	{
-									iOffsetFormat = offset + 20;
-							 		if (tree)
+									if (tree)
 									{
-										ti = proto_tree_add_text(mqroot_tree, tvb, offset, iSizeHeader, val_to_str(structId, mq_structid_vals, "Unknown (0x%08x)"));
-										mq_tree = proto_item_add_subtree(ti, ett_mq_head);
-
+										ti = proto_tree_add_text(mqroot_tree, tvb, offset, iSizeDH, MQ_TEXT_DH);
+										mq_tree = proto_item_add_subtree(ti, ett_mq_dh);
+	
 										proto_tree_add_item(mq_tree, hf_mq_head_structid, tvb, offset, 4, FALSE);
 										proto_tree_add_item(mq_tree, hf_mq_head_version, tvb, offset + 4, 4, bLittleEndian);
 										proto_tree_add_item(mq_tree, hf_mq_head_length, tvb, offset + 8, 4, bLittleEndian);
@@ -1893,89 +2087,234 @@ dissect_mq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 										proto_tree_add_item(mq_tree, hf_mq_head_ccsid, tvb, offset + 16, 4, bLittleEndian);
 										proto_tree_add_item(mq_tree, hf_mq_head_format, tvb, offset + 20, 8, FALSE);
 										proto_tree_add_item(mq_tree, hf_mq_head_flags, tvb, offset + 28, 4, bLittleEndian);
-										proto_tree_add_item(mq_tree, hf_mq_head_struct, tvb, offset + 32, iSizeHeader - 32, bLittleEndian);
-
+										proto_tree_add_item(mq_tree, hf_mq_dh_putmsgrecfields, tvb, offset + 32, 4, bLittleEndian);
+										proto_tree_add_item(mq_tree, hf_mq_dh_recspresent, tvb, offset + 36, 4, bLittleEndian);
+										proto_tree_add_item(mq_tree, hf_mq_dh_objectrecoffset , tvb, offset + 40, 4, bLittleEndian);
+										proto_tree_add_item(mq_tree, hf_mq_dh_putmsgrecoffset, tvb, offset + 44, 4, bLittleEndian);
 									}
-									offset += iSizeHeader;
-									iHeadersLength += iSizeHeader;
+									offset += iSizeDH;
+									iHeadersLength += iSizeDH;
+	
+									if (iNbrRecords > 0)
+									{
+										gint iOffsetOR = 0;
+										gint iOffsetPMR = 0;
+										gint iSizeORPMR = 0;
+	
+										iOffsetOR = tvb_get_guint32_endian(tvb, offset - iSizeDH + 40, bLittleEndian);
+										iOffsetPMR = tvb_get_guint32_endian(tvb, offset - iSizeDH + 44, bLittleEndian);
+										if ((iSizeORPMR = dissect_mq_or(tvb, mqroot_tree, offset, iNbrRecords, iOffsetOR)) != 0)
+										{
+											offset += iSizeORPMR;
+											iHeadersLength += iSizeORPMR;
+										}
+										if ((iSizeORPMR = dissect_mq_pmr(tvb, mqroot_tree, bLittleEndian, offset, iNbrRecords, iOffsetPMR, iRecFlags)) != 0)
+										{
+											offset += iSizeORPMR;
+											iHeadersLength += iSizeORPMR;
+										}
+									}
+	
 									structId = (tvb_length_remaining(tvb, offset) >= 4) ? tvb_get_ntohl(tvb, offset) : MQ_STRUCTID_NULL;
 								}
+								if ((structId == MQ_STRUCTID_DLH || structId == MQ_STRUCTID_DLH_EBCDIC) && tvb_length_remaining(tvb, offset) >= 172)
+								{
+									/* if MD.format == MQDEAD */
+									gint iSizeDLH = 172;
+									tMsgProps.iOffsetEncoding = offset + 108;
+									tMsgProps.iOffsetCcsid    = offset + 112;
+									tMsgProps.iOffsetFormat   = offset + 116;
+									if (tree)
+									{
+										ti = proto_tree_add_text(mqroot_tree, tvb, offset, iSizeDLH, MQ_TEXT_DLH);
+										mq_tree = proto_item_add_subtree(ti, ett_mq_dlh);
+	
+										proto_tree_add_item(mq_tree, hf_mq_dlh_structid, tvb, offset, 4, FALSE);
+										proto_tree_add_item(mq_tree, hf_mq_dlh_version, tvb, offset + 4, 4, bLittleEndian);
+										proto_tree_add_item(mq_tree, hf_mq_dlh_reason, tvb, offset + 8, 4, bLittleEndian);
+										proto_tree_add_item(mq_tree, hf_mq_dlh_destq, tvb, offset + 12, 48, FALSE);
+										proto_tree_add_item(mq_tree, hf_mq_dlh_destqmgr, tvb, offset + 60, 48, FALSE);
+										proto_tree_add_item(mq_tree, hf_mq_dlh_encoding, tvb, offset + 108, 4, bLittleEndian);
+										proto_tree_add_item(mq_tree, hf_mq_dlh_ccsid, tvb, offset + 112, 4, bLittleEndian);
+										proto_tree_add_item(mq_tree, hf_mq_dlh_format, tvb, offset + 116, 8, FALSE);
+										proto_tree_add_item(mq_tree, hf_mq_dlh_putappltype, tvb, offset + 124, 4, bLittleEndian);
+										proto_tree_add_item(mq_tree, hf_mq_dlh_putapplname, tvb, offset + 128, 28, FALSE);
+										proto_tree_add_item(mq_tree, hf_mq_dlh_putdate, tvb, offset + 156, 8, FALSE);
+										proto_tree_add_item(mq_tree, hf_mq_dlh_puttime, tvb, offset + 164, 8, FALSE);
+									}
+									offset += iSizeDLH;
+									iHeadersLength += iSizeDLH;
+									structId = (tvb_length_remaining(tvb, offset) >= 4) ? tvb_get_ntohl(tvb, offset) : MQ_STRUCTID_NULL;
+								}
+								if ((structId == MQ_STRUCTID_MDE || structId == MQ_STRUCTID_MDE_EBCDIC) && tvb_length_remaining(tvb, offset) >= 72)
+								{
+									/* if MD.format == MQHMDE */
+									gint iSizeMDE = 72;
+									tMsgProps.iOffsetEncoding = offset + 12;
+									tMsgProps.iOffsetCcsid    = offset + 16;
+									tMsgProps.iOffsetFormat   = offset + 20;
+									if (tree)
+									{
+										ti = proto_tree_add_text(mqroot_tree, tvb, offset, iSizeMDE, MQ_TEXT_MDE);
+										mq_tree = proto_item_add_subtree(ti, ett_mq_mde);
+	
+										proto_tree_add_item(mq_tree, hf_mq_head_structid, tvb, offset, 4, FALSE);
+										proto_tree_add_item(mq_tree, hf_mq_head_version, tvb, offset + 4, 4, bLittleEndian);
+										proto_tree_add_item(mq_tree, hf_mq_head_length, tvb, offset + 8, 4, bLittleEndian);
+										proto_tree_add_item(mq_tree, hf_mq_head_encoding, tvb, offset + 12, 4, bLittleEndian);
+										proto_tree_add_item(mq_tree, hf_mq_head_ccsid, tvb, offset + 16, 4, bLittleEndian);
+										proto_tree_add_item(mq_tree, hf_mq_head_format, tvb, offset + 20, 8, FALSE);
+										proto_tree_add_item(mq_tree, hf_mq_head_flags, tvb, offset + 28, 4, bLittleEndian);
+										proto_tree_add_item(mq_tree, hf_mq_md_groupid, tvb, offset + 32, 24, FALSE);
+										proto_tree_add_item(mq_tree, hf_mq_md_msgseqnumber, tvb, offset + 56, 4, bLittleEndian);
+										proto_tree_add_item(mq_tree, hf_mq_md_offset, tvb, offset + 60, 4, bLittleEndian);
+										proto_tree_add_item(mq_tree, hf_mq_md_msgflags, tvb, offset + 64, 4, bLittleEndian);
+										proto_tree_add_item(mq_tree, hf_mq_md_originallength, tvb, offset + 68, 4, bLittleEndian);
+									}
+									offset += iSizeMDE;
+									iHeadersLength += iSizeMDE;
+									structId = (tvb_length_remaining(tvb, offset) >= 4) ? tvb_get_ntohl(tvb, offset) : MQ_STRUCTID_NULL;
+								}
+								if ((structId == MQ_STRUCTID_CIH || structId == MQ_STRUCTID_CIH_EBCDIC
+									|| structId == MQ_STRUCTID_IIH || structId == MQ_STRUCTID_IIH_EBCDIC
+									|| structId == MQ_STRUCTID_RFH || structId == MQ_STRUCTID_RFH_EBCDIC
+									|| structId == MQ_STRUCTID_RMH || structId == MQ_STRUCTID_RMH_EBCDIC
+									|| structId == MQ_STRUCTID_WIH || structId == MQ_STRUCTID_WIH_EBCDIC)
+								 		&& tvb_length_remaining(tvb, offset) >= 12)
+								{
+									/* Dissect the generic part of the other pre-defined headers */
+									/* We assume that only one such header is present */
+									gint iSizeHeader = 0;
+									iSizeHeader = tvb_get_guint32_endian(tvb, offset + 8, bLittleEndian);
+	
+								 	if (tvb_length_remaining(tvb, offset) >= iSizeHeader)
+								 	{
+										tMsgProps.iOffsetEncoding = offset + 12;
+										tMsgProps.iOffsetCcsid    = offset + 16;
+										tMsgProps.iOffsetFormat   = offset + 20;
+								 		if (tree)
+										{
+											ti = proto_tree_add_text(mqroot_tree, tvb, offset, iSizeHeader, val_to_str(structId, mq_structid_vals, "Unknown (0x%08x)"));
+											mq_tree = proto_item_add_subtree(ti, ett_mq_head);
+	
+											proto_tree_add_item(mq_tree, hf_mq_head_structid, tvb, offset, 4, FALSE);
+											proto_tree_add_item(mq_tree, hf_mq_head_version, tvb, offset + 4, 4, bLittleEndian);
+											proto_tree_add_item(mq_tree, hf_mq_head_length, tvb, offset + 8, 4, bLittleEndian);
+											proto_tree_add_item(mq_tree, hf_mq_head_encoding, tvb, offset + 12, 4, bLittleEndian);
+											proto_tree_add_item(mq_tree, hf_mq_head_ccsid, tvb, offset + 16, 4, bLittleEndian);
+											proto_tree_add_item(mq_tree, hf_mq_head_format, tvb, offset + 20, 8, FALSE);
+											proto_tree_add_item(mq_tree, hf_mq_head_flags, tvb, offset + 28, 4, bLittleEndian);
+											proto_tree_add_item(mq_tree, hf_mq_head_struct, tvb, offset + 32, iSizeHeader - 32, bLittleEndian);
+	
+										}
+										offset += iSizeHeader;
+										iHeadersLength += iSizeHeader;
+										structId = (tvb_length_remaining(tvb, offset) >= 4) ? tvb_get_ntohl(tvb, offset) : MQ_STRUCTID_NULL;
+									}
+								}
+							}
+	
+							if (tMsgProps.iOffsetFormat != 0)
+							{
+									guint8* sFormat = NULL;
+									sFormat = tvb_get_string(tvb, tMsgProps.iOffsetFormat, 8);
+									if (strip_trailing_blanks(sFormat, 8) == 0)	sFormat = (guint8*)"MQNONE";
+									if (check_col(pinfo->cinfo, COL_INFO)) 
+									{
+										col_append_fstr(pinfo->cinfo, COL_INFO, " Fmt=%s", sFormat);
+									}
+									if (tree)
+									{
+										proto_tree_add_string_hidden(tree, hf_mq_md_hidden_lastformat, tvb, tMsgProps.iOffsetFormat, 8, (const char*)sFormat);
+									}
+									g_free(sFormat);
+							}
+							if (check_col(pinfo->cinfo, COL_INFO)) 
+							{
+								col_append_fstr(pinfo->cinfo, COL_INFO, " (%d bytes)", iSizePayload - iHeadersLength);
+							}
+	
+							{
+								/* Call subdissector for the payload */
+								tvbuff_t* next_tvb = NULL;
+								struct mqinfo mqinfo;
+								mqinfo.encoding = tvb_get_guint32_endian(tvb, tMsgProps.iOffsetEncoding, bLittleEndian);
+								mqinfo.ccsid    = tvb_get_guint32_endian(tvb, tMsgProps.iOffsetCcsid, bLittleEndian);
+								tvb_memcpy(tvb, mqinfo.format, tMsgProps.iOffsetFormat, 8);
+								pinfo->private_data = &mqinfo;
+								next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+								if (!dissector_try_heuristic(mq_heur_subdissector_list, next_tvb, pinfo, tree))
+									call_dissector(data_handle, next_tvb, pinfo, tree);
 							}
 						}
-
-						if (iOffsetFormat != 0)
-						{
-								guint8* sFormat = NULL;
-								sFormat = tvb_get_string(tvb, iOffsetFormat, 8);
-								if (strip_trailing_blanks(sFormat, 8) == 0)	sFormat = (guint8*)"MQNONE";
-								if (check_col(pinfo->cinfo, COL_INFO)) 
-								{
-									col_append_fstr(pinfo->cinfo, COL_INFO, " Fmt=%s", sFormat);
-								}
-								if (tree)
-								{
-									proto_tree_add_string_hidden(tree, hf_mq_md_hidden_lastformat, tvb, iOffsetFormat, 8, (const char*)sFormat);
-								}
-								g_free(sFormat);
-						}
-						if (check_col(pinfo->cinfo, COL_INFO)) 
-						{
-							col_append_fstr(pinfo->cinfo, COL_INFO, " (%d bytes)", iSizePayload - iHeadersLength);
-						}
-
-						/* At this point we could call another dissector, but the MQ middleware
-						   does not really have a standard out-of-band information like the TCP port
-						   which is centrally registered and that allows to know which format
-						   the application messages are.  (P.S. : what about the the md.format ?)
-						*/
-
+						offset = tvb_length(tvb);
+					}
+					/* After all recognised structures have been dissected, process remaining structure*/
+					if (tvb_length_remaining(tvb, offset) >= 4)
+					{
+						structId = tvb_get_ntohl(tvb, offset);
 						if (tree)
 						{
-							/* Add a tree for the payload */
-							call_dissector(data_handle, tvb_new_subset(tvb, offset, -1, -1), pinfo, tree);
+							proto_tree_add_text(mqroot_tree, tvb, offset, -1, val_to_str(structId, mq_structid_vals, "Unknown (0x%08x)"));
 						}
 					}
-					offset = tvb_length(tvb);
 				}
-			}
-			/* After all recognised structures have been dissected, process remaining structure*/
-			if (tvb_length_remaining(tvb, offset) >= 4)
-			{
-				structId = tvb_get_ntohl(tvb, offset);
-				if (tree)
+				else
 				{
-					ti = proto_tree_add_text(mqroot_tree, tvb, offset, -1, val_to_str(structId, mq_structid_vals, "Unknown (0x%08x)"));
+					/* This is a MQ segment continuation (no PDU reassembly is done) */
+					if (check_col(pinfo->cinfo, COL_INFO)) col_append_str(pinfo->cinfo, COL_INFO, " [Segment Continuation]");
+					call_dissector(data_handle, tvb_new_subset(tvb, offset, -1, -1), pinfo, tree);
 				}
 			}
 		}
 		else
 		{
-			/* This packet is a continuation of a segment */
-			if (check_col(pinfo->cinfo, COL_INFO)) col_set_str(pinfo->cinfo, COL_INFO, "Continuation");
+			/* This packet is a TCP continuation of a segment (if desegmentation is not enabled) */
+			if (check_col(pinfo->cinfo, COL_INFO)) col_append_str(pinfo->cinfo, COL_INFO, "Continuation");
 			if (tree)
 			{
-				ti = proto_tree_add_item(tree, proto_mq, tvb, offset, -1, FALSE);
-				call_dissector(data_handle, tvb_new_subset(tvb, offset, -1, -1), pinfo, tree);
+				proto_tree_add_item(tree, proto_mq, tvb, offset, -1, FALSE);
 			}
+			call_dissector(data_handle, tvb_new_subset(tvb, offset, -1, -1), pinfo, tree);
 		}
 	}
 }
 
+static guint
+get_mq_pdu_len(tvbuff_t *tvb, int offset)
+{
+	if (tvb_length_remaining(tvb, offset) >= 8)
+	{
+		if ((tvb_get_ntohl(tvb, 0) == MQ_STRUCTID_TSH || tvb_get_ntohl(tvb, 0) == MQ_STRUCTID_TSH_EBCDIC)) 
+			return tvb_get_ntohl(tvb, offset + 4);
+	}
+	return 0;
+}
+
+static void
+dissect_mq_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	tcp_dissect_pdus(tvb, pinfo, tree, mq_desegment, 28, get_mq_pdu_len, dissect_mq_pdu);
+}
+
+static void
+dissect_mq_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	dissect_mq_pdu(tvb, pinfo, tree);
+}
+
 static gboolean
-dissect_mq_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_mq_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint iProto)
 {
 	if (tvb_length(tvb) >= 28)
 	{
 		guint32 structId;
-		guint32 iLength;
 		guint8 cEndian;
 		structId = tvb_get_ntohl(tvb, 0);
-		iLength = tvb_get_ntohl(tvb, 4);
 		cEndian = tvb_get_guint8(tvb, 8);
 
 		if ((structId == MQ_STRUCTID_TSH || structId == MQ_STRUCTID_TSH_EBCDIC) 
-			&& (cEndian == MQ_LITTLE_ENDIAN || cEndian == MQ_BIG_ENDIAN)
-			&& (iLength == tvb_length(tvb)))
+			&& (cEndian == MQ_LITTLE_ENDIAN || cEndian == MQ_BIG_ENDIAN))
 		{
 			/* Register this dissector for this conversation */
 			conversation_t  *conversation = NULL;
@@ -1984,14 +2323,32 @@ dissect_mq_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			{
 				conversation = conversation_new(&pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
 			}
-			conversation_set_dissector(conversation, mq_handle);
+			if (iProto == MQ_XPT_TCP) conversation_set_dissector(conversation, mq_tcp_handle); 
 
 			/* Dissect the packet */
-			dissect_mq(tvb, pinfo, tree);
+			dissect_mq_pdu(tvb, pinfo, tree);
 			return TRUE;
 		}
 	}
 	return FALSE;
+}
+
+static gboolean
+dissect_mq_heur_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	return dissect_mq_heur(tvb, pinfo, tree, MQ_XPT_TCP);
+}
+
+static gboolean
+dissect_mq_heur_netbios(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	return dissect_mq_heur(tvb, pinfo, tree, MQ_XPT_NETBIOS);
+}
+
+static gboolean
+dissect_mq_heur_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	return dissect_mq_heur(tvb, pinfo, tree, MQ_XPT_HTTP);
 }
 
 void
@@ -2025,23 +2382,20 @@ proto_register_mq(void)
     { &hf_mq_tsh_ccsid,
       { "Character set", "mq.tsh.ccsid", FT_UINT16, BASE_DEC, NULL, 0x0, "TSH CCSID", HFILL }},
       
-    { &hf_mq_tsh_unknown4,
-      { "Unknown4", "mq.tsh.unknown4", FT_UINT16, BASE_HEX, NULL, 0x0, "TSH Unknown4", HFILL }},
+    { &hf_mq_tsh_padding,
+      { "Padding", "mq.tsh.padding", FT_UINT16, BASE_HEX, NULL, 0x0, "TSH Padding", HFILL }},
 
-    { &hf_mq_tsh_length,
-      { "Length", "mq.tsh.length", FT_UINT32, BASE_DEC, NULL, 0x0, "TSH Length", HFILL }},
+    { &hf_mq_api_replylength,
+      { "Reply length", "mq.tsh.replylength", FT_UINT32, BASE_DEC, NULL, 0x0, "API Reply length", HFILL }},
 
-    { &hf_mq_tsh_completioncode,
-      { "Completion code", "mq.tsh.completioncode", FT_UINT32, BASE_DEC, NULL, 0x0, "TSH Completion code", HFILL }},
+    { &hf_mq_api_completioncode,
+      { "Completion code", "mq.tsh.completioncode", FT_UINT32, BASE_DEC, NULL, 0x0, "API Completion code", HFILL }},
 
-    { &hf_mq_tsh_reasoncode,
-      { "Reason code", "mq.tsh.reasoncode", FT_UINT32, BASE_DEC, NULL, 0x0, "TSH Reason code", HFILL }},
+    { &hf_mq_api_reasoncode,
+      { "Reason code", "mq.tsh.reasoncode", FT_UINT32, BASE_DEC, NULL, 0x0, "API Reason code", HFILL }},
 
-    { &hf_mq_tsh_statuscode,
-      { "Status code", "mq.tsh.statuscode", FT_UINT32, BASE_DEC, VALS(mq_status_vals), 0x0, "TSH Status code", HFILL }},
-
-    { &hf_mq_tsh_queuehandle,
-      { "Queue handle", "mq.tsh.queuehandle", FT_UINT32, BASE_HEX, NULL, 0x0, "TSH Queue handle", HFILL }},
+    { &hf_mq_api_objecthandle,
+      { "Object handle", "mq.tsh.hobj", FT_UINT32, BASE_HEX, NULL, 0x0, "API Object handle", HFILL }},
 
     { &hf_mq_tsh_tcf_confirmreq,
       { "Confirm request", "mq.tsh.tcf.confirmreq", FT_BOOLEAN, 8, TFS(&flags_set_truth), MQ_TCF_CONFIRM_REQUEST, "TSH TCF Confirm request", HFILL }},
@@ -2152,7 +2506,7 @@ proto_register_mq(void)
       { "Unknown5", "mq.id.unknown5", FT_UINT8, BASE_HEX, NULL, 0x0, "ID unknown5", HFILL }},
 
     { &hf_mq_id_ccsid,
-      { "Character set", "mq.id.ccsid", FT_UINT16, BASE_DEC, NULL, 0x0, "ID unknown5", HFILL }},
+      { "Character set", "mq.id.ccsid", FT_UINT16, BASE_DEC, NULL, 0x0, "ID character set", HFILL }},
 
     { &hf_mq_id_queuemanager,
       { "Queue manager", "mq.id.qm", FT_STRINGZ, BASE_HEX, NULL, 0x0, "ID Queue manager", HFILL }},
@@ -2209,7 +2563,7 @@ proto_register_mq(void)
       { "Application name", "mq.conn.appname", FT_STRINGZ, BASE_HEX, NULL, 0x0, "CONN application name", HFILL }},
 
     { &hf_mq_conn_apptype,
-      { "Application type", "mq.conn.apptype", FT_UINT32, BASE_DEC, NULL, 0x0, "CONN application type", HFILL }},
+      { "Application type", "mq.conn.apptype", FT_INT32, BASE_DEC, NULL, 0x0, "CONN application type", HFILL }},
 
     { &hf_mq_conn_acttoken,
       { "Accounting token", "mq.conn.acttoken", FT_BYTES, BASE_HEX, NULL, 0x0, "CONN accounting token", HFILL }},
@@ -2316,8 +2670,17 @@ proto_register_mq(void)
     { &hf_mq_open_options,
       { "Options", "mq.open.options", FT_UINT32, BASE_DEC, NULL, 0x0, "OPEN options", HFILL }},
 
+    { &hf_mq_ping_length,
+      { "Length", "mq.ping.length", FT_UINT32, BASE_DEC, NULL, 0x0, "PING length", HFILL }},
+
     { &hf_mq_ping_buffer,
       { "Buffer", "mq.ping.buffer", FT_BYTES, BASE_DEC, NULL, 0x0, "PING buffer", HFILL }},
+
+    { &hf_mq_status_length,
+      { "Length", "mq.status.length", FT_UINT32, BASE_DEC, NULL, 0x0, "STATUS length", HFILL }},
+
+    { &hf_mq_status_code,
+      { "Code", "mq.status.code", FT_UINT32, BASE_DEC, VALS(mq_status_vals), 0x0, "STATUS code", HFILL }},
 
     { &hf_mq_od_structid,
       { "OD structid", "mq.od.structid", FT_STRINGZ, BASE_HEX, NULL, 0x0, "OD structid", HFILL }},
@@ -2413,7 +2776,7 @@ proto_register_mq(void)
       { "Message type", "mq.md.msgtype", FT_UINT32, BASE_DEC, NULL, 0x0, "MD message type", HFILL }},
 
     { &hf_mq_md_expiry,
-      { "Expiry", "mq.md.expiry", FT_UINT32, BASE_DEC, NULL, 0x0, "MD expiry", HFILL }},
+      { "Expiry", "mq.md.expiry", FT_INT32, BASE_DEC, NULL, 0x0, "MD expiry", HFILL }},
 
     { &hf_mq_md_feedback,
       { "Feedback", "mq.md.feedback", FT_UINT32, BASE_DEC, NULL, 0x0, "MD feedback", HFILL }},
@@ -2422,13 +2785,13 @@ proto_register_mq(void)
       { "Encoding", "mq.md.encoding", FT_UINT32, BASE_DEC, NULL, 0x0, "MD encoding", HFILL }},
 
     { &hf_mq_md_ccsid,
-      { "Character set", "mq.md.ccsid", FT_UINT32, BASE_DEC, NULL, 0x0, "MD character set", HFILL }},
+      { "Character set", "mq.md.ccsid", FT_INT32, BASE_DEC, NULL, 0x0, "MD character set", HFILL }},
 
     { &hf_mq_md_format,
       { "Format", "mq.md.format", FT_STRINGZ, BASE_DEC, NULL, 0x0, "MD format", HFILL }},
 
     { &hf_mq_md_priority,
-      { "Priority", "mq.md.priority", FT_UINT32, BASE_DEC, NULL, 0x0, "MD priority", HFILL }},
+      { "Priority", "mq.md.priority", FT_INT32, BASE_DEC, NULL, 0x0, "MD priority", HFILL }},
 
     { &hf_mq_md_persistence,
       { "Persistence", "mq.md.persistence", FT_UINT32, BASE_DEC, NULL, 0x0, "MD persistence", HFILL }},
@@ -2458,7 +2821,7 @@ proto_register_mq(void)
       { "ApplicationId data", "mq.md.appldata", FT_STRINGZ, BASE_DEC, NULL, 0x0, "MD Put applicationId data", HFILL }},
 
     { &hf_mq_md_putappltype,
-      { "Put Application Type", "mq.md.appltype", FT_UINT32, BASE_DEC, NULL, 0x0, "MD Put application type", HFILL }},
+      { "Put Application Type", "mq.md.appltype", FT_INT32, BASE_DEC, NULL, 0x0, "MD Put application type", HFILL }},
 
     { &hf_mq_md_putapplname,
       { "Put Application Name", "mq.md.applname", FT_STRINGZ, BASE_DEC, NULL, 0x0, "MD Put application name", HFILL }},
@@ -2485,7 +2848,7 @@ proto_register_mq(void)
       { "Message flags", "mq.md.msgflags", FT_UINT32, BASE_HEX, NULL, 0x0, "MD Message flags", HFILL }},
 
     { &hf_mq_md_originallength,
-      { "Original length", "mq.md.origdata", FT_UINT32, BASE_DEC, NULL, 0x0, "MD Original length", HFILL }},
+      { "Original length", "mq.md.origdata", FT_INT32, BASE_DEC, NULL, 0x0, "MD Original length", HFILL }},
 
     { &hf_mq_md_hidden_lastformat,
       { "Last format", "mq.md.lastformat", FT_STRINGZ, BASE_DEC, NULL, 0x0, "MD Last format", HFILL }},
@@ -2509,13 +2872,13 @@ proto_register_mq(void)
       { "Encoding", "mq.dlh.encoding", FT_UINT32, BASE_DEC, NULL, 0x0, "DLH encoding", HFILL }},
 
     { &hf_mq_dlh_ccsid,
-      { "Character set", "mq.dlh.ccsid", FT_UINT32, BASE_DEC, NULL, 0x0, "DLH character set", HFILL }},
+      { "Character set", "mq.dlh.ccsid", FT_INT32, BASE_DEC, NULL, 0x0, "DLH character set", HFILL }},
 
     { &hf_mq_dlh_format,
       { "Format", "mq.dlh.format", FT_STRINGZ, BASE_DEC, NULL, 0x0, "DLH format", HFILL }},
 
     { &hf_mq_dlh_putappltype,
-      { "Put application type", "mq.dlh.putappltype", FT_UINT32, BASE_DEC, NULL, 0x0, "DLH put application type", HFILL }},
+      { "Put application type", "mq.dlh.putappltype", FT_INT32, BASE_DEC, NULL, 0x0, "DLH put application type", HFILL }},
 
     { &hf_mq_dlh_putapplname,
       { "Put application name", "mq.dlh.putapplname", FT_STRINGZ, BASE_DEC, NULL, 0x0, "DLH put application name", HFILL }},
@@ -2548,7 +2911,7 @@ proto_register_mq(void)
       { "Options", "mq.gmo.options", FT_UINT32, BASE_HEX, NULL, 0x0, "GMO options", HFILL }},
 
     { &hf_mq_gmo_waitinterval,
-      { "Wait Interval", "mq.gmo.waitint", FT_UINT32, BASE_DEC, NULL, 0x0, "GMO wait interval", HFILL }},
+      { "Wait Interval", "mq.gmo.waitint", FT_INT32, BASE_DEC, NULL, 0x0, "GMO wait interval", HFILL }},
 
     { &hf_mq_gmo_signal1,
       { "Signal 1", "mq.gmo.signal1", FT_UINT32, BASE_HEX, NULL, 0x0, "GMO signal 1", HFILL }},
@@ -2578,7 +2941,7 @@ proto_register_mq(void)
       { "Message token", "mq.gmo.msgtoken", FT_BYTES, BASE_HEX, NULL, 0x0, "GMO message token", HFILL }},
 
     { &hf_mq_gmo_returnedlength,
-      { "Returned length", "mq.gmo.retlen", FT_UINT32, BASE_DEC, NULL, 0x0, "GMO returned length", HFILL }},
+      { "Returned length", "mq.gmo.retlen", FT_INT32, BASE_DEC, NULL, 0x0, "GMO returned length", HFILL }},
 
     { &hf_mq_pmo_structid,
       { "PMO structid", "mq.pmo.structid", FT_STRINGZ, BASE_DEC, NULL, 0x0, "PMO structid", HFILL }},
@@ -2590,7 +2953,7 @@ proto_register_mq(void)
       { "Options", "mq.pmo.options", FT_UINT32, BASE_HEX, NULL, 0x0, "PMO options", HFILL }},
 
     { &hf_mq_pmo_timeout,
-      { "Timeout", "mq.pmo.timeout", FT_UINT32, BASE_DEC, NULL, 0x0, "PMO time out", HFILL }},
+      { "Timeout", "mq.pmo.timeout", FT_INT32, BASE_DEC, NULL, 0x0, "PMO time out", HFILL }},
 
     { &hf_mq_pmo_context,
       { "Context", "mq.pmo.context", FT_UINT32, BASE_HEX, NULL, 0x0, "PMO context", HFILL }},
@@ -2641,7 +3004,7 @@ proto_register_mq(void)
       { "Encoding", "mq.head.encoding", FT_UINT32, BASE_DEC, NULL, 0x0, "Header encoding", HFILL }},
 
     { &hf_mq_head_ccsid,
-      { "Character set", "mq.head.ccsid", FT_UINT32, BASE_DEC, NULL, 0x0, "Header character set", HFILL }},
+      { "Character set", "mq.head.ccsid", FT_INT32, BASE_DEC, NULL, 0x0, "Header character set", HFILL }},
 
     { &hf_mq_head_format,
       { "Format", "mq.head.format", FT_STRINGZ, BASE_DEC, NULL, 0x0, "Header format", HFILL }},
@@ -2650,13 +3013,74 @@ proto_register_mq(void)
       { "Flags", "mq.head.flags", FT_UINT32, BASE_DEC, NULL, 0x0, "Header flags", HFILL }},
 
     { &hf_mq_head_struct,
-      { "Struct", "mq.head.struct", FT_BYTES, BASE_HEX, NULL, 0x0, "Header struct", HFILL }}
+      { "Struct", "mq.head.struct", FT_BYTES, BASE_HEX, NULL, 0x0, "Header struct", HFILL }},
+
+    { &hf_mq_xa_length,
+      { "Length", "mq.xa.length", FT_UINT32, BASE_DEC, NULL, 0x0, "XA Length", HFILL }},
+
+    { &hf_mq_xa_returnvalue,
+      { "Return value", "mq.xa.returnvalue", FT_INT32, BASE_DEC, VALS(mq_xaer_vals), 0x0, "XA Return Value", HFILL }},
+
+    { &hf_mq_xa_tmflags,
+      { "Transaction Manager Flags", "mq.xa.tmflags", FT_UINT32, BASE_HEX, NULL, 0x0, "XA Transaction Manager Flags", HFILL }},
+
+    { &hf_mq_xa_rmid,
+      { "Resource manager ID", "mq.xa.rmid", FT_UINT32, BASE_DEC, NULL, 0x0, "XA Resource Manager ID", HFILL }},
+
+    { &hf_mq_xa_count,
+      { "Number of Xid", "mq.xa.nbxid", FT_UINT32, BASE_DEC, NULL, 0x0, "XA Number of Xid", HFILL }},
+
+    { &hf_mq_xa_tmflags_join,
+      { "JOIN", "mq.xa.tmflags.join", FT_BOOLEAN, 32, TFS(&flags_set_truth), MQ_XA_TMJOIN, "XA TM Flags JOIN", HFILL }},
+
+    { &hf_mq_xa_tmflags_endrscan,
+      { "ENDRSCAN", "mq.xa.tmflags.endrscan", FT_BOOLEAN, 32, TFS(&flags_set_truth), MQ_XA_TMENDRSCAN, "XA TM Flags ENDRSCAN", HFILL }},
+
+    { &hf_mq_xa_tmflags_startrscan,
+      { "STARTRSCAN", "mq.xa.tmflags.startrscan", FT_BOOLEAN, 32, TFS(&flags_set_truth), MQ_XA_TMSTARTRSCAN, "XA TM Flags STARTRSCAN", HFILL }},
+
+    { &hf_mq_xa_tmflags_suspend,
+      { "SUSPEND", "mq.xa.tmflags.suspend", FT_BOOLEAN, 32, TFS(&flags_set_truth), MQ_XA_TMSUSPEND, "XA TM Flags SUSPEND", HFILL }},
+
+    { &hf_mq_xa_tmflags_success,
+      { "SUCCESS", "mq.xa.tmflags.success", FT_BOOLEAN, 32, TFS(&flags_set_truth), MQ_XA_TMSUCCESS, "XA TM Flags SUCCESS", HFILL }},
+
+    { &hf_mq_xa_tmflags_resume,
+      { "RESUME", "mq.xa.tmflags.resume", FT_BOOLEAN, 32, TFS(&flags_set_truth), MQ_XA_TMRESUME, "XA TM Flags RESUME", HFILL }},
+
+    { &hf_mq_xa_tmflags_fail,
+      { "FAIL", "mq.xa.tmflags.fail", FT_BOOLEAN, 32, TFS(&flags_set_truth), MQ_XA_TMFAIL, "XA TM Flags FAIL", HFILL }},
+
+    { &hf_mq_xa_tmflags_onephase,
+      { "ONEPHASE", "mq.xa.tmflags.onephase", FT_BOOLEAN, 32, TFS(&flags_set_truth), MQ_XA_TMONEPHASE, "XA TM Flags ONEPHASE", HFILL }},
+
+    { &hf_mq_xa_xid_formatid,
+      { "Format ID", "mq.xa.xid.formatid", FT_INT32, BASE_DEC, NULL, 0x0, "XA Xid Format ID", HFILL }},
+
+    { &hf_mq_xa_xid_globalxid_length,
+      { "Global TransactionId Length", "mq.xa.xid.gxidl", FT_UINT8, BASE_DEC, NULL, 0x0, "XA Xid Global TransactionId Length", HFILL }},
+
+    { &hf_mq_xa_xid_brq_length,
+      { "Branch Qualifier Length", "mq.xa.xid.bql", FT_UINT8, BASE_DEC, NULL, 0x0, "XA Xid Branch Qualifier Length", HFILL }},
+
+    { &hf_mq_xa_xid_globalxid,
+      { "Global TransactionId", "mq.xa.xid.gxid", FT_BYTES, BASE_DEC, NULL, 0x0, "XA Xid Global TransactionId", HFILL }},
+
+    { &hf_mq_xa_xid_brq,
+      { "Branch Qualifier", "mq.xa.xid.bq", FT_BYTES, BASE_DEC, NULL, 0x0, "XA Xid Branch Qualifier", HFILL }},
+
+    { &hf_mq_xa_xainfo_length,
+      { "Length", "mq.xa.xainfo.length", FT_UINT8, BASE_DEC, NULL, 0x0, "XA XA_info Length", HFILL }},
+
+    { &hf_mq_xa_xainfo_value,
+      { "Value", "mq.xa.xainfo.value", FT_STRINGZ, BASE_DEC, NULL, 0x0, "XA XA_info Value", HFILL }}
 
   };
   static gint *ett[] = {
     &ett_mq,
     &ett_mq_tsh,
     &ett_mq_tsh_tcf,
+    &ett_mq_api,
     &ett_mq_msh,
     &ett_mq_xqh,
     &ett_mq_id,
@@ -2671,6 +3095,7 @@ proto_register_mq(void)
     &ett_mq_put,
     &ett_mq_open,
     &ett_mq_ping,
+    &ett_mq_status,
     &ett_mq_od,
     &ett_mq_or,
     &ett_mq_rr,
@@ -2682,14 +3107,25 @@ proto_register_mq(void)
     &ett_mq_gmo,
     &ett_mq_pmo,
     &ett_mq_head,
+    &ett_mq_xa,
+    &ett_mq_xa_tmflags,
+    &ett_mq_xa_xid,
+    &ett_mq_xa_info,
   };
+
+  module_t *mq_module;
 
   proto_mq = proto_register_protocol("WebSphere MQ", "MQ", "mq");
   proto_register_field_array(proto_mq, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
-  mq_handle = create_dissector_handle(dissect_mq, proto_mq);
+  register_heur_dissector_list("mq", &mq_heur_subdissector_list);
 
+  mq_module = prefs_register_protocol(proto_mq, NULL);
+  prefs_register_bool_preference(mq_module, "reassembly", /*"desegment",*/
+    "Desegment all MQ messages spanning multiple TCP segments",
+    "Whether the MQ dissector should desegment all messages spanning multiple TCP segments",
+    &mq_desegment);
 }
 
 void
@@ -2699,8 +3135,14 @@ proto_reg_handoff_mq(void)
 	*  class of applications (web browser, e-mail client, ...) and have a very well
 	*  known port number, the MQ applications are most often specific to a business application */
 
-	dissector_add_handle("tcp.port", mq_handle);
-	heur_dissector_add("tcp", dissect_mq_heur, proto_mq);
+	mq_tcp_handle = create_dissector_handle(dissect_mq_tcp, proto_mq);
+	mq_spx_handle = create_dissector_handle(dissect_mq_spx, proto_mq);
+
+	dissector_add_handle("tcp.port", mq_tcp_handle);
+	heur_dissector_add("tcp", dissect_mq_heur_tcp, proto_mq);
+	heur_dissector_add("netbios", dissect_mq_heur_netbios, proto_mq);
+	heur_dissector_add("http", dissect_mq_heur_http, proto_mq);
+	dissector_add("spx.socket", MQ_SOCKET_SPX, mq_spx_handle);
 	data_handle = find_dissector("data");
 
 }
