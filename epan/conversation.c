@@ -1,7 +1,7 @@
 /* conversation.c
  * Routines for building lists of packets that are part of a "conversation"
  *
- * $Id: conversation.c,v 1.4 2000/11/18 06:51:42 guy Exp $
+ * $Id: conversation.c,v 1.5 2000/11/18 07:00:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -762,6 +762,9 @@ try_conversation_dissector(address *src, address *dst, port_type ptype,
 
 	if (conversation != NULL) {
 		if (conversation->is_old_dissector) {
+			if (conversation->dissector.old_d == NULL)
+				return FALSE;
+
 			/*
 			 * New dissector calling old dissector; use
 			 * "tvb_compat()" to remap.
@@ -773,18 +776,11 @@ try_conversation_dissector(address *src, address *dst, port_type ptype,
 			(*conversation->dissector.old_d)(pd, offset, pinfo->fd,
 			    tree);
 		} else {
-			/*
-			 * Do we have a conversation dissector?
-			 */
-			if (conversation->dissector.new_d == NULL) {
-				/*
-				 * No, so we can't call it.
-				 */
+			if (conversation->dissector.new_d == NULL)
 				return FALSE;
-			}
 			(*conversation->dissector.new_d)(tvb, pinfo, tree);
-			return TRUE;
 		}
+		return TRUE;
 	}
 	return FALSE;
 }
