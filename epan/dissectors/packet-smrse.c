@@ -538,6 +538,10 @@ dissect_smrse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	guint16 length;
 	int offset=0;
 
+	if (!tvb_bytes_exist(tvb, 0, 4)) {
+		/* Not enough data to check the sanity of the header. */
+		return 0;
+	}
 	reserved=tvb_get_guint8(tvb, 0);
 	length=tvb_get_ntohs(tvb,1);
 	tag=tvb_get_guint8(tvb, 3);
