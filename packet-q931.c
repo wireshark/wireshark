@@ -2,7 +2,7 @@
  * Routines for Q.931 frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-q931.c,v 1.61 2003/10/30 08:07:30 guy Exp $
+ * $Id: packet-q931.c,v 1.62 2003/11/03 20:49:16 guy Exp $
  *
  * Modified by Andreas Sikkema for possible use with H.323
  *
@@ -52,23 +52,28 @@
  * http://www.tulatelecom.ru/staff/german/DSSHelp/MessList/InfEl/InfElList.html
  */
 
-static int proto_q931 			= -1;
-static int hf_q931_discriminator	= -1;
-static int hf_q931_call_ref_len 	= -1;
-static int hf_q931_call_ref_flag 	= -1;
-static int hf_q931_call_ref 		= -1;
-static int hf_q931_message_type 	= -1;
-static int hf_q931_cause_value 		= -1;
-static int hf_q931_number_type		= -1;
-static int hf_q931_numbering_plan	= -1;
-static int hf_q931_extension_ind	= -1;
-static int hf_q931_calling_party_number = -1;
-static int hf_q931_called_party_number 	= -1;
-static int hf_q931_connected_number 	= -1;
-static int hf_q931_redirecting_number 	= -1;
+static int proto_q931 					= -1;
+static int hf_q931_discriminator			= -1;
+static int hf_q931_coding_standard			= -1;
+static int hf_q931_information_transfer_capability	= -1;
+static int hf_q931_transfer_mode			= -1;
+static int hf_q931_information_transfer_rate		= -1;
+static int hf_q931_uil1					= -1;
+static int hf_q931_call_ref_len 			= -1;
+static int hf_q931_call_ref_flag 			= -1;
+static int hf_q931_call_ref 				= -1;
+static int hf_q931_message_type 			= -1;
+static int hf_q931_cause_value 				= -1;
+static int hf_q931_number_type				= -1;
+static int hf_q931_numbering_plan			= -1;
+static int hf_q931_extension_ind			= -1;
+static int hf_q931_calling_party_number 		= -1;
+static int hf_q931_called_party_number 			= -1;
+static int hf_q931_connected_number 			= -1;
+static int hf_q931_redirecting_number 			= -1;
 
-static gint ett_q931 			= -1;
-static gint ett_q931_ie 		= -1;
+static gint ett_q931 					= -1;
+static gint ett_q931_ie 				= -1;
 
 static dissector_table_t codeset_dissector_table;
 static dissector_table_t ie_dissector_table;
@@ -197,9 +202,13 @@ static const true_false_string tfs_call_ref_flag = {
  * Variable-length IEs.
  */
 #define	Q931_IE_VL_EXTENSION		0x80	/* Extension flag */
+/*	extension bit. The bit value "0" indicates that the octet continues through the		*/
+/*	next octet. The bit value "1" indicates that this octet is the last octet		*/
+
 static const true_false_string q931_extension_ind_value = {
-  "information continues through the next octet",
   "last octet",
+  "information continues through the next octet",
+
 };
 
 
@@ -419,11 +428,11 @@ dissect_q931_segmented_message_ie(tvbuff_t *tvb, int offset, int len,
 /*
  * Dissect a Bearer capability or Low-layer compatibility information element.
  */
-static const value_string q931_bc_coding_standard_vals[] = {
-	{ 0x00, "ITU-T standardized coding" },
-	{ 0x20, "ISO/IEC standard" },
-	{ 0x40, "National standard" },
-	{ 0x60, "Standard defined for this particular network" },
+static const value_string q931_coding_standard_vals[] = {
+	{ 0x0, "ITU-T standardized coding" },
+	{ 0x1, "ISO/IEC standard" },
+	{ 0x2, "National standard" },
+	{ 0x3, "Standard defined for this particular network" },
 	{ 0,    NULL }
 };
 
@@ -439,7 +448,7 @@ static const value_string q931_information_transfer_capability_vals[] = {
 
 static const value_string q931_transfer_mode_vals[] = {
 	{ 0x00, "Circuit mode" },
-	{ 0x40, "Packet mode" },
+	{ 0x02, "Packet mode" },
 	{ 0,    NULL }
 };
 
@@ -639,9 +648,6 @@ dissect_q931_bearer_capability_ie(tvbuff_t *tvb, int offset, int len,
 		return;
 	octet = tvb_get_guint8(tvb, offset);
 	coding_standard = octet & 0x60;
-	proto_tree_add_text(tree, tvb, offset, 1,
-	    "Coding standard: %s",
-	    val_to_str(coding_standard, q931_bc_coding_standard_vals, NULL));
 	if (coding_standard != Q931_ITU_STANDARDIZED_CODING) {
 		/*
 		 * We don't know how the bearer capability is encoded,
@@ -650,12 +656,13 @@ dissect_q931_bearer_capability_ie(tvbuff_t *tvb, int offset, int len,
 		proto_tree_add_text(tree, tvb, offset,
 		    len, "Data: %s",
 		    tvb_bytes_to_str(tvb, offset, len));
+		proto_tree_add_uint(tree, hf_q931_coding_standard, tvb, offset, 1, octet);
+		proto_tree_add_boolean(tree, hf_q931_extension_ind, tvb, offset, 1, octet);
 		return;
 	}
-	proto_tree_add_text(tree, tvb, offset, 1,
-	    "Information transfer capability: %s",
-	    val_to_str(octet & 0x1F, q931_information_transfer_capability_vals,
-	      "Unknown (0x%02X)"));
+	proto_tree_add_uint(tree, hf_q931_information_transfer_capability, tvb, offset, 1, octet);
+	proto_tree_add_uint(tree, hf_q931_coding_standard, tvb, offset, 1, octet);
+	proto_tree_add_boolean(tree, hf_q931_extension_ind, tvb, offset, 1, octet);
 	offset += 1;
 	len -= 1;
 
@@ -676,15 +683,10 @@ dissect_q931_bearer_capability_ie(tvbuff_t *tvb, int offset, int len,
 	if (len == 0)
 		return;
 	octet = tvb_get_guint8(tvb, offset);
-	proto_tree_add_text(tree, tvb, offset, 1,
-	    "Transfer mode: %s",
-	    val_to_str(octet & 0x60, q931_transfer_mode_vals,
-	      "Unknown (0x%02X)"));
+	proto_tree_add_uint(tree, hf_q931_information_transfer_rate, tvb, offset, 1, octet);
+	proto_tree_add_uint(tree, hf_q931_transfer_mode, tvb, offset, 1, octet);
+	proto_tree_add_boolean(tree, hf_q931_extension_ind, tvb, offset, 1, octet);
 	it_rate = octet & 0x1F;
-	proto_tree_add_text(tree, tvb, offset, 1,
-	    "Information transfer rate: %s",
-	    val_to_str(it_rate, q931_information_transfer_rate_vals,
-	      "Unknown (0x%02X)"));
 	offset += 1;
 	len -= 1;
 
@@ -703,10 +705,8 @@ dissect_q931_bearer_capability_ie(tvbuff_t *tvb, int offset, int len,
 		/*
 		 * Layer 1 information.
 		 */
-		proto_tree_add_text(tree, tvb, offset, 1,
-		    "User information layer 1 protocol: %s",
-		    val_to_str(octet & 0x1F, q931_uil1_vals,
-		      "Unknown (0x%02X)"));
+		proto_tree_add_uint(tree, hf_q931_uil1, tvb, offset, 1, octet);
+		proto_tree_add_boolean(tree, hf_q931_extension_ind, tvb, offset, 1, octet);
 		offset += 1;
 		len -= 1;
 
@@ -962,13 +962,7 @@ l3_done:
 /*
  * Dissect a Cause information element.
  */
-static const value_string q931_cause_coding_standard_vals[] = {
-	{ 0x00, "ITU-T standardized coding" },
-	{ 0x20, "ISO/IEC standard" },
-	{ 0x40, "National standard" },
-	{ 0x60, "Standard specific to identified location" },
-	{ 0,    NULL }
-};
+
 
 const value_string q931_cause_location_vals[] = {
 	{ 0x00, "User (U)" },
@@ -1138,9 +1132,7 @@ dissect_q931_cause_ie(tvbuff_t *tvb, int offset, int len,
 		return;
 	octet = tvb_get_guint8(tvb, offset);
 	coding_standard = octet & 0x60;
-	proto_tree_add_text(tree, tvb, offset, 1,
-	    "Coding standard: %s",
-	    val_to_str(coding_standard, q931_cause_coding_standard_vals, NULL));
+	proto_tree_add_uint(tree, hf_q931_coding_standard, tvb, offset, 1, octet);
 	if (coding_standard != Q931_ITU_STANDARDIZED_CODING) {
 		/*
 		 * We don't know how the cause is encoded,
@@ -1155,6 +1147,7 @@ dissect_q931_cause_ie(tvbuff_t *tvb, int offset, int len,
 	    "Location: %s",
 	    val_to_str(octet & 0x0F, q931_cause_location_vals,
 	      "Unknown (0x%X)"));
+	proto_tree_add_boolean(tree, hf_q931_extension_ind, tvb, offset, 1, octet);
 	offset += 1;
 	len -= 1;
 
@@ -1283,14 +1276,6 @@ dissect_q931_cause_ie(tvbuff_t *tvb, int offset, int len,
 /*
  * Dissect a Call state information element.
  */
-static const value_string q931_coding_standard_vals[] = {
-	{ 0x00, "ITU-T standardized coding" },
-	{ 0x20, "ISO/IEC standard" },
-	{ 0x40, "National standard" },
-	{ 0x60, "Standard defined for the network" },
-	{ 0,    NULL }
-};
-
 static const value_string q931_call_state_vals[] = {
 	{ 0x00, "Null" },
 	{ 0x01, "Call initiated" },
@@ -1325,9 +1310,7 @@ dissect_q931_call_state_ie(tvbuff_t *tvb, int offset, int len,
 		return;
 	octet = tvb_get_guint8(tvb, offset);
 	coding_standard = octet & 0x60;
-	proto_tree_add_text(tree, tvb, offset, 1,
-	    "Coding standard: %s",
-	    val_to_str(coding_standard, q931_coding_standard_vals, NULL));
+	proto_tree_add_uint(tree, hf_q931_coding_standard, tvb, offset, 1, octet);
 	if (coding_standard != Q931_ITU_STANDARDIZED_CODING) {
 		/*
 		 * We don't know how the call state is encoded,
@@ -1443,10 +1426,7 @@ dissect_q931_channel_identification_ie(tvbuff_t *tvb, int offset, int len,
 			return;
 		octet = tvb_get_guint8(tvb, offset);
 		coding_standard = octet & 0x60;
-		proto_tree_add_text(tree, tvb, offset, 1,
-		    "Coding standard: %s",
-		    val_to_str(coding_standard, q931_coding_standard_vals,
-		      NULL));
+		proto_tree_add_uint(tree, hf_q931_coding_standard, tvb, offset, 1, octet);
 		if (coding_standard != Q931_ITU_STANDARDIZED_CODING) {
 			/*
 			 * We don't know how the channel identifier is
@@ -1497,9 +1477,7 @@ dissect_q931_progress_indicator_ie(tvbuff_t *tvb, int offset, int len,
 		return;
 	octet = tvb_get_guint8(tvb, offset);
 	coding_standard = octet & 0x60;
-	proto_tree_add_text(tree, tvb, offset, 1,
-	    "Coding standard: %s",
-	    val_to_str(coding_standard, q931_cause_coding_standard_vals, NULL));
+	proto_tree_add_uint(tree, hf_q931_coding_standard, tvb, offset, 1, octet);
 	if (coding_standard != Q931_ITU_STANDARDIZED_CODING) {
 		/*
 		 * We don't know how the progress indicator is encoded,
@@ -2186,9 +2164,7 @@ dissect_q931_high_layer_compat_ie(tvbuff_t *tvb, int offset, int len,
 		return;
 	octet = tvb_get_guint8(tvb, offset);
 	coding_standard = octet & 0x60;
-	proto_tree_add_text(tree, tvb, offset, 1,
-	    "Coding standard: %s",
-	    val_to_str(coding_standard, q931_coding_standard_vals, NULL));
+	proto_tree_add_uint(tree, hf_q931_coding_standard, tvb, offset, 1, octet);
 	offset += 1;
 	len -= 1;
 	if (coding_standard != Q931_ITU_STANDARDIZED_CODING) {
@@ -2851,16 +2827,37 @@ proto_register_q931(void)
 		  { "Protocol discriminator", "q931.disc", FT_UINT8, BASE_HEX, NULL, 0x0,
 			"", HFILL }},
 
-		{ &hf_q931_call_ref_len,
-		  { "Call reference value length", "q931.call_ref_len", FT_UINT8, BASE_DEC, NULL, 0x0,
-			"", HFILL }},
-
 		{ &hf_q931_call_ref_flag,
 		  { "Call reference flag", "q931.call_ref_flag", FT_BOOLEAN, BASE_NONE, TFS(&tfs_call_ref_flag), 0x0,
 			"", HFILL }},
 
 		{ &hf_q931_call_ref,
 		  { "Call reference value", "q931.call_ref", FT_BYTES, BASE_HEX, NULL, 0x0,
+			"", HFILL }},
+
+
+		{ &hf_q931_coding_standard,
+		  { "Coding standard", "q931.coding_standard", FT_UINT8, BASE_HEX,
+			 VALS(q931_coding_standard_vals), 0x60,"", HFILL }},
+
+		{ &hf_q931_information_transfer_capability,
+		  { "Information transfer capability", "q931.information_transfer_capability", FT_UINT8, BASE_HEX,
+			 VALS(q931_information_transfer_capability_vals), 0x1f,"", HFILL }},
+
+		{ &hf_q931_transfer_mode,
+		  { "Transfer mode", "q931.transfer_mode", FT_UINT8, BASE_HEX,
+			 VALS(q931_transfer_mode_vals), 0x60,"", HFILL }},
+
+		{ &hf_q931_information_transfer_rate,
+		  { "Information transfer rate", "q931.information_transfer_rate", FT_UINT8, BASE_HEX,
+			 VALS(q931_information_transfer_rate_vals), 0x1f,"", HFILL }},
+
+		{ &hf_q931_uil1,
+		  { "User information layer 1 protocol", "q931.uil1", FT_UINT8, BASE_HEX,
+			 VALS(q931_uil1_vals), 0x1f,"", HFILL }},
+
+		{ &hf_q931_call_ref_len,
+		  { "Call reference value length", "q931.call_ref_len", FT_UINT8, BASE_DEC, NULL, 0x0,
 			"", HFILL }},
 
 		{ &hf_q931_message_type,
