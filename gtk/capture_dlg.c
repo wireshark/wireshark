@@ -1146,6 +1146,9 @@ capture_prep(void)
   SIGNAL_CONNECT(cap_open_w, "delete_event", window_delete_event_cb, NULL);
   SIGNAL_CONNECT(cap_open_w, "destroy", capture_prep_destroy_cb, NULL);
 
+  /* Give the initial focus to the "Filter" entry box. */
+  gtk_widget_grab_focus(filter_te);
+
   gtk_widget_show_all(cap_open_w);
   window_present(cap_open_w);
 }
