@@ -2,7 +2,7 @@
  * Routines for DCOM Remote Activation
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc-remact.c,v 1.1 2001/07/11 01:25:44 guy Exp $
+ * $Id: packet-dcerpc-remact.c,v 1.2 2001/07/24 00:38:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -44,7 +44,7 @@ static int proto_remact = -1;
 static gint ett_remact = -1;
 
 
-static e_uuid_t uuid_remact = { 0x4d9f4ab8, 0x7dac, 0x11cf, { 0x86, 0x1e, 0x00, 0x20, 0xaf, 0x6e, 0x7c, 0x57 } };
+static e_uuid_t uuid_remact = { 0x4d9f4ab8, 0x7d1c, 0x11cf, { 0x86, 0x1e, 0x00, 0x20, 0xaf, 0x6e, 0x7c, 0x57 } };
 static guint16  ver_remact = 0;
 
 
