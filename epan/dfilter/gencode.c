@@ -1,3 +1,26 @@
+/*
+ * $Id: gencode.c,v 1.2 2001/02/11 03:12:46 gram Exp $
+ *
+ * Ethereal - Network traffic analyzer
+ * By Gerald Combs <gerald@zing.org>
+ * Copyright 2001 Gerald Combs
+ *
+ * 
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ */
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -129,8 +152,6 @@ gen_relation(dfwork_t *dfw, dfvm_opcode_t op, stnode_t *st_arg1, stnode_t *st_ar
 	dfvm_value_t	*jmp1 = NULL, *jmp2 = NULL;
 	int		reg1 = -1, reg2 = -1;
 	header_field_info	*hfinfo;
-
-	fvalue_t	*junk = NULL;
 
 	type1 = stnode_type_id(st_arg1);
 	type2 = stnode_type_id(st_arg2);
