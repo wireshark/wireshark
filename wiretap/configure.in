@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.26 2001/04/17 22:47:37 guy Exp $
+# $Id: configure.in,v 1.27 2001/06/27 07:47:50 guy Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -105,6 +105,23 @@ AC_C_BIGENDIAN
 # Look for libpcap, so we can include <pcap.h> in libpcap.c if it's
 # found.
 #
+# "--with-pcap" is merely done to allow the user to specify a directory
+# in which to look for <pcap.h> (and so that specifying it to the
+# top-level Ethereal configure script specifies it to the Wiretap
+# configure script as well); we search for it regardless of whether
+# "--without-pcap" was specified, as Wiretap isn't linked with it and
+# there's no benefit to not looking for the header.
+#
+AC_ARG_WITH(pcap,
+[  --with-pcap=DIR      libpcap is located in directory DIR.],
+[
+	if test $withval != yes -a $withval != no
+	then
+		pcap_dir=$withval
+	fi
+],[
+	pcap_dir=
+])
 AC_WIRETAP_PCAP_CHECK
 
 dnl zlib check

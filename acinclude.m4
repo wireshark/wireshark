@@ -2,7 +2,7 @@ dnl Macros that test for specific features.
 dnl This file is part of the Autoconf packaging for Ethereal.
 dnl Copyright (C) 1998-2000 by Gerald Combs.
 dnl
-dnl $Id: acinclude.m4,v 1.26 2001/05/23 19:38:07 guy Exp $
+dnl $Id: acinclude.m4,v 1.27 2001/06/27 07:47:48 guy Exp $
 dnl
 dnl This program is free software; you can redistribute it and/or modify
 dnl it under the terms of the GNU General Public License as published by
@@ -242,22 +242,50 @@ AC_DEFUN(AC_ETHEREAL_SOCKET_LIB_CHECK,
 #
 AC_DEFUN(AC_ETHEREAL_PCAP_CHECK,
 [
-	# Evidently, some systems have pcap.h, etc. in */include/pcap
-	AC_MSG_CHECKING(for extraneous pcap header directories)
-	found_pcap_dir=""
-	for pcap_dir in /usr/include/pcap /usr/local/include/pcap $prefix/include
-	do
-	  if test -d $pcap_dir ; then
-	    CFLAGS="$CFLAGS -I$pcap_dir"
-	    CPPFLAGS="$CPPFLAGS -I$pcap_dir"
-	    found_pcap_dir=" $found_pcap_dir -I$pcap_dir"
-	  fi
-	done
+	if test -z "$pcap_dir"
+	then
+	  #
+	  # The user didn't specify a directory in which libpcap resides;
+	  # we assume that the current library search path will work,
+	  # but we may have to look for the header in a "pcap"
+	  # subdirectory of "/usr/include" or "/usr/local/include",
+	  # as some systems apparently put "pcap.h" in a "pcap"
+	  # subdirectory, and we also check "$prefix/include".
+	  #
+	  # XXX - should we just add "$prefix/include" to the include
+	  # search path and "$prefix/lib" to the library search path?
+	  #
+	  AC_MSG_CHECKING(for extraneous pcap header directories)
+	  found_pcap_dir=""
+	  for pcap_dir in /usr/include/pcap /usr/local/include/pcap $prefix/include
+	  do
+	    if test -d $pcap_dir ; then
+		CFLAGS="$CFLAGS -I$pcap_dir"
+		CPPFLAGS="$CPPFLAGS -I$pcap_dir"
+		found_pcap_dir=" $found_pcap_dir -I$pcap_dir"
+	    fi
+	  done
 
-	if test "$found_pcap_dir" != "" ; then
-	  AC_MSG_RESULT(found --$found_pcap_dir added to CFLAGS)
+	  if test "$found_pcap_dir" != "" ; then
+	    AC_MSG_RESULT(found --$found_pcap_dir added to CFLAGS)
+	  else
+	    AC_MSG_RESULT(not found)
+	  fi
 	else
-	  AC_MSG_RESULT(not found)
+	  #
+	  # The user specified a directory in which libpcap resides,
+	  # so add that directory to the include file and library
+	  # search path.
+	  #
+	  # XXX - if there's also a libpcap in a directory that's
+	  # already in CFLAGS, CPPFLAGS, or LDFLAGS, this won't
+	  # make us find the version in the specified directory,
+	  # as the compiler and/or linker will search that other
+	  # directory before it searches the specified directory.
+	  #
+	  CFLAGS="$CFLAGS -I$pcap_dir"
+	  CPPFLAGS="$CPPFLAGS -I$pcap_dir"
+	  AC_ETHEREAL_ADD_DASH_L(LDFLAGS, $pcap_dir/lib)
 	fi
 
 	# Pcap header checks

@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.129 2001/06/18 02:26:00 guy Exp $
+# $Id: configure.in,v 1.130 2001/06/27 07:47:48 guy Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -333,11 +333,26 @@ dnl "-lsocket", if we need it to get "connect()".
 AC_ETHEREAL_SOCKET_LIB_CHECK
 
 dnl pcap check
-AC_ARG_ENABLE(pcap,
-[  --enable-pcap           use libpcap for packet capturing.  [default=yes]],,enable_pcap=yes)
-
 AC_MSG_CHECKING(whether to use libpcap for packet capture)
-if test "x$enable_pcap" = "xno" ; then
+
+AC_ARG_WITH(pcap,
+[  --with-pcap[=DIR]       use libpcap for packet capturing.  [default=yes]],
+[
+	if test $withval = no
+	then
+		want_pcap=no
+	elif test $withval = yes
+	then
+		want_pcap=yes
+	else
+		want_pcap=yes
+		pcap_dir=$withval
+	fi
+],[
+	want_pcap=yes
+	pcap_dir=
+])
+if test "x$want_pcap" = "xno" ; then
 	AC_MSG_RESULT(no)
 else
 	AC_MSG_RESULT(yes)
@@ -628,7 +643,7 @@ echo "                     Build randpkt : $enable_randpkt"
 echo "                      Build dftest : $enable_dftest"
 echo ""
 echo "                    Install setuid : $setuid_message"
-echo "                  Use pcap library : $enable_pcap"
+echo "                  Use pcap library : $want_pcap"
 echo "                  Use zlib library : $enable_zlib"
 echo "          Use IPv6 name resolution : $enable_ipv6"
 echo "                  Use SNMP library : $snmp_libs_message"
