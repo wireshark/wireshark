@@ -7,7 +7,7 @@
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-ncp2222.inc,v 1.8.2.1 2002/02/16 16:28:58 gram Exp $
+ * $Id: packet-ncp2222.inc,v 1.8.2.2 2002/02/16 20:41:04 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -149,7 +149,7 @@ static void
 process_ptvc_record(ptvcursor_t *ptvc, const ptvc_record *rec)
 {
 	proto_item *item;
-	guint i, repeat;
+	guint i, repeat_index;
 
 	while(rec->hf_ptr != NULL) {
 		if (rec->sub_ptvc_rec) {
@@ -163,19 +163,19 @@ process_ptvc_record(ptvcursor_t *ptvc, const ptvc_record *rec)
 		else {
 			/* If we can't repeat this field, we might use it
 			 * to set a 'var'. */
-			if (rec->repeat == NO_REPEAT) {
+			if (rec->repeat_index == NO_REPEAT) {
 				item = ptvcursor_add(ptvc, *rec->hf_ptr, rec->length,
 					rec->endianness);
 
 				/* Set the value as a 'var' ? */
-				if (rec->var != NO_VAR) {
-					repeat_vars[rec->var] = get_item_value(item);
+				if (rec->var_index != NO_VAR) {
+					repeat_vars[rec->var_index] = get_item_value(item);
 				}
 			}
 			else {
 				/* We do repeat this field. */
-				repeat = repeat_vars[rec->repeat];
-				for (i = 0; i < repeat; i++ ) {
+				repeat_index = repeat_vars[rec->repeat_index];
+				for (i = 0; i < repeat_index; i++ ) {
 					ptvcursor_add(ptvc, *rec->hf_ptr,
 						rec->length, rec->endianness);
 				}
@@ -214,8 +214,7 @@ ncp_error_string(const error_equivalency *errors, guint8 completion_code)
 
 static const ncp_record ncp1111_request =
 	{ 0x01, 0x00, NO_SUBFUNC, "Create Connection Service", NCP_GROUP_CONNECTION,
-		NULL, NULL, NULL, NULL,
-		ncp_0x2_errors };
+		NULL, NULL, ncp_0x2_errors };
 
 
 void

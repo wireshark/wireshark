@@ -25,7 +25,7 @@ http://developer.novell.com/ndk/doc/docui/index.htm#../ncp/ncp__enu/data/
 for a badly-formatted HTML version of the same PDF.
 
 
-$Id: ncp2222.py,v 1.14.2.2 2002/02/16 19:36:45 gram Exp $
+$Id: ncp2222.py,v 1.14.2.3 2002/02/16 20:41:02 gram Exp $
 
 Copyright (c) 2000-2002 by Gilbert Ramirez <gram@alumni.rice.edu>
 and Greg Morris <GMORRIS@novell.com>.
@@ -65,11 +65,15 @@ REC_FIELD	= 2
 REC_ENDIANNESS	= 3
 REC_VAR		= 4
 REC_REPEAT	= 5
+REC_REQ_COND	= 6
 
 NO_VAR		= -1
 NO_REPEAT	= -1
+NO_REQ_COND	= -1
+NO_LENGTH_CHECK	= -2
 
 global_highest_var = -1
+global_req_cond = {}
 
 ##############################################################################
 # Global containers
@@ -208,7 +212,12 @@ class PTVC(NamedList):
 			else:
 				repeat = NO_REPEAT
 
-			ptvc_rec = PTVCRecord(field, length, endianness, var, repeat)
+			# Request Condition
+			req_cond = record[REC_REQ_COND]
+			if req_cond != NO_REQ_COND:
+				global_req_cond[req_cond] = None
+
+			ptvc_rec = PTVCRecord(field, length, endianness, var, repeat, req_cond)
 
 			if expected_offset == None:
 				expected_offset = offset
@@ -216,23 +225,33 @@ class PTVC(NamedList):
 			elif expected_offset == -1:
 				pass
 
-			elif expected_offset != offset:
-				sys.stderr.write("Expected offset in %s to be %d\n" % (name,
-					expected_offset))
+			elif expected_offset != offset and offset != -1:
+				msg.write("Expected offset in %s for %s to be %d\n" % \
+					(name, field.HFName(), expected_offset))
 				sys.exit(1)
 
 			# We can't make a PTVC list from a variable-length
-			# packet, unless it's FT_UINT_STRING
+			# packet, unless the fields can tell us at run time
+			# how long the packet is. That is, nstring8 is fine, since
+			# the field has an integer telling us how long the string is.
+			# Fields that don't have a length determinable at run-time
+			# cannot be variable-length.
 			if type(ptvc_rec.Length()) == type(()):
 				if isinstance(ptvc_rec.Field(), nstring8):
 					expected_offset = -1
 					pass
 				else:
+					field = ptvc_rec.Field()
+# GRJ 					assert 0, "Cannot make PTVC from %s, type %s" % \
+# GRJ						(field.HFName(), field)
 					self.list = None
 					return
 
 			elif expected_offset > -1:
-				expected_offset = expected_offset + ptvc_rec.Length()
+				if ptvc_rec.Length() < 0:
+					expected_offset = -1
+				else:
+					expected_offset = expected_offset + ptvc_rec.Length()
 
 
 			self.list.append(ptvc_rec)
@@ -241,7 +260,7 @@ class PTVC(NamedList):
 		x =  "static const ptvc_record %s[] = {\n" % (self.Name())
 		for ptvc_rec in self.list:
 			x = x +  "\t%s,\n" % (ptvc_rec.Code())
-		x = x + "\t{ NULL, 0, FALSE, NULL, NO_VAR, NO_REPEAT }\n"
+		x = x + "\t{ NULL, 0, FALSE, NULL, NO_VAR, NO_REPEAT, NO_REQ_COND }\n"
 		x = x + "};\n"
 		return x
 
@@ -252,7 +271,7 @@ class PTVCBitfield(PTVC):
 
 		for var in vars:
 			ptvc_rec = PTVCRecord(var, var.Length(), var.Endianness(),
-				NO_VAR, NO_REPEAT)
+				NO_VAR, NO_REPEAT, NO_REQ_COND)
 			self.list.append(ptvc_rec)
 
 	def ETTName(self):
@@ -265,7 +284,7 @@ class PTVCBitfield(PTVC):
 		x = x + "static const ptvc_record ptvc_%s[] = {\n" % (self.Name())
 		for ptvc_rec in self.list:
 			x = x +  "\t%s,\n" % (ptvc_rec.Code())
-		x = x + "\t{ NULL, 0, FALSE, NULL, NO_VAR, NO_REPEAT }\n"
+		x = x + "\t{ NULL, 0, FALSE, NULL, NO_VAR, NO_REPEAT, NO_REQ_COND }\n"
 		x = x + "};\n"
 
 		x = x + "static const sub_ptvc_record %s = {\n" % (self.Name(),)
@@ -276,13 +295,14 @@ class PTVCBitfield(PTVC):
 
 
 class PTVCRecord:
-	def __init__(self, field, length, endianness, var, repeat):
+	def __init__(self, field, length, endianness, var, repeat, req_cond):
 		"Constructor"
 		self.field	= field
 		self.length	= length
 		self.endianness	= endianness
 		self.var	= var
 		self.repeat	= repeat
+		self.req_cond	= req_cond
 
 	def __cmp__(self, other):
 		"Comparison operator"
@@ -299,16 +319,33 @@ class PTVCRecord:
 			return 0
 
 	def Code(self):
-		if isinstance(self.field, struct):
-			return self.field.ReferenceString()
+		# Nice textual representations
+		if self.var == NO_VAR:
+			var = "NO_VAR"
 		else:
-			return self.RegularCode()
+			var = self.var
 
-	def RegularCode(self):
+		if self.repeat == NO_REPEAT:
+			repeat = "NO_REPEAT"
+		else:
+			repeat = self.repeat
+
+		if self.req_cond == NO_REQ_COND:
+			req_cond = "NO_REQ_COND"
+		else:
+			req_cond = global_req_cond[self.req_cond]
+			assert req_cond != None
+
+		if isinstance(self.field, struct):
+			return self.field.ReferenceString(var, repeat, req_cond)
+		else:
+			return self.RegularCode(var, repeat, req_cond)
+
+	def RegularCode(self, var, repeat, req_cond):
 		"String representation"
-		endianness = 'FALSE'
+		endianness = 'BE'
 		if self.endianness == LE:
-			endianness = 'TRUE'
+			endianness = 'LE'
 
 		# Default the length to this value
 		length = "PTVC_VARIABLE_LENGTH"
@@ -324,20 +361,10 @@ class PTVCRecord:
 		if sub_ptvc_name != "NULL":
 			sub_ptvc_name = "&%s" % (sub_ptvc_name,)
 
-		# Nice textual representations
-		if self.var == NO_VAR:
-			var = "NO_VAR"
-		else:
-			var = self.var
 
-		if self.repeat == NO_REPEAT:
-			repeat = "NO_REPEAT"
-		else:
-			repeat = self.repeat
-
-		return "{ &%s, %s, %s, %s, %s, %s }" % (self.field.HFName(),
+		return "{ &%s, %s, %s, %s, %s, %s, %s }" % (self.field.HFName(),
 				length, endianness, sub_ptvc_name,
-				var, repeat)
+				var, repeat, req_cond)
 
 	def Offset(self):
 		return self.offset
@@ -366,7 +393,7 @@ class NCP:
 		self.has_length		= has_length
 
 		if not groups.has_key(group):
-			sys.stderr.write("NCP 0x%x has invalid group '%s'\n" % \
+			msg.write("NCP 0x%x has invalid group '%s'\n" % \
 				(self.func_code, group))
 			sys.exit(1)
 
@@ -392,7 +419,7 @@ class NCP:
 			else:
 				return 0x00
 		else:
-			sys.stderr.write("Unknown directive '%s' for function_code()\n" % (part))
+			msg.write("Unknown directive '%s' for function_code()\n" % (part))
 			sys.exit(1)
 
 	def HasSubFunction(self):
@@ -437,6 +464,8 @@ class NCP:
 
 	def CheckRecords(self, size, records, descr, min_hdr_length):
 		"Simple sanity check"
+		if size == NO_LENGTH_CHECK:
+			return
 		min = size
 		max = size
 		if type(size) == type(()):
@@ -459,11 +488,11 @@ class NCP:
 
 		error = 0
 		if min != lower:
-			sys.stderr.write("%s records for 2222/0x%x sum to %d bytes minimum, but param1 shows %d\n" \
+			msg.write("%s records for 2222/0x%x sum to %d bytes minimum, but param1 shows %d\n" \
 				% (descr, self.FunctionCode(), lower, min))
 			error = 1
 		if max != upper:
-			sys.stderr.write("%s records for 2222/0x%x sum to %d bytes maximum, but param1 shows %d\n" \
+			msg.write("%s records for 2222/0x%x sum to %d bytes maximum, but param1 shows %d\n" \
 				% (descr, self.FunctionCode(), upper, max))
 			error = 1
 
@@ -523,7 +552,7 @@ class NCP:
 		okay = 1
 		for code in codes:
 			if not errors.has_key(code):
-				sys.stderr.write("Errors table does not have key 0x%04x for NCP=0x%x\n" % (code,
+				msg.write("Errors table does not have key 0x%04x for NCP=0x%x\n" % (code,
 					self.func_code))
 				okay = 0
 
@@ -549,14 +578,19 @@ class NCP:
 
 		# Add packet to global collection of packets
 		if packets.HasMember(self):
-			sys.stderr.write("Already have NCP Function Code 0x%x\n" % \
+			msg.write("Already have NCP Function Code 0x%x\n" % \
 				(self.func_code))
 			sys.exit(1)
 		else:
 			packets.Add(self)
 
-
 def rec(start, length, field, endianness=None, **kw):
+	return _rec(start, length, field, endianness, kw)
+
+def srec(field, endianness=None, **kw):
+	return _rec(-1, -1, field, endianness, kw)
+
+def _rec(start, length, field, endianness, kw):
 	# If endianness not explicitly given, use the field's
 	# default endiannes.
 	if not endianness:
@@ -578,7 +612,16 @@ def rec(start, length, field, endianness=None, **kw):
 	else:
 		repeat = None
 
-	return [start, length, field, endianness, var, repeat]
+	# Request-condition ?
+	if kw.has_key("req_cond"):
+		req_cond = kw["req_cond"]
+	else:
+		req_cond = NO_REQ_COND
+
+	return [start, length, field, endianness, var, repeat, req_cond]
+
+
+
 
 ##############################################################################
 
@@ -638,16 +681,20 @@ class Type:
 	def PTVCName(self):
 		return "NULL"
 
-
 class struct(PTVC, Type):
 	def __init__(self, name, vars):
 		name = "struct_%s" % (name,)
 		NamedList.__init__(self, name, [])
 
+		self.bytes = 0
 		for var in vars:
 			ptvc_rec = PTVCRecord(var, var.Length(), var.Endianness(),
-				NO_VAR, NO_REPEAT)
+				NO_VAR, NO_REPEAT, NO_REQ_COND)
 			self.list.append(ptvc_rec)
+			self.bytes = self.bytes + var.Length()
+
+	def HFName(self):
+		return self.name
 
 	def Variables(self):
 		vars = []
@@ -655,14 +702,15 @@ class struct(PTVC, Type):
 			vars.append(ptvc_rec.Field())
 		return vars
 
-	def ReferenceString(self):
-		return "{ PTVC_STRUCT, -1, FALSE, &%s, NO_VAR, NO_REPEAT }" % (self.name,)
+	def ReferenceString(self, var, repeat, req_cond):
+		return "{ PTVC_STRUCT, NO_LENGTH, NO_ENDIANNESS, &%s, %s, %s, %s}" % (self.name,
+			var, repeat, req_cond)
 
 	def Code(self):
 		x = "static const ptvc_record ptvc_%s[] = {\n" % (self.name,)
 		for ptvc_rec in self.list:
 			x = x +  "\t%s,\n" % (ptvc_rec.Code())
-		x = x + "\t{ NULL, 0, FALSE, NULL, NO_VAR, NO_REPEAT }\n"
+		x = x + "\t{ NULL, NO_LENGTH, NO_ENDIANNESS, NULL, NO_VAR, NO_REPEAT, NO_REQ_COND }\n"
 		x = x + "};\n"
 
 		x = x + "static const sub_ptvc_record %s = {\n" % (self.name,)
@@ -961,26 +1009,9 @@ AttributesDefLow		= bitfield8("attr_def_low", "Attributes", [
 	bf_boolean8(0x80, "att_def_shareable", "Shareable"),
 ])
 AttributesStruct		= struct("attributes_struct", [
-	bitfield8("attr_struct_def_low", "Attributes", [
-		bf_boolean8(0x01, "att_def_ro", "Read Only"),
-		bf_boolean8(0x02, "att_def_hidden", "Hidden"),
-		bf_boolean8(0x04, "att_def_system", "System"),
-		bf_boolean8(0x08, "att_def_execute", "Execute"),
-		bf_boolean8(0x10, "att_def_sub_only", "Subdirectories Only"),
-		bf_boolean8(0x20, "att_def_archive", "Archive"),
-		bf_boolean8(0x80, "att_def_shareable", "Shareable"),
-	]),
-	bitfield8("attr_struct_def_low_2", "Attributes (byte 2)", [
-		bf_boolean8(0x10, "att_def_transaction", "Transactional"),
-		bf_boolean8(0x40, "att_def_read_audit", "Read Audit"),
-		bf_boolean8(0x80, "att_def_write_audit", "Write Audit"),
-	]),
-	bitfield8("attr_struct_def_low_3", "Attributes (byte 3)", [
-		bf_boolean8(0x01, "att_def_purge", "Purge"),
-		bf_boolean8(0x02, "att_def_reninhibit", "Rename Inhibit"),
-		bf_boolean8(0x04, "att_def_delinhibit", "Delete Inhibit"),
-		bf_boolean8(0x08, "att_def_cpyinhibit", "Copy Inhibit"),
-	]),
+	AttributesDefLow,
+	AttributesDefLow2,
+	AttributesDefLow3,
 	byte( "attr_struct_reserved", "Reserved" ),
 	uint16("attr_struct_flags_def", "Flags",LE),
 ])
@@ -3482,6 +3513,13 @@ def produce_code():
 #include "ptvcursor.h"
 #include "packet-ncp-int.h"
 
+/* Endianness macros */
+#define BE		FALSE
+#define LE		TRUE
+#define NO_ENDIANNESS	FALSE
+
+#define NO_LENGTH	-1
+
 /* We use this int-pointer as a special flag in ptvc_record's */
 static int ptvc_struct_int_storage;
 #define PTVC_STRUCT	(&ptvc_struct_int_storage)
@@ -3499,6 +3537,8 @@ static int ptvc_struct_int_storage;
 		print "guint *repeat_vars = NULL;"
 
 	print """
+/* Values used in request-condition logic. */
+#define NO_REQ_COND -1
 
 static int hf_ncp_func = -1;
 static int hf_ncp_length = -1;
@@ -3610,6 +3650,19 @@ static int hf_ncp_connection_status = -1;
 	print "\n"
 
 
+	# Print the conditional_records for all Request Conditions.
+	num = 0
+	print "/* Request-Condition dfilter records. The NULL pointer"
+	print "   is replaced by a pointer to the created dfilter_t. */"
+	print "static conditional_record req_conds[] = {"
+	for req_cond in global_req_cond.keys():
+		print "\t{ \"%s\", NULL }," % (req_cond,)
+		global_req_cond[req_cond] = num
+		num = num + 1
+	print "};"
+	print "#define NUM_REQ_CONDS %d\n\n" % (num,)
+
+
 	# Print PTVC's for bitfields
 	ett_list = []
 	print "/* PTVC records for bit-fields. */"
@@ -3688,10 +3741,9 @@ static int hf_ncp_connection_status = -1;
 			ptvc_reply = 'NULL'
 
 		errors = pkt.CompletionCodes()
-		print '\t\t%s, NULL, %s, NULL,' % (ptvc_request, ptvc_reply)
-		print '\t\t%s },\n' % (errors.Name())
+		print '\t\t%s, %s, %s },\n' % (ptvc_request, ptvc_reply, errors.Name())
 
-	print '\t{ 0, 0, 0, NULL, 0, NULL, NULL, NULL, NULL, NULL }'
+	print '\t{ 0, 0, 0, NULL, 0, NULL, NULL, NULL }'
 	print "};\n"
 
 	print "/* ncp funcs that require a subfunc */"
@@ -8140,41 +8192,23 @@ def define_ncp2222():
 		rec( 28, 1, PathCount, var="x" ),
 		rec( 29, (1,255), Path, repeat="x" ),
 	])
-	pkt.Reply( 14, [
+	pkt.Reply( NO_LENGTH_CHECK, [
 		# The reply structure depends on the request flags in the request packet.
-		#(91,345), [
+		#90, [
 		rec( 8, 4, FileHandle ),
 		rec( 12, 1, OpenCreateAction ),
 		rec( 13, 1, Reserved ),
-		#rec( 14, 4, DataStreamSpaceAlloc, LE ),
-		#rec( 18, 1, AttributesDefLow ),
-		#rec( 19, 1, AttributesDefLow2 ),
-		#rec( 20, 1, AttributesDefLow3 ),
-		#rec( 21, 1, Reserved ),
-		#rec( 22, 2, FlagsDef, LE ),
-		#rec( 24, 4, DataStreamSize, LE ),
-		#rec( 28, 4, TtlDSDskSpaceAlloc, LE ),
-		#rec( 32, 2, NumberOfDataStreams, LE ),
-		#rec( 34, 2, CreationTime, LE ),
-		#rec( 36, 2, CreationDate, LE ),
-		#rec( 38, 4, CreatorID ),
-		#rec( 42, 2, ModifiedTime, LE ),
-		#rec( 44, 2, ModifiedDate, LE ),
-		#rec( 46, 4, ModifierID ),
-		#rec( 50, 2, LastAccessedDate, LE ),
-		#rec( 52, 2, ArchivedTime, LE ),
-		#rec( 54, 2, ArchivedDate, LE ),
-		#rec( 56, 4, ArchiverID ),
-		#rec( 60, 1, InheritedRightsMaskLow ),
-		#rec( 61, 1, InheritedRightsMaskHigh ),
-		#rec( 62, 4, DirectoryEntryNumber, LE ),
-		#rec( 66, 4, DOSDirectoryEntryNumber, LE ),
-		#rec( 70, 4, VolumeNumberLong, LE ),
-		#rec( 74, 4, EADataSize, LE ),
-		#rec( 78, 4, EACount, LE ),
-		#rec( 82, 4, EAKeySize, LE ),
-		#rec( 86, 4, CreatorNameSpaceNumber, LE ),
-		#rec( 90, (1,255), FileName ),
+		srec( DSSpaceAllocateStruct, req_cond="ncp.ret_info_mask_alloc == TRUE" ),
+		srec( AttributesStruct, req_cond="ncp.ret_info_mask_attr == TRUE" ),
+		srec( DataStreamSizeStruct, req_cond="ncp.ret_info_mask_size == TRUE" ),
+		srec( TotalStreamSizeStruct, req_cond="ncp.ret_info_mask_tspace == TRUE" ),
+		srec( CreationInfoStruct, req_cond="ncp.ret_info_mask_create == TRUE" ),
+		srec( ModifyInfoStruct, req_cond="ncp.ret_info_mask_mod == TRUE" ),
+		srec( ArchiveInfoStruct, req_cond="ncp.ret_info_mask_arch == TRUE" ),
+		srec( RightsInfoStruct, req_cond="ncp.ret_info_mask_rights == TRUE" ),
+		srec( DirEntryStruct, req_cond="ncp.ret_info_mask_dir == TRUE" ),
+		srec( EAInfoStruct, req_cond="ncp.ret_info_mask_eattr == TRUE" ),
+		srec( NSInfoStruct, req_cond="ncp.ret_info_mask_ns_attr == TRUE" ),
 	])
 	pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8d00, 0x8f00, 0x9001, 0x9600,
