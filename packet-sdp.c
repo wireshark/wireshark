@@ -4,7 +4,7 @@
  * Jason Lango <jal@netapp.com>
  * Liberally copied from packet-http.c, by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-sdp.c,v 1.38 2003/12/05 09:34:16 guy Exp $
+ * $Id: packet-sdp.c,v 1.39 2003/12/07 03:46:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1105,6 +1105,11 @@ proto_register_sdp(void)
 void
 proto_reg_handoff_sdp(void)
 {
-	rtp_handle = find_dissector("rtp");
-	rtcp_handle = find_dissector("rtcp");
+  dissector_handle_t sdp_handle;
+
+  rtp_handle = find_dissector("rtp");
+  rtcp_handle = find_dissector("rtcp");
+
+  sdp_handle = find_dissector("sdp");
+  dissector_add_string("media_type", "application/sdp", sdp_handle);
 }
