@@ -2,7 +2,7 @@
  * Routines for decoding SCSI CDBs and responses
  * Author: Dinesh G Dutt (ddutt@cisco.com)
  *
- * $Id: packet-scsi.c,v 1.24 2003/03/05 07:41:24 guy Exp $
+ * $Id: packet-scsi.c,v 1.25 2003/03/05 20:25:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -427,7 +427,7 @@ static const value_string scsi_smc2_val[] = {
 };
 
 static const value_string scsi_evpd_pagecode_val[] = {
-    {0x00, "Supported Vital Data Product Pages"},
+    {0x00, "Supported Vital Product Data Pages"},
     {0x80, "Unit Serial Number Page"},
     {0x82, "ASCII Implemented Operating Definition Page"},
     {0x01, "ASCII Information Page"},
@@ -1377,7 +1377,7 @@ dissect_scsi_evpd (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 {
     proto_tree *evpd_tree;
     proto_item *ti;
-    gint pcode, plen, i, idlen;
+    guint pcode, plen, i, idlen;
     guint8 flags;
     char str[256+1];
 
@@ -1412,7 +1412,7 @@ dissect_scsi_evpd (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
             }
             break;
         case SCSI_EVPD_DEVID:
-            while (plen > 0) {
+            while (plen != 0) {
                 flags = tvb_get_guint8 (tvb, offset);
                 proto_tree_add_text (evpd_tree, tvb, offset, 1,
                                      "Code Set: %s",
@@ -1431,9 +1431,15 @@ dissect_scsi_evpd (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                                                  scsi_devid_idtype_val,
                                                  "Unknown (0x%02x)"));
                 idlen = tvb_get_guint8 (tvb, offset+3);
+                if (idlen > plen) {
+                    proto_tree_add_text (evpd_tree, tvb, offset+3, 1,
+                                         "Identifier Length: %u (greater than page length %u",
+                                         idlen, plen);
+                    break;
+                }
                 proto_tree_add_text (evpd_tree, tvb, offset+3, 1,
                                      "Identifier Length: %u", idlen);
-                if (tvb_bytes_exist (tvb, offset+4, idlen)) {
+                if (idlen != 0) {
                     proto_tree_add_text (evpd_tree, tvb, offset+4, idlen,
                                          "Identifier: %s",
                                          tvb_bytes_to_str (tvb, offset+4,
