@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.25 1999/09/12 14:34:19 deniel Exp $
+ * $Id: proto.c,v 1.26 1999/09/14 08:06:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -105,6 +105,7 @@ void proto_register_gre(void);
 void proto_register_http(void);
 void proto_register_icmp(void);
 void proto_register_icmpv6(void);
+void proto_register_icp(void);
 void proto_register_igmp(void);
 void proto_register_ip(void);
 void proto_register_ipsec(void);
@@ -210,6 +211,7 @@ proto_init(void)
 	proto_register_http();
 	proto_register_icmp();
 	proto_register_icmpv6();
+	proto_register_icp();
 	proto_register_igmp();
 	proto_register_ip();
 	proto_register_ipsec();

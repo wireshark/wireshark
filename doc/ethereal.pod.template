@@ -579,6 +579,7 @@ B<http://ethereal.zing.org>.
   Olivier Abad             <abad@daba.dhis.org>
   Thierry Andry            <Thierry.Andry@advalvas.be>
   Jeff Foster              <jjfoste@woodward.com>
+  Peter Torvals            <petertv@xoommail.com>
 
 Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to give his
 permission to use his version of snprintf.c.

@@ -128,6 +128,10 @@ Jeff Foster <jfoste@woodward.com> {
 	original NetBIOS encapsulation)
 }
 
+Peter Torvals <petertv@xoommail.com> {
+	Internet Cache Protocol support
+}
+
 Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 

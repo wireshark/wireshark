@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.98 1999/09/12 20:23:33 guy Exp $
+ * $Id: packet.h,v 1.99 1999/09/14 08:06:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -274,6 +274,8 @@ enum {
 	ETT_PPTP,
 	ETT_GRE,
 	ETT_GRE_FLAGS,
+	ETT_ICP,
+	ETT_ICP_PAYLOAD,
  	ETT_PPPOED,
  	ETT_PPPOED_TAGS,
  	ETT_PPPOES,
@@ -456,6 +458,7 @@ void dissect_ospf_hello(const u_char *, int, frame_data *, proto_tree *);
 void dissect_pop(const u_char *, int, frame_data *, proto_tree *);
 void dissect_pppoed(const u_char *, int, frame_data *, proto_tree *);
 void dissect_pppoes(const u_char *, int, frame_data *, proto_tree *);
+void dissect_icp(const u_char *,int, frame_data *, proto_tree *);
 void dissect_isakmp(const u_char *, int, frame_data *, proto_tree *);
 void dissect_radius(const u_char *, int, frame_data *, proto_tree *);
 void dissect_rip(const u_char *, int, frame_data *, proto_tree *);

@@ -1,7 +1,7 @@
 /* packet-udp.c
  * Routines for UDP packet disassembly
  *
- * $Id: packet-udp.c,v 1.23 1999/08/18 00:57:54 guy Exp $
+ * $Id: packet-udp.c,v 1.24 1999/09/14 08:06:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -76,7 +76,7 @@ typedef struct _e_udphdr {
 #define UDP_PORT_RADIUS_NEW 1812
 #define UDP_PORT_RADACCT 1646
 #define UDP_PORT_RADACCT_NEW 1813
-
+#define UDP_PORT_ICP    3130
 
 struct hash_struct {
   guint16 proto;
@@ -249,6 +249,8 @@ dissect_udp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 		PORT_IS(UDP_PORT_RADIUS_NEW) ||
 		PORT_IS(UDP_PORT_RADACCT_NEW) ) {
       dissect_radius(pd, offset, fd, tree);
+ } else if ( PORT_IS(UDP_PORT_ICP)) {
+	dissect_icp(pd,offset,fd,tree);
  } else {
       /* OK, find a routine in the table, else use the default */
 
