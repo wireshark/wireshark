@@ -719,6 +719,7 @@ Inoue <inoue[AT]ainet.or.jp> {
 Olivier Biot <Olivier.Biot[AT]siemens.com> {
 	Various WTP fixes and enhancements
 	WBXML/WMLC support
+	README.win32 updates for Cygwin
 }
 
 Patrick Wolfe <pjw[AT]zocalo.cellular.ameritech.com> {

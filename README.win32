@@ -1,4 +1,4 @@
-$Id: README.win32,v 1.43 2002/12/18 21:59:46 guy Exp $
+$Id: README.win32,v 1.44 2003/02/14 01:01:26 guy Exp $
 
 Installing Ethereal, Tethereal, and Editcap on Win32
 ====================================================
@@ -254,26 +254,104 @@ Instructions for Cygwin
 -----------------------
 
 It is possible to build Ethereal under Cygwin using their version
-of XFree86.  Ronnie Sahlberg has this to say in 
-http://www.ethereal.com/lists/ethereal-dev/200205/msg00107.html:
+of XFree86. References:
+ - http://www.ethereal.com/lists/ethereal-dev/200205/msg00107.html
+ - http://www.ethereal.com/lists/ethereal-dev/200302/msg00026.html
+ 
+To get it running, execute the following steps:
 
-To get it running there are some small steps :
-1, Install XFree for Cygwin and make sure it runs properly
-(www.cygwin.com)
-2, Follow the GNOME link on www.cygwin.com and download, compile and install
-both gtk 1.2.10 and glib 1.2.10 . Note on the page that there is a one line
-fix required for
-gtk to compile.
-3, Download ethereal nightly snapshot and configure it with
- ./autogen.sh --without-pcap --without-plugins
-(is it --without-plugin or --without-plugins ? dont remember)
-4, Run 'make ethereal.exe'
+1. Install the required cygwin packages (compiler, scripting, X, zlib)
+   with the CygWin setup.exe tool (http://www.cygwin.com/).
+   You need the base Xfree86 support plus the X headers package in order
+   to be able to compile the gtk+ package.
 
-Something is wrong with the makefile that gets generated so it doesnt work
+2. Download glib-1.2.10 and gtk+-1.2.10 from a mirror of www.gnome.org.
+
+3. Retrieve the patches for glib-1.2.10 and gtk+-1.2.10 from
+   http://homepage.ntlworld.com/steven.obrien2/
+
+ + glib-1.2.10
+   http://homepage.ntlworld.com/steven.obrien2/ (URL cont'd on next line)
+          /libs/patches/glib-1.2.10-cygwin.patch
+
+ + gtk+-1.2.10
+   http://homepage.ntlworld.com/steven.obrien2/ (URL cont'd on next line)
+          /libs/patches/gtk+-1.2.10-cygwin.patch
+
+4. Compile and install both packages after patching (see instructions
+   at the bottom of http://homepage.ntlworld.com/steven.obrien2/):
+
+   Set the path:
+
+     $ PATH=/opt/gnome/bin:/usr/X11R6/bin:$PATH
+
+   For glib-1.2.10:
+   
+     $ cd glib-1.2.10
+     $ patch -p1 < /path/to/glib-1.2.10-cygwin.patch
+     $ CFLAGS=-O2 ./configure --prefix=/opt/gnome --with-threads=posix
+     $ make
+     $ make check
+     $ make install
+
+   For gtk+-1.2.10:
+
+     $ cd gtk+-1.2.10
+     $ patch -p1 < /path/to/gtk+-1.2.10-cygwin.patch
+     $ CFLAGS=-O2 ./configure --prefix=/opt/gnome
+     $ make
+     $ make check
+     $ make install
+
+5. Patch Makefile.am in <ethereal-src>/gtk/Makefile.am by
+   removing "gtkclist.c" from the dependencies.
+
+   This patch is required since the private GTK+ clist widget
+   (was required for earlier versions of GTK+ but prevents Ethereal
+   from running with cygwin).
+
+6. Configure and make Ethereal:
+
+   Set the path (if this has not yet been done earlier)
+
+     $ PATH=/opt/gnome/bin:$PATH
+
+     $ ./autogen.sh --without-pcap --without-plugins
+     $ ./configure --without-pcap --without-plugins
+     $ make
+
+   This make will eventually stop, but it is required as e.g., the
+   GTK binaries are built then.
+
+     $ make ethereal.exe
+
+7. Start X
+
+     $ sh /usr/X11R6/bin/startxwin.sh
+
+   For non-US keyboard layouts, use (replace 'be' with your layout):
+
+     $ setxkbmap.exe -layout be
+
+8. Run ethereal (add /opt/gnome/bin to $PATH if this is not yet done)
+
+     $ <ethereal-src>/ethereal
+
+   And voila! Behold the mighty sniffer in all its glory!
+
+Something is wrong with the makefile that gets generated, so it doesn't work
 just running make.
-I am not curious enough to look at why 'make' doesnt work. 'make
-ethereal.exe' works well
-enough for me.
+I am not curious enough to look at why 'make' doesnt work; 'make ethereal.exe'
+works well enough for me.
 
-4, start X and ethereal, voila behold the mighty sniffer in all its glory.
+Note: Compiling Ethereal under cygwin takes a lot of time, because the
+generation of 'register.c' takes ages. If you only edit one dissector and
+you know what you're doing, it is acceptable to uncomment the generation
+of the file 'register.c' in Makefile. Look for the 'register.c' target:
 
+    register.c: $(DISSECTOR_SRC) $(srcdir)/make-reg-dotc
+        @echo Making register.c
+        # @$(srcdir)/make-reg-dotc register.c $(srcdir) $(DISSECTOR_SRC)
+	@echo Skipping generation of register.c
+
+Of course, you need to generate the 'register.c' file at least once.
