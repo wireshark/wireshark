@@ -1,6 +1,6 @@
 /* proto_dlg.h
  *
- * $Id: proto_dlg.h,v 1.3 2003/01/26 19:35:31 deniel Exp $
+ * $Id: proto_dlg.h,v 1.4 2004/06/02 20:14:51 ulfl Exp $
  *
  * Laurent Deniel <laurent.deniel@free.fr>
  *
@@ -27,6 +27,15 @@
 #ifndef __PROTO_DLG_H__
 #define __PROTO_DLG_H__
 
-void proto_cb(GtkWidget *, gpointer);
+/** @file
+ *  "Enabled Protocols" dialog box.
+ */
+
+/** Show the enabled protocols dialog.
+ * 
+ * @param widget parent widget (unused)
+ * @param data unused
+ */
+void proto_cb(GtkWidget *widget, gpointer data);
 
 #endif

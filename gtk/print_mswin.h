@@ -1,7 +1,7 @@
 /* print_mswin.h
  * Printing support for MSWindows
  *
- * $Id: print_mswin.h,v 1.4 2002/09/09 20:32:31 jmayer Exp $
+ * $Id: print_mswin.h,v 1.5 2004/06/02 20:14:51 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -25,6 +25,14 @@
 #ifndef __PRINT_MSWIN_H__
 #define __PRINT_MSWIN_H__
 
+/** @file
+ * Win32 specific printing.
+ */
+
+/** Print the given file.
+ *
+ * @param file_name the file to print
+ */
 void print_mswin(char *file_name);
 
 #endif

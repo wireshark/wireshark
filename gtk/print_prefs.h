@@ -1,7 +1,7 @@
 /* print_prefs.h
  * Definitions for print preferences window
  *
- * $Id: print_prefs.h,v 1.7 2004/06/02 18:44:10 ulfl Exp $
+ * $Id: print_prefs.h,v 1.8 2004/06/02 20:14:51 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -27,7 +27,7 @@
 #define __PRINT_PREFS_H__
 
 /** @file
- *  "Print" preferences pages.
+ *  "Print" preferences page.
  */
 
 /** Build a Print preferences page.

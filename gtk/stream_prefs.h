@@ -1,7 +1,7 @@
 /* stream_prefs.h
  * Definitions for stream preferences window
  *
- * $Id: stream_prefs.h,v 1.5 2004/06/02 18:44:10 ulfl Exp $
+ * $Id: stream_prefs.h,v 1.6 2004/06/02 20:14:51 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -27,7 +27,7 @@
 #define __STREAM_PREFS_H__
 
 /** @file
- *  "User Interface: Colors" preferences pages.
+ *  "User Interface: Colors" preferences page.
  *  @todo rename functions and files from stream to colors
  */
 
