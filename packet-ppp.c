@@ -1,7 +1,7 @@
 /* packet-ppp.c
  * Routines for ppp packet disassembly
  *
- * $Id: packet-ppp.c,v 1.91 2002/04/24 06:03:34 guy Exp $
+ * $Id: packet-ppp.c,v 1.92 2002/05/20 00:56:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1292,11 +1292,10 @@ static const unsigned short fcstab_16[256] = {
 *******************************************************************************
 */
 static guint16
-fcs16(register guint16 fcs,
-         tvbuff_t * tvbuff,
-         guint32 offset,
-         guint32 len)
+fcs16(register guint16 fcs, tvbuff_t * tvbuff)
 {
+    int offset = 0;
+    guint len = tvb_length(tvbuff);
     guint8 val;
 
     /* Check for Invalid Length */
@@ -1317,11 +1316,10 @@ fcs16(register guint16 fcs,
 *******************************************************************************
 */
 static guint32
-fcs32(guint32 fcs,
-         tvbuff_t * tvbuff,
-         guint32 offset,
-         guint32 len)
+fcs32(guint32 fcs, tvbuff_t * tvbuff)
 {
+    int offset = 0;
+    guint len = tvb_length(tvbuff);
     guint8 val;
 
     /* Check for invalid Length */
@@ -2132,7 +2130,9 @@ dissect_bap_call_status_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
 static void
 dissect_cp( tvbuff_t *tvb, int proto_id, int proto_subtree_index,
 	const value_string *proto_vals, int options_subtree_index,
-	const ip_tcp_opt *opts, int nopts, packet_info *pinfo, proto_tree *tree ) {
+	const ip_tcp_opt *opts, int nopts, packet_info *pinfo,
+	proto_tree *tree )
+{
   proto_item *ti;
   proto_tree *fh_tree = NULL;
   proto_item *tf;
@@ -2256,37 +2256,34 @@ dissect_cp( tvbuff_t *tvb, int proto_id, int proto_subtree_index,
 #define PFC_BIT 0x01
 
 static void
-dissect_ppp_common( tvbuff_t *tvb, int offset, packet_info *pinfo,
-		proto_tree *tree, proto_tree *fh_tree,
-		proto_item *ti ) {
+dissect_ppp_common( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+		proto_tree *fh_tree, proto_item *ti )
+{
   guint16 ppp_prot;
   int     proto_len;
   tvbuff_t	*next_tvb;
 
-  ppp_prot = tvb_get_guint8(tvb, offset);
+  ppp_prot = tvb_get_guint8(tvb, 0);
   if (ppp_prot & PFC_BIT) {
     /* Compressed protocol field - just the byte we fetched. */
     proto_len = 1;
   } else {
     /* Uncompressed protocol field - fetch all of it. */
-    ppp_prot = tvb_get_ntohs(tvb, offset);
+    ppp_prot = tvb_get_ntohs(tvb, 0);
     proto_len = 2;
   }
 
   /* If "ti" is not null, it refers to the top-level "proto_ppp" item
      for PPP, and was given a length equal to the length of any
      stuff in the header preceding the protocol type, e.g. an HDLC
-     header, which is just "offset"; add the length of the protocol
-     type field to it. */
+     header; add the length of the protocol type field to it. */
   if (ti != NULL)
-    proto_item_set_len(ti, offset + proto_len);
+    proto_item_set_len(ti, proto_item_get_len(ti) + proto_len);
 
-  if (tree) {
-    proto_tree_add_uint(fh_tree, hf_ppp_protocol, tvb, offset, proto_len,
-      ppp_prot);
-  }
+  if (tree)
+    proto_tree_add_uint(fh_tree, hf_ppp_protocol, tvb, 0, proto_len, ppp_prot);
 
-  next_tvb = tvb_new_subset(tvb, offset + proto_len, -1, -1);
+  next_tvb = tvb_new_subset(tvb, proto_len, -1, -1);
 
   /* do lookup with the subdissector table */
   if (!dissector_try_port(subdissector_table, ppp_prot, next_tvb, pinfo, tree)) {
@@ -2603,7 +2600,7 @@ dissect_ppp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree ) {
     fh_tree = proto_item_add_subtree(ti, ett_ppp);
   }
 
-  dissect_ppp_common(tvb, 0, pinfo, tree, fh_tree, ti);
+  dissect_ppp_common(tvb, pinfo, tree, fh_tree, ti);
 }
 
 /*
@@ -2611,11 +2608,14 @@ dissect_ppp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree ) {
  * a PPP in HDLC-like Framing frame (RFC 1662) or a Cisco HDLC frame.
  */
 static void
-dissect_ppp_hdlc( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree ) {
+dissect_ppp_hdlc( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
+{
   proto_item *ti = NULL;
   proto_tree *fh_tree = NULL;
   guint8     byte0;
   int        proto_offset;
+  gint       len, reported_len;
+  tvbuff_t  *next_tvb;
   int        rx_fcs_offset;
   guint32    rx_fcs_exp;
   guint32    rx_fcs_got;
@@ -2658,29 +2658,126 @@ dissect_ppp_hdlc( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree ) {
     }
   }
 
-  dissect_ppp_common(tvb, proto_offset, pinfo, tree, fh_tree, ti);
+  /*
+   * Remove the FCS, if any, from the packet data.
+   */
+  switch (ppp_fcs_decode) {
 
-  /* Calculate the FCS check */
-  /* XXX - deal with packets cut off by the snapshot length */
-  if (ppp_fcs_decode == FCS_16) {
-    rx_fcs_offset = tvb_length(tvb) - 2;
-    rx_fcs_exp = fcs16(0xFFFF, tvb, 0, rx_fcs_offset);
-    rx_fcs_got = tvb_get_letohs(tvb, rx_fcs_offset);
-    if (rx_fcs_got != rx_fcs_exp) {
-      proto_tree_add_text(fh_tree, tvb, rx_fcs_offset, 2, "FCS 16: 0x%04x (incorrect, should be %04x)", rx_fcs_got, rx_fcs_exp);
+  case NO_FCS:
+    next_tvb = tvb_new_subset(tvb, proto_offset, -1, -1);
+    break;
+
+  case FCS_16:
+    /*
+     * Do we have the entire packet, and does it include a 2-byte FCS?
+     */
+    len = tvb_length_remaining(tvb, proto_offset);
+    reported_len = tvb_reported_length_remaining(tvb, proto_offset);
+    if (reported_len < 2 || len < 0) {
+      /*
+       * The packet is claimed not to even have enough data for a 2-byte FCS,
+       * or we're already past the end of the captured data.
+       * Don't slice anything off.
+       */
+      next_tvb = tvb_new_subset(tvb, proto_offset, -1, -1);
+    } else if (len < reported_len) {
+      /*
+       * The packet is claimed to have enough data for a 2-byte FCS, but
+       * we didn't capture all of the packet.
+       * Slice off the 2-byte FCS from the reported length, and trim the
+       * captured length so it's no more than the reported length; that
+       * will slice off what of the FCS, if any, is in the captured
+       * length.
+       */
+      reported_len -= 2;
+      if (len > reported_len)
+        len = reported_len;
+      next_tvb = tvb_new_subset(tvb, proto_offset, len, reported_len);
     } else {
-      proto_tree_add_text(fh_tree, tvb, rx_fcs_offset, 2, "FCS 16: 0x%04x (correct)", rx_fcs_got);
+      /*
+       * We have the entire packet, and it includes a 2-byte FCS.
+       * Slice it off.
+       */
+      len -= 2;
+      reported_len -= 2;
+      next_tvb = tvb_new_subset(tvb, proto_offset, len, reported_len);
+
+      /*
+       * Compute the FCS and put it into the tree.
+       */
+      rx_fcs_offset = proto_offset + len;
+      rx_fcs_exp = fcs16(0xFFFF, next_tvb);
+      rx_fcs_got = tvb_get_letohs(tvb, rx_fcs_offset);
+      if (rx_fcs_got != rx_fcs_exp) {
+        proto_tree_add_text(fh_tree, tvb, rx_fcs_offset, 2,
+                            "FCS 16: 0x%04x (incorrect, should be 0x%04x)",
+                            rx_fcs_got, rx_fcs_exp);
+      } else {
+        proto_tree_add_text(fh_tree, tvb, rx_fcs_offset, 2,
+                            "FCS 16: 0x%04x (correct)",
+                            rx_fcs_got);
+      }
     }
-  } else if (ppp_fcs_decode == FCS_32) {
-    rx_fcs_offset = tvb_length(tvb) - 4;
-    rx_fcs_exp = fcs32(0xFFFFFFFF, tvb, 0, rx_fcs_offset);
-    rx_fcs_got = tvb_get_letohl(tvb, rx_fcs_offset);
-    if (rx_fcs_got != rx_fcs_exp) {
-      proto_tree_add_text(fh_tree, tvb, rx_fcs_offset, 4, "FCS 32: 0x%08x (incorrect, should be %08x) ", rx_fcs_got, rx_fcs_exp);
+    break;
+
+  case FCS_32:
+    /*
+     * Do we have the entire packet, and does it include a 4-byte FCS?
+     */
+    len = tvb_length_remaining(tvb, proto_offset);
+    reported_len = tvb_reported_length_remaining(tvb, proto_offset);
+    if (reported_len < 4) {
+      /*
+       * The packet is claimed not to even have enough data for a 4-byte FCS.
+       * Just pass on the tvbuff as is.
+       */
+      next_tvb = tvb_new_subset(tvb, proto_offset, -1, -1);
+    } else if (len < reported_len) {
+      /*
+       * The packet is claimed to have enough data for a 4-byte FCS, but
+       * we didn't capture all of the packet.
+       * Slice off the 4-byte FCS from the reported length, and trim the
+       * captured length so it's no more than the reported length; that
+       * will slice off what of the FCS, if any, is in the captured
+       * length.
+       */
+      reported_len -= 4;
+      if (len > reported_len)
+        len = reported_len;
+      next_tvb = tvb_new_subset(tvb, proto_offset, len, reported_len);
     } else {
-      proto_tree_add_text(fh_tree, tvb, rx_fcs_offset, 4, "FCS 32: 0x%08x (correct)", rx_fcs_got);
+      /*
+       * We have the entire packet, and it includes a 4-byte FCS.
+       * Slice it off.
+       */
+      len -= 4;
+      reported_len -= 4;
+      next_tvb = tvb_new_subset(tvb, proto_offset, len, reported_len);
+
+      /*
+       * Compute the FCS and put it into the tree.
+       */
+      rx_fcs_offset = proto_offset + len;
+      rx_fcs_exp = fcs32(0xFFFFFFFF, next_tvb);
+      rx_fcs_got = tvb_get_letohl(tvb, rx_fcs_offset);
+      if (rx_fcs_got != rx_fcs_exp) {
+        proto_tree_add_text(fh_tree, tvb, rx_fcs_offset, 4,
+                            "FCS 32: 0x%08x (incorrect, should be 0x%08x)",
+                            rx_fcs_got, rx_fcs_exp);
+      } else {
+        proto_tree_add_text(fh_tree, tvb, rx_fcs_offset, 4,
+                            "FCS 32: 0x%08x (correct)",
+                            rx_fcs_got);
+      }
     }
+    break;
+
+  default:
+   g_assert_not_reached();
+   next_tvb = NULL;
   }
+
+  dissect_ppp_common(next_tvb, pinfo, tree, fh_tree, ti);
 }
 
 /*
@@ -3354,4 +3451,3 @@ proto_reg_handoff_pppmux(void)
    */ 
   dissector_add("ethertype", PPP_MUX, pppmux_handle); 
 } 
-
