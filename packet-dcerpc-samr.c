@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *   2002 Added all command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-samr.c,v 1.53 2002/08/07 01:04:51 tpot Exp $
+ * $Id: packet-dcerpc-samr.c,v 1.54 2002/08/13 07:59:33 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -76,6 +76,7 @@ static int hf_samr_server = -1;
 static int hf_samr_domain = -1;
 static int hf_samr_controller = -1;
 static int hf_samr_access = -1;
+static int hf_samr_access_granted = -1;
 static int hf_samr_mask = -1;
 static int hf_samr_crypt_password = -1;
 static int hf_samr_crypt_hash = -1;
@@ -356,11 +357,15 @@ samr_dissect_open_user_reply(tvbuff_t *tvb, int offset,
 			     packet_info *pinfo, proto_tree *tree, 
 			     char *drep)
 {
+	e_ctx_hnd policy_hnd;
+
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-				       hf_samr_hnd, NULL, TRUE, FALSE);
+				       hf_samr_hnd, &policy_hnd, TRUE, FALSE);
+
+	dcerpc_smb_store_pol_name(&policy_hnd, "OpenUser handle");
 
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
-			hf_samr_rc, NULL);
+				  hf_samr_rc, NULL);
 
 	return offset;
 }
@@ -939,8 +944,12 @@ samr_dissect_connect2_reply(tvbuff_t *tvb, int offset,
                              packet_info *pinfo, proto_tree *tree, 
                              char *drep)
 {
+	e_ctx_hnd policy_hnd;
+
         offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-				       hf_samr_hnd, NULL, TRUE, FALSE);
+				       hf_samr_hnd, &policy_hnd, TRUE, FALSE);
+
+	dcerpc_smb_store_pol_name(&policy_hnd, "Connect2 handle");
 
         offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
 				  hf_samr_rc, NULL);
@@ -970,8 +979,12 @@ samr_dissect_connect_anon_reply(tvbuff_t *tvb, int offset,
 				packet_info *pinfo, proto_tree *tree, 
 				char *drep)
 {
+	e_ctx_hnd policy_hnd;
+
         offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-				       hf_samr_hnd, NULL, TRUE, FALSE);
+				       hf_samr_hnd, &policy_hnd, TRUE, FALSE);
+
+	dcerpc_smb_store_pol_name(&policy_hnd, "ConnectAnon handle");
 
         offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
 				  hf_samr_rc, NULL);
@@ -1099,8 +1112,12 @@ samr_dissect_open_domain_reply(tvbuff_t *tvb, int offset,
                              packet_info *pinfo, proto_tree *tree, 
                              char *drep)
 {
+	e_ctx_hnd policy_hnd;
+
         offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-				       hf_samr_hnd, NULL, TRUE, FALSE);
+				       hf_samr_hnd, &policy_hnd, TRUE, FALSE);
+
+	dcerpc_smb_store_pol_name(&policy_hnd, "OpenDomain handle");
 
         offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
 				  hf_samr_rc, NULL);
@@ -1200,8 +1217,12 @@ samr_dissect_create_alias_in_domain_reply(tvbuff_t *tvb, int offset,
                              packet_info *pinfo, proto_tree *tree, 
                              char *drep)
 {
+	e_ctx_hnd policy_hnd;
+
         offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-				       hf_samr_hnd, NULL, TRUE, FALSE);
+				       hf_samr_hnd, &policy_hnd, TRUE, FALSE);
+
+	dcerpc_smb_store_pol_name(&policy_hnd, "CreateAlias handle");
 
         offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
                                      hf_samr_rid, NULL);
@@ -1489,11 +1510,16 @@ samr_dissect_create_user2_in_domain_reply(tvbuff_t *tvb, int offset,
                              packet_info *pinfo, proto_tree *tree, 
                              char *drep)
 {
+	e_ctx_hnd policy_hnd;
+
         offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-				       hf_samr_hnd, NULL, TRUE, FALSE);
+				       hf_samr_hnd, &policy_hnd, TRUE, FALSE);
+
+	dcerpc_smb_store_pol_name(&policy_hnd, "CreateUser2 handle");
 
         offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-                                     hf_samr_unknown_long, NULL);
+                                     hf_samr_access_granted, NULL);
+
         offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
                                      hf_samr_rid, NULL);
 
@@ -1758,7 +1784,7 @@ samr_dissect_get_domain_password_information_reply(tvbuff_t *tvb, int offset,
 	 * "samr_dissect_get_usrdom_pwinfo_reply()"?
 	 */
         offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-				       hf_samr_hnd, NULL, TRUE, FALSE);
+				       hf_samr_hnd, NULL, FALSE, FALSE);
 
 	return offset;
 }
@@ -3947,8 +3973,12 @@ samr_dissect_open_group_reply(tvbuff_t *tvb, int offset,
 			      packet_info *pinfo, proto_tree *tree, 
 			      char *drep)
 {
+	e_ctx_hnd policy_hnd;
+
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-				       hf_samr_hnd, NULL, TRUE, FALSE);
+				       hf_samr_hnd, &policy_hnd, TRUE, FALSE);
+
+	dcerpc_smb_store_pol_name(&policy_hnd, "OpenGroup handle");
 
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
 			hf_samr_rc, NULL);
@@ -3986,8 +4016,12 @@ samr_dissect_open_alias_reply(tvbuff_t *tvb, int offset,
 			      packet_info *pinfo, proto_tree *tree, 
 			      char *drep)
 {
+	e_ctx_hnd policy_hnd;
+
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-				       hf_samr_hnd, NULL, TRUE, FALSE);
+				       hf_samr_hnd, &policy_hnd, TRUE, FALSE);
+
+	dcerpc_smb_store_pol_name(&policy_hnd, "OpenAlias handle");
 
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
 			hf_samr_rc, NULL);
@@ -4044,8 +4078,12 @@ samr_dissect_create_group_in_domain_reply(tvbuff_t *tvb, int offset,
 					  packet_info *pinfo, proto_tree *tree,
 					  char *drep)
 {
+	e_ctx_hnd policy_hnd;
+
         offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-				       hf_samr_hnd, NULL, TRUE, FALSE);
+				       hf_samr_hnd, &policy_hnd, TRUE, FALSE);
+
+	dcerpc_smb_store_pol_name(&policy_hnd, "CreateGroup handle");
 
         offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
                                      hf_samr_rid, NULL);
@@ -4542,6 +4580,10 @@ proto_register_dcerpc_samr(void)
 	{ &hf_samr_access,
 		{ "Access Mask", "samr.access", FT_UINT32, BASE_HEX, 
 		NULL, 0x0, "Access", HFILL }},
+
+	{ &hf_samr_access_granted,
+		{ "Access Granted", "samr.access_granted", FT_UINT32, BASE_HEX, 
+		NULL, 0x0, "Access Granted", HFILL }},
 
 	{ &hf_samr_mask,
 		{ "Mask", "samr.mask", FT_UINT32, BASE_HEX, 
