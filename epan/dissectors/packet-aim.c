@@ -730,8 +730,10 @@ static void dissect_aim_snac(tvbuff_t *tvb, packet_info *pinfo,
     }
   
   if(flags & FNAC_FLAG_CONTAINS_VERSION) {
-	guint16 len = tvb_get_ntohs(tvb, offset); offset+=2;
-	int oldoffset = offset;
+	guint16 len = tvb_get_ntohs(tvb, offset); 
+	int oldoffset;
+	offset+=2;
+	oldoffset = offset;
 	
 	while(offset < oldoffset + len) {
 	  offset = dissect_aim_tlv(tvb, pinfo, offset, aim_tree, fnac_tlvs);
