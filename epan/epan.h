@@ -1,6 +1,6 @@
 /* epan.h
  *
- * $Id: epan.h,v 1.14 2002/09/09 21:04:06 guy Exp $
+ * $Id: epan.h,v 1.15 2002/10/22 08:44:33 guy Exp $
  *
  * Ethereal Protocol Analyzer Library
  *
@@ -36,8 +36,7 @@ void epan_init(const char * plugindir, void (register_all_protocols)(void),
 	       void (register_all_handoffs)(void));
 void epan_cleanup(void);
 void epan_conversation_init(void);
-
-
+void epan_circuit_init(void);
 
 /* A client will create one epan_t for an entire dissection session.
  * A single epan_t will be used to analyze the entire sequence of packets,
