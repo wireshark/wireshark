@@ -1,7 +1,7 @@
 ;
 ; ethereal.nsi
 ;
-; $Id: ethereal.nsi.in,v 1.5 2001/08/20 06:29:57 guy Exp $
+; $Id: ethereal.nsi.in,v 1.6 2001/08/20 06:33:23 guy Exp $
 
 ; ============================================================================
 ; Header configuration
@@ -151,6 +151,8 @@ Delete "$INSTDIR\*.exe"
 Delete "$INSTDIR\*.pdb"
 Delete "$INSTDIR\*.html"
 Delete "$INSTDIR\*.dll"
+Delete "$INSTDIR\plugins\@VERSION@\coseventcomm.dll"
+Delete "$INSTDIR\plugins\@VERSION@\cosnaming.dll"
 Delete "$INSTDIR\plugins\@VERSION@\gryphon.dll"
 Delete "$INSTDIR\plugins\@VERSION@\mgcp.dll"
 Delete "$SMPROGRAMS\Ethereal\*.*"
