@@ -2049,7 +2049,7 @@ B<http://www.ethereal.com>.
   Tony Lindstrom           <tony.lindstrom [AT] ericsson.com>
   Niklas Ogren             <niklas.ogren [AT] 71.se>
   Jesper Peterson          <jesper [AT] endace.com>
-  Giles Scott              <gscott2 [AT] nortelnetworks.com>
+  Giles Scott              <giles.scott1 [AT] btinternet.com>
   Vincent Jardin           <vincent.jardin [AT] 6wind.com>
   Jean-Michel Fayard       <jean-michel.fayard [AT] moufrei.de>
   Josef Korelus            <jkor [AT] quick.cz>
