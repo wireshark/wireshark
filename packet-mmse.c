@@ -2,7 +2,7 @@
  * Routines for MMS Message Encapsulation dissection
  * Copyright 2001, Tom Uijldert <tom.uijldert@cmg.nl>
  *
- * $Id: packet-mmse.c,v 1.4 2001/12/10 00:25:30 guy Exp $
+ * $Id: packet-mmse.c,v 1.5 2002/01/08 20:51:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -386,7 +386,7 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/*
 	 * Cycle through MMS-headers
 	 */
-	while ((offset < tvb_length(tvb)) &&
+	while ((offset < tvb_reported_length(tvb)) &&
 	       (field = tvb_get_guint8(tvb, offset++)) != MM_CTYPE_HDR)
 	{
 	    switch (field)
@@ -600,7 +600,7 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    break;
 		default:
 		    if (field & 0x80) {
-			fprintf(stderr,
+			g_warning(
 				"MMSE - Unknown field encountered (0x%02x)\n",
 				field);
 		    } else {
@@ -614,8 +614,9 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_tree_add_string_format(mmse_tree,
 						     hf_mmse_ffheader,
 						     tvb, offset,
-						     length + length2, NULL,
-						     "%s : %s",strval,strval2);
+						     length + length2,
+						     tvb_get_ptr(tvb,offset,length + length2),
+						     "%s: %s",strval,strval2);
 			offset += length + length2;
 		    }
 		    break;
@@ -632,9 +633,7 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    const char	*type_str;
 
 	    offset = add_content_type(mmse_tree, tvb, offset, &type, &type_str);
-	    tmp_tvb = tvb_new_subset(tvb, offset,
-				     tvb_length_remaining(tvb, offset),
-				     tvb_length_remaining(tvb, offset));
+	    tmp_tvb = tvb_new_subset(tvb, offset, -1, -1);
 	    add_multipart_data(mmse_tree, tmp_tvb);
 	}
     }
