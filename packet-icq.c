@@ -1,7 +1,7 @@
 /* packet-icq.c
  * Routines for ICQ packet disassembly
  *
- * $Id: packet-icq.c,v 1.12 2000/03/12 04:47:38 gram Exp $
+ * $Id: packet-icq.c,v 1.13 2000/03/14 07:12:23 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Johan Feyaerts
@@ -2020,10 +2020,10 @@ dissect_icqv5Client(const u_char *pd,
     }
     
     if (tree) {
-        ti = proto_tree_add_uint_format(tree,
+        ti = proto_tree_add_protocol_format(tree,
 				 proto_icq,
 				 offset,
-				 pktsize, NULL,
+				 pktsize,
 				 "ICQv5 %s (len %u)",
 				 findClientCmd(cmd),
 				 pktsize);
@@ -2195,10 +2195,10 @@ dissect_icqv5Server(const u_char *pd,
 	col_add_fstr(fd, COL_INFO, "ICQv5 %s", findServerCmd(cmd));
 
     if (tree) {
-        ti = proto_tree_add_uint_format(tree,
+        ti = proto_tree_add_protocol_format(tree,
 					proto_icq,
 					offset,
-					pktsize, NULL,
+					pktsize,
 					"ICQv5 %s (len %u)",
 					findServerCmd(cmd),
 					pktsize);
