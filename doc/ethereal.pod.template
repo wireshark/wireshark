@@ -759,6 +759,13 @@ be used, for example, to go to the frame for the request corresponding
 to a reply, or the reply corresponding to a request, if that frame
 number has been put into the protocol tree.
 
+=item Tools:Summary
+
+Show summary information about the capture, including elapsed time,
+packet counts, byte counts, and the like.  If a display filter is in
+effect, summary information will be shown about the capture and about
+the packets currently being displayed.
+
 =item Tools:Protocol Hierarchy Statistics
 
 Show the number of packets, and the number of bytes in those packets,
@@ -2047,6 +2054,8 @@ B<http://www.ethereal.com>.
   Niklas Ogren             <niklas.ogren [AT] 71.se>
   Jesper Peterson          <jesper [AT] endace.com>
   Giles Scott              <gscott2 [AT] nortelnetworks.com>
+  Vincent Jardin           <vincent.jardin [AT] 6wind.com>
+  Jean-Michel Fayard       <jean-michel.fayard [AT] moufrei.de>
   Pavel Roskin             <proski [AT] gnu.org>
   Georgi Guninski          <guninski [AT] guninski.com>
   Jason Copenhaver         <jcopenha [AT] typedef.org>
@@ -2064,7 +2073,6 @@ B<http://www.ethereal.com>.
   Chris Heath              <chris [AT] heathens.co.nz>
   Loïc Minier              <lool [AT] dooz.org>
   Gisle Vanem              <giva [AT] bgnett.no>
-  Vincent Jardin           <vincent.jardin@6wind.com>
 
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to give his
 permission to use his version of snprintf.c.

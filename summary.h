@@ -1,12 +1,11 @@
 /* summary.h
  * Definitions for capture file summary data
  *
- * $Id: summary.h,v 1.7 2002/02/08 10:07:34 guy Exp $
+ * $Id: summary.h,v 1.8 2003/09/02 22:10:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -33,9 +32,12 @@ typedef struct _summary_tally {
     double	elapsed_time;	/* seconds, with msec resolution,
 				   includes time before first packet
 				   and after last packet */
-    int		filtered_count; /* number of filtered packets */
     int		marked_count;	/* number of marked packets */
     int		packet_count;	/* total number of packets in trace */
+    int		filtered_count; /* number of filtered packets */
+    guint32	filtered_bytes;	/* total bytes in the filtered packets */
+    double 	filtered_start; /* time in seconds, with msec resolution */
+    double 	filtered_stop;  /* time in seconds, with msec resolution */
     const char	*filename;
     long	file_length;	/* file length in bytes */
     int		encap_type;	/* wiretap encapsulation type */

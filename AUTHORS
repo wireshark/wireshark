@@ -1811,6 +1811,11 @@ Vincent Jardin <vincent.jardin [AT] 6wind.com> {
 	Support for TEREDO
 }
 
+Jean-Michel Fayard <jean-michel.fayard [AT] moufrei.de> {
+	Show in Tools:Summary window statistics about packets that
+	    passed the current display filter
+}
+
 And assorted fixes and enhancements by the people listed above and by:
 
 	Pavel Roskin <proski [AT] gnu.org>

@@ -1,7 +1,7 @@
 /* summary.c
  * Routines for capture file summary info
  *
- * $Id: summary.c,v 1.22 2002/02/08 10:07:34 guy Exp $
+ * $Id: summary.c,v 1.23 2003/09/02 22:10:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -51,8 +51,21 @@ tally_frame_data(frame_data *cur_frame, summary_tally *sum_tally)
     sum_tally->stop_time = cur_time;
   }
   sum_tally->bytes += cur_frame->pkt_len;
-  if (cur_frame->flags.passed_dfilter)
+  if (cur_frame->flags.passed_dfilter){
+    if (sum_tally->filtered_count==0){
+	    sum_tally->filtered_start= cur_time;
+	    sum_tally->filtered_stop = cur_time;
+    } else {
+	    if (cur_time < sum_tally->filtered_start) {
+		    sum_tally->start_time = cur_time;
+	    }
+	    if (cur_time > sum_tally->filtered_stop) {
+		    sum_tally->filtered_stop = cur_time;
+	    }
+    }
     sum_tally->filtered_count++;
+    sum_tally->filtered_bytes += cur_frame->pkt_len ;
+  }
   if (cur_frame->flags.marked)
     sum_tally->marked_count++;
 
@@ -70,12 +83,15 @@ summary_fill_in(summary_tally *st)
   st->stop_time = 0;
   st->bytes = 0;
   st->filtered_count = 0;
+  st->filtered_start = 0;
+  st->filtered_stop   = 0;
+  st->filtered_bytes = 0;
   st->marked_count = 0;
 
   /* initialize the tally */
   if (cfile.plist != NULL) {
     first_frame = cfile.plist;
-    st->start_time = secs_usecs(first_frame->abs_secs,first_frame->abs_usecs);
+    st->start_time 	= secs_usecs(first_frame->abs_secs,first_frame->abs_usecs);
     st->stop_time = secs_usecs(first_frame->abs_secs,first_frame->abs_usecs);
     cur_glist = cfile.plist;
 
