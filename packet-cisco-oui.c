@@ -1,7 +1,7 @@
 /* packet-cisco-oui.c
  * Register an LLC dissector table for Cisco's OUI 00:00:0c
  *
- * $Id: packet-cisco-oui.c,v 1.1 2003/09/03 06:27:03 guy Exp $
+ * $Id: packet-cisco-oui.c,v 1.2 2003/10/25 06:10:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -30,11 +30,28 @@
 
 static int hf_llc_cisco_pid = -1;
 
+/*
+ * See various Cisco documents, including
+ *
+ *	http://www.cisco.com/univercd/cc/td/doc/product/lan/trsrb/vlan.htm
+ *
+ * and
+ *
+ *	http://www.cisco.com/en/US/products/hw/switches/ps663/products_tech_note09186a0080094713.shtml
+ *
+ * for various PID values - and for a DRIP frame format.
+ */
 static const value_string cisco_pid_vals[] = {
 	{ 0x0102,	"DRIP" },
+	{ 0x0104,	"PagP" },	/* Port Aggregation Protocol */
+	{ 0x010b,	"PVSTP+" },	/* Spanning tree of some sort */
+	{ 0x010c,	"VLAN Bridge" },
+	{ 0x0111,	"UDLD" },	/* Unidirectional Link Detection */
 	{ 0x2000,	"CDP" },
 	{ 0x2001,	"CGMP" },
 	{ 0x2003,	"VTP" },
+	{ 0x2004,	"DTP" },	/* Dynamic Trunking Protocol */
+	{ 0x200a,	"STP Uplink Fast" },
 	{ 0,		NULL }
 };
 
