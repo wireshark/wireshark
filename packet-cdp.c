@@ -2,7 +2,7 @@
  * Routines for the disassembly of the "Cisco Discovery Protocol"
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-cdp.c,v 1.12 1999/08/25 00:24:32 guy Exp $
+ * $Id: packet-cdp.c,v 1.13 1999/08/25 00:42:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -48,12 +48,32 @@ static void
 add_multi_line_string_to_tree(proto_tree *tree, gint start, gint len,
   const gchar *prefix, const gchar *string);
 
+#define TYPE_MGMT_ADDR		0
+#define TYPE_CHASSIS_ID		1
+#define TYPE_2			2
+#define TYPE_PORT		3
+#define TYPE_IOS_VERSION	5
+#define TYPE_PLATFORM		6
+#define TYPE_MGMT_IP_ADDR	0x01cc
+
+static const value_string type_vals[] = {
+	{ TYPE_MGMT_ADDR,    "Mgmt addr?" },
+	{ TYPE_CHASSIS_ID,   "Chassis ID" },
+	{ TYPE_2,            "Unknown" },
+	{ TYPE_PORT,         "Port" },
+	{ TYPE_IOS_VERSION,  "Software version" },
+	{ TYPE_PLATFORM,     "Platform" },
+	{ TYPE_MGMT_IP_ADDR, "Mgmt IP" },
+	{ 0,                 NULL },
+};
+	
 void 
 dissect_cdp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     proto_item *ti; 
     proto_tree *cdp_tree = NULL;
     guint16 type;
     guint16 length;
+    char *type_str;
     char *stringmem;
     proto_item *tlvi;
     proto_tree *tlv_tree;
@@ -80,46 +100,46 @@ dissect_cdp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	while( offset < pi.captured_len ){
 		type = pntohs(&pd[offset + TLV_TYPE]);
 		length = pntohs(&pd[offset + TLV_LENGTH]);
-		proto_tree_add_item_hidden(cdp_tree, hf_cdp_tlvtype, offset+TLV_TYPE, 2, type);
-		proto_tree_add_item_hidden(cdp_tree, hf_cdp_tlvlength, offset+TLV_LENGTH, 2, length);
+		type_str = val_to_str(type, type_vals,
+		    "Unknown (0x%04x)");
+
 		switch( type ){
-			case 0:
+			case TYPE_MGMT_ADDR:
 				/* ??? Mgmt Addr; in this one, the "length"
 				   field doesn't include the length of the
 				   type and length fields. */
 				tlvi = proto_tree_add_text(cdp_tree, offset,
-				    length + 4, "Type: %u (Mgmt addr?), length: %u",
-				    type, length);
+				    length + 4, "Type: %s, length: %u",
+				    type_str, length);
 				tlv_tree = proto_item_add_subtree(tlvi,
 				    ETT_CDP_TLV);
-				proto_tree_add_text(tlv_tree,
-				    offset + TLV_TYPE, 2, "Type: %u", type);
-				proto_tree_add_text(tlv_tree,
-				    offset + TLV_LENGTH, 2, "Length: %u",
-				    length);
+				proto_tree_add_item(tlv_tree, hf_cdp_tlvtype,
+				    offset + TLV_TYPE, 2, type);
+				proto_tree_add_item(tlv_tree, hf_cdp_tlvlength,
+				    offset + TLV_LENGTH, 2, length);
 				if (length > 0) {
 					proto_tree_add_text(tlv_tree,
 					    offset + 4, length, "Data");
 				}
 				offset+=length + 4;
 				break;
-			case 1: /* ??? Chassis ID */
+			case TYPE_CHASSIS_ID:
+				/* ??? Chassis ID */
 				tlvi = proto_tree_add_text(cdp_tree, offset,
 				    length, "Chassis ID: %s",
 				    &pd[offset+4]);
 				tlv_tree = proto_item_add_subtree(tlvi,
 				    ETT_CDP_TLV);
-				proto_tree_add_text(tlv_tree,
-				    offset + TLV_TYPE, 2, "Type: Chassis ID");
-				proto_tree_add_text(tlv_tree,
-				    offset + TLV_LENGTH, 2, "Length: %u",
-				    length);
+				proto_tree_add_item(tlv_tree, hf_cdp_tlvtype,
+				    offset + TLV_TYPE, 2, type);
+				proto_tree_add_item(tlv_tree, hf_cdp_tlvlength,
+				    offset + TLV_LENGTH, 2, length);
 				proto_tree_add_text(tlv_tree, offset + 4,
 				    length - 4, "Chassis ID: %s",
 				    &pd[offset+4]);
 				offset+=length;
 				break;
-			case 2:  
+			case TYPE_2:
 				/* this is quite strange: this tlv contains
 				   no data itself but two tlvs which
 				   calculate the length without the 2 byte
@@ -129,36 +149,38 @@ dissect_cdp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 				    type, length);
 				tlv_tree = proto_item_add_subtree(tlvi,
 				    ETT_CDP_TLV);
-				proto_tree_add_text(tlv_tree,
-				    offset + TLV_TYPE, 2, "Type: %u", type);
+				proto_tree_add_item(tlv_tree, hf_cdp_tlvtype,
+				    offset + TLV_TYPE, 2, type);
 				proto_tree_add_text(tlv_tree,
 				    offset + TLV_LENGTH, 2, "Second field: %u",
 				    length);
 				offset+=4;
 				break;
-			case 3: /* ??? Port  */    
+			case TYPE_PORT:
+				/* ??? Port  */    
 				tlvi = proto_tree_add_text(cdp_tree, offset,
 				    length, "Sent through Interface: %s",
 				    &pd[offset+4]);
 				tlv_tree = proto_item_add_subtree(tlvi,
 				    ETT_CDP_TLV);
-				proto_tree_add_text(tlv_tree,
-				    offset + TLV_TYPE, 2, "Type: Port");
-				proto_tree_add_text(tlv_tree,
-				    offset + TLV_LENGTH, 2, "Length: %u",
-				    length);
+				proto_tree_add_item(tlv_tree, hf_cdp_tlvtype,
+				    offset + TLV_TYPE, 2, type);
+				proto_tree_add_item(tlv_tree, hf_cdp_tlvlength,
+				    offset + TLV_LENGTH, 2, length);
 				proto_tree_add_text(tlv_tree, offset + 4,
 				    length - 4, "Sent through Interface: %s",
 				    &pd[offset+4]);
 				offset+=length;
 				break;
-			case 5: /* ??? IOS Version */
+			case TYPE_IOS_VERSION:
+				/* ??? IOS Version */
 				add_multi_line_string_to_tree(cdp_tree,
 				    offset + 4, length - 4, "Software Version: ",
 				    &pd[offset+4] );
 				offset+=length;
 				break;
-			case 6: /* ??? platform */
+			case TYPE_PLATFORM:
+				/* ??? platform */
 				stringmem = malloc(length);
 				memset(stringmem, '\0', length);
 				memcpy(stringmem, &pd[offset+4], length - 4 );
@@ -167,17 +189,16 @@ dissect_cdp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 				    stringmem);
 				tlv_tree = proto_item_add_subtree(tlvi,
 				    ETT_CDP_TLV);
-				proto_tree_add_text(tlv_tree,
-				    offset + TLV_TYPE, 2, "Type: Platform");
-				proto_tree_add_text(tlv_tree,
-				    offset + TLV_LENGTH, 2, "Length: %u",
-				    length);
+				proto_tree_add_item(tlv_tree, hf_cdp_tlvtype,
+				    offset + TLV_TYPE, 2, type);
+				proto_tree_add_item(tlv_tree, hf_cdp_tlvlength,
+				    offset + TLV_LENGTH, 2, length);
 				proto_tree_add_text(tlv_tree, offset + 4,
 				    length - 4, "Platform: %s", stringmem);
 				free(stringmem);
 				offset+=length;
 				break;
-			case 0x01cc:
+			case TYPE_MGMT_IP_ADDR:
 				/* ??? Mgmt IP Addr; in this one, the "length"
 				   field doesn't include the length of the
 				   type and length fields. */
@@ -186,11 +207,10 @@ dissect_cdp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 				    ip_to_str(&pd[offset+4]));
 				tlv_tree = proto_item_add_subtree(tlvi,
 				    ETT_CDP_TLV);
-				proto_tree_add_text(tlv_tree,
-				    offset + TLV_TYPE, 2, "Type: Mgmt IP");
-				proto_tree_add_text(tlv_tree,
-				    offset + TLV_LENGTH, 2, "Length: %u",
-				    length);
+				proto_tree_add_item(tlv_tree, hf_cdp_tlvtype,
+				    offset + TLV_TYPE, 2, type);
+				proto_tree_add_item(tlv_tree, hf_cdp_tlvlength,
+				    offset + TLV_LENGTH, 2, length);
 				proto_tree_add_text(tlv_tree, offset + 4,
 				    length, "IP address: %s",
 				    ip_to_str(&pd[offset+4]));
@@ -198,15 +218,14 @@ dissect_cdp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 				break;
 			default:
 				tlvi = proto_tree_add_text(cdp_tree, offset,
-				    length, "Type: %u (unknown), length: %u",
-				    type, length);
+				    length, "Type: %s, length: %u",
+				    type_str, length);
 				tlv_tree = proto_item_add_subtree(tlvi,
 				    ETT_CDP_TLV);
-				proto_tree_add_text(tlv_tree,
-				    offset + TLV_TYPE, 2, "Type: %u", type);
-				proto_tree_add_text(tlv_tree,
-				    offset + TLV_LENGTH, 2, "Length: %u",
-				    length);
+				proto_tree_add_item(tlv_tree, hf_cdp_tlvtype,
+				    offset + TLV_TYPE, 2, type);
+				proto_tree_add_item(tlv_tree, hf_cdp_tlvlength,
+				    offset + TLV_LENGTH, 2, length);
 				if (length > 4) {
 					proto_tree_add_text(tlv_tree,
 					    offset + 4, length - 4, "Data");
@@ -261,10 +280,10 @@ proto_register_cdp(void)
 {
         static hf_register_info hf[] = {
                 { &hf_cdp_tlvtype,
-                { "TLV Type",		"cdp.tlv.type", FT_UINT16, NULL }},
+                { "Type",		"cdp.tlv.type", FT_VALS_UINT16, VALS(type_vals) }},
 
                 { &hf_cdp_tlvlength,
-                { "TLV Length",		"cdp.tlv.len", FT_UINT16, NULL }},
+                { "Length",		"cdp.tlv.len", FT_UINT16, NULL }},
         };
 
         proto_cdp = proto_register_protocol("Cisco Discovery Protocol", "cdp");
