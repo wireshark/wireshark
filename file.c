@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.313 2003/09/15 22:48:41 guy Exp $
+ * $Id: file.c,v 1.314 2003/09/15 23:28:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -651,16 +651,12 @@ cf_get_display_name(capture_file *cf)
   gchar *displayname;
 
   /* Return a name to use in displays */
-  if (!cf->is_tempfile && cf->filename != NULL) {
+  if (!cf->is_tempfile) {
     /* Get the last component of the file name, and use that. */
     displayname = get_basename(cf->filename);
   } else {
     /* The file we read is a temporary file from a live capture;
-       we don't mention its name.
-
-       XXX - "cf->filename" shouldn't be null here, but this might
-       be called from some tap display routines, and those can
-       be called before the file is opened, which is arguably a bug. */
+       we don't mention its name. */
     displayname = "<capture>";
   }
   return displayname;
