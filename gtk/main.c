@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.415 2004/03/13 22:49:30 ulfl Exp $
+ * $Id: main.c,v 1.416 2004/03/17 08:59:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1530,7 +1530,7 @@ get_ring_arguments(const char *arg)
    * as we allow it in the preferences file, we might as well
    * allow it here).
    */
-  while (isspace(*p))
+  while (isspace((guchar)*p))
     p++;
   if (*p == '\0') {
     /*
