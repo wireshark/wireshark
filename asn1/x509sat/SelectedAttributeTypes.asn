@@ -37,15 +37,18 @@ IMPORTS
     FROM DirectoryAbstractService directoryAbstractService;
 
 -- Directory string type 
--- XXX DirectoryString is handimplemented inside the template
--- DirectoryString ::= CHOICE {
---  teletexString    TeletexString(SIZE (1..maxSize)),
---  printableString  PrintableString(SIZE (1..maxSize)),
---  universalString  UniversalString(SIZE (1..maxSize)),
---  bmpString        BMPString(SIZE (1..maxSize)),
---  uTF8String       UTF8String(SIZE (1..maxSize))
--- }
---
+--This one is much better declared as this,  it is prettier at least
+--the octet string dissector can handle all of them
+DirectoryString ::= OCTET STRING
+--DirectoryString ::= CHOICE {
+--  teletexString    TeletexString,
+--  printableString  PrintableString,
+--  universalString  UniversalString,
+--  bmpString        BMPString,
+--  uTF8String       UTF8String
+--}
+
+
 -- Attribute types 
 -- knowledgeInformation ATTRIBUTE ::= {
 --   WITH SYNTAX             DirectoryString {ub-knowledge-information}

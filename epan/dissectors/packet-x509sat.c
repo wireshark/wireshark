@@ -5,6 +5,7 @@
 
 /* Input file: packet-x509sat-template.c */
 
+#define BER_UNI_TAG_TeletexString	    20  /* until we fix the bug in asn2eth */
 /* packet-x509sat.c
  * Routines for X.509 Selected Attribute Types packet dissection
  *
@@ -101,7 +102,6 @@ static int hf_x509sat_answerback = -1;            /* PrintableString */
 
 
 /* Initialize the subtree pointers */
-static gint ett_x509sat_DirectoryString = -1;
 
 /*--- Included file: packet-x509sat-ett.c ---*/
 
@@ -130,6 +130,15 @@ static int dissect_lessOrEqual(packet_info *pinfo, proto_tree *tree, tvbuff_t *t
 }
 static int dissect_approximateMatch(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_x509if_AttributeType(FALSE, tvb, offset, pinfo, tree, hf_x509sat_approximateMatch);
+}
+
+
+int
+dissect_x509sat_DirectoryString(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                    NULL);
+
+  return offset;
 }
 
 
@@ -225,67 +234,6 @@ dissect_x509sat_TelexNumber(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset
 
 
 /*--- End of included file: packet-x509sat-fn.c ---*/
-
-
-
-
-
-static int DirectoryString_hf_index;
-
-static int
-dissect_teletextString(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_ber_restricted_string(FALSE, BER_UNI_TAG_TeletextString, 
-              pinfo, tree, tvb, offset, DirectoryString_hf_index, NULL);
-}
-static int
-dissect_printableString(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_ber_restricted_string(FALSE, BER_UNI_TAG_PrintableString, 
-              pinfo, tree, tvb, offset, DirectoryString_hf_index, NULL);
-}
-static int
-dissect_universalString(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_ber_restricted_string(FALSE, BER_UNI_TAG_UniversalString,
-              pinfo, tree, tvb, offset, DirectoryString_hf_index, NULL);
-}
-static int
-dissect_bmpString(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_ber_restricted_string(FALSE, BER_UNI_TAG_BMPString,
-              pinfo, tree, tvb, offset, DirectoryString_hf_index, NULL);
-}
-static int
-dissect_uTF8String(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_ber_restricted_string(FALSE, BER_UNI_TAG_UTF8String,
-              pinfo, tree, tvb, offset, DirectoryString_hf_index, NULL);
-}
-
-static const value_string DirectoryString_vals[] = {
-  {   0, "teletextString" },
-  {   1, "printableString" },
-  {   2, "universalString" },
-  {   3, "bmpString" },
-  {   4, "uTF8String" },
-  { 0, NULL }
-};
-
-static ber_choice DirectoryString_choice[] = {
-  {   0, BER_CLASS_UNI, BER_UNI_TAG_TeletextString, BER_FLAGS_NOOWNTAG, dissect_teletextString },
-  {   1, BER_CLASS_UNI, BER_UNI_TAG_PrintableString, BER_FLAGS_NOOWNTAG, dissect_printableString },
-  {   2, BER_CLASS_UNI, BER_UNI_TAG_UniversalString, BER_FLAGS_NOOWNTAG, dissect_universalString },
-  {   3, BER_CLASS_UNI, BER_UNI_TAG_BMPString, BER_FLAGS_NOOWNTAG, dissect_bmpString },
-  {   4, BER_CLASS_UNI, BER_UNI_TAG_UTF8String, BER_FLAGS_NOOWNTAG, dissect_uTF8String },
-  { 0, 0, 0, 0, NULL }
-};
-
-int
-dissect_x509sat_DirectoryString(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index) {
-  DirectoryString_hf_index = hf_index;
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              DirectoryString_choice, -1, ett_x509sat_DirectoryString);
-
-  return offset;
-}
-
-
 
 
 static void
@@ -678,7 +626,6 @@ void proto_register_x509sat(void) {
 
   /* List of subtrees */
   static gint *ett[] = {
-    &ett_x509sat_DirectoryString,
 
 /*--- Included file: packet-x509sat-ettarr.c ---*/
 

@@ -7,7 +7,7 @@
 InformationFramework x509if
 
 #.EXPORTS
-
+DirectoryString
 UniqueIdentifier
 
 #.NO_EMIT
