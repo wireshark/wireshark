@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\spoolss packet disassembly
  * Copyright 2001-2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-spoolss.c,v 1.97 2003/04/28 04:44:54 tpot Exp $
+ * $Id: packet-dcerpc-spoolss.c,v 1.98 2003/05/15 02:15:13 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -314,18 +314,27 @@ static int hf_printer_access_use = -1;
 static int hf_job_access_admin = -1;
 
 static void
-spoolss_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree,
-			guint32 access)
+spoolss_printer_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree,
+				guint32 access)
 {
-	proto_tree_add_boolean(
-		tree, hf_job_access_admin, tvb, offset, 4, access);
-
 	proto_tree_add_boolean(
 		tree, hf_printer_access_use, tvb, offset, 4, access);
 
 	proto_tree_add_boolean(
 		tree, hf_printer_access_admin, tvb, offset, 4, access);
+}
 
+struct access_mask_info spoolss_printer_access_mask_info = {
+	"SPOOLSS printer",
+	spoolss_printer_specific_rights,
+	NULL,			/* Generic mapping table */
+	NULL			/* Standard mapping table */
+};
+
+static void
+spoolss_printserver_specific_rights(tvbuff_t *tvb, gint offset, 
+				    proto_tree *tree, guint32 access)
+{
 	proto_tree_add_boolean(
 		tree, hf_server_access_enum, tvb, offset, 4, access);
 
@@ -333,9 +342,26 @@ spoolss_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree,
 		tree, hf_server_access_admin, tvb, offset, 4, access);
 }
 
-struct access_mask_info spoolss_access_mask_info = {
-	"SPOOLSS",
-	spoolss_specific_rights
+struct access_mask_info spoolss_printserver_access_mask_info = {
+	"SPOOLSS print server",
+	spoolss_printserver_specific_rights,
+	NULL,			/* Generic mapping table */
+	NULL			/* Standard mapping table */
+};
+
+static void
+spoolss_job_specific_rights(tvbuff_t *tvb, gint offset, 
+			    proto_tree *tree, guint32 access)
+{
+	proto_tree_add_boolean(
+		tree, hf_job_access_admin, tvb, offset, 4, access);
+}
+
+struct access_mask_info spoolss_job_access_mask_info = {
+	"SPOOLSS job",
+	spoolss_job_specific_rights,
+	NULL,			/* Generic mapping table */
+	NULL			/* Standard mapping table */
 };
 
 /*
@@ -2249,7 +2275,7 @@ static int dissect_PRINTER_INFO_2(tvbuff_t *tvb, int offset,
 	dissect_nt_sec_desc(
 		tvb, secdesc_offset, pinfo, tree, drep, 
 		tvb_length_remaining(tvb, secdesc_offset),
-		&spoolss_access_mask_info);
+		&spoolss_printer_access_mask_info);
 
 	offset = dissect_printer_attributes(tvb, offset, pinfo, tree, drep);
 
@@ -2298,7 +2324,8 @@ static int dissect_PRINTER_INFO_3(tvbuff_t *tvb, int offset,
 	
 	offset = dissect_nt_sec_desc(
 		tvb, offset, pinfo, tree, drep, 
-		tvb_length_remaining(tvb, offset), &spoolss_access_mask_info);
+		tvb_length_remaining(tvb, offset), 
+		&spoolss_printer_access_mask_info);
 
 	return offset;
 }
@@ -2464,6 +2491,10 @@ static int SpoolssOpenPrinterEx_q(tvbuff_t *tvb, int offset,
 				  packet_info *pinfo, proto_tree *tree,
 				  char *drep _U_)
 {
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
+	char *name;
+
 	/* Parse packet */
 
 	offset = dissect_ndr_pointer_cb(
@@ -2479,9 +2510,38 @@ static int SpoolssOpenPrinterEx_q(tvbuff_t *tvb, int offset,
 
 	offset = dissect_DEVMODE_CTR(tvb, offset, pinfo, tree, drep);
 
-  	offset = dissect_nt_access_mask(
- 		tvb, offset, pinfo, tree, drep, hf_access_required,
- 		&spoolss_access_mask_info);
+	/* Luckily we can use the string stored in dcv->private_data as it
+           appears before the printer datatype since we are at the top
+           level. */
+
+	name = (char *)dcv->private_data;
+
+	if (name) {
+		g_warning("printer name = %s", name);
+
+		if (name[0] == '\\' && name[1] == '\\')
+			name += 2;
+
+		/* Determine if we are opening a printer or a print server */
+
+		if (strchr(name, '\\')) 
+			offset = dissect_nt_access_mask(
+				tvb, offset, pinfo, tree, drep, 
+				hf_access_required,
+				&spoolss_printer_access_mask_info);
+		else
+			offset = dissect_nt_access_mask(
+				tvb, offset, pinfo, tree, drep, 
+				hf_access_required,
+				&spoolss_printserver_access_mask_info);
+	} else {
+
+		/* We can't decide what type of object being opened */
+
+		offset = dissect_nt_access_mask(
+			tvb, offset, pinfo, tree, drep, hf_access_required,
+			NULL);
+	}
 
 	offset = dissect_USER_LEVEL_CTR(tvb, offset, pinfo, tree, drep);
 
@@ -3323,7 +3383,7 @@ dissect_SEC_DESC_BUF(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	
 	dissect_nt_sec_desc(
 		tvb, offset, pinfo, subtree, drep, len, 
-		&spoolss_access_mask_info);
+		&spoolss_printer_access_mask_info);
 
 	offset += len;	
 
@@ -4469,7 +4529,7 @@ dissect_spoolss_JOB_INFO_2(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	dissect_nt_sec_desc(
 		tvb, secdesc_offset, pinfo, subtree, drep,
 		tvb_length_remaining(tvb, secdesc_offset),
-		&spoolss_access_mask_info);
+		&spoolss_job_access_mask_info);
 
 	offset = dissect_job_status(tvb, offset, pinfo, subtree, drep);
 
