@@ -2188,6 +2188,10 @@ Jeff Connelly		<shellreef+mp2p [AT] gmail.com> {
 	MANOLITO support
 }
 
+M. Ortega y Strupp	<moys@loplof.de> {
+	ISC DHCP Server 3.0 failover protocol dissection
+}
+
 
 And assorted fixes and enhancements by the people listed above and by:
 

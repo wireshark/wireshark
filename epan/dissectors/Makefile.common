@@ -185,6 +185,7 @@ DISSECTOR_SRC =	\
 	packet-dcm.c		\
 	packet-ddtp.c	\
 	packet-dec-bpdu.c	\
+	packet-dhcp-failover.c	\
 	packet-dhcpv6.c	\
 	packet-diameter.c	\
 	packet-diffserv-mpls-common.c	\
