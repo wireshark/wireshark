@@ -2,7 +2,7 @@
  * Defines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: smb.h,v 1.46 2002/08/31 00:12:14 sharpe Exp $
+ * $Id: smb.h,v 1.47 2002/08/31 05:31:42 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -233,7 +233,6 @@ typedef struct {
 	nstime_t req_time;
 	guint16 flags;
 	int cmd;
-        gboolean raw_ntlmssp;   /* Do extended security exc use raw ntlmssp */
 	void *extra_info;
 } smb_saved_info_t;
 
@@ -276,6 +275,7 @@ typedef struct conv_tables {
 	GHashTable *dcerpc_fid_to_frame;
 	/* This table is used to track TID->services for a conversation */
 	GHashTable *tid_service;
+        gboolean raw_ntlmssp;   /* Do extended security exc use raw ntlmssp */
 } conv_tables_t;
 
 typedef struct smb_info {
