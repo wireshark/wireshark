@@ -88,6 +88,7 @@
 #include <epan/tap.h>
 #include "tap_dfilter_dlg.h"
 #include <epan/dissectors/packet-data.h>
+#include "capture_ui_utils.h"
 
 /* Win32 needs the O_BINARY flag for open() */
 #ifndef O_BINARY
@@ -545,7 +546,7 @@ cf_start_tail(capture_file *cf, const char *fname, gboolean is_tempfile, int *er
        packets (yes, I know, we don't have any *yet*). */
     set_menus_for_captured_packets(TRUE);
 
-    capture_msg = g_strdup_printf(" %s: <live capture in progress>", cf->iface);
+    capture_msg = g_strdup_printf(" %s: <live capture in progress>", get_interface_descriptive_name(cf->iface));
 
     statusbar_push_file_msg(capture_msg);
 
