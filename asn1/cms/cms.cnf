@@ -1,0 +1,22 @@
+# CMS.cnf
+# CMS conformation file
+
+# $Id: cms.cnf,v 1.2 2004/06/03 08:35:44 guy Exp $
+
+#.MODULE_IMPORT
+AuthenticationFramework x509af
+
+#.INCLUDE ../x509af/x509af_exp.cnf
+
+#.EXPORTS
+SignedData
+
+#.NO_EMIT
+
+#.TYPE_RENAME
+
+#.FIELD_RENAME
+
+#.END
+
+
