@@ -1,7 +1,7 @@
 /* packet-mount.c
  * Routines for mount dissection
  *
- * $Id: packet-mount.c,v 1.22 2001/03/15 21:50:32 guy Exp $
+ * $Id: packet-mount.c,v 1.23 2001/04/07 09:25:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -94,9 +94,7 @@ dissect_fhstatus(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree
 	gint32 status;
 
 	status=tvb_get_ntohl(tvb,offset);
-	if (tree) {
-		offset = dissect_rpc_uint32_tvb(tvb,pinfo,tree,hf_mount3_status,offset);
-	}
+	offset = dissect_rpc_uint32_tvb(tvb,pinfo,tree,hf_mount3_status,offset);
 
 	switch (status) {
 		case 0:
@@ -474,10 +472,7 @@ dissect_mountstat3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offs
 
 	mountstat3 = tvb_get_ntohl(tvb, offset);
 
-	if (tree) {
-		offset = dissect_rpc_uint32_tvb(tvb,pinfo,tree,hfindex,offset);
-	}
-	
+	offset = dissect_rpc_uint32_tvb(tvb,pinfo,tree,hfindex,offset);
 	*status = mountstat3;
 	return offset;
 }
