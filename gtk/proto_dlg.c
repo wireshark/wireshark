@@ -1,6 +1,6 @@
 /* proto_dlg.c
  *
- * $Id: proto_dlg.c,v 1.20 2002/12/01 19:11:54 gerald Exp $
+ * $Id: proto_dlg.c,v 1.21 2002/12/01 22:51:56 gerald Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
@@ -71,6 +71,7 @@ typedef struct protocol_data {
   char 	   *abbrev;
   int  	   hfinfo_index;
   gboolean enabled;
+  gboolean was_enabled;
 #if GTK_MAJOR_VERSION < 2
   gint     row;
 #else
@@ -135,7 +136,7 @@ proto_cb(GtkWidget *w _U_, gpointer data _U_)
 #if GTK_MAJOR_VERSION < 2
   proto_list = gtk_clist_new_with_titles(3, titles);
   gtk_container_add(GTK_CONTAINER(proto_sw), proto_list);
-  gtk_clist_set_selection_mode(GTK_CLIST(proto_list), GTK_SELECTION_SINGLE);
+  gtk_clist_set_selection_mode(GTK_CLIST(proto_list), GTK_SELECTION_BROWSE);
   gtk_clist_column_titles_passive(GTK_CLIST(proto_list));
   gtk_clist_column_titles_show(GTK_CLIST(proto_list));
   gtk_clist_set_column_auto_resize(GTK_CLIST(proto_list), 0, FALSE);
@@ -251,18 +252,19 @@ proto_cb(GtkWidget *w _U_, gpointer data _U_)
 
 #if GTK_MAJOR_VERSION < 2
 static void
-proto_list_select_cb(GtkCList *proto_list, gint row, gint col _U_, 
+proto_list_select_cb(GtkCList *proto_list, gint row, gint col, 
                                  GdkEventButton *ev, gpointer gp _U_) {
   protocol_data_t *p = gtk_clist_get_row_data(proto_list, row);
+  
+  if (row < 0 || col < 0)
+    return;
 
-  if (ev->type == GDK_2BUTTON_PRESS) { /* Double-click */
-    if (p->enabled)
-      p->enabled = FALSE;
-    else
-      p->enabled = TRUE;
-    
-    gtk_clist_set_text(proto_list, row, 0, STATUS_TXT(p->enabled) );
-  }
+  if (p->enabled)
+    p->enabled = FALSE;
+  else
+    p->enabled = TRUE;
+
+  gtk_clist_set_text(proto_list, row, 0, STATUS_TXT(p->enabled) );
 } /* proto_list_select_cb */
 #endif
 
@@ -423,8 +425,8 @@ revert_proto_selection(void)
   for (entry = protocol_list; entry != NULL; entry = g_slist_next(entry)) {
     protocol_data_t *p = entry->data;
 
-    if (proto_is_protocol_enabled(p->hfinfo_index) != p->enabled) {
-      proto_set_decoding(p->hfinfo_index, p->enabled);
+    if (proto_is_protocol_enabled(p->hfinfo_index) != p->was_enabled) {
+      proto_set_decoding(p->hfinfo_index, p->was_enabled);
       need_redissect = TRUE;
     }
   }
@@ -469,6 +471,7 @@ show_proto_selection(GtkListStore *proto_store)
         p->abbrev = proto_get_protocol_short_name(i);
         p->hfinfo_index = i;
         p->enabled = proto_is_protocol_enabled(i);
+	p->was_enabled = p->enabled;
         protocol_list = g_slist_insert_sorted(protocol_list,
 					    p, protocol_data_compare);
       }
