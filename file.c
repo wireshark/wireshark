@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.201 2000/07/26 03:08:56 gram Exp $
+ * $Id: file.c,v 1.202 2000/08/03 12:02:15 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1884,7 +1884,8 @@ file_open_error_message(int err, gboolean for_writing)
     break;
 
   default:
-    sprintf(errmsg_errno, "The file \"%%s\" could not be opened: %s.",
+    snprintf(errmsg_errno, sizeof(errmsg_errno),
+		    "The file \"%%s\" could not be opened: %s.",
 				wtap_strerror(err));
     errmsg = errmsg_errno;
     break;
@@ -1909,7 +1910,8 @@ file_rename_error_message(int err)
     break;
 
   default:
-    sprintf(errmsg_errno, "The file \"%%s\" could not be moved: %s.",
+    snprintf(errmsg_errno, sizeof(errmsg_errno),
+		    "The file \"%%s\" could not be moved: %s.",
 				wtap_strerror(err));
     errmsg = errmsg_errno;
     break;
@@ -1922,7 +1924,8 @@ file_read_error_message(int err)
 {
   static char errmsg_errno[1024+1];
 
-  sprintf(errmsg_errno, "An error occurred while reading from the file \"%%s\": %s.",
+  snprintf(errmsg_errno, sizeof(errmsg_errno),
+		  "An error occurred while reading from the file \"%%s\": %s.",
 				wtap_strerror(err));
   return errmsg_errno;
 }
@@ -1946,7 +1949,8 @@ file_write_error_message(int err)
 #endif
 
   default:
-    sprintf(errmsg_errno, "An error occurred while writing to the file \"%%s\": %s.",
+    snprintf(errmsg_errno, sizeof(errmsg_errno),
+		    "An error occurred while writing to the file \"%%s\": %s.",
 				wtap_strerror(err));
     errmsg = errmsg_errno;
     break;
@@ -1985,7 +1989,8 @@ file_close_error_message(int err)
 #endif
 
   default:
-    sprintf(errmsg_errno, "An error occurred while closing the file \"%%s\": %s.",
+    snprintf(errmsg_errno, sizeof(errmsg_errno),
+		    "An error occurred while closing the file \"%%s\": %s.",
 				wtap_strerror(err));
     errmsg = errmsg_errno;
     break;
