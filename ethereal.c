@@ -1,6 +1,6 @@
 /* ethereal.c
  *
- * $Id: ethereal.c,v 1.96 1999/08/19 05:31:19 guy Exp $
+ * $Id: ethereal.c,v 1.97 1999/08/20 04:41:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1472,8 +1472,8 @@ main(int argc, char *argv[])
       }
     }
     if (!rfilter_parse_failed) {
-      cf.rfcode = rfcode;
       if ((err = open_cap_file(cf_name, &cf)) == 0) {
+        cf.rfcode = rfcode;
         err = read_cap_file(&cf);
         s = strrchr(cf_name, '/');
         if (s) {
