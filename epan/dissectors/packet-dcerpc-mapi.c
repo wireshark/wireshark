@@ -72,80 +72,18 @@ static guint16 ver_dcerpc_mapi = 0;
 
 /* decryption */
 static gboolean mapi_decrypt = FALSE;
-static GMemChunk *mapi_decrypted_data_chunk = NULL;
-static int mapi_decrypted_data_init_count = 200;
-static GHashTable *mapi_decrypted_table = NULL;
-typedef struct {
-	guint32 frame;
-	guint32 callid;
-	tvbuff_t *tvb;
-	unsigned char *data;
-} mapi_decrypted_data_t;
-
-static gboolean
-free_all_decrypted(gpointer key_arg, gpointer value _U_, gpointer user_data _U_)
-{
-	mapi_decrypted_data_t *mdd=(mapi_decrypted_data_t *)key_arg;
-
-	if(mdd->tvb){
-		tvb_free(mdd->tvb);
-		mdd->tvb=NULL;
-	}
-	if(mdd->data){
-		g_free(mdd->data);
-		mdd->data=NULL;
-	}
-	return TRUE;
-}
-static guint
-mapi_decrypt_hash(gconstpointer k)
-{
-	const mapi_decrypted_data_t *mdd=(const mapi_decrypted_data_t *)k;
-	return mdd->frame;
-}
-static gint
-mapi_decrypt_equal(gconstpointer k1, gconstpointer k2)
-{
-	const mapi_decrypted_data_t *mdd1=(const mapi_decrypted_data_t *)k1;
-	const mapi_decrypted_data_t *mdd2=(const mapi_decrypted_data_t *)k2;
-
-	return	( (mdd1->frame==mdd2->frame)
-		&&(mdd1->callid==mdd2->callid) );
-}
-static void
-mapi_decrypt_init(void)
-{
-	if(mapi_decrypted_table){
-		g_hash_table_foreach_remove(mapi_decrypted_table,
-			free_all_decrypted, NULL);
-	} else {
-		mapi_decrypted_table=g_hash_table_new(mapi_decrypt_hash,
-			mapi_decrypt_equal);
-	}
-
-	if(mapi_decrypted_data_chunk){
-		g_mem_chunk_destroy(mapi_decrypted_data_chunk);
-		mapi_decrypted_data_chunk=NULL;
-	}
-
-	if(mapi_decrypt){
-		mapi_decrypted_data_chunk=g_mem_chunk_new("mapi_decrypt_chunk",
-			sizeof(mapi_decrypted_data_t),
-			mapi_decrypted_data_init_count*sizeof(mapi_decrypted_data_t),
-			G_ALLOC_ONLY);
-	}
-}
-
 
 static int
 mapi_decrypt_pdu(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
 	dcerpc_info *di;
-	mapi_decrypted_data_t *mmd=NULL;
-	guint32 len;
-	const unsigned char *ptr;
-	guint32 i;
+	guint8 *decrypted_data;
+	tvbuff_t *decrypted_tvb;
+	guint32 length;
+	gint len, reported_len;
+	const guint8 *ptr;
+	gint i;
 	guint16 pdu_len;
 	proto_item *it = NULL;
 	proto_tree *tr = NULL;
@@ -157,33 +95,38 @@ mapi_decrypt_pdu(tvbuff_t *tvb, int offset,
 
 	offset=dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_mapi_decrypted_data_maxlen, NULL);
 	offset=dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_mapi_decrypted_data_offset, NULL);
-	offset=dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_mapi_decrypted_data_len, &len);
+	offset=dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_mapi_decrypted_data_len, &length);
 
-	if(len>(guint32)tvb_length_remaining(tvb, offset)){
-		len=tvb_length_remaining(tvb, offset);
+	len = tvb_length_remaining(tvb, offset);
+	reported_len = tvb_reported_length_remaining(tvb, offset);
+	if((guint32)reported_len > length)
+		reported_len = length;
+	if(len > reported_len)
+		len = reported_len;
+
+	ptr=tvb_get_ptr(tvb, offset, len);
+	decrypted_data=g_malloc(len);
+	for(i=0;i<len;i++){
+		/*
+		 * Now *that's* secure encryption!
+		 */
+		decrypted_data[i]=ptr[i]^0xa5;
 	}
 
-	if(!pinfo->fd->flags.visited){
-		ptr=(const unsigned char *)tvb_get_ptr(tvb, offset, len);
-		mmd=g_mem_chunk_alloc(mapi_decrypted_data_chunk);
-		mmd->callid=di->call_id;
-		mmd->frame=pinfo->fd->num;
-		mmd->data=g_malloc(len);
-		for(i=0;i<len;i++){
-			mmd->data[i]=ptr[i]^0xa5;
-		}
-		mmd->tvb=tvb_new_real_data(mmd->data, len, len);
-		g_hash_table_insert(mapi_decrypted_table, mmd, mmd);
-	}
+	/* Allocate a new tvbuff, referring to the decrypted data. */
+	decrypted_tvb=tvb_new_real_data(decrypted_data, len, reported_len);
 
-	if(!mmd){
-		mapi_decrypted_data_t mmd_key;
-		mmd_key.callid=di->call_id;
-		mmd_key.frame=pinfo->fd->num;
-		mmd=g_hash_table_lookup(mapi_decrypted_table, &mmd_key);
-	}
+	/* Arrange that the allocated packet data copy be freed when the
+	   tvbuff is freed. */
+	tvb_set_free_cb(decrypted_tvb, g_free);
 
-	add_new_data_source(pinfo, mmd->tvb, "Decrypted MAPI");
+	/* Add the tvbuff to the list of tvbuffs to which the tvbuff we
+	   were handed refers, so it'll get cleaned up when that tvbuff
+	   is cleaned up. */
+	tvb_set_child_real_data_tvbuff(tvb, decrypted_tvb);
+
+	/* Add the decrypted data to the data source list. */
+	add_new_data_source(pinfo, decrypted_tvb, "Decrypted MAPI");
 
 	/* decrypted PDU */
 	/* All from 10 minutes eyeballing. This may be wrong.
@@ -214,18 +157,18 @@ mapi_decrypt_pdu(tvbuff_t *tvb, int offset,
 	   special meaning?
 	   More work needs to be done in this area.
 	*/
-	it=proto_tree_add_text(tree, mmd->tvb, 0, len, "Decrypted MAPI PDU");
+	it=proto_tree_add_text(tree, decrypted_tvb, 0, len, "Decrypted MAPI PDU");
 	tr=proto_item_add_subtree(it, ett_mapi_decrypted_pdu);
 
-	pdu_len=tvb_get_letohs(mmd->tvb, 0);
-	proto_tree_add_uint(tr, hf_mapi_pdu_len, mmd->tvb, 0, 2, pdu_len);
+	pdu_len=tvb_get_letohs(decrypted_tvb, 0);
+	proto_tree_add_uint(tr, hf_mapi_pdu_len, decrypted_tvb, 0, 2, pdu_len);
 
 	/*XXX call dissector here */
-	proto_tree_add_item(tr, hf_mapi_decrypted_data, mmd->tvb, 2, pdu_len-2, FALSE);
+	proto_tree_add_item(tr, hf_mapi_decrypted_data, decrypted_tvb, 2, pdu_len-2, FALSE);
 
-	proto_tree_add_item(tr, hf_mapi_pdu_trailer, mmd->tvb, pdu_len, 4, FALSE);
-	if(len>((guint32)pdu_len+4)){
-		proto_tree_add_item(tr, hf_mapi_pdu_extra_trailer, mmd->tvb, pdu_len+4, len-(pdu_len+4), FALSE);
+	proto_tree_add_item(tr, hf_mapi_pdu_trailer, decrypted_tvb, pdu_len, 4, FALSE);
+	if(len>((gint)pdu_len+4)){
+		proto_tree_add_item(tr, hf_mapi_pdu_extra_trailer, decrypted_tvb, pdu_len+4, len-(pdu_len+4), FALSE);
 	}
 
 
@@ -462,7 +405,6 @@ static hf_register_info hf[] = {
 		"Decrypt MAPI PDUs",
 		"Whether the dissector should decrypt MAPI PDUs",
 		&mapi_decrypt);
-	register_init_routine(mapi_decrypt_init);
 }
 
 void
