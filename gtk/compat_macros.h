@@ -1,7 +1,7 @@
 /* compat_macros.h
  * GTK-related Global defines, etc.
  *
- * $Id: compat_macros.h,v 1.15 2004/05/23 15:03:09 ulfl Exp $
+ * $Id: compat_macros.h,v 1.16 2004/05/31 15:47:34 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -26,54 +26,151 @@
 #define __COMPAT_MACROS_H__
 
 
-/*
- * helper macros fro gtk1.2/gtk2 compatibility :
- * in gtk2, gtk_signal_xxx is deprecated in favor of g_signal_xxx
- *          gtk_object_xxx is deprecated in favor of g_object_xxx
+/** @file
+ *
+ * Helper macros for gtk1.2/gtk2 compatibility :
+ * in gtk2, gtk_signal_xxx is deprecated in favor of g_signal_xxx,
+ *          gtk_object_xxx is deprecated in favor of g_object_xxx,
  *          gtk_widget_set_usize is deprecated in favor of
- *              gtk_widget_set_size_request
+ *              gtk_widget_set_size_request, ...
  */
+
 #if GTK_MAJOR_VERSION < 2
 
+/** Connect a signal handler to a particular object.
+ *
+ * @param widget the widget to connect to
+ * @param name name of the signal
+ * @param callback 	function pointer to attach to the signal
+ * @param arg value to pass to your function
+ * @return the connection id
+ */
 #define SIGNAL_CONNECT(widget, name, callback, arg) \
 gtk_signal_connect(GTK_OBJECT(widget), name, GTK_SIGNAL_FUNC(callback), \
                    (gpointer)(arg))
 
+/** This function is for registering a callback that will call another object's callback. 
+ *  That is, instead of passing the object which is responsible for the event as the first 
+ *  parameter of the callback, it is switched with the user data (so the object which emits 
+ *  the signal will be the last parameter, which is where the user data usually is).
+ *
+ * @param widget the widget to connect to
+ * @param name name of the signal
+ * @param callback 	function pointer to attach to the signal
+ * @param arg the object to pass as the first parameter to func
+ * @return the connection id
+ */
 #define SIGNAL_CONNECT_OBJECT(widget, name, callback, arg) \
 gtk_signal_connect_object(GTK_OBJECT(widget), name, GTK_SIGNAL_FUNC(callback), \
                           (gpointer)(arg))
 
+/** Destroys all connections for a particular object, with the given 
+ *  function-pointer and user-data.
+ *
+ * @param object the object which emits the signal
+ * @param func the function pointer to search for
+ * @param data 	the user data to search for
+ * @todo function only rarely used, think about removing it
+ */
 #define SIGNAL_DISCONNECT_BY_FUNC(object, func, data) \
 gtk_signal_disconnect_by_func(GTK_OBJECT(object), func, data)
 
+/** Each object carries around a table of associations from strings to pointers,
+ *  this function lets you set an association. If the object already had an 
+ *  association with that name, the old association will be destroyed. 
+ *
+ * @param widget object containing the associations
+ * @param key name of the key
+ * @param data data to associate with that key
+ */
 #define OBJECT_SET_DATA(widget, key, data) \
 gtk_object_set_data(GTK_OBJECT(widget), key, (gpointer)data)
 
+/** Like OBJECT_SET_DATA() except it adds notification for when the 
+ *  association is destroyed, either by gtk_object_remove_data() or when the 
+ *  object is destroyed.
+ *
+ * @param widget object containing the associations
+ * @param key name of the key
+ * @param data data to associate with that key
+ * @param destroy function to call when the association is destroyed
+ * @todo function only rarely used, think about removing it
+ */
 #define OBJECT_SET_DATA_FULL(widget, key, data, destroy) \
 gtk_object_set_data_full(GTK_OBJECT(widget), key, (gpointer)(data), \
                          (GtkDestroyNotify)(destroy))
 
+/** Get a named field from the object's table of associations (the object_data).
+ *
+ * @param widget object containing the associations
+ * @param key name of the key
+ * @return 	the data if found, or NULL if no such data exists
+ */
 #define OBJECT_GET_DATA(widget, key) \
 gtk_object_get_data(GTK_OBJECT(widget), key)
 
-/* WIDGET_SET_SIZE would better be named WIDGET_SET_MIN_SIZE. */
-/* don't use WIDGET_SET_SIZE() to set the size of a dialog, */
-/* use gtk_window_set_default_size() for that purpose! */
+/** Sets the size of a widget. This will be useful to set the size of 
+ * e.g. a GtkEntry. Don't use WIDGET_SET_SIZE() to set the size of a dialog 
+ * or window, use gtk_window_set_default_size() for that purpose!
+ *
+ * @param widget a GtkWidget
+ * @param width  new width, or -1 to unset
+ * @param height new height, or -1 to unset
+ * @todo WIDGET_SET_SIZE would better be named WIDGET_SET_MIN_SIZE
+ */
 #define WIDGET_SET_SIZE(widget, width, height) \
 gtk_widget_set_usize(GTK_WIDGET(widget), width, height)
 
+/** Emits a signal. This causes the default handler and user-connected 
+ *  handlers to be run.
+ *
+ * @param widget the object that emits the signal
+ * @param name 	the name of the signal
+ */
 #define SIGNAL_EMIT_BY_NAME(widget, name) \
 gtk_signal_emit_by_name(GTK_OBJECT(widget), name)
 
+/** Like SIGNAL_EMIT_BY_NAME(), but with one argument.
+ *
+ * @param widget the object that emits the signal
+ * @param name the name of the signal
+ * @param arg value to pass to the handlers
+ * @todo function only rarely used, think about removing it
+ */
 #define SIGNAL_EMIT_BY_NAME1(widget, name, arg) \
 gtk_signal_emit_by_name(GTK_OBJECT(widget), name, arg)
 
+/** This function aborts a signal's current emission. It will prevent the 
+ *  default method from running, if the signal was GTK_RUN_LAST and you 
+ *  connected normally (i.e. without the "after" flag). It will print a 
+ *  warning if used on a signal which isn't being emitted. It will lookup the 
+ *  signal id for you.
+ *
+ * @param widget the object whose signal handlers you wish to stop
+ * @param name the signal identifier, as returned by g_signal_lookup()
+ */
 #define SIGNAL_EMIT_STOP_BY_NAME(widget, name) \
 gtk_signal_emit_stop_by_name(GTK_OBJECT(widget), name)
 
+/** An entry for a GtkItemFactoryEntry array.
+ *
+ * @param path the path to this entry (e.g. "/File/Open")
+ * @param accelerator accelerator key (e.g. "<control>M") or NULL
+ * @param callback function to be called, when item is activated or NULL
+ * @param action the action number to use (usually 0)
+ * @param type special item type (e.g. "<Branch>", "<CheckItem>", ...) or NULL
+ * @param data data to pass to the callback function or NULL
+ */
 #define ITEM_FACTORY_ENTRY(path, accelerator, callback, action, type, data) \
 {path, accelerator, GTK_MENU_FUNC(callback), action, type}
 
+/** Like ITEM_FACTORY_ENTRY(), but using a stock icon (as data)
+ * @param path the path to this entry (e.g. "/File/Open")
+ * @param accelerator accelerator key (e.g. "<control>M") or NULL
+ * @param callback function to be called, when item is activated or NULL
+ * @param action the action number to use (usually 0)
+ * @param data the stock item id (e.g. GTK_STOCK_OK, unused by GTK1)
+ */
 #define ITEM_FACTORY_STOCK_ENTRY(path, accelerator, callback, action, data) \
 {path, accelerator, GTK_MENU_FUNC(callback), action, NULL}
 

@@ -1,7 +1,7 @@
 /* dlg_utils.h
  * Declarations of utilities to use when constructing dialogs
  *
- * $Id: dlg_utils.h,v 1.16 2004/05/31 13:42:58 ulfl Exp $
+ * $Id: dlg_utils.h,v 1.17 2004/05/31 15:47:34 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -23,8 +23,8 @@
  */
 
 /** @file
- * This file will provide utility functions for dialog windows related to Ethereal's main window.
- * It's depending on the window functions in ui_util.h. See window_new() and others in
+ * Utility functions for dialog windows related to Ethereal's main window, 
+ * depending on the window functions in ui_util.h. See window_new() and others in
  * ui_util.h for further explanation of dialogs and windows in Ethereal.
  */
 
@@ -32,7 +32,8 @@
 #define __DLG_UTILS_H__
 
 /** Create a dialog box window that belongs to Ethereal's main window.
- *  See window_new() for usage.
+ * If you want to create a window, use window_new() instead. 
+ * See window_new() for general window usage.
  *
  * @param title the title for the new dialog
  * @return the newly created dialog
@@ -80,7 +81,7 @@ extern void file_selection_set_extra_widget(GtkWidget *fs, GtkWidget *extra);
  * @param file_te the GtkEntry the dialog will have to fill in the filename
  * @param title the title for the file selection dialog
  * @param action the desired action
- * @todo use the toplevel widget as the parameter, not the button
+ * @todo use the parent widget as the first parameter, not the button
  */
 extern void
 file_selection_browse(GtkWidget *file_bt, GtkWidget *file_te, const char *title, file_selection_action_t action);
