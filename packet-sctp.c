@@ -4,13 +4,13 @@
  * - RFC 2960, for basic SCTP support
  * - http://www.ietf.org/internet-drafts/draft-ietf-tsvwg-addip-sctp-03.txt for the add-IP extension
  * - http://www.sctp.org/draft-ietf-tsvwg-usctp-01.txt for the 'Limited Retransmission' extension
- * - http://www.ietf.org/internet-drafts/draft-ietf-tsvwg-sctpcsum-01.txt
+ * - http://www.ietf.org/internet-drafts/draft-ietf-tsvwg-sctpcsum-03.txt
  * Copyright 2000, 2001, 2002, Michael Tuexen <Michael.Tuexen@icn.siemens.de>
  * Still to do (so stay tuned)
  * - support for reassembly
  * - code cleanup
  *
- * $Id: packet-sctp.c,v 1.31 2002/02/02 21:17:10 guy Exp $
+ * $Id: packet-sctp.c,v 1.32 2002/03/02 07:29:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -604,7 +604,9 @@ sctp_crc32c(const unsigned char* buf, unsigned int len)
 {
   unsigned int i; 
   unsigned long crc32 = ~0L; 
-            
+  unsigned long result;
+  unsigned char byte0,byte1,byte2,byte3;
+
   for (i = 0; i < SOURCE_PORT_LENGTH + DESTINATION_PORT_LENGTH + VERIFICATION_TAG_LENGTH; i++) 
   { 
     CRC32C(crc32, buf[i]); 
@@ -617,7 +619,14 @@ sctp_crc32c(const unsigned char* buf, unsigned int len)
   { 
     CRC32C(crc32, buf[i]); 
   }  
-  return crc32; 
+  result = ~crc32;
+  
+  byte0 = result & 0xff;
+  byte1 = (result>>8) & 0xff;
+  byte2 = (result>>16) & 0xff;
+  byte3 = (result>>24) & 0xff;
+  crc32 = ((byte0 << 24) | (byte1 << 16) | (byte2 << 8) | byte3);
+  return ( crc32 );
 }
 
 static guint 
