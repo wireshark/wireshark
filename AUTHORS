@@ -141,6 +141,7 @@ Aaron Hillegass <aaron[AT]classmax.com> {
 
 Jason Lango <jal[AT]netapp.com> {
 	RTSP, SDP
+	RTCP fixes
 }
 
 Johan Feyaerts <Johan.Feyaerts[AT]siemens.atea.be> {
@@ -422,6 +423,7 @@ Michael Tuexen <Michael.Tuexen[AT]icn.siemens.de> {
 	SCTP support in text2pcap
 	SCCP-atop-M3UA support
 	M2UA support
+	ASAP support
 }
 
 Bruce Korb <bkorb[AT]sco.com> {
