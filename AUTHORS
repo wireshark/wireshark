@@ -329,11 +329,12 @@ Yaniv Kaul <ykaul@netvision.net.il> {
 }
 
 Paul Ionescu <paul@acorp.ro> {
-	IPX over GRE support
+	IPX-over-GRE support
 	EIGRP support
 	Cisco IGRP support
-	X.25 over TCP support
+	X.25-over-TCP support
 	DEC LANBridge Spanning Tree Protocol support
+	X.25-over-LLC support
 }
 
 Mark Burton <markb@ordern.com> {

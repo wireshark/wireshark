@@ -2,7 +2,7 @@
  * Routines for IEEE 802.2 LLC layer
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-llc.c,v 1.76 2001/01/05 08:43:30 guy Exp $
+ * $Id: packet-llc.c,v 1.77 2001/01/05 19:07:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -116,11 +116,11 @@ static const value_string sap_vals[] = {
 	{ SAP_TI,             "Texas Instruments" },
 	{ SAP_BPDU,           "Spanning Tree BPDU" },
 	{ SAP_RS511,          "EIA RS-511 Manufacturing Message Service" },
-#if 0
-	/* XXX - setting the group bit makes this 0x7F; is that just
-	   a group version of this? */
-	{ 0x7E,               "ISO 8208 (X.25 over 802.2 Type 2)" },
-#endif
+	{ SAP_X25,            "ISO 8208 (X.25 over 802.2)" },
+	/*
+	 * XXX - setting the group bit of SAP_X25 make 0x7F; is this just
+	 * a group version of that?
+	 */
 	{ 0x7F,               "ISO 802.2" },
 	{ SAP_XNS,            "XNS" },
 	{ SAP_NESTAR,         "Nestar" },

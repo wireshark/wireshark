@@ -1,7 +1,7 @@
 /* llcsaps.h
  * Defines LLC SAP values.
  *
- * $Id: llcsaps.h,v 1.1 2000/04/17 00:32:37 guy Exp $
+ * $Id: llcsaps.h,v 1.2 2001/01/05 19:07:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -36,6 +36,7 @@
 #define	SAP_TI			0x18
 #define	SAP_BPDU		0x42
 #define	SAP_RS511		0x4E
+#define	SAP_X25                 0x7E
 #define	SAP_XNS			0x80
 #define	SAP_NESTAR		0x86
 #define	SAP_PROWAY_ASLM		0x8E

@@ -2,7 +2,7 @@
  * Routines for x25 packet disassembly
  * Olivier Abad <oabad@cybercable.fr>
  *
- * $Id: packet-x25.c,v 1.43 2001/01/03 23:30:50 oabad Exp $
+ * $Id: packet-x25.c,v 1.44 2001/01/05 19:07:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -37,6 +37,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "etypes.h"
+#include "llcsaps.h"
 #include "packet.h"
 #include "packet-x25.h"
 #include "packet-ip.h"
@@ -2063,8 +2064,10 @@ void
 proto_reg_handoff_x25(void)
 {
     /*
-     * Get handles for the IP and OSI TP (COTP/CLTP) dissector.
+     * Get handles for the IP and OSI TP (COTP/CLTP) dissectors.
      */
     ip_handle = find_dissector("ip");
     ositp_handle = find_dissector("ositp");
+
+    dissector_add("llc.dsap", SAP_X25, dissect_x25);
 }
