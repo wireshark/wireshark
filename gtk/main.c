@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.360 2004/01/19 18:21:18 jmayer Exp $
+ * $Id: main.c,v 1.361 2004/01/19 23:03:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -157,7 +157,7 @@ static gboolean updated_geometry = FALSE;
 
 /* init with an invalid value, so that "recent" can detect this and */
 /* distinguish it from a command line value */
-ts_type timestamp_type = -1;
+ts_type timestamp_type = TS_NOT_SET;
 
 #if GTK_MAJOR_VERSION < 2
 GtkStyle *item_style;

@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.138 2004/01/19 03:46:42 ulfl Exp $
+ * $Id: menu.c,v 1.139 2004/01/19 23:03:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1014,18 +1014,18 @@ timestamp_delta_cb(GtkWidget *w _U_, gpointer d _U_)
 /* the recent file read has finished, update the menu corresponding */
 void
 menu_recent_read_finished(void) {
-	GtkWidget *menu = NULL;
+    GtkWidget *menu = NULL;
 
-	menu = gtk_item_factory_get_widget(main_menu_factory, "/View/Show/Main Toolbar");
+    menu = gtk_item_factory_get_widget(main_menu_factory, "/View/Show/Main Toolbar");
     gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), recent.main_toolbar_show);
 
-	menu = gtk_item_factory_get_widget(main_menu_factory, "/View/Show/Filter Toolbar");
+    menu = gtk_item_factory_get_widget(main_menu_factory, "/View/Show/Filter Toolbar");
     gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), recent.filter_toolbar_show);
 
-	menu = gtk_item_factory_get_widget(main_menu_factory, "/View/Show/Packet List");
+    menu = gtk_item_factory_get_widget(main_menu_factory, "/View/Show/Packet List");
     gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), recent.packet_list_show);
 
-	menu = gtk_item_factory_get_widget(main_menu_factory, "/View/Show/Packet Dissection");
+    menu = gtk_item_factory_get_widget(main_menu_factory, "/View/Show/Packet Dissection");
     gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), recent.tree_view_show);
 
     menu = gtk_item_factory_get_widget(main_menu_factory, "/View/Show/Packet Data");
@@ -1037,7 +1037,7 @@ menu_recent_read_finished(void) {
     main_widgets_rearrange();
 
     /* don't change the time format, if we had a command line value */
-    if (timestamp_type != -1) {
+    if (timestamp_type != TS_NOT_SET) {
         recent.gui_time_format = timestamp_type;
     }
 

@@ -2,7 +2,7 @@
  * Recent "preference" handling routines
  * Copyright 2004, Ulf Lamping <ulf.lamping@web.de>
  *
- * $Id: recent.c,v 1.3 2004/01/19 03:46:43 ulfl Exp $
+ * $Id: recent.c,v 1.4 2004/01/19 23:03:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -45,11 +45,10 @@
 extern void add_menu_recent_capture_file(gchar *file);
 extern void menu_recent_read_finished(void);
 
-
 recent_settings_t recent;
 
-
-
+static char *ts_type_text[] =
+	{ "RELATIVE", "ABSOLUTE", "ABSOLUTE_WITH_DATE", "DELTA", NULL };
 
 /* Takes an string and a pointer to an array of strings, and a default int value.
  * The array must be terminated by a NULL string. If the string is found in the array
@@ -69,8 +68,6 @@ find_index_from_string_array(char *needle, char **haystack, int default_value)
 	}
 	return default_value;
 }
-
-
 
 /* Write out "recent" to the user's recent file, and return 0.
    If we got an error, stuff a pointer to the path of the recent file

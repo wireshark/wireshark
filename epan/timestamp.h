@@ -1,12 +1,11 @@
 /* timestamp.h
  * Defines for packet timestamps
  *
- * $Id: timestamp.h,v 1.3 2004/01/19 03:46:42 ulfl Exp $
+ * $Id: timestamp.h,v 1.4 2004/01/19 23:03:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -26,7 +25,6 @@
 #ifndef __TIMESTAMP_H__
 #define __TIMESTAMP_H__
 
-
 /*
  * Type of time-stamp shown in the summary display.
  */
@@ -37,10 +35,12 @@ typedef enum {
 	TS_DELTA
 } ts_type;
 
+/*
+ * Special value used for the command-line setting in Ethereal, to indicate
+ * that no value has been set from the command line.
+ */
+#define TS_NOT_SET	((ts_type)-1)
+
 extern ts_type timestamp_type;
-
-static char *ts_type_text[] =
-	{ "RELATIVE", "ABSOLUTE", "ABSOLUTE_WITH_DATE", "DELTA", NULL };
-
 
 #endif /* timestamp.h */
