@@ -24,14 +24,6 @@
 */
 
 
-/* Note:
- * Although for now it is used only by tracing.c
- * I decided to make it into a separate module
- * since one day in the near future I will be using it
- * to reimplement packet-radius.c
- */
-
-
 #ifndef __AVP_H_
 #define __AVP_H_
 #include "epan/proto.h"

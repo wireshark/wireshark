@@ -109,6 +109,8 @@
 #define KEYWORD_DROPGOP "DiscardUnassignedGop"
 #define KEYWORD_DROPPDU "DiscardUnassignedPdu"
 #define KEYWORD_LIB "Lib"
+#define KEYWORD_ACCEPT "Accept"
+#define KEYWORD_REJECT "Reject"
 
 #define KEYWORD_DEBUGFILENAME "Debug_File"
 #define KEYWORD_DBG_GENERAL "Debug_General"
@@ -196,7 +198,9 @@ typedef struct _mate_config {
 	gboolean last_to_be_created;
 	avpl_match_mode match_mode;
 	avpl_replace_mode replace_mode;
-
+	guint8* accept;
+	guint8* reject;
+	
 	/* what to dbgprint */
 	int dbg_lvl;	
 	int dbg_cfg_lvl;

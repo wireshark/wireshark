@@ -50,7 +50,7 @@ typedef struct _tmp_pdu_data {
 } tmp_pdu_data;
 
 
-mate_runtime_data* rd = NULL;
+static mate_runtime_data* rd = NULL;
 static mate_config* mc = NULL;
 
 static int zero = 0;
@@ -109,7 +109,6 @@ extern void init_mate_runtime_data(void) {
 	rd->mate_items = g_mem_chunk_new("mate_items",sizeof(mate_item),1024,G_ALLOC_AND_FREE);
 }
 
-/* creates a mate_item*/
 static mate_item* new_mate_item(mate_cfg_item* cfg) {
 	mate_item* it = g_mem_chunk_alloc(rd->mate_items);
 
@@ -132,7 +131,6 @@ static mate_item* new_mate_item(mate_cfg_item* cfg) {
 	return it;
 }
 
-/* a new gop */
 static mate_gop* new_gop(mate_cfg_gop* cfg, mate_pdu* pdu, guint8* key) {
 	mate_gop* gop = new_mate_item(cfg);
 
@@ -178,7 +176,6 @@ static void adopt_gop(mate_gog* gog, mate_gop* gop) {
 
 }
 
-/* a new gog */
 static mate_gog* new_gog(mate_cfg_gog* cfg, mate_gop* gop) {
 	mate_gog* gog = new_mate_item(cfg);
 	
@@ -662,7 +659,8 @@ extern int mate_packet(void *prs _U_, packet_info *pinfo, epan_dissect_t *edt, v
 	GPtrArray* protos;
 	field_info* proto;
 	guint i,j;
-
+	AVPL* criterium_match;
+	
 	rd->now = (((float)pinfo->fd->rel_secs) + (((float)pinfo->fd->rel_usecs) / 1000000) );
 
 	dbg_print (dbg,3,dbg_facility,"mate_packet: got frame number: %i at %d\n",pinfo->fd->num,rd->now);
@@ -684,20 +682,41 @@ extern int mate_packet(void *prs _U_, packet_info *pinfo, epan_dissect_t *edt, v
 					
 					proto = (field_info*) g_ptr_array_index(protos,j);
 					pdu = new_pdu(cfg, pinfo->fd->num, proto, tree->tree_data->interesting_hfids);
-
-					if (!last) {
-						g_hash_table_insert(rd->frames,(gpointer) pinfo->fd->num,pdu);
-						last = pdu;
-					} else {
-						last->next_in_frame = pdu;
-						last = pdu;
-					}
 					
+					if (cfg->criterium) {
+						criterium_match = new_avpl_from_match(cfg->criterium_match_mode,"",pdu->avpl,cfg->criterium,FALSE);
+						if (criterium_match) {
+							delete_avpl(criterium_match,FALSE);
+						}
+						
+						if ( (criterium_match && cfg->criterium->name == mc->reject ) || ( ! criterium_match && cfg->criterium->name == mc->accept )) {
+							delete_avpl(pdu->avpl,TRUE);
+							g_mem_chunk_free(rd->mate_items,pdu);
+							pdu = NULL;
+							continue;
+						}
+					}
+										
 					analize_pdu(pdu);
+					
+					if ( ! pdu->gop && cfg->drop_pdu) {
+						delete_avpl(pdu->avpl,TRUE);
+						g_mem_chunk_free(rd->mate_items,pdu);
+						pdu = NULL;
+						continue;
+					}
 					
 					if ( cfg->discard_pdu_attributes ) {
 						delete_avpl(pdu->avpl,TRUE);
 						pdu->avpl = NULL;
+					}
+					
+					if (!last) {
+						g_hash_table_insert(rd->frames,GINT_TO_POINTER(pinfo->fd->num),pdu);
+						last = pdu;
+					} else {
+						last->next_in_frame = pdu;
+						last = pdu;
 					}
 					
 				}
@@ -729,7 +748,7 @@ extern mate_pdu* mate_get_pdus(guint32 framenum) {
 /* this will be called when the mate's dissector is initialized */
 extern void initialize_mate_runtime(void) {
 	dbg_print (dbg,5,dbg_facility,"initialize_mate: entering");
-
+	
 	if (( mc = mate_cfg() )) {
 
 		dbg_pdu = &(mc->dbg_pdu_lvl);

@@ -1314,6 +1314,27 @@ extern AVPL* new_avpl_exact_match(guint8* name,AVPL* src, AVPL* op, gboolean cop
 	return NULL;
 }
 
+extern AVPL* new_avpl_from_match(avpl_match_mode mode, guint8* name,AVPL* src, AVPL* op, gboolean copy_avps) {
+	AVPL* avpl = NULL;
+	
+	switch (mode) {
+		case AVPL_STRICT:
+			avpl = new_avpl_exact_match(name,src,op,copy_avps);
+			break;
+		case AVPL_LOOSE:
+			avpl = new_avpl_loose_match(name,src,op,copy_avps);
+			break;
+		case AVPL_EVERY:
+			avpl = new_avpl_every_match(name,src,op,copy_avps);
+			break;
+		case AVPL_NO_MATCH:
+			avpl = new_avpl_from_avpl(name,src,copy_avps);
+			merge_avpl(avpl, op, copy_avps);
+			break;
+	}
+	
+	return avpl;
+}
 
 /**
  * new_avpl_transform:
@@ -1399,20 +1420,8 @@ extern void avpl_transform(AVPL* src, AVPL_Transf* op) {
 #endif
 
 	for ( ; op ; op = op->next) {
-		switch (op->match_mode) {
-			case AVPL_STRICT:
-				avpl = new_avpl_exact_match(src->name,src,op->match,TRUE);
-				break;
-			case AVPL_LOOSE:
-				avpl = new_avpl_loose_match(src->name,src,op->match,TRUE);
-				break;
-			case AVPL_EVERY:
-				avpl = new_avpl_every_match(src->name,src,op->match,TRUE);
-				break;
-			case AVPL_NO_MATCH:
-				avpl = new_avpl(src->name);
-				break;
-		}
+		
+		avpl = new_avpl_from_match(op->match_mode, src->name,src, op->match, TRUE);
 
 		if (avpl) {
 			switch (op->replace_mode) {

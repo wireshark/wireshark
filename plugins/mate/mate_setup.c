@@ -26,8 +26,6 @@
 
 #include "mate.h"
 
-/* FIXME: config names should be at most 8 chars! */
-
 static int* dbg;
 
 static int dbg_cfg_lvl = 1;
@@ -130,7 +128,7 @@ static mate_cfg_item* new_mate_cfg_item(guint8* name) {
 	new->hfid_pdu_rel_time = -1;
 	new->my_hfids = g_hash_table_new(g_str_hash,g_str_equal);
 	new->items = g_hash_table_new(g_direct_hash,g_direct_equal);
-	
+
 	new->hfid_gop_pdu = -1;
 	new->hfid_gop_start_time = -1;
 	new->hfid_gop_stop_time = -1;
@@ -455,11 +453,69 @@ static gboolean config_pduextra(AVPL* avpl) {
 }
 
 
+static gboolean config_pducriteria(AVPL* avpl) {
+	guint8* name;
+	mate_cfg_gop* cfg = lookup_using_index_avp(avpl, KEYWORD_FOR,matecfg->pducfgs,&name);
+	guint8* match = extract_named_str(avpl, KEYWORD_MATCH, NULL);
+	avpl_match_mode match_mode = AVPL_STRICT;
+	guint8* mode = extract_named_str(avpl, KEYWORD_MODE, NULL);
+
+	if (!cfg) {
+		g_warning("mate: PduCriteria Config error: Pdu %s does not exist",name);
+		delete_avpl(avpl,TRUE);
+		return FALSE;
+	}
+
+	if ( mode ) {
+		if ( g_strcasecmp(mode,KEYWORD_ACCEPT) == 0 ) {
+			mode = matecfg->accept;
+		} else if ( g_strcasecmp(mode,KEYWORD_REJECT) == 0 ) {
+			mode = matecfg->reject;
+		} else {
+			g_warning("mate: PduCriteria Config error: no such criteria mode: %s",mode);
+			delete_avpl(avpl,TRUE);
+			return FALSE;
+		}
+	} else {
+		mode = matecfg->accept;
+	}
+
+	rename_avpl(avpl,mode);
+
+	if ( match ) {
+		if ( g_strcasecmp(match,KEYWORD_LOOSE) == 0 ) {
+			match_mode = AVPL_LOOSE;
+		} else if ( g_strcasecmp(match,KEYWORD_EVERY) == 0 ) {
+			match_mode = AVPL_EVERY;
+		} else if ( g_strcasecmp(match,KEYWORD_STRICT) == 0 ) {
+			match_mode = AVPL_STRICT;
+		} else {
+			g_warning("mate: PduCriteria Config error: no such match mode: %s",match);
+			delete_avpl(avpl,TRUE);
+			return FALSE;
+		}
+	}
+
+	cfg->criterium_match_mode = match_mode;
+
+	if (cfg->criterium) {
+		/* FEATURE: more criteria */
+		g_warning("mate: PduCriteria Config error: PduCriteria alredy exists for %s",name);
+		delete_avpl(avpl,TRUE);
+		return FALSE;
+	}
+
+
+	cfg->criterium = avpl;
+
+	return TRUE;
+}
+
 
 static gboolean config_include(AVPL* avpl) {
 	guint8* filename = extract_named_str(avpl,KEYWORD_FILENAME,NULL);
 	guint8* lib = extract_named_str(avpl,KEYWORD_LIB,NULL);
-		
+
 	if ( ! filename && ! lib ) {
 		mate_config_error(NULL,NULL,"mate: Include file error: no Filename or Lib given");
 		return FALSE;
@@ -469,20 +525,20 @@ static gboolean config_include(AVPL* avpl) {
 		mate_config_error(NULL,NULL,"mate: Include file error: use either Filename or Lib, not both.");
 		return FALSE;
 	}
-	
+
 	if (lib) {
 		filename = g_strdup_printf("%s%s.mate",matecfg->mate_lib_path,lib);
 	}
-	
+
 	/* FIXME: stop recursion */
 	if ( ! mate_load_config(filename) ) {
 		mate_config_error(NULL,NULL,"mate: Error Loading '%s'",filename);
 		if (lib) g_free(filename);
 		return FALSE;
 	}
-	
+
 	if (lib) g_free(filename);
-	
+
 	return TRUE;
 }
 
@@ -974,6 +1030,8 @@ static void print_pdu_config(mate_cfg_pdu* cfg) {
 	int hfid;
 	guint8* discard;
 	guint8* stop;
+	guint8* criterium_match = NULL;
+	guint8* criterium;
 	GString* s = g_string_new("Action=PduDef; ");
 
 	discard = cfg->discard_pdu_attributes ? "TRUE": "FALSE";
@@ -992,6 +1050,31 @@ static void print_pdu_config(mate_cfg_pdu* cfg) {
 	g_hash_table_foreach(cfg->hfids_attr,print_hfid_hash,s);
 
 	dbg_print(dbg_cfg,0,dbg_facility,"%s",s->str);
+
+	if (cfg->criterium) {
+		switch(cfg->criterium_match_mode) {
+			case AVPL_NO_MATCH:
+				criterium_match = "None";
+				break;
+			case AVPL_STRICT:
+				criterium_match = "Strict";
+				break;
+			case AVPL_LOOSE:
+				criterium_match = "Loose";
+				break;
+			case AVPL_EVERY:
+				criterium_match = "Every";
+				break;
+		}
+
+		criterium = avpl_to_str(cfg->criterium);
+
+		dbg_print(dbg_cfg,0,dbg_facility,
+				  "Action=PduCriteria; For=%s; Match=%s; Mode=%s;  %s",
+				  cfg->name,criterium_match,cfg->criterium->name,criterium);
+
+		g_free(criterium);
+	}
 
 	print_xxx_transforms(cfg);
 
@@ -1093,7 +1176,7 @@ static void analyze_pdu_config(mate_cfg_pdu* cfg) {
 
 	hfri.p_id = &(cfg->hfid);
 	hfri.hfinfo.name = g_strdup_printf("%s",cfg->name);
-	hfri.hfinfo.abbrev = g_strdup_printf("mate.%s.Id",cfg->name);
+	hfri.hfinfo.abbrev = g_strdup_printf("mate.%s",cfg->name);
 	hfri.hfinfo.blurb = g_strdup_printf("%s id",cfg->name);
 	hfri.hfinfo.type = FT_UINT32;
 	hfri.hfinfo.display = BASE_DEC;
@@ -1122,7 +1205,7 @@ static void analyze_gop_config(gpointer k _U_, gpointer v, gpointer p _U_) {
 
 	hfri.p_id = &(cfg->hfid);
 	hfri.hfinfo.name = g_strdup_printf("%s",cfg->name);
-	hfri.hfinfo.abbrev = g_strdup_printf("mate.%s.Id",cfg->name);
+	hfri.hfinfo.abbrev = g_strdup_printf("mate.%s",cfg->name);
 	hfri.hfinfo.blurb = g_strdup_printf("%s id",cfg->name);
 	hfri.hfinfo.type = FT_UINT32;
 	hfri.hfinfo.display = BASE_DEC;
@@ -1209,7 +1292,7 @@ static void analyze_gog_config(gpointer k _U_, gpointer v, gpointer p _U_) {
 
 	hfri.p_id = &(cfg->hfid);
 	hfri.hfinfo.name = g_strdup_printf("%s",cfg->name);
-	hfri.hfinfo.abbrev = g_strdup_printf("mate.%s.Id",cfg->name);
+	hfri.hfinfo.abbrev = g_strdup_printf("mate.%s",cfg->name);
 	hfri.hfinfo.blurb = g_strdup_printf("%s Id",cfg->name);
 	hfri.hfinfo.type = FT_UINT32;
 	hfri.hfinfo.display = BASE_DEC;
@@ -1272,8 +1355,10 @@ static void new_action(guint8* name, config_action* action) {
 }
 
 static void init_actions() {
+	AVP* avp;
 
 	all_keywords = new_avpl("all_keywords");
+
 	insert_avp(all_keywords,new_avp(KEYWORD_ACTION,"",'='));
 	insert_avp(all_keywords,new_avp(KEYWORD_SETTINGS,"",'='));
 	insert_avp(all_keywords,new_avp(KEYWORD_INCLUDE,"",'='));
@@ -1333,6 +1418,15 @@ static void init_actions() {
 	insert_avp(all_keywords,new_avp(KEYWORD_DBG_AVPL_OP,"",'='));
 #endif
 
+	avp = new_avp(KEYWORD_ACCEPT,"",'=');
+	matecfg->accept = avp->n;
+	insert_avp(all_keywords,avp);
+
+	avp = new_avp(KEYWORD_REJECT,"",'=');
+	matecfg->reject = avp->n;
+	insert_avp(all_keywords,avp);
+
+
 	if (actions) {
 		g_hash_table_destroy(actions);
 	}
@@ -1342,7 +1436,7 @@ static void init_actions() {
 	new_action(KEYWORD_SETTINGS,config_settings);
 	new_action(KEYWORD_PDU,config_pdu);
 	new_action(KEYWORD_PDUEXTRA,config_pduextra);
-	/* new_action(KEYWORD_PDUCRITERIA,config_pdu); */
+	new_action(KEYWORD_PDUCRITERIA,config_pducriteria);
 	new_action(KEYWORD_GOP,config_gop);
 	new_action(KEYWORD_GOGDEF,config_gog);
 	new_action(KEYWORD_GOGKEY,config_gogkey);
@@ -1375,7 +1469,6 @@ extern mate_config* mate_cfg() {
 extern mate_config* mate_make_config(guint8* filename) {
 
 	avp_init();
-	init_actions();
 
 	matecfg = g_malloc(sizeof(mate_config));
 
@@ -1409,6 +1502,8 @@ extern mate_config* mate_make_config(guint8* filename) {
 	matecfg->hfrs = g_array_new(FALSE,TRUE,sizeof(hf_register_info));
 
 	dbg = &matecfg->dbg_lvl;
+
+	init_actions();
 
 	if ( mate_load_config(filename) ) {
 		analyze_config();
