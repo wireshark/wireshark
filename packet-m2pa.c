@@ -6,7 +6,7 @@
  * Copyright 2001, 2002, Jeff Morriss <jeff.morriss[AT]ulticom.com>,
  * updated by Michael Tuexen <michael.tuexen[AT]siemens.com>
  *
- * $Id: packet-m2pa.c,v 1.13 2002/09/20 06:35:15 tuexen Exp $
+ * $Id: packet-m2pa.c,v 1.14 2002/09/22 12:12:32 tuexen Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -134,20 +134,24 @@ dissect_m2pa_user_data_message(tvbuff_t *message_data_tvb, packet_info *pinfo, p
   proto_tree *m2pa_li_tree;
   tvbuff_t *payload_tvb;
 
-  if (m2pa_tree) {
-    m2pa_li_item = proto_tree_add_text(m2pa_tree, message_data_tvb, LI_OFFSET, LI_LENGTH, "Length Indicator");
-    m2pa_li_tree = proto_item_add_subtree(m2pa_li_item, ett_m2pa_li);
-    proto_tree_add_item(m2pa_li_tree, hf_li_prio,  message_data_tvb, LI_OFFSET, LI_LENGTH, NETWORK_BYTE_ORDER);
-    proto_tree_add_item(m2pa_li_tree, hf_li_spare, message_data_tvb, LI_OFFSET, LI_LENGTH, NETWORK_BYTE_ORDER);
-    /* Re-adjust length of M2PA item since it will be dissected as MTP3 */
-    proto_item_set_len(m2pa_item, HEADER_LENGTH + LI_LENGTH);
-  }
+  if (tvb_length(message_data_tvb) > 0) {
+    if (m2pa_tree) {
+      m2pa_li_item = proto_tree_add_text(m2pa_tree, message_data_tvb, LI_OFFSET, LI_LENGTH, "Length Indicator");
+      m2pa_li_tree = proto_item_add_subtree(m2pa_li_item, ett_m2pa_li);
+      proto_tree_add_item(m2pa_li_tree, hf_li_prio,  message_data_tvb, LI_OFFSET, LI_LENGTH, NETWORK_BYTE_ORDER);
+      proto_tree_add_item(m2pa_li_tree, hf_li_spare, message_data_tvb, LI_OFFSET, LI_LENGTH, NETWORK_BYTE_ORDER);
+      /* Re-adjust length of M2PA item since it will be dissected as MTP3 */
+      proto_item_set_len(m2pa_item, HEADER_LENGTH + LI_LENGTH);
+    }
 
-  payload_tvb = tvb_new_subset(message_data_tvb, MTP3_OFFSET, -1, -1);
-  call_dissector(mtp3_handle, payload_tvb, pinfo, tree);
-  if (!(proto_is_protocol_enabled (mtp3_proto_id)))
+    payload_tvb = tvb_new_subset(message_data_tvb, MTP3_OFFSET, -1, -1);
+  	call_dissector(mtp3_handle, payload_tvb, pinfo, tree);
+    if ((!(proto_is_protocol_enabled (mtp3_proto_id))) && (check_col(pinfo->cinfo, COL_INFO)))
+        col_append_str(pinfo->cinfo, COL_INFO, "User Data ");
+  } else {
     if (check_col(pinfo->cinfo, COL_INFO))
-      col_append_str(pinfo->cinfo, COL_INFO, "User Data ");
+        col_append_str(pinfo->cinfo, COL_INFO, "User Data ");
+  }
 }
 
 #define STATUS_LENGTH    4
