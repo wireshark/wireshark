@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\spoolss packet disassembly
  * Copyright 2001-2002, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-spoolss.c,v 1.30 2002/05/20 00:36:04 tpot Exp $
+ * $Id: packet-dcerpc-spoolss.c,v 1.31 2002/05/20 06:53:31 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -50,6 +50,8 @@ static int hf_spoolss_buffer_data = -1;
 static int hf_spoolss_relstr_offset = -1;
 static int hf_spoolss_printername = -1;
 static int hf_spoolss_servername = -1;
+static int hf_spoolss_drivername = -1;
+static int hf_spoolss_architecture = -1;
 static int hf_spoolss_username = -1;
 static int hf_spoolss_documentname = -1;
 static int hf_spoolss_outputfile = -1;
@@ -100,6 +102,23 @@ static int hf_spoolss_setjob_cmd = -1;
 
 static int hf_spoolss_writeprinter_numwritten = -1;
 
+/* GetPrinterDriver2 */
+
+static int hf_spoolss_clientmajorversion = -1;
+static int hf_spoolss_clientminorversion = -1;
+static int hf_spoolss_servermajorversion = -1;
+static int hf_spoolss_serverminorversion = -1;
+static int hf_spoolss_driverpath = -1;
+static int hf_spoolss_datafile = -1;
+static int hf_spoolss_environment = -1;
+static int hf_spoolss_configfile = -1;
+static int hf_spoolss_helpfile = -1;
+static int hf_spoolss_monitorname = -1;
+static int hf_spoolss_defaultdatatype = -1;
+static int hf_spoolss_previousnames = -1;
+static int hf_spoolss_driverinfo_cversion = -1;
+static int hf_spoolss_dependentfiles = -1;
+
 /* 
  * Routines to dissect a spoolss BUFFER 
  */
@@ -139,6 +158,8 @@ dissect_spoolss_buffer_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	return offset;
 }
+
+/* Dissect a spoolss buffer and return buffer data */
 
 static int
 dissect_spoolss_buffer(tvbuff_t *tvb, gint offset, packet_info *pinfo,
@@ -941,6 +962,54 @@ dissect_spoolss_relstr(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	item = proto_tree_add_string(tree, hf_index, tvb, offset, 4, "");
 
 	subtree = proto_item_add_subtree(item, ett_RELSTR);	
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, subtree, drep,
+				    hf_spoolss_relstr_offset,
+				    &relstr_offset);
+	
+	/* A relative offset of zero is a NULL string */
+
+	relstr_start = relstr_offset + struct_start;
+               
+	if (relstr_offset)
+		relstr_end = dissect_spoolss_uint16uni(
+			tvb, relstr_start, pinfo, subtree, drep, &text);
+	else {
+		text = g_strdup("NULL");
+		relstr_end = offset;
+	}
+
+	relstr_len = relstr_end - relstr_start;
+
+	proto_item_append_text(item, text);
+
+	if (data)
+		*data = text;
+	else
+		g_free(text);
+					       
+	return offset;
+}
+
+/* An array of relative strings.  This is currently just a copy of the
+   dissect_spoolss_relstr() function as I can't find an example driver that
+   has more than one dependent file. */
+
+static gint ett_RELSTR_ARRAY = -1;
+
+static int
+dissect_spoolss_relstrarray(tvbuff_t *tvb, int offset, packet_info *pinfo,
+			    proto_tree *tree, char *drep, int hf_index,
+			    int struct_start, char **data)
+{
+	proto_item *item;
+	proto_tree *subtree;
+	guint32 relstr_offset, relstr_start, relstr_end, relstr_len;
+	char *text;
+
+	item = proto_tree_add_string(tree, hf_index, tvb, offset, 4, "");
+
+	subtree = proto_item_add_subtree(item, ett_RELSTR_ARRAY);	
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, subtree, drep,
 				    hf_spoolss_relstr_offset,
@@ -3868,6 +3937,310 @@ static int SpoolssDeletePrinterData_r(tvbuff_t *tvb, int offset,
 	return offset;
 }	
 
+
+/*
+ * DRIVER_INFO_1
+ */
+
+static gint ett_DRIVER_INFO_1 = -1;
+
+static int dissect_DRIVER_INFO_1(tvbuff_t *tvb, int offset, 
+				 packet_info *pinfo, proto_tree *tree, 
+				 char *drep)
+{
+	proto_item *item;
+	proto_tree *subtree;
+	int struct_start = offset;
+
+	item = proto_tree_add_text(tree, tvb, offset, 0, "DRIVER_INFO_1");
+
+	subtree = proto_item_add_subtree(item, ett_DRIVER_INFO_1);
+
+	offset = dissect_spoolss_relstr(
+		tvb, offset, pinfo, subtree, drep, hf_spoolss_drivername,
+		struct_start, NULL);
+
+	return offset;
+}
+
+/*
+ * DRIVER_INFO_3
+ */
+
+static const value_string driverinfo_cversion_vals[] =
+{
+	{ 0, "Windows 95/98/Me" },
+	{ 2, "Windows NT 4.0" },
+	{ 3, "Windows 2000/XP" },
+	{ 0, NULL }
+};
+
+static gint ett_DRIVER_INFO_3 = -1;
+
+static int dissect_DRIVER_INFO_3(tvbuff_t *tvb, int offset, 
+				 packet_info *pinfo, proto_tree *tree, 
+				 char *drep)
+{
+	proto_item *item;
+	proto_tree *subtree;
+	int struct_start = offset;
+
+	item = proto_tree_add_text(tree, tvb, offset, 0, "DRIVER_INFO_3");
+
+	subtree = proto_item_add_subtree(item, ett_DRIVER_INFO_3);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, subtree, drep,
+				    hf_spoolss_driverinfo_cversion, NULL);
+
+	offset = dissect_spoolss_relstr(
+		tvb, offset, pinfo, subtree, drep, hf_spoolss_drivername,
+		struct_start, NULL);
+
+	offset = dissect_spoolss_relstr(
+		tvb, offset, pinfo, subtree, drep, hf_spoolss_architecture,
+		struct_start, NULL);
+
+	offset = dissect_spoolss_relstr(
+		tvb, offset, pinfo, subtree, drep, hf_spoolss_driverpath,
+		struct_start, NULL);
+
+	offset = dissect_spoolss_relstr(
+		tvb, offset, pinfo, subtree, drep, hf_spoolss_datafile,
+		struct_start, NULL);
+
+	offset = dissect_spoolss_relstr(
+		tvb, offset, pinfo, subtree, drep, hf_spoolss_configfile,
+		struct_start, NULL);
+
+	offset = dissect_spoolss_relstr(
+		tvb, offset, pinfo, subtree, drep, hf_spoolss_helpfile,
+		struct_start, NULL);
+
+	offset = dissect_spoolss_relstrarray(
+		tvb, offset, pinfo, subtree, drep, hf_spoolss_dependentfiles,
+		struct_start, NULL);
+
+	offset = dissect_spoolss_relstr(
+		tvb, offset, pinfo, subtree, drep, hf_spoolss_monitorname,
+		struct_start, NULL);
+
+	offset = dissect_spoolss_relstr(
+		tvb, offset, pinfo, subtree, drep, hf_spoolss_defaultdatatype,
+		struct_start, NULL);	
+
+	return offset;
+}
+
+/*
+ * EnumPrinterDrivers
+ */
+
+static int SpoolssEnumPrinterDrivers_q(tvbuff_t *tvb, int offset, 
+				       packet_info *pinfo, proto_tree *tree, 
+				       char *drep)
+{
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
+	guint32 level;
+
+	if (dcv->rep_frame != 0)
+		proto_tree_add_text(tree, tvb, offset, 0, 
+				    "Reply in frame %u", dcv->rep_frame);
+
+	/* Parse packet */
+
+	offset = dissect_ndr_pointer(
+		tvb, offset, pinfo, tree, drep,
+		dissect_ndr_nt_UNICODE_STRING_str, NDR_POINTER_UNIQUE,
+		"Name", hf_spoolss_servername, 0);
+
+	offset = dissect_ndr_pointer(
+		tvb, offset, pinfo, tree, drep,
+		dissect_ndr_nt_UNICODE_STRING_str, NDR_POINTER_UNIQUE,
+		"Environment", hf_spoolss_servername, 0);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+				    hf_spoolss_level, &level);
+
+	dcv->private_data = (void *)level;
+
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", level %d", level);
+
+	offset = dissect_spoolss_buffer(tvb, offset, pinfo, tree, drep, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+				    hf_spoolss_offered, NULL);
+
+	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
+
+	return offset;
+}	
+
+static int SpoolssEnumPrinterDrivers_r(tvbuff_t *tvb, int offset, 
+				       packet_info *pinfo, proto_tree *tree, 
+				       char *drep)
+{
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
+	guint32 level = (guint32)dcv->private_data, num_drivers, i;
+	int buffer_offset;
+	BUFFER buffer;
+
+	if (dcv->req_frame != 0)
+		proto_tree_add_text(tree, tvb, offset, 0, 
+				    "Request in frame %u", dcv->req_frame);
+
+	/* Parse packet */
+
+	offset = dissect_spoolss_buffer(tvb, offset, pinfo, tree, drep,
+					&buffer);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+				    hf_spoolss_needed, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+				    hf_spoolss_returned, &num_drivers);
+
+	buffer_offset = buffer.offset;
+
+	for (i = 0; i < num_drivers; i++) {
+		switch(level) {
+		case 1:
+			buffer_offset = dissect_DRIVER_INFO_1(
+				tvb, buffer_offset, pinfo, buffer.tree, drep);
+			break;
+		case 3:
+			buffer_offset = dissect_DRIVER_INFO_3(
+				tvb, buffer_offset, pinfo, buffer.tree, drep);
+			break;
+		default:
+			proto_tree_add_text(
+				buffer.tree, tvb, buffer_offset, buffer.size, 
+				"[Unknown info level %d]", level);
+			goto done;
+		}
+	}
+	
+done:
+	offset = dissect_doserror(tvb, offset, pinfo, tree, drep,
+				  hf_spoolss_rc, NULL);
+
+	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
+
+	return offset;
+}	
+
+/*
+ * GetPrinterDriver2
+ */
+
+static int SpoolssGetPrinterDriver2_q(tvbuff_t *tvb, int offset, 
+				      packet_info *pinfo, proto_tree *tree, 
+				      char *drep)
+{
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
+	e_ctx_hnd policy_hnd;
+	char *pol_name;
+	guint32 level;
+
+	if (dcv->rep_frame != 0)
+		proto_tree_add_text(tree, tvb, offset, 0, 
+				    "Reply in frame %u", dcv->rep_frame);
+
+	/* Parse packet */
+
+	offset = dissect_nt_policy_hnd(
+		tvb, offset, pinfo, tree, drep, hf_spoolss_hnd, &policy_hnd,
+		FALSE, FALSE);
+
+	dcerpc_smb_fetch_pol((const guint8 *)&policy_hnd, &pol_name, 0, 0);
+
+	if (check_col(pinfo->cinfo, COL_INFO) && pol_name)
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
+				pol_name);
+
+	offset = dissect_ndr_pointer(
+		tvb, offset, pinfo, tree, drep,
+		dissect_ndr_nt_UNICODE_STRING_str, NDR_POINTER_UNIQUE,
+		"Architecture", hf_spoolss_architecture, 0);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+				    hf_spoolss_level, &level);
+
+	dcv->private_data = (void *)level;
+
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", level %d", level);
+
+	offset = dissect_spoolss_buffer(tvb, offset, pinfo, tree, drep, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+				    hf_spoolss_offered, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+				    hf_spoolss_clientmajorversion, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+				    hf_spoolss_clientminorversion, NULL);
+
+	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
+
+	return offset;
+}	
+
+static int SpoolssGetPrinterDriver2_r(tvbuff_t *tvb, int offset, 
+				      packet_info *pinfo, proto_tree *tree, 
+				      char *drep)
+{
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
+	guint32 level = (guint32)dcv->private_data;
+	BUFFER buffer;
+
+	if (dcv->req_frame != 0)
+		proto_tree_add_text(tree, tvb, offset, 0, 
+				    "Request in frame %u", dcv->req_frame);
+
+	/* Parse packet */
+
+	offset = dissect_spoolss_buffer(tvb, offset, pinfo, tree, drep, 
+					&buffer);
+
+	switch(level) {
+	case 1:
+		dissect_DRIVER_INFO_1(
+			tvb, buffer.offset, pinfo, buffer.tree, drep);
+		break;
+	case 3:
+		dissect_DRIVER_INFO_3(
+			tvb, buffer.offset, pinfo, buffer.tree, drep);
+		break;
+	default:
+		proto_tree_add_text(
+			buffer.tree, tvb, buffer.offset, buffer.size, 
+			"[Unknown info level %d]", level);
+		break;
+	}
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+				    hf_spoolss_needed, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+				    hf_spoolss_servermajorversion, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+				    hf_spoolss_serverminorversion, NULL);
+
+	offset = dissect_doserror(tvb, offset, pinfo, tree, drep,
+				  hf_spoolss_rc, NULL);
+
+	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
+
+	return offset;
+}	
+
 #if 0
 
 /* Templates for new subdissectors */
@@ -3905,6 +4278,9 @@ static int SpoolssFoo_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	/* Parse packet */
 
+	offset = dissect_doserror(tvb, offset, pinfo, tree, drep,
+				  hf_spoolss_rc, NULL);
+
 	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
 	return offset;
@@ -3938,7 +4314,7 @@ static dcerpc_sub_dissector dcerpc_spoolss_dissectors[] = {
         { SPOOLSS_ADDPRINTERDRIVER, "AddPrinterDriver", 
 	  NULL, SpoolssAddPrinterDriver_r },
         { SPOOLSS_ENUMPRINTERDRIVERS, "EnumPrinterDrivers", 
-	  NULL, SpoolssGeneric_r },
+	  SpoolssEnumPrinterDrivers_q, SpoolssEnumPrinterDrivers_r },
 	{ SPOOLSS_GETPRINTERDRIVER, "GetPrinterDriver", 
 	  NULL, SpoolssGeneric_r },
         { SPOOLSS_GETPRINTERDRIVERDIRECTORY, "GetPrinterDriverDirectory", 
@@ -4024,7 +4400,7 @@ static dcerpc_sub_dissector dcerpc_spoolss_dissectors[] = {
 	{ SPOOLSS_RESETPRINTER, "ResetPrinter", 
 	  NULL, SpoolssGeneric_r },
         { SPOOLSS_GETPRINTERDRIVER2, "GetPrinterDriver2", 
-	  NULL, SpoolssGeneric_r },
+	  SpoolssGetPrinterDriver2_q, SpoolssGetPrinterDriver2_r },
 	{ SPOOLSS_FINDFIRSTPRINTERCHANGENOTIFICATION, 
 	  "FindFirstPrinterChangeNotification", 
 	  NULL, SpoolssGeneric_r },
@@ -4108,6 +4484,9 @@ proto_register_dcerpc_spoolss(void)
 		{ &hf_spoolss_needed,
 		  { "Needed", "spoolss.needed", FT_UINT32, BASE_DEC, 
 		    NULL, 0x0, "Size of buffer required for request", HFILL }},
+		{ &hf_spoolss_returned,
+		  { "Returned", "spoolss.returned", FT_UINT32, BASE_DEC, 
+		    NULL, 0x0, "Number of items returned", HFILL }},
 		{ &hf_spoolss_relstr_offset,
 		  { "Relative string offset", "spoolss.relstr.offset", FT_UINT32, BASE_DEC, 
 		    NULL, 0x0, "Offset of relative string data", HFILL }},
@@ -4117,6 +4496,12 @@ proto_register_dcerpc_spoolss(void)
 		{ &hf_spoolss_servername,
 		  { "Server name", "spoolss.servername", FT_STRING, BASE_NONE,
 		    NULL, 0, "Server name", HFILL }},
+		{ &hf_spoolss_architecture,
+		  { "Architecture name", "spoolss.architecture", FT_STRING, BASE_NONE,
+		    NULL, 0, "Architecture name", HFILL }},
+		{ &hf_spoolss_drivername,
+		  { "Driver name", "spoolss.drivername", FT_STRING, BASE_NONE,
+		    NULL, 0, "Driver name", HFILL }},
 		{ &hf_spoolss_username,
 		  { "User name", "spoolss.username", FT_STRING, BASE_NONE,
 		    NULL, 0, "User name", HFILL }},
@@ -4240,6 +4625,45 @@ proto_register_dcerpc_spoolss(void)
 		{ &hf_spoolss_enumprinterdata_data_needed,
 		  { "Data size needed", "spoolss.enumprinterdata.data_needed", FT_UINT32, BASE_DEC, 
 		    NULL, 0x0, "Buffer size needed for printerdata data", HFILL }},
+
+		/* GetPrinterDriver2 */
+
+		{ &hf_spoolss_clientmajorversion,
+		  { "Client major version", "spoolss.clientmajorversion", FT_UINT32, BASE_DEC, 
+		    NULL, 0x0, "Client printer driver major version", HFILL }},
+		{ &hf_spoolss_clientminorversion,
+		  { "Client minor version", "spoolss.clientminorversion", FT_UINT32, BASE_DEC, 
+		    NULL, 0x0, "Client printer driver minor version", HFILL }},
+		{ &hf_spoolss_servermajorversion,
+		  { "Server major version", "spoolss.servermajorversion", FT_UINT32, BASE_DEC, 
+		    NULL, 0x0, "Server printer driver major version", HFILL }},
+		{ &hf_spoolss_serverminorversion,
+		  { "Server minor version", "spoolss.serverminorversion", FT_UINT32, BASE_DEC, 
+		    NULL, 0x0, "Server printer driver minor version", HFILL }},
+		{ &hf_spoolss_driverpath,
+		  { "Driver path", "spoolss.driverpath", FT_STRING, BASE_NONE,
+		    NULL, 0, "Driver path", HFILL }},
+		{ &hf_spoolss_datafile,
+		  { "Data file", "spoolss.datafile", FT_STRING, BASE_NONE,
+		    NULL, 0, "Data file", HFILL }},
+		{ &hf_spoolss_configfile,
+		  { "Config file", "spoolss.configfile", FT_STRING, BASE_NONE,
+		    NULL, 0, "Printer name", HFILL }},
+		{ &hf_spoolss_helpfile,
+		  { "Help file", "spoolss.helpfile", FT_STRING, BASE_NONE,
+		    NULL, 0, "Help file", HFILL }},
+		{ &hf_spoolss_monitorname,
+		  { "Monitor name", "spoolss.monitorname", FT_STRING, BASE_NONE,
+		    NULL, 0, "Monitor name", HFILL }},
+		{ &hf_spoolss_defaultdatatype,
+		  { "Default data type", "spoolss.defaultdatatype", FT_STRING, BASE_NONE,
+		    NULL, 0, "Default data type", HFILL }},
+		{ &hf_spoolss_driverinfo_cversion,
+		  { "Driver version", "spoolss.driverversion", FT_UINT32, BASE_DEC,
+		    VALS(driverinfo_cversion_vals), 0, "Printer name", HFILL }},
+		{ &hf_spoolss_dependentfiles,
+		  { "Dependent files", "spoolss.dependentfiles", FT_STRING, BASE_NONE,
+		    NULL, 0, "Dependent files", HFILL }},
 	};
 
         static gint *ett[] = {
@@ -4263,6 +4687,7 @@ proto_register_dcerpc_spoolss(void)
 		&ett_PRINTER_INFO_2,
 		&ett_PRINTER_INFO_3,
 		&ett_RELSTR,
+		&ett_RELSTR_ARRAY,
 		&ett_POLICY_HND,
 		&ett_FORM_REL,
 		&ett_FORM_CTR,
@@ -4277,6 +4702,8 @@ proto_register_dcerpc_spoolss(void)
 		&ett_printerdata_value,
 		&ett_printerdata_data,
 		&ett_writeprinter_buffer,
+		&ett_DRIVER_INFO_1,
+		&ett_DRIVER_INFO_3,
         };
 
         proto_dcerpc_spoolss = proto_register_protocol(
