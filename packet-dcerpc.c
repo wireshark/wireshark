@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.108 2003/02/11 02:18:27 guy Exp $
+ * $Id: packet-dcerpc.c,v 1.109 2003/02/21 04:31:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1854,17 +1854,6 @@ dissect_dcerpc_cn_auth (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
 				     "Auth Credentials");
 	    }
 	}
-
-	/*
-	 * XXX - sometimes the padding is a multiple of 4 and greater
-	 * than 3, meaning it's not padding to put the authentication
-	 * data on a 4-byte boundary.
-	 *
-	 * For now, we take its value mod 4.
-	 *
-	 * XXX - what is going on there?
-	 */
-	auth_info->auth_pad_len %= 4;
 
         /* figure out where the auth padding starts */
         offset = hdr->frag_len - (hdr->auth_len + 8 + auth_info->auth_pad_len);
