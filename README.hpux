@@ -1,4 +1,4 @@
-$Id: README.hpux,v 1.15 2001/04/11 05:24:08 guy Exp $
+$Id: README.hpux,v 1.16 2002/03/11 02:12:41 guy Exp $
 
 Contents:
 
@@ -17,7 +17,7 @@ The Software Porting And Archive Centre for HP-UX, at
 (with mirrors in various countries, listed on the Centre's home page;
 you may want to choose a mirror closer to you) has ported versions, in
 both source and binary form, for Ethereal, as well as for the libpcap,
-GLib, GTK+, zlib, and CMU SNMP libraries that it uses.
+GLib, GTK+, and zlib libraries that it uses.
 
 The changes they've made appear largely to be compile option changes; if
 you've downloaded the source to the latest version of Ethereal (the
