@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.150 2000/08/22 19:40:09 deniel Exp $
+ * $Id: main.c,v 1.151 2000/08/22 20:17:27 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -555,7 +555,7 @@ tree_view_select_row_cb(GtkCTree *ctree, GList *node, gint column, gpointer user
 
 	set_menus_for_selected_tree_row(TRUE);
 
-	if (finfo->hfinfo) {
+	if (finfo->hfinfo && finfo->hfinfo->type != FT_TEXT_ONLY) {
 	  if (finfo->hfinfo->blurb != NULL && 
 	      finfo->hfinfo->blurb[0] != '\0') {
 	    has_blurb = TRUE;
