@@ -4,7 +4,7 @@
  * Based on routines from tcpdump patches by
  *   Ken Hornstein <kenh@cmf.nrl.navy.mil>
  *
- * $Id: packet-rx.c,v 1.32 2002/02/01 16:37:18 nneul Exp $
+ * $Id: packet-rx.c,v 1.33 2002/02/03 15:59:42 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -71,6 +71,7 @@ static const value_string rx_flags[] = {
 	{ RX_LAST_PACKET,	"last-pckt" },
 	{ RX_MORE_PACKETS,	"more-pckts" },
 	{ RX_FREE_PACKET,	"free-pckt" },
+	{ RX_SLOW_START_OR_JUMBO, "slow-start/jumbogram" },
 	{ 0,                    NULL }
 };
 

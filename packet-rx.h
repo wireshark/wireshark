@@ -1,7 +1,7 @@
 /* packet-rx.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet-rx.h,v 1.7 2001/08/20 02:11:13 guy Exp $
+ * $Id: packet-rx.h,v 1.8 2002/02/03 15:59:42 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -62,6 +62,7 @@ struct rxinfo {
 #define RX_LAST_PACKET 4
 #define RX_MORE_PACKETS 8
 #define RX_FREE_PACKET 16
+#define RX_SLOW_START_OR_JUMBO 32
 
 #define RX_ACK_TYPE_NACK 0
 #define RX_ACK_TYPE_ACK 1
