@@ -1,7 +1,7 @@
 /* packet-ppp.c
  * Routines for ppp packet disassembly
  *
- * $Id: packet-ppp.c,v 1.106 2003/01/20 05:42:30 guy Exp $
+ * $Id: packet-ppp.c,v 1.107 2003/01/28 23:56:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3256,21 +3256,21 @@ proto_register_ppp(void)
   ppp_module = prefs_register_protocol(proto_ppp, NULL);
 
   prefs_register_enum_preference(ppp_module,
-    "ppp_fcs",
-    "PPP Frame Checksum Type",
-    "The type of PPP frame checksum (none, 16-bit, 32-bit)",
-    &ppp_fcs_decode,
-    ppp_options, FALSE);
+	"fcs_type",
+	"PPP Frame Checksum Type",
+	"The type of PPP frame checksum (none, 16-bit, 32-bit)",
+	&ppp_fcs_decode,
+	ppp_options, FALSE);
   prefs_register_bool_preference(ppp_module,
-    "ppp_vj",
-    "PPP Van Jacobson Compression",
-    "Whether Van Jacobson-compressed PPP frames should be decompressed",
-    &ppp_vj_decomp);
-
-  prefs_register_uint_preference(ppp_module, "default_proto_id",
-				 "PPPMuxCP Default PID",
-				 "Default Protocol ID to be used",
-				 16, &pppmux_def_prot_id);
+	"decompress_vj",
+	"Decompress Van Jacobson-compressed frames",
+	"Whether Van Jacobson-compressed PPP frames should be decompressed",
+	&ppp_vj_decomp);
+  prefs_register_uint_preference(ppp_module,
+	"default_proto_id",
+	"PPPMuxCP Default PID",
+	"Default Protocol ID to be used for PPPMuxCP",
+	16, &pppmux_def_prot_id);
 }
 
 void

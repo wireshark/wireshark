@@ -3,7 +3,7 @@
  *
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-rsvp.c,v 1.79 2003/01/24 02:14:48 guy Exp $
+ * $Id: packet-rsvp.c,v 1.80 2003/01/28 23:56:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -4253,7 +4253,7 @@ register_rsvp_prefs (void)
 
     rsvp_module = prefs_register_protocol(proto_rsvp, NULL);
     prefs_register_bool_preference(
-	rsvp_module, "rsvp_process_bundle",
+	rsvp_module, "process_bundle",
 	"Dissect sub-messages in BUNDLE message",
 	"Specifies whether Ethereal should decode and display sub-messages within BUNDLE messages",
 	&rsvp_bundle_dissect);

@@ -1,7 +1,7 @@
 /* packet-nlm.c
  * Routines for nlm dissection
  *
- * $Id: packet-nlm.c,v 1.33 2002/12/03 02:07:07 guy Exp $
+ * $Id: packet-nlm.c,v 1.34 2003/01/28 23:56:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1220,7 +1220,7 @@ proto_register_nlm(void)
 	proto_register_subtree_array(ett, array_length(ett));
 
 	nlm_module = prefs_register_protocol(proto_nlm, NULL);
-	prefs_register_bool_preference(nlm_module, "nlm_msg_res_matching",
+	prefs_register_bool_preference(nlm_module, "msg_res_matching",
 		"Match MSG/RES packets for async NLM",
 		"Whether the dissector will track and match MSG and RES calls for asynchronous NLM",
 		&nlm_match_msgres);

@@ -2,7 +2,7 @@
  * Routines for FCIP dissection
  * Copyright 2001, Dinesh G Dutt (ddutt@cisco.com)
  *
- * $Id: packet-fcip.c,v 1.2 2003/01/22 06:26:33 guy Exp $
+ * $Id: packet-fcip.c,v 1.3 2003/01/28 23:56:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -588,12 +588,12 @@ proto_register_fcip (void)
 
     fcip_module = prefs_register_protocol(proto_fcip, NULL);
     prefs_register_bool_preference(fcip_module,
-                                   "desegment_fcip_messages",
+                                   "desegment",
                                    "Desegment FCIP messages",
                                    "When enabled, FCIP messages that span multiple TCP segments are desegmented",
                                    &fcip_desegment);
     prefs_register_uint_preference(fcip_module,
-                                   "fcip_port",
+                                   "target_port",
                                    "Target port",
                                    "Port number used for FCIP",
                                    10,

@@ -4,7 +4,7 @@
  * Copyright 2001, Michal Melerowicz <michal.melerowicz@nokia.com>
  *                 Nicolas Balkota <balkota@mac.com>
  *
- * $Id: packet-gtp.c,v 1.50 2003/01/02 20:33:45 guy Exp $
+ * $Id: packet-gtp.c,v 1.51 2003/01/28 23:56:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -5353,13 +5353,13 @@ proto_register_gtp(void)
 
 	gtp_module = prefs_register_protocol(proto_gtp, proto_reg_handoff_gtp);
 
-	prefs_register_uint_preference(gtp_module, "gtpv0_port", "GTPv0 port ", "GTPv0 port (default 3386)", 10, &g_gtpv0_port);
-	prefs_register_uint_preference(gtp_module, "gtpv1c_port", "GTPv1 control plane (GTP-C) port ", "GTPv1 control plane port (default 2123)", 10, &g_gtpv1c_port);
-	prefs_register_uint_preference(gtp_module, "gtpv1u_port", "GTPv1 user plane (GTP-U) port ", "GTPv1 user plane port (default 2152)", 10, &g_gtpv1u_port);
-	prefs_register_bool_preference(gtp_module, "gtp_dissect_tpdu", "Dissect T-PDU ", "Dissect T-PDU", &gtp_tpdu);
-	prefs_register_enum_preference(gtp_module, "gtpv0_dissect_cdr_as", "Dissect GTP'v0 CDRs as ", "Dissect GTP'v0 CDRs as", &gtpv0_cdr_as, gtpv0_cdr_options, FALSE);
-	prefs_register_bool_preference(gtp_module, "gtpv0_check_etsi", "Compare GTPv0 order with ETSI ", "GTPv0 ETSI order", &gtpv0_etsi_order);
-	prefs_register_bool_preference(gtp_module, "gtpv1_check_etsi", "Compare GTPv1 order with ETSI ", "GTPv1 ETSI order", &gtpv1_etsi_order);
+	prefs_register_uint_preference(gtp_module, "v0_port", "GTPv0 port", "GTPv0 port (default 3386)", 10, &g_gtpv0_port);
+	prefs_register_uint_preference(gtp_module, "v1c_port", "GTPv1 control plane (GTP-C) port", "GTPv1 control plane port (default 2123)", 10, &g_gtpv1c_port);
+	prefs_register_uint_preference(gtp_module, "v1u_port", "GTPv1 user plane (GTP-U) port", "GTPv1 user plane port (default 2152)", 10, &g_gtpv1u_port);
+	prefs_register_bool_preference(gtp_module, "dissect_tpdu", "Dissect T-PDU", "Dissect T-PDU", &gtp_tpdu);
+	prefs_register_enum_preference(gtp_module, "v0_dissect_cdr_as", "Dissect GTP'v0 CDRs as", "Dissect GTP'v0 CDRs as", &gtpv0_cdr_as, gtpv0_cdr_options, FALSE);
+	prefs_register_bool_preference(gtp_module, "v0_check_etsi", "Compare GTPv0 order with ETSI", "GTPv0 ETSI order", &gtpv0_etsi_order);
+	prefs_register_bool_preference(gtp_module, "v1_check_etsi", "Compare GTPv1 order with ETSI", "GTPv1 ETSI order", &gtpv1_etsi_order);
 	prefs_register_obsolete_preference(gtp_module, "ppp_reorder");
 
 	register_dissector("gtpv0", dissect_gtpv0, proto_gtpv0);

@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.170 2002/12/19 11:22:38 sahlberg Exp $
+ * $Id: packet-tcp.c,v 1.171 2003/01/28 23:56:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2323,7 +2323,7 @@ proto_register_tcp(void)
 
 	/* Register configuration preferences */
 	tcp_module = prefs_register_protocol(proto_tcp, NULL);
-	prefs_register_bool_preference(tcp_module, "tcp_summary_in_tree",
+	prefs_register_bool_preference(tcp_module, "summary_in_tree",
 	    "Show TCP summary in protocol tree",
 "Whether the TCP summary line should be shown in the protocol tree",
 	    &tcp_summary_in_tree);
@@ -2335,11 +2335,11 @@ proto_register_tcp(void)
 	    "Allow subdissector to desegment TCP streams",
 "Whether subdissector can request TCP streams to be desegmented",
 	    &tcp_desegment);
-	prefs_register_bool_preference(tcp_module, "tcp_analyze_sequence_numbers",
+	prefs_register_bool_preference(tcp_module, "analyze_sequence_numbers",
 	    "Analyze TCP sequence numbers",
 	    "Make the TCP dissector analyze TCP sequence numbers to find and flag segment retransmissions, missing segments and RTT",
 	    &tcp_analyze_seq);
-	prefs_register_bool_preference(tcp_module, "tcp_relative_sequence_numbers",
+	prefs_register_bool_preference(tcp_module, "relative_sequence_numbers",
 	    "Use relative sequence numbers",
 	    "Make the TCP dissector use relative sequence numbers instead of absolute ones. To use this option you must also enable \"Analyze TCP sequence numbers\".",
 	    &tcp_relative_seq);

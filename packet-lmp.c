@@ -3,7 +3,7 @@
  *
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-lmp.c,v 1.14 2002/12/02 23:43:26 guy Exp $
+ * $Id: packet-lmp.c,v 1.15 2003/01/28 23:56:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1527,7 +1527,7 @@ register_lmp_prefs (void)
 
     lmp_module = prefs_register_protocol(proto_lmp, NULL);
     prefs_register_enum_preference(
-	lmp_module, "lmp_version",
+	lmp_module, "version",
 	"Draft version of LMP",
 	"Specifies the IETF CCAMP draft version of LMP to interpret",
 	&lmp_draft_ver, lmp_ver, FALSE);

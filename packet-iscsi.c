@@ -2,7 +2,7 @@
  * Routines for iSCSI dissection
  * Copyright 2001, Eurologic and Mark Burton <markb@ordern.com>
  *
- * $Id: packet-iscsi.c,v 1.42 2002/12/02 23:43:26 guy Exp $
+ * $Id: packet-iscsi.c,v 1.43 2003/01/28 23:56:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2224,7 +2224,7 @@ proto_register_iscsi(void)
 				       &bogus_pdu_data_length_threshold);
 
 	prefs_register_uint_preference(iscsi_module,
-				       "iscsi_port",
+				       "target_port",
 				       "Target port",
 				       "Port number of iSCSI target",
 				       10,

@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.93 2003/01/28 22:27:18 guy Exp $
+ * $Id: prefs.c,v 1.94 2003/01/28 23:56:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -387,7 +387,7 @@ prefs_apply_all(void)
  */
 static pref_t *
 register_preference(module_t *module, const char *name, const char *title,
-    const char *description)
+    const char *description, pref_type_t type)
 {
 	pref_t *preference;
 	const guchar *p;
@@ -396,6 +396,7 @@ register_preference(module_t *module, const char *name, const char *title,
 	preference->name = name;
 	preference->title = title;
 	preference->description = description;
+	preference->type = type;
 	if (title != NULL)
 		preference->ordinal = module->numprefs;
 	else
@@ -422,6 +423,14 @@ register_preference(module_t *module, const char *name, const char *title,
 	 * more than one preference with the same name.
 	 */
 	g_assert(find_preference(module, name) == NULL);
+
+	if (type != PREF_OBSOLETE) {
+		/*
+		 * Make sure the preference name doesn't begin with the
+		 * module name, as that's redundant and Just Silly.
+		 */
+		g_assert(strncmp(name, module->name, strlen(module->name)) != 0);
+	}
 
 	/*
 	 * There isn't already one with that name, so add the
@@ -490,8 +499,8 @@ prefs_register_uint_preference(module_t *module, const char *name,
 {
 	pref_t *preference;
 
-	preference = register_preference(module, name, title, description);
-	preference->type = PREF_UINT;
+	preference = register_preference(module, name, title, description,
+	    PREF_UINT);
 	preference->varp.uint = var;
 	preference->info.base = base;
 }
@@ -505,8 +514,8 @@ prefs_register_bool_preference(module_t *module, const char *name,
 {
 	pref_t *preference;
 
-	preference = register_preference(module, name, title, description);
-	preference->type = PREF_BOOL;
+	preference = register_preference(module, name, title, description,
+	    PREF_BOOL);
 	preference->varp.boolp = var;
 }
 
@@ -520,8 +529,8 @@ prefs_register_enum_preference(module_t *module, const char *name,
 {
 	pref_t *preference;
 
-	preference = register_preference(module, name, title, description);
-	preference->type = PREF_ENUM;
+	preference = register_preference(module, name, title, description,
+	    PREF_ENUM);
 	preference->varp.enump = var;
 	preference->info.enum_info.enumvals = enumvals;
 	preference->info.enum_info.radio_buttons = radio_buttons;
@@ -536,8 +545,8 @@ prefs_register_string_preference(module_t *module, const char *name,
 {
 	pref_t *preference;
 
-	preference = register_preference(module, name, title, description);
-	preference->type = PREF_STRING;
+	preference = register_preference(module, name, title, description,
+	    PREF_STRING);
 	preference->varp.string = var;
 	preference->saved_val.string = NULL;
 }
@@ -548,10 +557,7 @@ prefs_register_string_preference(module_t *module, const char *name,
 void
 prefs_register_obsolete_preference(module_t *module, const char *name)
 {
-	pref_t *preference;
-
-	preference = register_preference(module, name, NULL, NULL);
-	preference->type = PREF_OBSOLETE;
+	register_preference(module, name, NULL, NULL, PREF_OBSOLETE);
 }
 
 typedef struct {
@@ -1636,6 +1642,80 @@ set_pref(gchar *pref_name, gchar *value)
         /* Handle old names for PCLI preferences. */
         if (strcmp(dotp, "pcli.udp_port") == 0)
           pref = find_preference(module, "udp_port");
+      } else if (strncmp(pref_name, "mapi.", 5) == 0) {
+        /* Handle old names for MAPI preferences. */
+        if (strcmp(dotp, "mapi_decrypt") == 0)
+          pref = find_preference(module, "decrypt");
+      } else if (strncmp(pref_name, "fc.", 3) == 0) {
+        /* Handle old names for Fibre Channel preferences. */
+        if (strcmp(dotp, "reassemble_fc") == 0)
+          pref = find_preference(module, "reassemble");
+        else if (strcmp(dotp, "fc_max_frame_size") == 0)
+          pref = find_preference(module, "max_frame_size");
+      } else if (strncmp(pref_name, "fcip.", 5) == 0) {
+        /* Handle old names for Fibre Channel-over-IP preferences. */
+        if (strcmp(dotp, "desegment_fcip_messages") == 0)
+          pref = find_preference(module, "desegment");
+        else if (strcmp(dotp, "fcip_port") == 0)
+          pref = find_preference(module, "target_port");
+      } else if (strncmp(pref_name, "gtp.", 5) == 0) {
+        /* Handle old names for GTP preferences. */
+        if (strcmp(dotp, "gtpv0_port") == 0)
+          pref = find_preference(module, "v0_port");
+        else if (strcmp(dotp, "gtpv1c_port") == 0)
+          pref = find_preference(module, "v1c_port");
+        else if (strcmp(dotp, "gtpv1u_port") == 0)
+          pref = find_preference(module, "v1u_port");
+        else if (strcmp(dotp, "gtp_dissect_tpdu") == 0)
+          pref = find_preference(module, "dissect_tpdu");
+        else if (strcmp(dotp, "gtpv0_dissect_cdr_as") == 0)
+          pref = find_preference(module, "v0_dissect_cdr_as");
+        else if (strcmp(dotp, "gtpv0_check_etsi") == 0)
+          pref = find_preference(module, "v0_check_etsi");
+        else if (strcmp(dotp, "gtpv1_check_etsi") == 0)
+          pref = find_preference(module, "v1_check_etsi");
+      } else if (strncmp(pref_name, "ip.", 3) == 0) {
+        /* Handle old names for IP preferences. */
+        if (strcmp(dotp, "ip_summary_in_tree") == 0)
+          pref = find_preference(module, "summary_in_tree");
+      } else if (strncmp(pref_name, "iscsi.", 6) == 0) {
+        /* Handle old names for iSCSI preferences. */
+        if (strcmp(dotp, "iscsi_port") == 0)
+          pref = find_preference(module, "target_port");
+      } else if (strncmp(pref_name, "lmp.", 4) == 0) {
+        /* Handle old names for LMP preferences. */
+        if (strcmp(dotp, "lmp_version") == 0)
+          pref = find_preference(module, "version");
+      } else if (strncmp(pref_name, "mtp3.", 5) == 0) {
+        /* Handle old names for MTP3 preferences. */
+        if (strcmp(dotp, "mtp3_standard") == 0)
+          pref = find_preference(module, "standard");
+      } else if (strncmp(pref_name, "nlm.", 5) == 0) {
+        /* Handle old names for NLM preferences. */
+        if (strcmp(dotp, "nlm_msg_res_matching") == 0)
+          pref = find_preference(module, "msg_res_matching");
+      } else if (strncmp(pref_name, "ppp.", 4) == 0) {
+        /* Handle old names for PP preferences. */
+        if (strcmp(dotp, "ppp_fcs") == 0)
+          pref = find_preference(module, "fcs_type");
+        else if (strcmp(dotp, "ppp_vj") == 0)
+          pref = find_preference(module, "decompress_vj");
+      } else if (strncmp(pref_name, "rsvp.", 5) == 0) {
+        /* Handle old names for RSVP preferences. */
+        if (strcmp(dotp, "rsvp_process_bundle") == 0)
+          pref = find_preference(module, "process_bundle");
+      } else if (strncmp(pref_name, "tcp.", 4) == 0) {
+        /* Handle old names for TCP preferences. */
+        if (strcmp(dotp, "tcp_summary_in_tree") == 0)
+          pref = find_preference(module, "summary_in_tree");
+        else if (strcmp(dotp, "tcp_analyze_sequence_numbers") == 0)
+          pref = find_preference(module, "analyze_sequence_numbers");
+        else if (strcmp(dotp, "tcp_relative_sequence_numbers") == 0)
+          pref = find_preference(module, "relative_sequence_numbers");
+      } else if (strncmp(pref_name, "udp.", 4) == 0) {
+        /* Handle old names for UDP preferences. */
+        if (strcmp(dotp, "udp_summary_in_tree") == 0)
+          pref = find_preference(module, "summary_in_tree");
       }
     }
     if (pref == NULL)

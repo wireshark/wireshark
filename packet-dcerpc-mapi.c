@@ -2,7 +2,7 @@
  * Routines for MS Exchange MAPI
  * Copyright 2002, Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-mapi.c,v 1.15 2003/01/28 06:39:40 tpot Exp $
+ * $Id: packet-dcerpc-mapi.c,v 1.16 2003/01/28 23:56:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -438,7 +438,7 @@ static hf_register_info hf[] = {
 				   array_length(hf));
         proto_register_subtree_array(ett, array_length(ett));
 	mapi_module = prefs_register_protocol(proto_dcerpc_mapi, NULL);
-	prefs_register_bool_preference(mapi_module, "mapi_decrypt",
+	prefs_register_bool_preference(mapi_module, "decrypt",
 		"Decrypt MAPI PDUs",
 		"Whether the dissector should decrypt MAPI PDUs",
 		&mapi_decrypt);

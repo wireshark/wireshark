@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.182 2003/01/23 04:03:58 guy Exp $
+ * $Id: packet-ip.c,v 1.183 2003/01/28 23:56:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1727,7 +1727,7 @@ proto_register_ip(void)
 		"Reassemble fragmented IP datagrams",
 		"Whether fragmented IP datagrams should be reassembled",
 		&ip_defragment);
-	prefs_register_bool_preference(ip_module, "ip_summary_in_tree",
+	prefs_register_bool_preference(ip_module, "summary_in_tree",
 	    "Show IP summary in protocol tree",
 	    "Whether the IP summary line should be shown in the protocol tree",
 	    &ip_summary_in_tree);

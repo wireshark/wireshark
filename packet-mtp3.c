@@ -3,7 +3,7 @@
  * Copyright 2001, Michael Tuexen <Michael.Tuexen@icn.siemens.de>
  * Updated for ANSI support by Jeff Morriss <jeff.morriss[AT]ulticom.com>
  *
- * $Id: packet-mtp3.c,v 1.13 2003/01/02 20:44:32 guy Exp $
+ * $Id: packet-mtp3.c,v 1.14 2003/01/28 23:56:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -432,9 +432,6 @@ proto_register_mtp3(void)
 						      FT_UINT8, BASE_HEX);
 
   mtp3_module = prefs_register_protocol(proto_mtp3, NULL);
-
-  /* Version 1.5 to 1.11 of this module used "mtp3_standard" */
-  prefs_register_obsolete_preference(mtp3_module, "mtp3_standard");
 
   prefs_register_enum_preference(mtp3_module, "standard", "MTP3 standard",
 				 "The SS7 standard used in MTP3 packets",

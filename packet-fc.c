@@ -2,7 +2,7 @@
  * Routines for Fibre Channel Decoding (FC Header, Link Ctl & Basic Link Svc) 
  * Copyright 2001, Dinesh G Dutt <ddutt@cisco.com>
  *
- * $Id: packet-fc.c,v 1.2 2002/12/10 02:49:31 guy Exp $
+ * $Id: packet-fc.c,v 1.3 2003/01/28 23:56:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -836,12 +836,13 @@ proto_register_fc(void)
     /* Register preferences */
     fc_module = prefs_register_protocol (proto_fc, NULL);
     prefs_register_bool_preference (fc_module,
-                                    "reassemble_fc", "Reassemble FC",
+                                    "reassemble",
+                                    "Reassemble multi-frame sequences",
                                     "If enabled, reassembly of multi-frame "
                                     "sequences is done",
                                     &fc_reassemble);
     prefs_register_uint_preference (fc_module,
-                                    "fc_max_frame_size", "Max FC Frame Size",
+                                    "max_frame_size", "Max FC Frame Size",
                                     "This is the size of non-last frames in a "
                                     "multi-frame sequence", 10,
                                     &fc_max_frame_size);
