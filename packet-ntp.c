@@ -2,7 +2,7 @@
  * Routines for NTP packet dissection
  * Copyright 1999, Nathan Neulinger <nneul@umr.edu>
  *
- * $Id: packet-ntp.c,v 1.5 1999/11/16 11:42:43 guy Exp $
+ * $Id: packet-ntp.c,v 1.6 1999/12/06 03:18:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -320,11 +320,18 @@ dissect_ntp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		 * level server. My decision was to resolve this address.
 		 */
 		if (*pkt->stratum <= 1) {
-			strcpy (buff, "unindentified reference source"); 
-			for (i = 0; primary_sources[i].id; i++)
-				if (*((guint32 *) pkt->refid) == *((guint32 *) primary_sources[i].id))
-					strcpy (buff, primary_sources[i].data); 
-		} else strcpy (buff, get_hostname (*((u_int *) pkt->refid)));
+			snprintf (buff, sizeof buff,
+			    "Unindentified reference source '%.4s'",
+			    pkt->refid); 
+			for (i = 0; primary_sources[i].id; i++) {
+				if (memcmp (pkt->refid, primary_sources[i].id,
+				    4) == 0) {
+					strcpy (buff, primary_sources[i].data);
+					break;
+				}
+			}
+		} else
+			strcpy (buff, get_hostname (pntohl(pkt->refid)));
 		proto_tree_add_item_format(ntp_tree, hf_ntp_refid, offset+12, 4, pkt->refid,
 					   "Reference Clock ID: %s", buff);
 		/* Reference Timestamp: This is the time at which the local clock was
