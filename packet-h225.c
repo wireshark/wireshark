@@ -4,7 +4,7 @@
  *
  * Maintained by Andreas Sikkema (h323@ramdyne.nl)
  *
- * $Id: packet-h225.c,v 1.42 2004/05/25 19:48:40 sahlberg Exp $
+ * $Id: packet-h225.c,v 1.43 2004/05/25 21:27:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -7597,7 +7597,9 @@ dissect_h225_TimeToLive(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 	return offset;
 }
 
-static guint32 dissect_h225_authenticationMode(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+static int dissect_h225_authenticationMode(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  /* XXX - asn2eth.py should use "int" for offset arguments and return values
+     in more cases. */
   return dissect_h235_AuthenticationMechanism(tvb, offset, pinfo, tree, hf_h225_authenticationMode);
 }
 
