@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.152 2000/08/23 18:21:44 deniel Exp $
+ * $Id: main.c,v 1.153 2000/08/23 21:05:11 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1230,6 +1230,8 @@ main(int argc, char *argv[])
       fprintf(stderr, "ethereal: Error: font 6x13bold not found\n");
       exit(1);
     }
+    g_free(prefs->gui_font_name);
+    prefs->gui_font_name = g_strdup("6x13");
   }
 
   create_main_window(pl_size, tv_size, bv_size, prefs);
