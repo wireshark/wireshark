@@ -4,10 +4,11 @@
  * NRLOLSRD (http://pf.itd.nrl.navy.mil/projects/olsr/).
  * Parser created by Aaron Woo <woo@itd.nrl.navy.mil> of
  * the Naval Research Laboratory
+ * Currently maintained by Jeff Weston <weston@itd.nrl.navy.mil>.
  *
  * http://www.ietf.org/rfc/rfc3626.txt
  *
- * $Id: packet-olsr.c,v 1.3 2004/01/18 11:10:02 guy Exp $
+ * $Id: packet-olsr.c,v 1.4 2004/01/18 16:48:24 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
