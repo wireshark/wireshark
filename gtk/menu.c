@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.112 2003/11/28 19:13:25 ulfl Exp $
+ * $Id: menu.c,v 1.113 2003/11/29 06:09:53 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -371,12 +371,16 @@ static GtkItemFactoryEntry tree_view_menu_items[] =
     ITEM_FACTORY_ENTRY("/Expand All", NULL, expand_all_cb, 0, NULL, NULL)
 };
 
+extern void savehex_cb(GtkWidget * w, gpointer data _U_);
+
 static GtkItemFactoryEntry hexdump_menu_items[] =
 {
     ITEM_FACTORY_ENTRY("/Follow TCP Stream", NULL, follow_stream_cb,
                        0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Decode As...", NULL, decode_as_cb, 0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Display Filters...", NULL, dfilter_dialog_cb,
+                       0, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/Save highlighted data...", NULL, savehex_cb,
                        0, NULL, NULL)
 };
 

@@ -1,7 +1,7 @@
 /* print_dlg.c
  * Dialog boxes for printing
  *
- * $Id: print_dlg.c,v 1.45 2003/11/18 19:27:39 ulfl Exp $
+ * $Id: print_dlg.c,v 1.46 2003/11/29 06:09:54 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -33,6 +33,11 @@
 #include "print.h"
 #include "prefs.h"
 #include "simple_dialog.h"
+/*
+ * Only need this for construct_args
+ */
+#include "filter_prefs.h"
+#include "file_dlg.h"
 #include "ui_util.h"
 #include "dlg_utils.h"
 #include "main.h"
@@ -54,9 +59,9 @@
   for this (and also use various UNIX printing APIs, when present?).
 */
 
+void print_file_cb(GtkWidget *file_bt, construct_args_t *args);
 static void print_cmd_toggle_dest(GtkWidget *widget, gpointer data);
 static void print_cmd_toggle_detail(GtkWidget *widget, gpointer data);
-static void print_file_cb(GtkWidget *file_bt, gpointer file_te);
 static void print_fs_ok_cb(GtkWidget *w, gpointer data);
 static void print_fs_cancel_cb(GtkWidget *w, gpointer data);
 static void print_fs_destroy_cb(GtkWidget *win, GtkWidget* file_te);
@@ -94,6 +99,7 @@ static gchar * print_cmd;
 
 #define E_FS_CALLER_PTR_KEY       "fs_caller_ptr"
 #define E_FILE_SEL_DIALOG_PTR_KEY "file_sel_dialog_ptr"
+
 
 /*
  * Keep a static pointer to the current "Print" window, if any, so that if
@@ -134,7 +140,11 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   gchar         label_text[100];
   frame_data    *packet;
   guint32       displayed_count;
-
+  static construct_args_t file_dlg_args = {
+    "Ethereal: Print to File",
+    FALSE,
+    FALSE
+  };
 
   if (print_w != NULL) {
     /* There's already a "Print" dialog box; reactivate it. */
@@ -260,6 +270,7 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
 
   file_bt = gtk_button_new_with_label("Browse");
   OBJECT_SET_DATA(dest_cb, PRINT_FILE_BT_KEY, file_bt);
+  OBJECT_SET_DATA(file_bt, E_FILE_TE_PTR_KEY, file_te);
   gtk_tooltips_set_tip (tooltips, file_bt, ("Browse output filename in filesystem"), NULL);
   gtk_table_attach_defaults(GTK_TABLE(printer_tb), file_bt, 2, 3, 0, 1);
   gtk_widget_set_sensitive(file_bt, print_to_file);
@@ -286,7 +297,7 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
 #endif
 
   SIGNAL_CONNECT(dest_cb, "toggled", print_cmd_toggle_dest, NULL);
-  SIGNAL_CONNECT(file_bt, "clicked", print_file_cb, file_te);
+  SIGNAL_CONNECT(file_bt, "clicked", print_file_cb, &file_dlg_args);
 
 
 /*****************************************************/
@@ -591,16 +602,16 @@ print_cmd_toggle_detail(GtkWidget *widget, gpointer data _U_)
   gtk_widget_set_sensitive(hex_cb, print_detail);
 }
 
-static void
-print_file_cb(GtkWidget *file_bt, gpointer file_te)
+void
+print_file_cb(GtkWidget *file_bt, construct_args_t *args _U_)
 {
   GtkWidget *caller = gtk_widget_get_toplevel(file_bt);
-  GtkWidget *fs;
+  GtkWidget *fs, *file_te;
 
   /* Has a file selection dialog box already been opened for that top-level
      widget? */
   fs = OBJECT_GET_DATA(caller, E_FILE_SEL_DIALOG_PTR_KEY);
-
+  file_te = OBJECT_GET_DATA(file_bt, E_FILE_TE_PTR_KEY);
   if (fs != NULL) {
     /* Yes.  Just re-activate that dialog box. */
     reactivate_window(fs);
@@ -891,3 +902,8 @@ file_print_packet_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   }
 #endif
 }
+
+
+
+
+

@@ -1,7 +1,7 @@
 /* proto_draw.c
  * Routines for GTK+ packet display
  *
- * $Id: proto_draw.c,v 1.65 2003/11/25 14:07:45 sahlberg Exp $
+ * $Id: proto_draw.c,v 1.66 2003/11/29 06:09:54 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -44,8 +44,11 @@
 
 #include "colors.h"
 #include "prefs.h"
+#include "filter_prefs.h"
+#include "file_dlg.h"
 #include "proto_draw.h"
 #include "packet_win.h"
+#include "dlg_utils.h"
 #include "ui_util.h"
 #include "gtkglobals.h"
 #include "compat_macros.h"
@@ -728,6 +731,179 @@ add_byte_views(epan_dissect_t *edt, GtkWidget *tree_view,
 	 */
 	gtk_notebook_set_page(GTK_NOTEBOOK(byte_nb_ptr), 0);
 }
+
+#include <fcntl.h>
+
+static GtkWidget *savehex_dlg=NULL;
+static GtkWidget *file_entry=NULL;
+
+static void
+savehex_dlg_destroy_cb(void)
+{
+        savehex_dlg = NULL;
+}
+
+static void
+savehex_dlg_cancel_cb(GtkWidget *cancel_bt _U_, gpointer parent_w)
+{
+	gtk_widget_destroy(GTK_WIDGET(parent_w));
+}
+
+/* Needed because we don't declare it yet anywhere */
+void print_file_cb(GtkWidget *file_bt, construct_args_t *args _U_);
+
+/* Forward declaration */
+static void
+savehex_save_clicked_cb(GtkWidget * w, gpointer data);
+
+/* Launch the dialog box to put up the file selection box etc */
+void savehex_cb(GtkWidget * w _U_, gpointer data _U_)
+{
+
+	GtkWidget   *dlg_box;
+	GtkWidget   *file_box, *file_bt = NULL;
+	GtkWidget   *bbox, *save_button, *cancel_button;
+	GtkTooltips *tooltips;
+	static construct_args_t args = {
+	  "Save Highlighted Data to File",
+	  TRUE,
+	  FALSE
+	};
+
+	/* if the window is already open, bring it to front */
+	if(savehex_dlg){
+		gdk_window_raise(savehex_dlg->window);
+		return;
+	}
+
+	tooltips = gtk_tooltips_new();
+
+	/*
+	 * Build the dialog box we need ... a text entry field and a
+	 * browse button, along with OK and Cancel
+	 */
+
+	savehex_dlg=dlg_window_new("Ethereal: Save Highlighted Data to File");
+	SIGNAL_CONNECT(savehex_dlg, "destroy", savehex_dlg_destroy_cb, NULL);
+
+	dlg_box=gtk_vbox_new(FALSE, 10);
+	gtk_container_border_width(GTK_CONTAINER(dlg_box), 10);
+	gtk_container_add(GTK_CONTAINER(savehex_dlg), dlg_box);
+	gtk_widget_show(dlg_box);
+
+	/* File entry box */
+	file_box=gtk_hbox_new(FALSE, 3);
+
+	/* File entry */
+	file_entry=gtk_entry_new();
+	gtk_widget_set_usize(file_entry, 300, -2);
+	gtk_tooltips_set_tip(tooltips, file_entry, ("Enter Save Data filename"), NULL);
+	gtk_box_pack_start(GTK_BOX(file_box), file_entry, TRUE, TRUE, 0);
+	gtk_widget_show(file_entry);
+
+	/* File Browse button */
+	file_bt = gtk_button_new_with_label("Browse:");
+	SIGNAL_CONNECT(file_bt, "clicked", print_file_cb, &args);
+
+	/* file entry for print dialog */
+	OBJECT_SET_DATA(file_bt, E_FILE_TE_PTR_KEY, file_entry);
+	/* file entry for print dialog */
+
+	gtk_tooltips_set_tip (tooltips, file_bt, ("Browse output filename in filesystem"), NULL);
+	gtk_box_pack_start(GTK_BOX(file_box), file_bt, FALSE, TRUE, 0);
+	gtk_widget_show(file_bt);
+
+	gtk_box_pack_start(GTK_BOX(dlg_box), file_box, TRUE, TRUE, 0);
+	gtk_widget_show(file_box);
+
+	/* Now, the button box */
+	bbox=gtk_hbutton_box_new();
+	gtk_button_box_set_layout (GTK_BUTTON_BOX (bbox), GTK_BUTTONBOX_DEFAULT_STYLE);
+	gtk_button_box_set_spacing(GTK_BUTTON_BOX(bbox), 5);
+	gtk_box_pack_start(GTK_BOX(dlg_box), bbox, FALSE, FALSE, 0);
+	gtk_widget_show(bbox);
+
+	/* the save button */
+	save_button=gtk_button_new_with_label("Save");
+        SIGNAL_CONNECT_OBJECT(save_button, "clicked",
+                              savehex_save_clicked_cb, NULL);
+	gtk_box_pack_start(GTK_BOX(bbox), save_button, TRUE, TRUE, 0);
+	GTK_WIDGET_SET_FLAGS(save_button, GTK_CAN_DEFAULT);
+	gtk_widget_grab_default(save_button);
+	gtk_widget_show(save_button);
+
+#if GTK_MAJOR_VERSION < 2
+	cancel_button=gtk_button_new_with_label("Cancel");
+#else
+	cancel_button=gtk_button_new_from_stock(GTK_STOCK_CANCEL);
+#endif
+	SIGNAL_CONNECT(cancel_button, "clicked", savehex_dlg_cancel_cb, savehex_dlg);
+	GTK_WIDGET_SET_FLAGS(cancel_button, GTK_CAN_DEFAULT);
+	gtk_box_pack_start(GTK_BOX(bbox), cancel_button, TRUE, TRUE, 0);
+	gtk_widget_show(cancel_button);
+
+	/* Catch the "activate" signal on the filter text entry, so that
+	   if the user types Return there, we act as if the "Create Stat"
+	   button had been selected, as happens if Return is typed if some
+	   widget that *doesn't* handle the Return key has the input
+	   focus. */
+	dlg_set_activate(file_entry, save_button);
+
+	/* Catch the "key_press_event" signal in the window, so that we can
+	   catch the ESC key being pressed and act as if the "Cancel" button
+	   had been selected. */
+	dlg_set_cancel(savehex_dlg, cancel_button);
+
+	/* Give the initial focus to the "File" entry box. */
+	gtk_widget_grab_focus(file_entry);
+
+	gtk_widget_show_all(savehex_dlg);
+}
+
+/* save the current highlighted hex data as hex_raw.dat */
+static void
+savehex_save_clicked_cb(GtkWidget * w _U_, gpointer data _U_)
+{
+        GtkWidget *bv;
+	int fd, start, end, len;
+	const guint8 *data_p = NULL;
+	char *file = NULL;
+
+	file = (char *)gtk_entry_get_text(GTK_ENTRY(file_entry));
+
+	/* Get rid of the dialog box */
+	gtk_widget_destroy(GTK_WIDGET(savehex_dlg));
+	if (!file ||! *file) {
+	  return;    /* XXX, put up an error box */
+	}
+
+	/* Must check if file name exists first */
+
+	bv = get_notebook_bv_ptr(byte_nb_ptr);
+	if (bv == NULL) {
+	        return; /* none ... should complain */
+	}
+	/*
+	 * Retrieve the info we need 
+	 */
+	end = GPOINTER_TO_INT(OBJECT_GET_DATA(bv, E_BYTE_VIEW_START_KEY));
+	start = GPOINTER_TO_INT(OBJECT_GET_DATA(bv, E_BYTE_VIEW_END_KEY));
+	data_p = get_byte_view_data_and_length(GTK_WIDGET(bv), &len);
+
+	if (data_p == NULL || start == -1 || start > end) {
+	  printf("No data to save\n"); /* XXX put up an error box */
+		return;
+	}
+
+	fd = open(file, O_WRONLY|O_CREAT|O_TRUNC, 0666);
+	if (fd == -1) {  /* XXX - put up an error dialog */
+		perror(file);
+		return;
+	}
+	write(fd, data_p + start, end - start);
+	close(fd);
+}
+
 
 #if GTK_MAJOR_VERSION < 2
 static void
@@ -1539,3 +1715,4 @@ clear_tree_and_hex_views(void)
   gtk_tree_store_clear(GTK_TREE_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(tree_view))));
 #endif
 }
+
