@@ -2,7 +2,7 @@
  * Routines for Short Message Peer to Peer dissection
  * Copyright 2001, Tom Uijldert <tom.uijldert@cmg.nl>
  *
- * $Id: packet-smpp.c,v 1.12 2003/06/12 08:33:30 guy Exp $
+ * $Id: packet-smpp.c,v 1.13 2003/06/26 08:55:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2154,7 +2154,7 @@ proto_register_smpp(void)
 	},
 	{   &hf_smpp_its_session_ind,
 	    {   "Session indicator", "smpp.its_session.ind",
-		FT_UINT8, BASE_HEX, NULL, 0x01,
+		FT_UINT8, BASE_HEX, VALS(vals_its_session_ind), 0x01,
 		"Indicates whether this message is end of conversation.",
 		HFILL
 	    }
