@@ -2,6 +2,8 @@
  * Routines for PN-DCP (PROFINET Discovery and basic Configuration Protocol) 
  * packet dissection.
  *
+ * $Id$
+ *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1999 Gerald Combs

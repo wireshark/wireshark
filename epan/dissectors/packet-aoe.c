@@ -2,7 +2,7 @@
  * Routines for dissecting the ATA over Ethernet protocol.
  *   Ronnie Sahlberg 2004
  *
- * $Id: packet-aoe.c 11410 2004-07-18 18:06:47Z gram $
+ * $Id$
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
