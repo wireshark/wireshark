@@ -25,8 +25,13 @@ case "$1" in
 	fi
 	echo "Checking for required applications:"
 	for APP in $* ; do
-		APP_LOC=`which $APP 2> /dev/null`
-		if [ "$APP_LOC" = "" ] ; then
+		APP_PATH=`cygpath --unix $APP`
+		if [ -x "$APP_PATH" -a ! -d "$APP_PATH" ] ; then
+			APP_LOC="$APP_PATH"
+		else
+			APP_LOC=`which $APP_PATH 2> /dev/null`
+		fi
+		if [ "$APP_LOC" == "" ] ; then
 			err_exit "Can't find $APP"
 		fi
 		echo "	$APP: $APP_LOC $res"

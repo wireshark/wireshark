@@ -1,7 +1,7 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.412 2004/04/09 07:38:38 ulfl Exp $
+# $Id: Makefile.nmake,v 1.413 2004/04/09 16:54:06 gerald Exp $
 
 include config.nmake
 include <win32.mak>
@@ -378,16 +378,27 @@ setup: verify_apps
 		libiconv-1.9.1.bin.woe32 libiconv-1.9.1.bin.woe32.zip
 	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
 		gettext-runtime-0.13.1 gettext-runtime-0.13.1.zip
+!IFDEF NET_SNMP_DIR
 	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
 		. net-snmp-5.1.zip
+!ENDIF
+!IFDEF PCAP_DIR
 	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
 		. wpdpack_3_0.zip
+!ENDIF
+!IFDEF ADNS_DIR
 	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
 		. adns-1.0-win32-03.zip
+!ENDIF
+!IFDEF PCRE_DIR
 	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
 		. pcre-4.4.zip
+!ENDIF
+!IFDEF ZLIB_DIR
 	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
 		zlib121-dll zlib121-dll.zip
+!ENDIF
+!IFDEF GTK2_DIR
 	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
 		gtk2 gtk2/gtk+-2.2.4-20040124.zip
 	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
@@ -402,5 +413,6 @@ setup: verify_apps
 		gtk2 gtk2/atk-dev-1.4.0.zip
 	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
 		gtk-wimp gtk2/gtk-wimp-0.5.3-bin.zip
-	@echo ""
+!ENDIF
+	@echo.
 	@echo Ethereal is ready to build.
