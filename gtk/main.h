@@ -263,8 +263,10 @@ extern gboolean main_filter_packets(capture_file *cf, const gchar *dftext,
     gboolean force);
 
 /** Init the drag-n-drop functionality.
+ *
+ * @param the target widget for this dnd operations
  */
-extern void dnd_init(void);
+extern void dnd_init(GtkWidget *w);
 
 /** Open a new file coming from drag and drop.
  * @param selection_data the selection data reported from GTK
