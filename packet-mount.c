@@ -1,7 +1,7 @@
 /* packet-mount.c
  * Routines for mount dissection
  *
- * $Id: packet-mount.c,v 1.16 2000/08/13 14:08:29 deniel Exp $
+ * $Id: packet-mount.c,v 1.17 2000/08/14 11:36:03 girlich Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -83,9 +83,6 @@ dissect_fhstatus(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
 	guint32 status;
 
-	if (!proto_is_protocol_enabled(proto_mount)) 
-	  return offset;
-
 	if (!BYTES_ARE_IN_FRAME(offset,4)) return offset;
 	status = EXTRACT_UINT(pd, offset+0);
 	if (tree) {
@@ -110,10 +107,6 @@ static int
 dissect_mount_dirpath_call(const u_char *pd, int offset, frame_data *fd,
 	proto_tree *tree)
 {
-
-	if (!proto_is_protocol_enabled(proto_mount)) 
-	  return offset;
-
 	if ( tree )
 	{
 		offset = dissect_rpc_string(pd,offset,fd,tree,hf_mount_path,NULL);
@@ -128,10 +121,6 @@ static int
 dissect_mount_mnt_reply(const u_char *pd, int offset, frame_data *fd,
 	proto_tree *tree)
 {
-
-	if (!proto_is_protocol_enabled(proto_mount)) 
-	  return offset;
-
 	offset = dissect_fhstatus(pd, offset, fd, tree);
 
 	return offset;
@@ -148,9 +137,6 @@ dissect_mountlist(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 	int old_offset = offset;
 	char* hostname;
 	char* directory;
-
-	if (!proto_is_protocol_enabled(proto_mount)) 
-	  return offset;
 
 	if (tree) {
 		mountlist_item = proto_tree_add_item(tree, hf_mount_mountlist, NullTVB,
@@ -181,10 +167,6 @@ static int
 dissect_mount_dump_reply(const u_char *pd, int offset, frame_data *fd,
 	proto_tree *tree)
 {
-
-	if (!proto_is_protocol_enabled(proto_mount)) 
-	  return offset;
-
 	offset = dissect_rpc_list(pd,offset,fd,tree,dissect_mountlist);
 
 	return offset;
@@ -196,10 +178,6 @@ dissect_mount_dump_reply(const u_char *pd, int offset, frame_data *fd,
 static int
 dissect_group(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
-
-	if (!proto_is_protocol_enabled(proto_mount)) 
-	  return offset;
-
 	offset = dissect_rpc_string(pd, offset, fd, tree, hf_mount_groups_group,NULL);
 
 	return offset;
@@ -218,9 +196,6 @@ dissect_exportlist(const u_char *pd, int offset, frame_data *fd, proto_tree *tre
 	proto_item* groups_item = NULL;
 	proto_item* groups_tree = NULL;
 	char* directory;
-
-	if (!proto_is_protocol_enabled(proto_mount)) 
-	  return offset;
 
 	if (tree) {
 		exportlist_item = proto_tree_add_item(tree, hf_mount_exportlist, NullTVB,
@@ -266,10 +241,6 @@ static int
 dissect_mount_export_reply(const u_char *pd, int offset, frame_data *fd,
 	proto_tree *tree)
 {
-
-	if (!proto_is_protocol_enabled(proto_mount)) 
-	  return offset;
-
 	offset = dissect_rpc_list(pd,offset,fd,tree,dissect_exportlist);
 
 	return offset;
@@ -346,9 +317,6 @@ dissect_mount_pathconf_reply(const u_char *pd, int offset, frame_data *fd,
 	guint32 pc_mask;
 	proto_item *ti;
 	proto_tree *mask_tree;
-
-	if (!proto_is_protocol_enabled(proto_mount)) 
-	  return offset;
 
 	/*
 	 * Extract the mask first, so we know which other fields the
@@ -538,9 +506,6 @@ dissect_mountstat3(const u_char *pd, int offset, frame_data *fd, proto_tree *tre
 {
 	guint32 mountstat3;
 
-	if (!proto_is_protocol_enabled(proto_mount)) 
-	  return offset;
-
 	if (!BYTES_ARE_IN_FRAME(offset,4)) return offset;
 	mountstat3 = EXTRACT_UINT(pd, offset+0);
 
@@ -563,10 +528,7 @@ dissect_mount3_mnt_reply(const u_char *pd, int offset, frame_data *fd,
 	guint32 auth_flavors;
 	guint32 auth_flavor;
 	guint32 auth_flavor_i;
-
-	if (!proto_is_protocol_enabled(proto_mount)) 
-	  return offset;
-
+	
 	offset = dissect_mountstat3(pd, offset, fd, tree, hf_mount_status, &status);
 	switch (status) {
 		case 0:

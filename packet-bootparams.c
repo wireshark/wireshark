@@ -1,7 +1,7 @@
 /* packet-bootparams.c
  * Routines for bootparams dissection
  *
- * $Id: packet-bootparams.c,v 1.12 2000/08/13 14:08:04 deniel Exp $
+ * $Id: packet-bootparams.c,v 1.13 2000/08/14 11:36:03 girlich Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -58,9 +58,6 @@ int dissect_bp_address(const u_char *pd, int offset, frame_data *fd,
 	guint32 type;
 	guint32 ipaddr;
 
-	if (!proto_is_protocol_enabled(proto_bootparams))
-	  return offset;
-
 	/* get the address type */
 	if ( !BYTES_ARE_IN_FRAME(offset, 1)) return offset;
 	type = pntohl(&pd[offset]); /* type of address */
@@ -92,9 +89,6 @@ ZZZZZZZZZZZZZZZZZZZ Check type:
 int dissect_getfile_call(const u_char *pd, int offset, frame_data *fd,
 	proto_tree *tree)
 {
-	if (!proto_is_protocol_enabled(proto_bootparams))
-	  return offset;
-
 	if ( tree )
 	{
 		offset = dissect_rpc_string(pd,offset,fd,tree,hf_bootparams_host,NULL);
@@ -108,9 +102,6 @@ int dissect_getfile_call(const u_char *pd, int offset, frame_data *fd,
 int dissect_getfile_reply(const u_char *pd, int offset, frame_data *fd,
 	proto_tree *tree)
 {
-	if (!proto_is_protocol_enabled(proto_bootparams))
-	  return offset;
-
 	if ( tree )
 	{
 		offset = dissect_rpc_string(pd,offset,fd,tree,hf_bootparams_host,NULL);
@@ -125,9 +116,6 @@ int dissect_getfile_reply(const u_char *pd, int offset, frame_data *fd,
 int dissect_whoami_call(const u_char *pd, int offset, frame_data *fd,
 	proto_tree *tree)
 {
-	if (!proto_is_protocol_enabled(proto_bootparams))
-	  return offset;
-
 	if ( tree )
 	{
 		offset = dissect_bp_address(pd,offset,fd,tree,hf_bootparams_hostaddr);
@@ -140,9 +128,6 @@ int dissect_whoami_call(const u_char *pd, int offset, frame_data *fd,
 int dissect_whoami_reply(const u_char *pd, int offset, frame_data *fd,
 	proto_tree *tree)
 {
-	if (!proto_is_protocol_enabled(proto_bootparams))
-	  return offset;
-
 	if ( tree )
 	{
 		offset = dissect_rpc_string(pd,offset,fd,tree,hf_bootparams_host,NULL);

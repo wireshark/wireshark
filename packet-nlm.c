@@ -1,7 +1,7 @@
 /* packet-nlm.c
  * Routines for nlm dissection
  *
- * $Id: packet-nlm.c,v 1.8 2000/08/13 14:08:33 deniel Exp $
+ * $Id: packet-nlm.c,v 1.9 2000/08/14 11:36:02 girlich Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -105,9 +105,6 @@ dissect_nlm_lock(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int versio
 
 	tvb_compat(tvb, &pd, &compat_offset);
 
-	if (!proto_is_protocol_enabled(proto_nlm))
-	  return offset;
-
 	if (tree) {
 		lock_item = proto_tree_add_item(tree, hf_nlm_lock, tvb,
 				offset, tvb_length_remaining(tvb, offset), FALSE);
@@ -151,9 +148,6 @@ dissect_nlm1_lock_call(const u_char* pd, int offset, frame_data* fd, proto_tree*
 #endif
 	int noffset;
 
-	if (!proto_is_protocol_enabled(proto_nlm))
-	  return tvb_raw_offset(tvb);
-
 	noffset = dissect_rpc_data_tvb(tvb, pinfo, tree, hf_nlm_cookie, 0);
 	noffset = dissect_rpc_bool_tvb(tvb, pinfo, tree, hf_nlm_block, noffset);
 	noffset = dissect_rpc_bool_tvb(tvb, pinfo, tree, hf_nlm_exclusive, noffset);
@@ -177,9 +171,6 @@ dissect_nlm1_unlock_call(const u_char* pd, int offset, frame_data* fd, proto_tre
 #endif
 	int noffset;
 
-	if (!proto_is_protocol_enabled(proto_nlm))
-	  return tvb_raw_offset(tvb);
-
 	noffset = dissect_rpc_data_tvb(tvb, pinfo, tree, hf_nlm_cookie, 0);
 	noffset = dissect_nlm_lock(tvb, pinfo, tree, 1, noffset);
 	return tvb_raw_offset(tvb) + noffset;
@@ -198,9 +189,6 @@ dissect_nlm1_gen_reply(const u_char* pd, int offset, frame_data* fd, proto_tree*
 	packet_info *pinfo = &pi;
 #endif
 	int noffset;
-
-	if (!proto_is_protocol_enabled(proto_nlm))
-	  return tvb_raw_offset(tvb);
 
 	noffset = dissect_rpc_data_tvb(tvb, pinfo, tree, hf_nlm_cookie, 0);
 	noffset = dissect_rpc_uint32_tvb(tvb, pinfo, tree, hf_nlm_state, noffset);
@@ -309,9 +297,6 @@ dissect_nlm4_test_call(const u_char* pd, int offset, frame_data* fd, proto_tree*
 	packet_info *pinfo = &pi;
 #endif
 	int noffset;
-
-	if (!proto_is_protocol_enabled(proto_nlm))
-	  return tvb_raw_offset(tvb);
 
 	noffset = dissect_rpc_data_tvb(tvb, pinfo, tree, hf_nlm_cookie, 0);
 	dissect_rpc_bool_tvb(tvb, pinfo, tree, hf_nlm_exclusive, noffset);
