@@ -1,9 +1,9 @@
 /* vms.h
  *
- * $Id: vms.h,v 1.1 2001/10/18 20:29:56 guy Exp $
+ * $Id: vms.h,v 1.2 2003/01/17 23:54:19 guy Exp $
  *
  * Wiretap Library
- * Copyright (c) 2001 by Marc Milgram <mmilgram@arrayinc.com>
+ * Copyright (c) 2001 by Marc Milgram <ethereal@mmilgram.NOSPAMmail.net>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License

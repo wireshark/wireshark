@@ -1,6 +1,6 @@
-/* toshiba.h
+/* dbs-etherwatch.h
  *
- * $Id: dbs-etherwatch.h,v 1.3 2002/08/28 20:30:44 jmayer Exp $
+ * $Id: dbs-etherwatch.h,v 1.4 2003/01/17 23:54:19 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>

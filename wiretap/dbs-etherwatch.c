@@ -1,9 +1,9 @@
 /* dbs-etherwatch.c
  *
- * $Id: dbs-etherwatch.c,v 1.10 2002/10/10 21:47:12 guy Exp $
+ * $Id: dbs-etherwatch.c,v 1.11 2003/01/17 23:54:19 guy Exp $
  *
  * Wiretap Library
- * Copyright (c) 2001 by Marc Milgram <mmilgram@arrayinc.com>
+ * Copyright (c) 2001 by Marc Milgram <ethereal@mmilgram.NOSPAMmail.net>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
