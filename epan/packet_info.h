@@ -1,7 +1,7 @@
 /* packet_info.h
  * Definitions for packet info structures and routines
  *
- * $Id: packet_info.h,v 1.5 2001/08/04 04:04:35 guy Exp $
+ * $Id: packet_info.h,v 1.6 2001/09/13 07:53:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -108,6 +108,9 @@ typedef struct _packet_info {
   guint32 srcport;		/* source port */
   guint32 destport;		/* destination port */
   guint32 match_port;
+  gboolean can_desegment;	/* TRUE if this segment could be desegmented */
+  int desegment_offset;		/* offset of stuff needing desegmentation */
+  guint32 desegment_len;	/* requested desegmentation additional length */
   int     iplen;
   int     iphdrlen;
   int	  p2p_dir;

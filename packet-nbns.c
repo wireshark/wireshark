@@ -4,7 +4,7 @@
  * Gilbert Ramirez <gram@xiexie.org>
  * Much stuff added by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-nbns.c,v 1.54 2001/08/05 10:00:35 guy Exp $
+ * $Id: packet-nbns.c,v 1.55 2001/09/13 07:53:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -41,6 +41,7 @@
 #include "packet-dns.h"
 #include "packet-netbios.h"
 #include "packet-smb.h"
+#include "prefs.h"
 
 static int proto_nbns = -1;
 static int hf_nbns_response = -1;
@@ -77,6 +78,10 @@ static int hf_nbss_flags = -1;
 
 static gint ett_nbss = -1;
 static gint ett_nbss_flags = -1;
+
+/* desegmentation of NBSS over TCP */
+static gboolean nbss_desegment = FALSE;
+
 
 /* See RFC 1001 and 1002 for information on the first three, and see
 
@@ -1393,6 +1398,25 @@ dissect_nbss_packet(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			length += 65536;
 	}
 
+	/*Desegmentation */
+	if (nbss_desegment) {
+		if (pinfo->can_desegment
+		    && length > tvb_length_remaining(tvb, offset+4)) {
+			/*
+			 * This frame doesn't have all of the data for
+			 * this message, but we can do reassembly on it.
+			 *
+			 * Tell the TCP dissector where the data for this
+			 * message starts in the data it handed us, and
+			 * how many more bytes we need, and return.
+			 */
+			pinfo->desegment_offset = offset;
+			pinfo->desegment_len =
+			    length - tvb_length_remaining(tvb, offset+4);
+			return max_data;
+		}
+	}
+
 	if (tree) {
 	  ti = proto_tree_add_item(tree, proto_nbss, tvb, offset, length + 4, FALSE);
 	  nbss_tree = proto_item_add_subtree(ti, ett_nbss);
@@ -1661,6 +1685,7 @@ proto_register_nbt(void)
     &ett_nbss,
     &ett_nbss_flags,
   };
+  module_t *nbss_module;
 
   proto_nbns = proto_register_protocol("NetBIOS Name Service", "NBNS", "nbns");
   proto_register_field_array(proto_nbns, hf_nbns, array_length(hf_nbns));
@@ -1674,6 +1699,12 @@ proto_register_nbt(void)
   proto_register_field_array(proto_nbss, hf_nbss, array_length(hf_nbss));
 
   proto_register_subtree_array(ett, array_length(ett));
+
+  nbss_module = prefs_register_protocol(proto_nbss, NULL);
+  prefs_register_bool_preference(nbss_module, "desegment_nbss_commands",
+    "Desegment all NBSS commands spanning multiple TCP segments",
+    "Whether NBSS dissector should desegment all commands spanning multiple TCP segments",
+    &nbss_desegment);
 }
 
 void

@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * 
- * $Id: packet-rpc.c,v 1.70 2001/09/12 08:46:39 guy Exp $
+ * $Id: packet-rpc.c,v 1.71 2001/09/13 07:53:51 guy Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -40,6 +40,7 @@
 #include "packet.h"
 #include "conversation.h"
 #include "packet-rpc.h"
+#include "prefs.h"
 
 /*
  * See:
@@ -59,6 +60,9 @@
  */
 
 #define RPC_RM_FRAGLEN  0x7fffffffL
+
+/* desegmentation of RPC over TCP */
+static gboolean rpc_desegment = FALSE;
 
 static struct true_false_string yesno = { "Yes", "No" };
 
@@ -218,6 +222,7 @@ typedef struct _rpc_prog_info_value {
 } rpc_prog_info_value;
 
 static void dissect_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+static void dissect_rpc_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 /***********************************/
 /* Hash array with procedure names */
@@ -1175,7 +1180,8 @@ dissect_rpc_indir_call(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 		/* Make the dissector for this conversation the non-heuristic
 		   RPC dissector. */
-		conversation_set_dissector(conversation, dissect_rpc);
+		conversation_set_dissector(conversation,
+		    (pinfo->ptype == PT_TCP) ? dissect_rpc_tcp : dissect_rpc);
 
 		/* Prepare the key data.
 
@@ -1384,9 +1390,9 @@ dissect_rpc_continuation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static gboolean
-dissect_rpc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_rpc_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
+    proto_tree *tree, gboolean use_rm, guint32 rpc_rm)
 {
-	int offset = 0;
 	guint32	msg_type;
 	rpc_call_info_key rpc_call_key;
 	rpc_call_info_value *rpc_call = NULL;
@@ -1425,9 +1431,6 @@ dissect_rpc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree *ptree = NULL;
 	int offset_old = offset;
 
-	int use_rm = 0;
-	guint32 rpc_rm = 0;
-
 	rpc_call_info_key	*new_rpc_call_key;
 	rpc_proc_info_key	key;
 	rpc_proc_info_value	*value = NULL;
@@ -1435,17 +1438,6 @@ dissect_rpc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	static address null_address = { AT_NONE, 0, NULL };
 
 	dissect_function_t *dissect_function = NULL;
-
-	/* TCP uses record marking */
-	use_rm = (pinfo->ptype == PT_TCP);
-
-	/* the first 4 bytes are special in "record marking mode" */
-	if (use_rm) {
-		if (!tvb_bytes_exist(tvb, offset, 4))
-			return FALSE;
-		rpc_rm = tvb_get_ntohl(tvb, offset);
-		offset += 4;
-	}
 
 	/*
 	 * Check to see whether this looks like an RPC call or reply.
@@ -1723,7 +1715,8 @@ dissect_rpc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		/* Make the dissector for this conversation the non-heuristic
 		   RPC dissector. */
-		conversation_set_dissector(conversation, dissect_rpc);
+		conversation_set_dissector(conversation,
+		    (pinfo->ptype == PT_TCP) ? dissect_rpc_tcp : dissect_rpc);
 
 		/* prepare the key data */
 		rpc_call_key.xid = xid;
@@ -2068,13 +2061,140 @@ dissect_rpc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static gboolean
 dissect_rpc_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	return dissect_rpc_common(tvb, pinfo, tree);
+	return dissect_rpc_message(tvb, 0, pinfo, tree, FALSE, 0);
 }
 
 static void
 dissect_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	if (!dissect_rpc_common(tvb, pinfo, tree))
+	if (!dissect_rpc_message(tvb, 0, pinfo, tree, FALSE, 0))
+		dissect_rpc_continuation(tvb, pinfo, tree);
+}
+
+/*
+ * Can return:
+ *
+ *	NEED_MORE_DATA, if we don't have enough data to dissect anything;
+ *
+ *	IS_RPC, if we dissected at least one message in its entirety
+ *	as RPC;
+ *
+ *	IS_NOT_RPC, if we found no RPC message.
+ */
+typedef enum {
+	NEED_MORE_DATA,
+	IS_RPC,
+	IS_NOT_RPC
+} rpc_tcp_return_t;
+
+static rpc_tcp_return_t
+dissect_rpc_tcp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+    gboolean is_heur)
+{
+	int offset = 0;
+	guint32 rpc_rm;
+	gboolean saw_rpc = FALSE;
+	gint32 len, seglen;
+	gint tvb_len, tvb_reported_len;
+	tvbuff_t *msg_tvb;
+
+	while (tvb_reported_length_remaining(tvb, offset) != 0) {
+		/*
+		 * XXX - we need to handle records that don't have the "last
+		 * fragment" bit set, and reassemble fragments.
+		 */
+
+		/* the first 4 bytes are special in "record marking mode" */
+		if (!tvb_bytes_exist(tvb, offset, 4)) {
+			/*
+			 * XXX - we should somehow arrange to handle
+			 * a record mark split across TCP segments.
+			 */
+			return saw_rpc ? IS_RPC : IS_NOT_RPC;
+		}
+		rpc_rm = tvb_get_ntohl(tvb, offset);
+
+		len = rpc_rm&RPC_RM_FRAGLEN;
+
+		/*
+		 * XXX - reject fragments bigger than 2 megabytes.
+		 * This is arbitrary, but should at least prevent
+		 * some crashes from either packets with really
+		 * large RPC-over-TCP fragments or from stuff that's
+		 * not really RPC.
+		 */
+		if (len > 2*1024*1024)
+			return saw_rpc ? IS_RPC : IS_NOT_RPC;
+		if (rpc_desegment) {
+			seglen = tvb_length_remaining(tvb, offset + 4);
+
+			if (len > seglen && pinfo->can_desegment) {
+				/*
+				 * This frame doesn't have all of the
+				 * data for this message, but we can do
+				 * reassembly on it.
+				 *
+				 * If this is a heuristic dissector, just
+				 * return IS_NOT_RPC - we don't want to try
+				 * to get more data, as that's too likely
+				 * to cause us to misidentify this as
+				 * RPC.
+				 *
+				 * If this isn't a heuristic dissector,
+				 * we've already identified this conversation
+				 * as containing RPC data, as we saw RPC
+				 * data in previous frames.  Try to get
+				 * more data.
+				 */
+				if (is_heur)
+					return IS_NOT_RPC;
+				else {
+					pinfo->desegment_offset = offset;
+					pinfo->desegment_len = len - seglen;
+					return NEED_MORE_DATA;
+				}
+			}
+		}
+		len += 4;	/* include record mark */
+		tvb_len = tvb_length_remaining(tvb, offset);
+		tvb_reported_len = tvb_reported_length_remaining(tvb, offset);
+		if (tvb_len > len)
+			tvb_len = len;
+		if (tvb_reported_len > len)
+			tvb_reported_len = len;
+		msg_tvb = tvb_new_subset(tvb, offset, tvb_len,
+		    tvb_reported_len);
+		if (!dissect_rpc_message(msg_tvb, 4, pinfo, tree,
+		    TRUE, rpc_rm))
+			break;
+		offset += len;
+		saw_rpc = TRUE;
+	}
+	return saw_rpc ? IS_RPC : IS_NOT_RPC;
+}
+
+static gboolean
+dissect_rpc_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	switch (dissect_rpc_tcp_common(tvb, pinfo, tree, TRUE)) {
+
+	case IS_RPC:
+		return TRUE;
+
+	case IS_NOT_RPC:
+		return FALSE;
+
+	default:
+		/* "Can't happen" */
+		g_assert_not_reached();
+		return FALSE;
+	}
+}
+
+static void
+dissect_rpc_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	if (dissect_rpc_tcp_common(tvb, pinfo, tree, FALSE) == IS_NOT_RPC)
 		dissect_rpc_continuation(tvb, pinfo, tree);
 }
 
@@ -2259,12 +2379,18 @@ proto_register_rpc(void)
 		&ett_rpc_gss_data,
 		&ett_rpc_array,
 	};
+	module_t *rpc_module;
 
 	proto_rpc = proto_register_protocol("Remote Procedure Call",
 	    "RPC", "rpc");
 	proto_register_field_array(proto_rpc, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 	register_init_routine(&rpc_init_protocol);
+	rpc_module = prefs_register_protocol(proto_rpc, NULL);
+	prefs_register_bool_preference(rpc_module, "desegment_rpc_over_tcp",
+		"Desegment all RPC over TCP commands",
+		"Whether the RPC dissector should desegment all RPC over TCP commands",
+		&rpc_desegment);
 
 	/*
 	 * Init the hash tables.  Dissectors for RPC protocols must
@@ -2284,6 +2410,6 @@ proto_register_rpc(void)
 void
 proto_reg_handoff_rpc(void)
 {
-	heur_dissector_add("tcp", dissect_rpc_heur, proto_rpc);
+	heur_dissector_add("tcp", dissect_rpc_tcp_heur, proto_rpc);
 	heur_dissector_add("udp", dissect_rpc_heur, proto_rpc);
 }

@@ -1,7 +1,7 @@
 /* reassemble.c
  * Routines for {fragment,segment} reassembly
  *
- * $Id: reassemble.c,v 1.2 2001/06/28 19:15:11 guy Exp $
+ * $Id: reassemble.c,v 1.3 2001/09/13 07:53:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -60,9 +60,13 @@ fragment_equal(gconstpointer k1, gconstpointer k2)
 	fragment_key* key1 = (fragment_key*) k1;
 	fragment_key* key2 = (fragment_key*) k2;
 
-	return ( ( (ADDRESSES_EQUAL(&key1->src, &key2->src)) &&
-		   (ADDRESSES_EQUAL(&key1->dst, &key2->dst)) &&
-		   (key1->id    == key2->id) 
+	/*key.id is the first item to compare since item is most
+	  likely to differ between sessions, thus shortcircuiting
+	  the comparasion of addresses.
+	*/
+	return ( ( (key1->id    == key2->id) &&
+		   (ADDRESSES_EQUAL(&key1->src, &key2->src)) &&
+		   (ADDRESSES_EQUAL(&key1->dst, &key2->dst))
 		 ) ?
 		 TRUE : FALSE);
 }
@@ -75,10 +79,17 @@ fragment_hash(gconstpointer k)
 	int i;
 
 	hash_val = 0;
+
+/* 	More than likely: in most captures src and dst addresses are the
+	same, and would hash the same.
+	We only use id as the hash as an optimization.
+
 	for (i = 0; i < key->src.len; i++)
 		hash_val += key->src.data[i];
 	for (i = 0; i < key->dst.len; i++)
 		hash_val += key->dst.data[i];
+*/
+
 	hash_val += key->id;
 
 	return hash_val;

@@ -549,6 +549,8 @@ Ronnie Sahlberg <rsahlber[AT]bigpond.net.au> {
 	Tvbuffified ISIS dissector
 	Tvbuffified SMB NETLOGON dissector
 	Tvbuffified SMB BROWSER dissector
+	TCP segment reassembly and support for it in ONC RPC and NBSS
+	    dissectors
 }
 
 Borosa Tomislav <tomislav.borosa[AT]SIEMENS.HR> {
