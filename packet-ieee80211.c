@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB 
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.23 2001/06/18 02:17:47 guy Exp $
+ * $Id: packet-ieee80211.c,v 1.24 2001/06/19 23:08:55 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -558,7 +558,8 @@ add_tagged_field (proto_tree * tree, tvbuff_t * tvb, int offset)
   const guint8 *tag_info_ptr;
   const guint8 *tag_data_ptr;
   guint32 tag_no, tag_len;
-  int i, n;
+  unsigned int i;
+  int n;
   char out_buff[SHORT_STR];
 
 

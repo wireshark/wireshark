@@ -1,7 +1,7 @@
 /* proto_hier_stats.c
  * Routines for calculating statistics based on protocol.
  *
- * $Id: proto_hier_stats.c,v 1.3 2001/03/24 02:07:20 guy Exp $
+ * $Id: proto_hier_stats.c,v 1.4 2001/06/19 23:08:55 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -155,7 +155,7 @@ ph_stats_new(void)
 	gboolean	stop_flag;
 	guint32		progbar_quantum;
 	guint32		progbar_nextstep;
-	int		count;
+	unsigned int	count;
 
 	/* Initialize the data */
 	ps = g_new(ph_stats_t, 1);

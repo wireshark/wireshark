@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.240 2001/06/08 08:50:49 guy Exp $
+ * $Id: file.c,v 1.241 2001/06/19 23:08:55 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -893,7 +893,7 @@ rescan_packets(capture_file *cf, const char *action, gboolean refilter,
   gboolean stop_flag;
   guint32 progbar_quantum;
   guint32 progbar_nextstep;
-  int count;
+  unsigned int count;
   frame_data *selected_frame;
   int selected_row;
   int row;
@@ -1282,7 +1282,7 @@ change_time_formats(capture_file *cf)
   gboolean stop_flag;
   guint32 progbar_quantum;
   guint32 progbar_nextstep;
-  int count;
+  unsigned int count;
   int row;
   int i;
   GtkStyle  *pl_style;
@@ -1389,7 +1389,7 @@ find_packet(capture_file *cf, dfilter_t *sfcode)
   gboolean stop_flag;
   guint32 progbar_quantum;
   guint32 progbar_nextstep;
-  int count;
+  unsigned int count;
   proto_tree *protocol_tree;
   gboolean frame_matched;
   int row;

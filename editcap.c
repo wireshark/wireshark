@@ -1,7 +1,7 @@
 /* Edit capture files.  We can delete records, or simply convert from one 
  * format to another format.
  *
- * $Id: editcap.c,v 1.14 2001/04/20 22:35:19 guy Exp $
+ * $Id: editcap.c,v 1.15 2001/06/19 23:08:55 guy Exp $
  *
  * Originally written by Richard Sharpe.
  * Improved by Guy Harris.
@@ -53,7 +53,7 @@ static int keep_em = 0;
 static int out_file_type = WTAP_FILE_PCAP;   /* default to "libpcap"   */
 static int out_frame_type = -2;              /* Leave frame type alone */
 static int verbose = 0;                      /* Not so verbose         */
-static int snaplen = 0;                      /* No limit               */
+static unsigned int snaplen = 0;             /* No limit               */
 
 /* Add a selection item, a simple parser for now */
 

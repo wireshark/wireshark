@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.137 2001/06/18 02:17:47 guy Exp $
+ * $Id: packet-ip.c,v 1.138 2001/06/19 23:08:55 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -621,7 +621,7 @@ dissect_ip_tcp_options(tvbuff_t *tvb, int offset, guint length,
   u_char            opt;
   const ip_tcp_opt *optp;
   opt_len_type      len_type;
-  int               optlen;
+  unsigned int      optlen;
   char             *name;
   char              name_str[7+1+1+2+2+1+1];	/* "Unknown (0x%02x)" */
   void            (*dissect)(const struct ip_tcp_opt *, tvbuff_t *,
@@ -792,7 +792,8 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree *ip_tree = NULL, *field_tree;
   proto_item *ti, *tf;
   int        offset = 0;
-  guint      hlen, optlen, len, payload_len, reported_payload_len, padding;
+  guint      hlen, optlen, len, payload_len, reported_payload_len;
+  int        padding;
   guint16    flags;
   guint8     nxt;
   guint16    ipsum;

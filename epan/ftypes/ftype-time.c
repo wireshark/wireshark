@@ -1,5 +1,5 @@
 /*
- * $Id: ftype-time.c,v 1.8 2001/06/18 01:42:24 guy Exp $
+ * $Id: ftype-time.c,v 1.9 2001/06/19 23:08:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -263,6 +263,8 @@ ftype_register_time(void)
 		cmp_ge,
 		cmp_lt,
 		cmp_le,
+		NULL,
+		NULL
 	};
 	static ftype_t reltime_type = {
 		"FT_RELATIVE_TIME",
@@ -286,6 +288,8 @@ ftype_register_time(void)
 		cmp_ge,
 		cmp_lt,
 		cmp_le,
+		NULL,
+		NULL
 	};
 
 	ftype_register(FT_ABSOLUTE_TIME, &abstime_type);
