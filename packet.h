@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.5 1998/09/17 03:12:28 gerald Exp $
+ * $Id: packet.h,v 1.6 1998/09/21 16:16:00 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -250,6 +250,7 @@ typedef struct _e_udphdr {
 
 #define UDP_PORT_DNS 53
 #define UDP_PORT_BOOTPS 67
+#define UDP_PORT_IPX 213
 #define UDP_PORT_RIP 520
 
 /* TCP Ports */
