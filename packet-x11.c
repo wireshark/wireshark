@@ -2,7 +2,7 @@
  * Routines for X11 dissection
  * Copyright 2000, Christophe Tronche <ch.tronche@computer.org>
  *
- * $Id: packet-x11.c,v 1.32 2002/04/11 09:38:03 guy Exp $
+ * $Id: packet-x11.c,v 1.33 2002/04/12 01:18:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1271,7 +1271,7 @@ static guint32 field8(tvbuff_t *tvb, proto_tree *t, int hf)
 static guint32 field16(tvbuff_t *tvb, proto_tree *t, int hf)
 {
       guint32 v = VALUE16(tvb, cur_offset);
-      proto_tree_add_item(t, hf, tvb, cur_offset, 2, v);
+      proto_tree_add_item(t, hf, tvb, cur_offset, 2, little_endian);
       cur_offset += 2;
       return v;
 }
