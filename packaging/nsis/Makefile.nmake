@@ -58,7 +58,6 @@ HELP=../../help/toc \
 	../../help/overview.txt \
 	../../help/capture_filters.txt \
 	../../help/display_filters.txt \
-	../../help/well_known.txt \
 	../../help/faq.txt
 
 PLUGINS=../../plugins/acn/acn.dll \
