@@ -2,7 +2,7 @@
  * Routines for DCERPC Browser packet disassembly
  * Copyright 2001, Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-browser.c,v 1.5 2002/05/31 00:31:12 tpot Exp $
+ * $Id: packet-dcerpc-browser.c,v 1.6 2002/06/16 13:50:51 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -186,17 +186,11 @@ dissect_browser_TYPE_2(tvbuff_t *tvb, int offset,
 			char *drep)
 {
 	guint32 level;
-	dcerpc_info *di;
-
-	di=pinfo->private_data;
-	if(di->conformant_run){
-		/* ALING_TO_4_BYTES below might eat bytes otherwise */
-		return offset;
-	}
 
 	/* this is really the union switch arm */
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_browser_unknown_long, &level);
+
 	ALIGN_TO_4_BYTES;
 
 	switch(level){
@@ -795,17 +789,11 @@ dissect_browser_TYPE_8(tvbuff_t *tvb, int offset,
 			char *drep)
 {
 	guint32 level;
-	dcerpc_info *di;
-
-	di=pinfo->private_data;
-	if(di->conformant_run){
-		/* ALING_TO_4_BYTES below might eat bytes otherwise */
-		return offset;
-	}
 
 	/* this is really the union switch arm */
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_browser_unknown_long, &level);
+
 	ALIGN_TO_4_BYTES;
 
 	switch(level){
