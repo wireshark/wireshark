@@ -8,7 +8,7 @@
  * Gilbert Ramirez <gram@alumni.rice.edu>
  * Modified to decode NDS packets by Greg Morris <gmorris@novell.com>
  *
- * $Id: packet-ncp2222.inc,v 1.31 2002/10/10 23:52:51 guy Exp $
+ * $Id: packet-ncp2222.inc,v 1.32 2002/10/11 19:36:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -8187,9 +8187,14 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
         }        
 }
 
-
+/*
+ * XXX - this duplicates stuff in "dissect_ncp_request()"; could
+ * "dissect_ncp_request()" not just call "dissect_ping_req()" if
+ * the operation is an NCP ping, and "dissect_ping_req()" just dissect
+ * ping portion?
+ */
 void
-dissect_ping_req(tvbuff_t *tvb, packet_info *pinfo,                                          
+dissect_ping_req(tvbuff_t *tvb, packet_info *pinfo,
 		guint16 nw_connection, guint8 sequence,
 		guint16 type, proto_tree *ncp_tree)
 {
@@ -8199,7 +8204,6 @@ dissect_ping_req(tvbuff_t *tvb, packet_info *pinfo,
 	conversation_t		*conversation;
 	ptvcursor_t		*ptvc = NULL;
 	proto_tree		*temp_tree = NULL;
-        guint32                 nds_version = 0;
         gint                    length_remaining = 0;
 	char			flags_str[1+3+1+3+1+3+1+3+1+1];
         char *                  sep = NULL;
@@ -8301,8 +8305,8 @@ dissect_ping_req(tvbuff_t *tvb, packet_info *pinfo,
 					subfunc, "SubFunction: %d (0x%02x)",
 					subfunc, subfunc);
                                         
-				proto_tree_add_uint(ncp_tree, hf_nds_version, tvb, 8, 4,
-					nds_version);
+				proto_tree_add_item(ncp_tree, hf_nds_version, tvb, 8, 4,
+					FALSE);
                                
         		        length_remaining = tvb_length_remaining(tvb, 8);
                                 if (length_remaining > 6)

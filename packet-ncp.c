@@ -5,7 +5,7 @@
  * Modified to decode server op-lock
  * & NDS packets by Greg Morris <gmorris@novell.com>
  *
- * $Id: packet-ncp.c,v 1.71 2002/10/10 03:03:30 guy Exp $
+ * $Id: packet-ncp.c,v 1.72 2002/10/11 19:36:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -198,7 +198,6 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	proto_tree			*flags_tree = NULL;
 	guint16				data_len = 0;
 	guint16				missing_fraglist_count = 0;
-	guint16				ncp_nds_verb;
 	int				hdr_offset = 0;
 	int				commhdr;
 	int				offset;
@@ -433,7 +432,6 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	case NCP_BROADCAST_SLOT:	/* Server Broadcast Packet */
 		next_tvb = tvb_new_subset(tvb, hdr_offset, -1, -1);
 		if (tvb_get_guint8(tvb, commhdr+6) == 0x68) {
-			ncp_nds_verb = tvb_get_ntohl(tvb, commhdr+4);
 			subfunction = tvb_get_guint8(tvb, commhdr+7);
 			switch (subfunction) {
 
@@ -443,28 +441,11 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				    header.type, ncp_tree);
 				break;
 
-#if 0
-			/*
-			 * According to the page at
-			 *
-http://developer.novell.com/ndk/doc/ncp/index.html?page=/ndk/doc/ncp/ncp__enu/data/a1wfz7x.html
-			 *
-			 * an NDS Ping request's request header doesn't
-			 * have anything in it other than a function
-			 * code, a subfunction code, and 3 reserved
-			 * bytes.  According to at least one capture
-			 * I've seen, that page is correct.
-			 *
-			 * Therefore, we don't call "dissect_ping_req()",
-			 * as that assumes there's a pile of additional
-			 * junk in the packet.
-			 */
 			case 0x01:	/* NDS Ping */
 				dissect_ping_req(next_tvb, pinfo,
 				    nw_connection, header.sequence,
 				    header.type, ncp_tree);
 				break;
-#endif
 
 			default:
 				dissect_ncp_request(next_tvb, pinfo,
