@@ -51,11 +51,16 @@ static int hf_krb4_instance = -1;
 static int hf_krb4_realm = -1;
 static int hf_krb4_time_sec = -1;
 static int hf_krb4_exp_date = -1;
+static int hf_krb4_req_date = -1;
 static int hf_krb4_lifetime = -1;
 static int hf_krb4_s_name = -1;
 static int hf_krb4_s_instance = -1;
 static int hf_krb4_kvno = -1;
 static int hf_krb4_length = -1;
+static int hf_krb4_ticket_length = -1;
+static int hf_krb4_request_length = -1;
+static int hf_krb4_ticket_blob = -1;
+static int hf_krb4_request_blob = -1;
 static int hf_krb4_encrypted_blob = -1;
 static int hf_krb4_unknown_transarc_blob = -1;
 
@@ -195,8 +200,11 @@ dissect_krb4_kdc_reply(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int 
 
 
 static int
-dissect_krb4_appl_request(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gboolean little_endian _U_)
+dissect_krb4_appl_request(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gboolean little_endian)
 {
+	guint8 tlen, rlen;
+	nstime_t time_sec;
+	guint8 lifetime;
 
 	/* kvno */
 	proto_tree_add_item(tree, hf_krb4_kvno, tvb, offset, 1, FALSE);
@@ -205,7 +213,41 @@ dissect_krb4_appl_request(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, i
 	/* Realm */
 	offset=dissect_krb4_string(pinfo, hf_krb4_realm, tree, tvb, offset);
 
-/*qqq doesnt make sense beyond this field*/
+	/* ticket length */
+	tlen=tvb_get_guint8(tvb, offset);
+	proto_tree_add_item(tree, hf_krb4_ticket_length, tvb, offset, 1, FALSE);
+	offset++;
+
+	/* request length */
+	rlen=tvb_get_guint8(tvb, offset);
+	proto_tree_add_item(tree, hf_krb4_request_length, tvb, offset, 1, FALSE);
+	offset++;
+
+	/* ticket */
+	proto_tree_add_item(tree, hf_krb4_ticket_blob, tvb, offset, tlen, FALSE);
+	offset+=tlen;
+
+	/* request */
+	proto_tree_add_item(tree, hf_krb4_request_blob, tvb, offset, rlen, FALSE);
+	offset+=rlen;
+
+	/* request time */
+	time_sec.secs=little_endian?tvb_get_letohl(tvb, offset):tvb_get_ntohl(tvb, offset);
+	time_sec.nsecs=0;
+	proto_tree_add_time(tree, hf_krb4_req_date, tvb, offset, 4, &time_sec);
+	offset+=4;
+
+	/* lifetime */
+	lifetime=tvb_get_guint8(tvb, offset);
+	proto_tree_add_uint_format(tree, hf_krb4_lifetime, tvb, offset, 1, lifetime, "Lifetime: %d (%d minutes)", lifetime, lifetime*5);
+	offset++;
+
+	/* service Name */
+	offset=dissect_krb4_string(pinfo, hf_krb4_s_name, tree, tvb, offset);
+
+	/* service Instance */
+	offset=dissect_krb4_string(pinfo, hf_krb4_s_instance, tree, tvb, offset);
+
 	return offset;
 }
 
@@ -334,6 +376,10 @@ proto_register_krb4(void)
       { "Exp Date", "krb4.exp_date",
         FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x00,
         "Exp Date", HFILL }},
+    { &hf_krb4_req_date,
+      { "Req Date", "krb4.req_date",
+        FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x00,
+        "Req Date", HFILL }},
     { &hf_krb4_lifetime,
       { "Lifetime", "krb4.lifetime",
         FT_UINT8, BASE_DEC, NULL, 0x00,
@@ -354,6 +400,22 @@ proto_register_krb4(void)
       { "Length", "krb4.length",
         FT_UINT32, BASE_DEC, NULL, 0x00,
         "Length of encrypted blob", HFILL }},
+    { &hf_krb4_ticket_length,
+      { "Ticket Length", "krb4.ticket.length",
+        FT_UINT8, BASE_DEC, NULL, 0x00,
+        "Length of ticket", HFILL }},
+    { &hf_krb4_request_length,
+      { "Request Length", "krb4.request.length",
+        FT_UINT8, BASE_DEC, NULL, 0x00,
+        "Length of request", HFILL }},
+    { &hf_krb4_ticket_blob,
+      { "Ticket Blob", "krb4.ticket.blob",
+        FT_BYTES, BASE_HEX, NULL, 0x00,
+        "Ticket blob", HFILL }},
+    { &hf_krb4_request_blob,
+      { "Request Blob", "krb4.request.blob",
+        FT_BYTES, BASE_HEX, NULL, 0x00,
+        "Request Blob", HFILL }},
     { &hf_krb4_encrypted_blob,
       { "Encrypted Blob", "krb4.encrypted_blob",
         FT_BYTES, BASE_HEX, NULL, 0x00,
