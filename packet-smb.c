@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.323 2003/04/13 23:58:36 guy Exp $
+ * $Id: packet-smb.c,v 1.324 2003/04/14 00:27:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3408,6 +3408,7 @@ dissect_read_file_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 	proto_tree_add_item(tree, hf_smb_data_len, tvb, offset, 2, TRUE);
 	COUNT_BYTES(2);
 
+	/* file data */
 	/* another way to transport DCERPC over SMB is to skip Transaction completely and just
 	   read write */
 	if(bc){
@@ -3510,6 +3511,9 @@ dissect_write_file_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 	proto_tree_add_item(tree, hf_smb_data_len, tvb, offset, 2, TRUE);
 	COUNT_BYTES(2);
 
+	/* file data */
+	/* another way to transport DCERPC over SMB is to skip Transaction completely and just
+	   read write */
 	if (bc != 0) {
 		if( (si->sip && si->sip->flags&SMB_SIF_TID_IS_IPC) && (ofs==0) ){
 			/* dcerpc call */
@@ -4043,6 +4047,13 @@ static const true_false_string tfs_write_mode_connectionless = {
 	"CONNECTIONLESS mode requested",
 	"Connectionless mode NOT requested"
 };
+
+#define WRITE_MODE_CONNECTIONLESS	0x0080
+#define WRITE_MODE_MESSAGE_START	0x0008
+#define WRITE_MODE_RAW			0x0004
+#define WRITE_MODE_RETURN_REMAINING	0x0002
+#define WRITE_MODE_WRITE_THROUGH	0x0001
+
 static int
 dissect_write_mode(tvbuff_t *tvb, proto_tree *parent_tree, int offset, int bm)
 {
@@ -4058,23 +4069,23 @@ dissect_write_mode(tvbuff_t *tvb, proto_tree *parent_tree, int offset, int bm)
 		tree = proto_item_add_subtree(item, ett_smb_rawmode);
 	}
 
-	if(bm&0x0080){
+	if(bm&WRITE_MODE_CONNECTIONLESS){
 		proto_tree_add_boolean(tree, hf_smb_write_mode_connectionless,
 			tvb, offset, 2, mask);
 	}
-	if(bm&0x0008){
+	if(bm&WRITE_MODE_MESSAGE_START){
 		proto_tree_add_boolean(tree, hf_smb_write_mode_message_start,
 			tvb, offset, 2, mask);
 	}
-	if(bm&0x0004){
+	if(bm&WRITE_MODE_RAW){
 		proto_tree_add_boolean(tree, hf_smb_write_mode_raw,
 			tvb, offset, 2, mask);
 	}
-	if(bm&0x0002){
+	if(bm&WRITE_MODE_RETURN_REMAINING){
 		proto_tree_add_boolean(tree, hf_smb_write_mode_return_remaining,
 			tvb, offset, 2, mask);
 	}
-	if(bm&0x0001){
+	if(bm&WRITE_MODE_WRITE_THROUGH){
 		proto_tree_add_boolean(tree, hf_smb_write_mode_write_through,
 			tvb, offset, 2, mask);
 	}
@@ -5300,7 +5311,9 @@ dissect_read_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
 	BYTE_COUNT;
 
-
+	/* file data */
+	/* another way to transport DCERPC over SMB is to skip Transaction completely and just
+	   read write */
 	if(bc){
 		if(si->sip != NULL && si->sip->flags&SMB_SIF_TID_IS_IPC){
 			/* dcerpc call */
@@ -5413,7 +5426,7 @@ dissect_write_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	   also this tells us that this is indeed the IPC$ share
 	   (if we didnt already know that 
 	*/
-	if((mode&0x0008)==0x0008){
+	if(mode&WRITE_MODE_MESSAGE_START){
 		proto_tree_add_item(tree, hf_smb_pipe_write_len, tvb, offset, 2, TRUE);
 		offset += 2;
 		dataoffset += 2;
@@ -5424,8 +5437,9 @@ dissect_write_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 		}
 	}
 
-
 	/* file data */
+	/* another way to transport DCERPC over SMB is to skip Transaction completely and just
+	   read write */
 	if (bc != 0) {
 		if( si->sip && (si->sip->flags&SMB_SIF_TID_IS_IPC) ){
 			/* dcerpc call */
@@ -16796,23 +16810,23 @@ proto_register_smb(void)
 
 	{ &hf_smb_write_mode_write_through,
 		{ "Write Through", "smb.write.mode.write_through", FT_BOOLEAN, 16,
-		TFS(&tfs_write_mode_write_through), 0x0001, "Write through mode requested?", HFILL }},
+		TFS(&tfs_write_mode_write_through), WRITE_MODE_WRITE_THROUGH, "Write through mode requested?", HFILL }},
 
 	{ &hf_smb_write_mode_return_remaining,
 		{ "Return Remaining", "smb.write.mode.return_remaining", FT_BOOLEAN, 16,
-		TFS(&tfs_write_mode_return_remaining), 0x0002, "Return remaining data responses?", HFILL }},
+		TFS(&tfs_write_mode_return_remaining), WRITE_MODE_RETURN_REMAINING, "Return remaining data responses?", HFILL }},
 
 	{ &hf_smb_write_mode_raw,
 		{ "Write Raw", "smb.write.mode.raw", FT_BOOLEAN, 16,
-		TFS(&tfs_write_mode_raw), 0x0004, "Use WriteRawNamedPipe?", HFILL }},
+		TFS(&tfs_write_mode_raw), WRITE_MODE_RAW, "Use WriteRawNamedPipe?", HFILL }},
 
 	{ &hf_smb_write_mode_message_start,
 		{ "Message Start", "smb.write.mode.message_start", FT_BOOLEAN, 16,
-		TFS(&tfs_write_mode_message_start), 0x0008, "Is this the start of a message?", HFILL }},
+		TFS(&tfs_write_mode_message_start), WRITE_MODE_MESSAGE_START, "Is this the start of a message?", HFILL }},
 
 	{ &hf_smb_write_mode_connectionless,
 		{ "Connectionless", "smb.write.mode.connectionless", FT_BOOLEAN, 16,
-		TFS(&tfs_write_mode_connectionless), 0x0080, "Connectionless mode requested?", HFILL }},
+		TFS(&tfs_write_mode_connectionless), WRITE_MODE_CONNECTIONLESS, "Connectionless mode requested?", HFILL }},
 
 	{ &hf_smb_resume_key_len,
 		{ "Resume Key Length", "smb.resume.key_len", FT_UINT16, BASE_DEC,
