@@ -370,7 +370,7 @@ doxygen-run:
 
 doxygen: doxygen.cfg doxygen-run
 
-REQUIRED_APPS=\
+REQUIRED_TOOLS=\
 	$(SH)	\
 	$(YACC)	\
 	$(LEX)	\
@@ -381,10 +381,10 @@ REQUIRED_APPS=\
 	unzip	\
 	wget
 
-verify_apps:
-	@$(SH) tools\win32-setup.sh --appverify $(REQUIRED_APPS)
+verify_tools:
+	@$(SH) tools\win32-setup.sh --appverify $(REQUIRED_TOOLS)
 
-setup: verify_apps
+setup: verify_tools
 !IF "$(GTK2_INST_VERSION)" == "2.4"
 	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
 		glib gtk2.4/glib-2.4.5.zip
