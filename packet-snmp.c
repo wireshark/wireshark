@@ -2,7 +2,7 @@
  * Routines for SNMP (simple network management protocol)
  * D.Jorand (c) 1998
  *
- * $Id: packet-snmp.c,v 1.49 2000/09/17 07:23:44 guy Exp $
+ * $Id: packet-snmp.c,v 1.50 2000/09/19 02:25:17 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -2041,8 +2041,8 @@ proto_register_snmp(void)
 				(*ds_set_int_p)(0, 4, 2);
 			}
 		}
+		dlclose(libsnmp_handle);
 	}
-	dlclose(libsnmp_handle);
 #else /* linux */
 	snmp_set_suffix_only(2);
 #endif /* linux */
