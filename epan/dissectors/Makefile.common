@@ -715,6 +715,7 @@ DISSECTOR_INCLUDES =	\
 	packet-MAP_DialoguePDU.h	\
 	packet-mip6.h	\
 	packet-mount.h	\
+	packet-mpls.h	\
 	packet-mq.h	\
 	packet-mrdisc.h	\
 	packet-msnip.h	\

@@ -44,27 +44,18 @@
 #include "etypes.h"
 #include <epan/prefs.h>
 #include "packet-ppp.h"
+#include "packet-mpls.h"
 
 static gint proto_mpls = -1;
 
 static gint ett_mpls = -1;
 static gint ett_mpls_control = -1;
 
-/* Special labels in MPLS */
-enum {
-    IP4_EXPLICIT_NULL = 0,
-    ROUTER_ALERT,
-    IP6_EXPLICIT_NULL,
-    IMPLICIT_NULL,
-
-    MAX_RESERVED = 15
-};
-
-static const value_string special_labels[] = {
-    {IP4_EXPLICIT_NULL, "IPv4 Explicit-Null"},
-    {ROUTER_ALERT, "Router Alert"},
-    {IP6_EXPLICIT_NULL, "IPv6 Explicit-Null"},
-    {IMPLICIT_NULL, "Implicit-Null"},
+const value_string special_labels[] = {
+    {LABEL_IP4_EXPLICIT_NULL,	"IPv4 Explicit-Null"},
+    {LABEL_ROUTER_ALERT,	"Router Alert"},
+    {LABEL_IP6_EXPLICIT_NULL,	"IPv6 Explicit-Null"},
+    {LABEL_IMPLICIT_NULL,	"Implicit-Null"},
     {0, NULL }
 };
 
@@ -215,7 +206,7 @@ dissect_mpls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    mpls_tree = proto_item_add_subtree(ti, ett_mpls);
 
 	    proto_item_append_text(ti, ", Label: %u", label);
-	    if (label <= MAX_RESERVED){
+	    if (label <= LABEL_MAX_RESERVED){
 		proto_tree_add_uint_format(mpls_tree, mpls_filter[MPLSF_LABEL], tvb,
 				    offset, 3, label, "MPLS Label: %u (%s)",
 				    label, val_to_str(label, special_labels,

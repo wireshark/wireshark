@@ -2159,6 +2159,8 @@ Carlos Pignataro        <cpignata [AT] cisco.com> {
 	Tunnel SAFI support for BGP
 	Layer Two Tunneling Protocol version 3
 	    [L2TPv3] updates and enhancements
+	MPLS Echo updates and Label Switching Router Self-Test
+	    [draft-ietf-mpls-lsr-self-test-04] support
 }
 
 Thomas Anders           <thomas.anders [AT] blue-cable.de> {
