@@ -5,7 +5,7 @@
  * Copyright 2002, Richard Sharpe <rsharpe@ns.aus.com>
  * Copyright 2003, Richard Sharpe <rsharpe@richardsharpe.com>
  *
- * $Id: packet-spnego.c,v 1.55 2004/05/11 02:02:44 gerald Exp $
+ * $Id: packet-spnego.c,v 1.56 2004/06/04 01:56:25 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -348,7 +348,7 @@ dissect_spnego_krb5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 * return.
 		 */
 		krb5_tvb = tvb_new_subset(tvb, offset, -1, -1); 
-		offset = dissect_kerberos_main(krb5_tvb, pinfo, subtree, FALSE);
+		offset = dissect_kerberos_main(krb5_tvb, pinfo, subtree, FALSE, NULL);
 		return;
 
 	    default:
@@ -375,7 +375,7 @@ dissect_spnego_krb5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	case KRB_TOKEN_AP_REP:
 	case KRB_TOKEN_AP_ERR:
 	  krb5_tvb = tvb_new_subset(tvb, offset, -1, -1); 
-	  offset = dissect_kerberos_main(krb5_tvb, pinfo, subtree, FALSE);
+	  offset = dissect_kerberos_main(krb5_tvb, pinfo, subtree, FALSE, NULL);
 	  break;
 
 	case KRB_TOKEN_GETMIC:

@@ -8,7 +8,7 @@
  * Ronnie Sahlberg 2004
  * Thomas Anders 2004
  *
- * $Id: packet-pktc.c,v 1.5 2004/05/25 09:41:03 guy Exp $
+ * $Id: packet-pktc.c,v 1.6 2004/06/04 01:56:25 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -38,6 +38,7 @@
 #include "packet-kerberos.h"
 
 #define PKTC_PORT	1293
+#define PKTC_MTAFQDNMAP_PORT	2246
 
 static int proto_pktc = -1;
 static gint hf_pktc_app_spec_data = -1;
@@ -66,10 +67,12 @@ static gint hf_pktc_ack_required_flag = -1;
 static gint hf_pktc_sha1_hmac = -1;
 static gint hf_pktc_sec_param_lifetime = -1;
 static gint hf_pktc_grace_period = -1;
+static gint hf_pktc_mtafqdnmap = -1;
 
 static gint ett_pktc = -1;
 static gint ett_pktc_app_spec_data = -1;
 static gint ett_pktc_list_of_ciphersuites = -1;
+static gint ett_pktc_mtafqdnmap = -1;
 
 #define KMMID_WAKEUP		0x01
 #define KMMID_AP_REQUEST	0x02
@@ -189,7 +192,7 @@ dissect_pktc_app_specific_data(packet_info *pinfo _U_, proto_tree *parent_tree, 
 
             break;
         default:
-            proto_tree_add_text(tree, tvb, offset, 1, "Dont know how to parse this type of KMMID yet");
+            proto_tree_add_text(tree, tvb, offset, 1, "Unknown KMMID");
             tvb_get_guint8(tvb, 9999); /* bail out and inform user we cant dissect the packet */
         };
         break;
@@ -207,7 +210,7 @@ dissect_pktc_app_specific_data(packet_info *pinfo _U_, proto_tree *parent_tree, 
 
 	    break;
         default:
-            proto_tree_add_text(tree, tvb, offset, 1, "Dont know how to parse this type of KMMID yet");
+            proto_tree_add_text(tree, tvb, offset, 1, "Unknown KMMID");
             tvb_get_guint8(tvb, 9999); /* bail out and inform user we cant dissect the packet */
         };
 	break;
@@ -263,7 +266,7 @@ dissect_pktc_list_of_ciphersuites(packet_info *pinfo _U_, proto_tree *parent_tre
 	}
         break;
     default:
-        proto_tree_add_text(tree, tvb, offset, 1, "Dont know how to parse this type of Algorithm Identifier yet");
+        proto_tree_add_text(tree, tvb, offset, 1, "Unknown DOI");
 	tvb_get_guint8(tvb, 9999); /* bail out and inform user we cant dissect the packet */
     }
 
@@ -298,7 +301,7 @@ dissect_pktc_ap_request(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int
 
     /* AP Request  kerberos blob */
     pktc_tvb = tvb_new_subset(tvb, offset, -1, -1); 
-    offset += dissect_kerberos_main(pktc_tvb, pinfo, tree, FALSE);
+    offset += dissect_kerberos_main(pktc_tvb, pinfo, tree, FALSE, NULL);
 
     /* Server Nonce */
     snonce=tvb_get_ntohl(tvb, offset);
@@ -329,7 +332,7 @@ dissect_pktc_ap_reply(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int o
 
     /* AP Reply  kerberos blob */
     pktc_tvb = tvb_new_subset(tvb, offset, -1, -1); 
-    offset += dissect_kerberos_main(pktc_tvb, pinfo, tree, FALSE);
+    offset += dissect_kerberos_main(pktc_tvb, pinfo, tree, FALSE, NULL);
 
     /* app specific data */
     offset=dissect_pktc_app_specific_data(pinfo, tree, tvb, offset, doi, KMMID_AP_REPLY);
@@ -427,9 +430,54 @@ dissect_pktc_error_reply(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, in
 
     /* KRB_ERROR */
     pktc_tvb = tvb_new_subset(tvb, offset, -1, -1); 
-    offset += dissect_kerberos_main(pktc_tvb, pinfo, tree, FALSE);
+    offset += dissect_kerberos_main(pktc_tvb, pinfo, tree, FALSE, NULL);
 
     return offset;
+}
+
+static int
+dissect_pktc_appspecificdata(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree)
+{
+	int offset=0;
+	/*XXX add dissection of the app specific data here */
+	return offset;
+}
+
+static kerberos_callbacks cb[] = {
+	{ KRB_CBTAG_SAFE_USER_DATA,	dissect_pktc_appspecificdata },
+	{ 0, NULL }
+};
+
+static void
+dissect_pktc_mtafqdnmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    int offset=0;
+    proto_tree *pktc_mtafqdnmap_tree = NULL;
+    proto_item *item = NULL;
+    tvbuff_t *pktc_mtafqdnmap_tvb;
+
+    if (check_col(pinfo->cinfo, COL_PROTOCOL))
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "PKTC");
+
+    if (tree) {
+        item = proto_tree_add_item(tree, proto_pktc, tvb, 0, 0, FALSE);
+        pktc_mtafqdnmap_tree = proto_item_add_subtree(item, ett_pktc_mtafqdnmap);
+    }
+
+    if (check_col(pinfo->cinfo, COL_INFO)) {
+        col_add_fstr(pinfo->cinfo, COL_INFO, "MTAFQDNMAP %s",
+		     pinfo->srcport == pinfo->match_port ? "Reply":"Request");
+    }
+
+    /* KRB_AP_RE[QP] */
+    pktc_mtafqdnmap_tvb = tvb_new_subset(tvb, offset, -1, -1); 
+    offset += dissect_kerberos_main(pktc_mtafqdnmap_tvb, pinfo, pktc_mtafqdnmap_tree, FALSE, NULL);
+
+    /* KRB_SAFE */
+    pktc_mtafqdnmap_tvb = tvb_new_subset(tvb, offset, -1, -1); 
+    offset += dissect_kerberos_main(pktc_mtafqdnmap_tvb, pinfo, pktc_mtafqdnmap_tree, FALSE, cb);
+
+    proto_item_set_len(item, offset);
 }
 
 static void
@@ -598,4 +646,29 @@ proto_reg_handoff_pktc(void)
 
     pktc_handle = create_dissector_handle(dissect_pktc, proto_pktc);
     dissector_add("udp.port", PKTC_PORT, pktc_handle);
+}
+
+void
+proto_register_pktc_mtafqdnmap(void)
+{
+    static hf_register_info hf[] = {
+	{ &hf_pktc_mtafqdnmap, {
+	    "MTAFQDNMAP", "pktc.mtafqdnmap", FT_BOOLEAN, BASE_NONE,
+	    NULL, 0, "MTAFQDNMAP Message", HFILL }},
+    };
+    static gint *ett[] = {
+        &ett_pktc_mtafqdnmap,
+    };
+
+    proto_register_field_array(proto_pktc, hf, array_length(hf));
+    proto_register_subtree_array(ett, array_length(ett));
+}
+
+void
+proto_reg_handoff_pktc_mtafqdnmap(void)
+{
+    dissector_handle_t pktc_mtafqdnmap_handle;
+
+    pktc_mtafqdnmap_handle = create_dissector_handle(dissect_pktc_mtafqdnmap, proto_pktc);
+    dissector_add("udp.port", PKTC_MTAFQDNMAP_PORT, pktc_mtafqdnmap_handle);
 }

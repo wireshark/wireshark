@@ -5,7 +5,7 @@
  * This information is based off the released idl files from opengroup.
  * ftp://ftp.opengroup.org/pub/dce122/dce/src/security.tar.gz security/idl/krb5rpc.idl
  *
- * $Id: packet-dcerpc-krb5rpc.c,v 1.8 2004/01/27 04:15:48 guy Exp $
+ * $Id: packet-dcerpc-krb5rpc.c,v 1.9 2004/06/04 01:56:25 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -94,7 +94,7 @@ krb5rpc_dissect_sendto_kdc_rqst (tvbuff_t * tvb, int offset,
 
   remain = tvb_length_remaining(tvb, offset);
   krb5_tvb = tvb_new_subset (tvb, offset, remain, remain);
-  offset = dissect_kerberos_main (krb5_tvb, pinfo, subtree, TRUE);
+  offset = dissect_kerberos_main (krb5_tvb, pinfo, subtree, TRUE, NULL);
 
 
   return offset;
@@ -140,7 +140,7 @@ krb5rpc_dissect_sendto_kdc_resp (tvbuff_t * tvb, int offset,
   remain = tvb_length_remaining(tvb, offset);
   krb5_tvb = tvb_new_subset (tvb, offset, remain, remain);
 
-  offset = dissect_kerberos_main (krb5_tvb, pinfo, subtree, TRUE);
+  offset = dissect_kerberos_main (krb5_tvb, pinfo, subtree, TRUE, NULL);
   offset += 16; /* no idea what this is, probably just extended encrypted text. */
 
   return offset;

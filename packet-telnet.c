@@ -2,7 +2,7 @@
  * Routines for Telnet packet dissection; see RFC 854 and RFC 855
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-telnet.c,v 1.45 2004/02/25 09:31:07 guy Exp $
+ * $Id: packet-telnet.c,v 1.46 2004/06/04 01:56:25 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -756,7 +756,7 @@ dissect_krb5_authentication_data(packet_info *pinfo, tvbuff_t *tvb, int offset, 
 	if((acmd==TN_AC_IS)&&(krb5_cmd==TN_KRB5_TYPE_AUTH)){
 		krb5_tvb=unescape_and_tvbuffify_telnet_option(pinfo, tvb, offset, len);
 		if(krb5_tvb)
-			dissect_kerberos_main(krb5_tvb, pinfo, tree, FALSE);
+			dissect_kerberos_main(krb5_tvb, pinfo, tree, FALSE, NULL);
 		else
 			proto_tree_add_text(tree, tvb, offset, len, "Kerberos blob (too long to dissect - length %u > %u",
 			    len, MAX_KRB5_BLOB_LEN);
@@ -776,7 +776,7 @@ dissect_krb5_authentication_data(packet_info *pinfo, tvbuff_t *tvb, int offset, 
 	/* IAC SB AUTHENTICATION REPLY <authentication-type-pair> RESPONSE <KRB_AP_REP message> IAC SE */
 	if((acmd==TN_AC_REPLY)&&(krb5_cmd==TN_KRB5_TYPE_RESPONSE)){
 		krb5_tvb=unescape_and_tvbuffify_telnet_option(pinfo, tvb, offset, len);
-		dissect_kerberos_main(krb5_tvb, pinfo, tree, FALSE);
+		dissect_kerberos_main(krb5_tvb, pinfo, tree, FALSE, NULL);
 	}
 
 

@@ -23,7 +23,7 @@
  *
  * Some structures from RFC2630
  *
- * $Id: packet-kerberos.c,v 1.67 2004/05/27 08:22:04 sahlberg Exp $
+ * $Id: packet-kerberos.c,v 1.68 2004/06/04 01:56:25 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -58,6 +58,7 @@
 
 #include <epan/strutil.h>
 
+#include "packet-kerberos.h"
 #include "packet-netbios.h"
 #include "packet-tcp.h"
 #include "prefs.h"
@@ -260,7 +261,24 @@ guint32 krb5_errorcode;
 static int do_col_info;
 
 
+static void
+call_kerberos_callbacks(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int tag)
+{
+	kerberos_callbacks *cb=(kerberos_callbacks *)pinfo->private_data;
 
+	if(!cb){
+		return;
+	}
+
+	while(cb->tag){
+		if(cb->tag==tag){
+			cb->callback(pinfo, tvb, tree);
+			return;
+		}
+		cb++;
+	}
+	return;
+}
 
 
 
@@ -2488,7 +2506,9 @@ dissect_krb5_PRIV(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offse
 static int
 dissect_krb5_SAFE_BODY_user_data(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-	offset=dissect_ber_octet_string(FALSE, pinfo, tree, tvb, offset, hf_krb_SAFE_BODY_user_data, NULL);
+	tvbuff_t *new_tvb;
+	offset=dissect_ber_octet_string(FALSE, pinfo, tree, tvb, offset, hf_krb_SAFE_BODY_user_data, &new_tvb);
+	call_kerberos_callbacks(pinfo, tree, new_tvb, KRB_CBTAG_SAFE_USER_DATA);
 	return offset;
 }
 static int 
@@ -3167,7 +3187,8 @@ static void dissect_kerberos_tcp(tvbuff_t *tvb, packet_info *pinfo,
 				 proto_tree *tree);
 static gint dissect_kerberos_common(tvbuff_t *tvb, packet_info *pinfo,
 					proto_tree *tree, int do_col_info,
-					gboolean have_rm);
+					gboolean have_rm,
+					kerberos_callbacks *cb);
 static gint kerberos_rm_to_reclen(guint krb_rm);
 static void dissect_kerberos_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo,
 				proto_tree *tree);
@@ -3176,9 +3197,9 @@ static guint get_krb_pdu_len(tvbuff_t *tvb, int offset);
 
 
 gint
-dissect_kerberos_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int do_col_info)
+dissect_kerberos_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int do_col_info, kerberos_callbacks *cb)
 {
-    return (dissect_kerberos_common(tvb, pinfo, tree, do_col_info, FALSE));
+    return (dissect_kerberos_common(tvb, pinfo, tree, do_col_info, FALSE, cb));
 }
 
 static void
@@ -3187,7 +3208,7 @@ dissect_kerberos_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "KRB5");
 
-    (void)dissect_kerberos_common(tvb, pinfo, tree, TRUE, FALSE);
+    (void)dissect_kerberos_common(tvb, pinfo, tree, TRUE, FALSE, NULL);
 }
 
 static gint
@@ -3211,7 +3232,7 @@ static void
 dissect_kerberos_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     pinfo->fragmented = TRUE;
-    if (dissect_kerberos_common(tvb, pinfo, tree, TRUE, TRUE) < 0) {
+    if (dissect_kerberos_common(tvb, pinfo, tree, TRUE, TRUE, NULL) < 0) {
 	/*
 	 * The dissector failed to recognize this as a valid
 	 * Kerberos message.  Mark it as a continuation packet.
@@ -3256,16 +3277,19 @@ show_krb_recordmark(proto_tree *tree, tvbuff_t *tvb, gint start, guint32 krb_rm)
 
 static gint
 dissect_kerberos_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-    int dci, gboolean have_rm)
+    int dci, gboolean have_rm, kerberos_callbacks *cb)
 {
     int offset = 0;
     proto_tree *kerberos_tree = NULL;
     proto_item *item = NULL;
+    void *saved_private_data;
 
     /* TCP record mark and length */
     guint32 krb_rm = 0;
     gint krb_reclen = 0;
 
+    saved_private_data=pinfo->private_data;
+    pinfo->private_data=cb;
     do_col_info=dci;
 
     if (tree) {
@@ -3280,6 +3304,7 @@ dissect_kerberos_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	 * What is a reasonable size limit?
 	 */
 	if (krb_reclen > 10 * 1024 * 1024) {
+	    pinfo->private_data=saved_private_data;
 	    return (-1);
 	}
 	show_krb_recordmark(kerberos_tree, tvb, offset, krb_rm);
@@ -3289,6 +3314,7 @@ dissect_kerberos_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     offset=dissect_ber_choice(pinfo, kerberos_tree, tvb, offset, kerberos_applications_choice, -1, -1);
 
     proto_item_set_len(item, offset);
+    pinfo->private_data=saved_private_data;
     return offset;
 }
 

@@ -1,6 +1,6 @@
 /* packet-kerberos.h
  *
- * $Id: packet-kerberos.h,v 1.7 2003/04/25 21:29:19 guy Exp $
+ * $Id: packet-kerberos.h,v 1.8 2004/06/04 01:56:25 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -24,9 +24,23 @@
 #ifndef __PACKET_KERBEROS_H
 #define __PACKET_KERBEROS_H
 
+/* This is a list of callback functions a caller can use to specify that
+   octet strings in kerberos to be passed back to application specific
+   dissectors, outside of kerberos.
+   This is used for dissection of application specific data for PacketCable
+   KRB_SAFE user data and eventually to pass kerberos session keys
+   to future DCERPC decryption and other uses.
+   The list is terminated by {0, NULL }
+*/
+#define KRB_CBTAG_SAFE_USER_DATA	1
+typedef struct _kerberos_callbacks {
+	int tag;
+	int (*callback)(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree);
+} kerberos_callbacks;
+
 /* Function prototypes */
 
 gint
-dissect_kerberos_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int do_col_info);
+dissect_kerberos_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int do_col_info, kerberos_callbacks *cb);
 
 #endif /* __PACKET_KERBEROS_H */
