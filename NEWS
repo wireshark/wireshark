@@ -1,4 +1,17 @@
-$Id: NEWS,v 1.123 2003/03/08 03:12:32 gerald Exp $
+$Id: NEWS,v 1.124 2003/03/11 00:26:53 gerald Exp $
+
+== March 10, 2003
+
+Ethereal 0.9.11 has been released.
+
+  The Ethereal 0.9.10 release was packaged improperly.  This release fixes 
+  the packaging, and adds minor updates and fixes for the following
+  protocols:
+  
+  AFS, OpenBSD enc(4), RTP, SCSI, SIP, SMPP, SSH
+  
+  IA64 support has been improved.
+  
 
 == March 7, 2003
 

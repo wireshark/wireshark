@@ -1,4 +1,26 @@
-$Id: ChangeLog,v 1.18 2003/03/08 03:12:30 gerald Exp $
+$Id: ChangeLog,v 1.19 2003/03/11 00:26:52 gerald Exp $
+
+Overview of changes in Ethereal 0.9.11:
+
+* Add documentation for the MGCP tap (Lars Roland)
+* Fix Lars Roland's AUTHORS entry (Lars)
+* Sync and reorder the authors section of the Ethereal man page (Guy)
+* Create common code for listing linked libraries (Guy)
+* Correctly label AFS time deltas (Guy)
+* SCSI Peripheral Qualifier, device type and other fixes (Guy)
+* Update OpenBSD enc data link type and encapsulation numbers (Guy)
+* Improve Windows version reporting in util.c (Guy)
+* Fix invalid preprocessor token pasting in Prism (Ruediger Oertel)
+* Beef up the SMPP recognition heuristic (Laurent)
+* Remove duplicate code in packet-ssh.c (Markus Friedl)
+* Remove used parameter pinfo from dissect_ser in packet-rmi.c (Joerg)
+* Correct function name and typos in README.developer (Laurent)
+* Fix IA64 pointer to int conversion warnings (Joerg)
+* Have RTP's "Save voice data as..." use a file selection box (Guy)
+* SCSI_DEV_BITS fix (Guy)
+* Fix some perldoc warnings and obscure email addresses (Gerald)
+* Get rid of C++ comments in g711.c (Albert)
+* Add filterable header fields in SIP dissector (Stefan Wenk)
 
 Overview of changes in Ethereal 0.9.10:
 
