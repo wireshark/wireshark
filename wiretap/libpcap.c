@@ -1,6 +1,6 @@
 /* libpcap.c
  *
- * $Id: libpcap.c,v 1.110 2004/01/28 01:24:29 guy Exp $
+ * $Id: libpcap.c,v 1.111 2004/01/29 10:58:28 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -270,7 +270,7 @@ static const struct {
 	{ 121,		WTAP_ENCAP_HHDLC },	/* HiPath HDLC */
 	{ 122,		WTAP_ENCAP_IP_OVER_FC },   /* RFC 2625 IP-over-FC */
 	{ 123,		WTAP_ENCAP_ATM_PDUS },  /* SunATM */
-	{ 127,		WTAP_ENCAP_WLAN_HEADER },  /* 802.11 plus WLAN header */
+	{ 127,		WTAP_ENCAP_IEEE_802_11_WLAN_BSD },  /* 802.11 plus BSD WLAN header */
 	{ 128,		WTAP_ENCAP_TZSP },	/* Tazmen Sniffer Protocol */
 	{ 129,		WTAP_ENCAP_ARCNET_LINUX },
 
@@ -305,6 +305,8 @@ static const struct {
 	{ 160,		WTAP_ENCAP_USER13 },
 	{ 161,		WTAP_ENCAP_USER14 },
 	{ 162,		WTAP_ENCAP_USER15 },
+
+	{ 163,		WTAP_ENCAP_IEEE_802_11_WLAN_AVS },  /* 802.11 plus AVS WLAN header */
 
 	/*
 	 * To repeat:

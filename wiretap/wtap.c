@@ -1,6 +1,6 @@
 /* wtap.c
  *
- * $Id: wtap.c,v 1.88 2004/01/28 01:24:29 guy Exp $
+ * $Id: wtap.c,v 1.89 2004/01/29 10:58:28 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -122,8 +122,17 @@ static const struct encap_type_info {
 	/* WTAP_ENCAP_IEEE_802_11 */
 	{ "IEEE 802.11 Wireless LAN", "ieee-802-11" },
 
+	/* WTAP_ENCAP_PRISM_HEADER */
+	{ "IEEE 802.11 plus Prism II monitor mode header", "prism" },
+
 	/* WTAP_ENCAP_IEEE_802_11_WITH_RADIO */
 	{ "IEEE 802.11 Wireless LAN with radio information", "ieee-802-11-radio" },
+
+	/* WTAP_ENCAP_IEEE_802_11_WLAN_BSD */
+	{ "IEEE 802.11 plus BSD WLAN header", "ieee-802-11-bsd" },
+
+	/* WTAP_ENCAP_IEEE_802_11_WLAN_AVS */
+	{ "IEEE 802.11 plus AVS WLAN header", "ieee-802-11-avs" },
 
 	/* WTAP_ENCAP_SLL */
 	{ "Linux cooked-mode capture", "linux-sll" },
@@ -143,9 +152,6 @@ static const struct encap_type_info {
 	/* WTAP_ENCAP_LOCALTALK */
 	{ "Localtalk", "ltalk" },
 
-	/* WTAP_ENCAP_PRISM_HEADER */
-	{ "IEEE 802.11 plus Prism II monitor mode header", "prism" },
-
 	/* WTAP_ENCAP_OLD_PFLOG  */
 	{ "OpenBSD PF Firewall logs, pre-3.4", "pflog-old" },
 
@@ -157,9 +163,6 @@ static const struct encap_type_info {
 
 	/* WTAP_ENCAP_COSINE */
 	{ "CoSine L2 debug log", "cosine" },
-
-	/* WTAP_ENCAP_WLAN_HEADER */
-	{ "IEEE 802.11 plus AVS WLAN monitor header", "wlan" },
 
 	/* WTAP_ENCAP_WFLEET_HDLC */
 	{ "Wellfleet HDLC", "whdlc" },

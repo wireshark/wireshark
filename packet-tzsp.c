@@ -1,6 +1,6 @@
 /* packet-tzsp.c
  *
- * $Id: packet-tzsp.c,v 1.5 2003/12/15 00:08:57 guy Exp $
+ * $Id: packet-tzsp.c,v 1.6 2004/01/29 10:58:28 guy Exp $
  *
  * Copyright 2002, Tazmen Technologies Inc
  *
@@ -82,12 +82,13 @@ static int hf_sensormac = -1;
 
 /* ************************************************************************* */
 /*                        Encapsulation type values                          */
+/*               Note that these are not all the same as DLT_ values         */
 /* ************************************************************************* */
 
 #define TZSP_ENCAP_ETHERNET			1
 #define TZSP_ENCAP_IEEE_802_11			18
 #define TZSP_ENCAP_PRISM_HEADER			119
-#define TZSP_ENCAP_WLAN_HEADER			127
+#define TZSP_ENCAP_WLAN_AVS			127
 
 /* ************************************************************************* */
 /*                          Generic header options                           */
@@ -254,7 +255,7 @@ struct encap_map {
 static const struct encap_map map_table[] = {
 	{ TZSP_ENCAP_ETHERNET,		WTAP_ENCAP_ETHERNET },
 	{ TZSP_ENCAP_PRISM_HEADER,	WTAP_ENCAP_PRISM_HEADER },
-	{ TZSP_ENCAP_WLAN_HEADER,	WTAP_ENCAP_WLAN_HEADER },
+	{ TZSP_ENCAP_WLAN_AVS,		WTAP_ENCAP_IEEE_802_11_WLAN_AVS },
 	{ TZSP_ENCAP_IEEE_802_11,	WTAP_ENCAP_IEEE_802_11 },
 	{ 0,				-1 }
 };

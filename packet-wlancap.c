@@ -10,7 +10,7 @@
  * 
  * By Solomon Peachy
  *
- * $Id: packet-wlancap.c,v 1.3 2003/12/04 05:59:35 gram Exp $
+ * $Id: packet-wlancap.c,v 1.4 2004/01/29 10:58:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -280,5 +280,5 @@ proto_reg_handoff_wlancap(void)
 
     wlancap_handle = create_dissector_handle(dissect_wlancap, proto_wlancap);
 
-    dissector_add("wtap_encap", WTAP_ENCAP_WLAN_HEADER, wlancap_handle);
+    dissector_add("wtap_encap", WTAP_ENCAP_IEEE_802_11_WLAN_AVS, wlancap_handle);
 }

@@ -1,6 +1,6 @@
 /* wtap.h
  *
- * $Id: wtap.h,v 1.150 2004/01/28 01:24:30 guy Exp $
+ * $Id: wtap.h,v 1.151 2004/01/29 10:58:28 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -110,48 +110,49 @@
 #define WTAP_ENCAP_IP_OVER_FC			18
 #define WTAP_ENCAP_PPP_WITH_PHDR		19
 #define WTAP_ENCAP_IEEE_802_11			20
-#define WTAP_ENCAP_IEEE_802_11_WITH_RADIO	21
-#define WTAP_ENCAP_SLL				22
-#define WTAP_ENCAP_FRELAY			23
-#define WTAP_ENCAP_FRELAY_WITH_PHDR		24
-#define WTAP_ENCAP_CHDLC			25
-#define WTAP_ENCAP_CISCO_IOS			26
-#define WTAP_ENCAP_LOCALTALK			27
-#define WTAP_ENCAP_PRISM_HEADER			28
-#define WTAP_ENCAP_OLD_PFLOG			29
-#define WTAP_ENCAP_HHDLC			30
-#define WTAP_ENCAP_DOCSIS			31
-#define WTAP_ENCAP_COSINE			32
-#define WTAP_ENCAP_WLAN_HEADER			33
-#define WTAP_ENCAP_WFLEET_HDLC			34
-#define WTAP_ENCAP_SDLC				35
-#define WTAP_ENCAP_TZSP				36
-#define WTAP_ENCAP_ENC				37
-#define WTAP_ENCAP_PFLOG			38
-#define WTAP_ENCAP_CHDLC_WITH_PHDR		39
-#define WTAP_ENCAP_BLUETOOTH_H4			40
-#define WTAP_ENCAP_MTP2				41
-#define WTAP_ENCAP_MTP3				42
-#define WTAP_ENCAP_IRDA				43
-#define WTAP_ENCAP_USER0 			44
-#define WTAP_ENCAP_USER1 			45
-#define WTAP_ENCAP_USER2 			46
-#define WTAP_ENCAP_USER3 			47
-#define WTAP_ENCAP_USER4 			48
-#define WTAP_ENCAP_USER5 			49
-#define WTAP_ENCAP_USER6 			50
-#define WTAP_ENCAP_USER7 			51
-#define WTAP_ENCAP_USER8 			52
-#define WTAP_ENCAP_USER9 			53
-#define WTAP_ENCAP_USER10			54
-#define WTAP_ENCAP_USER11			55
-#define WTAP_ENCAP_USER12			56
-#define WTAP_ENCAP_USER13			57
-#define WTAP_ENCAP_USER14			58
-#define WTAP_ENCAP_USER15			59
+#define WTAP_ENCAP_PRISM_HEADER			21
+#define WTAP_ENCAP_IEEE_802_11_WITH_RADIO	22
+#define WTAP_ENCAP_IEEE_802_11_WLAN_BSD		23
+#define WTAP_ENCAP_IEEE_802_11_WLAN_AVS		24
+#define WTAP_ENCAP_SLL				25
+#define WTAP_ENCAP_FRELAY			26
+#define WTAP_ENCAP_FRELAY_WITH_PHDR		27
+#define WTAP_ENCAP_CHDLC			28
+#define WTAP_ENCAP_CISCO_IOS			29
+#define WTAP_ENCAP_LOCALTALK			30
+#define WTAP_ENCAP_OLD_PFLOG			31
+#define WTAP_ENCAP_HHDLC			32
+#define WTAP_ENCAP_DOCSIS			33
+#define WTAP_ENCAP_COSINE			34
+#define WTAP_ENCAP_WFLEET_HDLC			35
+#define WTAP_ENCAP_SDLC				36
+#define WTAP_ENCAP_TZSP				37
+#define WTAP_ENCAP_ENC				38
+#define WTAP_ENCAP_PFLOG			39
+#define WTAP_ENCAP_CHDLC_WITH_PHDR		40
+#define WTAP_ENCAP_BLUETOOTH_H4			41
+#define WTAP_ENCAP_MTP2				42
+#define WTAP_ENCAP_MTP3				43
+#define WTAP_ENCAP_IRDA				44
+#define WTAP_ENCAP_USER0 			45
+#define WTAP_ENCAP_USER1 			46
+#define WTAP_ENCAP_USER2 			47
+#define WTAP_ENCAP_USER3 			48
+#define WTAP_ENCAP_USER4 			49
+#define WTAP_ENCAP_USER5 			50
+#define WTAP_ENCAP_USER6 			51
+#define WTAP_ENCAP_USER7 			52
+#define WTAP_ENCAP_USER8 			53
+#define WTAP_ENCAP_USER9 			54
+#define WTAP_ENCAP_USER10			55
+#define WTAP_ENCAP_USER11			56
+#define WTAP_ENCAP_USER12			57
+#define WTAP_ENCAP_USER13			58
+#define WTAP_ENCAP_USER14			59
+#define WTAP_ENCAP_USER15			60
 
 /* last WTAP_ENCAP_ value + 1 */
-#define WTAP_NUM_ENCAP_TYPES			60
+#define WTAP_NUM_ENCAP_TYPES			61
 
 /* File types that can be read by wiretap.
    We support writing some many of these file types, too, so we
