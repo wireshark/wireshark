@@ -1,7 +1,7 @@
 /* packet-atalk.c
  * Routines for Appletalk packet disassembly (DDP, currently).
  *
- * $Id: packet-atalk.c,v 1.19 1999/11/03 06:18:50 guy Exp $
+ * $Id: packet-atalk.c,v 1.20 1999/11/03 07:06:17 guy Exp $
  *
  * Simon Wilkinson <sxw@dcs.ed.ac.uk>
  *
@@ -32,6 +32,10 @@
 #include "globals.h"
 #include "packet.h"
 #include "packet-atalk.h"
+
+#ifdef HAVE_NETINET_IN_H
+# include <netinet/in.h>
+#endif
 
 static int proto_ddp = -1;
 static int hf_ddp_hopcount = -1;
