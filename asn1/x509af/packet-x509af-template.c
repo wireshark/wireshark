@@ -81,7 +81,7 @@ dissect_hf_x509af_extension_type(packet_info *pinfo, proto_tree *tree, tvbuff_t 
   return offset;
 }
 
-static ber_sequence Extension_sequence[] = {
+static const ber_sequence Extension_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_hf_x509af_extension_id },
   { BER_CLASS_UNI, BER_UNI_TAG_BOOLEAN, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_critical },
   { BER_CLASS_ANY, 0, 0, dissect_hf_x509af_extension_type },
@@ -114,7 +114,7 @@ dissect_hf_x509af_algorithm_type(packet_info *pinfo, proto_tree *tree, tvbuff_t 
 }
 
 /* Algorithm Identifier can not yet be handled by the compiler */
-static ber_sequence AlgorithmIdentifier_sequence[] = {
+static const ber_sequence AlgorithmIdentifier_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_hf_x509af_algorithm_id },
   { BER_CLASS_ANY, 0, 0, dissect_hf_x509af_algorithm_type },
   { 0, 0, 0, NULL }

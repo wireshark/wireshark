@@ -75,7 +75,7 @@ dissect_keyAttr_type(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int of
   return offset;
 }
 
-static ber_sequence OtherKeyAttribute_sequence[] = {
+static const ber_sequence OtherKeyAttribute_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_keyAttrId },
   { BER_CLASS_ANY, 0, 0, dissect_keyAttr_type },
   { 0, 0, 0, NULL }
@@ -139,7 +139,7 @@ dissect_hf_cms_contentType_content(packet_info *pinfo, proto_tree *tree, tvbuff_
   return offset;
 }
 
-static ber_sequence ContentInfo_sequence[] = {
+static const ber_sequence ContentInfo_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_hf_cms_contentType },
   { BER_CLASS_ANY, 0, 0, dissect_hf_cms_contentType_content },
   { 0, 0, 0, NULL }
