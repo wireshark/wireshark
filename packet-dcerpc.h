@@ -1,7 +1,7 @@
 /* packet-dcerpc.h
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.h,v 1.25 2002/11/02 22:14:21 sahlberg Exp $
+ * $Id: packet-dcerpc.h,v 1.26 2003/01/28 06:17:09 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -162,13 +162,22 @@ int dissect_ndr_ctx_hnd (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
 typedef int (dcerpc_dissect_fnct_t)(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, char *drep);
 
+typedef void (dcerpc_callback_fnct_t)(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb, int start_offset, int end_offset, void *callback_args);
+
 #define NDR_POINTER_REF		1
 #define NDR_POINTER_UNIQUE	2
 #define NDR_POINTER_PTR		3
 
-int dissect_ndr_pointer (tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                        proto_tree *tree, char *drep,
-                        dcerpc_dissect_fnct_t *fnct, int type, char *text, int hf_index, int levels);
+int dissect_ndr_pointer_cb(tvbuff_t *tvb, gint offset, packet_info *pinfo,
+			   proto_tree *tree, char *drep,
+			   dcerpc_dissect_fnct_t *fnct, int type, char *text, 
+			   int hf_index, dcerpc_callback_fnct_t *callback,
+			   void *callback_args);
+
+int dissect_ndr_pointer(tvbuff_t *tvb, gint offset, packet_info *pinfo,
+			proto_tree *tree, char *drep,
+			dcerpc_dissect_fnct_t *fnct, int type, char *text, 
+			int hf_index);
 
 /* dissect a NDR unidimensional conformant array */
 int dissect_ndr_ucarray(tvbuff_t *tvb, gint offset, packet_info *pinfo,
@@ -237,7 +246,6 @@ typedef struct _dcerpc_info {
 	guint32 array_actual_count;
 	guint32 array_actual_count_offset;
 	int hf_index;
-	int levels;                    /* number of levels upwards in the tree to append text*/
 	dcerpc_call_value *call_data;
 	void *private_data;
 } dcerpc_info;
