@@ -1514,6 +1514,8 @@ Ronald Henderson <Ronald.Henderson [AT] CognicaseUSA.com> {
 	In LDAP dissector, handle Sequence Of header being split across
 	    TCP segments
 	Support for colored graphs in Gtk1 version of IO_STAT
+	Make labels for filters in IO_STAT dialog box be "Filter:"
+	    buttons to pop up a filter dialog
 }
 
 Brian Ginsbach <ginsbach [AT] cray.com> {

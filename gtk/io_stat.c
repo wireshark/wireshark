@@ -1,7 +1,7 @@
 /* io_stat.c
  * io_stat   2002 Ronnie Sahlberg
  *
- * $Id: io_stat.c,v 1.12 2002/12/16 07:11:24 sahlberg Exp $
+ * $Id: io_stat.c,v 1.13 2002/12/16 21:18:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -48,6 +48,10 @@
 #include "../globals.h"
 #include "../color.h"
 #include "compat_macros.h"
+
+/* filter prefs dialog */
+#include "filter_prefs.h"
+/* filter prefs dialog */
 
 void protect_thread_critical_region(void);
 void unprotect_thread_critical_region(void);
@@ -1471,6 +1475,16 @@ create_filter_box(io_stat_graph_t *gio, GtkWidget *box)
 	GtkWidget *hbox;
 	GtkWidget *label;
 
+	/* filter prefs dialog */
+	GtkWidget *filter_bt;
+	static construct_args_t args = {
+         "Ethereal: Display Filter",
+         TRUE,
+         TRUE
+	};
+	/* filter prefs dialog */
+
+
 	hbox=gtk_hbox_new(FALSE, 0);
 	gtk_container_add(GTK_CONTAINER(box), hbox);
 	gtk_box_set_child_packing(GTK_BOX(box), hbox, FALSE, FALSE, 0, GTK_PACK_START);
@@ -1520,11 +1534,25 @@ create_filter_box(io_stat_graph_t *gio, GtkWidget *box)
 /*	gtk_signal_connect(GTK_OBJECT(gio->display_button), "toggled", GTK_SIGNAL_FUNC(filter_callback), gio);*/
 
 
-	label=gtk_label_new("   Filter:");
+	/* filter prefs dialog --- comment out static label */
+	/* label=gtk_label_new("   Filter:"); */
+
+	/* filter prefs dialog */
+	label=gtk_label_new("   ");
 	gtk_widget_show(label);
 	gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
+	filter_bt = gtk_button_new_with_label("Filter:");
+	SIGNAL_CONNECT(filter_bt, "clicked", display_filter_construct_cb, &args);
+	gtk_box_pack_start(GTK_BOX(hbox), filter_bt, FALSE, TRUE, 0);
+	gtk_widget_show(filter_bt);
+	/* filter prefs dialog */
 
 	gio->filter_button=gtk_entry_new_with_max_length(256);
+
+	/* filter prefs dialog */
+	OBJECT_SET_DATA(filter_bt, E_FILT_TE_PTR_KEY, gio->filter_button);
+	/* filter prefs dialog */
+
 	gtk_box_pack_start(GTK_BOX(hbox), gio->filter_button, FALSE, FALSE, 0);
 	gtk_widget_show(gio->filter_button);
 	SIGNAL_CONNECT(gio->filter_button, "activate", filter_callback, gio);
