@@ -2,7 +2,7 @@
  * Routines handling protocols with a request/response line, headers,
  * a blank line, and an optional body.
  *
- * $Id: req_resp_hdrs.c,v 1.2 2003/12/24 09:50:54 guy Exp $
+ * $Id: req_resp_hdrs.c,v 1.3 2003/12/29 22:33:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -142,7 +142,7 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, packet_info *pinfo,
 				/*
 				 * Check if we've found Content-Length.
 				 */
-				if (tvb_strneql(tvb, next_offset_sav,
+				if (tvb_strncaseeql(tvb, next_offset_sav,
 				    "Content-Length:", 15) == 0) {
 					if (sscanf(
 					    tvb_get_string(tvb,
