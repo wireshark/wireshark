@@ -1,6 +1,6 @@
 /* libpcap.c
  *
- * $Id: libpcap.c,v 1.116 2004/03/03 22:24:51 guy Exp $
+ * $Id: libpcap.c,v 1.117 2004/03/11 09:18:32 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -226,6 +226,14 @@ static const struct {
 	 * HDLC.
 	 */
 	{ 50,		WTAP_ENCAP_PPP },
+
+	/*
+	 * Apparently used by the Axent Raptor firewall (now Symantec
+	 * Enterprise Firewall).
+	 * Thanks, Axent, for not reserving that type with tcpdump.org
+	 * and not telling anybody about it.
+	 */
+	{ 99,		WTAP_ENCAP_SYMANTEC },
 
 	/*
 	 * These are the values that libpcap 0.5 and later use in

@@ -3,7 +3,7 @@
 #     a) common to both files and
 #     b) portable between both files
 #
-# $Id: Makefile.common,v 1.5 2004/03/05 10:56:16 guy Exp $
+# $Id: Makefile.common,v 1.6 2004/03/11 09:18:32 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -400,6 +400,7 @@ DISSECTOR_SRC =	\
 	../packet-stat.c	\
 	../packet-stun.c	\
 	../packet-sua.c	\
+	../packet-symantec.c	\
 	../packet-syslog.c	\
 	../packet-t38.c	\
 	../packet-tacacs.c	\

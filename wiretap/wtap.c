@@ -1,6 +1,6 @@
 /* wtap.c
  *
- * $Id: wtap.c,v 1.90 2004/03/03 22:24:53 guy Exp $
+ * $Id: wtap.c,v 1.91 2004/03/11 09:18:33 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -241,6 +241,9 @@ static const struct encap_type_info {
 
 	/* WTAP_ENCAP_USER15 */
 	{ "USER 15", "user15" },
+
+	/* WTAP_ENCAP_SYMANTEC */
+	{ "Symantec Enterprise Firewall", "symantec" },
 };
 
 /* Name that should be somewhat descriptive. */
