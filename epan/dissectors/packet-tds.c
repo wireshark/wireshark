@@ -414,7 +414,7 @@ static const value_string login_field_names[] = {
         {5, "Unknown1"},
         {6, "Library Name"},
         {7, "Locale"},
-        {8, "Unknown2"},
+        {8, "Database Name"},
         {0, NULL},
 };
 
@@ -599,6 +599,9 @@ dissect_tds7_login(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 	}
 
+	/*
+	 * XXX - what about the client MAC address, etc.?
+	 */
 	length_remaining = tvb_reported_length_remaining(tvb, offset2 + len);
 	if (length_remaining > 0) {
 		dissect_tds_ntlmssp(tvb, pinfo, login_tree, offset2 + len,
