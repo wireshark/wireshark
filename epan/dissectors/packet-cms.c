@@ -56,6 +56,11 @@ static int hf_cms_ci_contentType = -1;
 
 /*--- Included file: packet-cms-hf.c ---*/
 
+static int hf_cms_SignedData_PDU = -1;            /* SignedData */
+static int hf_cms_EnvelopedData_PDU = -1;         /* EnvelopedData */
+static int hf_cms_DigestedData_PDU = -1;          /* DigestedData */
+static int hf_cms_EncryptedData_PDU = -1;         /* EncryptedData */
+static int hf_cms_AuthenticatedData_PDU = -1;     /* AuthenticatedData */
 static int hf_cms_version = -1;                   /* CMSVersion */
 static int hf_cms_digestAlgorithms = -1;          /* DigestAlgorithmIdentifiers */
 static int hf_cms_encapContentInfo = -1;          /* EncapsulatedContentInfo */
@@ -1152,6 +1157,24 @@ dissect_cms_Countersignature(gboolean implicit_tag _U_, tvbuff_t *tvb, int offse
   return offset;
 }
 
+/*--- PDUs ---*/
+
+static void dissect_SignedData_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_cms_SignedData(FALSE, tvb, 0, pinfo, tree, hf_cms_SignedData_PDU);
+}
+static void dissect_EnvelopedData_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_cms_EnvelopedData(FALSE, tvb, 0, pinfo, tree, hf_cms_EnvelopedData_PDU);
+}
+static void dissect_DigestedData_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_cms_DigestedData(FALSE, tvb, 0, pinfo, tree, hf_cms_DigestedData_PDU);
+}
+static void dissect_EncryptedData_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_cms_EncryptedData(FALSE, tvb, 0, pinfo, tree, hf_cms_EncryptedData_PDU);
+}
+static void dissect_AuthenticatedData_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_cms_AuthenticatedData(FALSE, tvb, 0, pinfo, tree, hf_cms_AuthenticatedData_PDU);
+}
+
 
 /*--- End of included file: packet-cms-fn.c ---*/
 
@@ -1186,37 +1209,6 @@ dissect_cms_OtherKeyAttribute(gboolean implicit_tag _U_, tvbuff_t *tvb, int offs
                                 OtherKeyAttribute_sequence, hf_index, ett_cms_OtherKeyAttribute);
 
   return offset;
-}
-
-static void
-dissect_cms_SignedData_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	dissect_cms_SignedData(FALSE, tvb, 0, pinfo, tree, -1);
-}
-
-static void
-dissect_cms_EnvelopedData_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	dissect_cms_EnvelopedData(FALSE, tvb, 0, pinfo, tree, -1);
-}
-
-static void
-dissect_cms_DigestedData_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	dissect_cms_DigestedData(FALSE, tvb, 0, pinfo, tree, -1);
-}
-
-
-static void
-dissect_cms_EncryptedData_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	dissect_cms_EncryptedData(FALSE, tvb, 0, pinfo, tree, -1);
-}
-
-static void
-dissect_cms_AuthenticatedData_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	dissect_cms_AuthenticatedData(FALSE, tvb, 0, pinfo, tree, -1);
 }
 
 
@@ -1269,6 +1261,26 @@ void proto_register_cms(void) {
 
 /*--- Included file: packet-cms-hfarr.c ---*/
 
+    { &hf_cms_SignedData_PDU,
+      { "SignedData", "cms.SignedData",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "SignedData", HFILL }},
+    { &hf_cms_EnvelopedData_PDU,
+      { "EnvelopedData", "cms.EnvelopedData",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "EnvelopedData", HFILL }},
+    { &hf_cms_DigestedData_PDU,
+      { "DigestedData", "cms.DigestedData",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "DigestedData", HFILL }},
+    { &hf_cms_EncryptedData_PDU,
+      { "EncryptedData", "cms.EncryptedData",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "EncryptedData", HFILL }},
+    { &hf_cms_AuthenticatedData_PDU,
+      { "AuthenticatedData", "cms.AuthenticatedData",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "AuthenticatedData", HFILL }},
     { &hf_cms_version,
       { "version", "cms.version",
         FT_INT32, BASE_DEC, VALS(CMSVersion_vals), 0,
@@ -1603,10 +1615,17 @@ void proto_register_cms(void) {
 
 /*--- proto_reg_handoff_cms -------------------------------------------*/
 void proto_reg_handoff_cms(void) {
-	register_ber_oid_dissector("1.2.840.113549.1.7.2", dissect_cms_SignedData_callback, proto_cms, "id-signedData");
-	register_ber_oid_dissector("1.2.840.113549.1.7.3", dissect_cms_EnvelopedData_callback, proto_cms, "id-envelopedData");
-	register_ber_oid_dissector("1.2.840.113549.1.7.5", dissect_cms_DigestedData_callback, proto_cms, "id-digestedData");
-	register_ber_oid_dissector("1.2.840.113549.1.7.6", dissect_cms_EncryptedData_callback, proto_cms, "id-encryptedData");
-	register_ber_oid_dissector("1.2.840.113549.1.9.16.1.2", dissect_cms_AuthenticatedData_callback, proto_cms, "id-ct-authenticatedData");
+
+/*--- Included file: packet-cms-dis-tab.c ---*/
+
+ register_ber_oid_dissector("1.2.840.113549.1.7.2", dissect_SignedData_PDU, proto_cms, "id-signedData");
+ register_ber_oid_dissector("1.2.840.113549.1.7.3", dissect_EnvelopedData_PDU, proto_cms, "id-envelopedData");
+ register_ber_oid_dissector("1.2.840.113549.1.7.5", dissect_DigestedData_PDU, proto_cms, "id-digestedData");
+ register_ber_oid_dissector("1.2.840.113549.1.7.6", dissect_EncryptedData_PDU, proto_cms, "id-encryptedData");
+ register_ber_oid_dissector("1.2.840.113549.1.9.16.1.2", dissect_AuthenticatedData_PDU, proto_cms, "id-ct-authenticatedData");
+
+
+/*--- End of included file: packet-cms-dis-tab.c ---*/
+
 }
 
