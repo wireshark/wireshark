@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.344 2003/05/28 22:40:19 guy Exp $
+ * $Id: packet-smb.c,v 1.345 2003/06/04 05:41:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -14259,10 +14259,6 @@ free_hash_tables(gpointer ctarg, gpointer user_data _U_)
 		g_hash_table_destroy(ct->unmatched);
 	if (ct->matched)
 		g_hash_table_destroy(ct->matched);
-	if (ct->dcerpc_fid_to_frame)
-		g_hash_table_destroy(ct->dcerpc_fid_to_frame);
-	if (ct->dcerpc_frame_to_dcerpc_pdu)
-		g_hash_table_destroy(ct->dcerpc_frame_to_dcerpc_pdu);
 	if (ct->tid_service)
 		g_hash_table_destroy(ct->tid_service);
 }
@@ -15708,12 +15704,6 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		si->ct->matched= g_hash_table_new(smb_saved_info_hash_matched,
 			smb_saved_info_equal_matched);
 		si->ct->unmatched= g_hash_table_new(smb_saved_info_hash_unmatched,
-			smb_saved_info_equal_unmatched);
-		si->ct->dcerpc_fid_to_frame=g_hash_table_new(
-			smb_saved_info_hash_unmatched,
-			smb_saved_info_equal_unmatched);
-		si->ct->dcerpc_frame_to_dcerpc_pdu=g_hash_table_new(
-			smb_saved_info_hash_unmatched,
 			smb_saved_info_equal_unmatched);
 		si->ct->tid_service=g_hash_table_new(
 			smb_saved_info_hash_unmatched,

@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.126 2003/05/27 09:22:27 guy Exp $
+ * $Id: packet-dcerpc.c,v 1.127 2003/06/04 05:41:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -619,18 +619,34 @@ dcerpc_call_hash (gconstpointer k)
 
 /* to keep track of matched calls/responses
    this one uses the same value struct as calls, but the key is the frame id
+   and call id; there can be more than one call in a frame.
+
+   XXX - why not just use the same keys as are used for calls?
 */
+
 static GHashTable *dcerpc_matched=NULL;
+
+typedef struct _dcerpc_matched_key {
+    guint32 frame;
+    guint32 call_id;
+} dcerpc_matched_key;
+
+static GMemChunk *dcerpc_matched_key_chunk=NULL;
+
 static gint
 dcerpc_matched_equal (gconstpointer k1, gconstpointer k2)
 {
-	return (guint32)k1 == (guint32)k2;
+    const dcerpc_matched_key *key1 = (const dcerpc_matched_key *)k1;
+    const dcerpc_matched_key *key2 = (const dcerpc_matched_key *)k2;
+    return (key1->frame == key2->frame
+            && key1->call_id == key2->call_id);
 }
 
 static guint
 dcerpc_matched_hash (gconstpointer k)
 {
-	return (guint32)k;
+    const dcerpc_matched_key *key = (const dcerpc_matched_key *)k;
+    return key->frame;
 }
 
 
@@ -2504,6 +2520,7 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, gint offset, packet_info *pinfo,
     if (!conv)
         show_stub_data (tvb, offset, dcerpc_tree, &auth_info);
     else {
+        dcerpc_matched_key matched_key, *new_matched_key;
         dcerpc_call_value *value;
 
 	/* !!! we can NOT check flags.visited here since this will interact
@@ -2511,7 +2528,10 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	   and desegmented pdu's .
 	   Instead we check if this pdu is already in the matched table or not
 	*/
-	if(!g_hash_table_lookup(dcerpc_matched, (void *)pinfo->fd->num)){
+	matched_key.frame = pinfo->fd->num;
+	matched_key.call_id = hdr->call_id;
+	value = g_hash_table_lookup(dcerpc_matched, &matched_key);
+	if(!value){
 		dcerpc_bind_key bind_key;
 		dcerpc_bind_value *bind_value;
 
@@ -2528,7 +2548,10 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 				call_key.call_id=hdr->call_id;
 				call_key.smb_fid=get_smb_fid(pinfo->private_data);
 				if((call_value=g_hash_table_lookup(dcerpc_calls, &call_key))){
-					g_hash_table_insert (dcerpc_matched, (void *)pinfo->fd->num, call_value);
+					new_matched_key = g_mem_chunk_alloc(dcerpc_matched_key_chunk);
+					*new_matched_key = matched_key;
+					g_hash_table_insert (dcerpc_matched, new_matched_key, call_value);
+					value = call_value;
 				}
 			} else {
 				dcerpc_call_key *call_key;
@@ -2562,12 +2585,13 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 				call_value->private_data = NULL;
 				g_hash_table_insert (dcerpc_calls, call_key, call_value);
 
-				g_hash_table_insert (dcerpc_matched, (void *)pinfo->fd->num, call_value);
+				new_matched_key = g_mem_chunk_alloc(dcerpc_matched_key_chunk);
+				*new_matched_key = matched_key;
+				g_hash_table_insert (dcerpc_matched, new_matched_key, call_value);
+				value = call_value;
 			}
 		}
 	}
-
-	value=g_hash_table_lookup (dcerpc_matched, (void *)pinfo->fd->num);
 
         if (value) {
             dcerpc_info di;
@@ -2632,13 +2656,17 @@ dissect_dcerpc_cn_resp (tvbuff_t *tvb, gint offset, packet_info *pinfo,
         /* no point in creating one here, really */
         show_stub_data (tvb, offset, dcerpc_tree, &auth_info);
     } else {
+	dcerpc_matched_key matched_key, *new_matched_key;
 
 	/* !!! we can NOT check flags.visited here since this will interact
 	   badly with when SMB handles (i.e. calls the subdissector)
 	   and desegmented pdu's .
 	   Instead we check if this pdu is already in the matched table or not
 	*/
-	if(!g_hash_table_lookup(dcerpc_matched, (void *)pinfo->fd->num)){
+	matched_key.frame = pinfo->fd->num;
+	matched_key.call_id = hdr->call_id;
+	value=g_hash_table_lookup(dcerpc_matched, &matched_key);
+	if(!value){
 		dcerpc_call_key call_key;
 		dcerpc_call_value *call_value;
 
@@ -2647,15 +2675,15 @@ dissect_dcerpc_cn_resp (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		call_key.smb_fid=get_smb_fid(pinfo->private_data);
 
 		if((call_value=g_hash_table_lookup(dcerpc_calls, &call_key))){
-			g_hash_table_insert (dcerpc_matched, (void *)pinfo->fd->num, call_value);
+			new_matched_key = g_mem_chunk_alloc(dcerpc_matched_key_chunk);
+			*new_matched_key = matched_key;
+			g_hash_table_insert (dcerpc_matched, new_matched_key, call_value);
+			value = call_value;
 			if(call_value->rep_frame==0){
 				call_value->rep_frame=pinfo->fd->num;
 			}
-
 		}
 	}
-
-	value=g_hash_table_lookup(dcerpc_matched, (void *)pinfo->fd->num);
 
         if (value) {
             dcerpc_info di;
@@ -2739,13 +2767,17 @@ dissect_dcerpc_cn_fault (tvbuff_t *tvb, gint offset, packet_info *pinfo,
     if (!conv) {
         /* no point in creating one here, really */
     } else {
+	dcerpc_matched_key matched_key, *new_matched_key;
 
 	/* !!! we can NOT check flags.visited here since this will interact
 	   badly with when SMB handles (i.e. calls the subdissector)
 	   and desegmented pdu's .
 	   Instead we check if this pdu is already in the matched table or not
 	*/
-	if(!g_hash_table_lookup(dcerpc_matched, (void *)pinfo->fd->num)){
+	matched_key.frame = pinfo->fd->num;
+	matched_key.call_id = hdr->call_id;
+	value=g_hash_table_lookup(dcerpc_matched, &matched_key);
+	if(!value){
 		dcerpc_call_key call_key;
 		dcerpc_call_value *call_value;
 
@@ -2754,15 +2786,16 @@ dissect_dcerpc_cn_fault (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		call_key.smb_fid=get_smb_fid(pinfo->private_data);
 
 		if((call_value=g_hash_table_lookup(dcerpc_calls, &call_key))){
-			g_hash_table_insert (dcerpc_matched, (void *)pinfo->fd->num, call_value);
+			new_matched_key = g_mem_chunk_alloc(dcerpc_matched_key_chunk);
+			*new_matched_key = matched_key;
+			g_hash_table_insert (dcerpc_matched, new_matched_key, call_value);
+			value = call_value;
 			if(call_value->rep_frame==0){
 				call_value->rep_frame=pinfo->fd->num;
 			}
 
 		}
 	}
-
-	value=g_hash_table_lookup(dcerpc_matched, (void *)pinfo->fd->num);
 
         if (value) {
             int length, reported_length, stub_length;
@@ -3466,6 +3499,7 @@ dissect_dcerpc_dg_rqst (tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
     dcerpc_info di;
     dcerpc_call_value *value, v;
+    dcerpc_matched_key matched_key, *new_matched_key;
 
     if(!(pinfo->fd->flags.visited)){
 	dcerpc_call_value *call_value;
@@ -3488,10 +3522,15 @@ dissect_dcerpc_dg_rqst (tvbuff_t *tvb, int offset, packet_info *pinfo,
 	call_value->private_data = NULL;
 	g_hash_table_insert (dcerpc_calls, call_key, call_value);
 
-	g_hash_table_insert (dcerpc_matched, (void *)pinfo->fd->num, call_value);
+	new_matched_key = g_mem_chunk_alloc(dcerpc_matched_key_chunk);
+	new_matched_key->frame = pinfo->fd->num;
+	new_matched_key->call_id = hdr->seqnum;
+	g_hash_table_insert (dcerpc_matched, new_matched_key, call_value);
     }
 
-    value=g_hash_table_lookup(dcerpc_matched, (void *)pinfo->fd->num);
+    matched_key.frame = pinfo->fd->num;
+    matched_key.call_id = hdr->seqnum;
+    value=g_hash_table_lookup(dcerpc_matched, &matched_key);
     if (!value) {
         v.uuid = hdr->if_id;
         v.ver = hdr->if_ver;
@@ -3523,6 +3562,7 @@ dissect_dcerpc_dg_resp (tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
     dcerpc_info di;
     dcerpc_call_value *value, v;
+    dcerpc_matched_key matched_key, *new_matched_key;
 
     if(!(pinfo->fd->flags.visited)){
 	dcerpc_call_value *call_value;
@@ -3533,14 +3573,19 @@ dissect_dcerpc_dg_resp (tvbuff_t *tvb, int offset, packet_info *pinfo,
 	call_key.smb_fid=get_smb_fid(pinfo->private_data);
 
 	if((call_value=g_hash_table_lookup(dcerpc_calls, &call_key))){
-	    g_hash_table_insert (dcerpc_matched, (void *)pinfo->fd->num, call_value);
+	    new_matched_key = g_mem_chunk_alloc(dcerpc_matched_key_chunk);
+	    new_matched_key->frame = pinfo->fd->num;
+	    new_matched_key->call_id = hdr->seqnum;
+	    g_hash_table_insert (dcerpc_matched, new_matched_key, call_value);
 	    if(call_value->rep_frame==0){
 		call_value->rep_frame=pinfo->fd->num;
 	    }
 	}
     }
 
-    value=g_hash_table_lookup(dcerpc_matched, (void *)pinfo->fd->num);
+    matched_key.frame = pinfo->fd->num;
+    matched_key.call_id = hdr->seqnum;
+    value=g_hash_table_lookup(dcerpc_matched, &matched_key);
     if (!value) {
         v.uuid = hdr->if_id;
         v.ver = hdr->if_ver;
@@ -3956,7 +4001,13 @@ dcerpc_init_protocol (void)
 		g_hash_table_destroy (dcerpc_matched);
 	}
 	dcerpc_matched = g_hash_table_new (dcerpc_matched_hash, dcerpc_matched_equal);
-
+	if (dcerpc_matched_key_chunk){
+		g_mem_chunk_destroy (dcerpc_matched_key_chunk);
+	}
+	dcerpc_matched_key_chunk = g_mem_chunk_new ("dcerpc_matched_key_chunk",
+                                             sizeof (dcerpc_matched_key),
+                                             200 * sizeof (dcerpc_matched_key),
+                                             G_ALLOC_ONLY);
 }
 
 void

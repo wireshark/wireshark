@@ -8,7 +8,7 @@ XXX  Fixme : shouldnt show [malformed frame] for long packets
  * significant rewrite to tvbuffify the dissector, Ronnie Sahlberg and
  * Guy Harris 2001
  *
- * $Id: packet-smb-pipe.c,v 1.94 2003/04/20 11:36:15 guy Exp $
+ * $Id: packet-smb-pipe.c,v 1.95 2003/06/04 05:41:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3198,11 +3198,13 @@ proto_register_pipe_lanman(void)
 static heur_dissector_list_t smb_transact_heur_subdissector_list;
 
 static GHashTable *dcerpc_fragment_table = NULL;
+static GHashTable *dcerpc_reassembled_table = NULL;
 
 static void
 smb_dcerpc_reassembly_init(void)
 {
 	fragment_table_init(&dcerpc_fragment_table);
+	reassembled_table_init(&dcerpc_reassembled_table);
 }
 
 gboolean
@@ -3215,10 +3217,8 @@ dissect_pipe_dcerpc(tvbuff_t *d_tvb, packet_info *pinfo, proto_tree *parent_tree
 	gboolean save_fragmented;
 	guint reported_len;
 	guint32 hash_key;
-	gpointer hash_value;
 	fragment_data *fd_head;
 	tvbuff_t *new_tvb;
-	guint32 frame;
 
 	dcerpc_priv.transport_type = DCERPC_TRANSPORT_SMB;
 	dcerpc_priv.data.smb.fid = fid;
@@ -3252,31 +3252,46 @@ dissect_pipe_dcerpc(tvbuff_t *d_tvb, packet_info *pinfo, proto_tree *parent_tree
 
 	/* below this line, we know we are doing reassembly */
 	
+	/*
+	 * We have to keep track of reassemblies by FID, because
+	 * we could have more than one pipe operation in a frame
+	 * with NetBIOS-over-TCP.
+	 *
+	 * We also have to keep track of them by direction, as
+	 * we might have reassemblies in progress in both directions.
+	 *
+	 * We do that by combining the FID and the direction and
+	 * using that as the reassembly ID.
+	 *
+	 * The direction is indicated by the SMB request/reply flag - data
+	 * from client to server is carried in requests, data from server
+	 * to client is carried in replies.
+	 *
+	 * We know that the FID is only 16 bits long, so we put the
+	 * direction in bit 17.
+	 */
+	hash_key = fid;
+	if (smb_priv->request)
+		hash_key |= 0x10000;
 
 	/* this is a new packet, see if we are already reassembling this
 	   pdu and if not, check if the dissector wants us
 	   to reassemble it
 	*/
-	if((!pinfo->fd->flags.visited) && smb_priv->sip){
+	if(!pinfo->fd->flags.visited){
 		/*
+		 * This is the first pass.
+		 *
 		 * Check if we are already reassembling this PDU or not;
 		 * we check for an in-progress reassembly for this FID
-		 * in this direction (the direction is indicated by the
-		 * SMB request/reply flag - data from client to server
-		 * is carried in requests, data from server to client
-		 * is carried in replies).
-		 *
-		 * We know that the FID is only 16 bits long, so we put
-		 * the direction in bit 17.
+		 * in this direction, by searching for its reassembly
+		 * structure.
 		 */
-		hash_key = fid;
-		if (smb_priv->request)
-			hash_key |= 0x10000;
-		hash_value = g_hash_table_lookup(smb_priv->ct->dcerpc_fid_to_frame, (void *)hash_key);
-		if(!hash_value){
-			/* this is a new pdu. check if the dissector wants us
-			   to reassemble it or if we already got the full pdu
-			   in this tvb.
+		fd_head=fragment_get(pinfo, fid, dcerpc_fragment_table);
+		if(!fd_head){
+			/* No reassembly, so this is a new pdu. check if the
+			   dissector wants us to reassemble it or if we
+			   already got the full pdu in this tvb.
 			*/
 
 			/*
@@ -3297,25 +3312,13 @@ dissect_pipe_dcerpc(tvbuff_t *d_tvb, packet_info *pinfo, proto_tree *parent_tree
 			   more data ?
 			*/
 			if(pinfo->desegment_len){
-				fragment_add(d_tvb, 0, pinfo, pinfo->fd->num,
+				fragment_add_check(d_tvb, 0, pinfo, fid,
 					dcerpc_fragment_table,
+					dcerpc_reassembled_table,
 					0, reported_len, TRUE);
-				fragment_set_tot_len(pinfo, pinfo->fd->num,
+				fragment_set_tot_len(pinfo, fid,
 					dcerpc_fragment_table,
 					pinfo->desegment_len+reported_len);
-				/* we also need to store this fid value so we 
-				   know for the next Write/Read/Trans call
-				   to this fid that we are doing reassembly
-
-				   we know this entry does not exist already
-				   from the code above
-				*/
-				g_hash_table_insert(smb_priv->ct->dcerpc_fid_to_frame, (void *)hash_key,(void *)pinfo->fd->num);
-
-				/* store the frame to hash_key value so we can
-				   find this pdu later */
-				g_hash_table_insert(smb_priv->ct->dcerpc_frame_to_dcerpc_pdu, (void *)pinfo->fd->num,(void *)pinfo->fd->num);
-
 				goto clean_up_and_exit;
 			}
 
@@ -3326,16 +3329,8 @@ dissect_pipe_dcerpc(tvbuff_t *d_tvb, packet_info *pinfo, proto_tree *parent_tree
 			goto clean_up_and_exit;
 		}
 
-		/* ok this seems to be a new fragment to add to an existing
-		   reassembly 
-		*/
-		frame = GPOINTER_TO_UINT(hash_value);
-
-		/* find the existing reassembly structure */
-		fd_head=fragment_get(pinfo, frame, dcerpc_fragment_table);
-		/* if we got here, there MUST be a reassembly structure */
-		g_assert(fd_head);
-		/* skip to last segment in the existing reassembly structure
+		/* OK, we're already doing a reassembly for this FID.
+		   skip to last segment in the existing reassembly structure
 		   and add this fragment there
 
 		   XXX we might add code here to use any offset values
@@ -3345,17 +3340,13 @@ dissect_pipe_dcerpc(tvbuff_t *d_tvb, packet_info *pinfo, proto_tree *parent_tree
 		while(fd_head->next){
 			fd_head=fd_head->next;
 		}
-		fd_head=fragment_add(d_tvb, 0, pinfo,
-			frame, dcerpc_fragment_table,
+		fd_head=fragment_add_check(d_tvb, 0, pinfo, fid,
+			dcerpc_fragment_table, dcerpc_reassembled_table,
 			fd_head->offset+fd_head->len,
 			reported_len, TRUE);
-		/* store the frame to hash_key value so we can
-		   find this pdu later */
-		g_hash_table_insert(smb_priv->ct->dcerpc_frame_to_dcerpc_pdu, (void *)pinfo->fd->num,(void *)frame);
 
 		/* if we completed reassembly */
 		if(fd_head){
-			g_hash_table_remove(smb_priv->ct->dcerpc_fid_to_frame, (void *)hash_key);
 			new_tvb = tvb_new_real_data(fd_head->data,
 				  fd_head->datalen, fd_head->datalen);
 			tvb_set_child_real_data_tvbuff(d_tvb, new_tvb);
@@ -3375,22 +3366,19 @@ dissect_pipe_dcerpc(tvbuff_t *d_tvb, packet_info *pinfo, proto_tree *parent_tree
 		goto clean_up_and_exit;
 	}
 
-
-	/* this is not a new packet so just see if we have already
-	   seen this fragment and if so if we were able to reassemble it
-	   or not.
-	*/
-	hash_value = g_hash_table_lookup(smb_priv->ct->dcerpc_frame_to_dcerpc_pdu, (void *)pinfo->fd->num);
-	if(!hash_value){
-		/* we didnt find it, try any of the heurisitc dissectors
-		   and bail out 
-		*/
-		result = dissector_try_heuristic(smb_transact_heur_subdissector_list, d_tvb, pinfo, parent_tree);
-		goto clean_up_and_exit;
-	}
-	fd_head=fragment_get(pinfo, (guint32)hash_value, dcerpc_fragment_table);
+	/*
+	 * This is not the first pass; see if it's in the table of
+	 * reassembled packets.
+	 *
+	 * XXX - we know that several of the arguments aren't going to
+	 * be used, so we pass bogus variables.  Can we clean this
+	 * up so that we don't have to distinguish between the first
+	 * pass and subsequent passes?
+	 */
+	fd_head=fragment_add_check(d_tvb, 0, pinfo, fid, dcerpc_fragment_table,
+	    dcerpc_reassembled_table, 0, 0, TRUE);
 	if(!fd_head){
-		/* we didnt find it, try any of the heurisitc dissectors
+		/* we didnt find it, try any of the heuristic dissectors
 		   and bail out 
 		*/
 		result = dissector_try_heuristic(smb_transact_heur_subdissector_list, d_tvb, pinfo, parent_tree);

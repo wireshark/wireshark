@@ -1,7 +1,7 @@
 /* reassemble.h
  * Declarations of outines for {fragment,segment} reassembly
  *
- * $Id: reassemble.h,v 1.18 2003/04/20 11:36:16 guy Exp $
+ * $Id: reassemble.h,v 1.19 2003/06/04 05:41:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -191,16 +191,6 @@ fragment_get(packet_info *pinfo, guint32 id, GHashTable *fragment_table);
  */
 extern unsigned char *
 fragment_delete(packet_info *pinfo, guint32 id, GHashTable *fragment_table);
-
-/*
- * This function adds fragment_data structure to a reassembled-packet
- * hash table, using the frame numbers of each of the frames from
- * which it was reassembled as keys, and sets the "reassembled_in"
- * frame number.
- */
-extern void
-fragment_reassembled(fragment_data *fd_head, packet_info *pinfo,
-	     GHashTable *reassembled_table);
 
 /* hf_fragment, hf_fragment_error, and hf_reassembled_in should be
    FT_FRAMENUM, the others should be FT_BOOLEAN
