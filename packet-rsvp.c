@@ -3,7 +3,7 @@
  *
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-rsvp.c,v 1.81 2003/04/22 05:35:54 guy Exp $
+ * $Id: packet-rsvp.c,v 1.82 2003/04/22 20:40:32 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1488,7 +1488,7 @@ dissect_rsvp_error (proto_tree *ti, tvbuff_t *tvb,
 	error_code = tvb_get_guint8(tvb, offset2+17);
 	proto_tree_add_text(rsvp_object_tree, tvb, offset2+17, 1,
 			    "Error code: %u - %s",
-			    error_code = tvb_get_guint8(tvb, offset2+17),
+			    error_code,
 			    val_to_str(error_code, rsvp_error_codes, "Unknown"));
 	error_val = dissect_rsvp_error_value(ti, tvb, offset2+18, error_code);
 	break;
