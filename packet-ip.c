@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.13 1998/12/29 04:05:35 gerald Exp $
+ * $Id: packet-ip.c,v 1.14 1999/02/08 20:02:34 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -411,7 +411,7 @@ dissect_ip(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
   iph.ip_off = ntohs(iph.ip_off);
   iph.ip_sum = ntohs(iph.ip_sum);
 
-  hlen = iph.ip_hl * 4;	/* IP header length, in bytes */
+  hlen = lo_nibble(iph.ip_v_hl) * 4;	/* IP header length, in bytes */
   
   switch (iph.ip_p) {
     case IP_PROTO_ICMP:
@@ -466,7 +466,7 @@ dissect_ip(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
     ti = add_item_to_tree(GTK_WIDGET(tree), offset, hlen, "Internet Protocol");
     ip_tree = gtk_tree_new();
     add_subtree(ti, ip_tree, ETT_IP);
-    add_item_to_tree(ip_tree, offset,      1, "Version: %d", iph.ip_v);
+    add_item_to_tree(ip_tree, offset,      1, "Version: %d", hi_nibble(iph.ip_v_hl));
     add_item_to_tree(ip_tree, offset,      1, "Header length: %d bytes", hlen); 
     tf = add_item_to_tree(ip_tree, offset +  1, 1, "Type of service: 0x%02x (%s)",
       iph.ip_tos, tos_str);
@@ -534,7 +534,7 @@ dissect_ip(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
   pi.destip = ip_to_str( (guint8 *) &iph.ip_dst);
   pi.ipproto = iph.ip_p;
   pi.iplen = iph.ip_len;
-  pi.iphdrlen = iph.ip_hl;
+  pi.iphdrlen = lo_nibble(iph.ip_v_hl);
   pi.ip_src = iph.ip_src;
 
   offset += hlen;
@@ -682,7 +682,7 @@ dissect_igmp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
   /* To do: check for runts, errs, etc. */
   cksum = ntohs(ih.igmp_cksum);
   
-  switch (ih.igmp_t) {
+  switch (lo_nibble(ih.igmp_v_t)) {
     case IGMP_M_QRY:
       strcpy(type_str, "Router query");
       break;
@@ -722,9 +722,9 @@ dissect_igmp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
     igmp_tree = gtk_tree_new();
     add_subtree(ti, igmp_tree, ETT_IGMP);
     add_item_to_tree(igmp_tree, offset,     1, "Version: %d",
-      ih.igmp_v);
+      hi_nibble(ih.igmp_v_t));
     add_item_to_tree(igmp_tree, offset    , 1, "Type: %d (%s)",
-      ih.igmp_t, type_str);
+      lo_nibble(ih.igmp_v_t), type_str);
     add_item_to_tree(igmp_tree, offset + 1, 1, "Unused: 0x%02x",
       ih.igmp_unused);
     add_item_to_tree(igmp_tree, offset + 2, 2, "Checksum: 0x%04x",

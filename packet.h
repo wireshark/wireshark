@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.34 1999/01/28 21:29:36 gram Exp $
+ * $Id: packet.h,v 1.35 1999/02/08 20:02:33 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -50,6 +50,9 @@
                     (guint32)*((guint8 *)p+1)<<8|   \
                     (guint32)*((guint8 *)p+0)<<0)
 
+
+#define hi_nibble(b) ((b & 0xf0) >> 4)
+#define lo_nibble(b) (b & 0x0f)
 
 /* Useful when highlighting regions inside a dissect_*() function. With this
  * macro, you can highlight from the start of the packet to the end of the
@@ -161,13 +164,7 @@ typedef struct _e_icmp {
 /* IGMP structs and definitions */
 
 typedef struct _e_igmp {
-#if BYTE_ORDER == BIG_ENDIAN
-  guint8  igmp_v:4;
-  guint8  igmp_t:4;
-#else /* Little endian */
-  guint8  igmp_t:4;
-  guint8  igmp_v:4;
-#endif
+  guint8  igmp_v_t; /* combines igmp_v and igmp_t */
   guint8  igmp_unused;
   guint16 igmp_cksum;
   guint32 igmp_gaddr;
@@ -185,13 +182,7 @@ typedef struct _e_igmp {
 /* IP structs and definitions */
 
 typedef struct _e_ip {
-#if BYTE_ORDER == BIG_ENDIAN
-  guint8  ip_v:4;
-  guint8  ip_hl:4;
-#else /* Little endian */
-  guint8  ip_hl:4;
-  guint8  ip_v:4;
-#endif
+  guint8  ip_v_hl; /* combines ip_v and ip_hl */
   guint8  ip_tos;
   guint16 ip_len;
   guint16 ip_id;
@@ -304,13 +295,7 @@ typedef struct _e_tcphdr {
   guint16 th_dport;
   guint32 th_seq;
   guint32 th_ack;
-#if BYTE_ORDER == LITTLE_ENDIAN
-  guint8  th_x2:4;
-  guint8  th_off:4;
-#else
-  guint8  th_off:4;
-  guint8  th_x2:4;
-#endif
+  guint8  th_off_x2; /* combines th_off and th_x2 */
   guint8  th_flags;
 #define TH_FIN  0x01
 #define TH_SYN  0x02

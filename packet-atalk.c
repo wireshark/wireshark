@@ -41,12 +41,18 @@
 
 extern packet_info pi;
 
-typedef struct _e_ddp {
+/* P = Padding, H = Hops, L = Len */
 #if BYTE_ORDER == BIG_ENDIAN
-  guint16	pad:2,hops:4,len:10;
+ /* PPHHHHLL LLLLLLLL */
+ #define ddp_hops(x)	( ( x >> 10) & 0x3C )
+ #define ddp_len(x)		( x & 0x03ff )
 #else
-  guint16	len:10,hops:4,pad:2;
+ /* LLLLLLLL PPHHHHLL*/
+ #define ddp_hops(x)	( x & 0x3C )
+ #define ddp_len(x)		( ntohs(x) & 0x03ff )
 #endif
+typedef struct _e_ddp {
+  guint16	hops_len; /* combines pad, hops, and len */
   guint16	sum,dnet,snet;
   guint8	dnode,snode;
   guint8	dport,sport;
@@ -94,8 +100,8 @@ dissect_ddp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
       "Datagram Delivery Protocol");
     ddp_tree = gtk_tree_new();
     add_subtree(ti, ddp_tree, ETT_IP);
-    add_item_to_tree(ddp_tree, offset,      1, "Hop count: %d", ddp.hops);
-    add_item_to_tree(ddp_tree, offset,	    2, "Datagram length: %d", ddp.len);
+    add_item_to_tree(ddp_tree, offset,      1, "Hop count: %d", ddp_hops(ddp.hops_len));
+    add_item_to_tree(ddp_tree, offset,	    2, "Datagram length: %d", ddp_len(ddp.hops_len));
     add_item_to_tree(ddp_tree, offset + 2,  2, "Checksum: %d",ddp.sum);
     add_item_to_tree(ddp_tree, offset + 4,  2, "Destination Net: %d",ddp.dnet);
     add_item_to_tree(ddp_tree, offset + 6,  2, "Source Net: %d",ddp.snet);
