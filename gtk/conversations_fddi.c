@@ -41,11 +41,11 @@
 
 
 static int
-fddi_talkers_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, void *vip)
+fddi_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, void *vip)
 {
 	fddi_hdr *ehdr=vip;
 
-	add_ett_table_data((conversations_table *)pct, &ehdr->src, &ehdr->dst, 0, 0, 1, pinfo->fd->pkt_len, SAT_FDDI, PT_NONE);
+	add_conversation_table_data((conversations_table *)pct, &ehdr->src, &ehdr->dst, 0, 0, 1, pinfo->fd->pkt_len, SAT_FDDI, PT_NONE);
 
 	return 1;
 }
@@ -53,7 +53,7 @@ fddi_talkers_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, void
 
 
 static void
-gtk_fddi_talkers_init(char *optarg)
+fddi_conversation_init(char *optarg)
 {
 	char *filter=NULL;
 
@@ -63,26 +63,26 @@ gtk_fddi_talkers_init(char *optarg)
 		filter=NULL;
 	}
 
-	init_ett_table(TRUE, "FDDI", "fddi", filter, (void *)fddi_talkers_packet);
+	init_conversation_table(TRUE, "FDDI", "fddi", filter, (void *)fddi_conversation_packet);
 
 }
 
 
 static void
-gtk_fddi_endpoints_cb(GtkWidget *w _U_, gpointer d _U_)
+fddi_endpoints_cb(GtkWidget *w _U_, gpointer d _U_)
 {
-	gtk_fddi_talkers_init("conv,fddi");
+	fddi_conversation_init("conv,fddi");
 }
 
 
 void
-register_tap_listener_fddi_talkers(void)
+register_tap_listener_fddi_conversation(void)
 {
-	register_ethereal_tap("conv,fddi", gtk_fddi_talkers_init);
+	register_ethereal_tap("conv,fddi", fddi_conversation_init);
 
 	register_tap_menu_item("FDDI", REGISTER_TAP_GROUP_CONVERSATION_LIST,
-	    gtk_fddi_endpoints_cb, NULL, NULL, NULL);
+	    fddi_endpoints_cb, NULL, NULL, NULL);
 
-	register_ett_table(TRUE, "FDDI", "fddi", NULL /*filter*/, (void *)fddi_talkers_packet);
+	register_conversation_table(TRUE, "FDDI", "fddi", NULL /*filter*/, (void *)fddi_conversation_packet);
 }
 

@@ -320,7 +320,7 @@ static GtkItemFactoryEntry menu_items[] =
     ITEM_FACTORY_ENTRY("/Statistics/_Protocol Hierarchy", NULL,
                        proto_hier_stats_cb, 0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Statistics/Conversations", NULL,
-                       init_ett_notebook_cb, 0, NULL, NULL),
+                       init_conversation_notebook_cb, 0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Statistics/Endpoints", NULL,
                        init_hostlist_notebook_cb, 0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/_Help", NULL, NULL, 0, "<Branch>", NULL),

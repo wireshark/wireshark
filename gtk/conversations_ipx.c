@@ -41,11 +41,11 @@
 
 
 static int
-ipx_talkers_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, void *vip)
+ipx_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, void *vip)
 {
 	ipxhdr_t *ipxh=vip;
 
-	add_ett_table_data((conversations_table *)pct, &ipxh->ipx_src, &ipxh->ipx_dst, 0, 0, 1, pinfo->fd->pkt_len, SAT_NONE, PT_NONE);
+	add_conversation_table_data((conversations_table *)pct, &ipxh->ipx_src, &ipxh->ipx_dst, 0, 0, 1, pinfo->fd->pkt_len, SAT_NONE, PT_NONE);
 
 	return 1;
 }
@@ -53,7 +53,7 @@ ipx_talkers_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, void 
 
 
 static void
-gtk_ipx_talkers_init(char *optarg)
+ipx_conversation_init(char *optarg)
 {
 	char *filter=NULL;
 
@@ -63,26 +63,26 @@ gtk_ipx_talkers_init(char *optarg)
 		filter=NULL;
 	}
 
-	init_ett_table(TRUE, "IPX", "ipx", filter, (void *)ipx_talkers_packet);
+	init_conversation_table(TRUE, "IPX", "ipx", filter, (void *)ipx_conversation_packet);
 
 }
 
 
 static void
-gtk_ipx_endpoints_cb(GtkWidget *w _U_, gpointer d _U_)
+ipx_endpoints_cb(GtkWidget *w _U_, gpointer d _U_)
 {
-	gtk_ipx_talkers_init("conv,ipx");
+	ipx_conversation_init("conv,ipx");
 }
 
 
 void
-register_tap_listener_ipx_talkers(void)
+register_tap_listener_ipx_conversation(void)
 {
-	register_ethereal_tap("conv,ipx", gtk_ipx_talkers_init);
+	register_ethereal_tap("conv,ipx", ipx_conversation_init);
 
 	register_tap_menu_item("IPX", REGISTER_TAP_GROUP_CONVERSATION_LIST,
-	    gtk_ipx_endpoints_cb, NULL, NULL, NULL);
+	    ipx_endpoints_cb, NULL, NULL, NULL);
 
-	register_ett_table(TRUE, "IPX", "ipx", NULL /*filter*/, (void *)ipx_talkers_packet);
+	register_conversation_table(TRUE, "IPX", "ipx", NULL /*filter*/, (void *)ipx_conversation_packet);
 }
 

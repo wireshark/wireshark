@@ -66,7 +66,7 @@ typedef struct _conversations_table {
  * @param filter the optional filter name or NULL
  * @param packet_func the function to be called for each incoming packet
  */
-extern void register_ett_table(gboolean hide_ports, char *table_name, char *tap_name, char *filter, void *packet_func);
+extern void register_conversation_table(gboolean hide_ports, char *table_name, char *tap_name, char *filter, void *packet_func);
 
 /** Init the conversation table for the single conversation window.
  *
@@ -76,16 +76,16 @@ extern void register_ett_table(gboolean hide_ports, char *table_name, char *tap_
  * @param filter the optional filter name or NULL
  * @param packet_func the function to be called for each incoming packet
  */
-extern void init_ett_table(gboolean hide_ports, char *table_name, char *tap_name, char *filter, void *packet_func);
+extern void init_conversation_table(gboolean hide_ports, char *table_name, char *tap_name, char *filter, void *packet_func);
 
 /** Callback for "Conversations" statistics item.
  *
- * @param w unused
- * @param d unused
+ * @param widget unused
+ * @param data unused
  */
-extern void init_ett_notebook_cb(GtkWidget *w, gpointer d);
+extern void init_conversation_notebook_cb(GtkWidget *widget, gpointer data);
 
-/** Add some data to the table.
+/** Add some data to the conversation table.
  *
  * @param ct the table to add the data to
  * @param src source address
@@ -97,5 +97,5 @@ extern void init_ett_notebook_cb(GtkWidget *w, gpointer d);
  * @param sat address type
  * @param port_type the port type (e.g. PT_TCP)
  */
-extern void add_ett_table_data(conversations_table *ct, address *src, address *dst, 
+extern void add_conversation_table_data(conversations_table *ct, address *src, address *dst, 
                         guint32 src_port, guint32 dst_port, int num_frames, int num_bytes, SAT_E sat, int port_type);

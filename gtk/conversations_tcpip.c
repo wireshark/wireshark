@@ -41,11 +41,11 @@
 
 
 static int
-tcpip_talkers_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, void *vip)
+tcpip_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, void *vip)
 {
 	struct tcpheader *tcphdr=vip;
 
-	add_ett_table_data((conversations_table *)pct, &tcphdr->ip_src, &tcphdr->ip_dst, tcphdr->th_sport, tcphdr->th_dport, 1, pinfo->fd->pkt_len, SAT_NONE, PT_TCP);
+	add_conversation_table_data((conversations_table *)pct, &tcphdr->ip_src, &tcphdr->ip_dst, tcphdr->th_sport, tcphdr->th_dport, 1, pinfo->fd->pkt_len, SAT_NONE, PT_TCP);
 
 	return 1;
 }
@@ -53,7 +53,7 @@ tcpip_talkers_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, voi
 
 
 static void
-gtk_tcpip_talkers_init(char *optarg)
+tcpip_conversation_init(char *optarg)
 {
 	char *filter=NULL;
 
@@ -63,26 +63,26 @@ gtk_tcpip_talkers_init(char *optarg)
 		filter=NULL;
 	}
 
-	init_ett_table(FALSE, "TCP", "tcp", filter, (void *)tcpip_talkers_packet);
+	init_conversation_table(FALSE, "TCP", "tcp", filter, (void *)tcpip_conversation_packet);
 
 }
 
 
 static void
-gtk_tcpip_endpoints_cb(GtkWidget *w _U_, gpointer d _U_)
+tcpip_conversation_cb(GtkWidget *w _U_, gpointer d _U_)
 {
-	gtk_tcpip_talkers_init("conv,tcp");
+	tcpip_conversation_init("conv,tcp");
 }
 
 
 void
-register_tap_listener_tcpip_talkers(void)
+register_tap_listener_tcpip_conversation(void)
 {
-	register_ethereal_tap("conv,tcp", gtk_tcpip_talkers_init);
+	register_ethereal_tap("conv,tcp", tcpip_conversation_init);
 
 	register_tap_menu_item("TCP (IPv4 & IPv6)", REGISTER_TAP_GROUP_CONVERSATION_LIST,
-	    gtk_tcpip_endpoints_cb, NULL, NULL, NULL);
+	    tcpip_conversation_cb, NULL, NULL, NULL);
 
-	register_ett_table(FALSE, "TCP", "tcp", NULL /*filter*/, (void *)tcpip_talkers_packet);
+	register_conversation_table(FALSE, "TCP", "tcp", NULL /*filter*/, (void *)tcpip_conversation_packet);
 }
 

@@ -41,11 +41,11 @@
 
 
 static int
-udpip_talkers_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, void *vip)
+udpip_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, void *vip)
 {
 	e_udphdr *udphdr=vip;
 
-	add_ett_table_data((conversations_table *)pct, &udphdr->ip_src, &udphdr->ip_dst, udphdr->uh_sport, udphdr->uh_dport, 1, pinfo->fd->pkt_len, SAT_NONE, PT_UDP);
+	add_conversation_table_data((conversations_table *)pct, &udphdr->ip_src, &udphdr->ip_dst, udphdr->uh_sport, udphdr->uh_dport, 1, pinfo->fd->pkt_len, SAT_NONE, PT_UDP);
 
 	return 1;
 }
@@ -53,7 +53,7 @@ udpip_talkers_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, voi
 
 
 static void
-gtk_udpip_talkers_init(char *optarg)
+udpip_conversation_init(char *optarg)
 {
 	char *filter=NULL;
 
@@ -63,26 +63,26 @@ gtk_udpip_talkers_init(char *optarg)
 		filter=NULL;
 	}
 
-	init_ett_table(FALSE, "UDP", "udp", filter, (void *)udpip_talkers_packet);
+	init_conversation_table(FALSE, "UDP", "udp", filter, (void *)udpip_conversation_packet);
 
 }
 
 
 static void
-gtk_udpip_endpoints_cb(GtkWidget *w _U_, gpointer d _U_)
+udpip_conversation_cb(GtkWidget *w _U_, gpointer d _U_)
 {
-	gtk_udpip_talkers_init("conv,udp");
+	udpip_conversation_init("conv,udp");
 }
 
 
 void
-register_tap_listener_udpip_talkers(void)
+register_tap_listener_udpip_conversation(void)
 {
-	register_ethereal_tap("conv,udp", gtk_udpip_talkers_init);
+	register_ethereal_tap("conv,udp", udpip_conversation_init);
 
 	register_tap_menu_item("UDP (IPv4 & IPv6)", REGISTER_TAP_GROUP_CONVERSATION_LIST,
-	    gtk_udpip_endpoints_cb, NULL, NULL, NULL);
+	    udpip_conversation_cb, NULL, NULL, NULL);
 
-    register_ett_table(FALSE, "UDP", "udp", NULL /*filter*/, (void *)udpip_talkers_packet);
+    register_conversation_table(FALSE, "UDP", "udp", NULL /*filter*/, (void *)udpip_conversation_packet);
 }
 

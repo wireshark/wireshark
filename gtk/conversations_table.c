@@ -63,7 +63,7 @@
 
 /* convert a port number into a string */
 static char *
-ett_port_to_str(int port_type, guint32 port)
+ct_port_to_str(int port_type, guint32 port)
 {
 	static int i=0;
 	static gchar *strp, str[4][12];
@@ -99,7 +99,7 @@ ett_port_to_str(int port_type, guint32 port)
    specific there  thats why we need specific_addr_type
 */
 static char *
-ett_get_filter_name(address *addr, int specific_addr_type, int port_type, int name_type)
+ct_get_filter_name(address *addr, int specific_addr_type, int port_type, int name_type)
 {
 	switch(name_type){
 	case FN_SRC_ADDRESS:
@@ -208,7 +208,7 @@ typedef struct column_arrows {
 
 
 static void
-reset_ett_table_data(conversations_table *et)
+reset_ct_table_data(conversations_table *et)
 {
     guint32 i;
     char title[256];
@@ -241,22 +241,22 @@ reset_ett_table_data(conversations_table *et)
 void protect_thread_critical_region(void);
 void unprotect_thread_critical_region(void);
 static void
-ett_win_destroy_cb(GtkWindow *win _U_, gpointer data)
+ct_win_destroy_cb(GtkWindow *win _U_, gpointer data)
 {
-	conversations_table *talkers=(conversations_table *)data;
+	conversations_table *conversations=(conversations_table *)data;
 
 	protect_thread_critical_region();
-	remove_tap_listener(talkers);
+	remove_tap_listener(conversations);
 	unprotect_thread_critical_region();
 
-	reset_ett_table_data(talkers);
-	g_free(talkers);
+	reset_ct_table_data(conversations);
+	g_free(conversations);
 }
 
 
 
 static gint
-ett_sort_column(GtkCList *clist, gconstpointer ptr1, gconstpointer ptr2)
+ct_sort_column(GtkCList *clist, gconstpointer ptr1, gconstpointer ptr2)
 {
 	char *text1 = NULL;
 	char *text2 = NULL;
@@ -290,7 +290,7 @@ ett_sort_column(GtkCList *clist, gconstpointer ptr1, gconstpointer ptr2)
 
 
 static void
-ett_click_column_cb(GtkCList *clist, gint column, gpointer data)
+ct_click_column_cb(GtkCList *clist, gint column, gpointer data)
 {
 	column_arrows *col_arrows = (column_arrows *) data;
 	int i;
@@ -352,7 +352,7 @@ ett_click_column_cb(GtkCList *clist, gint column, gpointer data)
 	8: B From ANY
 */
 static void
-ett_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callback_action)
+ct_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callback_action)
 {
 	int action, type, direction;
 	int selection;
@@ -375,23 +375,23 @@ ett_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callba
 	/* translate it back from row index to index in enndpoint array */
 	selection=GPOINTER_TO_INT(gtk_clist_get_row_data(et->table, selection));
 
-	sport=ett_port_to_str(et->endpoints[selection].port_type, et->endpoints[selection].src_port);
-	dport=ett_port_to_str(et->endpoints[selection].port_type, et->endpoints[selection].dst_port);
+	sport=ct_port_to_str(et->endpoints[selection].port_type, et->endpoints[selection].src_port);
+	dport=ct_port_to_str(et->endpoints[selection].port_type, et->endpoints[selection].dst_port);
 
 	switch(direction){
 	case 0:
 		/* A <-> B */
 		g_snprintf(dirstr, 127, "%s==%s %s%s%s%s && %s==%s %s%s%s%s",
-			ett_get_filter_name(&et->endpoints[selection].src_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_ANY_ADDRESS),
+			ct_get_filter_name(&et->endpoints[selection].src_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_ANY_ADDRESS),
 			address_to_str(&et->endpoints[selection].src_address),
 			sport?" && ":"",
-			sport?ett_get_filter_name(&et->endpoints[selection].src_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_ANY_PORT):"",
+			sport?ct_get_filter_name(&et->endpoints[selection].src_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_ANY_PORT):"",
 			sport?"==":"",
 			sport?sport:"",
-			ett_get_filter_name(&et->endpoints[selection].dst_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_ANY_ADDRESS),
+			ct_get_filter_name(&et->endpoints[selection].dst_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_ANY_ADDRESS),
 			address_to_str(&et->endpoints[selection].dst_address),
 			dport?" && ":"",
-			dport?ett_get_filter_name(&et->endpoints[selection].dst_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_ANY_PORT):"",
+			dport?ct_get_filter_name(&et->endpoints[selection].dst_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_ANY_PORT):"",
 			dport?"==":"",
 			dport?dport:""
 		);
@@ -399,16 +399,16 @@ ett_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callba
 	case 1:
 		/* A --> B */
 		g_snprintf(dirstr, 127, "%s==%s %s%s%s%s && %s==%s %s%s%s%s",
-			ett_get_filter_name(&et->endpoints[selection].src_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_SRC_ADDRESS),
+			ct_get_filter_name(&et->endpoints[selection].src_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_SRC_ADDRESS),
 			address_to_str(&et->endpoints[selection].src_address),
 			sport?" && ":"",
-			sport?ett_get_filter_name(&et->endpoints[selection].src_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_SRC_PORT):"",
+			sport?ct_get_filter_name(&et->endpoints[selection].src_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_SRC_PORT):"",
 			sport?"==":"",
 			sport?sport:"",
-			ett_get_filter_name(&et->endpoints[selection].dst_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_DST_ADDRESS),
+			ct_get_filter_name(&et->endpoints[selection].dst_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_DST_ADDRESS),
 			address_to_str(&et->endpoints[selection].dst_address),
 			dport?" && ":"",
-			dport?ett_get_filter_name(&et->endpoints[selection].dst_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_DST_PORT):"",
+			dport?ct_get_filter_name(&et->endpoints[selection].dst_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_DST_PORT):"",
 			dport?"==":"",
 			dport?dport:""
 		);
@@ -416,16 +416,16 @@ ett_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callba
 	case 2:
 		/* A <-- B */
 		g_snprintf(dirstr, 127, "%s==%s %s%s%s%s && %s==%s %s%s%s%s",
-			ett_get_filter_name(&et->endpoints[selection].src_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_DST_ADDRESS),
+			ct_get_filter_name(&et->endpoints[selection].src_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_DST_ADDRESS),
 			address_to_str(&et->endpoints[selection].src_address),
 			sport?" && ":"",
-			sport?ett_get_filter_name(&et->endpoints[selection].src_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_DST_PORT):"",
+			sport?ct_get_filter_name(&et->endpoints[selection].src_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_DST_PORT):"",
 			sport?"==":"",
 			sport?sport:"",
-			ett_get_filter_name(&et->endpoints[selection].dst_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_SRC_ADDRESS),
+			ct_get_filter_name(&et->endpoints[selection].dst_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_SRC_ADDRESS),
 			address_to_str(&et->endpoints[selection].dst_address),
 			dport?" && ":"",
-			dport?ett_get_filter_name(&et->endpoints[selection].dst_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_SRC_PORT):"",
+			dport?ct_get_filter_name(&et->endpoints[selection].dst_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_SRC_PORT):"",
 			dport?"==":"",
 			dport?dport:""
 		);
@@ -433,10 +433,10 @@ ett_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callba
 	case 3:
 		/* A <-> ANY */
 		g_snprintf(dirstr, 127, "%s==%s %s%s%s%s",
-			ett_get_filter_name(&et->endpoints[selection].src_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_ANY_ADDRESS),
+			ct_get_filter_name(&et->endpoints[selection].src_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_ANY_ADDRESS),
 			address_to_str(&et->endpoints[selection].src_address),
 			sport?" && ":"",
-			sport?ett_get_filter_name(&et->endpoints[selection].src_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_ANY_PORT):"",
+			sport?ct_get_filter_name(&et->endpoints[selection].src_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_ANY_PORT):"",
 			sport?"==":"",
 			sport?sport:""
 		);
@@ -444,10 +444,10 @@ ett_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callba
 	case 4:
 		/* A --> ANY */
 		g_snprintf(dirstr, 127, "%s==%s %s%s%s%s",
-			ett_get_filter_name(&et->endpoints[selection].src_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_SRC_ADDRESS),
+			ct_get_filter_name(&et->endpoints[selection].src_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_SRC_ADDRESS),
 			address_to_str(&et->endpoints[selection].src_address),
 			sport?" && ":"",
-			sport?ett_get_filter_name(&et->endpoints[selection].src_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_SRC_PORT):"",
+			sport?ct_get_filter_name(&et->endpoints[selection].src_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_SRC_PORT):"",
 			sport?"==":"",
 			sport?sport:""
 		);
@@ -455,10 +455,10 @@ ett_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callba
 	case 5:
 		/* A <-- ANY */
 		g_snprintf(dirstr, 127, "%s==%s %s%s%s%s",
-			ett_get_filter_name(&et->endpoints[selection].src_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_DST_ADDRESS),
+			ct_get_filter_name(&et->endpoints[selection].src_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_DST_ADDRESS),
 			address_to_str(&et->endpoints[selection].src_address),
 			sport?" && ":"",
-			sport?ett_get_filter_name(&et->endpoints[selection].src_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_DST_PORT):"",
+			sport?ct_get_filter_name(&et->endpoints[selection].src_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_DST_PORT):"",
 			sport?"==":"",
 			sport?sport:""
 		);
@@ -466,10 +466,10 @@ ett_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callba
 	case 6:
 		/* B <-> ANY */
 		g_snprintf(dirstr, 127, "%s==%s %s%s%s%s",
-			ett_get_filter_name(&et->endpoints[selection].dst_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_ANY_ADDRESS),
+			ct_get_filter_name(&et->endpoints[selection].dst_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_ANY_ADDRESS),
 			address_to_str(&et->endpoints[selection].dst_address),
 			dport?" && ":"",
-			dport?ett_get_filter_name(&et->endpoints[selection].dst_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_ANY_PORT):"",
+			dport?ct_get_filter_name(&et->endpoints[selection].dst_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_ANY_PORT):"",
 			dport?"==":"",
 			dport?dport:""
 		);
@@ -477,10 +477,10 @@ ett_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callba
 	case 7:
 		/* B --> ANY */
 		g_snprintf(dirstr, 127, "%s==%s %s%s%s%s",
-			ett_get_filter_name(&et->endpoints[selection].dst_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_SRC_ADDRESS),
+			ct_get_filter_name(&et->endpoints[selection].dst_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_SRC_ADDRESS),
 			address_to_str(&et->endpoints[selection].dst_address),
 			dport?" && ":"",
-			dport?ett_get_filter_name(&et->endpoints[selection].dst_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_SRC_PORT):"",
+			dport?ct_get_filter_name(&et->endpoints[selection].dst_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_SRC_PORT):"",
 			dport?"==":"",
 			dport?dport:""
 		);
@@ -488,10 +488,10 @@ ett_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callba
 	case 8:
 		/* B <-- ANY */
 		g_snprintf(dirstr, 127, "%s==%s %s%s%s%s",
-			ett_get_filter_name(&et->endpoints[selection].dst_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_DST_ADDRESS),
+			ct_get_filter_name(&et->endpoints[selection].dst_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_DST_ADDRESS),
 			address_to_str(&et->endpoints[selection].dst_address),
 			dport?" && ":"",
-			dport?ett_get_filter_name(&et->endpoints[selection].dst_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_DST_PORT):"",
+			dport?ct_get_filter_name(&et->endpoints[selection].dst_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_DST_PORT):"",
 			dport?"==":"",
 			dport?dport:""
 		);
@@ -560,7 +560,7 @@ ett_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callba
 }
 
 static gint
-ett_show_popup_menu_cb(void *widg _U_, GdkEvent *event, conversations_table *et)
+ct_show_popup_menu_cb(void *widg _U_, GdkEvent *event, conversations_table *et)
 {
 	GdkEventButton *bevent = (GdkEventButton *)event;
     gint row;
@@ -586,355 +586,355 @@ ett_show_popup_menu_cb(void *widg _U_, GdkEvent *event, conversations_table *et)
 	return FALSE;
 }
 
-static GtkItemFactoryEntry ett_list_menu_items[] =
+static GtkItemFactoryEntry ct_list_menu_items[] =
 {
 	/* Match */
 	ITEM_FACTORY_ENTRY("/Apply as Filter", NULL, NULL, 0, "<Branch>", NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/Selected", NULL, NULL, 0, "<Branch>", NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/Selected/A <-> B", NULL,
-		ett_select_filter_cb, 0*65536+0*256+0, NULL, NULL),
+		ct_select_filter_cb, 0*65536+0*256+0, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/Selected/A --> B", NULL,
-		ett_select_filter_cb, 0*65536+0*256+1, NULL, NULL),
+		ct_select_filter_cb, 0*65536+0*256+1, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/Selected/A <-- B", NULL,
-		ett_select_filter_cb, 0*65536+0*256+2, NULL, NULL),
+		ct_select_filter_cb, 0*65536+0*256+2, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/Selected/A <-> ANY", NULL,
-		ett_select_filter_cb, 0*65536+0*256+3, NULL, NULL),
+		ct_select_filter_cb, 0*65536+0*256+3, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/Selected/A --> ANY", NULL,
-		ett_select_filter_cb, 0*65536+0*256+4, NULL, NULL),
+		ct_select_filter_cb, 0*65536+0*256+4, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/Selected/A <-- ANY", NULL,
-		ett_select_filter_cb, 0*65536+0*256+5, NULL, NULL),
+		ct_select_filter_cb, 0*65536+0*256+5, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/Selected/ANY <-> B", NULL,
-		ett_select_filter_cb, 0*65536+0*256+6, NULL, NULL),
+		ct_select_filter_cb, 0*65536+0*256+6, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/Selected/ANY <-- B", NULL,
-		ett_select_filter_cb, 0*65536+0*256+7, NULL, NULL),
+		ct_select_filter_cb, 0*65536+0*256+7, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/Selected/ANY --> B", NULL,
-		ett_select_filter_cb, 0*65536+0*256+8, NULL, NULL),
+		ct_select_filter_cb, 0*65536+0*256+8, NULL, NULL),
 
 	ITEM_FACTORY_ENTRY("/Apply as Filter/Not Selected", NULL, NULL, 0, "<Branch>", NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/Not Selected/A <-> B", NULL,
-		ett_select_filter_cb, 0*65536+1*256+0, NULL, NULL),
+		ct_select_filter_cb, 0*65536+1*256+0, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/Not Selected/A --> B", NULL,
-		ett_select_filter_cb, 0*65536+1*256+1, NULL, NULL),
+		ct_select_filter_cb, 0*65536+1*256+1, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/Not Selected/A <-- B", NULL,
-		ett_select_filter_cb, 0*65536+1*256+2, NULL, NULL),
+		ct_select_filter_cb, 0*65536+1*256+2, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/Not Selected/A --> ANY", NULL,
-		ett_select_filter_cb, 0*65536+1*256+3, NULL, NULL),
+		ct_select_filter_cb, 0*65536+1*256+3, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/Not Selected/A <-> ANY", NULL,
-		ett_select_filter_cb, 0*65536+1*256+4, NULL, NULL),
+		ct_select_filter_cb, 0*65536+1*256+4, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/Not Selected/A <-- ANY", NULL,
-		ett_select_filter_cb, 0*65536+1*256+5, NULL, NULL),
+		ct_select_filter_cb, 0*65536+1*256+5, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/Not Selected/ANY <-> B", NULL,
-		ett_select_filter_cb, 0*65536+1*256+6, NULL, NULL),
+		ct_select_filter_cb, 0*65536+1*256+6, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/Not Selected/ANY <-- B", NULL,
-		ett_select_filter_cb, 0*65536+1*256+7, NULL, NULL),
+		ct_select_filter_cb, 0*65536+1*256+7, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/Not Selected/ANY --> B", NULL,
-		ett_select_filter_cb, 0*65536+1*256+8, NULL, NULL),
+		ct_select_filter_cb, 0*65536+1*256+8, NULL, NULL),
 
 
 	ITEM_FACTORY_ENTRY("/Apply as Filter/... and Selected", NULL, NULL, 0, "<Branch>", NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/... and Selected/A <-> B", NULL,
-		ett_select_filter_cb, 0*65536+2*256+0, NULL, NULL),
+		ct_select_filter_cb, 0*65536+2*256+0, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/... and Selected/A --> B", NULL,
-		ett_select_filter_cb, 0*65536+2*256+1, NULL, NULL),
+		ct_select_filter_cb, 0*65536+2*256+1, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/... and Selected/A <-- B", NULL,
-		ett_select_filter_cb, 0*65536+2*256+2, NULL, NULL),
+		ct_select_filter_cb, 0*65536+2*256+2, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/... and Selected/A <-> ANY", NULL,
-		ett_select_filter_cb, 0*65536+2*256+3, NULL, NULL),
+		ct_select_filter_cb, 0*65536+2*256+3, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/... and Selected/A --> ANY", NULL,
-		ett_select_filter_cb, 0*65536+2*256+4, NULL, NULL),
+		ct_select_filter_cb, 0*65536+2*256+4, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/... and Selected/A <-- ANY", NULL,
-		ett_select_filter_cb, 0*65536+2*256+5, NULL, NULL),
+		ct_select_filter_cb, 0*65536+2*256+5, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/... and Selected/ANY <-> B", NULL,
-		ett_select_filter_cb, 0*65536+2*256+6, NULL, NULL),
+		ct_select_filter_cb, 0*65536+2*256+6, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/... and Selected/ANY <-- B", NULL,
-		ett_select_filter_cb, 0*65536+2*256+7, NULL, NULL),
+		ct_select_filter_cb, 0*65536+2*256+7, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/... and Selected/ANY --> B", NULL,
-		ett_select_filter_cb, 0*65536+2*256+8, NULL, NULL),
+		ct_select_filter_cb, 0*65536+2*256+8, NULL, NULL),
 
 	ITEM_FACTORY_ENTRY("/Apply as Filter/... or Selected", NULL, NULL, 0, "<Branch>", NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/... or Selected/A <-> B", NULL,
-		ett_select_filter_cb, 0*65536+3*256+0, NULL, NULL),
+		ct_select_filter_cb, 0*65536+3*256+0, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/... or Selected/A --> B", NULL,
-		ett_select_filter_cb, 0*65536+3*256+1, NULL, NULL),
+		ct_select_filter_cb, 0*65536+3*256+1, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/... or Selected/A <-- B", NULL,
-		ett_select_filter_cb, 0*65536+3*256+2, NULL, NULL),
+		ct_select_filter_cb, 0*65536+3*256+2, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/... or Selected/A <-> ANY", NULL,
-		ett_select_filter_cb, 0*65536+3*256+3, NULL, NULL),
+		ct_select_filter_cb, 0*65536+3*256+3, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/... or Selected/A --> ANY", NULL,
-		ett_select_filter_cb, 0*65536+3*256+4, NULL, NULL),
+		ct_select_filter_cb, 0*65536+3*256+4, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/... or Selected/A <-- ANY", NULL,
-		ett_select_filter_cb, 0*65536+3*256+5, NULL, NULL),
+		ct_select_filter_cb, 0*65536+3*256+5, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/... or Selected/ANY <-> B", NULL,
-		ett_select_filter_cb, 0*65536+3*256+6, NULL, NULL),
+		ct_select_filter_cb, 0*65536+3*256+6, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/... or Selected/ANY <-- B", NULL,
-		ett_select_filter_cb, 0*65536+3*256+7, NULL, NULL),
+		ct_select_filter_cb, 0*65536+3*256+7, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/... or Selected/ANY --> B", NULL,
-		ett_select_filter_cb, 0*65536+3*256+8, NULL, NULL),
+		ct_select_filter_cb, 0*65536+3*256+8, NULL, NULL),
 
 	ITEM_FACTORY_ENTRY("/Apply as Filter/... and not Selected", NULL, NULL, 0, "<Branch>", NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/... and not Selected/A <-> B", NULL,
-		ett_select_filter_cb, 0*65536+4*256+0, NULL, NULL),
+		ct_select_filter_cb, 0*65536+4*256+0, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/... and not Selected/A --> B", NULL,
-		ett_select_filter_cb, 0*65536+4*256+1, NULL, NULL),
+		ct_select_filter_cb, 0*65536+4*256+1, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/... and not Selected/A <-- B", NULL,
-		ett_select_filter_cb, 0*65536+4*256+2, NULL, NULL),
+		ct_select_filter_cb, 0*65536+4*256+2, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/... and not Selected/A <-> ANY", NULL,
-		ett_select_filter_cb, 0*65536+4*256+3, NULL, NULL),
+		ct_select_filter_cb, 0*65536+4*256+3, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/... and not Selected/A --> ANY", NULL,
-		ett_select_filter_cb, 0*65536+4*256+4, NULL, NULL),
+		ct_select_filter_cb, 0*65536+4*256+4, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/... and not Selected/A <-- ANY", NULL,
-		ett_select_filter_cb, 0*65536+4*256+5, NULL, NULL),
+		ct_select_filter_cb, 0*65536+4*256+5, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/... and not Selected/ANY <-> B", NULL,
-		ett_select_filter_cb, 0*65536+4*256+6, NULL, NULL),
+		ct_select_filter_cb, 0*65536+4*256+6, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/... and not Selected/ANY <-- B", NULL,
-		ett_select_filter_cb, 0*65536+4*256+7, NULL, NULL),
+		ct_select_filter_cb, 0*65536+4*256+7, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/... and not Selected/ANY --> B", NULL,
-		ett_select_filter_cb, 0*65536+4*256+8, NULL, NULL),
+		ct_select_filter_cb, 0*65536+4*256+8, NULL, NULL),
 
 	ITEM_FACTORY_ENTRY("/Apply as Filter/... or not Selected", NULL, NULL, 0, "<Branch>", NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/... or not Selected/A <-> B", NULL,
-		ett_select_filter_cb, 0*65536+5*256+0, NULL, NULL),
+		ct_select_filter_cb, 0*65536+5*256+0, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/... or not Selected/A --> B", NULL,
-		ett_select_filter_cb, 0*65536+5*256+1, NULL, NULL),
+		ct_select_filter_cb, 0*65536+5*256+1, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/... or not Selected/A <-- B", NULL,
-		ett_select_filter_cb, 0*65536+5*256+2, NULL, NULL),
+		ct_select_filter_cb, 0*65536+5*256+2, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/... or not Selected/A <-> ANY", NULL,
-		ett_select_filter_cb, 0*65536+5*256+3, NULL, NULL),
+		ct_select_filter_cb, 0*65536+5*256+3, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/... or not Selected/A --> ANY", NULL,
-		ett_select_filter_cb, 0*65536+5*256+4, NULL, NULL),
+		ct_select_filter_cb, 0*65536+5*256+4, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/... or not Selected/A <-- ANY", NULL,
-		ett_select_filter_cb, 0*65536+5*256+5, NULL, NULL),
+		ct_select_filter_cb, 0*65536+5*256+5, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/... or not Selected/ANY <-> B", NULL,
-		ett_select_filter_cb, 0*65536+5*256+6, NULL, NULL),
+		ct_select_filter_cb, 0*65536+5*256+6, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/... or not Selected/ANY <-- B", NULL,
-		ett_select_filter_cb, 0*65536+5*256+7, NULL, NULL),
+		ct_select_filter_cb, 0*65536+5*256+7, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/... or not Selected/ANY --> B", NULL,
-		ett_select_filter_cb, 0*65536+5*256+8, NULL, NULL),
+		ct_select_filter_cb, 0*65536+5*256+8, NULL, NULL),
 
 	/* Prepare */
 	ITEM_FACTORY_ENTRY("/Prepare a Filter", NULL, NULL, 0, "<Branch>", NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/Selected", NULL, NULL, 0, "<Branch>", NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/Selected/A <-> B", NULL,
-		ett_select_filter_cb, 1*65536+0*256+0, NULL, NULL),
+		ct_select_filter_cb, 1*65536+0*256+0, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/Selected/A --> B", NULL,
-		ett_select_filter_cb, 1*65536+0*256+1, NULL, NULL),
+		ct_select_filter_cb, 1*65536+0*256+1, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/Selected/A <-- B", NULL,
-		ett_select_filter_cb, 1*65536+0*256+2, NULL, NULL),
+		ct_select_filter_cb, 1*65536+0*256+2, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/Selected/A <-> ANY", NULL,
-		ett_select_filter_cb, 1*65536+0*256+3, NULL, NULL),
+		ct_select_filter_cb, 1*65536+0*256+3, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/Selected/A --> ANY", NULL,
-		ett_select_filter_cb, 1*65536+0*256+4, NULL, NULL),
+		ct_select_filter_cb, 1*65536+0*256+4, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/Selected/A <-- ANY", NULL,
-		ett_select_filter_cb, 1*65536+0*256+5, NULL, NULL),
+		ct_select_filter_cb, 1*65536+0*256+5, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/Selected/ANY <-> B", NULL,
-		ett_select_filter_cb, 1*65536+0*256+6, NULL, NULL),
+		ct_select_filter_cb, 1*65536+0*256+6, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/Selected/ANY <-- B", NULL,
-		ett_select_filter_cb, 1*65536+0*256+7, NULL, NULL),
+		ct_select_filter_cb, 1*65536+0*256+7, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/Selected/ANY --> B", NULL,
-		ett_select_filter_cb, 1*65536+0*256+8, NULL, NULL),
+		ct_select_filter_cb, 1*65536+0*256+8, NULL, NULL),
 
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/Not Selected", NULL, NULL, 0, "<Branch>", NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/Not Selected/A <-> B", NULL,
-		ett_select_filter_cb, 1*65536+1*256+0, NULL, NULL),
+		ct_select_filter_cb, 1*65536+1*256+0, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/Not Selected/A --> B", NULL,
-		ett_select_filter_cb, 1*65536+1*256+1, NULL, NULL),
+		ct_select_filter_cb, 1*65536+1*256+1, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/Not Selected/A <-- B", NULL,
-		ett_select_filter_cb, 1*65536+1*256+2, NULL, NULL),
+		ct_select_filter_cb, 1*65536+1*256+2, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/Not Selected/A <-> ANY", NULL,
-		ett_select_filter_cb, 1*65536+1*256+3, NULL, NULL),
+		ct_select_filter_cb, 1*65536+1*256+3, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/Not Selected/A --> ANY", NULL,
-		ett_select_filter_cb, 1*65536+1*256+4, NULL, NULL),
+		ct_select_filter_cb, 1*65536+1*256+4, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/Not Selected/A <-- ANY", NULL,
-		ett_select_filter_cb, 1*65536+1*256+5, NULL, NULL),
+		ct_select_filter_cb, 1*65536+1*256+5, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/Not Selected/ANY <-> B", NULL,
-		ett_select_filter_cb, 1*65536+1*256+6, NULL, NULL),
+		ct_select_filter_cb, 1*65536+1*256+6, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/Not Selected/ANY <-- B", NULL,
-		ett_select_filter_cb, 1*65536+1*256+7, NULL, NULL),
+		ct_select_filter_cb, 1*65536+1*256+7, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/Not Selected/ANY --> B", NULL,
-		ett_select_filter_cb, 1*65536+1*256+8, NULL, NULL),
+		ct_select_filter_cb, 1*65536+1*256+8, NULL, NULL),
 
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/... and Selected", NULL, NULL, 0, "<Branch>", NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/... and Selected/A <-> B", NULL,
-		ett_select_filter_cb, 1*65536+2*256+0, NULL, NULL),
+		ct_select_filter_cb, 1*65536+2*256+0, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/... and Selected/A --> B", NULL,
-		ett_select_filter_cb, 1*65536+2*256+1, NULL, NULL),
+		ct_select_filter_cb, 1*65536+2*256+1, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/... and Selected/A <-- B", NULL,
-		ett_select_filter_cb, 1*65536+2*256+2, NULL, NULL),
+		ct_select_filter_cb, 1*65536+2*256+2, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/... and Selected/A <-> ANY", NULL,
-		ett_select_filter_cb, 1*65536+2*256+3, NULL, NULL),
+		ct_select_filter_cb, 1*65536+2*256+3, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/... and Selected/A --> ANY", NULL,
-		ett_select_filter_cb, 1*65536+2*256+4, NULL, NULL),
+		ct_select_filter_cb, 1*65536+2*256+4, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/... and Selected/A <-- ANY", NULL,
-		ett_select_filter_cb, 1*65536+2*256+5, NULL, NULL),
+		ct_select_filter_cb, 1*65536+2*256+5, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/... and Selected/ANY <-> B", NULL,
-		ett_select_filter_cb, 1*65536+2*256+6, NULL, NULL),
+		ct_select_filter_cb, 1*65536+2*256+6, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/... and Selected/ANY <-- B", NULL,
-		ett_select_filter_cb, 1*65536+2*256+7, NULL, NULL),
+		ct_select_filter_cb, 1*65536+2*256+7, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/... and Selected/ANY --> B", NULL,
-		ett_select_filter_cb, 1*65536+2*256+8, NULL, NULL),
+		ct_select_filter_cb, 1*65536+2*256+8, NULL, NULL),
 
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/... or Selected", NULL, NULL, 0, "<Branch>", NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/... or Selected/A <-> B", NULL,
-		ett_select_filter_cb, 1*65536+3*256+0, NULL, NULL),
+		ct_select_filter_cb, 1*65536+3*256+0, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/... or Selected/A --> B", NULL,
-		ett_select_filter_cb, 1*65536+3*256+1, NULL, NULL),
+		ct_select_filter_cb, 1*65536+3*256+1, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/... or Selected/A <-- B", NULL,
-		ett_select_filter_cb, 1*65536+3*256+2, NULL, NULL),
+		ct_select_filter_cb, 1*65536+3*256+2, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/... or Selected/A <-> ANY", NULL,
-		ett_select_filter_cb, 1*65536+3*256+3, NULL, NULL),
+		ct_select_filter_cb, 1*65536+3*256+3, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/... or Selected/A --> ANY", NULL,
-		ett_select_filter_cb, 1*65536+3*256+4, NULL, NULL),
+		ct_select_filter_cb, 1*65536+3*256+4, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/... or Selected/A <-- ANY", NULL,
-		ett_select_filter_cb, 1*65536+3*256+5, NULL, NULL),
+		ct_select_filter_cb, 1*65536+3*256+5, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/... or Selected/ANY <-> B", NULL,
-		ett_select_filter_cb, 1*65536+3*256+6, NULL, NULL),
+		ct_select_filter_cb, 1*65536+3*256+6, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/... or Selected/ANY <-- B", NULL,
-		ett_select_filter_cb, 1*65536+3*256+7, NULL, NULL),
+		ct_select_filter_cb, 1*65536+3*256+7, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/... or Selected/ANY --> B", NULL,
-		ett_select_filter_cb, 1*65536+3*256+8, NULL, NULL),
+		ct_select_filter_cb, 1*65536+3*256+8, NULL, NULL),
 
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/... and not Selected", NULL, NULL, 0, "<Branch>", NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/... and not Selected/A <-> B", NULL,
-		ett_select_filter_cb, 1*65536+4*256+0, NULL, NULL),
+		ct_select_filter_cb, 1*65536+4*256+0, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/... and not Selected/A --> B", NULL,
-		ett_select_filter_cb, 1*65536+4*256+1, NULL, NULL),
+		ct_select_filter_cb, 1*65536+4*256+1, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/... and not Selected/A <-- B", NULL,
-		ett_select_filter_cb, 1*65536+4*256+2, NULL, NULL),
+		ct_select_filter_cb, 1*65536+4*256+2, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/... and not Selected/A <-> ANY", NULL,
-		ett_select_filter_cb, 1*65536+4*256+3, NULL, NULL),
+		ct_select_filter_cb, 1*65536+4*256+3, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/... and not Selected/A --> ANY", NULL,
-		ett_select_filter_cb, 1*65536+4*256+4, NULL, NULL),
+		ct_select_filter_cb, 1*65536+4*256+4, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/... and not Selected/A <-- ANY", NULL,
-		ett_select_filter_cb, 1*65536+4*256+5, NULL, NULL),
+		ct_select_filter_cb, 1*65536+4*256+5, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/... and not Selected/ANY <-> B", NULL,
-		ett_select_filter_cb, 1*65536+4*256+6, NULL, NULL),
+		ct_select_filter_cb, 1*65536+4*256+6, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/... and not Selected/ANY <-- B", NULL,
-		ett_select_filter_cb, 1*65536+4*256+7, NULL, NULL),
+		ct_select_filter_cb, 1*65536+4*256+7, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/... and not Selected/ANY --> B", NULL,
-		ett_select_filter_cb, 1*65536+4*256+8, NULL, NULL),
+		ct_select_filter_cb, 1*65536+4*256+8, NULL, NULL),
 
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/... or not Selected", NULL, NULL, 0, "<Branch>", NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/... or not Selected/A <-> B", NULL,
-		ett_select_filter_cb, 1*65536+5*256+0, NULL, NULL),
+		ct_select_filter_cb, 1*65536+5*256+0, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/... or not Selected/A --> B", NULL,
-		ett_select_filter_cb, 1*65536+5*256+1, NULL, NULL),
+		ct_select_filter_cb, 1*65536+5*256+1, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/... or not Selected/A <-- B", NULL,
-		ett_select_filter_cb, 1*65536+5*256+2, NULL, NULL),
+		ct_select_filter_cb, 1*65536+5*256+2, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/... or not Selected/A <-> ANY", NULL,
-		ett_select_filter_cb, 1*65536+5*256+3, NULL, NULL),
+		ct_select_filter_cb, 1*65536+5*256+3, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/... or not Selected/A --> ANY", NULL,
-		ett_select_filter_cb, 1*65536+5*256+4, NULL, NULL),
+		ct_select_filter_cb, 1*65536+5*256+4, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/... or not Selected/A <-- ANY", NULL,
-		ett_select_filter_cb, 1*65536+5*256+5, NULL, NULL),
+		ct_select_filter_cb, 1*65536+5*256+5, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/... or not Selected/ANY <-> B", NULL,
-		ett_select_filter_cb, 1*65536+5*256+6, NULL, NULL),
+		ct_select_filter_cb, 1*65536+5*256+6, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/... or not Selected/ANY <-- B", NULL,
-		ett_select_filter_cb, 1*65536+5*256+7, NULL, NULL),
+		ct_select_filter_cb, 1*65536+5*256+7, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/... or not Selected/ANY --> B", NULL,
-		ett_select_filter_cb, 1*65536+5*256+8, NULL, NULL),
+		ct_select_filter_cb, 1*65536+5*256+8, NULL, NULL),
 
 	/* Find Packet */
 	ITEM_FACTORY_ENTRY("/Find Packet", NULL, NULL, 0, "<Branch>", NULL),
 	ITEM_FACTORY_ENTRY("/Find Packet/Find Packet", NULL, NULL, 0, "<Branch>", NULL),
 	ITEM_FACTORY_ENTRY("/Find Packet/Find Packet/A <-> B", NULL,
-		ett_select_filter_cb, 2*65536+0*256+0, NULL, NULL),
+		ct_select_filter_cb, 2*65536+0*256+0, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Find Packet/Find Packet/A --> B", NULL,
-		ett_select_filter_cb, 2*65536+0*256+1, NULL, NULL),
+		ct_select_filter_cb, 2*65536+0*256+1, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Find Packet/Find Packet/A <-- B", NULL,
-		ett_select_filter_cb, 2*65536+0*256+2, NULL, NULL),
+		ct_select_filter_cb, 2*65536+0*256+2, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Find Packet/Find Packet/A <-> ANY", NULL,
-		ett_select_filter_cb, 2*65536+0*256+3, NULL, NULL),
+		ct_select_filter_cb, 2*65536+0*256+3, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Find Packet/Find Packet/A --> ANY", NULL,
-		ett_select_filter_cb, 2*65536+0*256+4, NULL, NULL),
+		ct_select_filter_cb, 2*65536+0*256+4, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Find Packet/Find Packet/A <-- ANY", NULL,
-		ett_select_filter_cb, 2*65536+0*256+5, NULL, NULL),
+		ct_select_filter_cb, 2*65536+0*256+5, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Find Packet/Find Packet/ANY <-> B", NULL,
-		ett_select_filter_cb, 2*65536+0*256+6, NULL, NULL),
+		ct_select_filter_cb, 2*65536+0*256+6, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Find Packet/Find Packet/ANY <-- B", NULL,
-		ett_select_filter_cb, 2*65536+0*256+7, NULL, NULL),
+		ct_select_filter_cb, 2*65536+0*256+7, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Find Packet/Find Packet/ANY --> B", NULL,
-		ett_select_filter_cb, 2*65536+0*256+8, NULL, NULL),
+		ct_select_filter_cb, 2*65536+0*256+8, NULL, NULL),
 	/* Find Next */
 	ITEM_FACTORY_ENTRY("/Find Packet/Find Next", NULL, NULL, 0, "<Branch>", NULL),
 	ITEM_FACTORY_ENTRY("/Find Packet/Find Next/A <-> B", NULL,
-		ett_select_filter_cb, 3*65536+0*256+0, NULL, NULL),
+		ct_select_filter_cb, 3*65536+0*256+0, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Find Packet/Find Next/A --> B", NULL,
-		ett_select_filter_cb, 3*65536+0*256+1, NULL, NULL),
+		ct_select_filter_cb, 3*65536+0*256+1, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Find Packet/Find Next/A <-- B", NULL,
-		ett_select_filter_cb, 3*65536+0*256+2, NULL, NULL),
+		ct_select_filter_cb, 3*65536+0*256+2, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Find Packet/Find Next/A <-> ANY", NULL,
-		ett_select_filter_cb, 3*65536+0*256+3, NULL, NULL),
+		ct_select_filter_cb, 3*65536+0*256+3, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Find Packet/Find Next/A --> ANY", NULL,
-		ett_select_filter_cb, 3*65536+0*256+4, NULL, NULL),
+		ct_select_filter_cb, 3*65536+0*256+4, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Find Packet/Find Next/A <-- ANY", NULL,
-		ett_select_filter_cb, 3*65536+0*256+5, NULL, NULL),
+		ct_select_filter_cb, 3*65536+0*256+5, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Find Packet/Find Next/ANY <-> B", NULL,
-		ett_select_filter_cb, 3*65536+0*256+6, NULL, NULL),
+		ct_select_filter_cb, 3*65536+0*256+6, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Find Packet/Find Next/ANY <-- B", NULL,
-		ett_select_filter_cb, 3*65536+0*256+7, NULL, NULL),
+		ct_select_filter_cb, 3*65536+0*256+7, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Find Packet/Find Next/ANY --> B", NULL,
-		ett_select_filter_cb, 3*65536+0*256+8, NULL, NULL),
+		ct_select_filter_cb, 3*65536+0*256+8, NULL, NULL),
 	/* Find Previous */
 	ITEM_FACTORY_ENTRY("/Find Packet/Find Previous", NULL, NULL, 0, "<Branch>", NULL),
 	ITEM_FACTORY_ENTRY("/Find Packet/Find Previous/A <-> B", NULL,
-		ett_select_filter_cb, 4*65536+0*256+0, NULL, NULL),
+		ct_select_filter_cb, 4*65536+0*256+0, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Find Packet/Find Previous/A --> B", NULL,
-		ett_select_filter_cb, 4*65536+0*256+1, NULL, NULL),
+		ct_select_filter_cb, 4*65536+0*256+1, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Find Packet/Find Previous/A <-- B", NULL,
-		ett_select_filter_cb, 4*65536+0*256+2, NULL, NULL),
+		ct_select_filter_cb, 4*65536+0*256+2, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Find Packet/Find Previous/A <-> ANY", NULL,
-		ett_select_filter_cb, 4*65536+0*256+3, NULL, NULL),
+		ct_select_filter_cb, 4*65536+0*256+3, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Find Packet/Find Previous/A --> ANY", NULL,
-		ett_select_filter_cb, 4*65536+0*256+4, NULL, NULL),
+		ct_select_filter_cb, 4*65536+0*256+4, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Find Packet/Find Previous/A <-- ANY", NULL,
-		ett_select_filter_cb, 4*65536+0*256+5, NULL, NULL),
+		ct_select_filter_cb, 4*65536+0*256+5, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Find Packet/Find Previous/ANY <-> B", NULL,
-		ett_select_filter_cb, 4*65536+0*256+6, NULL, NULL),
+		ct_select_filter_cb, 4*65536+0*256+6, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Find Packet/Find Previous/ANY <-- B", NULL,
-		ett_select_filter_cb, 4*65536+0*256+7, NULL, NULL),
+		ct_select_filter_cb, 4*65536+0*256+7, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Find Packet/Find Previous/ANY --> B", NULL,
-		ett_select_filter_cb, 4*65536+0*256+8, NULL, NULL),
+		ct_select_filter_cb, 4*65536+0*256+8, NULL, NULL),
 	/* Colorize Conversation */
 	ITEM_FACTORY_ENTRY("/Colorize Conversation", NULL, NULL, 0, "<Branch>", NULL),
 	ITEM_FACTORY_ENTRY("/Colorize Conversation/A <-> B", NULL,
-		ett_select_filter_cb, 5*65536+0*256+0, NULL, NULL),
+		ct_select_filter_cb, 5*65536+0*256+0, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Colorize Conversation/A --> B", NULL,
-		ett_select_filter_cb, 5*65536+0*256+1, NULL, NULL),
+		ct_select_filter_cb, 5*65536+0*256+1, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Colorize Conversation/A <-- B", NULL,
-		ett_select_filter_cb, 5*65536+0*256+2, NULL, NULL),
+		ct_select_filter_cb, 5*65536+0*256+2, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Colorize Conversation/A <-> ANY", NULL,
-		ett_select_filter_cb, 5*65536+0*256+3, NULL, NULL),
+		ct_select_filter_cb, 5*65536+0*256+3, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Colorize Conversation/A --> ANY", NULL,
-		ett_select_filter_cb, 5*65536+0*256+4, NULL, NULL),
+		ct_select_filter_cb, 5*65536+0*256+4, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Colorize Conversation/A <-- ANY", NULL,
-		ett_select_filter_cb, 5*65536+0*256+5, NULL, NULL),
+		ct_select_filter_cb, 5*65536+0*256+5, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Colorize Conversation/ANY <-> B", NULL,
-		ett_select_filter_cb, 5*65536+0*256+6, NULL, NULL),
+		ct_select_filter_cb, 5*65536+0*256+6, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Colorize Conversation/ANY <-- B", NULL,
-		ett_select_filter_cb, 5*65536+0*256+7, NULL, NULL),
+		ct_select_filter_cb, 5*65536+0*256+7, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Colorize Conversation/ANY --> B", NULL,
-		ett_select_filter_cb, 5*65536+0*256+8, NULL, NULL),
+		ct_select_filter_cb, 5*65536+0*256+8, NULL, NULL),
 
 
 };
 
 static void
-ett_create_popup_menu(conversations_table *et)
+ct_create_popup_menu(conversations_table *et)
 {
 	GtkItemFactory *item_factory;
 
 	item_factory = gtk_item_factory_new(GTK_TYPE_MENU, "<main>", NULL);
 
-	gtk_item_factory_create_items_ac(item_factory, sizeof(ett_list_menu_items)/sizeof(ett_list_menu_items[0]), ett_list_menu_items, et, 2);
+	gtk_item_factory_create_items_ac(item_factory, sizeof(ct_list_menu_items)/sizeof(ct_list_menu_items[0]), ct_list_menu_items, et, 2);
 
 	et->menu = gtk_item_factory_get_widget(item_factory, "<main>");
-	SIGNAL_CONNECT(et->table, "button_press_event", ett_show_popup_menu_cb, et);
+	SIGNAL_CONNECT(et->table, "button_press_event", ct_show_popup_menu_cb, et);
 }
 
 
 /* XXX should freeze/thaw table here and in the srt thingy? */
 static void
-draw_ett_table_addresses(conversations_table *et)
+draw_ct_table_addresses(conversations_table *et)
 {
     guint32 i;
     int j;
@@ -972,7 +972,7 @@ draw_ett_table_addresses(conversations_table *et)
             entry=get_udp_port(et->endpoints[i].src_port);
             break;
         default:
-            port=ett_port_to_str(et->endpoints[i].port_type, et->endpoints[i].src_port);
+            port=ct_port_to_str(et->endpoints[i].port_type, et->endpoints[i].src_port);
             entry=port?port:"";
         }
         gtk_clist_set_text(et->table, j, 1, entry);
@@ -999,7 +999,7 @@ draw_ett_table_addresses(conversations_table *et)
             entry=get_udp_port(et->endpoints[i].dst_port);
             break;
         default:
-            port=ett_port_to_str(et->endpoints[i].port_type, et->endpoints[i].dst_port);
+            port=ct_port_to_str(et->endpoints[i].port_type, et->endpoints[i].dst_port);
             entry=port?port:"";
         }
         gtk_clist_set_text(et->table, j, 3, entry);
@@ -1008,7 +1008,7 @@ draw_ett_table_addresses(conversations_table *et)
 
 
 static void
-draw_ett_table_data(conversations_table *et)
+draw_ct_table_data(conversations_table *et)
 {
     guint32 i;
     int j;
@@ -1053,14 +1053,14 @@ draw_ett_table_data(conversations_table *et)
     gtk_clist_sort(et->table);
 
     /* update table, so resolved addresses will be shown now */
-    draw_ett_table_addresses(et);
+    draw_ct_table_addresses(et);
 
     gtk_clist_thaw(et->table);
 }
 
 
 gboolean
-init_ett_table_page(conversations_table *talkers, GtkWidget *vbox, gboolean hide_ports, char *table_name, char *tap_name, char *filter, void *packet_func)
+init_ct_table_page(conversations_table *conversations, GtkWidget *vbox, gboolean hide_ports, char *table_name, char *tap_name, char *filter, void *packet_func)
 {
     int i;
     column_arrows *col_arrows;
@@ -1077,13 +1077,13 @@ init_ett_table_page(conversations_table *talkers, GtkWidget *vbox, gboolean hide
     gtk_box_pack_start(GTK_BOX(vbox), label, FALSE, FALSE, 0);
 
 
-    talkers->scrolled_window=scrolled_window_new(NULL, NULL);
-    gtk_box_pack_start(GTK_BOX(vbox), talkers->scrolled_window, TRUE, TRUE, 0);
+    conversations->scrolled_window=scrolled_window_new(NULL, NULL);
+    gtk_box_pack_start(GTK_BOX(vbox), conversations->scrolled_window, TRUE, TRUE, 0);
 
-    talkers->table=(GtkCList *)gtk_clist_new(NUM_COLS);
+    conversations->table=(GtkCList *)gtk_clist_new(NUM_COLS);
 
     col_arrows = (column_arrows *) g_malloc(sizeof(column_arrows) * NUM_COLS);
-    win_style = gtk_widget_get_style(talkers->scrolled_window);
+    win_style = gtk_widget_get_style(conversations->scrolled_window);
     for (i = 0; i < NUM_COLS; i++) {
         col_arrows[i].table = gtk_table_new(2, 2, FALSE);
         gtk_table_set_col_spacings(GTK_TABLE(col_arrows[i].table), 5);
@@ -1099,63 +1099,63 @@ init_ett_table_page(conversations_table *talkers, GtkWidget *vbox, gboolean hide
         if (i == 4) {
             gtk_widget_show(col_arrows[i].descend_pm);
         }
-        gtk_clist_set_column_widget(GTK_CLIST(talkers->table), i, col_arrows[i].table);
+        gtk_clist_set_column_widget(GTK_CLIST(conversations->table), i, col_arrows[i].table);
         gtk_widget_show(col_arrows[i].table);
     }
-    gtk_clist_column_titles_show(GTK_CLIST(talkers->table));
+    gtk_clist_column_titles_show(GTK_CLIST(conversations->table));
 
-    gtk_clist_set_compare_func(talkers->table, ett_sort_column);
-    gtk_clist_set_sort_column(talkers->table, 4);
-    gtk_clist_set_sort_type(talkers->table, GTK_SORT_DESCENDING);
+    gtk_clist_set_compare_func(conversations->table, ct_sort_column);
+    gtk_clist_set_sort_column(conversations->table, 4);
+    gtk_clist_set_sort_type(conversations->table, GTK_SORT_DESCENDING);
 
 
-    gtk_clist_set_column_auto_resize(talkers->table, 0, TRUE);
-    gtk_clist_set_column_auto_resize(talkers->table, 1, TRUE);
-    gtk_clist_set_column_auto_resize(talkers->table, 2, TRUE);
-    gtk_clist_set_column_auto_resize(talkers->table, 3, TRUE);
-    gtk_clist_set_column_auto_resize(talkers->table, 4, TRUE);
-    gtk_clist_set_column_auto_resize(talkers->table, 5, TRUE);
-    gtk_clist_set_column_auto_resize(talkers->table, 6, TRUE);
-    gtk_clist_set_column_auto_resize(talkers->table, 7, TRUE);
-    gtk_clist_set_column_auto_resize(talkers->table, 8, TRUE);
-    gtk_clist_set_column_auto_resize(talkers->table, 9, TRUE);
+    gtk_clist_set_column_auto_resize(conversations->table, 0, TRUE);
+    gtk_clist_set_column_auto_resize(conversations->table, 1, TRUE);
+    gtk_clist_set_column_auto_resize(conversations->table, 2, TRUE);
+    gtk_clist_set_column_auto_resize(conversations->table, 3, TRUE);
+    gtk_clist_set_column_auto_resize(conversations->table, 4, TRUE);
+    gtk_clist_set_column_auto_resize(conversations->table, 5, TRUE);
+    gtk_clist_set_column_auto_resize(conversations->table, 6, TRUE);
+    gtk_clist_set_column_auto_resize(conversations->table, 7, TRUE);
+    gtk_clist_set_column_auto_resize(conversations->table, 8, TRUE);
+    gtk_clist_set_column_auto_resize(conversations->table, 9, TRUE);
 
 #if 0
     /*XXX instead of this we should probably have some code to
         dynamically adjust the width of the columns */
-    gtk_clist_set_column_width(talkers->table, 0, 100);
-    gtk_clist_set_column_width(talkers->table, 1, 40);
-    gtk_clist_set_column_width(talkers->table, 2, 100);
-    gtk_clist_set_column_width(talkers->table, 3, 40);
-    gtk_clist_set_column_width(talkers->table, 4, 70);
-    gtk_clist_set_column_width(talkers->table, 5, 60);
-    gtk_clist_set_column_width(talkers->table, 6, 70);
-    gtk_clist_set_column_width(talkers->table, 7, 60);
-    gtk_clist_set_column_width(talkers->table, 8, 70);
-    gtk_clist_set_column_width(talkers->table, 9, 60);
+    gtk_clist_set_column_width(conversations->table, 0, 100);
+    gtk_clist_set_column_width(conversations->table, 1, 40);
+    gtk_clist_set_column_width(conversations->table, 2, 100);
+    gtk_clist_set_column_width(conversations->table, 3, 40);
+    gtk_clist_set_column_width(conversations->table, 4, 70);
+    gtk_clist_set_column_width(conversations->table, 5, 60);
+    gtk_clist_set_column_width(conversations->table, 6, 70);
+    gtk_clist_set_column_width(conversations->table, 7, 60);
+    gtk_clist_set_column_width(conversations->table, 8, 70);
+    gtk_clist_set_column_width(conversations->table, 9, 60);
 #endif
 
-    gtk_clist_set_shadow_type(talkers->table, GTK_SHADOW_IN);
-    gtk_clist_column_titles_show(talkers->table);
-    gtk_container_add(GTK_CONTAINER(talkers->scrolled_window), (GtkWidget *)talkers->table);
+    gtk_clist_set_shadow_type(conversations->table, GTK_SHADOW_IN);
+    gtk_clist_column_titles_show(conversations->table);
+    gtk_container_add(GTK_CONTAINER(conversations->scrolled_window), (GtkWidget *)conversations->table);
 
-    SIGNAL_CONNECT(talkers->table, "click-column", ett_click_column_cb, col_arrows);
+    SIGNAL_CONNECT(conversations->table, "click-column", ct_click_column_cb, col_arrows);
 
-    talkers->num_endpoints=0;
-    talkers->endpoints=NULL;
+    conversations->num_endpoints=0;
+    conversations->endpoints=NULL;
 
     /* hide srcport and dstport if we don't use ports */
     if(hide_ports){
-        gtk_clist_set_column_visibility(talkers->table, 1, FALSE);
-        gtk_clist_set_column_visibility(talkers->table, 3, FALSE);
+        gtk_clist_set_column_visibility(conversations->table, 1, FALSE);
+        gtk_clist_set_column_visibility(conversations->table, 3, FALSE);
     }
 
     /* create popup menu for this table */
-    ett_create_popup_menu(talkers);
+    ct_create_popup_menu(conversations);
 
 
     /* register the tap and rerun the taps on the packet list */
-    error_string=register_tap_listener(tap_name, talkers, filter, (void *)reset_ett_table_data, packet_func, (void *)draw_ett_table_data);
+    error_string=register_tap_listener(tap_name, conversations, filter, (void *)reset_ct_table_data, packet_func, (void *)draw_ct_table_data);
     if(error_string){
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, error_string->str);
         g_string_free(error_string, TRUE);
@@ -1167,9 +1167,9 @@ init_ett_table_page(conversations_table *talkers, GtkWidget *vbox, gboolean hide
 
 
 void
-init_ett_table(gboolean hide_ports, char *table_name, char *tap_name, char *filter, void *packet_func)
+init_conversation_table(gboolean hide_ports, char *table_name, char *tap_name, char *filter, void *packet_func)
 {
-    conversations_table *talkers;
+    conversations_table *conversations;
     char title[256];
     GtkWidget *vbox;
     GtkWidget *bbox;
@@ -1177,22 +1177,22 @@ init_ett_table(gboolean hide_ports, char *table_name, char *tap_name, char *filt
     gboolean ret;
 
 
-    talkers=g_malloc(sizeof(conversations_table));
+    conversations=g_malloc(sizeof(conversations_table));
 
-    talkers->name=table_name;
+    conversations->name=table_name;
     g_snprintf(title, 255, "%s Conversations: %s", table_name, cf_get_display_name(&cfile));
-    talkers->win=window_new(GTK_WINDOW_TOPLEVEL, title);
-    talkers->page_lb=NULL;
-    talkers->resolve_names=TRUE;
-    gtk_window_set_default_size(GTK_WINDOW(talkers->win), 750, 400);
+    conversations->win=window_new(GTK_WINDOW_TOPLEVEL, title);
+    conversations->page_lb=NULL;
+    conversations->resolve_names=TRUE;
+    gtk_window_set_default_size(GTK_WINDOW(conversations->win), 750, 400);
 
     vbox=gtk_vbox_new(FALSE, 3);
-    gtk_container_add(GTK_CONTAINER(talkers->win), vbox);
+    gtk_container_add(GTK_CONTAINER(conversations->win), vbox);
     gtk_container_set_border_width(GTK_CONTAINER(vbox), 12);
 
-    ret = init_ett_table_page(talkers, vbox, hide_ports, table_name, tap_name, filter, packet_func);
+    ret = init_ct_table_page(conversations, vbox, hide_ports, table_name, tap_name, filter, packet_func);
     if(ret == FALSE) {
-        g_free(talkers);
+        g_free(conversations);
         return;
     }
 
@@ -1201,31 +1201,31 @@ init_ett_table(gboolean hide_ports, char *table_name, char *tap_name, char *filt
     gtk_box_pack_end(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
 
     close_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
-    window_set_cancel_button(talkers->win, close_bt, window_cancel_button_cb);
+    window_set_cancel_button(conversations->win, close_bt, window_cancel_button_cb);
 
-    SIGNAL_CONNECT(talkers->win, "delete_event", window_delete_event_cb, NULL);
-    SIGNAL_CONNECT(talkers->win, "destroy", ett_win_destroy_cb, talkers);
+    SIGNAL_CONNECT(conversations->win, "delete_event", window_delete_event_cb, NULL);
+    SIGNAL_CONNECT(conversations->win, "destroy", ct_win_destroy_cb, conversations);
 
-    gtk_widget_show_all(talkers->win);
-    window_present(talkers->win);
+    gtk_widget_show_all(conversations->win);
+    window_present(conversations->win);
 
     retap_packets(&cfile);
 
     /* after retapping, redraw table */
-    draw_ett_table_data(talkers);
+    draw_ct_table_data(conversations);
 }
 
 
 
 static void
-ett_win_destroy_notebook_cb(GtkWindow *win _U_, gpointer data)
+ct_win_destroy_notebook_cb(GtkWindow *win _U_, gpointer data)
 {
     void ** pages = data;
     int page;
 
     /* first "page" contains the number of pages */
     for (page=1; page<=GPOINTER_TO_INT(pages[0]); page++) {
-        ett_win_destroy_cb(NULL, pages[page]);
+        ct_win_destroy_cb(NULL, pages[page]);
     }
 }
 
@@ -1233,27 +1233,27 @@ ett_win_destroy_notebook_cb(GtkWindow *win _U_, gpointer data)
 
 
 static conversations_table *
-init_ett_notebook_page_cb(gboolean hide_ports, char *table_name, char *tap_name, char *filter, void *packet_func)
+init_ct_notebook_page_cb(gboolean hide_ports, char *table_name, char *tap_name, char *filter, void *packet_func)
 {
     gboolean ret;
     GtkWidget *page_vbox;
-    conversations_table *talkers;
+    conversations_table *conversations;
 
-    talkers=g_malloc(sizeof(conversations_table));
-    talkers->name=table_name;
-    talkers->resolve_names=TRUE;
+    conversations=g_malloc(sizeof(conversations_table));
+    conversations->name=table_name;
+    conversations->resolve_names=TRUE;
 
     page_vbox=gtk_vbox_new(FALSE, 6);
-    talkers->win = page_vbox;
+    conversations->win = page_vbox;
     gtk_container_set_border_width(GTK_CONTAINER(page_vbox), 6);
 
-    ret = init_ett_table_page(talkers, page_vbox, hide_ports, table_name, tap_name, filter, packet_func);
+    ret = init_ct_table_page(conversations, page_vbox, hide_ports, table_name, tap_name, filter, packet_func);
     if(ret == FALSE) {
-        g_free(talkers);
+        g_free(conversations);
         return NULL;
     }
 
-    return talkers;
+    return conversations;
 }
 
 
@@ -1263,17 +1263,17 @@ typedef struct {
     char *tap_name;         /* internal name */
     char *filter;           /* display filter string (unused) */
     void *packet_func;      /* function to be called for new incoming packets */
-} register_ett_t;
+} register_ct_t;
 
 
-static GSList *registered_ett_tables = NULL;
+static GSList *registered_ct_tables = NULL;
 
 void
-register_ett_table(gboolean hide_ports, char *table_name, char *tap_name, char *filter, void *packet_func)
+register_conversation_table(gboolean hide_ports, char *table_name, char *tap_name, char *filter, void *packet_func)
 {
-    register_ett_t *table;
+    register_ct_t *table;
 
-    table = g_malloc(sizeof(register_ett_t));
+    table = g_malloc(sizeof(register_ct_t));
 
     table->hide_ports   = hide_ports;
     table->table_name   = table_name;
@@ -1281,33 +1281,33 @@ register_ett_table(gboolean hide_ports, char *table_name, char *tap_name, char *
     table->filter       = filter;
     table->packet_func  = packet_func;
 
-    registered_ett_tables = g_slist_append(registered_ett_tables, table);
+    registered_ct_tables = g_slist_append(registered_ct_tables, table);
 }
 
 
 static void
-ett_resolve_toggle_dest(GtkWidget *widget, gpointer data)
+ct_resolve_toggle_dest(GtkWidget *widget, gpointer data)
 {
     int page;
     void ** pages = data;
     gboolean resolve_names;
-    conversations_table *talkers;
+    conversations_table *conversations;
 
 
     resolve_names = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (widget));
 
     for (page=1; page<=GPOINTER_TO_INT(pages[0]); page++) {
-        talkers = pages[page];
-        talkers->resolve_names = resolve_names;
+        conversations = pages[page];
+        conversations->resolve_names = resolve_names;
 
-        draw_ett_table_addresses(talkers);
+        draw_ct_table_addresses(conversations);
     }
 }
 
 void
-init_ett_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
+init_conversation_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
 {
-    conversations_table *talkers;
+    conversations_table *conversations;
     char title[256];
     GtkWidget *vbox;
     GtkWidget *hbox;
@@ -1320,11 +1320,11 @@ init_ett_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
     GtkWidget *nb;
     GtkWidget *page_lb;
     GSList  *current_table;
-    register_ett_t *registered;
+    register_ct_t *registered;
     GtkTooltips *tooltips = gtk_tooltips_new();
 
 
-    pages = g_malloc(sizeof(void *) * (g_slist_length(registered_ett_tables) + 1));
+    pages = g_malloc(sizeof(void *) * (g_slist_length(registered_ct_tables) + 1));
 
     g_snprintf(title, 255, "Conversations: %s", cf_get_display_name(&cfile));
     win=window_new(GTK_WINDOW_TOPLEVEL, title);
@@ -1339,16 +1339,16 @@ init_ett_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
 
     page = 0;
 
-    current_table = registered_ett_tables;
+    current_table = registered_ct_tables;
     while(current_table) {
         registered = current_table->data;
         page_lb = gtk_label_new("");
-        talkers = init_ett_notebook_page_cb(registered->hide_ports, registered->table_name, registered->tap_name,
+        conversations = init_ct_notebook_page_cb(registered->hide_ports, registered->table_name, registered->tap_name,
             registered->filter, registered->packet_func);
-        gtk_notebook_append_page(GTK_NOTEBOOK(nb), talkers->win, page_lb);
-        talkers->win = win;
-        talkers->page_lb = page_lb;
-        pages[++page] = talkers;
+        gtk_notebook_append_page(GTK_NOTEBOOK(nb), conversations->win, page_lb);
+        conversations->win = win;
+        conversations->page_lb = page_lb;
+        pages[++page] = conversations;
 
         current_table = g_slist_next(current_table);
     }
@@ -1364,7 +1364,7 @@ init_ett_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
     gtk_tooltips_set_tip(tooltips, resolv_cb, "Show results of name resolutions rather than the \"raw\" values. "
         "Please note: The corresponding name resolution must be enabled.", NULL);
 
-    SIGNAL_CONNECT(resolv_cb, "toggled", ett_resolve_toggle_dest, pages);
+    SIGNAL_CONNECT(resolv_cb, "toggled", ct_resolve_toggle_dest, pages);
 
     /* Button row. */
     bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
@@ -1374,7 +1374,7 @@ init_ett_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
     window_set_cancel_button(win, close_bt, window_cancel_button_cb);
 
     SIGNAL_CONNECT(win, "delete_event", window_delete_event_cb, NULL);
-    SIGNAL_CONNECT(win, "destroy", ett_win_destroy_notebook_cb, pages);
+    SIGNAL_CONNECT(win, "destroy", ct_win_destroy_notebook_cb, pages);
 
     gtk_widget_show_all(win);
     window_present(win);
@@ -1383,13 +1383,13 @@ init_ett_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
 
     /* after retapping, redraw table */
     for (page=1; page<=GPOINTER_TO_INT(pages[0]); page++) {
-        draw_ett_table_data(pages[page]);
+        draw_ct_table_data(pages[page]);
     }
 }
 
 
 void
-add_ett_table_data(conversations_table *et, address *src, address *dst, guint32 src_port, guint32 dst_port, int num_frames, int num_bytes, SAT_E sat, int port_type)
+add_conversation_table_data(conversations_table *et, address *src, address *dst, guint32 src_port, guint32 dst_port, int num_frames, int num_bytes, SAT_E sat, int port_type)
 {
     address *addr1, *addr2;
     guint32 port1, port2;
@@ -1490,7 +1490,7 @@ add_ett_table_data(conversations_table *et, address *src, address *dst, guint32 
 	  /* Freeze the endpoint table while performing updates */
         gtk_clist_freeze(et->table);
 
-        /* these values will be filled by call to draw_ett_table_addresses() below */
+        /* these values will be filled by call to draw_ct_table_addresses() below */
         entries[0] = "";
         entries[1] = "";
         entries[2] = "";
