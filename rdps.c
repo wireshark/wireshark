@@ -1,6 +1,6 @@
 /* rdps.c
  *
- * $Id: rdps.c,v 1.5 2002/08/28 21:00:41 jmayer Exp $
+ * $Id: rdps.c,v 1.6 2004/01/23 00:43:15 jmayer Exp $
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
@@ -41,7 +41,7 @@ with 2 functions:
 void start_code(FILE *fd, char *func);
 void write_code(FILE *fd, char *string);
 void end_code(FILE *fd);
-void ps_clean_string(unsigned char *out, const unsigned char *in,
+void ps_clean_string(char *out, const char *in,
 			int outbuf_size);
 
 enum ps_state { null, preamble, hex, finale };
@@ -142,7 +142,7 @@ void end_code(FILE *fd)
 	fprintf(fd, "}\n\n\n");
 }
 
-void ps_clean_string(unsigned char *out, const unsigned char *in,
+void ps_clean_string(char *out, const char *in,
 			int outbuf_size)
 {
 	int rd, wr;
