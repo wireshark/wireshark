@@ -2,7 +2,7 @@
  * Routines for arcnet dissection
  * Copyright 2001-2002, Peter Fales <ethereal@fales-lorenz.net>
  *
- * $Id: packet-arcnet.c,v 1.10 2003/12/19 01:24:09 guy Exp $
+ * $Id: packet-arcnet.c,v 1.11 2003/12/19 19:09:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -120,6 +120,10 @@ capture_arcnet (const guchar *pd, int len, packet_counts *ld,
      * XXX - do we have to worry about fragmentation for ARP?
      */
     ld->arp++;
+    break;
+
+  case ARCNET_PROTO_IPX:
+    ld->ipx++;
     break;
 
   default:
