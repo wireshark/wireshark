@@ -9,7 +9,7 @@
  * Generated: Fri Feb 23 13:04:15 2001
  * References:
  * http://www.ietf.org/rfc/rfc3588.txt
- * http://www.iana.org/assignments/radius-types
+ * http://www.iana.org/assignments/radius-types updated 20 January 2005 (Not command codes)
  * http://www.ietf.org/internet-drafts/draft-ietf-aaa-diameter-cc-06.txt
  * http://www.ietf.org/internet-drafts/draft-ietf-aaa-diameter-nasreq-17.txt
  * http://www.ietf.org/internet-drafts/draft-ietf-aaa-diameter-mobileip-20.txt
@@ -337,17 +337,24 @@ static const value_string diameter_termination_cause_vals[]= {
 	{8, "Session Timeout"},
 	{0,NULL}
 };
+/*   Inband-Security-Id AVP (code 299) */
+static const value_string diameter_inband_security_id_vals[]= {
+	{0, "NO_INBAND_SECURITY"},	/*[RFC3588]*/
+	{1, "TLS"},					/*[RFC3588]*/
+	{0,NULL}
+};
+
 /*    MIP-Feature-Vector AVP (code 337) */
 static const value_string diameter_mip_feature_vector_vals[]= {
 	{1, "Mobile-Node-Home-Address-Requested"},			/* RFC-ietf-aaa-diameter-mobileip-20.txt */
 	{2, "Home-Address-Allocatable-Only-in-Home-Realm"},	/* RFC-ietf-aaa-diameter-mobileip-20.txt */
-	{3, "Home-Agent-Requested"},						/* RFC-ietf-aaa-diameter-mobileip-20.txt */
-	{4, "Foreign-Home-Agent-Available"},				/* RFC-ietf-aaa-diameter-mobileip-20.txt */
-	{5, "MN-HA-Key-Request"},							/* RFC-ietf-aaa-diameter-mobileip-20.txt */
-	{6, "MN-FA-Key-Request"},							/* RFC-ietf-aaa-diameter-mobileip-20.txt */
-	{7, "FA-HA-Key-Request"},							/* RFC-ietf-aaa-diameter-mobileip-20.txt */
-	{8, "Home-Agent-In-Foreign-Network"},				/* RFC-ietf-aaa-diameter-mobileip-20.txt */
-	{9, "Co-Located-Mobile-Node"},						/* RFC-ietf-aaa-diameter-mobileip-20.txt */ 
+	{4, "Home-Agent-Requested"},						/* RFC-ietf-aaa-diameter-mobileip-20.txt */
+	{8, "Foreign-Home-Agent-Available"},				/* RFC-ietf-aaa-diameter-mobileip-20.txt */
+	{16, "MN-HA-Key-Request"},							/* RFC-ietf-aaa-diameter-mobileip-20.txt */
+	{32, "MN-FA-Key-Request"},							/* RFC-ietf-aaa-diameter-mobileip-20.txt */
+	{64, "FA-HA-Key-Request"},							/* RFC-ietf-aaa-diameter-mobileip-20.txt */
+	{128, "Home-Agent-In-Foreign-Network"},				/* RFC-ietf-aaa-diameter-mobileip-20.txt */
+	{256, "Co-Located-Mobile-Node"},						/* RFC-ietf-aaa-diameter-mobileip-20.txt */ 
 	{0,NULL}
 };
 /* MIP-Algorithm-Type AVP Values (code 345) */
@@ -362,6 +369,135 @@ static const value_string diameter_mip_replay_mode[] = {
 	{3, "Nonces"},
 	{0, NULL}
 };
+/* Accounting-Auth-Method AVP Values (code 406) */
+static const value_string diameter_accounting_auth_method_vals[] = {
+	{1, "PAP"},										/* [RFC-ietf-aaa-diameter-nasreq-17.txt] */
+ 	{2, "CHAP"},									/* [RFC-ietf-aaa-diameter-nasreq-17.txt] */
+ 	{3, "MS-CHAP-1"},								/* [RFC-ietf-aaa-diameter-nasreq-17.txt] */
+	{4, "MS-CHAP-2"},								/* [RFC-ietf-aaa-diameter-nasreq-17.txt] */
+	{5, "EAP"},										/* [RFC-ietf-aaa-diameter-nasreq-17.txt] */
+	{7, "None"},									/* [RFC-ietf-aaa-diameter-nasreq-17.txt] */
+	{0, NULL}
+};
+
+/* CC-Request-Type  AVP Values (code 416)*/
+static const value_string diameter_cc_request_type_vals[]= {
+	{1, "INITIAL_REQUEST"},							/* [RFC-ietf-aaa-diameter-cc-06.txt] */
+	{2, "UPDATE_REQUEST"},							/* [RFC-ietf-aaa-diameter-cc-06.txt] */
+	{3, "TERMINATION_REQUEST"},						/* [RFC-ietf-aaa-diameter-cc-06.txt] */
+	{4, "EVENT_REQUEST"},							/* [RFC-ietf-aaa-diameter-cc-06.txt] */
+	{0, NULL}
+};
+
+ /* CC-Session-Failover AVP Values (code 418)*/
+static const value_string diameter_CC_Session_Failover_vals[]= {
+	{0, "FAILOVER_NOT_SUPPORTED"},					/* [RFC-ietf-aaa-diameter-cc-06.txt] */
+	{1, "FAILOVER_SUPPORTED"},						/* [RFC-ietf-aaa-diameter-cc-06.txt] */
+	{0, NULL}
+};
+
+ /* Check-Balance-Result AVP Values (code 422)*/
+static const value_string diameter_Check_Balance_Result_vals[]= {
+	{0, "ENOUGH_CREDIT"},							/* [RFC-ietf-aaa-diameter-cc-06.txt] */
+	{1, "NO_CREDIT"},								/* [RFC-ietf-aaa-diameter-cc-06.txt] */
+	{0, NULL}
+};
+
+ /* Credit-Control AVP Values (code 426)*/
+static const value_string diameter_credit_control_vals[]= {
+	{0, "CREDIT_AUTHORIZATION"},					/* [RFC-ietf-aaa-diameter-cc-06.txt] */
+	{1, "RE_AUTHORIZATION"},						/* [RFC-ietf-aaa-diameter-cc-06.txt] */
+	{0, NULL}
+};
+
+ /* Credit-Control-Failure-Handling AVP Values (code 427)*/
+static const value_string diameter_credit_control_failure_handling_vals[]= {
+	{0, "TERMINATE"},									/* [RFC-ietf-aaa-diameter-cc-06.txt] */
+	{1, "CONTINUE"},									/* [RFC-ietf-aaa-diameter-cc-06.txt] */
+	{2, "RETRY_AND_TERMINATE"},							/* [RFC-ietf-aaa-diameter-cc-06.txt] */
+	{0, NULL}
+};
+
+/*  Direct-Debiting-Failure-Handling AVP Values (code 428)*/
+static const value_string diameter_direct_debiting_failure_handling_vals[]= {
+	{0, "TERMINATE_OR_BUFFER"},							/* [RFC-ietf-aaa-diameter-cc-06.txt] */
+	{1, "CONTINUE"},									/* [RFC-ietf-aaa-diameter-cc-06.txt] */
+	{0, NULL}
+};
+
+/* Redirect-Address-Type AVP Values (code 433)*/
+static const value_string diameter_redirect_address_type_vals[]= {
+	{0, "IPv4 Address"},								/* [RFC-ietf-aaa-diameter-cc-06.txt] */
+	{1, "IPv6 Address"},								/* [RFC-ietf-aaa-diameter-cc-06.txt] */
+	{2, "URL"},											/* [RFC-ietf-aaa-diameter-cc-06.txt] */
+	{3, "SIP URL"},										/* [RFC-ietf-aaa-diameter-cc-06.txt] */
+	{0, NULL}
+};
+
+/*  Requested-Action AVP Values (436)*/
+static const value_string diameter_requested_action_vals[]= {
+	{0, "DIRECT_DEBITING"},								/* [RFC-ietf-aaa-diameter-cc-06.txt] */
+	{1, "REFUND_ACCOUNT"},								/* [RFC-ietf-aaa-diameter-cc-06.txt] */
+	{2, "CHECK_BALANCE"},								/* [RFC-ietf-aaa-diameter-cc-06.txt] */
+	{3, "PRICE_ENQUIRY"},								/* [RFC-ietf-aaa-diameter-cc-06.txt] */
+	{0, NULL}
+};
+
+/*  Final-Unit-Action AVP Values (code 449)*/
+static const value_string diameter_final_unit_action_vals[]= {
+	{0, "TERMINATE"},									/* [RFC-ietf-aaa-diameter-cc-06.txt] */
+	{1, "REDIRECT"},									/* [RFC-ietf-aaa-diameter-cc-06.txt] */
+	{2, "RESTRICT_ACCESS"},								/* [RFC-ietf-aaa-diameter-cc-06.txt] */
+	{0, NULL}
+};
+ 
+/*  Subscription-Id-Type AVP Values (code 450)*/
+static const value_string diameter_subscription_id_type_vals[]= {
+	{0, "END_USER_E164"},								/* [RFC-ietf-aaa-diameter-cc-06.txt] */
+	{1, "END_USER_IMSI"},								/* [RFC-ietf-aaa-diameter-cc-06.txt] */
+	{2, "END_USER_SIP_URI"},							/* [RFC-ietf-aaa-diameter-cc-06.txt] */
+	{3, "END_USER_NAI"},								/* [RFC-ietf-aaa-diameter-cc-06.txt] */
+	{4, "END_USER_PRIVATE"},							/* [RFC-ietf-aaa-diameter-cc-06.txt] */
+	{0, NULL}
+};
+
+/*  Tariff-Change-Usage AVP Values (code 452)*/
+static const value_string diameter_tariff_change_usage_vals[]= {
+	{0, "UNIT_BEFORE_TARIFF_CHANGE"},					/* [RFC-ietf-aaa-diameter-cc-06.txt] */  
+	{1, "UNIT_AFTER_TARIFF_CHANGE"},					/* [RFC-ietf-aaa-diameter-cc-06.txt]  */
+	{2, "UNIT_INDETERMINATE"},							/* [RFC-ietf-aaa-diameter-cc-06.txt] */
+	{0, NULL}
+};
+
+/*  CC-Unit-Type AVP Values (code 454) */
+static const value_string diameter_cc_Unit_type_vals[]= {
+	{0, "TIME"},										/* [RFC-ietf-aaa-diameter-cc-06.txt] */
+	{1, "MONEY"},										/* [RFC-ietf-aaa-diameter-cc-06.txt]  */
+	{2, "TOTAL-OCTETS"},								/* [RFC-ietf-aaa-diameter-cc-06.txt] */ 
+	{3, "INPUT-OCTETS"},								/* [RFC-ietf-aaa-diameter-cc-06.txt] */
+	{4, "OUTPUT-OCTETS"},								/* [RFC-ietf-aaa-diameter-cc-06.txt] */
+	{5, "SERVICE-SPECIFIC-UNITS"},						/* [RFC-ietf-aaa-diameter-cc-06.txt] */
+	{0, NULL}
+};
+
+/*  Multiple-Services-Indicator AVP Values (code 455)*/ 
+static const value_string diameter_multiple_services_indicator_vals[]= {
+	{0, "MULTIPLE_SERVICES_NOT_SUPPORTED"},				/* [RFC-ietf-aaa-diameter-cc-06.txt] */
+	{1, "MULTIPLE_SERVICES_SUPPORTED"},					/* [RFC-ietf-aaa-diameter-cc-06.txt] */
+	{0, NULL}
+};
+
+
+/*  User-Equipment-Info-Type AVP Values (code 459)*/
+static const value_string diameter_user_equipment_info_type_vals[]= {
+	{0, "IMEISV"},										/* [RFC-ietf-aaa-diameter-cc-06.txt]  */
+	{1, "MAC"},											/* [RFC-ietf-aaa-diameter-cc-06.txt]  */
+	{2, "EUI64"},										/* [RFC-ietf-aaa-diameter-cc-06.txt] */ 
+	{3, "MODIFIED_EUI64"},								/* [RFC-ietf-aaa-diameter-cc-06.txt] */
+	{0, NULL}
+};
+
+
 /* Accounting-Record-Type AVP Values (code 480) */
 static const value_string diameter_accounting_record_type_vals[]= {
 	{1, "Event Record"},
@@ -377,9 +513,10 @@ static const value_string diameter_application_id_vals[] = {
 	{2, "Diameter Mobile IPv4 Application"},
 	{3, "Diameter Base Accounting"},
 	{4, "Diameter Credit-Control Application"},	/* draft-ietf-aaa-diameter-cc-06 */
-	{16777216, "3GPP Cx"},		/* 3GPP TS 29.228 and 29.229 */
-	{16777217, "3GPP Sh"},		/* 3GPP TS 29.328 and 29.329 */
-	{16777218, "3GPP Rf/Ro"},	/* 3GPP TS 32.225 */
+	{5, "Diameter EAP"},							/* [RFC-ietf-aaa-eap-10.txt] */
+	{16777216, "3GPP Cx"},						/* 3GPP TS 29.228 and 29.229 */
+	{16777217, "3GPP Sh"},						/* 3GPP TS 29.328 and 29.329 */
+	{16777218, "3GPP Rf/Ro"},					/* 3GPP TS 32.225 */
 	{4294967295U, "Relay Application"},
 	
 	{0, NULL}
@@ -672,10 +809,6 @@ static struct old_avp_info old_diameter_avps[] = {
    241-255	Reserved				 [RFC2058]   
 */
 	/* Diameter AVPs */
-    { 482, "Accounting-Interim-Interval", DIAMETER_UNSIGNED32,  (value_string *)NULL},
-    { 483, "Accounting-Realtime-Required",DIAMETER_UNSIGNED32,  (value_string *)NULL},
-    { 485, "Accounting-Record-Number",    DIAMETER_UNSIGNED32,  (value_string *)NULL},
-    { 480, "Accounting-Record-Type",      DIAMETER_ENUMERATED,  diameter_accounting_record_type_vals},
     { 287, "Accounting-Sub-Session-Id",   DIAMETER_UNSIGNED64,  (value_string *)NULL},
     { 259, "Acct-Application-Id",         DIAMETER_UNSIGNED32,  diameter_application_id_vals},
     { 275, "Alternate-Peer",              DIAMETER_IDENTITY,    (value_string *)NULL},
@@ -713,8 +846,9 @@ static struct old_avp_info old_diameter_avps[] = {
     { 295, "Termination-Cause",           DIAMETER_ENUMERATED,  diameter_termination_cause_vals},
     { 266, "Vendor-Id",                   DIAMETER_ENUMERATED,  sminmpec_values},
     { 260, "Vendor-Specific-Application-Id", DIAMETER_GROUPED, (value_string *)NULL},
-    { 297, "Experimental-Result",          DIAMETER_GROUPED,     (value_string *)NULL},
-    { 298, "Experimental-Result-Code",     DIAMETER_ENUMERATED,  diameter_exp_result_code_vals},
+    { 297, "Experimental-Result",			DIAMETER_GROUPED,     (value_string *)NULL},
+    { 298, "Experimental-Result-Code",		DIAMETER_ENUMERATED,	diameter_exp_result_code_vals},
+    { 299, "Inband-Security-Id",			DIAMETER_ENUMERATED,	diameter_inband_security_id_vals},	/* [RFC3588] */
 
 /* Diameter Mobile IP AVPs */
     { 318, "MIP-FA-to-HA-SPI",            DIAMETER_UNSIGNED32,     (value_string *)NULL},
@@ -751,33 +885,27 @@ static struct old_avp_info old_diameter_avps[] = {
 	{ 413, "CC-Money",                          DIAMETER_GROUPED    ,		(value_string *)NULL}, 
 	{ 414, "CC-Output-Octets",                  DIAMETER_UNSIGNED64 ,		(value_string *)NULL}, 
 	{ 415, "CC-Request-Number",                 DIAMETER_UNSIGNED32 ,		(value_string *)NULL}, 
-	{ 416, "CC-Request-Type",                   DIAMETER_ENUMERATED ,		(value_string *)NULL}, 
+	{ 416, "CC-Request-Type",                   DIAMETER_ENUMERATED , diameter_cc_request_type_vals}, 
 	{ 417, "CC-Service-Specific-Units",         DIAMETER_UNSIGNED64 ,		(value_string *)NULL},  
-	{ 418, "CC-Session-Failover",				DIAMETER_ENUMERATED ,		(value_string *)NULL}, 
+	{ 418, "CC-Session-Failover",				DIAMETER_ENUMERATED , diameter_CC_Session_Failover_vals}, 
 	{ 419, "CC-Sub-Session-Id",                 DIAMETER_UNSIGNED64 ,		(value_string *)NULL},
 	{ 420, "CC-Time",                           DIAMETER_UNSIGNED32 ,		(value_string *)NULL},
 	{ 421, "CC-Total-Octets",                   DIAMETER_UNSIGNED64 ,		(value_string *)NULL},
-	{ 454, "CC-Unit-Type",                      DIAMETER_ENUMERATED ,		(value_string *)NULL},
-	{ 422, "Check-Balance-Result",              DIAMETER_ENUMERATED ,		(value_string *)NULL},
+	{ 422, "Check-Balance-Result",              DIAMETER_ENUMERATED , diameter_Check_Balance_Result_vals},
 	{ 423, "Cost-Information",                  DIAMETER_GROUPED    ,		(value_string *)NULL},
 	{ 424, "Cost-Unit",                         DIAMETER_UTF8STRING ,		(value_string *)NULL},
-	{ 426, "Credit-Control",                    DIAMETER_ENUMERATED ,		(value_string *)NULL},
-	{ 427, "Credit-Control-Failure-Handling",   DIAMETER_ENUMERATED ,		(value_string *)NULL},
+	{ 426, "Credit-Control",                    DIAMETER_ENUMERATED , diameter_credit_control_vals},
+	{ 427, "Credit-Control-Failure-Handling",   DIAMETER_ENUMERATED , diameter_credit_control_failure_handling_vals},
 	{ 425, "Currency-Code",                     DIAMETER_UNSIGNED32 ,		(value_string *)NULL},
-	{ 428, "Direct-Debiting-Failure-Handling",  DIAMETER_ENUMERATED ,		(value_string *)NULL},
+	{ 428, "Direct-Debiting-Failure-Handling",  DIAMETER_ENUMERATED , diameter_direct_debiting_failure_handling_vals},
 	{ 429, "Exponent",                          DIAMETER_INTEGER32  ,		(value_string *)NULL},
-	{ 449, "Final-Unit-Action",                 DIAMETER_ENUMERATED ,		(value_string *)NULL},
 	{ 430, "Final-Unit-Indication",             DIAMETER_GROUPED    ,		(value_string *)NULL},
 	{ 431, "Granted-Service-Unit",              DIAMETER_GROUPED    ,		(value_string *)NULL},
-	{ 453, "G-S-U-Pool-Identifier",             DIAMETER_UNSIGNED32 ,		(value_string *)NULL},
-	{ 457, "G-S-U-Pool-Reference",              DIAMETER_GROUPED    ,		(value_string *)NULL},
-	{ 456, "Multiple-Services-Credit-Control",  DIAMETER_GROUPED    ,		(value_string *)NULL},
-	{ 455, "Multiple-Services-Indicator",       DIAMETER_ENUMERATED ,		(value_string *)NULL},
 	{ 432, "Rating-Group",                      DIAMETER_UNSIGNED32 ,		(value_string *)NULL},
-	{ 433, "Redirect-Address-Type",             DIAMETER_ENUMERATED ,		(value_string *)NULL},
+	{ 433, "Redirect-Address-Type",             DIAMETER_ENUMERATED , diameter_redirect_address_type_vals},
 	{ 434, "Redirect-Server",                   DIAMETER_GROUPED    ,		(value_string *)NULL},
 	{ 435, "Redirect-Server-Address",           DIAMETER_UTF8STRING ,		(value_string *)NULL},
-	{ 436, "Requested-Action",                  DIAMETER_ENUMERATED ,		(value_string *)NULL},
+	{ 436, "Requested-Action",                  DIAMETER_ENUMERATED , diameter_requested_action_vals},
 	{ 437, "Requested-Service-Unit",            DIAMETER_GROUPED    ,		(value_string *)NULL},
 	{ 438, "Restriction-Filter-Rule",           DIAMETER_IP_FILTER_RULE,	(value_string *)NULL},
 	{ 439, "Service-Identifier",                DIAMETER_UTF8STRING ,		(value_string *)NULL},
@@ -786,13 +914,23 @@ static struct old_avp_info old_diameter_avps[] = {
 	{ 442, "Service-Parameter-Value",           DIAMETER_OCTET_STRING,		(value_string *)NULL},
 	{ 443, "Subscription-Id",                   DIAMETER_GROUPED    ,		(value_string *)NULL},
 	{ 444, "Subscription-Id-Data",              DIAMETER_UTF8STRING ,		(value_string *)NULL},
-	{ 450, "Subscription-Id-Type",              DIAMETER_ENUMERATED ,		(value_string *)NULL},
-	{ 452, "Tariff-Change-Usage",               DIAMETER_ENUMERATED ,		(value_string *)NULL},
-	{ 451, "Tariff-Time-Change",                DIAMETER_TIME,				(value_string *)NULL},
 	{ 445, "Unit-Value",                        DIAMETER_GROUPED    ,		(value_string *)NULL},
 	{ 446, "Used-Service-Unit",                 DIAMETER_GROUPED    ,		(value_string *)NULL},
 	{ 447, "Value-Digits",                      DIAMETER_INTEGER64  ,		(value_string *)NULL},
 	{ 448, "Validity-Time",                     DIAMETER_UNSIGNED32 ,		(value_string *)NULL},
+	{ 449, "Final-Unit-Action",                 DIAMETER_ENUMERATED , diameter_final_unit_action_vals},
+	{ 450, "Subscription-Id-Type",              DIAMETER_ENUMERATED , diameter_subscription_id_type_vals},
+	{ 451, "Tariff-Time-Change",                DIAMETER_TIME,				(value_string *)NULL},
+	{ 452, "Tariff-Change-Usage",               DIAMETER_ENUMERATED , diameter_tariff_change_usage_vals},
+	{ 453, "G-S-U-Pool-Identifier",             DIAMETER_UNSIGNED32 ,		(value_string *)NULL},
+	{ 454, "CC-Unit-Type",                      DIAMETER_ENUMERATED , diameter_cc_Unit_type_vals},
+	{ 455, "Multiple-Services-Indicator",       DIAMETER_ENUMERATED , diameter_multiple_services_indicator_vals},
+	{ 456, "Multiple-Services-Credit-Control",  DIAMETER_GROUPED    ,		(value_string *)NULL},
+	{ 457, "G-S-U-Pool-Reference",              DIAMETER_GROUPED    ,		(value_string *)NULL},
+    { 482, "Accounting-Interim-Interval", DIAMETER_UNSIGNED32,  (value_string *)NULL},
+    { 483, "Accounting-Realtime-Required",DIAMETER_UNSIGNED32,  (value_string *)NULL},
+    { 485, "Accounting-Record-Number",    DIAMETER_UNSIGNED32,  (value_string *)NULL},
+    { 480, "Accounting-Record-Type",      DIAMETER_ENUMERATED,  diameter_accounting_record_type_vals},
 
 
 /* draft-ietf-aaa-diameter-sip-app-01.txt AVP codes to be allocated
