@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.431 2004/05/04 21:08:02 guy Exp $
+ * $Id: main.c,v 1.432 2004/05/05 08:49:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3686,6 +3686,12 @@ is_widget_visible(GtkWidget *widget, gpointer data)
     }
 }
 
+/*
+ * XXX - this doesn't appear to work with the paned widgets in
+ * GTK+ 1.2[.x]; if you hide one of the panes, the splitter remains
+ * and the other pane doesn't grow to take up the rest of the pane.
+ * It does appear to work with GTK+ 2.x.
+ */
 void
 main_widgets_show_or_hide(void)
 {
