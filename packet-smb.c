@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.299 2002/12/05 22:15:54 sahlberg Exp $
+ * $Id: packet-smb.c,v 1.300 2002/12/19 10:31:38 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -15741,7 +15741,7 @@ proto_register_smb(void)
 		NULL, 0x0, "Byte Count, count of data bytes", HFILL }},
 
 	{ &hf_smb_response_to,
-		{ "Response to", "smb.response_to", FT_UINT32, BASE_DEC,
+		{ "Response to", "smb.response_to", FT_FRAMENUM, BASE_NONE,
 		NULL, 0, "This packet is a response to the packet in this frame", HFILL }},
 
 	{ &hf_smb_time,
@@ -15749,11 +15749,11 @@ proto_register_smb(void)
 		NULL, 0, "Time between Request and Response for SMB cmds", HFILL }},
 
 	{ &hf_smb_response_in,
-		{ "Response in", "smb.response_in", FT_UINT32, BASE_DEC,
+		{ "Response in", "smb.response_in", FT_FRAMENUM, BASE_NONE,
 		NULL, 0, "The response to this packet is in this packet", HFILL }},
 
 	{ &hf_smb_continuation_to,
-		{ "Continuation to", "smb.continuation_to", FT_UINT32, BASE_DEC,
+		{ "Continuation to", "smb.continuation_to", FT_FRAMENUM, BASE_NONE,
 		NULL, 0, "This packet is a continuation to the packet in this frame", HFILL }},
 
 	{ &hf_smb_nt_status,
@@ -17208,7 +17208,7 @@ proto_register_smb(void)
 		NULL, 0, "Name of target machine", HFILL }},
 
 	{ &hf_smb_cancel_to,
-		{ "Cancel to", "smb.cancel_to", FT_UINT32, BASE_DEC,
+		{ "Cancel to", "smb.cancel_to", FT_FRAMENUM, BASE_NONE,
 		NULL, 0, "This packet is a cancellation of the packet in this frame", HFILL }},
 
 	{ &hf_smb_trans2_subcmd,
