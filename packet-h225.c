@@ -4,7 +4,7 @@
  *
  * Maintained by Andreas Sikkema (andreas.sikkema@philips.com)
  *
- * $Id: packet-h225.c,v 1.10 2003/08/30 22:47:47 sahlberg Exp $
+ * $Id: packet-h225.c,v 1.11 2003/08/31 00:32:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -7643,14 +7643,8 @@ dissect_h225_h245Control_item(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
 	offset=dissect_per_octet_string(tvb, offset, pinfo, tree, -1, -1, -1, &h245_offset, &h245_len);
 
 	if(h245_len){
-		gboolean save_info;
-
-		/* dont update the INFO or PROTOCOL fields of the summary */
-		save_info=col_get_writable(pinfo->cinfo);
-		col_set_writable(pinfo->cinfo, FALSE);
 		h245_tvb = tvb_new_subset(tvb, h245_offset, h245_len, h245_len);
 		call_dissector(h245dg_handle, h245_tvb, pinfo, tree);
-		col_set_writable(pinfo->cinfo, save_info);
 	}
 
 	return offset;
@@ -8163,7 +8157,7 @@ dissect_h225_RasMessage(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	offset=dissect_per_choice(tvb, offset, pinfo, tr, hf_h225_RasMessage, ett_h225_RasMessage, RasMessage_choice, "RasMessage", &value);
 
 	if (check_col(pinfo->cinfo, COL_INFO)){
-		col_prepend_fstr(pinfo->cinfo, COL_INFO, "RAS: %s ",
+		col_add_fstr(pinfo->cinfo, COL_INFO, "RAS: %s ",
 			val_to_str(value, RasMessage_vals, "<unknown>"));
 	}
 }
