@@ -113,6 +113,7 @@ DISSECTOR_SRC =	\
 	packet-bssap.c	\
 	packet-bssgp.c	\
 	packet-bvlc.c	\
+	packet-camel.c	\
 	packet-cast.c	\
 	packet-ccsds.c	\
 	packet-cdp.c	\
@@ -610,6 +611,7 @@ DISSECTOR_INCLUDES =	\
 	packet-bgp.h	\
 	packet-bootparams.h	\
 	packet-bssap.h	\
+	packet-camel.h	\
 	packet-chdlc.h	\
 	packet-cip.h	\
 	packet-clearcase.h	\
