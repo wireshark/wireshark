@@ -501,6 +501,14 @@ extern gint tvb_memeql(tvbuff_t *tvb, gint offset, const guint8 *str,
 
 /*
  * Format a bunch of data from a tvbuff as bytes, returning a pointer
+ * to the string with the formatted data, with "punct" as a byte
+ * separator.
+ */
+extern gchar *tvb_bytes_to_str_punct(tvbuff_t *tvb, gint offset, gint len,
+    gchar punct);
+
+/*
+ * Format a bunch of data from a tvbuff as bytes, returning a pointer
  * to the string with the formatted data.
  */
 extern gchar *tvb_bytes_to_str(tvbuff_t *tvb, gint offset, gint len);

@@ -2130,6 +2130,17 @@ tvb_find_line_end_unquoted(tvbuff_t *tvb, gint offset, int len,
 
 /*
  * Format a bunch of data from a tvbuff as bytes, returning a pointer
+ * to the string with the formatted data, with "punct" as a byte
+ * separator.
+ */
+gchar *
+tvb_bytes_to_str_punct(tvbuff_t *tvb, gint offset, gint len, gchar punct)
+{
+	return bytes_to_str_punct(tvb_get_ptr(tvb, offset, len), len, punct);
+}
+
+/*
+ * Format a bunch of data from a tvbuff as bytes, returning a pointer
  * to the string with the formatted data.
  */
 gchar *

@@ -680,7 +680,6 @@ static void dissect_fc_sbccs_dib_link_hdr (tvbuff_t *tvb, packet_info *pinfo,
     guint16 ctl_info;
     gchar buffer[128];
     guint link_payload_len, i;
-    gchar *lpath_ptr;
 
     if (check_col (pinfo->cinfo, COL_INFO)) {
         col_append_fstr (pinfo->cinfo, COL_INFO,
@@ -741,14 +740,12 @@ static void dissect_fc_sbccs_dib_link_hdr (tvbuff_t *tvb, packet_info *pinfo,
             link_payload_len = tvb_get_ntohs (tvb, offset+10);
             i = 0;
             offset += 16;
-            lpath_ptr = (gchar *)tvb_get_ptr (tvb, offset, link_payload_len/4);
             
             while (i < link_payload_len) {
                 proto_tree_add_text (tree, tvb, offset, 4,
-                                     "Logical Paths %d-%d: %x:%x:%x:%x",
-                                     i*8, ((i+4)*8) - 1, lpath_ptr[i],
-                                     lpath_ptr[i+1], lpath_ptr[i+2],
-                                     lpath_ptr[i+3]);
+                                     "Logical Paths %d-%d: %s",
+                                     i*8, ((i+4)*8) - 1,
+                                     tvb_bytes_to_str_punct (tvb, offset, 4, ':'));
                 i += 4;
                 offset += 4;
             }
