@@ -2,7 +2,7 @@
  * Routines for docsis dissection
  * Copyright 2002, Anand V. Narwani <anand[AT]narwani.org>
  *
- * $Id: packet-docsis.c,v 1.15 2003/09/09 07:18:11 guy Exp $
+ * $Id: packet-docsis.c,v 1.16 2003/11/12 23:17:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -697,7 +697,7 @@ proto_register_docsis (void)
      },
     {&hf_docsis_ehdr_grants,
      {"Active Grants", "docsis.ehdr.act_grants",
-      FT_UINT8, BASE_DEC, NULL, 0x0,
+      FT_UINT8, BASE_DEC, NULL, 0x7F,
       "Active Grants", HFILL}
      },
     {&hf_docsis_hcs,
