@@ -1026,8 +1026,14 @@ dump_facilities(proto_tree *tree, int *offset, tvbuff_t *tvb)
 			}
 		    }
 		    tmpbuf[i] = 0;
-		    proto_tree_add_text(fac_subtree, tvb, *offset+4, byte1 - 2,
-			    "DTE address : %s", tmpbuf);
+		    if (byte1 < 2) {
+			proto_tree_add_text(fac_subtree, tvb, 0, 0,
+				"Bogus byte length : %d", byte1);
+			return;
+		    } else {
+			proto_tree_add_text(fac_subtree, tvb, *offset+4, byte1 - 2,
+				"DTE address : %s", tmpbuf);
+		    }
 		}
 		break;
 	    case X25_FAC_CALLING_ADDR_EXT:
