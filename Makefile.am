@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.538 2003/01/14 23:53:32 guy Exp $
+# $Id: Makefile.am,v 1.539 2003/01/16 07:10:24 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -1060,6 +1060,7 @@ EXTRA_DIST = \
 	doc/README.idl2eth      \
 	doc/README.plugins      \
 	doc/README.regression   \
+	doc/README.tapping	\
 	doc/README.tvbuff	\
 	doc/dfilter2pod.pl	\
 	doc/editcap.pod		\
