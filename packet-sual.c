@@ -4,7 +4,7 @@
  * Copyright 2001, Martin Held <Martin.Held@icn.siemens.de>
  *                 Michael Tüxen <Michael.Tuexen@icn.siemens.de>
  *
- * $Id: packet-sual.c,v 1.3 2001/04/23 18:05:19 guy Exp $
+ * $Id: packet-sual.c,v 1.4 2001/04/24 19:18:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -102,6 +102,19 @@ static const value_string sual_message_type_acro_values[] = {
   {  SUAL_MSG_ERR,               "ERR"},
   {  0,                          NULL}};
 
+
+/* SUAL Error Codes */
+#define SUAL_ERR_INVVERS		0x0001
+#define SUAL_ERR_INVSTRID		0x0005
+#define SUAL_ERR_INVMSGTYP		0x0006
+
+static const value_string sual_error_code_values[] = {
+  {  SUAL_ERR_INVVERS,		"Invalid Protocol Version"},	
+  {  SUAL_ERR_INVSTRID,		"Invalid Stream Identifier"},	
+  {  SUAL_ERR_INVMSGTYP,      	"Invalid Message Type"},
+  {  0,                          NULL}};
+
+
 /* Initialize the protocol and registered fields */
 static int proto_sual = -1;
 static int hf_sual_version = -1;
@@ -110,24 +123,28 @@ static int hf_sual_message_type = -1;
 static int hf_sual_subsystem_number = -1;
 static int hf_sual_spare_2 = -1;
 static int hf_sual_message_length = -1;
+static int hf_sual_error_code = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_sual = -1;
 
+static dissector_table_t sual_dissector_table;
+
 static void
-dissect_sual_common_header(tvbuff_t *common_header_tvb, packet_info *pinfo, proto_tree *sual_tree)
+dissect_sual_common_header(tvbuff_t *common_header_tvb, packet_info *pinfo, 
+                           proto_tree *sual_tree, guint16  *subsystem_number)
 {
   guint8  version, spare_1;
-  guint16 message_type, subsystem_number, spare_2; 
+  guint16 message_type, spare_2; 
   guint32 message_length;
 
   /* Extract the common header */
-  version          = tvb_get_guint8(common_header_tvb, VERSION_OFFSET);
-  spare_1          = tvb_get_guint8(common_header_tvb, SPARE_1_OFFSET);
-  message_type     = tvb_get_ntohs(common_header_tvb, MESSAGE_TYPE_OFFSET);
-  subsystem_number = tvb_get_ntohs(common_header_tvb, SUBSYSTEM_NUMBER_OFFSET);
-  spare_2          = tvb_get_ntohs(common_header_tvb, SPARE_2_OFFSET);
-  message_length   = tvb_get_ntohl (common_header_tvb, MESSAGE_LENGTH_OFFSET);
+  version           = tvb_get_guint8(common_header_tvb, VERSION_OFFSET);
+  spare_1           = tvb_get_guint8(common_header_tvb, SPARE_1_OFFSET);
+  message_type      = tvb_get_ntohs(common_header_tvb, MESSAGE_TYPE_OFFSET);
+  *subsystem_number = tvb_get_ntohs(common_header_tvb, SUBSYSTEM_NUMBER_OFFSET);
+  spare_2           = tvb_get_ntohs(common_header_tvb, SPARE_2_OFFSET);
+  message_length    = tvb_get_ntohl (common_header_tvb, MESSAGE_LENGTH_OFFSET);
 
   if (check_col(pinfo->fd, COL_INFO)) {
     col_append_str(pinfo->fd, COL_INFO, val_to_str(message_type, sual_message_type_acro_values, "Unknown"));
@@ -148,7 +165,7 @@ dissect_sual_common_header(tvbuff_t *common_header_tvb, packet_info *pinfo, prot
 			       message_type, val_to_str(message_type, sual_message_type_values, "Unknown"));
     proto_tree_add_uint(sual_tree, hf_sual_subsystem_number,
 			common_header_tvb, SUBSYSTEM_NUMBER_OFFSET, SUBSYSTEM_NUMBER_LENGTH,
-			subsystem_number);
+			*subsystem_number);
     proto_tree_add_uint(sual_tree, hf_sual_spare_2,
 			common_header_tvb, SPARE_2_OFFSET, SPARE_2_LENGTH,
 			spare_2);
@@ -159,23 +176,66 @@ dissect_sual_common_header(tvbuff_t *common_header_tvb, packet_info *pinfo, prot
 }
 
 static void
-dissect_sual_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *sual_tree)
+dissect_payload(tvbuff_t *payload_tvb, packet_info *pinfo,
+                 guint16 subsystem_number, proto_tree *sual_tree, proto_tree *tree)
 {
-  gint offset, payload_length;
+  guint		payload_length = tvb_length(payload_tvb);
+	
+  /* do lookup with the subdissector table */
+  if ( ! dissector_try_port (sual_dissector_table, subsystem_number, payload_tvb,
+                              pinfo, tree))
+  {
+     if (sual_tree) {
+       proto_tree_add_text(sual_tree, payload_tvb, 0, payload_length,
+	   		   "Payload: %u byte%s",
+			   payload_length,
+			   plurality(payload_length, "", "s"));
+     }
+  }
+}
+
+static void
+dissect_error_payload(tvbuff_t *payload_tvb, proto_tree *sual_tree)
+{
+    if (sual_tree) 
+    {
+       proto_tree_add_item(sual_tree, hf_sual_error_code, payload_tvb, 0, 2, FALSE); 
+    }          	
+}
+
+
+static void
+dissect_sual_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *sual_tree, proto_tree *tree)
+{
+  gint     offset, payload_length;
+  guint16  subsystem_number;
+  guint16  message_type;
   tvbuff_t *common_header_tvb;
+  tvbuff_t *payload_tvb;
 
   offset = 0;
   /* extract and process the common header */
   common_header_tvb = tvb_new_subset(message_tvb, offset, COMMON_HEADER_LENGTH, COMMON_HEADER_LENGTH);
-  dissect_sual_common_header(common_header_tvb, pinfo, sual_tree);
+  message_type = tvb_get_ntohs(common_header_tvb, MESSAGE_TYPE_OFFSET);
+  dissect_sual_common_header(common_header_tvb, pinfo, sual_tree, &subsystem_number);
   offset += COMMON_HEADER_LENGTH;
   
-  if (sual_tree) {
-    payload_length = tvb_length(message_tvb) - COMMON_HEADER_LENGTH;
-    proto_tree_add_text(sual_tree, message_tvb, offset, payload_length,
-			"Payload: %u byte%s",
-			payload_length, plurality(payload_length, "", "s"));
+  payload_length = tvb_length(message_tvb) - COMMON_HEADER_LENGTH;
+  if (payload_length != 0)
+  {
+     payload_tvb = tvb_new_subset(message_tvb, offset, payload_length, payload_length);
+
+     if (message_type != SUAL_MSG_ERR)
+     {
+        dissect_payload(payload_tvb, pinfo, subsystem_number, sual_tree, tree);
+     }
+     else
+     {
+     	dissect_error_payload(payload_tvb, sual_tree);
+     }
+   
   }
+
 }
 
 static void
@@ -198,7 +258,7 @@ dissect_sual(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree)
     sual_tree = NULL;
   };
   /* dissect the message */
-  dissect_sual_message(message_tvb, pinfo, sual_tree);
+  dissect_sual_message(message_tvb, pinfo, sual_tree, tree);
 }
 
 /* Register the protocol with Ethereal */
@@ -237,7 +297,12 @@ proto_register_sual(void)
       { "Message length", "sual.message_length",
 	FT_UINT32, BASE_DEC, NULL, 0x0,          
 	""}
-    }, 
+    },
+    { &hf_sual_error_code,
+      { "Error Code", "sual.error_code",
+	FT_UINT16, BASE_HEX, &sual_error_code_values, 0x0,          
+	""}
+    }
   };
   
   /* Setup protocol subtree array */
@@ -252,6 +317,10 @@ proto_register_sual(void)
   /* Required function calls to register the header fields and subtrees used */
   proto_register_field_array(proto_sual, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  
+  /* subdissector code */
+  sual_dissector_table = register_dissector_table("sual.subsystem_number");
+  
 };
 
 void
