@@ -2,7 +2,7 @@
  * Routines for telnet packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-telnet.c,v 1.18 2000/11/09 10:56:32 guy Exp $
+ * $Id: packet-telnet.c,v 1.19 2000/11/12 00:59:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -302,19 +302,59 @@ telnet_add_text(proto_tree *tree, tvbuff_t *tvb, int offset, int len)
 {
   gint next_offset;
   int linelen;
+  guint8 c;
+  gboolean last_char_was_cr;
 
-  while (len != 0 && tvb_length_remaining(tvb, offset)) {
+  while (len != 0 && tvb_length_remaining(tvb, offset) != 0) {
     /*
      * Find the end of the line.
      */
-    tvb_find_line_end(tvb, offset, len, &next_offset);
+    linelen = tvb_find_line_end(tvb, offset, len, &next_offset);
+    len -= next_offset - offset;	/* subtract out the line's characters */
+
+    /*
+     * In Telnet, CR NUL is the way you send a CR by itself in the
+     * default ASCII mode; don't treat CR by itself as a line ending,
+     * treat only CR NUL, CR LF, or LF by itself as a line ending.
+     */
+    if (next_offset == offset + linelen + 1 && len >= 1) {
+      /*
+       * Well, we saw a one-character line ending, so either it's a CR
+       * or an LF; we have at least two characters left, including the
+       * CR.
+       *
+       * If the line ending is a CR, skip all subsequent CRs; at
+       * least one capture appeared to have multiple CRs at the end of
+       * a line.
+       */
+      if (tvb_get_guint8(tvb, offset + linelen) == '\r') {
+      	last_char_was_cr = TRUE;
+      	while (len != 0 && tvb_length_remaining(tvb, next_offset) != 0) {
+          c = tvb_get_guint8(tvb, next_offset);
+      	  next_offset++;	/* skip over that character */
+      	  len--;
+          if (c == '\n' || (c == '\0' && last_char_was_cr)) {
+            /*
+	     * LF is a line ending, whether preceded by CR or not.
+	     * NUL is a line ending if preceded by CR.
+	     */
+            break;
+          }
+      	  last_char_was_cr = (c == '\r');
+      	}
+      }
+    }
+
+    /*
+     * Now compute the length of the line *including* the end-of-line
+     * indication, if any; we display it all.
+     */
     linelen = next_offset - offset;
 
     proto_tree_add_text(tree, tvb, offset, linelen,
 			"Data: %s",
 			tvb_format_text(tvb, offset, linelen));
-    offset += linelen;
-    len -= linelen;
+    offset = next_offset;
   }
 }
 

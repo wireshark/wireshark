@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.c,v 1.6 2000/11/11 19:55:48 guy Exp $
+ * $Id: tvbuff.c,v 1.7 2000/11/12 00:59:09 guy Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@xiexie.org>
  *
@@ -1283,10 +1283,13 @@ tvb_find_line_end(tvbuff_t *tvb, gint offset, int len, gint *next_offset)
 	 */
 	eob_offset = offset + len;
 
-	eol_offset = tvb_find_guint8(tvb, offset, len, '\n');
+	/*
+	 * Look either for a CR or an LF.
+	 */
+	eol_offset = tvb_pbrk_guint8(tvb, offset, len, "\r\n");
 	if (eol_offset == -1) {
 		/*
-		 * No LF - line is presumably continued in next packet.
+		 * No CR or LF - line is presumably continued in next packet.
 		 * We pretend the line runs to the end of the tvbuff.
 		 */
 		linelen = eob_offset - offset;
@@ -1294,59 +1297,30 @@ tvb_find_line_end(tvbuff_t *tvb, gint offset, int len, gint *next_offset)
 	} else {
 		/*
 		 * Find the number of bytes between the starting offset
-		 * and the LF.
+		 * and the CR or LF.
 		 */
 		linelen = eol_offset - offset;
 
 		/*
-		 * Is the LF at the beginning of the line?
+		 * Is it a CR?
 		 */
-		if (linelen > 0) {
+		if (tvb_get_guint8(tvb, eol_offset) == '\r') {
 			/*
-			 * No - is it preceded by a carriage return?
-			 * (Perhaps it's supposed to be, but that's not
-			 * guaranteed....)
+			 * Yes - is it followed by an LF?
 			 */
-			if (tvb_get_guint8(tvb, eol_offset - 1) == '\r') {
+			if (eol_offset + 1 < eob_offset &&
+			    tvb_get_guint8(tvb, eol_offset + 1) == '\n') {
 				/*
-				 * Yes.  The EOL starts with the CR;
-				 * don't count it as part of the data
-				 * in the line.
+				 * Yes; skip over the CR.
 				 */
-				linelen--;
-			} else {
-				/*
-				 * No.  The EOL starts with the LF.
-				 */
-
-				/*
-				 * I seem to remember that we once saw lines
-				 * ending with LF-CR in an HTTP request or
-				 * response, so check if it's *followed*
-				 * by a carriage return.
-				 *
-				 * XXX - what about <LF><CR> with the <LF>
-				 * not preceded by non-LF/non-CR data?
-				 * Should we check for that, or do we
-				 * run the risk of misinterpreting a
-				 * sequence of multiple <CR><LF> as having
-				 * a bunch of <LF><CR> in it?
-				 */
-				if (eol_offset + 1 < eob_offset &&
-				    tvb_get_guint8(tvb, eol_offset + 1) == '\r') {
-					/*
-					 * It's <non-LF><LF><CR>; say it ends
-					 * with the CR, and skip past the
-					 * LF.
-					 */
-					eol_offset++;
-				}
+				eol_offset++;
 			}
 		}
 
 		/*
 		 * Return the offset of the character after the last
-		 * character in the line.
+		 * character in the line, skipping over the last character
+		 * in the line terminator.
 		 */
 		*next_offset = eol_offset + 1;
 	}
@@ -1403,10 +1377,10 @@ tvb_find_line_end_unquoted(tvbuff_t *tvb, gint offset, int len,
 			    '"');
 		} else {
 			/*
-			 * Look either for an LF or a '"'.
+			 * Look either for a CR, an LF, or a '"'.
 			 */
 			char_offset = tvb_pbrk_guint8(tvb, cur_offset, len,
-			    "\n\"");
+			    "\r\n\"");
 		}
 		if (cur_offset == -1) {
 			/*
@@ -1419,57 +1393,61 @@ tvb_find_line_end_unquoted(tvbuff_t *tvb, gint offset, int len,
 			break;
 		}
 			
-		/*
-		 * OK, which is it?
-		 */
-		c = tvb_get_guint8(tvb, char_offset);
-		if (c == '\n') {
-			if (is_quoted) {
+		if (is_quoted) {
+			/*
+			 * We're processing a quoted string.
+			 * We only looked for ", so we know it's a ";
+			 * as we're processing a quoted string, it's a
+			 * closing quote.
+			 */
+			is_quoted = FALSE;
+		} else {
+			/*
+			 * OK, what is it?
+			 */
+			c = tvb_get_guint8(tvb, char_offset);
+			if (c == '"') {
 				/*
-				 * Quoted LF; it's part of the string, not
-				 * a line terminator.
-				 * Do nothing. Wait for next quote.
+				 * Un-quoted "; it begins a quoted
+				 * string.
 				 */
+				is_quoted = TRUE;
 			} else {
 				/*
-				 * Un-quoted LF; it's a line terminator.
+				 * It's a CR or LF; we've found a line
+				 * terminator.
+				 *
 				 * Find the number of bytes between the
-				 * starting offset and the LF.
+				 * starting offset and the CR or LF.
 				 */
 				linelen = char_offset - offset;
 
 				/*
-				 * Is the LF at the beginning of the line?
+				 * Is it a CR?
 				 */
-				if (linelen > 0) {
+				if (c == '\r') {
 					/*
-					 * No - is it preceded by a carriage
-					 * return?
-					 * (Perhaps it's supposed to be, but
-					 * that's not guaranteed....)
+					 * Yes; is it followed by an LF?
 					 */
-					if (tvb_get_guint8(tvb, char_offset-1)
-					    == '\r') {
+					if (char_offset + 1 < eob_offset &&
+					    tvb_get_guint8(tvb, char_offset + 1)
+					      == '\n') {
 						/*
-						 * Yes.  The EOL starts with
-						 * the CR; don't count it as
-						 * part of the data in the
-						 * line.
+						 * Yes; skip over the CR.
 						 */
-						linelen--;
+						char_offset++;
 					}
 				}
 
 				/*
 				 * Return the offset of the character after
-				 * the last character in the line, and
-				 * quit.
+				 * the last character in the line, skipping
+				 * over the last character in the line
+				 * terminator, and quit.
 				 */
 				*next_offset = char_offset + 1;
 				break;
 			}
-		} else if (c == '"') {
-			is_quoted = !is_quoted;
 		}
 
 		/*
