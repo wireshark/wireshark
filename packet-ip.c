@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.54 1999/10/14 16:46:55 itojun Exp $
+ * $Id: packet-ip.c,v 1.55 1999/10/15 05:30:35 itojun Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -881,6 +881,9 @@ again:
     case IP_PROTO_PIM:
       dissect_pim(pd, offset, fd, tree);
       break;
+    case IP_PROTO_IPCOMP:
+      dissect_ipcomp(pd, offset, fd, tree);
+      break;
     default:
       dissect_data(pd, offset, fd, tree);
       break;
@@ -1282,7 +1285,7 @@ proto_register_ip(void)
 			"" }},
 
 		{ &hf_ip_proto,
-		{ "Protocol",		"ip.proto", FT_UINT8, BASE_HEX, VALS(proto_vals), 0x0,
+		{ "Protocol",		"ip.proto", FT_UINT8, BASE_HEX, NULL, 0x0,
 			"" }},
 
 		{ &hf_ip_checksum,

@@ -1,7 +1,7 @@
 /* packet-ip.h
  * Definitions for IP packet disassembly structures and routines
  *
- * $Id: packet-ip.h,v 1.5 1999/08/28 08:31:27 guy Exp $
+ * $Id: packet-ip.h,v 1.6 1999/10/15 05:30:39 itojun Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -60,6 +60,7 @@
 #define IP_PROTO_OSPF		89
 #define IP_PROTO_ENCAP		98		/* encapsulation header */
 #define IP_PROTO_PIM		103		/* Protocol Independent Mcast */
+#define IP_PROTO_IPCOMP		108		/* IP payload compression */
 
 typedef enum {
   NO_LENGTH,		/* option has no data, hence no length */

@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.110 1999/10/14 05:41:31 itojun Exp $
+ * $Id: packet.h,v 1.111 1999/10/15 05:30:43 itojun Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -262,6 +262,7 @@ enum {
 	ETT_TFTP,
  	ETT_AH,
  	ETT_ESP,
+ 	ETT_IPCOMP,
  	ETT_ICMPv6,
  	ETT_ICMPv6OPT,
  	ETT_ICMPv6FLAG,
@@ -481,6 +482,7 @@ void dissect_icmp(const u_char *, int, frame_data *, proto_tree *);
 void dissect_icmpv6(const u_char *, int, frame_data *, proto_tree *);
 void dissect_igmp(const u_char *, int, frame_data *, proto_tree *);
 void dissect_ip(const u_char *, int, frame_data *, proto_tree *);
+void dissect_ipcomp(const u_char *, int, frame_data *, proto_tree *);
 void dissect_ipp(const u_char *, int, frame_data *, proto_tree *);
 void dissect_ipv6(const u_char *, int, frame_data *, proto_tree *);
 void dissect_ipx(const u_char *, int, frame_data *, proto_tree *);

@@ -1,7 +1,7 @@
 /* ipproto.c
  * Routines for converting IPv4 protocol/v6 nxthdr field into string
  *
- * $Id: ipproto.c,v 1.1 1999/10/14 03:50:27 itojun Exp $
+ * $Id: ipproto.c,v 1.2 1999/10/15 05:30:35 itojun Exp $
  *
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
@@ -87,6 +87,7 @@ static const value_string ipproto_val[] = {
     { IP_PROTO_OSPF,	"OSPF" },
     { IP_PROTO_ENCAP,	"ENCAP" },
     { IP_PROTO_PIM,	"PIM" },
+    { IP_PROTO_IPCOMP,	"IPComp" },
     { 0,		NULL },
 };
 

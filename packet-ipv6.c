@@ -1,7 +1,7 @@
 /* packet-ipv6.c
  * Routines for IPv6 packet disassembly 
  *
- * $Id: packet-ipv6.c,v 1.21 1999/10/15 04:22:48 itojun Exp $
+ * $Id: packet-ipv6.c,v 1.22 1999/10/15 05:30:41 itojun Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -392,6 +392,9 @@ again:
 	proto_tree_add_item_hidden(ipv6_tree, hf_ipv6_final, poffset, 1, nxt);
 #endif
 	dissect_pim(pd, offset, fd, tree);
+	break;
+    case IP_PROTO_IPCOMP:
+	dissect_ipcomp(pd, offset, fd, tree);
 	break;
     default:
 #ifdef TEST_FINALHDR
