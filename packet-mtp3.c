@@ -3,7 +3,7 @@
  * Copyright 2001, Michael Tuexen <Michael.Tuexen@icn.siemens.de>
  * Updated for ANSI support by Jeff Morriss <jeff.morriss[AT]ulticom.com>
  *
- * $Id: packet-mtp3.c,v 1.11 2002/03/04 22:39:22 guy Exp $
+ * $Id: packet-mtp3.c,v 1.12 2002/06/20 20:40:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -52,7 +52,8 @@ static int hf_mtp3_dpc_network = -1;
 static int hf_mtp3_dpc_cluster = -1;
 static int hf_mtp3_dpc_member = -1;
 static int hf_mtp3_itu_sls = -1;
-static int hf_mtp3_ansi_sls = -1;
+static int hf_mtp3_ansi_5_bit_sls = -1;
+static int hf_mtp3_ansi_8_bit_sls = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_mtp3 = -1;
@@ -65,6 +66,8 @@ static dissector_table_t mtp3_sio_dissector_table;
 
 #include <packet-mtp3.h>
 Standard_Type mtp3_standard = ITU_STANDARD;
+
+gboolean mtp3_use_ansi_5_bit_sls = FALSE;
 
 #define SIO_LENGTH                1
 
@@ -99,7 +102,6 @@ Standard_Type mtp3_standard = ITU_STANDARD;
 #define ANSI_CLUSTER_MASK              0x00FF00
 #define ANSI_MEMBER_MASK               0xFF0000
 #define ANSI_5BIT_SLS_MASK             0x1F
-/* TODO: eventually add support for ANSI 8-bit SLS */
 #define ANSI_8BIT_SLS_MASK             0xFF
 
 static const value_string service_indicator_code_vals[] = {
@@ -139,22 +141,27 @@ dissect_mtp3_sio(tvbuff_t *tvb, proto_tree *mtp3_tree)
   proto_item *sio_item;
   proto_tree *sio_tree;
 
-  sio_item = proto_tree_add_text(mtp3_tree, tvb, SIO_OFFSET, SIO_LENGTH, "Service information octet");
+  sio_item = proto_tree_add_text(mtp3_tree, tvb, SIO_OFFSET, SIO_LENGTH,
+				 "Service information octet");
   sio_tree = proto_item_add_subtree(sio_item, ett_mtp3_sio);
 
   sio = tvb_get_guint8(tvb, SIO_OFFSET);
-  proto_tree_add_uint(sio_tree, hf_mtp3_network_indicator, tvb, SIO_OFFSET, SIO_LENGTH, sio);
-  
+  proto_tree_add_uint(sio_tree, hf_mtp3_network_indicator, tvb, SIO_OFFSET,
+		      SIO_LENGTH, sio);
+
   switch(mtp3_standard){
   case ANSI_STANDARD:
-    proto_tree_add_uint(sio_tree, hf_mtp3_ansi_priority, tvb, SIO_OFFSET, SIO_LENGTH, sio);
+    proto_tree_add_uint(sio_tree, hf_mtp3_ansi_priority, tvb, SIO_OFFSET,
+			SIO_LENGTH, sio);
     break;
   case ITU_STANDARD:
-    proto_tree_add_uint(sio_tree, hf_mtp3_itu_spare, tvb, SIO_OFFSET, SIO_LENGTH, sio);
+    proto_tree_add_uint(sio_tree, hf_mtp3_itu_spare, tvb, SIO_OFFSET,
+			SIO_LENGTH, sio);
     break;
   }
-  
-  proto_tree_add_uint(sio_tree, hf_mtp3_service_indicator, tvb, SIO_OFFSET, SIO_LENGTH, sio);
+
+  proto_tree_add_uint(sio_tree, hf_mtp3_service_indicator, tvb, SIO_OFFSET,
+		      SIO_LENGTH, sio);
 }
 
 static void
@@ -167,15 +174,21 @@ dissect_mtp3_routing_label(tvbuff_t *tvb, proto_tree *mtp3_tree)
 
   switch (mtp3_standard) {
   case ITU_STANDARD:
-    label_item = proto_tree_add_text(mtp3_tree, tvb, ITU_ROUTING_LABEL_OFFSET, ITU_ROUTING_LABEL_LENGTH, "Routing label");
+    label_item = proto_tree_add_text(mtp3_tree, tvb, ITU_ROUTING_LABEL_OFFSET,
+				     ITU_ROUTING_LABEL_LENGTH, "Routing label");
     label_tree = proto_item_add_subtree(label_item, ett_mtp3_label);
 
     label = tvb_get_letohl(tvb, ITU_ROUTING_LABEL_OFFSET);
     sls   = tvb_get_guint8(tvb, ITU_ROUTING_LABEL_OFFSET);
 
-    proto_tree_add_uint(label_tree, hf_mtp3_itu_dpc, tvb, ITU_ROUTING_LABEL_OFFSET, ITU_ROUTING_LABEL_LENGTH, label);
-    proto_tree_add_uint(label_tree, hf_mtp3_itu_opc, tvb, ITU_ROUTING_LABEL_OFFSET, ITU_ROUTING_LABEL_LENGTH, label);
-    proto_tree_add_uint(label_tree, hf_mtp3_itu_sls, tvb, ITU_SLS_OFFSET, ITU_SLS_LENGTH, sls);
+    proto_tree_add_uint(label_tree, hf_mtp3_itu_dpc, tvb,
+			ITU_ROUTING_LABEL_OFFSET, ITU_ROUTING_LABEL_LENGTH,
+			label);
+    proto_tree_add_uint(label_tree, hf_mtp3_itu_opc, tvb,
+			ITU_ROUTING_LABEL_OFFSET, ITU_ROUTING_LABEL_LENGTH,
+			label);
+    proto_tree_add_uint(label_tree, hf_mtp3_itu_sls, tvb, ITU_SLS_OFFSET,
+			ITU_SLS_LENGTH, sls);
     break;
 
   case ANSI_STANDARD:
@@ -183,34 +196,52 @@ dissect_mtp3_routing_label(tvbuff_t *tvb, proto_tree *mtp3_tree)
     sls = tvb_get_guint8(tvb, ANSI_SLS_OFFSET);
 
     /* Create the Routing Label Tree */
-    label_item = proto_tree_add_text(mtp3_tree, tvb, ANSI_ROUTING_LABEL_OFFSET, ANSI_ROUTING_LABEL_LENGTH, "Routing label");
+    label_item = proto_tree_add_text(mtp3_tree, tvb, ANSI_ROUTING_LABEL_OFFSET,
+				     ANSI_ROUTING_LABEL_LENGTH,
+				     "Routing label");
     label_tree = proto_item_add_subtree(label_item, ett_mtp3_label);
 
     /* create the DPC tree */
     dpc = tvb_get_ntoh24(tvb, ANSI_DPC_OFFSET);
-    label_dpc_item = proto_tree_add_text(label_tree, tvb, ANSI_DPC_OFFSET, ANSI_PC_LENGTH,
-					 "DPC (%d-%d-%d)", (dpc & ANSI_NETWORK_MASK), ((dpc & ANSI_CLUSTER_MASK) >> 8), ((dpc & ANSI_MEMBER_MASK) >> 16));
+    label_dpc_item = proto_tree_add_text(label_tree, tvb, ANSI_DPC_OFFSET,
+					 ANSI_PC_LENGTH, "DPC (%d-%d-%d)",
+					 (dpc & ANSI_NETWORK_MASK),
+					 ((dpc & ANSI_CLUSTER_MASK) >> 8),
+					 ((dpc & ANSI_MEMBER_MASK) >> 16));
 
     label_dpc_tree = proto_item_add_subtree(label_dpc_item, ett_mtp3_label_dpc);
 
-    proto_tree_add_uint(label_dpc_tree, hf_mtp3_dpc_member, tvb, ANSI_DPC_OFFSET, ANSI_PC_LENGTH, dpc);
-    proto_tree_add_uint(label_dpc_tree, hf_mtp3_dpc_cluster,tvb, ANSI_DPC_OFFSET, ANSI_PC_LENGTH, dpc);
-    proto_tree_add_uint(label_dpc_tree, hf_mtp3_dpc_network,tvb, ANSI_DPC_OFFSET, ANSI_PC_LENGTH, dpc);
+    proto_tree_add_uint(label_dpc_tree, hf_mtp3_dpc_member, tvb,
+			ANSI_DPC_OFFSET, ANSI_PC_LENGTH, dpc);
+    proto_tree_add_uint(label_dpc_tree, hf_mtp3_dpc_cluster,tvb,
+			ANSI_DPC_OFFSET, ANSI_PC_LENGTH, dpc);
+    proto_tree_add_uint(label_dpc_tree, hf_mtp3_dpc_network,tvb,
+			ANSI_DPC_OFFSET, ANSI_PC_LENGTH, dpc);
 
     /* create the OPC tree */
     opc = tvb_get_ntoh24(tvb, ANSI_OPC_OFFSET);
 
-    label_opc_item = proto_tree_add_text(label_tree, tvb, ANSI_OPC_OFFSET, ANSI_PC_LENGTH,
-					 "OPC (%d-%d-%d)", (opc & ANSI_NETWORK_MASK), ((opc & ANSI_CLUSTER_MASK) >> 8), ((opc & ANSI_MEMBER_MASK) >> 16));
+    label_opc_item = proto_tree_add_text(label_tree, tvb, ANSI_OPC_OFFSET,
+					 ANSI_PC_LENGTH, "OPC (%d-%d-%d)",
+					 (opc & ANSI_NETWORK_MASK),
+					 ((opc & ANSI_CLUSTER_MASK) >> 8),
+					 ((opc & ANSI_MEMBER_MASK) >> 16));
     label_opc_tree = proto_item_add_subtree(label_opc_item, ett_mtp3_label_opc);
 
-    proto_tree_add_uint(label_opc_tree, hf_mtp3_opc_member, tvb, ANSI_OPC_OFFSET, ANSI_PC_LENGTH, opc);
-    proto_tree_add_uint(label_opc_tree, hf_mtp3_opc_cluster, tvb, ANSI_OPC_OFFSET, ANSI_PC_LENGTH, opc);
-    proto_tree_add_uint(label_opc_tree, hf_mtp3_opc_network,tvb, ANSI_OPC_OFFSET, ANSI_PC_LENGTH, opc);
+    proto_tree_add_uint(label_opc_tree, hf_mtp3_opc_member, tvb,
+			ANSI_OPC_OFFSET, ANSI_PC_LENGTH, opc);
+    proto_tree_add_uint(label_opc_tree, hf_mtp3_opc_cluster, tvb,
+			ANSI_OPC_OFFSET, ANSI_PC_LENGTH, opc);
+    proto_tree_add_uint(label_opc_tree, hf_mtp3_opc_network,tvb,
+			ANSI_OPC_OFFSET, ANSI_PC_LENGTH, opc);
+
     /* SLS */
-    /* TODO: separate 5-bit and 8-bit SLS */
-    proto_tree_add_item(label_tree, hf_mtp3_ansi_sls, tvb, ANSI_SLS_OFFSET, ANSI_SLS_LENGTH, sls);
-    /*    proto_tree_add_uint(label_tree, hf_mtp3_ansi_sls, tvb,ANSI_SLS_OFFSET, ANSI_SLS_LENGTH, sls);*/
+    if (mtp3_use_ansi_5_bit_sls)
+      proto_tree_add_item(label_tree, hf_mtp3_ansi_5_bit_sls, tvb,
+			  ANSI_SLS_OFFSET, ANSI_SLS_LENGTH, sls);
+    else
+      proto_tree_add_item(label_tree, hf_mtp3_ansi_8_bit_sls, tvb,
+			  ANSI_SLS_OFFSET, ANSI_SLS_LENGTH, sls);
     break;
   }
 }
@@ -234,7 +265,8 @@ dissect_mtp3_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     break;
   }
 
-  if (!dissector_try_port(mtp3_sio_dissector_table, service_indicator, payload_tvb, pinfo, tree)) {
+  if (!dissector_try_port(mtp3_sio_dissector_table, service_indicator,
+			  payload_tvb, pinfo, tree)) {
     call_dissector(data_handle, payload_tvb, pinfo, tree);
     if (check_col(pinfo->cinfo, COL_INFO))
       col_append_str(pinfo->cinfo, COL_INFO, "DATA ");
@@ -258,10 +290,12 @@ dissect_mtp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* create display subtree for the protocol */
     switch (mtp3_standard) {
     case ITU_STANDARD:
-      mtp3_item = proto_tree_add_item(tree, proto_mtp3, tvb, 0, ITU_HEADER_LENGTH, FALSE);
+      mtp3_item = proto_tree_add_item(tree, proto_mtp3, tvb, 0,
+				      ITU_HEADER_LENGTH, FALSE);
       break;
     case ANSI_STANDARD:
-      mtp3_item = proto_tree_add_item(tree, proto_mtp3, tvb, 0, ANSI_HEADER_LENGTH, FALSE);
+      mtp3_item = proto_tree_add_item(tree, proto_mtp3, tvb, 0,
+				      ANSI_HEADER_LENGTH, FALSE);
       break;
     }
     mtp3_tree = proto_item_add_subtree(mtp3_item, ett_mtp3);
@@ -333,9 +367,13 @@ proto_register_mtp3(void)
       { "Signalling Link Selector", "mtp3.sls",
 	      FT_UINT32, BASE_DEC, NULL, ITU_SLS_MASK,
 	      "", HFILL }},
-    { &hf_mtp3_ansi_sls,
+    { &hf_mtp3_ansi_5_bit_sls,
       { "Signalling Link Selector", "mtp3.sls",
 	      FT_UINT8, BASE_DEC, NULL, ANSI_5BIT_SLS_MASK,
+	      "", HFILL }},
+    { &hf_mtp3_ansi_8_bit_sls,
+      { "Signalling Link Selector", "mtp3.sls",
+	      FT_UINT8, BASE_DEC, NULL, ANSI_8BIT_SLS_MASK,
 	      "", HFILL }}
   };
 
@@ -355,16 +393,31 @@ proto_register_mtp3(void)
   };
 
   /* Register the protocol name and description */
-  proto_mtp3 = proto_register_protocol("Message Transfer Part Level 3", "MTP3", "mtp3");
+  proto_mtp3 = proto_register_protocol("Message Transfer Part Level 3",
+				       "MTP3", "mtp3");
   register_dissector("mtp3", dissect_mtp3, proto_mtp3);
 
   /* Required function calls to register the header fields and subtrees used */
   proto_register_field_array(proto_mtp3, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
-  mtp3_sio_dissector_table = register_dissector_table("mtp3.service_indicator", "MTP3 Service indicator", FT_UINT8, BASE_HEX);
+  mtp3_sio_dissector_table = register_dissector_table("mtp3.service_indicator",
+						      "MTP3 Service indicator",
+						      FT_UINT8, BASE_HEX);
+
   mtp3_module = prefs_register_protocol(proto_mtp3, NULL);
-  prefs_register_enum_preference(mtp3_module, "mtp3_standard", "MTP3 standard", "MTP3 standard",  (gint *)&mtp3_standard, mtp3_options, FALSE);
+
+  /* Version 1.5 to 1.11 of this module used "mtp3_standard" */
+  prefs_register_obsolete_preference(mtp3_module, "mtp3_standard");
+
+  prefs_register_enum_preference(mtp3_module, "standard", "MTP3 standard",
+				 "The SS7 standard used in MTP3 packets",
+				 (gint *)&mtp3_standard, mtp3_options, FALSE);
+
+  prefs_register_bool_preference(mtp3_module, "ansi_5_bit_sls",
+				 "Use 5-bit SLS (ANSI only)",
+				 "Use 5-bit (instead of 8-bit) SLS in ANSI MTP3 packets",
+				 &mtp3_use_ansi_5_bit_sls);
 }
 
 void
