@@ -41,7 +41,8 @@ void h323_analysis(
 		guint32 ip_dst,  /* network-order IPv4 address */
 		guint16 port_dst,
 		guint32 ip_src_h245,  /* network-order IPv4 address */
-		guint16 port_src_h245
+		guint16 port_src_h245,
+		guint16 transport
 		);
 
 #endif /* H323_ANALYSIS_H_INCLUDED*/

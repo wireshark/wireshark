@@ -69,6 +69,7 @@ typedef struct _user_data_t {
         guint16 port_dst;
         guint32 ip_src_h245;
         guint16 port_src_h245;
+        guint16 transport;
 
 	GtkWidget *window;
 	GtkCList *clist1;
@@ -352,14 +353,18 @@ static void on_refresh_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data _U_)
 
         /* try to compile the filter for h225 */
 	g_snprintf(filter_text_h225,sizeof(filter_text_h225),
-        "h225 && (( ip.src==%s && tcp.srcport==%u && ip.dst==%s && tcp.dstport==%u ) || ( ip.src==%s && tcp.srcport==%u && ip.dst==%s && tcp.dstport==%u ))",
+        "h225 && (( ip.src==%s && %s.srcport==%u && ip.dst==%s && %s.dstport==%u ) || ( ip.src==%s && %s.srcport==%u && ip.dst==%s && %s.dstport==%u ))",
                 ip_to_str((ip_addr_p)&(user_data->ip_src)),
+				transport_prot_name[user_data->transport],
                 user_data->port_src,
                 ip_to_str((ip_addr_p)&(user_data->ip_dst)),
+				transport_prot_name[user_data->transport],
                 user_data->port_dst,
                 ip_to_str((ip_addr_p)&(user_data->ip_dst)),
+				transport_prot_name[user_data->transport],
                 user_data->port_dst,
                 ip_to_str((ip_addr_p)&(user_data->ip_src)),
+				transport_prot_name[user_data->transport],
                 user_data->port_src
                 );
 
@@ -370,10 +375,12 @@ static void on_refresh_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data _U_)
 
         /* try to compile the filter for h245 */
 	g_snprintf(filter_text_h245,sizeof(filter_text_h245), 
-        "h245 && (( ip.src==%s && tcp.srcport==%u ) || ( ip.dst==%s && tcp.dstport==%u ))",
+        "h245 && (( ip.src==%s && %s.srcport==%u ) || ( ip.dst==%s && %s.dstport==%u ))",
                 ip_to_str((ip_addr_p)&(user_data->ip_src_h245)),
+				transport_prot_name[user_data->transport],
                 user_data->port_src_h245,
                 ip_to_str((ip_addr_p)&(user_data->ip_src_h245)),
+				transport_prot_name[user_data->transport],
                 user_data->port_src_h245
                 );
 
@@ -530,7 +537,8 @@ void h323_analysis(
                 guint32 ip_dst,
                 guint16 port_dst,
                 guint32 ip_src_h245,
-                guint16 port_src_h245
+                guint16 port_src_h245,
+                guint16 transport
                 )
 {
         user_data_t *user_data;
@@ -544,6 +552,7 @@ void h323_analysis(
         user_data->port_dst = port_dst;
         user_data->ip_src_h245 = ip_src_h245;
         user_data->port_src_h245 = port_src_h245;
+        user_data->transport = transport;
 
 	/* create the dialog box */
         create_h225_dialog(user_data);

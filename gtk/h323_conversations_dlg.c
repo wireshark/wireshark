@@ -181,21 +181,26 @@ h323conversations_on_filter                    (GtkButton       *button _U_,
 	/* if also address for h245 packets is known */
 	else if (selected_conversations_fwd->is_h245) {
 		filter_string_fwd = g_strdup_printf(
-				"((ip.addr==%s && tcp.port==%u && ip.addr==%s && tcp.port==%u) and h225) or ((ip.addr==%s && tcp.port==%u) and h245)",
+				"((ip.addr==%s && %s.port==%u && ip.addr==%s && %s.port==%u) and h225) or ((ip.addr==%s && %s.port==%u) and h245)",
 				ip_to_str((const guint8*)&(selected_conversations_fwd->src_addr)),
+				transport_prot_name[selected_conversations_fwd->transport],
 				selected_conversations_fwd->src_port,
 				ip_to_str((const guint8*)&(selected_conversations_fwd->dest_addr)),
+				transport_prot_name[selected_conversations_fwd->transport],
 				selected_conversations_fwd->dest_port,
 				ip_to_str((const guint8*)&(selected_conversations_fwd->h245address)),
+				transport_prot_name[selected_conversations_fwd->transport],
 				selected_conversations_fwd->h245port);
 	}
 	/* else filter only h225 packets */
 	else {
 		filter_string_fwd = g_strdup_printf(
-				"(ip.addr==%s && tcp.port==%u && ip.addr==%s && tcp.port==%u) and h225",
+				"(ip.addr==%s && %s.port==%u && ip.addr==%s && %s.port==%u) and h225",
 				ip_to_str((const guint8*)&(selected_conversations_fwd->src_addr)),
+				transport_prot_name[selected_conversations_fwd->transport],
 				selected_conversations_fwd->src_port,
 				ip_to_str((const guint8*)&(selected_conversations_fwd->dest_addr)),
+				transport_prot_name[selected_conversations_fwd->transport],
 				selected_conversations_fwd->dest_port);
 	}
 
@@ -221,6 +226,7 @@ h323conversations_on_analyse                   (GtkButton       *button _U_,
         guint16 port_dst = 0;
         guint32 ip_src_h245 = 0;
         guint16 port_src_h245 = 0;
+        guint16 transport=0;
 
 	if (selected_conversations_fwd) {
 		ip_src = selected_conversations_fwd->src_addr;
@@ -229,6 +235,7 @@ h323conversations_on_analyse                   (GtkButton       *button _U_,
 		port_dst = selected_conversations_fwd->dest_port;
 		ip_src_h245 = selected_conversations_fwd->h245address;
 		port_src_h245 = selected_conversations_fwd->h245port;
+		transport = selected_conversations_fwd->transport;
 	}
 
    	h323_analysis(
@@ -237,7 +244,8 @@ h323conversations_on_analyse                   (GtkButton       *button _U_,
                 ip_dst,
                 port_dst,
                 ip_src_h245,
-                port_src_h245
+                port_src_h245,
+                transport
                 );
 }
 

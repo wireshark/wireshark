@@ -75,12 +75,14 @@ gint h323_conversations_info_cmp(gconstpointer aa, gconstpointer bb)
 		&& (a->src_port == b->src_port)
 		&& (a->dest_addr == b->dest_addr)
 		&& (a->dest_port == b->dest_port)
+		&& (a->transport == b->transport)
 		)
 		return 0;
 	else if ((a->src_addr == b->dest_addr)
 		&& (a->src_port == b->dest_port)
 		&& (a->dest_addr == b->src_addr)
 		&& (a->dest_port == b->src_port)
+		&& (a->transport == b->transport)
 		)
 		return 0;
 	else
@@ -146,6 +148,8 @@ int h225conversations_packet(h323conversations_tapinfo_t *tapinfo _U_, packet_in
 	tmp_strinfo.src_port = pinfo->srcport;
 	g_memmove(&(tmp_strinfo.dest_addr), pinfo->dst.data, 4);
 	tmp_strinfo.dest_port = pinfo->destport;
+	tmp_strinfo.transport = pinfo->ipproto;
+
 
 		/* check wether we already have a conversations with these parameters in the list */
 		list = g_list_first(tapinfo->strinfo_list);
@@ -311,6 +315,7 @@ int h245conversations_packet(h323conversations_tapinfo_t *tapinfo _U_, packet_in
 	struct _h323_conversations_info* a;
 	guint32 src, dst;
 	guint16 srcp, dstp;
+	guint16 p_transport;
 
 	/* check wether this packet is a part of any H323 conversation in the list*/
 	list = g_list_first(tapinfo->strinfo_list);
@@ -323,8 +328,9 @@ int h245conversations_packet(h323conversations_tapinfo_t *tapinfo _U_, packet_in
 		//dst = *(pinfo->dst.data);
 		srcp = pinfo->srcport;
 		dstp = pinfo->destport;
-		if ( ((a->h245address == src) && (a->h245port == srcp) ) ||
-				( (a->h245address == dst) && (a->h245port == dstp)) ) {
+		p_transport = pinfo->ipproto;
+		if ( ((a->h245address == src) && (a->h245port == srcp) && (a->transport == p_transport)) ||
+				( (a->h245address == dst) && (a->h245port == dstp) && (a->transport == p_transport)) ) {
 				/* in the list? increment packet number */
 				++(a->h245packets);
 			break;
