@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.361 2004/02/11 02:02:38 guy Exp $
+ * $Id: file.c,v 1.362 2004/02/17 17:48:44 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2589,6 +2589,11 @@ cf_save(char *fname, capture_file *cf, packet_range_t *range, guint save_format)
    * Unfortunately, the file requester gives us an absolute file
    * name and the read file name may be relative (if supplied on
    * the command line). From Joerg Mayer.
+   *
+   * This is a bit tricky on win32. The st_ino field is documented as:
+   * "The inode, and therefore st_ino, has no meaning in the FAT, ..."
+   * but it *is* set to zero if stat() returns without an error,
+   * so this is working, but maybe not quite the way expected. ULFL
    */
    infile.st_ino = 1;   /* These prevent us from getting equality         */
    outfile.st_ino = 2;  /* If one or other of the files is not accessible */
@@ -2596,8 +2601,9 @@ cf_save(char *fname, capture_file *cf, packet_range_t *range, guint save_format)
    stat(fname, &outfile);
    if (infile.st_ino == outfile.st_ino) {
     simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-		      "Can't save over current capture file: %s!",
-		      cf->filename);
+      "%sCapture file: \"%s\" already exists!%s\n\n"
+      "Please choose a different filename.",
+      simple_dialog_primary_start(), fname, simple_dialog_primary_end());
     goto fail;
   }
 
@@ -2672,8 +2678,8 @@ cf_save(char *fname, capture_file *cf, packet_range_t *range, guint save_format)
        it means we can no longer get at the other packets.  What does
        NetMon do? */
 
-    /* Iterate through the list of packets, printing the packets we were
-       told to print.
+    /* Iterate through the list of packets, processing the packets we were
+       told to process.
 
        XXX - we've already called "packet_range_process_init(range)", but
        "process_specified_packets()" will do it again.  Fortunately,
@@ -2709,9 +2715,7 @@ cf_save(char *fname, capture_file *cf, packet_range_t *range, guint save_format)
   /* Pop the "Saving:" message off the status bar. */
   statusbar_pop_file_msg();
 
-  /* XXX: I'm not sure how this should look like! */
   if (packet_range_process_all(range)) {
-  /*if (!save_filtered && !save_marked) {*/
     /* We saved the entire capture, not just some packets from it.
        Open and read the file we saved it to.
 
