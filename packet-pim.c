@@ -2,7 +2,7 @@
  * Routines for PIM disassembly
  * (c) Copyright Jun-ichiro itojun Hagino <itojun@itojun.org>
  *
- * $Id: packet-pim.c,v 1.47 2003/12/12 21:17:54 guy Exp $
+ * $Id: packet-pim.c,v 1.48 2004/07/06 19:44:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -807,10 +807,15 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 		case 65001: /* address list (old implementations) */
 		{
 			int i;
-			proto_tree_add_text(pimopt_tree, tvb, offset, 4 + opt_len, 
+			proto_tree *sub_tree = NULL;
+			proto_item *addrlist_option;
+
+			addrlist_option = proto_tree_add_text(pimopt_tree, tvb, offset, 4 + opt_len,
 					    "%sAddress List (%u)",
 					    hello_opt == 65001 ? "old " : "",
                                             hello_opt);
+			sub_tree = proto_item_add_subtree(addrlist_option, ett_pim);
+
 			for (i = offset + 4; i < offset + 4 + opt_len; ) {
 				int advance;
 				const char *s;
@@ -818,10 +823,11 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 				s = dissect_pim_addr(tvb, i, pimv2_unicast, &advance);
 				if (s == NULL)
 					break;
-				proto_tree_add_text(pimopt_tree, tvb, offset, 
+				proto_tree_add_text(sub_tree, tvb, offset, 
 						    advance, "Address: %s", s);
 				i += advance;
 			}
+			break;
 		}
 		default:
 			proto_tree_add_text(pimopt_tree, tvb, offset, 4 + opt_len,
