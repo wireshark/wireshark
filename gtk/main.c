@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.191 2001/04/10 12:07:39 gram Exp $
+ * $Id: main.c,v 1.192 2001/04/13 14:59:30 jfoster Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -136,6 +136,7 @@
 #include "colors.h"
 #include "strutil.h"
 #include "register.h"
+#include "prefs.h"
 
 #ifdef WIN32
 #include "capture-wpcap.h"
@@ -519,11 +520,11 @@ void expand_all_cb(GtkWidget *widget, gpointer data) {
 
 void resolve_name_cb(GtkWidget *widget, gpointer data) {
   if (cfile.protocol_tree) {
-    int tmp = g_resolving_actif;
-    g_resolving_actif = 1;
+    int tmp = prefs.capture_name_resolve;
+    prefs.capture_name_resolve = 1;
     gtk_clist_clear ( GTK_CLIST(tree_view) );
     proto_tree_draw(cfile.protocol_tree, tree_view);
-    g_resolving_actif = tmp;
+    prefs.capture_name_resolve = tmp;
   }
 }
 
@@ -987,7 +988,7 @@ main(int argc, char *argv[])
 	prefs->gui_font_name = g_strdup(optarg);
 	break;
       case 'n':        /* No name resolution */
-	g_resolving_actif = 0;
+	prefs->capture_name_resolve = 0;
 	break;
       case 'o':        /* Override preference from command line */
         switch (prefs_set_pref(optarg)) {
@@ -1006,7 +1007,7 @@ main(int argc, char *argv[])
         break;
       case 'p':        /* Don't capture in promiscuous mode */
 #ifdef HAVE_LIBPCAP
-	promisc_mode = 0;
+	prefs->capture_prom_mode = 0;
 #else
         capture_option_specified = TRUE;
         arg_error = TRUE;
@@ -1043,7 +1044,7 @@ main(int argc, char *argv[])
         break;
       case 'S':        /* "Sync" mode: used for following file ala tail -f */
 #ifdef HAVE_LIBPCAP
-        sync_mode = TRUE;
+        prefs->capture_auto_scroll = TRUE;
 #else
         capture_option_specified = TRUE;
         arg_error = TRUE;

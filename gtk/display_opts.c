@@ -1,7 +1,7 @@
 /* display_opts.c
  * Routines for packet display windows
  *
- * $Id: display_opts.c,v 1.18 2000/11/01 08:31:35 guy Exp $
+ * $Id: display_opts.c,v 1.19 2001/04/13 14:59:30 jfoster Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -60,6 +60,7 @@
 #include "display_opts.h"
 #include "ui_util.h"
 #include "dlg_utils.h"
+#include "prefs.h"
 
 extern capture_file  cfile;
 extern GtkWidget *packet_list;
@@ -170,7 +171,7 @@ display_opt_cb(GtkWidget *w, gpointer d) {
 
   button = dlg_check_button_new_with_label_with_mnemonic(
 		"_Automatic scrolling in live capture", accel_group);
-  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(button), auto_scroll_live);
+  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(button), prefs.capture_auto_scroll);
   gtk_object_set_data(GTK_OBJECT(display_opt_w), E_DISPLAY_AUTO_SCROLL_KEY,
 		      button);
   gtk_box_pack_start(GTK_BOX(main_vb), button, TRUE, TRUE, 0);
@@ -178,7 +179,7 @@ display_opt_cb(GtkWidget *w, gpointer d) {
 
   button = dlg_check_button_new_with_label_with_mnemonic(
   		"Enable _name resolution", accel_group);
-  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(button), g_resolving_actif);
+  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(button), prefs.capture_name_resolve);
   gtk_object_set_data(GTK_OBJECT(display_opt_w), E_DISPLAY_NAME_RESOLUTION_KEY,
 		      button);
   gtk_box_pack_start(GTK_BOX(main_vb), button, TRUE, TRUE, 0);
@@ -264,11 +265,11 @@ get_display_options(GtkWidget *parent_w)
 
   button = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w),
 					     E_DISPLAY_AUTO_SCROLL_KEY);
-  auto_scroll_live = (GTK_TOGGLE_BUTTON (button)->active);
+  prefs.capture_auto_scroll = (GTK_TOGGLE_BUTTON (button)->active);
 
   button = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w),
 					     E_DISPLAY_NAME_RESOLUTION_KEY);
-  g_resolving_actif = (GTK_TOGGLE_BUTTON (button)->active);
+  prefs.capture_name_resolve = (GTK_TOGGLE_BUTTON (button)->active);
 
 }
 

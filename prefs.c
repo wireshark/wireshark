@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.48 2001/04/02 09:53:42 guy Exp $
+ * $Id: prefs.c,v 1.49 2001/04/13 14:59:28 jfoster Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -611,6 +611,12 @@ read_prefs(int *gpf_errno_return, char **gpf_path_return,
     prefs.gui_marked_bg.green =     0;
     prefs.gui_marked_bg.blue  =     0;
 
+/* set the default values for the capture dialog box */
+    prefs.capture_prom_mode   =     0;
+    prefs.capture_real_time   =     0;
+    prefs.capture_auto_scroll =     0;
+    prefs.capture_name_resolve=     1;
+
   }
 
   /* Read the global preferences file, if it exists. */
@@ -845,6 +851,12 @@ prefs_set_pref(char *prefarg)
 #define PRS_GUI_MARKED_FG "gui.marked_frame.fg"
 #define PRS_GUI_MARKED_BG "gui.marked_frame.bg"
 
+/*  values for the capture dialog box */
+#define PRS_CAP_REAL_TIME "capture.real_time_update"
+#define PRS_CAP_PROM_MODE "capture.prom_mode"
+#define PRS_CAP_AUTO_SCROLL "capture.auto_scroll"
+#define PRS_CAP_NAME_RESOLVE "capture.name_resolve"
+
 #define RED_COMPONENT(x)   ((((x) >> 16) & 0xff) * 65535 / 255)
 #define GREEN_COMPONENT(x) ((((x) >>  8) & 0xff) * 65535 / 255)
 #define BLUE_COMPONENT(x)   (((x)        & 0xff) * 65535 / 255)
@@ -977,6 +989,20 @@ set_pref(gchar *pref_name, gchar *value)
     prefs.gui_marked_bg.red   = RED_COMPONENT(cval);
     prefs.gui_marked_bg.green = GREEN_COMPONENT(cval);
     prefs.gui_marked_bg.blue  = BLUE_COMPONENT(cval);
+
+/* handle the capture options */ 
+  } else if (strcmp(pref_name, PRS_CAP_PROM_MODE) == 0) {
+    prefs.capture_prom_mode = ((strcmp(value, "TRUE") == 0)?TRUE:FALSE); 
+ 
+  } else if (strcmp(pref_name, PRS_CAP_REAL_TIME) == 0) {
+    prefs.capture_real_time = ((strcmp(value, "TRUE") == 0)?TRUE:FALSE); 
+
+  } else if (strcmp(pref_name, PRS_CAP_AUTO_SCROLL) == 0) {
+    prefs.capture_auto_scroll = ((strcmp(value, "TRUE") == 0)?TRUE:FALSE); 
+ 
+  } else if (strcmp(pref_name, PRS_CAP_NAME_RESOLVE) == 0) {
+    prefs.capture_name_resolve = ((strcmp(value, "TRUE") == 0)?TRUE:FALSE); 
+
   } else {
     /* To which module does this preference belong? */
     dotp = strchr(pref_name, '.');
@@ -1301,6 +1327,23 @@ write_prefs(char **pf_path_return)
     (prefs.gui_marked_bg.green * 255 / 65535),
     (prefs.gui_marked_bg.blue * 255 / 65535));
 
+/* write the capture options */
+  fprintf(pf, "\n# Capture in promiscuous mode? TRUE/FALSE\n");
+  fprintf(pf, PRS_CAP_PROM_MODE ": %s\n",
+		  prefs.capture_prom_mode == TRUE ? "TRUE" : "FALSE");
+
+  fprintf(pf, "\n# Update packet list in real time during capture? TRUE/FALSE\n");
+  fprintf(pf, PRS_CAP_REAL_TIME ": %s\n",
+		  prefs.capture_real_time == TRUE ? "TRUE" : "FALSE");
+
+  fprintf(pf, "\n# scroll packet list during capture? TRUE/FALSE\n");
+  fprintf(pf, PRS_CAP_AUTO_SCROLL ": %s\n",
+		  prefs.capture_auto_scroll == TRUE ? "TRUE" : "FALSE");
+
+  fprintf(pf, "\n# resolve names  during capture? TRUE/FALSE\n");
+  fprintf(pf, PRS_CAP_NAME_RESOLVE ": %s\n",
+		  prefs.capture_name_resolve == TRUE ? "TRUE" : "FALSE");
+
   g_list_foreach(modules, write_module_prefs, pf);
 
   fclose(pf);
@@ -1345,6 +1388,12 @@ copy_prefs(e_prefs *dest, e_prefs *src)
   dest->gui_font_name = g_strdup(src->gui_font_name);
   dest->gui_marked_fg = src->gui_marked_fg;
   dest->gui_marked_bg = src->gui_marked_bg;
+/*  values for the capture dialog box */
+  dest->capture_prom_mode = src->capture_prom_mode;
+  dest->capture_real_time = src->capture_real_time;
+  dest->capture_auto_scroll = src->capture_auto_scroll;
+  dest->capture_name_resolve = src->capture_name_resolve;
+
 }
 
 /* Free a set of preferences. */

@@ -1,7 +1,7 @@
 /* capture_dlg.c
  * Routines for packet capture windows
  *
- * $Id: capture_dlg.c,v 1.39 2001/04/05 05:58:05 gram Exp $
+ * $Id: capture_dlg.c,v 1.40 2001/04/13 14:59:30 jfoster Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -57,6 +57,7 @@
 #include "simple_dialog.h"
 #include "dlg_utils.h"
 #include "util.h"
+#include "prefs.h"
 
 #ifdef _WIN32
 #include "capture-wpcap.h"
@@ -259,25 +260,25 @@ capture_prep_cb(GtkWidget *w, gpointer d)
   
   promisc_cb = dlg_check_button_new_with_label_with_mnemonic(
 		"Capture packets in _promiscuous mode", accel_group);
-  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(promisc_cb), promisc_mode);
+  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(promisc_cb), prefs.capture_prom_mode);
   gtk_container_add(GTK_CONTAINER(main_vb), promisc_cb);
   gtk_widget_show(promisc_cb);
 
   sync_cb = dlg_check_button_new_with_label_with_mnemonic(
 		"_Update list of packets in real time", accel_group);
-  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(sync_cb), sync_mode);
+  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(sync_cb), prefs.capture_real_time);
   gtk_container_add(GTK_CONTAINER(main_vb), sync_cb);
   gtk_widget_show(sync_cb);
 
   auto_scroll_cb = dlg_check_button_new_with_label_with_mnemonic(
 		"_Automatic scrolling in live capture", accel_group);
-  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(auto_scroll_cb), auto_scroll_live);
+  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(auto_scroll_cb), prefs.capture_auto_scroll);
   gtk_container_add(GTK_CONTAINER(main_vb), auto_scroll_cb);
   gtk_widget_show(auto_scroll_cb);
 
   resolv_cb = dlg_check_button_new_with_label_with_mnemonic(
 		"Enable _name resolution", accel_group);
-  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(resolv_cb), g_resolving_actif);
+  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(resolv_cb), prefs.capture_name_resolve);
   gtk_container_add(GTK_CONTAINER(main_vb), resolv_cb);
   gtk_widget_show(resolv_cb);
   
@@ -495,13 +496,13 @@ capture_prep_ok_cb(GtkWidget *ok_bt, gpointer parent_w) {
   else if (cfile.snap < MIN_PACKET_SIZE)
     cfile.snap = MIN_PACKET_SIZE;
 
-  promisc_mode = GTK_TOGGLE_BUTTON (promisc_cb)->active;
+  prefs.capture_prom_mode = GTK_TOGGLE_BUTTON (promisc_cb)->active;
 
-  sync_mode = GTK_TOGGLE_BUTTON (sync_cb)->active;
+  prefs.capture_real_time = GTK_TOGGLE_BUTTON (sync_cb)->active;
 
-  auto_scroll_live = GTK_TOGGLE_BUTTON (auto_scroll_cb)->active;
+  prefs.capture_auto_scroll = GTK_TOGGLE_BUTTON (auto_scroll_cb)->active;
 
-  g_resolving_actif = GTK_TOGGLE_BUTTON (resolv_cb)->active;
+  prefs.capture_name_resolve = GTK_TOGGLE_BUTTON (resolv_cb)->active;
 
   gtk_widget_destroy(GTK_WIDGET(parent_w));
 

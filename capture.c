@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.147 2001/04/11 05:24:08 guy Exp $
+ * $Id: capture.c,v 1.148 2001/04/13 14:59:28 jfoster Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -160,8 +160,6 @@
 #include "packet-ieee80211.h"
 #include "packet-chdlc.h"
 
-int promisc_mode = TRUE; /* capture in promiscuous mode */
-int sync_mode;	/* fork a child to do the capture, and sync between them */
 static int sync_pipe[2]; /* used to sync father */
 enum PIPES { READ, WRITE }; /* Constants 0 and 1 for READ and WRITE */
 int quit_after_cap; /* Makes a "capture only mode". Implies -k */
@@ -305,7 +303,7 @@ do_capture(char *capfile_name)
   g_assert(cfile.save_file == NULL);
   cfile.save_file = capfile_name;
 
-  if (sync_mode) {	/* do the capture in a child process */
+  if (prefs.capture_auto_scroll) {	/* do the capture in a child process */
     char ssnap[24];
     char scount[24];	/* need a constant for len of numbers */
     char save_file_fd[24];
@@ -346,7 +344,7 @@ do_capture(char *capfile_name)
     sprintf(ssnap,"%d",cfile.snap);
     argv = add_arg(argv, &argc, ssnap);
 
-    if (!promisc_mode)
+    if (!prefs.capture_prom_mode)
       argv = add_arg(argv, &argc, "-p");
 
 #ifdef _WIN32
@@ -1283,7 +1281,7 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
   *stats_known      = FALSE;
 
   /* Open the network interface to capture from it. */
-  pch = pcap_open_live(cfile.iface, cfile.snap, promisc_mode,
+  pch = pcap_open_live(cfile.iface, cfile.snap, prefs.capture_prom_mode,
 			CAP_READ_TIMEOUT, err_str);
 
   if (pch == NULL) {
