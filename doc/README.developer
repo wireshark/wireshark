@@ -55,16 +55,29 @@ long on many platforms.  Use "gint32" for signed 32-bit integers and use
 
 Don't use "long" to mean "signed 64-bit integer" and don't use "unsigned
 long" to mean "unsigned 64-bit integer"; "long"s are 32 bits long on
-other many platforms.  Also don't use "long long" or "unsigned long
-long", as not all platforms support them; use "gint64" or "guint64",
+other many platforms.  Don't use "long long" or "unsigned long long",
+either, as not all platforms support them; use "gint64" or "guint64",
 which will be defined as the appropriate types for 64-bit signed and
-unsigned integers.  Also, don't assume you can use "%lld", "%llu",
-"%llx", or "%llo" to print 64-bit integral data types - not all
-platforms support "%ll" for printing them.  Instead, use PRId64, PRIu64,
-PRIx64, and PRIo64, for example
+unsigned integers.
+
+When printing or displaying the values of 64-bit integral data types,
+don't assume use "%lld", "%llu", "%llx", or "%llo" - not all platforms
+support "%ll" for printing 64-bit integral data types.  Instead, use
+PRId64, PRIu64, PRIx64, and PRIo64, for example
 
     proto_tree_add_text(tree, tvb, offset, 8,
 			"Sequence Number: %" PRIu64, sequence_number);
+
+When specifying an integral constant that doesn't fit in 32 bits, don't
+use "LL" at the end of the constant - not all compilers use "LL" for
+that.  Instead, put the constant in a call to the "G_GINT64_CONSTANT()"
+macro, e.g.
+
+	G_GINT64_CONSTANT(11644473600U)
+
+rather than
+
+	11644473600ULL
 
 Don't use a label without a statement following it.  For example,
 something such as
