@@ -2,10 +2,10 @@
  * Routines for Message Transfer Part Level 3 dissection
  * Copyright 2001, Michael Tuexen <Michael.Tuexen@icn.siemens.de>
  *
- * $Id: packet-mtp3.c,v 1.1 2001/05/24 08:13:56 guy Exp $
+ * $Id: packet-mtp3.c,v 1.2 2001/05/25 16:19:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@unicom.net>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
  * Copied from README.developer
