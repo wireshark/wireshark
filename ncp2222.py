@@ -9,7 +9,18 @@ part of the 0x2222 "family")
 Data comes from "Programmer's Guide to the NetWare Core Protocol"
 by Steve Conner and Dianne Conner.
 
-$Id: ncp2222.py,v 1.5 2000/08/30 02:50:00 gram Exp $
+Novell provides info at:
+
+http://developer.novell.com/ndk  (where you can download an *.exe file which
+installs a PDF)
+
+or
+
+http://developer.novell.com/ndk/doc/docui/index.htm#../ncp/ncp__enu/data/
+for a badly-formatted HTML version of the same PDF.
+
+
+$Id: ncp2222.py,v 1.6 2000/09/06 04:50:51 gram Exp $
 
 Copyright (c) 2000 by Gilbert Ramirez <gram@xiexie.org>
 
@@ -132,24 +143,43 @@ class PTVC(NamedList):
 		self.list = []
 		NamedList.__init__(self, name, self.list)
 
+		expected_offset = None
+
 		# Make a PTVCRecord object for each list in 'records'
 		for record in records:
 			ptvc_rec = PTVCRecord(record)
-	
+
+			if expected_offset == None:
+				expected_offset = ptvc_rec.Offset()
+
+			elif expected_offset == -1:
+				pass
+
+			elif expected_offset != ptvc_rec.Offset():
+				sys.stderr.write("Expected offset in %s to be %d\n" % (name,
+					expected_offset))
+				sys.exit(1)
+
 			# We can't make a PTVC list from a variable-length
-			# packet. XXX - unless it's FT_UINT_STRING
-#			if type(ptvc_rec.Length()) == type(()):
-#				if ptvc_rec.Field() == nstring8:
-#					pass
-#				else:
-#					self.list = None
-#					return
+			# packet, unless it's FT_UINT_STRING
+			if type(ptvc_rec.Length()) == type(()):
+				if isinstance(ptvc_rec.Field(), nstring8):
+					expected_offset = -1
+					pass
+				else:
+					self.list = None
+					return
+
+			elif expected_offset > -1:
+				expected_offset = expected_offset + ptvc_rec.Length()
+
 
 			self.list.append(ptvc_rec)
 
 class PTVCRecord:
 	def __init__(self, record):
 		"Constructor"
+		self.offset	= record[0]
 		self.length	= record[1]
 		self.field	= record[2]
 
@@ -211,6 +241,8 @@ class PTVCRecord:
 			return "{ &%s, %s, %s }" % (self.field.HFName(),
 					length, endianness)
 
+	def Offset(self):
+		return self.offset
 
 	def Length(self):
 		return self.length
@@ -962,7 +994,9 @@ errors[0xff18] = "The file already exists"
 errors[0xff19] = "No files found"
 
 ##############################################################################
-# NCP Packets
+# NCP Packets. Here I list functions and subfunctions in hexadecimal like the
+# NCP book (and I believe LanAlyzer does this too).
+# However, Novell lists these in decimal in their on-line documentation.
 ##############################################################################
 # 2222/02
 pkt = NCP(0x02, "File Release Lock", 'sync')
@@ -1077,7 +1111,7 @@ pkt = NCP(0x1737, "Scan Bindery Object", 'bindery')
 pkt.Request((17,64), [
 	[ 10, 4, ObjectID ],
 	[ 14, 2, ObjectType ],
-	[ 12, (1,48), ObjectName ],
+	[ 16, (1,48), ObjectName ],
 ])
 pkt.Reply(65, [
 	[ 8, 4, ObjectID ],
