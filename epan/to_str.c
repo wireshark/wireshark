@@ -141,7 +141,7 @@ ether_to_str(const guint8 *ad)
 gchar *
 ip_to_str(const guint8 *ad) {
   static gchar  str[4][16];
-  static int   cur_idx=0;
+  static guint32   cur_idx=0;
   gchar *cur;
 
   cur_idx++;
@@ -197,34 +197,33 @@ ip_to_str_buf(const guint8 *ad, gchar *buf)
 {
 	register gchar const *p;
 	register gchar *b=buf;
-	register gchar c;
 
 	p=fast_strings[*ad++];
-	while((c=*p)){
-		*b++=c;
+	do {
+		*b++=*p;
 		p++;
-	}
+	} while(*p);
 	*b++='.';
 
 	p=fast_strings[*ad++];
-	while((c=*p)){
-		*b++=c;
+	do {
+		*b++=*p;
 		p++;
-	}
+	} while(*p);
 	*b++='.';
 
 	p=fast_strings[*ad++];
-	while((c=*p)){
-		*b++=c;
+	do {
+		*b++=*p;
 		p++;
-	}
+	} while(*p);
 	*b++='.';
 
-	p=fast_strings[*ad++];
-	while((c=*p)){
-		*b++=c;
+	p=fast_strings[*ad];
+	do {
+		*b++=*p;
 		p++;
-	}
+	} while(*p);
 	*b=0;
 }
 
