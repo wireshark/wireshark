@@ -87,3 +87,6 @@ give his permission to use his version of snprintf.c.
 
 Dan Lasley <dlasley@promus.com> gave permission for his dumpit() hex-dump
 routine to be used.
+
+Mattia Cazzola <mattiac@alinet.it> provided a patch to the hex dump
+display routine.

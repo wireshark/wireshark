@@ -26,6 +26,7 @@ Ethereal is known to compile and run on the following systems:
   - Linux (2.0.x, 2.1.x, 2.2.x)
   - Solaris (2.5.1, 2.6)
   - FreeBSD (2.2.5, 2.2.6)
+  - Sequent PTX v4.4.5  (Nick Williams <njw@sequent.com>)
 
 It should run on other systems without too much trouble.
 
@@ -91,3 +92,7 @@ Disclaimer
 
 There is no warranty, expressed or implied, associated with this product.
 Use at your own risk.
+
+
+Gerald Combs <gerald@zing.org>
+Gilbert Ramirez <gram@verdict.uthscsa.edu>
