@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.123 1999/11/25 18:02:05 gerald Exp $
+ * $Id: file.c,v 1.124 1999/11/29 01:40:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -466,7 +466,7 @@ cap_file_input_cb (gpointer data, gint source, GdkInputCondition condition) {
     cf->wth = NULL;
     set_menu_sensitivity("/File/Open...", TRUE);
     set_menu_sensitivity("/File/Close", TRUE);
-    set_menu_sensitivity("/File/Save As...", TRUE);
+    set_menu_sensitivity("/File/Save", TRUE);
     set_menu_sensitivity("/File/Print...", TRUE);
     set_menu_sensitivity("/File/Reload", TRUE);
     set_menu_sensitivity("/Capture/Start...", TRUE);
