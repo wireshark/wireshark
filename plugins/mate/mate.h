@@ -226,7 +226,8 @@ typedef struct _mate_config {
 	avpl_match_mode match_mode;
 	avpl_replace_mode replace_mode;
 	gboolean gop_as_subtree;
-
+	int hfid_mate;
+	
 	float gop_expiration;
 	float gop_idle_timeout;
 	float gop_lifetime;
@@ -338,7 +339,7 @@ extern mate_pdu* mate_get_pdus(guint32 framenum);
 extern void mate_analyze_frame(packet_info *pinfo, proto_tree* tree);
 
 /* from mate_setup.c */
-extern mate_config* mate_make_config(guint8* filename);
+extern mate_config* mate_make_config(guint8* filename, int mate_hfid);
 extern mate_config* mate_cfg(void);
 
 #endif

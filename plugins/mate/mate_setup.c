@@ -1594,7 +1594,7 @@ extern mate_config* mate_cfg() {
 	return matecfg;
 }
 
-extern mate_config* mate_make_config(guint8* filename) {
+extern mate_config* mate_make_config(guint8* filename, int mate_hfid) {
 	gint* ett;
 
 	avp_init();
@@ -1630,7 +1630,8 @@ extern mate_config* mate_make_config(guint8* filename) {
 	matecfg->hfrs = g_array_new(FALSE,TRUE,sizeof(hf_register_info));
 	matecfg->ett = g_array_new(FALSE,TRUE,sizeof(gint*));
 	matecfg->ett_root = -1;
-
+	matecfg->hfid_mate = mate_hfid;
+	
 	ett = &matecfg->ett_root;
 	g_array_append_val(matecfg->ett,ett);
 

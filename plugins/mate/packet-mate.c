@@ -231,7 +231,7 @@ extern void mate_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
 	if (( pdus = mate_get_pdus(pinfo->fd->num) )) {
 		for ( ; pdus; pdus = pdus->next_in_frame) {
-			mate_i = proto_tree_add_text(tree,tvb,0,0,"MATE");
+			mate_i = proto_tree_add_protocol_format(tree,mc->hfid_mate,tvb,0,0,"MATE");
 			mate_t = proto_item_add_subtree(mate_i, mc->ett_root);			
 			mate_pdu_tree(pdus,tvb,mate_t);
 		}
@@ -277,7 +277,7 @@ proto_reg_handoff_mate(void)
 		} 
 		
 		if (!mc) { 
-			mc = mate_make_config((char*)pref_mate_config_filename);
+			mc = mate_make_config((char*)pref_mate_config_filename,proto_mate);
 			current_mate_config_filename = pref_mate_config_filename;
 			if (mc) {
 				/* XXX: alignment warnings, what do they mean? */
