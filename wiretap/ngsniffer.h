@@ -1,6 +1,6 @@
 /* ngsniffer.h
  *
- * $Id: ngsniffer.h,v 1.4 1998/12/17 06:39:13 gram Exp $
+ * $Id: ngsniffer.h,v 1.5 1999/08/19 05:52:55 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -21,5 +21,4 @@
  *
  */
 
-int ngsniffer_open(wtap *wth);
-int ngsniffer_read(wtap *wth);
+int ngsniffer_open(wtap *wth, int *err);
