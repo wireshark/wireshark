@@ -1,6 +1,6 @@
-/* file.c
+/* file_io.c
  *
- * $Id: file.c,v 1.100 2003/07/29 19:42:01 guy Exp $
+ * $Id: file_io.c,v 1.1 2003/08/22 19:07:45 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
