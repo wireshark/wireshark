@@ -1,6 +1,6 @@
 /* netxray.c
  *
- * $Id: netxray.c,v 1.69 2003/01/07 01:11:34 guy Exp $
+ * $Id: netxray.c,v 1.70 2003/01/07 02:21:38 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -114,12 +114,7 @@ struct netxrayrec_2_x_hdr {
 	guint32	timehi;		/* upper 32 bits of time stamp */
 	guint16	orig_len;	/* packet length */
 	guint16	incl_len;	/* capture length */
-	guint8	xxx[28];	/* unknown */
-	/* For 802.11 captures, "xxx" data appears to include:
-	   the channel, in xxx[12];
-	   the data rate, in .5 Mb/s units, in xxx[13];
-	   the signal level, as a percentage, in xxx[14];
-	   0xff, in xxx[15]. */
+	guint8	xxx[28];	/* various data */
 };
 
 /*
@@ -579,16 +574,15 @@ netxray_set_pseudo_header(wtap *wth, union wtap_pseudo_header *pseudo_header,
 			/*
 			 * ISDN.
 			 *
-			 * XXX - there's a direction flag somewhere, but
-			 * in at least some captures the high-order bit
-			 * of byte 10 of "hdr.hdr_2_x.xxx" isn't it.
+			 * The bottommost bit of byte 12 of "hdr.hdr_2_x.xxx"
+			 * is the direction flag.
 			 *
 			 * The bottom 5 bits of byte 13 of "hdr.hdr_2_x.xxx"
 			 * are the channel number, but some mapping is
 			 * required for PRI.
 			 */
 			pseudo_header->isdn.uton =
-			    (hdr->hdr_2_x.xxx[10] & 0x80);
+			    (hdr->hdr_2_x.xxx[12] & 0x01);
 			pseudo_header->isdn.channel =
 			    hdr->hdr_2_x.xxx[13] & 0x1F;
 			switch (wth->capture.netxray->isdn_type) {
@@ -619,6 +613,18 @@ netxray_set_pseudo_header(wtap *wth, union wtap_pseudo_header *pseudo_header,
 					pseudo_header->isdn.channel -= 1;
 				break;
 			}
+			break;
+
+		case WTAP_ENCAP_LAPB:
+			/*
+			 * LAPB/X.25.
+			 *
+			 * The bottommost bit of byte 12 of "hdr.hdr_2_x.xxx"
+			 * is the direction flag.  (Probably true for other
+			 * HDLC encapsulations as well.)
+			 */
+			pseudo_header->x25.flags =
+			    (hdr->hdr_2_x.xxx[12] & 0x01) ? 0x00 : FROM_DCE;
 			break;
 
 		case WTAP_ENCAP_ATM_PDUS_UNTRUNCATED:
