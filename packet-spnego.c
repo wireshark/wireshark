@@ -60,6 +60,7 @@ static int hf_spnego = -1;
 static int hf_spnego_negtokeninit = -1;
 static int hf_spnego_negtokentarg = -1;
 static int hf_spnego_mechtype = -1;
+static int hf_spnego_negtokentarg_negresult = -1;
 
 static gint ett_spnego = -1;
 static gint ett_spnego_negtokeninit = -1;
@@ -69,6 +70,13 @@ static gint ett_spnego_mechtype = -1;
 /*
  * XXX: Fixme. This thould be made global ...
  */
+
+static const value_string spnego_negResult_vals[] = {
+  { SPNEGO_negResult_accept_completed,   "Accept Completed" },
+  { SPNEGO_negResult_accept_incomplete,  "Accept Incomplete" },
+  { SPNEGO_negResult_accept_reject,      "Accept Reject"},
+  { NULL, NULL}
+};
 
 /* Display an ASN1 parse error.  Taken from packet-snmp.c */
 
@@ -368,6 +376,71 @@ dissect_spnego_negTokenInit(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 }
 
 static int
+dissect_spnego_negResult(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
+			    proto_tree *tree, ASN1_SCK *hnd)
+{
+        gboolean def;
+	int ret;
+	guint len1, len, cls, con, tag, nbytes, val;
+
+	ret = asn1_header_decode(hnd, &cls, &con, &tag, &def, &len);
+
+	if (ret != ASN1_ERR_NOERROR) {
+	  dissect_parse_error(tvb, offset, pinfo, tree,
+			      "SPNEGO context header", ret);
+	  goto done;
+	}
+
+	if (!(cls == ASN1_UNI && con == ASN1_PRI && tag == ASN1_ENUM)) {
+	  proto_tree_add_text(
+			      tree, tvb, offset, 0,
+			      "Unknown header (cls=%d, con=%d, tag=%d) xxx",
+			      cls, con, tag);
+	  goto done;
+	}
+
+	offset = hnd->offset;
+
+	/* Now, get the value */
+
+	ret = asn1_uint32_value_decode(hnd, len, &val);
+
+	if (ret != ASN1_ERR_NOERROR) {
+	  dissect_parse_error(tvb, offset, pinfo, tree,
+			      "SPNEGO negResult value", ret);
+	  goto done;
+	}
+	
+	proto_tree_add_item(tree, hf_spnego_negtokentarg_negresult, tvb, 
+			    offset, 1, FALSE);
+
+	offset = hnd->offset;
+
+ done:
+	return offset;
+}
+
+static int
+dissect_spnego_supportedMech(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
+			     proto_tree *tree, ASN1_SCK *hnd,
+			     dissector_handle_t *handle)
+{
+
+
+  return offset;
+}
+
+static int
+dissect_spnego_responseToken(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
+			     proto_tree *tree, ASN1_SCK *hnd)
+{
+
+
+  return offset;
+}
+
+
+static int
 dissect_spnego_negTokenTarg(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 			    proto_tree *tree, ASN1_SCK *hnd)
 
@@ -377,8 +450,7 @@ dissect_spnego_negTokenTarg(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	gboolean def;
 	int ret;
 	guint len1, len, cls, con, tag, nbytes;
-	subid_t *oid;
-	gssapi_oid_value *value;
+	dissector_handle_t *handle = NULL;
 
 	int length = tvb_length_remaining(tvb, offset);
 
@@ -442,18 +514,27 @@ dissect_spnego_negTokenTarg(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 	  case SPNEGO_negResult:
 
+	    offset = dissect_spnego_negResult(tvb, offset, pinfo, subtree, 
+					      hnd);
 	    break;
 
 	  case SPNEGO_supportedMech:
+
+	    offset = dissect_spnego_supportedMech(tvb, offset, pinfo, subtree,
+						  hnd, &handle);
 
 	    break;
 
 	  case SPNEGO_responseToken:
 
+	    offset = dissect_spnego_responseToken(tvb, offset, pinfo, subtree,
+						  hnd);
 	    break;
 
 	  case SPNEGO_mechListMIC:
 
+	    offset = dissect_spnego_mechListMIC(tvb, offset, pinfo, subtree, 
+						hnd);
 	    break;
 
 	  default:
@@ -582,6 +663,9 @@ proto_register_spnego(void)
 		{ &hf_spnego_mechtype,
 		  { "mechType", "spnego.negtokeninit.mechtype", FT_NONE,
 		    BASE_NONE, NULL, 0x0, "SPNEGO negTokenInit mechTypes", HFILL}},
+		{ &hf_spnego_negtokentarg_negresult,
+		  { "negResult", "spnego.negtokeninit.negresult", FT_UINT16,
+		    BASE_HEX, VALS(spnego_negResult_vals), 0, "negResult", HFILL}},
 	};
 
 	static gint *ett[] = {
