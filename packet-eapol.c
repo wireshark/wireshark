@@ -3,7 +3,7 @@
  * (From IEEE Draft P802.1X/D11; is there a later draft, or a
  * final standard?  If so, check it.)
  *
- * $Id: packet-eapol.c,v 1.17 2004/03/28 00:26:13 guy Exp $
+ * $Id: packet-eapol.c,v 1.18 2004/03/30 19:15:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -80,6 +80,8 @@ static dissector_handle_t data_handle;
 #define EAPOL_KEY		3
 #define EAPOL_ENCAP_ASF_ALERT	4
 
+#define EAPOL_RSN_KEY		2 /* TBD, may change in final IEEE 802.1X-REV
+				   */
 #define EAPOL_WPA_KEY		254
 
 static const value_string eapol_type_vals[] = {
@@ -93,6 +95,7 @@ static const value_string eapol_type_vals[] = {
 
 static const value_string eapol_keydes_type_vals[] = {
 	{ 1, "RC4 Descriptor" },
+	{ EAPOL_RSN_KEY, "EAPOL RSN key" },
 	{ EAPOL_WPA_KEY, "EAPOL WPA key" },
 	{ 0, NULL }
 };
@@ -180,7 +183,7 @@ dissect_eapol(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       keydesc_type = tvb_get_guint8(tvb, offset);
       proto_tree_add_item(eapol_tree, hf_eapol_keydes_type, tvb, offset, 1, FALSE);
       offset += 1;
-      if (keydesc_type == EAPOL_WPA_KEY) {
+      if (keydesc_type == EAPOL_WPA_KEY || keydesc_type == EAPOL_RSN_KEY) {
 	keyinfo = tvb_get_ntohs(tvb, offset);
 	keyinfo_item = 
 	  proto_tree_add_uint(eapol_tree, hf_eapol_wpa_keydes_keyinfo, tvb,
