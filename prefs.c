@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.82 2002/05/11 18:58:02 guy Exp $
+ * $Id: prefs.c,v 1.83 2002/05/25 01:47:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -260,6 +260,10 @@ prefs_apply_all(void)
 
 /*
  * Register a preference in a module's list of preferences.
+ * If it has a title, give it an ordinal number; otherwise, it's a
+ * preference that won't show up in the UI, so it shouldn't get an
+ * ordinal number (the ordinal should be the ordinal in the set of
+ * *visible* preferences).
  */
 static pref_t *
 register_preference(module_t *module, const char *name, const char *title,
@@ -272,7 +276,10 @@ register_preference(module_t *module, const char *name, const char *title,
 	preference->name = name;
 	preference->title = title;
 	preference->description = description;
-	preference->ordinal = module->numprefs;
+	if (title != NULL)
+		preference->ordinal = module->numprefs;
+	else
+		preference->ordinal = -1;	/* no ordinal for you */
 
 	/*
 	 * Make sure that only lower-case ASCII letters, numbers,
@@ -301,7 +308,8 @@ register_preference(module_t *module, const char *name, const char *title,
 	 * preference.
 	 */
 	module->prefs = g_list_append(module->prefs, preference);
-	module->numprefs++;
+	if (title != NULL)
+		module->numprefs++;
 
 	return preference;
 }
