@@ -3,7 +3,7 @@
  *
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-http.c,v 1.14 2000/02/15 21:02:12 gram Exp $
+ * $Id: packet-http.c,v 1.15 2000/02/23 19:47:14 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -42,6 +42,12 @@
 #include "packet.h"
 #include "packet-ipp.h"
 
+typedef enum _http_type {
+  HTTP_REQUEST,
+  HTTP_RESPONSE,
+  HTTP_OTHERS
+} http_type_t;
+
 static int proto_http = -1;
 static int hf_http_response = -1;
 static int hf_http_request = -1;
@@ -50,7 +56,7 @@ static gint ett_http = -1;
 
 static proto_tree *http_tree;
 
-static int is_http_request_or_reply(const u_char *data, int linelen);
+static int is_http_request_or_reply(const u_char *data, int linelen, http_type_t *type);
 
 void dissect_http(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
@@ -60,6 +66,7 @@ void dissect_http(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 	const u_char	*linep, *lineend, *eol;
 	int		linelen;
 	u_char		c;
+	http_type_t     http_type = HTTP_OTHERS;
 
 	data = &pd[offset];
 	dataend = data + END_OF_FRAME;
@@ -74,7 +81,7 @@ void dissect_http(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 		 */
 		lineend = find_line_end(data, dataend, &eol);
 		linelen = lineend - data;
-		if (is_http_request_or_reply(data, linelen))
+		if (is_http_request_or_reply(data, linelen, &http_type))
 			col_add_str(fd, COL_INFO, format_text(data, linelen));
 		else
 			col_add_str(fd, COL_INFO, "Continuation");
@@ -95,7 +102,7 @@ void dissect_http(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 			 * OK, does it look like an HTTP request or
 			 * response?
 			 */
-			if (is_http_request_or_reply(data, linelen))
+			if (is_http_request_or_reply(data, linelen, &http_type))
 				goto is_http;
 
 			/*
@@ -175,6 +182,20 @@ void dissect_http(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 			data = lineend;
 		}
 
+		switch (http_type) {
+		  case HTTP_RESPONSE :
+		    proto_tree_add_item_hidden(http_tree, 
+					       hf_http_response, 0, 0, 1);
+		    break;
+		  case HTTP_REQUEST  :
+		    proto_tree_add_item_hidden(http_tree, 
+					       hf_http_request, 0, 0, 1);
+		    break;
+		  case HTTP_OTHERS   :
+		  default :
+		    break;
+		}
+
 		if (data < dataend) {
 			if (is_ipp)
 				dissect_ipp(pd, offset, fd, tree);
@@ -189,21 +210,21 @@ void dissect_http(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
  * anyway.
  */
 static int
-is_http_request_or_reply(const u_char *data, int linelen)
+is_http_request_or_reply(const u_char *data, int linelen, http_type_t *type)
 {
 	if (linelen >= 3) {
 		if (strncasecmp(data, "GET", 3) == 0 ||
 		    strncasecmp(data, "PUT", 3) == 0) {
-			proto_tree_add_item_hidden(http_tree, 
-						   hf_http_request, 0, 0, 1);
+		        if (*type == HTTP_OTHERS)
+			  *type = HTTP_REQUEST;
 			return TRUE;
 		}
 	}
 	if (linelen >= 4) {
 		if (strncasecmp(data, "HEAD", 4) == 0 ||
 		    strncasecmp(data, "POST", 4) == 0) {
-			proto_tree_add_item_hidden(http_tree, 
-						   hf_http_request, 0, 0, 1);
+		        if (*type == HTTP_OTHERS)
+			  *type = HTTP_REQUEST;
 			return TRUE;
 		}
 	}
@@ -211,29 +232,29 @@ is_http_request_or_reply(const u_char *data, int linelen)
 		if (strncasecmp(data, "TRACE", 5) == 0)
 			return TRUE;
 		if (strncasecmp(data, "HTTP/", 5) == 0) {
-			proto_tree_add_item_hidden(http_tree, 
-						   hf_http_response, 0, 0, 1);
+		        if (*type == HTTP_OTHERS)
+			  *type = HTTP_RESPONSE;
 			return TRUE;	/* response */
 		}
 	}
 	if (linelen >= 6) {
 		if (strncasecmp(data, "DELETE", 6) == 0) {
-			proto_tree_add_item_hidden(http_tree, 
-						   hf_http_request, 0, 0, 1);
+		        if (*type == HTTP_OTHERS)
+			  *type = HTTP_REQUEST;
 			return TRUE;
 		}
 	}
 	if (linelen >= 7) {
 		if (strncasecmp(data, "OPTIONS", 7) == 0) {
-			proto_tree_add_item_hidden(http_tree, 
-						   hf_http_request, 0, 0, 1);
+		        if (*type == HTTP_OTHERS)
+			  *type = HTTP_REQUEST;
 			return TRUE;
 		}
 	}
 	if (linelen >= 7) {
 		if (strncasecmp(data, "CONNECT", 7) == 0) {
-			proto_tree_add_item_hidden(http_tree, 
-						   hf_http_request, 0, 0, 1);
+		        if (*type == HTTP_OTHERS)
+			  *type = HTTP_REQUEST;
 			return TRUE;
 		}
 	}
@@ -252,7 +273,7 @@ proto_register_http(void)
     { &hf_http_request,
       { "Request",		"http.request",
 	FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-	"TRUE if HTTP request (GET, PUT, HEAD, POST)" }},
+	"TRUE if HTTP request" }},
   };
   static gint *ett[] = {
     &ett_http,
