@@ -109,5 +109,6 @@ void proto_register_pkix1explicit(void) {
 
 /*--- proto_reg_handoff_pkix1explicit -------------------------------------------*/
 void proto_reg_handoff_pkix1explicit(void) {
+#include "packet-pkix1explicit-dis-tab.c"
 }
 

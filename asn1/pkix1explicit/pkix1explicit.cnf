@@ -10,6 +10,9 @@
 TeletexDomainDefinedAttribute
 TerminalType
 
+#.REGISTER
+DomainParameters B "1.2.840.10046.2.1" "dhpublicnumber"
+
 #.PDU
 
 #.NO_EMIT

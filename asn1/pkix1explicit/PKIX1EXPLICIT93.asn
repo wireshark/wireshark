@@ -329,20 +329,20 @@ CertificateSerialNumber ::=  INTEGER
 --     r       INTEGER,
 --     s       INTEGER  }
 --
---dhpublicnumber OBJECT IDENTIFIER ::= {
---     iso(1) member-body(2) us(840) ansi-x942(10046) number-type(2) 1 }
---
---DomainParameters ::= SEQUENCE {
---     p       INTEGER, 
---     g       INTEGER, 
---     q       INTEGER, 
---     j       INTEGER OPTIONAL,
---     validationParms  ValidationParms OPTIONAL }
---
---ValidationParms ::= SEQUENCE {
---     seed             BIT STRING,
---     pgenCounter      INTEGER }
---
+dhpublicnumber OBJECT IDENTIFIER ::= {
+     iso(1) member-body(2) us(840) ansi-x942(10046) number-type(2) 1 }
+
+DomainParameters ::= SEQUENCE {
+     p       INTEGER, 
+     g       INTEGER, 
+     q       INTEGER, 
+     j       INTEGER OPTIONAL,
+     validationParms  ValidationParms OPTIONAL }
+
+ValidationParms ::= SEQUENCE {
+     seed             BIT STRING,
+     pgenCounter      INTEGER }
+
 --id-dsa OBJECT IDENTIFIER ::= {
 --     iso(1) member-body(2) us(840) x9-57(10040) x9algorithm(4) 1 }
 --
