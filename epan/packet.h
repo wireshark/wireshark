@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.43 2001/12/03 04:00:14 guy Exp $
+ * $Id: packet.h,v 1.44 2001/12/03 05:07:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -130,6 +130,11 @@ extern void dissector_reset(const char *name, guint32 pattern);
    return FALSE. */
 extern gboolean dissector_try_port(dissector_table_t sub_dissectors,
     guint32 port, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+
+/* Look for a given port in a given dissector table and, if found, return
+   the dissector handle for that port. */
+extern dissector_handle_t dissector_get_port_handle(
+    dissector_table_t sub_dissectors, guint32 port);
 
 /* List of "heuristic" dissectors (which get handed a packet, look at it,
    and either recognize it as being for their protocol, dissect it, and

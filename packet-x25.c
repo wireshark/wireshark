@@ -2,7 +2,7 @@
  * Routines for x25 packet disassembly
  * Olivier Abad <oabad@cybercable.fr>
  *
- * $Id: packet-x25.c,v 1.58 2001/12/03 03:59:43 guy Exp $
+ * $Id: packet-x25.c,v 1.59 2001/12/03 05:07:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -155,6 +155,7 @@ static const value_string vals_x25_type[] = {
 	{ 0,   NULL}
 };
 
+static dissector_handle_t ip_handle;
 static dissector_handle_t ositp_handle;
 static dissector_handle_t sna_handle;
 static dissector_handle_t qllc_handle;
@@ -169,7 +170,7 @@ static dissector_table_t x25_subdissector_table;
  * each vc_info node contains :
  *   the time of the first frame using this dissector (secs and usecs)
  *   the time of the last frame using this dissector (0 if it is unknown)
- *   the protocol used over the VC
+ *   a handle for the dissector
  *
  * the "time of first frame" is initialized when a Call Req. is received
  * the "time of last frame" is initialized when a Clear, Reset, or Restart
@@ -178,21 +179,9 @@ static dissector_table_t x25_subdissector_table;
 typedef struct _vc_info {
 	guint32 first_frame_secs, first_frame_usecs;
 	guint32 last_frame_secs, last_frame_usecs;
-	int proto;
+	dissector_handle_t dissect;
 	struct _vc_info *next;
 } vc_info;
-
-/*
- * Protocol unknown for connection.
- */
-#define PROTO_UNKNOWN	-1
-
-/*
- * Special protocol values, for protocols not indicated by an NLPID as a
- * secondary protocol identifier.
- */
-#define PROTO_SNA	-2
-#define PROTO_OSITP	-3
 
 /*
  * the hash table will contain linked lists of global_vc_info
@@ -244,7 +233,7 @@ reinit_x25_hashtable(void)
 
 static void
 x25_hash_add_proto_start(guint16 vc, guint32 frame_secs, guint32 frame_usecs,
-		         int proto)
+		         dissector_handle_t dissect)
 {
   int idx = vc % 64;
   global_vc_info *hash_ent;
@@ -268,7 +257,7 @@ x25_hash_add_proto_start(guint16 vc, guint32 frame_secs, guint32 frame_usecs,
     hash_ent->info->first_frame_usecs = frame_usecs;
     hash_ent->info->last_frame_secs = 0;
     hash_ent->info->last_frame_usecs = 0;
-    hash_ent->info->proto = proto;
+    hash_ent->info->dissect = dissect;
     hash_ent->info->next = 0;
     hash_table[idx] = hash_ent;
   }
@@ -284,7 +273,7 @@ x25_hash_add_proto_start(guint16 vc, guint32 frame_secs, guint32 frame_usecs,
     {
       vc_info *vci = hash_ent->info;
       while (vci->next) vci = vci->next; /* last element */
-      if (vci->proto == proto) {
+      if (vci->dissect == dissect) {
 	vci->last_frame_secs = 0;
 	vci->last_frame_usecs = 0;
       }
@@ -298,7 +287,7 @@ x25_hash_add_proto_start(guint16 vc, guint32 frame_secs, guint32 frame_usecs,
 	vci->next->first_frame_usecs = frame_usecs;
 	vci->next->last_frame_secs = 0;
 	vci->next->last_frame_usecs = 0;
-	vci->next->proto = proto;
+	vci->next->dissect = dissect;
 	vci->next->next = 0;
       }
     }
@@ -318,7 +307,7 @@ x25_hash_add_proto_start(guint16 vc, guint32 frame_secs, guint32 frame_usecs,
       hash_ent2->next->info->first_frame_usecs = frame_usecs;
       hash_ent2->next->info->last_frame_secs = 0;
       hash_ent2->next->info->last_frame_usecs = 0;
-      hash_ent2->next->info->proto = proto;
+      hash_ent2->next->info->dissect = dissect;
       hash_ent2->next->info->next = 0;
     }
   }
@@ -340,20 +329,20 @@ x25_hash_add_proto_end(guint16 vc, guint32 frame_secs, guint32 frame_usecs)
   vci->last_frame_usecs = frame_usecs;
 }
 
-static int
-x25_hash_get_proto(guint32 frame_secs, guint32 frame_usecs, guint16 vc)
+static dissector_handle_t
+x25_hash_get_dissect(guint32 frame_secs, guint32 frame_usecs, guint16 vc)
 {
   global_vc_info *hash_ent = hash_table[vc%64];
   vc_info *vci;
   vc_info *vci2;
 
   if (!hash_ent)
-    return PROTO_UNKNOWN;
+    return NULL;
 
   while (hash_ent && hash_ent->vc_num != vc)
     hash_ent = hash_ent->next;
   if (!hash_ent)
-    return PROTO_UNKNOWN;
+    return NULL;
 
   /* a hash_ent was found for this VC number */
   vci2 = vci = hash_ent->info;
@@ -366,30 +355,30 @@ x25_hash_get_proto(guint32 frame_secs, guint32 frame_usecs, guint16 vc)
     vci = vci->next;
   }
   /* we reached last record, and previous record has a non zero
-   * last frame time ==> no protocol known */
+   * last frame time ==> no dissector */
   if (!vci && (vci2->last_frame_secs || vci2->last_frame_usecs))
-    return PROTO_UNKNOWN;
+    return NULL;
 
   /* we reached last record, and previous record has a zero last frame time
    * ==> dissector for previous frame has not been "stopped" by a Clear, etc */
   if (!vci) {
     /* if the start time for vci2 is greater than our frame time
-     * ==> no protocol known */
+     * ==> no dissector */
     if (frame_secs < vci2->first_frame_secs ||
         (frame_secs == vci2->first_frame_secs &&
          frame_usecs < vci2->first_frame_usecs))
-      return PROTO_UNKNOWN;
+      return NULL;
     else
-      return vci2->proto;
+      return vci2->dissect;
   }
 
   /* our frame time is before vci's end. Check if it is after vci's start */
   if (frame_secs < vci->first_frame_secs ||
       (frame_secs == vci->first_frame_secs &&
        frame_usecs < vci->first_frame_usecs))
-    return 0;
+    return NULL;
   else
-    return vci->proto;
+    return vci->dissect;
 }
 
 static char *clear_code(unsigned char code)
@@ -1500,7 +1489,7 @@ dissect_x25(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint x25_pkt_len;
     int modulo;
     guint16 vc;
-    int proto;
+    dissector_handle_t dissect;
     gboolean toa;         /* TOA/NPI address format */
     guint16 bytes0_1;
     guint8 pkt_type;
@@ -1759,7 +1748,7 @@ dissect_x25(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    /* ISO 8073 COTP */
 		    x25_hash_add_proto_start(vc, pinfo->fd->abs_secs,
 					     pinfo->fd->abs_usecs,
-					     PROTO_OSITP);
+					     ositp_handle);
 		    /* XXX - disssect the rest of the user data as COTP?
 		       That needs support for NCM TPDUs, etc. */
 		    break;
@@ -1768,7 +1757,7 @@ dissect_x25(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    /* ISO 8602 CLTP */
 		    x25_hash_add_proto_start(vc, pinfo->fd->abs_secs,
 					     pinfo->fd->abs_usecs,
-					     PROTO_OSITP);
+					     ositp_handle);
 		    break;
 		}
 	    } else if (is_x_264 == 0) {
@@ -1783,8 +1772,12 @@ dissect_x25(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 		localoffset++;
 		
+		/*
+		 * What's the dissector handle for this SPI?
+		 */
+		dissect = dissector_get_port_handle(x25_subdissector_table, spi);
 		x25_hash_add_proto_start(vc, pinfo->fd->abs_secs,
-					 pinfo->fd->abs_usecs, spi);
+					 pinfo->fd->abs_usecs, dissect);
 	    }
 	    if (localoffset < tvb_length(tvb)) {
 		if (userdata_tree) {
@@ -2147,45 +2140,29 @@ dissect_x25(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         return;
     }
 
-    /* search the protocol in the hash table */
-    proto = x25_hash_get_proto(pinfo->fd->abs_secs, pinfo->fd->abs_usecs, vc);
-    switch (proto) {
-
-    case PROTO_UNKNOWN:
+    /* search the dissector in the hash table */
+    if ((dissect = x25_hash_get_dissect(pinfo->fd->abs_secs, pinfo->fd->abs_usecs, vc))) {
+        call_dissector(dissect, next_tvb, pinfo, tree);
+    }
+    else {
 	/* Did the user suggest SNA-over-X.25? */
 	if (non_q_bit_is_sna) {
 	    x25_hash_add_proto_start(vc, pinfo->fd->abs_secs,
-				     pinfo->fd->abs_usecs, PROTO_SNA);
+				     pinfo->fd->abs_usecs, sna_handle);
 	    call_dissector(sna_handle, next_tvb, pinfo, tree);
-	    return;
 	}
 	/* If the Call Req. has not been captured, and the payload begins
 	   with what appears to be an IP header, assume these packets carry
 	   IP */
-	if (tvb_get_guint8(tvb, localoffset) == 0x45) {
+	else if (tvb_get_guint8(tvb, localoffset) == 0x45) {
 	    x25_hash_add_proto_start(vc, pinfo->fd->abs_secs,
-				     pinfo->fd->abs_usecs, NLPID_IP);
-	    if (dissector_try_port(x25_subdissector_table, NLPID_IP,
-				   next_tvb, pinfo, tree))
-		return;
+				     pinfo->fd->abs_usecs, ip_handle);
+            call_dissector(ip_handle, next_tvb, pinfo, tree);
 	}
-	break;
-
-    case PROTO_SNA:
-	call_dissector(sna_handle, next_tvb, pinfo, tree);
-	return;
-
-    case PROTO_OSITP:
-	call_dissector(ositp_handle, next_tvb, pinfo, tree);
-	return;
-
-    default:
-	if (dissector_try_port(x25_subdissector_table, proto,
-			       next_tvb, pinfo, tree))
-	    return;
-	break;
+        else {
+            call_dissector(data_handle,next_tvb, pinfo, tree);
+        }
     }
-    call_dissector(data_handle, next_tvb, pinfo, tree);
 }
 
 void
@@ -2284,6 +2261,7 @@ proto_reg_handoff_x25(void)
     /*
      * Get handles for various dissectors.
      */
+    ip_handle = find_dissector("ip");
     ositp_handle = find_dissector("ositp");
     sna_handle = find_dissector("sna");
     qllc_handle = find_dissector("qllc");

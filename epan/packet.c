@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.48 2001/12/03 04:00:14 guy Exp $
+ * $Id: packet.c,v 1.49 2001/12/03 05:07:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -348,10 +348,7 @@ dissector_reset(const char *name, guint32 pattern)
 
 /* Look for a given port in a given dissector table and, if found, call
    the dissector with the arguments supplied, and return TRUE, otherwise
-   return FALSE.
-
-   If the arguments supplied don't match the arguments to the dissector,
-   do the appropriate translation. */
+   return FALSE. */
 gboolean
 dissector_try_port(dissector_table_t sub_dissectors, guint32 port,
     tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -417,6 +414,21 @@ dissector_try_port(dissector_table_t sub_dissectors, guint32 port,
 		return TRUE;
 	} 
 	return FALSE;
+}
+
+/* Look for a given port in a given dissector table and, if found, return
+   the dissector handle for that port. */
+dissector_handle_t
+dissector_get_port_handle(dissector_table_t sub_dissectors, guint32 port)
+{
+	dtbl_entry_t *dtbl_entry;
+
+	dtbl_entry = g_hash_table_lookup(sub_dissectors,
+	    GUINT_TO_POINTER(port));
+	if (dtbl_entry != NULL)
+		return dtbl_entry->current;
+	else
+		return NULL;
 }
 
 dissector_handle_t
