@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.h,v 1.19 2001/11/15 10:58:51 guy Exp $
+ * $Id: tvbuff.h,v 1.20 2001/11/20 22:46:12 guy Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -216,8 +216,7 @@ extern gint tvb_reported_length_remaining(tvbuff_t *tvb, gint offset);
    Also adjusts the data length. */
 extern void tvb_set_reported_length(tvbuff_t*, guint);
 
-/* Returns the offset from the first byte of real data. This is
- * the same value as 'offset' in tvb_compat() */
+/* Returns the offset from the first byte of real data. */
 extern gint tvb_raw_offset(tvbuff_t*);
 
 /************** START OF ACCESSORS ****************/
@@ -380,11 +379,5 @@ extern gchar *tvb_bytes_to_str(tvbuff_t *tvb, gint offset, gint len);
 extern gchar *tvb_get_name(tvbuff_t *tvb);
 
 /************** END OF ACCESSORS ****************/
-
-/* Sets pd and offset so that tvbuff's can be used with code
- * that only understands pd/offset and not tvbuffs.
- * This is the "compatibility" function */
-/* XXX - we need to get rid of the last uses of this */
-void tvb_compat(tvbuff_t*, const guint8 **pd, int *offset);
 
 #endif /* __TVBUFF_H__ */

@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.c,v 1.25 2001/11/13 23:55:37 gram Exp $
+ * $Id: tvbuff.c,v 1.26 2001/11/20 22:46:12 guy Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -733,15 +733,6 @@ tvb_raw_offset(tvbuff_t *tvb)
 	}
 	return tvb->raw_offset;
 }
-
-void
-tvb_compat(tvbuff_t *tvb, const guint8 **pd, int *offset)
-{
-	g_assert(tvb->initialized);
-	*pd = first_real_data_ptr(tvb);
-	*offset = tvb_raw_offset(tvb);
-}
-
 
 static guint8*
 composite_ensure_contiguous(tvbuff_t *tvb, guint abs_offset, guint abs_length)
