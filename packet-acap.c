@@ -3,7 +3,7 @@
  * Copyright 2003, Brad Hards <bradh@frogmouth.net>
  * Heavily based in packet-imap.c, Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-acap.c,v 1.1 2003/03/25 22:30:19 guy Exp $
+ * $Id: packet-acap.c,v 1.2 2003/06/11 20:04:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -42,6 +42,7 @@ static int hf_acap_response = -1;
 static int hf_acap_request = -1;
 
 static gint ett_acap = -1;
+static gint ett_acap_reqresp = -1;
 
 #define TCP_PORT_ACAP			674
 
@@ -49,7 +50,8 @@ static void
 dissect_acap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
         gboolean        is_request;
-        proto_tree      *acap_tree, *ti;
+        proto_tree      *acap_tree, *reqresp_tree;
+        proto_item      *ti;
 	gint		offset = 0;
 	const guchar	*line;
 	gint		next_offset;
@@ -99,6 +101,14 @@ dissect_acap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 
 		/*
+		 * Put the line into the protocol tree.
+		 */
+		ti = proto_tree_add_text(acap_tree, tvb, offset,
+		    next_offset - offset, "%s",
+		    tvb_format_text(tvb, offset, next_offset - offset));
+		reqresp_tree = proto_item_add_subtree(ti, ett_acap_reqresp);
+
+		/*
 		 * Show the first line as tags + requests or replies.
 		 */
 
@@ -109,11 +119,11 @@ dissect_acap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		tokenlen = get_token_len(line, line + linelen, &next_token);
 		if (tokenlen != 0) {
 			if (is_request) {
-				proto_tree_add_text(acap_tree, tvb, offset,
+				proto_tree_add_text(reqresp_tree, tvb, offset,
 				    tokenlen, "Request Tag: %s",
 				    format_text(line, tokenlen));
 			} else {
-				proto_tree_add_text(acap_tree, tvb, offset,
+				proto_tree_add_text(reqresp_tree, tvb, offset,
 				    tokenlen, "Response Tag: %s",
 				    format_text(line, tokenlen));
 			}
@@ -127,11 +137,11 @@ dissect_acap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 */
 		if (linelen != 0) {
 			if (is_request) {
-				proto_tree_add_text(acap_tree, tvb, offset,
+				proto_tree_add_text(reqresp_tree, tvb, offset,
 				    linelen, "Request: %s",
 				    format_text(line, linelen));
 			} else {
-				proto_tree_add_text(acap_tree, tvb, offset,
+				proto_tree_add_text(reqresp_tree, tvb, offset,
 				    linelen, "Response: %s",
 				    format_text(line, linelen));
 			}
@@ -164,6 +174,7 @@ proto_register_acap(void)
   };
   static gint *ett[] = {
     &ett_acap,
+    &ett_acap_reqresp,
   };
 
   proto_acap = proto_register_protocol("Application Configuration Access Protocol",
