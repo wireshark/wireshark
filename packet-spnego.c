@@ -4,7 +4,7 @@
  * Copyright 2002, Tim Potter <tpot@samba.org>
  * Copyright 2002, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-spnego.c,v 1.17 2002/08/30 10:31:13 guy Exp $
+ * $Id: packet-spnego.c,v 1.18 2002/08/30 16:17:29 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -84,7 +84,7 @@ static const value_string spnego_negResult_vals[] = {
  * retrieve it in the main dissector.
  */
 
-static dissector_handle_t next_level_dissector = -1;
+static dissector_handle_t next_level_dissector = NULL;
 
 /* Display an ASN1 parse error.  Taken from packet-snmp.c */
 
@@ -110,16 +110,14 @@ static int
 dissect_spnego_mechTypes(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 			 proto_tree *tree, ASN1_SCK *hnd)
 {
-	proto_item *item;
-	proto_tree *subtree;
+	proto_item *item = NULL;
+	proto_tree *subtree = NULL;
 	gboolean def;
 	guint len1, len, cls, con, tag, nbytes;
 	subid_t *oid;
 	gchar *oid_string;
-	proto_item *sub_item;
-	proto_tree *oid_subtree;
 	int ret;
-	int length = tvb_length_remaining(tvb, offset);
+
 
 	/*
 	 * MechTypeList ::= SEQUENCE OF MechType
@@ -182,6 +180,7 @@ dissect_spnego_reqFlags(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 			proto_tree *tree, ASN1_SCK *hnd)
 {
 
+
   return offset;
 
 }
@@ -192,7 +191,7 @@ dissect_spnego_mechToken(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 {
 	gboolean def;
 	int ret;
-	guint oid_len, len, cls, con, tag, nbytes;
+	guint cls, con, tag, nbytes;
 	tvbuff_t *token_tvb;
 
 	/*
@@ -225,7 +224,7 @@ dissect_spnego_mechToken(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	 */
 
 	token_tvb = tvb_new_subset(tvb, offset, nbytes, -1);
-	if (next_level_dissector != -1 && next_level_dissector)
+	if (next_level_dissector)
 	  call_dissector(next_level_dissector, token_tvb, pinfo, tree);
 
 	hnd->offset += nbytes; /* Update this ... */
@@ -240,10 +239,9 @@ static int
 dissect_spnego_mechListMIC(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 			   proto_tree *tree, ASN1_SCK *hnd)
 {
-	guint len1, len, cls, con, tag, nbytes;
+	guint len1, cls, con, tag;
 	int ret;
 	gboolean def;
-	int length = tvb_length_remaining(tvb, offset);
 	proto_tree *subtree = NULL;
 
 	/*
@@ -288,7 +286,7 @@ dissect_spnego_mechListMIC(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	 */
 
 	  token_tvb = tvb_new_subset(tvb, offset, len1, -1);
-	  if (next_level_dissector != -1 && next_level_dissector)
+	  if (next_level_dissector)
 	    call_dissector(next_level_dissector, token_tvb, pinfo, tree);
 
 	  hnd->offset += len1; /* Update this ... */
@@ -316,13 +314,7 @@ dissect_spnego_negTokenInit(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	proto_item *item;
 	proto_tree *subtree;
 	gboolean def;
-	guint len1, len, cls, con, tag, nbytes;
-	subid_t *oid;
-	gssapi_oid_value *value;
-	dissector_handle_t handle;
-	gchar *oid_string;
-	proto_item *sub_item;
-	proto_tree *oid_subtree;
+	guint len1, len, cls, con, tag;
 	int ret;
 	int length = tvb_length_remaining(tvb, offset);
 
@@ -425,7 +417,7 @@ dissect_spnego_negResult(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 {
         gboolean def;
 	int ret;
-	guint len1, len, cls, con, tag, nbytes, val;
+	guint len, cls, con, tag, val;
 
 	ret = asn1_header_decode(hnd, &cls, &con, &tag, &def, &len);
 
@@ -468,9 +460,8 @@ static int
 dissect_spnego_supportedMech(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 			     proto_tree *tree, ASN1_SCK *hnd)
 {
-	gboolean def;
 	int ret;
-	guint oid_len, len1, len, cls, con, tag, nbytes;
+	guint oid_len, len, nbytes;
 	subid_t *oid;
 	gchar *p, *oid_string;
 	unsigned int i;
@@ -513,7 +504,7 @@ dissect_spnego_supportedMech(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 	/* Should check for an unrecognized OID ... */
 
-	next_level_dissector = -1;
+	next_level_dissector = NULL; /* FIXME: Is this right? */
 
 	if (value) next_level_dissector = find_dissector(value->name);
 
@@ -527,9 +518,9 @@ dissect_spnego_supportedMech(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	 * could override that. :-(
 	 */
 
-	if (conversation = find_conversation(&pinfo->src, &pinfo->dst,
+	if ((conversation = find_conversation(&pinfo->src, &pinfo->dst,
 					     pinfo->ptype, pinfo->srcport,
-					     pinfo->destport, 0)) {
+					     pinfo->destport, 0))) {
 
 
 	  conversation_add_proto_data(conversation, proto_spnego, 
@@ -549,7 +540,7 @@ dissect_spnego_responseToken(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 {
 	gboolean def;
 	int ret;
-	guint oid_len, len, cls, con, tag, nbytes;
+	guint cls, con, tag, nbytes;
 	tvbuff_t *token_tvb;
 
  	ret = asn1_header_decode(hnd, &cls, &con, &tag, &def, &nbytes);
@@ -578,7 +569,7 @@ dissect_spnego_responseToken(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	 */
 
 	token_tvb = tvb_new_subset(tvb, offset, nbytes, -1);
-	if (next_level_dissector != -1 && next_level_dissector)
+	if (next_level_dissector)
 	  call_dissector(next_level_dissector, token_tvb, pinfo, tree);
 
 	hnd->offset += nbytes; /* Update this ... */
@@ -597,9 +588,7 @@ dissect_spnego_negTokenTarg(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	proto_tree *subtree;
 	gboolean def;
 	int ret;
-	guint len1, len, cls, con, tag, nbytes;
-	dissector_handle_t handle = NULL;
-
+	guint len1, len, cls, con, tag;
 	int length = tvb_length_remaining(tvb, offset);
 
 	item = proto_tree_add_item( tree, hf_spnego_negtokentarg, tvb, offset,
@@ -707,7 +696,7 @@ dissect_spnego(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	int ret, offset = 0;
 	ASN1_SCK hnd;
 	gboolean def;
-	guint len1, len, cls, con, tag, nbytes;
+	guint len1, cls, con, tag;
 	conversation_t *conversation;
 	dissector_handle_t handle;
 
