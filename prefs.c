@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.126 2004/02/23 17:38:07 obiot Exp $
+ * $Id: prefs.c,v 1.127 2004/02/28 04:39:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -971,7 +971,7 @@ read_prefs(int *gpf_errno_return, int *gpf_read_errno_return,
      * protocol-tree, and hex-dump windows involves a lot more than, say,
      * just using font sets rather than fonts.
      */
-    prefs.gui_font_name1 = g_strdup("-*-fixed-medium-r-semicondensed-*-*-120-*-*-*-*-iso8859-1");
+    prefs.gui_font_name1 = g_strdup("-misc-fixed-medium-r-semicondensed-*-*-120-*-*-*-*-iso8859-1");
     /* XXX- is this the correct default font name for GTK2 none win32? */
     prefs.gui_font_name2 = g_strdup("fixed medium 12");
 #endif
