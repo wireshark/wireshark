@@ -8,7 +8,7 @@
  *
  * Copyright 2000, Michael Tüxen <Michael.Tuexen@icn.siemens.de>
  *
- * $Id: packet-iua.c,v 1.1 2001/01/11 16:46:21 gram Exp $
+ * $Id: packet-iua.c,v 1.2 2001/01/13 04:30:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -59,6 +59,7 @@
 
 
 #define SCTP_PORT_IUA 9900
+#define IUA_PAYLOAD_PROTO_ID   1
 
 #define VERSION_LENGTH         1
 #define RESERVED_LENGTH        1
@@ -1009,6 +1010,7 @@ void
 proto_reg_handoff_iua(void)
 {
   dissector_add("sctp.port", SCTP_PORT_IUA, dissect_iua, proto_iua);
+  dissector_add("sctp.ppi", IUA_PAYLOAD_PROTO_ID, dissect_iua, proto_iua);
 }
 
 

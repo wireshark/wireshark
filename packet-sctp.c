@@ -2,7 +2,7 @@
  * Routines for Stream Control Transmission Protocol dissection
  * Copyright 2000, Michael Tüxen <Michael.Tuexen@icn.siemens.de>
  *
- * $Id: packet-sctp.c,v 1.10 2001/01/11 16:46:21 gram Exp $
+ * $Id: packet-sctp.c,v 1.11 2001/01/13 04:30:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -114,7 +114,8 @@ static int hf_sctp_cause_measure_of_staleness = -1;
 
 static int hf_sctp_cause_tsn = -1;
 
-static dissector_table_t sctp_dissector_table;
+static dissector_table_t sctp_port_dissector_table;
+static dissector_table_t sctp_ppi_dissector_table;
 
 /* Initialize the subtree pointers */
 static gint ett_sctp = -1;
@@ -980,11 +981,12 @@ dissect_error_cause(tvbuff_t *cause_tvb, packet_info *pinfo, proto_tree *chunk_t
 
 static void
 dissect_payload(tvbuff_t *payload_tvb, packet_info *pinfo, proto_tree *tree,
-		proto_tree *chunk_tree, guint16 payload_length, guint16 padding_length)
+		proto_tree *chunk_tree, guint32 ppi, guint16 payload_length, guint16 padding_length)
 {
   /* do lookup with the subdissector table */
-  if (dissector_try_port(sctp_dissector_table, pi.srcport,  payload_tvb, pinfo, tree) ||
-      dissector_try_port(sctp_dissector_table, pi.destport, payload_tvb, pinfo, tree))
+  if (dissector_try_port (sctp_ppi_dissector_table, ppi,  payload_tvb, pinfo, tree) ||
+      dissector_try_port(sctp_port_dissector_table, pi.srcport,  payload_tvb, pinfo, tree) ||
+      dissector_try_port(sctp_port_dissector_table, pi.destport, payload_tvb, pinfo, tree))
     
     return;
   else {
@@ -1016,6 +1018,7 @@ dissect_data_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tree,
   total_payload_length = payload_length + padding_length;
   payload_tvb          = tvb_new_subset(chunk_tvb, DATA_CHUNK_PAYLOAD_OFFSET,
 					  total_payload_length, total_payload_length);
+  payload_proto_id     = tvb_get_ntohl(chunk_tvb, DATA_CHUNK_PAYLOAD_PROTOCOL_ID_OFFSET);
 
   if (chunk_tree) {
     flags             = tvb_get_guint8(chunk_tvb, CHUNK_FLAGS_OFFSET);
@@ -1031,8 +1034,7 @@ dissect_data_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tree,
     tsn               = tvb_get_ntohl(chunk_tvb, DATA_CHUNK_TSN_OFFSET);
     stream_id         = tvb_get_ntohs(chunk_tvb, DATA_CHUNK_STREAM_ID_OFFSET);
     stream_seq_number = tvb_get_ntohs(chunk_tvb, DATA_CHUNK_STREAM_SEQ_NUMBER_OFFSET);
-    payload_proto_id  = tvb_get_ntohl(chunk_tvb, DATA_CHUNK_PAYLOAD_PROTOCOL_ID_OFFSET);
-        
+         
     proto_tree_add_uint(chunk_tree, hf_sctp_data_chunk_tsn, 
 			chunk_tvb,
 			DATA_CHUNK_TSN_OFFSET, DATA_CHUNK_TSN_LENGTH,
@@ -1053,7 +1055,7 @@ dissect_data_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tree,
 			tsn, stream_id, stream_seq_number, 
 			payload_length, plurality(payload_length, "", "s"));
   };   
-  dissect_payload(payload_tvb, pinfo, tree, chunk_tree, payload_length, padding_length); 
+  dissect_payload(payload_tvb, pinfo, tree, chunk_tree, payload_proto_id, payload_length, padding_length); 
 }
 
 static void
@@ -1914,7 +1916,8 @@ proto_register_sctp(void)
   proto_register_subtree_array(ett, array_length(ett));
 
   /* subdissector code */
-  sctp_dissector_table = register_dissector_table("sctp.port");
+  sctp_port_dissector_table = register_dissector_table("sctp.port");
+  sctp_ppi_dissector_table  = register_dissector_table("sctp.ppi");
 
 };
 
