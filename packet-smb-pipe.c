@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb-pipe.c,v 1.5 2000/05/11 08:15:45 gram Exp $
+ * $Id: packet-smb-pipe.c,v 1.6 2000/05/14 03:17:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -947,8 +947,7 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
 
 	loc_offset += 13;
 
-	while (loc_offset % 4)
-	  loc_offset += 1;  /* Align to a word boundary ... */
+	loc_offset += 1;  /* Pad byte ... */
 
 	Flags = GSHORT(pd, loc_offset);
 
