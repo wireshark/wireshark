@@ -4,7 +4,7 @@
  * Jason Lango <jal@netapp.com>
  * Liberally copied from packet-http.c, by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-rtsp.c,v 1.11 2000/04/21 01:52:35 guy Exp $
+ * $Id: packet-rtsp.c,v 1.12 2000/04/21 07:43:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -175,9 +175,6 @@ static void dissect_rtsp(const u_char *pd, int offset, frame_data *fd,
 			col_add_str(fd, COL_INFO, "Continuation");
 	}
 
-	if (!rtsp_tree)
-		return;
-
 	if (offset >= end_offset)
 		goto bad_len;
 	while (data < dataend) {
@@ -265,8 +262,10 @@ static void dissect_rtsp(const u_char *pd, int offset, frame_data *fd,
 		/*
 		 * Put this line.
 		 */
-		proto_tree_add_text(rtsp_tree, offset, linelen, "%s",
-			format_text(data, linelen));
+		if (rtsp_tree) {
+			proto_tree_add_text(rtsp_tree, offset, linelen, "%s",
+				format_text(data, linelen));
+		}
 		if (linelen > strlen(rtsp_transport) &&
 			strncasecmp(data, rtsp_transport,
 				strlen(rtsp_transport)) == 0)
