@@ -5,7 +5,7 @@
  *
  * MUCH code modified from service_response_time_table.c.
  *
- * $Id: ansi_map_stat.c,v 1.8 2004/01/03 18:05:55 sharpe Exp $
+ * $Id: ansi_map_stat.c,v 1.9 2004/01/07 01:44:23 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -100,7 +100,7 @@ ansi_map_stat_packet(
     tapdata = tapdata;
     pinfo = pinfo;
 
-    if (data_p->message_type > N_MESSAGE_TYPES)
+    if (data_p->message_type >= N_MESSAGE_TYPES)
     {
 	/*
 	 * unknown PDU type !!!
