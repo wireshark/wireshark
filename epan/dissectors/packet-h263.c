@@ -73,6 +73,9 @@ static int hf_h263_hmv1 = -1;
 static int hf_h263_vmv1 = -1;
 static int hf_h263_hmv2 = -1;
 static int hf_h263_vmv2 = -1;
+/* Fields for the data section */
+static int hf_h263_psc = -1;
+static int hf_h263_TR =-1;
 
 static int hf_h263_data        = -1;
 
@@ -96,15 +99,18 @@ static const value_string srcformat_vals[] =
 };
 
 /* H.263 fields defining a sub tree */
-static gint ett_h263           = -1;
-
+static gint ett_h263			= -1;
+static gint ett_h263_payload	= -1;
 static void
 dissect_h263( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 {
-	proto_item *ti            = NULL;
-	proto_tree *h263_tree     = NULL;
-	unsigned int offset       = 0;
-	unsigned int h263_version = 0;
+	proto_item *ti					= NULL;
+	proto_item *h263_payload_item	= NULL;
+	proto_tree *h263_tree			= NULL;
+	proto_tree *h263_payload_tree	= NULL;
+	unsigned int offset				= 0;
+	unsigned int h263_version		= 0;
+	guint32 data;
 
 	h263_version = (tvb_get_guint8( tvb, offset ) & 0xc0 ) >> 6;
 
@@ -242,7 +248,19 @@ dissect_h263( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	  } /* end not mode a */
 
 	  /* The rest of the packet is the H.263 stream */
-	  proto_tree_add_item( h263_tree, hf_h263_data, tvb, offset, -1, FALSE );
+	  h263_payload_item = proto_tree_add_text(h263_tree,tvb,offset,-1,"H263 Payload");
+	  h263_payload_tree = proto_item_add_subtree( h263_payload_item, ett_h263_payload );
+
+	  /* Check for PSC, PSC is a word of 22 bits. Its value is 0000 0000 0000 0000' 1000 00xx xxxx xxxx. */
+	  data = tvb_get_ntohl(tvb, offset);
+	  if (( data & 0xfffffc00) == 0x00008000 ) { /* PSC found */
+		   proto_tree_add_uint(h263_payload_tree, hf_h263_psc,tvb, offset,3,data);
+		   offset = offset + 2;
+		   proto_tree_add_uint(h263_payload_tree, hf_h263_TR,tvb, offset,2,data);
+			
+	  }
+
+	  proto_tree_add_item( h263_payload_tree, hf_h263_data, tvb, offset, -1, FALSE );
 	}
 }
 
@@ -515,11 +533,36 @@ proto_register_h263(void)
 				"The H.263 stream including its Picture, GOB or Macro block start code.", HFILL
 			}
 		},
+		{
+			&hf_h263_psc,
+			{
+				"H.263 Picture start Code",
+				"h263.psc",
+				FT_UINT32,
+				BASE_HEX,
+				NULL,
+				0xfffffc00,
+				"Picture start Code, PSC", HFILL
+			}
+		},
+		{
+			&hf_h263_TR,
+			{
+				"H.263 Temporal Reference",
+				"h263.tr2",
+				FT_UINT32,
+				BASE_HEX,
+				NULL,
+				0x000003fc,
+				"Temporal Reference, TR", HFILL
+			}
+		},
 };
 
 	static gint *ett[] =
 	{
 		&ett_h263,
+		&ett_h263_payload,
 	};
 
 
