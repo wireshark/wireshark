@@ -1,7 +1,7 @@
 /* packet-vines.c
  * Routines for Banyan VINES protocol packet disassembly
  *
- * $Id: packet-vines.c,v 1.58 2003/04/22 08:50:07 guy Exp $
+ * $Id: packet-vines.c,v 1.59 2003/06/30 21:30:54 guy Exp $
  *
  * Don Lafontaine <lafont02@cn.ca>
  *
@@ -1237,7 +1237,7 @@ dissect_vines_rtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					    val_to_str(info_type,
 					      vines_rtp_info_type_vals,
 					      "Unknown"),
-					    compatibility_flags);
+					    info_type);
 				offset += 1;
 				control_flags = tvb_get_guint8(tvb, offset);
 				ti = proto_tree_add_text(vines_rtp_tree, tvb,
