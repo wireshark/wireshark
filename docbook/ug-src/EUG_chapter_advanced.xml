@@ -211,9 +211,9 @@
   <section id="ChAdvNameResolutionSection"><title>Name Resolution</title>
     <para>
 	Name resolution tries to resolve some of the address values to human 
-	readable names. This conversion might fail, e.g. if the specific name is 
-	just unknown. Some of the lookups are done with data from your local 
-	machine, while others asking network services like DNS.
+	readable names. This conversion might fail. For example, the name might be 
+	unknown. Some of the lookups are done with data from your local 
+	machine, while others asking network services such as DNS.
     </para>
     <para>
 	XXX - add ipxnets name resolution explanation.

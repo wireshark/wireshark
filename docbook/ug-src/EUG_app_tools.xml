@@ -49,10 +49,9 @@ tcpdump -i &lt;interface> -s 1500 -w &lt;some-file>
     <title>tethereal: Terminal-based Ethereal</title>
     <para>
       <application>Tethereal</application> is a terminal oriented version 
-      of ethereal designed for capturing and displaying packets when you 
-      do not have a graphical environment available. It is command line 
-	  oriented only and will not show an SAA like user interface. It supports 
-	  the same option set that <command>ethereal</command> does. For more 
+      of ethereal designed for capturing and displaying packets when an 
+	  interactive user interface isn't necessary or available. It supports 
+	  the same options as <command>ethereal</command>. For more 
       information on <command>tethereal</command>, see the manual pages 
       (<command>man tethereal</command>).
     </para>
