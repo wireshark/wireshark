@@ -1,7 +1,7 @@
 /* packet-icq.c
  * Routines for ICQ packet disassembly
  *
- * $Id: packet-icq.c,v 1.32 2001/06/18 02:17:46 guy Exp $
+ * $Id: packet-icq.c,v 1.33 2001/06/18 05:54:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -463,7 +463,8 @@ decrypt_v5(u_char *bfr, guint32 size,guint32 key)
 {
     guint32 i;
     guint32 k;
-    for (i=ICQ5_CL_SESSIONID; i < size+3; i+=4 ) {
+
+    for (i=ICQ5_CL_SESSIONID; i < size; i+=4 ) {
 	k = key+table_v5[i&0xff];
 	if ( i != 0x16 ) {
 	    bfr[i] ^= (u_char)(k & 0xff);
@@ -1767,6 +1768,7 @@ dissect_icqv5Client(tvbuff_t *tvb,
     proto_item *ti = NULL;
 
     guint16 pktsize;		/* The size of the ICQ content */
+    guint32 rounded_size;
     guint32 key;
     guint16 cmd;
     guint8 *decr_pd;		/* Decrypted content */
@@ -1777,10 +1779,17 @@ dissect_icqv5Client(tvbuff_t *tvb,
     /* Get the encryption key */
     key = get_v5key(tvb, pktsize);
 
-    /* Make a copy of the packet data, and decrypt it */
-    decr_pd = g_malloc(pktsize + 3);	/* XXX - why +3? */
+    /*
+     * Make a copy of the packet data, and decrypt it.
+     * The decryption processes 4 bytes at a time, so we round the
+     * size of the ICQ content to a multiple of 4, allocate enough
+     * space for that many bytes, and pass that to "decrypt_v5()"
+     * as the number of bytes to decrypt.
+     */
+    rounded_size = ((pktsize + 3)/4)*4;
+    decr_pd = g_malloc(rounded_size);
     tvb_memcpy(tvb, decr_pd, 0, pktsize);
-    decrypt_v5(decr_pd, pktsize, key);
+    decrypt_v5(decr_pd, rounded_size, key);
     
     /* Allocate a new tvbuff, referring to the decrypted data. */
     decr_tvb = tvb_new_real_data(decr_pd, pktsize, tvb_reported_length(tvb),
