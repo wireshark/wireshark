@@ -1,7 +1,7 @@
 /* to_str.c
  * Routines for utilities to convert various other types to strings.
  *
- * $Id: to_str.c,v 1.37 2003/08/26 01:28:28 guy Exp $
+ * $Id: to_str.c,v 1.38 2003/10/07 21:15:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -747,8 +747,6 @@ decode_numeric_bitfield(guint32 val, guint32 mask, int width,
    export the names of the source and destination address fields, so
    that "col_set_addr()" need know nothing whatsoever about particular
    address types */
-/* XXX - perhaps we should have "address_to_str_buf()" to fill in a
-   specified buffer, and have "address_to_str()" call it */
 /* convert an address struct into a printable string */
 gchar*	
 address_to_str(address *addr)
