@@ -567,6 +567,7 @@ Ronnie Sahlberg <sahlberg[AT]optushome.com.au> {
 	    ONC RPC dissector to allow ONC RPC subdissectors to use it
 	SMB tvbuffication
 	NDMPv3 support
+	Add time between request and reply as a field to ONC RPC replies
 }
 
 Borosa Tomislav <tomislav.borosa[AT]SIEMENS.HR> {

@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * 
- * $Id: packet-rpc.c,v 1.77 2001/12/10 00:25:33 guy Exp $
+ * $Id: packet-rpc.c,v 1.78 2001/12/28 20:18:45 guy Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -184,6 +184,7 @@ static int hf_rpc_call_dup = -1;
 static int hf_rpc_reply_dup = -1;
 static int hf_rpc_value_follows = -1;
 static int hf_rpc_array_len = -1;
+static int hf_rpc_time = -1;
 
 static gint ett_rpc = -1;
 static gint ett_rpc_string = -1;
@@ -398,6 +399,7 @@ typedef struct _rpc_call_info_value {
 	guint32 gss_proc;
 	guint32 gss_svc;
 	rpc_proc_info_value*	proc_info;
+	nstime_t req_time;
 } rpc_call_info_value;
 
 static GMemChunk *rpc_call_info_value_chunk;
@@ -1433,6 +1435,7 @@ dissect_rpc_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	rpc_proc_info_value	*value = NULL;
 	conversation_t* conversation;
 	static address null_address = { AT_NONE, 0, NULL };
+	nstime_t ns;
 
 	dissect_function_t *dissect_function = NULL;
 
@@ -1758,6 +1761,9 @@ dissect_rpc_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			rpc_call->gss_proc = gss_proc;
 			rpc_call->gss_svc = gss_svc;
 			rpc_call->proc_info = value;
+			rpc_call->req_time.secs=pinfo->fd->abs_secs;
+			rpc_call->req_time.nsecs=pinfo->fd->abs_usecs*1000;
+
 			/* store it */
 			g_hash_table_insert(rpc_calls, new_rpc_call_key,
 			    rpc_call);
@@ -1786,6 +1792,16 @@ dissect_rpc_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		proto_tree_add_text(rpc_tree, tvb, 0, 0,
 		    "This is a reply to a request in frame %u",
 		    rpc_call->req_num);
+		ns.secs= pinfo->fd->abs_secs-rpc_call->req_time.secs;
+		ns.nsecs=pinfo->fd->abs_usecs*1000-rpc_call->req_time.nsecs;
+		if(ns.nsecs<0){
+			ns.nsecs+=1000000000;
+			ns.secs--;
+		}
+		proto_tree_add_time(rpc_tree, hf_rpc_time, tvb, offset, 0,
+				&ns);
+
+
 
 		if (rpc_call->proc_info != NULL) {
 			dissect_function = rpc_call->proc_info->dissect_reply;
@@ -2366,6 +2382,11 @@ proto_register_rpc(void)
 		{ &hf_rpc_array_len, {
 			"num", "rpc.array.len", FT_UINT32, BASE_DEC,
 			NULL, 0, "Length of RPC array", HFILL }},
+
+		{ &hf_rpc_time, {
+			"Time from request", "rpc.time", FT_RELATIVE_TIME, BASE_NONE,
+			NULL, 0, "Time between Request and Reply for ONC-RPC calls", HFILL }},
+
 	};
 	static gint *ett[] = {
 		&ett_rpc,
