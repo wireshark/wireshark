@@ -418,7 +418,8 @@ p_add_proto_data
 p_get_proto_data
 range_convert_range
 range_convert_str
-range_init
+range_copy
+range_empty
 ranges_are_equal
 RasMessage_vals                 DATA
 read_prefs
