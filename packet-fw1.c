@@ -1,12 +1,12 @@
 /* packet-fw1.c
  * Routines for Ethernet header disassembly of FW1 "monitor" files
- * Copyright 2002, Alfred Koebler <ak@icon-sult.de>
+ * Copyright 2002,2003, Alfred Koebler <ako@icon.de>
  *
- * $Id: packet-fw1.c,v 1.7 2003/06/12 07:37:30 guy Exp $
+ * $Id: packet-fw1.c,v 1.8 2003/08/16 00:29:15 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Alfred Koebler <ak@icon-sult.de>
- * Copyright 2002 Alfred Koebler
+ * By Alfred Koebler <ako@icon.de>
+ * Copyright 2002,2003 Alfred Koebler
  *
  * To use this dissector use the command line option
  * -o eth.interpret_as_fw1_monitor:TRUE
@@ -60,6 +60,13 @@
  * 9.12.2002
  * Add new column with summary of FW-1 interface/direction
  *
+ * 11.8.2003
+ * Additional interpretation of field Chain Position.
+ * Show the chain position in the interface list.
+ * Support for new format of fw monitor file 
+ * writen by option -u | -s for UUID/SUUID.
+ * NOTICE: First paket will have UUID == 0 !
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
@@ -88,11 +95,15 @@
 
 /* Place FW1 summary in proto tree */
 static gboolean fw1_summary_in_tree = TRUE;
+static gboolean fw1_with_uuid = FALSE;
+static gboolean fw1_iflist_with_chain = FALSE;
 
 /* Initialize the protocol and registered fields */
 static int proto_fw1 = -1;
 static int hf_fw1_direction = -1;
+static int hf_fw1_chain = -1;
 static int hf_fw1_interface = -1;
+static int hf_fw1_uuid = -1;
 static int hf_fw1_type = -1;
 static int hf_fw1_trailer = -1;
 
@@ -110,7 +121,9 @@ dissect_fw1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_item    *ti;
   proto_tree    *volatile fh_tree = NULL;
   char		direction[3];
+  char		chain[3];
   char		interface_name[10+1];
+  guint32	uuid;
   guint16	etype;
   char		header[1000];
   char		*p_header;
@@ -146,7 +159,16 @@ dissect_fw1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /* fetch info to local variable */
   direction[0] = tvb_get_guint8(tvb, 0);
   direction[1] = 0;
-  tvb_get_nstringz0(tvb, 2, sizeof interface_name, interface_name);
+  chain[0] = tvb_get_guint8(tvb, 1);
+  chain[1] = 0;
+
+  if (!fw1_with_uuid) {
+    tvb_get_nstringz0(tvb, 2, 6, interface_name);
+    uuid = 0;
+  } else {
+    tvb_get_nstringz0(tvb, 2, sizeof interface_name, interface_name);
+    uuid = tvb_get_ntohl(tvb, 8);
+  }
 
   /* Known interface name - if not, remember it */
   found=1;
@@ -166,11 +188,21 @@ dissect_fw1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       found=0;
     }
     p_header = header + strlen(header);
-    sprintf(p_header, "  %c %s %c",
+    if (!fw1_iflist_with_chain) {
+      sprintf(p_header, "  %c %s %c",
 	found==0 ? (direction[0]=='i' ? 'i' : (direction[0]=='O' ? 'O' : ' ')) : ' ',
 	p_interfaces[i],
 	found==0 ? (direction[0]=='I' ? 'I' : (direction[0]=='o' ? 'o' : ' ')) : ' '
 	);
+    } else {
+      sprintf(p_header, "  %c%c %s %c%c",
+	found==0 ? (direction[0]=='i' ? 'i' : (direction[0]=='O' ? 'O' : ' ')) : ' ',
+	found==0 ? (direction[0]=='i' ? chain[0] : (direction[0]=='O' ? chain[0] : ' ')) : ' ',
+	p_interfaces[i],
+	found==0 ? (direction[0]=='I' ? 'I' : (direction[0]=='o' ? 'o' : ' ')) : ' ',
+	found==0 ? (direction[0]=='I' ? chain[0] : (direction[0]=='o' ? chain[0] : ' ')) : ' '
+	);
+    }
   }
 
   if (check_col(pinfo->cinfo, COL_IF_DIR))
@@ -187,10 +219,18 @@ dissect_fw1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     fh_tree = proto_item_add_subtree(ti, ett_fw1);
 
     proto_tree_add_item(fh_tree, hf_fw1_direction, tvb, 0, 1, FALSE);
+    proto_tree_add_item(fh_tree, hf_fw1_chain, tvb, 1, 1, FALSE);
 
-    proto_tree_add_string_format(fh_tree, hf_fw1_interface,
+    if (!fw1_with_uuid) {
+      proto_tree_add_string_format(fh_tree, hf_fw1_interface,
 	tvb, 2, 10,
 	interface_name, "Interface: %s", interface_name);
+    } else {
+      proto_tree_add_string_format(fh_tree, hf_fw1_interface,
+	tvb, 2, 6,
+	interface_name, "Interface: %s", interface_name);
+      proto_tree_add_item(fh_tree, hf_fw1_uuid, tvb, 8, 4, FALSE);
+    }
   }
   ethertype(etype, tvb, ETH_HEADER_SIZE, pinfo, tree, fh_tree, hf_fw1_type,
           hf_fw1_trailer);
@@ -203,9 +243,15 @@ proto_register_fw1(void)
 	{ &hf_fw1_direction,
 	{ "Direction",	"fw1.direction", FT_STRING, BASE_NONE, NULL, 0x0,
 		"Direction", HFILL }},
+	{ &hf_fw1_chain,
+	{ "Chain Position",	"fw1.chain", FT_STRING, BASE_NONE, NULL, 0x0,
+		"Chain Position", HFILL }},
 	{ &hf_fw1_interface,
 	{ "Interface",	"fw1.interface", FT_STRING, BASE_NONE, NULL, 0x0,
 		"Interface", HFILL }},
+	{ &hf_fw1_uuid,
+	{ "UUID",	"fw1.uuid", FT_UINT32, BASE_DEC, NULL, 0x0,
+		"UUID", HFILL }},
 		/* registered here but handled in ethertype.c */
 	{ &hf_fw1_type,
 	{ "Type",		"fw1.type", FT_UINT16, BASE_HEX, VALS(etype_vals), 0x0,
@@ -229,6 +275,14 @@ proto_register_fw1(void)
             "Show FireWall-1 summary in protocol tree",
 	    "Whether the FireWall-1 summary line should be shown in the protocol tree",
             &fw1_summary_in_tree);
+  prefs_register_bool_preference(fw1_module, "with_uuid",
+            "fw monitor file includes UUID",
+	    "Whether the fw monitor file includes information of UUID",
+            &fw1_with_uuid);
+  prefs_register_bool_preference(fw1_module, "iflist_with_chain",
+            "Interface list with chain position",
+	    "Whether the interface list includes chain position",
+            &fw1_iflist_with_chain);
 
   register_dissector("fw1", dissect_fw1, proto_fw1);
 }
