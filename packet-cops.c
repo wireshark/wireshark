@@ -4,7 +4,7 @@
  *
  * Copyright 2000, Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-cops.c,v 1.32 2002/08/28 21:00:08 jmayer Exp $
+ * $Id: packet-cops.c,v 1.33 2003/02/21 00:11:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -430,10 +430,10 @@ static guint get_cops_pdu_len(tvbuff_t *tvb, int offset);
 static void dissect_cops_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 static int dissect_cops_object(tvbuff_t *tvb, guint32 offset, proto_tree *tree);
-static int dissect_cops_object_data(tvbuff_t *tvb, guint32 offset, proto_tree *tree,
-                                    guint8 c_num, guint8 c_type, guint16 len);
+static void dissect_cops_object_data(tvbuff_t *tvb, guint32 offset, proto_tree *tree,
+                                     guint8 c_num, guint8 c_type, guint16 len);
 
-static int dissect_cops_pr_objects(tvbuff_t *tvb, guint32 offset, proto_tree *tree, guint16 pr_len);
+static void dissect_cops_pr_objects(tvbuff_t *tvb, guint32 offset, proto_tree *tree, guint16 pr_len);
 static int dissect_cops_pr_object_data(tvbuff_t *tvb, guint32 offset, proto_tree *tree,
 				       guint8 s_num, guint8 s_type, guint16 len);
 
@@ -458,6 +458,7 @@ static void
 dissect_cops_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
         guint8 op_code;
+        int object_len;
 
         if (check_col(pinfo->cinfo, COL_PROTOCOL))
                 col_set_str(pinfo->cinfo, COL_PROTOCOL, "COPS");
@@ -491,17 +492,21 @@ dissect_cops_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 proto_tree_add_uint(ver_flags_tree, hf_cops_flags, tvb, offset, 1, ver_flags);
                 offset++;
 
-                proto_tree_add_uint(cops_tree, hf_cops_op_code, tvb, offset, 1, tvb_get_guint8(tvb, offset));
+                proto_tree_add_item(cops_tree, hf_cops_op_code, tvb, offset, 1, FALSE);
                 offset ++;
-                proto_tree_add_uint(cops_tree, hf_cops_client_type, tvb, offset, 2, tvb_get_ntohs(tvb, offset));
+                proto_tree_add_item(cops_tree, hf_cops_client_type, tvb, offset, 2, FALSE);
                 offset += 2;
 
                 msg_len = tvb_get_ntohl(tvb, offset);
-                proto_tree_add_uint(cops_tree, hf_cops_msg_len, tvb, offset, 4, tvb_get_ntohl(tvb, offset));
+                proto_tree_add_uint(cops_tree, hf_cops_msg_len, tvb, offset, 4, msg_len);
                 offset += 4;
 
-                while (tvb_reported_length_remaining(tvb, offset) >= COPS_OBJECT_HDR_SIZE)
-                        offset += dissect_cops_object(tvb, offset, cops_tree);
+                while (tvb_reported_length_remaining(tvb, offset) >= COPS_OBJECT_HDR_SIZE) {
+                        object_len = dissect_cops_object(tvb, offset, cops_tree);
+                        if (object_len < 0)
+                                return;
+                        offset += object_len;
+                }
 
                 garbage = tvb_length_remaining(tvb, offset);
                 if (garbage > 0)
@@ -509,8 +514,6 @@ dissect_cops_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                             "Trailing garbage: %d byte%s", garbage,
                                             plurality(garbage, "", "s"));
         }
-
-        return;
 }
 
 static char *cops_c_type_to_str(guint8 c_num, guint8 c_type)
@@ -572,14 +575,20 @@ static char *cops_c_type_to_str(guint8 c_num, guint8 c_type)
 
 static int dissect_cops_object(tvbuff_t *tvb, guint32 offset, proto_tree *tree)
 {
-        guint16 object_len, contents_len;
+        int object_len, contents_len;
         guint8 c_num, c_type;
         proto_item *ti;
         proto_tree *obj_tree;
         char *type_str;
-        int ret;
 
         object_len = tvb_get_ntohs(tvb, offset);
+        if (object_len < COPS_OBJECT_HDR_SIZE) {
+                /* Bogus! */
+                proto_tree_add_text(tree, tvb, offset, 2,
+                                    "Bad COPS object length: %u, should be at least %u\n",
+                                    object_len, COPS_OBJECT_HDR_SIZE);
+                return -1;
+        }
         c_num = tvb_get_guint8(tvb, offset + 2);
         c_type = tvb_get_guint8(tvb, offset + 3);
 
@@ -588,7 +597,7 @@ static int dissect_cops_object(tvbuff_t *tvb, guint32 offset, proto_tree *tree)
                                         cops_c_type_to_str(c_num, c_type));
         obj_tree = proto_item_add_subtree(ti, ett_cops_obj);
 
-        proto_tree_add_uint(obj_tree, hf_cops_obj_len, tvb, offset, 2, tvb_get_ntohs(tvb, offset));
+        proto_tree_add_uint(obj_tree, hf_cops_obj_len, tvb, offset, 2, object_len);
         offset += 2;
 
         proto_tree_add_uint(obj_tree, hf_cops_obj_c_num, tvb, offset, 1, c_num);
@@ -603,8 +612,7 @@ static int dissect_cops_object(tvbuff_t *tvb, guint32 offset, proto_tree *tree)
         offset++;
 
         contents_len = object_len - COPS_OBJECT_HDR_SIZE;
-        ret = dissect_cops_object_data(tvb, offset, obj_tree, c_num, c_type, contents_len);
-        if (ret < 0) return 0;
+        dissect_cops_object_data(tvb, offset, obj_tree, c_num, c_type, contents_len);
 
         /* Pad to 32bit boundary */
         if (object_len % sizeof (guint32))
@@ -613,9 +621,9 @@ static int dissect_cops_object(tvbuff_t *tvb, guint32 offset, proto_tree *tree)
         return object_len;
 }
 
-static int dissect_cops_pr_objects(tvbuff_t *tvb, guint32 offset, proto_tree *tree, guint16 pr_len)
+static void dissect_cops_pr_objects(tvbuff_t *tvb, guint32 offset, proto_tree *tree, guint16 pr_len)
 {
-        guint16 object_len, contents_len;
+        int object_len, contents_len;
         guint8 s_num, s_type;
         char *type_str;
         int ret;
@@ -626,13 +634,20 @@ static int dissect_cops_pr_objects(tvbuff_t *tvb, guint32 offset, proto_tree *tr
 
         while (pr_len >= COPS_OBJECT_HDR_SIZE) {
                 object_len = tvb_get_ntohs(tvb, offset);
+                if (object_len < COPS_OBJECT_HDR_SIZE) {
+                        /* Bogus! */
+                        proto_tree_add_text(tree, tvb, offset, 2,
+                                            "Bad COPS PR object length: %u, should be at least %u\n",
+                                            object_len, COPS_OBJECT_HDR_SIZE);
+                        return;
+                }
                 s_num = tvb_get_guint8(tvb, offset + 2);
 
                 ti = proto_tree_add_uint_format(cops_pr_tree, hf_cops_obj_s_num, tvb, offset, object_len, s_num,
                                         "%s", val_to_str(s_num, cops_s_num_vals, "Unknown"));
                 obj_tree = proto_item_add_subtree(cops_pr_tree, ett_cops_pr_obj);
 
-                proto_tree_add_uint(obj_tree, hf_cops_obj_len, tvb, offset, 2, tvb_get_ntohs(tvb, offset));
+                proto_tree_add_uint(obj_tree, hf_cops_obj_len, tvb, offset, 2, object_len);
                 offset += 2;
                 pr_len -= 2;
 
@@ -662,12 +677,10 @@ static int dissect_cops_pr_objects(tvbuff_t *tvb, guint32 offset, proto_tree *tr
                 pr_len -= object_len - COPS_OBJECT_HDR_SIZE;
                 offset += object_len - COPS_OBJECT_HDR_SIZE;
 	}
-
-        return 0;
 }
 
-static int dissect_cops_object_data(tvbuff_t *tvb, guint32 offset, proto_tree *tree,
-                                    guint8 c_num, guint8 c_type, guint16 len)
+static void dissect_cops_object_data(tvbuff_t *tvb, guint32 offset, proto_tree *tree,
+                                     guint8 c_num, guint8 c_type, guint16 len)
 {
         proto_item *ti;
         proto_tree *r_type_tree, *itf_tree, *reason_tree, *dec_tree, *error_tree, *clientsi_tree, *pdp_tree;
@@ -862,8 +875,6 @@ static int dissect_cops_object_data(tvbuff_t *tvb, guint32 offset, proto_tree *t
 
                 break;
         }
-
-        return 0;
 }
 
 
