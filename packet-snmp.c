@@ -8,7 +8,7 @@
  *
  * See RFCs 1905, 1906, 1909, and 1910 for SNMPv2u.
  *
- * $Id: packet-snmp.c,v 1.81 2002/03/01 02:48:10 guy Exp $
+ * $Id: packet-snmp.c,v 1.82 2002/03/06 03:52:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -583,6 +583,23 @@ format_oid(subid_t *oid, guint oid_length)
 
 #ifdef HAVE_SPRINT_VALUE
 static gchar *
+check_var_length(guint vb_length, guint required_length)
+{
+	gchar *buf;
+	static const char badlen_fmt[] = "Length is %u, should be %u";
+
+	if (vb_length != required_length) {
+		/* Enough room for the largest "Length is XXX,
+		   should be XXX" message - 10 digits for each
+		   XXX. */
+		buf = g_malloc(sizeof badlen_fmt + 10 + 10);
+		sprintf(buf, badlen_fmt, vb_length, required_length);
+		return buf;
+	}
+	return NULL;	/* length is OK */
+}
+
+static gchar *
 format_var(struct variable_list *variable, subid_t *variable_oid,
     guint variable_oid_length, gushort vb_type, guint vb_length)
 {
@@ -600,12 +617,30 @@ format_var(struct variable_list *variable, subid_t *variable_oid,
 		buf = g_malloc(128);
 		break;
 
-	case SNMP_OCTETSTR:
 	case SNMP_IPADDR:
+		/* Length has to be 4 bytes. */
+		buf = check_var_length(vb_length, 4);
+		if (buf != NULL)
+			return buf;	/* it's not 4 bytes */
+		/* We don't know how long this will be, but let's guess it
+		   fits within 128 characters plus 4 characters per octet. */
+		buf = g_malloc(128 + 4*vb_length);
+		break;
+
+	case SNMP_COUNTER64:
+		/* Length has to be 8 bytes. */
+		buf = check_var_length(vb_length, 8);
+		if (buf != NULL)
+			return buf;	/* it's not 8 bytes */
+		/* We don't know how long this will be, but let's guess it
+		   fits within 128 characters plus 4 characters per octet. */
+		buf = g_malloc(128 + 4*vb_length);
+		break;
+
+	case SNMP_OCTETSTR:
 	case SNMP_OPAQUE:
 	case SNMP_NSAP:
 	case SNMP_BITSTR:
-	case SNMP_COUNTER64:
 		/* We don't know how long this will be, but let's guess it
 		   fits within 128 characters plus 4 characters per octet. */
 		buf = g_malloc(128 + 4*vb_length);
