@@ -1,6 +1,6 @@
 /* wtap-int.h
  *
- * $Id: wtap-int.h,v 1.36 2003/07/29 19:42:01 guy Exp $
+ * $Id: wtap-int.h,v 1.37 2003/07/29 20:41:19 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -218,25 +218,11 @@ struct wtap_dumper {
 	  (((x)&0x00FF)<<8))
 
 /* Turn host-byte-order values into little-endian values. */
-#ifdef WORDS_BIGENDIAN
-#define htoles(s) ((guint16)                       \
-                    ((guint16)((s) & 0x00FF)<<8|  \
-                     (guint16)((s) & 0xFF00)>>8))
-
-#define htolel(l) ((guint32)((l) & 0x000000FF)<<24|  \
-                   (guint32)((l) & 0x0000FF00)<<8|  \
-                   (guint32)((l) & 0x00FF0000)>>8|   \
-                   (guint32)((l) & 0xFF000000)>>24)
-
+#define htoles(ll) GUINT16_TO_LE(ll)
+#define htolel(ll) GUINT32_TO_LE(ll)
 #ifdef G_HAVE_GINT64
 #define htolell(ll) GUINT64_TO_LE(ll)
 #endif /* G_HAVE_GINT64 */
-
-#else /* WORDS_BIGENDIAN */
-#define htoles(s)	(s)
-#define htolel(l)	(l)
-#define htolell(ll)	(ll)
-#endif /* WORDS_BIGENDIAN */
 
 /* Pointer versions of ntohs and ntohl.  Given a pointer to a member of a
  * byte array, returns the value of the two or four bytes at the pointer.
