@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.153 2004/01/31 12:13:23 ulfl Exp $
+ * $Id: menu.c,v 1.154 2004/01/31 14:23:53 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -80,7 +80,7 @@ clear_menu_recent_capture_file_cmd_cb(GtkWidget *w, gpointer unused _U_);
 #define GTK_MENU_FUNC(a) ((GtkItemFactoryCallback)(a))
 
 static void menus_init(void);
-static void set_menu_sensitivity (GtkItemFactory *, gchar *, gint);
+static void set_menu_sensitivity (GtkItemFactory *, const gchar *, gint);
 static void main_toolbar_show_cb(GtkWidget *w _U_, gpointer d _U_);
 static void filter_toolbar_show_cb(GtkWidget *w _U_, gpointer d _U_);
 static void packet_list_show_cb(GtkWidget *w _U_, gpointer d _U_);
@@ -640,10 +640,26 @@ register_tap_menu_item(char *name, GtkItemFactoryCallback callback,
  * Enable/disable menu sensitivity.
  */
 static void
-set_menu_sensitivity(GtkItemFactory *ifactory, gchar *path, gint val)
+set_menu_sensitivity(GtkItemFactory *ifactory, const gchar *path, gint val)
 {
   GSList *menu_list;
   GtkWidget *menu_item;
+  gchar *dup;
+  gchar *dest;
+
+
+  /* the underscore character regularly confuses things, as it will prevent finding 
+   * the menu_item, so it has to be removed first */
+  dup = g_strdup(path);
+  dest = dup;
+  while(*path) {
+      if (*path != '_') {
+        *dest = *path;
+        dest++;
+      }
+      path++;
+  }
+  *dest = '\0';
 
   if (ifactory == NULL) {
     /*
@@ -651,15 +667,15 @@ set_menu_sensitivity(GtkItemFactory *ifactory, gchar *path, gint val)
      */
     for (menu_list = popup_menu_list; menu_list != NULL;
          menu_list = g_slist_next(menu_list))
-      set_menu_sensitivity(menu_list->data, path, val);
+      set_menu_sensitivity(menu_list->data, dup, val);
   } else {
     /*
      * Do it for that particular menu.
      */
-    if ((menu_item = gtk_item_factory_get_widget(ifactory, path)) != NULL) {
+    if ((menu_item = gtk_item_factory_get_widget(ifactory, dup)) != NULL) {
       if (GTK_IS_MENU(menu_item)) {
         /*
-         * "path" refers to a submenu; "gtk_item_factory_get_widget()"
+         * "dup" refers to a submenu; "gtk_item_factory_get_widget()"
          * gets the menu, not the item that, when selected, pops up
          * the submenu.
          *
@@ -668,10 +684,15 @@ set_menu_sensitivity(GtkItemFactory *ifactory, gchar *path, gint val)
          * insensitive.
          */
         menu_item = gtk_menu_get_attach_widget(GTK_MENU(menu_item));
-      } 
+      }
       gtk_widget_set_sensitive(menu_item, val);
+    } else{
+      /* be sure this menu item *is* existing */
+      g_assert_not_reached();
     }
   }
+
+  g_free(dup);
 }
 
 void
@@ -1383,12 +1404,9 @@ set_menus_for_captured_packets(gboolean have_captured_packets)
       have_captured_packets);
   set_menu_sensitivity(main_menu_factory, "/Analyze/Summary",
       have_captured_packets);
-  set_menu_sensitivity(main_menu_factory,
-      "/Analyze/Protocol Hierarchy Statistics", have_captured_packets);
-  set_menu_sensitivity(packet_list_menu_factory, "/Match",
+  set_menu_sensitivity(main_menu_factory, "/Analyze/Protocol Hierarchy Statistics", 
       have_captured_packets);
-  set_menu_sensitivity(packet_list_menu_factory, "/Prepare",
-      have_captured_packets);
+      
   walk_menu_tree_for_captured_packets(&tap_menu_tree_root,
       have_captured_packets);
   set_toolbar_for_captured_packets(have_captured_packets);
@@ -1454,15 +1472,13 @@ walk_menu_tree_for_selected_packet(menu_item_t *node, frame_data *fd,
 void
 set_menus_for_selected_packet(capture_file *cf)
 {
-  set_menu_sensitivity(main_menu_factory, "/File/Print Packet",
-      cf->current_frame != NULL);
-  set_menu_sensitivity(packet_list_menu_factory, "/Print Packet",
-      cf->current_frame != NULL);
   set_menu_sensitivity(main_menu_factory, "/Edit/Mark Packet",
+      cf->current_frame != NULL);
+  set_menu_sensitivity(packet_list_menu_factory, "/Mark Packet",
       cf->current_frame != NULL);
   set_menu_sensitivity(main_menu_factory, "/Edit/Time Reference",
       cf->current_frame != NULL);
-  set_menu_sensitivity(packet_list_menu_factory, "/Mark Packet",
+  set_menu_sensitivity(packet_list_menu_factory, "/Time Reference",
       cf->current_frame != NULL);
   set_menu_sensitivity(main_menu_factory, "/Edit/Mark All Packets",
       cf->current_frame != NULL);
@@ -1492,6 +1508,11 @@ set_menus_for_selected_packet(capture_file *cf)
       cf->current_frame != NULL && g_resolv_flags == 0);
   set_menu_sensitivity(main_menu_factory, "/Analyze/TCP Stream Analysis",
       cf->current_frame != NULL ? (cf->edt->pi.ipproto == IP_PROTO_TCP) : FALSE);
+  set_menu_sensitivity(packet_list_menu_factory, "/Match",
+      cf->current_frame != NULL);
+  set_menu_sensitivity(packet_list_menu_factory, "/Prepare",
+      cf->current_frame != NULL);
+
   walk_menu_tree_for_selected_packet(&tap_menu_tree_root, cf->current_frame,
       cf->edt);
 }
@@ -1557,6 +1578,14 @@ set_menus_for_selected_tree_row(capture_file *cf)
 {
   gboolean properties;
 
+
+  set_menu_sensitivity(main_menu_factory, "/File/Export/Selected Packet Bytes...", 
+      cf->finfo_selected != NULL);  
+  set_menu_sensitivity(tree_view_menu_factory, "/Export Selected Packet Bytes...", 
+      cf->finfo_selected != NULL);
+  set_menu_sensitivity(hexdump_menu_factory, "/Export Selected Packet Bytes...", 
+      cf->finfo_selected != NULL);
+  
   if (cf->finfo_selected != NULL) {
 	header_field_info *hfinfo = cf->finfo_selected->hfinfo;
 	if (hfinfo->parent == -1) {
