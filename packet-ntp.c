@@ -2,7 +2,7 @@
  * Routines for NTP packet dissection
  * Copyright 1999, Nathan Neulinger <nneul@umr.edu>
  *
- * $Id: packet-ntp.c,v 1.38 2003/07/08 01:52:19 gram Exp $
+ * $Id: packet-ntp.c,v 1.39 2003/11/12 20:44:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -186,7 +186,116 @@ static const struct {
 	{ NULL,		NULL}
 };
 
+#define NTP_EXT_R_MASK 0x80
+
+static const value_string ext_r_types[] = {
+	{ 0,		"Request" },
+	{ 1,		"Response" },
+	{ 0,		NULL}
+};
+
+#define NTP_EXT_ERROR_MASK 0x40
+#define NTP_EXT_VN_MASK 0x3f
+
+static const value_string ext_op_types[] = {
+	{ 0,		"NULL" },
+	{ 1,		"ASSOC" },
+	{ 2,		"CERT" },
+	{ 3,		"COOK" },
+	{ 4,		"AUTO" },
+	{ 5,		"TAI" },
+	{ 6,		"SIGN" },
+	{ 7,		"IFF" },
+	{ 8,		"GQ" },
+	{ 9,		"MV" },
+	{ 0,		NULL}
+};
+
+#define NTPCTRL_R_MASK 0x80
+
+#define ctrl_r_types ext_r_types
+
+#define NTPCTRL_ERROR_MASK 0x40
+#define NTPCTRL_MORE_MASK 0x20
+#define NTPCTRL_OP_MASK 0x1f
+
+static const value_string ctrl_op_types[] = {
+	{ 0,		"UNSPEC" },
+	{ 1,		"READSTAT" },
+	{ 2,		"READVAR" },
+	{ 3,		"WRITEVAR" },
+	{ 4,		"READCLOCK" },
+	{ 5,		"WRITECLOCK" },
+	{ 6,		"SETTRAP" },
+	{ 7,		"ASYNCMSG" },
+	{ 31,		"UNSETTRAP" },
+	{ 0,		NULL}
+};
+
+#define NTPPRIV_R_MASK 0x80
+
+#define priv_r_types ext_r_types
+
+#define NTPPRIV_MORE_MASK 0x40
+
+#define NTPPRIV_AUTH_MASK 0x80
+#define NTPPRIV_SEQ_MASK 0x7f
+
+static const value_string priv_impl_types[] = {
+	{ 0,		"UNIV" },
+	{ 2,		"XNTPD_OLD (pre-IPv6)" },
+	{ 3,		"XNTPD" },
+	{ 0,		NULL}
+};
+
+static const value_string priv_rc_types[] = {
+	{ 0,		"PEER_LIST" },
+	{ 1,		"PEER_LIST_SUM" },
+	{ 2,		"PEER_INFO" },
+	{ 3,		"PEER_STATS" },
+	{ 4,		"SYS_INFO" },
+	{ 5,		"SYS_STATS" },
+	{ 6,		"IO_STATS" },
+	{ 7,		"MEM_STATS" },
+	{ 8,		"LOOP_INFO" },
+	{ 9,		"TIMER_STATS" },
+	{ 10,		"CONFIG" },
+	{ 11,		"UNCONFIG" },
+	{ 12,		"SET_SYS_FLAG" },
+	{ 13,		"CLR_SYS_FLAG" },
+	{ 16,		"GET_RESTRICT" },
+	{ 17,		"RESADDFLAGS" },
+	{ 18,		"RESSUBFLAGS" },
+	{ 19,		"UNRESTRICT" },
+	{ 20,		"MON_GETLIST" },
+	{ 21,		"RESET_STATS" },
+	{ 22,		"RESET_PEER" },
+	{ 23,		"REREAD_KEYS" },
+	{ 26,		"TRUSTKEY" },
+	{ 27,		"UNTRUSTKEY" },
+	{ 28,		"AUTHINFO" },
+	{ 29,		"TRAPS" },
+	{ 30,		"ADD_TRAP" },
+	{ 31,		"CLR_TRAP" },
+	{ 32,		"REQUEST_KEY" },
+	{ 33,		"CONTROL_KEY" },
+	{ 34,		"GET_CTLSTATS" },
+	{ 36,		"GET_CLOCKINFO" },
+	{ 37,		"SET_CLKFUDGE" },
+	{ 38,		"GET_KERNEL" },
+	{ 39,		"GET_CLKBUGINFO" },
+	{ 42,		"MON_GETLIST_1" },
+	{ 43,		"HOSTNAME_ASSOCID" },
+	{ 0,		NULL}
+};
+
+/*
+ * Maximum MAC length.
+ */
+#define MAX_MAC_LEN	(5 * sizeof (guint32))
+
 static int proto_ntp = -1;
+
 static int hf_ntp_flags = -1;
 static int hf_ntp_flags_li = -1;
 static int hf_ntp_flags_vn = -1;
@@ -204,8 +313,46 @@ static int hf_ntp_xmt = -1;
 static int hf_ntp_keyid = -1;
 static int hf_ntp_mac = -1;
 
+static int hf_ntp_ext = -1;
+static int hf_ntp_ext_flags = -1;
+static int hf_ntp_ext_flags_r = -1;
+static int hf_ntp_ext_flags_error = -1;
+static int hf_ntp_ext_flags_vn = -1;
+static int hf_ntp_ext_op = -1;
+static int hf_ntp_ext_len = -1;
+static int hf_ntp_ext_associd = -1;
+static int hf_ntp_ext_tstamp = -1;
+static int hf_ntp_ext_fstamp = -1;
+static int hf_ntp_ext_vallen = -1;
+static int hf_ntp_ext_val = -1;
+static int hf_ntp_ext_siglen = -1;
+static int hf_ntp_ext_sig = -1;
+
+static int hf_ntpctrl_flags2 = -1;
+static int hf_ntpctrl_flags2_r = -1;
+static int hf_ntpctrl_flags2_error = -1;
+static int hf_ntpctrl_flags2_more = -1;
+static int hf_ntpctrl_flags2_opcode = -1;
+
+static int hf_ntppriv_flags_r = -1;
+static int hf_ntppriv_flags_more = -1;
+static int hf_ntppriv_auth_seq = -1;
+static int hf_ntppriv_auth = -1;
+static int hf_ntppriv_seq = -1;
+static int hf_ntppriv_impl = -1;
+static int hf_ntppriv_reqcode = -1;
+
 static gint ett_ntp = -1;
 static gint ett_ntp_flags = -1;
+static gint ett_ntp_ext = -1;
+static gint ett_ntp_ext_flags = -1;
+static gint ett_ntpctrl_flags2 = -1;
+static gint ett_ntppriv_auth_seq = -1;
+
+static void dissect_ntp_std(tvbuff_t *, proto_tree *, guint8);
+static void dissect_ntp_ctrl(tvbuff_t *, proto_tree *, guint8);
+static void dissect_ntp_priv(tvbuff_t *, proto_tree *, guint8);
+static int dissect_ntp_ext(tvbuff_t *, proto_tree *, int);
 
 /* ntp_fmt_ts - converts NTP timestamp to human readable string.
  * reftime - 64bit timestamp (IN)
@@ -248,9 +395,51 @@ ntp_fmt_ts(const guint8 *reftime, char* buff)
 static void
 dissect_ntp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	proto_tree      *ntp_tree, *flags_tree;
-	proto_item	*ti, *tf;
+	proto_tree      *ntp_tree;
+	proto_item	*ti;
 	guint8		flags;
+	char *infostr;
+	void (*dissector)(tvbuff_t *, proto_item *, guint8);
+
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "NTP");
+
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_clear(pinfo->cinfo, COL_INFO);
+
+	flags = tvb_get_guint8(tvb, 0);
+	switch (flags & NTP_MODE_MASK) {
+	default:
+		infostr = "NTP";
+		dissector = dissect_ntp_std;
+		break;
+	case NTP_MODE_CTRL:
+		infostr = "NTP control";
+		dissector = dissect_ntp_ctrl;
+		break;
+	case NTP_MODE_PRIV:
+		infostr = "NTP private";
+		dissector = dissect_ntp_priv;
+		break;
+	}
+
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_set_str(pinfo->cinfo, COL_INFO, infostr);
+
+	if (tree) {
+		/* Adding NTP item and subtree */
+		ti = proto_tree_add_item(tree, proto_ntp, tvb, 0, -1, FALSE);
+		ntp_tree = proto_item_add_subtree(ti, ett_ntp);
+
+		(*dissector)(tvb, ntp_tree, flags);
+	}
+}
+
+static void
+dissect_ntp_std(tvbuff_t *tvb, proto_tree *ntp_tree, guint8 flags)
+{
+	proto_tree      *flags_tree;
+	proto_item	*tf;
 	guint8		stratum;
 	guint8		ppoll;
 	gint8		precision;
@@ -264,168 +453,344 @@ dissect_ntp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	const guint8	*xmt;
 	gchar		buff[NTP_TS_SIZE];
 	int		i;
+	int		macofs;
+	gint            maclen;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "NTP");
+	tf = proto_tree_add_uint(ntp_tree, hf_ntp_flags, tvb, 0, 1, flags);
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, "NTP");
+	/* Adding flag subtree and items */
+	flags_tree = proto_item_add_subtree(tf, ett_ntp_flags);
+	proto_tree_add_uint(flags_tree, hf_ntp_flags_li, tvb, 0, 1, flags);
+	proto_tree_add_uint(flags_tree, hf_ntp_flags_vn, tvb, 0, 1, flags);
+	proto_tree_add_uint(flags_tree, hf_ntp_flags_mode, tvb, 0, 1, flags);
 
-	if (tree) {
-		/* Adding NTP item and subtree */
-		ti = proto_tree_add_item(tree, proto_ntp, tvb, 0, -1, FALSE);
-		ntp_tree = proto_item_add_subtree(ti, ett_ntp);
-
-		flags = tvb_get_guint8(tvb, 0);
-		tf = proto_tree_add_uint(ntp_tree, hf_ntp_flags, tvb, 0, 1,
-		    flags);
-
-		/* Adding flag subtree and items */
-		flags_tree = proto_item_add_subtree(tf, ett_ntp_flags);
-		proto_tree_add_uint(flags_tree, hf_ntp_flags_li, tvb, 0, 1,
-					   flags);
-		proto_tree_add_uint(flags_tree, hf_ntp_flags_vn, tvb, 0, 1,
-					   flags);
-		proto_tree_add_uint(flags_tree, hf_ntp_flags_mode, tvb, 0, 1,
-					   flags);
-
-		/* Stratum, 1byte field represents distance from primary source
-		 */
-		stratum = tvb_get_guint8(tvb, 1);
-		if (stratum == 0) {
-			strcpy (buff, "Peer Clock Stratum: unspecified or unavailable (%u)");
-		} else if (stratum == 1) {
-			strcpy (buff, "Peer Clock Stratum: primary reference (%u)");
-		} else if ((stratum >= 2) && (stratum <= 15)) {
-			strcpy (buff, "Peer Clock Stratum: secondary reference (%u)");
-		} else {
-			strcpy (buff, "Peer Clock Stratum: reserved: %u");
-		}
-		proto_tree_add_uint_format(ntp_tree, hf_ntp_stratum, tvb, 1, 1,
-					   stratum, buff, stratum);
-		/* Poll interval, 1byte field indicating the maximum interval
-		 * between successive messages, in seconds to the nearest
-		 * power of two.
-		 */
-		ppoll = tvb_get_guint8(tvb, 2);
-		proto_tree_add_uint_format(ntp_tree, hf_ntp_ppoll, tvb, 2, 1,
-					   ppoll,
-					   (((ppoll >= 4) && (ppoll <= 16)) ?
-					   "Peer Polling Interval: %u (%u sec)" :
-					   "Peer Polling Interval: invalid (%u)"),
-					   ppoll,
-					   1 << ppoll);
-
-		/* Precision, 1byte field indicating the precision of the
-		 * local clock, in seconds to the nearest power of two.
-		 */
-		precision = tvb_get_guint8(tvb, 3);
-		proto_tree_add_int_format(ntp_tree, hf_ntp_precision, tvb, 3, 1,
-					   precision,
-					   "Peer Clock Precision: %8.6f sec",
-					   pow(2, precision));
-
-		/* Root Delay is a 32-bit signed fixed-point number indicating
-		 * the total roundtrip delay to the primary reference source,
-		 * in seconds with fraction point between bits 15 and 16.
-		 */
-		rootdelay = ((gint16)tvb_get_ntohs(tvb, 4)) +
-				(tvb_get_ntohs(tvb, 6) / 65536.0);
-		proto_tree_add_double_format(ntp_tree, hf_ntp_rootdelay, tvb, 4, 4,
-					   rootdelay,
-					   "Root Delay: %9.4f sec",
-					   rootdelay);
-
-		/* Root Dispersion, 32-bit unsigned fixed-point number indicating
-		 * the nominal error relative to the primary reference source, in
-		 * seconds with fraction point between bits 15 and 16.
-		 */
-		rootdispersion = ((gint16)tvb_get_ntohs(tvb, 8)) +
-					(tvb_get_ntohs(tvb, 10) / 65536.0);
-		proto_tree_add_double_format(ntp_tree, hf_ntp_rootdispersion, tvb, 8, 4,
-					   rootdispersion,
-					   "Clock Dispersion: %9.4f sec",
-					   rootdispersion);
-
-		/* Now, there is a problem with secondary servers.  Standards
-		 * asks from stratum-2 - stratum-15 servers to set this to the
-		 * low order 32 bits of the latest transmit timestamp of the
-		 * reference source.
-		 * But, all V3 and V4 servers set this to IP adress of their
-		 * higher level server. My decision was to resolve this address.
-		 */
-		refid = tvb_get_ptr(tvb, 12, 4);
-		if (stratum <= 1) {
-			snprintf (buff, sizeof buff,
-			    "Unindentified reference source '%.4s'",
-			    refid);
-			for (i = 0; primary_sources[i].id; i++) {
-				if (memcmp (refid, primary_sources[i].id,
-				    4) == 0) {
-					strcpy (buff, primary_sources[i].data);
-					break;
-				}
-			}
-		} else {
-			buff[sizeof(buff) - 1] = '\0';
-			tvb_memcpy(tvb, (guint8 *)&refid_addr, 12, 4);
-			strncpy (buff, get_hostname (refid_addr),
-			    sizeof(buff));
-			if (buff[sizeof(buff) - 1] != '\0')
-				strcpy(&buff[sizeof(buff) - 4], "...");
-		}
-		proto_tree_add_bytes_format(ntp_tree, hf_ntp_refid, tvb, 12, 4,
-					   refid,
-					   "Reference Clock ID: %s", buff);
-
-		/* Reference Timestamp: This is the time at which the local clock was
-		 * last set or corrected.
-		 */
-		reftime = tvb_get_ptr(tvb, 16, 8);
-		proto_tree_add_bytes_format(ntp_tree, hf_ntp_reftime, tvb, 16, 8,
-					   reftime,
-				           "Reference Clock Update Time: %s",
-					   ntp_fmt_ts(reftime, buff));
-
-		/* Originate Timestamp: This is the time at which the request departed
-		 * the client for the server.
-		 */
-		org = tvb_get_ptr(tvb, 24, 8);
-		proto_tree_add_bytes_format(ntp_tree, hf_ntp_org, tvb, 24, 8,
-					   org,
-				           "Originate Time Stamp: %s",
-					   ntp_fmt_ts(org, buff));
-		/* Receive Timestamp: This is the time at which the request arrived at
-		 * the server.
-		 */
-		rec = tvb_get_ptr(tvb, 32, 8);
-		proto_tree_add_bytes_format(ntp_tree, hf_ntp_rec, tvb, 32, 8,
-					   rec,
-				           "Receive Time Stamp: %s",
-					   ntp_fmt_ts(rec, buff));
-		/* Transmit Timestamp: This is the time at which the reply departed the
-		 * server for the client.
-		 */
-		xmt = tvb_get_ptr(tvb, 40, 8);
-		proto_tree_add_bytes_format(ntp_tree, hf_ntp_xmt, tvb, 40, 8,
-					   xmt,
-				           "Transmit Time Stamp: %s",
-					   ntp_fmt_ts(xmt, buff));
-
-		/* When the NTP authentication scheme is implemented, the
-		 * Key Identifier and Message Digest fields contain the
-		 * message authentication code (MAC) information defined in
-		 * Appendix C of RFC-1305. Will print this as hex code for now.
-		 */
-		if ( tvb_reported_length_remaining(tvb, 48) >= 4 )
-			proto_tree_add_item(ntp_tree, hf_ntp_keyid, tvb, 48, 4,
-					   FALSE);
-		if ( tvb_reported_length_remaining(tvb, 52) > 0 )
-			proto_tree_add_item(ntp_tree, hf_ntp_mac, tvb, 52,
-					   tvb_reported_length_remaining(tvb, 52),
-					   FALSE);
-
+	/* Stratum, 1byte field represents distance from primary source
+	 */
+	stratum = tvb_get_guint8(tvb, 1);
+	if (stratum == 0) {
+		strcpy (buff, "Peer Clock Stratum: unspecified or unavailable (%u)");
+	} else if (stratum == 1) {
+		strcpy (buff, "Peer Clock Stratum: primary reference (%u)");
+	} else if ((stratum >= 2) && (stratum <= 15)) {
+		strcpy (buff, "Peer Clock Stratum: secondary reference (%u)");
+	} else {
+		strcpy (buff, "Peer Clock Stratum: reserved: %u");
 	}
+	proto_tree_add_uint_format(ntp_tree, hf_ntp_stratum, tvb, 1, 1,
+				   stratum, buff, stratum);
+	/* Poll interval, 1byte field indicating the maximum interval
+	 * between successive messages, in seconds to the nearest
+	 * power of two.
+	 */
+	ppoll = tvb_get_guint8(tvb, 2);
+	proto_tree_add_uint_format(ntp_tree, hf_ntp_ppoll, tvb, 2, 1,
+				   ppoll,
+				   (((ppoll >= 4) && (ppoll <= 16)) ?
+				   "Peer Polling Interval: %u (%u sec)" :
+				   "Peer Polling Interval: invalid (%u)"),
+				   ppoll,
+				   1 << ppoll);
+
+	/* Precision, 1byte field indicating the precision of the
+	 * local clock, in seconds to the nearest power of two.
+	 */
+	precision = tvb_get_guint8(tvb, 3);
+	proto_tree_add_int_format(ntp_tree, hf_ntp_precision, tvb, 3, 1,
+				   precision,
+				   "Peer Clock Precision: %8.6f sec",
+				   pow(2, precision));
+
+	/* Root Delay is a 32-bit signed fixed-point number indicating
+	 * the total roundtrip delay to the primary reference source,
+	 * in seconds with fraction point between bits 15 and 16.
+	 */
+	rootdelay = ((gint16)tvb_get_ntohs(tvb, 4)) +
+			(tvb_get_ntohs(tvb, 6) / 65536.0);
+	proto_tree_add_double_format(ntp_tree, hf_ntp_rootdelay, tvb, 4, 4,
+				   rootdelay,
+				   "Root Delay: %9.4f sec",
+				   rootdelay);
+
+	/* Root Dispersion, 32-bit unsigned fixed-point number indicating
+	 * the nominal error relative to the primary reference source, in
+	 * seconds with fraction point between bits 15 and 16.
+	 */
+	rootdispersion = ((gint16)tvb_get_ntohs(tvb, 8)) +
+				(tvb_get_ntohs(tvb, 10) / 65536.0);
+	proto_tree_add_double_format(ntp_tree, hf_ntp_rootdispersion, tvb, 8, 4,
+				   rootdispersion,
+				   "Clock Dispersion: %9.4f sec",
+				   rootdispersion);
+
+	/* Now, there is a problem with secondary servers.  Standards
+	 * asks from stratum-2 - stratum-15 servers to set this to the
+	 * low order 32 bits of the latest transmit timestamp of the
+	 * reference source.
+	 * But, all V3 and V4 servers set this to IP adress of their
+	 * higher level server. My decision was to resolve this address.
+	 */
+	refid = tvb_get_ptr(tvb, 12, 4);
+	if (stratum <= 1) {
+		snprintf (buff, sizeof buff,
+		    "Unindentified reference source '%.4s'",
+		    refid);
+		for (i = 0; primary_sources[i].id; i++) {
+			if (memcmp (refid, primary_sources[i].id,
+			    4) == 0) {
+				strcpy (buff, primary_sources[i].data);
+				break;
+			}
+		}
+	} else {
+		buff[sizeof(buff) - 1] = '\0';
+		tvb_memcpy(tvb, (guint8 *)&refid_addr, 12, 4);
+		strncpy (buff, get_hostname (refid_addr),
+		    sizeof(buff));
+		if (buff[sizeof(buff) - 1] != '\0')
+			strcpy(&buff[sizeof(buff) - 4], "...");
+	}
+	proto_tree_add_bytes_format(ntp_tree, hf_ntp_refid, tvb, 12, 4,
+				   refid,
+				   "Reference Clock ID: %s", buff);
+
+	/* Reference Timestamp: This is the time at which the local clock was
+	 * last set or corrected.
+	 */
+	reftime = tvb_get_ptr(tvb, 16, 8);
+	proto_tree_add_bytes_format(ntp_tree, hf_ntp_reftime, tvb, 16, 8,
+				   reftime,
+			           "Reference Clock Update Time: %s",
+				   ntp_fmt_ts(reftime, buff));
+
+	/* Originate Timestamp: This is the time at which the request departed
+	 * the client for the server.
+	 */
+	org = tvb_get_ptr(tvb, 24, 8);
+	proto_tree_add_bytes_format(ntp_tree, hf_ntp_org, tvb, 24, 8,
+				   org,
+			           "Originate Time Stamp: %s",
+				   ntp_fmt_ts(org, buff));
+
+	/* Receive Timestamp: This is the time at which the request arrived at
+	 * the server.
+	 */
+	rec = tvb_get_ptr(tvb, 32, 8);
+	proto_tree_add_bytes_format(ntp_tree, hf_ntp_rec, tvb, 32, 8,
+				   rec,
+			           "Receive Time Stamp: %s",
+				   ntp_fmt_ts(rec, buff));
+
+	/* Transmit Timestamp: This is the time at which the reply departed the
+	 * server for the client.
+	 */
+	xmt = tvb_get_ptr(tvb, 40, 8);
+	proto_tree_add_bytes_format(ntp_tree, hf_ntp_xmt, tvb, 40, 8,
+				   xmt,
+			           "Transmit Time Stamp: %s",
+				   ntp_fmt_ts(xmt, buff));
+
+	/* MAX_MAC_LEN is the largest message authentication code
+	 * (MAC) length.  If we have more data left in the packet
+	 * after the header than that, the extra data is NTP4
+	 * extensions; parse them as such.
+	 */
+	macofs = 48;
+	while (tvb_reported_length_remaining(tvb, macofs) > (gint)MAX_MAC_LEN)
+		macofs = dissect_ntp_ext(tvb, ntp_tree, macofs);
+
+	/* When the NTP authentication scheme is implemented, the
+	 * Key Identifier and Message Digest fields contain the
+	 * message authentication code (MAC) information defined in
+	 * Appendix C of RFC-1305. Will print this as hex code for now.
+	 */
+	if (tvb_reported_length_remaining(tvb, macofs) >= 4)
+		proto_tree_add_item(ntp_tree, hf_ntp_keyid, tvb, macofs, 4,
+				    FALSE);
+	macofs += 4;
+	maclen = tvb_reported_length_remaining(tvb, macofs);
+	if (maclen > 0)
+		proto_tree_add_item(ntp_tree, hf_ntp_mac, tvb, macofs,
+				    maclen, FALSE);
+}
+
+static int
+dissect_ntp_ext(tvbuff_t *tvb, proto_tree *ntp_tree, int offset)
+{
+	proto_tree      *ext_tree, *flags_tree;
+	proto_item	*tf;
+	guint16         extlen;
+	int             endoffset;
+	guint8          flags;
+	guint32         vallen, vallen_round, siglen;
+
+	extlen = tvb_get_ntohs(tvb, offset+2);
+	if (extlen < 8) {
+		/* Extension length isn't enough for the extension header.
+		 * Report the error, and return an offset that goes to
+		 * the end of the tvbuff, so we stop dissecting.
+		 */
+		proto_tree_add_text(ntp_tree, tvb, offset+2, 2,
+				    "Extension length %u < 8", extlen);
+		offset += tvb_length_remaining(tvb, offset);
+		return offset;
+	}
+	if (extlen % 8) {
+		/* Extension length isn't a multiple of 8.  (Is it
+		 * required to be?)  Report the error, and return an
+		 * offset that goes to the end of the tvbuff, so we
+		 * stop dissecting.
+		 */
+		proto_tree_add_text(ntp_tree, tvb, offset+2, 2,
+				    "Extension length %u isn't a multiple of 8",
+				    extlen);
+		offset += tvb_length_remaining(tvb, offset);
+		return offset;
+	}
+	endoffset = offset + extlen;
+
+	tf = proto_tree_add_item(ntp_tree, hf_ntp_ext, tvb, offset, extlen,
+	    FALSE);
+	ext_tree = proto_item_add_subtree(tf, ett_ntp_ext);
+
+	flags = tvb_get_guint8(tvb, offset);
+	tf = proto_tree_add_uint(ext_tree, hf_ntp_ext_flags, tvb, offset, 1,
+				 flags);
+	flags_tree = proto_item_add_subtree(tf, ett_ntp_ext_flags);
+	proto_tree_add_uint(flags_tree, hf_ntp_ext_flags_r, tvb, offset, 1,
+			    flags);
+	proto_tree_add_uint(flags_tree, hf_ntp_ext_flags_error, tvb, offset, 1,
+			    flags);
+	proto_tree_add_uint(flags_tree, hf_ntp_ext_flags_vn, tvb, offset, 1,
+			    flags);
+	offset++;
+
+	proto_tree_add_item(ext_tree, hf_ntp_ext_op, tvb, offset, 1, FALSE);
+	offset++;
+
+	proto_tree_add_uint(ext_tree, hf_ntp_ext_len, tvb, offset, 2, extlen);
+	offset += 2;
+
+	if ((flags & NTP_EXT_VN_MASK) != 2) {
+		/* don't care about autokey v1 */
+		return endoffset;
+	}
+
+	proto_tree_add_item(ext_tree, hf_ntp_ext_associd, tvb, offset, 4,
+			    FALSE);
+	offset += 4;
+
+	if (extlen < MAX_MAC_LEN) {
+		/* XXX - report as error? */
+		return endoffset;
+	}
+
+	proto_tree_add_item(ext_tree, hf_ntp_ext_tstamp, tvb, offset, 4,
+			    FALSE);
+	offset += 4;
+	proto_tree_add_item(ext_tree, hf_ntp_ext_fstamp, tvb, offset, 4,
+			    FALSE);
+	offset += 4;
+	/* XXX fstamp can be server flags */
+
+	vallen = tvb_get_ntohl(tvb, offset);
+	proto_tree_add_uint(ext_tree, hf_ntp_ext_vallen, tvb, offset, 4,
+			    vallen);
+	vallen_round = (vallen + 3) & (-4);
+	if (vallen != 0) {
+		if ((guint32)(endoffset - offset) < vallen_round) {
+			/*
+			 * Value goes past the length of the extension
+			 * field.
+			 */
+			proto_tree_add_text(ext_tree, tvb, offset,
+					    endoffset - offset,
+					    "Value length makes value go past the end of the extension field");
+			return endoffset;
+		}
+		proto_tree_add_item(ext_tree, hf_ntp_ext_val, tvb, offset,
+				    vallen, FALSE);
+	}
+	offset += vallen_round;
+
+	siglen = tvb_get_ntohl(tvb, offset);
+	proto_tree_add_uint(ext_tree, hf_ntp_ext_siglen, tvb, offset, 4,
+			    siglen);
+	offset += 4;
+	if (siglen != 0) {
+		if (offset + (int)siglen > endoffset) {
+			/*
+			 * Value goes past the length of the extension
+			 * field.
+			 */
+			proto_tree_add_text(ext_tree, tvb, offset,
+					    endoffset - offset,
+					    "Signature length makes value go past the end of the extension field");
+			return endoffset;
+		}
+		proto_tree_add_item(ext_tree, hf_ntp_ext_sig, tvb,
+			offset, siglen, FALSE);
+	}
+	return endoffset;
+}
+
+static void
+dissect_ntp_ctrl(tvbuff_t *tvb, proto_tree *ntp_tree, guint8 flags)
+{
+	proto_tree      *flags_tree;
+	proto_item	*tf;
+	guint8 flags2;
+
+	tf = proto_tree_add_uint(ntp_tree, hf_ntp_flags, tvb, 0, 1, flags);
+
+	/* Adding flag subtree and items */
+	flags_tree = proto_item_add_subtree(tf, ett_ntp_flags);
+	proto_tree_add_uint(flags_tree, hf_ntp_flags_li, tvb, 0, 1, flags);
+	proto_tree_add_uint(flags_tree, hf_ntp_flags_vn, tvb, 0, 1, flags);
+	proto_tree_add_uint(flags_tree, hf_ntp_flags_mode, tvb, 0, 1, flags);
+
+	flags2 = tvb_get_guint8(tvb, 1);
+	tf = proto_tree_add_uint(ntp_tree, hf_ntpctrl_flags2, tvb, 1, 1,
+				 flags2);
+	flags_tree = proto_item_add_subtree(tf, ett_ntpctrl_flags2);
+	proto_tree_add_uint(flags_tree, hf_ntpctrl_flags2_r, tvb, 1, 1,
+			    flags2);
+	proto_tree_add_uint(flags_tree, hf_ntpctrl_flags2_error, tvb, 1, 1,
+			    flags2);
+	proto_tree_add_uint(flags_tree, hf_ntpctrl_flags2_more, tvb, 1, 1,
+			    flags2);
+	proto_tree_add_uint(flags_tree, hf_ntpctrl_flags2_opcode, tvb, 1, 1,
+			    flags2);
+}
+
+static void
+dissect_ntp_priv(tvbuff_t *tvb, proto_tree *ntp_tree, guint8 flags)
+{
+	proto_tree      *flags_tree;
+	proto_item	*tf;
+	guint8		auth_seq, impl, reqcode;
+
+	tf = proto_tree_add_uint(ntp_tree, hf_ntp_flags, tvb, 0, 1, flags);
+
+	/* Adding flag subtree and items */
+	flags_tree = proto_item_add_subtree(tf, ett_ntp_flags);
+	proto_tree_add_uint(flags_tree, hf_ntppriv_flags_r, tvb, 0, 1, flags);
+	proto_tree_add_uint(flags_tree, hf_ntppriv_flags_more, tvb, 0, 1,
+			    flags);
+	proto_tree_add_uint(flags_tree, hf_ntp_flags_vn, tvb, 0, 1, flags);
+	proto_tree_add_uint(flags_tree, hf_ntp_flags_mode, tvb, 0, 1, flags);
+
+	auth_seq = tvb_get_guint8(tvb, 1);
+	tf = proto_tree_add_uint(ntp_tree, hf_ntppriv_auth_seq, tvb, 1, 1,
+				 auth_seq);
+	flags_tree = proto_item_add_subtree(tf, ett_ntppriv_auth_seq);
+	proto_tree_add_uint(flags_tree, hf_ntppriv_auth, tvb, 1, 1, auth_seq);
+	proto_tree_add_uint(flags_tree, hf_ntppriv_seq, tvb, 1, 1, auth_seq);
+
+	impl = tvb_get_guint8(tvb, 2);
+	proto_tree_add_uint(ntp_tree, hf_ntppriv_impl, tvb, 2, 1, impl);
+
+	reqcode = tvb_get_guint8(tvb, 3);
+	proto_tree_add_uint(ntp_tree, hf_ntppriv_reqcode, tvb, 3, 1, reqcode);
 }
 
 void
@@ -480,10 +845,95 @@ proto_register_ntp(void)
 		{ &hf_ntp_mac, {
 			"Message Authentication Code", "ntp.mac", FT_BYTES, BASE_HEX,
 			NULL, 0, "Message Authentication Code", HFILL }},
+
+		{ &hf_ntp_ext, {
+			"Extension", "ntp.ext", FT_NONE, BASE_NONE,
+			NULL, 0, "Extension", HFILL }},
+		{ &hf_ntp_ext_flags, {
+			"Flags", "ntp.ext.flags", FT_UINT8, BASE_HEX,
+			NULL, 0, "Flags (Response/Error/Version)", HFILL }},
+		{ &hf_ntp_ext_flags_r, {
+			"Response bit", "ntp.ext.flags.r", FT_UINT8, BASE_DEC,
+			VALS(ext_r_types), NTP_EXT_R_MASK, "Response bit", HFILL }},
+		{ &hf_ntp_ext_flags_error, {
+			"Error bit", "ntp.ext.flags.error", FT_UINT8, BASE_DEC,
+			NULL, NTP_EXT_ERROR_MASK, "Error bit", HFILL }},
+		{ &hf_ntp_ext_flags_vn, {
+			"Version", "ntp.ext.flags.vn", FT_UINT8, BASE_DEC,
+			NULL, NTP_EXT_VN_MASK, "Version", HFILL }},
+		{ &hf_ntp_ext_op, {
+			"Opcode", "ntp.ext.op", FT_UINT8, BASE_DEC,
+			VALS(ext_op_types), 0, "Opcode", HFILL }},
+		{ &hf_ntp_ext_len, {
+			"Extension length", "ntp.ext.len", FT_UINT16, BASE_DEC,
+			NULL, 0, "Extension length", HFILL }},
+		{ &hf_ntp_ext_associd, {
+			"Association ID", "ntp.ext.associd", FT_UINT32, BASE_DEC,
+			NULL, 0, "Association ID", HFILL }},
+		{ &hf_ntp_ext_tstamp, {
+			"Timestamp", "ntp.ext.tstamp", FT_UINT32, BASE_HEX,
+			NULL, 0, "Timestamp", HFILL }},
+		{ &hf_ntp_ext_fstamp, {
+			"File Timestamp", "ntp.ext.fstamp", FT_UINT32, BASE_HEX,
+			NULL, 0, "File Timestamp", HFILL }},
+		{ &hf_ntp_ext_vallen, {
+			"Value length", "ntp.ext.vallen", FT_UINT32, BASE_DEC,
+			NULL, 0, "Value length", HFILL }},
+		{ &hf_ntp_ext_val, {
+			"Value", "ntp.ext.val", FT_BYTES, BASE_HEX,
+			NULL, 0, "Value", HFILL }},
+		{ &hf_ntp_ext_siglen, {
+			"Signature length", "ntp.ext.siglen", FT_UINT32, BASE_DEC,
+			NULL, 0, "Signature length", HFILL }},
+		{ &hf_ntp_ext_sig, {
+			"Signature", "ntp.ext.sig", FT_BYTES, BASE_HEX,
+			NULL, 0, "Signature", HFILL }},
+
+		{ &hf_ntpctrl_flags2, {
+			"Flags 2", "ntpctrl.flags2", FT_UINT8, BASE_HEX,
+			NULL, 0, "Flags (Response/Error/More/Opcode)", HFILL }},
+		{ &hf_ntpctrl_flags2_r, {
+			"Response bit", "ntpctrl.flags2.r", FT_UINT8, BASE_DEC,
+			VALS(ctrl_r_types), NTPCTRL_R_MASK, "Response bit", HFILL }},
+		{ &hf_ntpctrl_flags2_error, {
+			"Error bit", "ntpctrl.flags2.error", FT_UINT8, BASE_DEC,
+			NULL, NTPCTRL_ERROR_MASK, "Error bit", HFILL }},
+		{ &hf_ntpctrl_flags2_more, {
+			"More bit", "ntpctrl.flags2.more", FT_UINT8, BASE_DEC,
+			NULL, NTPCTRL_MORE_MASK, "More bit", HFILL }},
+		{ &hf_ntpctrl_flags2_opcode, {
+			"Opcode", "ntpctrl.flags2.opcode", FT_UINT8, BASE_DEC,
+			VALS(ctrl_op_types), NTPCTRL_OP_MASK, "Opcode", HFILL }},
+
+		{ &hf_ntppriv_flags_r, {
+			"Response bit", "ntppriv.flags.r", FT_UINT8, BASE_DEC,
+			VALS(priv_r_types), NTPPRIV_R_MASK, "Response bit", HFILL }},
+		{ &hf_ntppriv_flags_more, {
+			"More bit", "ntppriv.flags.more", FT_UINT8, BASE_DEC,
+			NULL, NTPPRIV_MORE_MASK, "More bit", HFILL }},
+		{ &hf_ntppriv_auth_seq, {
+			"Auth, sequence", "ntppriv.auth_seq", FT_UINT8, BASE_DEC,
+			NULL, 0, "Auth bit, sequence number", HFILL }},
+		{ &hf_ntppriv_auth, {
+			"Auth bit", "ntppriv.auth", FT_UINT8, BASE_DEC,
+			NULL, NTPPRIV_AUTH_MASK, "Auth bit", HFILL }},
+		{ &hf_ntppriv_seq, {
+			"Sequence number", "ntppriv.seq", FT_UINT8, BASE_DEC,
+			NULL, NTPPRIV_SEQ_MASK, "Sequence number", HFILL }},
+		{ &hf_ntppriv_impl, {
+			"Implementation", "ntppriv.impl", FT_UINT8, BASE_DEC,
+			VALS(priv_impl_types), 0, "Implementation", HFILL }},
+		{ &hf_ntppriv_reqcode, {
+			"Request code", "ntppriv.reqcode", FT_UINT8, BASE_DEC,
+			VALS(priv_rc_types), 0, "Request code", HFILL }},
         };
 	static gint *ett[] = {
 		&ett_ntp,
 		&ett_ntp_flags,
+		&ett_ntp_ext,
+		&ett_ntp_ext_flags,
+		&ett_ntpctrl_flags2,
+		&ett_ntppriv_auth_seq,
 	};
 
 	proto_ntp = proto_register_protocol("Network Time Protocol", "NTP",
