@@ -2,7 +2,7 @@
  *
  * Routines to dissect WTP component of WAP traffic.
  *
- * $Id: packet-wtp.c,v 1.49 2003/06/30 23:24:39 guy Exp $
+ * $Id: packet-wtp.c,v 1.50 2003/07/29 22:02:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -614,6 +614,7 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			    wtp_fragment_table, psn, dataLen, !fTTR);
 	    if (fd_head != NULL)		/* Reassembled	*/
 	    {
+		/* Reassembly is complete; show the reassembled PDU */
 		wsp_tvb = tvb_new_real_data(fd_head->data,
 					    fd_head->len,
 					    fd_head->len);
@@ -630,8 +631,11 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    }
 	    else
 	    {
+		/* Reassembly isn't complete; just show the fragment */
 		if (check_col(pinfo->cinfo, COL_INFO))		/* Won't call WSP so display */
 		    col_append_str(pinfo->cinfo, COL_INFO, szInfo->str);
+		if (tree != NULL)
+		    proto_tree_add_text(wtp_tree, tvb, dataOffset, -1, "Payload");
 	    }
 	    pinfo->fragmented = save_fragmented;
 	}
@@ -639,10 +643,28 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	{
 	    /*
 	     * Normal packet, or not all the fragment data is available;
-	     * call next dissector.
+	     * call next dissector, unless this is a segment of a
+	     * segmented invoke or result and isn't the first segment.
 	     */
-	    wsp_tvb = tvb_new_subset(tvb, dataOffset, -1, -1);
-	    call_dissector(wsp_handle, wsp_tvb, pinfo, tree);
+	    if ((pdut == SEGMENTED_INVOKE || pdut == SEGMENTED_RESULT) &&
+			psn != 0) {
+		/*
+		 * This is a segmented invoke or result, and not the first
+		 * segment; just show it as a segmented invoke or result,
+		 * don't try to dissect its payload.
+		 */
+		if (check_col(pinfo->cinfo, COL_INFO))
+		    col_add_fstr(pinfo->cinfo, COL_INFO,
+		    		 "%s (%u)",
+				 (pdut == SEGMENTED_INVOKE ?
+				  "Segmented Invoke" : "Segmented Result"),
+				 psn);
+		if (tree != NULL)
+		    proto_tree_add_text(wtp_tree, tvb, dataOffset, -1, "Payload");
+	    } else {
+		wsp_tvb = tvb_new_subset(tvb, dataOffset, -1, -1);
+		call_dissector(wsp_handle, wsp_tvb, pinfo, tree);
+	    }
 	}
     }
 }
