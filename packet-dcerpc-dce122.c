@@ -3,7 +3,7 @@
  * Copyright 2002, Jaime Fournier <jafour1@yahoo.com>
  * This information is based off the released idl files from opengroup.
  *
- * $Id: packet-dcerpc-dce122.c,v 1.1 2002/09/17 09:38:03 sahlberg Exp $
+ * $Id: packet-dcerpc-dce122.c,v 1.2 2002/09/18 12:12:50 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -27,7 +27,7 @@
 #include "epan/value_string.h"
 #include "packet-dcerpc-dce122.h"
 
-static const value_string dce_error_vals[] = {
+const value_string dce_error_vals[] = {
 { 0, "SUCCESS", },
 { 539918337, "event already in set" },
 { 539918338, "event still part of some set" },

@@ -4,7 +4,7 @@
  * This information is based off the released idl files from opengroup.
  * ftp://ftp.opengroup.org/pub/dce122/dce/src/time.tar.gz time/service/dtsprovider.idl
  *
- * $Id: packet-dcerpc-dtsprovider.c,v 1.2 2002/09/17 09:38:04 sahlberg Exp $
+ * $Id: packet-dcerpc-dtsprovider.c,v 1.3 2002/09/18 12:12:50 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -43,6 +43,7 @@
 
 static int proto_dtsprovider = -1;
 static int hf_dtsprovider_opnum = -1;
+static int hf_dtsprovider_status = -1;
 
 
 static gint ett_dtsprovider = -1;
@@ -70,7 +71,10 @@ proto_register_dtsprovider (void)
 	static hf_register_info hf[] = {
 	  { &hf_dtsprovider_opnum,
 	    { "Operation", "dtsprovider.opnum", FT_UINT16, BASE_DEC,
-	      VALS(dtsprovider_opnum_vals), 0x0, "Operation", HFILL }}
+	      VALS(dtsprovider_opnum_vals), 0x0, "Operation", HFILL }},
+	  { &hf_dtsprovider_status,
+	    { "Status", "dtsprovider.status", FT_UINT32, BASE_DEC,
+	      VALS(dce_error_vals), 0x0, "Return code, status of executed command", HFILL }}
 	};
 
 	static gint *ett[] = {
