@@ -521,7 +521,6 @@ dissect_camel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
   proto_item    *item=NULL;
   proto_tree    *tree=NULL;
-  gint          op_idx;
   gchar         *str = NULL;
 
   if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
