@@ -2099,6 +2099,7 @@ B<http://www.ethereal.com>.
   Chris Heath              <chris [AT] heathens.co.nz>
   Loïc Minier              <lool [AT] dooz.org>
   Gisle Vanem              <giva [AT] bgnett.no>
+  Hans Viens               <hviens [AT] mediatrix.com>
 
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to give his
 permission to use his version of snprintf.c.
