@@ -1,6 +1,6 @@
 /* wtap.c
  *
- * $Id: wtap.c,v 1.74 2002/11/06 21:49:34 guy Exp $
+ * $Id: wtap.c,v 1.75 2002/12/20 21:59:33 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -152,6 +152,8 @@ static const struct encap_type_info {
 	/* WTAP_ENCAP_WLAN_HEADER */
 	{ "IEEE 802.11 plus AVS WLAN monitor header", "wlan" },
 
+	/* WTAP_ENCAP_WFLEET_HDLC */
+	{ "Wellfleet HDLC", "whdlc" },
 };
 
 /* Name that should be somewhat descriptive. */
