@@ -1,7 +1,7 @@
 /* resolv.c
  * Routines for network object lookup
  *
- * $Id: resolv.c,v 1.25 2002/08/28 20:40:45 jmayer Exp $
+ * $Id: resolv.c,v 1.26 2002/09/09 19:38:11 guy Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
@@ -28,6 +28,7 @@
 # include "config.h"
 #endif
 
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -152,10 +153,13 @@ static hashname_t 	*tcp_port_table[HASHPORTSIZE];
 static hashname_t       *sctp_port_table[HASHPORTSIZE];
 static hashether_t 	*eth_table[HASHETHSIZE];
 static hashmanuf_t 	*manuf_table[HASHMANUFSIZE];
+static hashether_t 	*(*wka_table[48])[HASHETHSIZE];
 static hashipxnet_t 	*ipxnet_table[HASHIPXNETSIZE];
 
 static int 		eth_resolution_initialized = 0;
 static int 		ipxnet_resolution_initialized = 0;
+
+static hashether_t *add_eth_name(const guint8 *addr, const guchar *name);
 
 /*
  * Flag controlling what names to resolve.
@@ -432,7 +436,110 @@ static int fgetline(char **buf, int *size, FILE *fp)
  */
 
 
-static int parse_ether_line(char *line, ether_t *eth, int six_bytes)
+/*
+ * If "manuf_file" is FALSE, parse a 6-byte MAC address.
+ * If "manuf_file" is TRUE, parse an up-to-6-byte sequence with an optional
+ * mask.
+ */
+static gboolean
+parse_ether_address(const char *cp, ether_t *eth, unsigned int *mask,
+                    gboolean manuf_file)
+{
+  int i;
+  unsigned long num;
+  char *p;
+  char sep = '\0';
+
+  for (i = 0; i < 6; i++) {
+    /* Get a hex number, 1 or 2 digits, no sign characters allowed. */
+    if (!isxdigit((unsigned char)*cp))
+      return FALSE;
+    num = strtoul(cp, &p, 16);
+    if (p == cp)
+      return FALSE;	/* failed */
+    if (num > 0xFF)
+      return FALSE;	/* not a valid octet */
+    eth->addr[i] = num;
+    cp = p;		/* skip past the number */
+
+    /* OK, what character terminated the octet? */
+    if (*cp == '/') {
+      /* "/" - this has a mask. */
+      if (!manuf_file) {
+      	/* Entries with masks are allowed only in the "manuf" files. */
+	return FALSE;
+      }
+      cp++;	/* skip past the '/' to get to the mask */
+      if (!isdigit((unsigned char)*cp))
+	return FALSE;	/* no sign allowed */
+      num = strtoul(cp, &p, 10);
+      if (p == cp)
+	return FALSE;	/* failed */
+      cp = p;	/* skip past the number */
+      if (*cp != '\0' && !isspace((unsigned char)*cp))
+	return FALSE;	/* bogus terminator */
+      if (num == 0 || num >= 48)
+	return FALSE;	/* bogus mask */
+      /* Mask out the bits not covered by the mask */
+      *mask = num;
+      for (i = 0; num >= 8; i++, num -= 8)
+	;	/* skip octets entirely covered by the mask */
+      /* Mask out the first masked octet */
+      eth->addr[i] &= (0xFF << (8 - num));
+      i++;
+      /* Mask out completely-masked-out octets */
+      for (; i < 6; i++)
+	eth->addr[i] = 0;
+      return TRUE;
+    }
+    if (*cp == '\0') {
+      /* We're at the end of the address, and there's no mask. */
+      if (i == 2) {
+	/* We got 3 bytes, so this is a manufacturer ID. */
+	if (!manuf_file) {
+	  /* Manufacturer IDs are only allowed in the "manuf"
+	     files. */
+	  return FALSE;
+	}
+	/* Indicate that this is a manufacturer ID (0 is not allowed
+	   as a mask). */
+	*mask = 0;
+	return TRUE;
+      }
+
+      if (i == 5) {
+	/* We got 6 bytes, so this is a MAC address.
+	   If we're reading one of the "manuf" files, indicate that
+	   this is a MAC address (48 is not allowed as a mask). */
+	if (manuf_file)
+	  *mask = 48;
+	return TRUE;
+      }
+
+      /* We didn't get 3 or 6 bytes, and there's no mask; this is
+         illegal. */
+      return FALSE;
+    } else {
+      if (sep == '\0') {
+	/* We don't know the separator used in this number; it can either
+	   be ':', '-', or '.'. */
+	if (*cp != ':' && *cp != '-' && *cp != '.')
+	  return FALSE;
+	sep = *cp;	/* subsequent separators must be the same */
+      } else {
+          /* It has to be the same as the first separator */
+          if (*cp != sep)
+            return FALSE;
+      }
+    }
+    cp++;
+  }
+
+  return TRUE;
+}
+
+static int parse_ether_line(char *line, ether_t *eth, unsigned int *mask,
+			    gboolean manuf_file)
 {
   /*
    *  See man ethers(4) for ethers file format
@@ -442,7 +549,6 @@ static int parse_ether_line(char *line, ether_t *eth, int six_bytes)
    */
 
   gchar *cp;
-  int a0, a1, a2, a3, a4, a5;
 
   if ((cp = strchr(line, '#')))
     *cp = '\0';
@@ -450,37 +556,11 @@ static int parse_ether_line(char *line, ether_t *eth, int six_bytes)
   if ((cp = strtok(line, " \t\n")) == NULL)
     return -1;
 
-  if (six_bytes) {
-    if (sscanf(cp, "%x:%x:%x:%x:%x:%x", &a0, &a1, &a2, &a3, &a4, &a5) != 6) {
-      if (sscanf(cp, "%x-%x-%x-%x-%x-%x", &a0, &a1, &a2, &a3, &a4, &a5) != 6) {
-        if (sscanf(cp, "%x.%x.%x.%x.%x.%x", &a0, &a1, &a2, &a3, &a4, &a5) != 6)
-	  return -1;
-      }
-    }
-  } else {
-    if (sscanf(cp, "%x:%x:%x", &a0, &a1, &a2) != 3) {
-      if (sscanf(cp, "%x-%x-%x", &a0, &a1, &a2) != 3) {
-        if (sscanf(cp, "%x.%x.%x", &a0, &a1, &a2) != 3)
-	return -1;
-      }
-    }
-  }
+  if (!parse_ether_address(cp, eth, mask, manuf_file))
+    return -1;
 
   if ((cp = strtok(NULL, " \t\n")) == NULL)
     return -1;
-
-  eth->addr[0] = a0;
-  eth->addr[1] = a1;
-  eth->addr[2] = a2;
-  if (six_bytes) {
-    eth->addr[3] = a3;
-    eth->addr[4] = a4;
-    eth->addr[5] = a5;
-  } else {
-    eth->addr[3] = 0;
-    eth->addr[4] = 0;
-    eth->addr[5] = 0;
-  }
 
   strncpy(eth->name, cp, MAXNAMELEN);
   eth->name[MAXNAMELEN-1] = '\0';
@@ -507,7 +587,7 @@ static void end_ethent(void)
   }
 }
 
-static ether_t *get_ethent(int six_bytes)
+static ether_t *get_ethent(unsigned int *mask, gboolean manuf_file)
 {
 
   static ether_t eth;
@@ -518,7 +598,7 @@ static ether_t *get_ethent(int six_bytes)
     return NULL;
 
   while (fgetline(&buf, &size, eth_p) >= 0) {
-    if (parse_ether_line(buf, &eth, six_bytes) == 0) {
+    if (parse_ether_line(buf, &eth, mask, manuf_file) == 0) {
       return &eth;
     }
   }
@@ -533,7 +613,7 @@ static ether_t *get_ethbyname(const guchar *name)
 
   set_ethent(g_ethers_path);
 
-  while ((eth = get_ethent(1)) && strncmp(name, eth->name, MAXNAMELEN) != 0)
+  while ((eth = get_ethent(NULL, FALSE)) && strncmp(name, eth->name, MAXNAMELEN) != 0)
     ;
 
   if (eth == NULL) {
@@ -541,7 +621,7 @@ static ether_t *get_ethbyname(const guchar *name)
 
     set_ethent(g_pethers_path);
 
-    while ((eth = get_ethent(1)) && strncmp(name, eth->name, MAXNAMELEN) != 0)
+    while ((eth = get_ethent(NULL, FALSE)) && strncmp(name, eth->name, MAXNAMELEN) != 0)
       ;
 
     end_ethent();
@@ -558,7 +638,7 @@ static ether_t *get_ethbyaddr(const guint8 *addr)
 
   set_ethent(g_ethers_path);
 
-  while ((eth = get_ethent(1)) && memcmp(addr, eth->addr, 6) != 0)
+  while ((eth = get_ethent(NULL, FALSE)) && memcmp(addr, eth->addr, 6) != 0)
     ;
 
   if (eth == NULL) {
@@ -566,7 +646,7 @@ static ether_t *get_ethbyaddr(const guint8 *addr)
 
     set_ethent(g_pethers_path);
 
-    while ((eth = get_ethent(1)) && memcmp(addr, eth->addr, 6) != 0)
+    while ((eth = get_ethent(NULL, FALSE)) && memcmp(addr, eth->addr, 6) != 0)
       ;
 
     end_ethent();
@@ -576,32 +656,117 @@ static ether_t *get_ethbyaddr(const guint8 *addr)
 
 } /* get_ethbyaddr */
 
-static void add_manuf_name(guint8 *addr, guchar *name)
+static int hash_eth_wka(const guint8 *addr, unsigned int mask)
+{
+  if (mask <= 8) {
+    /* All but the topmost byte is masked out */
+    return (addr[0] & (0xFF << (8 - mask))) & (HASHETHSIZE - 1);
+  }
+  mask -= 8;
+  if (mask <= 8) {
+    /* All but the topmost 2 bytes are masked out */
+    return ((addr[0] << 8) | (addr[1] & (0xFF << (8 - mask)))) &
+            (HASHETHSIZE - 1);
+  }
+  mask -= 8;
+  if (mask <= 8) {
+    /* All but the topmost 3 bytes are masked out */
+    return ((addr[0] << 16) | (addr[1] << 8) | (addr[2] & (0xFF << (8 - mask))))
+     & (HASHETHSIZE - 1);
+  }
+  mask -= 8;
+  if (mask <= 8) {
+    /* All but the topmost 4 bytes are masked out */
+    return ((((addr[0] << 8) | addr[1]) ^
+             ((addr[2] << 8) | (addr[3] & (0xFF << (8 - mask)))))) &
+	 (HASHETHSIZE - 1);
+  }
+  mask -= 8;
+  if (mask <= 8) {
+    /* All but the topmost 5 bytes are masked out */
+    return ((((addr[1] << 8) | addr[2]) ^
+             ((addr[3] << 8) | (addr[4] & (0xFF << (8 - mask)))))) &
+	 (HASHETHSIZE - 1);
+  }
+  mask -= 8;
+  /* No bytes are fully masked out */
+  return ((((addr[1] << 8) | addr[2]) ^
+           ((addr[3] << 8) | (addr[4] & (0xFF << (8 - mask)))))) &
+            (HASHETHSIZE - 1);
+}
+
+static void add_manuf_name(guint8 *addr, unsigned int mask, guchar *name)
 {
   int hash_idx;
   hashmanuf_t *tp;
+  hashether_t *(*wka_tp)[HASHETHSIZE], *etp;
 
-  hash_idx = HASH_ETH_MANUF(addr);
+  if (mask == 48) {
+    /* This is a well-known MAC address; just add this to the Ethernet
+       hash table */
+    add_eth_name(addr, name);
+    return;
+  }
 
-  tp = manuf_table[hash_idx];
+  if (mask == 0) {
+    /* This is a manufacturer ID; add it to the manufacturer ID hash table */
 
-  if( tp == NULL ) {
-    tp = manuf_table[hash_idx] = (hashmanuf_t *)g_malloc(sizeof(hashmanuf_t));
+    hash_idx = HASH_ETH_MANUF(addr);
+
+    tp = manuf_table[hash_idx];
+
+    if( tp == NULL ) {
+      tp = manuf_table[hash_idx] = (hashmanuf_t *)g_malloc(sizeof(hashmanuf_t));
+    } else {
+      while(1) {
+	if (tp->next == NULL) {
+	  tp->next = (hashmanuf_t *)g_malloc(sizeof(hashmanuf_t));
+	  tp = tp->next;
+	  break;
+	}
+	tp = tp->next;
+      }
+    }
+
+    memcpy(tp->addr, addr, sizeof(tp->addr));
+    strncpy(tp->name, name, MAXMANUFLEN);
+    tp->name[MAXMANUFLEN-1] = '\0';
+    tp->next = NULL;
+    return;
+  }
+
+  /* This is a range of well-known addresses; add it to the appropriate
+     well-known-address table, creating that table if necessary. */
+  wka_tp = wka_table[mask];
+  if (wka_tp == NULL)
+    wka_tp = wka_table[mask] = g_malloc(sizeof *wka_table[mask]);
+
+  hash_idx = hash_eth_wka(addr, mask);
+
+  etp = (*wka_tp)[hash_idx];
+
+  if( etp == NULL ) {
+    etp = (*wka_tp)[hash_idx] = (hashether_t *)g_malloc(sizeof(hashether_t));
   } else {
     while(1) {
-      if (tp->next == NULL) {
-	tp->next = (hashmanuf_t *)g_malloc(sizeof(hashmanuf_t));
-	tp = tp->next;
+      if (memcmp(etp->addr, addr, sizeof(etp->addr)) == 0) {
+	/* address already known */
+	return;
+      }
+      if (etp->next == NULL) {
+	etp->next = (hashether_t *)g_malloc(sizeof(hashether_t));
+	etp = etp->next;
 	break;
       }
-      tp = tp->next;
+      etp = etp->next;
     }
   }
 
-  memcpy(tp->addr, addr, sizeof(tp->addr));
-  strncpy(tp->name, name, MAXMANUFLEN);
-  tp->name[MAXMANUFLEN-1] = '\0';
-  tp->next = NULL;
+  memcpy(etp->addr, addr, sizeof(etp->addr));
+  strncpy(etp->name, name, MAXNAMELEN);
+  etp->name[MAXNAMELEN-1] = '\0';
+  etp->next = NULL;
+  etp->is_dummy_entry = FALSE;
 
 } /* add_manuf_name */
 
@@ -625,10 +790,52 @@ static hashmanuf_t *manuf_name_lookup(const guint8 *addr)
 
 } /* manuf_name_lookup */
 
+static hashether_t *wka_name_lookup(const guint8 *addr, unsigned int mask)
+{
+  int hash_idx;
+  hashether_t *(*wka_tp)[HASHETHSIZE];
+  hashether_t *tp;
+  guint8 masked_addr[6];
+  unsigned int num;
+  int i;
+
+  wka_tp = wka_table[mask];
+  if (wka_tp == NULL) {
+    /* There are no entries in the table for that mask value, as there is
+       no table for that mask value. */
+    return NULL;
+  }
+
+  /* Get the part of the address covered by the mask. */
+  for (i = 0, num = mask; num >= 8; i++, num -= 8)
+    masked_addr[i] = addr[i];	/* copy octets entirely covered by the mask */
+  /* Mask out the first masked octet */
+  masked_addr[i] = addr[i] & (0xFF << (8 - num));
+  i++;
+  /* Zero out completely-masked-out octets */
+  for (; i < 6; i++)
+    masked_addr[i] = 0;
+
+  hash_idx = hash_eth_wka(masked_addr, mask);
+
+  tp = (*wka_tp)[hash_idx];
+
+  while(tp != NULL) {
+    if (memcmp(tp->addr, masked_addr, sizeof(tp->addr)) == 0) {
+      return tp;
+    }
+    tp = tp->next;
+  }
+
+  return NULL;
+
+} /* wka_name_lookup */
+
 static void initialize_ethers(void)
 {
   ether_t *eth;
   char *manuf_path;
+  unsigned int mask;
 
   /* Compute the pathname of the ethers file. */
   if (g_ethers_path == NULL) {
@@ -655,8 +862,8 @@ static void initialize_ethers(void)
   /* Read it and initialize the hash table */
   set_ethent(manuf_path);
 
-  while ((eth = get_ethent(0))) {
-    add_manuf_name(eth->addr, eth->name);
+  while ((eth = get_ethent(&mask, TRUE))) {
+    add_manuf_name(eth->addr, mask, eth->name);
   }
 
   end_ethent();
@@ -712,6 +919,8 @@ static guchar *eth_name_lookup(const guint8 *addr)
   hashmanuf_t *manufp;
   hashether_t *tp;
   ether_t *eth;
+  hashether_t *etp;
+  unsigned int mask;
 
   hash_idx = HASH_ETH_ADDRESS(addr);
 
@@ -739,14 +948,103 @@ static guchar *eth_name_lookup(const guint8 *addr)
   tp->next = NULL;
 
   if ( (eth = get_ethbyaddr(addr)) == NULL) {
-    /* unknown name */
+    /* Unknown name.  Try looking for it in the well-known-address
+       tables for well-known address ranges smaller than 2^24. */
+    mask = 7;
+    for (;;) {
+      /* Only the topmost 5 bytes participate fully */
+      if ((etp = wka_name_lookup(addr, mask+40)) != NULL) {
+	sprintf(tp->name, "%s_%02x",
+	      etp->name, addr[5] & (0xFF >> mask));
+	tp->is_dummy_entry = TRUE;
+	return (tp->name);
+      }
+      if (mask == 0)
+        break;
+      mask--;
+    }
 
-    if ((manufp = manuf_name_lookup(addr)) == NULL)
-      sprintf(tp->name, "%s", ether_to_str((guint8 *)addr));
-    else
+    mask = 7;
+    for (;;) {
+      /* Only the topmost 4 bytes participate fully */
+      if ((etp = wka_name_lookup(addr, mask+32)) != NULL) {
+	sprintf(tp->name, "%s_%02x:%02x",
+	      etp->name, addr[4] & (0xFF >> mask), addr[5]);
+	tp->is_dummy_entry = TRUE;
+	return (tp->name);
+      }
+      if (mask == 0)
+        break;
+      mask--;
+    }
+
+    mask = 7;
+    for (;;) {
+      /* Only the topmost 3 bytes participate fully */
+      if ((etp = wka_name_lookup(addr, mask+24)) != NULL) {
+	sprintf(tp->name, "%s_%02x:%02x:%02x",
+	      etp->name, addr[3] & (0xFF >> mask), addr[4], addr[5]);
+	tp->is_dummy_entry = TRUE;
+	return (tp->name);
+      }
+      if (mask == 0)
+        break;
+      mask--;
+    }
+
+    /* Now try looking in the manufacturer table. */
+    if ((manufp = manuf_name_lookup(addr)) != NULL) {
       sprintf(tp->name, "%s_%02x:%02x:%02x",
 	      manufp->name, addr[3], addr[4], addr[5]);
+      tp->is_dummy_entry = TRUE;
+      return (tp->name);
+    }
 
+    /* Now try looking for it in the well-known-address
+       tables for well-known address ranges larger than 2^24. */
+    mask = 7;
+    for (;;) {
+      /* Only the topmost 2 bytes participate fully */
+      if ((etp = wka_name_lookup(addr, mask+16)) != NULL) {
+	sprintf(tp->name, "%s_%02x:%02x:%02x:%02x",
+	      etp->name, addr[2] & (0xFF >> mask), addr[3], addr[4],
+	      addr[5]);
+	tp->is_dummy_entry = TRUE;
+	return (tp->name);
+      }
+      if (mask == 0)
+        break;
+      mask--;
+    }
+
+    mask = 7;
+    for (;;) {
+      /* Only the topmost byte participates fully */
+      if ((etp = wka_name_lookup(addr, mask+8)) != NULL) {
+	sprintf(tp->name, "%s_%02x:%02x:%02x:%02x:%02x",
+	      etp->name, addr[1] & (0xFF >> mask), addr[2], addr[3],
+	      addr[4], addr[5]);
+	tp->is_dummy_entry = TRUE;
+	return (tp->name);
+      }
+      if (mask == 0)
+        break;
+      mask--;
+    }
+
+    for (mask = 7; mask > 0; mask--) {
+      /* Not even the topmost byte participates fully */
+      if ((etp = wka_name_lookup(addr, mask)) != NULL) {
+	sprintf(tp->name, "%s_%02x:%02x:%02x:%02x:%02x:%02x",
+	      etp->name, addr[0] & (0xFF >> mask), addr[1], addr[2],
+	      addr[3], addr[4], addr[5]);
+	tp->is_dummy_entry = TRUE;
+	return (tp->name);
+      }
+    }
+
+    /* No match whatsoever. */
+    sprintf(tp->name, "%s", ether_to_str((guint8 *)addr));
     tp->is_dummy_entry = TRUE;
 
   } else {

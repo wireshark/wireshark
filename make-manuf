@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: make-manuf,v 1.6 2002/08/03 23:09:24 jmayer Exp $
+# $Id: make-manuf,v 1.7 2002/09/09 19:38:09 guy Exp $
 #
 # Make-manuf - Creates a file containing ethernet OUIs and their
 # company IDs.  It merges the databases at
@@ -21,6 +21,7 @@ if( $@ ) {
 }
 
 $template = "manuf.tmpl";
+$wkatmpl  = "wka.tmpl";
 $outfile  = "manuf";
 $inheader = 1;
 $ieee_url = "http://standards.ieee.org/regauth/oui/oui_public.txt";
@@ -59,6 +60,9 @@ $ieee_list = $result->content;
 
 open (TMPL, "< $template") || 
   die "Couldn't open template file for reading ($template)\n";
+
+open (WKATMPL, "< $wkatmpl") || 
+  die "Couldn't open well-known address template file for reading ($wkatmpl)\n";
 
 open (OUT, "> $outfile") ||
   die "Couldn't open output file for writing ($outfile)\n";
@@ -112,6 +116,20 @@ foreach $line (split(/\n/, $cb_list)) {
 
 foreach $oui (sort(keys %oui_list)) {
   print(OUT "$oui\t$oui_list{$oui}\n");
+}
+
+#
+# Write out a blank line separating the OUIs from the well-known
+# addresses, and then read the well-known address template file
+# and write it to the manuf file.
+#
+# XXX - it'd be nice to get this from the Cavebear file, but inferring
+# the address mask from entries in that file involves some work.
+#
+print(OUT "\n");
+while ($line = <WKATMPL>) {
+  chomp($line);
+  print(OUT "$line\n");
 }
 
 $total_added = $tmpl_added + $cb_added + $ieee_added;

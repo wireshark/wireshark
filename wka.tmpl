@@ -1,0 +1,153 @@
+#
+# Well-known addresses.
+#
+# $Id: wka.tmpl,v 1.1 2002/09/09 19:38:09 guy Exp $
+#
+# Ethereal - Network traffic analyzer
+# By Gerald Combs <gerald@ethereal.com>
+# Copyright 1998 Gerald Combs
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+#
+# The data below has been assembled from the following sources:
+#
+# Michael Patton's "Ethernet Codes Master Page" available from:
+# <http://www.cavebear.com/CaveBear/Ethernet/>
+# <ftp://ftp.cavebear.com/pub/Ethernet.txt>
+#
+00-00-0C-07-AC/40	All-HSRP-routers
+00-00-5E-00-01/40	IETF-VRRP-virtual-router-VRID
+01-00-0C-CC-CC-CC	CDP/VTP
+01-00-0C-DD-DD-DD	CGMP
+01-00-10-00-00-20	Hughes-Lan-Systems-Terminal-Server-S/W-download
+01-00-10-FF-FF-20	Hughes-Lan-Systems-Terminal-Server-S/W-request
+01-00-1D-00-00-00	Cabletron-PC-OV-PC-discover-(on-demand)
+01-00-1D-42-00-00	Cabletron-PC-OV-Bridge-discover-(on-demand)
+01-00-1D-52-00-00	Cabletron-PC-OV-MMAC-discover-(on-demand)
+01-00-3C		Auspex-Systems-(Serverguard)
+01-00-5E-00-00-12	IETF-VRRP
+01-00-81-00-00-00	Synoptics-Network-Management
+01-00-81-00-00-02	Synoptics-Network-Management
+01-00-81-00-01-00	Bay-Networks-(Synoptics)-autodiscovery
+01-00-81-00-01-01	Bay-Networks-(Synoptics)-autodiscovery
+01-20-25/25		Control-Technology-Inc's-Industrial-Ctrl-Proto.
+01-80-24-00-00-00	Kalpana-Etherswitch-every-60-seconds
+01-80-C2-00-00-00/44	Spanning-tree-(for-bridges)
+01-80-C2-00-00-10	Bridge-Management
+01-80-C2-00-00-11	Load-Server
+01-80-C2-00-00-12	Loadable-Device
+01-80-C2-00-00-14	ISIS-all-level-1-IS's
+01-80-C2-00-00-15	ISIS-all-level-2-IS's
+01-80-C2-00-01-00	FDDI-RMT-Directed-Beacon
+01-80-C2-00-01-10	FDDI-status-report-frame
+01-DD-00-FF-FF-FF	Ungermann-Bass-boot-me-requests
+01-DD-01-00-00-00	Ungermann-Bass-Spanning-Tree
+
+#       [ The following block of addresses (03-...) are used by various ]
+#       [ standards.  Some (marked [TR?]) are suspected of only being   ]
+#       [ used on Token Ring for group addresses of Token Ring specific ]
+#       [ functions, reference ISO 8802-5:1995 aka. IEEE 802.5:1995 for ]
+#       [ some info.  These in the Ethernet order for this list.  On    ]
+#       [ Token Ring they appear reversed.  They should never appear on ]
+#       [ Ethernet.  Others, not so marked, are normal reports (may be  ]
+#       [ seen on either).
+03-00-00-00-00-01	NETBIOS-# [TR?]
+03-00-00-00-00-02	Locate-Directory-Server # [TR?]
+03-00-00-00-00-04	Synchronous-Bandwidth-Manager-# [TR?]
+03-00-00-00-00-08	Configuration-Report-Server-# [TR?]
+03-00-00-00-00-10	Ring-Error-Monitor-# [TR?]
+03-00-00-00-00-10	(OS/2-1.3-EE+Communications-Manager)
+03-00-00-00-00-20	Network-Server-Heartbeat-# [TR?]
+03-00-00-00-00-40	(OS/2-1.3-EE+Communications-Manager)
+03-00-00-00-00-80	Active-Monitor # [TR?]
+03-00-00-00-01-00	OSI-All-IS-Token-Ring-Multicast
+03-00-00-00-02-00	OSI-All-ES-Token-Ring-Multicast
+03-00-00-00-04-00	LAN-Manager # [TR?]
+03-00-00-00-08-00	Ring-Wiring-Concentrator # [TR?]
+03-00-00-00-10-00	LAN-Gateway # [TR?]
+03-00-00-00-20-00	Ring-Authorization-Server # [TR?]
+03-00-00-00-40-00	IMPL-Server # [TR?]
+03-00-00-00-80-00	Bridge # [TR?]
+03-00-00-20-00-00	IP-Token-Ring-Multicast (RFC1469)
+03-00-00-80-00-00	Discovery-Client
+03-00-FF-FF-FF-FF	All-Stations-Address
+09-00-07-00-00-00/40	AppleTalk-Zone-multicast-addresses
+			# only goes through 09-00-07-00-00-FC?
+09-00-07-FF-FF-FF	AppleTalk-broadcast-address
+09-00-09-00-00-01	HP-Probe
+09-00-09-00-00-04	HP-DTC
+09-00-0D-00-00-00/24	ICL-Oslan-Multicast
+09-00-0D-02-00-00	ICL-Oslan-Service-discover-only-on-boot
+09-00-0D-02-0A-38	ICL-Oslan-Service-discover-only-on-boot
+09-00-0D-02-0A-39	ICL-Oslan-Service-discover-only-on-boot
+09-00-0D-02-0A-3C	ICL-Oslan-Service-discover-only-on-boot
+09-00-0D-02-FF-FF	ICL-Oslan-Service-discover-only-on-boot
+09-00-0D-09-00-00	ICL-Oslan-Service-discover-as-required
+09-00-1E-00-00-00	Apollo-DOMAIN
+09-00-2B-00-00-00	DEC-MUMPS?
+09-00-2B-00-00-01	DEC-DSM/DDP
+09-00-2B-00-00-02	DEC-VAXELN?
+09-00-2B-00-00-03	DEC-Lanbridge-Traffic-Monitor-(LTM)
+09-00-2B-00-00-04	DEC-MAP-(or-OSI?)-End-System-Hello?
+09-00-2B-00-00-05	DEC-MAP-(or-OSI?)-Intermediate-System-Hello?
+09-00-2B-00-00-06	DEC-CSMA/CD-Encryption?
+09-00-2B-00-00-07	DEC-NetBios-Emulator?
+09-00-2B-00-00-0F	DEC-Local-Area-Transport-(LAT)
+09-00-2B-00-00-10/44	DEC-Experimental
+09-00-2B-01-00-00	DEC-LanBridge-Copy-packets-(All-bridges)
+09-00-2B-01-00-01	DEC-LanBridge-Hello-packets-(All-local-bridges)
+09-00-2B-02-00-00	DEC-DNA-Level-2-Routing-Layer-routers?
+09-00-2B-02-01-00	DEC-DNA-Naming-Service-Advertisement?
+09-00-2B-02-01-01	DEC-DNA-Naming-Service-Solicitation?
+09-00-2B-02-01-09	DEC-Availability-Manager-for-Distributed-Systems-DECamds
+09-00-2B-02-01-02	DEC-Distributed-Time-Service
+09-00-2B-03-00-00/32	DEC-default-filtering-by-bridges?
+09-00-2B-04-00-00	DEC-Local-Area-System-Transport-(LAST)?
+09-00-2B-23-00-00	DEC-Argonaut-Console?
+09-00-4C-00-00-00	BICC-802.1-management
+09-00-4C-00-00-02	BICC-802.1-management
+09-00-4C-00-00-06	BICC-Local-bridge-STA-802.1(D)-Rev6
+09-00-4C-00-00-0C	BICC-Remote-bridge-STA-802.1(D)-Rev8
+09-00-4C-00-00-0F	BICC-Remote-bridge-ADAPTIVE-ROUTING
+09-00-56-FF-00-00/32	Stanford-V-Kernel,-version-6.0
+09-00-6A-00-01-00	TOP-NetBIOS.
+09-00-77-00-00-00	Retix-Bridge-Local-Management-System
+09-00-77-00-00-01	Retix-spanning-tree-bridges
+09-00-77-00-00-02	Retix-Bridge-Adaptive-routing
+09-00-7C-01-00-01	Vitalink-DLS-Multicast
+09-00-7C-01-00-03	Vitalink-DLS-Inlink
+09-00-7C-01-00-04	Vitalink-DLS-and-non-DLS-Multicast
+09-00-7C-02-00-05	Vitalink-diagnostics
+09-00-7C-05-00-01	Vitalink-gateway?
+09-00-7C-05-00-02	Vitalink-Network-Validation-Message
+09-00-87-80-FF-FF	Xyplex-Terminal-Servers
+09-00-87-90-FF-FF	Xyplex-Terminal-Servers
+0D-1E-15-BA-DD-06	HP
+33-33-00-00-00-00/16	IPv6-Neighbor-Discovery
+AA-00-03-00-00-00/32	DEC-UNA	
+AA-00-03-01-00-00/32	DEC-PROM-AA
+AA-00-03-03-00-00/32	DEC-NI20
+AB-00-00-01-00-00	DEC-MOP-Dump/Load-Assistance
+AB-00-00-02-00-00	DEC-MOP-Remote-Console
+AB-00-00-03-00-00	DECNET-Phase-IV-end-node-Hello-packets
+AB-00-00-04-00-00	DECNET-Phase-IV-Router-Hello-packets
+AB-00-03-00-00-00	DEC-Local-Area-Transport-(LAT)-old
+AB-00-04-01-00-00/32	DEC-Local-Area-VAX-Cluster-groups-SCA
+CF-00-00-00-00-00	Ethernet-Configuration-Test-protocol-(Loopback)
+FF-FF-00-60-00-04	Lantastic
+FF-FF-00-40-00-01	Lantastic
+FF-FF-01-E0-00-04	Lantastic
+
+FF-FF-FF-FF-FF-FF	Broadcast
