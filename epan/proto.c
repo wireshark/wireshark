@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.13 2001/03/07 19:33:22 gram Exp $
+ * $Id: proto.c,v 1.14 2001/03/15 22:08:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -444,6 +444,9 @@ proto_tree_add_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	guint32		value, n;
 	char		*string;
 	int		found_length;
+
+	if (!tree)
+		return(NULL);
 
 	new_fi = alloc_field_info(hfindex, tvb, start, length);
 
