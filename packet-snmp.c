@@ -2,7 +2,7 @@
  * Routines for SNMP (simple network management protocol)
  * D.Jorand (c) 1998
  *
- * $Id: packet-snmp.c,v 1.9 1999/09/12 14:34:18 deniel Exp $
+ * $Id: packet-snmp.c,v 1.10 1999/10/24 07:36:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -341,7 +341,7 @@ dissect_snmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	
 #ifdef WITH_SNMP_UCD	
 	/* parse the SNMP header */
-	if(NULL == asn_parse_header( &pd[offset], &length, &type)) {
+	if(NULL == asn_parse_header((u_char*)&pd[offset], &length, &type)) {
 		dissect_snmp_error(pd, offset, fd, tree,
 			"Couldn't parse SNMP header");
 		return;
@@ -355,7 +355,7 @@ dissect_snmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	/* authenticates message */
 	length=fd->pkt_len-offset;
 	header_length=length;
-	data = snmp_comstr_parse(&pd[offset], &length, community, &community_length, (int*)&version);
+	data = snmp_comstr_parse((u_char*)&pd[offset], &length, community, &community_length, (long*)&version);
 	if(NULL == data) {
 		dissect_snmp_error(pd, offset, fd, tree,
 		    "Couldn't parse authentication");
