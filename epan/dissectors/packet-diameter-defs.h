@@ -24,7 +24,7 @@
 /* Type to string table */
 
 /* Attribute to String tables */
-static value_string diameter_service_type_vals[]={
+static const value_string diameter_service_type_vals[]={
    {1, "Login"},
    {2, "Framed"},
    {3, "Callback-Login"},
@@ -45,7 +45,7 @@ static value_string diameter_service_type_vals[]={
    {0, (char *)NULL}
 };
 
-static value_string diameter_framed_protocol_vals[]={
+static const value_string diameter_framed_protocol_vals[]={
    {1,	"PPP"},
    {2,	"SLIP"},
    {3,	"AppleTalk Remote Access Protocol (ARAP)"},
@@ -63,7 +63,7 @@ static value_string diameter_framed_protocol_vals[]={
    {0, (char *)NULL}
 };
 
-static value_string diameter_framed_routing_vals[]={
+static const value_string diameter_framed_routing_vals[]={
    {0, "None"},
    {1, "Send routing packets"},
    {2, "Listen for routing packets"},
@@ -71,7 +71,7 @@ static value_string diameter_framed_routing_vals[]={
    {0, (char *)NULL}
 };
 
-static value_string diameter_framed_compression_vals[]={
+static const value_string diameter_framed_compression_vals[]={
    {0,	"None"},
    {1,	"VJ TCP/IP header compression"},
    {2,	"IPX-Header-Compression"},
@@ -79,7 +79,7 @@ static value_string diameter_framed_compression_vals[]={
    {0, (char *)NULL}
 };
 
-static value_string diameter_login_service_vals[]={
+static const value_string diameter_login_service_vals[]={
    {0, "Telnet"},
    {1, "Rlogin"},
    {2, "TCP-Clear"},
@@ -92,32 +92,13 @@ static value_string diameter_login_service_vals[]={
    {0, (char *)NULL}
 };
 
-static value_string diameter_vendor_specific_vendors[]= {
-	{0,			"None"},
-	{5,			"ACC"},
-	{9,			"Cisco"},
-	{11,		"Hewlett Packard"},
-	{42,		"Sun Microsystems"},
-	{166,		"Shiva"},
-	{193,		"Ericsson Business Communications"},
-	{307,		"Livingston"},
-	{429,		"3Com"},
-	{529,		"Ascend"},
-	{1584,		"Bay Networks"},
-	{2636,		"Juniper Networks"},
-	{5535,		"3rd Generation Partnership Project 2 (3GPP2)"},
-	{5925,		"ipUnplugged"},
-	{10415,		"3GPP"},
-	{0,NULL}
-};
-
-static value_string diameter_termination_action_vals[]={
+static const value_string diameter_termination_action_vals[]={
    {0, "Default"},
    {1, "RADIUS-Request"},
    {0, (char *)NULL}
 };
 
-static value_string diameter_acct_status_type_vals[]={
+static const value_string diameter_acct_status_type_vals[]={
    {1,	"Start"},
    {2,	"Stop"},
    {3,	"Alive"},
@@ -138,7 +119,7 @@ static value_string diameter_acct_status_type_vals[]={
    {0, (char *)NULL}
 };
 
-static value_string diameter_acct_authentic_vals[]={
+static const value_string diameter_acct_authentic_vals[]={
    {1, "RADIUS"},
    {0, "None"},
    {2, "Local"},
@@ -147,7 +128,7 @@ static value_string diameter_acct_authentic_vals[]={
    {0, (char *)NULL}
 };
 
-static value_string diameter_acct_terminate_cause_vals[]={
+static const value_string diameter_acct_terminate_cause_vals[]={
    {1, "User-Request"},
    {2, "Lost-Carrier"},
    {3, "Lost-Service"},
@@ -172,7 +153,7 @@ static value_string diameter_acct_terminate_cause_vals[]={
    {22,	"Port Administratively Disabled"},		/*[RFC3580]*/
    {0, (char *)NULL}
 };
-static value_string diameter_nas_port_type_vals[]={
+static const value_string diameter_nas_port_type_vals[]={
    {0, "Async"},
    {1, "Sync"},
    {2, "ISDN Sync"},
@@ -203,7 +184,7 @@ static value_string diameter_nas_port_type_vals[]={
    {0, (char *)NULL}
 };
 
-static value_string diameter_tunnel_type_vals[]= {
+static const value_string diameter_tunnel_type_vals[]= {
 	{1,"PPTP"},
 	{2,"L2F"},
 	{3,"L2TP"},
@@ -220,7 +201,7 @@ static value_string diameter_tunnel_type_vals[]= {
 	{0,NULL}
 };
 
-static value_string diameter_tunnel_medium_type_vals[]= {
+static const value_string diameter_tunnel_medium_type_vals[]= {
 	{1,"IPv4"},
 	{2,"IPv6"},
 	{3,"NSAP"},
@@ -239,7 +220,7 @@ static value_string diameter_tunnel_medium_type_vals[]= {
 	{0,NULL}
 };
 
-static value_string diameter_avp_data_addrfamily_vals[]= {
+static const value_string diameter_avp_data_addrfamily_vals[]= {
 	{1,"IPv4"},
 	{2,"IPv6"},
 	{3,"NSAP"},
@@ -269,7 +250,7 @@ static value_string diameter_avp_data_addrfamily_vals[]= {
 /*
  *Values for RADIUS Attribute 101, Error-Cause Attribute [RFC3576]:
  */
-static value_string diameter_error_cause_attribute_vals[]= {
+static const value_string diameter_error_cause_attribute_vals[]= {
 	{201,"Residual Session Context Removed"},
 	{202,"Invalid EAP Packet (Ignored)"},
 	{401,"Unsupported Attribute"},
@@ -288,7 +269,7 @@ static value_string diameter_error_cause_attribute_vals[]= {
 	{0,NULL}
 };
 
-static value_string diameter_accounting_record_type_vals[]= {
+static const value_string diameter_accounting_record_type_vals[]= {
 	{1, "Event Record"},
 	{2, "Start Record"},
 	{3, "Interim Record"},
@@ -296,33 +277,33 @@ static value_string diameter_accounting_record_type_vals[]= {
 	{0,NULL}
 };
 
-static value_string diameter_auth_request_type_vals[]= {
+static const value_string diameter_auth_request_type_vals[]= {
 	{1, "Authenticate Only"},
 	{2, "Authorize Only"},
 	{3, "Authorize Authenticate"},
 	{0,NULL}
 };
 
-static value_string diameter_auth_session_state_vals[]= {
+static const value_string diameter_auth_session_state_vals[]= {
 	{0, "State Maintained"},
 	{1, "No State Maintained"},
 	{0,NULL}
 };
 
-static value_string diameter_re_auth_request_type_vals[]= {
+static const value_string diameter_re_auth_request_type_vals[]= {
 	{0, "Authorize Only"},
 	{1, "Authorize Authenticate"},
 	{0,NULL}
 };
 
-static value_string diameter_disconnect_cause_vals[]= {
+static const value_string diameter_disconnect_cause_vals[]= {
 	{0, "Rebooting"},
 	{1, "Busy"},
 	{2, "Do Not Want To Talk To You"},
 	{0,NULL}
 };
 
-static value_string diameter_redirect_host_usage_vals[]= {
+static const value_string diameter_redirect_host_usage_vals[]= {
 	{0, "Don't Cache"},
 	{1, "All Session"},
 	{2, "All Realm"},
@@ -332,7 +313,7 @@ static value_string diameter_redirect_host_usage_vals[]= {
 	{0,NULL}
 };
 
-static value_string diameter_session_server_failover_vals[]= {
+static const value_string diameter_session_server_failover_vals[]= {
 	{0, "Refuse Service"},
 	{1, "Try Again"},
 	{2, "Allow Service"},
@@ -340,7 +321,7 @@ static value_string diameter_session_server_failover_vals[]= {
 	{0,NULL}
 };
 
-static value_string diameter_termination_cause_vals[]= {
+static const value_string diameter_termination_cause_vals[]= {
 	{1, "Logout"},
 	{2, "Service Not Provided"},
 	{3, "Bad Answer"},
@@ -349,21 +330,21 @@ static value_string diameter_termination_cause_vals[]= {
 	{0,NULL}
 };
 
-static value_string diameter_mip_algorithm_type[] = {
+static const value_string diameter_mip_algorithm_type[] = {
 	{1, "MD5 Prefix/Suffix"},
 	{2, "HMAC-MD5"},
 	{3, "HMAC-SHA1"},
 	{0, NULL}
 };
 
-static value_string diameter_mip_replay_type[] = {
+static const value_string diameter_mip_replay_type[] = {
 	{1, "None"},
 	{2, "Nonce"},
 	{3, "Timestamp"},
 	{0, NULL}
 };
 /* XXX TODO correct these values to IANA assigned ones */
-static value_string diameter_application_id_vals[] = {
+static const value_string diameter_application_id_vals[] = {
 	{1, "Diameter NASREQ Application"},
 	{2, "Diameter Mobile IPv4 Application"},
 	{4, "Diameter Credit-Control Application"},
@@ -375,14 +356,14 @@ static value_string diameter_application_id_vals[] = {
 };
 /* Diameter Session Initiation Protocol (SIP) Application value strings */
 /* Remove comment when IANA assigned values are avalable 
-static value_string SIP_user_data_request_type[] = {
+static const value_string SIP_user_data_request_type[] = {
 	{0, "COMPLETE_PROFILE"},
 	{1, "REGISTERED_PROFILE"},
 	{2, "UNREGISTERED_PROFILE"},
 	{0, NULL}
 
 };
-static value_string SIP_user_authorization_type[] = {
+static const value_string SIP_user_authorization_type[] = {
 	{0, "REGISTRATION"},
 	{1, "DE_REGISTRATION"},
 	{2, "REGISTRATION_AND_CAPABILITIES"},
@@ -390,7 +371,7 @@ static value_string SIP_user_authorization_type[] = {
 
 };
 
-static value_string SIP_reason_code_vals[] = {
+static const value_string SIP_reason_code_vals[] = {
 	{0, "PERMANENT_TERMINATION"},
 	{1, "NEW_SIP_SERVER_ASSIGNED "},
 	{2, "SIP_SERVER_CHANGE"},
@@ -398,14 +379,14 @@ static value_string SIP_reason_code_vals[] = {
 	{0, NULL}
 
 };
-static value_string SIP_user_data_already_available_vals[] = {
+static const value_string SIP_user_data_already_available_vals[] = {
 	{0, "USER_DATA_NOT_AVAILABLE"},
 	{1, "USER_DATA_ALREADY_AVAILABLE"},
 	{0, NULL}
 
 };
 
-static value_string SIP_server_assignment_type[] ={
+static const value_string SIP_server_assignment_type[] ={
 	{0, "NO_ASSIGNMENT"},
 	{1, "REGISTRATION"},
 	{2, "RE_REGISTRATION"},
@@ -437,7 +418,7 @@ static value_string SIP_server_assignment_type[] ={
  *    -  5xxx (Permanent Failure)
  */
 
-static value_string diameter_result_code_vals[] = {
+static const value_string diameter_result_code_vals[] = {
 	/* Informational
 	 * Errors that fall within this category are used to inform the
 	 * requester that a request could not be satisfied, and additional
@@ -559,7 +540,7 @@ static struct old_avp_info old_diameter_avps[] = {
 	{ 23, "Framed-IPX-Network",       DIAMETER_OCTET_STRING, (value_string *)NULL},
 	{ 24, "State",                    DIAMETER_OCTET_STRING, (value_string *)NULL},
 	{ 25, "Class",                    DIAMETER_OCTET_STRING, (value_string *)NULL},
-	{ 26, "Vendor-Specific",          DIAMETER_ENUMERATED,   diameter_vendor_specific_vendors},
+	{ 26, "Vendor-Specific",          DIAMETER_ENUMERATED,   sminmpec_values},
 	{ 27, "Session-Timeout",          DIAMETER_INTEGER32,    (value_string *)NULL},
 	{ 28, "Idle-Timeout",             DIAMETER_INTEGER32,    (value_string *)NULL},
 	{ 29, "Termination-Action",       DIAMETER_ENUMERATED,   diameter_termination_action_vals},
@@ -681,7 +662,7 @@ static struct old_avp_info old_diameter_avps[] = {
     { 286, "Source-Route",                DIAMETER_IDENTITY,    (value_string *)NULL},
     { 265, "Supported-Vendor-Id",         DIAMETER_UNSIGNED32,  (value_string *)NULL},
     { 295, "Termination-Cause",           DIAMETER_ENUMERATED,  diameter_termination_cause_vals},
-    { 266, "Vendor-Id",                   DIAMETER_ENUMERATED,  diameter_vendor_specific_vendors},
+    { 266, "Vendor-Id",                   DIAMETER_ENUMERATED,  sminmpec_values},
     { 260, "Vendor-Specific-Application-Id", DIAMETER_GROUPED, (value_string *)NULL},
 /* Diameter Mobile IP AVPs */
     { 318, "MIP-FA-to-HA-SPI",            DIAMETER_UNSIGNED32,     (value_string *)NULL},

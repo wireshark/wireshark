@@ -49,6 +49,7 @@
 #include "packet-gtp.h"
 #include <epan/prefs.h>
 #include <epan/crypt-md5.h>
+#include <epan/sminmpec.h>
 
 static int proto_radius = -1;
 static int hf_radius_length = -1;
@@ -223,86 +224,6 @@ static const value_string radius_vals[] =
   {RADIUS_CHANGE_FILTER_REQUEST_ACK,	"Change Filter Request ACK"},
   {RADIUS_CHANGE_FILTER_REQUEST_NAK,	"Change Filter Request NAK"},
   {RADIUS_RESERVED,			"Reserved"},
-  {0, NULL}
-};
-
-
-/*
- * These are SMI Network Management Private Enterprise Codes for
- * organizations; see
- *
- *	http://www.iana.org/assignments/enterprise-numbers
- *
- * for a list.
- *
- * XXX - these also appear in FreeRadius dictionary files, with items such
- * as
- *
- *	VENDOR          Cisco           9
- */
-#define VENDOR_ACC			5
-#define VENDOR_CISCO			9
-#define VENDOR_MERIT			61
-#define VENDOR_SHIVA			166
-#define VENDOR_ERICSSON_BUSINESS_COMUNICATIONS	193
-#define VENDOR_CISCO_VPN5000		255
-#define VENDOR_LIVINGSTON		307
-#define VENDOR_MICROSOFT		311
-#define VENDOR_3COM			429
-#define VENDOR_ASCEND			529
-#define VENDOR_BAY			1584
-#define VENDOR_FOUNDRY			1991
-#define VENDOR_VERSANET			2180
-#define VENDOR_REDBACK			2352
-#define VENDOR_JUNIPER			2636
-#define VENDOR_APTIS			2637
-#define VENDOR_CISCO_VPN3000		3076
-#define VENDOR_COSINE			3085
-#define VENDOR_SHASTA			3199
-#define VENDOR_NOMADIX			3309
-#define VENDOR_SIEMENS			4329
-#define VENDOR_UNISPHERE		4874
-#define VENDOR_CISCO_BBSM		5263
-#define VENDOR_ID_THE3GPP2						5535
-#define VENDOR_ISSANNI			5948
-#define VENDOR_QUINTUM			6618
-#define VENDOR_INTERLINK		6728
-#define VENDOR_COLUBRIS			8744
-#define VENDOR_COLUMBIA_UNIVERSITY	11862
-#define VENDOR_THE3GPP			10415
-
-static const value_string radius_vendor_specific_vendors[] =
-{
-  {VENDOR_ACC,			"ACC"},
-  {VENDOR_CISCO,		"Cisco"},
-  {VENDOR_MERIT,		"Merit"},
-  {VENDOR_SHIVA,		"Shiva"},
-  {VENDOR_ERICSSON_BUSINESS_COMUNICATIONS,	"Ericsson Business Communications"},
-  {VENDOR_CISCO_VPN5000,	"Cisco VPN 5000"},
-  {VENDOR_MICROSOFT,		"Microsoft"},
-  {VENDOR_LIVINGSTON,		"Livingston"},
-  {VENDOR_3COM,			"3Com"},
-  {VENDOR_ASCEND,		"Ascend"},
-  {VENDOR_BAY,			"Bay Networks"},
-  {VENDOR_FOUNDRY,		"Foundry"},
-  {VENDOR_VERSANET,		"Versanet"},
-  {VENDOR_REDBACK,		"Redback"},
-  {VENDOR_JUNIPER,		"Juniper Networks"},
-  {VENDOR_APTIS,		"Aptis"},
-  {VENDOR_CISCO_VPN3000,	"Cisco VPN 3000"},
-  {VENDOR_COSINE,		"CoSine Communications"},
-  {VENDOR_SHASTA,		"Shasta"},
-  {VENDOR_NOMADIX,		"Nomadix"},
-  {VENDOR_SIEMENS,		"SIEMENS"},
-  {VENDOR_UNISPHERE,		"Unisphere Networks"},
-  {VENDOR_CISCO_BBSM,		"Cisco BBSM"},
-  {VENDOR_ID_THE3GPP2,						"3rd Generation Partnership Project 2 (3GPP2)"},
-  {VENDOR_ISSANNI,		"Issanni Communications"},
-  {VENDOR_QUINTUM,		"Quintum"},
-  {VENDOR_INTERLINK,	"Interlink"},
-  {VENDOR_COLUBRIS,		"Colubris"},
-  {VENDOR_COLUMBIA_UNIVERSITY,	"Columbia University"},
-  {VENDOR_THE3GPP,		"3GPP"},
   {0, NULL}
 };
 
@@ -3071,7 +2992,7 @@ static void rd_value_to_str(gchar *dest, rd_vsa_buffer (*vsabuffer)[VSABUFFER],
 
 	case ( RADIUS_VENDOR_SPECIFIC ):
 		intval = tvb_get_ntohl(tvb,offset+2);
-		sprintf(dest, "Vendor:%s(%u)", rd_match_strval(intval,radius_vendor_specific_vendors), intval);
+		sprintf(dest, "Vendor:%s(%u)", rd_match_strval(intval,sminmpec_values), intval);
 		cont = &dest[strlen(dest)];
 		vsa_length = avph->avp_length;
 		vsa_len = 6;

@@ -57,6 +57,7 @@ LIBETHEREAL_SRC = 		\
 	range.c			\
 	req_resp_hdrs.c		\
 	sha1.c			\
+	sminmpec.c		\
 	sna-utils.c		\
 	strutil.c		\
 	t35.c			\
@@ -112,6 +113,7 @@ LIBETHEREAL_INCLUDES = 		\
 	req_resp_hdrs.h		\
 	sha1.h			\
 	slab.h			\
+	sminmpec.h		\
 	sna-utils.h		\
 	strutil.h		\
 	t35.h			\

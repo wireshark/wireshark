@@ -52,6 +52,7 @@
 #include <epan/addr_resolv.h>
 #include <epan/report_err.h>
 #include <epan/prefs.h>
+#include <epan/sminmpec.h>
 #include "packet-tcp.h"
 
 #ifdef NEED_SNPRINTF_H
@@ -126,7 +127,7 @@ typedef struct old_avp_info {
   guint32           code;
   gchar            *name;
   diameterDataType  type;
-  value_string     *values;
+  const value_string *values;
 } oldAvpInfo;
 
 typedef struct avp_info {
@@ -342,7 +343,8 @@ xmlParseFilePush( char *filename, int checkValid) {
  * only called when the XML dictionary fails to load properly.
  */
 static int
-addStaticAVP(int code, gchar *name, diameterDataType type, value_string *values)
+addStaticAVP(int code, gchar *name, diameterDataType type,
+             const value_string *values)
 {
   avpInfo *entry;
   ValueName *vEntry=NULL;
@@ -772,10 +774,10 @@ initializeDictionaryDefaults(void)
   int i;
 
   /* Add static vendors to list */
-  for(i=0; diameter_vendor_specific_vendors[i].strptr; i++) {
-	addVendor(diameter_vendor_specific_vendors[i].value,
-			  diameter_vendor_specific_vendors[i].strptr,
-			  diameter_vendor_specific_vendors[i].strptr);
+  for(i=0; sminmpec_values[i].strptr; i++) {
+	addVendor(sminmpec_values[i].value,
+			  sminmpec_values[i].strptr,
+			  sminmpec_values[i].strptr);
   }
   /* Add static commands to list. */
   for(i=0; diameter_command_code_vals[i].strptr; i++) {
