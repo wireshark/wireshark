@@ -80,7 +80,7 @@
 #include <epan/resolv.h>
 
 /* general (not GTK specific) */
-#include "cvsversion.h"
+#include "svnversion.h"
 #include "file.h"
 #include "summary.h"
 #include "filters.h"
@@ -957,8 +957,8 @@ print_usage(gboolean print_ver) {
   if (print_ver) {
     output = stdout;
     fprintf(output, "This is GNU " PACKAGE " " VERSION
-#ifdef CVSVERSION
-	" (" CVSVERSION ")"
+#ifdef SVNVERSION
+	" (" SVNVERSION ")"
 #endif
 	"\n%s\n\n%s\n",
 	comp_info_str->str, runtime_info_str->str);
@@ -994,8 +994,8 @@ show_version(void)
 #endif
 
   printf(PACKAGE " " VERSION
-#ifdef CVSVERSION
-      " (" CVSVERSION ")"
+#ifdef SVNVERSION
+      " (" SVNVERSION ")"
 #endif
       "\n%s\n\n%s\n",
       comp_info_str->str, runtime_info_str->str);

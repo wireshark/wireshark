@@ -72,7 +72,7 @@
 #include "getopt.h"
 #endif
 
-#include "cvsversion.h"
+#include "svnversion.h"
 
 #include <glib.h>
 #include <epan/epan.h>
@@ -260,8 +260,8 @@ print_usage(gboolean print_ver)
   if (print_ver) {
     output = stdout;
     fprintf(output, "This is GNU t" PACKAGE " " VERSION
-#ifdef CVSVERSION
-	" (" CVSVERSION ")"
+#ifdef SVNVERSION
+	" (" SVNVERSION ")"
 #endif
         "\n (C) 1998-2004 Gerald Combs <gerald@ethereal.com>"
 	"\n%s\n%s\n",
@@ -1243,8 +1243,8 @@ main(int argc, char *argv[])
 	break;
       case 'v':        /* Show version and exit */
         printf("t" PACKAGE " " VERSION
-#ifdef CVSVERSION
-	    " (" CVSVERSION ")"
+#ifdef SVNVERSION
+	    " (" SVNVERSION ")"
 #endif
 	    "\n%s\n%s\n",
 	    comp_info_str->str, runtime_info_str->str);

@@ -262,7 +262,7 @@ DISSECTOR_SUPPORT_INCLUDES =	\
 
 # "BUILT_SOURCES" are built before any "make all" or "make check" targets.
 BUILT_SOURCES =		\
-	cvsversion.h \
+	svnversion.h \
 	ps.c
 
 # sources common for ethereal and tethereal
@@ -379,7 +379,7 @@ text2pcap_SOURCES = \
 mergecap_SOURCES = \
 	mergecap.c \
 	merge.c \
-	cvsversion.h
+	svnversion.h
 
 # editcap specifics
 editcap_SOURCES = \

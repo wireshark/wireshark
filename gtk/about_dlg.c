@@ -41,7 +41,7 @@
 #endif
 #include "webbrowser.h"
 
-#include "cvsversion.h"
+#include "svnversion.h"
 
 #include "../image/eicon3d64.xpm"
 #include "gtkglobals.h"
@@ -156,8 +156,8 @@ about_ethereal_page_new(void)
   about_ethereal(top_level, main_vb, title);
 
   msg_label = gtk_label_new("Version " VERSION
-#ifdef CVSVERSION
-	   " (" CVSVERSION ")"
+#ifdef SVNVERSION
+	   " (" SVNVERSION ")"
 #endif
 	   " (C) 1998-2004 Gerald Combs <gerald@ethereal.com>\n\n");
   gtk_container_add(GTK_CONTAINER(main_vb), msg_label);

@@ -30,7 +30,7 @@ include Makefile.common
 include epan\Makefile.common
 
 BUILT_SOURCES =	$(BUILT_SOURCES) \
-	cvsversion.h
+	svnversion.h
 
 DISSECTOR_SRC = $(DISSECTOR_SRC:../=)
 DISSECTOR_OBJECTS = $(DISSECTOR_SRC:.c=.obj)
@@ -144,7 +144,7 @@ wiretap\wiretap-$(WTAP_VERSION).lib: wiretap
 !IFNDEF GTK1_DIR
 ethereal.exe	: 
 !ELSE
-ethereal.exe	: config.h cvsversion.h $(ethereal_OBJECTS) $(EXTRA_OBJECTS) epan gtk image\ethereal.res wiretap\wiretap-$(WTAP_VERSION).lib gtk\libui.lib dissectors.lib plugins
+ethereal.exe	: config.h svnversion.h $(ethereal_OBJECTS) $(EXTRA_OBJECTS) epan gtk image\ethereal.res wiretap\wiretap-$(WTAP_VERSION).lib gtk\libui.lib dissectors.lib plugins
 	@echo Linking $@
 	$(LINK) @<<
 		/OUT:ethereal.exe $(guiflags) $(guilibsdll) $(LDFLAGS) /SUBSYSTEM:windows $(ethereal_LIBS) $(GTK1_LIBS) gtk\libui.lib $(ethereal_OBJECTS) $(EXTRA_OBJECTS) image\ethereal.res
@@ -154,14 +154,14 @@ ethereal.exe	: config.h cvsversion.h $(ethereal_OBJECTS) $(EXTRA_OBJECTS) epan g
 !IFNDEF GTK2_DIR
 ethereal-gtk2.exe	: 
 !ELSE
-ethereal-gtk2.exe	: config.h cvsversion.h $(ethereal_OBJECTS) $(EXTRA_OBJECTS) epan gtk2 image\ethereal.res wiretap\wiretap-$(WTAP_VERSION).lib gtk2.tmp\libui.lib dissectors.lib plugins
+ethereal-gtk2.exe	: config.h svnversion.h $(ethereal_OBJECTS) $(EXTRA_OBJECTS) epan gtk2 image\ethereal.res wiretap\wiretap-$(WTAP_VERSION).lib gtk2.tmp\libui.lib dissectors.lib plugins
 	@echo Linking $@
 	$(LINK) @<<
 		/OUT:ethereal-gtk2.exe $(guiflags) $(guilibsdll) $(LDFLAGS) /SUBSYSTEM:windows $(ethereal_LIBS) $(GTK2_LIBS) gtk2.tmp\libui.lib $(ethereal_OBJECTS) $(EXTRA_OBJECTS) image\ethereal.res
 <<
 !ENDIF
 
-tethereal.exe	: config.h cvsversion.h $(tethereal_OBJECTS) $(EXTRA_OBJECTS) epan image\tethereal.res wiretap\wiretap-$(WTAP_VERSION).lib dissectors.lib plugins
+tethereal.exe	: config.h svnversion.h $(tethereal_OBJECTS) $(EXTRA_OBJECTS) epan image\tethereal.res wiretap\wiretap-$(WTAP_VERSION).lib dissectors.lib plugins
 	@echo Linking $@
 	$(LINK) @<<
 		/OUT:tethereal.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console $(tethereal_LIBS) $(tethereal_OBJECTS) $(EXTRA_OBJECTS) image\tethereal.res
@@ -173,7 +173,7 @@ editcap.exe	: config.h editcap.obj getopt.obj wiretap\wiretap-$(WTAP_VERSION).li
 		/OUT:editcap.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console editcap.obj getopt.obj $(editcap_LIBS) image\editcap.res
 <<
 
-mergecap.exe	: config.h cvsversion.h mergecap.obj merge.obj getopt.obj wiretap\wiretap-$(WTAP_VERSION).lib image\mergecap.res
+mergecap.exe	: config.h svnversion.h mergecap.obj merge.obj getopt.obj wiretap\wiretap-$(WTAP_VERSION).lib image\mergecap.res
 	@echo Linking $@
 	$(LINK) @<<
 		/OUT:mergecap.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console mergecap.obj merge.obj getopt.obj $(mergecap_LIBS) image\mergecap.res
@@ -217,7 +217,7 @@ ps.c	: rdps.exe print.ps
 #
 # Build the version string
 #
-cvsversion.h:
+svnversion.h:
 	$(PERL) make-version.pl
 
 #
@@ -346,13 +346,13 @@ wiretap::
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
 	cd ..
 
-gtk:: help config.h cvsversion.h AUTHORS-SHORT doxygen
+gtk:: help config.h svnversion.h AUTHORS-SHORT doxygen
 	cd gtk
 	$(MAKE) /$(MAKEFLAGS) /f Makefile.nmake GTK_CFLAGS="$(GTK1_CFLAGS)" GTK_LIBS="$(GTK1_LIBS)" libui.lib
 	cd ..
 
 # copy all required files to gtk2.tmp (but only when newer than existing) and compile in that dir
-gtk2:: help config.h cvsversion.h AUTHORS-SHORT
+gtk2:: help config.h svnversion.h AUTHORS-SHORT
 	if not exist gtk2.tmp mkdir gtk2.tmp
 	cd gtk
 	cp --update --preserve Makefile.* *.c *.h ..\gtk2.tmp

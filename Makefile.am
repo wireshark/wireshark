@@ -288,7 +288,7 @@ AM_CPPFLAGS = -I$(top_srcdir) -I$(top_srcdir)/wiretap
 # FORCE is the portable version of .PHONY
 FORCE:
 
-cvsversion.h: FORCE
+svnversion.h: FORCE
 	$(PERL) $(srcdir)/make-version.pl
 
 #
@@ -364,7 +364,7 @@ dftest_LDADD = \
 dftest_LDFLAGS = -export-dynamic
 
 CLEANFILES =	\
-	cvsversion.h \
+	svnversion.h \
 	@rdps_bin@ \
 	idl2eth
 

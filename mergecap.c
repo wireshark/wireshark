@@ -31,7 +31,7 @@
 #include "getopt.h"
 #endif
 
-#include "cvsversion.h"
+#include "svnversion.h"
 #include "merge.h"
 
 #ifdef HAVE_IO_H
@@ -152,8 +152,8 @@ main(int argc, char *argv[])
 
     case 'h':
       printf("mergecap version %s"
-#ifdef CVSVERSION
-	  " (" CVSVERSION ")"
+#ifdef SVNVERSION
+	  " (" SVNVERSION ")"
 #endif
 	  "\n", VERSION);
       usage();

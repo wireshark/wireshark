@@ -35,89 +35,50 @@
 # Default configuration:
 #
 # enable: 1
-# format: CVS %Y%m%d%H%M%S
+# format: SVN %Y%m%d%H%M%S
 
 use strict;
 
 use Time::Local;
 use POSIX qw(strftime);
 
-my $version_file = 'cvsversion.h';
+my $version_file = 'svnversion.h';
 my $vconf_file = 'version.conf';
-my %monthnum = ( "Jan" => "0", "Feb" => "1", "Mar" => "2", "Apr" => "3",
-		"May" => "4", "Jun" => "5", "Jul" => "6", "Aug" => "7",
-		"Sep" => "8", "Oct" => "9", "Nov" => "10", "Dec" => "11" );
 my $last = 0;
-my $last_file = undef;
-my %version_pref = ("enable" => 1, "format" => "CVS %Y%m%d%H%M%S");
+my %version_pref = ("enable" => 1, "format" => "SVN %Y%m%d%H%M%S");
 
 
-# Recursively find all CVS Entries files starting from the given directory,
+# Recursively find all SVN Entries files starting from the given directory,
 # and compute the modification time of the most recently modified Entries file.
-sub find_last_CVS_Entries {
-	my $dir = shift;
-	my $d;
+sub read_svn_info {
+	my $line;
 
-	opendir(DIR, "$dir") || print STDERR "Can't open directory $dir ($!)\n" && next;
-	foreach $d (readdir(DIR)) {
-		if (-d "$dir/$d" && $d !~ /^\.(|.)$/) {
-			if ($d =~ /^CVS$/) {
-				if (-f "$dir/CVS/Entries") {
-					&lastentry("$dir/CVS/Entries");
-				}
-			} else { # Recurse in directory
-				&find_last_CVS_Entries("$dir/$d");
-			}
+	open(SVNINFO, "svn info |") || return;
+	while ($line = <SVNINFO>) {
+		if ($line =~ /^Last Changed Date: (\d{4})-(\d\d)-(\d\d) (\d\d):(\d\d):(\d\d)/) {
+			$last = timegm($6, $5, $4, $3, $2 - 1, $1);
 		}
 	}
-	closedir DIR;
+	close SVNINFO;
 }
 
 
-# Check all entries in $file. In case they are newer, update $last accordingly
-# Args: Entries file
-sub lastentry {
-	my $date;
-	my ($wdayascii, $monthascii, $day, $time, $year);
-	my $file = shift;
-	my $current;
-
-	open(FILE, "<$file") || print STDERR "Open $file for reading failed ($!)\n" && return 1;
-
-	while (<FILE>) {
-		chomp;
-		# Regular lines look like this: /ethereal_be.py/1.6/Fri Aug  2 22:55:19 2002//
-		next if (/^D/);
-		$date = (split(/\//, $_, 5))[3];
-		#                        Month   Day   Hour   Minute Second Year
-		next if ($date !~ /\w{3} (\w{3}) (.\d) (\d\d):(\d\d):(\d\d) (\d{4})/);
-		$current = timegm($5, $4, $3, $2, $monthnum{$1}, $6);
-
-		if ($current > $last) {
-			$last = $current;
-		}
-	}
-	close FILE;
-	return 1;
-}
-
-
-# Print the CVS version to $version_file.
+# Print the SVN version to $version_file.
 # Don't change the file if it is not needed.
-sub print_cvs_version
+sub print_svn_version
 {
-	my $cvs_version;
+	my $svn_version;
 	my $needs_update = 1;
 
 	if ($last) {
-		$cvs_version = "#define CVSVERSION \"" . 
+		$svn_version = "#define SVNVERSION \"" . 
 			strftime($version_pref{"format"}, gmtime($last)) .
 			"\"\n";
 	} else {
-		$cvs_version = "/* #define CVSVERSION \"\" */\n";
+		$svn_version = "/* #define SVNVERSION \"\" */\n";
 	}
 	if (open(OLDVER, "<$version_file")) {
-		if (<OLDVER> eq $cvs_version) {
+		if (<OLDVER> eq $svn_version) {
 			print "$version_file is up-to-date.\n";
 			$needs_update = 0;
 		}
@@ -125,9 +86,9 @@ sub print_cvs_version
 	}
 
 	if ($needs_update == 1) {
-		# print "Updating $version_file so it contains:\n$cvs_version";
+		# print "Updating $version_file so it contains:\n$svn_version";
 		open(VER, ">$version_file") || die ("Cannot write to $version_file ($!)\n");
-		print VER "$cvs_version";
+		print VER "$svn_version";
 		close VER;
 		print "$version_file has been updated.\n";
 	}
@@ -155,15 +116,15 @@ sub get_config {
 
 if ($version_pref{"enable"} == 0) {
 	print "Version tag disabled in $vconf_file.\n";
-} elsif (-d "./CVS") {
-	print "This is a build from CVS (or a CVS snapshot), "
-	. "CVS version tag will be computed.\n";
-	&find_last_CVS_Entries(".");
+} elsif (-d "./.svn") {
+	print "This is a build from SVN (or a SVN snapshot), "
+	. "SVN version tag will be computed.\n";
+	&read_svn_info(".");
 } else {
-	print "This is not a CVS build.\n";
+	print "This is not a SVN build.\n";
 }
 
-# Now that we've computed everything, print the CVS version to $version_file
-&print_cvs_version;
+# Now that we've computed everything, print the SVN version to $version_file
+&print_svn_version;
 
 __END__
