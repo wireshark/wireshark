@@ -1,5 +1,50 @@
 $Id$
 
+== October 20, 2004
+
+Ethereal 0.10.7 has been released.
+
+  The Windows installer features new GLib/GTK+, Net-SNMP and ADNS libraries which
+  fix several known bugs.  Unfortunately, a few known GLib/GTK+ bugs remain.
+
+
+New and updated features
+
+  Search wrapping is now a configurable option.
+  
+  A lot of material has been added to the Developer's Guide.  The User's Guide
+  has been updated as well.
+  
+  The "Decode As..." dialog now supports DCERPC and SCTP.
+  
+  The "Help" menu now includes a link to the wiki.
+  
+  H.323 call analysis is now supported.
+
+
+New protocol support
+
+  Cisco PAgP, DAAP, Etheric, Ethernet Configuration Testing Protocol,
+  Ethernet MAC Control Frame, ICE, Kerberos v4, Netscape certificate
+  extensions, PKINIT, PKIX1EXPLICIT, PKIX1IMPLICIT,
+
+
+Updated protocol support
+
+  AIM, ARTNET, ASN.1 BER, ASN.1 PER, ASN.1, BGP, BOOTP, CIP, CLNP, COPS,
+  DCERPC MAPI, DCERPC SAMR, DCERPC, DCOM, DHCP, DHCPv6, DIAMETER, DNS,
+  EAP, ENIP, EPM, GRE, GSM A, GSM MAP, H.225, H.245, H.248 MEGACO, H.450,
+  ISAKMP, iSCSI, iSNS, ISUP, JFIF, Kerberos, LDAP, LDP, LLC, LWAPP, M2PA,
+  MEGACO, MPLS, NCP 2222, NCP, NDMP, NetFlow, NTLMSSP, OSCAR-ICQ, OSPF,
+  RADIUS, RSVP, RTCP, RTP, RTSP, SCTP, SDP, SES, SIP, Skinny, SMB, SNMP,
+  SUA, T.38, TALI, TCAP, TCP, TDS, Teredo, Time, X.509, X11,
+
+
+New and updated capture file support
+
+  HP-UX nettl, NG Sniffer
+
+
 == August 12, 2004
 
 Ethereal 0.10.6 has been released.
