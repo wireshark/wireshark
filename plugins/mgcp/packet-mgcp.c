@@ -1510,7 +1510,7 @@ dissect_mgcp_connectionparams(proto_tree *parent_tree, tvbuff_t *tvb, gint offse
   }
   g_strfreev(typval);
   g_strfreev(tokens);
-
+  g_free(tokenline);
 }
 
 /*
