@@ -1,7 +1,7 @@
 /* packet-arp.c
  * Routines for ARP packet disassembly
  *
- * $Id: packet-arp.c,v 1.57 2003/08/17 01:05:20 guy Exp $
+ * $Id: packet-arp.c,v 1.58 2004/02/28 22:56:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -74,7 +74,7 @@ static dissector_handle_t atmarp_handle;
 
 /* Definitions taken from Linux "linux/if_arp.h" header file, and from
 
-	http://www.isi.edu/in-notes/iana/assignments/arp-parameters
+	http://www.iana.org/assignments/arp-parameters
 
  */
 

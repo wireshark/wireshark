@@ -2,7 +2,7 @@
  *
  * Routines to dissect WTP component of WAP traffic.
  *
- * $Id: packet-wtp.c,v 1.62 2004/01/27 00:20:37 obiot Exp $
+ * $Id: packet-wtp.c,v 1.63 2004/02/28 22:56:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1065,7 +1065,7 @@ proto_register_wtp(void)
 	"Wireless Transaction Protocol",   /* protocol name for use by ethereal */
 	"WTP",                             /* short version of name */
 	"wtp"                      /* Abbreviated protocol name, should Match IANA
-					    < URL:http://www.isi.edu/in-notes/iana/assignments/port-numbers/ >
+					    < URL:http://www.iana.org/assignments/port-numbers/ >
 					    */
     );
 

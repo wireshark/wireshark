@@ -6,7 +6,7 @@
  *
  * RFC 2865, RFC 2866, RFC 2867, RFC 2868, RFC 2869
  *
- * $Id: packet-radius.c,v 1.92 2004/02/05 09:42:25 guy Exp $
+ * $Id: packet-radius.c,v 1.93 2004/02/28 22:56:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -204,7 +204,7 @@ static const value_string radius_vals[] =
  * These are SMI Network Management Private Enterprise Codes for
  * organizations; see
  *
- *	http://www.isi.edu/in-notes/iana/assignments/enterprise-numbers
+ *	http://www.iana.org/assignments/enterprise-numbers
  *
  * for a list.
  *

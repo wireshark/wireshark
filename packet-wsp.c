@@ -2,7 +2,7 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  *
- * $Id: packet-wsp.c,v 1.109 2004/02/25 09:31:07 guy Exp $
+ * $Id: packet-wsp.c,v 1.110 2004/02/28 22:56:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -7077,7 +7077,7 @@ proto_register_wsp(void)
 		"WSP",                          /* short version of name */
 		"wsp"                   	    /* Abbreviated protocol name,
 										   should Match IANA:
-	    < URL:http://www.isi.edu/in-notes/iana/assignments/port-numbers/ >
+	    < URL:http://www.iana.org/assignments/port-numbers/ >
 										*/
 	);
 	wsp_tap = register_tap("wsp");
@@ -7245,7 +7245,7 @@ proto_register_sir(void)
 		"WAP SIR",                          /* short version of name */
 		"wap-sir"                   	    /* Abbreviated protocol name,
 											   should Match IANA:
-	    < URL:http://www.isi.edu/in-notes/iana/assignments/port-numbers/ >
+	    < URL:http://www.iana.org/assignments/port-numbers/ >
 										*/
 	);
 }

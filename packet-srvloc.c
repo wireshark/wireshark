@@ -9,7 +9,7 @@
  *       In particular I have not had an opportunity to see how it
  *       responds to SRVLOC over TCP.
  *
- * $Id: packet-srvloc.c,v 1.45 2004/02/01 20:46:47 guy Exp $
+ * $Id: packet-srvloc.c,v 1.46 2004/02/28 22:56:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -310,7 +310,7 @@ static const value_string srvloc_errs_v2[] = {
  * Character encodings.
  * This is a small subset of what's in
  *
- *	http://www.isi.edu/in-notes/iana/assignments/character-sets
+ *	http://www.iana.org/assignments/character-sets
  *
  * XXX - we should do something useful with this, i.e. properly
  * handle strings based on the character set they're in.

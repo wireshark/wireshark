@@ -2,7 +2,7 @@
  *
  * Routines to dissect WTLS component of WAP traffic.
  *
- * $Id: packet-wtls.c,v 1.23 2003/12/15 22:38:29 obiot Exp $
+ * $Id: packet-wtls.c,v 1.24 2004/02/28 22:56:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1606,7 +1606,7 @@ proto_register_wtls(void)
 		"Wireless Transport Layer Security",   	/* protocol name for use by ethereal */
 		"WTLS",                          /* short version of name */
 		"wtls"                    	/* Abbreviated protocol name, should Match IANA
-						    < URL:http://www.isi.edu/in-notes/iana/assignments/port-numbers/ >
+						    < URL:http://www.iana.org/assignments/port-numbers/ >
 						  */
 	);
 

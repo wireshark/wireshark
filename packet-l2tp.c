@@ -7,7 +7,7 @@
  * Laurent Cazalet <laurent.cazalet@mailclub.net>
  * Thomas Parvais <thomas.parvais@advalvas.be>
  *
- * $Id: packet-l2tp.c,v 1.38 2003/12/26 23:33:25 guy Exp $
+ * $Id: packet-l2tp.c,v 1.39 2004/02/28 22:56:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -267,7 +267,7 @@ static const value_string avp_type_vals[] = {
  * These are SMI Network Management Private Enterprise Codes for
  * organizations; see
  *
- *      http://www.isi.edu/in-notes/iana/assignments/enterprise-numbers
+ *      http://www.iana.org/assignments/enterprise-numbers
  *
  * for a list.
  */

@@ -1,7 +1,7 @@
 /* etypes.h
  * Defines ethernet packet types, similar to tcpdump's ethertype.h
  *
- * $Id: etypes.h,v 1.37 2003/11/27 21:09:42 guy Exp $
+ * $Id: etypes.h,v 1.38 2004/02/28 22:56:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -37,7 +37,7 @@
 #endif
 
 /* Sources:
- * http://www.isi.edu/in-notes/iana/assignments/ethernet-numbers
+ * http://www.iana.org/assignments/ethernet-numbers
  * TCP/IP Illustrated, Volume 1
  * RFCs 894, 1042, 826
  * tcpdump's ethertype.h

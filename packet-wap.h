@@ -2,7 +2,7 @@
  *
  * Declarations for WAP packet disassembly
  *
- * $Id: packet-wap.h,v 1.8 2002/08/28 21:00:37 jmayer Exp $
+ * $Id: packet-wap.h,v 1.9 2004/02/28 22:56:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -34,7 +34,7 @@
 #include <epan/packet.h>
 
 /* Port Numbers as per IANA */
-/* < URL:http://www.isi.edu/in-notes/iana/assignments/port-numbers/ > */
+/* < URL:http://www.iana.org/assignments/port-numbers/ > */
 #define UDP_PORT_WSP			9200		/* wap-wsp			*/
 #define UDP_PORT_WTP_WSP		9201		/* wap-wsp-wtp		*/
 #define UDP_PORT_WTLS_WSP		9202		/* wap-wsp-s		*/
