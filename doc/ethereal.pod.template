@@ -328,11 +328,11 @@ Collect call/reply RTT data for all known ONC-RPC programs/versions.
 Data collected is number of calls for each protocol/version, MinRTT, 
 MaxRTT and AvgRTT. 
 
-B<-z> smb,rtt[,I<filter>]
+B<-z> smb,srt[,I<filter>]
 
-Collect call/reply RTT data for SMB.  Data collected
-is number of calls for each SMB command, MinRTT, MaxRTT and AvgRTT. 
-Example: use B<-z smb,rtt>.
+Collect call/reply SRT (Service Response Time) data for SMB.  Data collected
+is number of calls for each SMB command, MinSRT, MaxSRT and AvgSRT. 
+Example: use B<-z smb,srt>.
 
 The data will be presented as separate tables for all normal SMB commands,
 all Transaction2 commands and all NT Transaction commands.
@@ -347,7 +347,7 @@ This option can be used multiple times on the command line.
 
 If the optional filterstring is provided, the stats will only be calculated
 on those calls that match that filter.
-Example: use B<-z "smb,rtt,ip.addr==1.2.3.4"> to only collect stats for
+Example: use B<-z "smb,srt,ip.addr==1.2.3.4"> to only collect stats for
 SMB packets echanged by the host at IP address 1.2.3.4 .
 
 B<-z> mgcp,rtd[I<,filter>]
@@ -656,6 +656,25 @@ If an optional filter string is used only such ONC-RPC request/response pairs
 that match that filter will be used to calculate the statistics. If no filter 
 string is specified all request/response pairs will be used.
 
+=item Tools:Statistics:Service Response Time:SMB
+
+Collect call/reply SRT (Service Response Time) data for SMB.  Data collected
+is number of calls for each SMB command, MinSRT, MaxSRT and AvgSRT. 
+
+The data will be presented as separate tables for all normal SMB commands,
+all Transaction2 commands and all NT Transaction commands.
+Only those commands that are seen in the capture will have its stats
+displayed.
+Only the first command in a xAndX command chain will be used in the
+calculation.  So for common SessionSetupAndX + TreeConnectAndX chains,
+only the SessionSetupAndX call will be used in the statistics.
+This is a flaw that might be fixed in the future.
+
+You can apply an optional filter string in a dialog box, before starting
+the calculation. The stats will only be calculated 
+on those calls matching that filter.
+
+
 =item Tools:Statistics:Traffic:IO-Stat
 
 Open a window where up to 5 graphs in different colors can be displayed
@@ -739,24 +758,6 @@ Display how the average packetsize from host a.b.c.d changes over time.
 
 Set first graph to   filter:ip.addr==a.b.c.d&&frame.pkt_len  Calc:AVG frame.pkt_len
 
-
-=item Tools:Statistics:SMB:RTT
-
-Collect call/reply RTT data for SMB.  Data collected
-is number of calls for each SMB command, MinRTT, MaxRTT and AvgRTT. 
-
-The data will be presented as separate tables for all normal SMB commands,
-all Transaction2 commands and all NT Transaction commands.
-Only those commands that are seen in the capture will have its stats
-displayed.
-Only the first command in a xAndX command chain will be used in the
-calculation.  So for common SessionSetupAndX + TreeConnectAndX chains,
-only the SessionSetupAndX call will be used in the statistics.
-This is a flaw that might be fixed in the future.
-
-You can apply an optional filter string in a dialog box, before starting
-the calculation. The stats will only be calculated 
-on those calls matching that filter.
 
 =item Tools:Statistics:MGCP:RTD
 

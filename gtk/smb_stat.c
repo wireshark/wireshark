@@ -1,7 +1,7 @@
 /* smb_stat.c
  * smb_stat   2003 Ronnie Sahlberg
  *
- * $Id: smb_stat.c,v 1.6 2003/04/25 20:54:18 guy Exp $
+ * $Id: smb_stat.c,v 1.7 2003/06/21 06:40:48 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -45,76 +45,26 @@
 #include "../simple_dialog.h"
 #include "../file.h"
 #include "../globals.h"
+#include "service_response_time_table.h"
 
 /* used to keep track of the statistics for an entire program interface */
 typedef struct _smbstat_t {
 	GtkWidget *win;
-	GtkWidget *vbox;
-	char *filter;
-	GtkWidget *table;
-	int table_height;
-	GtkWidget *table_widgets[768];
-	timestat_t proc[256];
-	timestat_t trans2[256];
-	timestat_t nt_trans[256];
+	srt_stat_table smb_srt_table;
+	srt_stat_table trans2_srt_table;
+	srt_stat_table nt_trans_srt_table;
 } smbstat_t;
 
-
-
-
-static void
-add_table_entry(smbstat_t *ss, char *str, int x, int y)
-{
-	GtkWidget *tmp;
-
-	if(y>=ss->table_height){
-		ss->table_height=y+1;
-		gtk_table_resize(GTK_TABLE(ss->table), ss->table_height, 5);
-	}
-	tmp=gtk_label_new(str);
-	gtk_table_attach_defaults(GTK_TABLE(ss->table), tmp, x, x+1, y, y+1);
-	gtk_label_set_justify(GTK_LABEL(tmp), GTK_JUSTIFY_LEFT);
-	gtk_widget_show(tmp);
-}
 
 
 static void
 smbstat_reset(void *pss)
 {
 	smbstat_t *ss=(smbstat_t *)pss;
-	guint32 i;
 
-	for(i=0;i<256;i++){
-		ss->proc[i].num=0;
-		ss->proc[i].min_num=0;
-		ss->proc[i].max_num=0;
-		ss->proc[i].min.secs=0;
-		ss->proc[i].min.nsecs=0;
-		ss->proc[i].max.secs=0;
-		ss->proc[i].max.nsecs=0;
-		ss->proc[i].tot.secs=0;
-		ss->proc[i].tot.nsecs=0;
-
-		ss->trans2[i].num=0;
-		ss->trans2[i].min_num=0;
-		ss->trans2[i].max_num=0;
-		ss->trans2[i].min.secs=0;
-		ss->trans2[i].min.nsecs=0;
-		ss->trans2[i].max.secs=0;
-		ss->trans2[i].max.nsecs=0;
-		ss->trans2[i].tot.secs=0;
-		ss->trans2[i].tot.nsecs=0;
-
-		ss->nt_trans[i].num=0;
-		ss->nt_trans[i].min_num=0;
-		ss->nt_trans[i].max_num=0;
-		ss->nt_trans[i].min.secs=0;
-		ss->nt_trans[i].min.nsecs=0;
-		ss->nt_trans[i].max.secs=0;
-		ss->nt_trans[i].max.nsecs=0;
-		ss->nt_trans[i].tot.secs=0;
-		ss->nt_trans[i].tot.nsecs=0;
-	}
+	reset_srt_table_data(&ss->smb_srt_table);
+	reset_srt_table_data(&ss->trans2_srt_table);
+	reset_srt_table_data(&ss->nt_trans_srt_table);
 }
 
 static int
@@ -122,8 +72,6 @@ smbstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, void *psi
 {
 	smbstat_t *ss=(smbstat_t *)pss;
 	smb_info_t *si=psi;
-	nstime_t delta;
-	timestat_t *sp;
 
 	/* we are only interested in reply packets */
 	if(si->request){
@@ -134,185 +82,31 @@ smbstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, void *psi
 		return 0;
 	}
 
+	add_srt_table_data(&ss->smb_srt_table, si->cmd, &si->sip->req_time, pinfo);
+
 	if(si->cmd==0xA0){
 		smb_nt_transact_info_t *sti=(smb_nt_transact_info_t *)si->sip->extra_info;
 
-		/*nt transaction*/
-		sp=&(ss->nt_trans[sti->subcmd]);
+		add_srt_table_data(&ss->nt_trans_srt_table, sti->subcmd, &si->sip->req_time, pinfo);
 	} else if(si->cmd==0x32){
 		smb_transact2_info_t *st2i=(smb_transact2_info_t *)si->sip->extra_info;
 
-		/*transaction2*/
-		sp=&(ss->trans2[st2i->subcmd]);
-	} else {
-		sp=&(ss->proc[si->cmd]);
+		add_srt_table_data(&ss->trans2_srt_table, st2i->subcmd, &si->sip->req_time, pinfo);
 	}
-
-	/* calculate time delta between request and reply */
-	delta.secs=pinfo->fd->abs_secs-si->sip->req_time.secs;
-	delta.nsecs=pinfo->fd->abs_usecs*1000-si->sip->req_time.nsecs;
-	if(delta.nsecs<0){
-		delta.nsecs+=1000000000;
-		delta.secs--;
-	}
-
-	time_stat_update(sp,&delta, pinfo);
 
 	return 1;
 }
+
+
 
 static void
 smbstat_draw(void *pss)
 {
 	smbstat_t *ss=(smbstat_t *)pss;
-	guint32 i;
-	int pos;
-	char str[256];
-#ifdef G_HAVE_UINT64
-	guint64 td;
-#else
-	guint32 td;
-#endif
 
-	gtk_widget_destroy(ss->table);
-	ss->table_height=5;
-	ss->table=gtk_table_new(ss->table_height, 5, TRUE);
-	gtk_container_add(GTK_CONTAINER(ss->vbox), ss->table);
-
-	pos=0;
-	add_table_entry(ss, "Command", 0, pos);
-	add_table_entry(ss, "Calls", 1, pos);
-	add_table_entry(ss, "Min RTT", 2, pos);
-	add_table_entry(ss, "Max RTT", 3, pos);
-	add_table_entry(ss, "Avg RTT", 4, pos);
-	pos++;
-
-	for(i=0;i<256;i++){
-		/* nothing seen, nothing to do */
-		if(ss->proc[i].num==0){
-			continue;
-		}
-
-		/* we deal with transaction2 later */
-		if(i==0x32){
-			continue;
-		}
-
-		/* we deal with nt transaction later */
-		if(i==0xA0){
-			continue;
-		}
-
-		/* scale it to units of 10us.*/
-		/* for long captures with a large tot time, this can overflow on 32bit */
-		td=(int)ss->proc[i].tot.secs;
-		td=td*100000+(int)ss->proc[i].tot.nsecs/10000;
-		if(ss->proc[i].num){
-			td/=ss->proc[i].num;
-		} else {
-			td=0;
-		}
-
-		sprintf(str, "%s", val_to_str(i, smb_cmd_vals, "Unknown (0x%02x)"));
-		add_table_entry(ss, str, 0, pos);
-		sprintf(str, "%d", ss->proc[i].num);
-		add_table_entry(ss, str, 1, pos);
-		sprintf(str, "%3d.%05d", (int)ss->proc[i].min.secs,ss->proc[i].min.nsecs/10000);
-		add_table_entry(ss, str, 2, pos);
-		sprintf(str, "%3d.%05d", (int)ss->proc[i].max.secs,ss->proc[i].max.nsecs/10000);
-		add_table_entry(ss, str, 3, pos);
-		sprintf(str, "%3d.%05d", td/100000, td%100000);
-		add_table_entry(ss, str, 4, pos);
-		pos++;
-	}
-
-
-	add_table_entry(ss, "", 0, pos);
-	add_table_entry(ss, "", 1, pos);
-	add_table_entry(ss, "", 2, pos);
-	add_table_entry(ss, "", 3, pos);
-	add_table_entry(ss, "", 4, pos);
-	pos++;
-
-	add_table_entry(ss, "Transaction2 Command", 0, pos);
-	add_table_entry(ss, "Calls", 1, pos);
-	add_table_entry(ss, "Min RTT", 2, pos);
-	add_table_entry(ss, "Max RTT", 3, pos);
-	add_table_entry(ss, "Avg RTT", 4, pos);
-	pos++;
-
-	for(i=0;i<256;i++){
-		/* nothing seen, nothing to do */
-		if(ss->trans2[i].num==0){
-			continue;
-		}
-
-		/* scale it to units of 10us.*/
-		/* for long captures with a large tot time, this can overflow on 32bit */
-		td=(int)ss->trans2[i].tot.secs;
-		td=td*100000+(int)ss->trans2[i].tot.nsecs/10000;
-		if(ss->trans2[i].num){
-			td/=ss->trans2[i].num;
-		} else {
-			td=0;
-		}
-
-		sprintf(str, "%s", val_to_str(i, trans2_cmd_vals, "Unknown (0x%02x)"));
-		add_table_entry(ss, str, 0, pos);
-		sprintf(str, "%d", ss->trans2[i].num);
-		add_table_entry(ss, str, 1, pos);
-		sprintf(str, "%3d.%05d", (int)ss->trans2[i].min.secs,ss->trans2[i].min.nsecs/10000);
-		add_table_entry(ss, str, 2, pos);
-		sprintf(str, "%3d.%05d", (int)ss->trans2[i].max.secs,ss->trans2[i].max.nsecs/10000);
-		add_table_entry(ss, str, 3, pos);
-		sprintf(str, "%3d.%05d", td/100000, td%100000);
-		add_table_entry(ss, str, 4, pos);
-		pos++;
-	}
-
-	add_table_entry(ss, "", 0, pos);
-	add_table_entry(ss, "", 1, pos);
-	add_table_entry(ss, "", 2, pos);
-	add_table_entry(ss, "", 3, pos);
-	add_table_entry(ss, "", 4, pos);
-	pos++;
-
-	add_table_entry(ss, "NT Transaction Command", 0, pos);
-	add_table_entry(ss, "Calls", 1, pos);
-	add_table_entry(ss, "Min RTT", 2, pos);
-	add_table_entry(ss, "Max RTT", 3, pos);
-	add_table_entry(ss, "Avg RTT", 4, pos);
-	pos++;
-
-	for(i=0;i<256;i++){
-		/* nothing seen, nothing to do */
-		if(ss->nt_trans[i].num==0){
-			continue;
-		}
-
-		/* scale it to units of 10us.*/
-		/* for long captures with a large tot time, this can overflow on 32bit */
-		td=(int)ss->nt_trans[i].tot.secs;
-		td=td*100000+(int)ss->nt_trans[i].tot.nsecs/10000;
-		if(ss->nt_trans[i].num){
-			td/=ss->nt_trans[i].num;
-		} else {
-			td=0;
-		}
-
-		sprintf(str, "%s", val_to_str(i, nt_cmd_vals, "Unknown (0x%02x)"));
-		add_table_entry(ss, str, 0, pos);
-		sprintf(str, "%d", ss->nt_trans[i].num);
-		add_table_entry(ss, str, 1, pos);
-		sprintf(str, "%3d.%05d", (int)ss->nt_trans[i].min.secs,ss->nt_trans[i].min.nsecs/10000);
-		add_table_entry(ss, str, 2, pos);
-		sprintf(str, "%3d.%05d", (int)ss->nt_trans[i].max.secs,ss->nt_trans[i].max.nsecs/10000);
-		add_table_entry(ss, str, 3, pos);
-		sprintf(str, "%3d.%05d", td/100000, td%100000);
-		add_table_entry(ss, str, 4, pos);
-		pos++;
-	}
-	gtk_widget_show(ss->table);
+	draw_srt_table_data(&ss->smb_srt_table);
+	draw_srt_table_data(&ss->trans2_srt_table);
+	draw_srt_table_data(&ss->nt_trans_srt_table);
 }
 
 
@@ -327,10 +121,9 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
 	remove_tap_listener(ss);
 	unprotect_thread_critical_region();
 
-	if(ss->filter){
-		g_free(ss->filter);
-		ss->filter=NULL;
-	}
+	free_srt_table_data(&ss->smb_srt_table);
+	free_srt_table_data(&ss->trans2_srt_table);
+	free_srt_table_data(&ss->nt_trans_srt_table);
 	g_free(ss);
 }
 
@@ -340,87 +133,71 @@ gtk_smbstat_init(char *optarg)
 {
 	smbstat_t *ss;
 	char *filter=NULL;
-	GtkWidget *stat_label;
-	GtkWidget *filter_label;
+	GtkWidget *label;
 	char filter_string[256];
 	GString *error_string;
+	int i;
+	GtkWidget *vbox;
 
-	if(!strncmp(optarg,"smb,rtt,",8)){
+	if(!strncmp(optarg,"smb,srt,",8)){
 		filter=optarg+8;
 	} else {
 		filter=NULL;
 	}
 
 	ss=g_malloc(sizeof(smbstat_t));
-	if(filter){
-		ss->filter=g_malloc(strlen(filter)+1);
-		strcpy(ss->filter, filter);
-	} else {
-		ss->filter=NULL;
-	}
-
-	smbstat_reset(ss);
 
 	ss->win=gtk_window_new(GTK_WINDOW_TOPLEVEL);
-	gtk_window_set_title(GTK_WINDOW(ss->win), "SMB RTT Statistics");
+	gtk_window_set_default_size(ss->win, 550, 600);
+	gtk_window_set_title(GTK_WINDOW(ss->win), "SMB Service Response Time statistics");
 	SIGNAL_CONNECT(ss->win, "destroy", win_destroy_cb, ss);
 
-	ss->vbox=gtk_vbox_new(FALSE, 0);
-	gtk_container_add(GTK_CONTAINER(ss->win), ss->vbox);
-	gtk_container_set_border_width(GTK_CONTAINER(ss->vbox), 10);
-	gtk_widget_show(ss->vbox);
+	vbox=gtk_vbox_new(FALSE, 0);
+	gtk_container_add(GTK_CONTAINER(ss->win), vbox);
+	gtk_container_set_border_width(GTK_CONTAINER(vbox), 10);
+	gtk_widget_show(vbox);
 
-	stat_label=gtk_label_new("SMB RTT Statistics");
-	gtk_box_pack_start(GTK_BOX(ss->vbox), stat_label, FALSE, FALSE, 0);
-	gtk_widget_show(stat_label);
+	label=gtk_label_new("SMB Service Response Time statistics");
+	gtk_box_pack_start(GTK_BOX(vbox), label, FALSE, FALSE, 0);
+	gtk_widget_show(label);
 
 	snprintf(filter_string,255,"Filter:%s",filter?filter:"");
-	filter_label=gtk_label_new(filter_string);
-	gtk_box_pack_start(GTK_BOX(ss->vbox), filter_label, FALSE, FALSE, 0);
-	gtk_widget_show(filter_label);
+	label=gtk_label_new(filter_string);
+	gtk_box_pack_start(GTK_BOX(vbox), label, FALSE, FALSE, 0);
+	gtk_widget_show(label);
 
 
-	ss->table_height=5;
-	ss->table=gtk_table_new(ss->table_height, 5, TRUE);
-	gtk_container_add(GTK_CONTAINER(ss->vbox), ss->table);
+	label=gtk_label_new("SMB Commands");
+	gtk_box_pack_start(GTK_BOX(vbox), label, FALSE, FALSE, 0);
+	gtk_widget_show(label);
+	init_srt_table(&ss->smb_srt_table, 256, vbox);
+	for(i=0;i<256;i++){
+		init_srt_table_row(&ss->smb_srt_table, i, val_to_str(i, smb_cmd_vals, "Unknown(0x%02x)"));
+	}
 
-	add_table_entry(ss, "Command", 0, 0);
-	add_table_entry(ss, "Calls", 1, 0);
-	add_table_entry(ss, "Min RTT", 2, 0);
-	add_table_entry(ss, "Max RTT", 3, 0);
-	add_table_entry(ss, "Avg RTT", 4, 0);
 
-	add_table_entry(ss, "", 0, 1);
-	add_table_entry(ss, "", 1, 1);
-	add_table_entry(ss, "", 2, 1);
-	add_table_entry(ss, "", 3, 1);
-	add_table_entry(ss, "", 4, 1);
+	label=gtk_label_new("Transaction2 Sub-Commands");
+	gtk_box_pack_start(GTK_BOX(vbox), label, FALSE, FALSE, 0);
+	gtk_widget_show(label);
+	init_srt_table(&ss->trans2_srt_table, 256, vbox);
+	for(i=0;i<256;i++){
+		init_srt_table_row(&ss->trans2_srt_table, i, val_to_str(i, trans2_cmd_vals, "Unknown(0x%02x)"));
+	}
 
-	add_table_entry(ss, "Transaction2 Commands", 0, 2);
-	add_table_entry(ss, "Calls", 1, 2);
-	add_table_entry(ss, "Min RTT", 2, 2);
-	add_table_entry(ss, "Max RTT", 3, 2);
-	add_table_entry(ss, "Avg RTT", 4, 2);
 
-	add_table_entry(ss, "", 0, 3);
-	add_table_entry(ss, "", 1, 3);
-	add_table_entry(ss, "", 2, 3);
-	add_table_entry(ss, "", 3, 3);
-	add_table_entry(ss, "", 4, 3);
+	label=gtk_label_new("NT Transaction Sub-Commands");
+	gtk_box_pack_start(GTK_BOX(vbox), label, FALSE, FALSE, 0);
+	gtk_widget_show(label);
+	init_srt_table(&ss->nt_trans_srt_table, 256, vbox);
+	for(i=0;i<256;i++){
+		init_srt_table_row(&ss->nt_trans_srt_table, i, val_to_str(i, nt_cmd_vals, "Unknown(0x%02x)"));
+	}
 
-	add_table_entry(ss, "NT Transaction Commands", 0, 4);
-	add_table_entry(ss, "Calls", 1, 4);
-	add_table_entry(ss, "Min RTT", 2, 4);
-	add_table_entry(ss, "Max RTT", 3, 4);
-	add_table_entry(ss, "Avg RTT", 4, 4);
-
-	gtk_widget_show(ss->table);
 
 	error_string=register_tap_listener("smb", ss, filter, smbstat_reset, smbstat_packet, smbstat_draw);
 	if(error_string){
 		simple_dialog(ESD_TYPE_WARN, NULL, error_string->str);
 		g_string_free(error_string, TRUE);
-		g_free(ss->filter);
 		g_free(ss);
 		return;
 	}
@@ -450,9 +227,9 @@ smbstat_start_button_clicked(GtkWidget *item _U_, gpointer data _U_)
 
 	filter=(char *)gtk_entry_get_text(GTK_ENTRY(filter_entry));
 	if(filter[0]==0){
-		gtk_smbstat_init("smb,rtt");
+		gtk_smbstat_init("smb,srt");
 	} else {
-		sprintf(str,"smb,rtt,%s", filter);
+		sprintf(str,"smb,srt,%s", filter);
 		gtk_smbstat_init(str);
 	}
 }
@@ -467,7 +244,7 @@ gtk_smbstat_cb(GtkWidget *w _U_, gpointer d _U_)
 	}
 
 	dlg=gtk_window_new(GTK_WINDOW_TOPLEVEL);
-	gtk_window_set_title(GTK_WINDOW(dlg), "SMB RTT Statistics");
+	gtk_window_set_title(GTK_WINDOW(dlg), "SMB Service Response Time statistics");
 	SIGNAL_CONNECT(dlg, "destroy", dlg_destroy_cb, NULL);
 	dlg_box=gtk_vbox_new(FALSE, 0);
 	gtk_container_add(GTK_CONTAINER(dlg), dlg_box);
@@ -503,11 +280,11 @@ gtk_smbstat_cb(GtkWidget *w _U_, gpointer d _U_)
 void
 register_tap_listener_gtksmbstat(void)
 {
-	register_ethereal_tap("smb,rtt", gtk_smbstat_init);
+	register_ethereal_tap("smb,srt", gtk_smbstat_init);
 }
 
 void
 register_tap_menu_gtksmbstat(void)
 {
-	register_tap_menu_item("SMB/RTT", gtk_smbstat_cb);
+	register_tap_menu_item("Service Response Time/SMB", gtk_smbstat_cb);
 }
