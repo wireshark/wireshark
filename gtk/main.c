@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.339 2003/12/12 02:50:04 gerald Exp $
+ * $Id: main.c,v 1.340 2003/12/13 16:30:10 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -202,14 +202,19 @@ about_ethereal( GtkWidget *w _U_, gpointer data _U_ ) {
 
   /* Construct the message string */
   snprintf(message, MAX_ABOUT_MSG_LEN,
-	   "Ethereal - Network Protocol Analyzer\n"
-	   "Version " VERSION " (C) 1998-2003 Gerald Combs <gerald@ethereal.com>\n"
-           "%s\n%s\n\n"
+	   "Ethereal - Network Protocol Analyzer\n\n"
+	   
+	   "Version " VERSION " (C) 1998-2003 Gerald Combs <gerald@ethereal.com>\n\n"
+	   
+       "%s\n"
+       "%s\n\n"
+
+       "Ethereal is Open Source software released under the GNU General Public License.\n\n"
 
 	   "Check the man page for complete documentation and\n"
-	   "for the list of contributors.\n"
+	   "for the list of contributors.\n\n"
 
-	    "\nSee http://www.ethereal.com/ for more information.",
+	   "See http://www.ethereal.com for more information.",
 	    comp_info_str->str, runtime_info_str->str);
 
   msg_label = gtk_label_new(message);
