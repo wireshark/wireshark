@@ -125,7 +125,7 @@
 #endif
 
 #ifndef ETHERTYPE_ETHBRIDGE
-#define ETHERTYPE_ETHBRIDGE	0x6558	/* transparent Ethernet bridging Trans Ether Bridging   [RFC1701]*/
+#define ETHERTYPE_ETHBRIDGE	0x6558	/* transparent Ethernet bridging [RFC1701]*/
 #endif
 
 #ifndef ETHERTYPE_RAW_FR
