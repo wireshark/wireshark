@@ -3,7 +3,15 @@
 
 <chapter id="ChapterIntroduction">
   <title>Introduction</title>
-  <!-- Introduction -->
+
+  <section id="ChIntroIntro">
+    <title>Introduction</title>
+    <para>
+	This chapter will provide you with information about Ethereal 
+	development in general. 
+    </para>
+  </section>
+
   <section id="ChIntroWhatIs">
     <title>What is <application>Ethereal?</application></title>
     <para>
