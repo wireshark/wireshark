@@ -1442,6 +1442,7 @@ B<http://www.ethereal.com>.
   Dirk Steinberg           <dws[AT]dirksteinberg.de>
   Kari Heikkila            <kari.o.heikkila[AT]nokia.com>
   Olivier Dreux            <Olivier.Dreux[AT]alcatel.fr>
+  Michael Stiller          <ms[AT]2scale.net>
 
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to give his
 permission to use his version of snprintf.c.
