@@ -1629,6 +1629,8 @@ static gboolean ngsniffer_read_rec_data(wtap *wth, gboolean is_random,
  */
 static int infer_pkt_encap(const guint8 *pd, int len)
 {
+	int i;
+
 	if (len <= 0) {
 		/*
 		 * Nothing to infer, but it doesn't matter how you
@@ -1637,26 +1639,11 @@ static int infer_pkt_encap(const guint8 *pd, int len)
 		return WTAP_ENCAP_PPP_WITH_PHDR;
 	}
 
-	switch (pd[0]) {
-
-	case 0xFF:
+	if (pd[0] == 0xFF) {
 		/*
 		 * PPP.  (XXX - check for 0xFF 0x03?)
 		 */
 		return WTAP_ENCAP_PPP_WITH_PHDR;
-
-	case 0x34:
-	case 0x28:
-		/*
-		 * Frame Relay.
-		 *
-		 * XXX - in version 4 and 5 captures, wouldn't this just
-		 * have a capture subtype of NET_FRAME_RELAY?  Or is this
-		 * here only to handle other versions of the capture
-		 * file, where we might just not yet have found where
-		 * the subtype is specified in the capture?
-		 */
-		return WTAP_ENCAP_FRELAY_WITH_PHDR;
 	}
 
 	if (len >= 2) {
@@ -1672,6 +1659,40 @@ static int infer_pkt_encap(const guint8 *pd, int len)
 			 */
 			return WTAP_ENCAP_CHDLC_WITH_PHDR;
 		}
+
+		/*
+		 * Check for Frame Relay.  Look for packets with at least
+		 * 3 bytes of header - 2 bytes of DLCI followed by 1 byte
+		 * of control, which, for now, we require to be 0x03 (UI),
+		 * although there might be other frame types as well.
+		 * Scan forward until we see the last DLCI byte, with
+		 * the low-order bit being 1, and then check the next
+		 * byte to see if it's a control byte.
+		 *
+		 * XXX - in version 4 and 5 captures, wouldn't this just
+		 * have a capture subtype of NET_FRAME_RELAY?  Or is this
+		 * here only to handle other versions of the capture
+		 * file, where we might just not yet have found where
+		 * the subtype is specified in the capture?
+		 *
+		 * Bay^H^H^HNortel Networks has a mechanism in the Optivity
+		 * software for some of their routers to save captures
+		 * in Sniffer format; they use a version number of 4.9, but
+		 * don't put out any header records before the first FRAME2
+		 * record.  That means we have to use heuristics to guess
+		 * what type of packet we have.
+		 */
+		for (i = 0; i < len && (pd[i] & 0x01) == 0; i++)
+			;
+		i++;	/* advance to the byte after the last DLCI byte */
+		if (i == len) {
+			/*
+			 * No control byte.
+			 */
+			return WTAP_ENCAP_LAPB;
+		}
+		if (pd[i] == 0x03)
+			return WTAP_ENCAP_FRELAY_WITH_PHDR;
 	}
 
 	/*
