@@ -94,14 +94,17 @@ Prints the version and options and exits.
 
 =item -i
 
-Sets the name of the interface to use for live packet capture.  It
-should match one of the names listed in "B<netstat -i>" or "B<ifconfig -a>".
+Sets the name of the network interface to use for live packet capture. 
+It should match one of the names listed in "B<netstat -i>" or
+"B<ifconfig -a>".
 
 =item -k
 
-Starts the capture session immediately; this option requires 
-the B<-i> parameter, specifying the interface on which the capture
-should be done.
+Starts the capture session immediately.  If the B<-i> flag was
+specified, the capture uses the specified interface.  Otherwise,
+B<Ethereal> searches the list of interfaces on the system for the
+lowest-numbered, configured-up interface (excluding loopback
+interfaces); ties are broken by choosing the earliest match.
 
 =item -m
 

@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.4 2000/01/14 23:26:18 nneul Exp $
+ * $Id: tethereal.c,v 1.5 2000/01/15 06:04:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -131,7 +131,7 @@ print_usage(void) {
   fprintf(stderr, "This is GNU %s %s, compiled with %s\n", PACKAGE,
 	  VERSION, comp_info_str);
 
-  fprintf(stderr, "t%s -i iface [ -vVh ] [ -c count ] [ -f <filter expression> ]\n", PACKAGE);
+  fprintf(stderr, "t%s [ -vVh ] [ -c count ] [ -f <filter expression> ] [ -i iface ]\n", PACKAGE);
   fprintf(stderr, "\t[ -r infile ] [ -R <filter expression> ] [ -s snaplen ]\n");
   fprintf(stderr, "\t[ -t <time stamp format> ] [ -w savefile ]\n");
 }
@@ -147,7 +147,9 @@ main(int argc, char *argv[])
 #endif
   char                *pf_path;
   int                  err;
-#ifndef HAVE_LIBPCAP
+#ifdef HAVE_LIBPCAP
+  gchar                err_str[PCAP_ERRBUF_SIZE];
+#else
   gboolean             capture_option_specified = FALSE;
 #endif
   gchar               *cf_name = NULL, *rfilter = NULL;
@@ -368,14 +370,28 @@ main(int argc, char *argv[])
       exit(2);
     }
     cf_name[0] = '\0';
-#ifdef HAVE_LIBPCAP
   } else {
-    if (!cf.iface) {
-	print_usage();
-	fprintf(stderr, "\nPlease specify an interface with the -i option.\n");
-	exit(1);
+    /* No capture file specified, so we're supposed to do a live capture;
+       do we have support for live captures? */
+#ifdef HAVE_LIBPCAP
+    /* Yes; did the user specify an interface to use? */
+    if (cf.iface == NULL) {
+        /* No - have libpcap pick one. */
+        cf.iface = pcap_lookupdev(err_str);
+        if (cf.iface == NULL) {
+            /* It couldn't pick one. */
+            fprintf(stderr, "tethereal: %s\n", err_str);
+            exit(2);
+        }
+
+        /* Let the user know what interface was chosen. */
+        printf("Capturing on %s\n", cf.iface);
     }
     capture();
+#else
+    /* No - complain. */
+    fprintf(stderr, "This version of Tethereal was not built with support for capturing packets.\n");
+    exit(2);
 #endif
   }
 

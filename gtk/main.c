@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.87 2000/01/15 00:22:51 gram Exp $
+ * $Id: main.c,v 1.88 2000/01/15 06:05:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1023,6 +1023,7 @@ main(int argc, char *argv[])
 #ifdef HAVE_LIBPCAP
   gboolean             start_capture = FALSE;
   gchar               *save_file = NULL;
+  gchar                err_str[PCAP_ERRBUF_SIZE];
 #else
   gboolean             capture_option_specified = FALSE;
 #endif
@@ -1304,9 +1305,16 @@ main(int argc, char *argv[])
 #endif
 #ifdef HAVE_LIBPCAP
   if (start_capture) {
+    /* We're supposed to do a live capture; did the user specify an interface
+       to use? */
     if (cf.iface == NULL) {
-      fprintf(stderr, "ethereal: \"-k\" flag was specified without \"-i\" flag\n");
-      exit(1);
+      /* No - have libpcap pick one. */
+      cf.iface = pcap_lookupdev(err_str);
+      if (cf.iface == NULL) {
+        /* It couldn't pick one. */
+        fprintf(stderr, "ethereal: %s\n", err_str);
+        exit(2);
+      }
     }
   }
   if (capture_child) {
