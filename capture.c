@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.143 2001/02/14 09:40:20 guy Exp $
+ * $Id: capture.c,v 1.144 2001/03/15 09:11:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -158,6 +158,7 @@
 #include "packet-sll.h"
 #include "packet-tr.h"
 #include "packet-ieee80211.h"
+#include "packet-chdlc.h"
 
 int promisc_mode = TRUE; /* capture in promiscuous mode */
 int sync_mode;	/* fork a child to do the capture, and sync between them */
@@ -1173,7 +1174,10 @@ pipe_dispatch(int fd, loop_data *ld, struct pcap_hdr *hdr)
       capture_clip(pd, &ld->counts);
       break;
     case WTAP_ENCAP_IEEE_802_11:
-      capture_ieee80211(pd,0,&ld->counts);
+      capture_ieee80211(pd, 0, &ld->counts);
+      break;
+    case WTAP_ENCAP_CHDLC:
+      capture_chdlc(pd, 0, &ld->counts);
       break;
     /* XXX - FreeBSD may append 4-byte ATM pseudo-header to DLT_ATM_RFC1483,
        with LLC header following; we should implement it at some

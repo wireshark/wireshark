@@ -1,7 +1,7 @@
 /* packet-ppp.c
  * Routines for ppp packet disassembly
  *
- * $Id: packet-ppp.c,v 1.55 2001/01/21 22:10:22 guy Exp $
+ * $Id: packet-ppp.c,v 1.56 2001/03/15 09:11:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -39,6 +39,7 @@
 #include "ppptypes.h"
 #include "etypes.h"
 #include "packet-atalk.h"
+#include "packet-chdlc.h"
 #include "packet-ip.h"
 #include "packet-ipv6.h"
 #include "packet-ipx.h"
@@ -80,6 +81,7 @@ static int ett_mp = -1;
 static int ett_mp_flags = -1;
 
 static dissector_table_t subdissector_table;
+static dissector_handle_t chdlc_handle;
 
 /* options */
 static gint ppp_fcs_decode = 0; /* 0 = No FCS, 1 = 16 bit FCS, 2 = 32 bit FCS */
@@ -118,8 +120,6 @@ static const value_string ppp_vals[] = {
 	{PPP_LQR,	"Link Quality Report protocol" },
 	{PPP_CHAP,	"Cryptographic Handshake Auth. Protocol" },
 	{PPP_CBCP,	"Callback Control Protocol" },
-	{ETHERTYPE_IP,  "Cisco HDLC IP"},
-	{CISCO_SLARP,   "Cisco HDLC SLARP"},
 	{0,             NULL            }
 };
 
@@ -682,9 +682,12 @@ fcs32(guint32 fcs,
 
 void
 capture_ppp( const u_char *pd, int offset, packet_counts *ld ) {
+  if (pd[0] == CHDLC_ADDR_UNICAST || pd[0] == CHDLC_ADDR_MULTICAST) {
+    capture_chdlc(pd, offset, ld);
+    return;
+  }
   switch (pntohs(&pd[offset + 2])) {
     case PPP_IP:
-    case ETHERTYPE_IP:
       capture_ip(pd, offset + 4, ld);
       break;
     case PPP_IPX:
@@ -1303,15 +1306,18 @@ dissect_ppp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree ) {
   guint32    rx_fcs_got;
 
   byte0 = tvb_get_guint8(tvb, 0);
-
-  if (byte0 == 0xff) {
-    ph.ppp_addr = tvb_get_guint8(tvb, 0);
-    ph.ppp_ctl  = tvb_get_guint8(tvb, 1);
-    ph.ppp_prot = tvb_get_ntohs(tvb, 2);
-    proto_offset =  2;
+  if (byte0 == CHDLC_ADDR_UNICAST || byte0 == CHDLC_ADDR_MULTICAST) {
+    /* Cisco HDLC encapsulation */
+    call_dissector(chdlc_handle, tvb, pinfo, tree);
   }
-  /* Cisco HDLC format */
-  else if (byte0 == 0x0f) {
+
+  /*
+   * XXX - should we have a routine that always dissects PPP, for use
+   * when we know the packets are PPP, not CHDLC?
+   */
+
+  /* PPP HDLC encapsulation */
+  if (byte0 == 0xff) {
     ph.ppp_addr = tvb_get_guint8(tvb, 0);
     ph.ppp_ctl  = tvb_get_guint8(tvb, 1);
     ph.ppp_prot = tvb_get_ntohs(tvb, 2);
@@ -1337,10 +1343,6 @@ dissect_ppp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree ) {
     ti = proto_tree_add_item(tree, proto_ppp, tvb, 0, 4, FALSE);
     fh_tree = proto_item_add_subtree(ti, ett_ppp);
     if (byte0 == 0xff) {
-      proto_tree_add_text(fh_tree, tvb, 0, 1, "Address: %02x", ph.ppp_addr);
-      proto_tree_add_text(fh_tree, tvb, 1, 1, "Control: %02x", ph.ppp_ctl);
-    }
-    else if (byte0 == 0x0f) {
       proto_tree_add_text(fh_tree, tvb, 0, 1, "Address: %02x", ph.ppp_addr);
       proto_tree_add_text(fh_tree, tvb, 1, 1, "Control: %02x", ph.ppp_ctl);
     }
@@ -1421,6 +1423,11 @@ proto_register_ppp(void)
 void
 proto_reg_handoff_ppp(void)
 {
+  /*
+   * Get a handle for the CHDLC dissector.
+   */
+  chdlc_handle = find_dissector("chdlc");
+
   dissector_add("wtap_encap", WTAP_ENCAP_PPP, dissect_ppp, proto_ppp);
   dissector_add("wtap_encap", WTAP_ENCAP_PPP_WITH_PHDR, dissect_ppp, proto_ppp);
   dissector_add("fr.ietf", NLPID_PPP, dissect_ppp, proto_ppp);

@@ -1,6 +1,6 @@
 /* libpcap.c
  *
- * $Id: libpcap.c,v 1.47 2001/03/11 02:51:05 guy Exp $
+ * $Id: libpcap.c,v 1.48 2001/03/15 09:11:03 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -147,7 +147,11 @@ static const struct {
 #if defined(DLT_LOOP) && (DLT_LOOP == 12)
 	{ 12,		WTAP_ENCAP_NULL },
 #elif defined(DLT_C_HDLC) && (DLT_C_HDLC == 12)
-	/* Put entry for Cisco HDLC here */
+	/*
+	 * Put entry for Cisco HDLC here.
+	 * XXX - is this just WTAP_ENCAP_CHDLC, i.e. does the frame
+	 * start with a 4-byte Cisco HDLC header?
+	 */
 #else
 	{ 12,		WTAP_ENCAP_RAW_IP },
 #endif
@@ -220,7 +224,7 @@ static const struct {
 	{ 16,		WTAP_ENCAP_LINUX_ATM_CLIP },
 #endif
 #if defined(DLT_HDLC) && (DLT_HDLC == 16)
-	{ 16,		WTAP_ENCAP_PPP },
+	{ 16,		WTAP_ENCAP_CHDLC },
 #endif
 
 	/*
@@ -296,6 +300,11 @@ static const struct {
 	 * WTAP_ENCAP_PPP now) and "PPP where there's either HDLC
 	 * encapsulation or Cisco PPP" (which is what DLT_PPP_SERIAL
 	 * is) at some point.
+	 *
+	 * XXX - NetBSD has DLT_HDLC, which appears to be used for
+	 * Cisco HDLC.  Ideally, they should use DLT_PPP_SERIAL
+	 * only for real live HDLC-encapsulated PPP, not for Cisco
+	 * HDLC.
 	 */
 	{ 50,		WTAP_ENCAP_PPP },
 
@@ -323,11 +332,8 @@ static const struct {
 
 	/*
 	 * These ones are handled in Ethereal, though.
-	 * (We currently handle Cisco HDLC like PPP; the PPP dissector
-	 * distinguishes between HDLC-encapsulated PPP and Cisco HDLC
-	 * by looking at the address field.)
 	 */
-	{ 104,		WTAP_ENCAP_PPP },	/* Cisco HDLC */
+	{ 104,		WTAP_ENCAP_CHDLC },	/* Cisco HDLC */
 	{ 106,		WTAP_ENCAP_LINUX_ATM_CLIP },
 
 	/*
@@ -349,8 +355,8 @@ static const struct {
 	{ 109,		WTAP_ENCAP_ENC },	/* OpenBSD IPSEC enc */
 	{ 110,		WTAP_ENCAP_LANE_802_3 },/* ATM LANE 802.3 */
 	{ 111,		WTAP_ENCAP_HIPPI },	/* NetBSD HIPPI */
-	{ 112,		WTAP_ENCAP_HDLC },	/* NetBSD HDLC framing */
 #endif
+	{ 112,		WTAP_ENCAP_CHDLC },	/* NetBSD HDLC framing */
 
 	/*
 	 * Linux "cooked mode" captures, used by the current CVS version

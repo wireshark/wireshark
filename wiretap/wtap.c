@@ -1,6 +1,6 @@
 /* wtap.c
  *
- * $Id: wtap.c,v 1.51 2001/01/08 22:18:22 guy Exp $
+ * $Id: wtap.c,v 1.52 2001/03/15 09:11:03 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -127,6 +127,9 @@ const static struct encap_type_info {
 
 	/* WTAP_ENCAP_FRELAY */
 	{ "Frame Relay", "frelay" },
+
+	/* WTAP_ENCAP_CHDLC */
+	{ "Cisco HDLC", "chdlc" },
 };
 
 /* Name that should be somewhat descriptive. */

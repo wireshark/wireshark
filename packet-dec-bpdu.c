@@ -1,7 +1,7 @@
 /* packet-dec-bpdu.c
  * Routines for DEC BPDU (DEC Spanning Tree Protocol) disassembly
  *
- * $Id: packet-dec-bpdu.c,v 1.6 2001/01/25 06:14:14 guy Exp $
+ * $Id: packet-dec-bpdu.c,v 1.7 2001/03/15 09:11:00 guy Exp $
  *
  * Copyright 2001 Paul Ionescu <paul@acorp.ro>
  * 
@@ -166,6 +166,8 @@ void
 proto_reg_handoff_dec_bpdu(void)
 {
   dissector_add("ethertype", ETHERTYPE_DEC_LB, dissect_dec_bpdu,
+		proto_dec_bpdu); 
+  dissector_add("chdlctype", ETHERTYPE_DEC_LB, dissect_dec_bpdu,
 		proto_dec_bpdu); 
   dissector_add("ppp.protocol", PPP_DEC_LB, dissect_dec_bpdu,
 		proto_dec_bpdu); 

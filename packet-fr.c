@@ -3,7 +3,7 @@
  *
  * Copyright 2001, Paul Ionescu	<paul@acorp.ro>
  *
- * $Id: packet-fr.c,v 1.8 2001/01/25 06:14:14 guy Exp $
+ * $Id: packet-fr.c,v 1.9 2001/03/15 09:11:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -37,6 +37,7 @@
 #include <glib.h>
 #include "packet.h"
 #include "packet-llc.h"
+#include "packet-chdlc.h"
 #include "xdlc.h"
 #include "oui.h"
 #include "nlpid.h"
@@ -50,12 +51,12 @@ static gint hf_fr_becn  = -1;
 static gint hf_fr_fecn  = -1;
 static gint hf_fr_de    = -1;
 static gint hf_fr_nlpid = -1;
-static gint hf_fr_oui  = -1;
-static gint hf_fr_pid  = -1;
-static gint hf_fr_type  = -1;
+static gint hf_fr_oui   = -1;
+static gint hf_fr_pid   = -1;
+static gint hf_fr_snaptype = -1;
+static gint hf_fr_chdlctype = -1;
 
 static dissector_table_t fr_subdissector_table;
-static dissector_table_t fr_cisco_subdissector_table;
 
 static void dissect_lapf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static void dissect_fr_xid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
@@ -119,7 +120,7 @@ static void dissect_fr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       if (fr_nlpid == NLPID_SNAP) {
 		dissect_snap(tvb, offset, pinfo, tree, fr_tree, fr_ctrl,
-		      hf_fr_oui, hf_fr_type, hf_fr_pid, 0);
+		      hf_fr_oui, hf_fr_snaptype, hf_fr_pid, 0);
 		return;
       }
 		                                  
@@ -165,10 +166,8 @@ static void dissect_fr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
        * the DLCI# is not 0, then there may be Cisco Frame Relay encapsulation.
        */
       proto_tree_add_text(fr_tree, tvb, offset, 0, "------- Cisco Encapsulation -------");
-      fr_type  = tvb_get_ntohs( tvb, offset);
-      proto_tree_add_uint(fr_tree, hf_fr_type,tvb, offset, 2, fr_type ); 
-      if (!dissector_try_port(fr_cisco_subdissector_table,fr_type, tvb_new_subset(tvb,offset+2,-1,-1), pinfo, tree))
-		dissect_data(tvb_new_subset(tvb,offset+2,-1,-1), offset+2, pinfo, tree);
+      fr_type  = tvb_get_ntohs(tvb, offset);
+      chdlctype(fr_type, tvb, offset+2, pinfo, tree, fr_tree, hf_fr_chdlctype);
   }
 }
 
@@ -211,9 +210,12 @@ void proto_register_fr(void)
 	{ &hf_fr_pid, {
 	   "Protocol ID", "fr.snap.pid", FT_UINT16, BASE_HEX, 
 	   NULL, 0x0, ""}},
-        { &hf_fr_type, { 
-           "Type", "fr.type", FT_UINT16, BASE_HEX, 
-            NULL, 0x0, "FrameRelay SNAP Encapsulated Protocol" }},
+        { &hf_fr_snaptype, { 
+           "Type", "fr.snaptype", FT_UINT16, BASE_HEX, 
+            VALS(etype_vals), 0x0, "FrameRelay SNAP Encapsulated Protocol" }},
+        { &hf_fr_chdlctype, { 
+           "Type", "fr.chdlctype", FT_UINT16, BASE_HEX, 
+            VALS(chdlc_vals), 0x0, "FrameRelay Cisco HDLC Encapsulated Protocol" }},
   };
 
 
@@ -227,7 +229,6 @@ void proto_register_fr(void)
   proto_register_subtree_array(ett, array_length(ett));
 
   fr_subdissector_table = register_dissector_table("fr.ietf");
-  fr_cisco_subdissector_table = register_dissector_table("fr.cisco");
 }
 
 void proto_reg_handoff_fr(void)
