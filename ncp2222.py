@@ -24,7 +24,7 @@ http://developer.novell.com/ndk/doc/docui/index.htm#../ncp/ncp__enu/data/
 for a badly-formatted HTML version of the same PDF.
 
 
-$Id: ncp2222.py,v 1.46 2003/02/05 20:02:34 guy Exp $
+$Id: ncp2222.py,v 1.47 2003/02/05 20:52:48 guy Exp $
 
 
 Copyright (c) 2000-2002 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -1266,7 +1266,7 @@ AttributesDef   		= bitfield8("attr_def", "Attributes", [
 	bf_boolean8(0x02, "att_def_hidden", "Hidden"),
 	bf_boolean8(0x04, "att_def_system", "System"),
 	bf_boolean8(0x08, "att_def_execute", "Execute"),
-	bf_boolean8(0x10, "att_def_sub_only", "Subdirectories Only"),
+	bf_boolean8(0x10, "att_def_sub_only", "Subdirectory"),
 	bf_boolean8(0x20, "att_def_archive", "Archive"),
 	bf_boolean8(0x80, "att_def_shareable", "Shareable"),
 ])
@@ -1275,7 +1275,7 @@ AttributesDef16   		= bitfield16("attr_def_16", "Attributes", [
 	bf_boolean16(0x0002, "att_def16_hidden", "Hidden"),
 	bf_boolean16(0x0004, "att_def16_system", "System"),
 	bf_boolean16(0x0008, "att_def16_execute", "Execute"),
-	bf_boolean16(0x0010, "att_def16_sub_only", "Subdirectories Only"),
+	bf_boolean16(0x0010, "att_def16_sub_only", "Subdirectory"),
 	bf_boolean16(0x0020, "att_def16_archive", "Archive"),
 	bf_boolean16(0x0080, "att_def16_shareable", "Shareable"),
 	bf_boolean16(0x1000, "att_def16_transaction", "Transactional"),
@@ -1287,7 +1287,7 @@ AttributesDef32   		= bitfield32("attr_def_32", "Attributes", [
 	bf_boolean32(0x00000002, "att_def32_hidden", "Hidden"),
 	bf_boolean32(0x00000004, "att_def32_system", "System"),
 	bf_boolean32(0x00000008, "att_def32_execute", "Execute"),
-	bf_boolean32(0x00000010, "att_def32_sub_only", "Subdirectories Only"),
+	bf_boolean32(0x00000010, "att_def32_sub_only", "Subdirectory"),
 	bf_boolean32(0x00000020, "att_def32_archive", "Archive"),
 	bf_boolean32(0x00000080, "att_def32_shareable", "Shareable"),
 	bf_boolean32(0x00001000, "att_def32_transaction", "Transactional"),
@@ -3408,36 +3408,23 @@ SAPSocketNumber                 = uint16("sap_socket_number", "SAP Socket Number
 SAPSocketNumber.Display("BASE_HEX")
 ScanItems			= uint32("scan_items", "Number of Items returned from Scan")
 SearchAttributes		= bitfield8("sattr", "Search Attributes", [
-	bf_boolean8(0x01, "sattr_hid", "Hidden"),
-	bf_boolean8(0x02, "sattr_sys", "System"),
-	bf_boolean8(0x04, "sattr_sub", "Subdirectories Only"),
+	bf_boolean8(0x01, "sattr_ronly", "Read-Only Files Allowed"),
+	bf_boolean8(0x02, "sattr_hid", "Hidden Files Allowed"),
+	bf_boolean8(0x04, "sattr_sys", "System Files Allowed"),
+	bf_boolean8(0x08, "sattr_exonly", "Execute-Only Files Allowed"),
+	bf_boolean8(0x10, "sattr_sub", "Subdirectories Only"),
+	bf_boolean8(0x20, "sattr_archive", "Archive"),
+	bf_boolean8(0x40, "sattr_execute_confirm", "Execute Confirm"),
+	bf_boolean8(0x80, "sattr_shareable", "Shareable"),
 ])	
 SearchAttributesLow		= bitfield16("search_att_low", "Search Attributes", [
-	#
-	# XXX - some requests have a 1-byte SearchAttributes, and
-	# some have a 2-byte SearchAttributes; SearchAttributes is
-	# the 1-byte version and SearchAttributesLow is the 2-byte
-	# version.
-	#
-	# The Novell Web site speaks of bit 1 as "Hidden", bit 2 as
-	# "System", bit 4 as "Subdirectories Only", and bit 15 -
-	# yes, 15 - as "All Files and Directories".  It does so for
-	# both types of SearchAttributes.
-	#
-	# Are those bit flags or bit numbers?  Are they the same for
-	# 1-byte and 2-byte SearchAttributes?  Is the "Subdirectory"
-	# bit here the "Subdirectories Only" bit?
-	#
-	# At least for the 1-byte SearchAttributes, at least some
-	# of them appear to be bit flags.
-	#
-	bf_boolean16(0x0001, "search_att_read_only", "Read Only"),
-	bf_boolean16(0x0002, "search_att_hidden", "Hidden"),
+	bf_boolean16(0x0001, "search_att_read_only", "Read-Only"),
+	bf_boolean16(0x0002, "search_att_hidden", "Hidden Files Allowed"),
 	bf_boolean16(0x0004, "search_att_system", "System"),
-	bf_boolean16(0x0008, "search_att_execute_only", "Execute Only"),
-	bf_boolean16(0x0010, "search_att_sub", "Subdirectory"),
+	bf_boolean16(0x0008, "search_att_execute_only", "Execute-Only"),
+	bf_boolean16(0x0010, "search_att_sub", "Subdirectories Only"),
 	bf_boolean16(0x0020, "search_att_archive", "Archive"),
-	bf_boolean16(0x0040, "search_att_execute_confrim", "Execute Confirm"),
+	bf_boolean16(0x0040, "search_att_execute_confirm", "Execute Confirm"),
 	bf_boolean16(0x0080, "search_att_shareable", "Shareable"),
 	bf_boolean16(0x8000, "search_attr_all_files", "All Files and Directories"),
 ])
@@ -11269,17 +11256,6 @@ def define_ncp2222():
 		# presumably it can't show you a matching file or
 		# directory instance - it appears to just leave crap
 		# there.
-		#
-		# XXX - in at least one capture, the client sends
-		# a request with the "Subdirectories Only" bit set,
-		# but the server appears to reply with information
-		# about a file; the DirectoryStamp isn't 0xD1D1.
-		# 0xD1D1 is *not* a valid FileUpdateTime value;
-		# should we base the decision on whether this is
-		# a DirectoryInstance or a FileInstance on the
-		# value of the bytes at 40 and 41, not on the
-		# status of the "Subdirectories Only" bit in the
-		# request?
 		#
 		srec( DirectoryInstance, req_cond="ncp.sattr_sub==TRUE"),
 		srec( FileInstance, req_cond="ncp.sattr_sub!=TRUE"),
