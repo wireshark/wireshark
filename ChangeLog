@@ -1,4 +1,61 @@
-$Id: ChangeLog,v 1.19 2003/03/11 00:26:52 gerald Exp $
+$Id: ChangeLog,v 1.20 2003/04/29 02:33:47 gerald Exp $
+
+Overview of changes in Ethereal 0.9.12:
+
+* Ignore ICMP and match conversations in the RTP tap (Ronnie)
+* Register empty string preferences instead of NULLs (Guy)
+* Make version messages narrower (Guy)
+* Force epan\dfilter\scanner.c to be rebuilt under Windows (Andreas)
+* Fix the names of some Q.931 fields (Anders Broman)
+* Put the ISUP message type in the info column (Anders)
+* MGCP tap printf fix (Lars Roland)
+* Bring PGM up to date with RFC 3208 (Todd Montgomery)
+* Fix for fixing up old preferences (Guy)
+* Improve preference name prefix checking (Tomas Kukosa)
+* Make sure that we display all the SMB file attributes (Richard)
+* Improve unknown AIM family ID display (Devin)
+* Rename hf_smb_sid to the more appropriate hf_smb_search_id (Ronnie)
+* Turn SMB SIDs into FT_STRING fields (Ronnie)
+* hf_index fix in DCERPC (Ronnie)
+* Add support for ResetBrowserState in SMB (Richard)
+* Endianness and pointer size fixes in SCCP (Jeff Morriss)
+* Add support for decoding Intel ANS probes (Gerald)
+* Fix up the parsing of SMB browser rest messages (Richard)
+* Handle loopback in AIX tcpdump traces (Guy)
+* Add SID name snooping SMB option (Ronnie)
+* Update FAQ to 2003-03-20 (Joerg)
+* Make the SID snooping tap return 0 (Guy)
+* Add ACAP support (Brad Hards)
+* Use "pkgdatadir" instead of "etherealconfdir" (Guy)
+* Remove DATAFILE_DIR definition from configure.in (Guy)
+* Fixes related to "datafiledir" in epan/configure.in (Guy)
+* Fix a TCP sequence number analysis bug (Ronnie)
+* Improve PDU dissection in WSP (Olivier Biot)
+* Fix RC_VERSION in Nmake files (Graham Bloice)
+* Fix variable typing, memory handling, and conversation handling in AJP13
+  (Guy)
+* Improve TCP duplicate ACK display (Ronnie)
+* Various WSP improvements (Olivier)
+* Fix quotation of attibute values in WBXML (Olivier)
+* Fix ISIS LSP analysis bugs, other improvements (Laurent Rabret)
+* Use FT_FRAMENUM in TCP dup ack flags (Guy)
+* Netxray/Sniffer gigabit timing fixes (Ian Schorr, Guy)
+* ISIS TLV and subTLV fixes (Hannes)
+* Add a new command and fix bugs in AFP (Didier)
+* DCE RPC dissect_ndr_char_cvstring fix (Guy)
+* Rename "attached_string" in ISIS, fix a typo (Guy)
+* Create seprate CLV and LSP ett_ values, improve LSP length code (Guy)
+* Don't use hardwired offsets in the ISIS header (Guy)
+* Add support for NLSP (Guy)
+* Improve Netxray/Sniffer gigabit timing (Guy)
+* Add support for NLSP Level 1 Hello packets (Guy)
+* Add NFS_ACL support (Mike Frisch)
+* 
+
+
+
+
+
 
 Overview of changes in Ethereal 0.9.11:
 

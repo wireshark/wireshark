@@ -1,4 +1,46 @@
-$Id: NEWS,v 1.124 2003/03/11 00:26:53 gerald Exp $
+$Id: NEWS,v 1.125 2003/04/29 02:33:47 gerald Exp $
+
+== April 2?, 2003
+
+Ethereal 0.9.12 has been released.
+
+This release fixes security holes discovered by 
+
+New and updated features
+
+TCP sequence number analysis received a few improvements.
+
+Bug fixes
+
+New protocols
+
+Intel ANS,
+NLSP,
+
+
+Updated protocols
+
+
+ACAP,
+AFP,
+AIM,
+AJP,
+DCE RPC,
+ISIS,
+ISUP,
+NFS,
+PGM,
+Q.931,
+SCCP,
+SMB,
+TCP,
+WBXML,
+WSP,
+
+
+Updated capture file support
+
+Netxray,
 
 == March 10, 2003
 
