@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.116 2003/11/26 12:22:22 sahlberg Exp $
+ * $Id: proto.c,v 1.117 2003/12/02 09:11:15 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -44,6 +44,7 @@
 #include "proto.h"
 #include "int-64bit.h"
 #include "epan_dissect.h"
+#include "slab.h"
 
 #define cVALS(x) (const value_string*)(x)
 
@@ -176,29 +177,6 @@ static item_label_t *item_label_free_list = NULL;
 #define ITEM_LABEL_FREE(il)				\
 	SLAB_FREE(il, il->next, item_label_free_list)
 
-
-
-/* we never free any memory we have allocated, when it is returned to us
-   we just store it in the free list until (hopefully) it gets used again
-*/
-#define SLAB_ALLOC(item, next, list)				\
-	if(!list){						\
-		int i;						\
-		void *tmp;					\
-		tmp=g_malloc(100*sizeof(*item));		\
-		for(i=0;i<100;i++){				\
-			item=tmp;				\
-			item=&item[i];				\
-			next=list;				\
-			list=item;				\
-		}						\
-	}							\
-	item=list;						\
-	list=next;
-
-#define SLAB_FREE(item, next, list)			\
-	next=list;					\
-	list=item;
 
 
 /* List which stores protocols and fields that have been registered */
