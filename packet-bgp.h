@@ -1,7 +1,7 @@
 /* packet-bgp.c
  * Definitions for BGP packet disassembly structures and routine
  *
- * $Id: packet-bgp.h,v 1.3 1999/11/06 01:28:50 itojun Exp $
+ * $Id: packet-bgp.h,v 1.4 1999/11/11 21:08:52 itojun Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -24,9 +24,6 @@
 
 #ifndef __PACKET_BGP_H__
 #define __PACKET_BGP_H__
-
-#include "packet.h"
-#include "packet-ipv6.h"
 
 /* some handy things to know */
 #define BGP_MAX_PACKET_SIZE		4096
@@ -75,6 +72,16 @@ struct bgp_attr {
     guint8 bgpa_type;
 };
 
+/* attribute flags, from RFC 1771 */
+#define BGP_ATTR_FLAG_OPTIONAL        0x80
+#define BGP_ATTR_FLAG_TRANSITIVE      0x40
+#define BGP_ATTR_FLAG_PARTIAL         0x20
+#define BGP_ATTR_FLAG_EXTENDED_LENGTH 0x10
+
+/* AS_PATH segment types, from RFC 1771 */
+#define AS_SET      1
+#define AS_SEQUENCE 2
+
 #define BGPTYPE_ORIGIN            1   /* RFC1771          */
 #define BGPTYPE_AS_PATH           2   /* RFC1771          */
 #define BGPTYPE_NEXT_HOP          3   /* RFC1771          */
@@ -117,5 +124,10 @@ do {				\
 #ifndef offsetof
 #define offsetof(type, member)  ((size_t)(&((type *)0)->member))
 #endif
+
+/*
+ * Convert prefix length into number of guint8s needed for prefix.
+ */
+#define convert_prefix(p) (((p) + 7) / (8))
 
 #endif

@@ -2,7 +2,7 @@
  * Routines for BGP packet dissection.
  * Copyright 1999, Jun-ichiro itojun Hagino <itojun@itojun.org>
  *
- * $Id: packet-bgp.c,v 1.8 1999/11/06 01:28:49 itojun Exp $
+ * $Id: packet-bgp.c,v 1.9 1999/11/11 21:08:51 itojun Exp $
  * 
  * Supports:
  * RFC1771 A Border Gateway Protocol 4 (BGP-4)
@@ -63,6 +63,7 @@
 #include "packet.h"
 #include "packet-bgp.h"
 #include "packet-ipv6.h"
+#include <arpa/inet.h>
 
 static const value_string bgptypevals[] = {
     { BGP_OPEN, "OPEN Message" },
@@ -178,6 +179,9 @@ static const value_string afnumber[] = {
 
 static int proto_bgp = -1;
 
+/*
+ * Decode an IPv4 prefix.
+ */
 static int
 decode_prefix4(const u_char *pd, char *buf, int buflen)
 {
@@ -196,6 +200,9 @@ decode_prefix4(const u_char *pd, char *buf, int buflen)
     return 1 + (plen + 7) / 8;
 }
 
+/*
+ * Decode an IPv6 prefix.
+ */
 static int
 decode_prefix6(const u_char *pd, char *buf, int buflen)
 {
@@ -220,8 +227,8 @@ decode_prefix6(const u_char *pd, char *buf, int buflen)
 static void
 dissect_bgp_open(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
-    struct bgp_open bgpo;          /* BGP OPEN message   */
-    int hlen;                      /* message length     */
+    struct bgp_open bgpo;   /* BGP OPEN message   */
+    int hlen;               /* message length     */
 
     /* snarf OPEN message */
     memcpy(&bgpo, &pd[offset], sizeof(bgpo));
@@ -251,64 +258,58 @@ dissect_bgp_open(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
     }
 }
 
-/* NOTE: caller needs to free() the returned value. */
-static char *
-dissect_bgp_aspath(const u_char *pd, int len)
-{
-    char *msg;
-    int j, n;
-    char *q;
-
-    if (len % 2)
-	return NULL;
-    msg = malloc(len / 2 * 6 + 10);
-    if (!msg)
-	return NULL;
-
-    q = msg;
-    for (j = 0; j < len; j += 2) {
-	n = sprintf(q, "%u ", ntohs(*(guint16 *)&pd[j]));
-	q += n;
-    }
-
-    /* remove the last blank */
-    q--;
-    *q = '\0';
-
-    return msg;
-}
-
+/*
+ * Dissect a BGP UPDATE message.
+ */
 static void
 dissect_bgp_update(const u_char *pd, int offset, frame_data *fd,
     proto_tree *tree)
 {
-    struct bgp bgp;
+    struct bgp      bgp;
     struct bgp_attr bgpa;
-    int hlen;
-    const u_char *p;
-    int len;
-    proto_item *ti;
-    proto_tree *subtree, *subtree2, *subtree3;
-    int i;
+    int             hlen;
+    const u_char    *p;
+    const u_char    *q;
+    const u_char    *end;
+    int             len;
+    proto_item      *ti;
+    proto_tree      *subtree;     
+    proto_tree      *subtree2; 
+    proto_tree      *subtree3;
+    int             i;
+    int             j;
+    guint8          length;
+    guint8          type;
+    struct in_addr  prefix;
+    char            *as_path_str = NULL;
+    char junk_buf[10];
 
+    /* snarf UPDATE message */
     memcpy(&bgp, &pd[offset], sizeof(bgp));
     hlen = ntohs(bgp.bgp_len);
-
     p = &pd[offset + BGP_HEADER_SIZE];	/*XXX*/
+
+    /* check for withdrawals */
+    len = ntohs(*(guint16 *)p);
     proto_tree_add_text(tree, p - pd, 2, 
-	"Unfeasible routes length: %d", len = ntohs(*(guint16 *)p));
-    ti = proto_tree_add_text(tree, p - pd, len,
-	    "Withdrawn routes (%u bytes)", len);
-    if (len) {
-	subtree = proto_item_add_subtree(ti, ETT_BGP);
+	"Unfeasible routes length: %u %s", len, (len == 1) ? "byte" : "bytes");
+    if (len > 0) {
+        ti = proto_tree_add_text(tree, p - pd, len, "Withdrawn routes:");
+        /* TODO: unfeasible */
+	subtree = proto_item_add_subtree(ti, ETT_BGP_UNFEAS);
     }
     p += 2 + len;
-    proto_tree_add_text(tree, p - pd, 2, 
-	"Total path attribute length: %d", len = ntohs(*(guint16 *)p));
-    ti = proto_tree_add_text(tree, p - pd + 2, len,
-	    "Path attributes (%u bytes)", len);
-    if (len) {
-	subtree = proto_item_add_subtree(ti, ETT_BGP);
+
+    /* check for advertisements */
+    len = ntohs(*(guint16 *)p);
+    proto_tree_add_text(tree, p - pd, 2, "Total path attribute length: %u %s", 
+            len, (len == 1) ? "byte" : "bytes");
+
+    /* path attributes */
+/* --- move --- */
+    if (len > 0) {
+        ti = proto_tree_add_text(tree, p - pd + 2, len, "Path attributes");
+	subtree = proto_item_add_subtree(ti, ETT_BGP_ATTRS);
 	i = 2;
 	while (i < len) {
 	    int alen, aoff;
@@ -317,7 +318,7 @@ dissect_bgp_update(const u_char *pd, int offset, frame_data *fd,
 	    int off, snpa;
 
 	    memcpy(&bgpa, &p[i], sizeof(bgpa));
-	    if (bgpa.bgpa_flags & 0x10) {
+	    if (bgpa.bgpa_flags & BGP_ATTR_FLAG_EXTENDED_LENGTH) {
 		alen = ntohs(*(guint16 *)&p[i + sizeof(bgpa)]);
 		aoff = sizeof(bgpa) + 2;
 	    } else {
@@ -335,135 +336,167 @@ dissect_bgp_update(const u_char *pd, int offset, frame_data *fd,
 		    goto default_attribute_top;
 		msg = val_to_str(p[i + aoff], bgpattr_origin, "Unknown");
 		ti = proto_tree_add_text(subtree, p - pd + i, alen + aoff,
-			"Attribute: %s: %s (%u bytes)",
+			"%s: %s (%u %s)",
 			val_to_str(bgpa.bgpa_type, bgpattr_type, "Unknown"),
-			msg, alen + aoff);
+			msg, alen + aoff, (alen + aoff == 1) ? "byte" : 
+                        "bytes");
 		break;
 	    case BGPTYPE_AS_PATH:
-		if (alen % 2)
-		    goto default_attribute_top;
-		msg = dissect_bgp_aspath(p + i + aoff, alen);
-		if (msg == NULL)
+                /* (p + i + 3) =
+                   (p + current attribute + 3 bytes to first tuple) */ 
+                end = p + alen + i + 3;
+                q = p + i + 3;
+                /* must be freed by second case                           */
+                /* "alen * 6" (5 digits + space) should be a good estimate
+                   of how long the AS path string could be                 */
+                as_path_str = malloc(alen * 6);
+                memset(as_path_str, '\0', alen * 6);
+                if (as_path_str == NULL) break;
+   
+                /* snarf each AS path */
+                while (q < end) {
+                    type = *q++;
+                    if (type == AS_SET) {
+                        sprintf(as_path_str, "{");
+                    }
+                    length = *q++;
+
+                    /* snarf each value in path */
+                    for (j = 0; j < length; j++) {
+                        sprintf(junk_buf, "%u%c", pntohs(q), 
+                                (type == AS_SET) ? ',' : ' ');
+                        strcat(as_path_str, junk_buf);
+                        q += 2;
+                    }
+                   
+                    /* cleanup end of string */
+                    if (type == AS_SET) {
+                        as_path_str[strlen(as_path_str) - 1] = '}';
+                        as_path_str[strlen(as_path_str) + 1] = '\0';
+                    }
+                    else {
+                        as_path_str[strlen(as_path_str) - 1] = '\0';
+                    }
+                }
+
+		if (as_path_str[0] == '\0')
 		    goto default_attribute_top;
 		ti = proto_tree_add_text(subtree, p - pd + i, alen + aoff,
-			"Attribute: %s: %s (%u bytes)",
+			"%s: %s (%u %s)",
 			val_to_str(bgpa.bgpa_type, bgpattr_type, "Unknown"),
-			msg, alen + aoff);
-		free(msg);
+			as_path_str, alen + aoff, (alen + aoff == 1) ? "byte" :
+                        "bytes");
 		break;
 	    case BGPTYPE_NEXT_HOP:
 		if (alen != 4)
 		    goto default_attribute_top;
 		ti = proto_tree_add_text(subtree, p - pd + i, alen + aoff,
-			"Attribute: %s: %s (%u bytes)",
+			"%s: %s (%u %s)",
 			val_to_str(bgpa.bgpa_type, bgpattr_type, "Unknown"),
-			ip_to_str(&p[i + aoff]), alen + aoff);
+			ip_to_str(&p[i + aoff]), alen + aoff, (alen + aoff == 1)
+                        ? "byte" : "bytes");
 		break;
 	    case BGPTYPE_MULTI_EXIT_DISC:
 		if (alen != 4)
 		    goto default_attribute_top;
 		ti = proto_tree_add_text(subtree, p - pd + i, alen + aoff,
-			"Attribute: %s: %u (%u bytes)",
+			"%s: %u (%u %s)",
 			val_to_str(bgpa.bgpa_type, bgpattr_type, "Unknown"),
-			ntohl(*(guint32 *)&p[i + aoff]),
-			alen + aoff);
+			ntohl(*(guint32 *)&p[i + aoff]), alen + aoff, 
+                        (alen + aoff == 1) ? "byte" : "bytes");
 		break;
 	    case BGPTYPE_LOCAL_PREF:
 		if (alen != 4)
 		    goto default_attribute_top;
 		ti = proto_tree_add_text(subtree, p - pd + i, alen + aoff,
-			"Attribute: %s: %u (%u bytes)",
+			"%s: %u (%u %s)",
 			val_to_str(bgpa.bgpa_type, bgpattr_type, "Unknown"),
-			ntohl(*(guint32 *)&p[i + aoff]),
-			alen + aoff);
+			ntohl(*(guint32 *)&p[i + aoff]), alen + aoff,
+                        (alen + aoff == 1) ? "byte" : "bytes");
 		break;
-	    case BGPTYPE_AGGREGATOR:
-		if (alen != 6)
+            case BGPTYPE_ATOMIC_AGGREGATE:
+                if (alen != 0) 
 		    goto default_attribute_top;
 		ti = proto_tree_add_text(subtree, p - pd + i, alen + aoff,
-			"Attribute: %s: AS %u, origin %s (%u bytes)",
+			"%s: (%u %s)",
 			val_to_str(bgpa.bgpa_type, bgpattr_type, "Unknown"),
-			ntohs(*(guint16 *)&p[i + aoff]),
-			ip_to_str(&p[i + aoff + 2]), alen + aoff);
+			alen + aoff, (alen + aoff == 1) ? "byte" : "bytes");
 		break;
 	    default:
 	    default_attribute_top:
 		ti = proto_tree_add_text(subtree, p - pd + i, alen + aoff,
-			"Attribute: %s (%u bytes)",
+			"%s (%u %s)",
 			val_to_str(bgpa.bgpa_type, bgpattr_type, "Unknown"),
-			alen + aoff);
+			alen + aoff, (alen + aoff == 1) ? "byte" : "bytes");
 	    }
-	    subtree2 = proto_item_add_subtree(ti, ETT_BGP);
+	    subtree2 = proto_item_add_subtree(ti, ETT_BGP_ATTR);
 
+            /* figure out flags */
 	    ti = proto_tree_add_text(subtree2,
 		    p - pd + i + offsetof(struct bgp_attr, bgpa_flags), 1,
 		    "Flags: 0x%02x", bgpa.bgpa_flags);
-	    subtree3 = proto_item_add_subtree(ti, ETT_BGP);
+	    subtree3 = proto_item_add_subtree(ti, ETT_BGP_ATTR_FLAGS);
 	    proto_tree_add_text(subtree3,
 		    p - pd + i + offsetof(struct bgp_attr, bgpa_flags), 1,
 		    "%s", decode_boolean_bitfield(bgpa.bgpa_flags,
-			0x80, 8, "Optional", "not Optional"));
+			BGP_ATTR_FLAG_OPTIONAL, 8, "Optional", "Well-known"));
 	    proto_tree_add_text(subtree3,
 		    p - pd + i + offsetof(struct bgp_attr, bgpa_flags), 1,
 		    "%s", decode_boolean_bitfield(bgpa.bgpa_flags,
-			0x40, 8, "Transitive", "not Transitive"));
+			BGP_ATTR_FLAG_TRANSITIVE, 8, "Transitive", 
+                        "Non-transitive"));
 	    proto_tree_add_text(subtree3,
 		    p - pd + i + offsetof(struct bgp_attr, bgpa_flags), 1,
 		    "%s", decode_boolean_bitfield(bgpa.bgpa_flags,
-			0x20, 8, "Partial", "not Partial"));
+			BGP_ATTR_FLAG_PARTIAL, 8, "Partial", "Complete"));
 	    proto_tree_add_text(subtree3,
 		    p - pd + i + offsetof(struct bgp_attr, bgpa_flags), 1,
 		    "%s", decode_boolean_bitfield(bgpa.bgpa_flags,
-			0x10, 8, "Extended length", "not Extended length"));
+			BGP_ATTR_FLAG_EXTENDED_LENGTH, 8, "Extended length", 
+                        "Regular length"));
 
 	    proto_tree_add_text(subtree2,
 		    p - pd + i + offsetof(struct bgp_attr, bgpa_type), 1,
-		    "Type code: %s (0x%02x)",
+		    "Type code: %s (%u)",
 		    val_to_str(bgpa.bgpa_type, bgpattr_type, "Unknown"),
 		    bgpa.bgpa_type);
-
-	    if (bgpa.bgpa_flags & 0x10) {
+            
+            /* check for the Extended Length bit */
+	    if (bgpa.bgpa_flags & BGP_ATTR_FLAG_EXTENDED_LENGTH) {
 		proto_tree_add_text(subtree2,
 			p - pd + i + sizeof(bgpa), aoff - sizeof(bgpa),
-			"Attribute length: %d", alen);
+			"Length: %d %s", alen, 
+                        (alen == 1) ? "byte" : "bytes");
 	    } else {
 		proto_tree_add_text(subtree2,
 			p - pd + i + sizeof(bgpa), aoff - sizeof(bgpa),
-			"Attribute length: %d", alen);
+			"Length: %d %s", alen,
+                        (alen == 1) ? "byte" : "bytes");
 	    }
 
 	    switch (bgpa.bgpa_type) {
 	    case BGPTYPE_ORIGIN:
 		if (alen != 1) {
 		    proto_tree_add_text(subtree2, p - pd + i + aoff, alen,
-			    "Origin: Invalid (%d bytes)", alen);
+			    "Origin (invalid): %u %s", alen,
+                             (alen == 1) ? "byte" : "bytes");
 		} else {
 		    msg = val_to_str(p[i + aoff], bgpattr_origin, "Unknown");
 		    proto_tree_add_text(subtree2, p - pd + i + aoff, 1,
-			    "Origin: %s (0x%02x)", msg, p[i + aoff]);
+			    "Origin: %s (%u)", msg, p[i + aoff]);
 		}
 		break;
 	    case BGPTYPE_AS_PATH:
-		if (alen % 2) {
-		    proto_tree_add_text(subtree2, p - pd + i + aoff, alen,
-			    "AS path: Invalid (%d bytes)", alen);
-		} else {
-		    msg = dissect_bgp_aspath(p + i + aoff, alen);
-		    if (msg == NULL) {
-			proto_tree_add_text(subtree2, p - pd + i + aoff, alen,
-				"AS path (%d bytes)", alen);
-		    } else {
-			proto_tree_add_text(subtree2, p - pd + i + aoff, alen,
-				"AS path: %s (%d ASes, %d bytes)",
-				msg, alen / 2, alen);
-			free(msg);
-		    }
-		}
+	        proto_tree_add_text(subtree2, p - pd + i + aoff, alen,
+                        "AS path: %s (%u %s)", as_path_str, alen, 
+                        (alen == 1) ? "byte" : "bytes");
+                free(as_path_str);
 		break;
 	    case BGPTYPE_NEXT_HOP:
 		if (alen != 4) {
 		    proto_tree_add_text(subtree2, p - pd + i + aoff, alen,
-			    "Next hop: Invalid (%d bytes)", alen);
+			    "Next hop (invalid): %u %s", alen,
+                            (alen == 1) ? "byte" : "bytes");
 		} else {
 		    proto_tree_add_text(subtree2, p - pd + i + aoff, alen,
 			    "Next hop: %s", ip_to_str(&p[i + aoff]));
@@ -472,8 +505,8 @@ dissect_bgp_update(const u_char *pd, int offset, frame_data *fd,
 	    case BGPTYPE_MULTI_EXIT_DISC:
 		if (alen != 4) {
 		    proto_tree_add_text(subtree2, p - pd + i + aoff, alen,
-			    "Multi exit discriminator: Invalid (%d bytes)",
-			    alen);
+			    "Multi exit discriminator (invalid): %u %s",
+			    alen, (alen == 1) ? "byte" : "bytes");
 		} else {
 		    proto_tree_add_text(subtree2, p - pd + i + aoff, alen,
 			    "Multi exit discriminator: %u",
@@ -483,7 +516,8 @@ dissect_bgp_update(const u_char *pd, int offset, frame_data *fd,
 	    case BGPTYPE_LOCAL_PREF:
 		if (alen != 4) {
 		    proto_tree_add_text(subtree2, p - pd + i + aoff, alen,
-			    "Local preference: Invalid (%d bytes)", alen);
+			    "Local preference (invalid): %u %s", alen,
+                             (alen == 1) ? "byte" : "bytes");
 		} else {
 		    proto_tree_add_text(subtree2, p - pd + i + aoff, alen,
 			    "Local preference: %u",
@@ -493,7 +527,8 @@ dissect_bgp_update(const u_char *pd, int offset, frame_data *fd,
 	    case BGPTYPE_ATOMIC_AGGREGATE:
 		if (alen != 0) {
 		    proto_tree_add_text(subtree2, p - pd + i + aoff, alen,
-			    "Atomic aggregate: Invalid (%d bytes)", alen);
+			    "Atomic aggregate (invalid): %u %s", alen,
+                            (alen == 1) ? "byte" : "bytes");
 		} else {
 		    proto_tree_add_text(subtree2, p - pd + i + aoff, 0,
 			    "Atomic aggregate");
@@ -502,7 +537,8 @@ dissect_bgp_update(const u_char *pd, int offset, frame_data *fd,
 	    case BGPTYPE_AGGREGATOR:
 		if (alen != 6) {
 		    proto_tree_add_text(subtree2, p - pd + i + aoff, alen,
-			    "Aggregator: Invalid (%d bytes)", alen);
+			    "Aggregator (invalid): %u %s", alen,
+                            (alen == 1) ? "byte" : "bytes");
 		} else {
 		    proto_tree_add_text(subtree2, p - pd + i + aoff, 2,
 			    "Aggregator AS: %u",
@@ -523,13 +559,14 @@ dissect_bgp_update(const u_char *pd, int offset, frame_data *fd,
 			p[i + aoff + 2] >= 128 ? "Vendor specific" : "Unknown"),
 		    p[i + aoff + 2]);
 		ti = proto_tree_add_text(subtree2, p - pd + i + aoff + 3, 1,
-			"Next hop network address (%d bytes)",
-			p[i + aoff + 3]);
+			"Next hop network address (%d %s)",
+			p[i + aoff + 3], (p[i + aoff + 3] == 1) ? "byte" : 
+                        "bytes");
 		if (af == AFNUM_INET || af == AFNUM_INET6) {
 		    int j, advance;
 		    const char *s;
 
-		    subtree3 = proto_item_add_subtree(ti, ETT_BGP);
+		    subtree3 = proto_item_add_subtree(ti, ETT_BGP_MP_REACH_NLRI);
 
 		    j = 0;
 		    while (j < p[i + aoff + 3]) {
@@ -563,24 +600,25 @@ dissect_bgp_update(const u_char *pd, int offset, frame_data *fd,
 			"Subnetwork points of attachment: %u", snpa);
 		off++;
 		if (snpa)
-		    subtree3 = proto_item_add_subtree(ti, ETT_BGP);
+		    subtree3 = proto_item_add_subtree(ti, ETT_BGP_MP_REACH_NLRI);
 		for (/*nothing*/; snpa > 0; snpa--) {
 		    proto_tree_add_text(subtree3, p - pd + i + aoff + off, 1,
 			"SNPA length: ", p[i + aoff + off]);
 		    off++;
 		    proto_tree_add_text(subtree3, p - pd + i + aoff + off,
 			p[i + aoff + off - 1],
-			"SNPA (%u bytes)", p[i + aoff + off - 1]);
+			"SNPA (%u %s)", p[i + aoff + off - 1],
+                        (p[i + aoff + off - 1] == 1) ? "byte" : "bytes");
 		    off += p[i + aoff + off - 1];
 		}
 
 		alen -= off;
 		aoff += off;
 		ti = proto_tree_add_text(subtree2, p - pd + i + aoff, alen,
-			"Network Layer Reachability Information (%u bytes)",
-			alen);
+			"Network Layer Reachability Information (%u %s)",
+			alen, (alen == 1) ? "byte" : "bytes");
 		if (alen)
-		    subtree3 = proto_item_add_subtree(ti, ETT_BGP);
+		    subtree3 = proto_item_add_subtree(ti, ETT_BGP_MP_UNREACH_NLRI);
 		while (alen > 0) {
 		    int advance;
 		    char buf[256];
@@ -616,12 +654,13 @@ dissect_bgp_update(const u_char *pd, int offset, frame_data *fd,
 			p[i + aoff + 2] >= 128 ? "Vendor specific" : "Unknown"),
 		    p[i + aoff + 2]);
 		ti = proto_tree_add_text(subtree2, p - pd + i + aoff + 3,
-			alen - 3, "Withdrawn Routes (%u bytes)", alen - 3);
+			alen - 3, "Withdrawn Routes (%u %s)", alen - 3,
+                        (alen - 3 == 1) ? "byte" : "bytes");
 
 		alen -= 3;
 		aoff += 3;
 		if (alen > 0)
-		    subtree3 = proto_item_add_subtree(ti, ETT_BGP);
+		    subtree3 = proto_item_add_subtree(ti, ETT_BGP_MP_UNREACH_NLRI);
 		while (alen > 0) {
 		    int advance;
 		    char buf[256];
@@ -648,19 +687,40 @@ dissect_bgp_update(const u_char *pd, int offset, frame_data *fd,
 		break;
 	    default:
 		proto_tree_add_text(subtree2, p - pd + i + aoff, alen,
-			"Unknown (%d bytes)", alen);
+			"Unknown (%d %s)", alen, (alen == 1) ? "byte" : 
+                        "bytes");
 		break;
 	    }
 
 	    i += alen + aoff;
 	}
-    }
-    p += 2 + len;
-    len = hlen - (p - &pd[offset]);
-    ti = proto_tree_add_text(tree, p - pd, len,
-	    "Network layer reachability information (%d bytes)", len);
-    if (len) {
-	subtree = proto_item_add_subtree(ti, ETT_BGP);
+/* --- move --- */
+        p += 2 + len;
+
+        /* NLRI */
+        len = hlen - (p - &pd[offset]);
+        ti = proto_tree_add_text(tree, p - pd, len,
+                "Network layer reachability information: %u %s", len,
+                (len == 1) ? "byte" : "bytes");
+
+        if (len > 0) {
+	    subtree = proto_item_add_subtree(ti, ETT_BGP_NLRI);
+
+            /* parse prefixes */
+            end = p + len;
+            while (p < end) {
+                memset(&prefix, 0, sizeof(prefix));
+                /* snarf length */
+                length = *p;
+                i = convert_prefix(length);
+                p++;
+                /* snarf prefix */
+                memcpy(&prefix, p, i);
+                proto_tree_add_text(subtree, p - pd - 1, i + 1, "%s/%d", 
+                        inet_ntoa(prefix), length);
+                p += i;
+            }
+        }
     }
 }
 
