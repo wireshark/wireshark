@@ -8,7 +8,7 @@
  * Portions based on information/specs retrieved from the OpenAFS sources at
  *   www.openafs.org, Copyright IBM. 
  *
- * $Id: packet-afs-defs.h,v 1.10 2002/02/03 18:12:04 nneul Exp $
+ * $Id: packet-afs-defs.h,v 1.11 2002/02/08 22:36:21 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -493,6 +493,7 @@ static const value_string volume_types[] = {
 	{ 0,		"read-write" },
 	{ 1,		"read-only" },
 	{ 2,		"backup" },
+	{ 0xffffffff, "any" },
 	{ 0,		NULL },
 };
 
@@ -649,6 +650,7 @@ static int hf_afs_vldb_server = -1;
 static int hf_afs_vldb_serveruuid = -1;
 static int hf_afs_vldb_serveruniq = -1;
 static int hf_afs_vldb_serverflags = -1;
+static int hf_afs_vldb_serverip = -1;
 static int hf_afs_vldb_partition = -1;
 static int hf_afs_vldb_rovol = -1;
 static int hf_afs_vldb_rwvol = -1;

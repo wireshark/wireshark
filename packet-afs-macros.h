@@ -8,7 +8,7 @@
  * Portions based on information/specs retrieved from the OpenAFS sources at
  *   www.openafs.org, Copyright IBM. 
  *
- * $Id: packet-afs-macros.h,v 1.16 2002/02/03 20:48:07 guy Exp $
+ * $Id: packet-afs-macros.h,v 1.17 2002/02/08 22:36:21 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -66,6 +66,28 @@
 		tvb_get_letohl(tvb, offset));\
 	offset += 4;
 
+/* Output a simple rx array */
+#define OUT_RXArray8(func) \
+	{ \
+		unsigned int j,i; \
+		j = tvb_get_guint8(tvb, offset); \
+		offset += 1; \
+		for (i=0; i<j; i++) { \
+			func; \
+		} \
+	}
+
+/* Output a simple rx array */
+#define OUT_RXArray32(func) \
+	{ \
+		unsigned int j,i; \
+		j = tvb_get_ntohl(tvb, offset); \
+		offset += sizeof(guint32); \
+		for (i=0; i<j; i++) { \
+			func; \
+		} \
+	}
+
 /* Output a UNIX seconds/microseconds timestamp, after converting to an
    nstime_t */
 #define OUT_TIMESTAMP(field) \
@@ -84,6 +106,38 @@
 	proto_tree_add_time(tree,field, tvb,offset,sizeof(guint32),&ts); \
 	offset += 4; \
 	}
+
+/* Output a rx style string, up to a maximum length first 
+   4 bytes - length, then char data */
+#define OUT_RXString(field) \
+	{	int i,len; \
+		char *tmp; \
+		i = tvb_get_ntohl(tvb, offset); \
+		offset += 4; \
+		len = ((i+4-1)/4)*4; \
+		tmp = g_malloc(i+1); \
+		memcpy(tmp, tvb_get_ptr(tvb,offset,i), i); \
+		tmp[i] = '\0'; \
+		proto_tree_add_string(tree, field, tvb, offset-4, len+4, \
+		(void *)tmp); \
+		g_free(tmp); \
+		offset += len; \
+	}
+
+/* Output a fixed length vectorized string (each char is a 32 bit int) */
+#define OUT_RXStringV(field, length) \
+	{ 	char tmp[length+1]; \
+		int i,soff; \
+		soff = offset;\
+		for (i=0; i<length; i++)\
+		{\
+			tmp[i] = (char) tvb_get_ntohl(tvb, offset);\
+			offset += sizeof(guint32);\
+		}\
+		tmp[length] = '\0';\
+		proto_tree_add_string(tree, field, tvb, soff, length*sizeof(guint32), tmp);\
+	}
+
 
 /* Output a callback */
 #define OUT_FS_AFSCallBack() \
@@ -108,7 +162,6 @@
 		OUT_UINT(hf_afs_cb_callback_type); \
 		tree = save; \
 	}
-
 
 /* Output a File ID */
 #define OUT_FS_AFSFid(label) \
@@ -249,59 +302,23 @@
 
 /* Output a AFSCBFids */
 #define OUT_FS_AFSCBFids() \
-	{ \
-		guint32 j,i; \
-		j = tvb_get_ntohl(tvb, offset); \
-		offset += 4; \
-		for (i=0; i<j; i++) { \
-			OUT_FS_AFSFid("Target"); \
-		} \
-	}	
+	OUT_RXArray32(OUT_FS_AFSFid("Target"));
 
 /* Output a ViceIds */
 #define OUT_FS_ViceIds() \
-	{ \
-		unsigned int j,i; \
-		j = tvb_get_guint8(tvb,offset); \
-		offset += 1; \
-		for (i=0; i<j; i++) { \
-			OUT_UINT(hf_afs_fs_viceid); \
-		} \
-	}
+	OUT_RXArray8(OUT_UINT(hf_afs_fs_viceid));
 
 /* Output a IPAddrs */
 #define OUT_FS_IPAddrs() \
-	{ \
-		unsigned int j,i; \
-		j = tvb_get_guint8(tvb, offset); \
-		offset += 1; \
-		for (i=0; i<j; i++) { \
-			OUT_IP(hf_afs_fs_ipaddr); \
-		} \
-	}
+	OUT_RXArray8(OUT_IP(hf_afs_fs_ipaddr));
 
 /* Output a AFSCBs */
 #define OUT_FS_AFSCBs()	\
-	{ \
-		guint32 j,i; \
-		j = tvb_get_ntohl(tvb,offset); \
-		offset += 4; \
-		for (i=0; i<j; i++) { \
-			OUT_FS_AFSCallBack(); \
-		} \
-	}
-
+	OUT_RXArray32(OUT_FS_AFSCallBack());
 
 /* Output a AFSBulkStats */
 #define OUT_FS_AFSBulkStats() \
-	{ \
-		guint32 j,i; \
-		j = tvb_get_ntohl(tvb,offset); \
-		offset += 4; \
-		for (i=0; i<j; i++) { \
-			OUT_FS_AFSFetchStatus("Status"); \
-		} \
-	}
+	OUT_RXArray32(OUT_FS_AFSFetchStatus("Status"));
 
 /* Output a AFSFetchVolumeStatus */
 #define OUT_FS_AFSFetchVolumeStatus()
@@ -319,7 +336,7 @@
 #define OUT_FS_VolumeInfo()
 
 /* Output an AFS Token - might just be bytes though */
-#define OUT_FS_AFSTOKEN() VECOUT(hf_afs_fs_token, 1024)
+#define OUT_FS_AFSTOKEN() OUT_RXStringV(hf_afs_fs_token, 1024)
 
 /* Output a AFS acl */
 #define ACLOUT(who, positive, acl, bytes) \
@@ -352,6 +369,17 @@
 		proto_tree_add_uint(tree,hf_afs_fs_acl_a, tvb,tmpoffset,acllen,acl);\
 		tree = save; \
 	}
+
+/* Output a UUID */
+#define OUT_UUID(x) \
+	OUT_BYTES(x, 11*sizeof(guint32));
+#define SKIP_UUID() \
+	SKIP(11*sizeof(guint32));
+
+
+/* Output a bulkaddr */
+#define OUT_VLDB_BulkAddr() \
+	OUT_RXArray32(OUT_IP(hf_afs_vldb_serverip));
 
 /* output a bozo_key */
 #define OUT_BOS_KEY() \
@@ -445,36 +473,7 @@
 	proto_tree_add_item(tree, field, tvb, offset, bytes, FALSE);\
 	offset += bytes;
 
-/* Output a rx style string, up to a maximum length first 
-   4 bytes - length, then char data */
-#define OUT_STRING(field) \
-	{	int i,len; \
-		char *tmp; \
-		i = tvb_get_ntohl(tvb, offset); \
-		offset += 4; \
-		len = ((i+4-1)/4)*4; \
-		tmp = g_malloc(i+1); \
-		memcpy(tmp, tvb_get_ptr(tvb,offset,i), i); \
-		tmp[i] = '\0'; \
-		proto_tree_add_string(tree, field, tvb, offset-4, len+4, \
-		(void *)tmp); \
-		g_free(tmp); \
-		offset += len; \
-	}
 
-/* Output a fixed length vectorized string (each char is a 32 bit int) */
-#define VECOUT(field, length) \
-	{ 	char tmp[length+1]; \
-		int i,soff; \
-		soff = offset;\
-		for (i=0; i<length; i++)\
-		{\
-			tmp[i] = (char) tvb_get_ntohl(tvb, offset);\
-			offset += sizeof(guint32);\
-		}\
-		tmp[length] = '\0';\
-		proto_tree_add_string(tree, field, tvb, soff, length*sizeof(guint32), tmp);\
-	}
 
 /* Skip the opcode */
 #define SKIP_OPCODE() \

@@ -8,7 +8,7 @@
  * Portions based on information/specs retrieved from the OpenAFS sources at
  *   www.openafs.org, Copyright IBM. 
  *
- * $Id: packet-afs-register-info.h,v 1.11 2002/02/03 18:12:04 nneul Exp $
+ * $Id: packet-afs-register-info.h,v 1.12 2002/02/08 22:36:21 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -363,7 +363,7 @@
 { &hf_afs_vldb_errcode, { "Error Code", "afs.vldb.errcode", 
 	FT_UINT32, BASE_DEC, VALS(afs_errors), 0, "Error Code", HFILL }},
 { &hf_afs_vldb_type, { "Volume Type", "afs.vldb.type", 
-	FT_UINT32, BASE_DEC, VALS(volume_types), 0, "Volume Type", HFILL }},
+	FT_UINT32, BASE_HEX, VALS(volume_types), 0, "Volume Type", HFILL }},
 { &hf_afs_vldb_id, { "Volume ID", "afs.vldb.id", 
 	FT_UINT32, BASE_DEC, 0, 0, "Volume ID", HFILL }},
 { &hf_afs_vldb_bump, { "Bumped Volume ID", "afs.vldb.bump", 
@@ -396,6 +396,8 @@
 	FT_UINT32, BASE_HEX, 0, 0, "Server Unique Address", HFILL }},
 { &hf_afs_vldb_serverflags, { "Server Flags", "afs.vldb.serverflags", 
 	FT_UINT32, BASE_HEX, 0, 0, "Server Flags", HFILL }},
+{ &hf_afs_vldb_serverip, { "Server IP", "afs.vldb.serverip", 
+	FT_IPv4, BASE_HEX, 0, 0, "Server IP", HFILL }},
 { &hf_afs_vldb_flags, { "Flags", "afs.vldb.flags", 
 	FT_UINT32, BASE_DEC, 0, 0, "Flags", HFILL }},
 	

@@ -8,7 +8,7 @@
  * Portions based on information/specs retrieved from the OpenAFS sources at
  *   www.openafs.org, Copyright IBM. 
  *
- * $Id: packet-afs.c,v 1.42 2002/02/03 18:12:04 nneul Exp $
+ * $Id: packet-afs.c,v 1.43 2002/02/08 22:36:21 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -565,12 +565,12 @@ dissect_fs_reply(tvbuff_t *tvb, struct rxinfo *rxinfo, proto_tree *tree, int off
 				break;
 			case 149: /* get volume status */
 				OUT_FS_AFSFetchVolumeStatus();
-				OUT_STRING(hf_afs_fs_volname);
-				OUT_STRING(hf_afs_fs_offlinemsg);
-				OUT_STRING(hf_afs_fs_motd);
+				OUT_RXString(hf_afs_fs_volname);
+				OUT_RXString(hf_afs_fs_offlinemsg);
+				OUT_RXString(hf_afs_fs_motd);
 				break;
 			case 151: /* root volume */
-				OUT_STRING(hf_afs_fs_volname);
+				OUT_RXString(hf_afs_fs_volname);
 				break;
 			case 153: /* get time */
 				OUT_TIMESTAMP(hf_afs_fs_timestamp);
@@ -649,38 +649,38 @@ dissect_fs_request(tvbuff_t *tvb, struct rxinfo *rxinfo, proto_tree *tree, int o
 			break;
 		case 136: /* Remove File */
 			OUT_FS_AFSFid("Remove File");
-			OUT_STRING(hf_afs_fs_name);
+			OUT_RXString(hf_afs_fs_name);
 			break;
 		case 137: /* Create File */
 			OUT_FS_AFSFid("Target");
-			OUT_STRING(hf_afs_fs_name);
+			OUT_RXString(hf_afs_fs_name);
 			OUT_FS_AFSStoreStatus("Status");
 			break;
 		case 138: /* Rename file */
 			OUT_FS_AFSFid("Old");
-			OUT_STRING(hf_afs_fs_oldname);
+			OUT_RXString(hf_afs_fs_oldname);
 			OUT_FS_AFSFid("New");
-			OUT_STRING(hf_afs_fs_newname);
+			OUT_RXString(hf_afs_fs_newname);
 			break;
 		case 139: /* Symlink */
 			OUT_FS_AFSFid("File");
-			OUT_STRING(hf_afs_fs_symlink_name);
-			OUT_STRING(hf_afs_fs_symlink_content);
+			OUT_RXString(hf_afs_fs_symlink_name);
+			OUT_RXString(hf_afs_fs_symlink_content);
 			OUT_FS_AFSStoreStatus("Status");
 			break;
 		case 140: /* Link */
 			OUT_FS_AFSFid("Link To (New File)");
-			OUT_STRING(hf_afs_fs_name);
+			OUT_RXString(hf_afs_fs_name);
 			OUT_FS_AFSFid("Link From (Old File)");
 			break;
 		case 141: /* Make dir */
 			OUT_FS_AFSFid("Target");
-			OUT_STRING(hf_afs_fs_name);
+			OUT_RXString(hf_afs_fs_name);
 			OUT_FS_AFSStoreStatus("Status");
 			break;
 		case 142: /* Remove dir */
 			OUT_FS_AFSFid("Target");
-			OUT_STRING(hf_afs_fs_name);
+			OUT_RXString(hf_afs_fs_name);
 			break;
 		case 143: /* Old Set Lock */
 			OUT_FS_AFSFid("Target");
@@ -703,7 +703,7 @@ dissect_fs_request(tvbuff_t *tvb, struct rxinfo *rxinfo, proto_tree *tree, int o
 			OUT_FS_AFSCBs();
 			break;
 		case 148: /* Get vol info */
-			OUT_STRING(hf_afs_fs_volname);
+			OUT_RXString(hf_afs_fs_volname);
 			break;
 		case 149: /* Get vol stats */
 			OUT_UINT(hf_afs_fs_volid);
@@ -711,9 +711,9 @@ dissect_fs_request(tvbuff_t *tvb, struct rxinfo *rxinfo, proto_tree *tree, int o
 		case 150: /* Set vol stats */
 			OUT_UINT(hf_afs_fs_volid);
 			OUT_FS_AFSStoreVolumeStatus();
-			OUT_STRING(hf_afs_fs_volname);
-			OUT_STRING(hf_afs_fs_offlinemsg);
-			OUT_STRING(hf_afs_fs_motd);
+			OUT_RXString(hf_afs_fs_volname);
+			OUT_RXString(hf_afs_fs_offlinemsg);
+			OUT_RXString(hf_afs_fs_motd);
 			break;
 		case 151: /* get root volume */
 			/* no params */
@@ -726,7 +726,7 @@ dissect_fs_request(tvbuff_t *tvb, struct rxinfo *rxinfo, proto_tree *tree, int o
 			/* no params */
 			break;
 		case 154: /* new get vol info */
-			OUT_STRING(hf_afs_fs_volname);
+			OUT_RXString(hf_afs_fs_volname);
 			break;
 		case 155: /* bulk stat */
 			OUT_FS_AFSCBFids();
@@ -750,7 +750,7 @@ dissect_fs_request(tvbuff_t *tvb, struct rxinfo *rxinfo, proto_tree *tree, int o
 			break;
 		case 161: /* lookup */
 			OUT_FS_AFSFid("Target");
-			OUT_STRING(hf_afs_fs_name);
+			OUT_RXString(hf_afs_fs_name);
 			break;
 		case 162: /* flush cps */
 			OUT_FS_ViceIds();
@@ -759,8 +759,8 @@ dissect_fs_request(tvbuff_t *tvb, struct rxinfo *rxinfo, proto_tree *tree, int o
 			break;
 		case 163: /* dfs symlink */
 			OUT_FS_AFSFid("Target");
-			OUT_STRING(hf_afs_fs_symlink_name);
-			OUT_STRING(hf_afs_fs_symlink_content);
+			OUT_RXString(hf_afs_fs_symlink_name);
+			OUT_RXString(hf_afs_fs_symlink_content);
 			OUT_FS_AFSStoreStatus("Symlink Status");
 			break;
 	}
@@ -787,17 +787,17 @@ dissect_bos_reply(tvbuff_t *tvb, struct rxinfo *rxinfo, proto_tree *tree, int of
 				break;
 			case 83: /* get status */
 				OUT_INT(hf_afs_bos_status);
-				OUT_STRING(hf_afs_bos_statusdesc);
+				OUT_RXString(hf_afs_bos_statusdesc);
 				break;
 			case 84: /* enumerate instance */
-				OUT_STRING(hf_afs_bos_instance);
+				OUT_RXString(hf_afs_bos_instance);
 				break;
 			case 85: /* get instance info */
-				OUT_STRING(hf_afs_bos_type);
+				OUT_RXString(hf_afs_bos_type);
 				OUT_BOS_STATUS();
 				break;
 			case 86: /* get instance parm */
-				OUT_STRING(hf_afs_bos_parm);
+				OUT_RXString(hf_afs_bos_parm);
 				break;
 			case 87: /* add siperuser */
 				/* no output */
@@ -806,7 +806,7 @@ dissect_bos_reply(tvbuff_t *tvb, struct rxinfo *rxinfo, proto_tree *tree, int of
 				/* no output */
 				break;
 			case 89: /* list superusers */
-				OUT_STRING(hf_afs_bos_user);
+				OUT_RXString(hf_afs_bos_user);
 				break;
 			case 90: /* list keys */
 				OUT_UINT(hf_afs_bos_kvno);
@@ -823,10 +823,10 @@ dissect_bos_reply(tvbuff_t *tvb, struct rxinfo *rxinfo, proto_tree *tree, int of
 				/* no output */
 				break;
 			case 94: /* get cell name */
-				OUT_STRING(hf_afs_bos_cell);
+				OUT_RXString(hf_afs_bos_cell);
 				break;
 			case 95: /* get cell host */
-				OUT_STRING(hf_afs_bos_host);
+				OUT_RXString(hf_afs_bos_host);
 				break;
 			case 96: /* add cell host */
 				/* no output */
@@ -886,10 +886,10 @@ dissect_bos_reply(tvbuff_t *tvb, struct rxinfo *rxinfo, proto_tree *tree, int of
 				/* no output */
 				break;
 			case 114: /* get instance strings */
-				OUT_STRING(hf_afs_bos_error);
-				OUT_STRING(hf_afs_bos_spare1);
-				OUT_STRING(hf_afs_bos_spare2);
-				OUT_STRING(hf_afs_bos_spare3);
+				OUT_RXString(hf_afs_bos_error);
+				OUT_RXString(hf_afs_bos_spare1);
+				OUT_RXString(hf_afs_bos_spare2);
+				OUT_RXString(hf_afs_bos_spare3);
 				break;
 		}
 	}
@@ -907,40 +907,40 @@ dissect_bos_request(tvbuff_t *tvb, struct rxinfo *rxinfo, proto_tree *tree, int 
 	switch ( opcode )
 	{
 		case 80: /* create b node */
-			OUT_STRING(hf_afs_bos_type);
-			OUT_STRING(hf_afs_bos_instance);
-			OUT_STRING(hf_afs_bos_parm);
-			OUT_STRING(hf_afs_bos_parm);
-			OUT_STRING(hf_afs_bos_parm);
-			OUT_STRING(hf_afs_bos_parm);
-			OUT_STRING(hf_afs_bos_parm);
-			OUT_STRING(hf_afs_bos_parm);
+			OUT_RXString(hf_afs_bos_type);
+			OUT_RXString(hf_afs_bos_instance);
+			OUT_RXString(hf_afs_bos_parm);
+			OUT_RXString(hf_afs_bos_parm);
+			OUT_RXString(hf_afs_bos_parm);
+			OUT_RXString(hf_afs_bos_parm);
+			OUT_RXString(hf_afs_bos_parm);
+			OUT_RXString(hf_afs_bos_parm);
 			break;
 		case 81: /* delete b node */
-			OUT_STRING(hf_afs_bos_instance);
+			OUT_RXString(hf_afs_bos_instance);
 			break;
 		case 82: /* set status */
-			OUT_STRING(hf_afs_bos_instance);
+			OUT_RXString(hf_afs_bos_instance);
 			OUT_UINT(hf_afs_bos_status);
 			break;
 		case 83: /* get status */
-			OUT_STRING(hf_afs_bos_instance);
+			OUT_RXString(hf_afs_bos_instance);
 			break;
 		case 84: /* enumerate instance */
 			OUT_UINT(hf_afs_bos_num);
 			break;
 		case 85: /* get instance info */
-			OUT_STRING(hf_afs_bos_instance);
+			OUT_RXString(hf_afs_bos_instance);
 			break;
 		case 86: /* get instance parm */
-			OUT_STRING(hf_afs_bos_instance);
+			OUT_RXString(hf_afs_bos_instance);
 			OUT_UINT(hf_afs_bos_num);
 			break;
 		case 87: /* add super user */
-			OUT_STRING(hf_afs_bos_user);
+			OUT_RXString(hf_afs_bos_user);
 			break;
 		case 88: /* delete super user */
-			OUT_STRING(hf_afs_bos_user);
+			OUT_RXString(hf_afs_bos_user);
 			break;
 		case 89: /* list super users */
 			OUT_UINT(hf_afs_bos_num);
@@ -956,19 +956,19 @@ dissect_bos_request(tvbuff_t *tvb, struct rxinfo *rxinfo, proto_tree *tree, int 
 			OUT_UINT(hf_afs_bos_num);
 			break;
 		case 93: /* set cell name */
-			OUT_STRING(hf_afs_bos_content);
+			OUT_RXString(hf_afs_bos_content);
 			break;
 		case 95: /* set cell host */
 			OUT_UINT(hf_afs_bos_num);
 			break;
 		case 96: /* add cell host */
-			OUT_STRING(hf_afs_bos_content);
+			OUT_RXString(hf_afs_bos_content);
 			break;
 		case 97: /* delete cell host */
-			OUT_STRING(hf_afs_bos_content);
+			OUT_RXString(hf_afs_bos_content);
 			break;
 		case 98: /* set t status */
-			OUT_STRING(hf_afs_bos_content);
+			OUT_RXString(hf_afs_bos_content);
 			OUT_UINT(hf_afs_bos_status);
 			break;
 		case 99: /* shutdown all */
@@ -987,22 +987,22 @@ dissect_bos_request(tvbuff_t *tvb, struct rxinfo *rxinfo, proto_tree *tree, int 
 			/* no params */
 			break;
 		case 104: /* restart */
-			OUT_STRING(hf_afs_bos_instance);
+			OUT_RXString(hf_afs_bos_instance);
 			break;
 		case 105: /* install */
-			OUT_STRING(hf_afs_bos_path);
+			OUT_RXString(hf_afs_bos_path);
 			OUT_UINT(hf_afs_bos_size);
 			OUT_UINT(hf_afs_bos_flags);
 			OUT_UINT(hf_afs_bos_date);
 			break;
 		case 106: /* uninstall */
-			OUT_STRING(hf_afs_bos_path);
+			OUT_RXString(hf_afs_bos_path);
 			break;
 		case 107: /* get dates */
-			OUT_STRING(hf_afs_bos_path);
+			OUT_RXString(hf_afs_bos_path);
 			break;
 		case 108: /* exec */
-			OUT_STRING(hf_afs_bos_cmd);
+			OUT_RXString(hf_afs_bos_cmd);
 			break;
 		case 109: /* prune */
 			OUT_UINT(hf_afs_bos_flags);
@@ -1015,13 +1015,13 @@ dissect_bos_request(tvbuff_t *tvb, struct rxinfo *rxinfo, proto_tree *tree, int 
 			OUT_UINT(hf_afs_bos_num);
 			break;
 		case 112: /* get log */
-			OUT_STRING(hf_afs_bos_file);
+			OUT_RXString(hf_afs_bos_file);
 			break;
 		case 113: /* wait all */
 			/* no params */
 			break;
 		case 114: /* get instance strings */
-			OUT_STRING(hf_afs_bos_content);
+			OUT_RXString(hf_afs_bos_content);
 			break;
 	}
 }
@@ -1039,7 +1039,7 @@ dissect_vol_reply(tvbuff_t *tvb, struct rxinfo *rxinfo, proto_tree *tree, int of
 			case 121:
 				/* should loop here maybe */
 				OUT_UINT(hf_afs_vol_count);
-				VECOUT(hf_afs_vol_name, 32); /* not sure on  */
+				OUT_RXStringV(hf_afs_vol_name, 32); /* not sure on  */
 				break;
 		}
 	}
@@ -1098,25 +1098,25 @@ dissect_kauth_request(tvbuff_t *tvb, struct rxinfo *rxinfo, proto_tree *tree, in
 		case 8: /* get entry */
 		case 14: /* unlock */
 		case 15: /* lock status */
-			OUT_STRING(hf_afs_kauth_princ);
-			OUT_STRING(hf_afs_kauth_realm);
+			OUT_RXString(hf_afs_kauth_princ);
+			OUT_RXString(hf_afs_kauth_realm);
 			OUT_BYTES_ALL(hf_afs_kauth_data);
 			break;
 		case 3: /* getticket-old */
 		case 23: /* getticket */
 			OUT_UINT(hf_afs_kauth_kvno);
-			OUT_STRING(hf_afs_kauth_domain);
-			OUT_STRING(hf_afs_kauth_data);
-			OUT_STRING(hf_afs_kauth_princ);
-			OUT_STRING(hf_afs_kauth_realm);
+			OUT_RXString(hf_afs_kauth_domain);
+			OUT_RXString(hf_afs_kauth_data);
+			OUT_RXString(hf_afs_kauth_princ);
+			OUT_RXString(hf_afs_kauth_realm);
 			break;
 		case 4: /* set pass */
-			OUT_STRING(hf_afs_kauth_princ);
-			OUT_STRING(hf_afs_kauth_realm);
+			OUT_RXString(hf_afs_kauth_princ);
+			OUT_RXString(hf_afs_kauth_realm);
 			OUT_UINT(hf_afs_kauth_kvno);
 			break;
 		case 12: /* get pass */
-			OUT_STRING(hf_afs_kauth_name);
+			OUT_RXString(hf_afs_kauth_name);
 			break;
 	}
 }
@@ -1200,7 +1200,7 @@ dissect_prot_reply(tvbuff_t *tvb, struct rxinfo *rxinfo, proto_tree *tree, int o
 
 					for (i=0; i<j; i++)
 					{
-						VECOUT(hf_afs_prot_name, PRNAMEMAX);
+						OUT_RXStringV(hf_afs_prot_name, PRNAMEMAX);
 					}
 				}
 				break;
@@ -1241,7 +1241,7 @@ dissect_prot_request(tvbuff_t *tvb, struct rxinfo *rxinfo, proto_tree *tree, int
 	switch ( opcode )
 	{
 		case 500: /* new user */
-			OUT_STRING(hf_afs_prot_name);
+			OUT_RXString(hf_afs_prot_name);
 			OUT_UINT(hf_afs_prot_id);
 			OUT_UINT(hf_afs_prot_oldid);
 			break;
@@ -1272,7 +1272,7 @@ dissect_prot_request(tvbuff_t *tvb, struct rxinfo *rxinfo, proto_tree *tree, int
 
 				for (i=0; i<j; i++)
 				{
-					VECOUT(hf_afs_prot_name,PRNAMEMAX);
+					OUT_RXStringV(hf_afs_prot_name,PRNAMEMAX);
 				}
 			}
 			break;
@@ -1290,7 +1290,7 @@ dissect_prot_request(tvbuff_t *tvb, struct rxinfo *rxinfo, proto_tree *tree, int
 			}
 			break;
 		case 509: /* new entry */
-			OUT_STRING(hf_afs_prot_name);
+			OUT_RXString(hf_afs_prot_name);
 			OUT_UINT(hf_afs_prot_flag);
 			OUT_UINT(hf_afs_prot_oldid);
 			break;
@@ -1300,13 +1300,13 @@ dissect_prot_request(tvbuff_t *tvb, struct rxinfo *rxinfo, proto_tree *tree, int
 			break;
 		case 513: /* change entry */
 			OUT_UINT(hf_afs_prot_id);
-			OUT_STRING(hf_afs_prot_name);
+			OUT_RXString(hf_afs_prot_name);
 			OUT_UINT(hf_afs_prot_oldid);
 			OUT_UINT(hf_afs_prot_newid);
 			break;
 		case 520: /* update entry */
 			OUT_UINT(hf_afs_prot_id);
-			OUT_STRING(hf_afs_prot_name);
+			OUT_RXString(hf_afs_prot_name);
 			break;
 	}
 }
@@ -1329,7 +1329,7 @@ dissect_vldb_reply(tvbuff_t *tvb, struct rxinfo *rxinfo, proto_tree *tree, int o
 			case 504: /* get entry by name */
 				{
 					int nservers,i,j;
-					VECOUT(hf_afs_vldb_name, VLNAMEMAX);
+					OUT_RXStringV(hf_afs_vldb_name, VLNAMEMAX);
 					SKIP(4);
 					nservers = tvb_get_ntohl(tvb, offset);
 					OUT_UINT(hf_afs_vldb_numservers);
@@ -1377,7 +1377,7 @@ dissect_vldb_reply(tvbuff_t *tvb, struct rxinfo *rxinfo, proto_tree *tree, int o
 			case 519: /* get entry by name N */
 				{
 					int nservers,i,j;
-					VECOUT(hf_afs_vldb_name, VLNAMEMAX);
+					OUT_RXStringV(hf_afs_vldb_name, VLNAMEMAX);
 					nservers = tvb_get_ntohl(tvb, offset);
 					OUT_UINT(hf_afs_vldb_numservers);
 					for (i=0; i<13; i++)
@@ -1414,18 +1414,18 @@ dissect_vldb_reply(tvbuff_t *tvb, struct rxinfo *rxinfo, proto_tree *tree, int o
 			case 527: /* get entry by name u */
 				{
 					int nservers,i,j;
-					VECOUT(hf_afs_vldb_name, VLNAMEMAX);
+					OUT_RXStringV(hf_afs_vldb_name, VLNAMEMAX);
 					nservers = tvb_get_ntohl(tvb, offset);
 					OUT_UINT(hf_afs_vldb_numservers);
 					for (i=0; i<13; i++)
 					{
 						if ( i<nservers )
 						{
-							OUT_BYTES(hf_afs_vldb_serveruuid, 11*sizeof(guint32));
+							OUT_UUID(hf_afs_vldb_serveruuid);
 						}
 						else
 						{
-							SKIP(11*sizeof(guint32));
+							SKIP_UUID();
 						}
 					}
 					for (i=0; i<13; i++)
@@ -1496,7 +1496,7 @@ dissect_vldb_request(tvbuff_t *tvb, struct rxinfo *rxinfo, proto_tree *tree, int
 	{
 		case 501: /* create new volume */
 		case 517: /* create entry N */
-			VECOUT(hf_afs_vldb_name, VLNAMEMAX);
+			OUT_RXStringV(hf_afs_vldb_name, VLNAMEMAX);
 			break;
 		case 502: /* delete entry */
 		case 503: /* get entry by id */
@@ -1511,7 +1511,7 @@ dissect_vldb_request(tvbuff_t *tvb, struct rxinfo *rxinfo, proto_tree *tree, int
 		case 519: /* get entry by name N */
 		case 524: /* update entry by name */
 		case 527: /* get entry by name U */
-			OUT_STRING(hf_afs_vldb_name);
+			OUT_RXString(hf_afs_vldb_name);
 			break;
 		case 505: /* get new vol id */
 			OUT_UINT(hf_afs_vldb_bump);
@@ -1520,11 +1520,16 @@ dissect_vldb_request(tvbuff_t *tvb, struct rxinfo *rxinfo, proto_tree *tree, int
 		case 520: /* replace entry N */
 			OUT_UINT(hf_afs_vldb_id);
 			OUT_UINT(hf_afs_vldb_type);
-			VECOUT(hf_afs_vldb_name, VLNAMEMAX);
+			OUT_RXStringV(hf_afs_vldb_name, VLNAMEMAX);
 			break;
 		case 510: /* list entry */
 		case 521: /* list entry N */
 			OUT_UINT(hf_afs_vldb_index);
+			break;
+		case 532: /* regaddr */
+			OUT_UUID(hf_afs_vldb_serveruuid);
+			OUT_UINT(hf_afs_vldb_spare1);
+			OUT_VLDB_BulkAddr();
 			break;
 	}
 }
