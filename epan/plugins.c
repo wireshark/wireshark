@@ -57,6 +57,7 @@
 #endif
 
 #include "filesystem.h"
+#include "report_err.h"
 
 #ifdef PLUGINS_NEED_ADDRESS_TABLE
 #include "conversation.h"
@@ -255,7 +256,9 @@ plugins_scan_dir(const char *dirname)
 		     * plugin api table.
 		     */
 		    newinit = gp;
-	    } else 
+		    init = NULL;
+	    }
+	    else 
 	    {
 		    newinit = NULL;
 		    if (!g_module_symbol(handle, "plugin_init", &gp))
