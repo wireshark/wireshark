@@ -12,7 +12,7 @@
  * version: 2004/04/15 9:40:45
  * dedication to Kj :]
  *
- * $Id: packet-rtps.c,v 1.2 2004/04/17 22:11:42 guy Exp $
+ * $Id: packet-rtps.c,v 1.3 2004/04/18 06:40:27 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -545,7 +545,7 @@ get_NtpTime(gint offset,tvbuff_t *tvb,gboolean little_endian,char buff[])
   /* get_guint32() - reads + endian conversion */
   ntpTime.seconds  =  get_guint32(tvb, offset, little_endian);
   ntpTime.fraction =  get_guint32(tvb, (offset + 4), little_endian);
-  time = ntpTime.seconds + (ntpTime.fraction / 2^(32));
+  time = (float) ntpTime.seconds + (ntpTime.fraction / 2^(32));
 
   sprintf(buff,"%f", time);
   return(buff);
@@ -1254,7 +1254,7 @@ dissect_ACK(tvbuff_t *tvb, gint offset,  proto_tree *tree)
                       object_id_to_string(offset, tvb, buff));
   offset +=4;
 
-  get_bitmap(tvb,&offset,little_endian,next_submsg_offset,rtps_submessage_tree);
+  get_bitmap(tvb,&offset,little_endian,(guint16)next_submsg_offset,rtps_submessage_tree);
 
 }
 
@@ -1391,7 +1391,7 @@ dissect_GAP(tvbuff_t *tvb, gint offset, proto_tree *tree)
                       sequenceNumber.high, sequenceNumber.low);
   offset +=8;
 
-  get_bitmap(tvb,&offset,little_endian,next_submsg_offset,rtps_submessage_tree);
+  get_bitmap(tvb,&offset,little_endian,(guint16)next_submsg_offset,rtps_submessage_tree);
 
 }
 
