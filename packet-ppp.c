@@ -1,7 +1,7 @@
 /* packet-ppp.c
  * Routines for ppp packet disassembly
  *
- * $Id: packet-ppp.c,v 1.92 2002/05/20 00:56:30 guy Exp $
+ * $Id: packet-ppp.c,v 1.93 2002/05/22 09:52:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3218,7 +3218,7 @@ proto_register_cbcp(void)
     &ett_cbcp_callback_opt_addr
   };
 
-  proto_cbcp = proto_register_protocol("PPP Callback Control Protocoll", 
+  proto_cbcp = proto_register_protocol("PPP Callback Control Protocol", 
 				      "PPP CBCP", "cbcp");
   proto_register_subtree_array(ett, array_length(ett));
 }
