@@ -10,7 +10,7 @@
  * 
  * By Solomon Peachy
  *
- * $Id: packet-wlancap.c,v 1.2 2003/08/05 19:09:27 guy Exp $
+ * $Id: packet-wlancap.c,v 1.3 2003/12/04 05:59:35 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -117,6 +117,7 @@ proto_register_wlancap(void)
     { 6, "OFDM 802.11g" },
     { 7, "PBCC 802.11g" },
     { 8, "OFDM 802.11a" },
+    { 0, NULL },
   };
 
   static const value_string encoding_type[] = {
@@ -124,6 +125,7 @@ proto_register_wlancap(void)
     { 1, "CCK" },
     { 2, "PBCC" },
     { 3, "OFDM" },
+    { 0, NULL },
   };
 
   static const value_string ssi_type[] = {
@@ -131,12 +133,14 @@ proto_register_wlancap(void)
     { 1, "Normalized RSSI" },
     { 2, "dBm" },
     { 3, "Raw RSSI" },
+    { 0, NULL },
   };
 
   static const value_string preamble_type[] = {
     { 0, "Unknown" },
     { 1, "Short" },
     { 2, "Long" },
+    { 0, NULL },
   };
 
   static hf_register_info hf[] = {
