@@ -143,7 +143,7 @@ struct _protocol {
 };
 
 /* List of all protocols */
-static GList *protocols;
+static GList *protocols = NULL;
 
 #define INITIAL_NUM_PROTOCOL_HFINFO     200
 
@@ -207,6 +207,21 @@ gboolean	*tree_is_expanded;
 /* Number of elements in that array. */
 int		num_tree_types;
 
+/* Name hashtables for fast detection of duplicate names */
+static GHashTable* proto_names = NULL;
+static GHashTable* proto_short_names = NULL;
+static GHashTable* proto_filter_names = NULL;
+
+static gint
+proto_compare_name(gconstpointer p1_arg, gconstpointer p2_arg)
+{
+	const protocol_t *p1 = p1_arg;
+	const protocol_t *p2 = p2_arg;
+
+	return g_strcasecmp(p1->short_name, p2->short_name);
+}
+
+
 /* initialize data structures and register protocols and fields */
 void
 proto_init(const char *plugin_dir
@@ -222,6 +237,11 @@ proto_init(const char *plugin_dir
 		{ "",	"", FT_NONE, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 	};
+
+
+    proto_names = g_hash_table_new(g_int_hash, g_int_equal);
+    proto_short_names = g_hash_table_new(g_int_hash, g_int_equal);
+    proto_filter_names = g_hash_table_new(g_int_hash, g_int_equal);
 
 	proto_cleanup();
 
@@ -265,6 +285,9 @@ proto_init(const char *plugin_dir
 	/* Now do the same with plugins. */
 	register_all_plugin_handoffs();
 #endif
+
+    /* sort the protocols by protocol name */
+    protocols = g_list_sort(protocols, proto_compare_name);
 
 	/* We've assigned all the subtree type values; allocate the array
 	   for them, and zero it out. */
@@ -2292,41 +2315,6 @@ proto_tree_get_parent(proto_tree *tree) {
 	return (proto_item*) tree;
 }
 
-static gint
-proto_match_short_name(gconstpointer p_arg, gconstpointer name_arg)
-{
-	const protocol_t *p = p_arg;
-	const char *name = name_arg;
-
-	return g_strcasecmp(p->short_name, name);
-}
-
-static gint
-proto_match_name(gconstpointer p_arg, gconstpointer name_arg)
-{
-	const protocol_t *p = p_arg;
-	const char *name = name_arg;
-
-	return g_strcasecmp(p->name, name);
-}
-
-static gint
-proto_match_filter_name(gconstpointer p_arg, gconstpointer name_arg)
-{
-	const protocol_t *p = p_arg;
-	const char *name = name_arg;
-
-	return g_strcasecmp(p->filter_name, name);
-}
-
-static gint
-proto_compare_name(gconstpointer p1_arg, gconstpointer p2_arg)
-{
-	const protocol_t *p1 = p1_arg;
-	const protocol_t *p2 = p2_arg;
-
-	return g_strcasecmp(p1->short_name, p2->short_name);
-}
 
 int
 proto_register_protocol(char *name, char *short_name, char *filter_name)
@@ -2334,16 +2322,52 @@ proto_register_protocol(char *name, char *short_name, char *filter_name)
 	protocol_t *protocol;
 	header_field_info *hfinfo;
 	int proto_id;
+    char *existing_name;
+    gint *key;
 
 	/*
 	 * Make sure there's not already a protocol with any of those
-	 * names.  Crash if there is, as that's an error in the code,
-	 * and the code has to be fixed not to register more than one
+	 * names.  Crash if there is, as that's an error in the code
+     * or an inappropriate plugin.
+     * This situation has to be fixed to not register more than one
 	 * protocol with the same name.
-	 */
-	g_assert(g_list_find_custom(protocols, name, proto_match_name) == NULL);
-	g_assert(g_list_find_custom(protocols, short_name, proto_match_short_name) == NULL);
-	g_assert(g_list_find_custom(protocols, filter_name, proto_match_filter_name) == NULL);
+	 *
+     * This is done by reducing the number of strcmp (and alike) calls as much as possible,
+     * as this significally slows down startup time.
+     *
+     * Drawback: As a hash value is used to reduce insert time, 
+     * this might lead to a hash collision.
+     * However, as we have around 500+ protocols and we're using a 32 bit int this is very,
+     * very unlikely.
+     */
+
+    key = g_malloc (sizeof(gint));
+    *key = g_str_hash(name);
+    existing_name = g_hash_table_lookup(proto_names, key);
+    if (existing_name != NULL) {
+        /* g_error will terminate the program */
+        g_error("The protocol name \"%s\" is existing more than one time!"
+            " This might be caused by an inappropriate plugin or a development error.", name);
+    }
+    g_hash_table_insert(proto_names, key, name);
+
+    key = g_malloc (sizeof(gint));
+    *key = g_str_hash(short_name);
+    existing_name = g_hash_table_lookup(proto_short_names, key);
+    if (existing_name != NULL) {
+        g_error("The protocol short_name \"%s\" is existing more than one time!"
+            " This might be caused by an inappropriate plugin or a development error.", short_name);
+    }
+    g_hash_table_insert(proto_short_names, key, short_name);
+
+    key = g_malloc (sizeof(gint));
+    *key = g_str_hash(filter_name);
+    existing_name = g_hash_table_lookup(proto_filter_names, key);
+    if (existing_name != NULL) {
+        g_error("The protocol filter_name \"%s\" is existing more than one time!"
+            " This might be caused by an inappropriate plugin or a development error.", filter_name);
+    }
+    g_hash_table_insert(proto_filter_names, key, filter_name);
 
 	/* Add this protocol to the list of known protocols; the list
 	   is sorted by protocol short name. */
@@ -2354,8 +2378,8 @@ proto_register_protocol(char *name, char *short_name, char *filter_name)
 	protocol->fields = NULL;
 	protocol->is_enabled = TRUE; /* protocol is enabled by default */
 	protocol->can_toggle = TRUE;
-	protocols = g_list_insert_sorted(protocols, protocol,
-	    proto_compare_name);
+    /* list will be sorted later by name, when all protocols completed registering */
+    protocols = g_list_append(protocols, protocol);
 
 	/* Here we do allocate a new header_field_info struct */
 	hfinfo = g_mem_chunk_alloc(gmc_hfinfo);
