@@ -51,6 +51,8 @@ typedef struct _conversations_table {
 	GtkWidget           *page_lb;           /**< label */
 	GtkWidget           *scrolled_window;   /**< the scrolled window */
 	GtkCList            *table;             /**< the GTK table */
+        guint32             num_columns;         /**< number of columns in the above table */
+        char                *default_titles[10]; /**< Column headers */
 	GtkWidget           *menu;              /**< context menu */
 	gboolean            has_ports;          /**< table has ports */
 	guint32             num_conversations;  /**< number of conversations */

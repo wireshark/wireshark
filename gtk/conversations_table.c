@@ -1059,6 +1059,48 @@ draw_ct_table_data(conversations_table *ct)
 }
 
 
+#if (GTK_MAJOR_VERSION > 2) || ( (GTK_MAJOR_VERSION == 2) && (GTK_MINOR_VERSION >= 2) )
+static void
+copy_as_csv_cb(GtkWindow *win _U_, gpointer data)
+{
+   guint32         i,j;                 
+   gchar           *table_entry;                      
+   gchar           *CSV_str;         
+   GtkClipboard    *cb;  
+   GdkDisplay      *disp;
+   
+   conversations_table *talkers=(conversations_table *)data;
+   
+   CSV_str=g_new(gchar,(80*(talkers->num_conversations+1))); /* 80 chars * num rows */
+   strcpy(CSV_str,"");                                   /* initialize string   */
+   /* Add the column headers to the CSV data */
+   for(i=0;i<talkers->num_columns;i++){                  /* all columns         */
+    if((i==1 || i==3) && !talkers->has_ports) continue;  /* Don't add the port column if it's empty */
+     strcat(CSV_str,talkers->default_titles[i]);         /* add the column heading to the CSV string */
+     strcat(CSV_str,",");
+   }
+   strcat(CSV_str,"\n");                                 /* new row */
+ 
+   /* Add the column values to the CSV data */
+   for(i=0;i<talkers->num_conversations;i++){                /* all rows            */
+    for(j=0;j<talkers->num_columns;j++){                 /* all columns         */
+     if((j==1 || j==3) && !talkers->has_ports) continue; /* Don't add the port column if it's empty */
+     gtk_clist_get_text(talkers->table,i,j,&table_entry);/* copy table item into string */
+     strcat(CSV_str,table_entry);                        /* add the table entry to the CSV string */
+     strcat(CSV_str,",");
+    } 
+    strcat(CSV_str,"\n");                                /* new row */  
+   }
+
+   /* Now that we have the CSV data, copy it into the default clipboard */
+   disp = gdk_display_get_default();
+   cb = gtk_clipboard_get_for_display (disp,GDK_SELECTION_CLIPBOARD); /* Get the default clipboard */
+   gtk_clipboard_set_text(cb, CSV_str, -1);                           /* Copy the CSV data into the clipboard */
+   g_free(CSV_str);                                                   /* Free the memory */
+} 
+#endif
+
+
 gboolean
 init_ct_table_page(conversations_table *conversations, GtkWidget *vbox, gboolean hide_ports, char *table_name, char *tap_name, char *filter, void *packet_func)
 {
@@ -1069,8 +1111,26 @@ init_ct_table_page(conversations_table *conversations, GtkWidget *vbox, gboolean
     GString *error_string;
     GtkWidget *label;
     char title[256];
-    char *default_titles[] = { "Address A", "Port A", "Address B", "Port B", "Packets", "Bytes", "Packets A->B", "Bytes A->B", "Packets A<-B", "Bytes A<-B" };
+#if (GTK_MAJOR_VERSION > 2) || ( (GTK_MAJOR_VERSION == 2) && (GTK_MINOR_VERSION >= 2) )
+    GtkWidget *copy_bt;
+    GtkTooltips *tooltips = gtk_tooltips_new();
+#endif           
 
+
+    conversations->page_lb=NULL;
+    conversations->resolve_names=TRUE;
+    conversations->has_ports=!hide_ports;   
+    conversations->num_columns=NUM_COLS;   
+    conversations->default_titles[0]="Address A",
+    conversations->default_titles[1]="Port A";
+    conversations->default_titles[2]="Address B";
+    conversations->default_titles[3]="Port B";
+    conversations->default_titles[4]="Packets";
+    conversations->default_titles[5]="Bytes";
+    conversations->default_titles[6]="Packets A->B";
+    conversations->default_titles[7]="Bytes A->B";
+    conversations->default_titles[8]="Packets A<-B";
+    conversations->default_titles[9]="Bytes A<-B";
 
     g_snprintf(title, 255, "%s Conversations", table_name);
     label=gtk_label_new(title);
@@ -1087,7 +1147,7 @@ init_ct_table_page(conversations_table *conversations, GtkWidget *vbox, gboolean
     for (i = 0; i < NUM_COLS; i++) {
         col_arrows[i].table = gtk_table_new(2, 2, FALSE);
         gtk_table_set_col_spacings(GTK_TABLE(col_arrows[i].table), 5);
-        column_lb = gtk_label_new(default_titles[i]);
+        column_lb = gtk_label_new(conversations->default_titles[i]);
         gtk_table_attach(GTK_TABLE(col_arrows[i].table), column_lb, 0, 1, 0, 2, GTK_SHRINK, GTK_SHRINK, 0, 0);
         gtk_widget_show(column_lb);
 
@@ -1120,21 +1180,6 @@ init_ct_table_page(conversations_table *conversations, GtkWidget *vbox, gboolean
     gtk_clist_set_column_auto_resize(conversations->table, 8, TRUE);
     gtk_clist_set_column_auto_resize(conversations->table, 9, TRUE);
 
-#if 0
-    /*XXX instead of this we should probably have some code to
-        dynamically adjust the width of the columns */
-    gtk_clist_set_column_width(conversations->table, 0, 100);
-    gtk_clist_set_column_width(conversations->table, 1, 40);
-    gtk_clist_set_column_width(conversations->table, 2, 100);
-    gtk_clist_set_column_width(conversations->table, 3, 40);
-    gtk_clist_set_column_width(conversations->table, 4, 70);
-    gtk_clist_set_column_width(conversations->table, 5, 60);
-    gtk_clist_set_column_width(conversations->table, 6, 70);
-    gtk_clist_set_column_width(conversations->table, 7, 60);
-    gtk_clist_set_column_width(conversations->table, 8, 70);
-    gtk_clist_set_column_width(conversations->table, 9, 60);
-#endif
-
     gtk_clist_set_shadow_type(conversations->table, GTK_SHADOW_IN);
     gtk_clist_column_titles_show(conversations->table);
     gtk_container_add(GTK_CONTAINER(conversations->scrolled_window), (GtkWidget *)conversations->table);
@@ -1153,6 +1198,15 @@ init_ct_table_page(conversations_table *conversations, GtkWidget *vbox, gboolean
     /* create popup menu for this table */
     ct_create_popup_menu(conversations);
 
+#if (GTK_MAJOR_VERSION > 2) || ( (GTK_MAJOR_VERSION == 2) && (GTK_MINOR_VERSION >= 2) )
+    /* XXX - maybe we want to have a "Copy as CSV" stock button here? */
+    /*copy_bt = gtk_button_new_with_label ("Copy content to clipboard as CSV");*/
+    copy_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_COPY);
+    gtk_tooltips_set_tip(tooltips, copy_bt, 
+        "Copy all statistical values of this page to the clipboard in CSV (Comma Seperated Values) format.", NULL);
+    SIGNAL_CONNECT(copy_bt, "clicked", copy_as_csv_cb,(gpointer *) conversations);    
+    gtk_box_pack_start(GTK_BOX(vbox), copy_bt, FALSE, FALSE, 0); 
+#endif                 
 
     /* register the tap and rerun the taps on the packet list */
     error_string=register_tap_listener(tap_name, conversations, filter, (void *)reset_ct_table_data, packet_func, (void *)draw_ct_table_data);
@@ -1182,8 +1236,7 @@ init_conversation_table(gboolean hide_ports, char *table_name, char *tap_name, c
     conversations->name=table_name;
     g_snprintf(title, 255, "%s Conversations: %s", table_name, cf_get_display_name(&cfile));
     conversations->win=window_new(GTK_WINDOW_TOPLEVEL, title);
-    conversations->page_lb=NULL;
-    conversations->resolve_names=TRUE;
+
     gtk_window_set_default_size(GTK_WINDOW(conversations->win), 750, 400);
 
     vbox=gtk_vbox_new(FALSE, 3);
