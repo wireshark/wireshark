@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\winreg packet disassembly
  * Copyright 2001-2003 Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-reg.c,v 1.21 2003/08/04 02:49:02 tpot Exp $
+ * $Id: packet-dcerpc-reg.c,v 1.22 2003/09/28 11:35:20 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -51,7 +51,7 @@ static int hf_unknown = -1;
 static int hf_openhklm_unknown1 = -1;
 static int hf_openhklm_unknown2 = -1;
 
-/* QueryKey */
+/* QueryInfoKey */
 
 static int hf_querykey_class = -1;
 static int hf_querykey_num_subkeys = -1;
@@ -63,14 +63,14 @@ static int hf_querykey_max_valbuf_size = -1;
 static int hf_querykey_secdesc = -1;
 static int hf_querykey_modtime = -1;
 
-/* OpenEntry */
+/* OpenKey */
 
 static int hf_keyname = -1;
-static int hf_openentry_unknown1 = -1;
+static int hf_openkey_unknown1 = -1;
 
-/* Unknown 0x1A */
+/* GetVersion */
 
-static int hf_unknown1A_unknown1 = -1;
+static int hf_getversion_version = -1;
 
 /* Data that is passed to a open call */
 
@@ -226,11 +226,11 @@ RegOpenHKCR_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 /*
- * RegClose
+ * CloseKey
  */
 
 static int
-RegClose_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
+RegCloseKey_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	   proto_tree *tree, char *drep)
 {
 	/* Parse packet */
@@ -243,7 +243,7 @@ RegClose_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 static int
-RegClose_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
+RegCloseKey_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	   proto_tree *tree, char *drep)
 {
 	/* Parse packet */
@@ -259,11 +259,11 @@ RegClose_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 /*
- * RegQueryKey
+ * QueryInfoKey
  */
 
 static int
-RegQueryKey_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
+RegQueryInfoKey_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	      proto_tree *tree, char *drep)
 {
 	/* Parse packet */
@@ -279,7 +279,7 @@ RegQueryKey_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 static int
-RegQueryKey_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
+RegQueryInfoKey_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	      proto_tree *tree, char *drep)
 {
 	/* Parse packet */
@@ -325,11 +325,11 @@ RegQueryKey_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 /*
- * OpenEntry
+ * OpenKey
  */
 
 static int
-RegOpenEntry_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
+RegOpenKey_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	       proto_tree *tree, char *drep)
 {
 	/* Parse packet */
@@ -343,7 +343,7 @@ RegOpenEntry_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, tree, drep,
-		hf_openentry_unknown1, NULL);
+		hf_openkey_unknown1, NULL);
 
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, tree, drep,
@@ -353,7 +353,7 @@ RegOpenEntry_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 static int
-RegOpenEntry_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
+RegOpenKey_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	       proto_tree *tree, char *drep)
 {
 	e_ctx_hnd policy_hnd;
@@ -371,20 +371,20 @@ RegOpenEntry_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	if (status == 0) {
 		dcerpc_smb_store_pol_name(&policy_hnd, pinfo,
-			"OpenEntry handle");
+			"OpenKey handle");
 		if (hnd_item != NULL)
-			proto_item_append_text(hnd_item, ": OpenEntry handle");
+			proto_item_append_text(hnd_item, ": OpenKey handle");
 	}
 
 	return offset;
 }
 
 /*
- * Unknown1A
+ * GetVersion
  */
 
 static int
-RegUnknown1A_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
+RegGetVersion_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	       proto_tree *tree, char *drep)
 {
 	/* Parse packet */
@@ -397,14 +397,14 @@ RegUnknown1A_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 static int
-RegUnknown1A_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
+RegGetVersion_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	       proto_tree *tree, char *drep)
 {
 	/* Parse packet */
 
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, tree, drep,
-		hf_unknown1A_unknown1, NULL);
+		hf_getversion_version, NULL);
 
 	offset = dissect_ntstatus(
 		tvb, offset, pinfo, tree, drep, hf_rc, NULL);
@@ -639,11 +639,11 @@ static guint16 ver_dcerpc_reg = 1;
 
 static dcerpc_sub_dissector dcerpc_reg_dissectors[] = {
         { REG_OPEN_HKCR, "OpenHKCR", RegOpenHKCR_q, RegOpenHKCR_r },
-        { _REG_UNK_01, "Unknown01", NULL, NULL },
+        { REG_OPEN_HKCU, "OpenHKCU", NULL, NULL },
         { REG_OPEN_HKLM, "OpenHKLM", RegOpenHKLM_q, RegOpenHKLM_r },
-        { _REG_UNK_03, "Unknown03", NULL, NULL },
+        { REG_OPEN_HKPD, "OpenHKPD", NULL, NULL },
         { REG_OPEN_HKU, "OpenHKU", RegOpenHKU_q, RegOpenHKU_r },
-        { REG_CLOSE, "Close", RegClose_q, RegClose_r },
+        { REG_CLOSE_KEY, "CloseKey", RegCloseKey_q, RegCloseKey_r },
         { REG_CREATE_KEY, "CreateKey", NULL, NULL },
         { REG_DELETE_KEY, "DeleteKey", NULL, NULL },
         { REG_DELETE_VALUE, "DeleteValue", NULL, NULL },
@@ -651,21 +651,29 @@ static dcerpc_sub_dissector dcerpc_reg_dissectors[] = {
         { REG_ENUM_VALUE, "EnumValue", NULL, NULL },
         { REG_FLUSH_KEY, "FlushKey", NULL, NULL },
         { REG_GET_KEY_SEC, "GetKeySecurity", NULL, NULL },
-        { _REG_UNK_0D, "Unknown0d", NULL, NULL },
-        { _REG_UNK_0E, "Unknown0e", NULL, NULL },
-        { REG_OPEN_ENTRY, "OpenEntry", RegOpenEntry_q, RegOpenEntry_r },
-        { REG_QUERY_KEY, "QueryKey", RegQueryKey_q, RegQueryKey_r },
+        { REG_LOAD_KEY, "LoadKey", NULL, NULL },
+        { REG_NOTIFY_CHANGE_KEY_VALUE, "NotifyChangeKeyValue", NULL, NULL },
+        { REG_OPEN_KEY, "OpenKey", RegOpenKey_q, RegOpenKey_r },
+        { REG_QUERY_INFO_KEY, "QueryInfoKey", RegQueryInfoKey_q, RegQueryInfoKey_r },
         { REG_QUERY_VALUE, "QueryValue", RegQueryValue_q, RegQueryValue_r },
-        { _REG_UNK_12, "Unknown12", NULL, NULL },
-        { _REG_UNK_13, "Unknown13", NULL, NULL },
-        { _REG_UNK_14, "Unknown14", NULL, NULL },
+        { REG_REPLACE_KEY, "ReplaceKey", NULL, NULL },
+        { REG_RESTORE_KEY, "RestoreKey", NULL, NULL },
+        { REG_SAVE_KEY, "SaveKey", NULL, NULL },
         { REG_SET_KEY_SEC, "SetKeySecurity", NULL, NULL },
-        { REG_CREATE_VALUE, "CreateValue", NULL, NULL },
-        { _REG_UNK_17, "Unknown17", NULL, NULL },
-        { REG_SHUTDOWN, "Shutdown", NULL, NULL },
-        { REG_ABORT_SHUTDOWN, "AbortShutdown", NULL, NULL },
-        { _REG_UNK_1A, "Unknown1A", RegUnknown1A_q, RegUnknown1A_r },
-
+        { REG_SET_VALUE, "SetValue", NULL, NULL },
+        { REG_UNLOAD_KEY, "UnLoadKey", NULL, NULL },
+        { REG_INITIATE_SYSTEM_SHUTDOWN, "InitiateSystemShutdown", NULL, NULL },
+        { REG_ABORT_SYSTEM_SHUTDOWN, "AbortSystemShutdown", NULL, NULL },
+        { REG_GET_VERSION, "GetVersion", RegGetVersion_q, RegGetVersion_r },
+	{ REG_OPEN_HKCC, "OpenHKCC", NULL, NULL },
+	{ REG_OPEN_HKDD, "OpenHKDD", NULL, NULL },
+	{ REG_QUERY_MULTIPLE_VALUES, "QueryMultipleValues", NULL, NULL },
+	{ REG_INITIATE_SYSTEM_SHUTDOWN_EX, "InitiateSystemShutdownEx", 
+	  NULL, NULL },
+	{ REG_SAVE_KEY_EX, "SaveKeyEx", NULL, NULL },
+	{ REG_OPEN_HKPT, "OpenHKPT", NULL, NULL },
+	{ REG_OPEN_HKPN, "OpenHKPN", NULL, NULL },
+	{ REG_QUERY_MULTIPLE_VALUES_2, "QueryMultipleValues2", NULL, NULL },
         { 0, NULL, NULL,  NULL }
 };
 
@@ -764,21 +772,21 @@ proto_register_dcerpc_reg(void)
 		  { "Mod time", "reg.querykey.modtime", FT_ABSOLUTE_TIME, BASE_NONE,
 		    NULL, 0x0, "Secdesc", HFILL }},
 
-		/* OpenEntry */
+		/* OpenKey */
 
 		{ &hf_keyname,
 		  { "Key name", "reg.keyname", FT_STRING, BASE_NONE,
 		    NULL, 0x0, "Keyname", HFILL }},
 
-		{ &hf_openentry_unknown1,
-		  { "Unknown 1", "reg.openentry.unknown1", FT_UINT32, BASE_HEX,
+		{ &hf_openkey_unknown1,
+		  { "Unknown 1", "reg.openkey.unknown1", FT_UINT32, BASE_HEX,
 		    NULL, 0x0, "Unknown 1", HFILL }},
 
-		/* Unknown1A */
+		/* GetVersion */
 
-		{ &hf_unknown1A_unknown1,
-		  { "Unknown 1", "reg.unknown1A.unknown1", FT_UINT32, BASE_HEX,
-		    NULL, 0x0, "Unknown 1", HFILL }},
+		{ &hf_getversion_version,
+		  { "Version", "reg.getversion.version", FT_UINT32, BASE_HEX,
+		    NULL, 0x0, "Version", HFILL }},
 
 	};
 
