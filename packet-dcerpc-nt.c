@@ -2,7 +2,7 @@
  * Routines for DCERPC over SMB packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-nt.c,v 1.23 2002/03/26 05:20:51 tpot Exp $
+ * $Id: packet-dcerpc-nt.c,v 1.24 2002/03/29 04:35:48 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -426,16 +426,16 @@ dissect_ndr_nt_UNICODE_STRING_str(tvbuff_t *tvb, int offset,
 	}
 
 	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_nt_str_len, &len);
+			hf_nt_str_max_len, &max_len);
 	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 			hf_nt_str_off, &off);
 	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_nt_str_max_len, &max_len);
+			hf_nt_str_len, &len);
 
 	old_offset=offset;
-	offset = prs_uint16s(tvb, offset, pinfo, tree, max_len, &data16_offset,
+	offset = prs_uint16s(tvb, offset, pinfo, tree, len, &data16_offset,
 			NULL);
-	text = fake_unicode(tvb, data16_offset, max_len);
+	text = fake_unicode(tvb, data16_offset, len);
 
 	proto_tree_add_string(tree, di->hf_index, tvb, old_offset,
 		offset-old_offset, text);
