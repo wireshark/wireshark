@@ -345,15 +345,15 @@ merge_open_in_files(int in_file_count, char *in_file_names[], merge_in_file_t *i
       if (merge_verbose == VERBOSE_ERRORS) {
         fprintf(stderr, "mergecap: skipping %s: %s\n", in_file_names[i],
               wtap_strerror(*err));
-      switch (*err) {
+        switch (*err) {
 
-      case WTAP_ERR_UNSUPPORTED:
-      case WTAP_ERR_UNSUPPORTED_ENCAP:
-      case WTAP_ERR_BAD_RECORD:
-        fprintf(stderr, "(%s)\n", err_info);
-        g_free(err_info);
-        break;
-      }
+        case WTAP_ERR_UNSUPPORTED:
+        case WTAP_ERR_UNSUPPORTED_ENCAP:
+        case WTAP_ERR_BAD_RECORD:
+          fprintf(stderr, "(%s)\n", err_info);
+          g_free(err_info);
+          break;
+        }
       }
     } else {
       if (merge_verbose == VERBOSE_ALL) {
