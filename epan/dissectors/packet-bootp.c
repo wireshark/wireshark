@@ -1166,7 +1166,7 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 
 		case ipv4:
 			if (optlen != 4) {
-				proto_item_append_string(vti,
+				proto_item_append_text(vti,
 				    " - length isn't 4");
 				break;
 			}
