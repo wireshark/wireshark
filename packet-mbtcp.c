@@ -10,7 +10,7 @@
  *
  * for information on Modbus/TCP.
  *
- * $Id: packet-mbtcp.c,v 1.2 2001/04/24 19:31:33 guy Exp $
+ * $Id: packet-mbtcp.c,v 1.3 2001/04/24 23:22:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -229,15 +229,12 @@ dissect_mbtcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 												 * packets in one TCP packet */
 	guint8		exception_code = 0, exception_returned = 0;
 	
-/* Check if protocol decoding is enabled else decode as data and return */
-	CHECK_DISPLAY_AS_DATA(proto_mbtcp, tvb, pinfo, tree);
-
-					/* load the display labels 	*/
-	pinfo->current_proto = "Modbus/TCP";
-	
 /* Make entries in Protocol column on summary display */
 	if (check_col(pinfo->fd, COL_PROTOCOL)) 
 		col_set_str(pinfo->fd, COL_PROTOCOL, "Modbus/TCP");
+
+	if (check_col(pinfo->fd, COL_INFO))
+		col_clear(pinfo->fd, COL_INFO);
 
 /* Make entries in Info column on summary display (updated after building proto tree) */
 	tvb_memcpy(tvb, (guint8 *)&mh, offset, sizeof(mbtcp_hdr));
@@ -250,7 +247,7 @@ dissect_mbtcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 	func_string = function_string(mh.mdbs_hdr.function_code);
 	if (check_col(pinfo->fd, COL_INFO))
-	{	col_clear(pinfo->fd, COL_INFO);
+	{
 		packet_type = classify_packet(pinfo);
 		switch ( packet_type ) {
 			case query_packet : 			strcpy(pkt_type_str, "query");  
@@ -331,7 +328,7 @@ dissect_mbtcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	
 /* Update entries in Info column on summary display */
 	if (check_col(pinfo->fd, COL_INFO))
-	{	col_clear(pinfo->fd, COL_INFO);
+	{
 		switch ( packet_type ) {
 			case query_packet : 			strcpy(pkt_type_str, "query");  
 												break;
