@@ -1,6 +1,6 @@
 /* packet-rtcp.c
  *
- * $Id: packet-rtcp.c,v 1.45 2004/06/29 20:29:56 etxrab Exp $
+ * $Id: packet-rtcp.c,v 1.46 2004/06/30 21:08:58 etxrab Exp $
  *
  * Routines for RTCP dissection
  * RTCP = Real-time Transport Control Protocol
@@ -830,7 +830,10 @@ void show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	conversation_t *p_conv = NULL;
 	struct _rtcp_conversation_info *p_conv_data = NULL;
 
-	if (!pinfo->fd->flags.visited)
+	/* Use existing packet data if available */
+	p_conv_data = p_get_proto_data(pinfo->fd, proto_rtcp);
+
+	if (!p_conv_data)
 	{
 		/* First time, get info from conversation */
 		p_conv = find_conversation(&pinfo->net_dst, &pinfo->net_src,
@@ -849,11 +852,6 @@ void show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			p_conv_packet_data->frame_number = p_conv_data->frame_number;
 			p_add_proto_data(pinfo->fd, proto_rtcp, p_conv_packet_data);
 		}
-	}
-	else
-	{
-		/* Otherwise, use stored packet data instead */
-		p_conv_data = p_get_proto_data(pinfo->fd, proto_rtcp);
 	}
 
 	/* Create setup info subtree with summary info. */

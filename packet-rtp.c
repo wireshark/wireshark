@@ -6,7 +6,7 @@
  * Copyright 2000, Philips Electronics N.V.
  * Written by Andreas Sikkema <h323@ramdyne.nl>
  *
- * $Id: packet-rtp.c,v 1.50 2004/06/29 20:29:56 etxrab Exp $
+ * $Id: packet-rtp.c,v 1.51 2004/06/30 21:08:58 etxrab Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -643,7 +643,10 @@ void show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	conversation_t *p_conv = NULL;
 	struct _rtp_conversation_info *p_conv_data = NULL;
 
-	if (!pinfo->fd->flags.visited)
+	/* Use existing packet info if available */
+	p_conv_data = p_get_proto_data(pinfo->fd, proto_rtp);
+
+	if (!p_conv_data)
 	{
 		/* First time, get info from conversation */
 		p_conv = find_conversation(&pinfo->net_dst, &pinfo->net_src,
@@ -661,11 +664,6 @@ void show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			p_conv_packet_data->frame_number = p_conv_data->frame_number;
 			p_add_proto_data(pinfo->fd, proto_rtp, p_conv_packet_data);
 		}
-	}
-	else
-	{
-		/* Otherwise, use stored packet data instead */
-		p_conv_data = p_get_proto_data(pinfo->fd, proto_rtp);
 	}
 
 	/* Create setup info subtree with summary info. */
