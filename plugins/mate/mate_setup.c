@@ -159,7 +159,9 @@ static mate_cfg_item* new_mate_cfg_item(guint8* name) {
 	new->lifetime = -1.0;
 	new->hfid_gop_pdu = -1;
 	new->hfid_gop_num_pdus = -1;
-
+	new->ett_gog_gop = -1;
+	new->hfid_gog_gopstart = -1;
+	
 	new->gop_index = NULL;
 	new->gog_index = NULL;
 
@@ -1406,6 +1408,15 @@ static void analyze_gog_config(gpointer k _U_, gpointer v, gpointer p _U_) {
 	
 	g_array_append_val(matecfg->hfrs,hfri);
 	
+	hfri.p_id = &(cfg->hfid_gog_gopstart);
+	hfri.hfinfo.name = "GopStart frame";
+	hfri.hfinfo.abbrev = g_strdup_printf("mate.%s.GopStart",cfg->name);
+	hfri.hfinfo.type = FT_FRAMENUM;
+	hfri.hfinfo.display = BASE_DEC;
+	hfri.hfinfo.blurb = g_strdup("The start frame of a GOP");
+	
+	g_array_append_val(matecfg->hfrs,hfri);
+	
 	hfri.p_id = &(cfg->hfid_start_time);
 	hfri.hfinfo.name = g_strdup_printf("%s start time",cfg->name);
 	hfri.hfinfo.abbrev = g_strdup_printf("mate.%s.StartTime",cfg->name);
@@ -1465,6 +1476,9 @@ static void analyze_gog_config(gpointer k _U_, gpointer v, gpointer p _U_) {
 	g_array_append_val(matecfg->ett,ett);
 
 	ett = &cfg->ett_times;
+	g_array_append_val(matecfg->ett,ett);
+	
+	ett = &cfg->ett_gog_gop;	
 	g_array_append_val(matecfg->ett,ett);
 	
 }

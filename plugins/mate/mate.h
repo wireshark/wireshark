@@ -210,6 +210,8 @@ typedef struct _mate_cfg_item {
 	LoAL* keys;
 	int hfid_gog_num_of_gops;
 	int hfid_gog_gop;
+	int hfid_gog_gopstart;
+	gint ett_gog_gop;
 	
 } mate_cfg_item;
 

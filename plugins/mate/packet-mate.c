@@ -70,9 +70,12 @@ void mate_gog_tree(proto_tree* tree, tvbuff_t *tvb, mate_gog* gog, mate_gop* gop
 	proto_tree *gog_tree;
 	proto_item *gog_time_item;
 	proto_tree *gog_time_tree;
+	proto_item *gog_gops_item;
+	proto_tree *gog_gops_tree;
+	mate_gop* gog_gops;
 	proto_item *gog_gop_item;
 	proto_tree *gog_gop_tree;
-	mate_gop* gog_gops;
+
 #ifdef _MATE_DEBUGGING
 	proto_item* gog_key_item;
 	proto_tree* gog_key_tree;
@@ -92,21 +95,32 @@ void mate_gog_tree(proto_tree* tree, tvbuff_t *tvb, mate_gog* gog, mate_gop* gop
 		proto_tree_add_float(gog_time_tree, gog->cfg->hfid_last_time, tvb, 0, 0, gog->last_time - gog->start_time); 
 	}
 	
-	gog_gop_item = proto_tree_add_uint(gog_tree, gog->cfg->hfid_gog_num_of_gops,
+	gog_gops_item = proto_tree_add_uint(gog_tree, gog->cfg->hfid_gog_num_of_gops,
 									   tvb, 0, 0, gog->num_of_gops);
 	
-	gog_gop_tree = proto_item_add_subtree(gog_gop_item, gog->cfg->ett_children);
+	gog_gops_tree = proto_item_add_subtree(gog_gops_item, gog->cfg->ett_children);
 	
 	for (gog_gops = gog->gops; gog_gops; gog_gops = gog_gops->next) {
 		
 		if (gop != gog_gops) {
 			if (gog->cfg->gop_as_subtree) {
-				mate_gop_tree(gog_gop_tree, tvb, gog_gops);
+				mate_gop_tree(gog_gops_tree, tvb, gog_gops);
+				gog_gop_item = NULL;
 			} else {
-				proto_tree_add_uint(gog_gop_tree,gog_gops->cfg->hfid,tvb,0,0,gog_gops->id);
+				gog_gop_item = proto_tree_add_uint(gog_gops_tree,gog_gops->cfg->hfid,tvb,0,0,gog_gops->id);
+				
+				if (gop->pdus && gop->cfg->show_pdu_tree == mc->frame_tree) {
+					gog_gop_tree = proto_item_add_subtree(gog_gop_item, gog->cfg->ett_gog_gop);
+					proto_tree_add_uint(gog_gop_tree,gog->cfg->hfid_gog_gopstart,tvb,0,0,gog_gops->pdus->frame);
+				}
+				
 			}
 		} else {
-			 proto_tree_add_uint_format(gog_gop_tree,gop->cfg->hfid,tvb,0,0,gop->id,"%s of current frame: %d",gop->cfg->name,gop->id);
+			 gog_gop_item = proto_tree_add_uint_format(gog_gops_tree,gop->cfg->hfid,tvb,0,0,gop->id,"%s of current frame: %d",gop->cfg->name,gop->id);
+		}
+		
+		if (gog_gop_item) {
+
 		}
 	}
 }
