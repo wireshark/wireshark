@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\spoolss packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-spoolss.h,v 1.17 2003/01/28 22:49:19 tpot Exp $
+ * $Id: packet-dcerpc-spoolss.h,v 1.18 2003/02/14 06:21:30 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -562,5 +562,13 @@
 #define DS_PUBLISH   1
 #define DS_UPDATE    2
 #define DS_UNPUBLISH 3
+
+/* SetJob command values */
+
+#define JOB_CONTROL_PAUSE              1
+#define JOB_CONTROL_RESUME             2
+#define JOB_CONTROL_CANCEL             3
+#define JOB_CONTROL_RESTART            4
+#define JOB_CONTROL_DELETE             5
 
 #endif /* packet-dcerpc-spoolss.h */
