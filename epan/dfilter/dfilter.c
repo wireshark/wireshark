@@ -1,5 +1,5 @@
 /*
- * $Id: dfilter.c,v 1.16 2004/04/30 06:56:15 ulfl Exp $
+ * $Id: dfilter.c,v 1.17 2004/06/15 10:38:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -81,6 +81,14 @@ dfilter_init(void)
 	}
 	/* Allocate an instance of our Lemon-based parser */
 	ParserObj = DfilterAlloc(g_malloc);
+
+/* Enable parser tracing by defining AM_CFLAGS
+ * so that it contains "-DDFTRACE".
+ */
+#ifdef DFTRACE
+	/* Trace parser */
+	DfilterTrace(stdout, "lemon> ");
+#endif
 
 	/* Initialize the syntax-tree sub-sub-system */
 	sttype_init();
@@ -189,6 +197,7 @@ dfilter_compile(const gchar *text, dfilter_t **dfp)
 	int		token;
 	dfilter_t	*dfilter;
 	dfwork_t	*dfw;
+	gboolean failure = FALSE;
 
 	dfilter_error_msg = NULL;
 
@@ -202,41 +211,48 @@ dfilter_compile(const gchar *text, dfilter_t **dfp)
 
 		/* Check for scanner failure */
 		if (token == SCAN_FAILED) {
-			/* Free the stnode_t that we just generated, since
-			 * we're going to give up on parsing. */
-			stnode_free(df_lval);
-			df_lval = NULL;
-
-			/* Give up. */
-			goto FAILURE;
+			failure = TRUE;
+			break;
 		}
 
 		/* Check for end-of-input */
 		if (token == 0) {
-			/* Tell the parser that we have reached the end of input */
-			Dfilter(ParserObj, 0, NULL, dfw);
-
-			/* Free the stnode_t that we just generated, since
-			 * the parser doesn't know about it and won't free it
-			 * for us. */
-			stnode_free(df_lval);
-			df_lval = NULL;
 			break;
 		}
 
 		/* Give the token to the parser */
 		Dfilter(ParserObj, token, df_lval, dfw);
+		/* We've used the stnode_t, so we don't want to free it */
+		df_lval = NULL;
 
 		if (dfw->syntax_error) {
+			failure = TRUE;
 			break;
 		}
+	} /* while (1) */
+
+	/* If we created an stnode_t but didn't use it, free it; the
+	 * parser doesn't know about it and won't free it for us. */
+	if (df_lval) {
+		stnode_free(df_lval);
+		df_lval = NULL;
 	}
+
+	/* Tell the parser that we have reached the end of input; that
+	 * way, it'll reset its state for the next compile.  (We want
+	 * to do that even if we got a syntax error, to make sure the
+	 * parser state is cleaned up.) */
+	Dfilter(ParserObj, 0, NULL, dfw);
 
 	/* One last check for syntax error (after EOF) */
-	if (dfw->syntax_error) {
-		goto FAILURE;
-	}
+	if (dfw->syntax_error)
+		failure = TRUE;
 
+	/* Reset flex */
+	df_scanner_cleanup();
+
+	if (failure)
+		goto FAILURE;
 
 	/* Success, but was it an empty filter? If so, discard
 	 * it and set *dfp to NULL */
@@ -270,10 +286,6 @@ dfilter_compile(const gchar *text, dfilter_t **dfp)
 	}
 	/* SUCCESS */
 	dfwork_free(dfw);
-
-	/* Reset flex */
-	df_scanner_cleanup();
-
 	return TRUE;
 
 FAILURE:
@@ -282,9 +294,6 @@ FAILURE:
 	}
 	dfilter_fail("Unable to parse filter string \"%s\".", text);
 	*dfp = NULL;
-
-	/* Reset flex */
-	df_scanner_cleanup();
 	return FALSE;
 
 }

@@ -1,5 +1,5 @@
 /*
- * $Id: dfilter-int.h,v 1.8 2004/02/11 22:52:54 guy Exp $
+ * $Id: dfilter-int.h,v 1.9 2004/06/15 10:38:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -27,6 +27,7 @@
 #include "syntax-tree.h"
 
 #include <epan/proto.h>
+#include <stdio.h>
 
 /* Passed back to user */
 struct _dfilter_t {
@@ -63,5 +64,8 @@ extern stnode_t *df_lval;
 /* Set dfilter_error_msg_buf and dfilter_error_msg */
 void
 dfilter_fail(char *format, ...);
+
+void
+DfilterTrace(FILE *TraceFILE, char *zTracePrompt);
 
 #endif
