@@ -3,7 +3,7 @@
  * Copyright 2000, Christophe Tronche <ch.tronche@computer.org>
  * Copyright 2003, Michael Shuldman
  *
- * $Id: packet-x11.c,v 1.50 2004/01/04 10:57:17 guy Exp $
+ * $Id: packet-x11.c,v 1.51 2004/01/04 20:42:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -4230,10 +4230,6 @@ static void dissect_x11_requests(tvbuff_t *tvb, packet_info *pinfo,
 static void
 x11_stateinit(x11_conv_data_t **state, conversation_t *conversation)
 {
-
-	/*
-	 * No - create a state structure and attach it.
-	*/
 	static x11_conv_data_t stateinit;
 
 	*state = g_mem_chunk_alloc(x11_state_chunk);
@@ -4278,8 +4274,12 @@ dissect_x11_replies(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * Is there state attached to this conversation?
 	*/
 	if ((state = conversation_get_proto_data(conversation, proto_x11))
-	== NULL)
+	== NULL) {
+		/*
+		 * No - create a state structure and attach it.
+		 */
 		x11_stateinit(&state, conversation);
+	}
 
 	/*
 	 * Guess the byte order if we don't already know it.
@@ -4397,6 +4397,26 @@ dissect_x11_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	t = proto_item_add_subtree(ti, ett_x11);
 
 
+	/*
+	 * XXX - this doesn't work correctly if either
+	 *
+	 *	1) the request sequence number wraps in the lower 16
+	 *	   bits;
+	 *
+	 *	2) we don't see the initial connection request and thus
+	 *	   don't have the right sequence numbers;
+	 *
+	 *	3) we don't have all the packets in the capture and
+	 *	   get out of sequence.
+	 *
+	 * We might, instead, want to assume that a reply is a reply to
+	 * the most recent not-already-replied-to request in the same
+	 * connection.  That also might mismatch replies to requests if
+	 * packets are lost, but there's nothing you can do to fix that.
+	 *
+	 * XXX - if "opcode" is 0, we shouldn't say "Unknown opcode",
+	 * we should say that we don't have the request for the reply.
+	 */
 	opcode = (int)g_hash_table_lookup(state->seqtable,
 	(int *)VALUE16(tvb, offset + 2));
 
