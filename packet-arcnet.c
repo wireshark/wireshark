@@ -2,7 +2,7 @@
  * Routines for arcnet dissection
  * Copyright 2001-2002, Peter Fales <ethereal@fales-lorenz.net>
  *
- * $Id: packet-arcnet.c,v 1.2 2002/10/18 21:10:38 guy Exp $
+ * $Id: packet-arcnet.c,v 1.3 2002/10/18 21:40:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -68,6 +68,11 @@ dissect_arcnet (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
   src = tvb_get_guint8 (tvb, 0);
   dst = tvb_get_guint8 (tvb, 1);
+  SET_ADDRESS(&pinfo->dl_src,	AT_ARCNET, 1, tvb_get_ptr(tvb, 0, 1));
+  SET_ADDRESS(&pinfo->src,	AT_ARCNET, 1, tvb_get_ptr(tvb, 0, 1));
+  SET_ADDRESS(&pinfo->dl_dst,	AT_ARCNET, 1, tvb_get_ptr(tvb, 1, 1));
+  SET_ADDRESS(&pinfo->dst,	AT_ARCNET, 1, tvb_get_ptr(tvb, 1, 1));
+
   protID = tvb_get_guint8 (tvb, 4);
 
 /* In the interest of speed, if "tree" is NULL, don't do any work not
