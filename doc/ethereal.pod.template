@@ -643,10 +643,12 @@ ONC-RPC Programs/versions that exist in the capture file.
 
 =item Tools:Statistics:DCE-RPC:RTT
 
-Open a window to display statistics for an arbitrary DCE-RPC program interface
-and display B<Procedure>, B<Number of Calls>, B<Minimum RTT>, B<Maximum RTT> and B<Average RTT> for all procedures for that program/version.
-These windows opened will update in semi-real time to reflect changes when
-doing live captures or when reading new capture files into B<Ethereal>.
+Open a window to display statistics for an arbitrary DCE-RPC program
+interface and display B<Procedure>, B<Number of Calls>, B<Minimum RTT>,
+B<Maximum RTT> and B<Average RTT> for all procedures for that
+program/version.  These windows opened will update in semi-real time to
+reflect changes when doing live captures or when reading new capture
+files into B<Ethereal>.
 
 This dialog will also allow an optional filter string to be used.
 If an optional filter string is used only such DCE-RPC request/response pairs 
@@ -660,48 +662,68 @@ to indicate number of frames or number of bytes per second for all packets
 matching the specified filter.
 By default only one graph will be displayed showing number of frames per second.
 
-The top part of the window contains the graphs and scales for the X and Y axis.
-If the graph is too long to fit inside the window there is a horizontal scrollbar below the drawing area that can scroll the graphs to the left or the right.
-The horizontal axis displays the time into the capture and the vertical axis will display the measured quantity at that time.
+The top part of the window contains the graphs and scales for the X and
+Y axis.  If the graph is too long to fit inside the window there is a
+horizontal scrollbar below the drawing area that can scroll the graphs
+to the left or the right.  The horizontal axis displays the time into
+the capture and the vertical axis will display the measured quantity at
+that time.
 
-Below the drawing area and the scrollbar are the controls.
-On the bottom left there will be five similar sets of controls to control each 
-induvidual graph such as "Display:<button>" which button will toggle that individual graph on/off. If <button> is ticked, the graph will be displayed.
-"Color:<color>" which is just a button to show which color will be used to draw that graph (color is only available in Gtk2 version) and finally
-"Filter:<filter-text>" which can be used to specify a display filter for that particular graph.
+Below the drawing area and the scrollbar are the controls.  On the
+bottom left there will be five similar sets of controls to control each
+induvidual graph such as "Display:<button>" which button will toggle
+that individual graph on/off.  If <button> is ticked, the graph will be
+displayed.  "Color:<color>" which is just a button to show which color
+will be used to draw that graph (color is only available in Gtk2
+version) and finally "Filter:<filter-text>" which can be used to specify
+a display filter for that particular graph.
 
-If filter-text is empty then all packets will be used to calculate the quantity for that graph. If filter-text is specified only those packets that match that display filter will be considered in the calculation of quantity.
+If filter-text is empty then all packets will be used to calculate the
+quantity for that graph.  If filter-text is specified only those packets
+that match that display filter will be considered in the calculation of
+quantity.
 
+To the right of the 5 graph controls there are four menus to control
+global aspects of the draw area and graphs.  The "Unit:" menu is used to
+control what to measure; "frames/tick", "bytes/tick" or "advanced..."
 
-To the right of the 5 graph controls there are four menus to control global aspects of the draw area and graphs.
-The "Unit:" menu is used to control what to measure; "frames/tick", "bytes/tick" or "advanced..."
+frames/tick will measure the number of frames matching the (if
+specified) display filter for the graph in each measurement interval. 
 
-frames/tick  will measure the number of frames matching the (if specified) display filter for the graph in each measurement interval.
-
-bytes/tick   will measure the total number of bytes in all frames matching the (if specified) display filter for the graph in each measurement interval.
+bytes/tick will measure the total number of bytes in all frames matching
+the (if specified) display filter for the graph in each measurement
+interval.
 
 advanced... see below
 
+"Tick interval:" specifies what measurement intervals to use.  The
+default is 1 second and means that the data will be counted over 1
+second intervals. 
 
-"Tick interval:" specifies what measurement intervals to use. The default is 1 second and means that the data will be counted over 1 second intervals.
+"Pixels per tick:" specifies how many pixels wide each measurement
+interval will be in the drawing area.  The default is 5 pixels per tick. 
 
-"Pixels per tick:" specifies how many pixels wide each measurement interval will be in the drawing area. The default is 5 pixels per tick.
+"Y-scale:" controls the max value for the y-axis.  Default value is
+"auto" which means that B<Ethereal> will try to adjust the maxvalue
+automatically.
 
-"Y-scale:" controls the max value for the y-axis. Default value is "auto" which means that ethereal will try to adjust the maxvalue automatically.
-
-
-
-"advanced..."   If Unit:advanced... is selected the window will display two more controls for each of the five graphs.
-One control will be a menu where the type of calculation can be selected from SUM,COUNT,MAX,MIN and AVG, and one control, textbox, where the name of a single display filter field can be specified.
+"advanced..." If Unit:advanced...  is selected the window will display
+two more controls for each of the five graphs.  One control will be a
+menu where the type of calculation can be selected from
+SUM,COUNT,MAX,MIN and AVG, and one control, textbox, where the name of a
+single display filter field can be specified.
 
 The following restrictions apply to type and field combinations:
-SUM: availabel for all types of integers.
+SUM: available for all types of integers.
 COUNT: available for all field types.
 MAX: available for all integer and relative time fields.
 MIN: available for all integer and relative time fields.
 AVG: available for all integer and relative time fields.
 
-NOTE: due to the way this is implemented in ethereal there is a requirement that whatever field is specified in the textbox, that field MUST also be part of the filter for the graph or else the calculations will fail.
+NOTE: due to the way this is implemented in B<Ethereal> there is a
+requirement that whatever field is specified in the textbox, that field
+MUST also be part of the filter for the graph or else the calculations
+will fail.
 
 Example of advanced:
 Display how NFS response time MAX/MIN/AVG changes over time:
