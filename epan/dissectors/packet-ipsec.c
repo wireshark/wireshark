@@ -166,7 +166,7 @@ dissect_ah_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			    offsetof(struct newah, ah_seq), 4,
 			    (guint32)g_ntohl(ah.ah_seq));
 	proto_tree_add_text(ah_tree, tvb,
-			    sizeof(ah), (ah.ah_len - 1) << 2,
+        sizeof(ah), (ah.ah_len) ? (ah.ah_len - 1) << 2 : 0,
 			    "ICV");
 
 	if (next_tree_p != NULL) {
