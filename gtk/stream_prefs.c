@@ -1,7 +1,7 @@
 /* stream_prefs.c
  * Dialog boxes for preferences for the stream window
  *
- * $Id: stream_prefs.c,v 1.17 2004/01/14 23:32:48 ulfl Exp $
+ * $Id: stream_prefs.c,v 1.18 2004/01/15 01:13:51 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -36,18 +36,23 @@
 #include "print.h"
 #include "prefs.h"
 #include "compat_macros.h"
+#include "follow_dlg.h"
+#include "packet_list.h"
 
 static void update_text_color(GtkWidget *, gpointer);
 static void update_current_color(GtkWidget *, gpointer);
 
 static GdkColor tcolors[4], *curcolor = NULL;
 
+#define SAMPLE_MARKED_TEXT "Sample marked packet text\n"
 #define SAMPLE_CLIENT_TEXT "Sample TCP stream client text\n"
 #define SAMPLE_SERVER_TEXT "Sample TCP stream server text\n"
-#define CFG_IDX 0
-#define CBG_IDX 1
-#define SFG_IDX 2
-#define SBG_IDX 3
+#define MFG_IDX 0
+#define MBG_IDX 1
+#define CFG_IDX 2
+#define CBG_IDX 3
+#define SFG_IDX 4
+#define SBG_IDX 5
 #define STREAM_SAMPLE_KEY "stream_entry"
 #define STREAM_CS_KEY "stream_colorselection"
 #define CS_RED 0
@@ -61,7 +66,8 @@ stream_prefs_show()
   GtkWidget *main_vb, *main_tb, *label, *optmenu, *menu, *menuitem;
   GtkWidget *sample, *colorsel;
   int        width, height, i;
-  gchar     *mt[] = { "TCP stream client foreground", "TCP stream client background",
+  gchar     *mt[] = { "Marked packet foreground", "Marked packet background",
+                      "TCP stream client foreground", "TCP stream client background",
                       "TCP stream server foreground", "TCP stream server background" };
   int mcount = sizeof(mt) / sizeof (gchar *);
 #if GTK_MAJOR_VERSION < 2
@@ -72,6 +78,8 @@ stream_prefs_show()
   PangoLayout   *layout;
 #endif
 
+  color_t_to_gdkcolor(&tcolors[MFG_IDX], &prefs.gui_marked_fg);
+  color_t_to_gdkcolor(&tcolors[MBG_IDX], &prefs.gui_marked_bg);
   color_t_to_gdkcolor(&tcolors[CFG_IDX], &prefs.st_client_fg);
   color_t_to_gdkcolor(&tcolors[CBG_IDX], &prefs.st_client_bg);
   color_t_to_gdkcolor(&tcolors[SFG_IDX], &prefs.st_server_fg);
@@ -119,10 +127,12 @@ stream_prefs_show()
 
 #if GTK_MAJOR_VERSION < 2
   sample = gtk_text_new(FALSE, FALSE);
-  height = 2 * (sample->style->font->ascent + sample->style->font->descent);
+  height = (mcount/2+1) * (sample->style->font->ascent + sample->style->font->descent);
   width = gdk_string_width(sample->style->font, SAMPLE_SERVER_TEXT);
   WIDGET_SET_SIZE(sample, width, height);
   gtk_text_set_editable(GTK_TEXT(sample), FALSE);
+  gtk_text_insert(GTK_TEXT(sample), NULL, &tcolors[MFG_IDX], &tcolors[MBG_IDX],
+                  SAMPLE_MARKED_TEXT, -1);
   gtk_text_insert(GTK_TEXT(sample), NULL, &tcolors[CFG_IDX], &tcolors[CBG_IDX],
                   SAMPLE_CLIENT_TEXT, -1);
   gtk_text_insert(GTK_TEXT(sample), NULL, &tcolors[SFG_IDX], &tcolors[SBG_IDX],
@@ -132,16 +142,21 @@ stream_prefs_show()
   layout = gtk_widget_create_pango_layout(sample, SAMPLE_SERVER_TEXT);
   pango_layout_get_pixel_size(layout, &width, &height);
   g_object_unref(G_OBJECT(layout));
-  WIDGET_SET_SIZE(sample, width, height);
+  WIDGET_SET_SIZE(sample, width, height * 2);
   gtk_text_view_set_editable(GTK_TEXT_VIEW(sample), FALSE);
   buf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(sample));
   gtk_text_buffer_get_start_iter(buf, &iter);
+  gtk_text_buffer_create_tag(buf, "marked",
+                             "foreground-gdk", &tcolors[MFG_IDX],
+                             "background-gdk", &tcolors[MBG_IDX], NULL);
   gtk_text_buffer_create_tag(buf, "client",
                              "foreground-gdk", &tcolors[CFG_IDX],
                              "background-gdk", &tcolors[CBG_IDX], NULL);
   gtk_text_buffer_create_tag(buf, "server",
                              "foreground-gdk", &tcolors[SFG_IDX],
                              "background-gdk", &tcolors[SBG_IDX], NULL);
+  gtk_text_buffer_insert_with_tags_by_name(buf, &iter, SAMPLE_MARKED_TEXT, -1,
+                                           "marked", NULL);
   gtk_text_buffer_insert_with_tags_by_name(buf, &iter, SAMPLE_CLIENT_TEXT, -1,
                                            "client", NULL);
   gtk_text_buffer_insert_with_tags_by_name(buf, &iter, SAMPLE_SERVER_TEXT, -1,
@@ -188,6 +203,8 @@ update_text_color(GtkWidget *w, gpointer data _U_) {
   gtk_text_freeze(sample);
   gtk_text_set_point(sample, 0);
   gtk_text_forward_delete(sample, gtk_text_get_length(sample));
+  gtk_text_insert(sample, NULL, &tcolors[MFG_IDX], &tcolors[MBG_IDX],
+    SAMPLE_MARKED_TEXT, -1);
   gtk_text_insert(sample, NULL, &tcolors[CFG_IDX], &tcolors[CBG_IDX],
     SAMPLE_CLIENT_TEXT, -1);
   gtk_text_insert(sample, NULL, &tcolors[SFG_IDX], &tcolors[SBG_IDX],
@@ -197,6 +214,9 @@ update_text_color(GtkWidget *w, gpointer data _U_) {
   gtk_color_selection_get_current_color(GTK_COLOR_SELECTION(w), curcolor);
 
   buf = gtk_text_view_get_buffer(sample);
+  tag = gtk_text_tag_table_lookup(gtk_text_buffer_get_tag_table(buf), "marked");
+  g_object_set(tag, "foreground-gdk", &tcolors[MFG_IDX], "background-gdk",
+               &tcolors[MBG_IDX], NULL);
   tag = gtk_text_tag_table_lookup(gtk_text_buffer_get_tag_table(buf), "client");
   g_object_set(tag, "foreground-gdk", &tcolors[CFG_IDX], "background-gdk",
                &tcolors[CBG_IDX], NULL);
@@ -232,19 +252,20 @@ update_current_color(GtkWidget *w, gpointer data)
 void
 stream_prefs_fetch(GtkWidget *w _U_)
 {
+  gdkcolor_to_color_t(&prefs.gui_marked_fg, &tcolors[MFG_IDX]);
+  gdkcolor_to_color_t(&prefs.gui_marked_bg, &tcolors[MBG_IDX]);
   gdkcolor_to_color_t(&prefs.st_client_fg, &tcolors[CFG_IDX]);
   gdkcolor_to_color_t(&prefs.st_client_bg, &tcolors[CBG_IDX]);
   gdkcolor_to_color_t(&prefs.st_server_fg, &tcolors[SFG_IDX]);
   gdkcolor_to_color_t(&prefs.st_server_bg, &tcolors[SBG_IDX]);
 }
 
-/* XXX - "gui_prefs_apply()" handles this, as the "Follow TCP Stream"
-   windows may have to be redrawn due to a font change; this means
-   that calling "stream_prefs_apply()" without calling "gui_prefs_apply()"
-   won't work. */
 void
 stream_prefs_apply(GtkWidget *w _U_)
 {
+	follow_redraw_all();
+
+	update_marked_frames();
 }
 
 void
