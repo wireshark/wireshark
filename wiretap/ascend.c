@@ -1,6 +1,6 @@
 /* ascend.c
  *
- * $Id: ascend.c,v 1.2 1999/09/11 06:49:42 guy Exp $
+ * $Id: ascend.c,v 1.3 1999/09/11 07:07:41 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -78,7 +78,7 @@ static int ascend_read(wtap *wth, int *err);
    byte offset.  Returns 0 on failure.  A valid offset is 0; since
    that causes problems with wtap_loop, offsets are incremented by one. */
 /* XXX - Handle I/O errors. */
-int ascend_seek(wtap *wth, int max_seek)
+static int ascend_seek(wtap *wth, int max_seek)
 {
   int byte, bytes_read = 0;
   int x_level = 0, r_level = 0, e_level = 0;
