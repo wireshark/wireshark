@@ -50,6 +50,7 @@
 #include <epan/address.h>
 
 #include <string.h>
+#include <epan/addr_resolv.h>
 
 
 static const gchar FWD_LABEL_TEXT[] = "Select a forward stream with left mouse button";
@@ -86,9 +87,9 @@ static void add_to_clist(rtp_stream_info_t* strinfo)
 	double perc;
 	int i;
 
-	data[0] = g_strdup(address_to_str_w_none(&(strinfo->src_addr)));
+	data[0] = g_strdup(get_addr_name(&(strinfo->src_addr)));
 	data[1] = g_strdup_printf("%u", strinfo->src_port);
-	data[2] = g_strdup(address_to_str_w_none(&(strinfo->dest_addr)));
+	data[2] = g_strdup(get_addr_name(&(strinfo->dest_addr)));
 	data[3] = g_strdup_printf("%u", strinfo->dest_port);
 	data[4] = g_strdup_printf("%u", strinfo->ssrc);
 	data[5] = g_strdup(val_to_str(strinfo->pt, rtp_payload_type_vals,
@@ -359,10 +360,10 @@ rtpstream_on_filter                    (GtkButton       *button _U_,
 		filter_string_fwd = g_strdup_printf(
 			"(ip%s.src==%s && udp.srcport==%u && ip%s.dst==%s && udp.dstport==%u && rtp.ssrc==%u)",
 			ip_version,
-			address_to_str_w_none(&(selected_stream_fwd->src_addr)),
+			address_to_str(&(selected_stream_fwd->src_addr)),
 			selected_stream_fwd->src_port,
 			ip_version,
-			address_to_str_w_none(&(selected_stream_fwd->dest_addr)),
+			address_to_str(&(selected_stream_fwd->dest_addr)),
 			selected_stream_fwd->dest_port,
 			selected_stream_fwd->ssrc);
         filter_string = filter_string_fwd;
@@ -379,10 +380,10 @@ rtpstream_on_filter                    (GtkButton       *button _U_,
 		filter_string_rev = g_strdup_printf(
 			"(ip%s.src==%s && udp.srcport==%u && ip%s.dst==%s && udp.dstport==%u && rtp.ssrc==%u)",
 			ip_version,
-			address_to_str_w_none(&(selected_stream_rev->src_addr)),
+			address_to_str(&(selected_stream_rev->src_addr)),
 			selected_stream_rev->src_port,
 			ip_version,
-			address_to_str_w_none(&(selected_stream_rev->dest_addr)),
+			address_to_str(&(selected_stream_rev->dest_addr)),
 			selected_stream_rev->dest_port,
 			selected_stream_rev->ssrc);
 
@@ -479,9 +480,9 @@ rtpstream_on_select_row(GtkCList *clist,
 	if (event==NULL || event->state & GDK_SHIFT_MASK) {
 		selected_stream_rev = gtk_clist_get_row_data(GTK_CLIST(clist), row);
 		g_snprintf(label_text, 80, "Reverse: %s:%u -> %s:%u, SSRC=%u",
-			address_to_str_w_none(&(selected_stream_rev->src_addr)),
+			get_addr_name(&(selected_stream_rev->src_addr)),
 			selected_stream_rev->src_port,
-			address_to_str_w_none(&(selected_stream_rev->dest_addr)),
+			get_addr_name(&(selected_stream_rev->dest_addr)),
 			selected_stream_rev->dest_port,
 			selected_stream_rev->ssrc
 		);
@@ -490,9 +491,9 @@ rtpstream_on_select_row(GtkCList *clist,
 	else {
 		selected_stream_fwd = gtk_clist_get_row_data(GTK_CLIST(clist), row);
 		g_snprintf(label_text, 80, "Forward: %s:%u -> %s:%u, SSRC=%u",
-			address_to_str_w_none(&(selected_stream_fwd->src_addr)),
+			get_addr_name(&(selected_stream_fwd->src_addr)),
 			selected_stream_fwd->src_port,
-			address_to_str_w_none(&(selected_stream_fwd->dest_addr)),
+			get_addr_name(&(selected_stream_fwd->dest_addr)),
 			selected_stream_fwd->dest_port,
 			selected_stream_fwd->ssrc
 		);
