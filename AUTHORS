@@ -201,6 +201,7 @@ Warren Young <tangent@mail.com> {
 }
 
 Heikki Vatiainen <hessu@cs.tut.fi> {
+	Cisco Auto-RP protocol support
 	SAP (Session Announcement Protocol) support
 	VRRP (Virtual Router Redundancy)
 	HSRP (Hot Standby Router Protocol)
