@@ -1,4 +1,4 @@
-$Id: README.developer,v 1.82 2003/10/20 23:07:43 guy Exp $
+$Id: README.developer,v 1.83 2003/10/28 05:49:29 guy Exp $
 
 This file is a HOWTO for Ethereal developers. It describes how to start coding
 a Ethereal protocol dissector and the use some of the important functions and
@@ -235,7 +235,7 @@ code inside
 
 is needed only if you are using the "snprintf()" function.
 
-The "$Id: README.developer,v 1.82 2003/10/20 23:07:43 guy Exp $"
+The "$Id: README.developer,v 1.83 2003/10/28 05:49:29 guy Exp $"
 in the comment will be updated by CVS when the file is
 checked in; it will allow the RCS "ident" command to report which
 version of the file is currently checked out.
@@ -245,7 +245,7 @@ version of the file is currently checked out.
  * Routines for PROTONAME dissection
  * Copyright 2000, YOUR_NAME <YOUR_EMAIL_ADDRESS>
  *
- * $Id: README.developer,v 1.82 2003/10/20 23:07:43 guy Exp $
+ * $Id: README.developer,v 1.83 2003/10/28 05:49:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1374,6 +1374,11 @@ These routines are used to add items to the protocol tree if either:
 	the value was fetched into a variable.
 
 The 'value' argument has the value to be added to the tree.
+
+NOTE: in all cases where the argument is a pointer, a copy is made of
+the object pointed to; if you have dynamically allocated a buffer for
+the object, that buffer will not be freed when the protocol tree is
+freed - you must free the buffer yourself when you don't need it any more.
 
 For proto_tree_add_bytes(), the 'value_ptr' argument is a pointer to a
 sequence of bytes.
