@@ -142,10 +142,11 @@
 	</para>
   </section>	
 
-  <section id="ChSrcObtaining">
-	<title>Obtaining the Ethereal sources</title>
+  <section id="ChSrcObtain">
+	<title>Obtain the Ethereal sources</title>
 	<para>
-	There are several ways to obtain the sources from the Subversion server.
+	There are several ways to obtain the sources from Ethereal's Subversion 
+	server.
 	</para>
 	<note><title>Note!</title>
 	<para>
@@ -200,29 +201,20 @@
 	the latest version (including directories) from the server to your machine.
 	This will take some time, depending on the speed of your internet line.
 	</para>
-	<para>
-	After this first time checkout is done, you only need to update your 
-	sources by typing (in the Ethereal source dir):
-	</para>
-	<para>
-	<prompt>$</prompt> 
-	<userinput>svn update</userinput>
-	</para>
-	<para>
-	This will only take a few seconds, even on a slow internet line. It will 
-	replace old file versions by new ones. If you and someone else have 
-	changed the same file, Subversion will try to merge the changes into 
-	your private file (this is working remarkably well).
-	</para>
 	</section>
 
 	<section id="ChSrcSVNWeb">
-	<title>Subversion web interface</title>
+	<title>Anonymous Subversion web interface</title>
+	<para>
+	Recommended for development purposes, if direct Subversion access isn't 
+	possible (e.g. because of a restrictive firewall).
+	</para>
 	<para>
 	Age: a few minutes (same as anonymous Subversion access).
 	</para>
 	<para>
-	 The entire source tree is available via a web interface at:
+	 The entire source tree of the Subversion repository is available via a 
+	 web interface at:
 	 <ulink url="http://anonsvn.ethereal.com/viewcvs/viewcvs.py/"/>. 
 	 You can view 
 	 each revision of a particular file, as well as diffs between different 
@@ -233,19 +225,22 @@
 	<section id="ChSrcNightly">
 	<title>Nightly snapshots</title>
 	<para>
+	Well, not recommended at all.
+	</para>
+	<para>
 	Age: up to 24 hours.
 	</para>
 	<para>
-	The SVN server will automatically generate a snapshot of the SVN
+	The Subversion server will automatically generate a snapshot of Ethereal's
 	sourcetree every night. These snapshots can be found at: <ulink
 	url="http://www.ethereal.com/distribution/nightly-builds/"/>.
 	</para>
 	<para>
-	If anonymous SVN isn't possible, e.g. if the connection to the server
-	isn't possible because of a corporate firewall, the sources can be
-	obtained by downloading this nightly snapshots. However, if you are
+	If anonymous Subversion access isn't possible, e.g. if the connection to 
+	the server isn't possible because of a corporate firewall, the sources 
+	can be obtained by downloading this nightly snapshots. However, if you are
 	going to maintain your sources in parallel to the "official" sources
-	for some time, it's recommended to use the latest SVN access if
+	for some time, it's recommended to use the anonymour Subversion access if
 	possible (believe it, it will save you a lot of time).
 	</para>
 	</section>
@@ -267,9 +262,66 @@
 	</para>
 	<para>
 	The differences between the released sources and the sources stored at
-	the SVN server are keep on growing until the next release is done (at
-	the release time, the released and latest SVN versions are then
-	identical again :-).
+	the Subversion repository are keep on growing until the next release is 
+	done (at the release time, the released and latest Subversion repository
+	versions are then identical again :-).
+	</para>
+	</section>
+
+  </section>
+
+  <section id="ChSrcUpdating">
+	<title>Update the Ethereal sources</title>
+	<para>
+	After you obtained the Ethereal sources for the first time, you 
+	might want to keep them in sync with the sources at the Subversion 
+	repository.
+	</para>
+	
+	<section id="ChSrcAnonUpdate">
+	<title>... with Anonymous Subversion access</title>
+	<para>
+	After the first time checkout is done, updating your 
+	sources is simply done by typing (in the Ethereal source dir):
+	</para>
+	<para>
+	<prompt>$</prompt> 
+	<userinput>svn update</userinput>
+	</para>
+	<para>
+	This will only take a few seconds, even on a slow internet line. It will 
+	replace old file versions by new ones. If you and someone else have 
+	changed the same file since the last update, Subversion will try to merge 
+	the changes into your private file (this is working remarkably well).
+	</para>
+	</section>
+
+	<section id="ChSrcZipUpdate">
+	<title>... from zip files</title>
+	<para>
+	Independant of the way you retrieve the zip file of the Ethereal sources
+	(as <xref linkend="ChSrcObtain"/> is providing several ways), the way to 
+	bring the changes from the official sources into your personal source tree
+	is identical.
+	</para>
+	<para>
+	First of all, you will download the new zip file of the official sources
+	the way you did it the first time.
+	</para>
+	<para>
+	If you didn't changed anything in the sources, you could simply throw 
+	away your old sources and reinstall everything just like the first time.
+	But be sure, that you really didn't changed anything. It might be a good
+	idea to simply rename the "old" dir to have it around, just in case you 
+	remember later that you really did changed something before.
+	</para>
+	<para>
+	Well, if you did change something in your source tree, you have to merge 
+	the official changes 
+	since the last update into your source tree. You will install the content 
+	of the zip file into a new directory and use a good merge tool (e.g. 
+	<ulink url="http://winmerge.sourceforge.net/"/> for Win32) to bring 
+	your personal source tree in sync with the official sources again. 
 	</para>
 	</section>
 
@@ -411,7 +463,7 @@ make
   </section>
 
   <section id="ChSrcCommit">
-	<title>Committing changed sources</title>
+	<title>Commit changed sources</title>
 	<para>
 	If you have finished changing the Ethereal sources to suit your needs,
 	you might want to contribute your changes back to the Ethereal SVN
@@ -614,7 +666,7 @@ diff -ur ../ethereal-0.10.6/epan/dissectors/packet-dcerpc.c ./epan/dissectors/pa
 	  It's a good idea to work with the same sources that are used by the 
 	  other developer's, this makes it usually much easier to apply your 
 	  patch. For information about the different ways to get the sources,
-	  see <xref linkend="ChSrcObtaining"/>.
+	  see <xref linkend="ChSrcObtain"/>.
 	  </para></listitem>
 	  <listitem><para>
 	  <command>Update your SVN sources just before making a patch.

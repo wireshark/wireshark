@@ -275,7 +275,7 @@
 	source on your platform for productive use. However, if you going to 
 	develop changes to the Ethereal sources, it might be better to use the 
 	latest SVN sources. For details about the different ways to get the 
-	Ethereal source code see <xref linkend="ChSrcObtaining"/>.
+	Ethereal source code see <xref linkend="ChSrcObtain"/>.
     </para>
     <para>
 	Before building Ethereal from a source distribution, make sure you have

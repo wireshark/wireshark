@@ -109,7 +109,7 @@
 	<para>
 	Before you start the download, you must have installed both
 	the required tools (see <xref linkend="ChapterTools"/>) and also the 
-	Ethereal sources (see <xref linkend="ChSrcObtaining"/>).
+	Ethereal sources (see <xref linkend="ChSrcObtain"/>).
 	</para>
 	<para>
 	By default the libraries will be downloaded and installed into 
@@ -156,7 +156,7 @@
 	<listitem>
 	<para>
 	Update your Ethereal sources to the latest SVN files (see <xref 
-	linkend="ChSrcObtaining"/>), so the zip filenames in the setup target 
+	linkend="ChSrcObtain"/>), so the zip filenames in the setup target 
 	of Makefile.nmake is in sync with the library zip files on the server.
 	</para>
 	</listitem>
