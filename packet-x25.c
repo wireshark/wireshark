@@ -2,7 +2,7 @@
  * Routines for x25 packet disassembly
  * Olivier Abad <oabad@cybercable.fr>
  *
- * $Id: packet-x25.c,v 1.52 2001/07/16 20:57:42 guy Exp $
+ * $Id: packet-x25.c,v 1.53 2001/07/18 15:49:29 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1386,6 +1386,11 @@ get_x25_pkt_len(tvbuff_t *tvb)
 	return MIN(tvb_reported_length(tvb),length);
 
     case X25_CALL_ACCEPTED:
+	/* The calling/called address length byte (following the packet type)
+	 * is not mandatory, so we must check the packet length before trying
+	 * to read it */
+	if (tvb_reported_length(tvb) == 3)
+	    return(3);
 	bytex = tvb_get_guint8(tvb, 3);
 	called_len  = (bytex >> 0) & 0x0F;
 	calling_len = (bytex >> 4) & 0x0F;
