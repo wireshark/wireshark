@@ -50,6 +50,7 @@
 #include <epan/packet.h>
 #include <epan/tap.h>
 #include <epan/ipproto.h>
+#include <epan/addr_resolv.h>
 #include "packet-sctp.h"
 #include "sctpppids.h"
 
@@ -287,8 +288,14 @@ static const value_string sctp_payload_proto_id_values[] = {
 #define SCTP_CHECKSUM_CRC32C    2
 #define SCTP_CHECKSUM_AUTOMATIC 3
 
+/* default values for preferences */
+static gboolean show_port_numbers          = FALSE;
+/* FIXME
+static gboolean show_chunk_types           = FALSE;
+*/
 static gboolean show_always_control_chunks = TRUE;
-static gint sctp_checksum = SCTP_CHECKSUM_CRC32C;
+static gint sctp_checksum                  = SCTP_CHECKSUM_CRC32C;
+
 static struct _sctp_info sctp_info;
 
 /* adler32.c -- compute the Adler-32 checksum of a data stream
@@ -1895,8 +1902,10 @@ dissect_sctp_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tree, pr
     flags_item = NULL;
   };
 
+  /* FIXME
+  sctp_info.msg_type = type;
+  */
   /* now dissect the chunk value */
-
   switch(type) {
   case SCTP_DATA_CHUNK_ID:
     result = dissect_data_chunk(chunk_tvb, pinfo, tree, chunk_tree, chunk_item, flags_item);
@@ -2026,6 +2035,7 @@ static void
 dissect_sctp_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean encapsulated)
 {
   guint32 checksum = 0, calculated_crc32c = 0, calculated_adler32 = 0;
+  guint16 source_port, destination_port;
   guint length;
   gboolean crc32c_correct = FALSE, adler32_correct = FALSE;
   proto_item *sctp_item;
@@ -2065,8 +2075,17 @@ dissect_sctp_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
   /* In the interest of speed, if "tree" is NULL, don't do any work not
      necessary to generate protocol tree items. */
   if (tree) {
+    source_port      = tvb_get_ntohs(tvb, SOURCE_PORT_OFFSET);
+    destination_port = tvb_get_ntohs(tvb, DESTINATION_PORT_OFFSET);
+
     /* create the sctp protocol tree */
-    sctp_item = proto_tree_add_item(tree, proto_sctp, tvb, 0, -1, FALSE);
+    if (show_port_numbers)
+      sctp_item = proto_tree_add_protocol_format(tree, proto_sctp, tvb, 0, -1,
+		                                         "Stream Control Transmission Protocol, Src Port: %s (%u), Dst Port: %s (%u)",
+		                                         get_sctp_port(source_port), source_port,
+		                                         get_sctp_port(destination_port), destination_port);
+    else
+      sctp_item = proto_tree_add_item(tree, proto_sctp, tvb, 0, -1, FALSE);
     sctp_tree = proto_item_add_subtree(sctp_item, ett_sctp);
 
     /* add the components of the common header to the protocol tree */
@@ -2154,6 +2173,14 @@ dissect_sctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   memset(&sctp_info, 0, sizeof(struct _sctp_info));
   sctp_info.verification_tag = tvb_get_ntohl(tvb, VERIFICATION_TAG_OFFSET);
+  
+  /* FIXME
+  sctp_info.sport = pinfo->srcport;
+  sctp_info.dport = pinfo->destport;
+  SET_ADDRESS(&sctp_info.ip_src, pinfo->src.type, pinfo->src.len, pinfo->src.data);
+  SET_ADDRESS(&sctp_info.ip_dst, pinfo->dst.type, pinfo->dst.len, pinfo->dst.data);
+  */
+  
   dissect_sctp_packet(tvb, pinfo, tree, FALSE);
   if (!pinfo->in_error_pkt)
     tap_queue_packet(sctp_tap, pinfo, &sctp_info);
@@ -2278,6 +2305,16 @@ proto_register_sctp(void)
   /* Register the protocol name and description */
   proto_sctp = proto_register_protocol("Stream Control Transmission Protocol", "SCTP", "sctp");
   sctp_module = prefs_register_protocol(proto_sctp, NULL);
+  prefs_register_bool_preference(sctp_module, "show_port_numbers_in_tree",
+                         "Show port numbers in the protocol tree",
+                         "Show source and destination port numbers in the protocol tree",
+                         &show_port_numbers);
+  /* FIXME
+  prefs_register_bool_preference(sctp_module, "show_chunk_types_in_tree",
+                         "Show chunk types in the protocol tree",
+                         "Show chunk types in the protocol tree",
+                         &show_chunk_types);
+  */
   prefs_register_enum_preference(sctp_module, "checksum", "Checksum type",
                          "The type of checksum used in SCTP packets",
                          &sctp_checksum, sctp_checksum_options, FALSE);
