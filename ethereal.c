@@ -1,6 +1,6 @@
 /* ethereal.c
  *
- * $Id: ethereal.c,v 1.99 1999/08/20 20:37:47 gram Exp $
+ * $Id: ethereal.c,v 1.100 1999/08/20 21:19:28 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -365,7 +365,6 @@ match_selected_cb(GtkWidget *w, gpointer data)
     cf.dfilter = buf;
     if (filter_te) {
 	gtk_entry_set_text(GTK_ENTRY(filter_te), cf.dfilter);
-	printf("set text to %s\n", cf.dfilter);
     }
     /* Run the display filter so it goes in effect. */
     filter_packets(&cf);

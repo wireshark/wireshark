@@ -3,7 +3,7 @@
 /* dfilter-scanner.l
  * Scanner for display filters
  *
- * $Id: dfilter-scanner.l,v 1.9 1999/08/20 06:01:07 gram Exp $
+ * $Id: dfilter-scanner.l,v 1.10 1999/08/20 21:19:27 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -195,13 +195,13 @@ false		{ dfilter_lval.operand = TOK_FALSE; return TOK_FALSE; }
 
 [0-9]+ {				/* decimal or octal values */
 	dfilter_lval.string = g_strdup(yytext);
-	return T_VAL_UNQUOTED_STRING;
+	return T_VAL_NUMBER_STRING;
 }
 
 
 0[xX][A-Fa-f0-9]+ {			/* hex values */
 	dfilter_lval.string = g_strdup(yytext);
-	return T_VAL_UNQUOTED_STRING;
+	return T_VAL_NUMBER_STRING;
 }
 
 [0-9\:\.]+ {

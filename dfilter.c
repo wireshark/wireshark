@@ -1,7 +1,7 @@
 /* dfilter.c
  * Routines for display filters
  *
- * $Id: dfilter.c,v 1.13 1999/08/20 20:45:13 guy Exp $
+ * $Id: dfilter.c,v 1.14 1999/08/20 21:19:28 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -161,7 +161,7 @@ dfilter_compile(dfilter *df, gchar *dfilter_text)
 	if (retval != 0) {
 		if (dfilter_error_msg == NULL) {
 			dfilter_error_msg = &dfilter_error_msg_buf[0];
-			snprintf(dfilter_error_msg, sizeof(dfilter_error_msg),
+			snprintf(dfilter_error_msg, sizeof(dfilter_error_msg_buf),
 				"Unable to parse filter string \"%s\".",
 				dfilter_text);
 		}
