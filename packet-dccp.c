@@ -4,7 +4,7 @@
  *
  * Copyright 1999, Nathan Neulinger <nneul@umr.edu>
  *
- * $Id: packet-dccp.c,v 1.2 2002/05/03 16:23:25 nneul Exp $
+ * $Id: packet-dccp.c,v 1.3 2002/05/03 19:31:02 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -57,7 +57,84 @@ static int hf_dccp_opnums_pid = -1;
 static int hf_dccp_opnums_report = -1;
 static int hf_dccp_opnums_retrans = -1;
 
+static int hf_dccp_signature = -1;
+static int hf_dccp_max_pkt_vers = -1;
+static int hf_dccp_qdelay_ms = -1;
+static int hf_dccp_brand = -1;
+
+static int hf_dccp_ck_type = -1;
+static int hf_dccp_ck_len = -1;
+static int hf_dccp_ck_sum = -1;
+
+static int hf_dccp_date = -1;
+static int hf_dccp_msg = -1;
+
+static int hf_dccp_target = -1;
+
+static int hf_dccp_adminop = -1;
+static int hf_dccp_adminval = -1;
+
 static gint ett_dccp = -1;
+static gint ett_dccp_op = -1;
+static gint ett_dccp_ck = -1;
+
+/* Utility macros */
+#define D_SIGNATURE() \
+	proto_tree_add_item(dccp_optree, hf_dccp_signature, tvb, \
+		offset, sizeof(DCC_SIGNATURE), FALSE); \
+	offset += sizeof(DCC_SIGNATURE);
+
+#define D_LABEL(label,len) \
+	proto_tree_add_text(dccp_optree, tvb, offset, len, label); \
+	offset += len;
+
+#define D_TEXT(label, endpad) { \
+	int next_offset,linelen,left; \
+	const char *line; \
+    while (tvb_offset_exists(tvb, offset+endpad)) { \
+		left = tvb_length_remaining(tvb,offset) - endpad; \
+		linelen = tvb_find_line_end(tvb, offset, left, &next_offset); \
+		line = tvb_get_ptr(tvb, offset, linelen); \
+		proto_tree_add_text(dccp_optree, tvb, offset, \
+			next_offset - offset, "%s: %s", \
+			label, tvb_format_text(tvb, offset, next_offset - offset)); \
+		offset = next_offset; \
+	} \
+}
+
+
+#define D_TARGET() \
+	proto_tree_add_item_hidden(dccp_tree, hf_dccp_target, tvb, \
+		offset, sizeof(DCC_TGTS), FALSE); \
+	proto_tree_add_text(dccp_optree, tvb, offset, sizeof(DCC_TGTS), \
+		val_to_str(tvb_get_ntohl(tvb,offset), dccp_target_vals, "Targets (%u)")); \
+	offset += sizeof(DCC_TGTS); \
+
+#define D_DATE() { \
+	nstime_t ts; \
+	ts.nsecs = 0; \
+	ts.secs = tvb_get_ntohl(tvb,offset); \
+	proto_tree_add_time(dccp_optree, hf_dccp_date, tvb, offset, 4, &ts); \
+	offset += 4; \
+}
+	
+
+#define D_CHECKSUM() { \
+	proto_tree *cktree, *ti; \
+	ti = proto_tree_add_text(dccp_optree, tvb, offset, sizeof(DCC_CK), \
+		"Checksum - %s", val_to_str(tvb_get_guint8(tvb,offset), \
+		dccp_cktype_vals, \
+		"Unknown Type: %u")); \
+	cktree = proto_item_add_subtree(ti, ett_dccp_ck); \
+	proto_tree_add_item(cktree, hf_dccp_ck_type, tvb, offset, 1, FALSE); \
+	offset += 1; \
+	proto_tree_add_item(cktree, hf_dccp_ck_len, tvb, offset, 1, FALSE); \
+	offset += 1; \
+	proto_tree_add_item(cktree, hf_dccp_ck_sum, tvb, offset, \
+		sizeof(DCC_SUM), FALSE); \
+	offset += sizeof(DCC_SUM); \
+}
+
 
 /* Lookup string tables */
 static const value_string dccp_op_vals[] = {
@@ -73,13 +150,56 @@ static const value_string dccp_op_vals[] = {
 	{0, NULL}
 };
 
+static const value_string dccp_cktype_vals[] = {
+	{DCC_CK_INVALID, "Invalid/Deleted from DB when seen"},
+	{DCC_CK_IP, 	"MD5 of binary source IPv6 address"},
+	{DCC_CK_ENV_FROM, "MD5 of envelope Mail From value"},
+	{DCC_CK_FROM, "MD5 of header From: line"},
+	{DCC_CK_SUB, "MD5 of substitute header line"},
+	{DCC_CK_MESSAGE_ID, "MD5 of header Message-ID: line"},
+	{DCC_CK_RECEIVED, "MD5 of last header Received: line"},
+	{DCC_CK_BODY, "MD5 of body"},
+	{DCC_CK_FUZ1, "MD5 of filtered body - FUZ1"},
+	{DCC_CK_FUZ2, "MD5 of filtered body - FUZ2"},
+	{DCC_CK_FUZ3, "MD5 of filtered body - FUZ3"},
+	{DCC_CK_FUZ4, "MD5 of filtered body - FUZ4"},
+	{DCC_CK_SRVR_ID, "hostname for server-ID check "},
+	{DCC_CK_ENV_TO, "MD5 of envelope Rcpt To value"},
+	{0, NULL},
+};
+
+static const value_string dccp_adminop_vals[] = {
+	{DCC_AOP_OK, "Never sent"},
+	{DCC_AOP_STOP, "Stop Gracefully"},
+	{DCC_AOP_NEW_IDS, "Load keys and client IDs"},
+	{DCC_AOP_FLOD, "Start or Stop Flooding"},
+	{DCC_AOP_DB_UNLOCK, "Start Switch to New Database"},
+	{DCC_AOP_DB_NEW, "Finish Switch to New Database"},
+	{DCC_AOP_STATS, "Return counters"},
+	{DCC_AOP_STATS_CLEAR, "Return and zero counters"},
+	{DCC_AOP_TRACE_ON, "Enable tracing"},
+	{DCC_AOP_TRACE_OFF, "Disable tracing"},
+	{DCC_AOP_CUR_CLIENTS, "Some client IP addresses"},
+	{0, NULL},
+};
+
+static const value_string dccp_target_vals[] = {
+	{DCC_TGTS_TOO_MANY, "Targets (>= 16777200)"},
+	{DCC_TGTS_OK, "Certified not spam"},
+	{DCC_TGTS_OK2, "Half certified not spam"},
+	{DCC_TGTS_DEL, "Deleted checksum"},
+	{DCC_TGTS_INVALID, "Invalid"},
+	{0, NULL},
+};
 
 static gboolean
 dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	proto_tree      *dccp_tree, *ti;
+	proto_tree      *dccp_tree, *dccp_optree, *ti;
 	int offset = 0;
 	int client_is_le = 0;
+	int op = 0;
+	int i, count, is_response;
 
 	if (pinfo->srcport != DCC_PORT && pinfo->destport != DCC_PORT) {
 		/* Not the right port - not a DCC packet. */
@@ -96,10 +216,12 @@ dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "DCCP");
 
 	offset = 0;
+	is_response = pinfo->srcport == DCC_PORT;
+	
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_add_fstr(pinfo->cinfo, COL_INFO, 
 			"%s: %s", 
-			( pinfo->destport == DCC_PORT ) ? "Request" : "Response", 
+			is_response ? "Response" : "Request", 
 			val_to_str(tvb_get_guint8(tvb, offset+3),
 				 dccp_op_vals, "Unknown Op: %u")
 		);
@@ -123,6 +245,7 @@ dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			offset, 1, FALSE);
 		offset += 1;
 
+		op = tvb_get_guint8(tvb, offset);
 		proto_tree_add_item(dccp_tree, hf_dccp_op, tvb, 
 			offset, 1, FALSE);
 		offset += 1;
@@ -157,6 +280,98 @@ dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_item(dccp_tree, hf_dccp_opnums_retrans, tvb, 
 			offset, 4, client_is_le);
 		offset += 4;
+
+		ti = proto_tree_add_text(dccp_tree, tvb, offset, -1, "Operation: %s",
+			val_to_str(op, dccp_op_vals, "Unknown Op: %u"));
+		dccp_optree = proto_item_add_subtree(ti, ett_dccp_op);
+
+		switch(op) {
+			case DCC_OP_NOP:
+				D_SIGNATURE();
+				break;
+
+			case DCC_OP_REPORT:
+				D_TARGET();
+				for (i=0; i<=DCC_QUERY_MAX &&
+					tvb_bytes_exist(tvb, offset+sizeof(DCC_SIGNATURE),1); i++)
+				{
+					D_CHECKSUM();
+				}
+				D_SIGNATURE();
+				break;
+
+			case DCC_OP_QUERY_RESP:
+				for (i=0; i<=DCC_QUERY_MAX &&
+					tvb_bytes_exist(tvb, offset+sizeof(DCC_SIGNATURE),1); i++)
+				{
+					D_TARGET();
+				}
+				D_SIGNATURE();
+				break;
+
+			case DCC_OP_ADMN:
+				if ( is_response )
+				{
+					int left = tvb_length_remaining(tvb, offset) -
+						sizeof(DCC_SIGNATURE);
+					if ( left == sizeof(DCC_ADMN_RESP_CLIENTS) )
+					{
+						D_LABEL("Addr", 16);
+						D_LABEL("Id", sizeof(DCC_CLNT_ID));
+						D_LABEL("Last Used", 4);
+						D_LABEL("Requests", 4);
+					}
+					else
+					{
+						D_TEXT("Response Text", sizeof(DCC_SIGNATURE));
+					}
+					D_SIGNATURE();
+				}
+				else
+				{
+					D_DATE();
+					proto_tree_add_item(dccp_optree, hf_dccp_adminval, tvb, offset,
+						4, FALSE);
+					offset += 4;
+					proto_tree_add_item(dccp_optree, hf_dccp_adminop, tvb, offset,
+						1, FALSE);
+					if (check_col(pinfo->cinfo, COL_INFO)) {
+						col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
+							val_to_str(tvb_get_guint8(tvb,offset), 
+							dccp_adminop_vals, "Unknown (%u)"));
+					}
+					offset += 1;
+					D_LABEL("Pad", 3);
+					D_SIGNATURE();
+				}
+				break;
+
+			case DCC_OP_OK:
+				proto_tree_add_item(dccp_optree, hf_dccp_max_pkt_vers, tvb,
+					offset, 1, FALSE);
+				if (check_col(pinfo->cinfo, COL_INFO)) {
+					col_append_fstr(pinfo->cinfo, COL_INFO, ", max=%d",
+						tvb_get_guint8(tvb, offset));
+				}
+				offset += 1;
+
+				D_LABEL("Unused", 1);
+
+				proto_tree_add_item(dccp_optree, hf_dccp_qdelay_ms, tvb,
+					offset, 2, FALSE);
+				offset += 2;
+			
+				proto_tree_add_item(dccp_optree, hf_dccp_brand, tvb,
+					offset, sizeof(DCC_BRAND), FALSE);
+				offset += sizeof(DCC_BRAND);
+
+				D_SIGNATURE();
+				break;
+				
+			default:
+				/* do nothing */
+				break;
+		}
 	}
 
 	return TRUE;
@@ -198,9 +413,54 @@ proto_register_dccp(void)
 				"OpNums: Retransmission", "dcc.opnums.retrans", FT_UINT32, BASE_DEC,
 				NULL, 0, "OpNums: Retransmission", HFILL }},
 
+			{ &hf_dccp_signature, {	
+				"Signature", "dcc.signature", FT_BYTES, BASE_HEX,
+				NULL, 0, "Signature", HFILL }},
+
+			{ &hf_dccp_max_pkt_vers, {	
+				"Maximum Packet Version", "dcc.max_pkt_vers", FT_UINT8, BASE_DEC,
+				NULL, 0, "Maximum Packet Version", HFILL }},
+
+			{ &hf_dccp_qdelay_ms, {	
+				"Client Delay", "dcc.qdelay_ms", FT_UINT16, BASE_DEC,
+				NULL, 0, "Client Delay", HFILL }},
+
+			{ &hf_dccp_brand, {	
+				"Server Brand", "dcc.brand", FT_STRING, BASE_DEC,
+				NULL, 0, "Server Brand", HFILL }},
+
+			{ &hf_dccp_ck_type, {	
+				"Type", "dcc.checksum.type", FT_UINT8, BASE_DEC,
+				VALS(dccp_cktype_vals), 0, "Checksum Type", HFILL }},
+
+			{ &hf_dccp_ck_len, {	
+				"Length", "dcc.checksum.length", FT_UINT8, BASE_DEC,
+				NULL, 0, "Checksum Length", HFILL }},
+
+			{ &hf_dccp_ck_sum, {	
+				"Sum", "dcc.checksum.sum", FT_BYTES, BASE_HEX,
+				NULL, 0, "Checksum", HFILL }},
+
+			{ &hf_dccp_target, {	
+				"Target", "dcc.target", FT_UINT32, BASE_HEX,
+				NULL, 0, "Target", HFILL }},
+
+			{ &hf_dccp_date, {	
+				"Date", "dcc.date", FT_ABSOLUTE_TIME, BASE_DEC,
+				NULL, 0, "Date", HFILL }},
+
+			{ &hf_dccp_adminop, {	
+				"Admin Op", "dcc.adminop", FT_UINT8, BASE_DEC,
+				VALS(dccp_adminop_vals), 0, "Admin Op", HFILL }},
+
+			{ &hf_dccp_adminval, {	
+				"Admin Value", "dcc.adminval", FT_UINT32, BASE_DEC,
+				NULL, 0, "Admin Value", HFILL }},
         };
 	static gint *ett[] = {
 		&ett_dccp,
+		&ett_dccp_op,
+		&ett_dccp_ck,
 	};
 
 	proto_dccp = proto_register_protocol("Distributed Checksum Clearinghouse Prototocl",
