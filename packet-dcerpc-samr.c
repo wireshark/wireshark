@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *   2002 Added all command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-samr.c,v 1.35 2002/04/29 08:20:06 guy Exp $
+ * $Id: packet-dcerpc-samr.c,v 1.36 2002/04/29 10:30:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1065,22 +1065,6 @@ samr_dissect_USER_GROUP_ARRAY_ptr(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
-#if 0
-static int
-samr_dissect_get_user_groups_rqst(tvbuff_t *tvb, int offset, 
-				  packet_info *pinfo, proto_tree *tree, 
-				  char *drep)
-{
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, "GetUserGroups request");
-
-        offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-				       hf_samr_hnd, NULL);
-
-	return offset;
-}
-#endif
-
 static int
 samr_dissect_get_groups_for_user_rqst(tvbuff_t *tvb, int offset, 
 				      packet_info *pinfo, proto_tree *tree, 
@@ -1149,7 +1133,7 @@ samr_dissect_open_domain_reply(tvbuff_t *tvb, int offset,
 
 	return offset;
 }
-#if 0
+
 static int
 samr_dissect_context_handle_SID(tvbuff_t *tvb, int offset, 
                              packet_info *pinfo, proto_tree *tree, 
@@ -1163,7 +1147,6 @@ samr_dissect_context_handle_SID(tvbuff_t *tvb, int offset,
 			"SID", -1, 0);
 	return offset;
 }
-#endif
 
 static int
 samr_dissect_add_member_to_group_rqst(tvbuff_t *tvb, int offset, 
@@ -2438,7 +2421,6 @@ samr_dissect_get_alias_membership_rqst(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
-#if 0
 static int
 samr_dissect_get_alias_membership_response(tvbuff_t *tvb, int offset, 
 					   packet_info *pinfo, 
@@ -2452,7 +2434,6 @@ samr_dissect_get_alias_membership_response(tvbuff_t *tvb, int offset,
 
 	return offset;
 }
-#endif
 
 static int
 samr_dissect_get_alias_membership_reply(tvbuff_t *tvb, int offset, 
