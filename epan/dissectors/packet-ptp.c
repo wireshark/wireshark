@@ -4,6 +4,8 @@
  * Copyright 2004, Dominic Béchaz <bdo@zhwin.ch> , ZHW/InES
  * Copyright 2004, Markus Seehofer <mseehofe@nt.hirschmann.de>
  *
+ * $Id$
+ *
  * A plugin for:
  *
  * Ethereal - Network traffic analyzer
