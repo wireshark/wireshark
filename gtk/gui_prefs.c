@@ -1,7 +1,7 @@
 /* gui_prefs.c
  * Dialog box for GUI preferences
  *
- * $Id: gui_prefs.c,v 1.15 2000/08/23 18:52:38 deniel Exp $
+ * $Id: gui_prefs.c,v 1.16 2000/08/24 03:16:47 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -185,6 +185,7 @@ create_option_menu(GtkWidget *main_vb, const gchar *key,
 	gtk_table_attach_defaults(GTK_TABLE(main_tb), label, 0, 1,
 	    table_position, table_position + 1);
 
+	/* Create a menu from the enumvals */
 	menu = gtk_menu_new();
 	menu_index = -1;
 	for (enum_valp = enumvals, index = 0;
@@ -193,9 +194,10 @@ create_option_menu(GtkWidget *main_vb, const gchar *key,
 		gtk_menu_append(GTK_MENU(menu), menu_item);
 		if (enum_valp->value == current_val)
 			menu_index = index;
+		gtk_widget_show(menu_item);
 	}
 
-	/* Create the option menu from the option */
+	/* Create the option menu from the menu */
 	option_menu = gtk_option_menu_new();
 	gtk_option_menu_set_menu(GTK_OPTION_MENU(option_menu), menu);
 
