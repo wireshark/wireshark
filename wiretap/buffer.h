@@ -1,6 +1,6 @@
 /* buffer.h
  *
- * $Id: buffer.h,v 1.5 2000/07/26 00:20:09 guy Exp $
+ * $Id: buffer.h,v 1.6 2000/07/31 04:15:58 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -23,13 +23,15 @@
 
 #define SOME_FUNCTIONS_ARE_DEFINES
 
-typedef struct Buffer {
+#ifdef HAVE_WINSOCK_H
+#include <winsock.h>        /* to define u_char */
+#endif
 
+typedef struct Buffer {
 	u_char		*data;
 	unsigned int	allocated;
 	unsigned int	start;
 	unsigned int	first_free;
-
 } Buffer;
 
 void buffer_init(Buffer* buffer, unsigned int space);
