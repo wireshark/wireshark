@@ -1,3 +1,9 @@
+/* TODO:
+   PKINIT embryo inside should be pulled out into its own dissector, preferably
+   one that can handle generic PAtype additions via some registration API.
+   Keep an eye on ietf/krbwg on what they design for their framework for
+   adding PAtypes.
+*/
 /* packet-kerberos.c
  * Routines for Kerberos
  * Wes Hardaker (c) 2000
@@ -63,6 +69,7 @@
 #include <epan/dissectors/packet-tcp.h>
 #include "prefs.h"
 #include <epan/dissectors/packet-ber.h>
+#include <epan/dissectors/packet-cms.h>
 #include <epan/dissectors/packet-smb-common.h>
 
 #include <epan/dissectors/packet-dcerpc-netlogon.h>
@@ -1354,10 +1361,10 @@ dissect_krb5_pvno(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offse
  *                     name-string[1]   SEQUENCE OF GeneralString
  * }
  */
+guint32 name_type;
 static int 
 dissect_krb5_name_type(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-	guint32 name_type;
 
 	offset=dissect_ber_integer(pinfo, tree, tvb, offset, hf_krb_name_type, &name_type);
 	if(tree){
@@ -1452,14 +1459,6 @@ dissect_krb5_PA_PAC_REQUEST(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
 
 
 
-static int
-dissect_krb5_SignedData(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset)
-{
-/*qqq*/
-	return offset;
-}
-
-
 static char ContentType[64]; /*64 chars should be long enough */
 static int
 dissect_krb5_ContentInfo_ContentType(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
@@ -1474,11 +1473,7 @@ dissect_krb5_ContentInfo_ContentType(packet_info *pinfo, proto_tree *tree, tvbuf
 static int
 dissect_krb5_ContentInfo_content(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-	if(!strcmp(ContentType, "1.2.840.113549.1.7.2")){
-		offset=dissect_krb5_SignedData(pinfo, tree, tvb, offset);
-	} else {
-		proto_tree_add_text(tree, tvb, offset, tvb_length_remaining(tvb, offset), "ContentInfo: dont know how to parse this type yet.");
-	}
+	offset=invoke_ber_oid_callback(ContentType, tvb, offset, pinfo, tree);
 
 	return offset;
 }

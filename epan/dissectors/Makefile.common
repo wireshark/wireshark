@@ -93,6 +93,7 @@ DISSECTOR_SRC =	\
 	packet-clearcase.c	\
 	packet-clip.c	\
 	packet-clnp.c	\
+	packet-cms.c	\
 	packet-cops.c	\
 	packet-cosine.c	\
 	packet-cpfi.c	\
@@ -485,6 +486,10 @@ DISSECTOR_SRC =	\
 	packet-x11.c	\
 	packet-x25.c	\
 	packet-x29.c	\
+	packet-x509af.c	\
+	packet-x509ce.c	\
+	packet-x509if.c	\
+	packet-x509sat.c	\
 	packet-xdmcp.c	\
 	packet-xot.c	\
 	packet-xyplex.c	\
@@ -519,6 +524,7 @@ DISSECTOR_INCLUDES =	\
 	packet-chdlc.h	\
 	packet-clearcase.h	\
 	packet-clip.h	\
+	packet-cms.h	\
 	packet-data.h	\
 	packet-dccp.h	\
 	packet-dcerpc-atsvc.h	\
@@ -678,6 +684,10 @@ DISSECTOR_INCLUDES =	\
 	packet-wtp.h	\
 	packet-x11-keysym.h	\
 	packet-x11-keysymdef.h	\
+	packet-x509af.h	\
+	packet-x509ce.h	\
+	packet-x509if.h	\
+	packet-x509sat.h	\
 	packet-ypbind.h	\
 	packet-yppasswd.h	\
 	packet-ypserv.h	\

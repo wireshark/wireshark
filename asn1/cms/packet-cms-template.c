@@ -51,6 +51,13 @@ int proto_cms = -1;
 #include "packet-cms-fn.c"
 
 
+static int
+dissect_cms_SignedData_callback(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+	offset=dissect_cms_SignedData(FALSE, tvb, offset, pinfo, tree, -1);
+	return offset;
+}
+
 /*--- proto_register_cms ----------------------------------------------*/
 void proto_register_cms(void) {
 
@@ -76,5 +83,6 @@ void proto_register_cms(void) {
 
 /*--- proto_reg_handoff_cms -------------------------------------------*/
 void proto_reg_handoff_cms(void) {
+	register_ber_oid_callback("1.2.840.113549.1.7.2", dissect_cms_SignedData_callback);
 }
 
