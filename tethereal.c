@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.137 2002/05/14 18:27:16 guy Exp $
+ * $Id: tethereal.c,v 1.138 2002/05/22 23:22:55 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -180,22 +180,24 @@ static capture_options capture_opts = {
 #endif
 
 static void 
-print_usage(void)
+print_usage(gboolean print_ver)
 {
   int i;
 
-  fprintf(stderr, "This is GNU t%s %s, compiled %s\n", PACKAGE, VERSION,
+  if (print_ver) {
+    fprintf(stderr, "This is GNU t%s %s, compiled %s\n", PACKAGE, VERSION,
 	comp_info_str->str);
+  }
 #ifdef HAVE_LIBPCAP
-  fprintf(stderr, "t%s [ -DvVhlp ] [ -a <capture autostop condition> ] ...\n",
+  fprintf(stderr, "\nt%s [ -DvVhqlp ] [ -a <capture autostop condition> ] ...\n",
 	  PACKAGE);
   fprintf(stderr, "\t[ -b <number of ring buffer files> ] [ -c <count> ]\n");
-  fprintf(stderr, "\t[ -f <capture filter> ] [ -F <capture file type> ]\n");
+  fprintf(stderr, "\t[ -f <capture filter> ] [ -F <output file type> ]\n");
   fprintf(stderr, "\t[ -i <interface> ] [ -n ] [ -N <resolving> ]\n");
   fprintf(stderr, "\t[ -o <preference setting> ] ... [ -r <infile> ] [ -R <read filter> ]\n");
   fprintf(stderr, "\t[ -s <snaplen> ] [ -t <time stamp format> ] [ -w <savefile> ] [ -x ]\n");
 #else
-  fprintf(stderr, "t%s [ -qvVhl ] [ -F <capture file type> ] [ -n ] [ -N <resolving> ]\n", PACKAGE);
+  fprintf(stderr, "\nt%s [ -vVhl ] [ -F <output file type> ] [ -n ] [ -N <resolving> ]\n", PACKAGE);
   fprintf(stderr, "\t[ -o <preference setting> ] ... [ -r <infile> ] [ -R <read filter> ]\n");
   fprintf(stderr, "\t[ -t <time stamp format> ] [ -w <savefile> ] [ -x ]\n");
 #endif
@@ -505,6 +507,8 @@ main(int argc, char *argv[])
       case 'f':
 #ifdef HAVE_LIBPCAP
         capture_filter_specified = TRUE;
+	if (cfile.cfilter)
+		g_free(cfile.cfilter);
 	cfile.cfilter = g_strdup(optarg);
 #else
         capture_option_specified = TRUE;
@@ -520,7 +524,7 @@ main(int argc, char *argv[])
         }
         break;
       case 'h':        /* Print help and exit */
-	print_usage();
+	print_usage(TRUE);
 	exit(0);
         break;
       case 'i':        /* Use interface xxx */
@@ -629,6 +633,10 @@ main(int argc, char *argv[])
       case 'x':        /* Print packet data in hex (and ASCII) */
         print_hex = TRUE;
         break;
+      default:
+      case '?':        /* Bad flag - print usage message */
+        arg_error = TRUE;
+        break;
     }
   }
   
@@ -702,8 +710,10 @@ main(int argc, char *argv[])
   if (capture_option_specified)
     fprintf(stderr, "This version of Tethereal was not built with support for capturing packets.\n");
 #endif
-  if (arg_error)
-    print_usage();
+  if (arg_error) {
+    print_usage(FALSE);
+    exit(1);
+  }
 
   /* Build the column format array */  
   for (i = 0; i < cfile.cinfo.num_cols; i++) {

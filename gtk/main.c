@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.249 2002/05/14 18:27:28 guy Exp $
+ * $Id: main.c,v 1.250 2002/05/22 23:22:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1066,12 +1066,14 @@ file_quit_cmd_cb (GtkWidget *widget _U_, gpointer data _U_)
 }
 
 static void 
-print_usage(void) {
+print_usage(gboolean print_ver) {
 
-  fprintf(stderr, "This is GNU " PACKAGE " " VERSION ", compiled %s\n",
+  if (print_ver) {
+    fprintf(stderr, "This is GNU " PACKAGE " " VERSION ", compiled %s\n",
 	  comp_info_str->str);
+  }  
 #ifdef HAVE_LIBPCAP
-  fprintf(stderr, "%s [ -vh ] [ -klpQS ] [ -a <capture autostop condition> ] ...\n",
+  fprintf(stderr, "\n%s [ -vh ] [ -klpQS ] [ -a <capture autostop condition> ] ...\n",
 	  PACKAGE);
   fprintf(stderr, "\t[ -b <number of ringbuffer files> ] [ -B <byte view height> ]\n");
   fprintf(stderr, "\t[ -c <count> ] [ -f <capture filter> ] [ -i <interface> ]\n");
@@ -1081,7 +1083,7 @@ print_usage(void) {
   fprintf(stderr, "\t[ -t <time stamp format> ] [ -T <tree view height> ]\n");
   fprintf(stderr, "\t[ -w <savefile> ] [ <infile> ]\n");
 #else
-  fprintf(stderr, "%s [ -vh ] [ -B <byte view height> ] [ -m <medium font> ]\n",
+  fprintf(stderr, "\n%s [ -vh ] [ -B <byte view height> ] [ -m <medium font> ]\n",
 	  PACKAGE);
   fprintf(stderr, "\t[ -n ] [ -N <resolving> ]\n");
   fprintf(stderr, "\t[ -o <preference setting> ... [ -P <packet list height> ]\n");
@@ -1225,6 +1227,20 @@ main(int argc, char *argv[])
   gint                 desk_x, desk_y;
   gboolean             prefs_write_needed = FALSE;
 
+#define OPTSTRING_INIT "a:b:B:c:f:hi:klm:nN:o:pP:Qr:R:Ss:t:T:w:v"
+
+#ifdef HAVE_LIBPCAP
+#ifdef WIN32
+#define OPTSTRING_CHILD "W:Z:"
+#else
+#define OPTSTRING_CHILD "W:"
+#endif  /* WIN32 */
+#else
+#define OPTSTRING_CHILD ""
+#endif  /* HAVE_LIBPCAP */
+
+  char optstring[sizeof(OPTSTRING_INIT) + sizeof(OPTSTRING_CHILD) - 1] =
+    OPTSTRING_INIT;
 
   ethereal_path = argv[0];
 
@@ -1251,6 +1267,8 @@ main(int argc, char *argv[])
   /* Set "capture_child" to indicate whether this is going to be a child
      process for a "-S" capture. */
   capture_child = (strcmp(command_name, CHILD_NAME) == 0);
+  if (capture_child)
+    strcat(optstring, OPTSTRING_CHILD);
 #endif
 
   /* Register all dissectors; we must do this before checking for the
@@ -1434,7 +1452,7 @@ main(int argc, char *argv[])
 #endif
 
   /* Now get our args */
-  while ((opt = getopt(argc, argv, "a:b:B:c:f:hi:klm:nN:o:pP:Qr:R:Ss:t:T:w:W:vZ:")) != -1) {
+  while ((opt = getopt(argc, argv, optstring)) != -1) {
     switch (opt) {
       case 'a':        /* autostop criteria */
 #ifdef HAVE_LIBPCAP
@@ -1480,7 +1498,7 @@ main(int argc, char *argv[])
 #endif
 	break;
       case 'h':        /* Print help and exit */
-	print_usage();
+	print_usage(TRUE);
 	exit(0);
         break;
       case 'i':        /* Use interface xxx */
@@ -1623,29 +1641,27 @@ main(int argc, char *argv[])
         arg_error = TRUE;
 #endif
 	break;
-      case 'W':        /* Write to capture file FD xxx */
 #ifdef HAVE_LIBPCAP
+      /* This is a hidden option supporting Sync mode, so we don't set
+       * the error flags for the user in the non-libpcap case.
+       */
+      case 'W':        /* Write to capture file FD xxx */
         cfile.save_file_fd = atoi(optarg);
-#else
-        capture_option_specified = TRUE;
-        arg_error = TRUE;
-#endif
 	break;
+#endif
 
 #ifdef _WIN32
-      case 'Z':        /* Write to pipe FD XXX */
 #ifdef HAVE_LIBPCAP
+      /* Hidden option supporting Sync mode */
+      case 'Z':        /* Write to pipe FD XXX */
         /* associate stdout with pipe */
         i = atoi(optarg);
         if (dup2(i, 1) < 0) {
           fprintf(stderr, "Unable to dup pipe handle\n");
           exit(1);
         }
-#else
-        capture_option_specified = TRUE;
-        arg_error = TRUE;
-#endif /* HAVE_LIBPCAP */
         break;
+#endif /* HAVE_LIBPCAP */
 #endif /* _WIN32 */
 
       default:
@@ -1684,7 +1700,12 @@ main(int argc, char *argv[])
     /*
      * Extra command line arguments were specified; complain.
      */
+    fprintf(stderr, "Invalid argument: %s\n", argv[0]);
     arg_error = TRUE;
+  }
+  if (arg_error) {
+    print_usage(FALSE);
+    exit(1);
   }
 
 #ifdef HAVE_LIBPCAP
@@ -1727,31 +1748,35 @@ main(int argc, char *argv[])
   if (capture_option_specified)
     fprintf(stderr, "This version of Ethereal was not built with support for capturing packets.\n");
 #endif
-  if (arg_error)
-    print_usage();
 #ifdef HAVE_LIBPCAP
   if (start_capture) {
     /* We're supposed to do a live capture; did the user specify an interface
        to use? */
     if (cfile.iface == NULL) {
-      /* No - pick the first one from the list of interfaces. */
-      if_list = get_interface_list(&err, err_str);
-      if (if_list == NULL) {
-        switch (err) {
-
-        case CANT_GET_INTERFACE_LIST:
-            fprintf(stderr, "ethereal: Can't get list of interfaces: %s\n",
-			err_str);
-            break;
-
-        case NO_INTERFACES_FOUND:
-            fprintf(stderr, "ethereal: There are no interfaces on which a capture can be done\n");
-            break;
+      /* No - is a default specified in the preferences file? */
+      if (prefs->capture_device != NULL) {
+          /* Yes - use it. */
+          cfile.iface = g_strdup(prefs->capture_device);
+      } else {
+        /* No - pick the first one from the list of interfaces. */
+        if_list = get_interface_list(&err, err_str);
+        if (if_list == NULL) {
+          switch (err) {
+  
+          case CANT_GET_INTERFACE_LIST:
+              fprintf(stderr, "ethereal: Can't get list of interfaces: %s\n",
+  			err_str);
+              break;
+  
+          case NO_INTERFACES_FOUND:
+              fprintf(stderr, "ethereal: There are no interfaces on which a capture can be done\n");
+              break;
+          }
+          exit(2);
         }
-        exit(2);
+        cfile.iface = g_strdup(if_list->data);	/* first interface */
+        free_interface_list(if_list);
       }
-      cfile.iface = g_strdup(if_list->data);	/* first interface */
-      free_interface_list(if_list);
     }
   }
   if (capture_child) {

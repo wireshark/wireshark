@@ -898,6 +898,7 @@ Graeme Hewson <graeme.hewson[AT]oracle.com> {
 	Handle errors from "pcap_dispatch()"
 	Fix Tethereal so signals break it out of the capture loop
 	Add some sanity checks to DNS dissector to avoid loops
+	Command-line interface cleanups
 }
 
 Pasi Eronen <pasi.eronen[at]nixu.com> {
