@@ -4,7 +4,7 @@
  * Jason Lango <jal@netapp.com>
  * Liberally copied from packet-http.c, by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-rtsp.c,v 1.65 2004/06/15 18:26:08 etxrab Exp $
+ * $Id: packet-rtsp.c,v 1.66 2004/06/29 20:29:57 etxrab Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -444,13 +444,13 @@ rtsp_create_conversation(packet_info *pinfo, const guchar *line_begin,
 	 */
 	SET_ADDRESS(&null_addr, pinfo->src.type, 0, NULL);
 
-	rtp_add_address(pinfo, (char *)&pinfo->dst, c_data_port, s_data_port,
+	rtp_add_address(pinfo, (char *)pinfo->dst.data, c_data_port, s_data_port,
                     "RTSP", pinfo->fd->num);
 
 	if (!c_mon_port)
 		return;
 
-	rtcp_add_address(pinfo, (char *)&pinfo->dst, c_mon_port, s_mon_port,
+	rtcp_add_address(pinfo, (char *)pinfo->dst.data, c_mon_port, s_mon_port,
                      "RTSP", pinfo->fd->num);
 }
 

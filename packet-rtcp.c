@@ -1,6 +1,6 @@
 /* packet-rtcp.c
  *
- * $Id: packet-rtcp.c,v 1.44 2004/06/15 18:26:08 etxrab Exp $
+ * $Id: packet-rtcp.c,v 1.45 2004/06/29 20:29:56 etxrab Exp $
  *
  * Routines for RTCP dissection
  * RTCP = Real-time Transport Control Protocol
@@ -253,7 +253,9 @@ void rtcp_add_address( packet_info *pinfo,
 	 * again.
 	 */
 	if (pinfo->fd->flags.visited)
+	{
 		return;
+	}
 
 	src_addr.type = pinfo->net_src.type;
 	src_addr.len = pinfo->net_src.len;
@@ -294,7 +296,7 @@ void rtcp_add_address( packet_info *pinfo,
 
 		/* Create conversation with this data */
 		p_conv = conversation_new( &src_addr, &src_addr, PT_UDP,
-		                           (guint32)port, (guint32)port,
+		                           (guint32)port, (guint32)other_port,
 		                           NO_ADDR2 | (!other_port ? NO_PORT2 : 0));
 		conversation_add_proto_data(p_conv, proto_rtcp, p_conv_data);
 
@@ -831,9 +833,10 @@ void show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (!pinfo->fd->flags.visited)
 	{
 		/* First time, get info from conversation */
-		p_conv = find_conversation(&pinfo->net_src, &pinfo->net_dst,
-		                           pinfo->ptype,
-		                           pinfo->srcport, pinfo->destport, 0);
+		p_conv = find_conversation(&pinfo->net_dst, &pinfo->net_src,
+                                   pinfo->ptype,
+                                   pinfo->destport, pinfo->srcport, NO_ADDR_B);
+
 		if (p_conv)
 		{
 			/* Create space for packet info */
