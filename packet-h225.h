@@ -2,7 +2,7 @@
  * Routines for H.225 packet dissection
  * 2003  Tomas Kukosa
  *
- * $Id: packet-h225.h,v 1.6 2003/12/15 04:23:54 guy Exp $
+ * $Id: packet-h225.h,v 1.7 2004/03/04 07:07:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -23,8 +23,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef __H225_H__
-#define __H225_H__
+#ifndef __PACKET_H225_H__
+#define __PACKET_H225_H__
 
 extern int dissect_h225_NonStandardParameter(tvbuff_t*, int, packet_info*, proto_tree*, int);
 
@@ -66,4 +66,4 @@ extern const value_string AdmissionRejectReason_vals[];
 extern const value_string LocationRejectReason_vals[];
 extern const value_string RegistrationRejectReason_vals[];
 
-#endif  /* __H225_H__ */
+#endif  /* __PACKET_H225_H__ */

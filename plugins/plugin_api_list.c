@@ -1,7 +1,7 @@
 /* plugin_api_list.c
  * Used to generate various included files for plugin API
  *
- * $Id: plugin_api_list.c,v 1.29 2004/02/21 02:20:44 guy Exp $
+ * $Id: plugin_api_list.c,v 1.30 2004/03/04 07:07:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -33,6 +33,7 @@
 #include "reassemble.h"
 #include "packet-giop.h"
 #include "packet-per.h"
+#include "packet-ber.h"
 #include "packet-tpkt.h"
 #include "packet-tcp.h"
 #include "tap.h"
@@ -412,3 +413,15 @@ void report_open_failure(const char *filename, int err, gboolean for_writing);
 void report_read_failure(const char *filename, int err);
 
 guint32 dissect_per_bit_string(tvbuff_t*, guint32, packet_info*, proto_tree*, int, int, int);
+
+int dissect_ber_identifier(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, guint8 *class, gboolean *pc, guint32 *tag);
+int dissect_ber_length(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, guint32 *length);
+int dissect_ber_octet_string(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id, ber_callback func);
+int dissect_ber_integer(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id, guint32 *value);
+int dissect_ber_boolean(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id);
+int dissect_ber_sequence(packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, ber_sequence *seq, gint hf_id, gint ett_id);
+int dissect_ber_choice(packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const ber_choice *ch, gint hf_id, gint ett_id);
+int dissect_ber_GeneralString(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id, char *name_string, int name_len);
+int dissect_ber_sequence_of(packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, ber_callback func, gint hf_id, gint ett_id);
+int dissect_ber_generalized_time(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id);
+int dissect_ber_bitstring(packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, gint hf_id, gint ett_id, unsigned char *bitstring, int bitstring_len, proto_item **it, proto_tree **tr);

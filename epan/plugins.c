@@ -1,7 +1,7 @@
 /* plugins.c
  * plugin routines
  *
- * $Id: plugins.c,v 1.79 2004/02/21 11:13:54 guy Exp $
+ * $Id: plugins.c,v 1.80 2004/03/04 07:07:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -68,6 +68,7 @@
 #include "tap.h"
 #include "asn1.h"
 #include "packet-per.h"
+#include "packet-ber.h"
 #include "xdlc.h"
 #include "report_err.h"
 #include "plugins/plugin_table.h"

@@ -2,7 +2,7 @@
  * Routines for dissection of ASN.1 Aligned PER
  * 2003  Ronnie Sahlberg
  *
- * $Id: packet-per.h,v 1.12 2004/02/16 18:31:39 sahlberg Exp $
+ * $Id: packet-per.h,v 1.13 2004/03/04 07:07:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -22,6 +22,9 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+
+#ifndef __PACKET_PER_H__
+#define __PACKET_PER_H__
 
 #define NOT_DECODED_YET(x) \
 proto_tree_add_text(tree, tvb, offset, 0, "something unknown here"); \
@@ -92,3 +95,5 @@ extern guint32 dissect_per_octet_string(tvbuff_t *tvb, guint32 offset, packet_in
 extern guint32 dissect_per_bit_string(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index, int min_len, int max_len);
 
 extern guint32 dissect_per_restricted_character_string(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index, int min_len, int max_len, char *alphabet, int alphabet_length);
+
+#endif  /* __PACKET_PER_H__ */
