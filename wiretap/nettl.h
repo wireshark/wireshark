@@ -76,6 +76,7 @@
 
 /* Ethernet cards */
 #define NETTL_SUBSYS_LAN100		164
+#define NETTL_SUBSYS_EISA100BT		172
 #define NETTL_SUBSYS_BASE100		173
 #define NETTL_SUBSYS_GSC100BT		178
 #define NETTL_SUBSYS_PCI100BT		179
@@ -88,7 +89,9 @@
 
 /* FDDI cards */
 #define NETTL_SUBSYS_HPPB_FDDI		95
+#define NETTL_SUBSYS_EISA_FDDI		174
 #define NETTL_SUBSYS_PCI_FDDI		176
+#define NETTL_SUBSYS_HSC_FDDI		177
 
 /* Token Ring cards */
 #define NETTL_SUBSYS_TOKEN		31

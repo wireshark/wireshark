@@ -293,6 +293,7 @@ nettl_read_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 
     switch (encap) {
 	case NETTL_SUBSYS_LAN100 :
+	case NETTL_SUBSYS_EISA100BT :
 	case NETTL_SUBSYS_BASE100 :
 	case NETTL_SUBSYS_GSC100BT :
 	case NETTL_SUBSYS_PCI100BT :
@@ -303,7 +304,9 @@ nettl_read_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 	case NETTL_SUBSYS_IGELAN :
 	case NETTL_SUBSYS_IETHER :
 	case NETTL_SUBSYS_HPPB_FDDI :
+	case NETTL_SUBSYS_EISA_FDDI :
         case NETTL_SUBSYS_PCI_FDDI :
+        case NETTL_SUBSYS_HSC_FDDI :
         case NETTL_SUBSYS_TOKEN :
         case NETTL_SUBSYS_PCI_TR :
 	case NETTL_SUBSYS_NS_LS_IP :
@@ -326,7 +329,9 @@ nettl_read_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 	    } else if (encap == NETTL_SUBSYS_NS_LS_ICMPV6) {
 		phdr->pkt_encap = WTAP_ENCAP_RAW_ICMPV6;
 	    } else if( (encap == NETTL_SUBSYS_HPPB_FDDI)
-		    || (encap == NETTL_SUBSYS_PCI_FDDI) ) {
+		    || (encap == NETTL_SUBSYS_EISA_FDDI)
+		    || (encap == NETTL_SUBSYS_PCI_FDDI)
+		    || (encap == NETTL_SUBSYS_HSC_FDDI) ) {
 		phdr->pkt_encap = WTAP_ENCAP_FDDI;
 	    } else if( (encap == NETTL_SUBSYS_PCI_TR)
 		    || (encap == NETTL_SUBSYS_TOKEN) ) {
@@ -382,7 +387,7 @@ nettl_read_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 		   length = pntohl(&ip_hdr.caplen);
 		   phdr->caplen = length;
                 } else {
-	           /* outbound has an extra padding */
+	           /* outbound appears to have variable padding */
 		   bytes_read = file_read(dummyc, 1, 9, fh);
 		   if (bytes_read != 9) {
 		       *err = file_error(fh);
@@ -416,8 +421,10 @@ nettl_read_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 		   length = pntohl(&ip_hdr.caplen);
 		   phdr->caplen = length - padlen;
                }
-	    } else if (encap == NETTL_SUBSYS_PCI_FDDI) {
-	        /* PCI FDDI has an extra 3 bytes of padding */
+	    } else if ( (encap == NETTL_SUBSYS_PCI_FDDI)
+	             || (encap == NETTL_SUBSYS_EISA_FDDI)
+	             || (encap == NETTL_SUBSYS_HSC_FDDI) ) {
+	        /* other flavor FDDI cards have an extra 3 bytes of padding */
 		bytes_read = file_read(dummy, 1, 3, fh);
 		if (bytes_read != 3) {
 		    *err = file_error(fh);
@@ -584,22 +591,22 @@ nettl_read_rec_data(FILE_T fh, guchar *pd, int length, int *err, gboolean fddiha
     guint8 dummy[3];
 
     if (fddihack == TRUE) {
-       /* read in FC, dest, src and DSAP */
-       if (file_read(pd, 1, 14, fh) == 14) {
+       /* read in FC, dest, src, DSAP and SSAP */
+       if (file_read(pd, 1, 15, fh) == 15) {
           if (pd[13] == 0xAA) {
              /* it's SNAP, have to eat 3 bytes??? */
              if (file_read(dummy, 1, 3, fh) == 3) {
-                p=pd+14;
-                bytes_read = file_read(p, 1, length-17, fh);
-                bytes_read += 17;
+                p=pd+15;
+                bytes_read = file_read(p, 1, length-18, fh);
+                bytes_read += 18;
              } else {
                 bytes_read = -1;
              }
           } else {
              /* not SNAP */
-             p=pd+14;
-             bytes_read = file_read(p, 1, length-14, fh);
-             bytes_read += 14;
+             p=pd+15;
+             bytes_read = file_read(p, 1, length-15, fh);
+             bytes_read += 15;
           }
        } else
           bytes_read = -1;
