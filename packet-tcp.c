@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.216 2003/11/11 19:24:09 guy Exp $
+ * $Id: packet-tcp.c,v 1.217 2003/11/13 20:53:44 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -169,8 +169,8 @@ process_tcp_payload(tvbuff_t *tvb, volatile int offset, packet_info *pinfo,
  * stuff to analyze TCP sequencenumbers for retransmissions, missing segments,
  * RTT and reltive sequence numbers.
  * **************************************************************************/
-static gboolean tcp_analyze_seq = FALSE;
-static gboolean tcp_relative_seq = FALSE;
+static gboolean tcp_analyze_seq = TRUE;
+static gboolean tcp_relative_seq = TRUE;
 
 static GMemChunk *tcp_unacked_chunk = NULL;
 static int tcp_unacked_count = 500;	/* one for each packet until it is acked*/
