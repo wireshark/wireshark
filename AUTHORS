@@ -42,6 +42,7 @@ Laurent Deniel       <deniel@worldnet.fr> {
     OMG GIOP/IIOP support
     ISO/OSI CLNP/COTP support
     Real time capture and display enhancement
+    Many display filters added
     Miscellaneous enhancements and fixes
 }
 

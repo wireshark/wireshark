@@ -2,7 +2,7 @@
  * Routines for pop packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-pop.c,v 1.8 1999/10/03 13:44:32 deniel Exp $
+ * $Id: packet-pop.c,v 1.9 1999/11/14 10:16:25 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -44,6 +44,8 @@
 #include "packet.h"
 
 static int proto_pop = -1;
+static int hf_pop_response = -1;
+static int hf_pop_request = -1;
 
 void
 dissect_pop(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
@@ -89,14 +91,14 @@ dissect_pop(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	  pop_tree = proto_item_add_subtree(ti, ETT_POP);
 
 	  if (pi.match_port == pi.destport) { /* Request */
-
+	    proto_tree_add_item_hidden(pop_tree, hf_pop_request, offset, i1, TRUE);
 	    proto_tree_add_text(pop_tree, offset, i1, "Request: %s", rr);
 
 	    proto_tree_add_text(pop_tree, offset + i1 + 1, END_OF_FRAME, "Request Arg: %s", rd);
 
 	  }
 	  else {
-
+	    proto_tree_add_item_hidden(pop_tree, hf_pop_response, offset, i1, TRUE);
 	    proto_tree_add_text(pop_tree, offset, i1, "Response: %s", rr);
 
 	    proto_tree_add_text(pop_tree, offset + i1 + 1, END_OF_FRAME, "Response Arg: %s", rd);
@@ -108,11 +110,19 @@ dissect_pop(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 void
 proto_register_pop(void)
 {
-/*        static hf_register_info hf[] = {
-                { &variable,
-                { "Name",           "pop.abbreviation", TYPE, VALS_POINTER }},
-        };*/
 
-        proto_pop = proto_register_protocol("Post Office Protocol", "pop");
- /*       proto_register_field_array(proto_pop, hf, array_length(hf));*/
+  static hf_register_info hf[] = {
+    { &hf_pop_response,
+      { "Response",           "pop.response",
+	FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+      	"TRUE if POP response" }},
+
+    { &hf_pop_request,
+      { "Request",            "pop.request",
+	FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+      	"TRUE if POP request" }}
+  };
+
+  proto_pop = proto_register_protocol("Post Office Protocol", "pop");
+  proto_register_field_array(proto_pop, hf, array_length(hf));
 }
