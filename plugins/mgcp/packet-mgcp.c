@@ -2,7 +2,7 @@
  * Routines for mgcp packet disassembly
  * RFC 2705
  *
- * $Id: packet-mgcp.c,v 1.17 2001/03/04 00:43:56 guy Exp $
+ * $Id: packet-mgcp.c,v 1.18 2001/03/04 03:38:20 guy Exp $
  * 
  * Copyright (c) 2000 by Ed Warnicke <hagbard@physics.rutgers.edu>
  *
@@ -163,7 +163,7 @@ static gint tvb_parse_param(tvbuff_t *tvb, gint offset, gint maxlength,
  * are written in the same style.
  */ 
 static void dissect_mgcp_message(tvbuff_t *tvb, packet_info *pinfo, 
-				 proto_tree *tree);
+				 proto_tree *tree,proto_tree *mgcp_tree, proto_tree *ti);
 static void dissect_mgcp_firstline(tvbuff_t *tvb, 
 				   packet_info* pinfo, 
 				   proto_tree *tree);
@@ -198,6 +198,7 @@ dissect_mgcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   gint sectionlen;
   guint32 num_messages;
   gint tvb_sectionend,tvb_sectionbegin, tvb_len, tvb_current_len;
+  proto_tree *mgcp_tree, *ti;
 
   /* Initialize variables */
   tvb_sectionend = 0;
@@ -206,7 +207,9 @@ dissect_mgcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   tvb_len = tvb_length(tvb);
   tvb_current_len  = tvb_len;
   num_messages = 0;
-
+  mgcp_tree = NULL;
+  ti = NULL;
+  
   /*
    * Set the columns now, so that they'll be set correctly if we throw
    * an exception.  We can set them later as well....
@@ -231,20 +234,28 @@ dissect_mgcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
        */
       do{
 	num_messages++;
+	if(tree){
+	  /* Create out mgcp subtree */
+	  ti = proto_tree_add_item(tree,proto_mgcp,tvb,0,0, FALSE);
+	  mgcp_tree = proto_item_add_subtree(ti, ett_mgcp);
+	}
+
 	sectionlen = tvb_find_dot_line(tvb, tvb_sectionbegin, -1,
 				       &tvb_sectionend);
 	if( sectionlen != -1){
 	  dissect_mgcp_message(tvb_new_subset(tvb, tvb_sectionbegin, 
 					      sectionlen, -1),
-			       pinfo, tree);
+			       pinfo, tree, mgcp_tree,ti);
 	  tvb_sectionbegin = tvb_sectionend;
 	}
 	else {
 	  break;
 	}
       } while(tvb_sectionend < tvb_len );
-      proto_tree_add_uint_hidden(tree, hf_mgcp_messagecount,NullTVB,0,0,
-				 num_messages); 
+      if(mgcp_tree){
+	proto_tree_add_uint_hidden(mgcp_tree, hf_mgcp_messagecount, tvb, 
+				   0 ,0 , num_messages); 
+      }
     } 
 
     /* 
@@ -276,10 +287,10 @@ dissect_mgcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static void 
-dissect_mgcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
+dissect_mgcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
+		     proto_tree *mgcp_tree, proto_tree *ti){
 
   /* Declare variables */
-  proto_tree *mgcp_tree, *ti;
   gint sectionlen;
   gint tvb_sectionend,tvb_sectionbegin, tvb_len, tvb_current_len;
   tvbuff_t *next_tvb;
@@ -300,11 +311,7 @@ dissect_mgcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
   if(is_mgcp_verb(tvb,0,tvb_len) || is_mgcp_rspcode(tvb,0,tvb_len)){
     
     /* Build the info tree if we've been given a root */
-    if (tree) {  
-      
-      /* Create out mgcp subtree */
-      ti = proto_tree_add_item(tree,proto_mgcp,tvb,0,0, FALSE);
-      mgcp_tree = proto_item_add_subtree(ti, ett_mgcp);
+    if (tree && mgcp_tree) {  
       
       /* dissect first line */
       tvb_sectionbegin = 0;
