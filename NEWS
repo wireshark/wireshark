@@ -4,7 +4,7 @@ Overview of changes in Ethereal 0.9.4:
 * Work was done by many people to clean up code across the entire
   source tree, removing unused variables and routines and static-izing
   functions.  Individual changes will not be listed here.  (Joerg, Uwe,
-  Guy, Gilbert, ????)
+  Guy, Gilbert, David Frascone, ????)
 * Add the LANE packet type to the ATM LANE info column. (Guy)
 * Use the reported (not captured) length when scanning a packet in the IP
   dissector. (Guy)
@@ -186,6 +186,220 @@ Overview of changes in Ethereal 0.9.4:
 * Fix BSD/Linux confusion in README.bsd. (Marco Molteni)
 * Improve floating-point number format printing in various dissectors.
   (Guy)
+* Fix return value of fragment_add_seq_work() in reassemble.c. (Guy)
+* #include string.h in packet-hclnfsd.c. (Guy)
+* Fix struct-related compiler warnings for Digital UNIX in pcap-util.c.
+  (Guy)
+* Fix variable typing in ngsniffer.c. (Guy)
+* Add AODV support. (Erik Nordström)
+* ATP, ASP, and AFP support. (Didier)
+* Ethereal man page fix and updates. (Joerg)
+* AppleTalk protocol display enhancements. (Guy)
+* FTP protocol tree enhancements. (Guy)
+* Add LsaLookupNames support to DCERPC/LSA. (Ronnie)
+* Date/Time, Negotiate Protocol and Info Standard fixes for SMB. (Guy)
+* Add routines to create anonymous handles for new-style dissectors in
+  packet.c. (Guy)
+* Convert LDP dissectors to new-style. (Guy)
+* Display COPS OCTET STRING values correctly, remove unused code. 
+  (Kari Tiirikainen)
+* Add note about WfW 3.1a special case in packet-smb.c. (Guy)
+* Add support for LSACreateSecret, LSAOpenAccount, and many others to
+  DCERPC/LSA. (Ronnie)
+* More AFP updates and fixes. (Didier, Guy)
+* Decode replies to FPWrite in AFP. (Guy)
+* Make AODV dissector new-style. (Guy)
+* Clean up AFP field names, descriptions and white space. (Guy)
+* Give AFP messages the same names they're given in Apple's documentation.
+  (Guy)
+* AFP DSI and ASP command message display enhancements. (Guy)
+* Set the nanosecond time value to 0 in AFP. (Guy)
+* Fix error code/data offset display in DSI. (Guy)
+* Mark AFP requests as such in the Info column. (Guy)
+* Enhanced DSI and ASP command/reply message display, other protocol tree
+  and function name fixes in AppleTalk. (Guy)
+* Improve non-printable character display in proto.c. (Guy)
+* Add a display filter comment to proto.c. (Guy)
+* Make unknown AFP command code display more consistent. (Guy)
+* Improve WSP URI display. (Guy)
+* Fix LSA_REFERENCED_DOMAIN_LIST pointer in DCERPC/LSA. (Ronnie)
+* Add LSAEnumerateAccountRights to DCERPC/LSA. (Ronnie)
+* Add LSAAddAccountRights and LSARemoveAccountRights to DCERPC/LSA (Ronnie)
+* Protocol and display filter code rearrangement. (Guy)
+* Clean up file name and UNIX Privileges display in AFP, other 
+  improvements. (Guy)
+* Un-#if out dissect_beep_status() in packet-beep.c. (Guy)
+* Improve MIP extension dissection. (Guy)
+* Dynamically build SMB sub-authority string. (Guy)
+* Un-#if out DCERPC/SAMR routines, other cleanup. (Guy)
+* Additional SMB RAP error code support. (Devin heitmeuller)
+* Update URLs, patch and libpcap comments in README.hpux. (Guy)
+* Change DCERPC request Info column display. (Tim)
+* Use the string in the DCERPC sub-dissector array instead of providing
+  another one in the COL_INFO field. (Tim)
+* Pull traffic type from atmsnoop header. (Guy)
+* Migrate to a generic ATM pseudo-header, improve signalling AAL and LANE
+  support. (Guy)
+* Uniformly use "sizeof (struct netmon_atm_hdr)" for the size of Network
+  Monitor's ATM pseudo-header. (Guy)
+* Add support for writing Sun atmsnoop files, fix MARS mapping, remove
+  support for writing WTAP_ENCAP_NULL files. (Guy)
+* Add support for many more DCERPC LSA messages. (Ronnie)
+* Plugin table address fixes in Gryphon, MGCP. (Guy)
+* Move code to guess ATM traffic type to Wiretap. (Guy)
+* Remove redundant ATM LLC multiplexed traffic message. (Guy)
+* More AFP, ATP, NBP and DSI updates. (Didier)
+* Add desegmentation support to Gryphon. (Guy)
+* Initial SPOOLSS setprinter support. (Tim)
+* Enhanced bitfield, other data display for Gryphon. (Guy)
+* Fix an error in a blurb in packet-ieee80211.c. (Guy)
+* Improve AppleTalk desegmentation error reporting. (Guy)
+* Clean up tvb length specification in PPTP. (Guy)
+* Better NBNS short frame handling. (Guy)
+* Add a check for a zero-length IE to "dissect_q2931_shift_ie()". (Guy)
+* Various NetBIOS improvements. (Guy)
+* Add LSALookupPrivilegedDisplayName to DCERPC/LSA. (Ronnie)
+* Add LSAStorePrivateData and LSARetrievePrivateData to DCERPC/LSA. (Ronnie)
+* Add LSACloseTrustedDomainEX and LSALookupSIDs2 to DCERPC/LSA. (Ronnie)
+* Add LSAGetUserName, LSAEnumerateTrustedDomainsEX and
+  LSACreateTrustedDomainEX to DCERPC/LSA. (Ronnie)
+* Add last two LSA functions. (Ronnie)
+* Improve IPv6 "no next header" handling. (Guy)
+* Spelling fix, tree display improvements for EIGRP. (Guy)
+* Fix tree code in ISUP. (Guy)
+* Improve TLV length checking, data fetching in IS-IS. (Guy)
+* Improve ICQ tree display, length checks, size handling. (Guy)
+* Put the protocol version into the ICQ v2/v3/v4 tree. (Guy)
+* Prefer IEEE entries over CaveBear entries in manuf file. (Joerg)
+* Remove redundant printing of "IPv6" in IPv6 dissector. (Guy)
+* Arrange for the filter prefs dialog box to be destroyed correctly. (Guy)
+* Improve filter string memory (de)allocation, code cleanup and other
+  memory fixes. (Guy)
+* Make the filter list combo box case-sensitive. (Guy)
+* Add some newly discovered names for some NETLOGON functions. (Ronnie)
+* Initial DCCP (Distributed Checksum Clearinghouse) support. (Nathan)
+* DCCP query, report and admin operation support. (Nathan)
+* Split DCCP opnums into a separate tree. (Nathan)
+* Fix DCCP field names, handle flood and trace control packets. (Nathan)
+* More AFP, ASP, ATP and DSI improvements. (Didier, Guy)
+* Add a "frame.marked" hidden field. (Didier, Guy)
+* Improve "Find Frame" progress, add "Find Next" and "Find Previous".
+  (Didier, Guy)
+* Add TCP packet length to the protocol tree. (Richard)
+* Fix capture-file-specific "close output" routines, put the NetXRay dump
+  routines in order by version number. (Guy)
+* In ringbuffer.c check for fflush() success, better error handling. (Guy)
+* Get rid of "-Wno-unused" in configure.in. (Joerg)
+* Put "frame.marked" into the "Frame" subtree. (Didier)
+* Improve TCP PDU dissection, other enhancements. (Guy)
+* Add tcp_dissect_pdus() to the plugin function pointer table. (Guy)
+* tvb_ensure_length_remaining() and tcp_dissect_pdus() updates. (Guy)
+* Use guint32s in DCCP. (Guy)
+* Fix the declaration of pointers to "tcp_dissect_pdus()". (Guy)
+* Dissect a status code at the end of a DCERPC/SAMR GetAliasMem reply
+  instead of uint32. (Tim)
+* RADIUS string display improvements. (Guy)
+* Don't include conversation header in packet-slimp3.c. (Guy)
+* Fix for the handling of enum types in ethereal_gen.py. (Frank)
+* Fix up item lengths for DCERPC/NT policy handle subtree and subitems
+  under it. (Tim)
+* Added extra check in the function that parses DCERPC NDR pointers.
+  (Ronnie)
+* Several DCERPC SAMR bug fixes. (Ronnie)
+* Use the correct offset when fetching unreserved IS-IS bandwidth values.
+  (Chenjiang Hu)
+* Add support for invalid SMB security descriptor owner error. (Tim)
+* RADIUS VSA decoding and other changes. (Kan Sasaki)
+* Add option to match async NLM MSG with RES packets. (Ronnie)
+* SIP heuristic dissector. (Stefan Wenk)
+* Add autom4te.cache to .cvsignore. (Joerg)
+* Improve DSI and ASP address handling, add support for "open session" and
+  "attention" messages to DSI. (Didier)
+* Add DOS error code dissection, uint8 range decoding to DCERPC/NT. (Tim)
+* Handle address lengths based on TOA bit in X.25. (Martin Thomas)
+* Improve SIP heuristic data checking. (Guy)
+* Improve DCERPC/SAMR QueryDomainInfo handling. (Guy, Ronnie)
+* Match X.25 address length checking with the spec, improve registration
+  request and confirmation display. (Guy)
+* Added parsing of PORTMAP GETPORT functions. (Ronnie)
+* Merge Novell_NCP_branch into the main tree. (yay!) (Gilbert)
+* Add a private data member to the dcerpc_info structure. (Tim)
+* Various SPOOLSS enhancements. (Tim)
+* Register FT_UINT_BYTES with correct structure in ftype-bytes.c (Gilbert)
+* Add support for LMP draft versions -02 and -03. (Ashok)
+* Add OSPF display filter support. (Ashok)
+* Display escape sequences in octal in IAPP. (Guy)
+* Prevent loops in DNS dissector. (Graeme)
+* Use a name, not a number, to refer to the IP protocol number for UDP
+  in packet-portmap.c. (Guy)
+* Improve RPC subdissector calling. (Guy)
+* Add a mechanism for registering "obsolete" preference modules. (Guy)
+* Handle an LSA length <= the length of an LSA header in OSPF. (Guy)
+* Improve DCERPC NT policy handling, various SPOOLSS fixes. (Guy)
+* Fix case sensitivity of comparison in AFP, add support for "exchange
+  file" operation. (Didier)
+* Fix a bounds checking error in GIOP. (Gerald)
+* Add better bounds and overflow checking to GIOP, add
+  "tvb_ensure_bytes_exist(), overflow checking to tvbuff routines. (Guy)
+* Add support for StartDocPrinter and EndDocPrinter to SPOOLSS. (Tim)
+* Make it easier to add RADIUS attributes, put decoded VSAs into a
+  subitem. (Kan)
+* Correct OSPF v2-vs-v3 parsing, proto_tree_add_item() call. (Motonori)
+* Add length checking to packet-tpkt.c's is_tpkt().  Have Q.931 heuristic
+  dissector use it. (Guy)
+* Change the name under which variables are hashed during processing in
+  ncp2222.py. (Gilbert)
+* Add RADIUS VSAs from the FreeRADIUS dictionary files, Q.931 cause
+  location and code values, and other fixes/improvements. (Kan, Guy)
+* OSPF opaque type field improvements. (Guy)
+* Add an argument to (t)ethereal's "-G" flag. (Guy)
+* Report "g_module_open()" errors. (Ruud Linders)
+* Fix a compiler warning in plugins.c (Guy)
+* RADIUS updates. (Kan)
+* Use "-G fields" in Makefiles, add error checking to "-G". (Guy)
+* Fix JobFileHandle and JobFileHandleLong in ncp2222.py. (Gilbert)
+* Implement MAPID (procedure 12) in PCNFSD v2. (Mike Frisch)
+* Make the iSCSI protocol level a settable preference. (Mark Burton)
+* Set proto_tree_add_text() length field correctly in packet-dcerpc-nt.c
+  (Tim)
+* Set the Info column earlier in NCP.  Add support for burst packets. (Guy)
+* Make the syslog message text a tree item. (Guy)
+* Check in stub dissectors for Sun's NFS ACL, remote statistics, and
+  Solstice administration daemon RPC services. (Guy)
+* Use registered fields for the subfields of the Flags field in DNS and
+  NBNS. (Guy)
+* Add iSCSI draft 12 support. (Mark Burton)
+* Support for interest level 1003 and 1007 in SMB
+  TRANS2_QUERY_FS_INFORMATION. (Andrew Esh)
+* Various NCP updates: NCP-over-UDP, watchdog packets, connection number
+  display, undissected data display, burst mode. (Guy)
+* Get rid of NCP "Connection Number High" entry. (Guy)
+* Labeled unicast support for BGP. (Hannes Gredler)
+* Add Greg Morris as NCP dissector author, remove NCP bit from README. (Guy)
+* Improve RPC reply data dissection. (Guy)
+* Fix a couple of type issues in plugin_table.h (Gerald)
+* For NCP response packets, add a field showing the number of the frame
+  containing the request packet. (Gilbert)
+* Stubs for new dissector for SUN NFS AUTHentication protocol. (Ronnie)
+* Add Sun NFS ACL v2 and v3 function names. (Ronnie)
+* Move NCP packet type #defines to packet-ncp-int.h, other NCP updates. (Guy)
+* iSCSI fix. (Mark Burton)
+* Fix a compiler warning in packet-x11.c. (Andrew Esh)
+* Major cleanup of RSVP, adding OIF O-UNI 1.0 support. (Ashok)
+* Set the configure default for --want_ucdsnmp back to "yes". (Gerald)
+* Additional interest levels in SMB's TRANS2_QUERY_FS_INFORMATION, other
+  fixes. (Andrew Esh)
+* Change DirectoryBase to a uint32 in ncp2222.py.
+* Add support for HPUX11 NETTL captures for the NS_LS_DRIVER type. (Ronnie)
+* Increase the max number of allowable NCP req_cond_index's. (Greg)
+* Fix an RSVP compilation error. (Gerald)
+* In the Windows capture dialog, place the interface description before the
+  interface name. (Gerald)
+* Add GIOP support to randpkt. (Gerald)
+* Make the default SNMP configure behavior "ifpresent". (Gerald)
+* Update SCTP to later IETF drafts. (Michael)
+* Set the Info column for compressed and uncompressed TCP. (Guy)
+* Show M2PA filler only if it's present. (Michael)
 
 Overview of changes in Ethereal 0.9.3:
 * Initial SCCP support. (Jeff Morriss)
