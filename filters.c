@@ -1,7 +1,7 @@
 /* filters.c
  * Code for reading and writing the filters file.
  *
- * $Id: filters.c,v 1.6 2001/02/03 06:10:11 guy Exp $
+ * $Id: filters.c,v 1.7 2001/03/13 21:25:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -515,7 +515,6 @@ save_filter_list(filter_list_type_t list, char **pref_path_return,
     *pref_path_return = ff_path;
     *errno_return = errno;
     unlink(ff_path_new);
-    g_free(ff_path);
     g_free(ff_path_new);
     return;
   }
