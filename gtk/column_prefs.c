@@ -1,7 +1,7 @@
 /* column_prefs.c
  * Dialog box for column preferences
  *
- * $Id: column_prefs.c,v 1.20 2004/01/18 00:53:57 ulfl Exp $
+ * $Id: column_prefs.c,v 1.21 2004/01/25 12:10:27 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -226,7 +226,9 @@ column_prefs_show() {
   gtk_widget_set_sensitive(up_bt, FALSE);
   SIGNAL_CONNECT(up_bt, "clicked", column_arrow_cb, NULL);
   gtk_box_pack_start(GTK_BOX(order_vb), up_bt, FALSE, FALSE, 0);
+#if GTK_MAJOR_VERSION < 2
   WIDGET_SET_SIZE(up_bt, 50, 20);
+#endif
   gtk_widget_show(up_bt);
 
   order_lb = gtk_label_new (("Move\nselected\ncolumn\nup or down"));
@@ -237,7 +239,9 @@ column_prefs_show() {
   gtk_widget_set_sensitive(dn_bt, FALSE);
   SIGNAL_CONNECT(dn_bt, "clicked", column_arrow_cb, NULL);
   gtk_box_pack_start(GTK_BOX(order_vb), dn_bt, FALSE, FALSE, 0);
+#if GTK_MAJOR_VERSION < 2
   WIDGET_SET_SIZE(dn_bt, 50, 20);
+#endif
   gtk_widget_show(dn_bt);
 
 
