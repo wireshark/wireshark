@@ -2,7 +2,7 @@
  * Routines for H.225 packet dissection
  * 2003  Ronnie Sahlberg
  *
- * $Id: packet-h225.c,v 1.2 2003/08/01 09:16:46 sahlberg Exp $
+ * $Id: packet-h225.c,v 1.3 2003/08/01 10:11:54 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -763,6 +763,11 @@ static gint ett_h225_RasMessage = -1;
 static gint ett_h225_H323_UserInformation = -1;
 static gint ett_h225_user_data = -1;
 /*bbb*/
+
+static dissector_handle_t h245_handle=NULL;
+
+static guint32  ipv4_address;
+static guint32  ipv4_port;
 
 static const true_false_string tfs_unsolicited_bit = {
 	"unsolicited bit is SET",
@@ -2266,14 +2271,12 @@ dissect_h225_RasUsageSpecification(tvbuff_t *tvb, int offset, packet_info *pinfo
 static int
 dissect_h225_ipAddress_ip(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
-	guint32 ip;
-
 	/* byte aligned */
 	if(offset&0x07){
 		offset=(offset&0xfffffff8)+8;
 	}
-	ip=tvb_get_letohl(tvb, offset>>3);
-	proto_tree_add_ipv4(tree, hf_h225_ipAddress_ip, tvb, offset>>3, 4, ip);
+	ipv4_address=tvb_get_letohl(tvb, offset>>3);
+	proto_tree_add_ipv4(tree, hf_h225_ipAddress_ip, tvb, offset>>3, 4, ipv4_address);
 	
 	offset+=32;
 	return offset;
@@ -2286,7 +2289,7 @@ dissect_h225_ipAddress_port(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo,
 		tree, hf_h225_ipAddress_port, 0, 65535,
-		NULL, NULL, FALSE);
+		&ipv4_port, NULL, FALSE);
 	return offset;
 }
 
@@ -2510,10 +2513,26 @@ dissect_h225_destCallSignalAddress(tvbuff_t *tvb, int offset, packet_info *pinfo
 	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h225_destCallSignalAddress, ett_h225_TransportAddress, TransportAddress_choice, "destCallSignalAddress", NULL);
 	return offset;
 }
+
+/* this is an indication of where h245 is spoken,  try to pick it up if
+   it was ipv4 and register h245 there */
 static int
 dissect_h225_h245Address(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
+	ipv4_address=0;
+	ipv4_port=0;
+
 	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h225_h245Address, ett_h225_TransportAddress, TransportAddress_choice, "h245Address", NULL);
+
+	if(ipv4_address!=0 && ipv4_port!=0 && h245_handle){
+		/* XXX FIXME
+		   This registers h245 for every tcp session to this port.
+		   We should really only register h245 for this port and
+		   only for this specific IP address  not for all ip addresses
+		*/
+		dissector_delete("tcp.port", ipv4_port, h245_handle);
+		dissector_add("tcp.port", ipv4_port, h245_handle);
+	}
 	return offset;
 }
 static int
@@ -9796,6 +9815,7 @@ proto_reg_handoff_h225(void)
 	h225ras_handle=create_dissector_handle(dissect_h225_RasMessage, proto_h225);
 	H323UserInformation_handle=create_dissector_handle(dissect_h225_H323UserInformation, proto_h225);
 
+	h245_handle = find_dissector("h245");
 
 	dissector_add("udp.port", UDP_PORT_RAS1, h225ras_handle);
 	dissector_add("udp.port", UDP_PORT_RAS2, h225ras_handle);

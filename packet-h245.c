@@ -4,7 +4,7 @@
  *       with great support with testing and providing capturefiles
  *       from Martin Regner
  *
- * $Id: packet-h245.c,v 1.27 2003/07/31 10:28:12 sahlberg Exp $
+ * $Id: packet-h245.c,v 1.28 2003/08/01 10:11:54 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -22206,6 +22206,7 @@ proto_register_h245(void)
 		"Whether the dissector should reassemble H.245 PDUs spanning multiple TCP segments",
 		&h245_reassembly);
 	register_dissector("h245dg", dissect_h245_MultimediaSystemControlMessage, proto_h245);
+	register_dissector("h245", dissect_h245, proto_h245);
 }
 
 void
