@@ -2,7 +2,7 @@
  * Routines for IEEE 802.2 LLC layer
  * Gilbert Ramirez <gramirez@tivoli.com>
  *
- * $Id: packet-llc.c,v 1.51 2000/04/09 18:33:26 guy Exp $
+ * $Id: packet-llc.c,v 1.52 2000/04/10 14:45:30 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -184,6 +184,7 @@ http://www.cisco.com/univercd/cc/td/doc/product/software/ios113ed/113ed_cr/ibm_r
 	{ OUI_BFR,         "Bridged Frame-Relay" }, /* RFC 2427 */
 	{ OUI_ATM_FORUM,   "ATM Forum" },
 	{ OUI_APPLE_ATALK, "Apple (AppleTalk)" },
+	{ OUI_CABLE_BPDU,  "DOCSIS Spanning Tree" }, /* DOCSIS spanning tree BPDU */
 	{ 0,               NULL }
 };
 
@@ -425,6 +426,14 @@ dissect_llc(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 				}
 			} else
 				dissect_data(pd, offset+8, fd, tree);
+			break;
+
+		case OUI_CABLE_BPDU:    /* DOCSIS cable modem spanning tree BPDU */
+			if (tree) {
+				proto_tree_add_item(llc_tree,
+				hf_llc_pid, offset+6, 2, etype);
+			}
+			dissect_bpdu(pd, offset+8, fd, tree);
 			break;
 
 		default:

@@ -2,7 +2,7 @@
  * Definitions of OUIs
  * Gilbert Ramirez <gramirez@tivoli.com>
  *
- * $Id: oui.h,v 1.4 2000/01/22 21:49:50 gerald Exp $
+ * $Id: oui.h,v 1.5 2000/04/10 14:45:30 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -30,5 +30,6 @@
 #define OUI_BFR		0x0080C2	/* Bridged Frame-Relay, RFC 2427 */
 #define	OUI_ATM_FORUM	0x00A03E	/* ATM Forum */
 #define	OUI_APPLE_ATALK	0x080007	/* Appletalk */
+#define OUI_CABLE_BPDU	0x00E02F	/* DOCSIS spanning tree BPDU */
 
 extern const value_string oui_vals[];
