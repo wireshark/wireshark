@@ -99,6 +99,7 @@
 #include "conditions.h"
 #include "capture_stop_conditions.h"
 #include "ringbuffer.h"
+#include "capture_ui_utils.h"
 #include <epan/epan_dissect.h>
 #include <epan/tap.h>
 #include <epan/timestamp.h>
@@ -1701,6 +1702,7 @@ capture(int out_file_type)
   char        errmsg[1024+1];
   condition  *volatile cnd_stop_capturesize = NULL;
   condition  *volatile cnd_stop_timeout = NULL;
+  char       *descr;
 #ifndef _WIN32
   void        (*oldhandler)(int);
   static const char ppamsg[] = "can't find PPA for ";
@@ -1922,7 +1924,9 @@ capture(int out_file_type)
 #endif /* _WIN32 */
 
   /* Let the user know what interface was chosen. */
-  fprintf(stderr, "Capturing on %s\n", cfile.iface);
+  descr = get_interface_descriptive_name(cfile.iface);
+  fprintf(stderr, "Capturing on %s\n", descr);
+  g_free(descr);
 
   /* initialize capture stop conditions */
   init_capture_stop_conditions();

@@ -62,6 +62,7 @@ BUILT_SOURCES =		\
 ETHEREAL_COMMON_SRC =	\
 	$(PLATFORM_SRC) \
 	capture_stop_conditions.c	\
+	capture_ui_utils.c	\
 	cfile.c	\
 	clopts_common.c	\
 	conditions.c	\
@@ -80,6 +81,7 @@ ETHEREAL_COMMON_INCLUDES =	\
 	$(DISSECTOR_SUPPORT_INCLUDES)	\
 	svnversion.h		\
 	capture_stop_conditions.h	\
+	capture_ui_utils.h	\
 	cfile.h	\
 	clopts_common.h	\
 	color.h	\
@@ -142,7 +144,6 @@ ethereal_SOURCES =	\
 	capture.c	\
 	capture_sync.c	\
 	capture_loop.c	\
-	capture_ui_utils.c	\
 	color_filters.c	\
 	file.c	\
 	filters.c	\
@@ -156,7 +157,6 @@ ethereal_INCLUDES =	\
 	alert_box.h	\
 	capture.h	\
 	capture_sync.h	\
-	capture_ui_utils.h	\
 	color_filters.h	\
 	filters.h	\
 	g711.h	\
