@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.149 2004/01/27 05:05:58 guy Exp $
+ * $Id: menu.c,v 1.150 2004/01/27 19:46:52 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -66,6 +66,8 @@
 #include "packet_list.h"
 #include "ethclist.h"
 #include "recent.h"
+#include "../ui_util.h"
+#include "proto_draw.h"
 
 GtkWidget *popup_menu_object;
 
@@ -1128,7 +1130,7 @@ menu_recent_read_finished(void) {
 gint
 popup_menu_handler(GtkWidget *widget, GdkEvent *event, gpointer data)
 {
-    GtkWidget *menu = NULL;
+    GtkWidget *menu = (GtkWidget *)data;
     GdkEventButton *event_button = NULL;
     gint row, column;
 
@@ -1151,12 +1153,25 @@ popup_menu_handler(GtkWidget *widget, GdkEvent *event, gpointer data)
                             GINT_TO_POINTER(row));
             OBJECT_SET_DATA(popup_menu_object, E_MPACKET_LIST_COL_KEY,
                             GINT_TO_POINTER(column));
+            packet_list_set_selected_row(row);
         }
     }
-    menu = (GtkWidget *)data;
+
+    /* Check if we are on tree_view object */
+    if (widget == tree_view) {
+        tree_view_select(widget, (GdkEventButton *) event);
+    }
+
+    /* Check if we are on byte_view object */
+    if(widget == get_notebook_bv_ptr(byte_nb_ptr)) {
+        byte_view_select(widget, (GdkEventButton *) event);
+    }
+
     if(event->type == GDK_BUTTON_PRESS) {
         event_button = (GdkEventButton *) event;
 
+        /* To qoute the "Gdk Event Structures" doc:
+         * "Normally button 1 is the left mouse button, 2 is the middle button, and 3 is the right button" */
         if(event_button->button == 3) {
             gtk_menu_popup(GTK_MENU(menu), NULL, NULL, NULL, NULL,
                            event_button->button,
@@ -1166,6 +1181,8 @@ popup_menu_handler(GtkWidget *widget, GdkEvent *event, gpointer data)
         }
     }
 #if GTK_MAJOR_VERSION >= 2
+    /* GDK_2BUTTON_PRESS is a doubleclick -> expand/collapse tree row */
+    /* GTK version 1 seems to be doing this automatically */
     if (widget == tree_view && event->type == GDK_2BUTTON_PRESS) {
         GtkTreePath      *path;
 

@@ -1,7 +1,7 @@
 /* proto_draw.c
  * Routines for GTK+ packet display
  *
- * $Id: proto_draw.c,v 1.81 2004/01/21 21:19:33 ulfl Exp $
+ * $Id: proto_draw.c,v 1.82 2004/01/27 19:46:52 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -331,7 +331,7 @@ lookup_finfo(GtkTreeModel *model, GtkTreePath *path _U_, GtkTreeIter *iter,
 /* If the user selected a certain byte in the byte view, try to find
  * the item in the GUI proto_tree that corresponds to that byte, and
  * select it. */
-static gint
+gint
 byte_view_select(GtkWidget *widget, GdkEventButton *event)
 {
     proto_tree   *tree;
@@ -578,6 +578,8 @@ byte_view_button_press_cb(GtkWidget *widget, GdkEvent *event, gpointer data)
 	if(event->type == GDK_BUTTON_PRESS) {
 		event_button = (GdkEventButton *) event;
 
+        /* To qoute the "Gdk Event Structures" doc:
+         * "Normally button 1 is the left mouse button, 2 is the middle button, and 3 is the right button" */
 		switch(event_button->button) {
 
 		case 1:
@@ -1554,6 +1556,51 @@ void
 main_proto_tree_draw(proto_tree *protocol_tree)
 {
     proto_tree_draw(protocol_tree, tree_view);
+}
+
+/* If the user selected a position in the tree view, try to find
+ * the item in the GUI proto_tree that corresponds to that byte, and
+ * select it. */
+gint
+tree_view_select(GtkWidget *widget, GdkEventButton *event)
+{
+#if GTK_MAJOR_VERSION < 2
+        GtkCTree     *ctree;
+        GtkCTreeNode *node;
+        gint         row;
+        gint         column;
+
+
+        if(gtk_clist_get_selection_info(GTK_CLIST(widget), 
+            (gint) (((GdkEventButton *)event)->x),
+            (gint) (((GdkEventButton *)event)->y),
+            &row, &column))
+        {
+            ctree = GTK_CTREE(widget);
+
+            node = gtk_ctree_node_nth(ctree, row);
+            g_assert(node);
+
+            gtk_ctree_select(ctree, node);
+        } else {
+            return TRUE;
+        }
+#else
+        GtkTreeSelection    *sel;
+        GtkTreePath         *path;
+
+        if (gtk_tree_view_get_path_at_pos(GTK_TREE_VIEW(widget),
+                                          (gint) (((GdkEventButton *)event)->x),
+                                          (gint) (((GdkEventButton *)event)->y),
+                                          &path, NULL, NULL, NULL))
+        {
+            sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(widget));
+            gtk_tree_selection_select_path(sel, path);
+        } else {
+            return TRUE;
+        }
+#endif
+    return TRUE;
 }
 
 void
