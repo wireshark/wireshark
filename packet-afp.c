@@ -2,7 +2,7 @@
  * Routines for afp packet dissection
  * Copyright 2002, Didier Gautheron <dgautheron@magic.fr>
  *
- * $Id: packet-afp.c,v 1.31 2003/06/07 08:49:32 guy Exp $
+ * $Id: packet-afp.c,v 1.32 2003/06/26 18:18:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -580,21 +580,6 @@ static int hf_afp_map_name_type = -1;
 static int hf_afp_map_name	= -1;
 static int hf_afp_map_id	= -1;
 static int hf_afp_map_id_type	= -1;
-
-static const value_string vol_bitmap_vals[] = {
-  {kFPVolAttributeBit,          "VolAttribute"},
-  {kFPVolSignatureBit,		"VolSignature"},
-  {kFPVolCreateDateBit,		"VolCreateDate"},
-  {kFPVolModDateBit,		"VolModDate"},
-  {kFPVolBackupDateBit,		"VolBackupDate"},
-  {kFPVolIDBit,			"VolID"},
-  {kFPVolBytesFreeBit,		"VolBytesFree"},
-  {kFPVolBytesTotalBit,		"VolBytesTotal"},
-  {kFPVolNameBit,		"VolNameBit"},
-  {kFPVolExtBytesFreeBit,	"VolExtBytesFree"},
-  {kFPVolExtBytesTotalBit,	"VolExtBytesTotal"},
-  {kFPVolBlockSizeBit,	  	"VolBlockSize"},
-  {0,				 NULL } };
 
 static const value_string flag_vals[] = {
   {0,	"Start" },
