@@ -2,7 +2,7 @@
  * Routines for use by various SDLC-derived protocols, such as HDLC
  * and its derivatives LAPB, IEEE 802.2 LLC, etc..
  *
- * $Id: xdlc.c,v 1.7 1999/08/27 18:02:41 guy Exp $
+ * $Id: xdlc.c,v 1.8 1999/09/26 13:34:10 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -385,7 +385,10 @@ dissect_xdlc_control(const u_char *pd, int offset, frame_data *fd,
 	/*
 	 * Information frame.
 	 */
-	control = pd[offset];
+	if (is_extended)
+		control = pletohs(&pd[offset]);
+	else
+		control = pd[offset];
 	if (is_extended) {
 	    sprintf(info, "I%s, N(R) = %u, N(S) = %u",
 			((control & XDLC_P_F_EXT) ? " P" : ""),
