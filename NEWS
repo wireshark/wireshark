@@ -1,4 +1,95 @@
-$Id: NEWS,v 1.143 2004/03/26 01:39:41 gerald Exp $
+$Id: NEWS,v 1.144 2004/05/13 03:34:14 gerald Exp $
+
+== May ??, 2004
+
+Ethereal 0.10.4 has been released.
+
+This release fixes bugs in AIM, MMSE, SIP, and SPNEGO, as described in
+the following advisory:
+
+    http://www.ethereal.com/appnotes/enpa-sa-00014.html
+
+Everyone is encouraged to upgrade.
+
+
+New and updated features
+
+  When built with GTK+ 2.4, Ethereal uses the new, greatly improved, file
+  selection dialog.
+
+  The print dialog now supports PDML and PSML output.
+
+  PostScript(R) output has been improved.
+
+  Many parts of the user interface have received improvements.
+
+  Compressed and chunked transfer-coded HTTP bodies are now decoded.
+
+
+New protocol support
+
+  ANSI IS-801, BEA Tuxedo, DCERPC EFS, DICOM, GPRS LLC, GPRS SNDCP,  IEEE
+  1588/PTP, PVSTP, RTPS
+
+
+Updated protocol support
+
+3G A11,
+ACSE,
+AFS,
+AIM,
+ANSI MAP,
+ASN.1 (BER, PER),
+BACnet,
+CHDLC,
+COPS,
+DCERPC (LSA, NETLOGON, SAMR, SVCCTL, SPOOLS)
+DHCP,
+DIAMETER,
+EAPOL,
+FTAM,
+GSM,
+GTP,
+H.225,
+HTTP,
+ICMPv6,
+IPv4,
+IPv6,
+IPDC,
+IPMI,
+iSNS,
+ISUP,
+Kerberos,
+LDAP,
+LDP,
+MEGACO,
+MIPv6,
+MMSE,
+MQ,
+MTP3,
+NTLMSSP,
+RADIUS,
+RPC,
+RTPS,
+RUDP,
+SCTP,
+SIP,
+SLSK,
+SMB,
+SPNEGO,
+TCP,
+Time,
+WBXML,
+WCCP,
+WSP,
+X11,
+YMSG,
+
+
+Capture file support
+
+  EyeSDN, nettl,
+
 
 == March 25, 2004
 
