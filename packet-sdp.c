@@ -4,7 +4,7 @@
  * Jason Lango <jal@netapp.com>
  * Liberally copied from packet-http.c, by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-sdp.c,v 1.36 2003/11/17 21:52:35 guy Exp $
+ * $Id: packet-sdp.c,v 1.37 2003/11/18 19:20:15 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -31,9 +31,18 @@
 #include <ctype.h>
 
 #include <sys/types.h>
+#ifdef HAVE_SYS_SOCKET_H
 #include <sys/socket.h>
-#include <netinet/in.h>
+#endif
+#ifdef HAVE_NETINET_IN_H
+# include <netinet/in.h>
+#endif
+#ifdef HAVE_ARPA_INET_H
 #include <arpa/inet.h>
+#endif
+#ifdef NEED_INET_ATON_H
+# include <epan/inet_aton.h>
+#endif
 
 #include <glib.h>
 #include <epan/packet.h>
