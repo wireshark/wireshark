@@ -24,7 +24,7 @@ http://developer.novell.com/ndk/doc/docui/index.htm#../ncp/ncp__enu/data/
 for a badly-formatted HTML version of the same PDF.
 
 
-$Id: ncp2222.py,v 1.24 2002/05/24 11:45:51 gram Exp $
+$Id: ncp2222.py,v 1.25 2002/05/25 11:18:15 guy Exp $
 
 
 Copyright (c) 2000-2002 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -1955,8 +1955,6 @@ ExtAttrKeySize			= uint32("ext_attr_key_size", "Extended Attributes Key Size")
 ExtendedAttributesDefined	= uint32("extended_attributes_defined", "Extended Attributes Defined")
 ExtendedAttributeExtantsUsed	= uint32("extended_attribute_extants_used", "Extended Attribute Extants Used")
 ExtendedInfo	 	        = bitfield16("ext_info", "Extended Return Information", [
-	bf_boolean16(0x1000, "ext_info_access", "Last Access"),
-	bf_boolean16(0x8000, "ext_info_newstyle", "New Style"),
 	bf_boolean16(0x0001, "ext_info_update", "Update"),
 	bf_boolean16(0x0002, "ext_info_dos_name", "DOS Name"),
 	bf_boolean16(0x0004, "ext_info_flush", "Flush"),
@@ -1965,6 +1963,9 @@ ExtendedInfo	 	        = bitfield16("ext_info", "Extended Return Information", [
 	bf_boolean16(0x0020, "ext_info_sibling", "Sibling"),
 	bf_boolean16(0x0040, "ext_info_effective", "Effective"),
 	bf_boolean16(0x0080, "ext_info_mac_date", "MAC Date"),
+	bf_boolean16(0x0100, "ext_info_access", "Last Access"),
+	bf_boolean16(0x0400, "ext_info_64_bit_fs", "64 Bit File Sizes"),
+	bf_boolean16(0x8000, "ext_info_newstyle", "New Style"),
 ])
 ExtRouterActiveFlag             = boolean8("ext_router_active_flag", "External Router Active Flag")
 
