@@ -1,9 +1,9 @@
 /* packet-dcerpc-netlogon.c
  * Routines for SMB \\PIPE\\NETLOGON packet disassembly
- * Copyright 2001, Tim Potter <tpot@samba.org>
+ * Copyright 2001,2003 Tim Potter <tpot@samba.org>
  *  2002 structure and command dissectors by Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-netlogon.c,v 1.64 2002/11/30 08:34:28 sahlberg Exp $
+ * $Id: packet-dcerpc-netlogon.c,v 1.65 2003/01/14 05:09:16 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -6126,6 +6126,15 @@ static const value_string netlogon_opnum_vals[] = {
 	{ 0, NULL }
 };
 
+/* Secure channel types */
+
+static const value_string sec_chan_type_vals[] = {
+	{ SEC_CHAN_WKSTA,  "Workstation" },
+	{ SEC_CHAN_DOMAIN, "Domain trust" },
+	{ SEC_CHAN_BDC,    "Backup domain controller" },
+	{ 0, NULL }
+};
+
 void
 proto_register_dcerpc_netlogon(void)
 {
@@ -6501,8 +6510,8 @@ static hf_register_info hf[] = {
 		NULL, 0x0, "Length of password history", HFILL }},
 
 	{ &hf_netlogon_secure_channel_type,
-		{ "Sec Chn Type", "netlogon.sec_chn_type", FT_UINT16, BASE_DEC,
-		NULL, 0x0, "Secure Channel Type", HFILL }},
+		{ "Sec Chan Type", "netlogon.sec_chan_type", FT_UINT16, BASE_DEC,
+		VALS(sec_chan_type_vals), 0x0, "Secure Channel Type", HFILL }},
 
 	{ &hf_netlogon_restart_state,
 		{ "Restart State", "netlogon.restart_state", FT_UINT16, BASE_DEC,

@@ -1,8 +1,8 @@
 /* packet-dcerpc-netlogon.h
  * Routines for SMB \PIPE\NETLOGON packet disassembly
- * Copyright 2001, Tim Potter <tpot@samba.org>
+ * Copyright 2001,2003 Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-netlogon.h,v 1.10 2002/11/30 08:34:28 sahlberg Exp $
+ * $Id: packet-dcerpc-netlogon.h,v 1.11 2003/01/14 05:09:16 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -68,5 +68,11 @@
 #define NETLOGON_LOGONSAMLOGONEX			0x27
 #define NETLOGON_DSENUMERATETRUSTEDDOMAINS		0x28
 #define NETLOGON_DSRDEREGISTERDNSHOSTRECORDS		0x29
+
+/* Secure channel types */
+
+#define SEC_CHAN_WKSTA   2
+#define SEC_CHAN_DOMAIN  4
+#define SEC_CHAN_BDC     6
 
 #endif /* packet-dcerpc-netlogon.h */
