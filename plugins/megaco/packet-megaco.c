@@ -2,7 +2,7 @@
 * Routines for megaco packet disassembly
 * RFC 3015
 *
-* $Id: packet-megaco.c,v 1.14 2004/01/23 09:47:39 jmayer Exp $
+* $Id: packet-megaco.c,v 1.15 2004/04/21 19:58:14 etxrab Exp $
 *
 * Christian Falckenberg, 2002/10/17
 * Copyright (c) 2002 by Christian Falckenberg
@@ -72,7 +72,7 @@ static int hf_megaco_transid    	= -1;
 static int hf_megaco_Context		= -1;
 static int hf_megaco_command_line	= -1;
 static int hf_megaco_command		= -1;
-static int hf_megaco_termid		= -1;
+static int hf_megaco_termid			= -1;
 
 
 
@@ -235,27 +235,28 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	top_tree=tree;
 
 	/* Initialize variables */
-	tvb_len					= tvb_length(tvb);
-	megaco_tree				= NULL;
-	ti					= NULL;
+	tvb_len						= tvb_length(tvb);
+	megaco_tree					= NULL;
+	ti							= NULL;
 	tvb_previous_offset			= 0;
 	tvb_current_offset			= 0;
-	tvb_offset				= 0;
+	tvb_offset					= 0;
 	tvb_next_offset				= 0;
-	tvb_command_start_offset		= 0;
-	tvb_command_end_offset			= 0;
-	tvb_RBRKT				= 0;
-	tvb_LBRKT				= 0;
+	tvb_command_start_offset	= 0;
+	tvb_command_end_offset		= 0;
+	tvb_RBRKT					= 0;
+	tvb_LBRKT					= 0;
 	RBRKT_counter				= 0;
 	LBRKT_counter				= 0;
 	
 	/*
-	* Check to see whether we're really dealing with MEGACO by looking
-	* for the "MEGACO" string or a "!".This needs to be improved when supporting
-	* binary encodings.
-	*/
-	if(!tvb_get_nstringz0(tvb,0,sizeof(word),word)) return;
-	if (strncasecmp(word, "MEGACO", 6) != 0 && tvb_get_guint8(tvb, 0 ) != '!') return;
+	 * Check to see whether we're really dealing with MEGACO by looking
+	 * for the "MEGACO" string or a "!".This needs to be improved when supporting
+	 * binary encodings. Bugfix add skipping of leading spaces.
+	 */
+	tvb_offset = tvb_skip_wsp(tvb, tvb_offset);
+	if(!tvb_get_nstringz0(tvb,tvb_offset,sizeof(word),word)) return;
+	if (strncasecmp(word, "MEGACO", 6) != 0 && tvb_get_guint8(tvb, tvb_offset ) != '!') return;
 	
 	
 	/* Display MEGACO in protocol column */
@@ -486,22 +487,29 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		case 'T':
 			tokenlen = 1;
- 			tvb_get_guint8(tvb, tvb_previous_offset + 1 );			
 			if (tvb_get_guint8(tvb, tvb_previous_offset + 1 )!= 'r' )
 			{ 	   	
 				/* TransactionRequest short notation */
 			}
-			else{				/* TransactionRequest or TransactionResponseAck	*/
-				len = 22;         /* TransactionResponseAck is 22 characters      */
-				tokenlen = 11;
+			else{					/* TransactionRequest or TransactionResponseAck	*/
+				len = 22;			/* TransactionResponseAck is 22 characters      */
+				tokenlen = 11;	
 				tvb_get_nstringz0(tvb,tvb_previous_offset,len+1,transaction);
 	
- 				if ( transaction[20] == 'A'){ 
-					tvb_offset  = tvb_find_guint8(tvb, tvb_offset, tvb_len, '{');
+ 				if ( transaction[19] == 'A'){ 
+					tvb_offset  = tvb_find_guint8(tvb, tvb_offset, tvb_len, '{')+1;
 					len = tvb_len - tvb_offset - 1;
 					if (check_col(pinfo->cinfo, COL_INFO) )
 						col_add_fstr(pinfo->cinfo, COL_INFO, "%s TransactionResponseAck",
 						tvb_format_text(tvb,tvb_offset,len));
+					if(tree)
+						len = tvb_len - tvb_previous_offset; 
+						proto_tree_add_text(megaco_tree, tvb, tvb_previous_offset, -1,
+							"%s",tvb_format_text(tvb, tvb_previous_offset, len), tvb_len, 
+							tvb_previous_offset);
+					if(global_megaco_raw_text){
+						tvb_raw_text_add(tvb, megaco_tree);
+						}
 					return;
 					break;
 				}
