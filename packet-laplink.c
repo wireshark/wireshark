@@ -2,7 +2,7 @@
  * Routines for laplink dissection
  * Copyright 2003, Brad Hards <bradh@frogmouth.net>
  *
- * $Id: packet-laplink.c,v 1.2 2003/09/05 08:44:52 guy Exp $
+ * $Id: packet-laplink.c,v 1.3 2003/10/20 19:25:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -38,6 +38,11 @@
 #endif
 
 #include <epan/packet.h>
+#include <epan/strutil.h>
+#include <epan/conversation.h>
+
+#include "packet-tcp.h"
+#include "prefs.h"
 
 #define TCP_PORT_LAPLINK 1547
 #define UDP_PORT_LAPLINK 1547
@@ -60,7 +65,6 @@ static const value_string laplink_udp_magic[] = {
 };
 
 static const value_string laplink_tcp_magic[] = {
-	{ 0x00000000, "Null bytes" },
 	{ 0xff08c000, "Unknown TCP query - connection?" },
 	{ 0xff08c200, "Unknown TCP query - connection?" },
 	{ 0xff0bc000, "Unknown TCP query - connection?" },
@@ -74,6 +78,8 @@ static const value_string laplink_tcp_magic[] = {
 	{ 0xff14c000, "Unknown TCP response - directory list or file transfer?" },
 	{ 0, NULL }
 };
+
+static gboolean laplink_desegment = TRUE;
 
 /* Code to actually dissect the packets - UDP */
 static gint
@@ -116,7 +122,7 @@ dissect_laplink_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 /* Code to actually dissect the packets - TCP aspects*/
 static void
-dissect_laplink_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_laplink_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	int offset = 0;
 	int length = 0;
@@ -147,15 +153,32 @@ dissect_laplink_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_item(laplink_tree, hf_laplink_tcp_length, tvb, offset, 2, FALSE);
 		offset += 2;
 
-		proto_tree_add_item(laplink_tree, hf_laplink_tcp_data, tvb, offset, -1, FALSE);
+		proto_tree_add_item(laplink_tree, hf_laplink_tcp_data, tvb, offset, length, FALSE);
 
 /* Continue adding tree items to process the packet here */
 
 	}
 
-
-
 /* If this protocol has a sub-dissector call it here, see section 1.8 */
+}
+
+static guint
+get_laplink_pdu_len(tvbuff_t *tvb, int offset)
+{
+	guint plen;
+	/*
+	 * The length doesn't include the length or ident fields; add those in.
+	 */
+	plen = (tvb_get_ntohs(tvb, offset+4) + 2 + 4);
+	return plen;
+}
+
+static void
+dissect_laplink_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	tcp_dissect_pdus(tvb, pinfo, tree, laplink_desegment,
+			 6, get_laplink_pdu_len, 
+			 dissect_laplink_tcp_pdu);
 }
 
 
@@ -199,6 +222,7 @@ proto_register_laplink(void)
 		&ett_laplink,
 	};
 
+
 /* Register the protocol name and description */
 	proto_laplink = proto_register_protocol("Laplink",
 	    "Laplink", "laplink");
@@ -206,6 +230,14 @@ proto_register_laplink(void)
 /* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array(proto_laplink, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+	module_t *laplink_module;
+
+	laplink_module = prefs_register_protocol(proto_laplink, NULL);
+	prefs_register_bool_preference(laplink_module, "desegment_laplink_over_tcp",
+				       "Desegment all Laplink-over-TCP messages",
+				       "Whether the Laplink dissector should desegment all Laplink-over-TCP messages",
+				       &laplink_desegment);
 }
 
 
