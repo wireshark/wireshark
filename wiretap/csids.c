@@ -142,7 +142,7 @@ int csids_open(wtap *wth, int *err, gchar **err_info _U_)
   return 1;
 }
 
-/* Find the next packet and parse it; called from wtap_loop(). */
+/* Find the next packet and parse it; called from wtap_read(). */
 static gboolean csids_read(wtap *wth, int *err, gchar **err_info _U_,
     long *data_offset)
 {

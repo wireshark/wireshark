@@ -51,12 +51,10 @@ struct time_adjustment {
 
 static struct select_item selectfrm[100];
 static int max_selected = -1;
-static int count = 1;
 static int keep_em = 0;
 static int out_file_type = WTAP_FILE_PCAP;   /* default to "libpcap"   */
 static int out_frame_type = -2;              /* Leave frame type alone */
 static int verbose = 0;                      /* Not so verbose         */
-static unsigned int snaplen = 0;             /* No limit               */
 static struct time_adjustment time_adj = {{0, 0}, 0}; /* no adjustment */
 
 /* Add a selection item, a simple parser for now */
@@ -118,87 +116,6 @@ static int selected(int recno)
   }
 
   return 0;
-
-}
-
-/* An argument to the callback routine */
-
-typedef struct {
-	char	*filename;
-	wtap_dumper *pdh;
-} callback_arg;
-
-/*
- *The callback routine that is called for each frame in the input file
- */
-
-static void
-edit_callback(guchar *user, const struct wtap_pkthdr *phdr, long offset _U_,
-    union wtap_pseudo_header *pseudo_header, const guchar *buf)
-{
-  callback_arg *argp = (callback_arg *)user;
-  int err;
-  struct wtap_pkthdr snap_phdr;
-
-  if ((!selected(count) && !keep_em) ||
-      (selected(count) && keep_em)) {
-
-    if (verbose)
-      printf("Record: %u\n", count);
-
-    /* We simply write it, perhaps after truncating it; we could do other
-       things, like modify it. */
-
-    if (snaplen != 0 && phdr->caplen > snaplen) {
-      snap_phdr = *phdr;
-      snap_phdr.caplen = snaplen;
-      phdr = &snap_phdr;
-    }
-
-    /* assume that if the frame's tv_sec is 0, then
-     * the timestamp isn't supported */
-    if (phdr->ts.tv_sec > 0 && time_adj.tv.tv_sec != 0) {
-      snap_phdr = *phdr;
-      if (time_adj.is_negative)
-        snap_phdr.ts.tv_sec -= time_adj.tv.tv_sec;
-      else
-        snap_phdr.ts.tv_sec += time_adj.tv.tv_sec;
-      phdr = &snap_phdr;
-    }
-
-    /* assume that if the frame's tv_sec is 0, then
-     * the timestamp isn't supported */
-    if (phdr->ts.tv_sec > 0 && time_adj.tv.tv_usec != 0) {
-      snap_phdr = *phdr;
-      if (time_adj.is_negative) { /* subtract */
-        if (snap_phdr.ts.tv_usec < time_adj.tv.tv_usec) { /* borrow */
-          snap_phdr.ts.tv_sec--;
-          snap_phdr.ts.tv_usec += ONE_MILLION;
-        }
-        snap_phdr.ts.tv_usec -= time_adj.tv.tv_usec;
-      } else {                  /* add */
-        if (snap_phdr.ts.tv_usec + time_adj.tv.tv_usec > ONE_MILLION) {
-          /* carry */
-          snap_phdr.ts.tv_sec++;
-          snap_phdr.ts.tv_usec += time_adj.tv.tv_usec - ONE_MILLION;
-        } else {
-          snap_phdr.ts.tv_usec += time_adj.tv.tv_usec;
-        }
-      }
-      phdr = &snap_phdr;
-    }
-
-    if (!wtap_dump(argp->pdh, phdr, pseudo_header, buf, &err)) {
-
-      fprintf(stderr, "editcap: Error writing to %s: %s\n", argp->filename,
-        wtap_strerror(err));
-      exit(1);
-
-    }
-
-  }
-
-  count++;
 
 }
 
@@ -308,12 +225,16 @@ int main(int argc, char *argv[])
   wtap *wth;
   int i, err;
   gchar *err_info;
-  callback_arg args;
   extern char *optarg;
   extern int optind;
   int opt;
   char *p;
-  int snapshot_length;
+  unsigned int snaplen = 0;             /* No limit               */
+  wtap_dumper *pdh;
+  int count = 1;
+  long data_offset;
+  struct wtap_pkthdr snap_phdr;
+  const struct wtap_pkthdr *phdr;
 
   /* Process the options first */
 
@@ -417,18 +338,12 @@ int main(int argc, char *argv[])
 
   if ((argc - optind) >= 2) {
 
-    args.filename = argv[optind + 1];
     if (out_frame_type == -2)
       out_frame_type = wtap_file_encap(wth);
 
-    snapshot_length = wtap_snapshot_length(wth);
-    if (snapshot_length == 0) {
-      /* Snapshot length of input file not known. */
-      snapshot_length = WTAP_MAX_PACKET_SIZE;
-    }
-    args.pdh = wtap_dump_open(argv[optind + 1], out_file_type,
-			      out_frame_type, wtap_snapshot_length(wth), &err);
-    if (args.pdh == NULL) {
+    pdh = wtap_dump_open(argv[optind + 1], out_file_type,
+			 out_frame_type, wtap_snapshot_length(wth), &err);
+    if (pdh == NULL) {
 
       fprintf(stderr, "editcap: Can't open or create %s: %s\n", argv[optind+1],
 	      wtap_strerror(err));
@@ -439,7 +354,74 @@ int main(int argc, char *argv[])
     for (i = optind + 2; i < argc; i++)
       add_selection(argv[i]);
 
-    if (!wtap_loop(wth, 0, edit_callback, (char *)&args, &err, &err_info)) {
+    while (wtap_read(wth, &err, &err_info, &data_offset)) {
+
+      if ((!selected(count) && !keep_em) ||
+          (selected(count) && keep_em)) {
+
+        if (verbose)
+          printf("Record: %u\n", count);
+
+        /* We simply write it, perhaps after truncating it; we could do other
+           things, like modify it. */
+
+        phdr = wtap_phdr(wth);
+
+        if (snaplen != 0 && phdr->caplen > snaplen) {
+          snap_phdr = *phdr;
+          snap_phdr.caplen = snaplen;
+          phdr = &snap_phdr;
+        }
+
+        /* assume that if the frame's tv_sec is 0, then
+         * the timestamp isn't supported */
+        if (phdr->ts.tv_sec > 0 && time_adj.tv.tv_sec != 0) {
+          snap_phdr = *phdr;
+          if (time_adj.is_negative)
+            snap_phdr.ts.tv_sec -= time_adj.tv.tv_sec;
+          else
+            snap_phdr.ts.tv_sec += time_adj.tv.tv_sec;
+          phdr = &snap_phdr;
+        }
+
+        /* assume that if the frame's tv_sec is 0, then
+         * the timestamp isn't supported */
+        if (phdr->ts.tv_sec > 0 && time_adj.tv.tv_usec != 0) {
+          snap_phdr = *phdr;
+          if (time_adj.is_negative) { /* subtract */
+            if (snap_phdr.ts.tv_usec < time_adj.tv.tv_usec) { /* borrow */
+              snap_phdr.ts.tv_sec--;
+              snap_phdr.ts.tv_usec += ONE_MILLION;
+            }
+            snap_phdr.ts.tv_usec -= time_adj.tv.tv_usec;
+          } else {                  /* add */
+            if (snap_phdr.ts.tv_usec + time_adj.tv.tv_usec > ONE_MILLION) {
+              /* carry */
+              snap_phdr.ts.tv_sec++;
+              snap_phdr.ts.tv_usec += time_adj.tv.tv_usec - ONE_MILLION;
+            } else {
+              snap_phdr.ts.tv_usec += time_adj.tv.tv_usec;
+            }
+          }
+          phdr = &snap_phdr;
+        }
+
+        if (!wtap_dump(pdh, phdr, wtap_pseudoheader(wth), wtap_buf_ptr(wth),
+                       &err)) {
+
+          fprintf(stderr, "editcap: Error writing to %s: %s\n",
+                  argv[optind + 1], wtap_strerror(err));
+          exit(1);
+
+	}
+
+      }
+
+      count++;
+
+    }
+
+    if (err != 0) {
       /* Print a message noting that the read failed somewhere along the line. */
       fprintf(stderr,
               "editcap: An error occurred while reading \"%s\": %s.\n",
@@ -454,9 +436,9 @@ int main(int argc, char *argv[])
       }
     }
 
-    if (!wtap_dump_close(args.pdh, &err)) {
+    if (!wtap_dump_close(pdh, &err)) {
 
-      fprintf(stderr, "editcap: Error writing to %s: %s\n", argv[2],
+      fprintf(stderr, "editcap: Error writing to %s: %s\n", argv[optind + 1],
 	      wtap_strerror(err));
       exit(1);
 

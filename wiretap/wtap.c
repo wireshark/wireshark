@@ -447,29 +447,6 @@ wtap_buf_ptr(wtap *wth)
 }
 
 gboolean
-wtap_loop(wtap *wth, int count, wtap_handler callback, guchar* user, int *err,
-    gchar **err_info)
-{
-	long		data_offset;
-	int		loop = 0;
-
-	/* Start by clearing error flag */
-	*err = 0;
-
-	while ( (wtap_read(wth, err, err_info, &data_offset)) ) {
-		callback(user, &wth->phdr, data_offset,
-		    &wth->pseudo_header, buffer_start_ptr(wth->frame_buffer));
-		if (count > 0 && ++loop >= count)
-			break;
-	}
-
-	if (*err == 0)
-		return TRUE;	/* success */
-	else
-		return FALSE;	/* failure */
-}
-
-gboolean
 wtap_seek_read(wtap *wth, long seek_off,
 	union wtap_pseudo_header *pseudo_header, guint8 *pd, int len,
 	int *err, gchar **err_info)

@@ -250,7 +250,7 @@ static void config_pseudo_header(union wtap_pseudo_header *pseudo_head)
   }
 }
 
-/* Read the next packet; called from wtap_loop(). */
+/* Read the next packet; called from wtap_read(). */
 static gboolean ascend_read(wtap *wth, int *err, gchar **err_info,
 	long *data_offset)
 {

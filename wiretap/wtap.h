@@ -457,9 +457,6 @@ struct wtap_pkthdr {
 	int pkt_encap;
 };
 
-typedef void (*wtap_handler)(guchar*, const struct wtap_pkthdr*,
-		long, union wtap_pseudo_header *pseudo_header, const guchar *);
-
 struct wtap;
 struct Buffer;
 struct wtap_dumper;
@@ -477,11 +474,6 @@ typedef struct wtap_dumper wtap_dumper;
  */
 struct wtap* wtap_open_offline(const char *filename, int *err,
     gchar **err_info, gboolean do_random);
-
-/* Returns TRUE if entire loop-reading was successful. If read failure
- * happened, FALSE is returned and err is set. */
-gboolean wtap_loop(wtap *wth, int, wtap_handler, guchar*, int *err,
-    gchar **err_info);
 
 /* Returns TRUE if read was successful. FALSE if failure. data_offset is
  * set the the offset in the file where the data for the read packet is

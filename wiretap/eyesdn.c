@@ -159,7 +159,7 @@ int eyesdn_open(wtap *wth, int *err, gchar **err_info _U_)
 	return 1;
 }
 
-/* Find the next packet and parse it; called from wtap_loop() and wtap_read(). */
+/* Find the next packet and parse it; called from wtap_read(). */
 static gboolean eyesdn_read(wtap *wth, int *err, gchar **err_info,
     long *data_offset)
 {
