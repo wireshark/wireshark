@@ -73,8 +73,8 @@ static const value_string acse_vals[] =
 {
   {ACSE_AARQ,  "A-associate request" },
   {ACSE_AARE,  "A-associate response" },
-  {ACSE_RLRQ,  "A-reliase request" },
-  {ACSE_RLRE,  "A-reliase response" },
+  {ACSE_RLRQ,  "A-release request" },
+  {ACSE_RLRE,  "A-release response" },
   {ACSE_ABRT,  "A-abort" },
   {0,             NULL           }
 };
@@ -93,12 +93,12 @@ static const value_string request_sequence_top_vals[] =
   {APPLICATION_CONTEXT_NAME, "Application context name"},
   {CALLED_AP_TITLE, "Called AP title"},
   {CALLED_AE_QUALIFIER, "Called AE qualifier"},
-  {CALLED_AP_INVOKATION_ID, "Called AP invokation id"},
-  {CALLED_AE_INVOKATION_ID, "Called AE invokation id"},
+  {CALLED_AP_INVOKATION_ID, "Called AP invocation id"},
+  {CALLED_AE_INVOKATION_ID, "Called AE invocation id"},
   {CALLING_AP_TITLE, "Calling AP title"},
   {CALLING_AE_QUALIFIER, "Calling AE qualifier"},
-  {CALLING_AP_INVOKATION_ID, "Calling AP invokation id"},
-  {CALLING_AE_INVOKATION_ID, "Calling AE invokation id"},
+  {CALLING_AP_INVOKATION_ID, "Calling AP invocation id"},
+  {CALLING_AE_INVOKATION_ID, "Calling AE invocation id"},
   {IMPLEMENTATION_INFORMATION,"Implementation information"},
   {USER_INFORMATION,"User information"},
   {0, NULL}
@@ -127,8 +127,8 @@ static const value_string associate_result_values_vals[] =
 
 static const value_string acse_associate_source_diagnostic_vals[] =
 {
-  {ACSE_SERVICE_USER,"Acse service user"},
-  {ACSE_SERVICE_PROVIDER,"Acse service provider"},
+  {ACSE_SERVICE_USER,"ACSE service user"},
+  {ACSE_SERVICE_PROVIDER,"ACSE service provider"},
   {0, NULL}
 };
 static const value_string acse_service_user_values_vals[] =
@@ -203,8 +203,8 @@ static const value_string release_response_reason[] =
 
 static const value_string abort_reason[] =
 {
-  {ABRT_ACSE_SERVICE_USER,"Acse service user"},
-  {ABRT_ACSE_SERVICE_PROVIDER,"Acse service provider"},
+  {ABRT_ACSE_SERVICE_USER,"ACSE service user"},
+  {ABRT_ACSE_SERVICE_PROVIDER,"ACSE service provider"},
   {0, NULL}
 };
 
