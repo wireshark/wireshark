@@ -1775,6 +1775,8 @@ B<http://www.ethereal.com>.
   Martin Warnes            <martin.warnes [AT] ntlworld.com>
   J Bruce Fields           <bfields [AT] fieldses.org>
   tz                       <tz1 [AT] mac.com>
+  Jeff Liu                 <jqliu [AT] broadcom.com>
+  Niels Koot               <Niels.Koot [AT] logicacmg.com>
   Pavel Roskin             <proski [AT] gnu.org>
   Georgi Guninski          <guninski [AT] guninski.com>
   Jason Copenhaver         <jcopenha [AT] typedef.org>
@@ -1783,7 +1785,6 @@ B<http://www.ethereal.com>.
   Marcio Franco            <franco.marcio [AT] rd.francetelecom.fr>
   Kaloian Stoilov          <kalkata [AT] yahoo.com>
   Steven Lass              <stevenlass [AT] mail.com>
-  Jeff Liu                 <jqliu [AT] broadcom.com>
 
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to give his
 permission to use his version of snprintf.c.

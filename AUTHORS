@@ -1722,6 +1722,11 @@ Jeff Liu <jqliu [AT] broadcom.com> {
 	WPA and WPA IE support
 }
 
+Niels Koot <Niels.Koot [AT] logicacmg.com> {
+	Support for subdissectors in SUA
+	Assorted SUA fixes
+}
+
 And assorted fixes and enhancements by the people listed above and by:
 
 	Pavel Roskin <proski [AT] gnu.org>
