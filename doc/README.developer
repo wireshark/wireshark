@@ -1,4 +1,4 @@
-$Id: README.developer,v 1.73 2003/03/07 21:50:34 guy Exp $
+$Id: README.developer,v 1.74 2003/03/09 22:00:26 deniel Exp $
 
 This file is a HOWTO for Ethereal developers. It describes how to start coding
 a Ethereal protocol dissector and the use some of the important functions and
@@ -208,7 +208,7 @@ code inside
 
 is needed only if you are using the "snprintf()" function.
 
-The "$Id: README.developer,v 1.73 2003/03/07 21:50:34 guy Exp $"
+The "$Id: README.developer,v 1.74 2003/03/09 22:00:26 deniel Exp $"
 in the comment will be updated by CVS when the file is
 checked in; it will allow the RCS "ident" command to report which
 version of the file is currently checked out.
@@ -218,7 +218,7 @@ version of the file is currently checked out.
  * Routines for PROTONAME dissection
  * Copyright 2000, YOUR_NAME <YOUR_EMAIL_ADDRESS>
  *
- * $Id: README.developer,v 1.73 2003/03/07 21:50:34 guy Exp $
+ * $Id: README.developer,v 1.74 2003/03/09 22:00:26 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1609,7 +1609,7 @@ build on all platforms.
 
 2.1 ?? 
 
-2.2 Following "conversations."
+2.2 Following "conversations".
 
 In ethereal a conversation is defined as a series of data packet between two
 address:port combinations.  A conversation is not sensitive to the direction of
@@ -1734,14 +1734,14 @@ conversation.  Using the protocol number allows several dissectors to
 associate data with a given conversation.
 
 
-2.2.5 The conversation_get_protocol_data function.
+2.2.5 The conversation_get_proto_data function.
 
 After you have located a conversation with find_conversation, you can use
 this function to retrieve any data associated with it.
 
-The conversation_get_protocol_data prototype:
+The conversation_get_proto_data prototype:
 
-	void *conversation_get_protocol_data(conversation_t *conv, int proto);
+	void *conversation_get_proto_data(conversation_t *conv, int proto);
 
 Where:
 	conversation_t *conv = the conversation in question
@@ -1829,7 +1829,7 @@ else {
 
     conversation_new( &pinfo->src, &pinfo->dst, pinfo->ptype,
 	    pinfo->srcport, pinfo->destport, 0);
-    conversation_add_proto_data(conversation, my_proto, (void *) data_ptr;
+    conversation_add_proto_data(conversation, my_proto, (void *) data_ptr);
 }
 
 /* at this point the conversation data is ready */
@@ -1837,7 +1837,7 @@ else {
 
 /******************* in the dissector init routine *******************/
 
-#define proto_hash_init_count 20
+#define my_init_count 20
 
 static void
 my_dissector_init( void){
@@ -2052,7 +2052,7 @@ Where:
 	proto_data - pointer to the dissector data.
 
 
-2.5 User Preferences
+2.6 User Preferences
 
 If the dissector has user options, there is support for adding these preferences
 to a configuration dialog.
