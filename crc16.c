@@ -1,6 +1,6 @@
 /* crc16.c
  * CRC-16 routine
- * 
+ *
  * 2004 Richard van der Hoff <richardv@mxtelecom.com>
  *
  * $Id$
@@ -41,7 +41,7 @@
 /*****************************************************************/
 
 /*
- * Table for the CCITT/ITU/CRC-16 16-bit CRC 
+ * Table for the CCITT/ITU/CRC-16 16-bit CRC
  *
  * Polynomial is
  *
@@ -110,7 +110,7 @@ static const guint16 crc16_ccitt_xorout = 0xFFFF;
  * reflected (bits shift right).
  */
 #if 0
-static guint16 crc16_unreflected(const unsigned char *buf, guint len,
+static guint16 crc16_unreflected(const guint8 *buf, guint len,
                                 guint16 crc_in, const guint table[])
 {
     /* we use guints, rather than guint16s, as they are likely to be
@@ -124,7 +124,7 @@ static guint16 crc16_unreflected(const unsigned char *buf, guint len,
 }
 #endif
 
-static guint16 crc16_reflected(const unsigned char *buf, guint len,
+static guint16 crc16_reflected(const guint8 *buf, guint len,
                                 guint16 crc_in, const guint table[])
 {
     /* we use guints, rather than guint16s, as they are likely to be
@@ -140,15 +140,43 @@ static guint16 crc16_reflected(const unsigned char *buf, guint len,
     return (guint16)crc16;
 }
 
-guint16 crc16_ccitt(const unsigned char *buf, guint len)
+guint16 crc16_ccitt(const guint8 *buf, guint len)
 {
     return crc16_reflected(buf,len,crc16_ccitt_start,crc16_ccitt_table)
        ^ crc16_ccitt_xorout;
 }
 
-guint16 crc16_ccitt_tvb(tvbuff_t *tvb, unsigned int len)
+guint16 crc16_ccitt_seed(const guint8 *buf, guint len, guint16 seed)
 {
-  const unsigned char* buf = tvb_get_ptr(tvb, 0, len);
-
-  return crc16_ccitt(buf, len);
+    return crc16_reflected(buf,len,seed,crc16_ccitt_table)
+       ^ crc16_ccitt_xorout;
 }
+
+guint16 crc16_ccitt_tvb(tvbuff_t *tvb, guint len)
+{
+    const guint8* buf = tvb_get_ptr(tvb, 0, len);
+
+    return crc16_ccitt(buf, len);
+}
+
+guint16 crc16_ccitt_tvb_offset(tvbuff_t *tvb, guint offset, guint len)
+{
+    const guint8* buf = tvb_get_ptr(tvb, offset, len);
+
+    return crc16_ccitt(buf, len);
+}
+
+guint16 crc16_ccitt_tvb_seed(tvbuff_t *tvb, guint len, guint16 seed)
+{
+    const guint8* buf = tvb_get_ptr(tvb, 0, len);
+
+    return crc16_ccitt_seed(buf, len, seed);
+}
+
+guint16 crc16_ccitt_tvb_offset_seed(tvbuff_t *tvb, guint offset, guint len, guint16 seed)
+{
+    const guint8* buf = tvb_get_ptr(tvb, offset, len);
+
+    return crc16_ccitt_seed(buf, len, seed);
+}
+

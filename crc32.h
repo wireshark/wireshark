@@ -26,5 +26,57 @@
 
 extern const guint32 crc32_ccitt_table[256];
 
-extern guint32 crc32_ccitt_tvb(tvbuff_t *tvb, unsigned int len);
-extern guint32 crc32_802_tvb(tvbuff_t *tvb, unsigned int len);
+/** Compute CRC32 CCITT checksum of a buffer of data.
+ @param buf The buffer containing the data.
+ @param len The number of bytes to include in the computation.
+ @return The CRC32 CCITT checksum. */
+extern guint32 crc32_ccitt(const guint8 *buf, guint len);
+
+/** Compute CRC32 CCITT checksum of a buffer of data.  If computing the
+ *  checksum over multiple buffers and you want to feed the partial CRC32
+ *  back in, remember to take the 1's complement of the partial CRC32 first.
+ @param buf The buffer containing the data.
+ @param len The number of bytes to include in the computation.
+ @param seed The seed to use.
+ @return The CRC32 CCITT checksum (using the given seed). */
+extern guint32 crc32_ccitt_seed(const guint8 *buf, guint len, guint32 seed);
+
+/** Compute CRC32 CCITT checksum of a tv buffer.
+ @param tvb The tv buffer containing the data.
+ @param len The number of bytes to include in the computation.
+ @return The CRC32 CCITT checksum. */
+extern guint32 crc32_ccitt_tvb(tvbuff_t *tvb, guint len);
+
+/** Compute CRC32 CCITT checksum of a tv buffer.
+ @param tvb The tv buffer containing the data.
+ @param offset The offset into the tv buffer.
+ @param len The number of bytes to include in the computation.
+ @return The CRC32 CCITT checksum. */
+extern guint32 crc32_ccitt_tvb_offset(tvbuff_t *tvb, guint offset, guint len);
+
+/** Compute CRC32 CCITT checksum of a tv buffer.  If computing the
+ *  checksum over multiple tv buffers and you want to feed the partial CRC32
+ *  back in, remember to take the 1's complement of the partial CRC32 first.
+ @param tvb The tv buffer containing the data.
+ @param len The number of bytes to include in the computation.
+ @param seed The seed to use.
+ @return The CRC32 CCITT checksum (using the given seed). */
+extern guint32 crc32_ccitt_tvb_seed(tvbuff_t *tvb, guint len, guint32 seed);
+
+/** Compute CRC32 CCITT checksum of a tv buffer.  If computing the
+ *  checksum over multiple tv buffers and you want to feed the partial CRC32
+ *  back in, remember to take the 1's complement of the partial CRC32 first.
+ @param tvb The tv buffer containing the data.
+ @param offset The offset into the tv buffer.
+ @param len The number of bytes to include in the computation.
+ @param seed The seed to use.
+ @return The CRC32 CCITT checksum (using the given seed). */
+extern guint32 crc32_ccitt_tvb_offset_seed(tvbuff_t *tvb, guint offset,
+                                           guint len, guint32 seed);
+
+/** Compute IEEE 802.x CRC32 checksum of a tv buffer.
+ @param tvb The tv buffer containing the data.
+ @param len The number of bytes to include in the computation.
+ @return The IEEE 802.x CRC32 checksum. */
+extern guint32 crc32_802_tvb(tvbuff_t *tvb, guint len);
+
