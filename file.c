@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.274 2002/05/23 07:46:58 guy Exp $
+ * $Id: file.c,v 1.275 2002/05/23 10:27:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1724,7 +1724,6 @@ gboolean
 save_cap_file(char *fname, capture_file *cf, gboolean save_filtered,
 		gboolean save_marked, guint save_format)
 {
-  gboolean     ret = TRUE;
   gchar        *from_filename;
   gchar        *name_ptr, *save_msg, *save_fmt = " Saving: %s...";
   size_t        msg_len;
@@ -1772,8 +1771,7 @@ save_cap_file(char *fname, capture_file *cf, gboolean save_filtered,
 	     is it worth requiring the user to go off and fix it?) */
 	  simple_dialog(ESD_TYPE_CRIT, NULL,
 				file_rename_error_message(errno), fname);
-	  ret = FALSE;
-	  goto done;
+	  goto fail;
 	}
       }
 #else
@@ -1793,15 +1791,12 @@ save_cap_file(char *fname, capture_file *cf, gboolean save_filtered,
 	simple_dialog(ESD_TYPE_CRIT, NULL, 
 			"Can't save over current capture file: %s!",
 			from_filename);
-	ret = FALSE;
-	goto done;
+	goto fail;
       }
 
       /* Copy the file, if we haven't moved it. */
-      if (!copy_binary_file(from_filename, fname)) {
-      	ret = FALSE;
-	goto done;
-      }
+      if (!copy_binary_file(from_filename, fname))
+	goto fail;
     }
   } else {
     /* Either we're filtering packets, or we're saving in a different
@@ -1811,8 +1806,7 @@ save_cap_file(char *fname, capture_file *cf, gboolean save_filtered,
     if (pdh == NULL) {
       simple_dialog(ESD_TYPE_CRIT, NULL,
 			file_open_error_message(err, TRUE), fname);
-      ret = FALSE;
-      goto done;
+      goto fail;
     }
 
     /* XXX - have a way to save only the packets currently selected by
@@ -1841,19 +1835,17 @@ save_cap_file(char *fname, capture_file *cf, gboolean save_filtered,
         hdr.pkt_encap = fdata->lnk_t;
 	if (!wtap_seek_read(cf->wth, fdata->file_off, &pseudo_header,
 		pd, fdata->cap_len, &err)) {
-	    simple_dialog(ESD_TYPE_CRIT, NULL,
+	  simple_dialog(ESD_TYPE_CRIT, NULL,
 				file_read_error_message(err), cf->filename);
-	    wtap_dump_close(pdh, &err);
-	    ret = FALSE;
-	    goto done;
+	  wtap_dump_close(pdh, &err);
+          goto fail;
 	}
 
         if (!wtap_dump(pdh, &hdr, &pseudo_header, pd, &err)) {
-	    simple_dialog(ESD_TYPE_CRIT, NULL,
+	  simple_dialog(ESD_TYPE_CRIT, NULL,
 				file_write_error_message(err), fname);
-	    wtap_dump_close(pdh, &err);
-	    ret = FALSE;
-	    goto done;
+	  wtap_dump_close(pdh, &err);
+          goto fail;
 	}
       }
     }
@@ -1861,53 +1853,53 @@ save_cap_file(char *fname, capture_file *cf, gboolean save_filtered,
     if (!wtap_dump_close(pdh, &err)) {
       simple_dialog(ESD_TYPE_WARN, NULL,
 		file_close_error_message(err), fname);
-      ret = FALSE;
-      goto done;
+      goto fail;
     }
   }
-
-done:
 
   /* Pop the "Saving:" message off the status bar. */
   statusbar_pop_file_msg();
-  if (ret) {
-    if (!save_filtered && !save_marked) {
-      /* We saved the entire capture, not just some packets from it.
-         Open and read the file we saved it to.
+  if (!save_filtered && !save_marked) {
+    /* We saved the entire capture, not just some packets from it.
+       Open and read the file we saved it to.
 
-	 XXX - this is somewhat of a waste; we already have the
-	 packets, all this gets us is updated file type information
-	 (which we could just stuff into "cf"), and having the new
-	 file be the one we have opened and from which we're reading
-	 the data, and it means we have to spend time opening and
-	 reading the file, which could be a significant amount of
-	 time if the file is large. */
-      cf->user_saved = TRUE;
+       XXX - this is somewhat of a waste; we already have the
+       packets, all this gets us is updated file type information
+       (which we could just stuff into "cf"), and having the new
+       file be the one we have opened and from which we're reading
+       the data, and it means we have to spend time opening and
+       reading the file, which could be a significant amount of
+       time if the file is large. */
+    cf->user_saved = TRUE;
 
-      if ((err = open_cap_file(fname, FALSE, cf)) == 0) {
-	/* XXX - report errors if this fails? */
-	switch (read_cap_file(cf, &err)) {
+    if ((err = open_cap_file(fname, FALSE, cf)) == 0) {
+      /* XXX - report errors if this fails?
+         What should we return if it fails or is aborted? */
+      switch (read_cap_file(cf, &err)) {
 
-	case READ_SUCCESS:
-	case READ_ERROR:
-	  /* Just because we got an error, that doesn't mean we were unable
-	     to read any of the file; we handle what we could get from the
-	     file. */
-	  break;
+      case READ_SUCCESS:
+      case READ_ERROR:
+	/* Just because we got an error, that doesn't mean we were unable
+	   to read any of the file; we handle what we could get from the
+	   file. */
+	break;
 
-	case READ_ABORTED:
-	  /* The user bailed out of re-reading the capture file; the
-	     capture file has been closed - just return (without
-	     changing any menu settings; "close_cap_file()" set them
-	     correctly for the "no capture file open" state). */
-	  return 0;
-	}
-	set_menus_for_unsaved_capture_file(FALSE);
-	ret = FALSE;	/* XXX - save succeeded, but re-read failed */
+      case READ_ABORTED:
+	/* The user bailed out of re-reading the capture file; the
+	   capture file has been closed - just return (without
+	   changing any menu settings; "close_cap_file()" set them
+	   correctly for the "no capture file open" state). */
+	break;
       }
+      set_menus_for_unsaved_capture_file(FALSE);
     }
   }
-  return ret;
+  return TRUE;
+
+fail:
+  /* Pop the "Saving:" message off the status bar. */
+  statusbar_pop_file_msg();
+  return FALSE;
 }
 
 char *
