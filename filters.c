@@ -1,12 +1,11 @@
 /* filters.c
  * Code for reading and writing the filters file.
  *
- * $Id: filters.c,v 1.9 2001/04/02 09:53:42 guy Exp $
+ * $Id: filters.c,v 1.10 2001/10/21 21:47:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -46,7 +45,6 @@
 
 #include <glib.h>
 
-#include <epan.h>
 #include <filesystem.h>
 
 #include "filters.h"
@@ -124,7 +122,8 @@ read_filter_list(filter_list_type_t list, char **pref_path_return,
   /* To do: generalize this */
   ff_path = (gchar *) g_malloc(strlen(get_home_dir()) + strlen(ff_dir) +  
     strlen(ff_name) + 4);
-  sprintf(ff_path, "%s/%s/%s", get_home_dir(), ff_dir, ff_name);
+  sprintf(ff_path, "%s" G_DIR_SEPARATOR_S "%s" G_DIR_SEPARATOR_S "%s",
+    get_home_dir(), ff_dir, ff_name);
 
   if ((ff = fopen(ff_path, "r")) == NULL) {
     /*
@@ -147,7 +146,8 @@ read_filter_list(filter_list_type_t list, char **pref_path_return,
      * the filter lists, and delete the ones that don't belong in
      * a particular list.
      */
-    sprintf(ff_path, "%s/%s/%s", get_home_dir(), ff_dir, FILTER_FILE_NAME);
+    sprintf(ff_path, "%s" G_DIR_SEPARATOR_S "%s" G_DIR_SEPARATOR_S "%s",
+      get_home_dir(), ff_dir, FILTER_FILE_NAME);
     if ((ff = fopen(ff_path, "r")) == NULL) {
       /*
        * Well, that didn't work, either.  Just give up.
@@ -449,7 +449,7 @@ save_filter_list(filter_list_type_t list, char **pref_path_return,
   path_length = strlen(get_home_dir()) + strlen(ff_dir) + strlen(ff_name)
   		+ 4 + 4;
   ff_path = (gchar *) g_malloc(path_length);
-  sprintf(ff_path, "%s/%s", get_home_dir(), ff_dir);
+  sprintf(ff_path, "%s" G_DIR_SEPARATOR_S "%s", get_home_dir(), ff_dir);
 
   if (stat(ff_path, &s_buf) != 0)
 #ifdef WIN32
@@ -458,13 +458,15 @@ save_filter_list(filter_list_type_t list, char **pref_path_return,
     mkdir(ff_path, 0755);
 #endif
     
-  sprintf(ff_path, "%s/%s/%s", get_home_dir(), ff_dir, ff_name);
+  sprintf(ff_path, "%s" G_DIR_SEPARATOR_S "%s" G_DIR_SEPARATOR_S "%s",
+    get_home_dir(), ff_dir, ff_name);
 
   /* Write to "XXX.new", and rename if that succeeds.
      That means we don't trash the file if we fail to write it out
      completely. */
   ff_path_new = (gchar *) g_malloc(path_length);
-  sprintf(ff_path_new, "%s/%s/%s.new", get_home_dir(), ff_dir, ff_name);
+  sprintf(ff_path_new, "%s" G_DIR_SEPARATOR_S "%s" G_DIR_SEPARATOR_S "%s.new",
+    get_home_dir(), ff_dir, ff_name);
 
   if ((ff = fopen(ff_path_new, "w")) == NULL) {
     *pref_path_return = ff_path;

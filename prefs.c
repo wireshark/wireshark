@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.64 2001/10/21 17:30:50 guy Exp $
+ * $Id: prefs.c,v 1.65 2001/10/21 21:47:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -47,7 +47,6 @@
 #include <sys/stat.h>
 #endif
 
-#include <epan.h>
 #include <filesystem.h>
 #include "globals.h"
 #include "packet.h"
@@ -737,7 +736,8 @@ read_prefs(int *gpf_errno_return, char **gpf_path_return,
   if (! gpf_path) {
     gpf_path = (gchar *) g_malloc(strlen(get_datafile_dir()) +
       strlen(GPF_NAME) + 2);
-    sprintf(gpf_path, "%s%c%s", get_datafile_dir(), G_DIR_SEPARATOR, GPF_NAME);
+    sprintf(gpf_path, "%s" G_DIR_SEPARATOR_S "%s",
+      get_datafile_dir(), GPF_NAME);
   }
 
   /* Read the global preferences file, if it exists. */
@@ -760,7 +760,8 @@ read_prefs(int *gpf_errno_return, char **gpf_path_return,
   if (! pf_path) {
     pf_path = (gchar *) g_malloc(strlen(get_home_dir()) + strlen(PF_DIR) +
       strlen(PF_NAME) + 4);
-    sprintf(pf_path, "%s/%s/%s", get_home_dir(), PF_DIR, PF_NAME);
+    sprintf(pf_path, "%s" G_DIR_SEPARATOR_S "%s" G_DIR_SEPARATOR_S "%s",
+      get_home_dir(), PF_DIR, PF_NAME);
   }
     
   /* Read the user's preferences file, if it exists. */
@@ -1467,7 +1468,7 @@ write_prefs(char **pf_path_return)
       strlen(PF_NAME) + 4);
   }
 
-  sprintf(pf_path, "%s/%s", get_home_dir(), PF_DIR);
+  sprintf(pf_path, "%s" G_DIR_SEPARATOR_S "%s", get_home_dir(), PF_DIR);
   if (stat(pf_path, &s_buf) != 0)
 #ifdef WIN32
     mkdir(pf_path);
@@ -1475,7 +1476,8 @@ write_prefs(char **pf_path_return)
     mkdir(pf_path, 0755);
 #endif
 
-  sprintf(pf_path, "%s/%s/%s", get_home_dir(), PF_DIR, PF_NAME);
+  sprintf(pf_path, "%s" G_DIR_SEPARATOR_S "%s" G_DIR_SEPARATOR_S "%s",
+    get_home_dir(), PF_DIR, PF_NAME);
   if ((pf = fopen(pf_path, "w")) == NULL) {
     *pf_path_return = pf_path;
     return errno;

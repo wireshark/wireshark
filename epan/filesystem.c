@@ -1,7 +1,7 @@
 /* filesystem.c
  * Filesystem utility routines
  *
- * $Id: filesystem.c,v 1.6 2001/08/21 08:16:54 guy Exp $
+ * $Id: filesystem.c,v 1.7 2001/10/21 21:47:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -191,8 +191,8 @@ test_for_directory(const char *path)
 }
 
 /*
- * Get the directory in which global configuration and data files are
- * stored.
+ * Get the directory in which Ethereal's global configuration and data
+ * files are stored.
  */
 const char *
 get_datafile_dir(void)
@@ -266,6 +266,22 @@ get_datafile_dir(void)
 	 * set it to be.
 	 */
 	return DATAFILE_DIR;
+#endif
+}
+
+/*
+ * Get the directory in which files that, at least on UNIX, are
+ * system files (such as "/etc/ethers") are stored; on Windows,
+ * there's no "/etc" directory, so we get them from the Ethereal
+ * global configuration and data file directory.
+ */
+const char *
+get_systemfile_dir(void)
+{
+#ifdef WIN32
+	return get_datafile_dir();
+#else
+	return "/etc";
 #endif
 }
 

@@ -1,12 +1,11 @@
 /* colors.c
  * Definitions for color structures and routines
  *
- * $Id: colors.c,v 1.9 2001/04/24 00:28:21 guy Exp $
+ * $Id: colors.c,v 1.10 2001/10/21 21:48:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -39,7 +38,6 @@
 #include <sys/types.h>
 #endif
 
-#include <epan.h>
 #include <epan/filesystem.h>
 #include "gtk/main.h"
 #include "packet.h"

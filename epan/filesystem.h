@@ -1,7 +1,7 @@
 /* filesystem.h
  * Filesystem utility definitions
  *
- * $Id: filesystem.h,v 1.4 2001/08/21 06:39:16 guy Exp $
+ * $Id: filesystem.h,v 1.5 2001/10/21 21:47:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -24,6 +24,15 @@
 
 #ifndef FILESYSTEM_H
 #define FILESYSTEM_H
+
+/*
+ * Name of directory, under the user's home directory, in which
+ * personal configuration files are stored.
+ *
+ * XXX - should this be ".libepan"? For backwards-compatibility, I'll keep
+ * it ".ethereal" for now.
+ */
+#define PF_DIR ".ethereal"
 
 /*
  * Given a pathname, return a pointer to the last pathname separator
@@ -62,6 +71,14 @@ int test_for_directory(const char *);
  * stored.
  */
 const char *get_datafile_dir(void);
+
+/*
+ * Get the directory in which files that, at least on UNIX, are
+ * system files (such as "/etc/ethers") are stored; on Windows,
+ * there's no "/etc" directory, so we get them from the Ethereal
+ * global configuration and data file directory.
+ */
+const char *get_systemfile_dir(void);
 
 /* Returns the user's home directory, via the HOME environment
  * variable, or a default directory if HOME is not set */

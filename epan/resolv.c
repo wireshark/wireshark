@@ -1,7 +1,7 @@
 /* resolv.c
  * Routines for network object lookup
  *
- * $Id: resolv.c,v 1.13 2001/10/21 19:54:49 guy Exp $
+ * $Id: resolv.c,v 1.14 2001/10/21 21:47:58 guy Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
@@ -86,8 +86,6 @@
 #define ENAME_ETHERS 		"ethers"
 #define ENAME_IPXNETS 		"ipxnets"
 #define ENAME_MANUF		"manuf"
-#define EPATH_PERSONAL_ETHERS 	".ethereal/ethers"  /* with "$HOME/" prefix */
-#define EPATH_PERSONAL_IPXNETS 	".ethereal/ipxnets" /* with "$HOME/" prefix */
 
 #define MAXMANUFLEN	9	/* max vendor name length with ending '\0' */
 #define HASHETHSIZE	1024
@@ -171,11 +169,11 @@ static int 		ipxnet_resolution_initialized = 0;
  *  GUI code to change them.
  */
 
-gchar *g_ethers_path  = NULL;		/* {directory}/ENAME_ETHERS         */
-gchar *g_pethers_path = NULL; 		/* "$HOME"/EPATH_PERSONAL_ETHERS    */
-gchar *g_ipxnets_path  = NULL;		/* {directory}/ENAME_IPXNETS        */
-gchar *g_pipxnets_path = NULL;		/* "$HOME"/EPATH_PERSONAL_IPXNETS   */
-					/* first resolving call        	    */
+gchar *g_ethers_path  = NULL;		/* global ethers file    */
+gchar *g_pethers_path = NULL; 		/* personal ethers file  */
+gchar *g_ipxnets_path  = NULL;		/* global ipxnets file   */
+gchar *g_pipxnets_path = NULL;		/* personal ipxnets file */
+					/* first resolving call  */
 
 /*
  *  Local function definitions 
@@ -410,7 +408,7 @@ static int fgetline(char **buf, int *size, FILE *fp)
  * The following functions implement ethernet address resolution and
  * ethers files parsing (see ethers(4)). 
  *
- * /etc/manuf has the same format as ethers(4) except that names are 
+ * The manuf file has the same format as ethers(4) except that names are 
  * truncated to MAXMANUFLEN-1 characters and that an address contains 
  * only 3 bytes (instead of 6).
  *
@@ -432,7 +430,7 @@ static int fgetline(char **buf, int *size, FILE *fp)
 static int parse_ether_line(char *line, ether_t *eth, int six_bytes)
 {
   /*
-   *  See man ethers(4) for /etc/ethers file format
+   *  See man ethers(4) for ethers file format
    *  (not available on all systems).
    *  We allow both ethernet address separators (':' and '-'),
    *  as well as Ethereal's '.' separator.
@@ -628,29 +626,22 @@ static void initialize_ethers(void)
   ether_t *eth;
   char *manuf_path;
 
-  /* Compute the pathname of the ethers file.
-   * On UNIX, it's "/etc/ethers"; on Windows, it's "ethers" under the
-   * datafile directory (there's no notion of an "ethers file" on
-   * Windows, so it's an Ethereal-specific file).
-   */
+  /* Compute the pathname of the ethers file. */
   if (g_ethers_path == NULL) {
-#ifdef WIN32
-    dir = get_datafile_dir();
-#else
-    dir = "/etc";
-#endif
-    g_ethers_path = g_malloc(strlen(dir) + strlen(ENAME_ETHERS) + 2);
-    sprintf(g_ethers_path, "%s/%s", dir, ENAME_ETHERS);
+    g_ethers_path = g_malloc(strlen(get_systemfile_dir()) +
+			     strlen(ENAME_ETHERS) + 2);
+    sprintf(g_ethers_path, "%s" G_DIR_SEPARATOR_S "%s",
+	    get_systemfile_dir(), ENAME_ETHERS);
   }
 
   /* Set g_pethers_path here, but don't actually do anything
    * with it. It's used in get_ethbyname() and get_ethbyaddr()
    */
   if (g_pethers_path == NULL) {
-    g_pethers_path = g_malloc(strlen(get_home_dir()) + 
-			      strlen(EPATH_PERSONAL_ETHERS) + 2);
-    sprintf(g_pethers_path, "%s/%s", 
-	    get_home_dir(), EPATH_PERSONAL_ETHERS);
+    g_pethers_path = g_malloc(strlen(get_home_dir()) +
+			      strlen(PF_DIR) + strlen(ENAME_ETHERS) + 3);
+    sprintf(g_pethers_path, "%s" G_DIR_SEPARATOR_S "%s" G_DIR_SEPARATOR_S "%s", 
+	    get_home_dir(), PF_DIR, ENAME_ETHERS);
   }
 
   /* manuf hash table initialization */
@@ -658,7 +649,7 @@ static void initialize_ethers(void)
   /* Compute the pathname of the manuf file */
   manuf_path = (gchar *) g_malloc(strlen(get_datafile_dir()) +
     strlen(ENAME_MANUF) + 2);
-  sprintf(manuf_path, "%s%c%s", get_datafile_dir(), G_DIR_SEPARATOR,
+  sprintf(manuf_path, "%s" G_DIR_SEPARATOR_S "%s", get_datafile_dir(),
     ENAME_MANUF);
   
   /* Read it and initialize the hash table */
@@ -942,9 +933,6 @@ static void initialize_ipxnets(void)
   char *dir;
 
   /* Compute the pathname of the ipxnets file.
-   * On UNIX, it's "/etc/ipxnets"; on Windows, it's "ipxnets" under the
-   * datafile directory (there's no notion of an "ipxnets file" on
-   * Windows, so it's an Ethereal-specific file).
    *
    * XXX - is there a notion of an "ipxnets file" in any flavor of
    * UNIX, or with any add-on Netware package for UNIX?  If not,
@@ -952,23 +940,20 @@ static void initialize_ipxnets(void)
    * directory as well?
    */
   if (g_ipxnets_path == NULL) {
-#ifdef WIN32
-    dir = get_datafile_dir();
-#else
-    dir = "/etc";
-#endif
-    g_ipxnets_path = g_malloc(strlen(dir) + strlen(ENAME_IPXNETS) + 2);
-    sprintf(g_ipxnets_path, "%s/%s", dir, ENAME_IPXNETS);
+    g_ipxnets_path = g_malloc(strlen(get_systemfile_dir()) +
+			      strlen(ENAME_IPXNETS) + 2);
+    sprintf(g_ipxnets_path, "%s" G_DIR_SEPARATOR_S "%s",
+	    get_systemfile_dir(), ENAME_IPXNETS);
   }
 
   /* Set g_pipxnets_path here, but don't actually do anything
    * with it. It's used in get_ipxnetbyname() and get_ipxnetbyaddr()
    */
   if (g_pipxnets_path == NULL) {
-    g_pipxnets_path = g_malloc(strlen(get_home_dir()) + 
-			      strlen(EPATH_PERSONAL_IPXNETS) + 2);
-    sprintf(g_pipxnets_path, "%s/%s", 
-	    get_home_dir(), EPATH_PERSONAL_IPXNETS);
+    g_pipxnets_path = g_malloc(strlen(get_home_dir()) +
+			      strlen(PF_DIR) + strlen(ENAME_IPXNETS) + 3);
+    sprintf(g_pipxnets_path, "%s" G_DIR_SEPARATOR_S "%s" G_DIR_SEPARATOR_S "%s", 
+	    get_home_dir(), PF_DIR, ENAME_IPXNETS);
   }
 
 } /* initialize_ipxnets */

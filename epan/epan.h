@@ -1,6 +1,6 @@
 /* epan.h
  *
- * $Id: epan.h,v 1.6 2001/04/02 00:38:34 hagbard Exp $
+ * $Id: epan.h,v 1.7 2001/10/21 21:47:58 guy Exp $
  *
  * Ethereal Protocol Analyzer Library
  *
@@ -55,16 +55,5 @@ epan_dissect_new(void* pseudo_header, const guint8* data, frame_data *fd, proto_
 
 void
 epan_dissect_free(epan_dissect_t* edt);
-
-
-
-
-
-/* Should this be ".libepan"? For backwards-compatibility, I'll keep
- * it ".ethereal" for now.
- */
-#define PF_DIR ".ethereal"
-
-
 
 #endif /* EPAN_H */
