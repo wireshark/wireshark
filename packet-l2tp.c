@@ -7,7 +7,7 @@
  * Laurent Cazalet <laurent.cazalet@mailclub.net>
  * Thomas Parvais <thomas.parvais@advalvas.be>
  *
- * $Id: packet-l2tp.c,v 1.24 2001/06/18 02:17:48 guy Exp $
+ * $Id: packet-l2tp.c,v 1.25 2001/10/15 03:27:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -261,6 +261,39 @@ static const value_string avp_type_vals[] = {
   { 0,                         NULL }
 };
 
+/*
+ * These are SMI Network Management Private Enterprise Codes for
+ * organizations; see
+ *
+ *      http://www.isi.edu/in-notes/iana/assignments/enterprise-numbers
+ *
+ * for a list.
+ */
+#define VENDOR_IETF 0
+#define VENDOR_ACC 5
+#define VENDOR_CISCO 9
+#define VENDOR_SHIVA 166
+#define VENDOR_LIVINGSTON 307
+#define VENDOR_3COM 429
+#define VENDOR_ASCEND 529
+#define VENDOR_BAY 1584
+#define VENDOR_JUNIPER 2636
+#define VENDOR_COSINE 3085
+#define VENDOR_UNISPHERE 4874
+
+static const value_string avp_vendor_id_vals[] = 
+{{VENDOR_IETF,"IETF"},
+{VENDOR_ACC,"ACC"},
+{VENDOR_CISCO,"Cisco"},
+{VENDOR_SHIVA,"Shiva"},
+{VENDOR_LIVINGSTON,"Livingston"},
+{VENDOR_3COM,"3Com"},
+{VENDOR_ASCEND,"Ascend"},
+{VENDOR_BAY,"Bay Networks"},
+{VENDOR_JUNIPER,"Juniper Networks"},
+{VENDOR_COSINE,"CoSine Communications"},
+{VENDOR_UNISPHERE,"Unisphere Networks"},
+{0,NULL}};
 
 static gchar textbuffer[200];
 
@@ -280,6 +313,7 @@ dissect_l2tp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint16 cid;			/* Call ID */
   guint16 offset_size;		/* Offset size */
   guint16 ver_len_hidden;
+  guint16 avp_vendor_id;
   guint16 avp_type;
   guint16 msg_type;
   guint16 avp_len;
@@ -446,11 +480,19 @@ dissect_l2tp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	while (index < length ) {    /* Process AVP's */
    		ver_len_hidden	= tvb_get_ntohs(tvb, index);
    		avp_len		= AVP_LENGTH(ver_len_hidden);
+		avp_vendor_id	= tvb_get_ntohs(tvb, index + 2);
    		avp_type	= tvb_get_ntohs(tvb, index + 4);
 
-		tf =  proto_tree_add_text(l2tp_tree, tvb, index, avp_len,
-		    "%s AVP",
-		    val_to_str(avp_type, avp_type_vals, "Unknown (%u)"));
+		if (avp_vendor_id == VENDOR_IETF) {
+			tf =  proto_tree_add_text(l2tp_tree, tvb, index, 
+			avp_len, "%s AVP",
+		        val_to_str(avp_type, avp_type_vals, "Unknown (%u)"));
+		} else {	 /* Vendor-Specific AVP */
+			tf =  proto_tree_add_text(l2tp_tree, tvb, index, 
+			avp_len, "Vendor %s AVP",
+		        val_to_str(avp_vendor_id, avp_vendor_id_vals, "Unknown (%u)"));
+		}
+
                 l2tp_avp_tree = proto_item_add_subtree(tf,  ett_l2tp_avp);
 
                 proto_tree_add_boolean_format(l2tp_avp_tree,hf_l2tp_avp_mandatory, tvb, index, 1,
@@ -478,6 +520,21 @@ dissect_l2tp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    tvb, index, 2, FALSE);
 		index += 2;
 		avp_len -= 2;
+
+		if (avp_vendor_id != VENDOR_IETF) {
+			proto_tree_add_text(l2tp_avp_tree, tvb, index, 2,
+					    "Type: %u", avp_type);
+			index += 2;
+			avp_len -= 2;
+
+			/* For the time being, we don't decode any Vendor-
+			   specific AVP. */
+			proto_tree_add_text(l2tp_avp_tree, tvb, index, 
+					    avp_len, "Vendor-Specific AVP");
+
+			index += avp_len;
+			continue;
+		}
 
 		proto_tree_add_uint(l2tp_avp_tree, hf_l2tp_avp_type,
 		    tvb, index, 2, avp_type);
@@ -947,7 +1004,7 @@ proto_register_l2tp(void)
 			"AVP Length", HFILL }},
 
 		{ &hf_l2tp_avp_vendor_id,
-		{ "Vendor ID", "lt2p.avp.vendor_id", FT_UINT16, BASE_DEC, NULL, 0,
+		{ "Vendor ID", "lt2p.avp.vendor_id", FT_UINT16, BASE_DEC, VALS(avp_vendor_id_vals), 0,
 			"AVP Vendor ID", HFILL }},
 
 		{ &hf_l2tp_avp_type,
