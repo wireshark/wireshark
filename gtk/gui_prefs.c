@@ -1,7 +1,7 @@
 /* gui_prefs.c
  * Dialog box for GUI preferences
  *
- * $Id: gui_prefs.c,v 1.39 2003/07/18 20:55:11 oabad Exp $
+ * $Id: gui_prefs.c,v 1.40 2003/09/02 18:27:50 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -698,6 +698,7 @@ color_browse_cb(GtkWidget *w, gpointer data _U_)
   gtk_color_selection_set_current_color(GTK_COLOR_SELECTION(colorsel),
                                         curcolor);
 #endif
+  gtk_table_attach_defaults(GTK_TABLE(main_tb), colorsel, 0, 3, 2, 3);
   OBJECT_SET_DATA(colorsel, COLOR_SAMPLE_PTR_KEY, sample);
   SIGNAL_CONNECT(colorsel, "color-changed", update_text_color, NULL);
   gtk_widget_show(colorsel);
@@ -710,7 +711,7 @@ color_browse_cb(GtkWidget *w, gpointer data _U_)
   bbox = gtk_hbutton_box_new();
   gtk_button_box_set_layout(GTK_BUTTON_BOX(bbox), GTK_BUTTONBOX_END);
   gtk_button_box_set_spacing(GTK_BUTTON_BOX(bbox), 5);
-  gtk_container_add(GTK_CONTAINER(main_vb), bbox);
+  gtk_box_pack_end(GTK_BOX(main_vb), bbox, FALSE, FALSE, 5);
   gtk_widget_show(bbox);
 
 #if GTK_MAJOR_VERSION < 2
@@ -729,6 +730,7 @@ color_browse_cb(GtkWidget *w, gpointer data _U_)
   cancel_bt = gtk_button_new_from_stock(GTK_STOCK_CANCEL);
 #endif
   SIGNAL_CONNECT_OBJECT(cancel_bt, "clicked", gtk_widget_destroy, color_w);
+  GTK_WIDGET_SET_FLAGS(cancel_bt, GTK_CAN_DEFAULT);
   gtk_box_pack_start(GTK_BOX (bbox), cancel_bt, TRUE, TRUE, 0);
   gtk_widget_show(cancel_bt);
   dlg_set_cancel(color_w, cancel_bt);
