@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.92 2000/12/13 02:24:21 guy Exp $
+ * $Id: packet-tcp.c,v 1.93 2000/12/30 05:23:56 itojun Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -132,6 +132,7 @@ typedef struct _e_tcphdr {
 #define TCPOPT_CC               11
 #define TCPOPT_CCNEW            12
 #define TCPOPT_CCECHO           13
+#define TCPOPT_MD5              19      /* RFC2385 */
 
 /*
  *     TCP option lengths
@@ -147,6 +148,7 @@ typedef struct _e_tcphdr {
 #define TCPOLEN_CC             6
 #define TCPOLEN_CCNEW          6
 #define TCPOLEN_CCECHO         6
+#define TCPOLEN_MD5            18
 
 static void
 tcp_info_append_uint(frame_data *fd, const char *abbrev, guint32 val)
@@ -352,6 +354,14 @@ static const ip_tcp_opt tcpopts[] = {
     FIXED_LENGTH,
     TCPOLEN_CCECHO,
     dissect_tcpopt_cc
+  },
+  {
+    TCPOPT_MD5,
+    "TCP MD5 signature",
+    NULL,
+    FIXED_LENGTH,
+    TCPOLEN_MD5,
+    NULL
   }
 };
 
