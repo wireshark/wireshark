@@ -1124,7 +1124,7 @@ const value_string ms_country_codes[] = {
  * Number of seconds between the UN*X epoch (January 1, 1970, 00:00:00 GMT)
  * and the Windows NT epoch (January 1, 1601, 00:00:00 "GMT").
  */
-#define TIME_FIXUP_CONSTANT 11644473600ULL
+#define TIME_FIXUP_CONSTANT G_GINT64_CONSTANT(11644473600U)
 
 /*
  * Translate an 8-byte FILETIME value, given as the upper and lower 32 bits,
