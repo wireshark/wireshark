@@ -172,7 +172,6 @@ static int hf_uma_urr_t_bit				= -1;
 static int hf_uma_urr_c_r_bit			= -1;
 static int hf_uma_urr_URLCcause			= -1;
 static int hf_uma_urr_udr				= -1;
-static int hf_uma_urr_RI				= -1;
 static int hf_uma_urr_TU4001_timer		= -1;
 static int hf_uma_urr_LS				= -1;
 static int hf_uma_urr_cipher_res		= -1;
@@ -191,6 +190,7 @@ static int hf_uma_urr_ICMI				= -1;
 static int hf_uma_urr_start_mode		= -1;
 static int hf_uma_urr_LLC_PDU			= -1;
 static int hf_uma_urr_LBLI				= -1;
+static int hf_uma_urr_RI				= -1;
 static int hf_uma_urr_TU4003_timer		= -1;
 static int hf_uma_urr_ap_service_name_type = -1;
 static int hf_uma_urr_ap_Service_name_value = -1;
@@ -203,6 +203,7 @@ static int hf_uma_urr_ms_radio_id		= -1;
 static int hf_uma_urr_uma_service_zone_str = -1;
 static int hf_uma_urr_suti				= -1;
 static int hf_uma_urr_uma_mps			= -1;
+static int hf_uma_urr_num_of_plms		= -1;
 static int hf_uma_urr_unc_ipv4			= -1;
 static int hf_uma_unc_FQDN				= -1;
 static int hf_uma_urr_GPRS_user_data_transport_ipv4 = -1;
@@ -410,10 +411,10 @@ static const value_string gci_vals[] = {
 };
 /* TURA, Type of Unlicensed Radio (octet 3) */
 static const value_string tura_vals[] = {
-	{ 0,		"no radio"},
+	{ 0,		"No radio"},
 	{ 1,		"Bluetooth"},
 	{ 2,		"WLAN 802.11"},
-	{ 3,		"unspecified"},
+	{ 3,		"Unspecified"},
 	{ 0,	NULL }
 };
 
@@ -997,7 +998,7 @@ static const value_string suti_vals[] = {
 };
 	/* Code to actually dissect the packets */
 static int
-dissect_location_area_id(tvbuff_t *tvb, proto_tree *urr_ie_tree, int offset){
+dissect_mcc_mnc(tvbuff_t *tvb, proto_tree *urr_ie_tree, int offset){
 
 	int			start_offset;	
 	guint8		octet;
@@ -1026,8 +1027,6 @@ dissect_location_area_id(tvbuff_t *tvb, proto_tree *urr_ie_tree, int offset){
 	}
 	proto_tree_add_uint(urr_ie_tree, hf_uma_urr_mcc , tvb, start_offset, 2, mcc );
 	proto_tree_add_uint(urr_ie_tree, hf_uma_urr_mnc , tvb, start_offset + 1, 2, mnc );
-	proto_tree_add_item(urr_ie_tree, hf_uma_urr_lac, tvb, start_offset + 3, 2, FALSE);
-	offset = offset +2;
 	return offset;
 }
 static int
@@ -1149,7 +1148,8 @@ dissect_urr_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		 * length, if present.
 		 *
 		 * Mobile country code MCC */
-		dissect_location_area_id(tvb, urr_ie_tree, ie_offset);
+		ie_offset = dissect_mcc_mnc(tvb, urr_ie_tree, ie_offset);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_lac, tvb, ie_offset, 2, FALSE);
 		break;
 	case 6:			
 		/* GSM Coverage Indicator */
@@ -1248,7 +1248,9 @@ dissect_urr_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		/* TODO make a proper loop over the list, once an example trace is avalable */
 		switch (octet & 0xf){
 		case 0:
-			ie_offset = dissect_location_area_id(tvb, urr_ie_tree, ie_offset);
+			ie_offset = dissect_mcc_mnc(tvb, urr_ie_tree, ie_offset);
+			proto_tree_add_item(urr_ie_tree, hf_uma_urr_lac, tvb, ie_offset, 2, FALSE);
+			ie_offset = ie_offset +2;
 			proto_tree_add_item(urr_ie_tree, hf_uma_urr_ci, tvb, ie_offset, 2, FALSE);
 			ie_offset = ie_offset + 2;
 			break;
@@ -1263,13 +1265,17 @@ dissect_urr_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 			ie_offset = ie_offset + 2;
 			break;
 		case 4:
-			ie_offset = dissect_location_area_id(tvb, urr_ie_tree, ie_offset);
+			ie_offset = dissect_mcc_mnc(tvb, urr_ie_tree, ie_offset);
+			proto_tree_add_item(urr_ie_tree, hf_uma_urr_lac, tvb, ie_offset, 2, FALSE);
+			ie_offset = ie_offset +2;
 			break;
 		case 5:
 			proto_tree_add_item(urr_ie_tree, hf_uma_urr_lac, tvb, ie_offset, 2, FALSE);
 			ie_offset = ie_offset + 2;
 		case 8:
-			ie_offset = dissect_location_area_id(tvb, urr_ie_tree, ie_offset);
+			ie_offset = dissect_mcc_mnc(tvb, urr_ie_tree, ie_offset);
+			proto_tree_add_item(urr_ie_tree, hf_uma_urr_lac, tvb, ie_offset, 2, FALSE);
+			ie_offset = ie_offset +2;
 			proto_tree_add_item(urr_ie_tree, hf_uma_urr_RNC_ID, tvb, ie_offset, 2, FALSE);
 			ie_offset = ie_offset + 2;
 			break;
@@ -1296,7 +1302,9 @@ dissect_urr_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		break;
 	case 18:		/* Routing Area Identification */
 		/* The rest of the IE is coded as in [TS 24.008] not including IEI and length, if present.*/
-		ie_offset = dissect_location_area_id(tvb, urr_ie_tree, ie_offset);
+		ie_offset = dissect_mcc_mnc(tvb, urr_ie_tree, ie_offset);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_lac, tvb, ie_offset, 2, FALSE);
+		ie_offset = ie_offset +2;
 		/*Routing area code */
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_RAC, tvb, ie_offset, 1, FALSE);
 		break;
@@ -1557,6 +1565,7 @@ dissect_urr_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_LBLI, tvb, ie_offset, 1, FALSE);
 		break;
 	case 59:		/* Reset Indicator */
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_RI, tvb, ie_offset, 1, FALSE);
 		break;
 	case 60:		/* TU4003 Timer */
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_TU4003_timer, tvb, ie_offset, 2, FALSE);
@@ -1604,7 +1613,9 @@ dissect_urr_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		octet = tvb_get_guint8(tvb,ie_offset);
 		ie_offset++;
 		if ( octet == 0 ){
-			ie_offset = dissect_location_area_id(tvb, urr_ie_tree, ie_offset);
+			ie_offset = dissect_mcc_mnc(tvb, urr_ie_tree, ie_offset);
+			proto_tree_add_item(urr_ie_tree, hf_uma_urr_lac, tvb, ie_offset, 2, FALSE);
+			ie_offset = ie_offset + 2;
 			/* The octets 9-12 are coded as shown in 3GPP TS 25.331, Table 'Cell identity'. */
 		}
 		break;
@@ -1618,6 +1629,11 @@ dissect_urr_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		break;
 	case 69:
 		/* UMA PLMN List */
+		octet = tvb_get_guint8(tvb,ie_offset);
+		proto_tree_add_uint(urr_ie_tree, hf_uma_urr_num_of_plms , tvb, ie_offset, 1, octet);
+		/* TODO insert while loop here */
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_lac, tvb, ie_offset, 2, FALSE);
+		break;
 	case 70:
 		/* Received Signal Level List */
 		break;
@@ -2247,7 +2263,7 @@ proto_register_uma(void)
 		},
 		{ &hf_uma_urr_algorithm_id,
 			{ "Algorithm identifier","uma.urr.algorithm_identifier",
-			FT_UINT8,BASE_DEC,  VALS(algorithm_identifier_vals), 0x1,          
+			FT_UINT8,BASE_DEC,  VALS(algorithm_identifier_vals), 0xe,          
 			"Algorithm_identifier", HFILL }
 		},
 		{ &hf_uma_urr_GPRS_resumption,
@@ -2459,6 +2475,11 @@ proto_register_uma(void)
 			{ "UMPS, Manual PLMN Selection indicator","uma.urr.mps",
 			FT_UINT8,BASE_DEC,  VALS(mps_vals), 0x3,          
 			"MPS, Manual PLMN Selection indicator", HFILL }
+		},
+		{ &hf_uma_urr_num_of_plms,
+			{ "Number of PLMN:s","uma.urr.num_of_plms",
+			FT_UINT8,BASE_DEC,  NULL, 0x0,          
+			"Number of PLMN:s", HFILL }
 		},
 		{ &hf_uma_urr_ms_radio_id,
 			{ "MS Radio Identity","uma.urr.ms_radio_id",
