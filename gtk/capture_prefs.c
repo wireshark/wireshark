@@ -1,7 +1,7 @@
 /* capture_prefs.c
  * Dialog box for capture preferences
  *
- * $Id: capture_prefs.c,v 1.3 2002/01/11 07:40:31 guy Exp $
+ * $Id: capture_prefs.c,v 1.4 2002/01/12 09:13:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -52,7 +52,7 @@ static void create_option_check_button(GtkWidget *main_vb, const gchar *key,
 #define DEVICE_KEY		"device"
 #define PROM_MODE_KEY		"prom_mode"
 #define CAPTURE_REAL_TIME_KEY	"capture_real_time"
-#define AUTO_SCROLL_KEY		"capture_real_time"
+#define AUTO_SCROLL_KEY		"auto_scroll"
 
 #define CAPTURE_TABLE_ROWS 4
 GtkWidget*
