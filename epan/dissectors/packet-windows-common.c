@@ -1120,7 +1120,11 @@ const value_string ms_country_codes[] = {
 #define TIME_T_MAX ((time_t) (~ (time_t) 0 - TIME_T_MIN))
 #endif
 
-#define TIME_FIXUP_CONSTANT (369.0*365.25*24*60*60-(3.0*24*60*60+6.0*60*60))
+/*
+ * Number of seconds between the UN*X epoch (January 1, 1970, 00:00:00 GMT)
+ * and the Windows NT epoch (January 1, 1601, 00:00:00 "GMT").
+ */
+#define TIME_FIXUP_CONSTANT 11644473600ULL
 
 /*
  * Translate an 8-byte FILETIME value, given as the upper and lower 32 bits,
@@ -1145,7 +1149,9 @@ const value_string ms_country_codes[] = {
 static gboolean
 nt_time_to_nstime(guint32 filetime_high, guint32 filetime_low, nstime_t *tv)
 {
-	double d;
+	guint64 d;
+	gint64 secs;
+	int nsecs;
 	/* The next two lines are a fix needed for the
 	    broken SCO compiler. JRA. */
 	time_t l_time_min = TIME_T_MIN;
@@ -1154,24 +1160,23 @@ nt_time_to_nstime(guint32 filetime_high, guint32 filetime_low, nstime_t *tv)
 	if (filetime_high == 0)
 		return FALSE;
 
-	/*
-	 * Get the time as a double, in seconds and fractional seconds.
-	 */
-	d = ((double)filetime_high)*4.0*(double)(1<<30);
-	d += filetime_low;
-	d *= 1.0e-7;
+	d = ((guint64)filetime_high << 32) | filetime_low;
 
-	/* Now adjust by 369 years, to make the seconds since 1970. */
-	d -= TIME_FIXUP_CONSTANT;
+	/* Split into seconds and nanoseconds. */
+	secs = d / 10000000;
+	nsecs = (d % 10000000)*100;
 
-	if (!(l_time_min <= d && d <= l_time_max))
+	/* Now adjust the seconds. */
+	secs -= TIME_FIXUP_CONSTANT;
+
+	if (!(l_time_min <= secs && secs <= l_time_max))
 		return FALSE;
 
 	/*
 	 * Get the time as seconds and nanoseconds.
 	 */
-	tv->secs = (time_t) d;
-	tv->nsecs = (int) ((d - tv->secs)*1000000000);
+	tv->secs = (time_t) secs;
+	tv->nsecs = nsecs;
 
 	return TRUE;
 }
