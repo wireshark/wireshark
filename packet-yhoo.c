@@ -2,7 +2,7 @@
  * Routines for yahoo messenger packet dissection
  * Copyright 1999, Nathan Neulinger <nneul@umr.edu>
  *
- * $Id: packet-yhoo.c,v 1.2 1999/10/14 03:12:32 guy Exp $
+ * $Id: packet-yhoo.c,v 1.3 1999/10/20 16:36:07 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -82,10 +82,12 @@ static const value_string yhoo_service_vals[] = {
 	{YAHOO_SERVICE_CONFDECLINE, "Conference Decline"},
 	{YAHOO_SERVICE_CONFLOGOFF, "Conference Logoff"},
 	{YAHOO_SERVICE_CONFMSG, "Conference Message"},
+	{YAHOO_SERVICE_CONFADDINVITE, "Conference Additional Invitation"},
 	{YAHOO_SERVICE_CHATLOGON, "Chat Logon"},
 	{YAHOO_SERVICE_CHATLOGOFF, "Chat Logoff"},
 	{YAHOO_SERVICE_CHATMSG, "Chat Message"},
 	{YAHOO_SERVICE_FILETRANSFER, "File Transfer"},
+	{YAHOO_SERVICE_PASSTHROUGH2, "Passthrough 2"},
 	{0, NULL}
 };
 
@@ -165,7 +167,7 @@ proto_register_yhoo(void)
 				"Magic ID", "yhoo.magic_id", FT_UINT32, BASE_HEX,
 				NULL, 0, "Magic ID" }},
 			{ &hf_yhoo_unknown1, {	
-				"Connection ID", "yhoo.unknown1", FT_UINT32, BASE_HEX,
+				"Unknown 1", "yhoo.unknown1", FT_UINT32, BASE_HEX,
 				NULL, 0, "Unknown 1" }},
 			{ &hf_yhoo_len, {	
 				"Packet Length", "yhoo.len", FT_UINT32, BASE_DEC,

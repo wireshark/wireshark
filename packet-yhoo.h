@@ -1,7 +1,7 @@
 /* packet-yhoo.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet-yhoo.h,v 1.3 1999/10/16 21:56:53 deniel Exp $
+ * $Id: packet-yhoo.h,v 1.4 1999/10/20 16:36:08 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -55,7 +55,7 @@
 #define YAHOO_SERVICE_CONFLOGON	25
 #define YAHOO_SERVICE_CONFDECLINE 26
 #define YAHOO_SERVICE_CONFLOGOFF		27
-#define YAHOO_SERVICE_UNKN_28 28
+#define YAHOO_SERVICE_CONFADDINVITE 28
 #define YAHOO_SERVICE_CONFMSG 29
 #define YAHOO_SERVICE_CHATLOGON	30
 #define YAHOO_SERVICE_CHATLOGOFF	31
