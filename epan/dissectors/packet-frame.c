@@ -32,8 +32,8 @@
 #include <epan/timestamp.h>
 #include <epan/tvbuff.h>
 #include "packet-frame.h"
-#include "prefs.h"
-#include "tap.h"
+#include <epan/prefs.h>
+#include <epan/tap.h>
 
 int proto_frame = -1;
 int hf_frame_arrival_time = -1;

@@ -36,9 +36,9 @@
 
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
-#include "ipproto.h"
+#include <epan/ipproto.h>
 #include "ip_opts.h"
-#include "prefs.h"
+#include <epan/prefs.h>
 #include "reassemble.h"
 #include "etypes.h"
 #include "greproto.h"
@@ -48,9 +48,9 @@
 #include "arcnet_pids.h"
 #include "packet-ip.h"
 #include "packet-ipsec.h"
-#include "in_cksum.h"
+#include <epan/in_cksum.h>
 #include "nlpid.h"
-#include "tap.h"
+#include <epan/tap.h>
 
 static int ip_tap = -1;
 
@@ -1894,4 +1894,5 @@ proto_reg_handoff_icmp(void)
 
   icmp_handle = create_dissector_handle(dissect_icmp, proto_icmp);
   dissector_add("ip.proto", IP_PROTO_ICMP, icmp_handle);
+  dissector_add("wtap_encap", WTAP_ENCAP_RAW_ICMP, icmp_handle);
 }

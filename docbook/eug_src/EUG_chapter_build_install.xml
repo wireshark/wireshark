@@ -1,0 +1,588 @@
+<!-- EUG Chapter BuildInstall -->
+<!-- $Id$ -->
+
+<chapter id="ChapterBuildInstall">
+  <title>Building and Installing Ethereal</title>
+  <section id="ChBuildInstallIntro">
+    <title>Introduction</title>
+    <para>
+      As with all things, there must be a beginning, and so it is with 
+      Ethereal. To use Ethereal, you must:
+      <itemizedlist>
+	<listitem>
+	  <para>
+	    Obtain a binary package for your operating system, or
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    Obtain the source and build Ethereal for your operating system.
+	  </para>
+	</listitem>
+      </itemizedlist>
+    </para>
+    <para>
+      Currently, only two or three Linux distributions ship Ethereal, and 
+      they are commonly shipping an out-of-date version.  No other versions 
+      of UNIX ship Ethereal so far, and Microsoft does not ship it with any 
+      version of Windows.  For that reason, you will need to know where to 
+      get the latest version of Ethereal and how to install it.
+    </para>
+    <para>
+      This chapter shows you how to obtain source and binary packages, 
+      and how to build Ethereal from source, should you choose to do so.
+    </para>
+    <para>
+      The following are the general steps you would use:
+      <orderedlist>
+	<listitem>
+	  <para>
+	    Download the relevant package for your needs, e.g. source or 
+	    binary distribution.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    Build the source into a binary, if you have downloaded the 
+	    source.
+	  </para>
+	  <para>
+	    This may involve building and/or installing other necessary packages.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    Install the binaries into their final destinations.
+	  </para>
+	</listitem>
+      </orderedlist>
+    </para>
+  </section>
+  
+  <section id="ChBuildInstallDistro">
+    <title>Obtaining the source and binary distributions</title>
+    <para>
+      You can obtain both source and binary distributions from the Ethereal 
+      web site: <ulink url="&EtherealWebSite;">&EtherealWebSite;</ulink>. 
+      Simply select the download link, and then select either the source 
+      package or binary package of your choice from the mirror site closest 
+      to you.
+    </para>
+    <note>
+      <title>Download all the needed files</title>
+      <para>
+	In general, unless you have already downloaded Ethereal 
+	before, you will most likely need to download several source 
+	packages if you are building Ethereal from source.  This is 
+	covered in more detail below. <!-- Make a ref -->
+      </para>
+    </note>
+    <para>
+      Once you have downloaded the relevant files, you can go on to the 
+      next step.
+    </para>
+    <note>
+      <title>Note!</title>
+      <para>
+	While you will find a number of binary packages available on the 
+	Ethereal web site, you might not find one for your platform, and 
+	they often tend to be several versions behind the current released 
+	version, as they are contributed by people who have the platforms 
+	they are built for.
+      </para>
+      <para>
+	For this reason, you might want to pull down the source distribution 
+	and build it, as the process is relatively simple.
+      </para>
+    </note>
+  </section>
+  
+  <section id="ChBuildInstallBeforeBuild">
+    <title>Before you build <application>Ethereal</application> under UNIX</title>
+    <para>
+      Before you build Ethereal from sources, or install a binary package, 
+      you must ensure that you have the following other packages installed:
+      <itemizedlist>
+	<listitem>
+	  <para>GTK+, The GIMP Tool Kit.</para>
+	  <para>
+	    You will also need Glib.  Both can be obtained from 
+	    <ulink url="http://www.gtk.org">www.gtk.org</ulink>
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    libpcap, the packet capture software that Ethereal uses.
+	  </para>
+	  <para>
+	    You can obtain libpcap from 
+	    <ulink url="http://www.tcpdump.org">www.tcpdump.org</ulink>
+	  </para>
+	</listitem>
+      </itemizedlist>
+      Depending on your system, you may be able to install these from 
+      binaries, e.g. RPMs, or you may need to obtain them in source code 
+      form and build them.
+    </para>
+    <para>
+      If you have downloaded the source for GTK+, the instructions shown 
+      in <xref linkend="Ch02Ex1"/> may provide some help in building it:
+	<example id="Ch02Ex1">
+	  <title>Building GTK+ from source</title>
+	  <programlisting>
+gzip -dc gtk+-1.2.10.tar.gz | tar xvf -
+&lt;much output removed>
+cd gtk+-1.2.10
+./configure
+&lt;much output removed>
+make
+&lt;much output removed>
+make install
+&lt;much output removed>
+	  </programlisting>
+	</example>
+	<note>
+	  <title>Note!</title>
+	  <para>
+	    You may need to change the version number of gtk+ in 
+	    <xref linkend="Ch02Ex1"/> to match the version of GTK+ you have 
+	      downloaded. The directory you change to will change if the 
+	      version of GTK+ changes, and in all cases, 
+	      <command>tar xvf -</command> will show you the name of the 
+	      directory you should change to.
+	  </para>
+	</note>
+	<note>
+	  <title>Note!</title>
+	  <para>
+	    If you use Linux, or have GNU <command>tar</command> installed, 
+	    you can use <command>tar zxvf gtk+-1.2.10.tar.gz</command>. It 
+	    is also possible to use <command>gunzip -c</command> or 
+	    <command>gzcat</command> rather than <command>gzip -dc</command> 
+	    on many UNIX systems.
+	  </para>
+	</note>
+	<note>
+	  <title>Note!</title>
+	  <para>
+	    If you downloaded gtk+ or any other tar file using Windows, 
+	    you may find your file called gtk+-1_2_8_tar.gz.
+	  </para>
+	</note>
+    </para>
+    <para>
+      You should consult the GTK+ web site if any errors occur in carrying 
+      out the instructions in <xref linkend="Ch02Ex1"/>.
+    </para>
+    <para>
+      If you have downloaded the source to libpcap, the general instructions 
+      shown in <xref linkend="Ch2Ex2"/>  will assist in building it. Also, 
+	if your operating system does not support <command>tcpdump</command>, 
+	you might also want to download it from the 
+	<ulink url="http://www.tcpdump.org">tcpdump</ulink> web site and 
+	install it.
+	<example id="Ch2Ex2">
+	  <title>Building and installing libpcap</title>
+	  <programlisting>
+gzip -dc libpcap-0.8.3.tar.Z | tar xvf -
+&lt;much output removed>
+cd libpcap_0_8_3
+./configure
+&lt;much output removed>
+make
+&lt;much output removed>
+make install
+&lt;much output removed>
+make install-incl
+&lt;much output removed>
+	    </programlisting>
+	</example>
+    </para>
+    <note>
+      <title>Note!</title>
+      <para>
+	The directory you should change to will depend on the version of 
+	libpcap you have downloaded.  In all cases, 
+	<command>tar xvf -</command> will show you the name of the 
+	directory that has been unpacked.
+      </para>
+    </note>
+    <para>
+      When installing the include files, you might get the error shown 
+      in <xref linkend="Ch02Ex3"/> when you submit the command 
+	<command>make install-incl</command>.
+	<example id="Ch02Ex3">
+	  <title>Errors while installing the libpcap include files</title>
+	  <programlisting>
+/usr/local/include/pcap.h
+/usr/bin/install -c -m 444 -o bin -g bin ./pcap-namedb.h \
+/usr/local/include/pcap-namedb.h
+/usr/bin/install -c -m 444 -o bin -g bin ./net/bpf.h \
+/usr/local/include/net/bpf.h
+/usr/bin/install: cannot create regular file \
+`/usr/local/include/net/bpf.h': No such file or directory
+make: *** [install-incl] Error 1
+	  </programlisting>
+	</example>
+	If you do, simply create the missing directory with the following 
+	command:
+	<programlisting>
+mkdir /usr/local/include/net
+	</programlisting>
+	and rerun the command <command>make install-incl</command>.
+    </para>
+    <para>
+      Under RedHat 6.x and beyond (and distributions based on it, like 
+      Mandrake) you can simply install each of the packages you need from 
+      RPMs. Most Linux systems will install GTK+ and Glib in anycase, 
+      however, you will probably need to install the devel versions of 
+      each of these packages. The commands shown in <xref linkend="Ch02Ex4"/> 
+	will install all the needed RPMs if they are not already installed.
+	<example id="Ch02Ex4">
+	  <title>
+	    Installing required RPMs under RedHat Linux 6.2 and beyond
+	  </title>
+	  <programlisting>
+cd /mnt/cdrom/RedHat/RPMS
+rpm -ivh glib-1.2.6-3.i386.rpm
+rpm -ivh glib-devel-1.2.6-3.i386.rpm
+rpm -ivh gtk+-1.2.6-7.i386.rpm
+rpm -ivh gtk+-devel-1.2.6-7.i386.rpm
+rpm -ivh libpcap-0.4-19.i386.rpm
+	  </programlisting>
+	</example>
+    </para>
+    <note>
+      <para>
+	If you are using a version of RedHat later than 6.2, the required 
+	RPMs have most likely changed. Simply use the correct RPMs from your 
+	distribution.
+      </para>
+    </note>
+    <para> 
+      Under Debian you can install Ethereal using apt-get.  apt-get will
+      handle any dependency issues for you. <xref linkend="Ch02Ex5"/> shows 
+	how to do this.
+	<example id="Ch02Ex5">
+	  <title>Installing debs under Debian</title>
+	  <programlisting>
+apt-get install ethereal
+	  </programlisting>
+	</example>
+    </para>
+  </section>
+  
+  <section id="ChBuildInstallUnixBuild">
+    <title>Building Ethereal from source under UNIX</title>
+    <para>
+      Use the following general steps if you are building Ethereal from 
+      source under a UNIX operating system:
+      <orderedlist>
+	<listitem>
+	  <para>
+	    Unpack the source from its <command>gzip</command>'d 
+	    <command>tar</command> file. If you are using Linux, or your 
+	    version of UNIX uses GNU <command>tar</command>, you can use the 
+	    following command:
+	    <programlisting>
+tar zxvf ethereal-&EtherealCurrentVersion;-tar.gz
+	    </programlisting>
+	  </para>
+	  <para>
+	    For other versions of UNIX, You will want to use the following 
+	    commands:
+	    <programlisting>
+gzip -d ethereal-&EtherealCurrentVersion;-tar.gz
+tar xvf ethereal-&EtherealCurrentVersion;-tar
+	    </programlisting>
+	    <note>
+	      <title>Note!</title>
+	      <para>
+		The pipeline 
+		<command>
+		  gzip -dc ethereal-&EtherealCurrentVersion;-tar.gz | tar xvf -
+		</command> will work here as well.
+	      </para>
+	    </note>
+	    <note>
+	      <title>Note!</title>
+	      <para>
+		If you have downloaded the Ethereal tarball under Windows, 
+		you may find that your browser has created a file with 
+		underscores rather than periods in its file name.
+	      </para>
+	    </note>
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    Change directory to the Ethereal source directory.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    Configure your source so it will build correctly for your 
+	    version of UNIX.  You can do this with the following command:
+	    <programlisting>
+./configure
+	    </programlisting>
+	  </para>
+	  <para>
+	    If this step fails, you will have to rectify the problems and 
+	    rerun <command>configure</command>.  Troubleshooting hints are 
+	    provided in <xref linkend="ChBuildInstallUnixTrouble"/>.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    Build the sources into a binary, with the <command>make</command> 
+	    command.  For example:
+	    <programlisting>
+make
+	    </programlisting>
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    Install the software in its final destination, using the command:
+	    <programlisting>
+make install
+	    </programlisting>
+	  </para>
+	</listitem>
+      </orderedlist>
+    </para>
+    <para>
+      Once you have installed Ethereal with <command>make install</command> 
+      above, you should be able to run it by entering 
+      <command>ethereal</command>.
+    </para>
+  </section>
+  
+  <section id="ChBuildInstallUnixInstallBins">
+    <title>Installing the binaries under UNIX</title>
+    <para>
+      In general, installing the binary under your version of UNIX will be 
+      specific to the installation methods used with your version of UNIX.  
+      For example, under AIX, you would use <command>smit</command> to 
+      install the Ethereal binary package, while under Tru64 UNIX 
+      (formerly Digital UNIX) you would use <command>setld</command>.
+    </para>
+  
+  <section>
+    <title>Installing from rpm's under RedHat and alike</title>
+    <para>
+      Use the following command to install the Ethereal RPM that you have 
+      downloaded from the Ethereal web site:
+      <programlisting>
+rpm -ivh ethereal-0.10.5-0.2.2.i386.rpm
+      </programlisting>
+      If the above step fails because of missing dependencies, install the 
+      dependencies first, and then retry the step above.  See 
+      <xref linkend="Ch02Ex4"/> for information on what RPMs you will need 
+	to have installed.
+    </para>
+  </section>
+
+  <section> 
+    <title>Installing from deb's under Debian</title>
+    <para> 
+      Use the following command to install Ethereal under Debian:
+      <programlisting>
+apt-get install ethereal
+      </programlisting>
+      apt-get should take care of all of the dependency issues for you.
+    </para>
+  </section>
+  </section>
+  
+  <section id="ChBuildInstallUnixTrouble">
+    <title>Troubleshooting during the install on Unix</title>
+    <para>
+      A number of errors can occur during the installation process.  
+      Some hints on solving these are provided here.
+    </para>
+    <para>
+      If the <command>configure</command> stage fails, you will need to find 
+      out why. You can check the file <filename>config.log</filename> in the 
+      source directory to find out what failed. The last few lines of this 
+      file should help in determining the problem.
+    </para>
+    <para>
+      The standard problems are that you do not have GTK+ on your system, 
+      or you do not have a recent enough version of GTK+. The 
+      <command>configure</command> will also fail if you do not have libpcap 
+      (at least the required include files) on your system.
+    </para>
+    <para>
+      Another common problem is for the final compile and link stage to 
+      terminate with a complaint of: <errorname>Output too long.</errorname>  
+      This is likely to be caused by an antiquated <command>sed</command> 
+      (such as the one shipped with Solaris).  Since <command>sed</command> is 
+      used by the <command>libtool</command> script to construct the final 
+      link command, this leads to mysterious problems.  This can be 
+      resolved by downloading a recent version of sed from 
+      <ulink url="http://directory.fsf.org/GNU/sed.html"/>.
+    </para>
+    <para>
+      If you cannot determine what the problems are, send mail to the 
+      <command>ethereal-dev</command> mailing list explaining your problem, 
+      and including the output from <filename>config.log</filename> and 
+      anything else you think is relevant, like a trace of the 
+      <command>make</command> stage.
+    </para>
+  </section>
+  
+  <section id="ChBuildInstallWinBuild">
+    <title>Building from source under Windows</title>
+    <para>
+	  It is recommended to use the binary installer for Windows, 
+	  until you want to start developing Ethereal on this platform.
+    </para>
+    <para>
+	  For further information how to build Ethereal for Windows from the 
+	  sources, have a look at the file Readme.win32, which
+	  can be found in the doc directory of the sources.
+    </para>
+  </section>
+  
+  <section id="ChBuildInstallWinInstall">
+    <title>Installing Ethereal under Windows</title>
+    <para>
+      In this section we explore installing Ethereal under Windows from the 
+      binary packages.  You must follow two steps:
+      <orderedlist>
+	<listitem>
+	  <para>
+	    <command>Install WinPcap</command>. 
+		You will find a single installer exe called something 
+		like "auto-installer", which can be installed under various Windows 
+		systems, including 9x/Me/NT4.0/2000/XP. This installer is located at: 
+	    <ulink url="&WinPcapDownloadWebsite;">&WinPcapDownloadWebsite;</ulink>.
+	    You should download the latest released version (the latest one not 
+		marked "beta") and execute it. 
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    <command>Install Ethereal</command>. 
+		You may acquire a binary installable of Ethereal at 
+	    <ulink url="&EtherealBinariesPage;">&EtherealBinariesPage;</ulink>.  
+	    Download the installer and execute it.
+	  </para>
+	</listitem>
+      </orderedlist>
+	  Both steps are extremely simply, as you only have to download and 
+	  install the two exe files. 
+    </para>
+  <section id="ChBuildInstallComponents">
+    <title>Installable Components</title>
+    <para>
+	Beside the usual installer options like where to install the program, 
+	there are several optional components (if you are unsure, just keep the 
+	default settings).
+    </para>
+    <para>
+	The programs being installed 
+	(both Ethereal GTK1 and 2 cannot be installed at the same time):
+	<itemizedlist>
+	<listitem><para>
+	<command>Etheral GTK1</command> - Ethereal is a GUI network protocol 
+	analyzer.
+	</para></listitem>
+	<listitem><para>
+	<command>Etheral GTK2</command> - Ethereal is a GUI network protocol 
+	analyzer (using the modern GTK2 GUI toolkit).
+	</para></listitem>
+	<listitem><para>
+	<command>GTK-Wimp</command> - GTKWimp is the GTK2 windows impersonator 
+	(native Win32 look and feel).
+	</para></listitem>
+	<listitem><para>
+	<command>Tethereal</command> - Tethereal is a command-line based network 
+	protocol analyzer.
+	</para></listitem>
+	<listitem><para>
+	<command>Editcap</command> - Editcap is a program that reads a capture 
+	file and writes some or all of the packets into another capture file.
+	</para></listitem>
+	<listitem><para>
+	<command>Text2Pcap</command> - Text2pcap is a program that reads in an 
+	ASCII hex dump and writes the data into a libpcap-style capture file.
+	</para></listitem>
+	<listitem><para>
+	<command>Mergecap</command> - Mergecap is a program that combines multiple 
+	saved capture files into a single output file.
+	</para></listitem>
+	<listitem><para>
+	<command>Capinfo</command> - Capinfo is a program that provides 
+	information on capture files.
+	</para></listitem>
+	</itemizedlist>
+	The dissection extensions for Ethereal and Tethereal:
+	<itemizedlist>
+	<listitem><para>
+	<command>Plugins</command> - Plugins with some extended dissections.
+	</para></listitem>
+	<listitem><para>
+	<command>SNMP MIBs</command> - SNMP MIBs for a more detailed SNMP 
+	dissection.
+	</para></listitem>
+	</itemizedlist>
+	The environment related things:
+	<itemizedlist>
+	<listitem><para>
+	<command>Start Menu Shortcuts</command> - Some start menu shortcuts.
+	</para></listitem>
+	<listitem><para>
+	<command>Desktop Icon</command> - Ethereal desktop icon.
+	</para></listitem>
+	<listitem><para>
+	<command>Associate file extensions to Ethereal</command> - Associate 
+	standard network trace files to Ethereal.
+	</para></listitem>
+	</itemizedlist>
+    </para>
+  </section>
+  <section id="ChBuildInstallWinUpdate">
+    <title>Update</title>
+	<para>
+	From time to time you may want to update your installed Ethereal to a more
+	recent version. If you join Ethereal's announce mailing list, you will be 
+	informed about new Ethereal versions, see <xref 
+	linkend="ChIntroMailingLists"/> for details how to subscribe to this list.
+      <itemizedlist>
+	<listitem>
+    <para>
+    <command>Update Ethereal</command>.
+	New versions of Ethereal usually become available every 4-8 weeks.
+	Updating Ethereal is done the same way as installing it, you simply 
+	download and start the installer exe. A reboot is usually not required and
+	all your personal settings remain unchanged.
+    </para>
+	</listitem>
+	<listitem>
+    <para>
+    <command>Update WinPcap</command>.
+	New versions of WinPcap are less frequently available, maybe only once a 
+	year. You will find WinPcap update instructions where you can download new 
+	versions. Usually you have to reboot the machine after installing a new 
+	WinPcap version.
+    </para>
+	</listitem>
+      </itemizedlist>
+	</para>
+  </section>
+  
+  <section id="ChBuildInstallWinUninstall">
+    <title>Uninstall Ethereal</title>
+    <para>
+	You can uninstall Ethereal the usual way, using the Software option 
+	inside the Control Panel. You will find two entries, one for Ethereal 
+	itself and one for WinPcap.
+    </para>
+  </section>
+  </section>
+  
+</chapter>
+<!-- End of EUG Chapter 2 -->

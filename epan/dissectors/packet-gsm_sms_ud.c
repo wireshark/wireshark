@@ -69,7 +69,7 @@
 
 #include <epan/packet.h>
 
-#include "prefs.h"
+#include <epan/prefs.h>
 #include "reassemble.h"
 
 static void dissect_gsm_sms_ud(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);

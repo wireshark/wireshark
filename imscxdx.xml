@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+	<application id="167772151" name="IMS_Cx_Dx" uri="http://www.3GPP.org/ftp/Specs/html-info/29229.htm">
+
+		<!-- IMS Cx Dx Application -->
+		<command name="User-Authorization"       code="300" vendor-id="TGPP"/>
+		<command name="Server-Assignment"        code="301" vendor-id="TGPP"/>
+		<command name="Location-Info"            code="302" vendor-id="TGPP"/>
+		<command name="Multimedia-Auth"          code="303" vendor-id="TGPP"/>
+		<command name="Registration-Termination" code="304" vendor-id="TGPP"/>
+		<command name="Push-Profile"             code="305" vendor-id="TGPP"/>
+
+		<!-- ************************** IMS Cx Dx AVPS ********************* -->
+		<avp name="Visited-Network-Identifier" code="1" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Public-Identity" code="2" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="Server-Name" code="3" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="Server-Capabilities" code="4" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+                        <grouped>
+                                <gavp name="Mandatory-Capability"/>
+                                <gavp name="Optional-Capability"/>
+                                <gavp name="Server-Name"/>
+                        </grouped>
+		</avp>
+		<avp name="Mandatory-Capability" code="5" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Optional-Capability" code="6" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="User-Data" code="7" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="SIP-Number-Auth-Items" code="8" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="SIP-Authentication-Scheme" code="9" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="SIP-Authenticate" code="10" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="SIP-Authorization" code="11" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="SIP-Authentication-Context" code="12" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+			<type type-name="OctetString"/>
+		</avp>
+		<!-- GROUPED -->
+		<avp name="SIP-Auth-Data-Item" code="13" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+                        <grouped>
+                                <gavp name="SIP-Item-Number"/>
+                                <gavp name="SIP-Authentication-Scheme"/>
+                                <gavp name="SIP-Authenticate"/>
+                                <gavp name="SIP-Authorization"/>
+                                <gavp name="SIP-Authentication-Context"/>
+                                <gavp name="Confidentiality-Key"/>
+                                <gavp name="Integrity-Key"/>
+                        </grouped>
+		</avp>
+		<avp name="SIP-Item-Number" code="14" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Server-Assignment-Type" code="15" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+                        <type type-name="Unsigned32"/>
+                        <enum name="No-Assignment" code="0"/>
+                        <enum name="Registration" code="1"/>
+                        <enum name="Re-Registration" code="2"/>
+                        <enum name="Unregistered-User" code="3"/>
+                        <enum name="Timeout-Deregistration" code="4"/>
+                        <enum name="User-Deregistration" code="5"/>
+                        <enum name="Timeout-Deregistration-Store-Server-Name" code="6"/>
+                        <enum name="User-Deregistration-Store-Server-Name" code="7"/>
+                        <enum name="Administrative-Deregistration" code="8"/>
+                        <enum name="Authentication-Failure" code="9"/>
+                        <enum name="Authentication-Timeout" code="10"/>
+                        <enum name="Deregistration-Too-Much-Data" code="11"/>
+		</avp>
+		<!-- GROUPED -->
+		<avp name="Deregistration-Reason" code="16" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+                        <grouped>
+                                <gavp name="Reason-Code"/>
+                                <gavp name="Reason-Info"/>
+                        </grouped>
+		</avp>
+		<avp name="Reason-Code" code="17" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+			<type type-name="Unsigned32"/>
+                        <enum name="Permanent-Termination" code="0"/>
+                        <enum name="New-Server-Assigned" code="1"/>
+                        <enum name="Server-Change" code="2"/>
+                        <enum name="Remove-S-CSCF" code="3"/>
+		</avp>
+		<avp name="Reason-Info" code="18" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+			<type type-name="UTF8String"/>
+		</avp>
+		<!-- GROUPED -->
+		<avp name="Charging-Information" code="19" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+                        <grouped>
+                                <gavp name="Primary-Event-Charging-Function-Name"/>
+                                <gavp name="Secondary-Event-Charging-Function-Name"/>
+                                <gavp name="Primary-Charging-Collection-Function-Name"/>
+                                <gavp name="Secondary-Charging-Collection-Function-Name"/>
+                        </grouped>
+		</avp>
+		<avp name="Primary-Event-Charging-Function-Name" code="20" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+			<type type-name="DiameterIdentity"/>
+		</avp>
+		<avp name="Secondary-Event-Charging-Function-Name" code="21" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+			<type type-name="DiameterIdentity"/>
+		</avp>
+		<avp name="Primary-Charging-Collection-Function-Name" code="22" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+			<type type-name="DiameterIdentity"/>
+		</avp>
+		<avp name="Secondary-Charging-Collection-Function-Name" code="23" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+			<type type-name="DiameterIdentity"/>
+		</avp>
+		<avp name="User-Authorization-Type" code="24" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+			<type type-name="Unsigned32"/>
+                        <enum name="Registration" code="0"/>
+                        <enum name="De-Registration" code="1"/>
+                        <enum name="Registration-And-Capabilities" code="2"/>
+		</avp>
+		<avp name="User-Data-Request-Type" code="25" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+			<type type-name="Unsigned32"/>
+                        <enum name="Complete-Profile" code="0"/>
+                        <enum name="Registered-Profile" code="1"/>
+                        <enum name="Unregistered-Profile" code="2"/>
+		</avp>
+		<avp name="User-Data-Already-Available" code="26" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+			<type type-name="Unsigned32"/>
+                        <enum name="User-Data-Not-Available" code="0"/>
+                        <enum name="User-Data-Already-Available" code="1"/>
+		</avp>
+		<avp name="Confidentiality-Key" code="27" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Integrity-Key" code="28" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+			<type type-name="OctetString"/>
+		</avp>
+		<!-- ************************ END IMS Cx Dx AVPS ******************* -->
+
+	</application>

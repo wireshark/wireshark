@@ -40,11 +40,11 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/strutil.h>
+#include <epan/base64.h>
 
-#include "util.h"
-#include "req_resp_hdrs.h"
+#include <epan/req_resp_hdrs.h>
 #include "packet-http.h"
-#include "prefs.h"
+#include <epan/prefs.h>
 
 typedef enum _http_type {
 	HTTP_REQUEST,
@@ -53,7 +53,7 @@ typedef enum _http_type {
 	HTTP_OTHERS
 } http_type_t;
 
-#include "tap.h"
+#include <epan/tap.h>
 
 static int http_tap = -1;
 

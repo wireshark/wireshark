@@ -35,7 +35,11 @@
 #include "tap_menu.h"
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
-#include "prefs.h"
+#include <epan/prefs.h>
+#include <epan/tap.h>
+#include <epan/timestamp.h>
+#include <epan/ipproto.h>
+
 #include "prefs-recent.h"
 #include "about_dlg.h"
 #include "capture_dlg.h"
@@ -62,9 +66,7 @@
 #include "toolbar.h"
 #include "gtkglobals.h"
 #include "register.h"
-#include "../tap.h"
 #include "../menu.h"
-#include "../ipproto.h"
 #include "packet_list.h"
 #include "ethclist.h"
 #include "../ui_util.h"
@@ -72,7 +74,6 @@
 #include "conversations_table.h"
 #include "hostlist_table.h"
 #include "simple_dialog.h"
-#include <epan/timestamp.h>
 
 GtkWidget *popup_menu_object;
 
@@ -343,21 +344,24 @@ static GtkItemFactoryEntry menu_items[] =
     ITEM_FACTORY_STOCK_ENTRY("/Help/_Contents", "F1", help_cb, 0, GTK_STOCK_HELP),
     ITEM_FACTORY_ENTRY("/Help/_Supported Protocols", NULL, supported_cb, 0, NULL, NULL),
 #if (GLIB_MAJOR_VERSION >= 2)
-    /* currently, glib1.x can't start a webbrowser, see webbrowser.c for details */
+#ifdef ETHEREAL_EUG_DIR
+    ITEM_FACTORY_ENTRY("/Help/User's Guide", NULL, url_page_menu_cb, HELP_CONTENT, NULL, NULL),
+#endif
     ITEM_FACTORY_ENTRY("/Help/Manual Pages", NULL, NULL, 0, "<Branch>", NULL),
-    ITEM_FACTORY_ENTRY("/Help/Manual Pages/Ethereal", NULL, url_localpage_cb, LOCALPAGE_MAN_ETHEREAL, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Help/Manual Pages/Ethereal Filter", NULL, url_localpage_cb, LOCALPAGE_MAN_ETHEREAL_FILTER, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/Help/Manual Pages/Ethereal", NULL, url_page_menu_cb, LOCALPAGE_MAN_ETHEREAL, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/Help/Manual Pages/Ethereal Filter", NULL, url_page_menu_cb, LOCALPAGE_MAN_ETHEREAL_FILTER, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Help/Manual Pages/<separator>", NULL, NULL, 0, "<Separator>", NULL),
-    ITEM_FACTORY_ENTRY("/Help/Manual Pages/Tethereal", NULL, url_localpage_cb, LOCALPAGE_MAN_TETHEREAL, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Help/Manual Pages/Mergecap", NULL, url_localpage_cb, LOCALPAGE_MAN_MERGECAP, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Help/Manual Pages/Editcap", NULL, url_localpage_cb, LOCALPAGE_MAN_EDITCAP, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Help/Manual Pages/Text2pcap", NULL, url_localpage_cb, LOCALPAGE_MAN_TEXT2PCAP, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/Help/Manual Pages/Tethereal", NULL, url_page_menu_cb, LOCALPAGE_MAN_TETHEREAL, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/Help/Manual Pages/Mergecap", NULL, url_page_menu_cb, LOCALPAGE_MAN_MERGECAP, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/Help/Manual Pages/Editcap", NULL, url_page_menu_cb, LOCALPAGE_MAN_EDITCAP, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/Help/Manual Pages/Text2pcap", NULL, url_page_menu_cb, LOCALPAGE_MAN_TEXT2PCAP, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Help/Ethereal Online", NULL, NULL, 0, "<Branch>", NULL),
-    ITEM_FACTORY_STOCK_ENTRY("/Help/Ethereal Online/Home Page", NULL, url_onlinepage_cb, ONLINEPAGE_HOME, GTK_STOCK_HOME),
-    ITEM_FACTORY_ENTRY("/Help/Ethereal Online/User's Guide", NULL, url_onlinepage_cb, ONLINEPAGE_USERGUIDE, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Help/Ethereal Online/FAQ's", NULL, url_onlinepage_cb, ONLINEPAGE_FAQ, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Help/Ethereal Online/Downloads", NULL, url_onlinepage_cb, ONLINEPAGE_DOWNLOAD, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Help/Ethereal Online/Example Files", NULL, url_onlinepage_cb, ONLINEPAGE_SAMPLE, NULL, NULL),
+    ITEM_FACTORY_STOCK_ENTRY("/Help/Ethereal Online/Home Page", NULL, url_page_menu_cb, ONLINEPAGE_HOME, GTK_STOCK_HOME),
+    ITEM_FACTORY_ENTRY("/Help/Ethereal Online/Wiki", NULL, url_page_menu_cb, ONLINEPAGE_WIKI, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/Help/Ethereal Online/User's Guide", NULL, url_page_menu_cb, ONLINEPAGE_USERGUIDE, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/Help/Ethereal Online/FAQ's", NULL, url_page_menu_cb, ONLINEPAGE_FAQ, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/Help/Ethereal Online/Downloads", NULL, url_page_menu_cb, ONLINEPAGE_DOWNLOAD, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/Help/Ethereal Online/Example Files", NULL, url_page_menu_cb, ONLINEPAGE_SAMPLE_FILES, NULL, NULL),
 #endif
     ITEM_FACTORY_ENTRY("/Help/<separator>", NULL, NULL, 0, "<Separator>", NULL),
     ITEM_FACTORY_ENTRY("/Help/_About Ethereal", NULL, about_ethereal_cb,
@@ -473,6 +477,8 @@ static GtkItemFactoryEntry hexdump_menu_items[] =
     ITEM_FACTORY_ENTRY("/Display Filters...", NULL, dfilter_dialog_cb,
                        0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Export Selected Packet Bytes...", NULL, savehex_cb,
+                       0, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/Copy Packet Bytes into Clipboard", NULL, copy_hex_cb,
                        0, NULL, NULL)
 };
 
@@ -1039,9 +1045,9 @@ add_menu_recent_capture_file_absolute(gchar *cf_name) {
 
 
 	normalized_cf_name = g_strdup(cf_name);
-#ifdef WIN32
-    /* replace all slashes by backslashes */
-    g_strdelimit(normalized_cf_name, "/", '\\');
+#ifdef _WIN32
+	/* replace all slashes by backslashes */
+	g_strdelimit(normalized_cf_name, "/", '\\');
 #endif
 
 	/* get the submenu container item */
@@ -1062,15 +1068,15 @@ add_menu_recent_capture_file_absolute(gchar *cf_name) {
 		 * already in the list or 
 		 * this element is above maximum count (too old), remove it */
 		if (!widget_cf_name ||
-#ifdef WIN32
-            /* do a case insensitive compare on win32 */
+#ifdef _WIN32
+		    /* do a case insensitive compare on win32 */
 #if GLIB_MAJOR_VERSION < 2
-            g_strncasecmp(widget_cf_name, normalized_cf_name, 1000) == 0 ||
+		    g_strncasecmp(widget_cf_name, normalized_cf_name, 1000) == 0 ||
 #else
-            g_ascii_strncasecmp(widget_cf_name, normalized_cf_name, 1000) == 0 ||
+		    g_ascii_strncasecmp(widget_cf_name, normalized_cf_name, 1000) == 0 ||
 #endif
-#else   /* WIN32 */
-            /* do a case sensitive compare on unix */
+#else   /* _WIN32 */
+		    /* do a case sensitive compare on unix */
 		    strncmp(widget_cf_name, normalized_cf_name, 1000) == 0 ||
 #endif
 		    cnt >= prefs.gui_recent_files_count_max) {

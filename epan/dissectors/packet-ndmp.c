@@ -40,7 +40,7 @@
 #include "packet-rpc.h"
 #include "packet-scsi.h"
 #include "packet-frame.h"
-#include "prefs.h"
+#include <epan/prefs.h>
 #include "reassemble.h"
 #include "rpc_defrag.h"
 
@@ -2754,7 +2754,7 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	return TRUE;
 }
 
-static void
+static int
 dissect_ndmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	int offset = 0;
@@ -2768,23 +2768,28 @@ dissect_ndmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		len = dissect_rpc_fragment(tvb, offset, pinfo, tree,
 		    dissect_ndmp_message, FALSE, proto_ndmp, ett_ndmp,
 		    ndmp_defragment, first_pdu);
-		first_pdu = FALSE;
 		if (len < 0) {
 			/*
 			 * We need more data from the TCP stream for
 			 * this fragment.
 			 */
-			return;
+			return tvb_length(tvb);
 		}
 		if (len == 0) {
 			/*
 			 * It's not NDMP.  Stop processing.
+			 * Return a "this isn't NDMP" indication
+			 * if this is the first PDU.
 			 */
+			if (first_pdu)
+				return 0;
 			break;
 		}
+		first_pdu = FALSE;
 
 		offset += len;
 	}
+	return tvb_length(tvb);
 }
 
 void
@@ -3489,6 +3494,6 @@ proto_reg_handoff_ndmp(void)
 {
   dissector_handle_t ndmp_handle;
 
-  ndmp_handle = create_dissector_handle(dissect_ndmp, proto_ndmp);
+  ndmp_handle = new_create_dissector_handle(dissect_ndmp, proto_ndmp);
   dissector_add("tcp.port",TCP_PORT_NDMP, ndmp_handle);
 }

@@ -1,0 +1,19 @@
+# Do not modify this file.
+# It is created automatically by the ASN.1 to Ethereal dissector compiler
+# ./cms-exp.cnf
+# ../../tools/asn2eth.py -e -X -b -p cms -c cms.cnf CryptographicMessageSyntax.asn
+
+#.IMPORT_TAG
+ContentInfo              BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
+SignedData               BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
+IssuerAndSerialNumber    BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
+Countersignature         BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
+#.END
+
+#.TYPE_ATTR
+ContentInfo              TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+SignedData               TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+IssuerAndSerialNumber    TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+Countersignature         TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+#.END
+

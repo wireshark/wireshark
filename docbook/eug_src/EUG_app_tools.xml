@@ -1,0 +1,947 @@
+<!-- EUG Appendix Tools -->
+
+<!-- $Id$ -->
+
+<appendix id="AppTools">
+  <title>Related command line tools</title>
+  
+  <section id="AppToolsIntroduction">
+    <title>Introduction</title>
+    <para>
+	Beside the Ethereal GUI application, there are some command line tools, 
+	which can be helpful for doing some more specialized things. These tools 
+	will be described in this chapter.
+	</para>
+  </section>
+  
+  <section id="AppToolstcpdump">
+    <title>tcpdump: Capturing with tcpdump for viewing with Ethereal</title>
+    <para>
+      There are occasions when you want to capture packets using 
+      <command>tcpdump</command> rather than <command>ethereal</command>, 
+      especially when you want to do a remote capture and do not want the 
+      network load associated with running Ethereal remotely (not to 
+      mention all the X traffic polluting your capture).
+    </para>
+    <para>
+      However, the default <command>tcpdump</command> parameters result in a 
+      capture file where each packet is truncated, because 
+      <command>tcpdump</command>, by default, does only capture the first 68 
+	  bytes of each packet.
+    </para>
+    <para>
+      To ensure that you capture complete packets, use the following command:
+      <programlisting>
+tcpdump -i &lt;interface> -s 1500 -w &lt;some-file>
+      </programlisting>
+      You will have to specify the correct <command>interface</command> and 
+      the name of a <command>file</command> to save into. In addition, 
+      you will have to terminate the capture with ^C when you believe you 
+      have captured enough packets.
+    </para>
+	<note><title>Note!</title>
+	<para>
+	tcpdump is not part of the Ethereal distribution. You can get it from:
+	<ulink url="http://www.tcpdump.org">http://www.tcpdump.org</ulink> for various 
+	platforms.
+	</para>
+	</note>
+  </section>
+  
+  <section id="AppToolstethereal">
+    <title>tethereal: Terminal-based Ethereal</title>
+    <para>
+      <application>Tethereal</application> is a terminal oriented version 
+      of ethereal designed for capturing and displaying packets when an 
+	  interactive user interface isn't necessary or available. It supports 
+	  the same options as <command>ethereal</command>. For more 
+      information on <command>tethereal</command>, see the manual pages 
+      (<command>man tethereal</command>).
+    </para>
+  </section>
+
+  <section id="AppToolscapinfo">
+    <title>capinfo: Print information about capture files</title>
+    <para>
+      Included with Ethereal is a small utility called 
+      <command>capinfo</command>, which is a command-line utility to
+	  print information about binary capture files.
+    </para>
+    <para>
+    <example id="AppToolscapinfoEx">
+      <title>Help information available from capinfo</title>
+      <programlisting>	
+$ capinfo -h
+Usage: capinfo [-t] [-c] [-s] [-d] [-u] [-a] [-e] [-y]
+               [-i] [-z] [-h] &lt;capfile&gt;
+  where -t display the capture type of &lt;capfile&gt;
+        -c count the number of packets
+        -s display the size of the file
+        -d display the total length of all packets in the file
+           (in bytes)
+        -u display the capture duration (in seconds)
+        -a display the capture start time
+        -e display the capture end time
+        -y display average data rate (in bytes)
+        -i display average data rate (in bits)
+        -z display average packet size (in bytes)
+        -h produces this help listing.
+
+            If no data flags are given, default is to display all statistics	
+      </programlisting>
+	</example>
+    </para>
+  </section>
+
+  <section id="AppToolseditcap">
+    <title>editcap: Edit capture files</title>
+    <para>
+      Included with Ethereal is a small utility called 
+      <command>editcap</command>, which is a command-line utility for 
+      working with capture files.  Its main function is to remove 
+      packets from capture files, but it can also be used to convert 
+      capture files from one format to another, as well as print 
+      information about capture files.
+    </para>
+    <para>
+	
+    <example id="AppToolseditcapEx">
+      <title>Help information available from editcap</title>
+      <programlisting>	
+$ editcap.exe -h
+Usage: editcap [-r] [-h] [-v] [-T &lt;encap type&gt;] [-F &lt;capture type&gt;]
+               [-s &lt;snaplen&gt;] [-t &lt;time adjustment&gt;]
+               &lt;infile&gt; &lt;outfile&gt; [ &lt;record#&gt;[-&lt;record#&gt;] ... ]
+  where -r specifies that the records specified should be kept, not deleted,
+                           default is to delete
+        -v specifies verbose operation, default is silent
+        -h produces this help listing.
+        -T &lt;encap type&gt; specifies the encapsulation type to use:
+            ether - Ethernet
+            tr - Token Ring
+            slip - SLIP
+            ppp - PPP
+            fddi - FDDI
+            fddi-swapped - FDDI with bit-swapped MAC addresses
+            rawip - Raw IP
+            arcnet - ARCNET
+            arcnet_linux - Linux ARCNET
+            atm-rfc1483 - RFC 1483 ATM
+            linux-atm-clip - Linux ATM CLIP
+            lapb - LAPB
+            atm-pdus - ATM PDUs
+            atm-pdus-untruncated - ATM PDUs - untruncated
+            null - NULL
+            ascend - Lucent/Ascend access equipment
+            isdn - ISDN
+            ip-over-fc - RFC 2625 IP-over-Fibre Channel
+            ppp-with-direction - PPP with Directional Info
+            ieee-802-11 - IEEE 802.11 Wireless LAN
+            prism - IEEE 802.11 plus Prism II monitor mode header
+            ieee-802-11-radio - IEEE 802.11 Wireless LAN with radio information
+            ieee-802-11-bsd - IEEE 802.11 plus BSD WLAN header
+            ieee-802-11-avs - IEEE 802.11 plus AVS WLAN header
+            linux-sll - Linux cooked-mode capture
+            frelay - Frame Relay
+            frelay-with-direction - Frame Relay with Directional Info
+            chdlc - Cisco HDLC
+            ios - Cisco IOS internal
+            ltalk - Localtalk
+            pflog-old - OpenBSD PF Firewall logs, pre-3.4
+            hhdlc - HiPath HDLC
+            docsis - Data Over Cable Service Interface Specification
+            cosine - CoSine L2 debug log
+            whdlc - Wellfleet HDLC
+            sdlc - SDLC
+            tzsp - Tazmen sniffer protocol
+            enc - OpenBSD enc(4) encapsulating interface
+            pflog - OpenBSD PF Firewall logs
+            chdlc-with-direction - Cisco HDLC with Directional Info
+            bluetooth-h4 - Bluetooth H4
+            mtp2 - SS7 MTP2
+            mtp3 - SS7 MTP3
+            irda - IrDA
+            user0 - USER 0
+            user1 - USER 1
+            user2 - USER 2
+            user3 - USER 3
+            user4 - USER 4
+            user5 - USER 5
+            user6 - USER 6
+            user7 - USER 7
+            user8 - USER 8
+            user9 - USER 9
+            user10 - USER 10
+            user11 - USER 11
+            user12 - USER 12
+            user13 - USER 13
+            user14 - USER 14
+            user15 - USER 15
+            symantec - Symantec Enterprise Firewall
+            ap1394 - Apple IP-over-IEEE 1394
+            bacnet-ms-tp - BACnet MS/TP
+            default is the same as the input file
+        -F &lt;capture type&gt; specifies the capture file type to write:
+            libpcap - libpcap (tcpdump, Ethereal, etc.)
+            rh6_1libpcap - RedHat Linux 6.1 libpcap (tcpdump)
+            suse6_3libpcap - SuSE Linux 6.3 libpcap (tcpdump)
+            modlibpcap - modified libpcap (tcpdump)
+            nokialibpcap - Nokia libpcap (tcpdump)
+            lanalyzer - Novell LANalyzer
+            ngsniffer - Network Associates Sniffer (DOS-based)
+            snoop - Sun snoop
+            netmon1 - Microsoft Network Monitor 1.x
+            netmon2 - Microsoft Network Monitor 2.x
+            ngwsniffer_1_1 - Network Associates Sniffer (Windows-based) 1.1
+            ngwsniffer_2_0 - Network Associates Sniffer (Windows-based) 2.00x
+            visual - Visual Networks traffic capture
+            5views - Accellent 5Views capture
+            niobserverv9 - Network Instruments Observer version 9
+            default is libpcap
+        -s &lt;snaplen&gt; specifies that packets should be truncated to
+           &lt;snaplen&gt; bytes of data
+        -t &lt;time adjustment&gt; specifies the time adjustment
+           to be applied to selected packets
+
+            A range of records can be specified as well
+      </programlisting>	
+    </example>
+	
+      Where each option has the following meaning:
+      <variablelist>
+	<varlistentry><term><command>-r</command></term>
+	  <listitem>
+	    <para>
+	      This option specifies that the frames listed should be kept, 
+	      not deleted. The default is to delete the listed frames.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry><term><command>-h</command></term>
+	  <listitem><para>This option provides help.</para></listitem>
+	</varlistentry>
+	<varlistentry><term><command>-v</command></term>
+	  <listitem>
+	    <para>
+	      This option specifies verbose operation.  The default is 
+	      silent operation.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry><term><command>-T {encap type}</command></term>
+	  <listitem>
+	    <para>
+	      This option specifies the frame encapsulation type to use. 
+	    </para>
+	    <para>
+	      It is mainly for converting funny captures to something 
+	      that Ethereal can deal with.
+	    </para>
+	    <para>
+		  The default frame 
+	      encapsulation type is the same as the input encapsulation. 
+	    </para>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry><term><command>-F {capture type}</command></term>
+	  <listitem>
+	    <para>
+	      This option specifies the capture file format to write 
+	      the output file in.
+	    </para>
+	    <para>
+	      The default is libpcap format.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry><term><command>-s {snaplen}</command></term>
+	  <listitem>
+	    <para>
+        Specifies that packets should be truncated to {snaplen} bytes of data.
+		</para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry><term><command>-t {time adjustment}</command></term>
+	  <listitem>
+	    <para>
+        Specifies the time adjustment to be applied to selected packets.
+		</para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry><term><command>{infile}</command></term>
+	  <listitem>
+	    <para>
+	      This parameter specifies the input file to use. It must be 
+	      present.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry><term><command>{outfile}</command></term>
+	  <listitem>
+	    <para>
+	      This parameter specifies the output file to use. It must 
+	      be present.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term><command>[record#[-][record# ...]]</command></term>
+	  <listitem>
+	    <para>
+	      This optional parameter specifies the records to include 
+	      or exclude (depending on the <command>-r</command> option. 
+	      You can specify individual records or a range of records.
+	    </para>
+	  </listitem>
+	</varlistentry>
+      </variablelist>
+    </para>
+  </section>
+  
+  <section id="AppToolsmergecap">
+    <title>mergecap: 
+      Merging multiple capture files into one with 
+      <command>mergecap</command>
+    </title>
+    <para>
+      Mergecap is a program that combines multiple saved capture files 
+      into a single output file specified by the -w argument.  Mergecap 
+      knows how to read libpcap capture files, including those of tcpdump.  
+      In addition, Mergecap can read capture files from snoop (including 
+      Shomiti) and atmsnoop, LanAlyzer, Sniffer (compressed or 
+      uncompressed), Microsoft Network Monitor, AIX's iptrace, NetXray, 
+      Sniffer Pro, RADCOM's WAN/LAN analyzer, Lucent/Ascend router debug 
+      output, HP-UX's nettl, and the dump output from Toshiba's ISDN 
+      routers.  There is no need to tell Mergecap what type of file you are 
+      reading; it will determine the file type by itself.  Mergecap is also 
+      capable of reading any of these file formats if they are compressed 
+      using gzip.  Mergecap recognizes this directly from the file; the '.gz' 
+      extension is not required for this purpose.
+    </para>
+    <para>       
+      By default, it writes the capture file in libpcap format, and writes 
+      all of the packets in both input capture files to the output file.  
+      The -F flag can be used to specify the format in which to write the 
+      capture file; it can write the file in libpcap format (standard 
+      libpcap format, a modified format used by some patched versions of 
+      libpcap, the format used by Red Hat Linux 6.1, or the format used 
+      by SuSE Linux 6.3), snoop format, uncompressed Sniffer format, 
+      Microsoft Network Monitor 1.x format, and the format used by 
+      Windows-based versions of the Sniffer software.
+    </para>
+    <para>
+      Packets from the input files are merged in chronological order based
+      on each frame's timestamp, unless the -a flag is specified.  Mergecap
+      assumes that frames within a single capture file are already stored
+      in chronological order.  When the -a flag is specified, packets are
+      copied directly from each input file to the output file, independent
+      of each frame's timestamp.
+    </para>
+    <para>
+      If the -s flag is used to specify a snapshot length, frames in the
+      input file with more captured data than the specified snapshot length
+      will have only the amount of data specified by the snapshot length
+      written to the output file.  This may be useful if the program that
+      is to read the output file cannot handle packets larger than a 
+      certain size (for example, the versions of snoop in Solaris 2.5.1 and
+      Solaris 2.6 appear to reject Ethernet frames larger than the standard
+      Ethernet MTU, making them incapable of handling gigabit Ethernet 
+      captures if jumbo frames were used).
+    </para>
+
+    <para>
+      If the -T flag is used to specify an encapsulation type, the 
+      encapsulation type of the output capture file will be forced to 
+      the specified type, rather than being the type appropriate to the 
+      encapsulation type of the input capture file.  Note that this merely 
+      forces the encapsulation type of the output file to be the specified 
+      type; the packet headers of the packets will not be translated from the
+      encapsulation type of the input capture file to the specified 
+      encapsulation type (for example, it will not translate an Ethernet 
+      capture to an FDDI capture if an Ethernet capture is read 
+      and '-T fddi' is specified).
+    </para>
+    <example id="AppToolsmergecapEx">
+      <title>Help information available from mergecap</title>
+      <programlisting>
+$ mergecap.exe -h
+mergecap version 0.10.5
+Usage: mergecap [-hva] [-s &lt;snaplen&gt;] [-T &lt;encap type&gt;]
+          [-F &lt;capture type&gt;] -w &lt;outfile&gt; &lt;infile&gt; [...]
+
+  where -h produces this help listing.
+        -v verbose operation, default is silent
+        -a files should be concatenated, not merged
+             Default merges based on frame timestamps
+        -s &lt;snaplen&gt;: truncate packets to &lt;snaplen&gt; bytes of data
+        -w &lt;outfile&gt;: sets output filename to &lt;outfile&gt;
+        -T &lt;encap type&gt; encapsulation type to use:
+             ether - Ethernet
+             tr - Token Ring
+             slip - SLIP
+             ppp - PPP
+             fddi - FDDI
+             fddi-swapped - FDDI with bit-swapped MAC addresses
+             rawip - Raw IP
+             arcnet - ARCNET
+             arcnet_linux - Linux ARCNET
+             atm-rfc1483 - RFC 1483 ATM
+             linux-atm-clip - Linux ATM CLIP
+             lapb - LAPB
+             atm-pdus - ATM PDUs
+             atm-pdus-untruncated - ATM PDUs - untruncated
+             null - NULL
+             ascend - Lucent/Ascend access equipment
+             isdn - ISDN
+             ip-over-fc - RFC 2625 IP-over-Fibre Channel
+             ppp-with-direction - PPP with Directional Info
+             ieee-802-11 - IEEE 802.11 Wireless LAN
+             prism - IEEE 802.11 plus Prism II monitor mode header
+             ieee-802-11-radio - IEEE 802.11 Wireless LAN with radio information
+             ieee-802-11-bsd - IEEE 802.11 plus BSD WLAN header
+             ieee-802-11-avs - IEEE 802.11 plus AVS WLAN header
+             linux-sll - Linux cooked-mode capture
+             frelay - Frame Relay
+             frelay-with-direction - Frame Relay with Directional Info
+             chdlc - Cisco HDLC
+             ios - Cisco IOS internal
+             ltalk - Localtalk
+             pflog-old - OpenBSD PF Firewall logs, pre-3.4
+             hhdlc - HiPath HDLC
+             docsis - Data Over Cable Service Interface Specification
+             cosine - CoSine L2 debug log
+             whdlc - Wellfleet HDLC
+             sdlc - SDLC
+             tzsp - Tazmen sniffer protocol
+             enc - OpenBSD enc(4) encapsulating interface
+             pflog - OpenBSD PF Firewall logs
+             chdlc-with-direction - Cisco HDLC with Directional Info
+             bluetooth-h4 - Bluetooth H4
+             mtp2 - SS7 MTP2
+             mtp3 - SS7 MTP3
+             irda - IrDA
+             user0 - USER 0
+             user1 - USER 1
+             user2 - USER 2
+             user3 - USER 3
+             user4 - USER 4
+             user5 - USER 5
+             user6 - USER 6
+             user7 - USER 7
+             user8 - USER 8
+             user9 - USER 9
+             user10 - USER 10
+             user11 - USER 11
+             user12 - USER 12
+             user13 - USER 13
+             user14 - USER 14
+             user15 - USER 15
+             symantec - Symantec Enterprise Firewall
+             ap1394 - Apple IP-over-IEEE 1394
+             bacnet-ms-tp - BACnet MS/TP
+             default is the same as the first input file
+        -F &lt;capture type&gt; capture file type to write:
+             libpcap - libpcap (tcpdump, Ethereal, etc.)
+             rh6_1libpcap - RedHat Linux 6.1 libpcap (tcpdump)
+             suse6_3libpcap - SuSE Linux 6.3 libpcap (tcpdump)
+             modlibpcap - modified libpcap (tcpdump)
+             nokialibpcap - Nokia libpcap (tcpdump)
+             lanalyzer - Novell LANalyzer
+             ngsniffer - Network Associates Sniffer (DOS-based)
+             snoop - Sun snoop
+             netmon1 - Microsoft Network Monitor 1.x
+             netmon2 - Microsoft Network Monitor 2.x
+             ngwsniffer_1_1 - Network Associates Sniffer (Windows-based) 1.1
+             ngwsniffer_2_0 - Network Associates Sniffer (Windows-based) 2.00x
+             visual - Visual Networks traffic capture
+             5views - Accellent 5Views capture
+             niobserverv9 - Network Instruments Observer version 9
+             default is libpcap
+      </programlisting>
+    </example>
+    <variablelist>
+      <varlistentry><term><command>-h</command></term>
+	<listitem>
+	  <para>Prints the version and options and exits.</para>
+	</listitem>
+      </varlistentry>
+      <varlistentry><term><command>-v</command></term>
+	<listitem>
+	  <para> 
+	    Causes <command>mergecap</command> to print a number of messages 
+	    while it's working.
+	  </para>
+	</listitem>
+      </varlistentry>
+      <varlistentry><term><command>-a</command></term>
+	<listitem>
+	  <para>
+	    Causes the frame timestamps to be ignored, writing all packets
+	    from the first input file followed by all packets from the second
+	    input file.  By default, when <command>-a</command> is not 
+	    specified, the contents
+	    of the input files are merged in chronological order based on
+	    each frame's timestamp.  Note: when merging, mergecap assumes
+	    that packets within a capture file are already in chronological
+	    order.
+	  </para>
+	</listitem>
+      </varlistentry>
+      <varlistentry><term><command>-s</command></term>
+	<listitem>
+	  <para>Sets the snapshot length to use when writing the data.</para>
+	</listitem>
+      </varlistentry>
+      <varlistentry><term><command>-w</command></term>
+	<listitem>
+	  <para>Sets the output filename.</para>
+	</listitem>
+      </varlistentry>
+      <varlistentry><term><command>-T</command></term>
+	<listitem>
+	  <para>
+	    Sets the packet encapsulation type of the output capture file.
+	  </para>
+	</listitem>
+      </varlistentry>
+      <varlistentry><term><command>-F</command></term>
+	<listitem>
+	  <para>Sets the file format of the output capture file.</para>
+	</listitem>
+      </varlistentry>
+    </variablelist>
+    <para>
+      A simple example merging <filename>dhcp-capture.libpcap</filename> 
+      and <filename>imap-1.libpcap</filename> into 
+      <filename>outfile.libpcap</filename> is shown below.
+    </para>
+    <example id="AppToolsmergecapExSimple">
+      <title>Simple example of using mergecap</title>
+      <programlisting>$ mergecap -w outfile.libpcap dhcp-capture.libpcap imap-1.libpcap 
+      </programlisting>
+    </example> 
+  </section>
+  
+  <section id="AppToolstext2pcap" >
+    <title>text2pcap: Converting ASCII hexdumps to network captures with 
+      <command>text2pcap</command>
+    </title>
+    <para>
+      There may be some occasions when you wish to convert a hex dump of some
+      network traffic into a libpcap file.</para>
+    <para>
+      <command>Text2pcap</command> is a program that reads in an ASCII hex 
+      dump and writes the data described into a libpcap-style capture file. 
+      text2pcap can read hexdumps withmultiple packets in them, and build a 
+      capture file of multiple packets. text2pcap is also capable of 
+      generating dummy Ethernet, IP and UDP headers, in order to build fully 
+      processable packet dumps from hexdumps of application-level data only.
+    </para>
+    <para>
+      Text2pcap understands a hexdump of the form generated by od -t x1. In 
+      other words, each byte is individually displayed and surrounded with a 
+      space. Each line begins with an offset describing the position in the 
+      file. The offset is a hex number (can also be octal - see -o), of 
+      more than two hex digits. Here is a sample dump that text2pcap can 
+      recognize:
+    </para>
+    <programlisting>
+000000 00 e0 1e a7 05 6f 00 10 ........
+000008 5a a0 b9 12 08 00 46 00 ........
+000010 03 68 00 00 00 00 0a 2e ........
+000018 ee 33 0f 19 08 7f 0f 19 ........
+000020 03 80 94 04 00 00 10 01 ........
+000028 16 a2 0a 00 03 50 00 0c ........
+000030 01 01 0f 19 03 80 11 01 ........
+    </programlisting>
+    <para>
+      There is no limit on the width or number of bytes per line. Also the 
+      text dump at the end of the line is ignored. Bytes/hex numbers can be 
+      uppercase or lowercase. Any text before the offset is ignored, 
+      including email forwarding characters '&gt;'. Any lines of text 
+      between the bytestring lines is ignored. The offsets are used to 
+      track the bytes, so offsets must be correct. Any line which has only 
+      bytes without a leading offset is ignored. An offset is recognized 
+      as being a hex number longer than two characters. Any text after the 
+      bytes is ignored (e.g. the character dump). Any hex numbers in this 
+      text are also ignored. An offset of zero is indicative of starting a 
+      new packet, so a single text file with a series of hexdumps can be 
+      converted into a packet capture with multiple packets. Multiple 
+      packets are read in with timestamps differing by one second each. 
+      In general, short of these restrictions, text2pcap is pretty liberal 
+      about reading in hexdumps and has been tested with a variety of mangled 
+      outputs (including being forwarded through email multiple times, 
+      with limited line wrap etc.)
+    </para>
+    <para> 
+      There are a couple of other special features to note. Any line where 
+      the first non-whitespace character is '#' will be ignored as a 
+      comment. Any line beginning with #TEXT2PCAP is a directive and options 
+      can be inserted after this command to be processed by text2pcap. 
+      Currently there are no directives implemented; in the future, these 
+      may be used to give more fine grained control on the dump and the 
+      way it should be processed e.g. timestamps, encapsulation type etc.
+    </para>
+    <para>
+      Text2pcap also allows the user to read in dumps of application-level
+      data, by inserting dummy L2, L3 and L4 headers before each packet.
+      The user can elect to insert Ethernet headers, Ethernet and IP, or
+      Ethernet, IP and UDP headers before each packet. This allows Ethereal
+      or any other full-packet decoder to handle these dumps.
+    </para>
+    <example id="AppToolstext2pcapEx">
+      <title>Help information available for text2pcap</title>
+      <programlisting>
+$ text2pcap.exe -h
+
+Usage: text2pcap.exe [-h] [-d] [-q] [-o h|o] [-l typenum] [-e l3pid] [-i proto]
+          [-m max-packet] [-u srcp,destp] [-T srcp,destp] [-s srcp,destp,tag]
+          [-S srcp,destp,tag] [-t timefmt] &lt;input-filename&gt; &lt;output-filename&gt;
+
+where &lt;input-filename&gt; specifies input filename (use - for standard input)
+      &lt;output-filename&gt; specifies output filename (use - for standard output)
+
+[options] are one or more of the following
+
+ -h              : Display this help message
+ -d              : Generate detailed debug of parser states
+ -o hex|oct      : Parse offsets as (h)ex or (o)ctal. Default is hex
+ -l typenum      : Specify link-layer type number. Default is 1 (Ethernet).
+                   See net/bpf.h for list of numbers.
+ -q              : Generate no output at all (automatically turns off -d)
+ -e l3pid        : Prepend dummy Ethernet II header with specified L3PID (in
+                   HEX)
+                   Example: -e 0x800
+ -i proto        : Prepend dummy IP header with specified IP protocol (in
+                   DECIMAL).
+                   Automatically prepends Ethernet header as well.
+                   Example: -i 46
+ -m max-packet   : Max packet length in output, default is 64000
+ -u srcp,destp   : Prepend dummy UDP header with specified dest and source ports
+                   (in DECIMAL).
+                   Automatically prepends Ethernet and IP headers as well
+                   Example: -u 30,40
+ -T srcp,destp   : Prepend dummy TCP header with specified dest and source ports
+                   (in DECIMAL).
+                   Automatically prepends Ethernet and IP headers as well
+                   Example: -T 50,60
+ -s srcp,dstp,tag: Prepend dummy SCTP header with specified dest/source ports
+                   and verification tag (in DECIMAL).
+                   Automatically prepends Ethernet and IP headers as well
+                   Example: -s 30,40,34
+ -S srcp,dstp,ppi: Prepend dummy SCTP header with specified dest/source ports
+                   and verification tag 0. It also prepends a dummy SCTP DATA
+                   chunk header with payload protocol identifier ppi.
+                   Example: -S 30,40,34
+ -t timefmt      : Treats the text before the packet as a date/time code; the
+                   specified argument is a format string of the sort supported
+                   by strptime.
+                   Example: The time "10:15:14.5476" has the format code
+                   "%H:%M:%S."
+                   NOTE:    The subsecond component delimiter must be specified
+                            (.) but no pattern is required; the remaining number
+                            is assumed to be fractions of a second.
+      </programlisting>
+    </example>
+    <variablelist>
+      <varlistentry><term><command>-w &lt;filename&gt;</command></term>
+	<listitem>
+	  <para>
+	    Write the capture file generated by <command>text2pcap</command> 
+	    to &lt;filename&gt;.  The default is to write to standard 
+	    output.
+	  </para>
+	</listitem>
+      </varlistentry>
+      <varlistentry><term><command>-h</command></term>
+	<listitem>
+	  <para>Display the help message</para>
+	</listitem>
+      </varlistentry>
+      <varlistentry><term><command>-d</command></term>
+	<listitem>
+	  <para>
+	    Displays debugging information during the process. Can be 
+	    used multiple times to generate more debugging information.
+	  </para>
+	</listitem>
+      </varlistentry>
+      <varlistentry><term><command>-q</command></term>
+	<listitem>
+	  <para>Be completely quiet during the process.</para>
+	</listitem>
+      </varlistentry>
+      <varlistentry><term><command>-o hex|oct</command></term>
+	<listitem>
+	  <para> Specify the radix for the offsets (hex or octal). Defaults to
+	    hex. This corresponds to the <command>-A</command> option for od.
+	  </para>
+	</listitem>
+      </varlistentry>
+      <varlistentry><term><command>-l</command></term>
+	<listitem>
+	  <para> 
+	    Specify the link-layer type of this packet. Default is 
+	    Ethernet(1). See net/bpf.h for the complete list of possible 
+	    encapsulations. Note that this option should be used if your 
+	    dump is a complete hex dump of an encapsulated packet and you 
+	    wish to specify the exact type of encapsulation. Example: -l 7 
+	    for ARCNet packets.
+	  </para>
+	</listitem>
+      </varlistentry>
+      <varlistentry><term><command>-e l3pid</command></term>
+	<listitem>
+	  <para> 
+	    Include a dummy Ethernet header before each packet. Specify the
+	    L3PID for the Ethernet header in hex. Use this option if your
+	    dump has Layer 3 header and payload (e.g. IP header), but no
+	    Layer 2 encapsulation. Example: -e 0x806 to specify an ARP
+	    packet.
+	  </para>
+	  <para>
+	    For IP packets, instead of generating a fake Ethernet header you
+	    can also use -l 12 to indicate a raw IP packet to Ethereal. Note
+	    that -l 12 does not work for any non-IP Layer 3 packet (e.g.
+	    ARP), whereas generating a dummy Ethernet header with -e works
+	    for any sort of L3 packet.
+	  </para>
+	</listitem>
+      </varlistentry>
+      <varlistentry><term><command>-u srcport destport</command></term>
+	<listitem>
+	  <para>
+	    Include dummy UDP headers before each packet. Specify the 
+	    source and destination UDP ports for the packet in decimal. 
+	    Use this option if your dump is the UDP payload of a packet but 
+	    does not include any UDP, IP or Ethernet headers. Note that this 
+	    automatically includes appropriate Ethernet and IP headers with 
+	    each packet. Example: -u 1000 69 to make the packets look like 
+	    TFTP/UDP packets.
+	  </para>
+	</listitem>
+      </varlistentry>
+    </variablelist>
+  </section>
+  
+  <section id="AppToolsidl2eth" >
+    <title>idl2eth: 
+      Creating dissectors from Corba IDL files with 
+      <command>idl2eth</command>
+    </title>
+    <para>
+      In an ideal world idl2eth would be mentioned in the users guide 
+      in passing and documented in the developers guide.  As the 
+      developers guide 
+      has not yet been completed it will be documented here.
+    </para>
+    <section>
+      <title>What is it?</title>
+      <para>
+	As you have probably guessed from the name, 
+	<command>idl2eth</command> takes a
+	user specified IDL file and attempts to build a dissector that
+	can decode the IDL traffic over GIOP. The resulting file is
+	"C" code, that should compile okay as an ethereal dissector.
+      </para>
+      <para>
+	<command>idl2eth</command> basically parses the data struct given to 
+	it by the omniidl compiler, and using the GIOP API available in 
+	packet-giop.[ch], generates  get_CDR_xxx calls to decode the 
+	CORBA traffic on the wire.
+      </para>
+      <para>It consists of 4 main files.</para>
+      <variablelist>
+	<varlistentry><term><filename>README.idl2eth</filename></term>
+	  <listitem>
+	    <para>This document</para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry><term><filename>ethereal_be.py</filename></term>
+	  <listitem>
+	    <para>The main compiler backend</para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry><term><filename>ethereal_gen.py</filename></term>
+	  <listitem>
+	    <para>A helper class, that generates the C code.</para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry><term><filename>idl2eth</filename></term>
+	  <listitem>
+	    <para> A simple shell script wrapper that the end user should
+	      use to generate the dissector from the IDL file(s).</para>
+	  </listitem>
+	</varlistentry>
+      </variablelist>
+    </section>
+    <section>
+      <title>Why do this?</title>
+      <para>
+	It is important to understand what CORBA traffic looks
+	like over GIOP/IIOP, and to help build a tool that can assist
+	in troubleshooting CORBA interworking. This was especially the
+	case after seeing a lot of discussions about how particular
+	IDL types are represented inside an octet stream.
+      </para>
+      <para>
+	I have also had comments/feedback that this tool would be good for say
+	a CORBA class when teaching students what CORBA traffic looks like
+	"on the wire".
+      </para>
+      <para>
+	It is also COOL to work on a great Open Source project such as
+	the case with "Ethereal" (
+	<ulink url="http://www.ethereal.com">http://www.ethereal.com</ulink>
+	)
+      </para>
+    </section>
+    <section><title>How to use idl2eth</title>
+      <para>
+	To use the idl2eth to generate ethereal dissectors, you
+	need the following:
+      </para>
+      <orderedlist>
+	<title>Prerequisites to using idl2eth</title>
+	<listitem>
+	  <para>
+	    Python must be installed.  See 
+	    <ulink url="http://python.org/"/>
+	  </para>
+	</listitem>
+	<listitem>
+	  <para> 
+	    omniidl from the the omniORB package must be available. See
+	    <ulink url="http://omniorb.sourceforge.net/"/>
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    Of course you need ethereal installed to compile the
+	    code and tweak it if required. idl2eth is part of the 
+	    standard Ethereal distribution
+	  </para>
+	</listitem>
+      </orderedlist>
+      <para>
+	To use idl2eth to generate an ethereal dissector from an idl file 
+	use the following proceedure:
+      </para>
+      <orderedlist>
+	<title>
+	  Proceedure for converting a Corba idl file into an ethereal 
+	  dissector
+	</title>
+	<listitem>
+	  <para>
+	    To write the C code to stdout.
+	    <programlisting>idl2eth  &lt;your file.idl&gt;</programlisting>
+	    eg: <programlisting>idl2eth echo.idl</programlisting>
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    To write to a file, just redirect the output.
+	    <programlisting>idl2eth echo.idl > packet-test-idl.c</programlisting>
+	    You may wish to comment out the register_giop_user_module() code 
+	    and that will leave you with heuristic dissection.
+	  </para>
+	</listitem>
+      </orderedlist>
+      <para>
+	If you dont want to use the shell script wrapper, then try
+	steps 3 or 4 instead.</para>
+      <orderedlist continuation="continues">
+	<listitem>
+	  <para>To write the C code to stdout.
+	    <programlisting>Usage: omniidl  -p ./ -b ethereal_be &lt;your file.idl&gt;</programlisting>
+	    eg:
+	    <programlisting>omniidl  -p ./ -b ethereal_be echo.idl</programlisting>
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    To write to a file, just redirect the output.
+	    <programlisting>omniidl  -p ./ -b ethereal_be echo.idl > packet-test-idl.c</programlisting>
+	    You may wish to comment out the register_giop_user_module() code
+	    and that will leave you with heuristic dissection.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    Copy the resulting C code to your ethereal src directory, 
+	    edit the 2 make files to include the packet-test-idl.c
+	    <programlisting>
+cp packet-test-idl.c /dir/where/ethereal/lives/
+edit Makefile.am
+edit Makefile.nmake
+	    </programlisting>
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>Run configure
+	    <programlisting>./configure (or ./autogen.sh)</programlisting>
+	  </para>
+	</listitem>
+	<listitem>
+	  <para> Compile the code
+	    <programlisting>make</programlisting>
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>Good Luck !!</para>
+	</listitem>
+      </orderedlist>
+    </section>
+    <section><title>TODO</title>
+      <orderedlist>
+	<listitem>
+	  <para>
+	    Exception code not generated  (yet), but can be added manually.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para> 
+	    Enums not converted to symbolic values (yet), but can be added 
+	    manually.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>Add command line options etc</para>
+	</listitem>
+	<listitem>
+	  <para>More I am sure :-)</para>
+	</listitem>
+      </orderedlist>
+    </section>
+    <section><title>Limitations</title>
+      <para>
+	See the TODO list inside <filename>packet-giop.c</filename>
+      </para>
+    </section>
+    <section><title>Notes</title>
+      <orderedlist>
+	<listitem>
+	  <para>
+	    The "-p ./" option passed to omniidl indicates that the 
+	    ethereal_be.py and ethereal_gen.py are residing in the 
+	    current directory. This may need
+	    tweaking if you place these files somewhere else.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    If it complains about being unable to find some modules 
+	    (eg tempfile.py), 
+	    you may want to check if PYTHONPATH is set correctly.
+	    On my Linux box, it is  PYTHONPATH=/usr/lib/python1.5/ 
+	  </para>
+	</listitem>
+      </orderedlist>
+    </section>
+  </section>
+</appendix>
+<!-- End of EUG Appendix Tools -->
+
+

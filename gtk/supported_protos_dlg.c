@@ -31,7 +31,7 @@
 #include <string.h>
 
 #include "supported_protos_dlg.h"
-#include "prefs.h"
+#include <epan/prefs.h>
 #include "globals.h"
 #include "gtkglobals.h"
 #include "ui_util.h"

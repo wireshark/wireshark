@@ -41,30 +41,17 @@
 
 #define FAMILY_TRANSLATE  0x000C
 
-/* Family Translation */
-#define FAMILY_TRANSLATE_ERROR        0x0001
-#define FAMILY_TRANSLATE_REQ          0x0002
-#define FAMILY_TRANSLATE_REPL         0x0003
-#define FAMILY_TRANSLATE_DEFAULT      0xffff
-
-static const value_string aim_fnac_family_translate[] = {
-  { FAMILY_TRANSLATE_ERROR, "Error" },
-  { FAMILY_TRANSLATE_REQ, "Translate Request" },
-  { FAMILY_TRANSLATE_REPL, "Translate Reply" },
-  { FAMILY_TRANSLATE_DEFAULT, "Translate Default" },
-  { 0, NULL }
-};
-
 static int proto_aim_translate = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_aim_translate = -1;
 
-static int dissect_aim_translate(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
-	
-	/* FIXME */
-	return 0;
-}
+static const aim_subtype aim_fnac_family_translate[] = {
+  { 0x0001, "Error", dissect_aim_snac_error },
+  { 0x0002, "Translate Request", NULL },
+  { 0x0003, "Translate Reply", NULL },
+  { 0, NULL, NULL }
+};
 
 /* Register the protocol with Ethereal */
 void
@@ -92,8 +79,5 @@ proto_register_aim_translate(void)
 void
 proto_reg_handoff_aim_translate(void)
 {
-  dissector_handle_t aim_handle;
-  aim_handle = new_create_dissector_handle(dissect_aim_translate, proto_aim_translate);
-  dissector_add("aim.family", FAMILY_TRANSLATE, aim_handle);
-  aim_init_family(FAMILY_TRANSLATE, "Translate", aim_fnac_family_translate);
+  aim_init_family(proto_aim_translate, ett_aim_translate, FAMILY_TRANSLATE, aim_fnac_family_translate);
 }

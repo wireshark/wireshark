@@ -39,7 +39,7 @@
 #include <windows.h>
 #include <windowsx.h>
 
-#include "prefs.h"
+#include <epan/prefs.h>
 #include "prefs-recent.h"
 
 #include "alert_box.h"

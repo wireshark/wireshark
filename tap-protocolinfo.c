@@ -38,7 +38,7 @@
 #include "epan/epan_dissect.h"
 #include "epan/column-utils.h"
 #include "epan/proto.h"
-#include "tap.h"
+#include <epan/tap.h>
 #include "register.h"
 
 typedef struct _pci_t {

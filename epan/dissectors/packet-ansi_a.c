@@ -40,8 +40,8 @@
 #include <string.h>
 
 #include "epan/packet.h"
-#include "prefs.h"
-#include "tap.h"
+#include <epan/prefs.h>
+#include <epan/tap.h>
 
 #include "packet-bssap.h"
 #include "packet-ansi_a.h"

@@ -193,6 +193,7 @@ typedef struct {
  * frame number of the request in the dissection of the reply.
  */
 #define SMB_SIF_TID_IS_IPC	0x0001
+#define SMB_SIF_IS_CONTINUED	0x0002
 typedef struct {
 	guint32 frame_req, frame_res;
 	nstime_t req_time;

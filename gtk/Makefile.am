@@ -37,12 +37,14 @@ noinst_HEADERS = \
 	about_dlg.h	\
 	capture_dlg.h	\
 	capture_prefs.h	\
+	cfilter_combo_utils.h \
 	color_dlg.h	\
 	colors.h	\
 	column_prefs.h	\
 	compat_macros.h	\
 	conversations_table.h \
 	decode_as_dlg.h	\
+	decode_as_dcerpc.h \
 	dfilter_expr_dlg.h \
 	dlg_utils.h	\
 	file_dlg.h	\
@@ -55,6 +57,9 @@ noinst_HEADERS = \
 	gtkglobals.h	\
 	gtk_stat_util.h \
 	gui_prefs.h	\
+	h323_analysis.h	\
+	h323_conversations.h	\
+	h323_conversations_dlg.h \
 	help_dlg.h	\
 	hostlist_table.h \
 	isprint.h	\
@@ -77,6 +82,7 @@ noinst_HEADERS = \
 	rtp_stream.h	\
 	rtp_stream_dlg.h \
 	sat.h		\
+	sctp_stat.h	\
 	service_response_time_table.h	\
 	stream_prefs.h	\
 	summary_dlg.h   \

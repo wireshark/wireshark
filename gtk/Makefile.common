@@ -34,12 +34,14 @@ ETHEREAL_GTK_SRC = \
 	capture_if_dlg.c	\
 	capture_info_dlg.c	\
 	capture_prefs.c	\
+	cfilter_combo_utils.c	\
 	color_dlg.c	\
 	color_utils.c	\
 	colors.c	\
 	column_prefs.c	\
 	conversations_table.c	\
 	decode_as_dlg.c	\
+	decode_as_dcerpc.c	\
 	dfilter_expr_dlg.c	\
 	dlg_utils.c	\
 	ethereal-tap-register.c	\
@@ -51,6 +53,8 @@ ETHEREAL_GTK_SRC = \
 	goto_dlg.c	\
 	gtk_stat_util.c	\
 	gui_prefs.c	\
+	h323_analysis.c	\
+	h323_conversations.c	\
 	help_dlg.c	\
 	hostlist_table.c \
 	layout_prefs.c	\
@@ -100,6 +104,7 @@ ETHEREAL_TAP_SRC = \
 	gsm_map_summary.c	\
 	h225_counter.c	\
 	h225_ras_srt.c	\
+	h323_conversations_dlg.c	\
 	hostlist_eth.c \
 	hostlist_fc.c \
 	hostlist_fddi.c \
@@ -119,7 +124,7 @@ ETHEREAL_TAP_SRC = \
 	rpc_stat.c	\
 	rtp_analysis.c	\
 	rtp_stream_dlg.c	\
-	tcp_graph.c	\
 	sip_stat.c	\
 	smb_stat.c	\
+	tcp_graph.c	\
 	wsp_stat.c

@@ -44,8 +44,8 @@
 
 #include <glib.h>
 #include <epan/packet.h>
-#include "ipproto.h"
-#include "in_cksum.h"
+#include <epan/ipproto.h>
+#include <epan/in_cksum.h>
 #include "packet-rsvp.h"
 
 #define OSPF_VERSION_2 2
@@ -176,6 +176,11 @@ static const value_string v3_ls_type_vals[] = {
 
 };
 
+static const value_string mpls_link_stlv_ltype_str[] = {
+    {1, "Point-to-point"},
+    {2, "Multi-access"},
+    {0, NULL},
+};
 
 #define OSPF_V3_ROUTER_LSA_FLAG_B 0x01
 #define OSPF_V3_ROUTER_LSA_FLAG_E 0x02
@@ -208,6 +213,7 @@ static gint ett_ospf_lsa_mpls = -1;
 static gint ett_ospf_lsa_mpls_router = -1;
 static gint ett_ospf_lsa_mpls_link = -1;
 static gint ett_ospf_lsa_mpls_link_stlv = -1;
+static gint ett_ospf_lsa_mpls_link_stlv_admingrp = -1;
 static gint ett_ospf_lsa_oif_tna = -1;
 static gint ett_ospf_lsa_oif_tna_stlv = -1;
 
@@ -248,11 +254,13 @@ enum {
     OSPFF_LS_MPLS,
     OSPFF_LS_MPLS_ROUTERID,
 
+    OSPFF_LS_MPLS_LINKTYPE,
     OSPFF_LS_MPLS_LINKID,
     OSPFF_LS_MPLS_LOCAL_ADDR,
     OSPFF_LS_MPLS_REMOTE_ADDR,
     OSPFF_LS_MPLS_LOCAL_IFID,
     OSPFF_LS_MPLS_REMOTE_IFID,
+    OSPFF_LS_MPLS_LINKCOLOR,
 
     OSPFF_MAX
 };
@@ -343,6 +351,9 @@ static hf_register_info ospff_info[] = {
      { "MPLS/TE Router ID", "ospf.mpls.routerid", FT_IPv4, BASE_NONE, NULL, 0x0,
        "", HFILL }},
 
+    {&ospf_filter[OSPFF_LS_MPLS_LINKTYPE],
+     { "MPLS/TE Link Type", "ospf.mpls.linktype", FT_UINT8, BASE_DEC, VALS(mpls_link_stlv_ltype_str), 0x0,
+       "MPLS/TE Link Type", HFILL }},
     {&ospf_filter[OSPFF_LS_MPLS_LINKID],
      { "MPLS/TE Link ID", "ospf.mpls.linkid", FT_IPv4, BASE_NONE, NULL, 0x0,
        "", HFILL }},
@@ -358,6 +369,9 @@ static hf_register_info ospff_info[] = {
     {&ospf_filter[OSPFF_LS_MPLS_REMOTE_IFID],
      { "MPLS/TE Remote Interface Index", "ospf.mpls.remote_id", FT_UINT32,
        BASE_DEC, NULL, 0x0, "", HFILL }},
+    {&ospf_filter[OSPFF_LS_MPLS_LINKCOLOR],
+     { "MPLS/TE Link Resource Class/Color", "ospf.mpls.linkcolor", FT_UINT32,
+       BASE_HEX, NULL, 0x0, "MPLS/TE Link Resource Class/Color", HFILL }},
 
 
 
@@ -970,6 +984,7 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, int offset, proto_tree *tree,
     proto_tree *mpls_tree;
     proto_tree *tlv_tree;
     proto_tree *stlv_tree;
+    proto_tree *stlv_admingrp_tree = NULL;
 
     int tlv_type;
     int tlv_length;
@@ -977,6 +992,7 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, int offset, proto_tree *tree,
 
     int stlv_type, stlv_len, stlv_offset;
     char *stlv_name;
+    guint32 stlv_admingrp, mask;
     int i;
     guint8 switch_cap;
 
@@ -1023,22 +1039,23 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, int offset, proto_tree *tree,
 
 		case MPLS_LINK_TYPE:
 		    ti = proto_tree_add_text(tlv_tree, tvb, stlv_offset, stlv_len+4,
-					     "%s: %u", stlv_name,
-					     tvb_get_guint8(tvb, stlv_offset + 4));
+				     "%s: %u - %s", stlv_name,
+				     tvb_get_guint8(tvb, stlv_offset + 4),
+				     val_to_str(tvb_get_guint8(tvb, stlv_offset + 4), 
+					mpls_link_stlv_ltype_str, "Unknown Link Type"));
 		    stlv_tree = proto_item_add_subtree(ti, ett_ospf_lsa_mpls_link_stlv);
 		    proto_tree_add_text(stlv_tree, tvb, stlv_offset, 2,
 					"TLV Type: %u: %s", stlv_type, stlv_name);
 		    proto_tree_add_text(stlv_tree, tvb, stlv_offset+2, 2, "TLV Length: %u",
 		    			stlv_len);
-		    proto_tree_add_text(stlv_tree, tvb, stlv_offset+4, 1, "%s: %u", stlv_name,
-					tvb_get_guint8(tvb, stlv_offset + 4));
+		    proto_tree_add_item(stlv_tree, ospf_filter[OSPFF_LS_MPLS_LINKTYPE],
+					tvb, stlv_offset+4, 1,FALSE);
 		    break;
 
 		case MPLS_LINK_ID:
 		    ti = proto_tree_add_text(tlv_tree, tvb, stlv_offset, stlv_len+4,
-					     "%s: %s (%x)", stlv_name,
-					     ip_to_str(tvb_get_ptr(tvb, stlv_offset + 4, 4)),
-					     tvb_get_ntohl(tvb, stlv_offset + 4));
+					     "%s: %s", stlv_name,
+					     ip_to_str(tvb_get_ptr(tvb, stlv_offset + 4, 4)));
 		    stlv_tree = proto_item_add_subtree(ti, ett_ospf_lsa_mpls_link_stlv);
 		    proto_tree_add_text(stlv_tree, tvb, stlv_offset, 2,
 					"TLV Type: %u: %s", stlv_type, stlv_name);
@@ -1068,7 +1085,6 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, int offset, proto_tree *tree,
 		    break;
 
 		case MPLS_LINK_TE_METRIC:
-		case MPLS_LINK_COLOR:
 		    ti = proto_tree_add_text(tlv_tree, tvb, stlv_offset, stlv_len+4,
 					     "%s: %u", stlv_name,
 					     tvb_get_ntohl(tvb, stlv_offset + 4));
@@ -1081,18 +1097,45 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, int offset, proto_tree *tree,
 					tvb_get_ntohl(tvb, stlv_offset + 4));
 		    break;
 
-		case MPLS_LINK_MAX_BW:
-		case MPLS_LINK_MAX_RES_BW:
+		case MPLS_LINK_COLOR:
 		    ti = proto_tree_add_text(tlv_tree, tvb, stlv_offset, stlv_len+4,
-					     "%s: %.10g", stlv_name,
-					     tvb_get_ntohieee_float(tvb, stlv_offset + 4));
+					     "%s: 0x%08x", stlv_name,
+					     tvb_get_ntohl(tvb, stlv_offset + 4));
 		    stlv_tree = proto_item_add_subtree(ti, ett_ospf_lsa_mpls_link_stlv);
 		    proto_tree_add_text(stlv_tree, tvb, stlv_offset, 2,
 					"TLV Type: %u: %s", stlv_type, stlv_name);
 		    proto_tree_add_text(stlv_tree, tvb, stlv_offset+2, 2, "TLV Length: %u",
 					stlv_len);
-		    proto_tree_add_text(stlv_tree, tvb, stlv_offset+4, 4, "%s: %.10g", stlv_name,
-					tvb_get_ntohieee_float(tvb, stlv_offset + 4));
+		    stlv_admingrp = tvb_get_ntohl(tvb, stlv_offset + 4);
+		    mask = 1;
+		    ti = proto_tree_add_item(stlv_tree, ospf_filter[OSPFF_LS_MPLS_LINKCOLOR],
+                                        tvb, stlv_offset+4, 4, FALSE);
+		    stlv_admingrp_tree = proto_item_add_subtree(ti, ett_ospf_lsa_mpls_link_stlv_admingrp);
+		    if (stlv_admingrp_tree == NULL)
+			return;
+		    for (i = 0 ; i < 32 ; i++) {
+			if ((stlv_admingrp & mask) != 0) {
+			    proto_tree_add_text(stlv_admingrp_tree, tvb, stlv_offset+4,
+				4, "Group %d", i);
+			}
+			mask <<= 1;
+		    }
+		    break;
+
+		case MPLS_LINK_MAX_BW:
+		case MPLS_LINK_MAX_RES_BW:
+		    ti = proto_tree_add_text(tlv_tree, tvb, stlv_offset, stlv_len+4,
+					     "%s: %.10g bytes/s (%.0f bits/s)", stlv_name,
+					     tvb_get_ntohieee_float(tvb, stlv_offset + 4),
+					     tvb_get_ntohieee_float(tvb, stlv_offset + 4) * 8.0);
+		    stlv_tree = proto_item_add_subtree(ti, ett_ospf_lsa_mpls_link_stlv);
+		    proto_tree_add_text(stlv_tree, tvb, stlv_offset, 2,
+					"TLV Type: %u: %s", stlv_type, stlv_name);
+		    proto_tree_add_text(stlv_tree, tvb, stlv_offset+2, 2, "TLV Length: %u",
+					stlv_len);
+		    proto_tree_add_text(stlv_tree, tvb, stlv_offset+4, 4, "%s: %.10g bytes/s (%.0f bits/s)", stlv_name,
+					tvb_get_ntohieee_float(tvb, stlv_offset + 4),
+					tvb_get_ntohieee_float(tvb, stlv_offset + 4) * 8.0);
 		    break;
 
 		case MPLS_LINK_UNRES_BW:
@@ -1248,8 +1291,15 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, int offset, proto_tree *tree,
 
 		    break;
 		default:
-		    proto_tree_add_text(tlv_tree, tvb, stlv_offset, stlv_len+4,
+		    ti = proto_tree_add_text(tlv_tree, tvb, stlv_offset, stlv_len+4,
 					"Unknown Link sub-TLV: %u", stlv_type);
+		    stlv_tree = proto_item_add_subtree(ti, ett_ospf_lsa_mpls_link_stlv);
+		    proto_tree_add_text(stlv_tree, tvb, stlv_offset, 2,
+					"TLV Type: %u: %s", stlv_type, stlv_name);
+		    proto_tree_add_text(stlv_tree, tvb, stlv_offset+2, 2, "TLV Length: %u",
+					stlv_len);
+		    proto_tree_add_text(stlv_tree, tvb, stlv_offset+4, stlv_len,
+					"TLV Value");
 		    break;
 		}
 		stlv_offset += ((stlv_len+4+3)/4)*4;
@@ -2308,6 +2358,7 @@ proto_register_ospf(void)
 	&ett_ospf_lsa_mpls_router,
 	&ett_ospf_lsa_mpls_link,
 	&ett_ospf_lsa_mpls_link_stlv,
+	&ett_ospf_lsa_mpls_link_stlv_admingrp,
         &ett_ospf_lsa_oif_tna,
         &ett_ospf_lsa_oif_tna_stlv
     };

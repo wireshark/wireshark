@@ -30,10 +30,10 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include "packet-wccp.h"
-#include "in_cksum.h"
+#include <epan/in_cksum.h>
 #include "etypes.h"
 #include "greproto.h"
-#include "ipproto.h"
+#include <epan/ipproto.h>
 #include "llcsaps.h"
 
 /*
@@ -47,6 +47,7 @@
 
 static int proto_gre = -1;
 static int hf_gre_proto = -1;
+static int hf_gre_key = -1;
 
 static gint ett_gre = -1;
 static gint ett_gre_flags = -1;
@@ -203,10 +204,8 @@ dissect_gre(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       offset += 2;
     }
     else {
-      if (tree) {
-	proto_tree_add_text(gre_tree, tvb, offset, 4,
-			    "Key: %u", tvb_get_ntohl(tvb, offset));
-      }
+      if (tree)
+	proto_tree_add_item(gre_tree, hf_gre_key, tvb, offset, 4, FALSE);
       offset += 4;
     }
   }
@@ -359,6 +358,10 @@ proto_register_gre(void)
 		{ &hf_gre_proto,
 			{ "Protocol Type", "gre.proto", FT_UINT16, BASE_HEX, VALS(typevals), 0x0,
 				"The protocol that is GRE encapsulated", HFILL }
+		},
+		{ &hf_gre_key,
+			{ "GRE Key", "gre.key", FT_UINT32, BASE_HEX, NULL, 0x0,
+				"", HFILL }
 		},
 	};
 	static gint *ett[] = {

@@ -352,6 +352,7 @@
             />
           </menupopup>
         </menu>
+        <menuseparator />
         <menuitem
           label="Enabled Protocols..."
           command="ethereal-main-analyze-enaproto"

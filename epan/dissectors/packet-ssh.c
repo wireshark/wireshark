@@ -40,7 +40,7 @@
 
 #include "packet-tcp.h"
 #include "reassemble.h"
-#include "prefs.h"
+#include <epan/prefs.h>
 
 /* get from openssh ssh2.h */
 #define SSH2_MSG_DISCONNECT				1

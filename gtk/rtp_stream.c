@@ -34,7 +34,7 @@
 
 #include "globals.h"
 
-#include "tap.h"
+#include <epan/tap.h>
 #include "register.h"
 #include <epan/dissectors/packet-rtp.h>
 

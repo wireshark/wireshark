@@ -1,7 +1,7 @@
 # CMS.cnf
 # CMS conformation file
 
-# $Id: cms.cnf,v 1.2 2004/06/03 08:35:44 guy Exp $
+# $Id$
 
 #.MODULE_IMPORT
 AuthenticationFramework x509af
@@ -13,6 +13,7 @@ InformationFramework x509if
 #.EXPORTS
 SignedData
 Countersignature
+IssuerAndSerialNumber
 
 #.NO_EMIT
 OtherKeyAttribute

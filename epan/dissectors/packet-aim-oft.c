@@ -44,6 +44,41 @@
 
 static int proto_aim_oft = -1;
 
+static int ett_aim_recvfile = -1;
+static int ett_aim_sendfile = -1;
+
+/* 
+ * cookie (8 chars)
+ * encrypt (uint16)
+ * compress (uint16)
+ * totfiles (uint16)
+ * filesleft (uint16)
+ * totparts (uint16)
+ * partsleft (uint16)
+ * totsize (uint32)
+ * size (uint32)
+ * modtime (uint32)
+ * checksum (uint32)
+ * rfrcsum (uint32)
+ * rfsize (uint32)
+ * cretime (uint32)
+ * rfcsum (uint32)
+ * nrecvd (uint32)
+ * recvscum (uint32)
+ * idstring (32 chars)
+ * flags (uint8)
+ * lnameoffset (uint8)
+ * lsizeoffset (uint8)
+ * unknown (69 chars)
+ * macfileinfo (16 chars)
+ * nencode (uint16)
+ * nlanguage (uint16)
+ * filename (raw, 64 chars)
+ * 
+ * length of file (uint16)
+ * file data
+ */
+
 
 /* Register the protocol with Ethereal */
 void
@@ -62,8 +97,8 @@ proto_register_aim_oft(void)
   proto_aim_oft = proto_register_protocol("AIM OFT", "AIM OFT", "aim_oft");
 
 /* Required function calls to register the header fields and subtrees used */
-/*  proto_register_field_array(proto_aim_oft, hf, array_length(hf));
-  proto_register_subtree_array(ett, array_length(ett));*/
+/*  proto_register_field_array(proto_aim_oft, hf, array_length(hf));*/
+/*	proto_register_subtree_array(ett, array_length(ett));*/
 }
 
 void

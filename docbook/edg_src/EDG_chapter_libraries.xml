@@ -1,0 +1,387 @@
+<!-- EDG Chapter Libraries -->
+<!-- $Id$ -->
+
+<chapter id="ChapterLibraries">
+  <title>Libraries</title>
+  
+  <section id="ChLibIntro">
+	<title>Introduction</title>
+	<para>
+	Several libraries are needed to build / run Ethereal. Most of the
+	libraries are splitted into three packages:
+	<orderedlist>
+	<listitem>
+	<para>
+	Runtime package: binaries (e.g. win32 DLL's) and alike
+	</para>
+	</listitem>
+	<listitem>
+	<para>
+	Developer package: documentation, header files and alike
+	</para>
+	</listitem>
+	<listitem>
+	<para>
+	Source package: library sources, usually not required to
+	build ethereal
+	</para>
+	</listitem>
+	</orderedlist>
+	<tip><title>Tip!</title>
+	<para>
+	Win32: All required libraries for the MSVC
+	generation are available at: 
+	<ulink	url="http://www.ethereal.com/distribution/win32/development/"/>,
+	but see <xref linkend="ChLibsSetup"/> for an easier way to install the 
+	libraries.
+	</para>
+	</tip>
+	</para>
+  </section>
+	
+  <section id="ChLibsFormat">
+    <title>Binary library formats</title>
+	<para>
+	Binary libraries are available in different formats, depending on the C 
+	compiler (see <xref linkend="ChToolsCompiler"/>) used to build it and of 
+	course the platform they were build for.
+	</para>
+	
+	<section id="ChLibsFormatUnix">
+	<title>Unix</title>
+	<para>
+	If you have installed unix binary libraries on your system, they will 
+	match the C compiler. If not already installed, the libraries should be
+	available as a package from the platform installer, or you can download
+	and compile the source and install that binaries then.
+	</para>
+	</section>
+
+	<section id="ChLibsFormatWin32MSVC6">
+	<title>Win32: MSVC V6</title>
+	<para>
+	Recommended for current Win32 Ethereal releases.
+	Most of the Win32 binary libraries you will find on the web are in this
+	format. You will recognize MSVC libraries by the .lib/.dll file extension.
+	</para>
+	</section>
+
+	<section id="ChLibsFormatWin32MSVC2003">
+	<title>Win32: MSVC 2003</title>
+	<para>
+	Currently not widely available, but the first libraries in that format can 
+	be seen on the web. These libraries have the same .lib/.dll file 
+	extension, but unfortunately they are not completely compatible as they 
+	are linked with different dependant libraries, see <xref 
+	linkend="ChToolsCompiler"/> for some further explanations.
+	</para>
+	</section>
+
+	<section id="ChLibsFormatWin32Cygwin">
+	<title>Win32: cygwin gcc</title>
+	<para>
+	Cygwin provides most of the required libraries (with file extension .a/.lib) 
+	for Ethereal suitable for cygwin's gcc compiler.
+	</para>
+	</section>
+  </section>
+	
+  <section id="ChLibsSetup">
+	<title>Win32: Automated library download</title>
+	<tip><title>Tip!</title>
+	<para>
+	It's a really good idea to use the Win32 automated library download to 
+	install the required libraries as it makes this download very easy.
+	</para>
+	</tip>
+	<warning><title>Warning!</title>
+	<para>
+	The library zip files on the server and in the setup target will match 
+	only for the latest sources, as old zip files will be moved into the 
+	<filename>old</filename> folder on the server. So you cannot use the 
+	setup target for "old" (this may even include the released) sources!
+	</para>
+	</warning>
+	<para>
+	You can download/install all required libraries by using the setup target 
+	of the <filename>Makefile.nmake</filename> from the source package.
+	</para>
+	<para>
+	Before you start the download, you must have installed both
+	the required tools (see <xref linkend="ChapterTools"/>) and also the 
+	Ethereal sources (see <xref linkend="ChSrcObtain"/>).
+	</para>
+	<para>
+	By default the libraries will be downloaded and installed into 
+	<filename>C:\ethereal-win32-libs</filename>.
+	You can change this to any other location by editing the file
+	<filename>config.nmake</filename> and changing the line containing 
+	the ETHEREAL_LIBS setting to your favourite place (use an absolute path 
+	here).
+	</para>
+	<para>
+	Then enter at the command line:
+	</para>
+	<para>
+	<prompt>&gt;</prompt> <userinput>nmake -f Makefile.nmake setup</userinput>
+	</para>
+	<para>
+	This will first check for all the various tools needed to build Ethereal,
+	as described already in <xref linkend="ChToolsWin32Verify"/>.
+	</para>
+	<para>
+	Then it will download the zipped libraries into the directory specified by 
+	ETHEREAL_LIBS and install (unzip) all required library files there.
+	</para>
+	<para>
+	If you have problems downloading the library files, see the wget proxy 
+	comment in <xref linkend="ChToolsWget"/>.
+	</para>
+
+	<section id="ChLibsSetupUpdate">
+	<title>Update of a previous download</title>
+	<para>
+	As new versions of the libraries become available, maybe with bugfixes or
+	some new functionality, your libraries get outdated.
+	</para>
+	<para>
+	You could simply remove everything in the ETHEREAL_LIBS dir and call the 
+	setup target again, but that would require to download every file again 
+	(currently about 33MB), which isn't necessary.
+	</para>
+	<para>
+	The following will bring your libraries up to date:
+	</para>
+	<itemizedlist>
+	<listitem>
+	<para>
+	Update your Ethereal sources to the latest SVN files (see <xref 
+	linkend="ChSrcObtain"/>), so the zip filenames in the setup target 
+	of Makefile.nmake is in sync with the library zip files on the server.
+	</para>
+	</listitem>
+	<listitem>
+	<para>	
+	Remove all files previously unzipped from the downloaded files in your 
+	ETHEREAL_LIBS library path (all the subdirs, e.g. 
+	<filename>c:\ethereal_libs\gtk+</filename>), 
+	except for the zip files located at the toplevel, which are the files 
+	downloaded the last time(s). You could do this, be entering at the command line:
+	</para>
+	<para>
+	<prompt>&gt;</prompt> <userinput>nmake -f Makefile.nmake clean_setup</userinput>
+	</para>
+	</listitem>
+	<listitem>
+	<para>
+	Start the setup target described above. As wget will download only the 
+	missing files, existing zip files in the ETHEREAL_LIBS dir won't be 
+	downloaded again. Outdated zip files shouldn't do any harm.
+	</para>
+	</listitem>
+	</itemizedlist>
+	</section>
+	
+  </section>
+
+  <section id="ChLibsGtk">
+	<title>GTK+ / GLib / GDK / Pango / ATK / GNU gettext / GNU libiconv</title>
+	<para>
+	The Glib library is used as a basic platform abstraction library, it's 
+	not related to graphical user interface (GUI) things. For a detailed 
+	description about GLib, see <xref linkend="ChCodeGLib"/>.
+	</para>
+	<para>
+	The GTK and it's dependant libraries are used to build Ethereal's GUI. 
+	For a detailed description of the GTK libraries, see <xref 
+	linkend="ChUIGTK"/>.
+	</para>
+	<para>
+	All other libraries are dependant on the two libraries mentioned above, 
+	you will typically not come in touch with these while doing Ethereal 
+	development. 
+	</para>
+	<para>
+	As the requirements for the GLib/GTK libraries increased in the past, it 
+	depends on the GLib/GTK versions you have, which additional libraries are 
+	required. The 1.x versions only needed GLib/GDK/GTK+, while the 2.x 
+	versions require all mentioned libs.
+	</para>
+
+	<section id="ChLibsUnixGTK">
+	<title>Unix</title>
+	<para>
+	The GLib/GTK+ libraries are available for many unix-like platforms and 
+	cygwin.
+	</para>
+	<para>
+	If these libraries aren't already installed and also not available as a 
+	package for your platform, you can get them at: 
+	<ulink url="http://www.gtk.org"/>.
+	</para>
+	</section>
+
+	<section id="ChLibsWin32GTK">
+	<title>Win32 MSVC</title>
+	<para>
+	You can get the latest version at: 
+	<ulink url="http://www.gimp.org/%7Etml/gimp/win32/downloads.html"/>.
+	</para>
+	</section>
+  </section>
+  
+  <section id="ChLibsSNMP">
+	<title>Net SNMP (previously known as "ucd-snmp")</title>
+	<para>
+	"Various tools relating to the Simple Network Management Protocol"
+	</para>
+	
+	<section id="ChLibsUnixSNMP">
+	<title>Unix</title>
+	<para>
+	If this library isn't already installed and also not available as a 
+	package for your platform, you can get it at: 
+	<ulink url="http://sourceforge.net/projects/net-snmp/"/>.
+	</para>
+	</section>
+
+	<section id="ChLibsWin32SNMP">
+	<title>Win32 MSVC</title>
+	<para>
+	You can get the latest version at: 
+	<ulink url="http://sourceforge.net/projects/net-snmp/"/>.
+	</para>
+	</section>
+		
+  </section>
+  
+
+  <section id="ChLibsADNS">
+	<title>GNU ADNS (optional)</title>
+	<para>
+	"Advanced, easy to use, asynchronous-capable DNS client library and
+utilities."
+	</para>
+	
+	<section id="ChLibsUnixADNS">
+	<title>Unix</title>
+	<para>
+	If this library isn't already installed and also not available as a 
+	package for your platform, you can get it at: 
+	<ulink url="http://www.gnu.org/software/adns/"/>.
+	</para>
+	</section>
+
+	<section id="ChLibsWin32ADNS">
+	<title>Win32 MSVC</title>
+	<para>
+	You can get the latest version at: 
+	<ulink url="http://adns.jgaa.com/"/>
+	</para>
+	</section>
+	
+  </section>
+  
+
+  <section id="ChLibsPCRE">
+	<title>PCRE(optional)</title>
+	<para>
+	"Perl compatible regular expressions"
+	</para>
+	
+	<section id="ChLibsUnixPCRE">
+	<title>Unix</title>
+	<para>
+	If this library isn't already installed and also not available as a 
+	package for your platform, you can get it at: 
+	<ulink url="http://www.pcre.org/"/>.
+	</para>
+	</section>
+
+	<section id="ChLibsWin32PCRE">
+	<title>Win32 MSVC</title>
+	<para>
+	You can get the latest version at: 
+	<ulink url="http://gnuwin32.sourceforge.net/packages/pcre.htm"/>
+	</para>
+	</section>
+		
+  </section>
+  
+  
+  <section id="ChLibsZlib">
+	<title>zlib (optional)</title>
+	<para>
+	"zlib is designed to be a 
+	<ulink url="http://www.gzip.org/zlib/zlib_license.html">free</ulink>,
+	general-purpose, legally unencumbered -- that is, not covered by any
+	patents -- lossless data-compression library for use on virtually any computer
+	hardware and operating system."
+	</para>
+
+	<section id="ChLibsUnixZlib">
+	<title>Unix</title>
+	<para>
+	If this library isn't already installed and also not available as a 
+	package for your platform, you can get it at: 
+	<ulink url="http://www.gzip.org/zlib/"/>.
+	</para>
+	</section>
+
+	<section id="ChLibsWin32Zlib">
+	<title>Win32 MSVC</title>
+	<para>
+	You can get the latest version at: 
+	<ulink url="http://gnuwin32.sourceforge.net/packages/zlib.htm"/>
+	</para>
+	<para>
+	(A version for the MSVC2003 compiler can be found at:
+	<ulink url="http://www.winimage.com/zLibDll/"/>)
+	</para>
+	</section>
+
+  </section>
+  
+  
+  <section id="ChLibsPcap">
+	<title>libpcap/WinPcap (optional)</title>
+	<para>
+	"packet capture library"
+	</para>
+	
+	<section id="ChLibsLibpcap">
+	<title>Unix: libpcap</title>
+	<para>
+	If this library isn't already installed and also not available as a 
+	package for your platform, you can get it at: 
+	<ulink url="http://www.tcpdump.org/"/>.
+	</para>
+	</section>
+
+	<section id="ChLibsWinpPcap">
+	<title>Win32 MSVC: WinPcap</title>
+	<para>
+	You can get the "Windows packet capture library" at:
+	<ulink url="http://winpcap.polito.it/install/default.htm"/>
+	</para>
+	</section>
+
+  </section>
+
+
+  <section id="ChLibsWimp">
+	<title>Win32: GTK WIMP (optional) for GTK 2.x only</title>
+	<para>
+	"GTK-Wimp ("Windows impersonator") is a GTK theme that blends well into
+	the Windows desktop environment."
+	</para>
+	<para>
+	Wimp is only available for the GTK2.x versions at: 
+	<ulink url="http://gtk-wimp.sourceforge.net/"/>.
+	</para>
+
+  </section>
+
+  
+</chapter>
+<!-- End of EUG Chapter Libraries -->

@@ -108,8 +108,8 @@
 #endif
 
 #include <epan/packet.h>
-#include "ipproto.h"
-#include "in_cksum.h"
+#include <epan/ipproto.h>
+#include <epan/in_cksum.h>
 #include "packet-dvmrp.h"
 #include "packet-pim.h"
 #include "packet-mrdisc.h"

@@ -61,17 +61,19 @@
 #ifdef PLUGINS_NEED_ADDRESS_TABLE
 #include "conversation.h"
 #include "reassemble.h"
-#include "prefs.h"
+#include <epan/prefs.h>
 #include <epan/dissectors/packet-giop.h>
 #include <epan/dissectors/packet-tpkt.h>
 #include <epan/dissectors/packet-tcp.h>
 #include <epan/dissectors/packet-rpc.h>
-#include "tap.h"
+#include <epan/tap.h>
 #include "asn1.h"
 #include <epan/dissectors/packet-per.h>
 #include <epan/dissectors/packet-ber.h>
-#include "xdlc.h"
-#include "crc16.h"
+#include <epan/dissectors/packet-rtp.h>
+#include <epan/dissectors/packet-rtcp.h>
+#include <epan/xdlc.h>
+#include <epan/crc16.h>
 #include "report_err.h"
 #include "plugins/plugin_table.h"
 static plugin_address_table_t	patable = {
@@ -313,7 +315,7 @@ plugins_scan_dir(const char *dirname)
 /* Return value is malloced so the caller should g_free() it. */
 const char *get_plugins_global_dir(const char *plugin_dir)
 {
-#ifdef WIN32
+#ifdef _WIN32
 	char *install_plugin_dir;
 
 	/*

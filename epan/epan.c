@@ -19,7 +19,7 @@
 #include "except.h"
 #include "packet.h"
 #include "column-utils.h"
-#include "../tap.h"
+#include "tap.h"
 #include "addr_resolv.h"
 
 static void (*report_failure_func)(const char *, va_list);

@@ -1,7 +1,7 @@
 # pkcs1.cnf
 # PKCS#1 conformation file
 
-# $Id: pkcs1.cnf,v 1.2 2004/06/03 08:35:44 guy Exp $
+# $Id$
 
 #.MODULE_IMPORT
 AuthenticationFramework x509af

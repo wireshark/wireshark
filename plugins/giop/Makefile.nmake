@@ -9,20 +9,29 @@ include ..\..\config.nmake
 CFLAGS=/DHAVE_CONFIG_H /I../.. /I../../wiretap $(GLIB_CFLAGS) \
 	/I$(PCAP_DIR)\include -D_U_="" $(LOCAL_CFLAGS)
 
+LDFLAGS = /NOLOGO /INCREMENTAL:no /MACHINE:I386 $(LOCAL_LDFLAGS)
+
+!IFDEF LINK_PLUGINS_WITH_LIBETHEREAL
+LINK_PLUGIN_WITH=..\..\epan\libethereal.lib
+CFLAGS=/DHAVE_WIN32_LIBETHEREAL_LIB /D_NEED_VAR_IMPORT_ $(CFLAGS)
+!ELSE
+LINK_PLUGIN_WITH=..\plugin_api.obj
+!ENDIF
+
 OBJECTS=packet-cosnaming.obj  packet-coseventcomm.obj
 
 all : cosnaming.dll coseventcomm.dll
 
-cosnaming.dll cosnaming.exp cosnaming.lib : packet-cosnaming.obj ..\plugin_api.obj
-	link -dll /out:cosnaming.dll packet-cosnaming.obj ..\plugin_api.obj \
+cosnaming.dll cosnaming.exp cosnaming.lib : packet-cosnaming.obj $(LINK_PLUGIN_WITH)
+	link -dll /out:cosnaming.dll $(LDFLAGS) packet-cosnaming.obj $(LINK_PLUGIN_WITH) \
 	$(GLIB_LIBS)
 
-coseventcomm.dll coseventcomm.exp coseventcomm.lib : packet-coseventcomm.obj ..\plugin_api.obj
-	link -dll /out:coseventcomm.dll packet-coseventcomm.obj ..\plugin_api.obj \
+coseventcomm.dll coseventcomm.exp coseventcomm.lib : packet-coseventcomm.obj $(LINK_PLUGIN_WITH)
+	link -dll /out:coseventcomm.dll $(LDFLAGS) packet-coseventcomm.obj $(LINK_PLUGIN_WITH) \
 	$(GLIB_LIBS)
 
 clean:
 	rm -f $(OBJECTS) cosnaming.dll cosnaming.exp cosnaming.lib \
-		coseventcomm.dll coseventcomm.exp coseventcomm.lib $(PDB_FILE)
+		coseventcomm.dll coseventcomm.exp coseventcomm.lib *.pdb
 
 distclean: clean

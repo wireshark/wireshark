@@ -31,7 +31,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <glib.h>
-#include "prefs.h"
+#include <epan/prefs.h>
 #include <epan/packet.h>
 #include "reassemble.h"
 #include "packet-osi.h"
@@ -39,7 +39,7 @@
 #include "packet-isis.h"
 #include "packet-esis.h"
 #include "nlpid.h"
-#include "ipproto.h"
+#include <epan/ipproto.h>
 
 /* protocols and fields */
 

@@ -11,6 +11,10 @@
 * Christoph Wiest,		2003/06/28
 * Modified 2003 by		Christoph Wiest
 *						<ch.wiest@tesionmail.de>
+* Modifyed 2004 by		Anders Broman
+*						<anders.broman@ericsson.com>
+* To handle TPKT headers if over TCP
+*
 * Ethereal - Network traffic analyzer
 * By Gerald Combs <gerald@ethereal.com>
 * Copyright 1999 Gerald Combs
@@ -46,9 +50,10 @@
 #include <string.h>
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
-#include "prefs.h"
+#include <epan/prefs.h>
 #include <epan/strutil.h>
 #include "sctpppids.h"
+#include <epan/dissectors/packet-tpkt.h>
 
 #include "plugins/plugin_api_defs.h"
 
@@ -79,51 +84,53 @@ static int hf_megaco_termid			= -1;
 /* Define headers in subtree for megaco */
 static int hf_megaco_modem_descriptor           = -1;
 static int hf_megaco_multiplex_descriptor       = -1;
-static int hf_megaco_media_descriptor		= -1;
+static int hf_megaco_media_descriptor			= -1;
 static int hf_megaco_events_descriptor          = -1;
 static int hf_megaco_signal_descriptor          = -1;
 static int hf_megaco_audit_descriptor           = -1;
 static int hf_megaco_servicechange_descriptor	= -1;
-static int hf_megaco_digitmap_descriptor	= -1;
-static int hf_megaco_statistics_descriptor	= -1;
+static int hf_megaco_digitmap_descriptor		= -1;
+static int hf_megaco_statistics_descriptor		= -1;
 static int hf_megaco_observedevents_descriptor	= -1;
-static int hf_megaco_topology_descriptor	= -1;
-static int hf_megaco_error_descriptor		= -1;
+static int hf_megaco_topology_descriptor		= -1;
+static int hf_megaco_error_descriptor			= -1;
 static int hf_megaco_TerminationState_descriptor= -1;
-static int hf_megaco_Remote_descriptor 		= -1;
-static int hf_megaco_Local_descriptor 		= -1;
+static int hf_megaco_Remote_descriptor 			= -1;
+static int hf_megaco_Local_descriptor 			= -1;
 static int hf_megaco_LocalControl_descriptor 	= -1;
 static int hf_megaco_packages_descriptor		= -1;
-static int hf_megaco_error_Frame			= -1;
-static int hf_megaco_Service_State			= -1;
+static int hf_megaco_error_Frame				= -1;
+static int hf_megaco_Service_State				= -1;
 static int hf_megaco_Event_Buffer_Control		= -1;
-static int hf_megaco_mode				= -1;
-static int hf_megaco_reserve_group			= -1;
-static int hf_megaco_reserve_value			= -1;
-static int hf_megaco_streamid 				= -1;
-static int hf_megaco_requestid 				= -1;
-static int hf_megaco_pkgdname				= -1;
-static int hf_megaco_mId				= -1;
-static int hf_megaco_h245				= -1;
+static int hf_megaco_mode						= -1;
+static int hf_megaco_reserve_group				= -1;
+static int hf_megaco_reserve_value				= -1;
+static int hf_megaco_streamid 					= -1;
+static int hf_megaco_requestid 					= -1;
+static int hf_megaco_pkgdname					= -1;
+static int hf_megaco_mId						= -1;
+static int hf_megaco_h245						= -1;
 
 /* Define the trees for megaco */
-static int ett_megaco 					= -1;
-static int ett_megaco_command_line 			= -1;
+static int ett_megaco 							= -1;
+static int ett_megaco_command_line 				= -1;
 static int ett_megaco_mediadescriptor			= -1;
-static int ett_megaco_descriptors 			= -1;
+static int ett_megaco_descriptors 				= -1;
 static int ett_megaco_TerminationState			= -1;
 static int ett_megaco_Localdescriptor			= -1;
 static int ett_megaco_Remotedescriptor			= -1;
-static int ett_megaco_LocalControldescriptor		= -1;
+static int ett_megaco_LocalControldescriptor	= -1;
 static int ett_megaco_auditdescriptor			= -1;
 static int ett_megaco_eventsdescriptor			= -1;
-static int ett_megaco_observedeventsdescriptor		= -1;
-static int ett_megaco_observedevent			= -1;
+static int ett_megaco_observedeventsdescriptor	= -1;
+static int ett_megaco_observedevent				= -1;
 static int ett_megaco_packagesdescriptor		= -1;
 static int ett_megaco_requestedevent			= -1;
 static int ett_megaco_signalsdescriptor			= -1;
 static int ett_megaco_requestedsignal			= -1;
-static int ett_megaco_h245 				= -1;
+static int ett_megaco_h245 						= -1;
+
+static dissector_handle_t megaco_text_handle;
 
 
 /*
@@ -206,16 +213,42 @@ static void
 dissect_megaco_Packagesdescriptor(tvbuff_t *tvb, proto_tree *tree, gint tvb_next_offset, gint tvb_current_offset);
 static void 
 tvb_raw_text_add(tvbuff_t *tvb, proto_tree *tree);
+static void
+dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 static dissector_handle_t sdp_handle;
 static dissector_handle_t h245_handle;
 static proto_tree *top_tree;
-
 /*
-* dissect_megaco_text - The dissector for the MEGACO Protocol, using
-* text encoding.
-*/
+ * dissect_megaco_text over TCP, there will be a TPKT header there 
+ * 
+ */
+static void dissect_megaco_text_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	int lv_tpkt_len;
 
+	/* This code is copied from the Q.931 dissector, some parts skipped.
+	 * Check whether this looks like a TPKT-encapsulated
+	 * MEGACO packet.
+	 *
+	 * The minimum length of a MEGACO message is 6?:
+	 * Re-assembly ?
+	 */
+	lv_tpkt_len = is_tpkt(tvb, 6);
+	if (lv_tpkt_len == -1) {
+		/*
+		 * It's not a TPKT packet;
+		 * Is in MEGACO ?
+		 */
+		dissect_megaco_text(tvb, pinfo, tree);
+	}
+	dissect_tpkt_encap(tvb, pinfo, tree, TRUE,
+	    megaco_text_handle);
+}
+/*
+ * dissect_megaco_text - The dissector for the MEGACO Protocol, using
+ * text encoding.
+ */
 static void
 dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -255,8 +288,15 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * binary encodings. Bugfix add skipping of leading spaces.
 	 */
 	tvb_offset = tvb_skip_wsp(tvb, tvb_offset);
+	/* Quick fix for MEGACO not following the RFC, hopfully not breaking any thing
+	 * Turned out to be TPKT in case of TCP, added some code to handle that.
+	 * 
+	 * tvb_offset = tvb_find_guint8(tvb, tvb_offset, 5, 'M');
+	 */
 	if(!tvb_get_nstringz0(tvb,tvb_offset,sizeof(word),word)) return;
-	if (strncasecmp(word, "MEGACO", 6) != 0 && tvb_get_guint8(tvb, tvb_offset ) != '!') return;
+	if (strncasecmp(word, "MEGACO", 6) != 0 && tvb_get_guint8(tvb, tvb_offset ) != '!'){
+			return;
+	}
 	
 	
 	/* Display MEGACO in protocol column */
@@ -498,7 +538,10 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	
  				if ( transaction[19] == 'A'){ 
 					tvb_offset  = tvb_find_guint8(tvb, tvb_offset, tvb_len, '{')+1;
-					len = tvb_len - tvb_offset - 1;
+					tvb_offset = tvb_skip_wsp(tvb, tvb_offset);
+					tvb_next_offset = tvb_find_guint8(tvb, tvb_offset, tvb_len, '}') - 1;
+					tvb_next_offset = tvb_skip_wsp_return(tvb, tvb_next_offset);
+					len = tvb_next_offset - tvb_offset;
 					if (check_col(pinfo->cinfo, COL_INFO) )
 						col_add_fstr(pinfo->cinfo, COL_INFO, "%s TransactionResponseAck",
 						tvb_format_text(tvb,tvb_offset,len));
@@ -2608,7 +2651,7 @@ void
 proto_reg_handoff_megaco(void)
 {
 	static int megaco_prefs_initialized = FALSE;
-	static dissector_handle_t megaco_text_handle;
+	static dissector_handle_t megaco_text_tcp_handle;
 	
 	sdp_handle = find_dissector("sdp");
 	h245_handle = find_dissector("h245dg");
@@ -2616,13 +2659,16 @@ proto_reg_handoff_megaco(void)
 	if (!megaco_prefs_initialized) {
 		megaco_text_handle = create_dissector_handle(dissect_megaco_text,
 			proto_megaco);
+		megaco_text_tcp_handle = create_dissector_handle(dissect_megaco_text_tcp,
+			proto_megaco);
+
 		megaco_prefs_initialized = TRUE;
 	}
 	else {
-		dissector_delete("tcp.port", txt_tcp_port, megaco_text_handle);
+		dissector_delete("tcp.port", txt_tcp_port, megaco_text_tcp_handle);
 		dissector_delete("udp.port", txt_udp_port, megaco_text_handle);
 #if 0
-		dissector_delete("tcp.port", bin_tcp_port, megaco_bin_handle);
+		dissector_delete("tcp.port", bin_tcp_port, megaco_text_tcp_handle);
 		dissector_delete("udp.port", bin_udp_port, megaco_bin_handle);
 #endif
 	}
@@ -2637,7 +2683,7 @@ proto_reg_handoff_megaco(void)
 	bin_udp_port = global_megaco_bin_udp_port;
 #endif
 	
-	dissector_add("tcp.port", global_megaco_txt_tcp_port, megaco_text_handle);
+	dissector_add("tcp.port", global_megaco_txt_tcp_port, megaco_text_tcp_handle);
 	dissector_add("udp.port", global_megaco_txt_udp_port, megaco_text_handle);
 #if 0
 	dissector_add("tcp.port", global_megaco_bin_tcp_port, megaco_bin_handle);
@@ -2711,5 +2757,4 @@ plugin_init(plugin_address_table_t *pat
 #endif
 
 /* End the functions we need for plugin stuff */
-
 

@@ -96,6 +96,13 @@ extern gboolean byte_view_select(GtkWidget *widget, GdkEventButton *event);
  */
 extern void savehex_cb(GtkWidget * w, gpointer data);
 
+/** Callback for "Copy packet bytes to clipboard" operation.
+ *
+ * @param w unused
+ * @param data unused
+ */
+extern void copy_hex_cb(GtkWidget * w, gpointer data);
+
 #if GTK_MAJOR_VERSION < 2
 /** Redraw a given byte view window.
  *

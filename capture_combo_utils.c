@@ -36,7 +36,7 @@
 #include <string.h>
 #include <glib.h>
 
-#include "prefs.h"
+#include <epan/prefs.h>
 #include "pcap-util.h"
 #include "capture_combo_utils.h"
 
@@ -171,7 +171,7 @@ get_if_name(char *if_text)
 {
   char *if_name;
 
-#ifdef WIN32
+#ifdef _WIN32
   /*
    * We cannot assume that the interface name doesn't contain a space;
    * some names on Windows OT do.
@@ -242,7 +242,6 @@ get_if_name(char *if_text)
 #endif
   return if_name;
 }
-
 
 
 #endif /* HAVE_LIBPCAP */

@@ -29,21 +29,21 @@
 #include <stdio.h>
 #include <string.h>
 #include <glib.h>
-#include "in_cksum.h"
+#include <epan/in_cksum.h>
 
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
-#include "ipproto.h"
+#include <epan/ipproto.h>
 #include "ip_opts.h"
 #include "follow.h"
-#include "prefs.h"
+#include <epan/prefs.h>
 #include "packet-tcp.h"
 #include "packet-ip.h"
 #include "packet-frame.h"
 #include <epan/conversation.h>
 #include <epan/strutil.h>
 #include "reassemble.h"
-#include "tap.h"
+#include <epan/tap.h>
 
 static int tcp_tap = -1;
 
@@ -1178,12 +1178,14 @@ tcp_print_sequence_number_analysis(packet_info *pinfo, tvbuff_t *tvb, proto_tree
 	if(ta->frame_acked){
 		item = proto_tree_add_uint(tree, hf_tcp_analysis_acks_frame,
 			tvb, 0, 0, ta->frame_acked);
-        PROTO_ITEM_SET_GENERATED(item);
-	}
-	if( ta->ts.secs || ta->ts.nsecs ){
-		item = proto_tree_add_time(tree, hf_tcp_analysis_ack_rtt,
-		tvb, 0, 0, &ta->ts);
-        PROTO_ITEM_SET_GENERATED(item);
+        	PROTO_ITEM_SET_GENERATED(item);
+
+		/* only display RTT if we actually have something we are acking */
+		if( ta->ts.secs || ta->ts.nsecs ){
+			item = proto_tree_add_time(tree, hf_tcp_analysis_ack_rtt,
+			tvb, 0, 0, &ta->ts);
+        		PROTO_ITEM_SET_GENERATED(item);
+		}
 	}
 
 	if(ta->flags){

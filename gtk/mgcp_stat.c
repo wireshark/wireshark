@@ -40,7 +40,7 @@
 #include <epan/value_string.h>
 
 #include "tap_menu.h"
-#include "../tap.h"
+#include <epan/tap.h>
 #include "../register.h"
 #include "../plugins/mgcp/packet-mgcp.h"
 #include "../timestats.h"

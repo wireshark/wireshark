@@ -9,6 +9,7 @@ CertificateSerialNumber  BER_CLASS_UNI BER_UNI_TAG_INTEGER
 Certificates             BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 CertificationPath        BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 CertificateList          BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
+SubjectPublicKeyInfo     BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 #.END
 
 #.TYPE_ATTR
@@ -20,4 +21,5 @@ CertificateList          TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  
 AttributeCertificationPath TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 AttributeCertificate     TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 AttributeCertificateAssertion TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+SubjectPublicKeyInfo     TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 #.END

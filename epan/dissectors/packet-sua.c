@@ -1,9 +1,10 @@
 /* packet-sua.c
  * Routines for SS7 SCCP-User Adaptation Layer (SUA) dissection
  * It is hopefully (needs testing) compilant to
- * http://www.ietf.org/internet-drafts/draft-ietf-sigtran-sua-15.txt
+ * http://www.ietf.org/internet-drafts/draft-ietf-sigtran-sua-08.txt
+ * http://www.ietf.org/rfc/rfc3838.txt
  *
- * Copyright 2002, 2003 Michael Tuexen <tuexen [AT] fh-muenster.de>
+ * Copyright 2002, 2003, 2004 Michael Tuexen <tuexen [AT] fh-muenster.de>
  *
  * $Id$
  *
@@ -33,7 +34,7 @@
 #endif
 
 #include <epan/packet.h>
-#include "prefs.h"
+#include <epan/prefs.h>
 #include "sctpppids.h"
 
 #define NETWORK_BYTE_ORDER     FALSE
@@ -67,102 +68,6 @@
 #define PARAMETER_LENGTH_OFFSET   (PARAMETER_TAG_OFFSET + PARAMETER_TAG_LENGTH)
 #define PARAMETER_VALUE_OFFSET    (PARAMETER_LENGTH_OFFSET + PARAMETER_LENGTH_LENGTH)
 #define PARAMETER_HEADER_OFFSET   PARAMETER_TAG_OFFSET
-
-#define INFO_STRING_PARAMETER_TAG                  0x0004
-#define ROUTING_CONTEXT_PARAMETER_TAG              0x0006
-#define DIAGNOSTIC_INFO_PARAMETER_TAG              0x0007
-#define HEARTBEAT_DATA_PARAMETER_TAG               0x0009
-#define TRAFFIC_MODE_TYPE_PARAMETER_TAG            0x000b
-#define ERROR_CODE_PARAMETER_TAG                   0x000c
-#define STATUS_PARAMETER_TAG                       0x000d
-#define ASP_IDENTIFIER_PARAMETER_TAG               0x0011
-#define AFFECTED_POINT_CODE_PARAMETER_TAG          0x0012
-#define CORRELATION_ID_PARAMETER_TAG               0x0013
-#define REGISTRATION_RESULT_PARAMETER_TAG          0x0014
-#define DEREGISTRATION_RESULT_PARAMETER_TAG        0x0015
-#define REGISTRATION_STATUS_PARAMETER_TAG          0x0016
-#define DEREGISTRATION_STATUS_PARAMETER_TAG        0x0017
-#define LOCAL_ROUTING_KEY_IDENTIFIER_PARAMETER_TAG 0x0018
-
-#define SS7_HOP_COUNTER_PARAMETER_TAG              0x0101
-#define SOURCE_ADDRESS_PARAMETER_TAG               0x0102
-#define DESTINATION_ADDRESS_PARAMETER_TAG          0x0103
-#define SOURCE_REFERENCE_NUMBER_PARAMETER_TAG      0x0104
-#define DESTINATION_REFERENCE_NUMBER_PARAMETER_TAG 0x0105
-#define SCCP_CAUSE_PARAMETER_TAG                   0x0106
-#define SEQUENCE_NUMBER_PARAMETER_TAG              0x0107
-#define RECEIVE_SEQUENCE_NUMBER_PARAMETER_TAG      0x0108
-#define ASP_CAPABILITIES_PARAMETER_TAG             0x0109
-#define CREDIT_PARAMETER_TAG                       0x010a
-#define DATA_PARAMETER_TAG                         0x010b
-#define USER_CAUSE_PARAMETER_TAG                   0x010c
-#define NETWORK_APPEARANCE_PARAMETER_TAG           0x010d
-#define ROUTING_KEY_PARAMETER_TAG                  0x010e
-#define DRN_LABEL_PARAMETER_TAG                    0x010f
-#define TID_LABEL_PARAMETER_TAG                    0x0110
-#define ADDRESS_RANGE_PARAMETER_TAG                0x0111
-#define SMI_PARAMETER_TAG                          0x0112
-#define IMPORTANCE_PARAMETER_TAG                   0x0113
-#define MESSAGE_PRIORITY_PARAMETER_TAG             0x0114
-#define PROTOCOL_CLASS_PARAMETER_TAG               0x0115
-#define SEQUENCE_CONTROL_PARAMETER_TAG             0x0116
-#define SEGMENTATION_PARAMETER_TAG                 0x0117
-#define CONGESTION_LEVEL_PARAMETER_TAG             0x0118
-
-#define GLOBAL_TITLE_PARAMETER_TAG                 0x8001
-#define POINT_CODE_PARAMETER_TAG                   0x8002
-#define SUBSYSTEM_NUMBER_PARAMETER_TAG             0x8003
-#define IPV4_ADDRESS_PARAMETER_TAG                 0x8004
-#define HOSTNAME_PARAMETER_TAG                     0x8005
-#define IPV6_ADDRESS_PARAMETER_TAG                 0x8006
-
-static const value_string parameter_tag_values[] = {
-  { INFO_STRING_PARAMETER_TAG,                  "Info String" },
-  { ROUTING_CONTEXT_PARAMETER_TAG,              "Routing context" },
-  { DIAGNOSTIC_INFO_PARAMETER_TAG,              "Diagnostic info" },
-  { HEARTBEAT_DATA_PARAMETER_TAG,               "Heartbeat data" },
-  { TRAFFIC_MODE_TYPE_PARAMETER_TAG,            "Traffic mode type" },
-  { ERROR_CODE_PARAMETER_TAG,                   "Error code" },
-  { STATUS_PARAMETER_TAG,                       "Status" },
-  { ASP_IDENTIFIER_PARAMETER_TAG,               "ASP identifier" },
-  { AFFECTED_POINT_CODE_PARAMETER_TAG,          "Affected point code" },
-  { CORRELATION_ID_PARAMETER_TAG,               "Correlation ID" },
-  { REGISTRATION_RESULT_PARAMETER_TAG,          "Registration result" },
-  { DEREGISTRATION_RESULT_PARAMETER_TAG,        "Deregistration result" },
-  { REGISTRATION_STATUS_PARAMETER_TAG,          "Registration status" },
-  { DEREGISTRATION_STATUS_PARAMETER_TAG,        "Deregistration status" },
-  { LOCAL_ROUTING_KEY_IDENTIFIER_PARAMETER_TAG, "Local routing key identifier" },
-  { SS7_HOP_COUNTER_PARAMETER_TAG,              "SS7 hop counter" },
-  { SOURCE_ADDRESS_PARAMETER_TAG,               "Source address" },
-  { DESTINATION_ADDRESS_PARAMETER_TAG,          "Destination address" },
-  { SOURCE_REFERENCE_NUMBER_PARAMETER_TAG,      "Source reference number" },
-  { DESTINATION_REFERENCE_NUMBER_PARAMETER_TAG, "Destination reference number" },
-  { SCCP_CAUSE_PARAMETER_TAG,                   "SCCP cause" },
-  { SEQUENCE_NUMBER_PARAMETER_TAG,              "Sequence number" },
-  { RECEIVE_SEQUENCE_NUMBER_PARAMETER_TAG,      "Receive sequence number" },
-  { ASP_CAPABILITIES_PARAMETER_TAG,             "ASP capabilities" },
-  { CREDIT_PARAMETER_TAG,                       "Credit" },
-  { DATA_PARAMETER_TAG,                         "Data" },
-  { USER_CAUSE_PARAMETER_TAG,                   "User/Cause" },
-  { NETWORK_APPEARANCE_PARAMETER_TAG,           "Network appearance" },
-  { ROUTING_KEY_PARAMETER_TAG,                  "Routing key" },
-  { DRN_LABEL_PARAMETER_TAG,                    "DRN label" },
-  { TID_LABEL_PARAMETER_TAG,                    "TID label" },
-  { ADDRESS_RANGE_PARAMETER_TAG,                "Address range" },
-  { SMI_PARAMETER_TAG,                          "SMI" },
-  { IMPORTANCE_PARAMETER_TAG,                   "Importance" },
-  { MESSAGE_PRIORITY_PARAMETER_TAG,             "Message priority" },
-  { PROTOCOL_CLASS_PARAMETER_TAG,               "Protocol class" },
-  { SEQUENCE_CONTROL_PARAMETER_TAG,             "Sequence control" },
-  { SEGMENTATION_PARAMETER_TAG,                 "Segmentation" },
-  { CONGESTION_LEVEL_PARAMETER_TAG,             "Congestion level" },
-  { GLOBAL_TITLE_PARAMETER_TAG,                 "Global title" },
-  { POINT_CODE_PARAMETER_TAG,                   "Point code" },
-  { SUBSYSTEM_NUMBER_PARAMETER_TAG,             "Subsystem number" },
-  { IPV4_ADDRESS_PARAMETER_TAG,                 "IPv4 address" },
-  { HOSTNAME_PARAMETER_TAG,                     "Hostname" },
-  { IPV6_ADDRESS_PARAMETER_TAG,                 "IPv6 address" },
-  { 0,                                          NULL } };
 
 #define PROTOCOL_VERSION_RELEASE_1             1
 
@@ -316,6 +221,7 @@ static int hf_message_class = -1;
 static int hf_message_type = -1;
 static int hf_message_length = -1;
 static int hf_parameter_tag = -1;
+static int hf_v8_parameter_tag = -1;
 static int hf_parameter_length = -1;
 static int hf_parameter_value = -1;
 static int hf_parameter_padding = -1;
@@ -325,6 +231,7 @@ static int hf_diagnostic_information_info = -1;
 static int hf_heartbeat_data = -1;
 static int hf_traffic_mode_type = -1;
 static int hf_error_code = -1;
+static int hf_v8_error_code = -1;
 static int hf_status_type = -1;
 static int hf_status_info = -1;
 static int hf_congestion_level = -1;
@@ -421,6 +328,14 @@ static gint ett_sua_protcol_classes = -1;
 
 static dissector_handle_t data_handle;
 static dissector_table_t sua_ssn_dissector_table;
+
+/* stuff for supporting multiple versions */
+typedef enum {
+  SUA_V08,
+  SUA_RFC
+} Version_Type;
+
+static Version_Type version = SUA_RFC;
 
 static void
 dissect_parameters(tvbuff_t *tlv_tvb, proto_tree *tree, tvbuff_t **data_tvb, guint8 *source_ssn, guint8 *dest_ssn);
@@ -520,6 +435,35 @@ dissect_traffic_mode_type_parameter(tvbuff_t *parameter_tvb, proto_tree *paramet
 #define ERROR_CODE_OFFSET PARAMETER_VALUE_OFFSET
 #define ERROR_CODE_LENGTH 4
 
+static const value_string v8_error_code_values[] = {
+  { 0x01, "Invalid version" },
+  { 0x02, "Invalid interface identifier" },
+  { 0x03, "Unsupported message class" },
+  { 0x04, "Unsupported message type" },
+  { 0x05, "Unsupported traffic handling mode" },
+  { 0x06, "Unexpected message" },
+  { 0x07, "Protocol error" },
+  { 0x09, "Invalid stream identifier" },
+  { 0x0d, "Refused - management blocking" },
+  { 0x0e, "ASP identifier required" },
+  { 0x0f, "Invalid ASP identifier" },
+  { 0x11, "Invalid parameter value" },
+  { 0x12, "Parameter field error" },
+  { 0x13, "Unexpected parameter" },
+  { 0x14, "Destination status unknown" },
+  { 0x15, "Invalid network appearance" },
+  { 0x16, "Missing parameter" },
+  { 0x17, "Routing key change refuesed" },
+  { 0x18, "Invalid loadsharing label" },
+  { 0,    NULL } };
+
+static void
+dissect_v8_error_code_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
+{
+  proto_tree_add_item(parameter_tree, hf_v8_error_code, parameter_tvb, ERROR_CODE_OFFSET, ERROR_CODE_LENGTH, NETWORK_BYTE_ORDER);
+  proto_item_append_text(parameter_item, " (%s)", val_to_str(tvb_get_ntohl(parameter_tvb, ERROR_CODE_OFFSET), v8_error_code_values, "unknown"));
+}
+
 static const value_string error_code_values[] = {
   { 0x01, "Invalid version" },
   { 0x03, "Unsupported message class" },
@@ -540,6 +484,7 @@ static const value_string error_code_values[] = {
   { 0x19, "Invalid routing context" },
   { 0x1a, "No configured AS for ASP" },
   { 0x1b, "Subsystem status unknown" },
+  { 0x1c, "Invalid loadsharing label" },
   { 0,    NULL } };
 
 static void
@@ -1273,6 +1218,372 @@ dissect_unknown_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, p
   proto_item_append_text(parameter_item, "(tag %u and %u byte%s value)", tvb_get_ntohs(parameter_tvb, PARAMETER_TAG_OFFSET), parameter_value_length, plurality(parameter_value_length, "", "s"));
 }
 
+#define V8_DATA_PARAMETER_TAG                         0x0003
+#define V8_INFO_STRING_PARAMETER_TAG                  0x0004
+#define V8_ROUTING_CONTEXT_PARAMETER_TAG              0x0006
+#define V8_DIAGNOSTIC_INFO_PARAMETER_TAG              0x0007
+#define V8_HEARTBEAT_DATA_PARAMETER_TAG               0x0009
+#define V8_TRAFFIC_MODE_TYPE_PARAMETER_TAG            0x000b
+#define V8_ERROR_CODE_PARAMETER_TAG                   0x000c
+#define V8_STATUS_PARAMETER_TAG                       0x000d
+#define V8_CONGESTION_LEVEL_PARAMETER_TAG             0x000f
+#define V8_ASP_IDENTIFIER_PARAMETER_TAG               0x0011
+#define V8_AFFECTED_POINT_CODE_PARAMETER_TAG          0x0012
+
+#define V8_SS7_HOP_COUNTER_PARAMETER_TAG              0x0101
+#define V8_SOURCE_ADDRESS_PARAMETER_TAG               0x0102
+#define V8_DESTINATION_ADDRESS_PARAMETER_TAG          0x0103
+#define V8_SOURCE_REFERENCE_NUMBER_PARAMETER_TAG      0x0104
+#define V8_DESTINATION_REFERENCE_NUMBER_PARAMETER_TAG 0x0105
+#define V8_SCCP_CAUSE_PARAMETER_TAG                   0x0106
+#define V8_SEQUENCE_NUMBER_PARAMETER_TAG              0x0107
+#define V8_RECEIVE_SEQUENCE_NUMBER_PARAMETER_TAG      0x0108
+#define V8_ASP_CAPABILITIES_PARAMETER_TAG             0x0109
+#define V8_CREDIT_PARAMETER_TAG                       0x010a
+#define V8_USER_CAUSE_PARAMETER_TAG                   0x010c
+#define V8_NETWORK_APPEARANCE_PARAMETER_TAG           0x010d
+#define V8_ROUTING_KEY_PARAMETER_TAG                  0x010e
+#define V8_REGISTRATION_RESULT_PARAMETER_TAG          0x010f
+#define V8_DEREGISTRATION_RESULT_PARAMETER_TAG        0x0110
+#define V8_ADDRESS_RANGE_PARAMETER_TAG                0x0111
+#define V8_CORRELATION_ID_PARAMETER_TAG               0x0112
+#define V8_IMPORTANCE_PARAMETER_TAG                   0x0113
+#define V8_MESSAGE_PRIORITY_PARAMETER_TAG             0x0114
+#define V8_PROTOCOL_CLASS_PARAMETER_TAG               0x0115
+#define V8_SEQUENCE_CONTROL_PARAMETER_TAG             0x0116
+#define V8_SEGMENTATION_PARAMETER_TAG                 0x0117
+#define V8_SMI_PARAMETER_TAG                          0x0118
+#define V8_TID_LABEL_PARAMETER_TAG                    0x0119
+#define V8_DRN_LABEL_PARAMETER_TAG                    0x011a
+
+#define V8_GLOBAL_TITLE_PARAMETER_TAG                 0x8001
+#define V8_POINT_CODE_PARAMETER_TAG                   0x8002
+#define V8_SUBSYSTEM_NUMBER_PARAMETER_TAG             0x8003
+#define V8_IPV4_ADDRESS_PARAMETER_TAG                 0x8004
+#define V8_HOSTNAME_PARAMETER_TAG                     0x8005
+#define V8_IPV6_ADDRESS_PARAMETER_TAG                 0x8006
+
+static const value_string v8_parameter_tag_values[] = {
+  { V8_DATA_PARAMETER_TAG,                         "Data" },
+  { V8_INFO_STRING_PARAMETER_TAG,                  "Info String" },
+  { V8_ROUTING_CONTEXT_PARAMETER_TAG,              "Routing context" },
+  { V8_DIAGNOSTIC_INFO_PARAMETER_TAG,              "Diagnostic info" },
+  { V8_HEARTBEAT_DATA_PARAMETER_TAG,               "Heartbeat data" },
+  { V8_TRAFFIC_MODE_TYPE_PARAMETER_TAG,            "Traffic mode type" },
+  { V8_ERROR_CODE_PARAMETER_TAG,                   "Error code" },
+  { V8_STATUS_PARAMETER_TAG,                       "Status" },
+  { V8_CONGESTION_LEVEL_PARAMETER_TAG,             "Congestion level" },
+  { V8_ASP_IDENTIFIER_PARAMETER_TAG,               "ASP identifier" },
+  { V8_AFFECTED_POINT_CODE_PARAMETER_TAG,          "Affected point code" },
+  { V8_SS7_HOP_COUNTER_PARAMETER_TAG,              "SS7 hop counter" },
+  { V8_SOURCE_ADDRESS_PARAMETER_TAG,               "Source address" },
+  { V8_DESTINATION_ADDRESS_PARAMETER_TAG,          "Destination address" },
+  { V8_SOURCE_REFERENCE_NUMBER_PARAMETER_TAG,      "Source reference number" },
+  { V8_DESTINATION_REFERENCE_NUMBER_PARAMETER_TAG, "Destination reference number" },
+  { V8_SCCP_CAUSE_PARAMETER_TAG,                   "SCCP cause" },
+  { V8_SEQUENCE_NUMBER_PARAMETER_TAG,              "Sequence number" },
+  { V8_RECEIVE_SEQUENCE_NUMBER_PARAMETER_TAG,      "Receive sequence number" },
+  { V8_ASP_CAPABILITIES_PARAMETER_TAG,             "ASP capabilities" },
+  { V8_CREDIT_PARAMETER_TAG,                       "Credit" },
+  { V8_USER_CAUSE_PARAMETER_TAG,                   "User/Cause" },
+  { V8_NETWORK_APPEARANCE_PARAMETER_TAG,           "Network appearance" },
+  { V8_ROUTING_KEY_PARAMETER_TAG,                  "Routing key" },
+  { V8_REGISTRATION_RESULT_PARAMETER_TAG,          "Registration result" },
+  { V8_DEREGISTRATION_RESULT_PARAMETER_TAG,        "Deregistration result" },
+  { V8_ADDRESS_RANGE_PARAMETER_TAG,                "Address range" },
+  { V8_CORRELATION_ID_PARAMETER_TAG,               "Correlation ID" },
+  { V8_IMPORTANCE_PARAMETER_TAG,                   "Importance" },
+  { V8_MESSAGE_PRIORITY_PARAMETER_TAG,             "Message priority" },
+  { V8_PROTOCOL_CLASS_PARAMETER_TAG,               "Protocol class" },
+  { V8_SEQUENCE_CONTROL_PARAMETER_TAG,             "Sequence control" },
+  { V8_SEGMENTATION_PARAMETER_TAG,                 "Segmentation" },
+  { V8_SMI_PARAMETER_TAG,                          "SMI" },
+  { V8_TID_LABEL_PARAMETER_TAG,                    "TID label" },
+  { V8_DRN_LABEL_PARAMETER_TAG,                    "DRN label" },
+  { V8_GLOBAL_TITLE_PARAMETER_TAG,                 "Global title" },
+  { V8_POINT_CODE_PARAMETER_TAG,                   "Point code" },
+  { V8_SUBSYSTEM_NUMBER_PARAMETER_TAG,             "Subsystem number" },
+  { V8_IPV4_ADDRESS_PARAMETER_TAG,                 "IPv4 address" },
+  { V8_HOSTNAME_PARAMETER_TAG,                     "Hostname" },
+  { V8_IPV6_ADDRESS_PARAMETER_TAG,                 "IPv6 address" },
+  { 0,                                          NULL } };
+
+static void
+dissect_v8_parameter(tvbuff_t *parameter_tvb, proto_tree *tree, tvbuff_t **data_tvb, guint8 *source_ssn, guint8 *dest_ssn)
+{
+  guint16 tag, length, padding_length;
+  proto_item *parameter_item;
+  proto_tree *parameter_tree;
+  guint8 ssn = INVALID_SSN;
+
+  /* extract tag and length from the parameter */
+  tag            = tvb_get_ntohs(parameter_tvb, PARAMETER_TAG_OFFSET);
+  length         = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
+  padding_length = tvb_length(parameter_tvb) - length;
+
+  if (tree) {
+    /* create proto_tree stuff */
+    parameter_item   = proto_tree_add_text(tree, parameter_tvb, PARAMETER_HEADER_OFFSET, tvb_length(parameter_tvb), val_to_str(tag, v8_parameter_tag_values, "Unknown parameter"));
+    parameter_tree   = proto_item_add_subtree(parameter_item, ett_sua_parameter);
+
+    /* add tag and length to the sua tree */
+    proto_tree_add_item(parameter_tree, hf_v8_parameter_tag,    parameter_tvb, PARAMETER_TAG_OFFSET,    PARAMETER_TAG_LENGTH,    NETWORK_BYTE_ORDER);
+    proto_tree_add_item(parameter_tree, hf_parameter_length, parameter_tvb, PARAMETER_LENGTH_OFFSET, PARAMETER_LENGTH_LENGTH, NETWORK_BYTE_ORDER);
+  } else {
+    parameter_tree = NULL;
+    parameter_item = NULL;
+  }
+
+  /*
+  ** If no tree, only the data and ssn parameters in the source and destination 
+  ** address need to be dissected. This in order to make dissection of the data
+  ** possible when there is no tree.
+  */
+  if (!tree && tag != V8_DATA_PARAMETER_TAG 
+            && tag != V8_SOURCE_ADDRESS_PARAMETER_TAG
+            && tag != V8_DESTINATION_ADDRESS_PARAMETER_TAG
+            && tag != V8_SUBSYSTEM_NUMBER_PARAMETER_TAG)
+    return;
+
+  switch(tag) {
+  case V8_DATA_PARAMETER_TAG:
+    dissect_data_parameter(parameter_tvb, parameter_tree, parameter_item, data_tvb);
+    break;
+  case V8_INFO_STRING_PARAMETER_TAG:
+    dissect_info_string_parameter(parameter_tvb, parameter_tree, parameter_item);
+    break;
+  case V8_ROUTING_CONTEXT_PARAMETER_TAG:
+    dissect_routing_context_parameter(parameter_tvb, parameter_tree, parameter_item);
+    break;
+  case V8_DIAGNOSTIC_INFO_PARAMETER_TAG:
+    dissect_diagnostic_information_parameter(parameter_tvb, parameter_tree, parameter_item);
+    break;
+  case V8_HEARTBEAT_DATA_PARAMETER_TAG:
+    dissect_heartbeat_data_parameter(parameter_tvb, parameter_tree, parameter_item);
+    break;
+  case V8_TRAFFIC_MODE_TYPE_PARAMETER_TAG:
+    dissect_traffic_mode_type_parameter(parameter_tvb, parameter_tree, parameter_item);
+    break;
+  case V8_ERROR_CODE_PARAMETER_TAG:
+    dissect_v8_error_code_parameter(parameter_tvb, parameter_tree, parameter_item);
+    break;
+  case V8_STATUS_PARAMETER_TAG:
+    dissect_status_type_parameter(parameter_tvb, parameter_tree, parameter_item);
+    break;
+  case V8_CONGESTION_LEVEL_PARAMETER_TAG:
+    dissect_congestion_level_parameter(parameter_tvb, parameter_tree, parameter_item);
+    break;
+  case V8_ASP_IDENTIFIER_PARAMETER_TAG:
+    dissect_asp_identifier_parameter(parameter_tvb, parameter_tree, parameter_item);
+    break;
+  case V8_AFFECTED_POINT_CODE_PARAMETER_TAG:
+    dissect_affected_destinations_parameter(parameter_tvb, parameter_tree, parameter_item);
+    break;   
+  case V8_SS7_HOP_COUNTER_PARAMETER_TAG:
+    dissect_ss7_hop_counter_parameter(parameter_tvb, parameter_tree, parameter_item);
+    break;
+  case V8_SOURCE_ADDRESS_PARAMETER_TAG:
+    dissect_source_address_parameter(parameter_tvb, parameter_tree, source_ssn);
+    break;
+  case V8_DESTINATION_ADDRESS_PARAMETER_TAG:
+    dissect_destination_address_parameter(parameter_tvb, parameter_tree, dest_ssn);
+    break;
+  case V8_SOURCE_REFERENCE_NUMBER_PARAMETER_TAG:
+    dissect_source_reference_number_parameter(parameter_tvb, parameter_tree, parameter_item);
+    break;
+  case V8_DESTINATION_REFERENCE_NUMBER_PARAMETER_TAG:
+    dissect_destination_reference_number_parameter(parameter_tvb, parameter_tree, parameter_item);
+    break;
+  case V8_SCCP_CAUSE_PARAMETER_TAG:
+    dissect_sccp_cause_parameter(parameter_tvb, parameter_tree, parameter_item);
+    break;
+  case V8_SEQUENCE_NUMBER_PARAMETER_TAG:
+    dissect_sequence_number_parameter(parameter_tvb, parameter_tree);
+    break;
+  case V8_RECEIVE_SEQUENCE_NUMBER_PARAMETER_TAG:
+    dissect_receive_sequence_number_parameter(parameter_tvb, parameter_tree);
+    break;
+  case V8_ASP_CAPABILITIES_PARAMETER_TAG:
+    dissect_asp_capabilities_parameter(parameter_tvb, parameter_tree);
+    break;
+  case V8_CREDIT_PARAMETER_TAG:
+    dissect_credit_parameter(parameter_tvb, parameter_tree, parameter_item);
+    break;
+  case V8_USER_CAUSE_PARAMETER_TAG:
+    dissect_user_cause_parameter(parameter_tvb, parameter_tree);
+    break;
+  case V8_NETWORK_APPEARANCE_PARAMETER_TAG:
+    dissect_network_appearance_parameter(parameter_tvb, parameter_tree, parameter_item);
+    break;
+  case V8_ROUTING_KEY_PARAMETER_TAG:
+    dissect_routing_key_parameter(parameter_tvb, parameter_tree);
+    break;
+  case V8_REGISTRATION_RESULT_PARAMETER_TAG:
+    dissect_registration_result_parameter(parameter_tvb, parameter_tree);
+    break;
+  case V8_DEREGISTRATION_RESULT_PARAMETER_TAG:
+    dissect_deregistration_result_parameter(parameter_tvb, parameter_tree);
+    break;
+  case V8_ADDRESS_RANGE_PARAMETER_TAG:
+    dissect_address_range_parameter(parameter_tvb, parameter_tree);
+    break;
+  case V8_CORRELATION_ID_PARAMETER_TAG:
+    dissect_correlation_id_parameter(parameter_tvb, parameter_tree, parameter_item);
+    break;
+  case V8_IMPORTANCE_PARAMETER_TAG:
+    dissect_importance_parameter(parameter_tvb, parameter_tree, parameter_item);
+    break;
+  case V8_MESSAGE_PRIORITY_PARAMETER_TAG:
+    dissect_message_priority_parameter(parameter_tvb, parameter_tree, parameter_item);
+    break;
+  case V8_PROTOCOL_CLASS_PARAMETER_TAG:
+    dissect_protocol_class_parameter(parameter_tvb, parameter_tree);
+    break;
+  case V8_SEQUENCE_CONTROL_PARAMETER_TAG:
+    dissect_sequence_control_parameter(parameter_tvb, parameter_tree, parameter_item);
+    break;
+  case V8_SEGMENTATION_PARAMETER_TAG:
+    dissect_segmentation_parameter(parameter_tvb, parameter_tree);
+    break;
+  case V8_SMI_PARAMETER_TAG:
+    dissect_smi_parameter(parameter_tvb, parameter_tree, parameter_item);
+    break;
+  case V8_TID_LABEL_PARAMETER_TAG:
+    dissect_tid_label_parameter(parameter_tvb, parameter_tree);
+    break;
+  case V8_DRN_LABEL_PARAMETER_TAG:
+    dissect_drn_label_parameter(parameter_tvb, parameter_tree);
+    break;
+  case V8_GLOBAL_TITLE_PARAMETER_TAG:
+    dissect_global_title_parameter(parameter_tvb, parameter_tree);
+    break;
+  case V8_POINT_CODE_PARAMETER_TAG:
+    dissect_point_code_parameter(parameter_tvb, parameter_tree, parameter_item);
+    break;
+  case V8_SUBSYSTEM_NUMBER_PARAMETER_TAG:
+    dissect_ssn_parameter(parameter_tvb, parameter_tree, parameter_item, &ssn);
+    if(source_ssn)
+    {
+        *source_ssn = ssn;
+    }
+    if(dest_ssn)
+    {
+        *dest_ssn = ssn;
+    }
+    break;
+  case V8_IPV4_ADDRESS_PARAMETER_TAG:
+    dissect_ipv4_parameter(parameter_tvb, parameter_tree, parameter_item);
+    break;
+  case V8_HOSTNAME_PARAMETER_TAG:
+    dissect_hostname_parameter(parameter_tvb, parameter_tree, parameter_item);
+    break;
+  case V8_IPV6_ADDRESS_PARAMETER_TAG:
+    dissect_ipv6_parameter(parameter_tvb, parameter_tree, parameter_item);
+    break;
+  default:
+    dissect_unknown_parameter(parameter_tvb, parameter_tree, parameter_item);
+    break;
+  };
+  if (parameter_tree && (padding_length > 0))
+    proto_tree_add_item(parameter_tree, hf_parameter_padding, parameter_tvb, PARAMETER_HEADER_OFFSET + length, padding_length, NETWORK_BYTE_ORDER);
+}
+
+#define INFO_STRING_PARAMETER_TAG                  0x0004
+#define ROUTING_CONTEXT_PARAMETER_TAG              0x0006
+#define DIAGNOSTIC_INFO_PARAMETER_TAG              0x0007
+#define HEARTBEAT_DATA_PARAMETER_TAG               0x0009
+#define TRAFFIC_MODE_TYPE_PARAMETER_TAG            0x000b
+#define ERROR_CODE_PARAMETER_TAG                   0x000c
+#define STATUS_PARAMETER_TAG                       0x000d
+#define ASP_IDENTIFIER_PARAMETER_TAG               0x0011
+#define AFFECTED_POINT_CODE_PARAMETER_TAG          0x0012
+#define CORRELATION_ID_PARAMETER_TAG               0x0013
+#define REGISTRATION_RESULT_PARAMETER_TAG          0x0014
+#define DEREGISTRATION_RESULT_PARAMETER_TAG        0x0015
+#define REGISTRATION_STATUS_PARAMETER_TAG          0x0016
+#define DEREGISTRATION_STATUS_PARAMETER_TAG        0x0017
+#define LOCAL_ROUTING_KEY_IDENTIFIER_PARAMETER_TAG 0x0018
+
+#define SS7_HOP_COUNTER_PARAMETER_TAG              0x0101
+#define SOURCE_ADDRESS_PARAMETER_TAG               0x0102
+#define DESTINATION_ADDRESS_PARAMETER_TAG          0x0103
+#define SOURCE_REFERENCE_NUMBER_PARAMETER_TAG      0x0104
+#define DESTINATION_REFERENCE_NUMBER_PARAMETER_TAG 0x0105
+#define SCCP_CAUSE_PARAMETER_TAG                   0x0106
+#define SEQUENCE_NUMBER_PARAMETER_TAG              0x0107
+#define RECEIVE_SEQUENCE_NUMBER_PARAMETER_TAG      0x0108
+#define ASP_CAPABILITIES_PARAMETER_TAG             0x0109
+#define CREDIT_PARAMETER_TAG                       0x010a
+#define DATA_PARAMETER_TAG                         0x010b
+#define USER_CAUSE_PARAMETER_TAG                   0x010c
+#define NETWORK_APPEARANCE_PARAMETER_TAG           0x010d
+#define ROUTING_KEY_PARAMETER_TAG                  0x010e
+#define DRN_LABEL_PARAMETER_TAG                    0x010f
+#define TID_LABEL_PARAMETER_TAG                    0x0110
+#define ADDRESS_RANGE_PARAMETER_TAG                0x0111
+#define SMI_PARAMETER_TAG                          0x0112
+#define IMPORTANCE_PARAMETER_TAG                   0x0113
+#define MESSAGE_PRIORITY_PARAMETER_TAG             0x0114
+#define PROTOCOL_CLASS_PARAMETER_TAG               0x0115
+#define SEQUENCE_CONTROL_PARAMETER_TAG             0x0116
+#define SEGMENTATION_PARAMETER_TAG                 0x0117
+#define CONGESTION_LEVEL_PARAMETER_TAG             0x0118
+
+#define GLOBAL_TITLE_PARAMETER_TAG                 0x8001
+#define POINT_CODE_PARAMETER_TAG                   0x8002
+#define SUBSYSTEM_NUMBER_PARAMETER_TAG             0x8003
+#define IPV4_ADDRESS_PARAMETER_TAG                 0x8004
+#define HOSTNAME_PARAMETER_TAG                     0x8005
+#define IPV6_ADDRESS_PARAMETER_TAG                 0x8006
+
+static const value_string parameter_tag_values[] = {
+  { INFO_STRING_PARAMETER_TAG,                  "Info String" },
+  { ROUTING_CONTEXT_PARAMETER_TAG,              "Routing context" },
+  { DIAGNOSTIC_INFO_PARAMETER_TAG,              "Diagnostic info" },
+  { HEARTBEAT_DATA_PARAMETER_TAG,               "Heartbeat data" },
+  { TRAFFIC_MODE_TYPE_PARAMETER_TAG,            "Traffic mode type" },
+  { ERROR_CODE_PARAMETER_TAG,                   "Error code" },
+  { STATUS_PARAMETER_TAG,                       "Status" },
+  { ASP_IDENTIFIER_PARAMETER_TAG,               "ASP identifier" },
+  { AFFECTED_POINT_CODE_PARAMETER_TAG,          "Affected point code" },
+  { CORRELATION_ID_PARAMETER_TAG,               "Correlation ID" },
+  { REGISTRATION_RESULT_PARAMETER_TAG,          "Registration result" },
+  { DEREGISTRATION_RESULT_PARAMETER_TAG,        "Deregistration result" },
+  { REGISTRATION_STATUS_PARAMETER_TAG,          "Registration status" },
+  { DEREGISTRATION_STATUS_PARAMETER_TAG,        "Deregistration status" },
+  { LOCAL_ROUTING_KEY_IDENTIFIER_PARAMETER_TAG, "Local routing key identifier" },
+  { SS7_HOP_COUNTER_PARAMETER_TAG,              "SS7 hop counter" },
+  { SOURCE_ADDRESS_PARAMETER_TAG,               "Source address" },
+  { DESTINATION_ADDRESS_PARAMETER_TAG,          "Destination address" },
+  { SOURCE_REFERENCE_NUMBER_PARAMETER_TAG,      "Source reference number" },
+  { DESTINATION_REFERENCE_NUMBER_PARAMETER_TAG, "Destination reference number" },
+  { SCCP_CAUSE_PARAMETER_TAG,                   "SCCP cause" },
+  { SEQUENCE_NUMBER_PARAMETER_TAG,              "Sequence number" },
+  { RECEIVE_SEQUENCE_NUMBER_PARAMETER_TAG,      "Receive sequence number" },
+  { ASP_CAPABILITIES_PARAMETER_TAG,             "ASP capabilities" },
+  { CREDIT_PARAMETER_TAG,                       "Credit" },
+  { DATA_PARAMETER_TAG,                         "Data" },
+  { USER_CAUSE_PARAMETER_TAG,                   "User/Cause" },
+  { NETWORK_APPEARANCE_PARAMETER_TAG,           "Network appearance" },
+  { ROUTING_KEY_PARAMETER_TAG,                  "Routing key" },
+  { DRN_LABEL_PARAMETER_TAG,                    "DRN label" },
+  { TID_LABEL_PARAMETER_TAG,                    "TID label" },
+  { ADDRESS_RANGE_PARAMETER_TAG,                "Address range" },
+  { SMI_PARAMETER_TAG,                          "SMI" },
+  { IMPORTANCE_PARAMETER_TAG,                   "Importance" },
+  { MESSAGE_PRIORITY_PARAMETER_TAG,             "Message priority" },
+  { PROTOCOL_CLASS_PARAMETER_TAG,               "Protocol class" },
+  { SEQUENCE_CONTROL_PARAMETER_TAG,             "Sequence control" },
+  { SEGMENTATION_PARAMETER_TAG,                 "Segmentation" },
+  { CONGESTION_LEVEL_PARAMETER_TAG,             "Congestion level" },
+  { GLOBAL_TITLE_PARAMETER_TAG,                 "Global title" },
+  { POINT_CODE_PARAMETER_TAG,                   "Point code" },
+  { SUBSYSTEM_NUMBER_PARAMETER_TAG,             "Subsystem number" },
+  { IPV4_ADDRESS_PARAMETER_TAG,                 "IPv4 address" },
+  { HOSTNAME_PARAMETER_TAG,                     "Hostname" },
+  { IPV6_ADDRESS_PARAMETER_TAG,                 "IPv6 address" },
+  { 0,                                          NULL } };
+
 static void
 dissect_parameter(tvbuff_t *parameter_tvb, proto_tree *tree, tvbuff_t **data_tvb, guint8 *source_ssn, guint8 *dest_ssn)
 {
@@ -1298,84 +1609,63 @@ dissect_parameter(tvbuff_t *parameter_tvb, proto_tree *tree, tvbuff_t **data_tvb
     parameter_tree = NULL;
     parameter_item = NULL;
   }
-/*
-** If no tree, only the data and ssn parameters in the source and destination
-** address need to be dissected. This in order to make dissection of the data
-** possible when there is no tree.
-*/
+
+  /*
+  ** If no tree, only the data and ssn parameters in the source and destination 
+  ** address need to be dissected. This in order to make dissection of the data
+  ** possible when there is no tree.
+  */
+  if (!tree && tag != DATA_PARAMETER_TAG 
+            && tag != SOURCE_ADDRESS_PARAMETER_TAG
+            && tag != DESTINATION_ADDRESS_PARAMETER_TAG
+            && tag != SUBSYSTEM_NUMBER_PARAMETER_TAG)
+    return;	/* Nothing to do here */
+
   switch(tag) {
   case DATA_PARAMETER_TAG:
     dissect_data_parameter(parameter_tvb, parameter_tree, parameter_item, data_tvb);
     break;
   case INFO_STRING_PARAMETER_TAG:
-    if (parameter_tree) {
-      dissect_info_string_parameter(parameter_tvb, parameter_tree, parameter_item);
-    }
+    dissect_info_string_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
   case ROUTING_CONTEXT_PARAMETER_TAG:
-    if (parameter_tree) {
-      dissect_routing_context_parameter(parameter_tvb, parameter_tree, parameter_item);
-    }
+    dissect_routing_context_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
   case DIAGNOSTIC_INFO_PARAMETER_TAG:
-    if (parameter_tree) {
-      dissect_diagnostic_information_parameter(parameter_tvb, parameter_tree, parameter_item);
-    }
+    dissect_diagnostic_information_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
   case HEARTBEAT_DATA_PARAMETER_TAG:
-    if (parameter_tree) {
-      dissect_heartbeat_data_parameter(parameter_tvb, parameter_tree, parameter_item);
-    }
+    dissect_heartbeat_data_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
   case TRAFFIC_MODE_TYPE_PARAMETER_TAG:
-    if (parameter_tree) {
-      dissect_traffic_mode_type_parameter(parameter_tvb, parameter_tree, parameter_item);
-    }
+    dissect_traffic_mode_type_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
   case ERROR_CODE_PARAMETER_TAG:
-    if (parameter_tree) {
-      dissect_error_code_parameter(parameter_tvb, parameter_tree, parameter_item);
-    }
+    dissect_error_code_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
   case STATUS_PARAMETER_TAG:
-    if (parameter_tree) {
-      dissect_status_type_parameter(parameter_tvb, parameter_tree, parameter_item);
-    }
+    dissect_status_type_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
   case CONGESTION_LEVEL_PARAMETER_TAG:
-    if (parameter_tree) {
-      dissect_congestion_level_parameter(parameter_tvb, parameter_tree, parameter_item);
-    }
+    dissect_congestion_level_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
   case ASP_IDENTIFIER_PARAMETER_TAG:
-    if (parameter_tree) {
-      dissect_asp_identifier_parameter(parameter_tvb, parameter_tree, parameter_item);
-    }
+    dissect_asp_identifier_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
   case AFFECTED_POINT_CODE_PARAMETER_TAG:
-    if (parameter_tree) {
-      dissect_affected_destinations_parameter(parameter_tvb, parameter_tree, parameter_item);
-    }
+    dissect_affected_destinations_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
   case REGISTRATION_STATUS_PARAMETER_TAG:
-    if (parameter_tree) {
-      dissect_registration_status_parameter(parameter_tvb, parameter_tree, parameter_item);
-    }
+    dissect_registration_status_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
   case DEREGISTRATION_STATUS_PARAMETER_TAG:
-    if (parameter_tree) {
-      dissect_deregistration_status_parameter(parameter_tvb, parameter_tree, parameter_item);
-    }
+    dissect_deregistration_status_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
   case LOCAL_ROUTING_KEY_IDENTIFIER_PARAMETER_TAG:
-    if (parameter_tree) {
-      dissect_local_routing_key_identifier_parameter(parameter_tvb, parameter_tree, parameter_item);
-    }
+    dissect_local_routing_key_identifier_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
   case SS7_HOP_COUNTER_PARAMETER_TAG:
-    if (parameter_tree) {
-      dissect_ss7_hop_counter_parameter(parameter_tvb, parameter_tree, parameter_item);
-    }
+    dissect_ss7_hop_counter_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
   case SOURCE_ADDRESS_PARAMETER_TAG:
     dissect_source_address_parameter(parameter_tvb, parameter_tree, source_ssn);
@@ -1384,124 +1674,76 @@ dissect_parameter(tvbuff_t *parameter_tvb, proto_tree *tree, tvbuff_t **data_tvb
     dissect_destination_address_parameter(parameter_tvb, parameter_tree, dest_ssn);
     break;
   case SOURCE_REFERENCE_NUMBER_PARAMETER_TAG:
-    if (parameter_tree) {
-      dissect_source_reference_number_parameter(parameter_tvb, parameter_tree, parameter_item);
-    }
+    dissect_source_reference_number_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
   case DESTINATION_REFERENCE_NUMBER_PARAMETER_TAG:
-    if (parameter_tree) {
-      dissect_destination_reference_number_parameter(parameter_tvb, parameter_tree, parameter_item);
-    }
+    dissect_destination_reference_number_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
   case SCCP_CAUSE_PARAMETER_TAG:
-    if (parameter_tree) {
-      dissect_sccp_cause_parameter(parameter_tvb, parameter_tree, parameter_item);
-    }
+    dissect_sccp_cause_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
   case SEQUENCE_NUMBER_PARAMETER_TAG:
-    if (parameter_tree) {
-      dissect_sequence_number_parameter(parameter_tvb, parameter_tree);
-    }
+    dissect_sequence_number_parameter(parameter_tvb, parameter_tree);
     break;
   case RECEIVE_SEQUENCE_NUMBER_PARAMETER_TAG:
-    if (parameter_tree) {
-      dissect_receive_sequence_number_parameter(parameter_tvb, parameter_tree);
-    }
+    dissect_receive_sequence_number_parameter(parameter_tvb, parameter_tree);
     break;
   case ASP_CAPABILITIES_PARAMETER_TAG:
-    if (parameter_tree) {
-      dissect_asp_capabilities_parameter(parameter_tvb, parameter_tree);
-    }
+    dissect_asp_capabilities_parameter(parameter_tvb, parameter_tree);
     break;
   case CREDIT_PARAMETER_TAG:
-    if (parameter_tree) {
-      dissect_credit_parameter(parameter_tvb, parameter_tree, parameter_item);
-    }
+    dissect_credit_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
   case USER_CAUSE_PARAMETER_TAG:
-    if (parameter_tree) {
-      dissect_user_cause_parameter(parameter_tvb, parameter_tree);
-    }
+    dissect_user_cause_parameter(parameter_tvb, parameter_tree);
     break;
   case NETWORK_APPEARANCE_PARAMETER_TAG:
-    if (parameter_tree) {
-      dissect_network_appearance_parameter(parameter_tvb, parameter_tree, parameter_item);
-    }
+    dissect_network_appearance_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
   case ROUTING_KEY_PARAMETER_TAG:
-    if (parameter_tree) {
-      dissect_routing_key_parameter(parameter_tvb, parameter_tree);
-    }
+    dissect_routing_key_parameter(parameter_tvb, parameter_tree);
     break;
   case REGISTRATION_RESULT_PARAMETER_TAG:
-    if (parameter_tree) {
-      dissect_registration_result_parameter(parameter_tvb, parameter_tree);
-    }
+    dissect_registration_result_parameter(parameter_tvb, parameter_tree);
     break;
   case DEREGISTRATION_RESULT_PARAMETER_TAG:
-    if (parameter_tree) {
-      dissect_deregistration_result_parameter(parameter_tvb, parameter_tree);
-    }
+    dissect_deregistration_result_parameter(parameter_tvb, parameter_tree);
     break;
   case ADDRESS_RANGE_PARAMETER_TAG:
-    if (parameter_tree) {
-      dissect_address_range_parameter(parameter_tvb, parameter_tree);
-    }
+    dissect_address_range_parameter(parameter_tvb, parameter_tree);
     break;
   case CORRELATION_ID_PARAMETER_TAG:
-    if (parameter_tree) {
-      dissect_correlation_id_parameter(parameter_tvb, parameter_tree, parameter_item);
-    }
+    dissect_correlation_id_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
   case IMPORTANCE_PARAMETER_TAG:
-    if (parameter_tree) {
-      dissect_importance_parameter(parameter_tvb, parameter_tree, parameter_item);
-    }
+    dissect_importance_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
   case MESSAGE_PRIORITY_PARAMETER_TAG:
-    if (parameter_tree) {
-      dissect_message_priority_parameter(parameter_tvb, parameter_tree, parameter_item);
-    }
+    dissect_message_priority_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
   case PROTOCOL_CLASS_PARAMETER_TAG:
-    if (parameter_tree) {
-      dissect_protocol_class_parameter(parameter_tvb, parameter_tree);
-    }
+    dissect_protocol_class_parameter(parameter_tvb, parameter_tree);
     break;
   case SEQUENCE_CONTROL_PARAMETER_TAG:
-    if (parameter_tree) {
-      dissect_sequence_control_parameter(parameter_tvb, parameter_tree, parameter_item);
-    }
+    dissect_sequence_control_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
   case SEGMENTATION_PARAMETER_TAG:
-    if (parameter_tree) {
-      dissect_segmentation_parameter(parameter_tvb, parameter_tree);
-    }
+    dissect_segmentation_parameter(parameter_tvb, parameter_tree);
     break;
   case SMI_PARAMETER_TAG:
-    if (parameter_tree) {
-      dissect_smi_parameter(parameter_tvb, parameter_tree, parameter_item);
-    }
+    dissect_smi_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
   case TID_LABEL_PARAMETER_TAG:
-    if (parameter_tree) {
-      dissect_tid_label_parameter(parameter_tvb, parameter_tree);
-    }
+    dissect_tid_label_parameter(parameter_tvb, parameter_tree);
     break;
   case DRN_LABEL_PARAMETER_TAG:
-    if (parameter_tree) {
-      dissect_drn_label_parameter(parameter_tvb, parameter_tree);
-    }
+    dissect_drn_label_parameter(parameter_tvb, parameter_tree);
     break;
   case GLOBAL_TITLE_PARAMETER_TAG:
-    if (parameter_tree) {
-      dissect_global_title_parameter(parameter_tvb, parameter_tree);
-    }
+    dissect_global_title_parameter(parameter_tvb, parameter_tree);
     break;
   case POINT_CODE_PARAMETER_TAG:
-    if (parameter_tree) {
-      dissect_point_code_parameter(parameter_tvb, parameter_tree, parameter_item);
-    }
+    dissect_point_code_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
   case SUBSYSTEM_NUMBER_PARAMETER_TAG:
     dissect_ssn_parameter(parameter_tvb, parameter_tree, parameter_item, &ssn);
@@ -1515,24 +1757,16 @@ dissect_parameter(tvbuff_t *parameter_tvb, proto_tree *tree, tvbuff_t **data_tvb
     }
     break;
   case IPV4_ADDRESS_PARAMETER_TAG:
-    if (parameter_tree) {
-      dissect_ipv4_parameter(parameter_tvb, parameter_tree, parameter_item);
-    }
+    dissect_ipv4_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
   case HOSTNAME_PARAMETER_TAG:
-    if (parameter_tree) {
-      dissect_hostname_parameter(parameter_tvb, parameter_tree, parameter_item);
-    }
+    dissect_hostname_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
   case IPV6_ADDRESS_PARAMETER_TAG:
-    if (parameter_tree) {
-      dissect_ipv6_parameter(parameter_tvb, parameter_tree, parameter_item);
-    }
+    dissect_ipv6_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
   default:
-    if (parameter_tree) {
-      dissect_unknown_parameter(parameter_tvb, parameter_tree, parameter_item);
-    }
+    dissect_unknown_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
   };
   if (parameter_tree && (padding_length > 0))
@@ -1553,7 +1787,14 @@ dissect_parameters(tvbuff_t *parameters_tvb, proto_tree *tree, tvbuff_t **data_t
       total_length = MIN(total_length, remaining_length);
     /* create a tvb for the parameter including the padding bytes */
     parameter_tvb  = tvb_new_subset(parameters_tvb, offset, total_length, total_length);
-    dissect_parameter(parameter_tvb, tree, data_tvb, source_ssn, dest_ssn);
+    switch(version) {
+      case SUA_V08:
+        dissect_v8_parameter(parameter_tvb, tree, data_tvb, source_ssn, dest_ssn);
+        break;
+      case SUA_RFC:
+        dissect_parameter(parameter_tvb, tree, data_tvb, source_ssn, dest_ssn);
+        break;
+    }
     /* get rid of the handled parameter */
     offset += total_length;
   }
@@ -1597,7 +1838,14 @@ dissect_sua(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree)
 
   /* make entry in the Protocol column on summary display */
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
-     col_set_str(pinfo->cinfo, COL_PROTOCOL, "SUA");
+    switch (version) {
+      case SUA_V08:
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "SUA (ID 08)");
+        break;
+      case SUA_RFC:
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "SUA (RFC 3868)");
+        break;
+    }
 
   /* Clear entries in Info column on summary display */
   if (check_col(pinfo->cinfo, COL_INFO))
@@ -1630,6 +1878,7 @@ proto_register_sua(void)
     { &hf_message_type,                          { "Message Type",                 "sua.message_type",                              FT_UINT8,   BASE_DEC,  NULL,                               0x0,                      "", HFILL } },
     { &hf_message_length,                        { "Message Length",               "sua.message_length",                            FT_UINT32,  BASE_DEC,  NULL,                               0x0,                      "", HFILL } },
     { &hf_parameter_tag,                         { "Parameter Tag",                "sua.parameter_tag",                             FT_UINT16,  BASE_HEX,  VALS(parameter_tag_values),         0x0,                      "", HFILL } },
+    { &hf_v8_parameter_tag,                      { "Parameter Tag",                "sua.parameter_tag",                             FT_UINT16,  BASE_HEX,  VALS(v8_parameter_tag_values),      0x0,                      "", HFILL } },
     { &hf_parameter_length,                      { "Parameter Length",             "sua.parameter_length",                          FT_UINT16,  BASE_DEC,  NULL,                               0x0,                      "", HFILL } },
     { &hf_parameter_value,                       { "Parameter Value",              "sua.parameter_value",                           FT_BYTES,   BASE_NONE, NULL,                               0x0,                      "", HFILL } },
     { &hf_parameter_padding,                     { "Padding",                      "sua.parameter_padding",                         FT_BYTES,   BASE_NONE, NULL,                               0x0,                      "", HFILL } },
@@ -1639,6 +1888,7 @@ proto_register_sua(void)
     { &hf_heartbeat_data,                        { "Heartbeat Data",               "sua.heartbeat_data",                            FT_BYTES,   BASE_NONE, NULL,                               0x0,                      "", HFILL } },
     { &hf_traffic_mode_type,                     { "Traffic mode Type",            "sua.traffic_mode_type",                         FT_UINT32,  BASE_DEC,  VALS(traffic_mode_type_values),     0x0,                      "", HFILL } },
     { &hf_error_code,                            { "Error code",                   "sua.error_code",                                FT_UINT32,  BASE_DEC,  VALS(error_code_values),            0x0,                      "", HFILL } },
+    { &hf_v8_error_code,                         { "Error code",                   "sua.error_code",                                FT_UINT32,  BASE_DEC,  VALS(v8_error_code_values),         0x0,                      "", HFILL } },
     { &hf_status_type,                           { "Status type",                  "sua.status_type",                               FT_UINT16,  BASE_DEC,  VALS(status_type_values),           0x0,                      "", HFILL } },
     { &hf_status_info,                           { "Status info",                  "sua.status_info",                               FT_UINT16,  BASE_DEC,  NULL,                               0x0,                      "", HFILL } },
     { &hf_congestion_level,                      { "Congestion Level",             "sua.congestion_level",                          FT_UINT32,  BASE_DEC,  NULL,                               0x0,                      "", HFILL } },
@@ -1735,7 +1985,14 @@ proto_register_sua(void)
     &ett_sua_first_remaining,
     &ett_sua_return_on_error_bit_and_protocol_class
   };
+  
   module_t *sua_module;
+
+  static enum_val_t options[] = {
+    { "draft-08", "Internet Draft version 08", SUA_V08  },
+    { "rfc3868",  "RFC 3868",                  SUA_RFC  },
+    { NULL, NULL, 0 }
+  };
 
   /* Register the protocol name and description */
   proto_sua = proto_register_protocol("SS7 SCCP-User Adaptation Layer", "SUA", "sua");
@@ -1746,6 +2003,7 @@ proto_register_sua(void)
 
   sua_module = prefs_register_protocol(proto_sua, NULL);
   prefs_register_obsolete_preference(sua_module, "sua_version");
+  prefs_register_enum_preference(sua_module, "version", "SUA Version", "Version used by Ethereal", (gint *)&version, options, FALSE);
 
   sua_ssn_dissector_table = register_dissector_table("sua.ssn", "SUA SSN", FT_UINT8, BASE_DEC);
 }

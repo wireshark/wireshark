@@ -38,7 +38,7 @@
 
 #include <string.h>
 #include "epan/packet_info.h"
-#include "tap.h"
+#include <epan/tap.h>
 #include "epan/value_string.h"
 #include "smb.h"
 #include "register.h"

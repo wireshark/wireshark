@@ -29,6 +29,8 @@
 
 #include <epan/packet.h>
 
+#include "packet-range.h"
+
 /*
  * Print stream code; this provides a "print stream" class with subclasses
  * of various sorts.  Additional subclasses might be implemented elsewhere.

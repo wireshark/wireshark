@@ -36,15 +36,15 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
-#include "ipproto.h"
-#include "in_cksum.h"
-#include "prefs.h"
+#include <epan/ipproto.h>
+#include <epan/in_cksum.h>
+#include <epan/prefs.h>
 
 #include "packet-udp.h"
 
 #include "packet-ip.h"
 #include <epan/conversation.h>
-#include "tap.h"
+#include <epan/tap.h>
 
 static int udp_tap = -1;
 

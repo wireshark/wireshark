@@ -1,9 +1,3 @@
-/* TODO:
-   PKINIT embryo inside should be pulled out into its own dissector, preferably
-   one that can handle generic PAtype additions via some registration API.
-   Keep an eye on ietf/krbwg on what they design for their framework for
-   adding PAtypes.
-*/
 /* packet-kerberos.c
  * Routines for Kerberos
  * Wes Hardaker (c) 2000
@@ -67,8 +61,9 @@
 #include <epan/dissectors/packet-kerberos.h>
 #include <epan/dissectors/packet-netbios.h>
 #include <epan/dissectors/packet-tcp.h>
-#include "prefs.h"
+#include <epan/prefs.h>
 #include <epan/dissectors/packet-ber.h>
+#include <epan/dissectors/packet-pkinit.h>
 #include <epan/dissectors/packet-cms.h>
 #include <epan/dissectors/packet-windows-common.h>
 
@@ -99,7 +94,6 @@ static gint hf_krb_w2k_pac_type = -1;
 static gint hf_krb_w2k_pac_size = -1;
 static gint hf_krb_w2k_pac_offset = -1;
 static gint hf_krb_padata = -1;
-static gint hf_krb_contentinfo_contenttype = -1;
 static gint hf_krb_error_code = -1;
 static gint hf_krb_ticket = -1;
 static gint hf_krb_AP_REP_enc = -1;
@@ -181,7 +175,6 @@ static gint hf_krb_EncKDCRepPart = -1;
 static gint hf_krb_LastReq = -1;
 static gint hf_krb_Authenticator = -1;
 static gint hf_krb_Checksum = -1;
-static gint hf_krb_signedAuthPack = -1;
 static gint hf_krb_s_address = -1;
 static gint hf_krb_HostAddress = -1;
 static gint hf_krb_HostAddresses = -1;
@@ -227,7 +220,6 @@ static gint hf_krb_e_checksum = -1;
 static gint ett_krb_kerberos = -1;
 static gint ett_krb_TransitedEncoding = -1;
 static gint ett_krb_PAC_LOGON_INFO = -1;
-static gint ett_krb_signedAuthPack = -1;
 static gint ett_krb_PAC_CREDENTIAL_TYPE = -1;
 static gint ett_krb_PAC_SERVER_CHECKSUM = -1;
 static gint ett_krb_PAC_PRIVSVR_CHECKSUM = -1;
@@ -1488,80 +1480,6 @@ dissect_krb5_PA_PAC_REQUEST(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
 
 
 
-static char ContentType[64]; /*64 chars should be long enough */
-static int
-dissect_krb5_ContentInfo_ContentType(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
-{
-	ContentType[0]=0;
-	offset=dissect_ber_object_identifier(TRUE, pinfo, tree, tvb, offset, hf_krb_contentinfo_contenttype, ContentType);
-
-	return offset;
-}
-
-/* the content of this structure depends on the ContentType object identifier */
-static int
-dissect_krb5_ContentInfo_content(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
-{
-	offset=call_ber_oid_callback(ContentType, tvb, offset, pinfo, tree);
-
-	return offset;
-}
-
-static ber_sequence ContentInfo_sequence[] = {
-	{ BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_krb5_ContentInfo_ContentType },
-	{ BER_CLASS_CON, 0, 0, dissect_krb5_ContentInfo_content },
-	{ 0, 0, 0, NULL }
-};
-
-static int
-dissect_krb5_PA_PK_AS_REQ_signedAuthPack(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
-{
-	offset=dissect_ber_sequence(FALSE, pinfo, tree, tvb, offset, ContentInfo_sequence, hf_krb_signedAuthPack, ett_krb_signedAuthPack);
-
-	return offset;
-}
-
-static int
-dissect_krb5_PA_PK_AS_REQ_trustedCertifiers(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
-{
-	BER_NOT_DECODED_YET("trustedCertifiers");
-
-	return offset;
-}
-static int
-dissect_krb5_PA_PK_AS_REQ_kdcCert(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
-{
-	BER_NOT_DECODED_YET("kdcCert");
-
-	return offset;
-}
-static int
-dissect_krb5_PA_PK_AS_REQ_encryptionCert(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
-{
-	BER_NOT_DECODED_YET("encryptionCert");
-
-	return offset;
-}
-
-
-
-static ber_sequence PA_PK_AS_REQ_sequence[] = {
-	{ BER_CLASS_CON, 0, 0, dissect_krb5_PA_PK_AS_REQ_signedAuthPack },
-	{ BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_krb5_PA_PK_AS_REQ_trustedCertifiers },
-	{ BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL, dissect_krb5_PA_PK_AS_REQ_kdcCert },
-	{ BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL, dissect_krb5_PA_PK_AS_REQ_encryptionCert },
-	{ 0, 0, 0, NULL }
-};
-static int
-dissect_krb5_PA_PK_AS_REQ(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
-{
-
-	offset=dissect_ber_sequence(FALSE, pinfo, tree, tvb, offset, PA_PK_AS_REQ_sequence, -1, -1);
-
-	return offset;
-}
-
-
 static int
 dissect_krb5_PA_PROV_SRV_LOCATION(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
 {
@@ -1744,7 +1662,10 @@ dissect_krb5_PA_DATA_value(packet_info *pinfo, proto_tree *parent_tree, tvbuff_t
 		offset=dissect_ber_octet_string_wcb(FALSE, pinfo, tree, tvb, offset,hf_krb_PA_DATA_value, dissect_krb5_application_choice);
  		break;
 	case KRB5_PA_PK_AS_REQ:
-		offset=dissect_ber_octet_string_wcb(FALSE, pinfo, tree, tvb, offset,hf_krb_PA_DATA_value, dissect_krb5_PA_PK_AS_REQ);
+		offset=dissect_ber_octet_string_wcb(FALSE, pinfo, tree, tvb, offset,hf_krb_PA_DATA_value, dissect_pkinit_PA_PK_AS_REQ);
+ 		break;
+	case KRB5_PA_PK_AS_REP:
+		offset=dissect_ber_octet_string_wcb(FALSE, pinfo, tree, tvb, offset,hf_krb_PA_DATA_value, dissect_pkinit_PA_PK_AS_REP);
  		break;
 	case KRB5_PA_PAC_REQUEST:
 		offset=dissect_ber_octet_string_wcb(FALSE, pinfo, tree, tvb, offset,hf_krb_PA_DATA_value, dissect_krb5_PA_PAC_REQUEST);
@@ -3508,9 +3429,6 @@ proto_register_kerberos(void)
 	{ &hf_krb_address_netbios, {
 	    "NetBIOS Address", "kerberos.addr_nb", FT_STRING, BASE_NONE,
 	    NULL, 0, "NetBIOS Address and type", HFILL }},
-	{ &hf_krb_contentinfo_contenttype, {
-	    "ContentType", "kerberos.contenttype", FT_STRING, BASE_NONE,
-	    NULL, 0, "ContentInfo ContentType field", HFILL }},
 	{ &hf_krb_authtime, {
 	    "Authtime", "kerberos.authtime", FT_STRING, BASE_NONE,
 	    NULL, 0, "Time of initial authentication", HFILL }},
@@ -3766,9 +3684,6 @@ proto_register_kerberos(void)
 	{ &hf_krb_s_address, {
 	    "S-Address", "kerberos.s_address", FT_NONE, BASE_DEC,
 	    NULL, 0, "This is the Senders address", HFILL }},
-	{ &hf_krb_signedAuthPack, {
-	    "signedAuthPack", "kerberos.signedAuthPack", FT_NONE, BASE_DEC,
-	    NULL, 0, "This is a Kerberos ContentInfo sequence", HFILL }},
 	{ &hf_krb_key, {
 	    "key", "kerberos.key", FT_NONE, BASE_DEC,
 	    NULL, 0, "This is a Kerberos EncryptionKey sequence", HFILL }},
@@ -3910,7 +3825,6 @@ proto_register_kerberos(void)
 	&ett_krb_PAC_SERVER_CHECKSUM,
 	&ett_krb_PAC_PRIVSVR_CHECKSUM,
 	&ett_krb_PAC_CLIENT_INFO_TYPE,
-	&ett_krb_signedAuthPack,
 	&ett_krb_e_checksum,
     };
     module_t *krb_module;

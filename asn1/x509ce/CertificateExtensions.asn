@@ -16,7 +16,7 @@ IMPORTS
     Time, PolicyID
     FROM AuthenticationFramework {joint-iso-itu-t ds(5) module(1)
       authenticationFramework(7) 4}
-  DirectoryString{}
+  DirectoryString
     FROM SelectedAttributeTypes {joint-iso-itu-t ds(5) module(1)
       selectedAttributeTypes(5) 4}
   ub-name
@@ -149,20 +149,20 @@ GeneralName ::= CHOICE {
   rfc822Name                 [1]  IMPLICIT IA5String,
   dNSName                    [2]  IMPLICIT IA5String,
 --  x400Address                [3]  IMPLICIT ORAddress,
---  directoryName              [4]  IMPLICIT Name,
---  ediPartyName               [5]  IMPLICIT EDIPartyName,
+  directoryName              [4]  IMPLICIT Name,
+  ediPartyName               [5]  IMPLICIT EDIPartyName,
   uniformResourceIdentifier  [6]  IMPLICIT IA5String,
   iPAddress                  [7]  IMPLICIT OCTET STRING,
   registeredID               [8]  IMPLICIT OBJECT IDENTIFIER
 }
 
 -- OTHER-NAME ::= TYPE-IDENTIFIER
--- 
--- EDIPartyName ::= SEQUENCE {
---   nameAssigner  [0]  IMPLICIT DirectoryString{ub-name} OPTIONAL,
---   partyName     [1]  IMPLICIT DirectoryString{ub-name}
--- }
--- 
+
+EDIPartyName ::= SEQUENCE {
+  nameAssigner  [0]  IMPLICIT DirectoryString OPTIONAL,
+  partyName     [1]  IMPLICIT DirectoryString
+}
+
 -- issuerAltName EXTENSION ::= {
 --   SYNTAX         GeneralNames
 --   IDENTIFIED BY  id-ce-issuerAltName

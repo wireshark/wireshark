@@ -36,9 +36,9 @@
 #include <epan/epan.h>
 #include <epan/filesystem.h>
 #include <epan/timestamp.h>
-#include "prefs.h"
+#include <epan/prefs.h>
 #include "prefs-recent.h"
-#include "prefs-int.h"
+#include <epan/prefs-int.h>
 
 
 #define RECENT_KEY_MAIN_TOOLBAR_SHOW        "gui.toolbar_main_show"

@@ -32,7 +32,8 @@
 #include <string.h>
 #include <glib.h>
 #include <epan/packet.h>
-#include "prefs.h"
+#include <epan/prefs.h>
+#include <epan/sminmpec.h>
 #include "packet-ntp.h"
 #include "packet-ldp.h"
 
@@ -59,6 +60,18 @@ static int hf_mpls_echo_tlv_fec_len = -1;
 static int hf_mpls_echo_tlv_fec_value = -1;
 static int hf_mpls_echo_tlv_fec_ldp_ipv4 = -1;
 static int hf_mpls_echo_tlv_fec_ldp_ipv4_mask = -1;
+static int hf_mpls_echo_tlv_fec_ldp_ipv6 = -1;
+static int hf_mpls_echo_tlv_fec_ldp_ipv6_mask = -1;
+static int hf_mpls_echo_tlv_fec_rsvp_ipv4_ipv4_endpoint = -1;
+static int hf_mpls_echo_tlv_fec_rsvp_ipv6_ipv6_endpoint = -1;
+static int hf_mpls_echo_tlv_fec_rsvp_ip_mbz1 = -1;
+static int hf_mpls_echo_tlv_fec_rsvp_ip_tunnel_id = -1;
+static int hf_mpls_echo_tlv_fec_rsvp_ipv4_ext_tunnel_id = -1;
+static int hf_mpls_echo_tlv_fec_rsvp_ipv4_ipv4_sender = -1;
+static int hf_mpls_echo_tlv_fec_rsvp_ipv6_ext_tunnel_id = -1;
+static int hf_mpls_echo_tlv_fec_rsvp_ipv6_ipv6_sender = -1;
+static int hf_mpls_echo_tlv_fec_rsvp_ip_mbz2 = -1;
+static int hf_mpls_echo_tlv_fec_rsvp_ip_lsp_id = -1;
 static int hf_mpls_echo_tlv_fec_l2cid_sender = -1;
 static int hf_mpls_echo_tlv_fec_l2cid_remote = -1;
 static int hf_mpls_echo_tlv_fec_l2cid_vcid = -1;
@@ -66,6 +79,7 @@ static int hf_mpls_echo_tlv_fec_l2cid_encap = -1;
 static int hf_mpls_echo_tlv_fec_l2cid_mbz = -1;
 static int hf_mpls_echo_tlv_padaction = -1;
 static int hf_mpls_echo_tlv_padding = -1;
+static int hf_mpls_echo_tlv_vendor = -1;
 
 static gint ett_mpls_echo = -1;
 static gint ett_mpls_echo_tlv = -1;
@@ -111,6 +125,8 @@ static const value_string mpls_echo_returncode[] = {
 #define TLV_PAD                    0x0003
 #define TLV_ERROR_CODE             0x0004
 #define TLV_VENDOR_CODE            0x0005
+#define TLV_VENDOR_PRIVATE_START   0xFC00
+#define TLV_VENDOR_PRIVATE_END     0xFFFF
 
 /* MPLS Echo TLV Type names */
 static const value_string mpls_echo_tlv_type_names[] = {
@@ -119,6 +135,7 @@ static const value_string mpls_echo_tlv_type_names[] = {
   { TLV_PAD,                       "Pad" },
   { TLV_ERROR_CODE,                "Error Code" },
   { TLV_VENDOR_CODE,               "Vendor Enterprise Code" },
+  { TLV_VENDOR_PRIVATE_START,      "Vendor Private" },
   { 0, NULL}
 };
 
@@ -130,7 +147,10 @@ static const value_string mpls_echo_tlv_type_names[] = {
 #define TLV_FEC_STACK_VPN_IPv4     6
 #define TLV_FEC_STACK_VPN_IPv6     7
 #define TLV_FEC_STACK_L2_VPN       8
-#define TLV_FEC_STACK_L2_CID       9
+#define TLV_FEC_STACK_L2_CID_OLD   9
+#define TLV_FEC_STACK_L2_CID_NEW  10
+#define TLV_FEC_VENDOR_PRIVATE_START   0xFC00
+#define TLV_FEC_VENDOR_PRIVATE_END     0xFFFF
 
 /* FEC sub-TLV Type names */
 static const value_string mpls_echo_tlv_fec_names[] = {
@@ -142,7 +162,9 @@ static const value_string mpls_echo_tlv_fec_names[] = {
   { TLV_FEC_STACK_VPN_IPv4,    "VPN IPv4 prefix"},
   { TLV_FEC_STACK_VPN_IPv6,    "VPN IPv6 prefix"},
   { TLV_FEC_STACK_L2_VPN,      "L2 VPN endpoint"},
-  { TLV_FEC_STACK_L2_CID,      "L2 cirtuit ID"},
+  { TLV_FEC_STACK_L2_CID_OLD,  "L2 cirtuit ID (deprecated)"},
+  { TLV_FEC_STACK_L2_CID_NEW,  "L2 cirtuit ID (current)"},
+  { TLV_FEC_VENDOR_PRIVATE_START, "Vendor Private"},
   { 0, NULL}
 };
 
@@ -165,6 +187,10 @@ dissect_mpls_echo_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem
         if (tree){
           while (rem >= 4){ /* Type, Length */
             type = tvb_get_ntohs(tvb, offset);
+	    /* Check for Vendor Private sub-TLVs */
+	    if(type >= TLV_FEC_VENDOR_PRIVATE_START) /* && <= TLV_FEC_VENDOR_PRIVATE_END always true */
+		type = TLV_FEC_VENDOR_PRIVATE_START;
+
             length = tvb_get_ntohs(tvb, offset + 2);
             ti = proto_tree_add_text(tree, tvb, offset, length + 4, "FEC Element %u: %s",
                      index, val_to_str(type, mpls_echo_tlv_fec_names, 
@@ -185,14 +211,80 @@ dissect_mpls_echo_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem
                     tvb, offset + 4, 4, FALSE);
                 proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_ldp_ipv4_mask, 
                     tvb, offset + 8, 1, FALSE);
-                if (length == 9)
-                    proto_tree_add_text(tlv_fec_tree, tvb, offset + 6, 3, "Padding");
+                if (length == 8)
+                    proto_tree_add_text(tlv_fec_tree, tvb, offset + 9, 3, "Padding");
                 break;
-            case TLV_FEC_STACK_L2_CID:
-                if (length != 16){
-                    if(tree)
-                        proto_tree_add_text(tree, tvb, offset, rem,
-                            "Error processing sub-TLV: length is %d, should be 16", length);
+	    case TLV_FEC_STACK_LDP_IPv6:
+                proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_ldp_ipv6,
+                    tvb, offset + 4, 16, FALSE);
+                proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_ldp_ipv6_mask,
+                    tvb, offset + 20, 1, FALSE);
+                if (length == 20)
+                    proto_tree_add_text(tlv_fec_tree, tvb, offset + 21, 3, "Padding");
+                break;
+	    case TLV_FEC_STACK_RSVP_IPv4:
+		if (length != 20){
+		    proto_tree_add_text(tlv_fec_tree, tvb, offset, rem,
+		        "Error processing sub-TLV: length is %d, should be 20", length);
+		    return;
+		}
+		proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_ipv4_ipv4_endpoint,
+		    tvb, offset + 4, 4, FALSE);
+		proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_ip_mbz1,
+		    tvb, offset + 8, 2, FALSE);
+		proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_ip_tunnel_id,
+		    tvb, offset + 10, 2, FALSE);
+		proto_tree_add_text(tlv_fec_tree, tvb, offset + 12, 4,
+		    "Extended Tunnel ID: 0x%08X (%s)", tvb_get_ntohl(tvb, offset + 12),
+		    ip_to_str(tvb_get_ptr(tvb, offset + 12, 4)));
+		proto_tree_add_item_hidden(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_ipv4_ext_tunnel_id,
+		    tvb, offset + 12, 4, FALSE);
+		proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_ipv4_ipv4_sender,
+		    tvb, offset + 16, 4, FALSE);
+		proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_ip_mbz2,
+		    tvb, offset + 20, 2, FALSE);
+		proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_ip_lsp_id,
+		    tvb, offset + 22, 2, FALSE);
+		break;
+            case TLV_FEC_STACK_RSVP_IPv6:
+                if (length != 56){
+                    proto_tree_add_text(tlv_fec_tree, tvb, offset, rem,
+                        "Error processing sub-TLV: length is %d, should be 56", length);
+                    return;
+                }
+                proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_ipv6_ipv6_endpoint,
+                    tvb, offset + 4, 16, FALSE);
+                proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_ip_mbz1,
+                    tvb, offset + 20, 2, FALSE);
+                proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_ip_tunnel_id,
+                    tvb, offset + 22, 2, FALSE);
+                proto_tree_add_text(tlv_fec_tree, tvb, offset + 24, 16,
+                    "Extended Tunnel ID: 0x%s (%s)",
+		    tvb_bytes_to_str(tvb, offset + 24, 16),
+                    ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset + 24, 16)));
+                proto_tree_add_item_hidden(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_ipv6_ext_tunnel_id,
+                    tvb, offset + 24, 16, FALSE);
+                proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_ipv6_ipv6_sender,
+                    tvb, offset + 40, 16, FALSE);
+                proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_ip_mbz2,
+                    tvb, offset + 56, 2, FALSE);
+                proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_ip_lsp_id,
+                    tvb, offset + 58, 2, FALSE);
+                break;
+            case TLV_FEC_STACK_L2_CID_OLD:
+                proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_l2cid_remote,
+                    tvb, offset + 4, 4, FALSE);
+                proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_l2cid_vcid,
+                    tvb, offset + 8, 4, FALSE);
+                proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_l2cid_encap,
+                    tvb, offset + 12, 2, FALSE);
+                proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_l2cid_mbz,
+                    tvb, offset + 14, 2, FALSE);
+                break;
+	    case TLV_FEC_STACK_L2_CID_NEW:
+                if (length < 14){
+                    proto_tree_add_text(tlv_fec_tree, tvb, offset, rem,
+                        "Error processing sub-TLV: length is %d, should be 14", length);
                     return;
                 }
                 proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_l2cid_sender,
@@ -206,9 +298,18 @@ dissect_mpls_echo_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem
                 proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_l2cid_mbz,
                     tvb, offset + 18, 2, FALSE);
                 break;
-            case TLV_FEC_STACK_LDP_IPv6:
-            case TLV_FEC_STACK_RSVP_IPv4:
-            case TLV_FEC_STACK_RSVP_IPv6:
+	    case TLV_FEC_VENDOR_PRIVATE_START:
+		if (length < 4) { /* SMI Enterprise code */
+			proto_tree_add_text(tlv_fec_tree, tvb, offset + 4, length,
+				"Error processing Vendor Private sub-TLV: length is %d, should be >= 4",
+				length);
+		} else {
+			proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_vendor, tvb,
+				offset + 4, 4, FALSE);
+			proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_value, tvb,
+				offset + 8, length - 4, FALSE);
+		}
+		break;
             case TLV_FEC_STACK_RES:
             case TLV_FEC_STACK_VPN_IPv4:
             case TLV_FEC_STACK_VPN_IPv6:
@@ -251,6 +352,10 @@ dissect_mpls_echo_tlv(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
         length = MIN(length, rem);
 
         if (tree) {
+		/* Check for Vendor Private TLVs */
+		if(type >= TLV_VENDOR_PRIVATE_START) /* && <= TLV_VENDOR_PRIVATE_END always true */
+			type = TLV_VENDOR_PRIVATE_START;
+
                 ti = proto_tree_add_text(tree, tvb, offset, length + 4, "%s",
                         val_to_str(type, mpls_echo_tlv_type_names, "Unknown TLV type (0x%04X)"));
                 mpls_echo_tlv_tree = proto_item_add_subtree(ti, ett_mpls_echo_tlv);
@@ -263,6 +368,9 @@ dissect_mpls_echo_tlv(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
                 proto_tree_add_item(mpls_echo_tlv_tree, hf_mpls_echo_tlv_len, tvb, offset + 2, 2, FALSE);
 
                 /* MPLS Echo TLV Value */
+                if (length == 0)
+                        return 4; /* Empty TLV, return Type and Length consumed. */
+
                 switch (type) {
                 case TLV_TARGET_FEC_STACK:
                         dissect_mpls_echo_tlv_fec(tvb, offset + 4, mpls_echo_tlv_tree, length);
@@ -273,9 +381,24 @@ dissect_mpls_echo_tlv(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
                         proto_tree_add_item(mpls_echo_tlv_tree, hf_mpls_echo_tlv_padding, tvb,
                             offset + 5, length - 1, FALSE);
                         break;
+		case TLV_VENDOR_CODE:
+			proto_tree_add_item(mpls_echo_tlv_tree, hf_mpls_echo_tlv_vendor, tvb,
+			offset + 4, 4, FALSE);
+			break;
+		case TLV_VENDOR_PRIVATE_START:
+			if (length < 4) { /* SMI Enterprise code */
+				proto_tree_add_text(mpls_echo_tlv_tree, tvb, offset + 4, length,
+					"Error processing Vendor Private TLV: length is %d, should be >= 4",
+					length);
+			} else {
+				proto_tree_add_item(mpls_echo_tlv_tree, hf_mpls_echo_tlv_vendor, tvb,
+					offset + 4, 4, FALSE);
+				proto_tree_add_item(mpls_echo_tlv_tree, hf_mpls_echo_tlv_value, tvb,
+					offset + 8, length - 4, FALSE);
+			}
+			break;
                 case TLV_DOWNSTREAM_MAPPING:
                 case TLV_ERROR_CODE:
-                case TLV_VENDOR_CODE:
                 default:
                         proto_tree_add_item(mpls_echo_tlv_tree, hf_mpls_echo_tlv_value, tvb,
                             offset + 4, length, FALSE);
@@ -455,6 +578,54 @@ proto_register_mpls_echo(void)
                         { "Prefix Length", "mpls_echo.tlv.fec.ldp_ipv4_mask",
                         FT_UINT8, BASE_DEC, NULL, 0x0, "MPLS ECHO TLV FEC Stack IPv4 Prefix Length", HFILL}
                 },
+		{ &hf_mpls_echo_tlv_fec_ldp_ipv6,
+			{ "IPv6 Prefix", "mpls_echo.tlv.fec.ldp_ipv6",
+			FT_IPv6, BASE_NONE, NULL, 0x0, "MPLS ECHO TLV FEC Stack IPv6", HFILL}
+		},
+		{ &hf_mpls_echo_tlv_fec_ldp_ipv6_mask,
+			{ "Prefix Length", "mpls_echo.tlv.fec.ldp_ipv6_mask",
+			FT_UINT8, BASE_DEC, NULL, 0x0, "MPLS ECHO TLV FEC Stack IPv6 Prefix Length", HFILL}
+		},
+		{ &hf_mpls_echo_tlv_fec_rsvp_ipv4_ipv4_endpoint,
+			{ "IPv4 Tunnel endpoint address", "mpls_echo.tlv.fec.rsvp_ipv4_ep",
+			FT_IPv4, BASE_NONE, NULL, 0x0, "MPLS ECHO TLV FEC Stack RSVP IPv4 Tunnel Endpoint Address", HFILL}
+		},
+                { &hf_mpls_echo_tlv_fec_rsvp_ipv6_ipv6_endpoint,
+                        { "IPv6 Tunnel endpoint address", "mpls_echo.tlv.fec.rsvp_ipv6_ep",
+                        FT_IPv6, BASE_NONE, NULL, 0x0, "MPLS ECHO TLV FEC Stack RSVP IPv6 Tunnel Endpoint Address", HFILL}
+                },
+		{ &hf_mpls_echo_tlv_fec_rsvp_ip_mbz1,
+			{ "Must Be Zero", "mpls_echo.tlv.fec.rsvp_ip_mbz1",
+			FT_UINT16, BASE_DEC, NULL, 0x0, "MPLS ECHO TLV FEC Stack RSVP MBZ", HFILL}
+		},
+		{ &hf_mpls_echo_tlv_fec_rsvp_ip_tunnel_id,
+			{ "Tunnel ID", "mpls_echo.tlv.fec.rsvp_ip_tun_id",
+			FT_UINT16, BASE_DEC, NULL, 0x0, "MPLS ECHO TLV FEC Stack RSVP Tunnel ID", HFILL}
+		},
+		{ &hf_mpls_echo_tlv_fec_rsvp_ipv4_ext_tunnel_id,
+			{ "Extended Tunnel ID", "mpls_echo.tlv.fec.rsvp_ipv4_ext_tun_id",
+			FT_UINT32, BASE_HEX, NULL, 0x0, "MPLS ECHO TLV FEC Stack RSVP IPv4 Extended Tunnel ID", HFILL}
+		},
+		{ &hf_mpls_echo_tlv_fec_rsvp_ipv4_ipv4_sender,
+			{ "IPv4 Tunnel sender address", "mpls_echo.tlv.fec.rsvp_ipv4_sender",
+			FT_IPv4, BASE_NONE, NULL, 0x0, "MPLS ECHO TLV FEC Stack RSVP IPv4 Sender", HFILL}
+		},
+                { &hf_mpls_echo_tlv_fec_rsvp_ipv6_ext_tunnel_id,
+                        { "Extended Tunnel ID", "mpls_echo.tlv.fec.rsvp_ipv6_ext_tun_id",
+                        FT_BYTES, BASE_HEX, NULL, 0x0, "MPLS ECHO TLV FEC Stack RSVP IPv6 Extended Tunnel ID", HFILL}
+                },
+                { &hf_mpls_echo_tlv_fec_rsvp_ipv6_ipv6_sender,
+                        { "IPv6 Tunnel sender address", "mpls_echo.tlv.fec.rsvp_ipv6_sender",
+                        FT_IPv6, BASE_NONE, NULL, 0x0, "MPLS ECHO TLV FEC Stack RSVP IPv4 Sender", HFILL}
+                },
+		{ &hf_mpls_echo_tlv_fec_rsvp_ip_mbz2,
+			{ "Must Be Zero", "mpls_echo.tlv.fec.rsvp_ip_mbz2",
+			FT_UINT16, BASE_DEC, NULL, 0x0, "MPLS ECHO TLV FEC Stack RSVP MBZ", HFILL}
+		},
+		{ &hf_mpls_echo_tlv_fec_rsvp_ip_lsp_id,
+			{ "LSP ID", "mpls_echo.tlv.fec.rsvp_ip_lsp_id",
+			FT_UINT16, BASE_DEC, NULL, 0x0, "MPLS ECHO TLV FEC Stack RSVP LSP ID", HFILL}
+		},
                 { &hf_mpls_echo_tlv_fec_l2cid_sender,
                         { "Sender's PE Address", "mpls_echo.tlv.fec.l2cid_sender",
                         FT_IPv4, BASE_NONE, NULL, 0x0, "MPLS ECHO TLV FEC Stack L2CID Sender", HFILL}
@@ -482,7 +653,11 @@ proto_register_mpls_echo(void)
                 { &hf_mpls_echo_tlv_padding,
                         { "Padding", "mpls_echo.tlv.pad_padding",
                         FT_BYTES, BASE_NONE, NULL, 0x0, "MPLS ECHO Pad TLV Padding", HFILL}
-                }
+                },
+		{ &hf_mpls_echo_tlv_vendor,
+			{ "Vendor Id", "mpls_echo.tlv.vendor_id",
+			FT_UINT32, BASE_DEC, VALS(sminmpec_values), 0x0, "MPLS ECHO Vendor Id", HFILL}
+		}
         };
 
         static gint *ett[] = {

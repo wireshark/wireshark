@@ -33,9 +33,9 @@
 #include "llcsaps.h"
 #include "ppptypes.h"
 #include <epan/sna-utils.h>
-#include "prefs.h"
+#include <epan/charsets.h>
+#include <epan/prefs.h>
 #include "reassemble.h"
-#include "util.h"
 
 /*
  * http://www.wanresources.com/snacell.html

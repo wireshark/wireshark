@@ -8,7 +8,7 @@ dnl Check for CPU / vendor / OS
 AC_CANONICAL_HOST
 AC_CANONICAL_TARGET
 
-AM_INIT_AUTOMAKE(ethereal, 0.10.6)
+AM_INIT_AUTOMAKE(ethereal, 0.10.7)
 
 AM_DISABLE_STATIC
 
@@ -468,24 +468,6 @@ else
     ])
 fi
 
-AC_CHECK_FUNC(strtoull,,
-  [
-    #
-    # No strtoull - do we have strtouq?
-    #
-    AC_CHECK_FUNC(strtouq,
-      [
-	#
-	# Yes - define strtoull to be strtouq.
-	#
-	AC_DEFINE(strtoull, strtouq,
-	  [Define as a function that behaves like strtoull])
-      ],
-      [
-	AC_MSG_ERROR([This platform has neither strtoull nor strtouq.])
-      ])
-  ])
-
 AC_SUBST(ethereal_bin)
 AC_SUBST(ethereal_man)
 
@@ -762,13 +744,35 @@ AC_CHECK_HEADERS(iconv.h)
 
 dnl SSL Check
 SSL_LIBS=''
-AC_MSG_CHECKING(whether to use SSL library if available)
-if test "x$enable_ssl" = "xno" ; then
-	AC_MSG_RESULT(no)
-else
+AC_MSG_CHECKING(whether to use SSL library)
+
+AC_ARG_WITH(ssl,
+changequote(<<, >>)dnl
+<<  --with-ssl[=DIR]        use SSL crypto library (located in directory DIR, if supplied).   [default=no]>>,
+changequote([, ])dnl
+[
+if test "x$withval" = "xno";  then
+	want_ssl=no
+elif test "x$withval" = "xyes"; then
+	want_ssl=yes
+elif test -d "$withval"; then
+	want_ssl=yes
+	AC_ETHEREAL_ADD_DASH_L(LDFLAGS, ${withval}/lib)
+fi
+],[
+	want_ssl=no
+])
+if test "x$want_ssl" = "xyes"; then
 	AC_MSG_RESULT(yes)
-	AC_MSG_CHECKING(whether SSL library is available)
-	AC_ETHEREAL_SSL_CHECK
+	AC_CHECK_LIB(crypto,EVP_md5,
+	    [
+		SSL_LIBS=-lcrypto
+	    ],
+	    [
+                AC_MSG_ERROR([SSL crypto library was requested, but is not available])
+	    ])
+else
+	AC_MSG_RESULT(no)
 fi
 AC_SUBST(SSL_LIBS)
 
@@ -882,7 +886,7 @@ else
 fi
 
 if test "x$have_net_snmp" = "xyes" || test "x$have_ucd_snmp" = "xyes"; then
-	AC_DEFINE(HAVE_SOME_SNMP, 1, [Define to if some SNMP support is to be used])
+	AC_DEFINE(HAVE_SOME_SNMP, 1, [Define to 1 if some SNMP support is to be used])
 fi
 
 AC_SUBST(SNMP_LIBS)
@@ -918,9 +922,6 @@ if test "x$want_krb5" = "xno" ; then
 else
 	AC_MSG_RESULT(yes)
 	AC_ETHEREAL_KRB5_CHECK
-	if test "x$want_krb5" = "xno" ; then
-		AC_MSG_RESULT(heimdal not found - disabling dissection for some kerberos data in packet decoding)
-	fi
 fi
 
 
@@ -1009,15 +1010,43 @@ fi
 AC_SUBST(MKSTEMP_C)
 AC_SUBST(MKSTEMP_O)
 
-AC_CHECK_FUNC(inet_aton, INET_ATON_O="",
-  INET_ATON_O="inet_aton.lo")
+ac_save_LIBS="$LIBS"
+LIBS="$GLIB_LIBS $LIBS"
+G_ASCII_STRTOULL_C=""
+G_ASCII_STRTOULL_O=""
+G_ASCII_STRTOULL_LO=""
+AC_CHECK_FUNC(g_ascii_strtoull,
+  [G_ASCII_STRTOULL_O=""
+   G_ASCII_STRTOULL_LO=""],
+  [G_ASCII_STRTOULL_O="g_ascii_strtoull.o"
+   G_ASCII_STRTOULL_LO="g_ascii_strtoull.lo"
+   AC_DEFINE(NEED_G_ASCII_STRTOULL_H, 1, [Define if g_ascii_strtoull.h needs to be included])
+])
+LIBS="$ac_save_LIBS"
+if test "$ac_cv_func_g_ascii_strtoull" = no ; then
+  G_ASCII_STRTOULL_C="g_ascii_strtoull.c"
+  G_ASCII_STRTOULL_O="g_ascii_strtoull.o"
+  G_ASCII_STRTOULL_LO="g_ascii_strtoull.lo"
+fi
+AC_SUBST(G_ASCII_STRTOULL_C)
+AC_SUBST(G_ASCII_STRTOULL_O)
+AC_SUBST(G_ASCII_STRTOULL_LO)
+
+AC_CHECK_FUNC(inet_aton,
+  [INET_ATON_O=""
+   INET_ATON_LO=""],
+  [INET_ATON_O="inet_aton.o"
+   INET_ATON_LO="inet_aton.lo"
+])
 if test "$ac_cv_func_inet_aton" = no ; then
   INET_ATON_C="inet_aton.c"
-  INET_ATON_O="inet_aton.lo"
+  INET_ATON_O="inet_aton.o"
+  INET_ATON_LO="inet_aton.lo"
   AC_DEFINE(NEED_INET_ATON_H, 1, [Define if inet/aton.h needs to be included])
 fi
 AC_SUBST(INET_ATON_C)
 AC_SUBST(INET_ATON_O)
+AC_SUBST(INET_ATON_LO)
 
 AC_SEARCH_LIBS(inet_pton, [socket nsl], [
   dnl check for pre-BIND82 inet_pton() bug.
@@ -1042,13 +1071,16 @@ have_inet_pton=no])],
 have_inet_pton=no)
 if test "$have_inet_pton" = no; then
   INET_PTON_C="inet_pton.c"
-  INET_PTON_O="inet_pton.lo"
+  INET_PTON_O="inet_pton.o"
+  INET_PTON_LO="inet_pton.lo"
 else
   INET_PTON_C=""
   INET_PTON_O=""
+  INET_PTON_LO=""
 fi
 AC_SUBST(INET_PTON_C)
 AC_SUBST(INET_PTON_O)
+AC_SUBST(INET_PTON_LO)
 
 AC_SEARCH_LIBS(inet_ntop, [socket nsl], [
   AC_MSG_CHECKING([for inet_ntop prototype])
@@ -1073,13 +1105,16 @@ extern const char *inet_ntop(int, const void *, char *, socklen_t);],, [
       AC_DEFINE(HAVE_INET_NTOP_PROTO, 1,
       [Define if inet_ntop() prototype exists])], [
       AC_MSG_RESULT(no)])])
-  INET_NTOP_O=""], [
+  INET_NTOP_O=""
+  INET_NTOP_LO=""], [
   INET_NTOP_C="inet_ntop.c"
-  INET_NTOP_O="inet_ntop.lo"
+  INET_NTOP_O="inet_ntop.o"
+  INET_NTOP_LO="inet_ntop.lo"
   AC_DEFINE(NEED_INET_V6DEFS_H, 1,
   [Define if inet/v6defs.h needs to be included])])
 AC_SUBST(INET_NTOP_C)
 AC_SUBST(INET_NTOP_O)
+AC_SUBST(INET_NTOP_LO)
 
 AC_CHECK_FUNC(strptime, STRPTIME_O="",
   [STRPTIME_O="strptime.o"
@@ -1237,6 +1272,12 @@ else
 	pcre_message="yes"
 fi
 
+if test "x$want_ssl" = "xno" ; then
+	ssl_message="no"
+else
+	ssl_message="yes"
+fi
+
 if test "x$want_krb5" = "xno" ; then
 	krb5_message="no"
 else
@@ -1281,5 +1322,6 @@ echo "                  Use zlib library : $zlib_message"
 echo "                  Use pcre library : $pcre_message"
 echo "              Use kerberos library : $krb5_message"
 echo "              Use GNU ADNS library : $adns_message"
+echo "            Use SSL crypto library : $ssl_message"
 echo "          Use IPv6 name resolution : $enable_ipv6"
 echo "     Use UCD SNMP/NET-SNMP library : $snmp_libs_message"

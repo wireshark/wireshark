@@ -46,7 +46,7 @@
 #include "epan/filesystem.h"
 #include "epan/addr_resolv.h"
 #include "merge.h"
-#include "prefs.h"
+#include <epan/prefs.h>
 #include "prefs-recent.h"
 #include "print.h"
 #include "simple_dialog.h"

@@ -48,8 +48,8 @@
 static int proto_dhcpv6 = -1;
 static int hf_dhcpv6_msgtype = -1;
 
-static guint ett_dhcpv6 = -1;
-static guint ett_dhcpv6_option = -1;
+static gint ett_dhcpv6 = -1;
+static gint ett_dhcpv6_option = -1;
 
 #define UDP_PORT_DHCPV6_DOWNSTREAM	546
 #define UDP_PORT_DHCPV6_UPSTREAM	547

@@ -41,25 +41,27 @@
 /* file generted by plugin_gen.py */
 #include "Xplugin_api.h"
 
-#endif
-
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/report_err.h>
-#include "prefs.h"
+#include <epan/prefs.h>
 #include "reassemble.h"
 #include <epan/dissectors/packet-giop.h>
 #include <epan/dissectors/packet-tpkt.h>
 #include <epan/dissectors/packet-tcp.h>
 #include <epan/dissectors/packet-rpc.h>
-#include "tap.h"
+#include <epan/tap.h>
 #include "asn1.h"
 #include <epan/dissectors/packet-per.h>
 #include <epan/dissectors/packet-ber.h>
-#include "xdlc.h"
-#include "crc16.h"
+#include <epan/dissectors/packet-rtp.h>
+#include <epan/dissectors/packet-rtcp.h>
+#include <epan/xdlc.h>
+#include <epan/crc16.h>
 #include "epan/except.h"
 #include "epan/filesystem.h"
+
+#endif /* PLUGINS_NEED_ADDRESS_TABLE */
 
 #include "plugin_table.h"
 

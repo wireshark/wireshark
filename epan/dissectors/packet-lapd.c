@@ -31,7 +31,7 @@
 #include <glib.h>
 #include <string.h>
 #include <epan/packet.h>
-#include "xdlc.h"
+#include <epan/xdlc.h>
 
 #include "lapd_sapi.h"
 

@@ -37,11 +37,11 @@
 #include <glib.h>
 #include <epan/ipv6-utils.h>
 #include <epan/packet.h>
-#include "ipproto.h"
+#include <epan/ipproto.h>
 #include <epan/addr_resolv.h>
 #include "packet-dns.h"
 #include "packet-tcp.h"
-#include "prefs.h"
+#include <epan/prefs.h>
 
 static int proto_dns = -1;
 static int hf_dns_length = -1;
@@ -141,6 +141,7 @@ static dissector_handle_t gssapi_handle;
 #define T_RRSIG         46              /* future RFC 2535bis */
 #define T_NSEC          47              /* future RFC 2535bis */
 #define T_DNSKEY        48              /* future RFC 2535bis */
+#define T_IPSECKEY      49              /* still TBD draft-ietf-ipseckey-rr */
 #define T_TKEY		249		/* Transaction Key (RFC 2930) */
 #define T_TSIG		250		/* Transaction Signature (RFC 2845) */
 #define T_WINS		65281		/* Microsoft's WINS RR */
@@ -339,7 +340,8 @@ dns_type_name (guint type)
     NULL,
     "RRSIG",                            /* future RFC 2535bis */
     "NSEC",                             /* future RFC 2535bis */
-    "DNSKEY"                            /* future RFC 2535bis */
+    "DNSKEY",                           /* future RFC 2535bis */
+    "IPSECKEY"                          /* draft-ietf-ipseckey-rr */
   };
 
   if (type < sizeof(type_names)/sizeof(type_names[0]))
@@ -438,7 +440,8 @@ dns_long_type_name (guint type)
     NULL,
     "RR signature",                     /* future RFC 2535bis */
     "Next secured",                     /* future RFC 2535bis */
-    "DNS public key"                    /* future RFC 2535bis */
+    "DNS public key",                   /* future RFC 2535bis */
+    "key to use with IPSEC"             /* draft-ietf-ipseckey-rr */
   };
   static char unkbuf[7+1+2+1+4+1+1+10+1+1];	/* "Unknown RR type (%u)" */
 
@@ -1416,6 +1419,74 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
 
 	if (rr_len != 0)
 	  proto_tree_add_text(rr_tree, tvb, cur_offset, rr_len, "Public key");
+      }
+    }
+    break;
+  case T_IPSECKEY:
+    {
+      int rr_len = data_len;
+      guint8 gw_type, algo;
+      const guint8 *addr;
+      char gw[MAXDNAME];
+      int gw_name_len;
+      static const value_string gw_algo[] = {
+	  { 1,     "DSA" },
+	  { 2,     "RSA" },
+	  { 0,      NULL }
+      };
+      
+
+      if( dns_tree != NULL ) {
+	if(rr_len < 3) 
+	  goto bad_rr;
+
+	proto_tree_add_text(rr_tree, tvb, cur_offset, 1, "Gateway precedence: %u",
+		tvb_get_guint8(tvb, cur_offset));
+	cur_offset += 1;
+	rr_len -= 1;
+
+	gw_type = tvb_get_guint8(tvb, cur_offset);
+	cur_offset += 1;
+	rr_len -= 1;
+
+	algo = tvb_get_guint8(tvb, cur_offset);
+	proto_tree_add_text(rr_tree, tvb, cur_offset, 1, "Algorithm: %s",
+		val_to_str(algo, gw_algo, "Unknown (0x%02X)"));
+	cur_offset += 1;
+	rr_len -= 1;
+	switch( gw_type ) {
+	   case 0:
+	     proto_tree_add_text(rr_tree, tvb, cur_offset, 0, "Gateway: no gateway");
+	     break;
+	   case 1:
+	     addr = tvb_get_ptr(tvb, cur_offset, 4);
+	     proto_tree_add_text(rr_tree, tvb, cur_offset, 4, "Gateway: %s",
+				 ip_to_str(addr) );
+
+	     cur_offset += 4;
+	     rr_len -= 4;
+	     break;
+	   case 2:
+	     addr = tvb_get_ptr(tvb, cur_offset, 16);
+	     proto_tree_add_text(rr_tree, tvb, cur_offset, 16, "Gateway: %s", 
+				 ip6_to_str((const struct e_in6_addr *)addr));
+
+	     cur_offset += 16;
+	     rr_len -= 16;
+	     break;
+	   case 3:
+	     gw_name_len = get_dns_name(tvb, cur_offset, dns_data_offset, gw, sizeof(gw));
+	     proto_tree_add_text(rr_tree, tvb, cur_offset, gw_name_len, "Gateway: %s", gw);
+
+	     cur_offset += gw_name_len;
+	     rr_len -= gw_name_len;	     
+	     break;
+	   default:
+	     proto_tree_add_text(rr_tree, tvb, cur_offset, 0, "Gateway: Unknow gateway type(%u)", gw_type);
+	     break;
+	}
+	if (rr_len != 0)
+	  proto_tree_add_text(rr_tree, tvb, cur_offset, rr_len, "Public key");	
       }
     }
     break;

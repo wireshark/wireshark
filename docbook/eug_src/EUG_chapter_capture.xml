@@ -1,0 +1,950 @@
+<!-- EUG Chapter Capture -->
+<!-- $Id$ -->
+
+<chapter id="ChapterCapture">
+  <title>Capturing Live Network Data</title>
+  
+  <section id="ChCapIntroduction">
+	<title>Introduction</title>
+	<para>
+	Capturing live network data is one of the major features of Ethereal.
+	</para>
+	<para>
+	The Ethereal capture engine provides the following features:
+	</para>
+	<para>
+	<itemizedlist>
+	<listitem><para>
+	Capture from different kinds of network hardware (Ethernet, Token Ring, 
+	ATM, ...).
+	</para></listitem>
+	<listitem><para>
+	Stop the capture on different triggers like: amount of captured data, 
+	captured time, captured number of packets.
+	</para></listitem>
+	<listitem><para>
+	Simultaneously show decoded packets while keep on capturing.
+	</para></listitem>
+	<listitem><para>
+	Filter packets, reducing the amount of data to be captured, see <xref 
+	linkend="ChCapCaptureFilterSection"/>.
+	</para></listitem>
+	<listitem><para>
+	Capturing into multiple files while doing a long term capture, and in 
+	addition the option to form a ringbuffer of these files, keeping only 
+	the last x files, useful for a "very long term" capture, see <xref 
+	linkend="ChCapCaptureFiles"/>.
+	</para></listitem>
+	</itemizedlist>
+	The capture engine still lacks the following features:
+	<itemizedlist>
+	<listitem><para>
+	Simultaneous capturing from multiple network interfaces (however, you 
+	can start multiple instances of Ethereal and merge capture files later).
+	</para></listitem>
+	<listitem><para>
+	Stop capturing (or doing some other action), depending on the captured 
+	data.
+	</para></listitem>
+	</itemizedlist>
+	</para>
+  </section>
+  
+  <section id="ChCapCapturingSection"><title>Start Capturing</title>
+    <para>
+      There are three methods you can use to start capturing packets with 
+	  Ethereal:
+      <orderedlist>
+	<listitem>
+	  <para>
+	    You can get an overview of the available local interfaces using the 
+		"Capture interfaces" dialog box, see 
+		<xref linkend="ChCapCaptureInterfacesDialog"/>. You can also start a 
+		capture from this dialog box, using (one of) the "Capture" button.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    You can start capturing using the "Capture Options" dialog box, see 
+		<xref linkend="ChCapCaptureOptionsDialog"/>.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    If you already know the name of the capture interface, you can start 
+		Ethereal from the command line and use the following:
+	    <programlisting>
+ethereal -i eth0 -k
+	    </programlisting>
+		This will start Ethereal capturing on interface eth0.
+	  </para>
+	</listitem>
+      </orderedlist>
+    </para>
+    </section>
+
+  <section id="ChCapInterfaceSection">
+	<title>The "Capture Interfaces" dialog box</title>
+	<para>
+	When you select "Interfaces..." from the Capture menu, Ethereal pops 
+	up the "Capture Interfaces" dialog box as shown in 
+	<xref linkend="ChCapCaptureInterfacesDialog"/>.
+	<warning><title>Warning!</title>
+	<para>
+	As the "Capture Interfaces" dialog is showing live captured data, it is 
+	consuming a lot of system ressources. Close this dialog as soon as 
+	possible to prevent excessive system load.
+	</para>
+	</warning>
+	<note><title>Note!</title>
+	<para>
+	This dialog box will only show the local interfaces Ethereal knows 
+	of. As Ethereal might not be able to detect all local interfaces, and it 
+	cannot detect the remote interfaces available, there could be more capture 
+	interfaces available than listed.
+	</para>
+	</note>
+	<figure id="ChCapCaptureInterfacesDialog">
+	<title>The "Capture Interfaces" dialog box</title>
+	<graphic entityref="EtherealCaptureInterfacesDialog" format="PNG"/>
+	</figure>
+	<variablelist>
+	  <varlistentry><term><command>Description</command></term>
+	    <listitem>
+	      <para>
+		  The interface description provided by the operating system.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry><term><command>IP</command></term>
+	    <listitem>
+	      <para>
+		  The first IP address Ethereal could resolve from this interface. 
+		  If no address could be resolved (e.g. no DHCP server available), 
+		  "unknown" will be displayed. If more than one IP address could be 
+		  resolved, only the first is shown (unpredictable which one in that 
+		  case).
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry><term><command>Packets</command></term>
+	    <listitem>
+	      <para>
+		  The number of packets captured from this interface, since this 
+		  dialog was opened. Will be greyed out, if no packet was captured 
+		  in the last second.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry><term><command>Packets/s</command></term>
+	    <listitem>
+	      <para>
+		  Number of packets captured in the last second. Will be greyed out, 
+		  if no packet was captured in the last second.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry><term><command>Stop</command></term>
+	    <listitem>
+	      <para>
+		  Stop a currently running capture.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry><term><command>Capture</command></term>
+	    <listitem>
+	      <para>
+		  Start a capture on this interface immediately, using the settings 
+		  from the last capture.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry><term><command>Prepare</command></term>
+	    <listitem>
+	      <para>
+		  Open the Capture Options dialog with this interface selected, see 
+		  <xref linkend="ChCapCaptureOptions"/>.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry><term><command>Close</command></term>
+	    <listitem>
+	      <para>
+		  Close this dialog box.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	</variablelist>
+	</para>
+  </section>
+  
+    <section id="ChCapCaptureOptions">
+      <title>The "Capture Options" dialog box</title>
+      <para>
+	When you select Start... from the Capture menu (or use the corresponding 
+	item in the "Main" toolbar), Ethereal pops 
+	up the "Capture Options" dialog box as shown in 
+	<xref linkend="ChCapCaptureOptionsDialog"/>.
+      </para>
+      <figure id="ChCapCaptureOptionsDialog">
+	<title>The "Capture Options" dialog box</title>
+	<graphic entityref="EtherealCaptureOptionsDialog" format="JPG"/>
+      </figure>
+	<tip><title>Tip!</title>
+	<para>
+	If you are unsure which options to choose in this dialog box, just try 
+	keeping the defaults as this should work well in many cases.
+	</para>
+	</tip>
+	<para>
+	You can set the following fields in this dialog box:
+	</para>
+	<section><title>Capture frame</title>
+	<variablelist>
+	  <varlistentry><term><command>Interface</command></term>
+	    <listitem>
+	      <para>
+		This field specifies the interface you want to capture on. 
+		You can only capture on one interface, and you can only 
+		capture on interfaces that Ethereal has found on the 
+		system. It is a drop-down list, so simply click on the 
+		button on the right hand side and select the interface you 
+		want. It defaults to the first non-loopback interface that 
+		supports capturing, and if there are none, the first 
+		loopback interface. On some systems, loopback interfaces 
+		cannot be used for capturing (loopback interfaces are not available 
+		on Windows platforms).
+	      </para>
+	      <para>
+		This field performs the same function as the 
+		<command>-i &lt;interface></command> command line option.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry><term><command>IP address</command></term>
+	    <listitem>
+	      <para>
+		  The IP address(es) of the selected interface. If no address could 
+		  be resolved from the system, "unknown" will be shown.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry><term><command>Link-layer header type</command></term>
+	    <listitem>
+	      <para>
+		  Unless you are in the rare situation that you need this, just keep 
+		  the default. For a detailed description, see 
+		  <xref linkend="ChCapLinkLayerHeader"/>
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry><term><command>Buffer size: n megabyte(s)</command></term>
+	    <listitem>
+	      <para>
+		  Enter the buffer size to be used while capturing. This is the size 
+		  of the kernel buffer which will keep the captured packets, until 
+		  they are written to disk. If you encounter packet drops, try 
+		  increasing this value.
+	      </para>
+	      <note>
+		  <title>Note</title>
+		  <para>This option is only available on Windows platforms.</para>
+	      </note>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry>
+	    <term>
+	      <command>Capture packets in promiscuous mode</command>
+	    </term>
+	    <listitem>
+	      <para>
+		This checkbox allows you to specify that Ethereal 
+		should put the interface in promiscuous mode when capturing. 
+		If you do not specify this, Ethereal will only capture the 
+		packets going to or from your computer (not 
+		all packets on your LAN segment).
+	      </para>
+	      <note>
+		<title>Note</title>
+		<para>
+		  If some other process has put the interface in 
+		  promiscuous mode you may be capturing in promiscuous 
+		  mode even if you turn off this option
+		</para>
+	      </note>
+	      <note>
+		<title>Note</title>
+		<para>
+		Even in promiscuous mode you still won't necessarily see all packets 
+		on your LAN segment, see <ulink url="&EtherealFAQPromiscPage;"/> for 
+		some more explanations.
+		</para>
+	      </note>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry><term><command>Limit each packet to n bytes</command></term>
+	    <listitem>
+	      <para>
+		This field allows you to specify the maximum amount of 
+		data that will be captured for each packet, and is 
+		sometimes referred to as the <command>snaplen</command>. If disabled, 
+		the default is 65535, which will be sufficient for most 
+		protocols. Some rules of thumb:
+	      </para>
+		<itemizedlist>
+	    <listitem>
+	      <para>
+			If you are unsure, just keep the default value.
+	      </para>
+	    </listitem>
+	    <listitem>
+	      <para>
+			If you don't need all of the data in a packet - for example, if you
+			only need the link-layer, IP, and TCP headers - you might want to
+			choose a small snapshot length, as less CPU time is required for
+			copying packets, less buffer space is required for packets, and thus
+			perhaps fewer packets will be dropped if traffic is very heavy.
+	      </para>
+	    </listitem>
+	    <listitem>
+	      <para>
+			If you don't capture all of the data in a packet, you might find that
+			the packet data you want is in the part that's dropped, or that
+			reassembly isn't possible as the data required for reassembly is
+			missing.
+	      </para>
+	    </listitem>
+		</itemizedlist>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry><term><command>Capture Filter</command></term>
+	    <listitem>
+	      <para>
+		This field allows you to specify a capture filter. 
+		Capture filters are discussed in more details in 
+		<xref linkend="ChCapCaptureFilterSection"/>. It defaults to empty, or 
+		  no filter.
+	      </para>
+	      <para>
+		You can also click on the button labelled Capture Filter, and Ethereal 
+		will bring up the Capture Filters dialog box and allow you to create 
+		and/or select a filter.  Please see 
+		<xref linkend="ChWorkDefineFilterSection"/>
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	</variablelist>
+	</section>
+	<section><title>Capture File(s) frame</title>
+	<para>
+	An explanation about capture file usage can be found in <xref 
+	linkend="ChCapCaptureFiles"/>.
+	</para>
+	<variablelist>	  
+	  <varlistentry><term><command>File</command></term>
+	    <listitem>
+	      <para>
+			This field allows you to specify the file name that will be 
+			used for the capture file. This field is left blank by default.
+			If the field is left blank, the capture data will be stored in a 
+			temporary file, see <xref linkend="ChCapCaptureFiles"/> for 
+			details.
+	      </para>
+	      <para>
+			You can also click on the button to the right of this field to 
+			browse through the filesystem.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry><term><command>Use multiple files</command></term>
+	    <listitem>
+	      <para>
+			Instead of using a single file, Ethereal will automatically switch 
+			to a new one, if a specific trigger condition is reached.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry><term><command>Next file every n megabyte(s)</command></term>
+	    <listitem>
+	      <para>
+			Multiple files only: Switch to the next file after the given 
+			number of byte(s)/kilobyte(s)/megabyte(s)/gigabyte(s) have been
+			captured. 
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry><term><command>Next file every n minute(s)</command></term>
+	    <listitem>
+	      <para>
+			Multiple files only: Switch to the next file after the given 
+			number of second(s)/minutes(s)/hours(s)/days(s) have elapsed.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry><term><command>Ring buffer with n files</command></term>
+	    <listitem>
+	      <para>
+			Multiple files only: Form a ring buffer of the capture files, with 
+			the given number of files.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry><term><command>Stop capture after n file(s)</command></term>
+	    <listitem>
+	      <para>
+			Multiple files only: Stop capturing after switching to the next 
+			file the given number of times.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	</variablelist>
+	</section>
+	<section><title>Stop Capture... frame</title>
+	<variablelist>	  
+	  <varlistentry><term><command>... after n packet(s)</command></term>
+	    <listitem>
+	      <para>
+			Stop capturing after the given number of packets have been
+			captured.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry><term><command>... after n megabytes(s)</command></term>
+	    <listitem>
+	      <para>
+			Stop capturing after the given number of 
+			byte(s)/kilobyte(s)/megabyte(s)/gigabyte(s) have been captured.
+			This option is greyed out, if "Use multiple files" is selected.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry><term><command>... after n minute(s)</command></term>
+	    <listitem>
+	      <para>
+			Stop capturing after the given number of 
+			second(s)/minutes(s)/hours(s)/days(s) have elapsed.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	</variablelist>
+	</section>
+	<section><title>Display Options frame</title>
+	<variablelist>	  
+	  <varlistentry>
+	    <term>
+	      <command>Update list of packets in real time</command>
+	    </term>
+	    <listitem>
+	      <para>
+		This option allows you to specify that Ethereal 
+		should update the packet list pane in real time. If you 
+		do not specify this, Ethereal does not display any 
+		packets until you stop the capture. When you check this,
+		Ethereal captures in a separate process 
+		and feeds the captures to the display process.
+	      </para>
+	      <note>
+		<title>Note</title>
+		<para>
+		If this option is checked, it will disable the "Use multiple files" 
+		option.
+		</para>
+	      </note>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry>
+	    <term>
+	      <command>Automatic scrolling in live capture</command>
+	    </term>
+	    <listitem>
+	      <para>
+		This option allows you to specify that Ethereal 
+		should scroll the packet list pane as new packets come 
+		in, so you are always looking at the last packet.  If you 
+		do not specify this, Ethereal simply adds new packets onto 
+		the end of the list, but does not scroll the packet list 
+		pane. This option is greyed out if 
+		"Update list of packets in real time" is disabled.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry>
+	    <term>
+	      <command>Hide capture info dialog</command>
+	    </term>
+	    <listitem>
+	      <para>
+		If this option is checked, the following capture info dialog will be 
+		hidden. This option is greyed out, if "Update list of packets in real 
+		time" is disabled. 
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	</variablelist>
+	</section>
+	<section><title>Name Resolution frame</title>
+	<variablelist>	  
+	  <varlistentry>
+	    <term><command>Enable MAC name resolution</command></term>
+	    <listitem>
+	      <para>
+		This option allows you to control whether or not 
+		Ethereal translates MAC addresses into names, see 
+		<xref linkend="ChAdvNameResolutionSection"/>.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry>
+	    <term><command>Enable network name resolution</command></term>
+	    <listitem>
+	      <para>
+		This option allows you to control whether or not 
+		Ethereal translates network addresses into names, see
+		<xref linkend="ChAdvNameResolutionSection"/>.
+	      </para>  
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry>
+	    <term><command>Enable transport name resolution</command></term>
+	    <listitem>
+	      <para>
+		This option allows you to control whether or not 
+		Ethereal translates transport addresses into protocols, see
+		<xref linkend="ChAdvNameResolutionSection"/>.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	</variablelist>
+	</section>
+	<section><title>Buttons</title>
+      <para>
+	Once you have set the values you desire and have selected the 
+	options you need, simply click on <command>OK</command> to commence the 
+	capture, or <command>Cancel</command> to cancel the capture.
+      </para>
+      <para>
+	If you start a capture, Ethereal pops up a dialog box that shows you 
+	the progress of the capture and allows you to stop capturing when 
+	you have enough packets captured, see
+		<xref linkend="ChCapRunningSection"/>.
+      </para>
+    </section>
+    </section>
+	
+    <section id="ChCapCaptureFiles"><title>Capture files and file modes</title>
+	<para>
+	While capturing, the underlying libpcap capturing engine will grab the 
+	packets from the network card and keep the packet data in a (relatively) 
+	small kernel buffer. This data is read by Ethereal and saved into 
+	the capture file(s) the user specified.
+	</para>
+
+	<para>
+	Different modes of operation are available when saving this packet data to 
+	the capture file(s).
+	</para>
+	
+	<tip><title>Tip!</title>
+	<para>
+	Working with large files (several 100 MB's) can be quite slow. If you plan 
+	to do a long term capture or capturing from a high traffic network, think 
+	about using one of the "Multiple files" options. This  will spread the 
+	captured packets over several smaller files which can be much more 
+	pleasant to work with.
+	</para>
+	</tip>
+	<note><title>Note!</title>
+	<para>
+	Using Multiple files may cut context related information.
+	Ethereal keeps context information of the loaded packet data, so it can 
+	report context related problems (like a stream error) and keeps information
+	about context related protocols (e.g. where data is exchanged at the 
+	establishing phase and only referred to in later packets). 
+	As it keeps this information only for the loaded file, using one of 
+	the multiple file modes may cut these contexts, If the establishing phase 
+	is saved in one file and the things you would like to see is in another, 
+	you might not see some of the valuable context related information.
+	</para>
+	</note>
+	<tip><title>Tip!</title>
+	<para>
+	Information about the folders used for the capture file(s), can be found 
+	in <xref linkend="AppFiles"/>. 
+	</para>
+	</tip>
+	
+    <table id="ChCapTabCaptureFiles"><title>Capture file mode selected by capture options</title>
+      <tgroup cols="4">
+	<colspec colnum="1" colwidth="72pt"/>
+	  <colspec colnum="2" colwidth="80pt"/>
+	  <colspec colnum="3" colwidth="80pt"/>
+	    <thead>
+	      <row>
+		<entry>Mode</entry>
+		<entry>"File" option</entry>
+		<entry>"Use multiple files" option</entry>
+		<entry>"Ring buffer with n files" option</entry>
+		<entry>Resulting filename(s) used</entry>
+	      </row>
+	    </thead>
+	    <tbody>
+	      <row>
+		<entry><command>Single temporary file</command></entry>
+		<entry>-</entry>
+		<entry>-</entry>
+		<entry>-</entry>
+		<entry>etherXXXXXX (where XXXXXX is a unique number)</entry>
+	      </row>
+	      <row>
+		<entry><command>Single named file</command></entry>
+		<entry>foo.cap</entry>
+		<entry>-</entry>
+		<entry>-</entry>
+		<entry>foo.cap</entry>
+	      </row>
+	      <row>
+		<entry><command>Multiple files, continuous</command></entry>
+		<entry>foo.cap</entry>
+		<entry>x</entry>
+		<entry>-</entry>
+		<entry>foo_00001_20040205110102.cap, foo_00002_20040205110102.cap, ...</entry>
+	      </row>
+	      <row>
+		<entry><command>Multiple files, ring buffer</command></entry>
+		<entry>foo.cap</entry>
+		<entry>x</entry>
+		<entry>x</entry>
+		<entry>foo_00001_20040205110102.cap, foo_00002_20040205110102.cap, ...</entry>
+	      </row>
+	    </tbody>
+      </tgroup>
+    </table>
+	<variablelist>
+	  <varlistentry>
+	    <term><command>Single temporary file</command></term>
+	    <listitem>
+	<para>
+	A temporary file will be created and used (this is the default). After the 
+	capturing is stopped, this file can be saved later under a user specified 
+	name.
+	</para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry>
+	    <term><command>Single named file</command></term>
+	    <listitem>
+	<para>
+	A single capture file will be used. If you want to place the new capture 
+	file to a specific folder, choose this mode.
+	</para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry>
+	    <term><command>Multiple files, continuous</command></term>
+	    <listitem>
+	<para>
+	Like the "Single named file" mode, but a new file is created and used, 
+	after reaching one of the multiple file switch conditions (one of the 
+	"Next file every ..." values).
+	</para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry>
+	    <term><command>Multiple files, ring buffer</command></term>
+	    <listitem>
+	<para>
+	Much like "Multiple files continuous", reaching one of the multiple files 
+	switch conditions (one of the "Next file every ..." values) will switch 
+	to the next file. This will be a newly created file if value of "Ring 
+	buffer with n files" is not reached, otherwise it will replace the oldest 
+	of the formerly used files (thus forming a "ring").
+	</para>
+	<para>
+	This mode will limit the maximum disk usage, even for an unlimited amount of 
+	capture input data, keeping the latest captured data.
+	</para>
+	    </listitem>
+	  </varlistentry>
+	</variablelist>
+	</section>
+
+  <section id="ChCapLinkLayerHeader"><title>Link-layer header type</title>
+	<para>
+	In the usual case, you won't have to choose this link-layer header type. 
+	The following paragraphs describe the exceptional cases, where
+	selecting this type is possible, so you will have a guide what to do:
+	</para>
+    <para>
+    If you are capturing on an 802.11 device on some versions of BSD, this 
+	might offer a choice of "Ethernet" or "802.11".  "Ethernet" will cause 
+	the captured packets to have fake Ethernet headers; "802.11" will cause 
+	them to have IEEE 802.11 headers.  Unless the capture needs to be read by 
+	an application that doesn't support 802.11 headers, you should select 
+	"802.11".
+	</para>
+	<para>
+    If you are capturing on an Endace DAG card connected to a synchronous 
+	serial line, this might offer a choice of "PPP over serial" or 
+	"Cisco HDLC"; if the protocol on the serial line is PPP, select 
+	"PPP over serial", and if the protocol on the serial line is Cisco HDLC, 
+	select "Cisco HDLC".
+	</para>
+	<para>
+    If you are capturing on an Endace DAG card connected to an ATM network, 
+	this might offer a choice of "RFC 1483 IP-over-ATM" or "Sun raw ATM".  
+	If the only traffic being captured is RFC 1483 LLC-encapsulated IP, or if 
+	the capture needs to be read by an application that doesn't support SunATM 
+	headers, select "RFC 1483 IP-over-ATM", otherwise select "Sun raw ATM".
+	</para>
+	<para>
+    If you are capturing on an Ethernet device, this might offer a choice of 
+	"Ethernet" or "DOCSIS".  If you are capturing traffic from a Cisco Cable 
+	Modem Termination System that is putting DOCSIS traffic onto the Ethernet 
+	to be captured, select "DOCSIS", otherwise select "Ethernet".
+    </para>
+  </section>
+
+  <section id="ChCapCaptureFilterSection"><title>Filtering while capturing</title>
+    <para>
+      Ethereal uses the libpcap filter language for capture filters. 
+      This is explained in the tcpdump man page, which can be hard to 
+	  understand, so it's explained here to some extent.
+    </para>
+    <para>
+      You enter the capture filter into the Filter field of the Ethereal 
+      Capture Options dialog box, as shown in 
+      <xref linkend="ChCapCaptureOptionsDialog"/>. The following is an outline 
+	  of the syntax of the <command>tcpdump</command> capture filter language. 
+	  See the expression option at the tcpdump manual page for details:
+	  <ulink url="http://www.tcpdump.org/tcpdump_man.html"/>
+    </para>
+    <para>
+      A capture filter takes the form of a series of primitive expressions 
+      connected by conjuctions (<command>and/or</command>) and optionally 
+      preceded by <command>not</command>:
+      <programlisting>
+[not] <command>primitive</command> [and|or [not] <command>primitive</command> ...]
+      </programlisting>
+      An example is shown in <xref linkend="ChCapExFilt1"/>.
+
+      <example id="ChCapExFilt1">
+	<title>
+	  A capture filter for telnet than captures traffic to and from a 
+	  particular host
+	</title>
+	<programlisting>
+tcp port 23 and host 10.0.0.5
+	</programlisting>
+      </example>
+      This example captures telnet traffic to and from the host 
+      10.0.0.5, and shows how to use two primitives and the 
+      <command>and</command> conjunction.  Another example is shown in 
+      <xref linkend="ChCapExFilt2"/>, and shows how to capture all 
+	telnet traffic except that from 10.0.0.5.
+	<example id="ChCapExFilt2">
+	  <title>
+	    Capturing all telnet traffic not from 10.0.0.5</title>
+	  <programlisting>
+tcp port 23 and not host 10.0.0.5
+	  </programlisting>
+	</example>
+      </para>
+
+      <para>
+	  XXX - add examples to the following list.
+      </para>
+      <para>
+      A primitive is simply one of the following:
+      <variablelist>
+	<varlistentry>
+	  <term><command>[src|dst] host &lt;host></command></term>
+	  <listitem>
+	    <para>
+	      This primitive allows you to filter on a host IP 
+	      address or name. You can optionally precede the 
+	      primitive with the keyword <command>src|dst</command> 
+	      to specify that you are only interested in source or 
+	      destination addresses. If these are not present, 
+	      packets where the specified address appears as either 
+	      the source or the destination address will be selected.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term>
+	    <command>ether [src|dst] host &lt;ehost></command>
+	  </term>
+	  <listitem>
+	    <para>
+	      This primitive allows you to filter on Ethernet host 
+	      addresses. You can optionally include the keyword 
+	      <command>src|dst</command> between the keywords 
+	      <command>ether</command> and <command>host</command> 
+	      to specify that you are only interested in source 
+	      or destination addresses.  If these are not present, 
+	      packets where the specified address appears in either 
+	      the source or destination address will be selected.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term><command>gateway host &lt;host></command></term>
+	  <listitem>
+	    <para>
+	      This primitive allows you to filter on packets that 
+	      used <command>host</command> as a gateway. That is, where 
+	      the Ethernet source or destination was 
+	      <command>host</command> but neither the source nor 
+	      destination IP address was <command>host</command>.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term>
+	    <command>
+	      [src|dst] net &lt;net> [{mask &lt;mask>}|{len &lt;len>}]
+	    </command>
+	  </term>
+	  <listitem>
+	    <para>
+	      This primitive allows you to filter on network numbers. 
+	      You can optionally precede this primitive with the 
+	      keyword <command>src|dst</command> to specify that you 
+	      are only interested in a source or destination network. 
+	      If neither of these are present, packets will be 
+	      selected that have the specified network in either the
+	      source or destination address.  In addition, you can 
+	      specify either the netmask or the CIDR prefix for the 
+	      network if they are different from your own. 
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term>
+	    <command>[tcp|udp] [src|dst] port &lt;port></command>
+	  </term>
+	  <listitem>
+	    <para>
+	      This primitive allows you to filter on TCP and UDP port 
+	      numbers. You can optionally precede this primitive with 
+	      the keywords <command>src|dst</command> and 
+	      <command>tcp|udp</command> which allow you to specify 
+	      that you are only interested in source or destination 
+	      ports and TCP or UDP packets respectively.  The 
+	      keywords <command>tcp|udp</command> must appear before 
+	      <command>src|dst</command>.
+	    </para>
+	    <para>
+	      If these are not specified, packets will be selected 
+	      for both the TCP and UDP protocols and when the 
+	      specified address appears in either the source or 
+	      destination port field.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term><command>less|greater &lt;length></command></term>
+	  <listitem>
+	    <para>
+	      This primitive allows you to filter on packets whose 
+	      length was less than or equal to the specified length, 
+	      or greater than or equal to the specified length, 
+	      respectively.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term><command>ip|ether proto &lt;protocol></command></term>
+	  <listitem>
+	    <para>
+	      This primitive allows you to filter on the specified 
+	      protocol at either the Ethernet layer or the IP layer.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term><command>ether|ip broadcast|multicast</command></term>
+	  <listitem>
+	    <para>
+	      This primitive allows you to filter on either 
+	      Ethernet or IP broadcasts or multicasts.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term><command>&lt;expr> relop &lt;expr></command></term>
+	  <listitem>
+	    <para>
+	      This primitive allows you to create complex filter 
+	      expressions that select bytes or ranges of bytes in 
+	      packets.  Please see the tcpdump man pages for more 
+	      details.
+	    </para>
+	  </listitem>
+	</varlistentry>
+      </variablelist>
+    </para>
+  </section>
+
+  <section id="ChCapRunningSection"><title>While a Capture is running ...</title>
+    <para>
+	While a capture is running, the following dialog box is shown:
+      <figure id="ChCapCaptureInfoDialog">
+	<title>The "Capture Info" dialog box</title>
+	<graphic entityref="EtherealCaptureInfoDialog" format="JPG"/>
+      </figure>
+	This dialog box will inform you about the number of captured packets and 
+	the time since the capture was started. The selection which protocols
+	are counted cannot be changed.
+	</para>
+	  <tip><title>Tip!</title>
+	  <para>
+	  This Capture Info dialog box can be hidden, using the "Hide capture info 
+	  dialog" option in the Capture Options dialog box.
+	  </para>
+	  </tip>
+	<section id="ChCapStopSection"><title>Stop the running capture</title>
+    <para>
+      A running capture session will be stopped in one of the following ways:
+      <orderedlist>
+	<listitem>
+	  <para>Using the Stop button from the <command>Capture Info dialog box
+	  </command>.
+	  </para>
+	  <note><title>Note!</title>
+	  <para>
+	  The Capture Info dialog box might be hidden, if the option "Hide capture 
+	  info dialog" is used.
+	  </para>
+	  </note>
+	</listitem>
+	<listitem>
+	  <para>Using the <command>menu item</command> "Capture/Stop Capture" or 
+	  the corresponding Stop Capture <command>toolbar icon</command> 
+	  <inlinegraphic entityref="EtherealToolbarStop" format="PNG"/>. 
+	  </para>
+	  <note><title>Note!</title>
+	  <para>
+	  These are only available, if the option "Update list of packets in real 
+	  time" is used.
+	  </para>
+	  </note>
+	</listitem>
+	<listitem>
+	  <para>Pressing the accelerator keys: <command>Ctrl+E</command>. 
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>The capture will be automatically stopped, if one of the 
+	  <command>Stop Conditions</command> is exceeded, e.g. the maximum amount 
+	  of data was captured.
+	  </para>
+	</listitem>
+      </orderedlist>
+    </para>
+    </section>
+    </section>
+
+</chapter>
+<!-- End of EUG Chapter Capture -->
+

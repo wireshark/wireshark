@@ -36,9 +36,9 @@
 #include <epan/epan.h>
 #include <epan/filesystem.h>
 #include <epan/epan_dissect.h>
+#include <epan/column.h>
 #include <epan/column-utils.h>
-#include "prefs.h"
-#include "column.h"
+#include <epan/prefs.h>
 #include "color.h"
 #include "color_filters.h"
 

@@ -60,7 +60,7 @@
 #endif
 
 #include <epan/packet.h>
-#include "prefs.h"
+#include <epan/prefs.h>
 #include "asn1.h"
 #include "packet-tcap.h"
 
@@ -2722,23 +2722,19 @@ dissect_tcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "TCAP");
 
-    /* In the interest of speed, if "tree" is NULL, don't do any
-     * work not necessary to generate protocol tree items.
-     */
-    if (tree)
-    {
-	ti = proto_tree_add_item(tree, proto_tcap, tvb, 0, -1, FALSE);
-	tcap_tree = proto_item_add_subtree(ti, ett_tcap);
-	g_tcap_tree = tree;
+    /* Dissect the packet (even if !tree so can call sub-dissectors and update
+     * the INFO column) */
+    ti = proto_tree_add_item(tree, proto_tcap, tvb, 0, -1, FALSE);
+    tcap_tree = proto_item_add_subtree(ti, ett_tcap);
+    g_tcap_tree = tree;
 
-	if (tcap_standard == ITU_TCAP_STANDARD)
-	{
-	    dissect_tcap_message(tvb, pinfo, tcap_tree);
-	}
-	else
-	{
-	    dissect_ansi_tcap_message(tvb, pinfo, tcap_tree);
-	}
+    if (tcap_standard == ITU_TCAP_STANDARD)
+    {
+	dissect_tcap_message(tvb, pinfo, tcap_tree);
+    }
+    else
+    {
+	dissect_ansi_tcap_message(tvb, pinfo, tcap_tree);
     }
 }
 

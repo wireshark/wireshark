@@ -39,7 +39,7 @@
 #include <epan/strutil.h>
 #include <epan/conversation.h>
 
-#include "prefs.h"
+#include <epan/prefs.h>
 
 
 /* what states make sense here ? */

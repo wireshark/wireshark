@@ -47,7 +47,7 @@
 
 #include <epan/packet.h>
 #include "packet-mtp3.h"
-#include "prefs.h"
+#include <epan/prefs.h>
 
 #define SCCP_SI 3
 
@@ -2361,6 +2361,7 @@ proto_reg_handoff_sccp(void)
 
   dissector_add("mtp3.service_indicator", SCCP_SI, sccp_handle);
   dissector_add("m3ua.protocol_data_si", SCCP_SI, sccp_handle);
+  dissector_add_string("tali.opcode", "sccp", sccp_handle);
 
   data_handle = find_dissector("data");
 }

@@ -30,7 +30,7 @@
 
 #include <gtk/gtk.h>
 
-#include "range.h"
+#include "packet-range.h"
 #include <epan/filesystem.h>
 
 #include "globals.h"
@@ -46,7 +46,7 @@
 #include "file_dlg.h"
 #include "main.h"
 #include "compat_macros.h"
-#include "prefs.h"
+#include <epan/prefs.h>
 #include "prefs-recent.h"
 #include "color.h"
 #include "../ui_util.h"
@@ -1395,7 +1395,15 @@ file_save_as_ok_cb(GtkWidget *w _U_, gpointer fs) {
        just leave it around so that the user can, after they
        dismiss the alert box popped up for the error, try again. */
     g_free(cf_name);
+#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+    /* as we cannot start a new event loop (using gtk_dialog_run()), as this 
+     * will prevent the user from closing the now existing error message, 
+     * simply close the dialog (this is the best we can do here). */
+    if (file_save_as_w)
+      window_destroy(GTK_WIDGET (fs));
+#else
     gtk_widget_show(GTK_WIDGET (fs));
+#endif
     return;
   }
 

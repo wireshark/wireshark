@@ -39,7 +39,7 @@
 #include <epan/value_string.h>
 
 #include "tap_menu.h"
-#include "../tap.h"
+#include <epan/tap.h>
 #include <epan/dissectors/packet-fc.h>
 #include "../register.h"
 #include "../timestats.h"

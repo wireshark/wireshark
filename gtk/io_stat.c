@@ -43,7 +43,7 @@
 #include "gtkglobals.h"
 #include "ui_util.h"
 #include "tap_menu.h"
-#include "../tap.h"
+#include <epan/tap.h>
 #include "../register.h"
 #include "alert_box.h"
 #include "simple_dialog.h"

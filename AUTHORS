@@ -1,4 +1,4 @@
-
+ï»¿
 
 Original Author
 -------- ------
@@ -75,7 +75,7 @@ Simon Wilkinson         <sxw[AT]dcs.ed.ac.uk> {
 	AppleTalk support
 }
 
-Jörg Mayer              <jmayer[AT]loplof.de> {
+JÃ¶rg Mayer              <jmayer[AT]loplof.de> {
 	Banyan Vines support
 	NTP fixes
 	DHCP support for Intel PXEclient DHCP requests
@@ -291,7 +291,7 @@ Jerry Talkington        <jtalkington[AT]users.sourceforge.net> {
 	tvb_uncompress()/HTTP Content-Encoding decompression
 	HTTP chunked encoding dissection
 	updates to HTTP support
-	Filter selection/editing GUI?improvements
+	Filter selection/editing GUI improvements
 	WCCP 1.0 support
 	Right-mouse-button menu support
 }
@@ -449,7 +449,7 @@ Dug Song                <dugsong[AT]monkey.org> {
 	RPCSEC_GSS credential/verifier dissection for ONC RPC
 }
 
-Michael Tüxen           <tuexen [AT] fh-muenster.de> {
+Michael TÃ¼xen           <tuexen [AT] fh-muenster.de> {
 	SCTP support
 	M3UA support
 	ISDN Q.921-User Adaptation Layer (IUA) support
@@ -599,7 +599,7 @@ David Hampton           <dhampton[AT]mac.com> {
 	"Decode As" dialog
 }
 
-Kent Engström           <kent[AT]unit.liu.se> {
+Kent EngstrÃ¶m           <kent[AT]unit.liu.se> {
 	CDP VTP Management Domain item support
 }
 
@@ -705,7 +705,7 @@ Todd Sabin              <tas[AT]webspan.net> {
 	Skeleton NSPI dissector
 }
 
-Eduardo Pérez Ureta     <eperez[AT]dei.inf.uc3m.es> {
+Eduardo PÃ©rez Ureta     <eperez[AT]dei.inf.uc3m.es> {
 	GUI fixes
 }
 
@@ -881,13 +881,13 @@ Aamer Akhter            <aakhter[AT]cisco.com> {
 	LDP support for draft-martini-l2circuit-trans-mpls, LDP status
 	    code updates, and small LDP cleanups
 	LDP support for draft-martini-l2circuit-encap-mpls for
-            Ethernet-over-MPLS
+	    Ethernet-over-MPLS
 	Fix initialization of ett_slarp in CHDLC dissector
 	LDP PWE updates
 }
 
 Pekka Savola            <pekkas[AT]netcore.fi> {
-	Autoc?nf support for glibc IPv6 support
+	Autoconf support for glibc IPv6 support
 }
 
 David Eisner            <cradle[AT]Glue.umd.edu> {
@@ -912,7 +912,7 @@ Motonori Shindo         <mshindo[AT]mshindo.net> {
 	Support for decoding additional data, for CHAP, in LCP
 	    Authentication Protocol option
 	Additional vendor (CoSine) for Radius
-        CoSine VSA support for Radius
+	CoSine VSA support for Radius
 	Patches to PPP for CHAP support
 	Patches to packet-x11-keysym.h to clean up 8-bit chars
 	Fixes to take the Vendor-Specific attribute into consideration
@@ -1015,7 +1015,7 @@ Georg von Zezschwitz    <gvz[AT]2scale.net> {
 	Implement attributes of WSP Suspend/Resume
 }
 
-Steffe? Weinreich       <steve[AT]weinreich.org> {
+Steffen Weinreich       <steve[AT]weinreich.org> {
 	UCP fixes
 }
 
@@ -1149,7 +1149,7 @@ Jayaram V.R             <vjayar[AT]cisco.com> {
 Dinesh Dutt             <ddutt[AT]cisco.com> {
 	SCSI dissector, for use by iSCSI and other protocols that
 	    transport SCSI operations
-	Fibre Channel (over IP) support, and su?port for various
+	Fibre Channel (over IP) support, and support for various
 	    protocols running atop FC
 	Cisco MDS switch Debug Port Adapter (Boardwalk)
 	    FC-inside-Ethernet dissector
@@ -1170,7 +1170,7 @@ Jirka Novak             <j.novak[AT]netsystem.cz> {
 	    hex and ASCII data
 }
 
-Ricardo Barroetaveña    <rbarroetavena[AT]veufort.com> {
+Ricardo BarroetaveÃ±a    <rbarroetavena[AT]veufort.com> {
 	Enhanced LDP support
 	Support TCP reassembly requiring multiple steps (e.g.,
 	    reassemble the PDU header to get the length of the PDU, then
@@ -1302,7 +1302,7 @@ Kevin Humphries         <khumphries[AT]networld.com> {
 	Additional PIM hello options support
 }
 
-Erik Nordström          <erik.nordstrom[AT]it.uu.se> {
+Erik NordstrÃ¶m          <erik.nordstrom[AT]it.uu.se> {
 	AODV dissection support
 }
 
@@ -1549,7 +1549,7 @@ Ulf Lamping             <ulf.lamping[AT]web.de> {
 }
 
 Matthew Smart           <smart[AT]monkey.org> {
-	Or?ginal Cisco NetFlow protocol support
+	Original Cisco NetFlow protocol support
 	Partial NetFlow V9 support
 }
 
@@ -1657,7 +1657,7 @@ Brian Ginsbach          <ginsbach [AT] cray.com> {
 	    identifiers
 }
 
-Dave Richards           <d_m_richards [AT] attbi.com> {
+Dave Richards           <d_m_richards [AT] comcast.net> {
 	BACNET over 802.2
 	BACNET-over-ARCNET fix (it's really BACNET-over-802.2-over-ARCNET)
 }
@@ -1685,7 +1685,7 @@ rmkml                   <rmkml [AT] wanadoo.fr> {
 
 Anders Broman           <anders.broman [AT] ericsson.com> {
 	Additional SCTP payload protocol identifiers
-	Ass?rted ISUP enhancements
+	Assorted ISUP enhancements
 	MEGACO updates and fixes
 	T.35 country code support for H.245
 	BICC dissection
@@ -1800,6 +1800,7 @@ Garth Bushell           <gbushell [AT] elipsan.com> {
 
 Mark C. Brown           <mbrown [AT] nosila.net> {
 	Improvements to code that reads HP-UX nettl files
+	Cisco Port Aggregation Protocol support
 }
 
 Can Erkin Acar          <canacar [AT] eee.metu.edu.tr> {
@@ -1840,7 +1841,7 @@ Jeff Rizzo              <riz [AT] boogers.sf.ca.us> {
 	sFlow support
 }
 
-Christoph Wiest         <ch.wiest [AT] tesionmail.d?> {
+Christoph Wiest         <ch.wiest [AT] tesionmail.de> {
 	Redo MEGACO dissector to more fully parse text-format messages
 }
 
@@ -1964,7 +1965,7 @@ Baktha Muralitharan     <muralidb [AT] cisco.com> {
 	Link Management Protocol (LMP) fixes
 }
 
-Loïc Minier             <lool [AT] dooz.org> {
+LoÃ¯c Minier             <lool [AT] dooz.org> {
 	HTTP header and payload desegmentation
 }
 
@@ -2068,6 +2069,7 @@ Martin Mathieson        <martin [AT] arca-technologies.com> {
 	SIP sipfrag support
 	SIP statistics tap
 	Show setupframe in RTP and RTCP
+	H.225.0 updates
 }
 
 Christian Wagner        <Christian.Wagner [AT] stud.uni-karlsruhe.de> {
@@ -2117,7 +2119,7 @@ Duncan Sargeant         <dunc-ethereal-dev [AT] rcpt.to> {
 	Cisco SS7 RUDP, RLM, and Session Management support
 }
 
-Love Hörnquist Åstrand  <lha [AT] it.su.se> {
+Love HÃ¶rnquist Ã…strand  <lha [AT] it.su.se> {
 	HAVE_HEIMDAL_KERBEROS support to allow Ethereal to use heimdal 
 	libraries to decrypt kerberos encrypted blobs.
 }
@@ -2130,13 +2132,15 @@ Carlos Pignataro        <cpignata [AT] cisco.com> {
 	Graceful Restart Mechanism for LDP [RFC3478]
 	Fault Tolerance for LDP [RFC3479]
 	Other LDP enhancements
-        PPP OSI Network Layer Control Protocol [RFC1377]
+	PPP OSI Network Layer Control Protocol [RFC1377]
 	Fix dissecting of CLNS Protocols over Cisco HDLC
 	PWE3 Interface parameter additions and miscelaneous updates
 	    from various IETF PWE3 drafts
 	MPLS PW Control Channel Header
 	Multiprotocol Label Switching Echo [draft-ietf-mpls-lsp-ping-05]
 	MPLS in Generic Routing Encapsulation (GRE)
+	OSPF Traffic Engineering enhancements
+	MP-BGP Updates
 }
 
 Thomas Anders           <thomas.anders [AT] blue-cable.de> {
@@ -2149,7 +2153,7 @@ Rich Coe                <Richard.Coe [AT] med.ge.com> {
 	DICOM support
 }
 
-Dominic Béchaz          <bdo [AT] zhwin.ch> {
+Dominic BÃ©chaz          <bdo [AT] zhwin.ch> {
 	IEEE 1588 / PTP support
 }
 
@@ -2190,6 +2194,10 @@ Jeff Connelly		<shellreef+mp2p [AT] gmail.com> {
 	MANOLITO support
 }
 
+Irene RÃ¼ngler          <i.ruengeler [AT] fh-muenster.de {
+        SCTP analysis
+}
+
 M. Ortega y Strupp	<moys [AT] loplof.de> {
 	ISC DHCP Server 3.0 failover protocol dissection
 }
@@ -2197,10 +2205,26 @@ M. Ortega y Strupp	<moys [AT] loplof.de> {
 Kelly Byrd		<kbyrd-ethereal [AT] memcpy.com> {
 	DAAP support
 }
-Luis Ontanon	<luis.ontanon.ibm[AT]h3g.it> {
+
+Luis Ontanon		<luis.ontanon.ibm[AT]h3g.it> {
 	RADIUS and ISUP enhancements
 }
 
+Luca Deri	<deri [AT] ntop.org> {
+	NetFlow v9 enhancements
+}
+
+Viorel Suman	<vsuman [AT] avmob.ro> {
+	TALI (RFC 3094) support
+}
+
+Alejandro Vaquero	<alejandro.vaquero [AT] verso.com> {
+	RTP graphic analysis
+}
+
+Francesco Fondelli	<fondelli.francesco [AT] tiscali.it> {
+	ICE protocol support
+}
 
 And assorted fixes and enhancements by the people listed above and by:
 
@@ -2266,8 +2290,14 @@ Martin van der Werff	<martin [AT] vanderwerff.org>
 Marco van den Bovenkamp	<marco [AT] linuxgoeroe.dhs.org>
 Ming Zhang		<mingz [AT] ele.uri.edu>
 Neil Piercy		<Neil.Piercy [AT] ipaccess.com>
-Rémi Denis-Courmont	<courmisch [AT] via.ecp.fr>
+RÃ©mi Denis-Courmont	<courmisch [AT] via.ecp.fr>
 Francisco Alcoba	<francisco.alcoba [AT] ericsson.com>
+Thomas Palmer		<tpalmer [AT] elmore.rr.com>
+MÃ¥rten Svantesson	<f95-msv [AT] f.kth.se>
+Thomas Boehne		<TBoehne [AT] ADwin.de>
+packet steve		<packetsteve [AT] hotmail.com>
+Olivier Jacques		<olivier.jacques [AT] hp.com>
+Kestutis Kupciunas	<kesha [AT] soften.ktu.lt>
 
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
@@ -2285,3 +2315,6 @@ http://users.footprints.net/~kaz/kazlib.html
 
 Henrik Brix Andersen <brix[AT]gimp.org> gave permission for his webbrowser 
 calling routine to be used.
+
+Christophe Devine <c.devine[at]cr0.net> gave permission for his SHA1 
+routiunes to be used. 

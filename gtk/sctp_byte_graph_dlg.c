@@ -1,0 +1,1185 @@
+/* 
+ * Copyright 2004, Irene Ruengeler <i.ruengeler [AT] fh-muenster.de>
+ *
+ * $Id$
+ *
+ * Ethereal - Network traffic analyzer
+ * By Gerald Combs <gerald@ethereal.com>
+ * Copyright 1998 Gerald Combs
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ */
+ 
+#ifdef HAVE_CONFIG_H
+#  include <config.h>
+#endif
+
+
+#include <gtk/gtk.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <string.h>
+#include "globals.h"
+#include "epan/filesystem.h"
+#include "../color.h"
+#include "tap_menu.h"
+#include "dlg_utils.h"
+#include "ui_util.h"
+#include "main.h"
+#include "compat_macros.h"
+#include "simple_dialog.h"
+#include "sctp_stat.h"
+
+#define DEFAULT_PIXELS_PER_TICK 2
+#define MAX_PIXELS_PER_TICK 4
+#define AUTO_MAX_YSCALE 0
+#define MAX_TICK_VALUES 5
+#define DEFAULT_TICK_VALUE 3
+#define MAX_YSCALE 22
+#define MAX_COUNT_TYPES 3
+
+#define COUNT_TYPE_FRAMES   0
+#define COUNT_TYPE_BYTES    1
+#define COUNT_TYPE_ADVANCED 2
+
+#define LEFT_BORDER 60
+#define RIGHT_BORDER 10
+#define TOP_BORDER 10
+#define BOTTOM_BORDER 50
+
+#define SUB_32(a, b)	a-b
+#define MINI(a,b) (a<b)?a:b
+#define MAXI(a,b) (a>b)?a:b
+
+struct chunk_header {
+  guint8  type;
+  guint8  flags;
+  guint16 length;
+};
+
+struct data_chunk_header {
+  guint8  type;
+  guint8  flags;
+  guint16 length;
+  guint32  tsn;
+  guint16 sid;
+  guint16 ssn;
+  guint32  ppi;
+};
+
+struct init_chunk_header {
+  guint8  type;
+  guint8  flags;
+  guint16 length;
+  guint32  initiate_tag;
+  guint32  a_rwnd;
+  guint16 mos;
+  guint16 mis;
+  guint32  initial_tsn;
+};
+
+struct sack_chunk_header {
+  guint8  type;
+  guint8  flags;
+  guint16 length;
+  guint32  cum_tsn_ack;
+  guint32  a_rwnd;
+  guint16 nr_of_gaps;
+  guint16 nr_of_dups;
+  guint8  tsns[0];
+};
+
+struct gaps {
+	guint16 start;
+	guint16 end;
+};
+
+
+
+static void sctp_graph_set_title(struct sctp_udata *u_data);
+static void create_draw_area(GtkWidget *box, struct sctp_udata *u_data);
+
+
+gint tsn_cmp(gconstpointer aa, gconstpointer bb)
+{
+	const struct tsn_sort* a = aa;
+	const struct tsn_sort* b = bb;
+
+	if (a->tsnumber<b->tsnumber) return -1;
+	if (a->tsnumber==b->tsnumber) return 0;
+	if (a->tsnumber>b->tsnumber) return 1;
+
+	return 0;
+}
+
+static void draw_sack_graph(struct sctp_udata *u_data)
+{
+GdkColor red_color = {0, 65535, 0, 0};
+GdkColor green_color = {0, 0, 65535, 0};
+GdkGC *red_gc, *green_gc;
+guint32 diff;
+GArray *array=NULL;
+guint32 min_tsn=0, max_tsn=0;
+guint32 i, size=0, start, end;
+gboolean more=FALSE;
+#if GTK_MAJOR_VERSION < 2
+	GdkColormap *colormap;
+#endif
+
+	red_gc = gdk_gc_new(u_data->io->draw_area->window);
+#if GTK_MAJOR_VERSION < 2
+	colormap = gtk_widget_get_colormap (u_data->io->draw_area);
+	if (!gdk_color_alloc (colormap, &red_color))
+	{
+		g_warning ("Couldn't allocate color");
+	}
+
+		gdk_gc_set_foreground(red_gc, &red_color);
+#else
+		gdk_gc_set_rgb_fg_color(red_gc, &red_color);
+#endif
+
+	green_gc = gdk_gc_new(u_data->io->draw_area->window);
+#if GTK_MAJOR_VERSION < 2
+	colormap = gtk_widget_get_colormap (u_data->io->draw_area);
+	if (!gdk_color_alloc (colormap, &green_color))
+	{
+		g_warning ("Couldn't allocate color");
+	}
+
+		gdk_gc_set_foreground(green_gc, &green_color);
+#else
+	gdk_gc_set_rgb_fg_color(green_gc, &green_color);
+#endif
+
+	if (u_data->dir==1)
+	{
+		array = u_data->assoc->sort_sack1;
+		size=u_data->assoc->n_sack_chunks_ep1;
+		if (u_data->io->tmp==FALSE)
+		{
+			min_tsn=0;
+			max_tsn=u_data->assoc->max_bytes1;
+		}
+		else
+		{
+			min_tsn=u_data->io->tmp_min_tsn1;
+			max_tsn=u_data->io->tmp_max_tsn1;
+		}
+	}
+	else if (u_data->dir==2)
+	{
+		array = u_data->assoc->sort_sack2;
+		size=u_data->assoc->n_sack_chunks_ep2;
+		if (u_data->io->tmp==FALSE)
+		{
+			min_tsn=0;
+			max_tsn=u_data->assoc->max_bytes2;
+		}
+		else
+		{
+			min_tsn=u_data->io->tmp_min_tsn2;
+			max_tsn=u_data->io->tmp_max_tsn2;
+		}
+	}
+
+
+	for (i=0; i<size; i++)
+	{
+		diff=g_array_index(array, struct tsn_sort, i).secs*1000000+g_array_index(array, struct tsn_sort, i).usecs-u_data->io->min_x;
+		start=g_array_index(array, struct tsn_sort, i).offset;
+		end = start + g_array_index(array, struct tsn_sort, i).length;
+		if (end>max_tsn)
+		{
+			end=max_tsn;
+			more=TRUE;
+		}
+
+		if (start>=min_tsn)
+		{
+			gdk_draw_line(u_data->io->pixmap,red_gc,
+				(guint32)(LEFT_BORDER+u_data->io->offset+u_data->io->x_interval*diff),
+				(guint32)(u_data->io->pixmap_height-BOTTOM_BORDER-u_data->io->offset-((SUB_32(start,min_tsn))*u_data->io->y_interval)),
+				(guint32)(LEFT_BORDER+u_data->io->offset+u_data->io->x_interval*diff),
+				(guint32)(u_data->io->pixmap_height-BOTTOM_BORDER-u_data->io->offset-((SUB_32(end,min_tsn))*u_data->io->y_interval)));
+			if (more==TRUE)
+			{
+				gdk_draw_line(u_data->io->pixmap,green_gc,
+				(guint32)(LEFT_BORDER+u_data->io->offset+u_data->io->x_interval*diff),
+				(guint32)(u_data->io->pixmap_height-BOTTOM_BORDER-u_data->io->offset-((SUB_32(end,min_tsn))*u_data->io->y_interval)),
+				(guint32)(LEFT_BORDER+u_data->io->offset+u_data->io->x_interval*diff),
+				(guint32)(u_data->io->pixmap_height-BOTTOM_BORDER-u_data->io->offset-((SUB_32(end+10,min_tsn))*u_data->io->y_interval)));
+				more=FALSE;
+			}
+		}
+
+	}
+#if GTK_MAJOR_VERSION >= 2
+	g_object_unref(G_OBJECT(red_gc));
+	g_object_unref(G_OBJECT(green_gc));
+#endif
+}
+
+
+static void draw_tsn_graph(struct sctp_udata *u_data)
+{
+GArray *array=NULL;
+guint32 min_tsn=0, max_tsn=0;
+guint32 diff, i, size=0, start, end;
+
+	if (u_data->dir==1)
+	{
+		array = u_data->assoc->sort_tsn1;
+		size=u_data->assoc->n_data_chunks_ep1;
+		if (u_data->io->tmp==FALSE)
+		{
+			min_tsn=0;
+			max_tsn=u_data->assoc->max_bytes1;
+		}
+		else
+		{
+			min_tsn=u_data->io->tmp_min_tsn1;
+			max_tsn=u_data->io->tmp_max_tsn1;
+		}
+	}
+	else if (u_data->dir==2)
+	{
+		array = u_data->assoc->sort_tsn2;
+		size=u_data->assoc->n_data_chunks_ep2;
+		if (u_data->io->tmp==FALSE)
+		{
+			min_tsn=0;
+			max_tsn=u_data->assoc->max_bytes2;
+		}
+		else
+		{
+			min_tsn=u_data->io->tmp_min_tsn2;
+			max_tsn=u_data->io->tmp_max_tsn2;
+		}
+	}
+
+	for (i=0; i<size; i++)
+	{
+		diff=g_array_index(array, struct tsn_sort, i).secs*1000000+g_array_index(array, struct tsn_sort, i).usecs-u_data->io->min_x;
+		start=g_array_index(array, struct tsn_sort, i).offset;
+		end = start + g_array_index(array, struct tsn_sort, i).length;
+		//printf("i=%u, start=%u, end=%u\n",i, start, end);
+		if (start>=min_tsn)
+		gdk_draw_line(u_data->io->pixmap,u_data->io->draw_area->style->black_gc,
+			(guint32)(LEFT_BORDER+u_data->io->offset+u_data->io->x_interval*diff),
+			(guint32)(u_data->io->pixmap_height-BOTTOM_BORDER-u_data->io->offset-((SUB_32(start,min_tsn))*u_data->io->y_interval)),
+			(guint32)(LEFT_BORDER+u_data->io->offset+u_data->io->x_interval*diff),
+			(guint32)(u_data->io->pixmap_height-BOTTOM_BORDER-u_data->io->offset-((SUB_32(end,min_tsn))*u_data->io->y_interval)));
+
+	}
+
+}
+
+
+static void sctp_graph_draw(struct sctp_udata *u_data)
+{
+int length, lwidth, j, b;
+guint32 label_width, label_height, distance=5, i, e, sec, w, start, a;
+char label_string[15];
+gfloat dis;
+
+#if GTK_MAJOR_VERSION < 2
+	GdkFont *font;
+#else
+        PangoLayout  *layout;
+#endif
+
+	if (u_data->io->x1_tmp_sec==0 && u_data->io->x1_tmp_usec==0)
+		u_data->io->offset=0;
+	else
+		u_data->io->offset=5;
+
+	u_data->io->min_x=u_data->io->x1_tmp_sec*1000000+u_data->io->x1_tmp_usec;
+	u_data->io->max_x=u_data->io->x2_tmp_sec*1000000+u_data->io->x2_tmp_usec;
+	u_data->io->tmp_width=u_data->io->max_x-u_data->io->min_x;
+
+	if (u_data->dir==1)
+	{
+		if (u_data->io->tmp==FALSE)
+		{
+			if (u_data->assoc->sort_tsn1!=NULL)// || u_data->assoc->sack1!=NULL)
+				u_data->io->max_y=u_data->io->tmp_max_tsn1 - u_data->io->tmp_min_tsn1;
+			else
+				u_data->io->max_y= 0;
+			u_data->io->min_y = 0;
+		}
+		else
+		{
+			u_data->io->max_y = u_data->io->tmp_max_tsn1;
+			u_data->io->min_y = u_data->io->tmp_min_tsn1;
+		}
+	}
+	else if (u_data->dir==2)
+	{
+		if (u_data->io->tmp==FALSE)
+		{
+			if (u_data->assoc->tsn2!=NULL)// || u_data->assoc->sack2!=NULL)
+					u_data->io->max_y=u_data->io->tmp_max_tsn2 -u_data->io->tmp_min_tsn2;
+			else
+				u_data->io->max_y= 0;
+			u_data->io->min_y = 0;
+		}
+		else
+		{
+			u_data->io->max_y = u_data->io->tmp_max_tsn2;
+			u_data->io->min_y = u_data->io->tmp_min_tsn2;
+		}
+	}
+    gdk_draw_rectangle(u_data->io->pixmap, u_data->io->draw_area->style->white_gc,
+    	TRUE, 0, 0, u_data->io->draw_area->allocation.width,
+		u_data->io->draw_area->allocation.height);
+
+	distance=5;
+	//x_axis
+	gdk_draw_line(u_data->io->pixmap,u_data->io->draw_area->style->black_gc, LEFT_BORDER+u_data->io->offset,u_data->io->pixmap_height-BOTTOM_BORDER,u_data->io->pixmap_width-RIGHT_BORDER+u_data->io->offset, u_data->io->pixmap_height-BOTTOM_BORDER);
+	gdk_draw_line(u_data->io->pixmap,u_data->io->draw_area->style->black_gc,u_data->io->pixmap_width-RIGHT_BORDER+u_data->io->offset, u_data->io->pixmap_height-BOTTOM_BORDER, u_data->io->pixmap_width-RIGHT_BORDER+u_data->io->offset-5, u_data->io->pixmap_height-BOTTOM_BORDER-5);
+	gdk_draw_line(u_data->io->pixmap,u_data->io->draw_area->style->black_gc,u_data->io->pixmap_width-RIGHT_BORDER+u_data->io->offset, u_data->io->pixmap_height-BOTTOM_BORDER, u_data->io->pixmap_width-RIGHT_BORDER+u_data->io->offset-5, u_data->io->pixmap_height-BOTTOM_BORDER+5);
+	u_data->io->axis_width=u_data->io->pixmap_width-LEFT_BORDER-RIGHT_BORDER-u_data->io->offset;
+
+	u_data->io->x_interval = (u_data->io->axis_width*1.0)/u_data->io->tmp_width;
+
+	e=0;
+	if (u_data->io->x_interval<1)
+	{
+		dis=1/u_data->io->x_interval;
+		while (dis >1)
+		{
+			dis/=10;
+			e++;
+		}
+		distance=1;
+			for (i=0; i<=e+1; i++)
+			distance*=10;
+	}
+	else
+		distance=5;
+
+#if GTK_MAJOR_VERSION < 2
+	font = u_data->io->draw_area->style->font;
+#endif
+
+#if GTK_MAJOR_VERSION < 2
+    label_width=gdk_string_width(font, label_string);
+    label_height=gdk_string_height(font, label_string);
+#else
+	g_snprintf(label_string, 15, "%d", 0);
+	memcpy(label_string,(gchar *)g_locale_to_utf8(label_string, -1 , NULL, NULL, NULL), 15);
+    layout = gtk_widget_create_pango_layout(u_data->io->draw_area, label_string);
+    pango_layout_get_pixel_size(layout, &label_width, &label_height);
+
+#endif
+
+	if (u_data->io->x1_tmp_usec==0)
+		sec=u_data->io->x1_tmp_sec;
+	else
+		sec=u_data->io->x1_tmp_sec+1;
+
+	if (u_data->io->offset!=0)
+	{
+		g_snprintf(label_string, 15, "%u", u_data->io->x1_tmp_sec);
+#if GTK_MAJOR_VERSION < 2
+		lwidth=gdk_string_width(font, label_string);
+	    gdk_draw_string(u_data->io->pixmap,font,u_data->io->draw_area->style->black_gc,
+			LEFT_BORDER-10,
+       	    u_data->io->pixmap_height-BOTTOM_BORDER+20,
+           	label_string);
+#else
+	memcpy(label_string,(gchar *)g_locale_to_utf8(label_string, -1 , NULL, NULL, NULL), 15);
+	pango_layout_set_text(layout, label_string, -1);
+	pango_layout_get_pixel_size(layout, &lwidth, NULL);
+
+	gdk_draw_layout(u_data->io->pixmap,u_data->io->draw_area->style->black_gc,
+    	LEFT_BORDER-10,
+        u_data->io->pixmap_height-BOTTOM_BORDER+20,
+	    layout);
+#endif
+}
+	w=(guint32)(500/(guint32)(distance*u_data->io->x_interval));
+	if (w==0)
+		w=1;
+	if (w==4)
+	{
+		w=5;
+		a=distance/10;
+		b=10+(((u_data->io->min_x/100000)-1)%5);
+	}
+	else
+	{
+		a=distance/5;
+		b=0;
+	}
+
+	if (a>1000000)
+		start=u_data->io->min_x/1000000*1000000;
+	else
+	{
+		start=u_data->io->min_x/100000;
+		if (start%2!=0)
+			start--;
+		start*=100000;
+	}
+
+
+	for (i=start, j=b; i<=u_data->io->max_x; i+=a, j++)
+	{
+		if (i>=u_data->io->min_x && i%1000000!=0)
+		{
+			length=5;
+			g_snprintf(label_string, 15, "%d", i%1000000);
+
+			if (j%w==0)
+			{
+				length=10;
+
+				#if GTK_MAJOR_VERSION < 2
+					lwidth=gdk_string_width(font, label_string);
+					gdk_draw_string(u_data->io->pixmap,font,u_data->io->draw_area->style->black_gc,
+						(guint32)(LEFT_BORDER+u_data->io->offset+(i-u_data->io->min_x)*u_data->io->x_interval-lwidth/2),
+						u_data->io->pixmap_height-BOTTOM_BORDER+10,
+						label_string);
+				#else
+					memcpy(label_string,(gchar *)g_locale_to_utf8(label_string, -1 , NULL, NULL, NULL), 15);
+					pango_layout_set_text(layout, label_string, -1);
+					pango_layout_get_pixel_size(layout, &lwidth, NULL);
+					gdk_draw_layout(u_data->io->pixmap,u_data->io->draw_area->style->black_gc,
+						(guint32)(LEFT_BORDER+u_data->io->offset+(i-u_data->io->min_x)*u_data->io->x_interval-lwidth/2),
+						u_data->io->pixmap_height-BOTTOM_BORDER+10,
+						layout);
+				#endif
+
+			}
+			gdk_draw_line(u_data->io->pixmap,u_data->io->draw_area->style->black_gc,
+				(guint32)(LEFT_BORDER+u_data->io->offset+(i-u_data->io->min_x)*u_data->io->x_interval),
+				u_data->io->pixmap_height-BOTTOM_BORDER,
+				(guint32)(LEFT_BORDER+u_data->io->offset+(i-u_data->io->min_x)*u_data->io->x_interval),
+				u_data->io->pixmap_height-BOTTOM_BORDER+length);
+		}
+
+		if (i%1000000==0)
+		{
+			sec=i/1000000;
+			gdk_draw_line(u_data->io->pixmap,u_data->io->draw_area->style->black_gc,
+			(guint32)(LEFT_BORDER+u_data->io->offset+(i-u_data->io->min_x)*u_data->io->x_interval),
+			u_data->io->pixmap_height-BOTTOM_BORDER,
+			(guint32)(LEFT_BORDER+u_data->io->offset+(i-u_data->io->min_x)*u_data->io->x_interval),
+			u_data->io->pixmap_height-BOTTOM_BORDER+10);
+
+			g_snprintf(label_string, 15, "%d", sec);
+			#if GTK_MAJOR_VERSION < 2
+				lwidth=gdk_string_width(font, label_string);
+				gdk_draw_string(u_data->io->pixmap,font,u_data->io->draw_area->style->black_gc,
+					(guint32)(LEFT_BORDER+u_data->io->offset+(i-u_data->io->min_x)*u_data->io->x_interval),
+					u_data->io->pixmap_height-BOTTOM_BORDER+20,
+					label_string);
+			#else
+				memcpy(label_string,(gchar *)g_locale_to_utf8(label_string, -1 , NULL, NULL, NULL), 15);
+				pango_layout_set_text(layout, label_string, -1);
+				pango_layout_get_pixel_size(layout, &lwidth, NULL);
+
+				gdk_draw_layout(u_data->io->pixmap,u_data->io->draw_area->style->black_gc,
+				(guint32)(LEFT_BORDER+u_data->io->offset+(i-u_data->io->min_x)*u_data->io->x_interval),
+					u_data->io->pixmap_height-BOTTOM_BORDER+20,
+					layout);
+			#endif
+		}
+	}
+
+	strcpy(label_string, "sec");
+
+	#if GTK_MAJOR_VERSION < 2
+		lwidth=gdk_string_width(font, label_string);
+	    gdk_draw_string(u_data->io->pixmap,
+        	font,
+	        u_data->io->draw_area->style->black_gc,
+	        u_data->io->pixmap_width-RIGHT_BORDER-10,
+        	u_data->io->pixmap_height-BOTTOM_BORDER+20,
+            label_string);
+	#else
+		memcpy(label_string,(gchar *)g_locale_to_utf8(label_string, -1 , NULL, NULL, NULL), 15);
+		pango_layout_set_text(layout, label_string, -1);
+	    pango_layout_get_pixel_size(layout, &lwidth, NULL);
+		gdk_draw_layout(u_data->io->pixmap,
+        	u_data->io->draw_area->style->black_gc,
+            u_data->io->pixmap_width-RIGHT_BORDER-10,
+        	u_data->io->pixmap_height-BOTTOM_BORDER+25,
+	        layout);
+	#endif
+
+	distance=5;
+
+	//y-axis
+	gdk_draw_line(u_data->io->pixmap,u_data->io->draw_area->style->black_gc, LEFT_BORDER,TOP_BORDER-u_data->io->offset,LEFT_BORDER,u_data->io->pixmap_height-BOTTOM_BORDER-u_data->io->offset);
+	gdk_draw_line(u_data->io->pixmap,u_data->io->draw_area->style->black_gc,LEFT_BORDER,TOP_BORDER-u_data->io->offset, LEFT_BORDER-5, TOP_BORDER-u_data->io->offset+5);
+	gdk_draw_line(u_data->io->pixmap,u_data->io->draw_area->style->black_gc,LEFT_BORDER,TOP_BORDER-u_data->io->offset, LEFT_BORDER+5, TOP_BORDER-u_data->io->offset+5);
+
+	u_data->io->y_interval = ((u_data->io->pixmap_height-TOP_BORDER-BOTTOM_BORDER)*1.0)/(u_data->io->max_y-u_data->io->min_y);
+
+	e=0;
+	if (u_data->io->y_interval<1)
+	{
+		dis=1/u_data->io->y_interval;
+		while (dis >1)
+		{
+			dis/=10;
+			e++;
+		}
+		distance=1;
+		for (i=0; i<=e; i++)
+			distance=distance*10;
+	}
+
+	if (u_data->io->max_y>0)
+	{
+	for (i=u_data->io->min_y/distance*distance; i<=u_data->io->max_y; i+=distance/5)
+	{
+		if (i>=u_data->io->min_y)
+		{
+			length=5;
+			g_snprintf(label_string, 15, "%d", i);
+
+			if (i%distance==0 || (distance<=5 && u_data->io->y_interval>10))
+			{
+				length=10;
+
+				#if GTK_MAJOR_VERSION < 2
+					lwidth=gdk_string_width(font, label_string);
+					gdk_draw_string(u_data->io->pixmap,font,u_data->io->draw_area->style->black_gc,
+						LEFT_BORDER-length-lwidth-5,
+						(guint32)(u_data->io->pixmap_height-BOTTOM_BORDER-u_data->io->offset-(i-u_data->io->min_y)*u_data->io->y_interval-3),
+						label_string);
+				#else
+					memcpy(label_string,(gchar *)g_locale_to_utf8(label_string, -1 , NULL, NULL, NULL), 15);
+					pango_layout_set_text(layout, label_string, -1);
+					pango_layout_get_pixel_size(layout, &lwidth, NULL);
+					gdk_draw_layout(u_data->io->pixmap,u_data->io->draw_area->style->black_gc,
+						LEFT_BORDER-length-lwidth-5,
+						(guint32)(u_data->io->pixmap_height-BOTTOM_BORDER-u_data->io->offset-(i-u_data->io->min_y)*u_data->io->y_interval-3),
+						layout);
+				#endif
+			}
+			gdk_draw_line(u_data->io->pixmap,u_data->io->draw_area->style->black_gc,LEFT_BORDER-length,
+				(guint32)(u_data->io->pixmap_height-BOTTOM_BORDER-u_data->io->offset-(i-u_data->io->min_y)*u_data->io->y_interval)
+				,LEFT_BORDER,
+				(guint32)(u_data->io->pixmap_height-BOTTOM_BORDER-u_data->io->offset-(i-u_data->io->min_y)*u_data->io->y_interval));
+		}
+	}
+}
+else
+	simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK, "No Data Chunks sent");
+}
+
+
+static void sctp_graph_redraw(struct sctp_udata *u_data)
+{
+sctp_graph_t *ios;
+
+	u_data->io->needs_redraw=TRUE;
+
+	sctp_graph_draw(u_data);
+	switch (u_data->io->graph_type)
+	{
+		case 0:
+				draw_sack_graph(u_data);
+				draw_tsn_graph(u_data);
+				break;
+		case 1: draw_tsn_graph(u_data);
+				break;
+		case 2:
+				draw_sack_graph(u_data);
+				break;
+	}
+	ios=(sctp_graph_t *)OBJECT_GET_DATA(u_data->io->draw_area, "sctp_graph_t");
+
+	if(!ios){
+		exit(10);
+	}
+
+
+	gdk_draw_pixmap(u_data->io->draw_area->window,
+			u_data->io->draw_area->style->fg_gc[GTK_WIDGET_STATE(u_data->io->draw_area)],
+			ios->pixmap,
+			0,0,
+			0, 0,
+			u_data->io->draw_area->allocation.width,
+			u_data->io->draw_area->allocation.height);
+}
+
+
+static void on_sack_bt(GtkWidget *widget _U_, struct sctp_udata *u_data)
+{
+	u_data = (struct sctp_udata *) u_data;
+	u_data->io->graph_type=2;
+	sctp_graph_redraw(u_data);
+}
+
+static void on_tsn_bt(GtkWidget *widget _U_, struct sctp_udata *u_data)
+{
+	u_data->io->graph_type=1;
+	sctp_graph_redraw(u_data);
+}
+
+static void on_both_bt(GtkWidget *widget _U_, struct sctp_udata *u_data)
+{
+	u_data->io->graph_type=0;
+	sctp_graph_redraw(u_data);
+}
+
+static void
+sctp_graph_close_cb(GtkWidget* widget _U_, gpointer u_data)
+{
+struct sctp_udata *udata;
+int dir;
+
+	udata = (struct sctp_udata *)u_data;
+	dir=udata->dir-1;
+	gtk_grab_remove(GTK_WIDGET(udata->io->window));
+    gtk_widget_destroy(GTK_WIDGET(udata->io->window));
+
+}
+
+
+
+static gint
+configure_event(GtkWidget *widget, GdkEventConfigure *event _U_, struct sctp_udata *u_data)
+{
+	if(!u_data->io){
+		exit(10);
+	}
+
+	if(u_data->io->pixmap){
+		gdk_pixmap_unref(u_data->io->pixmap);
+		u_data->io->pixmap=NULL;
+	}
+
+	u_data->io->pixmap=gdk_pixmap_new(widget->window,
+			widget->allocation.width,
+			widget->allocation.height,
+			-1);
+	u_data->io->pixmap_width=widget->allocation.width;
+	u_data->io->pixmap_height=widget->allocation.height;
+
+	gdk_draw_rectangle(u_data->io->pixmap,
+			widget->style->white_gc,
+			TRUE,
+			0, 0,
+			widget->allocation.width,
+			widget->allocation.height);
+	return TRUE;
+}
+
+static gint
+expose_event(GtkWidget *widget, GdkEventExpose *event)
+{
+sctp_graph_t *ios;
+
+	ios=(sctp_graph_t *)OBJECT_GET_DATA(widget, "sctp_graph_t");
+	if(!ios){
+		exit(10);
+	}
+
+	gdk_draw_pixmap(widget->window,
+			widget->style->fg_gc[GTK_WIDGET_STATE(widget)],
+			ios->pixmap,
+			event->area.x, event->area.y,
+			event->area.x, event->area.y,
+			event->area.width, event->area.height);
+
+	return FALSE;
+}
+
+
+static void
+on_zoomin_bt (GtkWidget *widget _U_, struct sctp_udata *u_data)
+{
+sctp_min_max_t *tmp_minmax;
+
+	if (u_data->io->rectangle==TRUE)
+	{
+		tmp_minmax = g_malloc(sizeof(sctp_min_max_t));
+
+		u_data->io->tmp_min_tsn1=u_data->io->y1_tmp+u_data->io->min_y;
+		u_data->io->tmp_max_tsn1=u_data->io->y2_tmp+1+u_data->io->min_y;
+		u_data->io->tmp_min_tsn2=u_data->io->tmp_min_tsn1;
+		u_data->io->tmp_max_tsn2=u_data->io->tmp_max_tsn1;
+		tmp_minmax->tmp_min_secs=u_data->io->x1_tmp_sec;
+		tmp_minmax->tmp_min_usecs=	u_data->io->x1_tmp_usec;
+		tmp_minmax->tmp_max_secs=	u_data->io->x2_tmp_sec;
+		tmp_minmax->tmp_max_usecs=	u_data->io->x2_tmp_usec;
+		tmp_minmax->tmp_min_tsn1=u_data->io->tmp_min_tsn1;
+		tmp_minmax->tmp_max_tsn1=u_data->io->tmp_max_tsn1;
+		tmp_minmax->tmp_min_tsn2=u_data->io->tmp_min_tsn2;
+		tmp_minmax->tmp_max_tsn2=u_data->io->tmp_max_tsn2;
+		u_data->assoc->min_max = g_slist_prepend(u_data->assoc->min_max, tmp_minmax);
+		u_data->io->length = g_slist_length(u_data->assoc->min_max);
+		u_data->io->tmp=TRUE;
+		u_data->io->rectangle=FALSE;
+		sctp_graph_redraw(u_data);
+	}
+}
+
+static void
+on_zoomout_bt (GtkWidget *widget _U_, struct sctp_udata *u_data)
+{
+sctp_min_max_t *tmp_minmax, *mm;
+gint l;
+
+
+	l = g_slist_length(u_data->assoc->min_max);
+
+	if (u_data->assoc->min_max!=NULL)
+	{
+		mm=(sctp_min_max_t *)((u_data->assoc->min_max)->data);
+		u_data->assoc->min_max=g_slist_remove(u_data->assoc->min_max, mm);
+		g_free(mm);
+
+		if (l>2)
+		{
+			tmp_minmax = (sctp_min_max_t *)u_data->assoc->min_max->data;
+			u_data->io->x1_tmp_sec=tmp_minmax->tmp_min_secs;
+			u_data->io->x1_tmp_usec=tmp_minmax->tmp_min_usecs;
+			u_data->io->x2_tmp_sec=tmp_minmax->tmp_max_secs;
+			u_data->io->x2_tmp_usec=tmp_minmax->tmp_max_usecs;
+			u_data->io->tmp_min_tsn1=tmp_minmax->tmp_min_tsn1;
+			u_data->io->tmp_max_tsn1=tmp_minmax->tmp_max_tsn1;
+			u_data->io->tmp_min_tsn2=tmp_minmax->tmp_min_tsn2;
+			u_data->io->tmp_max_tsn2=tmp_minmax->tmp_max_tsn2;
+			u_data->io->tmp=TRUE;
+		}
+		else
+		{
+			u_data->io->x1_tmp_sec=u_data->assoc->min_secs;
+			u_data->io->x1_tmp_usec=u_data->assoc->min_usecs;
+			u_data->io->x2_tmp_sec=u_data->assoc->max_secs;
+			u_data->io->x2_tmp_usec=u_data->assoc->max_usecs;
+			u_data->io->tmp_min_tsn1=0;
+			u_data->io->tmp_max_tsn1=u_data->assoc->max_bytes1;
+			u_data->io->tmp_min_tsn2=0;
+			u_data->io->tmp_max_tsn2=u_data->assoc->max_bytes2;
+			u_data->io->tmp=FALSE;
+		}
+	}
+	else
+	{
+		u_data->io->x1_tmp_sec=u_data->assoc->min_secs;
+		u_data->io->x1_tmp_usec=u_data->assoc->min_usecs;
+		u_data->io->x2_tmp_sec=u_data->assoc->max_secs;
+		u_data->io->x2_tmp_usec=u_data->assoc->max_usecs;
+		u_data->io->tmp_min_tsn1=0;
+		u_data->io->tmp_max_tsn1=u_data->assoc->max_bytes1;
+		u_data->io->tmp_min_tsn2=0;
+		u_data->io->tmp_max_tsn2=u_data->assoc->max_bytes2;
+		u_data->io->tmp=FALSE;
+	}
+	sctp_graph_redraw(u_data);
+}
+
+
+static gint
+on_button_press (GtkWidget *widget _U_, GdkEventButton *event, struct sctp_udata *u_data)
+{
+sctp_graph_t *ios;
+
+	if (u_data->io->rectangle==TRUE)
+	{
+		gdk_draw_rectangle(u_data->io->pixmap,u_data->io->draw_area->style->white_gc,
+			FALSE,
+			(gint)MINI(u_data->io->x_old,u_data->io->x_new),
+			(gint)MINI(u_data->io->y_old,u_data->io->y_new),
+			(gint)abs(u_data->io->x_new-u_data->io->x_old),
+			(gint)abs(u_data->io->y_new-u_data->io->y_old));
+			ios=(sctp_graph_t *)OBJECT_GET_DATA(u_data->io->draw_area, "sctp_graph_t");
+
+			if(!ios){
+				exit(10);
+			}
+
+			gdk_draw_pixmap(u_data->io->draw_area->window,
+			u_data->io->draw_area->style->fg_gc[GTK_WIDGET_STATE(u_data->io->draw_area)],
+			ios->pixmap,
+			0,0,
+			0, 0,
+			(gint)abs(u_data->io->x_new-u_data->io->x_old),
+			(gint)abs(u_data->io->y_new-u_data->io->y_old));
+			sctp_graph_redraw(u_data);
+
+	}
+
+		u_data->io->x_old=event->x;
+		u_data->io->y_old=event->y;
+		if (u_data->io->y_old>u_data->io->pixmap_height-BOTTOM_BORDER-u_data->io->offset)
+			u_data->io->y_old=u_data->io->pixmap_height-BOTTOM_BORDER-u_data->io->offset;
+		if (u_data->io->x_old<LEFT_BORDER+u_data->io->offset)
+			u_data->io->x_old=LEFT_BORDER+u_data->io->offset;
+		u_data->io->rectangle=FALSE;
+
+		return TRUE;
+}
+
+
+static gint
+on_button_release (GtkWidget *widget _U_, GdkEventButton *event, struct sctp_udata *u_data)
+{
+sctp_graph_t *ios;
+guint32 helpx;
+guint32 helpy, x1_tmp, x2_tmp;
+
+if (event->y>u_data->io->pixmap_height-BOTTOM_BORDER-u_data->io->offset)
+	event->y = u_data->io->pixmap_height-BOTTOM_BORDER-u_data->io->offset;
+if (event->x < LEFT_BORDER+u_data->io->offset)
+	event->x = LEFT_BORDER+u_data->io->offset;
+
+		if (abs(event->x-u_data->io->x_old)>10 || abs(event->y-u_data->io->y_old)>10)
+		{
+			gdk_draw_rectangle(u_data->io->pixmap,u_data->io->draw_area->style->black_gc,
+			FALSE,
+			(gint)MINI(u_data->io->x_old,event->x), (gint)MINI(u_data->io->y_old,event->y),
+			(gint)abs(event->x-u_data->io->x_old),
+			(gint)abs(event->y-u_data->io->y_old));
+			ios=(sctp_graph_t *)OBJECT_GET_DATA(u_data->io->draw_area, "sctp_graph_t");
+
+			if(!ios){
+				exit(10);
+			}
+
+			gdk_draw_pixmap(u_data->io->draw_area->window,
+			u_data->io->draw_area->style->fg_gc[GTK_WIDGET_STATE(u_data->io->draw_area)],
+			ios->pixmap,
+			0,0,
+			0, 0,
+			u_data->io->draw_area->allocation.width,
+			u_data->io->draw_area->allocation.height);
+
+			x1_tmp=u_data->io->min_x+((u_data->io->x_old-LEFT_BORDER-u_data->io->offset)*u_data->io->tmp_width/u_data->io->axis_width);
+			x2_tmp=u_data->io->min_x+((event->x-LEFT_BORDER-u_data->io->offset)*u_data->io->tmp_width/u_data->io->axis_width);
+			helpx=MINI(x1_tmp, x2_tmp);
+			if (helpx==x2_tmp)
+			{
+				x2_tmp=x1_tmp;
+				x1_tmp=helpx;
+			}
+			u_data->io->x1_tmp_sec=(guint32)x1_tmp/1000000;
+			u_data->io->x1_tmp_usec=x1_tmp%1000000;
+			u_data->io->x2_tmp_sec=(guint32)x2_tmp/1000000;
+			u_data->io->x2_tmp_usec=x2_tmp%1000000;
+
+			u_data->io->y1_tmp=(guint32)((u_data->io->pixmap_height-BOTTOM_BORDER-u_data->io->y_old)/u_data->io->y_interval);
+			u_data->io->y2_tmp=(guint32)((u_data->io->pixmap_height-BOTTOM_BORDER-event->y)/u_data->io->y_interval);
+			helpy = MINI(u_data->io->y1_tmp, u_data->io->y2_tmp);
+			u_data->io->y2_tmp = MAXI(u_data->io->y1_tmp, u_data->io->y2_tmp);
+			u_data->io->y1_tmp = helpy;
+			u_data->io->x_new=event->x;
+			u_data->io->y_new=event->y;
+			u_data->io->rectangle=TRUE;
+
+		}
+		return TRUE;
+}
+
+
+static void init_sctp_graph_window(struct sctp_udata *u_data)
+{
+	GtkWidget *vbox;
+	GtkWidget *hbox;
+    GtkWidget *bt_close, *sack_bt, *tsn_bt, *both_bt, *zoomin_bt, *zoomout_bt;
+	GtkTooltips *tooltip_in, *tooltip_out;
+
+	/* create the main window */
+
+	u_data->io->window=gtk_window_new(GTK_WINDOW_TOPLEVEL);
+
+	gtk_widget_set_name(u_data->io->window, "SCTP Graphics");
+
+	vbox=gtk_vbox_new(FALSE, 0);
+	gtk_container_add(GTK_CONTAINER(u_data->io->window), vbox);
+	gtk_widget_show(vbox);
+
+	create_draw_area(vbox, u_data);
+
+	sctp_graph_set_title(u_data);
+
+	hbox = gtk_hbutton_box_new();
+	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
+	gtk_container_set_border_width(GTK_CONTAINER(hbox), 10);
+	gtk_button_box_set_layout(GTK_BUTTON_BOX (hbox), GTK_BUTTONBOX_SPREAD);
+	gtk_button_box_set_spacing(GTK_BUTTON_BOX (hbox), 0);
+	gtk_box_set_child_packing(GTK_BOX(vbox), hbox, FALSE, FALSE, 0, GTK_PACK_START);
+	gtk_widget_show(hbox);
+
+	sack_bt = gtk_button_new_with_label ("Adv. Rec. Window");
+	gtk_box_pack_start(GTK_BOX(hbox), sack_bt, FALSE, FALSE, 0);
+	gtk_widget_show(sack_bt);
+
+	gtk_signal_connect(GTK_OBJECT(sack_bt), "clicked", (GtkSignalFunc)on_sack_bt, u_data);
+
+	tsn_bt = gtk_button_new_with_label ("Data bytes sent");
+	gtk_box_pack_start(GTK_BOX(hbox), tsn_bt, FALSE, FALSE, 0);
+	gtk_widget_show(tsn_bt);
+	SIGNAL_CONNECT(tsn_bt, "clicked", on_tsn_bt, u_data);
+
+	both_bt = gtk_button_new_with_label ("Show both");
+	gtk_box_pack_start(GTK_BOX(hbox), both_bt, FALSE, FALSE, 0);
+	gtk_widget_show(both_bt);
+	SIGNAL_CONNECT(both_bt, "clicked", on_both_bt, u_data);
+
+	zoomin_bt = gtk_button_new_with_label ("Zoom in");
+	gtk_box_pack_start(GTK_BOX(hbox), zoomin_bt, FALSE, FALSE, 0);
+	gtk_widget_show(zoomin_bt);
+	SIGNAL_CONNECT(zoomin_bt, "clicked", on_zoomin_bt, u_data);
+	tooltip_in = gtk_tooltips_new();
+	gtk_tooltips_set_tip(tooltip_in, zoomin_bt, "Draw a rectangle around the area you want to zoom in", NULL);
+
+	zoomout_bt = gtk_button_new_with_label ("Zoom out");
+	gtk_box_pack_start(GTK_BOX(hbox), zoomout_bt, FALSE, FALSE, 0);
+	gtk_widget_show(zoomout_bt);
+	SIGNAL_CONNECT(zoomout_bt, "clicked", on_zoomout_bt, u_data);
+	tooltip_out = gtk_tooltips_new();
+	gtk_tooltips_set_tip(tooltip_out, zoomout_bt, "Zoom out one step", NULL);
+
+
+    bt_close = BUTTON_NEW_FROM_STOCK(GTK_STOCK_CLOSE);
+	gtk_box_pack_start(GTK_BOX(hbox), bt_close, FALSE, FALSE, 0);
+    gtk_widget_show(bt_close);
+    SIGNAL_CONNECT(bt_close, "clicked", sctp_graph_close_cb, u_data);
+
+	gtk_signal_connect(GTK_OBJECT(u_data->io->draw_area),"button_press_event",(GtkSignalFunc)on_button_press, u_data);
+	gtk_signal_connect(GTK_OBJECT(u_data->io->draw_area),"button_release_event",(GtkSignalFunc)on_button_release, u_data);
+	gtk_widget_set_events(u_data->io->draw_area, GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK | GDK_EXPOSURE_MASK);
+	//dlg_set_cancel(u_data->io->window, bt_close);
+	
+
+    gtk_widget_show(u_data->io->window);
+}
+
+static void sctp_graph_set_title(struct sctp_udata *u_data)
+{
+	char		*title;
+
+	if(!u_data->io->window){
+		return;
+	}
+	title = g_strdup_printf("SCTP Data and Adv.Rcv.Window over Time: %s Port1 %u Port2 %u Endpoint %u",
+		cf_get_display_name(&cfile), u_data->parent->assoc->port1, u_data->parent->assoc->port2, u_data->dir);
+	gtk_window_set_title(GTK_WINDOW(u_data->io->window), title);
+	g_free(title);
+}
+
+
+static void
+gtk_sctpgraph_init(struct sctp_udata *u_data)
+{
+sctp_graph_t *io;
+int dir;
+sctp_min_max_t* tmp_minmax;
+
+	io=g_malloc(sizeof(sctp_graph_t));
+	io->needs_redraw=TRUE;
+	io->x_interval=1000;
+	io->window=NULL;
+	io->draw_area=NULL;
+	io->pixmap=NULL;
+	io->pixmap_width=800;
+	io->pixmap_height=600;
+	io->graph_type=0;
+	dir=u_data->dir-1;
+	u_data->io=io;
+
+
+	u_data->io->x1_tmp_sec=u_data->assoc->min_secs;
+	u_data->io->x1_tmp_usec=u_data->assoc->min_usecs;
+	u_data->io->x2_tmp_sec=u_data->assoc->max_secs;
+	u_data->io->x2_tmp_usec=u_data->assoc->max_usecs;
+	u_data->io->tmp_min_tsn1=0;
+	u_data->io->tmp_max_tsn1=u_data->assoc->max_bytes1;
+	u_data->io->tmp_min_tsn2=0;
+	u_data->io->tmp_max_tsn2=u_data->assoc->max_bytes2;
+	u_data->io->tmp=FALSE;
+	tmp_minmax = g_malloc(sizeof(sctp_min_max_t));
+	tmp_minmax->tmp_min_secs = u_data->assoc->min_secs;
+	tmp_minmax->tmp_min_usecs=u_data->assoc->min_usecs;
+	tmp_minmax->tmp_max_secs=u_data->assoc->max_secs;
+	tmp_minmax->tmp_max_usecs=u_data->assoc->max_usecs;
+	tmp_minmax->tmp_min_tsn2=u_data->io->tmp_min_tsn2;
+	tmp_minmax->tmp_min_tsn1=u_data->io->tmp_min_tsn1;
+	tmp_minmax->tmp_max_tsn1=u_data->io->tmp_max_tsn1;
+	tmp_minmax->tmp_max_tsn2=u_data->io->tmp_max_tsn2;
+	u_data->assoc->min_max = g_slist_prepend(u_data->assoc->min_max, tmp_minmax);
+
+		/* build the GUI */
+	init_sctp_graph_window(u_data);
+	sctp_graph_redraw(u_data);
+}
+
+
+static gint
+quit(GtkObject       *object _U_, gpointer         user_data)
+{
+struct sctp_udata *u_data=(struct sctp_udata*)user_data;
+
+	decrease_childcount(u_data->parent);
+	remove_child(u_data, u_data->parent);
+	g_free(u_data->io);
+	u_data->assoc->min_max = NULL;
+	g_free(u_data);
+	return TRUE;
+}
+
+
+static void create_draw_area(GtkWidget *box, struct sctp_udata *u_data)
+{
+	u_data->io->draw_area=gtk_drawing_area_new();
+	SIGNAL_CONNECT(u_data->io->draw_area, "destroy", quit, u_data);
+	OBJECT_SET_DATA(u_data->io->draw_area, "sctp_graph_t", u_data->io);
+
+	WIDGET_SET_SIZE(u_data->io->draw_area, u_data->io->pixmap_width, u_data->io->pixmap_height);
+
+	/* signals needed to handle backing pixmap */
+	SIGNAL_CONNECT(u_data->io->draw_area, "expose_event", expose_event, NULL);
+	SIGNAL_CONNECT(u_data->io->draw_area, "configure_event", configure_event, u_data);
+
+	gtk_widget_show(u_data->io->draw_area);
+	gtk_box_pack_start(GTK_BOX(box), u_data->io->draw_area, TRUE, TRUE, 0);
+}
+
+void insertion(GArray *array, guint32 N)
+{
+	guint32 i, j;
+	guint32 v;
+	struct tsn_sort help;
+
+	for (i=1; i<N; i++)
+	{
+		v = g_array_index(array, struct tsn_sort, i).tsnumber;
+		j=i;
+		while (g_array_index(array, struct tsn_sort, j-1).tsnumber > v)
+		{
+			help=g_array_index(array, struct tsn_sort, j);
+			g_array_index(array, struct tsn_sort, j)=g_array_index(array, struct tsn_sort, j-1);
+			g_array_index(array, struct tsn_sort, j-1)=help;
+			j--;
+		}
+		g_array_index(array, struct tsn_sort, j).tsnumber=v;
+	}
+}
+
+void set_arw_offsets(struct sctp_udata *u_data)
+{
+GArray *s_array=NULL, *t_array=NULL;
+guint32 i, j=0;
+
+	if (u_data->assoc->n_sack_chunks_ep1>0)
+	{
+		s_array=u_data->assoc->sort_sack1;
+		t_array=u_data->assoc->sort_tsn1;
+		insertion(s_array,u_data->assoc->n_sack_chunks_ep1);
+
+		for (i=0; i<u_data->assoc->n_sack_chunks_ep1; i++)
+		{
+			while (g_array_index(s_array, struct tsn_sort, i).tsnumber>g_array_index(t_array, struct tsn_sort, j).tsnumber)
+			{
+				j++;
+			}
+			g_array_index(s_array, struct tsn_sort, i).offset=g_array_index(t_array, struct tsn_sort, j).offset
+			  +g_array_index(t_array, struct tsn_sort, j).length;
+		}
+
+		u_data->assoc->sort_sack1=s_array;
+	}
+
+	if (u_data->assoc->n_sack_chunks_ep2>0)
+	{
+		s_array=u_data->assoc->sort_sack2;
+		t_array=u_data->assoc->sort_tsn2;
+		insertion(s_array,u_data->assoc->n_sack_chunks_ep2);
+		j=0;
+		for (i=0; i<u_data->assoc->n_sack_chunks_ep2; i++)
+		{
+			while (g_array_index(s_array, struct tsn_sort, i).tsnumber>g_array_index(t_array, struct tsn_sort, j).tsnumber)
+			{
+				j++;
+			}
+			g_array_index(s_array, struct tsn_sort, i).offset=g_array_index(t_array, struct tsn_sort, j).offset
+			 + g_array_index(t_array, struct tsn_sort, j).length;
+		}
+		u_data->assoc->sort_sack2=s_array;
+	}
+}
+
+void compute_offsets(struct sctp_udata *u_data)
+{
+struct tsn_sort t_sort, sort;
+GArray *array=NULL;
+guint32 i;
+guint32 sum=0;
+guint32 tsntmp=0;
+
+	if (u_data->assoc->n_array_tsn1>0)
+	{
+		array=u_data->assoc->sort_tsn1;
+		insertion(array,u_data->assoc->n_array_tsn1);
+
+		for (i=0; i<u_data->assoc->n_array_tsn1; i++)
+		{
+			g_array_index(array, struct tsn_sort, i).offset=sum;
+			if (g_array_index(array, struct tsn_sort, i).tsnumber>tsntmp)
+				sum+=g_array_index(array, struct tsn_sort, i).length;
+			tsntmp=t_sort.tsnumber;
+		}
+		u_data->assoc->max_bytes1=g_array_index(array, struct tsn_sort, i-1).offset+g_array_index(array, struct tsn_sort, i-1).length;
+		sort=g_array_index(array, struct tsn_sort,i-1);
+		u_data->assoc->sort_tsn1=array;
+	}
+	if (u_data->assoc->n_array_tsn2>0)
+	{
+		sum=0;
+		array=u_data->assoc->sort_tsn2;
+		insertion(array,u_data->assoc->n_array_tsn2);
+
+		for (i=0; i<u_data->assoc->n_array_tsn2; i++)
+		{
+			g_array_index(array, struct tsn_sort, i).offset=sum;
+			if (g_array_index(array, struct tsn_sort, i).tsnumber>tsntmp)
+				sum+=g_array_index(array, struct tsn_sort, i).length;
+			tsntmp=t_sort.tsnumber;
+		}
+
+		u_data->assoc->max_bytes2=g_array_index(array, struct tsn_sort, u_data->assoc->n_data_chunks_ep2-1).offset+g_array_index(array, struct tsn_sort, u_data->assoc->n_data_chunks_ep2-1).length;
+		u_data->assoc->sort_tsn2=array;
+	}
+}
+
+void create_byte_graph(guint16 dir, struct sctp_analyse* userdata)
+{
+struct sctp_udata *u_data;
+
+	u_data=g_malloc(sizeof(struct sctp_udata));
+	u_data->assoc=g_malloc(sizeof(sctp_assoc_info_t));
+	u_data->assoc=userdata->assoc;
+	u_data->io=NULL;
+	u_data->dir = dir;
+	u_data->parent = userdata;
+	set_child(u_data, u_data->parent);
+	increase_childcount(u_data->parent);
+	compute_offsets(u_data);
+	set_arw_offsets(u_data);
+	gtk_sctpgraph_init(u_data);
+
+}
+

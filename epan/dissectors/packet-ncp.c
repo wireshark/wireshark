@@ -45,7 +45,7 @@
 #include <string.h>
 #include <glib.h>
 #include <epan/packet.h>
-#include "prefs.h"
+#include <epan/prefs.h>
 #include "packet-ipx.h"
 #include "packet-tcp.h"
 #include "packet-ncp-int.h"
@@ -76,6 +76,7 @@ static int hf_ncp_delay_time = -1;
 static int hf_ncp_burst_seqno = -1;
 static int hf_ncp_ack_seqno = -1;
 static int hf_ncp_burst_len = -1;
+static int hf_ncp_burst_offset = -1;
 static int hf_ncp_data_offset = -1;
 static int hf_ncp_data_bytes = -1;
 static int hf_ncp_missing_fraglist_count = -1;
@@ -314,18 +315,18 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	char				flags_str[1+3+1+3+1+3+1+1];
 	char				*sep;
 	proto_tree			*flags_tree = NULL;
-	guint16				data_len = 0;
-	guint16				missing_fraglist_count = 0;
 	int				hdr_offset = 0;
 	int				commhdr;
-	int				offset;
+	int				offset = 0;
 	gint				length_remaining;
 	tvbuff_t       			*next_tvb;
 	guint32				testvar = 0, ncp_burst_command, burst_len, burst_off, burst_file;
 	guint8				subfunction;
+	guint32				data_offset;
+	guint16				data_len = 0;
+	guint16				missing_fraglist_count = 0;
 	mncp_rhash_value		*request_value = NULL;
 	conversation_t			*conversation;
-	char				*burst_command_name;
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "NCP");
@@ -614,41 +615,72 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		    tvb, commhdr + 22, 2, FALSE);
 		proto_tree_add_item(ncp_tree, hf_ncp_burst_len,
 		    tvb, commhdr + 24, 4, FALSE);
-		proto_tree_add_item(ncp_tree, hf_ncp_data_offset,
-		    tvb, commhdr + 28, 4, FALSE);
+		data_offset = tvb_get_ntohl(tvb, commhdr + 28);
+		proto_tree_add_uint(ncp_tree, hf_ncp_data_offset,
+		    tvb, commhdr + 28, 4, data_offset);
 		data_len = tvb_get_ntohs(tvb, commhdr + 32);
 		proto_tree_add_uint(ncp_tree, hf_ncp_data_bytes,
 		    tvb, commhdr + 32, 2, data_len);
 		missing_fraglist_count = tvb_get_ntohs(tvb, commhdr + 34);
 		proto_tree_add_item(ncp_tree, hf_ncp_missing_fraglist_count,
 		    tvb, commhdr + 34, 2, FALSE);
-		if (ncp_burst_seqno == ncp_ack_seqno) {
-			ncp_burst_command = tvb_get_ntohl(tvb, commhdr+36);
+		offset = commhdr + 36;
+		if (!(flags & SYS) && ncp_burst_seqno == ncp_ack_seqno &&
+		    data_offset == 0) {
+			/*
+			 * This is either a Burst Read or Burst Write
+			 * command.  The data length includes the burst
+			 * mode header, plus any data in the command
+			 * (there shouldn't be any in a read, but there
+			 * might be some in a write).
+			 */
+			if (data_len < 4)
+				return;
+			ncp_burst_command = tvb_get_ntohl(tvb, offset);
 			proto_tree_add_item(ncp_tree, hf_ncp_burst_command,
-			    tvb, commhdr + 36, 4, FALSE);
-			burst_file = tvb_get_ntohl(tvb, commhdr+40);
+			    tvb, offset, 4, FALSE);
+			offset += 4;
+			data_len -= 4;
+
+			if (data_len < 4)
+				return;
+			burst_file = tvb_get_ntohl(tvb, offset);
 			proto_tree_add_item(ncp_tree, hf_ncp_burst_file_handle,
-			    tvb, commhdr + 40, 4, FALSE);
+			    tvb, offset, 4, FALSE);
+			offset += 4;
+			data_len -= 4;
+
+			if (data_len < 8)
+				return;
 			proto_tree_add_item(ncp_tree, hf_ncp_burst_reserved,
-			    tvb, commhdr + 44, 8, FALSE);
-			burst_off = tvb_get_ntohl(tvb, commhdr+52);
-			proto_tree_add_item(ncp_tree, hf_ncp_data_offset,
-			    tvb, commhdr + 52, 4, FALSE);
-			burst_len = tvb_get_ntohl(tvb, commhdr+56);
-			proto_tree_add_item(ncp_tree, hf_ncp_burst_len,
-			    tvb, commhdr + 56, 4, FALSE);
+			    tvb, offset, 8, FALSE);
+			offset += 8;
+			data_len -= 8;
+
+			if (data_len < 4)
+				return;
+			burst_off = tvb_get_ntohl(tvb, offset);
+			proto_tree_add_uint(ncp_tree, hf_ncp_burst_offset,
+			    tvb, offset, 4, burst_off);
+			offset += 4;
+			data_len -= 4;
+
+			if (data_len < 4)
+				return;
+			burst_len = tvb_get_ntohl(tvb, offset);
+			proto_tree_add_uint(ncp_tree, hf_ncp_burst_len,
+			    tvb, offset, 4, burst_len);
+			offset += 4;
+			data_len -= 4;
+
 			if (check_col(pinfo->cinfo, COL_INFO)) {
-				burst_command_name =
-				    match_strval(ncp_burst_command,
-				      burst_command);
-				if (burst_command_name != NULL) {
-					col_add_fstr(pinfo->cinfo, COL_INFO,
-					    "%s %d bytes starting at offset %d in file 0x%08x",
-					    burst_command_name, burst_len,
-					    burst_off, burst_file);
-				}
+				col_add_fstr(pinfo->cinfo, COL_INFO,
+				    "%s %d bytes starting at offset %d in file 0x%08x",
+				    val_to_str(ncp_burst_command,
+				      burst_command, "Unknown (0x%08x)"),
+				     burst_len, burst_off, burst_file);
 			}
-			return;
+			break;
 		} else {
 			if (tvb_get_guint8(tvb, commhdr + 2) & 0x10) {
 				if (check_col(pinfo->cinfo, COL_INFO)) {
@@ -777,12 +809,13 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			 * System packet; show missing fragments if there
 			 * are any.
 			 */
-			offset = commhdr + 36;
 			while (missing_fraglist_count != 0) {
 				proto_tree_add_item(ncp_tree, hf_ncp_missing_data_offset,
 				    tvb, offset, 4, FALSE);
+				offset += 4;
 				proto_tree_add_item(ncp_tree, hf_ncp_missing_data_count,
 				    tvb, offset, 2, FALSE);
+				offset += 2;
 				missing_fraglist_count--;
 			}
 		} else {
@@ -794,12 +827,12 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			 * length of the packet, but that's arguably a
 			 * feature in this case.
 			 */
-			length_remaining = tvb_length_remaining(tvb, commhdr + 36);
+			length_remaining = tvb_length_remaining(tvb, offset);
 			if (length_remaining > data_len)
 				length_remaining = data_len;
 			if (data_len != 0) {
 				call_dissector(data_handle,
-				    tvb_new_subset(tvb, commhdr + 36,
+				    tvb_new_subset(tvb, offset,
 					length_remaining, data_len),
 				    pinfo, ncp_tree);
 			}
@@ -973,10 +1006,14 @@ proto_register_ncp(void)
       { "Burst Length",    "ncp.burst_len",
 	FT_UINT32, BASE_DEC, NULL, 0x0,
 	"Total length of data in this burst", HFILL }},
+    { &hf_ncp_burst_offset,
+      { "Burst Offset",    "ncp.burst_offset",
+	FT_UINT32, BASE_DEC, NULL, 0x0,
+	"Offset of data in the burst", HFILL }},
     { &hf_ncp_data_offset,
       { "Data Offset",    "ncp.data_offset",
 	FT_UINT32, BASE_DEC, NULL, 0x0,
-	"Offset of this packet in the burst", HFILL }},
+	"Offset of this packet", HFILL }},
     { &hf_ncp_data_bytes,
       { "Data Bytes",    "ncp.data_bytes",
 	FT_UINT16, BASE_DEC, NULL, 0x0,

@@ -29,7 +29,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
-#include "xdlc.h"
+#include <epan/xdlc.h>
 #include "etypes.h"
 #include "llcsaps.h"
 #include "packet-hpext.h"

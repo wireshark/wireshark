@@ -32,8 +32,7 @@ help_DATA =            \
 	capture_filters.txt \
 	display_filters.txt \
 	faq.txt             \
-	overview.txt        \
-	well_known.txt
+	overview.txt
 
 EXTRA_DIST = $(help_DATA) Makefile.nmake
 

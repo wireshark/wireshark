@@ -276,6 +276,7 @@ File "..\..\doc\ethereal-filter.html"
 SetOutPath $INSTDIR\diameter
 File "..\..\dictionary.dtd"
 File "..\..\dictionary.xml"
+File "..\..\imscxdx.xml"
 File "..\..\mobileipv4.xml"
 File "..\..\nasreq.xml"
 File "..\..\sunping.xml"
@@ -288,7 +289,6 @@ File "..\..\help\getting_started.txt"
 File "..\..\help\capturing.txt"
 File "..\..\help\capture_filters.txt"
 File "..\..\help\display_filters.txt"
-File "..\..\help\well_known.txt"
 File "..\..\help\faq.txt"
 
 ; Write the uninstall keys for Windows

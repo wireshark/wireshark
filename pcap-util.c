@@ -50,7 +50,7 @@
 #include "pcap-util.h"
 #include "pcap-util-int.h"
 
-#ifndef WIN32
+#ifndef _WIN32
 #include <netinet/in.h>
 #endif
 

@@ -15,8 +15,12 @@ CFLAGS=-DHAVE_CONFIG_H /I.. /I../wiretap $(GTK_CFLAGS) \
 
 CVARSDLL=-DWIN32 -DNULL=0 -D_MT -D_DLL
 
+!IFDEF ETHEREAL_EUG_DIR
+EUG_CFLAGS=-DETHEREAL_EUG_DIR
+!ENDIF
+
 .c.obj::
-   $(CC) $(CVARSDLL) $(CFLAGS) -Fd.\ -c $<
+   $(CC) $(CVARSDLL) $(CFLAGS) $(EUG_CFLAGS) -Fd.\ -c $<
 
 include Makefile.common
 

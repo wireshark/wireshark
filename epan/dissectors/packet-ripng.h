@@ -5,9 +5,8 @@
  * $Id$
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@eethereal.com>
  * Copyright 1998 Gerald Combs
- *
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -27,7 +26,6 @@
 #ifndef __PACKET_RIPNG_H_DEFINED__
 #define __PACKET_RIPNG_H_DEFINED__
 
-#include "globals.h"
 #include "packet-ipv6.h"
 
 /*

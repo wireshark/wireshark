@@ -251,6 +251,12 @@ static const struct encap_type_info {
 
 	/* WTAP_ENCAP_BACNET_MS_TP */
 	{ "BACnet MS/TP", "bacnet-ms-tp" },
+
+	/* WTAP_ENCAP_RAW_ICMP */
+	{ "Raw ICMP", "raw-icmp" },
+
+	/* WTAP_ENCAP_RAW_ICMPV6 */
+	{ "Raw ICMPv6", "raw-icmpv6" },
 };
 
 /* Name that should be somewhat descriptive. */

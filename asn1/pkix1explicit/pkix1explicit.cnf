@@ -1,0 +1,24 @@
+# pkix1explicit.cnf
+# pkix1explicit conformation file
+
+# $Id$
+
+#.MODULE_IMPORT
+
+#.EXPORTS
+
+TeletexDomainDefinedAttribute
+TerminalType
+
+#.PDU
+
+#.NO_EMIT
+
+CertificateSerialNumber
+
+#.TYPE_RENAME
+
+#.FIELD_RENAME
+
+#.END
+

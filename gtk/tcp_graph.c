@@ -33,7 +33,7 @@
 #include <math.h>		/* rint() */
 #include <string.h>
 
-#include "ipproto.h"
+#include <epan/ipproto.h>
 #include "globals.h" 		/* cfile */
 #include <epan/packet.h>	/* frame_data */
 #include "gtkglobals.h"		/* packet_list */
@@ -502,12 +502,13 @@ static void rtt_put_unack_on_list (struct unack ** , struct unack * );
 static void rtt_delete_unack_from_list (struct unack ** , struct unack * );
 static void rtt_make_elmtlist (struct graph * );
 static void rtt_toggle_seq_origin (struct graph * );
-#if defined(WIN32) && !defined(__MINGW32__)
+#if defined(_WIN32) && !defined(__MINGW32__)
 static int rint (double );	/* compiler template for Windows */
 #endif
 
+/* XXX - what about OS X? */
 static char helptext[] =
-#ifndef WIN32
+#ifndef _WIN32
 "Here's what you can do:\n\
 - Left Mouse Button selects segment in ethereal's packet list\n\
 - Middle Mouse Button zooms in\n\
@@ -518,7 +519,7 @@ static char helptext[] =
 - 's' toggles relative/absolute sequence numbers\n\
 - 't' toggles time origin\n\
 ";
-#else /* WIN32 */
+#else /* _WIN32 */
 "Here's what you can do:\n\
 - <ctrl>-Left  Mouse Button selects segment in ethereal's packet list\n\
 - Left         Mouse Button zooms in\n\
@@ -2951,7 +2952,7 @@ static gint button_press_event (GtkWidget *widget, GdkEventButton *event)
 			g->grab.y = (int )rint (event->y) - g->geom.y;
 			g->grab.grabbed = TRUE;
 		}
-#ifdef WIN32
+#ifdef _WIN32
 				/* Windows mouse control:        */
 				/* [<ctrl>-left] - select packet */
 				/* [left] - zoom in              */
@@ -2960,7 +2961,7 @@ static gint button_press_event (GtkWidget *widget, GdkEventButton *event)
 		if (event->state & GDK_CONTROL_MASK) {
 			graph_select_segment (g, (int)event->x, (int)event->y);
 		} else {
-#else /* WIN32 */
+#else /* _WIN32 */
 	} else if (event->button == 2) {
 #endif
 		int cur_width = g->geom.width, cur_height = g->geom.height;
@@ -3022,10 +3023,10 @@ static gint button_press_event (GtkWidget *widget, GdkEventButton *event)
 		update_zoom_spins (g);
 		if (g->cross.draw)
 			cross_draw (g, (int) event->x, (int) event->y);
-#ifndef WIN32
+#ifndef _WIN32
 	} else if (event->button == 1) {
 		graph_select_segment (g, (int )event->x, (int )event->y);
-#else /* WIN32 */
+#else /* _WIN32 */
 		}
 #endif
 	}
@@ -3968,7 +3969,7 @@ static void rtt_toggle_seq_origin (struct graph *g)
 		g->x_axis->min = 0;
 }
 
-#if defined(WIN32) && !defined(__MINGW32__)
+#if defined(_WIN32) && !defined(__MINGW32__)
 /* replacement of Unix rint() for Windows */
 static int rint (double x)
 {

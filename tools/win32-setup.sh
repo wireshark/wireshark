@@ -1,6 +1,7 @@
 #!/bin/sh
 
-DOWNLOAD_PREFIX="http://www.ethereal.com/distribution/win32/development"
+# DOWNLOAD_PREFIX="http://www.ethereal.com/distribution/win32/development"
+DOWNLOAD_PREFIX="http://anonsvn.ethereal.com/ethereal-win32-libs/trunk/packages"
 
 err_exit () {
 	echo "ERROR: $1"

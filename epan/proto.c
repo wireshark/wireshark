@@ -725,7 +725,7 @@ proto_tree_add_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 		case FT_IPv4:
 			g_assert(length == 4);
 			tvb_memcpy(tvb, (guint8 *)&value, start, 4);
-			proto_tree_set_ipv4(new_fi, value);
+			proto_tree_set_ipv4(new_fi, little_endian ? GUINT32_SWAP_LE_BE(value) : value);
 			break;
 
 		case FT_IPXNET:
@@ -2553,7 +2553,7 @@ proto_register_field_array(int parent, hf_register_info *hf, int num_records)
 	proto = find_protocol_by_id(parent);
 	for (i = 0; i < num_records; i++, ptr++) {
 		/*
-		 * Make sure we haven't registed this yet.
+		 * Make sure we haven't registered this yet.
 		 * Most fields have variables associated with them
 		 * that are initialized to -1; some have array elements,
 		 * or possibly uninitialized variables, so we also allow
@@ -3584,6 +3584,115 @@ proto_registrar_dump_protocols(void)
 	}
 }
 
+/* Dumps the value_string and true/false strings for fields that have
+ * them. There is one record per line. Fields are tab-delimited.
+ * There are two types of records, Value String records and True/False
+ * String records. The first field, 'V' or 'T', indicates the type
+ * of record.
+ *
+ * Value Strings
+ * -------------
+ * Field 1 = 'V'
+ * Field 2 = field abbreviation to which this value string corresponds
+ * Field 3 = Integer value
+ * Field 4 = String
+ *
+ * True/False Strings
+ * ------------------
+ * Field 1 = 'T'
+ * Field 2 = field abbreviation to which this true/false string corresponds
+ * Field 3 = True String
+ * Field 4 = False String
+ */
+void
+proto_registrar_dump_values(void)
+{
+	header_field_info	*hfinfo, *parent_hfinfo;
+	int			i, len, vi;
+	const value_string	*vals;
+	const true_false_string	*tfs;
+
+	len = gpa_hfinfo.len;
+	for (i = 0; i < len ; i++) {
+		PROTO_REGISTRAR_GET_NTH(i, hfinfo);
+
+		 if (hfinfo->id == hf_text_only) {
+			 continue;
+		 }
+
+		/* ignore protocols */
+		if (proto_registrar_is_protocol(i)) {
+			continue;
+		}
+		/* process header fields */
+		else {
+			/*
+			 * If this field isn't at the head of the list of
+			 * fields with this name, skip this field - all
+			 * fields with the same name are really just versions
+			 * of the same field stored in different bits, and
+			 * should have the same type/radix/value list, and
+			 * just differ in their bit masks.  (If a field isn't
+			 * a bitfield, but can be, say, 1 or 2 bytes long,
+			 * it can just be made FT_UINT16, meaning the
+			 * *maximum* length is 2 bytes, and be used
+			 * for all lengths.)
+			 */
+			if (hfinfo->same_name_prev != NULL)
+				continue;
+
+			PROTO_REGISTRAR_GET_NTH(hfinfo->parent, parent_hfinfo);
+
+			vals = NULL;
+			tfs = NULL;
+
+			if (hfinfo->type == FT_UINT8 ||
+				hfinfo->type == FT_UINT16 ||
+				hfinfo->type == FT_UINT24 ||
+				hfinfo->type == FT_UINT32 ||
+				hfinfo->type == FT_UINT64 ||
+				hfinfo->type == FT_INT8 ||
+				hfinfo->type == FT_INT16 ||
+				hfinfo->type == FT_INT24 ||
+				hfinfo->type == FT_INT32 ||
+				hfinfo->type == FT_INT64) {
+
+				vals = hfinfo->strings;
+			}
+			else if (hfinfo->type == FT_BOOLEAN) {
+				tfs = hfinfo->strings;
+			}
+
+			/* Print value strings? */
+			if (vals) {
+				vi = 0;
+				while (vals[vi].strptr) {
+					/* Print in the proper base */
+					if (hfinfo->display == BASE_HEX) {
+						printf("V\t%s\t0x%x\t%s\n",
+								hfinfo->abbrev,
+								vals[vi].value,
+								vals[vi].strptr);
+					}
+					else {
+						printf("V\t%s\t%u\t%s\n",
+								hfinfo->abbrev,
+								vals[vi].value,
+								vals[vi].strptr);
+					}
+					vi++;
+				}
+			}
+
+			/* Print true/false strings? */
+			else if (tfs) {
+				printf("T\t%s\t%s\t%s\n", hfinfo->abbrev,
+						tfs->true_string, tfs->false_string);
+			}
+		}
+	}
+}
+
 /* Dumps the contents of the registration database to stdout. An indepedent
  * program can take this output and format it into nice tables or HTML or
  * whatever.
@@ -3594,23 +3703,29 @@ proto_registrar_dump_protocols(void)
  * Protocols
  * ---------
  * Field 1 = 'P'
- * Field 2 = protocol name
+ * Field 2 = descriptive protocol name
  * Field 3 = protocol abbreviation
  *
  * Header Fields
  * -------------
+ * (format 1)
  * Field 1 = 'F'
- * Field 2 = field name
+ * Field 2 = descriptive field name
  * Field 3 = field abbreviation
  * Field 4 = type ( textual representation of the the ftenum type )
  * Field 5 = parent protocol abbreviation
+ *
+ * (format 2 adds these fields:)
+ * Field 6 = base for display (for integer types)
+ * Field 7 = blurb describing field
  */
 void
-proto_registrar_dump_fields(void)
+proto_registrar_dump_fields(int format)
 {
 	header_field_info	*hfinfo, *parent_hfinfo;
 	int			i, len;
 	const char 		*enum_name;
+	const char		*base_name;
 
 	len = gpa_hfinfo.len;
 	for (i = 0; i < len ; i++) {
@@ -3633,6 +3748,9 @@ proto_registrar_dump_fields(void)
 		 * with no pseudo-field being used, but that might also
 		 * require special checks for -1 to be added.
 		 */
+		/* XXX - we could just skip the special text
+		 * pseudo-field by testing: if (hfinfo->id == hf_text_only)
+		 * */
 		if (hfinfo->name[0] == 0 || hfinfo->abbrev[0] == 0)
 			continue;
 
@@ -3660,8 +3778,48 @@ proto_registrar_dump_fields(void)
 			PROTO_REGISTRAR_GET_NTH(hfinfo->parent, parent_hfinfo);
 
 			enum_name = ftype_name(hfinfo->type);
-			printf("F\t%s\t%s\t%s\t%s\t%s\n", hfinfo->name, hfinfo->abbrev,
-				enum_name,parent_hfinfo->abbrev, hfinfo->blurb);
+			base_name = "";
+
+			if (format > 1) {
+				if (hfinfo->type == FT_UINT8 ||
+					hfinfo->type == FT_UINT16 ||
+					hfinfo->type == FT_UINT24 ||
+					hfinfo->type == FT_UINT32 ||
+					hfinfo->type == FT_UINT64 ||
+					hfinfo->type == FT_INT8 ||
+					hfinfo->type == FT_INT16 ||
+					hfinfo->type == FT_INT24 ||
+					hfinfo->type == FT_INT32 ||
+					hfinfo->type == FT_INT64) {
+
+					
+					switch(hfinfo->display) {
+						case BASE_NONE:
+							base_name = "BASE_NONE";
+							break;
+						case BASE_DEC:
+							base_name = "BASE_DEC";
+							break;
+						case BASE_HEX:
+							base_name = "BASE_HEX";
+							break;
+						case BASE_OCT:
+							base_name = "BASE_OCT";
+							break;
+					}
+				}
+			}
+
+			if (format == 1) {
+				printf("F\t%s\t%s\t%s\t%s\t%s\n", hfinfo->name, hfinfo->abbrev,
+					enum_name,parent_hfinfo->abbrev, hfinfo->blurb);
+			}
+			else if (format == 2) {
+				printf("F\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n",
+					hfinfo->name, hfinfo->abbrev,
+					enum_name,parent_hfinfo->abbrev, hfinfo->blurb,
+					base_name, hfinfo->blurb);
+			}
 		}
 	}
 }

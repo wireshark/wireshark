@@ -41,6 +41,7 @@ GENERATED_OBJECTS = \
 	capture-interfaces-dialog.obj \
 	coloring-rules-dialog.obj \
 	edit-color-filter-dialog.obj \
+	enabled-protocols-dialog.obj \
 	filter-dialog.obj \
 	find-packet-dialog.obj \
 	goto-packet-dialog.obj \

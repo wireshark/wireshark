@@ -13,16 +13,22 @@ General Questions:
 
    1.1 Where can I get help?
 
-   1.2 What protocols are currently supported?
+   1.2 How much does Ethereal cost?
 
-   1.3 Are there any plans to support {your favorite protocol}?
+   1.3 Can I use Ethereal commercially?
 
-   1.4 Can Ethereal read capture files from {your favorite network
+   1.4 Can I use Ethereal as part of my commercial product?
+
+   1.5 What protocols are currently supported?
+
+   1.6 Are there any plans to support {your favorite protocol}?
+
+   1.7 Can Ethereal read capture files from {your favorite network
    analyzer}?
 
-   1.5 What devices can Ethereal use to capture packets?
+   1.8 What devices can Ethereal use to capture packets?
 
-   1.6 How do you pronounce Ethereal? Where did the name come from?
+   1.9 How do you pronounce Ethereal? Where did the name come from?
 
 Downloading Ethereal:
 
@@ -223,9 +229,47 @@ General Questions
    Subscription information and archives for all of Ethereal's mailing
    lists can be found at http://www.ethereal.com/lists
 
-   Q 1.2: What protocols are currently supported?
+   Q 1.2: How much does Ethereal cost?
 
-   A: There are currently 518 supported protocols and media, listed
+   A: Ethereal is "free software"; you can download it without paying any
+   license fee. The version of Ethereal you download isn't a "demo"
+   version, with limitations not present in a "full" version; it is the
+   full version.
+
+   The license under which Ethereal is issued is the GNU General Public
+   License. See the GNU GPL FAQ for some more information.
+
+   Q 1.3: Can I use Ethereal commercially?
+
+   A: Yes, if, for example, you mean "I work for a commercial
+   organization; can I use Ethereal to capture and analyze network
+   traffic in our company's networks or in our customer's networks?"
+
+   If you mean "Can I use Ethereal as part of my commercial product?",
+   see the next entry in the FAQ.
+
+   Q 1.4: Can I use Ethereal as part of my commercial product?
+
+   A: As noted, Ethereal is licended under the GNU General Public
+   License. The GPL imposes conditions on your use of GPL'ed code in your
+   own products; you cannot, for example, make a "derived work" from
+   Ethereal, by making modifications to it, and then sell the resulting
+   derived work and not allow recipients to give away the resulting work.
+   You must also make the changes you've made to the Ethereal source
+   available to all recipients of your modified version; those changes
+   must also be licensed under the terms of the GPL. See the GPL FAQ for
+   more details; in particular, note the answer to the question about
+   modifying a GPLed program and selling it commercially, and the
+   question about linking GPLed code with other code to make a
+   proprietary program.
+
+   You can combine a GPLed program such as Ethereal and a commercial
+   program as long as they communicate "at arm's length", as per this
+   item in the GPL FAQ.
+
+   Q 1.5: What protocols are currently supported?
+
+   A: There are currently 530 supported protocols and media, listed
    below. Descriptions can be found in the ethereal(1) man page.
 
             3GPP2 A11
@@ -267,6 +311,7 @@ General Questions
             ATM LAN Emulation
             ATM OAM AAL
             AVS WLAN Capture header
+            AX/4000 Test Block
             Ad hoc On-demand Distance Vector Routing Protocol
             Address Resolution Protocol
             Aggregate Server Access Protocol
@@ -299,6 +344,7 @@ General Questions
             Bearer Independent Call Control
             Bi-directional Fault Detection Control Message
             Blocks Extensible Exchange Protocol
+            Blubster/Piolet MANOLITO Protocol
             Boardwalk
             Boot Parameters
             Bootstrap Protocol
@@ -326,6 +372,7 @@ General Questions
             Compuserve GIF
             Connectionless Lightweight Directory Access Protocol
             Cross Point Frame Injector
+            Cryptographic Message Syntax
             DCE Distributed Time Service Local Server
             DCE Distributed Time Service Provider
             DCE Name Service
@@ -366,6 +413,7 @@ cies
             DCOM Remote Activation
             DEC Spanning Tree Protocol
             DFS Calls
+            DHCP Failover
             DHCPv6
             DICOM
             DNS Control Program Server
@@ -521,7 +569,10 @@ cies
             Microsoft Distributed File System
             Microsoft Distributed Link Tracking Server Service
             Microsoft Encrypted File System Service
+            Microsoft Eventlog Service
             Microsoft Exchange MAPI
+            Microsoft File Replication Service
+            Microsoft File Replication Service API
             Microsoft Local Security Architecture
             Microsoft Local Security Architecture (Directory Services)
             Microsoft Messenger Service
@@ -581,6 +632,7 @@ cies
             OpenBSD Packet Filter log file, pre 3.4
             Optimized Link State Routing Protocol
             PC NFS
+            PKCS#1
             POSTGRESQL
             PPP Bandwidth Allocation Control Protocol
             PPP Bandwidth Allocation Protocol
@@ -733,6 +785,10 @@ cies
             X.25
             X.25 over TCP
             X.29
+            X.509 Authentication Framework
+            X.509 Certificate Extensions
+            X.509 Information Framework
+            X.509 Selected Attribute Types
             X11
             Xyplex
             Yahoo Messenger Protocol
@@ -748,13 +804,13 @@ cies
             iSCSI
             iSNS
 
-   Q 1.3: Are there any plans to support {your favorite protocol}?
+   Q 1.6: Are there any plans to support {your favorite protocol}?
 
    A: Support for particular protocols is added to Ethereal as a result
    of people contributing that support; no formal plans for adding
    support for particular protocols in particular future releases exist.
 
-   Q 1.4: Can Ethereal read capture files from {your favorite network
+   Q 1.7: Can Ethereal read capture files from {your favorite network
    analyzer}?
 
    A: Support for particular protocols is added to Ethereal as a result
@@ -779,7 +835,7 @@ cies
    Note that there is no guarantee that we will be able to
    reverse-engineer a capture file format.
 
-   Q 1.5: What devices can Ethereal use to capture packets?
+   Q 1.8: What devices can Ethereal use to capture packets?
 
    A: Ethereal can read live data from Ethernet, Token-Ring, FDDI, serial
    (PPP and SLIP) (if the OS on which it's running allows Ethereal to do
@@ -820,7 +876,7 @@ cies
    other applications or equipment, even if it cannot itself capture on
    those network types.
 
-   Q 1.6: How do you pronounce Ethereal? Where did the name come from?
+   Q 1.9: How do you pronounce Ethereal? Where did the name come from?
 
    A: The English pronunciation can be found in Merriam-Webster's online
    dictionary at
@@ -974,31 +1030,10 @@ Using Ethereal
    to a single port so that you can plug your analyzer into that single
    port to sniff all traffic. You would have to check the documentation
    for the switch to see if this is possible and, if so, to see how to do
-   this. See, for example:
-     * this documentation from Cisco on the Switched Port Analyzer (SPAN)
-       feature on Catalyst switches;
-     * documentation from HP on how to set "monitoring"/"mirroring" on
-       ports on the console for HP Advancestack Switch 208 and 224;
-     * the "Network Monitoring Port Features" section of chapter 6 of
-       documentation from HP for HP ProCurve Switches 1600M, 2424M,
-       4000M, and 8000M;
-     * the "Switch Port-Mirroring" section of chapter 6 of documentation
-       from Extreme Networks for their Summit 200 switches;
-     * the documentation on "Configuring Port Mirroring and Monitoring"
-       in Foundry Networks' documentation for their FastIron Edge
-       Switches;
-     * the documentation on "Configuring Port Mirroring and Monitoring"
-       in Foundry Networks' documentation for their BigIron MG8 Layer 3
-       Switches;
-     * the "Port Monitor" subsection of the "Status Monitor and
-       Statistics" section of the documentation from Foundry Networks for
-       their EdgeIron 4802F and 10GC2F switches;
-     * the "Configuring Port Mirroring" section of chapter 3 of the
-       documentation from Foundry Networks for their EdgeIron 24G,
-       2402CF, and 4802CF switches;
-     * the documentation on "Configuring Port Mirroring and Monitoring"
-       in Foundry Networks' documentation for their other switches and
-       metro routers.
+   this. See the switch reference page on the Ethereal Wiki for
+   information on some switches. (Note that it's a Wiki, so you can
+   update or fix that information, or add additional information on those
+   switches or information on new switches, yourself.)
 
    Note also that many firewall/NAT boxes have a switch built into them;
    this includes many of the "cable/DSL router" boxes. If you have a box
@@ -1500,20 +1535,8 @@ Using Ethereal
      Gtk-CRITICAL **: file gtkwindow.c: line 3107 (gtk_window_resize):
      assertion `height > 0' failed.
 
-   A: This is a bug in Ethereal 0.10.5, which will be fixed in the next
-   release of Ethereal. To work around this bug:
-    1. On Windows, this message will appear in a console window; do NOT,
-       under any circumstances, close that window!
-    2. Make sure the "Save window size" prefrence is set the "User
-       Interface" prefrences in the preferences window opened by
-       "Preferences" under the "Edit" menu.
-    3. Quit Ethereal.
-    4. On Windows, a "Press any key to exit" message might appear in the
-       command window; if that message appears in the window, click on
-       that window and press any key (such as Enter).
-
-   The next time Ethereal starts, it should not produce that error
-   message.
+   A: This is a bug in Ethereal 0.10.5 and 0.10.5a, which is fixed in
+   Ethereal 0.10.6 and later releases.
 
    Q 5.18: When I run Tethereal with the "-x" option, it crashes with an
    error
@@ -1832,9 +1855,8 @@ Using Ethereal
    On Windows, you will not be able to capture in monitor mode on any
    interfaces, and you might not be able to capture in promiscuous mode,
    either. You might have some success in promiscuous mode with Centrino
-   interfaces, although you will need the not-yet-released Ethereal
-   0.10.6 in order to have the non-data packets recognized and properly
-   dissected.
+   interfaces, although you will need Ethereal 0.10.6 or later in order
+   to have the non-data packets recognized and properly dissected.
 
    You will not be able to capture in monitor mode on any other platforms
    (including Mac OS X). You might be able to capture in promiscuous
@@ -1980,11 +2002,11 @@ Using Ethereal
    Cards with Atheros Communications chipsets:
 
    You can capture raw 802.11 packets with AR5K cards on Linux systems
-   with the v5_ar5k drivers. You will need the Linux wireless-tools
-   version 25 or higher to put the card into monitor mode. It might also
-   be possible to do so with the madwifi driver. If you have information
-   on how to do this, please supply it to us, so that we can incorporate
-   that information into the FAQ in the future.
+   with the v5_ar5k or madwifi drivers. For the v5ar5k driver you will
+   need the Linux wireless-tools version 25 or higher to put the card
+   into monitor mode. If you're using the madwifi driver, you can put the
+   card into monitor mode using iwconfig interface mode monitor, followed
+   by iwconfig interface channel channel to select a channel (if needed).
 
    Other cards:
 
@@ -2223,4 +2245,4 @@ Using Ethereal
    For corrections/additions/suggestions for this web page (and not
    Ethereal support questions), please send email to
    ethereal-web[AT]ethereal.com .
-   Last modified: Sun, August 08 2004.
+   Last modified: Sat, September 25 2004.

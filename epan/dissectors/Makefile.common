@@ -46,6 +46,7 @@ DISSECTOR_SRC =	\
 	packet-aim-chat.c	\
 	packet-aim-chatnav.c \
 	packet-aim-directory.c	\
+	packet-aim-email.c \
 	packet-aim-generic.c	\
 	packet-aim-icq.c \
 	packet-aim-invitation.c \
@@ -55,6 +56,7 @@ DISSECTOR_SRC =	\
 	packet-aim-popup.c \
 	packet-aim-signon.c \
 	packet-aim-ssi.c \
+	packet-aim-sst.c \
 	packet-aim-stats.c \
 	packet-aim-translate.c \
 	packet-aim-userlookup.c \
@@ -96,6 +98,7 @@ DISSECTOR_SRC =	\
 	packet-cdp.c	\
 	packet-cgmp.c	\
 	packet-chdlc.c	\
+	packet-cip.c	\
 	packet-cisco-oui.c	\
 	packet-clearcase.c	\
 	packet-clip.c	\
@@ -210,6 +213,7 @@ DISSECTOR_SRC =	\
 	packet-enrp.c	\
 	packet-esis.c	\
 	packet-eth.c	\
+	packet-etheric.c	\
 	packet-etherip.c	\
 	packet-ethertype.c	\
 	packet-fc.c	\
@@ -250,6 +254,7 @@ DISSECTOR_SRC =	\
 	packet-h225.c	\
 	packet-h235.c	\
 	packet-h245.c	\
+	packet-h248.c	\
 	packet-h261.c	\
 	packet-h263.c	\
 	packet-h450.c	\
@@ -262,6 +267,7 @@ DISSECTOR_SRC =	\
 	packet-iax2.c	\
 	packet-ib.c	\
 	packet-icap.c	\
+	packet-icep.c	\
 	packet-icmpv6.c	\
 	packet-icp.c	\
 	packet-icq.c	\
@@ -301,6 +307,7 @@ DISSECTOR_SRC =	\
 	packet-jabber.c	\
 	packet-kadm5.c	\
 	packet-kerberos.c	\
+	packet-kerberos4.c	\
 	packet-klm.c	\
 	packet-kpasswd.c	\
 	packet-l2tp.c	\
@@ -313,6 +320,7 @@ DISSECTOR_SRC =	\
 	packet-llc.c	\
 	packet-lmi.c	\
 	packet-lmp.c	\
+	packet-loop.c	\
 	packet-lpd.c	\
 	packet-lwapp.c	\
 	packet-m2pa.c	\
@@ -370,12 +378,16 @@ DISSECTOR_SRC =	\
 	packet-osi-options.c	\
 	packet-osi.c	\
 	packet-ospf.c	\
+	packet-pagp.c	\
 	packet-pcnfsd.c	\
 	packet-per.c	\
 	packet-pflog.c	\
 	packet-pgm.c	\
 	packet-pim.c	\
 	packet-pkcs1.c	\
+	packet-pkix1explicit.c	\
+	packet-pkix1implicit.c	\
+	packet-pkinit.c	\
 	packet-pktc.c	\
 	packet-pop.c	\
 	packet-portmap.c	\
@@ -465,6 +477,7 @@ DISSECTOR_SRC =	\
 	packet-syslog.c	\
 	packet-t38.c	\
 	packet-tacacs.c	\
+	packet-tali.c	\
 	packet-tcap.c	\
 	packet-tcp.c	\
 	packet-tds.c	\
@@ -539,6 +552,7 @@ DISSECTOR_INCLUDES =	\
 	packet-bootparams.h	\
 	packet-bssap.h	\
 	packet-chdlc.h	\
+	packet-cip.h	\
 	packet-clearcase.h	\
 	packet-clip.h	\
 	packet-cms.h	\
@@ -603,6 +617,7 @@ DISSECTOR_INCLUDES =	\
 	packet-h225.h	\
 	packet-h235.h	\
 	packet-h245.h	\
+	packet-h248.h	\
 	packet-hclnfsd.h	\
 	packet-hpext.h	\
 	packet-http.h	\
@@ -652,6 +667,9 @@ DISSECTOR_INCLUDES =	\
 	packet-pflog.h	\
 	packet-pim.h	\
 	packet-pkcs1.h	\
+	packet-pkix1explicit.h	\
+	packet-pkix1implicit.h	\
+	packet-pkinit.h	\
 	packet-pktc.h	\
 	packet-portmap.h	\
 	packet-ppp.h	\

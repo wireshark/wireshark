@@ -40,7 +40,7 @@
 #include "packet-rpc.h"
 #include "packet-nfs.h"
 #include "packet-nlm.h"
-#include "prefs.h"
+#include <epan/prefs.h>
 #include <string.h>
 
 /*

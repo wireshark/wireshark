@@ -66,11 +66,11 @@
 #include <glib.h>
 #include <string.h>
 #include <epan/packet.h>
-#include "prefs.h"
+#include <epan/prefs.h>
 #include "packet-ppp.h"
 #include "ppptypes.h"
-#include "ipproto.h"
-#include "in_cksum.h"
+#include <epan/ipproto.h>
+#include <epan/in_cksum.h>
 
 /* Define relevant IP/TCP parameters */
 #define IP_FIELD_TOT_LEN      2 /* Total length field in IP hdr           */

@@ -83,7 +83,7 @@
 #include <string.h>
 #include <epan/strutil.h>
 #include <epan/packet.h>
-#include "prefs.h"
+#include <epan/prefs.h>
 #include "packet-scsi.h"
 
 static int proto_scsi                    = -1;

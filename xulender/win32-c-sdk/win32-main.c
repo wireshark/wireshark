@@ -57,6 +57,7 @@
 
 #include <glib.h>
 #include "util.h"
+#include "clopts_common.h"
 #include "version_info.h"
 #include <epan/timestamp.h>
 #include "capture.h"
@@ -69,7 +70,7 @@
 #include "ui_util.h"
 #include "pcap-util.h"
 #include "disabled_protos.h"
-#include "prefs.h"
+#include <epan/prefs.h>
 #include "prefs-recent.h"
 #include "alert_box.h"
 #include "capture-wpcap.h"
@@ -570,22 +571,7 @@ WinMain( HINSTANCE h_instance, HINSTANCE h_prev_instance, LPSTR lpsz_cmd_line, i
 
     /* XXX - This doesn't currently work in wethereal. Does it need to? */
 
-    if (argc >= 2 && strcmp(argv[1], "-G") == 0) {
-	if (argc == 2) {
-	    proto_registrar_dump_fields();
-	} else {
-	    if (strcmp(argv[2], "fields") == 0)
-		proto_registrar_dump_fields();
-	    else if (strcmp(argv[2], "protocols") == 0)
-		proto_registrar_dump_protocols();
-	    else {
-		fprintf(stderr, "wethereal: Invalid \"%s\" option for -G flag\n",
-		    argv[2]);
-		exit(1);
-	    }
-	}
-	exit(0);
-    }
+    handle_dashG_option(argc, argv, "ethereal");
 
     /* Read the preference files. */
     prefs = read_prefs(&gpf_open_errno, &gpf_read_errno, &gpf_path,

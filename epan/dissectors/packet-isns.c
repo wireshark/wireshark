@@ -54,7 +54,7 @@
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include "packet-tcp.h"
-#include "prefs.h"
+#include <epan/prefs.h>
 
 
 #define ISNS_PROTO_VER 0x1
@@ -611,32 +611,27 @@ dissect_isns_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint16 function_id;
     guint16 isns_protocol_version;
     guint32 packet_len = tvb_length_remaining(tvb, offset);
-    char * function_id_str;
     /* Set up structures needed to add the protocol subtree and manage it */
     proto_item *ti = NULL;
     proto_tree *isns_tree = NULL;
     
-    if( packet_len < ISNS_HEADER_SIZE )
-	return;
-
     /* Make entries in Protocol column and Info column on summary display */
     if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, "isns");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "iSNS");
     if (check_col(pinfo->cinfo, COL_INFO)) 
 	col_clear(pinfo->cinfo, COL_INFO);
 
-    /* Get the function id from the packet */
-    function_id =  tvb_get_ntohs(tvb, offset + 2);
-    function_id_str = match_strval(function_id, isns_function_ids);
-    
     /* Get the protocol version - only version one at the moment*/ 
     isns_protocol_version = tvb_get_ntohs(tvb, offset + 0);
-    if( (function_id_str == NULL) || (isns_protocol_version != ISNS_PROTO_VER) )
-	return;
+    
+    /* Get the function id from the packet */
+    function_id =  tvb_get_ntohs(tvb, offset + 2);
     
     /* Add the function name in the info col */
     if (check_col(pinfo->cinfo, COL_INFO)) 
-	col_add_str(pinfo->cinfo, COL_INFO, function_id_str);
+	col_add_str(pinfo->cinfo, COL_INFO,
+	            val_to_str(function_id, isns_function_ids,
+	                       "Unknown function ID 0x%04x"));
     
     /* In the interest of speed, if "tree" is NULL, don't do any work not
      * necessary to generate protocol tree items. 
@@ -789,29 +784,65 @@ get_isns_pdu_len(tvbuff_t *tvb, int offset)
     return (isns_len+ISNS_HEADER_SIZE);
 }
 
-static void
+static int
 dissect_isns_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {	
-	/* Make entries in Protocol column and Info column on summary display*/
-	if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "isns");
-	if (check_col(pinfo->cinfo, COL_INFO)) 
-		col_clear(pinfo->cinfo, COL_INFO);
+	gint length = tvb_length_remaining(tvb, 0);
+	guint16 isns_protocol_version;
+	guint16 function_id;
+
+	if (length < ISNS_HEADER_SIZE) {
+		/*
+		 * Not enough room to see if this is valid iSNS.
+		 */
+		return 0;
+	}
+
+	/* Get the protocol version - only version one at the moment*/ 
+	isns_protocol_version = tvb_get_ntohs(tvb, 0);
+	if (isns_protocol_version != ISNS_PROTO_VER)
+		return 0;
+
+	/* Get the function id from the packet */
+	function_id =  tvb_get_ntohs(tvb, 2);
+	if (match_strval(function_id, isns_function_ids) == NULL) {
+		/* Unknown function ID */
+		return 0;
+	}
 
 	tcp_dissect_pdus(tvb, pinfo, tree, isns_desegment, 12, get_isns_pdu_len,
 		dissect_isns_pdu);
+	return length;
 }
 
-static void
+static int
 dissect_isns_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {	
-	/* Make entries in Protocol column and Info column on summary display*/
-	if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "isns");
-	if (check_col(pinfo->cinfo, COL_INFO)) 
-		col_clear(pinfo->cinfo, COL_INFO);
+	gint length = tvb_length_remaining(tvb, 0);
+	guint16 isns_protocol_version;
+	guint16 function_id;
+
+	if (length < ISNS_HEADER_SIZE) {
+		/*
+		 * Not enough room to see if this is valid iSNS.
+		 */
+		return 0;
+	}
+
+	/* Get the protocol version - only version one at the moment*/ 
+	isns_protocol_version = tvb_get_ntohs(tvb, 0);
+	if (isns_protocol_version != ISNS_PROTO_VER)
+		return 0;
+
+	/* Get the function id from the packet */
+	function_id =  tvb_get_ntohs(tvb, 2);
+	if (match_strval(function_id, isns_function_ids) == NULL) {
+		/* Unknown function ID */
+		return 0;
+	}
 
 	dissect_isns_pdu(tvb, pinfo, tree);
+	return length;
 }
 
 
@@ -1946,8 +1977,8 @@ void proto_register_isns(void)
 void
 proto_reg_handoff_isns(void)
 {
-    isns_tcp_handle = create_dissector_handle(dissect_isns_tcp,proto_isns);
-    isns_udp_handle = create_dissector_handle(dissect_isns_udp,proto_isns);
+    isns_tcp_handle = new_create_dissector_handle(dissect_isns_tcp,proto_isns);
+    isns_udp_handle = new_create_dissector_handle(dissect_isns_udp,proto_isns);
 
     dissector_add("tcp.port",ISNS_TCP_PORT,isns_tcp_handle);
     dissector_add("udp.port",ISNS_UDP_PORT,isns_udp_handle);

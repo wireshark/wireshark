@@ -40,7 +40,7 @@
 #include <epan/value_string.h>
 
 #include "tap_menu.h"
-#include "../tap.h"
+#include <epan/tap.h>
 #include "../register.h"
 #include <epan/dissectors/packet-h225.h>
 #include "gtk_stat_util.h"
@@ -527,7 +527,7 @@ gtk_h225counter_init(char *optarg)
 	hs->vbox=gtk_vbox_new(FALSE, 3);
 	gtk_container_set_border_width(GTK_CONTAINER(hs->vbox), 12);
 
-	init_main_stat_window(hs->win, hs->vbox, "ITU-T H.225 Message and Message Reason Counter", filter);
+	init_main_stat_window(hs->win, hs->vbox, "H.225 Message and Message Reason Counter", filter);
 
         /* init a scrolled window*/
 	hs->scrolled_window = scrolled_window_new(NULL, NULL);
@@ -564,6 +564,6 @@ register_tap_listener_gtk_h225counter(void)
 {
 	register_ethereal_tap("h225,counter", gtk_h225counter_init);
 
-	register_tap_menu_item("ITU-T H.225...", REGISTER_TAP_GROUP_NONE,
+	register_tap_menu_item("H.225...", REGISTER_TAP_GROUP_NONE,
 	    gtk_tap_dfilter_dlg_cb, NULL, NULL, &(h225_counter_dlg));
 }

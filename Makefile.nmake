@@ -167,27 +167,27 @@ xulender\win32-c-sdk\win32-c-sdk.lib: xulender\win32-c-sdk
 !IFNDEF GTK1_DIR
 ethereal.exe	: 
 !ELSE
-ethereal.exe	: config.h svnversion.h $(ethereal_OBJECTS) $(EXTRA_OBJECTS) epan gtk image\ethereal.res wiretap\wiretap-$(WTAP_VERSION).lib gtk\libui.lib plugins
+ethereal.exe	: config.h svnversion.h $(ethereal_OBJECTS) epan gtk image\ethereal.res wiretap\wiretap-$(WTAP_VERSION).lib gtk\libui.lib plugins
 	@echo Linking $@
 	$(LINK) @<<
-		/OUT:ethereal.exe $(guiflags) $(guilibsdll) $(LDFLAGS) /SUBSYSTEM:windows $(ethereal_LIBS) $(GTK1_LIBS) gtk\libui.lib $(ethereal_OBJECTS) $(EXTRA_OBJECTS) image\ethereal.res
+		/OUT:ethereal.exe $(guiflags) $(guilibsdll) $(LDFLAGS) /SUBSYSTEM:windows $(ethereal_LIBS) $(GTK1_LIBS) gtk\libui.lib $(ethereal_OBJECTS) image\ethereal.res
 <<
 !ENDIF
 
 !IFNDEF GTK2_DIR
 ethereal-gtk2.exe	: 
 !ELSE
-ethereal-gtk2.exe	: config.h svnversion.h $(ethereal_OBJECTS) $(EXTRA_OBJECTS) epan gtk2 image\ethereal.res wiretap\wiretap-$(WTAP_VERSION).lib gtk2.tmp\libui.lib plugins
+ethereal-gtk2.exe	: config.h svnversion.h $(ethereal_OBJECTS) epan gtk2 image\ethereal.res wiretap\wiretap-$(WTAP_VERSION).lib gtk2.tmp\libui.lib plugins
 	@echo Linking $@
 	$(LINK) @<<
-		/OUT:ethereal-gtk2.exe $(guiflags) $(guilibsdll) $(LDFLAGS) /SUBSYSTEM:windows $(ethereal_LIBS) $(GTK2_LIBS) gtk2.tmp\libui.lib $(ethereal_OBJECTS) $(EXTRA_OBJECTS) image\ethereal.res
+		/OUT:ethereal-gtk2.exe $(guiflags) $(guilibsdll) $(LDFLAGS) /SUBSYSTEM:windows $(ethereal_LIBS) $(GTK2_LIBS) gtk2.tmp\libui.lib $(ethereal_OBJECTS) image\ethereal.res
 <<
 !ENDIF
 
-tethereal.exe	: config.h svnversion.h $(tethereal_OBJECTS) $(EXTRA_OBJECTS) epan image\tethereal.res wiretap\wiretap-$(WTAP_VERSION).lib plugins
+tethereal.exe	: config.h svnversion.h $(tethereal_OBJECTS) epan image\tethereal.res wiretap\wiretap-$(WTAP_VERSION).lib plugins
 	@echo Linking $@
 	$(LINK) @<<
-		/OUT:tethereal.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console $(tethereal_LIBS) $(tethereal_OBJECTS) $(EXTRA_OBJECTS) image\tethereal.res
+		/OUT:tethereal.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console $(tethereal_LIBS) $(tethereal_OBJECTS) image\tethereal.res
 <<
 
 wethereal.exe	: config.h svnversion.h $(wethereal_OBJECTS) $(EXTRA_OBJECTS) epan xulender\win32-c-sdk $(wethereal_RESOURCES) wiretap\wiretap-$(WTAP_VERSION).lib xulender\win32-c-sdk\win32-c-sdk.lib plugins
@@ -220,12 +220,12 @@ text2pcap.exe	: config.h text2pcap.obj text2pcap-scanner.obj getopt.obj strptime
 		/OUT:text2pcap.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console text2pcap.obj text2pcap-scanner.obj getopt.obj strptime.obj image\text2pcap.res
 <<
 
-dftest.exe	: $(dftest_OBJECTS) $(EXTRA_OBJECTS) epan
+dftest.exe	: $(dftest_OBJECTS) epan
 	$(LINK) @<<
-		/OUT:dftest.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console $(dftest_LIBS) $(dftest_OBJECTS) $(EXTRA_OBJECTS)
+		/OUT:dftest.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console $(dftest_LIBS) $(dftest_OBJECTS)
 <<
 
-randpkt.exe	: $(randpkt_OBJECTS) $(EXTRA_OBJECTS)
+randpkt.exe	: $(randpkt_OBJECTS)
 	$(LINK) @<<
 		/OUT:randpkt.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console $(randpkt_LIBS) $(randpkt_OBJECTS)
 <<
@@ -237,9 +237,10 @@ config.h	: config.h.win32 config.nmake
 	    -e "s/@HAVE_LIBZ@/$(ZLIB_CONFIG)/" \
 	    -e "s/@HAVE_LIBPCAP@/$(WINPCAP_CONFIG)/" \
 	    -e "s/@HAVE_PCAP_FINDALLDEVS@/$(PCAP_FINDALLDEVS_CONFIG)/" \
+	    -e "s/@HAVE_PCAP_DATALINK_NAME_TO_VAL@/$(PCAP_DATALINK_NAME_TO_VAL_CONFIG)/" \
+	    -e "s/@HAVE_PCAP_DATALINK_VAL_TO_NAME@/$(PCAP_DATALINK_VAL_TO_NAME_CONFIG)/" \
 	    -e "s/@HAVE_LIBETHEREALDLL@/$(LIBETHEREAL_CONFIG)/" \
 	    -e "s/@WPCAP_CONSTIFIED@/$(WPCAP_CONSTIFIED_CONFIG)/" \
-	    -e "s/@HAVE_LIBETHEREALDLL@/$(LIBETHEREAL_CONFIG)/" \
 	    < config.h.win32 > $@
 
 ps.c	: rdps.exe print.ps
@@ -255,7 +256,7 @@ svnversion.h:
 #
 # Build the short version of the authors file for the about dialog
 #
-AUTHORS-SHORT: AUTHORS make-authors-short.pl
+AUTHORS-SHORT: AUTHORS make-authors-short.pl make-authors-short2.pl
 	$(PERL) make-authors-short.pl < AUTHORS > AUTHORS-SHORT
 
 
@@ -422,10 +423,12 @@ REQUIRED_TOOLS=\
 verify_tools:
 	@$(SH) tools\win32-setup.sh --appverify $(REQUIRED_TOOLS)
 
+# Download and install all the required libraries into ETHEREAL_LIBS.
+# If you used this setup target before, consider doing a clean_setup.
 setup: verify_tools
 !IF "$(GTK2_INST_VERSION)" == "2.4"
 	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
-		glib gtk2.4/glib-2.4.5.zip
+		glib gtk2.4/glib-2.4.5-20040903.zip
 	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
 		glib gtk2.4/glib-dev-2.4.5.zip
 !ELSE
@@ -467,9 +470,9 @@ setup: verify_tools
 !IFDEF GTK2_DIR
 !IF "$(GTK2_INST_VERSION)" == "2.4"
 	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
-		gtk2 gtk2.4/gtk+-2.4.7.zip
+		gtk2 gtk2.4/gtk+-2.4.10-20041001.zip
 	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
-		gtk2 gtk2.4/gtk+-dev-2.4.7.zip
+		gtk2 gtk2.4/gtk+-dev-2.4.10.zip
 	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
 		gtk2 gtk2.4/atk-1.6.0.zip
 	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
@@ -502,6 +505,17 @@ setup: verify_tools
 !ENDIF
 	@echo.
 	@echo Ethereal is ready to build.
+
+# Cleanup files installed by the setup target. It will not remove the 
+# downloaded zip files.
+clean_setup:
+    rm -r -f $(ETHEREAL_LIBS)/glib
+    rm -r -f $(ETHEREAL_LIBS)/gtk+
+    rm -r -f $(ETHEREAL_LIBS)/libiconv-1.9.1.bin.woe32
+    rm -r -f $(ETHEREAL_LIBS)/gettext-runtime-0.13.1
+    rm -r -f $(ETHEREAL_LIBS)/zlib121-dll
+    rm -r -f $(ETHEREAL_LIBS)/gtk2
+    rm -r -f $(ETHEREAL_LIBS)/gtk-wimp
 
 update_plugin_api: config.h
 	cd plugins

@@ -37,7 +37,7 @@
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/addr_resolv.h>
-#include "prefs.h"
+#include <epan/prefs.h>
 #include <epan/strutil.h>
 
 #define TCP_PORT_SMTP 25

@@ -1,0 +1,1860 @@
+<!-- EUG Chapter Three -->
+<!-- $Id$ -->
+
+<chapter id="ChapterUsing">
+  <title>User Interface</title>
+  <section id="ChUseIntroductionSection"><title>Introduction</title>
+    <para>
+      By now you have installed <application>Ethereal</application> and 
+      are most likely keen to get started capturing your first packets.  In 
+      the next chapters we will explore:
+      <itemizedlist>
+	<listitem>
+	  <para>
+	    How the Ethereal user interface works
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    How to capture packets in <application>Ethereal</application>
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    How to view packets in <application>Ethereal</application>
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    How to filter packets in <application>Ethereal</application>
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    ... and many other things!
+	  </para>
+	</listitem>
+      </itemizedlist>
+    </para>
+  </section>
+  
+  <section id="ChUseStartSection"><title>Start Ethereal</title>
+    <para>
+	You can start Ethereal from your shell or window manager.
+	<tip><title>Tip!</title>
+	<para>
+	When starting Ethereal it's possible to specify optional settings using 
+	the	command line. See <xref linkend="ChCustCommandLine"/> for details.
+	</para>
+	</tip>
+	<note><title>Note!</title>
+	<para>
+	In the following chapters, a lot of screenshots from Ethereal will be shown. 
+	As Ethereal runs on many different platforms and there are different 
+	versions of the underlying GUI toolkit (GTK 1.x / 2.x) used, your 
+	screen might look different from the provided screenshots. But as there 
+	are no real differences in functionality, these screenshots should still 
+	be understandable.
+	</para>
+	</note>
+	</para>
+  </section>
+  
+  <section id="ChUseMainWindowSection"><title>The Main window</title>
+	<para>
+      Lets look at Ethereal's user interface. <xref linkend="ChUseFig01"/> shows 
+	Ethereal as you would usually see it after some packets captured or loaded 
+	(how to do this will be described later).
+	<figure id="ChUseFig01">
+	  <title>The Main window</title>
+	  <graphic scale="100" entityref="EtherealThreePane1" format="PNG"/>
+	</figure>
+    </para>
+    <para>
+      Ethereal's main window consist of parts that are commonly known from many 
+	  other GUI programs.
+      <orderedlist>
+	<listitem>
+	  <para>
+	    The <emphasis>menu</emphasis> (see <xref linkend="ChUseMenuSection"/>)
+		is used to start actions.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    The <emphasis>main toolbar</emphasis> (see <xref linkend="ChUseMainToolbarSection"/>) 
+		provides quick access to frequently used items from the menu.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    The <emphasis>filter toolbar</emphasis> (see <xref linkend="ChUseFilterToolbarSection"/>) 
+		provides a way to directly manipulate the currently used display filter 
+		(see <xref linkend="ChWorkDisplayFilterSection"/>). 
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    The <emphasis>packet list pane</emphasis> (see <xref linkend="ChUsePacketListPaneSection"/>) 
+		displays a summary of each packet captured.  By clicking on packets 
+		in this pane you control what is displayed in the other two panes.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    The <emphasis>packet details pane</emphasis> (see <xref linkend="ChUsePacketDetailsPaneSection"/>) 
+		displays the packet selected in the packet list pane in more detail.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    The <emphasis>packet bytes pane</emphasis> (see <xref linkend="ChUsePacketBytesPaneSection"/>) 
+		displays the data from the packet selected in the packet list pane, and 
+		highlights the field selected in the packet details pane.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    The <emphasis>statusbar</emphasis> (see <xref linkend="ChUseStatusbarSection"/>) 
+		shows some detailed information about the current program state and 
+		the captured data.
+	  </para>
+	</listitem>
+      </orderedlist>
+	  <tip><title>Tip!</title>
+	  <para>
+	  The layout of the main window can be customized by changing preference settings. 
+	  See <xref linkend="ChCustGUILayoutPrefPage"/> for details!
+	  </para>
+	  </tip>
+    </para>
+	</section>
+	
+  <section id="ChUseMenuSection"><title>The Menu</title>
+    <para>
+      The Ethereal menu sits on top of the Ethereal window. 
+      An example is shown in <xref linkend="ChUseEtherealMenu"/>.
+    </para>
+	<note><title>Note!</title>
+	<para>
+	Menu items will be greyed out if the corresponding feature isn't 
+	available. For example, you cannot save a capture file if you didn't 
+	capture or load any data before.
+	</para>
+	</note>
+    <para>
+	<figure id="ChUseEtherealMenu"><title>The Menu</title>
+	  <graphic entityref="EtherealMenuOnly" format="PNG"/>
+	</figure>
+    </para>
+    <para>
+      It contains the following items:
+      <variablelist>
+	<varlistentry><term><command>File</command></term>
+	  <listitem>
+	    <para>
+	      This menu contains tems to open and merge capture files, 
+		  save / print / export capture files in whole or in part, 
+		  and to quit from Ethereal. See <xref linkend="ChUseFileMenuSection"/>.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry><term><command>Edit</command></term>
+	  <listitem>
+	    <para>
+	      This menu contains items to find a packet, time reference or mark one 
+		  or more packets, set your preferences, 
+	      (cut, copy, and paste are not presently implemented).
+		  See <xref linkend="ChUseEditMenuSection"/>.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry><term><command>View</command></term>
+	  <listitem>
+	    <para>This menu controls the display of the captured data, 
+		including the colorization of packets, zooming the font, 
+		show a packet in a separate window, expand and collapse trees in packet details, ....
+		See <xref linkend="ChUseViewMenuSection"/>.
+		</para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry><term><command>Go</command></term>
+	  <listitem>
+	    <para>This menu contains items to go to a specific packet.
+		See <xref linkend="ChUseGoMenuSection"/>.
+		</para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry><term><command>Capture</command></term>
+	  <listitem>
+	    <para>This menu allows you to start and stop captures and to edit capture filters.
+		See <xref linkend="ChUseCaptureMenuSection"/>.
+		</para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry><term><command>Analyze</command></term>
+	  <listitem>
+	    <para>
+		  This menu contains items to manipulate display filters, enable or 
+		  disable the dissection of protocols, configure user specified decodes
+		  and follow a TCP stream.
+		  See <xref linkend="ChUseAnalyzeMenuSection"/>.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry><term><command>Statistics</command></term>
+	  <listitem>
+	    <para>
+	      This menu contains menu-items to display various statistic windows,
+		  including a summary of the packets that have been captured, 
+		  display protocol hierarchy statistics and much more.
+		  See <xref linkend="ChUseStatisticsMenuSection"/>.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry><term><command>Help</command></term>
+	  <listitem>
+	    <para>
+	      This menu contains items to help the user, like access to some basic 
+		  help, a list of the supported protocols, manual pages, online access
+		  to some of the webpages, and the usual about dialog.
+		  See <xref linkend="ChUseHelpMenuSection"/>.
+	    </para>
+	  </listitem>
+	  </varlistentry>
+	</variablelist>
+      Each of these menu items is described in more detail in the sections 
+	  that follow. 
+    </para>
+	<tip><title>Tip!</title>
+	<para>
+	You can access menu items directly or by pressing the corresponding 
+	accelerator keys, which are shown at the right side of the 
+	menu. For example, you can press the Control (or Strg in german) and the K 
+	keys together to open the capture dialog. 
+	</para>
+	</tip>
+  </section>
+
+  <section id="ChUseFileMenuSection"><title>The "File" menu</title>
+    <para>
+      The Ethereal file menu contains the fields shown in 
+      <xref linkend="ChUseTabFile"/>.
+    </para>
+    <figure id="ChUseEtherealFileMenu">
+      <title>The "File" Menu</title>
+      <graphic entityref="EtherealFileMenu" format="PNG"/>
+    </figure>
+    <table id="ChUseTabFile" frame="none"><title>File menu items</title>
+      <tgroup cols="3">
+	<colspec colnum="1" colwidth="72pt"/>
+	  <colspec colnum="2" colwidth="80pt"/>
+	    <thead>
+	      <row>
+		<entry>Menu Item</entry>
+		<entry>Accelerator</entry>
+		<entry>Description</entry>
+	      </row>
+	    </thead>
+	    <tbody>
+	      <row>
+		<entry><command>Open...</command></entry>
+		<entry>Ctrl+O</entry>
+		<entry><para>
+		    This menu item brings up the file open dialog box that 
+		    allows you to load a capture file for viewing. It is 
+		    discussed in more detail in <xref linkend="ChIOOpen"/>.
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>Open Recent</command></entry>
+		<entry></entry>
+		<entry><para>
+		    This menu item shows a submenu containing the recently opened 
+			capture files. Clicking on one of the submenu items will open the 
+			corresponding capture file directly.
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>Merge...</command></entry>
+		<entry></entry>
+		<entry><para>
+		    This menu item brings up the merge file dialog box that 
+		    allows you to merge a capture file into the currently loaded one. 
+			It is discussed in more detail in <xref linkend="ChIOMergeSection"/>.
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>Close</command></entry>
+		<entry>Ctrl+W</entry>
+		<entry><para>
+		    This menu item closes the current capture. If you 
+		    haven't saved the capture, you will be asked to do so first
+			 (this can be disabled by a preference setting).
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>------</command></entry>
+		<entry></entry>
+		<entry></entry>
+	      </row>
+	      <row>
+		<entry><command>Save</command></entry>
+		<entry>Ctrl+S</entry>
+		<entry><para>
+		    This menu item saves the current capture. If you 
+		    have not set a default capture file name (perhaps with 
+		    the -w &lt;capfile&gt; option), Ethereal pops up the 
+		    Save Capture File As dialog box (which is discussed 
+		    further in <xref linkend="ChIOSaveAs"/>).
+		  </para><note>
+		    <title>Note!</title>
+		    <para>
+		      If you have already saved the current capture, this 
+		      menu item will be greyed out.
+		    </para>
+		  </note><note>
+		    <title>Note!</title>
+		    <para>
+		      You cannot save a live capture while it is in 
+		      progress.  You must stop the capture in order to 
+		      save.
+		    </para>
+		  </note></entry>
+	      </row>
+	      <row>
+		<entry><command>Save As...</command></entry>
+		<entry>Shift+Ctrl+S</entry>
+		<entry><para>
+		    This menu item allows you to save the current capture 
+		    file to whatever file you would like. It pops up the 
+		    Save Capture File As dialog box (which is discussed 
+		    further in <xref linkend="ChIOSaveAs"/>).
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>------</command></entry>
+		<entry></entry>
+		<entry></entry>
+	      </row>
+	      <row>
+		<entry><command>Export > as "Plain Text" file...</command></entry>
+		<entry></entry>
+		<entry><para>
+		    This menu item allows you to export all, or some, of the packets in 
+		    the capture file to a plain ASCII text file. 
+			It pops up the Ethereal Export dialog box (which is discussed further in 
+		    <xref linkend="ChIOExportPlainDialog"/>).
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>Export > as "PostScript" file...</command></entry>
+		<entry></entry>
+		<entry><para>
+		    This menu item allows you to export the (or some) of the packets in 
+		    the capture file to a PostScript file. 
+			It pops up the Ethereal Export dialog box (which is discussed further in 
+		    <xref linkend="ChIOExportPSDialog"/>).
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>Export > as "PSML" file...</command></entry>
+		<entry></entry>
+		<entry><para>
+		    This menu item allows you to export the (or some) of the packets in 
+		    the capture file to a PSML (packet summary markup language) XML file. 
+			It pops up the Ethereal Export dialog box (which is discussed further in 
+		    <xref linkend="ChIOExportPSMLDialog"/>).
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>Export > as "PDML" file...</command></entry>
+		<entry></entry>
+		<entry><para>
+		    This menu item allows you to export the (or some) of the packets in 
+		    the capture file to a PDML (packet details markup language) XML file. 
+			It pops up the Ethereal Export dialog box (which is discussed further in 
+		    <xref linkend="ChIOExportPDMLDialog"/>).
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>Export > Selected Packet Bytes...</command></entry>
+		<entry>Ctrl+H</entry>
+		<entry><para>
+		    This menu item allows you to export the currently selected bytes 
+			in the packet bytes pane to a binary file. It pops up the 
+			Ethereal Export dialog box (which is discussed further in 
+		    <xref linkend="ChIOExportSelectedDialog"/>)
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>------</command></entry>
+		<entry></entry>
+		<entry></entry>
+	      </row>
+	      <row>
+		<entry><command>Print...</command></entry>
+		<entry>Ctrl+P</entry>
+		<entry><para>
+		    This menu item allows you to print all (or some of) the packets in 
+		    the capture file. It pops up the Ethereal Print dialog 
+		    box (which is discussed further in 
+		    <xref linkend="ChIOPrintSection"/>).
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>------</command></entry>
+		<entry></entry>
+		<entry></entry>
+	      </row>
+	      <row>
+		<entry><command>Quit</command></entry>
+		<entry>Ctrl+Q</entry>
+		<entry><para>
+		    This menu item allows you to quit from Ethereal.  
+			Ethereal will ask to save your capture file if you haven't saved 
+			it before (this can be disabled by a preference setting). 
+		  </para></entry>
+	      </row>
+	    </tbody>
+      </tgroup>
+    </table>
+  </section>
+  
+  <section id="ChUseEditMenuSection"><title>The "Edit" menu</title>
+    <para>
+      The Ethereal Edit menu contains the fields shown in 
+      <xref linkend="ChUseTabEdit"/>.
+    </para>
+    <figure id="ChUseEtherealEditMenu">
+      <title>The "Edit" Menu</title>
+      <graphic entityref="EtherealEditMenu" format="PNG"/>
+    </figure>
+    <table id="ChUseTabEdit" frame="none">
+      <title>Edit menu items</title>
+      <tgroup cols="3">
+	<colspec colnum="1" colwidth="72pt"/>
+	  <colspec colnum="2" colwidth="80pt"/>
+	    <thead>
+	      <row>
+		<entry>Menu Item</entry>
+		<entry>Accelerator</entry>
+		<entry>Description</entry>
+	      </row>
+	    </thead>
+	    <tbody>
+	      <row>
+		<entry><command>Find Packet...</command></entry>
+		<entry>Ctrl+F</entry>
+		<entry><para>
+		    This menu item brings up a dialog box that allows you 
+		    to find a packet by many criteria.
+		    There is further information on finding packets in 
+		    <xref linkend="ChWorkFindPacketSection"/>.
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>Find Next</command></entry>
+		<entry>Ctrl+N</entry>
+		<entry><para>
+		    This menu item tries to find the next packet matching the 
+			settings from "Find Packet...".
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>Find Previous</command></entry>
+		<entry>Ctrl+B</entry>
+		<entry><para>
+		    This menu item tries to find the previous packet matching the 
+			settings from "Find Packet...".
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>------</command></entry>
+		<entry></entry>
+		<entry></entry>
+	      </row>
+	      <row>
+		<entry><command>Time Reference > Set Time Reference</command></entry>
+		<entry>Ctrl+T</entry>
+		<entry><para>
+		    This menu item set a time reference on the currently selected 
+			packet. See <xref linkend="ChWorkTimeReferencePacketSection"/> for more information 
+		      about the time referenced packets.
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>Time Reference > Find Next</command></entry>
+		<entry></entry>
+		<entry><para>
+		    This menu item tries to find the next time referenced packet.
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>Time Reference > Find Previous</command></entry>
+		<entry></entry>
+		<entry><para>
+		    This menu item tries to find the previous time referenced packet.
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>Mark Packet</command></entry>
+		<entry>Ctrl+M</entry>
+		<entry><para>
+		    This menu item "marks" the currently selected packet. See
+			<xref linkend="ChWorkMarkPacketSection"/> for details.
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>Mark All Packets</command></entry>
+		<entry></entry>
+		<entry><para>
+		    This menu item "marks" all packets.
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>Unmark All Packets</command></entry>
+		<entry></entry>
+		<entry><para>This menu item "unmarks" all marked packets.
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>------</command></entry>
+		<entry></entry>
+		<entry></entry>
+	      </row>
+	      <row>
+		<entry><command>Preferences...</command></entry>
+		<entry>Shift+Ctrl+P</entry>
+		<entry><para>
+		    This menu item brings up a dialog box that allows 
+		    you to set preferences for many parameters that control 
+		    Ethereal.  You can also save your preferences so Ethereal 
+		    will use them the next time you start it. More detail 
+		    is provided in <xref linkend="ChCustPreferencesSection"/>.
+		  </para></entry>
+	      </row>
+	    </tbody>
+      </tgroup>
+    </table>
+  </section>
+
+  <section id="ChUseViewMenuSection"><title>The "View" menu</title>
+    <para>
+      The Ethereal View menu contains the fields shown in 
+      <xref linkend="ChUseTabView"/>.
+    </para>
+    <figure id="ChUseEtherealViewMenu">
+      <title>The "View" Menu</title>
+      <graphic entityref="EtherealViewMenu" format="PNG"/>
+    </figure>
+    <table id="ChUseTabView" frame="none">
+      <title>View menu items</title>
+      <tgroup cols="3">
+	<colspec colnum="1" colwidth="72pt"/>
+	  <colspec colnum="2" colwidth="80pt"/>
+	    <thead>
+	      <row>
+		<entry>Menu Item</entry>
+		<entry>Accelerator</entry>
+		<entry>Description</entry>
+	      </row>
+	    </thead>
+	    <tbody>
+	      <row>
+		<entry><command>Main Toolbar</command></entry>
+		<entry></entry>
+		<entry><para>
+		    This menu item hides or shows the main toolbar, see 
+		  <xref linkend="ChUseMainToolbarSection"/>.
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>Filter Toolbar</command></entry>
+		<entry></entry>
+		<entry><para>
+		    This menu item hides or shows the filter toolbar, see 
+		  <xref linkend="ChUseFilterToolbarSection"/>.
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>Statusbar</command></entry>
+		<entry></entry>
+		<entry><para>
+		    This menu item hides or shows the statusbar, see 
+		  <xref linkend="ChUseStatusbarSection"/>.
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>------</command></entry>
+		<entry></entry>
+		<entry></entry>
+	      </row>
+	      <row>
+		<entry><command>Packet List</command></entry>
+		<entry></entry>
+		<entry><para>
+		    This menu item hides or shows the packet list pane, see 
+		  <xref linkend="ChUsePacketListPaneSection"/>.
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>Packet Details</command></entry>
+		<entry></entry>
+		<entry><para>
+		    This menu item hides or shows the packet details pane, see 
+		  <xref linkend="ChUsePacketDetailsPaneSection"/>.
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>Packet Bytes</command></entry>
+		<entry></entry>
+		<entry><para>
+		    This menu item hides or shows the packet bytes pane, see 
+		  <xref linkend="ChUsePacketBytesPaneSection"/>.
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>------</command></entry>
+		<entry></entry>
+		<entry></entry>
+	      </row>
+	      <row>
+		<entry><command>Time Display Format > Time of Day</command></entry>
+		<entry></entry>
+		<entry><para>
+	      Selecting this tells Ethereal to display time 
+	      stamps in time of day format, see 
+		  <xref linkend="ChWorkTimeFormatsSection"/>. 
+		  <note><title>Note!</title>
+		  <para>
+		  The fields "Time of Day", "Date and Time of 
+	      Day", "Seconds Since Beginning of Capture" and "Seconds Since 
+	      Previous Packet" are mutually exclusive.
+		  </para>
+		  </note>
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>Time Display Format > Date and Time of Day</command></entry>
+		<entry></entry>
+		<entry><para>
+	      Selecting this tells Ethereal to display the 
+	      time stamps in date and time of day format, see 
+		  <xref linkend="ChWorkTimeFormatsSection"/>.
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>Time Display Format > Seconds Since Beginning of Capture</command></entry>
+		<entry></entry>
+		<entry><para>
+	      Selecting this tells Ethereal to display time 
+	      stamps in seconds since beginning of capture format, see 
+		  <xref linkend="ChWorkTimeFormatsSection"/>.
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>Time Display Format > Seconds Since Previous Packet</command></entry>
+		<entry></entry>
+		<entry><para>
+	      Selecting this tells Ethereal to display time stamps in 
+	      seconds since previous packet format, see 
+		  <xref linkend="ChWorkTimeFormatsSection"/>.
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>Name Resolution > Resolve Name</command></entry>
+		<entry></entry>
+		<entry><para>
+		This item allows you to trigger a name resolve of the current packet 
+		only, see <xref linkend="ChAdvNameResolutionSection"/>.
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>Name Resolution > Enable for MAC Layer</command></entry>
+		<entry></entry>
+		<entry><para>
+		This item allows you to control whether or not 
+		Ethereal translates MAC addresses into names, see
+		  <xref linkend="ChAdvNameResolutionSection"/>.
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>Name Resolution > Enable for Network Layer</command></entry>
+		<entry></entry>
+		<entry><para>
+		This item allows you to control whether or not 
+		Ethereal translates network addresses into names, see
+		  <xref linkend="ChAdvNameResolutionSection"/>.
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>Name Resolution > Enable for Transport Layer</command></entry>
+		<entry></entry>
+		<entry><para>
+		This item allows you to control whether or not 
+		Ethereal translates transport addresses into names, see
+		  <xref linkend="ChAdvNameResolutionSection"/>.
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>Auto Scroll in Live Capture</command></entry>
+		<entry></entry>
+		<entry><para>
+		This item allows you to specify that Ethereal 
+		should scroll the packet list pane as new packets come 
+		in, so you are always looking at the last packet.  If you 
+		do not specify this, Ethereal simply adds new packets onto 
+		the end of the list, but does not scroll the packet list 
+		pane.
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>------</command></entry>
+		<entry></entry>
+		<entry></entry>
+	      </row>
+	      <row>
+		<entry><command>Zoom In</command></entry>
+		<entry>Ctrl++</entry>
+		<entry><para>
+		  Zoom into the packet data (increase the font size).
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>Zoom Out</command></entry>
+		<entry>Ctrl+-</entry>
+		<entry><para>
+		  Zoom out of the packet data (decrease the font size).
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>Normal Size</command></entry>
+		<entry>Ctrl+=</entry>
+		<entry><para>
+		  Set zoom level back to 100% (set font size back to normal).
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>------</command></entry>
+		<entry></entry>
+		<entry></entry>
+	      </row>
+	      <row>
+		<entry><command>Collapse All</command></entry>
+		<entry></entry>
+		<entry><para>
+		    Ethereal keeps a list of all the protocol subtrees 
+		    that are expanded, and uses it to ensure that the 
+		    correct subtrees are expanded when you display a packet. 
+		    This menu item collapses the tree view of all packets 
+		    in the capture list.  
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>Expand All</command></entry>
+		<entry></entry>
+		<entry><para>
+		    This menu item expands all subtrees in all packets in 
+		    the capture. 
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>Expand Tree</command></entry>
+		<entry></entry>
+		<entry><para>
+		    This menu item expands the currently selected subtree in the 
+			packet details tree. 
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>------</command></entry>
+		<entry></entry>
+		<entry></entry>
+	      </row>
+	      <row>
+		<entry><command>Coloring Rules...</command></entry>
+		<entry></entry>
+		<entry><para>
+		    This menu item brings up a dialog box that allows you 
+		    to color packets in the packet list pane according to 
+		    filter expressions you choose. It can be very useful 
+		    for spotting certain types of packets, see
+		  <xref linkend="ChCustColorizationSection"/>.
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>------</command></entry>
+		<entry></entry>
+		<entry></entry>
+	      </row>
+	      <row>
+		<entry><command>Show Packet in New Window</command></entry>
+		<entry></entry>
+		<entry><para>
+		    This menu item brings up the selected packet in a 
+		    separate window. The separate window shows only the 
+		    tree view and byte view panes. 
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>Reload</command></entry>
+		<entry>Ctrl-R</entry>
+		<entry><para>
+		    This menu item allows you to reload the current 
+		    capture file.
+		  </para></entry>
+	      </row>
+	    </tbody>
+      </tgroup>
+    </table>
+  </section>
+
+  <section id="ChUseGoMenuSection"><title>The "Go" menu</title>
+    <para>
+      The Ethereal Go menu contains the fields shown in 
+      <xref linkend="ChUseTabGo"/>.
+    </para>
+    <figure id="ChUseEtherealGoMenu">
+      <title>The "Go" Menu</title>
+      <graphic entityref="EtherealGoMenu" format="PNG"/>
+    </figure>
+    <table id="ChUseTabGo" frame="none">
+      <title>Go menu items</title>
+      <tgroup cols="3">
+	<colspec colnum="1" colwidth="72pt"/>
+	  <colspec colnum="2" colwidth="80pt"/>
+	    <thead>
+	      <row>
+		<entry>Menu Item</entry>
+		<entry>Accelerator</entry>
+		<entry>Description</entry>
+	      </row>
+	    </thead>
+	    <tbody>
+	      <row>
+		<entry><command>Go to Packet...</command></entry>
+		<entry>Ctrl-G</entry>
+		<entry><para>
+		    This menu item brings up a dialog box that allows you 
+		    to specify a packet number, and then goes to that packet. See
+			<xref linkend="ChWorkGoToPacketSection"/> for details.
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>Go to Corresponding Packet</command></entry>
+		<entry></entry>
+		<entry><para>
+		    This menu item goes to the corresponding packet of the currently 
+			selected protocol field. If the selected field doesn't correspond 
+			to a packet, this item is greyed out.
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>------</command></entry>
+		<entry></entry>
+		<entry></entry>
+	      </row>
+	      <row>
+		<entry><command>First Packet</command></entry>
+		<entry></entry>
+		<entry><para>
+		    This menu item jumps to the first packet of the capture file.
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>Last Packet</command></entry>
+		<entry></entry>
+		<entry><para>
+		    This menu item jumps to the last packet of the capture file.
+		  </para></entry>
+	      </row>
+	    </tbody>
+      </tgroup>
+    </table>
+  </section>
+
+  <section id="ChUseCaptureMenuSection"><title>The "Capture" menu</title>
+    <para>
+      The Ethereal Capture menu contains the fields shown in 
+      <xref linkend="ChUseTabCap"/>.
+    </para>
+    <figure id="ChUseEtherealCaptureMenu">
+      <title>The "Capture" Menu</title>
+      <graphic entityref="EtherealCaptureMenu" format="PNG"/>
+    </figure>
+    <table id="ChUseTabCap" frame="none">
+      <title>Capture menu items</title>
+      <tgroup cols="3">
+	<colspec colnum="1" colwidth="72pt"/>
+	  <colspec colnum="2" colwidth="80pt"/>
+	    <thead>
+	      <row>
+		<entry>Menu Item</entry>
+		<entry>Accelerator</entry>
+		<entry>Description</entry>
+	      </row>
+	    </thead>
+	    <tbody>
+	      <row>
+		<entry><command>Start...</command></entry>
+		<entry>Ctrl+K</entry>
+		<entry><para>
+		    This menu item brings up the Capture Options 
+		    dialog box (discussed further in 
+		    <xref linkend="ChCapCaptureOptions"/>) and allows you to 
+		      start capturing packets.
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>Stop</command></entry>
+		<entry>Ctrl+E</entry>
+		<entry><para>
+		    This menu item stops the currently running capture, see
+			<xref linkend="ChCapStopSection"/>) .
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>Interfaces ...</command></entry>
+		<entry></entry>
+		<entry><para>
+		    This menu item brings up a dialog box that shows what's going on 
+			at the network interfaces Ethereal knows of, see
+			<xref linkend="ChCapInterfaceSection"/>) .
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>Capture Filters...</command></entry>
+		<entry></entry>
+		<entry><para>
+		    This menu item brings up a dialog box that allows you to 
+		    create and edit capture filters. You can name filters, 
+		    and you can save them for future use. More detail on 
+		    this subject is provided in 
+		    <xref linkend="ChWorkDefineFilterSection"/>
+		  </para></entry>
+	      </row>
+	    </tbody>
+      </tgroup>
+    </table>
+  </section>
+  
+  <section id="ChUseAnalyzeMenuSection"><title>The "Analyze" menu</title>
+    <para>
+      The Ethereal Analyze menu contains the fields shown in 
+      <xref linkend="ChUseAnalyze"/>.
+    </para>
+    <figure id="ChUseEtherealAnalyzeMenu">
+      <title>The "Analyze" Menu</title>
+      <graphic entityref="EtherealAnalyzeMenu" format="PNG"/>
+    </figure>
+    <table id="ChUseAnalyze" frame="none"><title>Analyze menu items</title>
+      <tgroup cols="3">
+	<colspec colnum="1" colwidth="72pt"/>
+	  <colspec colnum="2" colwidth="80pt"/>
+	    <thead>
+	      <row>
+		<entry>Menu Item</entry>
+		<entry>Accelerator</entry>
+		<entry>Description</entry>
+	      </row>
+	    </thead>
+	    <tbody>
+	      <row>
+		<entry><command>Display Filters...</command></entry>
+		<entry></entry>
+		<entry><para>
+		    This menu item brings up a dialog box that allows you 
+		    to create and edit display filters. You can name 
+		    filters, and you can save them for future use. More 
+		    detail on this subject is provided in 
+		    <xref linkend="ChWorkDefineFilterSection"/>
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>Apply as Filter > ...</command></entry>
+		<entry></entry>
+		<entry><para>
+			These menu items will change the current display filter and apply 
+			the changed filter immediately. Depending on the chosen menu item,
+			the current display filter string will be replaced or appended to 
+			by the selected protocol field in the packet details pane.
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>Prepare a Filter > ...</command></entry>
+		<entry></entry>
+		<entry><para>
+			These menu items will change the current display filter but won't 
+			apply the changed filter. Depending on the chosen menu item,
+			the current display filter string will be replaced or appended to
+			by the selected protocol field in the packet details pane.
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>------</command></entry>
+		<entry></entry>
+		<entry></entry>
+	      </row>
+  	      <row>
+		<entry><command>Enabled Protocols...</command></entry>
+		<entry>Shift+Ctrl+R</entry>
+		<entry><para>
+			This menu item allows the user to enable/disable protocol 
+			dissectors, see <xref linkend="ChAdvEnabledProtocols"/>
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>Decode As...</command></entry>
+		<entry></entry>
+		<entry><para>
+		    This menu item allows the user to force Ethereal to 
+		    decode certain packets as a particular protocol, see 
+			<xref linkend="ChAdvDecodeAs"/>
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>User Specified Decodes...</command></entry>
+		<entry></entry>
+		<entry><para>
+		    This menu item allows the user to force Ethereal to 
+		    decode certain packets as a particular protocol, see 
+			<xref linkend="ChAdvDecodeAsShow"/>
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>------</command></entry>
+		<entry></entry>
+		<entry></entry>
+	      </row>
+	      <row>
+		<entry><command>Follow TCP Stream</command></entry>
+		<entry></entry>
+		<entry><para>
+		    This menu item brings up a separate window and displays 
+		    all the TCP segments captured that are on the same TCP 
+		    connection as a selected packet, see
+		    <xref linkend="ChAdvFollowTCPSection"/>
+		  </para></entry>
+	      </row>
+	    </tbody>
+      </tgroup>
+    </table>
+  </section>
+
+  <section id="ChUseStatisticsMenuSection"><title>The "Statistics" menu</title>
+    <para>
+      The Ethereal Statistics menu contains the fields shown in 
+      <xref linkend="ChUseStatistics"/>.
+    </para>
+    <figure id="ChUseEtherealStatisticsMenu">
+      <title>The "Statistics" Menu</title>
+      <graphic entityref="EtherealStatisticsMenu" format="PNG"/>
+    </figure>
+    <para>
+	All menu items will bring up a new window showing specific statistical 
+	information.
+    </para>
+    <table id="ChUseStatistics" frame="none">
+      <title>Statistics menu items</title>
+      <tgroup cols="3">
+	<colspec colnum="1" colwidth="72pt"/>
+	  <colspec colnum="2" colwidth="80pt"/>
+	    <thead>
+	      <row>
+		<entry>Menu Item</entry>
+		<entry>Accelerator</entry>
+		<entry>Description</entry>
+	      </row>
+	    </thead>
+	    <tbody>
+	      <row>
+		<entry><command>Summary</command></entry>
+		<entry></entry>
+		<entry><para>
+		    Show information about the data captured, see <xref 
+			linkend="ChStatSummary"/>. 
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>Protocol Hierarchy</command></entry>
+		<entry></entry>
+		<entry><para>
+		    Display a hierarchical tree of protocol statistics, see <xref 
+			linkend="ChStatHierarchy"/>.
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>Conversations</command></entry>
+		<entry></entry>
+		<entry><para>
+		    Display a list of conversations (traffic between two endpoints), 
+			see <xref linkend="ChStatConversationsWindow"/>.
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>Endpoints</command></entry>
+		<entry></entry>
+		<entry><para>
+		    Display a list of endpoints (traffic to/from an address), see 
+			<xref linkend="ChStatEndpointsWindow"/>.
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>IO Graphs</command></entry>
+		<entry></entry>
+		<entry><para>
+		    Display user specified graphs (e.g. the number of packets in the 
+			course of time), see <xref linkend="ChStatIOGraphs"/>.
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>------</command></entry>
+		<entry></entry>
+		<entry></entry>
+	      </row>
+	      <row>
+		<entry><command>Conversation List</command></entry>
+		<entry></entry>
+		<entry><para>
+		    Display a list of conversations, obsoleted by the combined window 
+			of Conversations above, see 
+			<xref linkend="ChStatConversationListWindow"/>.
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>Endpoint List</command></entry>
+		<entry></entry>
+		<entry><para>
+		    Display a list of endpoints, obsoleted by the combined window 
+			of Endpoints above, see 
+			<xref linkend="ChStatEndpointListWindow"/>.
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>Service Response Time</command></entry>
+		<entry></entry>
+		<entry><para>
+			Display the time between a request and the corresponding response, see 
+			<xref linkend="ChStatSRT"/>.
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>------</command></entry>
+		<entry></entry>
+		<entry></entry>
+	      </row>
+	      <row>
+		<entry><command>ANSI</command></entry>
+		<entry></entry>
+		<entry><para>See <xref linkend="ChStatXXX"/></para></entry>
+	      </row>
+	      <row>
+		<entry><command>BOOTP-DHCP</command></entry>
+		<entry></entry>
+		<entry><para>See <xref linkend="ChStatXXX"/></para></entry>
+	      </row>
+	      <row>
+		<entry><command>GSM</command></entry>
+		<entry></entry>
+		<entry><para>See <xref linkend="ChStatXXX"/></para></entry>
+	      </row>
+	      <row>
+		<entry><command>HTTP</command></entry>
+		<entry></entry>
+		<entry><para>HTTP request/response statistics, see <xref linkend="ChStatXXX"/></para></entry>
+	      </row>
+	      <row>
+		<entry><command>ISUP Message Types</command></entry>
+		<entry></entry>
+		<entry><para>See <xref linkend="ChStatXXX"/></para></entry>
+	      </row>
+	      <row>
+		<entry><command>ITU-T H.225</command></entry>
+		<entry></entry>
+		<entry><para>See <xref linkend="ChStatXXX"/></para></entry>
+	      </row>
+	      <row>
+		<entry><command>MTP3</command></entry>
+		<entry></entry>
+		<entry><para>See <xref linkend="ChStatXXX"/></para></entry>
+	      </row>
+	      <row>
+		<entry><command>ONC-RPC Programs</command></entry>
+		<entry></entry>
+		<entry><para>See <xref linkend="ChStatXXX"/></para></entry>
+	      </row>
+	      <row>
+		<entry><command>RTP</command></entry>
+		<entry></entry>
+		<entry><para>See <xref linkend="ChStatXXX"/></para></entry>
+	      </row>
+	      <row>
+		<entry><command>SIP</command></entry>
+		<entry></entry>
+		<entry><para>See <xref linkend="ChStatXXX"/></para></entry>
+	      </row>
+	      <row>
+		<entry><command>TCP Stream Graph</command></entry>
+		<entry></entry>
+		<entry><para>See <xref linkend="ChStatXXX"/></para></entry>
+	      </row>
+	      <row>
+		<entry><command>WAP-WSP</command></entry>
+		<entry></entry>
+		<entry><para>See <xref linkend="ChStatXXX"/></para></entry>
+	      </row>
+	    </tbody>
+      </tgroup>
+    </table>
+  </section>
+  
+  <section id="ChUseHelpMenuSection"><title>The "Help" menu</title>
+    <para>
+      The Ethereal Help menu contains the fields shown in 
+      <xref linkend="ChUseHelp"/>.
+    </para>
+    <figure id="ChUseEtherealHelpMenu">
+      <title>The "Help" Menu</title>
+      <graphic entityref="EtherealHelpMenu" format="PNG"/>
+    </figure>
+    <table id="ChUseHelp" frame="none">
+      <title>Help menu items</title>
+      <tgroup cols="3">
+	<colspec colnum="1" colwidth="72pt"/>
+	  <colspec colnum="2" colwidth="80pt"/>
+	    <thead>
+	      <row>
+		<entry>Menu Item</entry>
+		<entry>Accelerator</entry>
+		<entry>Description</entry>
+	      </row>
+	    </thead>
+	    <tbody>
+	      <row>
+		<entry><command>Contents</command></entry>
+		<entry>F1</entry>
+		<entry><para>
+		    This menu item brings up a basic help system.
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>Supported Protocols</command></entry>
+		<entry></entry>
+		<entry><para>
+		    This menu item brings up a dialog box showing the supported 
+			protocols and protocol fields.
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>Manual Pages > ...</command></entry>
+		<entry></entry>
+		<entry><para>
+		    This menu item starts a Web browser showing one of the locally 
+			installed html manual pages.
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>Ethereal Online > ...</command></entry>
+		<entry></entry>
+		<entry><para>
+		    This menu item starts a Web browser showing the chosen 
+			webpage from: 
+			<ulink url="&EtherealWebSite;">&EtherealWebSite;</ulink>.
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>------</command></entry>
+		<entry></entry>
+		<entry></entry>
+	      </row>
+	      <row>
+		<entry><command>About Ethereal</command></entry>
+		<entry></entry>
+		<entry><para>
+		    This menu item brings up an information window that 
+		    provides some information on Ethereal, such as the plugins, the 
+			used folders, ...
+		  </para></entry>
+	      </row>
+	    </tbody>
+      </tgroup>
+    </table>
+	<note><title>Note!</title>
+	<para>
+	Calling a Web browser might be unsupported in your version of Ethereal.
+	If this is the case, the corresponding menu items will be hidden.
+	</para>
+	</note>
+	<note><title>Note!</title>
+	<para>
+	If calling a Web browser fails on your machine, maybe because just nothing 
+	happens or the browser is started but no page is shown, have a look at the 
+	webbrowser setting in the preferences dialog.
+	</para>
+	</note>
+  </section> 
+
+  <section id="ChUseMainToolbarSection"><title>The "Main" toolbar</title>
+    <para>
+      The main toolbar provides quick access to frequently used items from the 
+	  menu. This toolbar cannot be customized by the user, but it can be hidden
+	  using the View menu, if the space on the screen is needed to show even 
+	  more packet data.
+    </para>
+    <para>
+	As in the menu, only the items useful in the current program state will 
+	be available. The others will be greyed out (e.g. you cannot save a capture
+	file if you haven't loaded one).
+    <figure id="ChUseEtherealMainToolbar">
+      <title>The "Main" toolbar</title>
+      <graphic entityref="EtherealMainToolbar" format="PNG"/>
+    </figure>
+    </para>
+    <table id="ChUseMainToolbar" frame="none">
+      <title>Main toolbar items</title>
+      <tgroup cols="4">
+	<colspec colnum="1" colwidth="40pt"/>
+	  <colspec colnum="2" colwidth="80pt"/>
+	  <colspec colnum="3" colwidth="80pt"/>
+	    <thead>
+	      <row>
+		<entry>Toolbar Icon</entry>
+		<entry>Toolbar Item</entry>
+		<entry>Corresponding Menu Item</entry>
+		<entry>Description</entry>
+	      </row>
+	    </thead>
+	    <tbody>
+	      <row>
+		<entry><graphic entityref="EtherealToolbarCapture" format="PNG"/></entry>
+		<entry><command>Start Capture...</command></entry>
+		<entry>Capture/Start...</entry>
+		<entry><para>
+		    This item brings up the Capture Options 
+		    dialog box (discussed further in 
+		    <xref linkend="ChCapCapturingSection"/>) and allows you to 
+		      start capturing packets.
+		  </para>
+			<note><title>Note!</title>
+			<para>
+			If a live capture is in progress, and you are using "Update List 
+			of Packets in Realtime", this icon will be replaced by the Stop 
+			Capture icon 
+			<inlinegraphic entityref="EtherealToolbarStop" format="PNG"/>.
+		  </para></note>
+		  </entry>
+	      </row>
+	      <row>
+		<entry><graphic entityref="EtherealToolbarStop" format="PNG"/></entry>
+		<entry><command>Stop Capture</command></entry>
+		<entry>Capture/Stop</entry>
+		<entry><para>
+		    This item stops the currently running live capture process 
+			<xref linkend="ChCapCapturingSection"/>).
+		  </para>
+			<note><title>Note!</title>
+			<para>
+			This icon is shown if a live capture is in progress, and you are 
+			using "Update List of Packets in Realtime", otherwise the Start 
+			Capture icon 
+			<inlinegraphic entityref="EtherealToolbarCapture" format="PNG"/>
+			is shown.
+		  </para></note>
+		  </entry>
+	      </row>
+	      <row>
+		<entry><command>------</command></entry>
+		<entry></entry>
+		<entry></entry>
+	      </row>
+	      <row>
+		<entry><graphic entityref="EtherealToolbarOpen" format="PNG"/></entry>
+		<entry><command>Open...</command></entry>
+		<entry>File/Open...</entry>
+		<entry><para>
+		    This item brings up the file open dialog box that 
+		    allows you to load a capture file for viewing. It is 
+		    discussed in more detail in <xref linkend="ChIOOpen"/>.
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><graphic entityref="EtherealToolbarSaveAs" format="PNG"/></entry>
+		<entry><command>Save As...</command></entry>
+		<entry>File/Save As...</entry>
+		<entry><para>
+		    This item allows you to save the current capture file to whatever 
+			file you would like. It pops up the Save Capture File As dialog 
+			box (which is discussed further in <xref linkend="ChIOSaveAs"/>). 
+			</para>
+			<note><title>Note!</title>
+			<para>
+			If you currently have a temporary capture file, the Save icon 
+			<inlinegraphic entityref="EtherealToolbarSave" format="PNG"/> will be 
+			shown instead.
+		  </para></note>
+		  </entry>
+	      </row>
+	      <row>
+		<entry><graphic entityref="EtherealToolbarClose" format="PNG"/></entry>
+		<entry><command>Close</command></entry>
+		<entry>File/Close</entry>
+		<entry><para>
+		    This item closes the current capture. If you 
+		    have not saved the capture, you will be asked to save it first.
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><graphic entityref="EtherealToolbarReload" format="PNG"/></entry>
+		<entry><command>Reload</command></entry>
+		<entry>View/Reload</entry>
+		<entry><para>
+		    This item allows you to reload the current capture file.
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><graphic entityref="EtherealToolbarPrint" format="PNG"/></entry>
+		<entry><command>Print...</command></entry>
+		<entry>File/Print...</entry>
+		<entry><para>
+		    This item allows you to print all (or some of) the packets in 
+		    the capture file. It pops up the Ethereal Print dialog 
+		    box (which is discussed further in 
+		    <xref linkend="ChIOPrintSection"/>).
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>------</command></entry>
+		<entry></entry>
+		<entry></entry>
+	      </row>
+	      <row>
+		<entry><graphic entityref="EtherealToolbarFind" format="PNG"/></entry>
+		<entry><command>Find Packet...</command></entry>
+		<entry>Edit/Find Packet...</entry>
+		<entry><para>
+		    This item brings up a dialog box that allows you 
+		    to find a packet. There is further information on finding packets 
+			in <xref linkend="ChWorkFindPacketSection"/>.
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><graphic entityref="EtherealToolbarFindPrevious" format="PNG"/></entry>
+		<entry><command>Find Previous</command></entry>
+		<entry>Edit/Find Previous</entry>
+		<entry><para>
+		    This item tries to find the previous packet, matching the 
+			settings from "Find Packet...".
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><graphic entityref="EtherealToolbarFindNext" format="PNG"/></entry>
+		<entry><command>Find Next</command></entry>
+		<entry>Edit/Find Next</entry>
+		<entry><para>
+		    This item tries to find the next packet, matching the 
+			settings from "Find Packet...".
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>------</command></entry>
+		<entry></entry>
+		<entry></entry>
+	      </row>
+	      <row>
+		<entry><graphic entityref="EtherealToolbarGoTo" format="PNG"/></entry>
+		<entry><command>Go to Packet...</command></entry>
+		<entry>Go/Go to Packet...</entry>
+		<entry><para>
+		    This item brings up a dialog box that allows you 
+		    to specify a packet number to go to that packet.
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><graphic entityref="EtherealToolbarGoFirst" format="PNG"/></entry>
+		<entry><command>Go To First Packet</command></entry>
+		<entry>Go/First Packet</entry>
+		<entry><para>
+		    This item jumps to the first packet of the capture file.
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><graphic entityref="EtherealToolbarGoLast" format="PNG"/></entry>
+		<entry><command>Go To Last Packet</command></entry>
+		<entry>Go/Last Packet</entry>
+		<entry><para>
+		    This item jumps to the last packet of the capture file.
+		  </para></entry>
+	      </row>		  
+	      <row>
+		<entry><command>------</command></entry>
+		<entry></entry>
+		<entry></entry>
+	      </row>
+	      <row>
+		<entry><graphic entityref="EtherealToolbarZoomIn" format="PNG"/></entry>
+		<entry><command>Zoom In</command></entry>
+		<entry>View/Zoom In</entry>
+		<entry><para>
+		  Zoom into the packet data (increase the font size).
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><graphic entityref="EtherealToolbarZoomOut" format="PNG"/></entry>
+		<entry><command>Zoom Out</command></entry>
+		<entry>View/Zoom Out</entry>
+		<entry><para>
+		  Zoom out of the packet data (decrease the font size).
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><graphic entityref="EtherealToolbarZoom100" format="PNG"/></entry>
+		<entry><command>Normal Size</command></entry>
+		<entry>View/Normal Size</entry>
+		<entry><para>
+		  Set zoom level back to 100%.
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>------</command></entry>
+		<entry></entry>
+		<entry></entry>
+	      </row>
+	      <row>
+		<entry><graphic entityref="EtherealToolbarCaptureFilters" format="PNG"/></entry>
+		<entry><command>Capture Filters...</command></entry>
+		<entry>Capture/Capture Filters...</entry>
+		<entry><para>
+		    This item brings up a dialog box that allows you to 
+		    create and edit capture filters. You can name filters, 
+		    and you can save them for future use. More detail on 
+		    this subject is provided in 
+		    <xref linkend="ChWorkDefineFilterSection"/>.
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><graphic entityref="EtherealToolbarDisplayFilters" format="PNG"/></entry>
+		<entry><command>Display Filters...</command></entry>
+		<entry>Analyze/Display Filters...</entry>
+		<entry><para>
+		    This item brings up a dialog box that allows you 
+		    to create and edit display filters. You can name 
+		    filters, and you can save them for future use. More 
+		    detail on this subject is provided in 
+		    <xref linkend="ChWorkDefineFilterSection"/>.
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><graphic entityref="EtherealToolbarColoringRules" format="PNG"/></entry>
+		<entry><command>Coloring Rules...</command></entry>
+		<entry>View/Coloring Rules...</entry>
+		<entry><para>
+		    This item brings up a dialog box that allows you 
+		    color packets in the packet list pane according to 
+		    filter expressions you choose. It can be very useful 
+		    for spotting certain types of packets. More 
+		    detail on this subject is provided in 
+		    <xref linkend="ChCustColorizationSection"/>.
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><graphic entityref="EtherealToolbarPreferences" format="PNG"/></entry>
+		<entry><command>Preferences...</command></entry>
+		<entry>Edit/Preferences</entry>
+		<entry><para>
+		    This item brings up a dialog box that allows 
+		    you to set preferences for many parameters that control 
+		    Ethereal.  You can also save your preferences so Ethereal 
+		    will use them the next time you start it. More detail 
+		    is provided in <xref linkend="ChCustPreferencesSection"/>
+		  </para></entry>
+	      </row>
+	    </tbody>
+      </tgroup>
+    </table>
+  </section> 
+	  
+  <section id="ChUseFilterToolbarSection"><title>The "Filter" toolbar</title>
+    <para>
+      The filter toolbar lets you quickly edit and apply display filters. More information on 
+	    display filters is available in <xref linkend="ChWorkDisplayFilterSection"/>. 
+    <figure id="ChUseEtherealFilterToolbar">
+      <title>The "Filter" toolbar</title>
+      <graphic entityref="EtherealFilterToolbar" format="PNG"/>
+    </figure>
+      <itemizedlist>
+	<listitem>
+	  <para>
+	    The leftmost button labeled "Filter:" can be clicked to 
+	    bring up the filter construction dialog, described in <xref linkend="FiltersDialog"/>.
+	  </para>
+	</listitem>
+	<listitem> 
+	  <para>
+	    The left middle text box provides an area to enter or edit display
+	    filter strings, see <xref linkend="ChWorkBuildDisplayFilterSection"/>
+		. A syntax check of your filter string is done while you are typing. 
+		The background will turn red if you enter an incomplete or invalid 
+		string, and will become green when you enter a valid string. You can 
+		click on the pull down arrow to select a previously-entered filter 
+		string from a list. The entries in the pull down list will remain 
+		available even after a program restart.
+	  </para>
+	  <note><title>Note!</title>
+	  <para>
+	  	After you've changed something in this field, don't forget to press 
+		the Apply button (or the Enter/Return key), to apply this filter 
+		string to the display.
+	  </para>
+	  </note>
+	  <note><title>Note!</title>
+	  <para>
+		This field is also where the current filter in effect is displayed.
+	  </para>
+	  </note>
+	</listitem>
+	<listitem>
+	  <para>
+	    The middle button labeled "Add Expression..." opens a dialog box that lets
+		you edit a display filter from a list of protocol fields, described in 
+		 <xref linkend="ChWorkFilterAddExpressionSection"/>
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    The right middle button labeled "Clear" resets the current 
+	    display filter and clears the edit area.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para> 
+	    The rightmost button labeled "Apply" applies the current 
+	    value in the edit area as the new display filter.
+	  </para>
+	</listitem>
+      </itemizedlist>
+    </para>
+	  <note><title>Note!</title>
+	  <para>
+		Applying a display filter on large capture files might take quite a long time!
+	  </para>
+	  </note>
+  </section> 
+	  
+  <section id="ChUsePacketListPaneSection"><title>The "Packet List" pane</title>
+    <para>
+      The packet list pane displays all the packets in the current capture 
+	  file.
+    <figure id="ChUseEtherealListPane">
+      <title>The "Packet List" pane</title>
+      <graphic entityref="EtherealListPane" format="PNG"/>
+    </figure>
+	Each line in the packet list corrresponds to one packet in the capture 
+	file. If you select a line in this pane, more details will be displayed in 
+	the "Packet Details" and "Packet Bytes" panes.
+    </para>
+    <para>
+	While dissecting a packet, Ethereal will place information from the 
+	protocol dissectors into the columns. As higher level protocols might
+	overwrite information from lower levels, you will typically see the 
+	information from the highest possible level only. 
+    </para>
+    <para>	
+	For example, let's look at a packet containing TCP inside IP inside
+	an Ethernet packet. The Ethernet dissector will write its data (such as 
+	the Ethernet addresses), the IP dissector will overwrite this by its own 
+	(such as the IP addresses), the TCP dissector will overwrite the IP 
+	information, and so on.
+    </para>
+    <para>
+	There are a lot of different columns available. Which columns are 
+	displayed can be selected by preference settings, see 
+	<xref linkend="ChCustGUIColumnsPrefPage"/>.
+    </para>
+    <para>
+	The default columns will show:
+	<itemizedlist>
+	<listitem>
+	  <para><command>No.</command>
+	  The number of the packet in the capture file. This number won't change, 
+	  even if a display filter is used.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para><command>Time</command>
+	  The timestamp of the packet. The presentation format of this timestamp 
+	  can be changed, see <xref linkend="ChWorkTimeFormatsSection"/>.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para><command>Source</command>
+	  The address where this packet is coming from. 
+	  </para>
+	</listitem>
+	<listitem>
+	  <para><command>Destination</command>
+	  The address where this packet is going to.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para><command>Protocol</command>
+	  The protocol name in a short (perhaps abbreviated) version.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para><command>Info</command>
+	  Additional information about the packet content.
+	  </para>
+	</listitem>
+	</itemizedlist>
+    </para>
+    <para>
+	There is a context menu (right mouse click) available, see details in 
+	<xref linkend="ChWorkPacketListPanePopUpMenu"/>.
+    </para>
+  </section> 	  
+
+  <section id="ChUsePacketDetailsPaneSection"><title>The "Packet Details" pane</title>
+    <para>
+      The packet details pane shows the current packet (selected in the "Packet List" 
+	  pane) in a more detailed form.
+    <figure id="ChUseEtherealDetailsPane">
+      <title>The "Packet Details" pane</title>
+      <graphic entityref="EtherealDetailsPane" format="PNG"/>
+    </figure>
+    </para>
+    <para>
+	This pane shows the protocols and protocol fields of the packet selected 
+	in the "Packet List" pane. The protocols and fields of the packet are 
+	displayed using a tree, which can be expanded and collapsed. 
+    </para>	
+    <para>
+	There is a context menu (right mouse click) available, see details in 
+	<xref linkend="ChWorkPacketDetailsPanePopUpMenu"/>.
+    </para>
+    <para>
+	Some protocol fields are specially displayed. 
+    </para>	
+	<itemizedlist>
+	<listitem>
+    <para>
+	<command>Generated fields</command>
+	Ethereal itself will generate additional protocol fields which are 
+	surrounded by brackets. The information in these fields is derived from the 
+	known context to other packets in the capture file. For example, Ethereal 
+	is doing a sequence/acknowledge analysis of each TCP stream, 
+	which is displayed in the [SEQ/ACK analysis] fields of the TCP protocol.
+    </para>	
+	</listitem>
+	<listitem>
+    <para>	
+	<command>Links</command>
+	If Ethereal detected a relationship to another packet in the capture file, 
+	it will generate a link to that packet. Links are underlined and displayed 
+	in blue. If double-clicked, Ethereal jumps to the corresponding packet. 
+    </para>	
+	</listitem>
+	</itemizedlist>
+  </section> 	  
+
+  <section id="ChUsePacketBytesPaneSection"><title>The "Packet Bytes" pane</title>
+    <para>
+      The packet bytes pane shows the data of the current packet (selected in the "Packet List" 
+	  pane) in a hexdump style.
+    <figure id="ChUseEtherealBytesPane">
+      <title>The "Packet Bytes" pane</title>
+      <graphic entityref="EtherealBytesPane" format="PNG"/>
+    </figure>
+    </para>
+    <para>
+	As usual for a hexdump, the left side shows the offset in the packet data, 
+	in the middle the packet data is shown in a hexadecimal representation and 
+	on the right the corresponding ASCII characters (or . if not appropriate) 
+	are displayed.
+    </para>
+    <para>
+	There is a context menu (right mouse click) available, see details in 
+	<xref linkend="ChWorkPacketBytesPanePopUpMenu"/>.
+    </para>
+    <para>
+	Depending on the packet data, sometimes more than one page is available,
+	e.g. when Ethereal has reassembled some packets into a single chunk of 
+	data, see <xref linkend="ChAdvReassemblySection"/>. In this case there are 
+	some additional tabs shown at the bottom of the pane to let you select 
+	the page you want to see.
+    <figure id="ChUseEtherealBytesPaneTabs">
+      <title>The "Packet Bytes" pane with tabs</title>
+      <graphic entityref="EtherealBytesPaneTabs" format="PNG"/>
+    </figure>
+    </para>
+	<note><title>Note!</title>
+	<para>
+	The additional pages might contain data picked from multiple packets.
+	</para>
+	</note>
+    <para>
+	The context menu (right mouse click) of the tab labels will show a list of 
+	all available pages. This can be helpful if the size in the pane is too 
+	small for all the tab labels.
+    </para>
+  </section> 	  
+
+  <section id="ChUseStatusbarSection"><title>The Statusbar</title>
+    <para>
+      The statusbar displays informational messages.
+    </para>
+    <para>
+	In general, the left side will show context related information, while the 
+	right side will show the current number of packets.
+    </para>
+    <para>
+    <figure id="ChUseEtherealStatusbarEmpty">
+      <title>The initial Statusbar</title>
+      <graphic entityref="EtherealStatusbarEmpty" format="PNG"/>
+    </figure>
+	This statusbar is shown while no capture file is loaded, e.g. when 
+	Ethereal is started.
+	</para>
+	<para>
+		<figure id="ChUseEtherealStatusbarLoaded">
+		  <title>The Statusbar with a loaded capture file</title>
+		  <graphic entityref="EtherealStatusbarLoaded" format="PNG"/>
+		</figure>
+		The left side shows information about the capture file, its 
+		name, its size and the elapsed time while it was being captured.
+	</para>
+	<para>
+		The right side shows the current number of packets in the 
+		capture file. The following values are displayed:
+	    <itemizedlist mark="bullet">
+	    <listitem>
+		<para><emphasis>P:</emphasis> the number of captured packets</para>
+	    </listitem>
+	    <listitem>
+		<para><emphasis>D:</emphasis> the number of packets currently being 
+		displayed</para>
+	    </listitem>
+	    <listitem>
+		<para><emphasis>M:</emphasis> the number of marked packets</para>
+	    </listitem>
+	    </itemizedlist>
+	</para>
+	<para>
+    <figure id="ChUseEtherealStatusbarSelected">
+      <title>The Statusbar with a selected protocol field</title>
+      <graphic entityref="EtherealStatusbarSelected" format="PNG"/>
+    </figure>
+		This is displayed if you have selected a protocol field from the 
+		"Packet Details" pane. 
+    </para>
+    <tip><title>Tip!</title>
+	<para>
+		The value between the brackets (in this example
+		<command>arp.opcode</command>) can be used as a display filter string, 
+		representing the selected protocol field.
+	</para>
+    </tip>
+  </section> 	  
+
+</chapter>
+<!-- End of EUG Chapter 3 -->

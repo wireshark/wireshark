@@ -83,7 +83,7 @@ pkgdata_DATA = AUTHORS-SHORT manuf ethereal.html tethereal.html \
 # of that directory.
 #
 diameterdir = $(pkgdatadir)/diameter
-diameter_DATA = dictionary.dtd dictionary.xml mobileipv4.xml \
+diameter_DATA = dictionary.dtd dictionary.xml imscxdx.xml mobileipv4.xml \
 	nasreq.xml sunping.xml
 
 PLATFORM_SRC = pcap-util-unix.c
@@ -300,7 +300,7 @@ svnversion.h: FORCE
 #
 # Build the short version of the authors file for the about dialog
 #
-AUTHORS-SHORT: AUTHORS make-authors-short.pl
+AUTHORS-SHORT: AUTHORS make-authors-short.pl make-authors-short2.pl
 	$(PERL) $(srcdir)/make-authors-short.pl < AUTHORS > AUTHORS-SHORT
 
 #
@@ -520,7 +520,9 @@ EXTRA_DIST = \
 	image/icon_layout_5.xpm \
 	image/icon_layout_6.xpm \
 	image/wiretap.rc.in	\
+	imscxdx.xml		\
 	make-authors-short.pl	\
+	make-authors-short2.pl	\
 	make-manuf		\
 	make-tapreg-dotc	\
 	make-version.pl		\

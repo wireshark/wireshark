@@ -32,7 +32,7 @@
 
 #include "packet-rpc.h"
 #include "packet-portmap.h"
-#include "ipproto.h"
+#include <epan/ipproto.h>
 #include "epan/conversation.h"
 #include "epan/packet_info.h"
 

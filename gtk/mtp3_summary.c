@@ -46,7 +46,7 @@
 #include "dlg_utils.h"
 #include "ui_util.h"
 #include "compat_macros.h"
-#include "tap.h"
+#include <epan/tap.h>
 
 #include <epan/dissectors/packet-mtp3.h>
 #include "mtp3_stat.h"

@@ -44,7 +44,7 @@
 #include "simple_dialog.h"
 #include "dlg_utils.h"
 #include "ui_util.h"
-#include "tap.h"
+#include <epan/tap.h>
 #include "../register.h"
 #include <epan/dissectors/packet-dcerpc.h>
 #include "../globals.h"

@@ -1,7 +1,7 @@
 /* packet-ns-cert-exts.h
  * Routines for NetScape Certificate Extensions packet dissection
  *
- * $Id: packet-cms-template.h,v 1.1 2004/05/24 08:42:29 sahlberg Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

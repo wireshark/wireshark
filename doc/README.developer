@@ -214,6 +214,16 @@ as some compilers will reject the first of those statements.  Instead,
 initialize the array at the point at which it's first declared, so that
 the size is known.
 
+Don't put declarations in the middle of a block; put them before all
+code.  Not all compilers support declarations in the middle of code,
+such as
+
+	int i;
+
+	i = foo();
+
+	int j;
+
 For #define names and enum member names, prefix the names with a tag so
 as to avoid collisions with other names - this might be more of an issue
 on Windows, as it appears to #define names such as DELETE and
@@ -230,6 +240,23 @@ to implement it.  Use something like
 	sprintf(add_string, " - (%d) (0x%04x)", value, value);
 
 instead.
+
+Don't use "variadic macros", such as
+
+	#define DBG(format, args...)	fprintf(stderr, format, ## args)
+
+as not all C compilers support them.  Use macros that take a fixed
+number of arguments, such as
+
+	#define DBG0(format)		fprintf(stderr, format)
+	#define DBG1(format, arg1)	fprintf(stderr, format, arg1)
+	#define DBG2(format, arg1, arg2) fprintf(stderr, format, arg1, arg2)
+
+		...
+
+or something such as
+
+	#define DBG(args)		printf args
 
 snprintf() -> g_snprintf()
 snprintf() is not available on all platforms, so it's a good idea to use the 
@@ -250,6 +277,27 @@ integral data types larger than 1 byte, and floating-point data types,
 cause a trap, which will, at best, result in the OS slowly performing an
 unaligned access for you, and will, on at least some platforms, cause
 the program to be terminated.
+
+Ethereal supports both platforms with GLib 1.2[.x]/GTK+ 1.2[.x] and GLib
+2.x/GTK+ 1.3[.x] and 2.x.  If at all possible, either use only
+mechanisms that are present in GLib 1.2[.x] and GTK+ 1.2[.x], use #if's
+to conditionally use older or newer mechanisms depending on the platform
+on which Ethereal is being built, or, if the code in GLib or GTK+ that
+implements that mechanism will build with GLib 1.2[.x]/GTK+ 1.2[.x],
+conditionally include that code as part of the Ethereal source and use
+the included version with GLib 1.2[.x] or GTK+ 1.2[.x].  In particular,
+if the GLib 2.x or GTK+ 2.x mechanism indicates that a routine is
+deprecated and shouldn't be used in new code, and that it was renamed in
+GLib 2.x or GTK+ 2.x and the new name should be used, disregard that and
+use the old name - it'll still work with GLib 2.x or GTK+ 2.x, but will
+also work with GLib 1.2[.x] and GTK+ 1.2[.x].
+
+When different code must be used on UN*X and Win32, use a #if or #ifdef
+that tests _WIN32, not WIN32.  Try to write code portably whenever
+possible, however; note that there are some routines in Ethereal with
+platform-dependent implementations and platform-independent APIs, such
+as the routines in epan/filesystem.c, allowing the code that calls it to
+be written portably without #ifdefs.
 
 1.1.2 Robustness.
 

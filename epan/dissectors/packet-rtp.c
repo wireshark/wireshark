@@ -64,9 +64,9 @@
 #include "packet-rtp.h"
 #include "rtp_pt.h"
 #include <epan/conversation.h>
-#include "tap.h"
+#include <epan/tap.h>
 
-#include "prefs.h"
+#include <epan/prefs.h>
 
 static dissector_handle_t rtp_handle;
 
@@ -190,8 +190,6 @@ const value_string rtp_payload_type_vals[] =
 	{ 0,		NULL },
 };
 
-static address fake_addr;
-
 /* Set up an RTP conversation */
 void rtp_add_address(packet_info *pinfo,
                      address *addr, int port,
@@ -258,9 +256,6 @@ void rtp_add_address(packet_info *pinfo,
 
 static void rtp_init( void )
 {
-	unsigned char* tmp_data;
-	int i;
-
 	/* (Re)allocate mem chunk for conversations */
 	if (rtp_conversations)
 	{
@@ -270,16 +265,6 @@ static void rtp_init( void )
 	                                    sizeof(struct _rtp_conversation_info),
 	                                    20 * sizeof(struct _rtp_conversation_info),
 	                                    G_ALLOC_ONLY);
-
-	/* Create a fake adddress... */
-	fake_addr.type = AT_IPv4;
-	fake_addr.len = 4;
-
-	tmp_data = malloc( fake_addr.len );
-	for ( i = 0; i < fake_addr.len; i++) {
-		tmp_data[i] = 0;
-	}
-	fake_addr.data = tmp_data;
 }
 
 static gboolean

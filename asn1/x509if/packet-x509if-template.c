@@ -1,7 +1,7 @@
 /* packet-x509if.c
  * Routines for X.509 Information Framework packet dissection
  *
- * $Id: packet-x509if-template.c,v 1.2 2004/05/25 21:07:43 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -50,7 +50,7 @@ static gint ett_x509if_Attribute = -1;
 #include "packet-x509if-ett.c"
 
 
-static ber_sequence Attribute_sequence[] = {
+static const ber_sequence Attribute_sequence[] = {
   /*  { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_hf_x509if_type },*/
   /*XXX  missing stuff here */
   { 0, 0, 0, NULL }
@@ -81,7 +81,7 @@ dissect_hf_x509if_ATADV_attribute_value(packet_info *pinfo, proto_tree *tree, tv
   return offset;
 }
 
-static ber_sequence AttributeTypeAndDistinguishedValue_sequence[] = {
+static const ber_sequence AttributeTypeAndDistinguishedValue_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_hf_x509if_ATADV_attribute_id },
   { BER_CLASS_ANY, 0, BER_FLAGS_NOOWNTAG, dissect_hf_x509if_ATADV_attribute_value },
   /*XXX  missing stuff here */

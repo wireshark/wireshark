@@ -35,7 +35,7 @@
 #include "gtkglobals.h"
 #include "help_dlg.h"
 #include "supported_protos_dlg.h"
-#include "prefs.h"
+#include <epan/prefs.h>
 #include "prefs_dlg.h"
 #include "ui_util.h"
 #include "simple_dialog.h"

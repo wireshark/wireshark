@@ -34,7 +34,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/conversation.h>
-#include "prefs.h"
+#include <epan/prefs.h>
 
 static int proto_quake = -1;
 static int hf_quake_header_flags = -1;

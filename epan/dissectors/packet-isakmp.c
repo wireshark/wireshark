@@ -40,7 +40,8 @@
 
 #include <epan/packet.h>
 #include <epan/ipv6-utils.h>
-#include "ipproto.h"
+#include <epan/ipproto.h>
+#include <epan/dissectors/packet-x509if.h>
 
 #define isakmp_min(a, b)  ((a<b) ? a : b)
 
@@ -224,22 +225,38 @@ struct isakmp_hdr {
 static proto_tree *dissect_payload_header(tvbuff_t *, int, int, guint8,
     guint8 *, guint16 *, proto_tree *);
 
-static void dissect_sa(tvbuff_t *, int, int, proto_tree *, int);
-static void dissect_proposal(tvbuff_t *, int, int, proto_tree *, int);
-static void dissect_transform(tvbuff_t *, int, int, proto_tree *, int);
-static void dissect_key_exch(tvbuff_t *, int, int, proto_tree *, int);
-static void dissect_id(tvbuff_t *, int, int, proto_tree *, int);
-static void dissect_cert(tvbuff_t *, int, int, proto_tree *, int);
-static void dissect_certreq(tvbuff_t *, int, int, proto_tree *, int);
-static void dissect_hash(tvbuff_t *, int, int, proto_tree *, int);
-static void dissect_sig(tvbuff_t *, int, int, proto_tree *, int);
-static void dissect_nonce(tvbuff_t *, int, int, proto_tree *, int);
-static void dissect_notif(tvbuff_t *, int, int, proto_tree *, int);
-static void dissect_delete(tvbuff_t *, int, int, proto_tree *, int);
-static void dissect_vid(tvbuff_t *, int, int, proto_tree *, int);
-static void dissect_config(tvbuff_t *, int, int, proto_tree *, int);
-static void dissect_nat_discovery(tvbuff_t *, int, int, proto_tree *, int);
-static void dissect_nat_original_address(tvbuff_t *, int, int, proto_tree *, int);
+static void dissect_sa(tvbuff_t *, int, int, proto_tree *,
+    packet_info *, int);
+static void dissect_proposal(tvbuff_t *, int, int, proto_tree *,
+    packet_info *, int);
+static void dissect_transform(tvbuff_t *, int, int, proto_tree *,
+    packet_info *, int);
+static void dissect_key_exch(tvbuff_t *, int, int, proto_tree *,
+    packet_info *, int);
+static void dissect_id(tvbuff_t *, int, int, proto_tree *,
+    packet_info *, int);
+static void dissect_cert(tvbuff_t *, int, int, proto_tree *,
+    packet_info *, int);
+static void dissect_certreq(tvbuff_t *, int, int, proto_tree *,
+    packet_info *, int);
+static void dissect_hash(tvbuff_t *, int, int, proto_tree *,
+    packet_info *, int);
+static void dissect_sig(tvbuff_t *, int, int, proto_tree *,
+    packet_info *, int);
+static void dissect_nonce(tvbuff_t *, int, int, proto_tree *,
+    packet_info *, int);
+static void dissect_notif(tvbuff_t *, int, int, proto_tree *,
+    packet_info *, int);
+static void dissect_delete(tvbuff_t *, int, int, proto_tree *,
+    packet_info *, int);
+static void dissect_vid(tvbuff_t *, int, int, proto_tree *,
+    packet_info *, int);
+static void dissect_config(tvbuff_t *, int, int, proto_tree *,
+    packet_info *, int);
+static void dissect_nat_discovery(tvbuff_t *, int, int, proto_tree *,
+    packet_info *, int);
+static void dissect_nat_original_address(tvbuff_t *, int, int, proto_tree *,
+    packet_info *, int);
 
 static const char *payloadtype2str(guint8);
 static const char *exchtype2str(guint8);
@@ -257,12 +274,10 @@ static gboolean get_num(tvbuff_t *, int, guint16, guint32 *);
 #define LOAD_TYPE_PROPOSAL	2	/* payload type for Proposal */
 #define	LOAD_TYPE_TRANSFORM	3	/* payload type for Transform */
 #define NUM_LOAD_TYPES		17
-#define loadtype2str(t)	\
-  ((t < NUM_LOAD_TYPES) ? strfuncs[t].str : "Unknown payload type")
 
 static struct strfunc {
   const char *	str;
-  void          (*func)(tvbuff_t *, int, int, proto_tree *, int);
+  void          (*func)(tvbuff_t *, int, int, proto_tree *, packet_info *, int);
 } strfuncs[NUM_LOAD_TYPES] = {
   {"NONE",			NULL              },
   {"Security Association",	dissect_sa        },
@@ -395,13 +410,15 @@ static const guint8 VID_draft_ietf_ipsec_heartbeats_00[VID_LEN_8]= {0x8D, 0xB7, 
 /* 
 *  Seen in Netscreen. Suppose to be ASCII HeartBeat_Notify - but I don't know the rest yet. I suspect it then proceeds with
 *  8k10, which means every 8K (?), and version 1.0 of the protocol (?). I won't add it to the code, until I know what it really
-*  means. ykaul-at-netvision.net.il
+*  means. ykaul-at-bezeqint.net
 */
 static const guint8 VID_HeartBeat_Notify[VID_LEN] = {0x48, 0x65, 0x61, 0x72, 0x74, 0x42, 0x65, 0x61, 0x74, 0x5f, 0x4e, 0x6f, 0x74, 0x69, 0x66, 0x79}; 
 
+static int hf_ike_certificate_authority = -1;
+
 static void
 dissect_payloads(tvbuff_t *tvb, proto_tree *tree, guint8 initial_payload,
-		 int offset, int length)
+		 int offset, int length, packet_info *pinfo)
 {
   guint8 payload, next_payload;
   guint16		payload_length;
@@ -425,11 +442,18 @@ dissect_payloads(tvbuff_t *tvb, proto_tree *tree, guint8 initial_payload,
     if (payload_length >= 4) {	/* XXX = > 4? */
       if (payload < NUM_LOAD_TYPES && strfuncs[payload].func != NULL) {
         (*strfuncs[payload].func)(tvb, offset + 4, payload_length - 4, ntree,
-				  -1);
+				  pinfo, -1);
       }
       else {
-        proto_tree_add_text(ntree, tvb, offset + 4, payload_length - 4,
-            "Payload");
+	if (payload == 130)
+	  dissect_nat_discovery(tvb, offset + 4, payload_length - 4, ntree,
+				pinfo, -1);
+	else if (payload == 131)
+	  dissect_nat_original_address(tvb, offset + 4, payload_length - 4,
+				       ntree, pinfo, -1);
+	else
+	  proto_tree_add_text(ntree, tvb, offset + 4, payload_length - 4,
+			      "Payload");
       }
     }
     else {
@@ -540,7 +564,7 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			len, plurality(len, "", "s"));
       }
     } else
-      dissect_payloads(tvb, isakmp_tree, hdr.next_payload, offset, len);
+      dissect_payloads(tvb, isakmp_tree, hdr.next_payload, offset, len, pinfo);
   }
 }
 
@@ -562,7 +586,7 @@ dissect_payload_header(tvbuff_t *tvb, int offset, int length, guint8 payload,
   payload_length = tvb_get_ntohs(tvb, offset + 2);
 
   ti = proto_tree_add_text(tree, tvb, offset, payload_length,
-            "%s payload", loadtype2str(payload));
+            "%s payload", payloadtype2str(payload));
   ntree = proto_item_add_subtree(ti, ett_isakmp_payload);
 
   proto_tree_add_text(ntree, tvb, offset, 1,
@@ -576,8 +600,8 @@ dissect_payload_header(tvbuff_t *tvb, int offset, int length, guint8 payload,
 }
 
 static void
-dissect_sa(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
-    int unused _U_)
+dissect_sa(tvbuff_t *tvb, int offset, int length, proto_tree *tree, 
+    packet_info *pinfo, int unused _U_)
 {
   guint32		doi;
   guint32		situation;
@@ -610,7 +634,7 @@ dissect_sa(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
     offset += 4;
     length -= 4;
 
-    dissect_payloads(tvb, tree, LOAD_TYPE_PROPOSAL, offset, length);
+    dissect_payloads(tvb, tree, LOAD_TYPE_PROPOSAL, offset, length, pinfo);
   } else {
     /* Unknown */
     proto_tree_add_text(tree, tvb, offset, length,
@@ -621,7 +645,7 @@ dissect_sa(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
 
 static void
 dissect_proposal(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
-    int unused _U_)
+    packet_info *pinfo _U_, int unused _U_)
 {
   guint8		protocol_id;
   guint8		spi_size;
@@ -676,7 +700,8 @@ dissect_proposal(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
       break;
     }
     if (payload_length >= 4)
-      dissect_transform(tvb, offset + 4, payload_length - 4, ntree, protocol_id);
+      dissect_transform(tvb, offset + 4, payload_length - 4, ntree,
+			pinfo, protocol_id);
     else
       proto_tree_add_text(ntree, tvb, offset + 4, payload_length - 4, "Payload");
     offset += payload_length;
@@ -687,7 +712,7 @@ dissect_proposal(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
 
 static void
 dissect_transform(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
-    int protocol_id)
+    packet_info *pinfo _U_, int protocol_id)
 {
   guint8		transform_id;
   guint8		transform_num;
@@ -776,14 +801,14 @@ dissect_transform(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
 
 static void
 dissect_key_exch(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
-    int unused _U_)
+    packet_info *pinfo _U_, int unused _U_)
 {
   proto_tree_add_text(tree, tvb, offset, length, "Key Exchange Data");
 }
 
 static void
 dissect_id(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
-    int unused _U_)
+    packet_info *pinfo, int unused _U_)
 {
   guint8		id_type;
   guint8		protocol_id;
@@ -833,6 +858,10 @@ dissect_id(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
 			  ip_to_str(tvb_get_ptr(tvb, offset, 4)),
 			  ip_to_str(tvb_get_ptr(tvb, offset+4, 4)));
       break;
+    case 9:
+      dissect_x509if_Name(FALSE, tvb, offset, pinfo, tree,
+			  hf_ike_certificate_authority);
+      break;
     default:
       proto_tree_add_text(tree, tvb, offset, length, "Identification Data");
       break;
@@ -841,7 +870,7 @@ dissect_id(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
 
 static void
 dissect_cert(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
-    int unused _U_)
+    packet_info *pinfo _U_, int unused _U_)
 {
   guint8		cert_enc;
 
@@ -857,7 +886,7 @@ dissect_cert(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
 
 static void
 dissect_certreq(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
-    int unused _U_)
+    packet_info *pinfo, int unused _U_)
 {
   guint8		cert_type;
 
@@ -868,33 +897,40 @@ dissect_certreq(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
   offset += 1;
   length -= 1;
 
-  proto_tree_add_text(tree, tvb, offset, length, "Certificate Authority");
+  if (length) {
+    if (cert_type == 4)
+      dissect_x509if_Name(FALSE, tvb, offset, pinfo, tree, hf_ike_certificate_authority);
+    else
+      proto_tree_add_text(tree, tvb, offset, length, "Certificate Authority");
+  }
+  else
+    proto_tree_add_text(tree, tvb, offset, length, "Certificate Authority (empty)");
 }
 
 static void
 dissect_hash(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
-    int unused _U_)
+    packet_info *pinfo _U_, int unused _U_)
 {
   proto_tree_add_text(tree, tvb, offset, length, "Hash Data");
 }
 
 static void
 dissect_sig(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
-    int unused _U_)
+    packet_info *pinfo _U_, int unused _U_)
 {
   proto_tree_add_text(tree, tvb, offset, length, "Signature Data");
 }
 
 static void
 dissect_nonce(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
-    int unused _U_)
+    packet_info *pinfo _U_, int unused _U_)
 {
   proto_tree_add_text(tree, tvb, offset, length, "Nonce Data");
 }
 
 static void
 dissect_notif(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
-    int unused _U_)
+    packet_info *pinfo _U_, int unused _U_)
 {
   guint32		doi;
   guint8		protocol_id;
@@ -939,7 +975,7 @@ dissect_notif(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
 
 static void
 dissect_delete(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
-    int unused _U_)
+    packet_info *pinfo _U_, int unused _U_)
 {
   guint32		doi;
   guint8		protocol_id;
@@ -988,7 +1024,7 @@ dissect_delete(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
 
 static void
 dissect_vid(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
-    int unused _U_)
+    packet_info *pinfo _U_, int unused _U_)
 {
   guint32 CPproduct, CPversion;
   const guint8 * pVID;
@@ -1016,7 +1052,7 @@ dissect_vid(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
 	}
 	offset += sizeof(CPproduct);
 	CPversion = tvb_get_ntohl(tvb, offset);
-	pt = proto_tree_add_text(ntree, tvb, offset, length, "Version: ");
+	pt = proto_tree_add_text(ntree, tvb, offset, sizeof(CPversion), "Version: ");
 	switch (CPversion) {
 		case 2: proto_item_append_text(pt, "4.1");
 			break;
@@ -1039,6 +1075,8 @@ dissect_vid(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
 		default: proto_item_append_text(pt, " Unknown CP version!");
 			break;
 	}
+	offset += sizeof(CPversion);
+	proto_tree_add_text(ntree, tvb, offset, length - VID_CP_LEN - sizeof(CPproduct) - sizeof(CPversion),"Check Point Vendor ID parameters"); 
   }
   else
   if (memcmp(pVID, VID_CYBERGUARD, isakmp_min(VID_LEN, length)) == 0)
@@ -1196,7 +1234,7 @@ dissect_vid(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
 
 static void
 dissect_config(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
-    int unused _U_)
+    packet_info *pinfo _U_, int unused _U_)
 {
   guint8		type;
 
@@ -1246,7 +1284,7 @@ dissect_config(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
 
 static void
 dissect_nat_discovery(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
-    int unused _U_)
+    packet_info *pinfo _U_, int unused _U_)
 {
   proto_tree_add_text(tree, tvb, offset, length,
 		      "Hash of address and port: %s",
@@ -1255,7 +1293,7 @@ dissect_nat_discovery(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
 
 static void
 dissect_nat_original_address(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
-    int unused _U_)
+    packet_info *pinfo _U_, int unused _U_)
 {
   guint8 id_type;
   guint32 addr_ipv4;
@@ -1312,6 +1350,10 @@ payloadtype2str(guint8 type) {
     return strfuncs[type].str;
   if (type < 128)
     return "RESERVED";
+  if (type == 130)
+    return "NAT-D (draft-ietf-ipsec-nat-t-ike-01 to 04)";
+  if (type == 131)
+    return "NAT-OA (draft-ietf-ipsec-nat-t-ike-01 to 04)";
   return "Private USE";
 }
 
@@ -1691,10 +1733,11 @@ get_num(tvbuff_t *tvb, int offset, guint16 len, guint32 *num_p) {
 void
 proto_register_isakmp(void)
 {
-/*  static hf_register_info hf[] = {
-    { &variable,
-    { "Name",           "isakmp.abbreviation", TYPE, VALS_POINTER }},
-  };*/
+  static hf_register_info hf[] = {
+    { &hf_ike_certificate_authority,
+      { "Certificate Authority Distinguished Name", "ike.cert_authority_dn", FT_UINT32, BASE_DEC, NULL, 0x0, "Certificate Authority Distinguished Name", HFILL }
+    },
+  };
   static gint *ett[] = {
     &ett_isakmp,
     &ett_isakmp_flags,
@@ -1703,7 +1746,7 @@ proto_register_isakmp(void)
 
   proto_isakmp = proto_register_protocol("Internet Security Association and Key Management Protocol",
 					       "ISAKMP", "isakmp");
-/*  proto_register_field_array(proto_isakmp, hf, array_length(hf));*/
+  proto_register_field_array(proto_isakmp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
   register_dissector("isakmp", dissect_isakmp, proto_isakmp);

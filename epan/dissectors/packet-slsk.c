@@ -44,7 +44,7 @@
 #include <epan/packet.h>
 #include <epan/tvbuff.h>
 #include "packet-tcp.h"
-#include "prefs.h"
+#include <epan/prefs.h>
 
 /* Initialize the protocol and registered fields */
 static int proto_slsk = -1;

@@ -38,7 +38,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
-#include "prefs.h"
+#include <epan/prefs.h>
 
 void proto_reg_handoff_cpfi(void);
 

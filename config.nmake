@@ -1,7 +1,11 @@
 # $Id$
 
-VERSION=0.10.6
-WTAP_VERSION=0.1
+# Some more informations about the settings in this file, can be found 
+# in the file README.win32.
+
+# The current Ethereal version
+VERSION=0.10.7
+
 #
 # The RC_VERSION should be comma-separated, not dot-separated, 
 # as per Graham Bloice's message in
@@ -13,7 +17,10 @@ WTAP_VERSION=0.1
 # number to be correctly displayed in the explorer properties dialog
 # for the executables, and XP's tooltip, rather than 0.0.0.0."
 #
-RC_VERSION=0,10,6
+RC_VERSION=0,10,7
+
+# The version of the wiretap library
+WTAP_VERSION=0.1
 RC_WTAP_VERSION=0,1
 
 #
@@ -139,22 +146,39 @@ LOCAL_LDFLAGS=/DEBUG
 # Set PDB_FILE according to your VC++ version 
 PDB_FILE=vc*.pdb
 
-# Set path if you need to find some binary
-PATH=c:\cygwin\bin;c:\python23;$(PATH)
+# add cygwin binaries to the path
+PATH=c:\cygwin\bin;$(PATH)
 
-# Set path to some required DLLs
+# add some required DLLs to the path 
 PATH=$(GLIB_DIR)\bin;$(GETTEXT_DIR)\bin;$(ICONV_DIR)\bin;$(PATH)
 
+
+# Set the following commands to find the tools.
+# The easiest way is to use the corresponding packages from cygwin.
+
+# command for a shell (typically cygwin's bash package)
 SH=bash
+
+# command for perl (typically cygwin's perl package)
 PERL=perl
+
+# command for pod2man and pod2html (part of the perl package)
 POD2MAN=$(SH) pod2man
 POD2HTML=$(SH) pod2html
-PYTHON="C:/python23/python.exe"
-LEX=flex
-YACC=bison
 
-# Set YACC_OPTS if cygnus bison can't find template file.
-#YACC_OPTS=-S t:\w32-ix86\cygnus\cygwin-b20\share\bison.simple 
+# command for python (native windows version)
+#PYTHON="C:/python23/python.exe"
+# add native python to the path (not needed if cygwin's python is used)
+#PATH=c:\python23;$(PATH)
+
+# command for python (typically cygwin's python package)
+PYTHON=env python
+
+# command for lex/flexx (typically cygwin's flex package)
+LEX=flex
+
+# command for yacc/bison (typically cygwin's bison package)
+YACC=bison
 
 # To build the installer
 MAKENSIS="C:/program files/nsis/makensis.exe"
@@ -198,6 +222,11 @@ MAKENSIS_MODERN_UI=USE
 # following line
 ENABLE_LIBETHEREAL=USE
 
+!IFDEF ENABLE_LIBETHEREAL
+# Uncomment next line to link plugins with the import library of libethereal.dll 
+#LINK_PLUGINS_WITH_LIBETHEREAL=USE
+!ENDIF
+
 #
 # You should not have to change anything below this comment.
 # If you do, it's a deficiency in the Makefile.nmake files;
@@ -238,14 +267,19 @@ GTK2_LIBS=$(GTK2_DIR)\lib\gtk-win32-2.0.lib \
 WINPCAP_CONFIG=^#define HAVE_LIBPCAP 1
 !IF "$(WINPCAP_VERSION)" == "3.0" || "$(WINPCAP_VERSION)" == "3.1"
 PCAP_FINDALLDEVS_CONFIG=^#define HAVE_PCAP_FINDALLDEVS 1
+PCAP_DATALINK_NAME_TO_VAL_CONFIG=^#define HAVE_PCAP_DATALINK_NAME_TO_VAL 1
+PCAP_DATALINK_VAL_TO_NAME_CONFIG=^#define HAVE_PCAP_DATALINK_VAL_TO_NAME 1
 WPCAP_CONSTIFIED_CONFIG=^#define WPCAP_CONSTIFIED 1
 !ELSE
 PCAP_FINDALLDEVS_CONFIG=
+PCAP_DATALINK_VAL_TO_NAME_CONFIG=
 WPCAP_CONSTIFIED=
 !ENDIF
 !ELSE
 WINPCAP_CONFIG=
 PCAP_FINDALLDEVS_CONFIG=
+PCAP_DATALINK_NAME_TO_VAL_CONFIG=
+PCAP_DATALINK_VAL_TO_NAME_CONFIG=
 WPCAP_CONSTIFIED=
 !ENDIF
 

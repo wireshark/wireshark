@@ -29,6 +29,6 @@
 /*
  * Used by MPLS Echo dissector as well.
  */
-extern const enum_val_t fec_vc_types_vals[];
+extern const value_string fec_vc_types_vals[];
 
 #endif

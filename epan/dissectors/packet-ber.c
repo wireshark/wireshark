@@ -43,7 +43,7 @@
 #include <epan/packet.h>
 
 #include <epan/strutil.h>
-#include "prefs.h"
+#include <epan/prefs.h>
 #include "packet-ber.h"
 
 
@@ -360,10 +360,11 @@ dissect_ber_integer(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int off
 		pi=proto_tree_add_text(tree, tvb, offset, len, "%s : 0x", hfinfo->name);
 		if(pi){
 			for(i=0;i<len;i++){
-				proto_item_append_text(pi,"%02x",tvb_get_guint8(tvb, offset+i));
+				proto_item_append_text(pi,"%02x",tvb_get_guint8(tvb, offset));
+				offset++;
 			}
 		}
-		return 0xdeadbeef;
+		return offset;
 	}
 	if(len>4){
 		header_field_info *hfinfo;
@@ -379,8 +380,8 @@ dissect_ber_integer(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int off
 			offset++;
 		}
 		hfinfo = proto_registrar_get_nth(hf_id);
-		proto_tree_add_text(tree, tvb, offset, len, "%s: %" PRIu64, hfinfo->name, val64);
-		return 0xdeadbeef;
+		proto_tree_add_text(tree, tvb, offset-len, len, "%s: %" PRIu64, hfinfo->name, val64);
+		return offset;
 	}
 	
 	val=0;
@@ -448,7 +449,7 @@ dissect_ber_boolean(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int off
 
 /* this function dissects a BER sequence 
  */
-int dissect_ber_sequence(gboolean implicit_tag, packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, ber_sequence *seq, gint hf_id, gint ett_id) {
+int dissect_ber_sequence(gboolean implicit_tag, packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const ber_sequence *seq, gint hf_id, gint ett_id) {
 	guint8 class;
 	gboolean pc, ind;
 	guint32 tag;
@@ -930,7 +931,7 @@ dissect_ber_generalized_time(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
 }
 
 /* 8.6 Encoding of a bitstring value */
-int dissect_ber_bitstring(gboolean implicit_tag, packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, asn_namedbit *named_bits, gint hf_id, gint ett_id, tvbuff_t **out_tvb) 
+int dissect_ber_bitstring(gboolean implicit_tag, packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const asn_namedbit *named_bits, gint hf_id, gint ett_id, tvbuff_t **out_tvb) 
 {
 	guint8 class;
 	gboolean pc, ind;
@@ -940,7 +941,7 @@ int dissect_ber_bitstring(gboolean implicit_tag, packet_info *pinfo, proto_tree 
 	int end_offset;
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	asn_namedbit *nb;
+	const asn_namedbit *nb;
 	char *sep;
 	gboolean term;
 

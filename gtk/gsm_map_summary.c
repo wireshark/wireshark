@@ -43,7 +43,7 @@
 #include "dlg_utils.h"
 #include "ui_util.h"
 #include "compat_macros.h"
-#include "tap.h"
+#include <epan/tap.h>
 
 #include <epan/dissectors/packet-gsm_map.h>
 #include "gsm_map_stat.h"

@@ -29,7 +29,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include "etypes.h"
-#include "prefs.h"
+#include <epan/prefs.h>
 #include "chdlctypes.h"
 #include <epan/addr_resolv.h>
 #include "packet-chdlc.h"
@@ -91,6 +91,7 @@ static const value_string chdlc_address_vals[] = {
 const value_string chdlc_vals[] = {
 	{0x2000,               "Cisco Discovery Protocol"},
 	{ETHERTYPE_IP,         "IP"},
+	{ETHERTYPE_IPv6,       "IPv6"},
 	{CISCO_SLARP,          "SLARP"},
 	{ETHERTYPE_DEC_LB,     "DEC LanBridge"},
 	{CHDLCTYPE_BPDU,       "Spanning Tree BPDU"},

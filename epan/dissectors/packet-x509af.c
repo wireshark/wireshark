@@ -1,10 +1,9 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* packet-x509af.c                                                            */
+/* ./packet-x509af.c                                                          */
 /* ../../tools/asn2eth.py -X -b -e -p x509af -c x509af.cnf -s packet-x509af-template AuthenticationFramework.asn */
 
 /* Input file: packet-x509af-template.c */
-/* Include files: packet-x509af-hf.c, packet-x509af-ett.c, packet-x509af-fn.c, packet-x509af-hfarr.c, packet-x509af-ettarr.c, packet-x509af-val.h */
 
 /* packet-x509af.c
  * Routines for X.509 Authentication Framework packet dissection
@@ -56,21 +55,13 @@ static int proto_x509af = -1;
 static int hf_x509af_algorithm_id = -1;
 static int hf_x509af_extension_id = -1;
 static int hf_x509af_critical = -1;               /* BOOLEAN */
-static int hf_x509af_id_at_userCertificate = -1;
-static int hf_x509af_id_at_cAcertificate = -1;
-static int hf_x509af_id_at_crossCertificatePair = -1;
-static int hf_x509af_id_at_authorityRevocationList = -1;
-static int hf_x509af_id_at_certificateRevocationList = -1;
-static int hf_x509af_id_at_attributeCertificate = -1;
-static int hf_x509af_id_at_attributeCertificateRevocationList = -1;
 
 /*--- Included file: packet-x509af-hf.c ---*/
 
-/* Do not modify this file.                                                   */
-/* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* packet-x509af-hf.c                                                         */
-/* ../../tools/asn2eth.py -X -b -e -p x509af -c x509af.cnf -s packet-x509af-template AuthenticationFramework.asn */
-
+static int hf_x509af_Certificate_PDU = -1;        /* Certificate */
+static int hf_x509af_CertificatePair_PDU = -1;    /* CertificatePair */
+static int hf_x509af_CertificateList_PDU = -1;    /* CertificateList */
+static int hf_x509af_AttributeCertificate_PDU = -1;  /* AttributeCertificate */
 static int hf_x509af_signedCertificate = -1;      /* T_signedCertificate */
 static int hf_x509af_version = -1;                /* Version */
 static int hf_x509af_serialNumber = -1;           /* CertificateSerialNumber */
@@ -138,11 +129,6 @@ static int hf_x509af_attType_item = -1;           /* AttributeType */
 /* Initialize the subtree pointers */
 
 /*--- Included file: packet-x509af-ett.c ---*/
-
-/* Do not modify this file.                                                   */
-/* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* packet-x509af-ett.c                                                        */
-/* ../../tools/asn2eth.py -X -b -e -p x509af -c x509af.cnf -s packet-x509af-template AuthenticationFramework.asn */
 
 static gint ett_x509af_Certificate = -1;
 static gint ett_x509af_T_signedCertificate = -1;
@@ -255,11 +241,6 @@ dissect_x509af_AlgorithmIdentifier(gboolean implicit_tag, tvbuff_t *tvb, int off
 
 
 /*--- Included file: packet-x509af-fn.c ---*/
-
-/* Do not modify this file.                                                   */
-/* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* packet-x509af-fn.c                                                         */
-/* ../../tools/asn2eth.py -X -b -e -p x509af -c x509af.cnf -s packet-x509af-template AuthenticationFramework.asn */
 
 /*--- Fields for imported types ---*/
 
@@ -455,7 +436,7 @@ static ber_sequence SubjectPublicKeyInfo_sequence[] = {
   { 0, 0, 0, NULL }
 };
 
-static int
+int
 dissect_x509af_SubjectPublicKeyInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                 SubjectPublicKeyInfo_sequence, hf_index, ett_x509af_SubjectPublicKeyInfo);
@@ -923,86 +904,31 @@ dissect_x509af_AttributeCertificateAssertion(gboolean implicit_tag _U_, tvbuff_t
   return offset;
 }
 
+/*--- PDUs ---*/
+
+static void dissect_Certificate_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x509af_Certificate(FALSE, tvb, 0, pinfo, tree, hf_x509af_Certificate_PDU);
+}
+static void dissect_CertificatePair_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x509af_CertificatePair(FALSE, tvb, 0, pinfo, tree, hf_x509af_CertificatePair_PDU);
+}
+static void dissect_CertificateList_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x509af_CertificateList(FALSE, tvb, 0, pinfo, tree, hf_x509af_CertificateList_PDU);
+}
+static void dissect_AttributeCertificate_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x509af_AttributeCertificate(FALSE, tvb, 0, pinfo, tree, hf_x509af_AttributeCertificate_PDU);
+}
+
 
 /*--- End of included file: packet-x509af-fn.c ---*/
 
 
-
-static void
-dissect_x509af_userCertificate_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	dissect_x509af_Certificate(FALSE, tvb, 0, pinfo, tree, hf_x509af_id_at_userCertificate);
-}
-
-static void
-dissect_x509af_cAcertificate_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	dissect_x509af_Certificate(FALSE, tvb, 0, pinfo, tree, hf_x509af_id_at_cAcertificate);
-}
-
-static void
-dissect_x509af_crossCertificatePair_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	dissect_x509af_CertificatePair(FALSE, tvb, 0, pinfo, tree, hf_x509af_id_at_crossCertificatePair);
-}
-
-static void
-dissect_x509af_authorityRevocationList_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	dissect_x509af_CertificateList(FALSE, tvb, 0, pinfo, tree, hf_x509af_id_at_authorityRevocationList);
-}
-
-static void
-dissect_x509af_certificateRevocationList_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	dissect_x509af_CertificateList(FALSE, tvb, 0, pinfo, tree, hf_x509af_id_at_certificateRevocationList);
-}
-
-static void
-dissect_x509af_attributeCertificate_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	dissect_x509af_AttributeCertificate(FALSE, tvb, 0, pinfo, tree, hf_x509af_id_at_attributeCertificate);
-}
-
-static void
-dissect_x509af_attributeCertificateRevocationList_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	dissect_x509af_CertificateList(FALSE, tvb, 0, pinfo, tree, hf_x509af_id_at_attributeCertificateRevocationList);
-}
 
 /*--- proto_register_x509af ----------------------------------------------*/
 void proto_register_x509af(void) {
 
   /* List of fields */
   static hf_register_info hf[] = {
-    { &hf_x509af_id_at_attributeCertificateRevocationList,
-      { "attributeCertificateRevocationList", "x509af.id_at_attributeCertificateRevocationList",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "id-at-attributeCertificateRevocationList", HFILL }},
-    { &hf_x509af_id_at_attributeCertificate,
-      { "attributeCertificate", "x509af.id_at_attributeCertificate",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "id-at-attributeCertificate", HFILL }},
-    { &hf_x509af_id_at_authorityRevocationList,
-      { "authorityRevocationList", "x509af.id_at_authorityRevocationList",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "id-at-authorityRevocationList", HFILL }},
-    { &hf_x509af_id_at_certificateRevocationList,
-      { "certificateRevocationList", "x509af.id_at_certificateRevocationList",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "id-at-certificateRevocationList", HFILL }},
-    { &hf_x509af_id_at_crossCertificatePair,
-      { "crossCertificatePair", "x509af.id_at_crossCertificatePair",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "id-at-crossCertificatePair", HFILL }},
-    { &hf_x509af_id_at_userCertificate,
-      { "userCertificate", "x509af.id_at_userCertificate",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "id-at-userCertificate", HFILL }},
-    { &hf_x509af_id_at_cAcertificate,
-      { "cAcertificate", "x509af.id_at_cAcertificate",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "id-at-cAcertificate", HFILL }},
     { &hf_x509af_algorithm_id,
       { "Algorithm Id", "x509af.algorithm.id",
         FT_STRING, BASE_NONE, NULL, 0,
@@ -1018,11 +944,22 @@ void proto_register_x509af(void) {
 
 /*--- Included file: packet-x509af-hfarr.c ---*/
 
-/* Do not modify this file.                                                   */
-/* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* packet-x509af-hfarr.c                                                      */
-/* ../../tools/asn2eth.py -X -b -e -p x509af -c x509af.cnf -s packet-x509af-template AuthenticationFramework.asn */
-
+    { &hf_x509af_Certificate_PDU,
+      { "Certificate", "x509af.Certificate",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "Certificate", HFILL }},
+    { &hf_x509af_CertificatePair_PDU,
+      { "CertificatePair", "x509af.CertificatePair",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "CertificatePair", HFILL }},
+    { &hf_x509af_CertificateList_PDU,
+      { "CertificateList", "x509af.CertificateList",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "CertificateList", HFILL }},
+    { &hf_x509af_AttributeCertificate_PDU,
+      { "AttributeCertificate", "x509af.AttributeCertificate",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "AttributeCertificate", HFILL }},
     { &hf_x509af_signedCertificate,
       { "signedCertificate", "x509af.signedCertificate",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -1273,11 +1210,6 @@ void proto_register_x509af(void) {
 
 /*--- Included file: packet-x509af-ettarr.c ---*/
 
-/* Do not modify this file.                                                   */
-/* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* packet-x509af-ettarr.c                                                     */
-/* ../../tools/asn2eth.py -X -b -e -p x509af -c x509af.cnf -s packet-x509af-template AuthenticationFramework.asn */
-
     &ett_x509af_Certificate,
     &ett_x509af_T_signedCertificate,
     &ett_x509af_AlgorithmIdentifier,
@@ -1325,13 +1257,13 @@ void proto_register_x509af(void) {
 
 /*--- proto_reg_handoff_x509af -------------------------------------------*/
 void proto_reg_handoff_x509af(void) {
-	register_ber_oid_dissector("2.5.4.36", dissect_x509af_userCertificate_callback, proto_x509af, "id-at-userCertificate");
-	register_ber_oid_dissector("2.5.4.37", dissect_x509af_cAcertificate_callback, proto_x509af, "id-at-cAcertificate");
-	register_ber_oid_dissector("2.5.4.38", dissect_x509af_authorityRevocationList_callback, proto_x509af, "id-at-authorityRevocationList");
-	register_ber_oid_dissector("2.5.4.39", dissect_x509af_certificateRevocationList_callback, proto_x509af, "id-at-certificateRevocationList");
-	register_ber_oid_dissector("2.5.4.40", dissect_x509af_crossCertificatePair_callback, proto_x509af, "id-at-crossCertificatePair");
-	register_ber_oid_dissector("2.5.4.58", dissect_x509af_attributeCertificate_callback, proto_x509af, "id-at-attributeCertificate");
-	register_ber_oid_dissector("2.5.4.59", dissect_x509af_attributeCertificateRevocationList_callback, proto_x509af, "id-at-attributeCertificateRevocationList");
+	register_ber_oid_dissector("2.5.4.36", dissect_Certificate_PDU, proto_x509af, "id-at-userCertificate");
+	register_ber_oid_dissector("2.5.4.37", dissect_Certificate_PDU, proto_x509af, "id-at-cAcertificate");
+	register_ber_oid_dissector("2.5.4.38", dissect_CertificateList_PDU, proto_x509af, "id-at-authorityRevocationList");
+	register_ber_oid_dissector("2.5.4.39", dissect_CertificateList_PDU, proto_x509af, "id-at-certificateRevocationList");
+	register_ber_oid_dissector("2.5.4.40", dissect_CertificatePair_PDU, proto_x509af, "id-at-crossCertificatePair");
+	register_ber_oid_dissector("2.5.4.58", dissect_AttributeCertificate_PDU, proto_x509af, "id-at-attributeCertificate");
+	register_ber_oid_dissector("2.5.4.59", dissect_CertificateList_PDU, proto_x509af, "id-at-attributeCertificateRevocationList");
 
 	/*XXX these should really go to a better place but since that
 	  I have not that ITU standard, ill put it here for the time

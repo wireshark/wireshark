@@ -1,7 +1,7 @@
 /* packet-x509sat.h
  * Routines for X.509 Selected Attribute Types packet dissection
  *
- * $Id: packet-x509sat-template.h,v 1.1 2004/05/24 08:42:29 sahlberg Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -26,6 +26,8 @@
 #define PACKET_X509SAT_H
 
 #include "packet-x509sat-exp.h"
+
+int dissect_x509sat_DirectoryString(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 
 #endif  /* PACKET_X509SAT_H */
 

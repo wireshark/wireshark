@@ -54,7 +54,7 @@ typedef enum {
  */
 extern fa_ret_t user_font_apply(void);
 
-#ifdef WIN32 
+#ifdef _WIN32 
 #if GTK_MAJOR_VERSION < 2
 /** Init the application font (GTK1 only). 
  *

@@ -43,8 +43,8 @@
 #include <glib.h>
 #include <epan/packet.h>
 
-#include "prefs.h"
-#include "crypt-md5.h"
+#include <epan/prefs.h>
+#include <epan/crypt-md5.h>
 #include "packet-tacacs.h"
 
 static void md5_xor( guint8 *data, char *key, int data_len, guint8 *session_id, guint8 version, guint8 seq_no );

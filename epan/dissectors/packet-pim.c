@@ -36,10 +36,10 @@
 #endif
 
 #include <epan/packet.h>
-#include "ipproto.h"
-#include "afn.h"
+#include <epan/ipproto.h>
+#include <epan/afn.h>
 #include "packet-ipv6.h"
-#include "in_cksum.h"
+#include <epan/in_cksum.h>
 
 #define PIM_TYPE(x)	((x) & 0x0f)
 #define PIM_VER(x)	(((x) & 0xf0) >> 4)

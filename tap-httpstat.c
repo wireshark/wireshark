@@ -31,7 +31,7 @@
 
 #include "epan/packet_info.h"
 #include "epan/value_string.h"
-#include "tap.h"
+#include <epan/tap.h>
 #include "register.h"
 #include <epan/dissectors/packet-http.h>
 

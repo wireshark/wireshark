@@ -25,7 +25,7 @@
 #ifndef __FILE_H__
 #define __FILE_H__
 
-#include "range.h"
+#include "packet-range.h"
 #include "wiretap/wtap.h"
 #include <epan/dfilter/dfilter.h>
 #include "print.h"
@@ -44,7 +44,7 @@ typedef enum {
 
 int  cf_open(char *, gboolean, capture_file *);
 void cf_close(capture_file *);
-void cf_reload();
+void cf_reload(void);
 read_status_t cf_read(capture_file *);
 int  cf_start_tail(char *, gboolean, capture_file *);
 read_status_t cf_continue_tail(capture_file *, int, int *);

@@ -40,7 +40,7 @@
 #include "epan/packet_info.h"
 #include <epan/dissectors/packet-smb-sidsnooping.h>
 #include "register.h"
-#include "tap.h"
+#include <epan/tap.h>
 #include "epan/value_string.h"
 #include "smb.h"
 

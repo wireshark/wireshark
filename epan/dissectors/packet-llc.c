@@ -30,7 +30,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include "oui.h"
-#include "xdlc.h"
+#include <epan/xdlc.h>
 #include "etypes.h"
 #include "llcsaps.h"
 #include "bridged_pids.h"
@@ -178,6 +178,7 @@ http://www.cisco.com/univercd/cc/td/doc/product/software/ios113ed/113ed_cr/ibm_r
 	{ OUI_CABLE_BPDU,  "DOCSIS Spanning Tree" }, /* DOCSIS spanning tree BPDU */
 	{ OUI_APPLE_ATALK, "Apple (AppleTalk)" },
 	{ OUI_NORTEL,      "Nortel Networks SONMP" },
+	{ OUI_HP,          "Hewlett-Packard" },
 	{ 0,               NULL }
 };
 

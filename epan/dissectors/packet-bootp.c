@@ -20,6 +20,11 @@
  * RFC 3594: PacketCable Security Ticket Control Sub-Option (122.9)
  * BOOTP and DHCP Parameters
  *     http://www.iana.org/assignments/bootp-dhcp-parameters
+ * PacketCable(TM) MTA Device Provisioning Specification
+ *     http://www.packetcable.com/downloads/specs/PKT-SP-PROV-I05-021127.pdf
+ *     http://www.packetcable.com/downloads/specs/PKT-SP-PROV-I09-040402.pdf
+ * CableHome(TM) 1.1 Specification
+ *     http://www.cablelabs.com/projects/cablehome/downloads/specs/CH-SP-CH1.1-I04-040409.pdf *
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -40,6 +45,17 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+/*
+ * Some of the development of the BOOTP/DHCP protocol decoder was sponsored by
+ * Cable Television Laboratories, Inc. ("CableLabs") based upon proprietary
+ * CableLabs' specifications. Your license and use of this protocol decoder
+ * does not mean that you are licensed to use the CableLabs'
+ * specifications.  If you have questions about this protocol, contact
+ * jf.mule [AT] cablelabs.com or c.stuart [AT] cablelabs.com for additional
+ * information.
+ */
+
+
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
@@ -50,9 +66,10 @@
 #include "packet-arp.h"
 #include "packet-dns.h"				/* for get_dns_name() */
 
-#include "prefs.h"
-#include "tap.h"
- 
+#include <epan/prefs.h>
+#include <epan/tap.h>
+#include <epan/strutil.h>
+
 static int bootp_dhcp_tap = -1;
 static int proto_bootp = -1;
 static int hf_bootp_type = -1;
@@ -74,10 +91,12 @@ static int hf_bootp_file = -1;
 static int hf_bootp_cookie = -1;
 static int hf_bootp_vendor = -1;
 static int hf_bootp_dhcp = -1;
+static int hf_bootp_pkt_mdc_len = -1;
+static int hf_bootp_pkt_cm_len = -1;
 
-static guint ett_bootp = -1;
-static guint ett_bootp_flags = -1;
-static guint ett_bootp_option = -1;
+static gint ett_bootp = -1;
+static gint ett_bootp_flags = -1;
+static gint ett_bootp_option = -1;
 
 gboolean novell_string = FALSE;
 
@@ -86,8 +105,6 @@ gboolean novell_string = FALSE;
 
 #define BOOTP_BC	0x8000
 #define BOOTP_MBZ	0x7FFF
-
-#define	PLURALIZE(n)	(((n) > 1) ? "s" : "")
 
 enum field_type { none, ipv4, string, toggle, yes_no, special, opaque,
 	time_in_secs,
@@ -105,16 +122,41 @@ static const true_false_string flag_set_broadcast = {
 };
 
 
+/* PacketCable definitions */
+#define PACKETCABLE_MTA_CAP10 "pktc1.0:"
+#define PACKETCABLE_CM_CAP11  "docsis1.1:"
+#define PACKETCABLE_CM_CAP20  "docsis2.0:"
+
+#define PACKETCABLE_CCC_I05      1
+#define PACKETCABLE_CCC_DRAFT5   2
+#define PACKETCABLE_CCC_RFC_3495 3
+
+static enum_val_t pkt_ccc_protocol_versions[] = {
+	{ "ccc_i05",     "PKT-SP-PROV-I05-021127", PACKETCABLE_CCC_I05 },
+	{ "ccc_draft_5", "IETF Draft 5",           PACKETCABLE_CCC_DRAFT5 },
+	{ "rfc_3495",    "RFC 3495",               PACKETCABLE_CCC_RFC_3495 },
+	{ NULL, NULL, 0 }
+};
+
+static gint pkt_ccc_protocol_version = PACKETCABLE_CCC_RFC_3495;
+static gint pkt_ccc_option = 122;
+
+
 static int dissect_vendor_pxeclient_suboption(proto_tree *v_tree, tvbuff_t *tvb,
     int optp);
 static int dissect_vendor_cablelabs_suboption(proto_tree *v_tree, tvbuff_t *tvb,
-    int optp);
-static int dissect_cablelabs_clientconfig_suboption(proto_tree *v_tree, tvbuff_t *tvb,
     int optp);
 static int dissect_netware_ip_suboption(proto_tree *v_tree, tvbuff_t *tvb,
     int optp);
 static int bootp_dhcp_decode_agent_info(proto_tree *v_tree, tvbuff_t *tvb,
     int optp);
+static void dissect_packetcable_mta_cap(proto_tree *v_tree, tvbuff_t *tvb,
+       int voff, int len);
+static void dissect_packetcable_cm_cap(proto_tree *v_tree, tvbuff_t *tvb,
+       int voff, int len);
+static int dissect_packetcable_i05_ccc(proto_tree *v_tree, tvbuff_t *tvb, int optp);
+static int dissect_packetcable_ietf_ccc(proto_tree *v_tree, tvbuff_t *tvb, int optp, int revision);
+
 
 static const char *
 get_dhcp_type(guint8 byte)
@@ -182,6 +224,7 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 	guint8			rdm;
 	int			o52voff, o52eoff;
 	gboolean		o52at_end;
+	gboolean		skip_opaque = FALSE;
 
 	static const value_string nbnt_vals[] = {
 	    {0x1,   "B-node" },
@@ -343,7 +386,7 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 		/* 119 */ { "Domain Search",				opaque },
 		/* 120 */ { "SIP Servers",				opaque },
 		/* 121 */ { "Classless Static Route",		       	opaque },
-		/* 122 */ { "CableLabs Client Configuration",		special },
+		/* 122 */ { "CableLabs Client Configuration",		opaque },
 		/* 123 */ { "Unassigned",				opaque },
 		/* 124 */ { "Unassigned",				opaque },
 		/* 125 */ { "Unassigned",				opaque },
@@ -595,9 +638,9 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 				optp = dissect_vendor_pxeclient_suboption(v_tree,
 					tvb, optp);
 			}
-		} else if (*vendor_class_id_p != NULL && 
-			   ((strncmp(*vendor_class_id_p, "pktc", strlen("pktc")) == 0) || 
-                            (strncmp(*vendor_class_id_p, "docsis", strlen("docsis")) == 0) || 
+		} else if (*vendor_class_id_p != NULL &&
+			   ((strncmp(*vendor_class_id_p, "pktc", strlen("pktc")) == 0) ||
+                            (strncmp(*vendor_class_id_p, "docsis", strlen("docsis")) == 0) ||
                             (strncmp(*vendor_class_id_p, "CableHome", strlen("CableHome")) == 0))) {
 		        /* CableLabs standard - see www.cablelabs.com/projects */
 		        vti = proto_tree_add_text(bp_tree, tvb, voff,
@@ -629,7 +672,7 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 			"Option %d: %s = %s", code, text,
 			val_to_str(byte, opt_overload_vals,
 			    "Unknown (0x%02x)"));
-			    
+
 		/* Just in case we find an option 52 in sname or file */
 		if (voff > VENDOR_INFO_OFFSET && byte >= 1 && byte <= 3) {
 			o52tree = proto_item_add_subtree(vti, ett_bootp_option);
@@ -649,7 +692,7 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 			}
 			if (byte == 2 || byte == 3) {	/* 'sname' */
 				vti = proto_tree_add_text (o52tree, tvb,
-					SERVER_NAME_OFFSET, SERVER_NAME_LEN, 
+					SERVER_NAME_OFFSET, SERVER_NAME_LEN,
 					"Server host name option overload");
 				v_tree = proto_item_add_subtree(vti, ett_bootp_option);
 				o52voff = SERVER_NAME_OFFSET;
@@ -690,9 +733,21 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 		break;
 
 	case 60:	/* Vendor class identifier */
-		proto_tree_add_text(bp_tree, tvb, voff, consumed,
-			"Option %d: %s = \"%.*s\"", code, text, vlen,
-			tvb_get_ptr(tvb, voff+2, consumed-2));
+		/*
+		 * XXX - RFC 2132 says this is a string of octets;
+		 * should we check for non-printables?
+		 */
+		vti = proto_tree_add_text(bp_tree, tvb, voff, consumed,
+			"Option %d: %s = \"%s\"", code, text,
+			tvb_format_text(tvb, voff+2, consumed-2));
+		if (tvb_memeql(tvb, voff+2, PACKETCABLE_MTA_CAP10, strlen(PACKETCABLE_MTA_CAP10)) == 0) {
+			v_tree = proto_item_add_subtree(vti, ett_bootp_option);
+			dissect_packetcable_mta_cap(v_tree, tvb, voff+2, vlen);
+		} else if (tvb_memeql(tvb, voff+2, PACKETCABLE_CM_CAP11, strlen(PACKETCABLE_CM_CAP11)) == 0 ||
+				tvb_memeql(tvb, voff+2, PACKETCABLE_CM_CAP20, strlen(PACKETCABLE_CM_CAP20)) == 0 ) {
+			v_tree = proto_item_add_subtree(vti, ett_bootp_option);
+			dissect_packetcable_cm_cap(v_tree, tvb, voff+2, vlen);
+		}
 		break;
 
 	case 61:	/* Client Identifier */
@@ -731,36 +786,36 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 			optp = dissect_netware_ip_suboption(v_tree, tvb, optp);
 		break;
 
-    case 78:	/* SLP Directory Agent Option RFC2610 Added by Greg Morris (gmorris@novell.com)*/
+	case 78:	/* SLP Directory Agent Option RFC2610 Added by Greg Morris (gmorris@novell.com)*/
 		byte = tvb_get_guint8(tvb, voff+2);
 		vti = proto_tree_add_text(bp_tree, tvb, voff, consumed,
 				"Option %d: %s = %s", code, text,
 				val_to_str(byte, slpda_vals,
 				    "Unknown (0x%02x)"));
-        if (byte == 0x80) {
-            voff++;
-            consumed--;
-        }
+		if (byte == 0x80) {
+			voff++;
+			consumed--;
+		}
 		v_tree = proto_item_add_subtree(vti, ett_bootp_option);
-        for (i = voff + 3; i < voff + consumed; i += 4) {
-            proto_tree_add_text(v_tree, tvb, i, 4, "SLPDA Address: %s",
-                ip_to_str(tvb_get_ptr(tvb, i, 4)));
-        }
-        if (byte == 0x80) {
-            consumed++;
-        }
+		for (i = voff + 3; i < voff + consumed; i += 4) {
+			proto_tree_add_text(v_tree, tvb, i, 4, "SLPDA Address: %s",
+			    ip_to_str(tvb_get_ptr(tvb, i, 4)));
+		}
+		if (byte == 0x80) {
+			consumed++;
+		}
 		break;
 
-    case 79:	/* SLP Service Scope Option RFC2610 Added by Greg Morris (gmorris@novell.com)*/
+	case 79:	/* SLP Service Scope Option RFC2610 Added by Greg Morris (gmorris@novell.com)*/
 		byte = tvb_get_guint8(tvb, voff+2);
 		vti = proto_tree_add_text(bp_tree, tvb, voff, consumed,
 				"Option %d: %s = %s", code, text,
 				val_to_str(byte, slp_scope_vals,
 				    "Unknown (0x%02x)"));
 		v_tree = proto_item_add_subtree(vti, ett_bootp_option);
-        proto_tree_add_text(v_tree, tvb, voff+3, consumed-3,
-                "%s = \"%.*s\"", text, vlen-1,
-                tvb_get_ptr(tvb, voff+3, vlen-1));
+		proto_tree_add_text(v_tree, tvb, voff+3, consumed-3,
+		    "%s = \"%s\"", text,
+		    tvb_format_text(tvb, voff+3, vlen-1));
 		break;
 
 	case 82:        /* Relay Agent Information Option */
@@ -775,15 +830,13 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 		break;
 
 	case 85:        /* Novell Servers */
-        /* Option 85 can be sent as a string */
-        /* Added by Greg Morris (gmorris@novell.com) */
-        if (novell_string && code==85) {
-            proto_tree_add_text(bp_tree, tvb, voff, consumed,
-                    "Option %d: %s = \"%.*s\"", code, text, vlen,
-                    tvb_get_ptr(tvb, voff+2, consumed-2));
-        }
-        else
-        {
+		/* Option 85 can be sent as a string */
+		/* Added by Greg Morris (gmorris[AT]novell.com) */
+		if (novell_string) {
+			proto_tree_add_text(bp_tree, tvb, voff, consumed,
+			    "Option %d: %s = \"%s\"", code, text,
+			    tvb_format_text(tvb, voff+2, consumed-2));
+		} else {
 			if (vlen == 4) {
 				/* one IP address */
 				proto_tree_add_text(bp_tree, tvb, voff, consumed,
@@ -801,16 +854,6 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 			}
         }
         break;
-
-	case 122:       /* CableLabs Client Configuration */
-	        vti = proto_tree_add_text(bp_tree, tvb, voff,
-			vlen + 2, "Option %d: %s", code, text);
-		v_tree = proto_item_add_subtree(vti, ett_bootp_option);
-		optp = voff+2;
-		while (optp < voff+consumed) {
-		        optp = dissect_cablelabs_clientconfig_suboption(v_tree, tvb, optp);
-		}	        
-		break;
 
 	case 90:	/* DHCP Authentication */
 	case 210:	/* Was this used for authentication at one time? */
@@ -891,6 +934,31 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 		break;
 
 	default:	/* not special */
+		/* The PacketCable CCC option number can vary.  If this is a CCC option,
+		   handle it and skip the "opaque" case below.
+		 */
+		if (code == pkt_ccc_option) {
+			skip_opaque = TRUE;
+			vti = proto_tree_add_text(bp_tree, tvb, voff, consumed,
+						  "Option %d: CableLabs Client Configuration (%d bytes)",
+						  code, vlen);
+			v_tree = proto_item_add_subtree(vti, ett_bootp_option);
+			optp = voff+2;
+			while (optp < voff+consumed) {
+				switch (pkt_ccc_protocol_version) {
+					case PACKETCABLE_CCC_I05:
+						optp = dissect_packetcable_i05_ccc(v_tree, tvb, optp);
+						break;
+					case PACKETCABLE_CCC_DRAFT5:
+					case PACKETCABLE_CCC_RFC_3495:
+						optp = dissect_packetcable_ietf_ccc(v_tree, tvb, optp, pkt_ccc_protocol_version);
+						break;
+					default: /* XXX Should we do something here? */
+						break;
+				}
+			}
+		}
+
 		break;
 	}
 
@@ -924,17 +992,19 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 
 		case string:
 			/* Fix for non null-terminated string supplied by
-			 * John Lines <John.Lines@aeat.co.uk>
+			 * John Lines <John.Lines[AT]aeat.co.uk>
 			 */
 			proto_tree_add_text(bp_tree, tvb, voff, consumed,
-					"Option %d: %s = \"%.*s\"", code, text, vlen,
-					tvb_get_ptr(tvb, voff+2, consumed-2));
+					"Option %d: %s = \"%s\"", code, text,
+					tvb_format_text(tvb, voff+2, consumed-2));
 			break;
 
 		case opaque:
-			proto_tree_add_text(bp_tree, tvb, voff, consumed,
-					"Option %d: %s (%d bytes)",
-					code, text, vlen);
+			if (! skip_opaque) { /* Currently used by PacketCable CCC */
+				proto_tree_add_text(bp_tree, tvb, voff, consumed,
+						"Option %d: %s (%d bytes)",
+						code, text, vlen);
+			}
 			break;
 
 		case val_u_short:
@@ -1035,7 +1105,7 @@ bootp_dhcp_decode_agent_info(proto_tree *v_tree, tvbuff_t *tvb, int optp)
 		break;
 	default:
 		proto_tree_add_text(v_tree, tvb, optp, subopt_len + 2,
-				    "Invalid agent suboption %d (%d bytes)", 
+				    "Invalid agent suboption %d (%d bytes)",
 				    subopt, subopt_len);
 		break;
 	}
@@ -1100,11 +1170,11 @@ dissect_vendor_pxeclient_suboption(proto_tree *v_tree, tvbuff_t *tvb, int optp)
 		proto_tree_add_text(v_tree, tvb, optp, subopt_len+2,
 			"Suboption %d: %s (%d byte%s)" ,
 	 		subopt, "PXE boot item",
-			subopt_len, PLURALIZE(subopt_len));
+			subopt_len, plurality(subopt_len, "", "s"));
 	} else if ((subopt < 1 ) || (subopt > array_length(o43pxeclient_opt))) {
 		proto_tree_add_text(v_tree, tvb, optp, subopt_len+2,
 			"Unknown suboption %d (%d byte%s)", subopt, subopt_len,
-			PLURALIZE(subopt_len));
+			plurality(subopt_len, "", "s"));
 	} else {
 		switch (o43pxeclient_opt[subopt].ft) {
 
@@ -1118,7 +1188,7 @@ dissect_vendor_pxeclient_suboption(proto_tree *v_tree, tvbuff_t *tvb, int optp)
 			proto_tree_add_text(v_tree, tvb, optp, subopt_len+2,
 				"Suboption %d: %s (%d byte%s)" ,
 		 		subopt, o43pxeclient_opt[subopt].text,
-				subopt_len, PLURALIZE(subopt_len));
+				subopt_len, plurality(subopt_len, "", "s"));
 			break;
 
 		case val_u_le_short:
@@ -1161,10 +1231,11 @@ dissect_vendor_pxeclient_suboption(proto_tree *v_tree, tvbuff_t *tvb, int optp)
 	return optp;
 }
 
+
 static int
 dissect_vendor_cablelabs_suboption(proto_tree *v_tree, tvbuff_t *tvb, int optp)
 {
-	guint8 subopt;
+	guint8 subopt, byte_val;
 	guint8 subopt_len;
 
 	struct o43cablelabs_opt_info {
@@ -1181,7 +1252,7 @@ dissect_vendor_cablelabs_suboption(proto_tree *v_tree, tvbuff_t *tvb, int optp)
 		/* 5 */ {"Hardware Version", string},
 		/* 6 */ {"Software Version", string},
 		/* 7 */ {"Boot ROM version", string},
-		/* 8 */ {"Organizational Unique Identifier", bytes},
+		/* 8 */ {"Organizationally Unique Identifier", special},
 		/* 9 */ {"Model Number", string},
 		/* 10 */ {"Vendor Name", string},
 		/* *** 11-30: CableHome *** */
@@ -1206,7 +1277,7 @@ dissect_vendor_cablelabs_suboption(proto_tree *v_tree, tvbuff_t *tvb, int optp)
 		/* 29 */ {"Unassigned (CableHome)", special},
 		/* 30 */ {"Unassigned (CableHome)", special},
 		/* *** 31-50: PacketCable *** */
-		/* 31 */ {"MTA MAC Address", string},
+		/* 31 */ {"MTA MAC Address", special},
 		/* 32 */ {"Correlation ID", string},
 		/* 33-50 {"Unassigned (PacketCable)", special}, */
 		/* *** 51-127: CableLabs *** */
@@ -1216,13 +1287,19 @@ dissect_vendor_cablelabs_suboption(proto_tree *v_tree, tvbuff_t *tvb, int optp)
 		/* 255 {"end options", special} */
 	};
 
+	static const value_string packetcable_subopt11_vals[] = {
+		{ 1, "PS WAN-Man" },
+		{ 2, "PS WAN-Data" },
+		{ 0, NULL }
+	};
+
 	subopt = tvb_get_guint8(tvb, optp);
 
 	if (subopt == 0 ) {
 		proto_tree_add_text(v_tree, tvb, optp, 1, "Padding");
                 return (optp+1);
 	} else if (subopt == 255) {	/* End Option */
-		proto_tree_add_text(v_tree, tvb, optp, 1, "End option");
+		proto_tree_add_text(v_tree, tvb, optp, 1, "End CableLabs option");
 		/* Make sure we skip any junk left this option */
 		return (optp+255);
 	}
@@ -1232,29 +1309,45 @@ dissect_vendor_cablelabs_suboption(proto_tree *v_tree, tvbuff_t *tvb, int optp)
 	if ( (subopt < 1 ) || (subopt > array_length(o43cablelabs_opt)) ) {
 		proto_tree_add_text(v_tree, tvb, optp, subopt_len+2,
 			"Suboption %d: Unassigned (%d byte%s)", subopt, subopt_len,
-			PLURALIZE(subopt_len));
+			plurality(subopt_len, "", "s"));
 	} else {
 		switch (o43cablelabs_opt[subopt].ft) {
 
 		case string:
 			proto_tree_add_text(v_tree, tvb, optp, subopt_len+2,
-				"Suboption %d: %s = \"%.*s\"", subopt, 
-				o43cablelabs_opt[subopt].text, subopt_len,
-				tvb_get_ptr(tvb, optp+2, subopt_len));
+				"Suboption %d: %s = \"%s\"", subopt,
+				o43cablelabs_opt[subopt].text,
+				tvb_format_text(tvb, optp+2, subopt_len));
 			break;
 
 		case bytes:
 			proto_tree_add_text(v_tree, tvb, optp, subopt_len+2,
-				"Suboption %d: %s = 0x%s", subopt, 
+				"Suboption %d: %s = 0x%s", subopt,
 				o43cablelabs_opt[subopt].text,
 				tvb_bytes_to_str(tvb, optp+2, subopt_len));
 			break;
-    
+
 		case special:
-			proto_tree_add_text(v_tree, tvb, optp, subopt_len+2,
-				"Suboption %d: %s (%d byte%s)" ,
-		 		subopt, o43cablelabs_opt[subopt].text,
-				subopt_len, PLURALIZE(subopt_len));
+			if ( subopt == 8 ) {	/* OUI */
+				proto_tree_add_text(v_tree, tvb, optp, subopt_len+2,
+					"Suboption %d: OUI = %s" ,
+					subopt, bytes_to_str_punct(tvb_get_ptr(tvb, optp+2, 3), 3, ':'));
+			} else if ( subopt == 11 ) { /* Address Realm */
+				byte_val = tvb_get_guint8(tvb, optp + 2);
+				proto_tree_add_text(v_tree, tvb, optp, subopt_len+2,
+					"Suboption %d: Address Realm = 0x%02x (%s)" ,
+					subopt, byte_val,
+					val_to_str(byte_val, packetcable_subopt11_vals, "Unknown"));
+			} else if ( subopt == 31 ) { /* MTA MAC address */
+				proto_tree_add_text(v_tree, tvb, optp, subopt_len+2,
+					"Suboption %d: MTA MAC address = %s" ,
+					subopt, bytes_to_str_punct(tvb_get_ptr(tvb, optp+2, 6), 6, ':'));
+			} else {
+				proto_tree_add_text(v_tree, tvb, optp, subopt_len+2,
+					"Suboption %d: %s (%d byte%s)" ,
+					subopt, o43cablelabs_opt[subopt].text,
+					subopt_len, plurality(subopt_len, "", "s"));
+			}
 			break;
 
 		default:
@@ -1265,6 +1358,8 @@ dissect_vendor_cablelabs_suboption(proto_tree *v_tree, tvbuff_t *tvb, int optp)
 	optp += (subopt_len + 2);
 	return optp;
 }
+
+
 
 static int
 dissect_netware_ip_suboption(proto_tree *v_tree, tvbuff_t *tvb, int optp)
@@ -1363,112 +1458,711 @@ dissect_netware_ip_suboption(proto_tree *v_tree, tvbuff_t *tvb, int optp)
 	return optp;
 }
 
-static int
-dissect_cablelabs_clientconfig_suboption(proto_tree *v_tree, tvbuff_t *tvb, int optp)
+
+/* PakcetCable Multimedia Terminal Adapter device capabilities (option 60).
+   Ref: PKT-SP-I05-021127 sections 8.2 and 10 */
+
+#define PKT_MDC_TLV_OFF 10
+
+
+/* These are ASCII-encoded hexadecimal digits.  We use the raw hex equivalent for
+   convenience. */
+#define PKT_MDC_VERSION			0x3031  /* "01" */
+#define PKT_MDC_TEL_END			0x3032  /* "02" */
+#define PKT_MDC_TGT			0x3033  /* "03" */
+#define PKT_MDC_HTTP_ACC		0x3034  /* "04" */
+#define PKT_MDC_SYSLOG			0x3035  /* "05" */
+#define PKT_MDC_NCS			0x3036  /* "06" */
+#define PKT_MDC_PRI_LINE		0x3037  /* "07" */
+#define PKT_MDC_VENDOR_TLV		0x3038  /* "08" */
+#define PKT_MDC_NVRAM_STOR		0x3039  /* "09" */
+#define PKT_MDC_PROV_REP		0x3041  /* "0A" */
+#define PKT_MDC_PROV_REP_LC		0x3061  /* "0A" */
+#define PKT_MDC_SUPP_CODECS		0x3042  /* "0B" */
+#define PKT_MDC_SUPP_CODECS_LC		0x3062  /* "0b" */
+#define PKT_MDC_SILENCE			0x3043  /* "0C" */
+#define PKT_MDC_SILENCE_LC		0x3063  /* "0c" */
+#define PKT_MDC_ECHO_CANCEL		0x3044  /* "0D" */
+#define PKT_MDC_ECHO_CANCEL_LC		0x3064  /* "0d" */
+#define PKT_MDC_RSVP			0x3145  /* "0E" */
+#define PKT_MDC_RSVP_LC			0x3165  /* "0e" */
+#define PKT_MDC_UGS_AD			0x3146  /* "0F" */
+#define PKT_MDC_UGS_AD_LC		0x3166  /* "0f" */
+#define PKT_MDC_IF_INDEX		0x3130  /* "10" */
+#define PKT_MDC_FLOW_LOG		0x3131  /* "11" */
+#define PKT_MDC_PROV_FLOWS		0x3132	/* "12" */
+
+static const value_string pkt_mdc_type_vals[] = {
+	{ PKT_MDC_VERSION,		"PacketCable Version" },
+	{ PKT_MDC_TEL_END,		"Number Of Telephony Endpoints" },
+	{ PKT_MDC_TGT,			"TGT Support" },
+	{ PKT_MDC_HTTP_ACC,		"HTTP Download File Access Method Support" },
+	{ PKT_MDC_SYSLOG,		"MTA-24 Event SYSLOG Notification Support" },
+	{ PKT_MDC_NCS,			"NCS Service Flow Support" },
+	{ PKT_MDC_PRI_LINE,		"Primary Line Support" },
+	{ PKT_MDC_VENDOR_TLV,		"Vendor Specific TLV Type(s)" },
+	{ PKT_MDC_NVRAM_STOR,		"NVRAM Ticket/Session Keys Storage Support" },
+	{ PKT_MDC_PROV_REP,		"Provisioning Event Reporting Support" },
+	{ PKT_MDC_PROV_REP_LC,		"Provisioning Event Reporting Support" },
+	{ PKT_MDC_SUPP_CODECS,		"Supported CODEC(s)" },
+	{ PKT_MDC_SUPP_CODECS_LC,	"Supported CODEC(s)" },
+	{ PKT_MDC_SILENCE,		"Silence Suppression Support" },
+	{ PKT_MDC_SILENCE_LC,		"Silence Suppression Support" },
+	{ PKT_MDC_ECHO_CANCEL,		"Echo Cancellation Support" },
+	{ PKT_MDC_ECHO_CANCEL_LC,	"Echo Cancellation Support" },
+	{ PKT_MDC_RSVP,			"RSVP Support" },
+	{ PKT_MDC_RSVP_LC,		"RSVP Support" },
+	{ PKT_MDC_UGS_AD,		"UGS-AD Support" },
+	{ PKT_MDC_UGS_AD_LC,		"UGS-AD Support" },
+	{ PKT_MDC_IF_INDEX,		"MTA's \"ifIndex\" starting number in \"ifTable\"" },
+	{ PKT_MDC_FLOW_LOG,		"Provisioning Flow Logging Support" },
+	{ PKT_MDC_PROV_FLOWS,		"Supported Provisioning Flows" },
+	{ 0,					NULL }
+};
+
+static const value_string pkt_mdc_version_vals[] = {
+	{ 0x3030,	"PacketCable 1.0" },
+	{ 0x3031,	"PacketCable 1.1" },
+	{ 0x3032,	"PacketCable 1.2" },
+	{ 0x3033,	"PacketCable 1.3" },
+	{ 0,		NULL }
+};
+
+static const value_string pkt_mdc_boolean_vals[] = {
+	{ 0x3030,	"No" },
+	{ 0x3031,	"Yes" },
+	{ 0,		NULL }
+};
+
+static const value_string pkt_mdc_codec_vals[] = {
+	{ 0x3031,	"other" },
+	{ 0x3032,	"unknown" },
+	{ 0x3033,	"G.729" },
+	{ 0x3034,	"reserved" },
+	{ 0x3035,	"G.729E" },
+	{ 0x3036,	"PCMU" },
+	{ 0x3037,	"G.726-32" },
+	{ 0x3038,	"G.728" },
+	{ 0x3039,	"PCMA" },
+	{ 0x3041,	"G.726-16" },
+	{ 0x3042,	"G.726-24" },
+	{ 0x3043,	"G.726-40" },
+	{ 0,		NULL }
+};
+
+/* PacketCable Cable Modem device capabilities (option 60). */
+#define PKT_CM_TLV_OFF 12
+
+#define PKT_CM_CONCAT_SUP	0x3031  /* "01" */
+#define PKT_CM_DOCSIS_VER	0x3032  /* "02" */
+#define PKT_CM_FRAG_SUP		0x3033  /* "03" */
+#define PKT_CM_PHS_SUP		0x3034  /* "04" */
+#define PKT_CM_IGMP_SUP		0x3035  /* "05" */
+#define PKT_CM_PRIV_SUP		0x3036  /* "06" */
+#define PKT_CM_DSAID_SUP	0x3037  /* "07" */
+#define PKT_CM_USID_SUP		0x3038  /* "08" */
+#define PKT_CM_FILT_SUP		0x3039  /* "09" */
+#define PKT_CM_TET_MI		0x3041  /* "0A" */
+#define PKT_CM_TET_MI_LC	0x3061  /* "0a" */
+#define PKT_CM_TET		0x3042  /* "0B" */
+#define PKT_CM_TET_LC		0x3062  /* "0b" */
+#define PKT_CM_DCC_SUP		0x3043  /* "0C" */
+#define PKT_CM_DCC_SUP_LC	0x3063  /* "0c" */
+
+static const value_string pkt_cm_type_vals[] = {
+	{ PKT_CM_CONCAT_SUP,	"Concatenation Support" },
+	{ PKT_CM_DOCSIS_VER,	"DOCSIS Version" },
+	{ PKT_CM_FRAG_SUP,	"Fragmentation Support" },
+	{ PKT_CM_PHS_SUP,	"PHS Support" },
+	{ PKT_CM_IGMP_SUP,	"IGMP Support" },
+	{ PKT_CM_PRIV_SUP,	"Privacy Support" },
+	{ PKT_CM_DSAID_SUP,	"Downstream SAID Support" },
+	{ PKT_CM_USID_SUP,	"Upstream SID Support" },
+	{ PKT_CM_FILT_SUP,	"Optional Filtering Support" },
+	{ PKT_CM_TET_MI,	"Transmit Equalizer Taps per Modulation Interval" },
+	{ PKT_CM_TET_MI_LC,	"Transmit Equalizer Taps per Modulation Interval" },
+	{ PKT_CM_TET,		"Number of Transmit Equalizer Taps" },
+	{ PKT_CM_TET_LC,	"Number of Transmit Equalizer Taps" },
+	{ PKT_CM_DCC_SUP,	"DCC Support" },
+	{ PKT_CM_DCC_SUP_LC,	"DCC Support" }
+};
+
+static const value_string pkt_cm_version_vals[] = {
+	{ 0x3030,	"DOCSIS 1.1" },
+	{ 0x3031,	"DOCSIS 2.0" },
+	{ 0,		NULL }
+};
+
+static const value_string pkt_cm_privacy_vals[] = {
+	{ 0x3030,	"BPI Support" },
+	{ 0x3031,	"BPI Plus Support" },
+	{ 0,		NULL }
+};
+
+
+static const value_string pkt_mdc_supp_flow_vals[] = {
+	{ 1 << 0, "Secure Flow (Full Secure Provisioning Flow)" },
+	{ 1 << 1, "Hybrid Flow" },
+	{ 1 << 2, "Basic Flow" },
+	{ 0, NULL }
+};
+
+
+static void
+dissect_packetcable_mta_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len)
 {
-	guint8 subopt;
-	guint8 subopt_len;
-	guint8 flag;
-	char dname[MAXDNAME];
-	int dname_len;
+	guint16 raw_val;
+	unsigned long flow_val = 0;
+	guint off = PKT_MDC_TLV_OFF + voff;
+	guint tlv_len, i;
+	guint8 asc_val[3] = "  ", flow_val_str[5];
+	static GString *tlv_str = NULL;
+	char bit_fld[64];
+	proto_item *ti;
+	proto_tree *subtree;
 
-	struct o122cablelabs_opt_info {
-		char	*text;
-		enum field_type	ft;
-	};
+	if (! tlv_str)
+		tlv_str = g_string_new("");
 
-	static struct o122cablelabs_opt_info o122cablelabs_opt[]= {
-		/* 0 */ {"nop", special},	/* dummy */
-		/* 1 */ {"TSP's Primary DHCP Server Address", ipv4},
-		/* 2 */ {"TSP's Secondary DHCP Server Address", ipv4},
-		/* 3 */ {"TSP's Provisioning Server Address", ipv4_or_fqdn},
-		/* 4 */ {"TSP's AS-REQ/AS-REP Backoff and Retry", special},
-		/* 5 */ {"TSP's AP-REQ/AP-REP Backoff and Retry", special},
-		/* 6 */ {"TSP's Kerberos Realm Name", fqdn},
-		/* 7 */ {"TSP's Ticket Granting Server Utilization", special},
-		/* 8 */ {"TSP's Provisioning Timer Value", special},
-		/* 9 */ {"PacketCable Security Ticket Control", special},
-		/* *** 10-255: Reserved for future use *** */
-	};
-
-	subopt = tvb_get_guint8(tvb, optp);
-	subopt_len = tvb_get_guint8(tvb, optp+1);
-
-	if ((subopt < 1 ) || (subopt > array_length(o122cablelabs_opt))) {
-		proto_tree_add_text(v_tree, tvb, optp, subopt_len+2,
-			"Suboption %d: Unassigned (%d byte%s)", subopt, subopt_len,
-			PLURALIZE(subopt_len));
+	tvb_memcpy (tvb, asc_val, off, 2);
+	if (sscanf(asc_val, "%uhx", &tlv_len) != 1) {
+		proto_tree_add_text(v_tree, tvb, off, len - off,
+			"Bogus length: %s", asc_val);
+		return;
 	} else {
-		switch (o122cablelabs_opt[subopt].ft) {
+		proto_tree_add_uint_format(v_tree, hf_bootp_pkt_mdc_len, tvb, off, 2,
+				tlv_len, "MTA DC Length: %d", tlv_len);
+		off += 2;
 
-		case string:
-			proto_tree_add_text(v_tree, tvb, optp, subopt_len+2,
-				"Suboption %d: %s = \"%.*s\"", subopt, 
-				o122cablelabs_opt[subopt].text, subopt_len,
-				tvb_get_ptr(tvb, optp+2, subopt_len));
-			break;
-    
-		case special:
-			proto_tree_add_text(v_tree, tvb, optp, subopt_len+2,
-				"Suboption %d: %s (%d byte%s)" ,
-		 		subopt, o122cablelabs_opt[subopt].text,
-				subopt_len, PLURALIZE(subopt_len));
-			break;
-		case ipv4:
-			proto_tree_add_text(v_tree, tvb, optp, 6,
-				"Suboption %d: %s = %s",
-				subopt, o122cablelabs_opt[subopt].text,
-				ip_to_str(tvb_get_ptr(tvb, optp+2, 4)));
-			break;
-		case fqdn:
-		        dname_len = get_dns_name(tvb, optp+2, optp+2, dname, sizeof(dname));
-			proto_tree_add_text(v_tree, tvb, optp, subopt_len+2,
-				"Suboption %d: %s = %.*s", subopt, 
-				o122cablelabs_opt[subopt].text, 
-				dname_len, dname);
-		        break;
-		case ipv4_or_fqdn:
-		        flag = tvb_get_guint8(tvb, optp+2);
-			if (flag == 0) { /* FQDN */
-			        dname_len = get_dns_name(tvb, optp+3, optp+3, dname, sizeof(dname));
-				proto_tree_add_text(v_tree, tvb, optp, subopt_len+2,
-				        "Suboption %d: %s = %.*s", subopt, 
-				        o122cablelabs_opt[subopt].text, 
-					dname_len, dname);
-			} else if (flag == 1) { /* IPv4 */
-			        proto_tree_add_text(v_tree, tvb, optp, 6,
-			                "Suboption %d: %s = %s",
-					subopt, o122cablelabs_opt[subopt].text,
-				        ip_to_str(tvb_get_ptr(tvb, optp+3, 4)));
+		while ((int) off - voff < len) {
+			/* Type */
+			raw_val = tvb_get_ntohs (tvb, off);
+			g_string_sprintf(tlv_str, "Type: %s (0x%.2s), ",
+					val_to_str(raw_val, pkt_mdc_type_vals, "unknown"),
+					tvb_get_ptr(tvb, off, 2));
+
+			/* Length */
+			tvb_memcpy(tvb, asc_val, off + 2, 2);
+			if (sscanf(asc_val, "%uhx", &tlv_len) != 1) {
+				proto_tree_add_text(v_tree, tvb, off, len - off,
+							"Bogus length: %s", asc_val);
+				return;
 			} else {
-			        proto_tree_add_text(v_tree, tvb, optp, subopt_len+2,
-					"Suboption %d: %s = Invalid Value (%d byte%s)", 
-					subopt, o122cablelabs_opt[subopt].text, 
-					subopt_len, PLURALIZE(subopt_len));
+				/* Value(s) */
+				g_string_sprintfa(tlv_str, "Length: %d, Value: ", tlv_len);
+
+				switch (raw_val) {
+					case PKT_MDC_VERSION:
+						raw_val = tvb_get_ntohs(tvb, off + 4);
+						g_string_sprintfa(tlv_str, "%s (%.2s)",
+								val_to_str(raw_val, pkt_mdc_version_vals, "Reserved"),
+								tvb_get_ptr(tvb, off + 4, 2) );
+						break;
+					case PKT_MDC_TEL_END:
+					case PKT_MDC_IF_INDEX:
+						g_string_sprintfa(tlv_str, "%.2s",
+								tvb_get_ptr(tvb, off + 4, 2) );
+						break;
+					case PKT_MDC_TGT:
+					case PKT_MDC_HTTP_ACC:
+					case PKT_MDC_SYSLOG:
+					case PKT_MDC_NCS:
+					case PKT_MDC_PRI_LINE:
+					case PKT_MDC_NVRAM_STOR:
+					case PKT_MDC_PROV_REP:
+					case PKT_MDC_PROV_REP_LC:
+					case PKT_MDC_SILENCE:
+					case PKT_MDC_SILENCE_LC:
+					case PKT_MDC_ECHO_CANCEL:
+					case PKT_MDC_ECHO_CANCEL_LC:
+					case PKT_MDC_RSVP:
+					case PKT_MDC_RSVP_LC:
+					case PKT_MDC_UGS_AD:
+					case PKT_MDC_UGS_AD_LC:
+					case PKT_MDC_FLOW_LOG:
+						raw_val = tvb_get_ntohs(tvb, off + 4);
+						g_string_sprintfa(tlv_str, "%s (%.2s)",
+								val_to_str(raw_val, pkt_mdc_boolean_vals, "unknown"),
+								tvb_get_ptr(tvb, off + 4, 2) );
+						break;
+					case PKT_MDC_SUPP_CODECS:
+					case PKT_MDC_SUPP_CODECS_LC:
+						for (i = 0; i < tlv_len; i++) {
+							raw_val = tvb_get_ntohs(tvb, off + 4 + (i * 2) );
+							g_string_sprintfa(tlv_str, "%s%s (%.2s)",
+									plurality(i + 1, "", ", "),
+									val_to_str(raw_val, pkt_mdc_codec_vals, "unknown"),
+									tvb_get_ptr(tvb, off + 4 + (i * 2), 2) );
+						}
+						break;
+					case PKT_MDC_PROV_FLOWS:
+						tvb_memcpy(tvb, flow_val_str, off + 4, 4);
+						flow_val_str[4] = '\0';
+						flow_val = strtoul(flow_val_str, NULL, 16);
+						g_string_sprintfa(tlv_str, "0x%04lx", flow_val);
+						break;
+					case PKT_MDC_VENDOR_TLV:
+					default:
+						g_string_sprintfa(tlv_str, "%s",
+								tvb_format_text(tvb, off + 4, tlv_len * 2) );
+						break;
+				}
 			}
-			break;
-		case yes_no:
-			flag = tvb_get_guint8(tvb, optp+2);
-			if (flag == 0 || flag == 1) {
-				proto_tree_add_text(v_tree, tvb, optp, subopt_len+2,
-					"Suboption %d: %s = %s", subopt,
-					o122cablelabs_opt[subopt].text,    
-					flag == 0 ? "No" : "Yes");
-			} else {
-				proto_tree_add_text(v_tree, tvb, optp, subopt_len+2,
-					"Suboption %d: %s = Invalid Value %d",
-					subopt, o122cablelabs_opt[subopt].text, flag);
+			ti = proto_tree_add_text(v_tree, tvb, off, (tlv_len * 2) + 4, tlv_str->str);
+			subtree = proto_item_add_subtree(ti, ett_bootp_option);
+			if (raw_val == PKT_MDC_PROV_FLOWS) {
+				for (i = 0 ; i < 3; i++) {
+					if (flow_val & pkt_mdc_supp_flow_vals[i].value) {
+						decode_bitfield_value(bit_fld, flow_val, pkt_mdc_supp_flow_vals[i].value, 16);
+						proto_tree_add_text(ti, tvb, off + 4, 4, "%s%s",
+							bit_fld, pkt_mdc_supp_flow_vals[i].strptr);
+					}
+				}
 			}
-			break;
-		default:
-			proto_tree_add_text(v_tree, tvb, optp, subopt_len+2,"ERROR, please report: Unknown subopt type handler %d", subopt);
-			break;
+			off += (tlv_len * 2) + 4;
 		}
 	}
-	optp += (subopt_len + 2);
+}
+
+static void
+dissect_packetcable_cm_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len)
+{
+	unsigned long raw_val;
+	guint off = PKT_CM_TLV_OFF + voff;
+	guint tlv_len, i;
+	guint8 asc_val[3] = "  ";
+	static GString *tlv_str = NULL;
+
+	if (! tlv_str)
+		tlv_str = g_string_new("");
+
+	tvb_memcpy (tvb, asc_val, off, 2);
+	if (sscanf(asc_val, "%uhx", &tlv_len) != 1) {
+		proto_tree_add_text(v_tree, tvb, off, len - off,
+				    "Bogus length: %s", asc_val);
+		return;
+	} else {
+		proto_tree_add_uint_format(v_tree, hf_bootp_pkt_cm_len, tvb, off, 2,
+				tlv_len, "CM DC Length: %d", tlv_len);
+		off += 2;
+
+		while ((int) off - voff < len) {
+			/* Type */
+			raw_val = tvb_get_ntohs (tvb, off);
+			g_string_sprintf(tlv_str, "Type: %s (%.2s), ",
+					val_to_str(raw_val, pkt_cm_type_vals, "unknown"),
+					tvb_get_ptr(tvb, off, 2));
+
+			/* Length */
+			tvb_memcpy(tvb, asc_val, off + 2, 2);
+			if (sscanf(asc_val, "%uhx", &tlv_len) != 1) {
+				proto_tree_add_text(v_tree, tvb, off, len - off,
+							"Bogus length: %s", asc_val);
+				return;
+			} else {
+				/* Value(s) */
+				g_string_sprintfa(tlv_str, "Length: %d, Value%s: ", tlv_len,
+						plurality(tlv_len, "", "s") );
+
+				switch (raw_val) {
+					case PKT_CM_CONCAT_SUP:
+					case PKT_CM_FRAG_SUP:
+					case PKT_CM_PHS_SUP:
+					case PKT_CM_IGMP_SUP:
+					case PKT_CM_DCC_SUP:
+					case PKT_CM_DCC_SUP_LC:
+						for (i = 0; i < tlv_len; i++) {
+							raw_val = tvb_get_ntohs(tvb, off + 4 + (i * 2) );
+							g_string_sprintfa(tlv_str, "%s%s (%.2s)",
+									plurality(i + 1, "", ", "),
+									val_to_str(raw_val, pkt_mdc_boolean_vals, "unknown"),
+									tvb_get_ptr(tvb, off + 4 + (i * 2), 2) );
+						}
+						break;
+					case PKT_CM_DOCSIS_VER:
+						raw_val = tvb_get_ntohs(tvb, off + 4);
+						g_string_sprintfa(tlv_str, "%s (%.2s)",
+								val_to_str(raw_val, pkt_cm_version_vals, "Reserved"),
+								tvb_get_ptr(tvb, off + 4, 2) );
+						break;
+					case PKT_CM_PRIV_SUP:
+						raw_val = tvb_get_ntohs(tvb, off + 4);
+						g_string_sprintfa(tlv_str, "%s (%.2s)",
+								val_to_str(raw_val, pkt_cm_privacy_vals, "Reserved"),
+								tvb_get_ptr(tvb, off + 4, 2) );
+						break;
+					case PKT_CM_DSAID_SUP:
+					case PKT_CM_USID_SUP:
+					case PKT_CM_TET_MI:
+					case PKT_CM_TET_MI_LC:
+					case PKT_CM_TET:
+					case PKT_CM_TET_LC:
+						tvb_memcpy (tvb, asc_val, off + 4, 2);
+						raw_val = strtoul(asc_val, NULL, 16);
+						g_string_sprintfa(tlv_str, "%lu", raw_val);
+						break;
+					case PKT_CM_FILT_SUP:
+						tvb_memcpy (tvb, asc_val, off + 4, 2);
+						raw_val = strtoul(asc_val, NULL, 16);
+						if (raw_val & 0x01)
+							g_string_append(tlv_str, "802.1P filtering");
+						if (raw_val & 0x02) {
+							if (raw_val & 0x01)
+								g_string_append(tlv_str, ", ");
+							g_string_append(tlv_str, "802.1Q filtering");
+						}
+						if (! raw_val & 0x03)
+							g_string_append(tlv_str, "None");
+						g_string_sprintfa(tlv_str, " (0x%02lx)", raw_val);
+						break;
+				}
+			}
+			proto_tree_add_text(v_tree, tvb, off, (tlv_len * 2) + 4, tlv_str->str);
+			off += (tlv_len * 2) + 4;
+		}
+	}
+}
+
+
+/* Definitions specific to PKT-SP-PROV-I05-021127 begin with "PKT_CCC_I05".
+   Definitions specific to IETF draft 5 and RFC 3495 begin with "PKT_CCC_IETF".
+   Shared definitions begin with "PKT_CCC".
+ */
+#define PKT_CCC_PRI_DHCP       1
+#define PKT_CCC_SEC_DHCP       2
+#define PKT_CCC_I05_SNMP       3
+#define PKT_CCC_IETF_PROV_SRV  3
+#define PKT_CCC_I05_PRI_DNS    4
+#define PKT_CCC_IETF_AS_KRB    4
+#define PKT_CCC_I05_SEC_DNS    5
+#define PKT_CCC_IETF_AP_KRB    5
+#define PKT_CCC_KRB_REALM      6
+#define PKT_CCC_TGT_FLAG       7
+#define PKT_CCC_PROV_TIMER     8
+#define PKT_CCC_CMS_FQDN       9
+#define PKT_CCC_IETF_SEC_TKT   9
+#define PKT_CCC_AS_KRB        10
+#define PKT_CCC_AP_KRB        11
+#define PKT_CCC_MTA_KRB_CLEAR 12
+
+static const value_string pkt_i05_ccc_opt_vals[] = {
+	{ PKT_CCC_PRI_DHCP,		"Primary DHCP Server" },
+	{ PKT_CCC_SEC_DHCP,		"Secondary DHCP Server" },
+	{ PKT_CCC_I05_SNMP,		"SNMP Entity" },
+	{ PKT_CCC_I05_PRI_DNS,		"Primary DNS Server" },
+	{ PKT_CCC_I05_SEC_DNS,		"Secondary DNS Server" },
+	{ PKT_CCC_KRB_REALM,		"Kerberos Realm" },
+	{ PKT_CCC_TGT_FLAG,		"MTA should fetch TGT?" },
+	{ PKT_CCC_PROV_TIMER,		"Provisioning Timer" },
+	{ PKT_CCC_CMS_FQDN,		"CMS FQDN" },
+	{ PKT_CCC_AS_KRB,		"AS-REQ/AS-REP Backoff and Retry" },
+	{ PKT_CCC_AP_KRB,		"AP-REQ/AP-REP Backoff and Retry" },
+	{ PKT_CCC_MTA_KRB_CLEAR,	"MTA should clear Kerberos tickets?" },
+	{ 0, NULL },
+};
+
+static const value_string pkt_draft5_ccc_opt_vals[] = {
+	{ PKT_CCC_PRI_DHCP,		"Primary DHCP Server" },
+	{ PKT_CCC_SEC_DHCP,		"Secondary DHCP Server" },
+	{ PKT_CCC_IETF_PROV_SRV,	"Provisioning Server" },
+	{ PKT_CCC_IETF_AS_KRB,		"AS-REQ/AS-REP Backoff and Retry" },
+	{ PKT_CCC_IETF_AP_KRB,		"AP-REQ/AP-REP Backoff and Retry" },
+	{ PKT_CCC_KRB_REALM,		"Kerberos Realm" },
+	{ PKT_CCC_TGT_FLAG,		"MTA should fetch TGT?" },
+	{ PKT_CCC_PROV_TIMER,		"Provisioning Timer" },
+	{ PKT_CCC_IETF_SEC_TKT,		"Security Ticket Control" },
+	{ 0, NULL },
+};
+
+static const value_string pkt_i05_ccc_ticket_ctl_vals[] = {
+	{ 1, "Invalidate Provisioning Application Server's ticket" },
+	{ 2, "Invalidate all CMS Application Server tickets" },
+	{ 3, "Invalidate all Application Server tickets" },
+	{ 0, NULL },
+};
+
+static int
+dissect_packetcable_i05_ccc(proto_tree *v_tree, tvbuff_t *tvb, int optp)
+{
+	guint8 subopt, subopt_len, fetch_tgt, timer_val, ticket_ctl;
+	guint32 nom_to, max_to, max_ret;
+	proto_tree *pkt_s_tree;
+	proto_item *vti;
+	static GString *opt_str = NULL;
+
+	if (! opt_str)
+		opt_str = g_string_new("");
+
+	subopt = tvb_get_guint8(tvb, optp);
+	subopt_len = tvb_get_guint8(tvb, optp + 1);
+	optp += 2;
+
+	g_string_sprintf(opt_str, "Suboption %u: %s: ", subopt,
+			val_to_str(subopt, pkt_i05_ccc_opt_vals, "unknown/reserved") );
+
+	switch (subopt) {
+		case PKT_CCC_PRI_DHCP:	/* String values */
+		case PKT_CCC_SEC_DHCP:
+		case PKT_CCC_I05_SNMP:
+		case PKT_CCC_I05_PRI_DNS:
+		case PKT_CCC_I05_SEC_DNS:
+		case PKT_CCC_KRB_REALM:
+		case PKT_CCC_CMS_FQDN:
+			g_string_sprintfa(opt_str, "%s (%u byte%s)",
+					tvb_format_text(tvb, optp, subopt_len),
+					subopt_len,
+					plurality(subopt_len, "", "s") );
+			proto_tree_add_text(v_tree, tvb, optp - 2, subopt_len + 2, opt_str->str);
+			optp += subopt_len;
+			break;
+
+		case PKT_CCC_TGT_FLAG:
+			fetch_tgt = tvb_get_guint8(tvb, optp);
+			g_string_sprintfa(opt_str, "%s (%u byte%s%s)",
+					fetch_tgt ? "Yes" : "No",
+					subopt_len,
+					plurality(subopt_len, "", "s"),
+					subopt_len != 1 ? " [Invalid]" : "");
+			proto_tree_add_text(v_tree, tvb, optp - 2, subopt_len + 2, opt_str->str);
+			optp += 1;
+			break;
+
+		case PKT_CCC_PROV_TIMER:
+			timer_val = tvb_get_guint8(tvb, optp);
+			g_string_sprintfa(opt_str, "%u%s (%u byte%s%s)", timer_val,
+					timer_val > 30 ? " [Invalid]" : "",
+					subopt_len,
+					plurality(subopt_len, "", "s"),
+					subopt_len != 1 ? " [Invalid]" : "");
+			proto_tree_add_text(v_tree, tvb, optp - 2, subopt_len + 2, opt_str->str);
+			optp += 1;
+			break;
+
+		case PKT_CCC_AS_KRB:
+			nom_to = tvb_get_ntohl(tvb, optp);
+			max_to = tvb_get_ntohl(tvb, optp + 4);
+			max_ret = tvb_get_ntohl(tvb, optp + 8);
+			g_string_sprintfa(opt_str, "(%u byte%s%s)", subopt_len,
+					plurality(subopt_len, "", "s"),
+					subopt_len != 12 ? " [Invalid]" : "");
+			vti = proto_tree_add_text(v_tree, tvb, optp - 2, subopt_len + 2, opt_str->str);
+			pkt_s_tree = proto_item_add_subtree(vti, ett_bootp_option);
+			proto_tree_add_text(pkt_s_tree, tvb, optp, 4,
+					"pktcMtaDevRealmUnsolicitedKeyNomTimeout: %u", nom_to);
+			proto_tree_add_text(pkt_s_tree, tvb, optp + 4, 4,
+					"pktcMtaDevRealmUnsolicitedKeyMaxTimeout: %u", max_to);
+			proto_tree_add_text(pkt_s_tree, tvb, optp + 8, 4,
+					"pktcMtaDevRealmUnsolicitedKeyMaxRetries: %u", max_ret);
+			optp += 12;
+			break;
+
+		case PKT_CCC_AP_KRB:
+			nom_to = tvb_get_ntohl(tvb, optp);
+			max_to = tvb_get_ntohl(tvb, optp + 4);
+			max_ret = tvb_get_ntohl(tvb, optp + 8);
+			g_string_sprintfa(opt_str, "(%u byte%s%s)", subopt_len,
+					plurality(subopt_len, "", "s"),
+					subopt_len != 12 ? " [Invalid]" : "");
+			vti = proto_tree_add_text(v_tree, tvb, optp - 2, subopt_len + 2, opt_str->str);
+			pkt_s_tree = proto_item_add_subtree(vti, ett_bootp_option);
+			proto_tree_add_text(pkt_s_tree, tvb, optp, 4,
+					"pktcMtaDevProvUnsolicitedKeyNomTimeout: %u", nom_to);
+			proto_tree_add_text(pkt_s_tree, tvb, optp + 4, 4,
+					"pktcMtaDevProvUnsolicitedKeyMaxTimeout: %u", max_to);
+			proto_tree_add_text(pkt_s_tree, tvb, optp + 8, 4,
+					"pktcMtaDevProvUnsolicitedKeyMaxRetries: %u", max_ret);
+			optp += 12;
+			break;
+
+		case PKT_CCC_MTA_KRB_CLEAR:
+			ticket_ctl = tvb_get_guint8(tvb, optp);
+			g_string_sprintfa(opt_str, "%s (%u) (%u byte%s%s)",
+					val_to_str (ticket_ctl, pkt_i05_ccc_ticket_ctl_vals, "unknown/invalid"),
+					ticket_ctl,
+					subopt_len,
+					plurality(subopt_len, "", "s"),
+					subopt_len != 1 ? " [Invalid]" : "");
+			proto_tree_add_text(v_tree, tvb, optp - 2, subopt_len + 2, opt_str->str);
+			optp += 1;
+			break;
+
+		default:
+			proto_tree_add_text(v_tree, tvb, optp - 2, subopt_len + 2, opt_str->str);
+			break;
+
+	}
 	return optp;
 }
 
+
+static const value_string sec_tcm_vals[] = {
+	{ 1 << 0, "PacketCable Provisioning Server" },
+	{ 1 << 1, "All PacketCable Call Managers" },
+	{ 0, NULL }
+};
+
+static int
+dissect_packetcable_ietf_ccc(proto_tree *v_tree, tvbuff_t *tvb, int optp,
+	int revision)
+{
+	guint8 subopt, subopt_len, ipv4_addr[4];
+	guint8 prov_type, fetch_tgt, timer_val;
+	guint16 sec_tcm;
+	guint32 nom_to, max_to, max_ret;
+	proto_tree *pkt_s_tree;
+	proto_item *vti;
+	static GString *opt_str = NULL;
+	int max_timer_val = 255, i;
+	char dns_name[255], bit_fld[24];
+
+	if (! opt_str)
+		opt_str = g_string_new("");
+
+	subopt = tvb_get_guint8(tvb, optp);
+	subopt_len = tvb_get_guint8(tvb, optp + 1);
+	optp += 2;
+
+	g_string_sprintf(opt_str, "Suboption %u: %s: ", subopt,
+			val_to_str(subopt, pkt_draft5_ccc_opt_vals, "unknown/reserved") );
+
+	switch (subopt) {
+		case PKT_CCC_PRI_DHCP:	/* IPv4 values */
+		case PKT_CCC_SEC_DHCP:
+			tvb_memcpy(tvb, ipv4_addr, optp, 4);
+			g_string_sprintfa(opt_str, "%u.%u.%u.%u (%u byte%s%s)",
+					ipv4_addr[0], ipv4_addr[1], ipv4_addr[2], ipv4_addr[3],
+					subopt_len,
+					plurality(subopt_len, "", "s"),
+					subopt_len != 4 ? " [Invalid]" : "");
+			proto_tree_add_text(v_tree, tvb, optp - 2, subopt_len + 2, opt_str->str);
+			optp += subopt_len;
+			break;
+
+		case PKT_CCC_IETF_PROV_SRV:
+			prov_type = tvb_get_guint8(tvb, optp);
+			optp += 1;
+			switch (prov_type) {
+				case 0:
+					get_dns_name(tvb, optp, optp + 1, dns_name,
+						sizeof(dns_name));
+					g_string_sprintfa(opt_str, "%s (%u byte%s)", dns_name,
+							subopt_len - 1, plurality(subopt_len, "", "s") );
+					proto_tree_add_text(v_tree, tvb, optp - 3, subopt_len + 2, opt_str->str);
+					optp += subopt_len - 1;
+					break;
+				case 1:
+					tvb_memcpy(tvb, ipv4_addr, optp, 4);
+					g_string_sprintfa(opt_str, "%u.%u.%u.%u (%u byte%s%s)",
+							ipv4_addr[0], ipv4_addr[1], ipv4_addr[2], ipv4_addr[3],
+							subopt_len,
+							plurality(subopt_len, "", "s"),
+							subopt_len != 5 ? " [Invalid]" : "");
+					proto_tree_add_text(v_tree, tvb, optp - 3, subopt_len + 2, opt_str->str);
+					optp += subopt_len - 1;
+					break;
+				default:
+					g_string_sprintfa(opt_str, "Invalid type: %u (%u byte%s)",
+							tvb_get_guint8(tvb, optp),
+							subopt_len,
+							plurality(subopt_len, "", "s") );
+					proto_tree_add_text(v_tree, tvb, optp - 3, subopt_len + 2, opt_str->str);
+					optp += subopt_len - 1;
+					break;
+			}
+			break;
+
+		case PKT_CCC_IETF_AS_KRB:
+			nom_to = tvb_get_ntohl(tvb, optp);
+			max_to = tvb_get_ntohl(tvb, optp + 4);
+			max_ret = tvb_get_ntohl(tvb, optp + 8);
+			g_string_sprintfa(opt_str, "(%u byte%s%s)", subopt_len,
+					plurality(subopt_len, "", "s"),
+					subopt_len != 12 ? " [Invalid]" : "");
+			vti = proto_tree_add_text(v_tree, tvb, optp - 2, subopt_len + 2, opt_str->str);
+			pkt_s_tree = proto_item_add_subtree(vti, ett_bootp_option);
+			proto_tree_add_text(pkt_s_tree, tvb, optp, 4,
+					"pktcMtaDevRealmUnsolicitedKeyNomTimeout: %u", nom_to);
+			proto_tree_add_text(pkt_s_tree, tvb, optp + 4, 4,
+					"pktcMtaDevRealmUnsolicitedKeyMaxTimeout: %u", max_to);
+			proto_tree_add_text(pkt_s_tree, tvb, optp + 8, 4,
+					"pktcMtaDevRealmUnsolicitedKeyMaxRetries: %u", max_ret);
+			optp += 12;
+			break;
+
+		case PKT_CCC_IETF_AP_KRB:
+			nom_to = tvb_get_ntohl(tvb, optp);
+			max_to = tvb_get_ntohl(tvb, optp + 4);
+			max_ret = tvb_get_ntohl(tvb, optp + 8);
+			g_string_sprintfa(opt_str, "(%u byte%s%s)", subopt_len,
+					plurality(subopt_len, "", "s"),
+					subopt_len != 12 ? " [Invalid]" : "");
+			vti = proto_tree_add_text(v_tree, tvb, optp - 2, subopt_len + 2, opt_str->str);
+			pkt_s_tree = proto_item_add_subtree(vti, ett_bootp_option);
+			proto_tree_add_text(pkt_s_tree, tvb, optp, 4,
+					"pktcMtaDevProvUnsolicitedKeyNomTimeout: %u", nom_to);
+			proto_tree_add_text(pkt_s_tree, tvb, optp + 4, 4,
+					"pktcMtaDevProvUnsolicitedKeyMaxTimeout: %u", max_to);
+			proto_tree_add_text(pkt_s_tree, tvb, optp + 8, 4,
+					"pktcMtaDevProvUnsolicitedKeyMaxRetries: %u", max_ret);
+			optp += 12;
+			break;
+
+		case PKT_CCC_KRB_REALM: /* String values */
+			get_dns_name(tvb, optp, optp + 1, dns_name, sizeof(dns_name));
+			g_string_sprintfa(opt_str, "%s (%u byte%s)", dns_name,
+					subopt_len, plurality(subopt_len, "", "s") );
+			proto_tree_add_text(v_tree, tvb, optp - 2, subopt_len + 2, opt_str->str);
+			optp += subopt_len;
+			break;
+
+		case PKT_CCC_TGT_FLAG:
+			fetch_tgt = tvb_get_guint8(tvb, optp);
+			g_string_sprintfa(opt_str, "%s (%u byte%s%s)",
+					fetch_tgt ? "Yes" : "No",
+					subopt_len,
+					plurality(subopt_len, "", "s"),
+					subopt_len != 1 ? " [Invalid]" : "");
+			proto_tree_add_text(v_tree, tvb, optp - 2, subopt_len + 2, opt_str->str);
+			optp += 1;
+			break;
+
+		case PKT_CCC_PROV_TIMER:
+			if (revision == PACKETCABLE_CCC_DRAFT5)
+				max_timer_val = 30;
+			timer_val = tvb_get_guint8(tvb, optp);
+			g_string_sprintfa(opt_str, "%u%s (%u byte%s%s)", timer_val,
+					timer_val > max_timer_val ? " [Invalid]" : "",
+					subopt_len,
+					plurality(subopt_len, "", "s"),
+					subopt_len != 1 ? " [Invalid]" : "");
+			proto_tree_add_text(v_tree, tvb, optp - 2, subopt_len + 2, opt_str->str);
+			optp += 1;
+			break;
+
+		case PKT_CCC_IETF_SEC_TKT:
+			sec_tcm = tvb_get_ntohs(tvb, optp);
+			g_string_sprintfa(opt_str, "0x%04x (%u byte%s%s)", sec_tcm, subopt_len,
+					plurality(subopt_len, "", "s"),
+					subopt_len != 2 ? " [Invalid]" : "");
+			vti = proto_tree_add_text(v_tree, tvb, optp - 2, subopt_len + 2, opt_str->str);
+			pkt_s_tree = proto_item_add_subtree(vti, ett_bootp_option);
+			for (i = 0 ; i < 2; i++) {
+				if (sec_tcm & sec_tcm_vals[i].value) {
+					decode_bitfield_value(bit_fld, sec_tcm, sec_tcm_vals[i].value, 16);
+					proto_tree_add_text(pkt_s_tree, tvb, optp, 2, "%sInvalidate %s",
+						bit_fld, sec_tcm_vals[i].strptr);
+				}
+			}
+			optp += 2;
+			break;
+
+		default:
+			proto_tree_add_text(v_tree, tvb, optp - 2, subopt_len + 2, opt_str->str);
+			break;
+
+	}
+	return optp;
+}
 
 #define BOOTREQUEST	1
 #define BOOTREPLY	2
@@ -1588,12 +2282,12 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/* The server host name is optional */
 		if (tvb_get_guint8(tvb, 44) != '\0') {
 			proto_tree_add_item(bp_tree, hf_bootp_server, tvb,
-						   SERVER_NAME_OFFSET, 
+						   SERVER_NAME_OFFSET,
 						   SERVER_NAME_LEN, FALSE);
 		}
 		else {
 			proto_tree_add_string_format(bp_tree, hf_bootp_server, tvb,
-						   SERVER_NAME_OFFSET, 
+						   SERVER_NAME_OFFSET,
 						   SERVER_NAME_LEN,
 						   tvb_get_ptr(tvb, SERVER_NAME_OFFSET, 1),
 						   "Server host name not given");
@@ -1790,6 +2484,15 @@ proto_register_bootp(void)
       { "Bootp Vendor Options",		"bootp.vendor", FT_BYTES,
         BASE_NONE,			NULL,		 0x0,
       	"", HFILL }},
+
+    { &hf_bootp_pkt_mdc_len,
+      { "MTA DC Length",	"bootp.vendor.pkt.mdc_len",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        "PacketCable MTA Device Capabilities Length", HFILL }},
+    { &hf_bootp_pkt_cm_len,
+      { "CM DC Length",	"bootp.vendor.pkt.cm_len",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        "PacketCable Cable Modem Device Capabilities Length", HFILL }},
   };
   static gint *ett[] = {
     &ett_bootp,
@@ -1811,6 +2514,21 @@ proto_register_bootp(void)
     "Decode Option 85 as String",
     "Novell Servers option 85 can be configured as a string instead of address",
     &novell_string);
+
+  prefs_register_enum_preference(bootp_module, "pkt.ccc.protocol_version",
+    "PacketCable CCC protocol version",
+    "The PacketCable CCC protocol version",
+    &pkt_ccc_protocol_version,
+    pkt_ccc_protocol_versions,
+    FALSE);
+
+  prefs_register_uint_preference(bootp_module, "pkt.ccc.option",
+    "PacketCable CCC option",
+    "Option Number for PacketCable CableLabs Client Configuration",
+    10,
+    &pkt_ccc_option);
+
+
 }
 
 void

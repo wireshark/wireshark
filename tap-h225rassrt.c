@@ -35,7 +35,7 @@
 
 #include <string.h>
 #include "epan/packet_info.h"
-#include "tap.h"
+#include <epan/tap.h>
 #include "epan/value_string.h"
 #include "register.h"
 #include <epan/dissectors/packet-h225.h>

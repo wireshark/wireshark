@@ -558,10 +558,11 @@ static void rtpstream_dlg_create (void)
 	GtkWidget *bt_unselect;
 	GtkWidget *bt_findrev;
 	GtkWidget *bt_save;
-	GtkWidget *bt_frames;
+	GtkWidget *bt_mark;
 	GtkWidget *bt_filter;
-	GtkWidget *bt_analyse;
+	GtkWidget *bt_analyze;
 	GtkWidget *bt_close;
+    GtkTooltips *tooltips = gtk_tooltips_new();
 
 	gchar *titles[8] =  {"Src IP addr", "Src port",  "Dest IP addr", "Dest port", "SSRC", "Payload", "Packets", "Comment"};
 	column_arrows *col_arrows;
@@ -648,27 +649,34 @@ static void rtpstream_dlg_create (void)
 
 	bt_unselect = gtk_button_new_with_label ("Unselect");
 	gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_unselect);
+    gtk_tooltips_set_tip (tooltips, bt_unselect, "Undo stream selection", NULL);
 
 	bt_findrev = gtk_button_new_with_label ("Find Reverse");
 	gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_findrev);
+    gtk_tooltips_set_tip (tooltips, bt_findrev, "Find the reverse stream matching the selected forward stream", NULL);
 /*
 	bt_goto = BUTTON_NEW_FROM_STOCK(GTK_STOCK_JUMP_TO);
 	gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_goto);
 */
 	bt_save = BUTTON_NEW_FROM_STOCK(GTK_STOCK_SAVE_AS);
 	gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_save);
+    gtk_tooltips_set_tip (tooltips, bt_save, "Save stream payload in rtpdump format", NULL);
 
-	bt_frames = gtk_button_new_with_label ("Mark frames");
-	gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_frames);
+	bt_mark = gtk_button_new_with_label ("Mark packets");
+	gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_mark);
+    gtk_tooltips_set_tip (tooltips, bt_mark, "Mark packets of the selected stream(s)", NULL);
 
-	bt_filter = gtk_button_new_with_label ("Set filter");
+	bt_filter = gtk_button_new_with_label ("Prepare filter");
 	gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_filter);
+    gtk_tooltips_set_tip (tooltips, bt_filter, "Prepare a display filter of the selected stream(s)", NULL);
 
-	bt_analyse = gtk_button_new_with_label ("Analyse");
-	gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_analyse);
+	bt_analyze = gtk_button_new_with_label ("Analyze");
+	gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_analyze);
+    gtk_tooltips_set_tip (tooltips, bt_analyze, "Open an analyze window of the selected stream(s)", NULL);
 
 	bt_close = BUTTON_NEW_FROM_STOCK(GTK_STOCK_CLOSE);
 	gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_close);
+    gtk_tooltips_set_tip (tooltips, bt_close, "Close this dialog", NULL);
 	GTK_WIDGET_SET_FLAGS(bt_close, GTK_CAN_DEFAULT);
 
 	SIGNAL_CONNECT(clist, "select_row", rtpstream_on_select_row, NULL);
@@ -678,9 +686,9 @@ static void rtpstream_dlg_create (void)
 	SIGNAL_CONNECT(bt_goto, "clicked", rtpstream_on_goto, NULL);
 */
 	SIGNAL_CONNECT(bt_save, "clicked", rtpstream_on_save, NULL);
-	SIGNAL_CONNECT(bt_frames, "clicked", rtpstream_on_mark, NULL);
+	SIGNAL_CONNECT(bt_mark, "clicked", rtpstream_on_mark, NULL);
 	SIGNAL_CONNECT(bt_filter, "clicked", rtpstream_on_filter, NULL);
-	SIGNAL_CONNECT(bt_analyse, "clicked", rtpstream_on_analyse, NULL);
+	SIGNAL_CONNECT(bt_analyze, "clicked", rtpstream_on_analyse, NULL);
 
 	window_set_cancel_button(rtpstream_dlg_w, bt_close, window_cancel_button_cb);
 

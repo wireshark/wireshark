@@ -95,7 +95,7 @@
 #include <glib.h>
 
 #include <epan/conversation.h>
-#include "prefs.h"
+#include <epan/prefs.h>
 #include <epan/dissectors/packet-x509af.h>
 
 static gboolean ssl_desegment = TRUE;

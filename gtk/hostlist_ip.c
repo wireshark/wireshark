@@ -36,7 +36,7 @@
 #include <string.h>
 #include "epan/packet.h"
 #include "tap_menu.h"
-#include "../tap.h"
+#include <epan/tap.h>
 #include "../register.h"
 #include "hostlist_table.h"
 #include <epan/dissectors/packet-ip.h>

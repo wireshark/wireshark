@@ -41,28 +41,6 @@
 
 #define FAMILY_ADMIN      0x0007
 
-/* Family Admin */
-#define FAMILY_ADMIN_ERROR            0x0001
-#define FAMILY_ADMIN_ACCNT_INFO_REQ   0x0002
-#define FAMILY_ADMIN_ACCNT_INFO_REPL  0x0003
-#define FAMILY_ADMIN_INFOCHANGEREQ    0x0004
-#define FAMILY_ADMIN_INFOCHANGEREPLY  0x0005
-#define FAMILY_ADMIN_ACCT_CFRM_REQ    0x0006
-#define FAMILY_ADMIN_ACCT_CFRM_REPL   0x0007
-#define FAMILY_ADMIN_DEFAULT          0xffff
-
-static const value_string aim_fnac_family_admin[] = {
-  { FAMILY_ADMIN_ERROR, "Error" },
-  { FAMILY_ADMIN_ACCNT_INFO_REQ, "Request Account Information" },
-  { FAMILY_ADMIN_ACCNT_INFO_REPL, "Requested Account Information" },
-  { FAMILY_ADMIN_INFOCHANGEREQ, "Infochange Request" },
-  { FAMILY_ADMIN_INFOCHANGEREPLY, "Infochange Reply" },
-  { FAMILY_ADMIN_ACCT_CFRM_REQ, "Account Confirm Request" },
-  { FAMILY_ADMIN_ACCT_CFRM_REPL, "Account Confirm Reply" },
-  { FAMILY_ADMIN_DEFAULT, "Adminstrative Default" },
-  { 0, NULL }
-};
-
 #define CONFIRM_STATUS_EMAIL_SENT 		 0x00
 #define CONFIRM_STATUS_ALREADY_CONFIRMED 0x1E
 #define CONFIRM_STATUS_SERVER_ERROR	     0x23
@@ -83,50 +61,42 @@ static int hf_admin_confirm_status = -1;
 /* Initialize the subtree pointers */
 static gint ett_aim_admin          = -1;
 
-static int dissect_aim_admin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
-	struct aiminfo *aiminfo = pinfo->private_data;
-    proto_item *ti = NULL;
-    proto_tree *admin_tree = NULL;
-	int offset = 0;
-                                                                                
-    if(tree) {
-        ti = proto_tree_add_text(tree, tvb, 0, -1,"AIM Administration Service");
-        admin_tree = proto_item_add_subtree(ti, ett_aim_admin);
-    }
-	
-	switch(aiminfo->subtype) {
-	case FAMILY_ADMIN_ERROR:
-		return dissect_aim_snac_error(tvb, pinfo, 0, admin_tree);
-	case FAMILY_ADMIN_ACCNT_INFO_REQ:
-		proto_tree_add_item(admin_tree, hf_admin_acctinfo_code, tvb, 0, 2, tvb_get_ntohs(tvb, 0)); 
-		proto_tree_add_text(admin_tree, tvb, 2, 2, "Unknown");
-		return 4;
-		
-	case FAMILY_ADMIN_INFOCHANGEREPLY:
-    case FAMILY_ADMIN_ACCNT_INFO_REPL:
-		{
-			proto_tree_add_uint(admin_tree, hf_admin_acctinfo_permissions, tvb, offset, 2, tvb_get_ntohs(tvb, offset)); offset+=2;
-			return dissect_aim_tlv_list(tvb, pinfo, offset, admin_tree, client_tlvs);
-		}
-	case FAMILY_ADMIN_INFOCHANGEREQ:
-		while(tvb_length_remaining(tvb, offset) > 0) {
-			offset = dissect_aim_tlv(tvb, pinfo, offset, admin_tree, client_tlvs);
-		}
-		return offset;
-	case FAMILY_ADMIN_ACCT_CFRM_REQ:
-		/* No data */
-		return 0;
-	case FAMILY_ADMIN_ACCT_CFRM_REPL:
-		proto_tree_add_uint(admin_tree, hf_admin_confirm_status, tvb, offset, 2, tvb_get_ntohs(tvb, offset)); offset+=2;
-		while(tvb_length_remaining(tvb, offset) > 0) {
-			offset = dissect_aim_tlv(tvb, pinfo, offset, admin_tree, client_tlvs);
-		}
-		return offset;
-
-	default: return 0;
-	}
-	return 0;
+static int dissect_aim_admin_accnt_info_req(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *admin_tree) 
+{
+	proto_tree_add_item(admin_tree, hf_admin_acctinfo_code, tvb, 0, 2, tvb_get_ntohs(tvb, 0)); 
+	proto_tree_add_text(admin_tree, tvb, 2, 2, "Unknown");
+	return 4;
 }
+
+static int dissect_aim_admin_accnt_info_repl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *admin_tree) 
+{
+	int offset = 0;
+	proto_tree_add_uint(admin_tree, hf_admin_acctinfo_permissions, tvb, offset, 2, tvb_get_ntohs(tvb, offset)); offset+=2;
+	return dissect_aim_tlv_list(tvb, pinfo, offset, admin_tree, client_tlvs);
+}
+
+static int dissect_aim_admin_info_change_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *admin_tree) 
+{
+	return dissect_aim_tlv_sequence(tvb, pinfo, 0, admin_tree, client_tlvs);
+}
+
+static int dissect_aim_admin_cfrm_repl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *admin_tree) 
+{
+	int offset = 0;	
+	proto_tree_add_uint(admin_tree, hf_admin_confirm_status, tvb, offset, 2, tvb_get_ntohs(tvb, offset)); offset+=2;
+	return dissect_aim_tlv_sequence(tvb, pinfo, offset, admin_tree, client_tlvs);
+}
+
+static const aim_subtype aim_fnac_family_admin[] = {
+  { 0x0001, "Error", dissect_aim_snac_error },
+  { 0x0002, "Request Account Information", dissect_aim_admin_accnt_info_req },
+  { 0x0003, "Requested Account Information", dissect_aim_admin_accnt_info_repl },
+  { 0x0004, "Infochange Request", dissect_aim_admin_info_change_req },
+  { 0x0005, "Infochange Reply", dissect_aim_admin_accnt_info_repl },
+  { 0x0006, "Account Confirm Request", NULL },
+  { 0x0007, "Account Confirm Reply", dissect_aim_admin_cfrm_repl},
+  { 0, NULL, NULL }
+};
 
 /* Register the protocol with Ethereal */
 void
@@ -162,9 +132,5 @@ proto_register_aim_admin(void)
 void
 proto_reg_handoff_aim_admin(void)
 {
-  dissector_handle_t aim_handle;
-
-  aim_handle = new_create_dissector_handle(dissect_aim_admin, proto_aim_admin);
-  dissector_add("aim.family", FAMILY_ADMIN, aim_handle);
-  aim_init_family(FAMILY_ADMIN, "Administration", aim_fnac_family_admin);
+  aim_init_family(proto_aim_admin, ett_aim_admin, FAMILY_ADMIN, aim_fnac_family_admin);
 }

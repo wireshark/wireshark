@@ -28,7 +28,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
-#include "prefs.h"
+#include <epan/prefs.h>
 #include "etypes.h"
 #include <epan/addr_resolv.h>
 #include "packet-eth.h"
@@ -36,8 +36,8 @@
 #include "packet-ipx.h"
 #include "packet-isl.h"
 #include "packet-llc.h"
-#include "crc32.h"
-#include "tap.h"
+#include <epan/crc32.h>
+#include <epan/tap.h>
 
 /* Interpret capture file as FW1 monitor file */
 static gboolean eth_interpret_as_fw1_monitor = FALSE;

@@ -33,7 +33,7 @@
 #include "print_prefs.h"
 #include "keys.h"
 #include "print.h"
-#include "prefs.h"
+#include <epan/prefs.h>
 #include "prefs_dlg.h"
 #include "util.h"
 #include "ui_util.h"
@@ -134,7 +134,8 @@ GtkWidget * printer_prefs_show(void)
 static void
 printer_browse_file_cb(GtkWidget *file_bt, GtkWidget *file_te)
 {
-    file_selection_browse(file_bt, file_te, "Ethereal: Print to a File", FILE_SELECTION_SAVE);
+    file_selection_browse(file_bt, file_te, "Ethereal: Print to a File",
+                          FILE_SELECTION_WRITE_BROWSE);
 }
 
 

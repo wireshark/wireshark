@@ -1,0 +1,67 @@
+<!-- EDG Chapter Build Introduction -->
+<!-- $Id: EDG_chapter_libraries.xml 11816 2004-08-23 19:46:18Z ulfl $ -->
+
+<chapter id="ChapterBuildIntro">
+  <title>Introduction</title>
+  
+  <section id="ChCodeOverview">
+	<title>Source overview</title>
+	<para>
+	Ethereal consists of the following major parts:
+	<itemizedlist>
+	<listitem><para>
+	Packet dissection - in the / and /epan directory
+	</para></listitem>
+	<listitem><para>
+	File I/O - using Ethereal's own wiretap library
+	</para></listitem>
+	<listitem><para>
+	Capture - using the libpcap/winpcap library
+	</para></listitem>
+	<listitem><para>
+	User interface - using the GTK (and corresponding) libraries
+	</para></listitem>
+	<listitem><para>
+	Help - using an external webbrowser and GTK text output
+	</para></listitem>
+	</itemizedlist>
+	Beside this, some other minor parts and additional helpers exist.
+	</para>
+	<para>
+	Currently there's no clean seperation of the modules in the code. 
+	However, as the development team switched from CVS to SVN some time ago, 
+	directory cleanup are much easier now. So there's a chance that
+	the directory structure will become clean in the future.
+	</para>
+  </section>
+
+  <section id="ChCodeStyle">
+	<title>Coding styleguides</title>
+	<para>
+	The coding styleguides for Ethereal can be found in the "Code style" 
+	section of the file <filename>doc/README.developer</filename>.
+	</para>
+  </section>
+
+  <section id="ChCodeGLib">
+	<title>The GLib library</title>
+	<para>
+	Glib is used as a basic platform abstraction library, it's not related to
+	GUI things. 
+	</para>
+	<para>
+	To quote the Glib documentation: <quote>GLib is a general-purpose utility 
+	library, which provides many useful 
+	data types, macros, type conversions, string utilities, file utilities, 
+	a main loop abstraction, and so on. It works on many UNIX-like platforms, 
+	Windows, OS/2 and BeOS. GLib is released under the GNU Library General 
+	Public License (GNU LGPL).</quote>
+	</para>
+	<para>
+	GLib contains lot's of useful things for platform independant development.
+	See XXX for details about GLib.
+	</para>
+  </section>
+
+</chapter>
+<!-- End of EUG Chapter Build Introduction -->

@@ -1,0 +1,19 @@
+
+#.IMPORT_TAG
+AlgorithmIdentifier      BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
+CertificateSerialNumber  BER_CLASS_UNI BER_UNI_TAG_INTEGER
+Name                     BER_CLASS_ANY -1
+SubjectPublicKeyInfo     BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
+TeletexDomainDefinedAttribute BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
+TerminalType             BER_CLASS_UNI BER_UNI_TAG_INTEGER
+#.END
+
+#.TYPE_ATTR
+CertificateSerialNumber  TYPE = FT_INT32   DISPLAY = BASE_DEC   STRINGS = NULL  BITMASK = 0
+Name                     TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = NULL  BITMASK = 0
+SubjectPublicKeyInfo     TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+TeletexDomainDefinedAttribute TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+TerminalType             TYPE = FT_INT32   DISPLAY = BASE_DEC   STRINGS = NULL  BITMASK = 0
+#.END
+
+

@@ -104,7 +104,7 @@ static const char ascend_w2magic[] = { 'W', 'D', '_', 'D', 'I', 'A', 'L', 'O', '
 static gboolean ascend_read(wtap *wth, int *err, gchar **err_info,
 	long *data_offset);
 static gboolean ascend_seek_read(wtap *wth, long seek_off,
-	union wtap_pseudo_header *pseudo_header, guint8 *pd, int len,
+	union wtap_pseudo_header *pseudo_head, guint8 *pd, int len,
 	int *err, gchar **err_info);
 static void ascend_close(wtap *wth);
 
@@ -340,12 +340,12 @@ static gboolean ascend_read(wtap *wth, int *err, gchar **err_info,
 }
 
 static gboolean ascend_seek_read(wtap *wth, long seek_off,
-	union wtap_pseudo_header *pseudo_header, guint8 *pd, int len,
+	union wtap_pseudo_header *pseudo_head, guint8 *pd, int len,
 	int *err, gchar **err_info)
 {
   if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
     return FALSE;
-  if (! parse_ascend(wth->random_fh, pd, &pseudo_header->ascend, NULL, len)) {
+  if (! parse_ascend(wth->random_fh, pd, &pseudo_head->ascend, NULL, len)) {
     *err = WTAP_ERR_BAD_RECORD;
     *err_info = g_strdup((ascend_parse_error != NULL) ? ascend_parse_error : "parse error");
     return FALSE;

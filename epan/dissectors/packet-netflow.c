@@ -23,6 +23,8 @@
  ** Previous NetFlow dissector written by Matthew Smart <smart@monkey.org>
  ** NetFlow v9 support added by same.
  **
+ ** NetFlow v9 patches by Luca Deri <deri@ntop.org>
+ **
  ** See
  **
  ** http://www.cisco.com/warp/public/cc/pd/iosw/prodlit/tflow_wp.htm
@@ -56,7 +58,7 @@
 #include <epan/packet.h>
 #include <string.h>
 
-#include "prefs.h"
+#include <epan/prefs.h>
 
 #define UDP_PORT_NETFLOW	2055
 
@@ -141,6 +143,7 @@ struct v9_template {
 	guint32	length;
 	guint32 source_id;
 	guint32	source_addr;
+	guint16 option_template; /* 0=data template, 1=option template */
 	struct v9_template_entry *entries;
 };
 
@@ -192,6 +195,11 @@ static int	hf_cflow_template_id = -1;
 static int	hf_cflow_template_field_count = -1;
 static int	hf_cflow_template_field_type = -1;
 static int	hf_cflow_template_field_length = -1;
+static int	hf_cflow_option_scope_length = -1;
+static int	hf_cflow_option_length = -1;
+static int	hf_cflow_template_scope_field_type = -1;
+static int	hf_cflow_template_scope_field_length = -1;
+
 
 /*
  * pdu storage
@@ -232,6 +240,10 @@ static int      hf_cflow_muloctets = -1;
 static int      hf_cflow_octets_exp = -1;
 static int      hf_cflow_packets_exp = -1;
 static int      hf_cflow_flows_exp = -1;
+static int      hf_cflow_sampling_interval = -1;
+static int      hf_cflow_sampling_algorithm = -1;
+static int      hf_cflow_flow_active_timeout = -1;
+static int      hf_cflow_flow_inactive_timeout = -1;
 
 void		proto_reg_handoff_netflow(void);
 
@@ -249,10 +261,8 @@ static int	dissect_v9_data(proto_tree * pdutree, tvbuff_t * tvb,
 			       int offset, guint16 id, guint length);
 static void	dissect_v9_pdu(proto_tree * pdutree, tvbuff_t * tvb,
 			       int offset, struct v9_template * template);
-#if 0
 static int	dissect_v9_options(proto_tree * pdutree, tvbuff_t * tvb,
 			       int offset);
-#endif
 static int	dissect_v9_template(proto_tree * pdutree, tvbuff_t * tvb,
 				    int offset);
 static void	v9_template_add(struct v9_template * template);
@@ -473,7 +483,7 @@ dissect_netflow(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	 * everything below here should be payload 
 	 */
 	for (x = 1; x < pdus + 1; x++) {
-		/*
+          	/*
 		 * make sure we have a pdu's worth of data 
 		 */
 		available = tvb_length_remaining(tvb, offset);
@@ -495,6 +505,8 @@ dissect_netflow(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 		pdutree = proto_item_add_subtree(pduitem, ett_flow);
 
 		pduret = pduptr(pdutree, tvb, offset, vspec);
+
+		if (pduret < pdusize) pduret = pdusize; /* padding */
 
 		/*
 		 * if we came up short, stop processing 
@@ -830,7 +842,7 @@ dissect_v9_flowset(proto_tree * pdutree, tvbuff_t * tvb, int offset, int ver)
 		    offset, 2, FALSE);
 		offset += 2;
 
-		/* dissect_v9_options(pdutree, tvb, offset); */
+		dissect_v9_options(pdutree, tvb, offset);
 	} else if (flowset_id >= 2 && flowset_id <= 255) {
 		/* Reserved */
 		proto_tree_add_item(pdutree, hf_cflow_flowset_id, tvb,
@@ -932,7 +944,7 @@ dissect_v9_pdu(proto_tree * pdutree, tvbuff_t * tvb, int offset,
 				    tvb, offset, length,
 				    "Octets: length %u", length);
 			}
-			break;
+		  break;
 
 		case 2: /* packets */
 			if (length == 4) {
@@ -1109,6 +1121,26 @@ dissect_v9_pdu(proto_tree * pdutree, tvbuff_t * tvb, int offset,
 			proto_tree_add_time(pdutree, hf_cflow_timestart,
 			    tvb, offset, length, &ts);
 			break;
+			
+		case 34: /* sampling interval */
+		  proto_tree_add_item(pdutree, hf_cflow_sampling_interval,
+				      tvb, offset, length, FALSE);
+		  break;
+
+		case 35: /* sampling algorithm */
+		  proto_tree_add_item(pdutree, hf_cflow_sampling_algorithm,
+				      tvb, offset, length, FALSE);
+		  break;
+
+		case 36: /* flow active timeout */
+		   proto_tree_add_item(pdutree, hf_cflow_flow_active_timeout,
+				      tvb, offset, length, FALSE);
+		  break;
+
+		case 37: /* flow inactive timeout */
+		   proto_tree_add_item(pdutree, hf_cflow_flow_inactive_timeout,
+				      tvb, offset, length, FALSE);
+		  break;
 
 		case 40: /* bytes exported */
 			proto_tree_add_item(pdutree, hf_cflow_octets_exp,
@@ -1135,13 +1167,69 @@ dissect_v9_pdu(proto_tree * pdutree, tvbuff_t * tvb, int offset,
 	}
 }
 
-#if 0
 static int
 dissect_v9_options(proto_tree * pdutree, tvbuff_t * tvb, int offset)
 {
-	return (0);
+  guint16 length, option_scope_len, option_len, i, id, size;
+  struct v9_template template;
+  int template_offset;
+
+  id = tvb_get_ntohs(tvb, offset);
+  proto_tree_add_item(pdutree, hf_cflow_template_id, tvb,
+		      offset, 2, FALSE);
+  offset += 2;
+
+  option_scope_len = length = tvb_get_ntohs(tvb, offset);
+  proto_tree_add_item(pdutree, hf_cflow_option_scope_length, tvb,
+		      offset, 2, FALSE);
+  offset += 2;
+
+  option_len = length = tvb_get_ntohs(tvb, offset);
+  proto_tree_add_item(pdutree, hf_cflow_option_length, tvb,
+		      offset, 2, FALSE);
+  offset += 2;
+
+  for(i=0; i<option_scope_len; i++) {
+    length = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_item(pdutree, hf_cflow_template_scope_field_type, tvb,
+			offset, 2, FALSE);
+    offset += 2; i += 2;
+
+    length = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_item(pdutree, hf_cflow_template_scope_field_length, tvb,
+			offset, 2, FALSE);
+    offset += 2; i += 2;
+  }
+
+  template_offset = offset;
+
+  for(i=0; i<option_len;) {
+    length = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_item(pdutree, hf_cflow_template_field_type, tvb,
+			offset, 2, FALSE);
+    offset += 2; i += 2;
+
+    length = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_item(pdutree, hf_cflow_template_field_length, tvb,
+			offset, 2, FALSE);
+    offset += 2; i += 2;
+  }
+
+  /* Cache template */
+  memset(&template, 0, sizeof(template));
+  template.id = id;
+  template.count = option_len/4;
+  template.source_addr = 0;	/* XXX */
+  template.source_id = 0;	/* XXX */
+  template.option_template = 1; /* Option template */
+  size = template.count * sizeof(struct v9_template_entry);
+  template.entries = g_malloc(size);
+  tvb_memcpy(tvb, (guint8 *)template.entries, template_offset, size);
+
+  v9_template_add(&template);
+  
+  return (0);
 }
-#endif
 
 static int
 dissect_v9_template(proto_tree * pdutree, tvbuff_t * tvb, int offset)
@@ -1168,6 +1256,7 @@ dissect_v9_template(proto_tree * pdutree, tvbuff_t * tvb, int offset)
 	template.count = count;
 	template.source_addr = 0;	/* XXX */
 	template.source_id = 0;		/* XXX */
+	template.option_template = 0;   /* Data template */
 	template.entries = g_malloc(count * sizeof(struct v9_template_entry));
 	tvb_memcpy(tvb, (guint8 *)template.entries, offset,
 	    count * sizeof(struct v9_template_entry));
@@ -1218,10 +1307,51 @@ static value_string v9_template_types[] = {
 	{ 20, "MUL_DOCTETS" },
 	{ 21, "LAST_SWITCHED" },
 	{ 22, "FIRST_SWITCHED" },
+	{ 27, "IPV6_SRC_ADDR" },
+	{ 28, "IPV6_DST_ADDR" },
+	{ 29, "IPV6_SRC_MASK" },
+	{ 30, "IPV6_DST_MASK" },
+	{ 31, "FLOW_LABEL" },
+	{ 32, "ICMP_TYPE" },
+	{ 33, "IGMP_TYPE" },
+	{ 34, "SAMPLING_INTERVAL" },
+	{ 35, "SAMPLING_ALGORITHM" },
+	{ 36, "FLOW_ACTIVE_TIMEOUT" },
+	{ 37, "FLOW_INACTIVE_TIMEOUT" },
+	{ 38, "ENGINE_TYPE" },
+	{ 39, "ENGINE_ID" },
 	{ 24, "OUT_PKTS" },
 	{ 40, "TOTAL_BYTES_EXP" },
 	{ 41, "TOTAL_PKTS_EXP" },
 	{ 42, "TOTAL_FLOWS_EXP" },
+	{ 56, "SRC_MAC" },
+	{ 57, "DST_MAC" },
+	{ 58, "SRC_VLAN" },
+	{ 59, "DST_VLAN" },
+	{ 60, "IP_PROTOCOL_VERSION" },
+	{ 61, "DIRECTION" },
+	{ 62, "IPV6_NEXT_HOP" },
+	{ 63, "BPG_IPV6_NEXT_HOP" },
+	{ 64, "IPV6_OPTION_HEADERS" },
+	{ 70, "MPLS_LABEL_1" },
+	{ 71, "MPLS_LABEL_2" },
+	{ 72, "MPLS_LABEL_3" },
+	{ 73, "MPLS_LABEL_4" },
+	{ 74, "MPLS_LABEL_5" },
+	{ 75, "MPLS_LABEL_6" },
+	{ 76, "MPLS_LABEL_7" },
+	{ 71, "MPLS_LABEL_8" },
+	{ 72, "MPLS_LABEL_9" },
+	{ 72, "MPLS_LABEL_10" },
+	{ 0, NULL },
+};
+
+static value_string v9_scope_field_types[] = {
+	{ 1, "System" },
+	{ 2, "Interface" },
+	{ 3, "Line Card" },
+	{ 4, "NetFlow Cache" },
+	{ 5, "Template" },
 	{ 0, NULL },
 };
 
@@ -1527,6 +1657,49 @@ proto_register_netflow(void)
 		  FT_UINT16, BASE_DEC, NULL, 0x0,
 		  "Template field length", HFILL}
 		 },
+
+		/* options */
+		{&hf_cflow_option_scope_length,
+		 {"Option Scope Length", "cflow.option_scope_length",
+		  FT_UINT16, BASE_DEC, NULL, 0x0,
+		  "Option scope length", HFILL}
+		 },
+		{&hf_cflow_option_length,
+		 {"Option Length", "cflow.option_length",
+		  FT_UINT16, BASE_DEC, NULL, 0x0,
+		  "Option length", HFILL}
+		 },
+		{&hf_cflow_template_scope_field_type,
+		 {"Scope Type", "cflow.scope_field_type",
+		  FT_UINT16, BASE_DEC, VALS(v9_scope_field_types), 0x0,
+		  "Scope field type", HFILL}
+		 },		
+		{&hf_cflow_template_scope_field_length,
+		 {"Scope Field Length", "cflow.scope_field_length",
+		  FT_UINT16, BASE_DEC, NULL, 0x0,
+		  "Scope field length", HFILL}
+		 },
+		{&hf_cflow_sampling_interval,
+		 {"Sampling interval", "cflow.sampling_interval",
+		  FT_UINT32, BASE_DEC, NULL, 0x0,
+		  "Sampling interval", HFILL}
+		},
+		{&hf_cflow_sampling_algorithm,
+		 {"Sampling algorithm", "cflow.sampling_algorithm",
+		  FT_UINT8, BASE_DEC, NULL, 0x0,
+		  "Sampling algorithm", HFILL}
+		},
+		{&hf_cflow_flow_active_timeout,
+		 {"Flow active timeout", "cflow.flow_active_timeout",
+		  FT_UINT16, BASE_DEC, NULL, 0x0,
+		  "Flow active timeout", HFILL}
+		},
+		{&hf_cflow_flow_inactive_timeout,
+		 {"Flow inactive timeout", "cflow.flow_inactive_timeout",
+		  FT_UINT16, BASE_DEC, NULL, 0x0,
+		  "Flow inactive timeout", HFILL}
+		},
+
 		/*
 		 * begin pdu content storage 
 		 */

@@ -33,7 +33,7 @@
 #include "packet-dcerpc-nt.h"
 #include "packet-dcerpc-mapi.h"
 #include "packet-windows-common.h"	/* for "NT_errors[]" */
-#include "prefs.h"
+#include <epan/prefs.h>
 
 static int proto_dcerpc_mapi = -1;
 static int hf_mapi_opnum = -1;

@@ -37,7 +37,7 @@
 #include "packet-netbios.h"
 #include "packet-tcp.h"
 #include "packet-frame.h"
-#include "prefs.h"
+#include <epan/prefs.h>
 
 static int proto_nbns = -1;
 static int hf_nbns_flags = -1;

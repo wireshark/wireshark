@@ -42,7 +42,7 @@
 
 #include "gtkglobals.h"
 #include "ui_util.h"
-#include "prefs.h"
+#include <epan/prefs.h>
 #include "prefs-recent.h"
 #include "epan/epan.h"
 #include "../ui_util.h"
@@ -106,7 +106,7 @@
 static void
 window_icon_realize_cb (GtkWidget *win, gpointer data _U_)
 {
-#ifndef WIN32
+#ifndef _WIN32
   static GdkPixmap *icon_pmap = NULL;
   static GdkBitmap *icon_mask = NULL;
   GtkStyle         *style;
@@ -400,13 +400,17 @@ window_destroy(GtkWidget *win)
   window_geometry_t geom;
   const gchar *name;
 
-  /* this must be done *before* destroy is running, as the window geometry */
-  /* cannot be retrieved at destroy time (so don't use event "destroy" for this) */
-  window_get_geometry(win, &geom);
+  /* get_geometry must be done *before* destroy is running, as the window geometry
+   * cannot be retrieved at destroy time (so don't use event "destroy" for this) */
+  /* ...and don't do this at all, if we currently have no GdkWindow (e.g. if the 
+   * GtkWidget is hidden) */
+  if(!GTK_WIDGET_NO_WINDOW(win) && GTK_WIDGET_VISIBLE(win)) {
+      window_get_geometry(win, &geom);
 
-  name = OBJECT_GET_DATA(win, WINDOW_GEOM_KEY);
-  if(name) {
-    window_geom_save(name, &geom);
+      name = OBJECT_GET_DATA(win, WINDOW_GEOM_KEY);
+      if(name) {
+        window_geom_save(name, &geom);
+      }
   }
 
   gtk_widget_destroy(win);
@@ -871,3 +875,24 @@ simple_list_new(gint cols, gchar **titles) {
     return plugins_list;
 }
 
+extern void
+copy_to_clipboard(GString *str)  
+{
+#if (GTK_MAJOR_VERSION >= 2)
+        GtkClipboard    *cb;
+
+      	cb = gtk_clipboard_get(GDK_SELECTION_CLIPBOARD);     /* Get the default clipboard */
+	gtk_clipboard_set_text(cb, str->str, -1);            /* Copy the byte data into the clipboard */
+#else
+        GtkWidget *window;
+        GtkWidget *text;
+
+        window = window_new (GTK_WINDOW_TOPLEVEL,"");
+        text = gtk_text_new (NULL, NULL);                 /* Create the GtkText widget */
+        gtk_container_add (GTK_CONTAINER (window), text); /* Avoid a GTK assertion */
+        gtk_widget_realize (text);   /* Realizing a widget creates a window for it, ready for us to insert some text */
+        gtk_text_insert (GTK_TEXT (text), NULL, NULL, NULL, str->str, -1);
+        gtk_editable_select_region((GtkEditable *)text, 0, -1); /* Select ALL text */
+        gtk_editable_copy_clipboard((GtkEditable *)text); /* Copy the byte data into the clipboard */
+#endif
+}

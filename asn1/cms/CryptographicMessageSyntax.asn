@@ -26,9 +26,14 @@ IMPORTS
 
 -- Cryptographic Message Syntax
 -- 
--- ContentInfo ::= SEQUENCE {
---OK   contentType ContentType,
---   content [0] EXPLICIT ANY DEFINED BY contentType }
+
+
+--             Implemented by hand in the template
+--ContentInfo ::= SEQUENCE {
+--   contentType ContentType,
+--   content [0] EXPLICIT ANY DEFINED BY contentType 
+--}
+
 
 ContentType ::= OBJECT IDENTIFIER
 

@@ -38,7 +38,7 @@
 #include <epan/epan.h>
 
 #include "tap_menu.h"
-#include "tap.h"
+#include <epan/tap.h>
 #include "../register.h"
 #include <epan/dissectors/packet-rpc.h>
 #include "../globals.h"

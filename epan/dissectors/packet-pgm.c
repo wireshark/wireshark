@@ -34,12 +34,12 @@
 #include <time.h>
 #include <string.h>
 #include <epan/packet.h>
-#include "afn.h"
-#include "ipproto.h"
-#include "in_cksum.h"
+#include <epan/afn.h>
+#include <epan/ipproto.h>
+#include <epan/in_cksum.h>
 #include <epan/addr_resolv.h>
 #include <epan/strutil.h>
-#include "prefs.h"
+#include <epan/prefs.h>
 
 #include <epan/proto.h>
 

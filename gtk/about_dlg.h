@@ -58,36 +58,5 @@ extern guint splash_destroy(GtkWidget *win);
  */
 extern void about_ethereal_cb( GtkWidget *widget, gpointer data);
 
-typedef enum {
-    ONLINEPAGE_HOME,
-    ONLINEPAGE_USERGUIDE,
-    ONLINEPAGE_FAQ,
-    ONLINEPAGE_DOWNLOAD,
-    ONLINEPAGE_SAMPLE
-} onlinepage_action_e;
-
-
-/** User requested one of the online pages by menu.
- *
- * @param widget parent widget (unused)
- * @param data unused
- */
-extern void url_onlinepage_cb( GtkWidget *widget, gpointer data, onlinepage_action_e action);
-
-typedef enum {
-    LOCALPAGE_MAN_ETHEREAL,
-    LOCALPAGE_MAN_ETHEREAL_FILTER,
-    LOCALPAGE_MAN_TETHEREAL,
-    LOCALPAGE_MAN_MERGECAP,
-    LOCALPAGE_MAN_EDITCAP,
-    LOCALPAGE_MAN_TEXT2PCAP
-} localpage_action_e;
-
-/** User requested one of the local html pages by menu.
- *
- * @param widget parent widget (unused)
- * @param data unused
- */
-extern void url_localpage_cb( GtkWidget *widget, gpointer data, localpage_action_e action);
 
 #endif /* __ABOUT_DLG_H__ */

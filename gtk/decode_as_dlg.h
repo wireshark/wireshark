@@ -31,6 +31,10 @@
  *  @ingroup dialog_group
  */
 
+/** Init the "Decode As" module
+ */
+void decode_as_init(void);
+
 /** User requested the "Decode As" dialog box by menu or toolbar.
  *
  * @param widget parent widget (unused)

@@ -110,7 +110,7 @@ extern GtkWidget *window_new(GtkWindowType type, const gchar *title);
  *
  * @param type window type, typical GTK_WINDOW_TOPLEVEL
  * @param title the title for the new window
- * @param geom_name the name to distinguish this window, will also be used for the recent file
+ * @param geom_name the name to distinguish this window, will also be used for the recent file (don't use special chars)
  * @return the newly created window
  */
 extern GtkWidget *window_new_with_geom(GtkWindowType type, const gchar *title, const gchar *geom_name);
@@ -246,5 +246,11 @@ extern GtkWidget *xpm_to_widget(const char ** xpm);
  * @return a newly created GtkWidget showing the picture
  */
 extern GtkWidget *xpm_to_widget_from_parent(GtkWidget *parent, const char ** xpm);
+
+/** Copy a GString to the clipboard.
+ *
+ * @param str GString that is to be copied to the clipboard.
+ */
+extern void copy_to_clipboard(GString *str);  
 
 #endif /* __GTKGUIUI_UTIL_H__ */

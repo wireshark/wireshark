@@ -43,7 +43,7 @@
 #include "aftypes.h"
 #include "arcnet_pids.h"
 #include <epan/conversation.h>
-#include "tap.h"
+#include <epan/tap.h>
 
 static int ipx_tap = -1;
 

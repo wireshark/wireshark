@@ -40,7 +40,6 @@
 #if GTK_MAJOR_VERSION >= 2 || GTK_MINOR_VERSION >= 3
 #include "text_page.h"
 #endif
-#include "webbrowser.h"
 
 #include "svnversion.h"
 
@@ -358,55 +357,4 @@ about_ethereal_destroy_cb(GtkWidget *win _U_, gpointer user_data _U_)
   about_ethereal_w = NULL;
 }
 
-
-void
-url_onlinepage_cb( GtkWidget *widget _U_, gpointer data _U_, onlinepage_action_e action)
-{
-    switch(action) {
-    case(ONLINEPAGE_HOME):
-        browser_open_url ("http://www.ethereal.com");
-        break;
-    case(ONLINEPAGE_DOWNLOAD):
-        browser_open_url ("http://www.ethereal.com/download.html");
-        break;
-    case(ONLINEPAGE_USERGUIDE):
-        browser_open_url ("http://www.ethereal.com/docs/user-guide");
-        break;
-    case(ONLINEPAGE_FAQ):
-        browser_open_url ("http://www.ethereal.com/faq.html");
-        break;
-    case(ONLINEPAGE_SAMPLE):
-        browser_open_url ("http://www.ethereal.com/sample");
-        break;
-    default:
-        g_assert_not_reached();
-    }
-}
-
-void
-url_localpage_cb( GtkWidget *w _U_, gpointer data _U_, localpage_action_e action)
-{
-    switch(action) {
-    case(LOCALPAGE_MAN_ETHEREAL):
-        browser_open_data_file("ethereal.html");
-        break;
-    case(LOCALPAGE_MAN_ETHEREAL_FILTER):
-        browser_open_data_file("ethereal-filter.html");
-        break;
-    case(LOCALPAGE_MAN_TETHEREAL):
-        browser_open_data_file("tethereal.html");
-        break;
-    case(LOCALPAGE_MAN_MERGECAP):
-        browser_open_data_file("mergecap.html");
-        break;
-    case(LOCALPAGE_MAN_EDITCAP):
-        browser_open_data_file("editcap.html");
-        break;
-    case(LOCALPAGE_MAN_TEXT2PCAP):
-        browser_open_data_file("text2pcap.html");
-        break;
-    default:
-        g_assert_not_reached();
-    }
-}
 

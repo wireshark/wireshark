@@ -22,6 +22,10 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+ 
+/* With MSVC and a libethereal.dll this file needs to import some variables 
+   in a special way. Therefore _NEED_VAR_IMPORT_ is defined. */  
+#define _NEED_VAR_IMPORT_
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
@@ -43,7 +47,7 @@
 #include <epan/timestamp.h>
 #include <epan/plugins.h>
 #include <epan/filesystem.h>
-#include "prefs.h"
+#include <epan/prefs.h>
 #include "util.h"
 #include "epan/dfilter/dfilter.h"
 #include "register.h"

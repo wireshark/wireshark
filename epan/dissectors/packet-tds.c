@@ -158,7 +158,7 @@
 
 #include "packet-frame.h"
 #include "reassemble.h"
-#include "prefs.h"
+#include <epan/prefs.h>
 
 #define TDS_QUERY_PKT        1
 #define TDS_LOGIN_PKT        2

@@ -25,7 +25,7 @@
  * http://www.ietf.org/rfc/rfc3320.txt?number=3320
  * http://www.ietf.org/rfc/rfc3321.txt?number=3321
  * Useful links :
- * http://www.ietf.org/internet-drafts/draft-ietf-rohc-sigcomp-impl-guide-02.txt
+ * http://www.ietf.org/internet-drafts/draft-ietf-rohc-sigcomp-impl-guide-03.txt
  * http://www.ietf.org/internet-drafts/draft-ietf-rohc-sigcomp-sip-01.txt
  */
 
@@ -45,9 +45,11 @@
 
 #include <epan/packet.h>
 #include "prefs.h"
+#include "sigcomp-udvm.h"
 
 /* Initialize the protocol and registered fields */
 static int proto_sigcomp							= -1;
+static int proto_raw_sigcomp						= -1;
 static int hf_sigcomp_t_bit							= -1;
 static int hf_sigcomp_len							= -1;
 static int hf_sigcomp_returned_feedback_item		= -1;
@@ -61,7 +63,9 @@ static int hf_udvm_reference_bytecode				= -1;
 static int hf_udvm_literal_bytecode					= -1;
 static int hf_udvm_operand							= -1;
 static int hf_udvm_length							= -1;
+static int hf_udvm_addr_length						= -1;
 static int hf_udvm_destination						= -1;
+static int hf_udvm_addr_destination					= -1;
 static int hf_udvm_at_address						= -1;
 static int hf_udvm_address							= -1;
 static int hf_udvm_literal_num						= -1;
@@ -79,8 +83,9 @@ static int hf_udvm_operand_1						= -1;
 static int hf_udvm_operand_2						= -1;
 static int hf_udvm_operand_2_addr					= -1;
 static int hf_udvm_j								= -1;
+static int hf_udvm_addr_j							= -1;
 static int hf_udvm_output_start						= -1;
-static int hf_udvm_output_start_addr				= -1;
+static int hf_udvm_addr_output_start				= -1;
 static int hf_udvm_output_length					= -1;
 static int hf_udvm_output_length_addr				= -1;
 static int hf_udvm_req_feedback_loc					= -1;
@@ -94,13 +99,16 @@ static int hf_udvm_lower_bound						= -1;
 static int hf_udvm_upper_bound						= -1;
 static int hf_udvm_uncompressed						= -1;
 static int hf_udvm_offset							= -1;
+static int hf_udvm_addr_offset						= -1;
 static int hf_udvm_start_value						= -1;
 
 /* Initialize the subtree pointers */
-static gint ett_sigcomp			= -1;
-static gint ett_sigcomp_udvm	= -1;
+static gint ett_sigcomp				= -1;
+static gint ett_sigcomp_udvm		= -1;
+static gint ett_sigcomp_udvm_exe	= -1;
+static gint ett_raw_text			= -1;
 
-
+static dissector_handle_t sip_handle;
 /* set the tcp port */
 static guint SigCompUDPPort1 = 5555;
 static guint SigCompUDPPort2 = 6666;
@@ -109,6 +117,9 @@ static guint SigCompUDPPort2 = 6666;
 static gboolean display_udvm_bytecode = FALSE;
 /* Default preference wether to dissect the UDVM code or not */
 static gboolean dissect_udvm_code = TRUE;
+static gboolean display_raw_txt = FALSE;
+/* Default preference wether to print debug info at execution of UDVM */
+static gint udvm_print_detail_level = 0;
 
 /* Value strings */
 static const value_string length_encoding_vals[] = {
@@ -248,6 +259,7 @@ static int dissect_udvm_literal_operand(tvbuff_t *udvm_tvb, proto_tree *sigcomp_
 
 static int dissect_udvm_reference_operand(tvbuff_t *udvm_tvb, proto_tree *sigcomp_udvm_tree, 
 							   gint offset, gint *start_offset, guint16 *value);
+static void tvb_raw_text_add(tvbuff_t *tvb, proto_tree *tree);
 
 
 /* Code to actually dissect the packets */
@@ -256,24 +268,29 @@ dissect_sigcomp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 
 /* Set up structures needed to add the protocol subtree and manage it */
-	tvbuff_t *udvm_tvb;
-	proto_item *ti, *udvm_item;
-	proto_tree *sigcomp_tree, *sigcomp_udvm_tree;
+	tvbuff_t *udvm_tvb, *msg_tvb;
+	tvbuff_t *decomp_tvb = NULL;
+	proto_item *ti, *udvm_bytecode_item, *udvm_exe_item;
+	proto_tree *sigcomp_tree, *sigcomp_udvm_tree, *sigcomp_udvm_exe_tree;
 	gint offset = 0;
+	gint bytecode_offset;
 	gint partial_state_len;
 	guint octet;
 	guint8 returned_feedback_field[128];
 	guint8 partial_state[12];
 	guint tbit;
 	guint16 len = 0;
+	guint16 bytecode_len = 0;
 	guint destination;
+	gint msg_len = 0;
+
 /* Is this a SigComp message or not ? */
 	octet = tvb_get_guint8(tvb, offset);
 	if ((octet  & 0xf8) != 0xf8)
 	 return 0;
 
 /* Make entries in Protocol column and Info column on summary display */
-	if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "SIGCOMP");
 
 	if (check_col(pinfo->cinfo, COL_INFO)) 
@@ -413,26 +430,45 @@ dissect_sigcomp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_item(sigcomp_tree,hf_sigcomp_destination, tvb, (offset+ 1), 1, FALSE);
 		offset = offset +2;
 
-		udvm_item = proto_tree_add_text(sigcomp_tree, tvb, offset, len, 
-			"Uploaded UDVM bytecode %u (0x%x) bytes", len, len);
-		sigcomp_udvm_tree = proto_item_add_subtree( udvm_item, ett_sigcomp_udvm);
+		bytecode_len = len;
+		bytecode_offset = offset;
+		udvm_bytecode_item = proto_tree_add_text(sigcomp_tree, tvb, bytecode_offset, bytecode_len, 
+			"Uploaded UDVM bytecode %u (0x%x) bytes", bytecode_len, bytecode_len);
+		sigcomp_udvm_tree = proto_item_add_subtree( udvm_bytecode_item, ett_sigcomp_udvm);
 
 		udvm_tvb = tvb_new_subset(tvb, offset, len, len);
 		if ( dissect_udvm_code )
 			dissect_udvm_bytecode(udvm_tvb, sigcomp_udvm_tree, destination); 
-				offset = offset + len;
+
+		offset = offset + len;
+		msg_len = tvb_reported_length_remaining(tvb, offset);
 
 		proto_tree_add_text(sigcomp_tree, tvb, offset, -1, "Remaining SigComp message %u bytes",
 			tvb_reported_length_remaining(tvb, offset));
+
+		msg_tvb = tvb_new_subset(tvb, offset, msg_len, msg_len);
+
+		udvm_exe_item = proto_tree_add_text(sigcomp_tree, tvb, bytecode_offset, bytecode_len, 
+			"UDVM execution trace");
+		sigcomp_udvm_exe_tree = proto_item_add_subtree( udvm_exe_item, ett_sigcomp_udvm_exe);
+		decomp_tvb = decompress_sigcomp_message(udvm_tvb, msg_tvb, pinfo,
+						   sigcomp_udvm_exe_tree, destination, udvm_print_detail_level);
+		if ( decomp_tvb ){
+			proto_tree_add_text(sigcomp_tree, decomp_tvb, 0, -1,"SigComp message Decompressed WOHO!!");
+			if ( display_raw_txt )
+				tvb_raw_text_add(decomp_tvb, tree);
+			if (check_col(pinfo->cinfo, COL_PROTOCOL)){
+				col_append_str(pinfo->cinfo, COL_PROTOCOL, "/");
+				col_set_fence(pinfo->cinfo,COL_PROTOCOL);
+			}
+			call_dissector(sip_handle, decomp_tvb, pinfo, tree);
+		}
+
 	}
 	return tvb_length(tvb);
 }
 
 		
-
-/* Continue adding tree items to process the packet here */
-/* If this protocol has a sub-dissector call it here, see section 1.8 */
-
 #define	SIGCOMP_INSTR_DECOMPRESSION_FAILURE     0
 #define SIGCOMP_INSTR_AND                       1
 #define SIGCOMP_INSTR_OR                        2
@@ -675,7 +711,6 @@ dissect_udvm_bytecode(tvbuff_t *udvm_tvb, proto_tree *sigcomp_udvm_tree,guint st
 			break;
 
 		case SIGCOMP_INSTR_SORT_DESCENDING: /* 12 SORT-DESCENDING (%start, %n, %k) */
-			/* while programming stop while loop */
 			offset = offset + tvb_reported_length_remaining(udvm_tvb, offset);
 			break;
 		case SIGCOMP_INSTR_SHA_1: /* 13 SHA-1 (%position, %length, %destination) */
@@ -688,8 +723,13 @@ dissect_udvm_bytecode(tvbuff_t *udvm_tvb, proto_tree *sigcomp_udvm_tree,guint st
 			/*  %length, */
 			offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, FALSE,&start_offset, &value, &is_memory_address);
 			len = offset - start_offset;
-			proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_length, 
-				udvm_tvb, start_offset, len, value);
+			if ( is_memory_address ){
+				proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_addr_length, 
+					udvm_tvb, start_offset, len, value);
+			}else{
+				proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_length, 
+					udvm_tvb, start_offset, len, value);
+			}
 
 			/* $destination */
 			offset = dissect_udvm_reference_operand(udvm_tvb, sigcomp_udvm_tree, offset, &start_offset, &value);
@@ -757,7 +797,8 @@ dissect_udvm_bytecode(tvbuff_t *udvm_tvb, proto_tree *sigcomp_udvm_tree,guint st
 			break;
 
 		case SIGCOMP_INSTR_POP: /* 17 POP (%address) */
-			/* %address */			offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, TRUE, &start_offset, &value, &is_memory_address);
+			/* %address */			
+			offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, TRUE, &start_offset, &value, &is_memory_address);
 
 			len = offset - start_offset;
 			proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_address, 
@@ -774,8 +815,13 @@ dissect_udvm_bytecode(tvbuff_t *udvm_tvb, proto_tree *sigcomp_udvm_tree,guint st
 			/*  %length, */
 			offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, FALSE,&start_offset, &value, &is_memory_address);
 			len = offset - start_offset;
-			proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_length, 
-				udvm_tvb, start_offset, len, value);
+			if ( is_memory_address ){
+				proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_addr_length, 
+					udvm_tvb, start_offset, len, value);
+			}else{
+				proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_length, 
+					udvm_tvb, start_offset, len, value);
+			}
 
 			/* $destination */
 			offset = dissect_udvm_reference_operand(udvm_tvb, sigcomp_udvm_tree, offset, &start_offset, &value);
@@ -794,8 +840,13 @@ dissect_udvm_bytecode(tvbuff_t *udvm_tvb, proto_tree *sigcomp_udvm_tree,guint st
 			/*  %length, */
 			offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, FALSE,&start_offset, &value, &is_memory_address);
 			len = offset - start_offset;
-			proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_length, 
-				udvm_tvb, start_offset, len, value);
+			if ( is_memory_address ){
+				proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_addr_length, 
+					udvm_tvb, start_offset, len, value);
+			}else{
+				proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_length, 
+					udvm_tvb, start_offset, len, value);
+			}
 
 			/* $destination */
 			offset = dissect_udvm_reference_operand(udvm_tvb, sigcomp_udvm_tree, offset, &start_offset, &value);
@@ -808,14 +859,24 @@ dissect_udvm_bytecode(tvbuff_t *udvm_tvb, proto_tree *sigcomp_udvm_tree,guint st
 			/* %offset */
 			offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, FALSE,&start_offset, &value, &is_memory_address);
 			len = offset - start_offset;
-			proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_offset, 
-				udvm_tvb, start_offset, len, value);
+			if ( is_memory_address ){
+				proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_addr_offset, 
+					udvm_tvb, start_offset, len, value);
+			}else{
+				proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_offset, 
+					udvm_tvb, start_offset, len, value);
+			}
 
 			/*  %length, */
 			offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, FALSE,&start_offset, &value, &is_memory_address);
 			len = offset - start_offset;
-			proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_length, 
-				udvm_tvb, start_offset, len, value);
+			if ( is_memory_address ){
+				proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_addr_length, 
+					udvm_tvb, start_offset, len, value);
+			}else{
+				proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_length, 
+					udvm_tvb, start_offset, len, value);
+			}
 
 			/* $destination */
 			offset = dissect_udvm_reference_operand(udvm_tvb, sigcomp_udvm_tree, offset, &start_offset, &value);
@@ -834,8 +895,13 @@ dissect_udvm_bytecode(tvbuff_t *udvm_tvb, proto_tree *sigcomp_udvm_tree,guint st
 			/*  %length, */
 			offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, FALSE, &start_offset, &value, &is_memory_address);
 			len = offset - start_offset;
-			proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_length, 
-				udvm_tvb, start_offset, len, value);
+			if ( is_memory_address ){
+				proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_addr_length, 
+					udvm_tvb, start_offset, len, value);
+			}else{
+				proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_length, 
+					udvm_tvb, start_offset, len, value);
+			}
 
 			/* %start_value */
 			offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, FALSE,&start_offset, &value, &is_memory_address);
@@ -921,6 +987,7 @@ dissect_udvm_bytecode(tvbuff_t *udvm_tvb, proto_tree *sigcomp_udvm_tree,guint st
 				udvm_tvb, start_offset, len, value);
 			break;
 		case SIGCOMP_INSTR_RETURN: /* 25 POP and return */
+
 		break;
 
 		case SIGCOMP_INSTR_SWITCH: /* 26 SWITCH (#n, %j, @address_0, @address_1, ... , @address_n-1) */
@@ -936,10 +1003,10 @@ dissect_udvm_bytecode(tvbuff_t *udvm_tvb, proto_tree *sigcomp_udvm_tree,guint st
 			offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, FALSE,&start_offset, &value, &is_memory_address);
 			len = offset - start_offset;
 			if ( is_memory_address ){
-				proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_addr_value, 
+				proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_addr_j, 
 					udvm_tvb, start_offset, len, value);
 			}else{
-				proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_value, 
+				proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_j, 
 					udvm_tvb, start_offset, len, value);
 			}
 
@@ -975,8 +1042,13 @@ dissect_udvm_bytecode(tvbuff_t *udvm_tvb, proto_tree *sigcomp_udvm_tree,guint st
 			/* %length */
 			offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, FALSE,&start_offset, &value, &is_memory_address);
 			len = offset - start_offset;
-			proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_length, 
-				udvm_tvb, start_offset, len, value);
+			if ( is_memory_address ){
+				proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_addr_length, 
+					udvm_tvb, start_offset, len, value);
+			}else{
+				proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_length, 
+					udvm_tvb, start_offset, len, value);
+			}
 
 			/* @address */
 			offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, TRUE, &start_offset, &value, &is_memory_address);
@@ -992,14 +1064,24 @@ dissect_udvm_bytecode(tvbuff_t *udvm_tvb, proto_tree *sigcomp_udvm_tree,guint st
 			/* %length */
 			offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, FALSE,&start_offset, &value, &is_memory_address);
 			len = offset - start_offset;
-			proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_length, 
-				udvm_tvb, start_offset, len, value);
+			if ( is_memory_address ){
+				proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_addr_length, 
+					udvm_tvb, start_offset, len, value);
+			}else{
+				proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_length, 
+					udvm_tvb, start_offset, len, value);
+			}
 
 			/* %destination */
 			offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, FALSE,&start_offset, &value, &is_memory_address);
 			len = offset - start_offset;
-			proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_destination, 
-				udvm_tvb, start_offset, len, value);
+			if ( is_memory_address ){
+				proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_addr_destination, 
+					udvm_tvb, start_offset, len, value);
+			}else{
+				proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_destination, 
+					udvm_tvb, start_offset, len, value);
+			}
 
 			/* @address */
 			offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, TRUE, &start_offset, &value, &is_memory_address);
@@ -1013,14 +1095,24 @@ dissect_udvm_bytecode(tvbuff_t *udvm_tvb, proto_tree *sigcomp_udvm_tree,guint st
 			/* %length */
 			offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, FALSE,&start_offset, &value, &is_memory_address);
 			len = offset - start_offset;
-			proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_length, 
-				udvm_tvb, start_offset, len, value);
+			if ( is_memory_address ){
+				proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_addr_length, 
+					udvm_tvb, start_offset, len, value);
+			}else{
+				proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_length, 
+					udvm_tvb, start_offset, len, value);
+			}
 
 			/* %destination */
 			offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, FALSE,&start_offset, &value, &is_memory_address);
 			len = offset - start_offset;
-			proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_destination, 
-				udvm_tvb, start_offset, len, value);
+			if ( is_memory_address ){
+				proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_addr_destination, 
+					udvm_tvb, start_offset, len, value);
+			}else{
+				proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_destination, 
+					udvm_tvb, start_offset, len, value);
+			}
 
 			/* @address */
 			offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, TRUE, &start_offset, &value, &is_memory_address);
@@ -1039,9 +1131,13 @@ dissect_udvm_bytecode(tvbuff_t *udvm_tvb, proto_tree *sigcomp_udvm_tree,guint st
 			/* %destination */
 			offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, FALSE,&start_offset, &value, &is_memory_address);
 			len = offset - start_offset;
-			proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_destination, 
-				udvm_tvb, start_offset, len, value);
-
+			if ( is_memory_address ){
+				proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_addr_destination, 
+					udvm_tvb, start_offset, len, value);
+			}else{
+				proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_destination, 
+					udvm_tvb, start_offset, len, value);
+			}
 			/* @address */
 			offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, TRUE, &start_offset, &value, &is_memory_address);
 			len = offset - start_offset;
@@ -1220,7 +1316,7 @@ dissect_udvm_bytecode(tvbuff_t *udvm_tvb, proto_tree *sigcomp_udvm_tree,guint st
 			offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, TRUE, &start_offset, &value, &is_memory_address);
 			len = offset - start_offset;
 			if ( is_memory_address ) {
-				proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_output_start, 
+				proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_addr_output_start, 
 					udvm_tvb, start_offset, len, value);
 			}else{
 				proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_output_start, 
@@ -1317,7 +1413,6 @@ dissect_udvm_bytecode(tvbuff_t *udvm_tvb, proto_tree *sigcomp_udvm_tree,guint st
 			break;
 
 		default:
-			/* while programming stop while loop */
 			offset = offset + tvb_reported_length_remaining(udvm_tvb, offset);			
 			break;
 		}
@@ -1458,7 +1553,7 @@ dissect_udvm_reference_operand(tvbuff_t *udvm_tvb, proto_tree *sigcomp_udvm_tree
 		if ( display_udvm_bytecode )
 			proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_reference_bytecode,
 				udvm_tvb, offset, 1, display_bytecode);
-		operand = ( bytecode & 0x3f);
+		operand = ( bytecode & 0x7f);
 		*value = (operand * 2);
 		*start_offset = offset;
 		offset ++;
@@ -1649,6 +1744,32 @@ dissect_udvm_multitype_operand(tvbuff_t *udvm_tvb, proto_tree *sigcomp_udvm_tree
 	}
 	return offset;
 }
+
+static void
+tvb_raw_text_add(tvbuff_t *tvb, proto_tree *tree)
+{
+        proto_tree *raw_tree = NULL;
+        proto_item *ti = NULL;
+        int offset, next_offset, linelen;
+
+	if(tree) {
+		ti = proto_tree_add_item(tree, proto_raw_sigcomp, tvb, 0, -1, FALSE);
+		raw_tree = proto_item_add_subtree(ti, ett_raw_text);
+	}
+
+        offset = 0;
+
+        while (tvb_offset_exists(tvb, offset)) {
+                tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
+                linelen = next_offset - offset;
+                if(raw_tree) {
+			proto_tree_add_text(raw_tree, tvb, offset, linelen,
+			    "%s", tvb_format_text(tvb, offset, linelen));
+		}
+                offset = next_offset;
+        }
+}
+
 /* Register the protocol with Ethereal */
 
 
@@ -1679,6 +1800,8 @@ proto_reg_handoff_sigcomp(void)
 
 	dissector_add("udp.port", SigCompUDPPort1, sigcomp_handle);
 	dissector_add("udp.port", SigCompUDPPort2, sigcomp_handle);
+
+	sip_handle = find_dissector("sip");
 
 
 }
@@ -1758,8 +1881,18 @@ proto_register_sigcomp(void)
 			FT_UINT16, BASE_DEC, NULL, 0x0,          
 			"Length", HFILL }
 		},
+		{ &hf_udvm_addr_length,
+			{ " %Length[memory address]", "sigcomp.udvm.addr.length",
+			FT_UINT16, BASE_DEC, NULL, 0x0,          
+			"Length", HFILL }
+		},
 		{ &hf_udvm_destination,
 			{ " %Destination", "sigcomp.udvm.destination",
+			FT_UINT16, BASE_DEC, NULL, 0x0,          
+			"Destination", HFILL }
+		},
+		{ &hf_udvm_addr_destination,
+			{ " %Destination[memory address]", "sigcomp.udvm.addr.destination",
 			FT_UINT16, BASE_DEC, NULL, 0x0,          
 			"Destination", HFILL }
 		},
@@ -1849,13 +1982,18 @@ proto_register_sigcomp(void)
 			FT_UINT16, BASE_DEC, NULL, 0x0,          
 			"j", HFILL }
 		},
+		{ &hf_udvm_addr_j,
+			{ " %j[memory address]", "sigcomp.udvm.addr.j",
+			FT_UINT16, BASE_DEC, NULL, 0x0,          
+			"j", HFILL }
+		},
 		{ &hf_udvm_output_start,
 			{ " %Output_start", "sigcomp.output.start",
 			FT_UINT16, BASE_DEC, NULL, 0x0,          
 			"Output start", HFILL }
 		},
-		{ &hf_udvm_output_start_addr,
-			{ " %Output_start[memory address]", "sigcomp.output.start.addr",
+		{ &hf_udvm_addr_output_start,
+			{ " %Output_start[memory address]", "sigcomp.addr.output.start",
 			FT_UINT16, BASE_DEC, NULL, 0x0,          
 			"Output start", HFILL }
 		},
@@ -1929,23 +2067,45 @@ proto_register_sigcomp(void)
 			FT_UINT16, BASE_DEC, NULL, 0x0,          
 			"Offset", HFILL }
 		},
+		{ &hf_udvm_addr_offset,
+			{ " %Offset[memory address]", "sigcomp.udvm.addr.offset",
+			FT_UINT16, BASE_DEC, NULL, 0x0,          
+			"Offset", HFILL }
+		},
 	};
 
 /* Setup protocol subtree array */
 	static gint *ett[] = {
 		&ett_sigcomp,
 		&ett_sigcomp_udvm,
+		&ett_sigcomp_udvm_exe,
+	};
+	static gint *ett_raw[] = {
+		&ett_raw_text,
 	};
 
 	module_t *sigcomp_module;
+    static enum_val_t udvm_detail_vals[] = {
+	{"no-printout", "No-Printout", 0},
+	{"low-detail", "Low-detail", 1},
+	{"medium-detail", "medium-detail", 2},
+	{"high-detail", "High-detail", 3},
+	{NULL, NULL, -1}
+    };
+
 
 /* Register the protocol name and description */
 	proto_sigcomp = proto_register_protocol("Signaling Compression",
 	    "SIGCOMP", "sigcomp");
+	proto_raw_sigcomp = proto_register_protocol("Decompressed SigComp message as raw text",
+		"Raw_SigComp", "raw_sigcomp");
+
+	new_register_dissector("sigcomp", dissect_sigcomp, proto_sigcomp);
 
 /* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array(proto_sigcomp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	proto_register_subtree_array(ett_raw, array_length(ett_raw));
 
 /* Register a configuration option for port */
 	sigcomp_module = prefs_register_protocol(proto_sigcomp,
@@ -1971,6 +2131,14 @@ proto_register_sigcomp(void)
 								   "Display the bytecode of operands",
 								   "preference wether to display the bytecode in UDVM operands or not",
 								   &display_udvm_bytecode);
+	prefs_register_bool_preference(sigcomp_module, "display.decomp.msg.as.txt",
+								   "Displays the decompressed message as text",
+								   "preference wether to display the decompressed message as raw text or not",
+								   &display_raw_txt);
+    prefs_register_enum_preference(sigcomp_module, "show.udvm.execution",
+      "Level of detail of UDVM execution",
+      "0 = UDVM executes silently, then incrising detail about execution of UDVM instructions, Warning! CPU intense at high detail",
+      &udvm_print_detail_level, udvm_detail_vals, FALSE);
 
 
 }

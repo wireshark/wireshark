@@ -2,6 +2,7 @@
 <dialog
   id="capture-dialog"
   title="Capture Options"
+  xmlns:ethereal="http://www.ethereal.com/development.html"
   >
 
   <vbox>

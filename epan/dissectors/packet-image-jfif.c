@@ -1193,7 +1193,7 @@ proto_reg_handoff_jfif(void)
 
 	jfif_handle = create_dissector_handle(dissect_jfif, proto_jfif);
 
-	/* Register the GIF media type */
+	/* Register the JPEG media type */
 	dissector_add_string("media_type", "image/jfif", jfif_handle);
 	dissector_add_string("media_type", "image/jpg", jfif_handle);
 	dissector_add_string("media_type", "image/jpeg", jfif_handle);

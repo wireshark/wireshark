@@ -1,7 +1,7 @@
 /* packet-x509sat.c
  * Routines for X.509 Selected Attribute Types packet dissection
  *
- * $Id: packet-x509sat-template.c,v 1.2 2004/05/25 21:07:43 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -135,7 +135,7 @@ static ber_choice DirectoryString_choice[] = {
   { 0, 0, 0, 0, NULL }
 };
 
-static int
+int
 dissect_x509sat_DirectoryString(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index) {
   DirectoryString_hf_index = hf_index;
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,

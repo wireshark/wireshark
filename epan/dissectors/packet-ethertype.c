@@ -217,20 +217,9 @@ ethertype(guint16 etype, tvbuff_t *tvb, int offset_after_etype,
 		call_dissector(data_handle,next_tvb, pinfo, tree);
 
 		/* Label protocol */
-		switch (etype) {
-
-		case ETHERTYPE_LOOP:
-			if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
-				col_add_fstr(pinfo->cinfo, COL_PROTOCOL, "LOOP");
-			}
-			break;
-
-		default:
-			if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
-				col_add_fstr(pinfo->cinfo, COL_PROTOCOL, "0x%04x",
-				    etype);
-			}
-			break;
+		if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
+			col_add_fstr(pinfo->cinfo, COL_PROTOCOL, "0x%04x",
+			    etype);
 		}
 		if (check_col(pinfo->cinfo, COL_INFO)) {
 			description = match_strval(etype, etype_vals);

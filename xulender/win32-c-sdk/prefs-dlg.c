@@ -12,12 +12,12 @@
 #include <pcap.h>
 #include "pcap-util.h"
 
+#include <epan/column.h>
 #include <epan/filesystem.h>
-#include "prefs.h"
-#include "column.h"
+#include <epan/prefs.h>
+#include <epan/prefs-int.h>
 #include "print.h"
 #include "epan/addr_resolv.h"
-#include "prefs-int.h"
 #include "capture-wpcap.h"
 #include "simple_dialog.h"
 

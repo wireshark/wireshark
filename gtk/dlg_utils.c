@@ -190,7 +190,8 @@ dlg_button_row_new(gchar *stock_id_first, ...)
     gtk_button_box_set_layout (GTK_BUTTON_BOX(button_hbox), GTK_BUTTONBOX_END);
     gtk_button_box_set_spacing(GTK_BUTTON_BOX(button_hbox), 5);
 
-#if !WIN32 && GTK_MAJOR_VERSION >= 2
+/* GTK+ 1.3 and later - on Win32, we use 1.3[.x] or 2.x, not 1.2[.x] */
+#if !defined(_WIN32) && GTK_MAJOR_VERSION >= 2
     /* beware: sequence of buttons are important! */
 
     /* XXX: this can be implemented more elegant of course, but it works as it should */
@@ -374,9 +375,19 @@ file_selection_new(const gchar *title, file_selection_action_t action)
     ok_button_text = GTK_STOCK_OPEN;
     break;
 
+  case FILE_SELECTION_READ_BROWSE:
+    gtk_action = GTK_FILE_CHOOSER_ACTION_OPEN;
+    ok_button_text = GTK_STOCK_OK;
+    break;
+
   case FILE_SELECTION_SAVE:
     gtk_action = GTK_FILE_CHOOSER_ACTION_SAVE;
     ok_button_text = GTK_STOCK_SAVE;
+    break;
+
+  case FILE_SELECTION_WRITE_BROWSE:
+    gtk_action = GTK_FILE_CHOOSER_ACTION_SAVE;
+    ok_button_text = GTK_STOCK_OK;
     break;
 
   default:
@@ -386,8 +397,13 @@ file_selection_new(const gchar *title, file_selection_action_t action)
     break;
   }
   win = gtk_file_chooser_dialog_new(title, GTK_WINDOW(top_level), gtk_action,
+#ifndef _WIN32
+                                    GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+                                    ok_button_text, GTK_RESPONSE_ACCEPT,
+#else
                                     ok_button_text, GTK_RESPONSE_ACCEPT,
                                     GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+#endif
                                     NULL);
 
   /* If we've opened a file before, start out by showing the files in the directory
@@ -434,14 +450,14 @@ file_selection_set_current_folder(GtkWidget *fs, const gchar *filename)
 
     /* trim filename, so gtk_file_chooser_set_current_folder() likes it, see below */
     if (filename[filename_len -1] == G_DIR_SEPARATOR
-#ifdef WIN32
+#ifdef _WIN32
         && filename_len > 3)    /* e.g. "D:\" */
 #else
         && filename_len > 1)    /* e.g. "/" */
 #endif
     {
         new_filename = g_strdup(filename);
-	    new_filename[filename_len-1] = '\0';
+        new_filename[filename_len-1] = '\0';
     } else {
         new_filename = g_strdup(filename);
     }

@@ -37,7 +37,7 @@
 #include "nlpid.h"
 #include "packet-q931.h"
 #include "packet-e164.h"
-#include "prefs.h"
+#include <epan/prefs.h>
 #include "reassemble.h"
 
 #include "lapd_sapi.h"

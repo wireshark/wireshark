@@ -65,7 +65,6 @@ col_set_cls_time
 col_set_fence
 col_set_str
 col_set_writable
-compute_timestamp_diff
 conversation_add_proto_data
 conversation_delete_proto_data
 conversation_get_proto_data
@@ -77,11 +76,13 @@ copy_prefs
 crc16_ccitt_tvb
 create_dissector_handle
 create_persconffile_dir
-create_tempfile
 data_out_file                   DATA
+dcerpc_add_conv_to_bind_table
 dcerpc_get_proto_hf_opnum
 dcerpc_get_proto_name
 dcerpc_get_proto_sub_dissector
+dcerpc_get_transport_salt
+dcerpc_hooks_init_protos        DATA
 dcerpc_uuids                    DATA
 decode_boolean_bitfield
 decode_enumerated_bitfield
@@ -170,6 +171,7 @@ epan_dissect_new
 epan_dissect_prime_dfilter
 epan_dissect_run
 epan_init
+ether_to_str
 except_alloc
 except_deinit
 except_free
@@ -220,7 +222,6 @@ fvalue_from_unparsed
 fvalue_get
 fvalue_get_integer
 GatekeeperRejectReason_vals     DATA
-get_args_as_string
 get_basename
 get_ber_identifier
 get_ber_last_created_item
@@ -251,7 +252,6 @@ get_column_format_from_str
 get_column_format_matches
 get_column_longest_string
 get_column_title
-get_conn_cfilter
 get_datafile_path
 get_datafile_dir
 get_dirname
@@ -288,6 +288,7 @@ hf_frame_capture_len            DATA
 hf_frame_number                 DATA
 hf_frame_packet_len             DATA
 hf_text_only                    DATA
+host_ip_af
 host_name_lookup_process
 incomplete_tcp_stream           DATA
 InfoRequestNakReason_vals       DATA
@@ -301,6 +302,7 @@ is_big_endian
 is_tpkt
 LocationRejectReason_vals       DATA
 match_strval
+mkstemp
 mtp3_addr_to_str_buf
 mtp3_service_indicator_code_short_vals DATA
 new_create_dissector_handle
@@ -358,6 +360,7 @@ proto_register_protocol
 proto_register_subtree_array
 proto_registrar_dump_fields
 proto_registrar_dump_protocols
+proto_registrar_dump_values
 proto_registrar_get_abbrev
 proto_registrar_get_byname
 proto_registrar_get_ftype
@@ -373,12 +376,16 @@ proto_tree_add_boolean_hidden
 proto_tree_add_bytes
 proto_tree_add_bytes_format
 proto_tree_add_bytes_hidden
+proto_tree_add_debug_text
 proto_tree_add_double
 proto_tree_add_double_format
 proto_tree_add_double_hidden
 proto_tree_add_ether
 proto_tree_add_ether_format
 proto_tree_add_ether_hidden
+proto_tree_add_float
+proto_tree_add_float_format
+proto_tree_add_float_hidden
 proto_tree_add_int
 proto_tree_add_int_format
 proto_tree_add_int_hidden
@@ -409,6 +416,8 @@ proto_tree_children_foreach
 proto_tree_get_parent
 p_add_proto_data
 p_get_proto_data
+range_convert_str
+range_init
 RasMessage_vals                 DATA
 read_prefs
 read_prefs_file
@@ -440,6 +449,8 @@ rpc_progs                       DATA
 rpc_prog_hf
 rpc_prog_name
 rpc_roundup
+rtcp_add_address
+rtp_add_address
 rtp_payload_type_vals           DATA
 set_actual_length
 set_timestamp_setting
@@ -448,6 +459,7 @@ show_fragment_tree
 sid_name_snooping               DATA
 sid_name_table                  DATA
 smb_cmd_vals                    DATA
+sminmpec_values                 DATA
 string_to_name_resolve
 tap_push_tapped_queue
 tap_queue_init
@@ -470,10 +482,14 @@ tvb_get_letoh24
 tvb_get_letoh64
 tvb_get_letohl
 tvb_get_letohs
+tvb_get_letohieee_double
+tvb_get_letohieee_float
 tvb_get_nstringz
 tvb_get_nstringz0
 tvb_get_ntoh24
 tvb_get_ntoh64
+tvb_get_ntohieee_double
+tvb_get_ntohieee_float
 tvb_get_ntohl
 tvb_get_ntohs
 tvb_get_ptr
@@ -500,8 +516,6 @@ UnregRequestReason_vals         DATA
 vals_pdu_type                   DATA
 vals_status                     DATA
 val_to_str
+value_is_in_range
 write_prefs
 xml_escape
-
-
-

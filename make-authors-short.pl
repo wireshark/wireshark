@@ -2,27 +2,17 @@
 
 # $Id$
 
-# Remove tasks from individual author entries from AUTHORS file
-# for use in the about dialog.
-
 use strict;
 
-my $subinfo=0;
-my $nextline;
+# Unset environment variables so perl doesn't
+# interpret bytes as UTF-8 characters
 
-while (<>) {
-	if (/(.*){/) {
-		$subinfo = 1;
-		print "$1\n";
-	} elsif (/}/) {
-		$subinfo = 0;
-		if (($nextline = <>) !~ /^[\s]*$/) {
-			print $nextline;
-		}
-	} elsif ($subinfo == 1) {
-		next;
-	} else {
-		s/^$/ /;	# Make it a verbatim paragraph
-		print;
-	}
-}
+delete $ENV{LANG};
+delete $ENV{LANGUAGE};
+delete $ENV{LC_ALL};
+delete $ENV{LC_CTYPE};
+
+# Call make-authors-short2.pl in same directory, using same interpreter
+
+(my $prog2 = $0) =~ s/\.pl$/2.pl/;
+system($^X, "$prog2", @ARGV);

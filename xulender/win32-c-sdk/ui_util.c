@@ -34,7 +34,7 @@
 
 #include <io.h>
 
-#include "prefs.h"
+#include <epan/prefs.h>
 #include "prefs-recent.h"
 #include "epan/epan.h"
 #include "../../ui_util.h"

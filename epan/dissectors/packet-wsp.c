@@ -82,7 +82,7 @@
 #endif
 
 /* Statistics (see doc/README.tapping) */
-#include "tap.h"
+#include <epan/tap.h>
 static int wsp_tap = -1;
 
 

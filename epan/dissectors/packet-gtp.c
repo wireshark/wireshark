@@ -36,7 +36,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
-#include "prefs.h"
+#include <epan/prefs.h>
 #include "packet-gtp.h"
 #include "packet-ipv6.h"
 #include "packet-ppp.h"

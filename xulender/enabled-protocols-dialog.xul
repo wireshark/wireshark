@@ -1,0 +1,71 @@
+<?xml version="1.0"?>
+<dialog
+  id="enabled-protocols-dialog"
+  title="Ethereal: Enabled Protocols"
+  >
+
+  <vbox>
+    <groupbox flex="1" class="bottom_spacing">
+      <caption>Enabled Protocols</caption>
+      <listbox
+	id="enabled-protocols.protolist"
+	flex="1"
+	class="bottom_spacing"
+	onselect="filter_dialog_list_select"
+	ondoubleclick="filter_dialog_list_dclick"
+      >
+	<listhead>
+	  <listheader label="Status" />
+	  <listheader label="Protocol" />
+	  <listheader label="Description" />
+	</listhead>
+      </listbox>
+      <hbox>
+	<spacer flex="1" />
+	<button
+	  id="enabled-protocols.enable-all"
+	  label="Enable All"
+	  oncommand="enabled_protocols_dialog_enable_all"
+	 />
+	<button
+	  id="enabled-protocols.disable-all"
+	  label="Disable All"
+	  oncommand="enabled_protocols_dialog_disable_all"
+	  class="left_spacing"
+	 />
+	<button
+	  id="enabled-protocols.invert"
+	  label="Invert"
+	  oncommand="enabled_protocols_dialog_invert"
+	  class="left_spacing"
+	 />
+      </hbox>
+    </groupbox>
+    <hbox>
+      <spacer flex="1" />
+      <button
+	id="enabled-protocols.ok"
+	label="OK"
+	oncommand="enabled_protocols_ok"
+       />
+      <button
+	id="enabled-protocols.apply"
+	label="Apply"
+	oncommand="enabled_protocols_apply"
+	class="left_spacing"
+       />
+      <button
+	id="enabled-protocols.save"
+	label="Save"
+	oncommand="enabled_protocols_save"
+	class="left_spacing"
+       />
+      <button
+	id="enabled-protocols.cancel"
+	label="Cancel"
+	oncommand="enabled_protocols_cancel"
+	class="left_spacing"
+       />
+    </hbox>
+  </vbox>
+</dialog>

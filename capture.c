@@ -140,7 +140,7 @@
 #include "pcap-util.h"
 #include "alert_box.h"
 #include "simple_dialog.h"
-#include "prefs.h"
+#include <epan/prefs.h>
 #include "globals.h"
 #include "conditions.h"
 #include "capture_stop_conditions.h"
@@ -420,7 +420,12 @@ sync_pipe_do_capture(gboolean is_tempfile) {
 
     if (capture_opts.linktype != -1) {
       argv = sync_pipe_add_arg(argv, &argc, "-y");
+#ifdef HAVE_PCAP_DATALINK_VAL_TO_NAME
+      sprintf(ssnap,"%s",pcap_datalink_val_to_name(capture_opts.linktype));
+#else
+      /* XXX - just treat it as a number */
       sprintf(ssnap,"%d",capture_opts.linktype);
+#endif
       argv = sync_pipe_add_arg(argv, &argc, ssnap);
     }
 

@@ -4,9 +4,10 @@
  * - RFC 2960
  * - RFC 3309
  * - RFC 3758
- * - http://www.ietf.org/internet-drafts/draft-ietf-tsvwg-sctpimpguide-09.txt
+ * - http://www.ietf.org/internet-drafts/draft-ietf-tsvwg-sctpimpguide-11.txt
  * - http://www.ietf.org/internet-drafts/draft-ietf-tsvwg-addip-sctp-09.txt
-* - http://www.ietf.org/internet-drafts/draft-stewart-sctp-pktdrprep-00.txt
+ * - http://www.ietf.org/internet-drafts/draft-stewart-sctp-pktdrprep-01.txt
+ * - http://www.ietf.org/internet-drafts/draft-tuexen-sctp-auth-chunk-01.txt
  *
  * Copyright 2000, 2001, 2002, 2003, 2004 Michael Tuexen <tuexen [AT] fh-muenster.de>
  * Still to do (so stay tuned)
@@ -45,10 +46,10 @@
 #endif
 
 #include <string.h>
-#include "prefs.h"
+#include <epan/prefs.h>
 #include <epan/packet.h>
-#include "tap.h"
-#include "ipproto.h"
+#include <epan/tap.h>
+#include <epan/ipproto.h>
 #include "packet-sctp.h"
 #include "sctpppids.h"
 
@@ -198,11 +199,12 @@ static dissector_handle_t data_handle;
 #define SCTP_ECNE_CHUNK_ID              12
 #define SCTP_CWR_CHUNK_ID               13
 #define SCTP_SHUTDOWN_COMPLETE_CHUNK_ID 14
-#define SCTP_FORWARD_TSN_CHUNK_ID      192
+#define SCTP_AUTH_CHUNK_ID            0x16
 #define SCTP_ASCONF_ACK_CHUNK_ID      0x80
-#define SCTP_PKTDROP_CHUNK_ID         0X81
-#define SCTP_ASCONF_CHUNK_ID          0XC1
-#define SCTP_IETF_EXT                  255
+#define SCTP_PKTDROP_CHUNK_ID         0x81
+#define SCTP_FORWARD_TSN_CHUNK_ID     0xC0
+#define SCTP_ASCONF_CHUNK_ID          0xC1
+#define SCTP_IETF_EXT                 0xFF
 
 static const value_string chunk_type_values[] = {
   { SCTP_DATA_CHUNK_ID,              "DATA" },
@@ -220,6 +222,7 @@ static const value_string chunk_type_values[] = {
   { SCTP_ECNE_CHUNK_ID,              "ECNE" },
   { SCTP_CWR_CHUNK_ID,               "CWR" },
   { SCTP_SHUTDOWN_COMPLETE_CHUNK_ID, "SHUTDOWN_COMPLETE" },
+  { SCTP_AUTH_CHUNK_ID,              "AUTH" },
   { SCTP_FORWARD_TSN_CHUNK_ID,       "FORWARD TSN" },
   { SCTP_ASCONF_ACK_CHUNK_ID,        "ASCONF_ACK" },
   { SCTP_PKTDROP_CHUNK_ID,           "PKTDROP" },
@@ -1334,6 +1337,7 @@ static const true_false_string sctp_data_chunk_u_bit_value = {
 static gboolean
 dissect_data_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tree, proto_tree *chunk_tree, proto_item *chunk_item, proto_item *flags_item)
 {
+  guint number_of_ppid;
   guint16 payload_length;
   guint32 payload_proto_id;
   tvbuff_t *payload_tvb;
@@ -1341,6 +1345,15 @@ dissect_data_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tree, pr
   guint8 e_bit, b_bit, u_bit;
 	
   payload_proto_id  = tvb_get_ntohl(chunk_tvb, DATA_CHUNK_PAYLOAD_PROTOCOL_ID_OFFSET);
+  
+  /* insert the PPID in the pinfo structure if it is non-zero, not already there and there is still room */
+  if (payload_proto_id) {
+    for(number_of_ppid = 0; number_of_ppid < MAX_NUMBER_OF_PPIDS; number_of_ppid++)
+      if ((pinfo->ppid[number_of_ppid] == 0) || (pinfo->ppid[number_of_ppid] == payload_proto_id))
+        break;
+    if ((number_of_ppid < MAX_NUMBER_OF_PPIDS) && (pinfo->ppid[number_of_ppid] == 0))
+      pinfo->ppid[number_of_ppid] = payload_proto_id;
+  }
 
   if (chunk_tree) {
     proto_item_set_len(chunk_item, DATA_CHUNK_HEADER_LENGTH);
@@ -1571,7 +1584,7 @@ dissect_abort_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *chunk_t
 {
   guint16 causes_length;
   tvbuff_t *causes_tvb;
-	proto_tree *flags_tree;
+  proto_tree *flags_tree;
 	
   if (chunk_tree) {
     flags_tree  = proto_item_add_subtree(flags_item, ett_sctp_abort_chunk_flags);
@@ -1660,8 +1673,8 @@ dissect_cwr_chunk(tvbuff_t *chunk_tvb, proto_tree *chunk_tree, proto_item *chunk
 
 
 static const true_false_string sctp_shutdown_complete_chunk_t_bit_value = {
-  "No TCB destroyed",
-  "TCB destroyed"
+  "Tag reflected",
+  "Tag not reflected"
 };
 
 
@@ -2104,7 +2117,8 @@ static void
 dissect_sctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   guint16 source_port, destination_port;
-  
+  guint number_of_ppid;
+
   /* Extract the common header */
   source_port      = tvb_get_ntohs(tvb, SOURCE_PORT_OFFSET);
   destination_port = tvb_get_ntohs(tvb, DESTINATION_PORT_OFFSET);
@@ -2122,6 +2136,10 @@ dissect_sctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (check_col(pinfo->cinfo, COL_INFO))
     col_set_str(pinfo->cinfo, COL_INFO, "");
       
+  /* is this done automatically ? */
+  for(number_of_ppid = 0; number_of_ppid < MAX_NUMBER_OF_PPIDS; number_of_ppid++)
+    pinfo->ppid[number_of_ppid] = 0;
+
   memset(&sctp_info, 0, sizeof(struct _sctp_info));
   sctp_info.verification_tag = tvb_get_ntohl(tvb, VERIFICATION_TAG_OFFSET);
   dissect_sctp_packet(tvb, pinfo, tree, FALSE);

@@ -46,7 +46,7 @@
 #include "filter_dlg.h"
 #include "file_dlg.h"
 #include "gtkglobals.h"
-#include "prefs.h"
+#include <epan/prefs.h>
 
 static GtkWidget* colorize_dialog_new(char *filter);
 static void add_filter_to_list(gpointer filter_arg, gpointer list_arg);

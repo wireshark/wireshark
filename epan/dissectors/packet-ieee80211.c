@@ -61,13 +61,13 @@
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
 #include <epan/strutil.h>
-#include "prefs.h"
+#include <epan/prefs.h>
 #include "reassemble.h"
 #include "packet-ipx.h"
 #include "packet-llc.h"
 #include "packet-ieee80211.h"
 #include "etypes.h"
-#include "crc32.h"
+#include <epan/crc32.h>
 
 /* Defragment fragmented 802.11 datagrams */
 static gboolean wlan_defragment = TRUE;

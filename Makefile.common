@@ -26,49 +26,31 @@
 # Header files for dissector helpers
 # XXX - these should be moved to epan/dissectors
 DISSECTOR_SUPPORT_INCLUDES =	\
-	adler32.h	\
-	afn.h	\
 	aftypes.h	\
 	arcnet_pids.h	\
 	asn1.h	\
 	bridged_pids.h	\
 	chdlctypes.h	\
-	column.h	\
-	crc16.h	\
-	crc32.h	\
-	crypt-des.h	\
-	crypt-md4.h	\
-	crypt-md5.h	\
-	crypt-rc4.h	\
 	etypes.h	\
 	follow.h	\
 	format-oid.h	\
 	greproto.h	\
 	h225-persistentdata.h	\
 	iax2_codec_type.h	\
-	in_cksum.h	\
 	ip_opts.h	\
-	ipproto.h	\
 	isprint.h	\
 	lapd_sapi.h	\
 	llcsaps.h	\
 	nlpid.h	\
 	oui.h	\
 	ppptypes.h	\
-	prefs-int.h	\
-	prefs.h	\
 	ptvcursor.h	\
 	reassemble.h	\
-	req_resp_hdrs.h	\
 	rpc_defrag.h	\
 	rtp_pt.h	\
 	sctpppids.h	\
 	smb.h	\
-	t35.h	\
-	tap.h	\
-	util.h	\
 	x264_prt_id.h	\
-	xdlc.h	\
 	xmlstub.h
 
 # "BUILT_SOURCES" are built before any "make all" or "make check" targets.
@@ -81,14 +63,16 @@ ETHEREAL_COMMON_SRC =	\
 	$(PLATFORM_SRC) \
 	capture_stop_conditions.c	\
 	cfile.c	\
+	clopts_common.c	\
 	conditions.c	\
 	disabled_protos.c	\
+	packet-range.c	\
 	pcap-util.c	\
 	print.c	\
 	ps.c	\
-	range.c	\
 	ringbuffer.c	\
 	timestats.c	\
+	util.c	\
 	version_info.c
 
 # corresponding headers
@@ -97,18 +81,20 @@ ETHEREAL_COMMON_INCLUDES =	\
 	svnversion.h		\
 	capture_stop_conditions.h	\
 	cfile.h	\
+	clopts_common.h	\
 	color.h	\
 	conditions.h	\
 	disabled_protos.h	\
 	file.h	\
+	packet-range.h	\
 	pcap-util.h	\
 	pcap-util-int.h	\
 	print.h	\
 	ps.h	\
-	range.h	\
 	register.h	\
 	ringbuffer.h	\
 	timestats.h	\
+	util.h	\
 	version_info.h
 
 # sources for Tethereal taps
@@ -219,7 +205,8 @@ editcap_SOURCES = \
 
 # dftest specifics
 dftest_SOURCES =	\
-	dftest.c
+	dftest.c	\
+	util.c
 
 # randpkt specifics
 randpkt_SOURCES = \

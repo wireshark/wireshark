@@ -33,8 +33,8 @@
 #include <epan/packet.h>
 #include "packet-ipsec.h"
 #include <epan/addr_resolv.h>
-#include "ipproto.h"
-#include "prefs.h"
+#include <epan/ipproto.h>
+#include <epan/prefs.h>
 
 /* Place AH payload in sub tree */
 static gboolean g_ah_payload_in_subtree = FALSE;

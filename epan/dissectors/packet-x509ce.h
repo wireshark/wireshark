@@ -1,10 +1,9 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* packet-x509ce.h                                                            */
+/* ./packet-x509ce.h                                                          */
 /* ../../tools/asn2eth.py -X -b -p x509ce -c x509ce.cnf -s packet-x509ce-template CertificateExtensions.asn */
 
 /* Input file: packet-x509ce-template.h */
-/* Include files: packet-x509ce-exp.h, packet-x509ce-valexp.h */
 
 /* packet-x509ce.h
  * Routines for X.509 Certificate Extensions packet dissection
@@ -35,11 +34,6 @@
 
 
 /*--- Included file: packet-x509ce-exp.h ---*/
-
-/* Do not modify this file.                                                   */
-/* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* packet-x509ce-exp.h                                                        */
-/* ../../tools/asn2eth.py -X -b -p x509ce -c x509ce.cnf -s packet-x509ce-template CertificateExtensions.asn */
 
 int dissect_x509ce_GeneralNames(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 

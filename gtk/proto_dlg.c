@@ -31,7 +31,7 @@
 #include <gdk/gdkkeysyms.h>
 #include <string.h>
 
-#include "prefs.h"
+#include <epan/prefs.h>
 #include "globals.h"
 #include "main.h"
 #include "util.h"

@@ -50,4 +50,54 @@ void help_topic_cb(GtkWidget *widget, gpointer topic);
 /** Redraw all the text widgets, to use a new font. */
 void help_redraw(void);
 
+typedef enum {
+    /* pages online at www.ethereal.com */
+    ONLINEPAGE_HOME,
+    ONLINEPAGE_WIKI,
+    ONLINEPAGE_USERGUIDE,
+    ONLINEPAGE_FAQ,
+    ONLINEPAGE_DOWNLOAD,
+    ONLINEPAGE_SAMPLE_FILES,
+
+    /* local manual pages */
+    LOCALPAGE_MAN_ETHEREAL = 100,
+    LOCALPAGE_MAN_ETHEREAL_FILTER,
+    LOCALPAGE_MAN_TETHEREAL,
+    LOCALPAGE_MAN_MERGECAP,
+    LOCALPAGE_MAN_EDITCAP,
+    LOCALPAGE_MAN_TEXT2PCAP,
+
+    /* local help pages (User's Guide) */
+#ifdef ETHEREAL_EUG_DIR
+    HELP_CONTENT = 200,
+    HELP_CAPTURE_OPTIONS_DIALOG,
+    HELP_CAPTURE_FILTERS_DIALOG,
+    HELP_DISPLAY_FILTERS_DIALOG
+#endif
+} url_page_action_e;
+
+
+/** User requested one of the html pages.
+ *
+ * @param action the page to show
+ */
+extern void
+url_page_action(url_page_action_e action);
+
+/** User requested one of the html pages by button click.
+ *
+ * @param widget parent widget (unused)
+ * @param action the page to show
+ */
+extern void
+url_page_cb(GtkWidget *w _U_, url_page_action_e action);
+
+/** User requested one of the html pages by menu.
+ *
+ * @param widget parent widget (unused)
+ * @param data unused
+ * @param action the page to show
+ */
+extern void url_page_menu_cb( GtkWidget *widget, gpointer data, url_page_action_e action);
+
 #endif

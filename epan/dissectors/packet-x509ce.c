@@ -1,10 +1,9 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* packet-x509ce.c                                                            */
+/* ./packet-x509ce.c                                                          */
 /* ../../tools/asn2eth.py -X -b -p x509ce -c x509ce.cnf -s packet-x509ce-template CertificateExtensions.asn */
 
 /* Input file: packet-x509ce-template.c */
-/* Include files: packet-x509ce-hf.c, packet-x509ce-ett.c, packet-x509ce-fn.c, packet-x509ce-hfarr.c, packet-x509ce-ettarr.c, packet-x509ce-val.h */
 
 /* packet-x509ce.c
  * Routines for X.509 Certificate Extensions packet dissection
@@ -45,6 +44,7 @@
 #include "packet-x509ce.h"
 #include "packet-x509af.h"
 #include "packet-x509if.h"
+#include "packet-x509sat.h"
 
 #define PNAME  "X.509 Certificate Extensions"
 #define PSNAME "X509CE"
@@ -52,43 +52,35 @@
 
 /* Initialize the protocol and registered fields */
 int proto_x509ce = -1;
-static int hf_x509ce_id_ce_subjectDirectoryAttributes = -1;
-static int hf_x509ce_id_ce_subjectKeyIdentifier = -1;
-static int hf_x509ce_id_ce_keyUsage = -1;
-static int hf_x509ce_id_ce_privateKeyUsagePeriod = -1;
-static int hf_x509ce_id_ce_subjectAltName = -1;
-static int hf_x509ce_id_ce_issuerAltName = -1;
-static int hf_x509ce_id_ce_basicConstraints = -1;
-static int hf_x509ce_id_ce_cRLNumber = -1;
-static int hf_x509ce_id_ce_reasonCode = -1;
-static int hf_x509ce_id_ce_instructionCode = -1;
 static int hf_x509ce_id_ce_invalidityDate = -1;
-static int hf_x509ce_id_ce_deltaCRLIndicator = -1;
-static int hf_x509ce_id_ce_issuingDistributionPoint = -1;
-static int hf_x509ce_id_ce_certificateIssuer = -1;
-static int hf_x509ce_id_ce_nameConstraints = -1;
-static int hf_x509ce_id_ce_cRLDistributionPoints = -1;
-static int hf_x509ce_id_ce_certificatePolicies = -1;
-static int hf_x509ce_id_ce_policyMappings = -1;
-static int hf_x509ce_id_ce_authorityKeyIdentifier = -1;
-static int hf_x509ce_id_ce_policyConstraints = -1;
-static int hf_x509ce_id_ce_extKeyUsage = -1;
-static int hf_x509ce_id_ce_cRLStreamIdentifier = -1;
-static int hf_x509ce_id_ce_cRLScope = -1;
-static int hf_x509ce_id_ce_statusReferrals = -1;
-static int hf_x509ce_id_ce_freshestCRL = -1;
-static int hf_x509ce_id_ce_orderedList = -1;
 static int hf_x509ce_id_ce_baseUpdateTime = -1;
-static int hf_x509ce_id_ce_deltaInfo = -1;
-static int hf_x509ce_id_ce_inhibitAnyPolicy = -1;
 
 /*--- Included file: packet-x509ce-hf.c ---*/
 
-/* Do not modify this file.                                                   */
-/* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* packet-x509ce-hf.c                                                         */
-/* ../../tools/asn2eth.py -X -b -p x509ce -c x509ce.cnf -s packet-x509ce-template CertificateExtensions.asn */
-
+static int hf_x509ce_AuthorityKeyIdentifier_PDU = -1;  /* AuthorityKeyIdentifier */
+static int hf_x509ce_SubjectKeyIdentifier_PDU = -1;  /* SubjectKeyIdentifier */
+static int hf_x509ce_KeyUsage_PDU = -1;           /* KeyUsage */
+static int hf_x509ce_KeyPurposeIDs_PDU = -1;      /* KeyPurposeIDs */
+static int hf_x509ce_PrivateKeyUsagePeriod_PDU = -1;  /* PrivateKeyUsagePeriod */
+static int hf_x509ce_CertificatePoliciesSyntax_PDU = -1;  /* CertificatePoliciesSyntax */
+static int hf_x509ce_PolicyMappingsSyntax_PDU = -1;  /* PolicyMappingsSyntax */
+static int hf_x509ce_GeneralNames_PDU = -1;       /* GeneralNames */
+static int hf_x509ce_AttributesSyntax_PDU = -1;   /* AttributesSyntax */
+static int hf_x509ce_BasicConstraintsSyntax_PDU = -1;  /* BasicConstraintsSyntax */
+static int hf_x509ce_NameConstraintsSyntax_PDU = -1;  /* NameConstraintsSyntax */
+static int hf_x509ce_PolicyConstraintsSyntax_PDU = -1;  /* PolicyConstraintsSyntax */
+static int hf_x509ce_SkipCerts_PDU = -1;          /* SkipCerts */
+static int hf_x509ce_CRLNumber_PDU = -1;          /* CRLNumber */
+static int hf_x509ce_CRLReason_PDU = -1;          /* CRLReason */
+static int hf_x509ce_HoldInstruction_PDU = -1;    /* HoldInstruction */
+static int hf_x509ce_CRLScopeSyntax_PDU = -1;     /* CRLScopeSyntax */
+static int hf_x509ce_StatusReferrals_PDU = -1;    /* StatusReferrals */
+static int hf_x509ce_CRLStreamIdentifier_PDU = -1;  /* CRLStreamIdentifier */
+static int hf_x509ce_OrderedListSyntax_PDU = -1;  /* OrderedListSyntax */
+static int hf_x509ce_DeltaInformation_PDU = -1;   /* DeltaInformation */
+static int hf_x509ce_CRLDistPointsSyntax_PDU = -1;  /* CRLDistPointsSyntax */
+static int hf_x509ce_IssuingDistPointSyntax_PDU = -1;  /* IssuingDistPointSyntax */
+static int hf_x509ce_BaseCRLNumber_PDU = -1;      /* BaseCRLNumber */
 static int hf_x509ce_keyIdentifier = -1;          /* KeyIdentifier */
 static int hf_x509ce_authorityCertIssuer = -1;    /* GeneralNames */
 static int hf_x509ce_authorityCertSerialNumber = -1;  /* CertificateSerialNumber */
@@ -105,9 +97,13 @@ static int hf_x509ce_subjectDomainPolicy = -1;    /* CertPolicyId */
 static int hf_x509ce_GeneralNames_item = -1;      /* GeneralName */
 static int hf_x509ce_rfc822Name = -1;             /* IA5String */
 static int hf_x509ce_dNSName = -1;                /* IA5String */
+static int hf_x509ce_directoryName = -1;          /* Name */
+static int hf_x509ce_ediPartyName = -1;           /* EDIPartyName */
 static int hf_x509ce_uniformResourceIdentifier = -1;  /* IA5String */
 static int hf_x509ce_iPAddress = -1;              /* OCTET_STRING */
 static int hf_x509ce_registeredID = -1;           /* OBJECT_IDENTIFIER */
+static int hf_x509ce_nameAssigner = -1;           /* DirectoryString */
+static int hf_x509ce_partyName = -1;              /* DirectoryString */
 static int hf_x509ce_AttributesSyntax_item = -1;  /* Attribute */
 static int hf_x509ce_cA = -1;                     /* BOOLEAN */
 static int hf_x509ce_pathLenConstraint = -1;      /* INTEGER */
@@ -188,11 +184,6 @@ static int hf_x509ce_ReasonFlags_aACompromise = -1;
 
 /*--- Included file: packet-x509ce-ett.c ---*/
 
-/* Do not modify this file.                                                   */
-/* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* packet-x509ce-ett.c                                                        */
-/* ../../tools/asn2eth.py -X -b -p x509ce -c x509ce.cnf -s packet-x509ce-template CertificateExtensions.asn */
-
 static gint ett_x509ce_AuthorityKeyIdentifier = -1;
 static gint ett_x509ce_KeyUsage = -1;
 static gint ett_x509ce_KeyPurposeIDs = -1;
@@ -205,6 +196,7 @@ static gint ett_x509ce_PolicyMappingsSyntax = -1;
 static gint ett_x509ce_PolicyMappingsSyntax_item = -1;
 static gint ett_x509ce_GeneralNames = -1;
 static gint ett_x509ce_GeneralName = -1;
+static gint ett_x509ce_EDIPartyName = -1;
 static gint ett_x509ce_AttributesSyntax = -1;
 static gint ett_x509ce_BasicConstraintsSyntax = -1;
 static gint ett_x509ce_NameConstraintsSyntax = -1;
@@ -233,15 +225,19 @@ static gint ett_x509ce_IssuingDistPointSyntax = -1;
 
 /*--- Included file: packet-x509ce-fn.c ---*/
 
-/* Do not modify this file.                                                   */
-/* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* packet-x509ce-fn.c                                                         */
-/* ../../tools/asn2eth.py -X -b -p x509ce -c x509ce.cnf -s packet-x509ce-template CertificateExtensions.asn */
-
 /*--- Fields for imported types ---*/
 
 static int dissect_authorityCertSerialNumber_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_x509af_CertificateSerialNumber(TRUE, tvb, offset, pinfo, tree, hf_x509ce_authorityCertSerialNumber);
+}
+static int dissect_directoryName_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509if_Name(TRUE, tvb, offset, pinfo, tree, hf_x509ce_directoryName);
+}
+static int dissect_nameAssigner_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509sat_DirectoryString(TRUE, tvb, offset, pinfo, tree, hf_x509ce_nameAssigner);
+}
+static int dissect_partyName_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509sat_DirectoryString(TRUE, tvb, offset, pinfo, tree, hf_x509ce_partyName);
 }
 static int dissect_AttributesSyntax_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_x509if_Attribute(FALSE, tvb, offset, pinfo, tree, hf_x509ce_AttributesSyntax_item);
@@ -281,6 +277,23 @@ static int dissect_uniformResourceIdentifier_impl(packet_info *pinfo, proto_tree
   return dissect_x509ce_IA5String(TRUE, tvb, offset, pinfo, tree, hf_x509ce_uniformResourceIdentifier);
 }
 
+static ber_sequence EDIPartyName_sequence[] = {
+  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_nameAssigner_impl },
+  { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_partyName_impl },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_x509ce_EDIPartyName(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                EDIPartyName_sequence, hf_index, ett_x509ce_EDIPartyName);
+
+  return offset;
+}
+static int dissect_ediPartyName_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509ce_EDIPartyName(TRUE, tvb, offset, pinfo, tree, hf_x509ce_ediPartyName);
+}
+
 
 static int
 dissect_x509ce_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
@@ -309,6 +322,8 @@ static int dissect_registeredID_impl(packet_info *pinfo, proto_tree *tree, tvbuf
 static const value_string GeneralName_vals[] = {
   {   1, "rfc822Name" },
   {   2, "dNSName" },
+  {   4, "directoryName" },
+  {   5, "ediPartyName" },
   {   6, "uniformResourceIdentifier" },
   {   7, "iPAddress" },
   {   8, "registeredID" },
@@ -318,6 +333,8 @@ static const value_string GeneralName_vals[] = {
 static ber_choice GeneralName_choice[] = {
   {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_rfc822Name_impl },
   {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_dNSName_impl },
+  {   4, BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_directoryName_impl },
+  {   5, BER_CLASS_CON, 5, BER_FLAGS_IMPLTAG, dissect_ediPartyName_impl },
   {   6, BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_uniformResourceIdentifier_impl },
   {   7, BER_CLASS_CON, 7, BER_FLAGS_IMPLTAG, dissect_iPAddress_impl },
   {   8, BER_CLASS_CON, 8, BER_FLAGS_IMPLTAG, dissect_registeredID_impl },
@@ -1127,70 +1144,85 @@ dissect_x509ce_BaseCRLNumber(gboolean implicit_tag _U_, tvbuff_t *tvb, int offse
   return offset;
 }
 
+/*--- PDUs ---*/
+
+static void dissect_AuthorityKeyIdentifier_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x509ce_AuthorityKeyIdentifier(FALSE, tvb, 0, pinfo, tree, hf_x509ce_AuthorityKeyIdentifier_PDU);
+}
+static void dissect_SubjectKeyIdentifier_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x509ce_SubjectKeyIdentifier(FALSE, tvb, 0, pinfo, tree, hf_x509ce_SubjectKeyIdentifier_PDU);
+}
+static void dissect_KeyUsage_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x509ce_KeyUsage(FALSE, tvb, 0, pinfo, tree, hf_x509ce_KeyUsage_PDU);
+}
+static void dissect_KeyPurposeIDs_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x509ce_KeyPurposeIDs(FALSE, tvb, 0, pinfo, tree, hf_x509ce_KeyPurposeIDs_PDU);
+}
+static void dissect_PrivateKeyUsagePeriod_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x509ce_PrivateKeyUsagePeriod(FALSE, tvb, 0, pinfo, tree, hf_x509ce_PrivateKeyUsagePeriod_PDU);
+}
+static void dissect_CertificatePoliciesSyntax_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x509ce_CertificatePoliciesSyntax(FALSE, tvb, 0, pinfo, tree, hf_x509ce_CertificatePoliciesSyntax_PDU);
+}
+static void dissect_PolicyMappingsSyntax_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x509ce_PolicyMappingsSyntax(FALSE, tvb, 0, pinfo, tree, hf_x509ce_PolicyMappingsSyntax_PDU);
+}
+static void dissect_GeneralNames_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x509ce_GeneralNames(FALSE, tvb, 0, pinfo, tree, hf_x509ce_GeneralNames_PDU);
+}
+static void dissect_AttributesSyntax_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x509ce_AttributesSyntax(FALSE, tvb, 0, pinfo, tree, hf_x509ce_AttributesSyntax_PDU);
+}
+static void dissect_BasicConstraintsSyntax_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x509ce_BasicConstraintsSyntax(FALSE, tvb, 0, pinfo, tree, hf_x509ce_BasicConstraintsSyntax_PDU);
+}
+static void dissect_NameConstraintsSyntax_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x509ce_NameConstraintsSyntax(FALSE, tvb, 0, pinfo, tree, hf_x509ce_NameConstraintsSyntax_PDU);
+}
+static void dissect_PolicyConstraintsSyntax_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x509ce_PolicyConstraintsSyntax(FALSE, tvb, 0, pinfo, tree, hf_x509ce_PolicyConstraintsSyntax_PDU);
+}
+static void dissect_SkipCerts_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x509ce_SkipCerts(FALSE, tvb, 0, pinfo, tree, hf_x509ce_SkipCerts_PDU);
+}
+static void dissect_CRLNumber_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x509ce_CRLNumber(FALSE, tvb, 0, pinfo, tree, hf_x509ce_CRLNumber_PDU);
+}
+static void dissect_CRLReason_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x509ce_CRLReason(FALSE, tvb, 0, pinfo, tree, hf_x509ce_CRLReason_PDU);
+}
+static void dissect_HoldInstruction_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x509ce_HoldInstruction(FALSE, tvb, 0, pinfo, tree, hf_x509ce_HoldInstruction_PDU);
+}
+static void dissect_CRLScopeSyntax_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x509ce_CRLScopeSyntax(FALSE, tvb, 0, pinfo, tree, hf_x509ce_CRLScopeSyntax_PDU);
+}
+static void dissect_StatusReferrals_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x509ce_StatusReferrals(FALSE, tvb, 0, pinfo, tree, hf_x509ce_StatusReferrals_PDU);
+}
+static void dissect_CRLStreamIdentifier_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x509ce_CRLStreamIdentifier(FALSE, tvb, 0, pinfo, tree, hf_x509ce_CRLStreamIdentifier_PDU);
+}
+static void dissect_OrderedListSyntax_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x509ce_OrderedListSyntax(FALSE, tvb, 0, pinfo, tree, hf_x509ce_OrderedListSyntax_PDU);
+}
+static void dissect_DeltaInformation_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x509ce_DeltaInformation(FALSE, tvb, 0, pinfo, tree, hf_x509ce_DeltaInformation_PDU);
+}
+static void dissect_CRLDistPointsSyntax_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x509ce_CRLDistPointsSyntax(FALSE, tvb, 0, pinfo, tree, hf_x509ce_CRLDistPointsSyntax_PDU);
+}
+static void dissect_IssuingDistPointSyntax_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x509ce_IssuingDistPointSyntax(FALSE, tvb, 0, pinfo, tree, hf_x509ce_IssuingDistPointSyntax_PDU);
+}
+static void dissect_BaseCRLNumber_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x509ce_BaseCRLNumber(FALSE, tvb, 0, pinfo, tree, hf_x509ce_BaseCRLNumber_PDU);
+}
+
 
 /*--- End of included file: packet-x509ce-fn.c ---*/
 
 
-
-static void
-dissect_x509ce_subjectDirectoryAttributes_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	dissect_x509ce_AttributesSyntax(FALSE, tvb, 0, pinfo, tree, hf_x509ce_id_ce_subjectDirectoryAttributes);
-}
-
-static void
-dissect_x509ce_subjectKeyIdentifier_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	dissect_x509ce_SubjectKeyIdentifier(FALSE, tvb, 0, pinfo, tree, hf_x509ce_id_ce_subjectKeyIdentifier);
-}
-
-static void
-dissect_x509ce_keyUsage_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	dissect_x509ce_KeyUsage(FALSE, tvb, 0, pinfo, tree, hf_x509ce_id_ce_keyUsage);
-}
-
-static void
-dissect_x509ce_privateKeyUsagePeriod_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	dissect_x509ce_PrivateKeyUsagePeriod(FALSE, tvb, 0, pinfo, tree, hf_x509ce_id_ce_privateKeyUsagePeriod);
-}
-
-static void
-dissect_x509ce_subjectAltName_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	dissect_x509ce_GeneralNames(FALSE, tvb, 0, pinfo, tree, hf_x509ce_id_ce_subjectAltName);
-}
-
-static void
-dissect_x509ce_issuerAltName_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	dissect_x509ce_GeneralNames(FALSE, tvb, 0, pinfo, tree, hf_x509ce_id_ce_issuerAltName);
-}
-
-static void
-dissect_x509ce_basicConstraints_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	dissect_x509ce_BasicConstraintsSyntax(FALSE, tvb, 0, pinfo, tree, hf_x509ce_id_ce_basicConstraints);
-}
-
-static void
-dissect_x509ce_cRLNumber_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	dissect_x509ce_CRLNumber(FALSE, tvb, 0, pinfo, tree, hf_x509ce_id_ce_cRLNumber);
-}
-
-static void
-dissect_x509ce_reasonCode_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	dissect_x509ce_CRLReason(FALSE, tvb, 0, pinfo, tree, hf_x509ce_id_ce_reasonCode);
-}
-
-static void
-dissect_x509ce_instructionCode_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	dissect_x509ce_HoldInstruction(FALSE, tvb, 0, pinfo, tree, hf_x509ce_id_ce_instructionCode);
-}
 
 static void
 dissect_x509ce_invalidityDate_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -1199,111 +1231,9 @@ dissect_x509ce_invalidityDate_callback(tvbuff_t *tvb, packet_info *pinfo, proto_
 }
 
 static void
-dissect_x509ce_deltaCRLIndicator_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	dissect_x509ce_BaseCRLNumber(FALSE, tvb, 0, pinfo, tree, hf_x509ce_id_ce_deltaCRLIndicator);
-}
-
-static void
-dissect_x509ce_issuingDistributionPoint_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	dissect_x509ce_IssuingDistPointSyntax(FALSE, tvb, 0, pinfo, tree, hf_x509ce_id_ce_issuingDistributionPoint);
-}
-
-static void
-dissect_x509ce_certificateIssuer_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	dissect_x509ce_GeneralNames(FALSE, tvb, 0, pinfo, tree, hf_x509ce_id_ce_certificateIssuer);
-}
-
-static void
-dissect_x509ce_nameConstraints_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	dissect_x509ce_NameConstraintsSyntax(FALSE, tvb, 0, pinfo, tree, hf_x509ce_id_ce_nameConstraints);
-}
-
-static void
-dissect_x509ce_cRLDistributionPoints_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	dissect_x509ce_CRLDistPointsSyntax(FALSE, tvb, 0, pinfo, tree, hf_x509ce_id_ce_cRLDistributionPoints);
-}
-
-static void
-dissect_x509ce_certificatePolicies_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	dissect_x509ce_CertificatePoliciesSyntax(FALSE, tvb, 0, pinfo, tree, hf_x509ce_id_ce_certificatePolicies);
-}
-
-static void
-dissect_x509ce_policyMappings_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	dissect_x509ce_PolicyMappingsSyntax(FALSE, tvb, 0, pinfo, tree, hf_x509ce_id_ce_policyMappings);
-}
-
-static void
-dissect_x509ce_authorityKeyIdentifier_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	dissect_x509ce_AuthorityKeyIdentifier(FALSE, tvb, 0, pinfo, tree, hf_x509ce_id_ce_authorityKeyIdentifier);
-}
-
-static void
-dissect_x509ce_policyConstraints_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	dissect_x509ce_PolicyConstraintsSyntax(FALSE, tvb, 0, pinfo, tree, hf_x509ce_id_ce_policyConstraints);
-}
-
-static void
-dissect_x509ce_extKeyUsage_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	dissect_x509ce_KeyPurposeIDs(FALSE, tvb, 0, pinfo, tree, hf_x509ce_id_ce_extKeyUsage);
-}
-
-static void
-dissect_x509ce_cRLStreamIdentifier_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	dissect_x509ce_CRLStreamIdentifier(FALSE, tvb, 0, pinfo, tree, hf_x509ce_id_ce_cRLStreamIdentifier);
-}
-
-static void
-dissect_x509ce_cRLScope_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	dissect_x509ce_CRLScopeSyntax(FALSE, tvb, 0, pinfo, tree, hf_x509ce_id_ce_cRLScope);
-}
-
-static void
-dissect_x509ce_statusReferrals_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	dissect_x509ce_StatusReferrals(FALSE, tvb, 0, pinfo, tree, hf_x509ce_id_ce_statusReferrals);
-}
-
-static void
-dissect_x509ce_freshestCRL_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	dissect_x509ce_CRLDistPointsSyntax(FALSE, tvb, 0, pinfo, tree, hf_x509ce_id_ce_freshestCRL);
-}
-
-static void
-dissect_x509ce_orderedList_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	dissect_x509ce_OrderedListSyntax(FALSE, tvb, 0, pinfo, tree, hf_x509ce_id_ce_orderedList);
-}
-
-static void
 dissect_x509ce_baseUpdateTime_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	dissect_x509ce_GeneralizedTime(FALSE, tvb, 0, pinfo, tree, hf_x509ce_id_ce_baseUpdateTime);
-}
-
-static void
-dissect_x509ce_deltaInfo_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	dissect_x509ce_DeltaInformation(FALSE, tvb, 0, pinfo, tree, hf_x509ce_id_ce_deltaInfo);
-}
-
-static void
-dissect_x509ce_inhibitAnyPolicy_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	dissect_x509ce_SkipCerts(FALSE, tvb, 0, pinfo, tree, hf_x509ce_id_ce_inhibitAnyPolicy);
 }
 
 /*--- proto_register_x509ce ----------------------------------------------*/
@@ -1311,130 +1241,113 @@ void proto_register_x509ce(void) {
 
   /* List of fields */
   static hf_register_info hf[] = {
-    { &hf_x509ce_id_ce_inhibitAnyPolicy,
-      { "inhibitAnyPolicy", "x509ce.id_ce_inhibitAnyPolicy",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "inhibitAnyPolicy", HFILL }},
-    { &hf_x509ce_id_ce_deltaInfo,
-      { "deltaInfo", "x509ce.id_ce_deltaInfo",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "deltaInfo", HFILL }},
     { &hf_x509ce_id_ce_baseUpdateTime,
       { "baseUpdateTime", "x509ce.id_ce_baseUpdateTime",
         FT_STRING, BASE_NONE, NULL, 0,
         "baseUpdateTime", HFILL }},
-    { &hf_x509ce_id_ce_orderedList,
-      { "orderedList", "x509ce.id_ce_orderedList",
-        FT_UINT32, BASE_DEC, VALS(OrderedListSyntax_vals), 0,
-        "orderedList", HFILL }},
-    { &hf_x509ce_id_ce_freshestCRL,
-      { "freshestCRL", "x509ce.id_ce_freshestCRL",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "freshestCRL", HFILL }},
-    { &hf_x509ce_id_ce_statusReferrals,
-      { "statusReferrals", "x509ce.id_ce_statusReferrals",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "statusReferrals", HFILL }},
-    { &hf_x509ce_id_ce_cRLScope,
-      { "cRLScope", "x509ce.id_ce_cRLScope",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "cRLScope", HFILL }},
-    { &hf_x509ce_id_ce_cRLStreamIdentifier,
-      { "cRLStreamIdentifier", "x509ce.id_ce_cRLStreamIdentifier",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "cRLStreamIdentifier", HFILL }},
-    { &hf_x509ce_id_ce_extKeyUsage,
-      { "extKeyUsage", "x509ce.id_ce_extKeyUsage",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "extKeyUsage", HFILL }},
-    { &hf_x509ce_id_ce_policyConstraints,
-      { "policyConstraints", "x509ce.id_ce_policyConstraints",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "policyConstraints", HFILL }},
-    { &hf_x509ce_id_ce_authorityKeyIdentifier,
-      { "authorityKeyIdentifier", "x509ce.id_ce_authorityKeyIdentifier",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "authorityKeyIdentifier", HFILL }},
-    { &hf_x509ce_id_ce_policyMappings,
-      { "policyMappings", "x509ce.id_ce_policyMappings",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "policyMappings", HFILL }},
-    { &hf_x509ce_id_ce_certificatePolicies,
-      { "certificatePolicies", "x509ce.id_ce_certificatePolicies",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "certificatePolicies", HFILL }},
-    { &hf_x509ce_id_ce_cRLDistributionPoints,
-      { "cRLDistributionPoints", "x509ce.id_ce_cRLDistributionPoints",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "cRLDistributionPoints", HFILL }},
-    { &hf_x509ce_id_ce_nameConstraints,
-      { "nameConstraints", "x509ce.id_ce_nameConstraints",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "nameConstraints", HFILL }},
-    { &hf_x509ce_id_ce_certificateIssuer,
-      { "certificateIssuer", "x509ce.id_ce_certificateIssuer",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "certificateIssuer", HFILL }},
-    { &hf_x509ce_id_ce_issuingDistributionPoint,
-      { "issuingDistributionPoint", "x509ce.id_ce_issuingDistributionPoint",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "issuingDistributionPoint", HFILL }},
-    { &hf_x509ce_id_ce_deltaCRLIndicator,
-      { "deltaCRLIndicator", "x509ce.id_ce_deltaCRLIndicator",
-        FT_UINT32, BASE_DEC, VALS(CRLReason_vals), 0,
-        "deltaCRLIndicator", HFILL }},
     { &hf_x509ce_id_ce_invalidityDate,
       { "invalidityDate", "x509ce.id_ce_invalidityDate",
         FT_STRING, BASE_NONE, NULL, 0,
         "invalidityDate", HFILL }},
-    { &hf_x509ce_id_ce_instructionCode,
-      { "instructionCode", "x509ce.id_ce_instructionCode",
-        FT_STRING, BASE_NONE, NULL, 0,
-        "instructionCode", HFILL }},
-    { &hf_x509ce_id_ce_reasonCode,
-      { "reasonCode", "x509ce.id_ce_reasonCode",
-        FT_UINT32, BASE_DEC, VALS(CRLReason_vals), 0,
-        "reasonCode", HFILL }},
-    { &hf_x509ce_id_ce_cRLNumber,
-      { "cRLNumber", "x509ce.id_ce_cRLNumber",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "cRLNumber", HFILL }},
-    { &hf_x509ce_id_ce_basicConstraints,
-      { "basicConstraints", "x509ce.id_ce_basicConstraints",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "basicConstraints", HFILL }},
-    { &hf_x509ce_id_ce_issuerAltName,
-      { "issuerAltName", "x509ce.id_ce_issuerAltName",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "issuerAltName", HFILL }},
-    { &hf_x509ce_id_ce_subjectAltName,
-      { "subjectAltName", "x509ce.id_ce_subjectAltName",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "subjectAltName", HFILL }},
-    { &hf_x509ce_id_ce_privateKeyUsagePeriod,
-      { "privateKeyUsagePeriod", "x509ce.id_ce_privateKeyUsagePeriod",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "privateKeyUsagePeriod", HFILL }},
-    { &hf_x509ce_id_ce_subjectDirectoryAttributes,
-      { "subjectDirectoryAttributes", "x509ce.id_ce_subjectDirectoryAttributes",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "subjectDirectoryAttributes", HFILL }},
-    { &hf_x509ce_id_ce_subjectKeyIdentifier,
-      { "subjectKeyIdentifier", "x509ce.id_ce_subjectKeyIdentifier",
-        FT_BYTES, BASE_HEX, NULL, 0,
-        "subjectKeyIdentifier", HFILL }},
-    { &hf_x509ce_id_ce_keyUsage,
-      { "keyUsage", "x509ce.id_ce_keyUsage",
-        FT_BYTES, BASE_HEX, NULL, 0,
-        "keyUsage", HFILL }},
 
 /*--- Included file: packet-x509ce-hfarr.c ---*/
 
-/* Do not modify this file.                                                   */
-/* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* packet-x509ce-hfarr.c                                                      */
-/* ../../tools/asn2eth.py -X -b -p x509ce -c x509ce.cnf -s packet-x509ce-template CertificateExtensions.asn */
-
+    { &hf_x509ce_AuthorityKeyIdentifier_PDU,
+      { "AuthorityKeyIdentifier", "x509ce.AuthorityKeyIdentifier",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "AuthorityKeyIdentifier", HFILL }},
+    { &hf_x509ce_SubjectKeyIdentifier_PDU,
+      { "SubjectKeyIdentifier", "x509ce.SubjectKeyIdentifier",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "SubjectKeyIdentifier", HFILL }},
+    { &hf_x509ce_KeyUsage_PDU,
+      { "KeyUsage", "x509ce.KeyUsage",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "KeyUsage", HFILL }},
+    { &hf_x509ce_KeyPurposeIDs_PDU,
+      { "KeyPurposeIDs", "x509ce.KeyPurposeIDs",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "KeyPurposeIDs", HFILL }},
+    { &hf_x509ce_PrivateKeyUsagePeriod_PDU,
+      { "PrivateKeyUsagePeriod", "x509ce.PrivateKeyUsagePeriod",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "PrivateKeyUsagePeriod", HFILL }},
+    { &hf_x509ce_CertificatePoliciesSyntax_PDU,
+      { "CertificatePoliciesSyntax", "x509ce.CertificatePoliciesSyntax",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "CertificatePoliciesSyntax", HFILL }},
+    { &hf_x509ce_PolicyMappingsSyntax_PDU,
+      { "PolicyMappingsSyntax", "x509ce.PolicyMappingsSyntax",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "PolicyMappingsSyntax", HFILL }},
+    { &hf_x509ce_GeneralNames_PDU,
+      { "GeneralNames", "x509ce.GeneralNames",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "GeneralNames", HFILL }},
+    { &hf_x509ce_AttributesSyntax_PDU,
+      { "AttributesSyntax", "x509ce.AttributesSyntax",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "AttributesSyntax", HFILL }},
+    { &hf_x509ce_BasicConstraintsSyntax_PDU,
+      { "BasicConstraintsSyntax", "x509ce.BasicConstraintsSyntax",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "BasicConstraintsSyntax", HFILL }},
+    { &hf_x509ce_NameConstraintsSyntax_PDU,
+      { "NameConstraintsSyntax", "x509ce.NameConstraintsSyntax",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "NameConstraintsSyntax", HFILL }},
+    { &hf_x509ce_PolicyConstraintsSyntax_PDU,
+      { "PolicyConstraintsSyntax", "x509ce.PolicyConstraintsSyntax",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "PolicyConstraintsSyntax", HFILL }},
+    { &hf_x509ce_SkipCerts_PDU,
+      { "SkipCerts", "x509ce.SkipCerts",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "SkipCerts", HFILL }},
+    { &hf_x509ce_CRLNumber_PDU,
+      { "CRLNumber", "x509ce.CRLNumber",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "CRLNumber", HFILL }},
+    { &hf_x509ce_CRLReason_PDU,
+      { "CRLReason", "x509ce.CRLReason",
+        FT_UINT32, BASE_DEC, VALS(CRLReason_vals), 0,
+        "CRLReason", HFILL }},
+    { &hf_x509ce_HoldInstruction_PDU,
+      { "HoldInstruction", "x509ce.HoldInstruction",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "HoldInstruction", HFILL }},
+    { &hf_x509ce_CRLScopeSyntax_PDU,
+      { "CRLScopeSyntax", "x509ce.CRLScopeSyntax",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "CRLScopeSyntax", HFILL }},
+    { &hf_x509ce_StatusReferrals_PDU,
+      { "StatusReferrals", "x509ce.StatusReferrals",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "StatusReferrals", HFILL }},
+    { &hf_x509ce_CRLStreamIdentifier_PDU,
+      { "CRLStreamIdentifier", "x509ce.CRLStreamIdentifier",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "CRLStreamIdentifier", HFILL }},
+    { &hf_x509ce_OrderedListSyntax_PDU,
+      { "OrderedListSyntax", "x509ce.OrderedListSyntax",
+        FT_UINT32, BASE_DEC, VALS(OrderedListSyntax_vals), 0,
+        "OrderedListSyntax", HFILL }},
+    { &hf_x509ce_DeltaInformation_PDU,
+      { "DeltaInformation", "x509ce.DeltaInformation",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "DeltaInformation", HFILL }},
+    { &hf_x509ce_CRLDistPointsSyntax_PDU,
+      { "CRLDistPointsSyntax", "x509ce.CRLDistPointsSyntax",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "CRLDistPointsSyntax", HFILL }},
+    { &hf_x509ce_IssuingDistPointSyntax_PDU,
+      { "IssuingDistPointSyntax", "x509ce.IssuingDistPointSyntax",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "IssuingDistPointSyntax", HFILL }},
+    { &hf_x509ce_BaseCRLNumber_PDU,
+      { "BaseCRLNumber", "x509ce.BaseCRLNumber",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "BaseCRLNumber", HFILL }},
     { &hf_x509ce_keyIdentifier,
       { "keyIdentifier", "x509ce.keyIdentifier",
         FT_BYTES, BASE_HEX, NULL, 0,
@@ -1499,6 +1412,14 @@ void proto_register_x509ce(void) {
       { "dNSName", "x509ce.dNSName",
         FT_STRING, BASE_NONE, NULL, 0,
         "GeneralName/dNSName", HFILL }},
+    { &hf_x509ce_directoryName,
+      { "directoryName", "x509ce.directoryName",
+        FT_UINT32, BASE_DEC, VALS(Name_vals), 0,
+        "GeneralName/directoryName", HFILL }},
+    { &hf_x509ce_ediPartyName,
+      { "ediPartyName", "x509ce.ediPartyName",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "GeneralName/ediPartyName", HFILL }},
     { &hf_x509ce_uniformResourceIdentifier,
       { "uniformResourceIdentifier", "x509ce.uniformResourceIdentifier",
         FT_STRING, BASE_NONE, NULL, 0,
@@ -1511,6 +1432,14 @@ void proto_register_x509ce(void) {
       { "registeredID", "x509ce.registeredID",
         FT_STRING, BASE_NONE, NULL, 0,
         "GeneralName/registeredID", HFILL }},
+    { &hf_x509ce_nameAssigner,
+      { "nameAssigner", "x509ce.nameAssigner",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "EDIPartyName/nameAssigner", HFILL }},
+    { &hf_x509ce_partyName,
+      { "partyName", "x509ce.partyName",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "EDIPartyName/partyName", HFILL }},
     { &hf_x509ce_AttributesSyntax_item,
       { "Item[##]", "x509ce.AttributesSyntax_item",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -1805,11 +1734,6 @@ void proto_register_x509ce(void) {
 
 /*--- Included file: packet-x509ce-ettarr.c ---*/
 
-/* Do not modify this file.                                                   */
-/* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* packet-x509ce-ettarr.c                                                     */
-/* ../../tools/asn2eth.py -X -b -p x509ce -c x509ce.cnf -s packet-x509ce-template CertificateExtensions.asn */
-
     &ett_x509ce_AuthorityKeyIdentifier,
     &ett_x509ce_KeyUsage,
     &ett_x509ce_KeyPurposeIDs,
@@ -1822,6 +1746,7 @@ void proto_register_x509ce(void) {
     &ett_x509ce_PolicyMappingsSyntax_item,
     &ett_x509ce_GeneralNames,
     &ett_x509ce_GeneralName,
+    &ett_x509ce_EDIPartyName,
     &ett_x509ce_AttributesSyntax,
     &ett_x509ce_BasicConstraintsSyntax,
     &ett_x509ce_NameConstraintsSyntax,
@@ -1860,34 +1785,34 @@ void proto_register_x509ce(void) {
 
 /*--- proto_reg_handoff_x509ce -------------------------------------------*/
 void proto_reg_handoff_x509ce(void) {
-	register_ber_oid_dissector("2.5.29.9", dissect_x509ce_subjectDirectoryAttributes_callback, proto_x509ce, "id-ce-subjectDirectoryAttributes");
-	register_ber_oid_dissector("2.5.29.14", dissect_x509ce_subjectKeyIdentifier_callback, proto_x509ce, "id-ce-subjectKeyIdentifier");
-	register_ber_oid_dissector("2.5.29.15", dissect_x509ce_keyUsage_callback, proto_x509ce, "id-ce-keyUsage");
-	register_ber_oid_dissector("2.5.29.16", dissect_x509ce_privateKeyUsagePeriod_callback, proto_x509ce, "id-ce-privateKeyUsagePeriod");
-	register_ber_oid_dissector("2.5.29.17", dissect_x509ce_subjectAltName_callback, proto_x509ce, "id-ce-subjectAltName");
-	register_ber_oid_dissector("2.5.29.18", dissect_x509ce_issuerAltName_callback, proto_x509ce, "id-ce-issuerAltName");
-	register_ber_oid_dissector("2.5.29.19", dissect_x509ce_basicConstraints_callback, proto_x509ce, "id-ce-basicConstraints");
-	register_ber_oid_dissector("2.5.29.20", dissect_x509ce_cRLNumber_callback, proto_x509ce, "id-ce-cRLNumber");
-	register_ber_oid_dissector("2.5.29.21", dissect_x509ce_reasonCode_callback, proto_x509ce, "id-ce-reasonCode");
-	register_ber_oid_dissector("2.5.29.23", dissect_x509ce_instructionCode_callback, proto_x509ce, "id-ce-instructionCode");
+	register_ber_oid_dissector("2.5.29.9", dissect_AttributesSyntax_PDU, proto_x509ce, "id-ce-subjectDirectoryAttributes");
+	register_ber_oid_dissector("2.5.29.14", dissect_SubjectKeyIdentifier_PDU, proto_x509ce, "id-ce-subjectKeyIdentifier");
+	register_ber_oid_dissector("2.5.29.15", dissect_KeyUsage_PDU, proto_x509ce, "id-ce-keyUsage");
+	register_ber_oid_dissector("2.5.29.16", dissect_PrivateKeyUsagePeriod_PDU, proto_x509ce, "id-ce-privateKeyUsagePeriod");
+	register_ber_oid_dissector("2.5.29.17", dissect_GeneralNames_PDU, proto_x509ce, "id-ce-subjectAltName");
+	register_ber_oid_dissector("2.5.29.18", dissect_GeneralNames_PDU, proto_x509ce, "id-ce-issuerAltName");
+	register_ber_oid_dissector("2.5.29.19", dissect_BasicConstraintsSyntax_PDU, proto_x509ce, "id-ce-basicConstraints");
+	register_ber_oid_dissector("2.5.29.20", dissect_CRLNumber_PDU, proto_x509ce, "id-ce-cRLNumber");
+	register_ber_oid_dissector("2.5.29.21", dissect_CRLReason_PDU, proto_x509ce, "id-ce-reasonCode");
+	register_ber_oid_dissector("2.5.29.23", dissect_HoldInstruction_PDU, proto_x509ce, "id-ce-instructionCode");
 	register_ber_oid_dissector("2.5.29.24", dissect_x509ce_invalidityDate_callback, proto_x509ce, "id-ce-invalidityDate");
-	register_ber_oid_dissector("2.5.29.27", dissect_x509ce_deltaCRLIndicator_callback, proto_x509ce, "id-ce-deltaCRLIndicator");
-	register_ber_oid_dissector("2.5.29.28", dissect_x509ce_issuingDistributionPoint_callback, proto_x509ce, "id-ce-issuingDistributionPoint");
-	register_ber_oid_dissector("2.5.29.29", dissect_x509ce_certificateIssuer_callback, proto_x509ce, "id-ce-certificateIssuer");
-	register_ber_oid_dissector("2.5.29.30", dissect_x509ce_nameConstraints_callback, proto_x509ce, "id-ce-nameConstraints");
-	register_ber_oid_dissector("2.5.29.31", dissect_x509ce_cRLDistributionPoints_callback, proto_x509ce, "id-ce-cRLDistributionPoints");
-	register_ber_oid_dissector("2.5.29.32", dissect_x509ce_certificatePolicies_callback, proto_x509ce, "id-ce-certificatePolicies");
-	register_ber_oid_dissector("2.5.29.33", dissect_x509ce_policyMappings_callback, proto_x509ce, "id-ce-policyMappings");
-	register_ber_oid_dissector("2.5.29.35", dissect_x509ce_authorityKeyIdentifier_callback, proto_x509ce, "id-ce-authorityKeyIdentifier");
-	register_ber_oid_dissector("2.5.29.36", dissect_x509ce_policyConstraints_callback, proto_x509ce, "id-ce-policyConstraints");
-	register_ber_oid_dissector("2.5.29.37", dissect_x509ce_extKeyUsage_callback, proto_x509ce, "id-ce-extKeyUsage");
-	register_ber_oid_dissector("2.5.29.40", dissect_x509ce_cRLStreamIdentifier_callback, proto_x509ce, "id-ce-cRLStreamIdentifier");
-	register_ber_oid_dissector("2.5.29.44", dissect_x509ce_cRLScope_callback, proto_x509ce, "id-ce-cRLScope");
-	register_ber_oid_dissector("2.5.29.45", dissect_x509ce_statusReferrals_callback, proto_x509ce, "id-ce-statusReferrals");
-	register_ber_oid_dissector("2.5.29.46", dissect_x509ce_freshestCRL_callback, proto_x509ce, "id-ce-freshestCRL");
-	register_ber_oid_dissector("2.5.29.47", dissect_x509ce_orderedList_callback, proto_x509ce, "id-ce-orderedList");
+	register_ber_oid_dissector("2.5.29.27", dissect_BaseCRLNumber_PDU, proto_x509ce, "id-ce-deltaCRLIndicator");
+	register_ber_oid_dissector("2.5.29.28", dissect_IssuingDistPointSyntax_PDU, proto_x509ce, "id-ce-issuingDistributionPoint");
+	register_ber_oid_dissector("2.5.29.29", dissect_GeneralNames_PDU, proto_x509ce, "id-ce-certificateIssuer");
+	register_ber_oid_dissector("2.5.29.30", dissect_NameConstraintsSyntax_PDU, proto_x509ce, "id-ce-nameConstraints");
+	register_ber_oid_dissector("2.5.29.31", dissect_CRLDistPointsSyntax_PDU, proto_x509ce, "id-ce-cRLDistributionPoints");
+	register_ber_oid_dissector("2.5.29.32", dissect_CertificatePoliciesSyntax_PDU, proto_x509ce, "id-ce-certificatePolicies");
+	register_ber_oid_dissector("2.5.29.33", dissect_PolicyMappingsSyntax_PDU, proto_x509ce, "id-ce-policyMappings");
+	register_ber_oid_dissector("2.5.29.35", dissect_AuthorityKeyIdentifier_PDU, proto_x509ce, "id-ce-authorityKeyIdentifier");
+	register_ber_oid_dissector("2.5.29.36", dissect_PolicyConstraintsSyntax_PDU, proto_x509ce, "id-ce-policyConstraints");
+	register_ber_oid_dissector("2.5.29.37", dissect_KeyPurposeIDs_PDU, proto_x509ce, "id-ce-extKeyUsage");
+	register_ber_oid_dissector("2.5.29.40", dissect_CRLStreamIdentifier_PDU, proto_x509ce, "id-ce-cRLStreamIdentifier");
+	register_ber_oid_dissector("2.5.29.44", dissect_CRLScopeSyntax_PDU, proto_x509ce, "id-ce-cRLScope");
+	register_ber_oid_dissector("2.5.29.45", dissect_StatusReferrals_PDU, proto_x509ce, "id-ce-statusReferrals");
+	register_ber_oid_dissector("2.5.29.46", dissect_CRLDistPointsSyntax_PDU, proto_x509ce, "id-ce-freshestCRL");
+	register_ber_oid_dissector("2.5.29.47", dissect_OrderedListSyntax_PDU, proto_x509ce, "id-ce-orderedList");
 	register_ber_oid_dissector("2.5.29.51", dissect_x509ce_baseUpdateTime_callback, proto_x509ce, "id-ce-baseUpdateTime");
-	register_ber_oid_dissector("2.5.29.53", dissect_x509ce_deltaInfo_callback, proto_x509ce, "id-ce-deltaInfo");
-	register_ber_oid_dissector("2.5.29.54", dissect_x509ce_inhibitAnyPolicy_callback, proto_x509ce, "id-ce-inhibitAnyPolicy");
+	register_ber_oid_dissector("2.5.29.53", dissect_DeltaInformation_PDU, proto_x509ce, "id-ce-deltaInfo");
+	register_ber_oid_dissector("2.5.29.54", dissect_SkipCerts_PDU, proto_x509ce, "id-ce-inhibitAnyPolicy");
 }
 

@@ -40,34 +40,10 @@
 
 #include "packet-tcp.h"
 #include "packet-aim.h"
-#include "prefs.h"
+#include <epan/prefs.h>
 
 /* SNAC families */
 #define FAMILY_CHAT       0x000E
-
-/* Family Chat */
-#define FAMILY_CHAT_ERROR             0x0001
-#define FAMILY_CHAT_ROOMINFOUPDATE    0x0002
-#define FAMILY_CHAT_USERJOIN          0x0003
-#define FAMILY_CHAT_USERLEAVE         0x0004
-#define FAMILY_CHAT_OUTGOINGMSG       0x0005
-#define FAMILY_CHAT_INCOMINGMSG       0x0006
-#define FAMILY_CHAT_EVIL_REQ          0x0007
-#define FAMILY_CHAT_EVIL_REPLY        0x0008
-#define FAMILY_CHAT_DEFAULT           0xffff
-
-static const value_string aim_fnac_family_chat[] = {
-  { FAMILY_CHAT_ERROR, "Error" },
-  { FAMILY_CHAT_ROOMINFOUPDATE, "Room Info Update" },
-  { FAMILY_CHAT_USERJOIN, "User Join" },
-  { FAMILY_CHAT_USERLEAVE, "User Leave" },
-  { FAMILY_CHAT_OUTGOINGMSG, "Outgoing Message" },
-  { FAMILY_CHAT_INCOMINGMSG, "Incoming Message" },
-  { FAMILY_CHAT_EVIL_REQ, "Evil Request" },
-  { FAMILY_CHAT_EVIL_REPLY, "Evil Reply" },
-  { FAMILY_CHAT_DEFAULT, "Chat Default" },
-  { 0, NULL }
-};
 
 #define AIM_CHAT_TLV_BROWSABLE_TREE 		0x001
 #define AIM_CHAT_TLV_CLASS_EXCLUSIVE		0x002
@@ -98,66 +74,66 @@ static int proto_aim_chat = -1;
 /* Initialize the subtree pointers */
 static gint ett_aim_chat          = -1;
 
-static int dissect_aim_snac_chat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_aim_chat_userinfo_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *chat_tree)
 {
-  guint8 buddyname_length = 0;
-  int offset = 0;
-  struct aiminfo *aiminfo = pinfo->private_data;
-  char buddyname[MAX_BUDDYNAME_LENGTH + 1];
-  guchar msg[1000];
-  proto_item *ti;
-  proto_tree *chat_tree = NULL;
-                                                                                                                              
-  if(tree) {
-      ti = proto_tree_add_text(tree, tvb, 0, -1, "Chat Service");
-      chat_tree = proto_item_add_subtree(ti, ett_aim_chat);
-  }
-
-  switch(aiminfo->subtype)
-    {
-    case FAMILY_CHAT_ERROR:
-      return dissect_aim_snac_error(tvb, pinfo, offset, chat_tree);
-    case FAMILY_CHAT_USERLEAVE:
-    case FAMILY_CHAT_USERJOIN:
-      while(tvb_length_remaining(tvb, offset) > 0) {
-        offset = dissect_aim_userinfo(tvb, pinfo, offset, chat_tree);
-      }
-      return offset;
-    case FAMILY_CHAT_EVIL_REQ:
-    case FAMILY_CHAT_EVIL_REPLY:
-    case FAMILY_CHAT_ROOMINFOUPDATE:
-      /* FIXME */
-      return 0;
-    case FAMILY_CHAT_OUTGOINGMSG:
-      /* channel message from client */
-      aim_get_message( msg, tvb, 40 + buddyname_length, tvb_length(tvb) 
-           - 40 - buddyname_length );
-      
-      if (check_col(pinfo->cinfo, COL_INFO)) 
-        col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", msg);
-      return tvb_length(tvb);
-      
-    case FAMILY_CHAT_INCOMINGMSG:
-      /* channel message to client */
-      buddyname_length = aim_get_buddyname( buddyname, tvb, 30, 31 );
-      aim_get_message( msg, tvb, 36 + buddyname_length, tvb_length(tvb) 
-           - 36 - buddyname_length );
-      
-      if (check_col(pinfo->cinfo, COL_INFO)) {
-        col_append_fstr(pinfo->cinfo, COL_INFO, "from: %s", buddyname);
-        col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", msg);
-      }
-      
-      if(chat_tree) {
-        proto_tree_add_text(chat_tree, tvb, 31, buddyname_length, 
-                            "Screen Name: %s",
-                            format_text(buddyname, buddyname_length));
-      }
-      return tvb_length(tvb);
-    default:
-      return 0;
-    }
+	int offset = 0;
+	while(tvb_length_remaining(tvb, offset) > 0) {
+		offset = dissect_aim_userinfo(tvb, pinfo, offset, chat_tree);
+	}
+	return offset;
 }
+
+static int dissect_aim_chat_outgoing_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *chat_tree)
+{
+	char buddyname[MAX_BUDDYNAME_LENGTH+1];
+	guchar msg[1000];
+	int buddyname_length = aim_get_buddyname( buddyname, tvb, 30, 31 );
+
+	/* channel message from client */
+	aim_get_message( msg, tvb, 40 + buddyname_length, tvb_length(tvb) 
+					 - 40 - buddyname_length );
+
+	if (check_col(pinfo->cinfo, COL_INFO)) 
+		col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", msg);
+	
+	return tvb_length(tvb);
+}
+
+
+static int dissect_aim_chat_incoming_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *chat_tree)
+{
+	char buddyname[MAX_BUDDYNAME_LENGTH+1];
+	guchar msg[1000];
+	/* channel message to client */
+	int buddyname_length = aim_get_buddyname( buddyname, tvb, 30, 31 );
+	
+	aim_get_message( msg, tvb, 36 + buddyname_length, tvb_length(tvb) 
+					 - 36 - buddyname_length );
+
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_append_fstr(pinfo->cinfo, COL_INFO, "from: %s", buddyname);
+		col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", msg);
+	}
+
+	if(chat_tree) {
+		proto_tree_add_text(chat_tree, tvb, 31, buddyname_length, 
+							"Screen Name: %s",
+							format_text(buddyname, buddyname_length));
+	}
+	return tvb_length(tvb);
+}
+
+static const aim_subtype aim_fnac_family_chat[] = {
+  { 0x0001, "Error", dissect_aim_snac_error },
+  { 0x0002, "Room Info Update", NULL },
+  { 0x0003, "User Join", dissect_aim_chat_userinfo_list },
+  { 0x0004, "User Leave", dissect_aim_chat_userinfo_list },
+  { 0x0005, "Outgoing Message", dissect_aim_chat_outgoing_msg },
+  { 0x0006, "Incoming Message", dissect_aim_chat_incoming_msg },
+  { 0x0007, "Evil Request", NULL },
+  { 0x0008, "Evil Reply", NULL },
+  { 0, NULL, NULL }
+};
 
 /* Register the protocol with Ethereal */
 void
@@ -186,8 +162,5 @@ proto_register_aim_chat(void)
 void
 proto_reg_handoff_aim_chat(void)
 {
-  dissector_handle_t aim_handle;
-  aim_handle = new_create_dissector_handle(dissect_aim_snac_chat, proto_aim_chat);
-  dissector_add("aim.family", FAMILY_CHAT, aim_handle);
-  aim_init_family(FAMILY_CHAT, "Chat", aim_fnac_family_chat);
+  aim_init_family(proto_aim_chat, ett_aim_chat, FAMILY_CHAT, aim_fnac_family_chat);
 }

@@ -36,7 +36,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include "packet-tcp.h"
-#include "prefs.h"
+#include <epan/prefs.h>
 
 #define TCP_PORT_XOT 1998
 

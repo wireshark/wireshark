@@ -35,9 +35,9 @@
 #include <epan/packet.h>
 #include <epan/dissectors/packet-dcerpc.h>
 #include <epan/conversation.h>
-#include "prefs.h"
+#include <epan/prefs.h>
 #include "reassemble.h"
-#include "tap.h"
+#include <epan/tap.h>
 #include <epan/dissectors/packet-frame.h>
 #include <epan/dissectors/packet-dcerpc-nt.h>
 
@@ -282,6 +282,7 @@ static const value_string reject_status_vals[] = {
 /* we need to keep track of what transport were used, ie what handle we came
  * in through so we know what kind of pinfo->private_data was passed to us.
  */
+/* Value of -1 is reserved for "not DCE packet" in packet_info.dcetransporttype. */
 #define DCE_TRANSPORT_UNKNOWN		0
 #define DCE_CN_TRANSPORT_SMBPIPE	1
 
@@ -432,9 +433,10 @@ static const fragment_items dcerpc_frag_items = {
 	"fragments"
 };
 
+/* list of hooks to be called when init_protocols is done */
+GHookList dcerpc_hooks_init_protos;
 
-
-#ifdef WIN32
+#ifdef _WIN32
 int ResolveWin32UUID(e_uuid_t if_id, char *UUID_NAME, int UUID_NAME_MAX_LEN)
 {
 	char REG_UUID_NAME[MAX_PATH];
@@ -1854,7 +1856,7 @@ dcerpc_try_handoff (packet_info *pinfo, proto_tree *tree,
     tvbuff_t *volatile stub_tvb;
     volatile guint auth_pad_len;
     volatile int auth_pad_offset;
-#ifdef WIN32
+#ifdef _WIN32
     char UUID_NAME[MAX_PATH];
 #endif
 
@@ -1872,7 +1874,7 @@ dcerpc_try_handoff (packet_info *pinfo, proto_tree *tree,
 	proto_tree_add_boolean_hidden(dcerpc_tree, hf_dcerpc_unknown_if_id,
 					  tvb, offset, 0, TRUE);
 	if (check_col (pinfo->cinfo, COL_INFO)) {
-#ifdef WIN32
+#ifdef _WIN32
 		if(ResolveWin32UUID(info->call_data->uuid, UUID_NAME, MAX_PATH))
 			col_append_fstr (pinfo->cinfo, COL_INFO, " [%s] UUID: %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x rpcver: %u",
 				UUID_NAME, info->call_data->uuid.Data1, info->call_data->uuid.Data2, info->call_data->uuid.Data3, info->call_data->uuid.Data4[0],
@@ -2201,12 +2203,12 @@ dissect_dcerpc_cn_auth (tvbuff_t *tvb, int stub_offset, packet_info *pinfo,
  * key as DCERPC over SMB allows several pipes over the same TCP/IP
  * socket. 
  * We pass this function the transport type here to make sure we only look
- * at this function iff it came across an SMB pipe.
+ * at this function if it came across an SMB pipe.
  * Other transports might need to mix in their own extra multiplexing data
  * as well in the future.
  */
 
-static guint16 get_transport_salt (packet_info *pinfo, int transport_type)
+guint16 dcerpc_get_transport_salt (packet_info *pinfo, int transport_type)
 {
     dcerpc_private_info *priv = (dcerpc_private_info *)pinfo->private_data;
 
@@ -2246,7 +2248,7 @@ dissect_dcerpc_cn_bind (tvbuff_t *tvb, gint offset, packet_info *pinfo,
     char uuid_str[DCERPC_UUID_STR_LEN]; 
     int uuid_str_len;
     dcerpc_auth_info auth_info;
-#ifdef WIN32
+#ifdef _WIN32
     char UUID_NAME[MAX_PATH];
 #endif
 
@@ -2270,6 +2272,12 @@ dissect_dcerpc_cn_bind (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
       offset = dissect_dcerpc_uint16 (tvb, offset, pinfo, NULL, hdr->drep,
                                       hf_dcerpc_cn_ctx_id, &ctx_id);
+
+      /* save context ID for use with dcerpc_add_conv_to_bind_table() */
+      /* (if we have multiple contexts, this might cause "decode as"
+       *  to behave unpredictably) */
+      pinfo->dcectxid = ctx_id;
+      pinfo->dcetransporttype = transport_type;
 
       if (dcerpc_tree) {
 	      proto_item *ctx_item;
@@ -2299,7 +2307,7 @@ dissect_dcerpc_cn_bind (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
 	  if (uuid_str_len >= DCERPC_UUID_STR_LEN)
 		  memset(uuid_str, 0, DCERPC_UUID_STR_LEN);
-#ifdef WIN32
+#ifdef _WIN32
 	  if(ResolveWin32UUID(if_id, UUID_NAME, MAX_PATH))
 		  iface_item = proto_tree_add_string_format (ctx_tree, hf_dcerpc_cn_bind_if_id, tvb,
                                         offset, 16, uuid_str, "Interface [%s] UUID: %s", UUID_NAME, uuid_str);
@@ -2331,6 +2339,7 @@ dissect_dcerpc_cn_bind (tvbuff_t *tvb, gint offset, packet_info *pinfo,
                                      pinfo->srcport, pinfo->destport, 0);
         }
 
+
 	/* if this is the first time we see this packet, we need to
 	   update the dcerpc_binds table so that any later calls can
 	   match to the interface.
@@ -2343,7 +2352,7 @@ dissect_dcerpc_cn_bind (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	        key = g_mem_chunk_alloc (dcerpc_bind_key_chunk);
         	key->conv = conv;
         	key->ctx_id = ctx_id;
-        	key->smb_fid = get_transport_salt(pinfo, transport_type);
+        	key->smb_fid = dcerpc_get_transport_salt(pinfo, transport_type);
 
         	value = g_mem_chunk_alloc (dcerpc_bind_value_chunk);
         	value->uuid = if_id;
@@ -2371,7 +2380,7 @@ dissect_dcerpc_cn_bind (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	  if ((value = g_hash_table_lookup(dcerpc_uuids, &key)))
 		  col_append_fstr(pinfo->cinfo, COL_INFO, " UUID: %s", value->name);
 	  else
-#ifdef WIN32
+#ifdef _WIN32
 		if(ResolveWin32UUID(if_id, UUID_NAME, MAX_PATH))
 			col_append_fstr(pinfo->cinfo, COL_INFO, " [%s] UUID: %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x ver %u.%u",
                            UUID_NAME, if_id.Data1, if_id.Data2, if_id.Data3,
@@ -2594,6 +2603,7 @@ dissect_dcerpc_cn_stub (tvbuff_t *tvb, int offset, packet_info *pinfo,
                         dcerpc_auth_info *auth_info, guint32 alloc_hint,
                         guint32 frame)
 {
+    gint length, reported_length;
     gboolean save_fragmented;
     fragment_data *fd_head=NULL;
     guint32 tot_len;
@@ -2602,10 +2612,18 @@ dissect_dcerpc_cn_stub (tvbuff_t *tvb, int offset, packet_info *pinfo,
 
     save_fragmented = pinfo->fragmented;
 
-    payload_tvb = tvb_new_subset(
-	    tvb, offset, tvb_length_remaining(tvb, offset) - 
-	    auth_info->auth_size, tvb_length_remaining(tvb, offset) - 
-	    auth_info->auth_size);    
+    length = tvb_length_remaining(tvb, offset);
+    reported_length = tvb_reported_length_remaining(tvb, offset);
+    if (reported_length < 0 ||
+	(guint32)reported_length < auth_info->auth_size) {
+	/* We don't even have enough bytes for the authentication
+	   stuff. */
+	return;
+    }
+    reported_length -= auth_info->auth_size;
+    if (length > reported_length)
+	length = reported_length;
+    payload_tvb = tvb_new_subset(tvb, offset, length, reported_length);
 
     /* Decrypt the PDU if it is encrypted */
 
@@ -2799,6 +2817,61 @@ end_cn_stub:
     pinfo->fragmented = save_fragmented;
 }
 
+/**
+ *  Registers a conversation/UUID binding association, so that
+ *  we can invoke the proper sub-dissector for a given DCERPC
+ *  conversation.
+ * 
+ *  @param binding all values needed to create and bind a new conversation
+ * 
+ *  @return Pointer to newly-added UUID/conversation binding.
+ */
+struct _dcerpc_bind_value *
+dcerpc_add_conv_to_bind_table(decode_dcerpc_bind_values_t *binding)
+{
+    dcerpc_bind_value *bind_value;
+    dcerpc_bind_key *key;
+    conversation_t *conv;
+
+    conv = find_conversation (
+        &binding->addr_a, 
+        &binding->addr_b, 
+        binding->ptype, 
+        binding->port_a, 
+        binding->port_b, 
+        0);
+ 
+    if (!conv) {
+        conv = conversation_new (
+            &binding->addr_a, 
+            &binding->addr_b, 
+            binding->ptype, 
+            binding->port_a, 
+            binding->port_b, 
+            0);
+    }
+
+    bind_value = g_mem_chunk_alloc (dcerpc_bind_value_chunk);
+    bind_value->uuid = binding->uuid;
+    bind_value->ver = binding->ver;
+
+    key = g_mem_chunk_alloc(dcerpc_bind_key_chunk);
+    key->conv = conv;
+    key->ctx_id = binding->ctx_id;
+    key->smb_fid = binding->smb_fid;
+ 
+    /* add this entry to the bind table, first removing any
+       previous ones that are identical
+     */
+    if(g_hash_table_lookup(dcerpc_binds, key)){
+            g_hash_table_remove(dcerpc_binds, key);
+    }
+    g_hash_table_insert(dcerpc_binds, key, bind_value);
+
+    return bind_value;
+
+}
+
 static void
 dissect_dcerpc_cn_rqst (tvbuff_t *tvb, gint offset, packet_info *pinfo, 
 			proto_tree *dcerpc_tree, proto_tree *tree,
@@ -2822,6 +2895,10 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
     offset = dissect_dcerpc_uint16 (tvb, offset, pinfo, dcerpc_tree, hdr->drep,
                                     hf_dcerpc_opnum, &opnum);
+
+    /* save context ID for use with dcerpc_add_conv_to_bind_table() */
+    pinfo->dcectxid = ctx_id;
+    pinfo->dcetransporttype = transport_type;
 
     if (check_col (pinfo->cinfo, COL_INFO)) {
         col_append_fstr (pinfo->cinfo, COL_INFO, " opnum: %u ctx_id: %u",
@@ -2856,7 +2933,6 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, gint offset, packet_info *pinfo,
      * and we just have a security context?
      */
     dissect_dcerpc_cn_auth (tvb, offset, pinfo, dcerpc_tree, hdr, FALSE, &auth_info);
-    dissect_dcerpc_verifier (tvb, pinfo, dcerpc_tree, hdr, &auth_info);
 
     conv = find_conversation (&pinfo->src, &pinfo->dst, pinfo->ptype,
                               pinfo->srcport, pinfo->destport, 0);
@@ -2880,7 +2956,7 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
 		bind_key.conv=conv;
 		bind_key.ctx_id=ctx_id;
-		bind_key.smb_fid=get_transport_salt(pinfo, transport_type);
+		bind_key.smb_fid=dcerpc_get_transport_salt(pinfo, transport_type);
 
 		if((bind_value=g_hash_table_lookup(dcerpc_binds, &bind_key)) ){
 			if(!(hdr->flags&PFC_FIRST_FRAG)){
@@ -2889,7 +2965,7 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
 				call_key.conv=conv;
 				call_key.call_id=hdr->call_id;
-				call_key.smb_fid=get_transport_salt(pinfo, transport_type);
+				call_key.smb_fid=dcerpc_get_transport_salt(pinfo, transport_type);
 				if((call_value=g_hash_table_lookup(dcerpc_cn_calls, &call_key))){
 					new_matched_key = g_mem_chunk_alloc(dcerpc_matched_key_chunk);
 					*new_matched_key = matched_key;
@@ -2908,7 +2984,7 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 				call_key=g_mem_chunk_alloc (dcerpc_cn_call_key_chunk);
 				call_key->conv=conv;
 				call_key->call_id=hdr->call_id;
-				call_key->smb_fid=get_transport_salt(pinfo, transport_type);
+				call_key->smb_fid=dcerpc_get_transport_salt(pinfo, transport_type);
 
 				/* if there is already a matching call in the table
 				   remove it so it is replaced with the new one */
@@ -2943,7 +3019,7 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, gint offset, packet_info *pinfo,
             /* handoff this call */
 	    di->conv = conv;
 	    di->call_id = hdr->call_id;
-	    di->smb_fid = get_transport_salt(pinfo, transport_type);
+	    di->smb_fid = dcerpc_get_transport_salt(pinfo, transport_type);
 	    di->ptype = PDU_REQ;
 	    di->call_data = value;
 		di->hf_index = -1;
@@ -2960,6 +3036,10 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	} else
 	    show_stub_data (tvb, offset, dcerpc_tree, &auth_info, TRUE);
     }
+
+    /* Dissect the verifier */
+    dissect_dcerpc_verifier (tvb, pinfo, dcerpc_tree, hdr, &auth_info);
+
 }
 
 static void
@@ -2980,6 +3060,10 @@ dissect_dcerpc_cn_resp (tvbuff_t *tvb, gint offset, packet_info *pinfo,
     offset = dissect_dcerpc_uint16 (tvb, offset, pinfo, dcerpc_tree, hdr->drep,
                                     hf_dcerpc_cn_ctx_id, &ctx_id);
 
+    /* save context ID for use with dcerpc_add_conv_to_bind_table() */
+    pinfo->dcectxid = ctx_id;
+    pinfo->dcetransporttype = transport_type;
+
     if (check_col (pinfo->cinfo, COL_INFO)) {
         col_append_fstr (pinfo->cinfo, COL_INFO, " ctx_id: %u", ctx_id);
     }
@@ -2994,7 +3078,6 @@ dissect_dcerpc_cn_resp (tvbuff_t *tvb, gint offset, packet_info *pinfo,
      * and we just have a security context?
      */
     dissect_dcerpc_cn_auth (tvb, offset, pinfo, dcerpc_tree, hdr, FALSE, &auth_info);
-    dissect_dcerpc_verifier (tvb, pinfo, dcerpc_tree, hdr, &auth_info);
 
     conv = find_conversation (&pinfo->src, &pinfo->dst, pinfo->ptype,
                               pinfo->srcport, pinfo->destport, 0);
@@ -3019,7 +3102,7 @@ dissect_dcerpc_cn_resp (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
 		call_key.conv=conv;
 		call_key.call_id=hdr->call_id;
-		call_key.smb_fid=get_transport_salt(pinfo, transport_type);
+		call_key.smb_fid=dcerpc_get_transport_salt(pinfo, transport_type);
 
 		if((call_value=g_hash_table_lookup(dcerpc_cn_calls, &call_key))){
 			new_matched_key = g_mem_chunk_alloc(dcerpc_matched_key_chunk);
@@ -3039,7 +3122,7 @@ dissect_dcerpc_cn_resp (tvbuff_t *tvb, gint offset, packet_info *pinfo,
             /* handoff this call */
 	    di->conv = conv;
 	    di->call_id = hdr->call_id;
-	    di->smb_fid = get_transport_salt(pinfo, transport_type);
+	    di->smb_fid = dcerpc_get_transport_salt(pinfo, transport_type);
 	    di->ptype = PDU_RESP;
 	    di->call_data = value;
 
@@ -3065,6 +3148,9 @@ dissect_dcerpc_cn_resp (tvbuff_t *tvb, gint offset, packet_info *pinfo,
         } else
             show_stub_data (tvb, offset, dcerpc_tree, &auth_info, TRUE);
     }
+
+    /* Dissect the verifier */
+    dissect_dcerpc_verifier (tvb, pinfo, dcerpc_tree, hdr, &auth_info);
 }
 
 static void
@@ -3093,6 +3179,10 @@ dissect_dcerpc_cn_fault (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
     offset = dissect_dcerpc_uint32 (tvb, offset, pinfo, dcerpc_tree, hdr->drep,
                                     hf_dcerpc_cn_status, &status);
+
+    /* save context ID for use with dcerpc_add_conv_to_bind_table() */
+    pinfo->dcectxid = ctx_id;
+    pinfo->dcetransporttype = transport_type;
 
     if (check_col (pinfo->cinfo, COL_INFO)) {
         col_append_fstr (pinfo->cinfo, COL_INFO,
@@ -3131,7 +3221,7 @@ dissect_dcerpc_cn_fault (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
 		call_key.conv=conv;
 		call_key.call_id=hdr->call_id;
-		call_key.smb_fid=get_transport_salt(pinfo, transport_type);
+		call_key.smb_fid=dcerpc_get_transport_salt(pinfo, transport_type);
 
 		if((call_value=g_hash_table_lookup(dcerpc_cn_calls, &call_key))){
 			new_matched_key = g_mem_chunk_alloc(dcerpc_matched_key_chunk);
@@ -3153,7 +3243,7 @@ dissect_dcerpc_cn_fault (tvbuff_t *tvb, gint offset, packet_info *pinfo,
             /* handoff this call */
 	    di->conv = conv;
 	    di->call_id = hdr->call_id;
-	    di->smb_fid = get_transport_salt(pinfo, transport_type);
+	    di->smb_fid = dcerpc_get_transport_salt(pinfo, transport_type);
 	    di->ptype = PDU_FAULT;
 	    di->call_data = value;
 
@@ -4461,6 +4551,9 @@ dcerpc_init_protocol (void)
                                              sizeof (dcerpc_matched_key),
                                              200 * sizeof (dcerpc_matched_key),
                                              G_ALLOC_ONLY);
+
+    /* call the registered hooks */
+    g_hook_list_invoke(&dcerpc_hooks_init_protos, FALSE /* not may_recurse */);
 }
 
 void
@@ -4767,6 +4860,8 @@ proto_register_dcerpc (void)
     register_init_routine(dcerpc_reassemble_init);
     dcerpc_uuids = g_hash_table_new (dcerpc_uuid_hash, dcerpc_uuid_equal);
     dcerpc_tap=register_tap("dcerpc");
+    
+    g_hook_list_init(&dcerpc_hooks_init_protos, sizeof(GHook));
 }
 
 void

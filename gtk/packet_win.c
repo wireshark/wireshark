@@ -45,10 +45,10 @@
 #include <epan/packet.h>
 #include "summary.h"
 #include "file.h"
-#include "prefs.h"
+#include <epan/prefs.h>
 #include "menu.h"
 #include "../menu.h"
-#include "column.h"
+#include <epan/column.h>
 #include "print.h"
 #include <epan/addr_resolv.h>
 #include "packet_win.h"

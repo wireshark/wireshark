@@ -31,7 +31,7 @@
 #include <epan/filesystem.h>
 #include <epan/report_err.h>
 #include <epan/except.h>
-#include "prefs.h"
+#include <epan/prefs.h>
 #include "reassemble.h"
 #include <epan/dissectors/packet-giop.h>
 #include <epan/dissectors/packet-per.h>
@@ -39,10 +39,12 @@
 #include <epan/dissectors/packet-tpkt.h>
 #include <epan/dissectors/packet-tcp.h>
 #include <epan/dissectors/packet-rpc.h>
-#include "tap.h"
+#include <epan/dissectors/packet-rtp.h>
+#include <epan/dissectors/packet-rtcp.h>
+#include <epan/tap.h>
 #include "asn1.h"
-#include "xdlc.h"
-#include "crc16.h"
+#include <epan/xdlc.h>
+#include <epan/crc16.h>
 
 gint check_col(column_info*, gint);
 void col_clear(column_info*, gint);
@@ -371,8 +373,8 @@ guint32 dissect_per_object_identifier(tvbuff_t*, guint32, packet_info*, proto_tr
 guint32 dissect_per_boolean(tvbuff_t*, guint32, packet_info *pinfo, proto_tree*, int, gboolean*, proto_item**);
 guint32 dissect_per_integer(tvbuff_t*, guint32, packet_info*, proto_tree*, int, gint32*, proto_item**);
 guint32 dissect_per_constrained_integer(tvbuff_t*, guint32, packet_info*, proto_tree*, int, guint32, guint32, guint32*, proto_item**, gboolean);
-guint32 dissect_per_choice(tvbuff_t*, guint32, packet_info*, proto_tree*, int, gint, per_choice_t*, char*, guint32*);
-guint32 dissect_per_sequence(tvbuff_t*, guint32, packet_info*, proto_tree *parent_tree, int, gint, per_sequence_t*);
+guint32 dissect_per_choice(tvbuff_t*, guint32, packet_info*, proto_tree*, int, gint, const per_choice_t*, char*, guint32*);
+guint32 dissect_per_sequence(tvbuff_t*, guint32, packet_info*, proto_tree *parent_tree, int, gint, const per_sequence_t*);
 guint32 dissect_per_octet_string(tvbuff_t*, guint32, packet_info*, proto_tree*, int, int, int, guint32*, guint32*);
 guint32 dissect_per_restricted_character_string(tvbuff_t*, guint32, packet_info*, proto_tree*, int, int, int, char*, int);
 
@@ -422,11 +424,11 @@ int dissect_ber_integer(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int
 int dissect_ber_boolean(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id);
 int dissect_ber_choice(packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const ber_choice *ch, gint hf_id, gint ett_id);
 int dissect_ber_generalized_time(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id);
-int dissect_ber_sequence(gboolean implicit_tag, packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, ber_sequence *seq, gint hf_id, gint ett_id);
+int dissect_ber_sequence(gboolean implicit_tag, packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const ber_sequence *seq, gint hf_id, gint ett_id);
 int dissect_ber_sequence_of(gboolean implicit_tag, packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, ber_sequence *seq, gint hf_id, gint ett_id);
 int dissect_ber_set_of(gboolean implicit_tag, packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, ber_sequence *seq, gint hf_id, gint ett_id);
 int dissect_ber_octet_string(gboolean implicit_tag, packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id, tvbuff_t **tvb_out);
-int dissect_ber_bitstring(gboolean implicit_tag, packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, asn_namedbit *named_bits, gint hf_id, gint ett_id, tvbuff_t **tvb_out);
+int dissect_ber_bitstring(gboolean implicit_tag, packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, asn_namedbit const *named_bits, gint hf_id, gint ett_id, tvbuff_t **tvb_out);
 int dissect_ber_restricted_string(gboolean implicit_tag, guint32 type, packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id, tvbuff_t **tvb_out);
 int dissect_ber_object_identifier(gboolean implicit_tag, packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id, char *value_string);
 int get_ber_identifier(tvbuff_t *tvb, int offset, guint8 *class, gboolean *pc, guint32 *tag);
@@ -483,3 +485,17 @@ guint16 crc16_ccitt_tvb(tvbuff_t *tvb, unsigned int len);
 
 guint64 tvb_get_letoh64(tvbuff_t *tvb, gint offset);
 guint64 tvb_get_ntoh64(tvbuff_t *tvb, gint offset);
+
+proto_item* proto_tree_add_float(proto_tree*, int, tvbuff_t*, gint, gint, float);
+proto_item* proto_tree_add_float_hidden(proto_tree*, int, tvbuff_t*, gint, gint, float);
+proto_item* proto_tree_add_float_format(proto_tree*, int, tvbuff_t*, gint, gint, float, const char*, ...);
+
+gfloat tvb_get_ntohieee_float(tvbuff_t*, gint offset);
+gdouble tvb_get_ntohieee_double(tvbuff_t*, gint offset);
+gfloat tvb_get_letohieee_float(tvbuff_t*, gint offset);
+gdouble tvb_get_letohieee_double(tvbuff_t*, gint offset);
+
+proto_item *proto_tree_add_debug_text(proto_tree *tree, const char *format, ...);
+
+void rtp_add_address(packet_info *pinfo, address *addr, int port, int other_port, gchar *setup_method, guint32 setup_frame_number);
+void rtcp_add_address(packet_info *pinfo, address *addr, int port, int other_port, gchar *setup_method, guint32 setup_frame_number);

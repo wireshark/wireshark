@@ -33,7 +33,7 @@
 #include "globals.h"
 #include "keys.h"
 #include "print.h"
-#include "prefs.h"
+#include <epan/prefs.h>
 #include "prefs-recent.h"
 #include "alert_box.h"
 #include "simple_dialog.h"
@@ -322,7 +322,8 @@ export_pdml_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
 static void
 print_browse_file_cb(GtkWidget *file_bt, GtkWidget *file_te)
 {
-    file_selection_browse(file_bt, file_te, "Ethereal: Print to File", FILE_SELECTION_SAVE);
+    file_selection_browse(file_bt, file_te, "Ethereal: Print to File",
+                          FILE_SELECTION_WRITE_BROWSE);
 }
 
 

@@ -35,17 +35,10 @@ int create_tempfile(char *, int, const char *);
  * Collect command-line arguments as a string consisting of the arguments,
  * separated by spaces.
  */
-char *get_args_as_string(int argc, char **argv, int optind);
-
-void ASCII_to_EBCDIC(guint8 *buf, guint bytes);
-guint8 ASCII_to_EBCDIC1(guint8 c);
-void EBCDIC_to_ASCII(guint8 *buf, guint bytes);
-guint8 EBCDIC_to_ASCII1(guint8 c);
+char *get_args_as_string(int, char **, int);
 
 /* Compute the difference between two seconds/microseconds time stamps. */
 void compute_timestamp_diff(gint *, gint *, guint32, guint32, guint32, guint32);
-/* In-place decoding of a base64 string. */
-size_t epan_base64_decode(char *s);
 
 /* Create a capture filter for the connection */
 char *get_conn_cfilter(void);

@@ -42,17 +42,6 @@
 /* SNAC families */
 #define FAMILY_POPUP      0x0008
 
-/* Family Popup */
-#define FAMILY_POPUP_ERROR            0x0001
-#define FAMILY_POPUP_COMMAND          0x0002
-#define FAMILY_POPUP_DEFAULT          0xffff
-
-static const value_string aim_fnac_family_popup[] = {
-  { FAMILY_POPUP_ERROR, "Error" },
-  { FAMILY_POPUP_COMMAND, "Display Popup Message Server Command" },
-  { FAMILY_POPUP_DEFAULT, "Popup Default" },
-  { 0, NULL }
-};
 
 #define AIM_POPUP_TLV_MESSAGE_TEXT		0x001
 #define AIM_POPUP_TLV_URL_STRING		0x002
@@ -75,28 +64,17 @@ static int proto_aim_popup = -1;
 /* Initialize the subtree pointers */
 static gint ett_aim_popup    = -1;
 
-static int dissect_aim_snac_popup(tvbuff_t *tvb, packet_info *pinfo, 
-								  proto_tree *tree) 
+static int dissect_aim_popup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *popup_tree)
 {
-    int offset = 0;
-    struct aiminfo *aiminfo = pinfo->private_data;
-    proto_item *ti = NULL;
-    proto_tree *popup_tree = NULL;
-                                                                                
-    if(tree) {
-        ti = proto_tree_add_text(tree, tvb, 0, -1,"AIM Popup Service");
-        popup_tree = proto_item_add_subtree(ti, ett_aim_popup);
-    }
-                                                             
-	switch(aiminfo->subtype) {
-	case FAMILY_POPUP_ERROR:
-      return dissect_aim_snac_error(tvb, pinfo, 0, popup_tree);
-	case FAMILY_POPUP_COMMAND:
-	  return dissect_aim_tlv(tvb, pinfo, offset, popup_tree, popup_tlvs);
-	}
-
-	return 0;
+	return dissect_aim_tlv(tvb, pinfo, 0, popup_tree, popup_tlvs);
 }
+
+static const aim_subtype aim_fnac_family_popup[] = {
+  { 0x0001, "Error", dissect_aim_snac_error },
+  { 0x0002, "Display Popup Message Server Command" , dissect_aim_popup },
+  { 0, NULL, NULL }
+};
+
 
 /* Register the protocol with Ethereal */
 void
@@ -118,8 +96,5 @@ proto_register_aim_popup(void)
 void
 proto_reg_handoff_aim_popup(void)
 {
-  dissector_handle_t aim_handle;
-  aim_handle = new_create_dissector_handle(dissect_aim_snac_popup, proto_aim_popup);
-  dissector_add("aim.family", FAMILY_POPUP, aim_handle);
-  aim_init_family(FAMILY_POPUP, "Popup", aim_fnac_family_popup);
+  aim_init_family(proto_aim_popup, ett_aim_popup, FAMILY_POPUP, aim_fnac_family_popup);
 }

@@ -44,8 +44,8 @@
 #endif
 
 #include <epan/packet.h>
-#include "tap.h"
-#include "prefs.h"
+#include <epan/tap.h>
+#include <epan/prefs.h>
 
 /* Initialize the protocol and registered fields */
 static int proto_mtp3  = -1;
@@ -689,6 +689,7 @@ proto_reg_handoff_mtp3(void)
   mtp3_handle = create_dissector_handle(dissect_mtp3, proto_mtp3); 	 
         	 
   dissector_add("wtap_encap", WTAP_ENCAP_MTP3, mtp3_handle); 	 
+  dissector_add_string("tali.opcode", "mtp3", mtp3_handle);
 	   	 
   data_handle = find_dissector("data");
 }

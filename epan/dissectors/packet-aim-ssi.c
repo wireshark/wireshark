@@ -42,53 +42,6 @@
 
 #define FAMILY_SSI        0x0013
 
-/* Family Server-Stored Buddy Lists */
-#define FAMILY_SSI_ERROR              0x0001
-#define FAMILY_SSI_REQRIGHTS          0x0002
-#define FAMILY_SSI_RIGHTSINFO         0x0003
-#define FAMILY_SSI_REQLIST_FIRSTTIME  0x0004
-#define FAMILY_SSI_REQLIST            0x0005
-#define FAMILY_SSI_LIST               0x0006
-#define FAMILY_SSI_ACTIVATE           0x0007
-#define FAMILY_SSI_ADD                0x0008
-#define FAMILY_SSI_MOD                0x0009
-#define FAMILY_SSI_DEL                0x000a
-#define FAMILY_SSI_SRVACK             0x000e
-#define FAMILY_SSI_NOLIST             0x000f
-#define FAMILY_SSI_EDITSTART          0x0011
-#define FAMILY_SSI_EDITSTOP           0x0012
-#define FAMILY_SSI_GRANT_FUTURE_AUTH  0x0014
-#define FAMILY_SSI_FUTUR_AUTH_GRANTED 0x0015
-#define FAMILY_SSI_SEND_AUTH_REQ      0x0018
-#define FAMILY_SSI_AUTH_REQ           0x0019
-#define FAMILY_SSI_SEND_AUTH_REPLY    0x001a
-#define FAMILY_SSI_AUTH_REPLY         0x001b
-#define FAMILY_SSI_WAS_ADDED          0x001c
-
-static const value_string aim_fnac_family_ssi[] = {
-  { FAMILY_SSI_ERROR, "Error" },
-  { FAMILY_SSI_REQRIGHTS, "Request Rights" },
-  { FAMILY_SSI_RIGHTSINFO, "Rights Info" },
-  { FAMILY_SSI_REQLIST_FIRSTTIME, "Request List (first time)" },
-  { FAMILY_SSI_REQLIST, "Request List" },
-  { FAMILY_SSI_LIST, "List" },
-  { FAMILY_SSI_ACTIVATE, "Activate" },
-  { FAMILY_SSI_ADD, "Add Buddy" },
-  { FAMILY_SSI_MOD, "Modify Buddy" },
-  { FAMILY_SSI_DEL, "Delete Buddy" },
-  { FAMILY_SSI_SRVACK, "Server Ack" },
-  { FAMILY_SSI_NOLIST, "No List" },
-  { FAMILY_SSI_EDITSTART, "Edit Start" },
-  { FAMILY_SSI_EDITSTOP, "Edit Stop" },
-  { FAMILY_SSI_GRANT_FUTURE_AUTH, "Grant Future Authorization to Client" },
-  { FAMILY_SSI_FUTUR_AUTH_GRANTED, "Future Authorization Granted" },
-  { FAMILY_SSI_SEND_AUTH_REQ, "Send Authentication Request" },
-  { FAMILY_SSI_AUTH_REQ, "Authentication Request" },
-  { FAMILY_SSI_SEND_AUTH_REPLY, "Send Authentication Reply" },
-  { FAMILY_SSI_AUTH_REPLY, "Authentication Reply" },
-  { FAMILY_SSI_WAS_ADDED, "Remote User Added Client To List" },
-  { 0, NULL }
-};
 
 #define FAMILY_SSI_TYPE_BUDDY         0x0000
 #define FAMILY_SSI_TYPE_GROUP         0x0001
@@ -109,12 +62,12 @@ static const value_string aim_fnac_family_ssi_types[] = {
   { 0, NULL }
 };
 
-static const aim_tlv ssi_rights_tlvs[] = {
-	{ 0, NULL, NULL }
-};
+#define SSI_RIGHTSINFO_TLV_MAX_ITEMS	0x0004
 
-static int dissect_aim_snac_ssi_list(tvbuff_t *tvb, packet_info *pinfo _U_, 
-				      int offset, proto_tree *tree, guint16 subtype _U_);
+static const aim_tlv ssi_rightsinfo_tlvs[] = {
+	{ SSI_RIGHTSINFO_TLV_MAX_ITEMS, "Maximums For Items", dissect_aim_tlv_value_bytes }, 
+	{ 0, "Unknown", NULL },
+};
 
 /* Initialize the protocol and registered fields */
 static int proto_aim_ssi = -1;
@@ -134,198 +87,183 @@ static gint ett_aim_ssi      = -1;
 static gint ett_ssi      = -1;
 
 static int dissect_ssi_item(tvbuff_t *tvb, packet_info *pinfo _U_, 
-				      int offset, proto_tree *ssi_entry, 
-				      guint16 subtype _U_)
+				      int offset, proto_tree *ssi_entry)
 {
-  guint16 buddyname_length = 0;
-  int endoffset;
-  guint16 tlv_len = 0;
-	 /* Buddy Name Length */
-    buddyname_length = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_item(ssi_entry, hf_aim_fnac_subtype_ssi_buddyname_len, 
-			tvb, offset, 2, FALSE);
-    offset += 2;
-    
-    /* Buddy Name */
-    if (buddyname_length > 0) {
-      proto_tree_add_item(ssi_entry, hf_aim_fnac_subtype_ssi_buddyname, tvb, 
-			  offset, buddyname_length, FALSE);
-      offset += buddyname_length;
-    }
-    
-    /* Buddy group ID */
-    proto_tree_add_item(ssi_entry, hf_aim_fnac_subtype_ssi_gid, tvb, offset, 
-			2, FALSE);
-    offset += 2;
-    
-    /* Buddy ID */
-    proto_tree_add_item(ssi_entry, hf_aim_fnac_subtype_ssi_bid, tvb, offset, 
-			2, FALSE);
-    offset += 2;
-    
-    /* Buddy Type */
-    proto_tree_add_item(ssi_entry, hf_aim_fnac_subtype_ssi_type, tvb, offset,
-			2, FALSE);
-    offset += 2;
-    
-    /* Size of the following TLV in bytes (as opposed to the number of 
-       TLV objects in the chain) */
-    tlv_len = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_item(ssi_entry, hf_aim_fnac_subtype_ssi_tlvlen, tvb, 
-			offset, 2, FALSE);
-    offset += 2;
-    
+	guint16 buddyname_length = 0;
+	int endoffset;
+	guint16 tlv_len = 0;
+
+	/* Buddy Name Length */
+	buddyname_length = tvb_get_ntohs(tvb, offset);
+	proto_tree_add_item(ssi_entry, hf_aim_fnac_subtype_ssi_buddyname_len, 
+						tvb, offset, 2, FALSE);
+	offset += 2;
+
+	/* Buddy Name */
+	if (buddyname_length > 0) {
+		proto_tree_add_item(ssi_entry, hf_aim_fnac_subtype_ssi_buddyname, tvb, 
+							offset, buddyname_length, FALSE);
+		offset += buddyname_length;
+	}
+
+	/* Buddy group ID */
+	proto_tree_add_item(ssi_entry, hf_aim_fnac_subtype_ssi_gid, tvb, offset, 
+						2, FALSE);
+	offset += 2;
+
+	/* Buddy ID */
+	proto_tree_add_item(ssi_entry, hf_aim_fnac_subtype_ssi_bid, tvb, offset, 
+						2, FALSE);
+	offset += 2;
+
+	/* Buddy Type */
+	proto_tree_add_item(ssi_entry, hf_aim_fnac_subtype_ssi_type, tvb, offset,
+						2, FALSE);
+	offset += 2;
+
+	/* Size of the following TLV in bytes (as opposed to the number of 
+	   TLV objects in the chain) */
+	tlv_len = tvb_get_ntohs(tvb, offset);
+	proto_tree_add_item(ssi_entry, hf_aim_fnac_subtype_ssi_tlvlen, tvb, 
+						offset, 2, FALSE);
+	offset += 2;
+
 	endoffset = offset;
-    /* For now, we just dump the TLV contents as-is, since there is not a
-       TLV dissection utility that works based on total chain length */
+	/* For now, we just dump the TLV contents as-is, since there is not a
+	   TLV dissection utility that works based on total chain length */
 	while(endoffset < offset+tlv_len) {
-      	endoffset = dissect_aim_tlv(tvb, pinfo, endoffset, ssi_entry, client_tlvs);
-    }
+		endoffset = dissect_aim_tlv(tvb, pinfo, endoffset, ssi_entry, client_tlvs);
+	}
 	return endoffset;
 }
 
-static int dissect_aim_snac_ssi(tvbuff_t *tvb, packet_info *pinfo _U_, 
-				 proto_tree *tree)
+static int dissect_ssi_ssi_item(tvbuff_t *tvb, packet_info *pinfo, 
+				      proto_tree *ssi_entry)
 {
-	struct aiminfo *aiminfo = pinfo->private_data;
-	int offset = 0;
-    proto_item *ti = NULL;
-    proto_tree *ssi_tree = NULL;
-                                                                                
-    if(tree) {
-		ti = proto_tree_add_text(tree, tvb, 0, -1,"AIM Server Side Information Service");
-        ssi_tree = proto_item_add_subtree(ti, ett_ssi);
-    }
+	return dissect_ssi_item(tvb, pinfo, 0, ssi_entry);
+}
 
-  switch(aiminfo->subtype)
-    {    
-	case FAMILY_SSI_ERROR:
-      return dissect_aim_snac_error(tvb, pinfo, offset, ssi_tree);
-    case FAMILY_SSI_LIST:
-	  return dissect_aim_snac_ssi_list(tvb, pinfo, offset, ssi_tree, aiminfo->subtype);
-	case FAMILY_SSI_RIGHTSINFO:
-		while(tvb_length_remaining(tvb, offset) > 0) {
-			offset = dissect_aim_tlv(tvb, pinfo, offset, ssi_tree, ssi_rights_tlvs);
-		}
-	  return offset;
-	case FAMILY_SSI_REQRIGHTS:
-	case FAMILY_SSI_ACTIVATE:
-	case FAMILY_SSI_EDITSTART:
-	case FAMILY_SSI_EDITSTOP:
-	case FAMILY_SSI_REQLIST_FIRSTTIME:
-	  /* No data */
-	  return 0;
-	case FAMILY_SSI_ADD:
-	case FAMILY_SSI_MOD:
-	case FAMILY_SSI_DEL:
-      return dissect_ssi_item(tvb, pinfo, offset, ssi_tree, aiminfo->subtype);
-	case FAMILY_SSI_WAS_ADDED:
-	  return dissect_aim_buddyname(tvb, pinfo, offset, ssi_tree);
-	case FAMILY_SSI_REQLIST:
-	case FAMILY_SSI_SRVACK:
-	case FAMILY_SSI_NOLIST:
-	case FAMILY_SSI_GRANT_FUTURE_AUTH:
-	case FAMILY_SSI_FUTUR_AUTH_GRANTED:
-	case FAMILY_SSI_SEND_AUTH_REQ: 
-	case FAMILY_SSI_AUTH_REQ:
-	case FAMILY_SSI_SEND_AUTH_REPLY:
-	case FAMILY_SSI_AUTH_REPLY:
-		
-	  /* FIXME */
-	  return 0;
-	 
-    default:
-	  return 0;
-    }
+
+static int dissect_aim_ssi_rightsinfo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ssi_tree)
+{
+	return dissect_aim_tlv_sequence(tvb, pinfo, 0, ssi_tree, ssi_rightsinfo_tlvs);
+}
+
+static int dissect_aim_ssi_was_added(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ssi_tree)
+{
+	return dissect_aim_buddyname(tvb, pinfo, 0, ssi_tree);
 }
 
 static int dissect_aim_snac_ssi_list(tvbuff_t *tvb, packet_info *pinfo _U_, 
-				      int offset, proto_tree *tree, 
-				      guint16 subtype)
-{
-  proto_item *ti;
-  proto_tree *ssi_entry = NULL;
-  guint16 num_items, i;
+									 proto_tree *tree)
 
-  /* SSI Version */
-  proto_tree_add_item(tree, hf_aim_fnac_subtype_ssi_version, tvb, offset, 1,
-		      FALSE);
-  offset += 1;
-  
-  /* Number of items */
-  proto_tree_add_item(tree, hf_aim_fnac_subtype_ssi_numitems, tvb, offset, 2,
-		      FALSE);
-  num_items = tvb_get_ntohs(tvb, offset);
-  offset += 2;
-  
-  for(i = 0; i < num_items; i++) {
-    ti = proto_tree_add_text(tree, tvb, offset, tvb_get_ntohs(tvb, offset+10)+10, "SSI Entry");
-    ssi_entry = proto_item_add_subtree(ti, ett_aim_ssi);
-    offset = dissect_ssi_item(tvb, pinfo, offset, ssi_entry, subtype);
-     }
-  proto_tree_add_item(tree, hf_aim_fnac_subtype_ssi_last_change_time, tvb, offset, 4, FALSE);
-  return offset;
+{
+	int offset = 0;
+	proto_item *ti;
+	proto_tree *ssi_entry = NULL;
+	guint16 num_items, i;
+
+	/* SSI Version */
+	proto_tree_add_item(tree, hf_aim_fnac_subtype_ssi_version, tvb, offset, 1,
+						FALSE);
+	offset += 1;
+
+	/* Number of items */
+	proto_tree_add_item(tree, hf_aim_fnac_subtype_ssi_numitems, tvb, offset, 2,
+						FALSE);
+	num_items = tvb_get_ntohs(tvb, offset);
+	offset += 2;
+
+	for(i = 0; i < num_items; i++) {
+		ti = proto_tree_add_text(tree, tvb, offset, tvb_get_ntohs(tvb, offset+10)+10, "SSI Entry");
+		ssi_entry = proto_item_add_subtree(ti, ett_aim_ssi);
+		offset = dissect_ssi_item(tvb, pinfo, offset, ssi_entry);
+	}
+	proto_tree_add_item(tree, hf_aim_fnac_subtype_ssi_last_change_time, tvb, offset, 4, FALSE);
+	return offset;
 }
+
+static const aim_subtype aim_fnac_family_ssi[] = {
+	{ 0x0001, "Error", dissect_aim_snac_error },
+	{ 0x0002, "Request Rights", NULL },
+	{ 0x0003, "Rights Info", dissect_aim_ssi_rightsinfo },
+	{ 0x0004, "Request List (first time)", NULL },
+	{ 0x0005, "Request List", NULL },
+	{ 0x0006, "List", dissect_aim_snac_ssi_list },
+	{ 0x0007, "Activate", NULL },
+	{ 0x0008, "Add Buddy", dissect_ssi_ssi_item },
+	{ 0x0009, "Modify Buddy", dissect_ssi_ssi_item },
+	{ 0x000a, "Delete Buddy", dissect_ssi_ssi_item },
+	{ 0x000e, "Server Ack", NULL },
+	{ 0x000f, "No List", NULL },
+	{ 0x0011, "Edit Start", NULL },
+	{ 0x0012, "Edit Stop", NULL },
+	{ 0x0014, "Grant Future Authorization to Buddy", NULL },
+	{ 0x0015, "Future Authorization Granted", NULL },
+	{ 0x0018, "Send Authentication Request", NULL },
+	{ 0x0019, "Authentication Request", NULL },
+	{ 0x001a, "Send Authentication Reply", NULL },
+	{ 0x001b, "Authentication Reply", NULL },
+	{ 0x001c, "Remote User Added Client To List", dissect_aim_ssi_was_added },
+	{ 0, NULL, NULL }
+};
+
 
 /* Register the protocol with Ethereal */
 void
 proto_register_aim_ssi(void)
 {
 
-/* Setup list of header fields */
-  static hf_register_info hf[] = {
-    { &hf_aim_fnac_subtype_ssi_version,
-      { "SSI Version", "aim.fnac.ssi.version", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL }
-    },
-    { &hf_aim_fnac_subtype_ssi_numitems,
-      { "SSI Object count", "aim.fnac.ssi.numitems", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }
-    },
-    { &hf_aim_fnac_subtype_ssi_last_change_time,
-      { "SSI Last Change Time", "aim.fnac.ssi.last_change_time", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }
-    },
-    { &hf_aim_fnac_subtype_ssi_buddyname_len,
-      { "SSI Buddy Name length", "aim.fnac.ssi.buddyname_len", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }
-    },
-    { &hf_aim_fnac_subtype_ssi_buddyname,
-      { "Buddy Name", "aim.fnac.ssi.buddyname", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }
-    },
-    { &hf_aim_fnac_subtype_ssi_gid,
-      { "SSI Buddy Group ID", "aim.fnac.ssi.gid", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }
-    },
-    { &hf_aim_fnac_subtype_ssi_bid,
-      { "SSI Buddy ID", "aim.fnac.ssi.bid", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }
-    },
-    { &hf_aim_fnac_subtype_ssi_type,
-      { "SSI Buddy type", "aim.fnac.ssi.type", FT_UINT16, BASE_HEX, VALS(aim_fnac_family_ssi_types), 0x0, "", HFILL }
-    },
-    { &hf_aim_fnac_subtype_ssi_tlvlen,
-      { "SSI TLV Len", "aim.fnac.ssi.tlvlen", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }
-    },
-    { &hf_aim_fnac_subtype_ssi_data,
-      { "SSI Buddy Data", "aim.fnac.ssi.data", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }
-    },
-  };
+	/* Setup list of header fields */
+	static hf_register_info hf[] = {
+		{ &hf_aim_fnac_subtype_ssi_version,
+			{ "SSI Version", "aim.fnac.ssi.version", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL }
+		},
+		{ &hf_aim_fnac_subtype_ssi_numitems,
+			{ "SSI Object count", "aim.fnac.ssi.numitems", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }
+		},
+		{ &hf_aim_fnac_subtype_ssi_last_change_time,
+			{ "SSI Last Change Time", "aim.fnac.ssi.last_change_time", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }
+		},
+		{ &hf_aim_fnac_subtype_ssi_buddyname_len,
+			{ "SSI Buddy Name length", "aim.fnac.ssi.buddyname_len", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }
+		},
+		{ &hf_aim_fnac_subtype_ssi_buddyname,
+			{ "Buddy Name", "aim.fnac.ssi.buddyname", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }
+		},
+		{ &hf_aim_fnac_subtype_ssi_gid,
+			{ "SSI Buddy Group ID", "aim.fnac.ssi.gid", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }
+		},
+		{ &hf_aim_fnac_subtype_ssi_bid,
+			{ "SSI Buddy ID", "aim.fnac.ssi.bid", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }
+		},
+		{ &hf_aim_fnac_subtype_ssi_type,
+			{ "SSI Buddy type", "aim.fnac.ssi.type", FT_UINT16, BASE_HEX, VALS(aim_fnac_family_ssi_types), 0x0, "", HFILL }
+		},
+		{ &hf_aim_fnac_subtype_ssi_tlvlen,
+			{ "SSI TLV Len", "aim.fnac.ssi.tlvlen", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }
+		},
+		{ &hf_aim_fnac_subtype_ssi_data,
+			{ "SSI Buddy Data", "aim.fnac.ssi.data", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }
+		},
+	};
 
-/* Setup protocol subtree array */
-  static gint *ett[] = {
-    &ett_aim_ssi,
-	&ett_ssi,
-  };
+	/* Setup protocol subtree array */
+	static gint *ett[] = {
+		&ett_aim_ssi,
+		&ett_ssi,
+	};
 
-/* Register the protocol name and description */
-  proto_aim_ssi = proto_register_protocol("AIM Server Side Info", "AIM SSI", "aim_ssi");
+	/* Register the protocol name and description */
+	proto_aim_ssi = proto_register_protocol("AIM Server Side Info", "AIM SSI", "aim_ssi");
 
-/* Required function calls to register the header fields and subtrees used */
-  proto_register_field_array(proto_aim_ssi, hf, array_length(hf));
-  proto_register_subtree_array(ett, array_length(ett));
+	/* Required function calls to register the header fields and subtrees used */
+	proto_register_field_array(proto_aim_ssi, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
 }
 
 void
 proto_reg_handoff_aim_ssi(void)
 {
-  dissector_handle_t aim_handle;
-
-  aim_handle = new_create_dissector_handle(dissect_aim_snac_ssi, proto_aim_ssi);
-  dissector_add("aim.family", FAMILY_SSI, aim_handle);
-  aim_init_family(FAMILY_SSI, "SSI", aim_fnac_family_ssi);
+	aim_init_family(proto_aim_ssi, ett_aim_ssi, FAMILY_SSI, aim_fnac_family_ssi);
 }

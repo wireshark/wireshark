@@ -43,7 +43,7 @@
 #include <string.h>
 
 #include "epan/packet.h"
-#include "tap.h"
+#include <epan/tap.h>
 #include "asn1.h"
 
 #include "packet-tcap.h"
@@ -2990,25 +2990,20 @@ dissect_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
 
-    /* In the interest of speed, if "tree" is NULL, don't do any work not
-     * necessary to generate protocol tree items.
-     */
-    if (tree)
-    {
-	g_pinfo = pinfo;
-	g_tree = tree;
+    /* Dissect the packet (even if !tree so can update the INFO column) */
+    g_pinfo = pinfo;
+    g_tree = tree;
 
-	/* create display subtree for the protocol */
-	ti = proto_tree_add_item(tree, proto_map, tvb, 0, -1, FALSE);
+    /* create display subtree for the protocol */
+    ti = proto_tree_add_item(tree, proto_map, tvb, 0, -1, FALSE);
 
-	map_tree = proto_item_add_subtree(ti, ett_map);
+    map_tree = proto_item_add_subtree(ti, ett_map);
 
-	asn1_open(&asn1, tvb, offset);
+    asn1_open(&asn1, tvb, offset);
 
-	dissect_map_message(pinfo, map_tree, &asn1);
+    dissect_map_message(pinfo, map_tree, &asn1);
 
-	asn1_close(&asn1, &offset);
-    }
+    asn1_close(&asn1, &offset);
 }
 
 

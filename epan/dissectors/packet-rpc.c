@@ -38,11 +38,11 @@
 #include "packet-rpc.h"
 #include "packet-frame.h"
 #include "packet-tcp.h"
-#include "prefs.h"
+#include <epan/prefs.h>
 #include "reassemble.h"
 #include "rpc_defrag.h"
 #include "packet-nfs.h"
-#include "tap.h"
+#include <epan/tap.h>
 
 /*
  * See:

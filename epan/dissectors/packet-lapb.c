@@ -31,7 +31,7 @@
 #include <glib.h>
 #include <string.h>
 #include <epan/packet.h>
-#include "xdlc.h"
+#include <epan/xdlc.h>
 
 static int proto_lapb = -1;
 static int hf_lapb_address = -1;

@@ -1,0 +1,311 @@
+<!-- EDG Chapter User Interface -->
+<!-- $Id$ -->
+
+<chapter id="ChapterUserInterface">
+  <title>User Interface</title>
+  
+  <section id="ChUIIntro">
+	<title>Introduction</title>
+	<para>
+	Ethereal can be "logically" seperated into the backend (dissecting of
+	protocols, file load/save, capturing, ...) and the frontend (the user
+	interface). However, there's currently no clear seperation between
+	these two parts (no clear API definition), but this might change in the
+	future.
+	</para>
+	<para>
+	The following frontends are currently maintained by the Ethereal
+	development team:
+	<itemizedlist>
+	  <listitem><para>
+	  Ethereal, GTK1.x based
+	  </para></listitem>
+	  <listitem><para>
+	  Ethereal, GTK 2.x based
+	  </para></listitem>
+	  <listitem><para>
+	  Tethereal, console based
+	  </para></listitem>
+	</itemizedlist>
+	There are other Ethereal frontends existing, not developped nor
+	maintained by the Ethereal development team:
+	<itemizedlist>
+	  <listitem><para>
+	  Packetyzer (Win32 native interface, written in Delphi and released
+	  under the GPL, see: 
+	  <ulink url="http://www.networkchemistry.com/products/packetyzer/"/>)
+	  </para></listitem>
+	  <listitem><para>
+	  hethereal (web based frontend, not actively maintained and not
+	  finished)
+	  </para></listitem>
+	</itemizedlist>
+	This chapter is focussed on the Ethereal frontend, and especially on
+	the GTK specific things.
+	</para>
+  </section>
+  
+	<section id="ChUIGTK">
+	<title>The GTK library</title>
+	<para>
+	Ethereal is based on the GTK toolkit, see: <ulink url="http://www.gtk.org"/>
+	for
+	details. GTK is designed to hide the details of the underlying GUI in
+	a platform independant way. As this is appreciated for a
+	multiplatform tool, this has some drawbacks, as it will result in a
+	somewhat "non native" look and feel. For example: on win32, the "File
+	open" dialog of Ethereal looks very different compared to the native
+	win32 dialog the win32 users are used to see.
+	</para>
+	<para>
+	GTK is available for a lot of different platforms including, but not
+	limitted, to: unix/linux, mac os x and win32. It's the foundation of
+	the famous GNOME desktop, so the future development of GTK should be
+	certain.
+	GTK is implemented in plain C (as Ethereal itself), and available under
+	the LGPL (Lesser General Public License), being free to used by
+	commercial and noncommercial applications.
+	</para>
+	<para>
+	There are other similar toolkits like Qt, wxwidgets, ..., which could
+	also
+	be used for Ethereal. There's no "one and only" reason for or against
+	any of these toolkits. However, the decision towards GTK was made a
+	long time ago :-)
+	</para>
+	<para>
+	At the time this document is written there are two major GTK versions
+	available:
+	</para>
+	
+	
+	<section id="ChUIGTK1x">
+	<title>GTK Version 1.x</title>
+	<para>
+	GTK 1.x was the first major release. Today there are 1.2.x and 1.3.x
+	versions "in the wild", with only very limitted differences in the API.
+	</para>
+	<para>
+	Advantages (compared to GTK 2.x):
+	<itemizedlist>
+	  <listitem><para>
+	  available on a lot of different platforms
+	  </para></listitem>
+	  <listitem><para>
+	  very stable as it's matured for quite a while now
+	  </para></listitem>
+	</itemizedlist>
+	Disadvantages:
+	<itemizedlist>
+	  <listitem><para>
+	  the look and feel is a bit oldfashioned
+	  </para></listitem>
+	  <listitem><para>
+	  not recommended for future developments
+	  </para></listitem>
+	</itemizedlist>
+	GTK 1.x depends on the following libraries:
+	<itemizedlist>
+	  <listitem><para>
+	  GDK (GDK is the abstraction layer
+	  that allows GTK+ to support multiple
+	  windowing systems. GDK provides drawing and window system facilities
+	  on X11, Windows, and the Linux framebuffer device.)
+	  </para></listitem>
+	  <listitem><para>
+	  GLib (A general-purpose utility
+	  library, not specific to graphical user interfaces.
+	  GLib provides many useful data types, macros, type conversions,
+	  string utilities, file utilities, a main loop abstraction, and so on.)
+	  </para></listitem>
+	</itemizedlist>
+	GTK 1.x is working on GLib 1.x (typical for Unix like systems) or 2.x
+	(typical for Win32 like systems).
+	</para>
+	<para>
+	XXX: include Ethereal GTK1 screenshot
+	</para>
+	</section>
+
+
+	<section id="ChUIGTK2x">
+	<title>GTK Version 2.x</title>
+	<para>
+	Advantages (compared to GTK 1.x):
+	<itemizedlist>
+	  <listitem><para>
+	  nice look and feel (compared to version 1.x)
+	  </para></listitem>
+	  <listitem><para>
+	  recommended for future developments
+	  </para></listitem>
+	</itemizedlist>
+	Disadvantages:
+	<itemizedlist>
+	  <listitem><para>
+	  not available on all platforms (compared to version 1.x)
+	  </para></listitem>
+	  <listitem><para>
+	  maybe a bit less stable compared to version 1.x (but should be
+	  production stable too)
+	  </para></listitem>
+	  <listitem><para>
+	  more dependencies compared to 1.x, see below
+	  </para></listitem>
+	</itemizedlist>
+	GTK 2.x depends on the following libraries:
+	<itemizedlist>
+	  <listitem><para>
+	  GObject (Object library. Basis for GTK and others)
+	  </para></listitem>
+	  <listitem><para>
+	  GLib (A general-purpose utility
+	  library, not specific to graphical user interfaces.
+	  GLib provides many useful data types, macros, type conversions,
+	  string utilities, file utilities, a main loop abstraction, and so on.)
+	  </para></listitem>
+	  <listitem><para>
+	  Pango (Pango is a library for internationalized text handling. It centers
+	  around the #PangoLayout object, representing a paragraph of text.
+	  Pango provides the engine for #GtkTextView, #GtkLabel, #GtkEntry, and
+	  other widgets that display text.)
+	  </para></listitem>
+	  <listitem><para>
+	  ATK (ATK is the Accessibility Toolkit. It provides a set of generic
+	  interfaces allowing accessibility technologies to interact with a
+	  graphical user interface. For example, a screen reader uses ATK to
+	  discover the text in an interface and read it to blind users. GTK+
+	  widgets have built-in support for accessibility using the ATK
+	  framework.)
+	  </para></listitem>
+	  <listitem><para>
+	  GdkPixbuf (This is a small library which allows you to create #GdkPixbuf
+	  ("pixel buffer") objects from image data or image files. Use a
+	  #GdkPixbuf in combination with #GtkImage to display images.)
+	  </para></listitem>
+	  <listitem><para>
+	  GDK (GDK is the abstraction layer that allows GTK+ to support multiple
+	  windowing systems. GDK provides drawing and window system facilities
+	  on X11, Windows, and the Linux framebuffer device.)
+	  </para></listitem>
+	</itemizedlist>
+	XXX: include Ethereal GTK2 screenshot
+	</para>
+	</section>
+
+	<section id="ChUIGTKCompat">
+	<title>Compatibility between 1.x and 2.x</title>
+	<para>
+	The GTK library itself defines some values which makes it easy to
+	distinguish between the versions, e.g.:
+	GTK_MAJOR_VERSION GTK_MINOR_VERSION
+	will be set to the GTK version at compile time somewhere inside the
+	gtk.h headers.
+	</para>
+	<para>
+	There are some common compatibility issues in Ethereal between the two
+	versions. 
+	</para>
+	<para>
+	Most of them (the more simple ones) are collected in
+	gtk/compat_macros.h and can be used in an version independant manner.
+	</para>
+	<para>
+	However, there are major differences between the two versions, making
+	it necessary to distinct between them, like:
+	<programlisting>
+<![CDATA[
+#if GTK_MAJOR_VERSION >= 2
+   ...
+#else
+   ...
+#endif]]>
+</programlisting>
+	</para>
+	</section>
+
+	</section>
+
+	<section id="ChUIGUIDocs">
+	<title>GUI Reference documents</title>
+	<para>
+	Although the GUI development of Ethereal is platform independant, the 
+	Ethereal development team tries to
+	follow the GNOME Human Interface Guidelines (HIG) where appropriate. 
+	This is the case, because both GNOME and Ethereal are based on the GTK+ 
+	toolkit and the GNOME HIG is excellently written and easy to understand.
+	</para>
+	<para>
+	For further reference, see the following documents:
+	<itemizedlist>
+	  <listitem><para>
+	  GNOME Human Interface Guidelines at:
+	  <ulink url="http://developer.gnome.org/projects/gup/hig/"/>
+	  </para></listitem>
+	  <listitem><para>
+	  KDE user interface related documents at:
+	  <ulink url="http://developer.kde.org/documentation/library/ui.html"/>
+	  </para></listitem>
+	  <listitem><para>
+	  Win32 XXX - where are good win32 styleguides available?
+	  </para></listitem>
+	</itemizedlist>
+	</para>
+	</section>
+	
+  <section id="ChUIGTKDialogs">
+	<title>Adding/Extending Dialogs</title>
+	<para>
+	This is usually the main area for contributing new user interface features.
+	</para>
+	<para>
+	XXX: add the various functions from gtk/dlg_utils.h
+	</para>
+  </section>
+
+  <section id="ChUIGTKWidgetNamings">
+	<title>Widget naming</title>
+	<para>
+	It seems to become common sense, to name the widgets with some
+	descriptive trailing, like:
+	<itemizedlist>
+	  <listitem><para>
+	  xy_lb = gtk_label_new();
+	  </para></listitem>
+	  <listitem><para>
+	  xy_cb = gtk_checkbox_new();
+	  </para></listitem>
+	  <listitem><para>
+	  XXX: add more examples
+	  </para></listitem>
+	</itemizedlist>
+	However, this schema isn't used at all places inside the code.
+	</para>
+  </section>
+
+
+  <section id="ChUIGTKPitfalls">
+	<title>Common GTK programming pitfalls</title>
+	<para>
+	There are some common pitfalls in GTK programming.
+	</para>
+
+	<section id="ChUIGTKShowAll">
+	<title>Usage of gtk_widget_show() / gtk_widget_show_all()</title>
+	<para>
+	When a GTK widget is created it will be hidden by default. In order to
+	show it, a call to gtk_widget_show() has to be done.
+	</para>
+	<para>
+	It isn't necessary to do this for each and every widget created. A call
+	to
+	gtk_widget_show_all() on the parent of all the widgets in question
+	(e.g. a dialog window) can be done, so all of it's child widgets will
+	be shown too.
+	</para>
+	</section>
+	
+  </section>
+
+</chapter>
+<!-- End of EUG Chapter User Interface -->

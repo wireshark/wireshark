@@ -1,0 +1,766 @@
+<!-- EUG Chapter IO -->
+<!-- $Id$ -->
+
+<chapter id="ChapterIO">
+  <title>File Input / Output and Printing</title>
+
+  <section id="ChIOIntroductionSection"><title>Introduction</title>
+    <para>
+	This chapter will describe input and output of capture data.
+	<itemizedlist>
+	<listitem>
+	  <para>
+	    Open/Import capture files in various capture file formats
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    Save/Export capture files in various capture file formats
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	  Merge capture files together
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    Print packets
+	  </para>
+	</listitem>
+      </itemizedlist>
+    </para>
+  </section>
+
+  <section id="ChIOOpenSection"><title>Open capture files</title>
+    <para>
+      Ethereal can read in previously saved capture files. 
+	  To read them, simply select the <command>Open</command> 
+      menu item from the <command>File</command> menu.  
+      Ethereal will then pop up the File 
+      Open dialog box, which is discussed in more detail in 
+      <xref linkend="ChIOOpen"/>. 
+    </para>
+	<note><title>Note!</title>
+    <para>
+	You can also use <command>drag-and-drop </command> to open a file, by 
+	simply dropping the desired file from your file manager onto Ethereal's 
+	main window. However, drag-and-drop is not available/won't work in all 
+	desktop environments.
+    </para>
+    </note>
+    <para>
+	  If you didn't save the current capture file before, you will be asked 
+	  to do so, to prevent data loss (this behaviour can be disabled in the 
+	  preferences).
+    </para>
+    <para>
+	  In addition to its native file format (libpcap format, also used by 
+	  tcpdump/WinDump and other libpcap/WinPcap-based programs), Ethereal can 
+	  read capture files from a large number of other packet capture programs 
+	  as well. See <xref linkend="ChIOInputFormatsSection"/> for the list of 
+	  capture formats Ethereal understands.
+    </para>
+	
+    <section id="ChIOOpen"><title>The "Open Capture File" dialog box</title>
+      <para>
+	The "Open Capture File" dialog box allows you to search for a 
+	capture file containing previously captured packets for display in 
+	Ethereal.  <xref linkend="ChIOOpenFileDialog"/> shows an example 
+	  of the Ethereal Open File Dialog box.
+      </para>
+	    <note>
+	      <title>Note</title>
+	      <para>
+		  Ethereal uses the open dialog box from the version of the GTK+ 
+		  toolkit that it's using. This dialog was completely redesigned in 
+		  GTK version 2.4. Depending on the installed GTK version, 
+		  your dialog box might look different. However, as the 
+		  functionality remains almost the same, much of this description 
+		  will work with your version of Ethereal.
+	      </para>
+	    </note>
+      <figure id="ChIOOpenFileDialog">
+	<title>The "Open Capture File" Dialog box</title>
+	<graphic entityref="EtherealOpen" format="PNG"/>
+      </figure>
+      <para>
+	With this dialog box, you can perform the following actions:
+	<orderedlist>
+	  <listitem>
+	    <para>
+		The "+ Add" button allows you to add a directory, selected in the 
+		right-hand pane, to the favorites (bookmarks?) list. Those changes 
+		are persistent.
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+		The "- Remove" button allows you to remove a selected directory from 
+		that list again (the items like: "Home", "Desktop", and "Filesystem" 
+		cannot be removed).
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      Select files and directories with the list boxes.
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      View file preview information (like the filesize, the number of 
+		  packets, ...), while browsing the filesystem.
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      Specify a display filter with the Filter button and filter 
+	      field. This filter will be used when opening the new file.
+		  Clicking on the Filter button causes Ethereal to pop up 
+	      the Filters dialog box (which is discussed further in 
+	      <xref linkend="ChWorkDisplayFilterSection"/>).
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      Specify which name resolution is to be performed for all packets by 
+		  clicking on one of the "Enable name resolution" check buttons. 
+		  Details about name resolution can be found in 
+		  <xref linkend="ChAdvNameResolutionSection"/>.
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      Click the Open button to accept your selected file and open it. 
+		  If Ethereal doesn't recognize the capture format, it will grey out 
+		  this button.
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      Click the Cancel button to go back to Ethereal and not load a capture 
+	      file.
+	    </para>
+	  </listitem>
+	</orderedlist>
+	You can change the display filter and name resolution settings later while 
+	viewing the packets. However, for very large capture files it can take a 
+	significant amount of time changing these settings, so it might be 
+	a good idea to set them in advance here.
+      </para>
+    </section>
+
+  <section id="ChIOInputFormatsSection">
+    <title>Input File Formats</title>
+    <para>
+	The following file formats from other capture tools can be opened by 
+	<application>Ethereal</application>:
+	<itemizedlist>
+	      <listitem><para>libpcap, tcpdump and various other tools using tcpdump's capture format</para></listitem>
+	      <listitem><para>Sun snoop and atmsnoop</para></listitem>
+	      <listitem><para>Shomiti/Finisar <emphasis>Surveyor</emphasis> captures</para></listitem>
+	      <listitem><para>Novell <emphasis>LANalyzer</emphasis> captures</para></listitem>
+	      <listitem><para>Microsoft Network Monitor captures</para></listitem>
+	      <listitem><para>AIX's iptrace captures</para></listitem>
+	      <listitem><para>Cinco Networks NetXray captures</para></listitem>		  
+	      <listitem><para>Network Associates Windows-based Sniffer and Sniffer Pro captures</para></listitem>
+		  <listitem><para>Network General/Network Associates DOS-based Sniffer (compressed or uncompressed) captures</para></listitem>
+	      <listitem><para>AG Group/WildPackets EtherPeek/TokenPeek/AiroPeek/EtherHelp/PacketGrabber captures</para></listitem>
+	      <listitem><para>RADCOM's WAN/LAN Analyzer captures</para></listitem>
+		  <listitem><para>Network Instruments Observer version 9 captures</para></listitem>
+		  <listitem><para>Lucent/Ascend router debug output</para></listitem>		  
+	      <listitem><para>HP-UX's nettl</para></listitem>
+	      <listitem><para>Toshiba's ISDN routers dump output</para></listitem>
+	      <listitem><para>ISDN4BSD <emphasis>i4btrace</emphasis> utility</para></listitem>
+		  <listitem><para>traces from the EyeSDN USB S0</para></listitem>
+		  <listitem><para>IPLog format from the Cisco Secure Intrusion Detection System</para></listitem>
+		  <listitem><para>pppd logs (pppdump format)</para></listitem>
+		  <listitem><para>the output from VMS's TCPIPtrace/TCPtrace/UCX$TRACE utilities</para></listitem>
+		  <listitem><para>the text output from the DBS Etherwatch VMS utility</para></listitem>
+		  <listitem><para>Visual Networks' Visual UpTime traffic capture</para></listitem>
+		  <listitem><para>the output from CoSine L2 debug</para></listitem>
+		  <listitem><para>the output from Accellent's 5Views LAN agents</para></listitem>
+		  <listitem><para>Endace Measurement Systems' ERF format captures</para></listitem>
+		  <listitem><para>Linux Bluez Bluetooth stack hcidump -w traces</para></listitem>
+	</itemizedlist>
+    </para>
+    <note><title>Note!</title>
+	<para>
+	It may not be possible to read some formats dependent on the packet types 
+	captured. Ethernet captures are usually supported for most file formats, 
+	but other packet types (e.g. token ring packets) may not be possible to 
+	read from all file formats.
+	</para>
+	</note>
+	
+  </section>
+
+  </section>
+  
+  <section id="ChIOSaveSection"><title>Saving captured packets</title>
+    <para>
+      You can save captured packets simply by using the Save As... menu 
+      item from the File menu under Ethereal. You can choose which 
+      packets to save and which file format to be used.
+    </para>
+    <section id="ChIOSaveAs">
+      <title>The "Save Capture File As" dialog box</title>
+      <para>
+	The "Save Capture File As" dialog box allows you to save 
+	the current capture to a file. 
+	<xref linkend="ChIOSaveCaptureFileAs"/> shows an example of this 
+	  dialog box.
+      </para>
+	    <note>
+	      <title>Note</title>
+	      <para>
+		  Ethereal uses the open dialog box from the version of the GTK+ 
+		  toolkit that it's using. This dialog was completely redesigned in 
+		  the GTK version 2.4. Depending on the installed GTK version, 
+		  your dialog box might look different. However, as the 
+		  functionality remains almost the same, much of this description 
+		  will work with your version of Ethereal.
+	      </para>
+	    </note>
+      <figure id="ChIOSaveCaptureFileAs">
+	<title>The "Save Capture File As" dialog box</title>
+	<graphic entityref="EtherealSaveAs" format="PNG"/>
+      </figure>
+      <para>
+	With this dialog box, you can perform the following actions:
+	<orderedlist>
+	  <listitem>
+	    <para>
+	      Type in the name of the file you wish to save the captured 
+	      packets in, as a standard file name in your file system.
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+		Select the directory to save the file into.
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      Select the range of the packets to be saved, see 
+		  <xref linkend="ChIOPacketRangeSection"/>
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      Specify the format of the saved capture file by clicking on 
+	      the File type drop down box. You can choose from the 
+	      types, described in <xref linkend="ChIOInputFormatsSection"/>.
+		</para>
+	    <note>
+	      <title>Note!</title>
+	      <para>
+		Some capture formats may not be available, depending on the 
+		packet types captured.
+	      </para>
+	    </note>
+	    <tip>
+	      <title>Tip!</title>
+	      <para>
+		You can convert capture files from one format to another 
+		by reading in a capture file and writing it out using a 
+		different format.
+	      </para>
+	    </tip>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      Use "Browse for other folders" to browse files and folders in your 
+		  file system.
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      Click on the Save button to accept your selected file and save to 
+		  it. If Ethereal has a problem saving the captured packets to 
+	      the file you specified, it will display an error dialog box. 
+	      After clicking OK on this error dialog box, you can try again. 
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      Click on the Cancel button to go back to Ethereal and not save the 
+	      captured packets.
+	    </para>
+	  </listitem>
+	</orderedlist>
+      </para>
+    </section>
+  <section id="ChIOOutputFormatsSection">
+    <title>Output File Formats</title>
+    <para>
+	The following file formats can be saved by <application>Ethereal</application>,
+	so other capture tools can read the capture data from:
+	<itemizedlist>
+	      <listitem><para>libpcap (tcpdump)</para></listitem>
+	      <listitem><para>Novell LANalyzer</para></listitem>
+	      <listitem><para>Network Associates Sniffer</para></listitem>
+	      <listitem><para>Sun snoop</para></listitem>
+	      <listitem><para>Microsoft Network Monitor</para></listitem>
+	      <listitem><para>Visual Networks Visual UpTime traffic</para></listitem>
+	      <listitem><para>Accellent 5Views</para></listitem>
+	      <listitem><para>Networks Instruments Observer version 9</para></listitem>
+	</itemizedlist>
+    </para>
+	<note><title></title>
+	<para>
+	Other protocol analyzers may require that the file has a certain suffix 
+	in order to read the files you generate with Ethereal, e.g.:
+	</para>
+	<para>
+	".DMP" for Tcpdump/libpcap
+	</para>
+	<para>
+	".CAP" for Network Assosciates Sniffer Windows
+	</para>
+	</note>
+  </section>	
+  </section>
+  
+  <section id="ChIOMergeSection"><title>Merging capture files</title>
+	<para>
+	Sometimes you need to merge several capture files into one. For example 
+	this can be useful, if you have captured simultaneously from multiple 
+	interfaces at once (e.g. using multiple instances of Ethereal).
+	</para>
+	<para>
+	Merging capture files can be done in three ways:
+	<itemizedlist>
+		<listitem><para>
+		Use the <command>menu item "Merge"</command> from the "File" menu, 
+		to open the merge dialog, see <xref linkend="ChIOMergeDialog"/>.
+		This menu item will be disabled, until you have loaded a capture file.
+		</para></listitem>
+		<listitem><para>
+	  	Use <command>drag-and-drop</command> to drop multiple files on the 
+		main window. Ethereal will try to merge the packets in chronological 
+		order from the dropped files into a newly created temporary file. If 
+		you drop only a single file, it will simply replace a (maybe) existing
+		one.
+		</para></listitem>
+		<listitem><para>
+	  	Use the <command>mergecap</command> tool, which is a command 
+		line tool to merge capture files. This tool provides the most options 
+		to merge capture files, see <xref linkend="AppToolsmergecap"/>.
+		</para></listitem>
+	</itemizedlist>
+	</para>
+	<section><title>The "Merge with Capture File" dialog box</title>
+	<para>
+	This dialog box let you select a file to be merged into the currently 
+	loaded file.
+	</para>
+	<note><title>Note!</title>
+	<para>If your current data wasn't saved before, you will be asked to save 
+	it first, before this dialog box is shown.</para>
+	</note>
+	<figure id="ChIOMergeDialog">
+      <title>The "Merge with Capture File" dialog box</title>
+      <graphic entityref="EtherealMergeDialog" format="PNG"/>
+    </figure>
+	<variablelist>
+	<varlistentry>
+	  <term><command>Prepend packets to existing file</command></term>
+	  <listitem>
+	    <para>
+		Prepend the packets from the selected file before the currently loaded 
+		packets.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term><command>Merge packets chronologically</command></term>
+	  <listitem>
+	    <para>
+		Merge both the packets from the selected and currently loaded file in 
+		chronological order.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term><command>Append packets to existing file</command></term>
+	  <listitem>
+	    <para>
+		Append the packets from the selected file after the currently loaded 
+		packets.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	</variablelist>
+	<para>
+	All other controls will work the same way as in the "Open Capture File" 
+	dialog box, see <xref linkend="ChIOOpen"/>.
+	</para>
+	</section>
+  </section>
+  
+  <section id="ChIOExportSection"><title>Exporting data</title>
+    <para>
+      Ethereal provides several ways and formats to export packet data. This 
+	  section describes general ways to export data from Ethereal.
+    </para>
+	<note><title>Note!</title>
+	<para>
+	  There are more specialized functions to export specific data, 
+	  which will be described at the appropriate places. 
+	</para>
+	</note>
+    <para>
+	  XXX - add detailed descriptions of the output formats and some sample 
+	  output, too.
+    </para>
+	<section id="ChIOExportPlainDialog">
+	<title>The "Export as Plain Text File" dialog box</title>
+	  <para id="ChIOExportPlain">
+	    Export packet data into a plain ASCII text file, much like the format 
+		used to print packets.
+    <figure>
+      <title>The "Export as Plain Text File" dialog box</title>
+      <graphic entityref="EtherealExportPlainDialog" format="PNG"/>
+    </figure>
+	<itemizedlist>
+		<listitem><para>
+	  	<command>Export to file:</command> frame chooses the file to export 
+		the packet data to.
+		</para></listitem>
+		<listitem><para>
+	  	The <command>Packet Range</command> frame is described in <xref 
+		linkend="ChIOPacketRangeSection"/>.
+		</para></listitem>
+		<listitem><para>
+	  	The <command>Packet Details</command> frame is described in <xref 
+		linkend="ChIOPacketFormatSection"/>.
+		</para></listitem>
+	</itemizedlist>	
+	  </para>
+    </section>
+	<section id="ChIOExportPSDialog">
+	<title>The "Export as PostScript File" dialog box</title>
+	  <para>
+	    Export packet data into PostScript, much like the format used 
+		to print packets.
+	<tip><title>Tip!</title>
+	<para>
+	You can easily convert PostScript files to PDF files using ghostscript.
+	For example: export to a file named foo.ps and then call: 
+	<command>ps2pdf foo.ps</command>
+	</para>
+	</tip>
+    <figure>
+      <title>The "Export as PostScript File" dialog box</title>
+      <graphic entityref="EtherealExportPSDialog" format="PNG"/>
+    </figure>
+	<itemizedlist>
+		<listitem><para>
+	  	<command>Export to file:</command> frame chooses the file to export 
+		the packet data to.
+		</para></listitem>
+		<listitem><para>
+	  	The <command>Packet Range</command> frame is described in <xref 
+		linkend="ChIOPacketRangeSection"/>.
+		</para></listitem>
+		<listitem><para>
+	  	The <command>Packet Details</command> frame is described in <xref 
+		linkend="ChIOPacketFormatSection"/>.
+		</para></listitem>
+	</itemizedlist>	
+	  </para>
+    </section>
+	<section id="ChIOExportPSMLDialog">
+	<title>The "Export as PSML File" dialog box</title>
+	  <para>
+	    Export packet data into PSML. This is an XML based format including 
+		only the packet summary.
+    <figure>
+      <title>The "Export as PSML File" dialog box</title>
+      <graphic entityref="EtherealExportPSMLDialog" format="PNG"/>
+    </figure>
+	<itemizedlist>
+		<listitem><para>
+	  	<command>Export to file:</command> frame chooses the file to export 
+		the packet data to.
+		</para></listitem>
+		<listitem><para>
+	  	The <command>Packet Range</command> frame is described in <xref 
+		linkend="ChIOPacketRangeSection"/>.
+		</para></listitem>
+	</itemizedlist>	
+	There's no such thing as a packet details frame for PSML export, as the 
+	packet format is defined by the PSML specification.
+	  </para>
+    </section>
+	<section id="ChIOExportPDMLDialog">
+	<title>The "Export as PDML File" dialog box</title>
+	  <para>
+	    Export packet data into PDML. This is an XML based format including 
+		the packet details. The PDML file specification is available at: 
+		<ulink url="http://analyzer.polito.it/30alpha/docs/dissectors/PDMLSpec.htm">
+		PDML specification</ulink>.
+		<note><title></title>
+		<para>
+		The PDML specification is not officially released and Ethereal's 
+		implementation of it is still in an early beta state, so please expect 
+		changes in future Ethereal versions.
+		</para>
+		</note>
+    <figure>
+      <title>The "Export as PDML File" dialog box</title>
+      <graphic entityref="EtherealExportPDMLDialog" format="PNG"/>
+    </figure>
+	<itemizedlist>
+		<listitem><para>
+	  	<command>Export to file:</command> frame chooses the file to export 
+		the packet data to.
+		</para></listitem>
+		<listitem><para>
+	  	The <command>Packet Range</command> frame is described in <xref 
+		linkend="ChIOPacketRangeSection"/>.
+		</para></listitem>
+	</itemizedlist>	
+	There's no such thing as a packet details frame for PDML export, as the 
+	packet format is defined by the PDML specification.
+	  </para>
+  </section>
+	<section id="ChIOExportSelectedDialog">
+	<title>The "Export selected packet bytes" dialog box</title>
+	  <para>
+	    Export the bytes selected in the "Packet Bytes" pane into a raw 
+		binary file.
+    <figure>
+      <title>The "Export Selected Packet Bytes" dialog box</title>
+      <graphic entityref="EtherealExportSelectedDialog" format="PNG"/>
+    </figure>
+	<itemizedlist>
+		<listitem><para>
+	  	<command>Name:</command> the filename to export the packet data to.
+		</para></listitem>
+		<listitem><para>
+	  	The <command>Save in folder:</command> field lets you select the 
+		folder to save to (from some predefined folders).
+		</para></listitem>
+		<listitem><para>
+	  	<command>Browse for other folders</command> provides a flexible 
+		way to choose a folder.
+		</para></listitem>
+	</itemizedlist>	
+	  </para>
+  </section>
+  </section>
+
+  <section id="ChIOPrintSection"><title>Printing packets</title>
+    <para>
+	    To print packets, select the "Print..." menu item from the File menu. 
+		When you do this, Ethereal pops up the Print dialog box as shown in 
+	    <xref linkend="ChIOPrintDialogBox"/>.
+    </para>
+	<section><title>The "Print" dialog box</title>
+    <figure id="ChIOPrintDialogBox">
+      <title>The "Print" dialog box</title>
+      <graphic entityref="EtherealPrint" format="PNG"/>
+    </figure>
+    <para>
+      The following fields are available in the Print dialog box:
+      <variablelist>
+	<varlistentry><term><command>Printer</command></term>
+	  <listitem>
+	    <para>
+	      This field contains a pair of mutually exclusive radio buttons:
+	      <itemizedlist>
+		<listitem>
+		  <para>
+		    <command>Plain Text</command> specifies that 
+		    the packet print should be in plain text.
+		  </para>
+		</listitem>
+		<listitem>
+		  <para>
+		    <command>PostScipt</command> specifies that 
+		    the packet print process should use PostScript to 
+		    generate a better print output on PostScript aware printers.
+		  </para>
+		</listitem>
+		<listitem>
+		  <para>
+		    <command>Output to file:</command> specifies that printing 
+		    be done to a file, which name is entered in the field or selected 
+			using the browse button.
+		  </para>
+	    <para>
+	      This field is where you enter the <command>file</command> to 
+	      print to if you have selected Print to a file, or you can click the 
+		  button to browse the filesystem. It is greyed out if Print to a file 
+		  is not selected.
+	    </para>
+		</listitem>
+		<listitem>
+		  <para>
+		    <command>Print command</command> specifies that a 
+		    command be used for printing. 
+		  </para>
+		<note><title>Note!</title>
+		<para>
+		These <command>Print command</command> fields are not available on 
+		windows platforms. 
+		</para>
+		</note>
+	    <para>
+	      This field specifies the command to use for printing. It 
+	      is typically <command>lpr</command>. You would change it 
+	      to specify a particular queue if you need to print to a 
+	      queue other than the default.  An example might be:
+	      <programlisting>
+lpr -Pmypostscript
+	      </programlisting>
+	      This field is greyed out if <command>Output to file:</command> is 
+	      checked above.
+	    </para>
+		</listitem>
+	      </itemizedlist>
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term><command>Packet Range</command></term>
+	  <listitem>
+	    <para>
+		  Select the packets to be printed, see <xref 
+		  linkend="ChIOPacketRangeSection"/>
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term><command>Packet Format</command></term>
+	  <listitem>
+	    <para>
+		  Select the output format of the packets to be printed. You can 
+		  choose, how each packet is printed, see 
+		  <xref linkend="ChIOPacketFormatFrame"/>
+	    </para>
+	  </listitem>
+	</varlistentry>
+      </variablelist>
+    </para>
+  </section>
+  </section>
+
+  <section id="ChIOPacketRangeSection"><title>The Packet Range frame</title>
+	<para>
+	The packet range frame is a part of various output related dialog boxes. 
+	It provides options to select which packets should be processed for the 
+	output function.
+    <figure id="ChIOPacketRangeFrame">
+      <title>The "Packet Range" frame</title>
+      <graphic entityref="EtherealPacketRangeFrame" format="PNG"/>
+    </figure>
+	</para>
+	<para>
+	If the <command>Captured</command> button is set (default), all packets 
+	from the selected rule will be processed. If the <command>Displayed
+	</command> button is set, only the currently displayed packets are taken 
+	into account to the selected rule.
+	</para>
+	<para>
+	<itemizedlist>
+		<listitem>
+		  <para>
+		  <command>All packets</command> will process all packets.
+		  </para>
+		</listitem>
+		<listitem>
+		  <para>
+		  <command>Selected packet only</command> process only the selected 
+		  packet.
+		  </para>
+		</listitem>
+		<listitem>
+		  <para>
+		  <command>Marked packets only</command> process only the marked 
+		  packets.
+		  </para>
+		</listitem>
+		<listitem>
+		  <para>
+		  <command>From first to last marked packet</command> process the 
+		  packets from the first to the last marked one.
+		  </para>
+		</listitem>
+		<listitem>
+		  <para>
+		  <command>Specify a packet range</command> process a user specified 
+		  range of packets, e.g. specifying <command>5,10-15,20-</command> will 
+		  process the packet number five, the packets from packet number ten 
+		  to fifteen (inclusive) and every packet from number twenty to the 
+		  end of the capture.
+		  </para>
+		</listitem>
+	</itemizedlist>
+	</para>
+  </section>
+  
+  <section id="ChIOPacketFormatSection"><title>The Packet Format frame</title>
+	<para>
+	The packet format frame is a part of various output related dialog boxes. 
+	It provides options to select which parts of a packet should be used for 
+	the output function.
+    <figure id="ChIOPacketFormatFrame">
+      <title>The "Packet Format" frame</title>
+      <graphic entityref="EtherealPacketFormatFrame" format="PNG"/>
+    </figure>
+	<itemizedlist>
+		<listitem>
+		  <para>
+		  <command>Packet summary line</command> enable the output of the 
+		  summary line, just as in the "Packet List" pane.
+		  </para>
+		</listitem>
+		<listitem>
+		  <para>
+		  <command>Packet details</command> enable the output of the packet 
+		  details tree.
+		  </para>
+		<itemizedlist>
+		<listitem>
+		  <para>
+		  <command>All collapsed</command> the info from the "Packet Details" 
+		  pane in "all collapsed" state.
+		  </para>
+		</listitem>
+		<listitem>
+		  <para>
+		  <command>As displayed</command> the info from the "Packet Details" 
+		  pane in the current state.
+		  </para>
+		</listitem>
+		<listitem>
+		  <para>
+		  <command>All expanded</command> the info from the "Packet Details" 
+		  pane in "all expanded" state.
+		  </para>
+		</listitem>
+		</itemizedlist>
+		</listitem>
+		<listitem>
+		  <para>
+		  <command>Packet bytes</command> enable the output of the packet 
+		  bytes, just as in the "Packet Bytes" pane.
+		  </para>
+		</listitem>
+		<listitem>
+		  <para>
+		  <command>Each packet on a new page</command> put each packet on a 
+		  separate page (e.g. when saving/printing to a text file, this will 
+		  put a form feed character between the packets).
+		  </para>
+		</listitem>
+	</itemizedlist>
+	</para>
+  </section>
+  
+</chapter>
+<!-- End of EUG Chapter IO -->
+

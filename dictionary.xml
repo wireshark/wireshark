@@ -3,9 +3,10 @@
 	<!ENTITY nasreq SYSTEM "nasreq.xml">
 	<!ENTITY mobileipv4 SYSTEM "mobileipv4.xml">
 	<!ENTITY sunping SYSTEM "sunping.xml">
+	<!ENTITY imscxdx SYSTEM "imscxdx.xml">
 ]>
 <dictionary>
-	<base uri="ftp://ftp.ietf.org/internet-drafts/draft-ietf-aaa-diameter-07.txt">
+	<base uri="http://www.ietf.org/rfc/rfc3588.txt">
 		<!--
   $Log: dictionary.xml,v $
   Revision 1.1  2001/11/01 21:52:44  guy
@@ -47,9 +48,11 @@
 
 		<!-- ************************* Vendors **************************** -->
 		<vendor vendor-id="None" code="0" name="None"/>
+		<vendor vendor-id="HP"    code="11"    name="Hewlett Packard"/>
 		<vendor vendor-id="Merit" code="61" name="Merit Networks"/>
 		<vendor vendor-id="Sun" code="42" name="Sun Microsystems, Inc."/>
 		<vendor vendor-id="USR" code="429" name="US Robotics Corp."/>
+		<vendor vendor-id="TGPP"  code="10415" name="3GPP"/>
 		<!-- *********************** End Vendors ************************** -->
 
 		<!-- ************************ typedefn's ************************** -->
@@ -518,7 +521,7 @@
 		<avp name="Auth-Session-State" code="277" mandatory="must" may-encrypt="no" vendor-bit="mustnot">
 			<type type-name="Unsigned32"/>
 			<enum name="State Maintained" code="0"/>
-			<enum name="No State Maintained" code="0"/>
+			<enum name="No State Maintained" code="1"/>
 		</avp>
 		<avp name="Re-Auth-Request-Type" code="285" mandatory="must" may-encrypt="no" vendor-bit="mustnot">
 			<type type-name="Unsigned32"/>
@@ -534,7 +537,7 @@
 		<avp name="Disconnect-Cause" code="273" mandatory="must" protected="mustnot" may-encrypt="no" vendor-bit="mustnot">
 			<type type-name="Unsigned32"/>
 			<enum name="Rebooting" code="0"/>
-			<enum name="Busy" code="2"/>
+			<enum name="Busy" code="1"/>
 			<enum name="Do not want to talk to you" code="2"/>
 		</avp>
 		<avp name="Error-Message" code="281" mandatory="must" protected="mustnot" may-encrypt="no" vendor-bit="mustnot">
@@ -590,6 +593,62 @@
 		</avp>
 		<avp name="Result-Code" code="268" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
 			<type type-name="Unsigned32"/>
+			<enum name="DIAMETER_MULTI_ROUND_AUTH" code="1001"/>
+			<enum name="DIAMETER_SUCCESS" code="2001"/>
+			<enum name="DIAMETER_LIMITED_SUCCESS" code="2002"/>
+			<enum name="DIAMETER_COMMAND_UNSUPPORTED" code="3001"/>
+			<enum name="DIAMETER_UNABLE_TO_DELIVER" code="3002"/>
+			<enum name="DIAMETER_REALM_NOT_SERVED" code="3003"/>
+			<enum name="DIAMETER_TOO_BUSY" code="3004"/>
+			<enum name="DIAMETER_LOOP_DETECTED" code="3005"/>
+			<enum name="DIAMETER_REDIRECT_INDICATION" code="3006"/>
+			<enum name="DIAMETER_APPLICATION_UNSUPPORTED" code="3007"/>
+			<enum name="DIAMETER_INVALID_HDR_BITS" code="3008"/>
+			<enum name="DIAMETER_INVALID_AVP_BITS" code="3009"/>
+			<enum name="DIAMETER_UNKNOWN_PEER" code="3010"/>
+			<enum name="DIAMETER_AUTHENTICATION_REJECTED" code="4001"/>
+			<enum name="DIAMETER_OUT_OF_SPACE" code="4002"/>
+			<enum name="DIAMETER_ELECTION_LOST" code="4003"/>
+			<enum name="DIAMETER_AVP_UNSUPPORTED" code="5001"/>
+			<enum name="DIAMETER_UNKNOWN_SESSION_ID" code="5002"/>
+			<enum name="DIAMETER_AUTHORIZATION_REJECTED" code="5003"/>
+			<enum name="DIAMETER_INVALID_AVP_VALUE" code="5004"/>
+			<enum name="DIAMETER_MISSING_AVP" code="5005"/>
+			<enum name="DIAMETER_RESOURCES_EXCEEDED" code="5006"/>
+			<enum name="DIAMETER_CONTRADICTING_AVPS" code="5007"/>
+			<enum name="DIAMETER_AVP_NOT_ALLOWED" code="5008"/>
+			<enum name="DIAMETER_AVP_OCCURS_TOO_MANY_TIMES" code="5009"/>
+			<enum name="DIAMETER_NO_COMMON_APPLICATION " code="5010"/>
+			<enum name="DIAMETER_UNSUPPORTED_VERSION" code="5011"/>
+			<enum name="DIAMETER_UNABLE_TO_COMPLY" code="5012"/>
+			<enum name="DIAMETER_INVALID_BIT_IN_HEADER" code="5013"/>
+			<enum name="DIAMETER_INVALID_AVP_LENGTH" code="5014"/>
+			<enum name="DIAMETER_INVALID_MESSAGE_LENGTH" code="5015"/>
+			<enum name="DIAMETER_INVALID_AVP_BIT_COMBO" code="5016"/>
+			<enum name="DIAMETER_NO_COMMON_SECURITY" code="5017"/>
+		</avp>
+		<avp name="Experimental-Result" code="297" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
+			<grouped>
+				<gavp name="Vendor-Id"/>
+				<gavp name="Experimental-Result-Code"/>
+			</grouped>
+		</avp>
+		<avp name="Experimental-Result-Code" code="298" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
+			<type type-name="Unsigned32"/>
+			<enum name="First Registration" code="2001"/>
+			<enum name="Subsequent Registration" code="2002"/>
+			<enum name="Unregistered Service" code="2003"/>
+			<enum name="Success Server Name Not Stored" code="2004"/>
+			<enum name="Server Selection" code="2005"/>
+			<enum name="Error User Unknown" code="5001"/>
+			<enum name="Error Identities Dont Match" code="5002"/>
+			<enum name="Error Identity Not Registered" code="5003"/>
+			<enum name="Error Roaming Not Allowed" code="5004"/>
+			<enum name="Error Roaming Identity Already Registered" code="5005"/>
+			<enum name="Error Roaming Auth Scheme Not Supported" code="5006"/>
+			<enum name="Error In Assignment Type" code="5007"/>
+			<enum name="Error Too Much Data" code="5008"/>
+			<enum name="Error Not Supported User Data" code="5009"/>
 		</avp>
 		<avp name="Route-Record" code="282" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
 			<type type-name="DiameterIdentity"/>
@@ -643,5 +702,6 @@
 	&nasreq;
 	&mobileipv4;
 	&sunping;
+	&imscxdx;
 	
 </dictionary>

@@ -44,7 +44,7 @@
 
 #include <epan/packet.h>
 #include <epan/dissectors/packet-tcp.h>
-#include "prefs.h"
+#include <epan/prefs.h>
 
 #include "packet-opsi.h"
 

@@ -193,7 +193,7 @@ update_if(if_dlg_data_t *if_dlg_data)
    */
   if (if_dlg_data->pch) {
     if(pcap_stats(if_dlg_data->pch, &stats) >= 0) {
-#ifdef WIN32
+#ifdef _WIN32
       diff = stats.ps_recv - if_dlg_data->last_packets;
       if_dlg_data->last_packets = stats.ps_recv;
 #else
@@ -381,7 +381,12 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
 
   row = 0;
 
-#ifndef WIN32
+#ifndef _WIN32
+  /*
+   * On Windows, device names are generally not meaningful - NT 5
+   * uses long blobs with GUIDs in them, for example - so we don't
+   * bother showing them.
+   */
   if_lb = gtk_label_new("Device");
   gtk_table_attach_defaults(GTK_TABLE(if_tb), if_lb, 0, 1, row, row+1);
 #endif
@@ -414,7 +419,7 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
       /* device name */
       if_dlg_data->device_lb = gtk_label_new(if_info->name);
       if_dlg_data->device = if_info->name;
-#ifndef WIN32
+#ifndef _WIN32
       gtk_misc_set_alignment(GTK_MISC(if_dlg_data->device_lb), 0.0, 0.5);
       gtk_table_attach_defaults(GTK_TABLE(if_tb), if_dlg_data->device_lb, 0, 1, row, row+1);
 #endif

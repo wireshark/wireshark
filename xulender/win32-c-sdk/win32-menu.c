@@ -7,12 +7,12 @@
 
 #include <windows.h>
 
-#include "epan/epan_dissect.h"
-#include "epan/addr_resolv.h"
+#include <epan/epan_dissect.h>
+#include <epan/addr_resolv.h>
 
-#include "ipproto.h"
+#include <epan/ipproto.h>
 
-#include "prefs.h"
+#include <epan/prefs.h>
 #include "prefs-recent.h"
 
 #include "win32-c-sdk.h"

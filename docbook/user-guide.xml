@@ -62,7 +62,7 @@ DOCUMENT SECTION
   <!ENTITY DocumentCopyrightYear "2004">
 
   <!ENTITY DocumentEdition "Third ">
-  <!ENTITY DocumentVersion "V2.00">
+  <!ENTITY DocumentVersion "V2.01">
   <!ENTITY DocumentPubDate "2004">
 
 <!ENTITY DocumentLegalNotice "<para>Permission is granted to copy, distribute and/or modify this document under the terms of the GNU General Public License, Version 2 or any later version published by the Free Software Foundation.</para><para>All logos and trademarks in this document are property of their respective owner.</para>">
@@ -70,18 +70,16 @@ DOCUMENT SECTION
 <!--
 Ethereal Info
 -->
-  <!ENTITY EtherealCurrentVersion "0.10.5">
-  <!ENTITY EtherealNextMinorVersion "0.10.6">
+  <!ENTITY EtherealCurrentVersion "0.10.6">
   <!ENTITY EtherealWebSite "http://www.ethereal.com">
   <!ENTITY EtherealUsersGuidePage "&EtherealWebSite;/docs/#usersguide">
   <!ENTITY EtherealDownloadPage "&EtherealWebSite;/download.html">
-  <!ENTITY EtherealBinariesPage "&EtherealWebSite;/download.html#binaries">
+  <!ENTITY EtherealBinariesPage "&EtherealWebSite;/download.html#releases">
   <!ENTITY EtherealAuthorsPage "&EtherealWebSite;/introduction.html#authors">
   <!ENTITY EtherealProtocolsPage "&EtherealWebSite;/docs/dfref/">
   <!ENTITY EtherealFAQPage "&EtherealWebSite;/faq.html">
   <!ENTITY EtherealFAQPromiscPage "&EtherealWebSite;/faq#promiscsniff">
   <!ENTITY EtherealMediaPage "&EtherealWebSite;/media.html">
-  <!ENTITY EtherealCurrentVersionTarFile "0.10.5">
 
   <!ENTITY EtherealDevMailList "ethereal-dev[AT]ethereal.com">
   <!ENTITY EtherealUsersMailList "ethereal-users[AT]ethereal.com">
@@ -163,6 +161,7 @@ FILE SECTION
   <!ENTITY EtherealExportPSMLDialog SYSTEM "./graphics/ethereal-export-psml.png" NDATA PNG>
   <!ENTITY EtherealExportPDMLDialog SYSTEM "./graphics/ethereal-export-pdml.png" NDATA PNG>
   <!ENTITY EtherealExportSelectedDialog SYSTEM "./graphics/ethereal-export-selected.png" NDATA PNG>
+  <!ENTITY EtherealCaptureInterfacesDialog SYSTEM "./graphics/ethereal-capture-interfaces.png" NDATA PNG>
   <!ENTITY EtherealCaptureOptionsDialog SYSTEM "./graphics/ethereal-capture-options.png" NDATA PNG>
   <!ENTITY EtherealCaptureInfoDialog SYSTEM "./graphics/ethereal-capture-info.png" NDATA PNG>
   <!ENTITY EtherealMergeDialog SYSTEM "./graphics/ethereal-merge.png" NDATA PNG>
@@ -219,23 +218,23 @@ FILE SECTION
 
 
 <!-- These are the actual files that make up the document -->
-  <!ENTITY BookMetaInformation SYSTEM "ug-src/EUG_meta_info.xml">
-  <!ENTITY Preface SYSTEM  "ug-src/EUG_preface.xml">
-  <!ENTITY ChapterIntroduction SYSTEM "ug-src/EUG_chapter_introduction.xml">
-  <!ENTITY ChapterBuildInstall SYSTEM "ug-src/EUG_chapter_build_install.xml">
-  <!ENTITY ChapterUse SYSTEM "ug-src/EUG_chapter_use.xml">
-  <!ENTITY ChapterCapture SYSTEM "ug-src/EUG_chapter_capture.xml">
-  <!ENTITY ChapterIo SYSTEM "ug-src/EUG_chapter_io.xml">
-  <!ENTITY ChapterWork SYSTEM "ug-src/EUG_chapter_work.xml">
-  <!ENTITY ChapterAdvanced SYSTEM "ug-src/EUG_chapter_advanced.xml">
-  <!ENTITY ChapterStatistics SYSTEM "ug-src/EUG_chapter_statistics.xml">
-  <!ENTITY ChapterCustomize SYSTEM "ug-src/EUG_chapter_customize.xml">
-  <!ENTITY ChapterTroubleshoot SYSTEM "ug-src/EUG_chapter_troubleshoot.xml">
-  <!ENTITY AppMessages SYSTEM "ug-src/EUG_app_messages.xml">
-  <!ENTITY AppFiles SYSTEM "ug-src/EUG_app_files.xml">
-  <!ENTITY AppProtocols SYSTEM   "ug-src/EUG_app_protocols.xml">
-  <!ENTITY AppHowItWorks SYSTEM "ug-src/EUG_app_howitworks.xml">
-  <!ENTITY AppTools SYSTEM "ug-src/EUG_app_tools.xml">
+  <!ENTITY BookMetaInformation SYSTEM "eug_src/EUG_meta_info.xml">
+  <!ENTITY Preface SYSTEM  "eug_src/EUG_preface.xml">
+  <!ENTITY ChapterIntroduction SYSTEM "eug_src/EUG_chapter_introduction.xml">
+  <!ENTITY ChapterBuildInstall SYSTEM "eug_src/EUG_chapter_build_install.xml">
+  <!ENTITY ChapterUse SYSTEM "eug_src/EUG_chapter_use.xml">
+  <!ENTITY ChapterCapture SYSTEM "eug_src/EUG_chapter_capture.xml">
+  <!ENTITY ChapterIo SYSTEM "eug_src/EUG_chapter_io.xml">
+  <!ENTITY ChapterWork SYSTEM "eug_src/EUG_chapter_work.xml">
+  <!ENTITY ChapterAdvanced SYSTEM "eug_src/EUG_chapter_advanced.xml">
+  <!ENTITY ChapterStatistics SYSTEM "eug_src/EUG_chapter_statistics.xml">
+  <!ENTITY ChapterCustomize SYSTEM "eug_src/EUG_chapter_customize.xml">
+  <!ENTITY ChapterTroubleshoot SYSTEM "eug_src/EUG_chapter_troubleshoot.xml">
+  <!ENTITY AppMessages SYSTEM "eug_src/EUG_app_messages.xml">
+  <!ENTITY AppFiles SYSTEM "eug_src/EUG_app_files.xml">
+  <!ENTITY AppProtocols SYSTEM   "eug_src/EUG_app_protocols.xml">
+  <!ENTITY AppHowItWorks SYSTEM "eug_src/EUG_app_howitworks.xml">
+  <!ENTITY AppTools SYSTEM "eug_src/EUG_app_tools.xml">
   <!ENTITY AppGPL SYSTEM    "GPL_appendix.xml">
   <!ENTITY ProtoList SYSTEM    "protocols.xml">
 

@@ -1,18 +1,46 @@
 # x509ce.cnf
 # X509CE conformation file
 
-# $Id: x509ce.cnf,v 1.2 2004/06/03 08:35:44 guy Exp $
+# $Id$
 
 #.MODULE_IMPORT
 InformationFramework x509if
 AuthenticationFramework x509af
+SelectedAttributeTypes x509sat
 
 #.INCLUDE ../x509if/x509if_exp.cnf
 #.INCLUDE ../x509af/x509af_exp.cnf
+#.INCLUDE ../x509sat/x509sat_exp.cnf
 
 #.EXPORTS
 
 GeneralNames
+
+#.PDU
+AttributesSyntax
+AuthorityKeyIdentifier
+BaseCRLNumber
+BasicConstraintsSyntax
+CertificatePoliciesSyntax
+CRLDistPointsSyntax
+CRLNumber
+CRLReason
+CRLScopeSyntax
+CRLStreamIdentifier
+DeltaInformation
+GeneralNames
+HoldInstruction
+IssuingDistPointSyntax
+KeyPurposeIDs
+KeyUsage
+NameConstraintsSyntax
+OrderedListSyntax
+PolicyConstraintsSyntax
+PolicyMappingsSyntax
+PrivateKeyUsagePeriod
+SkipCerts
+StatusReferrals
+SubjectKeyIdentifier
 
 #.NO_EMIT
 

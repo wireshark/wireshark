@@ -48,9 +48,9 @@
 #include <epan/packet.h>
 #include "packet-ipv6.h"
 #include "packet-dns.h"
-#include "in_cksum.h"
+#include <epan/in_cksum.h>
 #include <epan/addr_resolv.h>
-#include "ipproto.h"
+#include <epan/ipproto.h>
 
 #ifndef offsetof
 #define	offsetof(type, member)	((size_t)(&((type *)0)->member))
@@ -1652,6 +1652,7 @@ proto_reg_handoff_icmpv6(void)
 
   icmpv6_handle = create_dissector_handle(dissect_icmpv6, proto_icmpv6);
   dissector_add("ip.proto", IP_PROTO_ICMPV6, icmpv6_handle);
+  dissector_add("wtap_encap", WTAP_ENCAP_RAW_ICMPV6, icmpv6_handle);
 
   /*
    * Get a handle for the IPv6 dissector.

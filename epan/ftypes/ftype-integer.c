@@ -29,16 +29,20 @@
 #include "ftypes-int.h"
 #include <epan/addr_resolv.h>
 
+#ifdef NEED_G_ASCII_STRTOULL_H
+#include "g_ascii_strtoull.h"
+#endif
+
 /*
  * GLib 1.2[.x] doesn't define G_MAXUINT32 or G_MAXUINT64; if they're
  * not defined, we define them as the maximum 32-bit and 32-bit
  * unsigned numbers.
  */
 #ifndef G_MAXUINT32
-#define G_MAXUINT32	((guint32)0xFFFFFFFF)
+#define G_MAXUINT32	((guint32)0xFFFFFFFFU)
 #endif
 #ifndef G_MAXUINT64
-#define G_MAXUINT64	((guint64)G_GINT64_CONSTANT(0xFFFFFFFFFFFFFFFF))
+#define G_MAXUINT64	((guint64)G_GINT64_CONSTANT(0xFFFFFFFFFFFFFFFFU))
 #endif
 
 static void
@@ -220,7 +224,7 @@ val64_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, Log
 	char    *endptr;
 
 	errno = 0;
-	value = strtoull(s, &endptr, 0);
+	value = g_ascii_strtoull(s, &endptr, 0);
 
 	if (errno == EINVAL || endptr == s || *endptr != '\0') {
 		/* This isn't a valid number. */

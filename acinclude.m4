@@ -768,9 +768,13 @@ AC_DEFUN([AC_ETHEREAL_UCDSNMP_CHECK],
 		# libraries on various platforms, such as "-ldes425"
 		# in "/usr/kerberos/lib" on some versions of Red
 		# Hat Linux, or "-lkstat" on Solaris.
-		# XXX - it may also require "-lcrypto" on some platforms;
-		# we should check for that as well, rather than requiring
-		# users to explicitly indicate whether it's required.
+		#
+		# It might also require "-lcrypto" on some platforms;
+		# if the user didn't specify --with-ssl, we check
+		# whether it would have made a difference and, if so,
+		# we tell the user that they needed to request it.
+		# (There are annoying licensing issues with it and
+		# GPL'ed code, so we don't include it by default.)
 		#
 		# XXX - autoconf really needs a way to test for
 		# a given routine in a given library *and* to test
@@ -780,40 +784,64 @@ AC_DEFUN([AC_ETHEREAL_UCDSNMP_CHECK],
 		# needed after the library *and* to cache all that
 		# information.
 		#
-		ac_save_LIBS="$LIBS"
+		ethereal_save_LIBS="$LIBS"
+		found_sprint_realloc_objid=no
 		for extras in "" "-L/usr/kerberos/lib -ldes425" "-lkstat"
 		do
 			LIBS="-lsnmp $extras $SOCKET_LIBS $NSL_LIBS $SSL_LIBS"
+			if test -z "$extras"
+			then
+				AC_MSG_CHECKING([whether UCD SNMP includes sprint_realloc_objid])
+			else
+				AC_MSG_CHECKING([whether UCD SNMP includes sprint_realloc_objid (linking with $extras)])
+			fi
 			AC_TRY_LINK(
-			[
-			],
-			[
-			sprint_realloc_objid();
-			],
-			[
-			SNMP_LIBS="-lsnmp $extras"; break;
-			],
-			[
-			])
-			
-#        int sprint_realloc_objid(u_char **buf, size_t *buf_len, size_t *out_len, int allow_realloc, const oid *objid, size_t objidlen);
-#        AC_TRY_LINK(includes, body, [if-found], [if-not-found])
-#			AC_CHECK_LIB(snmp, sprint_realloc_objid,
-#			  [
-#				SNMP_LIBS="-lsnmp $extras"; break
-#			  ],
-#			  [
-#				#
-#				# Throw away the cached "we didn't find it"
-#				# answer, so that if we rerun "configure",
-#				# we still do all these checks and don't
-#				# just blithely assume we don't need
-#				# the extra libraries.
-#				#
-#				unset ac_cv_lib_snmp_sprint_realloc_objid
-#			  ], $SOCKET_LIBS $NSL_LIBS $SSL_LIBS $extras)
+			    [
+			    ],
+			    [
+				sprint_realloc_objid();
+			    ],
+			    [
+				#
+				# We found "sprint_realloc_objid()",
+				# and required the libraries in
+				# extras as well.
+				#
+				AC_MSG_RESULT(yes)
+				SNMP_LIBS="-lsnmp $extras"; break;
+				found_sprint_realloc_objid=yes
+				break
+			    ],
+			    [
+				#
+				# The link failed.  If they didn't ask
+				# for SSL, try linking with -lcrypto
+				# as well, and if *that* succeeds,
+				# tell them they'll need to specify
+				# --want-ssl.
+				#
+				AC_MSG_RESULT(no)
+				if test "x$want_ssl" = "xno"
+				then
+					LIBS="$LIBS -lcrypto"
+					AC_TRY_LINK(
+					    [
+					    ],
+					    [
+						sprint_realloc_objid();
+					    ],
+					    [
+						#
+						# It worked with -lcrypto; tell
+						# them they'll need to specify
+						# --with-ssl.
+						#
+						AC_MSG_ERROR([UCD SNMP requires -lcrypto but --with-ssl not specified])
+					    ])
+				fi
+			    ])
 		done
-		LIBS=$ac_save_LIBS
+		LIBS="$ethereal_save_LIBS"
 
 		#
 		# If we didn't find "sprint_realloc_objid()", fail.
@@ -821,7 +849,7 @@ AC_DEFUN([AC_ETHEREAL_UCDSNMP_CHECK],
 		# with "sprint_realloc_objid()", or they may need to
 		# specify "--with-ssl".
 		#
-		if test "$ac_cv_lib_snmp_sprint_realloc_objid" = no; then
+		if test "$found_snmp_sprint_realloc_objid" = no; then
 		    AC_MSG_ERROR([UCD SNMP header files found, but sprint_realloc_objid not found in SNMP library.])
 		fi
 
@@ -840,59 +868,6 @@ AC_DEFUN([AC_ETHEREAL_UCDSNMP_CHECK],
 			AC_MSG_ERROR(Header file ucd-snmp/snmp.h not found.)
 		fi
 	])
-])
-
-#
-# AC_ETHEREAL_SSL_CHECK
-#
-AC_DEFUN([AC_ETHEREAL_SSL_CHECK],
-[
-	want_ssl=defaultno
-
-	AC_ARG_WITH(ssl,
-changequote(<<, >>)dnl
-<<  --with-ssl[=DIR]        use SSL crypto library (located in directory DIR, if supplied).   [default=no]>>,
-changequote([, ])dnl
-	[
-	if   test "x$withval" = "xno";  then
-		want_ssl=no
-	elif test "x$withval" = "xyes"; then
-		want_ssl=yes
-	elif test -d "$withval"; then
-		want_ssl=yes
-		AC_ETHEREAL_ADD_DASH_L(LDFLAGS, ${withval}/lib)
-	fi
-	])
-
-	if test "x$want_ssl" = "xdefaultyes"; then
-		want_ssl=yes
-		withval=/usr/local/ssl
-		if test -d "$withval"; then
-			AC_ETHEREAL_ADD_DASH_L(LDFLAGS, ${withval}/lib)
-		fi
-	fi
-
-	if test "x$want_ssl" = "xyes"; then
-	    LIBS="-lcrypto"
-            AC_TRY_LINK(
-                [
-		void EVP_md5();
-                ],
-                [
-        	EVP_md5();
-                ],
-                [
-		AC_MSG_RESULT([yes])
-		SSL_LIBS=-lcrypto
-                ],
-                [
-                AC_MSG_RESULT([no])
-                AC_MSG_ERROR([libcrypto failed link test.])
-                ])
-
-	else
-		AC_MSG_RESULT(not required)
-	fi
 ])
 
 #
@@ -980,6 +955,8 @@ changequote([, ])dnl
 #
 AC_DEFUN([AC_ETHEREAL_KRB5_CHECK],
 [
+	ethereal_save_CFLAGS="$CFLAGS"
+	ethereal_save_CPPFLAGS="$CPPFLAGS"
 	if test "x$krb5_dir" != "x"
 	then
 	  #
@@ -994,35 +971,44 @@ AC_DEFUN([AC_ETHEREAL_KRB5_CHECK],
 	  # as the compiler and/or linker will search that other
 	  # directory before it searches the specified directory.
 	  #
-	  ethereal_save_CFLAGS="$CFLAGS"
 	  CFLAGS="$CFLAGS -I$krb5_dir/include"
-	  ethereal_save_CPPFLAGS="$CPPFLAGS"
 	  CPPFLAGS="$CPPFLAGS -I$krb5_dir/include"
-	  KRB5_LIBS="-lkrb5 -lasn1 $SSL_LIBS -lroken -lcrypt -lresolv"
-	  ethereal_save_LDFLAGS="$LDFLAGS"
-	  LDFLAGS="$LDFLAGS -L$krb5_dir/lib"
-	  ac_krb5_version=`grep -i heimdal $krb5_dir/include/krb5.h | head -n 1 | sed 's/^.*heimdal.*$/HEIMDAL/i'` 
+	  KRB5_LIBS="-L$krb5_dir/lib -lkrb5 -lasn1 $SSL_LIBS -lroken -lcrypt"
+	  ac_krb5_version=`grep heimdal $krb5_dir/include/krb5.h | head -n 1 | sed 's/^.*heimdal.*$/HEIMDAL/'`
 	else
 	  AC_PATH_PROG(KRB5_CONFIG, krb5-config) 
 	  if test -x "$KRB5_CONFIG"
 	  then
 	    KRB5_FLAGS=`"$KRB5_CONFIG" --cflags`
+	    KRB5_LIBS=`"$KRB5_CONFIG" --libs`
 	    CFLAGS="$CFLAGS $KRB5_FLAGS"
-            CPPFLAGS="$CPPFLAGS $KRB5_FLAGS"
-	    KRB5_LIBS=`"$KRB5_CONFIG" --libs | sed 's/-lcrypto//'`
-	    KRB5_LIBS="$KRB5_LIBS $SSL_LIBS"
-	    # Looks like krb5-config is lacking -lresolv on some systems
-	    AC_MSG_CHECKING(whether library list looks OK)
-	    if echo "$KRB5_LIBS" | grep resolv >/dev/null
-	    then
-		AC_MSG_RESULT(yes)
-	    else
-		KRB5_LIBS="$KRB5_LIBS -lresolv"
-		AC_MSG_RESULT(Adding -lresolv to libs)
-	    fi
-
-	    #LIBS="$LIBS $KRB5_LIBS"
-	    ac_krb5_version=`"$KRB5_CONFIG" --version | head -n 1 | sed 's/^.*heimdal.*$/HEIMDAL/i'`
+	    CPPFLAGS="$CPPFLAGS $KRB5_FLAGS"
+	    KRB5_LIBS=`"$KRB5_CONFIG" --libs`
+	    #
+	    # If -lcrypto is in KRB5_FLAGS, we require it to build
+	    # with Heimdal.  We don't want to built with it by
+	    # default, due to annoying license incompatibilities
+	    # between the OpenSSL license and the GPL, so:
+	    #
+	    #	if SSL_LIBS is set to a non-empty string, we
+	    #	remove -lcrypto from KRB5_LIBS and replace
+	    #	it with SSL_LIBS;
+	    #
+	    #	if SSL_LIBS is not set to a non-empty string
+	    #	we fail with an appropriate error message.
+	    #
+	    case "$KRB5_LIBS" in
+	    *-lcrypto*)
+		if test ! -z "$SSL_LIBS"
+		then
+		    KRB5_LIBS=`echo $KRB5_LIBS | sed 's/-lcrypto//'`
+		    KRB5_LIBS="$KRB5_LIBS $SSL_LIBS"
+		else
+		    AC_MSG_ERROR([Kerberos library requires -lcrypto but --with-ssl not specified])
+		fi
+		;;
+	    esac
+	    ac_krb5_version=`"$KRB5_CONFIG" --version | head -n 1 | sed 's/^.*heimdal.*$/HEIMDAL/'`
  	  fi
 	fi
 
@@ -1056,48 +1042,124 @@ AC_DEFUN([AC_ETHEREAL_KRB5_CHECK],
 		# library, as it's probably not present.
 		#
 		want_krb5=no
+		AC_MSG_RESULT(Heimdal header not found - disabling dissection for some kerberos data in packet decoding)
 	      fi
 	    fi
 	  ])
 
-	if test "x$want_krb5" != "xno" -a "x$ac_krb5_version" = "xHEIMDAL"
+	if test "x$want_krb5" != "xno"
 	then
+	    #
+	    # Well, we at least have the krb5 header file.
+	    # Check whether this is Heimdal.
+	    #
+	    AC_MSG_CHECKING(whether the Kerberos library is Heimdal)
+	    if test "x$ac_krb5_version" = "xHEIMDAL"
+	    then
 		#
-		# Well, we at least have the krb5 header file.
+		# Yes.
+		# Check whether we have krb5_kt_resolve - and whether
+		# we need to link with -lresolv when linking with
+		# the Kerberos library.
 		#
-		AC_CHECK_LIB(krb5, krb5_kt_resolve,
-		[
-			if test "x$krb5_dir" != "x"
-			then
-				#
-				# Put the "-I" and "-L" flags for krb5 at
-				# the beginning of CFLAGS, CPPFLAGS,
-				# LDFLAGS, and LIBS.
-				#
-				KRB5_LIBS="-L$krb5_dir/lib $KRB5_LIBS"
-			fi
-			AC_DEFINE(HAVE_KERBEROS, 1, [Define to use kerberos])
-			AC_DEFINE(HAVE_HEIMDAL_KERBEROS, 1, [Define to use heimdal kerberos])
-		],[
-			if test "x$krb5_dir" != "x"
-			then
-				#
-				# Restore the versions of CFLAGS, CPPFLAGS,
-				# LDFLAGS, and LIBS before we added the
-				# "--with-krb5=" directory, as we didn't
-				# actually find kerberos there.
-				#
-				CFLAGS="$ethereal_save_CFLAGS"
-				CPPFLAGS="$ethereal_save_CPPFLAGS"
-				LDFLAGS="$ethereal_save_LDFLAGS"
-				#LIBS="$ethereal_save_LIBS"
-				KRB5_LIBS=""
-			fi
+		AC_MSG_RESULT(yes)
+		ethereal_save_LIBS="$LIBS"
+		found_krb5_kt_resolve=no
+		for extras in "" "-lresolv"
+		do
+		    LIBS="$KRB5_LIBS $extras"
+		    if test -z "$extras"
+		    then
+			AC_MSG_CHECKING([whether Heimdal includes krb5_kt_resolve])
+		    else
+			AC_MSG_CHECKING([whether Heimdal includes krb5_kt_resolve (linking with $extras)])
+		    fi
+		    AC_TRY_LINK(
+			[
+			],
+			[
+			    krb5_kt_resolve();
+			],
+			[
+			    #
+			    # We found "krb5_kt_resolve()", and required
+			    # the libraries in extras as well.
+			    #
+			    AC_MSG_RESULT(yes)
+			    KRB5_LIBS="$LIBS"
+			    AC_DEFINE(HAVE_KERBEROS, 1, [Define to use kerberos])
+			    AC_DEFINE(HAVE_HEIMDAL_KERBEROS, 1, [Define to use heimdal kerberos])
+			    found_krb5_kt_resolve=yes
+			    break
+			],
+			[
+			    AC_MSG_RESULT(no)
+			])
+		done
+		if test "$found_krb5_kt_resolve" = no
+		then
+		    #
+		    # We didn't find "krb5_kt_resolve()" in the
+		    # Kerberos library, even when we tried linking
+		    # with -lresolv; we can't link with kerberos.
+		    #
+		    if test "x$want_krb5" = "xyes"
+		    then
+			#
+			# The user tried to force us to use the library,
+			# but we can't do so; report an error.
+			#
+			AC_MSG_ERROR(Usable Heimdal not found)
+		    else
+			#
+			# Restore the versions of CFLAGS and CPPFLAGS
+			# from before we added the flags for Kerberos.
+			#
+			AC_MSG_RESULT(Usable Heimdal not found - disabling dissection for some kerberos data in packet decoding)
+			CFLAGS="$ethereal_save_CFLAGS"
+			CPPFLAGS="$ethereal_save_CPPFLAGS"
+			KRB5_LIBS=""
 			want_krb5=no
-		], $KRB5_LIBS)
+		    fi
+		fi
+		LIBS="$ethereal_save_LIBS"
+	    else
+		#
+		# It's not Heimdal.
+		#
+		AC_MSG_RESULT(no)
+		if test "x$want_krb5" = "xyes"
+		then
+		    #
+		    # The user tried to force us to use the library,
+		    # but we can't do so; report an error.
+		    #
+		    AC_MSG_ERROR(Heimdal not found)
+		else
+		    #
+		    # Restore the versions of CFLAGS and CPPFLAGS
+		    # from before we added the flags for Kerberos.
+		    #
+		    AC_MSG_RESULT(Heimdal not found - disabling dissection for some kerberos data in packet decoding)
+		    CFLAGS="$ethereal_save_CFLAGS"
+		    CPPFLAGS="$ethereal_save_CPPFLAGS"
+		    KRB5_LIBS=""
+		    want_krb5=no
+		fi
+	    fi
 	else
-		KRB5_LIBS=""
-		want_krb5=no
+	    #
+	    # The user asked us not to use Kerberos, or they didn't
+	    # say whether they wanted us to use it but we found
+	    # that we couldn't.
+	    #
+	    # Restore the versions of CFLAGS and CPPFLAGS
+	    # from before we added the flags for Kerberos.
+	    #
+	    CFLAGS="$ethereal_save_CFLAGS"
+	    CPPFLAGS="$ethereal_save_CPPFLAGS"
+	    KRB5_LIBS=""
+	    want_krb5=no
 	fi
 	AC_SUBST(KRB5_LIBS)
 ])

@@ -34,7 +34,7 @@
 #include "stream_prefs.h"
 #include "keys.h"
 #include "print.h"
-#include "prefs.h"
+#include <epan/prefs.h>
 #include "compat_macros.h"
 #include "follow_dlg.h"
 #include "packet_list.h"

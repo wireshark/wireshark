@@ -125,7 +125,7 @@ This will first check the availability of all required tools and then uses
 the tool wget to download each package file (together around 30MB!) from the 
 server location at:
 
-http://www.ethereal.com/distribution/win32/development/
+	http://anonsvn.ethereal.com/ethereal-win32-libs/trunk/packages/
 
 and unpack it in the $ETHEREAL_LIBS directory. 
 
@@ -146,7 +146,7 @@ packages contain header files and stub libraries to link against.
 
 PRECOMPILED VERSIONS OF ALL OF THESE PACKAGES ARE AVAILABLE AT:
 
-	http://www.ethereal.com/distribution/win32/development/
+	http://anonsvn.ethereal.com/ethereal-win32-libs/trunk/packages/
 
 
 The GLIB, GTK+, iconv, gettext packages for win32 can be found at the home 

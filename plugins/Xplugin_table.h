@@ -229,8 +229,8 @@ typedef guint32 (*addr_dissect_per_object_identifier) (tvbuff_t *, guint32, pack
 typedef guint32 (*addr_dissect_per_boolean) (tvbuff_t *, guint32, packet_info *, proto_tree *, int, gboolean *, proto_item **);
 typedef guint32 (*addr_dissect_per_integer) (tvbuff_t *, guint32, packet_info *, proto_tree *, int, gint32 *, proto_item **);
 typedef guint32 (*addr_dissect_per_constrained_integer) (tvbuff_t *, guint32, packet_info *, proto_tree *, int, guint32, guint32, guint32 *, proto_item **, gboolean);
-typedef guint32 (*addr_dissect_per_choice) (tvbuff_t *, guint32, packet_info *, proto_tree *, int, gint, per_choice_t *, char *, guint32 *);
-typedef guint32 (*addr_dissect_per_sequence) (tvbuff_t *, guint32, packet_info *, proto_tree *, int, gint, per_sequence_t *);
+typedef guint32 (*addr_dissect_per_choice) (tvbuff_t *, guint32, packet_info *, proto_tree *, int, gint, const per_choice_t *, char *, guint32 *);
+typedef guint32 (*addr_dissect_per_sequence) (tvbuff_t *, guint32, packet_info *, proto_tree *, int, gint, const per_sequence_t *);
 typedef guint32 (*addr_dissect_per_octet_string) (tvbuff_t *, guint32, packet_info *, proto_tree *, int, int, int, guint32 *, guint32 *);
 typedef guint32 (*addr_dissect_per_restricted_character_string) (tvbuff_t *, guint32, packet_info *, proto_tree *, int, int, int, char *, int);
 typedef void (*addr_dissector_add_string) (const char *, gchar *, dissector_handle_t);
@@ -259,11 +259,11 @@ typedef int (*addr_dissect_ber_integer) (packet_info *, proto_tree *, tvbuff_t *
 typedef int (*addr_dissect_ber_boolean) (packet_info *, proto_tree *, tvbuff_t *, int, gint);
 typedef int (*addr_dissect_ber_choice) (packet_info *, proto_tree *, tvbuff_t *, int, const ber_choice *, gint, gint);
 typedef int (*addr_dissect_ber_generalized_time) (packet_info *, proto_tree *, tvbuff_t *, int, gint);
-typedef int (*addr_dissect_ber_sequence) (gboolean, packet_info *, proto_tree *, tvbuff_t *, int, ber_sequence *, gint, gint);
+typedef int (*addr_dissect_ber_sequence) (gboolean, packet_info *, proto_tree *, tvbuff_t *, int, const ber_sequence *, gint, gint);
 typedef int (*addr_dissect_ber_sequence_of) (gboolean, packet_info *, proto_tree *, tvbuff_t *, int, ber_sequence *, gint, gint);
 typedef int (*addr_dissect_ber_set_of) (gboolean, packet_info *, proto_tree *, tvbuff_t *, int, ber_sequence *, gint, gint);
 typedef int (*addr_dissect_ber_octet_string) (gboolean, packet_info *, proto_tree *, tvbuff_t *, int, gint, tvbuff_t **);
-typedef int (*addr_dissect_ber_bitstring) (gboolean, packet_info *, proto_tree *, tvbuff_t *, int, asn_namedbit *, gint, gint, tvbuff_t **);
+typedef int (*addr_dissect_ber_bitstring) (gboolean, packet_info *, proto_tree *, tvbuff_t *, int, const asn_namedbit *, gint, gint, tvbuff_t **);
 typedef int (*addr_dissect_ber_restricted_string) (gboolean, guint32, packet_info *, proto_tree *, tvbuff_t *, int, gint, tvbuff_t **);
 typedef int (*addr_dissect_ber_object_identifier) (gboolean, packet_info *, proto_tree *, tvbuff_t *, int, gint, char *);
 typedef int (*addr_get_ber_identifier) (tvbuff_t *, int, guint8 *, gboolean *, guint32 *);
@@ -294,3 +294,13 @@ typedef int (*addr_dissect_rpc_indir_reply) (tvbuff_t *, packet_info *, proto_tr
 typedef guint16 (*addr_crc16_ccitt_tvb) (tvbuff_t *, unsigned int);
 typedef guint64 (*addr_tvb_get_letoh64) (tvbuff_t *, gint);
 typedef guint64 (*addr_tvb_get_ntoh64) (tvbuff_t *, gint);
+typedef proto_item *(*addr_proto_tree_add_float) (proto_tree *, int, tvbuff_t *, gint, gint, float);
+typedef proto_item *(*addr_proto_tree_add_float_hidden) (proto_tree *, int, tvbuff_t *, gint, gint, float);
+typedef proto_item *(*addr_proto_tree_add_float_format) (proto_tree *, int, tvbuff_t *, gint, gint, float, const char *, ...);
+typedef gfloat (*addr_tvb_get_ntohieee_float) (tvbuff_t *, gint);
+typedef gdouble (*addr_tvb_get_ntohieee_double) (tvbuff_t *, gint);
+typedef gfloat (*addr_tvb_get_letohieee_float) (tvbuff_t *, gint);
+typedef gdouble (*addr_tvb_get_letohieee_double) (tvbuff_t *, gint);
+typedef proto_item *(*addr_proto_tree_add_debug_text) (proto_tree *, const char *, ...);
+typedef void (*addr_rtp_add_address) (packet_info *, address *, int, int, gchar *, guint32);
+typedef void (*addr_rtcp_add_address) (packet_info *, address *, int, int, gchar *, guint32);

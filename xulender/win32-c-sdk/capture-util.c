@@ -42,7 +42,7 @@
 
 #include "ringbuffer.h"
 #include "pcap-util.h"
-#include "prefs.h"
+#include <epan/prefs.h>
 #include "capture_combo_utils.h"
 
 #include "win32-globals.h"

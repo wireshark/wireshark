@@ -64,7 +64,7 @@
 #include <epan/packet.h>
 #include <epan/conversation.h>
 
-#include "prefs.h"
+#include <epan/prefs.h>
 #include "packet-frame.h"
 #include "packet-x11-keysymdef.h"
 
@@ -1129,6 +1129,7 @@ static const value_string zero_is_none_vals[] = {
 #define LISTofATOM(name, length) { listOfAtom(tvb, offsetp, t, hf_x11_##name, (length) / 4, little_endian); }
 #define LISTofBYTE(name, length) { listOfByte(tvb, offsetp, t, hf_x11_##name, (length), little_endian); }
 #define LISTofCARD8(name, length) { listOfByte(tvb, offsetp, t, hf_x11_##name, (length), little_endian); }
+#define LISTofIPADDRESS(name, length) { listOfByte(tvb, offsetp, t, hf_x11_##name, (length), FALSE); }
 #define LISTofCARD32(name, length) { listOfCard32(tvb, offsetp, t, hf_x11_##name, hf_x11_##name##_item, (length) / 4, little_endian); }
 #define LISTofCOLORITEM(name, length) { listOfColorItem(tvb, offsetp, t, hf_x11_##name, (length) / 12, little_endian); }
 #define LISTofKEYCODE(map, name, length) { listOfKeycode(tvb, offsetp, t, hf_x11_##name, map, (length), little_endian); }
@@ -3995,7 +3996,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 		   * XXX - what about IPv6?  Is that a family of
 		   * FAMILY_INTERNET (0) with a length of 16?
 		   */
-		  LISTofCARD8(ip_address, v16);
+		  LISTofIPADDRESS(ip_address, v16);
 	    } else
 		  LISTofCARD8(address, v16);
 	    break;

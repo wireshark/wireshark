@@ -34,28 +34,17 @@
 #include "globals.h"
 #include "simple_dialog.h"
 #include <epan/packet.h>
-#include "ipproto.h"
+#include <epan/ipproto.h>
 #include "ui_util.h"
 #include <epan/epan_dissect.h>
 #include "compat_macros.h"
+#include "decode_as_dcerpc.h"
 
 #undef DEBUG
 
 /**************************************************/
 /*                Typedefs & Enums                */
 /**************************************************/
-
-/*
- * Enum used to track which radio button is currently selected in the
- * dialog. These buttons are labeled "Decode" and "Do not decode".
- */
-enum action_type {
-    /* The "Decode" button is currently selected. */
-    E_DECODE_YES,
-
-    /* The "Do not decode" button is currently selected. */
-    E_DECODE_NO
-};
 
 /*
  * Enum used to track which transport layer port menu item is
@@ -69,7 +58,7 @@ enum srcdst_type {
     E_DECODE_DPORT,
     /* The "source/destination port" menu item is currently selected. */
     E_DECODE_BPORT,
-    /* For SCTP only: PPID 0 is chosen. */
+    /* For SCTP only. This MUST be the last entry! */
     E_DECODE_PPID
 };
 
@@ -78,25 +67,9 @@ enum srcdst_type {
 
 #define E_MENU_SRCDST "menu_src_dst"
 
-#define E_PAGE_ACTION "notebook_page_action"
 #define E_PAGE_DPORT "dport"
 #define E_PAGE_SPORT "sport"
-
-#define E_PAGE_LIST   "notebook_page_list"
-#define E_PAGE_TABLE  "notebook_page_table_name"
-#define E_PAGE_TITLE  "notebook_page_title"
-#define E_PAGE_VALUE  "notebook_page_value"
-
-/*
- * Columns for a "Select" list.
- * Note that most of these columns aren't displayed; they're attached
- * to the row of the table as additional information.
- */
-#define E_LIST_S_PROTO_NAME 0
-#define E_LIST_S_TABLE	    1
-/* The following is for debugging in decode_add_to_list */
-#define E_LIST_S_MAX	    E_LIST_S_TABLE
-#define E_LIST_S_COLUMNS   (E_LIST_S_MAX + 1)
+#define E_PAGE_PPID  "ppid"
 
 /*
  * Columns for a "Display" list
@@ -134,7 +107,7 @@ static GtkWidget *decode_show_w = NULL;
  * selected the "Decode" radio button.  When the "Do not decode"
  * button is selected these items should be dimmed.
  */
-static GSList *decode_dimmable = NULL;
+GSList *decode_dimmable = NULL;
 
 /*
  * Remember the "action" radio button that is currently selected in
@@ -142,10 +115,21 @@ static GSList *decode_dimmable = NULL;
  * modified in a callback routine, and read in the routine that
  * handles a click in the "OK" button for the dialog.
  */
-static enum action_type	requested_action = -1;
+enum action_type	requested_action = -1;
+
 
 /**************************************************/
-/*            Resett Changed Dissectors           */
+/*            Global Functions                    */
+/**************************************************/
+
+/* init this module */
+void decode_as_init(void) {
+
+    decode_dcerpc_init();
+}
+
+/**************************************************/
+/*            Reset Changed Dissectors            */
 /**************************************************/
 
 /*
@@ -232,6 +216,85 @@ decode_build_reset_list (gchar *table_name, ftenum_t selector_type,
 /*             Show Changed Dissectors            */
 /**************************************************/
 
+#if GTK_MAJOR_VERSION >= 2
+#define SORT_ALPHABETICAL 0
+
+static gint
+sort_iter_compare_func (GtkTreeModel *model,
+GtkTreeIter *a,
+GtkTreeIter *b,
+gpointer userdata)
+{
+    gint sortcol = GPOINTER_TO_INT(userdata);
+    gint ret = 0;
+    switch (sortcol)
+    {
+        case SORT_ALPHABETICAL:
+        {
+        gchar *name1, *name2;
+        gtk_tree_model_get(model, a, 0, &name1, -1);
+        gtk_tree_model_get(model, b, 0, &name2, -1);
+        if (name1 == NULL || name2 == NULL)
+        {
+            if (name1 == NULL && name2 == NULL)
+                break; /* both equal => ret = 0 */
+            ret = (name1 == NULL) ? -1 : 1;
+        }
+        else
+        {
+            ret = g_ascii_strcasecmp(name1,name2);
+        }
+        g_free(name1);
+        g_free(name2);
+        }
+        break;
+        default:
+        g_return_val_if_reached(0);
+    }
+    return ret;
+}
+#endif
+
+
+void
+decode_add_to_show_list (
+gpointer list_data, 
+gchar *table_name, 
+gchar *selector_name, 
+gchar *initial_proto_name, 
+gchar *current_proto_name)
+{
+    gchar     *text[E_LIST_D_COLUMNS];
+#if GTK_MAJOR_VERSION < 2
+    GtkCList  *clist;
+    gint       row;
+#else
+    GtkListStore *store;
+    GtkTreeIter   iter;
+#endif
+
+#if GTK_MAJOR_VERSION < 2
+    clist = (GtkCList *)list_data;
+#else
+    store = (GtkListStore *)list_data;
+#endif
+
+    text[E_LIST_D_TABLE] = table_name;
+    text[E_LIST_D_SELECTOR] = selector_name;
+    text[E_LIST_D_INITIAL] = initial_proto_name;
+    text[E_LIST_D_CURRENT] = current_proto_name;
+#if GTK_MAJOR_VERSION < 2
+    row = gtk_clist_prepend(clist, text);
+#else
+    gtk_list_store_append(store, &iter);
+    gtk_list_store_set(store, &iter, E_LIST_D_TABLE, text[E_LIST_D_TABLE],
+                       E_LIST_D_SELECTOR, text[E_LIST_D_SELECTOR],
+                       E_LIST_D_INITIAL, text[E_LIST_D_INITIAL],
+                       E_LIST_D_CURRENT, text[E_LIST_D_CURRENT], -1);
+#endif
+}
+
+
 /*
  * This routine creates one entry in the list of protocol dissector
  * that have been changed.  It is called by the g_hash_foreach routine
@@ -255,25 +318,13 @@ static void
 decode_build_show_list (gchar *table_name, ftenum_t selector_type,
 			gpointer key, gpointer value, gpointer user_data)
 {
-#if GTK_MAJOR_VERSION < 2
-    GtkCList  *clist;
-    gint       row;
-#else
-    GtkListStore *store;
-    GtkTreeIter   iter;
-#endif
     dissector_handle_t current, initial;
-    gchar     *current_proto_name, *initial_proto_name, *text[E_LIST_D_COLUMNS];
+    gchar     *current_proto_name, *initial_proto_name, *selector_name;
     gchar      string1[20];
 
     g_assert(user_data);
     g_assert(value);
 
-#if GTK_MAJOR_VERSION < 2
-    clist = (GtkCList *)user_data;
-#else
-    store = (GtkListStore *)user_data;
-#endif
     current = dtbl_entry_get_handle(value);
     if (current == NULL)
 	current_proto_name = "(none)";
@@ -285,7 +336,6 @@ decode_build_show_list (gchar *table_name, ftenum_t selector_type,
     else
 	initial_proto_name = dissector_handle_get_short_name(initial);
 
-    text[E_LIST_D_TABLE] = get_dissector_table_ui_name(table_name);
     switch (selector_type) {
 
     case FT_UINT8:
@@ -327,29 +377,66 @@ decode_build_show_list (gchar *table_name, ftenum_t selector_type,
 	    g_snprintf(string1, sizeof(string1), "%#o", GPOINTER_TO_UINT(key));
 	    break;
 	}
-	text[E_LIST_D_SELECTOR] = string1;
+	selector_name = string1;
 	break;
 
     case FT_STRING:
     case FT_STRINGZ:
-	text[E_LIST_D_SELECTOR] = key;
+	selector_name = key;
 	break;
 
     default:
 	g_assert_not_reached();
+	selector_name = NULL;
 	break;
     }
-    text[E_LIST_D_INITIAL] = initial_proto_name;
-    text[E_LIST_D_CURRENT] = current_proto_name;
-#if GTK_MAJOR_VERSION < 2
-    row = gtk_clist_prepend(clist, text);
-#else
-    gtk_list_store_append(store, &iter);
-    gtk_list_store_set(store, &iter, E_LIST_D_TABLE, text[E_LIST_D_TABLE],
-                       E_LIST_D_SELECTOR, text[E_LIST_D_SELECTOR],
-                       E_LIST_D_INITIAL, text[E_LIST_D_INITIAL],
-                       E_LIST_D_CURRENT, text[E_LIST_D_CURRENT], -1);
-#endif
+
+    decode_add_to_show_list (
+        user_data, 
+        get_dissector_table_ui_name(table_name),
+        selector_name, 
+        initial_proto_name, 
+        current_proto_name);
+}
+
+
+/* clear all settings */
+static void
+decode_clear_all(void)
+{
+    dissector_delete_item_t *item;
+    GSList *tmp;
+
+    dissector_all_tables_foreach_changed(decode_build_reset_list, NULL);
+
+    for (tmp = dissector_reset_list; tmp; tmp = g_slist_next(tmp)) {
+	item = tmp->data;
+	switch (item->ddi_selector_type) {
+
+	case FT_UINT8:
+	case FT_UINT16:
+	case FT_UINT24:
+	case FT_UINT32:
+	    dissector_reset(item->ddi_table_name, item->ddi_selector.sel_uint);
+	    break;
+
+	case FT_STRING:
+	case FT_STRINGZ:
+	    dissector_reset_string(item->ddi_table_name,
+				   item->ddi_selector.sel_string);
+	    break;
+
+	default:
+	    g_assert_not_reached();
+	}
+	g_free(item);
+    }
+    g_slist_free(dissector_reset_list);
+    dissector_reset_list = NULL;
+
+    decode_dcerpc_reset_all();
+
+    redissect_packets(&cfile);
 }
 
 
@@ -382,47 +469,16 @@ decode_show_ok_cb (GtkWidget *ok_bt _U_, gpointer parent_w)
 static void
 decode_show_clear_cb (GtkWidget *clear_bt _U_, gpointer parent_w)
 {
-    dissector_delete_item_t *item;
-    GSList *tmp;
-
-    dissector_all_tables_foreach_changed(decode_build_reset_list, NULL);
-
-    for (tmp = dissector_reset_list; tmp; tmp = g_slist_next(tmp)) {
-	item = tmp->data;
-	switch (item->ddi_selector_type) {
-
-	case FT_UINT8:
-	case FT_UINT16:
-	case FT_UINT24:
-	case FT_UINT32:
-	    dissector_reset(item->ddi_table_name, item->ddi_selector.sel_uint);
-	    break;
-
-	case FT_STRING:
-	case FT_STRINGZ:
-	    dissector_reset_string(item->ddi_table_name,
-				   item->ddi_selector.sel_string);
-	    break;
-
-	default:
-	    g_assert_not_reached();
-	}
-	g_free(item);
-    }
-    g_slist_free(dissector_reset_list);
-    dissector_reset_list = NULL;
-
-    redissect_packets(&cfile);
+    decode_clear_all();
 
     window_destroy(GTK_WIDGET(parent_w));
 }
 
 
 /*
- * This routine is called when the user clicks the "Close" button in
+ * This routine is called when the user clicks the X at the top right end in
  * the "Decode As:Show..." dialog window.  This routine simply calls the
- * cancel routine as if the user had clicked the cancel button instead
- * of the close button.
+ * ok routine as if the user had clicked the ok button.
  *
  * @param GtkWidget * A pointer to the dialog box.
  *
@@ -525,9 +581,11 @@ decode_show_cb (GtkWidget * w _U_, gpointer data _U_)
 #if GTK_MAJOR_VERSION < 2
 	dissector_all_tables_foreach_changed(decode_build_show_list, list);
 	gtk_clist_sort(list);
+    decode_dcerpc_add_show_list(list);
 #else
 	dissector_all_tables_foreach_changed(decode_build_show_list, store);
 	g_object_unref(G_OBJECT(store));
+    decode_dcerpc_add_show_list(store);
 #endif
 
 	/* Put clist into a scrolled window */
@@ -648,7 +706,6 @@ decode_change_one_dissector(gchar *table_name, guint selector, GtkWidget *list)
 }
 
 
-
 /**************************************************/
 /* Action routines for the "Decode As..." dialog  */
 /*   - called when the OK button pressed          */
@@ -743,7 +800,7 @@ decode_transport(GtkWidget *notebook_pg)
     GtkWidget *menu, *menuitem;
     GtkWidget *list;
     gchar *table_name;
-    gint requested_srcdst, requested_port;
+    gint requested_srcdst, requested_port, ppid;
     gpointer portp;
 
     list = OBJECT_GET_DATA(notebook_pg, E_PAGE_LIST);
@@ -765,9 +822,16 @@ decode_transport(GtkWidget *notebook_pg)
 #endif
 
     table_name = OBJECT_GET_DATA(notebook_pg, E_PAGE_TABLE);
-    if (requested_srcdst == E_DECODE_PPID) {
-    	decode_change_one_dissector(table_name, 0, list);
-	return;
+    if (requested_srcdst >= E_DECODE_PPID) {
+    	if (requested_srcdst == E_DECODE_PPID)
+    	   ppid = 0;
+        else
+           if (requested_srcdst - E_DECODE_PPID - 1 < MAX_NUMBER_OF_PPIDS)
+             ppid = cfile.edt->pi.ppid[requested_srcdst - E_DECODE_PPID - 1];
+           else 
+             return;
+        decode_change_one_dissector(table_name, ppid, list);
+	    return;
     }
     if (requested_srcdst != E_DECODE_DPORT) {
         portp = OBJECT_GET_DATA(notebook_pg, E_PAGE_SPORT);
@@ -784,6 +848,7 @@ decode_transport(GtkWidget *notebook_pg)
         }
     }
 }
+
 
 /**************************************************/
 /*      Signals from the "Decode As..." dialog    */
@@ -808,6 +873,7 @@ decode_ok_cb (GtkWidget *ok_bt _U_, gpointer parent_w)
     GtkWidget *notebook, *notebook_pg;
     void (* func)(GtkWidget *);
     gint page_num;
+    void *binding = NULL;
 
     /* Call the right routine for the page that was currently in front. */
     notebook =  OBJECT_GET_DATA(parent_w, E_NOTEBOOK);
@@ -818,6 +884,13 @@ decode_ok_cb (GtkWidget *ok_bt _U_, gpointer parent_w)
     func(notebook_pg);
 
     /* Now destroy the "Decode As" dialog. */
+    notebook_pg = OBJECT_GET_DATA(parent_w, E_PAGE_DCERPC);
+    if(notebook_pg) {
+        binding = OBJECT_GET_DATA(notebook_pg, E_PAGE_BINDING);
+    }
+    if(binding) {
+        decode_dcerpc_binding_free(binding);    
+    }
     window_destroy(GTK_WIDGET(parent_w));
     g_slist_free(decode_dimmable);
     decode_dimmable = NULL;
@@ -855,17 +928,28 @@ decode_apply_cb (GtkWidget *apply_bt _U_, gpointer parent_w)
 }
 
 /*
- * This routine is called when the user clicks the "Cancel" button in
+ * This routine is called when the user clicks the "Close" button in
  * the "Decode As..." dialog window.  This routine then destroys the
  * dialog box and performs other housekeeping functions.
  *
- * @param cancel_bt A pointer to the "Cancel" button.
+ * @param close_bt A pointer to the "Close" button.
  *
  * @param parent_w A pointer to the dialog window.
  */
 static void
-decode_cancel_cb (GtkWidget *cancel_bt _U_, gpointer parent_w)
+decode_close_cb (GtkWidget *close_bt _U_, gpointer parent_w)
 {
+    GtkWidget *notebook_pg = NULL;
+    void *binding = NULL;
+
+
+    notebook_pg = OBJECT_GET_DATA(parent_w, E_PAGE_DCERPC);
+    if(notebook_pg) {
+        binding = OBJECT_GET_DATA(notebook_pg, E_PAGE_BINDING);
+    }
+    if(binding) {
+        decode_dcerpc_binding_free(binding);
+    }
     window_destroy(GTK_WIDGET(parent_w));
     g_slist_free(decode_dimmable);
     decode_dimmable = NULL;
@@ -875,7 +959,7 @@ decode_cancel_cb (GtkWidget *cancel_bt _U_, gpointer parent_w)
 /*
  * This routine is called when the user clicks the "Close" button in
  * the "Decode As..." dialog window.  This routine simply calls the
- * cancel routine as if the user had clicked the cancel button instead
+ * close routine as if the user had clicked the close button instead
  * of the close button.
  *
  * @param decode_w A pointer to the dialog box.
@@ -885,7 +969,7 @@ decode_cancel_cb (GtkWidget *cancel_bt _U_, gpointer parent_w)
 static gboolean
 decode_delete_cb (GtkWidget *decode_w, gpointer dummy _U_)
 {
-    decode_cancel_cb(NULL, decode_w);
+    decode_close_cb(NULL, decode_w);
     return FALSE;
 }
 
@@ -908,6 +992,22 @@ decode_destroy_cb (GtkWidget *win _U_, gpointer user_data _U_)
     /* Note that we no longer have a "Decode As" dialog box. */
     decode_w = NULL;
 }
+
+
+/*
+ * This routine is called when the user clicks the "Clear" button in
+ * the "Decode As..." dialog window.  This routine resets all the
+ * dissector values and performs other housekeeping functions.
+ *
+ * @param GtkWidget * A pointer to the "Clear" button.
+ * @param gpointer A pointer to the dialog window.
+ */
+static void
+decode_clear_cb(GtkWidget *clear_bt _U_, gpointer parent_w)
+{
+    decode_clear_all();
+}
+
 
 
 /**************************************************/
@@ -1045,18 +1145,30 @@ decode_add_ppid_menu (GtkWidget *page)
 {
     GtkWidget *optmenu, *menu, *menuitem, *alignment;
     gchar      tmp[100];
-
+    guint      number_of_ppid;
+    
     optmenu = gtk_option_menu_new();
     menu = gtk_menu_new();
+    
     g_snprintf(tmp, 100, "PPID (%u)", 0);
     menuitem = gtk_menu_item_new_with_label(tmp);
     OBJECT_SET_DATA(menuitem, "user_data", GINT_TO_POINTER(E_DECODE_PPID));
     gtk_menu_append(GTK_MENU(menu), menuitem);
     gtk_widget_show(menuitem);	/* gtk_widget_show_all() doesn't show this */
-
+    
+    for(number_of_ppid = 0; number_of_ppid < MAX_NUMBER_OF_PPIDS; number_of_ppid++)
+      if (cfile.edt->pi.ppid[number_of_ppid] != 0) {
+        g_snprintf(tmp, 100, "PPID (%u)", cfile.edt->pi.ppid[number_of_ppid]);
+        menuitem = gtk_menu_item_new_with_label(tmp);
+        OBJECT_SET_DATA(menuitem, "user_data", GINT_TO_POINTER(E_DECODE_PPID + 1 + number_of_ppid));
+        gtk_menu_append(GTK_MENU(menu), menuitem);
+        gtk_widget_show(menuitem);	/* gtk_widget_show_all() doesn't show this */
+      } else
+        break;
+                
     OBJECT_SET_DATA(page, E_MENU_SRCDST, menu);
     gtk_option_menu_set_menu(GTK_OPTION_MENU(optmenu), menu);
-
+    
     alignment = decode_add_pack_menu(optmenu);
 
     return(alignment);
@@ -1108,12 +1220,10 @@ lookup_handle(GtkTreeModel *model, GtkTreePath *path _U_, GtkTreeIter *iter,
  * routine, specifying information about the dissector table and where
  * to store any information generated by this routine.
  */
-static void
-decode_add_to_list (gchar *table_name, gpointer value, gpointer user_data)
+void
+decode_add_to_list (gchar *table_name, gchar *proto_name, gpointer value, gpointer user_data)
 {
-    gchar     *proto_name;
     gchar     *text[E_LIST_S_COLUMNS];
-    dissector_handle_t handle;
 #if GTK_MAJOR_VERSION < 2
     GtkCList  *list;
     gint       row;
@@ -1123,26 +1233,19 @@ decode_add_to_list (gchar *table_name, gpointer value, gpointer user_data)
     GtkTreeIter   iter;
     struct handle_lookup_info hli;
 #endif
-    gint       i;
 
     g_assert(user_data);
     g_assert(value);
 
     list = user_data;
-    handle = value;
-    proto_name = dissector_handle_get_short_name(handle);
 
-    i = dissector_handle_get_protocol_index(handle);
-    if (i >= 0 && !proto_is_protocol_enabled(find_protocol_by_id(i)))
-        return;
-  
 #if GTK_MAJOR_VERSION < 2
-    row = gtk_clist_find_row_from_data(list, handle);
+    row = gtk_clist_find_row_from_data(list, value);
     /* We already have an entry for this handle.
      * XXX - will this ever happen? */
     if (row != -1) return;
 #else
-    hli.handle = handle;
+    hli.handle = value;
     hli.found = FALSE;
     store = GTK_LIST_STORE(gtk_tree_view_get_model(list));
     gtk_tree_model_foreach(GTK_TREE_MODEL(store), lookup_handle, &hli);
@@ -1155,14 +1258,32 @@ decode_add_to_list (gchar *table_name, gpointer value, gpointer user_data)
     text[E_LIST_S_TABLE] = table_name;
 #if GTK_MAJOR_VERSION < 2
     row = gtk_clist_prepend(list, text);
-    gtk_clist_set_row_data(list, row, handle);
+    gtk_clist_set_row_data(list, row, value);
 #else
     gtk_list_store_append(store, &iter);
     gtk_list_store_set(store, &iter,
                        E_LIST_S_PROTO_NAME, text[E_LIST_S_PROTO_NAME],
                        E_LIST_S_TABLE, text[E_LIST_S_TABLE],
-                       E_LIST_S_TABLE+1, handle, -1);
+                       E_LIST_S_TABLE+1, value, -1);
 #endif
+}
+
+static void
+decode_proto_add_to_list (gchar *table_name, gpointer value, gpointer user_data)
+{
+    gchar     *proto_name;
+    gint       i;
+    dissector_handle_t handle;
+
+
+    handle = value;
+    proto_name = dissector_handle_get_short_name(handle);
+
+    i = dissector_handle_get_protocol_index(handle);
+    if (i >= 0 && !proto_is_protocol_enabled(find_protocol_by_id(i)))
+        return;
+  
+    decode_add_to_list (table_name, proto_name, value, user_data);
 }
 
 
@@ -1179,7 +1300,7 @@ decode_add_to_list (gchar *table_name, gpointer value, gpointer user_data)
  * @param scrolled_win_p Will be filled in with the address of a newly
  * created GtkScrolledWindow.
  */
-static void
+void
 decode_list_menu_start(GtkWidget *page, GtkWidget **list_p,
                        GtkWidget **scrolled_win_p)
 {
@@ -1192,6 +1313,7 @@ decode_list_menu_start(GtkWidget *page, GtkWidget **list_p,
     GtkListStore      *store;
     GtkCellRenderer   *renderer;
     GtkTreeViewColumn *tc;
+    GtkTreeSortable   *sortable;
 #endif
 
 #if GTK_MAJOR_VERSION < 2
@@ -1209,6 +1331,9 @@ decode_list_menu_start(GtkWidget *page, GtkWidget **list_p,
     store = gtk_list_store_new(E_LIST_S_COLUMNS+1, G_TYPE_STRING,
                                G_TYPE_STRING, G_TYPE_POINTER);
     list = GTK_TREE_VIEW(tree_view_new(GTK_TREE_MODEL(store)));
+    sortable = GTK_TREE_SORTABLE(store);
+    gtk_tree_sortable_set_sort_func(sortable, SORT_ALPHABETICAL, sort_iter_compare_func, GINT_TO_POINTER(SORT_ALPHABETICAL), NULL);
+    gtk_tree_sortable_set_sort_column_id(sortable, SORT_ALPHABETICAL, GTK_SORT_ASCENDING);
     gtk_tree_view_set_headers_clickable(list, FALSE);
 #ifndef DEBUG
     gtk_tree_view_set_headers_visible(list, FALSE);
@@ -1247,7 +1372,7 @@ decode_list_menu_start(GtkWidget *page, GtkWidget **list_p,
  *
  * @param list A pointer the the List to finish.
  */
-static void
+void
 decode_list_menu_finish(GtkWidget *list)
 {
     gchar *text[E_LIST_S_COLUMNS];
@@ -1301,10 +1426,11 @@ decode_add_simple_menu (GtkWidget *page, gchar *table_name)
     GtkWidget *list;
 
     decode_list_menu_start(page, &list, &scrolled_window);
-    dissector_table_foreach_handle(table_name, decode_add_to_list, list);
+    dissector_table_foreach_handle(table_name, decode_proto_add_to_list, list);
     decode_list_menu_finish(list);
     return(scrolled_window);
 }
+
 
 /**************************************************/
 /*                  Dialog setup                  */
@@ -1437,6 +1563,7 @@ decode_add_sctp_page (gchar *prompt, gchar *table_name)
     return(page);
 }
 
+
 /*
  * This routine indicates whether we'd actually have any pages in the
  * notebook in a "Decode As" dialog box; if there wouldn't be, we
@@ -1513,6 +1640,13 @@ decode_add_notebook (GtkWidget *format_hb)
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), page, label);
     }
 
+    if(cfile.edt->pi.dcetransporttype != -1) {
+	    page = decode_dcerpc_add_page(&cfile.edt->pi);
+	    label = gtk_label_new("DCE-RPC");
+	    gtk_notebook_append_page(GTK_NOTEBOOK(notebook), page, label);
+        OBJECT_SET_DATA(decode_w, E_PAGE_DCERPC, page);
+    }
+
     /* Select the last added page (selects first by default) */
     /* Notebook must be visible for set_page to work. */
     gtk_widget_show_all(notebook);
@@ -1537,8 +1671,9 @@ decode_add_notebook (GtkWidget *format_hb)
 void
 decode_as_cb (GtkWidget * w _U_, gpointer data _U_)
 {
-    GtkWidget	*main_vb, *format_hb, *bbox, *ok_bt, *cancel_bt, *button;
+    GtkWidget	*main_vb, *format_hb, *bbox, *ok_bt, *close_bt, *button;
     GtkWidget   *button_vb, *apply_bt;
+    GtkTooltips *tooltips = gtk_tooltips_new();
 
     if (decode_w != NULL) {
 	/* There's already a "Decode As" dialog box; reactivate it. */
@@ -1568,24 +1703,39 @@ decode_as_cb (GtkWidget * w _U_, gpointer data _U_)
     SIGNAL_CONNECT(button, "clicked", decode_show_cb, decode_w);
     GTK_WIDGET_SET_FLAGS(button, GTK_CAN_DEFAULT);
     gtk_box_pack_start(GTK_BOX(button_vb), button, FALSE, FALSE, 0);
+    gtk_tooltips_set_tip(tooltips, button, 
+        "Open a dialog showing the current settings.", NULL);
+
+    button = gtk_button_new_with_label("Clear");
+    SIGNAL_CONNECT(button, "clicked", decode_clear_cb, decode_w);
+    GTK_WIDGET_SET_FLAGS(button, GTK_CAN_DEFAULT);
+    gtk_box_pack_start(GTK_BOX(button_vb), button, FALSE, FALSE, 0);
+    gtk_tooltips_set_tip(tooltips, button, 
+        "Clear ALL settings.", NULL);
 
 	decode_add_notebook(format_hb);
     }
 
     /* Button row */
-    bbox = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_APPLY, GTK_STOCK_CANCEL, NULL);
+    bbox = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_APPLY, GTK_STOCK_CLOSE, NULL);
     gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 0);
     gtk_widget_show(bbox);
 
     ok_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_OK);
     SIGNAL_CONNECT(ok_bt, "clicked", decode_ok_cb, decode_w);
+    gtk_tooltips_set_tip(tooltips, ok_bt, 
+        "Apply current setting, close dialog and redissect packets.", NULL);
 
     apply_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_APPLY);
     SIGNAL_CONNECT(apply_bt, "clicked", decode_apply_cb, decode_w);
+    gtk_tooltips_set_tip(tooltips, apply_bt, 
+        "Apply current setting, redissect packets and keep dialog open.", NULL);
 
-    cancel_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CANCEL);
-    window_set_cancel_button(decode_w, cancel_bt, NULL);
-    SIGNAL_CONNECT(cancel_bt, "clicked", decode_cancel_cb, decode_w);
+    close_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
+    window_set_cancel_button(decode_w, close_bt, NULL);
+    SIGNAL_CONNECT(close_bt, "clicked", decode_close_cb, decode_w);
+    gtk_tooltips_set_tip(tooltips, close_bt, 
+        "Close the dialog, don't redissect packets.", NULL);
 
     gtk_widget_grab_default(ok_bt);
 
@@ -1595,11 +1745,3 @@ decode_as_cb (GtkWidget * w _U_, gpointer data _U_)
     gtk_widget_show_all(decode_w);
     window_present(decode_w);
 }
-
-
-/*
- * Local Variables:
- * mode:c
- * c-basic-offset: 4
- * End:
- */

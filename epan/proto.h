@@ -998,8 +998,13 @@ extern GPtrArray* proto_find_finfo(proto_tree *tree, int hfindex);
 /** Dumps a glossary of the protocol registrations to STDOUT */
 extern void proto_registrar_dump_protocols(void);
 
-/** Dumps a glossary of the protocol and field registrations to STDOUT */
-extern void proto_registrar_dump_fields(void);
+/** Dumps a glossary of the field value strings or true/false strings to STDOUT */
+extern void proto_registrar_dump_values(void);
+
+/** Dumps a glossary of the protocol and field registrations to STDOUT.
+ * Format 1 is the original format. Format 2 includes the base (for integers)
+ * and the blurb. */
+extern void proto_registrar_dump_fields(int format);
 
 
 
