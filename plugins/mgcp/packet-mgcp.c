@@ -280,7 +280,7 @@ mgcp_call_hash(gconstpointer k)
 {
 	const mgcp_call_info_key* key = (const mgcp_call_info_key*) k;
 
-	return key->transid  + (guint32)(key->conversation);
+	return key->transid  + key->conversation->index;
 }
 
 /*
