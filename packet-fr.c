@@ -3,7 +3,7 @@
  *
  * Copyright 2001, Paul Ionescu	<paul@acorp.ro>
  *
- * $Id: packet-fr.c,v 1.33 2003/01/31 01:02:03 guy Exp $
+ * $Id: packet-fr.c,v 1.34 2003/04/29 17:56:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -45,7 +45,6 @@
 #include <string.h>
 #include <glib.h>
 #include <epan/packet.h>
-#include "packet-osi.h"
 #include "packet-llc.h"
 #include "packet-chdlc.h"
 #include "xdlc.h"
@@ -89,6 +88,8 @@ static gint hf_fr_snaptype = -1;
 static gint hf_fr_chdlctype = -1;
 
 static dissector_handle_t data_handle;
+
+static dissector_table_t osinl_subdissector_table;
 
 static const true_false_string cmd_string = {
                 "Command",
@@ -432,4 +433,6 @@ void proto_reg_handoff_fr(void)
   dissector_add("wtap_encap", WTAP_ENCAP_FRELAY_WITH_PHDR, fr_handle);
   dissector_add("gre.proto", GRE_FR, fr_handle);
   data_handle = find_dissector("data");
+
+  osinl_subdissector_table = find_dissector_table("osinl");
 }

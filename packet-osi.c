@@ -2,7 +2,7 @@
  * Routines for ISO/OSI network and transport protocol packet disassembly
  * Main entrance point and common functions
  *
- * $Id: packet-osi.c,v 1.59 2003/02/24 19:49:03 guy Exp $
+ * $Id: packet-osi.c,v 1.60 2003/04/29 17:56:48 guy Exp $
  * Laurent Deniel <laurent.deniel@free.fr>
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
@@ -130,7 +130,7 @@ const value_string nlpid_vals[] = {
 	{ 0,                     NULL },
 };
 
-dissector_table_t osinl_subdissector_table;
+static dissector_table_t osinl_subdissector_table;
 static dissector_handle_t data_handle;
 
 static void dissect_osi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)

@@ -1,7 +1,7 @@
 /* packet-ppp.c
  * Routines for ppp packet disassembly
  *
- * $Id: packet-ppp.c,v 1.109 2003/04/28 04:03:24 gerald Exp $
+ * $Id: packet-ppp.c,v 1.110 2003/04/29 17:56:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -157,10 +157,7 @@ static gint ett_ipv6cp_options = -1;
 static gint ett_ipv6cp_if_id_opt = -1;
 static gint ett_ipv6cp_compressprot_opt = -1;  
 
-/*
- * Used by the GTP dissector as well.
- */
-dissector_table_t ppp_subdissector_table;
+static dissector_table_t ppp_subdissector_table;
 static dissector_handle_t chdlc_handle;
 static dissector_handle_t data_handle;
 

@@ -1,6 +1,6 @@
 /* packet-ppp.h
  *
- * $Id: packet-ppp.h,v 1.12 2002/11/11 19:23:12 guy Exp $
+ * $Id: packet-ppp.h,v 1.13 2003/04/29 17:56:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -32,7 +32,6 @@ void capture_ppp_hdlc(const guchar *, int, int, packet_counts *);
 /*
  * Used by the GTP dissector as well.
  */
-extern dissector_table_t ppp_subdissector_table;
 extern const value_string ppp_vals[];
 
 #endif

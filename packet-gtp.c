@@ -4,7 +4,7 @@
  * Copyright 2001, Michal Melerowicz <michal.melerowicz@nokia.com>
  *                 Nicolas Balkota <balkota@mac.com>
  *
- * $Id: packet-gtp.c,v 1.53 2003/02/07 19:57:19 guy Exp $
+ * $Id: packet-gtp.c,v 1.54 2003/04/29 17:56:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -40,6 +40,8 @@
 #include "packet-ipv6.h"
 #include "packet-ppp.h"
 #include "prefs.h"
+
+static dissector_table_t ppp_subdissector_table;
 
 /*
  * All data related to GTP v0 (GPRS) uses "gtpv0" or "GTPv0",
@@ -5379,6 +5381,8 @@ proto_reg_handoff_gtp(void)
 		gtpv0_handle = find_dissector("gtpv0");
 
 		gtpv1_handle = find_dissector("gtpv1");
+
+		ppp_subdissector_table = find_dissector_table("ppp.protocol");
 
 		Initialized = TRUE;
 
