@@ -1,4 +1,4 @@
-# $Id: config.nmake,v 1.75 2004/01/05 15:05:00 ulfl Exp $
+# $Id: config.nmake,v 1.76 2004/01/05 21:04:42 ulfl Exp $
 
 VERSION=0.10.0
 #
@@ -23,7 +23,7 @@ WTAP_VERSION=0.0
 # If you're not building with WinPcap at all, don't set it (comment
 # out or remove the line that sets it).
 #
-WINPCAP_VERSION=2.3
+WINPCAP_VERSION=3.0
 
 # 
 # Base directory, where your libraries reside, which needs to be 
@@ -111,9 +111,9 @@ ICONV_DIR=$(ETHEREAL_LIBS)\libiconv-1.9.1.bin.woe32
 GETTEXT_DIR=$(ETHEREAL_LIBS)\gettext-runtime-0.12.1.bin.woe32
 
 # Compiler flags
-# /W2  warning level 2 (0 less - 4 most, 1 default)
+# /W3  warning level 3 (0 less - 4 most, 1 default)
 # /Zi  create .pdb file for debugging
-LOCAL_CFLAGS=/Zi /W2
+LOCAL_CFLAGS=/Zi /W3
 
 # Linker flags
 # /DEBUG generate debug info
