@@ -1,5 +1,5 @@
 /* 
- * $Id: ftype-bytes.c,v 1.10 2002/02/05 22:50:17 guy Exp $
+ * $Id: ftype-bytes.c,v 1.11 2002/05/09 23:50:32 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -551,19 +551,46 @@ ftype_register_bytes(void)
 {
 
 	static ftype_t bytes_type = {
-		"FT_BYTES",
-		"sequence of bytes",
-		0,
-		bytes_fvalue_new,
-		bytes_fvalue_free,
-		val_from_string,
+		"FT_BYTES",			/* name */
+		"sequence of bytes",		/* pretty_name */
+		0,				/* wire_size */
+		bytes_fvalue_new,		/* new_value */
+		bytes_fvalue_free,		/* free_value */
+		val_from_string,		/* val_from_string */
 
-		bytes_fvalue_set,
-		NULL,
+		bytes_fvalue_set,		/* set_value */
+		NULL,				/* set_value_integer */
+		NULL,				/* set_value_floating */
+
+		value_get,			/* get_value */
+		NULL,				/* get_value_integer */
 		NULL,
 
-		value_get,
-		NULL,
+		cmp_eq,
+		cmp_ne,
+		cmp_gt,
+		cmp_ge,
+		cmp_lt,
+		cmp_le,
+
+		len,
+		slice,
+	};
+
+	static ftype_t uint_bytes_type = {
+		"FT_UINT_BYTES",		/* name */
+		"sequence of bytes",		/* pretty_name */
+		0,				/* wire_size */
+		bytes_fvalue_new,		/* new_value */
+		bytes_fvalue_free,		/* free_value */
+		val_from_string,		/* val_from_string */
+
+		bytes_fvalue_set,		/* set_value */
+		NULL,				/* set_value_integer */
+		NULL,				/* set_value_floating */
+
+		value_get,			/* get_value */
+		NULL,				/* get_value_integer */
 		NULL,
 
 		cmp_eq,
@@ -686,6 +713,7 @@ ftype_register_bytes(void)
 	};
 
 	ftype_register(FT_BYTES, &bytes_type);
+	ftype_register(FT_UINT_BYTES, &bytes_type);
 	ftype_register(FT_ETHER, &ether_type);
 	ftype_register(FT_IPv6, &ipv6_type);
 	ftype_register(FT_UINT64, &u64_type);

@@ -1,7 +1,7 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.183 2002/05/03 15:50:11 nneul Exp $
+# $Id: Makefile.nmake,v 1.184 2002/05/09 23:50:24 gram Exp $
 
 include config.nmake
 include <win32.mak>
@@ -413,7 +413,7 @@ x11-declarations.h x11-register-info.h: x11-fields process-x11-fields.pl
 packet-ncp2222.c : ncp2222.py
 !IFDEF PYTHON
 	@echo Making packet-ncp2222.c
-	$(PYTHON) ncp2222.py > packet-ncp2222.c
+	$(PYTHON) ncp2222.py -o packet-ncp2222.c
 !ELSE
 	@echo Faking packet-ncp2222.c...
 	@echo Python is required to build the NCP disector

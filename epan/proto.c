@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.67 2002/04/29 07:55:31 guy Exp $
+ * $Id: proto.c,v 1.68 2002/05/09 23:50:28 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -633,6 +633,15 @@ proto_tree_add_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 			proto_tree_set_bytes_tvb(new_fi, tvb, start, length);
 			break;
 
+		case FT_UINT_BYTES:
+			n = get_uint_value(tvb, start, length, little_endian);
+			proto_tree_set_bytes_tvb(new_fi, tvb, start + length, n);
+
+			/* Instead of calling proto_item_set_len(), since we don't yet
+			 * have a proto_item, we set the field_info's length ourselves. */
+			new_fi->length = n + length;
+			break;
+
 		case FT_BOOLEAN:
 			proto_tree_set_boolean(new_fi,
 			    get_uint_value(tvb, start, length, little_endian));
@@ -690,19 +699,30 @@ proto_tree_add_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 			break;
 
 		case FT_STRINGZ:
-			/* In this case, length signifies maximum length. */
+			if (length == -1) {
+				/* This can throw an exception */
+				length = tvb_strsize(tvb, start);
 
-			/* This g_strdup'ed memory is freed in proto_tree_free_node() */
-			string = g_malloc(length);
+				/* This g_strdup'ed memory is freed in proto_tree_free_node() */
+				string = g_malloc(length);
 
-			CLEANUP_PUSH(g_free, string);
+				tvb_memcpy(tvb, string, start, length);
+				new_fi->length = length;
+			}
+			else {
+				/* In this case, length signifies maximum length. */
 
-			found_length = tvb_get_nstringz0(tvb, start, length, string);
+				/* This g_strdup'ed memory is freed in proto_tree_free_node() */
+				string = g_malloc(length);
 
-			CLEANUP_POP;
+				CLEANUP_PUSH(g_free, string);
 
+				found_length = tvb_get_nstringz0(tvb, start, length, string);
+
+				CLEANUP_POP;
+				new_fi->length = found_length + 1;
+			}
 			proto_tree_set_string(new_fi, string, TRUE);
-			new_fi->length = found_length + 1;
 
 			break;
 
@@ -1749,7 +1769,8 @@ alloc_field_info(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 		g_assert(hfinfo->type == FT_PROTOCOL ||
 			 hfinfo->type == FT_NONE ||
 			 hfinfo->type == FT_BYTES ||
-			 hfinfo->type == FT_STRING);
+			 hfinfo->type == FT_STRING ||
+			 hfinfo->type == FT_STRINGZ);
 		*length = tvb_ensure_length_remaining(tvb, start);
 	}
 
@@ -1885,12 +1906,16 @@ proto_tree_create_root(void)
 	return (proto_tree*) g_node_new(pnode);
 }
 
+	
+/* "prime" a proto_tree with a single hfid that a dfilter
+ * is interested in. */
 void
-proto_tree_prime_hfid(proto_tree *tree, int hfid)
+proto_tree_prime_hfid(proto_tree *tree, gint hfid)
 {
 	g_hash_table_insert(PTREE_DATA(tree)->interesting_hfids,
-	    GINT_TO_POINTER(hfid), g_ptr_array_new());
+		GINT_TO_POINTER(hfid), g_ptr_array_new());
 }
+
 
 proto_tree*
 proto_item_add_subtree(proto_item *pi,  gint idx) {
@@ -2214,11 +2239,12 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 			break;
 
 		case FT_BYTES:
+		case FT_UINT_BYTES:
 			bytes = fvalue_get(fi->value);
 			if (bytes) {
 				snprintf(label_str, ITEM_LABEL_LENGTH,
 					"%s: %s", hfinfo->name, 
-					 bytes_to_str(bytes, fi->length));
+					 bytes_to_str(bytes, fvalue_length(fi->value)));
 			}
 			else {
 				snprintf(label_str, ITEM_LABEL_LENGTH,
@@ -3093,7 +3119,10 @@ proto_can_match_selected(field_info *finfo)
 		case FT_ABSOLUTE_TIME:
 		case FT_RELATIVE_TIME:
 		case FT_STRING:
+		case FT_STRINGZ:
+		case FT_UINT_STRING:
 		case FT_BYTES:
+		case FT_UINT_BYTES:
 			/*
 			 * These all have values, so we can match.
 			 */
@@ -3218,11 +3247,6 @@ proto_alloc_dfilter_string(field_info *finfo, guint8 *pd)
 					hfinfo->abbrev, value_str);
 			break;
 
-#if 0
-		case FT_TEXT_ONLY:
-			; /* nothing */
-			break;
-#endif
 
 		case FT_STRING:
 			value_str = fvalue_get(finfo->value);
@@ -3233,12 +3257,15 @@ proto_alloc_dfilter_string(field_info *finfo, guint8 *pd)
 			break;
 
 		case FT_BYTES:
-			dfilter_len = finfo->length*3 - 1;
+		case FT_UINT_BYTES:
+			dfilter_len = fvalue_length(finfo->value)*3 - 1;
 			dfilter_len += abbrev_len + 7;
 			buf = g_malloc0(dfilter_len);
 			snprintf(buf, dfilter_len, "%s == %s",
 				 hfinfo->abbrev,
-				 bytes_to_str_punct(fvalue_get(finfo->value), finfo->length,':'));
+				 /* XXX - bytes_to_str_punct() will truncate long strings with '...' */
+				 bytes_to_str_punct(fvalue_get(finfo->value),
+					 fvalue_length(finfo->value),':'));
 			break;       
 
 		default:

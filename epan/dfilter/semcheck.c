@@ -1,5 +1,5 @@
 /*
- * $Id: semcheck.c,v 1.10 2002/03/02 20:48:11 guy Exp $
+ * $Id: semcheck.c,v 1.11 2002/05/09 23:50:30 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -59,7 +59,8 @@ compatible_ftypes(ftenum_t a, ftenum_t b)
 
 		case FT_ETHER:
 		case FT_BYTES:
-			return (b == FT_ETHER || b == FT_BYTES);
+		case FT_UINT_BYTES:
+			return (b == FT_ETHER || b == FT_BYTES || b == FT_UINT_BYTES);
 
 		case FT_BOOLEAN:
 		case FT_UINT8:
@@ -140,6 +141,7 @@ mk_fvalue_from_val_string(header_field_info *hfinfo, char *s)
 		case FT_IPXNET:
 		case FT_ETHER:
 		case FT_BYTES:
+		case FT_UINT_BYTES:
 		case FT_STRING:
 		case FT_STRINGZ:
 		case FT_UINT_STRING:
@@ -212,6 +214,7 @@ is_bytes_type(enum ftenum type)
 	switch(type) {
 		case FT_ETHER:
 		case FT_BYTES:
+		case FT_UINT_BYTES:
 		case FT_IPv6:
 			return TRUE;
 

@@ -1,6 +1,6 @@
 /* epan.h
  *
- * $Id: epan.c,v 1.17 2002/02/18 01:08:41 guy Exp $
+ * $Id: epan.c,v 1.18 2002/05/09 23:50:28 gram Exp $
  *
  * Ethereal Protocol Analyzer Library
  *
@@ -50,6 +50,7 @@ epan_init(const char *plugin_dir, void (register_all_protocols)(void),
 	proto_init(plugin_dir,register_all_protocols,register_all_handoffs);
 	packet_init();
 	dfilter_init();
+	final_registration_all_protocols();
 }
 
 void
@@ -116,19 +117,10 @@ epan_dissect_free(epan_dissect_t* edt)
 	g_free(edt);
 }
 
-static void
-prime_dfilter(gpointer data, gpointer user_data)
-{
-    int hfid = GPOINTER_TO_INT(data);
-    proto_tree *tree = user_data;
-
-    proto_tree_prime_hfid(tree, hfid);
-}
-
 void
 epan_dissect_prime_dfilter(epan_dissect_t *edt, dfilter_t* dfcode)
 {
-    dfilter_foreach_interesting_field(dfcode, prime_dfilter, edt->tree);
+	dfilter_prime_proto_tree(dfcode, edt->tree);
 }
 
 void

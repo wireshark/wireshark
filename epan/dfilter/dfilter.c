@@ -1,5 +1,5 @@
 /*
- * $Id: dfilter.c,v 1.9 2002/04/29 07:55:32 guy Exp $
+ * $Id: dfilter.c,v 1.10 2002/05/09 23:50:30 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -284,26 +284,25 @@ FAILURE:
 
 
 gboolean
-dfilter_apply(dfilter_t *df, tvbuff_t *tvb, proto_tree *tree)
+dfilter_apply(dfilter_t *df, proto_tree *tree)
 {
-	return dfvm_apply(df, tvb, tree);
+	return dfvm_apply(df, tree);
 }
 
 gboolean
 dfilter_apply_edt(dfilter_t *df, epan_dissect_t* edt)
 {
-	return dfvm_apply(df, edt->tvb, edt->tree);
+	return dfvm_apply(df, edt->tree);
 }
 
 
 void
-dfilter_foreach_interesting_field(dfilter_t *df, GFunc func,
-        gpointer user_data)
+dfilter_prime_proto_tree(dfilter_t *df, proto_tree *tree)
 {
     int i;
 
     for (i = 0; i < df->num_interesting_fields; i++) {
-        func(GINT_TO_POINTER(df->interesting_fields[i]), user_data);
+        proto_tree_prime_hfid(tree, df->interesting_fields[i]);
     }
 }
                 

@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.55 2002/04/28 00:13:05 guy Exp $
+ * $Id: packet.h,v 1.56 2002/05/09 23:50:28 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -247,6 +247,20 @@ extern void register_postseq_cleanup_routine(void (*func)(void));
 
 /* Call all the registered "postseq_cleanup" routines. */
 extern void postseq_cleanup_all_protocols(void);
+
+/* Allow dissectors to register a "final_registration" routine
+ * that is run like the proto_register_XXX() routine, but the end
+ * end of the epan_init() function; that is, *after* all other
+ * subsystems, liked dfilters, have finished initializing. This is
+ * useful for dissector registration routines which need to compile
+ * display filters. dfilters can't initialize itself until all protocols
+ * have registereed themselvs. */
+void
+register_final_registration_routine(void (*func)(void));
+
+/* Call all the registered "final_registration" routines. */
+void
+final_registration_all_protocols(void);
 
 /*
  * Add a new data source to the list of data sources for a frame, given

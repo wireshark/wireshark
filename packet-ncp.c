@@ -3,7 +3,7 @@
  * Gilbert Ramirez <gram@alumni.rice.edu>
  * Modified to allow NCP over TCP/IP decodes by James Coe <jammer@cin.net>
  *
- * $Id: packet-ncp.c,v 1.55 2002/01/24 09:20:49 guy Exp $
+ * $Id: packet-ncp.c,v 1.56 2002/05/09 23:50:25 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -53,7 +53,7 @@ static int hf_ncp_seq = -1;
 static int hf_ncp_connection = -1;
 static int hf_ncp_task = -1;
 
-static gint ett_ncp = -1;
+gint ett_ncp = -1;
 
 #define TCP_PORT_NCP		524
 #define UDP_PORT_NCP		524
@@ -64,8 +64,6 @@ static gint ett_ncp = -1;
 /* Hash functions */
 gint  ncp_equal (gconstpointer v, gconstpointer v2);
 guint ncp_hash  (gconstpointer v);
-
-static guint ncp_packet_init_count = 200;
 
 /* These are the header structures to handle NCP over IP */
 #define	NCPIP_RQST	0x446d6454	/* "DmdT" */
@@ -126,113 +124,6 @@ static value_string ncp_type_vals[] = {
 	{ 0x0000, NULL }
 };
 
-
-/* NCP packets come in request/reply pairs. The request packets tell the type
- * of NCP request and give a sequence ID. The response, unfortunately, only
- * identifies itself via the sequence ID; you have to know what type of NCP
- * request the request packet contained in order to successfully parse the NCP
- * response. A global method for doing this does not exist in ethereal yet
- * (NFS also requires it), so for now the NCP section will keep its own hash
- * table keeping track of NCP packet types.
- *
- * We construct a conversation specified by the client and server
- * addresses and the connection number; the key representing the unique
- * NCP request then is composed of the pointer to the conversation
- * structure, cast to a "guint" (which may throw away the upper 32
- * bits of the pointer on a P64 platform, but the low-order 32 bits
- * are more likely to differ between conversations than the upper 32 bits),
- * and the sequence number.
- *
- * The value stored in the hash table is the ncp_request_val pointer. This
- * struct tells us the NCP type and gives the ncp2222_record pointer, if
- * ncp_type == 0x2222.
- */
-typedef struct {
-	conversation_t	*conversation;
-	guint8		nw_sequence;
-} ncp_request_key;
-
-
-static GHashTable *ncp_request_hash = NULL;
-static GMemChunk *ncp_request_keys = NULL;
-
-/* Hash Functions */
-gint  ncp_equal (gconstpointer v, gconstpointer v2)
-{
-	ncp_request_key	*val1 = (ncp_request_key*)v;
-	ncp_request_key	*val2 = (ncp_request_key*)v2;
-
-	if (val1->conversation == val2->conversation &&
-	    val1->nw_sequence  == val2->nw_sequence ) {
-		return 1;
-	}
-	return 0;
-}
-
-guint ncp_hash  (gconstpointer v)
-{
-	ncp_request_key	*ncp_key = (ncp_request_key*)v;
-	return GPOINTER_TO_UINT(ncp_key->conversation) + ncp_key->nw_sequence;
-}
-
-/* Initializes the hash table and the mem_chunk area each time a new
- * file is loaded or re-loaded in ethereal */
-static void
-ncp_init_protocol(void)
-{
-	if (ncp_request_hash)
-		g_hash_table_destroy(ncp_request_hash);
-	if (ncp_request_keys)
-		g_mem_chunk_destroy(ncp_request_keys);
-
-	ncp_request_hash = g_hash_table_new(ncp_hash, ncp_equal);
-	ncp_request_keys = g_mem_chunk_new("ncp_request_keys",
-			sizeof(ncp_request_key),
-			ncp_packet_init_count * sizeof(ncp_request_key), G_ALLOC_AND_FREE);
-}
-
-/* After the sequential run, we don't need the ncp_request hash and keys
- * anymore; the lookups have already been done and the vital info
- * saved in the reply-packets' private_data in the frame_data struct. */
-static void
-ncp_postseq_cleanup(void)
-{
-	if (ncp_request_hash) {
-		g_hash_table_destroy(ncp_request_hash);
-		ncp_request_hash = NULL;
-	}
-	if (ncp_request_keys) {
-		g_mem_chunk_destroy(ncp_request_keys);
-		ncp_request_keys = NULL;
-	}
-}
-
-void
-ncp_hash_insert(conversation_t *conversation, guint8 nw_sequence,
-		const ncp_record *ncp_rec)
-{
-	ncp_request_key		*request_key;
-
-	/* Now remember the request, so we can find it if we later
-	   a reply to it. */
-	request_key = g_mem_chunk_alloc(ncp_request_keys);
-	request_key->conversation = conversation;
-	request_key->nw_sequence = nw_sequence;
-
-	g_hash_table_insert(ncp_request_hash, request_key, (void*)ncp_rec);
-}
-
-/* Returns the ncp_rec*, or NULL if not found. */
-const ncp_record*
-ncp_hash_lookup(conversation_t *conversation, guint8 nw_sequence)
-{
-	ncp_request_key		request_key;
-
-	request_key.conversation = conversation;
-	request_key.nw_sequence = nw_sequence;
-
-	return g_hash_table_lookup(ncp_request_hash, &request_key);
-}
 
 static void
 dissect_ncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -296,12 +187,12 @@ dissect_ncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (header.type == 0x1111 || header.type == 0x2222) {
 		next_tvb = tvb_new_subset( tvb, hdr_offset, -1, -1 );
 		dissect_ncp_request(next_tvb, pinfo, nw_connection,
-			header.sequence, header.type, ncp_tree, tree);
+			header.sequence, header.type, ncp_tree);
 	}
 	else if (header.type == 0x3333) {
 		next_tvb = tvb_new_subset( tvb, hdr_offset, -1, -1 );
 		dissect_ncp_reply(next_tvb, pinfo, nw_connection,
-			header.sequence, ncp_tree, tree);
+			header.sequence, ncp_tree);
 	}
 	else if (	header.type == 0x5555 ||
 			header.type == 0x7777 ||
@@ -367,20 +258,10 @@ proto_register_ncp(void)
   static gint *ett[] = {
     &ett_ncp,
   };
-  module_t *ncp_module;
 
   proto_ncp = proto_register_protocol("NetWare Core Protocol", "NCP", "ncp");
   proto_register_field_array(proto_ncp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
-  register_init_routine(&ncp_init_protocol);
-  register_postseq_cleanup_routine(&ncp_postseq_cleanup);
-
-  /* Register a configuration option for initial size of NCP hash */
-  ncp_module = prefs_register_protocol(proto_ncp, NULL);
-  prefs_register_uint_preference(ncp_module, "initial_hash_size",
-	"Initial Hash Size",
-	"Number of entries initially allocated for NCP hash",
-	10, &ncp_packet_init_count);
 }
 
 void

@@ -1,5 +1,5 @@
 /*
- * $Id: dfvm.c,v 1.6 2002/04/08 20:11:31 gram Exp $
+ * $Id: dfvm.c,v 1.7 2002/05/09 23:50:30 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -300,7 +300,7 @@ mk_range(dfilter_t *df, int from_reg, int to_reg, drange *drange)
 
 
 gboolean
-dfvm_apply(dfilter_t *df, tvbuff_t *tvb, proto_tree *tree)
+dfvm_apply(dfilter_t *df, proto_tree *tree)
 {
 	int		i, id, length;
 	gboolean	accum = TRUE;
@@ -309,7 +309,6 @@ dfvm_apply(dfilter_t *df, tvbuff_t *tvb, proto_tree *tree)
 	dfvm_value_t	*arg2;
 	dfvm_value_t	*arg3;
 
-	g_assert(tvb);
 	g_assert(tree);
 
 

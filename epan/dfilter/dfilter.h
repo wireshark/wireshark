@@ -1,5 +1,5 @@
 /*
- * $Id: dfilter.h,v 1.4 2002/01/21 07:37:37 guy Exp $
+ * $Id: dfilter.h,v 1.5 2002/05/09 23:50:30 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -74,12 +74,11 @@ dfilter_apply_edt(dfilter_t *df, epan_dissect_t* edt);
 
 /* Apply compiled dfilter */
 gboolean
-dfilter_apply(dfilter_t *df, tvbuff_t *tvb, proto_tree *tree);
+dfilter_apply(dfilter_t *df, proto_tree *tree);
 
-/* Run a callback for each interesting field in the dfilter. */
+/* Prime a proto_tree using the fields/protocols used in a dfilter. */
 void
-dfilter_foreach_interesting_field(dfilter_t *df, GFunc func,
-        gpointer user_data);
+dfilter_prime_proto_tree(dfilter_t *df, proto_tree *tree);
 
 /* Print bytecode of dfilter to stdout */
 void

@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.68 2002/04/28 00:13:05 guy Exp $
+ * $Id: packet.c,v 1.69 2002/05/09 23:50:28 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -236,6 +236,39 @@ free_data_sources(frame_data *fd)
 	g_slist_free(fd->data_src);
 	fd->data_src = NULL;
 }
+
+/* Allow dissectors to register a "final_registration" routine
+ * that is run like the proto_register_XXX() routine, but the end
+ * end of the epan_init() function; that is, *after* all other
+ * subsystems, liked dfilters, have finished initializing. This is
+ * useful for dissector registration routines which need to compile
+ * display filters. dfilters can't initialize itself until all protocols
+ * have registereed themselvs. */
+static GSList *final_registration_routines;
+
+void
+register_final_registration_routine(void (*func)(void))
+{
+	final_registration_routines = g_slist_append(final_registration_routines,
+			func);
+}
+
+/* Call all the registered "final_registration" routines. */
+static void
+call_final_registration_routine(gpointer routine, gpointer dummy)
+{
+	void (*func)(void) = routine;
+
+	(*func)();
+}
+
+void
+final_registration_all_protocols(void)
+{
+	g_slist_foreach(final_registration_routines,
+			&call_final_registration_routine, NULL);
+}
+
 
 /* Creates the top-most tvbuff and calls dissect_frame() */
 void

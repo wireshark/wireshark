@@ -1,5 +1,5 @@
 /*
- * $Id: dfvm.h,v 1.5 2002/04/08 20:11:31 gram Exp $
+ * $Id: dfvm.h,v 1.6 2002/05/09 23:50:30 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -93,7 +93,7 @@ void
 dfvm_dump(FILE *f, GPtrArray *insns);
 
 gboolean
-dfvm_apply(dfilter_t *df, tvbuff_t *tvb, proto_tree *tree);
+dfvm_apply(dfilter_t *df, proto_tree *tree);
 
 
 #endif
