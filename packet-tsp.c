@@ -3,7 +3,7 @@
  *
  * Uwe Girlich <Uwe.Girlich@philosys.de>
  *
- * $Id: packet-tsp.c,v 1.3 2002/08/28 21:00:36 jmayer Exp $
+ * $Id: packet-tsp.c,v 1.4 2003/06/11 20:41:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -118,13 +118,6 @@ dissect_tsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item	*tsp_item = NULL;
 
 	guint8		tsp_type;
-	guint8		tsp_vers;
-	guint16		tsp_seq;
-	guint32		tsp_time_sec;
-	guint32		tsp_time_usec;
-	guint8		tsp_hopcnt;
-	gint		tsp_name_length;
-	guint8		tsp_name[256];
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "TSP");
@@ -132,8 +125,9 @@ dissect_tsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		col_clear(pinfo->cinfo, COL_INFO);
 
 	tsp_type = tvb_get_guint8(tvb, 0);
-	tsp_vers = tvb_get_guint8(tvb, 1);
-	tsp_seq = tvb_get_ntohs(tvb, 2);
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_add_str(pinfo->cinfo, COL_INFO,
+		    val_to_str(tsp_type, names_tsp_type, "Unknown message type (%u)"));
 
 	if (tree) {
 		tsp_item = proto_tree_add_item(tree, proto_tsp,
@@ -145,38 +139,36 @@ dissect_tsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (tsp_tree) {
 		proto_tree_add_uint(tsp_tree, hf_tsp_type,
 			tvb, 0, 1, tsp_type);
-		proto_tree_add_uint(tsp_tree, hf_tsp_vers,
-			tvb, 1, 1, tsp_vers);
-		proto_tree_add_uint(tsp_tree, hf_tsp_seq,
-			tvb, 2, 2, tsp_seq);
+		proto_tree_add_item(tsp_tree, hf_tsp_vers,
+			tvb, 1, 1, FALSE);
+		proto_tree_add_item(tsp_tree, hf_tsp_seq,
+			tvb, 2, 2, FALSE);
 	}
 
-	if (tsp_type == TSP_LOOP) {
-		tsp_hopcnt = tvb_get_guint8(tvb, 4);
+	switch (tsp_type) {
+
+	case TSP_LOOP:
 		if (tsp_tree)
-			proto_tree_add_uint(tsp_tree, hf_tsp_hopcnt,
-				tvb, 4, 1, tsp_type);
+			proto_tree_add_item(tsp_tree, hf_tsp_hopcnt,
+				tvb, 4, 1, FALSE);
+		break;
+
+	case TSP_SETTIME:
+	case TSP_ADJTIME:
+	case TSP_SETDATE:
+	case TSP_SETDATEREQ:
+		if (tsp_tree) {
+			proto_tree_add_item(tsp_tree, hf_tsp_time_sec,
+				tvb, 4, 4, FALSE);
+			proto_tree_add_item(tsp_tree, hf_tsp_time_usec,
+				tvb, 8, 4, FALSE);
+		}
+		break;
 	}
 
-	if (tsp_type == TSP_SETTIME ||
-		tsp_type == TSP_ADJTIME ||
-		tsp_type == TSP_SETDATE ||
-		tsp_type == TSP_SETDATEREQ) {
-
-		tsp_time_sec = tvb_get_ntohl(tvb, 4);
-		if (tsp_tree)
-			proto_tree_add_uint(tsp_tree, hf_tsp_time_sec,
-				tvb, 4, 4, tsp_time_sec);
-		tsp_time_usec = tvb_get_ntohl(tvb, 8);
-		if (tsp_tree)
-			proto_tree_add_uint(tsp_tree, hf_tsp_time_usec,
-				tvb, 8, 4, tsp_time_usec);
-	}
-
-	tsp_name_length = tvb_get_nstringz(tvb, 12, 256, tsp_name);
-	if (tsp_name_length>0 && tsp_tree) {
-		proto_tree_add_string(tsp_tree, hf_tsp_name, tvb, 12,
-			tsp_name_length, tsp_name);
+	if (tsp_tree) {
+		proto_tree_add_item(tsp_tree, hf_tsp_name, tvb, 12,
+			-1, FALSE);
 	}
 }
 
@@ -218,7 +210,7 @@ proto_register_tsp(void)
 	"Microseconds", HFILL }},
     { &hf_tsp_name,
       { "Machine Name", "tsp.name",
-	FT_STRING, BASE_DEC, NULL, 0x0,
+	FT_STRINGZ, BASE_DEC, NULL, 0x0,
 	"Sender Machine Name", HFILL }}
   };
 	static gint *ett[] = {
