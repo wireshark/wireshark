@@ -1,7 +1,7 @@
 /* packet-isis-clv.c
  * Common CLV decode routines.
  *
- * $Id: packet-isis-clv.c,v 1.23 2002/08/28 21:00:18 jmayer Exp $
+ * $Id: packet-isis-clv.c,v 1.24 2003/04/02 08:31:37 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -503,7 +503,6 @@ isis_dissect_clvs(tvbuff_t *tvb, proto_tree *tree, int offset,
 	int q;
 	proto_item	*ti;
 	proto_tree	*clv_tree;
-	char		sbuf[255];
 	int 		adj;
 
 	while ( len > 0 ) {
@@ -528,10 +527,9 @@ isis_dissect_clvs(tvbuff_t *tvb, proto_tree *tree, int offset,
 		if ( opts[q].dissect ) {
 			if (tree) {
 				/* adjust by 2 for code/len octets */
-				snprintf ( sbuf, sizeof(sbuf), "%s (%d)",
-					opts[q].tree_text, length );
 				ti = proto_tree_add_text(tree, tvb, offset - 2,
-					length + 2, sbuf);
+					length + 2, "%s (%u)",
+					opts[q].tree_text, length );
 				clv_tree = proto_item_add_subtree(ti,
 					*opts[q].tree_id );
 			} else {
@@ -541,10 +539,9 @@ isis_dissect_clvs(tvbuff_t *tvb, proto_tree *tree, int offset,
 				id_length, length);
 		} else {
 			if (tree) {
-				snprintf ( sbuf, sizeof(sbuf),
-					"Unknown code (%d:%d)", code, length );
 				ti = proto_tree_add_text(tree, tvb, offset - 2,
-					length + 2, sbuf);
+					length + 2, "Unknown code %u (%u)",
+					code, length);
 				clv_tree = proto_item_add_subtree(ti,
 					unknown_tree_id );
 			} else {

@@ -1,7 +1,7 @@
 /* packet-nlsp.c
  * Routines for NetWare Link Services Protocol
  *
- * $Id: packet-nlsp.c,v 1.3 2003/04/02 08:13:35 guy Exp $
+ * $Id: packet-nlsp.c,v 1.4 2003/04/02 08:31:37 guy Exp $
  *
  * Based on ISIS dissector by Stuart Stanley <stuarts@mxmail.net>
  *
@@ -190,7 +190,6 @@ nlsp_dissect_clvs(tvbuff_t *tvb, proto_tree *tree, int offset,
 	int q;
 	proto_item	*ti;
 	proto_tree	*clv_tree;
-	char		sbuf[255];
 	int 		adj;
 
 	while ( len > 0 ) {
@@ -215,10 +214,9 @@ nlsp_dissect_clvs(tvbuff_t *tvb, proto_tree *tree, int offset,
 		if ( opts[q].dissect ) {
 			if (tree) {
 				/* adjust by 2 for code/len octets */
-				snprintf ( sbuf, sizeof(sbuf), "%s (%d)",
-					opts[q].tree_text, length );
 				ti = proto_tree_add_text(tree, tvb, offset - 2,
-					length + 2, sbuf);
+					length + 2, "%s (%u)",
+					opts[q].tree_text, length );
 				clv_tree = proto_item_add_subtree(ti,
 					*opts[q].tree_id );
 			} else {
@@ -228,10 +226,9 @@ nlsp_dissect_clvs(tvbuff_t *tvb, proto_tree *tree, int offset,
 			    length);
 		} else {
 			if (tree) {
-				snprintf ( sbuf, sizeof(sbuf),
-					"Unknown code (%d:%d)", code, length );
 				ti = proto_tree_add_text(tree, tvb, offset - 2,
-					length + 2, sbuf);
+					length + 2, "Unknown code %u (%u)",
+					code, length);
 				clv_tree = proto_item_add_subtree(ti,
 					unknown_tree_id );
 			} else {
