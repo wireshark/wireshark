@@ -5,7 +5,7 @@
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: ipv4.c,v 1.6 2003/08/19 18:30:44 guy Exp $
+ * $Id: ipv4.c,v 1.7 2004/02/01 02:35:29 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -89,7 +89,7 @@ void
 ipv4_addr_str_buf(const ipv4_addr *ipv4, gchar *buf)
 {
 	guint32	ipv4_host_order = g_htonl(ipv4->addr);
-	ip_to_str_buf((gchar*)&ipv4_host_order, buf);
+	ip_to_str_buf((guint8*)&ipv4_host_order, buf);
 }
 
 static guint32

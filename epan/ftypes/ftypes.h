@@ -1,7 +1,7 @@
 /* ftypes.h
  * Definitions for field types
  *
- * $Id: ftypes.h,v 1.29 2004/01/25 17:22:57 jmayer Exp $
+ * $Id: ftypes.h,v 1.30 2004/02/01 02:35:30 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -141,6 +141,7 @@ typedef struct _fvalue_t {
 		guint32		integer;
 		gdouble		floating;
 		gchar		*string;
+		guchar		*ustring;
 		GByteArray	*bytes;
 		GString		*gstring;
 		ipv4_addr	ipv4;

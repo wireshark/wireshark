@@ -1,5 +1,5 @@
 /*
- * $Id: ftype-string.c,v 1.18 2003/12/18 13:02:19 obiot Exp $
+ * $Id: ftype-string.c,v 1.19 2004/02/01 02:35:30 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -172,7 +172,7 @@ slice(fvalue_t *fv, GByteArray *bytes, guint offset, guint length)
 {
 	guint8* data;
 
-	data = fv->value.string + offset;
+	data = fv->value.ustring + offset;
 
 	g_byte_array_append(bytes, data, length);
 }
