@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.90 2003/06/03 01:20:14 gerald Exp $
+ * $Id: packet-ieee80211.c,v 1.91 2003/06/05 22:10:49 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -680,7 +680,7 @@ static char *wpa_cipher_str[] =
 };
 
 static char *
-wpa_cipher_idx2str(uint idx)
+wpa_cipher_idx2str(guint idx)
 {
   if (idx < sizeof(wpa_cipher_str)/sizeof(wpa_cipher_str[0]))
     return wpa_cipher_str[idx];
@@ -695,7 +695,7 @@ static char *wpa_keymgmt_str[] =
 };
 
 static char *
-wpa_keymgmt_idx2str(uint idx)
+wpa_keymgmt_idx2str(guint idx)
 {
   if (idx < sizeof(wpa_keymgmt_str)/sizeof(wpa_keymgmt_str[0]))
     return wpa_keymgmt_str[idx];
@@ -723,7 +723,7 @@ dissect_vendor_specific_ie(proto_tree * tree, tvbuff_t * tvb, int offset,
       proto_tree_add_uint(tree, tag_length, tvb, offset, 1, tag_len);
       offset += 1;
 
-      if (tag_val_off + 6 <= tag_len && !bcmp(tag_val, WPA_OUI"\x01", 4)) {
+      if (tag_val_off + 6 <= tag_len && !memcmp(tag_val, WPA_OUI"\x01", 4)) {
         snprintf(out_buff, SHORT_STR, "WPA IE, type %u, version %u",
                   tag_val[tag_val_off + 3], pletohs(&tag_val[tag_val_off + 4]));
         proto_tree_add_string(tree, tag_interpretation, tvb, offset, 6, out_buff);
@@ -731,7 +731,7 @@ dissect_vendor_specific_ie(proto_tree * tree, tvbuff_t * tvb, int offset,
         tag_val_off += 6;
         if (tag_val_off + 4 <= tag_len) {
           /* multicast cipher suite */
-          if (!bcmp(&tag_val[tag_val_off], WPA_OUI, 3)) {
+          if (!memcmp(&tag_val[tag_val_off], WPA_OUI, 3)) {
             snprintf(out_buff, SHORT_STR, "Multicast cipher suite: %s", 
                       wpa_cipher_idx2str(tag_val[tag_val_off + 3]));
             proto_tree_add_string(tree, tag_interpretation, tvb, offset, 4, out_buff);
@@ -746,7 +746,7 @@ dissect_vendor_specific_ie(proto_tree * tree, tvbuff_t * tvb, int offset,
               tag_val_off += 2;
               i = 1;
               while (tag_val_off + 4 <= tag_len) {
-                if (!bcmp(&tag_val[tag_val_off], WPA_OUI, 3)) {
+                if (!memcmp(&tag_val[tag_val_off], WPA_OUI, 3)) {
                   snprintf(out_buff, SHORT_STR, "Unicast cipher suite %u: %s", 
                             i, wpa_cipher_idx2str(tag_val[tag_val_off + 3]));
                   proto_tree_add_string(tree, tag_interpretation, tvb, offset, 4, out_buff);
@@ -766,7 +766,7 @@ dissect_vendor_specific_ie(proto_tree * tree, tvbuff_t * tvb, int offset,
                 tag_val_off += 2;
                 i = 1;
                 while (tag_val_off + 4 <= tag_len) {
-                  if (!bcmp(&tag_val[tag_val_off], WPA_OUI, 3)) {
+                  if (!memcmp(&tag_val[tag_val_off], WPA_OUI, 3)) {
                     snprintf(out_buff, SHORT_STR, "auth key management suite %u: %s", 
                               i, wpa_keymgmt_idx2str(tag_val[tag_val_off + 3]));
                     proto_tree_add_string(tree, tag_interpretation, tvb, offset, 4, out_buff);
