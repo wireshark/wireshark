@@ -3,7 +3,7 @@
 /* dfilter-scanner.l
  * Scanner for display filters
  *
- * $Id: dfilter-scanner.l,v 1.20 1999/10/12 06:19:59 gram Exp $
+ * $Id: dfilter-scanner.l,v 1.21 1999/10/15 04:22:47 itojun Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -159,7 +159,8 @@ le|\<\=		{ dfilter_lval.operand = TOK_LE; return TOK_LE; }
 }
 
 
-[A-Za-z][A-Za-z0-9\.\_\-]+	{ /* looks like a protocol, field name, or hostname */
+[A-Za-z0-9\:][A-Za-z0-9\.\_\-\:]+ {
+	/* looks like a protocol, field name, or hostname */
 
 	int retval = 0;
 	enum ftenum ftype;
