@@ -1,7 +1,7 @@
 /* prefs_dlg.c
  * Routines for handling preferences
  *
- * $Id: prefs_dlg.c,v 1.70 2004/01/10 16:27:42 ulfl Exp $
+ * $Id: prefs_dlg.c,v 1.71 2004/01/14 23:32:48 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -472,14 +472,14 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
 #endif
   cts.page++;
 
-  /* GUI TCP Streams prefs */
-  frame = gtk_frame_new("TCP Streams");
+  /* GUI Colors prefs */
+  frame = gtk_frame_new("Colors");
   gtk_widget_show(GTK_WIDGET(frame));
   gui_stream_pg = stream_prefs_show();
   gtk_container_add(GTK_CONTAINER(frame), gui_stream_pg);
   OBJECT_SET_DATA(prefs_w, E_GUI_STREAM_PAGE_KEY, gui_stream_pg);
   gtk_notebook_append_page (GTK_NOTEBOOK(prefs_nb), frame, NULL);
-  strcpy(label_str, "TCP Streams");
+  strcpy(label_str, "Colors");
 #if GTK_MAJOR_VERSION < 2
   ct_node = gtk_ctree_insert_node(GTK_CTREE(cts.tree), ct_base_node, NULL,
   		&label_ptr, 5, NULL, NULL, NULL, NULL, TRUE, TRUE);

@@ -1,7 +1,7 @@
 /* stream_prefs.c
  * Dialog boxes for preferences for the stream window
  *
- * $Id: stream_prefs.c,v 1.16 2003/02/17 07:50:49 oabad Exp $
+ * $Id: stream_prefs.c,v 1.17 2004/01/14 23:32:48 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -42,8 +42,8 @@ static void update_current_color(GtkWidget *, gpointer);
 
 static GdkColor tcolors[4], *curcolor = NULL;
 
-#define SAMPLE_CLIENT_TEXT "Sample client text\n"
-#define SAMPLE_SERVER_TEXT "Sample server text\n"
+#define SAMPLE_CLIENT_TEXT "Sample TCP stream client text\n"
+#define SAMPLE_SERVER_TEXT "Sample TCP stream server text\n"
 #define CFG_IDX 0
 #define CBG_IDX 1
 #define SFG_IDX 2
@@ -61,8 +61,8 @@ stream_prefs_show()
   GtkWidget *main_vb, *main_tb, *label, *optmenu, *menu, *menuitem;
   GtkWidget *sample, *colorsel;
   int        width, height, i;
-  gchar     *mt[] = { "Client foreground", "Client background",
-                      "Server foreground", "Server background" };
+  gchar     *mt[] = { "TCP stream client foreground", "TCP stream client background",
+                      "TCP stream server foreground", "TCP stream server background" };
   int mcount = sizeof(mt) / sizeof (gchar *);
 #if GTK_MAJOR_VERSION < 2
   gdouble scolor[4];
@@ -120,7 +120,7 @@ stream_prefs_show()
 #if GTK_MAJOR_VERSION < 2
   sample = gtk_text_new(FALSE, FALSE);
   height = 2 * (sample->style->font->ascent + sample->style->font->descent);
-  width = gdk_string_width(sample->style->font, "Sample server text");
+  width = gdk_string_width(sample->style->font, SAMPLE_SERVER_TEXT);
   WIDGET_SET_SIZE(sample, width, height);
   gtk_text_set_editable(GTK_TEXT(sample), FALSE);
   gtk_text_insert(GTK_TEXT(sample), NULL, &tcolors[CFG_IDX], &tcolors[CBG_IDX],
@@ -129,7 +129,7 @@ stream_prefs_show()
                   SAMPLE_SERVER_TEXT, -1);
 #else
   sample = gtk_text_view_new();
-  layout = gtk_widget_create_pango_layout(sample, "Sample server text");
+  layout = gtk_widget_create_pango_layout(sample, SAMPLE_SERVER_TEXT);
   pango_layout_get_pixel_size(layout, &width, &height);
   g_object_unref(G_OBJECT(layout));
   WIDGET_SET_SIZE(sample, width, height);
