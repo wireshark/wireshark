@@ -790,10 +790,20 @@ decrypt_heimdal_gssapi_krb_arcfour_wrap(proto_tree *tree, packet_info *pinfo, tv
  * XXX - This is for GSSAPI Wrap tokens ...
  */
 static int
-dissect_spnego_krb5_wrap_base(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint16 token_id)
+dissect_spnego_krb5_wrap_base(tvbuff_t *tvb, int offset, packet_info *pinfo
+#ifndef HAVE_KERBEROS
+	_U_
+#endif
+    , proto_tree *tree, guint16 token_id
+#ifndef HAVE_KERBEROS
+	_U_
+#endif
+    )
 {
 	guint16 sgn_alg, seal_alg;
+#ifdef HAVE_KERBEROS
 	int start_offset=offset;
+#endif
 
 	/*
 	 * The KRB5 blob conforms to RFC1964:
