@@ -1,7 +1,7 @@
 /* capture_info_dlg.c
  * Routines for packet capture info dialog
  *
- * $Id: capture_info_dlg.c,v 1.4 2003/11/18 06:06:41 ulfl Exp $
+ * $Id: capture_info_dlg.c,v 1.5 2003/11/28 00:44:21 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -152,7 +152,7 @@ capture_info    *cinfo)
           /* do not build a progress bar for the "total" row */
           /* (as this could suggest a "buffer full" to the user) */
           /* simply put a label here */
-          info->counts[i].percent_pb = gtk_label_new("Portions");
+          info->counts[i].percent_pb = gtk_label_new("% of total");
       } else {
           /* build a progress bar in the other rows */
           info->counts[i].percent_pb = gtk_progress_bar_new();
@@ -170,10 +170,10 @@ capture_info    *cinfo)
                                 info->counts[i].label, 0, 1, i, i + 1);
       gtk_table_attach_defaults(GTK_TABLE(counts_tb),
                                 info->counts[i].value_lb, 1, 2, i, i + 1);
-      gtk_table_attach_defaults(GTK_TABLE(counts_tb),
-                                info->counts[i].percent_pb, 2, 3, i, i + 1);
-      gtk_table_attach_defaults(GTK_TABLE(counts_tb),
-                                info->counts[i].percent_lb, 3, 4, i, i + 1);
+	  gtk_table_attach_defaults(GTK_TABLE(counts_tb),
+								info->counts[i].percent_pb, 2, 3, i, i + 1);
+	  gtk_table_attach_defaults(GTK_TABLE(counts_tb),
+								info->counts[i].percent_lb, 3, 4, i, i + 1);
 
       gtk_widget_show(info->counts[i].label);
       gtk_widget_show(info->counts[i].value_lb);
