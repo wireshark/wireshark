@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\spoolss packet disassembly
  * Copyright 2001-2002, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-spoolss.c,v 1.37 2002/06/07 06:10:53 tpot Exp $
+ * $Id: packet-dcerpc-spoolss.c,v 1.38 2002/06/17 03:21:15 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -118,6 +118,7 @@ static int hf_spoolss_defaultdatatype = -1;
 static int hf_spoolss_previousnames = -1;
 static int hf_spoolss_driverinfo_cversion = -1;
 static int hf_spoolss_dependentfiles = -1;
+static int hf_spoolss_printer_status = -1;
 
 /* rffpcnex */
 
@@ -156,6 +157,125 @@ static int hf_spoolss_rrpcn_unk1 = -1;
 
 static int hf_spoolss_replyopenprinter_unk0 = -1;
 static int hf_spoolss_replyopenprinter_unk1 = -1;
+
+static const value_string printer_status_vals[] =
+{
+	{ PRINTER_STATUS_OK, "OK" },
+	{ PRINTER_STATUS_PAUSED, "Paused" },
+	{ PRINTER_STATUS_ERROR, "Error" },
+	{ PRINTER_STATUS_PENDING_DELETION, "Pending deletion" },
+	{ PRINTER_STATUS_PAPER_JAM, "Paper jam" },
+	{ PRINTER_STATUS_PAPER_OUT, "Paper out" },
+	{ PRINTER_STATUS_MANUAL_FEED, "Manual feed" },
+	{ PRINTER_STATUS_PAPER_PROBLEM, "Paper problem" },
+	{ PRINTER_STATUS_OFFLINE, "Offline" },
+	{ PRINTER_STATUS_IO_ACTIVE, "IO active" },
+	{ PRINTER_STATUS_BUSY, "Busy" },
+	{ PRINTER_STATUS_PRINTING, "Printing" },
+	{ PRINTER_STATUS_OUTPUT_BIN_FULL, "Output bin full" },
+	{ PRINTER_STATUS_NOT_AVAILABLE, "Not available" },
+	{ PRINTER_STATUS_WAITING, "Waiting" },
+	{ PRINTER_STATUS_PROCESSING, "Processing" },
+	{ PRINTER_STATUS_INITIALIZING, "Initialising" },
+	{ PRINTER_STATUS_WARMING_UP, "Warming up" },
+	{ PRINTER_STATUS_TONER_LOW, "Toner low" },
+	{ PRINTER_STATUS_NO_TONER, "No toner" },
+	{ PRINTER_STATUS_PAGE_PUNT, "Page punt" },
+	{ PRINTER_STATUS_USER_INTERVENTION, "User intervention" },
+	{ PRINTER_STATUS_OUT_OF_MEMORY, "Out of memory" },
+	{ PRINTER_STATUS_DOOR_OPEN, "Door open" },
+	{ PRINTER_STATUS_SERVER_UNKNOWN, "Server unknown" },
+	{ PRINTER_STATUS_POWER_SAVE, "Power save" },
+	{ 0, NULL }
+};
+
+/* Printer attributes */
+
+static int hf_spoolss_printer_attributes = -1;
+static int hf_spoolss_printer_attributes_queued = -1;
+static int hf_spoolss_printer_attributes_direct = -1;
+static int hf_spoolss_printer_attributes_default = -1;
+static int hf_spoolss_printer_attributes_shared = -1;
+static int hf_spoolss_printer_attributes_network = -1;
+static int hf_spoolss_printer_attributes_hidden = -1;
+static int hf_spoolss_printer_attributes_local = -1;
+static int hf_spoolss_printer_attributes_enable_devq = -1;
+static int hf_spoolss_printer_attributes_keep_printed_jobs = -1;
+static int hf_spoolss_printer_attributes_do_complete_first = -1;
+static int hf_spoolss_printer_attributes_work_offline = -1;
+static int hf_spoolss_printer_attributes_enable_bidi = -1;
+static int hf_spoolss_printer_attributes_raw_only = -1;
+static int hf_spoolss_printer_attributes_published = -1;
+
+static const true_false_string tfs_printer_attributes_queued = {
+	"Printer starts printing after last page spooled",
+	"Printer starts printing while spooling"
+};
+
+static const true_false_string tfs_printer_attributes_direct = {
+	"Jobs sent directly to printer",
+	"Jobs are spooled to printer before printing"
+};
+
+static const true_false_string tfs_printer_attributes_default = {
+	"Printer is the default printer",
+	"Printer is not the default printer"
+};
+
+static const true_false_string tfs_printer_attributes_shared = {
+	"Printer is shared",
+	"Printer is not shared"
+};
+
+static const true_false_string tfs_printer_attributes_network = {
+	"Printer is a network printer connection",
+	"Printer is not a network printer connection"
+};
+
+static const true_false_string tfs_printer_attributes_hidden = {
+	"Reserved",
+	"Reserved"
+};
+
+static const true_false_string tfs_printer_attributes_local = {
+	"Printer is a local printer",
+	"Printer is not a local printer"
+};
+
+static const true_false_string tfs_printer_attributes_enable_devq = {
+	"Call DevQueryPrint",
+	"Do not call DevQueryPrint"
+};
+
+static const true_false_string tfs_printer_attributes_keep_printed_jobs = {
+	"Jobs are kept after they are printed",
+	"Jobs are deleted after printing"
+};
+
+static const true_false_string tfs_printer_attributes_do_complete_first = {
+	"Jobs that have completed spooling are scheduled before still spooling jobs",
+	"Jobs are scheduled in the order they start spooling"
+};
+
+static const true_false_string tfs_printer_attributes_work_offline = {
+	"The printer is currently connected",
+	"The printer is currently not connected"
+};
+
+static const true_false_string tfs_printer_attributes_enable_bidi = {
+	"Bidirectional communications are supported",
+	"Bidirectional communications are not supported"
+};
+
+static const true_false_string tfs_printer_attributes_raw_only = {
+	"Only raw data type print jobs can be spooled",
+	"All data type print jobs can be spooled"
+};
+
+static const true_false_string tfs_printer_attributes_published = {
+	"Printer is published in the directory",
+	"Printer is not published in the directory"
+};
 
 /* 
  * Routines to dissect a spoolss BUFFER 
@@ -1187,6 +1307,86 @@ static int prs_PRINTER_INFO_1(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	return offset;
 }
 
+/* Printer attributes */
+
+static gint ett_printer_attributes = -1;
+
+static int
+dissect_printer_attributes(tvbuff_t *tvb, int offset, packet_info *pinfo,
+			   proto_tree *tree, char *drep)
+{
+	proto_item *item;
+	proto_tree *subtree;
+	guint32 attributes;
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, NULL, drep,
+				    hf_spoolss_printer_attributes,
+				    &attributes);
+
+	item = proto_tree_add_text(tree, tvb, offset - 4, 4,
+				   "Attributes: 0x%08x", attributes);
+
+	subtree = proto_item_add_subtree(item, ett_printer_attributes);
+
+	proto_tree_add_boolean(
+		subtree, hf_spoolss_printer_attributes_queued, 
+		tvb, offset - 4, 4, attributes);
+	
+	proto_tree_add_boolean(
+		subtree, hf_spoolss_printer_attributes_direct, 
+		tvb, offset - 4, 4, attributes);
+	
+	proto_tree_add_boolean(
+		subtree, hf_spoolss_printer_attributes_default, 
+		tvb, offset - 4, 4, attributes);
+	
+	proto_tree_add_boolean(
+		subtree, hf_spoolss_printer_attributes_shared, 
+		tvb, offset - 4, 4, attributes);
+	
+	proto_tree_add_boolean(
+		subtree, hf_spoolss_printer_attributes_network, 
+		tvb, offset - 4, 4, attributes);
+	
+	proto_tree_add_boolean(
+		subtree, hf_spoolss_printer_attributes_hidden, 
+		tvb, offset - 4, 4, attributes);
+	
+	proto_tree_add_boolean(
+		subtree, hf_spoolss_printer_attributes_local, 
+		tvb, offset - 4, 4, attributes);
+	
+	proto_tree_add_boolean(
+		subtree, hf_spoolss_printer_attributes_enable_devq, 
+		tvb, offset - 4, 4, attributes);
+	
+	proto_tree_add_boolean(
+		subtree, hf_spoolss_printer_attributes_keep_printed_jobs, 
+		tvb, offset - 4, 4, attributes);
+	
+	proto_tree_add_boolean(
+		subtree, hf_spoolss_printer_attributes_do_complete_first, 
+		tvb, offset - 4, 4, attributes);
+	
+	proto_tree_add_boolean(
+		subtree, hf_spoolss_printer_attributes_work_offline, 
+		tvb, offset - 4, 4, attributes);
+	
+	proto_tree_add_boolean(
+		subtree, hf_spoolss_printer_attributes_enable_bidi, 
+		tvb, offset - 4, 4, attributes);
+	
+	proto_tree_add_boolean(
+		subtree, hf_spoolss_printer_attributes_raw_only, 
+		tvb, offset - 4, 4, attributes);
+	
+	proto_tree_add_boolean(
+		subtree, hf_spoolss_printer_attributes_published, 
+		tvb, offset - 4, 4, attributes);
+	
+	return offset;
+}
+
 /*
  * PRINTER_INFO_2
  */
@@ -1253,6 +1453,8 @@ static int prs_PRINTER_INFO_2(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	 */
 	dissect_nt_sec_desc(tvb, struct_start + rel_offset, tree, len);
 	
+/*	offset = dissect_printer_attributes(tvb, offset, pinfo, tree, drep); */
+
 	offset = prs_uint32(tvb, offset, pinfo, tree, NULL, "Attributes");
 
 	offset = prs_uint32(tvb, offset, pinfo, tree, NULL, "Priority");
@@ -1668,6 +1870,9 @@ dissect_NOTIFY_OPTION(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	offset = dissect_ndr_uint16(tvb, offset, pinfo, subtree, drep,
 				    hf_spoolss_notify_option_type, &type);
+
+	proto_item_append_text(item, ": %s", 
+			       val_to_str(type, printer_notify_types, "%s"));
 
 	offset = dissect_ndr_uint16(tvb, offset, pinfo, subtree, drep,
 				    hf_spoolss_notify_option_reserved1, NULL);
@@ -4481,6 +4686,33 @@ dissect_NOTIFY_INFO_DATA_printer(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 		break;
 
+	case PRINTER_NOTIFY_ATTRIBUTES:
+		
+		/* Value 1 is the printer attributes */
+		
+		offset = dissect_printer_attributes(
+			tvb, offset, pinfo, tree, drep);
+
+		offset = dissect_ndr_uint32(
+			tvb, offset, pinfo, NULL, drep,
+			hf_spoolss_notify_info_data_value2, NULL);
+
+		break;
+
+	case PRINTER_NOTIFY_STATUS:
+
+		/* Value 1 is the printer status */
+
+		offset = dissect_ndr_uint32(
+			tvb, offset, pinfo, tree, drep,
+			hf_spoolss_printer_status, NULL);
+
+		offset = dissect_ndr_uint32(
+			tvb, offset, pinfo, NULL, drep,
+			hf_spoolss_notify_info_data_value2, NULL);
+
+		break;
+
 		/* Unknown notify data */
 
 	case PRINTER_NOTIFY_SECURITY_DESCRIPTOR: /* Secdesc */
@@ -4599,6 +4831,7 @@ dissect_NOTIFY_INFO_DATA(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree *subtree;
 	guint32 count;
 	guint16 type, field;
+	char *field_string;
 
 	item = proto_tree_add_text(tree, tvb, offset, 0, "NOTIFY_INFO_DATA");
 
@@ -4610,6 +4843,26 @@ dissect_NOTIFY_INFO_DATA(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	offset = dissect_notify_field(
 		tvb, offset, pinfo, subtree, drep, type, &field);
+
+	switch(type) {
+	case PRINTER_NOTIFY_TYPE:
+		field_string = val_to_str(
+			field, printer_notify_option_data_vals, "%s");
+		break;
+	case JOB_NOTIFY_TYPE:
+		field_string = val_to_str(
+			field, job_notify_option_data_vals, "%s");
+		break;
+	default:
+		field_string = "Unknown field";
+		break;
+	}
+
+	proto_item_append_text(
+		item, ": %s, %s", 
+		val_to_str(type, printer_notify_types, "%s"),
+		
+		val_to_str(field, printer_notify_option_data_vals, "%s"));
 
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, subtree, drep,
@@ -5177,7 +5430,6 @@ proto_register_dcerpc_spoolss(void)
 		  { "Info level", "spoolss.enumjobs.level", FT_UINT32, BASE_DEC, 
 		    NULL, 0x0, "Info level", HFILL }},
 
-
 		/* Print jobs */
 
 		{ &hf_spoolss_jobid,
@@ -5435,6 +5687,86 @@ proto_register_dcerpc_spoolss(void)
 		{ &hf_spoolss_replyopenprinter_unk1,
 		  { "Unknown 1", "spoolss.replyopenprinter.unk1", FT_UINT32, BASE_DEC,
 		    NULL, 0, "Unknown 1", HFILL }},		
+
+		{ &hf_spoolss_printer_status,
+		  { "Status", "spoolss.printer_status", FT_UINT32, BASE_DEC,
+		   VALS(printer_status_vals), 0, "Status", HFILL }},
+
+		/* Printer attributes */
+
+		{ &hf_spoolss_printer_attributes,
+		  { "Attributes", "spoolss.printer_attributes", FT_UINT32, 
+		    BASE_HEX, NULL, 0, "Attributes", HFILL }},
+
+		{ &hf_spoolss_printer_attributes_queued,
+		  { "Queued", "spoolss.printer_attributes.queued", FT_BOOLEAN,
+		    32, TFS(&tfs_printer_attributes_queued), 
+		    PRINTER_ATTRIBUTE_QUEUED, "Queued", HFILL }},
+
+		{ &hf_spoolss_printer_attributes_direct,
+		  { "Direct", "spoolss.printer_attributes.direct", FT_BOOLEAN,
+		    32, TFS(&tfs_printer_attributes_direct), 
+		    PRINTER_ATTRIBUTE_DIRECT, "Direct", HFILL }},
+
+		{ &hf_spoolss_printer_attributes_default,
+		  { "Default (9x/ME only)", "spoolss.printer_attributes.default",FT_BOOLEAN,
+		    32, TFS(&tfs_printer_attributes_default), 
+		    PRINTER_ATTRIBUTE_DEFAULT, "Default", HFILL }},
+
+		{ &hf_spoolss_printer_attributes_shared,
+		  { "Shared", "spoolss.printer_attributes.shared", FT_BOOLEAN,
+		    32, TFS(&tfs_printer_attributes_shared), 
+		    PRINTER_ATTRIBUTE_SHARED, "Shared", HFILL }},
+
+		{ &hf_spoolss_printer_attributes_network,
+		  { "Network", "spoolss.printer_attributes.network", FT_BOOLEAN,
+		    32, TFS(&tfs_printer_attributes_network), 
+		    PRINTER_ATTRIBUTE_NETWORK, "Network", HFILL }},
+
+		{ &hf_spoolss_printer_attributes_hidden,
+		  { "Hidden", "spoolss.printer_attributes.hidden", FT_BOOLEAN,
+		    32, TFS(&tfs_printer_attributes_hidden), 
+		    PRINTER_ATTRIBUTE_HIDDEN, "Hidden", HFILL }},
+
+		{ &hf_spoolss_printer_attributes_local,
+		  { "Local", "spoolss.printer_attributes.local", FT_BOOLEAN,
+		    32, TFS(&tfs_printer_attributes_local), 
+		    PRINTER_ATTRIBUTE_LOCAL, "Local", HFILL }},
+
+		{ &hf_spoolss_printer_attributes_enable_devq,
+		  { "Enable devq", "spoolss.printer_attributes.enable_devq", FT_BOOLEAN,
+		    32, TFS(&tfs_printer_attributes_enable_devq), 
+		    PRINTER_ATTRIBUTE_ENABLE_DEVQ, "Enable evq", HFILL }},
+
+		{ &hf_spoolss_printer_attributes_keep_printed_jobs,
+		  { "Keep printed jobs", "spoolss.printer_attributes.keep_printed_jobs", FT_BOOLEAN,
+		    32, TFS(&tfs_printer_attributes_keep_printed_jobs), 
+		    PRINTER_ATTRIBUTE_KEEPPRINTEDJOBS, "Keep printed jobs", HFILL }},
+
+		{ &hf_spoolss_printer_attributes_do_complete_first,
+		  { "Do complete first", "spoolss.printer_attributes.do_complete_first", FT_BOOLEAN,
+		    32, TFS(&tfs_printer_attributes_do_complete_first), 
+		    PRINTER_ATTRIBUTE_DO_COMPLETE_FIRST, "Do complete first", HFILL }},
+
+		{ &hf_spoolss_printer_attributes_work_offline,
+		  { "Work offline (9x/ME only)", "spoolss.printer_attributes.work_offline", FT_BOOLEAN,
+		    32, TFS(&tfs_printer_attributes_work_offline), 
+		    PRINTER_ATTRIBUTE_WORK_OFFLINE, "Work offline", HFILL }},
+
+		{ &hf_spoolss_printer_attributes_enable_bidi,
+		  { "Enable bidi (9x/ME only)", "spoolss.printer_attributes.enable_bidi", FT_BOOLEAN,
+		    32, TFS(&tfs_printer_attributes_enable_bidi), 
+		    PRINTER_ATTRIBUTE_ENABLE_BIDI, "Enable bidi", HFILL }},
+
+		{ &hf_spoolss_printer_attributes_raw_only,
+		  { "Raw only", "spoolss.printer_attributes.raw_only", FT_BOOLEAN,
+		    32, TFS(&tfs_printer_attributes_raw_only), 
+		    PRINTER_ATTRIBUTE_RAW_ONLY, "Raw only", HFILL }},
+
+		{ &hf_spoolss_printer_attributes_published,
+		  { "Published", "spoolss.printer_attributes.published", FT_BOOLEAN,
+		    32, TFS(&tfs_printer_attributes_published), 
+		    PRINTER_ATTRIBUTE_PUBLISHED, "Published", HFILL }},
 	};
 
         static gint *ett[] = {
@@ -5475,6 +5807,7 @@ proto_register_dcerpc_spoolss(void)
 		&ett_notify_options_flags,
 		&ett_NOTIFY_INFO_DATA,
 		&ett_NOTIFY_OPTION,
+		&ett_printer_attributes,
         };
 
         proto_dcerpc_spoolss = proto_register_protocol(
