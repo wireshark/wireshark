@@ -2,7 +2,7 @@
  * Routines for IEEE 802.2 LLC layer
  * Gilbert Ramirez <gramirez@tivoli.com>
  *
- * $Id: packet-llc.c,v 1.43 2000/01/24 02:05:39 guy Exp $
+ * $Id: packet-llc.c,v 1.44 2000/01/24 02:44:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -88,60 +88,74 @@ struct sap_info {
  */
 #define	SAP_MASK	0xFE
 
+#define	SAP_SNAP	0xAA
+
 /*
  * These are for SSAP and DSAP, wth last bit always zero.
  * XXX - some DSAPs come in separate "individual" and "group" versions,
  * with the last bit 0 and 1, respectively (e.g., LLC Sub-layer Management,
- * IBM SNA Path Control, IBM Net Management), and, whilst 0xFE is
+ * IBM SNA Path Control, IBM Net Management), but, whilst 0xFE is
  * the ISO Network Layer Protocol, 0xFF is the Global LSAP.
  */
 static const value_string sap_vals[] = {
-	{ 0x00, "NULL LSAP" },
-	{ 0x02, "LLC Sub-Layer Management" },
-	{ 0x04, "SNA Path Control" },
-	{ 0x06, "TCP/IP" },
-	{ 0x08, "SNA" },
-	{ 0x0C, "SNA" },
-	{ 0x42, "Spanning Tree BPDU" },
-	{ 0x7F, "ISO 802.2" },
-	{ 0x80, "XNS" },
-	{ 0xAA, "SNAP" },
-	{ 0xBA, "Banyan Vines" },
-	{ 0xBC, "Banyan Vines" },
-	{ 0xE0, "NetWare" },
-	{ 0xF0, "NetBIOS" },
-	{ 0xF4, "IBM Net Management" },
-	{ 0xF8, "Remote Program Load" },
-	{ 0xFC, "Remote Program Load" },
-	{ 0xFE, "ISO Network Layer" },
-	{ 0xFF, "Global LSAP" },
-	{ 0x00, NULL }
+	{ 0x00,     "NULL LSAP" },
+	{ 0x02,     "LLC Sub-Layer Management" },
+	{ 0x04,     "SNA Path Control" },
+	{ 0x06,     "TCP/IP" },
+	{ 0x08,     "SNA" },
+	{ 0x0C,     "SNA" },
+	{ 0x0E,     "PROWAY (IEC955) Network Management and Initialization" },
+	{ 0x18,     "Texas Instruments" },
+	{ 0x42,     "Spanning Tree BPDU" },
+	{ 0x4E,     "EIA RS-511 Manufacturing Message Service" },
+#if 0
+	/* XXX - setting the group bit makes this 0x7F; is that just
+	   a group version of this? */
+	{ 0x7E,     "ISO 8208 (X.25 over 802.2 Type 2)" },
+#endif
+	{ 0x7F,     "ISO 802.2" },
+	{ 0x80,     "XNS" },
+	{ 0x86,     "Nestar" },
+	{ 0x8E,     "PROWAY (IEC955) Active Station List Maintenance" },
+	{ 0x98,     "ARP" },	/* XXX - hand to "dissect_arp()"? */
+	{ SAP_SNAP, "SNAP" },
+	{ 0xBA,     "Banyan Vines" },
+	{ 0xBC,     "Banyan Vines" },
+	{ 0xE0,     "NetWare" },
+	{ 0xF0,     "NetBIOS" },
+	{ 0xF4,     "IBM Net Management" },
+	{ 0xF8,     "Remote Program Load" },
+	{ 0xFA,     "Ungermann-Bass" },
+	{ 0xFC,     "Remote Program Load" },
+	{ 0xFE,     "ISO Network Layer" },
+	{ 0xFF,     "Global LSAP" },
+	{ 0x00,     NULL }
 };
 
 static struct sap_info	saps[] = {
-	{ 0x00, NULL,		NULL },
-	{ 0x02, NULL,		NULL },
-	{ 0x03, NULL,		NULL },
-	{ 0x04, NULL,		dissect_sna },
-	{ 0x05, NULL,		NULL },
-	{ 0x06, capture_ip,	dissect_ip },
-	{ 0x08, NULL,		NULL },
-	{ 0x0C, NULL,		NULL },
-	{ 0x42, NULL,		dissect_bpdu },
-	{ 0x7F, NULL,		NULL },
-	{ 0x80, NULL,		NULL },
-	{ 0xAA, NULL,		NULL },
-	{ 0xBA, NULL,		NULL },
-	{ 0xBC, NULL,		NULL },
-	{ 0xE0, capture_ipx,	dissect_ipx },
-	{ 0xF0, capture_netbios, dissect_netbios },
-	{ 0xF4, NULL,		NULL },
-	{ 0xF5, NULL,		NULL },
-	{ 0xF8, NULL,		NULL },
-	{ 0xFC, NULL,		NULL },
-	{ 0xFE, NULL,		dissect_osi },
-	{ 0xFF, NULL,		NULL },
-	{ 0x00, NULL,		NULL}
+	{ 0x00,		NULL,		NULL },
+	{ 0x02,		NULL,		NULL },
+	{ 0x03,		NULL,		NULL },
+	{ 0x04,		NULL,		dissect_sna },
+	{ 0x05,		NULL,		NULL },
+	{ 0x06,		capture_ip,	dissect_ip },
+	{ 0x08,		NULL,		NULL },
+	{ 0x0C,		NULL,		NULL },
+	{ 0x42,		NULL,		dissect_bpdu },
+	{ 0x7F,		NULL,		NULL },
+	{ 0x80,		NULL,		NULL },
+	{ SAP_SNAP,	NULL,		NULL },
+	{ 0xBA,		NULL,		NULL },
+	{ 0xBC,		NULL,		NULL },
+	{ 0xE0,		capture_ipx,	dissect_ipx },
+	{ 0xF0,		capture_netbios, dissect_netbios },
+	{ 0xF4,		NULL,		NULL },
+	{ 0xF5,		NULL,		NULL },
+	{ 0xF8,		NULL,		NULL },
+	{ 0xFC,		NULL,		NULL },
+	{ 0xFE,		NULL,		dissect_osi },
+	{ 0xFF,		NULL,		NULL },
+	{ 0x00,		NULL,		NULL}
 };
 
 static const value_string llc_ctrl_vals[] = {
@@ -211,7 +225,7 @@ capture_llc(const u_char *pd, int offset, packet_counts *ld) {
 		ld->other++;
 		return;
 	}
-	is_snap = (pd[offset] == 0xAA) && (pd[offset+1] == 0xAA);
+	is_snap = (pd[offset] == SAP_SNAP) && (pd[offset+1] == SAP_SNAP);
 	llc_header_len = 2;	/* DSAP + SSAP */
 
 	/*
@@ -291,7 +305,7 @@ dissect_llc(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 		dissect_data(pd, offset, fd, tree);
 		return;
 	}
-	is_snap = (pd[offset] == 0xAA) && (pd[offset+1] == 0xAA);
+	is_snap = (pd[offset] == SAP_SNAP) && (pd[offset+1] == SAP_SNAP);
 	llc_header_len = 2;	/* DSAP + SSAP */
 
 	if (check_col(fd, COL_PROTOCOL)) {
