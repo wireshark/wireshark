@@ -45,6 +45,7 @@ ethereal_SOURCES = \
 	packet-ppp.c   \
 	packet-raw.c   \
 	packet-rip.c   \
+	packet-smb.c   \
 	packet-tcp.c   \
 	packet-telnet.c \
 	packet-tftp.c  \

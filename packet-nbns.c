@@ -4,7 +4,7 @@
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  * Much stuff added by Guy Harris <guy@netapp.com>
  *
- * $Id: packet-nbns.c,v 1.15 1999/04/30 03:16:02 guy Exp $
+ * $Id: packet-nbns.c,v 1.16 1999/05/09 04:16:35 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1152,10 +1152,13 @@ static const value_string error_codes[] = {
 
 /*
  * Dissect a single NBSS packet (there may be more than one in a given TCP
- * segment).
+ * segment). Hmmm, in my experience, I have never seen more than one NBSS
+ * in a single segment, since they mostly contain SMBs which are essentially
+ * a request response type protocol (RJS). Also, a single session message 
+ * may be split over multiple segments.
  */
 static int
-dissect_nbss_packet(const u_char *pd, int offset, proto_tree *tree, int max_data)
+dissect_nbss_packet(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data)
 {
 	proto_tree	*nbss_tree;
 	proto_item	*ti;
@@ -1173,62 +1176,82 @@ dissect_nbss_packet(const u_char *pd, int offset, proto_tree *tree, int max_data
 	if (flags & NBSS_FLAGS_E)
 		length += 65536;
 
-	ti = proto_tree_add_item(tree, offset, length + 4,
-			"NetBIOS Session Service");
-	nbss_tree = proto_tree_new();
-	proto_item_add_subtree(ti, nbss_tree, ETT_NBSS);
+	if (tree) {
+	  ti = proto_tree_add_item(tree, offset, length + 4,
+				   "NetBIOS Session Service");
+	  nbss_tree = proto_tree_new();
+	  proto_item_add_subtree(ti, nbss_tree, ETT_NBSS);
+	  
+	  proto_tree_add_item(nbss_tree, offset, 1, "Message Type: %s",
+			      val_to_str(msg_type, message_types, "Unknown (%x)"));
+	}
 
-	proto_tree_add_item(nbss_tree, offset, 1, "Message Type: %s",
-	    val_to_str(msg_type, message_types, "Unknown"));
 	offset += 1;
 
-	tf = proto_tree_add_item(nbss_tree, offset, 1, "Flags: 0x%04x", flags);
-	field_tree = proto_tree_new();
-	proto_item_add_subtree(tf, field_tree, ETT_NBSS_FLAGS);
-	proto_tree_add_item(field_tree, offset, 1, "%s",
-	    decode_boolean_bitfield(flags, NBSS_FLAGS_E,
-	      8, "Add 65536 to length", "Add 0 to length"));
+	if (tree) {
+	  tf = proto_tree_add_item(nbss_tree, offset, 1, "Flags: 0x%04x", flags);
+	  field_tree = proto_tree_new();
+	  proto_item_add_subtree(tf, field_tree, ETT_NBSS_FLAGS);
+	  proto_tree_add_item(field_tree, offset, 1, "%s",
+			      decode_boolean_bitfield(flags, NBSS_FLAGS_E,
+						      8, "Add 65536 to length", "Add 0 to length"));
+	}
+
 	offset += 1;
 
-	proto_tree_add_item(nbss_tree, offset, 2, "Length: %u", length);
+	if (tree) {
+	  proto_tree_add_item(nbss_tree, offset, 2, "Length: %u", length);
+	}
+
 	offset += 2;
 
 	switch (msg_type) {
 
 	case SESSION_REQUEST:
-		len = get_nbns_name(&pd[offset], pd, offset, name);
-		proto_tree_add_item(nbss_tree, offset, len,
-		    "Called name: %s", name);
-		offset += len;
+	  len = get_nbns_name(&pd[offset], pd, offset, name);
+	  if (tree)
+	    proto_tree_add_item(nbss_tree, offset, len,
+				"Called name: %s", name);
+	  offset += len;
 
-		len = get_nbns_name(&pd[offset], pd, offset, name);
-		proto_tree_add_item(nbss_tree, offset, len,
-		    "Calling name: %s", name);
-		break;
+	  len = get_nbns_name(&pd[offset], pd, offset, name);
+	  
+	  if (tree)
+	    proto_tree_add_item(nbss_tree, offset, len,
+				"Calling name: %s", name);
+
+	  break;
 
 	case NEGATIVE_SESSION_RESPONSE:
-		proto_tree_add_item(nbss_tree, offset, 1,
-		    "Error code: %s",
-		    val_to_str(pd[offset], error_codes, "Unknown (%x)"));
-		break;
+	  if (tree) 
+	    proto_tree_add_item(nbss_tree, offset, 1,
+				"Error code: %s",
+				val_to_str(pd[offset], error_codes, "Unknown (%x)"));
+	  break;
 
 	case RETARGET_SESSION_RESPONSE:
-		proto_tree_add_item(nbss_tree, offset, 4,
-		    "Retarget IP address: %s",
-		    ip_to_str((guint8 *)&pd[offset]));
-		offset += 4;
+	  if (tree)
+	    proto_tree_add_item(nbss_tree, offset, 4,
+				"Retarget IP address: %s",
+				ip_to_str((guint8 *)&pd[offset]));
+	  
+	  offset += 4;
 
-		proto_tree_add_item(nbss_tree, offset, 2,
-		    "Retarget port: %u", pntohs(&pd[offset]));
-		break;
+	  if (tree)
+	    proto_tree_add_item(nbss_tree, offset, 2,
+				"Retarget port: %u", pntohs(&pd[offset]));
+
+	  break;
 
 	case SESSION_MESSAGE:
-		/*
-		 * Here we can pass the packet off to the next protocol.
-		 */
-		proto_tree_add_item(nbss_tree, offset, length,
-		    "Data (%u bytes)", length);
-		break;
+	  /*
+	   * Here we can pass the packet off to the next protocol.
+	   */
+
+	  dissect_smb(pd, offset, fd, tree, max_data - 4);
+
+	  break;
+
 	}
 	return length + 4;
 }
@@ -1254,11 +1277,10 @@ dissect_nbss(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int
 		    val_to_str(msg_type, message_types, "Unknown (%x)"));
 	}
 
-	if (tree) {
-		while (max_data > 0) {
-			len = dissect_nbss_packet(pd, offset, tree, max_data);
-			offset += len;
-			max_data -= len;
-		}
+	while (max_data > 0) { 
+	  len = dissect_nbss_packet(pd, offset, fd, tree, max_data);
+	  offset += len;
+	  max_data -= len;
 	}
+
 }

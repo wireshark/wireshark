@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.47 1999/04/30 03:16:03 guy Exp $
+ * $Id: packet.h,v 1.48 1999/05/09 04:16:36 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -225,6 +225,11 @@ enum {
 	ETT_NNTP,
 	ETT_NBSS,
 	ETT_NBSS_FLAGS,
+	ETT_SMB,
+	ETT_SMB_FLAGS,
+	ETT_SMB_DIALECTS,
+	ETT_SMB_MODE,
+	ETT_SMB_CAPS,
 	NUM_TREE_TYPES	/* last item number plus one */
 };
 
@@ -266,10 +271,14 @@ gint       check_col(frame_data *, gint);
 #if __GNUC__ == 2
 void       col_add_fstr(frame_data *, gint, gchar *, ...)
     __attribute__((format (printf, 3, 4)));
+void       col_append_fstr(frame_data *, gint, gchar *, ...)
+    __attribute__((format (printf, 3, 4)));
 #else
 void       col_add_fstr(frame_data *, gint, gchar *, ...);
+void       col_append_fstr(frame_data *, gint, gchar *, ...);
 #endif
 void       col_add_str(frame_data *, gint, gchar *);
+void       col_append_str(frame_data *, gint, gchar *);
 
 /* Routines in packet.c */
 
@@ -376,6 +385,7 @@ void dissect_ftpdata(const u_char *, int, frame_data *, proto_tree *, int);
 void dissect_nbss(const u_char *, int, frame_data *, proto_tree *, int);
 void dissect_nntp(const u_char *, int, frame_data *, proto_tree *, int);
 void dissect_pop(const u_char *, int, frame_data *, proto_tree *, int);
+void dissect_smb(const u_char *, int, frame_data *, proto_tree *, int);
 void dissect_telnet(const u_char *, int, frame_data *, proto_tree *, int);
 
 void init_dissect_udp(void);
