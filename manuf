@@ -1,7 +1,7 @@
 # 
 # /etc/manuf - Ethernet vendor codes 
 #
-# $Id: manuf,v 1.8 2000/03/29 16:55:08 gram Exp $
+# $Id: manuf,v 1.9 2000/06/14 19:53:37 gerald Exp $
 #
 # Laurent Deniel <deniel@worldnet.fr>
 #
@@ -48,6 +48,7 @@
 00:00:22	VislTech	# Visual Technology
 00:00:24	Olicom
 00:00:2a	TRW
+00:00:39	Intel
 00:00:3c	Auspex
 00:00:3d	AT&T
 00:00:44	Castell
@@ -82,6 +83,7 @@
 00:00:aa	Xerox
 00:00:ae	Dassault
 00:00:b0	RND
+00:00:b4	Edimax
 00:00:dd	Gould
 00:00:de	Unigraph
 00:00:e1	Hitachi
@@ -101,6 +103,7 @@
 00:07:01	Cisco
 00:07:0d	Cisco
 00:08:c7	Compaq
+00:10:0b	Cisco
 00:10:11	Cisco
 00:10:1f	Cisco
 00:10:2f	Cisco
@@ -108,6 +111,7 @@
 00:10:67	Redback
 00:10:79	Cisco
 00:10:7b	Cisco
+00:10:a4	Xircom
 00:10:f6	Cisco
 00:20:00	Lexmark
 00:20:35	IBM
@@ -117,6 +121,7 @@
 00:40:a6 	Cray
 00:40:c8	Milan
 00:50:56	VMware
+00:50:a2	Cisco
 00:50:BA	D-link
 00:60:08	3Com
 00:60:09	Cisco
@@ -140,7 +145,10 @@
 00:80:90	Microtek
 00:80:96	HDS
 00:80:9f	Alcatel
+00:80:ad	Telebit
+00:80:c7	Xircom
 00:90:27	Intel
+00:90:6d	Cisco
 00:90:b1	Cisco
 00:a0:24	3Com
 00:a0:57	ELSA
@@ -152,6 +160,7 @@
 00:e0:1e	Cisco
 00:e0:34	Cisco
 00:e0:4f	Cisco
+00:e0:98	Trend
 00:e0:a3	Cisco
 00:e0:f7	Cisco
 00:e0:f9	Cisco
