@@ -469,6 +469,9 @@ static gint ett_h248_Value = -1;
 
 
 
+static dissector_table_t h248_package_bin_dissector_table=NULL;
+
+
 static const value_string package_name_vals[] = {
   {   0x0000, "Media stream properties H.248.1 Annex C" },
   {   0x0001, "g H.248.1 Annex E" },
@@ -626,6 +629,8 @@ static const value_string package_name_vals[] = {
 	{0,     NULL}
 };
 
+static guint32 packageandid;
+
 static int 
 dissect_h248_PkgdName(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index) {
   tvbuff_t *new_tvb;
@@ -640,6 +645,7 @@ dissect_h248_PkgdName(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_i
   /* this field is always 4 bytes  so just read it into two integers */
   name_major=tvb_get_ntohs(new_tvb, 0);
   name_minor=tvb_get_ntohs(new_tvb, 2);
+  packageandid=(name_major<<16)|name_minor;
 
   /* do the prettification */
   proto_item_append_text(ber_last_created_item, "  %s (%04x)", val_to_str(name_major, package_name_vals, "Unknown Package"), name_major);
@@ -654,9 +660,34 @@ dissect_h248_PkgdName(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_i
 
 static int
 dissect_h248_PropertyID(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index) {
-  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+	guint8 class;
+	gboolean pc, ind;
+	guint32 tag;
+	guint32 len;
+	int old_offset, end_offset;
+	tvbuff_t *next_tvb;
 
-  return offset;
+	old_offset=offset;
+	offset=dissect_ber_identifier(pinfo, tree, tvb, offset, &class, &pc, &tag);
+	offset=dissect_ber_length(pinfo, tree, tvb, offset, &len, &ind);
+	end_offset=offset+len;
+
+	if( (class!=BER_CLASS_UNI)
+	  ||(tag!=BER_UNI_TAG_OCTETSTRING) ){
+		proto_tree_add_text(tree, tvb, offset-2, 2, "H.248 BER Error: OctetString expected but Class:%d PC:%d Tag:%d was unexpected", class, pc, tag);
+		return end_offset;
+	}
+
+
+	next_tvb = tvb_new_subset(tvb, offset, len, len);
+
+	if(!dissector_try_port(h248_package_bin_dissector_table, packageandid, next_tvb, pinfo, tree)){
+		proto_tree_add_text(tree, next_tvb, 0, tvb_length_remaining(tvb, offset), "H.248: Dissector for Package/ID:0x%08x not implemented (yet).", packageandid);
+
+		offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, old_offset, hf_index, NULL);
+	}
+
+	return end_offset;
 }
 
 
@@ -5194,6 +5225,9 @@ void proto_register_h248(void) {
   /* Register fields and subtrees */
   proto_register_field_array(proto_h248, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+
+  /* register a dissector table packages can attach to */
+  h248_package_bin_dissector_table = register_dissector_table("h248.package.bin", "Binary H.248 Package Dissectors", FT_UINT32, BASE_HEX);
 
 }
 
