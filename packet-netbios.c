@@ -5,7 +5,7 @@
  * 
  * derived from the packet-nbns.c
  *
- * $Id: packet-netbios.c,v 1.2 1999/08/18 22:49:41 gram Exp $
+ * $Id: packet-netbios.c,v 1.3 1999/08/24 22:36:34 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -129,7 +129,7 @@ char *name_type_str[] = {
 	"Unknown",	/* need 'Unknown' as last entry (for limiting stuff) */
 };
 
-static int nb_name_type_max = sizeof(name_type_str) /sizeof( char*);
+static int nb_name_type_max = (sizeof name_type_str / sizeof name_type_str[0]) - 1;
 
 /* the strings for the command types  */
 

@@ -2,7 +2,7 @@
  * Routines for the disassembly of the "Cisco Discovery Protocol"
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-cdp.c,v 1.10 1999/07/29 05:46:52 gram Exp $
+ * $Id: packet-cdp.c,v 1.11 1999/08/24 22:36:34 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -41,6 +41,8 @@
 #define	TLV_LENGTH	2
 
 static int proto_cdp = -1;
+static int hf_cdp_tlvtype = -1;
+static int hf_cdp_tlvlength = -1;
 
 static void
 add_multi_line_string_to_tree(proto_tree *tree, gint start, gint len,
@@ -86,6 +88,8 @@ dissect_cdp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	while( offset <= fd->cap_len ){
 		type = pntohs(&pd[offset + TLV_TYPE]);
 		length = pntohs(&pd[offset + TLV_LENGTH]);
+		proto_tree_add_item_hidden(cdp_tree, hf_cdp_tlvtype, offset+TLV_TYPE, 2, type);
+		proto_tree_add_item_hidden(cdp_tree, hf_cdp_tlvlength, offset+TLV_LENGTH, 2, length);
 		switch( type ){
 			case 0: /* ??? Mgmt Addr */
 				offset+=length + 4;
@@ -144,7 +148,13 @@ dissect_cdp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 				    length - 4, "Data");
 */
 
-				offset+=length;
+				if (length > 0) {
+					offset+=length;
+				}
+				else {
+					dissect_data(pd, offset, fd, cdp_tree);
+					return;
+				}
 		}
 
 	}
@@ -192,11 +202,14 @@ add_multi_line_string_to_tree(proto_tree *tree, gint start, gint len,
 void
 proto_register_cdp(void)
 {
-/*        static hf_register_info hf[] = {
-                { &variable,
-                { "Name",           "cdp.abbreviation", TYPE, VALS_POINTER }},
-        };*/
+        static hf_register_info hf[] = {
+                { &hf_cdp_tlvtype,
+                { "TLV Type",		"cdp.tlv.type", FT_UINT16, NULL }},
+
+                { &hf_cdp_tlvlength,
+                { "TLV Length",		"cdp.tlv.len", FT_UINT16, NULL }},
+        };
 
         proto_cdp = proto_register_protocol("Cisco Discovery Protocol", "cdp");
- /*       proto_register_field_array(proto_cdp, hf, array_length(hf));*/
+        proto_register_field_array(proto_cdp, hf, array_length(hf));
 }
