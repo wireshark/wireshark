@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.216 2003/11/17 00:26:30 guy Exp $
+ * $Id: capture.c,v 1.217 2003/11/17 19:40:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -122,7 +122,7 @@
  * XXX - the various BSDs appear to define BSD in <sys/param.h>; we don't
  * want to include it if it's not present on this platform, however.
  */
-#if !defined(__FreeBSD__) && !defined(__NetBSD__) && defined(__OpenBSD__) && \
+#if !defined(__FreeBSD__) && !defined(__NetBSD__) && !defined(__OpenBSD__) && \
     !defined(__bsdi__) && !defined(__APPLE__) && !defined(_WIN32) && \
     !defined(__CYGWIN__)
 # define MUST_DO_SELECT
