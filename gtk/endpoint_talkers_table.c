@@ -4,7 +4,7 @@
  * endpoint_talkers_table   2003 Ronnie Sahlberg
  * Helper routines common to all endpoint talkers tap.
  *
- * $Id: endpoint_talkers_table.c,v 1.34 2004/04/12 07:10:11 ulfl Exp $
+ * $Id: endpoint_talkers_table.c,v 1.35 2004/05/01 19:24:44 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -218,7 +218,7 @@ reset_ett_table_data(endpoints_table *et)
 
 	/* remove all entries from the clist */
 	for(i=0;i<et->num_endpoints;i++){
-		gtk_clist_remove(et->table, et->num_endpoints-i);
+		gtk_clist_remove(et->table, et->num_endpoints-i-1);
 	}
 
 	/* delete all endpoints */

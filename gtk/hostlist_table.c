@@ -2,7 +2,7 @@
  * modified from endpoint_talkers_table.c   2003 Ronnie Sahlberg
  * Helper routines common to all host list taps.
  *
- * $Id: hostlist_table.c,v 1.6 2004/04/12 07:10:11 ulfl Exp $
+ * $Id: hostlist_table.c,v 1.7 2004/05/01 19:24:44 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -150,7 +150,7 @@ reset_hostlist_table_data(hostlist_table *hosts)
 
 	/* remove all entries from the clist */
 	for(i=0;i<hosts->num_hosts;i++){
-		gtk_clist_remove(hosts->table, hosts->num_hosts-i);
+		gtk_clist_remove(hosts->table, hosts->num_hosts-i-1);
 	}
 
 	/* delete all hosts */
