@@ -31,7 +31,7 @@ typedef enum {
     ANSI_TCAP_STANDARD = 2
 } Tcap_Standard_Type;
 
-extern Tcap_Standard_Type tcap_standard;
+extern gint tcap_standard;
 
 extern const value_string tcap_component_type_str[];
 
