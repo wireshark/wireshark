@@ -2,7 +2,7 @@
  * Routines for ssl dissection
  * Copyright (c) 2000-2001, Scott Renfro <scott@renfro.org>
  *
- * $Id: packet-ssl.c,v 1.24 2002/08/28 21:00:35 jmayer Exp $
+ * $Id: packet-ssl.c,v 1.25 2003/01/27 19:50:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -366,6 +366,7 @@ static const value_string ssl_31_handshake_type[] = {
 
 static const value_string ssl_31_compression_method[] = {
     { 0, "null" },
+    { 1, "ZLIB" },
     { 0x00, NULL }
 };
 
@@ -428,6 +429,18 @@ static const value_string ssl_31_ciphersuite[] = {
     { 0x001c, "SSL_FORTEZZA_KEA_WITH_NULL_SHA" },
     { 0x001d, "SSL_FORTEZZA_KEA_WITH_FORTEZZA_CBC_SHA" },
     { 0x001e, "SSL_FORTEZZA_KEA_WITH_RC4_128_SHA" },
+    { 0x002f, "TLS_RSA_WITH_AES_128_CBC_SHA" },
+    { 0x0030, "TLS_DH_DSS_WITH_AES_128_CBC_SHA" },
+    { 0x0031, "TLS_DH_RSA_WITH_AES_128_CBC_SHA" },
+    { 0x0032, "TLS_DHE_DSS_WITH_AES_128_CBC_SHA" },
+    { 0x0033, "TLS_DHE_RSA_WITH_AES_128_CBC_SHA" },
+    { 0x0034, "TLS_DH_anon_WITH_AES_128_CBC_SHA" },
+    { 0x0035, "TLS_RSA_WITH_AES_256_CBC_SHA" },
+    { 0x0036, "TLS_DH_DSS_WITH_AES_256_CBC_SHA" },
+    { 0x0037, "TLS_DH_RSA_WITH_AES_256_CBC_SHA" },
+    { 0x0038, "TLS_DHE_DSS_WITH_AES_256_CBC_SHA" },
+    { 0x0039, "TLS_DHE_RSA_WITH_AES_256_CBC_SHA" },
+    { 0x003A, "TLS_DH_anon_WITH_AES_256_CBC_SHA" },
     { 0x0062, "TLS_RSA_EXPORT1024_WITH_DES_CBC_SHA" },
     { 0x0063, "TLS_DHE_DSS_EXPORT1024_WITH_DES_CBC_SHA" },
     { 0x0064, "TLS_RSA_EXPORT1024_WITH_RC4_56_SHA" },
@@ -1283,6 +1296,7 @@ dissect_ssl3_hnd_cli_hello(tvbuff_t *tvb,
     proto_tree *cs_tree;
     guint16 cipher_suite_length = 0;
     guint8  compression_methods_length = 0;
+    guint8  compression_method;
 
     if (tree)
     {
@@ -1350,8 +1364,18 @@ dissect_ssl3_hnd_cli_hello(tvbuff_t *tvb,
 
             while (compression_methods_length > 0)
             {
-                proto_tree_add_item(cs_tree, hf_ssl_handshake_comp_method,
-                                    tvb, offset, 1, FALSE);
+                compression_method = tvb_get_guint8(tvb, offset);
+                if (compression_method < 64)
+                    proto_tree_add_uint(cs_tree, hf_ssl_handshake_comp_method,
+                                    tvb, offset, 1, compression_method);
+                else if (compression_method > 63 && compression_method < 193)
+                    proto_tree_add_text(cs_tree, tvb, offset, 1,
+                      "Compression Method: Reserved - to be assigned by IANA (%u)",
+                      compression_method);
+                else
+                    proto_tree_add_text(cs_tree, tvb, offset, 1,
+                       "Compression Method: Private use range (%u)",
+                       compression_method);
                 offset++;
                 compression_methods_length--;
             }
