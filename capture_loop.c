@@ -1390,7 +1390,8 @@ capture_loop_packet_cb(guchar *user, const struct pcap_pkthdr *phdr,
   int err;
 
   /* if the user told us to stop after x packets, do we have enough? */
-  if ((ld->packets_max > 0) && (++ld->counts.total >= ld->packets_max))
+  ld->counts.total++;
+  if ((ld->packets_max > 0) && (ld->counts.total >= ld->packets_max))
   {
      ld->go = FALSE;
   }
