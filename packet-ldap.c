@@ -1,7 +1,7 @@
 /* packet-ldap.c
  * Routines for ldap packet dissection
  *
- * $Id: packet-ldap.c,v 1.21 2001/01/09 06:31:38 guy Exp $
+ * $Id: packet-ldap.c,v 1.22 2001/01/10 23:42:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -907,8 +907,9 @@ dissect_ldap(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
     if (messageLength > (a.end - a.pointer))
     {
       if (ldap_tree)
-        proto_tree_add_text(ldap_tree, NullTVB, message_start, END_OF_FRAME, "Short message! (expected: %u, actual: %u)",
-			    messageLength, a.end - a.pointer);
+        proto_tree_add_text(ldap_tree, NullTVB, message_start, END_OF_FRAME,
+			    "Short message! (expected: %u, actual: %lu)",
+			    messageLength, (unsigned long)(a.end - a.pointer));
       break;
     }
   
