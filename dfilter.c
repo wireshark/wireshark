@@ -1,7 +1,7 @@
 /* dfilter.c
  * Routines for display filters
  *
- * $Id: dfilter.c,v 1.24 1999/10/07 21:47:18 guy Exp $
+ * $Id: dfilter.c,v 1.25 1999/10/11 03:03:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -169,7 +169,7 @@ dfilter_compile(dfilter *df, gchar *dfilter_text)
 
 	/* Errors not found by the parser may not cause the parse to
 	 * fail; if "dfilter_error_msg" is set, it means somebody
-	 * else called "dfilter_error()", e.g. the lexical analyzer,
+	 * else called "dfilter_fail()", e.g. the lexical analyzer,
 	 * so treat that as a parse error. */
 	if (dfilter_error_msg != NULL)
 		retval = 1;
@@ -179,14 +179,8 @@ dfilter_compile(dfilter *df, gchar *dfilter_text)
 			snprintf(dfilter_error_msg_buf, sizeof(dfilter_error_msg_buf),
 				"Unable to parse filter string \"%s\".",
 				dfilter_text);
-		} else {
-			/* An error message was supplied; use it in the
-			 * error we display. */
-			snprintf(dfilter_error_msg_buf, sizeof(dfilter_error_msg_buf),
-				"Unable to parse filter string \"%s\": %s.",
-				dfilter_text, dfilter_error_msg);
+			dfilter_error_msg = &dfilter_error_msg_buf[0];
 		}
-		dfilter_error_msg = &dfilter_error_msg_buf[0];
 	}
 
 	/* Clear the list of allocated nodes */
@@ -273,12 +267,6 @@ clear_byte_array(gpointer data, gpointer user_data)
 void
 dfilter_error(char *s)
 {
-	/* Remember the error message we were handed, unless it's
-	 * the boring "parse error" message used by YACC.
-	 */
-	if (strcmp(s, "parse error") != 0)
-		dfilter_error_msg = s;
-
 	/* The only data we have to worry about freeing is the
 	 * data used by any GNodes that were allocated during
 	 * parsing. The data in those Gnodes will be cleared
@@ -303,6 +291,23 @@ dfilter_error(char *s)
 	/* notice we don't clear gnode_slist itself. dfilter_compile()
 	 * will take care of that.
 	 */
+}
+
+/* Called when an error other than a parsing error occurs. */
+void
+dfilter_fail(char *format, ...)
+{
+  va_list    ap;
+
+  /* If we've already reported one error, don't overwrite it with this
+   * one. */
+  if (dfilter_error_msg != NULL)
+    return;
+
+  va_start(ap, format);
+  vsnprintf(dfilter_error_msg_buf, sizeof dfilter_error_msg_buf, format, ap);
+  dfilter_error_msg = dfilter_error_msg_buf;
+  va_end(ap);
 }
 
 static void

@@ -2,7 +2,7 @@
  * Definitions for routines common to multiple modules in the display
  * filter code, but not used outside that code.
  *
- * $Id: dfilter-int.h,v 1.6 1999/10/10 18:15:34 guy Exp $
+ * $Id: dfilter-int.h,v 1.7 1999/10/11 03:03:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -40,8 +40,17 @@ extern GSList *gnode_slist;
 int dfilter_lex(void);
 void dfilter_error(char *s);
 
-/* Report an error during compilation of a filter */
-void dfilter_error(char *s);
+/* Report an error during compilation of a filter; this is called by code
+ * other than parser code, so all it does is record that an error occurred,
+ * so that even if the filter is nominally syntactically valid, we still
+ * fail.
+ */
+#if __GNUC__ == 2
+void dfilter_fail(char *fmt, ...)
+    __attribute__((format (printf, 1, 2)));
+#else
+void dfilter_fail(char *fmt, ...);
+#endif
 
 /* functions that dfilter-grammar.y needs during parsing*/
 gboolean check_relation_numeric(gint operand, GArray *a, GArray *b);

@@ -1,7 +1,7 @@
 /* resolv.c
  * Routines for network object lookup
  *
- * $Id: resolv.c,v 1.12 1999/09/26 14:39:12 deniel Exp $
+ * $Id: resolv.c,v 1.13 1999/10/11 03:03:11 guy Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
@@ -55,6 +55,8 @@
 #ifdef HAVE_NETDB_H
 #include <netdb.h>
 #endif
+
+#include <arpa/inet.h>
 
 #include <signal.h>
 
@@ -847,22 +849,29 @@ extern u_char *get_manuf_name(u_char *addr)
 
 
 
-/* return IP address of either hostname or IP address in text format.
+/* Translate a string, assumed either to be a dotted-quad IP address or
+ * a host name, to a numeric IP address.  Return TRUE if we succeed and
+ * set "*addrp" to that numeric IP address; return FALSE if we fail.
  * Used more in the dfilter parser rather than in packet dissectors */
-unsigned long get_host_ipaddr(const char *host)
+gboolean get_host_ipaddr(const char *host, guint32 *addrp)
 {
-	struct hostent		*hp = NULL;
-	unsigned long		ipaddr;
+	struct in_addr		ipaddr;
+	struct hostent		*hp;
 
-	hp = gethostbyname(host);
-	if (hp == NULL) {
-		hp = gethostbyaddr(host, strlen(host), AF_INET);
+	if (!inet_aton(host, &ipaddr)) {
+		/* It's not a valid dotted-quad IP address; is it a valid
+		 * host name? */
+		hp = gethostbyname(host);
 		if (hp == NULL) {
-			return 0;
+			/* No. */
+			return FALSE;
+		} else {
+			/* XXX - is "hp->h_length" the size of a
+			 * "struct in_addr"?  It should be. */
+			memcpy(&ipaddr, hp->h_addr, hp->h_length);
 		}
 	}
 
-	memcpy(&ipaddr, hp->h_addr, hp->h_length);
-
-	return ntohl(ipaddr);
+	*addrp = ntohl(ipaddr.s_addr);
+	return TRUE;
 }

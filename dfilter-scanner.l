@@ -3,7 +3,7 @@
 /* dfilter-scanner.l
  * Scanner for display filters
  *
- * $Id: dfilter-scanner.l,v 1.16 1999/10/09 14:14:53 deniel Exp $
+ * $Id: dfilter-scanner.l,v 1.17 1999/10/11 03:03:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -171,19 +171,23 @@ le|\<\=		{ dfilter_lval.operand = TOK_LE; return TOK_LE; }
 			retval = T_FT_UINT32;
 			break;
 		case FT_DOUBLE:
-			dfilter_error("sorry, we don't yet support filtering on floating-point values");
+			dfilter_fail("Sorry, you can't filter on field \"%s\", as we don't yet support filtering on floating-point values.",
+			    yytext);
 			retval = 0;
 			break;
 		case FT_ABSOLUTE_TIME:
-			dfilter_error("sorry, we don't yet support filtering on time-of-day values");
+			dfilter_fail("Sorry, you can't filter on field \"%s\", as we don't yet support filtering on time-of-day values.",
+			    yytext);
 			retval = 0;
 			break;
 		case FT_RELATIVE_TIME:
-			dfilter_error("sorry, we don't yet support filtering on time-delta values");
+			dfilter_fail("Sorry, you can't filter on field \"%s\", as we don't yet support filtering on time-delta values.",
+			    yytext);
 			retval = 0;
 			break;
 		case FT_STRING:
-			dfilter_error("sorry, we don't yet support filtering on string values");
+			dfilter_fail("Sorry, you can't filter on field \"%s\", as we don't yet support filtering on string values.",
+			    yytext);
 			retval = 0;
 			break;
 		case FT_ETHER:
@@ -196,7 +200,8 @@ le|\<\=		{ dfilter_lval.operand = TOK_LE; return TOK_LE; }
 			retval = T_FT_IPv4;
 			break;
 		case FT_IPv6:
-			dfilter_error("sorry, we don't yet support filtering on IPv6 addresses");
+			dfilter_fail("Sorry, you can't filter on field \"%s\", as we don't yet support filtering on IPv6 addresses.",
+			    yytext);
 			retval = 0;
 			break;
 		case FT_IPXNET:
