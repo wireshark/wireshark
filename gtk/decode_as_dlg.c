@@ -1,6 +1,6 @@
 /* decode_as_dlg.c
  *
- * $Id: decode_as_dlg.c,v 1.7 2001/05/30 06:41:08 guy Exp $
+ * $Id: decode_as_dlg.c,v 1.8 2001/06/25 07:57:50 guy Exp $
  *
  * Routines to modify dissector tables on the fly.
  *
@@ -606,15 +606,22 @@ decode_network (GtkWidget *notebook_pg)
     GSList *item;
     gint row, assigned, port_num;
 
-    /* Do the real work */
-    decode_simple(notebook_pg);
+    /* Get the currently selected row in the clist of network protocols,
+       and get the protocol number assigned to it.
 
-    /* Now tweak a local table of protocol ids currently decoded as TCP/UDP */
+       This must be done *before* calling "decode_simple()", as, if
+       "Do not decode" is selected, "decode_simple()" will clear the
+       current selection in that clist. */
     port_num = GPOINTER_TO_INT(gtk_object_get_data(GTK_OBJECT(notebook_pg),
 						E_PAGE_VALUE));
     clist = GTK_CLIST(gtk_object_get_data(GTK_OBJECT(notebook_pg), E_PAGE_CLIST));
     row = GPOINTER_TO_INT(clist->selection->data);
     assigned = GPOINTER_TO_INT(gtk_clist_get_row_data(clist, row));
+
+    /* Do the real work */
+    decode_simple(notebook_pg);
+
+    /* Now tweak a local table of protocol ids currently decoded as TCP/UDP */
 
     /* Ignore changes to the normal TCP and UDP protocol numbers */
     if ((port_num == IP_PROTO_TCP) || (port_num == IP_PROTO_UDP))
@@ -1185,8 +1192,8 @@ decode_add_transport_menu (GtkWidget *page)
 /**************************************************/
 
 /*
- * This routine creates a somple notebook page ni the dialog box.
- * This notebook page provides a promp specifying what is being
+ * This routine creates a somple notebook page in the dialog box.
+ * This notebook page provides a prompt specifying what is being
  * changed and its current value (e.g. "IP Protocol number (17)"), and
  * a clist specifying all the available choices.  The list of choices
  * is conditionally enabled, based upon the setting of the
