@@ -7,7 +7,7 @@
  *
  * Copyright 2000, Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-sip.c,v 1.13 2001/01/30 02:38:33 gerald Exp $
+ * $Id: packet-sip.c,v 1.14 2001/03/09 04:35:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -203,7 +203,7 @@ void proto_register_sip(void)
         /* Required function calls to register the header fields and subtrees used */
         proto_register_field_array(proto_sip, hf, array_length(hf));
         proto_register_subtree_array(ett, array_length(ett));
-};
+}
 
 void
 proto_reg_handoff_sip(void)

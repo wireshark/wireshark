@@ -3,7 +3,7 @@
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * Copyright 2000, Mike Frisch <frisch@hummingbird.com> (NFSv4 decoding)
  *
- * $Id: packet-nfs.c,v 1.49 2001/03/06 18:27:07 gram Exp $
+ * $Id: packet-nfs.c,v 1.50 2001/03/09 04:35:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -4688,7 +4688,7 @@ static const value_string names_nfsv4_operation[] = {
 	{ 0, NULL }
 };
 
-guint *nfsv4_operation_ett[] =
+gint *nfsv4_operation_ett[] =
 {
 	 &ett_nfs_access4 ,
 	 &ett_nfs_close4 ,

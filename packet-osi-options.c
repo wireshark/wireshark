@@ -5,7 +5,7 @@
  * ISO 10589 ISIS (Intradomain Routeing Information Exchange Protocol)
  * ISO  9542 ESIS (End System To Intermediate System Routeing Exchange Protocol)
  *
- * $Id: packet-osi-options.c,v 1.5 2001/02/05 02:47:31 guy Exp $
+ * $Id: packet-osi-options.c,v 1.6 2001/03/09 04:35:22 guy Exp $
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
  * Ethereal - Network traffic analyzer
@@ -217,7 +217,8 @@ dissect_option_qos( const u_char type, const u_char sub_type, int offset,
          val_to_str( tmp_type, osi_opt_qos_sub_vals, "Unknown (0x%x)") );
     }
   }
-};
+}
+
 void
 dissect_option_route( u_char parm_type, u_char offset, u_char parm_len, 
                       tvbuff_t *tvb, proto_tree *tree ) {
@@ -273,7 +274,7 @@ dissect_option_route( u_char parm_type, u_char offset, u_char parm_len,
                   print_nsap_net( tvb_get_ptr(tvb, this_hop + 1, netl), netl ) );
     this_hop += 1 + netl;
   }
-};
+}
 
 
 
@@ -328,7 +329,7 @@ dissect_option_rfd( const u_char error, const u_char field, u_char offset,
     proto_tree_add_text( tree, tvb, offset, len,
                          "Reason for discard: UNKNOWN Error Class" );
   } 
-};
+}
 
 /* ############################## Dissection Functions ###################### */
 
@@ -442,7 +443,7 @@ dissect_osi_options( u_char pdu_type, u_char opt_len, tvbuff_t *tvb,
         offset  += parm_len;
       }
    } 
-}; /* dissect-osi-options */
+} /* dissect-osi-options */
 
 
 /*
@@ -471,5 +472,4 @@ proto_register_osi_options(void) {
     &ott_osi_redirect,
   };
   proto_register_subtree_array( ott, array_length(ott));
-};
-                                                       
+}

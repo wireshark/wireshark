@@ -6,7 +6,7 @@
  *       In particular I have not had an opportunity to see how it 
  *       responds to SRVLOC over TCP.
  *
- * $Id: packet-srvloc.c,v 1.21 2001/01/22 08:54:06 guy Exp $
+ * $Id: packet-srvloc.c,v 1.22 2001/03/09 04:35:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -210,7 +210,7 @@ dissect_authblk(tvbuff_t *tvb, int offset, proto_tree *tree)
 			tvb_format_text(tvb, offset, length));
     offset += length;
     return offset;
-};
+}
 
 /* Packet dissection routine called by tcp & udp when port 427 detected */
 
@@ -486,7 +486,7 @@ dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 proto_tree_add_text(srvloc_tree, tvb, offset, tvb_length_remaining(tvb, offset), "Unknown Function Type");
         };
     };
-};
+}
 
 /* Register protocol with Ethereal. */
 

@@ -25,7 +25,7 @@
 **   drh@acm.org
 **   http://www.hwaci.com/drh/
 **
-** $Id: lemon.c,v 1.5 2001/02/15 09:25:38 guy Exp $
+** $Id: lemon.c,v 1.6 2001/03/09 04:35:25 guy Exp $
 */
 #include <stdio.h>
 #include <stdarg.h>
@@ -69,7 +69,7 @@ char *msort(char *, char **, int (*)(const void *, const void *));
 ** Principal data structures for the LEMON parser generator.
 */
 
-typedef enum {FALSE=0, TRUE} Boolean;
+typedef enum {BOOL_FALSE=0, BOOL_TRUE} Boolean;
 
 /* Symbols (terminals and nonterminals) of the grammar are stored
 ** in the following: */
@@ -472,7 +472,7 @@ void FindFirstSets(struct lemon *lemp)
   int progress;
 
   for(i=0; i<lemp->nsymbol; i++){
-    lemp->symbols[i]->lambda = FALSE;
+    lemp->symbols[i]->lambda = BOOL_FALSE;
   }
   for(i=lemp->nterminal; i<lemp->nsymbol; i++){
     lemp->symbols[i]->firstset = SetNew();
@@ -484,10 +484,10 @@ void FindFirstSets(struct lemon *lemp)
     for(rp=lemp->rule; rp; rp=rp->next){
       if( rp->lhs->lambda ) continue;
       for(i=0; i<rp->nrhs; i++){
-         if( rp->rhs[i]->lambda==FALSE ) break;
+         if( rp->rhs[i]->lambda==BOOL_FALSE ) break;
       }
       if( i==rp->nrhs ){
-        rp->lhs->lambda = TRUE;
+        rp->lhs->lambda = BOOL_TRUE;
         progress = 1;
       }
     }
@@ -505,10 +505,10 @@ void FindFirstSets(struct lemon *lemp)
           progress += SetAdd(s1->firstset,s2->index);
           break;
 	}else if( s1==s2 ){
-          if( s1->lambda==FALSE ) break;
+          if( s1->lambda==BOOL_FALSE ) break;
 	}else{
           progress += SetUnion(s1->firstset,s2->firstset);
-          if( s2->lambda==FALSE ) break;
+          if( s2->lambda==BOOL_FALSE ) break;
 	}
       }
     }
@@ -799,11 +799,11 @@ void FindActions(struct lemon *lemp)
   }
 
   /* Report an error for each rule that can never be reduced. */
-  for(rp=lemp->rule; rp; rp=rp->next) rp->canReduce = FALSE;
+  for(rp=lemp->rule; rp; rp=rp->next) rp->canReduce = BOOL_FALSE;
   for(i=0; i<lemp->nstate; i++){
     struct action *ap;
     for(ap=lemp->sorted[i]->ap; ap; ap=ap->next){
-      if( ap->type==REDUCE ) ap->x.rp->canReduce = TRUE;
+      if( ap->type==REDUCE ) ap->x.rp->canReduce = BOOL_TRUE;
     }
   }
   for(rp=lemp->rule; rp; rp=rp->next){
@@ -1015,7 +1015,7 @@ void Configlist_closure(struct lemon *lemp)
             break;
 	  }else{
             SetUnion(newcfp->fws,xsp->firstset);
-            if( xsp->lambda==FALSE ) break;
+            if( xsp->lambda==BOOL_FALSE ) break;
 	  }
 	}
         if( i==rp->nrhs ) Plink_add(&cfp->fplp,newcfp);
@@ -3517,7 +3517,7 @@ struct symbol *Symbol_new(char *x)
     sp->prec = -1;
     sp->assoc = UNK;
     sp->firstset = 0;
-    sp->lambda = FALSE;
+    sp->lambda = BOOL_FALSE;
     sp->destructor = 0;
     sp->datatype = 0;
     Symbol_insert(sp,sp->name);
