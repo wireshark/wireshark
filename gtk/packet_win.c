@@ -3,7 +3,7 @@
  *
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet_win.c,v 1.18 2001/02/11 09:28:17 guy Exp $
+ * $Id: packet_win.c,v 1.19 2001/03/23 14:44:04 jfoster Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -77,7 +77,7 @@ struct PacketWinData {
 	GtkWidget  *tv_scrollw;
 	GtkWidget  *tree_view;
  	GtkWidget  *bv_scrollw;
- 	GtkWidget  *byte_view;
+	GtkWidget  *bv_nb_ptr;
  	field_info *finfo_selected;
 	epan_dissect_t	*edt;
 };
@@ -132,9 +132,12 @@ static void
 create_new_window ( char *Title, gint tv_size, gint bv_size){
 
   GtkWidget *main_w, *main_vbox, *pane,
-                      *tree_view, *byte_view, *tv_scrollw,
-                      *bv_scrollw;
+                      *tree_view, *tv_scrollw,
+                      *bv_scrollw,
+                      *bv_nb_ptr;
   struct PacketWinData *DataPtr;
+  int i;
+  tvbuff_t* bv_tvb;
 	
   main_w = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 
@@ -159,7 +162,7 @@ create_new_window ( char *Title, gint tv_size, gint bv_size){
   gtk_widget_show(tree_view);
 
   /* Byte view */
-  create_byte_view(bv_size, pane, &byte_view, &bv_scrollw,
+  create_byte_view(bv_size, pane, &bv_nb_ptr, &bv_scrollw,
 			prefs.gui_scrollbar_on_right);
 
   /* Allocate data structure to represent this window. */
@@ -177,7 +180,7 @@ create_new_window ( char *Title, gint tv_size, gint bv_size){
   DataPtr->main = main_w;
   DataPtr->tv_scrollw = tv_scrollw;
   DataPtr->tree_view = tree_view;
-  DataPtr->byte_view = byte_view;
+  DataPtr->bv_nb_ptr = bv_nb_ptr;
   DataPtr->bv_scrollw = bv_scrollw;
   detail_windows = g_list_append(detail_windows, DataPtr);
 
@@ -193,8 +196,14 @@ create_new_window ( char *Title, gint tv_size, gint bv_size){
 
   /* draw the protocol tree & print hex data */
   proto_tree_draw(DataPtr->protocol_tree, tree_view);
-  packet_hex_print(GTK_TEXT(byte_view), DataPtr->pd, DataPtr->frame, NULL);
-		
+
+  i=0;			/* do all the hex views */
+  while((bv_tvb = g_slist_nth_data ( DataPtr->frame->data_src, i++))){
+	add_byte_tab( DataPtr->bv_nb_ptr, tvb_get_name( bv_tvb),
+		tvb_get_ptr(bv_tvb, 0, -1), tvb_length(bv_tvb));
+
+  }
+
   DataPtr->finfo_selected = NULL;
   gtk_widget_show(main_w);
 }
@@ -218,6 +227,9 @@ new_tree_view_select_row_cb(GtkCTree *ctree, GList *node, gint column,
 /* called when a tree row is selected in the popup packet window */	
 
 	field_info	*finfo;
+	GtkWidget *byte_view;
+	guint8 *data;
+	int len, i;
 
 	struct PacketWinData *DataPtr = (struct PacketWinData*)user_data;
 
@@ -225,10 +237,20 @@ new_tree_view_select_row_cb(GtkCTree *ctree, GList *node, gint column,
 	finfo = gtk_ctree_node_get_row_data( ctree, GTK_CTREE_NODE(node) );
 	if (!finfo) return;
 
-	DataPtr->finfo_selected = finfo;
+        i = find_notebook_page( DataPtr->bv_nb_ptr, finfo->ds_name);
+        set_notebook_page ( DataPtr->bv_nb_ptr, i);
+        len = get_byte_view_and_data( DataPtr->bv_nb_ptr, &byte_view, &data);
 
-	packet_hex_print(GTK_TEXT(DataPtr->byte_view), DataPtr->pd,
-		DataPtr->frame, finfo);
+	if ( !byte_view)	/* exit it no hex window to write in */
+		return;
+        if ( len < 0){
+                data = DataPtr->pd;
+                len =  DataPtr->frame->cap_len;
+        }
+
+	DataPtr->finfo_selected = finfo;
+	packet_hex_print(GTK_TEXT(byte_view), data,
+		DataPtr->frame, finfo, len);
 
 }
 
@@ -238,13 +260,22 @@ new_tree_view_unselect_row_cb(GtkCTree *ctree, GList *node, gint column,
 
 /* called when a tree row is unselected in the popup packet window */	
 	
-	
+	guint8* data;
+	int len;
+	GtkWidget* byte_view;	
 	
 	struct PacketWinData *DataPtr = (struct PacketWinData*)user_data;
 
 	DataPtr->finfo_selected = NULL;
-	packet_hex_print(GTK_TEXT(DataPtr->byte_view), DataPtr->pd,
-		DataPtr->frame, NULL);
+
+        len = get_byte_view_and_data( DataPtr->bv_nb_ptr, &byte_view, &data);
+
+	if ( !byte_view)	/* exit it no hex window to write in */
+		return;
+
+	g_assert( len >= 0);
+	packet_hex_reprint(GTK_TEXT(byte_view));
+
 }
 
 /* Functions called from elsewhere to act on all popup packet windows. */
@@ -271,8 +302,7 @@ redraw_hex_dump_cb(gpointer data, gpointer user_data)
 {
 	struct PacketWinData *DataPtr = (struct PacketWinData *)data;
 
-	redraw_hex_dump(DataPtr->byte_view, DataPtr->pd,
-	    DataPtr->frame, DataPtr->finfo_selected);
+	redraw_hex_dump(DataPtr->bv_nb_ptr, DataPtr->frame, DataPtr->finfo_selected);
 }
 
 /* Redraw the hex dump part of all the popup packet windows. */

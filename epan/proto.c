@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.14 2001/03/15 22:08:41 guy Exp $
+ * $Id: proto.c,v 1.15 2001/03/23 14:44:02 jfoster Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1460,6 +1460,9 @@ proto_tree_add_pi(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gint
 	return pi;
 }
 
+/* The default name for a NullTVB. This removed when all dissectors use tvbuffs */
+static gchar* null_tvb_ds_name = "Frame";
+
 static field_info *
 alloc_field_info(int hfindex, tvbuff_t *tvb, gint start, gint length)
 {
@@ -1480,6 +1483,14 @@ alloc_field_info(int hfindex, tvbuff_t *tvb, gint start, gint length)
 	fi->representation = NULL;
 
 	fi->value = fvalue_new(fi->hfinfo->type);
+
+	/* add the data source name */
+	/* This has the hack to return a default name for NullTVB. This */
+	/* hack can be removed when all dissectors use tvbuffs */
+	if ( tvb)
+		fi->ds_name = tvb_get_name(tvb);
+	else
+		fi->ds_name = null_tvb_ds_name;
 
 	return fi;
 }
@@ -2595,6 +2606,7 @@ proto_get_finfo_ptr_array(proto_tree *tree, int id)
 typedef struct {
 	guint		offset;
 	field_info	*finfo;
+	gchar 		*name;
 } offset_search_t;
 
 static gboolean
@@ -2604,7 +2616,7 @@ check_for_offset(GNode *node, gpointer data)
 	offset_search_t		*offsearch = data;
 
 	/* !fi == the top most container node which holds nothing */
-	if (fi && fi->visible) {
+	if (fi && fi->visible && !strcmp( offsearch->name,fi->ds_name)) {
 		if (offsearch->offset >= fi->start &&
 				offsearch->offset < (fi->start + fi->length)) {
 
@@ -2624,12 +2636,13 @@ check_for_offset(GNode *node, gpointer data)
  * siblings of each node myself. When I have more time I'll do that.
  * (yeah right) */
 field_info*
-proto_find_field_from_offset(proto_tree *tree, guint offset)
+proto_find_field_from_offset(proto_tree *tree, guint offset, char* ds_name)
 {
 	offset_search_t		offsearch;
 
 	offsearch.offset = offset;
 	offsearch.finfo = NULL;
+	offsearch.name = ds_name;
 
 	g_node_traverse((GNode*)tree, G_PRE_ORDER, G_TRAVERSE_ALL, -1,
 			check_for_offset, &offsearch);

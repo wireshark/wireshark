@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.23 2001/03/15 06:41:13 guy Exp $
+ * $Id: packet.h,v 1.24 2001/03/23 14:44:01 jfoster Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -100,6 +100,7 @@ typedef struct _frame_data {
   struct _frame_data *next; /* Next element in list */
   struct _frame_data *prev; /* Previous element in list */
   GSList *pfd;              /* Per frame proto data */
+  GSList *data_src;         /* Frame data sources */
   guint32      num;       /* Frame number */
   guint32      pkt_len;   /* Packet length */
   guint32      cap_len;   /* Amount actually captured */
@@ -131,6 +132,7 @@ typedef enum {
   AT_ATALK,		/* Appletalk DDP */
   AT_VINES,		/* Banyan Vines */
   AT_OSI,		/* OSI NSAP */
+  AT_DLCI               /* Frame Relay DLCI */
 } address_type;
 
 typedef struct _address {

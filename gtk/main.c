@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.182 2001/03/02 23:10:12 gram Exp $
+ * $Id: main.c,v 1.183 2001/03/23 14:44:04 jfoster Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -8,6 +8,8 @@
  *
  * Richard Sharpe, 13-Feb-1999, added support for initializing structures
  *                              needed by dissect routines
+ * Jeff Foster,    2001/03/12,  added support tabbed hex display windowss
+ * 
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -135,7 +137,7 @@
 
 packet_info  pi;
 capture_file cfile;
-GtkWidget   *top_level, *packet_list, *tree_view, *byte_view,
+GtkWidget   *top_level, *packet_list, *tree_view, *byte_nb_ptr,
             *info_bar, *tv_scrollw, *pkt_scrollw;
 static GtkWidget	*bv_scrollw;
 GdkFont     *m_r_font, *m_b_font;
@@ -414,13 +416,21 @@ static void
 packet_list_select_cb(GtkWidget *w, gint row, gint col, gpointer evt) {
 
   blank_packetinfo();
+
+/* Remove the hex display tabbed pages */
+  while( (gtk_notebook_get_nth_page( GTK_NOTEBOOK(byte_nb_ptr), 0)))
+    gtk_notebook_remove_page( GTK_NOTEBOOK(byte_nb_ptr), 0);
+
   select_packet(&cfile, row);
 }
 
+
 static void
 packet_list_unselect_cb(GtkWidget *w, gint row, gint col, gpointer evt) {
+
   unselect_packet(&cfile);
 }
+
 
 static void
 tree_view_select_row_cb(GtkCTree *ctree, GList *node, gint column, gpointer user_data)
@@ -428,11 +438,21 @@ tree_view_select_row_cb(GtkCTree *ctree, GList *node, gint column, gpointer user
 	field_info	*finfo;
 	gchar		*help_str = NULL;
 	gboolean        has_blurb = FALSE;
-	guint           length = 0;
+	guint           length = 0, byte_len;
+	GtkWidget	*byte_view;
+	guint8		*byte_data;
 
 	g_assert(node);
 	finfo = gtk_ctree_node_get_row_data( ctree, GTK_CTREE_NODE(node) );
 	if (!finfo) return;
+
+	set_notebook_page(  byte_nb_ptr, find_notebook_page( byte_nb_ptr, finfo->ds_name));
+
+        byte_view = gtk_object_get_data(GTK_OBJECT(byte_nb_ptr), E_BYTE_VIEW_TEXT_INFO_KEY);
+        byte_data = gtk_object_get_data(GTK_OBJECT(byte_view), E_BYTE_VIEW_DATA_PTR_KEY);
+        byte_len = GPOINTER_TO_INT(gtk_object_get_data(GTK_OBJECT(byte_view), E_BYTE_VIEW_DATA_LEN_KEY));
+
+	g_assert(byte_data);
 
 	finfo_selected = finfo;
 
@@ -456,18 +476,28 @@ tree_view_select_row_cb(GtkCTree *ctree, GList *node, gint column, gpointer user
 	  g_free(help_str);
 	}
 
-	packet_hex_print(GTK_TEXT(byte_view), cfile.pd, cfile.current_frame,
-		finfo);
+	packet_hex_print(GTK_TEXT(byte_view), byte_data, cfile.current_frame,
+		finfo, byte_len);
 }
 
 static void
 tree_view_unselect_row_cb(GtkCTree *ctree, GList *node, gint column, gpointer user_data)
 {
+	GtkWidget	*byte_view;
+	guint8	*data;
+	gint	len;	
+	field_info* fi;
+
+	fi = (field_info*)user_data;
+
+	len = get_byte_view_and_data( byte_nb_ptr, &byte_view, &data);
+
+	if ( len < 0) return;
 	gtk_statusbar_pop(GTK_STATUSBAR(info_bar), help_ctx);
 	finfo_selected = NULL;
 	set_menus_for_selected_tree_row(FALSE);
-	packet_hex_print(GTK_TEXT(byte_view), cfile.pd, cfile.current_frame,
-		NULL);
+	packet_hex_print(GTK_TEXT(byte_view), data, cfile.current_frame,
+		NULL, len);
 }
 
 void collapse_all_cb(GtkWidget *widget, gpointer data) {
@@ -1576,8 +1606,12 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
   gtk_widget_show(tree_view);
 
   /* Byte view. */
-  create_byte_view(bv_size, l_pane, &byte_view, &bv_scrollw,
+  create_byte_view(bv_size, l_pane, &byte_nb_ptr, &bv_scrollw,
 			prefs->gui_scrollbar_on_right);
+
+  gtk_signal_connect(GTK_OBJECT(byte_nb_ptr), "button_press_event",
+		     GTK_SIGNAL_FUNC(popup_menu_handler),
+		     gtk_object_get_data(GTK_OBJECT(popup_menu_object), PM_HEXDUMP_KEY));
 
   /* Filter/info box */
   stat_hbox = gtk_hbox_new(FALSE, 1);
@@ -1631,4 +1665,3 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
   gtk_widget_show(top_level);
 }
 
-	

@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.c,v 1.15 2001/03/13 21:34:27 gram Exp $
+ * $Id: tvbuff.c,v 1.16 2001/03/23 14:44:02 jfoster Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@xiexie.org>
  *
@@ -69,6 +69,7 @@ struct tvbuff {
 	tvbuff_type		type;
 	gboolean		initialized;
 	guint			usage_count;
+	gchar*			ds_name;	  /* data source name */
 
 	/* The tvbuffs in which this tvbuff is a member
 	 * (that is, a backing tvbuff for a TVBUFF_SUBSET
@@ -319,7 +320,7 @@ tvb_set_real_data(tvbuff_t* tvb, const guint8* data, guint length, gint reported
 }
 
 tvbuff_t*
-tvb_new_real_data(const guint8* data, guint length, gint reported_length)
+tvb_new_real_data(const guint8* data, guint length, gint reported_length, const gchar* ds_name)
 {
 	tvbuff_t	*tvb;
 
@@ -328,6 +329,9 @@ tvb_new_real_data(const guint8* data, guint length, gint reported_length)
 	CLEANUP_PUSH(tvb_free_void, tvb);
 
 	tvb_set_real_data(tvb, data, length, reported_length);
+
+	/* set the data source name */
+	tvb->ds_name = g_strdup( ds_name);
 
 	CLEANUP_POP;
 
@@ -497,6 +501,7 @@ tvb_new_subset(tvbuff_t *backing, gint backing_offset, gint backing_length, gint
 
 	tvb_set_subset(tvb, backing, backing_offset, backing_length, reported_length);
 
+	tvb->ds_name = backing->ds_name;
 	CLEANUP_POP;
 
 	return tvb;
@@ -1567,4 +1572,10 @@ gchar *
 tvb_bytes_to_str(tvbuff_t *tvb, gint offset, gint len)
 {
 	return bytes_to_str(tvb_get_ptr(tvb, offset, len), len);
+}
+
+gchar*
+tvb_get_name(tvbuff_t* tvb)
+{
+	return tvb->ds_name;
 }

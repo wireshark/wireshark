@@ -1,6 +1,6 @@
 /* epan.h
  *
- * $Id: epan.c,v 1.6 2001/02/01 20:21:16 gram Exp $
+ * $Id: epan.c,v 1.7 2001/03/23 14:44:01 jfoster Exp $
  *
  * Ethereal Protocol Analyzer Library
  *
@@ -76,6 +76,11 @@ epan_dissect_new(void* pseudo_header, const guint8* data, frame_data *fd, proto_
 	epan_dissect_t	*edt;
 
 	edt = g_new(epan_dissect_t, 1);
+
+	/* start with empty data source list */
+	if ( fd->data_src)
+                g_slist_free( fd->data_src);
+        fd->data_src = 0;
 
 	/* XXX - init tree */
 	edt->tree = tree;

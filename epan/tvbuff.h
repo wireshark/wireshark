@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.h,v 1.11 2001/03/13 21:34:27 gram Exp $
+ * $Id: tvbuff.h,v 1.12 2001/03/23 14:44:02 jfoster Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@xiexie.org>
  *
@@ -139,7 +139,7 @@ void tvb_set_child_real_data_tvbuff(tvbuff_t* parent, tvbuff_t* child);
 void tvb_set_real_data(tvbuff_t*, const guint8* data, guint length, gint reported_length);
 
 /* Combination of tvb_new() and tvb_set_real_data(). Can throw ReportedBoundsError. */
-tvbuff_t* tvb_new_real_data(const guint8* data, guint length, gint reported_length);
+tvbuff_t* tvb_new_real_data(const guint8* data, guint length, gint reported_length, const gchar *name);
 
 
 /* Define the subset of the backing buffer to use.
@@ -362,6 +362,8 @@ gint tvb_strncaseeql(tvbuff_t *tvb, gint offset, const guint8 *str, gint size);
  * to the string with the formatted data.
  */
 gchar *tvb_bytes_to_str(tvbuff_t *tvb, gint offset, gint len);
+
+gchar *tvb_get_name(tvbuff_t *tvb);
 
 /************** END OF ACCESSORS ****************/
 

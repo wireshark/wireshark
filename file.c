@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.232 2001/02/11 09:28:15 guy Exp $
+ * $Id: file.c,v 1.233 2001/03/23 14:43:59 jfoster Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -89,7 +89,7 @@
 #include "globals.h"
 #include "gtk/colors.h"
 
-extern GtkWidget *packet_list, *info_bar, *byte_view, *tree_view;
+extern GtkWidget *packet_list, *info_bar, *byte_nb_ptr, *tree_view;
 extern guint      file_ctx;
 
 gboolean auto_scroll_live = FALSE;
@@ -771,6 +771,7 @@ read_packet(capture_file *cf, int offset)
   fdata->next = NULL;
   fdata->prev = NULL;
   fdata->pfd  = NULL;
+  fdata->data_src  = NULL;
   fdata->pkt_len  = phdr->len;
   fdata->cap_len  = phdr->caplen;
   fdata->file_off = offset;
@@ -990,6 +991,10 @@ rescan_packets(capture_file *cf, const char *action, gboolean refilter,
 	g_slist_free(fdata->pfd);
       }
       fdata->pfd = NULL;
+      if (fdata->data_src) {	/* release data source list */
+	g_slist_free(fdata->data_src);
+      }
+      fdata->data_src = NULL;
     }
 
     wtap_seek_read (cf->wth, fdata->file_off, &cf->pseudo_header,
@@ -1017,6 +1022,10 @@ rescan_packets(capture_file *cf, const char *action, gboolean refilter,
 	g_slist_free(fdata->pfd);
       }
       fdata->pfd = NULL;
+      if (fdata->data_src) {
+	g_slist_free(fdata->data_src);
+      }
+      fdata->data_src = NULL;
     }
   }
 
@@ -1222,8 +1231,7 @@ print_packets(capture_file *cf, print_args_t *print_args)
 
 	if (print_args->print_hex) {
 	  /* Print the full packet data as hex. */
-	  print_hex_data(cf->print_fh, print_args->format, cf->pd,
-			fdata->cap_len, fdata->flags.encoding);
+	  print_hex_data(cf->print_fh, print_args->format, fdata);
 	}
 
         /* Print a blank line if we print anything after this. */
@@ -1364,12 +1372,25 @@ static void
 clear_tree_and_hex_views(void)
 {
   /* Clear the hex dump. */
-  gtk_text_freeze(GTK_TEXT(byte_view));
-  gtk_text_set_point(GTK_TEXT(byte_view), 0);
-  gtk_text_forward_delete(GTK_TEXT(byte_view),
-    gtk_text_get_length(GTK_TEXT(byte_view)));
-  gtk_text_thaw(GTK_TEXT(byte_view));
 
+  GtkWidget *byte_view;
+  int i;
+
+/* Get the current tab scroll window, then get the text widget  */
+/* from the E_BYTE_VIEW_TEXT_INFO_KEY data field 		*/
+
+  i = gtk_notebook_get_current_page( GTK_NOTEBOOK(byte_nb_ptr));
+
+  if ( i >= 0){
+    byte_view = gtk_notebook_get_nth_page( GTK_NOTEBOOK(byte_nb_ptr), i);
+    byte_view = gtk_object_get_data(GTK_OBJECT(byte_view), E_BYTE_VIEW_TEXT_INFO_KEY);
+
+    gtk_text_freeze(GTK_TEXT(byte_view));
+    gtk_text_set_point(GTK_TEXT(byte_view), 0);
+    gtk_text_forward_delete(GTK_TEXT(byte_view),
+      gtk_text_get_length(GTK_TEXT(byte_view)));
+    gtk_text_thaw(GTK_TEXT(byte_view));
+  }
   /* Remove all nodes in ctree. This is how it's done in testgtk.c in GTK+ */
   gtk_clist_clear ( GTK_CLIST(tree_view) );
 
@@ -1516,6 +1537,8 @@ void
 select_packet(capture_file *cf, int row)
 {
   frame_data *fdata;
+  tvbuff_t *bv_tvb;
+  int i;
 
   /* Get the frame data struct pointer for this frame */
   fdata = (frame_data *) gtk_clist_get_row_data(GTK_CLIST(packet_list), row);
@@ -1569,8 +1592,15 @@ select_packet(capture_file *cf, int row)
 
   /* Display the GUI protocol tree and hex dump. */
   clear_tree_and_hex_views();
+
+  i = 0; 
+  while((bv_tvb = g_slist_nth_data ( cf->current_frame->data_src, i++))){
+  	add_byte_view( tvb_get_name( bv_tvb), tvb_get_ptr(bv_tvb, 0, -1), tvb_length(bv_tvb));
+  }
+
   proto_tree_draw(cf->protocol_tree, tree_view);
-  packet_hex_print(GTK_TEXT(byte_view), cf->pd, cf->current_frame, NULL);
+
+  set_notebook_page( byte_nb_ptr, 0);
 
   /* A packet is selected. */
   set_menus_for_selected_packet(TRUE);
