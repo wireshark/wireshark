@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * 
- * $Id: packet-rpc.c,v 1.1 1999/10/29 01:11:22 guy Exp $
+ * $Id: packet-rpc.c,v 1.2 1999/10/29 02:25:53 guy Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -546,10 +546,6 @@ dissect_rpc( const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 			"XID: 0x%x (%d)", xid, xid);
 	}
 
-	if (check_col(fd, COL_INFO)) {
-		col_add_fstr(fd, COL_INFO, "XID 0x%x", xid);
-	}
-
 	/* we should better compare this with the argument?! */
 	msg_type = EXTRACT_UINT(pd,offset+4);
 	msg_type_name = val_to_str(msg_type,rpc_msg_type,"%d");
@@ -557,11 +553,6 @@ dissect_rpc( const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 		proto_tree_add_text(rpc_tree,offset+4,4,
 			"msg_type: %s (%d)",
 			msg_type_name, msg_type);
-	}
-
-	if (check_col(fd, COL_PROTOCOL)) {
-		col_add_fstr(fd, COL_PROTOCOL, "RPC %s",
-			val_to_str(msg_type,rpc_msg_type,"%d"));
 	}
 
 	offset += 8;
@@ -587,16 +578,16 @@ dissect_rpc( const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 		}
 		
 		if (check_col(fd, COL_PROTOCOL)) {
-			col_add_fstr(fd, COL_PROTOCOL,"%s %s",
-				progname,
-				msg_type_name);
+			/* Set the protocol name to the underlying
+			   program name. */
+			col_add_fstr(fd, COL_PROTOCOL, "%s", progname);
 		}
 
 		if (!BYTES_ARE_IN_FRAME(offset+8,4)) return;
 		vers = EXTRACT_UINT(pd,offset+8);
 		if (rpc_tree) {
 			proto_tree_add_text(rpc_tree,offset+8,4,
-				"Program Version: %d",vers);
+				"Program Version: %u",vers);
 		}
 
 		if (!BYTES_ARE_IN_FRAME(offset+12,4)) return;
@@ -623,11 +614,12 @@ dissect_rpc( const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 				"Procedure: %s (%d)", procname, proc);
 		}
 
-		if (check_col(fd, COL_PROTOCOL)) {
-			col_add_fstr(fd, COL_PROTOCOL,"%s %s %s",
-				progname,
+		if (check_col(fd, COL_INFO)) {
+			col_add_fstr(fd, COL_INFO,"V%u %s %s XID 0x%x",
+				vers,
 				procname,
-				msg_type_name);
+				msg_type_name,
+				xid);
 		}
 
 		conversation = find_conversation(&pi.src, &pi.dst, pi.ptype,
@@ -646,7 +638,7 @@ dissect_rpc( const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 		if (rpc_call_lookup(&rpc_call_msg)) {
 			/* duplicate request */
 			if (check_col(fd, COL_INFO)) {
-				col_add_fstr(fd, COL_INFO, "dup XID 0x%x", xid);
+				col_append_fstr(fd, COL_INFO, " dup XID 0x%x", xid);
 			}
 		}
 		else {
@@ -703,13 +695,21 @@ dissect_rpc( const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 			proto = rpc_prog->proto;
 			ett = rpc_prog->ett;
 			progname = rpc_prog->progname;
+
+			if (check_col(fd, COL_PROTOCOL)) {
+				/* Set the protocol name to the underlying
+				   program name. */
+				col_add_fstr(fd, COL_PROTOCOL, "%s",
+				    progname);
+			}
 		}
 
-		if (check_col(fd, COL_PROTOCOL)) {
-			col_add_fstr(fd, COL_PROTOCOL,"%s %s %s",
-				progname,
+		if (check_col(fd, COL_INFO)) {
+			col_add_fstr(fd, COL_INFO,"V%u %s %s XID 0x%x",
+				vers,
 				procname,
-				msg_type_name);
+				msg_type_name,
+				xid);
 		}
 
 		if (rpc_tree) {
@@ -717,14 +717,14 @@ dissect_rpc( const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 				"Program: %s (%d)", 
 				progname, prog);
 			proto_tree_add_text(rpc_tree,0,0,
-				"Program Version: %d", vers);
+				"Program Version: %u", vers);
 			proto_tree_add_text(rpc_tree,0,0,
 				"Procedure: %s (%d)", procname, proc);
 		}
 
 		if (rpc_call->replies>1) {
 			if (check_col(fd, COL_INFO)) {
-					col_add_fstr(fd, COL_INFO, "dup XID 0x%x", xid);
+				col_append_fstr(fd, COL_INFO, " dup XID 0x%x", xid);
 			}
 		}
 

@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.51 1999/10/22 07:17:45 guy Exp $
+ * $Id: packet.c,v 1.52 1999/10/29 02:25:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -637,19 +637,25 @@ check_col(frame_data *fd, gint el) {
 /* Adds a vararg list to a packet info string. */
 void
 col_add_fstr(frame_data *fd, gint el, gchar *format, ...) {
-  va_list    ap;
-  int        i;
+  va_list ap;
+  int     i;
+  size_t  max_len;
   
   va_start(ap, format);
   for (i = 0; i < fd->cinfo->num_cols; i++) {
-    if (fd->cinfo->fmt_matx[i][el])
-      vsnprintf(fd->cinfo->col_data[i], COL_MAX_LEN, format, ap);
+    if (fd->cinfo->fmt_matx[i][el]) {
+      if (el == COL_INFO)
+	max_len = COL_MAX_INFO_LEN;
+      else
+	max_len = COL_MAX_LEN;
+      vsnprintf(fd->cinfo->col_data[i], max_len, format, ap);
+    }
   }
 }
 
 void
 col_add_str(frame_data *fd, gint el, const gchar* str) {
-  int i;
+  int    i;
   size_t max_len;
 
   for (i = 0; i < fd->cinfo->num_cols; i++) {
@@ -664,22 +670,42 @@ col_add_str(frame_data *fd, gint el, const gchar* str) {
   }
 }
 
+/* Appends a vararg list to a packet info string. */
+void
+col_append_fstr(frame_data *fd, gint el, gchar *format, ...) {
+  va_list ap;
+  int     i;
+  size_t  len, max_len;
+  
+  va_start(ap, format);
+  for (i = 0; i < fd->cinfo->num_cols; i++) {
+    if (fd->cinfo->fmt_matx[i][el]) {
+      len = strlen(fd->cinfo->col_data[i]);
+      if (el == COL_INFO)
+	max_len = COL_MAX_INFO_LEN;
+      else
+	max_len = COL_MAX_LEN;
+      vsnprintf(&fd->cinfo->col_data[i][len], max_len - len, format, ap);
+    }
+  }
+}
+
 void
 col_append_str(frame_data *fd, gint el, gchar* str) {
-    int i;
-    size_t len, max_len;
+  int    i;
+  size_t len, max_len;
 
-    for (i = 0; i < fd->cinfo->num_cols; i++) {
-        if (fd->cinfo->fmt_matx[i][el]) {
-	    len = strlen(fd->cinfo->col_data[i]);
-	    if (el == COL_INFO)
-		max_len = COL_MAX_LEN;
-	    else
-		max_len = COL_MAX_INFO_LEN;
-	    strncat(fd->cinfo->col_data[i], str, max_len - len);
-	    fd->cinfo->col_data[i][max_len - 1] = 0;
-        }
+  for (i = 0; i < fd->cinfo->num_cols; i++) {
+    if (fd->cinfo->fmt_matx[i][el]) {
+      len = strlen(fd->cinfo->col_data[i]);
+      if (el == COL_INFO)
+	max_len = COL_MAX_LEN;
+      else
+	max_len = COL_MAX_INFO_LEN;
+      strncat(fd->cinfo->col_data[i], str, max_len - len);
+      fd->cinfo->col_data[i][max_len - 1] = 0;
     }
+  }
 }
 	
 void blank_packetinfo(void)
