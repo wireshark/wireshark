@@ -1,9 +1,9 @@
 /* main.c
  *
- * $Id: main.c,v 1.170 2001/01/02 01:32:21 guy Exp $
+ * $Id: main.c,v 1.171 2001/01/10 10:11:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
  * Richard Sharpe, 13-Feb-1999, added support for initializing structures
@@ -149,7 +149,7 @@ void
 about_ethereal( GtkWidget *w, gpointer data ) {
   simple_dialog(ESD_TYPE_INFO, NULL,
 		"Ethereal - Network Protocol Analyzer\n"
-		"Version " VERSION " (C) 1998-2000 Gerald Combs <gerald@zing.org>\n"
+		"Version " VERSION " (C) 1998-2000 Gerald Combs <gerald@ethereal.com>\n"
                 "Compiled with %s\n\n"
 
 		"Check the man page for complete documentation and\n"

@@ -1,4 +1,4 @@
-$Id: README,v 1.46 2001/01/10 06:23:58 gram Exp $
+$Id: README,v 1.47 2001/01/10 10:06:16 guy Exp $
 
 General Information
 ------- -----------
@@ -241,6 +241,6 @@ There is no warranty, expressed or implied, associated with this product.
 Use at your own risk.
 
 
-Gerald Combs <gerald@zing.org>
+Gerald Combs <gerald@ethereal.com>
 Gilbert Ramirez <gram@xiexie.org>
 Guy Harris <guy@alum.mit.edu>
