@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.79 1999/08/22 02:52:42 guy Exp $
+ * $Id: file.c,v 1.80 1999/08/22 07:19:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -34,6 +34,8 @@
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
+
+#include <time.h>
 
 #ifdef HAVE_IO_H
 #include <io.h>
@@ -198,7 +200,7 @@ read_cap_file(capture_file *cf) {
   size_t  msg_len;
   char   *errmsg;
   char    errmsg_errno[1024+1];
-  gchar   err_str[PCAP_ERRBUF_SIZE];
+  gchar   err_str[2048+1];
 
   if ((name_ptr = (gchar *) strrchr(cf->filename, '/')) == NULL)
     name_ptr = cf->filename;
@@ -267,7 +269,7 @@ read_cap_file(capture_file *cf) {
       errmsg = errmsg_errno;
       break;
     }
-    snprintf(err_str, PCAP_ERRBUF_SIZE, errmsg);
+    snprintf(err_str, sizeof err_str, errmsg);
     simple_dialog(ESD_TYPE_WARN, NULL, err_str);
     return (err);
   } else

@@ -1,7 +1,7 @@
 /* file.h
  * Definitions for file structures and routines
  *
- * $Id: file.h,v 1.39 1999/08/22 00:47:43 guy Exp $
+ * $Id: file.h,v 1.40 1999/08/22 07:19:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -30,10 +30,6 @@
 #include <sys/types.h>
 #endif
 
-#ifdef HAVE_SYS_TIME_H
-#include <sys/time.h>
-#endif
-
 #ifndef __WTAP_H__
 #include "wiretap/wtap.h"
 #endif
@@ -43,7 +39,6 @@
 #include <pcap.h>
 #endif
 #endif
-
 
 #ifndef __DFILTER_H__
 #include "dfilter.h"
