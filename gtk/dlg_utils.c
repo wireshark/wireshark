@@ -1,7 +1,7 @@
 /* dlg_utils.c
  * Utilities to use when constructing dialogs
  *
- * $Id: dlg_utils.c,v 1.32 2004/05/23 17:37:36 ulfl Exp $
+ * $Id: dlg_utils.c,v 1.33 2004/05/24 01:58:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -287,7 +287,16 @@ dlg_button_row_new(gchar *stock_id_first, ...)
 
 
 /* this is called, when a dialog was closed */
-void dlg_destroy_cb(GtkWidget *dialog, gpointer data)
+void dlg_destroy_cb(GtkWidget *dialog
+#if GTK_MAJOR_VERSION < 2
+	_U_
+#endif
+	,
+	gpointer data
+#if GTK_MAJOR_VERSION < 2
+	_U_
+#endif
+	)
 {
 #if GTK_MAJOR_VERSION >= 2
     if(top_level) {
