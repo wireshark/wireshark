@@ -1,7 +1,7 @@
 /* io_stat.c
  * io_stat   2002 Ronnie Sahlberg
  *
- * $Id: io_stat.c,v 1.10 2002/12/05 22:19:24 sahlberg Exp $
+ * $Id: io_stat.c,v 1.11 2002/12/16 06:44:45 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -158,6 +158,11 @@ typedef struct _io_stat_t {
 	int max_y_units;
 	int count_type;
 } io_stat_t;	
+
+#if GTK_MAJOR_VERSION < 2
+GtkRcStyle *rc_style;
+GdkColormap *colormap;
+#endif
 
 
 
@@ -936,7 +941,11 @@ configure_event(GtkWidget *widget, GdkEventConfigure *event _U_)
 	for(i=0;i<MAX_GRAPHS;i++){
 		io->graphs[i].gc=gdk_gc_new(io->pixmap);
 #if GTK_MAJOR_VERSION < 2
-		/* XXX dont have a clue how to do this in gtk1 */
+		colormap = gtk_widget_get_colormap (widget);
+		if (!gdk_color_alloc (colormap, &io->graphs[i].color)){
+			g_warning ("Couldn't allocate color");
+		}
+
 		gdk_gc_set_foreground(io->graphs[i].gc, &io->graphs[i].color);
 #else
 		gdk_gc_set_rgb_fg_color(io->graphs[i].gc, &io->graphs[i].color);
@@ -1474,7 +1483,19 @@ create_filter_box(io_stat_graph_t *gio, GtkWidget *box)
 	gtk_widget_show(gio->color_button);
 
 #if GTK_MAJOR_VERSION < 2
-		/* XXX dont have a clue how to do this in gtk1 */
+	rc_style = gtk_rc_style_new ();
+	rc_style->bg[GTK_STATE_NORMAL] = gio->color;
+	rc_style->color_flags[GTK_STATE_NORMAL] |= GTK_RC_BG;
+	rc_style->bg[GTK_STATE_ACTIVE] = gio->color;
+	rc_style->color_flags[GTK_STATE_ACTIVE] |= GTK_RC_BG;
+	rc_style->bg[GTK_STATE_PRELIGHT] = gio->color;
+	rc_style->color_flags[GTK_STATE_PRELIGHT] |= GTK_RC_BG;
+	rc_style->bg[GTK_STATE_SELECTED] = gio->color;
+	rc_style->color_flags[GTK_STATE_SELECTED] |= GTK_RC_BG;
+	rc_style->bg[GTK_STATE_INSENSITIVE] = gio->color;
+	rc_style->color_flags[GTK_STATE_INSENSITIVE] |= GTK_RC_BG;
+	gtk_widget_modify_style (gio->color_button, rc_style);
+	gtk_rc_style_unref (rc_style);
 #else
 	gtk_widget_modify_bg(gio->color_button, GTK_STATE_NORMAL, &gio->color); 
 	gtk_widget_modify_bg(gio->color_button, GTK_STATE_ACTIVE, &gio->color); 

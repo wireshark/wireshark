@@ -1513,6 +1513,7 @@ Andreas Trauer <andreas.trauer [AT] siemens.com> {
 Ronald Henderson <Ronald.Henderson [AT] CognicaseUSA.com> {
 	In LDAP dissector, handle Sequence Of header being split across
 	    TCP segments
+	Support for colored graphs in Gtk1 version of IO_STAT
 }
 
 Brian Ginsbach <ginsbach [AT] cray.com> {
