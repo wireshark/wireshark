@@ -2,7 +2,7 @@
  * Routines for BGP packet dissection.
  * Copyright 1999, Jun-ichiro itojun Hagino <itojun@itojun.org>
  *
- * $Id: packet-bgp.c,v 1.85 2004/01/23 19:19:44 guy Exp $
+ * $Id: packet-bgp.c,v 1.86 2004/03/06 02:26:31 guy Exp $
  *
  * Supports:
  * RFC1771 A Border Gateway Protocol 4 (BGP-4)
@@ -370,7 +370,7 @@ decode_prefix4(proto_tree *tree, int hf_addr, tvbuff_t *tvb, gint offset,
 
     /* snarf length */
     plen = tvb_get_guint8(tvb, offset);
-    if (plen > 32) {
+    if (plen > 32 || plen == 0) {
 	proto_tree_add_text(tree, tvb, offset, 1, "%s length %u invalid",
 	    tag, plen);
 	return -1;
@@ -415,7 +415,7 @@ decode_prefix6(proto_tree *tree, int hf_addr, tvbuff_t *tvb, gint offset,
 
     /* snarf length */
     plen = tvb_get_guint8(tvb, offset);
-    if (plen > 128) {
+    if (plen > 128 || plen == 0) {
 	proto_tree_add_text(tree, tvb, offset, 1, "%s length %u invalid",
 	    tag, plen);
 	return -1;
@@ -663,7 +663,7 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
                 return -1;
             }
             plen -= (labnum * 3*8);
-            if (plen > 32) {
+            if (plen > 32 || plen == 0) {
                 proto_tree_add_text(tree, tvb, start_offset, 1,
                         "%s IPv4 prefix length %u invalid",
                         tag, plen + (labnum * 3*8));
@@ -718,7 +718,7 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
             switch (rd_type) {
 
             case FORMAT_AS2_LOC: /* Code borrowed from the decode_prefix4 function */
-                if (plen > 32) {
+                if (plen > 32 || plen == 0) {
                     proto_tree_add_text(tree, tvb, start_offset, 1,
                             "%s IPv4 prefix length %u invalid",
                             tag, plen + (labnum * 3*8) + 8*8);
@@ -753,7 +753,7 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
             case FORMAT_IP_LOC: /* Code borrowed from the decode_prefix4 function */
                 tvb_memcpy(tvb, ip4addr.addr_bytes, offset + 2, 4);
 
-                if (plen > 32) {
+                if (plen > 32 || plen == 0) {
                         proto_tree_add_text(tree, tvb, start_offset, 1,
                                 "%s IPv4 prefix length %u invalid",
                                 tag, plen + (labnum * 3*8) + 8*8);
@@ -815,6 +815,12 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
             }
             plen -= (labnum * 3*8);
 
+            if (plen > 128 || plen == 0) {
+                proto_tree_add_text(tree, tvb, start_offset, 1,
+                        "%s IPv6 prefix length %u invalid", tag, plen);
+                return -1;
+            }
+
 	    length = (plen + 7) / 8;
 	    memset(ip6addr.u6_addr.u6_addr8, 0, 16);
 	    tvb_memcpy(tvb, ip6addr.u6_addr.u6_addr8, offset, length);
@@ -855,7 +861,7 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
             switch (rd_type) {
 
             case FORMAT_AS2_LOC:
-                if (plen > 128) {
+                if (plen > 128 || plen == 0) {
                     proto_tree_add_text(tree, tvb, start_offset, 1,
                             "%s IPv6 prefix length %u invalid",
                             tag, plen + (labnum * 3*8) + 8*8);
@@ -881,7 +887,7 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
             case FORMAT_IP_LOC: 
                 tvb_memcpy(tvb, ip4addr.addr_bytes, offset + 2, 4);
 
-                if (plen > 128) {
+                if (plen > 128 || plen == 0) {
                     proto_tree_add_text(tree, tvb, start_offset, 1,
                             "%s IPv6 prefix length %u invalid",
                             tag, plen + (labnum * 3*8) + 8*8);
