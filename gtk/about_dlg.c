@@ -1,6 +1,6 @@
 /* about_dlg.c
  *
- * $Id: about_dlg.c,v 1.9 2004/05/22 04:46:13 guy Exp $
+ * $Id: about_dlg.c,v 1.10 2004/05/22 07:32:11 guy Exp $
  *
  * Ulf Lamping <ulf.lamping@web.de>
  *
@@ -36,6 +36,9 @@
 #include "dlg_utils.h"
 #include "compat_macros.h"
 #include "globals.h"
+#if GTK_MAJOR_VERSION >= 2 || GTK_MINOR_VERSION >= 3
+#include "text_page.h"
+#endif
 
 #include "cvsversion.h"
 
@@ -108,6 +111,7 @@ about_ethereal_page_new(void)
   return main_vb;
 }
 
+#if GTK_MAJOR_VERSION >= 2 || GTK_MINOR_VERSION >= 3
 static GtkWidget *
 about_authors_page_new(void)
 {
@@ -119,6 +123,7 @@ about_authors_page_new(void)
 
   return page;
 }
+#endif
 
 static void
 about_folders_row(GtkWidget *table, const char *label, const char *dir, const char *tip)
@@ -206,7 +211,9 @@ about_ethereal_cb( GtkWidget *w _U_, gpointer data _U_ )
   GtkWidget   *main_vb, *main_nb, *bbox, *ok_btn;
 
   GtkWidget   *page_lb, *about_page, *folders_page, *plugins_page;
+#if GTK_MAJOR_VERSION >= 2 || GTK_MINOR_VERSION >= 3
   GtkWidget   *authors_page;
+#endif
 
   if (about_ethereal_w != NULL) {
     /* There's already an "About Ethereal" dialog box; reactivate it. */
@@ -235,9 +242,11 @@ about_ethereal_cb( GtkWidget *w _U_, gpointer data _U_ )
   page_lb = gtk_label_new("Ethereal");
   gtk_notebook_append_page(GTK_NOTEBOOK(main_nb), about_page, page_lb);
 
+#if GTK_MAJOR_VERSION >= 2 || GTK_MINOR_VERSION >= 3
   authors_page = about_authors_page_new();
   page_lb = gtk_label_new("Authors");
   gtk_notebook_append_page(GTK_NOTEBOOK(main_nb), authors_page, page_lb);
+#endif
 
   folders_page = about_folders_page_new();
   WIDGET_SET_SIZE(folders_page, 500, 200);
