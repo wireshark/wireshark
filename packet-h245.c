@@ -94,7 +94,7 @@ proper helper routines
  *       with great support with testing and providing capturefiles
  *       from Martin Regner
  *
- * $Id: packet-h245.c,v 1.12 2003/07/09 09:45:42 sahlberg Exp $
+ * $Id: packet-h245.c,v 1.13 2003/07/09 10:21:45 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1969,11 +1969,45 @@ DEBUG_ENTRY("dissect_per_boolean");
 
 
 
+/* we currently only handle integers up to 32 bits in length. */
 guint32
-dissect_per_integer(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index _U_, guint32 *value _U_, proto_item **item _U_)
+dissect_per_integer(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index, gint32 *value, proto_item **item)
 {
-DEBUG_ENTRY("dissect_per_integer");
-NOT_DECODED_YET("dissect_per_integer");
+	guint32 i, length;
+	gint32 val;
+	proto_item *it=NULL;
+
+	/* 12.2.6 b */
+	offset=dissect_per_length_determinant(tvb, offset, pinfo, tree, -1, &length);
+	/* gassert here? */
+	if(length>8){
+NOT_DECODED_YET("too long integer");
+		length=8;
+	}
+
+	val=0;
+	for(i=0;i<length;i++){
+		if(i==0){
+			if(tvb_get_guint8(tvb, offset>>3)&0x80){
+				/* negative number */
+				val=0xffffffff;
+			} else {
+				/* positive number */
+				val=0;
+			}
+		}
+		val=(val<<8)|tvb_get_guint8(tvb,offset>>3);
+		offset+=8;
+	}
+	it=proto_tree_add_int(tree, hf_index, tvb, (offset>>3)-(length+1), length+1, val);
+		
+	if(item){
+		*item=it;
+	}
+	if(value){
+		*value=val;
+	}
+
 	return offset;
 }
 
@@ -2167,9 +2201,7 @@ DEBUG_ENTRY("dissect_per_constrained_integer");
 			offset+=8;
 		}
 		val+=min;
-		if(hf_index!=-1){
-			it=proto_tree_add_uint(tree, hf_index, tvb, (offset>>3)-(num_bytes+1), num_bytes+1, val);
-		}
+		it=proto_tree_add_uint(tree, hf_index, tvb, (offset>>3)-(num_bytes+1), num_bytes+1, val);
 		if(item){
 			*item=it;
 		}
@@ -22529,10 +22561,10 @@ proto_register_h245(void)
 		{ "containedThread", "h245.containedThread", FT_UINT32, BASE_DEC,
 		NULL, 0, "containedThread value", HFILL }},
 	{ &hf_h245_t38FaxMaxDatagram,
-		{ "t38FaxMaxDatagram", "h245.t38FaxMaxDatagram", FT_UINT32, BASE_DEC,
+		{ "t38FaxMaxDatagram", "h245.t38FaxMaxDatagram", FT_INT32, BASE_DEC,
 		NULL, 0, "t38FaxMaxDatagram value", HFILL }},
 	{ &hf_h245_t38FaxMaxBuffer,
-		{ "t38FaxMaxBuffer", "h245.t38FaxMaxBuffer", FT_UINT32, BASE_DEC,
+		{ "t38FaxMaxBuffer", "h245.t38FaxMaxBuffer", FT_INT32, BASE_DEC,
 		NULL, 0, "t38FaxMaxBuffer value", HFILL }},
 	{ &hf_h245_expirationTime,
 		{ "expirationTime", "h245.expirationTime", FT_UINT32, BASE_DEC,
