@@ -969,37 +969,49 @@ read_packet(capture_file *cf, long offset)
 }
 
 gboolean
-cf_merge_files(const char *out_file, int out_fd, int in_file_count,
-               char *const *in_filenames, int filetype, gboolean do_append)
+cf_merge_files(const char *out_filename, int out_fd, int in_file_count,
+               char *const *in_filenames, int file_type, gboolean do_append)
 {
-  merge_status_e  merge_status;
-  int             err;
-  gchar          *err_info;
-  int             err_fileno; 
+  merge_in_file_t  *in_files;
+  merge_out_file_t  out_file;
+  int               err, close_err;
+  gchar            *err_info;
+  int               err_fileno; 
+  gboolean          ret;
 
-  merge_status = merge_n_files(out_fd, in_file_count, in_filenames, filetype,
-                               do_append, &err, &err_info, &err_fileno);
-
-  switch (merge_status) {
-
-  case MERGE_SUCCESS:
-    return TRUE;
-
-  case MERGE_OPEN_INPUT_FAILED:
+  /* open the input files */
+  in_file_count = merge_open_in_files(in_file_count, in_filenames, &in_files,
+                                      &err, &err_info, &err_fileno);
+  if (in_file_count < 2) {
+    free(in_files);
     cf_open_failure_alert_box(in_filenames[err_fileno], err, err_info, FALSE, 0);
     return FALSE;
+  }
 
-  case MERGE_OPEN_OUTPUT_FAILED:
-    cf_open_failure_alert_box(out_file, err, err_info, TRUE, filetype);
-    return FALSE;
-
-  /* XXX - what about read failures? */
-
-  case MERGE_WRITE_FAILED:
-    cf_write_failure_alert_box(out_file, err);
+  if (!merge_open_outfile(&out_file, out_fd, file_type,
+      merge_select_frame_type(in_file_count, in_files),
+      merge_max_snapshot_length(in_file_count, in_files), &err)) {
+    merge_close_in_files(in_file_count, in_files);
+    free(in_files);
+    cf_open_failure_alert_box(out_filename, err, err_info, TRUE, file_type);
     return FALSE;
   }
-  return TRUE;
+
+  /* do the merge (or append) */
+  if (do_append)
+    ret = merge_append_files(in_file_count, in_files, &out_file, &err);
+  else
+    ret = merge_files(in_file_count, in_files, &out_file, &err);
+
+  merge_close_in_files(in_file_count, in_files);
+  if (ret)
+      ret = merge_close_outfile(&out_file, &err);
+  else
+      merge_close_outfile(&out_file, &close_err);
+
+  if (!ret)
+    cf_write_failure_alert_box(out_filename, err);
+  return ret;
 }
 
 gboolean

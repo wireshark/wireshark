@@ -146,32 +146,6 @@ merge_files(int in_file_count, merge_in_file_t in_files[], merge_out_file_t *out
 extern gboolean
 merge_append_files(int in_file_count, merge_in_file_t in_files[], merge_out_file_t *out_file, int *err);
 
-/** Return status from merge_n_files */
-typedef enum {
-    MERGE_SUCCESS,
-    MERGE_OPEN_INPUT_FAILED,
-    MERGE_OPEN_OUTPUT_FAILED,
-    MERGE_WRITE_FAILED
-} merge_status_e;
-
-/*
- * Convenience function: merge any number of input files into one.
- *
- * @param out_filename the output filename
- * @param in_file_count number of input files
- * @param in_filenames array of input filenames
- * @param do_append TRUE to append, FALSE to merge chronologically
- * @param err wiretap error, if failed and VERBOSE_NONE
- * @param err_info wiretap error string, if failed and VERBOSE_NONE
- * @param err_fileno file on which open failed, if VERBOSE_NONE
- * @return merge_status_e
- */
-extern merge_status_e
-merge_n_files(int out_fd, int in_file_count, char *const *in_filenames,
-              int filetype, gboolean do_append, int *err, gchar **err_info,
-              int *err_fileno);
-
-
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
