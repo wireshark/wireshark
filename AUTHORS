@@ -2051,6 +2051,7 @@ And assorted fixes and enhancements by the people listed above and by:
 	Pierre Juhen <pierre.juhen [AT] wanadoo.fr>
 	David Richards <drichards [AT] alum.mit.edu>
 	Shusaku Ueda <ueda [AT] sra.co.jp>
+	Jonathan Perkins <jonathan.perkins [AT] ipaccess.com>
 
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.

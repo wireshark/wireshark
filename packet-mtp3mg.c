@@ -10,7 +10,7 @@
  *
  * Copyright 2003, Jeff Morriss <jeff.morriss[AT]ulticom.com>
  *
- * $Id: packet-mtp3mg.c,v 1.11 2003/12/06 19:14:30 jmayer Exp $
+ * $Id: packet-mtp3mg.c,v 1.12 2004/02/02 17:57:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -271,7 +271,6 @@ static const value_string test_h1_message_type_acro_values[] = {
   { TEST_H1_SLTA, "SLTA" },
   { 0,            NULL } };
 
-
 #define COO_LENGTH         2
 #define ANSI_COO_SLC_MASK  0x000f
 #define ANSI_COO_FSN_MASK  0x07f0
@@ -313,6 +312,7 @@ static const value_string test_h1_message_type_acro_values[] = {
 #define TEST_LENGTH_MASK    0xf0
 #define TEST_LENGTH_SHIFT   4
 #define TEST_PATTERN_OFFSET TEST_LENGTH
+#define ANSI_TEST_SLC_MASK  0x000f
 
 /* This list is slightly different from that in packet-mtp3.c */
 static const value_string service_indicator_code_vals[] = {
@@ -391,6 +391,7 @@ static int hf_mtp3mg_upu_user = -1;
 static int hf_mtp3mg_upu_cause = -1;
 static int hf_mtp3test_h0 = -1;
 static int hf_mtp3mg_test_h1 = -1;
+static int hf_mtp3mg_test_ansi_slc = -1;
 static int hf_mtp3mg_test_length = -1;
 
 /* Initialize the subtree pointers */
@@ -821,6 +822,12 @@ dissect_mtp3mg_test(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     {
     case TEST_H1_SLTM:
     case TEST_H1_SLTA:
+	if (mtp3_standard == ANSI_STANDARD)
+	{
+	    proto_tree_add_item(tree, hf_mtp3mg_test_ansi_slc, tvb, 0,
+				TEST_LENGTH, TRUE);
+	}
+
 	proto_tree_add_item(tree, hf_mtp3mg_test_length, tvb, 0, TEST_LENGTH,
 			    TRUE);
 
@@ -1192,7 +1199,11 @@ proto_register_mtp3mg(void)
 	{ &hf_mtp3mg_test_length,
 	    { "Test length", "mtp3mg.test.length",
 	      FT_UINT8, BASE_DEC, NULL, H1_MASK,
-	      "Signalling link test pattern length", HFILL }}
+	      "Signalling link test pattern length", HFILL }},
+	{ &hf_mtp3mg_test_ansi_slc,
+	    { "Signalling Link Code", "mtp3mg.slc",
+	      FT_UINT8, BASE_DEC, NULL, ANSI_TEST_SLC_MASK,
+	      "SLC of affected link", HFILL }}
   };
 
     /* Setup protocol subtree array */
