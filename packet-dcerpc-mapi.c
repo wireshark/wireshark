@@ -2,7 +2,7 @@
  * Routines for MS Exchange MAPI
  * Copyright 2002, Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-mapi.c,v 1.2 2002/05/23 12:23:29 sahlberg Exp $
+ * $Id: packet-dcerpc-mapi.c,v 1.3 2002/05/23 12:48:28 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -148,13 +148,37 @@ mapi_unknown_02_reply(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
+static int
+mapi_logoff_rqst(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
+				       hf_mapi_hnd, NULL, FALSE, FALSE);
+
+	return offset;
+}
+
+static int
+mapi_logoff_reply(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
+				       hf_mapi_hnd, NULL, FALSE, FALSE);
+
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+			hf_mapi_rc, NULL);
+
+	return offset;
+}
+
 
 static dcerpc_sub_dissector dcerpc_mapi_dissectors[] = {
         { MAPI_LOGON,		"Logon", 
 		mapi_logon_rqst,
 		mapi_logon_reply },
-        { MAPI_LOGOFF,		"Logoff", NULL, NULL },
-
+        { MAPI_LOGOFF,		"Logoff", 
+		mapi_logoff_rqst,
+		mapi_logoff_reply },
         { MAPI_UNKNOWN_02,	"unknown_02", 
 		mapi_unknown_02_request,
 		mapi_unknown_02_reply },
