@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.158 2001/11/19 10:06:41 guy Exp $
+ * $Id: packet-smb.c,v 1.159 2001/11/19 10:23:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -12923,16 +12923,6 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	return TRUE;
 }
 
-
-
-
-
-
-	/* External routines called during the registration process */
-
-extern void register_proto_smb_browse( void);
-extern void register_proto_smb_logon( void);
-
 void
 proto_register_smb(void)
 {
@@ -14693,11 +14683,6 @@ proto_register_smb(void)
 	proto_register_subtree_array(ett, array_length(ett));
 	proto_register_field_array(proto_smb, hf, array_length(hf));
 	register_init_routine(&smb_init_protocol);
-
-	register_proto_smb_browse();
-	register_proto_smb_logon();
-	register_proto_smb_mailslot();
-	register_proto_smb_pipe();
 }
 
 void

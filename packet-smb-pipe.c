@@ -8,7 +8,7 @@ XXX  Fixme : shouldnt show [malformed frame] for long packets
  * significant rewrite to tvbuffify the dissector, Ronnie Sahlberg and
  * Guy Harris 2001
  *
- * $Id: packet-smb-pipe.c,v 1.45 2001/11/19 10:06:41 guy Exp $
+ * $Id: packet-smb-pipe.c,v 1.46 2001/11/19 10:23:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2333,7 +2333,7 @@ dissect_pipe_smb(tvbuff_t *t_tvb, tvbuff_t *s_tvb, tvbuff_t *p_tvb,
 }
 
 void
-register_proto_smb_pipe(void)
+proto_register_smb_pipe(void)
 {
 	static hf_register_info hf[] = {
 		{ &hf_function_code,

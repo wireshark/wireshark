@@ -2,7 +2,7 @@
  * Declarations of routines for SMB named pipe packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb-pipe.h,v 1.7 2001/11/19 10:06:41 guy Exp $
+ * $Id: packet-smb-pipe.h,v 1.8 2001/11/19 10:23:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -25,8 +25,6 @@
 
 #ifndef _PACKET_SMB_PIPE_H_
 #define _PACKET_SMB_PIPE_H_
-
-extern void register_proto_smb_pipe(void);
 
 extern gboolean
 dissect_pipe_smb(tvbuff_t *t_tvb, tvbuff_t *s_tvb, tvbuff_t *p_tvb,

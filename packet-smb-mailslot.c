@@ -2,7 +2,7 @@
  * Routines for SMB mailslot packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-smb-mailslot.c,v 1.23 2001/11/19 10:06:41 guy Exp $
+ * $Id: packet-smb-mailslot.c,v 1.24 2001/11/19 10:23:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -188,7 +188,7 @@ dissect_mailslot_smb(tvbuff_t *mshdr_tvb, tvbuff_t *setup_tvb,
 }
 
 void
-register_proto_smb_mailslot(void)
+proto_register_smb_mailslot(void)
 {
 	static hf_register_info hf[] = {
 		{ &hf_opcode,

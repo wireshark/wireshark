@@ -2,7 +2,7 @@
  * Declaration of routines for SMB mailslot packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-smb-mailslot.h,v 1.5 2001/11/19 10:06:41 guy Exp $
+ * $Id: packet-smb-mailslot.h,v 1.6 2001/11/19 10:23:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -26,12 +26,9 @@
 #ifndef _PACKET_SMB_MAILSLOT_H_
 #define _PACKET_SMB_MAILSLOT_H_
 
-extern void register_proto_smb_mailslot(void);
-
 gboolean
 dissect_mailslot_smb(tvbuff_t *total_tvb, tvbuff_t *setup_tvb,
 		     tvbuff_t *tvb, const char *mailslot,
 		     packet_info *pinfo, proto_tree *tree);
 
 #endif
-
