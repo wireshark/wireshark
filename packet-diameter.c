@@ -1,7 +1,7 @@
 /* packet-diameter.c
  * Routines for Diameter packet disassembly
  *
- * $Id: packet-diameter.c,v 1.54 2003/05/15 07:44:53 guy Exp $
+ * $Id: packet-diameter.c,v 1.55 2003/07/09 05:37:47 tpot Exp $
  *
  * Copyright (c) 2001 by David Frascone <dave@frascone.com>
  *
@@ -151,11 +151,6 @@ static ApplicationId   *ApplicationIdHead=NULL;
 
 #define TCP_PORT_DIAMETER	1812
 #define SCTP_PORT_DIAMETER	1812
-
-static const true_false_string flags_set_truth = {
-  "Set",
-  "Not set"
-};
 
 static const true_false_string reserved_set = {
   "*** Error! Reserved Bit is Set",

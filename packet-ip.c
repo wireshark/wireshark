@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.192 2003/06/05 22:23:57 guy Exp $
+ * $Id: packet-ip.c,v 1.193 2003/07/09 05:37:47 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -795,11 +795,6 @@ static const true_false_string tos_set_low = {
 static const true_false_string tos_set_high = {
   "High",
   "Normal"
-};
-
-static const true_false_string flags_set_truth = {
-  "Set",
-  "Not set"
 };
 
 static guint16 ip_checksum(const guint8 *ptr, int len)
