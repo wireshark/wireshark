@@ -2,12 +2,14 @@
  * Routines for OSPF packet disassembly
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-ospf.c,v 1.3 1998/09/27 22:12:36 gerald Exp $
+ * $Id: packet-ospf.c,v 1.4 1998/09/29 21:34:44 hannes Exp $
  *
  * At this time, this module is able to analyze OSPF
  * packets as specified in RFC2328. MOSPF (RFC1584) and other
  * OSPF Extensions which introduce new Packet types
  * (e.g the External Atributes LSA) are not supported.
+ *
+ * TOS - support is not fully implemented
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -394,10 +396,15 @@ dissect_ospf_lsa(const u_char *pd, int offset, frame_data *fd, GtkTree *tree, in
     /* data structures for the summary and ASBR LSAs */
     e_ospf_summary_lsa 	*summary_lsa;
 
+    /* data structures for the AS-External LSA */
+    e_ospf_asexternal_lsa       asext_lsa;
+    guint32                   asext_metric;
+
     GtkWidget *ospf_lsa_tree, *ti; 
 
     lsa_hdr = (e_ospf_lsa_hdr *) &pd[offset]; 
 
+             
 
     switch(lsa_hdr->ls_type) {
         case OSPF_LSTYPE_ROUTER:
@@ -536,10 +543,34 @@ dissect_ospf_lsa(const u_char *pd, int offset, frame_data *fd, GtkTree *tree, in
                 summary_lsa = (e_ospf_summary_lsa *) &pd[offset]; 
                 add_item_to_tree(ospf_lsa_tree, offset, 4, "Netmask: %s", 
                                                  ip_to_str((guint8 *) &(summary_lsa->network_mask)));
+                /* returns only the TOS 0 metric (even if there are more TOS metrics) */
                 break;
             case(OSPF_LSTYPE_ASEXT):
-            /* not yet implemented */
-	        add_item_to_tree(ospf_lsa_tree, offset, (fd->cap_len - offset), "AS-external-LSA not yet implemented");
+                summary_lsa = (e_ospf_summary_lsa *) &pd[offset]; 
+                add_item_to_tree(ospf_lsa_tree, offset, 4, "Netmask: %s", 
+                                                  ip_to_str((guint8 *) &(summary_lsa->network_mask)));
+
+                /* asext_lsa = (e_ospf_asexternal_lsa *) &pd[offset + 4]; */
+                memcpy(&asext_lsa, &pd[offset + 4], sizeof(asext_lsa));
+                if( (asext_lsa.options & 128) == 128 ) { /* check wether or not E bit is set */
+                   add_item_to_tree(ospf_lsa_tree, offset, 1, 
+                            "External Type: Type 2 (metric is larger than any other link state path)");
+                } else {
+                   add_item_to_tree(ospf_lsa_tree, offset + 4, 1, 
+                            "External Type: Type 1 (metric is specified in the same units as interface cost)");
+                }
+                /* the metric field of a AS-external LAS is specified in 3 bytes -> not well aligned */
+                /* this routine returns only the TOS 0 metric (even if there are more TOS metrics) */
+                memcpy(&asext_metric, &pd[offset+4], 4); 
+                
+                /* erase the leading 8 bits (the dont belong to the metric */
+                asext_metric = ntohl(asext_metric) & 0x00ffffff ;
+
+                add_item_to_tree(ospf_lsa_tree, offset + 5,  3,"Metric: %d", asext_metric);
+                add_item_to_tree(ospf_lsa_tree, offset + 8,  4,"Forwarding Address: %s", 
+                                                 ip_to_str((guint8 *) &(asext_lsa.gateway)));
+                add_item_to_tree(ospf_lsa_tree, offset + 12, 4,"External Route Tag: %d", ntohl(asext_lsa.external_tag)); 
+                    
                 break;
             default:
                /* unknown LSA type */
