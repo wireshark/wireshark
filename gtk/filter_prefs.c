@@ -3,7 +3,7 @@
  * (This used to be a notebook page under "Preferences", hence the
  * "prefs" in the file name.)
  *
- * $Id: filter_prefs.c,v 1.27 2001/01/28 21:30:53 guy Exp $
+ * $Id: filter_prefs.c,v 1.28 2001/02/20 20:25:08 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -567,6 +567,14 @@ filter_dialog_new(GtkWidget *caller, GtkWidget *parent_filter_te,
 		    filter_te);
 		gtk_widget_grab_default(ok_bt);
 		gtk_widget_show(ok_bt);
+
+		/* Catch the "activate" signal on the filter name and filter
+		   expression text entries, so that if the user types Return
+		   there, we act as if the "OK" button had been selected, as
+		   happens if Return is typed if some widget that *doesn't*
+		   handle the Return key has the input focus. */
+		dlg_set_activate(name_te, ok_bt);
+		dlg_set_activate(filter_te, ok_bt);
 	}
 
 	if (construct_args->wants_apply_button) {
@@ -592,6 +600,11 @@ filter_dialog_new(GtkWidget *caller, GtkWidget *parent_filter_te,
 	gtk_box_pack_start(GTK_BOX(bbox), close_bt, TRUE, TRUE, 0);
 	gtk_widget_show(close_bt);
 
+	/*
+	 * Catch the "key_press_event" signal in the window, so that we can
+	 * catch the ESC key being pressed and act as if the "Close" button
+	 * had been selected.
+	 */
 	dlg_set_cancel(main_w, close_bt);
 
 	remember_filter_dialog(main_w, filter_dialogs);
