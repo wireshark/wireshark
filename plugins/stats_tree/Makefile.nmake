@@ -29,7 +29,7 @@ stats_tree.dll stats_tree.exp stats_tree.lib : $(OBJECTS) $(LINK_PLUGIN_WITH)
 	$(GLIB_LIBS)
 
 clean:
-	rm -f $(OBJECTS) stats_tree.dll stats_tree.exp mate.lib *.pdb
+	rm -f $(OBJECTS) stats_tree.dll stats_tree.exp stats_tree.lib *.pdb
 
 distclean: clean
 
