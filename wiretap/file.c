@@ -1,6 +1,6 @@
 /* file.c
  *
- * $Id: file.c,v 1.54 2000/06/24 05:32:46 guy Exp $
+ * $Id: file.c,v 1.55 2000/07/20 09:39:43 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -126,7 +126,10 @@ wtap* wtap_open_offline(const char *filename, int *err, gboolean do_random)
 	}
 #ifndef WIN32
 	if (! S_ISREG(statb.st_mode) && ! S_ISFIFO(statb.st_mode)) {
-		*err = WTAP_ERR_NOT_REGULAR_FILE;
+		if (S_ISDIR(statb.st_mode))
+			*err = EISDIR;
+		else
+			*err = WTAP_ERR_NOT_REGULAR_FILE;
 		return NULL;
 	}
 #endif
@@ -145,7 +148,8 @@ wtap* wtap_open_offline(const char *filename, int *err, gboolean do_random)
 
 	/* Open the file */
 	errno = WTAP_ERR_CANT_OPEN;
-	if (!(wth->fd = open(filename, O_RDONLY|O_BINARY))) {
+	wth->fd = open(filename, O_RDONLY|O_BINARY);
+	if (wth->fd < 0) {
 		*err = errno;
 		g_free(wth);
 		return NULL;

@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.35 2000/07/09 03:29:29 guy Exp $
+ * $Id: tethereal.c,v 1.36 2000/07/20 09:39:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -567,40 +567,8 @@ capture(int packet_count, int out_file_type)
 		ld.linktype, pcap_snapshot(ld.pch), &err);
 
     if (ld.pdh == NULL) {
-      /* We couldn't set up to write to the capture file. */
-      switch (err) {
-
-      case WTAP_ERR_UNSUPPORTED_FILE_TYPE:
-        strcpy(errmsg, "Tethereal does not support writing capture files in that format.");
-        break;
-
-      case WTAP_ERR_UNSUPPORTED_ENCAP:
-      case WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED:
-        strcpy(errmsg, "Tethereal cannot save this capture in that format.");
-        break;
-
-      case WTAP_ERR_CANT_OPEN:
-        strcpy(errmsg, "The file to which the capture would be written"
-                 " couldn't be created for some unknown reason.");
-        break;
-
-      case WTAP_ERR_SHORT_WRITE:
-        strcpy(errmsg, "A full header couldn't be written to the file"
-                 " to which the capture would be written.");
-        break;
-
-      default:
-        if (err < 0) {
-          sprintf(errmsg, "The file to which the capture would be"
-                       " written (\"%s\") could not be opened: Error %d.",
-   			cfile.save_file, err);
-        } else {
-          sprintf(errmsg, "The file to which the capture would be"
-                       " written (\"%s\") could not be opened: %s.",
- 			cfile.save_file, strerror(err));
-        }
-        break;
-      }
+      snprintf(errmsg, sizeof errmsg, file_open_error_message(errno, TRUE),
+		cfile.save_file);
       goto error;
     }
   }
@@ -956,7 +924,7 @@ wtap_dispatch_cb_print(u_char *user, const struct wtap_pkthdr *phdr, int offset,
 }
 
 char *
-file_open_error_message(int err, int for_writing)
+file_open_error_message(int err, gboolean for_writing)
 {
   char *errmsg;
   static char errmsg_errno[1024+1];
@@ -964,7 +932,7 @@ file_open_error_message(int err, int for_writing)
   switch (err) {
 
   case WTAP_ERR_NOT_REGULAR_FILE:
-    errmsg = "The file \"%s\" is invalid.";
+    errmsg = "The file \"%s\" is a \"special file\" or socket or other non-regular file.";
     break;
 
   case WTAP_ERR_FILE_UNKNOWN_FORMAT:
@@ -1018,6 +986,10 @@ file_open_error_message(int err, int for_writing)
       errmsg = "You do not have permission to create or write to the file \"%s\".";
     else
       errmsg = "You do not have permission to read the file \"%s\".";
+    break;
+
+  case EISDIR:
+    errmsg = "\"%s\" is a directory (folder), not a file.";
     break;
 
   default:

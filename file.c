@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.199 2000/07/20 05:09:45 guy Exp $
+ * $Id: file.c,v 1.200 2000/07/20 09:39:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1819,7 +1819,7 @@ file_open_error_message(int err, gboolean for_writing)
   switch (err) {
 
   case WTAP_ERR_NOT_REGULAR_FILE:
-    errmsg = "The file \"%s\" is invalid.";
+    errmsg = "The file \"%s\" is a \"special file\" or socket or other non-regular file.";
     break;
 
   case WTAP_ERR_FILE_UNKNOWN_FORMAT:
