@@ -1,11 +1,11 @@
 /* packet-sua.c
  * Routines for SS7 SCCP-User Adaptation Layer (SUA) dissection
  * It is hopefully (needs testing) compilant to
- * http://www.ietf.org/internet-drafts/draft-ietf-sigtran-sua-14.txt
+ * http://www.ietf.org/internet-drafts/draft-ietf-sigtran-sua-15.txt
  *
  * Copyright 2002, 2003 Michael Tuexen <tuexen [AT] fh-muenster.de>
  *
- * $Id: packet-sua.c,v 1.19 2003/09/02 11:05:55 tuexen Exp $
+ * $Id: packet-sua.c,v 1.20 2003/09/04 13:33:22 tuexen Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -240,6 +240,7 @@ static const value_string message_class_type_values[] = {
   { MESSAGE_CLASS_SSNM_MESSAGE  * 256 + MESSAGE_TYPE_DAUD,          "Destination state audit (DAUD)" },
   { MESSAGE_CLASS_SSNM_MESSAGE  * 256 + MESSAGE_TYPE_SCON,          "SS7 Network congestion state (SCON)" },
   { MESSAGE_CLASS_SSNM_MESSAGE  * 256 + MESSAGE_TYPE_DUPU,          "Destination userpart unavailable (DUPU)" },
+  { MESSAGE_CLASS_SSNM_MESSAGE  * 256 + MESSAGE_TYPE_DRST,          "Destination Restricted (DRST)" },
   { MESSAGE_CLASS_ASPSM_MESSAGE * 256 + MESSAGE_TYPE_UP,            "ASP up (UP)" },
   { MESSAGE_CLASS_ASPSM_MESSAGE * 256 + MESSAGE_TYPE_DOWN,          "ASP down (DOWN)" },
   { MESSAGE_CLASS_ASPSM_MESSAGE * 256 + MESSAGE_TYPE_BEAT,          "Heartbeat (BEAT)" },
@@ -277,6 +278,7 @@ static const value_string message_class_type_acro_values[] = {
   { MESSAGE_CLASS_SSNM_MESSAGE  * 256 + MESSAGE_TYPE_DAUD,          "DAUD" },
   { MESSAGE_CLASS_SSNM_MESSAGE  * 256 + MESSAGE_TYPE_SCON,          "SCON" },
   { MESSAGE_CLASS_SSNM_MESSAGE  * 256 + MESSAGE_TYPE_DUPU,          "DUPU" },
+  { MESSAGE_CLASS_SSNM_MESSAGE  * 256 + MESSAGE_TYPE_DRST,          "DRST" },
   { MESSAGE_CLASS_ASPSM_MESSAGE * 256 + MESSAGE_TYPE_UP,            "ASP_UP" },
   { MESSAGE_CLASS_ASPSM_MESSAGE * 256 + MESSAGE_TYPE_DOWN,          "ASP_DOWN" },
   { MESSAGE_CLASS_ASPSM_MESSAGE * 256 + MESSAGE_TYPE_BEAT,          "BEAT" },
@@ -535,7 +537,6 @@ static const value_string error_code_values[] = {
   { 0x14, "Destination status unknown" },
   { 0x15, "Invalid network appearance" },
   { 0x16, "Missing parameter" },
-  { 0x17, "Routing key change refused" },
   { 0x19, "Invalid routing context" },
   { 0x1a, "No configured AS for ASP" },
   { 0x1b, "Subsystem status unknown" },
@@ -671,6 +672,7 @@ static const value_string registration_status_values[] = {
   {  8,            "Error - insufficient resources" },
   {  9,            "Error - unsupported RK parameter field" },
   { 10,            "Error - unsupported/invalid traffic mode type" },
+  { 11,            "Error - routing key change refused" },
   {  0,            NULL } };
 
 static void
