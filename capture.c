@@ -292,9 +292,9 @@ capture_stop(void)
 
   if (capture_opts.sync_mode) {	
     sync_pipe_stop();
-  } else {
-    capture_loop_stop();
   }
+    
+  capture_loop_stop();
 }
 
 void
