@@ -1,7 +1,7 @@
 /* pcap-util.c
  * Utility routines for packet capture
  *
- * $Id: pcap-util.c,v 1.5 2002/04/01 03:55:44 guy Exp $
+ * $Id: pcap-util.c,v 1.6 2002/04/25 22:03:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -54,6 +54,11 @@
 #include <pcap.h>
 
 #ifndef WIN32
+/*
+ * Keep Digital UNIX happy when including <net/if.h>.
+ */
+struct mbuf;
+struct rtentry;
 #include <net/if.h>
 #endif
 
