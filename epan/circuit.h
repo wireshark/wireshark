@@ -1,7 +1,7 @@
 /* circuit.h
  * Routines for building lists of packets that are part of a "circuit"
  *
- * $Id: circuit.h,v 1.3 2002/11/08 01:00:07 guy Exp $
+ * $Id: circuit.h,v 1.4 2002/11/28 08:12:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -37,7 +37,6 @@ typedef struct circuit_key {
 
 typedef struct circuit {
 	struct circuit *next;		/* pointer to next circuit with given circuit ID */
-	guint32 first_frame;		/* # of first frame for that circuit */
 	guint32 last_frame;		/* # of last frame for that circuit */
 	guint32	index;			/* unique ID for circuit */
 	GSList *data_list;		/* list of data associated with circuit */
