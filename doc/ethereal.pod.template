@@ -1465,6 +1465,7 @@ B<http://www.ethereal.com>.
   Jim McDonough            <jmcd[AT]us.ibm.com>
   Sergei Shokhor           <sshokhor[AT]uroam.com>
   Hidetaka Ogawa           <ogawa[AT]bs2.qnes.nec.co.jp>
+  Jan Kratochvil           <short[AT]ucw.cz>
 
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to give his
 permission to use his version of snprintf.c.

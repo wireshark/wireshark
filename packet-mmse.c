@@ -2,7 +2,7 @@
  * Routines for MMS Message Encapsulation dissection
  * Copyright 2001, Tom Uijldert <tom.uijldert@cmg.nl>
  *
- * $Id: packet-mmse.c,v 1.14 2002/08/02 23:35:54 jmayer Exp $
+ * $Id: packet-mmse.c,v 1.15 2002/08/05 08:37:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -263,7 +263,7 @@ get_encoded_strval(tvbuff_t *tvb, guint offset, char *strval)
 	/* \todo	Something with "Char-set", skip for now	*/
 	tvb_memcpy(tvb, strval, offset + count + 1, length - 1);
 	strval[length - 1] = '\0';	/* Just to make sure	*/
-	return offset + count + length;
+	return count + length;
     } else
 	return get_text_string(tvb, offset, strval);
 }
