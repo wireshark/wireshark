@@ -25,7 +25,7 @@ http://developer.novell.com/ndk/doc/ncp/
 for a badly-formatted HTML version of the same PDF.
 
 
-$Id: ncp2222.py,v 1.58 2003/06/05 04:04:32 guy Exp $
+$Id: ncp2222.py,v 1.59 2003/06/11 20:57:11 gram Exp $
 
 
 Portions Copyright (c) 2000-2002 by Gilbert Ramirez <gram@alumni.rice.edu>.
@@ -14428,7 +14428,7 @@ def define_ncp2222():
                 rec(32, 1, SetCmdFlags ),
                 rec(33, 3, Reserved3 ),
                 rec(36, PROTO_LENGTH_UNKNOWN, SetCmdName ),
-                srec(SetCmdValueNum, req_cond="ncp.start_number>=0x00"),
+                rec(-1, 4, SetCmdValueNum, req_cond="ncp.start_number>=0x00"),
                 #srec(SetCmdValueNum, req_cond="ncp.set_cmd_type==0x00"),
                 #srec(SetCmdValueNum, req_cond="ncp.set_cmd_type==0x01"),
                 #srec(SetCmdValueNum, req_cond="ncp.set_cmd_type==0x02"),
@@ -14473,7 +14473,7 @@ def define_ncp2222():
                 rec(32, 1, SetCmdFlags ),
                 rec(33, 3, Reserved3 ),
                 rec(36, PROTO_LENGTH_UNKNOWN, SetCmdName ),
-                rec(136, 4, SetCmdValueNum ),
+                rec(-1, 4, SetCmdValueNum ),
                 #srec(SetCmdValueNum, req_cond="ncp.set_cmd_type==0x00"),
                 #srec(SetCmdValueNum, req_cond="ncp.set_cmd_type==0x01"),
                 #srec(SetCmdValueNum, req_cond="ncp.set_cmd_type==0x02"),
