@@ -3,7 +3,7 @@
  *
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet_win.c,v 1.3 2000/03/02 07:05:57 guy Exp $
+ * $Id: packet_win.c,v 1.4 2000/03/08 06:48:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -98,6 +98,7 @@ void new_window_cb(GtkWidget *w){
 
 	#define NewWinTitleLen 1000
 	
+        int row;
   	gint	tv_size = 95, bv_size = 75;
 	int i;
 	char Title[ NewWinTitleLen] = "";
@@ -105,10 +106,14 @@ void new_window_cb(GtkWidget *w){
 
 					/* build title of window by getting */
 					/* data from the packet_list GtkCList */
+        /* Find what row this packet is in. */
+        row = gtk_clist_find_row_from_data(GTK_CLIST(packet_list),
+	    cf.current_frame);
+	g_assert(row != -1);
 	for( i = 0; i < cf.cinfo.num_cols; ++i){
 					
 		if ( gtk_clist_get_text(GTK_CLIST( packet_list), 
-				cf.current_frame->row, i, &TextPtr)){
+				row, i, &TextPtr)){
 		
 			if (( strlen( Title) + strlen( TextPtr))
 					< ( NewWinTitleLen - 1)){

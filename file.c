@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.168 2000/02/29 06:24:15 guy Exp $
+ * $Id: file.c,v 1.169 2000/03/08 06:47:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -423,9 +423,12 @@ continue_tail_cap_file(capture_file *cf, int to_read)
   wtap_loop(cf->wth, to_read, wtap_dispatch_cb, (u_char *) cf, &err);
 
   gtk_clist_thaw(GTK_CLIST(packet_list));
+
+  /* XXX - this cheats and looks inside the packet list to find the final
+     row number. */
   if (auto_scroll_live && cf->plist_end != NULL)
     gtk_clist_moveto(GTK_CLIST(packet_list), 
-		       cf->plist_end->row, -1, 1.0, 1.0);
+		       GTK_CLIST(packet_list)->rows - 1, -1, 1.0, 1.0);
   return err;
 }
 
@@ -440,8 +443,10 @@ finish_tail_cap_file(capture_file *cf)
 
   thaw_clist(cf);
   if (auto_scroll_live && cf->plist_end != NULL)
+    /* XXX - this cheats and looks inside the packet list to find the final
+       row number. */
     gtk_clist_moveto(GTK_CLIST(packet_list), 
-		       cf->plist_end->row, -1, 1.0, 1.0);
+		       GTK_CLIST(packet_list)->rows - 1, -1, 1.0, 1.0);
 
   /* Set the file encapsulation type now; we don't know what it is until
      we've looked at all the packets, as we don't know until then whether
@@ -557,32 +562,6 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf, const u_char *buf
   }
 
   if (fdata->passed_dfilter) {
-    /* XXX - if a GtkCList's selection mode is GTK_SELECTION_BROWSE, when
-       the first entry is added to it by "real_insert_row()", that row
-       is selected (see "real_insert_row()", in "gtk/gtkclist.c", in both
-       our version and the vanilla GTK+ version).
-
-       This means that a "select-row" signal is emitted; this causes
-       "packet_list_select_cb()" to be called, which causes "select_packet()"
-       to be called.
-
-       "select_packet()" searches the list of frames for a frame with the
-       row number passed into it; however, as "gtk_clist_append()", which
-       called "real_insert_row()", hasn't yet returned, we don't know what
-       the row number is, so we can't correctly set "fd->row" for that frame
-       yet.
-
-       This means that we won't find the frame for that row.
-
-       We can't assume that there's only one frame in the frame list,
-       either, as we may be filtering the display.
-
-       Therefore, we set "fdata->row" to 0, under the assumption that
-       the row number passed to "select_packet()" will be 0 (as we're
-       adding the first row to the list; it gets set to the proper
-       value later. */
-    fdata->row = 0;
-
     /* If we don't have the time stamp of the previous displayed packet,
        it's because this is the first displayed packet.  Save the time
        stamp of this packet as the time stamp of the previous displayed
@@ -611,7 +590,7 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf, const u_char *buf
     fill_in_columns(fdata);
 
     row = gtk_clist_append(GTK_CLIST(packet_list), fdata->cinfo->col_data);
-    fdata->row = row;
+    gtk_clist_set_row_data(GTK_CLIST(packet_list), row, fdata);
 
     if (filter_list != NULL && (args.colorf != NULL)) {
         gtk_clist_set_background(GTK_CLIST(packet_list), row,
@@ -634,8 +613,7 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf, const u_char *buf
        we can arrange that it's on the screen when we're done. */
     if (cf->current_frame == fdata)
       cf->current_row = row;
-  } else
-    fdata->row = -1;	/* not in the display */
+  }
   fdata->cinfo = NULL;
 }
 
@@ -1051,6 +1029,7 @@ void
 change_time_formats(capture_file *cf)
 {
   frame_data *fd;
+  int row;
   int i;
   GtkStyle  *pl_style;
 
@@ -1063,8 +1042,11 @@ change_time_formats(capture_file *cf)
      any columns that show the time in the "command-line-specified"
      format and, if so, update that row. */
   for (fd = cf->plist; fd != NULL; fd = fd->next) {
-    if (fd->row != -1) {
-      /* This packet is in the summary list, on row "fd->row". */
+    /* Find what row this packet is in. */
+    row = gtk_clist_find_row_from_data(GTK_CLIST(packet_list), fd);
+
+    if (row != -1) {
+      /* This packet is in the summary list, on row "row". */
 
       /* XXX - there really should be a way of checking "cf->cinfo" for this;
          the answer isn't going to change from packet to packet, so we should
@@ -1080,7 +1062,7 @@ change_time_formats(capture_file *cf)
                "command-line-specified" format; update it. */
             cf->cinfo.col_data[i][0] = '\0';
             col_set_cls_time(fd, i);
-            gtk_clist_set_text(GTK_CLIST(packet_list), fd->row, i,
+            gtk_clist_set_text(GTK_CLIST(packet_list), row, i,
 			  cf->cinfo.col_data[i]);
 	  }
         }
@@ -1127,6 +1109,7 @@ find_packet(capture_file *cf, dfilter *sfcode)
   guint32 progbar_nextstep;
   int count;
   proto_tree *protocol_tree;
+  int row;
 
   start_fd = cf->current_frame;
   if (start_fd != NULL)  {
@@ -1206,9 +1189,13 @@ find_packet(capture_file *cf, dfilter *sfcode)
   }
 
   if (new_fd != NULL) {
-    /* We found a frame.  Make it visible, and select it. */
-    if (!gtk_clist_row_is_visible(GTK_CLIST(packet_list), new_fd->row))
-      gtk_clist_moveto(GTK_CLIST(packet_list), new_fd->row, -1, 0.0, 0.0);
+    /* We found a frame.  Find what row it's in. */
+    row = gtk_clist_find_row_from_data(GTK_CLIST(packet_list), new_fd);
+    g_assert(row != -1);
+
+    /* Make it visible, and select it. */
+    if (!gtk_clist_row_is_visible(GTK_CLIST(packet_list), row))
+      gtk_clist_moveto(GTK_CLIST(packet_list), row, -1, 0.0, 0.0);
 
     /* XXX - why is there no "gtk_clist_set_focus_row()", so that we
        can make the row for the frame we found the focus row?
@@ -1218,8 +1205,8 @@ find_packet(capture_file *cf, dfilter *sfcode)
    http://www.gnome.org/mailing-lists/archives/gtk-list/2000-January/0038.shtml
 
        */
-    GTK_CLIST(packet_list)->focus_row = new_fd->row;
-    gtk_clist_select_row(GTK_CLIST(packet_list), new_fd->row, -1);
+    GTK_CLIST(packet_list)->focus_row = row;
+    gtk_clist_select_row(GTK_CLIST(packet_list), row, -1);
     return TRUE;	/* success */
   } else
     return FALSE;	/* failure */
@@ -1229,6 +1216,7 @@ goto_result_t
 goto_frame(capture_file *cf, guint fnumber)
 {
   frame_data *fd;
+  int row;
 
   for (fd = cf->plist; fd != NULL && fd->num < fnumber; fd = fd->next)
     ;
@@ -1239,13 +1227,17 @@ goto_frame(capture_file *cf, guint fnumber)
     return FRAME_NOT_DISPLAYED;	/* the frame with that number isn't displayed */
 
   /* We found that frame, and it's currently being displayed.
-     Make it visible, and select it. */
-  if (!gtk_clist_row_is_visible(GTK_CLIST(packet_list), fd->row))
-    gtk_clist_moveto(GTK_CLIST(packet_list), fd->row, -1, 0.0, 0.0);
+     Find what row it's in. */
+  row = gtk_clist_find_row_from_data(GTK_CLIST(packet_list), fd);
+  g_assert(row != -1);
+
+  /* Make it visible, and select it. */
+  if (!gtk_clist_row_is_visible(GTK_CLIST(packet_list), row))
+    gtk_clist_moveto(GTK_CLIST(packet_list), row, -1, 0.0, 0.0);
 
   /* See above complaint about the lack of "gtk_clist_set_focus_row()". */
-  GTK_CLIST(packet_list)->focus_row = fd->row;
-  gtk_clist_select_row(GTK_CLIST(packet_list), fd->row, -1);
+  GTK_CLIST(packet_list)->focus_row = row;
+  gtk_clist_select_row(GTK_CLIST(packet_list), row, -1);
   return FOUND_FRAME;
 }
 
@@ -1254,16 +1246,9 @@ void
 select_packet(capture_file *cf, int row)
 {
   frame_data *fd;
-  int i;
 
-  /* Search through the list of frames to see which one is in
-     this row. */
-  for (fd = cf->plist, i = 0; fd != NULL; fd = fd->next, i++) {
-    if (fd->row == row)
-      break;
-  }
-
-  g_assert(fd != NULL);
+  /* Get the frame data struct pointer for this frame */
+  fd = (frame_data *) gtk_clist_get_row_data(GTK_CLIST(packet_list), row);
 
   /* Record that this frame is the current frame, and that it's selected. */
   cf->current_frame = fd;
