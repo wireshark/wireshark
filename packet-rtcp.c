@@ -1,6 +1,6 @@
 /* packet-rtcp.c
  *
- * $Id: packet-rtcp.c,v 1.32 2002/04/15 21:25:05 guy Exp $
+ * $Id: packet-rtcp.c,v 1.33 2002/07/17 10:37:31 guy Exp $
  *
  * Routines for RTCP dissection
  * RTCP = Real-time Transport Control Protocol
@@ -382,8 +382,9 @@ dissect_rtcp_bye( tvbuff_t *tvb, int offset, proto_tree *tree,
 
 	while ( chunk <= count ) {
 		/* source identifier, 32 bits */
-		proto_tree_add_uint( tree, hf_rtcp_ssrc_source, tvb, offset, 4, tvb_get_ntohl( tvb, offset ) );
+		proto_tree_add_item( tree, hf_rtcp_ssrc_source, tvb, offset, 4, FALSE);
 		offset += 4;
+		chunk++;
 	}
 
 	if ( tvb_reported_length_remaining( tvb, offset ) > 0 ) {
