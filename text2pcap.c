@@ -6,7 +6,7 @@
  *
  * (c) Copyright 2001 Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: text2pcap.c,v 1.26 2003/04/27 00:41:50 guy Exp $
+ * $Id: text2pcap.c,v 1.27 2003/12/21 04:31:57 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -195,7 +195,7 @@ typedef enum {
     START_OF_LINE,    /* Starting from beginning of line */
     READ_OFFSET,      /* Just read the offset */
     READ_BYTE,        /* Just read a byte */
-    READ_TEXT,        /* Just read text - ignore until EOL */
+    READ_TEXT         /* Just read text - ignore until EOL */
 } parser_state_t;
 static parser_state_t state = INIT;
 

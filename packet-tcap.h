@@ -1,6 +1,6 @@
 /* packet-tcap.h
  *
- * $Id: packet-tcap.h,v 1.1 2003/10/02 06:13:28 guy Exp $
+ * $Id: packet-tcap.h,v 1.2 2003/12/21 04:31:57 jmayer Exp $
  *
  * Copyright 2003, Michael Lum <mlum [AT] telostech.com>,
  * In association with Telos Technology Inc.
@@ -28,7 +28,7 @@
 
 typedef enum {
   ITU_TCAP_STANDARD  = 1,
-  ANSI_TCAP_STANDARD = 2,
+  ANSI_TCAP_STANDARD = 2
 } Tcap_Standard_Type;
 
 extern Tcap_Standard_Type tcap_standard;

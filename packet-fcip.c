@@ -2,7 +2,7 @@
  * Routines for FCIP dissection
  * Copyright 2001, Dinesh G Dutt (ddutt@cisco.com)
  *
- * $Id: packet-fcip.c,v 1.10 2003/12/04 05:38:05 gram Exp $
+ * $Id: packet-fcip.c,v 1.11 2003/12/21 04:31:56 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -58,7 +58,7 @@ typedef enum {
     FCIP_EOFni   = 0x49,
     FCIP_EOFdti  = 0x4E,
     FCIP_EOFrti  = 0x4F,
-    FCIP_EOFa    = 0x50,
+    FCIP_EOFa    = 0x50
 } fcip_eof_t;
 
 typedef enum {
@@ -69,12 +69,12 @@ typedef enum {
     FCIP_SOFn4   = 0x31,
     FCIP_SOFn2   = 0x35,
     FCIP_SOFn3   = 0x36,
-    FCIP_SOFc4   = 0x39,
+    FCIP_SOFc4   = 0x39
 } fcip_sof_t;
 
 typedef enum {
     FCENCAP_PROTO_FCIP = 1,
-    FCENCAP_PROTO_iFCP = 2,
+    FCENCAP_PROTO_iFCP = 2
 } fcencap_proto_t;
 
 static const value_string fcip_eof_vals[] = {

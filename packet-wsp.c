@@ -2,7 +2,7 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  *
- * $Id: packet-wsp.c,v 1.98 2003/12/19 20:16:04 obiot Exp $
+ * $Id: packet-wsp.c,v 1.99 2003/12/21 04:31:57 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1178,23 +1178,23 @@ static const value_string vals_false_true[] = {
 enum {
 	WSP_PDU_RESERVED		= 0x00,
 	WSP_PDU_CONNECT			= 0x01,
-	WSP_PDU_CONNECTREPLY	= 0x02,
+	WSP_PDU_CONNECTREPLY		= 0x02,
 	WSP_PDU_REDIRECT		= 0x03,			/* No sample data */
 	WSP_PDU_REPLY			= 0x04,
 	WSP_PDU_DISCONNECT		= 0x05,
 	WSP_PDU_PUSH			= 0x06,			/* No sample data */
-	WSP_PDU_CONFIRMEDPUSH	= 0x07,			/* No sample data */
+	WSP_PDU_CONFIRMEDPUSH		= 0x07,			/* No sample data */
 	WSP_PDU_SUSPEND			= 0x08,			/* No sample data */
 	WSP_PDU_RESUME			= 0x09,			/* No sample data */
 
-	WSP_PDU_GET				= 0x40,
+	WSP_PDU_GET			= 0x40,
 	WSP_PDU_OPTIONS			= 0x41,			/* No sample data */
 	WSP_PDU_HEAD			= 0x42,			/* No sample data */
 	WSP_PDU_DELETE			= 0x43,			/* No sample data */
 	WSP_PDU_TRACE			= 0x44,			/* No sample data */
 
 	WSP_PDU_POST			= 0x60,
-	WSP_PDU_PUT				= 0x61,			/* No sample data */
+	WSP_PDU_PUT			= 0x61			/* No sample data */
 };
 
 

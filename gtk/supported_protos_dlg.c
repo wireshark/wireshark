@@ -54,7 +54,7 @@ static const char *dfilter_supported =
 
 typedef enum {
   PROTOCOL_SUPPORTED,
-  DFILTER_SUPPORTED,
+  DFILTER_SUPPORTED
 } supported_type_t;
 
 static void supported_close_cb(GtkWidget *w, gpointer data);

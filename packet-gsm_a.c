@@ -38,7 +38,7 @@
  *   Formats and coding
  *   (3GPP TS 24.080 version 4.3.0 Release 4)
  *
- * $Id: packet-gsm_a.c,v 1.9 2003/12/17 23:35:28 ulfl Exp $
+ * $Id: packet-gsm_a.c,v 1.10 2003/12/21 04:31:56 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1022,7 +1022,7 @@ typedef enum
     BE_RET_ERR_REQ,	 /* Return Error Request */
     BE_RET_ERR_CAUSE,	 /* Return Error Cause */
     BE_SEG,	 /* Segmentation */
-    BE_NONE,	/* NONE */
+    BE_NONE	/* NONE */
 }
 bssmap_elem_idx_t;
 
@@ -2736,7 +2736,7 @@ typedef enum
     DE_RAD_PRIO,	/* Radio Priority */
     DE_GPRS_TIMER,	/* GPRS Timer */
     DE_GPRS_TIMER_2,	/* GPRS Timer 2 */
-    DE_NONE,	/* NONE */
+    DE_NONE	/* NONE */
 }
 dtap_elem_idx_t;
 

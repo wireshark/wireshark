@@ -3,7 +3,7 @@
  *
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-lmp.c,v 1.17 2003/10/23 18:49:49 ashokn Exp $
+ * $Id: packet-lmp.c,v 1.18 2003/12/21 04:31:56 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -95,7 +95,7 @@ typedef enum {
     LMP_MSG_CHANNEL_STATUS,
     LMP_MSG_CHANNEL_STATUS_ACK,
     LMP_MSG_CHANNEL_STATUS_REQ,
-    LMP_MSG_CHANNEL_STATUS_RESP,
+    LMP_MSG_CHANNEL_STATUS_RESP
 } lmp_message_types;
 
 static value_string message_type_vals[] = {
@@ -390,7 +390,7 @@ enum lmp_filter_keys {
   LMPF_VAL_SVCCFG_TRANSP_TCM,
   LMPF_VAL_SVCCFG_DIVERSITY_DIVERSITY,
 
-  LMPF_MAX,
+  LMPF_MAX
 };
 
 static int lmp_filter[LMPF_MAX];

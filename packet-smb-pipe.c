@@ -8,7 +8,7 @@ XXX  Fixme : shouldnt show [malformed frame] for long packets
  * significant rewrite to tvbuffify the dissector, Ronnie Sahlberg and
  * Guy Harris 2001
  *
- * $Id: packet-smb-pipe.c,v 1.98 2003/12/17 23:35:29 ulfl Exp $
+ * $Id: packet-smb-pipe.c,v 1.99 2003/12/21 04:31:56 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -722,7 +722,7 @@ typedef enum {
 	PARAM_WORD,	/* 'W' or 'h' - 16-bit word */
 	PARAM_DWORD,	/* 'D' or 'i' - 32-bit word */
 	PARAM_BYTES,	/* 'B' or 'b' or 'g' or 'O' - one or more bytes */
-	PARAM_STRINGZ,	/* 'z' or 'O' - null-terminated string */
+	PARAM_STRINGZ	/* 'z' or 'O' - null-terminated string */
 } param_type_t;
 
 /*

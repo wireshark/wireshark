@@ -9,7 +9,7 @@
  * Frank Singleton <frank.singleton@ericsson.com>
  * Trevor Shepherd <eustrsd@am1.ericsson.se>
  *
- * $Id: packet-giop.c,v 1.74 2003/11/26 02:58:12 guy Exp $
+ * $Id: packet-giop.c,v 1.75 2003/12/21 04:31:56 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -727,7 +727,7 @@ enum giop_op_val {
   request_resolve_op_val,	     /* REQUEST (resolve) to get RepoID etc*/
   request_bind_new_context_op_val,   /* bind_new_context */
   request_bind_op_val,		     /* bind */
-  request_get_INIT_op_val,	     /* finding Nameserver */
+  request_get_INIT_op_val	     /* finding Nameserver */
 
 };
 
@@ -745,7 +745,7 @@ enum giop_op_val {
 
 enum ior_src {
   req_res = 0,			/* REQUEST (resolve) */
-  file,				/* stringified IOR' in a file */
+  file				/* stringified IOR' in a file */
 
 };
 

@@ -2,7 +2,7 @@
  * Routines for cisco tacplus packet dissection
  * Copyright 2000, Emanuele Caratti <wiz@iol.it>
  *
- * $Id: packet-tacacs.h,v 1.5 2003/10/19 17:30:43 guy Exp $
+ * $Id: packet-tacacs.h,v 1.6 2003/12/21 04:31:57 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -63,7 +63,7 @@ enum
 	TAC_PLUS_PRIV_LVL_MAX	= 0x0f,
 	TAC_PLUS_PRIV_LVL_ROOT	= 0x0f,
 	TAC_PLUS_PRIV_LVL_USER	= 0x01,
-	TAC_PLUS_PRIV_LVL_MIN	= 0x00,
+	TAC_PLUS_PRIV_LVL_MIN	= 0x00
 };
 
 /* authen types */

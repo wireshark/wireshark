@@ -10,7 +10,7 @@
  *   2000 Access Network Interfaces
  *			3GPP2 A.S0001-1		TIA/EIA-2001
  *
- * $Id: packet-ansi_a.c,v 1.14 2003/12/12 19:55:26 guy Exp $
+ * $Id: packet-ansi_a.c,v 1.15 2003/12/21 04:31:56 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -5892,7 +5892,7 @@ typedef enum
     ANSI_A_E_XMODE,	/* Transcoder Mode */
     ANSI_A_E_UZ_ID,	/* User Zone ID */
     ANSI_A_E_VP_REQ,	/* Voice Privacy Request */
-    ANSI_A_E_NONE,	/* NONE */
+    ANSI_A_E_NONE	/* NONE */
 }
 elem_idx_t;
 

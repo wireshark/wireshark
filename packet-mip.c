@@ -2,7 +2,7 @@
  * Routines for Mobile IP dissection
  * Copyright 2000, Stefan Raab <sraab@cisco.com>
  *
- * $Id: packet-mip.c,v 1.33 2002/08/28 21:00:20 jmayer Exp $
+ * $Id: packet-mip.c,v 1.34 2003/12/21 04:31:56 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -131,8 +131,8 @@ typedef enum {
   CVSE_EXT = 38,          /* RFC 3115 */
   MN_NAI_EXT = 131,
   MF_CHALLENGE_EXT = 132, /* RFC 3012 */
-  OLD_NVSE_EXT = 133,/* RFC 3115 */
-  NVSE_EXT = 134,    /* RFC 3115 */
+  OLD_NVSE_EXT = 133,     /* RFC 3115 */
+  NVSE_EXT = 134          /* RFC 3115 */
 } MIP_EXTS;
 static const value_string mip_ext_types[]= {
   {MH_AUTH_EXT, "Mobile-Home Authentication Extension"},

@@ -2,7 +2,7 @@
  * Routines for OSPF packet disassembly
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-ospf.c,v 1.77 2003/10/24 22:59:37 guy Exp $
+ * $Id: packet-ospf.c,v 1.78 2003/12/21 04:31:56 jmayer Exp $
  *
  * At this time, this module is able to analyze OSPF
  * packets as specified in RFC2328. MOSPF (RFC1584) and other
@@ -912,7 +912,7 @@ enum {
     MPLS_LINK_REMOTE_ID,
     MPLS_LINK_PROTECTION = 14,
     MPLS_LINK_IF_SWITCHING_DESC,
-    MPLS_LINK_SHARED_RISK_GROUP,
+    MPLS_LINK_SHARED_RISK_GROUP
 };
 
 static const value_string mpls_link_stlv_str[] = {
