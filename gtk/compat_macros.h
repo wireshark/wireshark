@@ -165,6 +165,7 @@ gtk_signal_emit_stop_by_name(GTK_OBJECT(widget), name)
 #define GTK_STOCK_GOTO_BOTTOM       "Bottom"
 #define GTK_STOCK_GOTO_TOP          "Top"
 #define GTK_STOCK_HELP              "Help"
+#define GTK_STOCK_HOME              "Home"
 #define GTK_STOCK_JUMP_TO           "GoTo"
 #define GTK_STOCK_NEW               "New"
 #define GTK_STOCK_NO                "No"
@@ -185,7 +186,7 @@ gtk_signal_emit_stop_by_name(GTK_OBJECT(widget), name)
 #define GTK_STOCK_ZOOM_100          "Zoom 100%"
 
 #ifdef HAVE_LIBPCAP
-#define ETHEREAL_STOCK_CAPTURE_START            "New"
+#define ETHEREAL_STOCK_CAPTURE_START            "Capture"
 #define ETHEREAL_STOCK_CAPTURE_FILTER           "CFilter"
 #define ETHEREAL_STOCK_CAPTURE_FILTER_ENTRY     "Capture Filter:"
 #endif
@@ -285,7 +286,7 @@ g_signal_stop_emission_by_name(G_OBJECT(widget), name)
 {path, accelerator, GTK_MENU_FUNC(callback), action, "<StockItem>", data}
 
 #ifdef HAVE_LIBPCAP
-#define ETHEREAL_STOCK_LABEL_CAPTURE_START            "_New"
+#define ETHEREAL_STOCK_LABEL_CAPTURE_START            "_Capture"
 #define ETHEREAL_STOCK_LABEL_CAPTURE_FILTER           "_CFilter"
 #define ETHEREAL_STOCK_LABEL_CAPTURE_FILTER_ENTRY     "_Capture Filter:"
 #endif
@@ -329,6 +330,7 @@ gtk_radio_button_new_with_mnemonic_from_widget( \
 #define TOGGLE_BUTTON_NEW_WITH_MNEMONIC(label_text, accel_group) \
 gtk_toggle_button_new_with_mnemonic(label_text)
 
+/* for details, see "Pango Text Attribute Markup" */
 #define PRIMARY_TEXT_START "<span weight=\"bold\" size=\"larger\">"
 #define PRIMARY_TEXT_END "</span>"
 

@@ -139,6 +139,9 @@
 #include "help_dlg.h"
 #include "decode_as_dlg.h"
 #include "webbrowser.h"
+#include "capture_dlg.h"
+#include "../image/eicon3d64.xpm"
+
 
 
 /*
@@ -162,6 +165,7 @@ static GtkWidget   *status_pane;
 static GtkWidget   *menubar, *main_vbox, *main_tb, *pkt_scrollw, *stat_hbox, *filter_tb;
 static GtkWidget	*info_bar;
 static GtkWidget    *packets_bar = NULL;
+static GtkWidget    *welcome_pane;
 static guint    main_ctx, file_ctx, help_ctx;
 static guint        packets_ctx;
 static gchar        *packets_str = NULL;
@@ -2566,6 +2570,7 @@ void main_widgets_rearrange(void) {
     gtk_widget_ref(main_pane_v2);
     gtk_widget_ref(main_pane_h1);
     gtk_widget_ref(main_pane_h2);
+    gtk_widget_ref(welcome_pane);
 
     /* empty all containers participating */
     gtk_container_foreach(GTK_CONTAINER(main_vbox),     foreach_remove_a_child, main_vbox);
@@ -2647,6 +2652,9 @@ void main_widgets_rearrange(void) {
 
     gtk_container_add(GTK_CONTAINER(main_vbox), main_first_pane);
 
+    /* welcome pane */
+    gtk_box_pack_start(GTK_BOX(main_vbox), welcome_pane, TRUE, TRUE, 0);
+
     /* statusbar hbox */
     gtk_box_pack_start(GTK_BOX(main_vbox), stat_hbox, FALSE, TRUE, 0);
 
@@ -2675,6 +2683,119 @@ is_widget_visible(GtkWidget *widget, gpointer data)
         if (GTK_WIDGET_VISIBLE(widget))
             *is_visible = TRUE;
     }
+}
+
+
+GtkWidget *
+welcome_item(gchar *stock_item, gchar * label, gchar * message, GtkSignalFunc callback, void *callback_data)
+{
+    GtkWidget *w, *item_hb;
+#if GTK_MAJOR_VERSION >= 2
+    gchar *formatted_message;
+#endif
+
+
+    item_hb = gtk_hbox_new(FALSE, 1);
+
+    w = BUTTON_NEW_FROM_STOCK(stock_item);
+    WIDGET_SET_SIZE(w, 60, 60);
+#if GTK_MAJOR_VERSION >= 2
+    gtk_button_set_label(GTK_BUTTON(w), label);
+#endif
+    gtk_box_pack_start(GTK_BOX(item_hb), w, FALSE, FALSE, 0);
+    SIGNAL_CONNECT(w, "clicked", callback, callback_data);
+
+    w = gtk_label_new(message);
+	gtk_misc_set_alignment (GTK_MISC(w), 0.0, 0.5);
+#if GTK_MAJOR_VERSION >= 2
+    formatted_message = g_strdup_printf("<span weight=\"bold\" size=\"x-large\">%s</span>", message);
+    gtk_label_set_markup(GTK_LABEL(w), formatted_message);
+    g_free(formatted_message);
+#endif
+
+    gtk_box_pack_start(GTK_BOX(item_hb), w, FALSE, FALSE, 10);
+
+    return item_hb;
+}
+
+
+/* XXX - the layout has to be improved */
+GtkWidget *
+welcome_new(void)
+{
+    GtkWidget *welcome_scrollw, *welcome_hb, *welcome_vb, *item_hb;
+    GtkWidget *w, *icon;
+    gchar * message;
+
+
+    welcome_scrollw = scrolled_window_new(NULL, NULL);
+
+    welcome_hb = gtk_hbox_new(FALSE, 1);
+	/*gtk_container_border_width(GTK_CONTAINER(welcome_hb), 20);*/
+
+    welcome_vb = gtk_vbox_new(FALSE, 1);
+
+    item_hb = gtk_hbox_new(FALSE, 1);
+
+    icon = xpm_to_widget_from_parent(top_level, eicon3d64_xpm);
+    gtk_box_pack_start(GTK_BOX(item_hb), icon, FALSE, FALSE, 5);
+
+#if GTK_MAJOR_VERSION < 2
+    message = "Welcome to Ethereal!";
+#else
+    message = "<span weight=\"bold\" size=\"25000\">" "Welcome to Ethereal!" "</span>";
+#endif
+    w = gtk_label_new(message);
+#if GTK_MAJOR_VERSION >= 2
+    gtk_label_set_markup(GTK_LABEL(w), message);
+#endif
+	gtk_misc_set_alignment (GTK_MISC(w), 0.0, 0.5);
+    gtk_box_pack_start(GTK_BOX(item_hb), w, TRUE, TRUE, 5);
+
+    gtk_box_pack_start(GTK_BOX(welcome_vb), item_hb, TRUE, FALSE, 5);
+
+    w = gtk_label_new("What would you like to do?");
+    gtk_box_pack_start(GTK_BOX(welcome_vb), w, FALSE, FALSE, 10);
+	gtk_misc_set_alignment (GTK_MISC(w), 0.0, 0.0);
+
+    item_hb = welcome_item(ETHEREAL_STOCK_CAPTURE_START, 
+        "Capture",
+        "Capture live data from your network", 
+        GTK_SIGNAL_FUNC(capture_prep_cb), NULL);
+    gtk_box_pack_start(GTK_BOX(welcome_vb), item_hb, TRUE, FALSE, 5);
+
+    item_hb = welcome_item(GTK_STOCK_OPEN, 
+        "Open",
+        "Open a previously captured file",
+        GTK_SIGNAL_FUNC(file_open_cmd_cb), NULL);
+    gtk_box_pack_start(GTK_BOX(welcome_vb), item_hb, TRUE, FALSE, 5);
+
+#if (GLIB_MAJOR_VERSION >= 2)
+    item_hb = welcome_item(GTK_STOCK_HOME, 
+        "Home",
+        "Visit the Ethereal homepage",
+        GTK_SIGNAL_FUNC(topic_cb), GINT_TO_POINTER(ONLINEPAGE_HOME));
+    gtk_box_pack_start(GTK_BOX(welcome_vb), item_hb, TRUE, FALSE, 5);
+#endif
+
+    /* the end */
+    w = gtk_label_new("");
+    gtk_box_pack_start(GTK_BOX(welcome_vb), w, TRUE, TRUE, 0);
+
+    w = gtk_label_new("");
+    gtk_box_pack_start(GTK_BOX(welcome_hb), w, TRUE, TRUE, 0);
+
+    gtk_box_pack_start(GTK_BOX(welcome_hb), welcome_vb, TRUE, TRUE, 0);
+
+    w = gtk_label_new("");
+    gtk_box_pack_start(GTK_BOX(welcome_hb), w, TRUE, TRUE, 0);
+
+    gtk_widget_show_all(welcome_hb);
+
+    gtk_container_add(GTK_CONTAINER(welcome_scrollw), welcome_hb);
+    gtk_widget_show_all(welcome_scrollw);
+
+    return welcome_scrollw;
 }
 
 /*
@@ -2741,6 +2862,12 @@ main_widgets_show_or_hide(void)
         gtk_widget_hide(byte_nb_ptr);
     }
 
+    if (have_capture_file) {
+        gtk_widget_show(main_first_pane);
+    } else {
+        gtk_widget_hide(main_first_pane);
+    }
+
     /*
      * Is anything in "main_second_pane" visible?
      * If so, show it, otherwise hide it.
@@ -2752,6 +2879,14 @@ main_widgets_show_or_hide(void)
         gtk_widget_show(main_second_pane);
     } else {
         gtk_widget_hide(main_second_pane);
+    }
+
+    if (!have_capture_file) {
+        if(welcome_pane) {
+            gtk_widget_show(welcome_pane);
+        }
+    } else {
+        gtk_widget_hide(welcome_pane);
     }
 }
 
@@ -3000,5 +3135,9 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     /* Pane for the statusbar */
     status_pane = gtk_hpaned_new();
     gtk_widget_show(status_pane);
+
+    /* Pane for the welcome screen */
+    welcome_pane = welcome_new();
+    gtk_widget_show(welcome_pane);
 }
 
