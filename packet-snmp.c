@@ -2,7 +2,7 @@
  * Routines for SNMP (simple network management protocol)
  * D.Jorand (c) 1998
  *
- * $Id: packet-snmp.c,v 1.38 2000/06/25 20:55:09 guy Exp $
+ * $Id: packet-snmp.c,v 1.39 2000/06/26 00:13:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -569,10 +569,49 @@ format_oid(gchar *buf, subid_t *oid, guint oid_length)
 }
 
 #ifdef HAVE_SPRINT_VALUE
-static void
-format_value(gchar *buf, struct variable_list *variable, subid_t *variable_oid,
+static gchar *
+format_var(struct variable_list *variable, subid_t *variable_oid,
     guint variable_oid_length, gushort vb_type, guint vb_length)
 {
+	gchar *buf;
+
+	switch (vb_type) {
+
+	case SNMP_INTEGER:
+	case SNMP_COUNTER:
+	case SNMP_GAUGE:
+	case SNMP_TIMETICKS:
+		/* We don't know how long this will be, but let's guess it
+		   fits within 128 characters; that should be enough for an
+		   integral value plus some sort of type indication. */
+		buf = g_malloc(128);
+		break;
+
+	case SNMP_OCTETSTR:
+	case SNMP_IPADDR:
+	case SNMP_OPAQUE:
+	case SNMP_NSAP:
+	case SNMP_BITSTR:
+	case SNMP_COUNTER64:
+		/* We don't know how long this will be, but let's guess it
+		   fits within 128 characters plus 4 characters per octet. */
+		buf = g_malloc(128 + 4*vb_length);
+		break;
+
+	case SNMP_OBJECTID:
+		/* We don't know how long this will be, but let's guess it
+		   fits within 128 characters plus 32 characters per subid
+		   (10 digits plus period, or a subid name). */
+		buf = g_malloc(1024 + 32*vb_length);
+		break;
+
+	default:
+		/* Should not happen. */
+		g_assert_not_reached();
+		buf = NULL;
+		break;
+	}
+
 	variable->next_variable = NULL;
 	variable->name = variable_oid;
 	variable->name_length = variable_oid_length;
@@ -612,6 +651,7 @@ format_value(gchar *buf, struct variable_list *variable, subid_t *variable_oid,
 
 	case SNMP_OBJECTID:
 		variable->type = VALTYPE_OBJECTID;
+		vb_length *= sizeof (subid_t);	/* XXX - necessary? */
 		break;
 
 	case SNMP_BITSTR:
@@ -623,7 +663,9 @@ format_value(gchar *buf, struct variable_list *variable, subid_t *variable_oid,
 		break;
 	}
 	variable->val_len = vb_length;
+
 	sprint_value(buf, variable_oid, variable_oid_length, variable);
+	return buf;
 }
 #endif
 
@@ -648,7 +690,7 @@ snmp_variable_decode(proto_tree *snmp_tree, subid_t *variable_oid,
 	subid_t *vb_oid;
 	guint vb_oid_length;
 
-	gchar vb_display_string[MAX_STRING_LEN]; /* TBC */
+	gchar *vb_display_string;
 
 #ifdef HAVE_SPRINT_VALUE
 	struct variable_list variable;
@@ -697,11 +739,12 @@ snmp_variable_decode(proto_tree *snmp_tree, subid_t *variable_oid,
 #elif defined(HAVE_SNMP_SNMP_H)
 			variable.val.integer = &vb_integer_value;
 #endif
-			format_value(vb_display_string, &variable,
+			vb_display_string = format_var(&variable,
 			    variable_oid, variable_oid_length, vb_type,
 			    vb_length);
 			proto_tree_add_text(snmp_tree, NullTVB, offset, length,
 			    "Value: %s", vb_display_string);
+			g_free(vb_display_string);
 #else
 			proto_tree_add_text(snmp_tree, NullTVB, offset, length,
 			    "Value: %s: %d (%#x)", vb_type_name,
@@ -726,11 +769,12 @@ snmp_variable_decode(proto_tree *snmp_tree, subid_t *variable_oid,
 #elif defined(HAVE_SNMP_SNMP_H)
 			variable.val.integer = &vb_uinteger_value;
 #endif
-			format_value(vb_display_string, &variable,
+			vb_display_string = format_var(&variable,
 			    variable_oid, variable_oid_length, vb_type,
 			    vb_length);
 			proto_tree_add_text(snmp_tree, NullTVB, offset, length,
 			    "Value: %s", vb_display_string);
+			g_free(vb_display_string);
 #else
 			proto_tree_add_text(snmp_tree, NullTVB, offset, length,
 			    "Value: %s: %u (%#x)", vb_type_name,
@@ -753,11 +797,12 @@ snmp_variable_decode(proto_tree *snmp_tree, subid_t *variable_oid,
 		if (snmp_tree) {
 #ifdef HAVE_SPRINT_VALUE
 			variable.val.string = vb_octet_string;
-			format_value(vb_display_string, &variable,
+			vb_display_string = format_var(&variable,
 			    variable_oid, variable_oid_length, vb_type,
 			    vb_length);
 			proto_tree_add_text(snmp_tree, NullTVB, offset, length,
 			    "Value: %s", vb_display_string);
+			g_free(vb_display_string);
 #else
 			/*
 			 * If some characters are not printable, display
@@ -774,6 +819,7 @@ snmp_variable_decode(proto_tree *snmp_tree, subid_t *variable_oid,
 				 * character, before we got to the end
 				 * of the string.
 				 */
+				vb_display_string = g_malloc(4*vb_length);
 				buf = &vb_display_string[0];
 				len = sprintf(buf, "%03u", vb_octet_string[0]);
 				buf += len;
@@ -785,6 +831,7 @@ snmp_variable_decode(proto_tree *snmp_tree, subid_t *variable_oid,
 				proto_tree_add_text(snmp_tree, NullTVB, offset, length,
 				    "Value: %s: %s", vb_type_name,
 				    vb_display_string);
+				g_free(vb_display_string);
 			} else {
 				proto_tree_add_text(snmp_tree, NullTVB, offset, length,
 				    "Value: %s: %.*s", vb_type_name,
@@ -815,16 +862,20 @@ snmp_variable_decode(proto_tree *snmp_tree, subid_t *variable_oid,
 		if (snmp_tree) {
 #ifdef HAVE_SPRINT_VALUE
 			variable.val.objid = vb_oid;
-			format_value(vb_display_string, &variable,
+			vb_display_string = format_var(&variable,
 			    variable_oid, variable_oid_length, vb_type,
-			    vb_length*sizeof (subid_t));
+			    vb_length);
 			proto_tree_add_text(snmp_tree, NullTVB, offset, length,
 			    "Value: %s", vb_display_string);
 #else
+			/* This fits with 11 characters per subid (10 digits
+			   plus period). */
+			vb_display_string = g_malloc(11*vb_oid_length);
 			format_oid(vb_display_string, vb_oid, vb_oid_length);
 			proto_tree_add_text(snmp_tree, NullTVB, offset, length,
 			    "Value: %s: %s", vb_type_name, vb_display_string);
 #endif
+			g_free(vb_display_string);
 		}
 		g_free(vb_oid);
 		break;
