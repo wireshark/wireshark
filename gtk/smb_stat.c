@@ -1,7 +1,7 @@
 /* smb_stat.c
  * smb_stat   2003 Ronnie Sahlberg
  *
- * $Id: smb_stat.c,v 1.20 2003/09/26 02:09:44 guy Exp $
+ * $Id: smb_stat.c,v 1.21 2003/09/28 00:00:36 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -101,11 +101,15 @@ smbstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, void *psi
 	if(si->cmd==0xA0){
 		smb_nt_transact_info_t *sti=(smb_nt_transact_info_t *)si->sip->extra_info;
 
-		add_srt_table_data(&ss->nt_trans_srt_table, sti->subcmd, &si->sip->req_time, pinfo);
+		if(sti){
+			add_srt_table_data(&ss->nt_trans_srt_table, sti->subcmd, &si->sip->req_time, pinfo);
+		}
 	} else if(si->cmd==0x32){
 		smb_transact2_info_t *st2i=(smb_transact2_info_t *)si->sip->extra_info;
 
-		add_srt_table_data(&ss->trans2_srt_table, st2i->subcmd, &si->sip->req_time, pinfo);
+		if(st2i){
+			add_srt_table_data(&ss->trans2_srt_table, st2i->subcmd, &si->sip->req_time, pinfo);
+		}
 	}
 
 	return 1;

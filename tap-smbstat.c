@@ -1,7 +1,7 @@
 /* tap-smbstat.c
  * smbstat   2003 Ronnie Sahlberg
  *
- * $Id: tap-smbstat.c,v 1.4 2003/04/25 20:54:16 guy Exp $
+ * $Id: tap-smbstat.c,v 1.5 2003/09/28 00:00:36 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -56,7 +56,7 @@ smbstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, void *psi
 	smbstat_t *ss=(smbstat_t *)pss;
 	smb_info_t *si=psi;
 	nstime_t delta;
-	timestat_t *sp;
+	timestat_t *sp=NULL;
 
 	/* we are only interested in reply packets */
 	if(si->request){
@@ -71,12 +71,16 @@ smbstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, void *psi
 		smb_nt_transact_info_t *sti=(smb_nt_transact_info_t *)si->sip->extra_info;
 
 		/*nt transaction*/
-		sp=&(ss->nt_trans[sti->subcmd]);
+		if(sti){
+			sp=&(ss->nt_trans[sti->subcmd]);
+		}
 	} else if(si->cmd==0x32){
 		smb_transact2_info_t *st2i=(smb_transact2_info_t *)si->sip->extra_info;
 
 		/*transaction2*/
-		sp=&(ss->trans2[st2i->subcmd]);
+		if(st2i){
+			sp=&(ss->trans2[st2i->subcmd]);
+		}
 	} else {
 		sp=&(ss->proc[si->cmd]);
 	}
@@ -89,7 +93,9 @@ smbstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, void *psi
 		delta.secs--;
 	}
 
-	time_stat_update(sp,&delta, pinfo);
+	if(sp){
+		time_stat_update(sp,&delta, pinfo);
+	}
 
 	return 1;
 }
