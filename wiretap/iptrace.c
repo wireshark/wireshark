@@ -1,6 +1,6 @@
 /* iptrace.c
  *
- * $Id: iptrace.c,v 1.15 1999/10/06 03:30:21 guy Exp $
+ * $Id: iptrace.c,v 1.16 1999/11/17 07:50:33 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -84,6 +84,10 @@ static int iptrace_read(wtap *wth, int *err)
 	}
 	wth->data_offset += 40;
 
+	/*
+	 * Is this a 2-byte value, with two bytes of other information
+	 * before it, or is it a 4-byte value?
+	 */
 	packet_size = pntohs(&header[2]) - 32;
 
 	/* Read the packet data */
@@ -109,6 +113,11 @@ static int iptrace_read(wtap *wth, int *err)
 	 * program to know when to use nsec or usec */
 	wth->phdr.ts.tv_usec = pntohl(&header[36]) / 1000;
 
+	/*
+	 * Byte 28 of the frame header appears to be a BSD-style IFT_xxx
+	 * value giving the type of the interface.  Check out the
+	 * <net/if_types.h> header file.
+	 */
 	if_name1 = header[12];
 	if_name2 = header[13];
 	if (if_name1 == 't' && if_name2 == 'r') {
