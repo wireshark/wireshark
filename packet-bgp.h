@@ -1,7 +1,7 @@
 /* packet-bgp.c
  * Definitions for BGP packet disassembly structures and routine
  *
- * $Id: packet-bgp.h,v 1.1 1999/11/01 14:22:36 itojun Exp $
+ * $Id: packet-bgp.h,v 1.2 1999/11/02 00:11:58 itojun Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -28,12 +28,6 @@
 #include "packet.h"
 #include "packet-ipv6.h"
 
-struct bgp {
-    guint8 bgp_marker[16];
-    guint16 bgp_len;
-    guint8 bgp_type;
-};
-
 /* some handy things to know */
 #define BGP_MAX_PACKET_SIZE		4096
 #define BGP_MARKER_SIZE			16
@@ -49,6 +43,12 @@ struct bgp {
 #define BGP_NOTIFICATION	3
 #define BGP_KEEPALIVE		4
 
+struct bgp {
+    guint8 bgp_marker[BGP_MARKER_SIZE];
+    guint16 bgp_len;
+    guint8 bgp_type;
+};
+
 struct bgp_open {
     guint8 bgpo_marker[BGP_MARKER_SIZE];
     guint16 bgpo_len;
@@ -62,7 +62,7 @@ struct bgp_open {
 };
 
 struct bgp_notification {
-    guint8 bgpn_marker[16];
+    guint8 bgpn_marker[BGP_MARKER_SIZE];
     guint16 bgpn_len;
     guint8 bgpn_type;
     guint8 bgpn_major;
@@ -107,5 +107,9 @@ do {				\
     if ((x) + (s) > (l))	\
 	return;			\
 } while (0)
+
+#ifndef offsetof
+#define offsetof(type, member)  ((size_t)(&((type *)0)->member))
+#endif
 
 #endif

@@ -2,7 +2,7 @@
  * Routines for BGP packet dissection
  * Copyright 1999, Jun-ichiro itojun Hagino <itojun@itojun.org>
  *
- * $Id: packet-bgp.c,v 1.6 1999/11/01 09:51:59 itojun Exp $
+ * $Id: packet-bgp.c,v 1.7 1999/11/02 00:11:58 itojun Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -166,10 +166,6 @@ static const value_string afnumber[] = {
 };
 
 static int proto_bgp = -1;
-
-#ifndef offsetof
-#define	offsetof(type, member)	((size_t)(&((type *)0)->member))
-#endif
 
 static int
 decode_prefix4(const u_char *pd, char *buf, int buflen)
@@ -651,6 +647,9 @@ dissect_bgp_update(const u_char *pd, int offset, frame_data *fd,
     }
 }
 
+/*
+ * Dissect a BGP NOTIFICATION message.
+ */
 static void
 dissect_bgp_notification(const u_char *pd, int offset, frame_data *fd,
     proto_tree *tree)
@@ -659,28 +658,40 @@ dissect_bgp_notification(const u_char *pd, int offset, frame_data *fd,
     int hlen;
     char *p;
 
+    /* snarf message */
     memcpy(&bgpn, &pd[offset], sizeof(bgpn));
     hlen = ntohs(bgpn.bgpn_len);
 
+    /* print error code */
     proto_tree_add_text(tree,
 	offset + offsetof(struct bgp_notification, bgpn_major), 1,
 	"Error code: %s (%u)",
 	val_to_str(bgpn.bgpn_major, bgpnotify_major, "Unknown"),
 	bgpn.bgpn_major);
 
+    /* print error subcode */
     if (bgpn.bgpn_major < array_length(bgpnotify_minor)
      && bgpnotify_minor[bgpn.bgpn_major] != NULL) {
 	p = val_to_str(bgpn.bgpn_minor, bgpnotify_minor[bgpn.bgpn_major],
 	    "Unknown");
-    } else
-	p = "Unknown";
+    } else if (bgpn.bgpn_minor == 0)
+	p = "Unspecified";
+    else
+        p = "Unknown";
     proto_tree_add_text(tree,
 	offset + offsetof(struct bgp_notification, bgpn_minor), 1,
 	"Error subcode: %s (%u)", p, bgpn.bgpn_minor);
-    proto_tree_add_text(tree, offset + sizeof(struct bgp_notification),
-	hlen - sizeof(struct bgp_notification), "Data");
+
+    /* only print if there is optional data */
+    if (hlen > BGP_MIN_NOTIFICATION_MSG_SIZE) {
+        proto_tree_add_text(tree, offset + BGP_MIN_NOTIFICATION_MSG_SIZE,
+	    hlen - BGP_MIN_NOTIFICATION_MSG_SIZE, "Data");
+    }
 }
 
+/*
+ * Dissect a BGP packet.
+ */
 void
 dissect_bgp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
@@ -743,6 +754,8 @@ dissect_bgp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	p = &pd[offset];
 	l = END_OF_FRAME;
 	i = 0;
+        /* now, run through the TCP packet again, this time dissect */
+        /* each message that we find */
 	while (i < l) {
 	    /* look for bgp header */
 	    if (p[i] != 0xff) {
@@ -760,7 +773,7 @@ dissect_bgp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	    typ = val_to_str(bgp.bgp_type, bgptypevals, "Unknown Message");
 	    if (END_OF_FRAME < hlen) {
 		ti = proto_tree_add_text(bgp_tree, offset + i, END_OF_FRAME,
-			    "%s, Truncated", typ);
+			    "%s (truncated)", typ);
 	    } else {
 		ti = proto_tree_add_text(bgp_tree, offset + i, hlen,
 			    "%s", typ);
@@ -773,7 +786,7 @@ dissect_bgp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	    if (hlen < BGP_HEADER_SIZE || hlen > BGP_MAX_PACKET_SIZE) {
 		proto_tree_add_text(bgp1_tree,
 		    offset + i + offsetof(struct bgp, bgp_len), 2,
-		    "Length: Invalid %u %s", hlen, 
+		    "Length (invalid): %u %s", hlen, 
 		    (hlen == 1) ? "byte" : "bytes");
 	    } else {
 		proto_tree_add_text(bgp1_tree,
@@ -788,7 +801,7 @@ dissect_bgp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
 	    CHECK_SIZE(i, hlen, l);
 
-	    /* now, handle each message type */
+	    /* handle each message type */
 	    switch (bgp.bgp_type) {
 	    case BGP_OPEN:
 		dissect_bgp_open(pd, offset + i, fd, bgp1_tree);
@@ -811,6 +824,9 @@ dissect_bgp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
     }
 }
 
+/*
+ * Register ourselves.
+ */
 void
 proto_register_bgp(void)
 {
