@@ -94,6 +94,11 @@
 #define NETTL_SUBSYS_TOKEN		31
 #define NETTL_SUBSYS_PCI_TR		187
 
+/* from /usr/include/sys/subsys_id.h */
+
+#define NETTL_HDR_PDUIN			0x20
+#define NETTL_HDR_PDUOUT		0x10
+
 int nettl_open(wtap *wth, int *err, gchar **err_info);
 
 #endif
