@@ -53,7 +53,7 @@ ethereal.lib	: config.h $(OBJECTS)
 	lib /out:ethereal.lib $(OBJECTS)
 
 config.h	: config.h.win32
-	copy config.h.win32 $@
+	sed -e s/@VERSION@/$(VERSION)/ < config.h.win32 > $@
 
 clean:
 	rm -f $(OBJECTS) ethereal.lib

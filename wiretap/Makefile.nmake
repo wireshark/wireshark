@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.nmake,v 1.17 2001/03/23 02:05:29 gram Exp $
+# $Id: Makefile.nmake,v 1.18 2001/04/05 04:39:29 gram Exp $
 #
 
 include ..\config.nmake
@@ -65,7 +65,7 @@ ascend-scanner.c : ascend-scanner.l
 
 
 config.h	: config.h.win32
-	copy config.h.win32 $@
+	sed -e s/@VERSION@/$(WTAP_VERSION)/ < config.h.win32 > $@
 
 clean :
 	rm -f $(OBJECTS) ascend-grammar.c ascend-grammar.h ascend-scanner.c \

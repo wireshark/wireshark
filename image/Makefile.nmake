@@ -1,0 +1,26 @@
+#
+# $Id: Makefile.nmake,v 1.1 2001/04/05 04:39:26 gram Exp $
+#
+
+include ..\config.nmake
+
+ALL_RC=ethereal.rc tethereal.rc editcap.rc
+all : $(ALL_RC)
+
+ethereal.rc	: ethereal.rc.in
+	sed -e s/@VERSION@/$(VERSION)/ \
+		-e s/@RC_VERSION@/$(RC_VERSION)/ \
+		< ethereal.rc.in > $@
+
+tethereal.rc	: tethereal.rc.in
+	sed -e s/@VERSION@/$(VERSION)/ \
+		-e s/@RC_VERSION@/$(RC_VERSION)/ \
+		< tethereal.rc.in > $@
+
+editcap.rc	: editcap.rc.in
+	sed -e s/@VERSION@/$(VERSION)/ \
+		-e s/@RC_VERSION@/$(RC_VERSION)/ \
+		< editcap.rc.in > $@
+
+clean :
+	rm -f $(ALL_RC)

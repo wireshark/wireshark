@@ -1,4 +1,4 @@
-/* $Id: config.h.win32,v 1.6 2000/11/22 07:20:27 guy Exp $ */
+/* $Id: config.h.win32,v 1.7 2001/04/05 04:39:29 gram Exp $ */
 /* config.h.win32 Generated manually. :-) */
 /* config.h.  Generated automatically by configure.  */
 /* config.h.in.  Generated automatically from configure.in by autoheader.  */
@@ -42,7 +42,7 @@
 #define PACKAGE "libwtap.a"
 
 /* Version number of package */
-#define VERSION "0.0.0"
+#define VERSION "@VERSION@"
 
 #define HAVE_WINSOCK_H		1
 #define HAVE_IO_H		1

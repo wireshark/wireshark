@@ -1,7 +1,7 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.93 2001/04/04 01:00:18 guy Exp $
+# $Id: Makefile.nmake,v 1.94 2001/04/05 04:39:23 gram Exp $
 
 include config.nmake
 include <win32.mak>
@@ -267,7 +267,7 @@ EXECUTABLES=ethereal.exe tethereal.exe editcap.exe
 
 RESOURCES=image\ethereal.res image\tethereal.res image\editcap.res
 
-all: tools wiretap gtk epan $(EXECUTABLES) $(RESOURCES)
+all: tools wiretap gtk epan image $(EXECUTABLES) $(RESOURCES)
 
 ethereal.exe	: config.h $(ethereal_OBJECTS) $(EXTRA_OBJECTS) image\ethereal.res wiretap\wiretap-$(WTAP_VERSION).lib gtk\libui.lib plugins
 	@echo Linking $@
@@ -293,7 +293,7 @@ dftest.exe	: $(dftest_OBJECTS) $(EXTRA_OBJECTS)
 <<
 
 config.h	: config.h.win32
-	copy config.h.win32 $@
+	sed -e s/@VERSION@/$(VERSION)/ < config.h.win32 > $@
 
 ps.c	: rdps.exe print.ps
 	rdps print.ps ps.c
@@ -322,10 +322,17 @@ clean:
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../tools
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd ../image
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
 
 tools::
 	cd tools
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
+	cd ..
+
+image::
+	cd image
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
 	cd ..
 

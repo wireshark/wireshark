@@ -1,7 +1,7 @@
 ;
 ; ethereal.nsi
 ;
-; $Id: ethereal.nsi,v 1.1 2001/04/04 04:50:05 gram Exp $
+; $Id: ethereal.nsi.in,v 1.1 2001/04/05 04:39:27 gram Exp $
 
 ; ============================================================================
 ; Header configuration
@@ -58,7 +58,7 @@ ShowInstDetails show
 Section "-Required"
 ;-------------------------------------------
 SetOutPath $INSTDIR
-File "..\..\wiretap\wiretap-0.0.dll"
+File "..\..\wiretap\wiretap-@WTAP_VERSION@.dll"
 File "c:\program files\common files\GNU\iconv-1.3.dll"
 File "c:\program files\common files\GNU\glib-1.3.dll"
 File "c:\program files\common files\GNU\gmodule-1.3.dll"
@@ -98,7 +98,7 @@ File "..\..\doc\editcap.html"
 Section "Plugins"
 SectionIn 1,2
 ;-------------------------------------------
-SetOutPath $INSTDIR\plugins\0.8.16
+SetOutPath $INSTDIR\plugins\@VERSION@
 File "..\..\plugins\gryphon\gryphon.dll"
 File "..\..\plugins\mgcp\mgcp.dll"
 
@@ -128,12 +128,13 @@ Delete "$INSTDIR\README*"
 Delete "$INSTDIR\*.exe"
 Delete "$INSTDIR\*.pdb"
 Delete "$INSTDIR\*.html"
-Delete "$INSTDIR\*.dll"
-Delete "$INSTDIR\plugins\0.8.16\*.dll"
+Delete "$INSTDIR\wiretap-@WTAP_VERSION@.dll"
+Delete "$INSTDIR\plugins\@VERSION@\gryphon.dll"
+Delete "$INSTDIR\plugins\@VERSION@\mgcp.dll"
 Delete "$SMPROGRAMS\Ethereal\*.*"
 
 RMDir "$SMPROGRAMS\Ethereal"
-RMDir "$INSTDIR\plugins\0.8.16"
+RMDir "$INSTDIR\plugins\@VERSION@"
 RMDir "$INSTDIR\plugins"
 RMDir "$INSTDIR"
 

@@ -1,6 +1,7 @@
-# $Id: config.nmake,v 1.10 2001/04/04 04:50:04 gram Exp $
+# $Id: config.nmake,v 1.11 2001/04/05 04:39:23 gram Exp $
 
 VERSION=0.8.16
+RC_VERSION=0,8,16
 WTAP_VERSION=0.0
 
 GTK_VERSION=1.3
