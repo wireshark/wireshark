@@ -1,7 +1,7 @@
 /* io_stat.c
  * io_stat   2002 Ronnie Sahlberg
  *
- * $Id: io_stat.c,v 1.36 2003/10/12 04:20:03 sahlberg Exp $
+ * $Id: io_stat.c,v 1.37 2003/10/14 09:03:03 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -66,6 +66,17 @@ static guint32 yscale_max[MAX_YSCALE] = {AUTO_MAX_YSCALE, 10, 20, 50, 100, 200, 
 #define DEFAULT_PIXELS_PER_TICK 2
 static guint32 pixels_per_tick[MAX_PIXELS_PER_TICK] = {1, 2, 5, 10};
 
+
+#define DEFAULT_PLOT_STYLE	0
+#define PLOT_STYLE_LINE		0
+#define PLOT_STYLE_IMPULSE	1
+#define MAX_PLOT_STYLES		2
+static char *plot_style_name[MAX_PLOT_STYLES] = {
+	"Line",
+	"Impulse",
+};
+
+
 #define COUNT_TYPE_FRAMES   0
 #define COUNT_TYPE_BYTES    1
 #define COUNT_TYPE_ADVANCED 2
@@ -101,11 +112,12 @@ typedef struct _io_item_t {
 	nstime_t time_max;
 	nstime_t time_min;
 	nstime_t time_tot;
-} io_item_t; /* XXX to be removed */
+} io_item_t;
 
 typedef struct _io_stat_graph_t {
 	struct _io_stat_t *io;
 	io_item_t items[NUM_IO_ITEMS];
+	int plot_style;;
 	int display;
 	GtkWidget *display_button;
 	GtkWidget *color_button;
@@ -140,7 +152,6 @@ typedef struct _io_stat_tick_interval_t {
 	struct _io_stat_t *io;
 	int interval;
 } io_stat_tick_interval_t;
-
 
 typedef struct _io_stat_t {
 	gboolean needs_redraw;
@@ -831,11 +842,20 @@ gtk_iostat_draw(void *g)
 				continue;
 			}
 
-			gdk_draw_line(io->pixmap, io->graphs[i].gc, 
-				prev_x_pos, 
-				prev_y_pos, 
-				x_pos, 
-				y_pos);
+			switch(io->graphs[i].plot_style){
+			case PLOT_STYLE_LINE:
+				gdk_draw_line(io->pixmap, io->graphs[i].gc, 
+					prev_x_pos, prev_y_pos, 
+					x_pos, y_pos);
+				break;
+			case PLOT_STYLE_IMPULSE:
+				if(val){
+					gdk_draw_line(io->pixmap, io->graphs[i].gc, 
+						x_pos, draw_height-1+top_y_border,
+						x_pos, y_pos);
+				}
+				break;
+			}
 
 			prev_y_pos=y_pos;
 			prev_x_pos=x_pos;
@@ -1127,6 +1147,21 @@ pixels_per_tick_select(GtkWidget *item _U_, gpointer key)
 	ppt->io->pixels_per_tick=ppt->pixels_per_tick;
 	ppt->io->needs_redraw=TRUE;
 	gtk_iostat_draw(&ppt->io->graphs[0]);
+}
+
+static void
+plot_style_select(GtkWidget *item, gpointer key)
+{
+	int val;
+	io_stat_graph_t *ppt;
+
+	ppt=(io_stat_graph_t *)key;
+	val=(int)gtk_object_get_data(GTK_OBJECT(item), "plot_style");
+
+	ppt->plot_style=val;
+
+	ppt->io->needs_redraw=TRUE;
+	gtk_iostat_draw(ppt);
 }
 
 static void 
@@ -1572,9 +1607,13 @@ filter_button_clicked(GtkWidget *w, gpointer uio)
 static void
 create_filter_box(io_stat_graph_t *gio, GtkWidget *box, int num)
 {
+	GtkWidget *option_menu;
+	GtkWidget *menu;
+	GtkWidget *menu_item;
 	GtkWidget *hbox;
 	GtkWidget *label;
         char str[256];
+	int i;
 
 	hbox=gtk_hbox_new(FALSE, 0);
 	gtk_container_add(GTK_CONTAINER(box), hbox);
@@ -1594,10 +1633,6 @@ create_filter_box(io_stat_graph_t *gio, GtkWidget *box, int num)
 	SIGNAL_CONNECT(gio->display_button, "toggled", filter_callback, gio);
 
 
-
-	label=gtk_label_new("   Color:");
-	gtk_widget_show(label);
-	gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
 
 	gio->color_button=gtk_toggle_button_new();
 	gtk_box_pack_start(GTK_BOX(hbox), gio->color_button, FALSE, FALSE, 0);
@@ -1626,9 +1661,6 @@ create_filter_box(io_stat_graph_t *gio, GtkWidget *box, int num)
 #endif
 /*	gtk_signal_connect(GTK_OBJECT(gio->display_button), "toggled", GTK_SIGNAL_FUNC(filter_callback), gio);*/
 
-
-	/* filter prefs dialog --- comment out static label */
-	/* label=gtk_label_new("   Filter:"); */
 
 	/* filter prefs dialog */
 	label=gtk_label_new("   ");
@@ -1659,6 +1691,31 @@ create_filter_box(io_stat_graph_t *gio, GtkWidget *box, int num)
 	SIGNAL_CONNECT(gio->filter_button, "activate", filter_callback, gio);
 
 	create_advanced_box(gio, hbox);
+
+
+	/*
+	 * create PlotStyle menu
+	 */
+	sprintf(str, " Style:");
+	label=gtk_label_new(str);
+	gtk_widget_show(label);
+	gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
+
+	option_menu=gtk_option_menu_new();
+	menu=gtk_menu_new();
+	for(i=0;i<MAX_PLOT_STYLES;i++){
+		menu_item=gtk_menu_item_new_with_label(plot_style_name[i]);
+		gtk_object_set_data(GTK_OBJECT(menu_item), "plot_style", (gpointer)i);
+		SIGNAL_CONNECT(menu_item, "activate", plot_style_select, &gio->io->graphs[num-1]);
+		gtk_widget_show(menu_item);
+		gtk_menu_append(GTK_MENU(menu), menu_item);
+	}
+	gtk_menu_set_active(GTK_MENU(menu), DEFAULT_PLOT_STYLE);
+
+	gtk_option_menu_set_menu(GTK_OPTION_MENU(option_menu), menu);
+	gtk_box_pack_end(GTK_BOX(hbox), option_menu, FALSE, FALSE, 0);
+	gtk_widget_show(option_menu);
+
 
 	return;
 }
