@@ -7,7 +7,7 @@
  *
  * Copyright 2000, Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-sip.c,v 1.12 2001/01/30 02:22:23 gerald Exp $
+ * $Id: packet-sip.c,v 1.13 2001/01/30 02:38:33 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -76,7 +76,7 @@ static void dissect_sip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         guint32 offset;
         gint eol, next_offset, msg_offset;
         tvbuff_t *next_tvb;
-        gboolean is_request, is_status = FALSE;
+        gboolean is_request;
 
 	/*
 	 * Note that "tvb_strneql()" doesn't throw exceptions, so
@@ -90,14 +90,14 @@ static void dissect_sip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         eol = tvb_find_line_end(tvb, 0, -1, &next_offset);
         is_request = sip_is_request(tvb, 0);
 	/* XXX - Is this case-sensitive?  RFC 2543 didn't explicitly say. */
-	if (tvb_strneql(tvb, 0, SIP2_HDR, SIP2_HDR_LEN) == 0)
-	  is_status = TRUE;
+	if (tvb_strneql(tvb, 0, SIP2_HDR, SIP2_HDR_LEN) != 0 && ! is_request)
+		goto bad;
 	  
-        if (check_col(pinfo->fd, COL_PROTOCOL) && (is_request || is_status)) 
+        if (check_col(pinfo->fd, COL_PROTOCOL)) 
                 col_set_str(pinfo->fd, COL_PROTOCOL, "SIP");
     
 
-        if (check_col(pinfo->fd, COL_INFO) && (is_request || is_status))
+        if (check_col(pinfo->fd, COL_INFO))
                 col_add_fstr(pinfo->fd, COL_INFO, "%s: %s",
                              is_request ? "Request" : "Status",
                              is_request ? 
