@@ -2,7 +2,7 @@
  * Routines for smb net logon packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-smb-logon.c,v 1.5 2000/05/31 05:07:41 guy Exp $
+ * $Id: packet-smb-logon.c,v 1.6 2000/08/06 07:22:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -84,7 +84,7 @@ display_LM_token( const u_char *pd, int *offset, frame_data *fd,
 		proto_tree_add_text( tree, NullTVB, *offset, 2,
 			"LM10 Token: 0x%x (WFW Networking)", Token);
 
-	if (( *offset + 2) > fd->cap_len)
+	if (( *offset + 2) > pi.captured_len)
 		proto_tree_add_text(tree, NullTVB, *offset, 0,"****FRAME TOO SHORT***");
 	else
 		*offset += 2;
@@ -107,7 +107,7 @@ display_NT_version( const u_char *pd, int *offset, frame_data *fd,
 	proto_tree_add_text( tree, NullTVB, *offset, length, "NT Version: 0x%x ",
 		Version);
 
-	if (( *offset + length) > fd->cap_len)
+	if (( *offset + length) > pi.captured_len)
 		proto_tree_add_text(tree, NullTVB, *offset, 0, "****FRAME TOO SHORT***");
 	else
 		*offset += length;

@@ -2,7 +2,7 @@
  * Routines for unix rlogin packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-rlogin.c,v 1.4 2000/08/06 05:19:25 guy Exp $
+ * $Id: packet-rlogin.c,v 1.5 2000/08/06 07:22:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -65,7 +65,7 @@
 # include "snprintf.h"
 #endif
 
-#define CHECK_PACKET_LENGTH(X) if ((offset+X) > fd->cap_len){  \
+#define CHECK_PACKET_LENGTH(X) if ((offset+X) > pi.captured_len){  \
         proto_tree_add_text(tree, NullTVB, offset, 0, "*** FRAME TOO SHORT ***"); \
         return; }
 

@@ -2,7 +2,7 @@
  * Routines for socks versions 4 &5  packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-socks.c,v 1.5 2000/05/31 05:07:48 guy Exp $
+ * $Id: packet-socks.c,v 1.6 2000/08/06 07:22:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -83,7 +83,7 @@
 
 
 
-#define CHECK_PACKET_LENGTH(X) if ((offset+X) > fd->cap_len){  \
+#define CHECK_PACKET_LENGTH(X) if ((offset+X) > pi.captured_len){  \
         proto_tree_add_text(tree, NullTVB, offset, 0, "*** FRAME TOO SHORT ***"); \
         return; }
 
@@ -233,7 +233,7 @@ static int display_string( const u_char *pd, int offset, frame_data *fd,
 	char temp[ 256];
 	int length = GBYTE( pd, offset);
 
-	if ((offset + 8) > fd->cap_len){  
+	if ((offset + 8) > pi.captured_len){  
        		proto_tree_add_text(tree, NullTVB, offset, 0, "*** FRAME TOO SHORT ***");
 	        return 0;
 	}
@@ -305,7 +305,7 @@ static int display_address( const u_char *pd, int offset,
 	++offset;
 
 	if ( a_type == 1){		/* IPv4 address */
-	   	if ( (offset + 4) > fd->cap_len) 
+	   	if ( (offset + 4) > pi.captured_len) 
        			proto_tree_add_text(tree, NullTVB, offset, 0, "*** FRAME TOO SHORT ***");
 
 		proto_tree_add_ipv4( tree, hf_socks_ip_dst, NullTVB, offset,
@@ -318,7 +318,7 @@ static int display_address( const u_char *pd, int offset,
 			"Remote name");
 	}
 	else if ( a_type == 4){	/* IPv6 address */
-		if ((offset + 16) > fd->cap_len) 
+		if ((offset + 16) > pi.captured_len) 
        			proto_tree_add_text(tree, NullTVB, offset, 0, "*** FRAME TOO SHORT ***");
 
 		proto_tree_add_ipv6( tree, hf_socks_ip6_dst, NullTVB, offset,
@@ -739,7 +739,7 @@ static void state_machine_v5( socks_hash_entry_t *hash_info, const u_char *pd,
 		hash_info->state = Connecting;	/* change state		*/
 		hash_info->connect_row = get_packet_ptr;	
 
-		if (( offset+ 1) > fd->cap_len){ 
+		if (( offset+ 1) > pi.captured_len){ 
 			hash_info->state = Done;	/* change state		*/
 	        	return; 
 	        }
@@ -775,7 +775,7 @@ static void state_machine_v5( socks_hash_entry_t *hash_info, const u_char *pd,
 
 		guint temp;
 
-		if (( offset+ 1) > fd->cap_len){ 
+		if (( offset+ 1) > pi.captured_len){ 
 			hash_info->state = Done;	/* change state		*/
 	        	return; 
 	        }
@@ -793,7 +793,7 @@ static void state_machine_v5( socks_hash_entry_t *hash_info, const u_char *pd,
 
 		offset = get_address_v5( pd, offset, hash_info);
 
-		if (( offset+ 1) > fd->cap_len){ 
+		if (( offset+ 1) > pi.captured_len){ 
 			hash_info->state = Done;
 	        	return; 
 	        }
@@ -827,7 +827,7 @@ static void state_machine_v5( socks_hash_entry_t *hash_info, const u_char *pd,
 			offset = get_address_v5( pd, offset, hash_info);
 
 	/* save server udp port and create upd conversation */
-			if (( offset+ 2) > fd->cap_len){ 
+			if (( offset+ 2) > pi.captured_len){ 
 				hash_info->state = Done;
 		        	return; 
 		        }

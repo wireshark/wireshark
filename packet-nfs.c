@@ -2,7 +2,7 @@
  * Routines for nfs dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  *
- * $Id: packet-nfs.c,v 1.32 2000/08/03 19:27:19 guy Exp $
+ * $Id: packet-nfs.c,v 1.33 2000/08/06 07:22:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -472,10 +472,10 @@ dissect_fhandle_data(const u_char *pd, int offset, frame_data* fd, proto_tree *t
 	/* Make use of the new tvbuf code.
 	   There is no way to get the packet_info here. So  we have to
 	   create a totally new tvbuf. */
-	realtvb = tvb_new_real_data(pd, fd->cap_len, fd->pkt_len);
+	realtvb = tvb_new_real_data(pd, pi.captured_len, pi.len);
 	tvb = tvb_new_subset(realtvb, offset, 
-				fd->cap_len - offset,
-				fd->pkt_len - offset);
+				pi.captured_len - offset,
+				pi.len - offset);
 
 	/* filehandle too long */
 	if (fhlen>64) goto type_ready;

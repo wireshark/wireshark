@@ -2,7 +2,7 @@
  * Routines for Microsoft Proxy packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-msproxy.c,v 1.4 2000/05/31 16:49:42 gram Exp $
+ * $Id: packet-msproxy.c,v 1.5 2000/08/06 07:22:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -78,7 +78,7 @@
 # include "snprintf.h"
 #endif
 
-#define CHECK_PACKET_LENGTH(X) if ((offset+X) > fd->cap_len){  \
+#define CHECK_PACKET_LENGTH(X) if ((offset+X) > pi.captured_len){  \
  	proto_tree_add_text(tree, NullTVB, offset, 0, "****FRAME TOO SHORT***"); return;}
 
 extern void udp_hash_add(guint16 proto,
@@ -323,7 +323,7 @@ static int display_application_name(const u_char *pd, int offset,
 
 	char temp[255];
 	
-	if ((offset+ 1) > fd->cap_len){ 
+	if ((offset+ 1) > pi.captured_len){ 
  		proto_tree_add_text(tree, NullTVB, offset, 0, "****FRAME TOO SHORT***");
  		return 0;
  	}

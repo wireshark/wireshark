@@ -1,7 +1,7 @@
 /* packet-icq.c
  * Routines for ICQ packet disassembly
  *
- * $Id: packet-icq.c,v 1.17 2000/08/05 00:55:55 guy Exp $
+ * $Id: packet-icq.c,v 1.18 2000/08/06 07:22:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Johan Feyaerts
@@ -2260,7 +2260,7 @@ dissect_icqv5Server(const u_char *pd,
     seqnum1 = pletohs(&pd[ICQ5_SRV_SEQNUM1]);
     seqnum2 = pletohs(&pd[ICQ5_SRV_SEQNUM2]);
     if (pktsize == -1)
-	pktsize = fd->pkt_len - offset;
+	pktsize = END_OF_FRAME;
     decr_pd = pd;
     
     if (changeCol && check_col(fd, COL_INFO))
