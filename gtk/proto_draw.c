@@ -1,7 +1,7 @@
 /* proto_draw.c
  * Routines for GTK+ packet display
  *
- * $Id: proto_draw.c,v 1.72 2003/12/16 18:43:35 oabad Exp $
+ * $Id: proto_draw.c,v 1.73 2003/12/17 23:41:10 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -459,7 +459,7 @@ byte_view_select(GtkWidget *widget, GdkEventButton *event)
     /* get the row/column selected */
     gtk_text_view_window_to_buffer_coords(bv,
                          gtk_text_view_get_window_type(bv, event->window),
-                         event->x, event->y, &x, &y);
+                         (gint) event->x, (gint) event->y, &x, &y);
     gtk_text_view_get_iter_at_location(bv, &iter, x, y);
     row = gtk_text_iter_get_line(&iter);
     column = gtk_text_iter_get_line_offset(&iter);
