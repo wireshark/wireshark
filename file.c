@@ -2777,7 +2777,8 @@ void
 mark_frame(capture_file *cf, frame_data *frame)
 {
   frame->flags.marked = TRUE;
-  cf->marked_count++;
+  if (cf->count > cf->marked_count)
+    cf->marked_count++;
 }
 
 /*
@@ -2787,7 +2788,8 @@ void
 unmark_frame(capture_file *cf, frame_data *frame)
 {
   frame->flags.marked = FALSE;
-  cf->marked_count--;
+  if (cf->marked_count > 0)
+    cf->marked_count--;
 }
 
 typedef struct {
