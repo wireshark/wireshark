@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *   2002 Added all command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-samr.c,v 1.64 2003/01/11 04:35:57 tpot Exp $
+ * $Id: packet-dcerpc-samr.c,v 1.65 2003/01/11 07:48:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -5203,7 +5203,7 @@ proto_register_dcerpc_samr(void)
 		NULL, 0x0, "Size of string in bytes", HFILL }},
 
 	{ &hf_nt_str,
-		{ "String", "nt.str.", FT_STRING, BASE_NONE,
+		{ "String", "nt.str", FT_STRING, BASE_NONE,
 		NULL, 0x0, "String data", HFILL }},
 
 	{ &hf_nt_str_len,
