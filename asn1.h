@@ -1,7 +1,7 @@
 /* asn1.h
  * Definitions for ASN.1 BER dissection
  *
- * $Id: asn1.h,v 1.11 2002/10/23 18:24:04 guy Exp $
+ * $Id: asn1.h,v 1.12 2003/04/25 05:39:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -111,36 +111,39 @@ struct _ASN1_SCK
     int offset;             /* Current offset in tvbuff            */
 };
 
-void asn1_open (ASN1_SCK *asn1, tvbuff_t *tvb, int offset);
-void asn1_close (ASN1_SCK *asn1, int *offset);
-int asn1_octet_decode (ASN1_SCK *asn1, guchar *ch);
-int asn1_tag_decode (ASN1_SCK *asn1, guint *tag);
-int asn1_id_decode (ASN1_SCK *asn1, guint *cls, guint *con, guint *tag);
-int asn1_length_decode (ASN1_SCK *asn1, gboolean *def, guint *len);
-int asn1_header_decode(ASN1_SCK *asn1, guint *cls, guint *con, guint *tag,
-			gboolean *defp, guint *lenp);
-int asn1_eoc (ASN1_SCK *asn1, int eoc);
-int asn1_eoc_decode (ASN1_SCK *asn1, int eoc);
-int asn1_null_decode (ASN1_SCK *asn1, int enc_len);
-int asn1_bool_decode (ASN1_SCK *asn1, int enc_len, gboolean *boolean);
-int asn1_int32_value_decode (ASN1_SCK *asn1, int enc_len, gint32 *integer);
-int asn1_int32_decode (ASN1_SCK *asn1, gint32 *integer, guint *nbytes);
-int asn1_uint32_value_decode (ASN1_SCK *asn1, int enc_len, guint *integer);
-int asn1_uint32_decode (ASN1_SCK *asn1, guint32 *integer, guint *nbytes);
-int asn1_bits_decode (ASN1_SCK *asn1, int eoc, guchar **bits,
+extern void asn1_open (ASN1_SCK *asn1, tvbuff_t *tvb, int offset);
+extern void asn1_close (ASN1_SCK *asn1, int *offset);
+extern int asn1_octet_decode (ASN1_SCK *asn1, guchar *ch);
+extern int asn1_tag_decode (ASN1_SCK *asn1, guint *tag);
+extern int asn1_id_decode (ASN1_SCK *asn1, guint *cls, guint *con, guint *tag);
+extern int asn1_length_decode (ASN1_SCK *asn1, gboolean *def, guint *len);
+extern int asn1_header_decode(ASN1_SCK *asn1, guint *cls, guint *con,
+			      guint *tag, gboolean *defp, guint *lenp);
+extern int asn1_eoc (ASN1_SCK *asn1, int eoc);
+extern int asn1_eoc_decode (ASN1_SCK *asn1, int eoc);
+extern int asn1_null_decode (ASN1_SCK *asn1, int enc_len);
+extern int asn1_bool_decode (ASN1_SCK *asn1, int enc_len, gboolean *boolean);
+extern int asn1_int32_value_decode (ASN1_SCK *asn1, int enc_len,
+				    gint32 *integer);
+extern int asn1_int32_decode (ASN1_SCK *asn1, gint32 *integer, guint *nbytes);
+extern int asn1_uint32_value_decode (ASN1_SCK *asn1, int enc_len,
+				     guint *integer);
+extern int asn1_uint32_decode (ASN1_SCK *asn1, guint32 *integer, guint *nbytes);
+extern int asn1_bits_decode (ASN1_SCK *asn1, int eoc, guchar **bits,
                              guint *len, guchar *unused);
-int asn1_string_value_decode (ASN1_SCK *asn1, int enc_len,
-			guchar **octets);
-int asn1_string_decode (ASN1_SCK *asn1, guchar **octets, guint *str_len,
-			guint *nbytes, guint expected_tag);
-int asn1_octet_string_decode (ASN1_SCK *asn1, guchar **octets, guint *str_len,
-			guint *nbytes);
-int asn1_subid_decode (ASN1_SCK *asn1, subid_t *subid);
-int asn1_oid_value_decode (ASN1_SCK *asn1, int enc_len, subid_t **oid,
-			guint *len);
-int asn1_oid_decode ( ASN1_SCK *asn1, subid_t **oid, guint *len, guint *nbytes);
-int asn1_sequence_decode ( ASN1_SCK *asn1, guint *seq_len, guint *nbytes);
+extern int asn1_string_value_decode (ASN1_SCK *asn1, int enc_len,
+				     guchar **octets);
+extern int asn1_string_decode (ASN1_SCK *asn1, guchar **octets, guint *str_len,
+			       guint *nbytes, guint expected_tag);
+extern int asn1_octet_string_decode (ASN1_SCK *asn1, guchar **octets,
+				     guint *str_len, guint *nbytes);
+extern int asn1_subid_decode (ASN1_SCK *asn1, subid_t *subid);
+extern int asn1_oid_value_decode (ASN1_SCK *asn1, int enc_len, subid_t **oid,
+				  guint *len);
+extern int asn1_oid_decode (ASN1_SCK *asn1, subid_t **oid, guint *len,
+			    guint *nbytes);
+extern int asn1_sequence_decode (ASN1_SCK *asn1, guint *seq_len, guint *nbytes);
 
-char *asn1_err_to_str (int err);
+extern char *asn1_err_to_str (int err);
 
 #endif
