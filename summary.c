@@ -1,7 +1,7 @@
 /* summary.c
  * Routines for capture file summary window
  *
- * $Id: summary.c,v 1.4 1999/07/09 04:18:36 gram Exp $
+ * $Id: summary.c,v 1.5 1999/07/13 02:52:59 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -37,7 +37,10 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+
+#ifdef HAVE_UNISTD_H
 #include <unistd.h>
+#endif
 
 #ifdef NEED_SNPRINTF_H
 # ifdef HAVE_STDARG_H
@@ -217,8 +220,7 @@ string_for_format(cf.cd_t));
 secs_usecs(cf.esec,cf.eusec));
   add_string_to_box(string_buff, data_box);
 
-  snprintf(string_buff, SUM_STR_MAX, "Between first and last packet: %.3f 
-seconds", seconds);
+  snprintf(string_buff, SUM_STR_MAX, "Between first and last packet: %.3f seconds", seconds);
   add_string_to_box(string_buff, data_box);
 
   /* Packet count */

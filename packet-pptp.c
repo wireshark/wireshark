@@ -2,7 +2,7 @@
  * Routines for the Point-to-Point Tunnelling Protocol (PPTP)
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-pptp.c,v 1.2 1999/07/07 22:51:51 gram Exp $
+ * $Id: packet-pptp.c,v 1.3 1999/07/13 02:52:53 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -33,7 +33,11 @@
 #endif
 
 #include <stdio.h>
+
+#ifdef HAVE_NETINET_IN_H
 #include <netinet/in.h>
+#endif
+
 #include <glib.h>
 #include "packet.h"
 

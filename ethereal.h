@@ -1,7 +1,7 @@
 /* ethereal.h
  * Global defines, etc.
  *
- * $Id: ethereal.h,v 1.15 1999/06/24 16:25:59 gram Exp $
+ * $Id: ethereal.h,v 1.16 1999/07/13 02:52:49 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -34,8 +34,11 @@
 #define MONO_BOLD_FONT "-*-lucidatypewriter-bold-r-normal-*-*-120-*-*-*-*-iso8859-1"
 #define DEF_WIDTH 750
 #define DEF_HEIGHT 550
+#ifdef HAVE_LIBPCAP
 #define DEF_READY_MESSAGE " Ready to load or capture"
-#define EXTERNAL_FILTER "/usr/local/bin/ethereal_tcp_filter -f" 
+#else
+#define DEF_READY_MESSAGE " Ready to load file"
+#endif
 
 #define MIN_PACKET_SIZE 68	/* minimum amount of packet data we can read */
 #define MAX_PACKET_SIZE 65535	/* maximum amount of packet data we can read */

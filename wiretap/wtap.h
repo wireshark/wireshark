@@ -1,6 +1,6 @@
 /* wtap.h
  *
- * $Id: wtap.h,v 1.19 1999/07/07 22:52:57 gram Exp $
+ * $Id: wtap.h,v 1.20 1999/07/13 02:53:26 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -59,7 +59,15 @@
 #define WTAP_FILTER_BPF				2
 
 #include <sys/types.h>
+
+#ifdef HAVE_SYS_TIME_H
 #include <sys/time.h>
+#endif
+
+#ifdef HAVE_WINSOCK_H
+#include <winsock.h>
+#endif
+
 #include <glib.h>
 #include <stdio.h>
 

@@ -1,7 +1,7 @@
 /* packet-radius.c
  * Routines for RADIUS packet disassembly
  *
- * $Id: packet-radius.c,v 1.1 1999/07/08 04:23:04 gram Exp $
+ * $Id: packet-radius.c,v 1.2 1999/07/13 02:52:54 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Johan Feyaerts
@@ -510,8 +510,7 @@ void dissect_attribute_value_pairs(const u_char *pd, int offset, frame_data
   gchar *valstr;
   if (avplength==0)
   {
-        proto_tree_add_text(tree,offset,0,"No Attribute Value Pairs 
-Found");
+        proto_tree_add_text(tree,offset,0,"No Attribute Value Pairs Found");
         return;
   }
   while (avplength > 0 )

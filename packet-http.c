@@ -3,7 +3,7 @@
  *
  * Guy Harris <guy@netapp.com>
  *
- * $Id: packet-http.c,v 1.4 1999/07/07 22:51:43 gram Exp $
+ * $Id: packet-http.c,v 1.5 1999/07/13 02:52:51 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -27,7 +27,9 @@
  *
  */
 
+#ifdef HAVE_CONFIG_H
 #include "config.h"
+#endif
 
 #ifdef HAVE_SYS_TYPES_H
 #include <sys/types.h>

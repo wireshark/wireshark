@@ -1,6 +1,6 @@
 /* libpcap.c
  *
- * $Id: libpcap.c,v 1.4 1999/03/01 18:57:05 gram Exp $
+ * $Id: libpcap.c,v 1.5 1999/07/13 02:53:24 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -20,6 +20,9 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  *
  */
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
 #include "wtap.h"
 #include "buffer.h"
 #include "libpcap.h"

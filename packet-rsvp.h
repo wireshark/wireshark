@@ -4,7 +4,7 @@
  *
  * (C) Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-rsvp.h,v 1.1 1999/06/11 16:44:51 gram Exp $
+ * $Id: packet-rsvp.h,v 1.2 1999/07/13 02:52:55 gram Exp $
  *
  * For license details, see the COPYING file with this distribution
  *
@@ -195,7 +195,7 @@ typedef struct {
     unsigned short length;
     unsigned char class;	
     unsigned char type;
-    unsigned char data[0];
+    unsigned char *data;
 } rsvp_object;
 
 /*
@@ -209,7 +209,7 @@ typedef struct {
     unsigned char    sending_ttl;		/* ttl of message */
     unsigned char    reserved_byte;		/* reserved */
     unsigned short   rsvp_length;		/* length of RSVP data */
-    rsvp_object rsvp_first_object[0];
+    rsvp_object *rsvp_first_object;
 } rsvp_header;
 
 /*
@@ -299,7 +299,7 @@ typedef struct {
  */
 typedef struct {
     rsvp_object base;
-    unsigned long source[0];
+    unsigned long *source;
 } rsvp_scope;
 
 /*

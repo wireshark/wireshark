@@ -2,7 +2,7 @@
  * Routines for the Generic Routing Encapsulation (GRE) protocol
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-gre.c,v 1.2 1999/07/07 22:51:43 gram Exp $
+ * $Id: packet-gre.c,v 1.3 1999/07/13 02:52:51 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -32,7 +32,9 @@
 # include <sys/types.h>
 #endif
 
+#ifdef HAVE_NETINET_IN_H
 #include <netinet/in.h>
+#endif
 #include <glib.h>
 #include "packet.h"
 

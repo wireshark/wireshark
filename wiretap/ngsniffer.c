@@ -1,6 +1,6 @@
 /* ngsniffer.c
  *
- * $Id: ngsniffer.c,v 1.12 1999/03/01 18:57:06 gram Exp $
+ * $Id: ngsniffer.c,v 1.13 1999/07/13 02:53:25 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -55,6 +55,9 @@
  * WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  *
  */
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
 
 #include <stdlib.h>
 #include <time.h>

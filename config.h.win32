@@ -1,65 +1,63 @@
+/* config.h.  Generated automatically by configure.  */
 /* config.h.in.  Generated automatically from configure.in by autoheader.  */
 
 /* Define if you have the ANSI C header files.  */
-#undef STDC_HEADERS
+#define STDC_HEADERS 1
 
 /* Define if your processor stores words with the most significant
    byte first (like Motorola and SPARC, unlike Intel and VAX).  */
-#undef WORDS_BIGENDIAN
+/* #undef WORDS_BIGENDIAN */
 
-#undef HAVE_SA_LEN
+/* #undef HAVE_SA_LEN */
 
-#undef DATAFILE_DIR
+#define DATAFILE_DIR "/usr/local/etc"
 
-#undef NEED_SNPRINTF_H
+/* #undef NEED_SNPRINTF_H */
 
-#undef NEED_STRERROR_H
+/* #undef NEED_STRERROR_H */
 
 /* Define if you have the <fcntl.h> header file.  */
-#undef HAVE_FCNTL_H
-
-/* Define if you have the <net/if.h> header file.  */
-#undef HAVE_NET_IF_H
-
-/* Define if you have the <netdb.h> header file.  */
-#undef HAVE_NETDB_H
+#define HAVE_FCNTL_H 1
 
 /* Define if you have the <netinet/in.h> header file.  */
-#undef HAVE_NETINET_IN_H
+/* #define HAVE_NETINET_IN_H 1 */
 
 /* Define if you have the <snmp/snmp.h> header file.  */
-#undef HAVE_SNMP_SNMP_H
+/* #undef HAVE_SNMP_SNMP_H */
 
 /* Define if you have the <stdarg.h> header file.  */
-#undef HAVE_STDARG_H
+#define HAVE_STDARG_H 1
 
 /* Define if you have the <sys/ioctl.h> header file.  */
-#undef HAVE_SYS_IOCTL_H
-
-/* Define if you have the <sys/socket> header file.  */
-#undef HAVE_SYS_SOCKET
+/* #undef HAVE_SYS_IOCTL_H */
 
 /* Define if you have the <sys/sockio.h> header file.  */
-#undef HAVE_SYS_SOCKIO_H
+/* #undef HAVE_SYS_SOCKIO_H */
 
 /* Define if you have the <sys/time.h> header file.  */
-#undef HAVE_SYS_TIME_H
+/* #define HAVE_SYS_TIME_H 1 */
 
 /* Define if you have the <sys/types.h> header file.  */
-#undef HAVE_SYS_TYPES_H
+#define HAVE_SYS_TYPES_H 1
 
 /* Define if you have the <ucd-snmp/snmp.h> header file.  */
-#undef HAVE_UCD_SNMP_SNMP_H
+/* #undef HAVE_UCD_SNMP_SNMP_H */
 
 /* Define if you have the <unistd.h> header file.  */
-#undef HAVE_UNISTD_H
+/* #define HAVE_UNISTD_H 1 */
 
 /* Define if you have the pcap library (-lpcap).  */
-#undef HAVE_LIBPCAP
+/* #define HAVE_LIBPCAP 1 */
 
 /* Name of package */
-#undef PACKAGE
+#define PACKAGE "ethereal"
 
 /* Version number of package */
-#undef VERSION
+#define VERSION "0.6.3"
 
+#define HAVE_WINSOCK_H
+#define snprintf _snprintf
+#define vsnprintf _vsnprintf
+#define HAVE_DIRECT_H
+#define HAVE_IO_H
+#define strncasecmp strnicmp

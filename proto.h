@@ -1,7 +1,7 @@
 /* proto.h
  * Definitions for protocol display
  *
- * $Id: proto.h,v 1.2 1999/07/07 23:54:12 guy Exp $
+ * $Id: proto.h,v 1.3 1999/07/13 02:52:58 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -31,6 +31,10 @@
  #ifndef _SYS_TIME_H
   #include <sys/time.h>
  #endif
+#endif
+
+#ifdef HAVE_WINSOCK_H
+#include <winsock.h>
 #endif
 
 /* needs glib.h */
@@ -92,6 +96,9 @@ typedef struct hf_register_info {
 	struct value_string	*vals;
 } hf_register_info;
 
+#ifdef WIN32
+#define boolean truth_value
+#endif
 
 /* Info stored in each proto_item GNode */
 typedef struct field_info {

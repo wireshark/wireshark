@@ -2,7 +2,7 @@
  * Routines for the Internet Security Association and Key Management Protocol (ISAKMP)
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-isakmp.c,v 1.5 1999/07/08 06:03:21 guy Exp $
+ * $Id: packet-isakmp.c,v 1.6 1999/07/13 02:52:52 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -33,7 +33,11 @@
 #endif
 
 #include <stdio.h>
+
+#ifdef HAVE_NETINET_IN_H
 #include <netinet/in.h>
+#endif
+
 #include <glib.h>
 #include "packet.h"
 

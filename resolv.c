@@ -1,7 +1,7 @@
 /* resolv.c
  * Routines for network object lookup
  *
- * $Id: resolv.c,v 1.7 1999/07/07 22:51:59 gram Exp $
+ * $Id: resolv.c,v 1.8 1999/07/13 02:52:58 gram Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
@@ -29,15 +29,21 @@
 # include "config.h"
 #endif
 
-#ifndef AVOID_DNS_TIMEOUT
-#define AVOID_DNS_TIMEOUT
-#endif
-
 #include <gtk/gtk.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#ifndef WIN32
+#ifndef AVOID_DNS_TIMEOUT
+#define AVOID_DNS_TIMEOUT
+#endif
+#endif
+
+
+#ifdef HAVE_UNISTD_H
 #include <unistd.h>
+#endif
 
 #ifdef HAVE_SYS_TYPES_H
 # include <sys/types.h>
@@ -47,9 +53,15 @@
 # include <netinet/in.h>
 #endif
 
+#ifdef HAVE_NETDB_H
 #include <netdb.h>
+#endif
+
 #include <signal.h>
+
+#ifdef HAVE_SYS_SOCKET_H
 #include <sys/socket.h>
+#endif
 
 #ifdef AVOID_DNS_TIMEOUT
 # include <setjmp.h>

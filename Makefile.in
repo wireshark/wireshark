@@ -61,6 +61,7 @@ POST_UNINSTALL = :
 host_alias = @host_alias@
 host_triplet = @host@
 CC = @CC@
+CPP = @CPP@
 DATAFILE_DIR = @DATAFILE_DIR@
 GTK_CFLAGS = @GTK_CFLAGS@
 GTK_CONFIG = @GTK_CONFIG@

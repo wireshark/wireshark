@@ -1,7 +1,7 @@
 /* dfilter.h
  * Definitions for display filters
  *
- * $Id: dfilter.h,v 1.2 1999/07/07 23:54:12 guy Exp $
+ * $Id: dfilter.h,v 1.3 1999/07/13 02:52:48 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -50,6 +50,10 @@ gboolean fill_array_bytes_value(GNode *gnode, gpointer data);
 gboolean fill_array_bytes_variable(GNode *gnode, gpointer data);
 gboolean fill_array_boolean_value(GNode *gnode, gpointer data);
 gboolean fill_array_boolean_variable(GNode *gnode, gpointer data);
+
+#ifdef WIN32
+#define boolean truth_value
+#endif
 
 enum node_type {
 	relation,	/* eq, ne, gt, ge, lt, le */

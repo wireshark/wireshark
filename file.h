@@ -1,7 +1,7 @@
 /* file.h
  * Definitions for file structures and routines
  *
- * $Id: file.h,v 1.19 1999/07/09 04:18:35 gram Exp $
+ * $Id: file.h,v 1.20 1999/07/13 02:52:50 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -26,8 +26,13 @@
 #ifndef __FILE_H__
 #define __FILE_H__
 
+#ifdef HAVE_SYS_TYPES_H
 #include <sys/types.h>
+#endif
+
+#ifdef HAVE_SYS_TIME_H
 #include <sys/time.h>
+#endif
 
 #ifndef __WTAP_H__
 #include <wtap.h>

@@ -3,7 +3,7 @@
  *
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-rsvp.c,v 1.2 1999/07/07 22:51:52 gram Exp $
+ * $Id: packet-rsvp.c,v 1.3 1999/07/13 02:52:55 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -42,7 +42,11 @@
 #endif
 
 #include <stdio.h>
+
+#ifdef HAVE_UNISTD_H
 #include <unistd.h>
+#endif
+
 #include <stdlib.h>
 #include <string.h>
 

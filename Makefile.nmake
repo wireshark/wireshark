@@ -1,0 +1,53 @@
+## Makefile for building ethereal.exe with Microsoft C and nmake
+## Use: nmake -f makefile.nmake
+
+GTK_VERSION=1.3
+GLIB_VERSION=1.3
+
+GLIB_DIR=d:\prj\w\src\glib
+GTK_DIR=d:\prj\w\src\gtk+
+
+LOCAL_CFLAGS=/Ic:\tools\msdev\include
+
+############### no need to modify below this line #########
+
+CC = cl
+LDFLAGS = /link
+
+CFLAGS=-DHAVE_CONFIG_H $(LOCAL_CFLAGS) /I$(GLIB_DIR) /I$(GTK_DIR) /Iwiretap \
+	/I$(GTK_DIR)\gdk\win32
+
+OBJECTS=capture.obj column.obj dfilter-grammar.obj dfilter.obj \
+	display.obj ethereal.obj ethertype.obj file.obj filter.obj \
+	follow.obj gtkpacket.obj menu.obj \
+	packet-aarp.obj packet-arp.obj \
+	packet-atalk.obj packet-bootp.obj packet-cdp.obj packet-data.obj \
+	packet-dns.obj packet-eth.obj packet-fddi.obj packet-ftp.obj \
+	packet-giop.obj packet-gre.obj packet-http.obj packet-icmpv6.obj \
+	packet-ip.obj packet-ipsec.obj packet-ipv6.obj packet-ipx.obj \
+	packet-isakmp.obj packet-llc.obj packet-lpd.obj packet-nbipx.obj \
+	packet-nbns.obj packet-ncp.obj packet-nntp.obj packet-null.obj \
+	packet-osi.obj packet-ospf.obj packet-pop.obj packet-ppp.obj \
+	packet-pppoe.obj packet-pptp.obj packet-radius.obj packet-raw.obj \
+	packet-rip.obj packet-rsvp.obj packet-rtsp.obj packet-sdp.obj \
+	packet-smb.obj packet-snmp.obj packet-tcp.obj packet-telnet.obj \
+	packet-tftp.obj packet-tr.obj packet-trmac.obj packet-udp.obj \
+	packet-vines.obj packet.obj prefs.obj print.obj proto.obj \
+	resolv.obj snprintf.obj strerror.obj summary.obj util.obj
+
+LIBS=wiretap\libwtap.lib \
+	$(GTK_DIR)\gtk\gtk-$(GTK_VERSION).lib \
+	$(GTK_DIR)\gdk\win32\gdk-$(GTK_VERSION).lib \
+	$(GLIB_DIR)\glib-$(GTK_VERSION).lib \
+	$(GLIB_DIR)\gmodule-$(GTK_VERSION).lib
+
+
+ethereal.exe	: config.h $(OBJECTS) $(LIBS)
+	$(CC) $(CFLAGS) -Feethereal.exe $(OBJECTS) $(LIBS) $(LDFLAGS)
+
+config.h	: config.h.win32
+	copy config.h.win32 $@
+
+ps.c	: rdps.exe print.ps
+	rdps print.ps ps.c
+

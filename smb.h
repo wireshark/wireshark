@@ -2,7 +2,7 @@
  * Defines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: smb.h,v 1.2 1999/05/11 07:22:31 guy Exp $
+ * $Id: smb.h,v 1.3 1999/07/13 02:52:58 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -30,8 +30,13 @@
 #ifndef _SMB_H
 #define _SMB_H
 
+#ifndef min
 #define min(a,b) (a < b ? a : b)
+#endif
+
+#ifndef max
 #define max(a,b) (a > b ? a : b)
+#endif
 
 #define SMB_PORT 139
 #define NMB_PORT 137

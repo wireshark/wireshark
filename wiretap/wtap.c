@@ -1,6 +1,6 @@
 /* wtap.c
  *
- * $Id: wtap.c,v 1.9 1999/07/07 22:58:37 gram Exp $
+ * $Id: wtap.c,v 1.10 1999/07/13 02:53:26 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -20,7 +20,9 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  *
  */
-
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
 #include "wtap.h"
 #include "buffer.h"
 

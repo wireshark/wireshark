@@ -1,7 +1,7 @@
 /* packet-ipv6.c
  * Routines for IPv6 packet disassembly 
  *
- * $Id: packet-ipv6.c,v 1.9 1999/07/07 22:51:45 gram Exp $
+ * $Id: packet-ipv6.c,v 1.10 1999/07/13 02:52:52 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -30,7 +30,10 @@
 #ifdef HAVE_SYS_TYPES_H
 # include <sys/types.h>
 #endif
+
+#ifdef HAVE_SYS_SOCKET_h
 #include <sys/socket.h>
+#endif
 
 #ifdef HAVE_NETINET_IN_H
 # include <netinet/in.h>

@@ -172,6 +172,37 @@ yes
 	AC_MSG_RESULT(["$v6type, $v6lib"])
 ])
 
+#
+# AC_ETHEREAL_PCAP_CHECK
+#
+AC_DEFUN(AC_ETHEREAL_PCAP_CHECK,
+[
+	# Evidently, some systems have pcap.h, etc. in */include/pcap
+	AC_MSG_CHECKING(for extraneous pcap header directories)
+	found_pcap_dir=""
+	for pcap_dir in /usr/include/pcap /usr/local/include/pcap
+	do
+	  if test -d $pcap_dir ; then
+	    LIBS="$LIBS -L$pcap_dir"
+	    CFLAGS="$CFLAGS -I$pcap_dir"
+	    CPPFLAGS="$CPPFLAGS -I$pcap_dir"
+	    found_pcap_dir=" $found_pcap_dir -L$pcap_dir"
+	  fi
+	done
+
+	if test "$found_pcap_dir" != "" ; then
+	  AC_MSG_RESULT(found --$found_pcap_dir added to LIBS)
+	else
+	  AC_MSG_RESULT(not found)
+	fi
+
+	# Pcap checks
+	AC_CHECK_HEADER(net/bpf.h,, AC_MSG_ERROR(Header file net/bpf.h not found.))
+	AC_CHECK_HEADER(pcap.h,, AC_MSG_ERROR(Header file pcap.h not found.))
+	AC_CHECK_LIB(pcap, pcap_open_offline,, AC_MSG_ERROR(Library libpcap not found.))
+])
+
+
 # Do all the work for Automake.  This macro actually does too much --
 # some checks are only needed if your package does certain things.
 # But this isn't really a big deal.

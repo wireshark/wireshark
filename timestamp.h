@@ -1,7 +1,7 @@
 /* timestamp.h
  * Defines for packet timestamps
  *
- * $Id: timestamp.h,v 1.1 1999/06/19 01:47:43 guy Exp $
+ * $Id: timestamp.h,v 1.2 1999/07/13 02:52:59 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -25,6 +25,15 @@
 
 #ifndef __TIMESTAMP_H__
 #define __TIMESTAMP_H__
+
+/* MS VC has these macros */
+#ifdef RELATIVE
+#undef RELATIVE
+#endif
+
+#ifdef ABSOLUTE
+#undef ABSOLUTE
+#endif
 
 /*
  * Type of time-stamp shown in the summary display.

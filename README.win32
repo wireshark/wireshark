@@ -1,0 +1,30 @@
+$Id: README.win32,v 1.1 1999/07/13 02:52:46 gram Exp $
+
+Ethereal can be compiled on Win32 platforms. Some libraries are
+needed, however.
+
+The glib, gtk, glib-dev, and gtk-dev packages for win32 can be found
+at http://www.gimp.org/~tml/gimp/win32 You will definitely need these.
+
+I have seen mention of a UCD SNMP library for win32 on the cygwin
+home page, but I have not tried it with ethereal.
+
+There is no open-source libpcap for win32 yet.
+
+
+Instructions for MS Visual C
+----------------------------
+Download and install the glib-dev and gtk-dev packages. Modify
+the top lines of Makefile.nmake and wiretap/Makefile.nmake accordingly.
+In the wiretap directory, type "nmake -f makefile.nmake"
+Then in the ethereal directory, type "nmake -f makefile.nmake"
+
+You must set your HOME environment variable for ethereal to work.
+
+
+Instructions for cygwin
+-----------------------
+No one has ever compiled ethereal with cygwin. It should not be difficult,
+however. This spot is reserverd for your instructions on how to compile
+ethereal with cygwin.
+

@@ -1,7 +1,7 @@
 /* filter.c
  * Routines for managing filter sets
  *
- * $Id: filter.c,v 1.12 1998/12/27 20:44:53 gerald Exp $
+ * $Id: filter.c,v 1.13 1999/07/13 02:52:50 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -32,8 +32,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
+#ifdef HAVE_UNISTD_H
 #include <unistd.h>
+#endif
 #include <ctype.h>
+#ifdef HAVE_DIRECT_H
+#include <direct.h>
+#endif
 
 #include "ethereal.h"
 #include "filter.h"
@@ -425,7 +430,11 @@ filter_prefs_save(GtkWidget *w) {
   sprintf(ff_path, "%s/%s", getenv("HOME"), ff_dir);
 
   if (stat(ff_path, &s_buf) != 0)
+#ifdef WIN32
+    mkdir(ff_path);
+#else
     mkdir(ff_path, 0755);
+#endif
     
   sprintf(ff_path, "%s/%s/%s", getenv("HOME"), ff_dir, ff_name);
 

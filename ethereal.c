@@ -1,6 +1,6 @@
 /* ethereal.c
  *
- * $Id: ethereal.c,v 1.52 1999/07/11 08:40:52 guy Exp $
+ * $Id: ethereal.c,v 1.53 1999/07/13 02:52:49 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -49,12 +49,24 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+
+#ifdef HAVE_UNISTD_H
 #include <unistd.h>
+#endif
+
 #include <errno.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+
+#ifdef HAVE_DIRECT_H
+#include <direct.h>
+#endif
+
+#ifdef HAVE_NETINET_IN_H
 #include <netinet/in.h>
+#endif
+
 #include <signal.h>
 
 #ifdef NEED_SNPRINTF_H
@@ -110,11 +122,13 @@ ts_type timestamp_type = RELATIVE;
 
 GtkStyle *item_style;
 
+#ifdef HAVE_LIBPCAP
 int sync_mode;	/* allow sync */
 int sync_pipe[2]; /* used to sync father */
 int fork_mode;	/* fork a child to do the capture */
 int sigusr2_received = 0;
 int quit_after_cap; /* Makes a "capture only mode". Implies -k */
+#endif
 
 /* Specifies byte offsets for object selected in tree */
 static gint tree_selected_start=-1, tree_selected_len=-1; 
@@ -398,7 +412,11 @@ file_open_cmd_cb(GtkWidget *w, gpointer data) {
     (file_sel)->cancel_button), "clicked", (GtkSignalFunc)
     gtk_widget_destroy, GTK_OBJECT (file_sel));
 
+#ifdef HAVE_LIBPCAP
   if( fork_mode && (cf.save_file != NULL) )
+#else
+  if( cf.save_file != NULL )
+#endif
     gtk_file_selection_set_filename(GTK_FILE_SELECTION(file_sel), cf.save_file);
   else
     gtk_file_selection_set_filename(GTK_FILE_SELECTION(file_sel), "");
@@ -553,10 +571,14 @@ file_print_cmd_cb(GtkWidget *widget, gpointer data) {
 void
 packet_list_select_cb(GtkWidget *w, gint row, gint col, gpointer evt) {
 
+#ifdef HAVE_PCAP
   if (!sync_mode) {
+#endif
     if (cf.wth)
       return; 
+#ifdef HAVE_PCAP
   }
+#endif
   blank_packetinfo();
   gtk_text_freeze(GTK_TEXT(byte_view));
   gtk_text_set_point(GTK_TEXT(byte_view), 0);
@@ -644,11 +666,13 @@ main_realize_cb(GtkWidget *w, gpointer data) {
 #endif
 }
 
+#ifdef HAVE_LIBPCAP
 static void 
 sigusr2_handler(int sig) {
   sigusr2_received = 1;
   signal(SIGUSR2, sigusr2_handler);
 }
+#endif
 
 /* call initialization routines at program startup time */
 static void
@@ -674,8 +698,11 @@ print_usage(void) {
 int
 main(int argc, char *argv[])
 {
-  int                  opt, i;
+  int                  i;
+#ifndef WIN32
+  int                  opt;
   extern char         *optarg;
+#endif
   char                *pf_path;
   int                 pf_open_errno = 0;
   int                 err;
@@ -746,6 +773,7 @@ main(int argc, char *argv[])
 #endif
    );
 
+#ifndef WIN32
   /* Now get our args */
   while ((opt = getopt(argc, argv, "b:B:c:f:Fhi:km:nP:Qr:Ss:t:T:w:v")) != EOF) {
     switch (opt) {
@@ -758,14 +786,14 @@ main(int argc, char *argv[])
       case 'c':        /* Capture xxx packets */
         cf.count = atoi(optarg);
         break;
-      case 'f':
 #ifdef HAVE_LIBPCAP
+      case 'f':
 	cf.cfilter = g_strdup(optarg);
-#endif
 	break;
       case 'F':	       /* Fork to capture */
         fork_mode = 1;
         break;
+#endif
       case 'h':        /* Print help and exit */
 	print_usage();
 	exit(0);
@@ -779,19 +807,24 @@ main(int argc, char *argv[])
       case 'n':        /* No name resolution */
 	g_resolving_actif = 0;
 	break;
+#ifdef HAVE_LIBPCAP
       case 'k':        /* Start capture immediately */
         start_capture = 1;
         break;
+#endif
       case 'P':        /* Packet list pane height */
         pl_size = atoi(optarg);
         break;
+#ifdef HAVE_LIBPCAP
       case 'Q':        /* Quit after capture (just capture to file) */
         quit_after_cap = 1;
         start_capture = 1;  /*** -Q implies -k !! ***/
         break;
+#endif
       case 'r':        /* Read capture file xxx */
         cf_name = g_strdup(optarg);
         break;
+#ifdef HAVE_LIBPCAP
       case 's':        /* Set the snapshot (capture) length */
         cf.snap = atoi(optarg);
         break;
@@ -799,6 +832,7 @@ main(int argc, char *argv[])
         sync_mode = 1;
         fork_mode = 1; /* -S implies -F */
         break;
+#endif
       case 't':        /* Time stamp type */
         if (strcmp(optarg, "r") == 0)
           timestamp_type = RELATIVE;
@@ -821,11 +855,14 @@ main(int argc, char *argv[])
         printf("%s %s, with %s\n", PACKAGE, VERSION, comp_info_str);
         exit(0);
         break;
+#ifdef HAVE_LIBPCAP
       case 'w':        /* Write capture file xxx */
         cf.save_file = g_strdup(optarg);
 	break;
+#endif
     }
   }
+#endif
 
   if (start_capture) {
     if (cf.iface == NULL) {
@@ -838,8 +875,10 @@ main(int argc, char *argv[])
     }
   }
 
+#ifdef HAVE_LIBPCAP
   if (sync_mode)
     signal(SIGUSR2, sigusr2_handler);
+#endif
 
   /* Build the column format array */  
   col_fmt   = (gint *) g_malloc(sizeof(gint) * cf.cinfo.num_cols);

@@ -1,7 +1,7 @@
 /* display.c
  * Routines for packet display windows
  *
- * $Id: display.c,v 1.8 1999/07/09 04:18:34 gram Exp $
+ * $Id: display.c,v 1.9 1999/07/13 02:52:48 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -37,11 +37,29 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+
+#ifdef HAVE_UNISTD_H
 #include <unistd.h>
+#endif
+
 #include <time.h>
+
+#ifdef HAVE_SYS_SOCKET_H
 #include <sys/socket.h>
+#endif
+
+#ifdef HAVE_WINSOCK_H
+#include <winsock.h>
+#endif
+
+#ifdef HAVE_SYS_IOCTL_H
 #include <sys/ioctl.h>
+#endif
+
+#ifdef HAVE_NET_IF_H
 #include <net/if.h>
+#endif
+
 #include <signal.h>
 #include <errno.h>
 

@@ -1,0 +1,17 @@
+GLIB_DIR=d:\prj\w\src\glib
+LOCAL_CFLAGS=/Ic:\tools\msdev\include
+
+#################3
+CFLAGS=/DHAVE_CONFIG_H /I$(GLIB_DIR) $(LOCAL_CFLAGS)
+
+OBJECTS=buffer.obj file.obj iptrace.obj lanalyzer.obj libpcap.obj \
+	netmon.obj netxray.obj ngsniffer.obj snoop.obj wtap.obj
+
+
+libwtap.lib	: config.h $(OBJECTS)
+	lib /out:libwtap.lib $(OBJECTS)	
+
+
+config.h	: config.h.win32
+	copy config.h.win32 $@
+

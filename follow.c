@@ -1,6 +1,6 @@
 /* follow.c
  *
- * $Id: follow.c,v 1.10 1999/07/07 22:51:39 gram Exp $
+ * $Id: follow.c,v 1.11 1999/07/13 02:52:51 gram Exp $
  *
  * Copyright 1998 Mike Hall <mlh@io.com>
  *
@@ -33,7 +33,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#ifdef HAVE_UNISTD_H
 #include <unistd.h>
+#endif
 
 #ifdef HAVE_SYS_TYPES_H
 # include <sys/types.h>

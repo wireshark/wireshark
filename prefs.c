@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.18 1999/06/21 19:04:35 gram Exp $
+ * $Id: prefs.c,v 1.19 1999/07/13 02:52:57 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -31,12 +31,20 @@
 #include <sys/types.h>
 #endif
 
+#ifdef HAVE_DIRECT_H
+#include <direct.h>
+#endif
+
 #include <gtk/gtk.h>
 
 #include <stdlib.h>
 #include <ctype.h>
 #include <errno.h>
+
+#ifdef HAVE_UNISTD_H
 #include <unistd.h>
+#endif
+
 #include <sys/stat.h>
 
 #include "ethereal.h"
@@ -484,7 +492,11 @@ write_prefs() {
 
   sprintf(pf_path, "%s/%s", getenv("HOME"), PF_DIR);
   if (stat(pf_path, &s_buf) != 0)
+#ifdef WIN32
+    mkdir(pf_path);
+#else
     mkdir(pf_path, 0755);
+#endif
 
   sprintf(pf_path, "%s/%s/%s", getenv("HOME"), PF_DIR, PF_NAME);
   if ((pf = fopen(pf_path, "w")) == NULL) {

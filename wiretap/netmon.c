@@ -1,6 +1,6 @@
 /* netmon.c
  *
- * $Id: netmon.c,v 1.7 1999/05/12 21:40:06 guy Exp $
+ * $Id: netmon.c,v 1.8 1999/07/13 02:53:24 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -20,6 +20,9 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  *
  */
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
 #include <time.h>
 #include "wtap.h"
 #include "buffer.h"

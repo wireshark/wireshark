@@ -2,7 +2,7 @@
  * Routines for NetWare Core Protocol
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-ncp.c,v 1.16 1999/07/07 22:51:48 gram Exp $
+ * $Id: packet-ncp.c,v 1.17 1999/07/13 02:52:52 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -653,7 +653,8 @@ parse_ncp_svc_fields(const u_char *pd, proto_tree *ncp_tree, int offset,
 				break;	
 
 			 default:
-			/*	nothing */
+				; /* nothing */
+				break;
 		}
 		field_offset += field_length;
 		rec++;

@@ -1,7 +1,7 @@
 /* packet-null.c
  * Routines for null packet disassembly
  *
- * $Id: packet-null.c,v 1.8 1999/07/07 22:51:49 gram Exp $
+ * $Id: packet-null.c,v 1.9 1999/07/13 02:52:53 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -33,7 +33,10 @@
 #endif
 
 #include <glib.h>
+
+#ifdef HAVE_SYS_SOCKET_H
 #include <sys/socket.h>
+#endif
 
 #include "packet.h"
 	

@@ -1,7 +1,7 @@
 /* packet-icmpv6.c
  * Routines for ICMPv6 packet disassembly 
  *
- * $Id: packet-icmpv6.c,v 1.3 1999/07/07 22:51:44 gram Exp $
+ * $Id: packet-icmpv6.c,v 1.4 1999/07/13 02:52:51 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -28,7 +28,11 @@
 #endif
 
 #include <stdio.h>
+
+#ifdef HAVE_UNISTD_H
 #include <unistd.h>
+#endif
+
 #include <stdlib.h>
 #include <string.h>
 

@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.11 1999/07/08 04:23:28 gram Exp $
+# $Id: configure.in,v 1.12 1999/07/13 02:53:23 gram Exp $
 dnl Process this file with autoconf to produce a configure script.
 AC_INIT(wtap.c)
 AM_INIT_AUTOMAKE(libwtap.a, 0.0.0)
@@ -6,6 +6,7 @@ AM_CONFIG_HEADER(config.h)
 
 dnl Checks for programs.
 AC_PROG_CC
+AC_PROG_CPP
 AC_PROG_RANLIB
 
 # If we're running gcc, add '-Wall' to CFLAGS.
@@ -28,6 +29,6 @@ fi
 
 dnl Checks for header files
 AC_HEADER_STDC
-AC_CHECK_HEADERS(unistd.h)
+AC_CHECK_HEADERS(unistd.h sys/time.h netinet/in.h)
 
 AC_OUTPUT(Makefile)

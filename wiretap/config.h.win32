@@ -1,0 +1,14 @@
+
+/* Define if you have the ANSI C header files.  */
+#define STDC_HEADERS 1
+
+/* Define if you have the <unistd.h> header file.  */
+/* #define HAVE_UNISTD_H */
+
+/* Name of package */
+#define PACKAGE "libwtap.a"
+
+/* Version number of package */
+#define VERSION "0.0.0"
+
+#define HAVE_WINSOCK_H

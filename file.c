@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.36 1999/07/11 08:40:52 guy Exp $
+ * $Id: file.c,v 1.37 1999/07/13 02:52:49 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -30,7 +30,15 @@
 #include <gtk/gtk.h>
 
 #include <stdio.h>
+
+#ifdef HAVE_UNISTD_H
 #include <unistd.h>
+#endif
+
+#ifdef HAVE_IO_H
+#include <io.h>
+#endif
+
 #include <string.h>
 #include <sys/stat.h>
 #include <errno.h>
@@ -86,7 +94,9 @@ static void wtap_dispatch_cb(u_char *, const struct wtap_pkthdr *, int,
 static void init_col_widths(capture_file *);
 static void set_col_widths(capture_file *);
 
+#ifdef HAVE_LIBPCAP
 static gint tail_timeout_cb(gpointer);
+#endif
 
 int
 open_cap_file(char *fname, capture_file *cf) {
@@ -95,8 +105,10 @@ open_cap_file(char *fname, capture_file *cf) {
   /* First, make sure the file is valid */
   if (stat(fname, &cf_stat))
     return (errno);
+#ifndef WIN32
   if (! S_ISREG(cf_stat.st_mode) && ! S_ISFIFO(cf_stat.st_mode))
     return (OPEN_CAP_FILE_NOT_REGULAR);
+#endif
 
   /* Next, try to open the file */
   cf->fh = fopen(fname, "r");
@@ -259,6 +271,7 @@ load_cap_file(char *fname, capture_file *cf) {
   return err;
 }
 
+#ifdef HAVE_LIBPCAP
 void 
 cap_file_input_cb (gpointer data, gint source, GdkInputCondition condition) {
   
@@ -404,6 +417,7 @@ tail_cap_file(char *fname, capture_file *cf) {
   }
   return err;
 }
+#endif
 
 static void
 compute_time_stamps(frame_data *fdata, capture_file *cf)
@@ -690,16 +704,20 @@ file_mv(char *from, char *to)
 
 	int retval;
 
+#ifndef WIN32
 	/* try a hard link */
 	retval = link(from, to);
 
 	/* or try a copy */
 	if (retval < 0) {
+#endif
 		retval = file_cp(from, to);
 		if (!retval) {
 			return 0;
 		}
+#ifndef WIN32
 	}
+#endif
 
 	unlink(from);
 	return 1;
