@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.311 2001/04/20 18:37:53 guy Exp $
+# $Id: Makefile.am,v 1.312 2001/04/20 21:29:02 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -650,6 +650,7 @@ EXTRA_DIST = \
 	ncp2222.py              \
 	packet-ncp2222.inc	\
 	print.ps                \
+	process-x11-fields.pl	\
 	README.aix		\
 	README.bsd		\
 	README.hpux		\
@@ -660,7 +661,8 @@ EXTRA_DIST = \
 	README.win32		\
 	randpkt.c		\
 	rdps.c			\
-	TODO
+	TODO			\
+	x11-fields
 
 if SETUID_INSTALL
 install-exec-hook:
