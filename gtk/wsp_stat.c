@@ -1,7 +1,7 @@
 /* wsp_stat.c
  * wsp_stat   2003 Jean-Michel FAYARD
  *
- * $Id: wsp_stat.c,v 1.25 2004/03/27 11:13:03 guy Exp $
+ * $Id: wsp_stat.c,v 1.26 2004/04/12 09:48:19 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -251,6 +251,18 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
 }
 
 static void
+wsp_gtk_dlg_close_cb(
+    GtkButton		*button _U_,
+    gpointer		user_data _U_)
+{
+    wspstat_t *sp = user_data;
+
+    gtk_grab_remove(GTK_WIDGET(sp->win));
+    gtk_widget_destroy(GTK_WIDGET(sp->win));
+}
+
+
+static void
 add_table_entry(wspstat_t *sp, char *str, int x, int y, int index)
 {
 	GtkWidget *tmp;
@@ -311,6 +323,8 @@ gtk_wspstat_init(char *optarg)
 	char 		*title=NULL;
 	GString		*error_string;
 	GtkWidget	*main_vb, *pdutypes_fr, *statuscode_fr ;
+    GtkWidget	*bt_close;
+    GtkWidget	*bbox;
 	guint32		 i;
 	wsp_status_code_t *sc;
 	
@@ -342,49 +356,43 @@ gtk_wspstat_init(char *optarg)
 	sp->pdu_stats=g_malloc( (sp->num_pdus+1) * sizeof( wsp_pdu_t) );
 	if(filter){
 		sp->filter=g_strdup(filter);
-		title=g_strdup_printf("Ethereal: WSP statistics with filter: %s", filter);
+		title=g_strdup_printf("Ethereal: WAP-WSP statistics with filter: %s", filter);
 	} else {
 		sp->filter=NULL;
-		title=g_strdup("Ethereal: WSP statistics");
+		title=g_strdup("Ethereal: WAP-WSP statistics");
 	}
 	for (i=0;i<=sp->num_pdus; i++)
 	{
 		sp->pdu_stats[i].packets=0;
 	}
 
-	sp->win = window_new( GTK_WINDOW_TOPLEVEL, title);
+	sp->win = dlg_window_new(title);
 	g_free(title);
 	SIGNAL_CONNECT( sp->win, "destroy", win_destroy_cb, sp);
 
-
 	/* container for the two frames */
-	main_vb = gtk_vbox_new(FALSE, 10);
-	gtk_container_border_width(GTK_CONTAINER(main_vb), 10);
+	main_vb = gtk_vbox_new(FALSE, 3);
+	gtk_container_border_width(GTK_CONTAINER(main_vb), 12);
 	gtk_container_add(GTK_CONTAINER(sp->win), main_vb);
-	gtk_widget_show(main_vb);
 
 	/* PDU Types frame */
 	pdutypes_fr = gtk_frame_new("Summary of PDU Types (wsp.pdu_type)");
   	gtk_container_add(GTK_CONTAINER(main_vb), pdutypes_fr);
-  	gtk_widget_show(pdutypes_fr);
 	
 	sp->table_pdu_types = gtk_table_new( (sp->num_pdus+1) / 2 + 1, 4, FALSE);
 	gtk_container_add( GTK_CONTAINER( pdutypes_fr), sp->table_pdu_types);
 	gtk_container_set_border_width( GTK_CONTAINER(sp->table_pdu_types) , 10);
 
 	wsp_init_table(sp);
-	gtk_widget_show( sp->table_pdu_types );
 
 	/* Status Codes frame */
 	statuscode_fr = gtk_frame_new("Summary of Status Code (wsp.reply.status)");
   	gtk_container_add(GTK_CONTAINER(main_vb), statuscode_fr);
-  	gtk_widget_show(statuscode_fr);
 	
 	sp->table_status_code = gtk_table_new( 0, 4, FALSE);
 	gtk_container_add( GTK_CONTAINER( statuscode_fr), sp->table_status_code);
 	gtk_container_set_border_width( GTK_CONTAINER(sp->table_status_code) , 10);
 	sp->index = 0; 		/* No answers to display yet */
-
 
 	error_string = register_tap_listener( 
 			"wsp",
@@ -402,7 +410,21 @@ gtk_wspstat_init(char *optarg)
 		g_string_free(error_string, TRUE);
 		return ;
 	}
-	gtk_widget_show_all( sp->win );
+
+	/* Button row. */
+    bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
+    gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 0);
+
+    bt_close = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
+    SIGNAL_CONNECT(bt_close, "clicked", wsp_gtk_dlg_close_cb, sp);
+    gtk_widget_grab_default(bt_close);
+
+	/* Catch the "key_press_event" signal in the window, so that we can 
+	   catch the ESC key being pressed and act as if the "Close" button had
+	   been selected. */
+	dlg_set_cancel(sp->win, bt_close);
+
+    gtk_widget_show_all( sp->win );
 	retap_packets(&cfile);
 }
 

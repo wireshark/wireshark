@@ -1,7 +1,7 @@
 /* http_stat.c
  * http_stat   2003 Jean-Michel FAYARD
  *
- * $Id: http_stat.c,v 1.27 2004/04/12 08:53:02 ulfl Exp $
+ * $Id: http_stat.c,v 1.28 2004/04/12 09:48:18 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -426,7 +426,7 @@ gtk_httpstat_init(char *optarg)
 	SIGNAL_CONNECT( sp->win, "destroy", win_destroy_cb, sp);
 
 	/* container for each group of status code */
-	main_vb = gtk_vbox_new(FALSE, 6);
+	main_vb = gtk_vbox_new(FALSE, 12);
 	gtk_container_border_width(GTK_CONTAINER(main_vb), 12);
 	gtk_container_add(GTK_CONTAINER(sp->win), main_vb);
 	

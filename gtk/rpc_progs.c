@@ -1,7 +1,7 @@
 /* rpc_progs.c
  * rpc_progs   2002 Ronnie Sahlberg
  *
- * $Id: rpc_progs.c,v 1.22 2004/03/13 12:09:27 ulfl Exp $
+ * $Id: rpc_progs.c,v 1.23 2004/04/12 09:48:18 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -43,6 +43,7 @@
 #include "packet-rpc.h"
 #include "../globals.h"
 #include "ui_util.h"
+#include "dlg_utils.h"
 #include "compat_macros.h"
 
 static GtkWidget *win=NULL;
@@ -316,6 +317,16 @@ win_destroy_cb(void *dummy _U_, gpointer data _U_)
 }
 
 
+static void
+rpcprogs_gtk_dlg_close_cb(
+    GtkButton		*button _U_,
+    gpointer		user_data _U_)
+{
+    gtk_grab_remove(GTK_WIDGET(user_data));
+    gtk_widget_destroy(GTK_WIDGET(user_data));
+}
+
+
 /* When called, this function will start rpcprogs
  */
 void
@@ -325,23 +336,23 @@ gtk_rpcprogs_init(char *optarg _U_)
 	GtkWidget *stat_label;
 	GtkWidget *tmp;
 	GString *error_string;
+    GtkWidget	*bt_close;
+    GtkWidget	*bbox;
 
 	if(win){
 		gdk_window_raise(win->window);
 		return;
 	}
 
-	win=window_new(GTK_WINDOW_TOPLEVEL, "ONC-RPC Program Statistics");
+	win=dlg_window_new("ONC-RPC Program Statistics");
 	SIGNAL_CONNECT(win, "destroy", win_destroy_cb, win);
 
-	vbox=gtk_vbox_new(FALSE, 0);
+	vbox=gtk_vbox_new(FALSE, 3);
 	gtk_container_add(GTK_CONTAINER(win), vbox);
-	gtk_container_set_border_width(GTK_CONTAINER(vbox), 10);
-	gtk_widget_show(vbox);
+	gtk_container_set_border_width(GTK_CONTAINER(vbox), 12);
 
 	stat_label=gtk_label_new("ONC-RPC Program Statistics");
 	gtk_box_pack_start(GTK_BOX(vbox), stat_label, FALSE, FALSE, 0);
-	gtk_widget_show(stat_label);
 
 
 	table=gtk_table_new(1, 5, TRUE);
@@ -350,35 +361,26 @@ gtk_rpcprogs_init(char *optarg _U_)
 	tmp=gtk_label_new("Program");
 	gtk_table_attach_defaults(GTK_TABLE(table), tmp, 0,1,0,1);
 	gtk_label_set_justify(GTK_LABEL(tmp), GTK_JUSTIFY_LEFT);
-	gtk_widget_show(tmp);
 
 	tmp=gtk_label_new("Version");
 	gtk_table_attach_defaults(GTK_TABLE(table), tmp, 1,2,0,1);
 	gtk_label_set_justify(GTK_LABEL(tmp), GTK_JUSTIFY_RIGHT);
-	gtk_widget_show(tmp);
 
 	tmp=gtk_label_new("Calls");
 	gtk_table_attach_defaults(GTK_TABLE(table), tmp, 2,3,0,1);
 	gtk_label_set_justify(GTK_LABEL(tmp), GTK_JUSTIFY_RIGHT);
-	gtk_widget_show(tmp);
 
 	tmp=gtk_label_new("Min RTT");
 	gtk_table_attach_defaults(GTK_TABLE(table), tmp, 3,4,0,1);
 	gtk_label_set_justify(GTK_LABEL(tmp), GTK_JUSTIFY_RIGHT);
-	gtk_widget_show(tmp);
 
 	tmp=gtk_label_new("Max RTT");
 	gtk_table_attach_defaults(GTK_TABLE(table), tmp, 4,5,0,1);
 	gtk_label_set_justify(GTK_LABEL(tmp), GTK_JUSTIFY_RIGHT);
-	gtk_widget_show(tmp);
 
 	tmp=gtk_label_new("Avg RTT");
 	gtk_table_attach_defaults(GTK_TABLE(table), tmp, 5,6,0,1);
 	gtk_label_set_justify(GTK_LABEL(tmp), GTK_JUSTIFY_RIGHT);
-	gtk_widget_show(tmp);
-
-	
-	gtk_widget_show(table);
 
 	error_string=register_tap_listener("rpc", win, NULL, (void*)rpcprogs_reset, (void*)rpcprogs_packet, (void*)rpcprogs_draw);
 	if(error_string){
@@ -388,6 +390,18 @@ gtk_rpcprogs_init(char *optarg _U_)
 		exit(1);
 	}
 
+	/* Button row. */
+    bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
+    gtk_box_pack_start(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
+
+    bt_close = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
+    SIGNAL_CONNECT(bt_close, "clicked", rpcprogs_gtk_dlg_close_cb, win);
+    gtk_widget_grab_default(bt_close);
+
+	/* Catch the "key_press_event" signal in the window, so that we can 
+	   catch the ESC key being pressed and act as if the "Close" button had
+	   been selected. */
+	dlg_set_cancel(win, bt_close);
 
 	gtk_widget_show_all(win);
 	redissect_packets(&cfile);

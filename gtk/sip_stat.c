@@ -1,7 +1,7 @@
 /* sip_stat.c
  * sip_stat   2004 Martin Mathieson
  *
- * $Id: sip_stat.c,v 1.3 2004/03/30 18:55:47 guy Exp $
+ * $Id: sip_stat.c,v 1.4 2004/04/12 09:48:18 ulfl Exp $
  * Copied from http_stat.c
  *
  * Ethereal - Network traffic analyzer
@@ -480,6 +480,18 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
     g_free(sp);
 }
 
+static void
+sipstat_gtk_dlg_close_cb(
+    GtkButton		*button _U_,
+    gpointer		user_data _U_)
+{
+    sipstat_t *sp = user_data;
+
+    gtk_grab_remove(GTK_WIDGET(sp->win));
+    gtk_widget_destroy(GTK_WIDGET(sp->win));
+}
+
+
 /* Create a new instance of gtk_sipstat. */
 static void
 gtk_sipstat_init(char *optarg)
@@ -492,6 +504,8 @@ gtk_sipstat_init(char *optarg)
                *informational_fr, *success_fr, *redirection_fr,
                *client_errors_fr, *server_errors_fr, *global_failures_fr,
                *request_fr;
+    GtkWidget	*bt_close;
+    GtkWidget	*bbox;
 
 
     if (strncmp (optarg, "sip,stat,", 9) == 0)
@@ -521,7 +535,7 @@ gtk_sipstat_init(char *optarg)
     }
 
     /* Create underlying window */
-    sp->win = window_new(GTK_WINDOW_TOPLEVEL, title);
+    sp->win = dlg_window_new(title);
     g_free(title);
 
     /* Set destroy callback for underlying window */
@@ -529,93 +543,71 @@ gtk_sipstat_init(char *optarg)
 
 
     /* Create container for all widgets */
-    main_vb = gtk_vbox_new(FALSE, 10);
-    gtk_container_border_width(GTK_CONTAINER(main_vb), 10);
+    main_vb = gtk_vbox_new(FALSE, 12);
+    gtk_container_border_width(GTK_CONTAINER(main_vb), 12);
     gtk_container_add(GTK_CONTAINER(sp->win), main_vb);
-    gtk_widget_show(main_vb);
 
     /* Initialise & show number of packets */
     sp->packets = 0;
     sp->packets_label = gtk_label_new("SIP stats (0 SIP packets)");
     gtk_container_add(GTK_CONTAINER(main_vb), sp->packets_label);
-    gtk_widget_show(sp->packets_label);
 
 
     /* Informational response frame */
     informational_fr = gtk_frame_new("Informational  SIP 1xx");
     gtk_container_add(GTK_CONTAINER(main_vb), informational_fr);
-    gtk_widget_show(informational_fr);
 
     /* Information table (within that frame) */
     sp->informational_table = gtk_table_new(0, 2, FALSE);
     gtk_container_add(GTK_CONTAINER(informational_fr), sp->informational_table);
-    gtk_widget_show(sp->informational_table);
-
 
     /* Success table and frame */
     success_fr = gtk_frame_new	("Success         SIP 2xx");
     gtk_container_add(GTK_CONTAINER(main_vb), success_fr);
-    gtk_widget_show(success_fr);
 
     sp->success_table = gtk_table_new(0, 2, FALSE);
     gtk_container_add(GTK_CONTAINER(success_fr), sp->success_table);
-    gtk_widget_show(sp->success_table);
-
 
     /* Redirection table and frame */
     redirection_fr = gtk_frame_new	("Redirection     SIP 3xx");
     gtk_container_add(GTK_CONTAINER(main_vb), redirection_fr);
-    gtk_widget_show(redirection_fr);
 
     sp->redirection_table = gtk_table_new(0, 2, FALSE);
     gtk_container_add(GTK_CONTAINER(redirection_fr), sp->redirection_table);
-    gtk_widget_show(sp->redirection_table);
-
 
     /* Client Errors table and frame */
     client_errors_fr = gtk_frame_new("Client errors  SIP 4xx");
     gtk_container_add(GTK_CONTAINER(main_vb), client_errors_fr);
-    gtk_widget_show(client_errors_fr);
 
     sp->client_error_table = gtk_table_new(0, 2, FALSE);
     gtk_container_add(GTK_CONTAINER(client_errors_fr), sp->client_error_table);
-    gtk_widget_show(sp->client_error_table);
-
 
     /* Server Errors table and frame */
     server_errors_fr = gtk_frame_new("Server errors  SIP 5xx");
     gtk_container_add(GTK_CONTAINER(main_vb), server_errors_fr);
-    gtk_widget_show(server_errors_fr);
 
     sp->server_errors_table = gtk_table_new(0, 2, FALSE);
     gtk_container_add(GTK_CONTAINER(server_errors_fr), sp->server_errors_table);
-    gtk_widget_show(sp->server_errors_table);
-
 
     /* Global Failures table and frame */
     global_failures_fr = gtk_frame_new("Global failures  SIP 6xx");
     gtk_container_add(GTK_CONTAINER(main_vb), global_failures_fr);
-    gtk_widget_show(global_failures_fr);
 
     sp->global_failures_table = gtk_table_new(0, 2, FALSE);
     gtk_container_add(GTK_CONTAINER(global_failures_fr), sp->global_failures_table);
-    gtk_widget_show(sp->global_failures_table);
 
 
     /* Separator between requests and responses */
     separator = gtk_hseparator_new();
     gtk_container_add(GTK_CONTAINER(main_vb), separator);
 
-
     /* Request table and frame */
     request_fr = gtk_frame_new("List of request methods");
     gtk_container_add(GTK_CONTAINER(main_vb), request_fr);
     gtk_container_border_width(GTK_CONTAINER(request_fr), 0);
-    gtk_widget_show(request_fr);
 
     sp->request_box = gtk_vbox_new(FALSE, 10);
     gtk_container_add(GTK_CONTAINER(request_fr), sp->request_box);
-    gtk_widget_show(sp->request_box);
 
 
     /* Register this tap listener now */
@@ -634,6 +626,19 @@ gtk_sipstat_init(char *optarg)
         g_string_free(error_string, TRUE);
         return;
     }
+
+	/* Button row. */
+    bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
+    gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 0);
+
+    bt_close = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
+    SIGNAL_CONNECT(bt_close, "clicked", sipstat_gtk_dlg_close_cb, sp);
+    gtk_widget_grab_default(bt_close);
+
+	/* Catch the "key_press_event" signal in the window, so that we can 
+	   catch the ESC key being pressed and act as if the "Close" button had
+	   been selected. */
+	dlg_set_cancel(sp->win, bt_close);
 
     /* Display up-to-date contents */
     gtk_widget_show_all(sp->win);
