@@ -1,7 +1,7 @@
 /* packet-ldp.c
  * Routines for LDP (RFC 3036) packet disassembly
  *
- * $Id: packet-ldp.c,v 1.41 2002/08/15 19:04:16 guy Exp $
+ * $Id: packet-ldp.c,v 1.42 2002/08/27 19:21:02 guy Exp $
  * 
  * Copyright (c) November 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  *
@@ -104,6 +104,7 @@ static int hf_ldp_tlv_returned_msg_ubit = -1;
 static int hf_ldp_tlv_returned_msg_type = -1;
 static int hf_ldp_tlv_returned_msg_len = -1;
 static int hf_ldp_tlv_returned_msg_id = -1;
+static int hf_ldp_tlv_mac = -1;
 static int hf_ldp_tlv_sess_ver = -1;
 static int hf_ldp_tlv_sess_ka = -1;
 static int hf_ldp_tlv_sess_advbit = -1;
@@ -139,6 +140,8 @@ static int hf_ldp_tlv_fec_vc_intparam_id = -1;
 static int hf_ldp_tlv_fec_vc_intparam_maxcatmcells = -1;
 static int hf_ldp_tlv_fec_vc_intparam_desc = -1;
 static int hf_ldp_tlv_fec_vc_intparam_cembytes = -1;
+static int hf_ldp_tlv_fec_vc_intparam_vpnid_oui = -1;
+static int hf_ldp_tlv_fec_vc_intparam_vpnid_index = -1;
 static int hf_ldp_tlv_lspid_act_flg = -1;
 static int hf_ldp_tlv_lspid_cr_lsp = -1;
 static int hf_ldp_tlv_lspid_ldpid = -1;
@@ -206,6 +209,7 @@ static int global_ldp_udp_port = UDP_PORT_LDP;
 #define TLV_IPV4_TRANSPORT_ADDRESS 0x0401
 #define TLV_CONFIGURATION_SEQNO    0x0402
 #define TLV_IPV6_TRANSPORT_ADDRESS 0x0403
+#define TLV_MAC                    0x0404
 #define TLV_COMMON_SESSION_PARMS   0x0500
 #define TLV_ATM_SESSION_PARMS      0x0501
 #define TLV_FRAME_RELAY_SESSION_PARMS 0x0502
@@ -242,6 +246,7 @@ static const value_string tlv_type_names[] = {
   { TLV_IPV4_TRANSPORT_ADDRESS,    "IPv4 Transport Address TLV"},
   { TLV_CONFIGURATION_SEQNO,       "Configuration Sequence Number TLV"},
   { TLV_IPV6_TRANSPORT_ADDRESS,    "IPv6 Transport Address TLV"},
+  { TLV_MAC,                       "MAC TLV"},
   { TLV_COMMON_SESSION_PARMS,      "Common Session Parameters TLV"},
   { TLV_ATM_SESSION_PARMS,         "ATM Session Parameters TLV"},
   { TLV_FRAME_RELAY_SESSION_PARMS, "Frame Relay Session Parameters TLV"},
@@ -343,6 +348,7 @@ static const value_string fec_vc_types_vals[] = {
   {0x0009, "ATM VCC cell transport"},
   {0x8008, "CEM"},
   {0x000A, "ATM VPC cell transport"},
+  {0x000B, "Ethernet VPLS"},
   {0, NULL}
 };
 
@@ -352,6 +358,7 @@ static const value_string fec_vc_types_vals[] = {
 #define FEC_VC_INTERFACEPARAM_DESCRIPTION  0x03
 #define FEC_VC_INTERFACEPARAM_CEMBYTES     0x04
 #define FEC_VC_INTERFACEPARAM_CEMOPTIONS   0x05
+#define FEC_VC_INTERFACEPARAM_VPNID        0x06 
 
 
 static const value_string fec_vc_interfaceparm[] = {
@@ -359,7 +366,8 @@ static const value_string fec_vc_interfaceparm[] = {
   {FEC_VC_INTERFACEPARAM_MAXCATMCELLS, "Max Concatenated ATM cells"},
   {FEC_VC_INTERFACEPARAM_DESCRIPTION, "Interface Description"},
   {FEC_VC_INTERFACEPARAM_CEMBYTES, "CEM Payload Bytes"},
-  {FEC_VC_INTERFACEPARAM_CEMOPTIONS, "CEM options"}
+  {FEC_VC_INTERFACEPARAM_CEMOPTIONS, "CEM options"},
+  {FEC_VC_INTERFACEPARAM_VPNID, "VPN Id"}
 };
 
 static const true_false_string fec_vc_cbit = {
@@ -749,6 +757,12 @@ dissect_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 			      proto_item_append_text(ti,": CEM Payload Bytes %u", tvb_get_ntohs(tvb,offset+2));
 			      proto_tree_add_item(vcintparam_tree,hf_ldp_tlv_fec_vc_intparam_cembytes,tvb, offset+2, 2, FALSE);
 			      break;
+			    case FEC_VC_INTERFACEPARAM_VPNID:
+			      /* draft-lasserre-tls-mpls-00.txt */
+			      proto_item_append_text(ti,": VPN Id");
+			      proto_tree_add_item(vcintparam_tree,hf_ldp_tlv_fec_vc_intparam_vpnid_oui, tvb, offset+2, 3, FALSE);
+			      proto_tree_add_item(vcintparam_tree,hf_ldp_tlv_fec_vc_intparam_vpnid_index, tvb, offset+5, 4, FALSE);
+			      break;
 			    case FEC_VC_INTERFACEPARAM_CEMOPTIONS:
 				/* draft-malis-sonet-ces-mpls CEM options still undefined */
 			    default: /* unknown */
@@ -1062,6 +1076,34 @@ dissect_tlv_common_hello_parms(tvbuff_t *tvb, guint offset, proto_tree *tree)
 		proto_tree_add_item(val_tree, hf_ldp_tlv_val_res, tvb, offset + 2, 2, FALSE);
 	}
 }
+
+/* Dissect MAC TLV */
+
+static void
+dissect_tlv_mac(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
+{
+	proto_tree *ti = NULL, *val_tree = NULL;
+	guint8	ix;
+	const guint8 *mac;
+
+	if (tree) {
+		ti=proto_tree_add_text(tree, tvb, offset, rem, "MAC addresses");
+		val_tree=proto_item_add_subtree(ti, ett_ldp_tlv_val);
+
+		if(val_tree == NULL) return;
+
+		for(ix=1; rem >= 6; ix++, offset += 6, rem -= 6) {
+			mac = tvb_get_ptr(tvb, offset, 6);
+			proto_tree_add_ether(val_tree,
+			     hf_ldp_tlv_mac, tvb, offset, 6, mac);
+		}
+		if(rem)
+			proto_tree_add_text(val_tree, tvb, offset, rem,
+			    "Error processing TLV: Extra data at end of path vector");
+	}
+}
+
+
 
 /* Dissect the common session params */
 
@@ -1724,6 +1766,10 @@ dissect_tlv(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 				proto_tree_add_item(tlv_tree, hf_ldp_tlv_ipv6_taddr, tvb, offset + 4, 16, FALSE);
 			}
 			break;
+			
+		case TLV_MAC: /* draft-lasserre-vkompella-ppvpn-vpls-02.txt */ 
+			dissect_tlv_mac(tvb, offset + 4, tlv_tree, length);
+			break;
 
 		case TLV_COMMON_SESSION_PARMS:
 			dissect_tlv_common_session_parms(tvb, offset + 4, tlv_tree, length);
@@ -2364,6 +2410,9 @@ proto_register_ldp(void)
     { &hf_ldp_tlv_returned_msg_id, 
       { "Returned Message ID", "ldp.msg.tlv.returned.msg.id", FT_UINT32, BASE_HEX, NULL, 0x0, "LDP Message ID", HFILL }},
 
+    { &hf_ldp_tlv_mac,
+      { "MAC address", "ldp.msg.tlv.mac", FT_ETHER, BASE_NONE, NULL, 0x0, "MAC address", HFILL}},
+
     {&hf_ldp_tlv_fec_vc_controlword,
      {"C-bit", "ldp.msg.tlv.fec.vc.controlword", FT_BOOLEAN, 8, TFS(&fec_vc_cbit), 0x80, "Control Word Present", HFILL }},
 
@@ -2394,8 +2443,14 @@ proto_register_ldp(void)
     { &hf_ldp_tlv_fec_vc_intparam_desc,
       { "Description", "ldp.msg.tlv.fec.vc.intparam.desc", FT_STRING, BASE_DEC, NULL, 0, "VC FEC Interface Description", HFILL }},
 
-    {&hf_ldp_tlv_fec_vc_intparam_cembytes,
+    { &hf_ldp_tlv_fec_vc_intparam_cembytes,
      {"Payload Bytes", "ldp.msg.tlv.fec.vc.intparam.cembytes", FT_UINT16, BASE_DEC, NULL, 0x0, "VC FEC Interface Param CEM Payload Bytes", HFILL }},
+
+    { &hf_ldp_tlv_fec_vc_intparam_vpnid_oui,
+      { "VPN OUI", "ldp.msg.tlv.fec.vc.intparam.vpnid.oui", FT_UINT24, BASE_HEX, NULL, 0x0, "VC FEC Interface Param VPN OUI", HFILL }},
+
+    { &hf_ldp_tlv_fec_vc_intparam_vpnid_index,
+      { "VPN Index", "ldp.msg.tlv.fec.vc.intparam.vpnid.index", FT_UINT32, BASE_HEX, NULL, 0x0, "VC FEC Interface Param VPN Index", HFILL }},
 
     { &hf_ldp_tlv_lspid_act_flg,
       { "Action Indicator Flag", "ldp.msg.tlv.lspid.actflg", FT_UINT16, BASE_HEX, VALS(ldp_act_flg_vals), 0x000F, "Action Indicator Flag", HFILL}},
