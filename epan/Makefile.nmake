@@ -1,17 +1,14 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.28 2003/06/14 20:45:24 guy Exp $
+# $Id: Makefile.nmake,v 1.29 2003/06/15 23:04:47 guy Exp $
 
 include ..\config.nmake
 
 ############### no need to modify below this line #########
 
 CFLAGS=-DHAVE_CONFIG_H /I. /I.. /I../wiretap $(GTK_CFLAGS) \
-!IFDEF ADNS_DIR
-	/I$(ADNS_DIR)\src /I$(ADNS_DIR)\adns_win32 \
-!ENDIF
-	/I$(PCAP_DIR)\include -D_U_="" $(LOCAL_CFLAGS)
+	$(ADNS_CFLAGS) /I$(PCAP_DIR)\include -D_U_="" $(LOCAL_CFLAGS)
 
 CVARSDLL=-DWIN32 -DNULL=0 -D_MT -D_DLL
 
@@ -59,11 +56,7 @@ ethereal.lib	: config.h $(OBJECTS)
 	lib /out:ethereal.lib $(OBJECTS)
 
 config.h	: config.h.win32 ..\config.nmake
-!IFDEF ADNS_DIR
-	sed -e s/@VERSION@/$(VERSION)/ -e "s;@HAVE_GNU_ADNS@;#define HAVE_GNU_ADNS 1;" < config.h.win32 > $@
-!ELSE
-	sed -e s/@VERSION@/$(VERSION)/ -e "s;@HAVE_GNU_ADNS@;/* #undef HAVE_GNU_ADNS */;" < config.h.win32 > $@
-!ENDIF
+	sed -e s/@VERSION@/$(VERSION)/ -e "s;@HAVE_GNU_ADNS@;$(ADNS_CONFIG);" < config.h.win32 > $@
 
 clean:
 	rm -f $(OBJECTS) ethereal.lib config.h $(PDB_FILE)

@@ -1,4 +1,4 @@
-# $Id: config.nmake,v 1.46 2003/06/15 22:58:19 guy Exp $
+# $Id: config.nmake,v 1.47 2003/06/15 23:04:47 guy Exp $
 
 VERSION=0.9.13
 #
@@ -104,4 +104,14 @@ GLIB_LIBS=$(GLIB_DIR)\glib-$(GLIB_VERSION).lib \
 GTK_LIBS=$(GTK_DIR)\gtk\gtk-$(GTK_VERSION).lib \
 	$(GTK_DIR)\gdk\gdk-$(GTK_VERSION).lib \
 	$(GLIB_LIBS)
+!ENDIF
+
+!IFDEF ADNS_DIR
+ADNS_CFLAGS=/I$(ADNS_DIR)\src /I$(ADNS_DIR)\adns_win32
+ADNS_LIBS=$(ADNS_DIR)\adns_win32\lib\adns_dll.lib
+ADNS_CONFIG="#define HAVE_GNU_ADNS 1"
+!else
+ADNS_CFLAGS=
+ADNS_LIBS=
+ADNS_CONFIG="/* #undef HAVE_GNU_ADNS */"
 !ENDIF
