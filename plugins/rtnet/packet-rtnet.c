@@ -1,7 +1,7 @@
 /* packet-rtnet.c
  * Routines for RTnet packet disassembly
  *
- * $Id: packet-rtnet.c,v 1.1 2003/06/11 09:17:03 guy Exp $
+ * $Id: packet-rtnet.c,v 1.2 2003/07/16 02:07:18 tpot Exp $
  *
  * Copyright (c) 2003 by Erwin Rol <erwin@muffin.org>
  *
@@ -157,7 +157,7 @@ static int hf_rtnet_arp = -1;
 static int ett_rtnet = -1;
 
 static guint
-dissect_rtnet_tdma_notify_master(tvbuff_t *tvb, guint offset, proto_tree *tree) 
+dissect_rtnet_tdma_notify_master(tvbuff_t *tvb _U_, guint offset, proto_tree *tree _U_) 
 {
   return offset;
 }
