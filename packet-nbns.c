@@ -3,7 +3,7 @@
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  * Much stuff added by Guy Harris <guy@netapp.com>
  *
- * $Id: packet-nbns.c,v 1.8 1998/11/20 05:54:08 gram Exp $
+ * $Id: packet-nbns.c,v 1.9 1998/11/21 04:00:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -141,29 +141,16 @@ canonicalize_netbios_name(char *nbname)
 }
 
 static int
-get_nbns_name_type_class(const u_char *nbns_data_ptr, const u_char *pd,
-    int offset, char *name_ret, int *name_len_ret, int *type_ret,
-    int *class_ret)
+get_nbns_name(const u_char *nbns_data_ptr, const u_char *pd,
+    int offset, char *name_ret)
 {
-	int len;
 	int name_len;
-	int type;
-	int class;
 	char name[MAXDNAME];
 	char nbname[MAXDNAME+4];	/* 4 for [<last char>] */
 	char *pname, *pnbname, cname, cnbname;
-	const u_char *pd_save;
 
 	name_len = get_dns_name(nbns_data_ptr, pd, offset, name, sizeof(name));
-	pd += offset;
-	pd_save = pd;
-	pd += name_len;
 	
-	type = pntohs(pd);
-	pd += 2;
-	class = pntohs(pd);
-	pd += 2;
-
 	/* OK, now undo the first-level encoding. */
 	pname = &name[0];
 	pnbname = &nbname[0];
@@ -227,12 +214,31 @@ get_nbns_name_type_class(const u_char *nbns_data_ptr, const u_char *pd,
 
 bad:
 	strcpy (name_ret, nbname);
+	return name_len;
+}
+
+
+static int
+get_nbns_name_type_class(const u_char *nbns_data_ptr, const u_char *pd,
+    int offset, char *name_ret, int *name_len_ret, int *type_ret,
+    int *class_ret)
+{
+	int name_len;
+	int type;
+	int class;
+
+	name_len = get_nbns_name(nbns_data_ptr, pd, offset, name_ret);
+	offset += name_len;
+	
+	type = pntohs(&pd[offset]);
+	offset += 2;
+	class = pntohs(&pd[offset]);
+
 	*type_ret = type;
 	*class_ret = class;
 	*name_len_ret = name_len;
 
-	len = pd - pd_save;
-	return len;
+	return name_len + 4;
 }
 
 
@@ -818,7 +824,7 @@ dissect_nbdgm(const u_char *pd, int offset, frame_data *fd, GtkTree *tree)
 	char *yesno[] = { "No", "Yes" };
 
 	char name[32];
-	int len, name_len, type, class;
+	int len;
 
 	header.msg_type = pd[offset];
 	
@@ -846,14 +852,14 @@ dissect_nbdgm(const u_char *pd, int offset, frame_data *fd, GtkTree *tree)
 	}
 
 	if (check_col(fd, COL_PROTOCOL))
-		col_add_str(fd, COL_PROTOCOL, "NetBIOS");
+		col_add_str(fd, COL_PROTOCOL, "NBDS (UDP)");
 	if (check_col(fd, COL_INFO)) {
 		col_add_fstr(fd, COL_INFO, "%s", message[message_index]);
 	}
 
 	if (tree) {
 		ti = add_item_to_tree(GTK_WIDGET(tree), offset, header.dgm_length,
-				"NetBIOS Datagram");
+				"NetBIOS Datagram Service");
 		nbdgm_tree = gtk_tree_new();
 		add_subtree(ti, nbdgm_tree, ETT_NBDGM);
 
@@ -886,38 +892,33 @@ dissect_nbdgm(const u_char *pd, int offset, frame_data *fd, GtkTree *tree)
 			offset += 4;
 
 			/* Source name */
-			len = get_nbns_name_type_class(&pd[offset], pd, offset, name,
-				&name_len, &type, &class);
+			len = get_nbns_name(&pd[offset], pd, offset, name);
 
-			len -= 4;
 			add_item_to_tree(nbdgm_tree, offset, len, "Source name: %s",
 					name);
 			offset += len;
 
 			/* Destination name */
-			len = get_nbns_name_type_class(&pd[offset], pd, offset, name,
-				&name_len, &type, &class);
+			len = get_nbns_name(&pd[offset], pd, offset, name);
 
-			len -= 4;
 			add_item_to_tree(nbdgm_tree, offset, len, "Destination name: %s",
 					name);
 			offset += len;
 
 			/* here we can pass the packet off to the next protocol */
+			dissect_data(pd, offset, fd, GTK_TREE(nbdgm_tree));
 		}
 		else if (header.msg_type == 0x13) {
 			add_item_to_tree(nbdgm_tree, offset, 1, "Error code: %s",
-				match_strval(header.error_code, error_codes));
+				val_to_str(header.error_code, error_codes, "Unknown (0x%x)"));
 		}
-		else {
+		else if (header.msg_type == 0x14 ||
+				header.msg_type == 0x15 || header.msg_type == 0x16) {
 			/* Destination name */
-			len = get_nbns_name_type_class(&pd[offset], pd, offset, name,
-				&name_len, &type, &class);
+			len = get_nbns_name(&pd[offset], pd, offset, name);
 
-			len -= 4;
 			add_item_to_tree(nbdgm_tree, offset, len, "Destination name: %s",
 					name);
 		}
-
 	}
 }
