@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.191 2000/06/27 07:13:13 guy Exp $
+ * $Id: file.c,v 1.192 2000/06/27 09:26:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -93,7 +93,7 @@ gboolean auto_scroll_live = FALSE;
 static guint32 firstsec, firstusec;
 static guint32 prevsec, prevusec;
 
-static void read_packet(capture_file *cf, int offset, const u_char *buf);
+static void read_packet(capture_file *cf, int offset);
 
 static void set_selected_row(int row);
 
@@ -324,7 +324,7 @@ read_cap_file(capture_file *cf, int *err)
       close_cap_file(cf, info_bar);
       return (READ_ABORTED);
     }
-    read_packet(cf, data_offset, wtap_buf_ptr(cf->wth));
+    read_packet(cf, data_offset);
   }
 
   /* We're done reading sequentially through the file. */
@@ -446,7 +446,7 @@ continue_tail_cap_file(capture_file *cf, int to_read, int *err)
 	 aren't any packets left to read) exit. */
       break;
     }
-    read_packet(cf, data_offset, wtap_buf_ptr(cf->wth));
+    read_packet(cf, data_offset);
     to_read--;
   }
 
@@ -487,7 +487,7 @@ finish_tail_cap_file(capture_file *cf, int *err)
 	 aren't any packets left to read) exit. */
       break;
     }
-    read_packet(cf, data_offset, wtap_buf_ptr(cf->wth));
+    read_packet(cf, data_offset);
   }
 
   if (cf->state == FILE_READ_ABORTED) {
@@ -702,10 +702,11 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
 }
 
 static void
-read_packet(capture_file *cf, int offset, const u_char *buf)
+read_packet(capture_file *cf, int offset)
 {
   const struct wtap_pkthdr *phdr = wtap_phdr(cf->wth);
   union wtap_pseudo_header *pseudo_header = wtap_pseudoheader(cf->wth);
+  const u_char *buf = wtap_buf_ptr(cf->wth);
   frame_data   *fdata;
   int           passed;
   proto_tree   *protocol_tree;
@@ -730,7 +731,7 @@ read_packet(capture_file *cf, int offset, const u_char *buf)
       gtk_progress_bar_update(GTK_PROGRESS_BAR(prog_bar), prog_val);
       cf->progbar_nextstep += cf->progbar_quantum;
       while (gtk_events_pending())
-      gtk_main_iteration();
+        gtk_main_iteration();
   }
 
   /* Allocate the next list entry, and add it to the list. */
