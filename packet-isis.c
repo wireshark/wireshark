@@ -2,7 +2,7 @@
  * Routines for ISO/OSI network and transport protocol packet disassembly, core
  * bits.
  *
- * $Id: packet-isis.c,v 1.34 2002/08/29 18:52:51 guy Exp $
+ * $Id: packet-isis.c,v 1.35 2003/03/31 08:09:28 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -67,7 +67,7 @@ static const value_string isis_vals[] = {
   { 0,                   NULL}      };
 
 /*
- * Name: dissect_isis_unknown()
+ * Name: isis_dissect_unknown()
  *
  * Description:
  *	There was some error in the protocol and we are in unknown space
@@ -140,7 +140,6 @@ dissect_isis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		return;
 	}
 
-	isis_header_length = tvb_get_guint8(tvb, 1);
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_isis, tvb, 0, -1, FALSE);
 		isis_tree = proto_item_add_subtree(ti, ett_isis);
@@ -152,6 +151,7 @@ dissect_isis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 	offset += 1;
 
+	isis_header_length = tvb_get_guint8(tvb, offset);
 	if (tree) {
 		proto_tree_add_uint(isis_tree, hf_isis_header_length, tvb,
 			offset, 1, isis_header_length );
@@ -164,14 +164,14 @@ dissect_isis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 	offset += 1;
 
-	isis_system_id_len = tvb_get_guint8(tvb, 3);
+	isis_system_id_len = tvb_get_guint8(tvb, offset);
 	if (tree) {
 		proto_tree_add_uint(isis_tree, hf_isis_system_id_length, tvb,
 			offset, 1, isis_system_id_len );
 	}
 	offset += 1;
 
-	isis_type_reserved = tvb_get_guint8(tvb, 4);
+	isis_type_reserved = tvb_get_guint8(tvb, offset);
 	isis_type = isis_type_reserved & ISIS_TYPE_MASK;
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_add_str(pinfo->cinfo, COL_INFO,
@@ -189,19 +189,19 @@ dissect_isis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	offset += 1;
 
 	if (tree) {
-		proto_tree_add_item(isis_tree, hf_isis_version2, tvb, 5, 1,
+		proto_tree_add_item(isis_tree, hf_isis_version2, tvb, offset, 1,
 			FALSE );
 	}
 	offset += 1;
 
 	if (tree) {
-		proto_tree_add_item(isis_tree, hf_isis_reserved, tvb, 6, 1,
+		proto_tree_add_item(isis_tree, hf_isis_reserved, tvb, offset, 1,
 			FALSE );
 	}
 	offset += 1;
 
 	if (tree) {
-		proto_tree_add_item(isis_tree, hf_isis_max_area_adr, tvb, 7, 1,
+		proto_tree_add_item(isis_tree, hf_isis_max_area_adr, tvb, offset, 1,
 			FALSE );
 	}
 	offset += 1;
