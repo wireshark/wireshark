@@ -3,7 +3,7 @@
  *
  * Copyright 2004, Edwin Calo <calo@fusemail.com>
  *
- * $Id: packet-postgresql.c,v 1.3 2004/02/18 07:27:46 guy Exp $
+ * $Id: packet-postgresql.c,v 1.4 2004/02/19 08:25:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -80,7 +80,7 @@ dissect_postgresql (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
     counter=0;
     flag=0;
-    while ( buff_remaining > 1 )
+    while ( buff_remaining >= 1 )
     {
          bitone = tvb_get_guint8 (tvb, offset);
          offset += 1;
@@ -91,17 +91,17 @@ dissect_postgresql (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	    {
 	      if(offset > counter)
 	      {
-                   offset -= counter;
+                   offset -= counter+1;
 
                     /* Reading the string from the packet */
                     string = tvb_get_string(tvb,offset,counter);
                     /* Printing the data */
-                    proto_tree_add_string (tree,hf_postgresql_string,tvb, offset,counter, string );
+                    proto_tree_add_string (postgresql_tree,hf_postgresql_string,tvb, offset,counter, string );
                     if (check_col (pinfo->cinfo, COL_INFO)) { col_append_fstr (pinfo->cinfo, COL_INFO, " %s", string ); }
 		    g_free(string);  /* Freeing up string */
                     string=NULL;
 
-                   offset += counter;
+                   offset += counter+1;
 	           counter=0;
 	      }
 	      else
@@ -123,19 +123,19 @@ dissect_postgresql (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
                 { 
                   if(offset > counter)
                   {
-                   offset -= counter;
+                   offset -= counter+1;
 		   if( counter > 1)
 		   {
                     /* Reading the string from the packet */
 		    string = tvb_get_string(tvb,offset,counter);
                     /* Printing the data */
-                    proto_tree_add_string (tree,hf_postgresql_string,tvb, offset,counter, string );
+                    proto_tree_add_string (postgresql_tree,hf_postgresql_string,tvb, offset,counter, string );
                     if (check_col (pinfo->cinfo, COL_INFO)) { col_append_fstr (pinfo->cinfo, COL_INFO, " %s", string ); }
 		    g_free(string);  /* Freeing up string */
                     string=NULL;
 
                    }
-		   offset += counter;
+		   offset += counter+1;
                   }
                   counter = 0;
                 }
