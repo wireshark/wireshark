@@ -880,7 +880,7 @@ static int lmp_09_class_to_subtree(int class)
  * Da code
  */
 
-static void
+static int
 dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     int offset = 0;
@@ -905,13 +905,21 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     int proto;
 
     proto = pinfo->ipproto;
-    /* If the current preference is NOT LMP09, do not process UDP packets */
-    if ((proto == IP_PROTO_UDP) && (lmp_draft_ver != LMP_VER_DRAFT_CCAMP_09)) {
-	return;
-    }
-    /* If the current preference is NOT LMP09, process only UDP packets */
-    if ((proto != IP_PROTO_UDP) && (lmp_draft_ver == LMP_VER_DRAFT_CCAMP_09)) {
-	return;
+    switch (lmp_draft_ver) {
+
+    case LMP_VER_DRAFT_CCAMP_09:
+	/* If the current preference is LMP09, process only UDP packets */
+	if (proto != IP_PROTO_UDP) {
+	    return 0;
+	}
+	break;
+
+    default:
+	/* If the current preference is NOT LMP09, do not process UDP packets */
+	if (proto == IP_PROTO_UDP) {
+	    return 0;
+	}
+	break;
     }
 
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
@@ -956,7 +964,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	} else {
 	    proto_tree_add_protocol_format(lmp_header_tree, proto_malformed, tvb, offset+3, 1,
 					   "Invalid message type: %u", message_type);
-		return;
+		return tvb_length(tvb);
 	}
 
 	cksum = tvb_get_ntohs(tvb, offset+6);
@@ -1006,7 +1014,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		} else {
 		    proto_tree_add_protocol_format(lmp_tree, proto_malformed, tvb, offset+1, 1,
 			"Invalid class: %u", class);
-		    return;
+		    return tvb_length(tvb);
 		}
 		lmp_object_tree = proto_item_add_subtree(ti, lmp_09_class_to_subtree(class));
 
@@ -1038,7 +1046,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		} else {
 		    proto_tree_add_protocol_format(lmp_tree, proto_malformed, tvb, offset+1, 1,
 			"Invalid class: %u", class);
-		    return;
+		    return tvb_length(tvb);
 		}
 
 		lmp_object_tree = proto_item_add_subtree(ti, lmp_class_to_subtree(class));
@@ -2244,6 +2252,8 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	} /* while */
     } /* tree */
+
+    return tvb_length(tvb);
 }
 
 static void
@@ -2300,7 +2310,7 @@ proto_register_lmp(void)
 void
 proto_reg_handoff_lmp(void)
 {
-    lmp_handle = create_dissector_handle(dissect_lmp, proto_lmp);
+    lmp_handle = new_create_dissector_handle(dissect_lmp, proto_lmp);
     dissector_add("udp.port", lmp_udp_port, lmp_handle);
     dissector_add("ip.proto", IP_PROTO_LMP, lmp_handle);
 }
