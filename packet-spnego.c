@@ -5,7 +5,7 @@
  * Copyright 2002, Richard Sharpe <rsharpe@ns.aus.com>
  * Copyright 2003, Richard Sharpe <rsharpe@richardsharpe.com>
  *
- * $Id: packet-spnego.c,v 1.45 2003/05/24 05:05:26 sharpe Exp $
+ * $Id: packet-spnego.c,v 1.46 2003/05/24 23:26:17 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -76,6 +76,13 @@ static int hf_spnego_krb5_seal_alg = -1;
 static int hf_spnego_krb5_snd_seq = -1;
 static int hf_spnego_krb5_sgn_cksum = -1;
 static int hf_spnego_krb5_confounder = -1;
+static int hf_gssapi_reqflags_deleg = -1;
+static int hf_gssapi_reqflags_mutual = -1;
+static int hf_gssapi_reqflags_replay = -1;
+static int hf_gssapi_reqflags_sequence = -1;
+static int hf_gssapi_reqflags_anon = -1;
+static int hf_gssapi_reqflags_conf = -1;
+static int hf_gssapi_reqflags_integ = -1;
 
 static gint ett_spnego = -1;
 static gint ett_spnego_negtokeninit = -1;
@@ -92,6 +99,45 @@ static const value_string spnego_negResult_vals[] = {
   { SPNEGO_negResult_accept_incomplete,  "Accept Incomplete" },
   { SPNEGO_negResult_accept_reject,      "Accept Reject"},
   { 0, NULL}
+};
+
+/*
+ * These should be in the GSSAPI dissector ... XXX
+ */
+
+static const true_false_string tfs_reqflags_deleg = {
+  "Delegation Requested",
+  "Delegation NOT Requested"
+};
+
+static const true_false_string tfs_reqflags_mutual = {
+  "Mutual Authentication Requested",
+  "Mutual Authentication NOT Requested"
+};
+
+static const true_false_string tfs_reqflags_replay = {
+  "Replay Detection Requested",
+  "Replay Detection NOT Requested"
+};
+
+static const true_false_string tfs_reqflags_sequence = {
+  "Out-of-sequence Detection Requested",
+  "Out-of-sequence Detection NOT Requested"
+};
+
+static const true_false_string tfs_reqflags_anon = {
+  "Anonymous Authentication Requested",
+  "Anonymous Authentication NOT Requested"
+};
+
+static const true_false_string tfs_reqflags_conf = {
+  "Per-message Confidentiality Requested",
+  "Per-message Confidentiality NOT Requested"
+};
+
+static const true_false_string tfs_reqflags_integ = {
+  "Per-message Integrity Requested",
+  "Per-message Integrity NOT Requested"
 };
 
 /* Display an ASN1 parse error.  Taken from packet-snmp.c */
