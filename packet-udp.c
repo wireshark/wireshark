@@ -1,7 +1,7 @@
 /* packet-udp.c
  * Routines for UDP packet disassembly
  *
- * $Id: packet-udp.c,v 1.20 1999/07/08 04:23:04 gram Exp $
+ * $Id: packet-udp.c,v 1.21 1999/07/22 16:41:22 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -45,6 +45,13 @@
 #include "resolv.h"
 
 extern packet_info pi;
+
+int proto_udp = -1;		
+int hf_udp_srcport = -1;
+int hf_udp_dstport = -1;
+int hf_udp_port = -1;
+int hf_udp_length = -1;
+int hf_udp_checksum = -1;
 
 /* UDP structs and definitions */
 
@@ -195,14 +202,20 @@ dissect_udp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     col_add_fstr(fd, COL_UNRES_DST_PORT, "%u", uh_dport);
     
   if (tree) {
-    ti = proto_tree_add_text(tree, offset, 8, "User Datagram Protocol");
+    ti = proto_tree_add_item(tree, proto_udp, offset, 8);
     udp_tree = proto_item_add_subtree(ti, ETT_UDP);
-    proto_tree_add_text(udp_tree, offset,     2, "Source port: %s (%u)",
-      get_udp_port(uh_sport), uh_sport);
-    proto_tree_add_text(udp_tree, offset + 2, 2, "Destination port: %s (%u)",
-      get_udp_port(uh_dport), uh_dport);
-    proto_tree_add_text(udp_tree, offset + 4, 2, "Length: %u", uh_ulen);
-    proto_tree_add_text(udp_tree, offset + 6, 2, "Checksum: 0x%04x", uh_sum);
+
+    proto_tree_add_item_format(udp_tree, hf_udp_srcport, offset, 2, uh_sport,
+	"Source port: %s (%u)", get_udp_port(uh_sport), uh_sport);
+    proto_tree_add_item_format(udp_tree, hf_udp_dstport, offset + 2, 2, uh_dport,
+	"Destination port: %s (%u)", get_udp_port(uh_dport), uh_dport);
+
+    proto_tree_add_item_hidden(udp_tree, hf_udp_port, offset, 2, uh_sport);
+    proto_tree_add_item_hidden(udp_tree, hf_udp_port, offset+2, 2, uh_dport);
+
+    proto_tree_add_item(udp_tree, hf_udp_length, offset + 4, 2,  uh_ulen);
+    proto_tree_add_item_format(udp_tree, hf_udp_checksum, offset + 6, 2, uh_sum,
+	"Checksum: 0x%04x", uh_sum);
   }
 
   /* Skip over header */
@@ -267,3 +280,28 @@ dissect_udp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
       }
   }
 }
+
+void
+proto_register_udp(void)
+{
+	static hf_register_info hf[] = {
+		{ &hf_udp_srcport,
+		{ "Source Port",	"udp.srcport", FT_UINT16, NULL }},
+
+		{ &hf_udp_dstport,
+		{ "Destination Port",	"udp.dstport", FT_UINT16, NULL }},
+
+		{ &hf_udp_port,
+		{ "Source or Destination Port",	"udp.port", FT_UINT16, NULL }},
+
+		{ &hf_udp_length,
+		{ "Length",		"udp.length", FT_UINT16, NULL }},
+
+		{ &hf_udp_checksum,
+		{ "Checksum",		"udp.checksum", FT_UINT16, NULL }}
+	};
+
+	proto_udp = proto_register_protocol("User Datagram Protocol", "udp");
+	proto_register_field_array(proto_udp, hf, array_length(hf));
+}
+
