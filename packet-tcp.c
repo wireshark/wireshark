@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.70 2000/04/16 22:46:23 guy Exp $
+ * $Id: packet-tcp.c,v 1.71 2000/04/17 02:39:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -355,16 +355,17 @@ static const true_false_string flags_set_truth = {
 };
 
 
-void
-decode_tcp_ports( const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
-	int src_port, int dst_port) {
-
 /* Determine if there is a sub-dissector and call it.  This has been */
 /* separated into a stand alone routine to other protocol dissectors */
 /* can call to it, ie. socks	*/
 
-
+void
+decode_tcp_ports( const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
+	int src_port, int dst_port) {
   dissector_t sub_dissector;
+
+/* determine if this packet is part of a conversation and call dissector */
+/* for the conversation if available */
 
   sub_dissector = find_conversation_dissector( &pi.src, &pi.dst, PT_TCP,
 		src_port, dst_port);
@@ -373,54 +374,52 @@ decode_tcp_ports( const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 	return;
   }
 
-    /* ONC RPC.  We can't base this on anything in the TCP header; we have
-       to look at the payload.  If "dissect_rpc()" returns TRUE, it was
-       an RPC packet, otherwise it's some other type of packet. */
-    if (dissect_rpc(pd, offset, fd, tree))
-      return;
+  /* ONC RPC.  We can't base this on anything in the TCP header; we have
+     to look at the payload.  If "dissect_rpc()" returns TRUE, it was
+     an RPC packet, otherwise it's some other type of packet. */
+  if (dissect_rpc(pd, offset, fd, tree))
+    return;
 
-    /* try to apply the plugins */
+  /* try to apply the plugins */
 #ifdef HAVE_PLUGINS
-    {
-      plugin *pt_plug = plugin_list;
+  {
+    plugin *pt_plug = plugin_list;
 
-      if (enabled_plugins_number > 0) {
-	while (pt_plug) {
-	  if (pt_plug->enabled && !strcmp(pt_plug->protocol, "tcp") &&
-	      tree && dfilter_apply(pt_plug->filter, tree, pd, fd->cap_len)) {
-	    pt_plug->dissector(pd, offset, fd, tree);
-	    return;
-	  }
-	  pt_plug = pt_plug->next;
+    if (enabled_plugins_number > 0) {
+      while (pt_plug) {
+	if (pt_plug->enabled && !strcmp(pt_plug->protocol, "tcp") &&
+	    tree && dfilter_apply(pt_plug->filter, tree, pd, fd->cap_len)) {
+	  pt_plug->dissector(pd, offset, fd, tree);
+	  return;
 	}
+	pt_plug = pt_plug->next;
       }
     }
+  }
 #endif
 
-    /* do lookup with the subdissector table */
-    if (dissector_try_port(subdissector_table, src_port, pd, offset,
-				fd, tree) ||
-        dissector_try_port(subdissector_table, dst_port, pd, offset,
-				fd, tree))
-	return;
+  /* do lookup with the subdissector table */
+  if (dissector_try_port(subdissector_table, src_port, pd, offset, fd, tree) ||
+      dissector_try_port(subdissector_table, dst_port, pd, offset, fd, tree))
+    return;
 
-    /* check existence of high level protocols */
+  /* check existence of high level protocols */
 
 #define PORT_IS(port)   ( src_port == port || dst_port == port)    
 
-    if (memcmp(&pd[offset], "GIOP",  4) == 0) {
-	dissect_giop(pd, offset, fd, tree);
-	return;
-    }
+  if (memcmp(&pd[offset], "GIOP",  4) == 0) {
+    dissect_giop(pd, offset, fd, tree);
+    return;
+  }
 
-    if ( PORT_IS(TCP_PORT_YHOO) && 
+  if ( PORT_IS(TCP_PORT_YHOO) && 
 		(memcmp(&pd[offset], "YPNS",  4) == 0 ||
 		memcmp(&pd[offset], "YHOO",  4) == 0 )) {
-	dissect_yhoo(pd, offset, fd, tree);
-	return;
-    }
+    dissect_yhoo(pd, offset, fd, tree);
+    return;
+  }
 
-    dissect_data(pd, offset, fd, tree);
+  dissect_data(pd, offset, fd, tree);
 }
 
 

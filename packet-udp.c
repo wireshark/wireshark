@@ -1,7 +1,7 @@
 /* packet-udp.c
  * Routines for UDP packet disassembly
  *
- * $Id: packet-udp.c,v 1.65 2000/04/16 22:46:24 guy Exp $
+ * $Id: packet-udp.c,v 1.66 2000/04/17 02:39:55 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -79,17 +79,14 @@ typedef struct _e_udphdr {
 
 static dissector_table_t udp_dissector_table;
 
-
-void
-decode_udp_ports( const u_char *pd, int offset, frame_data *fd,
-	proto_tree *tree, int uh_sport, int uh_dport){
-
 /* Determine if there is a sub-dissector and call it.  This has been */
 /* separated into a stand alone routine to other protocol dissectors */
 /* can call to it, ie. socks	*/
 
+void
+decode_udp_ports( const u_char *pd, int offset, frame_data *fd,
+	proto_tree *tree, int uh_sport, int uh_dport){
   dissector_t sub_dissector;
-
 
 /* determine if this packet is part of a conversation and call dissector */
 /* for the conversation if available */
@@ -125,26 +122,24 @@ decode_udp_ports( const u_char *pd, int offset, frame_data *fd,
   }
 #endif
 
+  /* do lookup with the subdissector table */
+  if (dissector_try_port(udp_dissector_table, uh_sport, pd, offset, fd, tree) ||
+      dissector_try_port(udp_dissector_table, uh_dport, pd, offset, fd, tree))
+    return;
+
   /* XXX - we should do all of this through the table of ports. */
 #define PORT_IS(port)	(uh_sport == port || uh_dport == port)
   if (PORT_IS(UDP_PORT_NCP))
-      dissect_ncp(pd, offset, fd, tree); /* XXX -- need to handle nw_server_address */
+    dissect_ncp(pd, offset, fd, tree); /* XXX -- need to handle nw_server_address */
   else if (PORT_IS(UDP_PORT_VINES)) {
-      /* FIXME: AFAIK, src and dst port must be the same */
-      dissect_vines_frp(pd, offset, fd, tree);
+    /* FIXME: AFAIK, src and dst port must be the same */
+    dissect_vines_frp(pd, offset, fd, tree);
   } else if (PORT_IS(UDP_PORT_TFTP)) {
-      /* This is the first point of call, but it adds a dynamic call */
-      dissector_add("udp.port", MAX(uh_sport, uh_dport), dissect_tftp);  /* Add to table */
-      dissect_tftp(pd, offset, fd, tree);
- } else {
-      /* OK, find a routine in the table, else use the default */
-
-      if (!dissector_try_port(udp_dissector_table, uh_sport, pd, offset,
-				fd, tree) &&
-	  !dissector_try_port(udp_dissector_table, uh_dport, pd, offset,
-				fd, tree))
-	dissect_data(pd, offset, fd, tree);
-  }
+    /* This is the first point of call, but it adds a dynamic call */
+    dissector_add("udp.port", MAX(uh_sport, uh_dport), dissect_tftp);  /* Add to table */
+    dissect_tftp(pd, offset, fd, tree);
+  } else
+    dissect_data(pd, offset, fd, tree);
 }
 
 
