@@ -1,6 +1,6 @@
 /* snoop.c
  *
- * $Id: snoop.c,v 1.46 2002/04/30 08:48:27 guy Exp $
+ * $Id: snoop.c,v 1.47 2002/04/30 09:23:29 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -54,6 +54,15 @@ struct snooprec_hdr {
 	guint32	cum_drops;	/* cumulative number of dropped packets */
 	guint32	ts_sec;		/* timestamp seconds */
 	guint32	ts_usec;	/* timestamp microseconds */
+};
+
+/*
+ * The link-layer header on ATM packets.
+ */
+struct snoop_atm_hdr {
+	guint8	flags;		/* destination and traffic type */
+	guint8	vpi;		/* VPI */
+	guint16	vci;		/* VCI */
 };
 
 static gboolean snoop_read(wtap *wth, int *err, long *data_offset);
@@ -341,7 +350,7 @@ static gboolean snoop_read(wtap *wth, int *err, long *data_offset)
 	 * them.
 	 */
 	if (wth->file_encap == WTAP_ENCAP_ATM_SNIFFER) {
-		if (packet_size < 4) {
+		if (packet_size < sizeof (struct snoop_atm_hdr)) {
 			/*
 			 * Uh-oh, the packet isn't big enough to even
 			 * have a pseudo-header.
@@ -358,10 +367,10 @@ static gboolean snoop_read(wtap *wth, int *err, long *data_offset)
 		/*
 		 * Don't count the pseudo-header as part of the packet.
 		 */
-		rec_size -= 4;
-		orig_size -= 4;
-		packet_size -= 4;
-		wth->data_offset += 4;
+		rec_size -= sizeof (struct snoop_atm_hdr);
+		orig_size -= sizeof (struct snoop_atm_hdr);
+		packet_size -= sizeof (struct snoop_atm_hdr);
+		wth->data_offset += sizeof (struct snoop_atm_hdr);
 	}
 
 	buffer_assure_space(wth->frame_buffer, packet_size);
@@ -430,29 +439,29 @@ static gboolean
 snoop_read_atm_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
     int *err)
 {
-	char	atm_phdr[4];
+	struct snoop_atm_hdr atm_phdr;
 	int	bytes_read;
 	guint8	vpi;
 	guint16	vci;
 
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(atm_phdr, 1, 4, fh);
-	if (bytes_read != 4) {
+	bytes_read = file_read(&atm_phdr, 1, sizeof (struct snoop_atm_hdr), fh);
+	if (bytes_read != sizeof (struct snoop_atm_hdr)) {
 		*err = file_error(fh);
 		if (*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
 		return FALSE;
 	}
 
-	vpi = atm_phdr[1];
-	vci = pntohs(&atm_phdr[2]);
+	vpi = atm_phdr.vpi;
+	vci = pntohs(&atm_phdr.vci);
 
 	/*
 	 * The lower 4 bits of the first byte of the header indicate
 	 * the type of traffic, as per the "atmioctl.h" header in
 	 * SunATM.
 	 */
-	switch (atm_phdr[0] & 0x0F) {
+	switch (atm_phdr.flags & 0x0F) {
 
 	case 0x01:	/* LANE */
 		pseudo_header->atm.aal = AAL_5;
@@ -476,7 +485,7 @@ snoop_read_atm_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
 
 	case 0x03:	/* MARS (RFC 2022) */
 		pseudo_header->atm.aal = AAL_5;
-		pseudo_header->atm.type = TRAF_ILMI;
+		pseudo_header->atm.type = TRAF_UNKNOWN;
 		break;
 
 	case 0x04:	/* IFMP (Ipsilon Flow Management Protocol; see RFC 1954) */
@@ -507,7 +516,7 @@ snoop_read_atm_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
 
 	pseudo_header->atm.vpi = vpi;
 	pseudo_header->atm.vci = vci;
-	pseudo_header->atm.channel = (atm_phdr[0] & 0x80) ? 1 : 0;
+	pseudo_header->atm.channel = (atm_phdr.flags & 0x80) ? 1 : 0;
 
 	/* We don't have this information */
 	pseudo_header->atm.cells = 0;
@@ -548,8 +557,8 @@ static const int wtap_encap[] = {
 	-1,		/* WTAP_ENCAP_ATM_RFC1483 -> unsupported */
 	-1,		/* WTAP_ENCAP_LINUX_ATM_CLIP -> unsupported */
 	-1,		/* WTAP_ENCAP_LAPB -> unsupported*/
-	-1,		/* WTAP_ENCAP_ATM_SNIFFER -> unsupported */
-	0		/* WTAP_ENCAP_NULL -> DLT_NULL */
+	0x12,		/* WTAP_ENCAP_ATM_SNIFFER -> DL_IPATM */
+	-1		/* WTAP_ENCAP_NULL -> unsupported */
 };
 #define NUM_WTAP_ENCAPS (sizeof wtap_encap / sizeof wtap_encap[0])
 
@@ -615,16 +624,23 @@ static gboolean snoop_dump(wtap_dumper *wdh,
 	int reclen;
 	guint padlen;
 	static char zeroes[4];
+	struct snoop_atm_hdr atm_hdr;
+	int atm_hdrsize;
+
+	if (wdh->encap == WTAP_ENCAP_ATM_SNIFFER)
+		atm_hdrsize = sizeof (struct snoop_atm_hdr);
+	else
+		atm_hdrsize = 0;
 
 	/* Record length = header length plus data length... */
-	reclen = sizeof rec_hdr + phdr->caplen;
+	reclen = sizeof rec_hdr + phdr->caplen + atm_hdrsize;
 
 	/* ... plus enough bytes to pad it to a 4-byte boundary. */
 	padlen = ((reclen + 3) & ~3) - reclen;
 	reclen += padlen;
 
-	rec_hdr.orig_len = htonl(phdr->len);
-	rec_hdr.incl_len = htonl(phdr->caplen);
+	rec_hdr.orig_len = htonl(phdr->len + atm_hdrsize);
+	rec_hdr.incl_len = htonl(phdr->caplen + atm_hdrsize);
 	rec_hdr.rec_len = htonl(reclen);
 	rec_hdr.cum_drops = 0;
 	rec_hdr.ts_sec = htonl(phdr->ts.tv_sec);
@@ -637,6 +653,52 @@ static gboolean snoop_dump(wtap_dumper *wdh,
 			*err = WTAP_ERR_SHORT_WRITE;
 		return FALSE;
 	}
+
+	if (wdh->encap == WTAP_ENCAP_ATM_SNIFFER) {
+		/*
+		 * Write the ATM header.
+		 */
+		atm_hdr.flags =
+		    (pseudo_header->atm.channel != 0) ? 0x80 : 0x00;
+		switch (pseudo_header->atm.aal) {
+
+		case AAL_SIGNALLING:
+			/* Q.2931 */
+			atm_hdr.flags |= 0x06;
+			break;
+
+		case AAL_5:
+			switch (pseudo_header->atm.type) {
+
+			case TRAF_LANE:
+				/* LANE */
+				atm_hdr.flags |= 0x01;
+				break;
+
+			case TRAF_LLCMX:
+				/* RFC 1483 LLC multiplexed traffic */
+				atm_hdr.flags |= 0x02;
+				break;
+
+			case TRAF_ILMI:
+				/* ILMI */
+				atm_hdr.flags |= 0x05;
+				break;
+			}
+			break;
+		}
+		atm_hdr.vpi = pseudo_header->atm.vpi;
+		atm_hdr.vci = htons(pseudo_header->atm.vci);
+		nwritten = fwrite(&atm_hdr, 1, sizeof atm_hdr, wdh->fh);
+		if (nwritten != sizeof atm_hdr) {
+			if (nwritten == 0 && ferror(wdh->fh))
+				*err = errno;
+			else
+				*err = WTAP_ERR_SHORT_WRITE;
+			return FALSE;
+		}
+	}
+
 	nwritten = fwrite(pd, 1, phdr->caplen, wdh->fh);
 	if (nwritten != phdr->caplen) {
 		if (nwritten == 0 && ferror(wdh->fh))
