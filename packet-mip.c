@@ -2,7 +2,7 @@
  * Routines for Mobile IP dissection
  * Copyright 2000, Stefan Raab <sraab@cisco.com>
  *
- * $Id: packet-mip.c,v 1.14 2001/02/14 17:01:43 gram Exp $
+ * $Id: packet-mip.c,v 1.15 2001/02/14 20:03:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -136,13 +136,12 @@ dissect_mip( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	struct timeval      ident_time;
 	int eoffset, elen;
 	
-	CHECK_DISPLAY_AS_DATA(proto_mip, tvb, pinfo, tree);
-
 /* Make entries in Protocol column and Info column on summary display */
 
-	pinfo->current_proto = "Mobile IP";
 	if (check_col(pinfo->fd, COL_PROTOCOL)) 
 		col_set_str(pinfo->fd, COL_PROTOCOL, "MobileIP");
+	if (check_col(pinfo->fd, COL_INFO)) 
+		col_clear(pinfo->fd, COL_INFO);
     
 	type = tvb_get_guint8(tvb, 0);
 
@@ -185,7 +184,9 @@ dissect_mip( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_tree_add_int(ext_tree, hf_mip_ext_len, tvb, eoffset+1, 1, elen);
 
 			switch (tvb_get_guint8(tvb, eoffset)) {
-			case 32 ... 34:
+			case 32:
+			case 33:
+			case 34:
 			  proto_tree_add_item(ext_tree, hf_mip_aext_spi, tvb, eoffset+2, 4, FALSE);
 			  proto_tree_add_item(ext_tree, hf_mip_aext_auth, tvb, eoffset+6, elen-4, FALSE);
 			  break;
@@ -239,7 +240,9 @@ dissect_mip( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_tree_add_int(ext_tree, hf_mip_ext_len, tvb, eoffset+1, 1, elen);
 			
 			switch (tvb_get_guint8(tvb, eoffset)) {
-			case 32 ... 34:                             
+			case 32:
+			case 33:
+			case 34:                             
 			  proto_tree_add_item(ext_tree, hf_mip_aext_spi, tvb, eoffset+2, 4, FALSE);
 			  proto_tree_add_item(ext_tree, hf_mip_aext_auth, tvb, eoffset+6, elen-4, FALSE);
 			  break;
@@ -375,5 +378,5 @@ void proto_register_mip(void)
 void
 proto_reg_handoff_mip(void)
 {
-  dissector_add("udp.port", UDP_PORT_MIP, dissect_mip, proto_mip);
+	dissector_add("udp.port", UDP_PORT_MIP, dissect_mip, proto_mip);
 }
