@@ -3,7 +3,7 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  * 
- * $Id: packet-wsp.c,v 1.1 2000/11/04 03:30:40 guy Exp $
+ * $Id: packet-wsp.c,v 1.2 2000/11/04 07:35:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -276,6 +276,13 @@ static const value_string vals_cache_control[] = {
 	{ 0x89, "Must-revalidate" },
 	{ 0x8A, "Proxy-revalidate" },
 };
+
+/*
+ * Windows appears to define DELETE.
+ */
+#ifdef DELETE
+#undef DELETE
+#endif
 
 enum {
 	RESERVED		= 0x00,
