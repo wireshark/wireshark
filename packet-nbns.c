@@ -3,7 +3,7 @@
  * to when it had only NBNS)
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-nbns.c,v 1.67 2001/12/10 00:25:30 guy Exp $
+ * $Id: packet-nbns.c,v 1.68 2002/01/07 00:16:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -40,6 +40,7 @@
 #include "packet-dns.h"
 #include "packet-netbios.h"
 #include "packet-tcp.h"
+#include "packet-frame.h"
 #include "prefs.h"
 
 static int proto_nbns = -1;
@@ -1367,12 +1368,13 @@ dissect_nbss_packet(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_item	*tf;
 	guint8		msg_type;
 	guint8		flags;
-	int		length;
+	volatile int	length;
 	int		len;
 	char		name[(NETBIOS_NAME_LEN - 1)*4 + MAXDNAME];
 	int		name_type;
 	gint		reported_len;
 	tvbuff_t	*next_tvb;
+	const char	*saved_proto;
 
 	msg_type = tvb_get_guint8(tvb, offset);
 
@@ -1494,8 +1496,33 @@ dissect_nbss_packet(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	    len = length;
 	  if (reported_len > length)
 	    reported_len = length;
+
+	  /*
+	   * Catch the ReportedBoundsError exception; if this
+	   * particular message happens to get a ReportedBoundsError
+	   * exception, that doesn't mean that we should stop
+	   * dissecting NetBIOS messages within this frame or chunk
+	   * of reassembled data.
+	   *
+	   * If it gets a BoundsError, we can stop, as there's nothing
+	   * more to see, so we just re-throw it.
+	   */
 	  next_tvb = tvb_new_subset(tvb, offset, len, reported_len);
-	  dissect_netbios_payload(next_tvb, pinfo, tree);
+          saved_proto = pinfo->current_proto;
+          TRY {
+	    dissect_netbios_payload(next_tvb, pinfo, tree);
+          }
+          CATCH(BoundsError) {
+            RETHROW;
+          }
+          CATCH(ReportedBoundsError) {
+	    if (check_col(pinfo->cinfo, COL_INFO))
+	      col_append_str(pinfo->cinfo, COL_INFO, "[Malformed Packet]");
+	    proto_tree_add_protocol_format(tree, proto_malformed, tvb, 0, 0,
+				"[Malformed Packet: %s]", pinfo->current_proto );
+	    pinfo->current_proto = saved_proto;
+          }
+          ENDTRY;
 	  break;
 
 	}
