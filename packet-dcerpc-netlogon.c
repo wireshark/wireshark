@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *  2002 structure and command dissectors by Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-netlogon.c,v 1.40 2002/07/07 13:41:31 sahlberg Exp $
+ * $Id: packet-dcerpc-netlogon.c,v 1.41 2002/07/08 12:53:28 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -146,7 +146,6 @@ static int hf_netlogon_workstations = -1;
 static int hf_netlogon_workstation_fqdn = -1;
 static int hf_netlogon_group_name = -1;
 static int hf_netlogon_alias_name = -1;
-static int hf_netlogon_cli_name = -1;
 static int hf_netlogon_country = -1;
 static int hf_netlogon_codepage = -1;
 static int hf_netlogon_flags = -1;
@@ -157,6 +156,7 @@ static int hf_netlogon_nt_pwd_present = -1;
 static int hf_netlogon_lm_pwd_present = -1;
 static int hf_netlogon_code = -1;
 static int hf_netlogon_database_id = -1;
+static int hf_netlogon_sync_context = -1;
 static int hf_netlogon_max_size = -1;
 static int hf_netlogon_max_log_size = -1;
 static int hf_netlogon_dns_host = -1;
@@ -3140,6 +3140,75 @@ netlogon_dissect_netsamdeltas_reply(tvbuff_t *tvb, int offset,
 }
 
 
+/*
+ * IDL long NetDatabaseSync(
+ * IDL      [in][string][ref] wchar_t *logonserver, # REF!!!
+ * IDL      [in][string][ref] wchar_t *computername,
+ * IDL      [in][ref] AUTHENTICATOR credential,
+ * IDL      [in][out][ref] AUTHENTICATOR return_authenticator,
+ * IDL      [in] long database_id,
+ * IDL      [in][out][ref] long sync_context,
+ * IDL      [in] long preferredmaximumlength,
+ * IDL      [out][unique] DELTA_ENUM_ARRAY *delta_enum_array
+ * IDL );
+ */
+static int
+netlogon_dissect_netlogondatabasesync_rqst(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		dissect_ndr_nt_UNICODE_STRING_str, NDR_POINTER_REF,
+		"Server Handle", hf_netlogon_logonsrv_handle, 0);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		dissect_ndr_nt_UNICODE_STRING_str, NDR_POINTER_REF,
+		"Computer Name", hf_netlogon_computer_name, 0);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		netlogon_dissect_AUTHENTICATOR, NDR_POINTER_REF,
+		"AUTHENTICATOR: credential", -1, 0);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		netlogon_dissect_AUTHENTICATOR, NDR_POINTER_REF,
+		"AUTHENTICATOR: return_authenticator", -1, 0);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_netlogon_database_id, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_netlogon_sync_context, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_netlogon_max_size, NULL);
+
+	return offset;
+}
+
+
+static int
+netlogon_dissect_netlogondatabasesync_reply(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		netlogon_dissect_AUTHENTICATOR, NDR_POINTER_REF,
+		"AUTHENTICATOR: return_authenticator", -1, 0);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_netlogon_sync_context, NULL);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		netlogon_dissect_DELTA_ENUM_ARRAY, NDR_POINTER_UNIQUE,
+		"DELTA_ENUM_ARRAY: deltas", -1, 0);
+
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+				  hf_netlogon_rc, NULL);
+
+	return offset;
+}
+
+
+
+
 
 
 
@@ -4207,59 +4276,6 @@ netlogon_dissect_TYPE_47(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
-
-static int
-netlogon_dissect_netlogondatabasesync_rqst(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, char *drep)
-{
-	offset = netlogon_dissect_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
-		NDR_POINTER_REF, hf_netlogon_logon_srv, 0);
-
-	offset = netlogon_dissect_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
-		NDR_POINTER_REF, hf_netlogon_cli_name, 0);
-
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		netlogon_dissect_AUTHENTICATOR, NDR_POINTER_REF,
-		"AUTHENTICATOR: credential", -1, 0);
-
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		netlogon_dissect_AUTHENTICATOR, NDR_POINTER_REF,
-		"AUTHENTICATOR: return_authenticator", -1, 0);
-
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_unknown_long, NULL);
-
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		netlogon_dissect_pointer_long, NDR_POINTER_REF,
-		"ULONG pointer: unknown_ULONG", hf_netlogon_unknown_long, 0);
-
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_unknown_long, NULL);
-	return offset;
-}
-
-
-static int
-netlogon_dissect_netlogondatabasesync_reply(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, char *drep)
-{
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		netlogon_dissect_AUTHENTICATOR, NDR_POINTER_REF,
-		"AUTHENTICATOR: return_authenticator", -1, 0);
-
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		netlogon_dissect_pointer_long, NDR_POINTER_REF,
-		"ULONG pointer: unknown_ULONG", hf_netlogon_unknown_long, 0);
-
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		netlogon_dissect_DELTA_ENUM_ARRAY, NDR_POINTER_UNIQUE,
-		"DELTA_ENUM_ARRAY: deltas", -1, 0);
-
-	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
-				  hf_netlogon_rc, NULL);
-
-	return offset;
-}
 
 static int
 netlogon_dissect_netlogonaccountdeltas_rqst(tvbuff_t *tvb, int offset,
@@ -6045,10 +6061,6 @@ static hf_register_info hf[] = {
 		{ "Alias Name", "netlogon.alias_name", FT_STRING, BASE_NONE,
 		NULL, 0, "Alias Name", HFILL }},
 
-	{ &hf_netlogon_cli_name,
-		{ "CLI Name", "netlogon.cli_name", FT_STRING, BASE_NONE,
-		NULL, 0, "CLI Name", HFILL }},
-
 	{ &hf_netlogon_dns_host,
 		{ "DNS Host", "netlogon.dns_host", FT_STRING, BASE_NONE,
 		NULL, 0, "DNS Host", HFILL }},
@@ -6192,6 +6204,10 @@ static hf_register_info hf[] = {
 	{ &hf_netlogon_database_id,
 		{ "Database Id", "netlogon.database_id", FT_UINT32, BASE_DEC, 
 		NULL, 0x0, "Database Id", HFILL }},
+
+	{ &hf_netlogon_sync_context,
+		{ "Sync Context", "netlogon.sync_context", FT_UINT32, BASE_DEC, 
+		NULL, 0x0, "Sync Context", HFILL }},
 
 	{ &hf_netlogon_max_size,
 		{ "Max Size", "netlogon.max_size", FT_UINT32, BASE_DEC, 
