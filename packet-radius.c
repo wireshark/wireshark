@@ -6,7 +6,7 @@
  *
  * RFC 2865, RFC 2866, RFC 2867, RFC 2868, RFC 2869
  *
- * $Id: packet-radius.c,v 1.87 2003/12/17 07:05:22 guy Exp $
+ * $Id: packet-radius.c,v 1.88 2003/12/24 01:12:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2255,6 +2255,19 @@ rdconvertbufftostr(gchar *dest, tvbuff_t *tvb, int offset, int length)
         dest[totlen+1]=0;
 }
 
+#if GTK_MAJOR_VERSION >= 2 || GTK_MINOR_VERSION >= 3
+/*
+ * XXX - "isprint()" can return "true" for non-ASCII characters, but
+ * those don't work with GTK+ 1.3 or later, as they take UTF-8 strings
+ * as input.  Until we fix up Ethereal to properly handle non-ASCII
+ * characters in all output (both GUI displays and text printouts)
+ * in those versions of GTK+, we work around the problem by escaping
+ * all characters that aren't printable ASCII.
+ */
+#undef isprint
+#define isprint(c) (c >= 0x20 && c < 0x7f)
+#endif
+
 static void
 rddecryptpass(gchar *dest,tvbuff_t *tvb,int offset,int length)
 {
@@ -2282,19 +2295,7 @@ rddecryptpass(gchar *dest,tvbuff_t *tvb,int offset,int length)
     pd = tvb_get_ptr(tvb,offset,length);
     for( i = 0 ; i < 16 && i < (guint32)length ; i++ ) {
 	c = pd[i] ^ digest[i];
-#ifdef _WIN32
-	/*
-	 * XXX - "isprint()" can return "true" for non-ASCII characters, but
-	 * those don't work with GTK+ on Windows, as GTK+ on Windows assumes
-	 * UTF-8 strings.  Until we fix up Ethereal to properly handle
-	 * non-ASCII characters in all output (both GUI displays and text
-	 * printouts) on all platforms including Windows, we work around
-	 * the problem by escaping all characters that aren't printable ASCII.
-	 */
-	if ( c >= 0x20 && c <= 0x7f) {
-#else
 	if ( isprint(c)) {
-#endif
 	    dest[totlen] = c;
 	    totlen++;
 	} else {
@@ -2303,19 +2304,7 @@ rddecryptpass(gchar *dest,tvbuff_t *tvb,int offset,int length)
 	}
     }
     while(i<(guint32)length) {
-#ifdef _WIN32
-	/*
-	 * XXX - "isprint()" can return "true" for non-ASCII characters, but
-	 * those don't work with GTK+ on Windows, as GTK+ on Windows assumes
-	 * UTF-8 strings.  Until we fix up Ethereal to properly handle
-	 * non-ASCII characters in all output (both GUI displays and text
-	 * printouts) on all platforms including Windows, we work around
-	 * the problem by escaping all characters that aren't printable ASCII.
-	 */
-	if ( pd[i] >= 0x20 && pd[i] <= 0x7f) {
-#else
 	if ( isprint(pd[i]) ) {
-#endif
 	    dest[totlen] = (gchar)pd[i];
 	    totlen++;
 	} else {

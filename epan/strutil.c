@@ -1,7 +1,7 @@
 /* strutil.c
  * String utility routines
  *
- * $Id: strutil.c,v 1.12 2003/08/27 15:23:02 gram Exp $
+ * $Id: strutil.c,v 1.13 2003/12/24 01:12:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -133,14 +133,14 @@ get_token_len(const guchar *linep, const guchar *lineend,
 
 #define	INITIAL_FMTBUF_SIZE	128
 
-#ifdef _WIN32
+#if GTK_MAJOR_VERSION >= 2 || GTK_MINOR_VERSION >= 3
 /*
  * XXX - "isprint()" can return "true" for non-ASCII characters, but
- * those don't work with GTK+ on Windows, as GTK+ on Windows assumes
- * UTF-8 strings.  Until we fix up Ethereal to properly handle
- * non-ASCII characters in all output (both GUI displays and text
- * printouts) on all platforms including Windows, we work around
- * the problem by escaping all characters that aren't printable ASCII.
+ * those don't work with GTK+ 1.3 or later, as they take UTF-8 strings
+ * as input.  Until we fix up Ethereal to properly handle non-ASCII
+ * characters in all output (both GUI displays and text printouts)
+ * in those versions of GTK+, we work around the problem by escaping
+ * all characters that aren't printable ASCII.
  */
 #undef isprint
 #define isprint(c) (c >= 0x20 && c < 0x7f)
