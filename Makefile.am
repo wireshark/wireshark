@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.352 2001/07/13 08:14:03 guy Exp $
+# $Id: Makefile.am,v 1.353 2001/07/16 21:04:12 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -701,10 +701,12 @@ EXTRA_DIST = \
 	debian/postinst		\
 	debian/prerm		\
 	debian/rules		\
-	doc/Makefile.in         \
 	doc/Makefile.am         \
+	doc/Makefile.nmake      \
+	doc/README.design       \
 	doc/README.developer    \
 	doc/README.idl2eth      \
+	doc/README.plugins      \
 	doc/README.regression   \
 	doc/README.tvbuff	\
 	doc/dfilter2pod.pl	\
@@ -785,7 +787,7 @@ endif
 #dist-hook:
 #	@rm -f $(distdir)/register.c
 
-SUBDIRS = tools wiretap epan plugins packaging @ethereal_SUBDIRS@
+SUBDIRS = tools wiretap doc epan plugins packaging @ethereal_SUBDIRS@
 
 ethereal.1: ethereal doc/ethereal.pod.template
 	(cd doc ; \
