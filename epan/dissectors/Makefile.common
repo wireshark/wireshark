@@ -345,6 +345,7 @@ DISSECTOR_SRC =	\
 	packet-kerberos.c	\
 	packet-kerberos4.c	\
 	packet-klm.c	\
+	packet-kink.c	\
 	packet-kpasswd.c	\
 	packet-l2tp.c	\
 	packet-lapb.c	\

@@ -2306,6 +2306,10 @@ Charlie Lenahan		<clenahan [AT] fortresstech.com> {
 	Support for the Cisco DTP Protocol
 }
 
+Taekshi Nakashima <T.Nakashima [AT] jp.yokogawa.com> {
+	Support for the KINK protocol.
+}
+
 And assorted fixes and enhancements by the people listed above
 and by:
 
