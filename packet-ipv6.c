@@ -1,7 +1,7 @@
 /* packet-ipv6.c
  * Routines for IPv6 packet disassembly
  *
- * $Id: packet-ipv6.c,v 1.79 2002/03/27 04:27:03 guy Exp $
+ * $Id: packet-ipv6.c,v 1.80 2002/05/02 08:55:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -650,7 +650,7 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   int advance;
   int poffset;
   guint16 plen;
-  gboolean frag;
+  gboolean hopopts, routing, frag, ah, dstopts;
   guint16 offlg;
   guint32 ident;
   int offset;
@@ -757,12 +757,18 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   offlg = 0;
   ident = 0;
 
-/* start out assuming this isn't fragmented */
+/* start out assuming this isn't fragmented, and has none of the other
+   non-final headers */
+  hopopts = FALSE;
+  routing = FALSE;
   frag = FALSE;
+  ah = FALSE;
+  dstopts = FALSE;
 
 again:
    switch (nxt) {
    case IP_PROTO_HOPOPTS:
+			hopopts = TRUE;
 			advance = dissect_hopopts(tvb, offset, tree);
 			nxt = tvb_get_guint8(tvb, offset);
 			poffset = offset;
@@ -770,6 +776,7 @@ again:
 			plen -= advance;
 			goto again;
     case IP_PROTO_ROUTING:
+			routing = TRUE;
 			advance = dissect_routing6(tvb, offset, tree);
 			nxt = tvb_get_guint8(tvb, offset);
 			poffset = offset;
@@ -786,6 +793,7 @@ again:
 			plen -= advance;
 			goto again;
     case IP_PROTO_AH:
+			ah = TRUE;
 			advance = dissect_ah_header(
 				  tvb_new_subset(tvb, offset, -1, -1),
 				  pinfo, tree, NULL, NULL);
@@ -795,6 +803,7 @@ again:
 			plen -= advance;
 			goto again;
     case IP_PROTO_DSTOPTS:
+			dstopts = TRUE;
 			advance = dissect_dstopts(tvb, offset, tree);
 			nxt = tvb_get_guint8(tvb, offset);
 			poffset = offset;
@@ -938,7 +947,7 @@ again:
   if (next_tvb == NULL) {
     /* Just show this as a fragment. */
     /* COL_INFO was filled in by "dissect_frag6()" */
-    call_dissector(data_handle,tvb_new_subset(tvb, offset, -1,tvb_reported_length_remaining(tvb,offset)),pinfo, tree);
+    call_dissector(data_handle, tvb_new_subset(tvb, offset, -1, -1), pinfo, tree);
 
     /* As we haven't reassembled anything, we haven't changed "pi", so
        we don't have to restore it. */
@@ -948,25 +957,38 @@ again:
 
   /* do lookup with the subdissector table */
   if (!dissector_try_port(ip_dissector_table, nxt, next_tvb, pinfo, tree)) {
-    /* Unknown protocol */
-    if (check_col(pinfo->cinfo, COL_INFO))
-      col_add_fstr(pinfo->cinfo, COL_INFO, "%s (0x%02x)", ipprotostr(nxt),nxt);
-    call_dissector(data_handle,next_tvb, pinfo, tree);
+    /* Unknown protocol.
+       Handle "no next header" specially. */
+    if (nxt == IP_PROTO_NONE) {
+      if (check_col(pinfo->cinfo, COL_INFO)) {
+        /* If we had an Authentication Header, the AH dissector already
+           put something in the Info column; leave it there. */
+      	if (!ah) {
+          if (hopopts || routing || dstopts) {
+            char *sep = "";
+            if (hopopts) {
+              col_append_str(pinfo->cinfo, COL_INFO, "IPv6 hop-by-hop options");
+              sep = ", ";
+            }
+            if (routing) {
+              col_append_fstr(pinfo->cinfo, COL_INFO, "%sIPv6 routing", sep);
+              sep = ", ";
+            }
+            if (dstopts) {
+              col_append_fstr(pinfo->cinfo, COL_INFO,
+                              "%sIPv6 destination options", sep);
+            }
+          } else
+            col_set_str(pinfo->cinfo, COL_INFO, "IPv6 no next header");
+	}
+      }
+    } else {
+      if (check_col(pinfo->cinfo, COL_INFO))
+        col_add_fstr(pinfo->cinfo, COL_INFO, "%s (0x%02x)", ipprotostr(nxt),nxt);
+    }
+    call_dissector(data_handle, next_tvb, pinfo, tree);
   }
   pinfo->fragmented = save_fragmented;
-}
-
-static void
-dissect_ipv6_none(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-    if (hf_ipv6_mipv6_length != -1) {
-	if (check_col(pinfo->cinfo, COL_INFO))
-	    col_add_fstr(pinfo->cinfo, COL_INFO, "Mobile IPv6 Destination Option");
-    } else {
-	if (check_col(pinfo->cinfo, COL_INFO))
-	    col_add_fstr(pinfo->cinfo, COL_INFO, "IPv6 no next header");
-    }
-    /* XXX - dissect the payload as padding? */
 }
 
 void
@@ -1151,7 +1173,7 @@ proto_register_ipv6(void)
 void
 proto_reg_handoff_ipv6(void)
 {
-  dissector_handle_t ipv6_handle, ipv6_none_handle;
+  dissector_handle_t ipv6_handle;
 
   data_handle = find_dissector("data");
   ipv6_handle = find_dissector("ipv6");
@@ -1160,8 +1182,6 @@ proto_reg_handoff_ipv6(void)
   dissector_add("ppp.protocol", ETHERTYPE_IPv6, ipv6_handle);
   dissector_add("gre.proto", ETHERTYPE_IPv6, ipv6_handle);
   dissector_add("ip.proto", IP_PROTO_IPV6, ipv6_handle);
-  ipv6_none_handle = create_dissector_handle(dissect_ipv6_none, proto_ipv6);
-  dissector_add("ip.proto", IP_PROTO_NONE, ipv6_none_handle);
   dissector_add("null.type", BSD_AF_INET6_BSD, ipv6_handle);
   dissector_add("null.type", BSD_AF_INET6_FREEBSD, ipv6_handle);
   dissector_add("chdlctype", ETHERTYPE_IPv6, ipv6_handle);
