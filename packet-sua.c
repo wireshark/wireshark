@@ -5,7 +5,7 @@
  *
  * Copyright 2002, 2003 Michael Tuexen <tuexen [AT] fh-muenster.de>
  *
- * $Id: packet-sua.c,v 1.17 2003/06/03 16:00:37 tuexen Exp $
+ * $Id: packet-sua.c,v 1.18 2003/08/08 18:05:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -417,20 +417,11 @@ static gint ett_sua_receive_sequence_number_number = -1;
 static gint ett_sua_return_on_error_bit_and_protocol_class = -1;
 static gint ett_sua_protcol_classes = -1;
 
-/*  Keep track of SSN value of current message so if/when we get to the data
- *  parameter, we can call appropriate sub-dissector.  TODO: can this info
- *  be stored elsewhere?
- */
-#define INVALID_SSN 0xff
-static guint8 source_ssn = INVALID_SSN;
-static guint8 dest_ssn = INVALID_SSN;
-static guint8 *curr_ssn = NULL;
-static tvbuff_t *data_tvb = NULL;
 static dissector_handle_t data_handle;
 static dissector_table_t sua_ssn_dissector_table;
 
 static void
-dissect_parameters(tvbuff_t *tlv_tvb, proto_tree *tree);
+dissect_parameters(tvbuff_t *tlv_tvb, proto_tree *tree, tvbuff_t **data_tvb, guint8 *source_ssn, guint8 *dest_ssn);
 
 static void
 dissect_common_header(tvbuff_t *common_header_tvb, packet_info *pinfo, proto_tree *sua_tree)
@@ -653,7 +644,7 @@ dissect_registration_result_parameter(tvbuff_t *parameter_tvb, proto_tree *param
   tvbuff_t *parameters_tvb;
   
   parameters_tvb = tvb_new_subset(parameter_tvb, PARAMETER_VALUE_OFFSET, -1, -1);
-  dissect_parameters(parameters_tvb, parameter_tree);
+  dissect_parameters(parameters_tvb, parameter_tree, NULL, NULL, NULL);
 }
 
 static void
@@ -662,7 +653,7 @@ dissect_deregistration_result_parameter(tvbuff_t *parameter_tvb, proto_tree *par
   tvbuff_t *parameters_tvb;
   
   parameters_tvb = tvb_new_subset(parameter_tvb, PARAMETER_VALUE_OFFSET, -1, -1);
-  dissect_parameters(parameters_tvb, parameter_tree);
+  dissect_parameters(parameters_tvb, parameter_tree, NULL, NULL, NULL);
 }
 
 #define REGISTRATION_STATUS_LENGTH 4
@@ -756,47 +747,45 @@ static const value_string routing_indicator_values[] = {
 #define ADDRESS_SSN_BITMASK      0x0001
 
 static void
-dissect_source_address_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree)
+dissect_source_address_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, guint8 *ssn)
 {
   proto_item *address_indicator_item;
   proto_tree *address_indicator_tree;
   tvbuff_t *parameters_tvb;
   
-  proto_tree_add_item(parameter_tree, hf_source_address_routing_indicator, parameter_tvb, ROUTING_INDICATOR_OFFSET, ROUTING_INDICATOR_LENGTH, NETWORK_BYTE_ORDER);
-  address_indicator_item = proto_tree_add_text(parameter_tree, parameter_tvb, ADDRESS_INDICATOR_OFFSET, ADDRESS_INDICATOR_LENGTH, "Address Indicator");
-  address_indicator_tree = proto_item_add_subtree(address_indicator_item, ett_sua_source_address_indicator);
-  proto_tree_add_item(address_indicator_tree, hf_source_address_reserved_bits, parameter_tvb, ADDRESS_INDICATOR_OFFSET, ADDRESS_INDICATOR_LENGTH, NETWORK_BYTE_ORDER);
-  proto_tree_add_item(address_indicator_tree, hf_source_address_gt_bit,        parameter_tvb, ADDRESS_INDICATOR_OFFSET, ADDRESS_INDICATOR_LENGTH, NETWORK_BYTE_ORDER);
-  proto_tree_add_item(address_indicator_tree, hf_source_address_pc_bit,        parameter_tvb, ADDRESS_INDICATOR_OFFSET, ADDRESS_INDICATOR_LENGTH, NETWORK_BYTE_ORDER);
-  proto_tree_add_item(address_indicator_tree, hf_source_address_ssn_bit,       parameter_tvb, ADDRESS_INDICATOR_OFFSET, ADDRESS_INDICATOR_LENGTH, NETWORK_BYTE_ORDER);
+  if(parameter_tree) {
+    proto_tree_add_item(parameter_tree, hf_source_address_routing_indicator, parameter_tvb, ROUTING_INDICATOR_OFFSET, ROUTING_INDICATOR_LENGTH, NETWORK_BYTE_ORDER);
+    address_indicator_item = proto_tree_add_text(parameter_tree, parameter_tvb, ADDRESS_INDICATOR_OFFSET, ADDRESS_INDICATOR_LENGTH, "Address Indicator");
+    address_indicator_tree = proto_item_add_subtree(address_indicator_item, ett_sua_source_address_indicator);
+    proto_tree_add_item(address_indicator_tree, hf_source_address_reserved_bits, parameter_tvb, ADDRESS_INDICATOR_OFFSET, ADDRESS_INDICATOR_LENGTH, NETWORK_BYTE_ORDER);
+    proto_tree_add_item(address_indicator_tree, hf_source_address_gt_bit,        parameter_tvb, ADDRESS_INDICATOR_OFFSET, ADDRESS_INDICATOR_LENGTH, NETWORK_BYTE_ORDER);
+    proto_tree_add_item(address_indicator_tree, hf_source_address_pc_bit,        parameter_tvb, ADDRESS_INDICATOR_OFFSET, ADDRESS_INDICATOR_LENGTH, NETWORK_BYTE_ORDER);
+    proto_tree_add_item(address_indicator_tree, hf_source_address_ssn_bit,       parameter_tvb, ADDRESS_INDICATOR_OFFSET, ADDRESS_INDICATOR_LENGTH, NETWORK_BYTE_ORDER);
+  }
 
   parameters_tvb = tvb_new_subset(parameter_tvb, ADDRESS_PARAMETERS_OFFSET, -1, -1);
-  dissect_parameters(parameters_tvb, parameter_tree);
-  
-  /* set the SSN for SUA DATA dissection to the right one source / dest */
-  curr_ssn = &source_ssn;
+  dissect_parameters(parameters_tvb, parameter_tree, NULL, ssn, NULL);
 }
 
 static void
-dissect_destination_address_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree)
+dissect_destination_address_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, guint8 *ssn)
 {
   proto_item *address_indicator_item;
   proto_tree *address_indicator_tree;
   tvbuff_t *parameters_tvb;
 
-  proto_tree_add_item(parameter_tree, hf_destination_address_routing_indicator, parameter_tvb, ROUTING_INDICATOR_OFFSET, ROUTING_INDICATOR_LENGTH, NETWORK_BYTE_ORDER);
-  address_indicator_item = proto_tree_add_text(parameter_tree, parameter_tvb, ADDRESS_INDICATOR_OFFSET, ADDRESS_INDICATOR_LENGTH, "Address Indicator");
-  address_indicator_tree = proto_item_add_subtree(address_indicator_item, ett_sua_destination_address_indicator);
-  proto_tree_add_item(address_indicator_tree, hf_destination_address_reserved_bits, parameter_tvb, ADDRESS_INDICATOR_OFFSET, ADDRESS_INDICATOR_LENGTH, NETWORK_BYTE_ORDER);
-  proto_tree_add_item(address_indicator_tree, hf_destination_address_gt_bit,        parameter_tvb, ADDRESS_INDICATOR_OFFSET, ADDRESS_INDICATOR_LENGTH, NETWORK_BYTE_ORDER);
-  proto_tree_add_item(address_indicator_tree, hf_destination_address_pc_bit,        parameter_tvb, ADDRESS_INDICATOR_OFFSET, ADDRESS_INDICATOR_LENGTH, NETWORK_BYTE_ORDER);
-  proto_tree_add_item(address_indicator_tree, hf_destination_address_ssn_bit,       parameter_tvb, ADDRESS_INDICATOR_OFFSET, ADDRESS_INDICATOR_LENGTH, NETWORK_BYTE_ORDER);
+  if(parameter_tree) {
+    proto_tree_add_item(parameter_tree, hf_destination_address_routing_indicator, parameter_tvb, ROUTING_INDICATOR_OFFSET, ROUTING_INDICATOR_LENGTH, NETWORK_BYTE_ORDER);
+    address_indicator_item = proto_tree_add_text(parameter_tree, parameter_tvb, ADDRESS_INDICATOR_OFFSET, ADDRESS_INDICATOR_LENGTH, "Address Indicator");
+    address_indicator_tree = proto_item_add_subtree(address_indicator_item, ett_sua_destination_address_indicator);
+    proto_tree_add_item(address_indicator_tree, hf_destination_address_reserved_bits, parameter_tvb, ADDRESS_INDICATOR_OFFSET, ADDRESS_INDICATOR_LENGTH, NETWORK_BYTE_ORDER);
+    proto_tree_add_item(address_indicator_tree, hf_destination_address_gt_bit,        parameter_tvb, ADDRESS_INDICATOR_OFFSET, ADDRESS_INDICATOR_LENGTH, NETWORK_BYTE_ORDER);
+    proto_tree_add_item(address_indicator_tree, hf_destination_address_pc_bit,        parameter_tvb, ADDRESS_INDICATOR_OFFSET, ADDRESS_INDICATOR_LENGTH, NETWORK_BYTE_ORDER);
+    proto_tree_add_item(address_indicator_tree, hf_destination_address_ssn_bit,       parameter_tvb, ADDRESS_INDICATOR_OFFSET, ADDRESS_INDICATOR_LENGTH, NETWORK_BYTE_ORDER);
+  }
 
   parameters_tvb = tvb_new_subset(parameter_tvb, ADDRESS_PARAMETERS_OFFSET, -1, -1);
-  dissect_parameters(parameters_tvb, parameter_tree);
-
-  /* set the SSN for SUA DATA dissection to the right one source / dest */
-  curr_ssn = &dest_ssn;
+  dissect_parameters(parameters_tvb, parameter_tree, NULL, NULL, ssn);
 }
 
 #define SOURCE_REFERENCE_NUMBER_LENGTH 4
@@ -947,14 +936,21 @@ dissect_credit_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, pr
 #define DATA_PARAMETER_DATA_OFFSET PARAMETER_VALUE_OFFSET
 
 static void
-dissect_data_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
+dissect_data_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item, tvbuff_t **data_tvb)
 {
   guint16 data_length;
 
   data_length    = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH;
-  proto_tree_add_item(parameter_tree, hf_data, parameter_tvb, DATA_PARAMETER_DATA_OFFSET, data_length, NETWORK_BYTE_ORDER);
-  proto_item_append_text(parameter_item, " (SS7 message of %u byte%s)", data_length, plurality(data_length, "", "s"));
-  data_tvb = tvb_new_subset(parameter_tvb, PARAMETER_VALUE_OFFSET, data_length, data_length);
+
+  if(parameter_tree) {
+    proto_tree_add_item(parameter_tree, hf_data, parameter_tvb, DATA_PARAMETER_DATA_OFFSET, data_length, NETWORK_BYTE_ORDER);
+    proto_item_append_text(parameter_item, " (SS7 message of %u byte%s)", data_length, plurality(data_length, "", "s"));
+  }
+  
+  if(data_tvb)
+  {
+    *data_tvb = tvb_new_subset(parameter_tvb, PARAMETER_VALUE_OFFSET, data_length, data_length);
+  }
 }
 
 
@@ -992,7 +988,7 @@ dissect_routing_key_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tre
   tvbuff_t *parameters_tvb;
 
   parameters_tvb = tvb_new_subset(parameter_tvb, PARAMETER_VALUE_OFFSET, -1, -1);
-  dissect_parameters(parameters_tvb, parameter_tree);
+  dissect_parameters(parameters_tvb, parameter_tree, NULL, NULL, NULL);
 }
 #define DRN_START_LENGTH 1
 #define DRN_END_LENGTH 1
@@ -1034,7 +1030,7 @@ dissect_address_range_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_t
   tvbuff_t *parameters_tvb;
   
   parameters_tvb = tvb_new_subset(parameter_tvb, PARAMETER_VALUE_OFFSET, -1, -1);
-  dissect_parameters(parameters_tvb, parameter_tree);
+  dissect_parameters(parameters_tvb, parameter_tree, NULL, NULL, NULL);
 }
 
 #define SMI_LENGTH 1
@@ -1218,22 +1214,17 @@ dissect_point_code_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree
 
 #define SSN_LENGTH 1
 #define SSN_OFFSET (PARAMETER_VALUE_OFFSET + RESERVED_3_LENGTH)
+#define INVALID_SSN 0xff
 
 static void
-dissect_ssn_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
+dissect_ssn_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item, guint8 *ssn)
 {
-  guint8 ssn;
-  
-  proto_tree_add_item(parameter_tree, hf_ssn_reserved, parameter_tvb, PARAMETER_VALUE_OFFSET, RESERVED_3_LENGTH, NETWORK_BYTE_ORDER);
-  proto_tree_add_item(parameter_tree, hf_ssn_number,   parameter_tvb, SSN_OFFSET,             SSN_LENGTH,        NETWORK_BYTE_ORDER);
+  *ssn = tvb_get_guint8(parameter_tvb,  SSN_OFFSET);
 
-  ssn = tvb_get_guint8(parameter_tvb,  SSN_OFFSET);
-  proto_item_append_text(parameter_item, " (%u)", ssn);
-
-  /* Save the current ssn for SUA DATA dissection */
-  if(curr_ssn)
-  {
-    *curr_ssn = ssn;
+  if(parameter_tree) {
+    proto_tree_add_item(parameter_tree, hf_ssn_reserved, parameter_tvb, PARAMETER_VALUE_OFFSET, RESERVED_3_LENGTH, NETWORK_BYTE_ORDER);
+    proto_tree_add_item(parameter_tree, hf_ssn_number,   parameter_tvb, SSN_OFFSET,             SSN_LENGTH,        NETWORK_BYTE_ORDER);
+    proto_item_append_text(parameter_item, " (%u)", *ssn);
   }
 }
 
@@ -1281,171 +1272,273 @@ dissect_unknown_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, p
 }
 
 static void
-dissect_parameter(tvbuff_t *parameter_tvb, proto_tree *tree)
+dissect_parameter(tvbuff_t *parameter_tvb, proto_tree *tree, tvbuff_t **data_tvb, guint8 *source_ssn, guint8 *dest_ssn)
 {
   guint16 tag, length, padding_length;
   proto_item *parameter_item;
   proto_tree *parameter_tree;
+  guint8 ssn = INVALID_SSN;
 
   /* extract tag and length from the parameter */
   tag            = tvb_get_ntohs(parameter_tvb, PARAMETER_TAG_OFFSET);
   length         = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
   padding_length = tvb_length(parameter_tvb) - length;
 
-  /* create proto_tree stuff */
-  parameter_item   = proto_tree_add_text(tree, parameter_tvb, PARAMETER_HEADER_OFFSET, tvb_length(parameter_tvb), val_to_str(tag, parameter_tag_values, "Unknown parameter"));
-  parameter_tree   = proto_item_add_subtree(parameter_item, ett_sua_parameter);
+  if (tree) {
+    /* create proto_tree stuff */
+    parameter_item   = proto_tree_add_text(tree, parameter_tvb, PARAMETER_HEADER_OFFSET, tvb_length(parameter_tvb), val_to_str(tag, parameter_tag_values, "Unknown parameter"));
+    parameter_tree   = proto_item_add_subtree(parameter_item, ett_sua_parameter);
 
-  /* add tag and length to the sua tree */
-  proto_tree_add_item(parameter_tree, hf_parameter_tag,    parameter_tvb, PARAMETER_TAG_OFFSET,    PARAMETER_TAG_LENGTH,    NETWORK_BYTE_ORDER);
-  proto_tree_add_item(parameter_tree, hf_parameter_length, parameter_tvb, PARAMETER_LENGTH_OFFSET, PARAMETER_LENGTH_LENGTH, NETWORK_BYTE_ORDER);
-
+    /* add tag and length to the sua tree */
+    proto_tree_add_item(parameter_tree, hf_parameter_tag,    parameter_tvb, PARAMETER_TAG_OFFSET,    PARAMETER_TAG_LENGTH,    NETWORK_BYTE_ORDER);
+    proto_tree_add_item(parameter_tree, hf_parameter_length, parameter_tvb, PARAMETER_LENGTH_OFFSET, PARAMETER_LENGTH_LENGTH, NETWORK_BYTE_ORDER);
+  } else {
+    parameter_tree = NULL;
+    parameter_item = NULL;
+  }
+/*
+** If no tree, only the data and ssn parameters in the source and destination
+** address need to be dissected. This in order to make dissection of the data
+** possible when there is no tree.
+*/
   switch(tag) {
   case DATA_PARAMETER_TAG:
-    dissect_data_parameter(parameter_tvb, parameter_tree, parameter_item);
+    dissect_data_parameter(parameter_tvb, parameter_tree, parameter_item, data_tvb);
     break;
   case INFO_STRING_PARAMETER_TAG:
-    dissect_info_string_parameter(parameter_tvb, parameter_tree, parameter_item);
+    if (parameter_tree) {
+      dissect_info_string_parameter(parameter_tvb, parameter_tree, parameter_item);
+    }
     break;
   case ROUTING_CONTEXT_PARAMETER_TAG:
-    dissect_routing_context_parameter(parameter_tvb, parameter_tree, parameter_item);
+    if (parameter_tree) {
+      dissect_routing_context_parameter(parameter_tvb, parameter_tree, parameter_item);
+    }
     break;
   case DIAGNOSTIC_INFO_PARAMETER_TAG:
-    dissect_diagnostic_information_parameter(parameter_tvb, parameter_tree, parameter_item);
+    if (parameter_tree) {
+      dissect_diagnostic_information_parameter(parameter_tvb, parameter_tree, parameter_item);
+    }
     break;
   case HEARTBEAT_DATA_PARAMETER_TAG:
-    dissect_heartbeat_data_parameter(parameter_tvb, parameter_tree, parameter_item);
+    if (parameter_tree) {
+      dissect_heartbeat_data_parameter(parameter_tvb, parameter_tree, parameter_item);
+    }
     break;
   case TRAFFIC_MODE_TYPE_PARAMETER_TAG:
-    dissect_traffic_mode_type_parameter(parameter_tvb, parameter_tree, parameter_item);
+    if (parameter_tree) {
+      dissect_traffic_mode_type_parameter(parameter_tvb, parameter_tree, parameter_item);
+    }
     break;
   case ERROR_CODE_PARAMETER_TAG:
-    dissect_error_code_parameter(parameter_tvb, parameter_tree, parameter_item);
+    if (parameter_tree) {
+      dissect_error_code_parameter(parameter_tvb, parameter_tree, parameter_item);
+    }
     break;
   case STATUS_PARAMETER_TAG:
-    dissect_status_type_parameter(parameter_tvb, parameter_tree, parameter_item);
+    if (parameter_tree) {
+      dissect_status_type_parameter(parameter_tvb, parameter_tree, parameter_item);
+    }
     break;
   case CONGESTION_LEVEL_PARAMETER_TAG:
-    dissect_congestion_level_parameter(parameter_tvb, parameter_tree, parameter_item);
+    if (parameter_tree) {
+      dissect_congestion_level_parameter(parameter_tvb, parameter_tree, parameter_item);
+    }
     break;
   case ASP_IDENTIFIER_PARAMETER_TAG:
-    dissect_asp_identifier_parameter(parameter_tvb, parameter_tree, parameter_item);
+    if (parameter_tree) {
+      dissect_asp_identifier_parameter(parameter_tvb, parameter_tree, parameter_item);
+    }
     break;
   case AFFECTED_POINT_CODE_PARAMETER_TAG:
-    dissect_affected_destinations_parameter(parameter_tvb, parameter_tree, parameter_item);
+    if (parameter_tree) {
+      dissect_affected_destinations_parameter(parameter_tvb, parameter_tree, parameter_item);
+    }
     break;
   case REGISTRATION_STATUS_PARAMETER_TAG:
-    dissect_registration_status_parameter(parameter_tvb, parameter_tree, parameter_item);
+    if (parameter_tree) {
+      dissect_registration_status_parameter(parameter_tvb, parameter_tree, parameter_item);
+    }
     break;
   case DEREGISTRATION_STATUS_PARAMETER_TAG:
-    dissect_deregistration_status_parameter(parameter_tvb, parameter_tree, parameter_item);
+    if (parameter_tree) {
+      dissect_deregistration_status_parameter(parameter_tvb, parameter_tree, parameter_item);
+    }
     break;
   case LOCAL_ROUTING_KEY_IDENTIFIER_PARAMETER_TAG:
-    dissect_local_routing_key_identifier_parameter(parameter_tvb, parameter_tree, parameter_item);
+    if (parameter_tree) {
+      dissect_local_routing_key_identifier_parameter(parameter_tvb, parameter_tree, parameter_item);
+    }
     break;
   case SS7_HOP_COUNTER_PARAMETER_TAG:
-    dissect_ss7_hop_counter_parameter(parameter_tvb, parameter_tree, parameter_item);
+    if (parameter_tree) {
+      dissect_ss7_hop_counter_parameter(parameter_tvb, parameter_tree, parameter_item);
+    }
     break;
   case SOURCE_ADDRESS_PARAMETER_TAG:
-    dissect_source_address_parameter(parameter_tvb, parameter_tree);
+    dissect_source_address_parameter(parameter_tvb, parameter_tree, source_ssn);
     break;
   case DESTINATION_ADDRESS_PARAMETER_TAG:
-    dissect_destination_address_parameter(parameter_tvb, parameter_tree);
+    dissect_destination_address_parameter(parameter_tvb, parameter_tree, dest_ssn);
     break;
   case SOURCE_REFERENCE_NUMBER_PARAMETER_TAG:
-    dissect_source_reference_number_parameter(parameter_tvb, parameter_tree, parameter_item);
+    if (parameter_tree) {
+      dissect_source_reference_number_parameter(parameter_tvb, parameter_tree, parameter_item);
+    }
     break;
   case DESTINATION_REFERENCE_NUMBER_PARAMETER_TAG:
-    dissect_destination_reference_number_parameter(parameter_tvb, parameter_tree, parameter_item);
+    if (parameter_tree) {
+      dissect_destination_reference_number_parameter(parameter_tvb, parameter_tree, parameter_item);
+    }
     break;
   case SCCP_CAUSE_PARAMETER_TAG:
-    dissect_sccp_cause_parameter(parameter_tvb, parameter_tree, parameter_item);
+    if (parameter_tree) {
+      dissect_sccp_cause_parameter(parameter_tvb, parameter_tree, parameter_item);
+    }
     break;
   case SEQUENCE_NUMBER_PARAMETER_TAG:
-    dissect_sequence_number_parameter(parameter_tvb, parameter_tree);
+    if (parameter_tree) {
+      dissect_sequence_number_parameter(parameter_tvb, parameter_tree);
+    }
     break;
   case RECEIVE_SEQUENCE_NUMBER_PARAMETER_TAG:
-    dissect_receive_sequence_number_parameter(parameter_tvb, parameter_tree);
+    if (parameter_tree) {
+      dissect_receive_sequence_number_parameter(parameter_tvb, parameter_tree);
+    }
     break;
   case ASP_CAPABILITIES_PARAMETER_TAG:
-    dissect_asp_capabilities_parameter(parameter_tvb, parameter_tree);
+    if (parameter_tree) {
+      dissect_asp_capabilities_parameter(parameter_tvb, parameter_tree);
+    }
     break;
   case CREDIT_PARAMETER_TAG:
-    dissect_credit_parameter(parameter_tvb, parameter_tree, parameter_item);
+    if (parameter_tree) {
+      dissect_credit_parameter(parameter_tvb, parameter_tree, parameter_item);
+    }
     break;
   case USER_CAUSE_PARAMETER_TAG:
-    dissect_user_cause_parameter(parameter_tvb, parameter_tree);
+    if (parameter_tree) {
+      dissect_user_cause_parameter(parameter_tvb, parameter_tree);
+    }
     break;
   case NETWORK_APPEARANCE_PARAMETER_TAG:
-    dissect_network_appearance_parameter(parameter_tvb, parameter_tree, parameter_item);
+    if (parameter_tree) {
+      dissect_network_appearance_parameter(parameter_tvb, parameter_tree, parameter_item);
+    }
     break;
   case ROUTING_KEY_PARAMETER_TAG:
-    dissect_routing_key_parameter(parameter_tvb, parameter_tree);
+    if (parameter_tree) {
+      dissect_routing_key_parameter(parameter_tvb, parameter_tree);
+    }
     break;
   case REGISTRATION_RESULT_PARAMETER_TAG:
-    dissect_registration_result_parameter(parameter_tvb, parameter_tree);
+    if (parameter_tree) {
+      dissect_registration_result_parameter(parameter_tvb, parameter_tree);
+    }
     break;
   case DEREGISTRATION_RESULT_PARAMETER_TAG:
-    dissect_deregistration_result_parameter(parameter_tvb, parameter_tree);
+    if (parameter_tree) {
+      dissect_deregistration_result_parameter(parameter_tvb, parameter_tree);
+    }
     break;
   case ADDRESS_RANGE_PARAMETER_TAG:
-    dissect_address_range_parameter(parameter_tvb, parameter_tree);
+    if (parameter_tree) {
+      dissect_address_range_parameter(parameter_tvb, parameter_tree);
+    }
     break;
   case CORRELATION_ID_PARAMETER_TAG:
-    dissect_correlation_id_parameter(parameter_tvb, parameter_tree, parameter_item);
+    if (parameter_tree) {
+      dissect_correlation_id_parameter(parameter_tvb, parameter_tree, parameter_item);
+    }
     break;
   case IMPORTANCE_PARAMETER_TAG:
-    dissect_importance_parameter(parameter_tvb, parameter_tree, parameter_item);
+    if (parameter_tree) {
+      dissect_importance_parameter(parameter_tvb, parameter_tree, parameter_item);
+    }
     break;
   case MESSAGE_PRIORITY_PARAMETER_TAG:
-    dissect_message_priority_parameter(parameter_tvb, parameter_tree, parameter_item);
+    if (parameter_tree) {
+      dissect_message_priority_parameter(parameter_tvb, parameter_tree, parameter_item);
+    }
     break;
   case PROTOCOL_CLASS_PARAMETER_TAG:
-    dissect_protocol_class_parameter(parameter_tvb, parameter_tree);
+    if (parameter_tree) {
+      dissect_protocol_class_parameter(parameter_tvb, parameter_tree);
+    }
     break;
   case SEQUENCE_CONTROL_PARAMETER_TAG:
-    dissect_sequence_control_parameter(parameter_tvb, parameter_tree, parameter_item);
+    if (parameter_tree) {
+      dissect_sequence_control_parameter(parameter_tvb, parameter_tree, parameter_item);
+    }
     break;
   case SEGMENTATION_PARAMETER_TAG:
-    dissect_segmentation_parameter(parameter_tvb, parameter_tree);
+    if (parameter_tree) {
+      dissect_segmentation_parameter(parameter_tvb, parameter_tree);
+    }
     break;
   case SMI_PARAMETER_TAG:
-    dissect_smi_parameter(parameter_tvb, parameter_tree, parameter_item);
+    if (parameter_tree) {
+      dissect_smi_parameter(parameter_tvb, parameter_tree, parameter_item);
+    }
     break;
   case TID_LABEL_PARAMETER_TAG:
-    dissect_tid_label_parameter(parameter_tvb, parameter_tree);
+    if (parameter_tree) {
+      dissect_tid_label_parameter(parameter_tvb, parameter_tree);
+    }
     break;
   case DRN_LABEL_PARAMETER_TAG:
-    dissect_drn_label_parameter(parameter_tvb, parameter_tree);
+    if (parameter_tree) {
+      dissect_drn_label_parameter(parameter_tvb, parameter_tree);
+    }
     break;
   case GLOBAL_TITLE_PARAMETER_TAG:
-    dissect_global_title_parameter(parameter_tvb, parameter_tree);
+    if (parameter_tree) {
+      dissect_global_title_parameter(parameter_tvb, parameter_tree);
+    }
     break;
   case POINT_CODE_PARAMETER_TAG:
-    dissect_point_code_parameter(parameter_tvb, parameter_tree, parameter_item);
+    if (parameter_tree) {
+      dissect_point_code_parameter(parameter_tvb, parameter_tree, parameter_item);
+    }
     break;
   case SUBSYSTEM_NUMBER_PARAMETER_TAG:
-    dissect_ssn_parameter(parameter_tvb, parameter_tree, parameter_item);
+    dissect_ssn_parameter(parameter_tvb, parameter_tree, parameter_item, &ssn);
+    if(source_ssn)
+    {
+        *source_ssn = ssn;
+    }
+    if(dest_ssn)
+    {
+        *dest_ssn = ssn;
+    }
     break;
   case IPV4_ADDRESS_PARAMETER_TAG:
-    dissect_ipv4_parameter(parameter_tvb, parameter_tree, parameter_item);
+    if (parameter_tree) {
+      dissect_ipv4_parameter(parameter_tvb, parameter_tree, parameter_item);
+    }
     break;
   case HOSTNAME_PARAMETER_TAG:
-    dissect_hostname_parameter(parameter_tvb, parameter_tree, parameter_item);
+    if (parameter_tree) {
+      dissect_hostname_parameter(parameter_tvb, parameter_tree, parameter_item);
+    }
     break;
   case IPV6_ADDRESS_PARAMETER_TAG:
-    dissect_ipv6_parameter(parameter_tvb, parameter_tree, parameter_item);
+    if (parameter_tree) {
+      dissect_ipv6_parameter(parameter_tvb, parameter_tree, parameter_item);
+    }
     break;
   default:
-    dissect_unknown_parameter(parameter_tvb, parameter_tree, parameter_item);
+    if (parameter_tree) {
+      dissect_unknown_parameter(parameter_tvb, parameter_tree, parameter_item);
+    }
     break;
   };
-  if (padding_length > 0)
+  if (parameter_tree && (padding_length > 0))
     proto_tree_add_item(parameter_tree, hf_parameter_padding, parameter_tvb, PARAMETER_HEADER_OFFSET + length, padding_length, NETWORK_BYTE_ORDER);
 }
 
 static void
-dissect_parameters(tvbuff_t *parameters_tvb, proto_tree *tree)
+dissect_parameters(tvbuff_t *parameters_tvb, proto_tree *tree, tvbuff_t **data_tvb, guint8 *source_ssn, guint8 *dest_ssn)
 {
   gint offset, length, total_length, remaining_length;
   tvbuff_t *parameter_tvb;
@@ -1458,7 +1551,7 @@ dissect_parameters(tvbuff_t *parameters_tvb, proto_tree *tree)
       total_length = MIN(total_length, remaining_length);
     /* create a tvb for the parameter including the padding bytes */
     parameter_tvb  = tvb_new_subset(parameters_tvb, offset, total_length, total_length);
-    dissect_parameter(parameter_tvb, tree);
+    dissect_parameter(parameter_tvb, tree, data_tvb, source_ssn, dest_ssn);
     /* get rid of the handled parameter */
     offset += total_length;
   }
@@ -1469,14 +1562,15 @@ dissect_sua_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *sua_t
 {
   tvbuff_t *common_header_tvb;
   tvbuff_t *parameters_tvb;
+  tvbuff_t *data_tvb = NULL;
+  guint8 source_ssn = INVALID_SSN;
+  guint8 dest_ssn = INVALID_SSN;
 
   common_header_tvb = tvb_new_subset(message_tvb, COMMON_HEADER_OFFSET, COMMON_HEADER_LENGTH, COMMON_HEADER_LENGTH);
   dissect_common_header(common_header_tvb, pinfo, sua_tree);
 
-  if (sua_tree) {
-  	parameters_tvb = tvb_new_subset(message_tvb, COMMON_HEADER_LENGTH, -1, -1);
-    dissect_parameters(parameters_tvb, sua_tree);
-  }
+  parameters_tvb = tvb_new_subset(message_tvb, COMMON_HEADER_LENGTH, -1, -1);
+  dissect_parameters(parameters_tvb, sua_tree, &data_tvb, &source_ssn, &dest_ssn);
 
   /* If there was SUA data it could be dissected */
   if(data_tvb)
