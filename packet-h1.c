@@ -2,7 +2,7 @@
  * Routines for Sinec H1 packet disassembly
  * Gerrit Gehnen <G.Gehnen@atrie.de>
  *
- * $Id: packet-h1.c,v 1.1 2000/03/02 07:27:05 guy Exp $
+ * $Id: packet-h1.c,v 1.2 2000/03/02 07:38:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -232,10 +232,10 @@ dissect_h1 (const u_char * pd, int offset, frame_data * fd, proto_tree * tree)
 		}
 	      break;
 	    default:
-	      // TODO: Add Default Handler.
+	      /* TODO: Add Default Handler. */
 	    }
-	  position += pd[offset + position + 1];	// Goto next section 
-	}			//..while
+	  position += pd[offset + position + 1];	/* Goto next section */
+	}			/* ..while */
 
       dissect_data (pd, offset + pd[offset + 2], fd, tree);
     }
