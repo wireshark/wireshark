@@ -2,7 +2,7 @@
  * Routines for ssl dissection
  * Copyright (c) 2000-2001, Scott Renfro <scott@renfro.org>
  *
- * $Id: packet-ssl.c,v 1.4 2001/07/16 04:02:22 guy Exp $
+ * $Id: packet-ssl.c,v 1.5 2001/07/16 05:17:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2290,7 +2290,7 @@ proto_register_ssl(void)
             "Random challenge used to authenticate server", HFILL }
         },
         { &hf_ssl_handshake_cipher_suites_len,
-          { "Cypher Suites Length", "ssl.handshake.cipher_suites_length",
+          { "Cipher Suites Length", "ssl.handshake.cipher_suites_length",
             FT_UINT16, BASE_DEC, NULL, 0x0,
             "Length of cipher suites field", HFILL }
         },
