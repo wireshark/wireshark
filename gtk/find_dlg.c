@@ -1,7 +1,7 @@
 /* find_dlg.c
  * Routines for "find frame" window
  *
- * $Id: find_dlg.c,v 1.27 2003/01/15 05:20:19 guy Exp $
+ * $Id: find_dlg.c,v 1.28 2003/04/24 23:18:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -177,7 +177,7 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
   OBJECT_SET_DATA(find_frame_w, E_FIND_FILT_KEY, filter_te);
   OBJECT_SET_DATA(find_frame_w, E_FIND_BACKWARD_KEY, backward_rb);
 
-  /* Catch the "activate" signal on the frame number text entry, so that
+  /* Catch the "activate" signal on the filter text entry, so that
      if the user types Return there, we act as if the "OK" button
      had been selected, as happens if Return is typed if some widget
      that *doesn't* handle the Return key has the input focus. */
