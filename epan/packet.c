@@ -496,7 +496,17 @@ call_dissector_work(dissector_handle_t handle, tvbuff_t *tvb,
 			RETHROW;
 		}
 		CATCH(ReportedBoundsError) {
-			; /* do nothing */
+			/*
+			 * "ret" wasn't set because an exception was thrown
+			 * before "call_dissector_through_handle()" returned.
+			 * As it called something, at least one dissector
+			 * accepted the packet, and, as an exception was
+			 * thrown, not only was all the tvbuff dissected,
+			 * a dissector tried dissecting past the end of
+			 * the data in some tvbuff, so we'll assume that
+			 * the entire tvbuff was dissected.
+			 */
+			ret = tvb_length(tvb);
 		}
 		ENDTRY;
 
