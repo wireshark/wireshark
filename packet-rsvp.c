@@ -3,7 +3,7 @@
  *
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-rsvp.c,v 1.69 2002/07/14 19:33:16 guy Exp $
+ * $Id: packet-rsvp.c,v 1.70 2002/07/15 21:19:56 ashokn Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -68,6 +68,7 @@
 
 #include <epan/tvbuff.h>
 #include <epan/packet.h>
+#include <prefs.h>
 #include "in_cksum.h"
 #include "etypes.h"
 #include "ipproto.h"
@@ -114,8 +115,11 @@ static gint ett_rsvp_admin_status = -1;
 static gint ett_rsvp_admin_status_flags = -1;
 static gint ett_rsvp_gen_uni = -1;
 static gint ett_rsvp_gen_uni_subobj = -1;
+static gint ett_rsvp_bundle_compmsg = -1;
 static gint ett_rsvp_unknown_class = -1;
 
+/* Should we dissect bundle messages? */
+static gboolean rsvp_bundle_dissect = TRUE;
 
 /*
  * RSVP message types.
@@ -3569,23 +3573,282 @@ dissect_rsvp_gen_uni (proto_tree *ti, tvbuff_t *tvb,
 }
 
 /*------------------------------------------------------------------------------
+ * Dissect a single RSVP message in a tree
+ *------------------------------------------------------------------------------*/
+static void
+dissect_rsvp_msg_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
+		      int tree_mode)
+{
+    proto_tree *rsvp_tree = NULL;
+    proto_tree *rsvp_header_tree;
+    proto_tree *rsvp_object_tree;
+    proto_tree *ti; 
+    guint16 cksum, computed_cksum;
+    vec_t cksum_vec[1];
+    int offset = 0;
+    int len;
+    guint8 ver_flags;
+    guint8 message_type;
+    int session_off, tempfilt_off;
+    int msg_length;
+    int obj_length;
+    int offset2;
+
+    offset = 0;
+    len = 0;
+    ver_flags = tvb_get_guint8(tvb, 0);
+    msg_length = tvb_get_ntohs(tvb, 6);
+    message_type = tvb_get_guint8(tvb, 1);
+
+    ti = proto_tree_add_item(tree, proto_rsvp, tvb, offset, msg_length,
+			     FALSE);
+    rsvp_tree = proto_item_add_subtree(ti, tree_mode);
+    proto_item_append_text(rsvp_tree, ": ");
+    proto_item_append_text(rsvp_tree, val_to_str(message_type, message_type_vals, 
+						 "Unknown (%u). ")); 
+    find_rsvp_session_tempfilt(tvb, 0, &session_off, &tempfilt_off);
+    if (session_off) 
+	proto_item_append_text(rsvp_tree, summary_session(tvb, session_off));
+    if (tempfilt_off) 
+	proto_item_append_text(rsvp_tree, summary_template(tvb, tempfilt_off));
+
+    ti = proto_tree_add_text(rsvp_tree, tvb, offset, 8, "RSVP Header. %s", 
+			     val_to_str(message_type, message_type_vals, 
+					"Unknown Message (%u). ")); 
+    rsvp_header_tree = proto_item_add_subtree(ti, ett_rsvp_hdr);
+
+    proto_tree_add_text(rsvp_header_tree, tvb, offset, 1, "RSVP Version: %u", 
+			(ver_flags & 0xf0)>>4);  
+    proto_tree_add_text(rsvp_header_tree, tvb, offset, 1, "Flags: %02x",
+			ver_flags & 0xf);
+    proto_tree_add_uint(rsvp_header_tree, rsvp_filter[RSVPF_MSG], tvb, 
+			offset+1, 1, message_type);
+    switch (RSVPF_MSG + message_type) {
+
+    case RSVPF_PATH:
+    case RSVPF_RESV:
+    case RSVPF_PATHERR:
+    case RSVPF_RESVERR:
+    case RSVPF_PATHTEAR:
+    case RSVPF_RESVTEAR:
+    case RSVPF_RCONFIRM:
+    case RSVPF_RTEARCONFIRM:
+    case RSVPF_BUNDLE:
+    case RSVPF_ACK:
+    case RSVPF_SREFRESH:
+    case RSVPF_HELLO:
+	proto_tree_add_boolean_hidden(rsvp_header_tree, rsvp_filter[RSVPF_MSG + message_type], tvb, 
+				      offset+1, 1, 1);
+	break;
+
+    default:
+	proto_tree_add_protocol_format(rsvp_header_tree, proto_malformed, tvb, offset+1, 1,
+				       "Invalid message type: %u", message_type);
+	return;
+    }
+
+    cksum = tvb_get_ntohs(tvb, offset+2);
+    if (!pinfo->fragmented && (int) tvb_length(tvb) >= msg_length) {
+	/* The packet isn't part of a fragmented datagram and isn't
+	   truncated, so we can checksum it. */
+	cksum_vec[0].ptr = tvb_get_ptr(tvb, 0, msg_length);
+	cksum_vec[0].len = msg_length;
+	computed_cksum = in_cksum(&cksum_vec[0], 1);
+	if (computed_cksum == 0) {
+	    proto_tree_add_text(rsvp_header_tree, tvb, offset+2, 2,
+				"Message Checksum: 0x%04x (correct)",
+				cksum);
+	} else {
+	    proto_tree_add_text(rsvp_header_tree, tvb, offset+2, 2,
+				"Message Checksum: 0x%04x (incorrect, should be 0x%04x)",
+				cksum,
+				in_cksum_shouldbe(cksum, computed_cksum));
+	}
+    } else {
+	proto_tree_add_text(rsvp_header_tree, tvb, offset+2, 2,
+			    "Message Checksum: 0x%04x",
+			    cksum);
+    }
+    proto_tree_add_text(rsvp_header_tree, tvb, offset+4, 1,
+			"Sending TTL: %u",
+			tvb_get_guint8(tvb, offset+4));
+    proto_tree_add_text(rsvp_header_tree, tvb, offset+6, 2,
+			"Message length: %u", msg_length);
+
+    offset = 8;
+    len = 8;
+
+    if (message_type == RSVP_MSG_BUNDLE) {
+	/* Bundle message. Dissect component messages */
+	if (rsvp_bundle_dissect) {
+	    int len = 8;
+	    while (len < msg_length) {
+		gint sub_len;
+		tvbuff_t *tvb_sub;
+		sub_len = tvb_get_ntohs(tvb, len+6);
+		tvb_sub = tvb_new_subset(tvb, len, sub_len, sub_len);
+		dissect_rsvp_msg_tree(tvb_sub, pinfo, rsvp_tree, ett_rsvp_bundle_compmsg);
+		len += sub_len;
+	    }
+	} else {
+	    proto_tree_add_text(rsvp_tree, tvb, offset, msg_length - len,
+				"Bundle Component Messages Not Dissected");
+	}
+	return;
+    }
+
+    while (len < msg_length) {
+	guint8 class;	
+	guint8 type;
+	char *type_str;
+
+	obj_length = tvb_get_ntohs(tvb, offset);
+	class = tvb_get_guint8(tvb, offset+2);
+	type = tvb_get_guint8(tvb, offset+3);
+	type_str = val_to_str(class, rsvp_class_vals, "Unknown");
+	proto_tree_add_uint_hidden(rsvp_tree, rsvp_filter[RSVPF_OBJECT], tvb, 
+				   offset, obj_length, class);
+	ti = proto_tree_add_item(rsvp_tree, rsvp_filter[rsvp_class_to_filter_num(class)],
+				 tvb, offset, obj_length, FALSE);
+
+	offset2 = offset+4;
+
+	switch(class) {
+
+	case RSVP_CLASS_SESSION:
+	    dissect_rsvp_session(ti, tvb, offset, obj_length, class, type, type_str);
+	    break;
+		
+	case RSVP_CLASS_HOP:
+	    dissect_rsvp_hop(ti, tvb, offset, obj_length, class, type, type_str);
+	    break;
+		
+	case RSVP_CLASS_TIME_VALUES:
+	    dissect_rsvp_time_values(ti, tvb, offset, obj_length, class, type, type_str);
+	    break;
+
+	case RSVP_CLASS_ERROR:
+	    dissect_rsvp_error(ti, tvb, offset, obj_length, class, type, type_str);
+	    break;
+
+	case RSVP_CLASS_SCOPE:
+	    dissect_rsvp_scope(ti, tvb, offset, obj_length, class, type, type_str);
+	    break;
+		
+	case RSVP_CLASS_STYLE:
+	    dissect_rsvp_style(ti, tvb, offset, obj_length, class, type, type_str);
+	    break;
+	    
+	case RSVP_CLASS_CONFIRM:
+	    dissect_rsvp_confirm(ti, tvb, offset, obj_length, class, type, type_str);
+	    break;
+
+	case RSVP_CLASS_SENDER_TEMPLATE:
+	case RSVP_CLASS_FILTER_SPEC:
+	    dissect_rsvp_template_filter(ti, tvb, offset, obj_length, class, type, type_str);
+	    break;
+
+	case RSVP_CLASS_SENDER_TSPEC:
+	    dissect_rsvp_tspec(ti, tvb, offset, obj_length, class, type, type_str);
+	    break;
+
+	case RSVP_CLASS_FLOWSPEC:
+	    dissect_rsvp_flowspec(ti, tvb, offset, obj_length, class, type, type_str);
+	    break;
+
+	case RSVP_CLASS_ADSPEC:
+	    dissect_rsvp_adspec(ti, tvb, offset, obj_length, class, type, type_str);
+	    break;
+
+	case RSVP_CLASS_INTEGRITY:
+	    dissect_rsvp_integrity(ti, tvb, offset, obj_length, class, type, type_str);
+	    break;
+
+	case RSVP_CLASS_POLICY:
+	    dissect_rsvp_policy(ti, tvb, offset, obj_length, class, type, type_str);
+	    break;
+
+	case RSVP_CLASS_LABEL_REQUEST:
+	    dissect_rsvp_label_request(ti, tvb, offset, obj_length, class, type, type_str);
+	    break;
+	    
+	case RSVP_CLASS_UPSTREAM_LABEL:
+	case RSVP_CLASS_SUGGESTED_LABEL:
+	case RSVP_CLASS_LABEL:
+	    dissect_rsvp_label(ti, tvb, offset, obj_length, class, type, type_str);
+	    break;
+	    
+	case RSVP_CLASS_SESSION_ATTRIBUTE:
+	    dissect_rsvp_session_attribute(ti, tvb, offset, obj_length, class, type, type_str);
+	    break;
+
+	case RSVP_CLASS_EXPLICIT_ROUTE:
+	    dissect_rsvp_explicit_route(ti, tvb, offset, obj_length, class, type, type_str);
+	    break;
+
+	case RSVP_CLASS_RECORD_ROUTE:
+	    dissect_rsvp_record_route(ti, tvb, offset, obj_length, class, type, type_str);
+	    break;
+	    
+	case RSVP_CLASS_MESSAGE_ID:
+	    dissect_rsvp_message_id(ti, tvb, offset, obj_length, class, type, type_str);
+	    break;
+
+	case RSVP_CLASS_MESSAGE_ID_ACK:
+	    dissect_rsvp_message_id_ack(ti, tvb, offset, obj_length, class, type, type_str);
+	    break;
+
+	case RSVP_CLASS_MESSAGE_ID_LIST:
+	    dissect_rsvp_message_id_list(ti, tvb, offset, obj_length, class, type, type_str);
+	    break;
+
+	case RSVP_CLASS_HELLO:
+	    dissect_rsvp_hello(ti, tvb, offset, obj_length, class, type, type_str);
+	    break;
+
+	case RSVP_CLASS_DCLASS:
+	    dissect_rsvp_dclass(ti, tvb, offset, obj_length, class, type, type_str);
+	    break;
+
+	case RSVP_CLASS_ADMIN_STATUS: 
+	    dissect_rsvp_admin_status(ti, tvb, offset, obj_length, class, type, type_str);
+	    break;
+
+	case RSVP_CLASS_LSP_TUNNEL_IF_ID:
+	    dissect_rsvp_lsp_tunnel_if_id(ti, tvb, offset, obj_length, class, type, type_str);
+	    break;
+
+	case RSVP_CLASS_GENERALIZED_UNI: 
+	    dissect_rsvp_gen_uni(ti, tvb, offset, obj_length, class, type, type_str);
+	    break;
+
+	case RSVP_CLASS_NULL:
+	default:
+	    rsvp_object_tree = proto_item_add_subtree(ti, ett_rsvp_unknown_class);
+	    proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
+				"Length: %u", obj_length);
+	    proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1, 
+				"Class number: %u - %s", 
+				class, type_str);
+	    proto_tree_add_text(rsvp_object_tree, tvb, offset2, obj_length - 4,
+				"Data (%d bytes)", obj_length - 4);
+	    break;
+	}  
+	    
+	offset += obj_length;
+	len += obj_length;
+    }
+}
+
+/*------------------------------------------------------------------------------
  * The main loop
  *------------------------------------------------------------------------------*/
 static void 
 dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) 
 {
-    int offset = 0;
-    proto_tree *rsvp_tree = NULL, *ti; 
-    proto_tree *rsvp_header_tree;
-    proto_tree *rsvp_object_tree;
     guint8 ver_flags;
     guint8 message_type;
-    guint16 cksum, computed_cksum;
-    vec_t cksum_vec[1];
-    int len;
     int msg_length;
-    int obj_length;
-    int offset2;
     int session_off, tempfilt_off;
 
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
@@ -3593,231 +3856,53 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (check_col(pinfo->cinfo, COL_INFO))
         col_clear(pinfo->cinfo, COL_INFO);
 
-    ver_flags = tvb_get_guint8(tvb, offset+0);
-    message_type = tvb_get_guint8(tvb, offset+1);
+    ver_flags = tvb_get_guint8(tvb, 0);
+    message_type = tvb_get_guint8(tvb, 1);
+    msg_length = tvb_get_ntohs(tvb, 6);
+
     if (check_col(pinfo->cinfo, COL_INFO)) {
         col_add_str(pinfo->cinfo, COL_INFO,
             val_to_str(message_type, message_type_vals, "Unknown (%u). ")); 
-	find_rsvp_session_tempfilt(tvb, offset, &session_off, &tempfilt_off);
+	find_rsvp_session_tempfilt(tvb, 0, &session_off, &tempfilt_off);
 	if (session_off) 
 	    col_append_str(pinfo->cinfo, COL_INFO, summary_session(tvb, session_off));
 	if (tempfilt_off) 
 	    col_append_str(pinfo->cinfo, COL_INFO, summary_template(tvb, tempfilt_off));
     }
 
-    if (tree) {
-	msg_length = tvb_get_ntohs(tvb, offset+6);
-	ti = proto_tree_add_item(tree, proto_rsvp, tvb, offset, msg_length,
-	    FALSE);
-	rsvp_tree = proto_item_add_subtree(ti, ett_rsvp);
-
-	ti = proto_tree_add_text(rsvp_tree, tvb, offset, 8, "RSVP Header. %s", 
-				 val_to_str(message_type, message_type_vals, 
-					    "Unknown Message (%u). ")); 
-	rsvp_header_tree = proto_item_add_subtree(ti, ett_rsvp_hdr);
-
-        proto_tree_add_text(rsvp_header_tree, tvb, offset, 1, "RSVP Version: %u", 
-			    (ver_flags & 0xf0)>>4);  
-	proto_tree_add_text(rsvp_header_tree, tvb, offset, 1, "Flags: %02x",
-			    ver_flags & 0xf);
-	proto_tree_add_uint(rsvp_header_tree, rsvp_filter[RSVPF_MSG], tvb, 
-			    offset+1, 1, message_type);
-	switch (RSVPF_MSG + message_type) {
-
-	case RSVPF_PATH:
-	case RSVPF_RESV:
-	case RSVPF_PATHERR:
-	case RSVPF_RESVERR:
-	case RSVPF_PATHTEAR:
-	case RSVPF_RESVTEAR:
-	case RSVPF_RCONFIRM:
-	case RSVPF_RTEARCONFIRM:
-	case RSVPF_BUNDLE:
-	case RSVPF_ACK:
-	case RSVPF_SREFRESH:
-	case RSVPF_HELLO:
-	       proto_tree_add_boolean_hidden(rsvp_header_tree, rsvp_filter[RSVPF_MSG + message_type], tvb, 
-				   offset+1, 1, 1);
-	       break;
-
-	default:
-		proto_tree_add_protocol_format(rsvp_header_tree, proto_malformed, tvb, offset+1, 1,
-			"Invalid message type: %u", message_type);
-		return;
-	}
-
-	cksum = tvb_get_ntohs(tvb, offset+2);
-	if (!pinfo->fragmented && (int) tvb_length(tvb) >= msg_length) {
-	    /* The packet isn't part of a fragmented datagram and isn't
-	       truncated, so we can checksum it. */
-	    cksum_vec[0].ptr = tvb_get_ptr(tvb, 0, msg_length);
-	    cksum_vec[0].len = msg_length;
-	    computed_cksum = in_cksum(&cksum_vec[0], 1);
-	    if (computed_cksum == 0) {
-		proto_tree_add_text(rsvp_header_tree, tvb, offset+2, 2,
-				    "Message Checksum: 0x%04x (correct)",
-				    cksum);
-	    } else {
-		proto_tree_add_text(rsvp_header_tree, tvb, offset+2, 2,
-				    "Message Checksum: 0x%04x (incorrect, should be 0x%04x)",
-				    cksum,
-				    in_cksum_shouldbe(cksum, computed_cksum));
-	    }
+    if (check_col(pinfo->cinfo, COL_INFO)) {
+	col_add_str(pinfo->cinfo, COL_INFO,
+		    val_to_str(message_type, message_type_vals, "Unknown (%u). ")); 
+	if (message_type == RSVP_MSG_BUNDLE) {
+	    col_add_str(pinfo->cinfo, COL_INFO, 
+			rsvp_bundle_dissect ? 
+			"Component Messages Dissected" :
+			"Component Messages Not Dissected");
 	} else {
-	    proto_tree_add_text(rsvp_header_tree, tvb, offset+2, 2,
-				"Message Checksum: 0x%04x",
-				cksum);
-	}
-	proto_tree_add_text(rsvp_header_tree, tvb, offset+4, 1,
-			    "Sending TTL: %u",
-			    tvb_get_guint8(tvb, offset+4));
-	proto_tree_add_text(rsvp_header_tree, tvb, offset+6, 2,
-			    "Message length: %u", msg_length);
-
-	offset += 8;
-	len = 8;
-	while (len < msg_length) {
-	    guint8 class;	
-	    guint8 type;
-	    char *type_str;
-
-	    obj_length = tvb_get_ntohs(tvb, offset);
-	    class = tvb_get_guint8(tvb, offset+2);
-	    type = tvb_get_guint8(tvb, offset+3);
-	    type_str = val_to_str(class, rsvp_class_vals, "Unknown");
-	    proto_tree_add_uint_hidden(rsvp_tree, rsvp_filter[RSVPF_OBJECT], tvb, 
-					    offset, obj_length, class);
-	    ti = proto_tree_add_item(rsvp_tree, rsvp_filter[rsvp_class_to_filter_num(class)],
-	    			     tvb, offset, obj_length, FALSE);
-
-	    offset2 = offset+4;
-
-	    switch(class) {
-
-	    case RSVP_CLASS_SESSION:
-		dissect_rsvp_session(ti, tvb, offset, obj_length, class, type, type_str);
-		break;
-		
-	    case RSVP_CLASS_HOP:
-		dissect_rsvp_hop(ti, tvb, offset, obj_length, class, type, type_str);
-		break;
-		
-	    case RSVP_CLASS_TIME_VALUES:
-		dissect_rsvp_time_values(ti, tvb, offset, obj_length, class, type, type_str);
-		break;
-
-	    case RSVP_CLASS_ERROR:
-		dissect_rsvp_error(ti, tvb, offset, obj_length, class, type, type_str);
-		break;
-
-	    case RSVP_CLASS_SCOPE:
-		dissect_rsvp_scope(ti, tvb, offset, obj_length, class, type, type_str);
-		break;
-		
-	    case RSVP_CLASS_STYLE:
-		dissect_rsvp_style(ti, tvb, offset, obj_length, class, type, type_str);
-		break;
-	    
-	    case RSVP_CLASS_CONFIRM:
-		dissect_rsvp_confirm(ti, tvb, offset, obj_length, class, type, type_str);
-		break;
-
-	    case RSVP_CLASS_SENDER_TEMPLATE:
-	    case RSVP_CLASS_FILTER_SPEC:
-		dissect_rsvp_template_filter(ti, tvb, offset, obj_length, class, type, type_str);
-		break;
-
-	    case RSVP_CLASS_SENDER_TSPEC:
-		dissect_rsvp_tspec(ti, tvb, offset, obj_length, class, type, type_str);
-		break;
-
-	    case RSVP_CLASS_FLOWSPEC:
-		dissect_rsvp_flowspec(ti, tvb, offset, obj_length, class, type, type_str);
-		break;
-
-	    case RSVP_CLASS_ADSPEC:
-		dissect_rsvp_adspec(ti, tvb, offset, obj_length, class, type, type_str);
-		break;
-
-	    case RSVP_CLASS_INTEGRITY:
-		dissect_rsvp_integrity(ti, tvb, offset, obj_length, class, type, type_str);
-		break;
-
-	    case RSVP_CLASS_POLICY:
-		dissect_rsvp_policy(ti, tvb, offset, obj_length, class, type, type_str);
-		break;
-
-	    case RSVP_CLASS_LABEL_REQUEST:
-		dissect_rsvp_label_request(ti, tvb, offset, obj_length, class, type, type_str);
-		break;
-	    
-	    case RSVP_CLASS_UPSTREAM_LABEL:
-	    case RSVP_CLASS_SUGGESTED_LABEL:
-	    case RSVP_CLASS_LABEL:
-		dissect_rsvp_label(ti, tvb, offset, obj_length, class, type, type_str);
-		break;
-	    
-	    case RSVP_CLASS_SESSION_ATTRIBUTE:
-		dissect_rsvp_session_attribute(ti, tvb, offset, obj_length, class, type, type_str);
-		break;
-
-	    case RSVP_CLASS_EXPLICIT_ROUTE:
-		dissect_rsvp_explicit_route(ti, tvb, offset, obj_length, class, type, type_str);
-		break;
-
-	    case RSVP_CLASS_RECORD_ROUTE:
-		dissect_rsvp_record_route(ti, tvb, offset, obj_length, class, type, type_str);
-		break;
-	    
-	    case RSVP_CLASS_MESSAGE_ID:
-		dissect_rsvp_message_id(ti, tvb, offset, obj_length, class, type, type_str);
-                break;
-
-	    case RSVP_CLASS_MESSAGE_ID_ACK:
-		dissect_rsvp_message_id_ack(ti, tvb, offset, obj_length, class, type, type_str);
-                break;
-
-	    case RSVP_CLASS_MESSAGE_ID_LIST:
-		dissect_rsvp_message_id_list(ti, tvb, offset, obj_length, class, type, type_str);
-                break;
-
-	    case RSVP_CLASS_HELLO:
-		dissect_rsvp_hello(ti, tvb, offset, obj_length, class, type, type_str);
-		break;
-
-	    case RSVP_CLASS_DCLASS:
-		dissect_rsvp_dclass(ti, tvb, offset, obj_length, class, type, type_str);
-                break;
-
-	    case RSVP_CLASS_ADMIN_STATUS: 
-		dissect_rsvp_admin_status(ti, tvb, offset, obj_length, class, type, type_str);
-                break;
-
-	    case RSVP_CLASS_LSP_TUNNEL_IF_ID:
-		dissect_rsvp_lsp_tunnel_if_id(ti, tvb, offset, obj_length, class, type, type_str);
-                break;
-
-	    case RSVP_CLASS_GENERALIZED_UNI: 
-		dissect_rsvp_gen_uni(ti, tvb, offset, obj_length, class, type, type_str);
-		break;
-
-	    case RSVP_CLASS_NULL:
-	    default:
-		rsvp_object_tree = proto_item_add_subtree(ti, ett_rsvp_unknown_class);
-		proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
-				    "Length: %u", obj_length);
-		proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1, 
-				    "Class number: %u - %s", 
-				    class, type_str);
-		proto_tree_add_text(rsvp_object_tree, tvb, offset2, obj_length - 4,
-				    "Data (%d bytes)", obj_length - 4);
-		break;
-	    }  
-	    
-	    offset += obj_length;
-	    len += obj_length;
+	    find_rsvp_session_tempfilt(tvb, 0, &session_off, &tempfilt_off);
+	    if (session_off) 
+		col_append_str(pinfo->cinfo, COL_INFO, summary_session(tvb, session_off));
+	    if (tempfilt_off) 
+		col_append_str(pinfo->cinfo, COL_INFO, summary_template(tvb, tempfilt_off));
 	}
     }
+
+    if (tree) {
+	dissect_rsvp_msg_tree(tvb, pinfo, tree, ett_rsvp);
+    }
+}
+
+static void 
+register_rsvp_prefs (void)
+{
+    module_t *rsvp_module;
+
+    rsvp_module = prefs_register_protocol(proto_rsvp, NULL);
+    prefs_register_bool_preference(
+	rsvp_module, "rsvp_process_bundle", 
+	"Dissect sub-messages in BUNDLE message",
+	"Specifies whether Ethereal should decode and display sub-messages within BUNDLE messages",
+	&rsvp_bundle_dissect);
 }
 
 void
@@ -3860,6 +3945,7 @@ proto_register_rsvp(void)
 		&ett_rsvp_admin_status_flags,
 		&ett_rsvp_gen_uni,
 		&ett_rsvp_gen_uni_subobj,
+		&ett_rsvp_bundle_compmsg,
 		&ett_rsvp_unknown_class,
 	};
 
@@ -3867,6 +3953,7 @@ proto_register_rsvp(void)
 	    "RSVP", "rsvp");
         proto_register_field_array(proto_rsvp, rsvpf_info, array_length(rsvpf_info));
 	proto_register_subtree_array(ett, array_length(ett));
+	register_rsvp_prefs();
 }
 
 void
