@@ -9,7 +9,7 @@
  *
  * By Tim Newsham
  *
- * $Id: packet-prism.c,v 1.13 2004/07/06 19:22:43 guy Exp $
+ * $Id: packet-prism.c,v 1.14 2004/07/06 23:47:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -50,14 +50,57 @@ static int proto_prism = -1;
 static int hf_prism_msgcode = -1;
 static int hf_prism_msglen = -1;
 
-/* a 802.11 value */
+/*
+ * A value from the header.
+ *
+ * It appears, at least from looking at
+ *
+ *	http://www.jms1.net/wlan/prism2sta.c
+ *
+ * which implements the station functionality for the linux-wlan
+ * (liux-wlan-ng?) Prism II driver, that:
+ *
+ *	the "did" identifies what the value is (i.e., what it's the value
+ *	of);
+ *
+ *	"status" can be 0 if the value is present or some other value if
+ *	it's absent;
+ *
+ *	"len" is the length of the value (always 4, in that code);
+ *
+ *	"data" is the value of the data (or 0 if not present).
+ */
 struct val_80211 {
     unsigned int did;
     unsigned short status, len;
     unsigned int data;
 };
 
-/* header attached during prism monitor mode */
+/*
+ * Header attached during Prism monitor mode.
+ *
+ * At least according to one paper I've seen, the Prism 2.5 chip set
+ * provides:
+ *
+ *	RSSI (receive signal strength indication) is "the total power
+ *	received by the radio hardware while receiving the frame,
+ *	including signal, interfereence, and background noise";
+ *
+ *	"silence value" is "the total power observed just before the
+ *	start of the frame".
+ *
+ * According to
+ *
+ *	http://www.jms1.net/wlan/prism2sta.c
+ *
+ * the linux-wlan (linux-wlan-ng?) Prism II driver doesn't supply the
+ * RSSI or "sq" (Signal Quality?) value, but does supply "signal" and
+ * "noise" values, along with a "rate" value that's 1/5 of the raw value
+ * from what is presumably a raw HFA384x frame descriptor, with the
+ * comment "set to 802.11 units".
+ *
+ * The Orinoco driver doesn't appear to supply them, either.
+ */
 struct prism_hdr {
     unsigned int msgcode, msglen;
     char devname[16];
