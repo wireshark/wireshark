@@ -5,7 +5,7 @@
  *
  * Copyright 2003, Dave Sclarsky <dave_sclarsky[AT]cnt.com>
  *
- * $Id: packet-cpfi.c,v 1.1 2003/11/19 04:00:52 guy Exp $
+ * $Id: packet-cpfi.c,v 1.2 2003/11/19 04:02:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -336,7 +336,7 @@ proto_register_cpfi(void)
 
   /* Register our configuration options for CPFI */
   cpfi_module = prefs_register_protocol(proto_cpfi, proto_reg_handoff_cpfi);
-  prefs_register_uint_preference(cpfi_module, "upd.port", "CPFI UDP Port",
+  prefs_register_uint_preference(cpfi_module, "udp.port", "CPFI UDP Port",
                  "Set the port for CPFI messages (if other"
                  " than the default of 5000)",
                  10, &cpfi_configured_udp_port);
