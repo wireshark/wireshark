@@ -2,7 +2,7 @@
  * Routines for decoding SCSI CDBs and responses
  * Author: Dinesh G Dutt (ddutt@cisco.com)
  *
- * $Id: packet-scsi.c,v 1.30 2003/05/19 03:23:11 gerald Exp $
+ * $Id: packet-scsi.c,v 1.31 2003/05/26 22:36:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1500,10 +1500,11 @@ dissect_scsi_evpd (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
             }
             break;
         case SCSI_EVPD_DEVSERNUM:
-	    if (plen > 0) {
-              tvb_get_nstringz0 (tvb, offset, MIN(plen, sizeof(str)), str);
-              proto_tree_add_text (evpd_tree, tvb, offset, plen,
-                                 "Product Serial Number: %s", str);
+            if (plen > 0) {
+                tvb_memcpy (tvb, str, offset, MIN(plen, sizeof(str) - 1));
+                str[sizeof(str) - 1] = '\0';
+                proto_tree_add_text (evpd_tree, tvb, offset, plen,
+                                     "Product Serial Number: %s", str);
             }
             break;
         }
@@ -1646,11 +1647,14 @@ dissect_scsi_inquiry (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                              "RelAdr: %u, Linked: %u, CmdQue: %u",
                              (flags & 0x80) >> 7, (flags & 0x08) >> 3,
                              (flags & 0x02) >> 1);
-        tvb_get_nstringz0 (tvb, offset+8, 9, str);
+        tvb_memcpy (tvb, str, offset+8, 8);
+        str[8] = '\0';
         proto_tree_add_text (tree, tvb, offset+8, 8, "Vendor Id: %s", str);
-        tvb_get_nstringz0 (tvb, offset+16, 17, str);
+        tvb_memcpy (tvb, str, offset+16, 16);
+        str[16] = '\0';
         proto_tree_add_text (tree, tvb, offset+16, 16, "Product ID: %s", str);
-        tvb_get_nstringz0 (tvb, offset+32, 5, str);
+        tvb_memcpy (tvb, str, offset+32, 4);
+        str[4] = '\0';
         proto_tree_add_text (tree, tvb, offset+32, 4, "Product Revision: %s",
                              str);
 
