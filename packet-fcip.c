@@ -2,7 +2,7 @@
  * Routines for FCIP dissection
  * Copyright 2001, Dinesh G Dutt (ddutt@cisco.com)
  *
- * $Id: packet-fcip.c,v 1.11 2003/12/21 04:31:56 jmayer Exp $
+ * $Id: packet-fcip.c,v 1.12 2004/02/19 00:29:15 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -377,7 +377,8 @@ dissect_fcip_sf (tvbuff_t *tvb, proto_tree *tree, gint offset)
 }
 
 static gboolean
-dissect_fcip (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_fcip (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+              gboolean check_port)
 {
     gint offset = 0,
          start  = 0,
@@ -393,7 +394,8 @@ dissect_fcip (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         return FALSE;
     }
 
-    if ((pinfo->srcport != fcip_port) && (pinfo->destport != fcip_port)) {
+    if (check_port &&
+        ((pinfo->srcport != fcip_port) && (pinfo->destport != fcip_port))) {
         return FALSE;
     }
 
@@ -525,6 +527,23 @@ dissect_fcip (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     return (TRUE);
 }
 
+/* This is called for those sessions where we have explicitely said
+   this to be FCIP using "Decode As..."
+   In this case we will not check the port number for sanity and just
+   do as the user said.
+*/
+static void
+dissect_fcip_handle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    dissect_fcip (tvb, pinfo, tree, FALSE);
+}
+
+static gboolean
+dissect_fcip_heur (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    return (dissect_fcip (tvb, pinfo, tree, TRUE));
+}
+
 void
 proto_register_fcip (void)
 {
@@ -649,7 +668,13 @@ proto_register_fcip (void)
 void
 proto_reg_handoff_fcip (void)
 {
-    heur_dissector_add("tcp", dissect_fcip, proto_fcip);
+    dissector_handle_t fcip_handle;
+
+    heur_dissector_add("tcp", dissect_fcip_heur, proto_fcip);
+
+    fcip_handle = create_dissector_handle(dissect_fcip_handle, proto_fcip);
+    dissector_add_handle("tcp.port", fcip_handle);
+
     data_handle = find_dissector("data");
     fc_handle = find_dissector("fc");
 }

@@ -4,7 +4,7 @@
  *   Copyright 2003  Ronnie Sahlberg, exchange first/last matching and 
  *                                    tap listener and misc updates
  *
- * $Id: packet-fc.c,v 1.17 2003/12/17 23:35:28 ulfl Exp $
+ * $Id: packet-fc.c,v 1.18 2004/02/19 00:29:15 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -109,6 +109,7 @@ static int hf_fc_rxid = -1;
 static int hf_fc_param = -1;
 static int hf_fc_ftype = -1;    /* Derived field, non-existent in FC hdr */
 static int hf_fc_reassembled = -1;
+static int hf_fc_eisl = -1;
 
 /* Network_Header fields */
 static int hf_fc_nh_da = -1;
@@ -761,7 +762,7 @@ dissect_fc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_item *ti=NULL;
     proto_tree *fc_tree = NULL;
     tvbuff_t *next_tvb;
-    int offset = 0, next_offset;
+    int offset = 0, next_offset, eisl_offset = -1;
     gboolean is_lastframe_inseq, is_1frame_inseq, is_valid_frame;
     gboolean is_exchg_resp = 0;
     fragment_data *fcfrag_head;
@@ -793,6 +794,7 @@ dissect_fc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      * real FC header. EISL is Cisco-proprietary and is not decoded.
      */
     if (fchdr.r_ctl == FC_RCTL_EISL) {
+        eisl_offset = offset;
         offset += 8;
         fchdr.r_ctl = tvb_get_guint8 (tvb, offset);
     }
@@ -850,6 +852,11 @@ dissect_fc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         ti = proto_tree_add_protocol_format (tree, proto_fc, tvb, offset,
                                              FC_HEADER_SIZE, "Fibre Channel");
         fc_tree = proto_item_add_subtree (ti, ett_fc);
+    }
+
+    /* Highlight EISL header, if present */
+    if (eisl_offset != -1) {
+        proto_tree_add_item (fc_tree, hf_fc_eisl, tvb, eisl_offset, 8, 0);
     }
 
     /* match first exchange with last exchange */
@@ -1391,6 +1398,8 @@ proto_register_fc(void)
         { &hf_fc_time,
           { "Time from Exchange First", "fc.time", FT_RELATIVE_TIME, BASE_NONE, NULL,
            0, "Time since the first frame of the Exchange", HFILL }},
+        { &hf_fc_eisl,
+          {"EISL Header", "fc.eisl", FT_BYTES, BASE_HEX, NULL, 0, "EISL Header", HFILL}},
     };
 
     /* Setup protocol subtree array */
