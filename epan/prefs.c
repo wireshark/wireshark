@@ -2149,11 +2149,13 @@ write_pref(gpointer data, gpointer user_data)
 
 	case PREF_RANGE:
 	{
-		char range_string[MAXRANGESTRING];
+		char *range_string;
 
+		range_string = range_convert_range(*pref->varp.range);
 		fprintf(arg->pf, "# A string denoting an positive integer range (e.g., \"1-20,30-40\").\n");
 		fprintf(arg->pf, "%s.%s: %s\n", arg->module->name, pref->name,
-			range_convert_range(*pref->varp.range, range_string));
+			range_string);
+		g_free(range_string);
 		break;
 	}
 

@@ -31,6 +31,7 @@
 
 #include <string.h>
 #include <ctype.h>
+#include <errno.h>
 
 #include <glib.h>
 
@@ -141,13 +142,14 @@ convert_ret_t range_convert_str(range_t **rangep, const gchar *es,
 	 range->ranges[range->nranges].low = 1;
       } else if (isdigit((unsigned char)c)) {
 	 /* Subrange starts with the specified number */
-	 val = strtol(p, &endp, 10);
+	 errno = 0;
+	 val = strtoul(p, &endp, 10);
 	 if (p == endp) {
 	    /* That wasn't a valid number. */
 	    g_free(range);
 	    return CVT_SYNTAX_ERROR;
 	 }
-	 if (val > G_MAXUINT32) {
+	 if (errno == ERANGE || val > G_MAXUINT32) {
 	    /* That was valid, but it's too big. */
 	    g_free(range);
 	    return CVT_NUMBER_TOO_BIG;
@@ -179,23 +181,24 @@ convert_ret_t range_convert_str(range_t **rangep, const gchar *es,
 	   range->ranges[range->nranges].high = max_value;
 	 } else if (isdigit((unsigned char)c)) {
 	    /* Subrange ends with the specified number. */
-	   val = strtoul(p, &endp, 10);
-	   if (p == endp) {
-	      /* That wasn't a valid number. */
-	      g_free(range);
-	      return CVT_SYNTAX_ERROR;
-	   }
-	   if (val > G_MAXUINT32) {
-	      /* That was valid, but it's too big. */
-	      g_free(range);
-	      return CVT_NUMBER_TOO_BIG;
-	   } 
-	   p = endp;
-	   range->ranges[range->nranges].high = val;
+	    errno = 0;
+	    val = strtoul(p, &endp, 10);
+	    if (p == endp) {
+	       /* That wasn't a valid number. */
+	       g_free(range);
+	       return CVT_SYNTAX_ERROR;
+	    }
+	    if (errno == ERANGE || val > G_MAXUINT32) {
+	       /* That was valid, but it's too big. */
+	       g_free(range);
+	       return CVT_NUMBER_TOO_BIG;
+	    } 
+	    p = endp;
+	    range->ranges[range->nranges].high = val;
 
-	   /* Skip white space. */
-	   while ((c = *p) == ' ' || c == '\t')
-	      p++;
+	    /* Skip white space. */
+	    while ((c = *p) == ' ' || c == '\t')
+	       p++;
 	 } else {
 	    /* Neither empty nor a number. */
 	    g_free(range);
@@ -291,25 +294,32 @@ range_foreach(range_t *range, void (*callback)(guint32 val))
    }
 }
 
-/* This function converts a range_t to a (caller-provided) string.  */
+/* This function converts a range_t to a (g_malloc()-allocated) string.  */
 char *
-range_convert_range(range_t *range, char *string)
+range_convert_range(range_t *range)
 {
-   guint32 i, k;
+   GString *str;
+   guint32 i;
+   gboolean prepend_comma = FALSE;
+   char *string;
 
-   k = 0;
-   string[k] = '\0';
+   str = g_string_new("");
 
    for (i=0; i < range->nranges; i++) {
-      if (i != 0)
-	 string[k++] = ',';
+      if (prepend_comma)
+	 g_string_append_c(str, ',');
 
-      k += sprintf(&string[k], "%d-%d", range->ranges[i].low,
-		   range->ranges[i].high);
+      if (range->ranges[i].low == range->ranges[i].high)
+	 g_string_sprintfa(str, "%u", range->ranges[i].low);
+      else
+	 g_string_sprintfa(str, "%u-%u", range->ranges[i].low,
+			   range->ranges[i].high);
+      prepend_comma = TRUE;
    }
 
-   return(string);
-
+   string = str->str;
+   g_string_free(str, FALSE);
+   return string;
 }
 
 /* Create a copy of a range. */

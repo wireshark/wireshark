@@ -30,10 +30,6 @@
 
 #include <glib.h>
 
-#include <epan/frame_data.h>
-
-#define MAXRANGESTRING 255
-
 typedef struct range_admin_tag {
     guint32 low;
     guint32 high;
@@ -65,7 +61,7 @@ extern gboolean ranges_are_equal(range_t *a, range_t *b);
 
 extern void range_foreach(range_t *range, void (*callback)(guint32 val));
 
-extern char *range_convert_range(range_t *range, char *string);
+extern char *range_convert_range(range_t *range);
 
 extern range_t *range_copy(range_t *src);
 

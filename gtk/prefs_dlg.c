@@ -204,15 +204,16 @@ pref_show(pref_t *pref, gpointer user_data)
 
   case PREF_RANGE:
   {
-    char range_string[MAXRANGESTRING];
+    char *range_string;
 
     if (pref->saved_val.range != NULL)
       g_free(pref->saved_val.range);
     pref->saved_val.range = range_copy(*pref->varp.range);
-    range_convert_range(*pref->varp.range, range_string);
+    range_string = range_convert_range(*pref->varp.range);
     pref->control = create_preference_entry(main_tb, pref->ordinal,
 					    label_string, pref->description,
 					    range_string);
+    g_free(range_string);
     break;
   }
 
