@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.291 2002/09/23 19:09:47 oabad Exp $
+ * $Id: file.c,v 1.292 2002/10/14 19:59:51 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -503,6 +503,8 @@ read_status_t
 continue_tail_cap_file(capture_file *cf, int to_read, int *err)
 {
   long data_offset = 0;
+
+  *err = 0;
 
   packet_list_freeze();
 
