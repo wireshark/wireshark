@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.434 2004/05/13 15:28:02 ulfl Exp $
+ * $Id: main.c,v 1.435 2004/05/17 21:15:28 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3768,6 +3768,28 @@ main_widgets_show_or_hide(void)
     }
 }
 
+
+#if GTK_MAJOR_VERSION >= 2
+/* called, when the window state changes (minimized, maximized, ...) */
+static int
+window_state_event_cb (GtkWidget *widget,
+                       GdkEvent *event,
+                       gpointer  data)
+{
+    GdkWindowState new_window_state = ((GdkEventWindowState*)event)->new_window_state;
+
+    if( (event->type) == (GDK_WINDOW_STATE)) {
+        if(!(new_window_state & GDK_WINDOW_STATE_ICONIFIED)) {
+            /* we might have dialogs popped up while we where iconified,
+               show em now */
+            display_queued_messages();
+        }
+    }
+    return FALSE;
+}
+#endif
+
+
 static void
 create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
 {
@@ -3802,6 +3824,11 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     gtk_widget_set_name(top_level, "main window");
     SIGNAL_CONNECT(top_level, "delete_event", main_window_delete_event_cb,
                    NULL);
+#if GTK_MAJOR_VERSION >= 2
+    SIGNAL_CONNECT(GTK_OBJECT(top_level), "window_state_event",
+                         G_CALLBACK (window_state_event_cb), NULL);
+#endif
+
     gtk_window_set_policy(GTK_WINDOW(top_level), TRUE, TRUE, FALSE);
 
     /* Container for menu bar, toolbar(s), paned windows and progress/info box */
