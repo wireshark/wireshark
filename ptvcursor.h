@@ -3,7 +3,7 @@
  * Proto Tree TVBuff cursor
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: ptvcursor.h,v 1.5 2002/01/21 07:36:48 guy Exp $
+ * $Id: ptvcursor.h,v 1.5.2.1 2002/02/20 22:27:22 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -35,8 +35,6 @@
 #include <epan/packet.h>
 
 typedef struct ptvcursor ptvcursor_t;
-
-#define PTVC_VARIABLE_LENGTH	-1
 
 /* Allocates an initializes a ptvcursor_t with 3 variables:
  * 	proto_tree, tvbuff, and offset. */

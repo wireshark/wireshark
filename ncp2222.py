@@ -25,7 +25,7 @@ http://developer.novell.com/ndk/doc/docui/index.htm#../ncp/ncp__enu/data/
 for a badly-formatted HTML version of the same PDF.
 
 
-$Id: ncp2222.py,v 1.14.2.5 2002/02/20 16:51:15 gram Exp $
+$Id: ncp2222.py,v 1.14.2.6 2002/02/20 22:27:19 gram Exp $
 
 Copyright (c) 2000-2002 by Gilbert Ramirez <gram@alumni.rice.edu>
 and Greg Morris <GMORRIS@novell.com>.
@@ -71,6 +71,8 @@ NO_VAR		= -1
 NO_REPEAT	= -1
 NO_REQ_COND	= -1
 NO_LENGTH_CHECK	= -2
+
+PROTO_LENGTH_UNTIL_END	= -1
 
 global_highest_var = -1
 global_req_cond = {}
@@ -348,15 +350,23 @@ class PTVCRecord:
 		if self.endianness == LE:
 			endianness = 'LE'
 
-		# Default the length to this value
-		length = "PTVC_VARIABLE_LENGTH"
+		length = None
 
 		if type(self.length) == type(0):
 			length = self.length
 		else:
+			# This is for cases where a length is needed
+			# in order to determine a following variable-length,
+			# like nstring8, where 1 byte is needed in order
+			# to determine the variable length.
 			var_length = self.field.Length()
 			if var_length > 0:
 				length = var_length
+
+		if length == PROTO_LENGTH_UNTIL_END:
+			length = "PROTO_LENGTH_UNTIL_END"
+
+		assert length, "Length not handled for %s" % (self.field.HFName(),)
 
 		sub_ptvc_name = self.field.PTVCName()
 		if sub_ptvc_name != "NULL":
@@ -781,7 +791,7 @@ class stringz(Type):
 	type	= "stringz"
 	ftype	= "FT_STRINGZ"
 	def __init__(self, abbrev, descr):
-		Type.__init__(self, abbrev, descr, -1)
+		Type.__init__(self, abbrev, descr, PROTO_LENGTH_UNTIL_END)
 
 class val_string(Type):
 	"""Abstract class for val_stringN, where N is number
@@ -4016,10 +4026,8 @@ static int hf_ncp_connection_status = -1;
 
 
 	# Print the hf variable declarations
-#	for var in variables_used_hash.values():
-	for key, var in variables_used_hash.items():
-		print "static int " + var.HFName() + " = -1;",
-		print "          /*key = %s */" % (key,)
+	for var in variables_used_hash.values():
+		print "static int " + var.HFName() + " = -1;"
 
 
 	# Print the value_string's

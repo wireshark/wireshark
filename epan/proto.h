@@ -1,7 +1,7 @@
 /* proto.h
  * Definitions for protocol display
  *
- * $Id: proto.h,v 1.27 2002/02/05 22:10:20 guy Exp $
+ * $Id: proto.h,v 1.27.2.1 2002/02/20 22:27:23 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -141,6 +141,9 @@ typedef GNode proto_item;
 
 /* Retrieve the tree_data_t from a proto_tree */
 #define PTREE_DATA(t)   (GNODE_PNODE(t)->tree_data)
+
+/* Used for 'length' parameters to mean "to the end of the tvbuff." */
+#define PROTO_LENGTH_UNTIL_END	-1
 
 /* Sets up memory used by proto routines. Called at program startup */
 extern void proto_init(const char *plugin_dir,

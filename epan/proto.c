@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.51 2002/02/01 04:34:17 gram Exp $
+ * $Id: proto.c,v 1.51.2.1 2002/02/20 22:27:23 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -610,20 +610,31 @@ proto_tree_add_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 			break;
 
 		case FT_STRINGZ:
-			/* This g_strdup'ed memory is freed in proto_tree_free_node() */
-			string = g_malloc(length);
+			if (length == PROTO_LENGTH_UNTIL_END) {
+				/* This can throw an exception */
+				length = tvb_strsize(tvb, start);
 
-			CLEANUP_PUSH(g_free, string);
+				/* This g_strdup'ed memory is freed in proto_tree_free_node() */
+				string = g_malloc(length);
 
-			found_length = tvb_get_nstringz(tvb, start, length, string);
-			if (found_length < 1) {
-				found_length = tvb_get_nstringz0(tvb, start, length, string);
+				tvb_memcpy(tvb, string, start, length);
+				new_fi->length = length;
 			}
+			else {
+				/* This g_strdup'ed memory is freed in proto_tree_free_node() */
+				string = g_malloc(length);
 
-			CLEANUP_POP;
+				CLEANUP_PUSH(g_free, string);
 
+				found_length = tvb_get_nstringz(tvb, start, length, string);
+				if (found_length < 1) {
+					found_length = tvb_get_nstringz0(tvb, start, length, string);
+				}
+
+				CLEANUP_POP;
+				new_fi->length = found_length + 1;
+			}
 			proto_tree_set_string(new_fi, string);
-			new_fi->length = found_length + 1;
 
 			break;
 
@@ -1167,7 +1178,7 @@ proto_tree_set_string_tvb(field_info *fi, tvbuff_t *tvb, gint start, gint length
 {
 	gchar	*string;
 
-	if (length == -1) {
+	if (length == PROTO_LENGTH_UNTIL_END) {
 		length = tvb_ensure_length_remaining(tvb, start);
 	}
 
@@ -1616,7 +1627,7 @@ alloc_field_info(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gint 
 	hfinfo = proto_registrar_get_nth(hfindex);
 	g_assert(hfinfo != NULL);
 
-	if (length == -1) {
+	if (length == PROTO_LENGTH_UNTIL_END) {
 		/*
 		 * For FT_NONE or FT_PROTOCOL fields, this means "set the
 		 * length to what remains in the tvbuff"; the assumption
@@ -1630,7 +1641,8 @@ alloc_field_info(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gint 
 		g_assert(hfinfo->type == FT_PROTOCOL ||
 			 hfinfo->type == FT_NONE ||
 			 hfinfo->type == FT_BYTES ||
-			 hfinfo->type == FT_STRING);
+			 hfinfo->type == FT_STRING ||
+			 hfinfo->type == FT_STRINGZ);
 		length = tvb_ensure_length_remaining(tvb, start);
 	}
 
