@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.c,v 1.44 2003/05/19 03:23:12 gerald Exp $
+ * $Id: tvbuff.c,v 1.45 2003/06/04 21:45:49 guy Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -1629,12 +1629,8 @@ tvb_fake_unicode(tvbuff_t *tvb, int offset, int len, gboolean little_endian)
 	guint16 character;
 
 	/* Make sure we have enough data before allocating the buffer,
-	   so we don't blow up if the length is huge.
-	   We do so by attempting to fetch the last character; it'll
-	   throw an exception if it's past the end.
-
-           The byte order we use to fetch it is irrelevant here. */
-	tvb_get_letohs(tvb, offset + 2*(len - 1));
+	   so we don't blow up if the length is huge. */
+	tvb_ensure_bytes_exist(tvb, offset, 2*len);
 
 	/* We know we won't throw an exception, so we don't have to worry
 	   about leaking this buffer. */
