@@ -451,6 +451,7 @@ Create a table that lists all conversations that could be seen in the capture.
 I<type> specifies which type of conversation we want to generate the 
 statistics for, currently the supported ones are
   "eth"   Ethernet
+  "fc"    Fibre Channel
   "ip"    IP addresses
   "tcp"   TCP/IP socketpairs   Both IPv4 and IPv6 are supported
   "tr"    TokenRing

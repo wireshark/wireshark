@@ -1,7 +1,7 @@
 /* tap-iousers.c
  * iostat   2003 Ronnie Sahlberg
  *
- * $Id: tap-iousers.c,v 1.9 2003/08/24 03:31:53 sahlberg Exp $
+ * $Id: tap-iousers.c,v 1.10 2003/08/24 04:58:31 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -43,6 +43,7 @@
 #include "packet-udp.h"
 #include "packet-eth.h"
 #include "packet-tr.h"
+#include "packet-fc.h"
 #include <string.h>
 
 typedef struct _io_users_t {
@@ -212,6 +213,53 @@ iousers_ip_packet(io_users_t *iu, packet_info *pinfo, epan_dissect_t *edt _U_, v
 }
 
 static int
+iousers_fc_packet(io_users_t *iu, packet_info *pinfo, epan_dissect_t *edt _U_, void *vfc)
+{
+	fc_hdr *fchdr=vfc;
+	address *addr1, *addr2;
+	io_users_item_t *iui;
+
+	if(CMP_ADDRESS(&fchdr->s_id, &fchdr->d_id)<0){
+		addr1=&fchdr->s_id;
+		addr2=&fchdr->d_id;
+	} else {
+		addr2=&fchdr->s_id;
+		addr1=&fchdr->d_id;
+	}
+
+	for(iui=iu->items;iui;iui=iui->next){
+		if((!CMP_ADDRESS(&iui->addr1, addr1))
+		&&(!CMP_ADDRESS(&iui->addr2, addr2)) ){
+			break;
+		}
+	}
+
+	if(!iui){
+		iui=g_malloc(sizeof(io_users_item_t));
+		iui->next=iu->items;
+		iu->items=iui;
+		COPY_ADDRESS(&iui->addr1, addr1);
+		iui->name1=strdup(address_to_str(addr1));
+		COPY_ADDRESS(&iui->addr2, addr2);
+		iui->name2=strdup(address_to_str(addr2));
+		iui->frames1=0;
+		iui->frames2=0;
+		iui->bytes1=0;
+		iui->bytes2=0;
+	}
+
+	if(!CMP_ADDRESS(&fchdr->d_id,&iui->addr1)){
+		iui->frames1++;
+		iui->bytes1+=pinfo->fd->pkt_len;
+	} else {
+		iui->frames2++;
+		iui->bytes2+=pinfo->fd->pkt_len;
+	}
+
+	return 1;
+}
+
+static int
 iousers_eth_packet(io_users_t *iu, packet_info *pinfo, epan_dissect_t *edt _U_, void *veth)
 {
 	eth_hdr *ehdr=veth;
@@ -365,6 +413,14 @@ iousers_init(char *optarg)
 		}
 		tap_type="eth";
 		packet_func=iousers_eth_packet;
+	} else if(!strncmp(optarg,"talkers,fc",10)){
+		if(optarg[10]==','){
+			filter=optarg+11;
+		} else {
+			filter=NULL;
+		}
+		tap_type="fc";
+		packet_func=iousers_fc_packet;
 	} else if(!strncmp(optarg,"talkers,tcp",11)){
 		if(optarg[11]==','){
 			filter=optarg+12;
@@ -401,6 +457,7 @@ iousers_init(char *optarg)
 		fprintf(stderr, "tethereal: invalid \"-z talkers,<type>[,<filter>]\" argument\n");
 		fprintf(stderr,"   <type> must be one of\n");
 		fprintf(stderr,"      \"eth\"\n");
+		fprintf(stderr,"      \"fc\"\n");
 		fprintf(stderr,"      \"ip\"\n");
 		fprintf(stderr,"      \"tcp\"\n");
 		fprintf(stderr,"      \"tr\"\n");
