@@ -1,7 +1,7 @@
 /* filters.c
  * Code for reading and writing the filters file.
  *
- * $Id: filters.c,v 1.3 2001/01/28 09:13:07 guy Exp $
+ * $Id: filters.c,v 1.4 2001/01/28 22:28:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -38,6 +38,10 @@
 
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
+#endif
+
+#ifdef HAVE_DIRECT_H
+#include <direct.h>		/* to declare "mkdir()" on Windows */
 #endif
 
 #include <glib.h>
