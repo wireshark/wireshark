@@ -3,7 +3,7 @@
  *
  * Huagang XIE <huagang@intruvert.com>
  *
- * $Id: packet-mysql.c,v 1.1 2003/01/19 21:29:08 guy Exp $
+ * $Id: packet-mysql.c,v 1.2 2003/01/20 06:54:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -40,7 +40,7 @@
 #include <epan/conversation.h>
 
 #include "packet-smb-common.h"
-#include "packet-frame.h"
+#include "packet-tcp.h"
 #include "reassemble.h"
 #include "prefs.h"
 
@@ -98,9 +98,6 @@ static gint ett_mysql = -1;
 static gint ett_server_greeting = -1;
 static gint ett_caps = -1;
 static gint ett_request = -1;
-
-
-static dissector_handle_t mysql_handle;
 
 static gboolean mysql_desegment = TRUE;
 
@@ -207,6 +204,9 @@ static const value_string mysql_error_code_vals[] = {
 };
 #endif
 
+static guint get_mysql_pdu_len(tvbuff_t *tvb, int offset);
+static void dissect_mysql_pdu(tvbuff_t *tvb, packet_info *pinfo,
+		proto_tree *tree);
 static int mysql_dissect_server_greeting(tvbuff_t *tvb, packet_info *pinfo, 
 		int offset, proto_tree *tree);
 static int mysql_dissect_authentication(tvbuff_t *tvb, packet_info *pinfo,
@@ -219,19 +219,38 @@ static int mysql_dissect_response(tvbuff_t *tvb, packet_info *pinfo,
 static void
 dissect_mysql(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
+	tcp_dissect_pdus(tvb, pinfo, tree, mysql_desegment, 3,
+	    get_mysql_pdu_len, dissect_mysql_pdu);
+}
+
+static guint
+get_mysql_pdu_len(tvbuff_t *tvb, int offset)
+{
+	guint plen;
+
+	/*
+	 * Get the length of the MySQL packet.
+	 */
+	plen = tvb_get_letoh24(tvb, offset);
+
+	/*
+	 * That length doesn't include the length field or the packet
+	 * number itself; add them in.
+	 */
+	return plen + 4;
+}
+
+static void
+dissect_mysql_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
 	proto_tree	*mysql_tree = NULL;
 	proto_item	*ti;
 	conversation_t  *conversation;
 
-	gint		offset = 0;
-	gint		this_offset = 0;
-	guint32 	packet_length;
+	int		offset = 0;
 	guint		packet_number;
 
-	guint           i1=0;
-
-	guint		is_response=0;
-	guint32		length;
+	gboolean	is_response;
 
 	conversation = find_conversation(&pinfo->src, &pinfo->dst, pinfo->ptype,
 		pinfo->srcport, pinfo->destport, 0);
@@ -240,105 +259,69 @@ dissect_mysql(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/* create a new conversation */
 		conversation = conversation_new(&pinfo->src, &pinfo->dst, pinfo->ptype,
 				pinfo->srcport, pinfo->destport, 0);
-		/* reset some counter */
-		offset = this_offset = 0;
 	}
 
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "MySQL");
 
-	if (pinfo->destport == TCP_PORT_MySQL) {
-	  	is_response=0;
+	if (pinfo->destport == pinfo->match_port) {
+	  	is_response=FALSE;
 	}else {
-		is_response=1;
+		is_response=TRUE;
 	}
 
-	while (tvb_reported_length_remaining(tvb, offset) != 0) {
-		/*
-		 * We use "tvb_ensure_length_remaining()" to make sure
-		 * there actually *is* data remaining.
-		 */
-		length = tvb_ensure_length_remaining(tvb, offset);
+	if (tree) {
+		  ti = proto_tree_add_item(tree, proto_mysql, tvb, offset, -1, FALSE);
+		  mysql_tree = proto_item_add_subtree(ti, ett_mysql);
 
-		this_offset = offset;
-
-		packet_length = tvb_get_letoh24(tvb, offset);
-		/* check if reassembly is needed */
-		if (mysql_desegment && pinfo->can_desegment) {
-			if(packet_length+4 > length) {
-				pinfo->desegment_offset = offset;
-				pinfo->desegment_len = packet_length + 4 - length;
-				return;
-			}
-		}
-
-		if (tree) {
-			  ti = proto_tree_add_item(tree, proto_mysql, tvb, offset, -1, FALSE);
-			  mysql_tree = proto_item_add_subtree(ti, ett_mysql);
-
-			  proto_tree_add_uint(mysql_tree, hf_mysql_packet_length, tvb,
-				    offset, 3, packet_length);
-		}
-		offset += 3;
+		  proto_tree_add_item(mysql_tree, hf_mysql_packet_length, tvb,
+			    offset, 3, TRUE);
+	}
+	offset += 3;
 /* packet number */
-		packet_number= tvb_get_guint8(tvb, offset);
-		if (tree) {
-			  proto_tree_add_uint(mysql_tree, hf_mysql_packet_number, tvb,
-			    offset, 1, packet_number);
-		}
-		offset += 1;
-
-		/* 	
-		 *	packet == 0 && response --> server greeting
-		 *	packet == 1 && request --> login request
-		 */ 
-		if(is_response ) {
-			if( packet_number == 0 ) {
-				if (check_col(pinfo->cinfo, COL_INFO)) {
-	  				col_add_str(pinfo->cinfo, COL_INFO, "Server Greeting" ) ; 
-				}
-				offset = mysql_dissect_server_greeting(tvb,pinfo,offset,mysql_tree);
-			}else {
-				if (check_col(pinfo->cinfo, COL_INFO)) {
-	  				col_add_str(pinfo->cinfo, COL_INFO, "Response" ) ; 
-				}
-				offset = mysql_dissect_response(tvb,pinfo,offset,mysql_tree);
-	  		}
-		} else {
-			if( packet_number == 1 ) {
-				if (check_col(pinfo->cinfo, COL_INFO)) {
-					col_add_str(pinfo->cinfo, COL_INFO, "Login Request") ; 
-				}
-				offset = mysql_dissect_authentication(tvb,pinfo,offset,mysql_tree);
-			}else {
-				if (check_col(pinfo->cinfo, COL_INFO)) {
-					col_add_str(pinfo->cinfo, COL_INFO, "Request") ; 
-				}
-				offset = mysql_dissect_request(tvb,pinfo,offset,mysql_tree);
-			}
-		}
-
-
-/* paylod */
-		if(packet_length+4 > length) {
-			if (mysql_desegment && pinfo->can_desegment) {
-		 		i1 = packet_length-offset+this_offset+4;
-			} else {
-				/* increase by 1 to make the display or unassembly packet */
-				i1 = length-offset+this_offset+4; 
-			}
-		} else {
-		 	i1 = packet_length-offset+this_offset+4;
-		}
-		 if (tree && i1 > 0) {
-			proto_tree_add_item(mysql_tree, hf_mysql_payload,
-			    tvb, offset, i1, FALSE);
-	  	}
-		offset += i1;
+	packet_number= tvb_get_guint8(tvb, offset);
+	if (tree) {
+		  proto_tree_add_uint(mysql_tree, hf_mysql_packet_number, tvb,
+		    offset, 1, packet_number);
 	}
-	pinfo->desegment_offset = 0;
-	pinfo->desegment_len = 0;
+	offset += 1;
+
+	/* 	
+	 *	packet == 0 && response --> server greeting
+	 *	packet == 1 && request --> login request
+	 */ 
+	if(is_response ) {
+		if( packet_number == 0 ) {
+			if (check_col(pinfo->cinfo, COL_INFO)) {
+  				col_add_str(pinfo->cinfo, COL_INFO, "Server Greeting" ) ; 
+			}
+			offset = mysql_dissect_server_greeting(tvb,pinfo,offset,mysql_tree);
+		}else {
+			if (check_col(pinfo->cinfo, COL_INFO)) {
+  				col_add_str(pinfo->cinfo, COL_INFO, "Response" ) ; 
+			}
+			offset = mysql_dissect_response(tvb,pinfo,offset,mysql_tree);
+  		}
+	} else {
+		if( packet_number == 1 ) {
+			if (check_col(pinfo->cinfo, COL_INFO)) {
+				col_add_str(pinfo->cinfo, COL_INFO, "Login Request") ; 
+			}
+			offset = mysql_dissect_authentication(tvb,pinfo,offset,mysql_tree);
+		}else {
+			if (check_col(pinfo->cinfo, COL_INFO)) {
+				col_add_str(pinfo->cinfo, COL_INFO, "Request") ; 
+			}
+			offset = mysql_dissect_request(tvb,pinfo,offset,mysql_tree);
+		}
+	}
+
+/* payload */
+	if (tree && tvb_reported_length_remaining(tvb, offset) > 0) {
+		proto_tree_add_item(mysql_tree, hf_mysql_payload,
+		    tvb, offset, -1, FALSE);
+  	}
 }
 static int 
 mysql_dissect_response(tvbuff_t *tvb, packet_info *pinfo,
@@ -821,8 +804,6 @@ proto_register_mysql(void)
  	 proto_register_field_array(proto_mysql, hf, array_length(hf));
   	proto_register_subtree_array(ett, array_length(ett));
 
-  	mysql_handle = create_dissector_handle(dissect_mysql, proto_mysql);
-  
   	mysql_module = prefs_register_protocol(proto_mysql, NULL);
 	prefs_register_bool_preference(mysql_module, "desegment_buffers",
 			"Desegment all MySQL buffers spanning multiple TCP segments",
@@ -833,5 +814,9 @@ proto_register_mysql(void)
 void
 proto_reg_handoff_mysql(void)
 {
-  dissector_add("tcp.port", TCP_PORT_MySQL, mysql_handle);
+	dissector_handle_t mysql_handle;
+
+	mysql_handle = create_dissector_handle(dissect_mysql, proto_mysql);
+  
+	dissector_add("tcp.port", TCP_PORT_MySQL, mysql_handle);
 }
