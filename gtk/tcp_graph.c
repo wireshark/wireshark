@@ -3,7 +3,7 @@
  * By Pavel Mores <pvl@uh.cz>
  * Win32 port:  rwh@unifiedtech.com
  *
- * $Id: tcp_graph.c,v 1.43 2004/01/10 16:27:42 ulfl Exp $
+ * $Id: tcp_graph.c,v 1.44 2004/01/13 08:25:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1179,14 +1179,14 @@ static void callback_zoom_inout (GtkWidget *toggle, gpointer data)
 static void callback_zoom_step (GtkWidget *spin, gpointer data)
 {
 	struct graph *g = (struct graph * )data;
-	float value;
+	double value;
 	int direction;
 	double *zoom_this, *zoom_other;
 	GtkSpinButton *widget_this, *widget_other;
 	double old_this;
 
 	direction = (int)OBJECT_GET_DATA(spin, "direction");
-	value = (float) gtk_spin_button_get_value_as_float (GTK_SPIN_BUTTON (spin));
+	value = gtk_spin_button_get_value_as_float (GTK_SPIN_BUTTON (spin));
 
 	if (direction) {
 		zoom_this = &g->zoom.step_y;
@@ -1375,7 +1375,7 @@ static void callback_mag_y (GtkWidget *spin, gpointer data)
 static void callback_mag_zoom (GtkWidget *spin, gpointer data)
 {
 	struct graph *g = (struct graph * )data;
-	float value;
+	double value;
 	int direction;
 	double *zoom_this, *zoom_other;
 	GtkSpinButton *widget_this, *widget_other;
@@ -1387,7 +1387,7 @@ static void callback_mag_zoom (GtkWidget *spin, gpointer data)
 		return;
 	}
 	direction = (int)OBJECT_GET_DATA(spin, "direction");
-	value = (float) gtk_spin_button_get_value_as_float (GTK_SPIN_BUTTON (spin));
+	value = gtk_spin_button_get_value_as_float (GTK_SPIN_BUTTON (spin));
 
 	if (direction) {
 		zoom_this = &g->magnify.zoom.y;
