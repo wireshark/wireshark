@@ -2,7 +2,7 @@
  * Routines for the Check Point High-Availability Protocol (CPHAP)
  * Copyright 2002, Yaniv Kaul <ykaul-at-netvision.net.il>
  *
- * $Id: packet-cpha.c,v 1.8 2003/12/17 23:35:28 ulfl Exp $
+ * $Id: packet-cpha.c,v 1.9 2003/12/18 00:25:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -158,12 +158,11 @@ static const char *state_str[NUM_STATES+1] = {
   "Active/Active-Attention"
 };
 
-#define NUM_STATUS 3
-static const char *status_str[NUM_STATUS+1] = {
-  "Unknown status",
-  "New policy arrived - no need to modify HA configuration",
-  "New policy arrived - need to modify HA configuration",
-  "Ready to change configuration"
+static const value_string status_vals[] = {
+  { 1, "New policy arrived - no need to modify HA configuration" },
+  { 2, "New policy arrived - need to modify HA configuration" },
+  { 3, "Ready to change configuration" },
+  { 0, NULL }
 };
 
 #define NUM_HA_MODES 4
@@ -187,7 +186,6 @@ static void dissect_conf_reply(tvbuff_t *, int, proto_tree *);
 int is_report_ifs(guint16);
 static const char *report_code2str(guint16);
 static const char *ha_mode2str(guint16);
-static const char *status2str(guint32);
 static const char *state2str(guint8);
 
 static int
@@ -386,7 +384,7 @@ static void dissect_policy_change(tvbuff_t * tvb, int offset, proto_tree * tree)
 
   status = tvb_get_ntohl(tvb, offset);
 
-  proto_tree_add_uint_format(tree, hf_status, tvb, offset, sizeof(status), status, "Status %d (%s)", status, status2str(status));
+  proto_tree_add_uint(tree, hf_status, tvb, offset, sizeof(status), status);
   offset += sizeof(guint32);
 }
 
@@ -474,13 +472,6 @@ ha_mode2str(guint16 hamode) {
 }
 
 static const char *
-status2str(guint32 status) {
-  if(status <= NUM_STATUS)
-	return status_str[status];
-  return status_str[0];
-}
-
-static const char *
 state2str(guint8 state) {
   if(state <= NUM_STATES)
 	return state_str[state];
@@ -552,7 +543,7 @@ proto_register_cpha(void)
     { &hf_out_assumed_up_num,
     { "Interfaces assumed up in the Outbound", "cphap.out_assume_up", FT_INT8, BASE_DEC, NULL, 0x0, "", HFILL}},
     { &hf_status,
-    { "Status", "cphap.status", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL}},
+    { "Status", "cphap.status", FT_UINT32, BASE_DEC, VALS(status_vals), 0x0, "", HFILL}},
     { &hf_ifn,
     { "Interface Number", "cpha.ifn", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL}},
   };
