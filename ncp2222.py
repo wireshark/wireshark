@@ -24,7 +24,7 @@ http://developer.novell.com/ndk/doc/docui/index.htm#../ncp/ncp__enu/data/
 for a badly-formatted HTML version of the same PDF.
 
 
-$Id: ncp2222.py,v 1.14.2.10 2002/02/27 04:26:55 gram Exp $
+$Id: ncp2222.py,v 1.14.2.11 2002/02/27 05:08:46 gram Exp $
 
 Copyright (c) 2000-2002 by Gilbert Ramirez <gram@alumni.rice.edu>
 and Greg Morris <GMORRIS@novell.com>.
@@ -263,7 +263,7 @@ class PTVC(NamedList):
 		x =  "static const ptvc_record %s[] = {\n" % (self.Name())
 		for ptvc_rec in self.list:
 			x = x +  "\t%s,\n" % (ptvc_rec.Code())
-		x = x + "\t{ NULL, 0, FALSE, NULL, NO_VAR, NO_REPEAT, NO_REQ_COND }\n"
+		x = x + "\t{ NULL, 0, NULL, NO_ENDIANNESS, NO_VAR, NO_REPEAT, NO_REQ_COND }\n"
 		x = x + "};\n"
 		return x
 
@@ -293,7 +293,7 @@ class PTVCBitfield(PTVC):
 		x = x + "static const ptvc_record ptvc_%s[] = {\n" % (self.Name())
 		for ptvc_rec in self.list:
 			x = x +  "\t%s,\n" % (ptvc_rec.Code())
-		x = x + "\t{ NULL, 0, FALSE, NULL, NO_VAR, NO_REPEAT, NO_REQ_COND }\n"
+		x = x + "\t{ NULL, 0, NULL, NO_ENDIANNESS, NO_VAR, NO_REPEAT, NO_REQ_COND }\n"
 		x = x + "};\n"
 
 		x = x + "static const sub_ptvc_record %s = {\n" % (self.Name(),)
@@ -379,7 +379,7 @@ class PTVCRecord:
 
 
 		return "{ &%s, %s, %s, %s, %s, %s, %s }" % (self.field.HFName(),
-				length, endianness, sub_ptvc_name,
+				length, sub_ptvc_name, endianness,
 				var, repeat, req_cond)
 
 	def Offset(self):
@@ -748,14 +748,14 @@ class struct(PTVC, Type):
 		return vars
 
 	def ReferenceString(self, var, repeat, req_cond):
-		return "{ PTVC_STRUCT, NO_LENGTH, NO_ENDIANNESS, &%s, %s, %s, %s}" % (self.name,
-			var, repeat, req_cond)
+		return "{ PTVC_STRUCT, NO_LENGTH, &%s, NO_ENDIANNESS, %s, %s, %s}" % \
+			(self.name, var, repeat, req_cond)
 
 	def Code(self):
 		x = "static const ptvc_record ptvc_%s[] = {\n" % (self.name,)
 		for ptvc_rec in self.list:
 			x = x +  "\t%s,\n" % (ptvc_rec.Code())
-		x = x + "\t{ NULL, NO_LENGTH, NO_ENDIANNESS, NULL, NO_VAR, NO_REPEAT, NO_REQ_COND }\n"
+		x = x + "\t{ NULL, NO_LENGTH, NULL, NO_ENDIANNESS, NO_VAR, NO_REPEAT, NO_REQ_COND }\n"
 		x = x + "};\n"
 
 		x = x + "static const sub_ptvc_record %s = {\n" % (self.name,)
@@ -4823,9 +4823,9 @@ static void ncp_init_protocol(void);
 static void ncp_postseq_cleanup(void);
 
 /* Endianness macros */
-#define BE		FALSE
-#define LE		TRUE
-#define NO_ENDIANNESS	FALSE
+#define BE		0
+#define LE		1
+#define NO_ENDIANNESS	0
 
 #define NO_LENGTH	-1
 
@@ -4834,8 +4834,8 @@ static int ptvc_struct_int_storage;
 #define PTVC_STRUCT	(&ptvc_struct_int_storage)
 
 /* Values used in the count-variable ("var"/"repeat") logic. */
-#define NO_VAR -1
-#define NO_REPEAT -1"""
+#define NO_VAR 3
+#define NO_REPEAT 3"""
 
 
 	if global_highest_var > -1:
@@ -4847,7 +4847,7 @@ static int ptvc_struct_int_storage;
 
 	print """
 /* Values used in request-condition logic. */
-#define NO_REQ_COND -1
+#define NO_REQ_COND 63
 
 static int hf_ncp_func = -1;
 static int hf_ncp_length = -1;
