@@ -5,7 +5,7 @@
  *
  * Using IPDC spec 0.20.2
  *
- * $Id: packet-ipdc.h,v 1.5 2004/04/09 08:39:00 guy Exp $
+ * $Id: packet-ipdc.h,v 1.6 2004/04/22 20:31:01 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -43,7 +43,7 @@ typedef enum {
 	IPDC_LINESTATUS,
 	IPDC_CHANNELSTATUS,
 	IPDC_Q931,
-	IPDC_ENCTYPE,
+	IPDC_ENCTYPE
 } ipdc_tag_type; 
 
 static const value_string encoding_type_vals[] = {
