@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.85 2003/05/03 01:11:29 guy Exp $
+ * $Id: proto.c,v 1.86 2003/05/19 03:23:12 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -698,31 +698,32 @@ proto_tree_add_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 			break;
 
 		case FT_STRINGZ:
-			if (length == -1) {
-				/* This can throw an exception */
-				length = tvb_strsize(tvb, start);
+			if (length != 0) {  /* XXX - Should we throw an exception instead? */
+				if (length == -1) {
+					/* This can throw an exception */
+					length = tvb_strsize(tvb, start);
 
-				/* This g_strdup'ed memory is freed in proto_tree_free_node() */
-				string = g_malloc(length);
+					/* This g_strdup'ed memory is freed in proto_tree_free_node() */
+					string = g_malloc(length);
 
-				tvb_memcpy(tvb, string, start, length);
-				new_fi->length = length;
+					tvb_memcpy(tvb, string, start, length);
+					new_fi->length = length;
+				}
+				else {
+					/* In this case, length signifies maximum length. */
+
+					/* This g_strdup'ed memory is freed in proto_tree_free_node() */
+					string = g_malloc(length);
+
+					CLEANUP_PUSH(g_free, string);
+
+					found_length = tvb_get_nstringz0(tvb, start, length, string);
+
+					CLEANUP_POP;
+					new_fi->length = found_length + 1;
+				}
+				proto_tree_set_string(new_fi, string, TRUE);
 			}
-			else {
-				/* In this case, length signifies maximum length. */
-
-				/* This g_strdup'ed memory is freed in proto_tree_free_node() */
-				string = g_malloc(length);
-
-				CLEANUP_PUSH(g_free, string);
-
-				found_length = tvb_get_nstringz0(tvb, start, length, string);
-
-				CLEANUP_POP;
-				new_fi->length = found_length + 1;
-			}
-			proto_tree_set_string(new_fi, string, TRUE);
-
 			break;
 
 		case FT_UINT_STRING:

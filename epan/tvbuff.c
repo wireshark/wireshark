@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.c,v 1.43 2003/04/30 02:35:23 gerald Exp $
+ * $Id: tvbuff.c,v 1.44 2003/05/19 03:23:12 gerald Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -1783,6 +1783,8 @@ tvb_get_nstringz(tvbuff_t *tvb, gint offset, guint bufsize, guint8* buffer)
 /* Like tvb_get_nstringz(), but never returns -1. The string is guaranteed to
  * have a terminating NUL. If the string was truncated when copied into buffer,
  * a NUL is placed at the end of buffer to terminate it.
+ *
+ * bufsize MUST be greater than 0.
  */
 gint
 tvb_get_nstringz0(tvbuff_t *tvb, gint offset, guint bufsize, guint8* buffer)
@@ -1790,6 +1792,10 @@ tvb_get_nstringz0(tvbuff_t *tvb, gint offset, guint bufsize, guint8* buffer)
 	gint	len, bytes_copied;
 
 	len = _tvb_get_nstringz(tvb, offset, bufsize, buffer, &bytes_copied);
+
+	if (len == 0) {
+		THROW(BoundsError);
+	}
 
 	if (len == -1) {
 		buffer[bufsize - 1] = 0;

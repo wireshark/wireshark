@@ -4,7 +4,7 @@
  * Uwe Girlich <uwe@planetquake.com>
  *	http://www.idsoftware.com/q1source/q1source.zip
  *
- * $Id: packet-quake.c,v 1.28 2002/08/28 21:00:26 jmayer Exp $
+ * $Id: packet-quake.c,v 1.29 2003/05/19 03:23:11 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -155,13 +155,11 @@ static void
 dissect_quake_CCREQ_CONNECT
 (tvbuff_t *tvb, proto_tree *tree)
 {
-	gint maxbufsize;
 	char game[QUAKE_MAXSTRING];
 	guint8 version;
 	gint len;
 
-	maxbufsize = MIN(sizeof(game), tvb_length(tvb));
-	len = tvb_get_nstringz0(tvb, 0, maxbufsize, game);
+	len = tvb_get_nstringz0(tvb, 0, sizeof(game), game);
 	version = tvb_get_guint8(tvb, len + 1);
 
 	if (tree) {
@@ -177,13 +175,11 @@ static void
 dissect_quake_CCREQ_SERVER_INFO
 (tvbuff_t *tvb, proto_tree *tree)
 {
-	gint maxbufsize;
 	char game[QUAKE_MAXSTRING];
 	guint8 version;
 	gint len;
 
-	maxbufsize = MIN(sizeof(game), tvb_length(tvb));
-	len = tvb_get_nstringz0(tvb, 0, maxbufsize, game);
+	len = tvb_get_nstringz0(tvb, 0, sizeof(game), game);
 	version = tvb_get_guint8(tvb, len + 1);
 
 	if (tree) {
@@ -214,11 +210,9 @@ dissect_quake_CCREQ_RULE_INFO
 (tvbuff_t *tvb, proto_tree *tree)
 {
 	char rule[QUAKE_MAXSTRING];
-	gint maxbufsize;
 	gint len;
 
-	maxbufsize = MIN(sizeof(rule), tvb_length(tvb));
-	len = tvb_get_nstringz0(tvb, 0, maxbufsize, rule);
+	len = tvb_get_nstringz0(tvb, 0, sizeof(rule), rule);
 	if (tree) {
 		proto_tree_add_string(tree, hf_quake_CCREQ_RULE_INFO_lastrule,
 			tvb, 0, len + 1, rule);
@@ -250,12 +244,10 @@ static void
 dissect_quake_CCREP_REJECT
 (tvbuff_t *tvb, proto_tree *tree)
 {
-	gint maxbufsize;
 	char reason[QUAKE_MAXSTRING];
 	gint len;
 
-	maxbufsize = MIN(sizeof(reason), tvb_length(tvb));
-	len = tvb_get_nstringz0(tvb, 0, maxbufsize, reason);
+	len = tvb_get_nstringz0(tvb, 0, sizeof(reason), reason);
 
 	if (tree) {
 		proto_tree_add_string(tree, hf_quake_CCREP_REJECT_reason,
@@ -270,7 +262,6 @@ dissect_quake_CCREP_SERVER_INFO
 {
 	gint offset;
 	gint len;
-	gint maxbufsize;
 	char address[QUAKE_MAXSTRING];
 	char server[QUAKE_MAXSTRING];
 	char map[QUAKE_MAXSTRING];
@@ -281,24 +272,21 @@ dissect_quake_CCREP_SERVER_INFO
 
 	offset = 0;
 
-	maxbufsize = MIN((int)sizeof(address), tvb_length_remaining(tvb, offset));
-	len = tvb_get_nstringz0(tvb, offset, maxbufsize, address);
+	len = tvb_get_nstringz0(tvb, offset, sizeof(address), address);
 	if (tree) {
 		proto_tree_add_string(tree, hf_quake_CCREP_SERVER_INFO_address,
 			tvb, offset, len + 1, address);
 	}
 	offset += len + 1;
 
-	maxbufsize = MIN((int)sizeof(server), tvb_length_remaining(tvb, offset));
-	len = tvb_get_nstringz0(tvb, offset, maxbufsize, server);
+	len = tvb_get_nstringz0(tvb, offset, sizeof(server), server);
 	if (tree) {
 		proto_tree_add_string(tree, hf_quake_CCREP_SERVER_INFO_server,
 			tvb, offset, len + 1, server);
 	}
 	offset += len + 1;
 
-	maxbufsize = MIN((int)sizeof(map), tvb_length_remaining(tvb, offset));
-	len = tvb_get_nstringz0(tvb, offset, maxbufsize, map);
+	len = tvb_get_nstringz0(tvb, offset, sizeof(map), map);
 	if (tree) {
 		proto_tree_add_string(tree, hf_quake_CCREP_SERVER_INFO_map,
 			tvb, offset, len + 1, map);
@@ -327,7 +315,6 @@ dissect_quake_CCREP_PLAYER_INFO
 	gint offset;
 	guint8 player;
 	gint len;
-	gint maxbufsize;
 	char name[QUAKE_MAXSTRING];
 	guint32 colors;
 	guint32 color_shirt;
@@ -345,8 +332,7 @@ dissect_quake_CCREP_PLAYER_INFO
 	}
 	offset += 1;
 
-	maxbufsize = MIN((int)sizeof(name), tvb_length_remaining(tvb, offset));
-	len = tvb_get_nstringz0(tvb, offset, maxbufsize, name);
+	len = tvb_get_nstringz0(tvb, offset, sizeof(name), name);
 	if (tree) {
 		proto_tree_add_string(tree, hf_quake_CCREP_PLAYER_INFO_name,
 			tvb, offset, len + 1, name);
@@ -382,8 +368,7 @@ dissect_quake_CCREP_PLAYER_INFO
 	}
 	offset += 3*4;
 
-	maxbufsize = MIN((int)sizeof(address), tvb_length_remaining(tvb, offset));
-	len = tvb_get_nstringz0(tvb, offset, maxbufsize, address);
+	len = tvb_get_nstringz0(tvb, offset, sizeof(address), address);
 	if (tree) {
 		proto_tree_add_string(tree, hf_quake_CCREP_PLAYER_INFO_address,
 			tvb, offset, len + 1, address);
@@ -398,7 +383,6 @@ dissect_quake_CCREP_RULE_INFO
 {
 	char rule[QUAKE_MAXSTRING];
 	char value[QUAKE_MAXSTRING];
-	gint maxbufsize;
 	gint len;
 	gint offset;
 
@@ -406,16 +390,14 @@ dissect_quake_CCREP_RULE_INFO
 
 	offset = 0;
 
-	maxbufsize = MIN((int)sizeof(rule), tvb_length_remaining(tvb, offset));
-	len = tvb_get_nstringz0(tvb, offset, maxbufsize, rule);
+	len = tvb_get_nstringz0(tvb, offset, sizeof(rule), rule);
 	if (tree) {
 		proto_tree_add_string(tree, hf_quake_CCREP_RULE_INFO_rule,
 			tvb, offset, len + 1, rule);
 	}
 	offset += len + 1;
 
-	maxbufsize = MIN((int)sizeof(value), tvb_length_remaining(tvb, offset));
-	len = tvb_get_nstringz0(tvb, offset, maxbufsize, value);
+	len = tvb_get_nstringz0(tvb, offset, sizeof(value), value);
 	if (tree) {
 		proto_tree_add_string(tree, hf_quake_CCREP_RULE_INFO_value,
 			tvb, offset, len + 1, value);

@@ -4,7 +4,7 @@
  * Uwe Girlich <uwe@planetquake.com>
  *	http://www.idsoftware.com/q1source/q1source.zip
  *
- * $Id: packet-quakeworld.c,v 1.16 2002/08/28 21:00:28 jmayer Exp $
+ * $Id: packet-quakeworld.c,v 1.17 2003/05/19 03:23:11 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -385,8 +385,7 @@ dissect_quakeworld_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo,
 	/* all the rest of the packet is just text */
         offset = 4;
 
-        maxbufsize = MIN((gint)MAX_TEXT_SIZE, tvb_length_remaining(tvb, offset));
-        len = tvb_get_nstringz0(tvb, offset, maxbufsize, text);
+        len = tvb_get_nstringz0(tvb, offset, sizeof(text), text);
 	/* actually, we should look for a eol char and stop already there */
 
         if (cl_tree) {

@@ -1,7 +1,7 @@
 /* packet-ppp.c
  * Routines for ppp packet disassembly
  *
- * $Id: packet-ppp.c,v 1.110 2003/04/29 17:56:48 guy Exp $
+ * $Id: packet-ppp.c,v 1.111 2003/05/19 03:23:11 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2202,7 +2202,7 @@ dissect_bap_phone_delta_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
 			  tvb_get_guint8(tvb, offset + 2));
       break;
     case BAP_PHONE_DELTA_SUBOPT_SUBSC_NUM:
-      if (subopt_len >= 2) {
+      if (subopt_len > 2) {
         tvb_get_nstringz0(tvb, offset + 2, subopt_len - 2, buf);
         proto_tree_add_text(suboption_tree, tvb, offset + 2, subopt_len - 2,
 			  "Subscriber Number: %s", buf);
@@ -2212,9 +2212,11 @@ dissect_bap_phone_delta_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
       }
       break;
     case BAP_PHONE_DELTA_SUBOPT_PHONENUM_SUBADDR:
-      tvb_get_nstringz0(tvb, offset + 2, subopt_len - 2, buf);
-      proto_tree_add_text(suboption_tree, tvb, offset + 2, subopt_len - 2,
+      if (subopt_len > 2) {
+        tvb_get_nstringz0(tvb, offset + 2, subopt_len - 2, buf);
+        proto_tree_add_text(suboption_tree, tvb, offset + 2, subopt_len - 2,
 			  "Phone Number Sub Address: %s", buf);
+      }
       break;
     default:
       proto_tree_add_text(suboption_tree, tvb, offset + 2, subopt_len - 2,
@@ -2234,9 +2236,11 @@ dissect_bap_reason_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
   guint8 buf[256];	/* Since length field in BAP Reason Option is
 			   8 bits, 256-octets buf is large enough */
 
-  tvb_get_nstringz0(tvb, offset + 2, length - 2, buf);
-  proto_tree_add_text(tree, tvb, offset, length, "%s: %s",
+  if (length > 2) {
+    tvb_get_nstringz0(tvb, offset + 2, length - 2, buf);
+    proto_tree_add_text(tree, tvb, offset, length, "%s: %s",
 			   optp->name, buf);
+  }
 }
 
 static void
