@@ -484,8 +484,6 @@ parse_ascend(FILE_T fh, guint8 *pd, struct ascend_phdr *phdr,
      an infinite loop reading a broken trace. */
   if (first_hexbyte)
     *start_of_data = first_hexbyte;
-  else
-    *start_of_data++;
 
   /* if we got at least some data, return success even if the parser
      reported an error. This is because the debug header gives the number
