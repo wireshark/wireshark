@@ -1,7 +1,7 @@
 /* packet-bgp.c
  * Definitions for BGP packet disassembly structures and routine
  *
- * $Id: packet-bgp.h,v 1.10 2000/12/25 05:28:40 itojun Exp $
+ * $Id: packet-bgp.h,v 1.11 2001/04/17 21:25:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -149,12 +149,6 @@ struct bgp_attr {
 #define AFNUM_DECNET	13
 #define AFNUM_BANYAN	14
 #define AFNUM_E164NSAP	15
-
-#define CHECK_SIZE(x, s, l) \
-do {				\
-    if ((x) + (s) > (l))	\
-	return;			\
-} while (0)
 
 #ifndef offsetof
 #define offsetof(type, member)  ((size_t)(&((type *)0)->member))
