@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.47 1999/11/26 06:27:18 sharpe Exp $
+ * $Id: packet-smb.c,v 1.48 1999/11/27 02:17:49 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -104,6 +104,7 @@ struct smb_request_val {
   guint16 last_lanman_cmd;
   gchar *last_param_descrip;   /* Keep these descriptors around */
   gchar *last_data_descrip;
+  guint16 last_level;          /* Last level in request */
 };
 
 struct smb_info {
@@ -9921,6 +9922,7 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd, proto_tree *pa
       loc_offset += strlen(ReturnDescriptor) + 1;
 
       Level = GSHORT(pd, loc_offset);
+      si.request_val -> last_level = Level;
 
       if (tree) {
 
@@ -10169,7 +10171,9 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd, proto_tree *pa
 
 	if (tree) {
 
-	  ti = proto_tree_add_text(server_tree, loc_offset, 26, "Server %s", Server);
+	  ti = proto_tree_add_text(server_tree, loc_offset, 
+				   (si.request_val -> last_level) ? 26 : 16,
+				   "Server %s", Server);
 	  server = proto_item_add_subtree(ti, ett_lanman_server);
 
 
@@ -10183,47 +10187,51 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd, proto_tree *pa
 
 	loc_offset += 16;
 
-	ServerMajor = GBYTE(pd, loc_offset);
+	if (si.request_val -> last_level) { /* Print out the rest of the info */
 
-	if (tree) {
+	  ServerMajor = GBYTE(pd, loc_offset);
 
-	  proto_tree_add_text(server, loc_offset, 1, "Major Version: %u", ServerMajor);
+	  if (tree) {
+
+	    proto_tree_add_text(server, loc_offset, 1, "Major Version: %u", ServerMajor);
+
+	  }
+
+	  loc_offset += 1;
+
+	  ServerMinor = GBYTE(pd, loc_offset);
+
+	  if (tree) {
+
+	    proto_tree_add_text(server, loc_offset, 1, "Minor Version: %u", ServerMinor);
+
+	  }
+
+	  loc_offset += 1;
+
+	  ServerFlags = GWORD(pd, loc_offset);
+
+	  if (tree) {
+
+	    ti = proto_tree_add_text(server, loc_offset, 4, "Server Type: 0x%08X", ServerFlags);
+	    flags_tree = proto_item_add_subtree(ti, ett_browse_flags);
+	    dissect_server_flags(flags_tree, loc_offset, 4, ServerFlags);
+
+	  }
+
+	  loc_offset += 4;
+
+	  Comment = pd + SMB_offset + DataOffset + GWORD(pd, loc_offset);
+
+	  if (tree) {
+
+	    proto_tree_add_text(server, loc_offset, 4, "Server Comment: %s", Comment);
+
+	  }
+
+	  loc_offset += 4;
 
 	}
-
-	loc_offset += 1;
-
-	ServerMinor = GBYTE(pd, loc_offset);
-
-	if (tree) {
-
-	  proto_tree_add_text(server, loc_offset, 1, "Minor Version: %u", ServerMinor);
-
-	}
-
-	loc_offset += 1;
-
-	ServerFlags = GWORD(pd, loc_offset);
-
-	if (tree) {
-
-	  ti = proto_tree_add_text(server, loc_offset, 4, "Server Type: 0x%08X", ServerFlags);
-	  flags_tree = proto_item_add_subtree(ti, ett_browse_flags);
-	  dissect_server_flags(flags_tree, loc_offset, 4, ServerFlags);
-
-	}
-
-	loc_offset += 4;
-
-	Comment = pd + SMB_offset + DataOffset + GWORD(pd, loc_offset);
-
-	if (tree) {
-
-	  proto_tree_add_text(server, loc_offset, 4, "Server Comment: %s", Comment);
-
-	}
-
-	loc_offset += 4;
 
       }
 
