@@ -1,7 +1,7 @@
 /* etypes.h
  * Defines ethernet packet types, similar to tcpdump's ethertype.h
  *
- * $Id: etypes.h,v 1.9 1999/10/20 22:41:11 guy Exp $
+ * $Id: etypes.h,v 1.10 1999/11/26 04:52:36 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -102,6 +102,9 @@
 #define ETHERTYPE_VLAN 0x8100 /* 802.1Q Virtual LAN */
 #endif
 
+#ifndef ETHERTYPE_SNMP
+#define ETHERTYPE_SNMP 0x814c /* SNMP over Ethernet, RFC 1089 */
+#endif
 
 #endif /* etypes.h */
 

@@ -2,7 +2,7 @@
  * Routines for calling the right protocol for the ethertype.
  * This is called by both packet-eth.c (Ethernet II) and packet-llc.c (SNAP)
  *
- * $Id: ethertype.c,v 1.17 1999/10/20 22:41:11 guy Exp $
+ * $Id: ethertype.c,v 1.18 1999/11/26 04:52:36 gram Exp $
  *
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
@@ -118,6 +118,11 @@ ethertype(guint16 etype, int offset,
     case ETHERTYPE_VLAN:
       dissect_vlan(pd, offset, fd, tree);
       break;
+#if defined(HAVE_UCD_SNMP_SNMP_H) || defined(HAVE_SNMP_SNMP_H)
+    case ETHERTYPE_SNMP:
+      dissect_snmp(pd, offset, fd, tree);
+      break;
+#endif
     default:
       dissect_data(pd, offset, fd, tree);
       if (check_col(fd, COL_PROTOCOL)) { col_add_fstr(fd, COL_PROTOCOL, "0x%04x", etype); }
