@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.149 2001/11/16 01:52:27 guy Exp $
+ * $Id: packet-smb.c,v 1.150 2001/11/16 02:53:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -451,6 +451,7 @@ static int hf_smb_current_offset = -1;
 static int hf_smb_t2_alignment = -1;
 static int hf_smb_t2_stream_name_length = -1;
 static int hf_smb_t2_stream_size = -1;
+static int hf_smb_t2_stream_name = -1;
 static int hf_smb_t2_compressed_file_size = -1;
 static int hf_smb_t2_compressed_format = -1;
 static int hf_smb_t2_compressed_unit_shift = -1;
@@ -556,6 +557,7 @@ static gint ett_smb_transaction_flags = -1;
 static gint ett_smb_transaction_params = -1;
 static gint ett_smb_find_first2_flags = -1;
 static gint ett_smb_transaction_data = -1;
+static gint ett_smb_stream_info = -1;
 static gint ett_smb_dfs_referrals = -1;
 static gint ett_smb_dfs_referral = -1;
 static gint ett_smb_dfs_referral_flags = -1;
@@ -8850,38 +8852,76 @@ dissect_4_2_14_8(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
    as described in 4.2.14.10
 */
 static int
-dissect_4_2_14_10(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+dissect_4_2_14_10(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
     int offset, guint16 *bcp, gboolean *trunc)
 {
+	proto_item *item;
+	proto_tree *tree;
+	int old_offset;
+	guint32 neo;
 	int fn_len;
 	const char *fn;
+	int padcnt;
 
-	/* next entry offset */
-	CHECK_BYTE_COUNT_SUBR(4);
-	proto_tree_add_item(tree, hf_smb_next_entry_offset, tvb, offset, 4, TRUE);
-	COUNT_BYTES_SUBR(4);
+	for (;;) {
+		old_offset = offset;
+
+		/* next entry offset */
+		CHECK_BYTE_COUNT_SUBR(4);
+		if(parent_tree){
+			item = proto_tree_add_text(parent_tree, tvb, offset, *bcp, "Stream Info");
+			tree = proto_item_add_subtree(item, ett_smb_ff2_data);
+		} else {
+			item = NULL;
+			tree = NULL;
+		}
+
+		neo = tvb_get_letohl(tvb, offset);
+		proto_tree_add_uint(tree, hf_smb_next_entry_offset, tvb, offset, 4, neo);
+		COUNT_BYTES_SUBR(4);
 	
-	/* stream name len */
-	CHECK_BYTE_COUNT_SUBR(4);
-	proto_tree_add_item(tree, hf_smb_t2_stream_name_length, tvb, offset, 4, TRUE);
-	COUNT_BYTES_SUBR(4);
+		/* stream name len */
+		CHECK_BYTE_COUNT_SUBR(4);
+		fn_len = tvb_get_letohl(tvb, offset);
+		proto_tree_add_uint(tree, hf_smb_t2_stream_name_length, tvb, offset, 4, fn_len);
+		COUNT_BYTES_SUBR(4);
 	
-	/* stream size */
-	CHECK_BYTE_COUNT_SUBR(8);
-	proto_tree_add_item(tree, hf_smb_t2_stream_size, tvb, offset, 8, TRUE);
-	COUNT_BYTES_SUBR(8);
+		/* stream size */
+		CHECK_BYTE_COUNT_SUBR(8);
+		proto_tree_add_item(tree, hf_smb_t2_stream_size, tvb, offset, 8, TRUE);
+		COUNT_BYTES_SUBR(8);
 
-	/* allocation size */
-	CHECK_BYTE_COUNT_SUBR(8);
-	proto_tree_add_item(tree, hf_smb_alloc_size64, tvb, offset, 8, TRUE);
-	COUNT_BYTES_SUBR(8);
+		/* allocation size */
+		CHECK_BYTE_COUNT_SUBR(8);
+		proto_tree_add_item(tree, hf_smb_alloc_size64, tvb, offset, 8, TRUE);
+		COUNT_BYTES_SUBR(8);
 
-	/* file name */
-	fn = get_unicode_or_ascii_string(tvb, &offset, pinfo, &fn_len, FALSE, FALSE, bcp);
-	CHECK_STRING_SUBR(fn);
-	proto_tree_add_string(tree, hf_smb_file_name, tvb, offset, fn_len,
-		fn);
-	COUNT_BYTES_SUBR(fn_len);
+		/* stream name */
+		fn = get_unicode_or_ascii_string(tvb, &offset, pinfo, &fn_len, FALSE, TRUE, bcp);
+		CHECK_STRING_SUBR(fn);
+		proto_tree_add_string(tree, hf_smb_t2_stream_name, tvb, offset, fn_len,
+			fn);
+		COUNT_BYTES_SUBR(fn_len);
+ 
+		proto_item_append_text(item, ": %s", fn);
+		proto_item_set_len(item, offset-old_offset);
+
+		if (neo == 0)
+			break;	/* no more structures */
+
+		/* skip to next structure */
+		padcnt = (old_offset + neo) - offset;
+		if (padcnt < 0) {
+			/*
+			 * XXX - this is bogus; flag it?
+			 */
+			padcnt = 0;
+		}
+		if (padcnt != 0) {
+			CHECK_BYTE_COUNT_SUBR(padcnt);
+			COUNT_BYTES_SUBR(padcnt);
+		}
+	}
 
 	*trunc = FALSE;
 	return offset;
@@ -14442,6 +14482,10 @@ proto_register_smb(void)
 		{ "Stream Size", "smb.stream_size", FT_UINT64, BASE_DEC,
 		NULL, 0, "Size of the stream in number of bytes", HFILL }},
 
+	{ &hf_smb_t2_stream_name,
+		{ "Stream Name", "smb.stream_name", FT_STRING, BASE_NONE,
+		NULL, 0, "Name of the stream", HFILL }},
+
 	{ &hf_smb_t2_compressed_file_size,
 		{ "Compressed Size", "smb.compressed.file_size", FT_UINT64, BASE_DEC,
 		NULL, 0, "Size of the compressed file", HFILL }},
@@ -14705,6 +14749,7 @@ proto_register_smb(void)
 		&ett_smb_transaction_params,
 		&ett_smb_find_first2_flags,
 		&ett_smb_transaction_data,
+		&ett_smb_stream_info,
 		&ett_smb_dfs_referrals,
 		&ett_smb_dfs_referral,
 		&ett_smb_dfs_referral_flags,
