@@ -1,7 +1,7 @@
 /* util.c
  * Utility routines
  *
- * $Id: util.c,v 1.41 2000/08/11 13:34:53 deniel Exp $
+ * $Id: util.c,v 1.42 2000/08/31 11:12:19 girlich Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -508,6 +508,8 @@ get_interface_list(int *err, char *err_str)
 	int     sock = socket(AF_INET, SOCK_DGRAM, 0);
 	struct search_user_data user_data;
 	pcap_t *pch;
+	int len, lastlen;
+	char *buf;
 
 	if (sock < 0) {
 		sprintf(err_str, "Error opening socket: %s",
@@ -516,19 +518,36 @@ get_interface_list(int *err, char *err_str)
 	}
 
 	/*
-	 * Since we have to grab the interface list all at once, we'll
-	 * make plenty of room.
+	 * This code came from: W. Richard Stevens: "UNIX Network Programming",
+	 * Networking APIs: Sockets and XTI, Vol 1, page 434.
 	 */
-	ifc.ifc_len = 1024 * sizeof(struct ifreq);
-	ifc.ifc_buf = malloc(ifc.ifc_len);
-
-	if (ioctl(sock, SIOCGIFCONF, &ifc) < 0 ||
-	    ifc.ifc_len < sizeof(struct ifreq)) {
-		sprintf(err_str, "SIOCGIFCONF error getting list of interfaces: %s",
-		    strerror(errno));
-		goto fail;
-	 }
-
+	lastlen = 0;
+	len = 100 * sizeof(struct ifreq);
+	for ( ; ; ) {
+		buf = g_malloc(len);
+		ifc.ifc_len = len;
+		ifc.ifc_buf = buf;
+		memset (buf, 0, len);
+		if (ioctl(sock, SIOCGIFCONF, &ifc) < 0) {
+			if (errno != EINVAL || lastlen != 0) {
+				sprintf(err_str,
+					"SIOCGIFCONF ioctl error getting list of interfaces: %s",
+					strerror(errno));
+				goto fail;
+			}
+		} else {
+			if (ifc.ifc_len < sizeof(struct ifreq)) {
+				sprintf(err_str,
+					"SIOCGIFCONF ioctl gave too small return buffer");
+				goto fail;
+			}
+			if (ifc.ifc_len == lastlen)
+				break;			/* success, len has not changed */
+			lastlen = ifc.ifc_len;
+		}
+		len += 10 * sizeof(struct ifreq);	/* increment */
+		g_free(buf);
+	}
 	ifr = (struct ifreq *) ifc.ifc_req;
 	last = (struct ifreq *) ((char *) ifr + ifc.ifc_len);
 	while (ifr < last) {
@@ -629,7 +648,7 @@ fail:
 		g_list_foreach(il, free_if_cb, NULL);
 		g_list_free(il);
 	}
-	free(ifc.ifc_buf);
+	g_free(ifc.ifc_buf);
 	close(sock);
 	*err = CANT_GET_INTERFACE_LIST;
 	return NULL;
