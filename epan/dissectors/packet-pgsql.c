@@ -524,7 +524,8 @@ static void dissect_pgsql_fe_msg(guchar type, guint32 n, guint32 length,
             l = tvb_get_ntohl(tvb, n);
             proto_tree_add_int(shrub, hf_val_length, tvb, n, 4, l);
             n += 4;
-            if (l > 0)
+            /* XXX - if we don't limit l here, the function will assert on very large values */
+            if (l > 0 && l < 1000000)
                 proto_tree_add_item(shrub, hf_val_data, tvb, n, l, FALSE);
             n += l;
         }
@@ -778,7 +779,8 @@ static void dissect_pgsql_be_msg(guchar type, guint32 n, guint32 length,
             l = tvb_get_ntohl(tvb, n);
             proto_tree_add_int(shrub, hf_val_length, tvb, n, 4, l);
             n += 4;
-            if (l > 0)
+            /* XXX - if we don't limit l here, the function will assert on very large values */
+            if (l > 0 && l < 1000000)
                 proto_tree_add_item(shrub, hf_val_data, tvb, n, l, FALSE);
             n += l;
         }
