@@ -2128,6 +2128,7 @@ alloc_field_info(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 				    item_length = length_remaining;
             }
 		}
+g_assert(item_length >= 0);
 		if (item_length < 0) {
 			REPORT_DISSECTOR_BUG(g_strdup_printf("\"%s\" - \"%s\" invalid length: %d (%s:%u)",
 			    hfinfo->name, hfinfo->abbrev, item_length,
@@ -2364,7 +2365,8 @@ proto_register_protocol(char *name, char *short_name, char *filter_name)
     header_field_info *hfinfo;
     int proto_id;
     char *existing_name;
-    gint *key, i;
+    gint *key;
+    guint i;
     gboolean found_invalid;
 
     /*
