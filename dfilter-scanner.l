@@ -3,7 +3,7 @@
 /* dfilter-scanner.l
  * Scanner for display filters
  *
- * $Id: dfilter-scanner.l,v 1.14 1999/10/06 18:42:40 gram Exp $
+ * $Id: dfilter-scanner.l,v 1.15 1999/10/07 21:47:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -151,6 +151,12 @@ le|\<\=		{ dfilter_lval.operand = TOK_LE; return TOK_LE; }
 	
 	ftype = proto_registrar_get_ftype(dfilter_lval.variable.id);
 	switch (ftype) {
+		case FT_NONE:
+			retval = T_FT_NONE;
+			break;
+		case FT_BOOLEAN:
+			retval = T_FT_BOOLEAN;
+			break;
 		case FT_UINT8:
 		case FT_VALS_UINT8:
 			retval = T_FT_UINT8;
@@ -164,20 +170,34 @@ le|\<\=		{ dfilter_lval.operand = TOK_LE; return TOK_LE; }
 		case FT_VALS_UINT24:
 			retval = T_FT_UINT32;
 			break;
+		case FT_DOUBLE:
+			dfilter_error("sorry, we don't yet support filtering on floating-point values");
+			retval = 0;
+			break;
+		case FT_ABSOLUTE_TIME:
+			dfilter_error("sorry, we don't yet support filtering on time-of-day values");
+			retval = 0;
+			break;
+		case FT_RELATIVE_TIME:
+			dfilter_error("sorry, we don't yet support filtering on time-delta values");
+			retval = 0;
+			break;
+		case FT_STRING:
+			dfilter_error("sorry, we don't yet support filtering on time-delta values");
+			retval = 0;
+			break;
 		case FT_ETHER:
 			retval = T_FT_ETHER;
-			break;
-		case FT_IPv4:
-			retval = T_FT_IPv4;
-			break;
-		case FT_NONE:
-			retval = T_FT_NONE;
 			break;
 		case FT_BYTES:
 			retval = T_FT_BYTES;
 			break;
-		case FT_BOOLEAN:
-			retval = T_FT_BOOLEAN;
+		case FT_IPv4:
+			retval = T_FT_IPv4;
+			break;
+		case FT_IPv6:
+			dfilter_error("sorry, we don't yet support filtering on IPv6 addresses");
+			retval = 0;
 			break;
 		case FT_IPXNET:
 			retval = T_FT_IPXNET;

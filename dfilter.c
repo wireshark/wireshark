@@ -1,7 +1,7 @@
 /* dfilter.c
  * Routines for display filters
  *
- * $Id: dfilter.c,v 1.23 1999/10/04 18:53:26 gram Exp $
+ * $Id: dfilter.c,v 1.24 1999/10/07 21:47:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -167,15 +167,26 @@ dfilter_compile(dfilter *df, gchar *dfilter_text)
 	/* clean up lex */
 	dfilter_scanner_cleanup();
 
-	/* If a parse error occurred, fill in a generic error message
-	 * if one was not created during parsing. */
+	/* Errors not found by the parser may not cause the parse to
+	 * fail; if "dfilter_error_msg" is set, it means somebody
+	 * else called "dfilter_error()", e.g. the lexical analyzer,
+	 * so treat that as a parse error. */
+	if (dfilter_error_msg != NULL)
+		retval = 1;
+
 	if (retval != 0) {
 		if (dfilter_error_msg == NULL) {
-			dfilter_error_msg = &dfilter_error_msg_buf[0];
-			snprintf(dfilter_error_msg, sizeof(dfilter_error_msg_buf),
+			snprintf(dfilter_error_msg_buf, sizeof(dfilter_error_msg_buf),
 				"Unable to parse filter string \"%s\".",
 				dfilter_text);
+		} else {
+			/* An error message was supplied; use it in the
+			 * error we display. */
+			snprintf(dfilter_error_msg_buf, sizeof(dfilter_error_msg_buf),
+				"Unable to parse filter string \"%s\": %s.",
+				dfilter_text, dfilter_error_msg);
 		}
+		dfilter_error_msg = &dfilter_error_msg_buf[0];
 	}
 
 	/* Clear the list of allocated nodes */
@@ -262,6 +273,12 @@ clear_byte_array(gpointer data, gpointer user_data)
 void
 dfilter_error(char *s)
 {
+	/* Remember the error message we were handed, unless it's
+	 * the boring "parse error" message used by YACC.
+	 */
+	if (strcmp(s, "parse error") != 0)
+		dfilter_error_msg = s;
+
 	/* The only data we have to worry about freeing is the
 	 * data used by any GNodes that were allocated during
 	 * parsing. The data in those Gnodes will be cleared
@@ -745,4 +762,3 @@ gboolean check_relation_bytes(gint operand, GArray *a, GArray *b)
 	g_assert_not_reached();
 	return FALSE;
 }
-

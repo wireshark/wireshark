@@ -3,7 +3,7 @@
 /* dfilter-grammar.y
  * Parser for display filters
  *
- * $Id: dfilter-grammar.y,v 1.19 1999/09/29 22:11:50 gram Exp $
+ * $Id: dfilter-grammar.y,v 1.20 1999/10/07 21:47:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -164,7 +164,7 @@ statement: expression
 		{
 			global_df->dftree = $1;
 		}
-	|	/* NULL */ { global_df->dftree = NULL; }
+	|	/* NULL */ { if (global_df != NULL) global_df->dftree = NULL; }
 	;
 
 expression:	'(' expression ')' { $$ = $2; }
