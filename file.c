@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.316 2003/09/24 00:47:36 guy Exp $
+ * $Id: file.c,v 1.317 2003/09/24 02:36:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -283,9 +283,9 @@ cf_close(capture_file *cf)
   set_menus_for_capture_file(FALSE);
   set_menus_for_unsaved_capture_file(FALSE);
   set_menus_for_captured_packets(FALSE);
-  set_menus_for_selected_packet(FALSE);
+  set_menus_for_selected_packet(cf);
   set_menus_for_capture_in_progress(FALSE);
-  set_menus_for_selected_tree_row(FALSE);
+  set_menus_for_selected_tree_row(cf);
 
   /* We have no file open. */
   cf->state = FILE_CLOSED;
@@ -2065,7 +2065,7 @@ select_packet(capture_file *cf, int row)
   main_proto_tree_draw(cf->edt->tree);
 
   /* A packet is selected. */
-  set_menus_for_selected_packet(TRUE);
+  set_menus_for_selected_packet(cf);
 }
 
 /* Unselect the selected packet, if any. */
@@ -2082,7 +2082,8 @@ unselect_packet(capture_file *cf)
   clear_tree_and_hex_views();
 
   /* No packet is selected. */
-  set_menus_for_selected_packet(FALSE);
+  cf->current_frame = NULL;
+  set_menus_for_selected_packet(cf);
 
   /* No protocol tree means no selected field. */
   unselect_field(cf);
@@ -2094,7 +2095,7 @@ unselect_field(capture_file *cf)
 {
   statusbar_pop_field_msg();
   cf->finfo_selected = NULL;
-  set_menus_for_selected_tree_row(FALSE);
+  set_menus_for_selected_tree_row(cf);
 }
 
 /*

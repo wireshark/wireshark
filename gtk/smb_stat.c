@@ -1,7 +1,7 @@
 /* smb_stat.c
  * smb_stat   2003 Ronnie Sahlberg
  *
- * $Id: smb_stat.c,v 1.18 2003/09/19 07:24:38 guy Exp $
+ * $Id: smb_stat.c,v 1.19 2003/09/24 02:36:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -34,8 +34,9 @@
 
 #include <gtk/gtk.h>
 #include <string.h>
-#include "menu.h"
 #include "../epan/packet_info.h"
+#include "../epan/epan.h"
+#include "menu.h"
 #include "../tap.h"
 #include "../epan/value_string.h"
 #include "../smb.h"

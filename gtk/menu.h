@@ -1,7 +1,7 @@
 /* menu.h
  * Menu definitions
  *
- * $Id: menu.h,v 1.10 2003/09/19 07:24:38 guy Exp $
+ * $Id: menu.h,v 1.11 2003/09/24 02:36:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -44,20 +44,21 @@ gint popup_menu_handler(GtkWidget *widget, GdkEvent *event, gpointer data);
  * the work of creating the tap window.
  *
  * "selected_packet_enabled" gets called by "set_menus_for_selected_packet()";
- * it's passed a Boolean that's TRUE if a packet is selected and FALSE
- * otherwise, and should return TRUE if the tap will work now (which
- * might depend on whether a packet is selected and, if one is, on the
- * packet) and FALSE if not.
+ * it's passed a pointer to the "frame_data" structure for the current frame,
+ * if any, and to the "epan_dissect_t" structure for that frame, if any, and
+ * should return TRUE if the tap will work now (which might depend on whether
+ * a frame is selected and, if one is, on the frame) and FALSE if not.
  *
  * "selected_tree_row_enabled" gets called by
- * "set_menus_for_selected_tree_row()"; it's passed a Boolean that's TRUE if
- * a protocol tree row is selected and FALSE otherwise, and should return
- * TRUE if the tap will work now (which might depend on whether a tree row
- * is selected and, if one is, on the tree row) and FALSE if not.
+ * "set_menus_for_selected_tree_row()"; it's passed a pointer to the
+ * "field_info" structure for the currently selected field, if any,
+ * and should return TRUE if the tap will work now (which might depend on
+ * whether a tree row is selected and, if one is, on the tree row) and
+ * FALSE if not.
  */
 extern void register_tap_menu_item(char *name, GtkItemFactoryCallback callback,
-    gboolean (*selected_packet_enabled)(gboolean),
-    gboolean (*selected_tree_row_enabled)(gboolean));
+    gboolean (*selected_packet_enabled)(frame_data *, epan_dissect_t *),
+    gboolean (*selected_tree_row_enabled)(field_info *));
 
 extern GtkWidget           *popup_menu_object;
 

@@ -1,7 +1,7 @@
 /* endpoint_talkers_ipx.c
  * endpoint_talkers_ipx   2003 Ronnie Sahlberg
  *
- * $Id: endpoint_talkers_ipx.c,v 1.16 2003/09/19 07:24:37 guy Exp $
+ * $Id: endpoint_talkers_ipx.c,v 1.17 2003/09/24 02:36:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -34,8 +34,8 @@
 
 #include <gtk/gtk.h>
 #include <string.h>
-#include "menu.h"
 #include "epan/packet.h"
+#include "menu.h"
 #include "../tap.h"
 #include "../register.h"
 #include "endpoint_talkers_table.h"

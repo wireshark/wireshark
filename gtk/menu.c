@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.99 2003/09/24 00:47:37 guy Exp $
+ * $Id: menu.c,v 1.100 2003/09/24 02:36:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -29,8 +29,6 @@
 #include <gtk/gtk.h>
 
 #include <string.h>
-
-#include "../menu.h"
 
 #include "main.h"
 #include "menu.h"
@@ -60,6 +58,8 @@
 #include "compat_macros.h"
 #include "gtkglobals.h"
 #include "../tap.h"
+#include "../menu.h"
+#include "../ipproto.h"
 
 GtkWidget *popup_menu_object;
 
@@ -408,16 +408,16 @@ menus_init(void) {
 #endif
 
     set_menus_for_captured_packets(FALSE);
-    set_menus_for_selected_packet(FALSE);
-    set_menus_for_selected_tree_row(FALSE);
+    set_menus_for_selected_packet(&cfile);
+    set_menus_for_selected_tree_row(&cfile);
   }
 }
 
 typedef struct _menu_item {
 	char	*name;
 	gboolean enabled;
-	gboolean (*selected_packet_enabled)(gboolean);
-	gboolean (*selected_tree_row_enabled)(gboolean);
+	gboolean (*selected_packet_enabled)(frame_data *, epan_dissect_t *);
+	gboolean (*selected_tree_row_enabled)(field_info *);
 	struct _menu_item *parent;
 	struct _menu_item *children;
 	struct _menu_item *next;
@@ -448,8 +448,8 @@ static menu_item_t tap_menu_tree_root;
  */
 void
 register_tap_menu_item(char *name, GtkItemFactoryCallback callback,
-    gboolean (*selected_packet_enabled)(gboolean),
-    gboolean (*selected_tree_row_enabled)(gboolean))
+    gboolean (*selected_packet_enabled)(frame_data *, epan_dissect_t *),
+    gboolean (*selected_tree_row_enabled)(field_info *))
 {
 	static const char toolspath[] = "/Tools/";
 	char *p;
@@ -814,9 +814,11 @@ set_menus_for_captured_packets(gboolean have_captured_packets)
       have_captured_packets);
 }
 
+/* Enable or disable menu items based on whether a packet is selected and,
+   if so, on the properties of the packet. */
 static gboolean
-walk_menu_tree_for_selected_packet(menu_item_t *node,
-    gboolean have_selected_packet)
+walk_menu_tree_for_selected_packet(menu_item_t *node, frame_data *fd,
+    epan_dissect_t *edt)
 {
 	gboolean is_enabled;
 	menu_item_t *child;
@@ -837,10 +839,8 @@ walk_menu_tree_for_selected_packet(menu_item_t *node,
 		 * call it and set the item's enabled/disabled status
 		 * based on its return value.
 		 */
-		if (node->selected_packet_enabled != NULL) {
-			node->enabled =
-			    node->selected_packet_enabled(have_selected_packet);
-		}
+		if (node->selected_packet_enabled != NULL)
+			node->enabled = node->selected_packet_enabled(fd, edt);
 	} else {
 		/*
 		 * It's an interior node; call
@@ -854,8 +854,7 @@ walk_menu_tree_for_selected_packet(menu_item_t *node,
 		is_enabled = FALSE;
 		for (child = node->children; child != NULL; child =
 		    child->next) {
-			if (walk_menu_tree_for_selected_packet(child,
-			    have_selected_packet))
+			if (walk_menu_tree_for_selected_packet(child, fd, edt))
 				is_enabled = TRUE;
 		}
 		node->enabled = is_enabled;
@@ -873,52 +872,52 @@ walk_menu_tree_for_selected_packet(menu_item_t *node,
 }
 
 void
-set_menus_for_selected_packet(gboolean have_selected_packet)
+set_menus_for_selected_packet(capture_file *cf)
 {
   set_menu_sensitivity(main_menu_factory, "/File/Print Packet",
-      have_selected_packet);
+      cf->current_frame != NULL);
   set_menu_sensitivity(packet_list_menu_factory, "/Print Packet",
-      have_selected_packet);
+      cf->current_frame != NULL);
   set_menu_sensitivity(main_menu_factory, "/Edit/Mark Frame",
-      have_selected_packet);
+      cf->current_frame != NULL);
   set_menu_sensitivity(packet_list_menu_factory, "/Mark Frame",
-      have_selected_packet);
+      cf->current_frame != NULL);
   set_menu_sensitivity(main_menu_factory, "/Edit/Mark All Frames",
-      have_selected_packet);
+      cf->current_frame != NULL);
   set_menu_sensitivity(main_menu_factory, "/Edit/Unmark All Frames",
-      have_selected_packet);
+      cf->current_frame != NULL);
   set_menu_sensitivity(main_menu_factory, "/Display/Collapse All",
-      have_selected_packet);
+      cf->current_frame != NULL);
   set_menu_sensitivity(tree_view_menu_factory, "/Collapse All",
-      have_selected_packet);
+      cf->current_frame != NULL);
   set_menu_sensitivity(main_menu_factory, "/Display/Expand All",
-      have_selected_packet);
+      cf->current_frame != NULL);
   set_menu_sensitivity(tree_view_menu_factory, "/Expand All",
-      have_selected_packet);
+      cf->current_frame != NULL);
   set_menu_sensitivity(main_menu_factory, "/Display/Show Packet In New Window",
-      have_selected_packet);
+      cf->current_frame != NULL);
   set_menu_sensitivity(packet_list_menu_factory, "/Show Packet In New Window",
-      have_selected_packet);
+      cf->current_frame != NULL);
   set_menu_sensitivity(main_menu_factory, "/Tools/Follow TCP Stream",
-      have_selected_packet ? (cfile.edt->pi.ipproto == 6) : FALSE);
+      cf->current_frame != NULL ? (cf->edt->pi.ipproto == IP_PROTO_TCP) : FALSE);
   set_menu_sensitivity(NULL, "/Follow TCP Stream",
-      have_selected_packet ? (cfile.edt->pi.ipproto == 6) : FALSE);
+      cf->current_frame != NULL ? (cf->edt->pi.ipproto == IP_PROTO_TCP) : FALSE);
   set_menu_sensitivity(main_menu_factory, "/Tools/Decode As...",
-      have_selected_packet && decode_as_ok());
+      cf->current_frame != NULL && decode_as_ok());
   set_menu_sensitivity(NULL, "/Decode As...",
-      have_selected_packet && decode_as_ok());
+      cf->current_frame != NULL && decode_as_ok());
   set_menu_sensitivity(tree_view_menu_factory, "/Resolve Name",
-      have_selected_packet && g_resolv_flags == 0);
+      cf->current_frame != NULL && g_resolv_flags == 0);
   set_menu_sensitivity(main_menu_factory, "/Tools/TCP Stream Analysis",
-      have_selected_packet ? (cfile.edt->pi.ipproto == 6) : FALSE);
-  walk_menu_tree_for_selected_packet(&tap_menu_tree_root, have_selected_packet);
+      cf->current_frame != NULL ? (cf->edt->pi.ipproto == IP_PROTO_TCP) : FALSE);
+  walk_menu_tree_for_selected_packet(&tap_menu_tree_root, cf->current_frame,
+      cf->edt);
 }
 
 /* Enable or disable menu items based on whether a tree row is selected
-   and on whether a "Match" can be done. */
+   and, if so, on the properties of the tree row. */
 static gboolean
-walk_menu_tree_for_selected_tree_row(menu_item_t *node,
-    gboolean have_selected_tree_row)
+walk_menu_tree_for_selected_tree_row(menu_item_t *node, field_info *fi)
 {
 	gboolean is_enabled;
 	menu_item_t *child;
@@ -939,10 +938,8 @@ walk_menu_tree_for_selected_tree_row(menu_item_t *node,
 		 * call it and set the item's enabled/disabled status
 		 * based on its return value.
 		 */
-		if (node->selected_tree_row_enabled != NULL) {
-			node->enabled =
-			    node->selected_tree_row_enabled(have_selected_tree_row);
-		}
+		if (node->selected_tree_row_enabled != NULL)
+			node->enabled = node->selected_tree_row_enabled(fi);
 	} else {
 		/*
 		 * It's an interior node; call
@@ -956,8 +953,7 @@ walk_menu_tree_for_selected_tree_row(menu_item_t *node,
 		is_enabled = FALSE;
 		for (child = node->children; child != NULL; child =
 		    child->next) {
-			if (walk_menu_tree_for_selected_tree_row(child,
-			    have_selected_tree_row))
+			if (walk_menu_tree_for_selected_tree_row(child, fi))
 				is_enabled = TRUE;
 		}
 		node->enabled = is_enabled;
@@ -975,50 +971,43 @@ walk_menu_tree_for_selected_tree_row(menu_item_t *node,
 }
 
 void
-set_menus_for_selected_tree_row(gboolean have_selected_tree_row)
+set_menus_for_selected_tree_row(capture_file *cf)
 {
-  gboolean properties = FALSE;
+  gboolean properties;
 
-  if (cfile.finfo_selected) {
-	header_field_info *hfinfo = cfile.finfo_selected->hfinfo;
+  if (cf->finfo_selected != NULL) {
+	header_field_info *hfinfo = cf->finfo_selected->hfinfo;
 	if (hfinfo->parent == -1) {
 	  properties = prefs_is_registered_protocol(hfinfo->abbrev);
 	} else {
 	  properties = prefs_is_registered_protocol(proto_registrar_get_abbrev(hfinfo->parent));
 	}
-	if (hfinfo->type == FT_FRAMENUM) {
-	    set_menu_sensitivity(main_menu_factory,
-		"/Tools/Go To Corresponding Frame", TRUE);
-	    set_menu_sensitivity(tree_view_menu_factory,
-		"/Go To Corresponding Frame", TRUE);
-	} else {
-	    set_menu_sensitivity(main_menu_factory,
-		"/Tools/Go To Corresponding Frame", FALSE);
-	    set_menu_sensitivity(tree_view_menu_factory,
-		"/Go To Corresponding Frame", FALSE);
-	}
+	set_menu_sensitivity(main_menu_factory,
+	  "/Tools/Go To Corresponding Frame", hfinfo->type == FT_FRAMENUM);
+	set_menu_sensitivity(tree_view_menu_factory,
+	  "/Go To Corresponding Frame", hfinfo->type == FT_FRAMENUM);
 	set_menu_sensitivity(main_menu_factory, "/Display/Match",
-	  proto_can_match_selected(cfile.finfo_selected, cfile.edt));
+	  proto_can_match_selected(cf->finfo_selected, cf->edt));
 	set_menu_sensitivity(tree_view_menu_factory, "/Match",
-	  proto_can_match_selected(cfile.finfo_selected, cfile.edt));
+	  proto_can_match_selected(cf->finfo_selected, cf->edt));
 	set_menu_sensitivity(main_menu_factory, "/Display/Prepare",
-	  proto_can_match_selected(cfile.finfo_selected, cfile.edt));
+	  proto_can_match_selected(cf->finfo_selected, cf->edt));
 	set_menu_sensitivity(tree_view_menu_factory, "/Prepare",
-	  proto_can_match_selected(cfile.finfo_selected, cfile.edt));
+	  proto_can_match_selected(cf->finfo_selected, cf->edt));
+	set_menu_sensitivity(tree_view_menu_factory, "/Protocol Properties...",
+	  properties);
   } else {
+	set_menu_sensitivity(tree_view_menu_factory,
+	    "/Go To Corresponding Frame", FALSE);
 	set_menu_sensitivity(main_menu_factory, "/Display/Match", FALSE);
 	set_menu_sensitivity(tree_view_menu_factory, "/Match", FALSE);
 	set_menu_sensitivity(main_menu_factory, "/Display/Prepare", FALSE);
 	set_menu_sensitivity(tree_view_menu_factory, "/Prepare", FALSE);
 	set_menu_sensitivity(main_menu_factory,
 	    "/Tools/Go To Corresponding Frame", FALSE);
-	set_menu_sensitivity(tree_view_menu_factory,
-	    "/Go To Corresponding Frame", FALSE);
+	set_menu_sensitivity(tree_view_menu_factory, "/Protocol Properties...",
+	  FALSE);
   }
 
-  set_menu_sensitivity(tree_view_menu_factory, "/Protocol Properties...",
-      have_selected_tree_row && properties);
-
-  walk_menu_tree_for_selected_tree_row(&tap_menu_tree_root,
-      have_selected_tree_row);
+  walk_menu_tree_for_selected_tree_row(&tap_menu_tree_root, cf->finfo_selected);
 }

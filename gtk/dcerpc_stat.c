@@ -1,7 +1,7 @@
 /* dcerpc_stat.c
  * dcerpc_stat   2002 Ronnie Sahlberg
  *
- * $Id: dcerpc_stat.c,v 1.22 2003/09/19 07:24:37 guy Exp $
+ * $Id: dcerpc_stat.c,v 1.23 2003/09/24 02:36:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -35,8 +35,9 @@
 
 #include <string.h>
 #include <gtk/gtk.h>
-#include "menu.h"
 #include "epan/packet_info.h"
+#include "epan/epan.h"
+#include "menu.h"
 #include "simple_dialog.h"
 #include "dlg_utils.h"
 #include "ui_util.h"

@@ -2,7 +2,7 @@
  * mgcp-statistics for ethereal
  * Copyright 2003 Lars Roland
  *
- * $Id: mgcp_stat.c,v 1.15 2003/09/21 20:06:02 gerald Exp $
+ * $Id: mgcp_stat.c,v 1.16 2003/09/24 02:36:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -35,8 +35,9 @@
 
 #include <gtk/gtk.h>
 #include <string.h>
-#include "menu.h"
 #include "../epan/packet_info.h"
+#include "../epan/epan.h"
+#include "menu.h"
 #include "../tap.h"
 #include "../epan/value_string.h"
 #include "../register.h"

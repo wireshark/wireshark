@@ -1,7 +1,7 @@
 /* wsp_stat.c
  * wsp_stat   2003 Jean-Michel FAYARD
  *
- * $Id: wsp_stat.c,v 1.3 2003/09/19 07:24:39 guy Exp $
+ * $Id: wsp_stat.c,v 1.4 2003/09/24 02:36:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -28,8 +28,9 @@
 #endif
 
 #include <gtk/gtk.h>
-#include "menu.h"
 #include "epan/packet_info.h"
+#include "epan/epan.h"
+#include "menu.h"
 #include "simple_dialog.h"
 #include "tap.h"
 #include "../register.h"

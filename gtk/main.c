@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.317 2003/09/24 00:47:37 guy Exp $
+ * $Id: main.c,v 1.318 2003/09/24 02:36:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -921,7 +921,7 @@ tree_view_selection_changed_cb(GtkTreeSelection *sel, gpointer user_data _U_)
     g_assert(byte_data != NULL);
 
     cfile.finfo_selected = finfo;
-    set_menus_for_selected_tree_row(TRUE);
+    set_menus_for_selected_tree_row(&cfile);
 
     if (finfo->hfinfo) {
         if (finfo->hfinfo->blurb != NULL &&
