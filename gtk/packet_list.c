@@ -1,7 +1,7 @@
 /* packet_list.c
  * packet list related functions   2002 Olivier Abad
  *
- * $Id: packet_list.c,v 1.18 2004/02/06 19:19:10 ulfl Exp $
+ * $Id: packet_list.c,v 1.19 2004/03/18 19:04:33 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -45,6 +45,7 @@
 #include "file_dlg.h"
 #include "packet_list.h"
 #include "keys.h"
+#include <epan/timestamp.h>
 
 #include "image/clist_ascend.xpm"
 #include "image/clist_descend.xpm"
@@ -148,7 +149,7 @@ packet_list_compare(EthCList *clist, gconstpointer  ptr1, gconstpointer  ptr2)
     return COMPARE_FRAME_NUM();
 
   case COL_CLS_TIME:
-    switch (timestamp_type) {
+    switch (get_timestamp_setting()) {
 
     case TS_ABSOLUTE:
     case TS_ABSOLUTE_WITH_DATE:

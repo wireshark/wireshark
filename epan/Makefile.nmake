@@ -1,7 +1,7 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.36 2004/03/06 03:25:10 guy Exp $
+# $Id: Makefile.nmake,v 1.37 2004/03/18 19:04:31 obiot Exp $
 
 include ..\config.nmake
 
@@ -57,6 +57,7 @@ OBJECTS=addr_and_mask.obj \
 	resolv.obj       \
 	sna-utils.obj	\
 	strutil.obj      \
+	timestamp.obj \
 	to_str.obj	\
 	tvbuff.obj       \
 	value_string.obj 

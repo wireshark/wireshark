@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.231 2004/02/23 16:12:51 gerald Exp $
+ * $Id: tethereal.c,v 1.232 2004/03/18 19:04:31 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -97,6 +97,7 @@
 #include <epan/epan_dissect.h>
 #include "tap.h"
 #include "report_err.h"
+#include <epan/timestamp.h>
 
 #ifdef HAVE_LIBPCAP
 #include <wiretap/wtap-capture.h>
@@ -186,7 +187,6 @@ static int pipe_dispatch(int, loop_data *, struct pcap_hdr *, \
 #endif
 
 capture_file cfile;
-ts_type timestamp_type = TS_RELATIVE;
 #ifdef HAVE_LIBPCAP
 typedef struct {
 	int snaplen;			/* Maximum captured packet length */
@@ -830,6 +830,8 @@ main(int argc, char *argv[])
   char                 badopt;
   ethereal_tap_list *tli;
 
+  set_timestamp_setting(TS_RELATIVE);
+
   /* Register all dissectors; we must do this before checking for the
      "-G" flag, as the "-G" flag dumps information registered by the
      dissectors, and we must do it before we read the preferences, in
@@ -1182,13 +1184,13 @@ main(int argc, char *argv[])
         break;
       case 't':        /* Time stamp type */
         if (strcmp(optarg, "r") == 0)
-          timestamp_type = TS_RELATIVE;
+          set_timestamp_setting(TS_RELATIVE);
         else if (strcmp(optarg, "a") == 0)
-          timestamp_type = TS_ABSOLUTE;
+          set_timestamp_setting(TS_ABSOLUTE);
         else if (strcmp(optarg, "ad") == 0)
-          timestamp_type = TS_ABSOLUTE_WITH_DATE;
+          set_timestamp_setting(TS_ABSOLUTE_WITH_DATE);
         else if (strcmp(optarg, "d") == 0)
-          timestamp_type = TS_DELTA;
+          set_timestamp_setting(TS_DELTA);
         else {
           fprintf(stderr, "tethereal: Invalid time stamp type \"%s\"\n",
             optarg);

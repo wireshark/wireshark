@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.416 2004/03/17 08:59:28 guy Exp $
+ * $Id: main.c,v 1.417 2004/03/18 19:04:32 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -122,6 +122,7 @@
 #include "packet_list.h"
 #include "recent.h"
 #include "follow_dlg.h"
+#include <epan/timestamp.h>
 
 #ifdef WIN32
 #include "capture-wpcap.h"
@@ -147,10 +148,6 @@ static GString *comp_info_str, *runtime_info_str;
 gchar       *ethereal_path = NULL;
 gchar       *last_open_dir = NULL;
 static gboolean updated_last_open_dir = FALSE;
-
-/* init with an invalid value, so that "recent" can detect this and */
-/* distinguish it from a command line value */
-ts_type timestamp_type = TS_NOT_SET;
 
 #if GTK_MAJOR_VERSION < 2
 GtkStyle *item_style;
@@ -2258,13 +2255,13 @@ main(int argc, char *argv[])
         break;
       case 't':        /* Time stamp type */
         if (strcmp(optarg, "r") == 0)
-          timestamp_type = TS_RELATIVE;
+          set_timestamp_setting(TS_RELATIVE);
         else if (strcmp(optarg, "a") == 0)
-          timestamp_type = TS_ABSOLUTE;
+          set_timestamp_setting(TS_ABSOLUTE);
         else if (strcmp(optarg, "ad") == 0)
-          timestamp_type = TS_ABSOLUTE_WITH_DATE;
+          set_timestamp_setting(TS_ABSOLUTE_WITH_DATE);
         else if (strcmp(optarg, "d") == 0)
-          timestamp_type = TS_DELTA;
+          set_timestamp_setting(TS_DELTA);
         else {
           fprintf(stderr, "ethereal: Invalid time stamp type \"%s\"\n",
             optarg);

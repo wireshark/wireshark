@@ -1,7 +1,7 @@
 /* timestamp.h
  * Defines for packet timestamps
  *
- * $Id: timestamp.h,v 1.4 2004/01/19 23:03:19 guy Exp $
+ * $Id: timestamp.h,v 1.5 2004/03/18 19:04:32 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -41,6 +41,7 @@ typedef enum {
  */
 #define TS_NOT_SET	((ts_type)-1)
 
-extern ts_type timestamp_type;
+extern ts_type get_timestamp_setting(void);
+extern void set_timestamp_setting(ts_type);
 
 #endif /* timestamp.h */

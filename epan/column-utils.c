@@ -1,7 +1,7 @@
 /* column-utils.c
  * Routines for column utilities.
  *
- * $Id: column-utils.c,v 1.46 2004/02/29 08:47:11 guy Exp $
+ * $Id: column-utils.c,v 1.47 2004/03/18 19:04:32 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -523,7 +523,7 @@ col_set_abs_time(frame_data *fd, column_info *cinfo, int col)
 void
 col_set_cls_time(frame_data *fd, column_info *cinfo, int col)
 {
-  switch (timestamp_type) {
+  switch (get_timestamp_setting()) {
     case TS_ABSOLUTE:
       col_set_abs_time(fd, cinfo, col);
       break;

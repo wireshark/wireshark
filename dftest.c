@@ -1,6 +1,6 @@
 /* dftest.c.c
  *
- * $Id: dftest.c,v 1.8 2004/02/21 22:00:46 guy Exp $
+ * $Id: dftest.c,v 1.9 2004/03/18 19:04:31 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -49,7 +49,6 @@
 #include "register.h"
 
 packet_info	pi;
-ts_type		timestamp_type = TS_RELATIVE;
 
 int
 main(int argc, char **argv)
@@ -60,6 +59,8 @@ main(int argc, char **argv)
 	int		pf_open_errno, pf_read_errno;
 	e_prefs		*prefs;
 	dfilter_t	*df;
+
+	set_timestamp_setting(TS_RELATIVE);
 
 	/* register all dissectors; we must do this before checking for the
 	"-g" flag, as the "-g" flag dumps a list of fields registered

@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.177 2004/03/13 17:50:23 ulfl Exp $
+ * $Id: menu.c,v 1.178 2004/03/18 19:04:33 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -68,6 +68,7 @@
 #include "../ui_util.h"
 #include "proto_draw.h"
 #include "simple_dialog.h"
+#include <epan/timestamp.h>
 
 GtkWidget *popup_menu_object;
 
@@ -1179,8 +1180,8 @@ static void
 timestamp_absolute_cb(GtkWidget *w _U_, gpointer d _U_)
 {
     if (recent.gui_time_format != TS_ABSOLUTE) {
-        timestamp_type          = TS_ABSOLUTE;
-        recent.gui_time_format  = timestamp_type;
+        set_timestamp_setting(TS_ABSOLUTE);
+        recent.gui_time_format  = TS_ABSOLUTE;
         change_time_formats(&cfile);
     }
 }
@@ -1189,8 +1190,8 @@ static void
 timestamp_absolute_date_cb(GtkWidget *w _U_, gpointer d _U_)
 {
     if (recent.gui_time_format != TS_ABSOLUTE_WITH_DATE) {
-        timestamp_type          = TS_ABSOLUTE_WITH_DATE;
-        recent.gui_time_format  = timestamp_type;
+        set_timestamp_setting(TS_ABSOLUTE_WITH_DATE);
+        recent.gui_time_format  = TS_ABSOLUTE_WITH_DATE;
         change_time_formats(&cfile);
     }
 }
@@ -1199,8 +1200,8 @@ static void
 timestamp_relative_cb(GtkWidget *w _U_, gpointer d _U_)
 {
     if (recent.gui_time_format != TS_RELATIVE) {
-        timestamp_type          = TS_RELATIVE;
-        recent.gui_time_format  = timestamp_type;
+        set_timestamp_setting(TS_RELATIVE);
+        recent.gui_time_format  = TS_RELATIVE;
         change_time_formats(&cfile);
     }
 }
@@ -1209,8 +1210,8 @@ static void
 timestamp_delta_cb(GtkWidget *w _U_, gpointer d _U_)
 {
     if (recent.gui_time_format != TS_DELTA) {
-        timestamp_type          = TS_DELTA;
-        recent.gui_time_format  = timestamp_type;
+        set_timestamp_setting(TS_DELTA);
+        recent.gui_time_format  = TS_DELTA;
         change_time_formats(&cfile);
     }
 }
@@ -1293,8 +1294,8 @@ menu_recent_read_finished(void) {
     main_widgets_rearrange();
 
     /* don't change the time format, if we had a command line value */
-    if (timestamp_type != TS_NOT_SET) {
-        recent.gui_time_format = timestamp_type;
+    if (get_timestamp_setting() != TS_NOT_SET) {
+        recent.gui_time_format = get_timestamp_setting();
     }
 
     switch(recent.gui_time_format) {

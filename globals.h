@@ -1,7 +1,7 @@
 /* globals.h
  * Global defines, etc.
  *
- * $Id: globals.h,v 1.32 2003/11/01 02:30:14 guy Exp $
+ * $Id: globals.h,v 1.33 2004/03/18 19:04:31 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -34,7 +34,5 @@ extern gchar       *last_open_dir;
 #ifdef HAVE_LIBPCAP
 extern gboolean     auto_scroll_live;
 #endif
-
-extern ts_type timestamp_type;
 
 #endif
