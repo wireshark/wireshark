@@ -5,7 +5,7 @@
 # ASN.1 to Ethereal dissector compiler
 # 2004 Tomas Kukosa 
 #
-# $Id: asn2eth.py,v 1.3 2004/05/25 21:23:09 guy Exp $
+# $Id: asn2eth.py,v 1.4 2004/06/03 08:33:29 guy Exp $
 #
 
 """ASN.1 to Ethereal PER dissector compiler"""
@@ -388,8 +388,10 @@ class EthCtx:
       self.type[ident]['tname'] = val.eth_tname()
     else:
       self.type[ident]['tname'] = ident.replace('-', '_')
-    self.type[ident]['export'] = self.conform.use_export(ident)
-    self.type[ident]['tname'] = self.conform.use_type_rename(ident, self.type[ident]['tname'])
+    self.type[ident]['export'] = self.conform.use_item('EXPORTS', ident)
+    self.type[ident]['user_def'] = self.conform.use_item('USER_DEFINED', ident)
+    self.type[ident]['no_emit'] = self.conform.use_item('NO_EMIT', ident)
+    self.type[ident]['tname'] = self.conform.use_item('TYPE_RENAME', ident, val_dflt=self.type[ident]['tname'])
     self.type[ident]['ethname'] = ''
     self.type_ord.append(ident)
 
@@ -418,7 +420,7 @@ class EthCtx:
     for t in self.type_ord:
       nm = self.type[t]['tname']
       if ((nm.find('#') >= 0) or 
-          ((len(t.split('/'))>1) and self.conform.get_fn_presence(t) and not self.conform.exist_type_rename(t))):
+          ((len(t.split('/'))>1) and self.conform.get_fn_presence(t) and not self.conform.check_item('TYPE_RENAME', t))):
         if len(t.split('/')) == 2 and t.split('/')[1] == '_item':  # Sequnce of type at the 1st level
           nm = t.split('/')[0] + t.split('/')[1]
         elif t.split('/')[-1] == '_item':  # Sequnce of type at next levels
@@ -437,11 +439,14 @@ class EthCtx:
       else:
         self.eth_type_ord.append(nm)
         self.eth_type[nm] = { 'import' : None, 'proto' : self.proto, 'export' : 0,
+                              'user_def' : 0x03, 'no_emit' : 0x03, 
                               'val' : self.type[t]['val'], 'ref' : [t]}
       self.type[t]['ethname'] = nm
       if (not self.eth_type[nm]['export'] and self.type[t]['export']):  # new export
         self.eth_export_ord.append(nm)
       self.eth_type[nm]['export'] |= self.type[t]['export']
+      self.eth_type[nm]['user_def'] &= self.type[t]['user_def']
+      self.eth_type[nm]['no_emit'] &= self.type[t]['no_emit']
     for t in self.eth_type_ord:
       bits = self.eth_type[t]['val'].eth_named_bits()
       if (bits):
@@ -470,7 +475,7 @@ class EthCtx:
         name = nm
       name += self.field[f]['idx']
       abbrev = nm.replace('-', '_')
-      nm = self.conform.use_field_rename(f, nm)
+      nm = self.conform.use_item('FIELD_RENAME', f, val_dflt=nm)
       nm = "hf_%s_%s" % (self.proto, nm.replace('-', '_'))
       t = self.field[f]['type']
       if self.type.has_key(t):
@@ -586,13 +591,13 @@ class EthCtx:
     out = ""
     if (not self.eth_type[tname]['export'] & 0x01):
       out += "static "
-    out += "guint32 "
+    out += "int "
     if (self.OBer()):
-      out += "dissect_%s_%s(gboolean implicit_tag, tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index)" % (self.proto, tname)
+      out += "dissect_%s_%s(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index)" % (self.proto, tname)
     elif (self.NPer()):
-      out += "dissect_%s_%s(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index, proto_item **item, void *private_data)" % (self.proto, tname)
+      out += "dissect_%s_%s(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index, proto_item **item, void *private_data)" % (self.proto, tname)
     elif (self.OPer()):
-      out += "dissect_%s_%s(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index)" % (self.proto, tname)
+      out += "dissect_%s_%s(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index)" % (self.proto, tname)
     out += ";\n"
     return out
 
@@ -618,13 +623,13 @@ class EthCtx:
     out = '\n'
     if (not self.eth_type[tname]['export'] & 0x01):
       out += "static "
-    out += "guint32\n"
+    out += "int\n"
     if (self.OBer()):
-      out += "dissect_%s_%s(gboolean implicit_tag, tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index) {\n" % (self.proto, tname)
+      out += "dissect_%s_%s(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {\n" % (self.proto, tname)
     elif (self.NPer()):
-      out += "dissect_%s_%s(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index, proto_item **item, void *private_data) {\n" % (self.proto, tname)
+      out += "dissect_%s_%s(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index, proto_item **item, void *private_data) {\n" % (self.proto, tname)
     elif (self.OPer()):
-      out += "dissect_%s_%s(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index) {\n" % (self.proto, tname)
+      out += "dissect_%s_%s(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {\n" % (self.proto, tname)
     if self.conform.get_fn_presence(self.eth_type[tname]['ref'][0]):
       out += self.conform.get_fn_text(self.eth_type[tname]['ref'][0], 'FN_HDR')
     return out
@@ -713,19 +718,21 @@ class EthCtx:
         fx.write("    &%s,\n" % (self.eth_type[t]['tree']))
     fx.close()
 
+  #--- eth_output_export ------------------------------------------------------
   def eth_output_export(self):
     if (not len(self.eth_export_ord)): return
     fn = self.eth_output_fname('exp', ext='h')
     fx = file(fn, 'w')
     fx.write(eth_fhdr(fn))
     for t in self.eth_export_ord:  # vals
-      if (self.eth_type[t]['export'] & 0x02):
+      if (self.eth_type[t]['export'] & 0x02) and self.eth_type[t]['val'].eth_has_vals():
         fx.write("extern const value_string %s_vals[];\n" % (t))
     for t in self.eth_export_ord:  # functions
       if (self.eth_type[t]['export'] & 0x01):
         fx.write(self.eth_type_fn_h(t))
     fx.close()
 
+  #--- eth_output_types -------------------------------------------------------
   def eth_output_types(self):
     def out_field(f):
       t = self.eth_hf[f]['ethtype']
@@ -773,7 +780,19 @@ class EthCtx:
     for t in self.eth_type_ord1:
       if self.eth_type[t]['import']:
         continue
-      fx.write(self.eth_type[t]['val'].eth_type_fn(self.proto, t, self))
+      if self.eth_type[t]['val'].eth_has_vals():
+        if self.eth_type[t]['no_emit'] & 0x02:
+          pass
+        elif self.eth_type[t]['user_def'] & 0x02:
+          fx.write("extern const value_string %s_vals[];\n" % (t))
+        else:
+          fx.write(self.eth_type[t]['val'].eth_type_vals(self.proto, t, self))
+      if self.eth_type[t]['no_emit'] & 0x01:
+        pass
+      elif self.eth_type[t]['user_def'] & 0x01:
+        fx.write(self.eth_type_fn_h(t))
+      else:
+        fx.write(self.eth_type[t]['val'].eth_type_fn(self.proto, t, self))
       if (not self.new):
         for f in self.eth_hf_ord:
           if (self.eth_hf[f]['ethtype'] == t):
@@ -810,64 +829,40 @@ class EthCtx:
 import re
 class EthCnf:
   def __init__(self):
-    self.export = {}
-    self.module_import = {}
-    self.type_rename = {}
-    self.field_rename = {}
+    self.tblcfg = {}
+    self.table = {}
     self.fn = {}
+    #                                 Value name             Default value      Duplicity check   Usage check
+    self.tblcfg['EXPORTS']       = { 'val_nm' : 'flag',     'val_dflt' : 0,    'chk_dup' : True, 'chk_use' : True }
+    self.tblcfg['USER_DEFINED']  = { 'val_nm' : 'flag',     'val_dflt' : 0,    'chk_dup' : True, 'chk_use' : True }
+    self.tblcfg['NO_EMIT']       = { 'val_nm' : 'flag',     'val_dflt' : 0,    'chk_dup' : True, 'chk_use' : True }
+    self.tblcfg['MODULE_IMPORT'] = { 'val_nm' : 'proto',    'val_dflt' : None, 'chk_dup' : True, 'chk_use' : True }
+    self.tblcfg['TYPE_RENAME']   = { 'val_nm' : 'eth_name', 'val_dflt' : None, 'chk_dup' : True, 'chk_use' : True }
+    self.tblcfg['FIELD_RENAME']  = { 'val_nm' : 'eth_name', 'val_dflt' : None, 'chk_dup' : True, 'chk_use' : True }
+    for k in self.tblcfg.keys() :
+      self.table[k] = {}
 
-  def add_export(self, asn_name, fn, lineno, flag=1):
-    if self.export.has_key(asn_name):
-      warnings.warn_explicit("Duplicated export for %s. Previous one is at %s:%d" % 
-                             (asn_name, self.export[asn_name]['fn'], self.export[asn_name]['lineno']), 
+  def add_item(self, table, key, fn, lineno, **kw):
+    if self.tblcfg[table]['chk_dup'] and self.table[table].has_key(key):
+      warnings.warn_explicit("Duplicated %s for %s. Previous one is at %s:%d" % 
+                             (table, key, self.table[table][key]['fn'], self.table[table][key]['lineno']), 
                              UserWarning, fn, lineno)
       return
-    self.export[asn_name] = {'flag' : flag, 'used' : False,
-                             'fn' : fn, 'lineno' : lineno}
-  def use_export(self, asn_name):
-    if self.export.has_key(asn_name):
-      self.export[asn_name]['used'] = True
-      return self.export[asn_name]['flag']
-    return 0
+    self.table[table][key] = {'fn' : fn, 'lineno' : lineno, 'used' : False}
+    self.table[table][key].update(kw)
 
-  def add_module_import(self, module, proto, fn, lineno):
-    if self.module_import.has_key(module):
-      warnings.warn_explicit("Duplicated module import for %s" % (module), 
-                             UserWarning, fn, lineno)
-      return
-    self.module_import[module] = proto
-  def use_module_import(self, module, proto):
-    return self.module_import.get(module, proto)
+  def check_item(self, table, key):
+    return self.table[table].has_key(key)
 
-  def add_type_rename(self, asn_name, eth_name, fn, lineno):
-    if self.type_rename.has_key(asn_name):
-      warnings.warn_explicit("Duplicated type rename for %s. Previous one is at %s:%d" % 
-                             (asn_name, self.type_rename[asn_name]['fn'], self.type_rename[asn_name]['lineno']), 
-                             UserWarning, fn, lineno)
-      return
-    self.type_rename[asn_name] = {'name' : eth_name, 'used' : False,
-                                  'fn' : fn, 'lineno' : lineno}
-  def exist_type_rename(self, asn_name):
-    return self.type_rename.has_key(asn_name)
-  def use_type_rename(self, asn_name, eth_name):
-    if self.type_rename.has_key(asn_name):
-      self.type_rename[asn_name]['used'] = True
-      return self.type_rename[asn_name]['name']
-    return eth_name
+  def check_item_value(self, table, key, **kw):
+    return self.table[table].has_key(key) and self.table[table][key].has_key(kw.get('val_nm', self.tblcfg[table]['val_nm']))
 
-  def add_field_rename(self, asn_name, eth_name, fn, lineno):
-    if self.field_rename.has_key(asn_name):
-      warnings.warn_explicit("Duplicated field rename for %s. Previous one is at %s:%d" % 
-                             (asn_name, self.field_rename[asn_name]['fn'], self.field_rename[asn_name]['lineno']), 
-                             UserWarning, fn, lineno)
-      return
-    self.field_rename[asn_name] = {'name' : eth_name, 'used' : False,
-                                   'fn' : fn, 'lineno' : lineno}
-  def use_field_rename(self, asn_name, eth_name):
-    if self.field_rename.has_key(asn_name):
-      self.field_rename[asn_name]['used'] = True
-      return self.field_rename[asn_name]['name']
-    return eth_name
+  def use_item(self, table, key, **kw):
+    vdflt = kw.get('val_dflt', self.tblcfg[table]['val_dflt'])
+    if not self.table[table].has_key(key): return vdflt
+    vname = kw.get('val_nm', self.tblcfg[table]['val_nm'])
+    self.table[table][key]['used'] = True
+    return self.table[table][key].get(vname, vdflt)
 
   def add_fn_line(self, name, ctx, line, fn, lineno):
     if not self.fn.has_key(name):
@@ -919,7 +914,7 @@ class EthCnf:
       if comment.search(line): continue
       result = directive.search(line)
       if result:  # directive
-        if result.group('name') in ('EXPORTS', 'MODULE_IMPORT', 'TYPE_RENAME', 'FIELD_RENAME'):
+        if result.group('name') in ('EXPORTS', 'USER_DEFINED', 'NO_EMIT', 'MODULE_IMPORT', 'TYPE_RENAME', 'FIELD_RENAME'):
           ctx = result.group('name')
         elif result.group('name') in ('FN_HDR', 'FN_FTR', 'FN_BODY'):
           par = get_par(line[result.end():], 1, 1, fn=fn, lineno=lineno)
@@ -934,11 +929,11 @@ class EthCnf:
       if not ctx:
         if not empty.search(line):
           warnings.warn_explicit("Non-empty line in empty context", UserWarning, fn, lineno)
-      elif ctx == 'EXPORTS':
+      elif ctx in ('EXPORTS', 'USER_DEFINED', 'NO_EMIT'):
         if empty.search(line): continue
         par = get_par(line, 1, 2, fn=fn, lineno=lineno)
         if not par: continue
-        flag = 0x01
+        flag = 0x03
         if (len(par)>=2):
           if (par[1] == 'WITH_VALS'):
             flag = 0x03
@@ -948,45 +943,37 @@ class EthCnf:
             flag = 0x02
           else:
             warnings.warn_explicit("Unknown parameter value '%s'" % (par[1]), UserWarning, fn, lineno)
-        self.add_export(par[0], flag=flag, fn=fn, lineno=lineno)
+        self.add_item(ctx, par[0], flag=flag, fn=fn, lineno=lineno)
       elif ctx == 'MODULE_IMPORT':
         if empty.search(line): continue
         par = get_par(line, 2, 2, fn=fn, lineno=lineno)
         if not par: continue
-        self.add_module_import(par[0], par[1], fn=fn, lineno=lineno)
+        self.add_item('MODULE_IMPORT', par[0], proto=par[1], fn=fn, lineno=lineno)
       elif ctx == 'TYPE_RENAME':
         if empty.search(line): continue
         par = get_par(line, 2, 2, fn=fn, lineno=lineno)
         if not par: continue
-        self.add_type_rename(par[0], par[1], fn=fn, lineno=lineno)
+        self.add_item('TYPE_RENAME', par[0], eth_name=par[1], fn=fn, lineno=lineno)
       elif ctx == 'FIELD_RENAME':
         if empty.search(line): continue
         par = get_par(line, 2, 2, fn=fn, lineno=lineno)
         if not par: continue
-        self.add_field_rename(par[0], par[1], fn=fn, lineno=lineno)
+        self.add_item('FIELD_RENAME', par[0], eth_name=par[1], fn=fn, lineno=lineno)
       elif ctx in ('FN_HDR', 'FN_FTR', 'FN_BODY'):
         self.add_fn_line(name, ctx, line, fn=fn, lineno=lineno)
     f.close()
 
   def unused_report(self):
-    # export
-    keys = self.export.keys()
-    for k in keys:
-      if not self.export[k]['used']:
-        warnings.warn_explicit("Unused export for %s" % (k),
-                               UserWarning, self.export[k]['fn'], self.export[k]['lineno'])
-    # type rename
-    keys = self.type_rename.keys()
-    for k in keys:
-      if not self.type_rename[k]['used']:
-        warnings.warn_explicit("Unused type rename for %s" % (k),
-                               UserWarning, self.type_rename[k]['fn'], self.type_rename[k]['lineno'])
-    # field rename
-    keys = self.field_rename.keys()
-    for k in keys:
-      if not self.field_rename[k]['used']:
-        warnings.warn_explicit("Unused field rename for %s" % (k),
-                               UserWarning, self.field_rename[k]['fn'], self.field_rename[k]['lineno'])
+    tbls = self.table.keys()
+    tbls.sort()
+    for t in tbls:
+      keys = self.table[t].keys()
+      keys.sort()
+      for k in keys:
+        if not self.table[t][k]['used']:
+          warnings.warn_explicit("Unused %s for %s" % (t, k),
+                                  UserWarning, self.table[t][k]['fn'], self.table[t][k]['lineno'])
+
 
 #--- Node ---------------------------------------------------------------------
 class Node:
@@ -1092,6 +1079,9 @@ class Type (Node):
   def eth_need_tree(self):
     return False
 
+  def eth_has_vals(self):
+    return False
+
   def eth_named_bits(self):
     return None
 
@@ -1111,7 +1101,7 @@ class Type (Node):
       if self.type == 'Type_Ref':
         ectx.eth_reg_type(nm, self)
     if self.type == 'Type_Ref':
-      if ectx.conform.exist_type_rename(nm) or ectx.conform.get_fn_presence(nm):
+      if ectx.conform.check_item('TYPE_RENAME', nm) or ectx.conform.get_fn_presence(nm):
         ectx.eth_reg_type(nm, self)  # new type
         trnm = nm
       else:
@@ -1145,6 +1135,12 @@ class Type (Node):
       else:
         ext = 'FALSE'
     return (minv, maxv, ext)
+
+  def eth_type_vals(self, proto, tname, ectx):
+    if self.eth_has_vals():
+      print "#Unhandled  eth_type_vals('%s', '%s') in %s" % (proto, tname, self.type)
+      print self.str_depth(1)
+    return ''
 
   def eth_type_fn(self, proto, tname, ectx):
     print "#Unhandled  eth_type_fn('%s', '%s') in %s" % (proto, tname, self.type)
@@ -1192,7 +1188,7 @@ class Module_Body (Node):
     def to_eth(self, ectx):
         for i in self.imports:
           mod = i.module.val
-          proto = ectx.conform.use_module_import(mod, mod.replace('-', '_'))
+          proto = ectx.conform.use_item('MODULE_IMPORT', mod, val_dflt=mod.replace('-', '_'))
           for s in i.symbol_list:
             if isinstance(s, Type_Ref):
               ectx.eth_import_type(s.val, mod, proto)
@@ -1329,6 +1325,8 @@ class SqType (Type):
     elif (ectx.OPer()):
       out = '  { %-30s, %-23s, %-17s, dissect_%s },\n' \
             % ('"'+val.name+'"', ext, opt, efd)
+    else:
+      out = ''
     return out   
 
 #--- SequenceOfType -----------------------------------------------------------
@@ -1413,10 +1411,17 @@ class SetOfType (SqType):
     f = fname + '/' + '_item'
     ef = ectx.field[f]['ethname']
     out = ectx.eth_type_fn_hdr(tname)
-    body = "  offset = dissect_per_set_of_new(tvb, offset, pinfo, tree,\n" \
-           "                                  hf_index, item, private_data,\n"
-    body += '                                  %s, %s, dissect_%s_%s);\n' \
-           % (ectx.eth_type[tname]['tree'], ef, ectx.eth_type[ectx.eth_hf[ef]['ethtype']]['proto'], ectx.eth_hf[ef]['ethtype'])
+    if (ectx.OBer()):
+      body = ectx.eth_fn_call('dissect_ber_set_of' + ectx.pvp(), ret='offset',
+                                par=(('implicit_tag', 'pinfo', 'tree', 'tvb', 'offset'),
+                                     (tname+'_sequence_of', 'hf_index', ectx.eth_type[tname]['tree'])))
+    elif (ectx.NPer()):
+      body = ectx.eth_fn_call('dissect_per_set_of' + ectx.pvp(), ret='offset',
+                              par=(('tvb', 'offset', 'pinfo', 'tree'),
+                                   ('hf_index', 'item', 'private_data'),
+                                   (ectx.eth_type[tname]['tree'], ef, 'dissect_%s_%s' % (ectx.eth_type[ectx.eth_hf[ef]['ethtype']]['proto'], ectx.eth_hf[ef]['ethtype']))))
+    else:
+      body = '#error Can not decode %s' % (tname)
     out += ectx.eth_type_fn_body(tname, body)
     out += ectx.eth_type_fn_ftr(tname)
     return out
@@ -1636,6 +1641,9 @@ class ChoiceType (Type):
     def eth_need_tree(self):
       return True
 
+    def eth_has_vals(self):
+      return True
+
     def GetTTag(self, ectx):
       return (-1, -1)
 
@@ -1643,34 +1651,7 @@ class ChoiceType (Type):
       #print "Choice IndetermTag()=%s" % (str(not self.HasOwnTag()))
       return not self.HasOwnTag()
 
-    def eth_type_fn(self, proto, tname, ectx):
-      def out_item(val, e, ext, ectx):
-        f = fname + '/' + e.name
-        ef = ectx.field[f]['ethname']
-        efd = ef
-        if (ectx.field[f]['impl']):
-          efd += '_impl'
-        if (ectx.encoding == 'ber'):
-          opt = ''
-          if (not e.HasOwnTag()):
-            opt = 'BER_FLAGS_NOOWNTAG'
-          elif (e.tag.mode == 'IMPLICIT'):
-            if (opt): opt += '|'
-            opt += 'BER_FLAGS_IMPLTAG'
-          if (not opt): opt = '0'
-        if (ectx.OBer()):
-          (tc, tn) = e.GetTag(ectx)
-          out = '  { %3s, %-13s, %s, %s, dissect_%s },\n' \
-                % (val, tc, tn, opt, efd)
-        elif (ectx.NPer()):
-          out = '  { %3s, &%-30s, %-23s, dissect_%s_%s },\n' \
-                % (val, ef, ext, ectx.eth_type[ectx.eth_hf[ef]['ethtype']]['proto'], ectx.eth_hf[ef]['ethtype'])
-        elif (ectx.OPer()):
-          out = '  { %3s, %-30s, %-23s, dissect_%s },\n' \
-                % (val, '"'+e.name+'"', ext, efd)
-        return out   
-      # end out_item()
-      fname = ectx.eth_type[tname]['ref'][0]
+    def eth_type_vals(self, proto, tname, ectx):
       out = '\n'
       tagval = False
       if (ectx.Ber()):
@@ -1699,6 +1680,52 @@ class ChoiceType (Type):
           vals.append((val, e.name))
           cnt += 1
       out += ectx.eth_vals(tname, vals)
+      return out
+
+    def eth_type_fn(self, proto, tname, ectx):
+      def out_item(val, e, ext, ectx):
+        f = fname + '/' + e.name
+        ef = ectx.field[f]['ethname']
+        efd = ef
+        if (ectx.field[f]['impl']):
+          efd += '_impl'
+        if (ectx.encoding == 'ber'):
+          opt = ''
+          if (not e.HasOwnTag()):
+            opt = 'BER_FLAGS_NOOWNTAG'
+          elif (e.tag.mode == 'IMPLICIT'):
+            if (opt): opt += '|'
+            opt += 'BER_FLAGS_IMPLTAG'
+          if (not opt): opt = '0'
+        if (ectx.OBer()):
+          (tc, tn) = e.GetTag(ectx)
+          out = '  { %3s, %-13s, %s, %s, dissect_%s },\n' \
+                % (val, tc, tn, opt, efd)
+        elif (ectx.NPer()):
+          out = '  { %3s, &%-30s, %-23s, dissect_%s_%s },\n' \
+                % (val, ef, ext, ectx.eth_type[ectx.eth_hf[ef]['ethtype']]['proto'], ectx.eth_hf[ef]['ethtype'])
+        elif (ectx.OPer()):
+          out = '  { %3s, %-30s, %-23s, dissect_%s },\n' \
+                % (val, '"'+e.name+'"', ext, efd)
+        else:
+          out = ''
+        return out   
+      # end out_item()
+      fname = ectx.eth_type[tname]['ref'][0]
+      out = '\n'
+      tagval = False
+      if (ectx.Ber()):
+        lst = self.elt_list
+        if hasattr(self, 'ext_list'):
+          lst.extend(self.ext_list)
+        if (len(lst) > 0):
+          t = lst[0].GetTag(ectx)[0]
+          tagval = True
+        if (t == 'BER_CLASS_UNI'):
+          tagval = False
+        for e in (lst):
+          if (e.GetTag(ectx)[0] != t):
+            tagval = False
       if (ectx.encoding == 'ber'):
         out += "static ber_choice %s_choice[] = {\n" % (tname)
       else:
@@ -1759,12 +1786,14 @@ class EnumeratedType (Type):
   def eth_strings(self):
     return '$$'
 
+  def eth_has_vals(self):
+    return True
+
   def GetTTag(self, ectx):
     return ('BER_CLASS_UNI', 'BER_UNI_TAG_ENUMERATED')
 
-  def eth_type_fn(self, proto, tname, ectx):
-    fname = ectx.eth_type[tname]['ref'][0]
-    out = ''
+  def eth_type_vals(self, proto, tname, ectx):
+    out = '\n'
     vals = []
     lastv = 0
     used = {}
@@ -1798,6 +1827,11 @@ class EnumeratedType (Type):
         if val > maxv:
           maxv = val
     out += ectx.eth_vals(tname, vals)
+    return out
+
+  def eth_type_fn(self, proto, tname, ectx):
+    fname = ectx.eth_type[tname]['ref'][0]
+    out = '\n'
     if self.ext is None:
       ext = 'FALSE'
     else:
@@ -2152,8 +2186,23 @@ class IntegerType (Type):
     else:
       return 'NULL'
 
+  def eth_has_vals(self):
+    if (self.named_list):
+      return True
+    else:
+      return False
+
+  def eth_type_vals(self, proto, tname, ectx):
+    if not self.eth_has_vals(): return ''
+    out = '\n'
+    vals = []
+    for e in (self.named_list):
+      vals.append((int(e.val), e.ident))
+    out += ectx.eth_vals(tname, vals)
+    return out
+
   def eth_type_fn(self, proto, tname, ectx):
-    out = ''
+    out = '\n'
     vals = []
     if (self.named_list):
       for e in (self.named_list):
@@ -2180,6 +2229,8 @@ class IntegerType (Type):
       else:
         minv = self.constr.subtype[0]
         maxv = self.constr.subtype[1]
+      if str(minv).isdigit(): minv += 'U'
+      if str(maxv).isdigit(): maxv += 'U'
       if hasattr(self.constr, 'ext') and self.constr.ext:
         ext = 'TRUE'
       else:
