@@ -311,6 +311,14 @@ typedef struct _dcerpc_auth_subdissector_fns {
 void register_dcerpc_auth_subdissector(guint8 auth_level, guint8 auth_type,
 				       dcerpc_auth_subdissector_fns *fns);
 
+/* Helper for "decode as" dialog to set up a UUID/conversation binding. */
+struct _dcerpc_bind_value *
+add_conv_to_dcerpc_bind_table(conversation_t *conv,
+                              guint16 ctx_id,
+                              packet_info *pinfo,
+                              e_uuid_t uuid,
+                              guint16 ver);
+
 /* Authentication services */
 
 /* 

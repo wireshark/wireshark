@@ -282,6 +282,7 @@ static const value_string reject_status_vals[] = {
 /* we need to keep track of what transport were used, ie what handle we came
  * in through so we know what kind of pinfo->private_data was passed to us.
  */
+/* Value of -1 is reserved for "not DCE packet" in packet_info.dcetransporttype. */
 #define DCE_TRANSPORT_UNKNOWN		0
 #define DCE_CN_TRANSPORT_SMBPIPE	1
 
@@ -2271,6 +2272,12 @@ dissect_dcerpc_cn_bind (tvbuff_t *tvb, gint offset, packet_info *pinfo,
       offset = dissect_dcerpc_uint16 (tvb, offset, pinfo, NULL, hdr->drep,
                                       hf_dcerpc_cn_ctx_id, &ctx_id);
 
+      /* save context ID for use with add_conv_to_dcerpc_bind_table() */
+      /* (if we have multiple contexts, this might cause "decode as"
+       *  to behave unpredictably) */
+      pinfo->dcectxid = ctx_id;
+      pinfo->dcetransporttype = transport_type;
+
       if (dcerpc_tree) {
 	      proto_item *ctx_item;
 
@@ -2799,6 +2806,57 @@ end_cn_stub:
     pinfo->fragmented = save_fragmented;
 }
 
+/**
+ *  Registers a conversation/UUID binding association, so that
+ *  we can invoke the proper sub-dissector for a given DCERPC
+ *  conversation.
+ * 
+ *  @param conv Conversation, generally located by call to
+ *                \ref find_conversation().
+ *  @param ctx_id Context ID extracted from DCERPC packet which
+ *                is part of target conversation.
+ *  @param pinfo Packet info for packet containing ctx_id.
+ *  @param uuid UUID to bind conversation to.
+ *  @param ver UUID version, qualifier for UUID.
+ * 
+ *  @return Pointer to newly-added UUID/conversation binding.
+ */
+struct _dcerpc_bind_value *
+add_conv_to_dcerpc_bind_table(conversation_t *conv,
+                              guint16 ctx_id,
+                              packet_info *pinfo,
+                              e_uuid_t uuid,
+                              guint16 ver)
+{
+    dcerpc_bind_value *bind_value;
+    dcerpc_bind_key *key;
+ 
+    if (conv == NULL) {
+        /* oops, no conversation to add */
+        return NULL;
+    }
+
+    bind_value = g_mem_chunk_alloc (dcerpc_bind_value_chunk);
+    bind_value->uuid = uuid;
+    bind_value->ver = ver;
+
+    key = g_mem_chunk_alloc(dcerpc_bind_key_chunk);
+    key->conv = conv;
+    key->ctx_id = ctx_id;
+    key->smb_fid = get_transport_salt(pinfo, pinfo->dcetransporttype);
+ 
+    /* add this entry to the bind table, first removing any
+       previous ones that are identical
+     */
+    if(g_hash_table_lookup(dcerpc_binds, key)){
+            g_hash_table_remove(dcerpc_binds, key);
+    }
+    g_hash_table_insert(dcerpc_binds, key, bind_value);
+
+    return bind_value;
+
+}
+
 static void
 dissect_dcerpc_cn_rqst (tvbuff_t *tvb, gint offset, packet_info *pinfo, 
 			proto_tree *dcerpc_tree, proto_tree *tree,
@@ -2822,6 +2880,10 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
     offset = dissect_dcerpc_uint16 (tvb, offset, pinfo, dcerpc_tree, hdr->drep,
                                     hf_dcerpc_opnum, &opnum);
+
+    /* save context ID for use with add_conv_to_dcerpc_bind_table() */
+    pinfo->dcectxid = ctx_id;
+    pinfo->dcetransporttype = transport_type;
 
     if (check_col (pinfo->cinfo, COL_INFO)) {
         col_append_fstr (pinfo->cinfo, COL_INFO, " opnum: %u ctx_id: %u",
@@ -2980,6 +3042,10 @@ dissect_dcerpc_cn_resp (tvbuff_t *tvb, gint offset, packet_info *pinfo,
     offset = dissect_dcerpc_uint16 (tvb, offset, pinfo, dcerpc_tree, hdr->drep,
                                     hf_dcerpc_cn_ctx_id, &ctx_id);
 
+    /* save context ID for use with add_conv_to_dcerpc_bind_table() */
+    pinfo->dcectxid = ctx_id;
+    pinfo->dcetransporttype = transport_type;
+
     if (check_col (pinfo->cinfo, COL_INFO)) {
         col_append_fstr (pinfo->cinfo, COL_INFO, " ctx_id: %u", ctx_id);
     }
@@ -3093,6 +3159,10 @@ dissect_dcerpc_cn_fault (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
     offset = dissect_dcerpc_uint32 (tvb, offset, pinfo, dcerpc_tree, hdr->drep,
                                     hf_dcerpc_cn_status, &status);
+
+    /* save context ID for use with add_conv_to_dcerpc_bind_table() */
+    pinfo->dcectxid = ctx_id;
+    pinfo->dcetransporttype = transport_type;
 
     if (check_col (pinfo->cinfo, COL_INFO)) {
         col_append_fstr (pinfo->cinfo, COL_INFO,

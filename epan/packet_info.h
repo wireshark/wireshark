@@ -122,6 +122,10 @@ typedef struct _packet_info {
   guint16 src_idx;              /* Source port index (Cisco MDS-specific) */
   guint16 dst_idx;              /* Dest port index (Cisco MDS-specific) */
   guint16 vsan;                 /* Fibre channel/Cisco MDS-specific */
+  guint16 dcectxid;             /* Context ID (DCERPC-specific) */
+  int     dcetransporttype;     /* Transport type, tag for private_data (DCERPC-specific)
+                                 * Value -1 means "not a DCERPC packet"
+                                 */
   void    *private_data;	/* pointer to data passed from one dissector to another */
 } packet_info;
 

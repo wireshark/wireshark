@@ -297,6 +297,8 @@ dissect_packet(epan_dissect_t *edt, union wtap_pseudo_header *pseudo_header,
         edt->pi.src_idx = 0;
         edt->pi.dst_idx = 0;
         edt->pi.vsan = 0;
+        edt->pi.dcectxid = 0;
+        edt->pi.dcetransporttype = -1;
 
 	TRY {
 		edt->tvb = tvb_new_real_data(pd, fd->cap_len, fd->pkt_len);
