@@ -1,6 +1,6 @@
 /* snoop.c
  *
- * $Id: snoop.c,v 1.34 2001/03/10 06:33:58 guy Exp $
+ * $Id: snoop.c,v 1.35 2001/08/25 02:56:31 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -117,6 +117,17 @@ static gboolean snoop_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
  * wouldn't have supplied "atmsnoop"; even if it can't, this may be useful
  * reference information for anybody doing code to use DLPI to do raw packet
  * captures on those network types.
+ *
+ * See
+ *
+ *	http://www.shomiti.com/support/TNCapFileFormat.htm
+ *
+ * for information on Shomiti's mutant flavor of snoop.  For some unknown
+ * unknown reason, they decided not to just Go With The DLPI Flow, and
+ * instead used the types unspecified in RFC 1461 for their own nefarious
+ * purposes, such as distinguishing 10MB from 100MB from 1000MB Ethernet
+ * and distinguishing 4MB from 16MB Token Ring, and distinguishing both
+ * of them from the "Shomiti" versions of same.
  */
 int snoop_open(wtap *wth, int *err)
 {
@@ -152,6 +163,25 @@ int snoop_open(wtap *wth, int *err)
 		WTAP_ENCAP_UNKNOWN,	/* 100BaseT (but that's just Ethernet) */
 	};
 	#define NUM_SNOOP_ENCAPS (sizeof snoop_encap / sizeof snoop_encap[0])
+	static const int shomiti_encap[] = {
+		WTAP_ENCAP_ETHERNET,	/* IEEE 802.3 */
+		WTAP_ENCAP_UNKNOWN,	/* IEEE 802.4 Token Bus */
+		WTAP_ENCAP_TOKEN_RING,
+		WTAP_ENCAP_UNKNOWN,	/* IEEE 802.6 Metro Net */
+		WTAP_ENCAP_ETHERNET,
+		WTAP_ENCAP_UNKNOWN,	/* HDLC */
+		WTAP_ENCAP_UNKNOWN,	/* Character Synchronous, e.g. bisync */
+		WTAP_ENCAP_UNKNOWN,	/* IBM Channel-to-Channel */
+		WTAP_ENCAP_FDDI_BITSWAPPED,
+		WTAP_ENCAP_UNKNOWN,	/* Other */
+		WTAP_ENCAP_ETHERNET,	/* Fast Ethernet */
+		WTAP_ENCAP_TOKEN_RING,	/* 4MB 802.5 token ring */
+		WTAP_ENCAP_ETHERNET,	/* Gigabit Ethernet */
+		WTAP_ENCAP_TOKEN_RING,	/* "IEEE 802.5 Shomiti" */
+		WTAP_ENCAP_TOKEN_RING,	/* "4MB IEEE 802.5 Shomiti" */
+	};
+	#define NUM_SHOMITI_ENCAPS (sizeof shomiti_encap / sizeof shomiti_encap[0])
+	int file_encap;
 
 	/* Read in the string that should be at the start of a "snoop" file */
 	errno = WTAP_ERR_CANT_READ;
@@ -179,12 +209,73 @@ int snoop_open(wtap *wth, int *err)
 	}
 	wth->data_offset += sizeof hdr;
 
+	/*
+	 * Oh, this is lovely.
+	 *
+	 * I suppose Shomiti could give a bunch of lawyerly noise about
+	 * how "well, RFC 1761 said they were unassigned, and that's
+	 * the standard, not the DLPI header file, so it's perfectly OK
+	 * for us to use them, blah blah blah", but it's still irritating
+	 * as hell that they used the unassigned-in-RFC-1761 values for
+	 * their own purposes - especially given that Sun also used
+	 * one of them in atmsnoop.
+	 *
+	 * For now, we treat a version number of 2 as indicating that
+	 * this is a Sun snoop file, and version numbers of 3, 4, and 5
+	 * as indicating that this is a Shomiti file, even though
+	 * their capture file format documentation claims that they
+	 * use 2 if the data "was captured using an NDIS card", which
+	 * presumably means "captured with an ordinary boring network
+	 * card via NDIS" as opposed to "captured with our whizzo
+	 * special capture hardware".
+	 *
+	 * This runs the risk that we may misinterpret the network
+	 * type of Shomiti captures not done using their hardware.
+	 * Currently, the only not-in-RFC-1761 type we interpret in
+	 * Sun snoop files is 18, for atmsnoop, and that's not used
+	 * by Shomiti, but if any of the types used by Shomiti are
+	 * also used by Snoop or a variant thereof - e.g.:
+	 *
+	 *	value	snoop			Shomiti
+	 *	10	Frame Relay		100MB Ethernet
+	 *	11	MP over Frame Relay	4MB 802.5
+	 *	12	"Character Async"	1000MB Ethernet
+	 *	13	X.25 Classical IP	"IEEE 802.5 Shomiti"
+	 *	14	"software loopback"	"4MB IEEE 802.5 Shomiti"
+	 *
+	 * then we have a problem that may be resolvable only by checking
+	 * how much padding there is in the first packet - if there're 3
+	 * bytes or less, it's probably Sun snoop, which uses the padding
+	 * only for padding, but if there's more, it's probably a Shomiti
+	 * tool, which uses the padding for additional information.
+	 */
 	hdr.version = ntohl(hdr.version);
+	hdr.network = ntohl(hdr.network);
 	switch (hdr.version) {
 
 	case 2:		/* Solaris 2.x and later snoop, and Shomiti
-			   Surveyor prior to 3.x */
-	case 4:		/* Shomiti Surveyor 3.x */
+			   Surveyor prior to 3.0 (or 3.x with NDIS card?) */
+		if (hdr.network >= NUM_SNOOP_ENCAPS
+		    || snoop_encap[hdr.network] == WTAP_ENCAP_UNKNOWN) {
+			g_message("snoop: network type %u unknown or unsupported",
+			    hdr.network);
+			*err = WTAP_ERR_UNSUPPORTED_ENCAP;
+			return -1;
+		}
+		file_encap = snoop_encap[hdr.network];
+		break;
+
+	case 3:		/* Surveyor 3.0 and later, with Shomiti CMM2 hardware */
+	case 4:		/* Surveyor 3.0 and later, with Shomiti GAM hardware */
+	case 5:		/* Surveyor 3.0 and later, with Shomiti THG hardware */
+		if (hdr.network >= NUM_SHOMITI_ENCAPS
+		    || shomiti_encap[hdr.network] == WTAP_ENCAP_UNKNOWN) {
+			g_message("snoop: Shomiti network type %u unknown or unsupported",
+			    hdr.network);
+			*err = WTAP_ERR_UNSUPPORTED_ENCAP;
+			return -1;
+		}
+		file_encap = shomiti_encap[hdr.network];
 		break;
 
 	default:
@@ -192,20 +283,12 @@ int snoop_open(wtap *wth, int *err)
 		*err = WTAP_ERR_UNSUPPORTED;
 		return -1;
 	}
-	hdr.network = ntohl(hdr.network);
-	if (hdr.network >= NUM_SNOOP_ENCAPS
-	    || snoop_encap[hdr.network] == WTAP_ENCAP_UNKNOWN) {
-		g_message("snoop: network type %u unknown or unsupported",
-		    hdr.network);
-		*err = WTAP_ERR_UNSUPPORTED_ENCAP;
-		return -1;
-	}
 
 	/* This is a snoop file */
 	wth->file_type = WTAP_FILE_SNOOP;
 	wth->subtype_read = snoop_read;
 	wth->subtype_seek_read = snoop_seek_read;
-	wth->file_encap = snoop_encap[hdr.network];
+	wth->file_encap = file_encap;
 	wth->snapshot_length = 16384;	/* XXX - not available in header */
 	return 1;
 }
@@ -475,7 +558,7 @@ static gboolean snoop_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     const union wtap_pseudo_header *pseudo_header, const u_char *pd, int *err)
 {
 	struct snooprec_hdr rec_hdr;
-	int nwritten;
+	size_t nwritten;
 	int reclen;
 	int padlen;
 	static char zeroes[4];
@@ -495,7 +578,7 @@ static gboolean snoop_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 	rec_hdr.ts_usec = htonl(phdr->ts.tv_usec);
 	nwritten = fwrite(&rec_hdr, 1, sizeof rec_hdr, wdh->fh);
 	if (nwritten != sizeof rec_hdr) {
-		if (nwritten < 0)
+		if (nwritten == 0 && ferror(wdh->fh))
 			*err = errno;
 		else
 			*err = WTAP_ERR_SHORT_WRITE;
@@ -503,7 +586,7 @@ static gboolean snoop_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 	}
 	nwritten = fwrite(pd, 1, phdr->caplen, wdh->fh);
 	if (nwritten != phdr->caplen) {
-		if (nwritten < 0)
+		if (nwritten == 0 && ferror(wdh->fh))
 			*err = errno;
 		else
 			*err = WTAP_ERR_SHORT_WRITE;
@@ -513,7 +596,7 @@ static gboolean snoop_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 	/* Now write the padding. */
 	nwritten = fwrite(zeroes, 1, padlen, wdh->fh);
 	if (nwritten != padlen) {
-		if (nwritten < 0)
+		if (nwritten == 0 && ferror(wdh->fh))
 			*err = errno;
 		else
 			*err = WTAP_ERR_SHORT_WRITE;
