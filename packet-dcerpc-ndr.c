@@ -2,7 +2,7 @@
  * Routines for DCERPC NDR dissection
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc-ndr.c,v 1.12 2002/11/02 22:14:21 sahlberg Exp $
+ * $Id: packet-dcerpc-ndr.c,v 1.13 2002/11/03 20:35:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -196,7 +196,6 @@ dissect_ndr_uuid_t (tvbuff_t *tvb, gint offset, packet_info *pinfo,
     dcerpc_info *di;
     char uuid_str[DCERPC_UUID_STR_LEN]; 
     int uuid_str_len;
-    char *proto_str;
 
     di=pinfo->private_data;
     if(di->conformant_run){
@@ -210,8 +209,12 @@ dissect_ndr_uuid_t (tvbuff_t *tvb, gint offset, packet_info *pinfo,
     }
     dcerpc_tvb_get_uuid (tvb, offset, drep, &uuid);
     if (tree) {
-	proto_str=proto_registrar_get_name(hfindex);
-	uuid_str_len = snprintf(uuid_str, DCERPC_UUID_STR_LEN, 
+        /*
+         * XXX - look up the UUID to see if it's registered, and use
+         * the name of the protocol?  Unfortunately, we need the version
+         * as well.
+         */
+        uuid_str_len = snprintf(uuid_str, DCERPC_UUID_STR_LEN, 
                                 "%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
                                 uuid.Data1, uuid.Data2, uuid.Data3,
                                 uuid.Data4[0], uuid.Data4[1],
@@ -219,9 +222,11 @@ dissect_ndr_uuid_t (tvbuff_t *tvb, gint offset, packet_info *pinfo,
                                 uuid.Data4[4], uuid.Data4[5],
                                 uuid.Data4[6], uuid.Data4[7]);
         if (uuid_str_len >= DCERPC_UUID_STR_LEN)
-		memset(uuid_str, 0, DCERPC_UUID_STR_LEN);
+            memset(uuid_str, 0, DCERPC_UUID_STR_LEN);
         proto_tree_add_string_format (tree, hfindex, tvb, offset, 16, 
-		proto_str, "%s (%s)", proto_str, uuid_str);
+                                      uuid_str, "%s: %s",
+                                      proto_registrar_get_name(hfindex),
+                                      uuid_str);
     }
     if (pdata) {
         *pdata = uuid;
