@@ -3,7 +3,7 @@
  * Based on 3GPP TS 25.413 V3.4.0
  * Copyright 2001, Martin Held <Martin.Held@icn.siemens.de>
  *
- * $Id: packet-ranap.c,v 1.18 2003/04/22 13:47:38 tuexen Exp $
+ * $Id: packet-ranap.c,v 1.19 2003/10/03 23:31:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -773,6 +773,11 @@ static const value_string ranap_service_Handover_values[] = {
 /* protocol */
 static int proto_ranap = -1;
 
+static dissector_table_t nas_pdu_dissector_table;
+
+packet_info *g_pinfo = NULL;
+proto_tree *g_tree = NULL;
+
 /* pdu header fields */
 static int hf_ranap_pdu_number_of_octets = -1;
 static int hf_ranap_pdu_index = -1;
@@ -886,6 +891,7 @@ static int hf_ranap_nas_pdu_length = -1;
 static int hf_ranap_relocationRequirement = -1;
 static int hf_ranap_service_Handover = -1;
 static int hf_ranap_extension_field = -1;
+static int hf_ranap_RNC_ID = -1;
 
 
 /* subtrees */
@@ -2268,6 +2274,27 @@ dissect_IE_LAI(tvbuff_t *tvb, proto_tree *ie_tree)
 
 
 static int
+dissect_IE_GlobalRNC_ID(tvbuff_t *tvb, proto_tree *ie_tree)
+{
+  gint		offset = 0;
+
+  if (ie_tree)
+  {
+     /*  plmn_id */
+     proto_tree_add_item(ie_tree, hf_ranap_plmn_id, tvb,
+                           offset, PLMN_ID_LENGTH, FALSE);
+     offset += PLMN_ID_LENGTH;
+
+     /* RNC ID */
+     proto_tree_add_item(ie_tree, hf_ranap_RNC_ID, tvb, offset, 2, FALSE);
+     offset += 2;
+  }
+
+  return(0);
+}
+
+
+static int
 dissect_IE_SAI(tvbuff_t *tvb, proto_tree *ie_tree)
 {
   proto_item	*optionals_item = NULL;
@@ -2291,6 +2318,7 @@ dissect_IE_SAI(tvbuff_t *tvb, proto_tree *ie_tree)
      proceed_nbits(&offset, &bitoffset, 1);
 
      /*  plmn_id */
+     allign(&offset, &bitoffset);
      proto_tree_add_item(ie_tree, hf_ranap_plmn_id, tvb,
                            offset, PLMN_ID_LENGTH, FALSE);
      offset += PLMN_ID_LENGTH;
@@ -2308,7 +2336,7 @@ dissect_IE_SAI(tvbuff_t *tvb, proto_tree *ie_tree)
      /* iE_Extensions */
      if (iE_Extensions_present)
      {
-      	if ((ret=dissect_iE_Extension(tvb, ie_tree, &offset, &bitoffset, "LAI")) != 0)
+      	if ((ret=dissect_iE_Extension(tvb, ie_tree, &offset, &bitoffset, "SAI")) != 0)
       	     return (ret);
      }
   }
@@ -2319,6 +2347,7 @@ dissect_IE_SAI(tvbuff_t *tvb, proto_tree *ie_tree)
 static int
 dissect_IE_NAS_PDU(tvbuff_t *tvb, proto_tree *ie_tree)
 {
+   tvbuff_t		*next_tvb;
    gint			length;
    gint			length_size;
 
@@ -2340,16 +2369,17 @@ dissect_IE_NAS_PDU(tvbuff_t *tvb, proto_tree *ie_tree)
                            0, length_size, FALSE);
    }
 
-   /* call NAS dissector (not implemented yet) */
-   /* ............. */
-
-   /* meanwhile display in hex */
    if (ie_tree)
    {
        /* NAS - PDU */
        proto_tree_add_item(ie_tree, hf_ranap_nas_pdu, tvb,
                            length_size, length, FALSE);
    }
+
+   /* call NAS dissector */
+   next_tvb = tvb_new_subset(tvb, length_size, length, length);
+
+   if (dissector_try_port(nas_pdu_dissector_table, 0x1, next_tvb, g_pinfo, g_tree)) return(0);
    return(0);
 }
 
@@ -2372,9 +2402,14 @@ dissect_IE_CN_DomainIndicator(tvbuff_t *tvb, proto_tree *ie_tree)
 static int
 dissect_IE_IuSigConId(tvbuff_t *tvb, proto_tree *ie_tree)
 {
+  guint32	value;
+
   if (ie_tree)
   {
-     proto_tree_add_bitstring(ie_tree, hf_ranap_IuSigConId, tvb, 0, 0, 24);
+     value = tvb_get_ntoh24(tvb, 0);
+     proto_tree_add_uint(ie_tree, hf_ranap_IuSigConId,
+	tvb, 0, 3, value);
+
   }
   return(0);
 }
@@ -3764,6 +3799,9 @@ dissect_ranap_ie(guint16 ie_id, tvbuff_t *ie_contents_tvb, proto_tree *ie_tree)
         case IE_SAI:
            return(dissect_IE_SAI(ie_contents_tvb, ie_tree));
            break;
+        case IE_GlobalRNC_ID:
+	   return(dissect_IE_GlobalRNC_ID(ie_contents_tvb, ie_tree));
+           break;
         case IE_CN_DomainIndicator:
            return(dissect_IE_CN_DomainIndicator(ie_contents_tvb, ie_tree));
            break;
@@ -3976,6 +4014,8 @@ dissect_ranap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   tvbuff_t	*ie_tvb;
 
 
+  g_pinfo = pinfo;
+
   /* make entry in the Protocol column on summary display */
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "RANAP");
@@ -4021,6 +4061,8 @@ dissect_ranap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      necessary to generate protocol tree items. */
   if (tree)
   {
+    g_tree = tree;
+
     /* create the ranap protocol tree */
     ranap_item = proto_tree_add_item(tree, proto_ranap, tvb, 0, -1, FALSE);
     ranap_tree = proto_item_add_subtree(ranap_item, ett_ranap);
@@ -4213,19 +4255,7 @@ proto_register_ranap(void)
     },
     { &hf_ranap_lac,
       { "LAC",
-        "ranap.PLMN_ID",
-	FT_BYTES, BASE_NONE, NULL, 0x0,
-	"", HFILL }
-    },
-    { &hf_ranap_plmn_id,
-      { "PLMN-ID",
-        "ranap.PLMN_ID",
-	FT_BYTES, BASE_NONE, NULL, 0x0,
-	"", HFILL }
-    },
-    { &hf_ranap_lac,
-      { "LAC",
-        "ranap.PLMN_ID",
+        "ranap.LAC",
 	FT_BYTES, BASE_NONE, NULL, 0x0,
 	"", HFILL }
     },
@@ -4724,12 +4754,12 @@ proto_register_ranap(void)
     { &hf_ranap_IuSigConId,
       { "IuSigConId",
         "ranap.IuSigConId",
-	FT_BYTES, BASE_NONE, NULL, 0x0,
+	FT_UINT24, BASE_DEC, NULL, 0x0,
 	"", HFILL }
     },
     { &hf_ranap_SAPI,
       { "SAPI",
-        "ranap.IuSigConId",
+        "ranap.sapi",
 	FT_UINT8, BASE_HEX, VALS(&ranap_SAPI_values), 0x0,
 	"", HFILL }
     },
@@ -4749,6 +4779,12 @@ proto_register_ranap(void)
       { "length of NAS-PDU",
         "ranap.nas_pdu_length",
 	FT_UINT16, BASE_DEC, NULL, 0x0,
+	"", HFILL }
+    },
+    { &hf_ranap_RNC_ID,
+      { "RNC ID",
+        "ranap.RNC_ID",
+	FT_UINT16, BASE_DEC, NULL, 0x0fff,
 	"", HFILL }
     }
   };
@@ -4778,6 +4814,7 @@ proto_register_ranap(void)
   proto_register_field_array(proto_ranap, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
+  nas_pdu_dissector_table = register_dissector_table("ranap.nas_pdu", "RANAP NAS PDU", FT_UINT8, BASE_DEC);
 };
 
 
