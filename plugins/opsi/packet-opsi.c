@@ -48,7 +48,7 @@
 
 #include "packet-opsi.h"
 
-// Plugin exported constants
+/* Plugin exported constants */
 #ifndef ENABLE_STATIC
 G_MODULE_EXPORT const gchar version[] = VERSION;
 #endif 
@@ -430,11 +430,10 @@ dissect_attributes(tvbuff_t *tvb, proto_tree *opsi_tree, int offset, int length)
 	proto_tree *ntree = NULL;
 	
 	while (length >= 4) {
-		//i=0;
 		attribute_type 		= tvb_get_ntohs(tvb, offset);
 		attribute_length 	= tvb_get_ntohs(tvb, offset+2);
 		if (attribute_length > length) break;
-		// We perform a standard log(n) lookup
+		/* We perform a standard log(n) lookup */
 		i = get_opsi_attribute_index(0, OPSI_ATTRIBUTES_COUNT-1, attribute_type);
 		if (i == -1) {
 			proto_tree_add_text(opsi_tree, tvb, offset, attribute_length, "Unknown attribute (%d)", attribute_type);			

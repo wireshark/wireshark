@@ -32,7 +32,7 @@
 /* print output format */
 typedef enum {
   PR_FMT_TEXT,    /* plain text */
-  PR_FMT_PS,      /* postscript */
+  PR_FMT_PS       /* postscript */
 } print_format_e;
 
 /* print_range, enum which frames should be printed */

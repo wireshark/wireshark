@@ -359,7 +359,7 @@ static struct {
 %%
 };
 
-static void yy_accept();  /* Forward declaration */
+static void yy_accept(void);  /* Forward declaration */
 
 /*
 ** Perform a reduce action and the shift that must immediately

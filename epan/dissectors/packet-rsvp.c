@@ -3932,11 +3932,11 @@ dissect_rsvp_gen_uni (proto_tree *ti, tvbuff_t *tvb,
 
 	    case 4: /* Egress Label */
 		k = tvb_get_guint8(tvb, offset2+l+3);
-		if (k == 1)		// Egress label sub-type
+		if (k == 1)		/* Egress label sub-type */
 		    ti2 = proto_tree_add_text(rsvp_object_tree, tvb,
 					      offset2+l, tvb_get_ntohs(tvb, offset2+l),
 					      "Egress Label Subobject");
-		else if (k == 2)	// SPC_label sub-type (see G.7713.2)
+		else if (k == 2)	/* SPC_label sub-type (see G.7713.2) */
 		    ti2 = proto_tree_add_text(rsvp_object_tree, tvb,
 					      offset2+l, tvb_get_ntohs(tvb, offset2+l),
 					      "SPC Label Subobject");

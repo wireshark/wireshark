@@ -260,7 +260,7 @@ dcm_init(void)
 }
 
 dcmState_t *
-mkds()
+mkds(void)
 {
     dcmState_t *ds;
 

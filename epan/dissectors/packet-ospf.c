@@ -1153,7 +1153,7 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, int offset, proto_tree *tree,
 					    tvb_get_ntohieee_float(tvb, stlv_offset + 8 + i*4),
 					    tvb_get_ntohieee_float(tvb, stlv_offset + 8 + i*4) * 8.0);
 		    }
-                    if (switch_cap >=1 && switch_cap <=4) {           // PSC-1 .. PSC-4
+                    if (switch_cap >=1 && switch_cap <=4) {           /* PSC-1 .. PSC-4 */
                         proto_tree_add_text(stlv_tree, tvb, stlv_offset+40, 4,
                                             "Minimum LSP bandwidth: %.10g bytes/s (%.0f bits/s)",
                                             tvb_get_ntohieee_float(tvb, stlv_offset + 40),
@@ -1162,7 +1162,7 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, int offset, proto_tree *tree,
                                             "Interface MTU: %d", tvb_get_ntohs(tvb, stlv_offset+44));
                     }
 
-                    if (switch_cap == 100) {                         // TDM
+                    if (switch_cap == 100) {                         /* TDM */
                         proto_tree_add_text(stlv_tree, tvb, stlv_offset+40, 4,
                                             "Minimum LSP bandwidth: %.10g bytes/s (%.0f bits/s)",
                                             tvb_get_ntohieee_float(tvb, stlv_offset + 40),
