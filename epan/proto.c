@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.111 2003/11/25 14:07:44 sahlberg Exp $
+ * $Id: proto.c,v 1.112 2003/11/25 14:10:27 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -159,6 +159,20 @@ static field_info *field_info_tmp=NULL;
 #define FREE_FIELD_INFO(fi) \
 	fi->ptr_u.next=field_info_free_list;	\
 	field_info_free_list=fi;	
+#define FIELD_INFO_NEW(fi)					\
+	if(!field_info_free_list){				\
+		int i;						\
+		field_info *pfi;				\
+		pfi=g_malloc(INITIAL_NUM_FIELD_INFO*sizeof(field_info));\
+		for(i=0;i<INITIAL_NUM_FIELD_INFO;i++){		\
+			field_info *tmpfi;			\
+			tmpfi=&pfi[i];				\
+			tmpfi->ptr_u.next=field_info_free_list;	\
+			field_info_free_list=tmpfi;		\
+		}						\
+	}							\
+	fi=field_info_free_list;				\
+	field_info_free_list=fi->ptr_u.next;
 
 
 
@@ -1920,19 +1934,7 @@ alloc_field_info(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 		}
 	}
 
-	if(!field_info_free_list){
-		int i;
-		field_info *pfi;
-		pfi=g_malloc(INITIAL_NUM_FIELD_INFO*sizeof(field_info));
-		for(i=0;i<INITIAL_NUM_FIELD_INFO;i++){
-			field_info *tmpfi;
-			tmpfi=&pfi[i];
-			tmpfi->ptr_u.next=field_info_free_list;
-			field_info_free_list=tmpfi;
-		}
-	}
-	fi=field_info_free_list;
-	field_info_free_list=fi->ptr_u.next;
+	FIELD_INFO_NEW(fi);
 
 	fi->ptr_u.hfinfo = hfinfo;
 	fi->start = start;
