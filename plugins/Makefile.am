@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.18 2003/07/22 18:37:33 gerald Exp $
+# $Id: Makefile.am,v 1.19 2003/07/23 14:33:34 gerald Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -26,8 +26,7 @@ SUBDIRS = artnet docsis giop gryphon megaco mgcp pcli rtnet
 plugindir = @plugindir@
 
 ADDRESS_EXPORT_FILES = \
-	xyzzy	\
-	plugin_api_list.c	\
+	Xepan_plugins.c	\
 	Xplugin_api.c	\
 	Xplugin_api.h	\
 	Xplugin_api_decls.h	\
