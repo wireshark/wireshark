@@ -2,7 +2,7 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  * 
- * $Id: packet-wsp.c,v 1.27 2001/07/20 08:16:11 guy Exp $
+ * $Id: packet-wsp.c,v 1.28 2001/07/20 08:40:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1138,7 +1138,10 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				add_uri (wsp_tree, tvb, uriStart, offset);
 				offset += uriLength;
 
-				ti = proto_tree_add_item (wsp_tree, hf_wsp_header_length,tvb,headerStart,count,bo_little_endian);
+				ti = proto_tree_add_uint (wsp_tree, hf_wsp_header_length,tvb,headerStart,count,headersLength);
+
+				if (headersLength == 0)
+					break;
 
 				contentTypeStart = offset;
 				nextOffset = add_content_type (wsp_tree,
@@ -1146,10 +1149,13 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				    &contentTypeStr);
 
 				/* Add headers subtree that will hold the headers fields */
-				/* Runs from nextOffset for value-(length of content-type field)*/
+				/* Runs from nextOffset for headersLength-(length of content-type field)*/
 				headerLength = headersLength-(nextOffset-contentTypeStart);
-				tmp_tvb = tvb_new_subset (tvb, nextOffset, headerLength, headerLength);
-				add_headers (wsp_tree, tmp_tvb);
+				if (headerLength > 0)
+				{
+					tmp_tvb = tvb_new_subset (tvb, nextOffset, headerLength, headerLength);
+					add_headers (wsp_tree, tmp_tvb);
+				}
 
 				/* TODO: Post DATA */
 				/* Runs from start of headers+headerLength to end of frame */
@@ -1164,9 +1170,12 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			if (tree) {
 				ti = proto_tree_add_item (wsp_tree, hf_wsp_header_status,tvb,offset,1,bo_little_endian);
 				count = 0;	/* Initialise count */
-				value = tvb_get_guintvar (tvb, offset+1, &count);
+				headersLength = tvb_get_guintvar (tvb, offset+1, &count);
 				nextOffset = offset + 1 + count;
-				ti = proto_tree_add_uint (wsp_tree, hf_wsp_header_length,tvb,offset+1,count,value);
+				ti = proto_tree_add_uint (wsp_tree, hf_wsp_header_length,tvb,offset+1,count,headersLength);
+
+				if (headersLength == 0)
+					break;
 
 				contentTypeStart = nextOffset;
 				nextOffset = add_content_type (wsp_tree,
@@ -1174,14 +1183,17 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				    &contentTypeStr);
 
 				/* Add headers subtree that will hold the headers fields */
-				/* Runs from nextOffset for value-(length of content-type field)*/
-				headerLength = value-(nextOffset-contentTypeStart);
-				tmp_tvb = tvb_new_subset (tvb, nextOffset, headerLength, headerLength);
-				add_headers (wsp_tree, tmp_tvb);
-				offset += count+value+1;
+				/* Runs from nextOffset for headersLength-(length of content-type field)*/
+				headerLength = headersLength-(nextOffset-contentTypeStart);
+				if (headerLength > 0)
+				{
+					tmp_tvb = tvb_new_subset (tvb, nextOffset, headerLength, headerLength);
+					add_headers (wsp_tree, tmp_tvb);
+				}
+				offset += count+headerLength+1;
 
 				/* TODO: Data - decode WMLC */
-				/* Runs from offset+1+count+value+1 to end of frame */
+				/* Runs from offset+1+count+headerLength+1 to end of frame */
 				if (offset < tvb_reported_length (tvb))
 				{
 					ti = proto_tree_add_item (wsp_tree, hf_wsp_reply_data,tvb,offset,tvb_length_remaining(tvb, offset),bo_little_endian);
