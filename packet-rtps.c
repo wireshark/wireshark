@@ -12,7 +12,7 @@
  * version: 2004/04/15 9:40:45
  * dedication to Kj :]
  *
- * $Id: packet-rtps.c,v 1.5 2004/04/18 19:52:06 guy Exp $
+ * $Id: packet-rtps.c,v 1.6 2004/04/18 20:08:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -146,7 +146,7 @@ static char *port_to_string(gint offset,tvbuff_t *tvb,gboolean little_endian,cha
 static char *get_NtpTime(gint offset,tvbuff_t *tvb,gboolean little_endian,char buff[]);
 
 static void  get_bitmap(tvbuff_t *tvb, gint *p_offset, gboolean little_endian,
-                        guint16 next_submsg, proto_tree *tree);
+                        gint next_submsg, proto_tree *tree);
 
 static char *get_parameter(gint offset, tvbuff_t *tvb, gboolean little_endian, char buff[],
                            guint16 parameter, guint16 param_length);
@@ -694,7 +694,7 @@ seq_nr_to_string(gint offset, gboolean little_endian, tvbuff_t *tvb,
 
 static void
 get_bitmap(tvbuff_t *tvb, gint *p_offset, gboolean little_endian,
-           guint16 next_submsg, proto_tree *tree)
+           gint next_submsg, proto_tree *tree)
 {
   proto_item             *ti;
   proto_tree             *rtps_bitmap_tree;
@@ -1256,7 +1256,7 @@ dissect_ACK(tvbuff_t *tvb, gint offset,  proto_tree *tree)
                       object_id_to_string(offset, tvb, buff));
   offset +=4;
 
-  get_bitmap(tvb,&offset,little_endian,(guint16)next_submsg_offset,rtps_submessage_tree);
+  get_bitmap(tvb,&offset,little_endian,next_submsg_offset,rtps_submessage_tree);
 
 }
 
@@ -1395,7 +1395,7 @@ dissect_GAP(tvbuff_t *tvb, gint offset, proto_tree *tree)
                       sequenceNumber.high, sequenceNumber.low);
   offset +=8;
 
-  get_bitmap(tvb,&offset,little_endian,(guint16)next_submsg_offset,rtps_submessage_tree);
+  get_bitmap(tvb,&offset,little_endian,next_submsg_offset,rtps_submessage_tree);
 
 }
 
