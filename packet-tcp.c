@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.202 2003/08/28 03:35:23 guy Exp $
+ * $Id: packet-tcp.c,v 1.203 2003/08/29 11:15:13 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -586,7 +586,7 @@ tcp_analyze_sequence_number(packet_info *pinfo, guint32 seq, guint32 ack, guint3
 		goto seq_finished;
 	}
 
-	/* keep-alives are empty semgents with a sequence number -1 of what
+	/* keep-alives are empty segments with a sequence number -1 of what
 	 * we would expect.
          *
 	 * Solaris is an exception, Solaris does not really use KeepAlives
@@ -604,11 +604,13 @@ tcp_analyze_sequence_number(packet_info *pinfo, guint32 seq, guint32 ack, guint3
 	 * , brilliant)
 	 */
 	if( (seglen<=1) && EQ_SEQ(seq, (ual1->nextseq-1)) ){
-		struct tcp_acked *ta;
-
-		ta=tcp_analyze_get_acked_struct(pinfo->fd->num, TRUE);
-		ta->flags|=TCP_A_KEEP_ALIVE;
-		goto seq_finished;
+		if(!(flags&TH_FIN)){ /* FIN segments are not keepalives */
+			struct tcp_acked *ta;
+	
+			ta=tcp_analyze_get_acked_struct(pinfo->fd->num, TRUE);
+			ta->flags|=TCP_A_KEEP_ALIVE;
+			goto seq_finished;
+		}
 	}
 
 
