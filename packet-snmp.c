@@ -2,7 +2,7 @@
  * Routines for SNMP (simple network management protocol)
  * D.Jorand (c) 1998
  *
- * $Id: packet-snmp.c,v 1.23 2000/01/07 22:05:39 guy Exp $
+ * $Id: packet-snmp.c,v 1.24 2000/02/20 03:32:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -63,6 +63,30 @@
 #  include <ucd-snmp/snmp_api.h>
 #  include <ucd-snmp/snmp_impl.h>
 #  include <ucd-snmp/mib.h>
+
+   /*
+    * Sigh.  UCD SNMP 4.1[.x] makes "snmp_set_full_objid()" a macro
+    * that calls "ds_set_boolean()" with the first two arguments
+    * being DS_LIBRARY_ID and DS_LIB_PRINT_FULL_OID; this means that,
+    * when building with 4.1[.x], we need to arrange that
+    * <ucd-snmp/default_store.h> is included, to define those two values
+    * and to declare "ds_set_boolean()".
+    *
+    * However:
+    *
+    *	1) we can't include it on earlier versions (at least not 3.6.2),
+    *	   as it doesn't exist in those versions;
+    *
+    *	2) we don't want to include <ucd-snmp/ucd-snmp-includes.h>,
+    *	   as that includes <ucd-snmp/snmp.h>, and that defines a whole
+    *	   bunch of values that we also define ourselves.
+    *
+    * So we only include it if "snmp_set_full_objid" is defined as
+    * a macro.
+    */
+#  ifdef snmp_set_full_objid
+#   include <ucd-snmp/default_store.h>
+#  endif
 
    /*
     * XXX - for now, we assume all versions of UCD SNMP have it.
