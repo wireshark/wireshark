@@ -2,7 +2,7 @@
  * Routines for Frame Relay Local Management Interface (LMI) disassembly
  * Copyright 2001, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-lmi.c,v 1.1 2001/03/23 19:22:02 jfoster Exp $
+ * $Id: packet-lmi.c,v 1.2 2001/03/29 07:46:08 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -67,6 +67,33 @@ static int hf_lmi_act = -1;
 static gint ett_lmi = -1;
 static gint ett_lmi_ele = -1;
 
+/*
+ * XXX - 0x09 means Q.2931 in some places, and Q.933 says 0x08 is the
+ * NLPID for Q.933.
+ *
+ * However, RFC 2427 also says that an NLPID of 0x08 is used for
+ * protocols that have neither an NLPID nor a SNAP encapsulation.
+ *
+ * What's the deal here?  Is 0x08 for Q.933, and 0x09 for LMI, with
+ * Q.933 used for full blown "phone call"-style signaling and LMI used
+ * only for PVC status information?  The IBM reference above says
+ * that 0x08 is used for LMI.
+ *
+ * The Linux 2.2.14 "drivers/net/comx-proto-fr.c" has 0x08 as
+ * NLPID_Q933_LMI and 0x09 as NLPID_CISCO_LMI.  The page at
+ *
+ *	http://dtool.com/gang.html
+ *
+ * speaks of "ANSI or ANSI Annex D or ITU-T Annex A" LMI,
+ * "Cisco" or "Gang of Four" LMI, and "Q933A (ITU-T)" or "Annex-A"
+ * LMI.
+ *
+ * If 0x08 is for Q.933, how do you distinguish the Q.931-style
+ * signaling packets from the RFC 2427 encapsulation?  Require a
+ * call reference value of 0, which would presumably not be valid
+ * for the first octet of an L2 protocol ID?  RFC 2427 appears to
+ * be silent on this.
+ */
 #define NLPID_LMI 0x09		/* NLPID value for LMI */
 
 #ifdef _OLD_
@@ -114,7 +141,7 @@ static const value_string pvc_status_new_str[] = {
 
 static const value_string pvc_status_act_str[] = {
         {0x00, "PVC is Inactive"},
-        {0x01, "PVC is Acive"},
+        {0x01, "PVC is Active"},
 	{ 0,       NULL }
         };
 
