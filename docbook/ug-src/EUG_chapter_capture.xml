@@ -711,8 +711,10 @@ ethereal -i eth0 -k
     <para>
       You enter the capture filter into the Filter field of the Ethereal 
       Capture Options dialog box, as shown in 
-      <xref linkend="ChCapCaptureOptionsDialog"/>. The following is an outline of 
-	the syntax of the <command>tcpdump</command> capture filter language.
+      <xref linkend="ChCapCaptureOptionsDialog"/>. The following is an outline 
+	  of the syntax of the <command>tcpdump</command> capture filter language. 
+	  See the expression option at the tcpdump manual page for details:
+	  <ulink url="http://www.tcpdump.org/tcpdump_man.html"/>
     </para>
     <para>
       A capture filter takes the form of a series of primitive expressions 
