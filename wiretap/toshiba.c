@@ -1,6 +1,6 @@
 /* toshiba.c
  *
- * $Id: toshiba.c,v 1.5 1999/11/18 07:04:29 gram Exp $
+ * $Id: toshiba.c,v 1.6 2000/01/01 04:01:41 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -299,8 +299,8 @@ parse_toshiba_rec_hdr(wtap *wth, FILE *fh, int *err)
 	}
 
 	if (wth) {
-		wth->phdr.ts.tv_sec = 0;
-		wth->phdr.ts.tv_usec = 0;
+		wth->phdr.ts.tv_sec = hr * 3600 + min * 60 + sec;
+		wth->phdr.ts.tv_usec = csec * 10000;
 		wth->phdr.caplen = pkt_len;
 		wth->phdr.len = pkt_len;
 		switch (channel[0]) {
