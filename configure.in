@@ -816,13 +816,16 @@ if test "x$NETSNMPCONFIG" != "xno" -a "x$NETSNMPCONFIG" != "x" -a -x "$NETSNMPCO
 	AC_CHECK_HEADERS(net-snmp/net-snmp-config.h net-snmp/library/default_store.h)
 	if test "x$ac_cv_header_net_snmp_net_snmp_config_h" = "xyes" -a "x$ac_cv_header_net_snmp_library_default_store_h" = "xyes" ; then
 		SNMP_LIBS=`$NETSNMPCONFIG --libs`
-		if test "x$SSL_LIBS" = "x" ; then
-			if echo "$SNMP_LIBS" | grep crypto ; then
-				AC_MSG_ERROR(SNMP requires openssl but ssl not enabled)
-			fi
+		if echo "$SNMP_LIBS" | grep crypto  && test "x$SSL_LIBS" = "x"; then
+			AC_MSG_RESULT(Net-SNMP requires openssl but ssl not enabled - disabling Net-SNMP)
+			CFLAGS="$ethereal_save_CFLAGS"
+			CPPFLAGS="$ethereal_save_CPPFLAGS"
+			SNMP_LIBS=
+			NETSNMPCONFIG="no"
+		else
+			AC_DEFINE(HAVE_NET_SNMP, 1, [Define to enable support for NET-SNMP])
+			have_net_snmp="yes"
 		fi
-		AC_DEFINE(HAVE_NET_SNMP, 1, [Define to enable support for NET-SNMP])
-		have_net_snmp="yes"
 	else
 		# technically, we should retry ucd-snmp but it's
 		# unlikely they have installed net-snmp-config and not
