@@ -119,7 +119,7 @@ u_data=(struct sctp_analyse*)user_data;
 }
 
 static void
-on_notebook_switch_page()
+on_notebook_switch_page(void)
 {
 }
 
