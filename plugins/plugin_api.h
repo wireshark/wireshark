@@ -41,8 +41,6 @@
 /* file generted by plugin_gen.py */
 #include "Xplugin_api.h"
 
-#endif
-
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/report_err.h>
@@ -62,6 +60,8 @@
 #include <epan/crc16.h>
 #include "epan/except.h"
 #include "epan/filesystem.h"
+
+#endif /* PLUGINS_NEED_ADDRESS_TABLE */
 
 #include "plugin_table.h"
 

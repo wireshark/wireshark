@@ -33,18 +33,22 @@
 #include "plugins/plugin_api.h"
 
 #include "moduleinfo.h"
-#include "acn.h"
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <gmodule.h>
 #include <ctype.h>
 #include <time.h>
 #include <string.h>
+
+#include <glib.h>
+#include <gmodule.h>
+
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
 #include <epan/prefs.h>
 #include <epan/strutil.h>
+
+#include "acn.h"
 
 #include "plugins/plugin_api_defs.h"
 

@@ -83,8 +83,8 @@
 #include <epan/strutil.h>
 #include <epan/filesystem.h>
 #include <epan/report_err.h>
+#include <epan/dissectors/packet-tcp.h>
 #include "asn1.h"
-#include "simple_dialog.h"
 
 #include "plugins/plugin_api_defs.h"
 

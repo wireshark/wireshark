@@ -23,10 +23,11 @@
 #endif
 #include "moduleinfo.h"
 #include "plugins/plugin_api.h"
-#include <epan/crc16.h>
 
 #include <gmodule.h>
 
+#include <epan/packet.h>
+#include <epan/crc16.h>
 
 /** Serial infrared port. */
 #define TCP_PORT_SIR 6417
