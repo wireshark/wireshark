@@ -1,7 +1,7 @@
 /* capture_dlg.c
  * Routines for packet capture windows
  *
- * $Id: capture_dlg.c,v 1.41 2001/04/15 03:37:16 guy Exp $
+ * $Id: capture_dlg.c,v 1.42 2001/05/31 05:33:15 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -457,7 +457,7 @@ capture_prep_ok_cb(GtkWidget *ok_bt, gpointer parent_w) {
   if (if_name == NULL) {
     simple_dialog(ESD_TYPE_CRIT, NULL,
       "You didn't specify an interface on which to capture packets.");
-    g_free(if_name);
+    g_free(if_text);
     return;
   }
   if (cfile.iface)
