@@ -3024,9 +3024,10 @@ tbl_type(guint n, GNode *pdu, GNode *list, guint fullindex) /* indent, pdu, sour
 				break;
 		}
 
-		/******* change to positive comparation, but leave comment for reference */
-		// if (((TBLTag *)list->data)->type != TBLTYPE_TypeRef) { 
-		//	CHECKTYPE(list, TBLTYPE_Type);
+		/******* change to positive comparation, but leave comment for reference
+		 * if (((TBLTag *)list->data)->type != TBLTYPE_TypeRef) { 
+		 *	CHECKTYPE(list, TBLTYPE_Type);
+		 */
 
                 if (((TBLTag *)list->data)->type == TBLTYPE_Type) { 
 			CHECKTYPE(list, TBLTYPE_Type);
