@@ -2,7 +2,7 @@
  * Copyright (C) 1995-1997 Peter Mattis, Spencer Kimball, Josh MacDonald,
  * Copyright (C) 1997-1998 Jay Painter <jpaint@serv.net><jpaint@gimp.org>
  *
- * $Id: gtkclist.c,v 1.14 2003/06/28 21:46:08 sahlberg Exp $
+ * $Id: gtkclist_v12.c,v 1.1 2003/09/24 06:15:53 oabad Exp $
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -36,7 +36,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <gtk/gtkmain.h>
-#include "gtkclist.h"
+#include "gtkclist_v12.h"
 #include <gtk/gtkbindings.h>
 #include <gtk/gtkdnd.h>
 
