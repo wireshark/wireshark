@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.159 2001/11/20 22:29:04 guy Exp $
+ * $Id: capture.c,v 1.160 2001/11/28 07:11:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -159,6 +159,7 @@
 #include "packet-tr.h"
 #include "packet-ieee80211.h"
 #include "packet-chdlc.h"
+#include "packet-prism.h"
 
 #ifdef WIN32
 #include "capture-wpcap.h"
@@ -1156,6 +1157,9 @@ pipe_dispatch(int fd, loop_data *ld, struct pcap_hdr *hdr)
     case WTAP_ENCAP_FDDI:
     case WTAP_ENCAP_FDDI_BITSWAPPED:
       capture_fddi(pd, whdr.caplen, &ld->counts);
+      break;
+    case WTAP_ENCAP_PRISM:
+      capture_prism(pd, 0, whdr.caplen, &ld->counts);
       break;
     case WTAP_ENCAP_TOKEN_RING:
       capture_tr(pd, 0, whdr.caplen, &ld->counts);

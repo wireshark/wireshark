@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB 
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.43 2001/11/26 05:13:11 hagbard Exp $
+ * $Id: packet-ieee80211.c,v 1.44 2001/11/28 07:11:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1893,6 +1893,8 @@ proto_register_wlan (void)
 					"802.11 MGT", "wlan_mgt");
   proto_register_field_array (proto_wlan_mgt, ff, array_length (ff));
   proto_register_subtree_array (tree_array, array_length (tree_array));
+
+  register_dissector("wlan", dissect_ieee80211, proto_wlan);
 }
 
 void

@@ -1,6 +1,6 @@
 /* libpcap.c
  *
- * $Id: libpcap.c,v 1.59 2001/11/14 22:54:26 guy Exp $
+ * $Id: libpcap.c,v 1.60 2001/11/28 07:11:10 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -364,7 +364,8 @@ static const struct {
 	 */
 	{ 113,		WTAP_ENCAP_SLL },	/* Linux cooked capture */
 
-    { 118,      WTAP_ENCAP_CISCO_IOS },
+	{ 118,		WTAP_ENCAP_CISCO_IOS },
+	{ 119,		WTAP_ENCAP_PRISM },	/* Prism monitor mode hdr */
 };
 #define NUM_PCAP_ENCAPS (sizeof pcap_to_wtap_map / sizeof pcap_to_wtap_map[0])
 

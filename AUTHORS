@@ -910,6 +910,10 @@ Taisuke Sasaki <sasaki[AT]soft.net.fujitsu.co.jp> {
 	OSPFv3 checksum fix
 }
 
+Tim Newsham <newsham[AT]lava.net> {
+	Support for 802.11+Prism II monitor-mode link-layer headers
+}
+
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 
