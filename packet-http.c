@@ -6,7 +6,7 @@
  * Copyright 2002, Tim Potter <tpot@samba.org>
  * Copyright 1999, Andrew Tridgell <tridge@samba.org>
  *
- * $Id: packet-http.c,v 1.75 2003/12/07 03:21:22 guy Exp $
+ * $Id: packet-http.c,v 1.76 2003/12/07 03:34:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -162,6 +162,14 @@ dissect_http_ntlmssp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	add_new_data_source(pinfo, ntlmssp_tvb, "NTLMSSP Data");
 
 	call_dissector(ntlmssp_handle, ntlmssp_tvb, pinfo, tree);
+}
+
+static void
+cleanup_entity_headers(void *arg)
+{
+	entity_headers_t *entity_headers = arg;
+
+	g_free(entity_headers->content_type);
 }
 
 /* TODO: remove this ugly global variable */
@@ -372,6 +380,7 @@ dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 */
 	http_type = HTTP_OTHERS;	/* type not known yet */
 	entity_headers.content_type = NULL;	/* content type not known yet */
+	CLEANUP_PUSH(cleanup_entity_headers, &entity_headers);
 	while (tvb_offset_exists(tvb, offset)) {
 		/*
 		 * Find the end of the line.
@@ -563,7 +572,6 @@ dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			    media_type_subdissector_table,
 			    entity_headers.content_type);
 		}
-		g_free(entity_headers.content_type);
 		if (handle != NULL) {
 			/*
 			 * We have a subdissector - call it.
@@ -590,12 +598,13 @@ dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			call_dissector(data_handle, next_tvb, pinfo,
 			    http_tree);
 		}
-	} else {
-		/*
-		 * Free up content type - there's no content.
-		 */
-		g_free(entity_headers.content_type);
 	}
+
+	/*
+	 * Clean up any entity header stuff, by calling and popping
+	 * the cleanup handler.
+	 */
+	CLEANUP_CALL_AND_POP;
 
 	tap_queue_packet(http_tap, pinfo, stat_info);
 }
