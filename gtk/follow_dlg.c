@@ -1,6 +1,6 @@
 /* follow_dlg.c
  *
- * $Id: follow_dlg.c,v 1.31 2003/03/06 04:23:51 guy Exp $
+ * $Id: follow_dlg.c,v 1.32 2003/04/06 22:41:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -90,11 +90,15 @@ typedef struct {
 	GtkWidget	*carray_bt;
 	GtkWidget	*follow_save_as_w;
 	gboolean        is_ipv6;
+	char		*filter_out_filter;
+	GtkWidget	*filter_te;
+	GtkWidget	*streamwindow;
 } follow_info_t;
 
 static void follow_destroy_cb(GtkWidget * win, gpointer data);
 static void follow_charset_toggle_cb(GtkWidget * w, gpointer parent_w);
 static void follow_load_text(follow_info_t *follow_info);
+static void follow_filter_out_stream(GtkWidget * w, gpointer parent_w);
 static void follow_print_stream(GtkWidget * w, gpointer parent_w);
 static void follow_save_as_cmd_cb(GtkWidget * w, gpointer data);
 static void follow_save_as_ok_cb(GtkWidget * w, GtkFileSelection * fs);
@@ -151,6 +155,7 @@ follow_stream_cb(GtkWidget * w, gpointer data _U_)
 	GtkWidget	*stream_om, *stream_menu, *stream_mi;
 	int		tmp_fd;
 	gchar		*follow_filter;
+	const gchar	*previous_filter;
 	const char	*hostname0, *hostname1;
 	char		*port0, *port1;
 	char		string[128];
@@ -204,6 +209,26 @@ follow_stream_cb(GtkWidget * w, gpointer data _U_)
 
 	/* Set the display filter entry accordingly */
 	filter_te = OBJECT_GET_DATA(w, E_DFILTER_TE_KEY);
+
+	/* needed in follow_filter_out_stream(), is there a better way? */
+	follow_info->filter_te = filter_te;
+
+	/* save previous filter, const since we're not supposed to alter */
+	previous_filter =
+	    (const gchar *)gtk_entry_get_text(GTK_ENTRY(filter_te));
+
+	/* allocate our new filter. API claims g_malloc terminates program on failure */
+	/* my calc for max alloc needed is really +10 but when did a few extra bytes hurt ? */
+	follow_info->filter_out_filter =
+	    (gchar *)g_malloc(strlen(follow_filter) + strlen(previous_filter) + 16);
+
+	/* append the negation */
+	if(strlen(previous_filter)) {
+	    sprintf(follow_info->filter_out_filter, "%s \nand !(%s)", previous_filter, follow_filter);
+	} else {
+	    sprintf(follow_info->filter_out_filter, "!(%s)", follow_filter);
+	}
+
 	gtk_entry_set_text(GTK_ENTRY(filter_te), follow_filter);
 
 	/* Run the display filter so it goes in effect. */
@@ -217,6 +242,10 @@ follow_stream_cb(GtkWidget * w, gpointer data _U_)
 
 	/* The data_out_filename file now has all the text that was in the session */
 	streamwindow = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+
+	/* needed in follow_filter_out_stream(), is there a better way? */
+	follow_info->streamwindow = streamwindow;
+
 	gtk_widget_set_name(streamwindow, "TCP stream window");
 
 	SIGNAL_CONNECT(streamwindow, "destroy", follow_destroy_cb, NULL);
@@ -373,6 +402,12 @@ follow_stream_cb(GtkWidget * w, gpointer data _U_)
 	been selected. */
 	dlg_set_cancel(streamwindow, button);
 
+	/* Create exclude stream button */
+	button = gtk_button_new_with_label("Filter out this stream");
+	SIGNAL_CONNECT(button, "clicked", follow_filter_out_stream, follow_info);
+
+	gtk_box_pack_end(GTK_BOX(hbox), button, FALSE, FALSE, 0);
+
 	/* Create Save As Button */
 #if GTK_MAJOR_VERSION < 2
 	button = gtk_button_new_with_label("Save As");
@@ -408,7 +443,8 @@ follow_stream_cb(GtkWidget * w, gpointer data _U_)
 }
 
 /* The destroy call back has the responsibility of
- * unlinking the temporary file */
+ * unlinking the temporary file
+ * and freeing the filter_out_filter */
 static void
 follow_destroy_cb(GtkWidget *w, gpointer data _U_)
 {
@@ -416,6 +452,7 @@ follow_destroy_cb(GtkWidget *w, gpointer data _U_)
 
 	follow_info = OBJECT_GET_DATA(w, E_FOLLOW_INFO_KEY);
 	unlink(follow_info->data_out_filename);
+	g_free(follow_info->filter_out_filter);
 	gtk_widget_destroy(w);
 	forget_follow_info(follow_info);
 	g_free(follow_info);
@@ -666,6 +703,26 @@ follow_print_text(char *buffer, int nchars, gboolean is_server _U_, void *arg)
     FILE *fh = arg;
 
     fwrite(buffer, nchars, 1, fh);
+}
+
+static void
+follow_filter_out_stream(GtkWidget * w _U_, gpointer data) 
+{
+    follow_info_t	*follow_info = data;
+
+    /* Lock out user from messing with us. (ie. don't free our data!) */
+    gtk_widget_set_sensitive(follow_info->streamwindow, FALSE);
+
+    /* Set the display filter. */
+    gtk_entry_set_text(GTK_ENTRY(follow_info->filter_te), follow_info->filter_out_filter);
+
+    /* Run the display filter so it goes in effect. */
+    filter_packets(&cfile, follow_info->filter_out_filter);
+
+    /* we force a subsequent close */
+    gtk_widget_destroy(follow_info->streamwindow);
+  
+    return;
 }
 
 static void

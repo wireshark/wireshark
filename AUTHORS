@@ -1654,6 +1654,10 @@ Todd Montgomery <tmontgom [AT] tibco.com> {
 	Update PGM to RFC 3208
 }
 
+emre <emre [AT] flash.net> {
+	"Filter out this stream" feature for Follow TCP Stream
+}
+
 And assorted fixes and enhancements by the people listed above and by:
 
 	Pavel Roskin <proski [AT] gnu.org>
