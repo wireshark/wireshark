@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.38 1999/07/31 23:06:13 gram Exp $
+ * $Id: capture.c,v 1.39 1999/08/02 06:08:58 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -430,7 +430,14 @@ capture(void) {
   pch = pcap_open_live(cf.iface, cf.snap, 1, 250, err_str);
 
   if (pch) {
+    /* save the old new umask and set the new one to readable only by the user */
+    mode_t old_umask = umask(0066);
+
+    /* Have libpcap create the empty dumpfile */
     ld.pdh = pcap_dump_open(pch, cf.save_file);
+
+    /* reset the umask to the original value */
+    (void) umask(old_umask); 
 
     if (ld.pdh == NULL) {  /* We have an error */
       snprintf(err_str, PCAP_ERRBUF_SIZE, "Error trying to save capture to "
@@ -439,7 +446,7 @@ capture(void) {
       pcap_close(pch);
       return;
     }
-    chmod(cf.save_file, 0600);
+
     ld.linktype = pcap_datalink(pch);
 
     if (cf.cfilter) {
