@@ -134,6 +134,8 @@ DISSECTOR_SRC =	\
 	packet-dcerpc-ftserver.c	\
 	packet-dcerpc-icl_rpc.c	\
 	packet-dcerpc-initshutdown.c	\
+	packet-dcerpc-iremunkn.c	\
+	packet-dcerpc-iremunkn2.c	\
 	packet-dcerpc-krb5rpc.c	\
 	packet-dcerpc-llb.c	\
 	packet-dcerpc-lsa-ds.c	\
@@ -174,6 +176,7 @@ DISSECTOR_SRC =	\
 	packet-dcerpc-spoolss.c	\
 	packet-dcerpc-srvsvc.c	\
 	packet-dcerpc-svcctl.c	\
+	packet-dcerpc-sysact.c	\
 	packet-dcerpc-tapi.c	\
 	packet-dcerpc-tkn4int.c	\
 	packet-dcerpc-trksvr.c	\

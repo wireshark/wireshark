@@ -2110,6 +2110,7 @@ Josh Bailey             <joshbailey [AT] lucent.com> {
 
 Jelmer Vernooij         <jelmer [AT] samba.org> {
 	AIM enhancements
+	DCOM IRemUnknown and IRemUnknown2 support
 }
 
 Duncan Sargeant         <dunc-ethereal-dev [AT] rcpt.to> {

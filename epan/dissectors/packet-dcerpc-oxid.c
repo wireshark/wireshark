@@ -133,6 +133,8 @@ towerid_val2str(unsigned short tower) {
 		case 0x8:
 			return "NCADG_IP_UDP";
 			break;
+		case 0x9:
+			return "NCACN_IP";
 		case 0xC:
 			return "NCACN_SPX";
 			break;
@@ -269,7 +271,7 @@ proto_register_oxid (void)
 	static gint *ett[] = {
 		&ett_oxid
 	};
-	proto_oxid = proto_register_protocol ("DCOM OXID Resolver", "OXID", "oxid");
+	proto_oxid = proto_register_protocol ("DCOM OXID Resolver", "IOXIDResolver", "oxid");
 	proto_register_field_array (proto_oxid, hf, array_length (hf));
 	proto_register_subtree_array (ett, array_length (ett));
 }
