@@ -413,7 +413,7 @@ read_keytab_file(char *filename, krb5_context *context)
 
 guint8 *
 decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
-			krb5_keyusage usage,
+			int usage,
 			int length,
 			const char *cryptotext,
 			int keytype)
@@ -560,7 +560,7 @@ read_keytab_file(char *filename, krb5_context *context)
 
 guint8 *
 decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
-			krb5_keyusage usage,
+			int usage,
 			int length,
 			const char *cryptotext,
 			int keytype)
