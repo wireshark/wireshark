@@ -1,6 +1,6 @@
 /* wtap.h
  *
- * $Id: wtap.h,v 1.49 1999/11/11 05:36:16 gram Exp $
+ * $Id: wtap.h,v 1.50 1999/11/26 17:57:14 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -106,16 +106,17 @@
 #define WTAP_FILE_LANALYZER			4
 #define WTAP_FILE_NGSNIFFER			5
 #define WTAP_FILE_SNOOP				6
-#define WTAP_FILE_IPTRACE			7
-#define WTAP_FILE_NETMON_1_x			8
-#define WTAP_FILE_NETMON_2_x			9
-#define WTAP_FILE_NETXRAY_1_0			10
-#define WTAP_FILE_NETXRAY_1_1			11
-#define WTAP_FILE_NETXRAY_2_001			12
-#define WTAP_FILE_RADCOM			13
-#define WTAP_FILE_ASCEND			14
-#define WTAP_FILE_NETTL				15
-#define WTAP_FILE_TOSHIBA			16
+#define WTAP_FILE_IPTRACE_1_0			7
+#define WTAP_FILE_IPTRACE_2_0			8
+#define WTAP_FILE_NETMON_1_x			9
+#define WTAP_FILE_NETMON_2_x			10
+#define WTAP_FILE_NETXRAY_1_0			11
+#define WTAP_FILE_NETXRAY_1_1			12
+#define WTAP_FILE_NETXRAY_2_001			13
+#define WTAP_FILE_RADCOM			14
+#define WTAP_FILE_ASCEND			15
+#define WTAP_FILE_NETTL				16
+#define WTAP_FILE_TOSHIBA			17
 
 /*
  * Maximum packet size we'll support.

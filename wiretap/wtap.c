@@ -1,6 +1,6 @@
 /* wtap.c
  *
- * $Id: wtap.c,v 1.30 1999/11/10 19:58:54 gram Exp $
+ * $Id: wtap.c,v 1.31 1999/11/26 17:57:14 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -78,8 +78,11 @@ const char *wtap_file_type_string(wtap *wth)
 		case WTAP_FILE_SNOOP:
 			return "snoop";
 
-		case WTAP_FILE_IPTRACE:
-			return "AIX iptrace";
+		case WTAP_FILE_IPTRACE_1_0:
+			return "AIX iptrace 1.0";
+
+		case WTAP_FILE_IPTRACE_2_0:
+			return "AIX iptrace 2.0";
 
 		case WTAP_FILE_NETMON_1_x:
 			return "Microsoft Network Monitor 1.x";
