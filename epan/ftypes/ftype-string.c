@@ -53,7 +53,7 @@ string_fvalue_free(fvalue_t *fv)
 static void
 string_fvalue_set(fvalue_t *fv, gpointer value, gboolean already_copied)
 {
-	g_assert(value != NULL);
+    DISSECTOR_ASSERT(value != NULL);
 
 	/* Free up the old value, if we have one */
 	string_fvalue_free(fv);
