@@ -1,7 +1,7 @@
 /* proto_draw.h
  * Definitions for GTK+ packet display structures and routines
  *
- * $Id: proto_draw.h,v 1.19 2002/08/28 21:03:49 jmayer Exp $
+ * $Id: proto_draw.h,v 1.20 2002/09/21 11:36:27 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -64,7 +64,5 @@ void collapse_all_tree(proto_tree *protocol_tree, GtkWidget *tree_view);
 
 void set_ptree_sel_browse_all(gboolean);
 void set_ptree_font_all(GdkFont *font);
-
-void clear_tree_and_hex_views(void);
 
 #endif

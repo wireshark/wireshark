@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for the GTK2 interface routines for Ethereal
 #
-# $Id: Makefile.am,v 1.4 2002/09/07 09:28:05 sahlberg Exp $
+# $Id: Makefile.am,v 1.5 2002/09/21 11:36:30 oabad Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -70,6 +70,7 @@ libui_a_SOURCES = \
 	menu.h		\
 	nameres_prefs.c	\
 	nameres_prefs.h	\
+	packet_list.c	\
 	packet_win.c	\
 	packet_win.h	\
 	plugins_dlg.c	\

@@ -1,7 +1,7 @@
 /* ui_util.h
  * Definitions for UI utility routines
  *
- * $Id: ui_util.h,v 1.10 2002/08/28 21:00:41 jmayer Exp $
+ * $Id: ui_util.h,v 1.11 2002/09/21 11:36:25 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -32,6 +32,33 @@ extern "C" {
 
 /* Set the name of the top-level window and its icon. */
 void set_main_window_name(gchar *);
+
+/* packet list related functions */
+void packet_list_clear(void);
+void packet_list_freeze(void);
+void packet_list_thaw(void);
+void packet_list_select_row(gint);
+void packet_list_set_column_auto_resize(gint, gboolean);
+void packet_list_set_column_resizeable(gint, gboolean);
+void packet_list_set_column_width(gint, gint);
+void packet_list_moveto_end(void);
+gint packet_list_append(gchar *text[], gpointer data);
+void packet_list_set_colors(gint, GdkColor *, GdkColor *);
+gint packet_list_find_row_from_data(gpointer);
+void packet_list_set_text(gint, gint, const gchar *);
+void packet_list_set_cls_time_width(gint);
+gpointer packet_list_get_row_data(gint);
+void packet_list_set_selected_row(gint);
+
+/* create byte views in the main window */
+void add_main_byte_views(epan_dissect_t *edt);
+/* display the protocol tree in the main window */
+void main_proto_tree_draw(proto_tree *protocol_tree);
+
+void clear_tree_and_hex_views(void);
+
+/* Destroy all popup packet windows. */
+void destroy_packet_wins(void);
 
 #ifdef __cplusplus
 }

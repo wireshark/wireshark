@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.289 2002/09/04 22:15:39 sahlberg Exp $
+ * $Id: file.c,v 1.290 2002/09/21 11:36:25 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -63,11 +63,6 @@
 #include <epan/epan.h>
 #include <epan/filesystem.h>
 
-#if GTK_MAJOR_VERSION == 1
-#include "gtk/main.h"
-#else
-#include "gtk2/main.h"
-#endif
 #include "color.h"
 #if GTK_MAJOR_VERSION == 1
 #include "gtk/color_utils.h"
@@ -85,13 +80,6 @@
 #include "ui_util.h"
 #include "statusbar.h"
 #include "prefs.h"
-#if GTK_MAJOR_VERSION == 1
-#include "gtk/proto_draw.h"
-#include "gtk/packet_win.h"
-#else
-#include "gtk2/proto_draw.h"
-#include "gtk2/packet_win.h"
-#endif
 #include <epan/dfilter/dfilter.h>
 #include <epan/conversation.h>
 #include "globals.h"
@@ -102,8 +90,6 @@
 #endif
 #include <epan/epan_dissect.h>
 #include "tap.h"
-
-extern GtkWidget *packet_list, *byte_nb_ptr, *tree_view;
 
 #ifdef HAVE_LIBPCAP
 gboolean auto_scroll_live;
@@ -117,10 +103,8 @@ static void read_packet(capture_file *cf, long offset);
 static void rescan_packets(capture_file *cf, const char *action, const char *action_item,
 	gboolean refilter, gboolean redissect);
 
-static void set_selected_row(int row);
-
-static void freeze_clist(capture_file *cf);
-static void thaw_clist(capture_file *cf);
+static void freeze_plist(capture_file *cf);
+static void thaw_plist(capture_file *cf);
 
 static char *file_rename_error_message(int err);
 static char *file_close_error_message(int err);
@@ -252,9 +236,9 @@ close_cap_file(capture_file *cf)
   cf->last_displayed = NULL;
 
   /* Clear the packet list. */
-  gtk_clist_freeze(GTK_CLIST(packet_list));
-  gtk_clist_clear(GTK_CLIST(packet_list));
-  gtk_clist_thaw(GTK_CLIST(packet_list));
+  packet_list_freeze();
+  packet_list_clear();
+  packet_list_thaw();
 
   /* Clear any file-related status bar messages.
      XXX - should be "clear *ALL* file-related status bar messages;
@@ -359,7 +343,7 @@ read_cap_file(capture_file *cf, int *err)
 #define O_BINARY 	0
 #endif
 
-  freeze_clist(cf);
+  freeze_plist(cf);
 
   stop_flag = FALSE;
   g_get_current_time(&start_time);
@@ -409,7 +393,7 @@ read_cap_file(capture_file *cf, int *err)
 	 can do whatever is appropriate when that happens. */
       destroy_progress_dlg(progbar);
       cf->state = FILE_READ_ABORTED;	/* so that we're allowed to close it */
-      gtk_clist_thaw(GTK_CLIST(packet_list));	/* undo our freeze */
+      packet_list_thaw();		/* undo our freeze */
       close_cap_file(cf);
       return (READ_ABORTED);
     }
@@ -439,7 +423,7 @@ read_cap_file(capture_file *cf, int *err)
   cf->lnk_t = wtap_file_encap(cf->wth);
 
   cf->current_frame = cf->first_displayed;
-  thaw_clist(cf);
+  thaw_plist(cf);
 
   statusbar_pop_file_msg();
   set_display_filename(cf);
@@ -455,7 +439,7 @@ read_cap_file(capture_file *cf, int *err)
   /* If we have any displayed packets to select, select the first of those
      packets by making the first row the selected row. */
   if (cf->first_displayed != NULL)
-    gtk_signal_emit_by_name(GTK_OBJECT(packet_list), "select_row", 0);
+    packet_list_select_row(0);
 
   if (*err != 0) {
     /* Put up a message box noting that the read failed somewhere along
@@ -514,12 +498,11 @@ start_tail_cap_file(char *fname, gboolean is_tempfile, capture_file *cf)
 
     for (i = 0; i < cf->cinfo.num_cols; i++) {
       if (get_column_resize_type(cf->cinfo.col_fmt[i]) == RESIZE_LIVE)
-        gtk_clist_set_column_auto_resize(GTK_CLIST(packet_list), i, TRUE);
+        packet_list_set_column_auto_resize(i, TRUE);
       else {
-        gtk_clist_set_column_auto_resize(GTK_CLIST(packet_list), i, FALSE);
-        gtk_clist_set_column_width(GTK_CLIST(packet_list), i,
-				cf->cinfo.col_width[i]);
-        gtk_clist_set_column_resizeable(GTK_CLIST(packet_list), i, TRUE);
+        packet_list_set_column_auto_resize(i, FALSE);
+        packet_list_set_column_width(i, cf->cinfo.col_width[i]);
+        packet_list_set_column_resizeable(i, TRUE);
       }
     }
 
@@ -533,7 +516,7 @@ continue_tail_cap_file(capture_file *cf, int to_read, int *err)
 {
   long data_offset = 0;
 
-  gtk_clist_freeze(GTK_CLIST(packet_list));
+  packet_list_freeze();
 
   while (to_read != 0 && (wtap_read(cf->wth, err, &data_offset))) {
     if (cf->state == FILE_READ_ABORTED) {
@@ -546,13 +529,12 @@ continue_tail_cap_file(capture_file *cf, int to_read, int *err)
     to_read--;
   }
 
-  gtk_clist_thaw(GTK_CLIST(packet_list));
+  packet_list_thaw();
 
   /* XXX - this cheats and looks inside the packet list to find the final
      row number. */
   if (auto_scroll_live && cf->plist_end != NULL)
-    gtk_clist_moveto(GTK_CLIST(packet_list),
-		       GTK_CLIST(packet_list)->rows - 1, -1, 1.0, 1.0);
+    packet_list_moveto_end();
 
   if (cf->state == FILE_READ_ABORTED) {
     /* Well, the user decided to exit Ethereal.  Return READ_ABORTED
@@ -574,7 +556,7 @@ finish_tail_cap_file(capture_file *cf, int *err)
 {
   long data_offset;
 
-  gtk_clist_freeze(GTK_CLIST(packet_list));
+  packet_list_freeze();
 
   while ((wtap_read(cf->wth, err, &data_offset))) {
     if (cf->state == FILE_READ_ABORTED) {
@@ -596,12 +578,11 @@ finish_tail_cap_file(capture_file *cf, int *err)
     return READ_ABORTED;
   }
 
-  thaw_clist(cf);
+  thaw_plist(cf);
   if (auto_scroll_live && cf->plist_end != NULL)
     /* XXX - this cheats and looks inside the packet list to find the final
        row number. */
-    gtk_clist_moveto(GTK_CLIST(packet_list),
-		       GTK_CLIST(packet_list)->rows - 1, -1, 1.0, 1.0);
+    packet_list_moveto_end();
 
   /* We're done reading sequentially through the file. */
   cf->state = FILE_READ_DONE;
@@ -789,21 +770,17 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
     /* This is the last frame we've seen so far. */
     cf->last_displayed = fdata;
 
-    row = gtk_clist_append(GTK_CLIST(packet_list), cf->cinfo.col_data);
-    gtk_clist_set_row_data(GTK_CLIST(packet_list), row, fdata);
+    row = packet_list_append(cf->cinfo.col_data, fdata);
 
     if (fdata->flags.marked) {
 	color_t_to_gdkcolor(&bg, &prefs.gui_marked_bg);
 	color_t_to_gdkcolor(&fg, &prefs.gui_marked_fg);
+        packet_list_set_colors(row, &bg, &fg);
     } else if (filter_list != NULL && (args.colorf != NULL)) {
 	bg = args.colorf->bg_color;
 	fg = args.colorf->fg_color;
-    } else {
-	bg = WHITE;
-	fg = BLACK;
+        packet_list_set_colors(row, &bg, &fg);
     }
-    gtk_clist_set_background(GTK_CLIST(packet_list), row, &bg);
-    gtk_clist_set_foreground(GTK_CLIST(packet_list), row, &fg);
   } else {
     /* This frame didn't pass the display filter, so it's not being added
        to the clist, and thus has no row. */
@@ -984,10 +961,10 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
 
   /* Freeze the packet list while we redo it, so we don't get any
      screen updates while it happens. */
-  gtk_clist_freeze(GTK_CLIST(packet_list));
+  packet_list_freeze();
 
   /* Clear it out. */
-  gtk_clist_clear(GTK_CLIST(packet_list));
+  packet_list_clear();
 
   /* We don't yet know which will be the first and last frames displayed. */
   cf->first_displayed = NULL;
@@ -1104,12 +1081,12 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
     destroy_progress_dlg(progbar);
 
   /* Unfreeze the packet list. */
-  gtk_clist_thaw(GTK_CLIST(packet_list));
+  packet_list_thaw();
 
   if (selected_row != -1) {
     /* The frame that was selected passed the filter; select it, make it
        the focus row, and make it visible. */
-    set_selected_row(selected_row);
+    packet_list_set_selected_row(selected_row);
     finfo_selected = NULL;
   } else {
     /* The selected frame didn't pass the filter; make the first frame
@@ -1345,7 +1322,6 @@ change_time_formats(capture_file *cf)
   int         count;
   int         row;
   int         i;
-  GtkStyle   *pl_style;
   float       prog_val;
   GTimeVal    start_time;
   gchar       status_str[100];
@@ -1364,7 +1340,7 @@ change_time_formats(capture_file *cf)
 
   /* Freeze the packet list while we redo it, so we don't get any
      screen updates while it happens. */
-  freeze_clist(cf);
+  freeze_plist(cf);
 
   /* Update the progress bar when it gets to this value. */
   cf->progbar_nextstep = 0;
@@ -1421,7 +1397,7 @@ change_time_formats(capture_file *cf)
     count++;
 
     /* Find what row this packet is in. */
-    row = gtk_clist_find_row_from_data(GTK_CLIST(packet_list), fdata);
+    row = packet_list_find_row_from_data(fdata);
 
     if (row != -1) {
       /* This packet is in the summary list, on row "row". */
@@ -1432,8 +1408,7 @@ change_time_formats(capture_file *cf)
              "command-line-specified" format; update it. */
           cf->cinfo.col_buf[i][0] = '\0';
           col_set_cls_time(fdata, &cf->cinfo, i);
-          gtk_clist_set_text(GTK_CLIST(packet_list), row, i,
-			     cf->cinfo.col_data[i]);
+          packet_list_set_text(row, i, cf->cinfo.col_data[i]);
         }
       }
     }
@@ -1446,21 +1421,14 @@ change_time_formats(capture_file *cf)
 
   /* Set the column widths of those columns that show the time in
      "command-line-specified" format. */
-  pl_style = gtk_widget_get_style(packet_list);
   for (i = 0; i < cf->cinfo.num_cols; i++) {
     if (cf->cinfo.fmt_matx[i][COL_CLS_TIME]) {
-      gtk_clist_set_column_width(GTK_CLIST(packet_list), i,
-#if GTK_MAJOR_VERSION == 1
-        gdk_string_width(pl_style->font, get_column_longest_string(COL_CLS_TIME)));
-#else
-        gdk_string_width(gdk_font_from_description(pl_style->font_desc),
-                         get_column_longest_string(COL_CLS_TIME)));
-#endif
+      packet_list_set_cls_time_width(i);
     }
   }
 
   /* Unfreeze the packet list. */
-  thaw_clist(cf);
+  thaw_plist(cf);
 }
 
 gboolean
@@ -1579,11 +1547,11 @@ find_packet(capture_file *cf, dfilter_t *sfcode)
 
   if (new_fd != NULL) {
     /* We found a frame.  Find what row it's in. */
-    row = gtk_clist_find_row_from_data(GTK_CLIST(packet_list), new_fd);
+    row = packet_list_find_row_from_data(new_fd);
     g_assert(row != -1);
 
     /* Select that row, make it the focus row, and make it visible. */
-    set_selected_row(row);
+    packet_list_set_selected_row(row);
     return TRUE;	/* success */
   } else
     return FALSE;	/* failure */
@@ -1605,11 +1573,11 @@ goto_frame(capture_file *cf, guint fnumber)
 
   /* We found that frame, and it's currently being displayed.
      Find what row it's in. */
-  row = gtk_clist_find_row_from_data(GTK_CLIST(packet_list), fdata);
+  row = packet_list_find_row_from_data(fdata);
   g_assert(row != -1);
 
   /* Select that row, make it the focus row, and make it visible. */
-  set_selected_row(row);
+  packet_list_set_selected_row(row);
   return FOUND_FRAME;
 }
 
@@ -1621,7 +1589,7 @@ select_packet(capture_file *cf, int row)
   int err;
 
   /* Get the frame data struct pointer for this frame */
-  fdata = (frame_data *) gtk_clist_get_row_data(GTK_CLIST(packet_list), row);
+  fdata = (frame_data *)packet_list_get_row_data(row);
 
   if (fdata == NULL) {
     /* XXX - if a GtkCList's selection mode is GTK_SELECTION_BROWSE, when
@@ -1675,8 +1643,8 @@ select_packet(capture_file *cf, int row)
   /* Display the GUI protocol tree and hex dump.
      XXX - why do we dump core if we call "proto_tree_draw()"
      before calling "add_byte_views()"? */
-  add_byte_views(cf->edt, tree_view, byte_nb_ptr);
-  proto_tree_draw(cf->edt->tree, tree_view);
+  add_main_byte_views(cf->edt);
+  main_proto_tree_draw(cf->edt->tree);
 
   /* A packet is selected. */
   set_menus_for_selected_packet(TRUE);
@@ -1700,27 +1668,6 @@ unselect_packet(capture_file *cf)
 
   /* No protocol tree means no selected field. */
   unselect_field();
-}
-
-/* Set the selected row and the focus row of the packet list to the specified
-   row, and make it visible if it's not currently visible. */
-static void
-set_selected_row(int row)
-{
-  if (gtk_clist_row_is_visible(GTK_CLIST(packet_list), row) != GTK_VISIBILITY_FULL)
-    gtk_clist_moveto(GTK_CLIST(packet_list), row, -1, 0.0, 0.0);
-
-  /* XXX - why is there no "gtk_clist_set_focus_row()", so that we
-     can make the row for the frame we found the focus row?
-
-     See
-
- http://www.gnome.org/mailing-lists/archives/gtk-list/2000-January/0038.shtml
-
-     */
-  GTK_CLIST(packet_list)->focus_row = row;
-
-  gtk_clist_select_row(GTK_CLIST(packet_list), row, -1);
 }
 
 /* Unset the selected protocol tree field, if any. */
@@ -1753,7 +1700,7 @@ unmark_frame(capture_file *cf, frame_data *frame)
 }
 
 static void
-freeze_clist(capture_file *cf)
+freeze_plist(capture_file *cf)
 {
   int i;
 
@@ -1761,33 +1708,32 @@ freeze_clist(capture_file *cf)
      we're reading the capture file (freezing the clist doesn't
      seem to suffice). */
   for (i = 0; i < cf->cinfo.num_cols; i++)
-    gtk_clist_set_column_auto_resize(GTK_CLIST(packet_list), i, FALSE);
-  gtk_clist_freeze(GTK_CLIST(packet_list));
+    packet_list_set_column_auto_resize(i, FALSE);
+  packet_list_freeze();
 }
 
 static void
-thaw_clist(capture_file *cf)
+thaw_plist(capture_file *cf)
 {
   int i;
 
   for (i = 0; i < cf->cinfo.num_cols; i++) {
     if (get_column_resize_type(cf->cinfo.col_fmt[i]) == RESIZE_MANUAL) {
       /* Set this column's width to the appropriate value. */
-      gtk_clist_set_column_width(GTK_CLIST(packet_list), i,
-				cf->cinfo.col_width[i]);
+      packet_list_set_column_width(i, cf->cinfo.col_width[i]);
     } else {
       /* Make this column's size dynamic, so that it adjusts to the
          appropriate size. */
-      gtk_clist_set_column_auto_resize(GTK_CLIST(packet_list), i, TRUE);
+      packet_list_set_column_auto_resize(i, TRUE);
     }
   }
-  gtk_clist_thaw(GTK_CLIST(packet_list));
+  packet_list_thaw();
 
   /* Hopefully, the columns have now gotten their appropriate sizes;
      make them resizeable - a column that auto-resizes cannot be
      resized by the user, and *vice versa*. */
   for (i = 0; i < cf->cinfo.num_cols; i++)
-    gtk_clist_set_column_resizeable(GTK_CLIST(packet_list), i, TRUE);
+    packet_list_set_column_resizeable(i, TRUE);
 }
 
 /*

@@ -1,7 +1,7 @@
 /* ui_util.c
  * UI utility routines
  *
- * $Id: ui_util.c,v 1.11 2002/09/05 18:47:48 jmayer Exp $
+ * $Id: ui_util.c,v 1.12 2002/09/21 11:36:27 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -31,6 +31,7 @@
 #include "gtkglobals.h"
 #include "ui_util.h"
 #include "prefs.h"
+#include "epan/epan.h"
 #include "../ui_util.h"
 #include "image/eicon3d16.xpm"
 

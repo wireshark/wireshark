@@ -1,7 +1,7 @@
 /* proto_draw.c
  * Routines for GTK+ packet display
  *
- * $Id: proto_draw.c,v 1.58 2002/09/05 18:47:47 jmayer Exp $
+ * $Id: proto_draw.c,v 1.59 2002/09/21 11:36:27 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -514,6 +514,12 @@ add_byte_tab(GtkWidget *byte_nb, const char *name, tvbuff_t *tvb,
 }
 
 void
+add_main_byte_views(epan_dissect_t *edt)
+{
+    add_byte_views(edt, tree_view, byte_nb_ptr);
+}
+
+void
 add_byte_views(epan_dissect_t *edt, GtkWidget *tree_view,
     GtkWidget *byte_nb_ptr)
 {
@@ -971,6 +977,12 @@ struct proto_tree_draw_info {
 	GtkCTree	*ctree;
 	GtkCTreeNode	*ctree_node;
 };
+
+void
+main_proto_tree_draw(proto_tree *protocol_tree)
+{
+    proto_tree_draw(protocol_tree, tree_view);
+}
 
 void
 proto_tree_draw(proto_tree *protocol_tree, GtkWidget *tree_view)
