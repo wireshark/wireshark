@@ -1,7 +1,7 @@
 /* to_str.c
  * Routines for utilities to convert various other types to strings.
  *
- * $Id: to_str.c,v 1.34 2003/08/24 05:38:16 sahlberg Exp $
+ * $Id: to_str.c,v 1.35 2003/08/24 20:30:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -730,6 +730,17 @@ decode_numeric_bitfield(guint32 val, guint32 mask, int width,
 
 /*XXX FIXME the code below may be called very very frequently in the future.
   optimize it for speed and get rid of the slow sprintfs */
+/* XXX - perhaps we should have individual address types register
+   a table of routines to do operations such as address-to-name translation,
+   address-to-string translation, and the like, and have this call them,
+   and also have an address-to-string-with-a-name routine */
+/* XXX - use this, and that future address-to-string-with-a-name routine,
+   in "col_set_addr()"; it might also be useful to have address types
+   export the names of the source and destination address fields, so
+   that "col_set_addr()" need know nothing whatsoever about particular
+   address types */
+/* XXX - perhaps we should have "address_to_str_buf()" to fill in a
+   specified buffer, and have "address_to_str()" call it */
 /* convert an address struct into a printable string */
 gchar*	
 address_to_str(address *addr)
@@ -747,11 +758,10 @@ address_to_str(address *addr)
   strp=str[i];
 
   switch(addr->type){
+  case AT_NONE:	/* nothing to print - or should it just return a null string? */
+    break;
   case AT_ETHER:
     sprintf(strp, "%02x:%02x:%02x:%02x:%02x:%02x", addr->data[0], addr->data[1], addr->data[2], addr->data[3], addr->data[4], addr->data[5]);
-    return strp;
-  case AT_FC:
-    sprintf(strp, "%02x.%02x.%02x", addr->data[0], addr->data[1], addr->data[2]);
     return strp;
   case AT_IPv4:
     ip_to_str_buf(addr->data, strp);	
@@ -761,6 +771,17 @@ address_to_str(address *addr)
     return strp;
   case AT_IPX:
     sprintf(strp, "%02x%02x%02x%02x.%02x%02x%02x%02x%02x%02x", addr->data[0], addr->data[1], addr->data[2], addr->data[3], addr->data[4], addr->data[5], addr->data[6], addr->data[7], addr->data[8], addr->data[9]);
+    return strp;
+  case AT_SNA:
+  case AT_ATALK:
+  case AT_VINES:
+  case AT_OSI:
+    break;	/* XXX - implement me */
+  case AT_ARCNET:
+    sprintf(strp, "0x%02X", addr->data[0]);
+    return strp;
+  case AT_FC:
+    sprintf(strp, "%02x.%02x.%02x", addr->data[0], addr->data[1], addr->data[2]);
     return strp;
   }
 
