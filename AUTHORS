@@ -286,6 +286,7 @@ Greg Hankins <gregh[AT]twoguys.org> {
 }
 
 Jerry Talkington <jtalkington[AT]users.sourceforge.net> {
+	tvb_uncompress()/HTTP Content-Encoding decompression
 	HTTP chunked encoding dissection
 	updates to HTTP support
 	Filter selection/editing GUI improvements

@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.c,v 1.61 2004/03/23 18:06:29 guy Exp $
+ * $Id: tvbuff.c,v 1.62 2004/05/05 06:55:09 obiot Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -40,6 +40,10 @@
 #endif
 
 #include <string.h>
+
+#ifdef HAVE_LIBZ
+#include <zlib.h>
+#endif
 
 #include "pint.h"
 #include "tvbuff.h"
@@ -2149,3 +2153,242 @@ tvb_find_tvb(tvbuff_t *haystack_tvb, tvbuff_t *needle_tvb, gint haystack_offset)
 
 	return -1;
 }
+
+#ifdef HAVE_LIBZ
+/*
+ * Uncompresses a zlib compressed packet inside a message of tvb at offset with
+ * length comprlen.  Returns an uncompressed tvbuffer if uncompression
+ * succeeded or NULL if uncompression failed.
+ */
+#define TVB_Z_BUFSIZ 4096
+tvbuff_t *
+tvb_uncompress(tvbuff_t *tvb, int offset, int comprlen)
+{
+	
+
+	gint err = Z_OK;
+	gint bytes_out = 0;
+	guint8 *compr = NULL;
+	guint8 *uncompr = NULL;
+	tvbuff_t *uncompr_tvb = NULL;
+	z_streamp strm = NULL;
+	gchar strmbuf[TVB_Z_BUFSIZ];
+	gint inits_done = 0;
+	gint wbits = MAX_WBITS;
+	guint8 *next = NULL;
+
+	strm = g_malloc0(sizeof(z_stream));
+
+	if (strm == NULL) {
+		return NULL;
+	}
+
+	compr = tvb_memdup(tvb, offset, comprlen);
+
+	if (!compr) {
+		return NULL;
+	}
+
+	next = compr;
+
+	strm->next_in = next;
+	strm->avail_in = comprlen;
+
+	memset(&strmbuf, 0, TVB_Z_BUFSIZ);
+	strm->next_out = (Bytef *)&strmbuf;
+	strm->avail_out = TVB_Z_BUFSIZ;
+
+	err = inflateInit2(strm, wbits);
+	inits_done = 1;
+	if (err != Z_OK) {
+		g_free(strm);
+		g_free(compr);
+		return NULL;
+	}
+
+	while (1) {
+		memset(&strmbuf, 0, TVB_Z_BUFSIZ);
+		strm->next_out = (Bytef *)&strmbuf;
+		strm->avail_out = TVB_Z_BUFSIZ;
+
+		err = inflate(strm, Z_SYNC_FLUSH);
+
+		if (err == Z_OK || err == Z_STREAM_END) {
+			guint bytes_pass = TVB_Z_BUFSIZ - strm->avail_out;
+
+			if (uncompr == NULL) {
+				uncompr = g_memdup(&strmbuf, bytes_pass);
+			} else {
+				guint8 *new_data = g_malloc0(bytes_out +
+				    bytes_pass);
+
+				if (new_data == NULL) {
+					g_free(strm);
+					g_free(compr);
+
+					if (uncompr != NULL) {
+						g_free(uncompr);
+					}
+					
+					return NULL;
+				}
+				
+				g_memmove(new_data, uncompr, bytes_out);
+				g_memmove((new_data + bytes_out), &strmbuf,
+				    bytes_pass);
+
+				g_free(uncompr);
+				uncompr = new_data;
+			}
+
+			bytes_out += bytes_pass;
+
+			if ( err == Z_STREAM_END) {
+				inflateEnd(strm);
+				g_free(strm);
+				break;
+			}
+		} else if (err == Z_BUF_ERROR) {
+			/*
+			 * It's possible that not enough frames were captured
+			 * to decompress this fully, so return what we've done
+			 * so far, if any.
+			 */
+
+			g_free(strm);
+
+			if (uncompr != NULL) {
+				break;
+			} else {
+				g_free(compr);
+				return NULL;
+			}
+			
+		} else if (err == Z_DATA_ERROR && inits_done == 1
+		    && uncompr == NULL && (*compr  == 0x1f) &&
+		    (*(compr + 1) == 0x8b)) {
+			/*
+			 * inflate() is supposed to handle both gzip and deflate
+			 * streams automatically, but in reality it doesn't
+			 * seem to handle either (at least not within the
+			 * context of an HTTP response.)  We have to try
+			 * several tweaks, depending on the type of data and
+			 * version of the library installed.
+			 */
+
+			/*
+			 * Gzip file format.  Skip past the header, since the
+			 * fix to make it work (setting windowBits to 31)
+			 * doesn't work with all versions of the library.
+			 */
+			Bytef *c = compr + 2;
+			Bytef flags = 0;
+
+			if (*c == Z_DEFLATED) {
+				c++;
+			} else {
+				g_free(strm);
+				g_free(compr);
+				return NULL;
+			}
+
+			flags = *c;
+
+			/* Skip past the MTIME, XFL, and OS fields. */
+			c += 7;
+
+			if (flags & 0x2) {
+				/* An Extra field is present. */
+				gint xsize = (gint)(*c |
+				    (*(c + 1) << 8));
+
+				c += xsize;
+			}
+
+			if (flags & 0x3) {
+				/* A null terminated filename */
+
+				while (*c != NULL) {
+					c++;
+				}
+
+				c++;
+			}
+
+			if (flags & 0x4) {
+				/* A null terminated comment */
+				
+				while (*c != NULL) {
+					c++;
+				}
+
+				c++;
+			}
+
+
+			inflateReset(strm);
+			next = c;
+			strm->next_in = next;
+			comprlen -= (c - compr);
+			
+			err = inflateInit2(strm, wbits);
+			inits_done++;
+		} else if (err == Z_DATA_ERROR && uncompr == NULL &&
+		    inits_done <= 3) {
+			
+			/* 
+			 * Re-init the stream with a negative
+			 * MAX_WBITS. This is necessary due to
+			 * some servers (Apache) not sending
+			 * the deflate header with the
+			 * content-encoded response.
+			 */
+			wbits = -MAX_WBITS;
+
+			inflateReset(strm);
+
+			strm->next_in = next;
+			strm->avail_in = comprlen;
+
+			memset(&strmbuf, 0, TVB_Z_BUFSIZ);
+			strm->next_out = (Bytef *)&strmbuf;
+			strm->avail_out = TVB_Z_BUFSIZ;
+
+			err = inflateInit2(strm, wbits);
+				
+			inits_done++;
+			
+			if (err != Z_OK) {
+				g_free(strm);
+				g_free(compr);
+				g_free(uncompr);
+
+				return NULL;
+			}
+		} else {
+			g_free(strm);
+			g_free(compr);
+
+			if (uncompr == NULL) {
+				return NULL;
+			}
+
+			break;
+		}
+	}
+	
+	if (uncompr != NULL) {
+		uncompr_tvb =  tvb_new_real_data((guint8*) uncompr, bytes_out,
+		    bytes_out);
+	}
+	g_free(compr);
+	return uncompr_tvb;
+}
+#else
+tvbuff_t *
+tvb_uncompress(tvbuff_t *tvb _U_, int offset _U_, int comprlen _U_)
+{
+	return NULL;
+}
+#endif
+

@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.h,v 1.41 2004/03/23 18:06:29 guy Exp $
+ * $Id: tvbuff.h,v 1.42 2004/05/05 06:55:09 obiot Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -512,6 +512,13 @@ extern gchar *tvb_bytes_to_str(tvbuff_t *tvb, gint offset, gint len);
  * to the start of 'haystack', not 'haystack_offset'. */
 extern gint tvb_find_tvb(tvbuff_t *haystack_tvb, tvbuff_t *needle_tvb,
 	gint haystack_offset);
+
+/*
+ * Uncompresses a zlib compressed packet inside a tvbuff at offset with
+ * length comprlen.  Returns an uncompressed tvbuffer if uncompression
+ * succeeded or NULL if uncompression failed.
+ */
+extern tvbuff_t* tvb_uncompress(tvbuff_t *tvb, int offset, int comprlen);
 
 /************** END OF ACCESSORS ****************/
 

@@ -7,7 +7,7 @@
  * Copyright 2002, Tim Potter <tpot@samba.org>
  * Copyright 1999, Andrew Tridgell <tridge@samba.org>
  *
- * $Id: packet-http.c,v 1.102 2004/05/04 07:12:03 guy Exp $
+ * $Id: packet-http.c,v 1.103 2004/05/05 06:55:09 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -94,6 +94,21 @@ static gboolean http_desegment_headers = FALSE;
  * TODO let the user filter on content-type the bodies he wants desegmented
  */
 static gboolean http_desegment_body = FALSE;
+
+/*
+ * De-chunking of content-encoding: chunk entity bodies.
+ */
+static gboolean http_dechunk_body = TRUE;
+
+/*
+ * Decompression of zlib encoded entities.
+ */
+#ifdef HAVE_LIBZ
+static gboolean http_decompress_body = TRUE;
+#else
+static gboolean http_decompress_body = FALSE;
+#endif
+
 
 #define TCP_PORT_HTTP			80
 #define TCP_PORT_PROXY_HTTP		3128
@@ -620,8 +635,9 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		 */
 		if (headers.transfer_encoding != NULL &&
 		    strcasecmp(headers.transfer_encoding, "identity") != 0) {
-			if (strcasecmp(headers.transfer_encoding, "chunked")
-			    == 0) {
+			if (http_dechunk_body &&
+			    (strcasecmp(headers.transfer_encoding, "chunked")
+			    == 0)) {
 
 				chunks_decoded = chunked_encoding_dissector(
 				    &next_tvb, pinfo, http_tree, 0);
@@ -655,23 +671,60 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		if (headers.content_encoding != NULL &&
 		    strcasecmp(headers.content_encoding, "identity") != 0) {
 			/*
-			 * We currently can't handle, for example, "gzip",
-			 * "compress", or "deflate"; just handle them as
-			 * data for now.
+			 * We currently can't handle, for example, "compress";
+			 * just handle them as data for now.
+			 * 
+			 * After July 7, 2004 the LZW patent expires, so support
+			 * might be added then.  However, I don't think that
+			 * anybody ever really implemented "compress", due to
+			 * the aformentioned patent.
 			 */
-			proto_item *e_ti = NULL;
-			proto_tree *e_tree = NULL;
+			tvbuff_t *uncomp_tvb = NULL;
 
-			e_ti = proto_tree_add_text(http_tree, next_tvb, 0,
-			    tvb_length(next_tvb), "Encoded entity-body (%s)",
-			    headers.content_encoding);
-
-			e_tree = proto_item_add_subtree(e_ti,
-			    ett_http_encoded_entity);
-
-			call_dissector(data_handle, next_tvb, pinfo, e_tree);
+			if (http_decompress_body &&
+			    (strcasecmp(headers.content_encoding, "gzip") == 0 ||
+			    strcasecmp(headers.content_encoding, "deflate")
+			    == 0)) {
 			
-			goto body_dissected;
+				uncomp_tvb = tvb_uncompress(next_tvb, 0,
+				    tvb_length(next_tvb));
+			}
+
+			if (uncomp_tvb != NULL) {
+				/*
+				 * Decompression worked
+				 */
+				tvb_free(next_tvb);
+				next_tvb = uncomp_tvb;
+				
+				tvb_set_child_real_data_tvbuff(tvb, next_tvb);
+				add_new_data_source(pinfo, next_tvb, 
+				    "Entity body");
+			} else {
+
+				proto_item *e_ti = NULL;
+				proto_tree *e_tree = NULL;
+
+				if (chunks_decoded > 1) {
+					tvb_set_child_real_data_tvbuff(tvb,
+					    next_tvb);
+					add_new_data_source(pinfo, next_tvb,
+					    "Entity body");
+				}
+
+				e_ti = proto_tree_add_text(http_tree,
+				    next_tvb, 0, tvb_length(next_tvb),
+				    "Encoded entity-body (%s)",
+				    headers.content_encoding);
+
+				e_tree = proto_item_add_subtree(e_ti,
+				    ett_http_encoded_entity);
+
+				call_dissector(data_handle, next_tvb, pinfo,
+				    e_tree);
+				
+				goto body_dissected;
+			}
 		}
 
 		/*
@@ -957,9 +1010,6 @@ chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
 		tvb_composite_finalize(new_tvb);
 		/ * tvb_set_reported_length(new_tvb, chunked_data_size); * /
 		*/
-
-		tvb_set_child_real_data_tvbuff(tvb, new_tvb);
-		add_new_data_source(pinfo, new_tvb, "De-chunked entity body");
 
 		tvb_free(*tvb_ptr);
 		*tvb_ptr = new_tvb;
@@ -1521,6 +1571,18 @@ proto_register_http(void)
 	    "the body of a request spanning multiple TCP segments, "
 	    "and desegment chunked data spanning multiple TCP segments",
 	    &http_desegment_body);
+	prefs_register_bool_preference(http_module, "dechunk_body",
+	    "Reassemble chunked transfer-coded bodies",
+	    "Whether to reassemble bodies of entities that are transfered "
+	    "using the \"Transfer-Encoding: chunked\" method",
+	    &http_dechunk_body);
+#ifdef HAVE_LIBZ
+	prefs_register_bool_preference(http_module, "decompress_body",
+	    "Uncompress entity bodies",
+	    "Whether to uncompress entity bodies that are compressed "
+	    "using \"Content-Encoding: \"",
+	    &http_decompress_body);
+#endif
 
 	http_handle = create_dissector_handle(dissect_http, proto_http);
 
