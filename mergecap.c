@@ -1,6 +1,6 @@
 /* Combine two dump files, either by appending or by merging by timestamp
  *
- * $Id: mergecap.c,v 1.13 2004/01/18 01:41:14 obiot Exp $
+ * $Id: mergecap.c,v 1.14 2004/01/18 02:12:59 jmayer Exp $
  *
  * Written by Scott Renfro <scott@renfro.org> based on
  * editcap by Richard Sharpe and Guy Harris
@@ -355,29 +355,29 @@ usage()
   int i;
   const char *string;
 
-  fprintf(stderr, "Usage: mergecap [-hva] [-s <snaplen>] [-T <encap type>]\n");
-  fprintf(stderr, "          [-F <capture type>] -w <outfile> <infile> [...]\n\n");
-  fprintf(stderr, "  where\t-h produces this help listing.\n");
-  fprintf(stderr, "       \t-v verbose operation, default is silent\n");
-  fprintf(stderr, "       \t-a files should be concatenated, not merged\n");
-  fprintf(stderr, "       \t     Default merges based on frame timestamps\n");
-  fprintf(stderr, "       \t-s <snaplen>: truncate packets to <snaplen> bytes of data\n");
-  fprintf(stderr, "       \t-w <outfile>: sets output filename to <outfile>\n");
-  fprintf(stderr, "       \t-T <encap type> encapsulation type to use:\n");
+  printf("Usage: mergecap [-hva] [-s <snaplen>] [-T <encap type>]\n");
+  printf("          [-F <capture type>] -w <outfile> <infile> [...]\n\n");
+  printf("  where\t-h produces this help listing.\n");
+  printf("       \t-v verbose operation, default is silent\n");
+  printf("       \t-a files should be concatenated, not merged\n");
+  printf("       \t     Default merges based on frame timestamps\n");
+  printf("       \t-s <snaplen>: truncate packets to <snaplen> bytes of data\n");
+  printf("       \t-w <outfile>: sets output filename to <outfile>\n");
+  printf("       \t-T <encap type> encapsulation type to use:\n");
   for (i = 0; i < WTAP_NUM_ENCAP_TYPES; i++) {
       string = wtap_encap_short_string(i);
       if (string != NULL)
-        fprintf(stderr, "       \t     %s - %s\n",
+        printf("       \t     %s - %s\n",
           string, wtap_encap_string(i));
   }
-  fprintf(stderr, "       \t     default is the same as the first input file\n");
-  fprintf(stderr, "       \t-F <capture type> capture file type to write:\n");
+  printf("       \t     default is the same as the first input file\n");
+  printf("       \t-F <capture type> capture file type to write:\n");
   for (i = 0; i < WTAP_NUM_FILE_TYPES; i++) {
     if (wtap_dump_can_open(i))
-      fprintf(stderr, "       \t     %s - %s\n",
+      printf("       \t     %s - %s\n",
         wtap_file_type_short_string(i), wtap_file_type_string(i));
   }
-  fprintf(stderr, "       \t     default is libpcap\n");
+  printf("       \t     default is libpcap\n");
 }
 
 
@@ -445,13 +445,13 @@ main(int argc, char *argv[])
       break;
 
     case 'h':
-      fprintf(stderr, "mergecap version %s"
+      printf("mergecap version %s"
 #ifdef CVSVERSION
 	  " (cvs " CVSVERSION ")"
 #endif
 	  "\n", VERSION);
       usage();
-      exit(1);
+      exit(0);
       break;
 
     case '?':              /* Bad options if GNU getopt */
@@ -469,7 +469,7 @@ main(int argc, char *argv[])
   in_file_count = argc - optind;
   if (!out_file.filename) {
     fprintf(stderr, "mergecap: an output filename must be set with -w\n");
-    usage();
+    fprintf(stderr, "          run with -h for help\n");
     exit(1);
   }
 

@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.219 2004/01/18 01:41:13 obiot Exp $
+ * $Id: tethereal.c,v 1.220 2004/01/18 02:12:59 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -234,40 +234,44 @@ static void
 print_usage(gboolean print_ver)
 {
   int i;
+  FILE *output;
 
   if (print_ver) {
-    fprintf(stderr, "This is GNU t" PACKAGE " " VERSION
+    output = stdout;
+    fprintf(output, "This is GNU t" PACKAGE " " VERSION
 #ifdef CVSVERSION
 	" (cvs " CVSVERSION ")"
 #endif
 	"\n%s\n%s\n",
 	comp_info_str->str, runtime_info_str->str);
+  } else {
+    output = stderr;
   }
 #ifdef HAVE_LIBPCAP
-  fprintf(stderr, "\nt%s [ -vh ] [ -DlLnpqSVx ] [ -a <capture autostop condition> ] ...\n",
+  fprintf(output, "\nt%s [ -vh ] [ -DlLnpqSVx ] [ -a <capture autostop condition> ] ...\n",
 	  PACKAGE);
-  fprintf(stderr, "\t[ -b <number of ring buffer files>[:<duration>] ] [ -c <count> ]\n");
-  fprintf(stderr, "\t[ -d %s ] ...\n", decode_as_arg_template);
-  fprintf(stderr, "\t[ -f <capture filter> ] [ -F <output file type> ] [ -i <interface> ]\n");
-  fprintf(stderr, "\t[ -N <resolving> ] [ -o <preference setting> ] ... [ -r <infile> ]\n");
-  fprintf(stderr, "\t[ -R <read filter> ] [ -s <snaplen> ] [ -t <time stamp format> ]\n");
-  fprintf(stderr, "\t[ -T pdml|ps|text ] [ -w <savefile> ] [ -y <link type> ]\n");
-  fprintf(stderr, "\t[ -z <statistics string> ]\n");
+  fprintf(output, "\t[ -b <number of ring buffer files>[:<duration>] ] [ -c <count> ]\n");
+  fprintf(output, "\t[ -d %s ] ...\n", decode_as_arg_template);
+  fprintf(output, "\t[ -f <capture filter> ] [ -F <output file type> ] [ -i <interface> ]\n");
+  fprintf(output, "\t[ -N <resolving> ] [ -o <preference setting> ] ... [ -r <infile> ]\n");
+  fprintf(output, "\t[ -R <read filter> ] [ -s <snaplen> ] [ -t <time stamp format> ]\n");
+  fprintf(output, "\t[ -T pdml|ps|text ] [ -w <savefile> ] [ -y <link type> ]\n");
+  fprintf(output, "\t[ -z <statistics string> ]\n");
 #else
-  fprintf(stderr, "\nt%s [ -vh ] [ -lnVx ]\n", PACKAGE);
-  fprintf(stderr, "\t[ -d %s ] ...\n", decode_as_arg_template);
-  fprintf(stderr, "\t[ -F <output file type> ] [ -N <resolving> ]\n");
-  fprintf(stderr, "\t[ -o <preference setting> ] ... [ -r <infile> ] [ -R <read filter> ]\n");
-  fprintf(stderr, "\t[ -t <time stamp format> ] [ -T pdml|ps|text ] [ -w <savefile> ]\n");
-  fprintf(stderr, "\t[ -z <statistics string> ]\n");
+  fprintf(output, "\nt%s [ -vh ] [ -lnVx ]\n", PACKAGE);
+  fprintf(output, "\t[ -d %s ] ...\n", decode_as_arg_template);
+  fprintf(output, "\t[ -F <output file type> ] [ -N <resolving> ]\n");
+  fprintf(output, "\t[ -o <preference setting> ] ... [ -r <infile> ] [ -R <read filter> ]\n");
+  fprintf(output, "\t[ -t <time stamp format> ] [ -T pdml|ps|text ] [ -w <savefile> ]\n");
+  fprintf(output, "\t[ -z <statistics string> ]\n");
 #endif
-  fprintf(stderr, "Valid file type arguments to the \"-F\" flag:\n");
+  fprintf(output, "Valid file type arguments to the \"-F\" flag:\n");
   for (i = 0; i < WTAP_NUM_FILE_TYPES; i++) {
     if (wtap_dump_can_open(i))
-      fprintf(stderr, "\t%s - %s\n",
+      fprintf(output, "\t%s - %s\n",
         wtap_file_type_short_string(i), wtap_file_type_string(i));
   }
-  fprintf(stderr, "\tdefault is libpcap\n");
+  fprintf(output, "\tdefault is libpcap\n");
 }
 
 #ifdef HAVE_LIBPCAP
