@@ -2,7 +2,7 @@
  * Routines for IEEE 802.2 LLC layer
  * Gilbert Ramirez <gramirez@tivoli.com>
  *
- * $Id: packet-llc.c,v 1.30 1999/12/05 09:45:32 guy Exp $
+ * $Id: packet-llc.c,v 1.31 1999/12/05 09:50:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -126,8 +126,8 @@ static const value_string llc_oui_vals[] = {
 /*
 http://www.cisco.com/univercd/cc/td/doc/product/software/ios113ed/113ed_cr/ibm_r/brprt1/brsrb.htm
 */
+	{ 0x00000c,        "Cisco" },
 	{ 0x0000f8,        "Cisco 90-Compatible" },
-	{ 0x0000c0,        "Cisco" },
 	{ 0x0080c2,        "Bridged Frame-Relay" }, /* RFC 2427 */
 	{ 0,               NULL }
 };
