@@ -118,6 +118,10 @@ dissect_h225_H323UserInformation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	proto_tree *tr;
 	int offset = 0;
 
+	/* Init struct for collecting h225_packet_info */
+	reset_h225_packet_info(&(h225_pi));
+	h225_pi.msg_type = H225_CS;
+
 	if (check_col(pinfo->cinfo, COL_PROTOCOL)){
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "H.225.0");
 	}
@@ -129,6 +133,8 @@ dissect_h225_H323UserInformation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	tr=proto_item_add_subtree(it, ett_h225);
 
 	offset = dissect_h225_H323_UserInformation(tvb, offset,pinfo, tr, hf_h225_H323_UserInformation);
+
+	tap_queue_packet(h225_tap, pinfo, &h225_pi);
 
 	return offset;
 }
@@ -150,13 +156,6 @@ dissect_h225_h225_RasMessage(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	tr=proto_item_add_subtree(it, ett_h225);
 
 	offset = dissect_h225_RasMessage(tvb, 0, pinfo,tr, hf_h225_RasMessage );
-
-	if (check_col(pinfo->cinfo, COL_INFO)){
-		col_add_fstr(pinfo->cinfo, COL_INFO, "RAS: %s ",
-			val_to_str(value, RasMessage_vals, "<unknown>"));
-	}
-
-	h225_pi.msg_tag = value;
 
 	ras_call_matching(tvb, pinfo, tr, &(h225_pi));
 

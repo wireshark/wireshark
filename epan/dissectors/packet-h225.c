@@ -1,13 +1,13 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* .\packet-h225.c                                                            */
+/* ./packet-h225.c                                                            */
 /* ../../tools/asn2eth.py -X -e -p h225 -c h225.cnf -s packet-h225-template h225.asn */
 
 /* Input file: packet-h225-template.c */
 
 /* packet-h225_asn1.c
  * Routines for h225 packet dissection
- * Copyright 2004, Anders Broman <anders.broman@ericsson.com>
+ * Copyright 2005, Anders Broman <anders.broman@ericsson.com>
  *
  * $Id$
  *
@@ -5518,9 +5518,12 @@ static const per_choice_t ReleaseCompleteReason_choice[] = {
 
 static int
 dissect_h225_ReleaseCompleteReason(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  guint32 value;
+	
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
                               ett_h225_ReleaseCompleteReason, ReleaseCompleteReason_choice, "ReleaseCompleteReason",
-                              NULL);
+                              &value);
+  h225_pi.reason = value;
 
   return offset;
 }
@@ -5587,9 +5590,13 @@ static const per_choice_t FacilityReason_choice[] = {
 
 static int
 dissect_h225_FacilityReason(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+	guint32 value;
+	
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
                               ett_h225_FacilityReason, FacilityReason_choice, "FacilityReason",
-                              NULL);
+                              &value);
+	h225_pi.reason = value;
+
 
   return offset;
 }
@@ -5816,7 +5823,7 @@ dissect_h225_T_h323_message_body(tvbuff_t *tvb, int offset, packet_info *pinfo _
 
 	if (h225_pi.msg_type == H225_CS) {
 		/* Don't override msg_tag value from IRR */
-		h225_pi.msg_tag = value;
+		h225_pi.msg_tag = message_body_val;
 	}
 
 	if (contains_faststart == TRUE )
@@ -6273,7 +6280,8 @@ static int dissect_securityError(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 static int
 dissect_h225_RequestSeqNum(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                           1U, 65535U, NULL, NULL, FALSE);
+                                           1U, 65535U, &(h225_pi.requestSeqNum), NULL, FALSE);
+
 
   return offset;
 }
@@ -6894,9 +6902,13 @@ static const per_choice_t GatekeeperRejectReason_choice[] = {
 
 static int
 dissect_h225_GatekeeperRejectReason(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  guint32 value;
+	
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
                               ett_h225_GatekeeperRejectReason, GatekeeperRejectReason_choice, "GatekeeperRejectReason",
-                              NULL);
+                              &value);
+  h225_pi.reason = value;
+
 
   return offset;
 }
@@ -7222,9 +7234,13 @@ static const per_choice_t UnregRequestReason_choice[] = {
 
 static int
 dissect_h225_UnregRequestReason(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  guint32 value;
+	
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
                               ett_h225_UnregRequestReason, UnregRequestReason_choice, "UnregRequestReason",
-                              NULL);
+                              &value);
+  h225_pi.reason = value;
+
 
   return offset;
 }
@@ -7306,9 +7322,12 @@ static const per_choice_t UnregRejectReason_choice[] = {
 
 static int
 dissect_h225_UnregRejectReason(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  guint32 value;
+
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
                               ett_h225_UnregRejectReason, UnregRejectReason_choice, "UnregRejectReason",
-                              NULL);
+                              &value);
+  h225_pi.reason = value;
 
   return offset;
 }
@@ -7728,9 +7747,11 @@ static const per_choice_t BandRejectReason_choice[] = {
 
 static int
 dissect_h225_BandRejectReason(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  guint32 value;
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
                               ett_h225_BandRejectReason, BandRejectReason_choice, "BandRejectReason",
-                              NULL);
+                              &value);
+  h225_pi.reason = value;
 
   return offset;
 }
@@ -7779,9 +7800,12 @@ static const per_choice_t DisengageReason_choice[] = {
 
 static int
 dissect_h225_DisengageReason(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  guint32 value;
+	
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
                               ett_h225_DisengageReason, DisengageReason_choice, "DisengageReason",
-                              NULL);
+                              &value);
+  h225_pi.reason = value;
 
   return offset;
 }
@@ -7866,9 +7890,12 @@ static const per_choice_t DisengageRejectReason_choice[] = {
 
 static int
 dissect_h225_DisengageRejectReason(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  guint32 value;
+	
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
                               ett_h225_DisengageRejectReason, DisengageRejectReason_choice, "DisengageRejectReason",
-                              NULL);
+                              &value);
+  h225_pi.reason = value;
 
   return offset;
 }
@@ -8404,9 +8431,12 @@ static const per_choice_t InfoRequestNakReason_choice[] = {
 
 static int
 dissect_h225_InfoRequestNakReason(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  guint32 value;
+	
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
                               ett_h225_InfoRequestNakReason, InfoRequestNakReason_choice, "InfoRequestNakReason",
-                              NULL);
+                              &value);
+  h225_pi.reason = value;
 
   return offset;
 }
@@ -8622,10 +8652,18 @@ static const per_choice_t RasMessage_choice[] = {
 
 int
 dissect_h225_RasMessage(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  	guint32 rasmessage_value;
 
-  offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
+  	offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
                               ett_h225_RasMessage, RasMessage_choice, "RasMessage",
-                               &value);
+                               &rasmessage_value);
+			       
+	if (check_col(pinfo->cinfo, COL_INFO)){
+		col_add_fstr(pinfo->cinfo, COL_INFO, "RAS: %s ",
+			val_to_str(rasmessage_value, RasMessage_vals, "<unknown>"));
+	}
+
+	h225_pi.msg_tag = rasmessage_value;
 
   return offset;
 }
@@ -8642,6 +8680,10 @@ dissect_h225_H323UserInformation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	proto_tree *tr;
 	int offset = 0;
 
+	/* Init struct for collecting h225_packet_info */
+	reset_h225_packet_info(&(h225_pi));
+	h225_pi.msg_type = H225_CS;
+
 	if (check_col(pinfo->cinfo, COL_PROTOCOL)){
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "H.225.0");
 	}
@@ -8653,6 +8695,8 @@ dissect_h225_H323UserInformation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	tr=proto_item_add_subtree(it, ett_h225);
 
 	offset = dissect_h225_H323_UserInformation(tvb, offset,pinfo, tr, hf_h225_H323_UserInformation);
+
+	tap_queue_packet(h225_tap, pinfo, &h225_pi);
 
 	return offset;
 }
@@ -8674,13 +8718,6 @@ dissect_h225_h225_RasMessage(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	tr=proto_item_add_subtree(it, ett_h225);
 
 	offset = dissect_h225_RasMessage(tvb, 0, pinfo,tr, hf_h225_RasMessage );
-
-	if (check_col(pinfo->cinfo, COL_INFO)){
-		col_add_fstr(pinfo->cinfo, COL_INFO, "RAS: %s ",
-			val_to_str(value, RasMessage_vals, "<unknown>"));
-	}
-
-	h225_pi.msg_tag = value;
 
 	ras_call_matching(tvb, pinfo, tr, &(h225_pi));
 
@@ -11964,8 +12001,8 @@ void proto_register_h225(void) {
 		" To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
 		&h225_reassembly);
 
-  register_dissector("h225", dissect_h225_H323UserInformation, proto_h225);
-  register_dissector("h323ui",dissect_h225_H323UserInformation, proto_h225);
+  new_register_dissector("h225", dissect_h225_H323UserInformation, proto_h225);
+  new_register_dissector("h323ui",dissect_h225_H323UserInformation, proto_h225);
 
   nsp_object_dissector_table = register_dissector_table("h225.nsp.object", "H.225 NonStandardParameter (object)", FT_STRING, BASE_NONE);
   nsp_h221_dissector_table = register_dissector_table("h225.nsp.h221", "H.225 NonStandardParameter (h221)", FT_UINT32, BASE_HEX);
@@ -11984,7 +12021,7 @@ void
 proto_reg_handoff_h225(void)
 {
 	h225ras_handle=new_create_dissector_handle(dissect_h225_h225_RasMessage, proto_h225);
-	H323UserInformation_handle=new_create_dissector_handle(dissect_h225_H323UserInformation, proto_h225);
+	H323UserInformation_handle=find_dissector("h323ui");
 
 	h245_handle = find_dissector("h245");
 	h245dg_handle = find_dissector("h245dg");

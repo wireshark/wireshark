@@ -15,21 +15,21 @@ MULTIMEDIA-SYSTEM-CONTROL h245
 #.EXPORTS
 #----------------------------------------------------------------------------------------
 NonStandardParameter	 		
-RasMessage			WITH_VALS ETH_VAR
-H323-UU-PDU/h323-message-body	ONLY_VALS ETH_VAR
-FacilityReason			ONLY_VALS ETH_VAR
-GatekeeperRejectReason		ONLY_VALS ETH_VAR
-UnregRequestReason		ONLY_VALS ETH_VAR
-UnregRejectReason		ONLY_VALS ETH_VAR
-BandRejectReason		ONLY_VALS ETH_VAR
-DisengageReason			ONLY_VALS ETH_VAR
-DisengageRejectReason		ONLY_VALS ETH_VAR
-InfoRequestNakReason		ONLY_VALS ETH_VAR
-ReleaseCompleteReason		ONLY_VALS ETH_VAR
-AdmissionRejectReason		ONLY_VALS ETH_VAR
-LocationRejectReason		ONLY_VALS ETH_VAR
-RegistrationRejectReason	ONLY_VALS ETH_VAR
-AliasAddress
+RasMessage			WITH_VALS ETH_VAR NO_PROT_PREFIX
+H323-UU-PDU/h323-message-body	ONLY_VALS ETH_VAR NO_PROT_PREFIX
+FacilityReason			ONLY_VALS ETH_VAR NO_PROT_PREFIX
+GatekeeperRejectReason		ONLY_VALS ETH_VAR NO_PROT_PREFIX
+UnregRequestReason		ONLY_VALS ETH_VAR NO_PROT_PREFIX
+UnregRejectReason		ONLY_VALS ETH_VAR NO_PROT_PREFIX
+BandRejectReason		ONLY_VALS ETH_VAR NO_PROT_PREFIX
+DisengageReason			ONLY_VALS ETH_VAR NO_PROT_PREFIX
+DisengageRejectReason		ONLY_VALS ETH_VAR NO_PROT_PREFIX
+InfoRequestNakReason		ONLY_VALS ETH_VAR NO_PROT_PREFIX
+ReleaseCompleteReason		ONLY_VALS ETH_VAR NO_PROT_PREFIX
+AdmissionRejectReason		ONLY_VALS ETH_VAR NO_PROT_PREFIX
+LocationRejectReason		ONLY_VALS ETH_VAR NO_PROT_PREFIX
+RegistrationRejectReason	ONLY_VALS ETH_VAR NO_PROT_PREFIX
+AliasAddress			NO_PROT_PREFIX
 #----------------------------------------------------------------------------------------
 #.TYPE_RENAME
 CallCreditServiceControl/callStartingPoint CallCreditServiceControl_callStartingPoint
@@ -142,7 +142,7 @@ RegistrationRejectReason/securityError reg_securityError
 
 	if (h225_pi.msg_type == H225_CS) {
 		/* Don't override msg_tag value from IRR */
-		h225_pi.msg_tag = value;
+		h225_pi.msg_tag = message_body_val;
 	}
 
 	if (contains_faststart == TRUE )
@@ -174,10 +174,18 @@ RegistrationRejectReason/securityError reg_securityError
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY RasMessage
+  	guint32 rasmessage_value;
 
-  offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
+  	offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
                               ett_h225_RasMessage, RasMessage_choice, "RasMessage",
-                               &value);
+                               &rasmessage_value);
+			       
+	if (check_col(pinfo->cinfo, COL_INFO)){
+		col_add_fstr(pinfo->cinfo, COL_INFO, "RAS: %s ",
+			val_to_str(rasmessage_value, RasMessage_vals, "<unknown>"));
+	}
+
+	h225_pi.msg_tag = rasmessage_value;
 #.END
 #----------------------------------------------------------------------------------------
 # TODO asn2eth can't handle restriced string ?
@@ -285,6 +293,93 @@ guint32 value_len;
 	}
 
 #.END
+#----------------------------------------------------------------------------------------
+#.FN_BODY FacilityReason
+	guint32 value;
+	
+  offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
+                              ett_h225_FacilityReason, FacilityReason_choice, "FacilityReason",
+                              &value);
+	h225_pi.reason = value;
+
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_BODY GatekeeperRejectReason
+  guint32 value;
+	
+  offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
+                              ett_h225_GatekeeperRejectReason, GatekeeperRejectReason_choice, "GatekeeperRejectReason",
+                              &value);
+  h225_pi.reason = value;
+
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_BODY UnregRequestReason
+  guint32 value;
+	
+  offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
+                              ett_h225_UnregRequestReason, UnregRequestReason_choice, "UnregRequestReason",
+                              &value);
+  h225_pi.reason = value;
+
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_BODY UnregRejectReason
+  guint32 value;
+
+  offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
+                              ett_h225_UnregRejectReason, UnregRejectReason_choice, "UnregRejectReason",
+                              &value);
+  h225_pi.reason = value;
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_BODY BandRejectReason
+  guint32 value;
+  offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
+                              ett_h225_BandRejectReason, BandRejectReason_choice, "BandRejectReason",
+                              &value);
+  h225_pi.reason = value;
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_BODY DisengageReason
+  guint32 value;
+	
+  offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
+                              ett_h225_DisengageReason, DisengageReason_choice, "DisengageReason",
+                              &value);
+  h225_pi.reason = value;
+#----------------------------------------------------------------------------------------
+#.FN_BODY DisengageRejectReason
+  guint32 value;
+	
+  offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
+                              ett_h225_DisengageRejectReason, DisengageRejectReason_choice, "DisengageRejectReason",
+                              &value);
+  h225_pi.reason = value;
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_BODY InfoRequestNakReason
+  guint32 value;
+	
+  offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
+                              ett_h225_InfoRequestNakReason, InfoRequestNakReason_choice, "InfoRequestNakReason",
+                              &value);
+  h225_pi.reason = value;
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_BODY ReleaseCompleteReason
+  guint32 value;
+	
+  offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
+                              ett_h225_ReleaseCompleteReason, ReleaseCompleteReason_choice, "ReleaseCompleteReason",
+                              &value);
+  h225_pi.reason = value;
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_BODY RequestSeqNum
+  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
+                                           1U, 65535U, &(h225_pi.requestSeqNum), NULL, FALSE);
+
 #----------------------------------------------------------------------------------------
 #.TYPE_ATTR
 H221NonStandard/t35CountryCode TYPE = FT_UINT32  DISPLAY = BASE_DEC  STRINGS = VALS(T35CountryCode_vals)
