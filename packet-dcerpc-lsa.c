@@ -3,7 +3,7 @@
  * Copyright 2001,2003 Tim Potter <tpot@samba.org>
  *  2002  Added LSA command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-lsa.c,v 1.79 2003/05/21 10:06:29 sahlberg Exp $
+ * $Id: packet-dcerpc-lsa.c,v 1.80 2003/05/21 10:39:19 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -71,6 +71,7 @@ static int hf_lsa_size_needed = -1;
 static int hf_lsa_max_count = -1;
 static int hf_lsa_index = -1;
 static int hf_lsa_domain = -1;
+static int hf_lsa_domain_sid = -1;
 static int hf_lsa_acct = -1;
 static int hf_lsa_server_role = -1;
 static int hf_lsa_source = -1;
@@ -784,7 +785,7 @@ lsa_dissect_POLICY_PRIMARY_DOMAIN_INFO(tvbuff_t *tvb, int offset,
 
 	/* sid */
 	offset = dissect_ndr_nt_PSID(tvb, offset,
-		pinfo, tree, drep, -1);
+		pinfo, tree, drep, hf_lsa_domain_sid);
 
 	proto_item_set_len(item, offset-old_offset);
 	return offset;
@@ -4246,6 +4247,10 @@ proto_register_dcerpc_lsa(void)
 	{ &hf_lsa_domain,
 		{ "Domain", "lsa.domain", FT_STRING, BASE_NONE,
 		NULL, 0x0, "Domain", HFILL }},
+
+	{ &hf_lsa_domain_sid,
+		{ "Domain SID", "lsa.domain_sid", FT_STRING, BASE_NONE,
+		NULL, 0x0, "The Domain SID", HFILL }},
 
 	{ &hf_lsa_acct,
 		{ "Account", "lsa.acct", FT_STRING, BASE_NONE,

@@ -2,7 +2,7 @@
  * Routines for snooping SID to name mappings
  * Copyright 2003, Ronnie Sahlberg
  *
- * $Id: packet-smb-sidsnooping.c,v 1.3 2003/04/23 08:20:01 guy Exp $
+ * $Id: packet-smb-sidsnooping.c,v 1.4 2003/05/21 10:39:19 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -41,7 +41,7 @@
 static int hf_lsa = -1;
 static int hf_lsa_opnum = -1;
 static int hf_lsa_domain = -1;
-static int hf_smb_sid = -1;
+static int hf_lsa_domain_sid = -1;
 
 
 
@@ -109,7 +109,7 @@ lsa_QueryInfoPolicy_l3_reply(void *dummy _U_, packet_info *pinfo _U_, epan_disse
 	fi=gp_domain->pdata[0];
 	domain=fi->value->value.string;
 
-	gp_sid=proto_get_finfo_ptr_array(edt->tree, hf_smb_sid);
+	gp_sid=proto_get_finfo_ptr_array(edt->tree, hf_lsa_domain_sid);
 	if(!gp_sid || gp_sid->len!=1){
 		return 0;
 	}
@@ -198,9 +198,9 @@ sid_snooping_init(void)
 		hf_lsa_opnum=hfi->id;
 	}
 
-	hfi=proto_registrar_get_byname("smb.sid");
+	hfi=proto_registrar_get_byname("lsa.domain_sid");
 	if(hfi){
-		hf_smb_sid=hfi->id;
+		hf_lsa_domain_sid=hfi->id;
 	}
 
 	hfi=proto_registrar_get_byname("lsa.domain");
@@ -210,7 +210,7 @@ sid_snooping_init(void)
 
 
 
-	error_string=register_tap_listener("dcerpc", lsa_QueryInfoPolicy_l3_reply, "dcerpc.pkt_type==2 and lsa.opnum==7 and lsa.info.level==3 and lsa.domain and smb.sid", NULL, lsa_QueryInfoPolicy_l3_reply, NULL);
+	error_string=register_tap_listener("dcerpc", lsa_QueryInfoPolicy_l3_reply, "dcerpc.pkt_type==2 and lsa.opnum==7 and lsa.info.level==3 and lsa.domain and lsa.domain_sid", NULL, lsa_QueryInfoPolicy_l3_reply, NULL);
 	if(error_string){
 		/* error, we failed to attach to the tap. clean up */
 

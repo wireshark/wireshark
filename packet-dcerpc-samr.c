@@ -3,7 +3,7 @@
  * Copyright 2001,2003 Tim Potter <tpot@samba.org>
  *   2002 Added all command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-samr.c,v 1.89 2003/05/21 10:16:09 sahlberg Exp $
+ * $Id: packet-dcerpc-samr.c,v 1.90 2003/05/21 10:39:19 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -478,7 +478,13 @@ dissect_ndr_nt_SID(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	char *sid_str;
+	char *name;
 
+	if(di->hf_index!=-1){
+		name=proto_registrar_get_name(di->hf_index);
+	} else {
+		name="Domain";
+	}
 	if(di->conformant_run){
 		/* just a run to handle conformant arrays, no scalars to dissect */
 		return offset;
@@ -490,7 +496,7 @@ dissect_ndr_nt_SID(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 			hf_samr_count, NULL);
 
-	offset = dissect_nt_sid(tvb, offset, tree, "Domain", &sid_str, hf_sid);
+	offset = dissect_nt_sid(tvb, offset, tree, name, &sid_str, hf_sid);
 
 	dcv->private_data = sid_str;
 
