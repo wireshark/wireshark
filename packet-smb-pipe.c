@@ -2,7 +2,7 @@
  * Routines for SMB named pipe packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb-pipe.c,v 1.19 2001/03/21 23:30:54 guy Exp $
+ * $Id: packet-smb-pipe.c,v 1.20 2001/03/22 00:28:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -558,6 +558,16 @@ static const value_string share_type_vals[] = {
         {0, NULL}
 };
 
+/*
+ * Per-frame data needed to dissect replies.
+ */
+typedef struct {
+  guint16 FunctionCode;
+  gboolean is_continuation;
+} response_data;
+
+static GMemChunk  *lanman_proto_data;
+
 gboolean
 dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
 	proto_tree *parent, proto_tree *tree, struct smb_info si,
@@ -752,6 +762,7 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
     }
   }
   else {  /* dirn == 0, response */
+    response_data    *proto_data;
     guint16          Status;
     guint16          Convert;
     guint16          EntCount;
@@ -759,16 +770,32 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
     int              i;
     proto_tree       *server_tree = NULL, *flags_tree = NULL, *share_tree = NULL;
 
-    FunctionCode = si.request_val -> last_lanman_cmd;
+    /* Is there any per-frame LANMAN data for this frame? */
+    proto_data = p_get_proto_data(fd, proto_smb_lanman);
+    if (proto_data == NULL) {
+      /* No.  Allocate some, and set it up. */
+      proto_data = g_mem_chunk_alloc(lanman_proto_data);
+      proto_data->FunctionCode = si.request_val -> last_lanman_cmd;
+
+      /*
+       * If we've already seen a response to the request, this must
+       * be a continuation of that response.
+       */
+      proto_data->is_continuation = si.request_val -> trans_response_seen;
+
+      /*
+       * Attach it to the frame.
+       */
+      p_add_proto_data(fd, proto_smb_lanman, proto_data);
+    }
+
+    FunctionCode = proto_data->FunctionCode;
 
     /*
      * If we have already seen the response to this transact, simply
      * record it as a continuation ...
      */
-
-/*$$    printf("TransResponseSeen = %u\n", si.request_val -> trans_response_seen);
-*/
-    if (si.request_val -> trans_response_seen == 1) {
+    if (proto_data->is_continuation) {
 
       if (check_col(fd, COL_INFO)) {
 	  col_set_str(fd, COL_INFO, "Transact Continuation");
@@ -786,39 +813,45 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
 
       return TRUE;
 
-
     } 
 
     si.request_val -> trans_response_seen = 1; 
 
+    lanman = find_lanman(FunctionCode);
+
+    if (check_col(fd, COL_INFO)) {
+
+      if (lanman) {
+	col_add_fstr(fd, COL_INFO, "%s %sResponse", lanman -> lanman_name,
+		is_interim_response ? "Interim " : "");
+      }
+      else {
+	col_add_fstr(fd, COL_INFO, "Unknown LANMAN %sResponse: %u",
+		is_interim_response ? "Interim " : "", FunctionCode);
+      }
+    }
+
+    if (tree) {
+
+      ti = proto_tree_add_item(parent, proto_smb_lanman, NullTVB, loc_offset, END_OF_FRAME, FALSE);
+      lanman_tree = proto_item_add_subtree(ti, ett_lanman);
+      if (lanman) {
+	proto_tree_add_text(lanman_tree, NullTVB, loc_offset, 0, "Function Code: %s", lanman -> lanman_name);
+      }
+      else {
+	proto_tree_add_text(lanman_tree, NullTVB, loc_offset, 0, "Function Code: Unknown LANMAN Response: %u", FunctionCode);
+      }
+    }
+
+    if (is_interim_response) {
+
+      return TRUE;	/* no data to dissect */
+
+    }
+
     switch (FunctionCode) {
 
     case NETSHAREENUM:
-
-      if (check_col(fd, COL_INFO)) {
-
-	col_set_str(fd, COL_INFO,
-	    is_interim_response ? "NetShareEnum Interim Response" :
-				  "NetShareEnum Response");
-
-      }
-
-      if (tree) {
-
-	ti = proto_tree_add_item(parent, proto_smb_lanman, NullTVB, loc_offset, END_OF_FRAME, FALSE);
-	lanman_tree = proto_item_add_subtree(ti, ett_lanman);
-      
-	proto_tree_add_text(lanman_tree, NullTVB, loc_offset, 0, "Function Code: NetShareEnum");
-
-      }
-
-      if (is_interim_response) {
-
-	return TRUE;	/* no data to dissect */
-
-      }
-
-      si.request_val -> trans_response_seen = 1; 
 
       Status = GSHORT(pd, loc_offset);
 
@@ -925,28 +958,6 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
       break;
 
     case NETSERVERENUM2:
-
-      if (check_col(fd, COL_INFO)) {
-
-	col_set_str(fd, COL_INFO,
-	    is_interim_response ? "NetServerEnum2 Interim Response" :
-				  "NetServerEnum2 Response");
-      }
-
-      if (tree) {
-
-	ti = proto_tree_add_item(parent, proto_smb_lanman, NullTVB, loc_offset, END_OF_FRAME, FALSE);
-	lanman_tree = proto_item_add_subtree(ti, ett_lanman);
-      
-	proto_tree_add_text(lanman_tree, NullTVB, loc_offset, 0, "Function Code: NetServerEnum2");
-
-      }
-
-      if (is_interim_response) {
-
-	return TRUE;	/* no data to dissect */
-
-      }
 
       Status = GSHORT(pd, loc_offset);
 
@@ -1089,38 +1100,6 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
 
     default:
 
-      lanman = find_lanman(si.request_val -> last_lanman_cmd);
-
-      if (check_col(fd, COL_INFO)) {
-
-	if (lanman) {
-	  col_add_fstr(fd, COL_INFO, "%s %sResponse", lanman -> lanman_name,
-		is_interim_response ? "Interim " : "");
-	}
-	else {
-	  col_add_fstr(fd, COL_INFO, "Unknown LANMAN %sResponse: %u",
-		is_interim_response ? "Interim " : "", FunctionCode);
-	}
-      }
-
-      if (tree) {
-
-	ti = proto_tree_add_item(parent, proto_smb_lanman, NullTVB, loc_offset, END_OF_FRAME, FALSE);
-	lanman_tree = proto_item_add_subtree(ti, ett_lanman);
-	if (lanman) {
-	  proto_tree_add_text(lanman_tree, NullTVB, loc_offset, 0, "%s Response", lanman -> lanman_name);
-	}
-	else {
-	  proto_tree_add_text(lanman_tree, NullTVB, loc_offset, 0, "Function Code: Unknown LANMAN Response: %u", FunctionCode);
-	}
-      }
-
-      if (is_interim_response) {
-
-	return TRUE;	/* no data to dissect */
-
-      }
-
       Status = GSHORT(pd, loc_offset);
 
       if (tree) {
@@ -1186,8 +1165,17 @@ dissect_pipe_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *paren
 
 }
 
+static void
+pipe_lanman_init_protocol(void)
+{
+  if (lanman_proto_data != NULL)
+    g_mem_chunk_destroy(lanman_proto_data);
 
-
+  lanman_proto_data = g_mem_chunk_new("lanman_proto_data",
+				      sizeof(response_data),
+				      100 * sizeof(response_data),
+				      G_ALLOC_AND_FREE);
+}
 
 void
 register_proto_smb_pipe( void){
@@ -1208,4 +1196,5 @@ register_proto_smb_pipe( void){
     		"Microsoft Windows Lanman Protocol", "LANMAN", "lanman");
 
 	proto_register_subtree_array(ett, array_length(ett));
+	register_init_routine(&pipe_lanman_init_protocol);
 }
