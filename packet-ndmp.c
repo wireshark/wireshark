@@ -12,7 +12,7 @@
  * Routines for NDMP dissection
  * 2001 Ronnie Sahlberg (see AUTHORS for email)
  *
- * $Id: packet-ndmp.c,v 1.7 2002/01/18 21:16:39 guy Exp $
+ * $Id: packet-ndmp.c,v 1.8 2002/01/18 22:37:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2340,23 +2340,12 @@ dissect_ndmp_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree
 static void
 dissect_ndmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
+	gboolean first = TRUE;
 	int offset = 0;
 	guint32 size, available_bytes;
 	struct ndmp_header nh;
 	proto_item *item=NULL;
 	proto_tree *tree=NULL;
-
-
-	if(parent_tree){
-		item = proto_tree_add_item(parent_tree, proto_ndmp, tvb, offset, 0, FALSE);
-		tree = proto_item_add_subtree(item, ett_ndmp);
-	}
-
-	if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
-		col_add_str(pinfo->cinfo, COL_PROTOCOL, "NDMP");
-	if (check_col(pinfo->cinfo, COL_INFO)) 
-		col_clear(pinfo->cinfo, COL_INFO);
-
 
 	/* loop through the packet, dissecting multiple NDMP pdus*/
 	do {
@@ -2369,26 +2358,6 @@ dissect_ndmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			return;
 		}
 
-		/* check the ndmp header, if we have it */
-		if(available_bytes>=28){
-			nh.seq=tvb_get_ntohl(tvb, offset+4);
-			nh.time=tvb_get_ntohl(tvb, offset+8);
-			nh.type=tvb_get_ntohl(tvb, offset+12);
-			nh.msg=tvb_get_ntohl(tvb, offset+16);
-			nh.rep_seq=tvb_get_ntohl(tvb, offset+20);
-			nh.err=tvb_get_ntohl(tvb, offset+24);
-
-			if(nh.type>1){
-				return;
-			}
-			if((nh.msg>0xa09)||(nh.msg==0)){
-				return;
-			}
-			if(nh.err>0x17){
-				return;
-			}
-		}
-
 		/* desegmentation */
 		if(ndmp_desegment){
 			if(pinfo->can_desegment
@@ -2399,9 +2368,39 @@ dissect_ndmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			}
 		}
 
+		/* check the ndmp header, if we have it */
 		if(available_bytes<28){
-			/* too short to be a NDMP packet */
+			/* We don't have enough data */
 			return;
+		}
+		nh.seq=tvb_get_ntohl(tvb, offset+4);
+		nh.time=tvb_get_ntohl(tvb, offset+8);
+		nh.type=tvb_get_ntohl(tvb, offset+12);
+		nh.msg=tvb_get_ntohl(tvb, offset+16);
+		nh.rep_seq=tvb_get_ntohl(tvb, offset+20);
+		nh.err=tvb_get_ntohl(tvb, offset+24);
+
+		if(nh.type>1){
+			return;
+		}
+		if((nh.msg>0xa09)||(nh.msg==0)){
+			return;
+		}
+		if(nh.err>0x17){
+			return;
+		}
+
+		if (first) {
+			if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
+				col_add_str(pinfo->cinfo, COL_PROTOCOL, "NDMP");
+			if (check_col(pinfo->cinfo, COL_INFO)) 
+				col_clear(pinfo->cinfo, COL_INFO);
+			first = FALSE;
+		}
+
+		if(parent_tree){
+			item = proto_tree_add_item(parent_tree, proto_ndmp, tvb, offset, size, FALSE);
+			tree = proto_item_add_subtree(item, ett_ndmp);
 		}
 
 		/* We can not trust what dissect_ndmp_cmd() tells us since
@@ -2411,8 +2410,6 @@ dissect_ndmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		dissect_ndmp_cmd(tvb, offset, pinfo, tree, &nh);
 		offset += size;
 	} while(offset<(int)tvb_reported_length(tvb));
-
-	proto_item_set_len(item, offset);
 }
 
 
