@@ -1,7 +1,7 @@
 /* dfilter.c
  * Routines for display filters
  *
- * $Id: dfilter.c,v 1.21 1999/09/29 22:11:51 gram Exp $
+ * $Id: dfilter.c,v 1.22 1999/10/04 18:09:05 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -313,7 +313,7 @@ int dfilter_lookup_token(char *abbrev)
 	value =  GPOINTER_TO_INT(g_tree_lookup(dfilter_tokens, abbrev));
 
 	if (value < DFILTER_LEX_ABBREV_OFFSET) {
-		return 0;
+		return -1;
 	}
 	return value - DFILTER_LEX_ABBREV_OFFSET;
 }
