@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.153 2002/08/28 21:00:41 jmayer Exp $
+ * $Id: tethereal.c,v 1.154 2002/09/04 09:40:24 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -95,6 +95,8 @@
 #include "capture_stop_conditions.h"
 #include "ringbuffer.h"
 #include <epan/epan_dissect.h>
+#include "tap.h"
+#include "tap-rpcstat.h"
 
 #ifdef HAVE_LIBPCAP
 #include <wiretap/wtap-capture.h>
@@ -205,6 +207,7 @@ print_usage(gboolean print_ver)
   fprintf(stderr, "\t[ -o <preference setting> ] ... [ -r <infile> ] [ -R <read filter> ]\n");
   fprintf(stderr, "\t[ -t <time stamp format> ] [ -w <savefile> ] [ -x ]\n");
 #endif
+  fprintf(stderr, "\t[ -Z <statistics string> ]\n");
   fprintf(stderr, "Valid file type arguments to the \"-F\" flag:\n");
   for (i = 0; i < WTAP_NUM_FILE_TYPES; i++) {
     if (wtap_dump_can_open(i))
@@ -453,7 +456,7 @@ main(int argc, char *argv[])
 #endif
 
   /* Now get our args */
-  while ((opt = getopt(argc, argv, "a:b:c:Df:F:hi:lnN:o:pqr:R:s:St:vw:Vx")) != -1) {
+  while ((opt = getopt(argc, argv, "a:b:c:Df:F:hi:lnN:o:pqr:R:s:St:vw:VxZ:")) != -1) {
     switch (opt) {
       case 'a':        /* autostop criteria */
 #ifdef HAVE_LIBPCAP
@@ -643,6 +646,25 @@ main(int argc, char *argv[])
         break;
       case 'x':        /* Print packet data in hex (and ASCII) */
         print_hex = TRUE;
+        break;
+      case 'Z':
+        if(!strncmp(optarg,"rpc,",4)){
+          if(!strncmp(optarg,"rpc,rtt,",8)){
+            int rpcprogram, rpcversion;
+            if(sscanf(optarg,"rpc,rtt,%d,%d",&rpcprogram,&rpcversion)==2){
+              rpcstat_init(rpcprogram,rpcversion);
+            } else {
+              fprintf(stderr, "tethereal: invalid \"-Z rpc,rtt,<program>,<version>\" argument\n");
+              exit(1);
+            }
+          } else {
+            fprintf(stderr, "tethereal: invalid -Z argument. Argument must be \"-Z rpc,rtt,...\"\n");
+            exit(1);
+          }
+        } else {
+          fprintf(stderr, "tethereal: invalid -Z argument. Argument must be \"-Z rpc,...\"\n");
+          exit(1);
+        }
         break;
       default:
       case '?':        /* Bad flag - print usage message */
@@ -885,6 +907,7 @@ main(int argc, char *argv[])
 #endif
   }
 
+  draw_tap_listeners(TRUE);
   epan_cleanup();
 
   return 0;
@@ -1640,7 +1663,11 @@ wtap_dispatch_cb_print(guchar *user, const struct wtap_pkthdr *phdr,
   if (cf->rfcode) {
     epan_dissect_prime_dfilter(edt, cf->rfcode);
   }
+
+  tap_queue_init(pseudo_header, buf, &fdata);
   epan_dissect_run(edt, pseudo_header, buf, &fdata, verbose ? NULL : &cf->cinfo);
+  tap_push_tapped_queue();
+
   if (cf->rfcode) {
     passed = dfilter_apply_edt(cf->rfcode, edt);
   }

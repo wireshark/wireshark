@@ -2,7 +2,7 @@
  *
  * Top-most dissector. Decides dissector based on Wiretap Encapsulation Type.
  *
- * $Id: packet-frame.c,v 1.30 2002/08/28 21:00:13 jmayer Exp $
+ * $Id: packet-frame.c,v 1.31 2002/09/04 09:40:24 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -33,6 +33,7 @@
 #include <epan/tvbuff.h>
 #include "packet-frame.h"
 #include "prefs.h"
+#include "tap.h"
 
 static int proto_frame = -1;
 static int hf_frame_arrival_time = -1;
@@ -50,6 +51,8 @@ int proto_malformed = -1;
 static int proto_unreassembled = -1;
 
 static gint ett_frame = -1;
+
+static int frame_tap = -1;
 
 static dissector_handle_t data_handle;
 static dissector_handle_t docsis_handle;
@@ -188,6 +191,8 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		show_reported_bounds_error(tvb, pinfo, tree);
 	}
 	ENDTRY;
+
+	tap_queue_packet(frame_tap, pinfo, NULL);
 }
 
 void
@@ -296,6 +301,8 @@ proto_register_frame(void)
 	    "Show File Offset", "Show File Offset", &show_file_off);
 	prefs_register_bool_preference(frame_module, "force_docsis_encap",
 	    "Treat all frames as DOCSIS frames", "Treat all frames as DOCSIS Frames", &force_docsis_encap);
+
+	frame_tap=register_tap("frame");
 }
 
 void

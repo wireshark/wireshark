@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  *
- * $Id: packet-rpc.c,v 1.103 2002/08/28 21:00:29 jmayer Exp $
+ * $Id: packet-rpc.c,v 1.104 2002/09/04 09:40:24 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -42,6 +42,7 @@
 #include "reassemble.h"
 #include "rpc_defrag.h"
 #include "packet-nfs.h"
+#include "tap.h"
 
 /*
  * See:
@@ -68,6 +69,7 @@ static gboolean rpc_defragment = FALSE;
 
 static struct true_false_string yesno = { "Yes", "No" };
 
+static int rpc_tap = -1;
 
 static const value_string rpc_msg_type[] = {
 	{ RPC_CALL, "Call" },
@@ -226,32 +228,10 @@ fragment_items rpc_frag_items = {
 };
 
 /* Hash table with info on RPC program numbers */
-static GHashTable *rpc_progs;
+GHashTable *rpc_progs;
 
 /* Hash table with info on RPC procedure numbers */
-static GHashTable *rpc_procs;
-
-typedef struct _rpc_proc_info_key {
-	guint32	prog;
-	guint32	vers;
-	guint32	proc;
-} rpc_proc_info_key;
-
-typedef struct _rpc_proc_info_value {
-	gchar		*name;
-	dissect_function_t *dissect_call;
-	dissect_function_t *dissect_reply;
-} rpc_proc_info_value;
-
-typedef struct _rpc_prog_info_key {
-	guint32 prog;
-} rpc_prog_info_key;
-
-typedef struct _rpc_prog_info_value {
-	int proto;
-	int ett;
-	char* progname;
-} rpc_prog_info_value;
+GHashTable *rpc_procs;
 
 static void dissect_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static void dissect_rpc_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
@@ -2225,6 +2205,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		}
 	}
 
+	tap_queue_packet(rpc_tap, pinfo, rpc_call);
 	return TRUE;
 }
 
@@ -3075,6 +3056,7 @@ proto_register_rpc(void)
 	rpc_handle = find_dissector("rpc");
 	register_dissector("rpc-tcp", dissect_rpc_tcp, proto_rpc);
 	rpc_tcp_handle = find_dissector("rpc-tcp");
+	rpc_tap = register_tap("rpc");
 
 	/*
 	 * Init the hash tables.  Dissectors for RPC protocols must

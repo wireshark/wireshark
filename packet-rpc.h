@@ -1,6 +1,6 @@
 /* packet-rpc.h
  *
- * $Id: packet-rpc.h,v 1.37 2002/08/28 21:00:29 jmayer Exp $
+ * $Id: packet-rpc.h,v 1.38 2002/09/04 09:40:24 sahlberg Exp $
  *
  * (c) 1999 Uwe Girlich
  *
@@ -136,6 +136,33 @@ extern int dissect_rpc_indir_call(tvbuff_t *tvb, packet_info *pinfo,
 extern int dissect_rpc_indir_reply(tvbuff_t *tvb, packet_info *pinfo,
 	proto_tree *tree, int offset, int result_id, int prog_id, int vers_id,
 	int proc_id);
+
+
+typedef struct _rpc_prog_info_key {
+	guint32 prog;
+} rpc_prog_info_key;
+
+typedef struct _rpc_prog_info_value {
+	int proto;
+	int ett;
+	char* progname;
+} rpc_prog_info_value;
+
+extern GHashTable *rpc_progs;
+
+typedef struct _rpc_proc_info_key {
+	guint32	prog;
+	guint32	vers;
+	guint32	proc;
+} rpc_proc_info_key;
+
+typedef struct _rpc_proc_info_value {
+	gchar		*name;
+	dissect_function_t *dissect_call;
+	dissect_function_t *dissect_reply;
+} rpc_proc_info_value;
+
+extern GHashTable *rpc_procs;
 
 #endif /* packet-rpc.h */
 
