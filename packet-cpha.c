@@ -2,7 +2,7 @@
  * Routines for the Check Point High-Availability Protocol (CPHAP)
  * Copyright 2002, Yaniv Kaul <ykaul-at-netvision.net.il>
  *
- * $Id: packet-cpha.c,v 1.5 2003/01/31 03:17:45 guy Exp $
+ * $Id: packet-cpha.c,v 1.6 2003/04/15 22:07:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -199,7 +199,6 @@ dissect_cpha(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_item *		nti;
   proto_tree *		cpha_tree = NULL;
   proto_tree *		ntree = NULL;
-  static char		info[30];
   guint16		opcode;
 
   /*
@@ -237,9 +236,9 @@ dissect_cpha(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   hdr.filler = g_ntohs(hdr.filler);
   opcode  = g_ntohs(hdr.opcode);
 
-  snprintf(info,50,"CPHAv%d: %s",g_ntohs(hdr.ha_protocol_ver), opcode2str_short(opcode));
   if (check_col(pinfo->cinfo, COL_INFO))
-    col_add_str(pinfo->cinfo, COL_INFO,info);
+    col_add_fstr(pinfo->cinfo, COL_INFO, "CPHAv%d: %s",
+        g_ntohs(hdr.ha_protocol_ver), opcode2str_short(opcode));
 
   if (tree) {
     ti = proto_tree_add_item(tree, proto_cphap, tvb, offset, -1, FALSE);
