@@ -480,21 +480,15 @@ dissect_rtnet_tdma_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root) {
 
 static void
 dissect_tdma_sync(tvbuff_t *tvb, guint offset, proto_tree *tree) {
-#ifdef G_HAVE_GINT64
   gint64 time;
   proto_item *ti;
-#endif
 
   proto_tree_add_item(tree, hf_tdma_sync_cycle, tvb, offset, 4, FALSE);
   offset += 4;
 
-#ifdef G_HAVE_GINT64
   ti = proto_tree_add_item(tree, hf_tdma_sync_xmit_stamp, tvb, offset, 8, FALSE);
   time = tvb_get_ntoh64(tvb, offset) - tvb_get_ntoh64(tvb, offset+8);
-  proto_item_append_text(ti, " (%s%lld)", (time > 0) ? "+" : "", time);
-#else
-  proto_tree_add_item(tree, hf_tdma_sync_xmit_stamp, tvb, offset, 8, FALSE);
-#endif
+  proto_item_append_text(ti, " (%s%" PRId64 ")", (time > 0) ? "+" : "", time);
   offset += 8;
 
   proto_tree_add_item(tree, hf_tdma_sync_sched_xmit, tvb, offset, 8, FALSE);
@@ -514,27 +508,19 @@ dissect_tdma_request_cal(tvbuff_t *tvb, guint offset, proto_tree *tree) {
 
 static void
 dissect_tdma_reply_cal(tvbuff_t *tvb, guint offset, proto_tree *tree) {
-#ifdef G_HAVE_GINT64
   gint64 time;
   proto_item *ti;
-#endif
 
   proto_tree_add_item(tree, hf_tdma_rpl_cal_req_stamp, tvb, offset, 8, FALSE);
   offset += 8;
 
   proto_tree_add_item(tree, hf_tdma_rpl_cal_rcv_stamp, tvb, offset, 8, FALSE);
 
-#ifdef G_HAVE_GINT64
   time = tvb_get_ntoh64(tvb, offset+8) - tvb_get_ntoh64(tvb, offset);
   offset += 8;
 
   ti = proto_tree_add_item(tree, hf_tdma_rpl_cal_xmit_stamp, tvb, offset, 8, FALSE);
-  proto_item_append_text(ti, " (%s%lld)", (time > 0) ? "+" : "", time);
-#else
-  offset += 8;
-
-  proto_tree_add_item(tree, hf_tdma_rpl_cal_xmit_stamp, tvb, offset, 8, FALSE);
-#endif
+  proto_item_append_text(ti, " (%s%" PRId64 ")", (time > 0) ? "+" : "", time);
 }
 
 static void
@@ -1068,11 +1054,7 @@ proto_register_rtmac(void) {
     { &hf_tdma_v1_msg_request_test_tx,
       { "TX",
         "tdma-v1.msg.request_test.tx",
-#ifdef G_HAVE_GINT64
         FT_UINT64, BASE_DEC, NULL, 0x0,
-#else
-        FT_BYTES, BASE_HEX, NULL, 0x0,
-#endif
         "TDMA TX", HFILL }},
 
     /* TDMA ack test */
@@ -1086,11 +1068,7 @@ proto_register_rtmac(void) {
     { &hf_tdma_v1_msg_ack_test_tx,
       { "TX",
         "tdma-v1.msg.ack_test.tx",
-#ifdef G_HAVE_GINT64
         FT_UINT64, BASE_DEC, NULL, 0x0,
-#else
-        FT_BYTES, BASE_HEX, NULL, 0x0,
-#endif
         "TDMA TX", HFILL }},
 
     /* TDMA ack test */
@@ -1107,11 +1085,7 @@ proto_register_rtmac(void) {
     { &hf_tdma_v1_msg_start_of_frame_timestamp,
       { "Timestamp",
         "tdma-v1.msg.start_of_frame.timestamp",
-#ifdef G_HAVE_GINT64
         FT_UINT64, BASE_DEC, NULL, 0x0,
-#else
-        FT_BYTES, BASE_HEX, NULL, 0x0,
-#endif
         "TDMA Timestamp", HFILL }},
 
     /* TDMA station list */
@@ -1166,21 +1140,13 @@ proto_register_rtmac(void) {
     { &hf_tdma_sync_xmit_stamp,
       { "Transmission Time Stamp",
         "tdma.sync.xmit_stamp",
-#ifdef G_HAVE_GINT64
         FT_UINT64, BASE_DEC, NULL, 0x0,
-#else
-        FT_BYTES, BASE_HEX, NULL, 0x0,
-#endif
         "TDMA Sync Transmission Time Stamp", HFILL }},
 
     { &hf_tdma_sync_sched_xmit,
       { "Scheduled Transmission Time",
         "tdma.sync.sched_xmit",
-#ifdef G_HAVE_GINT64
         FT_UINT64, BASE_DEC, NULL, 0x0,
-#else
-        FT_BYTES, BASE_HEX, NULL, 0x0,
-#endif
         "TDMA Sync Scheduled Transmission Time", HFILL }},
 
     /* TDMA request calibration */
@@ -1188,11 +1154,7 @@ proto_register_rtmac(void) {
     { &hf_tdma_req_cal_xmit_stamp,
       { "Transmission Time Stamp",
         "tdma.req_cal.xmit_stamp",
-#ifdef G_HAVE_GINT64
         FT_UINT64, BASE_DEC, NULL, 0x0,
-#else
-        FT_BYTES, BASE_HEX, NULL, 0x0,
-#endif
         "TDMA Request Calibration Transmission Time Stamp", HFILL }},
 
     { &hf_tdma_req_cal_rpl_cycle,
@@ -1204,11 +1166,7 @@ proto_register_rtmac(void) {
     { &hf_tdma_req_cal_rpl_slot,
       { "Reply Slot Offset",
         "tdma.req_cal.rpl_slot",
-#ifdef G_HAVE_GINT64
         FT_UINT64, BASE_DEC, NULL, 0x0,
-#else
-        FT_BYTES, BASE_HEX, NULL, 0x0,
-#endif
         "TDMA Request Calibration Reply Slot Offset", HFILL }},
 
     /* TDMA reply calibration */
@@ -1216,31 +1174,19 @@ proto_register_rtmac(void) {
     { &hf_tdma_rpl_cal_req_stamp,
       { "Request Transmission Time",
         "tdma.rpl_cal.req_stamp",
-#ifdef G_HAVE_GINT64
         FT_UINT64, BASE_DEC, NULL, 0x0,
-#else
-        FT_BYTES, BASE_HEX, NULL, 0x0,
-#endif
         "TDMA Reply Calibration Request Transmission Time", HFILL }},
 
     { &hf_tdma_rpl_cal_rcv_stamp,
       { "Reception Time Stamp",
         "tdma.rpl_cal.rcv_stamp",
-#ifdef G_HAVE_GINT64
         FT_UINT64, BASE_DEC, NULL, 0x0,
-#else
-        FT_BYTES, BASE_HEX, NULL, 0x0,
-#endif
         "TDMA Reply Calibration Reception Time Stamp", HFILL }},
 
     { &hf_tdma_rpl_cal_xmit_stamp,
       { "Transmission Time Stamp",
         "tdma.rpl_cal.xmit_stamp",
-#ifdef G_HAVE_GINT64
         FT_UINT64, BASE_DEC, NULL, 0x0,
-#else
-        FT_BYTES, BASE_HEX, NULL, 0x0,
-#endif
         "TDMA Reply Calibration Transmission Time Stamp", HFILL }},
   };
 
