@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.51 2000/10/16 23:18:03 guy Exp $
+ * $Id: tethereal.c,v 1.52 2000/10/31 08:15:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -862,7 +862,6 @@ fill_in_fdata(frame_data *fdata, capture_file *cf,
      this packet. */
   compute_timestamp_diff(&fdata->del_secs, &fdata->del_usecs,
 		fdata->abs_secs, fdata->abs_usecs, prevsec, prevusec);
-  fdata->del_secs = fdata->abs_secs - prevsec;
   prevsec = fdata->abs_secs;
   prevusec = fdata->abs_usecs;
 
