@@ -835,6 +835,10 @@ Marc Milgram <mmilgram[AT]arrayinc.com> {
 	DBS Etherwatch wiretap module
 }
 
+Gordon McKinney <gordon[AT]night-ray.com> {
+	Enhanced Ethereal icon for Windows
+}
+
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 
