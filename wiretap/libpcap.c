@@ -1,6 +1,6 @@
 /* libpcap.c
  *
- * $Id: libpcap.c,v 1.29 2000/01/09 07:55:48 guy Exp $
+ * $Id: libpcap.c,v 1.30 2000/01/13 07:09:17 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -26,7 +26,7 @@
 #include <stdlib.h>
 #include <errno.h>
 #include "wtap.h"
-#include "file.h"
+#include "file_wrappers.h"
 #include "buffer.h"
 #include "libpcap.h"
 

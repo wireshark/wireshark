@@ -1,6 +1,6 @@
 /* file.c
  *
- * $Id: file.c,v 1.44 2000/01/10 17:33:17 gram Exp $
+ * $Id: file.c,v 1.45 2000/01/13 07:09:15 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -36,7 +36,7 @@
 #endif
 
 #include "wtap.h"
-#include "file.h"
+#include "file_wrappers.h"
 #include "buffer.h"
 #include "lanalyzer.h"
 #include "ngsniffer.h"
@@ -448,41 +448,3 @@ gboolean wtap_dump_close(wtap_dumper *wdh, int *err)
 	g_free(wdh);
 	return ret;
 }
-
-/*
- * Routine to return a Wiretap error code (0 for no error, an errno
- * for a file error, or a WTAP_ERR_ code for other errors) for an
- * I/O stream.
- */
-#ifdef HAVE_LIBZ
-int
-file_error(void *fh)
-{
-	int errnum;
-
-	gzerror(fh, &errnum);
-	switch (errnum) {
-
-	case Z_OK:		/* no error */
-		return 0;
-
-	case Z_STREAM_END:	/* EOF - not an error */
-		return 0;
-
-	case Z_ERRNO:		/* file I/O error */
-		return errno;
-
-	default:
-		return WTAP_ERR_ZLIB + errnum;
-	}
-}
-#else /* HAVE_LIBZ */
-int
-file_error(FILE *fh)
-{
-	if (ferror(fh))
-		return errno;
-	else
-		return 0;
-}
-#endif /* HAVE_LIBZ */

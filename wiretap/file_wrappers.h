@@ -1,6 +1,6 @@
-/* file.h
+/* file_wrappers.h
  *
- * $Id: file.h,v 1.5 1999/10/31 17:46:07 gram Exp $
+ * $Id: file_wrappers.h,v 1.1 2000/01/13 07:09:16 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -27,7 +27,7 @@
 #ifdef HAVE_LIBZ
 #define file_open gzopen
 #define filed_open gzdopen
-#define file_seek gzseek
+extern int file_seek(void *stream, long offset, int whence);
 #define file_read(buf, bsize, count, file) gzread((file),(buf),((count)*(bsize)))
 #define file_write(buf, bsize, count, file) gzwrite((file),(buf),((count)*(bsize)))
 #define file_close gzclose
@@ -39,7 +39,7 @@ extern int file_error(void *fh);
 #else /* No zLib */
 #define file_open fopen
 #define filed_open fdopen
-#define file_seek fseek
+extern int file_seek(FILE *stream, long offset, int whence);
 #define file_read fread
 #define file_write fwrite
 #define file_close fclose

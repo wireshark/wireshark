@@ -1,6 +1,6 @@
 /* iptrace.c
  *
- * $Id: iptrace.c,v 1.22 1999/11/27 01:55:44 guy Exp $
+ * $Id: iptrace.c,v 1.23 2000/01/13 07:09:16 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -28,7 +28,7 @@
 #include <time.h>
 #include <string.h>
 #include "wtap.h"
-#include "file.h"
+#include "file_wrappers.h"
 #include "buffer.h"
 #include "iptrace.h"
 

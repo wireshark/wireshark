@@ -1,6 +1,6 @@
 /* netxray.c
  *
- * $Id: netxray.c,v 1.20 1999/12/15 01:34:16 guy Exp $
+ * $Id: netxray.c,v 1.21 2000/01/13 07:09:18 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -29,7 +29,7 @@
 #include <time.h>
 #include <string.h>
 #include "wtap.h"
-#include "file.h"
+#include "file_wrappers.h"
 #include "netxray.h"
 #include "buffer.h"
 

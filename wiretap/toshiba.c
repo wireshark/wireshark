@@ -1,6 +1,6 @@
 /* toshiba.c
  *
- * $Id: toshiba.c,v 1.6 2000/01/01 04:01:41 gram Exp $
+ * $Id: toshiba.c,v 1.7 2000/01/13 07:09:19 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -26,7 +26,7 @@
 #include "wtap.h"
 #include "buffer.h"
 #include "toshiba.h"
-#include "file.h"
+#include "file_wrappers.h"
 
 #include <stdio.h>
 #include <stdlib.h>

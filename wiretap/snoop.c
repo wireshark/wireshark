@@ -1,6 +1,6 @@
 /* snoop.c
  *
- * $Id: snoop.c,v 1.22 1999/12/04 11:19:04 guy Exp $
+ * $Id: snoop.c,v 1.23 2000/01/13 07:09:19 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -25,7 +25,7 @@
 #endif
 #include <errno.h>
 #include "wtap.h"
-#include "file.h"
+#include "file_wrappers.h"
 #include "buffer.h"
 #include "snoop.h"
 #ifdef HAVE_NETINET_IN_H
