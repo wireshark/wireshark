@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.332 2003/12/29 20:03:38 ulfl Exp $
+ * $Id: file.c,v 1.333 2004/01/02 21:01:40 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2257,6 +2257,15 @@ cf_save(char *fname, capture_file *cf, packet_range_t *range, guint save_format)
   struct stat   infile, outfile;
   range_process_e process_this;
 
+  progdlg_t    *progbar;
+  int           progbar_count;
+  float         progbar_val;
+  gboolean      progbar_stop_flag;
+  GTimeVal      progbar_start_time;
+  gchar         progbar_status_str[100];
+  int           progbar_nextstep;
+  int           progbar_quantum;
+
   name_ptr = get_basename(fname);
   msg_len = strlen(name_ptr) + strlen(save_fmt) + 2;
   save_msg = g_malloc(msg_len);
@@ -2346,6 +2355,18 @@ cf_save(char *fname, capture_file *cf, packet_range_t *range, guint save_format)
       goto fail;
     }
 
+    /* Update the progress bar when it gets to this value. */
+    progbar_nextstep = 0;
+    /* When we reach the value that triggers a progress bar update,
+     bump that value by this amount. */
+    progbar_quantum = cf->count/N_PROGBAR_UPDATES;
+    /* Count of packets at which we've looked. */
+    progbar_count = 0;
+
+    progbar = NULL;
+    progbar_stop_flag = FALSE;
+    g_get_current_time(&progbar_start_time);
+
     /* XXX - have a way to save only the packets currently selected by
        the display filter or the marked ones.
 
@@ -2353,39 +2374,71 @@ cf_save(char *fname, capture_file *cf, packet_range_t *range, guint save_format)
        it means we can no longer get at the other packets.  What does
        NetMon do? */
     for (fdata = cf->plist; fdata != NULL; fdata = fdata->next) {
-      /* XXX - do a progress bar */
-        process_this = packet_range_process(range, fdata);
+        /* Update the progress bar, but do it only N_PROGBAR_UPDATES times;
+           when we update it, we have to run the GTK+ main loop to get it
+           to repaint what's pending, and doing so may involve an "ioctl()"
+           to see if there's any pending input from an X server, and doing
+           that for every packet can be costly, especially on a big file. */
+        if (progbar_count >= progbar_nextstep) {
+          /* let's not divide by zero. I should never be started
+           * with count == 0, so let's assert that
+           */
+          g_assert(cf->count > 0);
+          progbar_val = (gfloat) progbar_count / cf->count;
 
+          if (progbar == NULL)
+            /* Create the progress bar if necessary */
+            progbar = delayed_create_progress_dlg("Saving", "selected packets", "Stop", 
+              &progbar_stop_flag, &progbar_start_time, progbar_val);
+
+          if (progbar != NULL) {
+            g_snprintf(progbar_status_str, sizeof(progbar_status_str),
+                       "%4u of %u packets", progbar_count, cf->count);
+            update_progress_dlg(progbar, progbar_val, progbar_status_str);
+          }
+
+          progbar_nextstep += progbar_quantum;
+        }
+        if (progbar_stop_flag) {
+          /* Well, the user decided to abort the saving. Just stop the loop. */
+          break;
+        }
+
+        progbar_count++;
+
+        /* do we have to process this packet? */
+        process_this = packet_range_process(range, fdata);
         if (process_this == range_process_next) {
+            /* this packet uninteresting, continue with next one */
             continue;
         } else if (process_this == range_processing_finished) {
+            /* all interesting packets saved, stop the loop */
             break;
-        } else {
+        }
 
-            /* init the wtap header for saving */
-            hdr.ts.tv_sec  = fdata->abs_secs;
-            hdr.ts.tv_usec = fdata->abs_usecs;
-            hdr.caplen     = fdata->cap_len;
-            hdr.len        = fdata->pkt_len;
-            hdr.pkt_encap  = fdata->lnk_t;
+        /* init the wtap header for saving */
+        hdr.ts.tv_sec  = fdata->abs_secs;
+        hdr.ts.tv_usec = fdata->abs_usecs;
+        hdr.caplen     = fdata->cap_len;
+        hdr.len        = fdata->pkt_len;
+        hdr.pkt_encap  = fdata->lnk_t;
 
-	        /* Get the packet */
-	        if (!wtap_seek_read(cf->wth, fdata->file_off, &pseudo_header,
-		        pd, fdata->cap_len, &err)) {
-	          simple_dialog(ESD_TYPE_CRIT, NULL,
-				        file_read_error_message(err), cf->filename);
-	          wtap_dump_close(pdh, &err);
-                  goto fail;
-	        } 
-	              
-	        /* and save the packet */
-            if (!wtap_dump(pdh, &hdr, &pseudo_header, pd, &err)) {
-	          simple_dialog(ESD_TYPE_CRIT, NULL,
-				        file_write_error_message(err), fname);
-	          wtap_dump_close(pdh, &err);
-                  goto fail;
-	        }
-          }
+        /* Get the packet */
+        if (!wtap_seek_read(cf->wth, fdata->file_off, &pseudo_header,
+	        pd, fdata->cap_len, &err)) {
+          simple_dialog(ESD_TYPE_CRIT, NULL,
+			        file_read_error_message(err), cf->filename);
+          wtap_dump_close(pdh, &err);
+              goto fail;
+        } 
+	          
+        /* and save the packet */
+        if (!wtap_dump(pdh, &hdr, &pseudo_header, pd, &err)) {
+          simple_dialog(ESD_TYPE_CRIT, NULL,
+			        file_write_error_message(err), fname);
+          wtap_dump_close(pdh, &err);
+              goto fail;
+        }
     } /* for */
 
     if (!wtap_dump_close(pdh, &err)) {
@@ -2394,6 +2447,11 @@ cf_save(char *fname, capture_file *cf, packet_range_t *range, guint save_format)
       goto fail;
     }
   } /* save_all */
+
+  /* We're done filtering the packets; destroy the progress bar if it
+     was created. */
+  if (progbar != NULL)
+    destroy_progress_dlg(progbar);
 
   /* Pop the "Saving:" message off the status bar. */
   statusbar_pop_file_msg();
@@ -2438,6 +2496,11 @@ cf_save(char *fname, capture_file *cf, packet_range_t *range, guint save_format)
   return TRUE;
 
 fail:
+  /* We're done filtering the packets; destroy the progress bar if it
+     was created. */
+  if (progbar != NULL)
+    destroy_progress_dlg(progbar);
+
   /* Pop the "Saving:" message off the status bar. */
   statusbar_pop_file_msg();
   return FALSE;
