@@ -4,7 +4,7 @@
  *
  * Maintained by Andreas Sikkema (andreas.sikkema@philips.com)
  *
- * $Id: packet-h225.c,v 1.18 2003/10/17 08:01:51 sahlberg Exp $
+ * $Id: packet-h225.c,v 1.19 2003/10/22 01:28:12 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -9134,7 +9134,7 @@ proto_register_h225(void)
 		{ "member", "h225.GroupID_member", FT_NONE, BASE_NONE,
 		NULL, 0, "GroupID_member sequence of", HFILL }},
 	{ &hf_h225_GroupID_group,
-		{ "group", "h225.GroupID_group", FT_BYTES, BASE_HEX,
+		{ "group", "h225.GroupID_group", FT_STRING, BASE_NONE,
 		NULL, 0, "GroupID_group IA5String", HFILL }},
 	{ &hf_h225_GroupID,
 		{ "GroupID", "h225.GroupID", FT_NONE, BASE_NONE,

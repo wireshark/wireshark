@@ -7,7 +7,7 @@ proper helper routines
  * Routines for dissection of ASN.1 Aligned PER
  * 2003  Ronnie Sahlberg
  *
- * $Id: packet-per.c,v 1.19 2003/10/09 22:35:07 guy Exp $
+ * $Id: packet-per.c,v 1.20 2003/10/22 01:28:12 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1355,13 +1355,13 @@ DEBUG_ENTRY("dissect_per_octet_string");
 	}
 
 
-	/* aligne to byte */
-	if(offset&0x07){
-		offset=(offset&0xfffffff8)+8;
-	}
-
 	/* 16.7 if length is fixed and less than to 64k*/
 	if((min_len==max_len)&&(min_len<65536)){
+		/* align to byte */
+		if(offset&0x07){
+			offset=(offset&0xfffffff8)+8;
+		}
+
 		if (hfi) {
 			if(hfi->type==FT_STRING){
 				proto_tree_add_string(tree, hf_index, tvb, offset>>3, min_len, tvb_get_ptr(tvb, offset>>3, min_len));
