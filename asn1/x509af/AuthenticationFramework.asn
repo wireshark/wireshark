@@ -246,12 +246,11 @@ AttributeCertificateAssertion ::= SEQUENCE {
 --  information object classes 
 --ALGORITHM ::= TYPE-IDENTIFIER
 
-
 --  object identifier assignments 
 --id-at-userPassword OBJECT IDENTIFIER ::=
 --  {id-at 35}
 
---id-at-userCertificate OBJECT IDENTIFIER ::= {id-at 36}
+id-at-userCertificate OBJECT IDENTIFIER ::= {id-at 36}
 
 --id-at-cAcertificate OBJECT IDENTIFIER ::= {id-at 37}
 
