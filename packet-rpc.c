@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * 
- * $Id: packet-rpc.c,v 1.38 2000/08/24 06:19:52 guy Exp $
+ * $Id: packet-rpc.c,v 1.39 2000/08/24 08:55:30 guy Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1288,9 +1288,13 @@ dissect_rpc( const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 			}
 		}
 		else {
-			/* prepare the value data */
+			/* Prepare the value data.
+			   "req_num" and "rep_num" are frame numbers;
+			   frame numbers are 1-origin, so we use 0
+			   to mean "we don't yet know in which frame
+			   the reply for this call appears". */
 			rpc_call_msg.req_num = fd->num;
-			rpc_call_msg.rep_num = 0xffffffff;
+			rpc_call_msg.rep_num = 0;
 			rpc_call_msg.prog = prog;
 			rpc_call_msg.vers = vers;
 			rpc_call_msg.proc = proc;
@@ -1323,7 +1327,7 @@ dissect_rpc( const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
 		/* Indicate the frame to which this is a reply. */
 		proto_tree_add_text(rpc_tree, NullTVB, 0, 0,
-		    "This is a reply to frame %u",
+		    "This is a reply to a request starting in frame %u",
 		    rpc_call->req_num);
 
 		if (rpc_call->proc_info != NULL) {
@@ -1380,7 +1384,7 @@ dissect_rpc( const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 				"Procedure: %s (%u)", procname, proc);
 		}
 
-		if (rpc_call->rep_num == 0xffffffff) {
+		if (rpc_call->rep_num == 0) {
 			/* We have not yet seen a reply to that call, so
 			   this must be the first reply; remember its
 			   frame number. */
