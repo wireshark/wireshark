@@ -25,7 +25,7 @@ http://developer.novell.com/ndk/doc/ncp/
 for a badly-formatted HTML version of the same PDF.
 
 
-$Id: ncp2222.py,v 1.56 2003/04/25 20:33:16 guy Exp $
+$Id: ncp2222.py,v 1.57 2003/05/02 21:26:47 guy Exp $
 
 
 Portions Copyright (c) 2000-2002 by Gilbert Ramirez <gram@alumni.rice.edu>.
@@ -12677,7 +12677,7 @@ def define_ncp2222():
 	# 2222/5722, 87/34
 	pkt = NCP(0x5722, "Open CallBack Control (Op-Lock)", 'file', has_length=0)
 	pkt.Request(13, [
-		rec( 10, 4, CCFileHandle ),
+		rec( 10, 4, CCFileHandle, BE ),
 		rec( 14, 1, CCFunction ),
 	])
 	pkt.Reply(8)
