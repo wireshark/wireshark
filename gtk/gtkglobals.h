@@ -1,7 +1,7 @@
 /* gtkglobals.h
  * GTK-related Global defines, etc.
  *
- * $Id: gtkglobals.h,v 1.4 1999/12/29 20:10:09 gram Exp $
+ * $Id: gtkglobals.h,v 1.5 1999/12/30 23:02:54 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -39,5 +39,7 @@ extern GtkStyle *item_style;
 void set_scrollbar_placement(int); /* 1=right, 0=left */
 void set_plist_sel_browse(gboolean);
 void set_ptree_sel_browse(gboolean);
+void set_ptree_line_style(gint style);
+void set_ptree_expander_style(gint style);
 
 #endif

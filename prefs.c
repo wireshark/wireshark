@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.27 1999/12/29 20:09:46 gram Exp $
+ * $Id: prefs.c,v 1.28 1999/12/30 23:02:38 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -65,6 +65,13 @@ static gchar *pf_path = NULL;
 
 e_prefs prefs;
 
+gchar	*gui_ptree_line_style_text[] =
+	{ "NONE", "SOLID", "DOTTED", "TABBED", NULL };
+
+gchar	*gui_ptree_expander_style_text[] =
+	{ "NONE", "SQUARE", "TRIANGLE", "CIRCULAR", NULL };
+
+
 /* Parse through a list of comma-separated, quoted strings.  Return a
    list of the string data */
 static GList *
@@ -122,6 +129,25 @@ clear_string_list(GList *sl) {
   }
 }
 
+/* Takes an string and a pointer to an array of strings, and a default int value.
+ * The array must be terminated by a NULL string. If the string is found in the array
+ * of strings, the index of that string in the array is returned. Otherwise, the
+ * default value that was passed as the third argument is returned.
+ */
+static int
+find_index_from_string_array(char *needle, char **haystack, int default_value)
+{
+	int i = 0;
+
+	while (haystack[i] != NULL) {
+		if (strcmp(needle, haystack[i]) == 0) {
+			return i;
+		}
+		i++;	
+	}
+	return default_value;
+}
+
 /* Preferences file format:
  * - Configuration directives start at the beginning of the line, and 
  *   are terminated with a colon.
@@ -137,8 +163,9 @@ print.file: /a/very/long/path/
  *
  */
 
-#define MAX_VAR_LEN    32
+#define MAX_VAR_LEN    48
 #define MAX_VAL_LEN  1024
+
 #define DEF_NUM_COLS    6
 e_prefs *
 read_prefs(char **pf_path_return) {
@@ -189,6 +216,8 @@ read_prefs(char **pf_path_return) {
     prefs.gui_scrollbar_on_right = TRUE;
     prefs.gui_plist_sel_browse = FALSE;
     prefs.gui_ptree_sel_browse = FALSE;
+    prefs.gui_ptree_line_style = 0;
+    prefs.gui_ptree_expander_style = 1;
   }
 
   if (! pf_path) {
@@ -305,6 +334,8 @@ read_prefs(char **pf_path_return) {
 #define PRS_GUI_SCROLLBAR_ON_RIGHT "gui.scrollbar_on_right"
 #define PRS_GUI_PLIST_SEL_BROWSE "gui.packet_list_sel_browse"
 #define PRS_GUI_PTREE_SEL_BROWSE "gui.protocol_tree_sel_browse"
+#define PRS_GUI_PTREE_LINE_STYLE "gui.protocol_tree_line_style"
+#define PRS_GUI_PTREE_EXPANDER_STYLE "gui.protocol_tree_expander_style"
 
 #define RED_COMPONENT(x)   ((((x) >> 16) & 0xff) * 65535 / 255)
 #define GREEN_COMPONENT(x) ((((x) >>  8) & 0xff) * 65535 / 255)
@@ -410,7 +441,12 @@ set_pref(gchar *pref, gchar *value) {
     else {
 	    prefs.gui_ptree_sel_browse = FALSE;
     }
-
+  } else if (strcmp(pref, PRS_GUI_PTREE_LINE_STYLE) == 0) {
+	  prefs.gui_ptree_line_style =
+		  find_index_from_string_array(value, gui_ptree_line_style_text, 0);
+  } else if (strcmp(pref, PRS_GUI_PTREE_EXPANDER_STYLE) == 0) {
+	  prefs.gui_ptree_expander_style =
+		  find_index_from_string_array(value, gui_ptree_expander_style_text, 1);
   } else {
     return 0;
   }
@@ -505,5 +541,14 @@ write_prefs(void) {
   fprintf(pf, "\n# Protocol-tree selection bar can be used to browse w/o selecting? TRUE/FALSE\n");
   fprintf(pf, PRS_GUI_PTREE_SEL_BROWSE ": %s\n",
 		  prefs.gui_ptree_sel_browse == TRUE ? "TRUE" : "FALSE");
+
+  fprintf(pf, "\n# Protocol-tree line style. One of: NONE, SOLID, DOTTED, TABBED\n");
+  fprintf(pf, PRS_GUI_PTREE_LINE_STYLE ": %s\n",
+		  gui_ptree_line_style_text[prefs.gui_ptree_line_style]);
+
+  fprintf(pf, "\n# Protocol-tree expander style. One of: NONE, SQUARE, TRIANGLE, CIRCULAR\n");
+  fprintf(pf, PRS_GUI_PTREE_EXPANDER_STYLE ": %s\n",
+		  gui_ptree_expander_style_text[prefs.gui_ptree_expander_style]);
+
   fclose(pf);
 }

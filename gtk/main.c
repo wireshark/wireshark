@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.78 1999/12/30 19:53:11 gram Exp $
+ * $Id: main.c,v 1.79 1999/12/30 23:02:56 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -815,6 +815,29 @@ set_ptree_sel_browse(gboolean val)
 }
 
 void
+set_ptree_line_style(gint style)
+{
+	/* I'm using an assert here since the preferences code limits
+	 * the user input, both in the GUI and when reading the preferences file.
+	 * If the value is incorrect, it's a program error, not a user-initiated error.
+	 */
+	g_assert(style >= GTK_CTREE_LINES_NONE && style <= GTK_CTREE_LINES_TABBED);
+	gtk_ctree_set_line_style( GTK_CTREE(tree_view), style );
+}
+
+void
+set_ptree_expander_style(gint style)
+{
+	/* I'm using an assert here since the preferences code limits
+	 * the user input, both in the GUI and when reading the preferences file.
+	 * If the value is incorrect, it's a program error, not a user-initiated error.
+	 */
+	g_assert(style >= GTK_CTREE_EXPANDER_NONE && style <= GTK_CTREE_EXPANDER_CIRCULAR);
+	gtk_ctree_set_expander_style( GTK_CTREE(tree_view), style );
+}
+	
+
+void
 file_quit_cmd_cb (GtkWidget *widget, gpointer data) {
   /* If we have a capture file open, and it's a temporary file,
      unlink it. */
@@ -1284,11 +1307,14 @@ main(int argc, char *argv[])
   gtk_widget_show(tv_scrollw);
   
   tree_view = gtk_ctree_new(1, 0);
+  /* I need this next line to make the widget work correctly with hidden
+   * column titles and GTK_SELECTION_BROWSE */
   gtk_clist_set_column_auto_resize( GTK_CLIST(tree_view), 0, TRUE );
-  gtk_container_add(GTK_CONTAINER(tv_scrollw), tree_view);
-  gtk_ctree_set_line_style(GTK_CTREE(tree_view), GTK_CTREE_LINES_NONE);
-  gtk_ctree_set_expander_style(GTK_CTREE(tree_view), GTK_CTREE_EXPANDER_SQUARE);
+  gtk_container_add( GTK_CONTAINER(tv_scrollw), tree_view );
   set_ptree_sel_browse(prefs->gui_ptree_sel_browse);
+  set_ptree_line_style(prefs->gui_ptree_line_style);
+  set_ptree_expander_style(prefs->gui_ptree_expander_style);
+
   gtk_signal_connect(GTK_OBJECT(tree_view), "tree-select-row",
     GTK_SIGNAL_FUNC(tree_view_select_row_cb), NULL);
   gtk_signal_connect(GTK_OBJECT(tree_view), "tree-unselect-row",
