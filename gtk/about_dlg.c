@@ -1,6 +1,6 @@
 /* about_dlg.c
  *
- * $Id: about_dlg.c,v 1.15 2004/06/22 16:28:27 ulfl Exp $
+ * $Id: about_dlg.c,v 1.16 2004/06/22 21:51:55 guy Exp $
  *
  * Ulf Lamping <ulf.lamping@web.de>
  *
@@ -288,7 +288,7 @@ about_ethereal_destroy_cb(GtkWidget *win _U_, gpointer user_data _U_)
 
 
 void
-url_onlinepage_cb( GtkWidget *widget, gpointer data, onlinepage_action_e action)
+url_onlinepage_cb( GtkWidget *widget _U_, gpointer data _U_, onlinepage_action_e action)
 {
     switch(action) {
     case(ONLINEPAGE_HOME):
@@ -342,7 +342,7 @@ browser_open_program_file(gchar *filename)
 }
 
 void
-url_localpage_cb( GtkWidget *w _U_, gpointer data, localpage_action_e action)
+url_localpage_cb( GtkWidget *w _U_, gpointer data _U_, localpage_action_e action)
 {
     switch(action) {
     case(LOCALPAGE_MAN_ETHEREAL):
