@@ -3706,14 +3706,14 @@ static void rd_value_to_str(gchar *dest, rd_vsa_buffer (*vsabuffer)[VSABUFFER],
 
         case( RADIUS_STRING_TAGGED ):
 		/* Tagged ? */
-                if (avph->avp_length > 2) {
-			tag = tvb_get_guint8(tvb,offset+2);
-			if (tag > 0 && tag <= 0x1f) {
-				sprintf(dest, "Tag:%u, Value:", tag);
-				cont=&cont[strlen(cont)];
-				rdconvertbufftostr(cont,tvb,offset+3,avph->avp_length-3);
-				break;
-			}
+                if (!avp_length_check(cont, avph, 1))
+                  return;
+		tag = tvb_get_guint8(tvb,offset+2);
+		if (tag > 0 && tag <= 0x1f) {
+			sprintf(dest, "Tag:%u, Value:", tag);
+			cont=&cont[strlen(cont)];
+			rdconvertbufftostr(cont,tvb,offset+3,avph->avp_length-3);
+			break;
 		}
 		rdconvertbufftostr(cont,tvb,offset+2,avph->avp_length-2);
                 break;
