@@ -3,7 +3,7 @@
  *
  * See RFC 1777 (LDAP v2), RFC 2251 (LDAP v3), and RFC 2222 (SASL).
  *
- * $Id: packet-ldap.c,v 1.72 2004/01/19 10:54:06 sahlberg Exp $
+ * $Id: packet-ldap.c,v 1.73 2004/01/19 22:58:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2386,7 +2386,8 @@ dissect_ldap_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean i
        * check if it looks like it could be a SASL blob here
        * and in that case just assume it is GSS-SPNEGO
        */
-      if( ((tvb_get_ntohl(tvb, offset)+4)<=tvb_reported_length_remaining(tvb, offset))
+      if( (tvb_bytes_exist(tvb, offset, 5))
+        &&(tvb_get_ntohl(tvb, offset)<=(guint)(tvb_reported_length_remaining(tvb, offset)-4))
         &&(tvb_get_guint8(tvb, offset+4)==0x60) ){
          ldap_info->auth_type=LDAP_AUTH_SASL;
          ldap_info->first_auth_frame=pinfo->fd->num;
