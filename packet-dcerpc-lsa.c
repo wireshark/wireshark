@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *  2002  Added LSA command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-lsa.c,v 1.36 2002/04/30 10:02:11 sahlberg Exp $
+ * $Id: packet-dcerpc-lsa.c,v 1.37 2002/04/30 10:14:34 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3156,6 +3156,72 @@ lsa_dissect_lsasetdomaininformationpolicy_reply(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
+static int
+lsa_dissect_lsalookupnames2_rqst(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	/* [in] LSA_HANDLE hnd */
+	offset = lsa_dissect_LSA_HANDLE(tvb, offset,
+		pinfo, tree, drep);
+
+	/* [in] ULONG count */
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_lsa_count, NULL);
+
+	/* [in, size_is(count), ref] LSA_UNICODE_STRING *names */
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		lsa_dissect_LSA_UNICODE_STRING_array, NDR_POINTER_REF,
+		"Account pointer: names", hf_lsa_acct, 0);
+
+	/* [in, out, ref] LSA_TRANSLATED_SIDS *rids */
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		lsa_dissect_LSA_TRANSLATED_SIDS, NDR_POINTER_REF,
+		"LSA_TRANSLATED_SIDS pointer: rids", -1, 0);
+
+	/* [in] USHORT level */
+	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep,
+		hf_lsa_info_level, NULL);
+
+	/* [in, out, ref] ULONG *num_mapped */
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_lsa_num_mapped, NULL);
+
+	/* unknown */
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_lsa_unknown_long, NULL);
+
+	/* unknown */
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_lsa_unknown_long, NULL);
+
+	return offset;
+}
+
+
+static int
+lsa_dissect_lsalookupnames2_reply(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	/* [out] LSA_REFERENCED_DOMAIN_LIST *domains */
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		lsa_dissect_LSA_REFERENCED_DOMAIN_LIST, NDR_POINTER_UNIQUE,
+		"LSA_REFERENCED_DOMAIN_LIST pointer: domains", -1, 0);
+
+	/* [in, out, ref] LSA_TRANSLATED_SIDS *rids */
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		lsa_dissect_LSA_TRANSLATED_SIDS, NDR_POINTER_REF,
+		"LSA_TRANSLATED_SIDS pointer: rids", -1, 0);
+
+	/* [in, out, ref] ULONG *num_mapped */
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_lsa_num_mapped, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_lsa_rc, NULL);
+
+	return offset;
+}
+
 
 
 static dcerpc_sub_dissector dcerpc_lsa_dissectors[] = {
@@ -3364,11 +3430,8 @@ static dcerpc_sub_dissector dcerpc_lsa_dissectors[] = {
 		lsa_dissect_lsalookupsids2_reply },
 #endif
 	{ LSA_LSALOOKUPNAMES2, "LSALOOKUPNAMES2",
-		NULL, NULL },
-#ifdef REMOVED
 		lsa_dissect_lsalookupnames2_rqst,
 		lsa_dissect_lsalookupnames2_reply },
-#endif
 	{ LSA_LSAFUNCTION_3B, "LSAFUNCTION_3B",
 		NULL, NULL },
 #ifdef REMOVED
