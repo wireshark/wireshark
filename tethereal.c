@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.168 2002/11/01 01:11:59 sahlberg Exp $
+ * $Id: tethereal.c,v 1.169 2002/11/09 00:08:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -138,10 +138,14 @@ static loop_data ld;
 static int capture(int);
 static void capture_pcap_cb(guchar *, const struct pcap_pkthdr *,
   const guchar *);
+static void report_counts(void);
 #ifdef _WIN32
 static BOOL WINAPI capture_cleanup(DWORD);
 #else /* _WIN32 */
 static void capture_cleanup(int);
+#ifdef SIGINFO
+static void report_counts_siginfo(int);
+#endif /* SIGINFO */
 #endif /* _WIN32 */
 #endif /* HAVE_LIBPCAP */
 
@@ -190,7 +194,12 @@ static capture_options capture_opts = {
 	RINGBUFFER_MIN_NUM_FILES	/* default number of ring buffer
 					   files */
 };
-#endif
+
+#ifdef SIGINFO
+static gboolean infodelay;	/* if TRUE, don't print capture info in SIGINFO handler */
+static gboolean infoprint;	/* if TRUE, print capture info after clearing infodelay */
+#endif /* SIGINFO */
+#endif /* HAVE_LIBPCAP */
 
 static void
 print_usage(gboolean print_ver)
@@ -1103,6 +1112,12 @@ capture(int out_file_type)
   signal(SIGINT, capture_cleanup);
   if ((oldhandler = signal(SIGHUP, capture_cleanup)) != SIG_DFL)
     signal(SIGHUP, oldhandler);
+
+#ifdef SIGINFO
+  /* Catch SIGINFO and, if we get it and we're capturing to a file in
+     quiet mode, report the number of packets we've captured. */
+  signal(SIGINFO, report_counts_siginfo);
+#endif /* SIGINFO */
 #endif /* _WIN32 */
 
   /* Let the user know what interface was chosen. */
@@ -1279,9 +1294,7 @@ capture(int out_file_type)
   }
   /* Report the number of captured packets if not reported during capture
      and we are saving to a file. */
-  if (quiet && (cfile.save_file != NULL)) {
-    fprintf(stderr, "%u packets captured\n", ld.packet_count);
-  }
+  report_counts();
 
   pcap_close(ld.pch);
 
@@ -1381,6 +1394,41 @@ capture_cleanup(int signum _U_)
   longjmp(ld.stopenv, 1);
 }
 #endif /* _WIN32 */
+
+static void
+report_counts(void)
+{
+#ifdef SIGINFO
+  /* XXX - if we use sigaction, this doesn't have to be done.
+     (Yes, this isn't necessary on BSD, but just in case a system
+     where "signal()" has AT&T semantics adopts SIGINFO....) */
+  signal(SIGINFO, report_counts_siginfo);
+#endif /* SIGINFO */
+
+  if (cfile.save_file != NULL && quiet) {
+    /* Report the count only if we're capturing to a file (rather
+       than printing captured packet information out) and aren't
+       updating a count as packets arrive. */
+    fprintf(stderr, "%u packets captured\n", ld.packet_count);
+  }
+#ifdef SIGINFO
+  infoprint = FALSE;	/* we just reported it */
+#endif /* SIGINFO */
+}
+
+#ifdef SIGINFO
+static void
+report_counts_siginfo(int signum _U_)
+{
+  /* If we've been told to delay printing, just set a flag asking
+     that we print counts (if we're supposed to), otherwise print
+     the count of packets captured (if we're supposed to). */
+  if (infodelay)
+    infoprint = TRUE;
+  else
+    report_counts();
+}
+#endif /* SIGINFO */
 #endif /* HAVE_LIBPCAP */
 
 static int
@@ -1577,6 +1625,15 @@ wtap_dispatch_cb_write(guchar *user, const struct wtap_pkthdr *phdr,
   gboolean      passed;
   epan_dissect_t *edt;
 
+#ifdef SIGINFO
+  /*
+   * Prevent a SIGINFO handler from writing to stdout while we're
+   * doing so; instead, have it just set a flag telling us to print
+   * that information when we're done.
+   */
+  infodelay = TRUE;
+#endif /* SIGINFO */
+
   cf->count++;
   if (cf->rfcode) {
     fill_in_fdata(&fdata, cf, phdr, offset);
@@ -1614,6 +1671,19 @@ wtap_dispatch_cb_write(guchar *user, const struct wtap_pkthdr *phdr,
     epan_dissect_free(edt);
   if (cf->rfcode)
     clear_fdata(&fdata);
+
+#ifdef SIGINFO
+  /*
+   * Allow SIGINFO handlers to write.
+   */
+  infodelay = FALSE;
+
+  /*
+   * If a SIGINFO handler asked us to write out capture counts, do so.
+   */
+  if (infoprint)
+    report_counts();
+#endif /* SIGINFO */
 }
 
 static void

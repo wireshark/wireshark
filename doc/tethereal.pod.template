@@ -251,7 +251,9 @@ machine.
 
 Don't display the continuous count of packets captured that is normally
 shown when saving a capture to a file; instead, just display, at the end
-of the capture, a count of packets captured.
+of the capture, a count of packets captured.  On systems that support
+the SIGINFO signal, such as various BSDs, typing your "status" character
+(typically control-T) will cause the current count to be displayed.
 
 =item -r
 
