@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.677 2003/12/22 00:57:33 guy Exp $
+# $Id: Makefile.am,v 1.678 2003/12/23 02:29:11 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -840,11 +840,11 @@ ETHEREAL_COMMON_SRC = \
 	reassemble.c   \
 	reassemble.h   \
 	register.h     \
+	req_resp_hdrs.c \
+	req_resp_hdrs.h \
 	ringbuffer.c   \
 	ringbuffer.h   \
 	rpc_defrag.h   \
-	rreh.c         \
-	rreh.h         \
 	rtp_pt.h       \
 	sctpppids.h    \
 	smb.h          \

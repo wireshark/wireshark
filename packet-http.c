@@ -6,7 +6,7 @@
  * Copyright 2002, Tim Potter <tpot@samba.org>
  * Copyright 1999, Andrew Tridgell <tridge@samba.org>
  *
- * $Id: packet-http.c,v 1.80 2003/12/23 02:02:09 guy Exp $
+ * $Id: packet-http.c,v 1.81 2003/12/23 02:29:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -39,7 +39,7 @@
 #include <epan/strutil.h>
 
 #include "util.h"
-#include "rreh.h"
+#include "req_resp_hdrs.h"
 #include "packet-http.h"
 #include "prefs.h"
 
@@ -110,19 +110,19 @@ typedef enum {
 typedef void (*RequestDissector)(tvbuff_t*, proto_tree*, int);
 
 /*
- * Structure holding information from entity headers needed by main
+ * Structure holding information from headers needed by main
  * HTTP dissector code.
  */
 typedef struct {
 	char	*content_type;
 	long	content_length;	/* XXX - make it 64-bit? */
-} entity_headers_t;
+} headers_t;
 
 static int is_http_request_or_reply(const guchar *data, int linelen, http_type_t *type,
 		RequestDissector *req_dissector, int *req_strlen);
-static void process_entity_header(tvbuff_t *tvb, int offset, int next_offset,
-    const guchar *line, int linelen, int colon_offset,
-    packet_info *pinfo, proto_tree *tree, entity_headers_t *eh_ptr);
+static void process_header(tvbuff_t *tvb, int offset, int next_offset,
+    const guchar *line, int linelen, int colon_offset, packet_info *pinfo,
+    proto_tree *tree, headers_t *eh_ptr);
 static gint find_header_hf_value(tvbuff_t *tvb, int offset, guint header_len);
 static gboolean check_auth_ntlmssp(proto_item *hdr_item, tvbuff_t *tvb,
     packet_info *pinfo, gchar *value);
@@ -168,11 +168,11 @@ dissect_http_ntlmssp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 static void
-cleanup_entity_headers(void *arg)
+cleanup_headers(void *arg)
 {
-	entity_headers_t *entity_headers = arg;
+	headers_t *headers = arg;
 
-	g_free(entity_headers->content_type);
+	g_free(headers->content_type);
 }
 
 /*
@@ -205,7 +205,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	int		req_strlen;
 	proto_tree	*req_tree;
 	int		colon_offset;
-	entity_headers_t entity_headers;
+	headers_t	headers;
 	int		datalen;
 	int		reported_datalen;
 	dissector_handle_t handle;
@@ -231,8 +231,8 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		 * and do body desegmentation if we've been told to and
 		 * we find a Content-Length header.
 		 */
-		if (!rreh_do_reassembly(tvb, pinfo, http_desegment_headers,
-		    http_desegment_body)) {
+		if (!req_resp_hdrs_do_reassembly(tvb, pinfo,
+		    http_desegment_headers, http_desegment_body)) {
 			/*
 			 * More data needed for desegmentation.
 			 */
@@ -289,9 +289,9 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	 * Process the packet data, a line at a time.
 	 */
 	http_type = HTTP_OTHERS;	/* type not known yet */
-	entity_headers.content_type = NULL;	/* content type not known yet */
-	entity_headers.content_length = -1;	/* content length not known yet */
-	CLEANUP_PUSH(cleanup_entity_headers, &entity_headers);
+	headers.content_type = NULL;	/* content type not known yet */
+	headers.content_length = -1;	/* content length not known yet */
+	CLEANUP_PUSH(cleanup_headers, &headers);
 	while (tvb_offset_exists(tvb, offset)) {
 		/*
 		 * Find the end of the line.
@@ -323,7 +323,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			goto is_http;
 
 		/*
-		 * No.  Does it look like a MIME header?
+		 * No.  Does it look like a header?
 		 */
 		linep = line;
 		colon_offset = offset;
@@ -340,9 +340,12 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			/*
 			 * This mustn't be a CTL to be part of a token;
 			 * that means it must be printable.
+			 *
+			 * XXX - what about leading LWS on continuation
+			 * lines of a header?
 			 */
 			if (!isprint(c))
-				break;	/* not printable, not a MIME header */
+				break;	/* not printable, not a header */
 
 			/*
 			 * This mustn't be a SEP to be part of a token;
@@ -371,7 +374,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				/*
 				 * It's a separator, so it's not part of a
 				 * token, so it's not a field name for the
-				 * beginning of a MIME header.
+				 * beginning of a header.
 				 *
 				 * (We don't have to check for HT; that's
 				 * already been ruled out by "isprint()".)
@@ -381,7 +384,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			case ':':
 				/*
 				 * This ends the token; we consider this
-				 * to be a MIME header.
+				 * to be a header.
 				 */
 				goto is_http;
 
@@ -419,11 +422,10 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			}
 		} else if (linelen != 0) {
 			/*
-			 * Entity header.
+			 * Header.
 			 */
-			process_entity_header(tvb, offset, next_offset,
-			    line, linelen, colon_offset, pinfo, http_tree,
-			    &entity_headers);
+			process_header(tvb, offset, next_offset, line, linelen,
+			    colon_offset, pinfo, http_tree, &headers);
 		} else {
 			/*
 			 * Blank line.
@@ -477,9 +479,9 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	 * with empty segments.
 	 */
 	datalen = tvb_length_remaining(tvb, offset);
-	if (entity_headers.content_length != -1) {
-		if (datalen > entity_headers.content_length)
-			datalen = entity_headers.content_length;
+	if (headers.content_length != -1) {
+		if (datalen > headers.content_length)
+			datalen = headers.content_length;
 
 		/*
 		 * XXX - limit the reported length in the tvbuff we'll
@@ -496,8 +498,8 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		 * length).
 		 */
 		reported_datalen = tvb_reported_length_remaining(tvb, offset);
-		if (reported_datalen > entity_headers.content_length)
-			reported_datalen = entity_headers.content_length;
+		if (reported_datalen > headers.content_length)
+			reported_datalen = headers.content_length;
 	} else
 		reported_datalen = -1;
 
@@ -532,7 +534,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		 */
 		handle = dissector_get_port_handle(port_subdissector_table,
 		    pinfo->match_port);
-		if (handle == NULL && entity_headers.content_type != NULL) {
+		if (handle == NULL && headers.content_type != NULL) {
 			/*
 			 * We didn't find any subdissector that
 			 * registered for the port, and we have a
@@ -541,7 +543,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			 */
 			handle = dissector_get_string_handle(
 			    media_type_subdissector_table,
-			    entity_headers.content_type);
+			    headers.content_type);
 		}
 		if (handle != NULL) {
 			/*
@@ -579,8 +581,8 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	}
 
 	/*
-	 * Clean up any entity header stuff, by calling and popping
-	 * the cleanup handler.
+	 * Clean up any header stuff, by calling and popping the cleanup
+	 * handler.
 	 */
 	CLEANUP_CALL_AND_POP;
 
@@ -770,33 +772,33 @@ is_http_request_or_reply(const guchar *data, int linelen, http_type_t *type,
 }
 
 /*
- * Process entity-headers.
+ * Process headers.
  */
 typedef struct {
 	char	*name;
 	gint	*hf;
 	int	special;
-} entity_header_info;
+} header_info;
 
-#define EH_NO_SPECIAL		0
-#define EH_AUTHORIZATION	1
-#define EH_AUTHENTICATE		2
-#define EH_CONTENT_TYPE		3
-#define EH_CONTENT_LENGTH	4
+#define HDR_NO_SPECIAL		0
+#define HDR_AUTHORIZATION	1
+#define HDR_AUTHENTICATE	2
+#define HDR_CONTENT_TYPE	3
+#define HDR_CONTENT_LENGTH	4
 
-static const entity_header_info headers[] = {
-	{ "Authorization", &hf_http_authorization, EH_AUTHORIZATION },
-	{ "Proxy-Authorization", &hf_http_proxy_authorization, EH_AUTHORIZATION },
-	{ "Proxy-Authenticate", &hf_http_proxy_authenticate, EH_AUTHENTICATE },
-	{ "WWW-Authenticate", &hf_http_www_authenticate, EH_AUTHENTICATE },
-	{ "Content-Type", &hf_http_content_type, EH_CONTENT_TYPE },
-	{ "Content-Length", &hf_http_content_length, EH_CONTENT_LENGTH },
+static const header_info headers[] = {
+	{ "Authorization", &hf_http_authorization, HDR_AUTHORIZATION },
+	{ "Proxy-Authorization", &hf_http_proxy_authorization, HDR_AUTHORIZATION },
+	{ "Proxy-Authenticate", &hf_http_proxy_authenticate, HDR_AUTHENTICATE },
+	{ "WWW-Authenticate", &hf_http_www_authenticate, HDR_AUTHENTICATE },
+	{ "Content-Type", &hf_http_content_type, HDR_CONTENT_TYPE },
+	{ "Content-Length", &hf_http_content_length, HDR_CONTENT_LENGTH },
 };
 
 static void
-process_entity_header(tvbuff_t *tvb, int offset, int next_offset,
+process_header(tvbuff_t *tvb, int offset, int next_offset,
     const guchar *line, int linelen, int colon_offset,
-    packet_info *pinfo, proto_tree *tree, entity_headers_t *eh_ptr)
+    packet_info *pinfo, proto_tree *tree, headers_t *eh_ptr)
 {
 	int len;
 	int line_end_offset;
@@ -860,17 +862,17 @@ process_entity_header(tvbuff_t *tvb, int offset, int next_offset,
 		 */
 		switch (headers[hf_index].special) {
 
-		case EH_AUTHORIZATION:
+		case HDR_AUTHORIZATION:
 			if (check_auth_ntlmssp(hdr_item, tvb, pinfo, value))
 				break;	/* dissected NTLMSSP */
 			check_auth_basic(hdr_item, tvb, value);
 			break;
 
-		case EH_AUTHENTICATE:
+		case HDR_AUTHENTICATE:
 			check_auth_ntlmssp(hdr_item, tvb, pinfo, value);
 			break;
 
-		case EH_CONTENT_TYPE:
+		case HDR_CONTENT_TYPE:
 			if (eh_ptr->content_type != NULL)
 				g_free(eh_ptr->content_type);
 			eh_ptr->content_type = g_malloc(value_len + 1);
@@ -895,7 +897,7 @@ process_entity_header(tvbuff_t *tvb, int offset, int next_offset,
 			eh_ptr->content_type[i] = '\0';
 			break;
 
-		case EH_CONTENT_LENGTH:
+		case HDR_CONTENT_LENGTH:
 			eh_ptr->content_length = strtol(value, &p, 10);
 			up = p;
 			if (eh_ptr->content_length < 0 || p == value ||
@@ -912,7 +914,7 @@ process_entity_header(tvbuff_t *tvb, int offset, int next_offset,
 	}
 }
 
-/* Returns index of entity-header tag in headers */
+/* Returns index of header tag in headers */
 static gint
 find_header_hf_value(tvbuff_t *tvb, int offset, guint header_len)
 {

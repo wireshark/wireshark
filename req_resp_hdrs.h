@@ -1,8 +1,8 @@
-/* rreh.h
+/* req_resp_hdrs.h
  * Declarations of routines handling protocols with a request/response line,
- * entity headers, a blank line, and an optional body.
+ * headers, a blank line, and an optional body.
  *
- * $Id: rreh.h,v 1.1 2003/12/22 00:57:34 guy Exp $
+ * $Id: req_resp_hdrs.h,v 1.1 2003/12/23 02:29:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -23,15 +23,14 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef __RREH_H__
-#define __RREH_H__
+#ifndef __REQ_RESP_HDRS_H__
+#define __REQ_RESP_HDRS_H__
 
 /*
- * Optionally do reassembly of the request/response line, entity headers,
- * and body.
+ * Optionally do reassembly of the request/response line, headers, and body.
  */
 extern gboolean
-rreh_do_reassembly(tvbuff_t *tvb, packet_info *pinfo,
+req_resp_hdrs_do_reassembly(tvbuff_t *tvb, packet_info *pinfo,
     gboolean desegment_headers, gboolean desegment_body);
 
 #endif

@@ -1,8 +1,8 @@
-/* rreh.c
- * Routines handling protocols with a request/response line, entity headers,
+/* req_resp_hdrs.c
+ * Routines handling protocols with a request/response line, headers,
  * a blank line, and an optional body.
  *
- * $Id: rreh.c,v 1.1 2003/12/22 00:57:34 guy Exp $
+ * $Id: req_resp_hdrs.c,v 1.1 2003/12/23 02:29:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -31,14 +31,13 @@
 #include <epan/packet.h>
 #include <epan/strutil.h>
 
-#include "rreh.h"
+#include "req_resp_hdrs.h"
 
 /*
- * Optionally do reassembly of the request/response line, entity headers,
- * and body.
+ * Optionally do reassembly of the request/response line, headers, and body.
  */
 gboolean
-rreh_do_reassembly(tvbuff_t *tvb, packet_info *pinfo,
+req_resp_hdrs_do_reassembly(tvbuff_t *tvb, packet_info *pinfo,
     gboolean desegment_headers, gboolean desegment_body)
 {
 	gint		offset = 0;

@@ -4,7 +4,7 @@
  * Jason Lango <jal@netapp.com>
  * Liberally copied from packet-http.c, by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-rtsp.c,v 1.56 2003/12/23 01:25:23 guy Exp $
+ * $Id: packet-rtsp.c,v 1.57 2003/12/23 02:29:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -35,7 +35,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
-#include "rreh.h"
+#include "req_resp_hdrs.h"
 #include "packet-rtp.h"
 #include "packet-rtcp.h"
 #include <epan/conversation.h>
@@ -507,8 +507,8 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		 * and do body desegmentation if we've been told to and
 		 * we find a Content-Length header.
 		 */
-		if (!rreh_do_reassembly(tvb, pinfo, rtsp_desegment_headers,
-		    rtsp_desegment_body)) {
+		if (!req_resp_hdrs_do_reassembly(tvb, pinfo,
+		    rtsp_desegment_headers, rtsp_desegment_body)) {
 			/*
 			 * More data needed for desegmentation.
 			 */
@@ -688,7 +688,7 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				 * is SDP, dissect the payload as SDP.
 				 *
 				 * XXX - we should just do the same
-				 * sort of entity header processing
+				 * sort of header processing
 				 * that HTTP does, and use the
 				 * "media_type" dissector table on
 				 * the content type.
