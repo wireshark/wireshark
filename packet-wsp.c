@@ -1,9 +1,10 @@
 /* packet-wsp.c (c) 2000 Neil Hunter
  * Based on original work by Ben Fowler
+ * Updated by Alexandre P. Ferreira (Splice IP)
  *
  * Routines to dissect WSP component of WAP traffic.
  * 
- * $Id: packet-wsp.c,v 1.15 2001/01/30 05:54:18 guy Exp $
+ * $Id: packet-wsp.c,v 1.16 2001/02/01 19:59:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -80,6 +81,7 @@ static int hf_wsp_post_data						= HF_EMPTY;
 static int hf_wsp_header_accept					= HF_EMPTY;
 static int hf_wsp_header_accept_str				= HF_EMPTY;
 static int hf_wsp_header_accept_charset			= HF_EMPTY;
+static int hf_wsp_header_accept_charset_str			= HF_EMPTY;
 static int hf_wsp_header_accept_language		= HF_EMPTY;
 static int hf_wsp_header_accept_language_str		= HF_EMPTY;
 static int hf_wsp_header_accept_ranges			= HF_EMPTY;
@@ -315,20 +317,241 @@ static const value_string vals_content_types[] = {
 };
 
 static const value_string vals_character_sets[] = {
-	{ 0x0003, "us-ascii" },
-	{ 0x0004, "iso-8859-1" },
-	{ 0x0005, "iso-8859-2" },
-	{ 0x0006, "iso-8859-3" },
-	{ 0x0007, "iso-8859-4" },
-	{ 0x0008, "iso-8859-5" },
-	{ 0x0009, "iso-8859-6" },
-	{ 0x000A, "iso-8859-7" },
-	{ 0x000B, "iso-8859-8" },
-	{ 0x000C, "iso-8859-9" },
-	{ 0x0011, "shift_JIS" },
-	{ 0x006A, "utf-8" },
-	{ 0x03E8, "iso-10646-ucs-2" },
-	{ 0x07EA, "big5" },
+	{ 0 ,"hz-gb-2312" },
+	{ 3 ,"us-ascii" },
+	{ 4 ,"iso-8859-1" },
+	{ 5 ,"iso-8859-2" },
+	{ 6 ,"iso-8859-3" },
+	{ 7 ,"iso-8859-4" },
+	{ 8 ,"iso-8859-5" },
+	{ 9 ,"iso-8859-6" },
+	{ 10 ,"iso-8859-7" },
+	{ 11 ,"iso-8859-8" },
+	{ 12 ,"iso-8859-9" },
+	{ 13 ,"iso-8859-10" },
+	{ 14 ,"iso_6937-2-add" },
+	{ 15 ,"jis_x0201" },
+	{ 16 ,"jis_encoding" },
+	{ 17 ,"shift_jis" },
+	{ 18 ,"euc-jp" },
+	{ 19 ,"extended_unix_code_fixed_width_for_japanese" },
+	{ 20 ,"bs_4730" },
+	{ 21 ,"sen_850200_c" },
+	{ 22 ,"it" },
+	{ 23 ,"es" },
+	{ 24 ,"din_66003" },
+	{ 25 ,"ns_4551-1" },
+	{ 26 ,"nf_z_62-010" },
+	{ 27 ,"iso-10646-utf-1" },
+	{ 28 ,"iso_646.basic:1983" },
+	{ 29 ,"invariant" },
+	{ 30 ,"iso_646.irv:1983" },
+	{ 31 ,"nats-sefi" },
+	{ 32 ,"nats-sefi-add" },
+	{ 33 ,"nats-dano" },
+	{ 34 ,"nats-dano-add" },
+	{ 35 ,"sen_850200_b" },
+	{ 36 ,"ks_c_5601-1987" },
+	{ 37 ,"iso-2022-kr" },
+	{ 38 ,"euc-kr" },
+	{ 39 ,"iso-2022-jp" },
+	{ 40 ,"iso-2022-jp-2" },
+	{ 41 ,"jis_c6220-1969-jp" },
+	{ 42 ,"jis_c6220-1969-ro" },
+	{ 43 ,"pt" },
+	{ 44 ,"greek7-old" },
+	{ 45 ,"latin-greek" },
+	{ 46 ,"nf_z_62-010_(1973)" },
+	{ 47 ,"latin-greek-1" },
+	{ 48 ,"iso_5427" },
+	{ 49 ,"jis_c6226-1978" },
+	{ 50 ,"bs_viewdata" },
+	{ 51 ,"inis" },
+	{ 52 ,"inis-8" },
+	{ 53 ,"inis-cyrillic" },
+	{ 54 ,"iso_5427:1981" },
+	{ 55 ,"iso_5428:1980" },
+	{ 56 ,"gb_1988-80" },
+	{ 57 ,"gb_2312-80" },
+	{ 58 ,"ns_4551-2" },
+	{ 59 ,"videotex-suppl" },
+	{ 60 ,"pt2" },
+	{ 61 ,"es2" },
+	{ 62 ,"msz_7795.3" },
+	{ 63 ,"jis_c6226-1983" },
+	{ 64 ,"greek7" },
+	{ 65 ,"asmo_449" },
+	{ 66 ,"iso-ir-90" },
+	{ 67 ,"jis_c6229-1984-a" },
+	{ 68 ,"jis_c6229-1984-b" },
+	{ 69 ,"jis_c6229-1984-b-add" },
+	{ 70 ,"jis_c6229-1984-hand" },
+	{ 71 ,"jis_c6229-1984-hand-add" },
+	{ 72 ,"jis_c6229-1984-kana" },
+	{ 73 ,"iso_2033-1983" },
+	{ 74 ,"ansi_x3.110-1983" },
+	{ 75 ,"t.61-7bit" },
+	{ 76 ,"t.61-8bit" },
+	{ 77 ,"ecma-cyrillic" },
+	{ 78 ,"csa_z243.4-1985-1" },
+	{ 79 ,"csa_z243.4-1985-2" },
+	{ 80 ,"csa_z243.4-1985-gr" },
+	{ 81 ,"iso_8859-6-e" },
+	{ 82 ,"iso_8859-6-i" },
+	{ 83 ,"t.101-g2" },
+	{ 84 ,"iso_8859-8-e" },
+	{ 85 ,"iso_8859-8-i" },
+	{ 86 ,"csn_369103" },
+	{ 87 ,"jus_i.b1.002" },
+	{ 88 ,"iec_p27-1" },
+	{ 89 ,"jus_i.b1.003-serb" },
+	{ 90 ,"jus_i.b1.003-mac" },
+	{ 91 ,"greek-ccitt" },
+	{ 92 ,"nc_nc00-10:81" },
+	{ 93 ,"iso_6937-2-25" },
+	{ 94 ,"gost_19768-74" },
+	{ 95 ,"iso_8859-supp" },
+	{ 96 ,"iso_10367-box" },
+	{ 97 ,"latin-lap" },
+	{ 98 ,"jis_x0212-1990" },
+	{ 99 ,"ds_2089" },
+	{ 100 ,"us-dk" },
+	{ 101 ,"dk-us" },
+	{ 102 ,"ksc5636" },
+	{ 103 ,"unicode-1-1-utf-7" },
+	{ 104 ,"iso-2022-cn" },
+	{ 105 ,"iso-2022-cn-ext" },
+	{ 106 ,"utf-8" },
+	{ 109 ,"iso-8859-13" },
+	{ 110 ,"iso-8859-14" },
+	{ 111 ,"iso-8859-15" },
+	{ 1000 ,"iso-10646-ucs-2" },
+	{ 1001 ,"iso-10646-ucs-4" },
+	{ 1002 ,"iso-10646-ucs-basic" },
+	{ 1003 ,"iso-10646-j-1" },
+	{ 1003 ,"iso-10646-unicode-latin1" },
+	{ 1005 ,"iso-unicode-ibm-1261" },
+	{ 1006 ,"iso-unicode-ibm-1268" },
+	{ 1007 ,"iso-unicode-ibm-1276" },
+	{ 1008 ,"iso-unicode-ibm-1264" },
+	{ 1009 ,"iso-unicode-ibm-1265" },
+	{ 1010 ,"unicode-1-1" },
+	{ 1011 ,"scsu" },
+	{ 1012 ,"utf-7" },
+	{ 1013 ,"utf-16be" },
+	{ 1014 ,"utf-16le" },
+	{ 1015 ,"utf-16" },
+	{ 2000 ,"iso-8859-1-windows-3.0-latin-1" },
+	{ 2001 ,"iso-8859-1-windows-3.1-latin-1" },
+	{ 2002 ,"iso-8859-2-windows-latin-2" },
+	{ 2003 ,"iso-8859-9-windows-latin-5" },
+	{ 2004 ,"hp-roman8" },
+	{ 2005 ,"adobe-standard-encoding" },
+	{ 2006 ,"ventura-us" },
+	{ 2007 ,"ventura-international" },
+	{ 2008 ,"dec-mcs" },
+	{ 2009 ,"ibm850" },
+	{ 2010 ,"ibm852" },
+	{ 2011 ,"ibm437" },
+	{ 2012 ,"pc8-danish-norwegian" },
+	{ 2013 ,"ibm862" },
+	{ 2014 ,"pc8-turkish" },
+	{ 2015 ,"ibm-symbols" },
+	{ 2016 ,"ibm-thai" },
+	{ 2017 ,"hp-legal" },
+	{ 2018 ,"hp-pi-font" },
+	{ 2019 ,"hp-math8" },
+	{ 2020 ,"adobe-symbol-encoding" },
+	{ 2021 ,"hp-desktop" },
+	{ 2022 ,"ventura-math" },
+	{ 2023 ,"microsoft-publishing" },
+	{ 2024 ,"windows-31j" },
+	{ 2025 ,"gb2312" },
+	{ 2026 ,"big5" },
+	{ 2027 ,"macintosh" },
+	{ 2028 ,"ibm037" },
+	{ 2029 ,"ibm038" },
+	{ 2030 ,"ibm273" },
+	{ 2031 ,"ibm274" },
+	{ 2032 ,"ibm275" },
+	{ 2033 ,"ibm277" },
+	{ 2034 ,"ibm278" },
+	{ 2035 ,"ibm280" },
+	{ 2036 ,"ibm281" },
+	{ 2037 ,"ibm284" },
+	{ 2038 ,"ibm285" },
+	{ 2039 ,"ibm290" },
+	{ 2040 ,"ibm297" },
+	{ 2041 ,"ibm420" },
+	{ 2042 ,"ibm423" },
+	{ 2043 ,"ibm424" },
+	{ 2044 ,"ibm500" },
+	{ 2045 ,"ibm851" },
+	{ 2046 ,"ibm855" },
+	{ 2047 ,"ibm857" },
+	{ 2048 ,"ibm860" },
+	{ 2049 ,"ibm861" },
+	{ 2050 ,"ibm863" },
+	{ 2051 ,"ibm864" },
+	{ 2052 ,"ibm865" },
+	{ 2053 ,"ibm868" },
+	{ 2054 ,"ibm869" },
+	{ 2055 ,"ibm870" },
+	{ 2056 ,"ibm871" },
+	{ 2057 ,"ibm880" },
+	{ 2058 ,"ibm891" },
+	{ 2059 ,"ibm903" },
+	{ 2060 ,"ibm904" },
+	{ 2061 ,"ibm905" },
+	{ 2062 ,"ibm918" },
+	{ 2063 ,"ibm1026" },
+	{ 2064 ,"ebcdic-at-de" },
+	{ 2065 ,"ebcdic-at-de-a" },
+	{ 2066 ,"ebcdic-ca-fr" },
+	{ 2067 ,"ebcdic-dk-no" },
+	{ 2068 ,"ebcdic-dk-no-a" },
+	{ 2069 ,"ebcdic-fi-se" },
+	{ 2070 ,"ebcdic-fi-se-a" },
+	{ 2071 ,"ebcdic-fr" },
+	{ 2072 ,"ebcdic-it" },
+	{ 2073 ,"ebcdic-pt" },
+	{ 2074 ,"ebcdic-es" },
+	{ 2075 ,"ebcdic-es-a" },
+	{ 2076 ,"ebcdic-es-s" },
+	{ 2077 ,"ebcdic-uk" },
+	{ 2078 ,"ebcdic-us" },
+	{ 2079 ,"unknown-8bit" },
+	{ 2080 ,"mnemonic" },
+	{ 2081 ,"mnem" },
+	{ 2082 ,"viscii" },
+	{ 2083 ,"viqr" },
+	{ 2084 ,"koi8-r" },
+	{ 2086 ,"ibm866" },
+	{ 2087 ,"ibm775" },
+	{ 2088 ,"koi8-u" },
+	{ 2089 ,"ibm00858" },
+	{ 2090 ,"ibm00924" },
+	{ 2091 ,"ibm01140" },
+	{ 2092 ,"ibm01141" },
+	{ 2093 ,"ibm01142" },
+	{ 2094 ,"ibm01143" },
+	{ 2095 ,"ibm01144" },
+	{ 2096 ,"ibm01145" },
+	{ 2097 ,"ibm01146" },
+	{ 2098 ,"ibm01147" },
+	{ 2099 ,"ibm01148" },
+	{ 2100 ,"ibm01149" },
+	{ 2101 ,"big5-hkscs" },
+	{ 2250 ,"windows-1250" },
+	{ 2251 ,"windows-1251" },
+	{ 2252 ,"windows-1252" },
+	{ 2253 ,"windows-1253" },
+	{ 2254 ,"windows-1254" },
+	{ 2255 ,"windows-1255" },
+	{ 2256 ,"windows-1256" },
+	{ 2257 ,"windows-1257" },
+	{ 2258 ,"windows-1258" },
+	{ 2259 ,"tis-620" },
 	{ 0x00, NULL }
 };
 
@@ -697,7 +920,7 @@ tvb_get_guintvar (tvbuff_t *tvb, guint offset, guint *octetCount)
 	guint counter = 0;
 	char cont = 1;
 	
-	if (octetCount != NULL)
+	if (octetCount == NULL)
 	{
 #ifdef DEBUG
 		fprintf (stderr, "dissect_wsp: Starting tvb_get_guintvar at offset %d, count=NULL\n", offset);
@@ -819,6 +1042,7 @@ dissect_wsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			offset += count;
 			ti = proto_tree_add_uint (wsp_tree, hf_wsp_capability_length,tvb,capabilityStart,count,capabilityLength);
 
+			count = 0;
 			headerStart = offset;
 			headerLength = tvb_get_guintvar (tvb, offset, &count);
 			offset += count;
@@ -843,15 +1067,17 @@ dissect_wsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			ti = proto_tree_add_uint (wsp_tree, hf_wsp_server_session_id,tvb,offset,count,value);
 			offset += count;
 
+			count = 0;
 			capabilityStart = offset;
 			capabilityLength = tvb_get_guintvar (tvb, offset, &count);
 			offset += count;
 			ti = proto_tree_add_uint (wsp_tree, hf_wsp_capability_length,tvb,capabilityStart,count,capabilityLength);
 
+			count = 0;
 			headerStart = offset;
 			headerLength = tvb_get_guintvar (tvb, offset, &count);
 			offset += count;
-			ti = proto_tree_add_item (wsp_tree, hf_wsp_header_length,tvb,headerStart,count,bo_little_endian);
+			ti = proto_tree_add_uint (wsp_tree, hf_wsp_header_length,tvb,headerStart,count,headerLength);
 			if (capabilityLength > 0)
 			{
 				ti = proto_tree_add_item (wsp_tree, hf_wsp_capabilities_section,tvb,offset,capabilityLength,bo_little_endian);
@@ -878,18 +1104,21 @@ dissect_wsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		case GET:
 			/* Length of URI and size of URILen field */
+			count = 0;
 			value = tvb_get_guintvar (tvb, offset, &count);
 			nextOffset = offset + count;
 			add_uri (wsp_tree, tvb, offset, nextOffset);
-			offset += (value+1);
+			offset += (value+count);
 			tmp_tvb = tvb_new_subset (tvb, offset, -1, -1);
 			add_headers (wsp_tree, tmp_tvb);
 			break;
 
 		case POST:
+			/* Length of URI and size of URILen field */
 			uriStart = offset;
 			uriLength = tvb_get_guintvar (tvb, offset, &count);
 			headerStart = uriStart+count;
+			count = 0;
 			headersLength = tvb_get_guintvar (tvb, headerStart, &count);
 			offset = headerStart + count;
 
@@ -918,7 +1147,8 @@ dissect_wsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			ti = proto_tree_add_item (wsp_tree, hf_wsp_header_status,tvb,offset,1,bo_little_endian);
 			value = tvb_get_guintvar (tvb, offset+1, &count);
 			nextOffset = offset + 1 + count;
-			ti = proto_tree_add_item (wsp_tree, hf_wsp_header_length,tvb,offset+1,count,bo_little_endian);
+			
+			ti = proto_tree_add_uint (wsp_tree, hf_wsp_header_length,tvb,offset+1,count,value);
 
 			contentTypeStart = nextOffset;
 			nextOffset = add_content_type (wsp_tree, tvb, nextOffset, &contentType);
@@ -934,7 +1164,7 @@ dissect_wsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			/* Runs from offset+1+count+value+1 to END_OF_FRAME */
 			if (offset < tvb_reported_length (tvb))
 			{
-				ti = proto_tree_add_item (wsp_tree, hf_wsp_reply_data,tvb,offset,END_OF_FRAME,bo_little_endian);
+				ti = proto_tree_add_item (wsp_tree, hf_wsp_reply_data,tvb,offset,tvb_reported_length(tvb)-offset,bo_little_endian);
 			}
 			break;
 		}
@@ -1089,6 +1319,7 @@ dissect_wtls_handshake(proto_tree *tree, tvbuff_t *tvb, guint offset, guint coun
 					tvb,offset,1,bo_big_endian);
 			offset++;
 			timeValue.tv_sec = tvb_get_ntohl (tvb, offset);
+			timeValue.tv_usec = 0;
 			ti = proto_tree_add_time (wtls_msg_type_item_tree, hf_wtls_hands_cli_hello_gmt, tvb,
 					offset, 4, &timeValue);
 			offset+=4;
@@ -1232,6 +1463,7 @@ dissect_wtls_handshake(proto_tree *tree, tvbuff_t *tvb, guint offset, guint coun
 					tvb,offset,1,bo_big_endian);
 			offset++;
 			timeValue.tv_sec = tvb_get_ntohl (tvb, offset);
+			timeValue.tv_usec = 0;
 			ti = proto_tree_add_time (wtls_msg_type_item_tree, hf_wtls_hands_serv_hello_gmt, tvb,
 					offset, 4, &timeValue);
 			offset+=4;
@@ -1343,12 +1575,14 @@ dissect_wtls_handshake(proto_tree *tree, tvbuff_t *tvb, guint offset, guint coun
 								break;
 						}
 						timeValue.tv_sec = tvb_get_ntohl (tvb, offset);
+						timeValue.tv_usec = 0;
 						ti = proto_tree_add_time (wtls_msg_type_item_sub_tree, 
 								hf_wtls_hands_certificate_wtls_valid_not_before,
 								tvb, offset, 4, &timeValue);
 						offset+=4;
 						client_size+=4;
 						timeValue.tv_sec = tvb_get_ntohl (tvb, offset);
+						timeValue.tv_usec = 0;
 						ti = proto_tree_add_time (wtls_msg_type_item_sub_tree, 
 								hf_wtls_hands_certificate_wtls_valid_not_after,
 								tvb, offset, 4, &timeValue);
@@ -1570,6 +1804,7 @@ add_headers (proto_tree *tree, tvbuff_t *tvb)
 #ifdef DEBUG
 			fprintf (stderr, "dissect_wsp: Looking for uintvar octets\n");
 #endif
+			count = 0;
 			tvb_get_guintvar (tvb, valueStart, &count);
 			valueEnd = offset+1+count;
 			offset += (count+1);
@@ -1613,6 +1848,10 @@ add_header (proto_tree *tree, tvbuff_t *header_buff, tvbuff_t *value_buff)
 	guint peek = 0;
 	struct timeval timeValue;
 	guint value = 0;
+	guint valSize = 0;
+	char valString[100];
+	char *valMatch;
+	guint q_value = 0;
 
 	headerType = tvb_get_guint8 (header_buff, 0);
 	peek = tvb_get_guint8 (value_buff, 0);
@@ -1647,34 +1886,57 @@ add_header (proto_tree *tree, tvbuff_t *header_buff, tvbuff_t *value_buff)
 			if (peek < 31)
 			{
 				/* Peek contains the number of octets to follow */
-				value = tvb_get_guint8 (value_buff, 1);
+				valSize = tvb_get_guint8 (value_buff, 1);
 				/* decode Charset */
-				if (value & 0x80) {
-					proto_tree_add_uint (tree, hf_wsp_header_accept_charset, header_buff, offset, headerLen, value & 0x7f);
+				if (valSize & 0x80) {
+					value = valSize & 0x7f;
+					valSize = 1;
 				}
-				else if (value < 31) { 
-					switch (value)
+				else if (valSize < 31) { 
+					switch (valSize)
 					{
 						case 1:
-							proto_tree_add_uint (tree, hf_wsp_header_accept_charset, header_buff, offset, headerLen, tvb_get_guint8 (value_buff, 2) );
+							value = tvb_get_guint8 (value_buff, 2);
 							break;
 						case 2:
-							proto_tree_add_uint (tree, hf_wsp_header_accept_charset, header_buff, offset, headerLen, tvb_get_ntohs (value_buff, 2) );
+							value = tvb_get_ntohs (value_buff, 2);
 							break;
 						case 3:
-							proto_tree_add_uint (tree, hf_wsp_header_accept_charset, header_buff, offset, headerLen, 
-											(tvb_get_ntohs (value_buff, 2) << 8) +  tvb_get_guint8 (value_buff, 4));
+							value = tvb_get_ntoh24 (value_buff, 2);
 							break;
 						case 4:
-							proto_tree_add_uint (tree, hf_wsp_header_accept_charset, header_buff, offset, headerLen, tvb_get_ntohl (value_buff, 2) );
+							value = tvb_get_ntohl (value_buff, 2);
 							break;
 						default:
+							value = 0;
 							fprintf (stderr, "dissect_wsp: accept-charset size %d NYI\n", peek);
+							break;
 					}
+					valSize++;
 				}
 				else {
 					fprintf (stderr, "dissect_wsp: Accept-Charset value %d (0x%02X) NYI\n", peek, value);
 				}
+				valMatch = match_strval(value,vals_character_sets);
+				if (peek > valSize) {
+					q_value = tvb_get_guintvar (value_buff, 1+valSize, NULL);
+					if (q_value <= 100) {
+						q_value = (q_value - 1) * 10;
+					}
+					else {
+						q_value -= 100;
+					}
+				}
+				else {
+					q_value = 1000;
+				}
+				if (valMatch != NULL)  {
+					snprintf(valString,100,"%s;Q=%5.3f",valMatch,q_value/1000.0);
+				}
+				else {
+					snprintf(valString,100,"Unknow %d;Q=%5.3f",value,q_value/1000.0);
+				}
+				proto_tree_add_string (tree, hf_wsp_header_accept_charset_str, header_buff, offset, headerLen, valString);
 			}
 			else if (peek & 0x80)
 			{
@@ -1829,8 +2091,31 @@ add_header (proto_tree *tree, tvbuff_t *header_buff, tvbuff_t *value_buff)
 			break;
 				
 		case 0x12:		/* Date */
-			timeValue.tv_sec = tvb_get_ntohl (value_buff, 0);
-			ti = proto_tree_add_time (tree, hf_wsp_header_date, header_buff, offset, headerLen, &timeValue);
+			if (peek < 31) {
+				timeValue.tv_sec=0;
+				timeValue.tv_usec = 0;
+				switch (peek) {
+					case 1:
+						timeValue.tv_sec = tvb_get_guint8 (value_buff, 1);
+						break;
+					case 2:
+						timeValue.tv_sec = tvb_get_ntohs (value_buff, 1);
+						break;
+					case 3:
+						timeValue.tv_sec = tvb_get_ntoh24 (value_buff, 1);
+						break;
+					case 4:
+						timeValue.tv_sec = tvb_get_ntohl (value_buff, 1);
+						break;
+					default:
+						fprintf (stderr, "dissect_wsp: accept-charset size %d NYI\n", peek);
+						break;
+				}
+				ti = proto_tree_add_time (tree, hf_wsp_header_date, header_buff, offset, headerLen, &timeValue);
+			}
+			else {
+				fprintf (stderr, "dissect_wsp: accept-charset size %d NYI\n", peek);
+			}
 			break;
 
 		case 0x13:		/* Etag */
@@ -1838,30 +2123,37 @@ add_header (proto_tree *tree, tvbuff_t *header_buff, tvbuff_t *value_buff)
 			break;
 
 		case 0x14:		/* Expires */
+			timeValue.tv_sec = 0;
+			timeValue.tv_usec = 0;
 			switch (valueLen)
 			{
-				case 1:
-				case 2:
-					fprintf (stderr, "dissect_wsp: Expires value length %d NYI\n", valueLen);
-					break;
 				case 3:
-					timeValue.tv_sec = tvb_get_ntoh24 (value_buff, 0);
+					timeValue.tv_sec = tvb_get_ntoh24 (value_buff, 1);
 					break;
 				case 4:
-					timeValue.tv_sec = tvb_get_ntohl (value_buff, 0);
+					timeValue.tv_sec = tvb_get_ntohl (value_buff, 1);
 					break;
-			};
+				default:
+					fprintf (stderr, "dissect_wsp: Expires value length %d NYI\n", valueLen);
+					break;
+			}
 			ti = proto_tree_add_time (tree, hf_wsp_header_expires, header_buff, offset, headerLen, &timeValue);
 			break;
 
 		case 0x17:		/* If-Modified-Since */
-			if (valueLen == 4)
+			timeValue.tv_sec = 0;
+			timeValue.tv_usec = 0;
+			switch (valueLen)
 			{
-				timeValue.tv_sec = tvb_get_ntohl (value_buff, 0);
-			}
-			else
-			{
-				timeValue.tv_sec = 0;
+				case 3:
+					timeValue.tv_sec = tvb_get_ntoh24 (value_buff, 1);
+					break;
+				case 4:
+					timeValue.tv_sec = tvb_get_ntohl (value_buff, 1);
+					break;
+				default:
+					fprintf (stderr, "dissect_wsp: If Modified Since value length %d NYI\n", valueLen);
+					break;
 			}
 			ti = proto_tree_add_time (tree, hf_wsp_header_if_modified_since, header_buff, offset, headerLen, &timeValue);
 			break;
@@ -1871,7 +2163,21 @@ add_header (proto_tree *tree, tvbuff_t *header_buff, tvbuff_t *value_buff)
 			break;
 
 		case 0x1D:		/* Last-Modified */
-			timeValue.tv_sec = tvb_get_ntohl (value_buff, 0);
+			timeValue.tv_sec = 0;
+			timeValue.tv_usec = 0;
+			switch (valueLen)
+			{
+				case 3:
+					timeValue.tv_sec = tvb_get_ntoh24 (value_buff, 1);
+					break;
+				case 4:
+					timeValue.tv_sec = tvb_get_ntohl (value_buff, 1);
+					break;
+				default:
+					timeValue.tv_sec = 0;
+					fprintf (stderr, "dissect_wsp: Last Modified value length %d NYI\n", valueLen);
+					break;
+			}
 			ti = proto_tree_add_time (tree, hf_wsp_header_last_modified, header_buff, offset, headerLen, &timeValue);
 			break;
 				
@@ -1922,6 +2228,8 @@ add_header (proto_tree *tree, tvbuff_t *header_buff, tvbuff_t *value_buff)
 		 * by a 4-byte date value */
 		if (strncasecmp ("x-wap.tod", tvb_get_ptr (header_buff, 0, headerLen), 9) == 0)
 		{
+			timeValue.tv_sec = 0;
+			timeValue.tv_usec = 0;
 			switch( peek) {
 				case 1:
 					timeValue.tv_sec = tvb_get_guint8 (value_buff, 1);
@@ -2281,6 +2589,13 @@ proto_register_wsp(void)
 				"Accept-Charset" 
 			}
 		},
+		{ &hf_wsp_header_accept_charset_str,
+			{ 	"Accept-Charset",           
+				"wsp.header.accept-charset.string",
+				 FT_STRING, BASE_NONE, NULL, 0x00,
+				"Accept-Charset" 
+			}
+		},
 		{ &hf_wsp_header_accept_language,
 			{ 	"Accept-Language",           
 				"wsp.header.accept-language",
@@ -2401,6 +2716,28 @@ proto_register_wsp(void)
 				"wsp.header.x_wap_tod",
 				 FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0,
 				"X-WAP.TOD" 
+			}
+		},
+		{ &hf_wsp_header_transfer_encoding,
+			{ 	"Transfer Encoding",           
+				"wsp.header.transfer_enc",
+				 /*FT_NONE, BASE_DEC, NULL, 0x00,*/
+				 FT_UINT8, BASE_HEX, VALS ( vals_transfer_encoding ), 0x00,
+				"Transfer Encoding" 
+			}
+		},
+		{ &hf_wsp_header_transfer_encoding_str,
+			{ 	"Transfer Encoding",           
+				"wsp.header.transfer_enc_str",
+				 FT_STRING, BASE_NONE, NULL, 0x00,
+				"Transfer Encoding" 
+			}
+		},
+		{ &hf_wsp_header_via,
+			{ 	"Via",           
+				"wsp.header.via",
+				 FT_STRING, BASE_NONE, NULL, 0x00,
+				"Via" 
 			}
 		},
 		{ &hf_wsp_post_data,
