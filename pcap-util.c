@@ -1,7 +1,7 @@
 /* pcap-util.c
  * Utility routines for packet capture
  *
- * $Id: pcap-util.c,v 1.12 2003/06/10 08:01:42 guy Exp $
+ * $Id: pcap-util.c,v 1.13 2003/06/13 02:37:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -477,7 +477,7 @@ get_interface_list(int *err, char *err_str) {
 		  desc_pos++;	/* Step over the extra '\0' */
 		  desc = win95names + desc_pos;
 
-		  while (win95names[i] == 0)
+		  while (win95names[i] != 0)
 		  {
 			j = 0;
 			while (*desc) {
