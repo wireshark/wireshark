@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.105 2003/02/07 22:49:35 guy Exp $
+ * $Id: packet-dcerpc.c,v 1.106 2003/02/10 02:05:24 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -964,7 +964,8 @@ dissect_ndr_byte_array(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 /* Convert a string from little-endian unicode to ascii.  At the moment we
    fake it by taking every odd byte.  )-:  The caller must free the
-   result returned. */
+   result returned.  The len parameter is the number of guint16's to
+   convert from unicode. */
 
 char *
 fake_unicode(tvbuff_t *tvb, int offset, int len)
@@ -1002,8 +1003,8 @@ fake_unicode(tvbuff_t *tvb, int offset, int len)
    "dissect_ndr_ucvarray()" does?  */
 int
 dissect_ndr_cvstring(tvbuff_t *tvb, int offset, packet_info *pinfo, 
-                            proto_tree *tree, char *drep, int size_is,
-                            int hfinfo, gboolean add_subtree)
+		     proto_tree *tree, char *drep, int size_is,
+		     int hfinfo, gboolean add_subtree, char **data)
 {
     dcerpc_info *di;
     proto_item *string_item;
@@ -1049,13 +1050,16 @@ dissect_ndr_cvstring(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
     if (string_item != NULL) {
         if (size_is == sizeof(guint16))
-            s = fake_unicode(tvb, offset, buffer_len);
+            s = fake_unicode(tvb, offset, buffer_len / 2);
         else {
             s = g_malloc(buffer_len + 1);
             tvb_memcpy(tvb, s, offset, buffer_len);
         }
         proto_item_append_text(string_item, ": %s", s);
-        g_free(s);
+	if (data)
+		*data = s;
+	else
+		g_free(s);
     }
 
     offset += buffer_len;
@@ -1077,8 +1081,8 @@ dissect_ndr_char_cvstring(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			proto_tree *tree, char *drep)
 {
     return dissect_ndr_cvstring(tvb, offset, pinfo, tree, drep,
-                                       sizeof(guint8), hf_dcerpc_array_buffer,
-                                       FALSE);
+				sizeof(guint8), hf_dcerpc_array_buffer,
+				FALSE, NULL);
 }
 
 /* Dissect a conformant varying string of wchars (wide characters).
@@ -1095,8 +1099,8 @@ dissect_ndr_wchar_cvstring(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			proto_tree *tree, char *drep)
 {
     return dissect_ndr_cvstring(tvb, offset, pinfo, tree, drep,
-                                       sizeof(guint16), hf_dcerpc_array_buffer,
-                                       FALSE);
+				sizeof(guint16), hf_dcerpc_array_buffer,
+				FALSE, NULL);
 }
 
 /* ndr pointer handling */
