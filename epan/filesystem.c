@@ -1,7 +1,7 @@
 /* filesystem.c
  * Filesystem utility routines
  *
- * $Id: filesystem.c,v 1.27 2003/11/03 22:32:36 guy Exp $
+ * $Id: filesystem.c,v 1.28 2004/01/24 01:44:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -643,3 +643,42 @@ char *get_tempfile_path(const char *filename)
 	return path;
 }
 
+/*
+ * Return an error message for UNIX-style errno indications.
+ */
+char *
+file_open_error_message(int err, gboolean for_writing)
+{
+	char *errmsg;
+	static char errmsg_errno[1024+1];
+
+	switch (err) {
+
+	case ENOENT:
+		if (for_writing)
+			errmsg = "The path to the file \"%s\" does not exist.";
+		else
+			errmsg = "The file \"%s\" does not exist.";
+		break;
+
+	case EACCES:
+		if (for_writing)
+			errmsg = "You do not have permission to create or write to the file \"%s\".";
+		else
+			errmsg = "You do not have permission to read the file \"%s\".";
+		break;
+
+	case EISDIR:
+		errmsg = "\"%s\" is a directory (folder), not a file.";
+		break;
+
+	default:
+		snprintf(errmsg_errno, sizeof(errmsg_errno),
+				"The file \"%%s\" could not be %s: %s.",
+				for_writing ? "created" : "opened",
+				strerror(err));
+		errmsg = errmsg_errno;
+		break;
+	}
+	return errmsg;
+}

@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.223 2004/01/19 18:21:18 jmayer Exp $
+ * $Id: tethereal.c,v 1.224 2004/01/24 01:44:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -172,6 +172,8 @@ static void wtap_dispatch_cb_write(guchar *, const struct wtap_pkthdr *, long,
 static void show_capture_file_io_error(const char *, int, gboolean);
 static void wtap_dispatch_cb_print(guchar *, const struct wtap_pkthdr *, long,
     union wtap_pseudo_header *, const guchar *);
+static char *cf_open_error_message(int err, gboolean for_writing,
+    int file_type);
 #ifdef HAVE_LIBPCAP
 #ifndef _WIN32
 static void adjust_header(loop_data *, struct pcap_hdr *, struct pcaprec_hdr *);
@@ -1811,7 +1813,7 @@ capture(int out_file_type)
 
     if (ld.pdh == NULL) {
       snprintf(errmsg, sizeof errmsg,
-	       file_open_error_message(err, TRUE, out_file_type),
+	       cf_open_error_message(err, TRUE, out_file_type),
 	       *cfile.save_file == '\0' ? "stdout" : cfile.save_file);
       goto error;
     }
@@ -2814,91 +2816,77 @@ wtap_dispatch_cb_print(guchar *user, const struct wtap_pkthdr *phdr,
   clear_fdata(&fdata);
 }
 
-char *
-file_open_error_message(int err, gboolean for_writing, int file_type)
+static char *
+cf_open_error_message(int err, gboolean for_writing, int file_type)
 {
   char *errmsg;
   static char errmsg_errno[1024+1];
 
-  switch (err) {
+  if (err < 0) {
+    /* Wiretap error. */
+    switch (err) {
 
-  case WTAP_ERR_NOT_REGULAR_FILE:
-    errmsg = "The file \"%s\" is a \"special file\" or socket or other non-regular file.";
-    break;
+    case WTAP_ERR_NOT_REGULAR_FILE:
+      errmsg = "The file \"%s\" is a \"special file\" or socket or other non-regular file.";
+      break;
 
-  case WTAP_ERR_FILE_UNKNOWN_FORMAT:
-  case WTAP_ERR_UNSUPPORTED:
-    /* Seen only when opening a capture file for reading. */
-    errmsg = "The file \"%s\" is not a capture file in a format Tethereal understands.";
-    break;
+    case WTAP_ERR_FILE_UNKNOWN_FORMAT:
+    case WTAP_ERR_UNSUPPORTED:
+      /* Seen only when opening a capture file for reading. */
+      errmsg = "The file \"%s\" is not a capture file in a format Tethereal understands.";
+      break;
 
-  case WTAP_ERR_CANT_WRITE_TO_PIPE:
-    /* Seen only when opening a capture file for writing. */
-    snprintf(errmsg_errno, sizeof(errmsg_errno),
-	     "The file \"%%s\" is a pipe, and %s capture files cannot be "
-	     "written to a pipe.", wtap_file_type_string(file_type));
-    errmsg = errmsg_errno;
-    break;
+    case WTAP_ERR_CANT_WRITE_TO_PIPE:
+      /* Seen only when opening a capture file for writing. */
+      snprintf(errmsg_errno, sizeof(errmsg_errno),
+	       "The file \"%%s\" is a pipe, and %s capture files cannot be "
+	       "written to a pipe.", wtap_file_type_string(file_type));
+      errmsg = errmsg_errno;
+      break;
 
-  case WTAP_ERR_UNSUPPORTED_FILE_TYPE:
-    /* Seen only when opening a capture file for writing. */
-    errmsg = "Tethereal does not support writing capture files in that format.";
-    break;
+    case WTAP_ERR_UNSUPPORTED_FILE_TYPE:
+      /* Seen only when opening a capture file for writing. */
+      errmsg = "Tethereal does not support writing capture files in that format.";
+      break;
 
-  case WTAP_ERR_UNSUPPORTED_ENCAP:
-  case WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED:
-    if (for_writing)
-      errmsg = "Tethereal cannot save this capture in that format.";
-    else
-      errmsg = "The file \"%s\" is a capture for a network type that Tethereal doesn't support.";
-    break;
+    case WTAP_ERR_UNSUPPORTED_ENCAP:
+    case WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED:
+      if (for_writing)
+        errmsg = "Tethereal cannot save this capture in that format.";
+      else
+        errmsg = "The file \"%s\" is a capture for a network type that Tethereal doesn't support.";
+      break;
 
-  case WTAP_ERR_BAD_RECORD:
-    errmsg = "The file \"%s\" appears to be damaged or corrupt.";
-    break;
+    case WTAP_ERR_BAD_RECORD:
+      errmsg = "The file \"%s\" appears to be damaged or corrupt.";
+      break;
 
-  case WTAP_ERR_CANT_OPEN:
-    if (for_writing)
-      errmsg = "The file \"%s\" could not be created for some unknown reason.";
-    else
-      errmsg = "The file \"%s\" could not be opened for some unknown reason.";
-    break;
+    case WTAP_ERR_CANT_OPEN:
+      if (for_writing)
+        errmsg = "The file \"%s\" could not be created for some unknown reason.";
+      else
+        errmsg = "The file \"%s\" could not be opened for some unknown reason.";
+      break;
 
-  case WTAP_ERR_SHORT_READ:
-    errmsg = "The file \"%s\" appears to have been cut short"
-             " in the middle of a packet or other data.";
-    break;
+    case WTAP_ERR_SHORT_READ:
+      errmsg = "The file \"%s\" appears to have been cut short"
+               " in the middle of a packet or other data.";
+      break;
 
-  case WTAP_ERR_SHORT_WRITE:
-    errmsg = "A full header couldn't be written to the file \"%s\".";
-    break;
+    case WTAP_ERR_SHORT_WRITE:
+      errmsg = "A full header couldn't be written to the file \"%s\".";
+      break;
 
-  case ENOENT:
-    if (for_writing)
-      errmsg = "The path to the file \"%s\" does not exist.";
-    else
-      errmsg = "The file \"%s\" does not exist.";
-    break;
-
-  case EACCES:
-    if (for_writing)
-      errmsg = "You do not have permission to create or write to the file \"%s\".";
-    else
-      errmsg = "You do not have permission to read the file \"%s\".";
-    break;
-
-  case EISDIR:
-    errmsg = "\"%s\" is a directory (folder), not a file.";
-    break;
-
-  default:
-    snprintf(errmsg_errno, sizeof(errmsg_errno),
-	     "The file \"%%s\" could not be %s: %s.",
-	     for_writing ? "created" : "opened",
-	     wtap_strerror(err));
-    errmsg = errmsg_errno;
-    break;
-  }
+    default:
+      snprintf(errmsg_errno, sizeof(errmsg_errno),
+	       "The file \"%%s\" could not be %s: %s.",
+	       for_writing ? "created" : "opened",
+	       wtap_strerror(err));
+      errmsg = errmsg_errno;
+      break;
+    }
+  } else
+    errmsg = file_open_error_message(err, for_writing);
   return errmsg;
 }
 
@@ -2952,7 +2940,7 @@ cf_open(char *fname, gboolean is_tempfile, capture_file *cf)
   return (0);
 
 fail:
-  snprintf(err_msg, sizeof err_msg, file_open_error_message(err, FALSE, 0),
+  snprintf(err_msg, sizeof err_msg, cf_open_error_message(err, FALSE, 0),
 	   fname);
   fprintf(stderr, "tethereal: %s\n", err_msg);
   return (err);

@@ -1,7 +1,7 @@
 /* filesystem.h
  * Filesystem utility definitions
  *
- * $Id: filesystem.h,v 1.15 2003/11/18 19:20:36 guy Exp $
+ * $Id: filesystem.h,v 1.16 2004/01/24 01:44:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -119,7 +119,12 @@ char *get_persconffile_path(const char *filename, gboolean for_writing);
  */
 extern char *get_tempfile_path(const char *filename);
 
-
 /* Delete a file */
 gboolean deletefile (const char *path);
+
+/*
+ * Return an error message for UNIX-style errno indications.
+ */
+char *file_open_error_message(int err, gboolean for_writing);
+
 #endif /* FILESYSTEM_H */

@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.226 2004/01/22 20:45:49 guy Exp $
+ * $Id: capture.c,v 1.227 2004/01/24 01:44:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -130,6 +130,7 @@
 
 #include <epan/packet.h>
 #include <epan/dfilter/dfilter.h>
+#include <epan/filesystem.h>
 #include "file.h"
 #include "capture.h"
 #include "util.h"
@@ -322,7 +323,7 @@ do_capture(const char *save_file)
         ringbuf_error_cleanup();
       }
       simple_dialog(ESD_TYPE_CRIT, NULL,
-	file_open_error_message(errno, TRUE, WTAP_FILE_PCAP), capfile_name);
+	file_open_error_message(errno, TRUE), capfile_name);
     }
     g_free(capfile_name);
     return FALSE;

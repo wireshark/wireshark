@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.344 2004/01/21 22:00:27 ulfl Exp $
+ * $Id: file.c,v 1.345 2004/01/24 01:44:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -115,6 +115,8 @@ static gboolean find_packet(capture_file *cf,
 	gboolean (*match_function)(capture_file *, frame_data *, void *),
 	void *criterion);
 
+static char *cf_open_error_message(int err, gboolean for_writing,
+    int file_type);
 static char *file_rename_error_message(int err);
 static char *file_close_error_message(int err);
 static   gboolean copy_binary_file(char *from_filename, char *to_filename);
@@ -210,7 +212,7 @@ cf_open(char *fname, gboolean is_tempfile, capture_file *cf)
 
 fail:
   simple_dialog(ESD_TYPE_CRIT, NULL,
-			file_open_error_message(err, FALSE, 0), fname);
+			cf_open_error_message(err, FALSE, 0), fname);
   return (err);
 }
 
@@ -2579,7 +2581,7 @@ cf_save(char *fname, capture_file *cf, packet_range_t *range, guint save_format)
     pdh = wtap_dump_open(fname, save_format, cf->lnk_t, cf->snap, &err);
     if (pdh == NULL) {
       simple_dialog(ESD_TYPE_CRIT, NULL,
-			file_open_error_message(err, TRUE, save_format), fname);
+			cf_open_error_message(err, TRUE, save_format), fname);
       goto fail;
     }
 
@@ -2671,96 +2673,82 @@ fail:
   return FALSE;
 }
 
-char *
-file_open_error_message(int err, gboolean for_writing, int file_type)
+static char *
+cf_open_error_message(int err, gboolean for_writing, int file_type)
 {
   char *errmsg;
   static char errmsg_errno[1024+1];
 
-  switch (err) {
+  if (err < 0) {
+    /* Wiretap error. */
+    switch (err) {
 
-  case WTAP_ERR_NOT_REGULAR_FILE:
-    errmsg = "The file \"%s\" is a \"special file\" or socket or other non-regular file.";
-    break;
+   case WTAP_ERR_NOT_REGULAR_FILE:
+      errmsg = "The file \"%s\" is a \"special file\" or socket or other non-regular file.";
+      break;
 
-  case WTAP_ERR_RANDOM_OPEN_PIPE:
-    /* Seen only when opening a capture file for reading. */
-    errmsg = "The file \"%s\" is a pipe or FIFO; Ethereal cannot read pipe or FIFO files.";
-    break;
+    case WTAP_ERR_RANDOM_OPEN_PIPE:
+      /* Seen only when opening a capture file for reading. */
+      errmsg = "The file \"%s\" is a pipe or FIFO; Ethereal cannot read pipe or FIFO files.";
+      break;
 
-  case WTAP_ERR_FILE_UNKNOWN_FORMAT:
-  case WTAP_ERR_UNSUPPORTED:
-    /* Seen only when opening a capture file for reading. */
-    errmsg = "The file \"%s\" is not a capture file in a format Ethereal understands.";
-    break;
+    case WTAP_ERR_FILE_UNKNOWN_FORMAT:
+    case WTAP_ERR_UNSUPPORTED:
+      /* Seen only when opening a capture file for reading. */
+      errmsg = "The file \"%s\" is not a capture file in a format Ethereal understands.";
+      break;
 
-  case WTAP_ERR_CANT_WRITE_TO_PIPE:
-    /* Seen only when opening a capture file for writing. */
-    snprintf(errmsg_errno, sizeof(errmsg_errno),
-	     "The file \"%%s\" is a pipe, and %s capture files cannot be "
-	     "written to a pipe.", wtap_file_type_string(file_type));
-    errmsg = errmsg_errno;
-    break;
+    case WTAP_ERR_CANT_WRITE_TO_PIPE:
+      /* Seen only when opening a capture file for writing. */
+      snprintf(errmsg_errno, sizeof(errmsg_errno),
+	       "The file \"%%s\" is a pipe, and %s capture files cannot be "
+	       "written to a pipe.", wtap_file_type_string(file_type));
+      errmsg = errmsg_errno;
+      break;
 
-  case WTAP_ERR_UNSUPPORTED_FILE_TYPE:
-    /* Seen only when opening a capture file for writing. */
-    errmsg = "Ethereal does not support writing capture files in that format.";
-    break;
+    case WTAP_ERR_UNSUPPORTED_FILE_TYPE:
+      /* Seen only when opening a capture file for writing. */
+      errmsg = "Ethereal does not support writing capture files in that format.";
+      break;
 
-  case WTAP_ERR_UNSUPPORTED_ENCAP:
-  case WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED:
-    if (for_writing)
-      errmsg = "Ethereal cannot save this capture in that format.";
-    else
-      errmsg = "The file \"%s\" is a capture for a network type that Ethereal doesn't support.";
-    break;
+    case WTAP_ERR_UNSUPPORTED_ENCAP:
+    case WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED:
+      if (for_writing)
+        errmsg = "Ethereal cannot save this capture in that format.";
+      else
+        errmsg = "The file \"%s\" is a capture for a network type that Ethereal doesn't support.";
+      break;
 
-  case WTAP_ERR_BAD_RECORD:
-    errmsg = "The file \"%s\" appears to be damaged or corrupt.";
-    break;
+    case WTAP_ERR_BAD_RECORD:
+      errmsg = "The file \"%s\" appears to be damaged or corrupt.";
+      break;
 
-  case WTAP_ERR_CANT_OPEN:
-    if (for_writing)
-      errmsg = "The file \"%s\" could not be created for some unknown reason.";
-    else
-      errmsg = "The file \"%s\" could not be opened for some unknown reason.";
-    break;
+    case WTAP_ERR_CANT_OPEN:
+      if (for_writing)
+        errmsg = "The file \"%s\" could not be created for some unknown reason.";
+      else
+        errmsg = "The file \"%s\" could not be opened for some unknown reason.";
+      break;
 
-  case WTAP_ERR_SHORT_READ:
-    errmsg = "The file \"%s\" appears to have been cut short"
-             " in the middle of a packet or other data.";
-    break;
+    case WTAP_ERR_SHORT_READ:
+      errmsg = "The file \"%s\" appears to have been cut short"
+               " in the middle of a packet or other data.";
+      break;
 
-  case WTAP_ERR_SHORT_WRITE:
-    errmsg = "A full header couldn't be written to the file \"%s\".";
-    break;
+    case WTAP_ERR_SHORT_WRITE:
+      errmsg = "A full header couldn't be written to the file \"%s\".";
+      break;
 
-  case ENOENT:
-    if (for_writing)
-      errmsg = "The path to the file \"%s\" does not exist.";
-    else
-      errmsg = "The file \"%s\" does not exist.";
-    break;
-
-  case EACCES:
-    if (for_writing)
-      errmsg = "You do not have permission to create or write to the file \"%s\".";
-    else
-      errmsg = "You do not have permission to read the file \"%s\".";
-    break;
-
-  case EISDIR:
-    errmsg = "\"%s\" is a directory (folder), not a file.";
-    break;
-
-  default:
-    snprintf(errmsg_errno, sizeof(errmsg_errno),
-		    "The file \"%%s\" could not be %s: %s.",
-				for_writing ? "created" : "opened",
-				wtap_strerror(err));
-    errmsg = errmsg_errno;
-    break;
-  }
+    default:
+      snprintf(errmsg_errno, sizeof(errmsg_errno),
+	       "The file \"%%s\" could not be %s: %s.",
+	       for_writing ? "created" : "opened",
+	       wtap_strerror(err));
+      errmsg = errmsg_errno;
+      break;
+    }
+  } else
+    errmsg = file_open_error_message(err, for_writing);
   return errmsg;
 }
 
@@ -2886,7 +2874,7 @@ copy_binary_file(char *from_filename, char *to_filename)
   if (from_fd < 0) {
     err = errno;
     simple_dialog(ESD_TYPE_CRIT, NULL,
-		  file_open_error_message(err, TRUE, 0), from_filename);
+		  cf_open_error_message(err, TRUE, 0), from_filename);
     goto done;
   }
 
@@ -2899,7 +2887,7 @@ copy_binary_file(char *from_filename, char *to_filename)
   if (to_fd < 0) {
     err = errno;
     simple_dialog(ESD_TYPE_CRIT, NULL,
-		  file_open_error_message(err, TRUE, 0), to_filename);
+		  cf_open_error_message(err, TRUE, 0), to_filename);
     close(from_fd);
     goto done;
   }
