@@ -1,7 +1,7 @@
 /* packet-vines.c
  * Routines for Banyan VINES protocol packet disassembly
  *
- * $Id: packet-vines.c,v 1.26 2001/04/01 06:32:09 hagbard Exp $
+ * $Id: packet-vines.c,v 1.27 2001/04/15 09:18:45 guy Exp $
  *
  * Don Lafontaine <lafont02@cn.ca>
  *
@@ -90,10 +90,6 @@ dissect_vines_frp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item *ti;
 	gchar	frp_flags_str[32];
 	tvbuff_t *next_tvb;
-
-	CHECK_DISPLAY_AS_DATA(proto_vines_frp, tvb, pinfo, tree);
-
-	pinfo->current_proto = "Vines FRP";
 
 	if (check_col(pinfo->fd, COL_PROTOCOL))
 		col_set_str(pinfo->fd, COL_PROTOCOL, "Vines FRP");
