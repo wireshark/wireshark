@@ -8,7 +8,7 @@ XXX  Fixme : shouldnt show [malformed frame] for long packets
  * significant rewrite to tvbuffify the dissector, Ronnie Sahlberg and
  * Guy Harris 2001
  *
- * $Id: packet-smb-pipe.c,v 1.33 2001/08/27 09:09:35 guy Exp $
+ * $Id: packet-smb-pipe.c,v 1.34 2001/08/27 20:04:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -626,6 +626,7 @@ typedef int	(*item_func)(tvbuff_t *, int, int, packet_info *, proto_tree *,
  * the item.
  */
 typedef enum {
+	PARAM_NONE,	/* for the end-of-list stopper */
 	PARAM_WORD,	/* 'W' or 'h' - 16-bit word */
 	PARAM_DWORD,	/* 'D' or 'i' - 32-bit word */
 	PARAM_BYTES,	/* 'B' or 'b' or 'g' or 'O' - one or more bytes */
@@ -677,12 +678,12 @@ static int no_hf = -1;	/* for padding crap */
 static const item_t lm_params_req_netshareenum[] = {
 	{ &hf_detail_level, add_detail_level, PARAM_WORD },
 	{ &hf_recv_buf_len, add_word_param, PARAM_WORD },
-	{ NULL, NULL }
+	{ NULL, NULL, PARAM_NONE }
 };
 
 static const item_t lm_params_resp_netshareenum[] = {
 	{ &hf_acount, add_word_param, PARAM_WORD },
-	{ NULL, NULL }
+	{ NULL, NULL, PARAM_NONE }
 };
 
 /*
@@ -716,7 +717,7 @@ netshareenum_share_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 static const item_t lm_null[] = {
-	{ NULL, NULL }
+	{ NULL, NULL, PARAM_NONE }
 };
 
 static const item_list_t lm_null_list[] = {
@@ -728,7 +729,7 @@ static const item_t lm_data_resp_netshareenum_1[] = {
 	{ &no_hf, add_pad_param, PARAM_BYTES },
 	{ &hf_share_type, add_word_param, PARAM_WORD },
 	{ &hf_share_comment, add_pointer_param, PARAM_STRINGZ },
-	{ NULL, NULL }
+	{ NULL, NULL, PARAM_NONE }
 };
 
 static const item_list_t lm_data_resp_netshareenum[] = {
@@ -739,17 +740,17 @@ static const item_list_t lm_data_resp_netshareenum[] = {
 static const item_t lm_params_req_netsharegetinfo[] = {
 	{ &hf_share_name, add_string_param, PARAM_STRINGZ },
 	{ &hf_detail_level, add_detail_level, PARAM_WORD },
-	{ NULL, NULL }
+	{ NULL, NULL, PARAM_NONE }
 };
 
 static const item_t lm_params_resp_netsharegetinfo[] = {
 	{ &hf_abytes, add_word_param, PARAM_WORD },
-	{ NULL, NULL }
+	{ NULL, NULL, PARAM_NONE }
 };
 
 static const item_t lm_data_resp_netsharegetinfo_0[] = {
 	{ &hf_share_name, add_byte_param, PARAM_BYTES },
-	{ NULL, NULL }
+	{ NULL, NULL, PARAM_NONE }
 };
 
 static const item_t lm_data_resp_netsharegetinfo_1[] = {
@@ -757,7 +758,7 @@ static const item_t lm_data_resp_netsharegetinfo_1[] = {
 	{ &no_hf, add_pad_param, PARAM_BYTES },
 	{ &hf_share_type, add_word_param, PARAM_WORD },
 	{ &hf_share_comment, add_pointer_param, PARAM_STRINGZ },
-	{ NULL, NULL }
+	{ NULL, NULL, PARAM_NONE }
 };
 
 static const item_t lm_data_resp_netsharegetinfo_2[] = {
@@ -770,7 +771,7 @@ static const item_t lm_data_resp_netsharegetinfo_2[] = {
 	{ &hf_share_current_uses, add_word_param, PARAM_WORD },
 	{ &hf_share_path, add_pointer_param, PARAM_STRINGZ },
 	{ &hf_share_password, add_byte_param, PARAM_BYTES },
-	{ NULL, NULL }
+	{ NULL, NULL, PARAM_NONE }
 };
 
 static const item_list_t lm_data_resp_netsharegetinfo[] = {
@@ -782,17 +783,17 @@ static const item_list_t lm_data_resp_netsharegetinfo[] = {
 
 static const item_t lm_params_req_netservergetinfo[] = {
 	{ &hf_detail_level, add_detail_level, PARAM_WORD },
-	{ NULL, NULL }
+	{ NULL, NULL, PARAM_NONE }
 };
 
 static const item_t lm_params_resp_netservergetinfo[] = {
 	{ &hf_abytes, add_word_param, PARAM_WORD },
-	{ NULL, NULL }
+	{ NULL, NULL, PARAM_NONE }
 };
 
 static const item_t lm_data_serverinfo_0[] = {
 	{ &hf_server_name, add_byte_param, PARAM_BYTES },
-	{ NULL, NULL }
+	{ NULL, NULL, PARAM_NONE }
 };
 
 static const item_t lm_data_serverinfo_1[] = {
@@ -801,7 +802,7 @@ static const item_t lm_data_serverinfo_1[] = {
 	{ &hf_server_minor, add_byte_param, PARAM_BYTES },
 	{ &no_hf, add_server_type, PARAM_DWORD },
 	{ &hf_server_comment, add_pointer_param, PARAM_STRINGZ },
-	{ NULL, NULL }
+	{ NULL, NULL, PARAM_NONE }
 };
 
 static const item_list_t lm_data_serverinfo[] = {
@@ -812,12 +813,12 @@ static const item_list_t lm_data_serverinfo[] = {
 
 static const item_t lm_params_req_netusergetinfo[] = {
 	{ &hf_detail_level, add_detail_level, PARAM_WORD },
-	{ NULL, NULL }
+	{ NULL, NULL, PARAM_NONE }
 };
 
 static const item_t lm_params_resp_netusergetinfo[] = {
 	{ &hf_abytes, add_word_param, PARAM_WORD },
-	{ NULL, NULL }
+	{ NULL, NULL, PARAM_NONE }
 };
 
 static const item_t lm_data_resp_netusergetinfo_11[] = {
@@ -840,7 +841,7 @@ static const item_t lm_data_resp_netusergetinfo_11[] = {
 	{ &hf_max_storage, add_max_storage, PARAM_DWORD },
 	{ &hf_logon_hours, add_logon_hours, PARAM_DWORD },
 	{ &hf_code_page, add_word_param, PARAM_WORD },
-	{ NULL, NULL }
+	{ NULL, NULL, PARAM_NONE }
 };
 
 static const item_list_t lm_data_resp_netusergetinfo[] = {
@@ -864,7 +865,7 @@ static const item_t lm_data_resp_netremotetod_nolevel[] = {
 	{ &hf_month, add_byte_param, PARAM_BYTES },
 	{ &hf_year, add_word_param, PARAM_WORD },
 	{ &hf_weekday, add_byte_param, PARAM_BYTES },
-	{ NULL, NULL }
+	{ NULL, NULL, PARAM_NONE }
 };
 
 static const item_list_t lm_data_resp_netremotetod[] = {
@@ -875,7 +876,7 @@ static const item_t lm_params_req_netserverenum2[] = {
 	{ &hf_detail_level, add_detail_level, PARAM_WORD },
 	{ &no_hf, add_server_type_info, PARAM_DWORD },
 	{ &hf_enumeration_domain, add_string_param, PARAM_STRINGZ },
-	{ NULL, NULL }
+	{ NULL, NULL, PARAM_NONE }
 };
 
 /*
@@ -908,17 +909,17 @@ netserverenum2_server_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 static const item_t lm_params_resp_netserverenum2[] = {
 	{ &hf_acount, add_word_param, PARAM_WORD },
-	{ NULL, NULL }
+	{ NULL, NULL, PARAM_NONE }
 };
 
 static const item_t lm_params_req_netwkstagetinfo[] = {
 	{ &hf_detail_level, add_detail_level, PARAM_WORD },
-	{ NULL, NULL }
+	{ NULL, NULL, PARAM_NONE }
 };
 
 static const item_t lm_params_resp_netwkstagetinfo[] = {
 	{ &hf_abytes, add_word_param, PARAM_WORD },
-	{ NULL, NULL }
+	{ NULL, NULL, PARAM_NONE }
 };
 
 static const item_t lm_data_resp_netwkstagetinfo_10[] = {
@@ -929,7 +930,7 @@ static const item_t lm_data_resp_netwkstagetinfo_10[] = {
 	{ &hf_workstation_minor, add_byte_param, PARAM_BYTES },
 	{ &hf_logon_domain, add_pointer_param, PARAM_STRINGZ },
 	{ &hf_other_domains, add_pointer_param, PARAM_STRINGZ },
-	{ NULL, NULL }
+	{ NULL, NULL, PARAM_NONE }
 };
 
 static const item_list_t lm_data_resp_netwkstagetinfo[] = {
@@ -943,12 +944,12 @@ static const item_t lm_params_req_netwkstauserlogon[] = {
 	{ &hf_detail_level, add_detail_level, PARAM_WORD },
 	{ &no_hf, add_logon_args, PARAM_BYTES },
 	{ &hf_ustruct_size, add_word_param, PARAM_WORD },
-	{ NULL, NULL }
+	{ NULL, NULL, PARAM_NONE }
 };
 
 static const item_t lm_params_resp_netwkstauserlogon[] = {
 	{ &hf_abytes, add_word_param, PARAM_WORD },
-	{ NULL, NULL }
+	{ NULL, NULL, PARAM_NONE }
 };
 
 static const item_t lm_data_resp_netwkstauserlogon_1[] = {
@@ -970,7 +971,7 @@ static const item_t lm_data_resp_netwkstauserlogon_1[] = {
 	{ &hf_logon_domain, add_pointer_param, PARAM_STRINGZ },
 	{ &hf_script_path, add_pointer_param, PARAM_STRINGZ },
 	{ &hf_reserved, add_dword_param, PARAM_DWORD },
-	{ NULL, NULL }
+	{ NULL, NULL, PARAM_NONE }
 };
 
 static const item_list_t lm_data_resp_netwkstauserlogon[] = {
@@ -982,19 +983,19 @@ static const item_t lm_params_req_netwkstauserlogoff[] = {
 	{ &hf_user_name, add_byte_param, PARAM_BYTES },
 	{ &no_hf, add_pad_param, PARAM_BYTES },
 	{ &hf_workstation_name, add_byte_param, PARAM_BYTES },
-	{ NULL, NULL }
+	{ NULL, NULL, PARAM_NONE }
 };
 
 static const item_t lm_params_resp_netwkstauserlogoff[] = {
 	{ &hf_abytes, add_word_param, PARAM_WORD },
-	{ NULL, NULL }
+	{ NULL, NULL, PARAM_NONE }
 };
 
 static const item_t lm_data_resp_netwkstauserlogoff_1[] = {
 	{ &hf_logoff_code, add_word_param, PARAM_WORD },
 	{ &hf_duration, add_reltime, PARAM_DWORD },
 	{ &hf_num_logons, add_nlogons, PARAM_WORD },
-	{ NULL, NULL }
+	{ NULL, NULL, PARAM_NONE }
 };
 
 static const item_list_t lm_data_resp_netwkstauserlogoff[] = {
@@ -1004,13 +1005,13 @@ static const item_list_t lm_data_resp_netwkstauserlogoff[] = {
 
 static const item_t lm_params_req_samoemchangepassword[] = {
 	{ &hf_user_name, add_string_param, PARAM_STRINGZ },
-	{ NULL, NULL }
+	{ NULL, NULL, PARAM_NONE }
 };
 
 static const item_t lm_data_req_samoemchangepassword[] = {
 	{ &hf_new_password, add_byte_param, PARAM_BYTES },
 	{ &hf_old_password, add_byte_param, PARAM_BYTES },
-	{ NULL, NULL }
+	{ NULL, NULL, PARAM_NONE }
 };
 
 #define LANMAN_NETSHAREENUM		0
@@ -1212,8 +1213,8 @@ find_lanman(int lanman_num)
 	return &lmd[i];
 }
 
-static const gchar *
-get_count(const gchar *desc, int *countp)
+static const guchar *
+get_count(const guchar *desc, int *countp)
 {
 	int count = 0, off = 0;
 	guchar c;
@@ -1234,7 +1235,7 @@ get_count(const gchar *desc, int *countp)
 
 static int
 dissect_request_parameters(tvbuff_t *tvb, int offset, packet_info *pinfo,
-    proto_tree *tree, const gchar *desc, const item_t *items,
+    proto_tree *tree, const guchar *desc, const item_t *items,
     gboolean *has_data_p)
 {
 	guint c;
@@ -1452,7 +1453,7 @@ dissect_request_parameters(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 static int
 dissect_response_parameters(tvbuff_t *tvb, int offset, packet_info *pinfo,
-    proto_tree *tree, const gchar *desc, const item_t *items,
+    proto_tree *tree, const guchar *desc, const item_t *items,
     gboolean *has_data_p, gboolean *has_ent_count_p, guint16 *ent_count_p)
 {
 	guint c;
@@ -1589,7 +1590,7 @@ dissect_response_parameters(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 static int
 dissect_transact_data(tvbuff_t *tvb, int offset, int convert,
-    packet_info *pinfo, proto_tree *tree, const gchar *desc,
+    packet_info *pinfo, proto_tree *tree, const guchar *desc,
     const item_t *items, guint16 *aux_count_p)
 {
 	guint c;
