@@ -1,7 +1,7 @@
 /* packet-ip.h
  * Definitions for IP packet disassembly structures and routines
  *
- * $Id: packet-ip.h,v 1.6 1999/10/15 05:30:39 itojun Exp $
+ * $Id: packet-ip.h,v 1.7 1999/10/30 06:10:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -27,12 +27,6 @@
 #ifndef __PACKET_IP_H__
 #define __PACKET_IP_H__
 
-#define IP_PROTO_ICMP  1
-#define IP_PROTO_IGMP  2
-#define IP_PROTO_TCP   6
-#define IP_PROTO_UDP  17
-#define IP_PROTO_OSPF 89
-
 #define IP_PROTO_IP		0		/* dummy for IP */
 #define IP_PROTO_HOPOPTS	0		/* IP6 hop-by-hop options */
 #define IP_PROTO_ICMP		1		/* control message protocol */
@@ -57,6 +51,7 @@
 #define IP_PROTO_NONE		59		/* IP6 no next header */
 #define IP_PROTO_DSTOPTS	60		/* IP6 no next header */
 #define IP_PROTO_EON		80		/* ISO cnlp */
+#define IP_PROTO_EIGRP   88
 #define IP_PROTO_OSPF		89
 #define IP_PROTO_ENCAP		98		/* encapsulation header */
 #define IP_PROTO_PIM		103		/* Protocol Independent Mcast */

@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.123 1999/10/29 05:25:59 guy Exp $
+ * $Id: packet.h,v 1.124 1999/10/30 06:10:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -250,6 +250,7 @@ enum {
 	ETT_DNS_QD,
 	ETT_DNS_ANS,
 	ETT_DNS_RR,
+	ETT_EIGRP,
 	ETT_CL_ICQ,
 	ETT_CL_ICQ_DECODE,
 	ETT_ICQ_SUBTREE,
@@ -552,6 +553,7 @@ void dissect_cotp(const u_char *, int, frame_data *, proto_tree *);
 void dissect_data(const u_char *, int, frame_data *, proto_tree *);
 void dissect_ddp(const u_char *, int, frame_data *, proto_tree *);
 void dissect_dns(const u_char *, int, frame_data *, proto_tree *);
+void dissect_eigrp(const u_char *, int, frame_data *, proto_tree *);            
 void dissect_esp(const u_char *, int, frame_data *, proto_tree *);
 void dissect_eth(const u_char *, int, frame_data *, proto_tree *);
 void dissect_ftp(const u_char *, int, frame_data *, proto_tree *);

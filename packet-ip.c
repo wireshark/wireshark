@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.58 1999/10/22 07:17:32 guy Exp $
+ * $Id: packet-ip.c,v 1.59 1999/10/30 06:10:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -158,20 +158,51 @@ typedef struct _e_igmp {
 #define IGMP_MTRC_RESP 0x1e
 #define IGMP_MTRC      0x1f
 
+/* EIGRP Structs and Definitions. */    
+
+/* EIGRP Opcodes */
+
+#define EIGRP_UPDATE    0x01
+#define EIGRP_REQUEST   0x02
+#define EIGRP_QUERY     0x03
+#define EIGRP_REPLY     0x04
+#define EIGRP_HELLO     0x05
+
+typedef struct _e_eigrp 
+   {
+   guint8 eigrp_version;
+   guint8 eigrp_opcode;
+   guint16 eigrp_checksum;
+   guint16 eigrp_subnets;
+   guint16 eigrp_networks;
+   guint32 eigrp_sequence;
+   guint32 eigrp_asnumber;
+   guint8 eigrp_type1;
+   guint8 eigrp_subtype1;
+   guint16 eigrp_length1;
+   guint16 eigrp_holdtime;
+   guint8 eigrp_type2;
+   guint8 eigrp_subtype2;
+   guint16 eigrp_length2;
+   guint8 eigrp_level;
+   guint16 eigrp_dummy;
+   } e_eigrp;
+
 /* IP structs and definitions */
 
-typedef struct _e_ip {
-  guint8  ip_v_hl; /* combines ip_v and ip_hl */
-  guint8  ip_tos;
-  guint16 ip_len;
-  guint16 ip_id;
-  guint16 ip_off;
-  guint8  ip_ttl;
-  guint8  ip_p;
-  guint16 ip_sum;
-  guint32 ip_src;
-  guint32 ip_dst;
-} e_ip;
+typedef struct _e_ip 
+   {
+   guint8  ip_v_hl; /* combines ip_v and ip_hl */
+   guint8  ip_tos;
+   guint16 ip_len;
+   guint16 ip_id;
+   guint16 ip_off;
+   guint8  ip_ttl;
+   guint8  ip_p;
+   guint16 ip_sum;
+   guint32 ip_src;
+   guint32 ip_dst;
+   } e_ip;
 
 /* Offsets of fields within an IP header. */
 #define	IPH_V_HL	0
@@ -651,6 +682,7 @@ dissect_ip_tcp_options(const u_char *opd, int offset, guint length,
 
 static const value_string proto_vals[] = { {IP_PROTO_ICMP, "ICMP"},
                                            {IP_PROTO_IGMP, "IGMP"},
+                                           {IP_PROTO_EIGRP, "IGRP/EIGRP"},
                                            {IP_PROTO_TCP,  "TCP" },
                                            {IP_PROTO_UDP,  "UDP" },
                                            {IP_PROTO_OSPF, "OSPF"},
@@ -862,18 +894,21 @@ again:
     case IP_PROTO_IGMP:
       dissect_igmp(pd, offset, fd, tree);
      break;
+    case IP_PROTO_EIGRP:
+      dissect_eigrp(pd, offset, fd, tree);
+      break;  
     case IP_PROTO_TCP:
       dissect_tcp(pd, offset, fd, tree);
-     break;
+      break;
     case IP_PROTO_UDP:
       dissect_udp(pd, offset, fd, tree);
       break;
     case IP_PROTO_OSPF:
       dissect_ospf(pd, offset, fd, tree);
-     break;
+      break;
     case IP_PROTO_RSVP:
       dissect_rsvp(pd, offset, fd, tree);
-     break;
+      break;
     case IP_PROTO_AH:
       advance = dissect_ah(pd, offset, fd, tree);
       nxt = pd[offset];
@@ -1325,3 +1360,54 @@ proto_register_icmp(void)
 					"icmp");
   proto_register_field_array(proto_icmp, hf, array_length(hf));
 }
+
+static int proto_eigrp = -1;
+
+void
+dissect_eigrp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
+  e_eigrp     ih;
+  proto_tree *eigrp_tree;
+  proto_item *ti;
+  guint16    cksum;
+  gchar      type_str[64] = "";
+
+  /* Avoids alignment problems on many architectures. */
+static const value_string eigrp_opcode_vals[] = {
+	{ EIGRP_HELLO,		"Hello/Ack" },
+	{ EIGRP_UPDATE,		"Update" },
+   	{ EIGRP_REPLY, 		"Reply" },
+   	{ EIGRP_QUERY, 		"Query" },
+	{ EIGRP_REQUEST,	"Request" },
+	{ 0,				NULL }    
+};
+  
+   memcpy(&ih, &pd[offset], sizeof(e_eigrp));
+  /* To do: check for runts, errs, etc. */
+  cksum = ntohs(ih.eigrp_checksum);
+  
+  if (check_col(fd, COL_PROTOCOL))
+    col_add_str(fd, COL_PROTOCOL, "EIGRP");
+  if (check_col(fd, COL_INFO))
+    col_add_str(fd, COL_INFO, type_str);
+  if (tree) {
+
+     ti = proto_tree_add_item(tree, proto_eigrp, offset, END_OF_FRAME, NULL);
+     eigrp_tree = proto_item_add_subtree(ti, ETT_RIP);
+  
+     proto_tree_add_text(eigrp_tree, offset, 1, "Version: %d", ih.eigrp_version); 
+     proto_tree_add_text(eigrp_tree, offset + 1, 1, "Opcode: %d (%s)", ih.eigrp_opcode,
+         val_to_str( ih.eigrp_opcode, eigrp_opcode_vals, "Unknown") );
+     proto_tree_add_text(eigrp_tree, offset + 2, 2, "Checksum: 0x%x", cksum); 
+     proto_tree_add_text(eigrp_tree, offset + 4, 2, "Subnets in local net: %d", ih.eigrp_subnets); 
+     proto_tree_add_text(eigrp_tree, offset + 6, 2, "Networks in Autonomous System: %d", ih.eigrp_networks); 
+     proto_tree_add_text(eigrp_tree, offset + 8, 4, "Sequence Number: 0x%x", ih.eigrp_sequence); 
+     proto_tree_add_text(eigrp_tree, offset + 12, 4, "Autonomous System number: %ld", ih.eigrp_asnumber); 
+   }
+}
+
+
+void
+proto_register_eigrp(void)
+   {
+   proto_eigrp = proto_register_protocol("Enhanced Interior Gateway Routing Protocol", "eigrp");
+   }
