@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.22 1999/05/11 18:51:09 deniel Exp $
+ * $Id: capture.c,v 1.23 1999/06/01 22:24:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -205,11 +205,11 @@ capture_prep_cb(GtkWidget *w, gpointer d) {
   gtk_box_pack_start(GTK_BOX(count_hb), count_lb, FALSE, FALSE, 0);
   gtk_widget_show(count_lb);
   
+  count_list = g_list_append(count_list, count_item1);
   if (cf.count) {
     snprintf(count_item2, 15, "%d", cf.count);
     count_list = g_list_append(count_list, count_item2);
   }
-  count_list = g_list_append(count_list, count_item1);
 
   count_cb = gtk_combo_new();
   gtk_combo_set_popdown_strings(GTK_COMBO(count_cb), count_list);
