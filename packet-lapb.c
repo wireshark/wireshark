@@ -2,7 +2,7 @@
  * Routines for lapb frame disassembly
  * Olivier Abad <oabad@noos.fr>
  *
- * $Id: packet-lapb.c,v 1.39 2003/09/02 19:18:52 guy Exp $
+ * $Id: packet-lapb.c,v 1.40 2003/09/26 08:19:55 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -41,6 +41,7 @@ static gint ett_lapb = -1;
 static gint ett_lapb_control = -1;
 
 static dissector_handle_t x25_dir_handle;
+static dissector_handle_t x25_handle;
 
 static void
 dissect_lapb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -55,17 +56,28 @@ dissect_lapb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (check_col(pinfo->cinfo, COL_INFO))
 	col_clear(pinfo->cinfo, COL_INFO);
 
-    if (pinfo->pseudo_header->x25.flags & FROM_DCE) {
-	if(check_col(pinfo->cinfo, COL_RES_DL_DST))
-	    col_set_str(pinfo->cinfo, COL_RES_DL_DST, "DTE");
-	if(check_col(pinfo->cinfo, COL_RES_DL_SRC))
-	    col_set_str(pinfo->cinfo, COL_RES_DL_SRC, "DCE");
-    }
-    else {
-	if(check_col(pinfo->cinfo, COL_RES_DL_DST))
-	    col_set_str(pinfo->cinfo, COL_RES_DL_DST, "DCE");
+    switch (pinfo->p2p_dir) {
+
+    case P2P_DIR_SENT:
 	if(check_col(pinfo->cinfo, COL_RES_DL_SRC))
 	    col_set_str(pinfo->cinfo, COL_RES_DL_SRC, "DTE");
+	if(check_col(pinfo->cinfo, COL_RES_DL_DST))
+	    col_set_str(pinfo->cinfo, COL_RES_DL_DST, "DCE");
+	break;
+
+    case P2P_DIR_RECV:
+	if(check_col(pinfo->cinfo, COL_RES_DL_SRC))
+	    col_set_str(pinfo->cinfo, COL_RES_DL_SRC, "DCE");
+	if(check_col(pinfo->cinfo, COL_RES_DL_DST))
+	    col_set_str(pinfo->cinfo, COL_RES_DL_DST, "DTE");
+	break;
+
+    default:
+	if(check_col(pinfo->cinfo, COL_RES_DL_SRC))
+	    col_set_str(pinfo->cinfo, COL_RES_DL_SRC, "N/A");
+	if(check_col(pinfo->cinfo, COL_RES_DL_DST))
+	    col_set_str(pinfo->cinfo, COL_RES_DL_DST, "N/A");
+	break;
     }
 
     byte0 = tvb_get_guint8(tvb, 0);
@@ -80,11 +92,32 @@ dissect_lapb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	return;
     }
 
-    if (((pinfo->pseudo_header->x25.flags & FROM_DCE) && byte0 == 0x01) ||
-       (!(pinfo->pseudo_header->x25.flags & FROM_DCE) && byte0 == 0x03))
-	is_response = TRUE;
-    else
+    switch (pinfo->p2p_dir) {
+
+    case P2P_DIR_SENT:
+	if (byte0 == 0x03)
+	    is_response = TRUE;
+	else
+	    is_response = FALSE;
+	break;
+
+    case P2P_DIR_RECV:
+	if (byte0 == 0x01)
+	    is_response = TRUE;
+	else
+	    is_response = FALSE;
+	break;
+
+    default:
+	/*
+	 * XXX - should we base this on the source and destination
+	 * addresses?  The problem is that we can tell one direction
+	 * from another with that, but we can't say which is DTE->DCE
+	 * and which is DCE->DTE.
+	 */
 	is_response = FALSE;
+	break;
+    }
 
     if (tree) {
 	ti = proto_tree_add_protocol_format(tree, proto_lapb, tvb, 0, 2,
@@ -101,8 +134,18 @@ dissect_lapb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* not end of frame ==> X.25 */
     if (tvb_reported_length(tvb) > 2) {
-	    next_tvb = tvb_new_subset(tvb, 2, -1, -1);
+	next_tvb = tvb_new_subset(tvb, 2, -1, -1);
+	switch (pinfo->p2p_dir) {
+
+	case P2P_DIR_SENT:
+	case P2P_DIR_RECV:
 	    call_dissector(x25_dir_handle, next_tvb, pinfo, tree);
+	    break;
+
+	default:
+	    call_dissector(x25_handle, next_tvb, pinfo, tree);
+	    break;
+	}
     }
 }
 
@@ -137,10 +180,12 @@ proto_reg_handoff_lapb(void)
     dissector_handle_t lapb_handle;
 
     /*
-     * Get a handle for the X.25 dissector; we will be getting an
-     * X.25 pseudo-header, so call the dissector that can handle it.
+     * Get handles for the X.25 dissectors; we don't get an X.25
+     * pseudo-header for LAPB-over-Ethernet, but we do get it
+     * for raw LAPB.
      */
     x25_dir_handle = find_dissector("x.25_dir");
+    x25_handle = find_dissector("x.25");
 
     lapb_handle = find_dissector("lapb");
     dissector_add("wtap_encap", WTAP_ENCAP_LAPB, lapb_handle);
