@@ -1,6 +1,6 @@
 /* packet-mip6.h
  *
- * $Id: packet-mip6.h,v 1.3 2003/07/11 21:03:13 guy Exp $
+ * $Id: packet-mip6.h,v 1.4 2003/12/16 19:31:40 guy Exp $
  *
  * Definitions for Mobile IPv6 dissection (draft-ietf-mobileip-ipv6-20.txt)
  * Copyright 2003 Oy L M Ericsson Ab <teemu.rinta-aho@ericsson.fi>
@@ -85,17 +85,19 @@ static const true_false_string mip6_bu_k_flag_value = {
 /* Binding Acknowledgement status values */
 static const value_string mip6_ba_status_value[] = {
     {   0, "Binding Update accepted" },
+    {   1, "Accepted but prefix discovery necessary" },
     { 128, "Reason unspecified" },
-    { 129, "Adminstratively prohibited" },
+    { 129, "Administratively prohibited" },
     { 130, "Insufficient resources" },
     { 131, "Home registration not supported" },
     { 132, "Not home subnet" },
     { 133, "Not home agent for this mobile node" },
-    { 134, "Duplicate address detection failed" },
+    { 134, "Duplicate Address Detection failed" },
     { 135, "Sequence number out of window" },
     { 136, "Expired home nonce index" },
     { 137, "Expired care-of nonce index" },
     { 138, "Expired nonces" },
+    { 139, "Registration type change disallowed" },
     {   0, NULL }
 };
 
