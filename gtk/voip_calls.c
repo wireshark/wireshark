@@ -243,6 +243,28 @@ int append_to_frame_graph(voip_calls_tapinfo_t *tapinfo _U_, guint32 frame_num, 
 }
 
 /****************************************************************************/
+/* Change all the graph items with call_num to new_call_num */
+guint change_call_num_graph(voip_calls_tapinfo_t *tapinfo _U_, guint16 call_num, guint16 new_call_num)
+{
+	graph_analysis_item_t *gai;
+	GList* list;
+	guint items_changed;
+
+	items_changed = 0;
+	list = g_list_first(tapinfo->graph_analysis->list);
+	while (list)
+	{
+		gai = list->data;
+		if (gai->conv_num == call_num){
+			gai->conv_num = new_call_num;
+			items_changed++;
+		}
+		list = g_list_next (list);
+	}
+	return items_changed;
+}
+
+/****************************************************************************/
 /* ***************************TAP for RTP **********************************/
 /****************************************************************************/
 
@@ -1011,15 +1033,17 @@ H225calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 	voip_calls_info_t *tmp_listinfo;
 	voip_calls_info_t *strinfo = NULL;
 	h323_calls_info_t *tmp_h323info;
+	h323_calls_info_t *tmp2_h323info;
 	gchar *frame_label;
 	gchar *comment;
 	GList* list;
 	guint32 tmp_src, tmp_dst;
+	guint foo;
 
 	const h225_packet_info *pi = H225info;
 
-	/* if not guid and RAS return because did not belong to a call */
-	if ((memcmp(pi->guid, guid_allzero, GUID_LEN) == 0) && (pi->msg_type == H225_RAS))
+	/* if not guid and RAS and not LRQ, LCF or LRJ return because did not belong to a call */
+	if ((memcmp(pi->guid, guid_allzero, GUID_LEN) == 0) && (pi->msg_type == H225_RAS) && ((pi->msg_tag < 18) || (pi->msg_tag > 20)))
 		return 0;
 	
 
@@ -1039,6 +1063,24 @@ H225calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 			list = g_list_next (list);
 		}
 		if (strinfo==NULL) 	return 0;		
+	} else if ( (pi->msg_type == H225_RAS) && ((pi->msg_tag == 19) || (pi->msg_tag == 20))) { /* RAS LCF or LRJ*/
+		/* if the LCF/LRJ doesn't match to a LRQ, just return */
+		if (!pi->request_available) return 0;
+
+		/* check wether we already have a call with this request SeqNum */
+		list = g_list_first(tapinfo->strinfo_list);
+		while (list)
+		{
+			tmp_listinfo=list->data;
+			if (tmp_listinfo->protocol == VOIP_H323){
+				tmp_h323info = tmp_listinfo->prot_info;
+				if (tmp_h323info->requestSeqNum == pi->requestSeqNum) {
+					strinfo = (voip_calls_info_t*)(list->data);
+					break;
+				}
+			}
+			list = g_list_next (list);
+		}
 	} else {
 		/* check wether we already have a call with this guid in the list */
 		list = g_list_first(tapinfo->strinfo_list);
@@ -1047,7 +1089,7 @@ H225calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 			tmp_listinfo=list->data;
 			if (tmp_listinfo->protocol == VOIP_H323){
 				tmp_h323info = tmp_listinfo->prot_info;
-				if (memcmp(tmp_h323info->guid, pi->guid,GUID_LEN)==0){ 
+				if ( (memcmp(tmp_h323info->guid, guid_allzero, GUID_LEN) != 0) && (memcmp(tmp_h323info->guid, pi->guid,GUID_LEN)==0) ){ 
 					strinfo = (voip_calls_info_t*)(list->data);
 					break;
 				}
@@ -1081,6 +1123,7 @@ H225calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 		tmp_h323info->is_h245 = FALSE;
 		tmp_h323info->q931_crv = -1;
 		tmp_h323info->q931_crv2 = -1;
+		tmp_h323info->requestSeqNum = 0;
 		strinfo->call_num = tapinfo->ncalls++;
 		strinfo->npackets = 0;
 
@@ -1120,7 +1163,6 @@ H225calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 			switch(pi->cs_type){
 			case H225_SETUP:
 				tmp_h323info->is_faststart_Setup = pi->is_faststart;
-
 				/* set te calling and called number from the Q931 packet */
 				if (q931_frame_num == pinfo->fd->num){
 					if (q931_calling_number != NULL){
@@ -1132,6 +1174,39 @@ H225calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 						strinfo->to_identity=g_strdup(q931_called_number);
 					}
 				}
+				/* check if there is an LRQ/LCF that match this Setup */
+				/* TODO: we are just checking the DialedNumer in LRQ/LCF agains the Setup 
+				  we should also check if the h225 signaling IP and port match the destination 
+				  Setup ip and port */
+				list = g_list_first(tapinfo->strinfo_list);
+						foo=	g_list_length(list);
+				while (list)
+				{
+					tmp_listinfo=list->data;
+					if (tmp_listinfo->protocol == VOIP_H323){
+						tmp2_h323info = tmp_listinfo->prot_info;
+
+						/* check if there called number match a LRQ/LCF */
+						if ( (strcmp(strinfo->to_identity, tmp_listinfo->to_identity)==0)  
+								&& (memcmp(tmp2_h323info->guid, guid_allzero, GUID_LEN) == 0) ){ 
+							/* change the call graph to the LRQ/LCF to belong to this call */
+							strinfo->npackets += change_call_num_graph(tapinfo, tmp_listinfo->call_num, strinfo->call_num);
+
+							/* remove this LRQ/LCF call entry because we have found the Setup that match them */
+							g_free(tmp_listinfo->from_identity);
+							g_free(tmp_listinfo->to_identity);
+							g_free(tmp2_h323info->guid);
+							g_list_free(tmp2_h323info->h245_list);
+							tmp2_h323info->h245_list = NULL;		
+							g_free(tmp_listinfo->prot_info);
+							tapinfo->strinfo_list = g_list_remove(tapinfo->strinfo_list, tmp_listinfo);
+							break;
+						}
+					}
+					list = g_list_next (list);
+				}
+						foo=	g_list_length(list);
+				/* Set the Setup address if it was not set */
 				if (tmp_h323info->h225SetupAddr == 0) g_memmove(&(tmp_h323info->h225SetupAddr), pinfo->src.data,4);
 				strinfo->call_state=VOIP_CALL_SETUP;
 				comment = g_strdup_printf("H225 From: %s To:%s  TunnH245:%s FS:%s", strinfo->from_identity, strinfo->to_identity, (tmp_h323info->is_h245Tunneling==TRUE?"on":"off"), 
@@ -1179,8 +1254,23 @@ H225calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 
 			}
 		} else if (pi->msg_type == H225_RAS){
+			switch(pi->msg_tag){
+			case 18:  /* LRQ */
+				if (!pi->is_duplicate){
+					g_free(strinfo->to_identity);
+					strinfo->to_identity=g_strdup(pi->dialedDigits);
+					tmp_h323info->requestSeqNum = pi->requestSeqNum;
+				}
+			case 19: /* LCF */
+				if (strlen(pi->dialedDigits)) 
+					comment = g_strdup_printf("H225 RAS dialedDigits: %s", pi->dialedDigits);
+				else
+					comment = g_strdup("H225 RAS");
+				break;
+			default:
+				comment = g_strdup("H225 RAS");
+			}
 			frame_label = g_strdup_printf("%s", val_to_str(pi->msg_tag, RasMessage_vals, "<unknown>"));
-			comment = g_strdup("H225 RAS");
 		} else {
 			frame_label = g_strdup("H225: Unknown");
 			comment = g_strdup("");

@@ -298,6 +298,8 @@ static void reset_h225_packet_info(h225_packet_info *pi)
 	pi->h245_address = 0;
 	pi->h245_port = 0;
 	pi->frame_label[0] = '\0';
+	pi->dialedDigits[0] = '\0';
+	pi->is_destinationInfo = FALSE;
 }
 
 /*

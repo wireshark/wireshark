@@ -203,16 +203,25 @@ CallIdentifier/guid guid
 	h225_pi->msg_tag = rasmessage_value;
 #.END
 #----------------------------------------------------------------------------------------
+#.FN_HDR DestinationInfo/_item
+
+  h225_pi->is_destinationInfo = TRUE;
+#.END
+#----------------------------------------------------------------------------------------
 # TODO asn2eth can't handle restriced string ?
 #.FN_BODY DialedDigits
-
-	offset=dissect_per_restricted_character_string(tvb, offset, pinfo, tree, hf_index, 1, 128, "#,*0123456789", 13);
+  if (h225_pi->is_destinationInfo == TRUE) {
+    offset = dissect_per_restricted_character_string(tvb, offset, pinfo, tree, hf_index, 1, 128, "#,*0123456789", 13, (char *)&h225_pi->dialedDigits , 64);  
+	h225_pi->is_destinationInfo = FALSE;
+  }
+  else
+	offset = dissect_per_restricted_character_string(tvb, offset, pinfo, tree, hf_index, 1, 128, "#,*0123456789", 13, NULL, NULL);
 #.END
 #----------------------------------------------------------------------------------------
 # TODO asn2eth can't handle restriced string ?
 #.FN_BODY NumberDigits
 
-	offset=dissect_per_restricted_character_string(tvb, offset, pinfo, tree, hf_index, 1, 128, "#,*0123456789", 13);
+	offset=dissect_per_restricted_character_string(tvb, offset, pinfo, tree, hf_index, 1, 128, "#,*0123456789", 13, NULL, NULL);
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY H245TransportAddress/h245ipAddress/h245ipv4
