@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.99 2000/08/12 00:15:38 guy Exp $
+ * $Id: packet.c,v 1.100 2000/08/19 08:26:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -937,6 +937,13 @@ col_set_port(frame_data *fd, int col, port_type ptype, guint32 port,
 {
   switch (ptype) {
 
+  case PT_SCTP:
+    if (is_res)
+      strncpy(fd->cinfo->col_data[col], get_sctp_port(port), COL_MAX_LEN);
+    else
+      snprintf(fd->cinfo->col_data[col], COL_MAX_LEN, "%u", port);
+    break;
+    
   case PT_TCP:
     if (is_res)
       strncpy(fd->cinfo->col_data[col], get_tcp_port(port), COL_MAX_LEN);

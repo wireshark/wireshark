@@ -1,7 +1,7 @@
 /* resolv.c
  * Routines for network object lookup
  *
- * $Id: resolv.c,v 1.27 2000/08/10 22:35:30 deniel Exp $
+ * $Id: resolv.c,v 1.28 2000/08/19 08:26:03 guy Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
@@ -138,6 +138,7 @@ typedef struct _ipxnet
 static hashname_t 	*host_table[HASHHOSTSIZE];
 static hashname_t 	*udp_port_table[HASHPORTSIZE];
 static hashname_t 	*tcp_port_table[HASHPORTSIZE];
+static hashname_t       *sctp_port_table[HASHPORTSIZE];
 static hashether_t 	*eth_table[HASHETHSIZE];
 static hashmanuf_t 	*manuf_table[HASHMANUFSIZE];
 static hashipxnet_t 	*ipxnet_table[HASHIPXNETSIZE];
@@ -162,7 +163,7 @@ gchar *g_manuf_path   = EPATH_MANUF;	/* may only be changed before the   */
  *  Local function definitions 
  */
 
-static u_char *serv_name_lookup(u_int port, u_int proto)
+static u_char *serv_name_lookup(u_int port, port_type proto)
 {
 
   hashname_t *tp;
@@ -172,13 +173,17 @@ static u_char *serv_name_lookup(u_int port, u_int proto)
   int i;
 
   switch(proto) {
-  case IPPROTO_UDP:
+  case PT_UDP:
     table = udp_port_table;
     serv_proto = "udp";
     break;
-  case IPPROTO_TCP:
+  case PT_TCP:
     table = tcp_port_table;
     serv_proto = "tcp";
+    break;
+  case PT_SCTP:
+    table = sctp_port_table;
+    serv_proto = "sctp";
     break;
   default:
     /* not yet implemented */
@@ -1099,11 +1104,11 @@ extern u_char *get_udp_port(u_int port)
     } else {  
       cur = &str[0][0];
     }
-    sprintf(cur, "%d", port);
+    sprintf(cur, "%u", port);
     return cur;
   }
 
-  return serv_name_lookup(port, IPPROTO_UDP);
+  return serv_name_lookup(port, PT_UDP);
 
 } /* get_udp_port */
 
@@ -1120,13 +1125,34 @@ extern u_char *get_tcp_port(u_int port)
     } else {  
       cur = &str[0][0];
     }
-    sprintf(cur, "%d", port);
+    sprintf(cur, "%u", port);
     return cur;
   }
 
-  return serv_name_lookup(port, IPPROTO_TCP);
+  return serv_name_lookup(port, PT_TCP);
 
 } /* get_tcp_port */
+
+extern u_char *get_sctp_port(u_int port) 
+{
+  static gchar  str[3][MAXNAMELEN];
+  static gchar *cur;
+
+  if (!g_resolving_actif) {
+    if (cur == &str[0][0]) {
+      cur = &str[1][0];
+    } else if (cur == &str[1][0]) {  
+      cur = &str[2][0];
+    } else {  
+      cur = &str[0][0];
+    }
+    sprintf(cur, "%u", port);
+    return cur;
+  }
+
+  return serv_name_lookup(port, PT_SCTP);
+
+} /* get_sctp_port */
 
 extern u_char *get_ether_name(const u_char *addr)
 {

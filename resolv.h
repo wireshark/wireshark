@@ -1,7 +1,7 @@
 /* resolv.h
  * Definitions for network object lookup
  *
- * $Id: resolv.h,v 1.12 2000/08/10 20:09:29 deniel Exp $
+ * $Id: resolv.h,v 1.13 2000/08/19 08:26:04 guy Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
@@ -52,11 +52,14 @@ extern gchar *g_pipxnets_path;
 
 /* Functions in resolv.c */
 
-/* get_tcp_port returns the UDP port name or "%d" if not found */
+/* get_tcp_port returns the UDP port name or "%u" if not found */
 extern u_char *get_udp_port(u_int port);
 
-/* get_tcp_port returns the TCP port name or "%d" if not found */
+/* get_tcp_port returns the TCP port name or "%u" if not found */
 extern u_char *get_tcp_port(u_int port);
+
+/* get_sctp_port returns the SCTP port name or "%u" if not found */
+extern u_char *get_sctp_port(u_int port);
 
 /* get_hostname returns the host name or "%d.%d.%d.%d" if not found */
 extern u_char *get_hostname(u_int addr);
