@@ -1,7 +1,7 @@
 /* range_utils.c
  * Packet range routines (save, print, ...) for GTK things
  *
- * $Id: range_utils.c,v 1.1 2004/04/22 21:29:34 ulfl Exp $
+ * $Id: range_utils.c,v 1.2 2004/04/23 05:16:21 guy Exp $
  *
  * Ulf Lamping <ulf.lamping@web.de>
  *
@@ -253,7 +253,7 @@ toggle_select_user_range(GtkWidget *widget, gpointer data)
 
 
 static void
-range_entry(GtkWidget *widget, gpointer data)
+range_entry(GtkWidget *widget _U_, gpointer data)
 {
   const gchar   *entry_text;
   GtkWidget     *entry;
@@ -271,7 +271,7 @@ range_entry(GtkWidget *widget, gpointer data)
 
 
 static void
-range_entry_in_event(GtkWidget *widget, GdkEventFocus *event, gpointer user_data)
+range_entry_in_event(GtkWidget *widget, GdkEventFocus *event _U_, gpointer user_data)
 {
     range_entry(widget, user_data);
 }
