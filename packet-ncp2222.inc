@@ -8,7 +8,7 @@
  * Gilbert Ramirez <gram@alumni.rice.edu>
  * Modified to decode NDS packets by Greg Morris <gmorris@novell.com>
  *
- * $Id: packet-ncp2222.inc,v 1.24 2002/10/08 19:18:57 guy Exp $
+ * $Id: packet-ncp2222.inc,v 1.25 2002/10/10 03:25:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1331,9 +1331,21 @@ align_4(tvbuff_t *tvb, guint32 aoffset)
        return 0;
 }
        
+/*
+ * XXX - this routine assumes that "dest_buf" points to a buffer large
+ * enough for the string we'll be generating; unfortunately, it usually
+ * points to a null constant string, which is unlikely to be large
+ * enough for any characters whatsoever (so that this routine will
+ * overwrite some arbitrary stuff in memory), and may even be in
+ * a read-only portion of the address space (so that this routine
+ * will crash).
+ *
+ * We "#if 0" it out for now, to eliminate crashes.
+ */
 static void
 get_string(tvbuff_t* tvb, guint offset, guint str_length, char *dest_buf)
 {
+#if 0
         guint32 i;
         guint16 c_char;
         guint32 length_remaining = 0;
@@ -1375,6 +1387,7 @@ get_string(tvbuff_t* tvb, guint offset, guint str_length, char *dest_buf)
         }
 dest_buf[i] = '\0';
 return;
+#endif
 }
 
 /*************************************
@@ -7659,14 +7672,13 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
         	 * display filters can't possibly work. If we already have
         	 * a proto_tree, then wonderful. If we don't, we need to build
         	 * one. */
-        	if (ncp_rec) {
+        	if (ncp_rec && !ncp_tree) {
               		proto_item *ti;
                                        
                		temp_tree = proto_tree_create_root();
                		proto_tree_set_visible(temp_tree, FALSE);
                		ti = proto_tree_add_item(temp_tree, proto_ncp, tvb, 0, -1, FALSE);
                		ncp_tree = proto_item_add_subtree(ti, ett_ncp);
-                        
         	}
         }
                 
