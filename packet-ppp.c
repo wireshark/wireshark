@@ -1,7 +1,7 @@
 /* packet-ppp.c
  * Routines for ppp packet disassembly
  *
- * $Id: packet-ppp.c,v 1.51 2001/01/09 06:31:40 guy Exp $
+ * $Id: packet-ppp.c,v 1.52 2001/01/10 09:07:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -37,11 +37,13 @@
 #include "packet.h"
 #include "packet-ppp.h"
 #include "ppptypes.h"
+#include "etypes.h"
 #include "packet-atalk.h"
 #include "packet-ip.h"
 #include "packet-ipv6.h"
 #include "packet-ipx.h"
 #include "packet-vines.h"
+#include "nlpid.h"
 
 static int proto_ppp = -1;
 
@@ -108,8 +110,8 @@ static const value_string ppp_vals[] = {
 	{PPP_CBCP,	"Callback Control Protocol" },
 	{PPP_MPLS_UNI,  "MPLS Uni-cast"},
 	{PPP_MPLS_MULTI, "MPLS Multi-cast"},
-	{CISCO_IP,      "CISCO HDLC IP"},
-	{CISCO_SLARP,   "CISCO HDLC SLARP"},
+	{ETHERTYPE_IP,  "Cisco HDLC IP"},
+	{CISCO_SLARP,   "Cisco HDLC SLARP"},
 	{0,             NULL            }
 };
 
@@ -662,9 +664,9 @@ fcs32(guint32 fcs,
         return(0x00000000);
 
     while (len--) {
-		val = tvb_get_guint8(tvbuff, offset++);
-		fcs = (((fcs) >> 8) ^ fcstab_32[((fcs) ^ (val)) & 0xff]);
-	}
+	val = tvb_get_guint8(tvbuff, offset++);
+	fcs = (((fcs) >> 8) ^ fcstab_32[((fcs) ^ (val)) & 0xff]);
+    }
     return (fcs ^ 0xffffffff);
 }
 
@@ -672,7 +674,7 @@ void
 capture_ppp( const u_char *pd, int offset, packet_counts *ld ) {
   switch (pntohs(&pd[offset + 2])) {
     case PPP_IP:
-    case CISCO_IP:
+    case ETHERTYPE_IP:
       capture_ip(pd, offset + 4, ld);
       break;
     case PPP_IPX:
@@ -1470,4 +1472,5 @@ proto_reg_handoff_ppp(void)
 {
   dissector_add("wtap_encap", WTAP_ENCAP_PPP, dissect_ppp, proto_ppp);
   dissector_add("wtap_encap", WTAP_ENCAP_PPP_WITH_PHDR, dissect_ppp, proto_ppp);
+  dissector_add("fr.ietf", NLPID_PPP, dissect_ppp, proto_ppp);
 }

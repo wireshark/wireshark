@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.268 2001/01/07 22:08:31 guy Exp $
+# $Id: Makefile.am,v 1.269 2001/01/10 09:07:35 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -269,6 +269,7 @@ ETHEREAL_COMMON_SOURCES = \
 	alignment.h    \
 	asn1.c         \
 	asn1.h         \
+	bridged_pids.h \
 	column.c       \
 	column.h       \
 	color.h        \

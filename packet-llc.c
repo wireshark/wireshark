@@ -2,7 +2,7 @@
  * Routines for IEEE 802.2 LLC layer
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-llc.c,v 1.78 2001/01/09 06:31:38 guy Exp $
+ * $Id: packet-llc.c,v 1.79 2001/01/10 09:07:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -38,11 +38,14 @@
 #include "xdlc.h"
 #include "etypes.h"
 #include "llcsaps.h"
+#include "bridged_pids.h"
 #include "packet-ip.h"
 #include "packet-ipx.h"
 #include "packet-netbios.h"
 #include "packet-osi.h"
 #include "packet-sna.h"
+
+#include "packet-llc.h"
 
 static int proto_llc = -1;
 static int hf_llc_dsap = -1;
@@ -61,6 +64,9 @@ static dissector_table_t subdissector_table;
 static dissector_table_t cisco_subdissector_table;
 
 static dissector_handle_t bpdu_handle;
+static dissector_handle_t eth_handle;
+static dissector_handle_t fddi_handle;
+static dissector_handle_t tr_handle;
 
 typedef void (capture_func_t)(const u_char *, int, packet_counts *);
 
@@ -161,7 +167,8 @@ http://www.cisco.com/univercd/cc/td/doc/product/software/ios113ed/113ed_cr/ibm_r
 */
 	{ OUI_CISCO,       "Cisco" },
 	{ OUI_CISCO_90,    "Cisco IOS 9.0 Compatible" },
-	{ OUI_BFR,         "Bridged Frame-Relay" }, /* RFC 2427 */
+	{ OUI_BRIDGED,     "Frame Relay or ATM bridged frames" },
+				/* RFC 2427, RFC 2684 */
 	{ OUI_ATM_FORUM,   "ATM Forum" },
 	{ OUI_APPLE_ATALK, "Apple (AppleTalk)" },
 	{ OUI_CABLE_BPDU,  "DOCSIS Spanning Tree" }, /* DOCSIS spanning tree BPDU */
@@ -270,12 +277,8 @@ dissect_llc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int		is_snap;
 	guint16		control;
 	int		llc_header_len;
-	guint32		oui;
-	guint16		etype;
 	guint8		dsap, ssap;
 	tvbuff_t	*next_tvb;
-	const guint8	*pd;
-	int		offset;
 
 	CHECK_DISPLAY_AS_DATA(proto_llc, tvb, pinfo, tree);
     
@@ -328,76 +331,8 @@ dissect_llc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_item_set_len(ti, llc_header_len);
 
 	if (is_snap) {
-		oui =	tvb_get_ntoh24(tvb, 3);
-		etype = tvb_get_ntohs(tvb, 6);
-
-		if (check_col(pinfo->fd, COL_INFO)) {
-			col_append_fstr(pinfo->fd, COL_INFO, "; SNAP, OUI 0x%06X (%s), PID 0x%04X",
-			    oui, val_to_str(oui, oui_vals, "Unknown"),
-			    etype);
-		}
-		if (tree) {
-			proto_tree_add_uint(llc_tree, hf_llc_oui, tvb, 3, 3,
-				oui);
-		}
-
-		next_tvb = tvb_new_subset(tvb, 8, -1, -1);
-		tvb_compat(next_tvb, &pd, &offset);
-
-		switch (oui) {
-
-		case OUI_ENCAP_ETHER:
-		case OUI_APPLE_ATALK:
-			/* No, I have no idea why Apple used
-			   one of their own OUIs, rather than
-			   OUI_ENCAP_ETHER, and an Ethernet
-			   packet type as protocol ID, for
-			   AppleTalk data packets - but used
-			   OUI_ENCAP_ETHER and an Ethernet
-			   packet type for AARP packets. */
-			if (XDLC_IS_INFORMATION(control)) {
-				ethertype(etype, tvb, 8,
-				    pinfo, tree, llc_tree, hf_llc_type);
-			} else
-				dissect_data(next_tvb, 0, pinfo, tree);
-			break;
-
-		case OUI_CISCO:
-			/* So are all CDP packets LLC packets
-			   with an OUI of OUI_CISCO and a
-			   protocol ID of 0x2000, or
-			   are some of them raw or encapsulated
-			   Ethernet? */
-			if (tree) {
-				proto_tree_add_uint(llc_tree,
-				    hf_llc_pid, tvb, 6, 2, etype);
-			}
-			if (XDLC_IS_INFORMATION(control)) {
-				/* do lookup with the subdissector table */
-				/* for future reference, 0x0102 is Cisco DRIP */
-				if (!dissector_try_port(cisco_subdissector_table,
-				    etype, next_tvb, pinfo, tree))
-					dissect_data(next_tvb, 0, pinfo, tree);
-			} else
-				dissect_data(next_tvb, 0, pinfo, tree);
-			break;
-
-		case OUI_CABLE_BPDU:    /* DOCSIS cable modem spanning tree BPDU */
-			if (tree) {
-				proto_tree_add_uint(llc_tree,
-				    hf_llc_pid, tvb, 6, 2, etype);
-			}
-			call_dissector(bpdu_handle, next_tvb, pinfo, tree);
-			break;
-
-		default:
-			if (tree) {
-				proto_tree_add_uint(llc_tree,
-				    hf_llc_pid, tvb, 6, 2, etype);
-			}
-			dissect_data(next_tvb, 0, pinfo, tree);
-			break;
-		}
+		dissect_snap(tvb, 3, pinfo, tree, llc_tree, control,
+		    hf_llc_oui, hf_llc_type, hf_llc_pid, -1);
 	}
 	else {
 		if (check_col(pinfo->fd, COL_INFO)) {
@@ -423,6 +358,158 @@ dissect_llc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		} else {
 			dissect_data(next_tvb, 0, pinfo, tree);
 		}
+	}
+}
+
+/*
+ * Dissect SNAP header; used elsewhere, e.g. in the Frame Relay dissector.
+ */
+void
+dissect_snap(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
+    proto_tree *snap_tree, int control, int hf_oui, int hf_type, int hf_pid,
+    int bridge_pad)
+{
+	guint32		oui;
+	guint16		etype;
+	tvbuff_t	*next_tvb;
+
+	oui =	tvb_get_ntoh24(tvb, offset);
+	etype = tvb_get_ntohs(tvb, offset+3);
+
+	if (check_col(pinfo->fd, COL_INFO)) {
+		col_append_fstr(pinfo->fd, COL_INFO,
+		    "; SNAP, OUI 0x%06X (%s), PID 0x%04X",
+		    oui, val_to_str(oui, oui_vals, "Unknown"), etype);
+	}
+	if (tree) {
+		proto_tree_add_uint(snap_tree, hf_oui, tvb, offset, 3, oui);
+	}
+
+	switch (oui) {
+
+	case OUI_ENCAP_ETHER:
+	case OUI_APPLE_ATALK:
+		/* No, I have no idea why Apple used
+		   one of their own OUIs, rather than
+		   OUI_ENCAP_ETHER, and an Ethernet
+		   packet type as protocol ID, for
+		   AppleTalk data packets - but used
+		   OUI_ENCAP_ETHER and an Ethernet
+		   packet type for AARP packets. */
+		if (XDLC_IS_INFORMATION(control)) {
+			ethertype(etype, tvb, offset+5,
+			    pinfo, tree, snap_tree, hf_type);
+		} else {
+			next_tvb = tvb_new_subset(tvb, offset+5, -1, -1);
+			dissect_data(next_tvb, 0, pinfo, tree);
+		}
+		break;
+
+	case OUI_BRIDGED:
+		/*
+		 * MAC frames bridged over ATM (RFC 2684) or Frame Relay
+		 * (RFC 2427).
+		 *
+		 * We have to figure out how much padding to put
+		 * into the frame.  We were handed a "bridge_pad"
+		 * argument which should be 0 for Frame Relay and
+		 * 2 for ATM; we add to that the amount of padding
+		 * common to both bridging types.
+		 */
+		if (tree) {
+			proto_tree_add_uint(snap_tree, hf_pid, tvb, offset+3, 2,
+			    etype);
+		}
+
+		if (bridge_pad == -1) {
+			/*
+			 * This is LLC, for example, which, as far as I
+			 * know, doesn't support that type of bridging.
+			 */
+			next_tvb = tvb_new_subset(tvb, offset+5, -1, -1);
+			dissect_data(next_tvb, 0, pinfo, tree);
+			break;
+		}
+			
+		switch (etype) {
+
+		case BPID_ETH_WITH_FCS:
+		case BPID_ETH_WITHOUT_FCS:
+			next_tvb = tvb_new_subset(tvb, offset+5+bridge_pad,
+			    -1, -1);
+			call_dissector(eth_handle, next_tvb, pinfo, tree);
+			break;
+
+		case BPID_802_5_WITH_FCS:
+		case BPID_802_5_WITHOUT_FCS:
+			/*
+			 * We treat the last padding byte as the Access
+			 * Control byte, as that's what the Token
+			 * Ring dissector expects the first byte to
+			 * be.
+			 */
+			next_tvb = tvb_new_subset(tvb, offset+5+bridge_pad,
+			    -1, -1);
+			call_dissector(tr_handle, next_tvb, pinfo, tree);
+			break;
+
+		case BPID_FDDI_WITH_FCS:
+		case BPID_FDDI_WITHOUT_FCS:
+			next_tvb = tvb_new_subset(tvb, offset+5+1+bridge_pad,
+			    -1, -1);
+			call_dissector(fddi_handle, next_tvb, pinfo, tree);
+			break;
+
+		case BPID_BPDU:
+			next_tvb = tvb_new_subset(tvb, offset+5, -1, -1);
+			call_dissector(bpdu_handle, next_tvb, pinfo, tree);
+			break;
+
+		default:
+			next_tvb = tvb_new_subset(tvb, offset+5, -1, -1);
+			dissect_data(next_tvb, 0, pinfo, tree);
+			break;
+		}
+		break;
+		
+	case OUI_CISCO:
+		/* So are all CDP packets LLC packets
+		   with an OUI of OUI_CISCO and a
+		   protocol ID of 0x2000, or
+		   are some of them raw or encapsulated
+		   Ethernet? */
+		if (tree) {
+			proto_tree_add_uint(snap_tree, hf_pid, tvb, offset+3, 2,
+			    etype);
+		}
+		next_tvb = tvb_new_subset(tvb, offset+5, -1, -1);
+		if (XDLC_IS_INFORMATION(control)) {
+			/* do lookup with the subdissector table */
+			/* for future reference, 0x0102 is Cisco DRIP */
+			if (!dissector_try_port(cisco_subdissector_table,
+			    etype, next_tvb, pinfo, tree))
+				dissect_data(next_tvb, 0, pinfo, tree);
+		} else
+			dissect_data(next_tvb, 0, pinfo, tree);
+		break;
+
+	case OUI_CABLE_BPDU:    /* DOCSIS cable modem spanning tree BPDU */
+		if (tree) {
+			proto_tree_add_uint(snap_tree, hf_pid, tvb, offset+3, 2,
+			    etype);
+		}
+		next_tvb = tvb_new_subset(tvb, offset+5, -1, -1);
+		call_dissector(bpdu_handle, next_tvb, pinfo, tree);
+		break;
+
+	default:
+		if (tree) {
+			proto_tree_add_uint(snap_tree, hf_pid, tvb, offset+3, 2,
+			    etype);
+		}
+		next_tvb = tvb_new_subset(tvb, offset+5, -1, -1);
+		dissect_data(next_tvb, 0, pinfo, tree);
+		break;
 	}
 }
 
@@ -486,9 +573,13 @@ void
 proto_reg_handoff_llc(void)
 {
 	/*
-	 * Get a handle for the BPDU dissector.
+	 * Get handles for the BPDU, Ethernet, FDDI, and Token Ring
+	 * dissectors.
 	 */
 	bpdu_handle = find_dissector("bpdu");
+	eth_handle = find_dissector("eth");
+	fddi_handle = find_dissector("fddi");
+	tr_handle = find_dissector("tr");
 
 	dissector_add("wtap_encap", WTAP_ENCAP_ATM_RFC1483, dissect_llc,
 	    proto_llc);

@@ -2,7 +2,7 @@
  * Routines for Token-Ring packet disassembly
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-tr.c,v 1.55 2001/01/09 06:31:44 guy Exp $
+ * $Id: packet-tr.c,v 1.56 2001/01/10 09:07:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -671,6 +671,7 @@ proto_register_tr(void)
 	proto_tr = proto_register_protocol("Token-Ring", "Token-Ring", "tr");
 	proto_register_field_array(proto_tr, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	register_dissector("tr", dissect_tr, proto_tr);
 }
 
 void

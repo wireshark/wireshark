@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-ipx.c,v 1.74 2001/01/09 09:59:28 guy Exp $
+ * $Id: packet-ipx.c,v 1.75 2001/01/10 09:07:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -916,6 +916,7 @@ proto_reg_handoff_ipx(void)
 
 	dissector_add("udp.port", UDP_PORT_IPX, dissect_ipx, proto_ipx);
 	dissector_add("ethertype", ETHERTYPE_IPX, dissect_ipx, proto_ipx);
+	dissector_add("fr.cisco", ETHERTYPE_IPX, dissect_ipx, proto_ipx);
 	dissector_add("ppp.protocol", PPP_IPX, dissect_ipx, proto_ipx);
 	dissector_add("llc.dsap", SAP_NETWARE, dissect_ipx, proto_ipx);
 	dissector_add("null.type", BSD_AF_IPX, dissect_ipx, proto_ipx);

@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.119 2001/01/09 06:31:36 guy Exp $
+ * $Id: packet-ip.c,v 1.120 2001/01/10 09:07:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -53,6 +53,7 @@
 #include "packet-ip.h"
 #include "packet-ipsec.h"
 #include "in_cksum.h"
+#include "nlpid.h"
 
 static void dissect_icmp(tvbuff_t *, packet_info *, proto_tree *);
 static void dissect_igmp(tvbuff_t *, packet_info *, proto_tree *);
@@ -1481,11 +1482,14 @@ proto_reg_handoff_ip(void)
 {
 	dissector_add("ethertype", ETHERTYPE_IP, dissect_ip, proto_ip);
 	dissector_add("ppp.protocol", PPP_IP, dissect_ip, proto_ip);
-	dissector_add("ppp.protocol", CISCO_IP, dissect_ip, proto_ip);
+	dissector_add("ppp.protocol", ETHERTYPE_IP, dissect_ip, proto_ip);
 	dissector_add("llc.dsap", SAP_IP, dissect_ip, proto_ip);
 	dissector_add("ip.proto", IP_PROTO_IPV4, dissect_ip, proto_ip);
 	dissector_add("ip.proto", IP_PROTO_IPIP, dissect_ip, proto_ip);
 	dissector_add("null.type", BSD_AF_INET, dissect_ip, proto_ip);
+        dissector_add("fr.cisco", ETHERTYPE_IP, dissect_ip, proto_ip);
+        dissector_add("fr.ietf", NLPID_IP, dissect_ip, proto_ip);
+        
 }
 
 void

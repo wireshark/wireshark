@@ -3,7 +3,7 @@
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
- * $Id: packet-fddi.c,v 1.46 2001/01/09 06:31:35 guy Exp $
+ * $Id: packet-fddi.c,v 1.47 2001/01/10 09:07:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -375,6 +375,12 @@ proto_register_fddi(void)
 	    "FDDI", "fddi");
 	proto_register_field_array(proto_fddi, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+	/*
+	 * Called from various dissectors for encapsulated FDDI frames.
+	 * We assume the MAC addresses in them aren't bitswapped.
+	 */
+	register_dissector("fddi", dissect_fddi_not_bitswapped, proto_fddi);
 }
 
 void
