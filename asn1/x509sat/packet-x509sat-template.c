@@ -135,7 +135,7 @@ static ber_choice DirectoryString_choice[] = {
   { 0, 0, 0, 0, NULL }
 };
 
-static int
+int
 dissect_x509sat_DirectoryString(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index) {
   DirectoryString_hf_index = hf_index;
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,

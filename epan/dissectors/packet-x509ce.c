@@ -106,9 +106,12 @@ static int hf_x509ce_GeneralNames_item = -1;      /* GeneralName */
 static int hf_x509ce_rfc822Name = -1;             /* IA5String */
 static int hf_x509ce_dNSName = -1;                /* IA5String */
 static int hf_x509ce_directoryName = -1;          /* Name */
+static int hf_x509ce_ediPartyName = -1;           /* EDIPartyName */
 static int hf_x509ce_uniformResourceIdentifier = -1;  /* IA5String */
 static int hf_x509ce_iPAddress = -1;              /* OCTET_STRING */
 static int hf_x509ce_registeredID = -1;           /* OBJECT_IDENTIFIER */
+static int hf_x509ce_nameAssigner = -1;           /* DirectoryString */
+static int hf_x509ce_partyName = -1;              /* DirectoryString */
 static int hf_x509ce_AttributesSyntax_item = -1;  /* Attribute */
 static int hf_x509ce_cA = -1;                     /* BOOLEAN */
 static int hf_x509ce_pathLenConstraint = -1;      /* INTEGER */
@@ -206,6 +209,7 @@ static gint ett_x509ce_PolicyMappingsSyntax = -1;
 static gint ett_x509ce_PolicyMappingsSyntax_item = -1;
 static gint ett_x509ce_GeneralNames = -1;
 static gint ett_x509ce_GeneralName = -1;
+static gint ett_x509ce_EDIPartyName = -1;
 static gint ett_x509ce_AttributesSyntax = -1;
 static gint ett_x509ce_BasicConstraintsSyntax = -1;
 static gint ett_x509ce_NameConstraintsSyntax = -1;
@@ -247,6 +251,12 @@ static int dissect_authorityCertSerialNumber_impl(packet_info *pinfo, proto_tree
 static int dissect_directoryName_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_x509if_Name(TRUE, tvb, offset, pinfo, tree, hf_x509ce_directoryName);
 }
+static int dissect_nameAssigner_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509sat_DirectoryString(TRUE, tvb, offset, pinfo, tree, hf_x509ce_nameAssigner);
+}
+static int dissect_partyName_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509sat_DirectoryString(TRUE, tvb, offset, pinfo, tree, hf_x509ce_partyName);
+}
 static int dissect_AttributesSyntax_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_x509if_Attribute(FALSE, tvb, offset, pinfo, tree, hf_x509ce_AttributesSyntax_item);
 }
@@ -285,6 +295,23 @@ static int dissect_uniformResourceIdentifier_impl(packet_info *pinfo, proto_tree
   return dissect_x509ce_IA5String(TRUE, tvb, offset, pinfo, tree, hf_x509ce_uniformResourceIdentifier);
 }
 
+static ber_sequence EDIPartyName_sequence[] = {
+  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_nameAssigner_impl },
+  { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_partyName_impl },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_x509ce_EDIPartyName(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                EDIPartyName_sequence, hf_index, ett_x509ce_EDIPartyName);
+
+  return offset;
+}
+static int dissect_ediPartyName_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509ce_EDIPartyName(TRUE, tvb, offset, pinfo, tree, hf_x509ce_ediPartyName);
+}
+
 
 static int
 dissect_x509ce_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
@@ -314,6 +341,7 @@ static const value_string GeneralName_vals[] = {
   {   1, "rfc822Name" },
   {   2, "dNSName" },
   {   4, "directoryName" },
+  {   5, "ediPartyName" },
   {   6, "uniformResourceIdentifier" },
   {   7, "iPAddress" },
   {   8, "registeredID" },
@@ -324,6 +352,7 @@ static ber_choice GeneralName_choice[] = {
   {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_rfc822Name_impl },
   {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_dNSName_impl },
   {   4, BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_directoryName_impl },
+  {   5, BER_CLASS_CON, 5, BER_FLAGS_IMPLTAG, dissect_ediPartyName_impl },
   {   6, BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_uniformResourceIdentifier_impl },
   {   7, BER_CLASS_CON, 7, BER_FLAGS_IMPLTAG, dissect_iPAddress_impl },
   {   8, BER_CLASS_CON, 8, BER_FLAGS_IMPLTAG, dissect_registeredID_impl },
@@ -1509,6 +1538,10 @@ void proto_register_x509ce(void) {
       { "directoryName", "x509ce.directoryName",
         FT_UINT32, BASE_DEC, VALS(Name_vals), 0,
         "GeneralName/directoryName", HFILL }},
+    { &hf_x509ce_ediPartyName,
+      { "ediPartyName", "x509ce.ediPartyName",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "GeneralName/ediPartyName", HFILL }},
     { &hf_x509ce_uniformResourceIdentifier,
       { "uniformResourceIdentifier", "x509ce.uniformResourceIdentifier",
         FT_STRING, BASE_NONE, NULL, 0,
@@ -1521,6 +1554,14 @@ void proto_register_x509ce(void) {
       { "registeredID", "x509ce.registeredID",
         FT_STRING, BASE_NONE, NULL, 0,
         "GeneralName/registeredID", HFILL }},
+    { &hf_x509ce_nameAssigner,
+      { "nameAssigner", "x509ce.nameAssigner",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "EDIPartyName/nameAssigner", HFILL }},
+    { &hf_x509ce_partyName,
+      { "partyName", "x509ce.partyName",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "EDIPartyName/partyName", HFILL }},
     { &hf_x509ce_AttributesSyntax_item,
       { "Item[##]", "x509ce.AttributesSyntax_item",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -1832,6 +1873,7 @@ void proto_register_x509ce(void) {
     &ett_x509ce_PolicyMappingsSyntax_item,
     &ett_x509ce_GeneralNames,
     &ett_x509ce_GeneralName,
+    &ett_x509ce_EDIPartyName,
     &ett_x509ce_AttributesSyntax,
     &ett_x509ce_BasicConstraintsSyntax,
     &ett_x509ce_NameConstraintsSyntax,
