@@ -1,7 +1,7 @@
 /* packet-udp.c
  * Routines for UDP packet disassembly
  *
- * $Id: packet-udp.c,v 1.76 2000/10/21 09:54:10 guy Exp $
+ * $Id: packet-udp.c,v 1.77 2000/11/05 09:26:47 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -39,6 +39,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include <glib.h>
 #include "globals.h"
@@ -98,7 +99,7 @@ decode_udp_ports(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 
       if (enabled_plugins_number > 0) {
 	  while (pt_plug) {
-	      if (pt_plug->enabled && !strcmp(pt_plug->protocol, "udp") &&
+	      if (pt_plug->enabled && strstr(pt_plug->protocol, "udp") &&
 		  tree && dfilter_apply(pt_plug->filter, tree, pd, fd->cap_len)) {
 		  pt_plug->dissector(pd, offset, fd, tree);
 		  return;
