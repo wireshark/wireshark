@@ -1,7 +1,7 @@
 /* packet-eapol.c
  * Routines for EAPOL 802.1X authentication header disassembly
  *
- * $Id: packet-eapol.c,v 1.6 2002/02/17 00:51:19 guy Exp $
+ * $Id: packet-eapol.c,v 1.7 2002/02/22 21:51:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -48,6 +48,7 @@ static int hf_eapol_len = -1;
 
 static gint ett_eapol = -1;
 
+static dissector_handle_t eap_handle;
 static dissector_handle_t data_handle;
 
 typedef struct _e_eapol
@@ -57,16 +58,14 @@ typedef struct _e_eapol
     guint16 eapol_len;
 } e_eapol;
 
-static const char *eapol_type_name[] = { 
-    "EAP",
-    "Start",
-    "Logoff",
-    "Key",
-    "Encapsulated ASF Alert"
+static const value_string eapol_type_vals[] = { 
+    { 0, "EAP" },
+    { 1, "Start" },
+    { 2, "Logoff" },
+    { 3, "Key" },
+    { 4, "Encapsulated ASF Alert" },
+    { 0, NULL }
 };
-#define EAPOL_TYPE_COUNT (sizeof(eapol_type_name)/sizeof(eapol_type_name[0]))
-
-extern void dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 static void
 dissect_eapol(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -74,7 +73,7 @@ dissect_eapol(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   e_eapol     eapolh;
   guint       len;
   proto_tree *ti;
-  proto_tree *volatile eapol_tree;
+  proto_tree *eapol_tree;
   tvbuff_t   *next_tvb;
 
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
@@ -96,19 +95,16 @@ dissect_eapol(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     eapol_tree = proto_item_add_subtree(ti, ett_eapol);
 
     proto_tree_add_uint(eapol_tree, hf_eapol_version, tvb, 0, 1, eapolh.eapol_ver);
-    proto_tree_add_text(eapol_tree, tvb, 1, 1, "Type: %s (%u)", 
-			eapolh.eapol_type > EAPOL_TYPE_COUNT?
-			"Unknown" : eapol_type_name[eapolh.eapol_type],
-			eapolh.eapol_type);
+    proto_tree_add_uint(eapol_tree, hf_eapol_type,    tvb, 1, 1, eapolh.eapol_type);
     proto_tree_add_uint(eapol_tree, hf_eapol_len,    tvb, 2, 2, eapolh.eapol_len);
   }
 
   next_tvb = tvb_new_subset(tvb, 4, -1, -1);
 
-  if (eapolh.eapol_type == 0 && next_tvb != NULL) 
-      dissect_eap(next_tvb, pinfo, eapol_tree);
+  if (eapolh.eapol_type == 0)
+      call_dissector(eap_handle, next_tvb, pinfo, eapol_tree);
   else
-      call_dissector(data_handle,tvb_new_subset(tvb, 4,-1,tvb_reported_length_remaining(tvb,4)), pinfo, tree);
+      call_dissector(data_handle, next_tvb, pinfo, eapol_tree);
 }
 
 void
@@ -120,7 +116,7 @@ proto_register_eapol(void)
 		NULL, 0x0, "", HFILL }},
 	{ &hf_eapol_type, { 
 		"Type", "eapol.type", FT_UINT8, BASE_DEC, 
-		0, 0x0, "", HFILL }},
+		VALS(eapol_type_vals), 0x0, "", HFILL }},
 	{ &hf_eapol_len, {
 		"Length", "eapol.len", FT_UINT16, BASE_DEC,
 		NULL, 0x0, "Length", HFILL }},
@@ -139,7 +135,12 @@ proto_reg_handoff_eapol(void)
 {
   dissector_handle_t eapol_handle;
 
+  /*
+   * Get handles for the EAP and raw data dissectors.
+   */
+  eap_handle = find_dissector("eap");
   data_handle = find_dissector("data");
+
   eapol_handle = create_dissector_handle(dissect_eapol, proto_eapol);
   dissector_add("ethertype", ETHERTYPE_EAPOL, eapol_handle);
 }

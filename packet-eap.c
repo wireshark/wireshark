@@ -2,7 +2,7 @@
  * Routines for EAP Extensible Authentication Protocol header disassembly,
  * RFC 2284
  *
- * $Id: packet-eap.c,v 1.9 2002/02/22 21:31:48 guy Exp $
+ * $Id: packet-eap.c,v 1.10 2002/02/22 21:51:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -81,7 +81,7 @@ static const value_string eap_type_vals[] = {
     { 0, NULL }
 };
 
-void
+static void
 dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   e_eap       eaph;
