@@ -1,32 +1,32 @@
 #!/usr/bin/python
-#
-# ncp2222.py
-#
-# Creates C code from a table of NCP type 0x2222 packet types.
-# (And 0x3333, which are the replies, but the packets are more commonly
-# refered to as type 0x2222; the 0x3333 replies are understood to be
-# part of the 0x2222 "family")
-#
-# Data comes from "Programmer's Guide to the NetWare Core Protocol"
-# by Steve Conner and Dianne Conner.
-#
-# $Id: ncp2222.py,v 1.1 2000/07/28 20:03:42 gram Exp $
-#
-# Copyright (c) 2000 by Gilbert Ramirez <gram@xiexie.org>
-#
-# This program is free software; you can redistribute it and/or
-# modify it under the terms of the GNU General Public License
-# as published by the Free Software Foundation; either version 2
-# of the License, or (at your option) any later version.
-# 
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-# 
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+
+"""
+Creates C code from a table of NCP type 0x2222 packet types.
+(And 0x3333, which are the replies, but the packets are more commonly
+refered to as type 0x2222; the 0x3333 replies are understood to be
+part of the 0x2222 "family")
+
+Data comes from "Programmer's Guide to the NetWare Core Protocol"
+by Steve Conner and Dianne Conner.
+
+$Id: ncp2222.py,v 1.2 2000/08/08 16:39:48 gram Exp $
+
+Copyright (c) 2000 by Gilbert Ramirez <gram@xiexie.org>
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+ 
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+ 
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+"""
 
 import sys
 
@@ -34,21 +34,22 @@ import sys
 # Global containers
 ##############################################################################
 
-# The UniqueCollection class stores objects which can be compared to other
-# objects of the same class. If two objects in the collection are equivalent,
-# only one is stored.
 class UniqueCollection:
+	"""The UniqueCollection class stores objects which can be compared to other
+	objects of the same class. If two objects in the collection are equivalent,
+	only one is stored."""
 
-	# Constructor
 	def __init__(self, name):
+		"Constructor"
 		self.name = name
 		self.members = []
 
-	# Add an object to the members lists, if a comparable object
-	# doesn't already exist. The object that is in the member list, that is
-	# either the object that was added or the comparable object that was
-	# already in the member list, is returned.
 	def Add(self, object):
+		"""Add an object to the members lists, if a comparable object
+		doesn't already exist. The object that is in the member list, that is
+		either the object that was added or the comparable object that was
+		already in the member list, is returned."""
+
 		# Is 'object' a duplicate of some other member?
 		for member in self.members:
 			if member == object:
@@ -58,12 +59,12 @@ class UniqueCollection:
 		self.members.append(object)
 		return object
 
-	# Returns the list of members.
 	def Members(self):
+		"Returns the list of members."
 		return self.members
 
-	# Does the list of members contain the object?
 	def HasMember(self, object):
+		"Does the list of members contain the object?"
 		for member in self.members:
 			if member == object:
 				return 1
@@ -76,16 +77,17 @@ ptvc_lists	= UniqueCollection('PTVC Lists')
 
 
 ##############################################################################
-# NamedList's keep track of PTVC's and Completion Codes
-##############################################################################
+
 class NamedList:
-	# Constructor
+	"NamedList's keep track of PTVC's and Completion Codes"
 	def __init__(self, name, list):
+		"Constructor"
 		self.name = name
 		self.list = list
 
-	# Compare this NamedList to another
 	def __cmp__(self, other):
+		"Compare this NamedList to another"
+
 		# Python will do a deep comparison of lists within lists.
 		if self.list < other.list:
 			return -1
@@ -94,26 +96,26 @@ class NamedList:
 		else:
 			return 0
 
-	# String representation
 	def __repr__(self):
+		"String representation"
 		return "NamedList: " + `self.list`
 
-	# Get/Set name of list
 	def Name(self, new_name = None):
+		"Get/Set name of list"
 		if new_name != None:
 			self.name = new_name
 		return self.name
 
-	# Returns record lists
 	def Records(self):
+		"Returns record lists"
 		return self.list
 
-	# Is there no list (different from an empty list)?
 	def Null(self):
+		"Is there no list (different from an empty list)?"
 		return self.list == None
 
-	# It the list empty (different from a null list)?
 	def Empty(self):
+		"It the list empty (different from a null list)?"
 		assert(not self.Null())
 
 		if self.list:
@@ -122,10 +124,11 @@ class NamedList:
 			return 1
 
 
-# ProtoTree TVBuff Cursor List ("PTVC List") Class
 class PTVC(NamedList):
-	# Constructor
+	"""ProtoTree TVBuff Cursor List ("PTVC List") Class"""
+
 	def __init__(self, name, records):
+		"Constructor"
 		self.list = []
 		NamedList.__init__(self, name, self.list)
 
@@ -145,8 +148,8 @@ class PTVC(NamedList):
 			self.list.append(ptvc_rec)
 
 class PTVCRecord:
-	# Constructor
 	def __init__(self, record):
+		"Constructor"
 		self.length	= record[1]
 		self.field	= record[2]
 
@@ -167,8 +170,8 @@ class PTVCRecord:
 		except IndexError:
 			self.endianness = self.field.Endianness()
 
-	# Comparison operator
 	def __cmp__(self, other):
+		"Comparison operator"
 		if self.length < other.length:
 			return -1
 		elif self.length > other.length:
@@ -181,8 +184,8 @@ class PTVCRecord:
 		else:
 			return 0
 
-	# String representation
 	def __repr__(self):
+		"String representation"
 		endianness = 'FALSE'
 		if self.endianness == LE:
 			endianness = 'TRUE'
@@ -205,11 +208,11 @@ class PTVCRecord:
 
 
 ##############################################################################
-# NCP Packet class
-##############################################################################
+
 class NCP:
-	# Constructor
+	"NCP Packet class"
 	def __init__(self, func_code, description, group):
+		"Constructor"
 		self.func_code		= func_code
 		self.description	= description
 		self.group		= group
@@ -228,8 +231,8 @@ class NCP:
 			# Simple NCP Function
 			self.start_offset = 7
 
-	# Returns the function code for this NCP packet.
 	def FunctionCode(self, part=None):
+		"Returns the function code for this NCP packet."
 		if part == None:
 			return self.func_code
 		elif part == 'high':
@@ -246,8 +249,8 @@ class NCP:
 			sys.stderr.write("Unknown directive '%s' for function_code()\n" % (part))
 			sys.exit(1)
 
-	# Does this NPC packet require a subfunction field?
 	def HasSubFunction(self):
+		"Does this NPC packet require a subfunction field?"
 		if self.func_code <= 0xff:
 			return 0
 		else:
@@ -280,8 +283,8 @@ class NCP:
 		self.CheckRecords(size, records, "Reply", 8)
 		self.ptvc_reply = self.MakePTVC(records, "reply")
 
-	# Simple sanity check
 	def CheckRecords(self, size, records, descr, min_hdr_length):
+		"Simple sanity check"
 		min = size
 		max = size
 		if type(size) == type(()):
@@ -316,22 +319,24 @@ class NCP:
 			sys.exit(1)
 
 
-	# Makes a PTVC out of a request or reply record list. Possibly adds
-	# it to the global list of PTVCs (the global list is a UniqueCollection,
-	# so an equivalent PTVC may already be in the global list).
 	def MakePTVC(self, records, name_suffix):
+		"""Makes a PTVC out of a request or reply record list. Possibly adds
+		it to the global list of PTVCs (the global list is a UniqueCollection,
+		so an equivalent PTVC may already be in the global list)."""
+
 		name = "%s_%s" % (self.CName(), name_suffix)
 		ptvc = PTVC(name, records)
 		return ptvc_lists.Add(ptvc)
 
-	# Returns a C symbol based on the NCP function code
 	def CName(self):
+		"Returns a C symbol based on the NCP function code"
 		return "ncp_0x%x" % (self.func_code)
 
-	# Returns a list of variables used in the request and reply records.
-	# A variable is listed only once, even if it is used twice (once in
-	# the request, once in the reply).
 	def Variables(self):
+		"""Returns a list of variables used in the request and reply records.
+		A variable is listed only once, even if it is used twice (once in
+		the request, once in the reply)."""
+
 		variables = {}
 		if self.request_records:
 			for record in self.request_records:
@@ -346,10 +351,11 @@ class NCP:
 		return variables.keys()
 
 
-	# Sets or returns the list of completion codes. Internally, a NamedList
-	# is used to store the completion codes, but the caller of this function
-	# never realizes that because Python lists are the input and output.
 	def CompletionCodes(self, codes=None):
+		"""Sets or returns the list of completion codes. Internally, a NamedList
+		is used to store the completion codes, but the caller of this function
+		never realizes that because Python lists are the input and output."""
+
 		if codes == None:
 			return self.codes
 
@@ -375,11 +381,12 @@ class NCP:
 
 		self.Finalize()
 
-	# Adds the NCP object to the global collection of NCP objects. This
-	# is done automatically after setting the CompletionCode list. Yes, this
-	# is a shortcut, but it makes our list of NCP packet definitions look
-	# neater, since an explicit "add to global list of packets" is not needed.
 	def Finalize(self):
+		"""Adds the NCP object to the global collection of NCP objects. This
+		is done automatically after setting the CompletionCode list. Yes, this
+		is a shortcut, but it makes our list of NCP packet definitions look
+		neater, since an explicit "add to global list of packets" is not needed."""
+
 		# Add packet to global collection of packets
 		if packets.HasMember(self):
 			sys.stderr.write("Already have NCP Function Code 0x%x\n" % \
@@ -391,13 +398,13 @@ class NCP:
 
 
 ##############################################################################
-# Classes for NCP field types
-##############################################################################
+
 LE		= 1		# Little-Endian
 BE		= 0		# Big-Endian
 NA		= -1		# Not Applicable
 
 class Type:
+	" Virtual class for NCP field types"
 	type		= "Type"
 	ftype		= None
 	disp		= "BASE_DEC"
@@ -466,26 +473,29 @@ class uint32(Type):
 	def __init__(self, abbrev, descr, endianness = BE):
 		Type.__init__(self, abbrev, descr, 4, endianness)
 
-# A string of up to 255 characters. The first byte
-# gives the string length. Thus, the total length of
-# this data structure is from 1 to 256 bytes, including
-# the first byte.
 class nstring8(Type):
+	"""A string of up to 255 characters. The first byte
+	gives the string length. Thus, the total length of
+	this data structure is from 1 to 256 bytes, including
+	the first byte."""
+
 	type	= "nstring8"
 	ftype	= "FT_NSTRING_UINT8"
 	def __init__(self, abbrev, descr):
 		Type.__init__(self, abbrev, descr, -1)
 
-# NUL-terminated string.
 class stringz(Type):
+	"NUL-terminated string."
+
 	type	= "stringz"
 	ftype	= "FT_STRING"
 	def __init__(self, abbrev, descr):
 		Type.__init__(self, abbrev, descr, -1)
 
-# Abstract class for val_stringN, where N is number
-# of bits that key takes up
 class val_string(Type):
+	"""Abstract class for val_stringN, where N is number
+	of bits that key takes up."""
+
 	type	= "val_string"
 	disp	= 'BASE_HEX'
 
@@ -1156,251 +1166,251 @@ pkt.CompletionCodes([0x0000, 0x8800, 0x9300, 0xff00])
 ##############################################################################
 # Produce C code
 ##############################################################################
+if __name__ == '__main__':
+	print "/*"
+	print " * Generated automatically from %s" % (sys.argv[0])
+	print " * Do not edit this file manually, as all changes will be lost."
+	print " */\n"
 
-print "/*"
-print " * Generated automatically from %s" % (sys.argv[0])
-print " * Do not edit this file manually, as all changes will be lost."
-print " */\n"
+	print """
+	/*
+	 * This program is free software; you can redistribute it and/or
+	 * modify it under the terms of the GNU General Public License
+	 * as published by the Free Software Foundation; either version 2
+	 * of the License, or (at your option) any later version.
+	 * 
+	 * This program is distributed in the hope that it will be useful,
+	 * but WITHOUT ANY WARRANTY; without even the implied warranty of
+	 * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	 * GNU General Public License for more details.
+	 * 
+	 * You should have received a copy of the GNU General Public License
+	 * along with this program; if not, write to the Free Software
+	 * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+	 */
 
-print """
-/*
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- */
+	#ifdef HAVE_CONFIG_H
+	# include "config.h"
+	#endif
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+	#include <glib.h>
+	#include "packet.h"
+	#include "conversation.h"
+	#include "ptvcursor.h"
+	#include "packet-ncp-int.h"
+	    
+	static int hf_ncp_func = -1;
+	static int hf_ncp_length = -1;
+	static int hf_ncp_subfunc = -1;
+	static int hf_ncp_completion_code = -1;
+	static int hf_ncp_connection_status = -1;
+	"""
 
-#include <glib.h>
-#include "packet.h"
-#include "conversation.h"
-#include "ptvcursor.h"
-#include "packet-ncp-int.h"
-    
-static int hf_ncp_func = -1;
-static int hf_ncp_length = -1;
-static int hf_ncp_subfunc = -1;
-static int hf_ncp_completion_code = -1;
-static int hf_ncp_connection_status = -1;
-"""
+	# Look at all packet types in the packets collection, and cull information
+	# from them.
+	packet_keys = []
+	for packet in packets.Members():
+		packet_keys.append(packet.FunctionCode())
+	packet_keys.sort()
 
-# Look at all packet types in the packets collection, and cull information
-# from them.
-packet_keys = []
-for packet in packets.Members():
-	packet_keys.append(packet.FunctionCode())
-packet_keys.sort()
+	errors_used_list = []
+	errors_used_hash = {}
+	groups_used_list = []
+	groups_used_hash = {}
+	variables_used_hash = {}
 
-errors_used_list = []
-errors_used_hash = {}
-groups_used_list = []
-groups_used_hash = {}
-variables_used_hash = {}
+	for pkt in packets.Members():
+		# Determine which error codes are used.
+		codes = pkt.CompletionCodes()
+		for code in codes.Records():
+			if not errors_used_hash.has_key(code):
+				errors_used_hash[code] = len(errors_used_list)
+				errors_used_list.append(code)
 
-for pkt in packets.Members():
-	# Determine which error codes are used.
-	codes = pkt.CompletionCodes()
-	for code in codes.Records():
-		if not errors_used_hash.has_key(code):
-			errors_used_hash[code] = len(errors_used_list)
-			errors_used_list.append(code)
+		# Determine which groups are used.
+		group = pkt.Group()
+		if not groups_used_hash.has_key(group):
+			groups_used_hash[group] = len(groups_used_list)
+			groups_used_list.append(group)
 
-	# Determine which groups are used.
-	group = pkt.Group()
-	if not groups_used_hash.has_key(group):
-		groups_used_hash[group] = len(groups_used_list)
-		groups_used_list.append(group)
-
-	# Determine which variables are used.
-	vars = pkt.Variables()
-	for var in vars:
-		variables_used_hash[var] = 1
-
-
-
-# Print the hf variable declarations
-for var in variables_used_hash.keys():
-	print "static int " + var.HFName() + " = -1;"
-
-
-# Print the value_string's
-for var in variables_used_hash.keys():
-	if var.type == "val_string8" or var.type == "val_string16":
-		print ""
-		print `var`
-
-
-print """
-void
-proto_register_ncp2222(void)
-{
-
-	static hf_register_info hf[] = {
-	{ &hf_ncp_func,
-	{ "Function", "ncp.func", FT_UINT8, BASE_HEX, NULL, 0x0, "" }},
-
-	{ &hf_ncp_length,
-	{ "Packet Length", "ncp.length", FT_UINT16, BASE_DEC, NULL, 0x0, "" }},
-
-	{ &hf_ncp_subfunc,
-	{ "SubFunction", "ncp.subfunc", FT_UINT8, BASE_HEX, NULL, 0x0, "" }},
-
-	{ &hf_ncp_completion_code,
-	{ "Completion Code", "ncp.completion_code", FT_UINT8, BASE_HEX, NULL, 0x0, "" }},
-
-	{ &hf_ncp_connection_status,
-	{ "Connection Status", "ncp.connection_status", FT_UINT8, BASE_DEC, NULL, 0x0, "" }},
-"""
-
-# Print the registration code for the hf variables
-for var in variables_used_hash.keys():
-	print "\t{ &%s," % (var.HFName())
-	print "\t{ \"%s\", \"%s\", %s, %s, %s, 0x%x, \"\" }},\n" % \
-		(var.Description(), var.DFilter(),
-		var.EtherealFType(), var.Display(), var.ValuesName(),
-		var.Mask())
-
-print """\t};
-
-	proto_register_field_array(proto_ncp, hf, array_length(hf));
-}
-"""
-
-
-# Determine which error codes are not used
-errors_not_used = {}
-# Copy the keys from the error list...
-for code in errors.keys():
-	errors_not_used[code] = 1
-# ... and remove the ones that *were* used.
-for code in errors_used_list:
-	del errors_not_used[code]
-
-# Print a remark showing errors not used
-list_errors_not_used = errors_not_used.keys()
-list_errors_not_used.sort()
-for code in list_errors_not_used:
-	print "/* Error 0x%04x not used: %s */" % (code, errors[code])
-print "\n"
-
-# Print the errors table
-print "/* Error strings. */"
-print "static const char *ncp_errors[] = {"
-for code in errors_used_list:
-	print '\t/* %02d (0x%04x) */ "%s",' % (errors_used_hash[code], code, errors[code])
-print "};\n"
+		# Determine which variables are used.
+		vars = pkt.Variables()
+		for var in vars:
+			variables_used_hash[var] = 1
 
 
 
-
-# Determine which groups are not used
-groups_not_used = {}
-# Copy the keys from the group list...
-for group in groups.keys():
-	groups_not_used[group] = 1
-# ... and remove the ones that *were* used.
-for group in groups_used_list:
-	del groups_not_used[group]
-
-# Print a remark showing groups not used
-list_groups_not_used = groups_not_used.keys()
-list_groups_not_used.sort()
-for group in list_groups_not_used:
-	print "/* Group not used: %s = %s */" % (group, groups[group])
-print "\n"
-
-# Print the groups table
-print "/* Group strings. */"
-print "static const char *ncp_groups[] = {"
-for group in groups_used_list:
-	print '\t/* %02d (%s) */ "%s",' % (groups_used_hash[group], group, groups[group])
-print "};\n"
-
-# Print PTVC's
-print "/* PTVC records. These are re-used to save space. */"
-for ptvc in ptvc_lists.Members():
-	if not ptvc.Null() and not ptvc.Empty():
-		print "static const ptvc_record %s[] = {" % (ptvc.Name())
-		records = ptvc.Records()
-		for ptvc_rec in records:
-			print "\t%s," % (ptvc_rec)
-		print "\t{ NULL, 0, 0 }"
-		print "};\n"
-
-# Print error_equivalency tables
-print "/* Error-Equivalency Tables. These are re-used to save space. */"
-for compcodes in compcode_lists.Members():
-	errors = compcodes.Records()
-	# Make sure the record for error = 0x00 comes last.
-	print "static const error_equivalency %s[] = {" % (compcodes.Name())
-	for error in errors:
-		error_in_packet = error >> 8;
-		ncp_error_index = errors_used_hash[error]
-		print "\t{ 0x%02x, %d }, /* 0x%04x */" % (error_in_packet,
-			ncp_error_index, error)
-	print "\t{ 0x00, -1 }\n};\n"
+	# Print the hf variable declarations
+	for var in variables_used_hash.keys():
+		print "static int " + var.HFName() + " = -1;"
 
 
-# Print ncp_record packet records
-print "#define SUBFUNC 0xff"
-print "#define NOSUB   0x00"
-
-print "/* ncp_record structs for packets */"
-print "static const ncp_record ncp_packets[] = {"
-for pkt in packets.Members():
-	if pkt.HasSubFunction():
-		subfunc_string = "SUBFUNC"
-	else:
-		subfunc_string = "NOSUB"
-	print '\t{ 0x%02x, 0x%02x, %s, "%s",' % (pkt.FunctionCode('high'),
-		pkt.FunctionCode('low'), subfunc_string, pkt.Description()),
-
-	print '\t%d /* %s */,' % (groups_used_hash[pkt.Group()], pkt.Group())
-
-	ptvc = pkt.PTVCRequest()
-	if not ptvc.Null() and not ptvc.Empty():
-		ptvc_request = ptvc.Name()
-	else:
-		ptvc_request = 'NULL'
-
-	ptvc = pkt.PTVCReply()
-	if not ptvc.Null() and not ptvc.Empty():
-		ptvc_reply = ptvc.Name()
-	else:
-		ptvc_reply = 'NULL'
-
-	errors = pkt.CompletionCodes()
-	print '\t\t%s, NULL, %s, NULL,' % (ptvc_request, ptvc_reply)
-	print '\t\t%s },\n' % (errors.Name())
-
-print '\t{ 0, 0, 0, NULL }'
-print "};\n"
-
-print "/* ncp funcs that require a subfunc */"
-print "static const guint8 ncp_func_requires_subfunc[] = {"
-hi_seen = {}
-for pkt in packets.Members():
-	if pkt.HasSubFunction():
-		hi_func = pkt.FunctionCode('high')
-		if not hi_seen.has_key(hi_func):
-			print "\t0x%02x," % (hi_func)
-			hi_seen[hi_func] = 1
-print "\t0"
-print "};\n"
+	# Print the value_string's
+	for var in variables_used_hash.keys():
+		if var.type == "val_string8" or var.type == "val_string16":
+			print ""
+			print `var`
 
 
-print '#include "ncp2222.h"'
+	print """
+	void
+	proto_register_ncp2222(void)
+	{
+
+		static hf_register_info hf[] = {
+		{ &hf_ncp_func,
+		{ "Function", "ncp.func", FT_UINT8, BASE_HEX, NULL, 0x0, "" }},
+
+		{ &hf_ncp_length,
+		{ "Packet Length", "ncp.length", FT_UINT16, BASE_DEC, NULL, 0x0, "" }},
+
+		{ &hf_ncp_subfunc,
+		{ "SubFunction", "ncp.subfunc", FT_UINT8, BASE_HEX, NULL, 0x0, "" }},
+
+		{ &hf_ncp_completion_code,
+		{ "Completion Code", "ncp.completion_code", FT_UINT8, BASE_HEX, NULL, 0x0, "" }},
+
+		{ &hf_ncp_connection_status,
+		{ "Connection Status", "ncp.connection_status", FT_UINT8, BASE_DEC, NULL, 0x0, "" }},
+	"""
+
+	# Print the registration code for the hf variables
+	for var in variables_used_hash.keys():
+		print "\t{ &%s," % (var.HFName())
+		print "\t{ \"%s\", \"%s\", %s, %s, %s, 0x%x, \"\" }},\n" % \
+			(var.Description(), var.DFilter(),
+			var.EtherealFType(), var.Display(), var.ValuesName(),
+			var.Mask())
+
+	print """\t};
+
+		proto_register_field_array(proto_ncp, hf, array_length(hf));
+	}
+	"""
+
+
+	# Determine which error codes are not used
+	errors_not_used = {}
+	# Copy the keys from the error list...
+	for code in errors.keys():
+		errors_not_used[code] = 1
+	# ... and remove the ones that *were* used.
+	for code in errors_used_list:
+		del errors_not_used[code]
+
+	# Print a remark showing errors not used
+	list_errors_not_used = errors_not_used.keys()
+	list_errors_not_used.sort()
+	for code in list_errors_not_used:
+		print "/* Error 0x%04x not used: %s */" % (code, errors[code])
+	print "\n"
+
+	# Print the errors table
+	print "/* Error strings. */"
+	print "static const char *ncp_errors[] = {"
+	for code in errors_used_list:
+		print '\t/* %02d (0x%04x) */ "%s",' % (errors_used_hash[code], code, errors[code])
+	print "};\n"
+
+
+
+
+	# Determine which groups are not used
+	groups_not_used = {}
+	# Copy the keys from the group list...
+	for group in groups.keys():
+		groups_not_used[group] = 1
+	# ... and remove the ones that *were* used.
+	for group in groups_used_list:
+		del groups_not_used[group]
+
+	# Print a remark showing groups not used
+	list_groups_not_used = groups_not_used.keys()
+	list_groups_not_used.sort()
+	for group in list_groups_not_used:
+		print "/* Group not used: %s = %s */" % (group, groups[group])
+	print "\n"
+
+	# Print the groups table
+	print "/* Group strings. */"
+	print "static const char *ncp_groups[] = {"
+	for group in groups_used_list:
+		print '\t/* %02d (%s) */ "%s",' % (groups_used_hash[group], group, groups[group])
+	print "};\n"
+
+	# Print PTVC's
+	print "/* PTVC records. These are re-used to save space. */"
+	for ptvc in ptvc_lists.Members():
+		if not ptvc.Null() and not ptvc.Empty():
+			print "static const ptvc_record %s[] = {" % (ptvc.Name())
+			records = ptvc.Records()
+			for ptvc_rec in records:
+				print "\t%s," % (ptvc_rec)
+			print "\t{ NULL, 0, 0 }"
+			print "};\n"
+
+	# Print error_equivalency tables
+	print "/* Error-Equivalency Tables. These are re-used to save space. */"
+	for compcodes in compcode_lists.Members():
+		errors = compcodes.Records()
+		# Make sure the record for error = 0x00 comes last.
+		print "static const error_equivalency %s[] = {" % (compcodes.Name())
+		for error in errors:
+			error_in_packet = error >> 8;
+			ncp_error_index = errors_used_hash[error]
+			print "\t{ 0x%02x, %d }, /* 0x%04x */" % (error_in_packet,
+				ncp_error_index, error)
+		print "\t{ 0x00, -1 }\n};\n"
+
+
+	# Print ncp_record packet records
+	print "#define SUBFUNC 0xff"
+	print "#define NOSUB   0x00"
+
+	print "/* ncp_record structs for packets */"
+	print "static const ncp_record ncp_packets[] = {"
+	for pkt in packets.Members():
+		if pkt.HasSubFunction():
+			subfunc_string = "SUBFUNC"
+		else:
+			subfunc_string = "NOSUB"
+		print '\t{ 0x%02x, 0x%02x, %s, "%s",' % (pkt.FunctionCode('high'),
+			pkt.FunctionCode('low'), subfunc_string, pkt.Description()),
+
+		print '\t%d /* %s */,' % (groups_used_hash[pkt.Group()], pkt.Group())
+
+		ptvc = pkt.PTVCRequest()
+		if not ptvc.Null() and not ptvc.Empty():
+			ptvc_request = ptvc.Name()
+		else:
+			ptvc_request = 'NULL'
+
+		ptvc = pkt.PTVCReply()
+		if not ptvc.Null() and not ptvc.Empty():
+			ptvc_reply = ptvc.Name()
+		else:
+			ptvc_reply = 'NULL'
+
+		errors = pkt.CompletionCodes()
+		print '\t\t%s, NULL, %s, NULL,' % (ptvc_request, ptvc_reply)
+		print '\t\t%s },\n' % (errors.Name())
+
+	print '\t{ 0, 0, 0, NULL }'
+	print "};\n"
+
+	print "/* ncp funcs that require a subfunc */"
+	print "static const guint8 ncp_func_requires_subfunc[] = {"
+	hi_seen = {}
+	for pkt in packets.Members():
+		if pkt.HasSubFunction():
+			hi_func = pkt.FunctionCode('high')
+			if not hi_seen.has_key(hi_func):
+				print "\t0x%02x," % (hi_func)
+				hi_seen[hi_func] = 1
+	print "\t0"
+	print "};\n"
+
+
+	print '#include "ncp2222.h"'
 
 
