@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.93 2000/06/13 10:37:24 itojun Exp $
+ * $Id: packet-ip.c,v 1.94 2000/06/20 13:21:55 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1170,68 +1170,69 @@ dissect_icmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 }
 
 static void
-dissect_igmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
+#if 0
+dissect_igmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+#else
+dissect_igmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
+#endif
+{
   e_igmp     ih;
   proto_tree *igmp_tree;
   proto_item *ti;
-  guint16    cksum;
-  gchar      type_str[64] = "";
+  gchar      *type_str;
+  packet_info	*pinfo = &pi;
+  tvbuff_t	*tvb = tvb_create_from_top(offset);
+
+  pinfo->current_proto = "IGMP";
+  if (check_col(pinfo->fd, COL_PROTOCOL))
+    col_add_str(pinfo->fd, COL_PROTOCOL, "IGMP");
 
   /* Avoids alignment problems on many architectures. */
-  memcpy(&ih, &pd[offset], sizeof(e_igmp));
-  /* To do: check for runts, errs, etc. */
-  cksum = ntohs(ih.igmp_cksum);
+  memcpy(&ih, tvb_get_ptr(tvb, 0, sizeof(e_igmp)), sizeof(e_igmp));
   
   switch (lo_nibble(ih.igmp_v_t)) {
     case IGMP_M_QRY:
-      strcpy(type_str, "Router query");
+      type_str = "Router query";
       break;
     case IGMP_V1_M_RPT:
-      strcpy(type_str, "Host response (v1)");
+      type_str = "Host response (v1)";
       break;
     case IGMP_V2_LV_GRP:
-      strcpy(type_str, "Leave group (v2)");
+      type_str = "Leave group (v2)";
       break;
     case IGMP_DVMRP:
-      strcpy(type_str, "DVMRP");
+      type_str = "DVMRP";
       break;
     case IGMP_PIM:
-      strcpy(type_str, "PIM");
+      type_str = "PIM";
       break;
     case IGMP_V2_M_RPT:
-      strcpy(type_str, "Host response (v2)");
+      type_str = "Host response (v2)";
       break;
     case IGMP_MTRC_RESP:
-      strcpy(type_str, "Traceroute response");
+      type_str = "Traceroute response";
       break;
     case IGMP_MTRC:
-      strcpy(type_str, "Traceroute message");
+      type_str = "Traceroute message";
       break;
     default:
-      strcpy(type_str, "Unknown IGMP");
+      type_str = "Unknown IGMP";
   }
 
-  if (check_col(fd, COL_PROTOCOL))
-    col_add_str(fd, COL_PROTOCOL, "IGMP");
-  if (check_col(fd, COL_INFO))
-    col_add_str(fd, COL_INFO, type_str);
+  if (check_col(pinfo->fd, COL_INFO))
+    col_add_str(pinfo->fd, COL_INFO, type_str);
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_igmp, NullTVB, offset, 8, FALSE);
+    ti = proto_tree_add_item(tree, proto_igmp, tvb, 0, 8, FALSE);
     igmp_tree = proto_item_add_subtree(ti, ett_igmp);
-    proto_tree_add_uint(igmp_tree, hf_igmp_version, NullTVB, offset,     1, 
+    proto_tree_add_uint(igmp_tree, hf_igmp_version, tvb, 0,     1, 
 			hi_nibble(ih.igmp_v_t));
-    proto_tree_add_uint_format(igmp_tree, hf_igmp_type, NullTVB,  offset    , 1, 
+    proto_tree_add_uint_format(igmp_tree, hf_igmp_type, tvb,  0    , 1, 
 			       lo_nibble(ih.igmp_v_t),
 			       "Type: %u (%s)",
 			       lo_nibble(ih.igmp_v_t), type_str);
-    proto_tree_add_uint_format(igmp_tree, hf_igmp_unused, NullTVB, offset + 1, 1,
-			       ih.igmp_unused,
-			       "Unused: 0x%02x",
-			       ih.igmp_unused);
-    proto_tree_add_uint(igmp_tree, hf_igmp_checksum, NullTVB, offset + 2, 2, 
-			cksum);
-    proto_tree_add_ipv4(igmp_tree, hf_igmp_group, NullTVB, offset + 4, 4, 
-			ih.igmp_gaddr);
+    proto_tree_add_item(igmp_tree, hf_igmp_unused, tvb,  1, 1, FALSE);
+    proto_tree_add_item(igmp_tree, hf_igmp_checksum, tvb,  2, 2, FALSE);
+    proto_tree_add_ipv4(igmp_tree, hf_igmp_group, tvb,  4, 4, ih.igmp_gaddr);
   }
 }
 
@@ -1249,7 +1250,7 @@ proto_register_igmp(void)
 			"" }},
 
 		{ &hf_igmp_unused,
-		{ "Unused",		"igmp.unused", FT_UINT8, BASE_DEC, NULL, 0x0,
+		{ "Unused",		"igmp.unused", FT_UINT8, BASE_HEX, NULL, 0x0,
 			"" }},
 
 		{ &hf_igmp_checksum,
