@@ -11,7 +11,7 @@
 /* #undef HAVE_SA_LEN */
 
 #define DATAFILE_DIR "/usr/local/etc"
-#define PLUGIN_DIR "/usr/local/lib/ethereal/plugins/0.8"
+#define PLUGIN_DIR "/usr/local/lib/ethereal/plugins/0.8.5"
 
 /* #undef NEED_SNPRINTF_H */
 
@@ -60,7 +60,7 @@
 #define PACKAGE "ethereal"
 
 /* Version number of package */
-#define VERSION "0.8.1"
+#define VERSION "0.8.5"
 
 #ifndef WIN32
 #define WIN32			1
