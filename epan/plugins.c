@@ -1,7 +1,7 @@
 /* plugins.c
  * plugin routines
  *
- * $Id: plugins.c,v 1.82 2004/05/20 22:37:45 guy Exp $
+ * $Id: plugins.c,v 1.83 2004/05/21 00:39:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -80,8 +80,6 @@ static plugin_address_table_t	patable = {
 
 /* linked list of all plugins */
 plugin *plugin_list;
-
-static gchar *user_plug_dir = NULL;
 
 #define PLUGINS_DIR_NAME	"plugins"
 
