@@ -1,7 +1,7 @@
 /* strutil.c
  * String utility routines
  *
- * $Id: strutil.c,v 1.18 2004/02/05 09:42:26 guy Exp $
+ * $Id: strutil.c,v 1.19 2004/05/01 20:46:24 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -394,6 +394,45 @@ hex_str_to_bytes(const char *hex_str, GByteArray *bytes) {
 		}
 	}
 	return TRUE;
+}
+
+
+/* Return a XML escaped representation of the unescaped string.
+ * The returned string must be freed when no longer in use. */
+gchar *
+xml_escape(const gchar *unescaped)
+{
+	GString *buffer = g_string_sized_new(128);
+	const gchar *p;
+	gchar c;
+
+	p = unescaped;
+	while ( (c = *p++) ) {
+		switch (c) {
+			case '<':
+				g_string_append(buffer, "&lt;");
+				break;
+			case '>':
+				g_string_append(buffer, "&gt;");
+				break;
+			case '&':
+				g_string_append(buffer, "&amp;");
+				break;
+			case '\'':
+				g_string_append(buffer, "&apos;");
+				break;
+			case '"':
+				g_string_append(buffer, "&quot;");
+				break;
+			default:
+				g_string_append_c(buffer, c);
+				break;
+		}
+	}
+	/* Return the string value contained within the GString
+	 * after getting rid of the GString structure.
+	 * This is the way to do this, see the GLib reference. */
+	return g_string_free(buffer, FALSE);
 }
 
 
