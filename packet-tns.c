@@ -1,7 +1,7 @@
 /* packet-tns.c
  * Routines for Oracle TNS packet dissection
  *
- * $Id: packet-tns.c,v 1.15 2001/06/18 02:17:53 guy Exp $
+ * $Id: packet-tns.c,v 1.16 2001/10/06 14:24:36 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -66,11 +66,19 @@ static gint ett_sql = -1;
 #define TCP_PORT_TNS			1521
 
 static const value_string tns_type_vals[] = {
-		{TNS_TYPE_CONNECT, "Connect" },
-		{TNS_TYPE_ACCEPT, "Accept" },
-		{TNS_TYPE_DATA, "Data" },
-		{TNS_TYPE_RESEND, "Resend"},
-	        {0, NULL}
+		{TNS_TYPE_CONNECT,   "Connect" },
+		{TNS_TYPE_ACCEPT,    "Accept" },
+		{TNS_TYPE_ACK,       "Acknowledge" },
+		{TNS_TYPE_REFUSE,    "Refuse" },
+		{TNS_TYPE_REDIRECT,  "Redirect" },
+		{TNS_TYPE_DATA,      "Data" },
+		{TNS_TYPE_NULL,      "Null" },
+		{TNS_TYPE_ABORT,     "Abort" },
+		{TNS_TYPE_RESEND,    "Resend"},
+		{TNS_TYPE_MARKER,    "Marker"},
+		{TNS_TYPE_ATTENTION, "Attention"},
+		{TNS_TYPE_CONTROL,   "Control"},
+		{0, NULL}
 };
 
 

@@ -1,6 +1,6 @@
 /* packet-tns.h
  *
- * $Id: packet-tns.h,v 1.3 2000/04/08 07:07:41 guy Exp $
+ * $Id: packet-tns.h,v 1.4 2001/10/06 14:24:36 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -28,7 +28,16 @@
 /* Packet Types */
 #define TNS_TYPE_CONNECT 1
 #define TNS_TYPE_ACCEPT 2
+#define TNS_TYPE_ACK 3
+#define TNS_TYPE_REFUSE 4
+#define TNS_TYPE_REDIRECT 5
 #define TNS_TYPE_DATA 6
+#define TNS_TYPE_NULL 7
+#define TNS_TYPE_ABORT 9
 #define TNS_TYPE_RESEND 11
+#define TNS_TYPE_MARKER 12
+#define TNS_TYPE_ATTENTION 13
+#define TNS_TYPE_CONTROL 14
+#define TNS_TYPE_MAX 19
 
 #endif
