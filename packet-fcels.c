@@ -2,7 +2,7 @@
  * Routines for FC Extended Link Services
  * Copyright 2001, Dinesh G Dutt <ddutt@cisco.com>
  *
- * $Id: packet-fcels.c,v 1.5 2003/10/30 02:06:11 guy Exp $
+ * $Id: packet-fcels.c,v 1.6 2003/11/07 08:50:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -244,17 +244,15 @@ construct_cmnsvc_string (guint16 flag, gchar *flagstr, guint8 opcode)
 
     punc[0] = '\0';
     
-    if ((opcode == FC_ELS_PLOGI) || (opcode == FC_ELS_PDISC)) {
-        if (flag & 0x8000) {
-            strcpy (flagstr, "Cont. Incr. Offset Supported");
-            stroff += 28;
-            strcpy (punc, ", ");
-        }
-        if (flag & 0x4000) {
-            sprintf (&flagstr[stroff], "%sRRO Supported", punc);
-            stroff += 15;
-            strcpy (punc, ", ");
-        }
+    if (flag & 0x8000) {
+        strcpy (flagstr, "Cont. Incr. Offset Supported");
+        stroff += 28;
+        strcpy (punc, ", ");
+    }
+    if (flag & 0x4000) {
+        sprintf (&flagstr[stroff], "%sRRO Supported", punc);
+        stroff += 15;
+        strcpy (punc, ", ");
     }
     
     if (flag & 0x2000) {
@@ -271,7 +269,7 @@ construct_cmnsvc_string (guint16 flag, gchar *flagstr, guint8 opcode)
     else {
         sprintf (&flagstr[stroff], "%sNormal B2B Credit Mgmt", punc);
         strcpy (punc, ", ");
-        stroff += 21;
+        stroff += 22;
     }
 
     if ((opcode == FC_ELS_PLOGI) || (opcode == FC_ELS_PDISC)) {
@@ -287,6 +285,21 @@ construct_cmnsvc_string (guint16 flag, gchar *flagstr, guint8 opcode)
             strcpy (&flagstr[stroff], ", Simplex Dedicated Conn Supported");
             stroff += 34;
         }
+    }
+
+    if (flag & 0x0200) {
+        strcpy (&flagstr[stroff], ", Multicast Supported");
+        stroff += 21;
+    }
+    
+    if (flag & 0x0100) {
+        strcpy (&flagstr[stroff], ", Broadcast Supported");
+        stroff += 21;
+    }
+
+    if (flag & 0x0020) {
+        strcpy (&flagstr[stroff], ", Security Bit");
+        stroff += 14;
     }
     
     if (flag & 0x0010) {

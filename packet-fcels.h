@@ -2,7 +2,7 @@
  * Fibre Channel Extended Link Services Definitions (ddutt@cisco.com)
  * Copyright 2001, Dinesh G Dutt <ddutt@cisco.com>
  *
- * $Id: packet-fcels.h,v 1.2 2003/10/30 02:06:11 guy Exp $
+ * $Id: packet-fcels.h,v 1.3 2003/11/07 08:50:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -155,6 +155,7 @@ static const value_string fc_els_rjt_val[] = {
 #define FC_ELS_RJT_DET_INV_VCID          0x41
 #define FC_ELS_RJT_DET_OORSRC_C4         0x42
 #define FC_ELS_RJT_DET_INV_PNNAME        0x44
+#define FC_ELS_RJT_DET_AUTH_REQD         0x48
 
 static const value_string fc_els_rjt_det_val[] = {
     {FC_ELS_RJT_DET_NODET            , "No further details"},
@@ -195,6 +196,8 @@ static const value_string fc_els_rjt_det_val[] = {
     {FC_ELS_RJT_DET_INV_VCID         , "VC_ID Not Found"},
     {FC_ELS_RJT_DET_OORSRC_C4        , "No Resources to Support Class 4 Conn"},
     {FC_ELS_RJT_DET_INV_PNNAME       , "Invalid Port/Node Name"},
+    {FC_ELS_RJT_DET_AUTH_REQD        , "Authentication Required"},
+    {0, NULL},
 };
 
 static const value_string fc_els_flacompliance_val[] = {
