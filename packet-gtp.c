@@ -4,7 +4,7 @@
  * Copyright 2001, Michal Melerowicz <michal.melerowicz@nokia.com>
  *                 Nicolas Balkota <balkota@mac.com>
  *
- * $Id: packet-gtp.c,v 1.44 2002/11/06 22:59:20 guy Exp $
+ * $Id: packet-gtp.c,v 1.45 2002/11/11 17:41:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -458,12 +458,6 @@ static const value_string ver_types[] = {
 #define GTP_MSG_DATA_TRANSF_REQ		0xF0
 #define GTP_MSG_DATA_TRANSF_RESP	0xF1
 #define GTP_MSG_TPDU			0xFF
-
-#define GTP_PPP_0x00			0x00
-#define GTP_PPP_0xC0			0xC0
-#define GTP_PPP_0x80			0x80
-#define GTP_PPP_0xC2			0xC2
-#define GTP_PPP_REQ_ERROR		0xFF
 
 static const value_string message_type[] = {
 	{ GTP_MSG_UNKNOWN,		"For future use" },
@@ -4912,21 +4906,17 @@ dissect_gtpv0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     /* this must is most likely an IPv4 packet */
                     /* we can exclude 0x40 - 0x44 because the minimum header size is 20 octets */
                     /* 0x4f is excluded because PPP protocol type "IPv6 header compression" 
-                       with protocol field compression is more likely than an plain IPv4 packet with 60 octet header size */    
+                       with protocol field compression is more likely than a plain IPv4 packet with 60 octet header size */    
                     
                     next_tvb = tvb_new_subset(tvb, GTPv0_HDR_LENGTH, -1, -1);
                     call_dissector(ip_handle, next_tvb, pinfo, tree);
-                    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-                            col_append_str_gtp(pinfo->cinfo, COL_PROTOCOL, "GTP");
                 } else
                 if ((sub_proto & 0xf0) == 0x60) {
                     /* this is most likely an IPv6 packet */
                     next_tvb = tvb_new_subset(tvb, GTPv0_HDR_LENGTH, -1, -1);
                     call_dissector(ipv6_handle, next_tvb, pinfo, tree);
-                    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-                            col_append_str_gtp(pinfo->cinfo, COL_PROTOCOL, "GTP");
                 } else {
-                    /* this seems to be an PPP packet */
+                    /* this seems to be a PPP packet */
                     guint8 acfield_len = 0;
 
                     if (sub_proto == 0xff) {
@@ -4939,10 +4929,10 @@ dissect_gtpv0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     }
                     next_tvb = tvb_new_subset(tvb, GTPv0_HDR_LENGTH + acfield_len, -1, -1);
                     call_dissector(ppp_handle, next_tvb, pinfo, tree);
-                    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-                            col_append_str_gtp(pinfo->cinfo, COL_PROTOCOL, "PPP");
                 }
 	}
+        if (check_col(pinfo->cinfo, COL_PROTOCOL))
+                col_append_str_gtp(pinfo->cinfo, COL_PROTOCOL, "GTP");
 
 }
 
@@ -5065,22 +5055,18 @@ dissect_gtpv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
                     /* this must is most likely an IPv4 packet */
                     /* we can exclude 0x40 - 0x44 because the minimum header size is 20 octets */
                     /* 0x4f is excluded because PPP protocol type "IPv6 header compression" 
-                       with protocol field compression is more likely than an plain IPv4 packet with 60 octet header size */    
+                       with protocol field compression is more likely than a plain IPv4 packet with 60 octet header size */    
                     
                     next_tvb = tvb_new_subset(tvb, GTPv1_HDR_LENGTH - hdr_offset, -1, -1);
                     call_dissector(ip_handle, next_tvb, pinfo, tree);
-                    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-                            col_append_str_gtp(pinfo->cinfo, COL_PROTOCOL, "GTP-U");
                 } else
                 if ((sub_proto & 0xf0) == 0x60)
                 {
                     /* this is most likely an IPv6 packet */
                     next_tvb = tvb_new_subset(tvb, GTPv1_HDR_LENGTH - hdr_offset, -1, -1);
                     call_dissector(ipv6_handle, next_tvb, pinfo, tree);
-                    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-                            col_append_str_gtp(pinfo->cinfo, COL_PROTOCOL, "GTP-U");
                 } else {
-                    /* this seems to be an PPP packet */
+                    /* this seems to be a PPP packet */
                     guint8 acfield_len = 0;
 
                     if (sub_proto == 0xff) {
@@ -5095,10 +5081,10 @@ dissect_gtpv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
                     }
                     next_tvb = tvb_new_subset(tvb, GTPv1_HDR_LENGTH - hdr_offset + acfield_len, -1, -1);
                     call_dissector(ppp_handle, next_tvb, pinfo, tree);
-                    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-                            col_append_str_gtp(pinfo->cinfo, COL_PROTOCOL, "PPP");
                 }
 	}
+        if (check_col(pinfo->cinfo, COL_PROTOCOL))
+                col_append_str_gtp(pinfo->cinfo, COL_PROTOCOL, "GTP-U");
 }
 
 static const true_false_string yes_no_tfs = {
