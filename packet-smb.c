@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.37 1999/11/14 06:54:42 sharpe Exp $
+ * $Id: packet-smb.c,v 1.38 1999/11/16 07:58:12 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -8870,7 +8870,7 @@ dissect_transact_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *p
   const char    *TransactName;
   char          *TransactNameCopy;
   char          *trans_type;
-  char          *trans_cmd;
+  char          *trans_cmd, *loc_of_slash;
   guint32       index;
   conversation_t *conversation;
   struct smb_request_key   request_key, *new_request_key;
@@ -9196,9 +9196,14 @@ dissect_transact_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *p
 
     strcpy(TransactNameCopy, TransactName);
     trans_type = TransactNameCopy + 1;  /* Skip the slash */
-    index = strchr(trans_type, '\\') - trans_type;
-    trans_cmd = trans_type + index + 1;
-    trans_type[index] = '\0';
+    loc_of_slash = strchr(trans_type, '\\');
+    if (index) {
+      index = loc_of_slash - trans_type;  /* Make it a real index */
+      trans_cmd = trans_type + index + 1;
+      trans_type[index] = '\0';
+    }
+    else
+      trans_cmd = NULL;
 
     if (!strcmp(trans_type, "MAILSLOT") &&
 	!dissect_mailslot_smb(pd, offset, fd, parent, tree, si, max_data, SMB_offset, errcode, dirn, trans_cmd, SMB_offset + DataOffset, DataCount)) {
