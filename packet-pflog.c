@@ -1,7 +1,7 @@
 /* packet-pflog.c
  * Routines for pflog (OpenBSD Firewall Logging) packet disassembly
  *
- * $Id: packet-pflog.c,v 1.4 2002/04/08 02:02:27 guy Exp $
+ * $Id: packet-pflog.c,v 1.5 2002/07/15 20:55:51 guy Exp $
  *
  * Copyright 2001 Mike Frantzen
  * All rights reserved.
@@ -77,7 +77,7 @@ capture_pflog(const u_char *pd, int offset, int len, packet_counts *ld)
   
   /* Copy out the pflog header to insure alignment */
   memcpy(&pflogh, pd, sizeof(pflogh));
-  NTOHL(pflogh.af);
+  pflogh.af = g_ntohl(pflogh.af);
 
   switch (pflogh.af) {
 
@@ -141,11 +141,11 @@ dissect_pflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   tvb_memcpy(tvb, (guint8 *)&pflogh, 0, sizeof(pflogh));
 
   /* Byteswap the header now */
-  NTOHL(pflogh.af);
-  NTOHS(pflogh.rnr);
-  NTOHS(pflogh.reason);
-  NTOHS(pflogh.action);
-  NTOHS(pflogh.dir);
+  pflogh.af = g_ntohl(pflogh.af);
+  pflogh.rnr = g_ntohs(pflogh.rnr);
+  pflogh.reason = g_ntohs(pflogh.reason);
+  pflogh.action = g_ntohs(pflogh.action);
+  pflogh.dir = g_ntohs(pflogh.dir);
 
   if (tree) {
     ti = proto_tree_add_protocol_format(tree, proto_pflog, tvb, 0,

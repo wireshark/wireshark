@@ -1,6 +1,6 @@
 /* packet-pflog.h
  *
- * $Id: packet-pflog.h,v 1.3 2002/02/05 00:43:59 guy Exp $
+ * $Id: packet-pflog.h,v 1.4 2002/07/15 20:55:51 guy Exp $
  *
  * Copyright 2001 Mike Frantzen
  * All rights reserved.
@@ -50,20 +50,6 @@ struct pfloghdr {
 /* Directions */
 #define PF_IN  0
 #define PF_OUT 1
-
-/* BSDisms */
-#ifndef NTOHL
-# define NTOHL(x)       x = ntohl(x)
-#endif
-#ifndef NTOHS
-# define NTOHS(x)       x = ntohs(x)
-#endif
-#ifndef HTONL
-# define HTONL(x)       x = htonl(x)
-#endif
-#ifndef HTONS
-# define HTONS(x)       x = htons(x)
-#endif
 
 # define BSD_PF_INET    2
 # define BSD_PF_INET6   24
