@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB 
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.39 2001/09/25 00:34:24 guy Exp $
+ * $Id: packet-ieee80211.c,v 1.40 2001/09/25 02:21:15 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -597,7 +597,7 @@ add_tagged_field (proto_tree * tree, tvbuff_t * tvb, int offset)
   const guint8 *tag_data_ptr;
   guint32 tag_no, tag_len;
   unsigned int i;
-  int n;
+  int n, ret;
   char out_buff[SHORT_STR];
 
 
@@ -667,13 +667,20 @@ add_tagged_field (proto_tree * tree, tvbuff_t * tvb, int offset)
       strcpy (out_buff, "Supported rates: ");
       n = strlen (out_buff);
 
-      for (i = 0; i < tag_len; i++)
+      for (i = 0; i < tag_len && n < SHORT_STR; i++)
 	{
-	    n += snprintf (out_buff + n, SHORT_STR - n, "%2.1f%s ",
+	    ret = snprintf (out_buff + n, SHORT_STR - n, "%2.1f%s ",
 			   (tag_data_ptr[i] & 0x7F) * 0.5,
 			   (tag_data_ptr[i] & 0x80) ? "(B)" : "");
+	    if (ret == -1) {
+	      /* Some versions of snprintf return -1 if they'd truncate
+	         the output. */
+	      break;
+	    }
+	    n += ret;
 	}
-      snprintf (out_buff + n, SHORT_STR - n, "[Mbit/sec]");
+      if (n < SHORT_STR)
+	snprintf (out_buff + n, SHORT_STR - n, "[Mbit/sec]");
 
       proto_tree_add_string (tree, tag_interpretation, tvb, offset + 2,
 			     tag_len, out_buff);
