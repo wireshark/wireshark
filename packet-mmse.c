@@ -2,7 +2,7 @@
  * Routines for MMS Message Encapsulation dissection
  * Copyright 2001, Tom Uijldert <tom.uijldert@cmg.nl>
  *
- * $Id: packet-mmse.c,v 1.17 2002/09/26 00:42:16 sahlberg Exp $
+ * $Id: packet-mmse.c,v 1.18 2003/06/08 16:06:04 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -588,9 +588,8 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    break;
 		default:
 		    if (field & 0x80) {
-			g_warning(
-				"MMSE - Unknown field encountered (0x%02x)\n",
-				field);
+			proto_tree_add_text(mmse_tree, tvb, offset - 1, 1,
+				"Unknown field (0x%02x)", field);
 		    } else {
 			guint	 length2;
 			char	 strval2[BUFSIZ];
