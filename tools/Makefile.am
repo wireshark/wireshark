@@ -2,4 +2,5 @@ SUBDIRS = lemon
 
 EXTRA_DIST = \
 	Makefile.nmake	\
-	cvsdiff-fix.py
+	cvsdiff-fix.py	\
+	pkt-from-core.py
