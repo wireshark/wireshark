@@ -1,7 +1,7 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.308 2003/06/13 22:31:11 guy Exp $
+# $Id: Makefile.nmake,v 1.309 2003/06/14 20:35:55 guy Exp $
 
 include config.nmake
 include <win32.mak>
@@ -13,8 +13,7 @@ LINK= link
 
 LDFLAGS = /NOLOGO /INCREMENTAL:no /MACHINE:I386 $(LOCAL_LDFLAGS)
 
-CFLAGS=-DHAVE_CONFIG_H $(LOCAL_CFLAGS) /I$(GLIB_DIR) /I$(GLIB_DIR)\gmodule \
-	/I$(GTK_DIR) /I. /Iwiretap /I$(GTK_DIR)\gdk /I$(GTK_DIR)\gdk\win32 \
+CFLAGS=-DHAVE_CONFIG_H $(LOCAL_CFLAGS) $(GTK_CFLAGS) /I. /Iwiretap \
 	/I$(ZLIB_DIR) /I$(PCAP_DIR)\include \
 	/I$(NET_SNMP_DIR)\include /I$(NET_SNMP_DIR)\win32 \
 	/I$(ADNS_DIR)\src /I$(ADNS_DIR)\adns_win32 \

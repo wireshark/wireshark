@@ -1,4 +1,4 @@
-# $Id: config.nmake,v 1.43 2003/06/14 03:23:21 guy Exp $
+# $Id: config.nmake,v 1.44 2003/06/14 20:35:55 guy Exp $
 
 VERSION=0.9.13
 #
@@ -57,3 +57,15 @@ YACC=bison
 
 # To build the installer
 MAKENSIS="C:/program files/nsis/makensis.exe"
+
+#
+# You should not have to change anything below this comment.
+# If you do, it's a deficiency in the Makefile.nmake files;
+# either tell ethereal-dev@ethereal.com about it, including
+# details of why you had to change it, or fix config.nmake
+# and any Makefile.nmake files that need to be changed, and
+# send us the patches, along with details of why the change
+# was necessary.
+#
+GLIB_CFLAGS=/I$(GLIB_DIR) /I$(GLIB_DIR)\gmodule
+GTK_CFLAGS=/I$(GTK_DIR) /I$(GTK_DIR)\gdk /I$(GTK_DIR)\gdk\win32 $(GLIB_CFLAGS)

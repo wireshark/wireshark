@@ -1,14 +1,12 @@
 #
-# $Id: Makefile.nmake,v 1.2 2003/06/11 14:40:17 gerald Exp $
+# $Id: Makefile.nmake,v 1.3 2003/06/14 20:36:04 guy Exp $
 #
 
 include ..\..\config.nmake
 
 ############### no need to modify below this line #########
 
-CFLAGS=/DHAVE_CONFIG_H /I../.. /I../../wiretap \
-	/I$(GLIB_DIR) /I$(GTK_DIR) /I$(GLIB_DIR)/gmodule \
-	/I$(GTK_DIR)\gdk /I$(GTK_DIR)\gdk\win32 \
+CFLAGS=/DHAVE_CONFIG_H /I../.. /I../../wiretap $(GLIB_CFLAGS) \
 	/I$(PCAP_DIR)\include -D_U_="" $(LOCAL_CFLAGS)
 
 OBJECTS=packet-rtnet.obj 
