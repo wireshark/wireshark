@@ -70,6 +70,7 @@
 #define AODV_EXT_NTP	3
 
 /* Flag bits: */
+#define RREQ_DEST	0x10
 #define RREQ_GRAT	0x20
 #define RREQ_REP	0x40
 #define RREQ_JOIN	0x80
@@ -124,6 +125,7 @@ static int hf_aodv_unreach_dest_seqno = -1;
 static int hf_aodv_flags_rreq_join = -1;
 static int hf_aodv_flags_rreq_repair = -1;
 static int hf_aodv_flags_rreq_gratuitous = -1;
+static int hf_aodv_flags_rreq_destinationonly = -1;
 static int hf_aodv_flags_rrep_repair = -1;
 static int hf_aodv_flags_rrep_ack = -1;
 static int hf_aodv_flags_rerr_nodelete = -1;
@@ -227,12 +229,16 @@ dissect_aodv_rreq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *aodv_tree,
 			       tvb, offset, 1, flags);
 	proto_tree_add_boolean(aodv_flags_tree, hf_aodv_flags_rreq_gratuitous,
 			       tvb, offset, 1, flags);
+	proto_tree_add_boolean(aodv_flags_tree, hf_aodv_flags_rreq_destinationonly,
+			       tvb, offset, 1, flags);
 	if (flags & RREQ_JOIN)
 	    proto_item_append_text(tj, " J");
 	if (flags & RREQ_REP)
 	    proto_item_append_text(tj, " R");
 	if (flags & RREQ_GRAT)
 	    proto_item_append_text(tj, " G");
+	if (flags & RREQ_DEST)
+	    proto_item_append_text(tj, " D");
     }
     offset += 2;	/* skip reserved byte */
 
@@ -533,12 +539,16 @@ dissect_aodv_draft_01_v6_rreq(tvbuff_t *tvb, packet_info *pinfo,
 			       tvb, offset, 1, flags);
 	proto_tree_add_boolean(aodv_flags_tree, hf_aodv_flags_rreq_gratuitous,
 			       tvb, offset, 1, flags);
+	proto_tree_add_boolean(aodv_flags_tree, hf_aodv_flags_rreq_destinationonly,
+			       tvb, offset, 1, flags);
 	if (flags & RREQ_JOIN)
 	    proto_item_append_text(tj, " J");
 	if (flags & RREQ_REP)
 	    proto_item_append_text(tj, " R");
 	if (flags & RREQ_GRAT)
 	    proto_item_append_text(tj, " G");
+	if (flags & RREQ_DEST)
+	    proto_item_append_text(tj, " D");
     }
     offset += 2;	/* skip reserved byte */
 
@@ -841,6 +851,11 @@ proto_register_aodv(void)
 	{ &hf_aodv_flags_rreq_gratuitous,
 	  { "RREQ Gratuitous", "aodv.flags.rreq_gratuitous",
 	    FT_BOOLEAN, 8, TFS(&flags_set_truth), RREQ_GRAT,
+	    "", HFILL }
+	},
+	{ &hf_aodv_flags_rreq_destinationonly,
+	  { "RREQ Destination only", "aodv.flags.rreq_destinationonly",
+	    FT_BOOLEAN, 8, TFS(&flags_set_truth), RREQ_DEST,
 	    "", HFILL }
 	},
 	{ &hf_aodv_flags_rrep_repair,
