@@ -3,7 +3,7 @@
  *
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-rsvp.c,v 1.53 2002/01/31 22:42:38 ashokn Exp $
+ * $Id: packet-rsvp.c,v 1.54 2002/02/02 11:52:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -790,6 +790,7 @@ find_rsvp_session_tempfilt(tvbuff_t *tvb, int hdr_offset, int *session_offp, int
 	    t_off = off;
 	    break;
 	default:
+	    break;
 	}
     }
 
