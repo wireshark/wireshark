@@ -375,12 +375,25 @@ static const guint8 sip_sdp_static_dictionaty_for_sigcomp[0x12e4] =
 }; 
 static GHashTable *state_buffer_table=NULL;
 
+static void
+state_buffer_table_cleanup(gpointer key _U_, gpointer value, gpointer user_data _U_){
+
+	guint8 *state_buff = value;
+
+	if ( state_buff )
+		g_free(state_buff);
+}
+
 void
 sigcomp_init_udvm(void){
 
 	gchar *partial_state_str;
 	guint i;
 	guint8 *sip_sdp_buff;
+
+	/* Destroy any existing memory chunks / hashes. */
+	if (state_buffer_table)
+		g_hash_table_foreach(state_buffer_table, state_buffer_table_cleanup, NULL);
 	
 
 	state_buffer_table = g_hash_table_new(g_str_hash, g_str_equal);
