@@ -3,7 +3,7 @@
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  * Copyright 2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc.c,v 1.151 2003/11/06 07:44:13 sahlberg Exp $
+ * $Id: packet-dcerpc.c,v 1.152 2003/11/06 09:13:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1935,7 +1935,7 @@ dcerpc_try_handoff (packet_info *pinfo, proto_tree *tree,
             pinfo->current_proto = saved_proto;
             pinfo->private_data = saved_private_data;
         } else {
-            /* No subdissector - show it as *decrypted* stub data. */
+            /* No subdissector - show it as stub data. */
             if(decrypted_tvb){
                show_stub_data (decrypted_tvb, 0, tree, auth_info, FALSE);
             } else {
@@ -2575,6 +2575,12 @@ dissect_dcerpc_cn_stub (tvbuff_t *tvb, int offset, packet_info *pinfo,
        and we also know it is only a fragment and not a full PDU,
        thus we must reassemble it.
     */
+
+    /* Do we have any non-encrypted data to reassemble? */
+    if (decrypted_tvb == NULL) {
+      /* No.  We can't even try to reassemble.  */
+      goto end_cn_stub;
+    }
 
     /* if this is the first fragment we need to start reassembly
     */
