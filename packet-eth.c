@@ -1,7 +1,7 @@
 /* packet-eth.c
  * Routines for ethernet packet disassembly
  *
- * $Id: packet-eth.c,v 1.2 1998/09/16 03:22:04 gerald Exp $
+ * $Id: packet-eth.c,v 1.3 1998/09/25 23:24:01 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -36,6 +36,7 @@
 #include "packet.h"
 #include "ethereal.h"
 #include "etypes.h"
+#include "resolv.h"
 
 /* These are the Netware-ish names for the different Ethernet frame types.
 	EthernetII: The ethernet with a Type field instead of a length field
@@ -59,8 +60,8 @@ dissect_eth(const u_char *pd, frame_data *fd, GtkTree *tree) {
   int   	ethhdr_type;	/* the type of ethernet frame */
 
   if (fd->win_info[0]) {
-    strcpy(fd->win_info[2], ether_to_str((guint8 *)&pd[0]));
-    strcpy(fd->win_info[1], ether_to_str((guint8 *)&pd[6]));
+    strcpy(fd->win_info[2], get_ether_name((u_char *)&pd[0]));
+    strcpy(fd->win_info[1], get_ether_name((u_char *)&pd[6]));
     strcpy(fd->win_info[4], "Ethernet II");
   }
 
@@ -92,10 +93,12 @@ dissect_eth(const u_char *pd, frame_data *fd, GtkTree *tree) {
 
       fh_tree = gtk_tree_new();
       add_subtree(ti, fh_tree, ETT_IEEE8023);
-      add_item_to_tree(fh_tree, 0, 6, "Destination: %s",
-        ether_to_str((guint8 *) &pd[0]));
-      add_item_to_tree(fh_tree, 6, 6, "Source: %s",
-        ether_to_str((guint8 *) &pd[6]));
+      add_item_to_tree(fh_tree, 0, 6, "Destination: %s (%s)",
+	ether_to_str((guint8 *) &pd[0]),
+        get_ether_name((u_char *) &pd[0]));
+      add_item_to_tree(fh_tree, 6, 6, "Source: %s (%s)",
+	ether_to_str((guint8 *) &pd[6]),
+	get_ether_name((u_char *)&pd[6]));
       add_item_to_tree(fh_tree, 12, 2, "Length: %d", length);
     }
 
@@ -105,10 +108,12 @@ dissect_eth(const u_char *pd, frame_data *fd, GtkTree *tree) {
       "Ethernet II (%d on wire, %d captured)", fd->pkt_len, fd->cap_len);
     fh_tree = gtk_tree_new();
     add_subtree(ti, fh_tree, ETT_ETHER2);
-    add_item_to_tree(fh_tree, 0, 6, "Destination: %s",
-      ether_to_str((guint8 *) &pd[0]));
-    add_item_to_tree(fh_tree, 6, 6, "Source: %s",
-      ether_to_str((guint8 *) &pd[6]));
+    add_item_to_tree(fh_tree, 0, 6, "Destination: %s (%s)",
+      ether_to_str((guint8 *) &pd[0]),
+      get_ether_name((u_char *)&pd[0]));
+    add_item_to_tree(fh_tree, 6, 6, "Source: %s (%s)",
+      ether_to_str((guint8 *) &pd[6]),
+      get_ether_name((u_char *)&pd[6]));
   }
 
 	/* either ethernet802.3 or ethernet802.2 */

@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.3 1998/09/17 03:12:27 gerald Exp $
+ * $Id: menu.c,v 1.4 1998/09/25 23:24:00 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -41,6 +41,7 @@
 #include "packet.h"
 #include "print.h"
 #include "follow.h"
+#include "prefs.h"
 
 /* Much of this was take from the GTK+ tuturial at http://www.gtk.org */
 
@@ -72,6 +73,8 @@ static GtkMenuEntry menu_items[] =
   {"<Main>/Edit/Find", "<control>F", NULL, NULL},
   {"<Main>/Edit/<separator>", NULL, NULL, NULL},
   {"<Main>/Edit/Printer Options", NULL, printer_opts_cb, NULL},
+  {"<Main>/Edit/<separator>", NULL, NULL, NULL},
+  {"<Main>/Edit/Preferences", NULL, prefs_cb, NULL},
   {"<Main>/Tools/Capture", "<control>K", capture_prep_cb, NULL},
   {"<Main>/Tools/Filter", NULL, filter_sel_cb, NULL},
   {"<Main>/Tools/Follow TCP Stream", NULL, follow_stream_cb, NULL},
@@ -118,6 +121,7 @@ menus_init(void) {
     set_menu_sensitivity("<Main>/Edit/Copy", FALSE);
     set_menu_sensitivity("<Main>/Edit/Paste", FALSE);
     set_menu_sensitivity("<Main>/Edit/Find", FALSE);
+    set_menu_sensitivity("<Main>/Edit/Preferences", FALSE);
     set_menu_sensitivity("<Main>/Tools/Graph", FALSE);
     set_menu_sensitivity("<Main>/Help/About Ethereal", FALSE);
     if ((mp = gtk_menu_factory_find(factory, "<Main>/Help")) != NULL) {

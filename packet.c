@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.2 1998/09/16 03:22:13 gerald Exp $
+ * $Id: packet.c,v 1.3 1998/09/25 23:24:03 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -210,6 +210,12 @@ dissect_packet(const u_char *pd, frame_data *fd, GtkTree *tree) {
 			break;
 		case DLT_IEEE802 :
 			dissect_tr(pd, fd, tree);
+			break;
+		case DLT_NULL :
+			dissect_null(pd, fd, tree);
+			break;
+		case DLT_PPP :
+			dissect_ppp(pd, fd, tree);
 			break;
 		case DLT_RAW :
 	        dissect_raw(pd, fd, tree);

@@ -1,7 +1,7 @@
 /* resolv.h
  * Definitions for network object lookup
  *
- * $Id: resolv.h,v 1.2 1998/09/16 03:22:18 gerald Exp $
+ * $Id: resolv.h,v 1.3 1998/09/25 23:24:07 gerald Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
@@ -28,14 +28,44 @@
 #ifndef __RESOLV_H__
 #define __RESOLV_H__
 
-/* global variable */
+#ifdef HAVE_CONFIG_H
+# include "config.h"
+#endif
 
-extern int g_resolving_actif;
+#define EPATH_ETHERS 		"/etc/ethers"
+#define EPATH_MANUF  		DATAFILE_DIR "/manuf"
+#define EPATH_PERSONAL_ETHERS 	".ethereal/ethers" /* with "$HOME/" prefix */
+
+/* global variables */
+
+extern gchar *g_ethers_path;
+extern gchar *g_manuf_path;
+extern gchar *g_pethers_path;
+extern int    g_resolving_actif;
 
 /* Functions in resolv.c */
 
+/* get_tcp_port returns the UDP port name or "%d" if not found */
 extern u_char *get_udp_port(u_int port);
+
+/* get_tcp_port returns the TCP port name or "%d" if not found */
 extern u_char *get_tcp_port(u_int port);
+
+/* get_hostname returns the host name or "%d.%d.%d.%d" if not found */
 extern u_char *get_hostname(u_int addr);
+
+/* get_ether_name returns the logical name if found in ethers files else
+   "<vendor>_%02x:%02x:%02x" if the vendor code is known else
+   "%02x:%02x:%02x:%02x:%02x:%02x" */
+extern u_char *get_ether_name(u_char *addr);
+
+/* get_manuf_name returns the vendor name or "%02x:%02x:%02x" if not known */
+extern u_char *get_manuf_name(u_char *addr);
+
+/* returns the ethernet address corresponding to name or NULL if not known */
+extern u_char *get_ether_addr(u_char *name);
+
+/* adds a hostname/IP in the hash table */
+extern void add_host_name(u_int addr, u_char *name);
 
 #endif /* __RESOLV_H__ */

@@ -56,6 +56,10 @@ Installation Checklist (Long):
          The file 'INSTALL' contains general instructions for running
          'configure'.
 
+         Ethereal installs a support file (manuf) in /usr/local/etc by
+         default.  You can change this location with the --sysconfdir
+         option.
+
   [ ] 4. Run 'make'.  Hopefully, you won't run into any problems.
 
   [ ] 5. Run './ethereal', and make sure things are working.  You must

@@ -60,6 +60,7 @@ POST_UNINSTALL = :
 host_alias = @host_alias@
 host_triplet = @host@
 CC = @CC@
+DATAFILE_DIR = @DATAFILE_DIR@
 GTK_CFLAGS = @GTK_CFLAGS@
 GTK_CONFIG = @GTK_CONFIG@
 GTK_LIBS = @GTK_LIBS@
@@ -72,6 +73,8 @@ VERSION = @VERSION@
 bin_PROGRAMS = ethereal
 
 man_MANS = ethereal.1
+
+sysconf_DATA = manuf
 
 ethereal_SOURCES = \
 	capture.c      \
@@ -92,6 +95,8 @@ ethereal_SOURCES = \
 	packet-ip.c    \
 	packet-ipv6.c  \
 	packet-ipx.c   \
+	packet-ncp.c   \
+	packet-null.c  \
 	packet-osi.c   \
 	packet-ospf.c  \
 	packet-ppp.c   \
@@ -102,6 +107,7 @@ ethereal_SOURCES = \
 	packet-trmac.c \
 	packet-udp.c   \
 	packet-vines.c \
+	prefs.c        \
 	print.c        \
 	ps.c           \
 	resolv.c       \
@@ -116,9 +122,11 @@ ethereal_SOURCES = \
 	menu.h         \
 	packet.h       \
 	packet-ipv6.h  \
+	packet-ipx.h   \
 	packet-ospf.h  \
 	packet-rip.h   \
 	packet-vines.h \
+	prefs.h        \
 	print.h        \
 	ps.h           \
 	resolv.h       \
@@ -128,15 +136,19 @@ ethereal_SOURCES = \
 EXTRA_ethereal_SOURCES = @SNPRINTF_C@
 ethereal_DEPENDENCIES = @SNPRINTF_O@
 LDADD = @SNPRINTF_O@
+DISTCLEANFILES = \
+	rdps \
+	ps.c
 
 EXTRA_DIST =            \
-	ethereal.1          \
-	snprintf.c          \
-	rdps.c              \
-	print.ps            \
-	image/icon-excl.xpm \
 	doc/Makefile        \
-	doc/ethereal.pod
+	doc/ethereal.pod    \
+	ethereal.1          \
+	image/icon-excl.xpm \
+	manuf               \
+	print.ps            \
+	rdps.c              \
+	snprintf.c
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = config.h
@@ -151,9 +163,10 @@ LIBS = @LIBS@
 ethereal_OBJECTS =  capture.o ethereal.o ethertype.o file.o filter.o \
 follow.o menu.o packet.o packet-arp.o packet-bootp.o packet-data.o \
 packet-dns.o packet-eth.o packet-llc.o packet-lpd.o packet-ip.o \
-packet-ipv6.o packet-ipx.o packet-osi.o packet-ospf.o packet-ppp.o \
-packet-raw.o packet-rip.o packet-tcp.o packet-tr.o packet-trmac.o \
-packet-udp.o packet-vines.o print.o ps.o resolv.o util.o
+packet-ipv6.o packet-ipx.o packet-ncp.o packet-null.o packet-osi.o \
+packet-ospf.o packet-ppp.o packet-raw.o packet-rip.o packet-tcp.o \
+packet-tr.o packet-trmac.o packet-udp.o packet-vines.o prefs.o print.o \
+ps.o resolv.o util.o
 ethereal_LDADD = $(LDADD)
 ethereal_LDFLAGS = 
 CFLAGS = @CFLAGS@
@@ -163,9 +176,12 @@ man1dir = $(mandir)/man1
 MANS = $(man_MANS)
 
 NROFF = nroff
+DATA =  $(sysconf_DATA)
+
 DIST_COMMON =  README AUTHORS COPYING ChangeLog INSTALL Makefile.am \
-Makefile.in NEWS acconfig.h aclocal.m4 config.h.in configure \
-configure.in install-sh missing mkinstalldirs stamp-h.in
+Makefile.in NEWS acconfig.h aclocal.m4 config.guess config.h.in \
+config.sub configure configure.in install-sh missing mkinstalldirs \
+stamp-h.in
 
 
 DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
@@ -177,15 +193,16 @@ DEP_FILES =  .deps/capture.P .deps/ethereal.P .deps/ethertype.P \
 .deps/packet-arp.P .deps/packet-bootp.P .deps/packet-data.P \
 .deps/packet-dns.P .deps/packet-eth.P .deps/packet-ip.P \
 .deps/packet-ipv6.P .deps/packet-ipx.P .deps/packet-llc.P \
-.deps/packet-lpd.P .deps/packet-osi.P .deps/packet-ospf.P \
-.deps/packet-ppp.P .deps/packet-raw.P .deps/packet-rip.P \
-.deps/packet-tcp.P .deps/packet-tr.P .deps/packet-trmac.P \
-.deps/packet-udp.P .deps/packet-vines.P .deps/packet.P .deps/print.P \
+.deps/packet-lpd.P .deps/packet-ncp.P .deps/packet-null.P \
+.deps/packet-osi.P .deps/packet-ospf.P .deps/packet-ppp.P \
+.deps/packet-raw.P .deps/packet-rip.P .deps/packet-tcp.P \
+.deps/packet-tr.P .deps/packet-trmac.P .deps/packet-udp.P \
+.deps/packet-vines.P .deps/packet.P .deps/prefs.P .deps/print.P \
 .deps/ps.P .deps/resolv.P .deps/util.P
 SOURCES = $(ethereal_SOURCES) $(EXTRA_ethereal_SOURCES)
 OBJECTS = $(ethereal_OBJECTS)
 
-all: Makefile $(PROGRAMS) $(MANS) config.h
+all: Makefile $(PROGRAMS) $(MANS) $(DATA) config.h
 
 .SUFFIXES:
 .SUFFIXES: .S .c .o .s
@@ -309,6 +326,25 @@ uninstall-man:
 	@$(NORMAL_UNINSTALL)
 	$(MAKE) uninstall-man1
 
+install-sysconfDATA: $(sysconf_DATA)
+	@$(NORMAL_INSTALL)
+	$(mkinstalldirs) $(DESTDIR)$(sysconfdir)
+	@list='$(sysconf_DATA)'; for p in $$list; do \
+	  if test -f $(srcdir)/$$p; then \
+	    echo " $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(sysconfdir)/$$p"; \
+	    $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(sysconfdir)/$$p; \
+	  else if test -f $$p; then \
+	    echo " $(INSTALL_DATA) $$p $(DESTDIR)$(sysconfdir)/$$p"; \
+	    $(INSTALL_DATA) $$p $(DESTDIR)$(sysconfdir)/$$p; \
+	  fi; fi; \
+	done
+
+uninstall-sysconfDATA:
+	@$(NORMAL_UNINSTALL)
+	list='$(sysconf_DATA)'; for p in $$list; do \
+	  rm -f $(DESTDIR)$(sysconfdir)/$$p; \
+	done
+
 tags: TAGS
 
 ID: $(HEADERS) $(SOURCES) $(LISP)
@@ -411,7 +447,7 @@ dvi:
 check: all
 	$(MAKE)
 installcheck:
-install-exec: install-binPROGRAMS
+install-exec: install-binPROGRAMS install-sysconfDATA
 	@$(NORMAL_INSTALL)
 
 install-data: install-man
@@ -420,12 +456,13 @@ install-data: install-man
 install: install-exec install-data all
 	@:
 
-uninstall: uninstall-binPROGRAMS uninstall-man
+uninstall: uninstall-binPROGRAMS uninstall-man uninstall-sysconfDATA
 
 install-strip:
 	$(MAKE) INSTALL_PROGRAM='$(INSTALL_PROGRAM) -s' INSTALL_SCRIPT='$(INSTALL_PROGRAM)' install
 installdirs:
-	$(mkinstalldirs)  $(DATADIR)$(bindir) $(DESTDIR)$(mandir)/man1
+	$(mkinstalldirs)  $(DATADIR)$(bindir) $(DESTDIR)$(mandir)/man1 \
+		$(DATADIR)$(sysconfdir)
 
 
 mostlyclean-generic:
@@ -466,12 +503,13 @@ mostlyclean-binPROGRAMS distclean-binPROGRAMS clean-binPROGRAMS \
 maintainer-clean-binPROGRAMS uninstall-binPROGRAMS install-binPROGRAMS \
 mostlyclean-compile distclean-compile clean-compile \
 maintainer-clean-compile install-man1 uninstall-man1 install-man \
-uninstall-man tags mostlyclean-tags distclean-tags clean-tags \
-maintainer-clean-tags distdir mostlyclean-depend distclean-depend \
-clean-depend maintainer-clean-depend info dvi installcheck install-exec \
-install-data install uninstall all installdirs mostlyclean-generic \
-distclean-generic clean-generic maintainer-clean-generic clean \
-mostlyclean distclean maintainer-clean
+uninstall-man uninstall-sysconfDATA install-sysconfDATA tags \
+mostlyclean-tags distclean-tags clean-tags maintainer-clean-tags \
+distdir mostlyclean-depend distclean-depend clean-depend \
+maintainer-clean-depend info dvi installcheck install-exec install-data \
+install uninstall all installdirs mostlyclean-generic distclean-generic \
+clean-generic maintainer-clean-generic clean mostlyclean distclean \
+maintainer-clean
 
 
 ps.c: print.ps rdps

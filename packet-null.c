@@ -1,7 +1,7 @@
-/* packet-ppp.c
- * Routines for ppp packet disassembly
+/* packet-null.c
+ * Routines for null packet disassembly
  *
- * $Id: packet-ppp.c,v 1.3 1998/09/25 23:24:02 gerald Exp $
+ * $Id: packet-null.c,v 1.1 1998/09/25 23:24:02 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -28,21 +28,26 @@
 # include "config.h"
 #endif
 
+#ifdef HAVE_SYS_TYPES_H
+#include <sys/types.h>
+#endif
+
 #include <gtk/gtk.h>
 #include <stdio.h>
+#include <sys/socket.h>
 #include <pcap.h>
 
 #include "packet.h"
 #include "ethereal.h"
 
 void
-dissect_ppp( const u_char *pd, frame_data *fd, GtkTree *tree ) {
-  e_ppphdr   ph;
+dissect_null( const u_char *pd, frame_data *fd, GtkTree *tree ) {
+  e_nullhdr  nh;
   GtkWidget *ti, *fh_tree;
 
-  ph.ppp_addr = pd[0];
-  ph.ppp_ctl  = pd[1];
-  ph.ppp_prot = pntohs(&pd[2]);
+  nh.null_next   = pd[0];
+  nh.null_len    = pd[1];
+  memcpy((char *)&nh.null_family, (char *)&pd[2], sizeof(nh.null_family));
 
   /* load the top pane info. This should be overwritten by
      the next protocol in the stack */
@@ -50,24 +55,39 @@ dissect_ppp( const u_char *pd, frame_data *fd, GtkTree *tree ) {
     strcpy(fd->win_info[1], "N/A" );
     strcpy(fd->win_info[2], "N/A" );
     strcpy(fd->win_info[3], "N/A" );
-    strcpy(fd->win_info[4], "PPP" );
+    strcpy(fd->win_info[4], "Null/Loopback" );
   }
 
   /* populate a tree in the second pane with the status of the link
      layer (ie none) */
   if(tree) {
     ti = add_item_to_tree( GTK_WIDGET(tree), 0, 4,
-      "Point-to-Point Protocol (%d on link, %d captured)", fd->pkt_len,
+      "Null/Loopback (%d on link, %d captured)", fd->pkt_len,
       fd->cap_len );
     fh_tree = gtk_tree_new();
-    add_subtree(ti, fh_tree, ETT_PPP);
-    add_item_to_tree(fh_tree, 0, 1, "Address: %02x", ph.ppp_addr);
-    add_item_to_tree(fh_tree, 1, 1, "Control: %02x", ph.ppp_ctl);
-    add_item_to_tree(fh_tree, 2, 2, "Protocol: %04x", ph.ppp_prot);
+    add_subtree(ti, fh_tree, ETT_NULL);
+    add_item_to_tree(fh_tree, 0, 1, "Next: %02x", nh.null_next);
+    add_item_to_tree(fh_tree, 1, 1, "Length: %02x", nh.null_len);
+    add_item_to_tree(fh_tree, 2, 2, "Family: %04x", nh.null_family);
   }
 
-  switch (ph.ppp_prot) {
+  /* 
+  From what I've read in various sources, this is supposed to be an
+  address family, e.g. AF_INET.  However, a FreeBSD ISDN PPP dump that
+  Andreas Klemm sent to ethereal-dev has a packet type of DLT_NULL, and
+  the family bits look like PPP's protocol field.  A dump of the loopback
+  interface on my Linux box also has a link type of DLT_NULL (as it should
+  be), but the family bits look like ethernet's protocol type.  To
+  further  confuse matters, nobody seems to be paying attention to byte
+  order.
+  - gcc
+  */  
+   
+  switch (nh.null_family) {
+    case 0x0008:
+    case 0x0800:
     case 0x0021:
+    case 0x2100:
       dissect_ip(pd, 4, fd, tree);
       break;
     default:

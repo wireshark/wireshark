@@ -2,6 +2,8 @@ bin_PROGRAMS = ethereal
 
 man_MANS = ethereal.1
 
+sysconf_DATA = manuf
+
 ethereal_SOURCES = \
 	capture.c      \
 	ethereal.c     \
@@ -22,6 +24,7 @@ ethereal_SOURCES = \
 	packet-ipv6.c  \
 	packet-ipx.c   \
 	packet-ncp.c   \
+	packet-null.c  \
 	packet-osi.c   \
 	packet-ospf.c  \
 	packet-ppp.c   \
@@ -32,6 +35,7 @@ ethereal_SOURCES = \
 	packet-trmac.c \
 	packet-udp.c   \
 	packet-vines.c \
+	prefs.c        \
 	print.c        \
 	ps.c           \
 	resolv.c       \
@@ -46,9 +50,11 @@ ethereal_SOURCES = \
 	menu.h         \
 	packet.h       \
 	packet-ipv6.h  \
+	packet-ipx.h   \
 	packet-ospf.h  \
 	packet-rip.h   \
 	packet-vines.h \
+	prefs.h        \
 	print.h        \
 	ps.h           \
 	resolv.h       \
@@ -64,12 +70,17 @@ rdps: rdps.c
 EXTRA_ethereal_SOURCES = @SNPRINTF_C@
 ethereal_DEPENDENCIES = @SNPRINTF_O@
 LDADD = @SNPRINTF_O@
+DISTCLEANFILES = \
+	rdps \
+	ps.c
 
 EXTRA_DIST =            \
-	ethereal.1          \
-	snprintf.c          \
-	rdps.c              \
-	print.ps            \
-	image/icon-excl.xpm \
 	doc/Makefile        \
-	doc/ethereal.pod
+	doc/ethereal.pod    \
+	ethereal.1          \
+	image/icon-excl.xpm \
+	manuf               \
+	print.ps            \
+	rdps.c              \
+	snprintf.c
+

@@ -1,8 +1,8 @@
-# $Id: configure.in,v 1.4 1998/09/20 00:21:56 gerald Exp $
+# $Id: configure.in,v 1.5 1998/09/25 23:23:58 gerald Exp $
 dnl Process this file with autoconf to produce a configure script.
 AC_INIT(etypes.h)
 
-AM_INIT_AUTOMAKE(ethereal, 0.3.16)
+AM_INIT_AUTOMAKE(ethereal, 0.3.17)
 
 dnl Check for CPU / vendor / OS
 AC_CANONICAL_HOST
@@ -10,16 +10,26 @@ AC_CANONICAL_HOST
 dnl Checks for programs.
 AC_PROG_CC
 
+# Create DATAFILE_DIR #define for config.h
+DATAFILE_DIR=$sysconfdir
+DATAFILE_DIR=`(
+    test "x$prefix" = xNONE && prefix=$ac_default_prefix
+    test "x$exec_prefix" = xNONE && exec_prefix=${prefix}
+    eval echo "$DATAFILE_DIR"
+)`
+AC_DEFINE_UNQUOTED(DATAFILE_DIR,"$DATAFILE_DIR")
+AC_SUBST(DATAFILE_DIR)
+
 # If we're running Solaris, and LD_LIBRARY_PATH is defined, add it as a
 # link directory.
 case "$host_os" in
   solaris*)
-    AC_MSG_RESULT(You appear to be running Solaris.  Checking for LD_LIBRARY_PATH...)
-    if test x$LD_LIBRARY_PATH != x -a ; then
+    AC_MSG_CHECKING(for LD_LIBRARY_PATH, since you appear to be running Solaris)
+    if test x$LD_LIBRARY_PATH != x ; then
       LIBS="$LIBS -R$LD_LIBRARY_PATH"
-      AC_MSG_RESULT(Added LD_LIBRARY_PATH to run-time linker path)
+      AC_MSG_RESULT(yes -- added LD_LIBRARY_PATH to run-time linker path)
     else
-      AC_MSG_RESULT(You don't have LD_LIBRARY_PATH defined.  This may cause trouble later on.)
+      AC_MSG_RESULT(no -- this may be a problem in a few seconds)
     fi
   ;;
 esac

@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.3 1998/09/17 03:12:24 gerald Exp $
+ * $Id: file.c,v 1.4 1998/09/25 23:23:59 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -84,7 +84,7 @@ open_cap_file(char *fname, capture_file *cf) {
   cf->fh = NULL;
 
   /* set the file name beacuse we need it to set the follow stream filter */
-  cf->filename = strdup( fname );
+  cf->filename = g_strdup( fname );
 
   /* Next, find out what type of file we're dealing with */
   

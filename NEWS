@@ -1,3 +1,11 @@
+Overview of changes in Ethereal 0.3.17:
+
+* Ethernet manufacturer support (Laurent)
+* Netware SAP support (Gilbert)
+* Misc Netware/token ring fixes and enhancements (Gilbert)
+* PPP fixes (Gerald)
+* Null/loopback interface support (Gerald)
+
 Overview of changes in Ethereal 0.3.16:
 
 * Support for ISO/OSI CLNP & COTP (Laurent)

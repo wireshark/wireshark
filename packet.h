@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.8 1998/09/24 04:22:08 gram Exp $
+ * $Id: packet.h,v 1.9 1998/09/25 23:24:04 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -208,10 +208,17 @@ typedef struct _e_ip {
 #define IP_PROTO_UDP  17
 #define IP_PROTO_OSPF 89
 
+/* Null/loopback structs and definitions */
+
+typedef struct _e_nullhdr {
+  guint8  null_next;
+  guint8  null_len;
+  guint16 null_family;
+} e_nullhdr;
+
 /* PPP structs and definitions */
 
 typedef struct _e_ppphdr {
-  guint8  ppp_flag;
   guint8  ppp_addr;
   guint8  ppp_ctl;
   guint16 ppp_prot;
@@ -254,10 +261,10 @@ typedef struct _e_udphdr {
 
 /* UDP Ports -> should go in packet-udp.h */
 
-#define UDP_PORT_DNS 53
-#define UDP_PORT_BOOTPS 67
-#define UDP_PORT_IPX 213
-#define UDP_PORT_RIP 520
+#define UDP_PORT_DNS     53
+#define UDP_PORT_BOOTPS  67
+#define UDP_PORT_IPX    213
+#define UDP_PORT_RIP    520
 
 /* TCP Ports */
 
@@ -266,50 +273,51 @@ typedef struct _e_udphdr {
 /* Tree types.  Each dissect_* routine should have one for each
    add_subtree() call. */
 
-#define ETT_IEEE8023      0
-#define ETT_ETHER2        1
-#define ETT_LLC           2
-#define ETT_TOKEN_RING    3
-#define ETT_TR_IERR_CNT   4
-#define ETT_TR_NERR_CNT   5
-#define ETT_TR_MAC        6
-#define ETT_PPP           7
-#define ETT_ARP           8
-#define ETT_IP            9
-#define ETT_UDP          10
-#define ETT_TCP          11
-#define ETT_ICMP         12
-#define ETT_IGMP         13
-#define ETT_IPX          14
-#define ETT_SPX          15
-#define ETT_NCP          16
-#define ETT_DNS          17
-#define ETT_DNS_ANS      18
-#define ETT_DNS_QRY      19
-#define ETT_RIP          20
-#define ETT_RIP_VEC      21
-#define ETT_OSPF         22
-#define ETT_OSPF_HDR     23
-#define ETT_OSPF_HELLO   24
-#define ETT_OSPF_DESC    25
-#define ETT_OSPF_LSR     26
-#define ETT_OSPF_LSA_UPD 27
-#define ETT_OSPF_LSA     28
-#define ETT_LPD          29
-#define ETT_RAW          30
-#define ETT_BOOTP        31
-#define ETT_BOOTP_OPTION 32
-#define ETT_IPv6	 33
-#define ETT_CLNP         34
-#define ETT_COTP         35
-#define ETT_VINES        36
-#define ETT_VSPP         37
-#define ETT_IPXRIP       38
-#define ETT_IPXSAP       39
+#define ETT_IEEE8023       0
+#define ETT_ETHER2         1
+#define ETT_LLC            2
+#define ETT_TOKEN_RING     3
+#define ETT_TR_IERR_CNT    4
+#define ETT_TR_NERR_CNT    5
+#define ETT_TR_MAC         6
+#define ETT_PPP            7
+#define ETT_ARP            8
+#define ETT_IP             9
+#define ETT_UDP           10
+#define ETT_TCP           11
+#define ETT_ICMP          12
+#define ETT_IGMP          13
+#define ETT_IPX           14
+#define ETT_SPX           15
+#define ETT_NCP           16
+#define ETT_DNS           17
+#define ETT_DNS_ANS       18
+#define ETT_DNS_QRY       19
+#define ETT_RIP           20
+#define ETT_RIP_VEC       21
+#define ETT_OSPF          22
+#define ETT_OSPF_HDR      23
+#define ETT_OSPF_HELLO    24
+#define ETT_OSPF_DESC     25
+#define ETT_OSPF_LSR      26
+#define ETT_OSPF_LSA_UPD  27
+#define ETT_OSPF_LSA      28
+#define ETT_LPD           29
+#define ETT_RAW           30
+#define ETT_BOOTP         31
+#define ETT_BOOTP_OPTION  32
+#define ETT_IPv6	  33
+#define ETT_CLNP          34
+#define ETT_COTP          35
+#define ETT_VINES         36
+#define ETT_VSPP          37
+#define ETT_IPXRIP        38
+#define ETT_IPXSAP        39
 #define ETT_IPXSAP_SERVER 40
+#define ETT_NULL          41
 
 /* Should be the last item number plus one */
-#define NUM_TREE_TYPES 41
+#define NUM_TREE_TYPES 42
 
 /* The version of pcap.h that comes with some systems is missing these
  * #defines.
