@@ -1,7 +1,7 @@
 /* plugin_api.c
  * Routines for Ethereal plugins.
  *
- * $Id: plugin_api.c,v 1.27 2001/11/13 23:55:40 gram Exp $
+ * $Id: plugin_api.c,v 1.28 2001/11/21 23:34:09 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -30,8 +30,6 @@
 #include <glib.h>
 
 #include "plugin_api.h"
-
-packet_info			*p_pi = NULL;
 
 void
 plugin_address_table_init(plugin_address_table_t *pat)

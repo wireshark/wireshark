@@ -1,7 +1,7 @@
 /* plugin_table.h
  * Table of exported addresses for Ethereal plugins.
  *
- * $Id: plugin_table.h,v 1.31 2001/11/13 23:55:40 gram Exp $
+ * $Id: plugin_table.h,v 1.32 2001/11/21 23:34:09 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -205,7 +205,6 @@ typedef guint32 (*addr_get_CDR_wstring)(tvbuff_t *, gchar **, int *, gboolean,
 		int, MessageHeader *);
 
 typedef struct  {
-	packet_info				*p_pi;
 
 	addr_check_col				p_check_col;
 	addr_col_clear				p_col_clear;
