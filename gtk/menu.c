@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.54 2001/06/27 10:00:14 guy Exp $
+ * $Id: menu.c,v 1.55 2001/07/17 05:44:58 hagbard Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -168,6 +168,8 @@ static GtkItemFactoryEntry packet_list_menu_items[] =
 	{"/Follow TCP Stream", NULL, GTK_MENU_FUNC(follow_stream_cb), 0, NULL},
 	{"/Decode As...", NULL, GTK_MENU_FUNC(decode_as_cb), 0, NULL},
 	{"/Display Filters...", NULL, GTK_MENU_FUNC(dfilter_dialog_cb), 0, NULL},
+	{"/<separator>", NULL, NULL, 0, "<Separator>"},
+	{"/Mark Frame", NULL, GTK_MENU_FUNC(mark_frame_cb), 0, NULL},
 	{"/<separator>", NULL, NULL, 0, "<Separator>"},
 	{"/Colorize Display...", NULL, GTK_MENU_FUNC(color_display_cb), 0, NULL},
 	{"/Print...", NULL, GTK_MENU_FUNC(file_print_cmd_cb), 0, NULL},
