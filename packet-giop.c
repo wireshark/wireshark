@@ -9,7 +9,7 @@
  * Frank Singleton <frank.singleton@ericsson.com>
  * Trevor Shepherd <eustrsd@am1.ericsson.se>
  *
- * $Id: packet-giop.c,v 1.52 2001/12/17 22:45:18 guy Exp $
+ * $Id: packet-giop.c,v 1.53 2001/12/19 08:59:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1761,6 +1761,9 @@ static gboolean try_heuristic_giop_dissector(tvbuff_t *tvb, packet_info *pinfo, 
       }  
     } /* protocol_is_enabled */
   } /* loop */
+
+  if (check_col (pinfo->cinfo, COL_PROTOCOL))
+      col_set_str (pinfo->cinfo, COL_PROTOCOL, "GIOP");
 
   pinfo->current_proto = saved_proto;
   return res;			/* result */

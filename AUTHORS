@@ -954,6 +954,9 @@ Pavel Mores <pvl[AT]uh.cz> {
 Bernd Becker <bb[AT]bernd-becker.de> {
 	Support for LOCATION_FORWARD, LOCATION_FORWARD_PERM and
 	    NEEDS_ADDRESSING_MODE replies in GIOP
+	ethereal_gen.py cleanups
+	Reset the Protocol column to GIOP if no heuristic dissectors
+	    succeed
 }
 
 Heinz Prantner <Heinz.Prantner[AT]radisys.com> {

@@ -1,6 +1,6 @@
 # -*- python -*-
 #
-# $Id: ethereal_gen.py,v 1.18 2001/12/17 22:51:42 guy Exp $
+# $Id: ethereal_gen.py,v 1.19 2001/12/19 08:59:06 guy Exp $
 #                           
 # ethereal_gen.py (part of idl2eth)           
 #
@@ -2114,8 +2114,13 @@ static gboolean dissect_@dissname@(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
        col_set_str(pinfo->cinfo, COL_PROTOCOL, \"@disprot@\");
 
-    if (check_col(pinfo->cinfo, COL_INFO))
-       col_clear(pinfo->cinfo, COL_INFO))
+/* 
+ * Do not clear COL_INFO, as nothing is being written there by 
+ * this dissector yet. So leave it as is from the GIOP dissector.
+ * TODO: add something useful to COL_INFO 
+ *  if (check_col(pinfo->cinfo, COL_INFO))
+ *     col_clear(pinfo->cinfo, COL_INFO);
+ */
 
     if (ptree) {
        ti = proto_tree_add_item(ptree, proto_@dissname@, tvb, *offset, tvb_length(tvb) - *offset, FALSE);
