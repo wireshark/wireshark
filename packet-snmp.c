@@ -2,7 +2,7 @@
  * Routines for SNMP (simple network management protocol)
  * D.Jorand (c) 1998
  *
- * $Id: packet-snmp.c,v 1.17 1999/12/10 20:45:37 guy Exp $
+ * $Id: packet-snmp.c,v 1.18 1999/12/10 21:00:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -84,6 +84,8 @@
 #undef SNMP_TRAP_EGPNEIGHBORLOSS
 #undef SNMP_TRAP_ENTERPRISESPECIFIC
 #endif
+
+#define MAX_STRING_LEN 1024	/* TBC */
 
 #include <glib.h>
 #include "packet.h"
@@ -386,7 +388,7 @@ snmp_variable_decode(proto_tree *snmp_tree, ASN1_SCK *asn1, int offset,
 	guint32 vb_uinteger_value;
 
 	guint8 *vb_octet_string;
-	gchar vb_string[MAX_NAME_LEN*6]; /* TBC */
+	gchar vb_string[MAX_STRING_LEN]; /* TBC */
 
 	subid_t *vb_oid;
 	guint vb_oid_length;
@@ -582,7 +584,7 @@ dissect_snmp_pdu(const u_char *pd, int offset, frame_data *fd,
 	guint timestamp;
 	guint timestamp_length;
 
-	gchar oid_string[MAX_NAME_LEN*6]; /* TBC */
+	gchar oid_string[MAX_STRING_LEN]; /* TBC */
 
 	guint variable_bindings_length;
 
@@ -590,7 +592,9 @@ dissect_snmp_pdu(const u_char *pd, int offset, frame_data *fd,
 	guint variable_length;
 	subid_t *variable_oid;
 	guint variable_oid_length;
-	gchar vb_oid_string[MAX_NAME_LEN*6]; /* TBC */
+#if defined(HAVE_UCD_SNMP_SNMP_H) || defined(HAVE_SNMP_SNMP_H)
+	gchar vb_oid_string[MAX_STRING_LEN]; /* TBC */
+#endif
 
 	proto_tree *snmp_tree = NULL;
 	proto_item *item = NULL;
