@@ -2,7 +2,7 @@
  * Routines for opening EtherPeek (and TokenPeek?) files
  * Copyright (c) 2001, Daniel Thompson <d.thompson@gmx.net>
  *
- * $Id: etherpeek.c,v 1.15 2002/02/08 10:07:40 guy Exp $
+ * $Id: etherpeek.c,v 1.16 2002/02/15 11:35:13 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -235,6 +235,7 @@ int etherpeek_open(wtap *wth, int *err)
 				 */
 				return 0;
 			}
+			break;
 
 		default:
 			/*
