@@ -38,8 +38,26 @@
 #endif
 
 #include <stdio.h>
-
 #include <string.h>
+
+#include <sys/types.h>
+#ifdef HAVE_SYS_SOCKET_H
+#include <sys/socket.h>
+#endif
+#ifdef HAVE_NETINET_IN_H
+# include <netinet/in.h>
+#endif
+#ifdef HAVE_ARPA_INET_H
+#include <arpa/inet.h>
+#endif
+#ifdef NEED_INET_ATON_H
+# include <epan/inet_aton.h>
+#endif
+
+#ifdef HAVE_WINSOCK2_H
+#include <winsock2.h>		/* needed to define AF_ values on Windows */
+#endif
+
 #include <glib.h>
 #include <epan/packet.h>
 
@@ -789,8 +807,8 @@ tacplus_print_key_entry( gpointer data, gpointer user_data )
 static int
 cmp_conv_address( gconstpointer p1, gconstpointer p2 )
 {
-	tacplus_key_entry *a1=(tacplus_key_entry*)p1;
-	tacplus_key_entry *a2=(tacplus_key_entry*)p2;
+	const tacplus_key_entry *a1=p1;
+	const tacplus_key_entry *a2=p2;
 	gint32	ret;
 	/*
 	printf("p1=>");
@@ -827,17 +845,18 @@ find_key( address *srv, address *cln )
 
 	return (tacplus_keys?NULL:tacplus_opt_key);
 }
-#define AF_INET 2
-int inet_pton(int , const char*, void*);
 
 static void
-mkipv4_address( address **addr, char *str_addr )
+mkipv4_address( address **addr, const char *str_addr )
 {
+	char *addr_data;
+
 	*addr=g_malloc( sizeof(address) );
+	addr_data=g_malloc( 4 );
+	inet_pton( AF_INET, str_addr, addr_data );
 	(*addr)->type=AT_IPv4;
 	(*addr)->len=4;
-	(*addr)->data=g_malloc( 4 );
-	inet_pton( AF_INET, (const char*)str_addr, (void*)(*addr)->data );
+	(*addr)->data=addr_data;
 }
 static void
 parse_tuple( char *key_from_option )
