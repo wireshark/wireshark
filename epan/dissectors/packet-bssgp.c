@@ -424,7 +424,7 @@ get_bit_field_label(guint16 value, guint16 value_mask, guint16 num_bits) {
 
   g_assert(num_bits <= MAX_NUM_BITS);
   for (i = 0; i < num_bits; i++) {
-    bit_mask = pow(2, i);
+    bit_mask = (guint16)pow(2, i);
     if (value_mask & bit_mask) {
       label[num_bits - 1 - i] = (value & bit_mask) ? '1' : '0';
     }
@@ -1280,9 +1280,9 @@ decode_mobile_identity(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
         hf_id = -1;
         break;
       }
-	  /* This does not work ??
-      proto_tree_add_string(tf, hf_id, bi->tvb, 0, num_digits, digits_str);
-	  */
+	  if (tf)
+		  proto_tree_add_string(tf, hf_id, bi->tvb, 0, num_digits, digits_str);
+
     } 
     if (check_col(bi->pinfo->cinfo, COL_INFO)) {
       col_append_sep_fstr(bi->pinfo->cinfo, COL_INFO, BSSGP_SEP, "%s %s", 
