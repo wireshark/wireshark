@@ -5,7 +5,7 @@
  *
  * MUCH code modified from service_response_time_table.c.
  *
- * $Id: ansi_map_stat.c,v 1.5 2003/12/17 22:13:06 guy Exp $
+ * $Id: ansi_map_stat.c,v 1.6 2003/12/21 22:21:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -67,10 +67,11 @@ typedef struct _ansi_map_stat_dlg_t {
     char		*entries[3];
 } ansi_map_stat_dlg_t;
 
-typedef struct _ansi_map_stat_t {
-    int			message_type[0xff];
-} ansi_map_stat_t;
+#define N_MESSAGE_TYPES	0xff
 
+typedef struct _ansi_map_stat_t {
+    int			message_type[N_MESSAGE_TYPES];
+} ansi_map_stat_t;
 
 static ansi_map_stat_dlg_t	dlg;
 static ansi_map_stat_t		stat;
@@ -99,7 +100,7 @@ ansi_map_stat_packet(
     tapdata = tapdata;
     pinfo = pinfo;
 
-    if (data_p->message_type > sizeof(stat.message_type))
+    if (data_p->message_type > N_MESSAGE_TYPES)
     {
 	/*
 	 * unknown PDU type !!!
