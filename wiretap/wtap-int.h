@@ -1,6 +1,6 @@
 /* wtap-int.h
  *
- * $Id: wtap-int.h,v 1.16 2001/12/04 07:32:05 guy Exp $
+ * $Id: wtap-int.h,v 1.17 2001/12/04 08:26:00 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -186,7 +186,7 @@ struct wtap_dumper {
 	int			file_type;
 	int			snaplen;
 	int			encap;
-	int			bytes_dumped;
+	long			bytes_dumped;
 
 	union {
 		void			*opaque;

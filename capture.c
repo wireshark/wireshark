@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.162 2001/12/04 07:32:00 guy Exp $
+ * $Id: capture.c,v 1.163 2001/12/04 08:25:55 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -147,6 +147,7 @@
 #include "globals.h"
 #include "conditions.h"
 #include "capture_stop_conditions.h"
+#include "ringbuffer.h"
 
 #include "wiretap/libpcap.h"
 #include "wiretap/wtap.h"
@@ -287,8 +288,13 @@ do_capture(char *capfile_name)
   struct pcap_stat stats;
 
   if (capfile_name != NULL) {
-    /* Try to open/create the specified file for use as a capture buffer. */
-    cfile.save_file_fd = open(capfile_name, O_RDWR|O_BINARY|O_TRUNC|O_CREAT, 0600);
+    if (cfile.ringbuffer_on) {
+      /* ringbuffer is enabled */
+      cfile.save_file_fd = ringbuf_init(capfile_name, cfile.ringbuffer_num_files);
+    } else {
+      /* Try to open/create the specified file for use as a capture buffer. */
+      cfile.save_file_fd = open(capfile_name, O_RDWR|O_BINARY|O_TRUNC|O_CREAT, 0600);
+    }
     is_tempfile = FALSE;
   } else {
     /* Choose a random name for the capture buffer */
@@ -302,6 +308,9 @@ do_capture(char *capfile_name)
 	"The temporary file to which the capture would be saved (\"%s\")"
 	"could not be opened: %s.", capfile_name, strerror(errno));
     } else {
+      if (cfile.ringbuffer_on) {
+        ringbuf_error_cleanup();
+      }
       simple_dialog(ESD_TYPE_CRIT, NULL,
 	file_open_error_message(errno, TRUE), capfile_name);
     }
@@ -355,7 +364,7 @@ do_capture(char *capfile_name)
     argv = add_arg(argv, &argc, ssnap);
 
     argv = add_arg(argv, &argc, "-a");
-    sprintf(sautostop_filesize,"filesize:%u",cfile.autostop_filesize);
+    sprintf(sautostop_filesize,"filesize:%d",cfile.autostop_filesize);
     argv = add_arg(argv, &argc, sautostop_filesize);
 
     argv = add_arg(argv, &argc, "-a");
@@ -652,7 +661,11 @@ do_capture(char *capfile_name)
     }
     /* We're not doing a capture any more, so we don't have a save
        file. */
-    g_free(cfile.save_file);
+    if (cfile.ringbuffer_on) {
+      ringbuf_free();
+    } else {
+      g_free(cfile.save_file);
+    }
     cfile.save_file = NULL;
   }
 }
@@ -1234,6 +1247,7 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
   unsigned int i;
   static const char capstart_msg = SP_CAPSTART;
   char        errmsg[4096+1];
+  gboolean    dump_ok;
 #ifndef _WIN32
   static const char ppamsg[] = "can't find PPA for ";
   char       *libpcap_warn;
@@ -1425,8 +1439,13 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
 	" that Ethereal doesn't support (data link type %d).", pcap_encap);
     goto error;
   }
-  ld.pdh = wtap_dump_fdopen(cfile.save_file_fd, WTAP_FILE_PCAP,
+  if (cfile.ringbuffer_on) {
+    ld.pdh = ringbuf_init_wtap_dump_fdopen(WTAP_FILE_PCAP, ld.linktype, 
+      snaplen, &err);
+  } else {
+    ld.pdh = wtap_dump_fdopen(cfile.save_file_fd, WTAP_FILE_PCAP,
       ld.linktype, snaplen, &err);
+  }
 
   if (ld.pdh == NULL) {
     /* We couldn't set up to write to the capture file. */
@@ -1555,7 +1574,7 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
   init_capture_stop_conditions();
   /* create stop conditions */
   cnd_stop_capturesize = 
-    cnd_new(CND_CLASS_CAPTURESIZE,(guint32)cfile.autostop_filesize * 1000); 
+    cnd_new(CND_CLASS_CAPTURESIZE,(long)cfile.autostop_filesize * 1000); 
   cnd_stop_timeout = 
     cnd_new(CND_CLASS_TIMEOUT,(gint32)cfile.autostop_duration);
 
@@ -1630,10 +1649,25 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
       ld.sync_packets += inpkts;
     /* check capture stop conditons */
     if (cnd_eval(cnd_stop_timeout) == TRUE) {
+      /* The specified capture time has elapsed; stop the capture. */
       ld.go = FALSE;
     } else if ((cnd_eval(cnd_stop_capturesize, 
                   (guint32)wtap_get_bytes_dumped(ld.pdh))) == TRUE){
-      ld.go = FALSE;
+      /* Capture file reached its maximum size. */
+      if (cfile.ringbuffer_on) {
+        /* Switch to the next ringbuffer file */
+        if (ringbuf_switch_file(&cfile, &ld.pdh, &ld.err)) {
+          /* File switch succeeded: reset the condition */
+          cnd_reset(cnd_stop_capturesize);
+        } else {
+          /* File switch failed: stop here */
+          ld.go = FALSE;
+          continue;
+        }
+      } else {
+        /* no ringbuffer - just stop */
+        ld.go = FALSE;
+      }
     }
     /* Only update once a second so as not to overload slow displays */
     cur_time = time(NULL);
@@ -1686,9 +1720,18 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
     /* A write failed, so we've already told the user there's a problem;
        if the close fails, there's no point in telling them about that
        as well. */
-    wtap_dump_close(ld.pdh, &err);
-  } else {
-    if (!wtap_dump_close(ld.pdh, &err)) {
+    if (cfile.ringbuffer_on) {
+      ringbuf_wtap_dump_close(&cfile, &err);
+    } else {
+      wtap_dump_close(ld.pdh, &err);
+    }
+   } else {
+    if (cfile.ringbuffer_on) {
+      dump_ok = ringbuf_wtap_dump_close(&cfile, &err);
+    } else {
+      dump_ok = wtap_dump_close(ld.pdh, &err);
+    }
+    if (!dump_ok) {
       get_capture_file_io_error(errmsg, sizeof(errmsg), cfile.save_file, err,
 				TRUE);
       if (capture_child) {
@@ -1746,14 +1789,19 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
   return TRUE;
 
 error:
-  /* We can't use the save file, and we have no wtap_dump stream
-     to close in order to close it, so close the FD directly. */
-  close(cfile.save_file_fd);
+  if (cfile.ringbuffer_on) {
+    /* cleanup ringbuffer */
+    ringbuf_error_cleanup();
+  } else {
+    /* We can't use the save file, and we have no wtap_dump stream
+       to close in order to close it, so close the FD directly. */
+    close(cfile.save_file_fd);
 
-  /* We couldn't even start the capture, so get rid of the capture
-     file. */
-  unlink(cfile.save_file); /* silently ignore error */
-  g_free(cfile.save_file);
+    /* We couldn't even start the capture, so get rid of the capture
+       file. */
+    unlink(cfile.save_file); /* silently ignore error */
+    g_free(cfile.save_file);
+  }
   cfile.save_file = NULL;
   if (capture_child) {
     /* This is the child process for a sync mode capture.

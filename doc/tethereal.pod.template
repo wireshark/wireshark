@@ -7,6 +7,7 @@ tethereal - Dump and analyze network traffic
 
 B<tethereal>
 S<[ B<-a> capture autostop condition ] ...>
+S<[ B<-b> number of ring buffer files ]>
 S<[ B<-c> count ]>
 S<[ B<-D> ]>
 S<[ B<-f> capture filter expression ]>

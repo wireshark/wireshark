@@ -7,6 +7,7 @@ ethereal - Interactively browse network traffic
 
 B<ethereal>
 S<[ B<-a> capture autostop condition ] ...>
+S<[ B<-b> number of ring buffer files ]>
 S<[ B<-B> byte view height ]>
 S<[ B<-c> count ]>
 S<[ B<-f> capture filter expression ]>

@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.100 2001/12/04 07:32:00 guy Exp $
+ * $Id: tethereal.c,v 1.101 2001/12/04 08:25:55 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -106,6 +106,7 @@
 #include "register.h"
 #include "conditions.h"
 #include "capture_stop_conditions.h"
+#include "ringbuffer.h"
 
 #ifdef WIN32
 #include "capture-wpcap.h"
@@ -345,6 +346,8 @@ main(int argc, char *argv[])
 #ifdef HAVE_LIBPCAP
   cfile.autostop_duration = 0;
   cfile.autostop_filesize = 0;
+  cfile.ringbuffer_on = FALSE;
+  cfile.ringbuffer_num_files = RINGBUFFER_MIN_NUM_FILES;
 #endif
   col_init(&cfile.cinfo, prefs->num_cols);
 
@@ -402,13 +405,28 @@ main(int argc, char *argv[])
 #endif
     
   /* Now get our args */
-  while ((opt = getopt(argc, argv, "a:c:Df:F:hi:lnN:o:pr:R:s:t:vw:Vx")) != EOF) {
+  while ((opt = getopt(argc, argv, "a:b:c:Df:F:hi:lnN:o:pr:R:s:t:vw:Vx")) != EOF) {
     switch (opt) {
       case 'a':        /* autostop criteria */
 #ifdef HAVE_LIBPCAP
         if (set_autostop_criterion(optarg) == FALSE) {
           fprintf(stderr, "ethereal: Invalid or unknown -a flag \"%s\"\n", optarg);
           exit(1);          
+        }
+#else
+        capture_option_specified = TRUE;
+        arg_error = TRUE;
+#endif
+        break;
+      case 'b':        /* Ringbuffer option */
+#ifdef HAVE_LIBPCAP
+        cfile.ringbuffer_on = TRUE;
+        /* get optional ringbuffer number of files parameter */
+        if (optarg[0] != '-') {
+          cfile.ringbuffer_num_files = get_positive_int(optarg, "ring buffer number of files");
+        } else {
+          cfile.ringbuffer_num_files = RINGBUFFER_MIN_NUM_FILES;
+          optind--;
         }
 #else
         capture_option_specified = TRUE;
@@ -639,6 +657,27 @@ main(int argc, char *argv[])
   else if (cfile.snap < MIN_PACKET_SIZE)
     cfile.snap = MIN_PACKET_SIZE;
   
+  if (cfile.ringbuffer_on) {
+    /* Ringbuffer works just under certain conditions:*/ 
+    if (cfile.save_file == NULL) {
+       /* Ringbuffer does not work with temporary files */
+      fprintf(stderr, "tethereal: Turning ring buffer off (no save file specified).\n");
+      cfile.ringbuffer_on = FALSE;
+    }
+    if (cfile.autostop_filesize == 0) {
+       /* It makes no sense to enable the ring buffer if the maximum
+          file size is set to infinite */
+      fprintf(stderr, "tethereal: Turning ring buffer off (file size = 0).\n");
+      cfile.ringbuffer_on = FALSE;
+    }
+  }
+
+  /* Check the value range of the ringbuffer_num_files parameter */
+  if (cfile.ringbuffer_num_files < RINGBUFFER_MIN_NUM_FILES)
+    cfile.ringbuffer_num_files = RINGBUFFER_MIN_NUM_FILES;
+  else if (cfile.ringbuffer_num_files > RINGBUFFER_MAX_NUM_FILES)
+    cfile.ringbuffer_num_files = RINGBUFFER_MAX_NUM_FILES;
+  
   if (rfilter != NULL) {
     if (!dfilter_compile(rfilter, &rfcode)) {
       fprintf(stderr, "tethereal: %s\n", dfilter_error_msg);
@@ -693,6 +732,10 @@ main(int argc, char *argv[])
         free_interface_list(if_list);
     }
     capture(packet_count, out_file_type);
+
+    if (cfile.ringbuffer_on) {
+      ringbuf_free();
+    }
 #else
     /* No - complain. */
     fprintf(stderr, "This version of Tethereal was not built with support for capturing packets.\n");
@@ -725,6 +768,7 @@ capture(int packet_count, int out_file_type)
   char       *libpcap_warn;
 #endif
   struct pcap_stat stats;
+  gboolean    dump_ok;
 
   /* Initialize the table of conversations. */
   epan_conversation_init();
@@ -825,8 +869,19 @@ capture(int packet_count, int out_file_type)
                " that Tethereal doesn't support.");
       goto error;
     }
-    ld.pdh = wtap_dump_open(cfile.save_file, out_file_type,
-		ld.linktype, pcap_snapshot(ld.pch), &err);
+    if (cfile.ringbuffer_on) {
+      cfile.save_file_fd = ringbuf_init(cfile.save_file,
+        cfile.ringbuffer_num_files);
+      if (cfile.save_file_fd != -1) {
+        ld.pdh = ringbuf_init_wtap_dump_fdopen(out_file_type, ld.linktype,
+          pcap_snapshot(ld.pch), &err);
+      } else {
+        ld.pdh = NULL;
+      }
+    } else {
+      ld.pdh = wtap_dump_open(cfile.save_file, out_file_type,
+		 ld.linktype, pcap_snapshot(ld.pch), &err);
+    }
 
     if (ld.pdh == NULL) {
       snprintf(errmsg, sizeof errmsg, file_open_error_message(errno, TRUE),
@@ -859,7 +914,7 @@ capture(int packet_count, int out_file_type)
   init_capture_stop_conditions();
   /* create stop conditions */ 
   cnd_stop_capturesize = cnd_new((char*)CND_CLASS_CAPTURESIZE,
-                                 (guint32)cfile.autostop_filesize * 1000);
+                                 (long)cfile.autostop_filesize * 1000);
   cnd_stop_timeout = cnd_new((char*)CND_CLASS_TIMEOUT,
                              (gint32)cfile.autostop_duration);
 
@@ -877,7 +932,20 @@ capture(int packet_count, int out_file_type)
     } else if ((cnd_eval(cnd_stop_capturesize, 
                   (guint32)wtap_get_bytes_dumped(ld.pdh))) == TRUE){
       /* A capture stop condition has become true. */
-      ld.go = FALSE;
+      if (cfile.ringbuffer_on) {
+        /* Switch to the next ringbuffer file */
+        if (ringbuf_switch_file(&cfile, &ld.pdh, &err) == TRUE) {
+          /* File switch failed: reset the condition */
+          cnd_reset(cnd_stop_capturesize);
+        } else {
+          /* File switch failed: stop here */
+          ld.go = FALSE;
+          continue;
+        }
+      } else {
+        /* No ringbuffer - just stop. */
+        ld.go = FALSE;
+      }
     }
   }
   
@@ -912,14 +980,22 @@ capture(int packet_count, int out_file_type)
   pcap_close(ld.pch);
 
   if (cfile.save_file != NULL) {
-    /* We're saving to a file; close the file. */
-    if (!wtap_dump_close(ld.pdh, &err))
+    /* We're saving to a file or files; close all files. */
+    if (cfile.ringbuffer_on) {
+      dump_ok = ringbuf_wtap_dump_close(&cfile, &err);
+    } else {
+      dump_ok = wtap_dump_close(ld.pdh, &err);
+    }
+    if (!dump_ok)
       show_capture_file_io_error(cfile.save_file, err, TRUE);
   }
 
   return TRUE;
 
 error:
+  if (cfile.ringbuffer_on) {
+    ringbuf_error_cleanup();
+  }
   g_free(cfile.save_file);
   cfile.save_file = NULL;
   fprintf(stderr, "tethereal: %s\n", errmsg);

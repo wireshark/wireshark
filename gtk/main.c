@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.214 2001/12/04 07:32:04 guy Exp $
+ * $Id: main.c,v 1.215 2001/12/04 08:25:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -145,6 +145,7 @@
 #include "strutil.h"
 #include "register.h"
 #include "prefs.h"
+#include "ringbuffer.h"
 #include "image/clist_ascend.xpm"
 #include "image/clist_descend.xpm"
 
@@ -795,8 +796,9 @@ print_usage(void) {
 #ifdef HAVE_LIBPCAP
   fprintf(stderr, "%s [ -vh ] [ -klpQS ] [ -a <capture autostop condition> ] ...\n",
 	  PACKAGE);
-  fprintf(stderr, "\t[ -B <byte view height> ] [ -c <count> ] [ -f <capture filter> ]\n");
-  fprintf(stderr, "\t[ -i <interface> ] [ -m <medium font> ] [ -n ] [ -N <resolving> ]\n");
+  fprintf(stderr, "\t[ -b <number of ringbuffer files> ] [ -B <byte view height> ]\n");
+  fprintf(stderr, "\t[ -c <count> ] [ -f <capture filter> ] [ -i <interface> ]\n");
+  fprintf(stderr, "\t[ -m <medium font> ] [ -n ] [ -N <resolving> ]\n");
   fprintf(stderr, "\t[ -o <preference setting> ] ... [ -P <packet list height> ]\n");
   fprintf(stderr, "\t[ -r <infile> ] [ -R <read filter> ] [ -s <snaplen> ] \n");
   fprintf(stderr, "\t[ -t <time stamp format> ] [ -T <tree view height> ]\n");
@@ -1045,6 +1047,8 @@ main(int argc, char *argv[])
 #ifdef HAVE_LIBPCAP
   cfile.autostop_duration = 0;
   cfile.autostop_filesize = 0;
+  cfile.ringbuffer_on = FALSE;
+  cfile.ringbuffer_num_files = RINGBUFFER_MIN_NUM_FILES;
 #endif
   col_init(&cfile.cinfo, prefs->num_cols);
 
@@ -1111,13 +1115,28 @@ main(int argc, char *argv[])
 #endif
 
   /* Now get our args */
-  while ((opt = getopt(argc, argv, "a:B:c:f:hi:klm:nN:o:pP:Qr:R:Ss:t:T:w:W:vZ:")) !=  EOF) {
+  while ((opt = getopt(argc, argv, "a:b:B:c:f:hi:klm:nN:o:pP:Qr:R:Ss:t:T:w:W:vZ:")) !=  EOF) {
     switch (opt) {
       case 'a':        /* autostop criteria */
 #ifdef HAVE_LIBPCAP
         if (set_autostop_criterion(optarg) == FALSE) {
           fprintf(stderr, "ethereal: Invalid or unknown -a flag \"%s\"\n", optarg);
           exit(1);          
+        }
+#else
+        capture_option_specified = TRUE;
+        arg_error = TRUE;
+#endif
+        break;
+      case 'b':        /* Ringbuffer option */
+#ifdef HAVE_LIBPCAP
+        cfile.ringbuffer_on = TRUE;
+        /* get optional ringbuffer number of files parameter */
+        if (optarg[0] != '-') {
+          cfile.ringbuffer_num_files = get_positive_int(optarg, "ringbuffer number of files");
+        } else {
+          cfile.ringbuffer_num_files = RINGBUFFER_MIN_NUM_FILES;
+          optind--;
         }
 #else
         capture_option_specified = TRUE;
@@ -1419,6 +1438,27 @@ main(int argc, char *argv[])
     cfile.snap = WTAP_MAX_PACKET_SIZE;
   else if (cfile.snap < MIN_PACKET_SIZE)
     cfile.snap = MIN_PACKET_SIZE;
+  
+  if (cfile.ringbuffer_on == TRUE) {
+    /* Ringbuffer works just under certain conditions: 
+       a) prefs->capture_real_time and cfile.ringbuffer_on are mutially 
+          exclusive. prefs->capture_real_time takes precedence. 
+       b) Ringbuffer does not work with temporary files
+       c) It makes no sense to enable the ringbuffer if the maximum
+           file size is set to infinite */
+    if (prefs->capture_real_time == TRUE ||
+        cfile.save_file == NULL ||
+        cfile.autostop_filesize == 0) {
+      /* turn ringbuffer off */
+      cfile.ringbuffer_on = FALSE;
+    }
+  }
+
+  /* Check the value range of the ringbuffer_num_files parameter */
+  if (cfile.ringbuffer_num_files < RINGBUFFER_MIN_NUM_FILES)
+    cfile.ringbuffer_num_files = RINGBUFFER_MIN_NUM_FILES;
+  else if (cfile.ringbuffer_num_files > RINGBUFFER_MAX_NUM_FILES)
+    cfile.ringbuffer_num_files = RINGBUFFER_MAX_NUM_FILES;
   
   rc_file = get_persconffile_path(RC_FILE, FALSE);
   gtk_rc_parse(rc_file);

@@ -1,6 +1,6 @@
 /* file.c
  *
- * $Id: file.c,v 1.75 2001/12/04 07:32:05 guy Exp $
+ * $Id: file.c,v 1.76 2001/12/04 08:26:00 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -606,7 +606,13 @@ gboolean wtap_dump_close(wtap_dumper *wdh, int *err)
 	return ret;
 }
 
-int wtap_get_bytes_dumped(wtap_dumper *wdh)
+long wtap_get_bytes_dumped(wtap_dumper *wdh)
 {
 	return wdh->bytes_dumped;
 }
+
+void wtap_set_bytes_dumped(wtap_dumper *wdh, long bytes_dumped)
+{
+	wdh->bytes_dumped = bytes_dumped;
+}
+
