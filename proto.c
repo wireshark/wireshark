@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.20 1999/08/30 15:51:44 gram Exp $
+ * $Id: proto.c,v 1.21 1999/09/11 04:19:26 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -110,6 +110,7 @@ void proto_register_ipx(void);
 void proto_register_isakmp(void);
 void proto_register_lapb(void);
 void proto_register_llc(void);
+void proto_register_mp(void);
 void proto_register_nbipx(void);
 void proto_register_nbt(void);
 void proto_register_ncp(void);
@@ -212,6 +213,7 @@ proto_init(void)
 	proto_register_isakmp();
 	proto_register_lapb();
 	proto_register_llc();
+	proto_register_mp();
 	proto_register_nbipx();
 	proto_register_nbt();
 	proto_register_ncp();

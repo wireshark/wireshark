@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.95 1999/09/10 07:19:40 guy Exp $
+ * $Id: packet.h,v 1.96 1999/09/11 04:19:25 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -324,6 +324,8 @@ enum {
 	ETT_ATM_LANE_LC_FLAGS,
 	ETT_ATM_LANE_LC_LAN_DEST,
 	ETT_ATM_LANE_LC_LAN_DEST_RD,
+	ETT_MP,
+	ETT_MP_FLAGS,
 	NUM_TREE_TYPES	/* last item number plus one */
 };
 
@@ -390,6 +392,7 @@ void capture_ip(const u_char *, int, guint32, packet_counts *);
  * Routines should take three args: packet data *, frame_data *, tree *
  * They should never modify the packet data.
  */
+void dissect_ascend(const u_char *, frame_data *, proto_tree *);
 void dissect_atm(const u_char *, frame_data *, proto_tree *);
 void dissect_clip(const u_char *, frame_data *, proto_tree *);
 void dissect_lapb(const u_char *, frame_data *, proto_tree *);

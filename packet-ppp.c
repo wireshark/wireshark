@@ -1,7 +1,7 @@
 /* packet-ppp.c
  * Routines for ppp packet disassembly
  *
- * $Id: packet-ppp.c,v 1.18 1999/08/28 08:31:26 guy Exp $
+ * $Id: packet-ppp.c,v 1.19 1999/09/11 04:19:24 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -37,6 +37,7 @@
 #include "packet-ip.h"
 
 static int proto_ppp = -1;
+static int proto_mp = -1;
 
 /* PPP structs and definitions */
 
@@ -58,6 +59,7 @@ typedef struct _e_ppphdr {
 #define	PPP_VJC_COMP	0x2d	/* VJ compressed TCP */
 #define	PPP_VJC_UNCOMP	0x2f	/* VJ uncompressed TCP */
 #define	PPP_VINES	0x35	/* Banyan Vines */
+#define PPP_MP		0x3d	/* Multilink PPP */
 #define PPP_IPV6	0x57	/* Internet Protocol Version 6 */
 #define PPP_COMP	0xfd	/* compressed packet */
 #define PPP_IPCP	0x8021	/* IP Control Protocol */
@@ -77,6 +79,7 @@ static const value_string ppp_vals[] = {
 	{PPP_VJC_COMP,	"VJ compressed TCP"},
 	{PPP_VJC_UNCOMP,"VJ uncompressed TCP"}, 
 	{PPP_VINES,     "Vines"          },
+        {PPP_MP,	"Multilink"},
 	{PPP_IPV6,      "IPv6"           },
 	{PPP_COMP,	"compressed packet" },
 	{PPP_IPCP,	"IP Control Protocol" },
@@ -205,6 +208,8 @@ static void dissect_lcp_bap_link_discriminator_opt(const ip_tcp_opt *optp,
 static void dissect_lcp_internationalization_opt(const ip_tcp_opt *optp,
 			const u_char *opd, int offset, guint length,
 			proto_tree *tree);
+static void dissect_mp(const u_char *pd, int offset, frame_data *fd,
+  proto_tree *tree, proto_tree *fh_tree);
 
 static const ip_tcp_opt lcp_opts[] = {
 	{
@@ -944,18 +949,28 @@ dissect_cp( const u_char *pd, int offset, const char *proto_short_name,
   }
 }
 
+/* Protocol field compression */
+#define PFC_BIT 0x01
+
 static gboolean
 dissect_ppp_stuff( const u_char *pd, int offset, frame_data *fd,
 		proto_tree *tree, proto_tree *fh_tree ) {
   guint16 ppp_prot;
+  int     proto_len;
 
-  ppp_prot = pntohs(&pd[offset]);
+  if (pd[offset] & PFC_BIT) {
+    ppp_prot = pd[offset];
+    proto_len = 1;
+  } else {
+    ppp_prot = pntohs(&pd[offset]);
+    proto_len = 2;
+  }
 
   if (tree) {
-    proto_tree_add_text(fh_tree, offset, 2, "Protocol: %s (0x%04x)",
+    proto_tree_add_text(fh_tree, offset, proto_len, "Protocol: %s (0x%04x)",
       val_to_str(ppp_prot, ppp_vals, "Unknown"), ppp_prot);
   }
-  offset += 2;
+  offset += proto_len;
 
   switch (ppp_prot) {
     case PPP_IP:
@@ -969,6 +984,9 @@ dissect_ppp_stuff( const u_char *pd, int offset, frame_data *fd,
       return TRUE;
     case PPP_VINES:
       dissect_vines(pd, offset, fd, tree);
+      return TRUE;
+    case PPP_MP:
+      dissect_mp(pd, offset, fd, tree, fh_tree);
       return TRUE;
     case PPP_IPV6:
       dissect_ipv6(pd, offset, fd, tree);
@@ -987,6 +1005,75 @@ dissect_ppp_stuff( const u_char *pd, int offset, frame_data *fd,
 		val_to_str(ppp_prot, ppp_vals, "Unknown"), ppp_prot);
       dissect_data(pd, offset, fd, tree);
       return FALSE;
+  }
+}
+
+#define MP_FRAG_MASK     0xC0
+#define MP_FRAG(bits)    ((bits) & MP_FRAG_MASK)
+#define MP_FRAG_FIRST    0x80
+#define MP_FRAG_LAST     0x40
+#define MP_FRAG_RESERVED 0x3f
+
+/* According to RFC 1717, the length the MP header isn't indicated anywhere
+   in the header itself.  It starts out at four bytes and can be
+   negotiated down to two using LCP.  We currently assume that all
+   headers are four bytes.  - gcc
+ */
+static void
+dissect_mp(const u_char *pd, int offset, frame_data *fd,
+  proto_tree *tree, proto_tree *fh_tree)
+{
+  proto_tree *ti, *mp_tree, *hdr_tree;
+  guint8      flags;
+  guint32     seq;
+  gchar       flag_str[12];
+
+  flags = pd[offset];
+  memcpy(&seq, &pd[offset + 1], 3);
+
+  if (check_col(fd, COL_INFO))
+    col_add_fstr(fd, COL_INFO, "PPP Multilink");
+
+  if (tree) {
+    switch (flags) {
+      case MP_FRAG_FIRST:
+        strcpy(flag_str, "First");
+        break;
+      case MP_FRAG_LAST:
+        strcpy(flag_str, "Last");
+        break;
+      case MP_FRAG_FIRST|MP_FRAG_LAST:
+        strcpy(flag_str, "First, Last");
+        break;
+      default:
+        strcpy(flag_str, "Unknown");
+        break;
+    }
+    ti = proto_tree_add_item(tree, proto_mp, offset, 4, NULL);
+    mp_tree = proto_item_add_subtree(ti, ETT_MP);
+    ti = proto_tree_add_text(mp_tree, offset, 1, "Fragmet: 0x%2X (%s)",
+      flags, flag_str);
+    hdr_tree = proto_item_add_subtree(ti, ETT_MP_FLAGS);
+    proto_tree_add_text(hdr_tree, offset, 1, "%s",
+      decode_boolean_bitfield(flags, MP_FRAG_FIRST, sizeof(flags) * 8,
+        "first", "not first"));
+    proto_tree_add_text(hdr_tree, offset, 1, "%s",
+      decode_boolean_bitfield(flags, MP_FRAG_LAST, sizeof(flags) * 8,
+        "last", "not last"));
+    proto_tree_add_text(hdr_tree, offset, 1, "%s",
+      decode_boolean_bitfield(flags, MP_FRAG_RESERVED, sizeof(flags) * 8,
+        "reserved", "reserved"));
+    proto_tree_add_text(mp_tree, offset + 1, 3, "Sequence: %lu", seq);
+ }
+
+  offset += 4;
+
+  if (fd->cap_len > offset) {
+    if (tree) {
+      ti = proto_tree_add_item(tree, proto_ppp, offset, 1, NULL);
+      fh_tree = proto_item_add_subtree(ti, ETT_PPP);
+    }
+    dissect_ppp_stuff(pd, offset, fd, tree, fh_tree);
   }
 }
 
@@ -1050,4 +1137,10 @@ proto_register_ppp(void)
 
         proto_ppp = proto_register_protocol("Point-to-Point Protocol", "ppp");
  /*       proto_register_field_array(proto_ppp, hf, array_length(hf));*/
+}
+
+void
+proto_register_mp(void)
+{
+  proto_mp = proto_register_protocol("PPP Multilink Protocol", "mp");
 }
