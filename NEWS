@@ -1,3 +1,24 @@
+Overview of changes in Ethereal 0.7.9:
+* Compilation warning fix (Guy)
+* Updates to Q.931 (Guy)
+* Updates to Q.2931 (Guy)
+* Display filter widget uses GtkCombo (Gerald)
+* Added SNMP over Ethernet (Gilbert)
+* Small changes to display filters from tcp follow and match selected (Gilbert)
+* Fix problem and update SMB (Richard)
+* Update portmap (Uwe)
+* Update NFS (Uwe)
+* Support for iptrace 1.0 files (Gilbert; thanks to
+	Florian Lohoff <flo@rfc822.org> for sample trace files)
+* Update support for netmon 2.0 files (Guy)
+* Updates to ATM (Guy)
+* Updates to ARP (Guy)
+* Updates to DNS (Guy)
+* Support for both PPP and LAPB as WAN links in NG Sniffer files (Guy)
+* Colorize TCP streams (Gerald)
+* Make autoconf check for correct contents of libz library (Guy)
+* Updates to About box (Guy, Gilbert)
+
 Overview of changes in Ethereal 0.7.8:
 * Added RPC and NFS (Uwe)
 * Added IGRP/EIGRP (Don)
