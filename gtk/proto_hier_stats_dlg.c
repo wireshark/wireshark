@@ -1,6 +1,6 @@
 /* proto_hier_stats_dlg.c
  *
- * $Id: proto_hier_stats_dlg.c,v 1.16 2004/03/17 21:48:15 deniel Exp $
+ * $Id: proto_hier_stats_dlg.c,v 1.17 2004/05/01 18:40:20 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -302,6 +302,7 @@ create_tree(GtkWidget *container, ph_stats_t *ps)
     WIDGET_SET_SIZE(tree, DEF_DLG_WIDTH, height);
 #else
     WIDGET_SET_SIZE(tree, DEF_DLG_WIDTH, MAX_DLG_HEIGHT);
+    gtk_tree_view_expand_all(tree_view);
 #endif
 
     gtk_container_add(GTK_CONTAINER(sw), tree);
