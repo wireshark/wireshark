@@ -1,6 +1,6 @@
 /* file_wrappers.c
  *
- * $Id: file_wrappers.c,v 1.4 2000/01/25 04:49:55 guy Exp $
+ * $Id: file_wrappers.c,v 1.5 2000/01/26 19:22:04 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -56,11 +56,16 @@
  * in the first place, so we don't know whether to include "zlib.h"
  * until we include "config.h"....
  *
+ * A similar problem appears to occur with "gztell()", at least on
+ * NetBSD.
+ *
  * So what we do is *undefine* HAVE_UNISTD_H before including "wtap.h"
  * (we need "wtap.h" to get the WTAP_ERR_ZLIB values, and it also includes
- * "zlib.h" if HAVE_ZLIB" is defined), and make "file_seek()" a subroutine,
- * so that the only call to "gzseek()" is in this file, which, by dint of
- * the hackery described above, manages to correctly declare "gzseek()".
+ * "zlib.h" if HAVE_ZLIB" is defined), and, if we have zlib, make
+ * "file_seek()" and "file_tell()" subroutines, so that the only calls to
+ * "gzseek()" and "gztell()" are in this file, which, by dint of the
+ * hackery described above, manages to correctly declare "gzseek()" and
+ * "gztell()".
  *
  * DO NOT, UNDER ANY CIRCUMSTANCES, REMOVE THE FOLLOWING LINE, OR MOVE
  * IT AFTER THE INCLUDE OF "wtap.h"!  Doing so will cause any program
@@ -81,7 +86,7 @@
 #include "file_wrappers.h"
 
 #ifdef HAVE_LIBZ
-int
+long
 file_seek(void *stream, long offset, int whence)
 {
 	return gzseek(stream, (z_off_t)offset, whence);
@@ -91,12 +96,6 @@ long
 file_tell(void *stream)
 {
 	return (long)gztell(stream);
-}
-#else /* HAVE_LIBZ */
-long
-file_seek(FILE *stream, long offset, int whence)
-{
-	return fseek(stream, offset, whence);
 }
 #endif /* HAVE_LIBZ */
 
