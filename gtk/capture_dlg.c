@@ -1,7 +1,7 @@
 /* capture_dlg.c
  * Routines for packet capture windows
  *
- * $Id: capture_dlg.c,v 1.118 2004/03/04 22:24:47 ulfl Exp $
+ * $Id: capture_dlg.c,v 1.119 2004/03/06 06:50:34 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -56,46 +56,46 @@
 #endif
 
 /* Capture callback data keys */
-#define E_CAP_IFACE_KEY       "cap_iface"
-#define E_CAP_SNAP_CB_KEY     "cap_snap_cb"
-#define E_CAP_LT_OM_KEY       "cap_lt_om"
-#define E_CAP_LT_OM_LABEL_KEY "cap_lt_om_label"
-#define E_CAP_SNAP_SB_KEY     "cap_snap_sb"
-#define E_CAP_PROMISC_KEY     "cap_promisc"
-#define E_CAP_FILT_KEY        "cap_filter_te"
-#define E_CAP_FILE_TE_KEY     "cap_file_te"
-#define E_CAP_RING_ON_TB_KEY  "cap_ringbuffer_on_tb"
-#define E_CAP_RING_NBF_CB_KEY "cap_ringbuffer_nbf_cb"
-#define E_CAP_RING_NBF_SB_KEY "cap_ringbuffer_nbf_sb"
-#define E_CAP_RING_NBF_LB_KEY "cap_ringbuffer_nbf_lb"
-#define E_CAP_RING_FILESIZE_CB_KEY "cap_ringbuffer_filesize_cb"
-#define E_CAP_RING_FILESIZE_SB_KEY "cap_ringbuffer_filesize_sb"
-#define E_CAP_RING_FILESIZE_OM_KEY "cap_ringbuffer_filesize_om"
-#define E_CAP_RING_DURATION_CB_KEY "cap_ringbuffer_duration_cb"
-#define E_CAP_RING_DURATION_SB_KEY "cap_ringbuffer_duration_sb"
-#define E_CAP_RING_DURATION_OM_KEY "cap_ringbuffer_duration_om"
-#define E_CAP_SYNC_KEY        "cap_sync"
-#define E_CAP_AUTO_SCROLL_KEY "cap_auto_scroll"
-#define E_CAP_COUNT_CB_KEY    "cap_count_cb"
-#define E_CAP_COUNT_SB_KEY    "cap_count_sb"
-#define E_CAP_COUNT_LB_KEY    "cap_count_lb"
-#define E_CAP_FILESIZE_CB_KEY "cap_filesize_cb"
-#define E_CAP_FILESIZE_SB_KEY "cap_filesize_sb"
-#define E_CAP_FILESIZE_OM_KEY "cap_filesize_om"
-#define E_CAP_DURATION_CB_KEY "cap_duration_cb"
-#define E_CAP_DURATION_SB_KEY "cap_duration_sb"
-#define E_CAP_DURATION_OM_KEY "cap_duration_om"
-#define E_CAP_FILES_CB_KEY    "cap_files_cb"
-#define E_CAP_FILES_SB_KEY    "cap_files_sb"
-#define E_CAP_FILES_LB_KEY    "cap_files_lb"
-#define E_CAP_M_RESOLVE_KEY   "cap_m_resolve"
-#define E_CAP_N_RESOLVE_KEY   "cap_n_resolve"
-#define E_CAP_T_RESOLVE_KEY   "cap_t_resolve"
+#define E_CAP_IFACE_KEY             "cap_iface"
+#define E_CAP_SNAP_CB_KEY           "cap_snap_cb"
+#define E_CAP_LT_OM_KEY             "cap_lt_om"
+#define E_CAP_LT_OM_LABEL_KEY       "cap_lt_om_label"
+#define E_CAP_SNAP_SB_KEY           "cap_snap_sb"
+#define E_CAP_PROMISC_KEY           "cap_promisc"
+#define E_CAP_FILT_KEY              "cap_filter_te"
+#define E_CAP_FILE_TE_KEY           "cap_file_te"
+#define E_CAP_MULTI_FILES_ON_CB_KEY "cap_multi_files_on_cb"
+#define E_CAP_RING_FILESIZE_CB_KEY  "cap_ring_filesize_cb"
+#define E_CAP_RING_FILESIZE_SB_KEY  "cap_ring_filesize_sb"
+#define E_CAP_RING_FILESIZE_OM_KEY  "cap_ring_filesize_om"
+#define E_CAP_FILE_DURATION_CB_KEY  "cap_file_duration_cb"
+#define E_CAP_FILE_DURATION_SB_KEY  "cap_file_duration_sb"
+#define E_CAP_FILE_DURATION_OM_KEY  "cap_file_duration_om"
+#define E_CAP_RING_NBF_CB_KEY       "cap_ring_nbf_cb"
+#define E_CAP_RING_NBF_SB_KEY       "cap_ring_nbf_sb"
+#define E_CAP_RING_NBF_LB_KEY       "cap_ring_nbf_lb"
+#define E_CAP_STOP_FILES_CB_KEY     "cap_stop_files_cb"
+#define E_CAP_STOP_FILES_SB_KEY     "cap_stop_files_sb"
+#define E_CAP_STOP_FILES_LB_KEY     "cap_stop_files_lb"
+#define E_CAP_SYNC_KEY              "cap_sync"
+#define E_CAP_AUTO_SCROLL_KEY       "cap_auto_scroll"
+#define E_CAP_STOP_PACKETS_CB_KEY   "cap_stop_packets_cb"
+#define E_CAP_STOP_PACKETS_SB_KEY   "cap_stop_packets_sb"
+#define E_CAP_STOP_PACKETS_LB_KEY   "cap_stop_packets_lb"
+#define E_CAP_STOP_FILESIZE_CB_KEY  "cap_stop_filesize_cb"
+#define E_CAP_STOP_FILESIZE_SB_KEY  "cap_stop_filesize_sb"
+#define E_CAP_STOP_FILESIZE_OM_KEY  "cap_stop_filesize_om"
+#define E_CAP_STOP_DURATION_CB_KEY  "cap_stop_duration_cb"
+#define E_CAP_STOP_DURATION_SB_KEY  "cap_stop_duration_sb"
+#define E_CAP_STOP_DURATION_OM_KEY  "cap_stop_duration_om"
+#define E_CAP_M_RESOLVE_KEY         "cap_m_resolve"
+#define E_CAP_N_RESOLVE_KEY         "cap_n_resolve"
+#define E_CAP_T_RESOLVE_KEY         "cap_t_resolve"
 
-#define E_CAP_OM_LT_VALUE_KEY "cap_om_lt_value"
+#define E_CAP_OM_LT_VALUE_KEY       "cap_om_lt_value"
 
-#define E_FS_CALLER_PTR_KEY       "fs_caller_ptr"
-#define E_FILE_SEL_DIALOG_PTR_KEY "file_sel_dialog_ptr"
+#define E_FS_CALLER_PTR_KEY         "fs_caller_ptr"
+#define E_FILE_SEL_DIALOG_PTR_KEY   "file_sel_dialog_ptr"
 
 static void
 capture_prep_file_cb(GtkWidget *w, gpointer te);
@@ -428,16 +428,16 @@ capture_prep(void)
 
                 *file_fr, *file_vb,
                 *file_hb, *file_bt, *file_lb, *file_te,
-                *ringbuffer_hb, *ringbuffer_on_tb, 
+                *multi_files_on_cb, 
                 *ring_filesize_cb, *ring_filesize_sb, *ring_filesize_om,
-                *ring_duration_cb, *ring_duration_sb, *ring_duration_om,
+                *file_duration_cb, *file_duration_sb, *file_duration_om,
                 *ringbuffer_nbf_cb, *ringbuffer_nbf_sb, *ringbuffer_nbf_lb, 
-                *files_cb, *files_sb, *files_lb,
+                *stop_files_cb, *stop_files_sb, *stop_files_lb,
 
                 *limit_fr, *limit_vb,
-                *count_hb, *count_cb, *count_sb, *count_lb,
-                *filesize_hb, *filesize_cb, *filesize_sb, *filesize_om,
-                *duration_hb, *duration_cb, *duration_sb, *duration_om,
+                *count_hb, *stop_packets_cb, *stop_packets_sb, *stop_packets_lb,
+                *stop_filesize_hb, *stop_filesize_cb, *stop_filesize_sb, *stop_filesize_om,
+                *stop_duration_hb, *stop_duration_cb, *stop_duration_sb, *stop_duration_om,
 
                 *display_fr, *display_vb,
                 *sync_cb, *auto_scroll_cb,
@@ -450,7 +450,7 @@ capture_prep(void)
   GtkAccelGroup *accel_group;
 #endif
   GtkAdjustment *snap_adj, *ringbuffer_nbf_adj,
-		*count_adj, *filesize_adj, *duration_adj, *files_adj, *ring_filesize_adj, *ring_duration_adj;
+		*stop_packets_adj, *stop_filesize_adj, *stop_duration_adj, *stop_files_adj, *ring_filesize_adj, *file_duration_adj;
   GList         *if_list, *combo_list;
   int           err;
   int           row;
@@ -636,25 +636,23 @@ capture_prep(void)
 
   SIGNAL_CONNECT(file_bt, "clicked", capture_prep_file_cb, file_te);
 
-  /* Ring buffer row */
-  ringbuffer_hb = gtk_hbox_new(FALSE, 3);
-  gtk_container_add(GTK_CONTAINER(file_vb), ringbuffer_hb);
-
-  ringbuffer_on_tb = CHECK_BUTTON_NEW_WITH_MNEMONIC("Use _multiple files", accel_group);
-  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(ringbuffer_on_tb),
-		capture_opts.multi_files_on);
-  SIGNAL_CONNECT(ringbuffer_on_tb, "toggled", capture_prep_adjust_sensitivity,
-                 cap_open_w);
-  gtk_box_pack_start(GTK_BOX(ringbuffer_hb), ringbuffer_on_tb, FALSE, FALSE, 0);
-
-
-  /* Ring buffer filesize row */
-  multi_tb = gtk_table_new(4, 3, FALSE);
+  /* multiple files table */
+  multi_tb = gtk_table_new(5, 3, FALSE);
   gtk_table_set_row_spacings(GTK_TABLE(multi_tb), 1);
   gtk_table_set_col_spacings(GTK_TABLE(multi_tb), 3);
   gtk_box_pack_start(GTK_BOX(file_vb), multi_tb, FALSE, FALSE, 0);
   row = 0;
 
+  /* multiple files row */
+  multi_files_on_cb = CHECK_BUTTON_NEW_WITH_MNEMONIC("Use _multiple files", accel_group);
+  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(multi_files_on_cb),
+		capture_opts.multi_files_on);
+  SIGNAL_CONNECT(multi_files_on_cb, "toggled", capture_prep_adjust_sensitivity,
+                 cap_open_w);
+  gtk_table_attach_defaults(GTK_TABLE(multi_tb), multi_files_on_cb, 0, 1, row, row+1);
+  row++;
+
+  /* Ring buffer filesize row */
   ring_filesize_cb = gtk_check_button_new_with_label("Next file every");
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(ring_filesize_cb),
 		capture_opts.has_autostop_filesize);
@@ -673,22 +671,22 @@ capture_prep(void)
   row++;
 
   /* Ring buffer duration row */
-  ring_duration_cb = gtk_check_button_new_with_label("Next file every");
-  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(ring_duration_cb),
+  file_duration_cb = gtk_check_button_new_with_label("Next file every");
+  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(file_duration_cb),
 			      capture_opts.has_file_duration);
-  SIGNAL_CONNECT(ring_duration_cb, "toggled", 
+  SIGNAL_CONNECT(file_duration_cb, "toggled", 
 		 capture_prep_adjust_sensitivity, cap_open_w);
-  gtk_table_attach_defaults(GTK_TABLE(multi_tb), ring_duration_cb, 0, 1, row, row+1);
+  gtk_table_attach_defaults(GTK_TABLE(multi_tb), file_duration_cb, 0, 1, row, row+1);
 
-  ring_duration_adj = (GtkAdjustment *)gtk_adjustment_new((gfloat)capture_opts.file_duration,
+  file_duration_adj = (GtkAdjustment *)gtk_adjustment_new((gfloat)capture_opts.file_duration,
     1, (gfloat)INT_MAX, 1.0, 10.0, 0.0);
-  ring_duration_sb = gtk_spin_button_new (ring_duration_adj, 0, 0);
-  gtk_spin_button_set_wrap (GTK_SPIN_BUTTON (ring_duration_sb), TRUE);
-  WIDGET_SET_SIZE(ring_duration_sb, 80, -1);
-  gtk_table_attach_defaults(GTK_TABLE(multi_tb), ring_duration_sb, 1, 2, row, row+1);
+  file_duration_sb = gtk_spin_button_new (file_duration_adj, 0, 0);
+  gtk_spin_button_set_wrap (GTK_SPIN_BUTTON (file_duration_sb), TRUE);
+  WIDGET_SET_SIZE(file_duration_sb, 80, -1);
+  gtk_table_attach_defaults(GTK_TABLE(multi_tb), file_duration_sb, 1, 2, row, row+1);
 
-  ring_duration_om = time_unit_option_menu_new();
-  gtk_table_attach_defaults(GTK_TABLE(multi_tb), ring_duration_om, 2, 3, row, row+1);
+  file_duration_om = time_unit_option_menu_new();
+  gtk_table_attach_defaults(GTK_TABLE(multi_tb), file_duration_om, 2, 3, row, row+1);
   row++;
 
   /* Ring buffer files row */
@@ -712,22 +710,22 @@ capture_prep(void)
   row++;
 
   /* Files row */
-  files_cb = gtk_check_button_new_with_label("Stop capture after");
-  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(files_cb),
+  stop_files_cb = gtk_check_button_new_with_label("Stop capture after");
+  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(stop_files_cb),
 		capture_opts.has_autostop_files);
-  SIGNAL_CONNECT(files_cb, "toggled", capture_prep_adjust_sensitivity, cap_open_w);
-  gtk_table_attach_defaults(GTK_TABLE(multi_tb), files_cb, 0, 1, row, row+1);
+  SIGNAL_CONNECT(stop_files_cb, "toggled", capture_prep_adjust_sensitivity, cap_open_w);
+  gtk_table_attach_defaults(GTK_TABLE(multi_tb), stop_files_cb, 0, 1, row, row+1);
 
-  files_adj = (GtkAdjustment *) gtk_adjustment_new((gfloat)capture_opts.autostop_files,
+  stop_files_adj = (GtkAdjustment *) gtk_adjustment_new((gfloat)capture_opts.autostop_files,
     1, (gfloat)INT_MAX, 1.0, 10.0, 0.0);
-  files_sb = gtk_spin_button_new (files_adj, 0, 0);
-  gtk_spin_button_set_wrap (GTK_SPIN_BUTTON (files_sb), TRUE);
-  WIDGET_SET_SIZE(files_sb, 80, -1);
-  gtk_table_attach_defaults(GTK_TABLE(multi_tb), files_sb, 1, 2, row, row+1);
+  stop_files_sb = gtk_spin_button_new (stop_files_adj, 0, 0);
+  gtk_spin_button_set_wrap (GTK_SPIN_BUTTON (stop_files_sb), TRUE);
+  WIDGET_SET_SIZE(stop_files_sb, 80, -1);
+  gtk_table_attach_defaults(GTK_TABLE(multi_tb), stop_files_sb, 1, 2, row, row+1);
 
-  files_lb = gtk_label_new("file(s)");
-  gtk_misc_set_alignment(GTK_MISC(files_lb), 0, 0.5);
-  gtk_table_attach_defaults(GTK_TABLE(multi_tb), files_lb, 2, 3, row, row+1);
+  stop_files_lb = gtk_label_new("file(s)");
+  gtk_misc_set_alignment(GTK_MISC(stop_files_lb), 0, 0.5);
+  gtk_table_attach_defaults(GTK_TABLE(multi_tb), stop_files_lb, 2, 3, row, row+1);
   row++;
 
   /* Capture limits frame */
@@ -742,62 +740,62 @@ capture_prep(void)
   count_hb = gtk_hbox_new(FALSE, 3);
   gtk_container_add(GTK_CONTAINER(limit_vb), count_hb);
 
-  count_cb = gtk_check_button_new_with_label("... after");
-  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(count_cb),
+  stop_packets_cb = gtk_check_button_new_with_label("... after");
+  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(stop_packets_cb),
 		capture_opts.has_autostop_packets);
-  SIGNAL_CONNECT(count_cb, "toggled", capture_prep_adjust_sensitivity, cap_open_w);
-  gtk_box_pack_start(GTK_BOX(count_hb), count_cb, FALSE, FALSE, 0);
+  SIGNAL_CONNECT(stop_packets_cb, "toggled", capture_prep_adjust_sensitivity, cap_open_w);
+  gtk_box_pack_start(GTK_BOX(count_hb), stop_packets_cb, FALSE, FALSE, 0);
 
-  count_adj = (GtkAdjustment *) gtk_adjustment_new((gfloat)capture_opts.autostop_packets,
+  stop_packets_adj = (GtkAdjustment *) gtk_adjustment_new((gfloat)capture_opts.autostop_packets,
     1, (gfloat)INT_MAX, 1.0, 10.0, 0.0);
-  count_sb = gtk_spin_button_new (count_adj, 0, 0);
-  gtk_spin_button_set_wrap (GTK_SPIN_BUTTON (count_sb), TRUE);
-  WIDGET_SET_SIZE(count_sb, 80, -1);
-  gtk_box_pack_start (GTK_BOX(count_hb), count_sb, FALSE, FALSE, 0);
+  stop_packets_sb = gtk_spin_button_new (stop_packets_adj, 0, 0);
+  gtk_spin_button_set_wrap (GTK_SPIN_BUTTON (stop_packets_sb), TRUE);
+  WIDGET_SET_SIZE(stop_packets_sb, 80, -1);
+  gtk_box_pack_start (GTK_BOX(count_hb), stop_packets_sb, FALSE, FALSE, 0);
 
-  count_lb = gtk_label_new("packet(s)");
-  gtk_misc_set_alignment(GTK_MISC(count_lb), 0, 0.5);
-  gtk_box_pack_start(GTK_BOX(count_hb), count_lb, FALSE, FALSE, 0);
+  stop_packets_lb = gtk_label_new("packet(s)");
+  gtk_misc_set_alignment(GTK_MISC(stop_packets_lb), 0, 0.5);
+  gtk_box_pack_start(GTK_BOX(count_hb), stop_packets_lb, FALSE, FALSE, 0);
 
   /* Filesize row */
-  filesize_hb = gtk_hbox_new(FALSE, 3);
-  gtk_container_add(GTK_CONTAINER(limit_vb), filesize_hb);
+  stop_filesize_hb = gtk_hbox_new(FALSE, 3);
+  gtk_container_add(GTK_CONTAINER(limit_vb), stop_filesize_hb);
 
-  filesize_cb = gtk_check_button_new_with_label("... after");
-  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(filesize_cb),
+  stop_filesize_cb = gtk_check_button_new_with_label("... after");
+  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(stop_filesize_cb),
 		capture_opts.has_autostop_filesize);
-  SIGNAL_CONNECT(filesize_cb, "toggled", capture_prep_adjust_sensitivity, cap_open_w);
-  gtk_box_pack_start(GTK_BOX(filesize_hb), filesize_cb, FALSE, FALSE, 0);
+  SIGNAL_CONNECT(stop_filesize_cb, "toggled", capture_prep_adjust_sensitivity, cap_open_w);
+  gtk_box_pack_start(GTK_BOX(stop_filesize_hb), stop_filesize_cb, FALSE, FALSE, 0);
 
-  filesize_adj = (GtkAdjustment *) gtk_adjustment_new((gfloat)capture_opts.autostop_filesize,
+  stop_filesize_adj = (GtkAdjustment *) gtk_adjustment_new((gfloat)capture_opts.autostop_filesize,
     1, (gfloat)INT_MAX, 1.0, 10.0, 0.0);
-  filesize_sb = gtk_spin_button_new (filesize_adj, 0, 0);
-  gtk_spin_button_set_wrap (GTK_SPIN_BUTTON (filesize_sb), TRUE);
-  WIDGET_SET_SIZE(filesize_sb, 80, -1);
-  gtk_box_pack_start (GTK_BOX(filesize_hb), filesize_sb, FALSE, FALSE, 0);
+  stop_filesize_sb = gtk_spin_button_new (stop_filesize_adj, 0, 0);
+  gtk_spin_button_set_wrap (GTK_SPIN_BUTTON (stop_filesize_sb), TRUE);
+  WIDGET_SET_SIZE(stop_filesize_sb, 80, -1);
+  gtk_box_pack_start (GTK_BOX(stop_filesize_hb), stop_filesize_sb, FALSE, FALSE, 0);
 
-  filesize_om = size_unit_option_menu_new();
-  gtk_box_pack_start(GTK_BOX(filesize_hb), filesize_om, FALSE, FALSE, 0);
+  stop_filesize_om = size_unit_option_menu_new();
+  gtk_box_pack_start(GTK_BOX(stop_filesize_hb), stop_filesize_om, FALSE, FALSE, 0);
 
   /* Duration row */
-  duration_hb = gtk_hbox_new(FALSE, 3);
-  gtk_container_add(GTK_CONTAINER(limit_vb), duration_hb);
+  stop_duration_hb = gtk_hbox_new(FALSE, 3);
+  gtk_container_add(GTK_CONTAINER(limit_vb), stop_duration_hb);
 
-  duration_cb = gtk_check_button_new_with_label("... after");
-  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(duration_cb),
+  stop_duration_cb = gtk_check_button_new_with_label("... after");
+  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(stop_duration_cb),
 		capture_opts.has_autostop_duration);
-  SIGNAL_CONNECT(duration_cb, "toggled", capture_prep_adjust_sensitivity, cap_open_w);
-  gtk_box_pack_start(GTK_BOX(duration_hb), duration_cb, FALSE, FALSE, 0);
+  SIGNAL_CONNECT(stop_duration_cb, "toggled", capture_prep_adjust_sensitivity, cap_open_w);
+  gtk_box_pack_start(GTK_BOX(stop_duration_hb), stop_duration_cb, FALSE, FALSE, 0);
 
-  duration_adj = (GtkAdjustment *) gtk_adjustment_new((gfloat)capture_opts.autostop_duration,
+  stop_duration_adj = (GtkAdjustment *) gtk_adjustment_new((gfloat)capture_opts.autostop_duration,
     1, (gfloat)INT_MAX, 1.0, 10.0, 0.0);
-  duration_sb = gtk_spin_button_new (duration_adj, 0, 0);
-  gtk_spin_button_set_wrap (GTK_SPIN_BUTTON (duration_sb), TRUE);
-  WIDGET_SET_SIZE(duration_sb, 80, -1);
-  gtk_box_pack_start (GTK_BOX(duration_hb), duration_sb, FALSE, FALSE, 0);
+  stop_duration_sb = gtk_spin_button_new (stop_duration_adj, 0, 0);
+  gtk_spin_button_set_wrap (GTK_SPIN_BUTTON (stop_duration_sb), TRUE);
+  WIDGET_SET_SIZE(stop_duration_sb, 80, -1);
+  gtk_box_pack_start (GTK_BOX(stop_duration_hb), stop_duration_sb, FALSE, FALSE, 0);
 
-  duration_om = time_unit_option_menu_new();
-  gtk_box_pack_start(GTK_BOX(duration_hb), duration_om, 
+  stop_duration_om = time_unit_option_menu_new();
+  gtk_box_pack_start(GTK_BOX(stop_duration_hb), stop_duration_om, 
 		     FALSE, FALSE, 0);
 
   /* Display-related options frame */
@@ -870,30 +868,30 @@ capture_prep(void)
   OBJECT_SET_DATA(cap_open_w, E_CAP_PROMISC_KEY, promisc_cb);
   OBJECT_SET_DATA(cap_open_w, E_CAP_FILT_KEY,  filter_te);
   OBJECT_SET_DATA(cap_open_w, E_CAP_FILE_TE_KEY,  file_te);
-  OBJECT_SET_DATA(cap_open_w, E_CAP_RING_ON_TB_KEY,  ringbuffer_on_tb);
+  OBJECT_SET_DATA(cap_open_w, E_CAP_MULTI_FILES_ON_CB_KEY,  multi_files_on_cb);
   OBJECT_SET_DATA(cap_open_w, E_CAP_RING_NBF_CB_KEY,  ringbuffer_nbf_cb);
   OBJECT_SET_DATA(cap_open_w, E_CAP_RING_NBF_SB_KEY,  ringbuffer_nbf_sb);
   OBJECT_SET_DATA(cap_open_w, E_CAP_RING_NBF_LB_KEY,  ringbuffer_nbf_lb);
   OBJECT_SET_DATA(cap_open_w, E_CAP_RING_FILESIZE_CB_KEY,  ring_filesize_cb);
   OBJECT_SET_DATA(cap_open_w, E_CAP_RING_FILESIZE_SB_KEY,  ring_filesize_sb);
   OBJECT_SET_DATA(cap_open_w, E_CAP_RING_FILESIZE_OM_KEY,  ring_filesize_om);
-  OBJECT_SET_DATA(cap_open_w, E_CAP_RING_DURATION_CB_KEY,  ring_duration_cb);
-  OBJECT_SET_DATA(cap_open_w, E_CAP_RING_DURATION_SB_KEY,  ring_duration_sb);
-  OBJECT_SET_DATA(cap_open_w, E_CAP_RING_DURATION_OM_KEY,  ring_duration_om);
+  OBJECT_SET_DATA(cap_open_w, E_CAP_FILE_DURATION_CB_KEY,  file_duration_cb);
+  OBJECT_SET_DATA(cap_open_w, E_CAP_FILE_DURATION_SB_KEY,  file_duration_sb);
+  OBJECT_SET_DATA(cap_open_w, E_CAP_FILE_DURATION_OM_KEY,  file_duration_om);
   OBJECT_SET_DATA(cap_open_w, E_CAP_SYNC_KEY,  sync_cb);
   OBJECT_SET_DATA(cap_open_w, E_CAP_AUTO_SCROLL_KEY, auto_scroll_cb);
-  OBJECT_SET_DATA(cap_open_w, E_CAP_COUNT_CB_KEY, count_cb);
-  OBJECT_SET_DATA(cap_open_w, E_CAP_COUNT_SB_KEY, count_sb);
-  OBJECT_SET_DATA(cap_open_w, E_CAP_COUNT_LB_KEY, count_lb);
-  OBJECT_SET_DATA(cap_open_w, E_CAP_FILESIZE_CB_KEY, filesize_cb);
-  OBJECT_SET_DATA(cap_open_w, E_CAP_FILESIZE_SB_KEY, filesize_sb);
-  OBJECT_SET_DATA(cap_open_w, E_CAP_FILESIZE_OM_KEY, filesize_om);
-  OBJECT_SET_DATA(cap_open_w, E_CAP_DURATION_CB_KEY,  duration_cb);
-  OBJECT_SET_DATA(cap_open_w, E_CAP_DURATION_SB_KEY,  duration_sb);
-  OBJECT_SET_DATA(cap_open_w, E_CAP_DURATION_OM_KEY,  duration_om);
-  OBJECT_SET_DATA(cap_open_w, E_CAP_FILES_CB_KEY, files_cb);
-  OBJECT_SET_DATA(cap_open_w, E_CAP_FILES_SB_KEY, files_sb);
-  OBJECT_SET_DATA(cap_open_w, E_CAP_FILES_LB_KEY, files_lb);
+  OBJECT_SET_DATA(cap_open_w, E_CAP_STOP_PACKETS_CB_KEY, stop_packets_cb);
+  OBJECT_SET_DATA(cap_open_w, E_CAP_STOP_PACKETS_SB_KEY, stop_packets_sb);
+  OBJECT_SET_DATA(cap_open_w, E_CAP_STOP_PACKETS_LB_KEY, stop_packets_lb);
+  OBJECT_SET_DATA(cap_open_w, E_CAP_STOP_FILESIZE_CB_KEY, stop_filesize_cb);
+  OBJECT_SET_DATA(cap_open_w, E_CAP_STOP_FILESIZE_SB_KEY, stop_filesize_sb);
+  OBJECT_SET_DATA(cap_open_w, E_CAP_STOP_FILESIZE_OM_KEY, stop_filesize_om);
+  OBJECT_SET_DATA(cap_open_w, E_CAP_STOP_DURATION_CB_KEY,  stop_duration_cb);
+  OBJECT_SET_DATA(cap_open_w, E_CAP_STOP_DURATION_SB_KEY,  stop_duration_sb);
+  OBJECT_SET_DATA(cap_open_w, E_CAP_STOP_DURATION_OM_KEY,  stop_duration_om);
+  OBJECT_SET_DATA(cap_open_w, E_CAP_STOP_FILES_CB_KEY, stop_files_cb);
+  OBJECT_SET_DATA(cap_open_w, E_CAP_STOP_FILES_SB_KEY, stop_files_sb);
+  OBJECT_SET_DATA(cap_open_w, E_CAP_STOP_FILES_LB_KEY, stop_files_lb);
   OBJECT_SET_DATA(cap_open_w, E_CAP_M_RESOLVE_KEY,  m_resolv_cb);
   OBJECT_SET_DATA(cap_open_w, E_CAP_N_RESOLVE_KEY,  n_resolv_cb);
   OBJECT_SET_DATA(cap_open_w, E_CAP_T_RESOLVE_KEY,  t_resolv_cb);
@@ -1091,14 +1089,14 @@ cap_prep_fs_destroy_cb(GtkWidget *win, GtkWidget* file_te)
 static void
 capture_prep_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w) {
   GtkWidget *if_cb, *snap_cb, *snap_sb, *promisc_cb, *filter_te,
-            *file_te, *ringbuffer_on_tb, *ringbuffer_nbf_sb, *ringbuffer_nbf_cb,
+            *file_te, *multi_files_on_cb, *ringbuffer_nbf_sb, *ringbuffer_nbf_cb,
             *linktype_om, *sync_cb, *auto_scroll_cb,
-            *count_cb, *count_sb,
-            *filesize_cb, *filesize_sb, *filesize_om,
-            *duration_cb, *duration_sb, *duration_om,
+            *stop_packets_cb, *stop_packets_sb,
+            *stop_filesize_cb, *stop_filesize_sb, *stop_filesize_om,
+            *stop_duration_cb, *stop_duration_sb, *stop_duration_om,
             *ring_filesize_cb, *ring_filesize_sb, *ring_filesize_om,
-            *ring_duration_cb, *ring_duration_sb, *ring_duration_om,
-            *files_cb, *files_sb,
+            *file_duration_cb, *file_duration_sb, *file_duration_om,
+            *stop_files_cb, *stop_files_sb,
             *m_resolv_cb, *n_resolv_cb, *t_resolv_cb;
   gchar *entry_text;
   gchar *if_text;
@@ -1116,27 +1114,27 @@ capture_prep_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w) {
   promisc_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_PROMISC_KEY);
   filter_te = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_FILT_KEY);
   file_te   = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_FILE_TE_KEY);
-  ringbuffer_on_tb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_RING_ON_TB_KEY);
+  multi_files_on_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_MULTI_FILES_ON_CB_KEY);
   ringbuffer_nbf_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_RING_NBF_CB_KEY);
   ringbuffer_nbf_sb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_RING_NBF_SB_KEY);
   ring_filesize_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_RING_FILESIZE_CB_KEY);
   ring_filesize_sb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_RING_FILESIZE_SB_KEY);
   ring_filesize_om = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_RING_FILESIZE_OM_KEY);
-  ring_duration_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_RING_DURATION_CB_KEY);
-  ring_duration_sb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_RING_DURATION_SB_KEY);
-  ring_duration_om = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_RING_DURATION_OM_KEY);
+  file_duration_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_FILE_DURATION_CB_KEY);
+  file_duration_sb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_FILE_DURATION_SB_KEY);
+  file_duration_om = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_FILE_DURATION_OM_KEY);
   sync_cb   = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_SYNC_KEY);
   auto_scroll_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_AUTO_SCROLL_KEY);
-  count_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_COUNT_CB_KEY);
-  count_sb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_COUNT_SB_KEY);
-  filesize_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_FILESIZE_CB_KEY);
-  filesize_sb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_FILESIZE_SB_KEY);
-  filesize_om = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_FILESIZE_OM_KEY);
-  duration_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_DURATION_CB_KEY);
-  duration_sb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_DURATION_SB_KEY);
-  duration_om = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_DURATION_OM_KEY);
-  files_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_FILES_CB_KEY);
-  files_sb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_FILES_SB_KEY);
+  stop_packets_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_STOP_PACKETS_CB_KEY);
+  stop_packets_sb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_STOP_PACKETS_SB_KEY);
+  stop_filesize_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_STOP_FILESIZE_CB_KEY);
+  stop_filesize_sb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_STOP_FILESIZE_SB_KEY);
+  stop_filesize_om = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_STOP_FILESIZE_OM_KEY);
+  stop_duration_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_STOP_DURATION_CB_KEY);
+  stop_duration_sb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_STOP_DURATION_SB_KEY);
+  stop_duration_om = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_STOP_DURATION_OM_KEY);
+  stop_files_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_STOP_FILES_CB_KEY);
+  stop_files_sb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_STOP_FILES_SB_KEY);
   m_resolv_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_M_RESOLVE_KEY);
   n_resolv_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_N_RESOLVE_KEY);
   t_resolv_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_T_RESOLVE_KEY);
@@ -1202,18 +1200,18 @@ capture_prep_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w) {
   }
 
   capture_opts.has_autostop_packets =
-    gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(count_cb));
+    gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(stop_packets_cb));
   if (capture_opts.has_autostop_packets)
     capture_opts.autostop_packets =
-      gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(count_sb));
+      gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(stop_packets_sb));
 
   capture_opts.has_autostop_duration =
-    gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(duration_cb));
+    gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(stop_duration_cb));
   if (capture_opts.has_autostop_duration) {
     capture_opts.autostop_duration =
-      gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(duration_sb));
+      gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(stop_duration_sb));
     capture_opts.autostop_duration =
-      time_unit_option_menu_get_value(duration_om, capture_opts.autostop_duration);
+      time_unit_option_menu_get_value(stop_duration_om, capture_opts.autostop_duration);
   }
 
   capture_opts.sync_mode =
@@ -1243,7 +1241,7 @@ capture_prep_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w) {
 #endif
 
   capture_opts.multi_files_on =
-    gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ringbuffer_on_tb));
+    gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(multi_files_on_cb));
 
   if(capture_opts.sync_mode)
     capture_opts.multi_files_on = FALSE;
@@ -1274,30 +1272,30 @@ capture_prep_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w) {
     }
   } else {
     capture_opts.has_autostop_filesize =
-      gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(filesize_cb));
+      gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(stop_filesize_cb));
     if (capture_opts.has_autostop_filesize) {
       capture_opts.autostop_filesize =
-        gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(filesize_sb));
+        gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(stop_filesize_sb));
       capture_opts.autostop_filesize =
-        size_unit_option_menu_get_value(ring_filesize_om, capture_opts.autostop_filesize);
+        size_unit_option_menu_get_value(stop_filesize_om, capture_opts.autostop_filesize);
 
     }
   }
 
   capture_opts.has_file_duration =
-    gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ring_duration_cb));
+    gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(file_duration_cb));
   if (capture_opts.has_file_duration) {
     capture_opts.file_duration =
-      gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(ring_duration_sb));
+      gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(file_duration_sb));
     capture_opts.file_duration =
-      time_unit_option_menu_get_value(ring_duration_om, capture_opts.file_duration);
+      time_unit_option_menu_get_value(file_duration_om, capture_opts.file_duration);
   }
 
   capture_opts.has_autostop_files =
-    gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(files_cb));
+    gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(stop_files_cb));
   if (capture_opts.has_autostop_files)
     capture_opts.autostop_files =
-      gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(files_sb));
+      gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(stop_files_sb));
 
   gtk_widget_destroy(GTK_WIDGET(parent_w));
 
@@ -1348,43 +1346,43 @@ capture_prep_adjust_sensitivity(GtkWidget *tb _U_, gpointer parent_w)
 {
   GtkWidget *if_cb,
             *snap_cb, *snap_sb,
-            *ringbuffer_on_tb, *ringbuffer_nbf_cb, *ringbuffer_nbf_sb, *ringbuffer_nbf_lb,
+            *multi_files_on_cb, *ringbuffer_nbf_cb, *ringbuffer_nbf_sb, *ringbuffer_nbf_lb,
             *ring_filesize_cb, *ring_filesize_sb, *ring_filesize_om,
-            *ring_duration_cb, *ring_duration_sb, *ring_duration_om,
+            *file_duration_cb, *file_duration_sb, *file_duration_om,
             *sync_cb, *auto_scroll_cb,
-            *count_cb, *count_sb, *count_lb,
-            *filesize_cb, *filesize_sb, *filesize_om,
-            *duration_cb, *duration_sb, *duration_om,
-            *files_cb, *files_sb, *files_lb;
+            *stop_packets_cb, *stop_packets_sb, *stop_packets_lb,
+            *stop_filesize_cb, *stop_filesize_sb, *stop_filesize_om,
+            *stop_duration_cb, *stop_duration_sb, *stop_duration_om,
+            *stop_files_cb, *stop_files_sb, *stop_files_lb;
 
 
   if_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_IFACE_KEY);
   snap_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_SNAP_CB_KEY);
   snap_sb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_SNAP_SB_KEY);
-  ringbuffer_on_tb  = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_RING_ON_TB_KEY);
+  multi_files_on_cb  = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_MULTI_FILES_ON_CB_KEY);
   ringbuffer_nbf_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_RING_NBF_CB_KEY);
   ringbuffer_nbf_sb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_RING_NBF_SB_KEY);
   ringbuffer_nbf_lb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_RING_NBF_LB_KEY);
   ring_filesize_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_RING_FILESIZE_CB_KEY);
   ring_filesize_sb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_RING_FILESIZE_SB_KEY);
   ring_filesize_om = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_RING_FILESIZE_OM_KEY);
-  ring_duration_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_RING_DURATION_CB_KEY);
-  ring_duration_sb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_RING_DURATION_SB_KEY);
-  ring_duration_om = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_RING_DURATION_OM_KEY);
+  file_duration_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_FILE_DURATION_CB_KEY);
+  file_duration_sb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_FILE_DURATION_SB_KEY);
+  file_duration_om = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_FILE_DURATION_OM_KEY);
   sync_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_SYNC_KEY);
   auto_scroll_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_AUTO_SCROLL_KEY);
-  count_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_COUNT_CB_KEY);
-  count_sb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_COUNT_SB_KEY);
-  count_lb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_COUNT_LB_KEY);
-  filesize_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_FILESIZE_CB_KEY);
-  filesize_sb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_FILESIZE_SB_KEY);
-  filesize_om = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_FILESIZE_OM_KEY);
-  duration_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_DURATION_CB_KEY);
-  duration_sb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_DURATION_SB_KEY);
-  duration_om = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_DURATION_OM_KEY);
-  files_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_FILES_CB_KEY);
-  files_sb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_FILES_SB_KEY);
-  files_lb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_FILES_LB_KEY);
+  stop_packets_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_STOP_PACKETS_CB_KEY);
+  stop_packets_sb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_STOP_PACKETS_SB_KEY);
+  stop_packets_lb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_STOP_PACKETS_LB_KEY);
+  stop_filesize_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_STOP_FILESIZE_CB_KEY);
+  stop_filesize_sb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_STOP_FILESIZE_SB_KEY);
+  stop_filesize_om = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_STOP_FILESIZE_OM_KEY);
+  stop_duration_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_STOP_DURATION_CB_KEY);
+  stop_duration_sb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_STOP_DURATION_SB_KEY);
+  stop_duration_om = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_STOP_DURATION_OM_KEY);
+  stop_files_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_STOP_FILES_CB_KEY);
+  stop_files_sb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_STOP_FILES_SB_KEY);
+  stop_files_lb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_STOP_FILES_LB_KEY);
 
   /* The snapshot length spinbox is sensitive if the "Limit each packet
      to" checkbox is on. */
@@ -1398,8 +1396,8 @@ capture_prep_adjust_sensitivity(GtkWidget *tb _U_, gpointer parent_w)
        mode off if it's on, and make its toggle button, and the spin
        button for the number of ring buffer files (and the spin button's
        label), insensitive. */
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ringbuffer_on_tb), FALSE);
-    gtk_widget_set_sensitive(GTK_WIDGET(ringbuffer_on_tb), FALSE);
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(multi_files_on_cb), FALSE);
+    gtk_widget_set_sensitive(GTK_WIDGET(multi_files_on_cb), FALSE);
 
     /* Auto-scroll mode is meaningful only in "Update list of packets
        in real time" captures, so make its toggle button sensitive. */
@@ -1408,14 +1406,14 @@ capture_prep_adjust_sensitivity(GtkWidget *tb _U_, gpointer parent_w)
     /* "Update list of packets in real time" captures disabled; that
        means ring buffer mode is OK, so make its toggle button
        sensitive. */
-    gtk_widget_set_sensitive(GTK_WIDGET(ringbuffer_on_tb), TRUE);
+    gtk_widget_set_sensitive(GTK_WIDGET(multi_files_on_cb), TRUE);
 
     /* Auto-scroll mode is meaningful only in "Update list of packets
        in real time" captures, so make its toggle button insensitive. */
     gtk_widget_set_sensitive(GTK_WIDGET(auto_scroll_cb), FALSE);
   }
 
-  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ringbuffer_on_tb))) {
+  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(multi_files_on_cb))) {
     /* Ring buffer mode enabled. */
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ring_filesize_cb), TRUE);
 
@@ -1435,21 +1433,21 @@ capture_prep_adjust_sensitivity(GtkWidget *tb _U_, gpointer parent_w)
 
     /* The ring duration spinbox is sensitive if the "Next capture file
          after N seconds" checkbox is on. */
-    gtk_widget_set_sensitive(GTK_WIDGET(ring_duration_cb), TRUE);
-    gtk_widget_set_sensitive(GTK_WIDGET(ring_duration_sb),
-          gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ring_duration_cb)));
-    gtk_widget_set_sensitive(GTK_WIDGET(ring_duration_om),
-          gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ring_duration_cb)));
+    gtk_widget_set_sensitive(GTK_WIDGET(file_duration_cb), TRUE);
+    gtk_widget_set_sensitive(GTK_WIDGET(file_duration_sb),
+          gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(file_duration_cb)));
+    gtk_widget_set_sensitive(GTK_WIDGET(file_duration_om),
+          gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(file_duration_cb)));
 
-    gtk_widget_set_sensitive(GTK_WIDGET(filesize_cb), FALSE);
-    gtk_widget_set_sensitive(GTK_WIDGET(filesize_sb), FALSE);
-    gtk_widget_set_sensitive(GTK_WIDGET(filesize_om), FALSE);
+    gtk_widget_set_sensitive(GTK_WIDGET(stop_filesize_cb), FALSE);
+    gtk_widget_set_sensitive(GTK_WIDGET(stop_filesize_sb), FALSE);
+    gtk_widget_set_sensitive(GTK_WIDGET(stop_filesize_om), FALSE);
 
-    gtk_widget_set_sensitive(GTK_WIDGET(files_cb), TRUE);
-    gtk_widget_set_sensitive(GTK_WIDGET(files_sb), 
-          gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(files_cb)));
-    gtk_widget_set_sensitive(GTK_WIDGET(files_lb),
-          gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(files_cb)));
+    gtk_widget_set_sensitive(GTK_WIDGET(stop_files_cb), TRUE);
+    gtk_widget_set_sensitive(GTK_WIDGET(stop_files_sb), 
+          gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(stop_files_cb)));
+    gtk_widget_set_sensitive(GTK_WIDGET(stop_files_lb),
+          gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(stop_files_cb)));
   } else {
     /* Ring buffer mode disabled. */
     gtk_widget_set_sensitive(GTK_WIDGET(ringbuffer_nbf_cb), FALSE);
@@ -1460,36 +1458,36 @@ capture_prep_adjust_sensitivity(GtkWidget *tb _U_, gpointer parent_w)
     gtk_widget_set_sensitive(GTK_WIDGET(ring_filesize_sb),FALSE);
     gtk_widget_set_sensitive(GTK_WIDGET(ring_filesize_om),FALSE);
 
-    gtk_widget_set_sensitive(GTK_WIDGET(ring_duration_cb), FALSE);
-    gtk_widget_set_sensitive(GTK_WIDGET(ring_duration_sb),FALSE);
-    gtk_widget_set_sensitive(GTK_WIDGET(ring_duration_om),FALSE);
+    gtk_widget_set_sensitive(GTK_WIDGET(file_duration_cb), FALSE);
+    gtk_widget_set_sensitive(GTK_WIDGET(file_duration_sb),FALSE);
+    gtk_widget_set_sensitive(GTK_WIDGET(file_duration_om),FALSE);
 
     /* The maximum file size spinbox is sensitive if the "Stop capture
          after N kilobytes" checkbox is on. */
-    gtk_widget_set_sensitive(GTK_WIDGET(filesize_cb), TRUE);
-    gtk_widget_set_sensitive(GTK_WIDGET(filesize_sb),
-          gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(filesize_cb)));
-    gtk_widget_set_sensitive(GTK_WIDGET(filesize_om),
-          gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(filesize_cb)));
+    gtk_widget_set_sensitive(GTK_WIDGET(stop_filesize_cb), TRUE);
+    gtk_widget_set_sensitive(GTK_WIDGET(stop_filesize_sb),
+          gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(stop_filesize_cb)));
+    gtk_widget_set_sensitive(GTK_WIDGET(stop_filesize_om),
+          gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(stop_filesize_cb)));
 
-    gtk_widget_set_sensitive(GTK_WIDGET(files_cb), FALSE);
-    gtk_widget_set_sensitive(GTK_WIDGET(files_sb), FALSE);
-    gtk_widget_set_sensitive(GTK_WIDGET(files_lb), FALSE);
+    gtk_widget_set_sensitive(GTK_WIDGET(stop_files_cb), FALSE);
+    gtk_widget_set_sensitive(GTK_WIDGET(stop_files_sb), FALSE);
+    gtk_widget_set_sensitive(GTK_WIDGET(stop_files_lb), FALSE);
   }
 
   /* The maximum packet count spinbox is sensitive if the "Stop capture
      after N packets" checkbox is on. */
-  gtk_widget_set_sensitive(GTK_WIDGET(count_sb),
-      gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(count_cb)));
-  gtk_widget_set_sensitive(GTK_WIDGET(count_lb),
-      gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(count_cb)));
+  gtk_widget_set_sensitive(GTK_WIDGET(stop_packets_sb),
+      gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(stop_packets_cb)));
+  gtk_widget_set_sensitive(GTK_WIDGET(stop_packets_lb),
+      gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(stop_packets_cb)));
 
   /* The capture duration spinbox is sensitive if the "Stop capture
      after N seconds" checkbox is on. */
-  gtk_widget_set_sensitive(GTK_WIDGET(duration_sb),
-      gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(duration_cb)));
-  gtk_widget_set_sensitive(GTK_WIDGET(duration_om),
-      gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(duration_cb)));
+  gtk_widget_set_sensitive(GTK_WIDGET(stop_duration_sb),
+      gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(stop_duration_cb)));
+  gtk_widget_set_sensitive(GTK_WIDGET(stop_duration_om),
+      gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(stop_duration_cb)));
 }
 
 #endif /* HAVE_LIBPCAP */
