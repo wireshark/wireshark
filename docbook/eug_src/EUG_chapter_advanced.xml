@@ -187,12 +187,19 @@
 
   <section id="ChAdvNameResolutionSection"><title>Name Resolution</title>
     <para>
-	Name resolution tries to resolve some of the address values to human 
-	readable names. This conversion might fail. For example, the name might be 
-	unknown. Some of the lookups are done with data from your local 
-	machine, while others asking network services such as DNS. For details about
-	the configuration files Ethereal uses for name resolution, see 
-	<xref linkend="AppFiles"/>.
+	Name resolution tries to resolve some of the numerical address values to human 
+	readable names. There are two possible ways to do this conversations, depending on 
+	the resolution to be done: calling system/network services (like the gethostname 
+	function) and/or evaluate from Ethereal specific configuration files. If there 
+	are both features available, Ethereal will first try the system services
+	and then fall back to it's own configuration files. XXX - is this really true?
+	For details about the configuration files Ethereal uses for name 
+	resolution and alike, see <xref linkend="AppFiles"/>.	
+	</para>
+	<para>
+	However, be prepared that this conversion often will fail, e.g. the name 
+	to be resolved might simply be unknown by the servers asked and the 
+	configuration files.
     </para>
     <note><title>Note!</title>
     <para>
@@ -209,9 +216,9 @@
     </note>
     <para>
 	The name resolution feature can be en-/disabled separately for the 
-	following protocol layers:
+	following protocol layers (in brackets):
     </para>
-	<section><title>MAC Layer</title>
+	<section><title>Ethernet name resolution (MAC layer)</title>
     <para><command>ARP name resolution (system service)</command>
 	Ethereal will ask the operating system to convert an ethernet address 
 	to the corresponding IP address (e.g. 00:09:5b:01:02:03 -> 192.168.0.1). 
@@ -228,42 +235,60 @@
 	(e.g. 00:09:5b:01:02:03 -> Netgear_01:02:03).
     </para>
 	</section>
-	<section><title>Network Layer</title>
-    <para><command>DNS name resolution (system/ADNS service)</command>
-	Ethereal will ask the operating system (or the ADNS library, see below), 
+	<section><title>IP name resolution (network layer)</title>
+    <para><command>DNS/ADNS name resolution (system/library service)</command>
+	Ethereal will ask the operating system (or the ADNS library), 
 	to convert an IP address to the hostname associated with it 
-	(e.g. 65.208.228.223 -> www.ethereal.com).
+	(e.g. 65.208.228.223 -> www.ethereal.com). The DNS service is using 
+	synchronous calls to the DNS server. So Ethereal will stop responding 
+	until a response to a DNS request is returned. If possible, you might 
+	consider using the ADNS library (which won't wait for a network response).
     </para>
 	<warning>
 	  <title>Warning!</title>
 	  <para>
 		Enabling network name resolution when your name server is 
-		unavailable may significantly slow Ethereal while it waits 
+		unavailable may significantly slow down Ethereal while it waits 
 		for all of the name server requests to time out. Use ADNS in that 
 		case.
 	  </para>
 	</warning>	
-    <para><command>IP name resolution (hosts file)</command>
+	<para>
+	<command>DNS vs. ADNS</command>
+	here's a short comparison: Both mechanisms are 
+	used to convert an IP address to some human readable (domain) name. The 
+	usual DNS call gethostname() will try to convert the address to a name. 
+	To do this, it will first ask the systems hosts file (e.g. /etc/hosts) 
+	if it finds a matching entry. If that fails, it will ask the configured 
+	DNS server(s) about the name.
+	</para>
+	<para>
+	So the real difference between DNS and ADNS comes when the system has to wait for 
+	the DNS server about a name resolution. The system call gethostname() will wait until 
+	a name is resolved or an error occurs. 
+	If the DNS server is unavailable, this might take quite 
+	a while (several seconds).  The ADNS service will work a bit differently.
+	It will also ask the DNS server, but it won't wait for the answer. It will
+	just return to Ethereal in a very short amount of time. 
+	XXX - what does happen with the actual address field at that run? Will the 
+	response be ignored for that field?
+	</para>
+    <para><command>hosts name resolution (hosts file)</command>
 	If DNS name resolution failed, Ethereal will try to convert an IP address 
-	to the hostname associated with it, using an hosts file provided by the user
-	(e.g. 65.208.228.223 -> www.ethereal.com).
+	to the hostname associated with it, using an hosts file provided by the 
+	user (e.g. 65.208.228.223 -> www.ethereal.com).
     </para>
+	</section>
+	<section><title>IPX name resolution (network layer)</title>
     <para><command>ipxnet name resolution (ipxnets file)</command>
 	XXX - add ipxnets name resolution explanation.
     </para>
 	</section>
-	<section><title>Transport Layer (system service)</title>
+	<section><title>TCP/UDP port name resolution (transport layer)</title>
     <para><command>TCP/UDP port conversion (system service)</command>
 	Ethereal will ask the operating system to convert a TCP or UDP port to 
 	its well known name (e.g. 80 -> http).
     </para>
-	</section>
-	<section><title>ADNS</title>
-	<para>
-	As noted, DNS lookups can significantly slow down Ethereal and make it 
-	appear frozen, which can be very annoying. To solve this, Ethereal can use
-	the ADNS library, which handles DNS calls asynchronously.
-	</para>
 	</section>
   </section>
 
