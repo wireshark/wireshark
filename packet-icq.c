@@ -1,7 +1,7 @@
 /* packet-icq.c
  * Routines for ICQ packet disassembly
  *
- * $Id: packet-icq.c,v 1.29 2001/04/27 01:27:37 guy Exp $
+ * $Id: packet-icq.c,v 1.30 2001/04/27 01:38:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Johan Feyaerts
@@ -90,7 +90,7 @@ dissect_icqv5Server(tvbuff_t *tvb,
 		    int offset,
 		    packet_info *pinfo,
 		    proto_tree *tree,
-		    guint32 pktsize);
+		    int pktsize);
 
 /* Offsets of fields in the ICQ headers */
 /* Can be 0x0002 or 0x0005 */
@@ -1953,13 +1953,13 @@ dissect_icqv5Server(tvbuff_t *tvb,
 		    int offset,
 		    packet_info *pinfo,
 		    proto_tree *tree,
-		    guint32 pktsize)
+		    int pktsize)
 {
     /* Server traffic is easy, not encrypted */
     proto_tree *icq_tree = NULL;
     proto_tree *icq_header_tree = NULL;
     proto_item *ti = NULL;
-    int changeCol = (pktsize==(guint32)-1);
+    int changeCol = (pktsize==-1);
 
     guint16 cmd;
     
@@ -1967,7 +1967,7 @@ dissect_icqv5Server(tvbuff_t *tvb,
     if (changeCol && check_col(pinfo->fd, COL_INFO))
 	col_add_fstr(pinfo->fd, COL_INFO, "ICQv5 %s", findServerCmd(cmd));
 
-    if (pktsize == (guint32)-1)
+    if (pktsize == -1)
 	pktsize = tvb_reported_length(tvb);
     
     if (tree) {
@@ -2123,7 +2123,7 @@ static void dissect_icqv5(tvbuff_t *tvb,
   if (unknown == 0x0L) {
       dissect_icqv5Client(tvb, pinfo, tree);
   } else {
-      dissect_icqv5Server(tvb, 0, pinfo, tree, (guint32) -1);
+      dissect_icqv5Server(tvb, 0, pinfo, tree, -1);
   }
 }
 
