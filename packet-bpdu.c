@@ -1,7 +1,7 @@
 /* packet-bpdu.c
  * Routines for BPDU (Spanning Tree Protocol) disassembly
  *
- * $Id: packet-bpdu.c,v 1.8 2000/03/12 04:47:36 gram Exp $
+ * $Id: packet-bpdu.c,v 1.9 2000/04/17 00:32:37 guy Exp $
  *
  * Copyright 1999 Christophe Tronche <ch.tronche@computer.org>
  * 
@@ -41,6 +41,7 @@
 #include <string.h>
 #include <glib.h>
 #include "packet.h"
+#include "llcsaps.h"
 #include "resolv.h"
 
 /* Offsets of fields within a BPDU */
@@ -261,4 +262,10 @@ proto_register_bpdu(void)
   proto_bpdu = proto_register_protocol("Spanning Tree Protocol", "stp");
   proto_register_field_array(proto_bpdu, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+}
+
+void
+proto_reg_handoff_bpdu(void)
+{
+  dissector_add("llc.dsap", SAP_BPDU, dissect_bpdu);
 }

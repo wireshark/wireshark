@@ -5,7 +5,7 @@
  * 
  * derived from the packet-nbns.c
  *
- * $Id: packet-netbios.c,v 1.17 2000/03/07 05:20:54 guy Exp $
+ * $Id: packet-netbios.c,v 1.18 2000/04/17 00:32:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -40,6 +40,7 @@
 #include <glib.h>
 
 #include "packet.h"
+#include "llcsaps.h"
 #include "packet-netbios.h"
 #include "packet-smb.h"
 
@@ -960,7 +961,7 @@ void (*dissect_netb[])(const u_char *, int, frame_data *, proto_tree *) = {
 };
 
 
-void dissect_netbios(const u_char *pd, int offset, frame_data *fd,
+static void dissect_netbios(const u_char *pd, int offset, frame_data *fd,
     proto_tree *tree)
 
 {
@@ -1080,4 +1081,10 @@ void proto_register_netbios(void)
 
         proto_netbios = proto_register_protocol("NetBIOS", "netbios");
 	proto_register_subtree_array(ett, array_length(ett));
+}
+
+void
+proto_reg_handoff_netbios(void)
+{
+	dissector_add("llc.dsap", SAP_NETBIOS, dissect_netbios);
 }

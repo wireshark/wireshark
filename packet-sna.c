@@ -2,7 +2,7 @@
  * Routines for SNA
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-sna.c,v 1.13 2000/04/13 20:39:14 gram Exp $
+ * $Id: packet-sna.c,v 1.14 2000/04/17 00:32:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -34,6 +34,7 @@
 
 #include <glib.h>
 #include "packet.h"
+#include "llcsaps.h"
 #include "packet-sna.h"
 
 /*
@@ -301,7 +302,7 @@ static int  dissect_fid5 (const u_char*, int, frame_data*, proto_tree*);
 static int  dissect_fidf (const u_char*, int, frame_data*, proto_tree*);
 static void dissect_rh (const u_char*, int, frame_data*, proto_tree*);
 
-void
+static void
 dissect_sna(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
 	proto_tree	*sna_tree = NULL, *th_tree = NULL, *rh_tree = NULL;
@@ -1200,4 +1201,10 @@ proto_register_sna(void)
         proto_sna = proto_register_protocol("Systems Network Architecture", "sna");
 	proto_register_field_array(proto_sna, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+}
+
+void
+proto_reg_handoff_sna(void)
+{
+	dissector_add("llc.dsap", SAP_SNA_PATHCTRL, dissect_sna);
 }
