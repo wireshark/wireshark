@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.h,v 1.7 2000/08/11 13:34:24 deniel Exp $
+ * $Id: tvbuff.h,v 1.8 2000/08/17 17:16:02 gram Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@xiexie.org>
  *
@@ -83,11 +83,21 @@ void tvbuff_cleanup(void);
  * require further initialization via the appropriate functions */
 tvbuff_t* tvb_new(tvbuff_type);
 
-/* Marks a tvbuff for freeing. The guint8* data is *never* freed by
- * the tvbuff routines. The tvbuff is actually freed once its usage
- * count drops to 0. Usage counts increment for any time the tvbuff is
+/* Marks a tvbuff for freeing. The guint8* data of a TVBUFF_REAL_DATA
+ * is *never* freed by the tvbuff routines. The tvbuff itself is actually freed
+ * once its usage  count drops to 0.
+ *
+ * Usage counts increment for any time the tvbuff is
  * used as a member of another tvbuff, i.e., as the backing buffer for
  * a TVBUFF_SUBSET or as a member of a TVBUFF_COMPOSITE.
+ *
+ * Although you may call tvb_free(), the tvbuff may still be in use
+ * by other tvbuff's (TVBUFF_SUBSET or TVBUFF_COMPOSITE), so it is not
+ * safe, unless you know otherwise, to free your guint8* data. If you
+ * cannot be sure that your TVBUFF_REAL_DATA is not in use by another
+ * tvbuff, register a callback with tvb_set_free_cb(); when your tvbuff
+ * is _really_ freed, then your callback will be called, and at that time
+ * you can free your original data.
  *
  * The caller can artificially increment/decrement the usage count
  * with tvbuff_increment_usage_count()/tvbuff_decrement_usage_count().
@@ -99,6 +109,7 @@ void tvb_free_chain(tvbuff_t*);
 
 /* Both return the new usage count, after the increment or decrement */
 guint tvb_increment_usage_count(tvbuff_t*, guint count);
+
 /* If a decrement causes the usage count to drop to 0, a the tvbuff
  * is immediately freed. Be sure you know exactly what you're doing
  * if you decide to use this function, as another tvbuff could
@@ -203,7 +214,9 @@ guint64 tvb_get_letohll(tvbuff_t*, gint offset);
 /* Returns target for convenience. Does not suffer from possible
  * expense of tvb_get_ptr(), since this routine is smart enough
  * to copy data in chunks if the request range actually exists in
- * different TVBUFF_REAL_DATA tvbuffs. */
+ * different TVBUFF_REAL_DATA tvbuffs. This function assumes that the
+ * target memory is already allocated; it does not allocate or free the
+ * target memory. */
 guint8* tvb_memcpy(tvbuff_t*, guint8* target, gint offset, gint length);
 
 /* It is the user's responsibility to g_free() the memory allocated by
@@ -214,6 +227,13 @@ guint8* tvb_memdup(tvbuff_t*, gint offset, gint length);
  * another copy of the packet data. Furthermore, it's dangerous because once
  * this pointer is given to the user, there's no guarantee that the user will
  * honor the 'length' and not overstep the boundaries of the buffer.
+ *
+ * The returned pointer is data that is internal to the tvbuff, so do not
+ * attempt to free it. Don't modify the data, either, because another tvbuff
+ * that might be using this tvbuff may have already copied that portion of
+ * the data (sometimes tvbuff's need to make copies of data, but that's the
+ * internal implementation that you need not worry about). Assume that the
+ * guint8* points to read-only data that the tvbuff manages.
  *
  * Return a pointer into our buffer if the data asked for via 'offset'/'length'
  * is contiguous (which might not be the case for TVBUFF_COMPOSITE). If the
