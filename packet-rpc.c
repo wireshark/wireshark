@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * 
- * $Id: packet-rpc.c,v 1.31 2000/05/31 05:07:35 guy Exp $
+ * $Id: packet-rpc.c,v 1.32 2000/07/14 12:55:58 girlich Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1344,3 +1344,13 @@ proto_register_rpc(void)
 	rpc_progs = g_hash_table_new(rpc_prog_hash, rpc_prog_equal);
 	rpc_procs = g_hash_table_new(rpc_proc_hash, rpc_proc_equal);
 }
+
+
+void
+proto_reg_handoff_rpc(void)
+{
+	heur_dissector_add("tcp", dissect_rpc);
+	heur_dissector_add("udp", dissect_rpc);
+}
+
+
