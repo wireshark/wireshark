@@ -1,6 +1,6 @@
 /* wtap.c
  *
- * $Id: wtap.c,v 1.32 1999/12/04 08:32:13 guy Exp $
+ * $Id: wtap.c,v 1.33 1999/12/05 01:24:53 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -55,6 +55,91 @@ int wtap_snapshot_length(wtap *wth)
 int wtap_file_encap(wtap *wth)
 {
 	return wth->file_encap;
+}
+
+/* Table of the encapsulation types we know about. */
+const static struct encap_type_info {
+	const char *name;
+	const char *short_name;
+} encap_table[WTAP_NUM_ENCAP_TYPES] = {
+	/* WTAP_ENCAP_UNKNOWN */
+	{ "Unknown", NULL },
+
+	/* WTAP_ENCAP_ETHERNET */
+	{ "Ethernet", "ether" },
+
+	/* WTAP_ENCAP_TR */
+	{ "Token Ring", "tr" },
+
+	/* WTAP_ENCAP_SLIP */
+	{ "SLIP", "slip" },
+
+	/* WTAP_ENCAP_PPP */
+	{ "PPP", "ppp" },
+
+	/* WTAP_ENCAP_FDDI */
+	{ "FDDI", "fddi" },
+
+	/* WTAP_ENCAP_FDDI_BITSWAPPED */
+	{ "FDDI with bit-swapped MAC addresses", "fddi-swapped" },
+
+	/* WTAP_ENCAP_RAW_IP */
+	{ "Raw IP", "rawip" },
+
+	/* WTAP_ENCAP_ARCNET */
+	{ "ARCNET", "arcnet" },
+
+	/* WTAP_ENCAP_ATM_RFC1483 */
+	{ "RFC 1483 ATM", "atm-rfc1483" },
+
+	/* WTAP_ENCAP_LINUX_ATM_CLIP */
+	{ "Linux ATM CLIP", "linux-atm-clip" },
+
+	/* WTAP_ENCAP_LAPB */
+	{ "LAPB", "lapb" },
+
+	/* WTAP_ENCAP_ATM_SNIFFER */
+	{ "ATM Sniffer", "atm-sniffer" },
+
+	/* WTAP_ENCAP_NULL */
+	{ "NULL", "null" },
+
+	/* WTAP_ENCAP_ASCEND */
+	{ "Lucent/Ascend access equipment", "ascend" },
+
+	/* WTAP_ENCAP_LAPD */
+	{ "LAPD", "lapd" }
+};
+
+/* Name that should be somewhat descriptive. */
+const char *wtap_encap_string(int encap)
+{
+	if (encap < 0 || encap >= WTAP_NUM_ENCAP_TYPES)
+		return NULL;
+	else
+		return encap_table[encap].name;
+}
+
+/* Name to use in, say, a command-line flag specifying the type. */
+const char *wtap_encap_short_string(int encap)
+{
+	if (encap < 0 || encap >= WTAP_NUM_ENCAP_TYPES)
+		return NULL;
+	else
+		return encap_table[encap].short_name;
+}
+
+/* Translate a short name to a capture file type. */
+int wtap_short_string_to_encap(const char *short_name)
+{
+	int encap;
+
+	for (encap = 0; encap < WTAP_NUM_ENCAP_TYPES; encap++) {
+		if (encap_table[encap].short_name != NULL &&
+		    strcmp(short_name, encap_table[encap].short_name) == 0)
+			return encap;
+	}
+	return -1;	/* no such encapsulation type */
 }
 
 static const char *wtap_errlist[] = {

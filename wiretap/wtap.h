@@ -1,6 +1,6 @@
 /* wtap.h
  *
- * $Id: wtap.h,v 1.54 1999/12/04 21:20:07 guy Exp $
+ * $Id: wtap.h,v 1.55 1999/12/05 01:24:54 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -382,9 +382,15 @@ int wtap_fd(wtap *wth);
 int wtap_snapshot_length(wtap *wth); /* per file */
 int wtap_file_type(wtap *wth);
 int wtap_file_encap(wtap *wth);
+
 const char *wtap_file_type_string(int filetype);
 const char *wtap_file_type_short_string(int filetype);
 int wtap_short_string_to_file_type(const char *short_name);
+
+const char *wtap_encap_string(int encap);
+const char *wtap_encap_short_string(int encap);
+int wtap_short_string_to_encap(const char *short_name);
+
 const char *wtap_strerror(int err);
 void wtap_close(wtap *wth);
 int wtap_seek_read (int file_type, FILE *fh, int seek_off, guint8 *pd, int len);
