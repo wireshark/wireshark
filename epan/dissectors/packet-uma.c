@@ -1440,7 +1440,6 @@ proto_reg_handoff_uma(void)
 {
 	static int Initialized=FALSE;
 	static int TcpPort1=0;
-	static int uma_prefs_initialized = FALSE;
 	
 	if (!Initialized) {
 		uma_tcp_handle = new_create_dissector_handle(dissect_uma, proto_uma);
