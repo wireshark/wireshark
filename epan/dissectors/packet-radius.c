@@ -3397,14 +3397,16 @@ static void
 rdconvertbufftostr(gchar *dest, tvbuff_t *tvb, int offset, int length)
 {
 /*converts the raw buffer into printable text */
-	guint32 i;
-	guint32 totlen=0;
-	const guint8 *pd = tvb_get_ptr(tvb, offset, length);
+	int i;
+	int totlen=0;
+	const guint8 *pd;
 
+        g_assert(length >= 0);
+        pd = tvb_get_ptr(tvb, offset, length);
         dest[0]='"';
         dest[1]=0;
         totlen=1;
-        for (i=0; i < (guint32)length; i++)
+        for (i=0; i < length; i++)
         {
                 if( isprint((int)pd[i])) {
                         dest[totlen]=(gchar)pd[i];
@@ -3424,13 +3426,15 @@ static void
 rdconvertbufftobinstr(gchar *dest, tvbuff_t *tvb, int offset, int length)
 {
 /*converts the raw buffer into printable hex display */
-	guint32 i;
-	guint32 totlen=0;
-	const guint8 *pd = tvb_get_ptr(tvb, offset, length);
+	int i;
+	int totlen=0;
+	const guint8 *pd;
 	static const char hex[16] = { '0', '1', '2', '3', '4', '5', '6', '7',
 				      '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
 
-        for (i=0; i < (guint32)length; i++)
+        g_assert(length >= 0);
+        pd = tvb_get_ptr(tvb, offset, length);
+        for (i=0; i < length; i++)
         {
 		dest[totlen] = hex[pd[i] >> 4];
 		totlen++;
@@ -3445,8 +3449,8 @@ rddecryptpass(gchar *dest,tvbuff_t *tvb,int offset,int length)
 {
     md5_state_t md_ctx;
     md5_byte_t digest[16];
-    guint32 i;
-    guint32 totlen;
+    int i;
+    int totlen;
     const guint8 *pd;
     guchar c;
 
@@ -3465,7 +3469,7 @@ rddecryptpass(gchar *dest,tvbuff_t *tvb,int offset,int length)
     md5_finish(&md_ctx,digest);
 
     pd = tvb_get_ptr(tvb,offset,length);
-    for( i = 0 ; i < 16 && i < (guint32)length ; i++ ) {
+    for( i = 0 ; i < 16 && i < length ; i++ ) {
 	c = pd[i] ^ digest[i];
 	if ( isprint(c)) {
 	    dest[totlen] = c;
@@ -3475,7 +3479,7 @@ rddecryptpass(gchar *dest,tvbuff_t *tvb,int offset,int length)
 	    totlen += strlen(&(dest[totlen]));
 	}
     }
-    while(i<(guint32)length) {
+    while(i<length) {
 	if ( isprint(pd[i]) ) {
 	    dest[totlen] = (gchar)pd[i];
 	    totlen++;
