@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.140 2001/11/02 10:01:00 guy Exp $
+# $Id: configure.in,v 1.141 2001/12/07 22:56:56 guy Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -109,6 +109,17 @@ then
 		CFLAGS="-Ae +O2 $CFLAGS"
 		AC_MSG_RESULT(HP ANSI C compiler - added -Ae +O2)
 		;;
+	darwin*)
+		#
+		# It may be called "cc", but it's really a GCC derivative
+		# with a problematic special precompiler and precompiled
+		# headers; turn off the special precompiler, as some
+		# apparently-legal code won't compile with its precompiled
+		# headers.
+		#
+		CFLAGS="-no-cpp-precomp $CFLAGS"
+		AC_MSG_RESULT(Apple GCC - added -no-cpp-precomp)
+		;;
 	*)
 		AC_MSG_RESULT(none needed)
 		;;
@@ -122,8 +133,11 @@ else
 		AC_MSG_RESULT(GCC on Solaris - added -Wno-return-type -DFUNCPROTO=15)
 		;;
 	darwin*)
-		CFLAGS="-traditional-cpp $CFLAGS"
-		AC_MSG_RESULT(Apple cc compiler - added -traditional-cpp)
+		#
+		# See comments above about Apple's lovely C compiler.
+		#
+		CFLAGS="-no-cpp-precomp $CFLAGS"
+		AC_MSG_RESULT(Apple GCC - added -no-cpp-precomp)
 		;;
 	*)
 		AC_MSG_RESULT(none needed)
