@@ -2,7 +2,7 @@
  * Routines for ppp packet disassembly
  * RFC 1661, RFC 1662
  *
- * $Id: packet-ppp.c,v 1.115 2003/08/26 05:52:50 guy Exp $
+ * $Id: packet-ppp.c,v 1.116 2003/08/26 06:18:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1404,7 +1404,7 @@ fcs32(tvbuff_t * tvbuff)
     /* Check for invalid Length */
     if (len == 0)
         return (0x00000000);
-    return crc32(tvb_get_ptr(tvbuff, 0, len), len);
+    return crc32_tvb(tvbuff, len);
 }
 
 tvbuff_t *

@@ -1,7 +1,7 @@
 /* crc32.c
  * CRC-32 routine
  *
- * $Id: crc32.c,v 1.2 2003/08/26 05:52:43 guy Exp $
+ * $Id: crc32.c,v 1.3 2003/08/26 06:18:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -30,6 +30,7 @@
  */
 
 #include <glib.h>
+#include <epan/tvbuff.h>
 #include "crc32.h"
 
 /*
@@ -96,9 +97,10 @@ const guint32 crc32_table[256] = {
 };
 
 guint32
-crc32(const unsigned char* buf, unsigned int len)
+crc32_tvb(tvbuff_t *tvb, unsigned int len)
 {
   unsigned int i;
+  const unsigned char* buf = tvb_get_ptr(tvb, 0, len);
   guint32 crc32 = 0xFFFFFFFF;
 
   for (i = 0; i < len; i++)
@@ -117,11 +119,11 @@ crc32(const unsigned char* buf, unsigned int len)
  * to cope with 802.x sending stuff out in reverse bit order?
  */
 guint32
-crc32_802(const unsigned char* buf, unsigned int len)
+crc32_tvb_802(tvbuff_t *tvb, unsigned int len)
 {
   guint32 c_crc;
 
-  c_crc = crc32(buf, len);
+  c_crc = crc32_tvb(tvb, len);
 
   /* Byte reverse. */
   c_crc = ((unsigned char)(c_crc>>0)<<24) |

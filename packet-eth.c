@@ -1,7 +1,7 @@
 /* packet-eth.c
  * Routines for ethernet packet disassembly
  *
- * $Id: packet-eth.c,v 1.85 2003/08/26 05:52:44 guy Exp $
+ * $Id: packet-eth.c,v 1.86 2003/08/26 06:18:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -342,8 +342,7 @@ add_ethernet_trailer(proto_tree *fh_tree, int trailer_id, tvbuff_t *tvb,
     }
     if (has_fcs) {
       guint32 sent_fcs = tvb_get_ntohl(trailer_tvb, trailer_length);
-      guint32 fcs = crc32_802(tvb_get_ptr(tvb, 0, tvb_length(tvb) - 4),
-          tvb_length(tvb) - 4);
+      guint32 fcs = crc32_tvb_802(tvb, tvb_length(tvb) - 4);
       if (fcs == sent_fcs) {
 	proto_tree_add_text(fh_tree, trailer_tvb, trailer_length, 4,
 			    "Frane check sequence: 0x%08x (correct)",
