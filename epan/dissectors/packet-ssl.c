@@ -726,11 +726,11 @@ static void dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
 
 static void dissect_ssl3_hnd_cli_hello(tvbuff_t *tvb,
                                        proto_tree *tree,
-                                       guint32 offset);
+                                       guint32 offset, guint32 length);
 
 static void dissect_ssl3_hnd_srv_hello(tvbuff_t *tvb,
                                        proto_tree *tree,
-                                       guint32 offset);
+                                       guint32 offset, guint32 length);
 
 static void dissect_ssl3_hnd_cert(tvbuff_t *tvb,
                                   proto_tree *tree, guint32 offset, packet_info *pinfo);
@@ -1439,11 +1439,11 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
                 break;
 
             case SSL_HND_CLIENT_HELLO:
-                dissect_ssl3_hnd_cli_hello(tvb, ssl_hand_tree, offset);
+                dissect_ssl3_hnd_cli_hello(tvb, ssl_hand_tree, offset, length);
             break;
 
             case SSL_HND_SERVER_HELLO:
-                dissect_ssl3_hnd_srv_hello(tvb, ssl_hand_tree, offset);
+                dissect_ssl3_hnd_srv_hello(tvb, ssl_hand_tree, offset, length);
                 break;
 
             case SSL_HND_CERTIFICATE:
@@ -1530,7 +1530,7 @@ dissect_ssl3_hnd_hello_common(tvbuff_t *tvb, proto_tree *tree,
 
 static int
 dissect_ssl3_hnd_hello_ext(tvbuff_t *tvb,
-                           proto_tree *tree, guint32 offset)
+                           proto_tree *tree, guint32 offset, guint32 left)
 {
     guint16 extension_length;
     guint16 ext_type;
@@ -1538,15 +1538,16 @@ dissect_ssl3_hnd_hello_ext(tvbuff_t *tvb,
     proto_item *pi;
     proto_tree *ext_tree;
 
-    if (tvb_length_remaining(tvb, offset) < 2)
+    if (left < 2)
 	return offset;
 
     extension_length = tvb_get_ntohs(tvb, offset);
     proto_tree_add_uint(tree, hf_ssl_handshake_extensions_len,
 			tvb, offset, 2, extension_length);
     offset += 2;
+    left -= 2;
 
-    while (tvb_length_remaining(tvb, offset) >= 4)
+    while (left >= 4)
     {
 	ext_type = tvb_get_ntohs(tvb, offset);
 	ext_len = tvb_get_ntohs(tvb, offset + 2);
@@ -1574,6 +1575,7 @@ dissect_ssl3_hnd_hello_ext(tvbuff_t *tvb,
 				    "Data (%u byte%s)",
 				    ext_len, plurality(ext_len, "", "s"));
 	offset += ext_len;
+	left -= 2 + 2 + ext_len;
     }
 
     return offset;
@@ -1581,7 +1583,7 @@ dissect_ssl3_hnd_hello_ext(tvbuff_t *tvb,
 
 static void
 dissect_ssl3_hnd_cli_hello(tvbuff_t *tvb,
-                           proto_tree *tree, guint32 offset)
+                           proto_tree *tree, guint32 offset, guint32 length)
 {
     /* struct {
      *     ProtocolVersion client_version;
@@ -1598,6 +1600,7 @@ dissect_ssl3_hnd_cli_hello(tvbuff_t *tvb,
     guint16 cipher_suite_length = 0;
     guint8  compression_methods_length = 0;
     guint8  compression_method;
+    guint16 start_offset = offset;
 
     if (tree)
     {
@@ -1682,13 +1685,18 @@ dissect_ssl3_hnd_cli_hello(tvbuff_t *tvb,
             }
         }
 
-	offset = dissect_ssl3_hnd_hello_ext(tvb, tree, offset);
+	if (length > offset - start_offset)
+	{
+	    offset = dissect_ssl3_hnd_hello_ext(tvb, tree, offset,
+						length -
+						(offset - start_offset));
+	}
     }
 }
 
 static void
 dissect_ssl3_hnd_srv_hello(tvbuff_t *tvb,
-                           proto_tree *tree, guint32 offset)
+                           proto_tree *tree, guint32 offset, guint32 length)
 {
     /* struct {
      *     ProtocolVersion server_version;
@@ -1699,6 +1707,7 @@ dissect_ssl3_hnd_srv_hello(tvbuff_t *tvb,
      *     Extension server_hello_extension_list<0..2^16-1>;
      * } ServerHello;
      */
+    guint16 start_offset = offset;
 
     if (tree)
     {
@@ -1722,7 +1731,12 @@ dissect_ssl3_hnd_srv_hello(tvbuff_t *tvb,
                             tvb, offset, 1, FALSE);
 	offset++;
 
-	offset = dissect_ssl3_hnd_hello_ext(tvb, tree, offset);
+	if (length > offset - start_offset)
+	{
+	    offset = dissect_ssl3_hnd_hello_ext(tvb, tree, offset,
+						length -
+						(offset - start_offset));
+	}
     }
 }
 
