@@ -480,6 +480,7 @@ attr_list(proto_tree *tree, int hf, tvbuff_t *tvb, int offset, int length,
     guint8  *byte_value;
     proto_item 	*ti;
     proto_tree 	*srvloc_tree;
+    guint8  *tmp;
 
     static const value_string srvloc_svc[] = {
         { 50, "TCP/UDP" },
@@ -504,9 +505,12 @@ attr_list(proto_tree *tree, int hf, tvbuff_t *tvb, int offset, int length,
 
     case CHARSET_ISO_10646_UCS_2:
 
-        type_len = strcspn(tvb_fake_unicode(tvb, offset, length/2, FALSE), "=");
+        tmp = tvb_fake_unicode(tvb, offset, length/2, FALSE);
+        type_len = strcspn(tmp, "=");
+        g_free(tmp);
         attr_type = tvb_fake_unicode(tvb, offset+2, type_len-1, FALSE);
         proto_tree_add_string(tree, hf, tvb, offset, type_len*2, attr_type);
+        g_free(attr_type);
         i=1;
         for (foffset = offset + ((type_len*2)+2); foffset<length; foffset += 2) {
 
