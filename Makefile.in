@@ -98,7 +98,7 @@ ethereal_LDADD = @SNMP_O@ @SNPRINTF_O@ @STRERROR_O@ wiretap/libwiretap.a @SNMP_A
 DISTCLEANFILES =  	rdps			ps.c			*~
 
 
-EXTRA_DIST =  	config.h.win32			doc/Makefile            	doc/dfilter2pod         	doc/ethereal.pod        	doc/ethereal.pod.template 	ethereal.1              	ethereal.spec           	image/icon-excl.xpm     	image/icon-ethereal.xpm 	Makefile.nmake			manuf                   	print.ps                	README.tru64			README.win32			rdps.c				ylwrap				VERSION
+EXTRA_DIST =  	config.h.win32			doc/Makefile            	doc/configure           	doc/configure.in        	doc/dfilter2pod.in      	doc/ethereal.pod        	doc/ethereal.pod.template 	ethereal.1              	ethereal.spec           	image/icon-excl.xpm     	image/icon-ethereal.xpm 	Makefile.nmake			manuf                   	print.ps                	README.tru64			README.win32			rdps.c				ylwrap				VERSION
 
 
 SUBDIRS = wiretap @SUBDIRS@

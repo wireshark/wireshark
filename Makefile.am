@@ -133,7 +133,9 @@ DISTCLEANFILES =	\
 EXTRA_DIST = \
 	config.h.win32		\
 	doc/Makefile            \
-	doc/dfilter2pod         \
+	doc/configure           \
+	doc/configure.in        \
+	doc/dfilter2pod.in      \
 	doc/ethereal.pod        \
 	doc/ethereal.pod.template \
 	ethereal.1              \
