@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.226 2002/03/17 11:59:36 sahlberg Exp $
+ * $Id: packet-smb.c,v 1.227 2002/03/17 12:16:11 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -7030,7 +7030,16 @@ dissect_nt_trans_data_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pro
 	case NT_TRANS_QSD:
 		break;
 	case NT_TRANS_GET_USER_QUOTA:
-		/* not decoded yet */
+		/* unknown 4 bytes */
+		proto_tree_add_item(tree, hf_smb_unknown, tvb,
+			    offset, 4, TRUE);
+		offset += 4;
+
+		/* length of SID */
+		proto_tree_add_text(tree, tvb, offset, 4, "Length of SID: %d", tvb_get_letohl(tvb, offset));
+		offset +=4;
+
+		offset = dissect_nt_sid(tvb, pinfo, offset, tree, "Quota");
 		break;
 	case NT_TRANS_SET_USER_QUOTA:
 		offset = dissect_nt_user_quota(tvb, pinfo, tree, offset, &bcp);
