@@ -8,9 +8,5 @@ CFLAGS=$(LOCAL_CFLAGS)
 
 all : lemon.exe
 
-OBJECTS = lemon.obj
-
-lemon.exe	: $(OBJECTS)
-
 clean:
-	rm -f $(OBJECTS) lemon.exe
+	rm -f lemon.exe
