@@ -1,7 +1,7 @@
 /* rpc_stat.c
  * rpc_stat   2002 Ronnie Sahlberg
  *
- * $Id: rpc_stat.c,v 1.10 2003/06/21 03:24:06 sahlberg Exp $
+ * $Id: rpc_stat.c,v 1.11 2003/06/21 09:50:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -204,7 +204,7 @@ gtk_rpcstat_init(char *optarg)
 	rs->version=rpc_version;
 
 	rs->win=gtk_window_new(GTK_WINDOW_TOPLEVEL);
-	gtk_window_set_default_size(rs->win, 550, 400);
+	gtk_window_set_default_size(GTK_WINDOW(rs->win), 550, 400);
 	sprintf(title_string,"ONC-RPC Service Response Time statistics for %s version %d", rs->prog, rs->version);
 	gtk_window_set_title(GTK_WINDOW(rs->win), title_string);
 	SIGNAL_CONNECT(rs->win, "destroy", win_destroy_cb, rs);

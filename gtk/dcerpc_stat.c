@@ -1,7 +1,7 @@
 /* dcerpc_stat.c
  * dcerpc_stat   2002 Ronnie Sahlberg
  *
- * $Id: dcerpc_stat.c,v 1.9 2003/06/21 01:42:45 sahlberg Exp $
+ * $Id: dcerpc_stat.c,v 1.10 2003/06/21 09:50:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -203,7 +203,7 @@ gtk_dcerpcstat_init(char *optarg)
 	rs->ver=(minor<<8)|(major&0xff);
 
 	rs->win=gtk_window_new(GTK_WINDOW_TOPLEVEL);
-	gtk_window_set_default_size(rs->win, 550, 400);
+	gtk_window_set_default_size(GTK_WINDOW(rs->win), 550, 400);
 	sprintf(title_string,"DCE-RPC Service Response Time statistics for %s version %d.%d", rs->prog, rs->ver&0xff,rs->ver>>8);
 	gtk_window_set_title(GTK_WINDOW(rs->win), title_string);
 	SIGNAL_CONNECT(rs->win, "destroy", win_destroy_cb, rs);

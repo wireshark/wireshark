@@ -1,7 +1,7 @@
 /* smb_stat.c
  * smb_stat   2003 Ronnie Sahlberg
  *
- * $Id: smb_stat.c,v 1.7 2003/06/21 06:40:48 sahlberg Exp $
+ * $Id: smb_stat.c,v 1.8 2003/06/21 09:50:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -148,7 +148,7 @@ gtk_smbstat_init(char *optarg)
 	ss=g_malloc(sizeof(smbstat_t));
 
 	ss->win=gtk_window_new(GTK_WINDOW_TOPLEVEL);
-	gtk_window_set_default_size(ss->win, 550, 600);
+	gtk_window_set_default_size(GTK_WINDOW(ss->win), 550, 600);
 	gtk_window_set_title(GTK_WINDOW(ss->win), "SMB Service Response Time statistics");
 	SIGNAL_CONNECT(ss->win, "destroy", win_destroy_cb, ss);
 
