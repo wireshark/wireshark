@@ -3,7 +3,7 @@
  * Copyright 2004, Jelmer Vernooij <jelmer@samba.org>
  * Copyright 2000, Ralf Hoelzer <ralf@well.com>
  *
- * $Id: packet-aim-location.c,v 1.1 2004/03/23 06:21:16 guy Exp $
+ * $Id: packet-aim-location.c,v 1.2 2004/03/30 17:38:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -82,6 +82,16 @@ static const aim_tlv aim_fnac_family_location_userinfo_tlv[] = {
   { 0, "Unknown", 0 }
 };
 
+#define FAMILY_LOCATION_USERINFO_INFOTYPE_GENERALINFO  0x0001
+#define FAMILY_LOCATION_USERINFO_INFOTYPE_AWAYMSG      0x0003
+#define FAMILY_LOCATION_USERINFO_INFOTYPE_CAPS         0x0005
+
+static const value_string aim_snac_location_request_user_info_infotypes[] = {
+  { FAMILY_LOCATION_USERINFO_INFOTYPE_GENERALINFO, "Request General Info" },
+  { FAMILY_LOCATION_USERINFO_INFOTYPE_AWAYMSG, "Request Away Message" },
+  { FAMILY_LOCATION_USERINFO_INFOTYPE_CAPS, "Request Capabilities" },
+  { 0, NULL }
+};
 
 static int dissect_aim_snac_location_request_user_information(tvbuff_t *tvb, int offset, proto_tree *tree);
 static int dissect_aim_snac_location_user_information(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree);
@@ -208,6 +218,10 @@ proto_register_aim_location(void)
     },
     { &hf_aim_userinfo_tlvcount,
       { "TLV Count", "aim.userinfo.tlvcount", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL },
+    },
+    { &hf_aim_snac_location_request_user_info_infotype,
+      { "Infotype", "aim.snac.location.request_user_info.infotype", FT_UINT16, BASE_HEX, VALS(aim_snac_location_request_user_info_infotypes), 0x0,
+	"", HFILL }
     },
   };
 
