@@ -1,7 +1,7 @@
 /* plugins.c
  * plugin routines
  *
- * $Id: plugins.c,v 1.61 2002/11/16 21:32:06 guy Exp $
+ * $Id: plugins.c,v 1.62 2002/12/08 22:22:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -72,10 +72,6 @@ static plugin_address_table_t	patable;
 /* linked list of all plugins */
 plugin *plugin_list;
 
-#ifndef WIN32
-static gchar std_plug_dir[] = "/usr/lib/ethereal/plugins/" VERSION;
-static gchar local_plug_dir[] = "/usr/local/lib/ethereal/plugins/" VERSION;
-#endif
 static gchar *user_plug_dir = NULL;
 
 #define PLUGINS_DIR_NAME	"plugins"
@@ -284,8 +280,6 @@ init_plugins(const char *plugin_dir)
 #ifdef WIN32
     const char *datafile_dir;
     char *install_plugin_dir;
-#else
-    struct stat std_dir_stat, local_dir_stat, plugin_dir_stat;
 #endif
 
     if (plugin_list == NULL)      /* ensure init_plugins is only run once */
@@ -541,46 +535,9 @@ init_plugins(const char *plugin_dir)
 	g_free(install_plugin_dir);
 #else
 	/*
-	 * XXX - why not just scan "plugin_dir"?  That's where we
-	 * installed the plugins; if Ethereal isn't installed under
-	 * "/usr" or "/usr/local", why should we search for its plugins
-	 * there?
+	 * Scan the plugin directory.
 	 */
-	plugins_scan_dir(std_plug_dir);
-	plugins_scan_dir(local_plug_dir);
-	if ((strcmp(std_plug_dir, plugin_dir) != 0) &&
-		(strcmp(local_plug_dir, plugin_dir) != 0))
-	{
-	    if (stat(plugin_dir, &plugin_dir_stat) == 0)
-	    {
-		/* check if plugin_dir is really different from std_dir and
-		 * local_dir if they exist ! */
-		if (stat(std_plug_dir, &std_dir_stat) == 0)
-		{
-		    if (stat(local_plug_dir, &local_dir_stat) == 0)
-		    {
-			if ((plugin_dir_stat.st_dev != std_dir_stat.st_dev ||
-				    plugin_dir_stat.st_ino != std_dir_stat.st_ino) &&
-				(plugin_dir_stat.st_dev != local_dir_stat.st_dev ||
-				 plugin_dir_stat.st_ino != local_dir_stat.st_ino))
-			    plugins_scan_dir(plugin_dir);
-		    }
-		    else
-		    {
-			if ((plugin_dir_stat.st_dev != std_dir_stat.st_dev ||
-				    plugin_dir_stat.st_ino != std_dir_stat.st_ino))
-			    plugins_scan_dir(plugin_dir);
-		    }
-		}
-		else if (stat(local_plug_dir, &local_dir_stat) == 0)
-		{
-		    if ((plugin_dir_stat.st_dev != local_dir_stat.st_dev ||
-				plugin_dir_stat.st_ino != local_dir_stat.st_ino))
-			plugins_scan_dir(plugin_dir);
-		}
-		else plugins_scan_dir(plugin_dir);
-	    }
-	}
+	plugins_scan_dir(plugin_dir);
 #endif
 	if (!user_plug_dir)
 	    user_plug_dir = get_persconffile_path(PLUGINS_DIR_NAME, FALSE);
