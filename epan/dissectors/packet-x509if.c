@@ -7,8 +7,9 @@
 
 /* packet-x509if.c
  * Routines for X.509 Information Framework packet dissection
+ *  Ronnie Sahlberg 2004
  *
- * $Id: packet-x509if-template.c 12433 2004-10-29 11:39:58Z sahlberg $
+ * $Id: packet-x509if-template.c 12573 2004-11-22 03:36:26Z sahlberg $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -49,7 +50,7 @@
 
 /* Initialize the protocol and registered fields */
 int proto_x509if = -1;
-int hf_x509if_object_identifier_id = -1;
+static int hf_x509if_object_identifier_id = -1;
 
 /*--- Included file: packet-x509if-hf.c ---*/
 

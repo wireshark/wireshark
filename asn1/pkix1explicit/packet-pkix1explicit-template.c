@@ -39,6 +39,7 @@
 #include "packet-pkix1explicit.h"
 #include "packet-x509af.h"
 #include "packet-x509if.h"
+#include "packet-x509ce.h"
 
 #define PNAME  "PKIX1Explitit"
 #define PSNAME "PKIX1EXPLICIT"
@@ -46,26 +47,27 @@
 
 /* Initialize the protocol and registered fields */
 static int proto_pkix1explicit = -1;
+static int hf_pkix1explicit_object_identifier_id = -1;
 #include "packet-pkix1explicit-hf.c"
 
 /* Initialize the subtree pointers */
 #include "packet-pkix1explicit-ett.c"
 
 
+static char object_identifier_id[64]; /*64 chars should be long enough? */
+
 int
-dissect_pkix1explicit_CertificateSerialNumber(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_x509af_CertificateSerialNumber(implicit_tag, tvb, offset, pinfo, tree, hf_index);
+dissect_pkix1explicit_GeneralName(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_x509ce_GeneralName(implicit_tag, tvb, offset, pinfo, tree, hf_index);
 
   return offset;
 }
-
 int
-dissect_pkix1explicit_Name(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index) {
+dissect_pkix1explicit_Name(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_x509if_Name(implicit_tag, tvb, offset, pinfo, tree, hf_index);
 
   return offset;
 }
-
 int
 dissect_pkix1explicit_AlgorithmIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_x509af_AlgorithmIdentifier(implicit_tag, tvb, offset, pinfo, tree, hf_index);
@@ -89,6 +91,9 @@ void proto_register_pkix1explicit(void) {
 
   /* List of fields */
   static hf_register_info hf[] = {
+    { &hf_pkix1explicit_object_identifier_id, 
+      { "Id", "pkix1explicit.id", FT_STRING, BASE_NONE, NULL, 0,
+	"Object identifier Id", HFILL }},
 #include "packet-pkix1explicit-hfarr.c"
   };
 

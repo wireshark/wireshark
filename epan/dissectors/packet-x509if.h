@@ -7,8 +7,9 @@
 
 /* packet-x509if.h
  * Routines for X.509 Information Framework packet dissection
+ *  Ronnie Sahlberg 2004
  *
- * $Id: packet-x509if-template.h 12433 2004-10-29 11:39:58Z sahlberg $
+ * $Id: packet-x509if-template.h 12573 2004-11-22 03:36:26Z sahlberg $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

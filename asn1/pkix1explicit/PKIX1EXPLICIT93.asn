@@ -146,13 +146,14 @@ CertificateSerialNumber ::=  INTEGER
 
 
 
+Extensions        ::=   SEQUENCE OF Extension
 
---Extensions        ::=   SEQUENCE SIZE (1..MAX) OF Extension
---
---Extension         ::=   SEQUENCE {
---   extnId            EXTENSION.&id ({ExtensionSet}),
---   critical          BOOLEAN DEFAULT FALSE,
---   extnValue         OCTET STRING }
+Extension         ::=   SEQUENCE {
+   extnId            OBJECT IDENTIFIER,
+   critical          BOOLEAN DEFAULT FALSE,
+   extnValue         OCTET STRING 
+}
+
 --                contains a DER encoding of a value of type
 --                &ExtnType for the
 --                extension object identified by extnId
@@ -360,11 +361,12 @@ ValidationParms ::= SEQUENCE {
 --        type            ATTRIBUTE.&id ({SupportedAttributes}),
 --        values  SET SIZE (1 .. MAX) OF ATTRIBUTE.&Type
 --                        ({SupportedAttributes}{@type})}
---
---AttributeTypeAndValue           ::=     SEQUENCE {
---        type            ATTRIBUTE.&id ({SupportedAttributes}),
---        value   ATTRIBUTE.&Type ({SupportedAttributes}{@type})}
---
+
+AttributeTypeAndValue           ::=     SEQUENCE {
+        type            OBJECT IDENTIFIER,
+        value           ANY
+}
+
 -- naming data types --
 --
 
@@ -376,12 +378,10 @@ ValidationParms ::= SEQUENCE {
 --}
 
 
---
---RDNSequence ::= SEQUENCE OF RelativeDistinguishedName
---
---RelativeDistinguishedName       ::=
---                SET SIZE (1 .. MAX) OF AttributeTypeAndValue
---
+RDNSequence ::= SEQUENCE OF RelativeDistinguishedName
+
+RelativeDistinguishedName       ::= SET OF AttributeTypeAndValue
+
 --ID     ::=    OBJECT IDENTIFIER
 --
 -- ATTRIBUTE information object class specification
