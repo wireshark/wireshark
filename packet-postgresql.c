@@ -3,7 +3,7 @@
  *
  * Copyright 2004, Edwin Calo <calo@fusemail.com>
  *
- * $Id: packet-postgresql.c,v 1.2 2004/02/17 10:03:47 jmayer Exp $
+ * $Id: packet-postgresql.c,v 1.3 2004/02/18 07:27:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -94,9 +94,7 @@ dissect_postgresql (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
                    offset -= counter;
 
                     /* Reading the string from the packet */
-		    string = g_malloc( counter+1 );
-		    tvb_memcpy(tvb,string,offset,counter);
-                    string[counter]='\0';   /* Forcing end of string */
+                    string = tvb_get_string(tvb,offset,counter);
                     /* Printing the data */
                     proto_tree_add_string (tree,hf_postgresql_string,tvb, offset,counter, string );
                     if (check_col (pinfo->cinfo, COL_INFO)) { col_append_fstr (pinfo->cinfo, COL_INFO, " %s", string ); }
@@ -129,9 +127,7 @@ dissect_postgresql (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 		   if( counter > 1)
 		   {
                     /* Reading the string from the packet */
-		    string = g_malloc( counter+1 );
-		    tvb_memcpy(tvb,string,offset,counter);
-                    string[counter]='\0';   /* Forcing end of string */
+		    string = tvb_get_string(tvb,offset,counter);
                     /* Printing the data */
                     proto_tree_add_string (tree,hf_postgresql_string,tvb, offset,counter, string );
                     if (check_col (pinfo->cinfo, COL_INFO)) { col_append_fstr (pinfo->cinfo, COL_INFO, " %s", string ); }
