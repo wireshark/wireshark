@@ -2,7 +2,7 @@
  * Routines for Wellfleet BOFL dissection
  * Author: Endoh Akira (endoh@netmarks.co.jp)
  *
- * $Id: packet-bofl.c,v 1.2 2003/02/28 00:08:04 jmayer Exp $
+ * $Id: packet-bofl.c,v 1.3 2003/03/01 09:37:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -60,40 +60,45 @@ static int hf_bofl_sequence = -1;
 static gint ett_bofl = -1;
 
 /* Code to actually dissect the packets */
-void
+static void
 dissect_bofl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_item  *ti;
-    proto_tree  *bofl_tree;
-    const guint len = tvb_length(tvb);
+    proto_tree  *bofl_tree = NULL;
+    gint        len;
     guint32     pdu, sequence;
 
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "BOFL");
 
-    if (len < BOFL_MIN_LEN) {
-	if (check_col(pinfo->cinfo, COL_INFO))
-	    col_set_str(pinfo->cinfo, COL_INFO, "(packet too short)");
-	    proto_tree_add_text(tree, tvb, 0, len,
-		"Wellfleet Breath of Life (packet too short)");
-	    return;
+    if (check_col(pinfo->cinfo, COL_INFO))
+	col_clear(pinfo->cinfo, COL_INFO);
+
+    if (tree) {
+	ti = proto_tree_add_item(tree, proto_bofl, tvb, 0, -1, FALSE);
+	bofl_tree = proto_item_add_subtree(ti, ett_bofl);
     }
 
     pdu = tvb_get_ntohl(tvb, 0);
+    if (check_col(pinfo->cinfo, COL_INFO)) {
+	col_add_fstr(pinfo->cinfo, COL_INFO,
+	    "PDU: 0x%08x", pdu);
+    }
+    if (tree)
+	proto_tree_add_uint(bofl_tree, hf_bofl_pdu, tvb, 0, 4, pdu);
+
     sequence = tvb_get_ntohl(tvb, 4);
     if (check_col(pinfo->cinfo, COL_INFO)) {
-	col_clear(pinfo->cinfo, COL_INFO);
-	col_add_fstr(pinfo->cinfo, COL_INFO,
-	    "PDU: 0x%x  Sequence: %d", pdu, sequence);
+	col_append_fstr(pinfo->cinfo, COL_INFO,
+	    " Sequence: %u", sequence);
     }
     if (tree) {
-	ti = proto_tree_add_item(tree, proto_bofl, tvb, 0, len, FALSE);
-	bofl_tree = proto_item_add_subtree(ti, ett_bofl);
-	proto_tree_add_uint(bofl_tree, hf_bofl_pdu, tvb, 0, 4, pdu);
 	proto_tree_add_uint(bofl_tree, hf_bofl_sequence, tvb, 4, 4, sequence);
-	if (len > 8)
-	    proto_tree_add_text(bofl_tree, tvb, 8, len-8,
-		"Padding (%d byte)", len-8);
+
+	len = tvb_length_remaining(tvb, 8);
+	if (len > 0)
+	    proto_tree_add_text(bofl_tree, tvb, 8, len,
+		"Padding (%d byte)", len);
     }
 }
 
