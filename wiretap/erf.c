@@ -32,7 +32,7 @@
 * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 * POSSIBILITY OF SUCH DAMAGE.
 *
-* $Id: erf.c,v 1.1 2003/08/26 07:10:38 guy Exp $
+* $Id: erf.c,v 1.2 2003/08/26 23:07:43 guy Exp $
 */
 
 /* 
@@ -75,7 +75,7 @@ int erf_open(wtap *wth, int *err)
 	guint32 i, n;
 	char *s;
 	guint32 records_for_erf_check = RECORDS_FOR_ERF_CHECK;
-	guint32 atm_encap = WTAP_ENCAP_ATM_RFC1483;
+	guint32 atm_encap = WTAP_ENCAP_ATM_PDUS;
 	gboolean is_rawatm = FALSE;
 	gboolean is_ppp = FALSE;
 	int common_type = 0;
@@ -90,6 +90,9 @@ int erf_open(wtap *wth, int *err)
 		if (!strcmp(s, "sunraw")) {
 			atm_encap = WTAP_ENCAP_ATM_PDUS;
 			is_rawatm = TRUE;
+		} else
+		if (!strcmp(s, "rfc1483")) {
+			atm_encap = WTAP_ENCAP_ATM_RFC1483;
 		}
 	}
 
@@ -302,8 +305,8 @@ static int erf_read_header(
 		guint64 ts = pletohll(&erf_header->ts);
 
 		phdr->ts.tv_sec = ts >> 32;
-		ts = ((ts &  0xffffffffULL) * 1000 * 1000);
-		ts += (ts & 0x80000000ULL) << 1; /* rounding */
+		ts = ((ts & 0xffffffff) * 1000 * 1000);
+		ts += (ts & 0x80000000) << 1; /* rounding */
 		phdr->ts.tv_usec = ts >> 32;		
 		if (phdr->ts.tv_usec >= 1000000) {
 			phdr->ts.tv_usec -= 1000000;
