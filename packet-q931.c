@@ -2,7 +2,7 @@
  * Routines for Q.931 frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-q931.c,v 1.10 1999/11/25 11:00:27 guy Exp $
+ * $Id: packet-q931.c,v 1.11 1999/11/25 22:49:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1024,7 +1024,7 @@ dissect_q931_cause_ie(const u_char *pd, int offset, int len,
 
 	if (len == 0)
 		return;
-	proto_tree_add_text(tree, offset, 1,
+	proto_tree_add_text(tree, offset, len,
 	    "Diagnostics: %s",
 	    bytes_to_str(&pd[offset], len));
 }
