@@ -528,15 +528,6 @@ static const value_string asp_reason_values[] = {
   { ASP_REASON_MGMT,      "Management inhibit" },
   { 0,                    NULL } };
 
-	/* define traffic mode type parameter for ASPM Messages */
-#define ASP_TRAFFIC_MODE_TYPE_OVER_RIDE  1
-#define ASP_TRAFFIC_MODE_TYPE_LOAD_SHARE 2
-
-static const value_string asp_traffic_mode_type_values[] = {
-  { ASP_TRAFFIC_MODE_TYPE_OVER_RIDE,      "Over-ride" },
-  { ASP_TRAFFIC_MODE_TYPE_LOAD_SHARE,     "Load-share"},
-  { 0,                    NULL } };
-
 #define ASP_REASON_OFFSET PARAMETER_VALUE_OFFSET
 #define ASP_REASON_LENGTH 4
 
