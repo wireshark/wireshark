@@ -1233,6 +1233,7 @@ set_display_filename(capture_file *cf)
     done_msg = g_strdup_printf(done_fmt_nodrops, name_ptr, size_str,
         cf->esec/3600, cf->esec%3600/60, cf->esec%60);
   }
+  g_free(size_str);
   statusbar_push_file_msg(done_msg);
   g_free(done_msg);
 
