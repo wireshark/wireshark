@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.91 2000/01/23 08:55:30 guy Exp $
+ * $Id: capture.c,v 1.92 2000/01/26 23:09:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -853,7 +853,12 @@ capture_pcap_cb(u_char *user, const struct pcap_pkthdr *phdr,
      ld->go = FALSE;
   }
   if (ld->pdh) {
-     whdr.ts = phdr->ts;
+     /* "phdr->ts" may not necessarily be a "struct timeval" - it may
+        be a "struct bpf_timeval", with member sizes wired to 32
+	bits - and we may go that way ourselves in the future, so
+	copy the members individually. */
+     whdr.ts.tv_sec = phdr->ts.tv_sec;
+     whdr.ts.tv_usec = phdr->ts.tv_usec;
      whdr.caplen = phdr->caplen;
      whdr.len = phdr->len;
      whdr.pkt_encap = ld->linktype;
