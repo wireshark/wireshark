@@ -1,6 +1,6 @@
 # -*- python -*-
 #
-# $Id: ethereal_gen.py,v 1.25 2002/05/06 21:41:07 guy Exp $
+# $Id: ethereal_gen.py,v 1.26 2002/05/06 21:50:28 guy Exp $
 #                           
 # ethereal_gen.py (part of idl2eth)           
 #
@@ -2222,7 +2222,6 @@ static gboolean dissect_@dissname@(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     proto_tree *tree = NULL;            /* init later, inside if(tree) */
     
     gboolean be;                        /* big endianess */
-    guint32  offset_saved = (*offset);  /* save in case we must back out */
 
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
        col_set_str(pinfo->cinfo, COL_PROTOCOL, \"@disprot@\");
@@ -2273,23 +2272,6 @@ break;
 """
 
 
-    template_main_dissector_switch_msgtype_end = """\
-
-
-/*
- * We failed to match ANY operations, so perhaps this is not for us !
- */
-
-(*offset) = offset_saved;       /* be nice */
-
-return FALSE;
-
-
-"""
-
-
-
-    
     template_main_dissector_switch_msgtype_all_other_msgtype = """\
 case CancelRequest:
 case LocateRequest:
@@ -2306,14 +2288,6 @@ default:
 
 """
 
-
-    template_main_dissector_switch_msgtype_end = """\
-
-   return TRUE;
-
-} /* switch */
-
-"""
 
     template_main_dissector_end = """\
 
