@@ -3,3 +3,5 @@ Makefile
 dfilter2pod
 ethereal.pod
 tethereal.pod
+*.1
+*.html
