@@ -8,7 +8,7 @@
  * Portions based on information/specs retrieved from the OpenAFS sources at
  *   www.openafs.org, Copyright IBM.
  *
- * $Id: packet-afs-macros.h,v 1.19 2002/08/28 21:00:07 jmayer Exp $
+ * $Id: packet-afs-macros.h,v 1.20 2002/09/30 02:19:37 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -506,3 +506,17 @@
 			sizeof(guint32),counter); \
 		tree = save; \
 	}
+
+/* Output a kauth getticket request */
+#define OUT_KAUTH_GetTicket() \
+	{ \
+		int len = 0; \
+		OUT_UINT(hf_afs_kauth_kvno); \
+		OUT_RXString(hf_afs_kauth_domain); \
+		len = tvb_get_ntohl(tvb, offset); \
+		offset += 4; \
+		OUT_BYTES(hf_afs_kauth_data, len); \
+		OUT_RXString(hf_afs_kauth_princ); \
+		OUT_RXString(hf_afs_kauth_realm); \
+	}
+
