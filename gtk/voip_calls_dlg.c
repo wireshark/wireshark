@@ -414,7 +414,7 @@ voip_calls_sort_column(GtkCList *clist, gconstpointer ptr1, gconstpointer ptr2)
 {
 	char *text1 = NULL;
 	char *text2 = NULL;
-	int i1, i2;
+	int i1, i2, i3, i4;
 
 	const GtkCListRow *row1 = (const GtkCListRow *) ptr1;
 	const GtkCListRow *row2 = (const GtkCListRow *) ptr2;
@@ -425,10 +425,21 @@ voip_calls_sort_column(GtkCList *clist, gconstpointer ptr1, gconstpointer ptr2)
 	switch(clist->sort_column){
 	case 0:
 	case 1:
+		if ((sscanf(text1, "%u.%u", &i1, &i2) != 2) ||
+			(sscanf(text2, "%u.%u", &i3, &i4) != 2) ){
+				return 0;
+			}
+		if (i1>i3)
+			return 1;
+		if (i1<i3)
+			return -1;
+		return (i3-i4);
 	case 2:
 	case 3:
 	case 4:
 	case 5:
+	case 7:
+	case 8:
 		return strcmp (text1, text2);
 	case 6:
 		i1=atoi(text1);
