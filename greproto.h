@@ -32,4 +32,3 @@
  */
 
 #define GRE_WCCP	0x883E
-#define GRE_FR		0x6559
