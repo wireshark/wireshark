@@ -3,7 +3,7 @@
  *
  * See RFC 1777 (LDAP v2), RFC 2251 (LDAP v3), and RFC 2222 (SASL).
  *
- * $Id: packet-ldap.c,v 1.54 2003/04/25 21:19:10 guy Exp $
+ * $Id: packet-ldap.c,v 1.55 2003/04/29 02:15:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -168,7 +168,7 @@ static value_string msgTypes [] = {
   {LDAP_RES_DELETE, "Delete Result"},
   {LDAP_RES_MODRDN, "Modify RDN Result"},
   {LDAP_RES_COMPARE, "Compare Result"},
-  {LDAP_REQ_EXTENDED, "Extended Response"},
+  {LDAP_RES_EXTENDED, "Extended Response"},
   {0, NULL},
 };
 
