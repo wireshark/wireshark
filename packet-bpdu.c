@@ -1,7 +1,7 @@
 /* packet-bpdu.c
  * Routines for BPDU (Spanning Tree Protocol) disassembly
  *
- * $Id: packet-bpdu.c,v 1.48 2004/01/05 17:26:10 guy Exp $
+ * $Id: packet-bpdu.c,v 1.49 2004/01/07 21:14:51 guy Exp $
  *
  * Copyright 1999 Christophe Tronche <ch.tronche@computer.org>
  *
@@ -339,9 +339,26 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       case BPDU_TYPE_RST:
 	if (protocol_version_identifier == 3) {
 	    version_3_length = tvb_get_ntohs(tvb, BPDU_VERSION_3_LENGTH);
-	    set_actual_length(tvb, RST_BPDU_SIZE +
-                                   VERSION_3_STATIC_LENGTH +
-                                   version_3_length * MSTI_MESSAGE_SIZE);
+	    /*
+	     * XXX - there appears to be an ambiguity in the 802.1s spec.
+	     * In 14.6.q and Figure 14-1, the "Version 3 Length" field
+	     * "is the number of octets taken by the parameters that
+	     * follow in the BPDU", but item 14.4.e.3 speaks of "a
+	     * Version 3 length representing an integral number, from 0
+	     * to 64 inclusive, of MSTI Configuration Messages".
+	     *
+	     * It appears that Cisco's C3550 software (C3550-I5Q3L2-M,
+	     * Version 12.1(12c)EA1) uses the latter interpretation.
+	     *
+	     * So if the length is too short, we assume it's the latter
+	     * interpretation.
+	     */
+	    if (version_3_length < VERSION_3_STATIC_LENGTH - 2) {
+		set_actual_length(tvb, RST_BPDU_SIZE +
+				  VERSION_3_STATIC_LENGTH +
+				  version_3_length * MSTI_MESSAGE_SIZE);
+	    } else
+		set_actual_length(tvb, RST_BPDU_SIZE + 2 + version_3_length);
 	} else
 	    set_actual_length(tvb, RST_BPDU_SIZE);
         break;
@@ -481,6 +498,19 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		mstp_item = proto_tree_add_uint(bpdu_tree, hf_bpdu_version_3_length, tvb,
 			BPDU_VERSION_3_LENGTH, 2, version_3_length);
+		/*
+		 * XXX - see comment above about the interpretation of the
+		 * "Version 3 Length" field not being clear.
+		 */
+		if (version_3_length < VERSION_3_STATIC_LENGTH - 2) {
+		    proto_item_append_text(mstp_item,
+					   " (Malformed: number of MSTI messages!!! Must be %u)",
+					   (VERSION_3_STATIC_LENGTH - 2 + version_3_length * MSTI_MESSAGE_SIZE));
+		} else {
+		    proto_item_append_text(mstp_item,
+					   " (Number of MSTI messages: %u)",
+					   (version_3_length - (VERSION_3_STATIC_LENGTH - 2)) / MSTI_MESSAGE_SIZE);
+		}
 		mstp_tree = proto_item_add_subtree(mstp_item, ett_mstp);
 
 		mst_config_format_selector = tvb_get_guint8(tvb, BPDU_MST_CONFIG_FORMAT_SELECTOR);
