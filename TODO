@@ -1,4 +1,4 @@
-$Id: TODO,v 1.5 1999/12/08 23:41:41 nneul Exp $
+$Id: TODO,v 1.6 1999/12/26 23:52:54 guy Exp $
 
 Things to do:
 =============
@@ -6,9 +6,29 @@ Things to do:
 *) Protocol dispatchers, allowing run-time setting of protocol "chaining"
 (i.e., UDP port X calls dissector Y)
 
-*) Loadable modules, closely related to the previous item.
+*) Loadable modules, closely related to the previous item.  (These are
+in the current version in CVS.)
 
 *) Work on packet capturing in wiretap
+
+*) Either as part of the previous item, or as a capture-filter
+translator that generates "libpcap"-style capture filter expressions,
+provide a capture filter syntax similar to the display filter syntax. 
+(The syntax differences get in the way of users; the fact that you have
+to construct some filters by hand, e.g.  looking only for initial SYN
+packets for TCP connections by doing bit-testing of the flags in a TCP
+header has been a pain for some users; and people have asked for
+capabilities that aren't conveniently available, or aren't available at
+all, in "libpcap"-style capture filters:
+
+	the ability to filter on characteristics of IPX packets;
+
+	the ability to select, for example, TCP packets with port
+	numbers *greater than* a particular value, which in "libpcap"
+	filters you have to do by explicitly testing subfields of the
+	TCP header rather than doing "tcp.port > 1000";
+
+	etc.)
 
 *) I just discovered that sshd sets the SSH_CLIENT variable to source IP,
 sort port, and destination port. That coupled with a destination IP
@@ -20,8 +40,8 @@ tcpdump over ssh:
 where "filter" filters out our own ssh packets (using the infromation
 from $SSH_CLIENT). Any takers?
 
-*) Of course, packet defragmentating. IP, TCP, UDP, need to be reassembled
-and re-analyzed.
+*) Of course, packet defragmentating. IP, TCP, UDP, etc. need to be
+reassembled and re-analyzed.
 
 *) I'd like to someday re-write the display filter routines to have a more
 powerful syntax.
@@ -29,7 +49,8 @@ powerful syntax.
 *) More on-line help, and neato things with the protocol tree and
 right-clicks.
 
-*) A GtkClist replacement, with dynamic columns.
+*) A GtkClist replacement, with dynamic columns, allowing columns to be
+added, removed, or moved without having to exit and restart Ethereal.
 
 *) A GUI capture/display filter creator.
 
@@ -40,10 +61,25 @@ it under?)
 *) Run-time configuration of data shown in capture statistics window.
 
 *) A GtkWidget for authors in the About box. We've got a lot of authors!
+We've currently banished the list of authors to the AUTHORS file and the
+man page, which may be the right solution here.
 
 *) Finish moving GTK-dependent code into gtk/ subdirectory.
 
+*) Provide alternative user interfaces, e.g. other toolkits (Qt/KDE,
+full GNOME, native Windows, etc.) and text-mode "curses".
+
+*) Perhaps provide a "line-mode" capture program, i.e. one that, like
+"tcpdump" and "snoop", captures to a file without displaying anything
+other than, perhaps a count of packets captured, or captures and prints
+packet summary or detail data to the standard output, or reads a capture
+file and prints to the standard output summary or detail data.
+
 *) Display filters: support FT_STRING filters
+
+*) Display filters: allow filtering on "enumerated" data types by name,
+i.e. if a field has a "value_string" array associated with it, allow
+users to specify the string associated with a value.
 
 *) Display filters: add regexes to strings and byte ranges
 
