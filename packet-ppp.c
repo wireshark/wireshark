@@ -1,7 +1,7 @@
 /* packet-ppp.c
  * Routines for ppp packet disassembly
  *
- * $Id: packet-ppp.c,v 1.42 2000/11/19 02:00:02 guy Exp $
+ * $Id: packet-ppp.c,v 1.43 2000/11/19 02:03:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1097,7 +1097,6 @@ static void
 dissect_payload_ppp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree ) {
   proto_item *ti;
   proto_tree *fh_tree = NULL;
-  tvbuff_t   *next_tvb;
 
   /* XXX - the length shouldn't be 2, it should be based on the length
      of the protocol field. */
