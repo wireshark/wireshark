@@ -9,7 +9,7 @@
  *
  * (append your name here for newer version)
  *
- * $Id: packet-tcap.c,v 1.9 2004/03/19 07:54:57 guy Exp $
+ * $Id: packet-tcap.c,v 1.10 2004/03/20 07:26:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -377,6 +377,21 @@ dissect_tcap_tid(ASN1_SCK *asn1, proto_tree *tcap_tree, proto_item *ti, int type
 
 
     dissect_tcap_len(asn1, subtree, &def_len, &len);
+
+    /*
+     * XXX - this is, I think, an OCTET STRING (SIZE(1..4)); should it
+     * just be put into the protocol tree as an FT_BYTES value and
+     * displayed in the Info column with "bytes_to_str()"?
+     *
+     * If so, should we have separate hf_tcap_source_tid and
+     * hf_tcap_destination_tid?
+     *
+     * Does that apply to other transaction IDs?
+     */
+    if (len > 4)
+    {
+	return TC_DS_FAIL;
+    }
 
     saved_offset = asn1->offset;
     ret = asn1_string_value_decode(asn1, len, &poctets);
