@@ -1,7 +1,7 @@
 /* reassemble.c
  * Routines for {fragment,segment} reassembly
  *
- * $Id: reassemble.c,v 1.6 2001/12/15 05:40:31 guy Exp $
+ * $Id: reassemble.c,v 1.7 2002/01/04 20:20:08 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -680,12 +680,13 @@ fragment_add_seq(tvbuff_t *tvb, int offset, packet_info *pinfo, guint32 id,
 	size=0;
 	last_fd=NULL;
 	for(fd_i=fd_head->next;fd_i;fd_i=fd_i->next) {
-	  if(last_fd && last_fd->offset!=fd_i->offset){
-	    size+=fd_i->datalen;
+	  if(!last_fd || last_fd->offset!=fd_i->offset){
+	    size+=fd_i->len;
 	  }
 	  last_fd=fd_i;
 	}
 	fd_head->data = g_malloc(size);
+	fd_head->len = size;		/* record size for caller	*/
 
 	/* add all data fragments */
 	last_fd=NULL;
@@ -720,4 +721,3 @@ fragment_add_seq(tvbuff_t *tvb, int offset, packet_info *pinfo, guint32 id,
 
 	return fd_head;
 }
-

@@ -845,6 +845,7 @@ Tom Uijldert <Tom.Uijldert[AT]cmg.nl> {
 	UCP support
 	SMPP support
 	multipart-content support in WSP/MMSE
+	WTP reassembly
 }
 
 Endoh Akira <endoh[AT]netmarks.co.jp> {
