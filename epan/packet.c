@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.70 2002/05/10 20:02:40 guy Exp $
+ * $Id: packet.c,v 1.71 2002/05/15 21:18:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -108,13 +108,7 @@ packet_cleanup(void)
 void
 set_actual_length(tvbuff_t *tvb, guint specified_len)
 {
-  guint payload_len, reported_payload_len;
-
-  /* Length of payload handed to us. */
-  reported_payload_len = tvb_reported_length(tvb);
-  payload_len = tvb_length(tvb);
-
-  if (specified_len < reported_payload_len) {
+  if (specified_len < tvb_reported_length(tvb)) {
     /* Adjust the length of this tvbuff to include only the specified
        payload length.
 
