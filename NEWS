@@ -107,6 +107,10 @@ Overview of changes in Ethereal 0.8.12:
 * redraw_hex_dump fixes (Guy)
 * Negative relative and delta timestamp fixes (Guy)
 * Move some string functions out of packet.c and into strutil.c (Gilbert)
+* OSPF fixes (Craig Metz)
+* Avoid assert in tvbuff when creating packet of bogus reported_length (Gilbert)
+* Don't allow hf_text_only to be in the display filter language (Gilbert)
+* Win32 .cvsignore additions (Graham)
 
 Overview of changes in Ethereal 0.8.11:
 * Set locale in tethereal (Guy)

@@ -1,4 +1,4 @@
-$Id: README.win32,v 1.12 2000/08/25 19:21:24 gram Exp $
+$Id: README.win32,v 1.13 2000/09/14 10:02:59 gram Exp $
 
 Running Ethereal, Tethereal, and Editcap on Win32
 =================================================
@@ -31,7 +31,7 @@ in time:
 
 Ethereal Version		GTK+/GLIB version
 ----------------		-----------------
-0.8.11				20000805
+0.8.11 and after		20000805
 0.8.9 - 0.8.10			20000416
 0.8.8 and before		19990828
 
