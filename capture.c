@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.88 2000/01/03 06:59:07 guy Exp $
+ * $Id: capture.c,v 1.89 2000/01/12 06:56:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -474,6 +474,11 @@ cap_file_input_cb(gpointer data, gint source, GdkInputCondition condition)
 				     NULL);
 }
 
+/*
+ * Timeout, in milliseconds, for reads from the stream of captured packets.
+ */
+#define	CAP_READ_TIMEOUT	250
+
 /* Do the low-level work of a capture.
    Returns TRUE if it succeeds, FALSE otherwise. */
 int
@@ -488,6 +493,11 @@ capture(void)
   time_t      upd_time, cur_time;
   int         err, inpkts;
   char        errmsg[1024+1];
+#ifdef linux
+  fd_set      set1;
+  struct timeval timeout;
+  int         pcap_fd;
+#endif
 
   ld.go             = TRUE;
   ld.counts.total   = 0;
@@ -505,7 +515,7 @@ capture(void)
   ld.pdh            = NULL;
 
   /* Open the network interface to capture from it. */
-  pch = pcap_open_live(cf.iface, cf.snap, 1, 250, err_str);
+  pch = pcap_open_live(cf.iface, cf.snap, 1, CAP_READ_TIMEOUT, err_str);
 
   if (pch == NULL) {
     /* Well, we couldn't start the capture.
@@ -653,9 +663,42 @@ capture(void)
   gtk_grab_add(cap_w);
 
   upd_time = time(NULL);
+#ifdef linux
+  pcap_fd = pcap_fileno(pch);
+#endif
   while (ld.go) {
     while (gtk_events_pending()) gtk_main_iteration();
+#ifdef linux
+    /*
+     * Sigh.  The semantics of the read timeout argument to
+     * "pcap_open_live()" aren't particularly well specified by
+     * the "pcap" man page - at least with the BSD BPF code, the
+     * intent appears to be, at least in part, a way of cutting
+     * down the number of reads done on a capture, by blocking
+     * until the buffer fills or a timer expires - and the Linux
+     * libpcap doesn't actually support it, so we can't use it
+     * to break out of the "pcap_dispatch()" every 1/4 of a second
+     * or so.
+     *
+     * Thus, on Linux, we do a "select()" on the file descriptor for the
+     * capture, with a timeout of CAP_READ_TIMEOUT milliseconds, or
+     * CAP_READ_TIMEOUT*1000 microseconds.
+     */
+    FD_ZERO(&set1);
+    FD_SET(pcap_fd, &set1);
+    timeout.tv_sec = 0;
+    timeout.tv_usec = CAP_READ_TIMEOUT*1000;
+    if (select(pcap_fd+1, &set1, NULL, NULL, &timeout) != 0) {
+      /*
+       * "select()" says we can read from it without blocking; go for
+       * it.
+       */
+      inpkts = pcap_dispatch(pch, 1, capture_pcap_cb, (u_char *) &ld);
+    } else
+      inpkts = 0;
+#else
     inpkts = pcap_dispatch(pch, 1, capture_pcap_cb, (u_char *) &ld);
+#endif
     if (inpkts > 0)
       ld.sync_packets += inpkts;
     /* Only update once a second so as not to overload slow displays */
