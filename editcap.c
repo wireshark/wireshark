@@ -1,7 +1,7 @@
 /* Edit capture files.  We can delete records, adjust timestamps, or
  * simply convert from one format to another format.
  *
- * $Id: editcap.c,v 1.20 2002/02/24 01:26:42 guy Exp $
+ * $Id: editcap.c,v 1.21 2002/03/14 04:32:35 gram Exp $
  *
  * Originally written by Richard Sharpe.
  * Improved by Guy Harris.
@@ -44,7 +44,7 @@ struct select_item {
   int inclusive;
   int first, second;
 
-} select_item;
+};
 
 #define ONE_MILLION 1000000
 
