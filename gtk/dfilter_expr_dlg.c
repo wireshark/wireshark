@@ -7,7 +7,7 @@
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com> and
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: dfilter_expr_dlg.c,v 1.37 2003/09/05 03:32:24 sahlberg Exp $
+ * $Id: dfilter_expr_dlg.c,v 1.38 2003/09/05 05:28:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1331,7 +1331,11 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
            under its parent protocol. */
         protocol_node = g_hash_table_lookup(proto_array,
                                             GINT_TO_POINTER(proto_registrar_get_parent(i)));
-        snprintf(str, 127, "%-30s %s (%s)", hfinfo->abbrev, hfinfo->name, hfinfo->blurb);
+        if (hfinfo->blurb != NULL && hfinfo->blurb[0] != '\0') {
+            snprintf(str, 127, "%-30s %s (%s)", hfinfo->abbrev, hfinfo->name,
+                     hfinfo->blurb);
+        } else
+            snprintf(str, 127, "%-30s %s", hfinfo->abbrev, hfinfo->name);
         str[127]=0;
         strp=str;
         item_node = gtk_ctree_insert_node(GTK_CTREE(tree),
@@ -1368,7 +1372,13 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
 		if (hfinfo->same_name_prev != NULL) /* ignore duplicate names */
 			continue;
 
-		snprintf(str, 127, "%-30s %s (%s)", hfinfo->abbrev, hfinfo->name, hfinfo->blurb);
+		if (hfinfo->blurb != NULL && hfinfo->blurb[0] != '\0') {
+			snprintf(str, 127, "%-30s %s (%s)", hfinfo->abbrev,
+			    hfinfo->name, hfinfo->blurb);
+		} else {
+			snprintf(str, 127, "%-30s %s", hfinfo->abbrev,
+			    hfinfo->name);
+		}
 		str[127]=0;
 		strp=str;
 		gtk_tree_store_append(store, &child_iter, &iter);
