@@ -2,10 +2,10 @@
  * Routines for Stream Control Transmission Protocol dissection
  * Copyright 2000, Michael Tüxen <Michael.Tuexen@icn.siemens.de>
  *
- * $Id: packet-sctp.c,v 1.14 2001/04/09 00:21:07 guy Exp $
+ * $Id: packet-sctp.c,v 1.15 2001/04/20 20:34:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@unicom.net>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
  * Copied from README.developer

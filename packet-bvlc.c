@@ -2,10 +2,10 @@
  * Routines for BACnet/IP (BVLL, BVLC) dissection
  * Copyright 2001, Hartmut Mueller <hartmut@abmlinux.org>, FH Dortmund
  *
- * $Id: packet-bvlc.c,v 1.1 2001/03/31 10:13:11 guy Exp $
+ * $Id: packet-bvlc.c,v 1.2 2001/04/20 20:34:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@unicom.net>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
  * Copied from README.developer,v 1.23

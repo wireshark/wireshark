@@ -2,10 +2,10 @@
  * Routines for AIM Instant Messenger (OSCAR) dissection
  * Copyright 2000, Ralf Hoelzer <ralf@well.com>
  *
- * $Id: packet-aim.c,v 1.7 2001/01/22 08:03:44 guy Exp $
+ * $Id: packet-aim.c,v 1.8 2001/04/20 20:34:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@unicom.net>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or

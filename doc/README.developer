@@ -1,4 +1,4 @@
-$Id: README.developer,v 1.26 2001/04/10 07:21:38 guy Exp $
+$Id: README.developer,v 1.27 2001/04/20 20:34:31 guy Exp $
 
 This file is a HOWTO for Ethereal developers. It describes how to start coding
 a Ethereal protocol dissector and the use some of the important functions and
@@ -62,7 +62,7 @@ code inside
 
 is needed only if you are using the "snprintf()" function.
 
-The "$Id: README.developer,v 1.26 2001/04/10 07:21:38 guy Exp $"
+The "$Id: README.developer,v 1.27 2001/04/20 20:34:31 guy Exp $"
 in the comment will be updated by CVS when the file is
 checked in; it will allow the RCS "ident" command to report which
 version of the file is currently checked out.
@@ -72,13 +72,17 @@ version of the file is currently checked out.
  * Routines for PROTONAME dissection
  * Copyright 2000, YOUR_NAME <YOUR_EMAIL_ADDRESS>
  *
- * $Id: README.developer,v 1.26 2001/04/10 07:21:38 guy Exp $
+ * $Id: README.developer,v 1.27 2001/04/20 20:34:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@unicom.net>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
- * Copied from WHATEVER_FILE_YOU_USED
+ * Copied from WHATEVER_FILE_YOU_USED (where "WHATEVER_FILE_YOU_USED"
+ * is a dissector file; if you just copied this from README.developer,
+ * don't bother with the "Copied from" - you don't even need to put
+ * in a "Copied from" if you copied an existing dissector, especially
+ * if the bulk of the code in the new dissector is your code)
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License

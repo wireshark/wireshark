@@ -4,10 +4,10 @@
  * Copyright 2000, Axis Communications AB 
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.h,v 1.2 2000/11/29 05:16:15 gram Exp $
+ * $Id: packet-ieee80211.h,v 1.3 2001/04/20 20:34:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@unicom.net>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
  * Copied from README.developer

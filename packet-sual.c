@@ -4,10 +4,10 @@
  * Copyright 2001, Martin Held <Martin.Held@icn.siemens.de>
  *                 Michael TŸxen <Michael.Tuexen@icn.siemens.de>
  *
- * $Id: packet-sual.c,v 1.1 2001/01/22 09:04:09 guy Exp $
+ * $Id: packet-sual.c,v 1.2 2001/04/20 20:34:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@unicom.net>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
  * Copied from README.developer
