@@ -5,7 +5,7 @@
  * Richard Share (C) 2002, rsharpe@samba.org, modularized a bit more and
  *                         added AP-REQ and AP-REP dissection
  *
- * $Id: packet-kerberos.c,v 1.34 2002/09/08 22:41:23 guy Exp $
+ * $Id: packet-kerberos.c,v 1.35 2002/09/10 02:15:55 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -141,9 +141,19 @@ static gint ett_additional_tickets = -1;
 #define KRB5_ENCTYPE_DES3_CBC_SHA        5
 #define KRB5_ENCTYPE_DES3_CBC_RAW        6
 #define KRB5_ENCTYPE_DES_HMAC_SHA1       8
-#define KRB5_ENCTYPE_DES3_CBC_SHA1          0x10
+#define KRB5_ENCTYPE_DES3_CBC_SHA1       0x10	/* 16 */
+#define KERB_ENCTYPE_RC4_HMAC            23 
+#define KERB_ENCTYPE_RC4_HMAC_EXP        24
 #define KRB5_ENCTYPE_UNKNOWN                0x1ff
 #define KRB5_ENCTYPE_LOCAL_DES3_HMAC_SHA1   0x7007
+
+/*
+ * For KERB_ENCTYPE_RC4_HMAC and KERB_ENCTYPE_RC4_HMAC_EXP, see
+ *
+ *	http://www.ietf.org/internet-drafts/draft-brezak-win2k-krb-rc4-hmac-04.txt
+ *
+ * unless it's expired.
+ */
 
 /* pre-authentication type constants */
 #define KRB5_PA_TGS_REQ                1
@@ -319,6 +329,8 @@ static const value_string krb5_encryption_types[] = {
     { KRB5_ENCTYPE_DES3_CBC_RAW   , "des3-cbc-raw" },
     { KRB5_ENCTYPE_DES_HMAC_SHA1  , "des-hmac-sha1" },
     { KRB5_ENCTYPE_DES3_CBC_SHA1  , "des3-cbc-sha1" },
+    { KERB_ENCTYPE_RC4_HMAC       , "rc4-hmac" },
+    { KERB_ENCTYPE_RC4_HMAC_EXP   , "rc4-hmac-exp" },
     { KRB5_ENCTYPE_UNKNOWN        , "unknown" },
     { KRB5_ENCTYPE_LOCAL_DES3_HMAC_SHA1    , "local-des3-hmac-sha1" },
     { 0                            , NULL },
