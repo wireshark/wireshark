@@ -1,6 +1,6 @@
 /* toshiba.c
  *
- * $Id: toshiba.c,v 1.3 1999/11/11 06:29:59 gram Exp $
+ * $Id: toshiba.c,v 1.4 1999/11/11 19:19:17 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -271,8 +271,10 @@ parse_toshiba_rec_hdr(wtap *wth, FILE *fh, int *err)
 		return -1;
 	}
 
-	/* Find text in line after "[No." */
-	num_items_scanned = sscanf(line, "%d] %d:%d:%d.%d %s %s",
+	/* Find text in line after "[No.". Limit the length of the
+	 * two strings since we have fixed buffers for channel[] and
+	 * direction[] */
+	num_items_scanned = sscanf(line, "%d] %d:%d:%d.%d %9s %9s",
 			&pktnum, &hr, &min, &sec, &csec, channel, direction);
 
 	if (num_items_scanned != 7) {
