@@ -1,6 +1,6 @@
 /* toshiba.c
  *
- * $Id: toshiba.c,v 1.1 1999/10/31 17:46:08 gram Exp $
+ * $Id: toshiba.c,v 1.2 1999/11/11 05:36:15 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -257,7 +257,7 @@ parse_toshiba_rec_hdr(wtap *wth, FILE *fh, int *err)
 	char	line[TOSHIBA_LINE_LENGTH];
 	int	num_items_scanned;
 	int	pkt_len, pktnum, hr, min, sec, csec;
-	char	channel[10];
+	char	channel[10], direction[10];
 
 	/* Our file pointer should be on the line containing the
 	 * summary information for a packet. Read in that line and
@@ -271,10 +271,10 @@ parse_toshiba_rec_hdr(wtap *wth, FILE *fh, int *err)
 		return -1;
 	}
 
-	num_items_scanned = sscanf(line, "[No.%d] %d:%d:%d.%d %s:",
-			&pktnum, &hr, &min, &sec, &csec, channel);
+	num_items_scanned = sscanf(line, "[No.%d] %d:%d:%d.%d %s %s",
+			&pktnum, &hr, &min, &sec, &csec, channel, direction);
 
-	if (num_items_scanned != 6) {
+	if (num_items_scanned != 7) {
 		*err = WTAP_ERR_BAD_RECORD;
 		return -1;
 	}
@@ -306,9 +306,9 @@ parse_toshiba_rec_hdr(wtap *wth, FILE *fh, int *err)
 				break;
 
 			case 'D':
-				/*wth->phdr.pkt_encap = WTAP_ENCAP_LAPD;*/
-				/*wth->phdr.pkt_encap = WTAP_ENCAP_ISDN;*/
-				wth->phdr.pkt_encap = WTAP_ENCAP_UNKNOWN;
+				wth->phdr.pkt_encap = WTAP_ENCAP_LAPD;
+				wth->phdr.pseudo_header.lapd.from_network_to_user = 
+					(direction[0] == 'R' ? TRUE : FALSE );
 				break;
 			
 			default:

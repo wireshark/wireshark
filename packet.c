@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.52 1999/10/29 02:25:54 guy Exp $
+ * $Id: packet.c,v 1.53 1999/11/11 05:36:05 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -802,6 +802,9 @@ dissect_packet(const u_char *pd, frame_data *fd, proto_tree *tree)
 			break;
 		case WTAP_ENCAP_ASCEND :
 			dissect_ascend(pd, fd, tree);
+			break;
+		case WTAP_ENCAP_LAPD :
+			dissect_lapd(pd, fd, tree);
 			break;
 	}
 }
