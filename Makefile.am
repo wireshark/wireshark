@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.281 2001/02/01 20:21:13 gram Exp $
+# $Id: Makefile.am,v 1.282 2001/02/08 07:08:04 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -121,6 +121,7 @@ DISSECTOR_SOURCES = \
 	packet-ipx.c   \
 	packet-irc.c   \
 	packet-ieee80211.c \
+	packet-ieee8023.c \
 	packet-isakmp.c\
 	packet-isis.c  \
 	packet-isis-clv.c \
@@ -249,6 +250,7 @@ noinst_HEADERS = \
 	packet-hclnfsd.h  \
 	packet-http.h  \
 	packet-ieee80211.h \
+	packet-ieee8023.h \
 	packet-ip.h    \
 	packet-ipsec.h \
 	packet-ipv6.h  \

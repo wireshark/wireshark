@@ -1,7 +1,7 @@
 /* packet-vlan.c
  * Routines for VLAN 802.1Q ethernet header disassembly
  *
- * $Id: packet-vlan.c,v 1.32 2001/02/05 02:47:31 guy Exp $
+ * $Id: packet-vlan.c,v 1.33 2001/02/08 07:08:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -37,6 +37,7 @@
 
 #include <glib.h>
 #include "packet.h"
+#include "packet-ieee8023.h"
 #include "packet-ipx.h"
 #include "packet-llc.h"
 #include "etypes.h"
@@ -50,9 +51,6 @@ static int hf_vlan_len = -1;
 static int hf_vlan_trailer = -1;
 
 static gint ett_vlan = -1;
-
-static dissector_handle_t ipx_handle;
-static dissector_handle_t llc_handle;
 
 void
 capture_vlan(const u_char *pd, int offset, packet_counts *ld ) {
@@ -79,8 +77,6 @@ dissect_vlan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree *ti;
   guint16 tci,encap_proto;
   volatile gboolean is_802_2;
-  tvbuff_t *volatile next_tvb;
-  tvbuff_t *volatile trailer_tvb;
   proto_tree *volatile vlan_tree;
 
   if (check_col(pinfo->fd, COL_PROTOCOL))
@@ -106,37 +102,8 @@ dissect_vlan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_uint(vlan_tree, hf_vlan_id, tvb, 0, 2, tci);
   }
 
-  encap_proto = tvb_get_ntohs( tvb, 2 );
-  if ( encap_proto <= IEEE_802_3_MAX_LEN) {
-    /* Give the next dissector only 'encap_proto' number of bytes */
-    proto_tree_add_uint(vlan_tree, hf_vlan_len, tvb, 2, 2, encap_proto);
-    TRY {
-       next_tvb = tvb_new_subset(tvb, 4, encap_proto, encap_proto);
-       trailer_tvb = tvb_new_subset(tvb, 4 + encap_proto, -1, -1);
-    }
-    CATCH2(BoundsError, ReportedBoundsError) {
-      /* Either:
-
-           the packet doesn't have "encap_proto" bytes worth of
-           captured data left in it - or it may not even have
-           "encap_proto" bytes worth of data in it, period -
-           so the "tvb_new_subset()" creating "next_tvb"
-           threw an exception
-
-         or
-
-           the packet has exactly "encap_proto" bytes worth of
-           captured data left in it, so the "tvb_new_subset()"
-           creating "trailer_tvb" threw an exception.
-
-         In either case, this means that all the data in the frame
-         is within the length value, so we give all the data to the
-         next protocol and have no trailer. */
-      next_tvb = tvb_new_subset(tvb, 4, -1, encap_proto);
-      trailer_tvb = NULL;
-    }
-    ENDTRY;
-
+  encap_proto = tvb_get_ntohs(tvb, 2);
+  if (encap_proto <= IEEE_802_3_MAX_LEN) {
     /* Is there an 802.2 layer? I can tell by looking at the first 2
        bytes after the VLAN header. If they are 0xffff, then what
        follows the VLAN header is an IPX payload, meaning no 802.2.
@@ -146,7 +113,7 @@ dissect_vlan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
        802.2 layer inside the VLAN layer */
     is_802_2 = TRUE;
     TRY {
-	    if (tvb_get_ntohs(next_tvb, 2) == 0xffff) {
+	    if (tvb_get_ntohs(tvb, 4) == 0xffff) {
 	      is_802_2 = FALSE;
 	    }
     }
@@ -155,25 +122,9 @@ dissect_vlan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     }
     ENDTRY;
-    if (is_802_2 ) {
-      /* 802.2 LLC */
-      call_dissector(llc_handle, next_tvb, pinfo, tree);
-    } else {
-      call_dissector(ipx_handle, next_tvb, pinfo, tree);
-    }
 
-    /* If there's some bytes left over, mark them. */
-    if (trailer_tvb && tree) {
-      int trailer_length;
-      const guint8    *ptr;
-
-      trailer_length = tvb_length(trailer_tvb);
-      if (trailer_length > 0) {
-        ptr = tvb_get_ptr(trailer_tvb, 0, trailer_length);
-        proto_tree_add_bytes(vlan_tree, hf_vlan_trailer, trailer_tvb, 0,
-			     trailer_length, ptr);
-      }
-    }
+    dissect_802_3(encap_proto, is_802_2, tvb, 4, pinfo, tree, vlan_tree,
+		  hf_vlan_len, hf_vlan_trailer);
   } else {
     ethertype(encap_proto, tvb, 4, pinfo, tree, vlan_tree,
 		       hf_vlan_etype, hf_vlan_trailer);
@@ -215,11 +166,5 @@ proto_register_vlan(void)
 void
 proto_reg_handoff_vlan(void)
 {
-  /*
-   * Get handles for the IPX and LLC dissectors.
-   */
-  llc_handle = find_dissector("llc");
-  ipx_handle = find_dissector("ipx");
-
   dissector_add("ethertype", ETHERTYPE_VLAN, dissect_vlan, proto_vlan);
 }

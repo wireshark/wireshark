@@ -1,7 +1,7 @@
 /* packet-eth.c
  * Routines for ethernet packet disassembly
  *
- * $Id: packet-eth.c,v 1.59 2001/01/21 22:10:22 guy Exp $
+ * $Id: packet-eth.c,v 1.60 2001/02/08 07:08:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -36,6 +36,7 @@
 #include "etypes.h"
 #include "resolv.h"
 #include "packet-eth.h"
+#include "packet-ieee8023.h"
 #include "packet-ipx.h"
 #include "packet-isl.h"
 #include "packet-llc.h"
@@ -55,8 +56,6 @@ static gint ett_ieee8023 = -1;
 static gint ett_ether2 = -1;
 
 static dissector_handle_t isl_handle;
-static dissector_handle_t ipx_handle;
-static dissector_handle_t llc_handle;
 
 #define ETH_HEADER_SIZE	14
 
@@ -151,11 +150,9 @@ dissect_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   const guint8		*pd;
 
   guint16		etype;
-  volatile int		ethhdr_type;	/* the type of Ethernet frame */
+  volatile gboolean	is_802_2;
   int			eth_offset;
   volatile guint16  	length;
-  tvbuff_t		*volatile next_tvb;
-  tvbuff_t		*volatile trailer_tvb;
   proto_tree		*volatile fh_tree = NULL;
 
   tvb_compat(tvb, &pd, (int*)&eth_offset);
@@ -178,24 +175,6 @@ dissect_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (etype <= IEEE_802_3_MAX_LEN) {
     length = etype;
 
-    /* Is there an 802.2 layer? I can tell by looking at the first 2
-       bytes after the 802.3 header. If they are 0xffff, then what
-       follows the 802.3 header is an IPX payload, meaning no 802.2.
-       (IPX/SPX is they only thing that can be contained inside a
-       straight 802.3 packet). A non-0xffff value means that there's an
-       802.2 layer inside the 802.3 layer */
-    ethhdr_type = ETHERNET_802_2;
-    TRY {
-	    if (tvb_get_ntohs(tvb, 14) == 0xffff) {
-	      ethhdr_type = ETHERNET_802_3;
-	    }
-    }
-    CATCH2(BoundsError, ReportedBoundsError) {
-	    ; /* do nothing */
-
-    }
-    ENDTRY;
-
     /* Oh, yuck.  Cisco ISL frames require special interpretation of the
        destination address field; fortunately, they can be recognized by
        checking the first 5 octets of the destination address, which are
@@ -209,13 +188,31 @@ dissect_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       return;
     }
 
+    /* Is there an 802.2 layer? I can tell by looking at the first 2
+       bytes after the 802.3 header. If they are 0xffff, then what
+       follows the 802.3 header is an IPX payload, meaning no 802.2.
+       (IPX/SPX is they only thing that can be contained inside a
+       straight 802.3 packet). A non-0xffff value means that there's an
+       802.2 layer inside the 802.3 layer */
+    is_802_2 = TRUE;
+    TRY {
+	    if (tvb_get_ntohs(tvb, 14) == 0xffff) {
+	      is_802_2 = FALSE;
+	    }
+    }
+    CATCH2(BoundsError, ReportedBoundsError) {
+	    ; /* do nothing */
+
+    }
+    ENDTRY;
+
     if (check_col(pinfo->fd, COL_INFO)) {
       col_add_fstr(pinfo->fd, COL_INFO, "IEEE 802.3 %s",
-		(ethhdr_type == ETHERNET_802_3 ? "Raw " : ""));
+		(is_802_2 ? "" : "Raw "));
     }
     if (tree) {
       ti = proto_tree_add_protocol_format(tree, proto_eth, tvb, 0, ETH_HEADER_SIZE,
-		"IEEE 802.3 %s", (ethhdr_type == ETHERNET_802_3 ? "Raw " : ""));
+		"IEEE 802.3 %s", (is_802_2 ? "" : "Raw "));
 
       fh_tree = proto_item_add_subtree(ti, ett_ieee8023);
 
@@ -225,8 +222,6 @@ dissect_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 /* add items for eth.addr filter */
       proto_tree_add_ether_hidden(fh_tree, hf_eth_addr, tvb, 0, 6, dst);
       proto_tree_add_ether_hidden(fh_tree, hf_eth_addr, tvb, 6, 6, src);
-
-      proto_tree_add_uint(fh_tree, hf_eth_len, tvb, 12, 2, length);
     }
 
     /* Convert the LLC length from the 802.3 header to a total
@@ -243,56 +238,9 @@ dissect_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (pinfo->captured_len > length)
       pinfo->captured_len = length;
 
-    /* Give the next dissector only 'length' number of bytes */
-    TRY {
-      next_tvb = tvb_new_subset(tvb, ETH_HEADER_SIZE, etype, etype);
-      trailer_tvb = tvb_new_subset(tvb, ETH_HEADER_SIZE + etype, -1, -1);
-    }
-    CATCH2(BoundsError, ReportedBoundsError) {
-      /* Either:
-
-	    the packet doesn't have "etype" bytes worth of
-	    captured data left in it - or it may not even have
-	    "etype" bytes worth of data in it, period -
-	    so the "tvb_new_subset()" creating "next_tvb"
-	    threw an exception
-
-	 or
-
-	    the packet has exactly "etype" bytes worth of
-	    captured data left in it, so the "tvb_new_subset()"
-	    creating "trailer_tvb" threw an exception.
-
-	 In either case, this means that all the data in the frame
-	 is within the length value, so we give all the data to the
-	 next protocol and have no trailer. */
-      next_tvb = tvb_new_subset(tvb, ETH_HEADER_SIZE, -1, etype);
-      trailer_tvb = NULL;
-    }
-    ENDTRY;
-
-    /* Dissect the payload either as IPX or as an LLC frame. */
-    switch (ethhdr_type) {
-      case ETHERNET_802_3:
-        call_dissector(ipx_handle, next_tvb, pinfo, tree);
-        break;
-      case ETHERNET_802_2:
-        call_dissector(llc_handle, next_tvb, pinfo, tree);
-        break;
-    }
-
-    /* If there's some bytes left over, mark them. */
-    if (trailer_tvb && tree) {
-      guint trailer_length;
-
-      trailer_length = tvb_length(trailer_tvb);
-      if (trailer_length != 0) {
-	proto_tree_add_item(fh_tree, hf_eth_trailer, trailer_tvb, 0,
-			    trailer_length, FALSE);
-      }
-    }
+    dissect_802_3(etype, is_802_2, tvb, ETH_HEADER_SIZE, pinfo, tree, fh_tree,
+		  hf_eth_len, hf_eth_trailer);
   } else {
-    ethhdr_type = ETHERNET_II;
     if (check_col(pinfo->fd, COL_INFO))
       col_set_str(pinfo->fd, COL_INFO, "Ethernet II");
     if (tree) {
@@ -307,9 +255,6 @@ dissect_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       proto_tree_add_ether_hidden(fh_tree, hf_eth_addr, tvb, 0, 6, dst);
       proto_tree_add_ether_hidden(fh_tree, hf_eth_addr, tvb, 6, 6, src);
     }
-
-    next_tvb = NULL;	/* "ethertype()" will create the next tvb for us */
-    trailer_tvb = NULL;	/* we don't know how big the trailer is */
 
     ethertype(etype, tvb, ETH_HEADER_SIZE, pinfo, tree, fh_tree, hf_eth_type,
           hf_eth_trailer);
@@ -362,11 +307,9 @@ void
 proto_reg_handoff_eth(void)
 {
 	/*
-	 * Get handles for the ISL, IPX, and LLC dissectors.
+	 * Get a handle for the ISL dissector.
 	 */
 	isl_handle = find_dissector("isl");
-	ipx_handle = find_dissector("ipx");
-	llc_handle = find_dissector("llc");
 
 	dissector_add("wtap_encap", WTAP_ENCAP_ETHERNET, dissect_eth,
 	    proto_eth);
