@@ -2,7 +2,7 @@
  * Routines for IGMP packet disassembly
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
  * 
@@ -187,10 +187,9 @@ static const value_string vs_record_type[] = {
 
 #define PRINT_VERSION(version) 						\
 	if (check_col(pinfo->fd, COL_INFO)) {				\
-		char str[256];						\
-		sprintf(str,"V%d %s",version,val_to_str(type, commands, \
+		col_add_fstr(pinfo->fd, COL_INFO,			\
+			"V%d %s",version,val_to_str(type, commands, 	\
 				"Unknown Type:0x%02x"));		\
-		col_add_str(pinfo->fd, COL_INFO,str); 			\
 	}								\
 	/* version of IGMP protocol */					\
 	proto_tree_add_uint(tree, hf_version, tvb, 0, 0, version);	\
@@ -220,6 +219,29 @@ static void igmp_checksum(proto_tree *tree,tvbuff_t *tvb, int len)
 	return;
 }
 
+
+/* Unknown IGMP message type */
+static int
+dissect_igmp_unknown(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int type, int offset)
+{
+	int len;
+
+	if (check_col(pinfo->fd, COL_INFO)) {
+		col_add_str(pinfo->fd, COL_INFO,
+			val_to_str(type, commands, "Unknown Type:0x%02x"));
+	}
+
+	/* type of command */
+	proto_tree_add_uint(tree, hf_type, tvb, offset, 1, type);
+	offset += 1;
+
+	/* Just call the rest of it "data" */
+	len = tvb_length_remaining(tvb, offset);
+	proto_tree_add_text(tree, tvb, offset, len, "Data");
+	offset += len;
+
+	return offset;
+}
 
 static int
 dissect_v3_max_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset)
@@ -621,6 +643,10 @@ dissect_igmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 	case IGMP_V3_MEMBERSHIP_REPORT:
 		offset = dissect_igmp_v3_response(tvb, pinfo, tree, type, offset);
+		break;
+
+	default:
+		offset = dissect_igmp_unknown(tvb, pinfo, tree, type, offset);
 		break;
 	}
 
