@@ -7,7 +7,7 @@
  *       In particular I have not had an opportunity to see how it
  *       responds to SRVLOC over TCP.
  *
- * $Id: packet-srvloc.c,v 1.40 2003/03/01 09:03:42 guy Exp $
+ * $Id: packet-srvloc.c,v 1.41 2003/06/25 23:27:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -925,6 +925,7 @@ dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		offset += 2;
 		proto_tree_add_item(srvloc_tree, hf_srvloc_saadvert_url, tvb, offset, length, TRUE);
 		offset += length;
+		length = tvb_get_ntohs(tvb, offset);
 		proto_tree_add_uint(srvloc_tree, hf_srvloc_saadvert_scopelistlen, tvb, offset, 2, length);
 		offset += 2;
 		proto_tree_add_item(srvloc_tree, hf_srvloc_saadvert_scopelist, tvb, offset, length, TRUE);
