@@ -2,7 +2,7 @@
 *
 * Routine to dissect OSI ACSE Protocol packets
 *
-* $Id: packet-acse.c,v 1.2 2004/01/23 18:18:19 ulfl Exp $
+* $Id: packet-acse.c,v 1.3 2004/01/24 01:53:59 jmayer Exp $
 *
 * Yuriy Sidelnikov <YSidelnikov@hotmail.com>
 *
@@ -259,7 +259,7 @@ call_app_dissector(tvbuff_t *tvb, int offset, guint16 param_len,
 	}
 }
 static char*
-string_to_hex(unsigned char * in,char * out,int len)
+string_to_hex(const unsigned char * in,char * out,int len)
 {
 	char ascii[MAXSTRING];
 	int  i;
@@ -373,7 +373,7 @@ static int read_integer(ASN1_SCK *a, proto_tree *tree, int hf_id,
 /*   display asn.1 Integer type */
 static void
 show_integer(ASN1_SCK *asn,proto_tree *acse_tree,tvbuff_t *tvb,int
-*offset,int item_len)
+*offset,guint item_len)
 {
 	  proto_tree *acse_tree_itm = NULL;
 	  proto_item *itm;
@@ -487,7 +487,7 @@ print_value(proto_tree *acse_tree,tvbuff_t *tvb,int
 *offset,int item_len)
 {
 	  char    tmp[MAXSTRING];
-		string_to_hex((char*)tvb_get_ptr(tvb,*offset,item_len),tmp,item_len);
+		string_to_hex(tvb_get_ptr(tvb,*offset,item_len),tmp,item_len);
 		proto_tree_add_text(acse_tree, tvb, *offset, item_len, tmp);
 }
 static int
@@ -961,7 +961,7 @@ show_fully_encoded_data(ASN1_SCK *asn,proto_tree *acse_tree,tvbuff_t
 	  guint   type;
 	  guint   header_len;
 	  proto_item *ms;
-	  gint   new_item_len;
+	  guint   new_item_len;
 	  guint   start = asn->offset;
 	  guint	  item_length = item_len;
 	  acse_tree_pc = acse_tree;
@@ -1047,7 +1047,7 @@ show_abort_reason(ASN1_SCK *asn,proto_tree *acse_tree,tvbuff_t
 	gint		value;
     proto_tree	*acse_tree_pc = NULL;
 	proto_item	*itu;
-	gint		new_item_len;
+	guint		new_item_len;
 	guint		start = *offset;
 	int			save_len = item_len;
 /* do we have enough bytes to dissect this item ? */
@@ -1105,7 +1105,7 @@ show_disconnect_pdu(ASN1_SCK *asn,proto_tree *acse_tree,tvbuff_t
 	gint		value;
     proto_tree	*acse_tree_pc = NULL;
 	proto_item	*itu;
-	gint		new_item_len;
+	guint		new_item_len;
 	guint		start = *offset;
 	int			save_len = item_len;
 /* do we have enough bytes to dissect this item ? */
@@ -1163,7 +1163,7 @@ show_finish_pdu(ASN1_SCK *asn,proto_tree *acse_tree,tvbuff_t
 	gint		value;
     proto_tree	*acse_tree_pc = NULL;
 	proto_item	*itu;
-	gint		new_item_len;
+	guint		new_item_len;
 	guint		start = *offset;
 	int			save_len = item_len;
 /* do we have enough bytes to dissect this item ? */
