@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.73 1999/08/15 19:18:45 guy Exp $
+ * $Id: file.c,v 1.74 1999/08/15 23:40:33 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -772,15 +772,17 @@ clear_tree_and_hex_views(void)
    * do this when we clear_items, but it doesn't. I copied
    * this while() loop from gtktree.c, gtk_real_tree_select_child()
    */
-  selection = GTK_TREE(tree_view)->root_tree->selection;
-  while (selection) {
-	  tmp_item = selection->data;
-	  gtk_tree_item_deselect(GTK_TREE_ITEM(tmp_item));
-	  gtk_widget_unref(tmp_item);
-	  selection = selection->next;
+  if (GTK_TREE(tree_view)->root_tree) {
+	  selection = GTK_TREE(tree_view)->root_tree->selection;
+	  while (selection) {
+		  tmp_item = selection->data;
+		  gtk_tree_item_deselect(GTK_TREE_ITEM(tmp_item));
+		  gtk_widget_unref(tmp_item);
+		  selection = selection->next;
+	  }
+	  g_list_free(GTK_TREE(tree_view)->root_tree->selection);
+	  GTK_TREE(tree_view)->root_tree->selection = NULL;
   }
-  g_list_free(GTK_TREE(tree_view)->root_tree->selection);
-  GTK_TREE(tree_view)->root_tree->selection = NULL;
 
   /* Clear the protocol tree view. The length arg of -1
    * means to clear all items up to the end. */
