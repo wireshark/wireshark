@@ -4,7 +4,7 @@
  * endpoint_talkers_table   2003 Ronnie Sahlberg
  * Helper routines common to all endpoint talkers tap.
  *
- * $Id: endpoint_talkers_table.c,v 1.20 2003/10/03 09:09:35 sahlberg Exp $
+ * $Id: endpoint_talkers_table.c,v 1.21 2003/10/07 09:30:34 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -313,7 +313,9 @@ ett_click_column_cb(GtkCList *clist, gint column, gpointer data)
    filter_action:
 	0: Match
 	1: Prepare
-	2: Find
+	2: Find Frame
+	3:   Find Next
+	4:   Find Previous
    filter_type:
 	0: Selected
 	1: Not Selected
@@ -507,21 +509,26 @@ ett_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callba
 		break;
 	}
 
-	gtk_entry_set_text(GTK_ENTRY(main_display_filter_widget), str);
-
 	switch(action){
 	case 0:
 		/* match */
-		/* XXX FIXME, this is not enough to make the dispplay filters
-		reapply to the main window */
+		gtk_entry_set_text(GTK_ENTRY(main_display_filter_widget), str);
 		filter_packets(&cfile, str);
 	case 1:
 		/* prepare */
-		/* do nothing */
+		gtk_entry_set_text(GTK_ENTRY(main_display_filter_widget), str);
 		break;
 	case 2:
 		/* find frame */
 		find_frame_with_filter(str);
+		break;
+	case 3:
+		/* find next */
+		find_previous_next_frame_with_filter(str, FALSE);
+		break;
+	case 4:
+		/* find previous */
+		find_previous_next_frame_with_filter(str, TRUE);
 		break;
 	}
 
@@ -789,24 +796,65 @@ static GtkItemFactoryEntry ett_list_menu_items[] =
 
 	/* Find Frame */
 	ITEM_FACTORY_ENTRY("/Find Frame", NULL, NULL, 0, "<Branch>", NULL),
-	ITEM_FACTORY_ENTRY("/Find Frame/EP1 <-> EP2", NULL,
+	ITEM_FACTORY_ENTRY("/Find Frame/Find Frame", NULL, NULL, 0, "<Branch>", NULL),
+	ITEM_FACTORY_ENTRY("/Find Frame/Find Frame/EP1 <-> EP2", NULL,
 		ett_select_filter_cb, 2*65536+0*256+0, NULL, NULL),
-	ITEM_FACTORY_ENTRY("/Find Frame/EP1 --> EP2", NULL,
+	ITEM_FACTORY_ENTRY("/Find Frame/Find Frame/EP1 --> EP2", NULL,
 		ett_select_filter_cb, 2*65536+0*256+1, NULL, NULL),
-	ITEM_FACTORY_ENTRY("/Find Frame/EP1 <-- EP2", NULL,
+	ITEM_FACTORY_ENTRY("/Find Frame/Find Frame/EP1 <-- EP2", NULL,
 		ett_select_filter_cb, 2*65536+0*256+2, NULL, NULL),
-	ITEM_FACTORY_ENTRY("/Find Frame/EP1 <-> ANY", NULL,
+	ITEM_FACTORY_ENTRY("/Find Frame/Find Frame/EP1 <-> ANY", NULL,
 		ett_select_filter_cb, 2*65536+0*256+3, NULL, NULL),
-	ITEM_FACTORY_ENTRY("/Find Frame/EP1 --> ANY", NULL,
+	ITEM_FACTORY_ENTRY("/Find Frame/Find Frame/EP1 --> ANY", NULL,
 		ett_select_filter_cb, 2*65536+0*256+4, NULL, NULL),
-	ITEM_FACTORY_ENTRY("/Find Frame/EP1 <-- ANY", NULL,
+	ITEM_FACTORY_ENTRY("/Find Frame/Find Frame/EP1 <-- ANY", NULL,
 		ett_select_filter_cb, 2*65536+0*256+5, NULL, NULL),
-	ITEM_FACTORY_ENTRY("/Find Frame/ANY <-> EP2", NULL,
+	ITEM_FACTORY_ENTRY("/Find Frame/Find Frame/ANY <-> EP2", NULL,
 		ett_select_filter_cb, 2*65536+0*256+6, NULL, NULL),
-	ITEM_FACTORY_ENTRY("/Find Frame/ANY <-- EP2", NULL,
+	ITEM_FACTORY_ENTRY("/Find Frame/Find Frame/ANY <-- EP2", NULL,
 		ett_select_filter_cb, 2*65536+0*256+7, NULL, NULL),
-	ITEM_FACTORY_ENTRY("/Find Frame/ANY --> EP2", NULL,
+	ITEM_FACTORY_ENTRY("/Find Frame/Find Frame/ANY --> EP2", NULL,
 		ett_select_filter_cb, 2*65536+0*256+8, NULL, NULL),
+	/* Find Next */
+	ITEM_FACTORY_ENTRY("/Find Frame/Find Next", NULL, NULL, 0, "<Branch>", NULL),
+	ITEM_FACTORY_ENTRY("/Find Frame/Find Next/EP1 <-> EP2", NULL,
+		ett_select_filter_cb, 3*65536+0*256+0, NULL, NULL),
+	ITEM_FACTORY_ENTRY("/Find Frame/Find Next/EP1 --> EP2", NULL,
+		ett_select_filter_cb, 3*65536+0*256+1, NULL, NULL),
+	ITEM_FACTORY_ENTRY("/Find Frame/Find Next/EP1 <-- EP2", NULL,
+		ett_select_filter_cb, 3*65536+0*256+2, NULL, NULL),
+	ITEM_FACTORY_ENTRY("/Find Frame/Find Next/EP1 <-> ANY", NULL,
+		ett_select_filter_cb, 3*65536+0*256+3, NULL, NULL),
+	ITEM_FACTORY_ENTRY("/Find Frame/Find Next/EP1 --> ANY", NULL,
+		ett_select_filter_cb, 3*65536+0*256+4, NULL, NULL),
+	ITEM_FACTORY_ENTRY("/Find Frame/Find Next/EP1 <-- ANY", NULL,
+		ett_select_filter_cb, 3*65536+0*256+5, NULL, NULL),
+	ITEM_FACTORY_ENTRY("/Find Frame/Find Next/ANY <-> EP2", NULL,
+		ett_select_filter_cb, 3*65536+0*256+6, NULL, NULL),
+	ITEM_FACTORY_ENTRY("/Find Frame/Find Next/ANY <-- EP2", NULL,
+		ett_select_filter_cb, 3*65536+0*256+7, NULL, NULL),
+	ITEM_FACTORY_ENTRY("/Find Frame/Find Next/ANY --> EP2", NULL,
+		ett_select_filter_cb, 3*65536+0*256+8, NULL, NULL),
+	/* Find Previous */
+	ITEM_FACTORY_ENTRY("/Find Frame/Find Previous", NULL, NULL, 0, "<Branch>", NULL),
+	ITEM_FACTORY_ENTRY("/Find Frame/Find Previous/EP1 <-> EP2", NULL,
+		ett_select_filter_cb, 4*65536+0*256+0, NULL, NULL),
+	ITEM_FACTORY_ENTRY("/Find Frame/Find Previous/EP1 --> EP2", NULL,
+		ett_select_filter_cb, 4*65536+0*256+1, NULL, NULL),
+	ITEM_FACTORY_ENTRY("/Find Frame/Find Previous/EP1 <-- EP2", NULL,
+		ett_select_filter_cb, 4*65536+0*256+2, NULL, NULL),
+	ITEM_FACTORY_ENTRY("/Find Frame/Find Previous/EP1 <-> ANY", NULL,
+		ett_select_filter_cb, 4*65536+0*256+3, NULL, NULL),
+	ITEM_FACTORY_ENTRY("/Find Frame/Find Previous/EP1 --> ANY", NULL,
+		ett_select_filter_cb, 4*65536+0*256+4, NULL, NULL),
+	ITEM_FACTORY_ENTRY("/Find Frame/Find Previous/EP1 <-- ANY", NULL,
+		ett_select_filter_cb, 4*65536+0*256+5, NULL, NULL),
+	ITEM_FACTORY_ENTRY("/Find Frame/Find Previous/ANY <-> EP2", NULL,
+		ett_select_filter_cb, 4*65536+0*256+6, NULL, NULL),
+	ITEM_FACTORY_ENTRY("/Find Frame/Find Previous/ANY <-- EP2", NULL,
+		ett_select_filter_cb, 4*65536+0*256+7, NULL, NULL),
+	ITEM_FACTORY_ENTRY("/Find Frame/Find Previous/ANY --> EP2", NULL,
+		ett_select_filter_cb, 4*65536+0*256+8, NULL, NULL),
 
 
 };

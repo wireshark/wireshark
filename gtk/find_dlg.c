@@ -1,7 +1,7 @@
 /* find_dlg.c
  * Routines for "find frame" window
  *
- * $Id: find_dlg.c,v 1.37 2003/09/09 02:41:00 gerald Exp $
+ * $Id: find_dlg.c,v 1.38 2003/10/07 09:30:34 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -799,4 +799,34 @@ void
 find_previous_cb(GtkWidget *w , gpointer d)
 {
   find_previous_next(w, d, TRUE);
+}
+
+/* this function jumps to the next packet matching the filter */
+void   
+find_previous_next_frame_with_filter(char *filter, gboolean backwards)
+{
+  dfilter_t *sfcode;
+  gboolean sbackwards_saved;
+
+  /* temporarily set the direction we want to search */
+  sbackwards_saved=cfile.sbackward;
+  cfile.sbackward = backwards;
+
+  if (!dfilter_compile(filter, &sfcode)) {
+     /*
+      * XXX - this shouldn't happen, as the filter string is machine
+      * generated
+      */
+    return;
+  }
+  if (sfcode == NULL) {
+    /*
+     * XXX - this shouldn't happen, as the filter string is machine
+     * generated.
+     */
+    return;
+  }
+  find_packet_dfilter(&cfile, sfcode);
+  dfilter_free(sfcode);
+  cfile.sbackward=sbackwards_saved;
 }

@@ -1,7 +1,7 @@
 /* find_dlg.h
  * Definitions for "find frame" window
  *
- * $Id: find_dlg.h,v 1.4 2003/09/05 06:16:10 sahlberg Exp $
+ * $Id: find_dlg.h,v 1.5 2003/10/07 09:30:34 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -30,5 +30,6 @@ void   find_frame_cb(GtkWidget *, gpointer);
 void   find_next_cb(GtkWidget *, gpointer);
 void   find_previous_cb(GtkWidget *, gpointer);
 void   find_frame_with_filter(char *);
+void   find_next_frame_with_filter(char *filter, gboolean backwards);
 
 #endif /* find_dlg.h */
