@@ -1,4 +1,4 @@
-$Id: README.win32,v 1.42 2002/11/01 10:02:18 guy Exp $
+$Id: README.win32,v 1.43 2002/12/18 21:59:46 guy Exp $
 
 Installing Ethereal, Tethereal, and Editcap on Win32
 ====================================================
@@ -156,7 +156,7 @@ at
 	http://www.ethereal.com/distribution/win32/
 
 
-Instructions for MS Visual C
+Instructions for MS Visual C++
 ----------------------------
 Modify the config.nmake file in the top directory of the Ethereal source
 tree to work for your local configuration; if you don't have Python,
@@ -175,7 +175,7 @@ can handle those directories.  If not, it may not be possible to build
 Ethereal from the command line on those versions of Windows.)
 
 Be sure that your command-line environment is set up to compile
-and link with MSVC. When installing MSVC, you can have your
+and link with MSVC++. When installing MSVC++, you can have your
 system's environment set up to always allow compiling from the
 command line, or you can invoke the vcvars32.bat script, which can
 usually be found in the "VC98\Bin" subdirectory of the directory in
