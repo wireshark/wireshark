@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.6 2001/04/11 16:35:02 jfoster Exp $
+# $Id: configure.in,v 1.7 2001/05/01 02:44:52 guy Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -73,7 +73,7 @@ AC_DEFINE_UNQUOTED(DATAFILE_DIR,"$DATAFILE_DIR")
 AC_SUBST(DATAFILE_DIR)
 
 # Checks for glib first, or gtk+ if not present
-AM_PATH_GLIB(1.1.0, CFLAGS="$CFLAGS $GLIB_CFLAGS" LIBS="$LIBS $GLIB_LIBS")
+AM_PATH_GLIB(1.1.0, CFLAGS="$CFLAGS $GLIB_CFLAGS" LIBS="$LIBS $GLIB_LIBS", , gmodule)
 
 dnl Checks for header files
 AC_HEADER_STDC
@@ -81,16 +81,6 @@ AC_CHECK_HEADERS(stdarg.h direct.h dirent.h fcntl.h netdb.h unistd.h)
 AC_CHECK_HEADERS(sys/param.h sys/socket.h sys/stat.h sys/time.h sys/types.h)
 AC_CHECK_HEADERS(netinet/in.h)
 AC_CHECK_HEADERS(arpa/inet.h arpa/nameser.h)
-AC_CHECK_HEADERS(dlfcn.h)
-
-#
-# XXX - we should also somehow arrange to support dynamic linking on
-# HP-UX, even though it hasn't yet, apparently, implemented the
-# UNIX standard "dlopen()" interface atop its own interface.
-#
-if test "$ac_cv_header_dlfcn_h" = yes ; then
-  AC_DEFINE(HAVE_PLUGINS)
-fi
 
 AC_CHECK_FUNC(inet_aton, INET_ATON_O="",
   INET_ATON_O="inet_aton.o")
@@ -142,6 +132,40 @@ if test "$ac_cv_func_inet_ntop" = no ; then
 fi
 AC_SUBST(INET_NTOP_C)
 AC_SUBST(INET_NTOP_O)
+
+#
+# Check whether GLib modules are supported, to determine whether we
+# can support plugins.
+#
+AC_MSG_CHECKING(whether GLib supports loadable modules)
+#ac_save_CFLAGS="$CFLAGS"
+#ac_save_LIBS="$LIBS"
+#CFLAGS="$CFLAGS $GLIB_CFLAGS"
+#LIBS="$GLIB_LIBS $LIBS"
+AC_TRY_RUN([
+#include <glib.h>
+#include <gmodule.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+int 
+main ()
+{
+  if (g_module_supported())
+    return 0;	/* success */
+  else
+    return 1;	/* failure */
+}
+], ac_cv_glib_supports_modules=yes, ac_cv_glib_supports_modules=no,
+   [echo $ac_n "cross compiling; assumed OK... $ac_c"])
+#CFLAGS="$ac_save_CFLAGS"
+#LIBS="$ac_save_LIBS"
+if test "$ac_cv_glib_supports_modules" = yes ; then
+  AC_MSG_RESULT(yes)
+  AC_DEFINE(HAVE_PLUGINS)
+else
+  AC_MSG_RESULT(no)
+fi
 
 AC_OUTPUT(
 	Makefile

@@ -1,4 +1,4 @@
-/* $Id: config.h.win32,v 1.27 2001/04/05 05:58:03 gram Exp $ */
+/* $Id: config.h.win32,v 1.28 2001/05/01 02:44:51 guy Exp $ */
 /* config.h.win32 Generated manually. :-) */
 /* config.h.  Generated automatically by configure.  */
 /* config.h.in.  Generated automatically from configure.in by autoheader.  */
@@ -54,9 +54,6 @@
 
 /* Define if you have the <arpa/inet.h> header file.  */
 /* #undef HAVE_ARPA_INET_H */
-
-/* Define if you have the <dlfcn.h> header file.  */
-/* #undef HAVE_DLFCN_H */
 
 /* Define if you have the <fcntl.h> header file.  */
 #define HAVE_FCNTL_H 1

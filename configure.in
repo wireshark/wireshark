@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.122 2001/04/25 07:51:36 guy Exp $
+# $Id: configure.in,v 1.123 2001/05/01 02:44:51 guy Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -199,6 +199,41 @@ else
 	AM_PATH_GLIB(1.2.0, CFLAGS="$CFLAGS $GLIB_CFLAGS", AC_MSG_ERROR(GLib distribution not found.), gmodule)
 fi
 
+#
+# Check whether GLib modules are supported, to determine whether we
+# can support plugins.
+#
+AC_MSG_CHECKING(whether GLib supports loadable modules)
+ac_save_CFLAGS="$CFLAGS"
+ac_save_LIBS="$LIBS"
+CFLAGS="$CFLAGS $GLIB_CFLAGS"
+LIBS="$GLIB_LIBS $LIBS"
+AC_TRY_RUN([
+#include <glib.h>
+#include <gmodule.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+int 
+main ()
+{
+  if (g_module_supported())
+    return 0;	/* success */
+  else
+    return 1;	/* failure */
+}
+], ac_cv_glib_supports_modules=yes, ac_cv_glib_supports_modules=no,
+   [echo $ac_n "cross compiling; assumed OK... $ac_c"])
+CFLAGS="$ac_save_CFLAGS"
+LIBS="$ac_save_LIBS"
+if test "$ac_cv_glib_supports_modules" = yes ; then
+  AC_MSG_RESULT(yes)
+  AC_DEFINE(HAVE_PLUGINS)
+else
+  AC_MSG_RESULT(no)
+fi
+
+
 AC_SUBST(ethereal_bin)
 AC_SUBST(ethereal_man)
 
@@ -330,17 +365,7 @@ AC_CHECK_HEADERS(sys/stat.h sys/sockio.h sys/types.h sys/socket.h)
 AC_CHECK_HEADERS(sys/wait.h)
 AC_CHECK_HEADERS(netinet/in.h)
 AC_CHECK_HEADERS(stddef.h)
-AC_CHECK_HEADERS(dlfcn.h)
 AC_CHECK_HEADERS(arpa/inet.h)
-
-#
-# XXX - we should also somehow arrange to support dynamic linking on
-# HP-UX, even though it hasn't yet, apparently, implemented the
-# UNIX standard "dlopen()" interface atop its own interface.
-#
-if test "$ac_cv_header_dlfcn_h" = yes ; then
-  AC_DEFINE(HAVE_PLUGINS)
-fi
 
 dnl SSL Check
 SSL_LIBS=''
