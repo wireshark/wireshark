@@ -24,7 +24,7 @@ http://developer.novell.com/ndk/doc/docui/index.htm#../ncp/ncp__enu/data/
 for a badly-formatted HTML version of the same PDF.
 
 
-$Id: ncp2222.py,v 1.14.2.9 2002/02/26 19:44:52 gram Exp $
+$Id: ncp2222.py,v 1.14.2.10 2002/02/27 04:26:55 gram Exp $
 
 Copyright (c) 2000-2002 by Gilbert Ramirez <gram@alumni.rice.edu>
 and Greg Morris <GMORRIS@novell.com>.
@@ -52,7 +52,7 @@ import traceback
 
 errors 		= {}
 groups		= {}
-packets		= None
+packets		= []
 compcode_lists	= None
 ptvc_lists	= None
 msg		= None
@@ -89,6 +89,7 @@ class UniqueCollection:
 		"Constructor"
 		self.name = name
 		self.members = []
+		self.member_reprs = {}
 
 	def Add(self, object):
 		"""Add an object to the members lists, if a comparable object
@@ -96,14 +97,14 @@ class UniqueCollection:
 		either the object that was added or the comparable object that was
 		already in the member list, is returned."""
 
+		r = repr(object)
 		# Is 'object' a duplicate of some other member?
-		for member in self.members:
-			if member == object:
-				return member
-
-		# Store object in our members list.
-		self.members.append(object)
-		return object
+		if self.member_reprs.has_key(r):
+			return self.member_reprs[r]
+		else:
+			self.member_reprs[r] = object
+			self.members.append(object)
+			return object
 
 	def Members(self):
 		"Returns the list of members."
@@ -111,11 +112,10 @@ class UniqueCollection:
 
 	def HasMember(self, object):
 		"Does the list of members contain the object?"
-		for member in self.members:
-			if member == object:
-				return 1
-		return 0
-
+		if self.members_reprs.has_key(repr(object)):
+			return 1
+		else:
+			return 0
 
 # This list needs to be defined before the NCP types are defined,
 # because the NCP types are defined in the global scope, not inside
@@ -134,13 +134,11 @@ class NamedList:
 	def __cmp__(self, other):
 		"Compare this NamedList to another"
 
-		# Python will do a deep comparison of lists within lists.
-		if self.list < other.list:
-			return -1
-		elif self.list > other.list:
-			return 1
+		if isinstance(other, NamedList):
+			return cmp(self.list, other.list)
 		else:
 			return 0
+
 
 	def Name(self, new_name = None):
 		"Get/Set name of list"
@@ -165,6 +163,8 @@ class NamedList:
 		else:
 			return 1
 
+	def __repr__(self):
+		return repr(self.list)
 
 class PTVC(NamedList):
 	"""ProtoTree TVBuff Cursor List ("PTVC List") Class"""
@@ -267,6 +267,12 @@ class PTVC(NamedList):
 		x = x + "};\n"
 		return x
 
+	def __repr__(self):
+		x = ""
+		for ptvc_rec in self.list:
+			x = x + repr(ptvc_rec)
+		return x
+
 
 class PTVCBitfield(PTVC):
 	def __init__(self, name, vars):
@@ -309,12 +315,11 @@ class PTVCRecord:
 
 	def __cmp__(self, other):
 		"Comparison operator"
-		if self.length < other.length:
+		if self.field != other.field:
+			return 1
+		elif self.length < other.length:
 			return -1
 		elif self.length > other.length:
-			return 1
-
-		if self.field != other.field:
 			return 1
 		elif self.endianness != other.endianness:
 			return 1
@@ -387,7 +392,9 @@ class PTVCRecord:
 		return self.field
 
 	def __repr__(self):
-		return "{%s, %s, %s}" % (self.field, self.length, self.endianness)
+		return "{%s len=%s end=%s var=%s rpt=%s rqc=%s}" % \
+			(self.field.HFName(), self.length,
+			self.endianness, self.var, self.repeat, self.req_cond)
 
 ##############################################################################
 
@@ -578,9 +585,11 @@ class NCP:
 
 
 	def CompletionCodes(self, codes=None):
-		"""Sets or returns the list of completion codes. Internally, a NamedList
-		is used to store the completion codes, but the caller of this function
-		never realizes that because Python lists are the input and output."""
+		"""Sets or returns the list of completion
+		codes. Internally, a NamedList is used to store the
+		completion codes, but the caller of this function never
+		realizes that because Python lists are the input and
+		output."""
 
 		if codes == None:
 			return self.codes
@@ -593,13 +602,13 @@ class NCP:
 					self.func_code))
 				okay = 0
 
-		# Delay the exit until here so that the programmer can get the complete
-		# list of missing error codes
+		# Delay the exit until here so that the programmer can get
+		# the complete list of missing error codes
 		if not okay:
 			sys.exit(1)
 
-		# Create CompletionCode (NamedList) object and possible add it to
-		# the global list of completion code lists.
+		# Create CompletionCode (NamedList) object and possible
+		# add it to  the global list of completion code lists.
 		name = "%s_errors" % (self.CName(),)
 		codes.sort()
 		codes_list = NamedList(name, codes)
@@ -608,18 +617,14 @@ class NCP:
 		self.Finalize()
 
 	def Finalize(self):
-		"""Adds the NCP object to the global collection of NCP objects. This
-		is done automatically after setting the CompletionCode list. Yes, this
-		is a shortcut, but it makes our list of NCP packet definitions look
-		neater, since an explicit "add to global list of packets" is not needed."""
+		"""Adds the NCP object to the global collection of NCP
+		objects. This is done automatically after setting the
+		CompletionCode list. Yes, this is a shortcut, but it makes
+		our list of NCP packet definitions look neater, since an
+		explicit "add to global list of packets" is not needed."""
 
 		# Add packet to global collection of packets
-		if packets.HasMember(self):
-			msg.write("Already have NCP Function Code 0x%x\n" % \
-				(self.func_code))
-			sys.exit(1)
-		else:
-			packets.Add(self)
+		packets.append(self)
 
 def rec(start, length, field, endianness=None, **kw):
 	return _rec(start, length, field, endianness, kw)
@@ -679,6 +684,7 @@ class Type:
 		self.descr = descr
 		self.bytes = bytes
 		self.endianness = endianness
+		self.hfname = "hf_ncp_" + self.abbrev
 
 	def Length(self):
 		return self.bytes
@@ -690,7 +696,7 @@ class Type:
 		return self.descr
 
 	def HFName(self):
-		return "hf_ncp_" + self.abbrev
+		return self.hfname
 
 	def DFilter(self):
 		return "ncp." + self.abbrev
@@ -719,7 +725,7 @@ class Type:
 		return "NULL"
 
 	def __cmp__(self, other):
-		return cmp(self.HFName(), other.HFName())
+		return cmp(self.hfname, other.hfname)
 
 class struct(PTVC, Type):
 	def __init__(self, name, vars):
@@ -733,8 +739,7 @@ class struct(PTVC, Type):
 			self.list.append(ptvc_rec)
 			self.bytes = self.bytes + var.Length()
 
-	def HFName(self):
-		return self.name
+		self.hfname = self.name
 
 	def Variables(self):
 		vars = []
@@ -758,6 +763,9 @@ class struct(PTVC, Type):
 		x = x + "\tptvc_%s,\n" % (self.Name(),)
 		x = x + "};\n"
 		return x
+
+	def __cmp__(self, other):
+		return cmp(self.HFName(), other.HFName())
 
 
 class byte(Type):
@@ -894,6 +902,8 @@ class bitfield(Type):
 			ordered_vars.append(var)
 
 		self.vars = ordered_vars
+		self.ptvcname = "ncp_%s_bitfield" % (self.abbrev,)
+		self.hfname = "hf_ncp_%s" % (self.abbrev,)
 		self.sub_ptvc = PTVCBitfield(self.PTVCName(), self.vars)
 
 	def SubVariables(self):
@@ -903,7 +913,7 @@ class bitfield(Type):
 		return self.sub_ptvc
 
 	def PTVCName(self):
-		return "ncp_%s_bitfield" % (self.abbrev,)
+		return self.ptvcname
 
 class bitfield8(bitfield, uint8):
 	type	= "bitfield8"
@@ -921,6 +931,7 @@ class bf_uint(Type):
 		self.bitmask = bitmask
 		self.abbrev = abbrev
 		self.descr = descr
+		self.hfname = "hf_ncp_" + self.abbrev
 
 	def Mask(self):
 		return self.bitmask
@@ -4847,11 +4858,6 @@ static int hf_ncp_connection_status = -1;
 
 	# Look at all packet types in the packets collection, and cull information
 	# from them.
-	packet_keys = []
-	for packet in packets.Members():
-		packet_keys.append(packet.FunctionCode())
-	packet_keys.sort()
-
 	errors_used_list = []
 	errors_used_hash = {}
 	groups_used_list = []
@@ -4859,7 +4865,7 @@ static int hf_ncp_connection_status = -1;
 	variables_used_hash = {}
 	structs_used_hash = {}
 
-	for pkt in packets.Members():
+	for pkt in packets:
 		# Determine which error codes are used.
 		codes = pkt.CompletionCodes()
 		for code in codes.Records():
@@ -4879,14 +4885,14 @@ static int hf_ncp_connection_status = -1;
 
 
 	# Print the hf variable declarations
-	vars = variables_used_hash.values()
-	vars.sort()
-	for var in vars:
+	sorted_vars = variables_used_hash.values()
+	sorted_vars.sort()
+	for var in sorted_vars:
 		print "static int " + var.HFName() + " = -1;"
 
 
 	# Print the value_string's
-	for var in variables_used_hash.values():
+	for var in sorted_vars:
 		if isinstance(var, val_string):
 			print ""
 			print var.Code()
@@ -4967,7 +4973,7 @@ static int hf_ncp_connection_status = -1;
 	# Print PTVC's for bitfields
 	ett_list = []
 	print "/* PTVC records for bit-fields. */"
-	for var in variables_used_hash.values():
+	for var in sorted_vars:
 		if isinstance(var, bitfield):
 			sub_vars_ptvc = var.SubVariablesPTVC()
 			print "/* %s */" % (sub_vars_ptvc.Name())
@@ -4977,7 +4983,14 @@ static int hf_ncp_connection_status = -1;
 
 	# Print the PTVC's for structures
 	print "/* PTVC records for structs. */"
-	for var in structs_used_hash.values():
+	# Sort them
+	svhash = {}
+	for svar in structs_used_hash.values():
+		svhash[svar.HFName()] = svar
+	struct_vars = svhash.keys()
+	struct_vars.sort()
+	for varname in struct_vars:
+		var = svhash[varname]
 		print var.Code()
 
 	# Print regular PTVC's
@@ -5008,7 +5021,7 @@ static int hf_ncp_connection_status = -1;
 	print "/* Request Condition Indexes */"
 	# First, make them unique
 	req_cond_collection = UniqueCollection("req_cond_collection")
-	for pkt in packets.Members():
+	for pkt in packets:
 		req_conds = pkt.CalculateReqConds()
 		if req_conds:
 			unique_list = req_cond_collection.Add(req_conds)
@@ -5043,7 +5056,7 @@ static int hf_ncp_connection_status = -1;
 
 	print "/* ncp_record structs for packets */"
 	print "static const ncp_record ncp_packets[] = {"
-	for pkt in packets.Members():
+	for pkt in packets:
 		if pkt.HasSubFunction():
 			func = pkt.FunctionCode('high')
 			if pkt.HasLength():
@@ -5091,7 +5104,7 @@ static int hf_ncp_connection_status = -1;
 	print "/* ncp funcs that require a subfunc */"
 	print "static const guint8 ncp_func_requires_subfunc[] = {"
 	hi_seen = {}
-	for pkt in packets.Members():
+	for pkt in packets:
 		if pkt.HasSubFunction():
 			hi_func = pkt.FunctionCode('high')
 			if not hi_seen.has_key(hi_func):
@@ -5155,9 +5168,7 @@ proto_register_ncp2222(void)
 	"""
 
 	# Print the registration code for the hf variables
-	vars = variables_used_hash.values()
-	vars.sort()
-	for var in vars:
+	for var in sorted_vars:
 		print "\t{ &%s," % (var.HFName())
 		print "\t{ \"%s\", \"%s\", %s, %s, %s, 0x%x, \"\", HFILL }},\n" % \
 			(var.Description(), var.DFilter(),
@@ -5200,7 +5211,6 @@ def usage():
 	sys.exit(1)
 
 def main():
-	global packets
 	global compcode_lists
 	global ptvc_lists
 	global msg
@@ -5242,7 +5252,6 @@ def main():
 	# Run the code, and if we catch any exception,
 	# erase the output file.
 	try:
-		packets		= UniqueCollection('NCP Packet Descriptions')
 		compcode_lists	= UniqueCollection('Completion Code Lists')
 		ptvc_lists	= UniqueCollection('PTVC Lists')
 
@@ -5250,7 +5259,7 @@ def main():
 		define_groups()
 		define_ncp2222()
 
-		msg.write("Defined %d NCP types.\n" % (len(packets.Members()),))
+		msg.write("Defined %d NCP types.\n" % (len(packets),))
 		produce_code()
 	except:
 		traceback.print_exc(20, msg)
@@ -12183,4 +12192,17 @@ def define_ncp2222():
 	pkt.CompletionCodes([0x0000, 0x7e00, 0xfb07, 0xff00])
 
 if __name__ == '__main__':
+#	import profile
+#	filename = "ncp.pstats"
+#	profile.run("main()", filename)
+#
+#	import pstats
+#	sys.stdout = msg
+#	p = pstats.Stats(filename)
+#
+#	print "Stats sorted by cumulative time"
+#	p.strip_dirs().sort_stats('cumulative').print_stats()
+#
+#	print "Function callees"
+#	p.print_callees()
 	main()
