@@ -2,7 +2,7 @@
  * Routines for decoding SCSI CDBs and responses
  * Author: Dinesh G Dutt (ddutt@cisco.com)
  *
- * $Id: packet-scsi.c,v 1.13 2002/08/19 13:06:43 guy Exp $
+ * $Id: packet-scsi.c,v 1.14 2002/08/20 03:21:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -83,6 +83,7 @@
 #include <string.h>
 #include <epan/strutil.h>
 #include <epan/conversation.h>
+#include <epan/int-64bit.h>
 #include "prefs.h"
 #include "packet-scsi.h"
 
@@ -162,7 +163,7 @@ static gint ett_scsi_page    = -1;
 typedef guint32 scsi_cmnd_type;
 typedef guint32 scsi_device_type;
 
-/* Valid SCSI Device Types */
+/* Valid SCSI Command Types */
 #define SCSI_CMND_SPC2                   1
 #define SCSI_CMND_SBC2                   2
 #define SCSI_CMND_SSC2                   3
@@ -201,23 +202,23 @@ static const value_string scsi_spc2_val[] = {
     {SCSI_SPC2_INQUIRY           , "Inquiry"},
     {SCSI_SPC2_LOGSELECT         , "Log Select"},
     {SCSI_SPC2_LOGSENSE          , "Log Sense"},
-    {SCSI_SPC2_MODESELECT6       , "Mode Select (6)"},
-    {SCSI_SPC2_MODESELECT10      , "Mode Select (10)"},
-    {SCSI_SPC2_MODESENSE6        , "Mode Sense (6)"},
-    {SCSI_SPC2_MODESENSE10       , "Mode Sense (10)"},
+    {SCSI_SPC2_MODESELECT6       , "Mode Select(6)"},
+    {SCSI_SPC2_MODESELECT10      , "Mode Select(10)"},
+    {SCSI_SPC2_MODESENSE6        , "Mode Sense(6)"},
+    {SCSI_SPC2_MODESENSE10       , "Mode Sense(10)"},
     {SCSI_SPC2_PERSRESVIN        , "Persistent Reserve In"},
     {SCSI_SPC2_PERSRESVOUT       , "Persistent Reserve Out"},
     {SCSI_SPC2_PREVMEDREMOVAL    , "Prevent/Allow Medium Removal"},
     {SCSI_SPC2_RCVCOPYRESULTS    , "Receive Copy Results"},
     {SCSI_SPC2_RCVDIAGRESULTS    , "Receive Diagnostics Results"},
     {SCSI_SPC2_READBUFFER        , "Read Buffer"},
-    {SCSI_SPC2_RELEASE6          , "Release (6)"},
-    {SCSI_SPC2_RELEASE10         , "Release (10)"},
+    {SCSI_SPC2_RELEASE6          , "Release(6)"},
+    {SCSI_SPC2_RELEASE10         , "Release(10)"},
     {SCSI_SPC2_REPORTDEVICEID    , "Report Device ID"},
     {SCSI_SPC2_REPORTLUNS        , "Report LUNs"},
     {SCSI_SPC2_REQSENSE          , "Request Sense"},
-    {SCSI_SPC2_RESERVE6          , "Reserve (6)"},
-    {SCSI_SPC2_RESERVE10         , "Reserve (10)"},
+    {SCSI_SPC2_RESERVE6          , "Reserve(6)"},
+    {SCSI_SPC2_RESERVE10         , "Reserve(10)"},
     {SCSI_SPC2_TESTUNITRDY       , "Test Unit Ready"},
     {SCSI_SPC2_WRITEBUFFER       , "Write Buffer"},
     {SCSI_SPC2_VARLENCDB         , "Variable Length CDB"},
@@ -276,52 +277,52 @@ static const value_string scsi_spc2_val[] = {
 
 static const value_string scsi_sbc2_val[] = {
     {SCSI_SBC2_FORMATUNIT    , "Format Unit"},
-    {SCSI_SBC2_LOCKUNLKCACHE10, "Lock Unlock Cache (10)"},
-    {SCSI_SPC2_LOCKUNLKCACHE16, "Lock Unlock Cache (16)"},
-    {SCSI_SBC2_PREFETCH10, "Pre-Fetch (10)"},
-    {SCSI_SBC2_PREFETCH16, "Pre-Fetch (16)"},
-    {SCSI_SBC2_READ6         , "Read (6)"},
-    {SCSI_SBC2_READ10        , "Read (10)"},
-    {SCSI_SBC2_READ12        , "Read (12)"},
-    {SCSI_SBC2_READ16        , "Read (16)"},
+    {SCSI_SBC2_LOCKUNLKCACHE10, "Lock Unlock Cache(10)"},
+    {SCSI_SPC2_LOCKUNLKCACHE16, "Lock Unlock Cache(16)"},
+    {SCSI_SBC2_PREFETCH10, "Pre-Fetch(10)"},
+    {SCSI_SBC2_PREFETCH16, "Pre-Fetch(16)"},
+    {SCSI_SBC2_READ6         , "Read(6)"},
+    {SCSI_SBC2_READ10        , "Read(10)"},
+    {SCSI_SBC2_READ12        , "Read(12)"},
+    {SCSI_SBC2_READ16        , "Read(16)"},
     {SCSI_SBC2_READCAPACITY  , "Read Capacity"},
-    {SCSI_SBC2_READDEFDATA10 , "Read Defect Data (10)"},
-    {SCSI_SBC2_READDEFDATA12 , "Read Defect Data (12)"},
+    {SCSI_SBC2_READDEFDATA10 , "Read Defect Data(10)"},
+    {SCSI_SBC2_READDEFDATA12 , "Read Defect Data(12)"},
     {SCSI_SBC2_READLONG, "Read Long"},
     {SCSI_SBC2_REASSIGNBLKS  , "Reassign Blocks"},
-    {SCSI_SBC2_REBUILD16, "Rebuild (16)"},
-    {SCSI_SBC2_REBUILD32, "Rebuild (32)"},
-    {SCSI_SBC2_REGENERATE16, "Regenerate (16)"},
-    {SCSI_SBC2_REGENERATE32, "Regenerate (32)"},
-    {SCSI_SBC2_SEEK10, "Seek (10)"},
-    {SCSI_SBC2_SETLIMITS10, "Set Limits (10)"},
-    {SCSI_SBC2_SETLIMITS12, "Set Limits (12)"},
+    {SCSI_SBC2_REBUILD16, "Rebuild(16)"},
+    {SCSI_SBC2_REBUILD32, "Rebuild(32)"},
+    {SCSI_SBC2_REGENERATE16, "Regenerate(16)"},
+    {SCSI_SBC2_REGENERATE32, "Regenerate(32)"},
+    {SCSI_SBC2_SEEK10, "Seek(10)"},
+    {SCSI_SBC2_SETLIMITS10, "Set Limits(10)"},
+    {SCSI_SBC2_SETLIMITS12, "Set Limits(12)"},
     {SCSI_SBC2_STARTSTOPUNIT, "Start Stop Unit"},
-    {SCSI_SBC2_SYNCCACHE10, "Synchronize Cache (10)"},
-    {SCSI_SBC2_SYNCCACHE16, "Synchronize Cache (16)"},
-    {SCSI_SBC2_VERIFY10, "Verify (10)"},
-    {SCSI_SBC2_VERIFY12, "Verify (12)"},
-    {SCSI_SBC2_VERIFY16, "Verify (16)"},
-    {SCSI_SBC2_WRITE6        , "Write (6)"},
-    {SCSI_SBC2_WRITE10       , "Write (10)"},
-    {SCSI_SBC2_WRITE12       , "Write (12)"},
-    {SCSI_SBC2_WRITE16       , "Write (16)"},
-    {SCSI_SBC2_WRITENVERIFY10, "Write & Verify (10)"},
-    {SCSI_SBC2_WRITENVERIFY12, "Write & Verify (12)"},
-    {SCSI_SBC2_WRITENVERIFY16, "Write & Verify (16)"},
+    {SCSI_SBC2_SYNCCACHE10, "Synchronize Cache(10)"},
+    {SCSI_SBC2_SYNCCACHE16, "Synchronize Cache(16)"},
+    {SCSI_SBC2_VERIFY10, "Verify(10)"},
+    {SCSI_SBC2_VERIFY12, "Verify(12)"},
+    {SCSI_SBC2_VERIFY16, "Verify(16)"},
+    {SCSI_SBC2_WRITE6        , "Write(6)"},
+    {SCSI_SBC2_WRITE10       , "Write(10)"},
+    {SCSI_SBC2_WRITE12       , "Write(12)"},
+    {SCSI_SBC2_WRITE16       , "Write(16)"},
+    {SCSI_SBC2_WRITENVERIFY10, "Write & Verify(10)"},
+    {SCSI_SBC2_WRITENVERIFY12, "Write & Verify(12)"},
+    {SCSI_SBC2_WRITENVERIFY16, "Write & Verify(16)"},
     {SCSI_SBC2_WRITELONG, "Write Long"},
-    {SCSI_SBC2_WRITESAME10, "Write Same (10)"},
-    {SCSI_SBC2_WRITESAME16, "Write Same (16)"},
-    {SCSI_SBC2_XDREAD10, "XdRead (10)"},
-    {SCSI_SBC2_XDREAD32, "XdRead (32)"},
-    {SCSI_SBC2_XDWRITE10, "XdWrite (10)"},
+    {SCSI_SBC2_WRITESAME10, "Write Same(10)"},
+    {SCSI_SBC2_WRITESAME16, "Write Same(16)"},
+    {SCSI_SBC2_XDREAD10, "XdRead(10)"},
+    {SCSI_SBC2_XDREAD32, "XdRead(32)"},
+    {SCSI_SBC2_XDWRITE10, "XdWrite(10)"},
     {SCSI_SBC2_XDWRITE32, "XdWrite(32)"},
-    {SCSI_SBC2_XDWRITEREAD10, "XdWriteRead (10)"},
-    {SCSI_SBC2_XDWRITEREAD32, "XdWriteRead (32)"},
-    {SCSI_SBC2_XDWRITEEXTD16, "XdWrite Extended (16)"},
-    {SCSI_SBC2_XDWRITEEXTD32, "XdWrite Extended (32)"},
-    {SCSI_SBC2_XPWRITE10, "XpWrite (10)"},
-    {SCSI_SBC2_XPWRITE32, "XpWrite (32)"},
+    {SCSI_SBC2_XDWRITEREAD10, "XdWriteRead(10)"},
+    {SCSI_SBC2_XDWRITEREAD32, "XdWriteRead(32)"},
+    {SCSI_SBC2_XDWRITEEXTD16, "XdWrite Extended(16)"},
+    {SCSI_SBC2_XDWRITEEXTD32, "XdWrite Extended(32)"},
+    {SCSI_SBC2_XPWRITE10, "XpWrite(10)"},
+    {SCSI_SBC2_XPWRITE32, "XpWrite(32)"},
     {0, NULL},
 };
 
@@ -349,11 +350,11 @@ static const value_string scsi_sbc2_val[] = {
 #define SCSI_SSC2_ERASE_6                       0x19
 #define SCSI_SSC2_LOCATE_10                     0x2B
 #define SCSI_SSC2_LOCATE_16                     0x92
-#define SCSI_SSC2_READ_6                        0x08
+#define SCSI_SSC2_READ6                         0x08
 #define SCSI_SSC2_READ_REVERSE_6                0x0F
 #define SCSI_SSC2_SPACE_6                       0x11
 #define SCSI_SSC2_VERIFY_6                      0x13
-#define SCSI_SSC2_WRITE_6                       0x0A
+#define SCSI_SSC2_WRITE6                        0x0A
 #define SCSI_SSC2_WRITE_FILEMARKS_6             0x10
 
 static const value_string scsi_ssc2_val[] = {
@@ -380,11 +381,11 @@ static const value_string scsi_ssc2_val[] = {
     {SCSI_SSC2_ERASE_6                     , "Erase(6)"},
     {SCSI_SSC2_LOCATE_10                   , "Locate(10)"},
     {SCSI_SSC2_LOCATE_16                   , "Locate(16)"},
-    {SCSI_SSC2_READ_6                      , "Read(6)"},
+    {SCSI_SSC2_READ6                       , "Read(6)"},
     {SCSI_SSC2_READ_REVERSE_6              , "Read Reverse(6)"},
     {SCSI_SSC2_SPACE_6                     , "Space(6)"},
     {SCSI_SSC2_VERIFY_6                    , "Verify(6)"},
-    {SCSI_SSC2_WRITE_6                     , "Write(6)"},
+    {SCSI_SSC2_WRITE6                      , "Write(6)"},
     {SCSI_SSC2_WRITE_FILEMARKS_6           , "Write Filemarks(6)"},
 };
 
@@ -1094,6 +1095,7 @@ static gint scsi_def_devtype = SCSI_DEV_SBC;
  */
 typedef struct _scsi_task_data {
     guint32 opcode;
+    scsi_cmnd_type cmd;
     scsi_device_type devtype;
     guint8 flags;               /* used by SCSI Inquiry */
 } scsi_task_data_t;
@@ -1388,20 +1390,31 @@ dissect_scsi_inquiry (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     scsi_devtype_data_t *devdata = NULL;
     scsi_devtype_key_t dkey, *req_key;
 
-    /* Add device type to list of known devices & their types */
-    COPY_ADDRESS (&(dkey.devid), &(pinfo->src));
-    devdata = (scsi_devtype_data_t *)g_hash_table_lookup (scsidev_req_hash,
-                                                          &dkey);
-    if (!devdata) {
-        req_key = g_mem_chunk_alloc (scsidev_req_keys);
-        COPY_ADDRESS (&(req_key->devid), &(pinfo->src));
+    if (!isreq && (cdata == NULL || !(cdata->flags & 0x3))) {
+        /*
+         * INQUIRY response; add device type to list of known devices &
+         * their types if not already known.
+         *
+         * XXX - this assumes that the source address of the INQUIRY
+         * reply uniquely identifies the device; that isn't the case, as,
+         * for example, for iSCSI you could have more than one target
+         * or LUN at a given IP address, and for NDMP more than one
+         * device can be opened and closed in the same session.
+         */
+        COPY_ADDRESS (&(dkey.devid), &(pinfo->src));
+        devdata = (scsi_devtype_data_t *)g_hash_table_lookup (scsidev_req_hash,
+                                                              &dkey);
+        if (!devdata) {
+            req_key = g_mem_chunk_alloc (scsidev_req_keys);
+            COPY_ADDRESS (&(req_key->devid), &(pinfo->src));
         
-        devdata = g_mem_chunk_alloc (scsidev_req_vals);
-        devdata->devtype = tvb_get_guint8 (tvb, offset) & 0x10;
+            devdata = g_mem_chunk_alloc (scsidev_req_vals);
+            devdata->devtype = tvb_get_guint8 (tvb, offset) & 0x3F;
         
-        g_hash_table_insert (scsidev_req_hash, req_key, devdata);
+            g_hash_table_insert (scsidev_req_hash, req_key, devdata);
+	}
     }
-        
+
     if (!tree)
         return;
     
@@ -1558,7 +1571,150 @@ dissect_scsi_logsense (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     }
 }
 
-static guint8
+static gboolean
+dissect_scsi_blockdescs (tvbuff_t *tvb, packet_info *pinfo _U_,
+                        proto_tree *scsi_tree, guint offset,
+                        guint payload_len, guint desclen,
+                        scsi_device_type devtype, gboolean longlba)
+{
+    while (desclen != 0) {
+        if (longlba) {
+            if (payload_len < 8)
+                return FALSE;
+            if (desclen < 8) {
+                offset += desclen;
+                payload_len -= desclen;
+                break;
+            }
+            proto_tree_add_text (scsi_tree, tvb, offset, 8, "No. of Blocks: %s",
+                                 u64toa (tvb_get_ptr (tvb, offset, 8)));
+            offset += 8;
+            payload_len -= 8;
+            desclen -= 8;
+
+            if (payload_len < 1)
+                return FALSE;
+            if (desclen < 1)
+                break;
+            proto_tree_add_text (scsi_tree, tvb, offset, 1, "Density Code: 0x%02x",
+                                 tvb_get_guint8 (tvb, offset));
+            offset += 1;
+            payload_len -= 1;
+            desclen -= 1;
+
+            if (payload_len < 3)
+                return FALSE;
+            if (desclen < 3) {
+                offset += desclen;
+                payload_len -= desclen;
+                break;
+            }
+            /* 3 reserved bytes */
+            offset += 3;
+            payload_len -= 3;
+            desclen -= 3;
+
+            if (payload_len < 4)
+                return FALSE;
+            if (desclen < 4) {
+                offset += desclen;
+                payload_len -= desclen;
+                break;
+            }
+            proto_tree_add_text (scsi_tree, tvb, offset, 4, "Block Length: %u",
+                                     tvb_get_ntohl (tvb, offset));
+            offset += 4;
+            payload_len -= 4;
+            desclen -= 4;
+        } else {
+            if (devtype == SCSI_DEV_SBC) {
+                if (payload_len < 4)
+                    return FALSE;
+                if (desclen < 4) {
+                    offset += desclen;
+                    payload_len -= desclen;
+                    break;
+                }
+                proto_tree_add_text (scsi_tree, tvb, offset, 4, "No. of Blocks: %u",
+                                     tvb_get_ntohl (tvb, offset));
+                offset += 4;
+                payload_len -= 4;
+                desclen -= 4;
+
+                if (payload_len < 1)
+                    return FALSE;
+                if (desclen < 1)
+                    break;
+                proto_tree_add_text (scsi_tree, tvb, offset, 1, "Density Code: 0x%02x",
+                                     tvb_get_guint8 (tvb, offset));
+                offset += 1;
+                payload_len -= 1;
+                desclen -= 1;
+
+                if (payload_len < 3)
+                    return FALSE;
+                if (desclen < 3) {
+                    offset += desclen;
+                    payload_len -= desclen;
+                    break;
+                }
+                proto_tree_add_text (scsi_tree, tvb, offset, 3, "Block Length: %u",
+                                         tvb_get_ntoh24 (tvb, offset));
+                offset += 3;
+                payload_len -= 3;
+                desclen -= 3;
+            } else {
+                if (payload_len < 1)
+                    return FALSE;
+                if (desclen < 1)
+                    break;
+                proto_tree_add_text (scsi_tree, tvb, offset, 1, "Density Code: 0x%02x",
+                                     tvb_get_guint8 (tvb, offset));
+                offset += 1;
+                payload_len -= 1;
+                desclen -= 1;
+
+                if (payload_len < 3)
+                    return FALSE;
+                if (desclen < 3) {
+                    offset += desclen;
+                    payload_len -= desclen;
+                    break;
+                }
+                proto_tree_add_text (scsi_tree, tvb, offset, 3, "No. of Blocks: %u",
+                                     tvb_get_ntoh24 (tvb, offset));
+                offset += 3;
+                payload_len -= 3;
+                desclen -= 3;
+
+                if (payload_len < 1)
+                    return FALSE;
+                if (desclen < 1)
+                    break;
+                /* Reserved byte */
+                offset += 1;
+                payload_len -= 1;
+                desclen -= 1;
+
+                if (payload_len < 3)
+                    return FALSE;
+                if (desclen < 3) {
+                    offset += desclen;
+                    payload_len -= desclen;
+                    break;
+                }
+                proto_tree_add_text (scsi_tree, tvb, offset, 3, "Block Length: %u",
+                                         tvb_get_ntoh24 (tvb, offset));
+                offset += 3;
+                payload_len -= 3;
+                desclen -= 3;
+            }
+        }
+    }
+    return TRUE;
+}
+
+static guint
 dissect_scsi_modepage (tvbuff_t *tvb, packet_info *pinfo _U_, 
 		       proto_tree *scsi_tree, guint offset)
 {
@@ -1826,7 +1982,7 @@ dissect_scsi_modepage (tvbuff_t *tvb, packet_info *pinfo _U_,
 static void
 dissect_scsi_modeselect6 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                           guint offset, gboolean isreq, gboolean iscdb,
-                          guint payload_len)
+                          scsi_device_type devtype, guint payload_len)
 {
     guint8 flags;
     guint tot_len, desclen, plen;
@@ -1891,34 +2047,12 @@ dissect_scsi_modeselect6 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         offset += 1;
         payload_len -= 1;
 
-        if (desclen) {
-            if (payload_len < 1)
-                return;
-            proto_tree_add_text (tree, tvb, offset, 1, "Density Code: 0x%02x",
-                                 tvb_get_guint8 (tvb, offset));
-            offset += 1;
-            payload_len -= 1;
+        if (!dissect_scsi_blockdescs (tvb, pinfo, tree, offset, payload_len,
+                                     desclen, devtype, FALSE))
+            return;
+        offset += desclen;
+        payload_len -= desclen;
 
-            if (payload_len < 3)
-                return;
-            proto_tree_add_text (tree, tvb, offset, 3, "No. of Blocks: %u",
-                                 tvb_get_ntoh24 (tvb, offset));
-            offset += 3;
-            payload_len -= 3;
-
-            if (payload_len < 1)
-                return;
-            /* Reserved byte */
-            offset += 1;
-            payload_len -= 1;
-
-            if (payload_len < 3)
-                return;
-            proto_tree_add_text (tree, tvb, offset, 3, "Block Length: %u",
-                                 tvb_get_ntoh24 (tvb, offset));
-            offset += 3;
-            payload_len -= 3;
-        }
         /* offset points to the start of the mode page */
         while ((payload_len > 0) && tvb_bytes_exist (tvb, offset, 2)) {
             plen = dissect_scsi_modepage (tvb, pinfo, tree, offset);
@@ -1931,7 +2065,7 @@ dissect_scsi_modeselect6 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 static void
 dissect_scsi_modeselect10 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                            guint offset, gboolean isreq, gboolean iscdb,
-                           guint payload_len)
+                           scsi_device_type devtype, guint payload_len)
 {
     guint8 flags;
     gboolean longlba;
@@ -2004,35 +2138,12 @@ dissect_scsi_modeselect10 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         offset += 1;
         payload_len -= 1;
 
-        if (desclen) {
-            /* XXX - does longlba affect this? */
-            if (payload_len < 1)
-                return;
-            proto_tree_add_text (tree, tvb, offset, 1, "Density Code: 0x%02x",
-                                 tvb_get_guint8 (tvb, offset));
-            offset += 1;
-            payload_len -= 1;
+        if (!dissect_scsi_blockdescs (tvb, pinfo, tree, offset, payload_len,
+                                     desclen, devtype, longlba))
+            return;
+        offset += desclen;
+        payload_len -= desclen;
 
-            if (payload_len < 3)
-                return;
-            proto_tree_add_text (tree, tvb, offset, 3, "No. of Blocks: %u",
-                                 tvb_get_ntoh24 (tvb, offset));
-            offset += 3;
-            payload_len -= 3;
-
-            if (payload_len < 1)
-                return;
-            /* Reserved byte */
-            offset += 1;
-            payload_len -= 1;
-
-            if (payload_len < 3)
-                return;
-            proto_tree_add_text (tree, tvb, offset, 3, "Block Length: %u",
-                                 tvb_get_ntoh24 (tvb, offset));
-            offset += 3;
-            payload_len -= 3;
-        }
         /* offset points to the start of the mode page */
         while ((payload_len > 0) && tvb_bytes_exist (tvb, offset, 2)) {
             plen = dissect_scsi_modepage (tvb, pinfo, tree, offset);
@@ -2045,7 +2156,7 @@ dissect_scsi_modeselect10 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 static void
 dissect_scsi_modesense6 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                          guint offset, gboolean isreq, gboolean iscdb,
-                         guint payload_len)
+                         scsi_device_type devtype, guint payload_len)
 {
     guint8 flags;
     guint tot_len, desclen, plen;
@@ -2117,34 +2228,12 @@ dissect_scsi_modesense6 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         offset += 1;
         tot_len -= 1;
 
-        if (desclen) {
-            if (tot_len < 1)
-                return;
-            proto_tree_add_text (tree, tvb, offset, 1, "Density Code: 0x%02x",
-                                 tvb_get_guint8 (tvb, offset));
-            offset += 1;
-            tot_len -= 1;
+        if (!dissect_scsi_blockdescs (tvb, pinfo, tree, offset, tot_len,
+                                     desclen, devtype, FALSE))
+            return;
+        offset += desclen;
+        tot_len -= desclen;
 
-            if (tot_len < 3)
-                return;
-            proto_tree_add_text (tree, tvb, offset, 3, "No. of Blocks: %u",
-                                 tvb_get_ntoh24 (tvb, offset));
-            offset += 3;
-            tot_len -= 3;
-
-            if (tot_len < 1)
-                return;
-            /* Reserved byte */
-            offset += 1;
-            tot_len -= 1;
-
-            if (tot_len < 3)
-                return;
-            proto_tree_add_text (tree, tvb, offset, 3, "Block Length: %u",
-                                 tvb_get_ntoh24 (tvb, offset));
-            offset += 3;
-            tot_len -= 3;
-        }
         /* offset points to the start of the mode page */
         while ((tot_len > 0) && tvb_bytes_exist (tvb, offset, 2)) {
             plen = dissect_scsi_modepage (tvb, pinfo, tree, offset);
@@ -2157,7 +2246,7 @@ dissect_scsi_modesense6 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 static void
 dissect_scsi_modesense10 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                           guint offset, gboolean isreq, gboolean iscdb,
-                          guint payload_len)
+                          scsi_device_type devtype, guint payload_len)
 {
     guint8 flags;
     gboolean longlba;
@@ -2237,35 +2326,12 @@ dissect_scsi_modesense10 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         offset += 1;
         tot_len -= 1;
 
-        if (desclen) {
-            /* XXX - does longlba affect this? */
-            if (tot_len < 1)
-                return;
-            proto_tree_add_text (tree, tvb, offset, 1, "Density Code: 0x%02x",
-                                 tvb_get_guint8 (tvb, offset));
-            offset += 1;
-            tot_len -= 1;
+        if (!dissect_scsi_blockdescs (tvb, pinfo, tree, offset, tot_len,
+                                     desclen, devtype, longlba))
+            return;
+        offset += desclen;
+        tot_len -= desclen;
 
-            if (tot_len < 3)
-                return;
-            proto_tree_add_text (tree, tvb, offset, 3, "No. of Blocks: %u",
-                                 tvb_get_ntoh24 (tvb, offset));
-            offset += 3;
-            tot_len -= 3;
-
-            if (tot_len < 1)
-                return;
-            /* Reserved byte */
-            offset += 1;
-            tot_len -= 1;
-
-            if (tot_len < 3)
-                return;
-            proto_tree_add_text (tree, tvb, offset, 3, "Block Length: %u",
-                                 tvb_get_ntoh24 (tvb, offset));
-            offset += 3;
-            tot_len -= 3;
-        }
         /* offset points to the start of the mode page */
         while ((tot_len > 0) && tvb_bytes_exist (tvb, offset, 2)) {
             plen = dissect_scsi_modepage (tvb, pinfo, tree, offset);
@@ -2579,7 +2645,7 @@ dissect_scsi_formatunit (tvbuff_t *tvb, packet_info *pinfo _U_,
 }
 
 static void
-dissect_scsi_rdwr6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+dissect_scsi_sbc2_rdwr6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                     guint offset, gboolean isreq, gboolean iscdb)
 {
     guint8 flags;
@@ -2594,6 +2660,57 @@ dissect_scsi_rdwr6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     if (tree && isreq && iscdb) {
         proto_tree_add_item (tree, hf_scsi_rdwr6_lba, tvb, offset, 3, 0);
         proto_tree_add_item (tree, hf_scsi_rdwr6_xferlen, tvb, offset+3, 1, 0);
+        flags = tvb_get_guint8 (tvb, offset+4);
+        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+4, 1,
+                                    flags,
+                                    "Vendor Unique = %u, NACA = %u, Link = %u",
+                                    flags & 0xC0, flags & 0x4, flags & 0x1);
+    }
+}
+
+static void
+dissect_scsi_ssc2_read6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                    guint offset, gboolean isreq, gboolean iscdb)
+{
+    guint8 flags;
+
+    if (isreq) {
+        if (check_col (pinfo->cinfo, COL_INFO))
+            col_append_fstr (pinfo->cinfo, COL_INFO, "(Len: %u)",
+                             tvb_get_ntoh24 (tvb, offset+1));
+    }
+    
+    if (tree && isreq && iscdb) {
+        flags = tvb_get_guint8 (tvb, offset);
+        proto_tree_add_text (tree, tvb, offset, 1,
+                             "SILI: %u, FIXED: %u",
+                             (flags & 0x02) >> 1, flags & 0x01);
+        proto_tree_add_item (tree, hf_scsi_rdwr6_xferlen, tvb, offset+1, 1, 0);
+        flags = tvb_get_guint8 (tvb, offset+4);
+        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+4, 1,
+                                    flags,
+                                    "Vendor Unique = %u, NACA = %u, Link = %u",
+                                    flags & 0xC0, flags & 0x4, flags & 0x1);
+    }
+}
+
+static void
+dissect_scsi_ssc2_write6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                    guint offset, gboolean isreq, gboolean iscdb)
+{
+    guint8 flags;
+
+    if (isreq) {
+        if (check_col (pinfo->cinfo, COL_INFO))
+            col_append_fstr (pinfo->cinfo, COL_INFO, "(Len: %u)",
+                             tvb_get_ntoh24 (tvb, offset+1));
+    }
+    
+    if (tree && isreq && iscdb) {
+        flags = tvb_get_guint8 (tvb, offset);
+        proto_tree_add_text (tree, tvb, offset, 1,
+                             "FIXED: %u", flags & 0x01);
+        proto_tree_add_item (tree, hf_scsi_rdwr6_xferlen, tvb, offset+1, 1, 0);
         flags = tvb_get_guint8 (tvb, offset+4);
         proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+4, 1,
                                     flags,
@@ -2876,8 +2993,8 @@ dissect_scsi_cdb (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_item *ti;
     proto_tree *scsi_tree = NULL;
     guint8 opcode;
+    scsi_device_type devtype;
     scsi_cmnd_type cmd = 0;     /* 0 is undefined type */
-    scsi_device_type devtype = 0;
     gchar *valstr;
     scsi_task_data_t *cdata;
     scsi_devtype_key_t dkey;
@@ -2885,7 +3002,15 @@ dissect_scsi_cdb (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     
     opcode = tvb_get_guint8 (tvb, offset);
 
-    /* Identify target if possible */
+    /*
+     * Try to look up the device data for this device.
+     *
+     * XXX - this assumes that the destination address of the request
+     * uniquely identifies the device; that isn't the case, as,
+     * for example, for iSCSI you could have more than one target
+     * or LUN at a given IP address, and for NDMP more than one
+     * device can be opened and closed in the same session.
+     */
     COPY_ADDRESS (&(dkey.devid), &pinfo->dst);
 
     devdata = (scsi_devtype_data_t *)g_hash_table_lookup (scsidev_req_hash,
@@ -2898,17 +3023,29 @@ dissect_scsi_cdb (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
 
     if ((valstr = match_strval (opcode, scsi_spc2_val)) == NULL) {
-        if (devtype == SCSI_DEV_SBC) {
+        /*
+         * This isn't a generic command that applies to all SCSI
+         * device types; try to interpret it based on what we deduced,
+         * or were told, the device type is.
+         *
+         * Right now, the only choices are SBC or SSC. If we ever expand
+         * this to decode other device types, this piece of code needs to
+         * be modified.
+         */
+        switch (devtype) {
+        case SCSI_DEV_SBC:
             valstr = match_strval (opcode, scsi_sbc2_val);
             cmd = SCSI_CMND_SBC2;
-        }
-        else {
-            /* Right now, the only choices are SBC or SSC. If we ever expand
-             * this to decode other device types, this piece of code needs to
-             * be modified.
-             */
+            break;
+
+        case SCSI_DEV_SSC:
             valstr = match_strval (opcode, scsi_ssc2_val);
             cmd = SCSI_CMND_SSC2;
+            break;
+
+        default:
+            cmd = SCSI_CMND_SPC2;
+            break;
         }
     }
     else {
@@ -2930,7 +3067,8 @@ dissect_scsi_cdb (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     if (cdata) {
         cdata->opcode = opcode;
-        cdata->devtype = cmd;
+        cdata->cmd = cmd;
+        cdata->devtype = devtype;
     }
     
     if (tree) {
@@ -2953,16 +3091,16 @@ dissect_scsi_cdb (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                             "Opcode: %s (0x%02x)", valstr,
                                             opcode);
             }
-            else {
-                 proto_tree_add_uint_format (scsi_tree, hf_scsi_sscopcode, tvb,
-                                             offset, 1,
-                                             tvb_get_guint8 (tvb, offset),
-                                             "Opcode: %s (0x%02x)", valstr,
-                                             opcode);
+            else if (cmd == SCSI_CMND_SSC2) {
+                proto_tree_add_uint_format (scsi_tree, hf_scsi_sscopcode, tvb,
+                                            offset, 1,
+                                            tvb_get_guint8 (tvb, offset),
+                                            "Opcode: %s (0x%02x)", valstr,
+                                            opcode);
             }
         }
         else {
-            proto_tree_add_item (scsi_tree, hf_scsi_sbcopcode, tvb, offset, 1, 0);
+            proto_tree_add_item (scsi_tree, hf_scsi_spcopcode, tvb, offset, 1, 0);
         }
     }
         
@@ -2990,22 +3128,22 @@ dissect_scsi_cdb (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         case SCSI_SPC2_MODESELECT6:
             dissect_scsi_modeselect6 (tvb, pinfo, scsi_tree, offset+1,
-                                      TRUE, TRUE, 0);
+                                      TRUE, TRUE, devtype, 0);
             break;
 
         case SCSI_SPC2_MODESELECT10:
             dissect_scsi_modeselect10 (tvb, pinfo, scsi_tree, offset+1,
-                                       TRUE, TRUE, 0);
+                                       TRUE, TRUE, devtype, 0);
             break;
 
         case SCSI_SPC2_MODESENSE6:
             dissect_scsi_modesense6 (tvb, pinfo, scsi_tree, offset+1, TRUE,
-                                     TRUE, 0);
+                                     TRUE, devtype, 0);
             break;
 
         case SCSI_SPC2_MODESENSE10:
             dissect_scsi_modesense10 (tvb, pinfo, scsi_tree, offset+1,
-                                      TRUE, TRUE, 0);
+                                      TRUE, TRUE, devtype, 0);
             break;
 
         case SCSI_SPC2_PERSRESVIN:
@@ -3077,7 +3215,7 @@ dissect_scsi_cdb (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             break;
 
         case SCSI_SBC2_READ6:
-            dissect_scsi_rdwr6 (tvb, pinfo, scsi_tree, offset+1, TRUE,
+            dissect_scsi_sbc2_rdwr6 (tvb, pinfo, scsi_tree, offset+1, TRUE,
                                 TRUE);
             break;
 
@@ -3117,7 +3255,7 @@ dissect_scsi_cdb (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             break;
 
         case SCSI_SBC2_WRITE6:
-            dissect_scsi_rdwr6 (tvb, pinfo, scsi_tree, offset+1, TRUE,
+            dissect_scsi_sbc2_rdwr6 (tvb, pinfo, scsi_tree, offset+1, TRUE,
                                 TRUE);
             break;
 
@@ -3142,13 +3280,25 @@ dissect_scsi_cdb (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         }
     }
     else if (cmd == SCSI_CMND_SSC2) {
+        switch (opcode) {
+
+        case SCSI_SSC2_READ6:
+            dissect_scsi_ssc2_read6 (tvb, pinfo, scsi_tree, offset+1, TRUE,
+                                TRUE);
+            break;
+
+        case SCSI_SSC2_WRITE6:
+            dissect_scsi_ssc2_write6 (tvb, pinfo, scsi_tree, offset+1, TRUE,
+                                TRUE);
+            break;
+
+        default:
+            call_dissector (data_handle, tvb, pinfo, scsi_tree);
+            break;
+        }
+    } else {
         call_dissector (data_handle, tvb, pinfo, scsi_tree);
     }
-}
-
-static void
-dissect_scsi (tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_)
-{
 }
 
 void
@@ -3156,9 +3306,10 @@ dissect_scsi_payload (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                       guint offset, gboolean isreq, guint32 payload_len)
 {
     proto_item *ti;
-    proto_tree *scsi_tree;
+    proto_tree *scsi_tree = NULL;
     guint8 opcode = 0xFF;
     scsi_cmnd_type cmd = 0;     /* 0 is undefined type */
+    scsi_device_type devtype;
     scsi_task_data_t *cdata = NULL;
     
     cdata = scsi_find_task (pinfo);
@@ -3171,7 +3322,8 @@ dissect_scsi_payload (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
 
     opcode = cdata->opcode;
-    cmd = cdata->devtype;
+    cmd = cdata->cmd;
+    devtype = cdata->devtype;
     
     if (tree) {
         if (cmd == SCSI_CMND_SPC2) {
@@ -3192,6 +3344,15 @@ dissect_scsi_payload (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                                              "0x%02x"),
                                                  isreq ? "Request" : "Response");
         }
+        else if (cmd == SCSI_CMND_SSC2) {
+            ti = proto_tree_add_protocol_format (tree, proto_scsi, tvb, offset,
+                                                 payload_len,
+                                                 "SCSI Payload (%s %s)",
+                                                 val_to_str (opcode,
+                                                             scsi_ssc2_val,
+                                                             "0x%02x"),
+                                                 isreq ? "Request" : "Response");
+        }
         else {
             ti = proto_tree_add_protocol_format (tree, proto_scsi, tvb, offset,
                                                  payload_len,
@@ -3201,7 +3362,21 @@ dissect_scsi_payload (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         }
 
         scsi_tree = proto_item_add_subtree (ti, ett_scsi);
+    }
 
+    if (tree == NULL) {
+        /*
+         * We have to dissect INQUIRY responses, in order to determine the
+         * types of devices.
+         *
+         * We don't bother dissecting other payload if we're not buildng
+         * a protocol tree.
+         */
+        if (cmd == SCSI_CMND_SPC2 && opcode == SCSI_SPC2_INQUIRY) {
+            dissect_scsi_inquiry (tvb, pinfo, scsi_tree, offset, isreq,
+                                  FALSE, payload_len, cdata);
+        }
+      } else {
         if (cmd == SCSI_CMND_SPC2) {
             switch (opcode) {
             case SCSI_SPC2_INQUIRY:
@@ -3226,22 +3401,22 @@ dissect_scsi_payload (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
             case SCSI_SPC2_MODESELECT6:
                 dissect_scsi_modeselect6 (tvb, pinfo, scsi_tree, offset,
-                                          isreq, FALSE, payload_len);
+                                          isreq, FALSE, devtype, payload_len);
                 break;
 
             case SCSI_SPC2_MODESELECT10:
                 dissect_scsi_modeselect10 (tvb, pinfo, scsi_tree, offset,
-                                           isreq, FALSE, payload_len);
+                                           isreq, FALSE, devtype, payload_len);
                 break;
 
             case SCSI_SPC2_MODESENSE6:
                 dissect_scsi_modesense6 (tvb, pinfo, scsi_tree, offset, isreq,
-                                         FALSE, payload_len);
+                                         FALSE, devtype, payload_len);
                 break;
 
             case SCSI_SPC2_MODESENSE10:
                 dissect_scsi_modesense10 (tvb, pinfo, scsi_tree, offset,
-                                          isreq, FALSE, payload_len);
+                                          isreq, FALSE, devtype, payload_len);
                 break;
 
             case SCSI_SPC2_PERSRESVIN:
@@ -3308,7 +3483,7 @@ dissect_scsi_payload (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 break;
 
             case SCSI_SBC2_READ6:
-                dissect_scsi_rdwr6 (tvb, pinfo, scsi_tree, offset, isreq,
+                dissect_scsi_sbc2_rdwr6 (tvb, pinfo, scsi_tree, offset, isreq,
                                     FALSE);
                 break;
 
@@ -3348,7 +3523,7 @@ dissect_scsi_payload (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 break;
 
             case SCSI_SBC2_WRITE6:
-                dissect_scsi_rdwr6 (tvb, pinfo, scsi_tree, offset, isreq,
+                dissect_scsi_sbc2_rdwr6 (tvb, pinfo, scsi_tree, offset, isreq,
                                     FALSE);
                 break;
 
@@ -3365,6 +3540,24 @@ dissect_scsi_payload (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             case SCSI_SBC2_WRITE16:
                 dissect_scsi_rdwr16 (tvb, pinfo, scsi_tree, offset, isreq,
                                      FALSE);
+                break;
+
+            default:
+                call_dissector (data_handle, tvb, pinfo, scsi_tree);
+                break;
+            }
+        }
+        else if (cmd == SCSI_CMND_SSC2) {
+            switch (opcode) {
+
+            case SCSI_SSC2_READ6:
+                dissect_scsi_ssc2_read6 (tvb, pinfo, scsi_tree, offset, isreq,
+                                    FALSE);
+                break;
+
+            case SCSI_SSC2_WRITE6:
+                dissect_scsi_ssc2_write6 (tvb, pinfo, scsi_tree, offset, isreq,
+                                FALSE);
                 break;
 
             default:
@@ -3477,7 +3670,7 @@ proto_register_scsi (void)
           {"Logical Block Address (LBA)", "scsi.rdwr6.lba", FT_UINT24, BASE_DEC,
            NULL, 0x0FFFFF, "", HFILL}},
         { &hf_scsi_rdwr6_xferlen,
-          {"Transfer Length", "scsi.rdwr6.xferlen", FT_UINT8, BASE_DEC, NULL, 0x0,
+          {"Transfer Length", "scsi.rdwr6.xferlen", FT_UINT24, BASE_DEC, NULL, 0x0,
            "", HFILL}},
         { &hf_scsi_rdwr10_lba,
           {"Logical Block Address (LBA)", "scsi.rdwr10.lba", FT_UINT32, BASE_DEC,
@@ -3600,7 +3793,6 @@ proto_register_scsi (void)
     proto_register_field_array(proto_scsi, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
     register_init_routine (&scsi_init_protocol);
-    register_dissector ("SCSI", dissect_scsi, proto_scsi);
     data_handle = find_dissector ("data");
 
     /* add preferences to decode SCSI message */
