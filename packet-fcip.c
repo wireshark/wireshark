@@ -2,7 +2,7 @@
  * Routines for FCIP dissection
  * Copyright 2001, Dinesh G Dutt (ddutt@cisco.com)
  *
- * $Id: packet-fcip.c,v 1.3 2003/01/28 23:56:39 guy Exp $
+ * $Id: packet-fcip.c,v 1.4 2003/07/09 06:24:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -336,7 +336,7 @@ dissect_fcencap_header (tvbuff_t *tvb, proto_tree *tree, gint offset)
     guint8 protocol = tvb_get_guint8 (tvb, offset);
     
     if (tree) {
-        proto_tree_add_item (tree, hf_fcip_protocol, tvb, offset, 1, 0);
+        proto_tree_add_uint (tree, hf_fcip_protocol, tvb, offset, 1, protocol);
         proto_tree_add_item (tree, hf_fcip_version, tvb, offset+1, 1, 0);
         proto_tree_add_item (tree, hf_fcip_protocol_c, tvb, offset+2, 1, 0);
         proto_tree_add_item (tree, hf_fcip_version_c, tvb, offset+3, 1, 0);
@@ -496,8 +496,8 @@ proto_register_fcip (void)
     /* Setup list of header fields  See Section 1.6.1 for details*/
     static hf_register_info hf[] = {
         { &hf_fcip_protocol,
-	  { "Protocol", "fcencap.proto", FT_UINT8, BASE_DEC, NULL, 0,
-	    "Protocol", HFILL }},
+	  { "Protocol", "fcencap.proto", FT_UINT8, BASE_DEC,
+	     VALS(fcencap_proto_vals), 0, "Protocol", HFILL }},
         { &hf_fcip_protocol_c,
           {"Protocol (1's Complement)", "fcencap.protoc", FT_UINT8, BASE_DEC, NULL,
            0, "Protocol (1's Complement)", HFILL}},
