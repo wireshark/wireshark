@@ -2,7 +2,7 @@
  * Routines for Simple Traversal of UDP Through NAT dissection
  * Copyright 2003, Shiang-Ming Huang <smhuang@pcs.csie.nctu.edu.tw>
  *
- * $Id: packet-stun.c,v 1.1 2003/08/17 00:54:24 guy Exp $
+ * $Id: packet-stun.c,v 1.2 2003/08/18 01:40:16 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -377,7 +377,7 @@ proto_register_stun(void)
 		},		
 		{ &stun_att_unknown,
 			{ "Unknown Attribute","stun.att.unknown",	FT_UINT16,
-			BASE_HEX, 	NULL,	0x0,	NULL,	HFILL}
+			BASE_HEX, 	NULL,	0x0,	"",	HFILL}
 		},
 		{ &stun_att_error_class,
 			{ "Error Class","stun.att.error.class",	FT_UINT8,
