@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.110 2004/06/26 09:48:11 guy Exp $
+ * $Id: packet-ieee80211.c,v 1.111 2004/07/02 09:12:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -241,6 +241,8 @@ static char *wep_keystr[] = {NULL, NULL, NULL, NULL};
 
 #define WPA_OUI	"\x00\x50\xF2"
 #define RSN_OUI "\x00\x0F\xAC"
+
+#define PMKID_LEN 16
 
 /* ************************************************************************* */
 /*                         Frame types, and their names                      */
@@ -730,8 +732,8 @@ dissect_vendor_specific_ie(proto_tree * tree, tvbuff_t * tvb, int offset,
 		guint32 tag_len, const guint8 *tag_val)
 {
       guint32 tag_val_off = 0;
-      char out_buff[SHORT_STR];
-      int i;
+      char out_buff[SHORT_STR], *pos;
+      guint i;
 	
       if (tag_val_off + 6 <= tag_len && !memcmp(tag_val, WPA_OUI"\x01", 4)) {
         snprintf(out_buff, SHORT_STR, "WPA IE, type %u, version %u",
@@ -794,8 +796,23 @@ dissect_vendor_specific_ie(proto_tree * tree, tvbuff_t * tvb, int offset,
         if (tag_val_off < tag_len)
           proto_tree_add_string(tree, tag_interpretation, tvb,
                                  offset, tag_len - tag_val_off, "Not interpreted");
-      }
-      else
+      } else if (tag_val_off + 4 <= tag_len &&
+		 !memcmp(tag_val, RSN_OUI"\x04", 4)) {
+	/* IEEE 802.11i / Key Data Encapsulation / Data Type=4 - PMKID.
+	 * This is only used within EAPOL-Key frame Key Data. */
+	pos = out_buff;
+	pos += snprintf(pos, out_buff + SHORT_STR - pos, "RSN PMKID: ");
+	if (tag_len - 4 != PMKID_LEN) {
+	  pos += snprintf(pos, out_buff + SHORT_STR - pos,
+			  "(invalid PMKID len=%d, expected 16) ", tag_len - 4);
+	}
+	for (i = 0; i < tag_len - 4; i++) {
+	  pos += snprintf(pos, out_buff + SHORT_STR - pos, "%02X",
+			  tag_val[tag_val_off + 4 + i]);
+	}
+	proto_tree_add_string(tree, tag_interpretation, tvb, offset,
+			      tag_len, out_buff);
+      } else
         proto_tree_add_string(tree, tag_interpretation, 
         		tvb, offset, tag_len, "Not interpreted");
 }
@@ -807,7 +824,7 @@ dissect_rsn_ie(proto_tree * tree, tvbuff_t * tvb, int offset,
   guint32 tag_val_off = 0;
   guint16 rsn_capab;
   char out_buff[SHORT_STR];
-  int i, count;
+  int i, j, count;
   proto_item *cap_item;
   proto_tree *cap_tree;
 
@@ -907,7 +924,22 @@ dissect_rsn_ie(proto_tree * tree, tvbuff_t * tvb, int offset,
   offset += 2;
   tag_val_off += 2;
 
-  /* TODO: PMKID List (16 * n octets) */
+  /* PMKID List (16 * n octets) */
+  for (i = 0; i < count; i++) {
+    char *pos;
+    if (tag_val_off + PMKID_LEN > tag_len)
+      goto done;
+    pos = out_buff;
+    pos += snprintf(pos, out_buff + SHORT_STR - pos, "PMKID %u: ", i);
+    for (j = 0; j < PMKID_LEN; j++) {
+      pos += snprintf(pos, out_buff + SHORT_STR - pos, "%02X",
+		      tag_val[tag_val_off + j]);
+    }
+    proto_tree_add_string(tree, tag_interpretation, tvb, offset,
+			  PMKID_LEN, out_buff);
+    offset += PMKID_LEN;
+    tag_val_off += PMKID_LEN;
+  }
 
  done:
   if (tag_val_off < tag_len)
