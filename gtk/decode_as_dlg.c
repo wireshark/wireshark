@@ -1,6 +1,6 @@
 /* decode_as_dlg.c
  *
- * $Id: decode_as_dlg.c,v 1.26 2002/09/05 18:47:45 jmayer Exp $
+ * $Id: decode_as_dlg.c,v 1.27 2002/10/10 01:49:21 jmayer Exp $
  *
  * Routines to modify dissector tables on the fly.
  *
@@ -27,6 +27,7 @@
 #endif
 
 #include <gtk/gtk.h>
+#include <string.h>
 
 #include "decode_as_dlg.h"
 #include "dlg_utils.h"
