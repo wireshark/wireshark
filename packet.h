@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.18 1998/10/15 06:40:51 guy Exp $
+ * $Id: packet.h,v 1.19 1998/10/16 01:18:33 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -434,6 +434,7 @@ enum {
 	ETT_NBNS_ANS,
 	ETT_NBNS_RR,
 	ETT_NBIPX,
+	ETT_AARP,
 	NUM_TREE_TYPES	/* last item number plus one */
 };
 
@@ -485,7 +486,7 @@ GtkWidget* add_item_to_tree(GtkWidget *, gint, gint, gchar *, ...)
 #else
 GtkWidget* add_item_to_tree(GtkWidget *, gint, gint, gchar *, ...);
 #endif
-gchar*     match_strval(guint32, value_string*, gint);
+gchar*     match_strval(guint32, value_string*);
 
 /* Routines in packet.c */
 

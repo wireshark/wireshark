@@ -2,7 +2,7 @@
  * Routines for calling the right protocol for the ethertype.
  * This is called by both packet-eth.c (Ethernet II) and packet-llc.c (SNAP)
  *
- * $Id: ethertype.c,v 1.5 1998/10/10 03:32:06 gerald Exp $
+ * $Id: ethertype.c,v 1.6 1998/10/16 01:18:28 gerald Exp $
  *
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
@@ -85,14 +85,14 @@ ethertype(guint16 etype, int offset,
         add_item_to_tree(fh_tree, offset - 2, 2,
           "Type: AppleTalk (0x%04x)", etype);
       }
-      if (fd->win_info[COL_NUM]) { strcpy(fd->win_info[COL_PROTOCOL], etype_str[3]); }
+      dissect_ddp(pd, offset, fd, tree);
       break;
     case ETHERTYPE_AARP:
       if (tree) {
         add_item_to_tree(fh_tree, offset - 2, 2,
           "Type: AARP (0x%04x)", etype);
       }
-      if (fd->win_info[COL_NUM]) { strcpy(fd->win_info[COL_PROTOCOL], etype_str[4]); }
+      dissect_aarp(pd, offset, fd, tree);
       break;
     case ETHERTYPE_IPX:
       if (tree) {

@@ -1,3 +1,10 @@
+Overview of changes in Ethereal 0.4.1:
+* Copious amount of fixes (Guy)
+* Minor fixes to the filter prefs dialog (Gerald)
+* About box (Laurent)
+* Initial NetBIOS Name Services support (Gilbert, Guy)
+* Initial AppleTalk support (Simon Wilkinson)
+
 Overview of changes in Ethereal 0.4.0:
 
 * Lots of fixes from Guy Harris

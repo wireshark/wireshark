@@ -1,7 +1,7 @@
 /* util.c
  * Utility routines
  *
- * $Id: util.c,v 1.5 1998/10/13 07:03:37 guy Exp $
+ * $Id: util.c,v 1.6 1998/10/16 01:18:34 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -46,6 +46,7 @@
 #include "util.h"
 
 #include "image/icon-excl.xpm"
+#include "image/icon-ethereal.xpm"
 
 const gchar *bm_key = "button mask";
 
@@ -53,7 +54,7 @@ const gchar *bm_key = "button mask";
  * text.
  * 
  * Args:
- * type     : One of ESD_TYPE_*.  Currently ignored.
+ * type     : One of ESD_TYPE_*.
  * btn_mask : The address of a gint.  The value passed in determines if
  *            the 'Cancel' button is displayed.  The button pressed by the 
  *            user is passed back.
@@ -74,11 +75,28 @@ simple_dialog(gint type, gint *btn_mask, gchar *msg_format, ...) {
   GdkColormap *cmap;
   va_list      ap;
   gchar        message[ESD_MAX_MSG_LEN];
-  
+  gchar      **icon;
+
   /* Main window */
   win = gtk_window_new(GTK_WINDOW_TOPLEVEL);
   gtk_container_border_width(GTK_CONTAINER(win), 7);
-  gtk_window_set_title(GTK_WINDOW(win), "Ethereal: Warning");
+
+  switch (type) {
+  case ESD_TYPE_WARN :
+    gtk_window_set_title(GTK_WINDOW(win), "Ethereal: Warning");
+    icon = icon_excl_xpm;
+    break;
+  case ESD_TYPE_CRIT :
+    gtk_window_set_title(GTK_WINDOW(win), "Ethereal: Critical");
+    icon = icon_excl_xpm;
+    break;
+  case ESD_TYPE_INFO :
+  default :
+    icon = icon_ethereal_xpm;
+    gtk_window_set_title(GTK_WINDOW(win), "Ethereal: Information");
+    break;
+  }
+
   gtk_object_set_data(GTK_OBJECT(win), bm_key, btn_mask);
 
   /* Container for our rows */
@@ -95,7 +113,7 @@ simple_dialog(gint type, gint *btn_mask, gchar *msg_format, ...) {
   style = gtk_widget_get_style(win);
   cmap  = gdk_colormap_get_system();
   pixmap = gdk_pixmap_colormap_create_from_xpm_d(NULL, cmap,  &mask,
-    &style->bg[GTK_STATE_NORMAL], icon_excl_xpm);
+    &style->bg[GTK_STATE_NORMAL], icon);
   type_pm = gtk_pixmap_new(pixmap, mask);
   gtk_container_add(GTK_CONTAINER(top_hb), type_pm);
   gtk_widget_show(type_pm);

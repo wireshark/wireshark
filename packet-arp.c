@@ -1,7 +1,7 @@
 /* packet-arp.c
  * Routines for ARP packet disassembly
  *
- * $Id: packet-arp.c,v 1.6 1998/10/13 05:20:53 guy Exp $
+ * $Id: packet-arp.c,v 1.7 1998/10/16 01:18:30 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -52,8 +52,8 @@ dissect_arp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
   static value_string op_vals[] = { {ARPOP_REQUEST,  "ARP request" },
                                     {ARPOP_REPLY,    "ARP reply"   },
                                     {ARPOP_RREQUEST, "RARP request"},
-                                    {ARPOP_RREPLY,   "RARP reply"  } };
-#define N_OP_VALS	(sizeof op_vals / sizeof op_vals[0])
+                                    {ARPOP_RREPLY,   "RARP reply"  },
+                                    {0,              NULL          } };
 
   /* To do: Check for {cap len,pkt len} < struct len */
   ea.ar_hrd = pntohs(&pd[offset]);
@@ -69,7 +69,7 @@ dissect_arp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
   if (fd->win_info[COL_NUM]) { strcpy(fd->win_info[COL_PROTOCOL], "ARP"); }
   
   if (tree) {
-    if ((op_str = match_strval(ea.ar_op, op_vals, N_OP_VALS)))
+    if ((op_str = match_strval(ea.ar_op, op_vals)))
       ti = add_item_to_tree(GTK_WIDGET(tree), offset, 28, op_str);
     else
       ti = add_item_to_tree(GTK_WIDGET(tree), offset, 28,

@@ -1,7 +1,7 @@
 /* ethereal.h
  * Global defines, etc.
  *
- * $Id: ethereal.h,v 1.6 1998/10/12 01:40:48 gerald Exp $
+ * $Id: ethereal.h,v 1.7 1998/10/16 01:18:27 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -94,6 +94,7 @@ typedef enum {
 
 extern ts_type timestamp_type;
 
+void about_ethereal( GtkWidget *, gpointer);
 void file_sel_ok_cb(GtkWidget *, GtkFileSelection *);
 void blank_packetinfo();
 gint file_progress_cb(gpointer);

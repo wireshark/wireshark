@@ -13,7 +13,9 @@ ethereal_SOURCES = \
 	follow.c       \
 	menu.c         \
 	packet.c       \
+	packet-aarp.c  \
 	packet-arp.c   \
+	packet-atalk.c \
 	packet-bootp.c \
 	packet-data.c  \
 	packet-dns.c   \
@@ -52,8 +54,10 @@ ethereal_SOURCES = \
 	follow.h       \
 	menu.h         \
 	packet.h       \
+	packet-dns.h   \
 	packet-ipv6.h  \
 	packet-ipx.h   \
+	packet-ncp.h   \
 	packet-ospf.h  \
 	packet-rip.h   \
 	packet-vines.h \
@@ -81,11 +85,12 @@ DISTCLEANFILES = \
 	rdps \
 	ps.c
 
-EXTRA_DIST =            \
-	doc/Makefile        \
-	doc/ethereal.pod    \
-	ethereal.1          \
-	image/icon-excl.xpm \
-	manuf               \
-	print.ps            \
+EXTRA_DIST =                \
+	doc/Makefile            \
+	doc/ethereal.pod        \
+	ethereal.1              \
+	image/icon-excl.xpm     \
+	image/icon-ethereal.xpm \
+	manuf                   \
+	print.ps                \
 	rdps.c

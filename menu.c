@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.7 1998/10/12 01:40:51 gerald Exp $
+ * $Id: menu.c,v 1.8 1998/10/16 01:18:29 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -76,7 +76,7 @@ static GtkMenuEntry menu_items[] =
   {"<Main>/Tools/Capture", "<control>K", capture_prep_cb, NULL},
   {"<Main>/Tools/Follow TCP Stream", NULL, follow_stream_cb, NULL},
   {"<Main>/Tools/Graph", NULL, NULL, NULL},
-  {"<Main>/Help/About Ethereal", NULL, NULL, NULL}
+  {"<Main>/Help/About Ethereal", NULL, about_ethereal, NULL}
 };
 
 /* calculate the number of menu_items */
@@ -120,7 +120,6 @@ menus_init(void) {
     set_menu_sensitivity("<Main>/Edit/Paste", FALSE);
     set_menu_sensitivity("<Main>/Edit/Find", FALSE);
     set_menu_sensitivity("<Main>/Tools/Graph", FALSE);
-    set_menu_sensitivity("<Main>/Help/About Ethereal", FALSE);
     if ((mp = gtk_menu_factory_find(factory, "<Main>/Help")) != NULL) {
       gtk_menu_item_right_justify((GtkMenuItem *) mp->widget);
     }

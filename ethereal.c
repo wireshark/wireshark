@@ -1,6 +1,6 @@
 /* ethereal.c
  *
- * $Id: ethereal.c,v 1.6 1998/10/14 19:34:57 guy Exp $
+ * $Id: ethereal.c,v 1.7 1998/10/16 01:18:26 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -81,6 +81,23 @@ extern pr_opts printer_opts;
 ts_type timestamp_type = RELATIVE;
 
 #define E_DFILTER_TE_KEY "display_filter_te"
+
+/* About Ethereal window */
+void
+about_ethereal( GtkWidget *w, gpointer data ) {
+  simple_dialog(ESD_TYPE_INFO, NULL,
+		"GNU Ethereal - network protocol analyzer\n"
+		"Version %s (C) 1998 Gerald Combs <gerald@zing.org>\n\n"
+		"Contributors:\n"
+		"Gilbert Ramirez Jr. <gram@verdict.uthscsa.edu>\n"
+		"Hannes R. Boehm     <hannes@boehm.org>\n"
+		"Mike Hall           <mlh@io.com>\n"
+		"Bobo Rajec          <bobo@bsp-consulting.sk>\n"
+		"Laurent Deniel      <deniel@worldnet.fr>\n"
+		"Don Lafontaine      <lafont02@cn.ca>\n"
+		"Guy Harris          <guy@netapp.com>\n\n"
+		"See http://ethereal.zing.org for more information", VERSION);
+}
 
 /* Things to do when the OK button is pressed */
 void
@@ -251,7 +268,8 @@ file_print_cmd_cb(GtkWidget *widget, gpointer data) {
 void
 packet_list_select_cb(GtkWidget *w, gint row, gint col, gpointer evt) {
   GList      *l;
-  
+
+  if (cf.pfh) return;  
   blank_packetinfo();
   gtk_text_freeze(GTK_TEXT(byte_view));
   gtk_text_set_point(GTK_TEXT(byte_view), 0);

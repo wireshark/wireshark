@@ -1,7 +1,7 @@
 /* filter.c
  * Routines for managing filter sets
  *
- * $Id: filter.c,v 1.7 1998/10/13 07:03:33 guy Exp $
+ * $Id: filter.c,v 1.8 1998/10/16 01:18:28 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -224,7 +224,12 @@ filter_prefs_show(GtkWidget *w) {
   gtk_widget_show(filter_te);
 
   if (l_select)
+  {
     gtk_list_select_child(GTK_LIST(filter_l), l_select);
+  } else if (filter_te_str && filter_te_str[0]) {
+    gtk_entry_set_text(GTK_ENTRY(name_te), "New filter");
+    gtk_entry_set_text(GTK_ENTRY(filter_te), filter_te_str);
+  }
     
   return(main_vb);
 }

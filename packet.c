@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.6 1998/10/12 01:40:53 gerald Exp $
+ * $Id: packet.c,v 1.7 1998/10/16 01:18:32 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -198,12 +198,13 @@ collapse_tree(GtkWidget *w, gpointer data) {
    Returns the associated string ptr on a match, or NULL on failure.
    Len is the length of the array. */
 gchar*
-match_strval(guint32 val, value_string *vs, gint len) {
-  gint i;
+match_strval(guint32 val, value_string *vs) {
+  gint i = 0;
   
-  for (i = 0; i < len; i++) {
+  while (vs[i].strptr) {
     if (vs[i].value == val)
       return(vs[i].strptr);
+    i++;
   }
   
   return(NULL);

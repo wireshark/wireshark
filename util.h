@@ -1,7 +1,7 @@
 /* util.h
  * Utility definitions
  *
- * $Id: util.h,v 1.4 1998/10/12 01:40:57 gerald Exp $
+ * $Id: util.h,v 1.5 1998/10/16 01:18:35 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -30,7 +30,7 @@
 extern "C" {
 #endif /* __cplusplus */
 
-/* Dialog type.  Currently, only ESD_TYPE_WARN is supported. */
+/* Dialog type. */
 #define ESD_TYPE_INFO 0
 #define ESD_TYPE_WARN 1
 #define ESD_TYPE_CRIT 2

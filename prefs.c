@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.6 1998/10/13 02:10:56 gerald Exp $
+ * $Id: prefs.c,v 1.7 1998/10/16 01:18:33 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -46,8 +46,8 @@ void
 prefs_cb(GtkWidget *w, gpointer sp) {
   GtkWidget *prefs_w, *main_vb, *top_hb, *bbox, *prefs_nb,
             *ok_bt, *save_bt, *cancel_bt;
-  GtkWidget *print_pg, *filter_pg, *filter_te;
-  GtkWidget *nlabel, *label;
+  GtkWidget *print_pg, *filter_pg, *filter_te, *label;
+/*  GtkWidget *nlabel; */
   gint       start_page = (gint) sp;
 
   prefs_w = gtk_window_new(GTK_WINDOW_TOPLEVEL);
