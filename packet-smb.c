@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.340 2003/05/16 10:24:13 sahlberg Exp $
+ * $Id: packet-smb.c,v 1.341 2003/05/21 10:16:10 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -6998,11 +6998,15 @@ free_g_string(void *arg)
 }
 
 /* Dissect a NT SID.  Label it with 'name' and return a string version of
-   the SID in the 'sid_str' parameter which must be freed by the caller. */
+   the SID in the 'sid_str' parameter which must be freed by the caller.
+   hf_sid can be -1 if the caller doesnt care what name is used and then 
+   "smb.sid" will be the default instead. If the caller wants a more
+   appropriate hf field, it will just pass a FT_STRING hf field here
+*/
 
 int
 dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree, char *name,
-	       char **sid_str)
+	       char **sid_str, int hf_sid)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -7019,6 +7023,10 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree, char *name,
 	GString *gstr;
 	char sid_string[245];
 	char *sid_name;
+
+	if(hf_sid==-1){
+		hf_sid=hf_smb_sid;
+	}
 
 	/* revision of sid */
 	revision = tvb_get_guint8(tvb, offset);
@@ -7084,9 +7092,9 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree, char *name,
 
           if(parent_tree){
             if(sid_name){
-              item = proto_tree_add_string_format(parent_tree, hf_smb_sid, tvb, old_offset, offset-old_offset, sid_string, "%s: %s (%s)", name, sid_string, sid_name);
+              item = proto_tree_add_string_format(parent_tree, hf_sid, tvb, old_offset, offset-old_offset, sid_string, "%s: %s (%s)", name, sid_string, sid_name);
             } else {
-              item = proto_tree_add_string_format(parent_tree, hf_smb_sid, tvb, old_offset, offset-old_offset, sid_string, "%s: %s", name, sid_string);
+              item = proto_tree_add_string_format(parent_tree, hf_sid, tvb, old_offset, offset-old_offset, sid_string, "%s: %s", name, sid_string);
             }
             tree = proto_item_add_subtree(item, ett_smb_sid);
           }
@@ -7540,7 +7548,7 @@ dissect_nt_v2_ace(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		tvb, offset, pinfo, tree, drep, hf_smb_access_mask, ami);
 
 	/* SID */
-	offset = dissect_nt_sid(tvb, offset, tree, "ACE", &sid_str);
+	offset = dissect_nt_sid(tvb, offset, tree, "ACE", &sid_str, -1);
 
 	if (item)
 		proto_item_append_text(
@@ -7761,16 +7769,16 @@ dissect_nt_sec_desc(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	  /*owner SID*/
 	  if(owner_sid_offset){
 	    if (len == -1)
-	      offset = dissect_nt_sid(tvb, offset, tree, "Owner", NULL);
+	      offset = dissect_nt_sid(tvb, offset, tree, "Owner", NULL, -1);
 	    else
 	      dissect_nt_sid(
-		      tvb, old_offset+owner_sid_offset, tree, "Owner", NULL);
+		      tvb, old_offset+owner_sid_offset, tree, "Owner", NULL, -1);
 	  }
 
 	  /*group SID*/
 	  if(group_sid_offset){
 	    dissect_nt_sid(
-		    tvb, old_offset+group_sid_offset, tree, "Group", NULL);
+		    tvb, old_offset+group_sid_offset, tree, "Group", NULL, -1);
 	  }
 
 	  /* sacl */
@@ -7832,7 +7840,7 @@ dissect_nt_user_quota(tvbuff_t *tvb, proto_tree *tree, int offset, guint16 *bcp)
 
 		/* SID of the user */
 		old_sid_offset=offset;
-		offset = dissect_nt_sid(tvb, offset, tree, "Quota", NULL);
+		offset = dissect_nt_sid(tvb, offset, tree, "Quota", NULL, -1);
 		*bcp -= (offset-old_sid_offset);
 
 		if(qsize){
@@ -7906,7 +7914,7 @@ dissect_nt_trans_data_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pro
 		proto_tree_add_text(tree, tvb, offset, 4, "Length of SID: %d", tvb_get_letohl(tvb, offset));
 		offset +=4;
 
-		offset = dissect_nt_sid(tvb, offset, tree, "Quota", NULL);
+		offset = dissect_nt_sid(tvb, offset, tree, "Quota", NULL, -1);
 		break;
 	case NT_TRANS_SET_USER_QUOTA:
 		offset = dissect_nt_user_quota(tvb, tree, offset, &bcp);

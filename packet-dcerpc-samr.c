@@ -3,7 +3,7 @@
  * Copyright 2001,2003 Tim Potter <tpot@samba.org>
  *   2002 Added all command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-samr.c,v 1.88 2003/05/21 10:06:29 sahlberg Exp $
+ * $Id: packet-dcerpc-samr.c,v 1.89 2003/05/21 10:16:09 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -490,7 +490,7 @@ dissect_ndr_nt_SID(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 			hf_samr_count, NULL);
 
-	offset = dissect_nt_sid(tvb, offset, tree, "Domain", &sid_str);
+	offset = dissect_nt_sid(tvb, offset, tree, "Domain", &sid_str, hf_sid);
 
 	dcv->private_data = sid_str;
 
