@@ -8,7 +8,7 @@
  * Modified 2004-01-10 by Anders Broman to add abillity to dissect
  * Content type application/ISUP RFC 3204 used in SIP-T
  *
- * $Id: packet-isup.c,v 1.44 2004/01/13 23:03:25 guy Exp $
+ * $Id: packet-isup.c,v 1.45 2004/01/13 23:11:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1303,7 +1303,9 @@ static int hf_isup_Send_notification_ind 			= -1;
 static int hf_isup_Discard_message_ind_value			= -1;
 static int hf_isup_Discard_parameter_ind			= -1;
 static int hf_isup_Pass_on_not_possible_indicator		= -1;
+static int hf_isup_pass_on_not_possible_indicator2			= -1;
 static int hf_isup_Broadband_narrowband_interworking_ind	= -1;
+static int hf_isup_Broadband_narrowband_interworking_ind2	= -1;
 
 static int hf_isup_app_cont_ident					= -1;
 static int hf_isup_app_Send_notification_ind				= -1;
@@ -3741,11 +3743,46 @@ dissect_isup_echo_control_information_parameter(tvbuff_t *parameter_tvb, proto_t
 /* ------------------------------------------------------------------
   Dissector Parameter Message compatibility information
  */
+
+static const true_false_string isup_pass_on_not_possible_indicator_value = {
+	"discard information",
+	"release call",
+};
+
 static void
 dissect_isup_message_compatibility_information_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
-{ guint length = tvb_length(parameter_tvb);
-  proto_tree_add_text(parameter_tree, parameter_tvb, 0, length, "Message compatibility information (refer to 3.33/Q.763 for detailed decoding)");
-  proto_item_set_text(parameter_item, "Message compatibility information (%u byte%s length)", length , plurality(length, "", "s"));
+{
+ guint length = tvb_length(parameter_tvb);
+ guint instruction_indicators;
+ gint offset = 0;
+ instruction_indicators = tvb_get_guint8(parameter_tvb, offset);
+ 
+ proto_tree_add_text(parameter_tree, parameter_tvb, 0, length, 
+	  "Message compatibility information");
+
+ proto_tree_add_boolean(parameter_tree, hf_isup_transit_at_intermediate_exchange_ind, 
+                parameter_tvb, offset, 1, instruction_indicators );
+
+ proto_tree_add_boolean(parameter_tree, hf_isup_Release_call_ind, 
+	 parameter_tvb, offset, 1, instruction_indicators );
+
+ proto_tree_add_boolean(parameter_tree, hf_isup_Send_notification_ind, 
+	 parameter_tvb, offset, 1, instruction_indicators );
+
+ proto_tree_add_boolean(parameter_tree, hf_isup_Discard_message_ind_value, 
+	 parameter_tvb, offset, 1, instruction_indicators );
+
+ proto_tree_add_boolean(parameter_tree, hf_isup_pass_on_not_possible_indicator2, 
+	 parameter_tvb, offset, 1,instruction_indicators);
+
+ proto_tree_add_uint(parameter_tree, hf_isup_Broadband_narrowband_interworking_ind2,
+	 parameter_tvb, offset, 1,instruction_indicators);
+
+ proto_tree_add_boolean(parameter_tree, hf_isup_extension_ind , 
+	 parameter_tvb, offset, 1, instruction_indicators );
+
+  proto_item_set_text(parameter_item, "Message compatibility information (%u byte%s length)",
+	  length , plurality(length, "", "s"));
 }
 /* ------------------------------------------------------------------
   Dissector Parameter compatibility information
@@ -6106,9 +6143,19 @@ proto_register_isup(void)
 			FT_UINT8, BASE_HEX, VALS(isup_Pass_on_not_possible_indicator_vals),GF_8BIT_MASK,
 			"", HFILL }},
 
+		{ &hf_isup_pass_on_not_possible_indicator2,
+			{ "Pass on not possible indicator",  "isup_Pass_on_not_possible_val",
+			FT_BOOLEAN, 8, TFS(&isup_pass_on_not_possible_indicator_value),E_8BIT_MASK,
+			"", HFILL }},
+
 		{ &hf_isup_Broadband_narrowband_interworking_ind,
-			{ "Broadband narrowband interworking indicator Bits JF",  "isup_Pass_on_not_possible_ind",
+			{ "Broadband narrowband interworking indicator Bits JF",  "isup_broadband-narrowband_interworking_ind",
 			FT_UINT8, BASE_HEX, VALS(ISUP_Broadband_narrowband_interworking_indicator_vals),BA_8BIT_MASK,
+			"", HFILL }},
+
+		{ &hf_isup_Broadband_narrowband_interworking_ind2,
+			{ "Broadband narrowband interworking indicator Bits GF",  "isup_broadband-narrowband_interworking_ind2",
+			FT_UINT8, BASE_HEX, VALS(ISUP_Broadband_narrowband_interworking_indicator_vals),GF_8BIT_MASK,
 			"", HFILL }},
 
 		{ &hf_isup_app_cont_ident,
