@@ -3,7 +3,7 @@
  * By Pavel Mores <pvl@uh.cz>
  * Win32 port:  rwh@unifiedtech.com
  *
- * $Id: tcp_graph.c,v 1.56 2004/02/23 22:23:46 ulfl Exp $
+ * $Id: tcp_graph.c,v 1.57 2004/02/27 10:03:48 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -702,6 +702,7 @@ static void create_drawing_area (struct graph *g)
 	GdkColor color;
 #define WINDOW_TITLE_LENGTH 64
 	char window_title[WINDOW_TITLE_LENGTH];
+	struct segment current;
 
 	debug(DBS_FENTRY) puts ("create_drawing_area()");
 #if 0
@@ -710,8 +711,21 @@ static void create_drawing_area (struct graph *g)
 	g->font = gdk_font_load ("-biznet-fotinostypewriter-medium-r-normal-*-*-120"
 							"-*-*-m-*-iso8859-2");
 #endif
-	snprintf (window_title, WINDOW_TITLE_LENGTH, "TCP Graph %d - Ethereal",
-					refnum);
+	get_headers (cfile.current_frame, cfile.pd, &current);
+	snprintf (window_title, WINDOW_TITLE_LENGTH, "TCP Graph %d: %s %d.%d.%d.%d:%d -> %d.%d.%d.%d:%d",
+					refnum,
+					cf_get_display_name(&cfile),
+					(current.iphdr.saddr    )&0xff,
+					(current.iphdr.saddr>> 8)&0xff,
+					(current.iphdr.saddr>>16)&0xff,
+					(current.iphdr.saddr>>24)&0xff,
+					ntohs(current.tcphdr.source),
+					(current.iphdr.daddr    )&0xff,
+					(current.iphdr.daddr>> 8)&0xff,
+					(current.iphdr.daddr>>16)&0xff,
+					(current.iphdr.daddr>>24)&0xff,
+					ntohs(current.tcphdr.dest)
+);
 	g->toplevel = window_new (GTK_WINDOW_TOPLEVEL, window_title);
 	gtk_widget_set_name (g->toplevel, "Test Graph");
 
