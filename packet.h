@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.7 1998/09/23 05:25:12 gram Exp $
+ * $Id: packet.h,v 1.8 1998/09/24 04:22:08 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -305,9 +305,11 @@ typedef struct _e_udphdr {
 #define ETT_VINES        36
 #define ETT_VSPP         37
 #define ETT_IPXRIP       38
+#define ETT_IPXSAP       39
+#define ETT_IPXSAP_SERVER 40
 
 /* Should be the last item number plus one */
-#define NUM_TREE_TYPES 39
+#define NUM_TREE_TYPES 41
 
 /* The version of pcap.h that comes with some systems is missing these
  * #defines.

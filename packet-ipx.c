@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-ipx.c,v 1.4 1998/09/23 14:46:06 gram Exp $
+ * $Id: packet-ipx.c,v 1.5 1998/09/24 04:22:07 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -62,6 +62,9 @@ dissect_spx(const u_char *pd, int offset, frame_data *fd, GtkTree *tree);
 static void
 dissect_ipxrip(const u_char *pd, int offset, frame_data *fd, GtkTree *tree);
 
+static void
+dissect_sap(const u_char *pd, int offset, frame_data *fd, GtkTree *tree);
+
 struct port_info {
 	guint16	port;
 	void	(*func) (const u_char *, int, frame_data *, GtkTree *);
@@ -73,16 +76,22 @@ struct conn_info {
 	char	*text;
 };
 
+struct server_info {
+	guint16	type;
+	char	*text;
+};
+
 /* ================================================================= */
 /* IPX                                                               */
 /* ================================================================= */
 static struct port_info	ports[] = {
 	{ 0x0451, dissect_ncp,		"NCP" },
-	{ 0x0452, NULL,				"SAP" },
+	{ 0x0452, dissect_sap,		"SAP" },
 	{ 0x0453, dissect_ipxrip, 	"RIP" },
 	{ 0x0455, NULL,				"NetBIOS" },
 	{ 0x0456, NULL,				"Diagnostic" },
 	{ 0x0457, NULL,				"Serialization" },
+	{ 0x055d, NULL,				"Attachmate Gateway" },
 	{ 0x0000, NULL,				NULL }
 };
 
@@ -206,10 +215,6 @@ dissect_ipx(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
 	offset += 30;
 
 	switch (ipx_type) {
-		case 0: /* IPX */
-			dissect_data(pd, offset, fd, tree);
-			break;
-
 		case 5: /* SPX */
 			dissect_spx(pd, offset, fd, tree);
 			break;
@@ -222,6 +227,7 @@ dissect_ipx(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
 			dissect_data(pd, offset, fd, tree);
 			break;
 
+		case 0: /* IPX, fall through to default */
 		default:
 			dissect = port_func(dsocket);
 			if (dissect) {
@@ -337,7 +343,7 @@ dissect_ipxrip(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
 			sprintf(fd->win_info[4], rip_type[operation]);
 		}
 		else {
-			strcpy(fd->win_info[4], "IPX RIP");
+			strcpy(fd->win_info[4], "Unknown Packet Type");
 		}
 	}
 
@@ -378,3 +384,122 @@ dissect_ipxrip(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
 		}
 	}
 }
+
+
+
+/* ================================================================= */
+/* SAP																 */
+/* ================================================================= */
+static char*
+server_type(guint16 type)
+{
+	int i=0;
+
+	static struct server_info	servers[] = {
+		{ 0x0004,	"File server" },
+		{ 0x0005,	"Job server" },
+		{ 0x0007,	"Print server" },
+		{ 0x0009,	"Archive server" },
+		{ 0x000a,	"Job queue" },
+		{ 0x0021,	"NAS SNA gateway" },
+		{ 0x002e,	"Dynamic SAP" },
+		{ 0x0047,	"Advertising print server" },
+		{ 0x004b,	"Btrieve VAP 5.0" },
+		{ 0x004c,	"SQL VAP" },
+		{ 0x007a,	"TES---NetWare VMS" },
+		{ 0x0098,	"NetWare access server" },
+		{ 0x009a,	"Named Pipes server" },
+		{ 0x009e,	"Portable NetWare---Unix" },
+		{ 0x0107,	"NetWare 386" },
+		{ 0x0111,	"Test server" },
+		{ 0x0166,	"NetWare management" },
+		{ 0x026a,	"NetWare management" },
+		{ 0x026b,	"Time synchronization" },
+		{ 0x0278,	"NetWare Directory server" },
+		{ 0x055d,	"Attachmate IPX-to-SNA gateway" }, /* unofficial name */
+		{ 0x0000,	NULL }
+	};
+
+	while (servers[i].text != NULL) {
+		if (servers[i].type == type) {
+			return servers[i].text;
+		}
+		i++;
+	}
+	return "Unknown";
+}
+
+static void
+dissect_sap(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
+
+	GtkWidget	*sap_tree, *s_tree, *ti;
+	int			cursor;
+	struct sap_query query;
+	struct sap_server_ident server;
+
+	char		*sap_type[4] = { "General Query", "General Response",
+		"Nearest Query", "Nearest Response" };
+
+	query.query_type = pntohs(&pd[offset]);
+	query.server_type = pntohs(&pd[offset+2]);
+
+	if (fd->win_info[0]) {
+		strcpy(fd->win_info[3], "SAP");
+		if (query.query_type < 4) {
+			sprintf(fd->win_info[4], sap_type[query.query_type - 1]);
+		}
+		else {
+			strcpy(fd->win_info[4], "Unknown Packet Type");
+		}
+	}
+
+	if (tree) {
+		ti = add_item_to_tree(GTK_WIDGET(tree), offset, END_OF_FRAME,
+			"Service Advertising Protocol");
+		sap_tree = gtk_tree_new();
+		add_subtree(ti, sap_tree, ETT_IPXSAP);
+
+		if (query.query_type < 4) {
+			add_item_to_tree(sap_tree, offset, 2, sap_type[query.query_type - 1]);
+		}
+		else {
+			add_item_to_tree(sap_tree, offset, 2,
+					"Unknown SAP Packet Type %d", query.query_type);
+		}
+
+		if (query.query_type == IPX_SAP_GENERAL_RESPONSE ||
+				query.query_type == IPX_SAP_NEAREST_RESPONSE) { /* responses */
+
+			for (cursor = offset + 2; cursor < fd->cap_len; cursor += 64) {
+				server.server_type = pntohs(&pd[cursor]);
+				memcpy(server.server_name, &pd[cursor+2], 48);
+				memcpy(&server.server_network, &pd[cursor+50], 4);
+				memcpy(&server.server_node, &pd[cursor+54], 6);
+				server.server_port = pntohs(&pd[cursor+60]);
+				server.intermediate_network = pntohs(&pd[cursor+62]);
+
+				ti = add_item_to_tree(GTK_WIDGET(sap_tree), cursor+2, 48,
+					"Server Name: %s", server.server_name);
+				s_tree = gtk_tree_new();
+				add_subtree(ti, s_tree, ETT_IPXSAP_SERVER);
+
+				add_item_to_tree(s_tree, cursor, 2, "Server Type: %s (0x%04X)",
+						server_type(server.server_type), server.server_type);
+				add_item_to_tree(s_tree, cursor+50, 4, "Network: %s",
+						network_to_string((guint8*)&pd[cursor+50]));
+				add_item_to_tree(s_tree, cursor+54, 6, "Node: %s",
+						ether_to_str((guint8*)&pd[cursor+54]));
+				add_item_to_tree(s_tree, cursor+60, 2, "Socket: %s (0x%04X)",
+						port_text(server.server_port), server.server_port);
+				add_item_to_tree(s_tree, cursor+62, 2,
+						"Intermediate Networks: %d",
+						server.intermediate_network);
+			}
+		}
+		else {  /* queries */
+			add_item_to_tree(sap_tree, offset+2, 2, "Server Type: %s (0x%04X)",
+					server_type(query.server_type), query.server_type);
+		}
+	}
+}
+
