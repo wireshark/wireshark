@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.134 2004/05/24 18:14:58 ulfl Exp $
+ * $Id: prefs.c,v 1.135 2004/05/30 18:27:52 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2095,62 +2095,7 @@ write_prefs(char **pf_path_return)
   fputs("# Configuration file for Ethereal " VERSION ".\n"
     "#\n"
     "# This file is regenerated each time preferences are saved within\n"
-    "# Ethereal.  Making manual changes should be safe, however.\n"
-    "\n"
-    "######## Printing ########\n", pf);
-
-  fprintf (pf, "\n# Can be one of \"text\" or \"postscript\".\n"
-    "print.format: %s\n", pr_formats[prefs.pr_format]);
-
-  fprintf (pf, "\n# Can be one of \"command\" or \"file\".\n"
-    "print.destination: %s\n", pr_dests[prefs.pr_dest]);
-
-  fprintf (pf, "\n# This is the file that gets written to when the "
-    "destination is set to \"file\"\n"
-    "%s: %s\n", PRS_PRINT_FILE, prefs.pr_file);
-
-  fprintf (pf, "\n# Output gets piped to this command when the destination "
-    "is set to \"command\"\n"
-    "%s: %s\n", PRS_PRINT_CMD, prefs.pr_cmd);
-
-  fprintf (pf, "\n######## Columns ########\n");
-  
-  clp = prefs.col_list;
-  col_l = NULL;
-  while (clp) {
-    cfmt = (fmt_data *) clp->data;
-    col_l = g_list_append(col_l, cfmt->title);
-    col_l = g_list_append(col_l, cfmt->fmt);
-    clp = clp->next;
-  }
-  fprintf (pf, "\n# Packet list column format.\n");
-  fprintf (pf, "# Each pair of strings consists of a column title and its format.\n");
-  fprintf (pf, "%s: %s\n", PRS_COL_FMT, put_string_list(col_l));
-  /* This frees the list of strings, but not the strings to which it
-     refers; that's what we want, as we haven't copied those strings,
-     we just referred to them.  */
-  g_list_free(col_l);
-
-  fprintf (pf, "\n######## TCP Stream Window ########\n");
-
-  fprintf (pf, "\n# TCP stream window color preferences.\n");
-  fprintf (pf, "# Each value is a six digit hexadecimal color value in the form rrggbb.\n");
-  fprintf (pf, "%s: %02x%02x%02x\n", PRS_STREAM_CL_FG,
-    (prefs.st_client_fg.red * 255 / 65535),
-    (prefs.st_client_fg.green * 255 / 65535),
-    (prefs.st_client_fg.blue * 255 / 65535));
-  fprintf (pf, "%s: %02x%02x%02x\n", PRS_STREAM_CL_BG,
-    (prefs.st_client_bg.red * 255 / 65535),
-    (prefs.st_client_bg.green * 255 / 65535),
-    (prefs.st_client_bg.blue * 255 / 65535));
-  fprintf (pf, "%s: %02x%02x%02x\n", PRS_STREAM_SR_FG,
-    (prefs.st_server_fg.red * 255 / 65535),
-    (prefs.st_server_fg.green * 255 / 65535),
-    (prefs.st_server_fg.blue * 255 / 65535));
-  fprintf (pf, "%s: %02x%02x%02x\n", PRS_STREAM_SR_BG,
-    (prefs.st_server_bg.red * 255 / 65535),
-    (prefs.st_server_bg.green * 255 / 65535),
-    (prefs.st_server_bg.blue * 255 / 65535));
+    "# Ethereal.  Making manual changes should be safe, however.\n", pf);
 
   fprintf (pf, "\n######## User Interface ########\n");
   
@@ -2199,23 +2144,6 @@ write_prefs(char **pf_path_return)
   fprintf(pf, PRS_GUI_TOOLBAR_MAIN_STYLE ": %s\n",
 		  gui_toolbar_style_text[prefs.gui_toolbar_main_style]);
 
-  fprintf(pf, "\n# Font name for packet list, protocol tree, and hex dump panes (GTK version 1).\n");
-  fprintf(pf, PRS_GUI_FONT_NAME_1 ": %s\n", prefs.gui_font_name1);
-
-  fprintf(pf, "\n# Font name for packet list, protocol tree, and hex dump panes (GTK version 2).\n");
-  fprintf(pf, PRS_GUI_FONT_NAME_2 ": %s\n", prefs.gui_font_name2);
-
-  fprintf (pf, "\n# Color preferences for a marked frame.\n");
-  fprintf (pf, "# Each value is a six digit hexadecimal color value in the form rrggbb.\n");
-  fprintf (pf, "%s: %02x%02x%02x\n", PRS_GUI_MARKED_FG,
-    (prefs.gui_marked_fg.red * 255 / 65535),
-    (prefs.gui_marked_fg.green * 255 / 65535),
-    (prefs.gui_marked_fg.blue * 255 / 65535));
-  fprintf (pf, "%s: %02x%02x%02x\n", PRS_GUI_MARKED_BG,
-    (prefs.gui_marked_bg.red * 255 / 65535),
-    (prefs.gui_marked_bg.green * 255 / 65535),
-    (prefs.gui_marked_bg.blue * 255 / 65535));
-
   fprintf(pf, "\n# Save window position at exit?\n");
   fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
   fprintf(pf, PRS_GUI_GEOMETRY_SAVE_POSITION ": %s\n",
@@ -2250,6 +2178,8 @@ write_prefs(char **pf_path_return)
                   prefs.gui_fileopen_dir);
   }
                   
+  fprintf (pf, "\n######## User Interface: Layout ########\n");
+
   fprintf(pf, "\n# Layout type (1-6).\n");
   fprintf(pf, PRS_GUI_LAYOUT_TYPE ": %d\n",
 	          prefs.gui_layout_type);
@@ -2263,20 +2193,65 @@ write_prefs(char **pf_path_return)
   fprintf(pf, PRS_GUI_LAYOUT_CONTENT_3 ": %s\n",
 	          gui_layout_content_text[prefs.gui_layout_content_3]);
 
-  fprintf(pf, "\n####### Name Resolution ########\n");
+  fprintf (pf, "\n######## User Interface: Columns ########\n");
   
-  fprintf(pf, "\n# Resolve addresses to names?\n");
-  fprintf(pf, "# TRUE or FALSE (case-insensitive), or a list of address types to resolve.\n");
-  fprintf(pf, PRS_NAME_RESOLVE ": %s\n",
-		  name_resolve_to_string(prefs.name_resolve));
+  clp = prefs.col_list;
+  col_l = NULL;
+  while (clp) {
+    cfmt = (fmt_data *) clp->data;
+    col_l = g_list_append(col_l, cfmt->title);
+    col_l = g_list_append(col_l, cfmt->fmt);
+    clp = clp->next;
+  }
+  fprintf (pf, "\n# Packet list column format.\n");
+  fprintf (pf, "# Each pair of strings consists of a column title and its format.\n");
+  fprintf (pf, "%s: %s\n", PRS_COL_FMT, put_string_list(col_l));
+  /* This frees the list of strings, but not the strings to which it
+     refers; that's what we want, as we haven't copied those strings,
+     we just referred to them.  */
+  g_list_free(col_l);
 
-  fprintf(pf, "\n# Name resolution concurrency.\n");
-  fprintf(pf, "# A decimal number.\n");
-  fprintf(pf, PRS_NAME_RESOLVE_CONCURRENCY ": %d\n",
-		  prefs.name_resolve_concurrency);
+  fprintf (pf, "\n######## User Interface: Font ########\n");
 
-/* write the capture options */
-  fprintf(pf, "\n####### Capture Options ########\n");
+  fprintf(pf, "\n# Font name for packet list, protocol tree, and hex dump panes (GTK version 1).\n");
+  fprintf(pf, PRS_GUI_FONT_NAME_1 ": %s\n", prefs.gui_font_name1);
+
+  fprintf(pf, "\n# Font name for packet list, protocol tree, and hex dump panes (GTK version 2).\n");
+  fprintf(pf, PRS_GUI_FONT_NAME_2 ": %s\n", prefs.gui_font_name2);
+
+  fprintf (pf, "\n######## User Interface: Colors ########\n");
+
+  fprintf (pf, "\n# Color preferences for a marked frame.\n");
+  fprintf (pf, "# Each value is a six digit hexadecimal color value in the form rrggbb.\n");
+  fprintf (pf, "%s: %02x%02x%02x\n", PRS_GUI_MARKED_FG,
+    (prefs.gui_marked_fg.red * 255 / 65535),
+    (prefs.gui_marked_fg.green * 255 / 65535),
+    (prefs.gui_marked_fg.blue * 255 / 65535));
+  fprintf (pf, "%s: %02x%02x%02x\n", PRS_GUI_MARKED_BG,
+    (prefs.gui_marked_bg.red * 255 / 65535),
+    (prefs.gui_marked_bg.green * 255 / 65535),
+    (prefs.gui_marked_bg.blue * 255 / 65535));
+
+  fprintf (pf, "\n# TCP stream window color preferences.\n");
+  fprintf (pf, "# Each value is a six digit hexadecimal color value in the form rrggbb.\n");
+  fprintf (pf, "%s: %02x%02x%02x\n", PRS_STREAM_CL_FG,
+    (prefs.st_client_fg.red * 255 / 65535),
+    (prefs.st_client_fg.green * 255 / 65535),
+    (prefs.st_client_fg.blue * 255 / 65535));
+  fprintf (pf, "%s: %02x%02x%02x\n", PRS_STREAM_CL_BG,
+    (prefs.st_client_bg.red * 255 / 65535),
+    (prefs.st_client_bg.green * 255 / 65535),
+    (prefs.st_client_bg.blue * 255 / 65535));
+  fprintf (pf, "%s: %02x%02x%02x\n", PRS_STREAM_SR_FG,
+    (prefs.st_server_fg.red * 255 / 65535),
+    (prefs.st_server_fg.green * 255 / 65535),
+    (prefs.st_server_fg.blue * 255 / 65535));
+  fprintf (pf, "%s: %02x%02x%02x\n", PRS_STREAM_SR_BG,
+    (prefs.st_server_bg.red * 255 / 65535),
+    (prefs.st_server_bg.green * 255 / 65535),
+    (prefs.st_server_bg.blue * 255 / 65535));
+
+  fprintf(pf, "\n####### Capture ########\n");
   
   if (prefs.capture_device != NULL) {
     fprintf(pf, "\n# Default capture device\n");
@@ -2309,6 +2284,36 @@ write_prefs(char **pf_path_return)
   fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
   fprintf(pf, PRS_CAP_AUTO_SCROLL ": %s\n",
 		  prefs.capture_auto_scroll == TRUE ? "TRUE" : "FALSE");
+
+  fprintf (pf, "\n######## Printing ########\n");
+
+  fprintf (pf, "\n# Can be one of \"text\" or \"postscript\".\n"
+    "print.format: %s\n", pr_formats[prefs.pr_format]);
+
+  fprintf (pf, "\n# Can be one of \"command\" or \"file\".\n"
+    "print.destination: %s\n", pr_dests[prefs.pr_dest]);
+
+  fprintf (pf, "\n# This is the file that gets written to when the "
+    "destination is set to \"file\"\n"
+    "%s: %s\n", PRS_PRINT_FILE, prefs.pr_file);
+
+  fprintf (pf, "\n# Output gets piped to this command when the destination "
+    "is set to \"command\"\n"
+    "%s: %s\n", PRS_PRINT_CMD, prefs.pr_cmd);
+
+  fprintf(pf, "\n####### Name Resolution ########\n");
+  
+  fprintf(pf, "\n# Resolve addresses to names?\n");
+  fprintf(pf, "# TRUE or FALSE (case-insensitive), or a list of address types to resolve.\n");
+  fprintf(pf, PRS_NAME_RESOLVE ": %s\n",
+		  name_resolve_to_string(prefs.name_resolve));
+
+  fprintf(pf, "\n# Name resolution concurrency.\n");
+  fprintf(pf, "# A decimal number.\n");
+  fprintf(pf, PRS_NAME_RESOLVE_CONCURRENCY ": %d\n",
+		  prefs.name_resolve_concurrency);
+
+  fprintf(pf, "\n####### Protocols ########\n");
 
   g_list_foreach(modules, write_module_prefs, pf);
 
