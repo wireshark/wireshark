@@ -1,7 +1,7 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
  *
- * $Id: packet-dns.c,v 1.73 2001/09/14 07:10:05 guy Exp $
+ * $Id: packet-dns.c,v 1.74 2001/09/17 00:36:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1759,8 +1759,8 @@ dissect_answer_records(tvbuff_t *tvb, int cur_off, int dns_data_offset,
   return cur_off - start_off;
 }
 
-static void
-dissect_dns_common(tvbuff_t *tvb, int offset, int cap_len, packet_info *pinfo,
+static int
+dissect_dns_common(tvbuff_t *tvb, int offset, int msg_len, packet_info *pinfo,
 	proto_tree *tree, gboolean is_tcp)
 {
   int dns_data_offset;
@@ -1815,14 +1815,14 @@ dissect_dns_common(tvbuff_t *tvb, int offset, int cap_len, packet_info *pinfo,
     isupdate = 0;
 
   if (tree) {
-    ti = proto_tree_add_protocol_format(tree, proto_dns, tvb, offset, cap_len,
+    ti = proto_tree_add_protocol_format(tree, proto_dns, tvb, offset, msg_len,
       "Domain Name System (%s)", (flags & F_RESPONSE) ? "response" : "query");
     
     dns_tree = proto_item_add_subtree(ti, ett_dns);
 
     if (is_tcp) {
       /* Put the length indication into the tree. */
-      proto_tree_add_uint(dns_tree, hf_dns_length, tvb, offset - 2, 2, cap_len);
+      proto_tree_add_uint(dns_tree, hf_dns_length, tvb, offset - 2, 2, msg_len);
     }
 
     if (flags & F_RESPONSE)
@@ -1921,32 +1921,34 @@ dissect_dns_common(tvbuff_t *tvb, int offset, int cap_len, packet_info *pinfo,
     /* If this is a response, don't add information about the queries
        to the summary, just add information about the answers. */
     cur_off += dissect_query_records(tvb, cur_off, dns_data_offset, quest,
-					(!(flags & F_RESPONSE) ? fd : NULL),
-					dns_tree, isupdate);
+				     (!(flags & F_RESPONSE) ? fd : NULL),
+				     dns_tree, isupdate);
   }
     
   if (ans > 0) {
     /* If this is a request, don't add information about the answers
        to the summary, just add information about the queries. */
-    char *s = (isupdate ?  "Prerequisites" : "Answers");
     cur_off += dissect_answer_records(tvb, cur_off, dns_data_offset, ans,
-					((flags & F_RESPONSE) ? fd : NULL),
-					dns_tree, s);
+				      ((flags & F_RESPONSE) ? fd : NULL),
+				      dns_tree,
+				      (isupdate ?  "Prerequisites" : "Answers"));
   }
     
-  if (tree) {
-    /* Don't add information about the authoritative name servers, or the
-       additional records, to the summary. */
-    if (auth > 0) {
-      char *s = (isupdate ?  "Updates" : "Authoritative nameservers");
-      cur_off += dissect_answer_records(tvb, cur_off, dns_data_offset, auth,
-          NULL, dns_tree, s);
-    }
-
-    if (add > 0)
-      cur_off += dissect_answer_records(tvb, cur_off, dns_data_offset, add,
-          NULL, dns_tree, "Additional records");
+  /* Don't add information about the authoritative name servers, or the
+     additional records, to the summary. */
+  if (auth > 0) {
+    cur_off += dissect_answer_records(tvb, cur_off, dns_data_offset, auth,
+				      NULL, dns_tree,
+				      (isupdate ?  "Updates" :
+						   "Authoritative nameservers"));
   }
+
+  if (add > 0) {
+    cur_off += dissect_answer_records(tvb, cur_off, dns_data_offset, add,
+				      NULL, dns_tree, "Additional records");
+  }
+
+  return cur_off;
 }
 
 static void
@@ -1976,7 +1978,8 @@ dissect_dns_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/*
 		 * Yes - dissect it.
 		 */
-		dissect_dns_common(tvb, offset, plen, pinfo, tree, TRUE);
+		offset = dissect_dns_common(tvb, offset, plen, pinfo, tree,
+		    TRUE);
 	}
 }
 
