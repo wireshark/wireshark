@@ -208,6 +208,7 @@ voip_calls_on_unselect                  (GtkButton       *button _U_,
 
 	/*gtk_widget_set_sensitive(bt_unselect, FALSE);*/
 	gtk_widget_set_sensitive(bt_filter, FALSE);
+	gtk_widget_set_sensitive(bt_graph, FALSE);
 }
 
 
@@ -383,6 +384,7 @@ voip_calls_on_select_row(GtkCList *clist,
 	
 	/*gtk_widget_set_sensitive(bt_unselect, TRUE);*/
 	gtk_widget_set_sensitive(bt_filter, TRUE);
+	gtk_widget_set_sensitive(bt_graph, TRUE);
 
 	/* TODO: activate other buttons when implemented */
 }
@@ -565,7 +567,7 @@ static void voip_calls_dlg_create (void)
 	gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_unselect);
 	gtk_tooltips_set_tip (tooltips, bt_unselect, "Unselect this conversation", NULL);*/
 
-	bt_filter = gtk_button_new_with_label ("Prepare filter");
+	bt_filter = gtk_button_new_with_label ("Prepare Filter");
 	gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_filter);
 	gtk_tooltips_set_tip (tooltips, bt_filter, "Prepare a display filter of the selected conversation", NULL);
 
@@ -573,6 +575,7 @@ static void voip_calls_dlg_create (void)
 	gtk_container_add(GTK_CONTAINER(hbuttonbox), bt_graph);
 	gtk_widget_show(bt_graph);
 	SIGNAL_CONNECT(bt_graph, "clicked", on_graph_bt_clicked, NULL);
+	gtk_tooltips_set_tip (tooltips, bt_graph, "Show a flow graph of the selected calls.", NULL);
 
 	bt_close = BUTTON_NEW_FROM_STOCK(GTK_STOCK_CLOSE);
 	gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_close);
