@@ -1,7 +1,7 @@
 /* plugin_table.h
  * Table of exported addresses for Ethereal plugins.
  *
- * $Id: plugin_table.h,v 1.18 2001/04/02 09:55:34 guy Exp $
+ * $Id: plugin_table.h,v 1.19 2001/04/25 08:31:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@xiexie.org>
@@ -36,6 +36,7 @@ typedef void (*addr_col_add_fstr)(frame_data*, gint, gchar*, ...);
 typedef void (*addr_col_append_fstr)(frame_data*, gint, gchar*, ...);
 typedef void (*addr_col_add_str)(frame_data*, gint, const gchar*);
 typedef void (*addr_col_append_str)(frame_data*, gint, gchar*);
+typedef void (*addr_col_set_str)(frame_data*, gint, gchar*);
 
 typedef int (*addr_proto_register_protocol)(char*, char*, char*);
 typedef void (*addr_proto_register_field_array)(int, hf_register_info*, int);
@@ -120,6 +121,7 @@ typedef guint (*addr_tvb_length_remaining)(tvbuff_t*, gint);
 typedef gboolean (*addr_tvb_bytes_exist)(tvbuff_t*, gint, gint);
 typedef gboolean (*addr_tvb_offset_exists)(tvbuff_t*, gint);
 typedef guint (*addr_tvb_reported_length)(tvbuff_t*);
+typedef guint (*addr_tvb_reported_length_remaining)(tvbuff_t*, gint);
 
 typedef guint8 (*addr_tvb_get_guint8)(tvbuff_t*, gint);
 
@@ -177,6 +179,7 @@ typedef struct  {
 	addr_col_append_fstr			p_col_append_fstr;
 	addr_col_add_str			p_col_add_str;
 	addr_col_append_str			p_col_append_str;
+	addr_col_set_str			p_col_set_str;
 
 	packet_info				*p_pi;
 
@@ -249,6 +252,7 @@ typedef struct  {
 	addr_tvb_bytes_exist			p_tvb_bytes_exist;
 	addr_tvb_offset_exists			p_tvb_offset_exists;
 	addr_tvb_reported_length		p_tvb_reported_length;
+	addr_tvb_reported_length_remaining	p_tvb_reported_length_remaining;
 
 	addr_tvb_get_guint8			p_tvb_get_guint8;
 

@@ -1,7 +1,7 @@
 /* plugins.c
  * plugin routines
  *
- * $Id: plugins.c,v 1.22 2001/04/02 09:58:15 guy Exp $
+ * $Id: plugins.c,v 1.23 2001/04/25 08:31:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -288,6 +288,7 @@ init_plugins(const char *plugin_dir)
 	patable.p_col_append_fstr		= col_append_fstr;
 	patable.p_col_add_str			= col_add_str;
 	patable.p_col_append_str		= col_append_str;
+	patable.p_col_set_str			= col_set_str;
 
 	patable.p_pi				= &pi;
 
@@ -360,6 +361,7 @@ init_plugins(const char *plugin_dir)
 	patable.p_tvb_bytes_exist		= tvb_bytes_exist;
 	patable.p_tvb_offset_exists		= tvb_offset_exists;
 	patable.p_tvb_reported_length		= tvb_reported_length;
+	patable.p_tvb_reported_length_remaining	= tvb_reported_length_remaining;
 
 	patable.p_tvb_get_guint8		= tvb_get_guint8;
 

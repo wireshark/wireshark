@@ -1,7 +1,7 @@
 /* plugin_api.c
  * Routines for Ethereal plugins.
  *
- * $Id: plugin_api.c,v 1.17 2001/01/28 20:26:20 guy Exp $
+ * $Id: plugin_api.c,v 1.18 2001/04/25 08:31:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@xiexie.org>
@@ -45,6 +45,7 @@ plugin_address_table_init(plugin_address_table_t *pat)
 	p_col_append_fstr			= pat->p_col_append_fstr;
 	p_col_add_str				= pat->p_col_add_str;
 	p_col_append_str			= pat->p_col_append_str;
+	p_col_set_str				= pat->p_col_set_str;
 	p_proto_register_protocol		= pat->p_proto_register_protocol;
 	p_proto_register_field_array		= pat->p_proto_register_field_array;
 	p_proto_register_subtree_array		= pat->p_proto_register_subtree_array;
@@ -106,6 +107,7 @@ plugin_address_table_init(plugin_address_table_t *pat)
 	p_tvb_bytes_exist			= pat->p_tvb_bytes_exist;
 	p_tvb_offset_exists			= pat->p_tvb_offset_exists;
 	p_tvb_reported_length			= pat->p_tvb_reported_length;
+	p_tvb_reported_length_remaining		= pat->p_tvb_reported_length_remaining;
 	p_tvb_get_guint8			= pat->p_tvb_get_guint8;
 	p_tvb_get_ntohs				= pat->p_tvb_get_ntohs;
 	p_tvb_get_ntoh24			= pat->p_tvb_get_ntoh24;

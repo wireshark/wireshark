@@ -1,7 +1,7 @@
 /* plugin_api.h
  * Routines for Ethereal plugins.
  *
- * $Id: plugin_api.h,v 1.17 2001/01/28 20:26:20 guy Exp $
+ * $Id: plugin_api.h,v 1.18 2001/04/25 08:31:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@xiexie.org>
@@ -40,6 +40,7 @@
 #define	col_append_fstr			(*p_col_append_fstr)
 #define	col_add_str			(*p_col_add_str)
 #define	col_append_str			(*p_col_append_str)
+#define	col_set_str			(*p_col_set_str)
 
 #define	proto_register_protocol		(*p_proto_register_protocol)
 #define	proto_register_field_array	(*p_proto_register_field_array)
@@ -110,6 +111,7 @@
 #define tvb_bytes_exist			(*p_tvb_bytes_exist)
 #define tvb_offset_exists		(*p_tvb_offset_exists)
 #define tvb_reported_length		(*p_tvb_reported_length)
+#define tvb_reported_length_remaining	(*p_tvb_reported_length_remaining)
 
 #define tvb_get_guint8			(*p_tvb_get_guint8)
 
