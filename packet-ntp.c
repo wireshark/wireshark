@@ -2,7 +2,7 @@
  * Routines for NTP packet dissection
  * Copyright 1999, Nathan Neulinger <nneul@umr.edu>
  *
- * $Id: packet-ntp.c,v 1.29 2001/07/15 19:14:00 guy Exp $
+ * $Id: packet-ntp.c,v 1.30 2001/07/16 20:58:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -236,14 +236,14 @@ ntp_fmt_ts(const guint8 *reftime, char* buff)
 	} else {
 		temptime = tempstmp - (guint32) NTP_BASETIME;
 		bd = gmtime(&temptime);
-        if (bd != NULL) {
-          fractime = bd->tm_sec + tempfrac / 4294967296.0;
-          snprintf(buff, NTP_TS_SIZE, "%04d-%02d-%02d %02d:%02d:%07.4f UTC",
-                   bd->tm_year + 1900, bd->tm_mon + 1, bd->tm_mday,
-                   bd->tm_hour, bd->tm_min, fractime);
-        } else {
-          strncpy(buff, "Not representable", NTP_TS_SIZE);
-        }
+		if (bd != NULL) {
+			fractime = bd->tm_sec + tempfrac / 4294967296.0;
+			snprintf(buff, NTP_TS_SIZE,
+				 "%04d-%02d-%02d %02d:%02d:%07.4f UTC",
+				 bd->tm_year + 1900, bd->tm_mon + 1, bd->tm_mday,
+				 bd->tm_hour, bd->tm_min, fractime);
+		} else
+			strncpy(buff, "Not representable", NTP_TS_SIZE);
 	}
 	return buff;
 }
