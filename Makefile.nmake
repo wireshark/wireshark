@@ -440,9 +440,9 @@ setup: verify_tools
 !IFDEF GTK2_DIR
 !IF "$(GTK2_INST_VERSION)" == "2.4"
 	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
-		gtk2 gtk2.4/gtk+-2.4.10-20041001.zip
+		gtk2 gtk2.4/gtk+-2.4.13.zip
 	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
-		gtk2 gtk2.4/gtk+-dev-2.4.10.zip
+		gtk2 gtk2.4/gtk+-dev-2.4.13.zip
 	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
 		gtk2 gtk2.4/atk-1.6.0.zip
 	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
