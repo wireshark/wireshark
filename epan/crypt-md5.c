@@ -51,11 +51,16 @@
   1999-05-03 lpd Original version.
  */
 
-#include "crypt-md5.h"
+#ifdef HAVE_CONFIG_H
+# include "config.h"
+#endif
+
 #include <string.h>
 
+#include <epan/crypt-md5.h>
+
 #undef BYTE_ORDER	/* 1 = big-endian, -1 = little-endian, 0 = unknown */
-#ifdef ARCH_IS_BIG_ENDIAN
+#ifdef WORDS_BIGENDIAN
 #  define BYTE_ORDER (ARCH_IS_BIG_ENDIAN ? 1 : -1)
 #else
 #  define BYTE_ORDER 0

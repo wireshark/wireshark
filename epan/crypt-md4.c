@@ -27,6 +27,8 @@
 #include <glib.h>
 #include <string.h>
 
+#include <epan/crypt-md4.h>
+
 /* NOTE: This code makes no attempt to be fast! 
 
    It assumes that a int is at least 32 bits long

@@ -28,6 +28,8 @@
 #endif
 #include <glib.h>
 
+#include <epan/crypt-des.h>
+
 /* NOTES: 
 
    This code makes no attempt to be fast! In fact, it is a very

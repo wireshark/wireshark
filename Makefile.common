@@ -36,10 +36,6 @@ DISSECTOR_SUPPORT_INCLUDES =	\
 	column.h	\
 	crc16.h	\
 	crc32.h	\
-	crypt-des.h	\
-	crypt-md4.h	\
-	crypt-md5.h	\
-	crypt-rc4.h	\
 	etypes.h	\
 	follow.h	\
 	format-oid.h	\

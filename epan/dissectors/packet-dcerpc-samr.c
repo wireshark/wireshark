@@ -32,13 +32,13 @@
 #include <epan/packet.h>
 #include <string.h>
 #include <epan/prefs.h>
+#include <epan/crypt-md4.h>
+#include <epan/crypt-rc4.h>
 #include "packet-dcerpc.h"
 #include "packet-dcerpc-nt.h"
 #include "packet-dcerpc-samr.h"
 #include "packet-windows-common.h"
 #include "packet-smb-common.h"
-#include "crypt-md4.h"
-#include "crypt-rc4.h"
 
 #ifdef NEED_SNPRINTF_H
 # include "snprintf.h"

@@ -33,6 +33,10 @@ LIBETHEREAL_SRC = 		\
 	circuit.c		\
 	column-utils.c		\
 	conversation.c		\
+	crypt-des.c		\
+	crypt-md4.c		\
+	crypt-md5.c		\
+	crypt-rc4.c		\
 	epan.c			\
 	except.c		\
 	filesystem.c		\
@@ -63,6 +67,10 @@ LIBETHEREAL_INCLUDES = 		\
 	column_info.h		\
 	conversation.h		\
 	column-utils.h		\
+	crypt-des.h		\
+	crypt-md4.h		\
+	crypt-md5.h		\
+	crypt-rc4.h		\
 	epan.h			\
 	epan_dissect.h		\
 	except.h		\
@@ -98,10 +106,6 @@ DISSECTOR_SUPPORT_SRC =	\
 	../column.c	\
 	../crc16.c	\
 	../crc32.c	\
-	../crypt-des.c	\
-	../crypt-md4.c	\
-	../crypt-md5.c	\
-	../crypt-rc4.c	\
 	../follow.c	\
 	../h225-persistentdata.c	\
 	../in_cksum.c	\

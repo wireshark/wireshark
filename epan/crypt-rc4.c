@@ -26,10 +26,11 @@
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
+
 #include <glib.h>
 #include <string.h>
 
-#include "crypt-rc4.h"
+#include <epan/crypt-rc4.h>
 
 /* Perform RC4 on a block of data using specified key.  "data" is a pointer
    to the block to be processed.  Output is written to same memory as input,
