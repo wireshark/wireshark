@@ -9,6 +9,10 @@
  * (NOTE: you need to turn on 'Allow subdissector to desegment TCP streams'
  *        in Preferences/Protocols/TCP Option menu, in order to view
  *        DICOM packets correctly.  
+ *        Also, you might have to turn off tcp.check_checksum if tcp
+ *        detects that the checksum is bad - for example, if you're
+ *        capturing on a network interface that does TCP checksum
+ *        offloading and you're capturing outgoing packets.
  *        This should probably be documented somewhere besides here.)
  *
  * $Id$
@@ -57,6 +61,9 @@
  * 
  * - The 'value to string' routines should probably be hash lookups.
  *
+ * 9 Nov 2004
+ * - Fixed the heuristic code -- sometimes a conversation already exists
+ * - Fixed the dissect code to display all the tags in the pdu
  */
 
 #include <stdio.h>
@@ -127,6 +134,7 @@ struct dcmContext {
 };
 struct dcmItem {
     struct dcmItem *next, *prev;
+    int valid;
     guint8 id;		/* 0x20 Presentation Context */
     guint8 *abs;	/* 0x30 Abstract syntax */
     guint8 *xfer;	/* 0x40 Transfer syntax */
@@ -144,6 +152,7 @@ struct dcmState {
     guint32 tlen, clen, rlen;    /* length: total, current, remaining */
     int partial;	/* is a partial packet */
     int coff;		/* current offset */
+    int valid;		/* this conversation is a dicom conversation */
     /* enum { DCM_NONE, DCM_ASSOC, DCM_ }; */
 #define AEEND 16
     guint8 orig[1+AEEND], targ[1+AEEND], resp[1+AEEND], source, result, reason;
@@ -270,6 +279,7 @@ mkds(void)
     ds->pdu = 0;
     ds->tlen = ds->rlen = 0;
     ds->partial = 0;
+    ds->valid = TRUE;
     memset(ds->orig, 0, sizeof(ds->orig));
     memset(ds->targ, 0, sizeof(ds->targ));
     memset(ds->resp, 0, sizeof(ds->resp));
@@ -442,7 +452,7 @@ dcm_rsp2str(guint16 us)
     case 0xff00:  s = "Pending: operations are continuing"; break;
     default: break;
     }
-    if (0xC000 == (0xC000 & us))  s = "Failed:  Unable to Process"; 
+    if (0xC000 == (0xF000 & us))  s = "Failed:  Unable to Process"; 
     return s;
 }
 
@@ -451,6 +461,7 @@ dcm_setSyntax(dcmItem_t *di, char *name)
 {
     if (NULL == di) return;
     di->syntax = 0;
+    di->xfer = name;
     if (0 == *name) return;
     /* this would be faster to skip the common parts, and have a FSA to 
      * find the syntax.
@@ -476,10 +487,12 @@ dcm_tag2str(guint16 grp, guint16 elm, guint8 syntax, tvbuff_t *tvb, int offset, 
 {
     static char buf[512+1];	/* bad form ??? */
     const guint8 *vval;
+    size_t vval_len;
     char *p;
     guint32 tag, val32;
     guint16 val16;
     dcmTag_t *dtag;
+    size_t pl;
     static dcmTag_t utag = { 0, 0, "(unknown)" };
 
     *buf = 0;
@@ -495,13 +508,17 @@ dcm_tag2str(guint16 grp, guint16 elm, guint8 syntax, tvbuff_t *tvb, int offset, 
 	dtag = &utag;
 
     strcpy(buf, dtag->desc);
+    g_assert(sizeof(buf) >= strlen(buf));
+    pl = sizeof(buf) - strlen(buf);
     p = buf + strlen(buf);
 
     switch (dtag->dtype) {
     case DCM_TSTR:
+    default:		/* try ascii */
 	*p++ = ' ';
-	vval = tvb_get_ptr(tvb, offset, len);
-	strncpy(p, vval, len);
+	vval = tvb_format_text(tvb, offset, len);
+	vval_len = strlen(vval);
+	strncpy(p, vval, vval_len > pl ? pl : vval_len);
 	p += len;
 	*p = 0;
 	break;
@@ -545,16 +562,6 @@ dcm_tag2str(guint16 grp, guint16 elm, guint8 syntax, tvbuff_t *tvb, int offset, 
 	break;
     case DCM_TRET:   /* Retired */
 	break;
-    default: {		/* try ascii */
-	unsigned int i;
-
-	vval = tvb_get_ptr(tvb, offset, len);
-	i = 0;
-	*p++ = ' ';
-	while (i < len && i < 512 && isprint(*(vval+i)))
-	    *p++ = *(vval + i++);
-	*p = 0;
-	} break;
     }
     return buf;
 }
@@ -562,26 +569,42 @@ dcm_tag2str(guint16 grp, guint16 elm, guint8 syntax, tvbuff_t *tvb, int offset, 
 static guint
 dcm_get_pdu_len(tvbuff_t *tvb, int offset)
 {
-    long len;
+    guint32 len;
 #if 0
     guint8 pdu_type;
+    guint len_rem;
 #endif
 
     len = tvb_get_ntohl(tvb, 2 + offset);
 #if 0
-    guint8 pdu_type;
     pdu_type = tvb_get_guint8(tvb, offset);
+    len_rem = tvb_ensure_length_remaining(tvb, offset);
+    /*
+     * XXX - a get_pdu_len() routine *CANNOT* scan forward arbitrarily
+     * long into a packet, as it might run past the end of the tvbuff
+     * and cause an exception.  It *must* be able to compute the PDU
+     * length from the first N bytes of the PDU, for some value of N.
+     *
+     * If there's fragmentation in DICOM, the TCP reassembly should be
+     * done at the *fragment* level - i.e., do reassembly of a *fragment*
+     * at the TCP layer - and reassembly of the fragments should be done
+     * in the DICOM dissector.
+     */
     if (4 == pdu_type) {
 	guint8 frag;
-	/* this is a total swamp.  We only know how big this 
-	   fragment is and that more are coming.  We have to 
-	   parse the entire packet to find a clue how much more is
-	   coming.  this tries to guess .... */
-	frag = tvb_get_guint8(tvb, 11 + offset);
-	if (0 == (0x2 & frag))
-	    /* len += tvb_ensure_length_remaining(tvb, offset) - 6; */
-	    /* there are more fragments */ 
-	    len++;
+	/* old swamp */
+  	frag = tvb_get_guint8(tvb, 11 + offset);
+	while (0 == (0x2 & frag)) { /* there are more fragments */ 
+	    guint32 nlen;
+	    if (len_rem < len + 6 + 12) {
+		len += 12;	    /* fixed part of next pdu */
+		break;
+	    }
+	    len += 6;
+	    nlen = tvb_get_ntohl(tvb, 2 + offset + len);
+	    frag = tvb_get_guint8(tvb, 11 + offset + len);
+	    len += nlen;
+	}
     }
 #endif
     return len + 6;		/* add in fixed header part */
@@ -592,12 +615,13 @@ dissect_dcm_assoc(dcmState_t *dcm_data, proto_item *ti, tvbuff_t *tvb, int offse
 { 
     proto_tree *dcm_tree;
     dcmItem_t *di = NULL;
+    guint8 id, *name, result;
+    int reply = 0;
 
     dcm_tree = proto_item_add_subtree(ti, ett_assoc);
     while (-1 < offset && offset < (int) dcm_data->clen) {
-	guint8 id, *name, result;
-	short len;
-	long  mlen;
+	guint16 len;
+	guint32 mlen;
 	id = tvb_get_guint8(tvb, offset);
 	len = tvb_get_ntohs(tvb, 2 + offset);
 	proto_tree_add_uint_format(dcm_tree, hf_dcm_pdi, tvb,
@@ -620,19 +644,21 @@ dissect_dcm_assoc(dcmState_t *dcm_data, proto_item *ti, tvbuff_t *tvb, int offse
 	    offset += len;
 	    break;
 	case 0x40:		/* Transfer syntax */
-	    dcm_data->last->xfer = name = g_malloc(1 + len);
+	    name = g_malloc(1 + len);
 	    tvb_memcpy(tvb, name, offset, len);
 	    *(name + len) = 0;
 	    proto_tree_add_string(dcm_tree, hf_dcm_pdi_syntax, tvb, offset, len, name);
-	    dcm_setSyntax(di, name);
+	    if (reply && di && di->valid) dcm_setSyntax(di, name);
+	    reply = 0;
 	    offset += len;
 	    break;
 	case 0x20:		/* Presentation context */
 	    id = tvb_get_guint8(tvb, offset);
 	    di = lookupCtx(dcm_data, id);
-	    if (DCM_UNK == di->syntax) {
+	    if (!di->valid) {
 		di = g_chunk_new(dcmItem_t, dcm_pdus);
 		di->id = id;
+		di->valid = 1;
 		di->next = di->prev = NULL;
 		if (dcm_data->last) {
 		    dcm_data->last->next = di;
@@ -649,9 +675,14 @@ dissect_dcm_assoc(dcmState_t *dcm_data, proto_item *ti, tvbuff_t *tvb, int offse
 	    result = tvb_get_guint8(tvb, 2 + offset);
 	    proto_tree_add_item(dcm_tree, hf_dcm_pctxt, tvb, offset, 1, FALSE);
 	    proto_tree_add_uint_format(dcm_tree, hf_dcm_pcres, tvb, 
-		2 + offset, 1, 
-		result, "Result 0x%x (%s)", result, dcm_PCresult2str(result));
-	    offset += len;
+		2 + offset, 1, result, 
+		"Result 0x%x (%s)", result, dcm_PCresult2str(result));
+	    if (0 == result) {
+		reply = 1;
+		di = lookupCtx(dcm_data, id);
+		offset += 4;
+	    } else
+		offset += len;
 	    break;
 	case 0x50:		/* User Info */
 	    break;
@@ -687,7 +718,7 @@ dcmItem_t *
 lookupCtx(dcmState_t *dd, guint8 ctx)
 {
     dcmItem_t *di = dd->first;
-    static dcmItem_t dunk = { NULL, NULL, -1, 
+    static dcmItem_t dunk = { NULL, NULL, 0, -1, 
 	"not found - click on ASSOC Request", 
 	"not found - click on ASSOC Request", DCM_UNK };
     while (di) {
@@ -737,7 +768,7 @@ dissect_dcm_data(dcmState_t *dcm_data, proto_item *ti, tvbuff_t *tvb)
     len = offset = toffset = 11;
     state = D_HEADER;
     nlen = 1;
-    while (len + nlen < dcm_data->clen) {
+    while (len + nlen <= dcm_data->clen) {
     switch (state) {
     case D_HEADER: {
 	guint8 flags;
@@ -865,44 +896,41 @@ dissect_dcm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint8 pdu;
     guint16 vers;
     guint32 len, tlen;
-    dcmState_t *dcm_data;
+    dcmState_t *dcm_data = NULL;
 
     conv = find_conversation(&pinfo->src, &pinfo->dst,
 	pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
 
-    if (NULL == conv) {
+    if (NULL != conv) 	/* conversation exists */
+			/* do we have any data for this conversation ? */
+	dcm_data = conversation_get_proto_data(conv, proto_dcm);
+    else
+	conv = conversation_new(&pinfo->src, &pinfo->dst, pinfo->ptype,
+	    pinfo->srcport, pinfo->destport, 0);
+
+    if (NULL == dcm_data) {
 	/* No conversation found.
 	 * only look for the first packet of a DICOM conversation.
 	 * if we don't get the first packet, we cannot decode the rest
 	 * of the session.
 	 */
-	if (10 > (tlen = tvb_reported_length(tvb)))
-	    return FALSE;			/* not long enough */
-	if (1 != (pdu = tvb_get_guint8(tvb, 0)))
-	    return FALSE;		 /* look for the start */
-	if (1 != (vers = tvb_get_ntohs(tvb, 6)))
-	    return FALSE;		/* not version 1 */
-	len = 6 + tvb_get_ntohl(tvb, 2);
-	if (len < tlen)
-	    return FALSE;		/* packet is > decl len */
-
-    	conv = conversation_new(&pinfo->src, &pinfo->dst, pinfo->ptype,
-		pinfo->srcport, pinfo->destport, 0);
 	if (NULL == (dcm_data = mkds()))
 	    return FALSE;	/* internal error */
+	if (10 > (tlen = tvb_reported_length(tvb))     /* not long enough */
+	    || 1 != (pdu = tvb_get_guint8(tvb, 0))     /* look for the start */
+	    || 1 != (vers = tvb_get_ntohs(tvb, 6)))    /* not version 1 */
+	    dcm_data->valid = FALSE;		
+	else {
+	    len = 6 + tvb_get_ntohl(tvb, 2);
+	    if (len < tlen)
+		dcm_data->valid = FALSE;	/* packet is > decl len */
+	}
+
 	conversation_add_proto_data(conv, proto_dcm, dcm_data);
-    } else {
-	/*
-	 * conversation exists
-	 */
-	 dcm_data = conversation_get_proto_data(conv, proto_dcm);
-	 if (NULL == dcm_data) {
-	     /*
-	      * This is not a DICOM conversation
-	      */
-	     return FALSE;
-	 }
     }
+
+    if (FALSE == dcm_data->valid)
+	return FALSE;
 
     if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
 	col_clear(pinfo->cinfo, COL_PROTOCOL);
@@ -1115,7 +1143,11 @@ static hf_register_info hf[] = {
 void
 proto_reg_handoff_dcm(void)
 {
+    dissector_handle_t dcm_handle;
+
     heur_dissector_add("tcp", dissect_dcm, proto_dcm);
+    dcm_handle = new_create_dissector_handle(dissect_dcm, proto_dcm);
+    dissector_add("tcp.port", 104, dcm_handle);
 }
 
 /* 
