@@ -3334,7 +3334,7 @@ dissect_ppp_raw_hdlc( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	  }
 	  length = end_offset - offset;
 	  if (tree)
-		  proto_tree_add_text(bs_tree, tvb, offset, length, "PPP Data");
+		  proto_tree_add_text(bs_tree, tvb, offset+1, length-1, "PPP Data");
 	  if (length > 1) {
 		  ppp_tvb = remove_escape_chars(tvb, offset + 1, length - 1);
 		  if (ppp_tvb != NULL) {
@@ -3343,7 +3343,7 @@ dissect_ppp_raw_hdlc( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 			  first = FALSE;
 		  }
 	  }
-	  offset = end_offset;
+	  offset = end_offset+1;/* +1 Takes us past the end delimiter */
   } /* end while */
 }
 
