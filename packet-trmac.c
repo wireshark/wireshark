@@ -2,7 +2,7 @@
  * Routines for Token-Ring Media Access Control
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-trmac.c,v 1.4 1998/10/10 03:32:15 gerald Exp $
+ * $Id: packet-trmac.c,v 1.5 1998/10/21 02:36:54 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -50,17 +50,8 @@
 #include "packet.h"
 #include "etypes.h"
 
-struct vec_info {
-	u_char	cmd;
-	char	*text;
-};
-
 /* Major Vector */
-static void
-mv_text(u_char cmd, int offset, frame_data *fd, GtkWidget *tree) {
-	int i=0;
-
-	static struct vec_info	mv[] = {
+static value_string major_vectors[] = {
 		{ 0x00, "Response" },
 		{ 0x02, "Beacon" },
 		{ 0x03, "Claim Token" },
@@ -86,27 +77,8 @@ mv_text(u_char cmd, int offset, frame_data *fd, GtkWidget *tree) {
 		{ 0x29, "Report Error" },
 		{ 0x2A, "Report Transmit Forward" },
 		{ 0x00, NULL }
-	};
+};
 
-	while (mv[i].text != NULL) {
-		if (mv[i].cmd == cmd) {
-			if (fd->win_info[COL_NUM]) {
-				/* I can do this because no higher-level dissect()
-					will strcpy onto me. */
-				fd->win_info[COL_INFO] = mv[i].text;
-			}
-			if (tree) {
-				add_item_to_tree(tree, offset, 1, "Major Vector Command: %s",
-					mv[i].text);
-			}
-			return;
-		}
-		i++;
-	}
-	/* failure */
-	add_item_to_tree(tree, offset, 1, "Major Vector Command: %02X (Unknown)",
-		cmd);
-}
 
 /* Sub-vectors */
 static int
@@ -291,10 +263,7 @@ dissect_trmac(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
 	char		*class[] = { "Ring Station", "LLC Manager", "", "",
 		"Configuration Report Server", "Ring Parameter Server",
 		"Ring Error Monitor" };
-
-	if (fd->win_info[COL_NUM]) {
-		strcpy(fd->win_info[COL_PROTOCOL], "TR MAC");
-	}
+	char		*mv_text;
 
 	mv_length = ntohs(*((guint16*)&pd[offset]));
 
@@ -306,9 +275,21 @@ dissect_trmac(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
 	}
 
 	/* Interpret the major vector */
- 	mv_text(pd[offset+3], offset+3, fd, mac_tree);
+	mv_text = match_strval(pd[offset+3], major_vectors);
+
+	/* Summary information */
+	if (fd->win_info[COL_NUM]) {
+		strcpy(fd->win_info[COL_PROTOCOL], "TR MAC");
+		strcpy(fd->win_info[COL_INFO], mv_text);
+	}
 
 	if (tree) {
+		if ((mv_text = match_strval(pd[offset+3], major_vectors)))
+			add_item_to_tree(mac_tree, offset+3, 1, "Major Vector Command: %s",
+							pd[offset+3]);
+		else
+			add_item_to_tree(mac_tree, offset+3, 1, "Major Vector Command: %02X (Unknown)",
+							pd[offset+3]);
 		add_item_to_tree(mac_tree, offset, 2, "Total Length: %d bytes",
 			mv_length);
 		add_item_to_tree(mac_tree, offset+2, 1, "Source Class: %s",
