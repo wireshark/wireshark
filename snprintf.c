@@ -276,9 +276,9 @@ double d;
 
   tmp = otoa(d);
   p->width -= strlen(tmp);
-  PAD_RIGHT(p);
   if (p->square == FOUND) /* had prefix '0' for octal */
     PUT_CHAR('0', p);
+  PAD_RIGHT(p);
   while (*tmp) { /* octal */
     PUT_CHAR(*tmp, p);
     tmp++;
@@ -300,10 +300,10 @@ double d;
 
   tmp = htoa(d);
   p->width -= strlen(tmp);
-  PAD_RIGHT(p);
   if (p->square == FOUND) { /* prefix '0x' for hexa */
     PUT_CHAR('0', p); PUT_CHAR(*p->pf, p);
   }
+  PAD_RIGHT(p);
   while (*tmp) { /* hexa */
     PUT_CHAR((*p->pf == 'X' ? toupper(*tmp) : *tmp), p);
     tmp++;
