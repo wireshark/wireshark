@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.56 2001/11/21 23:16:26 gram Exp $
+ * $Id: menu.c,v 1.57 2001/12/08 09:27:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -60,6 +60,7 @@
 #include "proto_hier_stats_dlg.h"
 #include "keys.h"
 #include "plugins.h"
+#include "tcp_graph.h"
 
 GtkWidget *popup_menu_object;
 
@@ -151,6 +152,11 @@ static GtkItemFactoryEntry menu_items[] =
   {"/Tools/_Follow TCP Stream", NULL, GTK_MENU_FUNC(follow_stream_cb), 0, NULL},
   {"/Tools/_Decode As...", NULL, GTK_MENU_FUNC(decode_as_cb), 0, NULL},
 /*  {"/Tools/Graph", NULL, NULL, 0, NULL}, future use */
+  {"/_Tools/TCP Stream Analysis", NULL, NULL, 0, "<Branch>" },
+  {"/_Tools/TCP Stream Analysis/Time-Sequence Graph (Stevens)", NULL, GTK_MENU_FUNC (tcp_graph_cb), 0, NULL},
+  {"/_Tools/TCP Stream Analysis/Time-Sequence Graph (tcptrace)", NULL, GTK_MENU_FUNC (tcp_graph_cb), 1, NULL},
+  {"/_Tools/TCP Stream Analysis/Throughput Graph", NULL, GTK_MENU_FUNC (tcp_graph_cb), 2, NULL},
+  {"/_Tools/TCP Stream Analysis/RTT Graph", NULL, GTK_MENU_FUNC (tcp_graph_cb), 3, NULL},
   {"/Tools/_Summary", NULL, GTK_MENU_FUNC(summary_open_cb), 0, NULL},
   {"/Tools/Protocol Hierarchy Statistics", NULL, GTK_MENU_FUNC(proto_hier_stats_cb), 0, NULL},
   {"/_Help", NULL, NULL, 0, "<LastBranch>" },
@@ -403,6 +409,8 @@ set_menus_for_selected_packet(gboolean have_selected_packet)
       have_selected_packet && decode_as_ok());
   set_menu_sensitivity("/Resolve Name", 
       have_selected_packet && !prefs.name_resolve);  
+  set_menu_sensitivity("/Tools/TCP Stream Analysis",
+            have_selected_packet ? (cfile.edt->pi.ipproto == 6) : FALSE);
 }
 
 /* Enable or disable menu items based on whether a tree row is selected

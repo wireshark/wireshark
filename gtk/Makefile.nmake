@@ -5,6 +5,8 @@ include ..\config.nmake
 CFLAGS=-DHAVE_CONFIG_H /I.. /I../epan /I../wiretap \
 	/I$(GLIB_DIR) /I$(GTK_DIR) /I$(GLIB_DIR)/gmodule \
 	/I$(GTK_DIR)\gdk /I$(GTK_DIR)\gdk\win32 \
+	/I$(PCAP_DIR)\WPCAP\LIBPCAP /I$(PCAP_DIR)\WPCAP\LIBPCAP\bpf \
+	/I$(PCAP_DIR)\WPCAP\LIBPCAP\lbl \
 	/I$(PCAP_DIR)\include $(LOCAL_CFLAGS)
 
 CVARSDLL=-DWIN32 -DNULL=0 -D_MT -D_DLL
@@ -46,6 +48,7 @@ OBJECTS=capture_dlg.obj \
 	simple_dialog.obj \
 	stream_prefs.obj \
 	summary_dlg.obj \
+	tcp_graph.obj \
 	ui_util.obj
 
 
