@@ -1,6 +1,6 @@
 /* decode_as_dlg.c
  *
- * $Id: decode_as_dlg.c,v 1.9 2001/06/25 08:10:38 guy Exp $
+ * $Id: decode_as_dlg.c,v 1.10 2001/08/21 07:03:50 guy Exp $
  *
  * Routines to modify dissector tables on the fly.
  *
@@ -1187,7 +1187,7 @@ decode_add_transport_menu (GtkWidget *page)
 /**************************************************/
 
 /*
- * This routine creates a somple notebook page in the dialog box.
+ * This routine creates a sample notebook page in the dialog box.
  * This notebook page provides a prompt specifying what is being
  * changed and its current value (e.g. "IP Protocol number (17)"), and
  * a clist specifying all the available choices.  The list of choices
