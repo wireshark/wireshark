@@ -1,7 +1,7 @@
 /* packet-ldp.c
  * Routines for ldp packet disassembly
  *
- * $Id: packet-ldp.c,v 1.2 2000/11/30 06:24:53 sharpe Exp $
+ * $Id: packet-ldp.c,v 1.3 2000/11/30 20:27:40 sharpe Exp $
  * 
  * Copyright (c) November 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  *
@@ -59,10 +59,14 @@ static int hf_ldp_version = -1;
 static int hf_ldp_pdu_len = -1;
 static int hf_ldp_lsr = -1;
 static int hf_ldp_ls_id = -1;
+static int hf_ldp_msg_type = -1;
+static int hf_ldp_msg_len = -1;
+static int hf_ldp_msg_id = -1;
 
 static int ett_ldp = -1;
 static int ett_ldp_header = -1;
 static int ett_ldp_ldpid = -1;
+static int ett_ldp_message = -1;
 
 static int tcp_port = 0;
 static int udp_port = 0;
@@ -104,67 +108,72 @@ int dissect_tlv(tvbuff_t *tvb, guint offset, proto_tree *tree)
 
 }
 
-int
+/* 
+ * Each of these routines dissect the relevant messages, but the msg header 
+ * has already been dissected.
+ */
+
+void
 dissect_ldp_notification(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *tree)
 {
 
 }
 
-int 
+void
 dissect_ldp_hello(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *tree)
 {
 
 }
 
-int 
+void
 dissect_ldp_initialization(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *tree)
 {
 
 }
 
-int 
+void
 dissect_ldp_keepalive(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *tree)
 {
 
 }
 
-int 
+void
 dissect_ldp_address(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *tree)
 {
 
 }
 
-int 
+void
 dissect_ldp_address_withdrawal(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *tree)
 {
 
 }
 
-int 
+void
 dissect_ldp_label_mapping(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *tree)
 {
 
 }
 
-int 
+void
 dissect_ldp_label_request(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *tree)
 {
 
 }
 
-int 
+void
 dissect_ldp_label_withdrawal(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *tree)
 {
 
 }
 
-int 
+void
 dissect_ldp_label_release(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *tree)
 {
 
 }
 
-int 
+void
 dissect_ldp_label_abort_request(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *tree)
 {
 
@@ -179,15 +188,7 @@ dissect_ldp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   int	         offset = 0, msg_cnt = 0;
   guint16        ldp_message = 0;
 
-/* Add your variables here */
-
-#if 1
   CHECK_DISPLAY_AS_DATA(proto_ldp, tvb, pinfo, tree);
-#else
-  OLD_CHECK_DISPLAY_AS_DATA(proto_ldp, pd, offset, fd, tree);
-#endif
-
-/* Add your dissection code here */
 
   if (check_col(pinfo->fd, COL_PROTOCOL))
 
@@ -229,7 +230,11 @@ dissect_ldp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   while (tvb_length_remaining(tvb, offset) > 0) { /* Dissect a message */
 
+    guint msg_len;
+
     ldp_message = tvb_get_ntohs(tvb, offset) & 0x7FFF; /* Get the message type */
+
+    msg_len = tvb_get_ntohs(tvb, offset + 2);
 
     if (check_col(pinfo->fd, COL_INFO)) {  /* Check the type ... */
 
@@ -244,64 +249,101 @@ dissect_ldp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     msg_cnt++;
 
-    switch (ldp_message) {
+    if (tree) {
 
-    case LDP_NOTIFICATION:
+      proto_tree *ti = NULL, *msg = NULL;
 
-      offset += dissect_ldp_notification(tvb, offset, pinfo, ldp_tree); 
+      ti = proto_tree_add_text(ldp_tree, tvb, offset, msg_len + 4, "%s",
+			       val_to_str(ldp_message, ldp_message_types, "Unknown Message (0x%04X)"));
 
-      break;
+      msg = proto_item_add_subtree(ti, ett_ldp_message);
 
-    case LDP_HELLO:
+      proto_tree_add_item(msg, hf_ldp_msg_type, tvb, offset, 2, FALSE);
 
-      break;
+      proto_tree_add_item(msg, hf_ldp_msg_len, tvb, offset + 2, 2, FALSE);
 
-    case LDP_INITIALIZATION:
+      proto_tree_add_item(msg, hf_ldp_msg_id, tvb, offset + 4, 4, FALSE);
 
-      break;
+      switch (ldp_message) {
 
-    case LDP_KEEPALIVE:
+      case LDP_NOTIFICATION:
 
-      break;
+	dissect_ldp_notification(tvb, offset + 8, pinfo, ldp_tree); 
 
-    case LDP_ADDRESS:
+	break;
 
-      break;
+      case LDP_HELLO:
 
-    case LDP_ADDRESS_WITHDRAWAL:
+	dissect_ldp_hello(tvb, offset + 8, pinfo, ldp_tree);
 
-      break;
+	break;
 
-    case LDP_LABEL_MAPPING:
+      case LDP_INITIALIZATION:
 
-      break;
+	dissect_ldp_initialization(tvb, offset + 8, pinfo, ldp_tree);
 
-    case LDP_LABEL_REQUEST:
+	break;
 
-      break;
+      case LDP_KEEPALIVE:
 
-    case LDP_LABEL_WITHDRAWAL:
+	dissect_ldp_keepalive(tvb, offset + 8, pinfo, ldp_tree);
 
-      break;
+	break;
 
-    case LDP_LABEL_RELEASE:
+      case LDP_ADDRESS:
 
-      break;
+	dissect_ldp_address(tvb, offset + 8, pinfo, ldp_tree);
 
-    case LDP_LABEL_ABORT_REQUEST:
+	break;
 
-      break;
+      case LDP_ADDRESS_WITHDRAWAL:
 
-    default:
+	dissect_ldp_address_withdrawal(tvb, offset + 8, pinfo, ldp_tree);
 
-      break;
+	break;
 
-    }
+      case LDP_LABEL_MAPPING:
+
+	dissect_ldp_label_mapping(tvb, offset + 8, pinfo, ldp_tree);
+
+	break;
+
+      case LDP_LABEL_REQUEST:
+
+	dissect_ldp_label_request(tvb, offset + 8, pinfo, ldp_tree);
+
+	break;
+
+      case LDP_LABEL_WITHDRAWAL:
+
+	dissect_ldp_label_withdrawal(tvb, offset + 8, pinfo, ldp_tree);
+
+	break;
+
+      case LDP_LABEL_RELEASE:
+
+	dissect_ldp_label_release(tvb, offset + 8, pinfo, ldp_tree);
+
+	break;
+
+      case LDP_LABEL_ABORT_REQUEST:
+
+	dissect_ldp_label_abort_request(tvb, offset + 8, pinfo, ldp_tree);
+	break;
+
+      default:
+
+	/* Some sort of unknown message, treat as undissected data */
+
+	break;
+
+      }
     
-    offset += tvb_length_remaining(tvb, offset); /* FIXME: Fake this out */
+    }
+
+    offset += msg_len + 4;
 
   }
-
 }
 
 /* Register all the bits needed with the filtering engine */
@@ -318,16 +360,25 @@ proto_register_ldp(void)
       { "Response", "ldp.rsp", FT_BOOLEAN, BASE_NONE, NULL, 0x0, "" }},
 
     { &hf_ldp_version,
-      { "Version", "ldp.hdr.version", FT_UINT16, BASE_DEC, NULL, 0x0, "" }},
+      { "Version", "ldp.hdr.version", FT_UINT16, BASE_DEC, NULL, 0x0, "LDP Version Number" }},
 
     { &hf_ldp_pdu_len,
-      { "PDU Length", "ldp.hdr.pdu_len", FT_UINT16, BASE_DEC, NULL, 0x0, ""}},
+      { "PDU Length", "ldp.hdr.pdu_len", FT_UINT16, BASE_DEC, NULL, 0x0, "LDP PDU Length"}},
 
     { &hf_ldp_lsr,
-      { "LSR ID", "ldp.hdr.ldpid.lsr", FT_UINT32, BASE_HEX, NULL, 0x0, ""}},
+      { "LSR ID", "ldp.hdr.ldpid.lsr", FT_UINT32, BASE_HEX, NULL, 0x0, "LDP Label Space Router ID"}},
 
     { &hf_ldp_ls_id,
-      { "Label Space ID", "ldp.hdr.ldpid.lsid", FT_UINT16, BASE_HEX, NULL, 0x0, ""}},
+      { "Label Space ID", "ldp.hdr.ldpid.lsid", FT_UINT16, BASE_HEX, NULL, 0x0, "LDP Label Space ID"}},
+
+    { &hf_ldp_msg_type,
+      { "Message Type", "ldp.msg.type", FT_UINT16, BASE_HEX, VALS(ldp_message_types), 0x0, "LDP message type"}},
+
+    { &hf_ldp_msg_len,
+      { "Message Length", "ldp.msg.len", FT_UINT16, BASE_DEC, NULL, 0x0, "LDP Message Length (excluding message type and len)"}},
+
+    { &hf_ldp_msg_id, 
+      { "Message ID", "ldp.msg.id", FT_UINT32, BASE_HEX, NULL, 0x0, "LDP Message ID"}},
 
     /* Add more fields here */
   };
@@ -335,6 +386,7 @@ proto_register_ldp(void)
     &ett_ldp,
     &ett_ldp_header,
     &ett_ldp_ldpid,
+    &ett_ldp_message,
   };
   module_t *ldp_module; 
 
