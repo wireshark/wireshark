@@ -1,7 +1,7 @@
 /* packet-ieee8023.c
  * Routine for dissecting 802.3 (as opposed to D/I/X Ethernet) packets.
  *
- * $Id: packet-ieee8023.c,v 1.8 2004/02/21 00:22:16 guy Exp $
+ * $Id: packet-ieee8023.c,v 1.9 2004/02/21 05:12:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -43,6 +43,7 @@ dissect_802_3(int length, gboolean is_802_2, tvbuff_t *tvb,
 {
   tvbuff_t		*volatile next_tvb;
   tvbuff_t		*volatile trailer_tvb;
+  const char		*saved_proto;
 
   if (fh_tree)
     proto_tree_add_uint(fh_tree, length_id, tvb, offset_after_length - 2, 2,
@@ -81,6 +82,7 @@ dissect_802_3(int length, gboolean is_802_2, tvbuff_t *tvb,
      reported length of "next_tvb" was reduced by some dissector
      before an exception was thrown, we can still put in an item
      for the trailer. */
+  saved_proto = pinfo->current_proto;
   TRY {
     if (is_802_2)
       call_dissector(llc_handle, next_tvb, pinfo, tree);
@@ -97,8 +99,11 @@ dissect_802_3(int length, gboolean is_802_2, tvbuff_t *tvb,
   }
   CATCH_ALL {
     /* Well, somebody threw an exception other than BoundsError.
-       Show the exception, and then drive on to show the trailer. */
+       Show the exception, and then drive on to show the trailer,
+       restoring the protocol value that was in effect before we
+       called the subdissector. */
     show_exception(next_tvb, pinfo, tree, EXCEPT_CODE);
+    pinfo->current_proto = saved_proto;
   }
   ENDTRY;
 

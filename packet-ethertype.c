@@ -1,7 +1,7 @@
 /* ethertype.c
  * Routines for calling the right protocol for the ethertype.
  *
- * $Id: packet-ethertype.c,v 1.44 2004/02/21 00:33:31 guy Exp $
+ * $Id: packet-ethertype.c,v 1.45 2004/02/21 05:12:44 guy Exp $
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -151,6 +151,7 @@ ethertype(guint16 etype, tvbuff_t *tvb, int offset_after_etype,
 	tvbuff_t		*next_tvb;
 	guint			length_before;
 	volatile gboolean	dissector_found;
+	const char		*saved_proto;
 
 	/* Add the Ethernet type to the protocol tree */
 	if (tree) {
@@ -170,6 +171,7 @@ ethertype(guint16 etype, tvbuff_t *tvb, int offset_after_etype,
 	   Catch exceptions, so that if the reported length of "next_tvb"
 	   was reduced by some dissector before an exception was thrown,
 	   we can still put in an item for the trailer. */
+	saved_proto = pinfo->current_proto;
 	TRY {
 		dissector_found = dissector_try_port(ethertype_dissector_table,
 		    etype, next_tvb, pinfo, tree);
@@ -198,9 +200,11 @@ ethertype(guint16 etype, tvbuff_t *tvb, int offset_after_etype,
 		   dissect the payload as data or update the protocol or info
 		   columns.  We just show the exception and then drive on
 		   to show the trailer, after noting that a dissector was
-		   found. */
-		dissector_found = TRUE;
+		   found and restoring the protocol value that was in effect
+		   before we called the subdissector. */
 		show_exception(next_tvb, pinfo, tree, EXCEPT_CODE);
+		dissector_found = TRUE;
+		pinfo->current_proto = saved_proto;
 	}
 	ENDTRY;
 
