@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.221 2003/12/30 00:03:48 guy Exp $
+ * $Id: packet-tcp.c,v 1.222 2004/02/24 09:40:38 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2265,13 +2265,17 @@ decode_tcp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
 /* for the conversation if available */
 
   if (try_conversation_dissector(&pinfo->src, &pinfo->dst, PT_TCP,
-		src_port, dst_port, next_tvb, pinfo, tree))
+		src_port, dst_port, next_tvb, pinfo, tree)){
+    pinfo->want_pdu_tracking -= !!(pinfo->want_pdu_tracking);
     return TRUE;
+  }
 
   if (try_heuristic_first) {
     /* do lookup with the heuristic subdissector table */
-    if (dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree))
+    if (dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree)){
+       pinfo->want_pdu_tracking -= !!(pinfo->want_pdu_tracking);
        return TRUE;
+    }
   }
 
   /* Do lookups with the subdissector table.
@@ -2297,20 +2301,28 @@ decode_tcp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
     high_port = dst_port;
   }
   if (low_port != 0 &&
-      dissector_try_port(subdissector_table, low_port, next_tvb, pinfo, tree))
+      dissector_try_port(subdissector_table, low_port, next_tvb, pinfo, tree)){
+    pinfo->want_pdu_tracking -= !!(pinfo->want_pdu_tracking);
     return TRUE;
+  }
   if (high_port != 0 &&
-      dissector_try_port(subdissector_table, high_port, next_tvb, pinfo, tree))
+      dissector_try_port(subdissector_table, high_port, next_tvb, pinfo, tree)){
+    pinfo->want_pdu_tracking -= !!(pinfo->want_pdu_tracking);
     return TRUE;
+  }
 
   if (!try_heuristic_first) {
     /* do lookup with the heuristic subdissector table */
-    if (dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree))
+    if (dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree)){
+       pinfo->want_pdu_tracking -= !!(pinfo->want_pdu_tracking);
        return TRUE;
+    }
   }
 
   /* Oh, well, we don't know this; dissect it as data. */
   call_dissector(data_handle,next_tvb, pinfo, tree);
+
+  pinfo->want_pdu_tracking -= !!(pinfo->want_pdu_tracking);
   return FALSE;
 }
 
@@ -2319,6 +2331,8 @@ process_tcp_payload(tvbuff_t *tvb, volatile int offset, packet_info *pinfo,
 	proto_tree *tree, proto_tree *tcp_tree, int src_port, int dst_port,
 	guint32 nxtseq, gboolean is_tcp_segment)
 {
+	pinfo->want_pdu_tracking=0;
+
 	TRY {
 		if(is_tcp_segment){
 			/*qqq   see if it is an unaligned PDU */

@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.101 2004/02/01 02:35:06 jmayer Exp $
+ * $Id: packet.c,v 1.102 2004/02/24 09:40:38 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -514,7 +514,6 @@ call_dissector_work(dissector_handle_t handle, tvbuff_t *tvb,
 	}
 	pinfo->current_proto = saved_proto;
 	pinfo->can_desegment = saved_can_desegment;
-	pinfo->want_pdu_tracking -= !!(pinfo->want_pdu_tracking);
 	return ret;
 }
 
@@ -1453,7 +1452,6 @@ dissector_try_heuristic(heur_dissector_list_t sub_dissectors,
 	}
 	pinfo->current_proto = saved_proto;
 	pinfo->can_desegment=saved_can_desegment;
-	pinfo->want_pdu_tracking -= !!(pinfo->want_pdu_tracking);
 	return status;
 }
 

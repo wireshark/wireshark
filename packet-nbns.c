@@ -3,7 +3,7 @@
  * to when it had only NBNS)
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-nbns.c,v 1.82 2004/01/06 02:42:50 guy Exp $
+ * $Id: packet-nbns.c,v 1.83 2004/02/24 09:40:38 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1407,6 +1407,17 @@ dissect_nbss_packet(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		length = tvb_get_ntohs(tvb, offset + 2);
 		if (flags & NBSS_FLAGS_E)
 			length += 65536;
+	}
+
+	/* give a hint to TCP where the next PDU starts
+	 * so that it can attempt to find it in case it starts
+	 * somewhere in the middle of a segment.
+	 */
+	if(!pinfo->fd->flags.visited){
+		if((length+4)>tvb_reported_length_remaining(tvb, offset)){
+			pinfo->want_pdu_tracking=2;
+			pinfo->bytes_until_next_pdu=(length+4)-tvb_reported_length_remaining(tvb, offset);
+		}
 	}
 
 	/*
