@@ -1060,7 +1060,11 @@ capture_prep(void)
   help_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_HELP);
   gtk_tooltips_set_tip(tooltips, help_bt,
     "Show help about capturing.", NULL);
+#ifdef ETHEREAL_EUG_DIR
+  SIGNAL_CONNECT(help_bt, "clicked", url_page_cb, HELP_CAPTURE_OPTIONS_DIALOG);
+#else
   SIGNAL_CONNECT(help_bt, "clicked", help_topic_cb, "Capturing");
+#endif
 
   gtk_widget_grab_default(ok_bt);
 

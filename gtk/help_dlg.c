@@ -41,6 +41,7 @@
 #include "compat_macros.h"
 #include "dlg_utils.h"
 #include "simple_dialog.h"
+#include "webbrowser.h"
 
 #define HELP_DIR	"help"
 
@@ -258,3 +259,81 @@ void help_redraw(void)
     }
   }
 }
+
+
+void
+url_page_action(url_page_action_e action)
+{
+    /* pages online at www.ethereal.com */
+    switch(action) {
+    case(ONLINEPAGE_HOME):
+        browser_open_url ("http://www.ethereal.com");
+        break;
+    case(ONLINEPAGE_DOWNLOAD):
+        browser_open_url ("http://www.ethereal.com/download.html");
+        break;
+    case(ONLINEPAGE_USERGUIDE):
+        browser_open_url ("http://www.ethereal.com/docs/user-guide");
+        break;
+    case(ONLINEPAGE_FAQ):
+        browser_open_url ("http://www.ethereal.com/faq.html");
+        break;
+    case(ONLINEPAGE_SAMPLE_FILES):
+        browser_open_url ("http://www.ethereal.com/sample");
+        break;
+
+    /* local manual pages */
+    case(LOCALPAGE_MAN_ETHEREAL):
+        browser_open_data_file("ethereal.html");
+        break;
+    case(LOCALPAGE_MAN_ETHEREAL_FILTER):
+        browser_open_data_file("ethereal-filter.html");
+        break;
+    case(LOCALPAGE_MAN_TETHEREAL):
+        browser_open_data_file("tethereal.html");
+        break;
+    case(LOCALPAGE_MAN_MERGECAP):
+        browser_open_data_file("mergecap.html");
+        break;
+    case(LOCALPAGE_MAN_EDITCAP):
+        browser_open_data_file("editcap.html");
+        break;
+    case(LOCALPAGE_MAN_TEXT2PCAP):
+        browser_open_data_file("text2pcap.html");
+        break;
+
+#ifdef ETHEREAL_EUG_DIR
+    /* local help pages (User's Guide) */
+    case(HELP_CONTENT):
+        browser_open_data_file("eug_html_chunked/index.html");
+        break;
+    case(HELP_CAPTURE_OPTIONS_DIALOG):
+        browser_open_data_file("eug_html_chunked/ChCapCaptureOptions.html");
+        break;
+    case(HELP_CAPTURE_FILTERS_DIALOG):
+        browser_open_data_file("eug_html_chunked/ChWorkDefineFilterSection.html");
+        break;
+    case(HELP_DISPLAY_FILTERS_DIALOG):
+        browser_open_data_file("eug_html_chunked/ChWorkDefineFilterSection.html");
+        break;
+#endif
+
+    default:
+        g_assert_not_reached();
+    }
+}
+
+
+void
+url_page_cb(GtkWidget *w _U_, url_page_action_e action)
+{
+    url_page_action(action);
+}
+
+
+void
+url_page_menu_cb( GtkWidget *w _U_, gpointer data _U_, url_page_action_e action)
+{
+    url_page_action(action);
+}
+

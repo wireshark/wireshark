@@ -614,9 +614,17 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
 
     help_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_HELP);
     if (list == CFILTER_LIST) {
+#ifdef ETHEREAL_EUG_DIR
+        SIGNAL_CONNECT(help_bt, "clicked", url_page_cb, HELP_CAPTURE_FILTERS_DIALOG);
+#else
         SIGNAL_CONNECT(help_bt, "clicked", help_topic_cb, "Capture Filters");
+#endif
     } else {
+#ifdef ETHEREAL_EUG_DIR
+        SIGNAL_CONNECT(help_bt, "clicked", url_page_cb, HELP_DISPLAY_FILTERS_DIALOG);
+#else
         SIGNAL_CONNECT(help_bt, "clicked", help_topic_cb, "Display Filters");
+#endif
     }
     gtk_tooltips_set_tip (tooltips, help_bt, ("Show topic specific help"), NULL);
 

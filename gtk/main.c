@@ -133,6 +133,7 @@
 #include "follow_dlg.h"
 #include "font_utils.h"
 #include "about_dlg.h"
+#include "help_dlg.h"
 #include "decode_as_dlg.h"
 
 
