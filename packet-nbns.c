@@ -3,7 +3,7 @@
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  * Much stuff added by Guy Harris <guy@netapp.com>
  *
- * $Id: packet-nbns.c,v 1.7 1998/11/17 04:28:58 gerald Exp $
+ * $Id: packet-nbns.c,v 1.8 1998/11/20 05:54:08 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -71,6 +71,26 @@ struct nbns_header {
 /* type values  */
 #define T_NB            32              /* NetBIOS name service RR */
 #define T_NBSTAT        33              /* NetBIOS node status RR */
+
+/* NetBIOS datagram packet, from RFC 1002, page 32 */
+struct nbdgm_header {
+	guint8		msg_type;
+	struct {
+		guint8	more;
+		guint8	first;
+		guint8	node_type;
+	} flags;
+	guint16		dgm_id;
+	guint32		src_ip;
+	guint16		src_port;
+
+	/* For packets with data */
+	guint16		dgm_length;
+	guint16		pkt_offset;
+
+	/* For error packets */
+	guint8		error_code;
+};
 
 
 static char *
@@ -758,5 +778,146 @@ dissect_nbns(const u_char *pd, int offset, frame_data *fd, GtkTree *tree)
 			cur_off += dissect_answer_records(nbns_data_ptr,
 					header.arcount, pd, cur_off, nbns_tree, 
 					header.opcode, "Additional records");
+	}
+}
+
+
+void
+dissect_nbdgm(const u_char *pd, int offset, frame_data *fd, GtkTree *tree)
+{
+	GtkWidget		*nbdgm_tree, *ti;
+	struct nbdgm_header	header;
+	int			flags;
+	int			message_index;
+
+	char *message[] = {
+		"Unknown",
+		"Direct_unique datagram",
+		"Direct_group datagram",
+		"Broadcast datagram",
+		"Datagram error",
+		"Datagram query request",
+		"Datagram positive query response",
+		"Datagram negative query response"
+	};
+
+	char *node[] = {
+		"B node",
+		"P node",
+		"M node",
+		"NBDD"
+	};
+
+	static value_string error_codes[] = {
+		{ 0x82, "Destination name not present" },
+		{ 0x83, "Invalid source name format" },
+		{ 0x84, "Invalid destination name format" },
+		{ 0x00,	NULL }
+	};
+
+	char *yesno[] = { "No", "Yes" };
+
+	char name[32];
+	int len, name_len, type, class;
+
+	header.msg_type = pd[offset];
+	
+	flags = pd[offset+1];
+	header.flags.more = flags & 1;
+	header.flags.first = (flags & 2) >> 1;
+	header.flags.node_type = (flags & 12) >> 2;
+
+	header.dgm_id = pntohs(&pd[offset+2]);
+	memcpy(&header.src_ip, &pd[offset+4], 4);
+	header.src_port = pntohs(&pd[offset+8]);
+
+	if (header.msg_type == 0x10 ||
+			header.msg_type == 0x11 || header.msg_type == 0x12) {
+		header.dgm_length = pntohs(&pd[offset+10]);
+		header.pkt_offset = pntohs(&pd[offset+12]);
+	}
+	else if (header.msg_type == 0x13) {
+		header.error_code = pntohs(&pd[offset+10]);
+	}
+
+	message_index = header.msg_type - 0x0f;
+	if (message_index < 1 || message_index > 8) {
+		message_index = 0;
+	}
+
+	if (check_col(fd, COL_PROTOCOL))
+		col_add_str(fd, COL_PROTOCOL, "NetBIOS");
+	if (check_col(fd, COL_INFO)) {
+		col_add_fstr(fd, COL_INFO, "%s", message[message_index]);
+	}
+
+	if (tree) {
+		ti = add_item_to_tree(GTK_WIDGET(tree), offset, header.dgm_length,
+				"NetBIOS Datagram");
+		nbdgm_tree = gtk_tree_new();
+		add_subtree(ti, nbdgm_tree, ETT_NBDGM);
+
+		add_item_to_tree(nbdgm_tree, offset, 1, "Message Type: %s",
+				message[message_index]);
+		add_item_to_tree(nbdgm_tree, offset+1, 1, "More fragments follow: %s",
+				yesno[header.flags.more]);
+		add_item_to_tree(nbdgm_tree, offset+1, 1, "This is first fragment: %s",
+				yesno[header.flags.first]);
+		add_item_to_tree(nbdgm_tree, offset+1, 1, "Node Type: %s",
+				node[header.flags.node_type]);
+
+		add_item_to_tree(nbdgm_tree, offset+2, 2, "Datagram ID: 0x%04X",
+				header.dgm_id);
+		add_item_to_tree(nbdgm_tree, offset+4, 4, "Source IP: %s",
+				ip_to_str((guint8 *)&header.src_ip));
+		add_item_to_tree(nbdgm_tree, offset+8, 2, "Source Port: %d",
+				header.src_port);
+
+		offset += 10;
+
+		if (header.msg_type == 0x10 ||
+				header.msg_type == 0x11 || header.msg_type == 0x12) {
+
+			add_item_to_tree(nbdgm_tree, offset, 2,
+					"Datagram length: %d bytes", header.dgm_length);
+			add_item_to_tree(nbdgm_tree, offset+2, 2,
+					"Packet offset: %d bytes", header.pkt_offset);
+
+			offset += 4;
+
+			/* Source name */
+			len = get_nbns_name_type_class(&pd[offset], pd, offset, name,
+				&name_len, &type, &class);
+
+			len -= 4;
+			add_item_to_tree(nbdgm_tree, offset, len, "Source name: %s",
+					name);
+			offset += len;
+
+			/* Destination name */
+			len = get_nbns_name_type_class(&pd[offset], pd, offset, name,
+				&name_len, &type, &class);
+
+			len -= 4;
+			add_item_to_tree(nbdgm_tree, offset, len, "Destination name: %s",
+					name);
+			offset += len;
+
+			/* here we can pass the packet off to the next protocol */
+		}
+		else if (header.msg_type == 0x13) {
+			add_item_to_tree(nbdgm_tree, offset, 1, "Error code: %s",
+				match_strval(header.error_code, error_codes));
+		}
+		else {
+			/* Destination name */
+			len = get_nbns_name_type_class(&pd[offset], pd, offset, name,
+				&name_len, &type, &class);
+
+			len -= 4;
+			add_item_to_tree(nbdgm_tree, offset, len, "Destination name: %s",
+					name);
+		}
+
 	}
 }
