@@ -2,7 +2,7 @@
  * Routines for PIM disassembly
  * (c) Copyright Jun-ichiro itojun Hagino <itojun@itojun.org>
  *
- * $Id: packet-pim.c,v 1.25 2001/04/23 03:37:31 guy Exp $
+ * $Id: packet-pim.c,v 1.26 2001/04/23 03:56:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -45,7 +45,6 @@
 
 #include "packet.h"
 #include "packet-ip.h"
-#include "packet-ipv6.h"
 #include "in_cksum.h"
 
 #define PIM_TYPE(x)	((x) & 0x0f)
@@ -63,6 +62,7 @@ static int hf_pim_cksum = -1;
 static gint ett_pim = -1;
 
 static dissector_handle_t ip_handle;
+static dissector_handle_t ipv6_handle;
 
 /*
  * Address family values.
@@ -379,9 +379,9 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 		    break;
 	    case 6:	/* IPv6 */
 #if 0
-		    dissect_ipv6(next_tvb, pinfo, tree);
+		    call_dissector(ipv6_handle, next_tvb, pinfo, tree);
 #else
-		    dissect_ipv6(next_tvb, pinfo, pimopt_tree);
+		    call_dissector(ipv6_handle, next_tvb, pinfo, pimopt_tree);
 #endif
 		    break;
 	    default:
@@ -666,7 +666,8 @@ proto_reg_handoff_pim(void)
     dissector_add("ip.proto", IP_PROTO_PIM, dissect_pim, proto_pim);
 
     /*
-     * Get a handle for the IP dissector.
+     * Get handles for the IPv4 and IPv6 dissectors.
      */
     ip_handle = find_dissector("ip");
+    ipv6_handle = find_dissector("ipv6");
 }

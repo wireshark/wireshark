@@ -1,7 +1,7 @@
 /* packet-ipv6.c
  * Routines for IPv6 packet disassembly 
  *
- * $Id: packet-ipv6.c,v 1.55 2001/04/23 03:37:31 guy Exp $
+ * $Id: packet-ipv6.c,v 1.56 2001/04/23 03:56:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -611,7 +611,7 @@ dissect_dstopts(tvbuff_t *tvb, int offset, proto_tree *tree) {
     return dissect_opts(tvb, offset, tree, "Destination Option");
 }
 
-void
+static void
 dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   proto_tree *ipv6_tree;
   proto_item *ti;
@@ -923,15 +923,17 @@ proto_register_ipv6(void)
   proto_ipv6 = proto_register_protocol("Internet Protocol Version 6", "IPv6", "ipv6");
   proto_register_field_array(proto_ipv6, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+
+  register_dissector("ipv6", dissect_ipv6, proto_ipv6);
 }
 
 void
 proto_reg_handoff_ipv6(void)
 {
-	dissector_add("ethertype", ETHERTYPE_IPv6, dissect_ipv6, proto_ipv6);
-	dissector_add("ppp.protocol", PPP_IPV6, dissect_ipv6, proto_ipv6);
-	dissector_add("ip.proto", IP_PROTO_IPV6, dissect_ipv6, proto_ipv6);
-	dissector_add("null.type", BSD_AF_INET6_BSD, dissect_ipv6, proto_ipv6);
-	dissector_add("null.type", BSD_AF_INET6_FREEBSD, dissect_ipv6, proto_ipv6);
-	dissector_add("ip.proto", IP_PROTO_NONE, dissect_ipv6_none, proto_ipv6);
+  dissector_add("ethertype", ETHERTYPE_IPv6, dissect_ipv6, proto_ipv6);
+  dissector_add("ppp.protocol", PPP_IPV6, dissect_ipv6, proto_ipv6);
+  dissector_add("ip.proto", IP_PROTO_IPV6, dissect_ipv6, proto_ipv6);
+  dissector_add("null.type", BSD_AF_INET6_BSD, dissect_ipv6, proto_ipv6);
+  dissector_add("null.type", BSD_AF_INET6_FREEBSD, dissect_ipv6, proto_ipv6);
+  dissector_add("ip.proto", IP_PROTO_NONE, dissect_ipv6_none, proto_ipv6);
 }
