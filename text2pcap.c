@@ -6,7 +6,7 @@
  *
  * (c) Copyright 2001 Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: text2pcap.c,v 1.28 2004/01/05 19:31:44 ulfl Exp $
+ * $Id: text2pcap.c,v 1.29 2004/01/06 02:58:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -125,7 +125,7 @@ static unsigned long hdr_ethernet_proto = 0;
 
 /* Dummy IP header */
 static int hdr_ip = FALSE;
-static unsigned long hdr_ip_proto = 0;
+static long hdr_ip_proto = 0;
 
 /* Dummy UDP header */
 static int hdr_udp = FALSE;
@@ -1077,7 +1077,9 @@ parse_options (int argc, char *argv[])
 
         case 'i':
             hdr_ip = TRUE;
-            if (sscanf(optarg, "%ld", &hdr_ip_proto) < 1) {
+            hdr_ip_proto = strtol(optarg, &p, 10);
+            if (p == optarg || *p != '\0' || hdr_ip_proto < 0 ||
+                  hdr_ip_proto > 255) {
                 fprintf(stderr, "Bad argument for '-i': %s\n", optarg);
                 help(argv[0]);
             }
