@@ -2,7 +2,7 @@
  * Routines for nfs dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  *
- * $Id: packet-nfs.c,v 1.15 1999/12/10 10:52:40 girlich Exp $
+ * $Id: packet-nfs.c,v 1.16 1999/12/14 11:53:19 girlich Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -42,6 +42,7 @@
 static int proto_nfs = -1;
 
 
+static int hf_nfs_stat = -1;
 static int hf_nfs_name = -1;
 static int hf_nfs_readlink_data = -1;
 static int hf_nfs_read_offset = -1;
@@ -65,6 +66,10 @@ static int hf_nfs_statfs_bsize = -1;
 static int hf_nfs_statfs_blocks = -1;
 static int hf_nfs_statfs_bfree = -1;
 static int hf_nfs_statfs_bavail = -1;
+static int hf_nfs_nfsstat3 = -1;
+static int hf_nfs_read_eof = -1;
+static int hf_nfs_write_stable = -1;
+static int hf_nfs_write_committed = -1;
 static int hf_nfs_createmode3 = -1;
 static int hf_nfs_fsstat_invarsec = -1;
 static int hf_nfs_fsinfo_rtmax = -1;
@@ -130,43 +135,46 @@ char* name)
 
 
 /* RFC 1094, Page 12..14 */
+const value_string names_nfs_stat[] =
+{
+	{	0,	"OK" },
+	{	1,	"ERR_PERM" },
+	{	2,	"ERR_NOENT" },
+	{	5,	"ERR_IO" },
+	{	6,	"ERR_NX_IO" },
+	{	13,	"ERR_ACCES" },
+	{	17,	"ERR_EXIST" },
+	{	19,	"ERR_NODEV" },
+	{	20,	"ERR_NOTDIR" },
+	{	21,	"ERR_ISDIR" },
+	{	27,	"ERR_FBIG" },
+	{	28,	"ERR_NOSPC" },
+	{	30,	"ERR_ROFS" },
+	{	63,	"ERR_NAMETOOLONG" },
+	{	66,	"ERR_NOTEMPTY" },
+	{	69,	"ERR_DQUOT" },
+	{	70,	"ERR_STALE" },
+	{	99,	"ERR_WFLUSH" },
+	{	0,	NULL }
+};
+
+
+/* RFC 1094, Page 12..14 */
 int
 dissect_stat(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
-char* name, guint32* status)
+guint32* status)
 {
 	guint32 stat;
-	char* stat_name = NULL;
-
-	const value_string nfs2_stat[] =
-	{
-		{	0,	"OK" },
-		{	1,	"ERR_PERM" },
-		{	2,	"ERR_NOENT" },
-		{	5,	"ERR_IO" },
-		{	6,	"ERR_NX_IO" },
-		{	13,	"ERR_ACCES" },
-		{	17,	"ERR_EXIST" },
-		{	19,	"ERR_NODEV" },
-		{	20,	"ERR_NOTDIR" },
-		{	21,	"ERR_ISDIR" },
-		{	27,	"ERR_FBIG" },
-		{	28,	"ERR_NOSPC" },
-		{	30,	"ERR_ROFS" },
-		{	63,	"ERR_NAMETOOLONG" },
-		{	66,	"ERR_NOTEMPTY" },
-		{	69,	"ERR_DQUOT" },
-		{	70,	"ERR_STALE" },
-		{	99,	"ERR_WFLUSH" },
-		{	0,	NULL }
-	};
 
 	if (!BYTES_ARE_IN_FRAME(offset,4)) return offset;
 	stat = EXTRACT_UINT(pd, offset+0);
-	stat_name = val_to_str(stat, nfs2_stat, "%u");
 	
 	if (tree) {
-		proto_tree_add_text(tree, offset, 4,
-			"%s: %s (%u)", name, stat_name, stat);
+		/* this gives the right NFSv2 number<->message relation */
+		/* and makes it searchable via "nfs.status" */
+		proto_tree_add_item_format(tree, hf_nfs_nfsstat3,
+			offset+0, 4, stat, "Status: %s (%u)", 
+			val_to_str(stat,names_nfs_stat,"%u"), stat);
 	}
 
 	offset += 4;
@@ -181,7 +189,7 @@ dissect_nfs2_stat_reply(const u_char* pd, int offset, frame_data* fd, proto_tree
 {
 	guint32 status;
 
-	offset = dissect_stat(pd, offset, fd, tree, "status", &status);
+	offset = dissect_stat(pd, offset, fd, tree, &status);
 
 	return offset;
 }
@@ -484,7 +492,7 @@ int
 dissect_attrstat(const u_char *pd, int offset, frame_data *fd, proto_tree *tree){
 	guint32 status;
 
-	offset = dissect_stat(pd, offset, fd, tree, "status", &status);
+	offset = dissect_stat(pd, offset, fd, tree, &status);
 	switch (status) {
 		case 0:
 			offset = dissect_fattr(pd, offset, fd, tree, "attributes");
@@ -551,7 +559,7 @@ dissect_diropres(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
 	guint32	status;
 
-	offset = dissect_stat(pd, offset, fd, tree, "status", &status);
+	offset = dissect_stat(pd, offset, fd, tree, &status);
 	switch (status) {
 		case 0:
 			offset = dissect_fhandle(pd, offset, fd, tree, "file");
@@ -604,7 +612,7 @@ dissect_nfs2_readlink_reply(const u_char *pd, int offset, frame_data *fd, proto_
 {
 	guint32	status;
 
-	offset = dissect_stat(pd, offset, fd, tree, "status", &status);
+	offset = dissect_stat(pd, offset, fd, tree, &status);
 	switch (status) {
 		case 0:
 			offset = dissect_path(pd, offset, fd, tree, hf_nfs_readlink_data);
@@ -651,7 +659,7 @@ dissect_nfs2_read_reply(const u_char* pd, int offset, frame_data* fd, proto_tree
 {
 	guint32 status;
 
-	offset = dissect_stat(pd, offset, fd, tree, "status", &status);
+	offset = dissect_stat(pd, offset, fd, tree, &status);
 	switch (status) {
 		case 0:
 			offset = dissect_fattr(pd, offset, fd, tree, "attributes");
@@ -812,7 +820,7 @@ dissect_nfs2_readdir_reply(const u_char* pd, int offset, frame_data* fd, proto_t
 	guint32 value_follows;
 	guint32 eof_value;
 
-	offset = dissect_stat(pd, offset, fd, tree, "status", &status);
+	offset = dissect_stat(pd, offset, fd, tree, &status);
 	switch (status) {
 		case 0:
 			while (1) {
@@ -855,7 +863,7 @@ dissect_nfs2_statfs_reply(const u_char* pd, int offset, frame_data* fd, proto_tr
 	guint32 bfree;
 	guint32 bavail;
 
-	offset = dissect_stat(pd, offset, fd, tree, "status", &status);
+	offset = dissect_stat(pd, offset, fd, tree, &status);
 	switch (status) {
 		case 0:
 			if (!BYTES_ARE_IN_FRAME(offset,5 * 4)) return offset;
@@ -989,8 +997,21 @@ int
 dissect_createverf3(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
 	if (!BYTES_ARE_IN_FRAME(offset,8)) return offset;
-	proto_tree_add_text(tree, offset, 8, "Verifier: Opaque Data");
-	offset += 8;
+	proto_tree_add_text(tree, offset, NFS3_CREATEVERFSIZE,
+		"Verifier: Opaque Data");
+	offset += NFS3_CREATEVERFSIZE;
+	return offset;
+}
+
+
+/* RFC 1813, Page 16 */
+int
+dissect_writeverf3(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
+{
+	if (!BYTES_ARE_IN_FRAME(offset,8)) return offset;
+	proto_tree_add_text(tree, offset, NFS3_WRITEVERFSIZE,
+		"Verifier: Opaque Data");
+	offset += NFS3_WRITEVERFSIZE;
 	return offset;
 }
 
@@ -1021,6 +1042,16 @@ dissect_size3(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 char* name)
 {
 	offset = dissect_rpc_uint64(pd,offset,fd,tree,name,"size3"); 
+	return offset;
+}
+
+
+/* RFC 1813, Page 16 */
+int
+dissect_offset3(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
+char* name)
+{
+	offset = dissect_rpc_uint64(pd,offset,fd,tree,name,"offset3"); 
 	return offset;
 }
 
@@ -1080,63 +1111,61 @@ char* name)
 /* RFC 1813, Page 16 */
 int
 dissect_count3(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
-char* name, char* type)
+char* name)
 {
-	offset = dissect_rpc_uint32(pd,offset,fd,tree,name,"count");
+	offset = dissect_rpc_uint32(pd,offset,fd,tree,name,"count3");
 	return offset;
 }
 
 
+/* RFC 1813, Page 16,17 */
+const value_string names_nfs_nfsstat3[] =
+{
+	{	0,	"OK" },
+	{	1,	"ERR_PERM" },
+	{	2,	"ERR_NOENT" },
+	{	5,	"ERR_IO" },
+	{	6,	"ERR_NX_IO" },
+	{	13,	"ERR_ACCES" },
+	{	17,	"ERR_EXIST" },
+	{	18,	"ERR_XDEV" },
+	{	19,	"ERR_NODEV" },
+	{	20,	"ERR_NOTDIR" },
+	{	21,	"ERR_ISDIR" },
+	{	22,	"ERR_INVAL" },
+	{	27,	"ERR_FBIG" },
+	{	28,	"ERR_NOSPC" },
+	{	30,	"ERR_ROFS" },
+	{	31,	"ERR_MLINK" },
+	{	63,	"ERR_NAMETOOLONG" },
+	{	66,	"ERR_NOTEMPTY" },
+	{	69,	"ERR_DQUOT" },
+	{	70,	"ERR_STALE" },
+	{	71,	"ERR_REMOTE" },
+	{	10001,	"ERR_BADHANDLE" },
+	{	10002,	"ERR_NOT_SYNC" },
+	{	10003,	"ERR_BAD_COOKIE" },
+	{	10004,	"ERR_NOTSUPP" },
+	{	10005,	"ERR_TOOSMALL" },
+	{	10006,	"ERR_SERVERFAULT" },
+	{	10007,	"ERR_BADTYPE" },
+	{	10008,	"ERR_JUKEBOX" },
+	{	0,	NULL }
+};
+
+
 /* RFC 1813, Page 16 */
 int
-dissect_nfsstat3(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
-char* name, guint32* status)
+dissect_nfsstat3(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,guint32 *status)
 {
 	guint32 nfsstat3;
-	char* nfsstat3_name = NULL;
-
-	const value_string nfs3_nfsstat3[] =
-	{
-		{	0,	"OK" },
-		{	1,	"ERR_PERM" },
-		{	2,	"ERR_NOENT" },
-		{	5,	"ERR_IO" },
-		{	6,	"ERR_NX_IO" },
-		{	13,	"ERR_ACCES" },
-		{	17,	"ERR_EXIST" },
-		{	18,	"ERR_XDEV" },
-		{	19,	"ERR_NODEV" },
-		{	20,	"ERR_NOTDIR" },
-		{	21,	"ERR_ISDIR" },
-		{	22,	"ERR_INVAL" },
-		{	27,	"ERR_FBIG" },
-		{	28,	"ERR_NOSPC" },
-		{	30,	"ERR_ROFS" },
-		{	31,	"ERR_MLINK" },
-		{	63,	"ERR_NAMETOOLONG" },
-		{	66,	"ERR_NOTEMPTY" },
-		{	69,	"ERR_DQUOT" },
-		{	70,	"ERR_STALE" },
-		{	71,	"ERR_REMOTE" },
-		{	10001,	"ERR_BADHANDLE" },
-/* RFC 1813, Page 17 */
-		{	10002,	"ERR_NOT_SYNC" },
-		{	10003,	"ERR_BAD_COOKIE" },
-		{	10004,	"ERR_NOTSUPP" },
-		{	10005,	"ERR_TOOSMALL" },
-		{	10006,	"ERR_SERVERFAULT" },
-		{	10007,	"ERR_BADTYPE" },
-		{	10008,	"ERR_JUKEBOX" },
-		{	0,	NULL }
-	};
 
 	if (!BYTES_ARE_IN_FRAME(offset,4)) return offset;
 	nfsstat3 = EXTRACT_UINT(pd, offset+0);
-	nfsstat3_name = val_to_str(nfsstat3, nfs3_nfsstat3, "%u");
 	
 	if (tree) {
-		proto_tree_add_text(tree, offset, 4,
-			"%s: %s (%u)", name, nfsstat3_name, nfsstat3);
+		proto_tree_add_item(tree, hf_nfs_nfsstat3,
+			offset, 4, nfsstat3);
 	}
 
 	offset += 4;
@@ -1922,7 +1951,7 @@ dissect_nfs3_any_reply(const u_char* pd, int offset, frame_data* fd, proto_tree*
 {
 	guint32 status;
 
-	offset = dissect_nfsstat3(pd, offset, fd, tree, "status", &status);
+	offset = dissect_nfsstat3(pd, offset, fd, tree, &status);
 
 	return offset;
 
@@ -1944,7 +1973,7 @@ dissect_nfs3_getattr_reply(const u_char* pd, int offset, frame_data* fd, proto_t
 {
 	guint32 status;
 
-	offset = dissect_nfsstat3(pd, offset, fd, tree, "status", &status);
+	offset = dissect_nfsstat3(pd, offset, fd, tree, &status);
 	switch (status) {
 		case 0:
 			offset = dissect_fattr3(pd, offset, fd, tree, "obj_attributes");
@@ -2021,7 +2050,7 @@ dissect_nfs3_setattr_reply(const u_char* pd, int offset, frame_data* fd, proto_t
 {
 	guint32 status;
 
-	offset = dissect_nfsstat3(pd, offset, fd, tree, "status", &status);
+	offset = dissect_nfsstat3(pd, offset, fd, tree, &status);
 	switch (status) {
 		case 0:
 			offset = dissect_wcc_data(pd, offset, fd, tree, "obj_wcc");
@@ -2050,7 +2079,7 @@ dissect_nfs3_lookup_reply(const u_char* pd, int offset, frame_data* fd, proto_tr
 {
 	guint32 status;
 
-	offset = dissect_nfsstat3(pd, offset, fd, tree, "status", &status);
+	offset = dissect_nfsstat3(pd, offset, fd, tree, &status);
 	switch (status) {
 		case 0:
 			offset = dissect_nfs_fh3     (pd, offset, fd, tree, "object");
@@ -2083,7 +2112,7 @@ dissect_nfs3_access_reply(const u_char* pd, int offset, frame_data* fd, proto_tr
 {
 	guint32 status;
 
-	offset = dissect_nfsstat3(pd, offset, fd, tree, "status", &status);
+	offset = dissect_nfsstat3(pd, offset, fd, tree, &status);
 	switch (status) {
 		case 0:
 			offset = dissect_post_op_attr(pd, offset, fd, tree, "obj_attributes");
@@ -2104,7 +2133,7 @@ dissect_nfs3_readlink_reply(const u_char* pd, int offset, frame_data* fd, proto_
 {
 	guint32 status;
 
-	offset = dissect_nfsstat3(pd, offset, fd, tree, "status", &status);
+	offset = dissect_nfsstat3(pd, offset, fd, tree, &status);
 	switch (status) {
 		case 0:
 			offset = dissect_post_op_attr(pd, offset, fd, tree, "symlink_attributes");
@@ -2119,8 +2148,107 @@ dissect_nfs3_readlink_reply(const u_char* pd, int offset, frame_data* fd, proto_
 }
 
 
+/* RFC 1813, Page 46..48 */
+int
+dissect_nfs3_read_call(const u_char* pd, int offset, frame_data* fd, proto_tree* tree)
+{
+	offset = dissect_nfs_fh3(pd, offset, fd, tree, "file");
+	offset = dissect_offset3(pd, offset, fd, tree, "offset");
+	offset = dissect_count3 (pd, offset, fd, tree, "count");
+
+	return offset;
+}
+
+
+/* RFC 1813, Page 46..48 */
+int
+dissect_nfs3_read_reply(const u_char* pd, int offset, frame_data* fd, proto_tree* tree)
+{
+	guint32 status;
+
+	offset = dissect_nfsstat3(pd, offset, fd, tree, &status);
+	switch (status) {
+		case 0:
+			offset = dissect_post_op_attr(pd, offset, fd, tree, "file_attributes");
+			offset = dissect_count3      (pd, offset, fd, tree, "count");
+			offset = dissect_rpc_bool    (pd, offset, fd, tree, hf_nfs_read_eof);
+			offset = dissect_nfsdata     (pd, offset, fd, tree, hf_nfs_data);
+		break;
+		default:
+			offset = dissect_post_op_attr(pd, offset, fd, tree, "file_attributes");
+		break;
+	}
+		
+	return offset;
+}
+
+
+/* RFC 1813, Page 49 */
+static const value_string names_stable_how[] = {
+	{	UNSTABLE,  "UNSTABLE"  },
+	{	DATA_SYNC, "DATA_SYNC" },
+	{	FILE_SYNC, "FILE_SYNC" },
+	{ 0, NULL }
+};
+
+
+/* RFC 1813, Page 49 */
+int
+dissect_stable_how(const u_char* pd, int offset, frame_data* fd, proto_tree* tree, int hfindex)
+{
+	guint32 stable_how;
+
+	if (!BYTES_ARE_IN_FRAME(offset,4)) return offset;
+	stable_how = EXTRACT_UINT(pd,offset+0);
+	if (tree) {
+		proto_tree_add_item(tree, hfindex,
+			offset, 4, stable_how); 
+	}
+	offset += 4;
+
+	return offset;
+}
+
+
+/* RFC 1813, Page 49..54 */
+int
+dissect_nfs3_write_call(const u_char* pd, int offset, frame_data* fd, proto_tree* tree)
+{
+	offset = dissect_nfs_fh3   (pd, offset, fd, tree, "file");
+	offset = dissect_offset3   (pd, offset, fd, tree, "offset");
+	offset = dissect_count3    (pd, offset, fd, tree, "count");
+	offset = dissect_stable_how(pd, offset, fd, tree, hf_nfs_write_stable);
+	offset = dissect_nfsdata   (pd, offset, fd, tree, hf_nfs_data);
+
+	return offset;
+}
+
+
+/* RFC 1813, Page 49..54 */
+int
+dissect_nfs3_write_reply(const u_char* pd, int offset, frame_data* fd, proto_tree* tree)
+{
+	guint32 status;
+
+	offset = dissect_nfsstat3(pd, offset, fd, tree, &status);
+	switch (status) {
+		case 0:
+			offset = dissect_wcc_data  (pd, offset, fd, tree, "file_wcc");
+			offset = dissect_count3    (pd, offset, fd, tree, "count");
+			offset = dissect_stable_how(pd, offset, fd, tree, hf_nfs_write_committed);
+			offset = dissect_writeverf3(pd, offset, fd, tree);
+		break;
+		default:
+			offset = dissect_wcc_data(pd, offset, fd, tree, "file_wcc");
+		break;
+	}
+		
+	return offset;
+}
+
+
 /* RFC 1813, Page 54 */
-static const value_string text_createmode3[] = {
+static const value_string names_createmode3[] = {
 	{	UNCHECKED, "UNCHECKED" },
 	{	GUARDED,   "GUARDED" },
 	{	EXCLUSIVE, "EXCLUSIVE" },
@@ -2175,7 +2303,7 @@ dissect_nfs3_create_reply(const u_char* pd, int offset, frame_data* fd, proto_tr
 {
 	guint32 status;
 
-	offset = dissect_nfsstat3(pd, offset, fd, tree, "status", &status);
+	offset = dissect_nfsstat3(pd, offset, fd, tree, &status);
 	switch (status) {
 		case 0:
 			offset = dissect_post_op_fh3 (pd, offset, fd, tree, "obj");
@@ -2220,7 +2348,7 @@ dissect_nfs3_remove_reply(const u_char* pd, int offset, frame_data* fd, proto_tr
 {
 	guint32 status;
 
-	offset = dissect_nfsstat3(pd, offset, fd, tree, "status", &status);
+	offset = dissect_nfsstat3(pd, offset, fd, tree, &status);
 	switch (status) {
 		case 0:
 			offset = dissect_wcc_data    (pd, offset, fd, tree, "dir_wcc");
@@ -2251,7 +2379,7 @@ dissect_nfs3_rename_reply(const u_char* pd, int offset, frame_data* fd, proto_tr
 {
 	guint32 status;
 
-	offset = dissect_nfsstat3(pd, offset, fd, tree, "status", &status);
+	offset = dissect_nfsstat3(pd, offset, fd, tree, &status);
 	switch (status) {
 		case 0:
 			offset = dissect_wcc_data(pd, offset, fd, tree, "fromdir_wcc");
@@ -2284,7 +2412,7 @@ dissect_nfs3_link_reply(const u_char* pd, int offset, frame_data* fd, proto_tree
 {
 	guint32 status;
 
-	offset = dissect_nfsstat3(pd, offset, fd, tree, "status", &status);
+	offset = dissect_nfsstat3(pd, offset, fd, tree, &status);
 	switch (status) {
 		case 0:
 			offset = dissect_post_op_attr(pd, offset, fd, tree, "file_attributes");
@@ -2307,7 +2435,7 @@ dissect_nfs3_fsstat_reply(const u_char* pd, int offset, frame_data* fd, proto_tr
 	guint32 status;
 	guint32 invarsec;
 
-	offset = dissect_nfsstat3(pd, offset, fd, tree, "status", &status);
+	offset = dissect_nfsstat3(pd, offset, fd, tree, &status);
 	switch (status) {
 		case 0:
 			offset = dissect_post_op_attr(pd, offset, fd, tree, "obj_attributes");
@@ -2355,7 +2483,7 @@ dissect_nfs3_fsinfo_reply(const u_char* pd, int offset, frame_data* fd, proto_tr
 	proto_item*	properties_item = NULL;
 	proto_tree*	properties_tree = NULL;
 
-	offset = dissect_nfsstat3(pd, offset, fd, tree, "status", &status);
+	offset = dissect_nfsstat3(pd, offset, fd, tree, &status);
 	switch (status) {
 		case 0:
 			offset = dissect_post_op_attr(pd, offset, fd, tree, "obj_attributes");
@@ -2460,12 +2588,8 @@ dissect_nfs3_pathconf_reply(const u_char* pd, int offset, frame_data* fd, proto_
 	guint32 status;
 	guint32 linkmax;
 	guint32 name_max;
-	guint32 no_trunc;
-	guint32 chown_restricted;
-	guint32 case_insensitive;
-	guint32 case_preserving;
 
-	offset = dissect_nfsstat3(pd, offset, fd, tree, "status", &status);
+	offset = dissect_nfsstat3(pd, offset, fd, tree, &status);
 	switch (status) {
 		case 0:
 			offset = dissect_post_op_attr(pd, offset, fd, tree, "obj_attributes");
@@ -2481,30 +2605,10 @@ dissect_nfs3_pathconf_reply(const u_char* pd, int offset, frame_data* fd, proto_
 				proto_tree_add_item(tree, hf_nfs_pathconf_name_max,
 				offset+0, 4, name_max);
 			offset += 4;
-			if (!BYTES_ARE_IN_FRAME(offset, 4)) return offset;
-			no_trunc = EXTRACT_UINT(pd, offset + 0);
-			if (tree)
-				proto_tree_add_item(tree, hf_nfs_pathconf_no_trunc,
-				offset+0, 4, no_trunc);
-			offset += 4;
-			if (!BYTES_ARE_IN_FRAME(offset, 4)) return offset;
-			chown_restricted = EXTRACT_UINT(pd, offset + 0);
-			if (tree)
-				proto_tree_add_item(tree, hf_nfs_pathconf_chown_restricted,
-				offset+0, 4, chown_restricted);
-			offset += 4;
-			if (!BYTES_ARE_IN_FRAME(offset, 4)) return offset;
-			case_insensitive = EXTRACT_UINT(pd, offset + 0);
-			if (tree)
-				proto_tree_add_item(tree, hf_nfs_pathconf_case_insensitive,
-				offset+0, 4, case_insensitive);
-			offset += 4;
-			if (!BYTES_ARE_IN_FRAME(offset, 4)) return offset;
-			case_preserving = EXTRACT_UINT(pd, offset + 0);
-			if (tree)
-				proto_tree_add_item(tree, hf_nfs_pathconf_case_preserving,
-				offset+0, 4, case_preserving);
-			offset += 4;
+			offset = dissect_rpc_bool(pd, offset, fd, tree, hf_nfs_pathconf_no_trunc);
+			offset = dissect_rpc_bool(pd, offset, fd, tree, hf_nfs_pathconf_chown_restricted);
+			offset = dissect_rpc_bool(pd, offset, fd, tree, hf_nfs_pathconf_case_insensitive);
+			offset = dissect_rpc_bool(pd, offset, fd, tree, hf_nfs_pathconf_case_preserving);
 		break;
 		default:
 			offset = dissect_post_op_attr(pd, offset, fd, tree, "obj_attributes");
@@ -2515,7 +2619,7 @@ dissect_nfs3_pathconf_reply(const u_char* pd, int offset, frame_data* fd, proto_
 }
 
 
-/* 11 missing functions */
+/* 7 missing functions */
 
 
 /* proc number, "proc name", dissect_request, dissect_reply */
@@ -2533,10 +2637,10 @@ const vsff nfs3_proc[] = {
 	dissect_nfs3_access_call,	dissect_nfs3_access_reply },
 	{ 5,	"READLINK",	/* OK */
 	dissect_nfs3_nfs_fh3_call,	dissect_nfs3_readlink_reply },
-	{ 6,	"READ",		/* todo: call, reply */
-	dissect_nfs3_nfs_fh3_call,	dissect_nfs3_any_reply },
-	{ 7,	"WRITE",	/* todo: call, reply */
-	dissect_nfs3_nfs_fh3_call,	dissect_nfs3_any_reply },
+	{ 6,	"READ",		/* OK */
+	dissect_nfs3_read_call,		dissect_nfs3_read_reply },
+	{ 7,	"WRITE",	/* OK */
+	dissect_nfs3_write_call,	dissect_nfs3_write_reply },
 	{ 8,	"CREATE",	/* OK */
 	dissect_nfs3_create_call,	dissect_nfs3_create_reply },
 	{ 9,	"MKDIR",	/* OK */
@@ -2577,6 +2681,9 @@ void
 proto_register_nfs(void)
 {
 	static hf_register_info hf[] = {
+		{ &hf_nfs_stat, {
+			"Status", "nfs.status2", FT_UINT32, BASE_DEC,
+			VALS(names_nfs_stat), 0, "Reply status" }},
 		{ &hf_nfs_name, {
 			"Name", "nfs.name", FT_STRING, BASE_DEC,
 			NULL, 0, "Name" }},
@@ -2646,9 +2753,21 @@ proto_register_nfs(void)
 		{ &hf_nfs_statfs_bavail, {
 			"Available Blocks", "nfs.statfs.bavail", FT_UINT32, BASE_DEC,
 			NULL, 0, "Available Blocks" }},
+		{ &hf_nfs_nfsstat3, {
+			"Status", "nfs.status", FT_UINT32, BASE_DEC,
+			VALS(names_nfs_nfsstat3), 0, "Reply status" }},
+		{ &hf_nfs_read_eof, {
+			"EOF", "nfs.read.eof", FT_BOOLEAN, BASE_NONE,
+			&yesno, 0, "EOF" }},
+		{ &hf_nfs_write_stable, {
+			"Stable", "nfs.write.stable", FT_UINT32, BASE_DEC,
+			VALS(names_stable_how), 0, "Stable" }},
+		{ &hf_nfs_write_committed, {
+			"Committed", "nfs.write.committed", FT_UINT32, BASE_DEC,
+			VALS(names_stable_how), 0, "Committed" }},
 		{ &hf_nfs_createmode3, {
 			"Create Mode", "nfs.createmode", FT_UINT32, BASE_DEC,
-			VALS(text_createmode3), 0, "Create Mode" }},
+			VALS(names_createmode3), 0, "Create Mode" }},
 		{ &hf_nfs_fsstat_invarsec, {
 			"invarsec", "nfs.fsstat.invarsec", FT_UINT32, BASE_DEC,
 			NULL, 0, "probable number of seconds of file system invariance" }},
