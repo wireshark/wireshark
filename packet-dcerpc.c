@@ -3,7 +3,7 @@
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  * Copyright 2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc.c,v 1.165 2004/04/23 23:31:52 sahlberg Exp $
+ * $Id: packet-dcerpc.c,v 1.166 2004/04/24 16:47:47 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1864,6 +1864,7 @@ dcerpc_try_handoff (packet_info *pinfo, proto_tree *tree,
 
         if (sub_item) {
             sub_tree = proto_item_add_subtree (sub_item, sub_proto->ett);
+			proto_item_append_text(sub_item, ", %s", name);
         }
 
         /*
@@ -2709,7 +2710,7 @@ end_cn_stub:
 				decrypted_tvb, 0, 0, fd_head->reassembled_in);
 	    if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_append_fstr(pinfo->cinfo, COL_INFO,
-			" [DCE/RPC %s fragment]", fragment_type(hdr->flags));
+			" [DCE/RPC %s fragment, reas: #%u]", fragment_type(hdr->flags), fd_head->reassembled_in);
 	    }
 	}
     } else {
@@ -3666,7 +3667,7 @@ dissect_dcerpc_dg_fack (tvbuff_t *tvb, int offset, packet_info *pinfo,
                                         hdr->drep, hf_dcerpc_dg_fack_serial_num,
                                         &serial_num);
         if (check_col (pinfo->cinfo, COL_INFO)) {
-            col_append_fstr (pinfo->cinfo, COL_INFO, " serial_num: %u",
+            col_append_fstr (pinfo->cinfo, COL_INFO, " serial: %u",
                              serial_num);
         }
         offset = dissect_dcerpc_uint16 (tvb, offset, pinfo, dcerpc_tree,
@@ -3711,7 +3712,8 @@ dissect_dcerpc_dg_stub (tvbuff_t *tvb, int offset, packet_info *pinfo,
     tvbuff_t *next_tvb;
 
     if (check_col (pinfo->cinfo, COL_INFO))
-        col_append_fstr (pinfo->cinfo, COL_INFO, " opnum: %u", di->call_data->opnum );
+        col_append_fstr (pinfo->cinfo, COL_INFO, " opnum: %u len: %u", 
+            di->call_data->opnum, hdr->frag_len );
 
     length = tvb_length_remaining (tvb, offset);
     reported_length = tvb_reported_length_remaining (tvb, offset);
@@ -3775,7 +3777,9 @@ dissect_dcerpc_dg_stub (tvbuff_t *tvb, int offset, packet_info *pinfo,
 			hdr->frag_num, stub_length,
 			!(hdr->flags1 & PFCL1_LASTFRAG));
 	if (fd_head != NULL) {
-	    /* We completed reassembly */
+	    /* We completed reassembly... */
+        if(pinfo->fd->num==fd_head->reassembled_in) {
+            /* ...and this is the reassembled RPC PDU */
 	    next_tvb = tvb_new_real_data(fd_head->data, fd_head->len, fd_head->len);
 	    tvb_set_child_real_data_tvbuff(tvb, next_tvb);
 	    add_new_data_source(pinfo, next_tvb, "Reassembled DCE/RPC");
@@ -3788,6 +3792,15 @@ dissect_dcerpc_dg_stub (tvbuff_t *tvb, int offset, packet_info *pinfo,
 	    pinfo->fragmented = FALSE;
 	    dcerpc_try_handoff (pinfo, tree, dcerpc_tree, next_tvb,
 				next_tvb, hdr->drep, di, NULL);
+	} else {
+            /* ...and this isn't the reassembled RPC PDU */
+	        proto_tree_add_uint(dcerpc_tree, hf_dcerpc_reassembled_in,
+				    tvb, 0, 0, fd_head->reassembled_in);
+	        if (check_col(pinfo->cinfo, COL_INFO)) {
+		    col_append_fstr(pinfo->cinfo, COL_INFO,
+			    " [DCE/RPC fragment, reas: #%u]", fd_head->reassembled_in);
+	        }
+        }
 	} else {
 	    /* Reassembly isn't completed yet */
 	    if (check_col(pinfo->cinfo, COL_INFO)) {
@@ -4117,8 +4130,13 @@ dissect_dcerpc_dg (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
     offset += 16;
 
-    if (tree)
-        proto_tree_add_uint (dcerpc_tree, hf_dcerpc_dg_server_boot, tvb, offset, 4, hdr.server_boot);
+    if (tree) {
+        nstime_t server_boot;
+	    server_boot.secs  = hdr.server_boot;
+	    server_boot.nsecs = 0;
+
+        proto_tree_add_time (dcerpc_tree, hf_dcerpc_dg_server_boot, tvb, offset, 4, &server_boot);
+    }
     offset += 4;
 
     if (tree)
@@ -4128,7 +4146,7 @@ dissect_dcerpc_dg (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (tree)
         proto_tree_add_uint (dcerpc_tree, hf_dcerpc_dg_seqnum, tvb, offset, 4, hdr.seqnum);
     if (check_col (pinfo->cinfo, COL_INFO)) {
-        col_append_fstr (pinfo->cinfo, COL_INFO, ": seq_num: %u", hdr.seqnum);
+        col_append_fstr (pinfo->cinfo, COL_INFO, ": seq: %u", hdr.seqnum);
     }
     offset += 4;
 
@@ -4153,7 +4171,7 @@ dissect_dcerpc_dg (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (check_col (pinfo->cinfo, COL_INFO)) {
         if (hdr.flags1 & PFCL1_FRAG) {
             /* Fragmented - put the fragment number into the Info column */
-            col_append_fstr (pinfo->cinfo, COL_INFO, " frag_num: %u",
+            col_append_fstr (pinfo->cinfo, COL_INFO, " frag: %u",
                              hdr.frag_num);
         }
     }
@@ -4168,7 +4186,7 @@ dissect_dcerpc_dg (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (check_col (pinfo->cinfo, COL_INFO)) {
         if (hdr.flags1 & PFCL1_FRAG) {
             /* Fragmented - put the serial number into the Info column */
-            col_append_fstr (pinfo->cinfo, COL_INFO, " serial_num: %u",
+            col_append_fstr (pinfo->cinfo, COL_INFO, " serial: %u",
                              (hdr.serial_hi << 8) | hdr.serial_lo);
         }
     }
@@ -4323,11 +4341,11 @@ proto_register_dcerpc (void)
 {
     static hf_register_info hf[] = {
 	{ &hf_dcerpc_request_in,
-		{ "Request in", "dcerpc.request_in", FT_FRAMENUM, BASE_NONE,
-		NULL, 0, "This packet is a response to the packet in this frame", HFILL }},
+		{ "[Request in frame]", "dcerpc.request_in", FT_FRAMENUM, BASE_NONE,
+		NULL, 0, "This packet is a response to the packet with this number", HFILL }},
 	{ &hf_dcerpc_response_in,
-		{ "Response in", "dcerpc.response_in", FT_FRAMENUM, BASE_NONE,
-		NULL, 0, "The response to this packet is in this packet", HFILL }},
+		{ "[Response in frame]", "dcerpc.response_in", FT_FRAMENUM, BASE_NONE,
+		NULL, 0, "This packet will be responded in the packet with this number", HFILL }},
 	{ &hf_dcerpc_referent_id,
 		{ "Referent ID", "dcerpc.referent_id", FT_UINT32, BASE_HEX,
 		NULL, 0, "Referent ID for this NDR encoded pointer", HFILL }},
@@ -4482,7 +4500,7 @@ proto_register_dcerpc (void)
         { &hf_dcerpc_dg_seqnum,
           { "Sequence num", "dcerpc.dg_seqnum", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
         { &hf_dcerpc_dg_server_boot,
-          { "Server boot time", "dcerpc.dg_server_boot", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+          { "Server boot time", "dcerpc.dg_server_boot", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0, "", HFILL }},
         { &hf_dcerpc_dg_if_ver,
           { "Interface Ver", "dcerpc.dg_if_ver", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
         { &hf_dcerpc_krb5_av_prot_level,
@@ -4557,25 +4575,32 @@ proto_register_dcerpc (void)
 	  NULL, 0x0, "DCE/RPC Fragment", HFILL }},
 
 	{ &hf_dcerpc_fragment_overlap,
-	  { "Fragment overlap",	"dcerpc.fragment.overlap", FT_BOOLEAN, BASE_NONE, NULL, 0x0, "Fragment overlaps with other fragments", HFILL }},
+	  { "Fragment overlap",	"dcerpc.fragment.overlap", FT_BOOLEAN, BASE_NONE, 
+      NULL, 0x0, "Fragment overlaps with other fragments", HFILL }},
 
 	{ &hf_dcerpc_fragment_overlap_conflict,
-	  { "Conflicting data in fragment overlap", "dcerpc.fragment.overlap.conflict", FT_BOOLEAN, BASE_NONE, NULL, 0x0, "Overlapping fragments contained conflicting data", HFILL }},
+	  { "Conflicting data in fragment overlap", "dcerpc.fragment.overlap.conflict", FT_BOOLEAN, BASE_NONE, 
+      NULL, 0x0, "Overlapping fragments contained conflicting data", HFILL }},
 
 	{ &hf_dcerpc_fragment_multiple_tails,
-	  { "Multiple tail fragments found", "dcerpc.fragment.multipletails", FT_BOOLEAN, BASE_NONE, NULL, 0x0, "Several tails were found when defragmenting the packet", HFILL }},
+	  { "Multiple tail fragments found", "dcerpc.fragment.multipletails", FT_BOOLEAN, BASE_NONE, 
+      NULL, 0x0, "Several tails were found when defragmenting the packet", HFILL }},
 
 	{ &hf_dcerpc_fragment_too_long_fragment,
-	  { "Fragment too long", "dcerpc.fragment.toolongfragment", FT_BOOLEAN, BASE_NONE, NULL, 0x0, "Fragment contained data past end of packet", HFILL }},
+	  { "Fragment too long", "dcerpc.fragment.toolongfragment", FT_BOOLEAN, BASE_NONE, 
+      NULL, 0x0, "Fragment contained data past end of packet", HFILL }},
 
 	{ &hf_dcerpc_fragment_error,
-	  { "Defragmentation error", "dcerpc.fragment.error", FT_FRAMENUM, BASE_NONE, NULL, 0x0, "Defragmentation error due to illegal fragments", HFILL }},
+	  { "Defragmentation error", "dcerpc.fragment.error", FT_FRAMENUM, BASE_NONE, 
+      NULL, 0x0, "Defragmentation error due to illegal fragments", HFILL }},
 
 	{ &hf_dcerpc_time, 
-	  { "Time from request", "dcerpc.time", FT_RELATIVE_TIME, BASE_NONE, NULL, 0, "Time between Request and Response for DCE-RPC calls", HFILL }},
+	  { "[Time from request]", "dcerpc.time", FT_RELATIVE_TIME, BASE_NONE, 
+      NULL, 0, "Time between Request and Response for DCE-RPC calls", HFILL }},
 
 	{ &hf_dcerpc_reassembled_in,
-	  { "This PDU is reassembled in", "dcerpc.reassembled_in", FT_FRAMENUM, BASE_NONE, NULL, 0x0, "The DCE/RPC PDU is completely reassembled in this frame", HFILL }},
+	  { "[Reassembled PDU in frame]", "dcerpc.reassembled_in", FT_FRAMENUM, BASE_NONE, 
+      NULL, 0x0, "The DCE/RPC PDU is completely reassembled in the packet with this number", HFILL }},
 
 	{ &hf_dcerpc_unknown_if_id, 
 	  { "Unknown DCERPC interface id", "dcerpc.unknown_if_id", FT_BOOLEAN, BASE_NONE, NULL, 0x0, "", HFILL }},
