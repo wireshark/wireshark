@@ -1,6 +1,6 @@
 /* libpcap.c
  *
- * $Id: libpcap.c,v 1.16 1999/08/28 01:19:44 guy Exp $
+ * $Id: libpcap.c,v 1.17 1999/08/31 22:36:20 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -53,7 +53,7 @@
 	  (((x)&0x00FF)<<8))
 
 /* On some systems, the FDDI MAC addresses are bit-swapped. */
-#if !defined(ultrix) && !defined(__alpha) && !defined(__bsdi)
+#if !defined(ultrix) && !defined(__alpha) && !defined(__bsdi__)
 #define BIT_SWAPPED_MAC_ADDRS
 #endif
 
