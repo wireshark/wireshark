@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.737 2004/06/25 07:10:53 jmayer Exp $
+# $Id: Makefile.am,v 1.738 2004/06/29 03:04:02 gerald Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -549,11 +549,11 @@ else
 SUBDIRS = tools wiretap doc epan packaging help @ethereal_SUBDIRS@
 endif
 
-ethereal.1: ethereal doc/ethereal.pod AUTHORS-SHORT
+ethereal.1: doc/ethereal.pod AUTHORS-SHORT
 	(cd doc ; \
 	$(MAKE) ../ethereal.1 )
 
-tethereal.1: tethereal doc/tethereal.pod
+tethereal.1: doc/tethereal.pod
 	(cd doc ; \
 	$(MAKE) ../tethereal.1 )
 
@@ -577,11 +577,11 @@ text2pcap.1: doc/text2pcap.pod
 	(cd doc ; \
 	$(MAKE) ../text2pcap.1 )
 
-ethereal.html: ethereal doc/ethereal.pod AUTHORS-SHORT
+ethereal.html: doc/ethereal.pod AUTHORS-SHORT
 	(cd doc ; \
 	$(MAKE) ../ethereal.html )
 
-tethereal.html: tethereal doc/tethereal.pod
+tethereal.html: doc/tethereal.pod
 	(cd doc ; \
 	$(MAKE) ../tethereal.html )
 
