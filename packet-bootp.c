@@ -2,7 +2,7 @@
  * Routines for BOOTP/DHCP packet disassembly
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-bootp.c,v 1.71 2002/09/28 04:12:38 gerald Exp $
+ * $Id: packet-bootp.c,v 1.72 2003/02/07 04:25:37 gerald Exp $
  *
  * The information used comes from:
  * RFC  951: Bootstrap Protocol
@@ -13,6 +13,7 @@
  * RFC 2489: Procedure for Defining New DHCP Options
  * RFC 3046: DHCP Relay Agent Information Option
  * RFC 3118: Authentication for DHCP Messages
+ * RFC 3203: DHCP reconfigure extension
  * BOOTP and DHCP Parameters
  *     http://www.iana.org/assignments/bootp-dhcp-parameters
  *
@@ -114,6 +115,7 @@ get_dhcp_type(guint8 byte)
 		"NAK",
 		"Release",
 		"Inform"
+		"Force Renew"
 	};
 	int i;
 
