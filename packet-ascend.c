@@ -1,7 +1,7 @@
 /* packet-ascend.c
  * Routines for decoding Lucent/Ascend packet traces
  *
- * $Id: packet-ascend.c,v 1.28 2001/12/10 00:25:26 guy Exp $
+ * $Id: packet-ascend.c,v 1.29 2001/12/20 05:34:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -69,6 +69,18 @@ dissect_ascend(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "N/A" );
   if(check_col(pinfo->cinfo, COL_INFO))
     col_set_str(pinfo->cinfo, COL_INFO, "Lucent/Ascend packet trace" );
+
+  /* If this is a transmitted or received PPP frame, set the PPP direction. */
+  switch (pseudo_header->ascend.type) {
+
+  case ASCEND_PFX_WDS_X:
+    pinfo->p2p_dir = P2P_DIR_SENT;
+    break;
+
+  case ASCEND_PFX_WDS_R:
+    pinfo->p2p_dir = P2P_DIR_RECV;
+    break;
+  }
 
   /* populate a tree in the second pane with the status of the link
      layer (ie none) */
