@@ -1582,9 +1582,10 @@ host_name_lookup_init(void) {
 
 #ifdef WIN32
   sysroot = getenv("SYSTEMROOT");
-  hostspath = g_malloc(strlen(sysroot) + sizeof rootpath);
-  strcpy(hostspath, sysroot);
-  strcat(hostspath, rootpath);
+  /* getenv() returns NULL, if requested environment variable can't be found */
+  if(sysroot != NULL) {
+	hostspath = g_strconcat(sysroot, rootpath, NULL);
+
 #else
   hostspath = g_strdup("/etc/hosts");
 #endif
@@ -1595,6 +1596,9 @@ host_name_lookup_init(void) {
   }
   g_free(hostspath);
 
+#ifdef WIN32
+  } /* endif(sysroot != NULL) */
+#endif
   /* XXX - Any flags we should be using? */
   /* XXX - We could provide config settings for DNS servers, and
            pass them to ADNS with adns_init_strcfg */
