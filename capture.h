@@ -29,10 +29,10 @@
  *  Capture related things.
  */
 
+#ifdef HAVE_LIBPCAP
+
 /** Name we give to the child process when doing a "-S" capture. */
 #define	CHILD_NAME	"ethereal-capture"
-
-#ifdef HAVE_LIBPCAP
 
 /** Capture options coming from user interface */
 typedef struct capture_options_tag {
