@@ -2077,6 +2077,9 @@ B<http://www.ethereal.com>.
   Jan Kiszka               <jan.kiszka [AT] web.de>
   Joshua Craig Douglas     <jdouglas [AT] enterasys.com>
   Dick Gooris              <gooris [AT] lucent.com>
+  Michael Shuldman         <michaels [AT] inet.no>
+  Tadaaki Nagao            <nagao [AT] iij.ad.jp>
+  Aaron Woo                <woo [AT] itd.nrl.navy.mil>
   Pavel Roskin             <proski [AT] gnu.org>
   Georgi Guninski          <guninski [AT] guninski.com>
   Jason Copenhaver         <jcopenha [AT] typedef.org>
@@ -2109,7 +2112,7 @@ B<http://www.ethereal.com>.
   D. Manzella              <manzella [AT] lucent.com>
   Jari Mustajarvi          <jari.mustajarvi [AT] nokia.com>
   Joost Yervante Damad     <Joost.Damad [AT] siemens.com>
-  Aaron Woo                <woo [AT] itd.nrl.navy.mil>
+  Thomas Anders            <thomas.anders [AT] blue-cable.de>
 
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to give his
 permission to use his version of snprintf.c.

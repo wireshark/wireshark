@@ -4,7 +4,7 @@
  * Jason Lango <jal@netapp.com>
  * Liberally copied from packet-http.c, by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-sdp.c,v 1.44 2004/01/13 23:18:13 guy Exp $
+ * $Id: packet-sdp.c,v 1.45 2004/01/16 19:51:55 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -632,7 +632,7 @@ static void dissect_sdp_time(tvbuff_t *tvb, proto_item* ti){
 
   /* get stop time */
   offset = next_offset + 1;
-  proto_tree_add_item(sdp_time_tree,hf_time_start, tvb,
+  proto_tree_add_item(sdp_time_tree, hf_time_stop, tvb,
 		      offset, -1, FALSE);
 }
 
