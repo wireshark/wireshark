@@ -1,7 +1,7 @@
 /* file_dlg.c
  * Dialog boxes for handling files
  *
- * $Id: file_dlg.c,v 1.79 2004/01/09 18:11:21 ulfl Exp $
+ * $Id: file_dlg.c,v 1.80 2004/01/10 14:11:58 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -288,13 +288,7 @@ file_open_cmd_cb(GtkWidget *w, gpointer data _U_)
   OBJECT_SET_DATA(GTK_FILE_SELECTION(file_open_w)->ok_button,
                   E_RFILTER_TE_KEY, filter_te);
 
-#if GTK_MAJOR_VERSION < 2
-  m_resolv_cb = dlg_check_button_new_with_label_with_mnemonic(
-		  "Enable _MAC name resolution", accel_group);
-#else
-  m_resolv_cb = gtk_check_button_new_with_mnemonic(
-		  "Enable _MAC name resolution");
-#endif
+  m_resolv_cb = CHECK_BUTTON_NEW_WITH_MNEMONIC("Enable _MAC name resolution", accel_group);
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(m_resolv_cb),
 	g_resolv_flags & RESOLV_MAC);
   gtk_box_pack_start(GTK_BOX(main_vb), m_resolv_cb, FALSE, FALSE, 0);
@@ -302,13 +296,7 @@ file_open_cmd_cb(GtkWidget *w, gpointer data _U_)
   OBJECT_SET_DATA(GTK_FILE_SELECTION(file_open_w)->ok_button,
                   E_FILE_M_RESOLVE_KEY, m_resolv_cb);
 
-#if GTK_MAJOR_VERSION < 2
-  n_resolv_cb = dlg_check_button_new_with_label_with_mnemonic(
-		  "Enable _network name resolution", accel_group);
-#else
-  n_resolv_cb = gtk_check_button_new_with_mnemonic(
-		  "Enable _network name resolution");
-#endif
+  n_resolv_cb = CHECK_BUTTON_NEW_WITH_MNEMONIC("Enable _network name resolution", accel_group);
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(n_resolv_cb),
 	g_resolv_flags & RESOLV_NETWORK);
   gtk_box_pack_start(GTK_BOX(main_vb), n_resolv_cb, FALSE, FALSE, 0);
@@ -316,13 +304,7 @@ file_open_cmd_cb(GtkWidget *w, gpointer data _U_)
   OBJECT_SET_DATA(GTK_FILE_SELECTION(file_open_w)->ok_button,
 		  E_FILE_N_RESOLVE_KEY, n_resolv_cb);
 
-#if GTK_MAJOR_VERSION < 2
-  t_resolv_cb = dlg_check_button_new_with_label_with_mnemonic(
-		  "Enable _transport name resolution", accel_group);
-#else
-  t_resolv_cb = gtk_check_button_new_with_mnemonic(
-		  "Enable _transport name resolution");
-#endif
+  t_resolv_cb = CHECK_BUTTON_NEW_WITH_MNEMONIC("Enable _transport name resolution", accel_group);
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(t_resolv_cb),
 	g_resolv_flags & RESOLV_TRANSPORT);
   gtk_box_pack_start(GTK_BOX(main_vb), t_resolv_cb, FALSE, FALSE, 0);
@@ -398,11 +380,11 @@ file_open_ok_cb(GtkWidget *w, GtkFileSelection *fs) {
   /* Set the global resolving variable */
   g_resolv_flags = prefs.name_resolve & RESOLV_CONCURRENT;
   m_resolv_cb = OBJECT_GET_DATA(w, E_FILE_M_RESOLVE_KEY);
-  g_resolv_flags |= GTK_TOGGLE_BUTTON (m_resolv_cb)->active ? RESOLV_MAC : RESOLV_NONE;
+  g_resolv_flags |= gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (m_resolv_cb)) ? RESOLV_MAC : RESOLV_NONE;
   n_resolv_cb = OBJECT_GET_DATA(w, E_FILE_N_RESOLVE_KEY);
-  g_resolv_flags |= GTK_TOGGLE_BUTTON (n_resolv_cb)->active ? RESOLV_NETWORK : RESOLV_NONE;
+  g_resolv_flags |= gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (n_resolv_cb)) ? RESOLV_NETWORK : RESOLV_NONE;
   t_resolv_cb = OBJECT_GET_DATA(w, E_FILE_T_RESOLVE_KEY);
-  g_resolv_flags |= GTK_TOGGLE_BUTTON (t_resolv_cb)->active ? RESOLV_TRANSPORT : RESOLV_NONE;
+  g_resolv_flags |= gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (t_resolv_cb)) ? RESOLV_TRANSPORT : RESOLV_NONE;
 
   /* We've crossed the Rubicon; get rid of the file selection box. */
   gtk_widget_hide(GTK_WIDGET (fs));
@@ -496,7 +478,6 @@ can_save_with_wiretap(int ft)
 static void
 file_set_save_dynamics(void) {
   gboolean      filtered_active;
-/*  gboolean      filtered_sensitive;*/
   gchar         label_text[100];
   gint          selected_num;
 
@@ -622,7 +603,7 @@ static void
 toggle_captured_cb(GtkWidget *widget, gpointer data _U_)
 {
   /* is the button now active? */
-  if (GTK_TOGGLE_BUTTON (widget)->active) {
+  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (widget))) {
     /* They changed the state of the "captured" button. */
     range.process_filtered = FALSE;
     /* XXX: the following line fails, I have no idea why */
@@ -639,7 +620,7 @@ static void
 toggle_filtered_cb(GtkWidget *widget, gpointer data _U_)
 {
   /* is the button now active? */
-  if (GTK_TOGGLE_BUTTON (widget)->active) {
+  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (widget))) {
     range.process_filtered = TRUE;
     set_file_type_list(ft_om);
 
@@ -654,7 +635,7 @@ static void
 toggle_select_all(GtkWidget *widget, gpointer data _U_)
 {
   /* is the button now active? */
-  if (GTK_TOGGLE_BUTTON (widget)->active) {
+  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (widget))) {
     range.process = range_process_all;
     set_file_type_list(ft_om);
     file_set_save_dynamics();
@@ -665,7 +646,7 @@ static void
 toggle_select_selected(GtkWidget *widget, gpointer data _U_)
 {
   /* is the button now active? */
-  if (GTK_TOGGLE_BUTTON (widget)->active) {
+  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (widget))) {
     range.process = range_process_selected;
     set_file_type_list(ft_om);
     file_set_save_dynamics();
@@ -676,7 +657,7 @@ static void
 toggle_select_marked_only(GtkWidget *widget, gpointer data _U_)
 {
   /* is the button now active? */
-  if (GTK_TOGGLE_BUTTON (widget)->active) {
+  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (widget))) {
     range.process = range_process_marked;
     set_file_type_list(ft_om);
     file_set_save_dynamics();
@@ -687,7 +668,7 @@ static void
 toggle_select_marked_range(GtkWidget *widget, gpointer data _U_)
 {
   /* is the button now active? */
-  if (GTK_TOGGLE_BUTTON (widget)->active) {
+  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (widget))) {
     range.process = range_process_marked_range;
     set_file_type_list(ft_om);
     file_set_save_dynamics();
@@ -698,7 +679,7 @@ static void
 toggle_select_user_range(GtkWidget *widget, gpointer data _U_)
 {
   /* is the button now active? */
-  if (GTK_TOGGLE_BUTTON (widget)->active) {
+  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (widget))) {
     range.process = range_process_user_range;
     set_file_type_list(ft_om);
     file_set_save_dynamics();
@@ -762,7 +743,6 @@ file_save_as_cmd_cb(GtkWidget *w _U_, gpointer data _U_)
 {
   GtkWidget     *ok_bt, *main_vb, *ft_hb, *ft_lb, *range_fr, *range_tb;
   GtkTooltips   *tooltips;
-  gchar         label_text[100];
 
 #if GTK_MAJOR_VERSION < 2
   GtkAccelGroup *accel_group;
@@ -822,22 +802,14 @@ file_save_as_cmd_cb(GtkWidget *w _U_, gpointer data _U_)
   gtk_widget_show(range_tb);
 
   /* captured button */
-#if GTK_MAJOR_VERSION < 2
-  captured_bt = dlg_toggle_button_new_with_label_with_mnemonic("_Captured" ,accel_group);
-#else
-  captured_bt = gtk_toggle_button_new_with_mnemonic("_Captured");
-#endif
+  captured_bt = TOGGLE_BUTTON_NEW_WITH_MNEMONIC("_Captured", accel_group);
   gtk_table_attach_defaults(GTK_TABLE(range_tb), captured_bt, 1, 2, 0, 1);
   SIGNAL_CONNECT(captured_bt, "toggled", toggle_captured_cb, NULL);
   gtk_tooltips_set_tip (tooltips,captured_bt,("Process all the below chosen packets"), NULL);
   gtk_widget_show(captured_bt);
 
   /* displayed button */
-#if GTK_MAJOR_VERSION < 2
-  displayed_bt = dlg_toggle_button_new_with_label_with_mnemonic("_Displayed" ,accel_group);
-#else
-  displayed_bt = gtk_toggle_button_new_with_mnemonic("_Displayed");
-#endif
+  displayed_bt = TOGGLE_BUTTON_NEW_WITH_MNEMONIC("_Displayed", accel_group);
   gtk_table_attach_defaults(GTK_TABLE(range_tb), displayed_bt, 2, 3, 0, 1);
   SIGNAL_CONNECT(displayed_bt, "toggled", toggle_filtered_cb, NULL);
   gtk_tooltips_set_tip (tooltips,displayed_bt,("Process only the below chosen packets, which also passes the current display filter"), NULL);
@@ -845,12 +817,7 @@ file_save_as_cmd_cb(GtkWidget *w _U_, gpointer data _U_)
 
 
   /* Process all packets */
-  g_snprintf(label_text, sizeof(label_text), "_All packets");
-#if GTK_MAJOR_VERSION < 2
-  select_all_rb = dlg_radio_button_new_with_label_with_mnemonic(NULL, label_text ,accel_group);
-#else
-  select_all_rb = gtk_radio_button_new_with_mnemonic(NULL, label_text);
-#endif
+  select_all_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(NULL, "_All packets", accel_group);
   gtk_table_attach_defaults(GTK_TABLE(range_tb), select_all_rb, 0, 1, 1, 2);
   gtk_tooltips_set_tip (tooltips,select_all_rb,("Process all packets"), NULL);
   SIGNAL_CONNECT(select_all_rb, "toggled", toggle_select_all, NULL);
@@ -865,14 +832,7 @@ file_save_as_cmd_cb(GtkWidget *w _U_, gpointer data _U_)
 
 	
   /* Process currently selected */
-  g_snprintf(label_text, sizeof(label_text), "_Selected packet only");
-#if GTK_MAJOR_VERSION < 2
-  select_curr_rb = dlg_radio_button_new_with_label_with_mnemonic(gtk_radio_button_group (GTK_RADIO_BUTTON (select_all_rb)),
-	   label_text,accel_group);
-#else
-  select_curr_rb = gtk_radio_button_new_with_mnemonic(gtk_radio_button_group (GTK_RADIO_BUTTON (select_all_rb)), 
-	   label_text);
-#endif
+  select_curr_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(select_all_rb, "_Selected packet only", accel_group);
   gtk_table_attach_defaults(GTK_TABLE(range_tb), select_curr_rb, 0, 1, 2, 3);
   gtk_tooltips_set_tip (tooltips,select_curr_rb,("Process the currently selected packet only"), NULL);
   SIGNAL_CONNECT(select_curr_rb, "toggled", toggle_select_selected, NULL);
@@ -887,14 +847,7 @@ file_save_as_cmd_cb(GtkWidget *w _U_, gpointer data _U_)
 
 
   /* Process marked packets */
-  g_snprintf(label_text, sizeof(label_text), "_Marked packets only");
-#if GTK_MAJOR_VERSION < 2
-  select_marked_only_rb = dlg_radio_button_new_with_label_with_mnemonic(gtk_radio_button_group (GTK_RADIO_BUTTON (select_all_rb)),
-	   label_text,accel_group);
-#else
-  select_marked_only_rb = gtk_radio_button_new_with_mnemonic(gtk_radio_button_group (GTK_RADIO_BUTTON (select_all_rb)), 
-	   label_text);
-#endif
+  select_marked_only_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(select_all_rb, "_Marked packets only", accel_group);
   gtk_table_attach_defaults(GTK_TABLE(range_tb), select_marked_only_rb, 0, 1, 3, 4);
   gtk_tooltips_set_tip (tooltips,select_marked_only_rb,("Process marked packets only"), NULL);
   SIGNAL_CONNECT(select_marked_only_rb, "toggled", toggle_select_marked_only, NULL);
@@ -909,14 +862,7 @@ file_save_as_cmd_cb(GtkWidget *w _U_, gpointer data _U_)
 
   
   /* Process packet range between first and last packet */
-  g_snprintf(label_text, sizeof(label_text), "From first _to last marked packet");
-#if GTK_MAJOR_VERSION < 2
-  select_marked_range_rb = dlg_radio_button_new_with_label_with_mnemonic(gtk_radio_button_group (GTK_RADIO_BUTTON (select_all_rb)),
-	   label_text,accel_group);
-#else
-  select_marked_range_rb = gtk_radio_button_new_with_mnemonic(gtk_radio_button_group (GTK_RADIO_BUTTON (select_all_rb)), 
-	   label_text);
-#endif	
+  select_marked_range_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(select_all_rb, "From first _to last marked packet", accel_group);
   gtk_table_attach_defaults(GTK_TABLE(range_tb), select_marked_range_rb, 0, 1, 4, 5);
   gtk_tooltips_set_tip (tooltips,select_marked_range_rb,("Process all packets between the first and last marker"), NULL);
   SIGNAL_CONNECT(select_marked_range_rb, "toggled", toggle_select_marked_range, NULL);
@@ -931,14 +877,7 @@ file_save_as_cmd_cb(GtkWidget *w _U_, gpointer data _U_)
 
 
   /* Process a user specified provided packet range : -10,30,40-70,80- */
-  g_snprintf(label_text, sizeof(label_text), "Specify a packet _range:");
-#if GTK_MAJOR_VERSION < 2
-  select_user_range_rb = dlg_radio_button_new_with_label_with_mnemonic(gtk_radio_button_group (GTK_RADIO_BUTTON (select_all_rb)),
-	   label_text,accel_group);
-#else
-  select_user_range_rb = gtk_radio_button_new_with_mnemonic(gtk_radio_button_group (GTK_RADIO_BUTTON (select_all_rb)), 
-	   label_text);
-#endif		
+  select_user_range_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(select_all_rb, "Specify a packet _range:", accel_group);
   gtk_table_attach_defaults(GTK_TABLE(range_tb), select_user_range_rb, 0, 1, 5, 6);
   gtk_tooltips_set_tip (tooltips,select_user_range_rb,("Process a specified packet range"), NULL);
   SIGNAL_CONNECT(select_user_range_rb, "toggled", toggle_select_user_range, NULL);
@@ -1287,7 +1226,7 @@ color_set_export_marked_sensitive(GtkWidget * cfmark_cb)
 static void
 color_toggle_marked_cb(GtkWidget *widget, gpointer data _U_)
 {
-  color_marked = GTK_TOGGLE_BUTTON (widget)->active;
+  color_marked = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (widget));
 }
 
 void

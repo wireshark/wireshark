@@ -1,7 +1,7 @@
 /* capture_dlg.c
  * Routines for packet capture windows
  *
- * $Id: capture_dlg.c,v 1.91 2003/12/23 00:16:45 ulfl Exp $
+ * $Id: capture_dlg.c,v 1.92 2004/01/10 14:11:57 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -370,12 +370,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_container_add(GTK_CONTAINER(capture_vb), snap_hb);
   gtk_widget_show(snap_hb);
 
-#if GTK_MAJOR_VERSION < 2
-  snap_cb = dlg_check_button_new_with_label_with_mnemonic(
-		"_Limit each packet to", accel_group);
-#else
-  snap_cb = gtk_check_button_new_with_mnemonic("_Limit each packet to");
-#endif
+  snap_cb = CHECK_BUTTON_NEW_WITH_MNEMONIC("_Limit each packet to", accel_group);
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(snap_cb),
 		capture_opts.has_snaplen);
   SIGNAL_CONNECT(snap_cb, "toggled", capture_prep_adjust_sensitivity, cap_open_w);
@@ -396,13 +391,8 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_widget_show(snap_lb);
 
   /* Promiscuous mode row */
-#if GTK_MAJOR_VERSION < 2
-  promisc_cb = dlg_check_button_new_with_label_with_mnemonic(
-		"Capture packets in _promiscuous mode", accel_group);
-#else
-  promisc_cb = gtk_check_button_new_with_mnemonic(
-		"Capture packets in _promiscuous mode");
-#endif
+  promisc_cb = CHECK_BUTTON_NEW_WITH_MNEMONIC(
+      "Capture packets in _promiscuous mode", accel_group);
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(promisc_cb),
 		capture_opts.promisc_mode);
   gtk_container_add(GTK_CONTAINER(capture_vb), promisc_cb);
@@ -454,12 +444,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_container_add(GTK_CONTAINER(file_vb), ringbuffer_hb);
   gtk_widget_show(ringbuffer_hb);
 
-#if GTK_MAJOR_VERSION < 2
-  ringbuffer_on_tb = dlg_check_button_new_with_label_with_mnemonic(
-    "Use _ring buffer", accel_group);
-#else
-  ringbuffer_on_tb = gtk_check_button_new_with_mnemonic("Use _ring buffer");
-#endif
+  ringbuffer_on_tb = CHECK_BUTTON_NEW_WITH_MNEMONIC("Use _ring buffer", accel_group);
   /* Ring buffer mode is allowed only if we're not doing an "Update list of
      packets in real time" capture, so force it off if we're doing such
      a capture. */
@@ -524,13 +509,8 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_widget_show(display_vb);
 
   /* "Update display in real time" row */
-#if GTK_MAJOR_VERSION < 2
-  sync_cb = dlg_check_button_new_with_label_with_mnemonic(
-		"_Update list of packets in real time", accel_group);
-#else
-  sync_cb = gtk_check_button_new_with_mnemonic(
-		"_Update list of packets in real time");
-#endif
+  sync_cb = CHECK_BUTTON_NEW_WITH_MNEMONIC(
+      "_Update list of packets in real time", accel_group);
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(sync_cb),
 		capture_opts.sync_mode);
   SIGNAL_CONNECT(sync_cb, "toggled", capture_prep_adjust_sensitivity, cap_open_w);
@@ -538,13 +518,8 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_widget_show(sync_cb);
 
   /* "Auto-scroll live update" row */
-#if GTK_MAJOR_VERSION < 2
-  auto_scroll_cb = dlg_check_button_new_with_label_with_mnemonic(
+  auto_scroll_cb = CHECK_BUTTON_NEW_WITH_MNEMONIC(
 		"_Automatic scrolling in live capture", accel_group);
-#else
-  auto_scroll_cb = gtk_check_button_new_with_mnemonic(
-		"_Automatic scrolling in live capture");
-#endif
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(auto_scroll_cb), auto_scroll_live);
   gtk_container_add(GTK_CONTAINER(display_vb), auto_scroll_cb);
   gtk_widget_show(auto_scroll_cb);
@@ -642,37 +617,22 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_container_add(GTK_CONTAINER(resolv_fr), resolv_vb);
   gtk_widget_show(resolv_vb);
 
-#if GTK_MAJOR_VERSION < 2
-  m_resolv_cb = dlg_check_button_new_with_label_with_mnemonic(
+  m_resolv_cb = CHECK_BUTTON_NEW_WITH_MNEMONIC(
 		"Enable _MAC name resolution", accel_group);
-#else
-  m_resolv_cb = gtk_check_button_new_with_mnemonic(
-		"Enable _MAC name resolution");
-#endif
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(m_resolv_cb),
 		g_resolv_flags & RESOLV_MAC);
   gtk_container_add(GTK_CONTAINER(resolv_vb), m_resolv_cb);
   gtk_widget_show(m_resolv_cb);
 
-#if GTK_MAJOR_VERSION < 2
-  n_resolv_cb = dlg_check_button_new_with_label_with_mnemonic(
+  n_resolv_cb = CHECK_BUTTON_NEW_WITH_MNEMONIC(
 		"Enable _network name resolution", accel_group);
-#else
-  n_resolv_cb = gtk_check_button_new_with_mnemonic(
-		"Enable _network name resolution");
-#endif
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(n_resolv_cb),
 		g_resolv_flags & RESOLV_NETWORK);
   gtk_container_add(GTK_CONTAINER(resolv_vb), n_resolv_cb);
   gtk_widget_show(n_resolv_cb);
 
-#if GTK_MAJOR_VERSION < 2
-  t_resolv_cb = dlg_check_button_new_with_label_with_mnemonic(
+  t_resolv_cb = CHECK_BUTTON_NEW_WITH_MNEMONIC(
 		"Enable _transport name resolution", accel_group);
-#else
-  t_resolv_cb = gtk_check_button_new_with_mnemonic(
-		"Enable _transport name resolution");
-#endif
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(t_resolv_cb),
 		g_resolv_flags & RESOLV_TRANSPORT);
   gtk_container_add(GTK_CONTAINER(resolv_vb), t_resolv_cb);
@@ -685,22 +645,14 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_container_add(GTK_CONTAINER(main_vb), bbox);
   gtk_widget_show(bbox);
 
-#if GTK_MAJOR_VERSION < 2
-  ok_bt = gtk_button_new_with_label ("OK");
-#else
-  ok_bt = gtk_button_new_from_stock(GTK_STOCK_OK);
-#endif
+  ok_bt = BUTTON_NEW_FROM_STOCK(STOCK_OK);
   SIGNAL_CONNECT(ok_bt, "clicked", capture_prep_ok_cb, cap_open_w);
   GTK_WIDGET_SET_FLAGS(ok_bt, GTK_CAN_DEFAULT);
   gtk_box_pack_start (GTK_BOX (bbox), ok_bt, TRUE, TRUE, 0);
   gtk_widget_grab_default(ok_bt);
   gtk_widget_show(ok_bt);
 
-#if GTK_MAJOR_VERSION < 2
-  cancel_bt = gtk_button_new_with_label ("Cancel");
-#else
-  cancel_bt = gtk_button_new_from_stock(GTK_STOCK_CANCEL);
-#endif
+  cancel_bt = BUTTON_NEW_FROM_STOCK(STOCK_CANCEL);
   SIGNAL_CONNECT(cancel_bt, "clicked", capture_prep_close_cb, cap_open_w);
   GTK_WIDGET_SET_FLAGS(cancel_bt, GTK_CAN_DEFAULT);
   gtk_box_pack_start (GTK_BOX (bbox), cancel_bt, TRUE, TRUE, 0);
@@ -1194,17 +1146,17 @@ capture_prep_adjust_sensitivity(GtkWidget *tb _U_, gpointer parent_w)
     gtk_label_set_text(GTK_LABEL(filesize_lb), "kilobyte(s) captured");
   }
 
-  /* The maximum packet count spinbox is sensitive iff the "Stop capture
+  /* The maximum packet count spinbox is sensitive if the "Stop capture
      after N packets captured" checkbox is on. */
   gtk_widget_set_sensitive(GTK_WIDGET(count_sb),
       gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(count_cb)));
 
-  /* The maximum file size spinbox is sensitive iff the "Stop capture
+  /* The maximum file size spinbox is sensitive if the "Stop capture
      after N kilobytes captured" checkbox is on. */
   gtk_widget_set_sensitive(GTK_WIDGET(filesize_sb),
       gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(filesize_cb)));
 
-  /* The capture duration spinbox is sensitive iff the "Stop capture
+  /* The capture duration spinbox is sensitive if the "Stop capture
      after N seconds" checkbox is on. */
   gtk_widget_set_sensitive(GTK_WIDGET(duration_sb),
       gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(duration_cb)));
