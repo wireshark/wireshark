@@ -1,7 +1,7 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.242 2002/10/16 14:45:27 gerald Exp $
+# $Id: Makefile.nmake,v 1.243 2002/10/18 20:59:56 guy Exp $
 
 include config.nmake
 include <win32.mak>
@@ -32,6 +32,7 @@ DISSECTOR_SRC = \
 	packet-ajp13.c		\
 	packet-aodv.c  \
 	packet-aodv6.c \
+	packet-arcnet.c \
 	packet-arp.c   \
 	packet-asap.c  \
 	packet-ascend.c\
@@ -95,8 +96,8 @@ DISSECTOR_SRC = \
 	packet-dcerpc-rs_replist.c  \
 	packet-dcerpc-rs_unix.c  \
 	packet-dcerpc-rsec_login.c  \
-	packet-dcerpc-secidmap.c \
 	packet-dcerpc-samr.c \
+	packet-dcerpc-secidmap.c \
 	packet-dcerpc-spoolss.c \
 	packet-dcerpc-srvsvc.c \
 	packet-dcerpc-tapi.c \
@@ -225,9 +226,9 @@ DISSECTOR_SRC = \
 	packet-q931.c  \
 	packet-qllc.c  \
 	packet-quake.c \
-	packet-quakeworld.c \
 	packet-quake2.c \
 	packet-quake3.c \
+	packet-quakeworld.c \
 	packet-radius.c\
 	packet-ranap.c \
 	packet-raw.c   \
@@ -267,9 +268,9 @@ DISSECTOR_SRC = \
 	packet-smtp.c \
 	packet-sna.c   \
 	packet-snaeth.c \
-	packet-spnego.c \
 	packet-snmp.c	\
 	packet-socks.c \
+	packet-spnego.c \
 	packet-spray.c \
 	packet-srvloc.c \
 	packet-sscop.c \
@@ -297,12 +298,12 @@ DISSECTOR_SRC = \
 	packet-vlan.c \
 	packet-vrrp.c \
 	packet-vtp.c  \
+	packet-wap.c \
 	packet-wccp.c \
 	packet-wcp.c \
 	packet-who.c  \
-	packet-wap.c \
-	packet-wtls.c \
 	packet-wsp.c \
+	packet-wtls.c \
 	packet-wtp.c \
 	packet-x11.c	\
 	packet-x25.c   \

@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.173 2002/08/28 21:00:17 jmayer Exp $
+ * $Id: packet-ip.c,v 1.174 2002/10/18 20:59:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -44,6 +44,7 @@
 #include "ppptypes.h"
 #include "llcsaps.h"
 #include "aftypes.h"
+#include "arcnet_pids.h"
 #include "packet-ip.h"
 #include "packet-ipsec.h"
 #include "in_cksum.h"
@@ -1753,6 +1754,7 @@ proto_reg_handoff_ip(void)
 	dissector_add("chdlctype", ETHERTYPE_IP, ip_handle);
 	dissector_add("fr.ietf", NLPID_IP, ip_handle);
 	dissector_add("x.25.spi", NLPID_IP, ip_handle);
+        dissector_add("arcnet.protocol_id", ARCNET_PROTO_IP, ip_handle);
 }
 
 void

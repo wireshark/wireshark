@@ -1,7 +1,7 @@
 /* packet-arp.c
  * Routines for ARP packet disassembly
  *
- * $Id: packet-arp.c,v 1.53 2002/08/28 21:00:07 jmayer Exp $
+ * $Id: packet-arp.c,v 1.54 2002/10/18 20:59:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -33,6 +33,7 @@
 #include <epan/resolv.h>
 #include "packet-arp.h"
 #include "etypes.h"
+#include "arcnet_pids.h"
 
 static int proto_arp = -1;
 static int hf_arp_hard_type = -1;
@@ -994,4 +995,5 @@ proto_reg_handoff_arp(void)
   arp_handle = create_dissector_handle(dissect_arp, proto_arp);
   dissector_add("ethertype", ETHERTYPE_ARP, arp_handle);
   dissector_add("ethertype", ETHERTYPE_REVARP, arp_handle);
+  dissector_add("arcnet.protocol_id", ARCNET_PROTO_ARP, arp_handle);
 }

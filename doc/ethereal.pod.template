@@ -1544,6 +1544,7 @@ B<http://www.ethereal.com>.
   Lutz Jaenicke            <Lutz.Jaenicke [AT] aet.TU-Cottbus.DE>
   Senthil Kumar Nagappan   <sknagappan [AT] yahoo.com>
   Jason House              <jhouse [AT] mitre.org>
+  Peter Fales              <psfales [AT] lucent.com>
 
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to give his
 permission to use his version of snprintf.c.

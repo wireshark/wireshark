@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.507 2002/10/09 00:48:10 jmayer Exp $
+# $Id: Makefile.am,v 1.508 2002/10/18 20:59:56 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -89,6 +89,7 @@ DISSECTOR_SRC = \
 	packet-ajp13.c		\
 	packet-aodv.c  \
 	packet-aodv6.c \
+	packet-arcnet.c \
 	packet-arp.c   \
 	packet-asap.c  \
 	packet-ascend.c\
@@ -114,6 +115,7 @@ DISSECTOR_SRC = \
 	packet-cups.c  \
 	packet-data.c  \
 	packet-dccp.c \
+	packet-dcerpc.c  \
 	packet-dcerpc-afs4int.c  \
 	packet-dcerpc-bossvr.c  \
 	packet-dcerpc-browser.c  \
@@ -160,7 +162,6 @@ DISSECTOR_SRC = \
 	packet-dcerpc-ubikdisk.c \
 	packet-dcerpc-ubikvote.c \
 	packet-dcerpc-wkssvc.c \
-	packet-dcerpc.c  \
 	packet-ddtp.c  \
 	packet-dec-bpdu.c \
 	packet-dhcpv6.c \
@@ -212,11 +213,11 @@ DISSECTOR_SRC = \
 	packet-irc.c   \
 	packet-isakmp.c\
 	packet-iscsi.c \
+	packet-isis.c  \
 	packet-isis-clv.c \
 	packet-isis-hello.c \
 	packet-isis-lsp.c \
 	packet-isis-snp.c \
-	packet-isis.c  \
 	packet-isl.c   \
 	packet-isup.c  \
 	packet-iua.c   \
@@ -265,8 +266,8 @@ DISSECTOR_SRC = \
 	packet-ntlmssp.c  \
 	packet-ntp.c  \
 	packet-null.c  \
-	packet-osi-options.c \
 	packet-osi.c   \
+	packet-osi-options.c \
 	packet-ospf.c  \
 	packet-pcnfsd.c \
 	packet-pflog.c \
@@ -314,12 +315,12 @@ DISSECTOR_SRC = \
 	packet-slimp3.c   \
 	packet-sll.c   \
 	packet-slowprotocols.c \
+	packet-smb.c   \
 	packet-smb-browse.c \
 	packet-smb-common.c \
 	packet-smb-logon.c \
 	packet-smb-mailslot.c \
 	packet-smb-pipe.c \
-	packet-smb.c   \
 	packet-smpp.c \
 	packet-smtp.c \
 	packet-sna.c   \
@@ -331,8 +332,8 @@ DISSECTOR_SRC = \
 	packet-srvloc.c \
 	packet-sscop.c \
 	packet-ssl.c   \
-	packet-stat-notify.c \
 	packet-stat.c   \
+	packet-stat-notify.c \
 	packet-sua.c   \
 	packet-syslog.c \
 	packet-tacacs.c \
@@ -588,6 +589,7 @@ ETHEREAL_COMMON_SRC = \
 	afn.h          \
 	aftypes.h      \
 	alignment.h    \
+	arcnet_pids.h  \
 	asn1.c         \
 	asn1.h         \
 	bridged_pids.h \

@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-ipx.c,v 1.114 2002/10/15 04:30:58 guy Exp $
+ * $Id: packet-ipx.c,v 1.115 2002/10/18 20:59:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -37,6 +37,7 @@
 #include "ppptypes.h"
 #include "llcsaps.h"
 #include "aftypes.h"
+#include "arcnet_pids.h"
 
 /* The information in this module (IPX, SPX, NCP) comes from:
 	NetWare LAN Analysis, Second Edition
@@ -1078,14 +1079,20 @@ proto_reg_handoff_ipx(void)
 	dissector_add("llc.dsap", SAP_NETWARE, ipx_handle);
 	dissector_add("null.type", BSD_AF_IPX, ipx_handle);
 	dissector_add("gre.proto", ETHERTYPE_IPX, ipx_handle);
+        dissector_add("arcnet.protocol_id", ARCNET_PROTO_IPX, ipx_handle);
+
 	spx_handle = create_dissector_handle(dissect_spx, proto_spx);
 	dissector_add("ipx.packet_type", IPX_PACKET_TYPE_SPX, spx_handle);
+
 	ipxsap_handle = find_dissector("ipxsap");
 	dissector_add("ipx.socket", IPX_SOCKET_SAP, ipxsap_handle);
+
 	ipxrip_handle = create_dissector_handle(dissect_ipxrip, proto_ipxrip);
 	dissector_add("ipx.socket", IPX_SOCKET_IPXRIP, ipxrip_handle);
+
 	ipxmsg_handle = create_dissector_handle(dissect_ipxmsg, proto_ipxmsg);
 	dissector_add("ipx.socket", IPX_SOCKET_IPX_MESSAGE, ipxmsg_handle);
 	dissector_add("ipx.socket", IPX_SOCKET_IPX_MESSAGE1, ipxmsg_handle);
+
 	data_handle = find_dissector("data");
 }
