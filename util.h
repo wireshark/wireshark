@@ -35,7 +35,7 @@ int create_tempfile(char *, int, const char *);
  * Collect command-line arguments as a string consisting of the arguments,
  * separated by spaces.
  */
-char *get_args_as_string(int argc, char **argv, int optind);
+char *get_args_as_string(int, char **, int);
 
 /* Compute the difference between two seconds/microseconds time stamps. */
 void compute_timestamp_diff(gint *, gint *, guint32, guint32, guint32, guint32);
