@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.113 2001/09/11 05:31:45 guy Exp $
+ * $Id: packet-smb.c,v 1.114 2001/09/27 22:33:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -10193,6 +10193,39 @@ dissect_transact2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 
     offset += 1; /* Skip Word Count (WCT) */
 
+    if (WordCount == 0) {
+
+      /* Interim response. */
+
+      if (check_col(fd, COL_INFO)) {
+
+	if (request_val == NULL)
+	  col_set_str(fd, COL_INFO, "Interim response to unknown SMBtrans2");
+	else if (request_val -> last_transact2_command == -1)
+	  col_set_str(fd, COL_INFO, "Interim response to SMBtrans2 of unknown type");
+	else
+	  col_add_fstr(fd, COL_INFO, "%s interim response",
+		       val_to_str(request_val -> last_transact2_command,
+				  trans2_cmd_vals, "Unknown (0x%02X)"));
+
+      }
+
+      /* Build display for: Byte Count (BCC) */
+
+      ByteCount = GSHORT(pd, offset);
+
+      if (tree) {
+
+	proto_tree_add_text(tree, NullTVB, offset, 2, "Byte Count (BCC): %u", ByteCount);
+
+      }
+
+      offset += 2; /* Skip Byte Count (BCC) */
+
+      return;
+
+    }
+
     /* Build display for: Total Parameter Count */
 
     TotalParameterCount = GSHORT(pd, offset);
@@ -10991,8 +11024,18 @@ dissect_transact_smb(const u_char *pd, int offset, frame_data *fd,
 
     if (WordCount == 0) {
 
-      /* Interim response.
-         XXX - should we tag it as such? */
+      /* Interim response. */
+
+      if (check_col(fd, COL_INFO)) {
+	if ( request_val == NULL )
+	  col_set_str(fd, COL_INFO, "Interim response to unknown SMBtrans");
+	else if (request_val -> last_transact_command == NULL)
+	  col_set_str(fd, COL_INFO, "Interim response to SMBtrans of unknown type");
+	else
+	  col_add_fstr(fd, COL_INFO, "%s interim response",
+		       request_val -> last_transact_command);
+
+      }
 
       /* Build display for: Byte Count (BCC) */
 
