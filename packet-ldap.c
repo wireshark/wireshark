@@ -1,7 +1,7 @@
 /* packet-ldap.c
  * Routines for ldap packet dissection
  *
- * $Id: packet-ldap.c,v 1.15 2000/08/13 14:08:24 deniel Exp $
+ * $Id: packet-ldap.c,v 1.16 2000/08/24 05:40:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -311,9 +311,10 @@ static int parse_filter_strings(ASN1_SCK *a, char **filter, guint *filter_length
 {
   guchar *string;
   guchar *string2;
-  gint string_length;
-  gint string2_length;
+  guint string_length;
+  guint string2_length;
   guint string_bytes;
+  char *filterp;
   int ret;
 
   ret = asn1_octet_string_decode(a, &string, &string_length, &string_bytes);
@@ -324,7 +325,20 @@ static int parse_filter_strings(ASN1_SCK *a, char **filter, guint *filter_length
     return ret;
   *filter_length += 2 + strlen(operation) + string_length + string2_length;
   *filter = g_realloc(*filter, *filter_length);
-  sprintf(*filter + strlen(*filter), "(%.*s%s%.*s)", string_length, string, operation, string2_length, string2);
+  filterp = *filter + strlen(*filter);
+  *filterp++ = '(';
+  if (string_length != 0) {
+  	memcpy(filterp, string, string_length);
+  	filterp += string_length;
+  }
+  strcpy(filterp, operation);
+  filterp += strlen(operation);
+  if (string2_length != 0) {
+  	memcpy(filterp, string2, string2_length);
+  	filterp += string2_length;
+  }
+  *filterp++ = ')';
+  *filterp = '\0';
   g_free(string);
   g_free(string2);
   return ASN1_ERR_NOERROR;
@@ -334,8 +348,9 @@ static int parse_filter_strings(ASN1_SCK *a, char **filter, guint *filter_length
 static int parse_filter_substrings(ASN1_SCK *a, char **filter, guint *filter_length)
 {
   guchar *end;
-  guchar *string = NULL;
-  gint string_length;
+  guchar *string;
+  char *filterp;
+  guint string_length;
   guint string_bytes;
   guint seq_len;
   guint header_bytes;  
@@ -355,9 +370,17 @@ static int parse_filter_substrings(ASN1_SCK *a, char **filter, guint *filter_len
   if (ret != ASN1_ERR_NOERROR)
     return ret;
 
-  *filter_length += 2 + 1 + strlen(string);
+  *filter_length += 2 + 1 + string_length;
   *filter = g_realloc(*filter, *filter_length);
-  sprintf(*filter + strlen(*filter), "(%.*s=", string_length, string);
+  
+  filterp = *filter + strlen(*filter);
+  *filterp++ = '(';
+  if (string_length != 0) {
+    memcpy(filterp, string, string_length);
+    filterp += string_length;
+  }
+  *filterp++ = '=';
+  *filterp = '\0';
   g_free(string);
 
   /* Now decode seq_len's worth of octet strings. */
@@ -384,19 +407,24 @@ static int parse_filter_substrings(ASN1_SCK *a, char **filter, guint *filter_len
 
     /* If we have an 'any' component with a string value, we need to append
      * an extra asterisk before final component. */
-    if ((tag == 1) && (string_length > 0))
+    if ((tag == 1) && (string_length != 0))
       any_valued = 1;
 
     if ( (tag == 1) || ((tag == 2) && any_valued) )
       (*filter_length)++;
-    *filter_length += strlen(string);
+    *filter_length += string_length;
     *filter = g_realloc(*filter, *filter_length);
 
+    filterp = *filter + strlen(*filter);
     if ( (tag == 1) || ((tag == 2) && any_valued) )
-      strcat(*filter, "*");
+      *filterp++ = '*';
     if (tag == 2)
       any_valued = 0;
-    sprintf(*filter + strlen(*filter), "%.*s", string_length, string);
+    if (string_length != 0) {
+      memcpy(filterp, string, string_length);
+      filterp += string_length;
+    }
+    *filterp = '\0';
     g_free(string);
   }
 
@@ -404,11 +432,13 @@ static int parse_filter_substrings(ASN1_SCK *a, char **filter, guint *filter_len
   {
     (*filter_length)++;
     *filter = g_realloc(*filter, *filter_length);
-    strcat(*filter, "*");
+    filterp = *filter + strlen(*filter);
+    *filterp++ = '*';
   }
   
   /* NB: Allocated byte for this earlier */
-  strcat(*filter, ")");
+  *filterp++ = ')';
+  *filterp = '\0';
 
   return ASN1_ERR_NOERROR;
 }
@@ -519,6 +549,7 @@ static int parse_filter(ASN1_SCK *a, char **filter, guint *filter_length, const 
      case LDAP_FILTER_PRESENT:
       {
         guchar *string;
+        char *filterp;
     
         if (con != ASN1_PRI)
           return ASN1_ERR_WRONG_TYPE;
@@ -527,7 +558,16 @@ static int parse_filter(ASN1_SCK *a, char **filter, guint *filter_length, const 
           return ret;
         *filter_length += 4 + length;
         *filter = g_realloc(*filter, *filter_length);
-        sprintf(*filter + strlen(*filter), "(%.*s=*)", (int)length, string);
+        filterp = *filter + strlen(*filter);
+        *filterp++ = '(';
+        if (length != 0) {
+          memcpy(filterp, string, length);
+          filterp += length;
+        }
+        *filterp++ = '=';
+        *filterp++ = '*';
+        *filterp++ = ')';
+        *filterp = '\0';
         g_free(string);
       }
       break;
