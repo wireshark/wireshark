@@ -1,7 +1,7 @@
 /* packet-ldap.c
  * Routines for ldap packet dissection
  *
- * $Id: packet-ldap.c,v 1.39 2002/03/02 21:51:52 guy Exp $
+ * $Id: packet-ldap.c,v 1.40 2002/03/03 01:26:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -148,8 +148,14 @@ static int read_length(ASN1_SCK *a, proto_tree *tree, int hf_id, guint *len)
   int ret;
   
   ret = asn1_length_decode(a, &def, &length);
-  if (ret != ASN1_ERR_NOERROR)
+  if (ret != ASN1_ERR_NOERROR) {
+    if (tree) {
+      proto_tree_add_text(tree, a->tvb, start, 0,
+        "%s: ERROR: Couldn't parse length: %s",
+        proto_registrar_get_name(hf_id), asn1_err_to_str(ret));
+    }
     return ret;
+  }
 
   if (len)
     *len = length;
@@ -206,8 +212,14 @@ static int read_integer_value(ASN1_SCK *a, proto_tree *tree, int hf_id,
   int ret;
 
   ret = asn1_uint32_value_decode(a, length, &integer);
-  if (ret != ASN1_ERR_NOERROR)
+  if (ret != ASN1_ERR_NOERROR) {
+    if (tree) {
+      proto_tree_add_text(tree, a->tvb, start, 0,
+       "%s: ERROR: Couldn't parse value: %s",
+        proto_registrar_get_name(hf_id), asn1_err_to_str(ret));
+    }
     return ret;
+  }
 
   if (i)
     *i = integer;
@@ -231,10 +243,19 @@ static int read_integer(ASN1_SCK *a, proto_tree *tree, int hf_id,
   int ret;
   
   ret = asn1_header_decode(a, &cls, &con, &tag, &def, &length);
-  if (ret != ASN1_ERR_NOERROR)
+  if (ret == ASN1_ERR_NOERROR) {
+    if (cls != ASN1_UNI || con != ASN1_PRI || tag != expected_tag)
+      ret = ASN1_ERR_WRONG_TYPE;
+  }
+  if (ret != ASN1_ERR_NOERROR) {
+    if (tree) {
+      proto_tree_add_text(tree, a->tvb, start, 0,
+        "%s: ERROR: Couldn't parse header: %s",
+        (hf_id != -1) ? proto_registrar_get_name(hf_id) : "LDAP message",
+        asn1_err_to_str(ret));
+    }
     return ret;
-  if (cls != ASN1_UNI || con != ASN1_PRI || tag != expected_tag)
-    return ASN1_ERR_WRONG_TYPE;
+  }
 
   return read_integer_value(a, tree, hf_id, new_item, i, start, length);
 }
@@ -244,8 +265,17 @@ static int read_boolean_value(ASN1_SCK *a, proto_tree *tree, int hf_id,
 {
   guint integer = 0;
   proto_item *temp_item = NULL;
+  int ret;
 
-  asn1_uint32_value_decode(a, length, &integer);
+  ret = asn1_uint32_value_decode(a, length, &integer);
+  if (ret != ASN1_ERR_NOERROR) {
+    if (tree) {
+      proto_tree_add_text(tree, a->tvb, start, 0,
+        "%s: ERROR: Couldn't parse value: %s",
+        proto_registrar_get_name(hf_id), asn1_err_to_str(ret));
+    }
+    return ret;
+  }
 
   if (i)
     *i = integer;
@@ -268,10 +298,18 @@ static int read_boolean(ASN1_SCK *a, proto_tree *tree, int hf_id,
   int ret;
   
   ret = asn1_header_decode(a, &cls, &con, &tag, &def, &length);
-  if (ret != ASN1_ERR_NOERROR)
+  if (ret == ASN1_ERR_NOERROR) {
+    if (cls != ASN1_UNI || con != ASN1_PRI || tag != ASN1_BOL)
+      ret = ASN1_ERR_WRONG_TYPE;
+  }
+  if (ret != ASN1_ERR_NOERROR) {
+    if (tree) {
+      proto_tree_add_text(tree, a->tvb, start, 0,
+        "%s: ERROR: Couldn't parse header: %s",
+        proto_registrar_get_name(hf_id), asn1_err_to_str(ret));
+    }
     return ret;
-  if (cls != ASN1_UNI || con != ASN1_PRI || tag != ASN1_BOL)
-    return ASN1_ERR_WRONG_TYPE;
+  }
 
   return read_boolean_value(a, tree, hf_id, new_item, i, start, length);
 }
@@ -286,8 +324,14 @@ static int read_string_value(ASN1_SCK *a, proto_tree *tree, int hf_id,
   if (length)
   {
     ret = asn1_string_value_decode(a, length, &string);
-    if (ret != ASN1_ERR_NOERROR)
+    if (ret != ASN1_ERR_NOERROR) {
+      if (tree) {
+        proto_tree_add_text(tree, a->tvb, start, 0,
+          "%s: ERROR: Couldn't parse value: %s",
+          proto_registrar_get_name(hf_id), asn1_err_to_str(ret));
+      }
       return ret;
+    }
     string = g_realloc(string, length + 1);
     string[length] = '\0';
   }
@@ -317,10 +361,18 @@ static int read_string(ASN1_SCK *a, proto_tree *tree, int hf_id,
   int ret;
   
   ret = asn1_header_decode(a, &cls, &con, &tag, &def, &length);
-  if (ret != ASN1_ERR_NOERROR)
+  if (ret == ASN1_ERR_NOERROR) {
+    if (cls != expected_cls || con != ASN1_PRI || tag != expected_tag)
+      ret = ASN1_ERR_WRONG_TYPE;
+  }
+  if (ret != ASN1_ERR_NOERROR) {
+    if (tree) {
+      proto_tree_add_text(tree, a->tvb, start, 0,
+        "%s: ERROR: Couldn't parse header: %s",
+        proto_registrar_get_name(hf_id), asn1_err_to_str(ret));
+    }
     return ret;
-  if (cls != expected_cls || con != ASN1_PRI || tag != expected_tag)
-    return ASN1_ERR_WRONG_TYPE;
+  }
 
   return read_string_value(a, tree, hf_id, new_item, s, start, length);
 }
@@ -610,7 +662,7 @@ static int parse_filter(ASN1_SCK *a, char **filter, guint *filter_length,
     return ret;
 }
 
-static int read_filter(ASN1_SCK *a, proto_tree *tree, int hf_id)
+static gboolean read_filter(ASN1_SCK *a, proto_tree *tree, int hf_id)
 {
   int start = a->offset;
   char *filter = 0;
@@ -625,32 +677,30 @@ static int read_filter(ASN1_SCK *a, proto_tree *tree, int hf_id)
   if (tree) {
     if (ret != -1) {
       proto_tree_add_text(tree, a->tvb, start, 0,
-        "Error parsing filter: %s", asn1_err_to_str(ret));
+        "%s: ERROR: Can't parse filter: %s",
+        proto_registrar_get_name(hf_id), asn1_err_to_str(ret));
     } else
       proto_tree_add_string(tree, hf_id, a->tvb, start, a->offset-start, filter);
   }
 
   g_free(filter);
 
-  return (ret == -1) ? ASN1_ERR_NOERROR : ret;
+  return (ret == -1) ? TRUE : FALSE;
 }
 
 /********************************************************************************************/
 
-static int dissect_ldap_result(ASN1_SCK *a, proto_tree *tree)
+static void dissect_ldap_result(ASN1_SCK *a, proto_tree *tree)
 {
   guint resultCode = 0;
   int ret;
   
-  ret = read_integer(a, tree, hf_ldap_message_result, 0, &resultCode, ASN1_ENUM);
-  if (ret != ASN1_ERR_NOERROR)
-    return ret;
-  ret = read_string(a, tree, hf_ldap_message_result_matcheddn, 0, 0, ASN1_UNI, ASN1_OTS);
-  if (ret != ASN1_ERR_NOERROR)
-    return ret;
-  ret = read_string(a, tree, hf_ldap_message_result_errormsg, 0, 0, ASN1_UNI, ASN1_OTS);
-  if (ret != ASN1_ERR_NOERROR)
-    return ret;
+  if (read_integer(a, tree, hf_ldap_message_result, 0, &resultCode, ASN1_ENUM) != ASN1_ERR_NOERROR)
+    return;
+  if (read_string(a, tree, hf_ldap_message_result_matcheddn, 0, 0, ASN1_UNI, ASN1_OTS) != ASN1_ERR_NOERROR)
+    return;
+  if (read_string(a, tree, hf_ldap_message_result_errormsg, 0, 0, ASN1_UNI, ASN1_OTS) != ASN1_ERR_NOERROR)
+    return;
 
   if (resultCode == 10)		/* Referral */
   {
@@ -661,117 +711,127 @@ static int dissect_ldap_result(ASN1_SCK *a, proto_tree *tree)
     proto_tree *referralTree;
     
     ret = read_sequence(a, &length);
-    if (ret != ASN1_ERR_NOERROR)
-      return ret;
+    if (ret != ASN1_ERR_NOERROR) {
+      if (tree) {
+        proto_tree_add_text(tree, a->tvb, start, 0,
+            "ERROR: Couldn't parse referral URL sequence header: %s",
+            asn1_err_to_str(ret));
+      }
+      return;
+    }
     ti = proto_tree_add_text(tree, a->tvb, start, length, "Referral URLs");
     referralTree = proto_item_add_subtree(ti, ett_ldap_referrals);
 
     end = a->offset + length;
     while (a->offset < end) {
-      ret = read_string(a, referralTree, hf_ldap_message_result_referral, 0, 0, ASN1_UNI, ASN1_OTS);
-      if (ret != ASN1_ERR_NOERROR)
-        return ret;
+      if (read_string(a, referralTree, hf_ldap_message_result_referral, 0, 0, ASN1_UNI, ASN1_OTS) != ASN1_ERR_NOERROR)
+        return;
     }
   }
-    
-  return ASN1_ERR_NOERROR;
 }
 
-static int dissect_ldap_request_bind(ASN1_SCK *a, proto_tree *tree)
+static void dissect_ldap_request_bind(ASN1_SCK *a, proto_tree *tree)
 {
   guint cls, con, tag;
   guint def, length;
   int start;
   int ret;
 
-  ret = read_integer(a, tree, hf_ldap_message_bind_version, 0, 0, ASN1_INT);
-  if (ret != ASN1_ERR_NOERROR)
-    return ret;
-  ret = read_string(a, tree, hf_ldap_message_bind_dn, 0, 0, ASN1_UNI, ASN1_OTS);
-  if (ret != ASN1_ERR_NOERROR)
-    return ret;
+  if (read_integer(a, tree, hf_ldap_message_bind_version, 0, 0, ASN1_INT) != ASN1_ERR_NOERROR)
+    return;
+  if (read_string(a, tree, hf_ldap_message_bind_dn, 0, 0, ASN1_UNI, ASN1_OTS) != ASN1_ERR_NOERROR)
+    return;
 
   start = a->offset;
   ret = asn1_header_decode(a, &cls, &con, &tag, &def, &length);
-  if (ret != ASN1_ERR_NOERROR)
-    return ret;
-  if (cls != ASN1_CTX)
-    return ASN1_ERR_WRONG_TYPE;	/* RFCs 1777 and 2251 say these are context-specific types */
+  if (ret == ASN1_ERR_NOERROR) {
+    if (cls != ASN1_CTX) {
+      /* RFCs 1777 and 2251 say these are context-specific types */
+      ret = ASN1_ERR_WRONG_TYPE;
+    }
+  }
+  if (ret != ASN1_ERR_NOERROR) {
+    proto_tree_add_text(tree, a->tvb, start, 0,
+      "%s: ERROR: Couldn't parse header: %s",
+      proto_registrar_get_name(hf_ldap_message_bind_auth),
+      asn1_err_to_str(ret));
+    return;
+  }
   proto_tree_add_uint(tree, hf_ldap_message_bind_auth, a->tvb, start,
 			a->offset - start, tag);
   switch (tag)
   {
    case LDAP_AUTH_SIMPLE:
-    ret = read_string_value(a, tree, hf_ldap_message_bind_auth_password, NULL,
-			    NULL, start, length);
-    if (ret != ASN1_ERR_NOERROR)
-      return ret;
+    if (read_string_value(a, tree, hf_ldap_message_bind_auth_password, NULL,
+                          NULL, start, length) != ASN1_ERR_NOERROR)
+      return;
     break;
 
     /* For Kerberos V4, dissect it as a ticket. */
     /* For SASL, dissect it as SaslCredentials. */
   }
-  
-  return ASN1_ERR_NOERROR;
 }
 
-static int dissect_ldap_response_bind(ASN1_SCK *a, proto_tree *tree)
+static void dissect_ldap_response_bind(ASN1_SCK *a, proto_tree *tree)
 {
   /* FIXME: handle SASL data */
-  return dissect_ldap_result(a, tree);
+  dissect_ldap_result(a, tree);
 }
 
-static int dissect_ldap_request_search(ASN1_SCK *a, proto_tree *tree)
+static void dissect_ldap_request_search(ASN1_SCK *a, proto_tree *tree)
 {
   guint seq_length;
   int end;
   int ret;
   
-  ret = read_string(a, tree, hf_ldap_message_search_base, 0, 0, ASN1_UNI, ASN1_OTS);
-  if (ret != ASN1_ERR_NOERROR)
-    return ret;
-  ret = read_integer(a, tree, hf_ldap_message_search_scope, 0, 0, ASN1_ENUM);
-  if (ret != ASN1_ERR_NOERROR)
-    return ret;
-  ret = read_integer(a, tree, hf_ldap_message_search_deref, 0, 0, ASN1_ENUM);
-  if (ret != ASN1_ERR_NOERROR)
-    return ret;
-  ret = read_integer(a, tree, hf_ldap_message_search_sizeLimit, 0, 0, ASN1_INT);
-  if (ret != ASN1_ERR_NOERROR)
-    return ret;
-  ret = read_integer(a, tree, hf_ldap_message_search_timeLimit, 0, 0, ASN1_INT);
-  if (ret != ASN1_ERR_NOERROR)
-    return ret;
-  ret = read_boolean(a, tree, hf_ldap_message_search_typesOnly, 0, 0);
-  if (ret != ASN1_ERR_NOERROR)
-    return ret;
-  ret = read_filter(a, tree, hf_ldap_message_search_filter);
-  if (ret != ASN1_ERR_NOERROR)
-    return ret;
+  if (read_string(a, tree, hf_ldap_message_search_base, 0, 0, ASN1_UNI, ASN1_OTS) != ASN1_ERR_NOERROR)
+    return;
+  if (read_integer(a, tree, hf_ldap_message_search_scope, 0, 0, ASN1_ENUM) != ASN1_ERR_NOERROR)
+    return;
+  if (read_integer(a, tree, hf_ldap_message_search_deref, 0, 0, ASN1_ENUM) != ASN1_ERR_NOERROR)
+    return;
+  if (read_integer(a, tree, hf_ldap_message_search_sizeLimit, 0, 0, ASN1_INT) != ASN1_ERR_NOERROR)
+    return;
+  if (read_integer(a, tree, hf_ldap_message_search_timeLimit, 0, 0, ASN1_INT) != ASN1_ERR_NOERROR)
+    return;
+  if (read_boolean(a, tree, hf_ldap_message_search_typesOnly, 0, 0) != ASN1_ERR_NOERROR)
+    return;
+  if (!read_filter(a, tree, hf_ldap_message_search_filter))
+    return;
   ret = read_sequence(a, &seq_length);
-  if (ret != ASN1_ERR_NOERROR)
-    return ret;
+  if (ret != ASN1_ERR_NOERROR) {
+    if (tree) {
+      proto_tree_add_text(tree, a->tvb, a->offset, 0,
+          "ERROR: Couldn't parse LDAP attribute sequence header: %s",
+          asn1_err_to_str(ret));
+    }
+    return;
+  }
   end = a->offset + seq_length;
   while (a->offset < end) {
-    ret = read_string(a, tree, hf_ldap_message_attribute, 0, 0, ASN1_UNI, ASN1_OTS);
-    if (ret != ASN1_ERR_NOERROR)
-      return ret;
+    if (read_string(a, tree, hf_ldap_message_attribute, 0, 0, ASN1_UNI,
+                    ASN1_OTS) != ASN1_ERR_NOERROR)
+      return;
   }
-  return ASN1_ERR_NOERROR;
 }
 
-static int dissect_ldap_response_search_entry(ASN1_SCK *a, proto_tree *tree)
+static void dissect_ldap_response_search_entry(ASN1_SCK *a, proto_tree *tree)
 {
   guint seq_length;
   int end_of_sequence;
   int ret;
  
-  ret = read_string(a, tree, hf_ldap_message_dn, 0, 0, ASN1_UNI, ASN1_OTS);
-  if (ret != ASN1_ERR_NOERROR)
-    return ret;
+  if (read_string(a, tree, hf_ldap_message_dn, 0, 0, ASN1_UNI, ASN1_OTS) != ASN1_ERR_NOERROR)
+    return;
   ret = read_sequence(a, &seq_length);
-  if (ret != ASN1_ERR_NOERROR)
-    return ret;
+  if (ret != ASN1_ERR_NOERROR) {
+    if (tree) {
+      proto_tree_add_text(tree, a->tvb, a->offset, 0,
+          "ERROR: Couldn't parse search entry response sequence header: %s",
+          asn1_err_to_str(ret));
+    }
+    return;
+  }
 
   end_of_sequence = a->offset + seq_length;
   while (a->offset < end_of_sequence)
@@ -782,40 +842,55 @@ static int dissect_ldap_response_search_entry(ASN1_SCK *a, proto_tree *tree)
     int end_of_set;
 
     ret = read_sequence(a, 0);
-    if (ret != ASN1_ERR_NOERROR)
-      return ret;
-    ret = read_string(a, tree, hf_ldap_message_attribute, &ti, 0, ASN1_UNI, ASN1_OTS);
-    if (ret != ASN1_ERR_NOERROR)
-      return ret;
+    if (ret != ASN1_ERR_NOERROR) {
+      if (tree) {
+        proto_tree_add_text(tree, a->tvb, a->offset, 0,
+            "ERROR: Couldn't parse LDAP attribute sequence header: %s",
+            asn1_err_to_str(ret));
+      }
+      return;
+    }
+    if (read_string(a, tree, hf_ldap_message_attribute, &ti, 0, ASN1_UNI, ASN1_OTS) != ASN1_ERR_NOERROR)
+      return;
     attr_tree = proto_item_add_subtree(ti, ett_ldap_attribute);
 
     ret = read_set(a, &set_length);
-    if (ret != ASN1_ERR_NOERROR)
-      return ret;
+    if (ret != ASN1_ERR_NOERROR) {
+      if (tree) {
+        proto_tree_add_text(attr_tree, a->tvb, a->offset, 0,
+            "ERROR: Couldn't parse LDAP value set header: %s",
+            asn1_err_to_str(ret));
+      }
+      return;
+    }
     end_of_set = a->offset + set_length;
     while (a->offset < end_of_set) {
-      ret = read_string(a, attr_tree, hf_ldap_message_value, 0, 0, ASN1_UNI, ASN1_OTS);
-      if (ret != ASN1_ERR_NOERROR)
-        return ret;
+      if (read_string(a, attr_tree, hf_ldap_message_value, 0, 0, ASN1_UNI,
+                      ASN1_OTS) != ASN1_ERR_NOERROR)
+        return;
     }
   }
-
-  return ASN1_ERR_NOERROR;
 }
 
-static int dissect_ldap_request_add(ASN1_SCK *a, proto_tree *tree)
+static void dissect_ldap_request_add(ASN1_SCK *a, proto_tree *tree)
 {
   guint seq_length;
   int end_of_sequence;
   int ret;
   
-  ret = read_string(a, tree, hf_ldap_message_dn, 0, 0, ASN1_UNI, ASN1_OTS);
-  if (ret != ASN1_ERR_NOERROR)
-    return ret;
+  if (read_string(a, tree, hf_ldap_message_dn, 0, 0, ASN1_UNI, ASN1_OTS) != ASN1_ERR_NOERROR)
+    return;
 
   ret = read_sequence(a, &seq_length);
-  if (ret != ASN1_ERR_NOERROR)
-    return ret;
+  if (ret != ASN1_ERR_NOERROR) {
+    if (tree) {
+      proto_tree_add_text(tree, a->tvb, a->offset, 0,
+          "ERROR: Couldn't parse add request sequence header: %s",
+          asn1_err_to_str(ret));
+    }
+    return;
+  }
+
   end_of_sequence = a->offset + seq_length;
   while (a->offset < end_of_sequence)
   {
@@ -825,60 +900,63 @@ static int dissect_ldap_request_add(ASN1_SCK *a, proto_tree *tree)
     int end_of_set;
 
     ret = read_sequence(a, 0);
-    if (ret != ASN1_ERR_NOERROR)
-      return ret;
-    ret = read_string(a, tree, hf_ldap_message_attribute, &ti, 0, ASN1_UNI, ASN1_OTS);
-    if (ret != ASN1_ERR_NOERROR)
-      return ret;
+    if (ret != ASN1_ERR_NOERROR) {
+      if (tree) {
+        proto_tree_add_text(tree, a->tvb, a->offset, 0,
+            "ERROR: Couldn't parse LDAP attribute sequence header: %s",
+            asn1_err_to_str(ret));
+      }
+      return;
+    }
+    if (read_string(a, tree, hf_ldap_message_attribute, &ti, 0, ASN1_UNI,
+                    ASN1_OTS) != ASN1_ERR_NOERROR)
+      return;
     attr_tree = proto_item_add_subtree(ti, ett_ldap_attribute);
 
     ret = read_set(a, &set_length);
-    if (ret != ASN1_ERR_NOERROR)
-      return ret;
+    if (ret != ASN1_ERR_NOERROR) {
+      if (tree) {
+        proto_tree_add_text(attr_tree, a->tvb, a->offset, 0,
+            "ERROR: Couldn't parse LDAP value set header: %s",
+            asn1_err_to_str(ret));
+      }
+      return;
+    }
     end_of_set = a->offset + set_length;
     while (a->offset < end_of_set) {
-      ret = read_string(a, attr_tree, hf_ldap_message_value, 0, 0, ASN1_UNI, ASN1_OTS);
-      if (ret != ASN1_ERR_NOERROR)
-        return ret;
+      if (read_string(a, attr_tree, hf_ldap_message_value, 0, 0, ASN1_UNI, ASN1_OTS) != ASN1_ERR_NOERROR)
+        return;
     }
   }
-
-  return ASN1_ERR_NOERROR;
 }
 
-static int dissect_ldap_request_delete(ASN1_SCK *a, proto_tree *tree,
+static void dissect_ldap_request_delete(ASN1_SCK *a, proto_tree *tree,
 		int start, guint length)
 {
-  return read_string_value(a, tree, hf_ldap_message_dn, NULL, NULL, start, length);
+  read_string_value(a, tree, hf_ldap_message_dn, NULL, NULL, start, length);
 }
 
-static int dissect_ldap_request_modifyrdn(ASN1_SCK *a, proto_tree *tree,
+static void dissect_ldap_request_modifyrdn(ASN1_SCK *a, proto_tree *tree,
 		guint length)
 {
   int start = a->offset;
   int ret;
 
-  ret = read_string(a, tree, hf_ldap_message_dn, 0, 0, ASN1_UNI, ASN1_OTS);
-  if (ret != ASN1_ERR_NOERROR)
-    return ret;
-  ret = read_string(a, tree, hf_ldap_message_modrdn_name, 0, 0, ASN1_UNI, ASN1_OTS);
-  if (ret != ASN1_ERR_NOERROR)
-    return ret;
-  ret = read_boolean(a, tree, hf_ldap_message_modrdn_delete, 0, 0);
-  if (ret != ASN1_ERR_NOERROR)
-    return ret;
+  if (read_string(a, tree, hf_ldap_message_dn, 0, 0, ASN1_UNI, ASN1_OTS) != ASN1_ERR_NOERROR)
+    return;
+  if (read_string(a, tree, hf_ldap_message_modrdn_name, 0, 0, ASN1_UNI, ASN1_OTS) != ASN1_ERR_NOERROR)
+    return;
+  if (read_boolean(a, tree, hf_ldap_message_modrdn_delete, 0, 0) != ASN1_ERR_NOERROR)
+    return;
   
   if (a->offset < (int) (start + length)) {
     /* LDAP V3 Modify DN operation, with newSuperior */
-    ret = read_string(a, tree, hf_ldap_message_modrdn_superior, 0, 0, ASN1_UNI, ASN1_OTS);
-    if (ret != ASN1_ERR_NOERROR)
-      return ret;
+    if (read_string(a, tree, hf_ldap_message_modrdn_superior, 0, 0, ASN1_UNI, ASN1_OTS) != ASN1_ERR_NOERROR)
+      return;
   }
-
-  return ASN1_ERR_NOERROR;
 }
 
-static int dissect_ldap_request_compare(ASN1_SCK *a, proto_tree *tree)
+static void dissect_ldap_request_compare(ASN1_SCK *a, proto_tree *tree)
 {
   int start;
   int length;
@@ -887,20 +965,35 @@ static int dissect_ldap_request_compare(ASN1_SCK *a, proto_tree *tree)
   char *compare;
   int ret;
   
-  ret = read_string(a, tree, hf_ldap_message_dn, 0, 0, ASN1_UNI, ASN1_OTS);
-  if (ret != ASN1_ERR_NOERROR)
-    return ret;
+  if (read_string(a, tree, hf_ldap_message_dn, 0, 0, ASN1_UNI, ASN1_OTS) != ASN1_ERR_NOERROR)
+    return;
   ret = read_sequence(a, 0);
-  if (ret != ASN1_ERR_NOERROR)
-    return ret;
+  if (ret != ASN1_ERR_NOERROR) {
+    if (tree) {
+      proto_tree_add_text(tree, a->tvb, a->offset, 0,
+          "ERROR: Couldn't parse compare request sequence header: %s",
+          asn1_err_to_str(ret));
+    }
+    return;
+  }
 
   start = a->offset;
   ret = read_string(a, 0, -1, 0, &string1, ASN1_UNI, ASN1_OTS);
-  if (ret != ASN1_ERR_NOERROR)
-    return ret;
+  if (ret != ASN1_ERR_NOERROR) {
+    if (tree) {
+      proto_tree_add_text(tree, a->tvb, start, 0,
+        "ERROR: Couldn't parse compare type: %s", asn1_err_to_str(ret));
+    }
+    return;
+  }
   ret = read_string(a, 0, -1, 0, &string2, ASN1_UNI, ASN1_OTS);
-  if (ret != ASN1_ERR_NOERROR)
-    return ret;
+  if (ret != ASN1_ERR_NOERROR) {
+    if (tree) {
+      proto_tree_add_text(tree, a->tvb, start, 0,
+        "ERROR: Couldn't parse compare value: %s", asn1_err_to_str(ret));
+    }
+    return;
+  }
 
   length = 2 + strlen(string1) + strlen(string2);
   compare = g_malloc0(length);
@@ -912,21 +1005,26 @@ static int dissect_ldap_request_compare(ASN1_SCK *a, proto_tree *tree)
   g_free(string2);
   g_free(compare);
   
-  return ASN1_ERR_NOERROR;
+  return;
 }
 
-static int dissect_ldap_request_modify(ASN1_SCK *a, proto_tree *tree)
+static void dissect_ldap_request_modify(ASN1_SCK *a, proto_tree *tree)
 {
   guint seq_length;
   int end_of_sequence;
   int ret;
   
-  ret = read_string(a, tree, hf_ldap_message_dn, 0, 0, ASN1_UNI, ASN1_OTS);
-  if (ret != ASN1_ERR_NOERROR)
-    return ret;
+  if (read_string(a, tree, hf_ldap_message_dn, 0, 0, ASN1_UNI, ASN1_OTS) != ASN1_ERR_NOERROR)
+    return;
   ret = read_sequence(a, &seq_length);
-  if (ret != ASN1_ERR_NOERROR)
-    return ret;
+  if (ret != ASN1_ERR_NOERROR) {
+    if (tree) {
+      proto_tree_add_text(tree, a->tvb, a->offset, 0,
+          "ERROR: Couldn't parse modify request sequence header: %s",
+          asn1_err_to_str(ret));
+    }
+    return;
+  }
   end_of_sequence = a->offset + seq_length;
   while (a->offset < end_of_sequence)
   {
@@ -937,60 +1035,82 @@ static int dissect_ldap_request_modify(ASN1_SCK *a, proto_tree *tree)
     guint operation;
 
     ret = read_sequence(a, 0);
-    if (ret != ASN1_ERR_NOERROR)
-      return ret;
+    if (ret != ASN1_ERR_NOERROR) {
+      if (tree) {
+        proto_tree_add_text(tree, a->tvb, a->offset, 0,
+            "ERROR: Couldn't parse modify request item sequence header: %s",
+            asn1_err_to_str(ret));
+      }
+      return;
+    }
     ret = read_integer(a, 0, -1, 0, &operation, ASN1_ENUM);
-    if (ret != ASN1_ERR_NOERROR)
-      return ret;
+    if (ret != ASN1_ERR_NOERROR) {
+      if (tree) {
+        proto_tree_add_text(tree, a->tvb, a->offset, 0,
+          "ERROR: Couldn't parse modify operation: %s",
+          asn1_err_to_str(ret));
+        return;
+      }
+    }
     ret = read_sequence(a, 0);
-    if (ret != ASN1_ERR_NOERROR)
-      return ret;
+    if (ret != ASN1_ERR_NOERROR) {
+      if (tree) {
+        proto_tree_add_text(tree, a->tvb, a->offset, 0,
+            "ERROR: Couldn't parse modify request operation sequence header: %s",
+            asn1_err_to_str(ret));
+      }
+      return;
+    }
 
     switch (operation)
     {
      case LDAP_MOD_ADD:
-      ret = read_string(a, tree, hf_ldap_message_modify_add, &ti, 0, ASN1_UNI, ASN1_OTS);
-      if (ret != ASN1_ERR_NOERROR)
-        return ret;
+      if (read_string(a, tree, hf_ldap_message_modify_add, &ti, 0, ASN1_UNI,
+                      ASN1_OTS) != ASN1_ERR_NOERROR)
+        return;
       break;
 
      case LDAP_MOD_REPLACE:
-      ret = read_string(a, tree, hf_ldap_message_modify_replace, &ti, 0, ASN1_UNI, ASN1_OTS);
-      if (ret != ASN1_ERR_NOERROR)
-        return ret;
+      if (read_string(a, tree, hf_ldap_message_modify_replace, &ti, 0,
+                      ASN1_UNI, ASN1_OTS) != ASN1_ERR_NOERROR)
+        return;
       break;
 
      case LDAP_MOD_DELETE:
-      ret = read_string(a, tree, hf_ldap_message_modify_delete, &ti, 0, ASN1_UNI, ASN1_OTS);
-      if (ret != ASN1_ERR_NOERROR)
-        return ret;
+      if (read_string(a, tree, hf_ldap_message_modify_delete, &ti, 0,
+                      ASN1_UNI, ASN1_OTS) != ASN1_ERR_NOERROR)
+        return;
       break;
 
      default:
        proto_tree_add_text(tree, a->tvb, a->offset, 0,
             "Unknown LDAP modify operation (%u)", operation);
-       return ASN1_ERR_NOERROR;
+       return;
     }
     attr_tree = proto_item_add_subtree(ti, ett_ldap_attribute);
 
     ret = read_set(a, &set_length);
-    if (ret != ASN1_ERR_NOERROR)
-      return ret;
+    if (ret != ASN1_ERR_NOERROR) {
+      if (tree) {
+        proto_tree_add_text(attr_tree, a->tvb, a->offset, 0,
+            "ERROR: Couldn't parse LDAP value set header: %s",
+            asn1_err_to_str(ret));
+      }
+      return;
+    }
     end_of_set = a->offset + set_length;
     while (a->offset < end_of_set) {
-      ret = read_string(a, attr_tree, hf_ldap_message_value, 0, 0, ASN1_UNI, ASN1_OTS);
-      if (ret != ASN1_ERR_NOERROR)
-        return ret;
+      if (read_string(a, attr_tree, hf_ldap_message_value, 0, 0, ASN1_UNI,
+                      ASN1_OTS) != ASN1_ERR_NOERROR)
+        return;
     }
   }
-
-  return ASN1_ERR_NOERROR;
 }
 
-static int dissect_ldap_request_abandon(ASN1_SCK *a, proto_tree *tree,
+static void dissect_ldap_request_abandon(ASN1_SCK *a, proto_tree *tree,
 		int start, guint length)
 {
-  return read_integer_value(a, tree, hf_ldap_message_abandon_msgid, NULL, NULL,
+  read_integer_value(a, tree, hf_ldap_message_abandon_msgid, NULL, NULL,
 			    start, length); 
 }
 
@@ -1030,7 +1150,11 @@ dissect_ldap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         if (check_col(pinfo->cinfo, COL_PROTOCOL))
           col_set_str(pinfo->cinfo, COL_PROTOCOL, "LDAP");
         if (check_col(pinfo->cinfo, COL_INFO))
-          col_set_str(pinfo->cinfo, COL_INFO, "Invalid LDAP packet");
+        {
+          col_add_fstr(pinfo->cinfo, COL_INFO,
+                      "Invalid LDAP message (Can't parse sequence header: %s)",
+                      asn1_err_to_str(ret));
+        }
       }
       if (tree)
       {
@@ -1038,7 +1162,8 @@ dissect_ldap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			         FALSE);
         ldap_tree = proto_item_add_subtree(ti, ett_ldap);
         proto_tree_add_text(ldap_tree, tvb, message_start, -1,
-			    "Invalid LDAP packet");
+			    "Invalid LDAP message (Can't parse sequence header: %s)",
+			    asn1_err_to_str(ret));
       }
       break;
     }
@@ -1081,14 +1206,16 @@ dissect_ldap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     message_id_start = a.offset;
-    ret = read_integer(&a, 0, -1, 0, &messageId, ASN1_INT);
+    ret = read_integer(&a, 0, hf_ldap_message_id, 0, &messageId, ASN1_INT);
     if (ret != ASN1_ERR_NOERROR)
     {
       if (first_time && check_col(pinfo->cinfo, COL_INFO))
-        col_set_str(pinfo->cinfo, COL_INFO, "Invalid LDAP packet (No Message ID)");
+        col_add_fstr(pinfo->cinfo, COL_INFO, "Invalid LDAP packet (Can't parse Message ID: %s)",
+                    asn1_err_to_str(ret));
       if (ldap_tree)
         proto_tree_add_text(ldap_tree, tvb, message_id_start, 1,
-                            "Invalid LDAP packet (No Message ID)");
+                            "Invalid LDAP packet (Can't parse Message ID: %s)",
+                            asn1_err_to_str(ret));
       break;
     }
     message_id_length = a.offset - message_id_start;
@@ -1116,56 +1243,50 @@ dissect_ldap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       ti = proto_tree_add_text(ldap_tree, tvb, message_id_start, messageLength, "Message: Id=%u  %s", messageId, typestr);
       msg_tree = proto_item_add_subtree(ti, ett_ldap_message);
       start = a.offset;
-      ret = read_length(&a, msg_tree, hf_ldap_message_length, &opLen);
-      if (ret != ASN1_ERR_NOERROR) {
-        proto_tree_add_text(msg_tree, a.tvb, start, 0,
-          "Error parsing length: %s", asn1_err_to_str(ret));
+      if (read_length(&a, msg_tree, hf_ldap_message_length, &opLen) != ASN1_ERR_NOERROR)
         return;
-      }
 
       if (protocolOpCls != ASN1_APL)
       {
         proto_tree_add_text(msg_tree, a.tvb, a.offset, opLen,
 			    "%s", typestr);
-        ret = ASN1_ERR_NOERROR;
       }
       else
       {
         switch (protocolOpTag)
         {
          case LDAP_REQ_BIND:
-          ret = dissect_ldap_request_bind(&a, msg_tree);
+          dissect_ldap_request_bind(&a, msg_tree);
           break;
          case LDAP_REQ_UNBIND:
           /* Nothing to dissect */
-	  ret = ASN1_ERR_NOERROR;
           break;
          case LDAP_REQ_SEARCH:
-          ret = dissect_ldap_request_search(&a, msg_tree);
+          dissect_ldap_request_search(&a, msg_tree);
           break;
          case LDAP_REQ_MODIFY:
-          ret = dissect_ldap_request_modify(&a, msg_tree);
+          dissect_ldap_request_modify(&a, msg_tree);
           break;
          case LDAP_REQ_ADD:
-          ret = dissect_ldap_request_add(&a, msg_tree);
+          dissect_ldap_request_add(&a, msg_tree);
           break;
          case LDAP_REQ_DELETE:
-          ret = dissect_ldap_request_delete(&a, msg_tree, start, opLen);
+          dissect_ldap_request_delete(&a, msg_tree, start, opLen);
           break;
          case LDAP_REQ_MODRDN:
-          ret = dissect_ldap_request_modifyrdn(&a, msg_tree, opLen);
+          dissect_ldap_request_modifyrdn(&a, msg_tree, opLen);
           break;
          case LDAP_REQ_COMPARE:
-          ret = dissect_ldap_request_compare(&a, msg_tree);
+          dissect_ldap_request_compare(&a, msg_tree);
           break;
          case LDAP_REQ_ABANDON:
-          ret = dissect_ldap_request_abandon(&a, msg_tree, start, opLen);
+          dissect_ldap_request_abandon(&a, msg_tree, start, opLen);
           break;
          case LDAP_RES_BIND:
-          ret = dissect_ldap_response_bind(&a, msg_tree);
+          dissect_ldap_response_bind(&a, msg_tree);
           break;
          case LDAP_RES_SEARCH_ENTRY:
-          ret = dissect_ldap_response_search_entry(&a, msg_tree);
+          dissect_ldap_response_search_entry(&a, msg_tree);
           break;
          case LDAP_RES_SEARCH_RESULT:
          case LDAP_RES_MODIFY:
@@ -1173,20 +1294,13 @@ dissect_ldap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
          case LDAP_RES_DELETE:
          case LDAP_RES_MODRDN:
          case LDAP_RES_COMPARE:
-          ret = dissect_ldap_result(&a, msg_tree);
+          dissect_ldap_result(&a, msg_tree);
           break;
          default:
           proto_tree_add_text(msg_tree, a.tvb, a.offset, opLen,
 			      "Unknown LDAP operation (%u)", protocolOpTag);
-          ret = ASN1_ERR_NOERROR;
           break;
         }
-      }
-
-      if (ret != ASN1_ERR_NOERROR) {
-        proto_tree_add_text(msg_tree, a.tvb, start, 0,
-          "Error parsing message: %s", asn1_err_to_str(ret));
-        return;
       }
     }
 
