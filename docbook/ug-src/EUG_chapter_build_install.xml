@@ -285,22 +285,22 @@ apt-get install ethereal
 	    version of UNIX uses GNU <command>tar</command>, you can use the 
 	    following command:
 	    <programlisting>
-tar zxvf ethereal-&EtherealCurrentVersionTarFile;-tar.gz
+tar zxvf ethereal-&EtherealCurrentVersion;-tar.gz
 	    </programlisting>
 	  </para>
 	  <para>
 	    For other versions of UNIX, You will want to use the following 
 	    commands:
 	    <programlisting>
-gzip -d ethereal-&EtherealCurrentVersionTarFile;-tar.gz
-tar xvf ethereal-&EtherealCurrentVersionTarFile;-tar
+gzip -d ethereal-&EtherealCurrentVersion;-tar.gz
+tar xvf ethereal-&EtherealCurrentVersion;-tar
 	    </programlisting>
 	    <note>
 	      <title>Note!</title>
 	      <para>
 		The pipeline 
 		<command>
-		  gzip -dc ethereal-&EtherealCurrentVersionTarFile;-tar.gz | tar xvf -
+		  gzip -dc ethereal-&EtherealCurrentVersion;-tar.gz | tar xvf -
 		</command> will work here as well.
 	      </para>
 	    </note>
