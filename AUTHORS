@@ -1788,6 +1788,7 @@ Oleg Terletsky <oleg.terletsky [AT] comverse.com> {
 Michael Lum <mlum [AT] telostech.com> {
 	Support for saving list of disabled protocols
 	ANSI TCAP support
+	ANSI MAP support
 }
 
 Shiang-Ming Huang <smhuang [AT] pcs.csie.nctu.edu.tw> {
