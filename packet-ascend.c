@@ -1,7 +1,7 @@
 /* packet-ascend.c
  * Routines for decoding Lucent/Ascend packet traces
  *
- * $Id: packet-ascend.c,v 1.17 2000/08/13 14:08:00 deniel Exp $
+ * $Id: packet-ascend.c,v 1.18 2000/08/20 19:16:39 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -77,7 +77,8 @@ dissect_ascend(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /* populate a tree in the second pane with the status of the link
      layer (ie none) */
   if(tree) {
-    ti = proto_tree_add_text(tree, tvb, 0, 0, "Lucent/Ascend packet trace" );
+    ti = proto_tree_add_protocol_format(tree, proto_ascend, tvb, 0, 0,
+					"Lucent/Ascend packet trace");
     fh_tree = proto_item_add_subtree(ti, ett_raw);
     proto_tree_add_uint(fh_tree, hf_link_type, tvb, 0, 0, 
 			pseudo_header->ascend.type);
