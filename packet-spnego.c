@@ -5,7 +5,7 @@
  * Copyright 2002, Richard Sharpe <rsharpe@ns.aus.com>
  * Copyright 2003, Richard Sharpe <rsharpe@richardsharpe.com>
  *
- * $Id: packet-spnego.c,v 1.48 2003/05/25 00:59:15 sharpe Exp $
+ * $Id: packet-spnego.c,v 1.49 2003/05/26 20:44:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -219,6 +219,7 @@ static int
 dissect_spnego_krb5_getmic_base(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
 static int
 dissect_spnego_krb5_wrap_base(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
+
 static void
 dissect_spnego_krb5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -228,7 +229,7 @@ dissect_spnego_krb5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	ASN1_SCK hnd;
 	gboolean def;
 	guint len1, cls, con, tag, oid_len, nbytes;
-	guint16 token_id = 0;
+	guint16 token_id;
 	subid_t *oid;
 	gchar *oid_string;
 	gssapi_oid_value *value;
@@ -323,8 +324,8 @@ dissect_spnego_krb5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/* Next, the token ID ... */
 
 		token_id = tvb_get_letohs(tvb, offset);
-		proto_tree_add_item(subtree, hf_spnego_krb5_tok_id, tvb, offset, 2,
-				    TRUE);
+		proto_tree_add_uint(subtree, hf_spnego_krb5_tok_id, tvb, offset, 2,
+				    token_id);
 
 		hnd.offset += 2;
 
@@ -334,7 +335,13 @@ dissect_spnego_krb5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	    case 14:	/* [APPLICATION 14] */
 	    case 15:	/* [APPLICATION 15] */
-		break;
+		/*
+		 * No token ID - just dissect as a Kerberos message and
+		 * return.
+		 */
+		krb5_tvb = tvb_new_subset(tvb, offset, -1, -1); 
+		offset = dissect_kerberos_main(krb5_tvb, pinfo, subtree, FALSE);
+		return;
 
 	    default:
 		proto_tree_add_text(subtree, tvb, offset, 0,
@@ -346,8 +353,8 @@ dissect_spnego_krb5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    /* Next, the token ID ... */
 
 	    token_id = tvb_get_letohs(tvb, offset);
-	    proto_tree_add_item(subtree, hf_spnego_krb5_tok_id, tvb, offset, 2,
-				TRUE);
+	    proto_tree_add_uint(subtree, hf_spnego_krb5_tok_id, tvb, offset, 2,
+				token_id);
 
 	    hnd.offset += 2;
 
@@ -364,12 +371,10 @@ dissect_spnego_krb5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  break;
 
 	case KRB_TOKEN_GETMIC:
-
 	  offset = dissect_spnego_krb5_getmic_base(tvb, offset, pinfo, subtree); 
 	  break;
 
 	case KRB_TOKEN_WRAP:
-
           offset = dissect_spnego_krb5_wrap_base(tvb, offset, pinfo, subtree);
 	  break;
 
