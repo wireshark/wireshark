@@ -1,7 +1,7 @@
 /* packet-diameter.c
  * Routines for DIAMETER packet disassembly
  *
- * $Id: packet-diameter.c,v 1.20 2001/02/23 19:26:26 guy Exp $
+ * $Id: packet-diameter.c,v 1.21 2001/04/10 21:49:23 guy Exp $
  *
  * Copyright (c) 2001 by David Frascone <dave@frascone.com>
  *
@@ -77,7 +77,8 @@ typedef enum {
 static int proto_diameter = -1;
 static int hf_diameter_length = -1;
 static int hf_diameter_code = -1;
-static int hf_diameter_id =-1;
+static int hf_diameter_hopbyhopid =-1;
+static int hf_diameter_endtoendid =-1;
 static int hf_diameter_reserved = -1;
 static int hf_diameter_flags = -1;
 static int hf_diameter_version = -1;
@@ -114,7 +115,8 @@ typedef struct _e_diameterhdr {
 	guint8 reserved;
 	guint8 flagsVer;
 	guint16 pktLength;
-	guint32 identifier;
+	guint32 hopByHopId;
+	guint32 endToEndId;
 	guint32 commandCode;
 	guint32 vendorId;
 } e_diameterhdr;
@@ -180,7 +182,8 @@ static void dissect_diameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	
 	/* Fix byte ordering in our static structure */
 	dh.pktLength = ntohs(dh.pktLength);
-	dh.identifier = ntohl(dh.identifier);
+	dh.hopByHopId = ntohl(dh.hopByHopId);
+	dh.endToEndId = ntohl(dh.endToEndId);
 	
 	dh.commandCode = ntohl(dh.commandCode);
 	dh.vendorId = ntohl(dh.vendorId);
@@ -192,22 +195,25 @@ static void dissect_diameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
 	/* Short packet.  Should have at LEAST one avp */
 	if (dh.pktLength < MIN_DIAMETER_SIZE) {
+		g_warning("DIAMETER: Packet too short: %d bytes less than min size (%d bytes))",
+			dh.pktLength, MIN_DIAMETER_SIZE);
 		BadPacket = TRUE;
 	}
 
 	/* And, check our reserved flags/version */
 	if (dh.reserved || (dh.flagsVer & DIAM_FLAGS_RESERVED) ||
 		((dh.flagsVer & 0x7) != 1)) {
+		g_warning("DIAMETER: Bad packet: Bad Flags or Version");
 		BadPacket = TRUE;
 	}
 
 	if (check_col(pinfo->fd, COL_INFO)) {
 		col_add_fstr(pinfo->fd, COL_INFO,
-		    "%s%s: %s(%d) vendor=%d (id=%d) EIR=%d%d%d",
+		    "%s%s: %s(%d) vendor=%d (hop-id=%d) (end-id=%d) EIR=%d%d%d",
 		    (BadPacket)?"***** Bad Packet!: ":"",
 		    DetermineMessageType(dh.flagsVer),
 		    codestrval, dh.commandCode, dh.vendorId,
-		    dh.identifier,
+		    dh.hopByHopId, dh.endToEndId,
 		    (dh.flagsVer & DIAM_FLAGS_E)?1:0,
 		    (dh.flagsVer & DIAM_FLAGS_I)?1:0,
 		    (dh.flagsVer & DIAM_FLAGS_R)?1:0);
@@ -253,9 +259,14 @@ static void dissect_diameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 		    offset, 2, dh.pktLength);
 		offset +=2;
 
-		/* Identifier */
-		proto_tree_add_uint(diameter_tree, hf_diameter_id,
-		    tvb, offset, 4, dh.identifier);
+		/* Hop-by-hop Identifier */
+		proto_tree_add_uint(diameter_tree, hf_diameter_hopbyhopid,
+		    tvb, offset, 4, dh.hopByHopId);
+		offset += 4;
+
+		/* End-to-end Identifier */
+		proto_tree_add_uint(diameter_tree, hf_diameter_endtoendid,
+		    tvb, offset, 4, dh.endToEndId);
 		offset += 4;
 
 		/* Command Code */
@@ -337,6 +348,8 @@ static void dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree
 		
 		/* Check for short packet */
 		if (packetLength < MIN_AVP_SIZE) {
+			g_warning("DIAMETER: AVP Payload too short: %d bytes less than min size (%d bytes))",
+				packetLength, MIN_AVP_SIZE);
 			BadPacket = TRUE;
 			/* Don't even bother trying to parse a short packet. */
 			return;
@@ -363,12 +376,16 @@ static void dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree
 		/* Check for bad length */
 		if (avph.avp_length < MIN_AVP_SIZE || 
 		    (avph.avp_length > packetLength)) {
+			g_warning("DIAMETER: AVP payload size invalid: avp_length: %d bytes,  min: %d bytes,    packetLen: %d",
+				avph.avp_length, MIN_AVP_SIZE, packetLength);
 			BadPacket = TRUE;
 		}
 
 		/* Check for bad flags */
 		if (avph.avp_reserved || 
 		    (avph.avp_flags & AVP_FLAGS_RESERVED)) {
+		        g_warning("DIAMETER: Invalid AVP: avph.avp_reserved = 0x%x, avph.avp_flags = 0x%x, resFl=0x%x",
+			avph.avp_reserved, avph.avp_flags, AVP_FLAGS_RESERVED);
 			BadPacket = TRUE;
 		}
 		
@@ -383,6 +400,8 @@ static void dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree
 
 		/* Check for out of bounds */
 		if (packetLength < 0) {
+		        g_warning("DIAMETER: Bad AVP: Bad new length (%d bytes)",
+				packetLength);
 			BadPacket = TRUE;
 		}
 
@@ -768,9 +787,12 @@ proto_register_diameter(void)
 		{ &hf_diameter_length,
 		  { "Length","diameter.length", FT_UINT16, BASE_DEC, NULL, 0x0,
 		    "" }},
-		{ &hf_diameter_id,
-		  { "Identifier", "diameter.id", FT_UINT32, BASE_HEX, NULL, 0x0,
-		    "" }},
+		{ &hf_diameter_hopbyhopid,
+		  { "Hop-by-Hop Identifier", "diameter.hopbyhopid", FT_UINT32,
+		    BASE_HEX, NULL, 0x0, "" }},
+		{ &hf_diameter_endtoendid,
+		  { "End-to-End Identifier", "diameter.endtoendid", FT_UINT32, 
+		    BASE_HEX, NULL, 0x0, "" }},
 		{ &hf_diameter_code,
 		  { "Command Code","diameter.code", FT_UINT32, BASE_DEC,
 		    VALS(diameter_command_code_vals), 0x0, "" }},
