@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.296 2003/06/08 09:12:23 oabad Exp $
+ * $Id: main.c,v 1.297 2003/06/09 07:54:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1178,23 +1178,21 @@ print_usage(gboolean print_ver) {
 	  comp_info_str->str, runtime_info_str->str);
   }
 #ifdef HAVE_LIBPCAP
-  fprintf(stderr, "\n%s [ -vh ] [ -klpQS ] [ -a <capture autostop condition> ] ...\n",
+  fprintf(stderr, "\n%s [ -vh ] [ -klnpQS ] [ -a <capture autostop condition> ] ...\n",
 	  PACKAGE);
   fprintf(stderr, "\t[ -b <number of ringbuffer files>[:<duration>] ]\n");
-  fprintf(stderr, "\t[ -B <byte view height> ]\n");
-  fprintf(stderr, "\t[ -c <count> ] [ -f <capture filter> ] [ -i <interface> ]\n");
-  fprintf(stderr, "\t[ -m <medium font> ] [ -n ] [ -N <resolving> ]\n");
+  fprintf(stderr, "\t[ -B <byte view height> ] [ -c <count> ] [ -f <capture filter> ]\n");
+  fprintf(stderr, "\t[ -i <interface> ] [ -m <medium font> ] [ -N <resolving> ]\n");
   fprintf(stderr, "\t[ -o <preference setting> ] ... [ -P <packet list height> ]\n");
   fprintf(stderr, "\t[ -r <infile> ] [ -R <read filter> ] [ -s <snaplen> ] \n");
   fprintf(stderr, "\t[ -t <time stamp format> ] [ -T <tree view height> ]\n");
   fprintf(stderr, "\t[ -w <savefile> ] [ <infile> ]\n");
 #else
-  fprintf(stderr, "\n%s [ -vh ] [ -B <byte view height> ] [ -m <medium font> ]\n",
+  fprintf(stderr, "\n%s [ -vh ] [ -n ] [ -B <byte view height> ] [ -m <medium font> ]\n",
 	  PACKAGE);
-  fprintf(stderr, "\t[ -n ] [ -N <resolving> ]\n");
-  fprintf(stderr, "\t[ -o <preference setting> ... [ -P <packet list height> ]\n");
-  fprintf(stderr, "\t[ -r <infile> ] [ -R <read filter> ] [ -t <time stamp format> ]\n");
-  fprintf(stderr, "\t[ -T <tree view height> ] [ <infile> ]\n");
+  fprintf(stderr, "\t[ -N <resolving> ] [ -o <preference setting> ...\n");
+  fprintf(stderr, "\t[ -P <packet list height> ] [ -r <infile> ] [ -R <read filter> ]\n");
+  fprintf(stderr, "\t[ -t <time stamp format> ] [ -T <tree view height> ] [ <infile> ]\n");
 #endif
 }
 
