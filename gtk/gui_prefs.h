@@ -1,7 +1,7 @@
 /* gui_prefs.h
  * Definitions for GUI preferences window
  *
- * $Id: gui_prefs.h,v 1.6 2004/06/01 21:56:04 ulfl Exp $
+ * $Id: gui_prefs.h,v 1.7 2004/06/02 18:44:10 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -27,7 +27,7 @@
 #define __GUI_PREFS_H__
 
 /** @file
- *  User interface and font preferences pages.
+ *  "User Interface" and "User Interface: Font" preferences pages.
  */
 
 /** Build a User interface preferences page.

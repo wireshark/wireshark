@@ -1,7 +1,7 @@
 /* stream_prefs.h
  * Definitions for stream preferences window
  *
- * $Id: stream_prefs.h,v 1.4 2002/08/28 21:03:49 jmayer Exp $
+ * $Id: stream_prefs.h,v 1.5 2004/06/02 18:44:10 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -26,9 +26,33 @@
 #ifndef __STREAM_PREFS_H__
 #define __STREAM_PREFS_H__
 
+/** @file
+ *  "User Interface: Colors" preferences pages.
+ *  @todo rename functions and files from stream to colors
+ */
+
+/** Build a Colors preferences page.
+ *
+ * @return the new preferences page
+ */
 GtkWidget *stream_prefs_show(void);
-void stream_prefs_fetch(GtkWidget *w);
-void stream_prefs_apply(GtkWidget *w);
-void stream_prefs_destroy(GtkWidget *w);
+
+/** Fetch preference values from page.
+ *
+ * @param widget widget from stream_prefs_show()
+ */
+void stream_prefs_fetch(GtkWidget *widget);
+
+/** Apply preference values from page.
+ *
+ * @param widget widget from stream_prefs_show()
+ */
+void stream_prefs_apply(GtkWidget *widget);
+
+/** Destroy preference values from page.
+ *
+ * @param widget widget from stream_prefs_show()
+ */
+void stream_prefs_destroy(GtkWidget *widget);
 
 #endif

@@ -1,7 +1,7 @@
 /* packet_list.h
  * Declarations of GTK+-specific routines for managing the packet list.
  *
- * $Id: packet_list.h,v 1.2 2004/01/19 00:42:10 ulfl Exp $
+ * $Id: packet_list.h,v 1.3 2004/06/02 18:44:10 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -25,23 +25,77 @@
 #ifndef __PACKET_LIST_H__
 #define __PACKET_LIST_H__
 
+/** @file
+ *  Main windows packet list.
+ */
+
+/** Create a new packet list.
+ *
+ * @param prefs current preferences
+ * @return the new packet list
+ */
 extern GtkWidget *packet_list_new(e_prefs *prefs);
+
+/** Fill in column titles.  This must be done after the top level window
+ *  is displayed.
+ *
+ * @todo is that still true, with fixed-width columns?
+ */
 extern void packet_list_set_column_titles(void);
 
-extern void mark_frame_cb(GtkWidget *, gpointer);
-extern void mark_all_frames_cb(GtkWidget *w, gpointer);
-extern void unmark_all_frames_cb(GtkWidget *w, gpointer);
+/** Mark the currently selected packet.
+ * 
+ * @param widget parent widget (unused)
+ * @param data unused
+ */
+extern void mark_frame_cb(GtkWidget *widget, gpointer data);
+
+/** Mark all packets in the list.
+ * 
+ * @param widget parent widget (unused)
+ * @param data unused
+ */
+extern void mark_all_frames_cb(GtkWidget *widget, gpointer data);
+
+/** Unmark all packets in the list.
+ * 
+ * @param widget parent widget (unused)
+ * @param data unused
+ */
+extern void unmark_all_frames_cb(GtkWidget *widget, gpointer data);
+
+/** Update packet marks. */
 extern void update_marked_frames(void);
 
-extern gboolean packet_list_get_event_row_column(GtkWidget *w,
+/** Gdk button click appeared, get row and column number in packet list from that position.
+ * 
+ * @param widget the packet list widget from packet_list_new()
+ * @param event_button the button event clicked
+ * @param row the row in the packet list
+ * @param column the column in the packet list
+ * @return TRUE if row/column is returned and in range
+ */
+extern gboolean packet_list_get_event_row_column(GtkWidget *widget,
     GdkEventButton *event_button, gint *row, gint *column);
 
 #if GTK_MAJOR_VERSION < 2
+/** Set the font of the packet list.
+ *
+ * @param font the new font
+ */
 extern void set_plist_font(GdkFont *font);
 #else
+/** Set the font of the packet list.
+ *
+ * @param font the new font
+ */
 extern void set_plist_font(PangoFontDescription *font);
 #endif
 
-extern void set_plist_sel_browse(gboolean);
+/** Set the selection mode of the packet list window.
+ *
+ * @param val TRUE for GTK_SELECTION_SINGLE, FALSE for GTK_SELECTION_BROWSE
+ */
+extern void set_plist_sel_browse(gboolean val);
 
 #endif /* __PACKET_LIST_H__ */

@@ -1,7 +1,7 @@
 /* capture_prefs.h
  * Definitions for capture preferences window
  *
- * $Id: capture_prefs.h,v 1.3 2004/06/01 20:28:04 ulfl Exp $
+ * $Id: capture_prefs.h,v 1.4 2004/06/02 18:44:10 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -26,7 +26,7 @@
 #define __CAPTURE_PREFS_H__
 
 /** @file
- *  Capture preferences page.
+ *  "Capture" preferences page.
  */
 
 /** Build a capture preferences page.

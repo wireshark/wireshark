@@ -1,6 +1,6 @@
 /* mtp3_stat.h
  *
- * $Id: mtp3_stat.h,v 1.1 2004/04/21 17:57:31 guy Exp $
+ * $Id: mtp3_stat.h,v 1.2 2004/06/02 18:44:10 ulfl Exp $
  *
  * Copyright 2004, Michael Lum <mlum [AT] telostech.com>,
  * In association with Telos Technology Inc.
@@ -22,6 +22,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ */
+
+/** @file
+ *  Statistics for MTP3.
+ *  @todo Could someone with more knowledge of this comment it for doxygen?
  */
 
 typedef struct _mtp3_stat_si_code_t {

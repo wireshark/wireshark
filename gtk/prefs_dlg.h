@@ -1,7 +1,7 @@
 /* prefs_dlg.h
  * Definitions for preference handling routines
  *
- * $Id: prefs_dlg.h,v 1.10 2004/05/27 16:50:16 ulfl Exp $
+ * $Id: prefs_dlg.h,v 1.11 2004/06/02 18:44:10 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -25,20 +25,92 @@
 #ifndef __PREFS_DLG_H__
 #define __PREFS_DLG_H__
 
-void       prefs_cb(GtkWidget *, gpointer);
-void       properties_cb(GtkWidget *, gpointer);
+/** @file
+ * "Preferences" and "Protocol properties" dialog boxes.
+ */
 
-#define E_TOOLTIPS_KEY          "tooltips"
+/** Show the preferences dialog.
+ * 
+ * @param widget parent widget (unused)
+ * @param data unused
+ */
+extern void prefs_cb(GtkWidget *widget, gpointer data);
 
-GtkWidget *create_preference_check_button(GtkWidget *, int, const gchar *,
-    const gchar *, gboolean);
-GtkWidget *create_preference_radio_buttons(GtkWidget *, int, const gchar *,
-    const gchar *, const enum_val_t *, gint);
-gint fetch_preference_radio_buttons_val(GtkWidget *, const enum_val_t *);
-GtkWidget *create_preference_option_menu(GtkWidget *, int, const gchar *,
-    const gchar *, const enum_val_t *, gint);
-gint fetch_preference_option_menu_val(GtkWidget *, const enum_val_t *);
-GtkWidget *create_preference_entry(GtkWidget *, int, const gchar *,
-    const gchar *, char *);
+/** Show the protocol properties dialog.
+ * 
+ * @param widget parent widget (unused)
+ * @param data unused
+ */
+extern void properties_cb(GtkWidget *widget, gpointer data);
+
+#define E_TOOLTIPS_KEY "tooltips"
+
+/** Create a check button for a preferences page.
+ *
+ * @param main_tb the table to put this button into
+ * @param table_row row in the table
+ * @param label_text the label text for the left side
+ * @param tooltip_text the tooltip for this check button
+ * @param active the check button is initially active
+ * @return the new check button
+ */
+extern GtkWidget *create_preference_check_button(GtkWidget *main_tb, int table_row,
+    const gchar *label_text, const gchar *tooltip_text, gboolean active);
+
+/** Create a radio button for a preferences page.
+ *
+ * @param main_tb the table to put this button into
+ * @param table_row row in the table
+ * @param label_text the label text for the left side
+ * @param tooltip_text the tooltip for this radio button
+ * @param enumvals the values
+ * @param current_val the initially selected value
+ * @return the new radio button
+ */
+extern GtkWidget *create_preference_radio_buttons(GtkWidget *main_tb, int table_row,
+    const gchar *label_text, const gchar *tooltip_text,
+    const enum_val_t *enumvals, gint current_val);
+
+/** Get the currently selected value from a radio button.
+ * 
+ * @param button the button from create_preference_radio_buttons()
+ * @param enumvals the same enum vals as in create_preference_radio_buttons()
+ * @return the index of the currently selected item
+ */
+extern gint fetch_preference_radio_buttons_val(GtkWidget *button, const enum_val_t *enumvals);
+
+/** Create an option menu for a preferences page.
+ *
+ * @param main_tb the table to put this menu into
+ * @param table_row row in the table
+ * @param label_text the label text for the left side
+ * @param tooltip_text the tooltip for this option menu
+ * @param enumvals the values
+ * @param current_val the initially selected value
+ * @return the new option menu
+ */
+extern GtkWidget *create_preference_option_menu(GtkWidget *main_tb, int table_row,
+    const gchar *label_text, const gchar *tooltip_text,
+    const enum_val_t *enumvals, gint current_val);
+
+/** Get the currently selected value from an option menu.
+ * 
+ * @param optmenu the option menu from create_preference_option_menu()
+ * @param enumvals the same enum vals as in create_preference_option_menu()
+ * @return the index of the currently selected item
+ */
+extern gint fetch_preference_option_menu_val(GtkWidget *optmenu, const enum_val_t *enumvals);
+
+/** Create a text entry for a preferences page.
+ *
+ * @param main_tb the table to put this entry into
+ * @param table_row row in the table
+ * @param label_text the label text for the left side
+ * @param tooltip_text the tooltip for this text entry
+ * @param value the initially value
+ * @return the new text entry
+ */
+extern GtkWidget *create_preference_entry(GtkWidget *main_tb, int table_row,
+    const gchar *label_text, const gchar *tooltip_text, char *value);
 
 #endif

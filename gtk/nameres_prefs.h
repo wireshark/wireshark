@@ -1,7 +1,7 @@
 /* nameres_prefs.h
  * Definitions for name resolution preferences window
  *
- * $Id: nameres_prefs.h,v 1.2 2002/08/28 21:03:48 jmayer Exp $
+ * $Id: nameres_prefs.h,v 1.3 2004/06/02 18:44:10 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -25,9 +25,32 @@
 #ifndef __NAMERES_PREFS_H__
 #define __NAMERES_PREFS_H__
 
+/** @file
+ *  "Name resolution" preferences pages.
+ */
+
+/** Build a Name resolution preferences page.
+ *
+ * @return the new preferences page
+ */
 GtkWidget *nameres_prefs_show(void);
-void nameres_prefs_fetch(GtkWidget *w);
-void nameres_prefs_apply(GtkWidget *w);
-void nameres_prefs_destroy(GtkWidget *w);
+
+/** Fetch preference values from page.
+ *
+ * @param widget widget from nameres_prefs_show()
+ */
+void nameres_prefs_fetch(GtkWidget *widget);
+
+/** Apply preference values from page.
+ *
+ * @param widget widget from nameres_prefs_show()
+ */
+void nameres_prefs_apply(GtkWidget *widget);
+
+/** Destroy preference values from page.
+ *
+ * @param widget widget from nameres_prefs_show()
+ */
+void nameres_prefs_destroy(GtkWidget *widget);
 
 #endif

@@ -1,7 +1,7 @@
 /* column_prefs.h
  * Definitions for column preferences window
  *
- * $Id: column_prefs.h,v 1.5 2004/06/01 20:28:04 ulfl Exp $
+ * $Id: column_prefs.h,v 1.6 2004/06/02 18:44:10 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -27,7 +27,7 @@
 #define __COLUMN_PREFS_H__
 
 /** @file
- *  Column preferences page.
+ *  "Column" preferences page.
  */
 
 /** Build a column preferences page.

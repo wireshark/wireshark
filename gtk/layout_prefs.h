@@ -1,7 +1,7 @@
 /* layout_prefs.h
  * Definitions for layout preferences window
  *
- * $Id: layout_prefs.h,v 1.3 2004/06/01 21:56:04 ulfl Exp $
+ * $Id: layout_prefs.h,v 1.4 2004/06/02 18:44:10 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -26,7 +26,7 @@
 #define __LAYOUT_PREFS_H__
 
 /** @file
- *  User interface layout preferences pages.
+ *  "User Interface: Layout" preferences pages.
  */
 
 /** Build a User interface layout preferences page.
