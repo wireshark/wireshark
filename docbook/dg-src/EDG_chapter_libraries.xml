@@ -47,11 +47,11 @@
   </section>
 	
   <section id="ChLibsSetup">
-    <title>Win32 setup target</title>
+    <title>Win32: Automated library download</title>
 	<tip><title>Tip!</title>
 	<para>
-	It's a really good idea to use the Win32 setup target to install the 
-	required libraries.
+	It's a really good idea to use the Win32 automated library download to 
+	install the required libraries.
 	</para>
 	</tip>
 	<para>
@@ -103,14 +103,14 @@
 	</para>
 	
 	<section>
-	<title>Unix: GTK / ...</title>
+	<title>Unix: ...</title>
 	<para>
 	Unix: <ulink url="http://www.gtk.org"/>
 	</para>
 	</section>
 
 	<section>
-	<title>Win32 native: GTK / ...</title>
+	<title>Win32 native: ...</title>
 	<para>
 	Win32 native: <ulink url="http://www.gimp.org/%7Etml/gimp/win32/downloads.html"/>
 	</para>

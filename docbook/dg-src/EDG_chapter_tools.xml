@@ -683,15 +683,15 @@ written by Larry Wall and Paul Eggert]]>
 	<section id="ChToolsWget">
 	<title>Win32: wget (optional)</title>
 	<para>
-	wget is used to download files from the internet using command line parameters.
+	wget is used to download files from the internet using the command line.
 	</para>
 	<para>
-	You will need wget only, if you want to use the win32 setup target, see 
-	<xref linkend="ChLibsSetup"/> for details.
+	You will only need wget, if you want to use the win32 automated library 
+	download, see <xref linkend="ChLibsSetup"/> for details.
 	</para>
 	<para>
-	If you are behind a HTTP proxy, you must set the environment variable http_proxy
-	before using wget to something like:
+	If you are behind a HTTP proxy, you must set the environment variable 
+	http_proxy before using wget to something like:
 	HTTP_PROXY=http://proxy.de:8080/
 	</para>
 	</section>
