@@ -1,6 +1,6 @@
 /* pppdump.c
  *
- * $Id: pppdump.c,v 1.21 2002/07/15 08:45:32 guy Exp $
+ * $Id: pppdump.c,v 1.22 2002/07/15 09:50:02 guy Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
  * 
@@ -207,8 +207,8 @@ typedef struct _pppdump_t {
 } pppdump_t;
 
 static int
-process_data(pppdump_t *state, FILE_T fh, pkt_t *pkt, int n, guint8 *pd, int *err,
-		gboolean *state_saved);
+process_data(pppdump_t *state, FILE_T fh, pkt_t *pkt, int n, guint8 *pd,
+    int *err, pkt_id *pid);
 
 static gboolean
 collate(pppdump_t*, FILE_T fh, int *err, guint8 *pd, int *num_bytes,
@@ -283,7 +283,7 @@ pppdump_open(wtap *wth, int *err)
 
 	init_state(state);
 
-	state->offset = 5; 
+	state->offset = 5;
 	wth->file_encap = WTAP_ENCAP_PPP_WITH_PHDR; 
 	wth->file_type = WTAP_FILE_PPPDUMP; 
 
@@ -351,14 +351,13 @@ pppdump_read(wtap *wth, int *err, long *data_offset)
  * distribution.
  */
 static int
-process_data(pppdump_t *state, FILE_T fh, pkt_t *pkt, int n, guint8 *pd, int *err,
-		gboolean *state_saved)
+process_data(pppdump_t *state, FILE_T fh, pkt_t *pkt, int n, guint8 *pd,
+    int *err, pkt_id *pid)
 {
 	int	c;
 	int	num_bytes = n;
 	int	num_written;
 
-	*state_saved = FALSE;
 	for (; num_bytes > 0; --num_bytes) {
 		c = file_getc(fh);
 		state->offset++;
@@ -408,18 +407,49 @@ process_data(pppdump_t *state, FILE_T fh, pkt_t *pkt, int n, guint8 *pd, int *er
 
 					memcpy(pd, pkt->buf, num_written);
 
+					/*
+					 * Remember the offset of the
+					 * first record containing data
+					 * for this packet, and how far
+					 * into that record to skip to
+					 * get to the beginning of the
+					 * data for this packet; the number
+					 * of bytes to skip into that record
+					 * is the file offset of the first
+					 * byte of this packet minus the
+					 * file offset of the first byte of
+					 * this record, minus 3 bytes for the
+					 * header of this record (which, if
+					 * we re-read this record, we will
+					 * process, not skip).
+					 */
+					if (pid) {
+						pid->offset = pkt->id_offset;
+						pid->num_bytes_to_skip =
+						    pkt->sd_offset - pkt->id_offset - 3;
+						g_assert(pid->num_bytes_to_skip >= 0);
+					}
+
 					num_bytes--;
 					if (num_bytes > 0) {
 						/*
-						 * There's data left in
-						 * this record, so set
-						 * up information for
-						 * the next packet to
-						 * use that data.
+						 * There's more data in this
+						 * record.
+						 * Set the initial data offset
+						 * for the next packet.
 						 */
 						pkt->id_offset = pkt->cd_offset;
 						pkt->sd_offset = state->offset;
-						*state_saved = TRUE;
+					} else {
+						/*
+						 * There is no more data in
+						 * this record.
+						 * Thus, we don't have the
+						 * initial data offset for
+						 * the next packet.
+						 */
+						pkt->id_offset = 0;
+						pkt->sd_offset = 0;
 					}
 					state->num_bytes = num_bytes;
 					state->pkt = pkt;
@@ -475,9 +505,6 @@ process_data(pppdump_t *state, FILE_T fh, pkt_t *pkt, int n, guint8 *pd, int *er
 	return 0;
 }
 
-
-
-
 /* Returns TRUE if packet data copied, FALSE if error occurred or EOF (no more records). */
 static gboolean
 collate(pppdump_t* state, FILE_T fh, int *err, guint8 *pd, int *num_bytes,
@@ -486,7 +513,6 @@ collate(pppdump_t* state, FILE_T fh, int *err, guint8 *pd, int *num_bytes,
 	int		id;
 	pkt_t		*pkt = NULL;
 	int		n, num_written = 0;
-	gboolean	ss = FALSE;
 	guint32		time_long;
 	guint8		time_short;
 
@@ -498,42 +524,14 @@ collate(pppdump_t* state, FILE_T fh, int *err, guint8 *pd, int *num_bytes,
 		g_assert(num_bytes_to_skip == 0);
 		pkt = state->pkt;
 		num_written = process_data(state, fh, pkt, state->num_bytes,
-		    pd, err, &ss);
+		    pd, err, pid);
 
 		if (num_written < 0) {
 			return FALSE;
 		}
-
-		/*
-		 * Well, we processed some of the data in this record.
-		 * Remember where the record started, and how far into
-		 * that record to skip to get to the beginning of the
-		 * data for this packet; the number of bytes to skip
-		 * into that record is the file offset of the first
-		 * byte of this packet minus the file offset of the
-		 * first byte of this record, minus 3 bytes for the
-		 * header of this record (which, if we re-read this
-		 * record, we will process, not skip).
-		 */
-		if (pid) {
-			pid->offset = pkt->id_offset;
-			pid->num_bytes_to_skip =
-			    pkt->sd_offset - pkt->id_offset - 3;
-			g_assert(pid->num_bytes_to_skip >= 0);
-		}
-		if (num_written > 0) {
+		else if (num_written > 0) {
 			*num_bytes = num_written;
 			*direction = pkt->dir;
-			if (!ss) {
-				/*
-				 * We haven't saved any state, which means
-				 * there is no more data in this record.
-				 * Thus, we don't have the initial data
-				 * offset for the next packet.
-				 */
-				pkt->id_offset = 0;
-				pkt->sd_offset = 0;
-			}
 			return TRUE;
 		}
 		/* if 0 bytes written, keep processing */
@@ -595,7 +593,7 @@ collate(pppdump_t* state, FILE_T fh, int *err, guint8 *pd, int *num_bytes,
 					n--;
 				}
 				num_written = process_data(state, fh, pkt, n,
-				    pd, err, &ss);
+				    pd, err, pid);
 
 				if (num_written < 0) {
 					return FALSE;
@@ -603,26 +601,6 @@ collate(pppdump_t* state, FILE_T fh, int *err, guint8 *pd, int *num_bytes,
 				else if (num_written > 0) {
 					*num_bytes = num_written;
 					*direction = pkt->dir;
-					if (pid) {
-						pid->offset = pkt->id_offset;
-						pid->num_bytes_to_skip =
-						    pkt->sd_offset -
-						    pkt->id_offset - 3;
-						g_assert(pid->num_bytes_to_skip >= 0);
-					}
-					if (!ss) {
-						/*
-						 * We haven't saved any
-						 * state, which means there
-						 * is no more data in this
-						 * record.  Thus, we
-						 * don't have the initial
-						 * data offset for the
-						 * next packet.
-						 */
-						pkt->id_offset = 0;
-						pkt->sd_offset = 0;
-					}
 					return TRUE;
 				}
 				/* if 0 bytes written, keep looping */
