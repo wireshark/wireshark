@@ -1,7 +1,7 @@
 /* packet-ppp.c
  * Routines for ppp packet disassembly
  *
- * $Id: packet-ppp.c,v 1.100 2002/11/11 19:23:11 guy Exp $
+ * $Id: packet-ppp.c,v 1.101 2002/11/28 20:46:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2276,7 +2276,7 @@ dissect_cp( tvbuff_t *tvb, int proto_id, int proto_subtree_index,
 	proto_tree *tree )
 {
   proto_item *ti;
-  proto_tree *fh_tree = NULL;
+  proto_tree *volatile fh_tree = NULL;
   proto_item *tf;
   proto_tree *field_tree;
 
@@ -2360,15 +2360,71 @@ dissect_cp( tvbuff_t *tvb, int proto_id, int proto_subtree_index,
 
     case PROTREJ:
       if(tree) {
-      	protocol = tvb_get_ntohs(tvb, offset);
-	proto_tree_add_text(fh_tree, tvb, offset, 2, "Rejected protocol: %s (0x%04x)",
-		val_to_str(protocol, ppp_vals, "Unknown"), protocol);
+	volatile address save_dl_src;
+	volatile address save_dl_dst;
+	volatile address save_net_src;
+	volatile address save_net_dst;
+	volatile address save_src;
+	volatile address save_dst;
+	tvbuff_t *next_tvb;
+
+	protocol = tvb_get_ntohs(tvb, offset);
+	proto_tree_add_text(fh_tree, tvb, offset, 2,
+			    "Rejected protocol: %s (0x%04x)",
+			    val_to_str(protocol, ppp_vals, "Unknown"),
+			    protocol);
 	offset += 2;
 	length -= 2;
-	if (length > 0)
-          proto_tree_add_text(fh_tree, tvb, offset, length, "Rejected packet (%d byte%s)",
-				length, plurality(length, "", "s"));
-		/* XXX - should be dissected as a PPP packet */
+	if (length > 0) {
+          proto_tree_add_text(fh_tree, tvb, offset, length,
+			      "Rejected packet (%d byte%s)",
+			      length, plurality(length, "", "s"));
+
+	  /* Decode the rejected packet.
+
+	     Set the columns non-writable, so that the packet list
+	     shows this as an LCP packet, not as the type of packet
+	     for which the LCP packet was generated. */
+	  col_set_writable(pinfo->cinfo, FALSE);
+
+	  /* Also, save the current values of the addresses, and restore
+	     them when we're finished dissecting the contained packet, so
+	     that the address columns in the summary don't reflect the
+	     contained packet, but reflect this packet instead. */
+	  save_dl_src = pinfo->dl_src;
+	  save_dl_dst = pinfo->dl_dst;
+	  save_net_src = pinfo->net_src;
+	  save_net_dst = pinfo->net_dst;
+	  save_src = pinfo->src;
+	  save_dst = pinfo->dst;
+
+	  /* Dissect the contained packet.
+	     Catch ReportedBoundsError, and do nothing if we see it,
+	     because it's not an error if the contained packet is short;
+	     there's no guarantee that all of it was included.
+
+	     XXX - should catch BoundsError, and re-throw it after cleaning
+	     up. */
+	  next_tvb = tvb_new_subset(tvb, offset, length, length);
+	  TRY {
+	    if (!dissector_try_port(ppp_subdissector_table, protocol,
+				    next_tvb, pinfo, fh_tree)) {
+	      call_dissector(data_handle, next_tvb, pinfo, fh_tree);
+	    }
+	  }
+	  CATCH(ReportedBoundsError) {
+	    ; /* do nothing */
+	  }
+	  ENDTRY;
+
+	  /* Restore the addresses. */
+	  pinfo->dl_src = save_dl_src;
+	  pinfo->dl_dst = save_dl_dst;
+	  pinfo->net_src = save_net_src;
+	  pinfo->net_dst = save_net_dst;
+	  pinfo->src = save_src;
+	  pinfo->dst = save_dst;
+        }
       }
       break;
 
