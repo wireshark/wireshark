@@ -2,7 +2,7 @@
  * Routines for decoding SCSI CDBs and responses
  * Author: Dinesh G Dutt (ddutt@cisco.com)
  *
- * $Id: packet-scsi.c,v 1.6 2002/03/12 11:30:45 guy Exp $
+ * $Id: packet-scsi.c,v 1.7 2002/03/13 02:52:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -211,7 +211,7 @@ static const value_string scsi_spc2_val[] = {
     {SCSI_SPC2_MODESENSE10       , "Mode Sense (10)"},
     {SCSI_SPC2_PERSRESVIN        , "Persistent Reserve In"},
     {SCSI_SPC2_PERSRESVOUT       , "Persistent Reserve Out"},
-    {SCSI_SPC2_PREVMEDREMOVAL    , "Prevent Allow Medium Removal"},
+    {SCSI_SPC2_PREVMEDREMOVAL    , "Prevent/Allow Medium Removal"},
     {SCSI_SPC2_RCVCOPYRESULTS    , "Receive Copy Results"},
     {SCSI_SPC2_RCVDIAGRESULTS    , "Receive Diagnostics Results"},
     {SCSI_SPC2_READBUFFER        , "Read Buffer"},
