@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.97 2000/01/25 05:48:47 guy Exp $
+ * $Id: main.c,v 1.98 2000/01/25 13:44:39 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1385,6 +1385,7 @@ main(int argc, char *argv[])
        we were told to. */
 
     gtk_widget_show(top_level);
+    set_menus_for_capture_file(FALSE);
 
     cf.colors = colfilter_new();
 
@@ -1449,6 +1450,9 @@ main(int argc, char *argv[])
     if (start_capture) {
       /* "-k" was specified; start a capture. */
       do_capture(save_file);
+    }
+    else {
+	    set_menus_for_capture_in_progress(FALSE);
     }
   }
 #endif
