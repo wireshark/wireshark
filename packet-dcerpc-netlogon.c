@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *  2002 structure and command dissectors by Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-netlogon.c,v 1.59 2002/11/03 04:39:22 sahlberg Exp $
+ * $Id: packet-dcerpc-netlogon.c,v 1.60 2002/11/04 09:06:15 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -39,6 +39,7 @@
 
 static int proto_dcerpc_netlogon = -1;
 static int hf_netlogon_opnum = -1;
+static int hf_netlogon_guid = -1;
 static int hf_netlogon_rc = -1;
 static int hf_netlogon_len = -1;
 static int hf_netlogon_sensitive_data_flag = -1;
@@ -193,11 +194,11 @@ static gint ett_TYPE_52 = -1;
 static gint ett_DELTA_ID_UNION = -1;
 static gint ett_TYPE_44 = -1;
 static gint ett_DELTA_UNION = -1;
-static gint ett_GUID = -1;
 static gint ett_LM_OWF_PASSWORD = -1;
 static gint ett_NT_OWF_PASSWORD = -1;
 static gint ett_GROUP_MEMBERSHIP = -1;
 static gint ett_BLOB = -1;
+static gint ett_DSROLE_DOMAIN_INFO_EX = -1;
 
 static e_uuid_t uuid_dcerpc_netlogon = {
         0x12345678, 0x1234, 0xabcd,
@@ -4109,35 +4110,11 @@ netlogon_dissect_UNICODE_MULTI(tvbuff_t *tvb, int offset,
 
 int
 dissect_nt_GUID(tvbuff_t *tvb, int offset,
-			packet_info *pinfo, proto_tree *parent_tree,
+			packet_info *pinfo, proto_tree *tree,
 			char *drep)
 {
-	proto_item *item=NULL;
-	proto_tree *tree=NULL;
- 	int old_offset=offset;
-	int i;
+	offset=dissect_ndr_uuid_t(tvb, offset, pinfo, tree, drep, hf_netlogon_guid, NULL);
 
-	if(parent_tree){
-		item = proto_tree_add_text(parent_tree, tvb, offset, 0,
-			"GUID:");
-		tree = proto_item_add_subtree(item, ett_GUID);
-	}
-
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_unknown_long, NULL);
-
-	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_unknown_short, NULL);
-
-	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_unknown_short, NULL);
-
-	for(i=0;i<8;i++){
-		offset = dissect_ndr_uint8(tvb, offset, pinfo, tree, drep,
-			hf_netlogon_unknown_char, NULL);
-	}
-
-	proto_item_set_len(item, offset-old_offset);
 	return offset;
 }
 
@@ -4509,22 +4486,28 @@ netlogon_dissect_TYPE_50_ptr(tvbuff_t *tvb, int offset,
 
 static int
 netlogon_dissect_DSROLE_PRIMARY_DOMAIN_INFO_EX(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, char *drep)
+	packet_info *pinfo, proto_tree *parent_tree, char *drep)
 {
 	guint32 tmp;
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
+ 	int old_offset=offset;
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_unknown_long, &tmp);
+	if(parent_tree){
+		item = proto_tree_add_text(parent_tree, tvb, offset, 0,
+			"DSROLE_DOMAIN_INFO_EX");
+		tree = proto_item_add_subtree(item, ett_DSROLE_DOMAIN_INFO_EX);
+	}
 
 	/* name */
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 		dissect_ndr_nt_UNICODE_STRING_str, NDR_POINTER_UNIQUE,
-		"NetBIOS Name", hf_netlogon_downlevel_domain_name, 0);
+		"NetBIOS Name", hf_netlogon_downlevel_domain_name, 1);
 
 	/* domain */
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 		dissect_ndr_nt_UNICODE_STRING_str, NDR_POINTER_UNIQUE,
-		"DNS Domain Name", hf_netlogon_dns_domain_name, 0);
+		"DNS Domain Name", hf_netlogon_dns_domain_name, 1);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_netlogon_unknown_long, &tmp);
@@ -4544,9 +4527,21 @@ netlogon_dissect_DSROLE_PRIMARY_DOMAIN_INFO_EX(tvbuff_t *tvb, int offset,
 	/* GUID */
 	offset = dissect_nt_GUID(tvb, offset, pinfo, tree, drep);
 
+	proto_item_set_len(item, offset-old_offset);
 	return offset;
 }
 
+
+static int
+netlogon_dissect_DSROLE_PRIMARY_DOMAIN_INFO_EX_ARRAY(tvbuff_t *tvb, int offset,
+			packet_info *pinfo, proto_tree *tree,
+			char *drep)
+{
+	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, drep,
+		netlogon_dissect_DSROLE_PRIMARY_DOMAIN_INFO_EX);
+
+	return offset;
+}
 
 static int
 netlogon_dissect_DSROLE_PRIMARY_DOMAIN_INFO(tvbuff_t *tvb, int offset,
@@ -4562,8 +4557,13 @@ netlogon_dissect_DSROLE_PRIMARY_DOMAIN_INFO(tvbuff_t *tvb, int offset,
 	switch(level){
 	case 1:
 		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			netlogon_dissect_DSROLE_PRIMARY_DOMAIN_INFO_EX, NDR_POINTER_UNIQUE,
-			"DSROLE_PRIMARY_DOMAIN_INFO_EX:", -1, 0);
+			netlogon_dissect_DSROLE_PRIMARY_DOMAIN_INFO_EX_ARRAY, NDR_POINTER_UNIQUE,
+			"DSROLE_PRIMARY_DOMAIN_INFO_EX_ARRAY:", -1, 0);
+		break;
+	case 2:
+		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+			netlogon_dissect_DSROLE_PRIMARY_DOMAIN_INFO_EX_ARRAY, NDR_POINTER_UNIQUE,
+			"DSROLE_PRIMARY_DOMAIN_INFO_EX_ARRAY:", -1, 0);
 		break;
 	}
 
@@ -6301,6 +6301,10 @@ static hf_register_info hf[] = {
 		{ "Audit Retention Period", "netlogon.audit_retention_period", FT_RELATIVE_TIME, BASE_NONE,
 		NULL, 0, "Audit retention period", HFILL }},
 
+	{ &hf_netlogon_guid,
+		{ "GUID", "netlogon.guid", FT_STRING, BASE_NONE, 
+		NULL, 0x0, "GUID (uuid for groups?)", HFILL }},
+
 	{ &hf_netlogon_timelimit,
 		{ "Time Limit", "netlogon.time_limit", FT_RELATIVE_TIME, BASE_NONE,
 		NULL, 0, "", HFILL }}
@@ -6321,10 +6325,10 @@ static hf_register_info hf[] = {
 		&ett_DELTA_ID_UNION,
 		&ett_TYPE_44,
 		&ett_DELTA_UNION,
-		&ett_GUID,
 		&ett_LM_OWF_PASSWORD,
 		&ett_NT_OWF_PASSWORD,
 		&ett_GROUP_MEMBERSHIP,
+		&ett_DSROLE_DOMAIN_INFO_EX,
 		&ett_BLOB
         };
 
