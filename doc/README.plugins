@@ -309,8 +309,8 @@ make install
 
 6	How to update an "old style" plugin (using plugin_init function)
 
-The plugin registering has changed between 0.10.9 and 0.10.10, everyone
-is encouraged to update it's plugins as outlined below:
+The plugin registering has changed between 0.10.9 and 0.10.10; everyone
+is encouraged to update their plugins as outlined below:
 
 --- Remove following include statements from all plugin sources ---
 
