@@ -1,7 +1,7 @@
 /* packet-chdlc.c
  * Routines for Cisco HDLC packet disassembly
  *
- * $Id: packet-chdlc.c,v 1.10 2002/01/21 07:36:32 guy Exp $
+ * $Id: packet-chdlc.c,v 1.11 2002/04/02 01:32:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -222,6 +222,7 @@ dissect_slarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_item *ti;
   proto_tree *slarp_tree = NULL;
   guint32 code;
+  guint32 address;
   guint32 mysequence;
   guint32 yoursequence;
 
@@ -242,9 +243,10 @@ dissect_slarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   case SLARP_REQUEST:
   case SLARP_REPLY:
     if (check_col(pinfo->cinfo, COL_INFO)) {
+      tvb_memcpy(tvb, (guint8 *)&address, 4, 4);
       col_add_fstr(pinfo->cinfo, COL_INFO, "%s, from %s, mask %s",
         match_strval(code, slarp_ptype_vals),
-        get_hostname(htonl(tvb_get_ntohl(tvb, 4))),
+        get_hostname(address),
         ip_to_str(tvb_get_ptr(tvb, 8, 4)));
     }
     if (tree) {

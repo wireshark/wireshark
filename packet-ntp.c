@@ -2,7 +2,7 @@
  * Routines for NTP packet dissection
  * Copyright 1999, Nathan Neulinger <nneul@umr.edu>
  *
- * $Id: packet-ntp.c,v 1.34 2002/01/24 09:20:50 guy Exp $
+ * $Id: packet-ntp.c,v 1.35 2002/04/02 01:32:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -265,6 +265,7 @@ dissect_ntp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	double		rootdelay;
 	double		rootdispersion;
 	const guint8	*refid;
+	guint32		refid_addr;
 	const guint8	*reftime;
 	const guint8	*org;
 	const guint8	*rec;
@@ -375,7 +376,8 @@ dissect_ntp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			}
 		} else {
 			buff[sizeof(buff) - 1] = '\0';
-			strncpy (buff, get_hostname (htonl(tvb_get_ntohl(tvb, 12))),
+			tvb_memcpy(tvb, (guint8 *)&refid_addr, 12, 4);
+			strncpy (buff, get_hostname (refid_addr),
 			    sizeof(buff));
 			if (buff[sizeof(buff) - 1] != '\0')
 				strcpy(&buff[sizeof(buff) - 4], "...");

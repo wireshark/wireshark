@@ -1,7 +1,7 @@
 /* packet-ypserv.c
  * Routines for ypserv dissection
  *
- * $Id: packet-ypserv.c,v 1.20 2002/02/20 21:02:46 guy Exp $
+ * $Id: packet-ypserv.c,v 1.21 2002/04/02 01:32:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -212,7 +212,6 @@ dissect_xfr_call(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree
 	proto_item *sub_item=NULL;
 	proto_tree *sub_tree=NULL;
 	int start_offset = offset;
-	guint32 tid;
 
 	if(tree){
 		sub_item = proto_tree_add_item(tree, hf_ypserv_map_parms, tvb,
@@ -229,10 +228,7 @@ dissect_xfr_call(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree
 
 	offset = dissect_rpc_string(tvb, pinfo, sub_tree, hf_ypserv_peer, offset, NULL);
 
-
-	tid=tvb_get_ntohl(tvb,offset);
-	tid=((tid&0x000000ff)<<24)|((tid&0x0000ff00)<<8)|((tid&0x00ff0000)>>8)|((tid&0xff000000)>>24);
-	proto_tree_add_ipv4(tree, hf_ypserv_transid, tvb, offset, 4, tid);
+	proto_tree_add_item(tree, hf_ypserv_transid, tvb, offset, 4, FALSE);
 	offset += 4;
 
 	offset = dissect_rpc_uint32(tvb, pinfo, tree, hf_ypserv_prog, offset);
@@ -247,11 +243,7 @@ dissect_xfr_call(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree
 static int
 dissect_xfr_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	guint32 tid;
-
-	tid=tvb_get_ntohl(tvb,offset);
-	tid=((tid&0x000000ff)<<24)|((tid&0x0000ff00)<<8)|((tid&0x00ff0000)>>8)|((tid&0xff000000)>>24);
-	proto_tree_add_ipv4(tree, hf_ypserv_transid, tvb, offset, 4, tid);
+	proto_tree_add_item(tree, hf_ypserv_transid, tvb, offset, 4, FALSE);
 	offset += 4;
 
 	offset = dissect_rpc_uint32(tvb, pinfo, tree, hf_ypserv_xfrstat, offset);

@@ -1,7 +1,7 @@
 /* packet-ldp.c
  * Routines for LDP (RFC 3036) packet disassembly
  *
- * $Id: packet-ldp.c,v 1.30 2002/03/16 23:15:45 guy Exp $
+ * $Id: packet-ldp.c,v 1.31 2002/04/02 01:32:46 guy Exp $
  * 
  * Copyright (c) November 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  *
@@ -762,7 +762,7 @@ dissect_tlv_address_list(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 			str = (* (char* (*)(guint8 *))str_handler)(addr);
 			proto_tree_add_string_format(val_tree,
 			hf_ldp_tlv_addrl_addr, tvb, offset, addr_size, str,
-			"Address %u : %s", ix, str);
+			"Address %u: %s", ix, str);
 		}
 		if(rem)
 			proto_tree_add_text(val_tree, tvb, offset, rem,
@@ -777,7 +777,8 @@ void
 dissect_tlv_path_vector(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 {
 	proto_tree *ti = NULL, *val_tree = NULL;
-	guint8	ix, *addr;
+	guint8	ix;
+	guint32 addr;
 
 	if (tree) {
 		ti=proto_tree_add_text(tree, tvb, offset, rem, "LSR IDs");
@@ -786,12 +787,11 @@ dissect_tlv_path_vector(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 		if(val_tree == NULL) return;
 
 		for(ix=1; rem >= 4; ix++, offset += 4, rem -= 4) {
-			if( (addr=(guint8 *)tvb_get_ptr(tvb, offset, 4))
-							 == NULL)
-				break;
-			proto_tree_add_ipv4_format(val_tree, hf_ldp_tlv_pv_lsrid, tvb,
-			offset, 4, tvb_get_ntohl(tvb, offset), "LSR Id %u : %s", ix,
-			ip_to_str(addr));
+			tvb_memcpy(tvb, (guint8 *)&addr, offset, 4);
+			proto_tree_add_ipv4_format(val_tree,
+			    hf_ldp_tlv_pv_lsrid, tvb, offset, 4,
+			    addr, "LSR Id %u: %s", ix,
+			    ip_to_str((guint8 *)&addr));
 		}
 		if(rem)
 			proto_tree_add_text(val_tree, tvb, offset, rem,

@@ -3,7 +3,7 @@
  *
  * Uwe Girlich <uwe@planetquake.com>
  *
- * $Id: packet-quake3.c,v 1.10 2002/01/24 09:20:50 guy Exp $
+ * $Id: packet-quake3.c,v 1.11 2002/04/02 01:32:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -283,7 +283,7 @@ dissect_quake3_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo,
 			proto_item	*server_item = NULL;
 			proto_tree	*server_tree = NULL;
 
-			ip_addr = tvb_get_ntohl(tvb, base + 1);
+			tvb_memcpy(tvb, (guint8 *)&ip_addr, base + 1, 4);
 			udp_port = tvb_get_ntohs(tvb, base + 5);
 
 			/* It may be a good idea to create a conversation for
@@ -295,7 +295,7 @@ dissect_quake3_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo,
 				server_item = proto_tree_add_text(text_tree,
 					tvb, base, 7, 
 					"Server: %s:%u",
-						get_hostname(htonl(ip_addr)),
+						get_hostname(ip_addr),
 						udp_port);
 				if (server_item)
 					server_tree = proto_item_add_subtree(
@@ -303,10 +303,8 @@ dissect_quake3_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo,
 						ett_quake3_server);
 			}
 			if (server_tree) {
-				/* I'm not sure about all this ordering stuff
-				but so it works on my (le) machine */
 				proto_tree_add_ipv4(server_tree, hf_quake3_server_addr, 
-					tvb, base + 1, 4, htonl(ip_addr));
+					tvb, base + 1, 4, ip_addr);
 				proto_tree_add_uint(server_tree, hf_quake3_server_port, 
 					tvb, base + 5, 2, udp_port);
 			}

@@ -1,10 +1,10 @@
 /* packet-ypbind.c
  * Routines for ypbind dissection
  *
- * $Id: packet-ypbind.c,v 1.9 2002/01/05 21:49:36 guy Exp $
+ * $Id: packet-ypbind.c,v 1.10 2002/04/02 01:32:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
  * Copied from packet-smb.c
@@ -82,7 +82,6 @@ static int
 dissect_ypbind_domain_v2_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
 	guint32 type;
-	guint32 tid;
 
 	/* response type */
 	type=tvb_get_ntohl(tvb, offset);
@@ -91,11 +90,8 @@ dissect_ypbind_domain_v2_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 	switch(type){
 	case YPBIND_RESP_TYPE_SUCC_VAL:
 		/* ip address */
-		tid=tvb_get_ntohl(tvb,offset);
-		tid=((tid&0x000000ff)<<24)|((tid&0x0000ff00)<<8)
-			|((tid&0x00ff0000)>>8)|((tid&0xff000000)>>24);
-		proto_tree_add_ipv4(tree, hf_ypbind_addr, 
-			tvb, offset, 4, tid);
+		proto_tree_add_item(tree, hf_ypbind_addr, 
+			tvb, offset, 4, FALSE);
 		offset += 4;
 
 		/* port */
@@ -116,18 +112,13 @@ dissect_ypbind_domain_v2_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 static int
 dissect_ypbind_setdomain_v2_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	guint32 tid;
-
 	/* domain */
 	offset = dissect_rpc_string(tvb, pinfo, tree, 
 			hf_ypbind_domain, offset, NULL);
 
 	/* ip address */
-	tid=tvb_get_ntohl(tvb,offset);
-	tid=((tid&0x000000ff)<<24)|((tid&0x0000ff00)<<8)
-		|((tid&0x00ff0000)>>8)|((tid&0xff000000)>>24);
-	proto_tree_add_ipv4(tree, hf_ypbind_addr, 
-		tvb, offset, 4, tid);
+	proto_tree_add_item(tree, hf_ypbind_addr, 
+		tvb, offset, 4, FALSE);
 	offset += 4;
 
 	/* port */
