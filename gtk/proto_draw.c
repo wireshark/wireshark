@@ -1,7 +1,7 @@
 /* gtkpacket.c
  * Routines for GTK+ packet display
  *
- * $Id: proto_draw.c,v 1.10 1999/12/15 06:52:32 gram Exp $
+ * $Id: proto_draw.c,v 1.11 1999/12/15 07:03:11 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -161,9 +161,8 @@ void expand_all_tree(proto_tree *protocol_tree, GtkWidget *tree_view) {
   for(i=0; i < num_tree_types; i++) {
     tree_is_expanded[i] = TRUE;
   }
-/*  gtk_tree_clear_items(GTK_TREE(tree_view), 0, -1);
+  gtk_tree_clear_items(GTK_TREE(tree_view), 0, -1);
   proto_tree_draw(protocol_tree, tree_view);
-  gtk_ctree_expand_recursive(GTK_CTREE(tree_view), */
 }
 
 void collapse_all_tree(proto_tree *protocol_tree, GtkWidget *tree_view) {
@@ -171,8 +170,8 @@ void collapse_all_tree(proto_tree *protocol_tree, GtkWidget *tree_view) {
   for(i=0; i < num_tree_types; i++) {
     tree_is_expanded[i] = FALSE;
   }
-/*  gtk_tree_clear_items(GTK_TREE(tree_view), 0, -1);
-  proto_tree_draw(protocol_tree, tree_view);*/
+  gtk_tree_clear_items(GTK_TREE(tree_view), 0, -1);
+  proto_tree_draw(protocol_tree, tree_view);
 }
 
 static void
@@ -187,44 +186,27 @@ collapse_tree(GtkWidget *w, gpointer data) {
   *val = FALSE;
 }
 
-/*static void
+static void
 set_item_style(GtkWidget *widget, gpointer dummy)
 {
   gtk_widget_set_style(widget, item_style);
-}*/
-
-struct proto_tree_draw_info {
-	GtkCTree	*ctree;
-	GtkCTreeNode	*ctree_node;
-};
+}
 
 void
 proto_tree_draw(proto_tree *protocol_tree, GtkWidget *tree_view)
 {
-	struct proto_tree_draw_info	info;
-
-	info.ctree = GTK_CTREE(tree_view);
-	info.ctree_node = NULL;
-
-	gtk_clist_freeze ( GTK_CLIST(tree_view) );
-
 	g_node_children_foreach((GNode*) protocol_tree, G_TRAVERSE_ALL,
-		proto_tree_draw_node, &info);
-
-	gtk_clist_thaw ( GTK_CLIST(tree_view) );
+		proto_tree_draw_node, tree_view);
 }
 
 static void
 proto_tree_draw_node(GNode *node, gpointer data)
 {
-	struct proto_tree_draw_info	info;
-	struct proto_tree_draw_info	*parent_info = (struct proto_tree_draw_info*) data;
-
+	GtkWidget	*tree_view = (GtkWidget*) data;
 	field_info	*fi = (field_info*) (node->data);
+	GtkWidget	*ti, *subtree;
 	gchar		label_str[ITEM_LABEL_LENGTH];
 	gchar		*label_ptr;
-	GtkCTreeNode	*parent;
-	gboolean	is_leaf, is_expanded;
 
 	if (!fi->visible)
 		return;
@@ -237,40 +219,25 @@ proto_tree_draw_node(GNode *node, gpointer data)
 		label_ptr = label_str;
 		proto_item_fill_label(fi, label_str);
 	}
+		
+	ti = gtk_tree_item_new_with_label(label_ptr);
+	gtk_container_foreach(GTK_CONTAINER(ti), set_item_style, NULL);
+	
+	gtk_object_set_data(GTK_OBJECT(ti), E_TREEINFO_FIELD_INFO_KEY, (gpointer) fi);
+	gtk_tree_append(GTK_TREE(tree_view), ti);
+	gtk_widget_show(ti);
 
 	if (g_node_n_children(node) > 0) {
-		is_leaf = FALSE;
-		if (tree_is_expanded[fi->tree_type]) {
-			is_expanded = TRUE;
-		}
-		else {
-			is_expanded = FALSE;
-		}
-	}
-	else {
-		is_leaf = TRUE;
-		is_expanded = FALSE;
-	}
-	
-	info.ctree = parent_info->ctree;
-	parent = gtk_ctree_insert_node ( info.ctree, parent_info->ctree_node, NULL,
-			&label_ptr, 4, NULL, NULL, NULL, NULL,
-			is_leaf, is_expanded );
-
-/*	g_return_if_fail( parent != NULL );*/
-
-	gtk_ctree_node_set_row_data( GTK_CTREE(info.ctree), parent, fi );
-	gtk_ctree_node_set_row_style( GTK_CTREE(info.ctree), parent, item_style);
-
-	if (!is_leaf) {
-/*		gtk_signal_connect(GTK_OBJECT(ti), "expand", (GtkSignalFunc) expand_tree,
+		subtree = gtk_tree_new();
+		gtk_tree_item_set_subtree(GTK_TREE_ITEM(ti), GTK_WIDGET(subtree));
+		if (tree_is_expanded[fi->tree_type])
+			gtk_tree_item_expand(GTK_TREE_ITEM(ti));
+		gtk_signal_connect(GTK_OBJECT(ti), "expand", (GtkSignalFunc) expand_tree,
 			(gpointer) &tree_is_expanded[fi->tree_type]);
 		gtk_signal_connect(GTK_OBJECT(ti), "collapse", (GtkSignalFunc) collapse_tree,
-			(gpointer) &tree_is_expanded[fi->tree_type]);*/
+			(gpointer) &tree_is_expanded[fi->tree_type]);
 
-
-		info.ctree_node = parent;
 		g_node_children_foreach(node, G_TRAVERSE_ALL,
-			proto_tree_draw_node, &info);
+			proto_tree_draw_node, subtree);
 	}
 }
