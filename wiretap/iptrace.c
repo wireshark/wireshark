@@ -1,6 +1,6 @@
 /* iptrace.c
  *
- * $Id: iptrace.c,v 1.17 1999/11/18 08:50:34 gram Exp $
+ * $Id: iptrace.c,v 1.18 1999/11/18 09:39:12 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -210,13 +210,25 @@ atm_guess_content(wtap *wth, guint8 *header, guint8 *pd)
 	wth->phdr.pseudo_header.ngsniffer_atm.aal5t_chksum = 0;
 
 	if (pd[0] == 0xaa && pd[1] == 0xaa && pd[2] == 0x03) {
-		wth->phdr.pseudo_header.ngsniffer_atm.AppHLType = ATT_HL_LLCMX;
+		wth->phdr.pseudo_header.ngsniffer_atm.AppTrafType |= ATT_HL_LLCMX;
 	}
 	else if ( Vpi == 0 && Vci == 16 ) {
-		wth->phdr.pseudo_header.ngsniffer_atm.AppHLType = ATT_HL_ILMI;
+		wth->phdr.pseudo_header.ngsniffer_atm.AppTrafType |= ATT_HL_ILMI;
+	}
+	else if ( Vpi == 0 && Vci == 5 ) {
+		/* Signalling AAL */
+		wth->phdr.pseudo_header.ngsniffer_atm.AppTrafType = ATT_AAL_SIGNALLING;
 	}
 	else {
-		wth->phdr.pseudo_header.ngsniffer_atm.AppHLType = ATT_HL_LANE;
+		wth->phdr.pseudo_header.ngsniffer_atm.AppTrafType |= ATT_HL_LANE;
+		if (pd[0] == 0xff && pd[1] == 0x00)
+			wth->phdr.pseudo_header.ngsniffer_atm.AppHLType = AHLT_LANE_LE_CTRL;
+		else {
+			/*
+			 * XXX - Ethernet, or Token Ring?
+			 */
+			wth->phdr.pseudo_header.ngsniffer_atm.AppHLType = AHLT_LANE_802_3;
+		}
 	}
 }
 

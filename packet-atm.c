@@ -1,7 +1,7 @@
 /* packet-atm.c
  * Routines for ATM packet disassembly
  *
- * $Id: packet-atm.c,v 1.5 1999/11/18 08:50:18 gram Exp $
+ * $Id: packet-atm.c,v 1.6 1999/11/18 09:38:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -424,7 +424,7 @@ dissect_atm(const u_char *pd, frame_data *fd, proto_tree *tree)
   guint       hl_type;
 
   aal_type = fd->pseudo_header.ngsniffer_atm.AppTrafType & ATT_AALTYPE;
-  hl_type = fd->pseudo_header.ngsniffer_atm.AppHLType & ATT_HLTYPE;
+  hl_type = fd->pseudo_header.ngsniffer_atm.AppTrafType & ATT_HLTYPE;
 
   if (check_col(fd, COL_PROTOCOL))
     col_add_str(fd, COL_PROTOCOL, "ATM");
