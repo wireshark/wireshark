@@ -1,5 +1,7 @@
 /* packet-h450.c
  * Routines for h450 packet dissection
+ * Based on the previous h450 dissector by:
+ * 2003  Graeme Reid (graeme.reid@norwoodsystems.com)
  * Copyright 2005, Anders Broman <anders.broman@ericsson.com>
  *
  * $Id$
@@ -158,6 +160,23 @@ static int hf_h4502_CTUpdateArg = -1;
 static int hf_h4502_SubaddressTransferArg = -1;
 static int hf_h4502_CTCompleteArg = -1;
 static int hf_h4502_CTActiveArg = -1;
+
+static int hf_h4504_HoldNotificArg = -1;
+static int hf_h4504_RetrieveNotificArg = -1;
+static int hf_h4504_RemoteHoldArg = -1;
+static int hf_h4504_RemoteRetrieveArg = -1;
+static int hf_h4504_RemoteRetrieveRes = -1;
+
+static int hf_h4507_MWIActivateArg = -1;
+static int hf_h4507_MWIDeactivateArg = -1;
+static int hf_h4507_MwiDummyRes = -1;
+static int hf_h4507_MWIInterrogateArg = -1;
+static int hf_h4507_MWIInterrogateRes = -1;
+
+static int hf_h4508_CallingNameArg = -1;
+static int hf_h4508_AlertingNameArg = -1;
+static int hf_h4508_ConnectedNameArg = -1;
+static int hf_h4508_BusyNameArg = -1;
 
 static int hf_h4501_Invoke = -1;
 static int hf_h4501_ROS = -1;
@@ -366,6 +385,18 @@ dissect_h4501_ReturnResult_result(tvbuff_t *tvb, int offset, packet_info *pinfo,
       case CallTransferSetup:
          dissect_h450_DummyRes(result_tvb, 0, pinfo , tree, hf_h4502_DummyRes);
          break;
+	case RemoteRetrieve:
+         dissect_h450_RemoteRetrieveRes(result_tvb, 0, pinfo , tree, hf_h4504_RemoteRetrieveRes);
+         break;
+	case MWIActivate:
+		dissect_h450_MwiDummyRes(result_tvb, 0, pinfo , tree, hf_h4507_MwiDummyRes);
+		break;
+	case MWIDeactivate:
+		dissect_h450_MwiDummyRes(result_tvb, 0, pinfo , tree, hf_h4507_MwiDummyRes);
+		break;
+	case MWIInterrogate:
+		dissect_h450_MWIInterrogateRes(result_tvb, 0, pinfo , tree, hf_h4507_MWIInterrogateRes);
+		break;
 
       default:
 PER_NOT_DECODED_YET("Unrecognized H.450.x return result");
@@ -659,41 +690,77 @@ dissect_h4501_argument(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 
 
       switch (localOpcode) {
-		  case CallTransferIdentify:
-	      case CallTransferAbandon:
+		  case CallTransferIdentify:  /* Localvalue 7 */
+	      case CallTransferAbandon:   /* Localvalue 8 */
 			 dissect_h450_DummyArg(argument_tvb, 0, pinfo , tree, hf_h4502_DummyArg);
 			 break;
 
-		   case CallTransferInitiate:
+		   case CallTransferInitiate:  /* Localvalue 9 */
 	         dissect_h450_CTInitiateArg(argument_tvb, 0, pinfo , tree, hf_h4502_CTInitiateArg);
 	         break;
 
-	      case CallTransferSetup:
+	      case CallTransferSetup:		/* Localvalue 10 */
 	         dissect_h450_CTSetupArg(argument_tvb, 0, pinfo , tree, hf_h4502_CTSetupArg);
 	         break;
 
-	      case CallTransferUpdate:
+	      case CallTransferUpdate:		/* Localvalue 13 */
 	         dissect_h450_CTUpdateArg(argument_tvb, 0, pinfo , tree, hf_h4502_CTUpdateArg);
 	         break;
 
-		  case SubaddressTransfer:
-	         dissect_h450_SubaddressTransferArg(argument_tvb, 0, pinfo , tree, hf_h4502_SubaddressTransferArg);
+		  case SubaddressTransfer:		/* Localvalue 14 */
+	         dissect_h450_SubaddressTransfer(argument_tvb, 0, pinfo , tree, hf_h4502_SubaddressTransferArg);
 	         break;
 
-	      case CallTransferComplete:
+	      case CallTransferComplete:	/* Localvalue 12 */
 	         dissect_h450_CTCompleteArg(argument_tvb, 0, pinfo , tree, hf_h4502_CTCompleteArg);
 	         break;
 
-	      case CallTransferActive:
+	      case CallTransferActive:		/* Localvalue 11 */
 	         dissect_h450_CTActiveArg(argument_tvb, 0, pinfo , tree, hf_h4502_CTActiveArg);
 		     break;
+		  /* H.450.4 */
+	      case HoldNotific:				/* Localvalue 101 */
+			   dissect_h450_HoldNotificArg(argument_tvb, 0, pinfo , tree, hf_h4504_HoldNotificArg);
+		     break;
+	      case RetrieveNotific:			/* Localvalue 102 */
+			   dissect_h450_RetrieveNotificArg(argument_tvb, 0, pinfo , tree, hf_h4504_RetrieveNotificArg);
+		     break;
+	      case RemoteHold:				/* Localvalue 103 */
+			   dissect_h450_RemoteHoldArg(argument_tvb, 0, pinfo , tree, hf_h4504_RemoteHoldArg);
+		     break;
+	      case RemoteRetrieve:			/* Localvalue 104 */
+			   dissect_h450_RemoteRetrieveArg(argument_tvb, 0, pinfo , tree, hf_h4504_RemoteRetrieveArg);
+		     break;
+		  /* H.450.7 Message Waiting Indication  */
+		  case MWIActivate:				/* Localvalue 80 */
+			   dissect_h450_MWIActivateArg(argument_tvb, 0, pinfo , tree, hf_h4507_MWIActivateArg);
+		     break;
+		  case MWIDeactivate:			/* Localvalue 81 */
+			   dissect_h450_MWIDeactivateArg(argument_tvb, 0, pinfo , tree, hf_h4507_MWIDeactivateArg);
+		     break;
+		  case MWIInterrogate:			/* Localvalue 82 */
+			   dissect_h450_MWIInterrogateArg(argument_tvb, 0, pinfo , tree, hf_h4507_MWIInterrogateArg);
+		     break;
 
+		  /* H.450.8 */
+		  case NIcallingName:			/* Localvalue 0 */
+			  dissect_h450_CallingName(argument_tvb, 0, pinfo , tree, hf_h4508_CallingNameArg);
+			  break;
+		  case NIalertingName:			/* Localvalue 1 */
+			  dissect_h450_AlertingName(argument_tvb, 0, pinfo , tree, hf_h4508_AlertingNameArg);
+			  break;
+		  case NIconnectedName:			/* Localvalue 2 */
+			  dissect_h450_ConnectedName(argument_tvb, 0, pinfo , tree, hf_h4508_ConnectedNameArg);
+			  break;
+		  case NIbusyName:			/* Localvalue 3 */
+			  dissect_h450_BusyName(argument_tvb, 0, pinfo , tree, hf_h4508_BusyNameArg);
+			  break;
 	      /* TODO - decode other H.450.x invoke arguments here */
 	     default:
 PER_NOT_DECODED_YET("Unrecognized H.450.x operation");
 	         break;
 	  }
-	  }
+  }
    return offset;
 }
 static int 
@@ -790,7 +857,13 @@ void proto_register_h450(void) {
       { "Invoke", "h4501.Invoke", FT_NONE, BASE_NONE,
       NULL, 0, "Invoke sequence of", HFILL }},
 
-  { &hf_h4502_CTIdentifyRes,
+   { &hf_h4502_CTActiveArg,
+      { "CTActiveArg", "h4502.CTActiveArg", FT_NONE, BASE_NONE,
+      NULL, 0, "CTActiveArg sequence of", HFILL }},
+   { &hf_h4502_CTCompleteArg,
+      { "CTCompleteArg", "h4502.CTCompleteArg", FT_NONE, BASE_NONE,
+      NULL, 0, "CTCompleteArg sequence of", HFILL }},
+   { &hf_h4502_CTIdentifyRes,
       { "CTIdentifyRes", "h4502.CTIdentifyRes", FT_NONE, BASE_NONE,
       NULL, 0, "CTIdentifyRes sequence of", HFILL }},
    { &hf_h4502_DummyRes,
@@ -811,6 +884,51 @@ void proto_register_h450(void) {
    { &hf_h4502_SubaddressTransferArg,
       { "SubaddressTransferArg", "h4502.SubaddressTransferArg", FT_NONE, BASE_NONE,
       NULL, 0, "SubaddressTransferArg sequence of", HFILL }},
+
+   { &hf_h4504_HoldNotificArg,
+      { "HoldNotificArg", "h4504.HoldNotificArg", FT_NONE, BASE_NONE,
+      NULL, 0, "HoldNotificArg sequence of", HFILL }},
+   { &hf_h4504_RetrieveNotificArg,
+      { "RetrieveNotificArg", "h4504.RetrieveNotificArg", FT_NONE, BASE_NONE,
+      NULL, 0, "RetrieveNotificArg sequence of", HFILL }},
+   { &hf_h4504_RemoteHoldArg,
+      { "RemoteHoldArg", "h4504.RemoteHoldArg", FT_NONE, BASE_NONE,
+      NULL, 0, "RemoteHoldArg sequence of", HFILL }},
+   { &hf_h4504_RemoteRetrieveArg,
+      { "RemoteRetrieveArg", "h4504.RemoteRetrieveArg", FT_NONE, BASE_NONE,
+      NULL, 0, "RemoteRetrieveArg sequence of", HFILL }},
+   { &hf_h4504_RemoteRetrieveRes,
+      { "RemoteRetrieveRes", "h4504.RemoteRetrieveRes", FT_NONE, BASE_NONE,
+      NULL, 0, "RemoteRetrieveRes sequence of", HFILL }},
+
+   { &hf_h4507_MWIActivateArg,
+      { "MWIActivateArg", "h4507.MWIActivateArg", FT_NONE, BASE_NONE,
+      NULL, 0, "MWIActivateArg sequence of", HFILL }},
+   { &hf_h4507_MwiDummyRes,
+      { "MwiDummyRes", "h4507.MwiDummyRes", FT_NONE, BASE_NONE,
+      NULL, 0, "MwiDummyRes sequence of", HFILL }},
+   { &hf_h4507_MWIDeactivateArg,
+      { "MWIDeactivateArg", "h4507.MWIDeactivateArg", FT_NONE, BASE_NONE,
+      NULL, 0, "MWIDeactivateArg sequence of", HFILL }},
+   { &hf_h4507_MWIInterrogateArg,
+      { "MWIInterrogateArg", "h4507.MWIInterrogateArg", FT_NONE, BASE_NONE,
+      NULL, 0, "MWIInterrogateArg sequence of", HFILL }},
+   { &hf_h4507_MWIInterrogateRes,
+      { "MWIInterrogateRes", "h4507.MWIInterrogateRes", FT_NONE, BASE_NONE,
+      NULL, 0, "MWIInterrogateRes sequence of", HFILL }},
+
+   { &hf_h4508_CallingNameArg,
+      { "CallingNameArg", "h4508.CallingNameArg", FT_NONE, BASE_NONE,
+      NULL, 0, "CallingNameArg sequence of", HFILL }},
+   { &hf_h4508_AlertingNameArg,
+      { "AlertingNameArg", "h4508.AlertingNameArg", FT_NONE, BASE_NONE,
+      NULL, 0, "AlertingNameArg sequence of", HFILL }},
+   { &hf_h4508_ConnectedNameArg,
+      { "ConnectedNameArg", "h4508.ConnectedNameArg", FT_NONE, BASE_NONE,
+      NULL, 0, "ConnectedNameArg sequence of", HFILL }},
+   { &hf_h4508_BusyNameArg,
+      { "BusyNameArg", "h4508.BusyNameArg", FT_NONE, BASE_NONE,
+      NULL, 0, "BusyNameArg sequence of", HFILL }},
 
 #include "packet-h450-hfarr.c"
   };
