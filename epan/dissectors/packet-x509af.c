@@ -7,8 +7,9 @@
 
 /* packet-x509af.c
  * Routines for X.509 Authentication Framework packet dissection
+ *  Ronnie Sahlberg 2004
  *
- * $Id: packet-x509af-template.c 12438 2004-10-30 02:36:58Z sahlberg $
+ * $Id: packet-x509af-template.c 12573 2004-11-22 03:36:26Z sahlberg $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -131,6 +132,7 @@ static int hf_x509af_attType_item = -1;           /* AttributeType */
 
 
 /* Initialize the subtree pointers */
+static gint ett_pkix_crl = -1;
 
 /*--- Included file: packet-x509af-ett.c ---*/
 
@@ -955,6 +957,30 @@ static void dissect_AttributeCertificate_PDU(tvbuff_t *tvb, packet_info *pinfo, 
 
 
 
+static int
+dissect_pkix_crl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
+{
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
+
+	if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "PKIX-CRL");
+
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_clear(pinfo->cinfo, COL_INFO);
+		
+		col_add_fstr(pinfo->cinfo, COL_INFO, "Certificate Revocation List");
+	}
+
+
+	if(parent_tree){
+		item=proto_tree_add_text(parent_tree, tvb, 0, -1, "Certificate Revocation List");
+		tree = proto_item_add_subtree(item, ett_pkix_crl);
+	}
+
+	return dissect_x509af_CertificateList(FALSE, tvb, 0, pinfo, tree, -1);
+}
+
 /*--- proto_register_x509af ----------------------------------------------*/
 void proto_register_x509af(void) {
 
@@ -1254,6 +1280,7 @@ void proto_register_x509af(void) {
 
   /* List of subtrees */
   static gint *ett[] = {
+    &ett_pkix_crl,
 
 /*--- Included file: packet-x509af-ettarr.c ---*/
 
@@ -1304,6 +1331,11 @@ void proto_register_x509af(void) {
 
 /*--- proto_reg_handoff_x509af -------------------------------------------*/
 void proto_reg_handoff_x509af(void) {
+	dissector_handle_t pkix_crl_handle;
+
+	pkix_crl_handle = new_create_dissector_handle(dissect_pkix_crl, proto_x509af);
+	dissector_add_string("media_type", "application/pkix-crl", pkix_crl_handle);
+
 
 /*--- Included file: packet-x509af-dis-tab.c ---*/
 

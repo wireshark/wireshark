@@ -51,6 +51,7 @@ static int hf_x509af_extension_id = -1;
 #include "packet-x509af-hf.c"
 
 /* Initialize the subtree pointers */
+static gint ett_pkix_crl = -1;
 #include "packet-x509af-ett.c"
 
 static char algorithm_id[64]; /*64 chars should be long enough? */
@@ -61,6 +62,30 @@ static char extension_id[64]; /*64 chars should be long enough? */
 
 #include "packet-x509af-fn.c"
 
+
+static int
+dissect_pkix_crl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
+{
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
+
+	if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "PKIX-CRL");
+
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_clear(pinfo->cinfo, COL_INFO);
+		
+		col_add_fstr(pinfo->cinfo, COL_INFO, "Certificate Revocation List");
+	}
+
+
+	if(parent_tree){
+		item=proto_tree_add_text(parent_tree, tvb, 0, -1, "Certificate Revocation List");
+		tree = proto_item_add_subtree(item, ett_pkix_crl);
+	}
+
+	return dissect_x509af_CertificateList(FALSE, tvb, 0, pinfo, tree, -1);
+}
 
 /*--- proto_register_x509af ----------------------------------------------*/
 void proto_register_x509af(void) {
@@ -80,6 +105,7 @@ void proto_register_x509af(void) {
 
   /* List of subtrees */
   static gint *ett[] = {
+    &ett_pkix_crl,
 #include "packet-x509af-ettarr.c"
   };
 
@@ -95,6 +121,11 @@ void proto_register_x509af(void) {
 
 /*--- proto_reg_handoff_x509af -------------------------------------------*/
 void proto_reg_handoff_x509af(void) {
+	dissector_handle_t pkix_crl_handle;
+
+	pkix_crl_handle = new_create_dissector_handle(dissect_pkix_crl, proto_x509af);
+	dissector_add_string("media_type", "application/pkix-crl", pkix_crl_handle);
+
 #include "packet-x509af-dis-tab.c"
 
 	/*XXX these should really go to a better place but since that
