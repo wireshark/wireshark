@@ -2,7 +2,7 @@
  * Routines for SNMP (simple network management protocol)
  * D.Jorand (c) 1998
  *
- * $Id: packet-snmp.c,v 1.6 1999/07/29 07:11:23 guy Exp $
+ * $Id: packet-snmp.c,v 1.7 1999/08/20 21:26:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -866,6 +866,7 @@ proto_register_snmp(void)
                 { "Name",           "snmp.abbreviation", TYPE, VALS_POINTER }},
         };*/
 
+	init_mib();
         proto_snmp = proto_register_protocol("Simple Network Management Protocol", "snmp");
  /*       proto_register_field_array(proto_snmp, hf, array_length(hf));*/
 }
