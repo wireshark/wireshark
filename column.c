@@ -1,7 +1,7 @@
 /* column.c
  * Routines for handling column preferences
  *
- * $Id: column.c,v 1.16 1999/07/13 03:08:03 gram Exp $
+ * $Id: column.c,v 1.17 1999/07/22 16:03:51 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -76,7 +76,7 @@ col_format_to_string(gint fmt) {
                      "%hs", "%rhs", "%uhs", "%ns", "%rns", "%uns", "%d",
                      "%rd", "%ud", "%hd", "%rhd", "%uhd", "%nd", "%rnd",
                      "%und", "%S", "%rS", "%uS", "%D", "%rD", "%uD", "%p",
-                     "%i" };
+                     "%i", "%L" };
   
   if (fmt < 0 || fmt > NUM_COL_FMTS)
     return NULL;
@@ -102,7 +102,7 @@ col_format_desc(gint fmt) {
                      "Source port", "Src port (resolved)",
                      "Src port (unresolved)", "Destination port",
                      "Dest port (resolved)", "Dest port (unresolved)",
-                     "Protocol", "Information" };
+                     "Protocol", "Information", "Packet length (bytes)" };
   
   if (fmt < 0 || fmt > NUM_COL_FMTS)
     return NULL;
@@ -245,6 +245,9 @@ get_column_format_from_str(gchar *str) {
         break;
       case 'T':
         time_off = TIME_DEL;
+        break;
+      case 'L':
+        return COL_PACKET_LENGTH;
         break;
     }
     cptr++;

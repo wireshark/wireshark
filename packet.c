@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.31 1999/07/15 15:32:43 gram Exp $
+ * $Id: packet.c,v 1.32 1999/07/22 16:03:51 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -641,6 +641,8 @@ dissect_packet(const u_char *pd, frame_data *fd, proto_tree *tree)
 	  col_add_rel_time(fd, COL_REL_TIME);
 	if (check_col(fd, COL_DELTA_TIME))
 	  col_add_delta_time(fd, COL_DELTA_TIME);
+	if (check_col(fd, COL_PACKET_LENGTH))
+	  col_add_fstr(fd, COL_PACKET_LENGTH, "%d", fd->pkt_len);
 
 	if (tree) {
 	  ti = proto_tree_add_item_format(tree, proto_frame, 0, fd->cap_len,

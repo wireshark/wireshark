@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.71 1999/07/12 21:39:28 gram Exp $
+ * $Id: packet.h,v 1.72 1999/07/22 16:03:52 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -499,6 +499,7 @@ enum {
   COL_UNRES_DST_PORT, /* Unresolved dest port */
   COL_PROTOCOL,       /* Protocol */
   COL_INFO,           /* Description */
+  COL_PACKET_LENGTH,  /* Packet length in bytes */
   NUM_COL_FMTS        /* Should always be last */
 };
 
