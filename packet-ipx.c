@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-ipx.c,v 1.26 1999/09/02 23:17:57 guy Exp $
+ * $Id: packet-ipx.c,v 1.27 1999/09/15 22:33:17 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -570,7 +570,7 @@ dissect_sap(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	if (check_col(fd, COL_PROTOCOL))
 		col_add_str(fd, COL_PROTOCOL, "SAP");
 	if (check_col(fd, COL_INFO)) {
-		if (query.query_type < 4) {
+		if (query.query_type >= 1 && query.query_type <= 4) {
 			col_add_str(fd, COL_INFO, sap_type[query.query_type - 1]);
 		}
 		else {
@@ -582,7 +582,7 @@ dissect_sap(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 		ti = proto_tree_add_item(tree, proto_sap, offset, END_OF_FRAME, NULL);
 		sap_tree = proto_item_add_subtree(ti, ETT_IPXSAP);
 
-		if (query.query_type < 4) {
+		if (query.query_type >= 1 && query.query_type <= 4) {
 			proto_tree_add_text(sap_tree, offset, 2, sap_type[query.query_type - 1]);
 		}
 		else {
