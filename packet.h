@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.195 2000/08/19 08:26:02 guy Exp $
+ * $Id: packet.h,v 1.196 2000/08/20 20:48:55 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -287,15 +287,6 @@ gboolean old_dissector_try_heuristic(heur_dissector_list_t sub_dissectors,
     const u_char *pd, int offset, frame_data *fd, proto_tree *tree);
 gboolean dissector_try_heuristic(heur_dissector_list_t sub_dissectors,
     tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-
-/* Many of the structs and definitions below and in packet-*.c files
- * were taken from include files in the Linux distribution. */
-
-typedef struct tcp_extra_data {
-  int match_port;
-  int sport;
-  int dport;
-} tcp_extra_data;
 
 /* Utility routines used by packet*.c */
 gchar*     ether_to_str(const guint8 *);
