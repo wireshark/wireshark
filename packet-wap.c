@@ -2,7 +2,7 @@
  *
  * Utility routines for WAP dissectors
  *
- * $Id: packet-wap.c,v 1.8 2003/11/14 01:27:34 guy Exp $
+ * $Id: packet-wap.c,v 1.9 2004/01/13 20:59:37 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -85,8 +85,9 @@ tvb_get_guintvar (tvbuff_t *tvb, guint offset, guint *octetCount)
 	return (value);
 }
 
+/* See http://www.iana.org/assignments/character-sets for the MIBenum mapping */
 const value_string vals_character_sets[] = {
-	{ 0x0000, "hz-gb-2312" },
+	{ 0x0000, "*" },
 	{ 0x0003, "us-ascii" },
 	{ 0x0004, "iso-8859-1" },
 	{ 0x0005, "iso-8859-2" },
@@ -295,6 +296,7 @@ const value_string vals_character_sets[] = {
 	{ 0x0822, "viscii" },
 	{ 0x0823, "viqr" },
 	{ 0x0824, "koi8-r" },
+	{ 0x0825, "hz-gb-2312" },
 	{ 0x0826, "ibm866" },
 	{ 0x0827, "ibm775" },
 	{ 0x0828, "koi8-u" },
@@ -321,6 +323,5 @@ const value_string vals_character_sets[] = {
 	{ 0x08D1, "windows-1257" },
 	{ 0x08D2, "windows-1258" },
 	{ 0x08D3, "tis-620" },
-	{ 0x0080, "Any" },	/* Special Case */
 	{ 0x0000, NULL }
 };
