@@ -2,7 +2,7 @@
  * Routines for SNMP (simple network management protocol)
  * D.Jorand (c) 1998
  *
- * $Id: packet-snmp.c,v 1.1 1999/05/12 05:56:41 gram Exp $
+ * $Id: packet-snmp.c,v 1.2 1999/05/16 04:13:29 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -71,16 +71,43 @@ typedef unsigned  long SNMP_UINT;
 #endif
 #ifdef WITH_SNMP_CMU
 #include <snmp/snmp.h>
+#include <snmp/snmp_impl.h>
+
+
+#ifndef MAX_NAME_LEN
+#define MAX_NAME_LEN SNMP_MAX_LEN
+#endif
 
 #define SNMP_MSG_GET GET_REQ_MSG
 #define SNMP_MSG_GETNEXT GETNEXT_REQ_MSG
 #define SNMP_MSG_RESPONSE GET_RSP_MSG
 #define SNMP_MSG_SET SET_REQ_MSG	    
 #define SNMP_MSG_TRAP TRP_REQ_MSG
+
+#ifdef GETBULK_REQ_MSG
+#define SNMP_MSG_GETBULK GETBULK_REQ_MSG
+#else
 #define SNMP_MSG_GETBULK SNMP_PDU_GETBULK
+#endif
+
+#ifdef INFORM_REQ_MSG
+#define SNMP_MSG_INFORM INFORM_REQ_MSG
+#else
 #define SNMP_MSG_INFORM SNMP_PDU_INFORM
+#endif
+
+#ifdef TRP2_REQ_MSG
+#define SNMP_MSG_TRAP2 TRP2_REQ_MSG
+#else
 #define SNMP_MSG_TRAP2 SNMP_PDU_V2TRAP
+#endif
+
+#ifdef REPORT_MSG
+#define SNMP_MSG_REPORT REPORT_MSG
+#else
 #define SNMP_MSG_REPORT SNMP_PDU_REPORT
+#endif
+
 
 #ifndef SNMP_VERSION_2c
 #define SNMP_VERSION_2c 1
@@ -92,7 +119,9 @@ typedef unsigned  long SNMP_UINT;
 #define SNMP_VERSION_3 3
 #endif
 
+#ifdef SNMP_TRAP_AUTHENTICATIONFAILURE
 #define SNMP_TRAP_AUTHFAIL SNMP_TRAP_AUTHENTICATIONFAILURE
+#endif
 
 #ifndef COMMUNITY_MAX_LEN
 #define COMMUNITY_MAX_LEN 256
@@ -110,24 +139,55 @@ typedef unsigned  long SNMP_UINT;
 #ifndef ASN_NULL
 #define ASN_NULL SMI_NULLOBJ
 #endif
+
 #ifndef ASN_IPADDRESS
-#define ASN_IPADDRESS SMI_IPADDRESS
+	#ifdef IPADDRESS
+	#define ASN_IPADDRESS IPADDRESS
+	#else
+	#define ASN_IPADDRESS SMI_IPADDRESS
+	#endif
 #endif
+
 #ifndef ASN_COUNTER
-#define ASN_COUNTER SMI_COUNTER32
+	#ifdef COUNTER
+	#define ASN_COUNTER COUNTER
+	#else
+	#define ASN_COUNTER SMI_COUNTER32
+	#endif
 #endif
+
 #ifndef ASN_GAUGE
-#define ASN_GAUGE SMI_GAUGE32
+	#ifdef GAUGE
+	#define ASN_GAUGE GAUGE
+	#else
+	#define ASN_GAUGE SMI_GAUGE32
+	#endif
 #endif
+
 #ifndef ASN_TIMETICKS
-#define ASN_TIMETICKS SMI_TIMETICKS
+	#ifdef TIMETICKS
+	#define ASN_TIMETICKS TIMETICKS
+	#else
+	#define ASN_TIMETICKS SMI_TIMETICKS
+	#endif
 #endif
+
 #ifndef ASN_OPAQUE
-#define ASN_OPAQUE SMI_OPAQUE
+	#ifdef OPAQUE
+	#define ASN_OPAQUE OPAQUE
+	#else
+	#define ASN_OPAQUE SMI_OPAQUE
+	#endif
 #endif
+
 #ifndef ASN_COUNTER64
-#define ASN_COUNTER64 SMI_COUNTER64
+	#ifdef COUNTER64
+	#define ASN_COUNTER64 COUNTER64
+	#else
+	#define ASN_COUNTER64 SMI_COUNTER64
+	#endif
 #endif
+
 #ifndef ASN_UINTEGER
 /* historic: should not be used! */
 #define ASN_UINTEGER (ASN_APPLICATION | 7)
