@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.143 2001/12/23 21:11:23 gerald Exp $
+# $Id: configure.in,v 1.144 2002/01/09 23:21:54 gram Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -145,19 +145,32 @@ else
 	esac
 fi
 
-#
-# Arrange that we search for header files in the source directory
-# and in its "wiretap" subdirectory, as well as in "/usr/local/include",
-# as various packages we use ("libpcap", "zlib", an SNMP library)
-# may have been installed under "/usr/local/include".
-#
-CFLAGS="$CFLAGS -I\$(top_srcdir) -I\$(top_srcdir)/wiretap -I\$(top_srcdir)/epan -I/usr/local/include"
-CPPFLAGS="$CPPFLAGS -I\$(top_srcdir) -I\$(top_srcdir)/wiretap -I\$(top_srcdir)/epan -I/usr/local/include"
+CFLAGS="$CFLAGS -I\$(top_srcdir) -I\$(top_srcdir)/wiretap -I\$(top_srcdir)/epan"
+CPPFLAGS="$CPPFLAGS -I\$(top_srcdir) -I\$(top_srcdir)/wiretap -I\$(top_srcdir)/epan"
 
-#
-# Arrange that we search for libraries in "/usr/local/lib".
-#
-AC_ETHEREAL_ADD_DASH_L(LDFLAGS, /usr/local/lib)
+dnl Look in /usr/local for header files and libraries ?
+AC_ARG_ENABLE(usr-local,
+[  --enable-usr-local      look for headers and libs in /usr/local tree.  [default=yes]],enable_usr_local=$enableval,enable_usr_local=yes)
+
+AC_MSG_CHECKING(whether to use /usr/local for headers and libraries)
+if test "x$enable_usr_local" = "xyes" ; then
+	AC_MSG_RESULT(yes)
+	#
+	# Arrange that we search for header files in the source directory
+	# and in its "wiretap" subdirectory, as well as in "/usr/local/include",
+	# as various packages we use ("libpcap", "zlib", an SNMP library)
+	# may have been installed under "/usr/local/include".
+	#
+	CFLAGS="$CFLAGS -I/usr/local/include"
+	CPPFLAGS="$CPPFLAGS -I/usr/local/include"
+
+	#
+	# Arrange that we search for libraries in "/usr/local/lib".
+	#
+	AC_ETHEREAL_ADD_DASH_L(LDFLAGS, /usr/local/lib)
+else
+	AC_MSG_RESULT(no)
+fi
 
 # Create DATAFILE_DIR #define for config.h
 DATAFILE_DIR=$sysconfdir
