@@ -1,6 +1,6 @@
 /* ngsniffer.c
  *
- * $Id: ngsniffer.c,v 1.93 2002/12/20 21:23:02 guy Exp $
+ * $Id: ngsniffer.c,v 1.94 2002/12/20 21:58:46 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -339,7 +339,7 @@ static void set_pseudo_header_frame6(union wtap_pseudo_header *pseudo_header,
     struct frame6_rec *frame6);
 static gboolean ngsniffer_read_rec_data(wtap *wth, gboolean is_random,
     guchar *pd, int length, int *err);
-static int infer_pkt_encap(guint8 byte0, guint8 byte1);
+static int infer_pkt_encap(const guint8 *pd, int len);
 static void fix_pseudo_header(int, union wtap_pseudo_header *pseudo_header);
 static void ngsniffer_sequential_close(wtap *wth);
 static void ngsniffer_close(wtap *wth);
@@ -946,7 +946,7 @@ found:
 		/*
 		 * Infer the packet type from the first byte.
 		 */
-		wth->phdr.pkt_encap = infer_pkt_encap(pd[0], pd[1]);
+		wth->phdr.pkt_encap = infer_pkt_encap(pd, length);
 
 		/*
 		 * Fix up the pseudo-header; we may have set
@@ -1046,7 +1046,7 @@ static gboolean ngsniffer_seek_read(wtap *wth, long seek_off,
 		/*
 		 * Infer the packet type from the first two bytes.
 		 */
-		pkt_encap = infer_pkt_encap(pd[0], pd[1]);
+		pkt_encap = infer_pkt_encap(pd, packet_size);
 
 		/*
 		 * Fix up the pseudo-header; we may have set
@@ -1508,41 +1508,63 @@ static gboolean ngsniffer_read_rec_data(wtap *wth, gboolean is_random,
  * OK, this capture is from an "Internetwork analyzer", and we either
  * didn't see a type 7 record or it had a network type such as NET_HDLC
  * that doesn't tell us which *particular* HDLC derivative this is;
- * let's look at the first byte of the packet, which was passed to us
- * as an argument, and see whether it looks like PPP, Frame Relay, or
- * LAPB - or, if it's none of those, assume it's LAPD.
+ * let's look at the first few bytes of the packet, a pointer to which
+ * was passed to us as an argument, and see whether it looks like PPP,
+ * Frame Relay, Wellfleet HDLC, Cisco HDLC, or LAPB - or, if it's none
+ * of those, assume it's LAPD.
  *
  * (XXX - are there any "Internetwork analyzer" captures that don't
  * have type 7 records?  If so, is there some other field that will
  * tell us what type of capture it is?)
- *
- * We now use the first two bytes, perhaps we will need to generalize 
- * this at some stage in the future.
  */
-static int infer_pkt_encap(guint8 byte0, guint8 byte1)
+static int infer_pkt_encap(const guint8 *pd, int len)
 {
-	if (byte0 == 0xFF) {
+	if (len <= 0) {
 		/*
-		 * PPP.
+		 * Nothing to infer, but it doesn't matter how you
+		 * dissect an empty packet.  Let's just say PPP.
 		 */
 		return WTAP_ENCAP_PPP_WITH_PHDR;
-	} else if (byte0 == 0x34 || byte0 == 0x28) {
+	}
+
+	switch (pd[0]) {
+
+	case 0xFF:
+		/*
+		 * PPP.  (XXX - check for 0xFF 0x03?)
+		 */
+		return WTAP_ENCAP_PPP_WITH_PHDR;
+
+	case 0x34:
+	case 0x28:
 		/*
 		 * Frame Relay.
+		 *
+		 * XXX - in version 4 captures, wouldn't this just have
+		 * a capture subtype of NET_FRAME_RELAY?  Or is this
+		 * here only to handle other versions of the capture
+		 * file, where we might just not yet have found where
+		 * the subtype is specified in the capture?
 		 */
 		return WTAP_ENCAP_FRELAY;
-	} else if (byte0 == 0x07 && byte1 == 0x03) {
-		/*
-		 * Wellfleet HDLC
-		 */
-		return WTAP_ENCAP_WFLEET_HDLC;
-	} else if ((byte0 == 0x08 && byte1 == 0x00) ||
-		   (byte0 == 0x8F && byte1 == 0x00)) {
-		/*
-		 * Cisco HDLC
-		 */
-		return WTAP_ENCAP_CHDLC;
-	} else if (byte0 & 1) {
+	}
+
+	if (len >= 2) {
+		if (pd[0] == 0x07 && pd[1] == 0x03) {
+			/*
+			 * Wellfleet HDLC.
+			 */
+			return WTAP_ENCAP_WFLEET_HDLC;
+		} else if ((pd[0] == 0x08 && pd[1] == 0x00) ||
+			   (pd[0] == 0x8F && pd[1] == 0x00)) {
+			/*
+			 * Cisco HDLC.
+			 */
+			return WTAP_ENCAP_CHDLC;
+		}
+	}
+
+	if (pd[0] & 1) {
 		/*
 		 * LAPB.
 		 */
@@ -1551,6 +1573,16 @@ static int infer_pkt_encap(guint8 byte0, guint8 byte1)
 		/*
 		 * LAPD.
 		 * We report it as WTAP_ENCAP_ISDN.
+		 *
+		 * XXX - is there something buried in the header to tell us
+		 * whether the capture was taken with an ISDN pod?
+		 *
+		 * Or is this here just because some ISDN captures run
+		 * LAPB/X.25 over the B channel(s), so we check for
+		 * LAPB even in NET_ROUTER captures?  If so, we should
+		 * perhaps move that heuristic up to the ISDN dissector,
+		 * so that we can infer LAPB traffic in *all* ISDN
+		 * captures, not just DOS Sniffer ISDN captures?
 		 */
 		return WTAP_ENCAP_ISDN;
 	}
