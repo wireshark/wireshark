@@ -1621,9 +1621,10 @@ Martijn Schipper <martijn.schipper [AT] intersil.com> {
 	Fix for tag for 802.11g ERP Information field
 }
 
-And assorted fixes by:
+And assorted fixes and enhancements by:
 
 	Pavel Roskin <proski [AT] gnu.org>
+	Laurent Meyer <laurent.meyer [AT] thales-avionics.com>
 
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
