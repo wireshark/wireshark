@@ -45,8 +45,7 @@ Overview of changes in Ethereal 0.7.8:
 * Display filter "Reset" button (Laurent)
 * Added HSRP (Heikki)
 * SNA packets show hex dump with EBCDIC converted to ASCII (Gilbert)
-
-
+* Added Cisco Auto-RP (Heikki)
 
 Overview of changes in Ethereal 0.7.7:
 * Check header length in IP header (Guy)

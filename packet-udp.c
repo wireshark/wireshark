@@ -1,7 +1,7 @@
 /* packet-udp.c
  * Routines for UDP packet disassembly
  *
- * $Id: packet-udp.c,v 1.37 1999/11/21 20:02:31 gram Exp $
+ * $Id: packet-udp.c,v 1.38 1999/11/23 17:09:57 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -72,6 +72,7 @@ typedef struct _e_udphdr {
 #define UDP_PORT_NBNS	137
 #define UDP_PORT_NBDGM	138
 #define UDP_PORT_SNMP   161
+#define UDP_PORT_PIM_RP_DISC 496
 #define UDP_PORT_ISAKMP	500
 #define UDP_PORT_RIP    520
 #define UDP_PORT_RIPNG  521
@@ -175,6 +176,7 @@ void init_dissect_udp(void) {
   udp_hash_add(UDP_PORT_TFTP, dissect_tftp);
   udp_hash_add(UDP_PORT_SAP, dissect_sap);
   udp_hash_add(UDP_PORT_HSRP, dissect_hsrp);
+  udp_hash_add(UDP_PORT_PIM_RP_DISC, dissect_auto_rp);
 
 }
 
