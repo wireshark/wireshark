@@ -1,7 +1,7 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
  *
- * $Id: packet-dns.c,v 1.6 1998/10/14 22:37:01 guy Exp $
+ * $Id: packet-dns.c,v 1.7 1998/10/15 06:40:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -273,6 +273,7 @@ dissect_dns_query(const u_char *dns_data_ptr, const u_char *pd, int offset,
   char *type_name;
   const u_char *dptr;
   const u_char *data_start;
+  GtkWidget *q_tree, *tq;
 
   data_start = dptr = pd + offset;
 
@@ -280,15 +281,21 @@ dissect_dns_query(const u_char *dns_data_ptr, const u_char *pd, int offset,
     &type, &class);
   dptr += len;
 
-  add_item_to_tree(dns_tree, offset, name_len, "Name: %s", name);
+  type_name = dns_type_name(type);
+  class_name = dns_class_name(class);
+
+  tq = add_item_to_tree(dns_tree, offset, len, "%s: type %s, class %s", 
+		   name, type_name, class_name);
+  q_tree = gtk_tree_new();
+  add_subtree(tq, q_tree, ETT_DNS_QD);
+
+  add_item_to_tree(q_tree, offset, name_len, "Name: %s", name);
   offset += name_len;
 
-  type_name = dns_type_name(type);
-  add_item_to_tree(dns_tree, offset, 2, "Type: %s", type_name);
+  add_item_to_tree(q_tree, offset, 2, "Type: %s", type_name);
   offset += 2;
 
-  class_name = dns_class_name(class);
-  add_item_to_tree(dns_tree, offset, 2, "Class: %s", class_name);
+  add_item_to_tree(q_tree, offset, 2, "Class: %s", class_name);
   offset += 2;
   
   return dptr - data_start;

@@ -3,7 +3,7 @@
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  * Much stuff added by Guy Harris <guy@netapp.com>
  *
- * $Id: packet-nbns.c,v 1.3 1998/10/14 22:37:02 guy Exp $
+ * $Id: packet-nbns.c,v 1.4 1998/10/15 06:40:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -230,6 +230,7 @@ dissect_nbns_query(const u_char *nbns_data_ptr, const u_char *pd, int offset,
 	char *type_name;
 	const u_char *dptr;
 	const u_char *data_start;
+	GtkWidget *q_tree, *tq;
 
 	data_start = dptr = pd + offset;
 
@@ -237,15 +238,21 @@ dissect_nbns_query(const u_char *nbns_data_ptr, const u_char *pd, int offset,
 	    &name_len, &type, &class);
 	dptr += len;
 
-	add_item_to_tree(nbns_tree, offset, name_len, "Name: %s", name);
+	type_name = nbns_type_name(type);
+	class_name = dns_class_name(class);
+
+	tq = add_item_to_tree(nbns_tree, offset, len, "%s: type %s, class %s", 
+	    name, type_name, class_name);
+	q_tree = gtk_tree_new();
+	add_subtree(tq, q_tree, ETT_NBNS_QD);
+
+	add_item_to_tree(q_tree, offset, name_len, "Name: %s", name);
 	offset += name_len;
 
-	type_name = nbns_type_name(type);
-	add_item_to_tree(nbns_tree, offset, 2, "Type: %s", type_name);
+	add_item_to_tree(q_tree, offset, 2, "Type: %s", type_name);
 	offset += 2;
 
-	class_name = dns_class_name(class);
-	add_item_to_tree(nbns_tree, offset, 2, "Class: %s", class_name);
+	add_item_to_tree(q_tree, offset, 2, "Class: %s", class_name);
 	offset += 2;
 	
 	return dptr - data_start;
