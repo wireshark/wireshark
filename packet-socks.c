@@ -2,7 +2,7 @@
  * Routines for socks versions 4 &5  packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-socks.c,v 1.45 2003/04/23 10:20:29 sahlberg Exp $
+ * $Id: packet-socks.c,v 1.46 2003/09/17 15:58:11 jfoster Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -30,6 +30,12 @@
  * See http://www.socks.nec.com/socksprot.html for these and other documents
  *
  * Revisions:
+ *
+ * 2003-09-18 JCFoster Fixed problem with socks tunnel in socks tunnel
+ *			causing heap overflow because of an infinite loop
+ *			where the socks dissect was call over and over.
+ *
+ *			Also remove some old code marked with __JUNK__
  *
  * 2001-01-08 JCFoster Fixed problem with NULL pointer for hash data.
  *			Now test and exit if hash_info is null.
@@ -93,6 +99,9 @@
 #define CHAP_AUTHENTICATION 	3
 #define AUTHENTICATION_FAILED 	0xff
 
+/* 2003-09-18 JCFoster Fixed problem with socks tunnel in socks tunnel */
+
+static int in_socks_dissector_flag = 0;		/* set to 1 to avoid recursive overflow */
 
 /*********** Header field identifiers *************/
 
@@ -174,16 +183,6 @@ static char *address_type_table[] = {
 
 /* String table for the V4 reply status messages */
 
-#ifdef __JUNK__
-static char *reply_table_v4[] = {
-	"Granted",
-	"Rejected or Failed",
-	"Rejected because SOCKS server cannot connect to identd on the client",
-	"Rejected because the client program and identd report different user-ids",
-	"Unknown"
-};
-#endif
-
 static const value_string reply_table_v4[] = {
 	{90, "Granted"},
 	{91, "Rejected or Failed"},
@@ -193,21 +192,6 @@ static const value_string reply_table_v4[] = {
 };
 
 /* String table for the V5 reply status messages */
-
-#ifdef __JUNK__
-static char *reply_table_v5[] = {
-	"Succeeded",
-	"General SOCKS server failure",
-	"Connection not allowed by ruleset",
-	"Network unreachable",
-	"Host unreachable",
-	"Connection refused",
-	"TTL expired",
-	"Command not supported",
-	"Address type not supported",
-	"Unknown"
-};
-#endif
 
 static const value_string reply_table_v5[] = {
 	{0, "Succeeded"},
@@ -945,7 +929,15 @@ static void call_next_dissector(tvbuff_t *tvb, int offset, packet_info *pinfo,
         		ptr = &pinfo->srcport;
 
 	        *ptr = hash_info->port;
+
+/* 2003-09-18 JCFoster Fixed problem with socks tunnel in socks tunnel */
+
+		in_socks_dissector_flag = 1; /* avoid recursive overflow */
+
 		decode_tcp_ports( tvb, offset, pinfo, tree, pinfo->srcport, pinfo->destport, 0);
+
+		in_socks_dissector_flag = 0; /* avoid recursive overflow */
+
 	        *ptr = TCP_PORT_SOCKS;
 	}
 }
@@ -960,6 +952,14 @@ dissect_socks(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	proto_item      *ti;
 	socks_hash_entry_t *hash_info;
 	conversation_t *conversation;
+
+/* 2003-09-18 JCFoster Fixed problem with socks tunnel in socks tunnel */
+
+	/* avoid recursive overflow */
+
+	if ( in_socks_dissector_flag) {
+		return;
+	}
 
 	conversation = find_conversation( &pinfo->src, &pinfo->dst, pinfo->ptype,
 		pinfo->srcport, pinfo->destport, 0);
