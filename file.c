@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.64 1999/08/14 01:33:29 guy Exp $
+ * $Id: file.c,v 1.65 1999/08/14 03:36:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -551,11 +551,9 @@ filter_packets(capture_file *cf)
      get. */
   cf->selected_row = -1;
 
-  /*
-   * Iterate through the list of packets, calling a routine
-   * to run the filter on the packet, see if it matches, and
-   * put it in the display list if so.
-   */
+  /* Iterate through the list of packets, calling a routine
+     to run the filter on the packet, see if it matches, and
+     put it in the display list if so.  */
   firstsec = 0;
   firstusec = 0;
   lastsec = 0;
@@ -632,9 +630,7 @@ print_packets(capture_file *cf, int to_file, const char *dest)
   print_preamble(cf->print_fh);
 #endif
 
-  /*
-   * Iterate through the list of packets, printing each of them.
-   */
+  /* Iterate through the list of packets, printing each of them.  */
   cf->count = 0;
   for (fd = cf->plist; fd != NULL; fd = fd->next) {
     cf->count++;
@@ -675,39 +671,33 @@ change_time_formats(capture_file *cf)
      screen updates while it happens. */
   freeze_clist(cf);
 
-  /*
-   * Iterate through the list of packets, calling a routine
-   * to run the filter on the packet, see if it matches, and
-   * put it in the display list if so.
-   */
-  firstsec = 0;
-  firstusec = 0;
-  lastsec = 0;
-  lastusec = 0;
-  cf->count = 0;
+  /* Iterate through the list of packets, checking whether the packet
+     is in a row of the summary list and, if so, whether there are
+     any columns that show the time in the "command-line-specified"
+     format and, if so, update that row. */
   for (fd = cf->plist; fd != NULL; fd = fd->next) {
-    cf->count++;
+    if (fd->row != -1) {
+      /* This packet is in the summary list, on row "fd->row". */
 
-    /* XXX - there really should be a way of checking "cf->cinfo" for this;
-       the answer isn't going to change from packet to packet, so we should
-       simply skip all the "change_time_formats()" work if we're not
-       changing anything. */
-    fd->cinfo = &cf->cinfo;
-    if (check_col(fd, COL_CLS_TIME)) {
-      /* There are columns that show the time in the "command-line-specified"
-         format; update them. */
-      compute_time_stamps(fd, cf);
-
-      for (i = 0; i < cf->cinfo.num_cols; i++) {
-        cf->cinfo.col_data[i][0] = '\0';
-      }
-      col_add_cls_time(fd);
-      for (i = 0; i < cf->cinfo.num_cols; i++) {
-        if (cf->cinfo.fmt_matx[i][COL_CLS_TIME]) {
-          /* This is one of the columns that shows the time in
-             "command-line-specified" format; update it. */
-          gtk_clist_set_text(GTK_CLIST(packet_list), cf->count - 1, i,
+      /* XXX - there really should be a way of checking "cf->cinfo" for this;
+         the answer isn't going to change from packet to packet, so we should
+         simply skip all the "change_time_formats()" work if we're not
+         changing anything. */
+      fd->cinfo = &cf->cinfo;
+      if (check_col(fd, COL_CLS_TIME)) {
+        /* There are columns that show the time in the "command-line-specified"
+           format; update them. */
+        for (i = 0; i < cf->cinfo.num_cols; i++) {
+          cf->cinfo.col_data[i][0] = '\0';
+        }
+        col_add_cls_time(fd);
+        for (i = 0; i < cf->cinfo.num_cols; i++) {
+          if (cf->cinfo.fmt_matx[i][COL_CLS_TIME]) {
+            /* This is one of the columns that shows the time in
+               "command-line-specified" format; update it. */
+            gtk_clist_set_text(GTK_CLIST(packet_list), fd->row, i,
 			  cf->cinfo.col_data[i]);
+	  }
         }
       }
     }
