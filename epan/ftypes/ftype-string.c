@@ -1,5 +1,5 @@
 /*
- * $Id: ftype-string.c,v 1.3 2001/03/02 17:17:56 gram Exp $
+ * $Id: ftype-string.c,v 1.4 2001/07/15 20:31:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -45,6 +45,7 @@ string_fvalue_free(fvalue_t *fv)
 static void
 string_fvalue_set(fvalue_t *fv, gpointer value, gboolean already_copied)
 {
+	g_assert(value != NULL);
 	if (already_copied) {
 		fv->value.string = value;
 	}
