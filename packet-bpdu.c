@@ -1,7 +1,7 @@
 /* packet-bpdu.c
  * Routines for BPDU (Spanning Tree Protocol) disassembly
  *
- * $Id: packet-bpdu.c,v 1.21 2001/01/22 00:20:29 guy Exp $
+ * $Id: packet-bpdu.c,v 1.22 2001/02/08 03:59:12 guy Exp $
  *
  * Copyright 1999 Christophe Tronche <ch.tronche@computer.org>
  * 
@@ -146,6 +146,13 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	    return;
       }
 
+      if (check_col(pinfo->fd, COL_PROTOCOL)) {
+	    col_set_str(pinfo->fd, COL_PROTOCOL, "STP"); /* Spanning Tree Protocol */
+      }
+      if (check_col(pinfo->fd, COL_INFO)) {
+	    col_clear(pinfo->fd, COL_INFO);
+      }
+
       bpdu_type = tvb_get_guint8(tvb, BPDU_TYPE);
       flags = tvb_get_guint8(tvb, BPDU_FLAGS);
       root_identifier_bridge_priority = tvb_get_ntohs(tvb, BPDU_ROOT_IDENTIFIER);
@@ -153,10 +160,6 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
       root_identifier_mac_str = ether_to_str(root_identifier_mac);
       root_path_cost = tvb_get_ntohl(tvb, BPDU_ROOT_PATH_COST);
       port_identifier = tvb_get_ntohs(tvb, BPDU_PORT_IDENTIFIER);
-
-      if (check_col(pinfo->fd, COL_PROTOCOL)) {
-	    col_set_str(pinfo->fd, COL_PROTOCOL, "STP"); /* Spanning Tree Protocol */
-      }
 
       if (check_col(pinfo->fd, COL_INFO)) {
 	    if (bpdu_type == 0)
@@ -169,12 +172,11 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
       }
 
       if (tree) {
-	    protocol_identifier = tvb_get_ntohs(tvb, BPDU_IDENTIFIER);
-	    protocol_version_identifier = tvb_get_guint8(tvb, BPDU_VERSION_IDENTIFIER);
-
 	    ti = proto_tree_add_protocol_format(tree, proto_bpdu, tvb, 0, 35,
 			    	"Spanning Tree Protocol");
 	    bpdu_tree = proto_item_add_subtree(ti, ett_bpdu);
+
+	    protocol_identifier = tvb_get_ntohs(tvb, BPDU_IDENTIFIER);
 	    proto_tree_add_uint_format(bpdu_tree, hf_bpdu_proto_id, tvb,
 				       BPDU_IDENTIFIER, 2, 
 				       protocol_identifier,
@@ -183,6 +185,7 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 				       protocol_identifier == 0 ? 
 				       "Spanning Tree" : "Unknown Protocol");
 
+	    protocol_version_identifier = tvb_get_guint8(tvb, BPDU_VERSION_IDENTIFIER);
 	    proto_tree_add_uint(bpdu_tree, hf_bpdu_version_id, tvb, 
 				BPDU_VERSION_IDENTIFIER, 1, 
 				protocol_version_identifier);
