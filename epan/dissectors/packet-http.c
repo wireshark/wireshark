@@ -1143,7 +1143,9 @@ is_http_request_or_reply(const gchar *data, int linelen, http_type_t *type,
 			if (strncmp(data, "BCOPY", index) == 0 ||
 				strncmp(data, "BMOVE", index) == 0 ||
 				strncmp(data, "MKCOL", index) == 0 ||
-				strncmp(data, "TRACE", index) == 0) {
+				strncmp(data, "TRACE", index) == 0 ||
+				strncmp(data, "LABEL", index) == 0 ||  /* RFC 3253 8.2 */
+				strncmp(data, "MERGE", index) == 0) {  /* RFC 3253 11.2 */
 				*type = HTTP_REQUEST;
 				isHttpRequestOrReply = TRUE;
 			}
@@ -1152,7 +1154,9 @@ is_http_request_or_reply(const gchar *data, int linelen, http_type_t *type,
 		case 6:
 			if (strncmp(data, "DELETE", index) == 0 ||
 				strncmp(data, "SEARCH", index) == 0 ||
-				strncmp(data, "UNLOCK", index) == 0) {
+				strncmp(data, "UNLOCK", index) == 0 ||
+				strncmp(data, "REPORT", index) == 0 ||  /* RFC 3253 3.6 */
+				strncmp(data, "UPDATE", index) == 0) {  /* RFC 3253 7.1 */
 				*type = HTTP_REQUEST;
 				isHttpRequestOrReply = TRUE;
 			}
@@ -1165,14 +1169,16 @@ is_http_request_or_reply(const gchar *data, int linelen, http_type_t *type,
 		case 7:
 			if (strncmp(data, "BDELETE", index) == 0 ||
 			    strncmp(data, "CONNECT", index) == 0 ||
-			    strncmp(data, "OPTIONS", index) == 0) {
+			    strncmp(data, "OPTIONS", index) == 0 ||
+				strncmp(data, "CHECKIN", index) == 0) {  /* RFC 3253 4.4, 9.4 */
 				*type = HTTP_REQUEST;
 				isHttpRequestOrReply = TRUE;
 			}
 			break;
 
 		case 8:
-			if (strncmp(data, "PROPFIND", index) == 0) {
+			if (strncmp(data, "PROPFIND", index) == 0 ||
+				strncmp(data, "CHECKOUT", index) == 0) {  /* RFC 3253 4.3, 9.3 */
 				*type = HTTP_REQUEST;
 				isHttpRequestOrReply = TRUE;
 			}
@@ -1190,15 +1196,34 @@ is_http_request_or_reply(const gchar *data, int linelen, http_type_t *type,
 			break;
 
 		case 10:
-			if (strncmp(data, "BPROPPATCH", index) == 0) {
+			if (strncmp(data, "BPROPPATCH", index) == 0 ||
+				strncmp(data, "UNCHECKOUT", index) == 0 ||  /* RFC 3253 4.5 */
+				strncmp(data, "MKACTIVITY", index) == 0) {  /* RFC 3253 13.5 */
 				*type = HTTP_REQUEST;
 				isHttpRequestOrReply = TRUE;
 			}
 			break;
 
 		case 11:
-			if (strncmp(data, "UNSUBSCRIBE", index) == 0) {
+			if (strncmp(data, "MKWORKSPACE", index) == 0) {  /* RFC 3253 6.3 */
+				*type = HTTP_REQUEST;
+				isHttpRequestOrReply = TRUE;
+			} else if (strncmp(data, "UNSUBSCRIBE", index) == 0) {
 				*type = HTTP_NOTIFICATION;
+				isHttpRequestOrReply = TRUE;
+			}
+			break;
+
+		case 15:
+			if (strncmp(data, "VERSION-CONTROL", index) == 0) {  /* RFC 3253 3.5 */
+				*type = HTTP_REQUEST;
+				isHttpRequestOrReply = TRUE;
+			}
+			break;
+
+		case 16:
+			if (strncmp(data, "BASELINE-CONTROL", index) == 0) {  /* RFC 3253 12.6 */
+				*type = HTTP_REQUEST;
 				isHttpRequestOrReply = TRUE;
 			}
 			break;
