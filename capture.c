@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.137 2001/01/28 23:56:27 guy Exp $
+ * $Id: capture.c,v 1.138 2001/02/10 09:08:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -182,13 +182,15 @@ static void capture_delete_cb(GtkWidget *, GdkEvent *, gpointer);
 static void capture_stop_cb(GtkWidget *, gpointer);
 static void capture_pcap_cb(u_char *, const struct pcap_pkthdr *,
   const u_char *);
+static void show_capture_file_io_error(const char *, int, gboolean);
 static void send_errmsg_to_parent(const char *);
 static float pct(gint, gint);
 static void stop_capture(int signo);
 
 typedef struct _loop_data {
-  gint           go;
-  gint           max;
+  gint           go;           /* TRUE as long as we're supposed to keep capturing */
+  gint           max;          /* Number of packets we're supposed to capture - 0 means infinite */
+  int            err;          /* if non-zero, error seen while capturing */
   gint           linktype;
   gint           sync_packets;
   gboolean       from_pipe;    /* TRUE if we are capturing data from a pipe */
@@ -1174,6 +1176,7 @@ capture(void)
   ld.go             = TRUE;
   ld.counts.total   = 0;
   ld.max            = cfile.count;
+  ld.err            = 0;	/* no error seen yet */
   ld.linktype       = WTAP_ENCAP_UNKNOWN;
   ld.from_pipe      = FALSE;
   ld.sync_packets   = 0;
@@ -1529,33 +1532,28 @@ capture(void)
     }
   }
     
-  if (!wtap_dump_close(ld.pdh, &err)) {
+  if (ld.err != 0) {
     /* XXX - in fork mode, this may not pop up, or, if it does,
        it may disappear as soon as we exit.
 
        We should have the parent process, while it's reading
        the packet count update messages, catch error messages
        and pop up a message box if it sees one. */
-    switch (err) {
+    show_capture_file_io_error(cfile.save_file, ld.err, FALSE);
 
-    case WTAP_ERR_CANT_CLOSE:
-      simple_dialog(ESD_TYPE_WARN, NULL,
-        	"The file to which the capture was being saved"
-		" couldn't be closed for some unknown reason.");
-      break;
+    /* A write failed, so we've already told the user there's a problem;
+       if the close fails, there's no point in telling them about that
+       as well. */
+    wtap_dump_close(ld.pdh, &err);
+  } else {
+    if (!wtap_dump_close(ld.pdh, &err)) {
+      /* XXX - in fork mode, this may not pop up, or, if it does,
+         it may disappear as soon as we exit.
 
-    case WTAP_ERR_SHORT_WRITE:
-      simple_dialog(ESD_TYPE_WARN, NULL,
-		"Not all the data could be written to the file"
-		" to which the capture was being saved.");
-      break;
-
-    default:
-      simple_dialog(ESD_TYPE_WARN, NULL,
-		"The file to which the capture was being"
-		" saved (\"%s\") could not be closed: %s.",
-		cfile.save_file, wtap_strerror(err));
-      break;
+         We should have the parent process, while it's reading
+         the packet count update messages, catch error messages
+         and pop up a message box if it sees one. */
+      show_capture_file_io_error(cfile.save_file, err, TRUE);
     }
   }
 #ifndef _WIN32
@@ -1598,6 +1596,63 @@ error:
     pcap_close(pch);
 
   return FALSE;
+}
+
+static void
+show_capture_file_io_error(const char *fname, int err, gboolean is_close)
+{
+  switch (err) {
+
+  case ENOSPC:
+    simple_dialog(ESD_TYPE_WARN, NULL,
+		"Not all the packets could be written to the file"
+		" to which the capture was being saved\n"
+		"(\"%s\") because there is no space left on the file system\n"
+		"on which that file resides.",
+		fname);
+    break;
+
+#ifdef EDQUOT
+  case EDQUOT:
+    simple_dialog(ESD_TYPE_WARN, NULL,
+		"Not all the packets could be written to the file"
+		" to which the capture was being saved\n"
+		"(\"%s\") because you are too close to, or over,"
+		" your disk quota\n"
+		"on the file system on which that file resides.",
+		fname);
+  break;
+#endif
+
+  case WTAP_ERR_CANT_CLOSE:
+    simple_dialog(ESD_TYPE_WARN, NULL,
+		"The file to which the capture was being saved"
+		" couldn't be closed for some unknown reason.");
+    break;
+
+  case WTAP_ERR_SHORT_WRITE:
+    simple_dialog(ESD_TYPE_WARN, NULL,
+		"Not all the packets could be written to the file"
+		" to which the capture was being saved\n"
+		"(\"%s\").",
+		fname);
+    break;
+
+  default:
+    if (is_close) {
+      simple_dialog(ESD_TYPE_WARN, NULL,
+		"The file to which the capture was being saved\n"
+		"(\"%s\") could not be closed: %s.",
+		fname, wtap_strerror(err));
+    } else {
+      simple_dialog(ESD_TYPE_WARN, NULL,
+		"An error occurred while writing to the file"
+		" to which the capture was being saved\n"
+		"(\"%s\"): %s.",
+		fname, wtap_strerror(err));
+    }
+    break;
+  }
 }
 
 static void
@@ -1672,8 +1727,12 @@ capture_pcap_cb(u_char *user, const struct pcap_pkthdr *phdr,
      whdr.len = phdr->len;
      whdr.pkt_encap = ld->linktype;
 
-     /* XXX - do something if this fails */
-     wtap_dump(ld->pdh, &whdr, NULL, pd, &err);
+     /* If this fails, set "ld->go" to FALSE, to stop the capture, and set
+        "ld->err" to the error. */
+     if (!wtap_dump(ld->pdh, &whdr, NULL, pd, &err)) {
+       ld->go = FALSE;
+       ld->err = err;
+     }
   }
 
   /* Set the initial payload to the packet length, and the initial

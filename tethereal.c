@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.64 2001/02/01 20:21:13 gram Exp $
+ * $Id: tethereal.c,v 1.65 2001/02/10 09:08:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -123,6 +123,7 @@ typedef struct {
 static int load_cap_file(capture_file *, int);
 static void wtap_dispatch_cb_write(u_char *, const struct wtap_pkthdr *, int,
     union wtap_pseudo_header *, const u_char *);
+static void show_capture_file_io_error(const char *, int, gboolean);
 static void wtap_dispatch_cb_print(u_char *, const struct wtap_pkthdr *, int,
     union wtap_pseudo_header *, const u_char *);
 
@@ -710,9 +711,12 @@ capture_cleanup(int signum)
 
   printf("\n");
   pcap_close(ld.pch);
-  if (ld.pdh != NULL)
-    wtap_dump_close(ld.pdh, &err);
-  /* XXX - complain if this fails */
+  if (ld.pdh != NULL) {
+    if (!wtap_dump_close(ld.pdh, &err)) {
+      show_capture_file_io_error(cfile.save_file, err, TRUE);
+      exit(2);
+    }
+  }
   exit(0);
 }
 #endif /* HAVE_LIBPCAP */
@@ -790,28 +794,32 @@ load_cap_file(capture_file *cf, int out_file_type)
 
     case WTAP_ERR_UNSUPPORTED_ENCAP:
       fprintf(stderr,
-"tethereal: The capture file is for a network type that Tethereal doesn't support.\n");
+"tethereal: \"%s\" is a capture file is for a network type that Tethereal doesn't support.\n",
+	cf->filename);
       break;
 
     case WTAP_ERR_CANT_READ:
       fprintf(stderr,
-"tethereal: An attempt to read from the file failed for some unknown reason.\n");
+"tethereal: An attempt to read from \"%s\" failed for some unknown reason.\n",
+	cf->filename);
       break;
 
     case WTAP_ERR_SHORT_READ:
       fprintf(stderr,
-"tethereal: The capture file appears to have been cut short in the middle of a packet.\n");
+"tethereal: \"%s\" appears to have been cut short in the middle of a packet.\n",
+	cf->filename);
       break;
 
     case WTAP_ERR_BAD_RECORD:
       fprintf(stderr,
-"tethereal: The capture file appears to be damaged or corrupt.\n");
+"tethereal: \"%s\" appears to be damaged or corrupt.\n",
+	cf->filename);
       break;
 
     default:
       fprintf(stderr,
-"tethereal: An error occurred while reading the capture file: %s.\n",
-	wtap_strerror(err));
+"tethereal: An error occurred while reading \"%s\": %s.\n",
+	cf->filename, wtap_strerror(err));
       break;
     }
   }
@@ -915,13 +923,74 @@ wtap_dispatch_cb_write(u_char *user, const struct wtap_pkthdr *phdr, int offset,
     edt = NULL;
   }
   if (passed) {
-    /* XXX - do something if this fails */
-    wtap_dump(pdh, phdr, pseudo_header, buf, &err);
+    if (!wtap_dump(pdh, phdr, pseudo_header, buf, &err)) {
+#ifdef HAVE_LIBPCAP
+      if (ld.pch != NULL) {
+      	/* We're capturing packets, so we're printing a count of packets
+	   captured; move to the line after the count. */
+        printf("\n");
+      }
+#endif
+      show_capture_file_io_error(cf->save_file, err, FALSE);
+#ifdef HAVE_LIBPCAP
+      if (ld.pch != NULL)
+        pcap_close(ld.pch);
+#endif
+      wtap_dump_close(pdh, &err);
+      exit(2);
+    }
   }
   if (protocol_tree != NULL)
     proto_tree_free(protocol_tree);
   if (edt != NULL)
     epan_dissect_free(edt);
+}
+
+static void
+show_capture_file_io_error(const char *fname, int err, gboolean is_close)
+{
+  switch (err) {
+
+  case ENOSPC:
+    fprintf(stderr,
+"tethereal: Not all the packets could be written to \"%s\" because there is "
+"no space left on the file system.\n",
+	fname);
+    break;
+
+#ifdef EDQUOT
+  case EDQUOT:
+    fprintf(stderr,
+"tethereal: Not all the packets could be written to \"%s\" because you are "
+"too close to, or over your disk quota.\n",
+	fname);
+  break;
+#endif
+
+  case WTAP_ERR_CANT_CLOSE:
+    fprintf(stderr,
+"tethereal: \"%s\" couldn't be closed for some unknown reason.\n",
+	fname);
+    break;
+
+  case WTAP_ERR_SHORT_WRITE:
+    fprintf(stderr,
+"tethereal: Not all the packets could be written to \"%s\".\n",
+	fname);
+    break;
+
+  default:
+    if (is_close) {
+      fprintf(stderr,
+"tethereal: \"%s\" could not be closed: %s.\n",
+	fname, wtap_strerror(err));
+    } else {
+      fprintf(stderr,
+"tethereal: An error occurred while writing to \"%s\": %s.\n",
+	fname, wtap_strerror(err));
+    }
+    break;
+  }
 }
 
 static void

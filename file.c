@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.230 2001/02/03 06:25:17 guy Exp $
+ * $Id: file.c,v 1.231 2001/02/10 09:08:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1979,7 +1979,7 @@ file_close_error_message(int err)
     break;
 
   case WTAP_ERR_SHORT_WRITE:
-    errmsg = "Not all the data could be written to the file \"%s\".";
+    errmsg = "Not all the packets could be written to the file \"%s\".";
     break;
 
   case ENOSPC:
