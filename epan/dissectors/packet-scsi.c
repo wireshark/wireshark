@@ -4246,9 +4246,9 @@ dissect_scsi_smc2_readelementstatus (tvbuff_t *tvb, packet_info *pinfo,
         proto_tree_add_text (tree, tvb, offset+4, 1,
                              "CURDATA: %u, DVCID: %u",
                              (flags & 0x02) >> 1, flags & 0x01);
-        proto_tree_add_text (tree, tvb, offset+5, 3,
+        proto_tree_add_text (tree, tvb, offset+6, 3,
                              "Allocation Length: %u",
-                             tvb_get_ntoh24 (tvb, offset+5));
+                             tvb_get_ntoh24 (tvb, offset+6));
         flags = tvb_get_guint8 (tvb, offset+10);
         proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+10, 1,
                                     flags,
