@@ -1,6 +1,6 @@
 /* help_dlg.c
  *
- * $Id: help_dlg.c,v 1.8 2000/09/05 19:07:06 deniel Exp $
+ * $Id: help_dlg.c,v 1.9 2000/09/07 05:08:19 gram Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
@@ -275,7 +275,7 @@ static void set_help_text(GtkWidget *w, help_type_t type)
   header_field_info *hfinfo;
   int i, len, maxlen = 0, maxlen2 = 0, maxlen3 = 0, nb_lines = 0;
   int width, height;
-  char *type_name;
+  const char *type_name;
   char blanks[B_LEN];
 
   /*
