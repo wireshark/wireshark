@@ -4,7 +4,7 @@
  *
  * RFC 2865, RFC 2866, RFC 2867, RFC 2868, RFC 2869
  *
- * $Id: packet-radius.c,v 1.53 2002/03/27 19:39:28 guy Exp $
+ * $Id: packet-radius.c,v 1.54 2002/04/08 20:30:52 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -899,7 +899,7 @@ gchar *rd_match_strval(guint32 val, const value_string *vs) {
 	return val_to_str(val, vs, "Undefined (%u)");
 }
 
-gchar *rd_value_to_str(e_avphdr *avph, tvbuff_t *tvb, int offset)
+static gchar *rd_value_to_str(e_avphdr *avph, tvbuff_t *tvb, int offset)
 {
   int print_type;
   gchar *cont;

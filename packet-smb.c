@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.239 2002/03/29 21:55:05 sahlberg Exp $
+ * $Id: packet-smb.c,v 1.240 2002/04/08 20:30:53 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -12056,7 +12056,7 @@ typedef struct _smb_function {
        int (*response)(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *smb_tree);
 } smb_function;
 
-smb_function smb_dissector[256] = {
+static smb_function smb_dissector[256] = {
   /* 0x00 Create Dir*/  {dissect_old_dir_request, dissect_empty},
   /* 0x01 Delete Dir*/  {dissect_old_dir_request, dissect_empty},
   /* 0x02 Open File*/  {dissect_open_file_request, dissect_open_file_response},

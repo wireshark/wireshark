@@ -4,7 +4,7 @@
  * Copyright 2001, Michal Melerowicz <michal.melerowicz@nokia.com>
  *                 Nicolas Balkota <balkota@mac.com>
  *
- * $Id: packet-gtp.c,v 1.24 2002/01/31 12:10:58 guy Exp $
+ * $Id: packet-gtp.c,v 1.25 2002/04/08 20:30:52 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1705,7 +1705,7 @@ typedef struct _message {
 /* ---------------------
  * GPRS messages 
  * ---------------------*/
-_gtp_mess_items gprs_mess_items[] = {
+static _gtp_mess_items gprs_mess_items[] = {
 
 {
 	GTP_MSG_ECHO_REQ, {					
@@ -2036,7 +2036,7 @@ _gtp_mess_items gprs_mess_items[] = {
 /* -----------------------------
  * UMTS messages 
  * -----------------------------*/
-_gtp_mess_items umts_mess_items[] = {
+static _gtp_mess_items umts_mess_items[] = {
 
 {
 	GTP_MSG_ECHO_REQ, {					

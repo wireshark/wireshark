@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.244 2002/03/31 23:11:04 guy Exp $
+ * $Id: main.c,v 1.245 2002/04/08 20:30:56 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -213,7 +213,7 @@ set_fonts(GdkFont *regular, GdkFont *bold)
 
 
 /* Match selected byte pattern */
-void
+static void
 match_selected_cb_do(gpointer data, int action, gchar *text)
 {
     char		*ptr;

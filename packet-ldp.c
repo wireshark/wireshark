@@ -1,7 +1,7 @@
 /* packet-ldp.c
  * Routines for LDP (RFC 3036) packet disassembly
  *
- * $Id: packet-ldp.c,v 1.31 2002/04/02 01:32:46 guy Exp $
+ * $Id: packet-ldp.c,v 1.32 2002/04/08 20:30:52 gram Exp $
  * 
  * Copyright (c) November 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  *
@@ -431,7 +431,7 @@ static const value_string tlv_status_data[] = {
 
 /* Dissect FEC TLV */
 
-void
+static void
 dissect_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 {
 	proto_tree *ti=NULL, *val_tree=NULL, *fec_tree=NULL, *vcintparam_tree=NULL;

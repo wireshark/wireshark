@@ -2,7 +2,7 @@
  *
  * Top-most dissector. Decides dissector based on Wiretap Encapsulation Type.
  *
- * $Id: packet-frame.c,v 1.22 2002/02/18 23:51:55 guy Exp $
+ * $Id: packet-frame.c,v 1.23 2002/04/08 20:30:52 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -62,7 +62,7 @@ static const value_string p2p_dirs[] = {
 
 static dissector_table_t wtap_encap_dissector_table;
 	
-void
+static void
 dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_tree	*fh_tree;
