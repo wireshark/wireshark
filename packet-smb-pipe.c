@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb-pipe.c,v 1.7 2000/05/14 04:00:48 guy Exp $
+ * $Id: packet-smb-pipe.c,v 1.8 2000/05/14 20:50:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -57,7 +57,13 @@ static gint ett_lanman_shares = -1;
 static gint ett_lanman_share = -1;
 static gint ett_lanman_flags = -1;
 
-
+/*
+ * See
+ *
+ *	ftp://ftp.microsoft.com/developr/drg/CIFS/cifsrap2.txt
+ *
+ * among other documents.
+ */
 
 /* 
  * The following data structure describes the LANMAN requests we understand
@@ -538,7 +544,13 @@ int dissect_transact_next(const u_char *pd, char *Name, int dirn, proto_tree *tr
 
 }
 
-
+static const value_string share_type_vals[] = {
+        {0, "Directory tree"},
+        {1, "Printer queue"},
+        {2, "Communications device"},
+        {3, "IPC"},
+        {0, NULL}
+};
 
 guint32 
 dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
@@ -954,7 +966,8 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
 
 	if (tree) {
 
-	  proto_tree_add_text(share, NullTVB, loc_offset, 2, "Share Type: %u", Flags);
+	  proto_tree_add_text(share, NullTVB, loc_offset, 2, "Share Type: %s",
+		val_to_str(Flags, share_type_vals, "Unknown (%u)"));
 
 	}
 
