@@ -3,7 +3,7 @@
 /* dfilter-grammar.y
  * Parser for display filters
  *
- * $Id: dfilter-grammar.y,v 1.29 1999/10/12 06:19:58 gram Exp $
+ * $Id: dfilter-grammar.y,v 1.30 1999/10/13 06:01:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -160,7 +160,6 @@ dfilter *global_df = NULL;
 %token <operand>	TOK_AND TOK_OR TOK_NOT TOK_XOR
 %token <operand>	TOK_EQ TOK_NE TOK_GT TOK_GE TOK_LT TOK_LE
 
-%expect 4
 %left TOK_AND
 %left TOK_OR TOK_XOR
 %nonassoc TOK_NOT
@@ -248,10 +247,11 @@ relation:	numeric_variable numeric_relation numeric_value
 
 			if (a_len != b_len) {
 				dfilter_fail("Field \"%s\" has %u byte%s being compared, but %u byte%s "
-					"were supplied.",
+					"%s supplied.",
 					dfilter_get_variable_abbrev($1),
 					a_len, plurality(a_len, "", "s"),
-					b_len, plurality(b_len, "", "s"));
+					b_len, plurality(b_len, "", "s"),
+					       plurality(b_len, "was", "were"));
 				YYERROR;
 			}
 
@@ -929,10 +929,11 @@ check_bytes_variable_sanity(GNode *gnode)
 		t_off = a_off >= 0 ? a_off : reg_len + a_off;
 		if (t_off + a_len > reg_len) {
 			dfilter_fail("The \"%s\" field is only %u byte%s wide, but "
-				"%u byte%s were supplied.",
+				"%u byte%s %s supplied.",
 				dfilter_get_variable_abbrev(gnode),
 				reg_len, plurality(reg_len, "", "s"),
-				a_len, plurality(a_len, "", "s"));
+				a_len, plurality(a_len, "", "s"),
+				       plurality(a_len, "was", "were"));
 			return 0;
 		}
 	}
