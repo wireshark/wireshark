@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.96 2000/01/25 04:44:33 guy Exp $
+ * $Id: main.c,v 1.97 2000/01/25 05:48:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1408,11 +1408,13 @@ main(int argc, char *argv[])
 	     attached to "cf". */
           cf.rfcode = rfcode;
           err = read_cap_file(&cf);
-          s = strrchr(cf_name, '/');
-          if (s) {
-            last_open_dir = cf_name;
-            *s = '\0';
-          }
+          /* Save the name of the containing directory specified in the
+	     path name, if any; we can write over cf_name, which is a
+             good thing, given that "get_dirname()" does write over its
+             argument. */
+          s = get_dirname(cf_name);
+          if (s != NULL)
+            last_open_dir = s;
         } else {
           dfilter_destroy(rfcode);
           cf.rfcode = NULL;

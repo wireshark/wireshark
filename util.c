@@ -1,7 +1,7 @@
 /* util.c
  * Utility routines
  *
- * $Id: util.c,v 1.28 2000/01/25 04:31:16 guy Exp $
+ * $Id: util.c,v 1.29 2000/01/25 05:48:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -89,6 +89,33 @@ typedef int mode_t;	/* for win32 */
 #endif
 
 /*
+ * Given a pathname, return a pointer to the last pathname separator
+ * character in the pathname, or NULL if the pathname contains no
+ * separators.
+ */
+static char *
+find_last_pathname_separator(char *path)
+{
+	char *separator;
+
+#ifdef WIN32
+	/*
+	 * XXX - do we need to search for '/' as well?
+	 */
+	if ((separator = strrchr(path, '\\')) == NULL) {
+		/*
+		 * OK, no directories - but there might be a drive
+		 * letter....
+		 */
+		separator = strchr(path, ':');
+	}
+#else
+	separator = strrchr(path, '/');
+#endif
+	return separator;
+}
+
+/*
  * Given a pathname, return the last component.
  */
 char *
@@ -96,20 +123,7 @@ get_basename(char *path)
 {
 	char *filename;
 
-#ifdef WIN32
-	/*
-	 * XXX - do we need to search for '/' as well?
-	 */
-	if ((filename = strrchr(path, '\\')) == NULL) {
-		/*
-		 * OK, no directories - but there might be a drive
-		 * letter....
-		 */
-		filename = strchr(path, ':');
-	}
-#else
-	filename = strrchr(path, '/');
-#endif
+	filename = find_last_pathname_separator(path);
 	if (filename == NULL) {
 		/*
 		 * There're no directories, drive letters, etc. in the
@@ -123,6 +137,38 @@ get_basename(char *path)
 		filename++;
 	}
 	return filename;
+}
+
+/*
+ * Given a pathname, return a string containing everything but the
+ * last component.  NOTE: this overwrites the pathname handed into
+ * it....
+ */
+char *
+get_dirname(char *path)
+{
+	char *separator;
+
+	separator = find_last_pathname_separator(path);
+	if (separator == NULL) {
+		/*
+		 * There're no directories, drive letters, etc. in the
+		 * name; there is no directory path to return.
+		 */
+		return NULL;
+	}
+
+	/*
+	 * Get rid of the last pathname separator and the final file
+	 * name following it.
+	 */
+	*separator = '\0';
+
+	/*
+	 * "path" now contains the pathname of the directory containing
+	 * the file/directory to which it referred.
+	 */
+	return path;
 }
 
 static char *

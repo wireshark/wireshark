@@ -1,7 +1,7 @@
 /* file_dlg.c
  * Dialog boxes for handling files
  *
- * $Id: file_dlg.c,v 1.17 2000/01/03 06:59:20 guy Exp $
+ * $Id: file_dlg.c,v 1.18 2000/01/25 05:48:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -64,6 +64,10 @@
 #include "main.h"
 #endif
 
+#ifndef __UTIL_H__
+#include "util.h"
+#endif
+
 static void file_open_ok_cb(GtkWidget *w, GtkFileSelection *fs);
 static void select_file_type_cb(GtkWidget *w, gpointer data);
 static void file_save_as_ok_cb(GtkWidget *w, GtkFileSelection *fs);
@@ -73,6 +77,18 @@ void
 file_open_cmd_cb(GtkWidget *w, gpointer data) {
   GtkWidget *filter_hbox, *filter_bt, *filter_te;
 
+  /* XXX - GTK+'s file selection dialog box doesn't let you set the
+     initial directory it should show; it always uses the current
+     directory.  We want to start out by showing the user the files
+     in the last directory in which they looked, so we have to "chdir()"
+     there.
+
+     This means means that if Ethereal dumps core, the core file will be
+     dumped in whatever directory it last "chdir()"red to, rather
+     than in the directory in which you started it.
+
+     It also means, for better or worse, that *all* file selection
+     dialog boxes will start in that directory. */
   if (last_open_dir)
 	  chdir(last_open_dir);
 
@@ -168,21 +184,27 @@ file_open_ok_cb(GtkWidget *w, GtkFileSelection *fs) {
   gtk_widget_destroy(GTK_WIDGET (fs));
 
   err = read_cap_file(&cf);
-  /* Save the directory name; we can write over cf_name. */
-  s = strrchr(cf_name, '/');
-  if (s && last_open_dir) {
-	  *s = '\0';
-	  if (strcmp(last_open_dir, cf_name) != 0) {
-		  g_free(last_open_dir);
-		  last_open_dir = g_strdup(cf_name);
-	  }
-  }
-  else if (s) { /* ! last_open_dir */
-	  *s = '\0';
-	  last_open_dir = g_strdup(cf_name);
-  }
-  else {
-	  last_open_dir = NULL;
+  /* Save the name of the containing directory specified in the path name,
+     if any; we can write over cf_name, which is a good thing, given that
+     "get_dirname()" does write over its argument. */
+  s = get_dirname(cf_name);
+  if (s != NULL) {
+    /* Well, there is a directory in there... */
+    if (last_open_dir != NULL) {
+      /* ...and we already have one saved... */
+      if (strcmp(last_open_dir, s) != 0) {
+      	/* ...and it's not the same as this one, so free the old one
+	   and assign a copy of the new one to it. */
+	g_free(last_open_dir);
+	last_open_dir = g_strdup(s);
+      }
+    } else {
+      /* ...and we don't already have one saved, so just save this one. */
+      last_open_dir = g_strdup(s);
+    }
+  } else {
+    /* There was no directory in there. */
+    last_open_dir = NULL;
   }
   g_free(cf_name);
 }

@@ -1,7 +1,7 @@
 /* util.h
  * Utility definitions
  *
- * $Id: util.h,v 1.16 2000/01/25 04:31:17 guy Exp $
+ * $Id: util.h,v 1.17 2000/01/25 05:48:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -30,7 +30,17 @@
 extern "C" {
 #endif /* __cplusplus */
 
+/*
+ * Given a pathname, return the last component.
+ */
 char *get_basename(char *);
+
+/*
+ * Given a pathname, return a string containing everything but the
+ * last component.  NOTE: this overwrites the pathname handed into
+ * it....
+ */
+char *get_dirname(char *);
 
 int create_tempfile(char *, int, const char *);
 
