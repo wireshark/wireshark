@@ -15,6 +15,12 @@
 #include "win32-util.h"
 
 static void win32_menulist_size_adjust(win32_element_t *ml_el, gchar *text);
+static LRESULT CALLBACK win32_menulist_wnd_proc(HWND hw_listbox, UINT msg, WPARAM w_param, LPARAM l_param);
+
+static WNDPROC g_menulist_wnd_proc = NULL;
+
+#define WIN32_MENULIST_EDIT_BRUSH "_win32_menulist_edit_brush"
+#define WIN32_MENULIST_EDIT_COLOR "_win32_menulist_edit_color"
 
 /*
  * Create a menulist control.
@@ -41,6 +47,18 @@ win32_menulist_new(HWND hw_parent, gboolean editable) {
 
     /* Attach the menulist address to our HWND. */
     SetWindowLong(menulist->h_wnd, GWL_USERDATA, (LONG) menulist);
+
+    /*
+     * Comboboxes use a standard (and not "rich") edit control, which doesn't
+     * respond to EM_SETBKGNDCOLOR messages.  We fake this capability by
+     * - Dropping in our own wndproc
+     * - Having the wndproc catch EM_SETBKGNDCOLOR
+     * - Having the wndproc catch WM_CTLCOLOREDIT
+     */
+    if (g_menulist_wnd_proc == NULL) {
+        g_menulist_wnd_proc = (WNDPROC) GetWindowLong(menulist->h_wnd, GWL_WNDPROC);
+    }
+    SetWindowLong(menulist->h_wnd, GWL_WNDPROC, (LONG) win32_menulist_wnd_proc);
 
     SendMessage(menulist->h_wnd, WM_SETFONT,
 	(WPARAM) GetStockObject(DEFAULT_GUI_FONT), TRUE);
@@ -108,7 +126,7 @@ win32_menulist_get_selection(win32_element_t *ml_el) {
 	return -1;
     }
     return ret;
-} 
+}
 
 /*
  * Get the item string.  Returns NULL if the item is invalid.  Result
@@ -217,4 +235,48 @@ win32_menulist_size_adjust(win32_element_t *ml_el, gchar *text) {
 	ScreenToClient(GetParent(ml_el->h_wnd), &pt);
 	MoveWindow(ml_el->h_wnd, pt.x, pt.y, width, height, TRUE);
     }
+}
+
+/*
+ */
+static LRESULT CALLBACK
+win32_menulist_wnd_proc(HWND hw_menulist, UINT msg, WPARAM w_param, LPARAM l_param) {
+    win32_element_t *menulist = (win32_element_t *) GetWindowLong(hw_menulist, GWL_USERDATA);
+    HBRUSH           editbrush;
+    COLORREF         color;
+    HDC              hdc;
+
+    switch(msg) {
+	case WM_CTLCOLOREDIT:
+	    win32_element_assert(menulist);
+
+	    hdc = (HDC) w_param;
+	    editbrush = win32_element_get_data(menulist, WIN32_MENULIST_EDIT_BRUSH);
+	    color = (COLORREF) win32_element_get_data(menulist, WIN32_MENULIST_EDIT_COLOR);
+
+	    if (editbrush) {
+		SelectObject(hdc, editbrush);
+		SetBkColor(hdc, color);
+		return (LONG) editbrush;
+	    }
+	    break;
+	case EM_SETBKGNDCOLOR:
+	    editbrush = win32_element_get_data(menulist, WIN32_MENULIST_EDIT_BRUSH);
+	    if (editbrush)
+		DeleteObject(editbrush);
+
+	    if (w_param)
+		color = GetSysColor( (int) l_param);
+	    else
+		color = (COLORREF) l_param;
+
+	    editbrush = CreateSolidBrush(color);
+
+	    win32_element_set_data(menulist, WIN32_MENULIST_EDIT_BRUSH, editbrush);
+	    win32_element_set_data(menulist, WIN32_MENULIST_EDIT_COLOR, (gpointer) color);
+	    break;
+	default:
+	    break;
+    }
+    return(CallWindowProc(g_menulist_wnd_proc, hw_menulist, msg, w_param, l_param));
 }

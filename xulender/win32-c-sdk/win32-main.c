@@ -86,6 +86,7 @@
 #include "win32-statusbar.h"
 #include "capture-util.h"
 #include "color-util.h"
+#include "filter-util.h"
 #include "find-util.h"
 #include "font-util.h"
 #include "goto-util.h"
@@ -96,6 +97,7 @@
 #include "capture-info-dialog.h"
 #include "coloring-rules-dialog.h"
 #include "edit-color-filter-dialog.h"
+#include "filter-dialog.h"
 #include "find-packet-dialog.h"
 #include "goto-packet-dialog.h"
 #include "preferences-dialog.h"
@@ -422,6 +424,7 @@ WinMain( HINSTANCE h_instance, HINSTANCE h_prev_instance, LPSTR lpsz_cmd_line, i
 {
     WNDCLASS               wc;
     MSG                    msg;
+    win32_element_t       *dfilter_bt;
     char                  *s;
     int                    i;
     char                  *rf_path;
@@ -1157,6 +1160,9 @@ WinMain( HINSTANCE h_instance, HINSTANCE h_prev_instance, LPSTR lpsz_cmd_line, i
 	/* Create and show the main window */
 	g_hw_mainwin = ethereal_main_window_create(h_instance);
 
+	dfilter_bt = win32_identifier_get_str("dfilter-button");
+	win32_element_hwnd_set_data(g_hw_mainwin, E_FILT_BT_PTR_KEY, dfilter_bt);
+
 	info_bar_init(DEF_READY_MESSAGE);
 	packets_bar_update();
 
@@ -1404,6 +1410,7 @@ WinMain( HINSTANCE h_instance, HINSTANCE h_prev_instance, LPSTR lpsz_cmd_line, i
 LRESULT CALLBACK
 win32_main_wnd_proc(HWND hw_mainwin, UINT msg, WPARAM w_param, LPARAM l_param)
 {
+    win32_element_t *el;
 
     switch(msg) {
 	case WM_CREATE:
@@ -1574,7 +1581,7 @@ win32_main_wnd_proc(HWND hw_mainwin, UINT msg, WPARAM w_param, LPARAM l_param)
 
 		    case IDM_ETHEREAL_MAIN_GO_TOPACKET:
 		    case IDB_MAIN_TOOLBAR_GOTO_NUM:
-			goto_dialog_init();
+			goto_dialog_init(hw_mainwin);
 			break;
 		    case IDM_ETHEREAL_MAIN_GO_CORRESPONDING:
 			goto_framenum(&cfile);
@@ -1596,6 +1603,12 @@ win32_main_wnd_proc(HWND hw_mainwin, UINT msg, WPARAM w_param, LPARAM l_param)
 		    case IDB_MAIN_TOOLBAR_CAPTURE_STOP:
 			capture_stop();
 			break;
+		    case IDM_ETHEREAL_MAIN_CAPTURE_INTERFACES:
+			break;
+		    case IDM_ETHEREAL_MAIN_CAPTURE_FILTERS:
+		    case IDB_MAIN_TOOLBAR_CAP_FILT:
+			cfilter_dialog();
+			break;
 
 		    case IDM_ETHEREAL_MAIN_ABOUT_ETHEREAL:
 			about_dialog_init(hw_mainwin);
@@ -1603,6 +1616,13 @@ win32_main_wnd_proc(HWND hw_mainwin, UINT msg, WPARAM w_param, LPARAM l_param)
 		    case IDM_ETHEREAL_MAIN_EXIT:
 			file_quit_cmd(hw_mainwin);
 			break;
+
+		    case IDB_MAIN_TOOLBAR_DISP_FILT:
+			el = win32_identifier_get_str("main-toolbar");
+			win32_element_assert(el);
+		 	filter_dialog_cb(el);
+		 	break;
+
 		    default:
 			if (w_param >= IDM_RECENT_FILE_START && w_param < IDM_RECENT_FILE_START + prefs.gui_recent_files_count_max) {
 			    open_menu_recent_capture_file(hw_mainwin, w_param);
@@ -1698,6 +1718,20 @@ main_filter_packets(capture_file *cf, gchar *dftext)
     return filter_packets_ret;
 }
 
+/* Bring up the display filter dialog */
+void
+filter_dialog_cb(win32_element_t *btn_el) {
+    win32_element_t *dfilter_el = win32_identifier_get_str("dfilter-entry");
+
+    static construct_args_t args = {
+	"Ethereal: Display Filter",
+	TRUE,
+	TRUE
+    };
+
+    display_filter_construct(btn_el, dfilter_el, &args);
+}
+
 /* Apply the current display filter */
 void
 filter_apply_cb(win32_element_t *el) {
@@ -1726,6 +1760,16 @@ filter_clear_cb(win32_element_t *el) {
 
     SendMessage(dfilter_el->h_wnd, WM_SETTEXT, 0, (LPARAM)(LPCTSTR) "");
     main_filter_packets(&cfile, "");
+}
+
+/* Check the syntax of the display filter */
+void
+filter_changed_cb(win32_element_t *el) {
+    win32_element_t *dfilter_el = win32_identifier_get_str("dfilter-entry");
+
+    win32_element_assert(dfilter_el);
+
+    filter_tb_syntax_check(dfilter_el->h_wnd);
 }
 
 /* Write all non empty display filters (until maximum count)

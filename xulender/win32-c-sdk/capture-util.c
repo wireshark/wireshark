@@ -60,6 +60,7 @@
 #include "capture-util.h"
 #include "capture-dialog.h"
 #include "capture-info-dialog.h"
+#include "filter-dialog.h"
 
 /*
  * These should match the element IDs in capture-info-dialog.xul AND
@@ -797,6 +798,15 @@ capture_dialog_help (win32_element_t *help_el) {
 void
 capture_prep_interface_changed (win32_element_t *if_ml) {
     set_link_type_list();
+}
+
+/* Command sent by element type <button>, id "None" */
+void capture_prep_filter (win32_element_t *btn_el) {
+    win32_element_t *filter_tb = win32_identifier_get_str("capture-dialog.capture-filter");
+
+    win32_element_assert(filter_tb);
+
+    capture_filter_construct(btn_el, filter_tb);
 }
 
 /* Command sent by element type <button>, id "None" */

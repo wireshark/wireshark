@@ -424,6 +424,27 @@ win32_element_find_child(win32_element_t *el, gchar *id) {
     return NULL;
 }
 
+win32_element_t *
+win32_element_find_in_window(win32_element_t *el, gchar *id) {
+    HWND             hw_parent, hw_top;
+    win32_element_t *el_top;
+
+    win32_element_assert(el);
+    hw_top = el->h_wnd;
+
+    while (hw_parent = GetParent(hw_top))
+	hw_top = hw_parent;
+
+    if (hw_top == NULL)
+	return NULL;
+
+    el_top = (win32_element_t *) GetWindowLong(hw_top, GWL_USERDATA);
+    if (el_top == NULL)
+	return NULL;
+
+    return win32_element_find_child(el_top, id);
+}
+
 gboolean
 win32_element_is_visible(win32_element_t *el) {
     win32_element_assert(el);
@@ -458,6 +479,10 @@ void win32_element_handle_wm_command(UINT msg, WPARAM w_param, LPARAM l_param) {
 	el = (win32_element_t *) GetWindowLong((HWND) l_param, GWL_USERDATA);
 	win32_element_assert(el);
 	if (el->onchange != NULL) el->onchange(el);
+    } else if (HIWORD(w_param) == CBN_EDITCHANGE && (int) LOWORD(w_param) == ID_MENULIST) {
+	el = (win32_element_t *) GetWindowLong((HWND) l_param, GWL_USERDATA);
+	win32_element_assert(el);
+	if (el->oninput != NULL) el->oninput(el);
     }
 }
 

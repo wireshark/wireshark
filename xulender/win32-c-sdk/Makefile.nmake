@@ -38,6 +38,7 @@ GENERATED_OBJECTS = \
 	capture-info-dialog.obj \
 	coloring-rules-dialog.obj \
 	edit-color-filter-dialog.obj \
+	filter-dialog.obj \
 	find-packet-dialog.obj \
 	goto-packet-dialog.obj \
 	packet-window.obj \
@@ -77,6 +78,7 @@ OBJECTS = \
 	about-dlg.obj \
 	capture-util.obj \
 	color-util.obj \
+	filter-util.obj \
 	find-util.obj \
 	font-util.obj \
 	goto-util.obj \

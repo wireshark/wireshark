@@ -74,6 +74,11 @@ void win32_listbox_minimum_size(win32_element_t *listbox);
 void win32_listbox_set_onselect(win32_element_t *listbox, void (*selfunc)());
 
 /*
+ * Set the doubleclick callback for a listbox.
+ */
+void win32_listbox_set_ondoubleclick(win32_element_t *listbox, void (*dclickfunc)());
+
+/*
  * Return the row containing "text" in the specified column.  Return -1
  * otherwise.
  */

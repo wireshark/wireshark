@@ -40,6 +40,7 @@
       <hbox>
         <button
           label="Capture Filter:"
+          oncommand="capture_prep_filter"
         />
         <textbox id="capture-dialog.capture-filter" flex="1" />
       </hbox>

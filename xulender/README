@@ -75,3 +75,4 @@ To do:
 - Move CodeGenError class out of win32-c-sdk.py, so that xulender.py can use
   it.
 - Move hierarchy checks from win32-c-sdk.py to xulender.py?
+- We define an ondoubleclick() method, even though the XUL spec doesn't.

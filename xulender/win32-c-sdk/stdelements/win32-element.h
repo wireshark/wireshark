@@ -276,7 +276,6 @@ gboolean win32_element_get_enabled(win32_element_t *el);
  */
 void win32_element_set_enabled(win32_element_t *el, gboolean active);
 
-
 /** Find a child element, given its identifier.
  *
  * @param el The top-level element to search
@@ -284,6 +283,14 @@ void win32_element_set_enabled(win32_element_t *el, gboolean active);
  * @return A pointer to the element if found, NULL otherwise
  */
 win32_element_t *win32_element_find_child(win32_element_t *el, gchar *id);
+
+/** Find an element in the same window, given its identifier.
+ *
+ * @param el An element contained by the window to search
+ * @param id The desired element identifier
+ * @return A pointer to the element if found, NULL otherwise
+ */
+win32_element_t *win32_element_find_in_window(win32_element_t *el, gchar *id);
 
 /** Check to see if an element's HWND is visible.
  *

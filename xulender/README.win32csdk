@@ -29,6 +29,8 @@ Bugs/Caveats/To-dos
   a new packet is selected.  We may need to draw it offscreen.  Or perhaps
   the richedit control is the wrong thing to use in this case.
 
+- The detail view flashes as well.
+
 - Elements are currently crammed together with no spacing in between.  We
   could fix this by adding CSS support.
 
@@ -71,7 +73,7 @@ definitions.  References to these files are added to the following
 locations:
 
 	Makefile.nmake:	Add as .obj to GENERATED_OBJECTS
-	win32-main.c:	Add as .h to #includes
+	win32-main.c:	Add as .h to #includes if needed
 	win32-main.rc	Add as .rc to #includes
   
 The generated .h file defines the routines necessary for window

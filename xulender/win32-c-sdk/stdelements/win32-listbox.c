@@ -41,6 +41,7 @@ typedef struct _listbox_data_t {
     gint     cur_item;
     gint     last_col_min_width;
     void     (*onselect)();
+    void     (*ondoubleclick)();
 } listbox_data_t;
 
 typedef struct _listrow_data_t {
@@ -92,7 +93,7 @@ win32_listbox_new(HWND hw_parent, gboolean show_header) {
 	0,
 	EWC_LISTBOX_PANE,
 	EWC_LISTBOX_PANE,
-	WS_CHILD | WS_VISIBLE,
+	WS_CHILD | WS_VISIBLE | CS_DBLCLKS,
 	0, 0, 0, 50,
 	hw_parent,
 	NULL,
@@ -491,7 +492,6 @@ win32_listbox_minimum_size(win32_element_t *listbox) {
     }
 }
 
-
 void
 win32_listbox_set_onselect(win32_element_t *listbox, void (*selfunc)()) {
     listbox_data_t *ld;
@@ -500,6 +500,16 @@ win32_listbox_set_onselect(win32_element_t *listbox, void (*selfunc)()) {
     ld = (listbox_data_t *) win32_element_get_data(listbox, WIN32_LISTBOX_DATA);
 
     ld->onselect = selfunc;
+}
+
+void
+win32_listbox_set_ondoubleclick(win32_element_t *listbox, void (*dclickfunc)()) {
+    listbox_data_t *ld;
+
+    win32_element_assert(listbox);
+    ld = (listbox_data_t *) win32_element_get_data(listbox, WIN32_LISTBOX_DATA);
+
+    ld->ondoubleclick = dclickfunc;
 }
 
 
@@ -626,6 +636,7 @@ win32_listbox_wnd_proc(HWND hw_listbox, UINT msg, WPARAM w_param, LPARAM l_param
 	    ld->cur_item = 0;
 	    ld->last_col_min_width = 0;
 	    ld->onselect = NULL;
+	    ld->ondoubleclick = NULL;
 	    win32_element_set_data(listbox, WIN32_LISTBOX_DATA, ld);
 
 	    ListView_SetExtendedListViewStyle(ld->listview, LVS_EX_FULLROWSELECT);
@@ -666,6 +677,16 @@ win32_listbox_wnd_proc(HWND hw_listbox, UINT msg, WPARAM w_param, LPARAM l_param
 			    }
 			    return CDRF_DODEFAULT;
 			    break;
+		    }
+		    break;
+		case NM_DBLCLK:
+		    listbox = (win32_element_t *) GetWindowLong(hw_listbox, GWL_USERDATA);
+		    win32_element_assert(listbox);
+		    ld = (listbox_data_t *) win32_element_get_data(listbox, WIN32_LISTBOX_DATA);
+		    g_assert(ld != NULL);
+		    nmlv = (LPNMLISTVIEW) l_param;
+		    if (ld->ondoubleclick) {
+			ld->ondoubleclick(listbox, nmlv);
 		    }
 		    break;
 		default:

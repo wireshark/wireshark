@@ -525,11 +525,15 @@
         than it's worth.
     -->
     <hbox id="main-filter">
-      <button label="Filter:" />
+      <button
+        label="Filter:"
+        oncommand="filter_dialog_cb"
+      />
       <menulist
         editable="True"
         id="dfilter-entry"
         flex="1"
+        oninput="filter_changed_cb"
       />
       <button
         label="Clear"

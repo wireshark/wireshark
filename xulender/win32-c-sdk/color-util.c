@@ -48,6 +48,7 @@ coloring_rules_dialog_init(HWND hw_parent) {
     win32_element_t *cr_dlg = win32_identifier_get_str("coloring-rules-dialog");
     HWND             hw_cr;
     win32_element_t *listbox;
+    SIZE             sz;
 
     if (! cr_dlg) {
 	hw_cr = coloring_rules_dialog_dialog_create(hw_parent);
@@ -61,6 +62,10 @@ coloring_rules_dialog_init(HWND hw_parent) {
     g_slist_foreach(filter_list, add_filter_to_list, listbox);
 
     coloring_rules_list_select(listbox, NULL);
+
+    win32_get_text_size(listbox->h_wnd, "A long filter string", &sz);
+    listbox->minwidth = sz.cx * 3;
+    listbox->minheight = sz.cy * 10;
 
     coloring_rules_dialog_dialog_show(cr_dlg->h_wnd);
 }

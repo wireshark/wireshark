@@ -11,6 +11,7 @@
 #include "generated\capture-info-dialog.rc"
 #include "generated\coloring-rules-dialog.rc"
 #include "generated\edit-color-filter-dialog.rc"
+#include "generated\filter-dialog.rc"
 #include "generated\find-packet-dialog.rc"
 #include "generated\goto-packet-dialog.rc"
 #include "generated\ethereal-main.rc"

@@ -1,0 +1,94 @@
+<?xml version="1.0"?>
+<dialog
+  id="filter-dialog"
+  title="Ethereal: Filters"
+  >
+
+  <vbox>
+    <hbox>
+      <groupbox>
+	<caption>Edit</caption>
+	<spacer flex="1" />
+	<button
+	  label="New"
+	  id="filter-dialog.edit.new"
+	  oncommand="filter_dialog_new_filter"
+	/>
+	<spacer flex="2" />
+	<button 
+	  label="Delete"
+	  id="filter-dialog.edit.delete"
+	  oncommand="filter_dialog_delete_filter"
+	/>
+	<spacer flex="1" />
+      </groupbox>
+      <groupbox flex="1">
+	<caption>Filter</caption>
+	<listbox
+	  id="filter-dialog.filter.filterlist"
+	  flex="1"
+	  onselect="filter_dialog_list_select"
+	  ondoubleclick="filter_dialog_list_dclick"
+	>
+	  <listhead>
+	    <listheader label="Filter" />
+	  </listhead>
+	</listbox>
+      </groupbox>
+    </hbox>
+    <groupbox>
+      <caption>Properties</caption>
+      <hbox>
+        <description>Filter name:</description>
+        <textbox
+	  flex="1"
+	  id="filter-dialog.name"
+	  oninput="filter_dialog_name_changed"
+	/>
+      </hbox>
+      <hbox>
+        <description>Filter string:</description>
+        <textbox
+	  flex="1"
+	  id="filter-dialog.filter"
+	  oninput="filter_dialog_filter_changed"
+	/>
+        <button
+          id="filter-dialog.expression"
+          label="Expression..."
+          oncommand="filter_dialog_expression"
+        />
+      </hbox>
+    </groupbox>
+    <hbox>
+      <button
+        id="filter-dialog.help"
+        label="OK"
+        default="True"
+        oncommand="filter_dialog_help"
+       />
+      <spacer flex="1" />
+      <button
+        id="filter-dialog.apply"
+        label="Apply"
+        oncommand="filter_dialog_apply"
+       />
+      <button
+        id="filter-dialog.ok"
+        label="OK"
+        oncommand="filter_dialog_ok"
+       />
+      <button
+        id="filter-dialog.save"
+        label="Save"
+        oncommand="filter_dialog_save"
+       />
+      <button
+        id="filter-dialog.close"
+        label="Close"
+        default="True"
+        oncommand="filter_dialog_close"
+       />
+    </hbox>
+  </vbox>
+</dialog>

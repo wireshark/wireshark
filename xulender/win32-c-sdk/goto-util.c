@@ -23,13 +23,13 @@
 
 
 win32_element_t *
-goto_dialog_init() {
+goto_dialog_init(HWND hw_mainwin) {
     win32_element_t *goto_dlg = win32_identifier_get_str("goto-packet-dialog");
     win32_element_t *fnumber_tb;
     HWND             hw_goto;
 
     if (! goto_dlg) {
-	hw_goto = goto_packet_dialog_dialog_create(g_hw_mainwin);
+	hw_goto = goto_packet_dialog_dialog_create(hw_mainwin);
 	goto_dlg = (win32_element_t *) GetWindowLong(hw_goto, GWL_USERDATA);
     }
 

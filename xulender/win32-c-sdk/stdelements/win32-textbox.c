@@ -88,6 +88,9 @@ void
 win32_textbox_set_text(win32_element_t *textbox, gchar *text) {
     win32_element_assert(textbox);
 
+    if (text == NULL)
+	SetWindowText(textbox->h_wnd, "");
+
     SetWindowText(textbox->h_wnd, text);
 }
 

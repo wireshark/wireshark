@@ -7,7 +7,7 @@
   <vbox>
     <hbox>
       <vbox>
-        <groupbox>
+        <groupbox flex="1">
           <caption>Edit</caption>
 	  <button
 	    label="New"
@@ -27,18 +27,20 @@
 	    oncommand="coloring_rules_delete"
 	  />
 	</groupbox>
-        <groupbox>
+        <groupbox flex="1">
           <caption>Manage</caption>
 	  <button 
 	    label="Export..."
 	    id="coloring-rules.manage.export"
 	    oncommand="coloring_rules_export"
 	  />
+	  <spacer flex="1" />
 	  <button 
 	    label="Import..."
 	    id="coloring-rules.manage.import"
 	    oncommand="coloring_rules_import"
 	  />
+	  <spacer flex="1" />
 	  <button 
 	    label="Clear"
 	    id="coloring-rules.manage.clear"

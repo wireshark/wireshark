@@ -528,9 +528,10 @@ def win32_gen_hbox_end(node):
 #
 
 def win32_gen_listbox(node):
-    show_header = 'FALSE'
-    onselect    = get_attribute(node, 'onselect')
-    el_id       = get_attribute(node, 'id')
+    show_header   = 'FALSE'
+    onselect      = get_attribute(node, 'onselect')
+    ondoubleclick = get_attribute(node, 'ondoubleclick')
+    el_id         = get_attribute(node, 'id')
 
     for child in node.childNodes:
 	if child.nodeName == 'listhead':
@@ -556,6 +557,18 @@ void %(onselect)s (win32_element_t *, LPNMLISTVIEW);
 '''	% {
 	    'id': el_id,
 	    'onselect': onselect,
+	})
+
+    if (ondoubleclick):
+	if el_id is None:
+	    raise CodeGenerationError
+	cur_cf.write_body('    win32_listbox_set_ondoubleclick(cur_el, %s);' % (ondoubleclick))
+	cur_hf.write_body('''
+/* Command sent by <listbox> id "%(id)s" */
+void %(ondoubleclick)s (win32_element_t *, LPNMLISTVIEW);
+'''	% {
+	    'id': el_id,
+	    'ondoubleclick': ondoubleclick,
 	})
 
 def win32_gen_listbox_end(node):
