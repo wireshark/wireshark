@@ -30,7 +30,7 @@
  * delta = b - a
  */
 
-void get_timedelta(nstime_t *delta, nstime_t *b, nstime_t *a )
+void get_timedelta(nstime_t *delta, const nstime_t *b, const nstime_t *a )
 {
 	delta->secs = b->secs - a->secs;
 	delta->nsecs= b->nsecs - a->nsecs;
@@ -45,7 +45,7 @@ void get_timedelta(nstime_t *delta, nstime_t *b, nstime_t *a )
  * sum += a
  */
 
-void addtime(nstime_t *sum, nstime_t *a)
+void addtime(nstime_t *sum, const nstime_t *a)
 {
 	sum->secs += a->secs;
 	sum->nsecs += a->nsecs;
@@ -60,7 +60,7 @@ void addtime(nstime_t *sum, nstime_t *a)
  * converts nstime to gdouble, time base is milli seconds
  */
 
-gdouble nstime_to_msec(nstime_t *time)
+gdouble nstime_to_msec(const nstime_t *time)
 {
 	return ((double)time->secs*1000 + (double)time->nsecs/1000000);
 }
@@ -68,7 +68,7 @@ gdouble nstime_to_msec(nstime_t *time)
 /* A Function to update a timestat_t struct with a new sample*/
 
 void
-time_stat_update(timestat_t *stats, nstime_t *delta, packet_info *pinfo)
+time_stat_update(timestat_t *stats, const nstime_t *delta, packet_info *pinfo)
 {
 	if(stats->num==0){
 		stats->max.secs=delta->secs;
@@ -115,7 +115,7 @@ time_stat_update(timestat_t *stats, nstime_t *delta, packet_info *pinfo)
  * returns the average as a gdouble , time base is milli seconds
  */
 
-gdouble get_average(nstime_t *sum, guint32 num)
+gdouble get_average(const nstime_t *sum, guint32 num)
 {
 	gdouble average;
 

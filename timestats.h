@@ -42,12 +42,17 @@ typedef struct _timestat_t {
 } timestat_t;
 
 /* functions */
-extern void get_timedelta(nstime_t *delta, nstime_t *b, nstime_t *a ); /* delta = b - a */
-extern void addtime(nstime_t *sum, nstime_t *a); 			/* sum += a */
 
-extern gdouble nstime_to_msec(nstime_t *time); /* converts nstime to gdouble, time base is milli seconds*/
+/* delta = b - a */
+extern void get_timedelta(nstime_t *delta, const nstime_t *b, const nstime_t *a );
 
-extern void time_stat_update(timestat_t *stats, nstime_t *delta, packet_info *pinfo);
-extern gdouble get_average(nstime_t *sum, guint32 num);
+/* sum += a */
+extern void addtime(nstime_t *sum, const nstime_t *a);
+
+/* converts nstime to gdouble, time base is milli seconds*/
+extern gdouble nstime_to_msec(const nstime_t *time);
+
+extern void time_stat_update(timestat_t *stats, const nstime_t *delta, packet_info *pinfo);
+extern gdouble get_average(const nstime_t *sum, guint32 num);
 
 #endif
