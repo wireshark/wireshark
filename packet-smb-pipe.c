@@ -8,7 +8,7 @@ XXX  Fixme : shouldnt show [malformed frame] for long packets
  * significant rewrite to tvbuffify the dissector, Ronnie Sahlberg and
  * Guy Harris 2001
  *
- * $Id: packet-smb-pipe.c,v 1.73 2002/04/29 08:20:10 guy Exp $
+ * $Id: packet-smb-pipe.c,v 1.74 2002/04/29 10:06:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1093,23 +1093,6 @@ static const item_t lm_data_req_samoemchangepassword[] = {
 	{ &hf_old_password, add_byte_param, PARAM_BYTES },
 	{ NULL, NULL, PARAM_NONE }
 };
-
-/*
- * Create a subtree for an entry we don't yet know how to dissect.
- */
-
-#if 0
-static proto_item *
-unknown_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-    int offset)
-{
-	if (tree) {
-		return proto_tree_add_text(tree, tvb, offset, -1,
-			    "Unknown entry");
-	} else
-		return NULL;
-}
-#endif
 
 #define API_NetShareEnum		0
 #define API_NetShareGetInfo		1
