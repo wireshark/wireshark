@@ -215,7 +215,7 @@ General Questions
 
    Q 1.2: What protocols are currently supported?
 
-   A: There are currently 500 supported protocols and media, listed
+   A: There are currently 512 supported protocols and media, listed
    below. Descriptions can be found in the ethereal(1) man page.
 
             3GPP2 A11
@@ -247,6 +247,7 @@ General Questions
             ANSI IS-637-A (SMS) Teleservice Layer
             ANSI IS-637-A (SMS) Transport Layer
             ANSI IS-683-A (OTA (Mobile))
+            ANSI IS-801 (Location Services (PLD))
             ANSI Mobile Application Part
             AOL Instant Messenger
             ARCNET
@@ -272,6 +273,7 @@ General Questions
             Async data over ISDN (V.120)
             Authentication Header
             BACnet Virtual Link Control
+            BEA Tuxedo
             BSS GPRS Protocol
             BSSAP/BSAP
             Banyan Vines ARP
@@ -355,6 +357,7 @@ cies
             DEC Spanning Tree Protocol
             DFS Calls
             DHCPv6
+            DICOM
             DNS Control Program Server
             Data
             Data Link SWitching
@@ -482,6 +485,7 @@ cies
             Linux cooked-mode capture
             Local Management Interface
             LocalTalk Link Access Protocol
+            Logical Link Control GPRS
             Logical-Link Control
             Lucent/Ascend debug output
             MDS Header
@@ -495,6 +499,7 @@ cies
             MTP 2 User Adaptation Layer
             MTP 3 User Adaptation Layer
             MTP2 Peer Adaptation Layer
+            Media Type
             Media Type: message/http
             Message Transfer Part Level 2
             Message Transfer Part Level 3
@@ -502,6 +507,7 @@ cies
             Microsoft Directory Replication Service
             Microsoft Distributed File System
             Microsoft Distributed Link Tracking Server Service
+            Microsoft Encrypted File System Service
             Microsoft Exchange MAPI
             Microsoft Local Security Architecture
             Microsoft Local Security Architecture (Directory Services)
@@ -525,6 +531,7 @@ cies
             MultiProtocol Label Switching Header
             Multicast Router DISCovery protocol
             Multicast Source Discovery Protocol
+            Multiprotocol Label Switching Echo
             MySQL Protocol
             NFSACL
             NFSAUTH
@@ -575,6 +582,7 @@ cies
             PPP MPLS Control Protocol
             PPP Multilink Protocol
             PPP Multiplexing
+            PPP OSI Control Protocol
             PPP Password Authentication Protocol
             PPP VJ Compression
             PPP-over-Ethernet Discovery
@@ -586,6 +594,7 @@ cies
             Portmap
             Post Office Protocol
             Pragmatic General Multicast
+            Precision Time Protocol (IEEE1588)
             Prism
             Privilege Server operations
             Protocol Independent Multicast
@@ -609,6 +618,7 @@ cies
             Radius Protocol
             Raw packet data
             Real Time Streaming Protocol
+            Real-Time Publish-Subscribe Wire Protocol
             Real-Time Transport Protocol
             Real-time Transport Control Protocol
             Registry Server Attributes Manipulation Interface
@@ -663,6 +673,7 @@ cies
             Spanning Tree Protocol
             Spnego
             Stream Control Transmission Protocol
+            Subnetwork Dependent Convergence Protocol
             Symantec Enterprise Firewall
             Synchronous Data Link Control (SDLC)
             Syslog message
@@ -694,6 +705,7 @@ cies
             WAP Session Initiation Request
             Web Cache Coordination Protocol
             WebSphere MQ
+            WebSphere MQ Programmable Command Formats
             Wellfleet Breath of Life
             Wellfleet Compression
             Wellfleet HDLC
@@ -2087,4 +2099,4 @@ echo "Mode: ess">/proc/driver/aironet/ethN/Config
    For corrections/additions/suggestions for this web page (and not
    Ethereal support questions), please send email to
    ethereal-web[AT]ethereal.com .
-   Last modified: Mon, April 26 2004.
+   Last modified: Thu, May 13 2004.
