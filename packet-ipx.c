@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-ipx.c,v 1.103 2002/04/24 06:03:34 guy Exp $
+ * $Id: packet-ipx.c,v 1.104 2002/06/25 20:31:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -708,6 +708,7 @@ server_type(guint16 type)
 		{ 0x6f00,	"Rabbit Gateway (3270)" },
 		{ 0x7703,	"MODEM" },
 		{ 0x8002,	"NetPort Printers (Intel) or LANport" },
+		{ 0x8003,	"SEH InterCon Printserver" },
 		{ 0x8008,	"WordPerfect Network Version" },
 		{ 0x85BE,	"Cisco Enhanced Interior Routing Protocol (EIGRP)" },
 		{ 0x8888,	"WordPerfect Network Version or Quick Network Management" },
