@@ -4,7 +4,7 @@
  *
  * Copied from packet-h225.c and packet-h245.c
  *
- * $Id: packet-h450.c,v 1.5 2003/10/09 22:35:07 guy Exp $
+ * $Id: packet-h450.c,v 1.6 2003/10/27 22:28:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -191,9 +191,9 @@ static const value_string EntityType_vals[] = {
 	{ 0, NULL}
 };
 static per_choice_t EntityType_choice[] = {
-	{ 0, "endpoint", ASN1_EXTENSION_ROOT, 
+	{ 0, "endpoint", ASN1_EXTENSION_ROOT,
 		dissect_h4501_NULL },
-	{ 1, "anyEntity", ASN1_EXTENSION_ROOT, 
+	{ 1, "anyEntity", ASN1_EXTENSION_ROOT,
 		dissect_h4501_NULL },
 	{ 0, NULL, 0, NULL }
 };
@@ -231,11 +231,11 @@ static const value_string InterpretationApdu_vals[] = {
 	{ 0, NULL}
 };
 static per_choice_t InterpretationApdu_choice[] = {
-	{ 0, "discardAnyUnrecognizedInvokePdu", ASN1_EXTENSION_ROOT, 
+	{ 0, "discardAnyUnrecognizedInvokePdu", ASN1_EXTENSION_ROOT,
 		dissect_h4501_NULL },
-	{ 1, "clearCallIfAnyInvokePduNotRecognized", ASN1_EXTENSION_ROOT, 
+	{ 1, "clearCallIfAnyInvokePduNotRecognized", ASN1_EXTENSION_ROOT,
 		dissect_h4501_NULL },
-	{ 2, "rejectAnyUnrecognizedInvokePdu", ASN1_EXTENSION_ROOT, 
+	{ 2, "rejectAnyUnrecognizedInvokePdu", ASN1_EXTENSION_ROOT,
 		dissect_h4501_NULL },
 	{ 0, NULL, 0, NULL }
 };
@@ -357,7 +357,7 @@ NOT_DECODED_YET("H.450.1 ExtensionSeq");
 static int
 dissect_h4502_nonStandardData(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset = dissect_h225_NonStandardParameter(tvb, offset, pinfo, tree, 
+	offset = dissect_h225_NonStandardParameter(tvb, offset, pinfo, tree,
 				hf_h4502_nonStandardData);
 	return offset;
 }
@@ -368,9 +368,9 @@ static const value_string Extension_vals[] = {
 	{ 0, NULL}
 };
 static per_choice_t Extension_choice[] = {
-	{ 0, "extensionSeq", ASN1_NO_EXTENSIONS, 
+	{ 0, "extensionSeq", ASN1_NO_EXTENSIONS,
 		dissect_h4501_ExtensionSeq },
-	{ 1, "nonStandardData", ASN1_NO_EXTENSIONS, 
+	{ 1, "nonStandardData", ASN1_NO_EXTENSIONS,
 		dissect_h4502_nonStandardData },
 	{ 0, NULL, 0, NULL }
 };
@@ -539,9 +539,9 @@ static const value_string PartySubaddress_vals[] = {
 	{ 0, NULL}
 };
 static per_choice_t PartySubaddress_choice[] = {
-	{ 0, "userSpecifiedSubaddress", ASN1_EXTENSION_ROOT, 
+	{ 0, "userSpecifiedSubaddress", ASN1_EXTENSION_ROOT,
 		dissect_h4501_UserSpecifiedSubaddress },
-	{ 1, "nsapSubaddress", ASN1_EXTENSION_ROOT, 
+	{ 1, "nsapSubaddress", ASN1_EXTENSION_ROOT,
 		dissect_h4501_NSAPSubaddress },
 	{ 0, NULL, 0, NULL }
 };
@@ -1041,7 +1041,7 @@ static const value_string ServiceApdus_vals[] = {
 	{ 0, NULL}
 };
 static per_choice_t ServiceApdus_choice[] = {
-	{ 0, "rosApdus", ASN1_EXTENSION_ROOT, 
+	{ 0, "rosApdus", ASN1_EXTENSION_ROOT,
 		dissect_h4501_rosApdus },
 	{ 0, NULL, 0, NULL }
 };

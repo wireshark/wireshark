@@ -1,13 +1,13 @@
 /*
 XXX all this offset>>3 and calculations of bytes in the tvb everytime
 we put something in the tree is just silly.  should be replaced with some
-proper helper routines 
+proper helper routines
 */
 /* packet-per.c
  * Routines for dissection of ASN.1 Aligned PER
  * 2003  Ronnie Sahlberg
  *
- * $Id: packet-per.c,v 1.22 2003/10/25 06:49:45 guy Exp $
+ * $Id: packet-per.c,v 1.23 2003/10/27 22:28:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -175,13 +175,13 @@ DEBUG_ENTRY("dissect_per_normally_small_nonnegative_whole_number");
 }
 
 
-	
+
 /* this function reads a GeneralString */
 /* currently based on pure guesswork since RFC2833 didnt tell me much
    i guess that the PER encoding for this is a normally-small-whole-number
    followed by a ascii string.
 
-   based on pure guesswork.  it looks ok in the only capture i have where 
+   based on pure guesswork.  it looks ok in the only capture i have where
    there is a 1 byte general string encoded
 */
 guint32
@@ -200,7 +200,7 @@ dissect_per_GeneralString(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, pro
 	proto_tree_add_item(tree, hf_index, tvb, offset>>3, length, FALSE);
 
 	offset+=length*8;
-	
+
 	return offset;
 }
 
@@ -256,7 +256,7 @@ DEBUG_ENTRY("dissect_per_sequence_of");
 
 
 /* dissect a constrained IA5String that consists of the full ASCII set,
-   i.e. no FROM stuff limiting the alphabet 
+   i.e. no FROM stuff limiting the alphabet
 */
 guint32
 dissect_per_IA5String(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index, int min_len, int max_len)
@@ -276,7 +276,7 @@ dissect_per_restricted_character_string(tvbuff_t *tvb, guint32 offset, packet_in
 	guint char_pos;
 	int bits_per_char;
 	guint32 old_offset;
-	
+
 DEBUG_ENTRY("dissect_per_restricted_character_string");
 	/* xx.x if the length is 0 bytes there will be no encoding */
 	if(max_len==0){
@@ -293,18 +293,18 @@ DEBUG_ENTRY("dissect_per_restricted_character_string");
 	length=max_len;
 	if(min_len!=max_len){
 		proto_tree *etr = NULL;
-  
+
 		if(display_internal_per_fields){
 			etr=tree;
 		}
-		offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
+		offset=dissect_per_constrained_integer(tvb, offset, pinfo,
 			etr, hf_per_octet_string_length, min_len, max_len,
 			&length, NULL, FALSE);
-	} 
+	}
 
 
 
-	/* xx.x if length is fixed or constrained to be less than or equal to 
+	/* xx.x if length is fixed or constrained to be less than or equal to
 	   two bytes, then it will not be byte aligned. */
 	byte_aligned=TRUE;
 	if((min_len==max_len)&&(max_len<=2)){
@@ -328,7 +328,7 @@ DEBUG_ENTRY("dissect_per_restricted_character_string");
 
 	/* 27.5.2 depending of the alphabet length, find how many bits
 	   are used to encode each character */
-/* unaligned PER 
+/* unaligned PER
 	if(alphabet_length<=2){
 		bits_per_char=1;
 	} else if(alphabet_length<=4){
@@ -416,10 +416,10 @@ dissect_per_BMPString(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_t
 		if(display_internal_per_fields){
 			etr=tree;
 		}
-		offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
+		offset=dissect_per_constrained_integer(tvb, offset, pinfo,
 			etr, hf_per_octet_string_length, min_len, max_len,
 			&length, NULL, FALSE);
-	} 
+	}
 
 
 	/* align to byte boundary */
@@ -474,12 +474,12 @@ DEBUG_ENTRY("dissect_per_constrained_sequence_of");
 	}
 
 	/* constrained whole number for number of elements */
-	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
-		tree, hf_per_sequence_of_length, min_len, max_len, 
+	offset=dissect_per_constrained_integer(tvb, offset, pinfo,
+		tree, hf_per_sequence_of_length, min_len, max_len,
 		&length, NULL, FALSE);
 
 
-	
+
 call_sohelper:
 	offset=dissect_per_sequence_of_helper(tvb, offset, pinfo, tree, func, length);
 
@@ -610,13 +610,13 @@ DEBUG_ENTRY("dissect_per_boolean");
 		hfi = proto_registrar_get_nth(hf_index);
 		sprintf(str,"%s: %c%c%c%c %c%c%c%c %s",
 			hfi->name,
-			mask&0x80?'0'+value:'.', 
-			mask&0x40?'0'+value:'.', 
-			mask&0x20?'0'+value:'.', 
-			mask&0x10?'0'+value:'.', 
-			mask&0x08?'0'+value:'.', 
-			mask&0x04?'0'+value:'.', 
-			mask&0x02?'0'+value:'.', 
+			mask&0x80?'0'+value:'.',
+			mask&0x40?'0'+value:'.',
+			mask&0x20?'0'+value:'.',
+			mask&0x10?'0'+value:'.',
+			mask&0x08?'0'+value:'.',
+			mask&0x04?'0'+value:'.',
+			mask&0x02?'0'+value:'.',
 			mask&0x01?'0'+value:'.',
 			value?"True":"False"
 		);
@@ -666,7 +666,7 @@ NOT_DECODED_YET("too long integer");
 		offset+=8;
 	}
 	it=proto_tree_add_int(tree, hf_index, tvb, (offset>>3)-(length+1), length+1, val);
-		
+
 	if(item){
 		*item=it;
 	}
@@ -865,14 +865,14 @@ DEBUG_ENTRY("dissect_per_constrained_integer");
 	} else {
 		int i,num_bytes;
 		gboolean bit;
-		
+
 		/* 10.5.7.4 */
 		/* 12.2.6 */
 		offset=dissect_per_boolean(tvb, offset, pinfo, tree, -1, &bit, NULL);
 		num_bytes=bit;
 		offset=dissect_per_boolean(tvb, offset, pinfo, tree, -1, &bit, NULL);
 		num_bytes=(num_bytes<<1)|bit;
-		
+
 		num_bytes++;  /* lower bound for length determinant is 1 */
 
 		/* byte aligned */
@@ -928,9 +928,9 @@ DEBUG_ENTRY("dissect_per_choice");
 	it=proto_tree_add_text(tree, tvb, offset>>3, 0, name);
 	tr=proto_item_add_subtree(it, ett_index);
 
-	
+
 	/* first check if there should be an extension bit for this CHOICE.
-	   we do this by just checking the first choice arm 
+	   we do this by just checking the first choice arm
 	 */
 	if(choice[0].extension==ASN1_NO_EXTENSIONS){
 		extension_present=0;
@@ -972,8 +972,8 @@ DEBUG_ENTRY("dissect_per_choice");
 		/* 22.6 */
 		/* 22.7 */
 /*qqq  make it similar to the section below instead */
-		offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
-			tr, hf_index, min_choice, max_choice, 
+		offset=dissect_per_constrained_integer(tvb, offset, pinfo,
+			tr, hf_index, min_choice, max_choice,
 			&choice_index, &choiceitem, FALSE);
 		if(value){
 			*value=choice_index;
@@ -1037,7 +1037,7 @@ DEBUG_ENTRY("dissect_per_choice");
 		}
 
 		if(index==-1){
-			/* if we dont know how to decode this one, just step offset to the next structure */		
+			/* if we dont know how to decode this one, just step offset to the next structure */
 			offset+=length*8;
 			NOT_DECODED_YET("unknown choice extension");
 		} else {
@@ -1096,7 +1096,7 @@ index_get_extension_name(per_sequence_t *sequence, int index)
 /* this functions decodes a SEQUENCE
    it can only handle SEQUENCES with at most 32 DEFAULT or OPTIONAL fields
 18.1 extension bit
-18.2 optinal/default items in root 
+18.2 optinal/default items in root
 18.3 we ignore the case where n>64K
 18.4 the root sequence
 	   18.5
@@ -1123,7 +1123,7 @@ DEBUG_ENTRY("dissect_per_sequence");
 
 
 	/* first check if there should be an extension bit for this CHOICE.
-	   we do this by just checking the first choice arm 
+	   we do this by just checking the first choice arm
 	 */
 	/* 18.1 */
 	extension_flag=0;
@@ -1212,7 +1212,7 @@ DEBUG_ENTRY("dissect_per_sequence");
 		   I dont know if this is right or not but it makes
 		   some of the very few captures I have decode properly.
 
-		   It could also be that the captures I have are generated by 
+		   It could also be that the captures I have are generated by
 		   a broken implementation.
 		   If this is wrong and you dont report it as a bug
 		   then it wont get fixed!
@@ -1229,7 +1229,7 @@ DEBUG_ENTRY("dissect_per_sequence");
 					extension_bit?"is":"is NOT"
 					);
 			}
-			
+
 		}
 
 		/* find how many extensions we know about */
@@ -1278,8 +1278,8 @@ DEBUG_ENTRY("dissect_per_sequence");
 				NOT_DECODED_YET(sequence[extension_index].name);
 			}
 			offset+=length*8;
-			
-		}	
+
+		}
 	}
 
 
@@ -1301,7 +1301,7 @@ DEBUG_ENTRY("dissect_per_sequence");
 	16.7
 	16.8
 
-   max_len or min_len == -1 means there is no lower/upper constraint 
+   max_len or min_len == -1 means there is no lower/upper constraint
 
    hf_index can either be a FT_BYTES or an FT_STRING
 */
@@ -1384,7 +1384,7 @@ DEBUG_ENTRY("dissect_per_octet_string");
 		if(display_internal_per_fields){
 			etr=tree;
 		}
-		offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
+		offset=dissect_per_constrained_integer(tvb, offset, pinfo,
 			etr, hf_per_octet_string_length, min_len, max_len,
 			&length, NULL, FALSE);
 	} else {
