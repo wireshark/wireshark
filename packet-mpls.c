@@ -3,7 +3,7 @@
  * 
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-mpls.c,v 1.14 2001/01/06 05:09:35 guy Exp $
+ * $Id: packet-mpls.c,v 1.15 2001/01/06 05:11:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -146,6 +146,8 @@ dissect_mpls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     tvbuff_t *next_tvb;
 
     CHECK_DISPLAY_AS_DATA(proto_mpls, tvb, pinfo, tree);
+
+    pinfo->current_proto = "MPLS";
 
     if (check_col(pinfo->fd, COL_PROTOCOL)) {
 	col_set_str(pinfo->fd,COL_PROTOCOL, "MPLS");
