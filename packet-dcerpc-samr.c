@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *   2002 Added all command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-samr.c,v 1.32 2002/04/18 00:29:17 guy Exp $
+ * $Id: packet-dcerpc-samr.c,v 1.33 2002/04/22 00:09:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1884,6 +1884,10 @@ samr_dissect_get_domain_password_information_reply(tvbuff_t *tvb, int offset,
 		col_set_str(pinfo->cinfo, COL_INFO, 
 			    "GetPasswordInfo response");
 
+	/*
+	 * XXX - really?  Not the same as
+	 * "samr_dissect_get_usrdom_pwinfo_reply()"?
+	 */
         offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
 				       hf_samr_hnd, NULL);
 
@@ -2650,7 +2654,7 @@ samr_dissect_enum_dom_groups_reply(tvbuff_t *tvb, int offset,
 }
 
 static int
-samr_dissect_enum_dom_alias_rqst(tvbuff_t *tvb, int offset, 
+samr_dissect_enum_dom_aliases_rqst(tvbuff_t *tvb, int offset, 
 				 packet_info *pinfo, proto_tree *tree,
 				 char *drep)
 {
@@ -2674,7 +2678,7 @@ samr_dissect_enum_dom_alias_rqst(tvbuff_t *tvb, int offset,
 }
 
 static int
-samr_dissect_enum_dom_alias_reply(tvbuff_t *tvb, int offset, 
+samr_dissect_enum_dom_aliases_reply(tvbuff_t *tvb, int offset, 
                              packet_info *pinfo, proto_tree *tree,
                              char *drep)
 {
@@ -3429,12 +3433,12 @@ samr_dissect_set_information_user2_reply(tvbuff_t *tvb, int offset,
 }
 
 static int
-samr_dissect_query_userinfo_rqst(tvbuff_t *tvb, int offset, 
+samr_dissect_unknown_2f_rqst(tvbuff_t *tvb, int offset, 
 				 packet_info *pinfo, proto_tree *tree, 
 				 char *drep)
 {
 	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, "QueryUserInfo request");
+		col_set_str(pinfo->cinfo, COL_INFO, "Unknown 0x2f request");
 
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
 				       hf_samr_hnd, NULL);
@@ -3446,12 +3450,12 @@ samr_dissect_query_userinfo_rqst(tvbuff_t *tvb, int offset,
 }
 
 static int
-samr_dissect_query_userinfo_reply(tvbuff_t *tvb, int offset, 
+samr_dissect_unknown_2f_reply(tvbuff_t *tvb, int offset, 
 			packet_info *pinfo, proto_tree *tree,
 			char *drep)
 {
 	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, "QueryUserInfo response");
+		col_set_str(pinfo->cinfo, COL_INFO, "Unknown 0x2f response");
 
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			samr_dissect_USER_INFO_ptr, NDR_POINTER_REF,
@@ -4471,6 +4475,10 @@ samr_dissect_query_information_user_reply(tvbuff_t *tvb, int offset,
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_set_str(pinfo->cinfo, COL_INFO, "QueryUserInfo response");
 
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+			samr_dissect_USER_INFO_ptr, NDR_POINTER_REF,
+			"", -1, 0);
+
         offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
 				  hf_samr_rc, NULL);
 
@@ -4504,7 +4512,7 @@ static dcerpc_sub_dissector dcerpc_samr_dissectors[] = {
 		samr_dissect_open_domain_reply },
 	{ SAMR_QUERY_DOMAIN_INFO, "QUERY_INFORMATION_DOMAIN",
 		samr_dissect_query_information_alias_rqst,
-		samr_dissect_query_information_alias_reply },
+		samr_dissect_query_information_domain_reply },
         { SAMR_SET_DOMAIN_INFO, "SET_INFORMATION_DOMAIN",
 		samr_dissect_set_information_domain_rqst,
 		samr_dissect_set_information_domain_reply },
@@ -4524,8 +4532,8 @@ static dcerpc_sub_dissector dcerpc_samr_dissectors[] = {
 		samr_dissect_create_alias_in_domain_rqst,
 		samr_dissect_create_alias_in_domain_reply },
         { SAMR_ENUM_DOM_ALIASES, "ENUM_DOM_ALIASES",
-		samr_dissect_enum_dom_alias_rqst,
-		samr_dissect_enum_dom_alias_reply },
+		samr_dissect_enum_dom_aliases_rqst,
+		samr_dissect_enum_dom_aliases_reply },
         { SAMR_GET_ALIAS_MEMBERSHIP, "GET_ALIAS_MEMBERSHIP",
 		samr_dissect_get_alias_membership_rqst,
 		samr_dissect_get_alias_membership_reply },
@@ -4620,8 +4628,8 @@ static dcerpc_sub_dissector dcerpc_samr_dissectors[] = {
 		samr_dissect_query_information_domain_rqst,
 		samr_dissect_query_information_domain_reply },
         { SAMR_UNKNOWN_2f, "UNKNOWN_2f",
-		samr_dissect_query_userinfo_rqst,
-		samr_dissect_query_userinfo_reply },
+		samr_dissect_unknown_2f_rqst,
+		samr_dissect_unknown_2f_reply },
         { SAMR_QUERY_DISPINFO2, "QUERY_INFORMATION_DISPLAY2",
 		samr_dissect_query_dispinfo_rqst,
 		samr_dissect_query_dispinfo_reply },
