@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.135 2001/07/26 22:05:01 guy Exp $
+# $Id: configure.in,v 1.136 2001/07/27 06:10:26 guy Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -596,11 +596,19 @@ AC_ARG_WITH(plugins,
   [
   case "$withval" in
   "" | y | ye | yes )
+    if test x$have_plugins = xno
+    then
+      AC_MSG_ERROR([GLib on this platform doesn't support loadable modules, so you can't enable plugins.])
+    fi
     ;;
   n | no)
     have_plugins=no
     ;;
   *)
+    if test x$have_plugins = xno
+    then
+      AC_MSG_ERROR([GLib on this platform doesn't support loadable modules, so you can't enable plugins.])
+    fi
     PLUGIN_DIR="$withval"
     ;;
   esac
