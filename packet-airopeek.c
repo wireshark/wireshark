@@ -1,7 +1,7 @@
 /* packet-airopeek.c
  * Routines for AiroPeek capture file dissection
  *
- * $Id: packet-airopeek.c,v 1.1 2002/01/29 09:45:55 guy Exp $
+ * $Id: packet-airopeek.c,v 1.2 2002/02/15 11:37:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -47,7 +47,7 @@ static int hf_airopeek_signal_strength = -1;
 
 static gint ett_airopeek = -1;
 
-static dissector_handle_t ieee80211_fixed_handle;
+static dissector_handle_t ieee80211_handle;
 
 static void
 dissect_airopeek(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -71,7 +71,7 @@ dissect_airopeek(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		data_rate = tvb_get_guint8(tvb, 0);
 		proto_tree_add_uint_format(airopeek_tree, hf_airopeek_data_rate,
 		    tvb, 0, 1, data_rate,
-		    "Data Rate: %g kb/s", .5*data_rate);
+		    "Data Rate: %g mb/s", .5*data_rate);
 
 		proto_tree_add_item(airopeek_tree, hf_airopeek_channel,
 		    tvb, 1, 1, FALSE);
@@ -84,7 +84,7 @@ dissect_airopeek(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* dissect the 802.11 header next */
 	next_tvb = tvb_new_subset(tvb, 4, -1, -1);
-	call_dissector(ieee80211_fixed_handle, next_tvb, pinfo, tree);
+	call_dissector(ieee80211_handle, next_tvb, pinfo, tree);
 }
 
 void
@@ -116,8 +116,8 @@ proto_reg_handoff_airopeek(void)
 {
 	dissector_handle_t airopeek_handle;
 
-	/* handle for 802.11 dissector for fixed-length 802.11 headers */
-	ieee80211_fixed_handle = find_dissector("wlan_fixed");
+	/* handle for 802.11 dissector */
+	ieee80211_handle = find_dissector("wlan");
 
 	airopeek_handle = create_dissector_handle(dissect_airopeek,
 	    proto_airopeek);
