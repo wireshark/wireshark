@@ -2,7 +2,7 @@
  * Routines for AppleTalk packet disassembly: LLAP, DDP, NBP, ATP, ASP,
  * RTMP.
  *
- * $Id: packet-atalk.c,v 1.75 2002/06/20 00:44:33 guy Exp $
+ * $Id: packet-atalk.c,v 1.76 2002/06/25 02:56:59 tpot Exp $
  *
  * Simon Wilkinson <sxw@dcs.ed.ac.uk>
  *
@@ -496,7 +496,7 @@ dissect_rtmp_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
   if (check_col(pinfo->cinfo, COL_INFO))
     col_add_fstr(pinfo->cinfo, COL_INFO, "%s",
-	val_to_str(function, rtmp_function_vals, "Unknown function (%02)"));
+	val_to_str(function, rtmp_function_vals, "Unknown function (%02x)"));
   
   if (tree) {
     ti = proto_tree_add_item(tree, proto_rtmp, tvb, 0, 1, FALSE);
