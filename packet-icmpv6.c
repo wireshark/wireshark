@@ -1,7 +1,7 @@
 /* packet-icmpv6.c
  * Routines for ICMPv6 packet disassembly
  *
- * $Id: packet-icmpv6.c,v 1.36 2001/01/23 02:49:55 gerald Exp $
+ * $Id: packet-icmpv6.c,v 1.37 2001/02/28 19:33:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -66,6 +66,7 @@ static int proto_icmpv6 = -1;
 static int hf_icmpv6_type = -1;
 static int hf_icmpv6_code = -1;
 static int hf_icmpv6_checksum = -1;
+static int hf_icmpv6_checksum_bad = -1;
 
 static gint ett_icmpv6 = -1;
 static gint ett_icmpv6opt = -1;
@@ -987,6 +988,10 @@ dissect_icmpv6(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 			cksum,
 			"Checksum: 0x%04x (correct)", cksum);
 	    } else {
+		proto_tree_add_item_hidden(icmp6_tree, hf_icmpv6_checksum_bad,
+			NullTVB,
+			offset + offsetof(struct icmp6_hdr, icmp6_cksum), 2,
+			TRUE);
 		proto_tree_add_uint_format(icmp6_tree, hf_icmpv6_checksum,
 			NullTVB,
 			offset + offsetof(struct icmp6_hdr, icmp6_cksum), 2,
@@ -1207,7 +1212,10 @@ proto_register_icmpv6(void)
       	"" }},
     { &hf_icmpv6_checksum,
       { "Checksum",       "icmpv6.checksum",	FT_UINT16, BASE_HEX, NULL, 0x0,
-      	"" }}
+      	"" }},
+    { &hf_icmpv6_checksum_bad,
+      { "Bad Checksum",   "icmpv6.checksum_bad", FT_BOOLEAN, BASE_NONE,	NULL, 0x0,
+	"" }},
   };
   static gint *ett[] = {
     &ett_icmpv6,

@@ -1,7 +1,7 @@
 /* packet-udp.c
  * Routines for UDP packet disassembly
  *
- * $Id: packet-udp.c,v 1.87 2001/01/28 21:17:26 guy Exp $
+ * $Id: packet-udp.c,v 1.88 2001/02/28 19:33:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -58,6 +58,7 @@ static int hf_udp_dstport = -1;
 static int hf_udp_port = -1;
 static int hf_udp_length = -1;
 static int hf_udp_checksum = -1;
+static int hf_udp_checksum_bad = -1;
 
 static gint ett_udp = -1;
 
@@ -192,6 +193,8 @@ dissect_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_uint_format(udp_tree, hf_udp_checksum, tvb,
           offset + 6, 2, uh_sum, "Checksum: 0x%04x (correct)", uh_sum);
       } else {
+	proto_tree_add_item_hidden(udp_tree, hf_udp_checksum_bad, tvb,
+	   offset + 6, 2, TRUE);
         proto_tree_add_uint_format(udp_tree, hf_udp_checksum, tvb,
           offset + 6, 2, uh_sum,
 	  "Checksum: 0x%04x (incorrect, should be 0x%04x)", uh_sum,
@@ -233,6 +236,10 @@ proto_register_udp(void)
 
 		{ &hf_udp_length,
 		{ "Length",		"udp.length", FT_UINT16, BASE_DEC, NULL, 0x0,
+			"" }},
+
+		{ &hf_udp_checksum_bad,
+		{ "Bad Checksum",	"udp.checksum_bad", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 			"" }},
 
 		{ &hf_udp_checksum,

@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.124 2001/02/21 19:42:37 gram Exp $
+ * $Id: packet-ip.c,v 1.125 2001/02/28 19:33:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -114,7 +114,7 @@ static int proto_icmp = -1;
 static int hf_icmp_type = -1;
 static int hf_icmp_code = -1;
 static int hf_icmp_checksum = -1;
-static int hf_icmp_checksum_bad = 0;
+static int hf_icmp_checksum_bad = -1;
 
 static gint ett_icmp = -1;
 
@@ -1443,7 +1443,7 @@ proto_register_ip(void)
 			"" }},
 
 		{ &hf_ip_checksum_bad,
-		{ "Bad Header checksum",	"ip.checksum_bad", FT_BOOLEAN, 4, NULL, 0x0,
+		{ "Bad Header checksum",	"ip.checksum_bad", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 			"" }},
 	};
 	static gint *ett[] = {
@@ -1508,9 +1508,9 @@ proto_register_icmp(void)
       { "Checksum",	"icmp.checksum",	FT_UINT16, BASE_HEX,	NULL, 0x0,
       	"" }},
 
-	{ &hf_icmp_checksum_bad,
-	{ "Bad Checksum",	"icmp.checksum_bad", FT_BOOLEAN, 4, NULL, 0x0,
-		"" }},
+    { &hf_icmp_checksum_bad,
+      { "Bad Checksum",	"icmp.checksum_bad",	FT_BOOLEAN, BASE_NONE,	NULL, 0x0,
+	"" }},
   };
   static gint *ett[] = {
     &ett_icmp,

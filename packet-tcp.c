@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.99 2001/01/28 21:17:26 guy Exp $
+ * $Id: packet-tcp.c,v 1.100 2001/02/28 19:33:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -79,6 +79,7 @@ static int hf_tcp_flags_syn = -1;
 static int hf_tcp_flags_fin = -1;
 static int hf_tcp_window_size = -1;
 static int hf_tcp_checksum = -1;
+static int hf_tcp_checksum_bad = -1;
 static int hf_tcp_urgent_pointer = -1;
 
 static gint ett_tcp = -1;
@@ -557,6 +558,8 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_uint_format(tcp_tree, hf_tcp_checksum, tvb,
            offset + 16, 2, th.th_sum, "Checksum: 0x%04x (correct)", th.th_sum);
       } else {
+	proto_tree_add_item_hidden(tcp_tree, hf_tcp_checksum_bad, tvb,
+	   offset + 16, 2, TRUE);
         proto_tree_add_uint_format(tcp_tree, hf_tcp_checksum, tvb,
            offset + 16, 2, th.th_sum,
 	   "Checksum: 0x%04x (incorrect, should be 0x%04x)", th.th_sum,
@@ -704,6 +707,10 @@ proto_register_tcp(void)
 
 		{ &hf_tcp_checksum,
 		{ "Checksum",			"tcp.checksum", FT_UINT16, BASE_HEX, NULL, 0x0,
+			"" }},
+
+		{ &hf_tcp_checksum_bad,
+		{ "Bad Checksum",		"tcp.checksum_bad", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 			"" }},
 
 		{ &hf_tcp_urgent_pointer,
