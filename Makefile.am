@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.155 2000/01/15 13:25:13 gram Exp $
+# $Id: Makefile.am,v 1.156 2000/01/15 13:45:06 gram Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -399,6 +399,12 @@ EXTRA_DIST = \
 	TODO
 
 #
+# Currently register.c can be included in the distribution because
+# we always build all protocol dissectors. We used to have to check
+# whether or not to build the snmp dissector. If we again need to
+# variably build something, making register.c non-portable, uncomment
+# the dist-hook line below.
+#
 # Oh, yuk.  We don't want to include "register.c" in the distribution, as
 # its contents depend on the configuration, and therefore we want it
 # to be built when the first "make" is done; however, Automake insists
@@ -407,8 +413,8 @@ EXTRA_DIST = \
 # We work around this by having a "dist-hook" rule that deletes
 # "register.c", so that "dist" won't pick it up.
 #
-dist-hook:
-	@rm -f $(distdir)/register.c
+#dist-hook:
+#	@rm -f $(distdir)/register.c
 
 SUBDIRS = wiretap gtk plugins @ethereal_SUBDIRS@
 
