@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.303 2003/08/14 22:32:45 sharpe Exp $
+ * $Id: file.c,v 1.304 2003/08/29 04:03:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -42,6 +42,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <ctype.h>
 #include <errno.h>
 #include <signal.h>
 
@@ -97,14 +98,31 @@ static void read_packet(capture_file *cf, long offset);
 static void rescan_packets(capture_file *cf, const char *action, const char *action_item,
 	gboolean refilter, gboolean redissect);
 
+static gboolean match_protocol_tree(capture_file *cf, frame_data *fdata,
+	void *criterion);
+static void match_subtree_text(GNode *node, gpointer data);
+static gboolean match_summary_line(capture_file *cf, frame_data *fdata,
+	void *criterion);
+static gboolean match_ascii_and_unicode(capture_file *cf, frame_data *fdata,
+	void *criterion);
+static gboolean match_ascii(capture_file *cf, frame_data *fdata,
+	void *criterion);
+static gboolean match_unicode(capture_file *cf, frame_data *fdata,
+	void *criterion);
+static gboolean match_binary(capture_file *cf, frame_data *fdata,
+	void *criterion);
+static gboolean match_dfilter(capture_file *cf, frame_data *fdata,
+	void *criterion);
+static gboolean find_packet(capture_file *cf,
+	gboolean (*match_function)(capture_file *, frame_data *, void *),
+	void *criterion);
+
 static void freeze_plist(capture_file *cf);
 static void thaw_plist(capture_file *cf);
-static void proto_tree_get_node(GNode *node, gpointer data);
 
 static char *file_rename_error_message(int err);
 static char *file_close_error_message(int err);
 static gboolean copy_binary_file(char *from_filename, char *to_filename);
-static char decode_data[MAX_DECODE_BUFFER_SIZE];
 
 /* Update the progress bar this many times when reading a file. */
 #define N_PROGBAR_UPDATES	100
@@ -1448,543 +1466,333 @@ change_time_formats(capture_file *cf)
   thaw_plist(cf);
 }
 
-guint8
-get_int_value(char char_val)
+typedef struct {
+	const char	*string;
+	size_t		string_len;
+	capture_file	*cf;
+	gboolean	frame_matched;
+} match_data;
+
+gboolean
+find_packet_protocol_tree(capture_file *cf, const char *string)
 {
-    switch (char_val) {
-    case 'a':
-    case 'A':
-        return(10);
-    case 'b':
-    case 'B':
-        return(11);
-    case 'c':
-    case 'C':
-        return(12);
-    case 'd':
-    case 'D':
-        return(13);
-    case 'e':
-    case 'E':
-        return(14);
-    case 'f':
-    case 'F':
-        return(15);
-    default:
-        return(atoi(&char_val));
-    }
+  match_data		mdata;
+
+  mdata.string = string;
+  mdata.string_len = strlen(string);
+  return find_packet(cf, match_protocol_tree, &mdata);
 }
 
-static char*
-get_info_string(epan_dissect_t* edt)
+static gboolean
+match_protocol_tree(capture_file *cf, frame_data *fdata, void *criterion)
 {
-    int i;
+  match_data		*mdata = criterion;
+  epan_dissect_t	*edt;
 
-    for (i=0;i<edt->pi.cinfo->num_cols;i++) {
-        if (strcmp(edt->pi.cinfo->col_title[i], "Info")==0) {
-            return edt->pi.cinfo->col_data[i];
-        }
-    }
-    return NULL;
+  /* Construct the protocol tree, including the displayed text */
+  edt = epan_dissect_new(TRUE, TRUE);
+  /* We don't need the column information */
+  epan_dissect_run(edt, &cf->pseudo_header, cf->pd, fdata, NULL);
+
+  /* Iterate through all the nodes, seeing if they have text that matches. */
+  mdata->cf = cf;
+  mdata->frame_matched = FALSE;
+  g_node_children_foreach((GNode*) edt->tree, G_TRAVERSE_ALL,
+			  match_subtree_text, mdata);
+  epan_dissect_free(edt);
+  return mdata->frame_matched;
 }
 
-/*
- * Find the data source for a specified field, and return a pointer
- * to the data in it.
- */
-static const guint8 *
-get_field_data(GSList *src_list, field_info *fi)
+static void
+match_subtree_text(GNode *node, gpointer data)
 {
-	GSList *src_le;
-	data_source *src;
-	tvbuff_t *src_tvb;
+  match_data	*mdata = (match_data*) data;
+  const gchar	*string = mdata->string;
+  size_t	string_len = mdata->string_len;
+  capture_file	*cf = mdata->cf;
+  field_info	*fi = PITEM_FINFO(node);
+  gchar		label_str[ITEM_LABEL_LENGTH];
+  gchar		*label_ptr;
+  size_t	label_len;
+  guint32	i;
+  guint8	c_char;
+  size_t	c_match = 0;
 
-	for (src_le = src_list; src_le != NULL; src_le = src_le->next) {
-		src = src_le->data;
-		src_tvb = src->tvb;
-		if (fi->ds_tvb == src_tvb) {
-			/*
-			 * Found it.
-			 */
-            if(tvb_length_remaining(src_tvb, 0) < fi->length+fi->start){
-                return NULL;
-            }
-			return tvb_get_ptr(src_tvb, fi->start, fi->length);
-		}
-	}
-	return NULL;	/* not found */
-}
+  if (mdata->frame_matched) {
+    /* We already had a match; don't bother doing any more work. */
+    return;
+  }
 
-/* Print a tree's data, and any child nodes to the buffer. */
-static
-void proto_tree_get_node(GNode *node, gpointer data)
-{
-	field_info	*fi = PITEM_FINFO(node);
-	print_data	*pdata = (print_data*) data;
-	const guint8	*pd;
-	gchar		label_str[ITEM_LABEL_LENGTH];
-	gchar		*label_ptr, *string_ptr;
+  /* Don't match invisible entries. */
+  if (!fi->visible)
+    return;
 
-    string_ptr = decode_data;
-
-	/* Don't print invisible entries. */
-	if (!fi->visible)
-		return;
-
-	/* was a free format label produced? */
-	if (fi->representation) {
-		label_ptr = fi->representation;
-	}
-	else { /* no, make a generic label */
-		label_ptr = label_str;
-		proto_item_fill_label(fi, label_str);
-	}
+  /* was a free format label produced? */
+  if (fi->representation) {
+    label_ptr = fi->representation;
+  } else {
+    /* no, make a generic label */
+    label_ptr = label_str;
+    proto_item_fill_label(fi, label_str);
+  }
     
-    if (strlen(string_ptr)+strlen(label_ptr) < MAX_DECODE_BUFFER_SIZE) {
-        strcat(string_ptr, label_ptr);
-    }
-    else
-    {
-        simple_dialog(ESD_TYPE_CRIT, NULL, "Decode Buffer Size Exceeded.");
-        return;
-    }
+  /* Does that label match? */
+  label_len = strlen(label_ptr);
+  for (i = 0; i < label_len; i++) {
+    c_char = label_ptr[i];
+    if (cf->case_type)
+      c_char = toupper(c_char);
+    if (c_char == string[c_match]) {
+      c_match++;
+      if (c_match == string_len) {
+	/* No need to look further; we have a match */
+	mdata->frame_matched = TRUE;
+	return;
+      }
+    } else
+      c_match = 0;
+  }
+  
+  /* Recurse into the subtree, if it exists */
+  if (g_node_n_children(node) > 0)
+    g_node_children_foreach(node, G_TRAVERSE_ALL, match_subtree_text, mdata);
+}
 
-    /*
-	 * Find the data for this field.
-	 */
-	pd = get_field_data(pdata->src_list, fi);
-    if (pd!=NULL) {
-        if (strlen(pd) > 0) {
-            if (strlen(pd)+strlen(string_ptr) < MAX_DECODE_BUFFER_SIZE ) {
-                strcat(string_ptr, pd);
-            }
-            else
-            {
-                simple_dialog(ESD_TYPE_CRIT, NULL, "Decode Buffer Size Exceeded.");
-                return;
-            }
-        }
-    }
+gboolean
+find_packet_summary_line(capture_file *cf, const char *string)
+{
+  match_data		mdata;
 
-	/* If we're printing all levels, or if this node is one with a
-	   subtree and its subtree is expanded, recurse into the subtree,
-	   if it exists. */
-	g_assert(fi->tree_type >= -1 && fi->tree_type < num_tree_types);
-	if (pdata->print_all_levels ||
-	    (fi->tree_type >= 0 && tree_is_expanded[fi->tree_type])) {
-		if (g_node_n_children(node) > 0) {
-			pdata->level++;
-			g_node_children_foreach(node, G_TRAVERSE_ALL,
-				proto_tree_get_node, pdata);
-			pdata->level--;
-		}
+  mdata.string = string;
+  mdata.string_len = strlen(string);
+  return find_packet(cf, match_summary_line, &mdata);
+}
+
+static gboolean
+match_summary_line(capture_file *cf, frame_data *fdata, void *criterion)
+{
+  match_data		*mdata = criterion;
+  const gchar		*string = mdata->string;
+  size_t		string_len = mdata->string_len;
+  epan_dissect_t	*edt;
+  const char		*info_column;
+  size_t		info_column_len;
+  gboolean		frame_matched = FALSE;
+  gint			colx;
+  guint32		i;
+  guint8		c_char;
+  size_t		c_match = 0;
+
+  /* Don't bother constructing the protocol tree */
+  edt = epan_dissect_new(FALSE, FALSE);
+  /* Get the column information */
+  epan_dissect_run(edt, &cf->pseudo_header, cf->pd, fdata, &cf->cinfo);
+
+  /* Find the Info column */
+  for (colx = 0; colx < cf->cinfo.num_cols; colx++) {
+    if (cf->cinfo.fmt_matx[colx][COL_INFO]) {
+      /* Found it.  See if we match. */
+      info_column = edt->pi.cinfo->col_data[colx];
+      info_column_len = strlen(info_column);
+      for (i = 0; i < info_column_len; i++) {
+	c_char = info_column[i];
+	if (cf->case_type)
+	  c_char = toupper(c_char);
+	if (c_char == string[c_match]) {
+	  c_match++;
+	  if (c_match == string_len) {
+	    frame_matched = TRUE;
+	    break;
+	  }
+	} else
+	  c_match = 0;
+      }
+      break;
+    }
+  }
+  epan_dissect_free(edt);
+  return frame_matched;
+}
+
+typedef struct {
+	const guint8 *data;
+	size_t data_len;
+} cbs_t;	/* "Counted byte string" */
+
+gboolean
+find_packet_data(capture_file *cf, const guint8 *string, size_t string_size)
+{
+  cbs_t info;
+
+  info.data = string;
+  info.data_len = string_size;
+
+  /* String or hex search? */
+  if (cf->ascii) {
+    /* String search - what type of string? */
+    switch (cf->scs_type) {
+
+    case SCS_ASCII_AND_UNICODE:
+      return find_packet(cf, match_ascii_and_unicode, &info);
+
+    case SCS_ASCII:
+      return find_packet(cf, match_ascii, &info);
+
+    case SCS_UNICODE:
+      return find_packet(cf, match_unicode, &info);
+
+    default:
+      g_assert_not_reached();
+      return FALSE;
+    }
+  } else
+    return find_packet(cf, match_binary, &info);
+}
+
+static gboolean
+match_ascii_and_unicode(capture_file *cf, frame_data *fdata, void *criterion)
+{
+  cbs_t		*info = criterion;
+  const char	*ascii_text = info->data;
+  size_t	textlen = info->data_len;
+  gboolean	frame_matched;
+  guint32	buf_len;
+  guint32	i;
+  guint8	c_char;
+  size_t	c_match = 0;
+
+  frame_matched = FALSE;
+  buf_len = fdata->pkt_len;
+  for (i = 0; i < buf_len; i++) {
+    c_char = cf->pd[i];
+    if (cf->case_type)
+      c_char = toupper(c_char);
+    if (c_char != 0) {
+      if (c_char == ascii_text[c_match]) {
+	c_match++;
+	if (c_match == textlen) {
+	  frame_matched = TRUE;
+	  break;
 	}
-}
-
-gboolean
-find_in_gtk_data(capture_file *cf, gpointer *data, char *ascii_text, gboolean case_type, gboolean summary_search)
-{
-    frame_data *start_fd;
-    frame_data *fdata;
-    frame_data *new_fd = NULL;
-    progdlg_t  *progbar = NULL;
-    gboolean    stop_flag;
-    int         count;
-    int         err;
-    guint32     i;
-    guint16     c_match=0;
-    gboolean    frame_matched;
-    int         row;
-    float       prog_val;
-    GTimeVal    start_time;
-    gchar       status_str[100];
-    guint8      c_char=0;
-    guint32     buf_len=0;
-    guint8      hex_val=0;
-    char        char_val;
-    guint8      num1, num2;
-    gchar       *uppercase;
-    epan_dissect_t*   new_edt;
-    char        *info_string;
-	print_data  ndata;
-
-    start_fd = cf->current_frame;
-    if (start_fd != NULL)  {
-      /* Iterate through the list of packets, starting at the packet we've
-         picked, calling a routine to run the filter on the packet, see if
-         it matches, and stop if so.  */
-      count = 0;
-      fdata = start_fd;
-
-      if (case_type) {
-          g_strup(ascii_text);
-      }
-
-      cf->progbar_nextstep = 0;
-      /* When we reach the value that triggers a progress bar update,
-         bump that value by this amount. */
-      cf->progbar_quantum = cf->count/N_PROGBAR_UPDATES;
-
-      stop_flag = FALSE;
-      g_get_current_time(&start_time);
-
-      fdata = start_fd;
-      for (;;) {
-        /* Update the progress bar, but do it only N_PROGBAR_UPDATES times;
-           when we update it, we have to run the GTK+ main loop to get it
-           to repaint what's pending, and doing so may involve an "ioctl()"
-           to see if there's any pending input from an X server, and doing
-           that for every packet can be costly, especially on a big file. */
-        if (count >= cf->progbar_nextstep) {
-          /* let's not divide by zero. I should never be started
-           * with count == 0, so let's assert that
-           */
-          g_assert(cf->count > 0);
-
-          prog_val = (gfloat) count / cf->count;
-
-          /* Create the progress bar if necessary */
-          if (progbar == NULL)
-             progbar = delayed_create_progress_dlg("Searching", cf->sfilter, "Cancel",
-               &stop_flag, &start_time, prog_val);
-
-          if (progbar != NULL) {
-            g_snprintf(status_str, sizeof(status_str),
-                       "%4u of %u frames", count, cf->count);
-            update_progress_dlg(progbar, prog_val, status_str);
-          }
-
-          cf->progbar_nextstep += cf->progbar_quantum;
-        }
-
-        if (stop_flag) {
-          /* Well, the user decided to abort the search.  Go back to the
-             frame where we started. */
-          new_fd = start_fd;
-          break;
-        }
-
-        /* Go past the current frame. */
-        if (cf->sbackward) {
-          /* Go on to the previous frame. */
-          fdata = fdata->prev;
-          if (fdata == NULL)
-            fdata = cf->plist_end;	/* wrap around */
-        } else {
-          /* Go on to the next frame. */
-          fdata = fdata->next;
-          if (fdata == NULL)
-            fdata = cf->plist;	/* wrap around */
-        }
-
-        count++;
-
-        /* Is this packet in the display? */
-        if (fdata->flags.passed_dfilter) {
-          /* Yes.  Does it match the search filter? */
-          /* XXX - do something with "err" */
-          wtap_seek_read(cf->wth, fdata->file_off, &cf->pseudo_header,
-                  cf->pd, fdata->cap_len, &err);
-          new_edt = epan_dissect_new(TRUE, TRUE);
-          epan_dissect_run(new_edt, &cfile.pseudo_header, cfile.pd, fdata, &cfile.cinfo);
-          if (summary_search) {
-              info_string = get_info_string(new_edt);
-              if (info_string == NULL) {
-                  simple_dialog(ESD_TYPE_CRIT, NULL, "Can't find info column. Terminating.");
-                  return FALSE;
-              }
-          }
-          else
-          {
-              strcpy(decode_data,"\0");
-              info_string = decode_data;
-              ndata.level = 0;
-              ndata.fh = NULL;
-              ndata.src_list = new_edt->pi.data_src;
-              ndata.encoding = new_edt->pi.fd->flags.encoding;
-              ndata.print_all_levels = TRUE;
-              ndata.print_hex_for_data = FALSE;
-              ndata.format = 0;
-              g_node_children_foreach((GNode*) new_edt->tree, G_TRAVERSE_ALL,
-                  proto_tree_get_node, &ndata);
-          }
-          if (case_type) {
-              g_strup(info_string);
-          }
-          frame_matched = FALSE;
-          buf_len = strlen(info_string);
-          for (i=0;i<buf_len;i++) {
-              c_char = info_string[i];
-              if (c_char == ascii_text[c_match]) {
-                 c_match++;
-                 if (c_match == strlen(ascii_text)) {
-                    frame_matched = TRUE;
-                    break;
-                 }
-              }
-              else
-              {
-                 c_match = 0;
-              }
-          }
-          if (frame_matched) {
-            new_fd = fdata;
-            break;	/* found it! */
-          }
-          epan_dissect_free(new_edt);
-        }
-
-        if (fdata == start_fd) {
-          /* We're back to the frame we were on originally, and that frame
-             doesn't match the search filter.  The search failed. */
-          break;
-        }
-      }
-
-      /* We're done scanning the packets; destroy the progress bar if it
-         was created. */
-      if (progbar != NULL)
-        destroy_progress_dlg(progbar);
+      } else
+	c_match = 0;
     }
-
-    if (new_fd != NULL) {
-      /* We found a frame.  Find what row it's in. */
-      row = packet_list_find_row_from_data(new_fd);
-      g_assert(row != -1);
-
-      /* Select that row, make it the focus row, and make it visible. */
-      packet_list_set_selected_row(row);
-      return TRUE;	/* success */
-    } else
-      return FALSE;	/* failure */
+  }
+  return frame_matched;
 }
 
-gboolean
-find_ascii(capture_file *cf, char *ascii_text, gboolean ascii_search, char *ftype, gboolean case_type)
+static gboolean
+match_ascii(capture_file *cf, frame_data *fdata, void *criterion)
 {
-    frame_data *start_fd;
-    frame_data *fdata;
-    frame_data *new_fd = NULL;
-    progdlg_t  *progbar = NULL;
-    gboolean    stop_flag;
-    int         count;
-    int         err;
-    guint32     i;
-    guint16     c_match=0;
-    gboolean    frame_matched;
-    int         row;
-    float       prog_val;
-    GTimeVal    start_time;
-    gchar       status_str[100];
-    guint8      c_char=0;
-    guint32     buf_len=0;
-    guint8      hex_val=0;
-    char        char_val;
-    guint8      num1, num2;
-    gchar       *uppercase;
+  cbs_t		*info = criterion;
+  const char	*ascii_text = info->data;
+  size_t	textlen = info->data_len;
+  gboolean	frame_matched;
+  guint32	buf_len;
+  guint32	i;
+  guint8	c_char;
+  size_t	c_match = 0;
 
-    start_fd = cf->current_frame;
-    if (start_fd != NULL)  {
-      /* Iterate through the list of packets, starting at the packet we've
-         picked, calling a routine to run the filter on the packet, see if
-         it matches, and stop if so.  */
-      count = 0;
-      fdata = start_fd;
-
-      if (case_type && ascii_search) {
-          g_strup(ascii_text);
+  frame_matched = FALSE;
+  buf_len = fdata->pkt_len;
+  for (i = 0; i < buf_len; i++) {
+    c_char = cf->pd[i];
+    if (cf->case_type)
+      c_char = toupper(c_char);
+    if (c_char == ascii_text[c_match]) {
+      c_match++;
+      if (c_match == textlen) {
+	frame_matched = TRUE;
+	break;
       }
-
-      cf->progbar_nextstep = 0;
-      /* When we reach the value that triggers a progress bar update,
-         bump that value by this amount. */
-      cf->progbar_quantum = cf->count/N_PROGBAR_UPDATES;
-
-      stop_flag = FALSE;
-      g_get_current_time(&start_time);
-
-      fdata = start_fd;
-      for (;;) {
-        /* Update the progress bar, but do it only N_PROGBAR_UPDATES times;
-           when we update it, we have to run the GTK+ main loop to get it
-           to repaint what's pending, and doing so may involve an "ioctl()"
-           to see if there's any pending input from an X server, and doing
-           that for every packet can be costly, especially on a big file. */
-        if (count >= cf->progbar_nextstep) {
-          /* let's not divide by zero. I should never be started
-           * with count == 0, so let's assert that
-           */
-          g_assert(cf->count > 0);
-
-          prog_val = (gfloat) count / cf->count;
-
-          /* Create the progress bar if necessary */
-          if (progbar == NULL)
-             progbar = delayed_create_progress_dlg("Searching", cf->sfilter, "Cancel",
-               &stop_flag, &start_time, prog_val);
-
-          if (progbar != NULL) {
-            g_snprintf(status_str, sizeof(status_str),
-                       "%4u of %u frames", count, cf->count);
-            update_progress_dlg(progbar, prog_val, status_str);
-          }
-
-          cf->progbar_nextstep += cf->progbar_quantum;
-        }
-
-        if (stop_flag) {
-          /* Well, the user decided to abort the search.  Go back to the
-             frame where we started. */
-          new_fd = start_fd;
-          break;
-        }
-
-        /* Go past the current frame. */
-        if (cf->sbackward) {
-          /* Go on to the previous frame. */
-          fdata = fdata->prev;
-          if (fdata == NULL)
-            fdata = cf->plist_end;	/* wrap around */
-        } else {
-          /* Go on to the next frame. */
-          fdata = fdata->next;
-          if (fdata == NULL)
-            fdata = cf->plist;	/* wrap around */
-        }
-
-        count++;
-
-        /* Is this packet in the display? */
-        if (fdata->flags.passed_dfilter) {
-          /* Yes.  Does it match the search filter? */
-          /* XXX - do something with "err" */
-          wtap_seek_read(cf->wth, fdata->file_off, &cf->pseudo_header,
-                  cf->pd, fdata->cap_len, &err);
-          frame_matched = FALSE;
-          buf_len = fdata->pkt_len;
-          for (i=0;i<buf_len;i++) {
-              if (ascii_search && case_type) {
-                  uppercase = &cf->pd[i];
-                  g_strup(uppercase);
-                  c_char = uppercase[0];
-              }
-              else
-                c_char = cf->pd[i];
-              /* Check to see if this is an String or Hex search */
-              if (ascii_search) {
-                  /* Now check the String Type */
-                  if(strcmp(ftype,"ASCII Unicode & Non-Unicode")==0)
-                  {
-                      if (c_char != 0) {
-                          if (c_char == ascii_text[c_match]) {
-                              c_match++;
-                              if (c_match == strlen(ascii_text)) {
-                                  frame_matched = TRUE;
-                                  break;
-                              }
-                          }
-                          else
-                          {
-                              c_match = 0;
-                          }
-                      }
-                  }
-                  else if(strcmp(ftype,"ASCII Non-Unicode")==0)
-                  {
-                      if (c_char == ascii_text[c_match]) {
-                          c_match++;
-                          if (c_match == strlen(ascii_text)) {
-                              frame_matched = TRUE;
-                              break;
-                          }
-                      }
-                      else
-                      {
-                          c_match = 0;
-                      }
-                  }
-                  else if(strcmp(ftype, "ASCII Unicode")==0)
-                  {
-                      if (c_char == ascii_text[c_match]) {
-                          c_match++;
-                          i++;
-                          if (c_match == strlen(ascii_text)) {
-                              frame_matched = TRUE;
-                              break;
-                          }
-                      }
-                      else
-                      {
-                          c_match = 0;
-                      }
-                  }
-                  else if(strcmp(ftype,"EBCDIC")==0)
-                  {
-                      simple_dialog(ESD_TYPE_CRIT, NULL,
-                            "EBCDIC Find Not supported yet.");
-                      return TRUE;
-                  }
-                  else
-                  {
-                      simple_dialog(ESD_TYPE_CRIT, NULL,
-                            "Invalid String type specified.");
-                      return TRUE;
-                  }
-              }
-              else      /* Hex Search */
-              {
-                  char_val = ascii_text[c_match];
-                  num1 = get_int_value(char_val);
-                  char_val = ascii_text[++c_match];
-                  num2 = get_int_value(char_val);
-                  hex_val = (num1*0x10)+num2;
-                  if ( c_char == hex_val) {
-                      c_match++;
-                      if (c_match == strlen(ascii_text)) {
-                          frame_matched = TRUE;
-                          break;
-                      }
-                  }
-                  else
-                  {
-                      c_match = 0;
-                  }
-                
-              }
-          }
-          if (frame_matched) {
-            new_fd = fdata;
-            break;	/* found it! */
-          }
-        }
-
-        if (fdata == start_fd) {
-          /* We're back to the frame we were on originally, and that frame
-         doesn't match the search filter.  The search failed. */
-          break;
-        }
-      }
-
-      /* We're done scanning the packets; destroy the progress bar if it
-         was created. */
-      if (progbar != NULL)
-        destroy_progress_dlg(progbar);
-    }
-
-    if (new_fd != NULL) {
-      /* We found a frame.  Find what row it's in. */
-      row = packet_list_find_row_from_data(new_fd);
-      g_assert(row != -1);
-
-      /* Select that row, make it the focus row, and make it visible. */
-      packet_list_set_selected_row(row);
-      return TRUE;	/* success */
     } else
-      return FALSE;	/* failure */
+      c_match = 0;
+  }
+  return frame_matched;
+}
+
+static gboolean
+match_unicode(capture_file *cf, frame_data *fdata, void *criterion)
+{
+  cbs_t		*info = criterion;
+  const char	*ascii_text = info->data;
+  size_t	textlen = info->data_len;
+  gboolean	frame_matched;
+  guint32	buf_len;
+  guint32	i;
+  guint8	c_char;
+  size_t	c_match = 0;
+
+  frame_matched = FALSE;
+  buf_len = fdata->pkt_len;
+  for (i = 0; i < buf_len; i++) {
+    c_char = cf->pd[i];
+    if (cf->case_type)
+      c_char = toupper(c_char);
+    if (c_char == ascii_text[c_match]) {
+      c_match++;
+      i++;
+      if (c_match == textlen) {
+	frame_matched = TRUE;
+	break;
+      }
+    } else
+      c_match = 0;
+  }
+  return frame_matched;
+}
+
+static gboolean
+match_binary(capture_file *cf, frame_data *fdata, void *criterion)
+{
+  cbs_t		*info = criterion;
+  const guint8	*binary_data = info->data;
+  size_t	datalen = info->data_len;
+  gboolean	frame_matched;
+  guint32	buf_len;
+  guint32	i;
+  size_t	c_match = 0;
+
+  frame_matched = FALSE;
+  buf_len = fdata->pkt_len;
+  for (i = 0; i < buf_len; i++) {
+    if (cf->pd[i] == binary_data[c_match]) {
+      c_match++;
+      if (c_match == datalen) {
+	frame_matched = TRUE;
+	break;
+      }
+    } else
+      c_match = 0;
+  }
+  return frame_matched;
 }
 
 gboolean
-find_packet(capture_file *cf, dfilter_t *sfcode)
+find_packet_dfilter(capture_file *cf, dfilter_t *sfcode)
+{
+  return find_packet(cf, match_dfilter, sfcode);
+}
+
+static gboolean
+match_dfilter(capture_file *cf, frame_data *fdata, void *criterion)
+{
+  dfilter_t		*sfcode = criterion;
+  epan_dissect_t	*edt;
+  gboolean		frame_matched;
+
+  edt = epan_dissect_new(TRUE, FALSE);
+  epan_dissect_prime_dfilter(edt, sfcode);
+  epan_dissect_run(edt, &cf->pseudo_header, cf->pd, fdata, NULL);
+  frame_matched = dfilter_apply_edt(sfcode, edt);
+  epan_dissect_free(edt);
+  return frame_matched;
+}
+
+static gboolean
+find_packet(capture_file *cf,
+            gboolean (*match_function)(capture_file *, frame_data *, void *),
+            void *criterion)
 {
   frame_data *start_fd;
   frame_data *fdata;
@@ -1993,9 +1801,7 @@ find_packet(capture_file *cf, dfilter_t *sfcode)
   gboolean    stop_flag;
   int         count;
   int         err;
-  gboolean    frame_matched;
   int         row;
-  epan_dissect_t	*edt;
   float       prog_val;
   GTimeVal    start_time;
   gchar       status_str[100];
@@ -2069,16 +1875,13 @@ find_packet(capture_file *cf, dfilter_t *sfcode)
 
       /* Is this packet in the display? */
       if (fdata->flags.passed_dfilter) {
-        /* Yes.  Does it match the search filter? */
+      	/* Yes.  Load its data. */
         /* XXX - do something with "err" */
         wtap_seek_read(cf->wth, fdata->file_off, &cf->pseudo_header,
         		cf->pd, fdata->cap_len, &err);
-        edt = epan_dissect_new(TRUE, FALSE);
-        epan_dissect_prime_dfilter(edt, sfcode);
-        epan_dissect_run(edt, &cf->pseudo_header, cf->pd, fdata, NULL);
-        frame_matched = dfilter_apply_edt(sfcode, edt);
-        epan_dissect_free(edt);
-        if (frame_matched) {
+
+	/* Does it match the search criterion? */
+	if ((*match_function)(cf, fdata, criterion)) {
           new_fd = fdata;
           break;	/* found it! */
         }

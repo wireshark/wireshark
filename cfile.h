@@ -1,7 +1,7 @@
 /* cfile.h
  * capture_file definition & GUI-independent manipulation
  *
- * $Id: cfile.h,v 1.2 2003/07/22 23:08:47 guy Exp $
+ * $Id: cfile.h,v 1.3 2003/08/29 04:03:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -32,6 +32,14 @@ typedef enum {
 	FILE_READ_ABORTED,	/* Read aborted by user */
 	FILE_READ_DONE		/* Read completed */
 } file_state;
+
+/* Character set for text search. */
+typedef enum {
+	SCS_ASCII_AND_UNICODE,
+	SCS_ASCII,
+	SCS_UNICODE
+	/* add EBCDIC when it's implemented */
+} search_charset_t;
 
 typedef struct _capture_file {
   file_state   state;     /* Current state of capture file */
@@ -64,10 +72,13 @@ typedef struct _capture_file {
   gchar       *cfilter;   /* Capture filter string */
 #endif
   gchar       *sfilter;   /* Search filter string */
-  gboolean     sbackward;  /* TRUE if search is backward, FALSE if forward */
-  gboolean     hex;        /* TRUE is Hex search is being performed */
-  gboolean     ascii;      /* TRUE is ASCII search is being performed */
-  char         *ftype;      /* Find Frame String Type */
+  gboolean     sbackward; /* TRUE if search is backward, FALSE if forward */
+  gboolean     hex;       /* TRUE is raw data search is being performed */
+  gboolean     ascii;     /* TRUE is text search is being performed */
+  search_charset_t scs_type; /* Character set for text search */
+  gboolean     case_type; /* TRUE if case-insensitive text search */
+  gboolean     decode_data; /* TRUE if searching protocol tree text */
+  gboolean     summary_data; /* TRUE if searching Info column text */
   union wtap_pseudo_header pseudo_header;      /* Packet pseudo_header */
   guint8       pd[WTAP_MAX_PACKET_SIZE];  /* Packet data */
   GMemChunk   *plist_chunk; /* Memory chunk for frame_data structures */

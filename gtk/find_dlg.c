@@ -1,7 +1,7 @@
 /* find_dlg.c
  * Routines for "find frame" window
  *
- * $Id: find_dlg.c,v 1.32 2003/08/28 23:25:55 guy Exp $
+ * $Id: find_dlg.c,v 1.33 2003/08/29 04:03:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -22,10 +22,12 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
+
+#include <string.h>
+#include <ctype.h>
 
 #include <gtk/gtk.h>
 
@@ -44,17 +46,17 @@
 #include "keys.h"
 
 /* Capture callback data keys */
-#define E_FIND_FILT_KEY     "find_filter_te"
-#define E_FIND_BACKWARD_KEY "find_backward"
-#define E_FIND_HEXDATA_KEY "find_hex"
-#define E_FIND_ASCIIDATA_KEY "find_ascii"
+#define E_FIND_FILT_KEY       "find_filter_te"
+#define E_FIND_BACKWARD_KEY   "find_backward"
+#define E_FIND_HEXDATA_KEY    "find_hex"
+#define E_FIND_ASCIIDATA_KEY  "find_ascii"
 #define E_FIND_FILTERDATA_KEY "find_filter"
 #define E_FIND_STRINGTYPE_KEY "find_string_type"
-#define E_CASE_SEARCH_KEY "case_insensitive_search"
-#define E_SOURCE_HEX_KEY "hex_data_source"
-#define E_SOURCE_DECODE_KEY "decode_data_source"
-#define E_SOURCE_SUMMARY_KEY "summary_data_source"
-#define E_FILT_TE_BUTTON_KEY "find_filter_button"
+#define E_CASE_SEARCH_KEY     "case_insensitive_search"
+#define E_SOURCE_HEX_KEY      "hex_data_source"
+#define E_SOURCE_DECODE_KEY   "decode_data_source"
+#define E_SOURCE_SUMMARY_KEY  "summary_data_source"
+#define E_FILT_TE_BUTTON_KEY  "find_filter_button"
 
 static gboolean case_type = TRUE;
 static gboolean summary_data = FALSE;
@@ -207,7 +209,6 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(filter_rb), !cfile.hex && !cfile.ascii);
   gtk_box_pack_start(GTK_BOX(hex_hb), filter_rb, TRUE, TRUE, 0);
   gtk_tooltips_set_tip (tooltips, filter_rb, ("Search for data by display filter syntax.\ne.g. ip.addr==10.1.1.1"), NULL);
-  SIGNAL_CONNECT(filter_rb, "clicked", filter_selected_cb, find_frame_w);
   gtk_widget_show(filter_rb);
 
   /* Hex */
@@ -237,7 +238,6 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(ascii_rb), cfile.ascii);
   gtk_box_pack_start(GTK_BOX(hex_hb), ascii_rb, TRUE, TRUE, 0);
   gtk_tooltips_set_tip (tooltips, ascii_rb, ("Search for data by string value.\ne.g. My String"), NULL);
-  SIGNAL_CONNECT(ascii_rb, "clicked", ascii_selected_cb, find_frame_w);
   gtk_widget_show(ascii_rb);
 
   string_window_frame = gtk_frame_new("Search in");
@@ -306,8 +306,8 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
   glist = g_list_append(glist, "ASCII Unicode & Non-Unicode");
   glist = g_list_append(glist, "ASCII Non-Unicode");
   glist = g_list_append(glist, "ASCII Unicode");
-  glist = g_list_append(glist, "EBCDIC");
 
+  /* XXX - make it non-editable - or make this an option menu instead */
   gtk_combo_set_popdown_strings(GTK_COMBO(combo_cb), glist);
   gtk_container_border_width(GTK_CONTAINER(combo_cb), 1);
   gtk_container_add(GTK_CONTAINER(string_char_frame), combo_cb);
@@ -375,6 +375,14 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
   OBJECT_SET_DATA(find_frame_w, E_SOURCE_SUMMARY_KEY, summary_data_rb);
   OBJECT_SET_DATA(find_frame_w, E_FILT_TE_BUTTON_KEY, filter_bt);
   
+  /*
+   * Now that we've attached the pointers, connect the signals - if
+   * we do so before we've attached the pointers, the signals may
+   * be delivered before the pointers are attached; the signal
+   * handlers expect the pointers to be attached, and won't be happy.
+   */
+  SIGNAL_CONNECT(ascii_rb, "clicked", ascii_selected_cb, find_frame_w);
+  SIGNAL_CONNECT(filter_rb, "clicked", filter_selected_cb, find_frame_w);
 
   ascii_selected_cb(NULL, find_frame_w);
   filter_selected_cb(NULL, find_frame_w);
@@ -452,14 +460,118 @@ filter_selected_cb(GtkWidget *button_rb _U_, gpointer parent_w)
     return;
 }
 
+static guint8 *
+convert_string_to_hex(const char *string, size_t *nbytes)
+{
+  size_t n_bytes;
+  const char *p;
+  guchar c;
+  guint8 *bytes, *q, byte_val;
+
+  n_bytes = 0;
+  p = &string[0];
+  for (;;) {
+    c = *p++;
+    if (c == '\0')
+      break;
+    if (isspace(c))
+      continue;	/* allow white space */
+    if (!isxdigit(c)) {
+      /* Not a valid hex digit - fail */
+      return NULL;
+    }
+
+    /*
+     * We can only match bytes, not nibbles; we must have a valid
+     * hex digit immediately after that hex digit.
+     */
+    c = *p++;
+    if (!isxdigit(c))
+      return NULL;
+
+    /* 2 hex digits = 1 byte */
+    n_bytes++;
+  }
+
+  /*
+   * Were we given any hex digits?
+   */
+  if (n_bytes == 0) {
+      /* No. */
+      return NULL;
+  }
+
+  /*
+   * OK, it's valid, and it generates "n_bytes" bytes; generate the
+   * raw byte array.
+   */
+  bytes = g_malloc(n_bytes);
+  p = &string[0];
+  q = &bytes[0];
+  for (;;) {
+    c = *p++;
+    if (c == '\0')
+      break;
+    if (isspace(c))
+      continue;	/* allow white space */
+    /* From the loop above, we know this is a hex digit */
+    if (isdigit(c))
+      byte_val = c - '0';
+    else if (c >= 'a')
+      byte_val = (c - 'a') + 10;
+    else
+      byte_val = (c - 'A') + 10;
+    byte_val <<= 4;
+
+    /* We also know this is a hex digit */
+    c = *p++;
+    if (isdigit(c))
+      byte_val |= c - '0';
+    else if (c >= 'a')
+      byte_val |= (c - 'a') + 10;
+    else if (c >= 'A')
+      byte_val |= (c - 'A') + 10;
+
+    *q++ = byte_val;
+  }
+  *nbytes = n_bytes;
+  return bytes;
+}
+
+static char *
+convert_string_case(const char *string, gboolean case_insensitive)
+{
+  char *out_string;
+  const char *p;
+  char c;
+  char *q;
+
+  /*
+   * Copy if if it's a case-sensitive search; uppercase it if it's
+   * a case-insensitive search.
+   */
+  if (case_insensitive) {
+    out_string = g_malloc(strlen(string) + 1);
+    for (p = &string[0], q = &out_string[0]; (c = *p) != '\0'; p++, q++)
+      *q = toupper((unsigned char)*p);
+    *q = '\0';
+  } else
+    out_string = g_strdup(string);
+  return out_string;
+}
 
 static void
 find_frame_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
 {
-  GtkWidget *filter_te, *backward_rb, *hex_rb, *ascii_rb, *combo_cb, *case_cb,
-            *decode_data_rb, *summary_data_rb;
-  gchar     *filter_text, *string_type;
-  dfilter_t *sfcode;
+  GtkWidget       *filter_te, *backward_rb, *hex_rb, *ascii_rb, *combo_cb,
+                  *case_cb, *decode_data_rb, *summary_data_rb;
+  gchar           *filter_text, *string_type;
+  search_charset_t scs_type = SCS_ASCII_AND_UNICODE;
+  guint8          *bytes = NULL;
+  size_t           nbytes;
+  char            *string = NULL;
+  dfilter_t       *sfcode;
+  gboolean        found_packet;
 
   filter_te = (GtkWidget *)OBJECT_GET_DATA(parent_w, E_FIND_FILT_KEY);
   backward_rb = (GtkWidget *)OBJECT_GET_DATA(parent_w, E_FIND_BACKWARD_KEY);
@@ -478,61 +590,116 @@ find_frame_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
   summary_data = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(summary_data_rb));
 
   /*
-   * Try to compile the filter.
+   * Process the search criterion.
    */
-  if (!dfilter_compile(filter_text, &sfcode) && !GTK_TOGGLE_BUTTON (hex_rb)->active && !GTK_TOGGLE_BUTTON (ascii_rb)->active) {
-    /* The attempt failed; report an error. */
-    simple_dialog(ESD_TYPE_CRIT, NULL, dfilter_error_msg);
-    return;
-  }
+  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (hex_rb))) {
+    /*
+     * Hex search - scan the search string to make sure it's valid hex
+     * and to find out how many bytes there are.
+     */
+    bytes = convert_string_to_hex(filter_text, &nbytes);
+    if (bytes == NULL) {
+      simple_dialog(ESD_TYPE_CRIT, NULL,
+           "You didn't specify a valid hex string.");
+      return;
+    }
+  } else if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (ascii_rb))) {
+    /*
+     * String search.
+     * Get the character set type.
+     */
+    if (strcmp(string_type, "ASCII Unicode & Non-Unicode") == 0)
+      scs_type = SCS_ASCII_AND_UNICODE;
+    else if (strcmp(string_type, "ASCII Non-Unicode") == 0)
+      scs_type = SCS_ASCII;
+    else if (strcmp(string_type, "ASCII Unicode") == 0)
+      scs_type = SCS_UNICODE;
+    else {
+      simple_dialog(ESD_TYPE_CRIT, NULL, "You didn't choose a valid character set.");
+      return;
+    }
+    string = convert_string_case(filter_text, case_type);
+  } else {
+    /*
+     * Display filter search - try to compile the filter.
+     */
+    if (!dfilter_compile(filter_text, &sfcode)) {
+      /* The attempt failed; report an error. */
+      simple_dialog(ESD_TYPE_CRIT, NULL, dfilter_error_msg);
+      return;
+    }
 
-  /* Was it empty? */
-  if (sfcode == NULL && !GTK_TOGGLE_BUTTON (hex_rb)->active && !GTK_TOGGLE_BUTTON (ascii_rb)->active) {
-    /* Yes - complain. */
-    simple_dialog(ESD_TYPE_CRIT, NULL,
-       "You didn't specify valid search criteria.");
-    return;
+    /* Was it empty? */
+    if (sfcode == NULL) {
+      /* Yes - complain. */
+      simple_dialog(ESD_TYPE_CRIT, NULL,
+         "You didn't specify a valid filter expression.");
+      return;
+    }
   }
 
   /*
-   * Remember the filter.
+   * Remember the search parameters.
    */
   if (cfile.sfilter)
     g_free(cfile.sfilter);
   cfile.sfilter = g_strdup(filter_text);
-
   cfile.sbackward = GTK_TOGGLE_BUTTON (backward_rb)->active;
-  cfile.hex = GTK_TOGGLE_BUTTON (hex_rb)->active;
-  cfile.ascii = GTK_TOGGLE_BUTTON (ascii_rb)->active;
-  cfile.ftype = g_strdup(string_type);
+  cfile.hex = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (hex_rb));
+  cfile.ascii = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (ascii_rb));
+  cfile.scs_type = scs_type;
+  cfile.case_type = case_type;
+  cfile.decode_data = decode_data;
+  cfile.summary_data = summary_data;
 
-  if (!GTK_TOGGLE_BUTTON (hex_rb)->active && !GTK_TOGGLE_BUTTON (ascii_rb)->active ) {
-      if (!find_packet(&cfile, sfcode)) {
+  if (cfile.hex) {
+    found_packet = find_packet_data(&cfile, bytes, nbytes);
+    g_free(bytes);
+    if (!found_packet) {
+      /* We didn't find a packet */
+      simple_dialog(ESD_TYPE_CRIT, NULL, "No packet contained those bytes.");
+      g_free(bytes);
+      return;
+    }
+  } else if (cfile.ascii) {
+    /* OK, what are we searching? */
+    if (cfile.decode_data) {
+      /* The text in the protocol tree */
+      found_packet = find_packet_protocol_tree(&cfile, string);
+      g_free(string);
+      if (!found_packet) {
         /* We didn't find the packet. */
-        simple_dialog(ESD_TYPE_CRIT, NULL, "No packet matched that filter.");
+        simple_dialog(ESD_TYPE_CRIT, NULL, "No packet contained that string in its dissected display.");
         return;
       }
-  }
-  else
-  {
-      if (!decode_data && !summary_data) {
-          if (!find_ascii(&cfile, filter_text, cfile.ascii, string_type, case_type)) {
-              /* We didn't find the packet. */
-              simple_dialog(ESD_TYPE_CRIT, NULL, "No packet matched search criteria.");
-              return;
-          }
+    } else if (cfile.summary_data) {
+      /* The text in the summary line */
+      found_packet = find_packet_summary_line(&cfile, string);
+      g_free(string);
+      if (!found_packet) {
+        /* We didn't find the packet. */
+        simple_dialog(ESD_TYPE_CRIT, NULL, "No packet contained that string in its Info column.");
+        return;
       }
-      else
-      {
-          /* Use the cfile.hex to indicate if summary or decode search */
-          /* This way the Next and Previous find options will work */
-          cfile.hex = summary_data; 
-          if (!find_in_gtk_data(&cfile, parent_w, filter_text, case_type, summary_data)) {
-              /* We didn't find the packet. */
-              simple_dialog(ESD_TYPE_CRIT, NULL, "No packet matched search criteria.");
-              return;
-          }
+    } else {
+      /* The raw packet data */
+      found_packet = find_packet_data(&cfile, string, strlen(string));
+      g_free(string);
+      if (!found_packet) {
+        /* We didn't find the packet. */
+        simple_dialog(ESD_TYPE_CRIT, NULL, "No packet contained that string in its data.");
+        return;
       }
+    }
+  } else {
+    found_packet = find_packet_dfilter(&cfile, sfcode);
+    dfilter_free(sfcode);
+    if (!found_packet) {
+      /* We didn't find a packet */
+      simple_dialog(ESD_TYPE_CRIT, NULL, "No packet matched that filter.");
+      g_free(bytes);
+      return;
+    }
   }
   gtk_widget_destroy(GTK_WIDGET(parent_w));
 }
@@ -554,28 +721,56 @@ find_frame_destroy_cb(GtkWidget *win _U_, gpointer user_data _U_)
 static void
 find_previous_next(GtkWidget *w, gpointer d, gboolean sens)
 {
+  guint8    *bytes;
+  size_t     nbytes;
+  char      *string;
   dfilter_t *sfcode;
 
-
   if (cfile.sfilter) {
-     if (!dfilter_compile(cfile.sfilter, &sfcode) && !cfile.hex && !cfile.ascii)
+    cfile.sbackward = sens;
+    if (cfile.hex) {
+      bytes = convert_string_to_hex(cfile.sfilter, &nbytes);
+      if (bytes == NULL) {
+	/*
+	 * XXX - this shouldn't happen, as we've already successfully
+	 * translated the string once.
+	 */
         return;
-     if (sfcode == NULL && !cfile.hex && !cfile.ascii)
+      }
+      find_packet_data(&cfile, bytes, nbytes);
+      g_free(bytes);
+    } else if (cfile.ascii) {
+      string = convert_string_case(cfile.sfilter, cfile.case_type);
+      /* OK, what are we searching? */
+      if (cfile.decode_data) {
+        /* The text in the protocol tree */
+        find_packet_protocol_tree(&cfile, string);
+      } else if (cfile.summary_data) {
+        /* The text in the summary line */
+        find_packet_summary_line(&cfile, string);
+      } else {
+        /* The raw packet data */
+        find_packet_data(&cfile, string, strlen(string));
+      }
+      g_free(string);
+    } else {
+      if (!dfilter_compile(cfile.sfilter, &sfcode)) {
+	/*
+	 * XXX - this shouldn't happen, as we've already successfully
+	 * translated the string once.
+	 */
         return;
-     cfile.sbackward = sens;
-     if (cfile.hex || cfile.ascii) 
-     {
-         if (!decode_data && !summary_data) {
-            find_ascii(&cfile, cfile.sfilter, cfile.ascii, cfile.ftype, case_type);
-         }
-         else {
-            find_in_gtk_data(&cfile, d, cfile.sfilter, case_type, cfile.hex);
-         }
-     }
-     else 
-     {
-         find_packet(&cfile, sfcode);
-     }
+      }
+      if (sfcode == NULL) {
+	/*
+	 * XXX - this shouldn't happen, as we've already found that the
+	 * string wasn't null.
+	 */
+        return;
+      }
+      find_packet_dfilter(&cfile, sfcode);
+      dfilter_free(sfcode);
+    }
   } else
      find_frame_cb(w, d);
 }
