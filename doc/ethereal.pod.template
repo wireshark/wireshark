@@ -86,9 +86,12 @@ B<-r> option or can be specified as a command-line argument.
 
 =over 4
 
+Most users will want to start B<Ethereal> without options and configure
+it from the menus instead. Those users may just skip this section.
+
 =item -a
 
-Specify a criterion that specifies when B<Tethereal> is to stop writing
+Specify a criterion that specifies when B<Ethereal> is to stop writing
 to a capture file.  The criterion is of the form I<test>B<:>I<value>,
 where I<test> is one of:
 
