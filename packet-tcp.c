@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.222 2004/02/24 09:40:38 sahlberg Exp $
+ * $Id: packet-tcp.c,v 1.223 2004/02/24 17:49:06 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2955,7 +2955,7 @@ proto_register_tcp(void)
 
 		{ &hf_tcp_analysis_zero_window,
 		{ "Zero Window",		"tcp.analysis.zero_window", FT_NONE, BASE_NONE, NULL, 0x0,
-			"This is a Zero-Window", HFILL }},
+			"This is a zero-window", HFILL }},
 
 		{ &hf_tcp_len,
 		  { "TCP Segment Len",            "tcp.len", FT_UINT32, BASE_DEC, NULL, 0x0,

@@ -1,7 +1,7 @@
 /* packet-clnp.c
  * Routines for ISO/OSI network and transport protocol packet disassembly
  *
- * $Id: packet-clnp.c,v 1.82 2004/02/18 06:51:13 guy Exp $
+ * $Id: packet-clnp.c,v 1.83 2004/02/24 17:49:06 ulfl Exp $
  * Laurent Deniel <laurent.deniel@free.fr>
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
@@ -2207,8 +2207,8 @@ void proto_register_clnp(void)
 
   clnp_module = prefs_register_protocol(proto_clnp, NULL);
   prefs_register_uint_preference(clnp_module, "tp_nsap_selector",
-	"NSAP selector for Transport Protocol (last byte in hexa)",
-	"NSAP selector for Transport Protocol (last byte in hexa)",
+	"NSAP selector for Transport Protocol (last byte in hex)",
+	"NSAP selector for Transport Protocol (last byte in hex)",
        	16, &tp_nsap_selector);
   prefs_register_bool_preference(clnp_module, "always_decode_transport",
 	"Always try to decode NSDU as transport PDUs",

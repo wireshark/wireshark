@@ -3,48 +3,48 @@ Well known things
 Following is a simple selection of well known numbers, useful when working with Ethereal. This is not intended to replace comprehensive network documentation.
 
 
-Ethernet addresses [RFC 1700]:
-------------------------------
+Ethernet addresses [RFC 1700]
+-----------------------------
 ff:ff:ff:ff:ff:ff Broadcast, send to all nodes
 
-Ethernet type field:
---------------------
+Ethernet type field
+-------------------
  0 -   45 invalid
 46 - 1500 length field (Ethernet-II)
    0x0800 IP(V4), internet protocol version 4
    0x0806 ARP, address resolution protocol
    0x8137 IPX, internet packet exchange (Novell)
 
-IP addresses:
--------------
+IP addresses
+------------
 127.0.0.0 - 127.255.255.255 local loopback, should never appear on the network
 224.0.0.0 - 239.255.255.255 multicasting [RFC1112], transmission to a host group
             255.255.255.255 limited Broadcast, send to all nodes
 
-IP private addresses [RFC 1597]:
---------------------------------
+IP private addresses [RFC 1597]
+-------------------------------
 The following IP addresses will not be routed, and should be used for private networks:
    10.0.0.0 -  10.255.255.255 private in Class A
  172.16.0.0 -  172.31.255.255 private in Class B
 192.168.0.0 - 192.168.255.255 private in Class C
 
-IP address classes:
--------------------
+IP address classes
+------------------
   0.1.0.0 - 126.0.0.0       Class A
 128.0.0.0 - 191.255.0.0     Class B
 192.0.1.0 - 223.255.255.0   Class C
 224.0.0.0 - 239.255.255.255 Class D
 240.0.0.0 - 247.255.255.255 Class E
 
-IP protocols:
--------------
- 1 ICMP internet control message protocol v 4
- 6 TCP  transmission control protocol
-17 UDP  user datagram protocol
-58 ICMPv6 internet control message protocol v 6
+IP protocols
+------------
+ 1 ICMP 		internet control message protocol v 4
+ 6 TCP  		transmission control protocol
+17 UDP  		user datagram protocol
+58 ICMPv6 		internet control message protocol v 6
 
-TCP/UDP ports [RFC 1700]:
--------------------------
+TCP/UDP ports [RFC 1700]
+------------------------
   20 FTP-data   file transfer protocol
   21 FTP-ctrl   file transfer protocol
   22 SSH        secure shell
@@ -71,8 +71,8 @@ TCP/UDP ports [RFC 1700]:
 
 
 
-RFC References:
----------------
+RFC References
+--------------
 ARP     RFC  826 "An Ethernet Address Resolution Protocol"
 BOOTP   RFC  951 "BOOTSTRAP PROTOCOL (BOOTP)"
 CSLIP   RFC 1144 "Compressing TCP/IP Headers for Low-Speed Serial Links"
@@ -109,4 +109,4 @@ TELNET  RFC 1700 see: TELNET OPTIONS
 TFTP    RFC  783 "THE TFTP PROTOCOL (REVISION 2)"
 
 RFC 1166 "INTERNET NUMBERS" list of assigned IP addresses
-RFC 1700 "ASSIGNED NUMBERS" Various assigned numbers, e.g. TCP/UDP ports
+RFC 1700 "ASSIGNED NUMBERS" various assigned numbers, e.g. TCP/UDP ports

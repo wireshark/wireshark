@@ -29,9 +29,9 @@ Filtering options
 
 Storing options
 ---------------
--File: you can choose the file to which captured data will be written. If you don't enter something here a temporary file will be used.
+-File: You can choose the file to which captured data will be written. If you don't enter something here a temporary file will be used.
 
--Use ring buffer: Instead of using a single capture file, multiple files will be created. The generated filenames will contain a incrementing number and the start time of the capture. For example, if you choose "/foo.cap" in the "File" field, files like "/foo_00001_20040205110102.cap", "/foo_00002_20040205110102.cap", ... will be created.
+-Use ring buffer: Instead of using a single capture file, multiple files will be created. The generated filenames will contain an incrementing number and the start time of the capture. For example, if you choose "/foo.cap" in the "File" field, files like "/foo_00001_20040205110102.cap", "/foo_00002_20040205110102.cap", ... will be created.
 This feature can be useful if you do long term capturing, as working with a single capture file of several GB usually isn't very fast.
 
 Stop condition options
@@ -40,12 +40,12 @@ These three fields should be obvious; the capture process will be automatically 
 
 Display while capturing options
 -------------------------------
--Update List of packets in real time: Using this will show the captured packets immediately on the main screen.
+-Update list of packets in real time: Using this will show the captured packets immediately on the main screen.
 Please note: this will slow down capturing, so increased packet drops might appear.
 
 -Automatic scrolling in live capture: This will scroll the "Packet List" automatically to the latest captured packet, when the "Update List of packets in real time" option is used.
 
--Name resolution: perform the corresponding name resolution while capturing
+-Name resolution: perform the corresponding name resolution while capturing.
 
 
 
@@ -55,7 +55,7 @@ When your network traffic is high, you might need to take some steps to ensure E
 
 When Etheral cannot keep up, packets are dropped. To help avoid this as much as possible:
 
-a) Don't use the "Update List of packets in real time" option (see above). This has a significant performance penalty.
+a) Don't use the "Update list of packets in real time" option (see above). This has a significant performance penalty.
 
 b) Close other programs that might slow down your system, such as virus scanner software, server processes, etc.
 
@@ -73,10 +73,10 @@ Long term capturing
 -------------------
 By "Long term capturing", it's meant to capture data from a network for several hours or even days. Long term capturing will usually result in huge capture files, being hundreds of MB's or even several GB's in size!
 
-Before doing a long term capture, get familiar with the options to use for it, as you might not get what you desire. Doing a long term capture not getting the results needed, is usually wasting a lot of time ;-)
+Before doing a long term capture, get familiar with the options to use for it, as you might not get what you desire. Doing a long term capture not getting the results needed, is usually wasting a lot of time. ;-)
 
 Rules of thumb for this task:
--Use the ring buffer feature when you expect very large capture files
--Don't use the "Update list of packets in real time" option
--Set an appropriate capture filter, when you are only interested in some special packets from the net
+-Use the ring buffer feature when you expect very large capture files.
+-Don't use the "Update list of packets in real time" option.
+-Set an appropriate capture filter, when you are only interested in some special packets from the net.
 

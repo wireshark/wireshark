@@ -2,9 +2,9 @@ Filtering packets while viewing
 -------------------------------
 After capturing packets or loading some network traffic from a file, Ethereal will display the packet data immediately on the screen.
 
-Using display filters, you can choose which packets should (not) be shown on the screen. This is useful to reduce the "noice" usually on the network, showing only the packets you want to. So you can concentrate on the things you are really interested in. 
+Using display filters, you can choose which packets should (not) be shown on the screen. This is useful to reduce the "noise" usually on the network, showing only the packets you want to. So you can concentrate on the things you are really interested in. 
 
-The display filter will not affect the data captured, it will only select for you which packets of the captured data are displayed on the screen.
+The display filter will not affect the data captured, it will only select which packets of the captured data are displayed on the screen.
 
 Everytime you change the filter string, all packets will be reread from the capture file (or from memory), and processed by the display filter "machine". Packet by packet, this "machine" is asked, if this particular packet should be shown or not.
 
@@ -14,8 +14,8 @@ Note: This display filter language is different from the one used for the Ethere
 
 -------------------------------------------------
 
-Some common examples:
----------------------
+Some common examples
+--------------------
 Example Ethernet: display all traffic to and from the Ethernet address 08.00.08.15.ca.fe
 
 eth.addr==08.00.08.15.ca.fe
@@ -36,5 +36,6 @@ Beware: The filter string builds a logical expression, which must be true to sho
 
 -------------------------------------------------
 
-Hints:
+Hint
+----
 Filtering can lead to side effects, which are sometimes not obvious at first sight. Example: If you capture TCP/IP traffic with the primitive "ip", you will not see the ARP traffic belonging to it, as this is a lower protocol layer than IP!

@@ -2,7 +2,7 @@
  * Routines for dissection of Cisco MDS Switch Internal Header
  * Copyright 2001, Dinesh G Dutt <ddutt@andiamo.com>
  *
- * $Id: packet-mdshdr.c,v 1.8 2003/10/30 02:06:12 guy Exp $
+ * $Id: packet-mdshdr.c,v 1.9 2004/02/24 17:49:06 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -324,7 +324,7 @@ proto_register_mdshdr(void)
 
     mdshdr_module = prefs_register_protocol (proto_mdshdr, proto_reg_handoff_mdshdr);
     prefs_register_bool_preference (mdshdr_module, "decode_if_etype_zero",
-                                    "Decode as MDS Header If Ethertype == 0",
+                                    "Decode as MDS Header if Ethertype == 0",
                                     "A frame is considered for decoding as MDSHDR if either "
                                     "ethertype is 0xFCFC or zero. Turn this flag off if you "
                                     "you don't want ethertype zero to be decoded as MDSHDR. "

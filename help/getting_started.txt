@@ -21,7 +21,7 @@ Many of the features available in the menu will also be on the main toolbar.
 
 First capture file
 ------------------
-The first thing you probably want to do is look at some captured network data/packets:
+The first thing you probably want to do is look at some captured network data/packets.
 This can be achieved by two methods:
 
 -open an already existing capture file
@@ -83,6 +83,6 @@ Conclusion
 ----------
 There are a lot more features than described here. Just have a look at the menus to see them all. :-)
 
-For more information about Ethereal, see: "http://www.ethereal.com". You can get a users' guide and other useful information there.
+For more information about Ethereal, see: "http://www.ethereal.com". You can get a user's guide and other useful information there.
 
 We hope this helped you with the first steps of using Ethereal and that you will enjoy using this program.
