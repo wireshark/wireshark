@@ -1,7 +1,7 @@
 /* io_stat.c
  * io_stat   2002 Ronnie Sahlberg
  *
- * $Id: io_stat.c,v 1.35 2003/10/11 23:17:46 sahlberg Exp $
+ * $Id: io_stat.c,v 1.36 2003/10/12 04:20:03 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -86,28 +86,26 @@ static guint tick_interval_values[MAX_TICK_VALUES] = { 10, 100, 1000, 10000 };
 static char *calc_type_names[MAX_CALC_TYPES] = {"SUM(*)", "COUNT(*)", "MAX(*)", "MIN(*)", "AVG(*)"};
 
 
-typedef struct _io_stat_item_t {
-	struct _io_stat_item_t *next;
-	struct _io_stat_item_t *prev;
-	guint32 time;	/* this is number of ms since start of capture */
-	guint32 frames; /* always calculated, will hold number of packets/frames*/
-	guint32 bytes;
+typedef struct _io_stat_calc_type_t {
+	struct _io_stat_graph_t *gio;
+	int calc_type;
+} io_stat_calc_type_t;
+
+#define NUM_IO_ITEMS 100000
+typedef struct _io_item_t {
+	guint32 frames; /* always calculated, will hold number of frames*/
+	guint32 bytes;  /* always calculated, will hold number of bytes*/
 	gint32 int_max;
 	gint32 int_min;
 	gint32 int_tot;
 	nstime_t time_max;
 	nstime_t time_min;
 	nstime_t time_tot;
-} io_stat_item_t;
-
-typedef struct _io_stat_calc_type_t {
-	struct _io_stat_graph_t *gio;
-	int calc_type;
-} io_stat_calc_type_t;
+} io_item_t; /* XXX to be removed */
 
 typedef struct _io_stat_graph_t {
 	struct _io_stat_t *io;
-	struct _io_stat_item_t *counts;
+	io_item_t items[NUM_IO_ITEMS];
 	int display;
 	GtkWidget *display_button;
 	GtkWidget *color_button;
@@ -148,7 +146,8 @@ typedef struct _io_stat_t {
 	gboolean needs_redraw;
 	gint32 interval;    /* measurement interval in ms */
 	guint32 last_interval; 
-	guint32 max_interval;
+	guint32 max_interval; /* XXX max_interval and num_items are redundant */
+	guint32 num_items;
 
 	struct _io_stat_graph_t graphs[MAX_GRAPHS];
 	struct _io_stat_yscale_t yscale[MAX_YSCALE];
@@ -201,6 +200,9 @@ io_stat_set_title(io_stat_t *io)
 {
 	char		*title;
 
+	if(!io->window){
+		return;
+	}
 	title = g_strdup_printf("IO-Stat: %s", cf_get_display_name(&cfile));
 	gtk_window_set_title(GTK_WINDOW(io->window), title);
 	g_free(title);
@@ -210,27 +212,30 @@ static void
 gtk_iostat_reset(void *g)
 {
 	io_stat_graph_t *gio=g;
-	io_stat_item_t *it;
+	int i, j;
 
 	gio->io->needs_redraw=TRUE;
+	for(i=0;i<MAX_GRAPHS;i++){
+		for(j=0;j<NUM_IO_ITEMS;j++){
+			io_item_t *ioi;
+			ioi=&gio->io->graphs[i].items[j];
 
-	while(gio->counts->next){
-		it=gio->counts->next;
-		gio->counts->next=it->next;
-		g_free(it);
+			ioi->frames=0;
+			ioi->bytes=0;
+			ioi->int_max=0;
+			ioi->int_min=0;
+			ioi->int_tot=0;
+			ioi->time_max.secs=0;
+			ioi->time_max.nsecs=0;
+			ioi->time_min.secs=0;
+			ioi->time_min.nsecs=0;
+			ioi->time_tot.secs=0;
+			ioi->time_tot.nsecs=0;
+		}
 	}
-
-	gio->counts->prev=gio->counts;
-	gio->counts->next=NULL;
-	gio->counts->time=0;
-	gio->counts->frames=0;
-	gio->counts->bytes=0;
-	gio->counts->int_max=0;
-	gio->counts->int_min=0;
-	gio->counts->int_tot=0;
-
 	gio->io->last_interval=0xffffffff;
 	gio->io->max_interval=0;
+	gio->io->num_items=0;
 
 	io_stat_set_title(gio->io);
 }
@@ -240,9 +245,9 @@ static int
 gtk_iostat_packet(void *g, packet_info *pinfo, epan_dissect_t *edt, void *dummy _U_)
 {
 	io_stat_graph_t *git=g;
-	io_stat_item_t *it;
+	io_item_t *it;
 	nstime_t time_delta;
-	guint32 adjusted_time;
+	int idx;
 
 	/* we sometimes get called when git is disabled.
 	   this is a bug since the tap listener should be removed first */
@@ -252,11 +257,10 @@ gtk_iostat_packet(void *g, packet_info *pinfo, epan_dissect_t *edt, void *dummy 
 
 	git->io->needs_redraw=TRUE;
 
-	/* the prev item before the main one is always the last interval we saw packets for */
-	it=git->counts->prev;
-
-	/* XXX for the time being, just ignore all frames that are in the past.
-	   should be fixed in the future but hopefully it is uncommon */
+	/* 
+	 * Find which interval this is supposed to to in and store the
+	 * interval index as idx
+	 */
 	time_delta.secs=pinfo->fd->rel_secs;
 	time_delta.nsecs=pinfo->fd->rel_usecs*1000;
 	if(time_delta.nsecs<0){
@@ -264,47 +268,31 @@ gtk_iostat_packet(void *g, packet_info *pinfo, epan_dissect_t *edt, void *dummy 
 		time_delta.nsecs+=1000000000;
 	}
 	if(time_delta.secs<0){
-		return TRUE;
+		return FALSE;
 	}
-	/* time since start of capture in ms */
-	adjusted_time=time_delta.secs*1000+time_delta.nsecs/1000000;
+	idx=(time_delta.secs*1000+time_delta.nsecs/1000000)/git->io->interval;
 
-	/* timestamps jumped backwards, just ignore the packet.
-	   if this is common someone can fix this later */
-	if(adjusted_time<it->time){
-		return TRUE;
+	/* some sanity checks */
+	if((idx<0)||(idx>=NUM_IO_ITEMS)){
+		return FALSE;
 	}
 
-
-	/* we have moved into a new interval, we need to create a new struct */
-	if(adjusted_time>=(it->time+git->io->interval)){
-		it->next=g_malloc(sizeof(io_stat_item_t));
-		it->next->prev=it;
-		it->next->next=NULL;
-		it=it->next;
-		git->counts->prev=it;
-
-		/* set time of new counter struct of adjusted_time rounded
-		   to multiple of intervals */
-		it->time=(adjusted_time/git->io->interval)*git->io->interval;
-		it->frames=0;
-		it->bytes=0;
-		it->int_max=0;		
-		it->int_min=0;		
-		it->int_tot=0;
-		it->time_max.secs=0;
-		it->time_max.nsecs=0;
-		it->time_min.secs=0;
-		it->time_min.nsecs=0;
-		it->time_tot.secs=0;
-		it->time_tot.nsecs=0;
-		if(it->time>git->io->max_interval){
-			git->io->max_interval=it->time;
-		}
+	/* update num_items */
+	if(idx>git->io->num_items){
+		git->io->num_items=idx;
+		git->io->max_interval=idx*git->io->interval;
 	}
 
-	/* it will now give us the current structure to use to store the data in */
+	/*
+	 * Find the appropriate io_item_t structure 
+	 */
+	it=&git->items[idx];
 
+
+	/*
+	 * For ADVANCED mode we need to keep track of some more stuff
+	 * than just frame and byte counts
+	 */
 	if(git->io->count_type==COUNT_TYPE_ADVANCED){
 		GPtrArray *gp;
 		guint i;
@@ -314,34 +302,10 @@ gtk_iostat_packet(void *g, packet_info *pinfo, epan_dissect_t *edt, void *dummy 
 			return FALSE;
 		}
 
-		if(it->frames==0){
-			int new_int;
-			nstime_t *new_time;
-
-			switch(proto_registrar_get_ftype(git->hf_index)){
-			case FT_UINT8:
-			case FT_UINT16:
-			case FT_UINT24:
-			case FT_UINT32:
-			case FT_INT8:
-			case FT_INT16:
-			case FT_INT24:
-			case FT_INT32:
-				new_int=fvalue_get_integer(((field_info *)gp->pdata[0])->value);
-				it->int_max=new_int;
-				it->int_min=new_int;
-				it->int_tot=0;
-				break;
-			case FT_RELATIVE_TIME:
-				new_time=fvalue_get(((field_info *)gp->pdata[0])->value);
-				it->time_max.secs=new_time->secs;
-				it->time_max.nsecs=new_time->nsecs;
-				it->time_min.secs=new_time->secs;
-				it->time_min.nsecs=new_time->nsecs;
-				it->time_tot.secs=0;
-				it->time_tot.nsecs=0;
-			}
-		}
+		/* update the appropriate counters, make sure that if 
+		 * frames==0 then this is the first seen value so
+		 * set any min/max values accordingly 
+		 */
 		for(i=0;i<gp->len;i++){
 			int new_int;
 			nstime_t *new_time;
@@ -357,10 +321,10 @@ gtk_iostat_packet(void *g, packet_info *pinfo, epan_dissect_t *edt, void *dummy 
 			case FT_INT32:
 				new_int=fvalue_get_integer(((field_info *)gp->pdata[i])->value);
 
-				if(new_int>it->int_max){
+				if((new_int>it->int_max)||(it->frames==0)){
 					it->int_max=new_int;
 				}
-				if(new_int<it->int_min){
+				if((new_int<it->int_min)||(it->frames==0)){
 					it->int_min=new_int;
 				}
 				it->int_tot+=new_int;
@@ -370,13 +334,15 @@ gtk_iostat_packet(void *g, packet_info *pinfo, epan_dissect_t *edt, void *dummy 
 
 				if( (new_time->secs>it->time_max.secs)
 				||( (new_time->secs==it->time_max.secs)
-				  &&(new_time->nsecs>it->time_max.nsecs))){
+				  &&(new_time->nsecs>it->time_max.nsecs))
+				||(it->frames==0)){
 					it->time_max.secs=new_time->secs;
 					it->time_max.nsecs=new_time->nsecs;
 				}
 				if( (new_time->secs<it->time_min.secs)
 				||( (new_time->secs==it->time_min.secs)
-				  &&(new_time->nsecs<it->time_min.nsecs))){
+				  &&(new_time->nsecs<it->time_min.nsecs))
+				||(it->frames==0)){
 					it->time_min.secs=new_time->secs;
 					it->time_min.nsecs=new_time->nsecs;
 				}
@@ -399,13 +365,26 @@ gtk_iostat_packet(void *g, packet_info *pinfo, epan_dissect_t *edt, void *dummy 
 
 
 static guint32
-get_it_value(io_stat_item_t *it, int adv_type, int calc_type)
+get_it_value(io_stat_t *io, int graph_id, int idx)
 {
 	guint32 value=0;
+	int adv_type;
+	io_item_t *it;
 
+	it=&io->graphs[graph_id].items[idx];
+
+	switch(io->count_type){
+	case COUNT_TYPE_FRAMES:
+		return it->frames;
+	case COUNT_TYPE_BYTES:
+		return it->bytes;
+	}
+
+
+	adv_type=proto_registrar_get_ftype(io->graphs[graph_id].hf_index);
 	switch(adv_type){
 	case FT_NONE:
-		switch(calc_type){
+		switch(io->graphs[graph_id].calc_type){
 		case CALC_TYPE_COUNT:
 			value=it->frames;
 			break;
@@ -421,7 +400,7 @@ get_it_value(io_stat_item_t *it, int adv_type, int calc_type)
 	case FT_INT16:
 	case FT_INT24:
 	case FT_INT32:
-		switch(calc_type){
+		switch(io->graphs[graph_id].calc_type){
 		case CALC_TYPE_SUM:
 			value=it->int_tot;
 			break;
@@ -446,7 +425,7 @@ get_it_value(io_stat_item_t *it, int adv_type, int calc_type)
 		}
 		break;
 	case FT_RELATIVE_TIME:
-		switch(calc_type){
+		switch(io->graphs[graph_id].calc_type){
 		case CALC_TYPE_COUNT:
 			value=it->frames;
 			break;
@@ -496,6 +475,7 @@ print_time_scale_string(char *buf, guint32 t, gboolean print_unit)
 	}
 }
 
+
 static void
 gtk_iostat_draw(void *g)
 {
@@ -518,8 +498,6 @@ gtk_iostat_draw(void *g)
 	char label_string[15];
 
 	/* new variables */
-	guint32 *values[MAX_GRAPHS];
-	guint32 first_time_value, last_time_value;
 	guint32 num_time_intervals;
 	guint32 max_value;		/* max value of seen data */
 	guint32 max_y;			/* max value of the Y scale */
@@ -536,85 +514,41 @@ gtk_iostat_draw(void *g)
 	git->io->needs_redraw=FALSE;
 
 
-
-	/* 
-	 * First we convert the list of counters into arrays so it
-	 * it is easier to process the data
-	 */
-	for(i=0;i<MAX_GRAPHS;i++){
-		values[i]=NULL;
-	}
 	/* 
 	 * Find the length of the intervals we have data for
 	 * so we know how large arrays we need to malloc()
 	 */
-	first_time_value=0xffffffff;
-	last_time_value=0;
-	for(i=0;i<MAX_GRAPHS;i++){
-		if(!io->graphs[i].display){
-			continue;
-		}
-		if(!io->graphs[i].counts){
-			continue;
-		}
-		if(io->graphs[i].counts->time<first_time_value){
-			first_time_value=io->graphs[i].counts->time;
-		}
-		if(!io->graphs[i].counts->prev){
-			continue;
-		}
-		if(io->graphs[i].counts->prev->time>last_time_value){
-			last_time_value=io->graphs[i].counts->prev->time;
-		}
-	}
-	/* XXX for now, always start at the beginning of the capture */
-	first_time_value=0;
+	num_time_intervals=io->num_items;
 	/* if there isnt anything to do, just return */
-	if(first_time_value==last_time_value){
+	if(num_time_intervals==0){
 		return;
 	}
-	/* how many time intervals do we need? */
-	num_time_intervals=(last_time_value-first_time_value)/io->interval+1;
-	/* we have to make sure that funny timestamps or incredibly long
-	   captures do not mean we try to create too large arrays and 
-	   allocate like 100MB arrays.
-	   1000000 entries is an arbitrary number that should be large
-	   enough to accomodate even very long captures
-	 */
-	if(num_time_intervals>1000000){
+	num_time_intervals+=1;
+	/* XXX move this check to _packet() */
+	if(num_time_intervals>NUM_IO_ITEMS){
 		simple_dialog(ESD_TYPE_WARN, NULL, "IO-Stat error. There are too many entries, bailing out");
 		return;
 	}
-	/* allocate the value arrays and populate them
-	   at the same time, keep track of the max value encountered
+
+
+	/* 
+	 * find the max value so we can autoscale the y axis
 	 */
 	max_value=0;
 	for(i=0;i<MAX_GRAPHS;i++){
-		io_stat_item_t *tit;
+		int idx;
+
 		if(!io->graphs[i].display){
 			continue;
 		}
-		values[i]=g_malloc(num_time_intervals*sizeof(guint32));
-		memset(values[i],0,num_time_intervals*sizeof(guint32));
-		for(tit=io->graphs[i].counts;tit;tit=tit->next){
-			int idx, adv_type;
+		for(idx=0;idx<num_time_intervals;idx++){
+			guint32 val;
 
-			idx=(tit->time-first_time_value)/io->interval;
-			switch(io->count_type){
-			case COUNT_TYPE_FRAMES:
-				(values[i])[idx]=tit->frames;
-				break;
-			case COUNT_TYPE_BYTES:
-				(values[i])[idx]=tit->bytes;
-				break;
-			case COUNT_TYPE_ADVANCED:
-				adv_type=proto_registrar_get_ftype(io->graphs[i].hf_index);
-				(values[i])[idx]=get_it_value(tit, adv_type, io->graphs[i].calc_type);
-				break;
-			}
+			val=get_it_value(io, i, idx);
+
 			/* keep track of the max value we have encountered */
-			if((values[i])[idx]>max_value){
-				max_value=(values[i])[idx];
+			if(val>max_value){
+				max_value=val;
 			}
 		}
 	}
@@ -880,8 +814,8 @@ gtk_iostat_draw(void *g)
 			guint32 val;
 
 			x_pos=draw_width-1-io->pixels_per_tick*((last_interval-interval)/io->interval+1)+left_x_border;
-			
-			val=(values[i])[(interval-first_time_value)/io->interval];
+
+			val=get_it_value(io, i, interval/io->interval);
 			if(val>max_y){
 				y_pos=0;
 			} else {
@@ -931,14 +865,6 @@ gtk_iostat_draw(void *g)
 	gtk_adjustment_changed(io->scrollbar_adjustment);
 	gtk_adjustment_value_changed(io->scrollbar_adjustment);
 
-
-	/* free the arrays of values */
-	for(i=0;i<MAX_GRAPHS;i++){
-		if(values[i]){
-			g_free(values[i]);
-			values[i]=NULL;
-		}
-	}
 }
 
 
@@ -971,17 +897,9 @@ gtk_iostat_init(char *optarg _U_)
 	io->count_type=0;
 	io->last_interval=0xffffffff;
 	io->max_interval=0;
+	io->num_items=0;
 
 	for(i=0;i<MAX_GRAPHS;i++){
-		io->graphs[i].counts=g_malloc(sizeof(io_stat_item_t));
-		io->graphs[i].counts->prev=io->graphs[i].counts;
-		io->graphs[i].counts->next=NULL;
-		io->graphs[i].counts->time=0;
-		io->graphs[i].counts->frames=0;
-		io->graphs[i].counts->bytes=0;
-		io->graphs[i].counts->int_max=0;
-		io->graphs[i].counts->int_min=0;
-		io->graphs[i].counts->int_tot=0;
 		io->graphs[i].gc=NULL;
 		io->graphs[i].color.pixel=col[i].pixel;
 		io->graphs[i].color.red=col[i].red;
@@ -1001,14 +919,13 @@ gtk_iostat_init(char *optarg _U_)
 
 		io->graphs[i].filter_bt=NULL;
 	}
+	gtk_iostat_reset(&io->graphs[0]);
 
 	error_string=register_tap_listener("frame", &io->graphs[0], NULL, gtk_iostat_reset, gtk_iostat_packet, gtk_iostat_draw);
 	if(error_string){
 		fprintf(stderr, "ethereal: Can't attach io_stat tap: %s\n",
 		    error_string->str);
 		g_string_free(error_string, TRUE);
-		g_free(io->graphs[0].counts);
-		io->graphs[0].counts=NULL;
 		io->graphs[0].display=0;
 		io->graphs[0].display_button=NULL;
 		io->graphs[0].filter_button=NULL;
@@ -1053,20 +970,17 @@ quit(GtkWidget *widget, GdkEventExpose *event _U_)
 	}
 
 	for(i=0;i<MAX_GRAPHS;i++){
-		io_stat_item_t *it;
-		protect_thread_critical_region();
-		remove_tap_listener(&io->graphs[i]);
-		while((it=io->graphs[i].counts)){
-			io->graphs[i].counts=io->graphs[i].counts->next;
-			g_free(it);
+		if(io->graphs[i].display){
+			protect_thread_critical_region();
+			remove_tap_listener(&io->graphs[i]);
+			unprotect_thread_critical_region();
+
+			free(io->graphs[i].args->title);
+			io->graphs[i].args->title=NULL;
+
+			g_free(io->graphs[i].args);
+			io->graphs[i].args=NULL;
 		}
-		unprotect_thread_critical_region();
-
-		free(io->graphs[i].args->title);
-		io->graphs[i].args->title=NULL;
-
-		g_free(io->graphs[i].args);
-		io->graphs[i].args=NULL;
 	}
 	g_free(io);
 
