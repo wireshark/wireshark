@@ -73,6 +73,8 @@ my %version_pref = (
 # revision number.
 sub read_svn_info {
 	my $line;
+	my $version_format = $version_pref{"format"};
+	my $package_format = $version_pref{"pkg_format"};
 
 	open(SVNINFO, "svn info |") || die("Unable to get SVN info!");
 	while ($line = <SVNINFO>) {
@@ -86,11 +88,13 @@ sub read_svn_info {
 	close SVNINFO;
 
 	if ($last && $revision) {
-		$version_string = strftime($version_pref{"format"}, gmtime($last));
-		$version_string =~ s/%#/$revision/;
+		$version_format =~ s/%#/$revision/;
+		$version_string = strftime($version_format, gmtime($last));
 
-		$package_string = strftime($version_pref{"pkg_format"}, gmtime($last));
-		$package_string =~ s/%#/$revision/;
+		$package_format =~ s/%#/$revision/;
+print "pf: $package_format r: $revision\n";
+		$package_string = strftime($package_format, gmtime($last));
+print "ps2: $package_string\n";
 	}
 }
 
