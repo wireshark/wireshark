@@ -1,7 +1,7 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
  *
- * $Id: packet-dns.c,v 1.107 2003/12/10 19:35:03 guy Exp $
+ * $Id: packet-dns.c,v 1.108 2003/12/11 08:54:19 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -896,7 +896,7 @@ static const value_string cert_vals[] = {
 static int
 compute_key_id(tvbuff_t *tvb, int offset, int size, guint8 algo) 
 {
-  u_int32_t ac;
+  guint32 ac;
   unsigned char c1, c2;
 
   if( size < 4 ) {
