@@ -106,6 +106,7 @@ DISSECTOR_SRC =	\
 	packet-cpfi.c	\
 	packet-cpha.c	\
 	packet-cups.c	\
+	packet-daap.c	\
 	packet-data.c	\
 	packet-dccp.c	\
 	packet-dcerpc-afs4int.c	\

@@ -2194,6 +2194,10 @@ M. Ortega y Strupp	<moys [AT] loplof.de> {
 	ISC DHCP Server 3.0 failover protocol dissection
 }
 
+Kelly Byrd		<kbyrd-ethereal [AT] memcpy.com> {
+	DAAP support
+}
+
 
 And assorted fixes and enhancements by the people listed above and by:
 
@@ -2258,7 +2262,6 @@ Dennis Lim              <Dennis.Lim [AT] motorola.com>
 Martin van der Werff	<martin [AT] vanderwerff.org>
 Marco van den Bovenkamp	<marco [AT] linuxgoeroe.dhs.org>
 Ming Zhang		<mingz [AT] ele.uri.edu>
-Kelly Byrd		<kbyrd-ethereal [AT] memcpy.com>
 Neil Piercy		<Neil.Piercy [AT] ipaccess.com>
 
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to

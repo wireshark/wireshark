@@ -117,6 +117,7 @@ static gboolean http_decompress_body = FALSE;
 #define TCP_PORT_PROXY_ADMIN_HTTP	3132
 #define TCP_ALT_PORT_HTTP		8080
 #define TCP_PORT_HKP			11371
+#define TCP_PORT_DAAP			3689
 /*
  * SSDP is implemented atop HTTP (yes, it really *does* run over UDP).
  */
@@ -128,7 +129,8 @@ static gboolean http_decompress_body = FALSE;
  */
 typedef enum {
 	PROTO_HTTP,		/* just HTTP */
-	PROTO_SSDP		/* Simple Service Discovery Protocol */
+	PROTO_SSDP,		/* Simple Service Discovery Protocol */
+	PROTO_DAAP		/* Digital Audio Access Protocol */
 } http_proto_t;
 
 typedef void (*RequestDissector)(tvbuff_t*, proto_tree*, int);
@@ -293,6 +295,11 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	case TCP_PORT_SSDP:	/* TCP_PORT_SSDP = UDP_PORT_SSDP */
 		proto = PROTO_SSDP;
 		proto_tag = "SSDP";
+		break;
+
+	case TCP_PORT_DAAP:	
+		proto = PROTO_DAAP;
+		proto_tag = "DAAP";
 		break;
 
 	default:
