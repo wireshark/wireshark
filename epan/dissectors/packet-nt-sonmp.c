@@ -1,6 +1,6 @@
 /* packet-sonmp.c
 * Routines for the disassembly of the "Nortel Networks / SynOptics Network Management Protocol"
-* (c) Copyright Giles Scott <giles.scott1 [AT] btinternet.com>
+* (c) Copyright Giles Scott <giles.scott1 [AT] arubanetworks.com>
 *
 * $Id$
 *
@@ -43,13 +43,13 @@
 * This changes so much depending on whether the chassis supports
 * multi-segment autotopology. As the 5000 is now EOL don't see much point.
 *
-* MIB's s5emt104.mib, s5tcs112.mib, synro179.mib these should be available via
+* MIB's s5emt104.mib, s5tcs112.mib, synro199.mib these should be available via
 * http://www.nortelnetworks.com
 */
 
   
 /* chassis types */
-/* From  synro193.mib - SnpxChassisType */
+/* From  synro199.mib - SnpxChassisType */
 static value_string sonmp_chassis_val[] =
 {
 	{2, "m3000"},
@@ -148,13 +148,17 @@ static value_string sonmp_chassis_val[] =
 	{97, "BayStack 4700 48T switch"},
 	{98, "BayStack 5510 24-port"},
 	{99, "BayStack 2200 Wireless LAN AP"},
-	{100, "passport RBS 2402 L3 switch"},
+	{100, "Passport RBS 2402 L3 switch"},
 	{101, "Alteon AAS 2424"},
 	{102, "Alteon AAS 2224"},
 	{103, "Alteon AAS 2208"},
 	{104, "Alteon AAS 2216"},
 	{105, "Alteon AAS 3408"},
 	{106, "Alteon AAS 3416"}, 
+        {107, "WLAN SecuritySwitch 2250"},
+        {108, "BayStack 425 48-port"},
+        {109, "Baystack 425 24-port"},
+        {110, "WLAN AP 2221"},
 	{0, NULL}
 };
 
@@ -195,7 +199,7 @@ static value_string sonmp_nmm_state_val[] =
 
 static int proto_sonmp = -1;
 static int hf_sonmp_ip_address = -1;
-/* static int hf_sonmp_segment_identifier = -1; */
+static int hf_sonmp_segment_identifier = -1; 
 static int hf_sonmp_chassis_type = -1;
 static int hf_sonmp_backplane_type = -1;
 static int hf_sonmp_nmm_state = -1;
@@ -208,13 +212,6 @@ static void
 dissect_sonmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	char *hello_type;
-	guint32 sonmp_ip_address;
-	guint32 sonmp_segment_identifier = 0; /* actually 3 bytes not 4 */
-	guint8 sonmp_chassis_type;
-	guint8 sonmp_backplane_type;
-	guint8 sonmp_nmm_state;
-	guint8 sonmp_number_of_links;
-	
 	proto_tree *sonmp_tree = NULL;
 	proto_item *ti;
 	
@@ -245,37 +242,26 @@ dissect_sonmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			"Nortel Networks / SynOptics Network Management Protocol");
 		sonmp_tree = proto_item_add_subtree(ti, ett_sonmp);
 		
-		sonmp_ip_address = tvb_get_letohl(tvb, SONMP_IP_ADDRESS);
-		proto_tree_add_ipv4(sonmp_tree, hf_sonmp_ip_address,
-			tvb, SONMP_IP_ADDRESS, 4, sonmp_ip_address);
-		
-		/* there is probably a better way of doing this but i need to get three bytes :-( */
-		sonmp_segment_identifier = tvb_get_guint8(tvb, SONMP_SEGMENT_IDENTIFIER);
-		sonmp_segment_identifier = (sonmp_segment_identifier <<16) + tvb_get_ntohs(tvb, SONMP_SEGMENT_IDENTIFIER +1);
-		
-		proto_tree_add_text(sonmp_tree, 
-			tvb, SONMP_SEGMENT_IDENTIFIER, 3, "Segment identifier: %06x", sonmp_segment_identifier);
-		
-		sonmp_chassis_type = tvb_get_guint8(tvb, SONMP_CHASSIS_TYPE);
-		
-		proto_tree_add_uint_format(sonmp_tree, hf_sonmp_chassis_type, tvb, SONMP_CHASSIS_TYPE, 1, sonmp_chassis_type,
-			"Chassis : %s (%u)",
-			val_to_str(sonmp_chassis_type, sonmp_chassis_val, "Unknown"), sonmp_chassis_type);
-		
-		sonmp_backplane_type = tvb_get_guint8(tvb, SONMP_BACKPLANE_TYPE);
-		proto_tree_add_uint_format(sonmp_tree, hf_sonmp_backplane_type, tvb, SONMP_BACKPLANE_TYPE, 1,sonmp_backplane_type,
-			"Backplane : %s (%u)",
-			val_to_str(sonmp_backplane_type, sonmp_backplane_val, "Unknown"), sonmp_backplane_type);
+		proto_tree_add_item(sonmp_tree, hf_sonmp_ip_address, tvb,
+			SONMP_IP_ADDRESS, 4, FALSE);
 		
 		
-		sonmp_nmm_state = tvb_get_guint8(tvb, SONMP_NMM_STATE);
-		proto_tree_add_uint_format(sonmp_tree, hf_sonmp_nmm_state,
-			tvb, SONMP_NMM_STATE, 1, sonmp_nmm_state,
-			"State: %s", val_to_str(sonmp_nmm_state, sonmp_nmm_state_val, "Unknown"));
+		proto_tree_add_item(sonmp_tree, hf_sonmp_segment_identifier, tvb, 
+			SONMP_SEGMENT_IDENTIFIER, 3, FALSE);
 		
-		sonmp_number_of_links = tvb_get_guint8(tvb, SONMP_NUMBER_OF_LINKS);
-		proto_tree_add_item(sonmp_tree, hf_sonmp_number_of_links,
-			tvb, SONMP_NUMBER_OF_LINKS, 1, sonmp_number_of_links);
+		
+		proto_tree_add_item(sonmp_tree, hf_sonmp_chassis_type, tvb,
+			SONMP_CHASSIS_TYPE, 1, FALSE);
+		
+		proto_tree_add_item(sonmp_tree, hf_sonmp_backplane_type, tvb,
+			SONMP_BACKPLANE_TYPE, 1, FALSE);
+		
+		
+		proto_tree_add_item(sonmp_tree, hf_sonmp_nmm_state, tvb,
+			SONMP_NMM_STATE, 1, FALSE);
+		
+		proto_tree_add_item(sonmp_tree, hf_sonmp_number_of_links, tvb,
+			SONMP_NUMBER_OF_LINKS, 1, FALSE);
 	}
 	
 	
@@ -291,20 +277,23 @@ proto_register_sonmp(void)
 		{ "NMM IP address",		"sonmp.ipaddress",  FT_IPv4, BASE_NONE, NULL, 0x0,
 		"IP address of the agent (NMM)", HFILL }},
 		
-		/*	{ &hf_sonmp_segment_identifier,
+		{ &hf_sonmp_segment_identifier,
 		{ "Segment Identifier",		"sonmp.segmentident", FT_UINT24, BASE_HEX, NULL, 0x0,
 		"Segment id of the segment from which the agent is sending the topology message", HFILL }},
-		*/
+		
 		{ &hf_sonmp_chassis_type,
-		{ "Chassis type",		"sonmp.chassis", FT_UINT8, BASE_DEC, NULL, 0x0,
+		{ "Chassis type",		"sonmp.chassis", FT_UINT8, BASE_DEC, 
+		VALS(sonmp_chassis_val), 0x0,
 		"Chassis type of the agent sending the topology message", HFILL }},
 		
 		{ &hf_sonmp_backplane_type,
-		{ "Backplane type",		"sonmp.backplane", FT_UINT8, BASE_DEC, NULL, 0x0,
+		{ "Backplane type",		"sonmp.backplane", FT_UINT8, BASE_DEC,
+		 VALS(sonmp_backplane_val), 0x0,
 		"Backplane type of the agent sending the topology message", HFILL }},
 		
 		{ &hf_sonmp_nmm_state,
-		{ "NMM state",		"sonmp.nmmstate", FT_UINT8, BASE_DEC, NULL, 0x0,
+		{ "NMM state",		"sonmp.nmmstate", FT_UINT8, BASE_DEC,
+		 VALS(sonmp_nmm_state_val), 0x0,
 		"Current state of this agent", HFILL }},
 		
 		{ &hf_sonmp_number_of_links,
