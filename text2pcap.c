@@ -6,7 +6,7 @@
  *
  * (c) Copyright 2001 Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: text2pcap.c,v 1.25 2003/02/27 02:30:59 guy Exp $
+ * $Id: text2pcap.c,v 1.26 2003/04/27 00:41:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -65,8 +65,8 @@
  *
  * The output is a libpcap packet containing Ethernet frames by
  * default. This program takes options which allow the user to add
- * dummy Ethernet, IP and UDP headers to the packets in order to allow
- * dumps of L3 or higher protocols to be decoded.
+ * dummy Ethernet, IP and UDP or TCP headers to the packets in order
+ * to allow dumps of L3 or higher protocols to be decoded.
  *
  * Considerable flexibility is built into this code to read hexdumps
  * of slightly different formats. For example, any text prefixing the
@@ -129,8 +129,11 @@ static unsigned long hdr_ip_proto = 0;
 
 /* Dummy UDP header */
 static int hdr_udp = FALSE;
-static unsigned long hdr_udp_dest = 0;
-static unsigned long hdr_udp_src = 0;
+static unsigned long hdr_dest_port = 0;
+static unsigned long hdr_src_port = 0;
+
+/* Dummy TCP header */
+static int hdr_tcp = FALSE;
 
 /* Dummy SCTP header */
 static int hdr_sctp = FALSE;
@@ -154,6 +157,9 @@ static unsigned long  hdr_data_chunk_ppid = 0;
 #define MAX_PACKET 64000
 static unsigned char packet_buf[MAX_PACKET];
 static unsigned long curr_offset = 0;
+static unsigned long max_offset = MAX_PACKET;
+static unsigned long packet_start = 0;
+static void start_new_packet (void);
 
 /* This buffer contains strings present before the packet offset 0 */
 #define PACKET_PREAMBLE_MAX_LEN	2048
@@ -217,8 +223,8 @@ typedef struct {
 } hdr_ethernet_t;
 
 static hdr_ethernet_t HDR_ETHERNET = {
-    {0x01, 0x01, 0x01, 0x01, 0x01, 0x01},
     {0x02, 0x02, 0x02, 0x02, 0x02, 0x02},
+    {0x01, 0x01, 0x01, 0x01, 0x01, 0x01},
     0};
 
 typedef struct {
@@ -237,6 +243,14 @@ typedef struct {
 
 static hdr_ip_t HDR_IP = {0x45, 0, 0, 0x3412, 0, 0, 0xff, 0, 0, 0x01010101, 0x02020202};
 
+static struct {			/* pseudo header for checksum calculation */
+	guint32 src_addr;
+	guint32 dest_addr;
+	guint8  zero;
+	guint8  protocol;
+	guint16 length;
+} pseudoh;
+
 typedef struct {
     guint16 source_port;
     guint16 dest_port;
@@ -245,6 +259,20 @@ typedef struct {
 } hdr_udp_t;
 
 static hdr_udp_t HDR_UDP = {0, 0, 0, 0};
+
+typedef struct {
+    guint16 source_port;
+    guint16 dest_port;
+    guint32 seq_num;
+    guint32 ack_num;
+    guint8  hdr_length;
+    guint8  flags;
+    guint16 window;
+    guint16 checksum;
+    guint16 urg;
+} hdr_tcp_t;
+
+static hdr_tcp_t HDR_TCP = {0, 0, 0, 0, 0x50, 0, 0, 0, 0};
 
 typedef struct {
     guint16 src_port;
@@ -326,6 +354,8 @@ write_byte (char *str)
     num = parse_num(str, FALSE);
     packet_buf[curr_offset] = num;
     curr_offset ++;
+    if (curr_offset >= max_offset) /* packet full */
+	    start_new_packet();
 }
 
 /*----------------------------------------------------------------------
@@ -355,7 +385,7 @@ in_checksum (void *buf, unsigned long count)
 
     /*  Add left-over byte, if any */
     if( count > 0 )
-        sum += * (guint8 *) addr;
+        sum += g_ntohs(* (guint8 *) addr);
 
     /*  Fold 32-bit sum to 16 bits */
     while (sum>>16)
@@ -485,10 +515,11 @@ static void
 write_current_packet (void)
 {
     int length = 0;
-    int udp_length = 0;
+    int proto_length = 0;
     int ip_length = 0;
     int eth_trailer_length = 0;
     int i, padding_length;
+    guint32 u;
     struct pcaprec_hdr ph;
 
     if (curr_offset > 0) {
@@ -498,7 +529,8 @@ write_current_packet (void)
         length = curr_offset;
         if (hdr_data_chunk) { length += sizeof(HDR_DATA_CHUNK) + number_of_padding_bytes(curr_offset); }
         if (hdr_sctp) { length += sizeof(HDR_SCTP); }
-        if (hdr_udp) { length += sizeof(HDR_UDP); udp_length = length; }
+        if (hdr_udp) { length += sizeof(HDR_UDP); proto_length = length; }
+        if (hdr_tcp) { length += sizeof(HDR_TCP); proto_length = length; }
         if (hdr_ip) { length += sizeof(HDR_IP); ip_length = length; }
         if (hdr_ethernet) {
             length += sizeof(HDR_ETHERNET);
@@ -512,6 +544,7 @@ write_current_packet (void)
         /* Write PCap header */
         ph.ts_sec = ts_sec;
         ph.ts_usec = ts_usec;
+        if (ts_fmt == NULL) { ts_usec++; }	/* fake packet counter */
         ph.incl_len = length;
         ph.orig_len = length;
         fwrite(&ph, sizeof(ph), 1, output_file);
@@ -531,13 +564,46 @@ write_current_packet (void)
             fwrite(&HDR_IP, sizeof(HDR_IP), 1, output_file);
         }
 
+	/* initialize pseudo header for checksum calculation */
+	pseudoh.src_addr    = HDR_IP.src_addr;
+	pseudoh.dest_addr   = HDR_IP.dest_addr;
+	pseudoh.zero        = 0;
+	pseudoh.protocol    = hdr_ip_proto;
+	pseudoh.length      = g_htons(proto_length);
+
         /* Write UDP header */
         if (hdr_udp) {
-            HDR_UDP.source_port = g_htons(hdr_udp_src);
-            HDR_UDP.dest_port = g_htons(hdr_udp_dest);
-            HDR_UDP.length = g_htons(udp_length);
+            HDR_UDP.source_port = g_htons(hdr_src_port);
+            HDR_UDP.dest_port = g_htons(hdr_dest_port);
+            HDR_UDP.length = g_htons(proto_length);
+
+	    HDR_UDP.checksum = 0;
+	    u = g_ntohs(in_checksum(&pseudoh, sizeof(pseudoh))) + 
+		    g_ntohs(in_checksum(&HDR_UDP, sizeof(HDR_UDP))) +
+		    g_ntohs(in_checksum(packet_buf, curr_offset));
+	    HDR_UDP.checksum = g_htons((u & 0xffff) + (u>>16));
+	    if (HDR_UDP.checksum == 0) /* differenciate between 'none' and 0 */
+	    	    HDR_UDP.checksum = g_htons(1);
 
             fwrite(&HDR_UDP, sizeof(HDR_UDP), 1, output_file);
+        }
+
+        /* Write TCP header */
+        if (hdr_tcp) {
+            HDR_TCP.source_port = g_htons(hdr_src_port);
+            HDR_TCP.dest_port = g_htons(hdr_dest_port);
+    	    /* HDR_TCP.seq_num already correct */
+	    HDR_TCP.window = g_htons(0x2000);
+
+	    HDR_TCP.checksum = 0;
+	    u = g_ntohs(in_checksum(&pseudoh, sizeof(pseudoh))) + 
+		    g_ntohs(in_checksum(&HDR_TCP, sizeof(HDR_TCP))) +
+		    g_ntohs(in_checksum(packet_buf, curr_offset));
+	    HDR_TCP.checksum = g_htons((u & 0xffff) + (u>>16));
+	    if (HDR_TCP.checksum == 0) /* differenciate between 'none' and 0 */
+	    	    HDR_TCP.checksum = g_htons(1);
+
+            fwrite(&HDR_TCP, sizeof(HDR_TCP), 1, output_file);
         }
 
         /* Compute DATA chunk header and append padding */
@@ -583,9 +649,13 @@ write_current_packet (void)
         }
 
         if (!quiet)
-            fprintf(stderr, "Wrote packet of %lu bytes\n", curr_offset);
+            fprintf(stderr, "Wrote packet of %lu bytes at %u\n", curr_offset, g_ntohl(HDR_TCP.seq_num));
         num_packets_written ++;
     }
+
+    HDR_TCP.seq_num = g_htonl(g_ntohl(HDR_TCP.seq_num) + curr_offset);
+
+    packet_start += curr_offset;
     curr_offset = 0;
 }
 
@@ -741,7 +811,6 @@ start_new_packet (void)
 
     /* Write out the current packet, if required */
     write_current_packet();
-    curr_offset = 0;
     num_packets_read ++;
 
     /* Ensure we parse the packet preamble as it may contain the time */
@@ -819,8 +888,9 @@ parse_token (token_t token, char *str)
             if (num==0) {
                 /* New packet starts here */
                 start_new_packet();
+                packet_start = 0;
                 state = READ_OFFSET;
-            } else if (num != curr_offset) {
+            } else if ((num - packet_start) != curr_offset) {
                 /*
                  * The offset we read isn't the one we expected.
                  * This may only mean that we mistakenly interpreted
@@ -920,8 +990,8 @@ help (char *progname)
     fprintf(stderr,
             "\n"
             "Usage: %s [-h] [-d] [-q] [-o h|o] [-l typenum] [-e l3pid] [-i proto] \n"
-            "          [-u srcp,destp] [-s srcp,destp,tag] [-S srcp,destp,tag] [-t timefmt]\n"
-            "          <input-filename> <output-filename>\n"
+            "          [-m max-packet] [-u srcp,destp] [-T srcp,destp] [-s srcp,destp,tag]\n"
+            "          [-S srcp,destp,tag] [-t timefmt] <input-filename> <output-filename>\n"
             "\n"
             "where <input-filename> specifies input filename (use - for standard input)\n"
             "      <output-filename> specifies output filename (use - for standard output)\n"
@@ -941,10 +1011,15 @@ help (char *progname)
             "                   DECIMAL). \n"
             "                   Automatically prepends Ethernet header as well.\n"
             "                   Example: -i 46\n"
+            " -m max-packet   : Max packet length in output, default is %d\n"
             " -u srcp,destp   : Prepend dummy UDP header with specified dest and source ports\n"
             "                   (in DECIMAL).\n"
             "                   Automatically prepends Ethernet and IP headers as well\n"
             "                   Example: -u 30,40\n"
+            " -T srcp,destp   : Prepend dummy TCP header with specified dest and source ports\n"
+            "                   (in DECIMAL).\n"
+            "                   Automatically prepends Ethernet and IP headers as well\n"
+            "                   Example: -T 50,60\n"
             " -s srcp,dstp,tag: Prepend dummy SCTP header with specified dest/source ports\n"
             "                   and verification tag (in DECIMAL).\n"
             "                   Automatically prepends Ethernet and IP headers as well\n"
@@ -962,7 +1037,7 @@ help (char *progname)
             "                            (.) but no pattern is required; the remaining number\n"
             "                            is assumed to be fractions of a second.\n"
             "",
-            progname);
+            progname, MAX_PACKET);
 
     exit(-1);
 }
@@ -977,13 +1052,14 @@ parse_options (int argc, char *argv[])
     char *p;
 
     /* Scan CLI parameters */
-    while ((c = getopt(argc, argv, "dhqe:i:l:o:u:s:S:t:")) != -1) {
+    while ((c = getopt(argc, argv, "dhqe:i:l:m:o:u:s:S:t:T:")) != -1) {
         switch(c) {
         case '?': help(argv[0]); break;
         case 'h': help(argv[0]); break;
         case 'd': if (!quiet) debug++; break;
         case 'q': quiet = TRUE; debug = FALSE; break;
-        case 'l': pcap_link_type = atoi(optarg); break;
+        case 'l': pcap_link_type = strtol(optarg, NULL, 0); break;
+        case 'm': max_offset = strtol(optarg, NULL, 0); break;
         case 'o':
             if (optarg[0]!='h' && optarg[0] != 'o') {
                 fprintf(stderr, "Bad argument for '-e': %s\n", optarg);
@@ -1086,7 +1162,8 @@ parse_options (int argc, char *argv[])
 
         case 'u':
             hdr_udp = TRUE;
-            hdr_udp_src = strtol(optarg, &p, 10);
+            hdr_tcp = FALSE;
+            hdr_src_port = strtol(optarg, &p, 10);
             if (p == optarg || (*p != ',' && *p != '\0')) {
                 fprintf(stderr, "Bad src port for '-u'\n");
                 help(argv[0]);
@@ -1097,13 +1174,38 @@ parse_options (int argc, char *argv[])
             }
             p++;
             optarg = p;
-            hdr_udp_dest = strtol(optarg, &p, 10);
+            hdr_dest_port = strtol(optarg, &p, 10);
             if (p == optarg || *p != '\0') {
                 fprintf(stderr, "Bad dest port for '-u'\n");
                 help(argv[0]);
             }
             hdr_ip = TRUE;
             hdr_ip_proto = 17;
+            hdr_ethernet = TRUE;
+            hdr_ethernet_proto = 0x800;
+            break;
+
+        case 'T':
+            hdr_tcp = TRUE;
+            hdr_udp = FALSE;
+            hdr_src_port = strtol(optarg, &p, 10);
+            if (p == optarg || (*p != ',' && *p != '\0')) {
+                fprintf(stderr, "Bad src port for '-T'\n");
+                help(argv[0]);
+            }
+            if (*p == '\0') {
+                fprintf(stderr, "No dest port specified for '-u'\n");
+                help(argv[0]);
+            }
+            p++;
+            optarg = p;
+            hdr_dest_port = strtol(optarg, &p, 10);
+            if (p == optarg || *p != '\0') {
+                fprintf(stderr, "Bad dest port for '-T'\n");
+                help(argv[0]);
+            }
+            hdr_ip = TRUE;
+            hdr_ip_proto = 6;
             hdr_ethernet = TRUE;
             hdr_ethernet_proto = 0x800;
             break;
@@ -1146,7 +1248,7 @@ parse_options (int argc, char *argv[])
 
     /* Some validation */
     if (pcap_link_type != 1 && hdr_ethernet) {
-        fprintf(stderr, "Dummy headers (-e, -i, -u, -s, -S) cannot be specified with link type override (-l)\n");
+        fprintf(stderr, "Dummy headers (-e, -i, -u, -s, -S -T) cannot be specified with link type override (-l)\n");
         exit(-1);
     }
 
@@ -1160,6 +1262,8 @@ parse_options (int argc, char *argv[])
         output_filename = "Standard output";
     }
 
+    ts_sec = time(0);		/* initialize to current time */
+
     /* Display summary of our state */
     if (!quiet) {
         fprintf(stderr, "Input from: %s\n", input_filename);
@@ -1170,7 +1274,9 @@ parse_options (int argc, char *argv[])
         if (hdr_ip) fprintf(stderr, "Generate dummy IP header: Protocol: %ld\n",
                             hdr_ip_proto);
         if (hdr_udp) fprintf(stderr, "Generate dummy UDP header: Source port: %ld. Dest port: %ld\n",
-                             hdr_udp_src, hdr_udp_dest);
+                             hdr_src_port, hdr_dest_port);
+        if (hdr_tcp) fprintf(stderr, "Generate dummy TCP header: Source port: %ld. Dest port: %ld\n",
+                             hdr_src_port, hdr_dest_port);
         if (hdr_sctp) fprintf(stderr, "Generate dummy SCTP header: Source port: %ld. Dest port: %ld. Tag: %ld\n",
                               hdr_sctp_src, hdr_sctp_dest, hdr_sctp_tag);
         if (hdr_data_chunk) fprintf(stderr, "Generate dummy DATA chunk header: TSN: %lu. SID: %d. SSN: %d. PPID: %lu\n",

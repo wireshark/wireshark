@@ -1730,13 +1730,13 @@ B<http://www.ethereal.com>.
   Erwin Rol                <erwin [AT] muffin.org>
   Duncan Laurie            <duncan [AT] sun.com>
   Tony Schene              <Schene_Tony [AT] emc.com>
+  Matthijs Melchior        <mmelchior [AT] xs4all.nl>
   Pavel Roskin             <proski [AT] gnu.org>
   Georgi Guninski          <guninski [AT] guninski.com>
   Jason Copenhaver         <jcopenha [AT] typedef.org>
   Eric Perie               <eric.perie [AT] colubris.com>
   David Yon                <yon [AT] tacticalsoftware.com>
   Marcio Franco            <franco.marcio [AT] rd.francetelecom.fr>
-  Matthijs Melchior        <mmelchior [AT] xs4all.nl>
 
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to give his
 permission to use his version of snprintf.c.
