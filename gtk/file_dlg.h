@@ -1,7 +1,7 @@
 /* file_dlg.h
  * Definitions for dialog boxes for handling files
  *
- * $Id: file_dlg.h,v 1.6 2003/11/30 04:21:54 sharpe Exp $
+ * $Id: file_dlg.h,v 1.7 2003/12/01 02:01:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -30,7 +30,7 @@ void file_save_cmd_cb(GtkWidget *, gpointer);
 void file_save_as_cmd_cb(GtkWidget *, gpointer);
 void file_close_cmd_cb(GtkWidget *, gpointer);
 void file_reload_cmd_cb(GtkWidget *, gpointer);
-void select_file_cb(GtkWidget *file_bt, construct_args_t *args);
+void select_file_cb(GtkWidget *file_bt, const char *label);
 
 void file_color_import_cmd_cb(GtkWidget *w, gpointer data);
 void file_color_export_cmd_cb(GtkWidget *, gpointer);

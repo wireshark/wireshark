@@ -1,7 +1,7 @@
 /* print_dlg.c
  * Dialog boxes for printing
  *
- * $Id: print_dlg.c,v 1.47 2003/11/30 04:21:55 sharpe Exp $
+ * $Id: print_dlg.c,v 1.48 2003/12/01 02:01:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -33,13 +33,6 @@
 #include "print.h"
 #include "prefs.h"
 #include "simple_dialog.h"
-/*
- * Only need this for construct_args
- */
-#include "filter_prefs.h"
-/*
- * file_dlg.h must come after filter_prefs.h
- */
 #include "file_dlg.h"
 #include "ui_util.h"
 #include "dlg_utils.h"
@@ -135,11 +128,6 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   gchar         label_text[100];
   frame_data    *packet;
   guint32       displayed_count;
-  static construct_args_t file_dlg_args = {
-    "Ethereal: Print to File",
-    FALSE,
-    FALSE
-  };
 
   if (print_w != NULL) {
     /* There's already a "Print" dialog box; reactivate it. */
@@ -292,7 +280,7 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
 #endif
 
   SIGNAL_CONNECT(dest_cb, "toggled", print_cmd_toggle_dest, NULL);
-  SIGNAL_CONNECT(file_bt, "clicked", select_file_cb, &file_dlg_args);
+  SIGNAL_CONNECT(file_bt, "clicked", select_file_cb, "Ethereal: Print to File");
 
 
 /*****************************************************/

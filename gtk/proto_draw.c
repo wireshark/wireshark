@@ -1,7 +1,7 @@
 /* proto_draw.c
  * Routines for GTK+ packet display
  *
- * $Id: proto_draw.c,v 1.69 2003/11/30 23:05:45 guy Exp $
+ * $Id: proto_draw.c,v 1.70 2003/12/01 02:01:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -52,7 +52,6 @@
 
 #include "colors.h"
 #include "prefs.h"
-#include "filter_prefs.h"
 #include "file_dlg.h"
 #include "proto_draw.h"
 #include "packet_win.h"
@@ -769,11 +768,6 @@ void savehex_cb(GtkWidget * w _U_, gpointer data _U_)
 	GtkWidget   *file_box, *file_bt = NULL;
 	GtkWidget   *bbox, *save_button, *cancel_button;
 	GtkTooltips *tooltips;
-	static construct_args_t args = {
-	  "Save Highlighted Data to File",
-	  TRUE,
-	  FALSE
-	};
 
 	/* if the window is already open, bring it to front */
 	if(savehex_dlg){
@@ -808,7 +802,8 @@ void savehex_cb(GtkWidget * w _U_, gpointer data _U_)
 
 	/* File Browse button */
 	file_bt = gtk_button_new_with_label("Browse:");
-	SIGNAL_CONNECT(file_bt, "clicked", select_file_cb, &args);
+	SIGNAL_CONNECT(file_bt, "clicked", select_file_cb,
+		       "Ethereal: Save Highlighted Data to File");
 
 	/* file entry for print dialog */
 	OBJECT_SET_DATA(file_bt, E_FILE_TE_PTR_KEY, file_entry);

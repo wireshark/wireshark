@@ -1,7 +1,7 @@
 /* file_dlg.c
  * Dialog boxes for handling files
  *
- * $Id: file_dlg.c,v 1.65 2003/11/30 04:21:54 sharpe Exp $
+ * $Id: file_dlg.c,v 1.66 2003/12/01 02:01:55 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -75,7 +75,7 @@ static void file_select_destroy_cb(GtkWidget *win, GtkWidget* file_te);
  * We display the window label specified in our args.
  */
 void
-select_file_cb(GtkWidget *file_bt, construct_args_t *args _U_)
+select_file_cb(GtkWidget *file_bt, const char *label)
 {
   GtkWidget *caller = gtk_widget_get_toplevel(file_bt);
   GtkWidget *fs, *file_te;
@@ -90,7 +90,7 @@ select_file_cb(GtkWidget *file_bt, construct_args_t *args _U_)
     return;
   }
 
-  fs = file_selection_new ("Ethereal: Print to File");
+  fs = file_selection_new (label);
 
   /* If we've opened a file, start out by showing the files in the directory
      in which that file resided. */
