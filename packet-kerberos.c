@@ -14,7 +14,7 @@
  *
  *	http://www.ietf.org/internet-drafts/draft-ietf-krb-wg-kerberos-clarifications-03.txt
  *
- * $Id: packet-kerberos.c,v 1.40 2003/07/08 04:06:26 tpot Exp $
+ * $Id: packet-kerberos.c,v 1.41 2003/07/08 06:39:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -576,7 +576,7 @@ krb_proto_tree_add_time(proto_tree *tree, tvbuff_t *tvb, int offset,
  * so we will pass in the ETT value to build the flags etc
  */
 static void 
-dissect_ap_options(tvbuff_t *tvb _U_, int offset _U_)
+dissect_ap_options(tvbuff_t *tvb, int offset)
 {
 
 }
