@@ -2,7 +2,7 @@
  * Routines for gnutella dissection
  * Copyright 2001, B. Johannessen <bob@havoq.com>
  *
- * $Id: packet-gnutella.c,v 1.5 2001/10/25 21:25:51 gram Exp $
+ * $Id: packet-gnutella.c,v 1.6 2001/10/26 02:09:01 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -96,10 +96,6 @@ static gint ett_gnutella = -1;
 
 static void dissect_gnutella_pong(tvbuff_t *tvb, int offset, proto_tree *tree, int size) {
 
-	int port, ip0, ip1, ip2, ip3;
-	int files, kbytes;
-	unsigned long ip;
-
 	if(offset + size > tvb_length(tvb)) {
 		proto_tree_add_item(tree,
 			hf_gnutella_truncated,
@@ -109,55 +105,38 @@ static void dissect_gnutella_pong(tvbuff_t *tvb, int offset, proto_tree *tree, i
 			FALSE);
 		return;
 	}
-
-	port = tvb_get_letohs(tvb, offset + GNUTELLA_PONG_PORT_OFFSET);
-
-	ip  = tvb_get_letohl(tvb, offset + GNUTELLA_PONG_IP_OFFSET);
-
-	ip0 = tvb_get_guint8(tvb, offset + GNUTELLA_PONG_IP_OFFSET);
-	ip1 = tvb_get_guint8(tvb, offset + GNUTELLA_PONG_IP_OFFSET + 1);
-	ip2 = tvb_get_guint8(tvb, offset + GNUTELLA_PONG_IP_OFFSET + 2);
-	ip3 = tvb_get_guint8(tvb, offset + GNUTELLA_PONG_IP_OFFSET + 3);
-
-	files = tvb_get_letohl(tvb, offset + GNUTELLA_PONG_FILES_OFFSET);
-
-	kbytes = tvb_get_letohl(tvb, offset + GNUTELLA_PONG_KBYTES_OFFSET);
 
 	proto_tree_add_item(tree,
 		hf_gnutella_pong_port,
 		tvb,
 		offset + GNUTELLA_PONG_PORT_OFFSET,
 		GNUTELLA_PORT_LENGTH,
-		port);
+		TRUE);
 
-	proto_tree_add_ipv4_format(tree,
+	proto_tree_add_item(tree,
 		hf_gnutella_pong_ip,
 		tvb,
 		offset + GNUTELLA_PONG_IP_OFFSET,
 		GNUTELLA_IP_LENGTH,
-		ip,
-		"IP: %i.%i.%i.%i",
-		ip0, ip1, ip2, ip3);
+        FALSE);
 
 	proto_tree_add_item(tree,
 		hf_gnutella_pong_files,
 		tvb,
 		offset + GNUTELLA_PONG_FILES_OFFSET,
 		GNUTELLA_LONG_LENGTH,
-		files);
+		TRUE);
 
 	proto_tree_add_item(tree,
 		hf_gnutella_pong_kbytes,
 		tvb,
 		offset + GNUTELLA_PONG_KBYTES_OFFSET,
 		GNUTELLA_LONG_LENGTH,
-		kbytes);
+		TRUE);
 
 }
 
 static void dissect_gnutella_query(tvbuff_t *tvb, int offset, proto_tree *tree, int size) {
-
-	int min_speed;
 
 	if(offset + size > tvb_length(tvb)) {
 		proto_tree_add_item(tree,
@@ -169,14 +148,12 @@ static void dissect_gnutella_query(tvbuff_t *tvb, int offset, proto_tree *tree, 
 		return;
 	}
 
-	min_speed = tvb_get_letohs(tvb, offset + GNUTELLA_QUERY_SPEED_OFFSET);
-
 	proto_tree_add_item(tree,
 		hf_gnutella_query_min_speed,
 		tvb,
 		offset + GNUTELLA_QUERY_SPEED_OFFSET,
 		GNUTELLA_SHORT_LENGTH,
-		min_speed);
+        TRUE);
 
     if (size > GNUTELLA_SHORT_LENGTH) {
         proto_tree_add_item(tree,
@@ -198,8 +175,7 @@ static void dissect_gnutella_query(tvbuff_t *tvb, int offset, proto_tree *tree, 
 static void dissect_gnutella_queryhit(tvbuff_t *tvb, int offset, proto_tree *tree, int size) {
 
 	proto_tree *qhi, *hit_tree;
-	int hit_count, port, speed;
-	int ip0, ip1, ip2, ip3, i;
+	int hit_count, i;
 	int hit_offset, idx, hit_size;
 	int name_length, extra_length;
 	int idx_at_offset, size_at_offset;
@@ -218,20 +194,9 @@ static void dissect_gnutella_queryhit(tvbuff_t *tvb, int offset, proto_tree *tre
 		return;
 	}
 
-	hit_count = tvb_get_guint8(tvb, offset + GNUTELLA_QUERYHIT_COUNT_OFFSET);
+    hit_count = tvb_get_guint8(tvb, offset + GNUTELLA_QUERYHIT_COUNT_OFFSET);
 
-	port = tvb_get_ntohs(tvb, offset + GNUTELLA_QUERYHIT_PORT_OFFSET);
-
-	ip  = tvb_get_letohl(tvb, offset + GNUTELLA_QUERYHIT_IP_OFFSET);
-
-	ip0 = tvb_get_guint8(tvb, offset + GNUTELLA_QUERYHIT_IP_OFFSET);
-	ip1 = tvb_get_guint8(tvb, offset + GNUTELLA_QUERYHIT_IP_OFFSET + 1);
-	ip2 = tvb_get_guint8(tvb, offset + GNUTELLA_QUERYHIT_IP_OFFSET + 2);
-	ip3 = tvb_get_guint8(tvb, offset + GNUTELLA_QUERYHIT_IP_OFFSET + 3);
-
-	speed = tvb_get_letohl(tvb, offset + GNUTELLA_QUERYHIT_SPEED_OFFSET);
-
-	proto_tree_add_item(tree,
+	proto_tree_add_uint(tree,
 		hf_gnutella_queryhit_count,
 		tvb,
 		offset + GNUTELLA_QUERYHIT_COUNT_OFFSET,
@@ -243,30 +208,25 @@ static void dissect_gnutella_queryhit(tvbuff_t *tvb, int offset, proto_tree *tre
 		tvb,
 		offset + GNUTELLA_QUERYHIT_PORT_OFFSET,
 		GNUTELLA_PORT_LENGTH,
-		port);
+		TRUE);
 
-	proto_tree_add_ipv4_format(tree,
+	proto_tree_add_item(tree,
 		hf_gnutella_queryhit_ip,
 		tvb,
 		offset + GNUTELLA_QUERYHIT_IP_OFFSET,
 		GNUTELLA_IP_LENGTH,
-		ip,
-		"IP: %i.%i.%i.%i",
-		ip0, ip1, ip2, ip3);
+		FALSE);
 
 	proto_tree_add_item(tree,
 		hf_gnutella_queryhit_speed,
 		tvb,
 		offset + GNUTELLA_QUERYHIT_SPEED_OFFSET,
 		GNUTELLA_LONG_LENGTH,
-		speed);
+		TRUE);
 
 	hit_offset = offset + GNUTELLA_QUERYHIT_FIRST_HIT_OFFSET;
 
 	for(i = 0; i < hit_count; i++) {
-		idx  = tvb_get_letohl(tvb, hit_offset + GNUTELLA_QUERYHIT_HIT_INDEX_OFFSET);
-		hit_size = tvb_get_letohl(tvb, hit_offset + GNUTELLA_QUERYHIT_HIT_SIZE_OFFSET);
-
 		idx_at_offset  = hit_offset;
 		size_at_offset = hit_offset + GNUTELLA_QUERYHIT_HIT_SIZE_OFFSET;
 
@@ -317,14 +277,14 @@ static void dissect_gnutella_queryhit(tvbuff_t *tvb, int offset, proto_tree *tre
 			tvb,
 			idx_at_offset,
 			GNUTELLA_LONG_LENGTH,
-			idx);
+			TRUE);
 
 		proto_tree_add_item(hit_tree,
 			hf_gnutella_queryhit_hit_size,
 			tvb,
 			size_at_offset,
 			GNUTELLA_LONG_LENGTH,
-			hit_size);
+			TRUE);
 
 		proto_tree_add_item(hit_tree,
 			hf_gnutella_queryhit_hit_name,
@@ -371,9 +331,6 @@ static void dissect_gnutella_queryhit(tvbuff_t *tvb, int offset, proto_tree *tre
 
 static void dissect_gnutella_push(tvbuff_t *tvb, int offset, proto_tree *tree, int size) {
 
-	int idx, ip0, ip1, ip2, ip3, port;
-	unsigned long ip;
-
 	if(offset + size > tvb_length(tvb)) {
 		proto_tree_add_item(tree,
 			hf_gnutella_truncated,
@@ -383,14 +340,6 @@ static void dissect_gnutella_push(tvbuff_t *tvb, int offset, proto_tree *tree, i
 			FALSE);
 		return;
 	}
-
-	idx  = tvb_get_letohl(tvb, offset + GNUTELLA_PUSH_INDEX_OFFSET);
-	ip   = tvb_get_letohl(tvb, offset + GNUTELLA_PUSH_IP_OFFSET);
-	ip0  = tvb_get_guint8(tvb, offset + GNUTELLA_PUSH_IP_OFFSET);
-	ip1  = tvb_get_guint8(tvb, offset + GNUTELLA_PUSH_IP_OFFSET + 1);
-	ip2  = tvb_get_guint8(tvb, offset + GNUTELLA_PUSH_IP_OFFSET + 2);
-	ip3  = tvb_get_guint8(tvb, offset + GNUTELLA_PUSH_IP_OFFSET + 3);
-	port = tvb_get_letohs(tvb, offset + GNUTELLA_PUSH_PORT_OFFSET);
 
 	proto_tree_add_item(tree,
 		hf_gnutella_push_servent_id,
@@ -404,23 +353,21 @@ static void dissect_gnutella_push(tvbuff_t *tvb, int offset, proto_tree *tree, i
 		tvb,
 		offset + GNUTELLA_PUSH_INDEX_OFFSET,
 		GNUTELLA_LONG_LENGTH,
-		idx);
+		TRUE);
 
-	proto_tree_add_ipv4_format(tree,
+	proto_tree_add_item(tree,
 		hf_gnutella_push_ip,
 		tvb,
 		offset + GNUTELLA_PUSH_IP_OFFSET,
 		GNUTELLA_IP_LENGTH,
-		ip,
-		"IP: %i.%i.%i.%i",
-		ip0, ip1, ip2, ip3);
+		FALSE);
 
 	proto_tree_add_item(tree,
 		hf_gnutella_push_port,
 		tvb,
 		offset + GNUTELLA_PUSH_PORT_OFFSET,
 		GNUTELLA_PORT_LENGTH,
-		port);
+		TRUE);
 
 }
 
@@ -430,7 +377,7 @@ static void dissect_gnutella(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	proto_tree *gnutella_tree, *gnutella_header_tree, *gnutella_pong_tree;
 	proto_tree *gnutella_queryhit_tree, *gnutella_push_tree;
 	proto_tree *gnutella_query_tree;
-	int snap_len, payload_descriptor, ttl, hops, offset;
+	int snap_len, payload_descriptor, offset;
 	unsigned int size;
 	char *payload_descriptor_text;
 
@@ -483,12 +430,6 @@ static void dissect_gnutella(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 				tvb,
 				offset +
 				GNUTELLA_HEADER_PAYLOAD_OFFSET);
-			ttl = tvb_get_guint8(
-				tvb,
-				offset + GNUTELLA_HEADER_TTL_OFFSET);
-			hops = tvb_get_guint8(
-				tvb,
-				offset + GNUTELLA_HEADER_HOPS_OFFSET);
 			size = tvb_get_letohl(
 				tvb,
 				offset + GNUTELLA_HEADER_SIZE_OFFSET);
@@ -544,16 +485,16 @@ static void dissect_gnutella(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 				tvb,
 				offset + GNUTELLA_HEADER_TTL_OFFSET,
 				GNUTELLA_BYTE_LENGTH,
-				ttl);
+				FALSE);
 
 			proto_tree_add_item(gnutella_header_tree,
 				hf_gnutella_header_hops,
 				tvb,
 				offset + GNUTELLA_HEADER_HOPS_OFFSET,
 				GNUTELLA_BYTE_LENGTH,
-				hops);
+				FALSE);
 
-			proto_tree_add_item(gnutella_header_tree,
+			proto_tree_add_uint(gnutella_header_tree,
 				hf_gnutella_header_size,
 				tvb,
 				offset + GNUTELLA_HEADER_SIZE_OFFSET,
