@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * 
- * $Id: packet-rpc.c,v 1.87 2002/02/18 23:51:55 guy Exp $
+ * $Id: packet-rpc.c,v 1.88 2002/03/27 04:27:03 guy Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2207,10 +2207,10 @@ show_rpc_fraginfo(tvbuff_t *tvb, tvbuff_t *frag_tvb, proto_tree *tree,
 		/*
 		 * Show a tree with information about all fragments.
 		 */
-		si = proto_tree_add_text(tree, tvb, 0, 0, "Fragments");
+		si = proto_tree_add_text(tree, tvb, 0, -1, "Fragments");
 		st = proto_item_add_subtree(si, ett_rpc_fragments);
 		for (ipfd = ipfd_head->next; ipfd != NULL; ipfd = ipfd->next) {
-			proto_tree_add_text(st, tvb, 0, 0,
+			proto_tree_add_text(st, tvb, ipfd->offset, ipfd->len,
 			    "Frame:%u [%u-%u]",
 			    ipfd->frame,
 			    ipfd->offset,

@@ -1,7 +1,7 @@
 /* packet-clnp.c
  * Routines for ISO/OSI network and transport protocol packet disassembly
  *
- * $Id: packet-clnp.c,v 1.50 2002/02/27 05:45:48 guy Exp $
+ * $Id: packet-clnp.c,v 1.51 2002/03/27 04:27:03 guy Exp $
  * Laurent Deniel <deniel@worldnet.fr>
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
@@ -1832,10 +1832,25 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       proto_tree *ft=NULL;
       proto_item *fi=NULL;
 
-      /* OK, we have the complete reassembled payload. */
+      /* OK, we have the complete reassembled payload.
+         Allocate a new tvbuff, referring to the reassembled payload. */
+      next_tvb = tvb_new_real_data(fd_head->data, fd_head->datalen,
+	fd_head->datalen);
+
+      /* Add the tvbuff to the list of tvbuffs to which the tvbuff we
+         were handed refers, so it'll get cleaned up when that tvbuff
+         is cleaned up. */
+      tvb_set_child_real_data_tvbuff(tvb, next_tvb);
+
+      /* Add the defragmented data to the data source list. */
+      add_new_data_source(pinfo->fd, next_tvb, "Reassembled CLNP");
+
+      /* It's not fragmented. */
+      pinfo->fragmented = FALSE;
+
       /* show all segments */
       fi = proto_tree_add_item(clnp_tree, hf_clnp_segments, 
-                tvb, 0, 0, FALSE);
+                next_tvb, 0, -1, FALSE);
       ft = proto_item_add_subtree(fi, ett_clnp_segments);
       for (fd = fd_head->next; fd != NULL; fd = fd->next){
         if (fd->flags & (FD_OVERLAP|FD_OVERLAPCONFLICT
@@ -1854,7 +1869,7 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             hf = hf_clnp_segment;
           }
           fei = proto_tree_add_none_format(ft, hf, 
-                   tvb, 0, 0,
+                   next_tvb, fd->offset, fd->len,
                    "Frame:%u payload:%u-%u",
                    fd->frame,
                    fd->offset,
@@ -1863,28 +1878,28 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           fet = proto_item_add_subtree(fei, ett_clnp_segment);
           if (fd->flags&FD_OVERLAP) {
             proto_tree_add_boolean(fet, 
-                 hf_clnp_segment_overlap, tvb, 0, 0, 
+                 hf_clnp_segment_overlap, next_tvb, 0, 0, 
                  TRUE);
           }
           if (fd->flags&FD_OVERLAPCONFLICT) {
             proto_tree_add_boolean(fet, 
-                 hf_clnp_segment_overlap_conflict, tvb, 0, 0, 
+                 hf_clnp_segment_overlap_conflict, next_tvb, 0, 0, 
                  TRUE);
           }
           if (fd->flags&FD_MULTIPLETAILS) {
             proto_tree_add_boolean(fet, 
-                 hf_clnp_segment_multiple_tails, tvb, 0, 0, 
+                 hf_clnp_segment_multiple_tails, next_tvb, 0, 0, 
                  TRUE);
           }
           if (fd->flags&FD_TOOLONGFRAGMENT) {
             proto_tree_add_boolean(fet, 
-                 hf_clnp_segment_too_long_segment, tvb, 0, 0, 
+                 hf_clnp_segment_too_long_segment, next_tvb, 0, 0, 
                  TRUE);
           }
         } else {
           /* nothing of interest for this segment */
           proto_tree_add_none_format(ft, hf_clnp_segment, 
-                   tvb, 0, 0,
+                   next_tvb, fd->offset, fd->len,
                    "Frame:%u payload:%u-%u",
                    fd->frame,
                    fd->offset,
@@ -1899,21 +1914,6 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           update_col_info = FALSE;
         }
       }
-
-      /* Allocate a new tvbuff, referring to the reassembled payload. */
-      next_tvb = tvb_new_real_data(fd_head->data, fd_head->datalen,
-	fd_head->datalen);
-
-      /* Add the tvbuff to the list of tvbuffs to which the tvbuff we
-         were handed refers, so it'll get cleaned up when that tvbuff
-         is cleaned up. */
-      tvb_set_child_real_data_tvbuff(tvb, next_tvb);
-
-      /* Add the defragmented data to the data source list. */
-      add_new_data_source(pinfo->fd, next_tvb, "Reassembled CLNP");
-
-      /* It's not fragmented. */
-      pinfo->fragmented = FALSE;
     } else {
       /* We don't have the complete reassembled payload. */
       next_tvb = NULL;

@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.236 2002/03/26 08:23:58 guy Exp $
+ * $Id: packet-smb.c,v 1.237 2002/03/27 04:27:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -7964,18 +7964,20 @@ dissect_nt_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 		proto_item *it;
 		fragment_data *fd;
 		
-		it = proto_tree_add_text(tree, tvb, 0, 0, "Fragments");
-		tr = proto_item_add_subtree(it, ett_smb_segments);
-		for(fd=r_fd->next;fd;fd=fd->next){
-			proto_tree_add_text(tr, tvb, 0, 0, "Frame:%u Data:%u-%u",
-					    fd->frame, fd->offset, fd->offset+fd->len-1);
-		}
-		
 		pd_tvb = tvb_new_real_data(r_fd->data, r_fd->datalen,
 					     r_fd->datalen);
 		tvb_set_child_real_data_tvbuff(tvb, pd_tvb);
 		add_new_data_source(pinfo->fd, pd_tvb, "Reassembled SMB");
 		pinfo->fragmented = FALSE;
+
+		it = proto_tree_add_text(tree, pd_tvb, 0, -1, "Fragments");
+		tr = proto_item_add_subtree(it, ett_smb_segments);
+		for(fd=r_fd->next;fd;fd=fd->next){
+			proto_tree_add_text(tr, pd_tvb, fd->offset, fd->len,
+					    "Frame:%u Data:%u-%u",
+					    fd->frame, fd->offset,
+					    fd->offset+fd->len-1);
+		}
 	}
 
 
@@ -11856,19 +11858,21 @@ dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 		proto_tree *tr;
 		proto_item *it;
 		fragment_data *fd;
-		
-		it = proto_tree_add_text(tree, tvb, 0, 0, "Fragments");
-		tr = proto_item_add_subtree(it, ett_smb_segments);
-		for(fd=r_fd->next;fd;fd=fd->next){
-			proto_tree_add_text(tr, tvb, 0, 0, "Frame:%u Data:%u-%u",
-					    fd->frame, fd->offset, fd->offset+fd->len-1);
-		}
-		
+
 		pd_tvb = tvb_new_real_data(r_fd->data, r_fd->datalen,
 					     r_fd->datalen);
 		tvb_set_child_real_data_tvbuff(tvb, pd_tvb);
 		add_new_data_source(pinfo->fd, pd_tvb, "Reassembled SMB");
 		pinfo->fragmented = FALSE;
+
+		it = proto_tree_add_text(tree, pd_tvb, 0, -1, "Fragments");
+		tr = proto_item_add_subtree(it, ett_smb_segments);
+		for(fd=r_fd->next;fd;fd=fd->next){
+			proto_tree_add_text(tr, pd_tvb, fd->offset, fd->len,
+					    "Frame:%u Data:%u-%u",
+					    fd->frame, fd->offset,
+					    fd->offset+fd->len-1);
+		}
 	}
 
 
