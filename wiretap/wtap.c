@@ -252,11 +252,11 @@ static const struct encap_type_info {
 	/* WTAP_ENCAP_BACNET_MS_TP */
 	{ "BACnet MS/TP", "bacnet-ms-tp" },
 
-	/* WTAP_ENCAP_RAW_ICMP */
-	{ "Raw ICMP", "raw-icmp" },
+	/* WTAP_ENCAP_NETTL_RAW_ICMP */
+	{ "Raw ICMP with nettl headers", "raw-icmp-nettl" },
 
-	/* WTAP_ENCAP_RAW_ICMPV6 */
-	{ "Raw ICMPv6", "raw-icmpv6" },
+	/* WTAP_ENCAP_NETTL_RAW_ICMPV6 */
+	{ "Raw ICMPv6 with nettl headers", "raw-icmpv6-nettl" },
 
 	/* WTAP_ENCAP_GPRS_LLC */
 	{ "GPRS LLC", "gprs-llc" },
@@ -269,6 +269,21 @@ static const struct encap_type_info {
 
 	/* WTAP_ENCAP_REDBACK */
 	{ "Redback SmartEdge", "redback" },
+
+	/* WTAP_ENCAP_NETTL_RAW_IP */
+	{ "Raw IP with nettl headers", "rawip-nettl" },
+
+	/* WTAP_ENCAP_NETTL_ETHERNET */
+	{ "Ethernet with nettl headers", "ether-nettl" },
+
+	/* WTAP_ENCAP_NETTL_TOKEN_RING */
+	{ "Token Ring with nettl headers", "tr-nettl" },
+
+	/* WTAP_ENCAP_NETTL_FDDI */
+	{ "FDDI with nettl headers", "fddi-nettl" },
+
+	/* WTAP_ENCAP_NETTL_UNKNOWN */
+	{ "Unknown link-layer type with nettl headers", "unknown-nettl" },
 };
 
 /* Name that should be somewhat descriptive. */
