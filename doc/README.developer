@@ -1,4 +1,4 @@
-$Id: README.developer,v 1.55 2002/06/28 20:20:22 guy Exp $
+$Id: README.developer,v 1.56 2002/06/29 00:15:18 guy Exp $
 
 This file is a HOWTO for Ethereal developers. It describes how to start coding
 a Ethereal protocol dissector and the use some of the important functions and
@@ -92,6 +92,16 @@ Not all platforms necessarily have "bzero()"/"bcopy()"/"bcmp()", and
 those that do might not declare them in the header file on which they're
 declared on your platform.
 
+Don't fetch data from packets by getting a pointer to data in the packet
+with "tvb_get_ptr()", casting that pointer to a pointer to a structure,
+and dereferencing that pointer.  That point won't necessarily be aligned
+on the proper boundary, which can cause crashes on some platforms (even
+if it doesn't crash on an x86-based PC); furthermore, the data in a
+packet is not necessarily in the byte order of the machine on which
+Ethereal is running.  Use the tvbuff routines to extract individual
+items from the packet, or use "proto_tree_add_item()" and let it extract
+the items for you.
+
 1.1.2 Name convention.
 
 Ethereal uses the underscore_convention rather than the InterCapConvention for
@@ -129,7 +139,7 @@ code inside
 
 is needed only if you are using the "snprintf()" function.
 
-The "$Id: README.developer,v 1.55 2002/06/28 20:20:22 guy Exp $"
+The "$Id: README.developer,v 1.56 2002/06/29 00:15:18 guy Exp $"
 in the comment will be updated by CVS when the file is
 checked in; it will allow the RCS "ident" command to report which
 version of the file is currently checked out.
@@ -139,7 +149,7 @@ version of the file is currently checked out.
  * Routines for PROTONAME dissection
  * Copyright 2000, YOUR_NAME <YOUR_EMAIL_ADDRESS>
  *
- * $Id: README.developer,v 1.55 2002/06/28 20:20:22 guy Exp $
+ * $Id: README.developer,v 1.56 2002/06/29 00:15:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
