@@ -44,7 +44,15 @@
 # include <epan/inet_aton.h>
 #endif
 
-#include <glib.h>
+#ifdef HAVE_WINSOCK2_H
+#include <winsock2.h>		/* needed to define AF_ values on Windows */
+#endif
+
+#ifdef NEED_INET_V6DEFS_H
+# include "inet_v6defs.h"
+#endif
+
+#include <glib.h> 
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/strutil.h>
@@ -197,12 +205,12 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	transport_info_t transport_info;
 
-	guint32 	ipv4_address=0;
-	guint32 	ipv4_port=0;
+	guint32 	port=0;
 	gboolean 	is_rtp=FALSE;
 	gboolean        is_t38=FALSE;
 	gboolean 	is_ipv4_addr=FALSE;
-	struct in_addr	ipaddr;
+	gboolean	is_ipv6_addr=FALSE;
+    guint32 	ipaddr[4];
 	gint		n;
 
 	/* Initialise RTP channel info */
@@ -360,7 +368,7 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	for (n = 0; n < transport_info.media_count; n++)
 	{
 	    if(transport_info.media_port[n]!=NULL) {
-		    ipv4_port = atol(transport_info.media_port[n]);
+		    port = atol(transport_info.media_port[n]);
 		    g_free(transport_info.media_port[n]);
 	    }
 	    if(transport_info.media_proto[n]!=NULL) {
@@ -372,41 +380,44 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    g_free(transport_info.media_proto[n]);
 	    }
 	    if(transport_info.connection_address!=NULL) {
-		    if(transport_info.connection_type!=NULL &&
-			strcmp(transport_info.connection_type,"IP4")==0) {
-			    if(inet_aton(transport_info.connection_address, &ipaddr)
-				!=0 ) {
-				    /* connection_address could be converted to a valid ipv4 address*/
-				    is_ipv4_addr=TRUE;
-				    ipv4_address = ipaddr.s_addr;
-			    }
+		    if(transport_info.connection_type!=NULL) {
+		    	if (strcmp(transport_info.connection_type,"IP4")==0) {
+				    if(inet_pton(AF_INET,transport_info.connection_address, &ipaddr)==1 ) {
+					    /* connection_address could be converted to a valid ipv4 address*/
+					    is_ipv4_addr=TRUE;
+				    	src_addr.type=AT_IPv4;
+				    	src_addr.len=4;
+				    }
+				}
+				else if (strcmp(transport_info.connection_type,"IP6")==0){
+					if (inet_pton(AF_INET6, transport_info.connection_address, &ipaddr)==1){
+					    /* connection_address could be converted to a valid ipv6 address*/
+						is_ipv6_addr=TRUE;
+					    src_addr.type=AT_IPv6;
+					    src_addr.len=16;
+					}
+				}
 		    }
 	    }
-
 	    /* Add rtp and rtcp conversation, if available */
-	    if((!pinfo->fd->flags.visited) && ipv4_address!=0 && ipv4_port!=0 && is_rtp && is_ipv4_addr){
-		    src_addr.type=AT_IPv4;
-		    src_addr.len=4;
-		    src_addr.data=(char *)&ipv4_address;
-
+	    if((!pinfo->fd->flags.visited) && port!=0 && is_rtp && (is_ipv4_addr || is_ipv6_addr)){
+		    src_addr.data=(char *)&ipaddr;
 		    if(rtp_handle){
-				rtp_add_address(pinfo, &src_addr, ipv4_port, 0,
-				                "SDP", pinfo->fd->num);
+				rtp_add_address(pinfo, &src_addr, port, 0,
+	                "SDP", pinfo->fd->num);
 		    }
-
 		    if(rtcp_handle){
-				ipv4_port++;
-				rtcp_add_address(pinfo, &src_addr, ipv4_port, 0,
-				                 "SDP", pinfo->fd->num);
+				port++;
+				rtcp_add_address(pinfo, &src_addr, port, 0,
+	                 "SDP", pinfo->fd->num);
 		    }
 	    }
+			
 	    /* Add t38 conversation, if available */
-	    if((!pinfo->fd->flags.visited) && ipv4_address!=0 && ipv4_port!=0 && is_t38 && is_ipv4_addr){
-                    src_addr.type=AT_IPv4;
-                    src_addr.len=4;
-                    src_addr.data=(char *)&ipv4_address;
+	    if((!pinfo->fd->flags.visited) && port!=0 && is_t38 && is_ipv4_addr){
+                    src_addr.data=(char *)&ipaddr;
                     if(t38_handle){
-                                t38_add_address(pinfo, &src_addr, ipv4_port, 0, "SDP", pinfo->fd->num);
+                                t38_add_address(pinfo, &src_addr, port, 0, "SDP", pinfo->fd->num);
                     }
 	    }
 	}
