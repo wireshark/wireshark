@@ -356,6 +356,17 @@ Otherwise, you can check whether the data is present by using
 the pointer from "tvb_get_ptr()" (see the item on this in the
 Portability section above, and the next item below).
 
+Note also that you should only fetch string data into a fixed-length
+buffer if the code ensures that no more bytes than will fit into the
+buffer are fetched ("the protocol ensures" isn't good enough, as
+protocol specifications can't ensure only packets that conform to the
+specification will be transmitted or that only packets for the protocol
+in question will be interpreted as packets for that protocol by
+Ethereal).  If there's no maximum length of string data to be fetched,
+routines such as "tvb_get_string()" are safer, as they allocate a buffer
+large enough to hold the string.  (Note that you should free the string
+once you're finished with it.)
+
 If you have gotten a pointer using "tvb_get_ptr()", you must make sure
 that you do not refer to any data past the length passed as the last
 argument to "tvb_get_ptr()"; while the various "tvb_get" routines
