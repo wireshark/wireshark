@@ -2,7 +2,7 @@
  * Routines for the Point-to-Point Tunnelling Protocol (PPTP) (RFC 2637)
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-pptp.c,v 1.28 2003/05/26 21:36:45 guy Exp $
+ * $Id: packet-pptp.c,v 1.29 2003/08/12 02:05:41 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -44,127 +44,127 @@ static dissector_handle_t data_handle;
 #define MAGIC_COOKIE		0x1A2B3C4D
 
 static const value_string msgtype_vals[] = {
-  { 1, "CONTROL-MESSAGE" },
-  { 2, "MANAGEMENT-MESSAGE" },
+  { 1, "Control Message" },
+  { 2, "Management Message" },
   { 0, NULL }
 };
 
 #define NUM_FRAME_TYPES		4
 #define frametype2str(t)	\
-  ((t < NUM_FRAME_TYPES) ? frametypestr[t] : "UNKNOWN-FRAMING-TYPE")
+  ((t < NUM_FRAME_TYPES) ? frametypestr[t] : "Unknown framing type")
 
 static const char *frametypestr[NUM_FRAME_TYPES] = {
-  "UNKNOWN-FRAMING-TYPE",
-  "ASYNCHRONOUS",
-  "SYNCHRONOUS",
-  "EITHER"
+  "Unknown framing type",
+  "Asynchronous Framing supported",
+  "Synchronous Framing supported",
+  "Either Framing supported"
 };
 
 #define NUM_BEARER_TYPES	4
 #define bearertype2str(t)	\
-  ((t < NUM_BEARER_TYPES) ? bearertypestr[t] : "UNKNOWN-BEARER-TYPE")
+  ((t < NUM_BEARER_TYPES) ? bearertypestr[t] : "Unknown bearer type")
 
 static const char *bearertypestr[NUM_BEARER_TYPES] = {
-  "UNKNOWN-BEARER-TYPE",
-  "ANALOG",
-  "DIGITAL",
-  "EITHER"
+  "Unknown bearer type",
+  "Analog access supported",
+  "Digital access supported",
+  "Either access supported"
 };
 
 #define NUM_CNTRLRESULT_TYPES	6
 #define cntrlresulttype2str(t)	\
-  ((t < NUM_CNTRLRESULT_TYPES) ? cntrlresulttypestr[t] : "UNKNOWN-CNTRLRESULT-TYPE")
+  ((t < NUM_CNTRLRESULT_TYPES) ? cntrlresulttypestr[t] : "Unknown Start-Control-connection-Reply result code")
 
 static const char *cntrlresulttypestr[NUM_CNTRLRESULT_TYPES] = {
-  "UNKNOWN-CNTRLRESULT-TYPE",
-  "SUCCESS",
-  "GENERAL-ERROR",
-  "COMMAND-CHANNEL-EXISTS",
-  "NOT-AUTHORIZED",
-  "VERSION-NOT-SUPPORTED"
+  "Unknown Start-Control-connection-Reply result code",
+  "Successful channel establishment",
+  "General error",
+  "Command channel already exists",
+  "Requester not authorized",
+  "Protocol version not supported"
 };
 
 #define NUM_ERROR_TYPES		7
 #define errortype2str(t)	\
-  ((t < NUM_ERROR_TYPES) ? errortypestr[t] : "UNKNOWN-ERROR-TYPE")
+  ((t < NUM_ERROR_TYPES) ? errortypestr[t] : "Unknown general error code")
 
 static const char *errortypestr[NUM_ERROR_TYPES] = {
-  "NONE",
-  "NOT-CONNECTED",
-  "BAD-FORMAT",
-  "BAD-VALUE",
-  "NO-RESOURCE",
-  "BAD-CALL-ID",
-  "PAC-ERROR"
+  "None",
+  "Not-Connected",
+  "Bad-Format",
+  "Bad-Value",
+  "No-Resource",
+  "Bad-Call ID",
+  "PAC-Error"
 };
 
 #define NUM_REASON_TYPES	4
 #define reasontype2str(t)	\
-  ((t < NUM_REASON_TYPES) ? reasontypestr[t] : "UNKNOWN-REASON-TYPE")
+  ((t < NUM_REASON_TYPES) ? reasontypestr[t] : "Unknown Stop-Control-Connection-Request reason code")
 
 static const char *reasontypestr[NUM_REASON_TYPES] = {
-  "UNKNOWN-REASON-TYPE",
-  "NONE",
-  "STOP-PROTOCOL",
-  "STOP-LOCAL-SHUTDOWN"
+  "Unknown Stop-Control-Connection-Request reason code",
+  "None",
+  "Stop-Protocol",
+  "Stop-Local-Shutdown"
 };
 
 #define NUM_STOPRESULT_TYPES	3
 #define stopresulttype2str(t)	\
-  ((t < NUM_STOPRESULT_TYPES) ? stopresulttypestr[t] : "UNKNOWN-STOPRESULT-TYPE")
+  ((t < NUM_STOPRESULT_TYPES) ? stopresulttypestr[t] : "Unknown Stop-Control-Connection-Reply result code")
 
 static const char *stopresulttypestr[NUM_STOPRESULT_TYPES] = {
-  "UNKNOWN-STOPRESULT-TYPE",
-  "SUCCESS",
-  "GENERAL-ERROR"
+  "Unknown Stop-Control-Connection-Reply result code",
+  "OK",
+  "General error"
 };
 
 #define NUM_ECHORESULT_TYPES	3
 #define echoresulttype2str(t)	\
-  ((t < NUM_ECHORESULT_TYPES) ? echoresulttypestr[t] : "UNKNOWN-ECHORESULT-TYPE")
+  ((t < NUM_ECHORESULT_TYPES) ? echoresulttypestr[t] : "Unknown Echo-Reply result code")
 
 static const char *echoresulttypestr[NUM_ECHORESULT_TYPES] = {
-  "UNKNOWN-ECHORESULT-TYPE",
-  "SUCCESS",
-  "GENERAL-ERROR"
+  "Unknown Echo-Reply result code",
+  "OK",
+  "General error"
 };
 
 #define NUM_OUTRESULT_TYPES	8
 #define outresulttype2str(t)	\
-  ((t < NUM_OUTRESULT_TYPES) ? outresulttypestr[t] : "UNKNOWN-OUTRESULT-TYPE")
+  ((t < NUM_OUTRESULT_TYPES) ? outresulttypestr[t] : "Unknown Outgoing-Call-Reply result code")
 
 static const char *outresulttypestr[NUM_OUTRESULT_TYPES] = {
-  "UNKNOWN-OUTRESULT-TYPE",
-  "CONNECTED",
-  "GENERAL-ERROR",
-  "NO-CARRIER",
-  "BUSY",
-  "NO-DIAL-TONE",
-  "TIME-OUT",
-  "DO-NOT-ACCEPT"
+  "Unknown Outgoing-Call-Reply result code",
+  "Connected",
+  "General Error",
+  "No Carrier",
+  "Busy",
+  "No Dial Tone",
+  "Time-out",
+  "Do Not Accept"
 };
 
 #define NUM_INRESULT_TYPES	4
 #define inresulttype2str(t)	\
-  ((t < NUM_INRESULT_TYPES) ? inresulttypestr[t] : "UNKNOWN-INRESULT-TYPE")
+  ((t < NUM_INRESULT_TYPES) ? inresulttypestr[t] : "Unknown Incoming-Call-Reply result code")
 
 static const char *inresulttypestr[NUM_INRESULT_TYPES] = {
-  "UNKNOWN-INRESULT-TYPE",
-  "CONNECT",
-  "GENERAL-ERROR",
-  "DO-NOT-ACCEPT"
+  "Unknown Incoming-Call-Reply result code",
+  "Connect",
+  "General Error",
+  "Do Not Accept"
 };
 
 #define NUM_DISCRESULT_TYPES	5
 #define discresulttype2str(t)	\
-  ((t < NUM_DISCRESULT_TYPES) ? discresulttypestr[t] : "UNKNOWN-DISCRESULT-TYPE")
+  ((t < NUM_DISCRESULT_TYPES) ? discresulttypestr[t] : "Unknown Call-Disconnect-Notify result code")
 
 static const char *discresulttypestr[NUM_DISCRESULT_TYPES] = {
-  "UNKNOWN-DISCRESULT-TYPE",
-  "LOST-CARRIER",
-  "GENERAL-ERROR",
-  "ADMIN-SHUTDOWN",
-  "REQUEST"
+  "Unknown Call-Disconnect-Notify result code",
+  "Lost Carrier",
+  "General Error",
+  "Admin Shutdown",
+  "Request"
 };
 
 static void dissect_unknown(tvbuff_t *, int, packet_info *, proto_tree *);
@@ -192,22 +192,22 @@ static struct strfunc {
   const char *	str;
   void          (*func)(tvbuff_t *, int, packet_info *, proto_tree *);
 } strfuncs[NUM_CNTRL_TYPES] = {
-  {"UNKNOWN-CONTROL-TYPE",    dissect_unknown      },
-  {"START-CONTROL-REQUEST",   dissect_cntrl_req    },
-  {"START-CONTROL-REPLY",     dissect_cntrl_reply  },
-  {"STOP-CONTROL-REQUEST",    dissect_stop_req     },
-  {"STOP-CONTROL-REPLY",      dissect_stop_reply   },
-  {"ECHO-REQUEST",            dissect_echo_req     },
-  {"ECHO-REPLY",              dissect_echo_reply   },
-  {"OUTGOING-CALL-REQUEST",   dissect_out_req      },
-  {"OUTGOING-CALL-REPLY",     dissect_out_reply    },
-  {"INCOMING-CALL-REQUEST",   dissect_in_req       },
-  {"INCOMING-CALL-REPLY",     dissect_in_reply     },
-  {"INCOMING-CALL-CONNECTED", dissect_in_connected },
-  {"CLEAR-CALL-REQUEST",      dissect_clear_req    },
-  {"DISCONNECT-NOTIFY",       dissect_disc_notify  },
-  {"ERROR-NOTIFY",            dissect_error_notify },
-  {"SET-LINK",                dissect_set_link     }
+  {"Unknown control type",    dissect_unknown      },
+  {"Start-Control-Connection-Request",   dissect_cntrl_req    },
+  {"Start-Control-Connection-Reply",     dissect_cntrl_reply  },
+  {"Stop-Control-Connection-Request",    dissect_stop_req     },
+  {"Stop-Control-Connection-Reply",      dissect_stop_reply   },
+  {"Echo-Request",                       dissect_echo_req     },
+  {"Echo-Reply",                         dissect_echo_reply   },
+  {"Outgoing-Call-Request",              dissect_out_req      },
+  {"Outgoing-Call-Reply",                dissect_out_reply    },
+  {"Incoming-Call-Request",              dissect_in_req       },
+  {"Incoming-Call-Reply",                dissect_in_reply     },
+  {"Incoming-Call-Connected",            dissect_in_connected },
+  {"Call-Clear-Request",                 dissect_clear_req    },
+  {"Call-Disconnect-Notify",             dissect_disc_notify  },
+  {"WAN-Error-Notify",                   dissect_error_notify },
+  {"Set-Link-Info",                      dissect_set_link     }
 };
 
 /*
