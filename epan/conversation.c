@@ -1,7 +1,7 @@
 /* conversation.c
  * Routines for building lists of packets that are part of a "conversation"
  *
- * $Id: conversation.c,v 1.23 2002/12/08 02:32:36 gerald Exp $
+ * $Id: conversation.c,v 1.24 2004/01/09 00:57:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -491,7 +491,7 @@ void
 conversation_set_port2(conversation_t *conv, guint32 port)
 {
 	/*
-	 * If the port 2 value is wildcarded, don't set it.
+	 * If the port 2 value is not wildcarded, don't set it.
 	 */
 	if (!(conv->options & NO_PORT2))
 		return;
@@ -522,7 +522,7 @@ void
 conversation_set_addr2(conversation_t *conv, address *addr)
 {
 	/*
-	 * If the address 2 value is wildcarded, don't set it.
+	 * If the address 2 value is not wildcarded, don't set it.
 	 */
 	if (!(conv->options & NO_ADDR2))
 		return;
