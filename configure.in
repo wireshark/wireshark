@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.171 2002/08/14 14:42:34 jmayer Exp $
+# $Id: configure.in,v 1.172 2002/08/15 12:10:56 jmayer Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -21,6 +21,7 @@ AC_CANONICAL_HOST
 dnl Checks for programs.
 AC_PROG_CC
 AC_PROG_CPP
+AC_LIBTOOL_DLOPEN
 AC_PROG_LIBTOOL
 AC_PROG_YACC
 AM_PROG_LEX
