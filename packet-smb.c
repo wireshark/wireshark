@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.141 2001/11/09 22:45:22 guy Exp $
+ * $Id: packet-smb.c,v 1.142 2001/11/09 22:58:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -5064,7 +5064,7 @@ static const value_string nt_ioctl_isfsctl_vals[] = {
 
 #define NT_IOCTL_FLAGS_ROOT_HANDLE	0x01
 static const true_false_string tfs_nt_ioctl_flags_root_handle = {
-	"Apply the command to share root handle (MUST BE DFS)",
+	"Apply the command to share root handle (MUST BE Dfs)",
 	"Apply to this share",
 };
 
@@ -5266,7 +5266,7 @@ static const value_string device_type_vals[] = {
 	{0x00000003,	"CDROM Filesystem"},
 	{0x00000004,	"Controller"},
 	{0x00000005,	"Datalink"},
-	{0x00000006,	"DFS"},
+	{0x00000006,	"Dfs"},
 	{0x00000007,	"Disk"},
 	{0x00000008,	"Disk Filesystem"},
 	{0x00000009,	"Filesystem"},
@@ -10904,8 +10904,8 @@ static const true_false_string tfs_smb_flags2_esn = {
 	"Extended security negotiation is not supported"
 };
 static const true_false_string tfs_smb_flags2_dfs = {
-	"Resolve pathnames with DFS",
-	"Don't resolve pathnames with DFS"
+	"Resolve pathnames with Dfs",
+	"Don't resolve pathnames with Dfs"
 };
 static const true_false_string tfs_smb_flags2_roe = {
 	"Permit reads if execute-only",
@@ -12095,7 +12095,7 @@ proto_register_smb(void)
 
 	{ &hf_smb_nt_ioctl_flags_root_handle,
 		{ "Root Handle", "smb.nt.ioctl.flags.root_handle", FT_BOOLEAN, 8,
-		TFS(&tfs_nt_ioctl_flags_root_handle), NT_IOCTL_FLAGS_ROOT_HANDLE, "Apply to this share or root DFS share", HFILL }},
+		TFS(&tfs_nt_ioctl_flags_root_handle), NT_IOCTL_FLAGS_ROOT_HANDLE, "Apply to this share or root Dfs share", HFILL }},
 
 	{ &hf_smb_nt_ioctl_data,
 		{ "IOCTL Data", "smb.nt.ioctl.data", FT_BYTES, BASE_HEX,
