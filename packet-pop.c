@@ -2,7 +2,7 @@
  * Routines for pop packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-pop.c,v 1.7 1999/08/24 17:26:13 gram Exp $
+ * $Id: packet-pop.c,v 1.8 1999/10/03 13:44:32 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -67,6 +67,11 @@ dissect_pop(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
 	  strncpy(rr, pd + offset, MIN(i1, sizeof(rr) - 1));
 	  i2 = ((u_char *)strchr(pd + offset + i1 + 1, '\r') - (pd + offset)) - i1 - 1;
+	  if (i2 > max_data - i1 - 1 || i2 <= 0) {
+	    i2 = ((u_char *)strchr(pd + offset + i1 + 1, '\n') - (pd + offset)) - i1 - 1;
+	    if (i2 > max_data - i1 - 1 || i2 <= 0)
+	      i2 = max_data - i1 - 1;
+	  }
 	  strncpy(rd, pd + offset + i1 + 1, MIN(i2, sizeof(rd) - 1));
 	}
 
@@ -75,8 +80,7 @@ dissect_pop(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
 	if (check_col(fd, COL_INFO)) {
 
-	  col_add_fstr(fd, COL_INFO, "%s: %s %s", (pi.match_port == pi.destport)? "Request" : "Response", rr, rd);
-
+	  col_add_fstr(fd, COL_INFO, "%s: %s %s", (pi.match_port == pi.destport)? "Request" : "Response", rr, rd);	  
 	}
 
 	if (tree) {
