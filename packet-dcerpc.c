@@ -3,7 +3,7 @@
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  * Copyright 2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc.c,v 1.134 2003/07/16 04:20:33 tpot Exp $
+ * $Id: packet-dcerpc.c,v 1.135 2003/07/16 05:26:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1708,7 +1708,7 @@ show_stub_data (tvbuff_t *tvb, gint offset, proto_tree *dcerpc_tree,
 static int
 dcerpc_try_handoff (packet_info *pinfo, proto_tree *tree,
                     proto_tree *dcerpc_tree,
-                    tvbuff_t *tvb, volatile gint offset,
+                    tvbuff_t *volatile tvb, volatile gint offset,
                     char *drep, dcerpc_info *info,
                     dcerpc_auth_info *auth_info)
 {
