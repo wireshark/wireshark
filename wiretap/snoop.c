@@ -1,6 +1,6 @@
 /* snoop.c
  *
- * $Id: snoop.c,v 1.48 2002/04/30 18:58:16 guy Exp $
+ * $Id: snoop.c,v 1.49 2002/05/07 06:25:30 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -489,7 +489,7 @@ snoop_read_atm_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
 		pseudo_header->atm.type = TRAF_ILMI;
 		break;
 
-	case 0x06:	/* Q.2931 */
+	case 0x06:	/* Signalling AAL */
 		pseudo_header->atm.aal = AAL_SIGNALLING;
 		pseudo_header->atm.type = TRAF_UNKNOWN;
 		break;
@@ -674,7 +674,7 @@ static gboolean snoop_dump(wtap_dumper *wdh,
 		switch (pseudo_header->atm.aal) {
 
 		case AAL_SIGNALLING:
-			/* Q.2931 */
+			/* Signalling AAL */
 			atm_hdr.flags |= 0x06;
 			break;
 
