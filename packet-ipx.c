@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-ipx.c,v 1.22 1999/07/17 04:19:04 gram Exp $
+ * $Id: packet-ipx.c,v 1.23 1999/07/20 02:56:44 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -50,6 +50,12 @@
 */
 	
 int proto_ipx = -1;
+int hf_ipx_checksum = -1;
+int hf_ipx_len = -1;
+int hf_ipx_hops = -1;
+int hf_ipx_dnode = -1;
+int hf_ipx_snode = -1;
+
 int proto_spx = -1;
 int proto_ipxrip = -1;
 int proto_sap = -1;
@@ -230,25 +236,23 @@ dissect_ipx(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
 		ti = proto_tree_add_item(tree, proto_ipx, offset, 30, NULL);
 		ipx_tree = proto_item_add_subtree(ti, ETT_IPX);
-		proto_tree_add_text(ipx_tree, offset,      2, "Checksum: 0x%04x",
-				ipx_checksum);
-		proto_tree_add_text(ipx_tree, offset+2,    2, "Length: %d bytes",
-				ipx_length);
-		proto_tree_add_text(ipx_tree, offset+4,    1, "Transport Control: %d hops",
-				ipx_hops);
+		proto_tree_add_item_format(ipx_tree, hf_ipx_checksum, offset, 2, ipx_checksum,
+			"Checksum: 0x%04x", ipx_checksum);
+		proto_tree_add_item_format(ipx_tree, hf_ipx_len, offset+2, 2, ipx_length,
+			"Length: %d bytes", ipx_length);
+		proto_tree_add_item_format(ipx_tree, hf_ipx_hops, offset+4, 1, ipx_hops,
+			"Transport Control: %d hops", ipx_hops);
 		proto_tree_add_text(ipx_tree, offset+5,    1, "Packet Type: %s",
 			ipx_packet_type(ipx_type));
 		proto_tree_add_text(ipx_tree, offset+6,    4, "Destination Network: %s",
 			str_dnet);
-		proto_tree_add_text(ipx_tree, offset+10,   6, "Destination Node: %s",
-			ether_to_str(ipx_dnode));
+		proto_tree_add_item(ipx_tree, hf_ipx_dnode, offset+10, 6, ipx_dnode);
 		proto_tree_add_text(ipx_tree, offset+16,   2,
 			"Destination Socket: %s (0x%04X)", port_text(ipx_dsocket),
 			ipx_dsocket);
 		proto_tree_add_text(ipx_tree, offset+18,   4, "Source Network: %s",
 			str_snet);
-		proto_tree_add_text(ipx_tree, offset+22,   6, "Source Node: %s",
-			ether_to_str(ipx_snode));
+		proto_tree_add_item(ipx_tree, hf_ipx_snode, offset+22, 6, ipx_snode);
 		proto_tree_add_text(ipx_tree, offset+28,   2,
 			"Source Socket: %s (0x%04X)", port_text(ipx_ssocket), ipx_ssocket);
 	}
@@ -530,7 +534,7 @@ dissect_sap(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 	}
 
 	if (tree) {
-		ti = proto_tree_add_text(tree, proto_sap, offset, END_OF_FRAME, NULL);
+		ti = proto_tree_add_item(tree, proto_sap, offset, END_OF_FRAME, NULL);
 		sap_tree = proto_item_add_subtree(ti, ETT_IPXSAP);
 
 		if (query.query_type < 4) {
@@ -580,7 +584,25 @@ dissect_sap(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 void
 proto_register_ipx(void)
 {
+	static hf_register_info hf_ipx[] = {
+		{ &hf_ipx_checksum,
+		{ "Checksum",		"ipx.checksum", FT_UINT16, NULL }},
+
+		{ &hf_ipx_len,
+		{ "Length",		"ipx.len", FT_UINT16, NULL }},
+
+		{ &hf_ipx_hops,
+		{ "Transport Control (Hops)", "ipx.hops", FT_UINT8, NULL }},
+
+		{ &hf_ipx_dnode,
+		{ "Destination Node",	"ipx.dstnode", FT_ETHER, NULL }},
+
+		{ &hf_ipx_snode,
+		{ "Source Node",	"ipx.srcnode", FT_ETHER, NULL }}
+	};
+		
 	proto_ipx = proto_register_protocol ("Internetwork Packet eXchange", "ipx");
+	proto_register_field_array(proto_ipx, hf_ipx, array_length(hf_ipx));
 
 	proto_spx = proto_register_protocol ("Sequenced Packet eXchange", "spx");
 	
