@@ -1,7 +1,7 @@
 /* packet-ppp.c
  * Routines for ppp packet disassembly
  *
- * $Id: packet-ppp.c,v 1.39 2000/08/13 14:08:38 deniel Exp $
+ * $Id: packet-ppp.c,v 1.40 2000/11/16 07:35:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1019,7 +1019,7 @@ dissect_ppp_stuff( tvbuff_t *tvb, packet_info *pinfo,
       if (check_col(pinfo->fd, COL_INFO))
         col_add_fstr(pinfo->fd, COL_INFO, "PPP %s (0x%04x)",
 		val_to_str(ppp_prot, ppp_vals, "Unknown"), ppp_prot);
-      dissect_data(next_tvb, pinfo, tree);
+      dissect_data(next_tvb, 0, pinfo, tree);
       return FALSE;
   }
 }

@@ -1,7 +1,7 @@
 /* packet-null.c
  * Routines for null packet disassembly
  *
- * $Id: packet-null.c,v 1.29 2000/11/13 04:50:07 guy Exp $
+ * $Id: packet-null.c,v 1.30 2000/11/16 07:35:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -308,7 +308,7 @@ dissect_null(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         break;
 
       default:
-        dissect_data(next_tvb, pinfo, tree);
+        dissect_data(next_tvb, 0, pinfo, tree);
         break;
       }
     }

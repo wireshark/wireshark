@@ -2,7 +2,7 @@
  * Routines for the Generic Routing Encapsulation (GRE) protocol
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-gre.c,v 1.25 2000/08/13 14:08:11 deniel Exp $
+ * $Id: packet-gre.c,v 1.26 2000/11/16 07:35:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -227,7 +227,7 @@ dissect_gre(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
         break;
       default:
 	next_tvb = tvb_create_from_top(offset);
-	dissect_data(next_tvb, &pi, gre_tree);
+	dissect_data(next_tvb, 0, &pi, gre_tree);
 	break;
     }
   }

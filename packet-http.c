@@ -3,7 +3,7 @@
  *
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-http.c,v 1.27 2000/11/15 08:27:14 guy Exp $
+ * $Id: packet-http.c,v 1.28 2000/11/16 07:35:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -218,9 +218,9 @@ dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	datalen = tvb_length_remaining(tvb, offset);
 	if (datalen > 0) {
-		tvbuff_t *new_tvb = tvb_new_subset(tvb, offset, -1, -1);
-
 		if (is_ipp) {
+			tvbuff_t *new_tvb = tvb_new_subset(tvb, offset, -1, -1);
+
 			/*
 			 * Fix up the top-level item so that it doesn't
 			 * include the IPP stuff.
@@ -230,7 +230,7 @@ dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 			call_dissector(ipp_handle, new_tvb, pinfo, tree);
 		} else
-			dissect_data(new_tvb, pinfo, http_tree);
+			dissect_data(tvb, offset, pinfo, http_tree);
 	}
 }
 

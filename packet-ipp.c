@@ -3,7 +3,7 @@
  *
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-ipp.c,v 1.15 2000/11/15 08:27:14 guy Exp $
+ * $Id: packet-ipp.c,v 1.16 2000/11/16 07:35:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -235,12 +235,8 @@ dissect_ipp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		offset = parse_attributes(tvb, offset, ipp_tree);
 
-		if (tvb_offset_exists(tvb, offset)) {
-			proto_tree_add_text(ipp_tree, tvb, offset,
-			    tvb_length_remaining(tvb, offset),
-			    "Data (%d bytes)",
-			    tvb_length_remaining(tvb, offset));
-		}
+		if (tvb_offset_exists(tvb, offset))
+			dissect_data(tvb, offset, pinfo, ipp_tree);
 	}
 }
 

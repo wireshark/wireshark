@@ -1,7 +1,7 @@
 /* proto.h
  * Definitions for protocol display
  *
- * $Id: proto.h,v 1.1 2000/09/27 04:54:52 gram Exp $
+ * $Id: proto.h,v 1.2 2000/11/16 07:35:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -68,7 +68,7 @@ struct value_string;
 
 #define CHECK_DISPLAY_AS_DATA(index, tvb, pinfo, tree) {	\
 	if (!proto_is_protocol_enabled(index)) {		\
-		dissect_data(tvb, pinfo, tree);			\
+		dissect_data(tvb, 0, pinfo, tree);		\
 		return;						\
 	}							\
   }

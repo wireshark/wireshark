@@ -4,7 +4,7 @@
  * Laurent Deniel <deniel@worldnet.fr>
  * Craig Rodrigues <rodrigc@mediaone.net>
  *
- * $Id: packet-giop.c,v 1.24 2000/11/15 20:10:20 guy Exp $
+ * $Id: packet-giop.c,v 1.25 2000/11/16 07:35:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1286,7 +1286,7 @@ dissect_giop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 			       header.GIOP_version.major,
 			       header.GIOP_version.minor);
 	}
-      dissect_data (payload_tvb, pinfo, tree);
+      dissect_data (payload_tvb, 0, pinfo, tree);
       return TRUE;
     }
 

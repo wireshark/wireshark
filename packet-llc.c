@@ -2,7 +2,7 @@
  * Routines for IEEE 802.2 LLC layer
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-llc.c,v 1.69 2000/08/25 06:31:25 guy Exp $
+ * $Id: packet-llc.c,v 1.70 2000/11/16 07:35:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -38,7 +38,6 @@
 #include "xdlc.h"
 #include "etypes.h"
 #include "llcsaps.h"
-#include "packet-bpdu.h"
 #include "packet-cdp.h"
 #include "packet-cgmp.h"
 #include "packet-ip.h"
@@ -62,6 +61,8 @@ static gint ett_llc = -1;
 static gint ett_llc_ctrl = -1;
 
 static dissector_table_t subdissector_table;
+
+static dissector_handle_t bpdu_handle;
 
 typedef void (capture_func_t)(const u_char *, int, packet_counts *);
 
@@ -357,7 +358,7 @@ dissect_llc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				ethertype(etype, tvb, 8,
 				    pinfo, tree, llc_tree, hf_llc_type);
 			} else
-				dissect_data(next_tvb, pinfo, tree);
+				dissect_data(next_tvb, 0, pinfo, tree);
 			break;
 
 		case OUI_CISCO:
@@ -392,11 +393,11 @@ dissect_llc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					break;
 
 				default:
-					dissect_data(next_tvb, pinfo, tree);
+					dissect_data(next_tvb, 0, pinfo, tree);
 					break;
 				}
 			} else
-				dissect_data(next_tvb, pinfo, tree);
+				dissect_data(next_tvb, 0, pinfo, tree);
 			break;
 
 		case OUI_CABLE_BPDU:    /* DOCSIS cable modem spanning tree BPDU */
@@ -404,7 +405,7 @@ dissect_llc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				proto_tree_add_uint(llc_tree,
 				hf_llc_pid, tvb, 6, 2, etype);
 			}
-			dissect_bpdu(pd, offset, pinfo->fd, tree);
+			call_dissector(bpdu_handle, next_tvb, pinfo, tree);
 			break;
 
 		default:
@@ -412,7 +413,7 @@ dissect_llc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				proto_tree_add_uint(llc_tree,
 				    hf_llc_pid, tvb, 6, 2, etype);
 			}
-			dissect_data(next_tvb, pinfo, tree);
+			dissect_data(next_tvb, 0, pinfo, tree);
 			break;
 		}
 	}
@@ -435,10 +436,10 @@ dissect_llc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			/* do lookup with the subdissector table */
 			if (!dissector_try_port(subdissector_table, dsap,
 			    next_tvb, pinfo, tree)) {
-				dissect_data(next_tvb, pinfo, tree);
+				dissect_data(next_tvb, 0, pinfo, tree);
 			}
 		} else {
-			dissect_data(next_tvb, pinfo, tree);
+			dissect_data(next_tvb, 0, pinfo, tree);
 		}
 	}
 }
@@ -494,4 +495,13 @@ proto_register_llc(void)
 
 /* subdissector code */
 	subdissector_table = register_dissector_table("llc.dsap");
+}
+
+void
+proto_reg_handoff_llc(void)
+{
+	/*
+	 * Get a handle for the BPDU dissector.
+	 */
+	bpdu_handle = find_dissector("bpdu");
 }

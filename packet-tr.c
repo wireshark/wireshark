@@ -2,7 +2,7 @@
  * Routines for Token-Ring packet disassembly
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-tr.c,v 1.48 2000/11/13 05:11:16 guy Exp $
+ * $Id: packet-tr.c,v 1.49 2000/11/16 07:35:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -528,7 +528,7 @@ dissect_tr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			break;
 		default:
 			/* non-MAC, non-LLC, i.e., "Reserved" */
-			dissect_data(next_tvb, pinfo, tree);
+			dissect_data(next_tvb, 0, pinfo, tree);
 			break;
 	}
 }

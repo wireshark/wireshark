@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.5 2000/11/15 07:07:47 guy Exp $
+ * $Id: packet.h,v 1.6 2000/11/16 07:35:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -327,7 +327,7 @@ void init_dissect_rpc(void);
 void dissect_packet(tvbuff_t **p_tvb, union wtap_pseudo_header *pseudo_header,
 		const u_char *pd, frame_data *fd, proto_tree *tree);
 void old_dissect_data(const u_char *, int, frame_data *, proto_tree *);
-void dissect_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+void dissect_data(tvbuff_t *tvb, int, packet_info *pinfo, proto_tree *tree);
 
 
 /* These functions are in ethertype.c */

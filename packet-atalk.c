@@ -1,7 +1,7 @@
 /* packet-atalk.c
  * Routines for Appletalk packet disassembly (DDP, currently).
  *
- * $Id: packet-atalk.c,v 1.43 2000/11/13 08:57:57 guy Exp $
+ * $Id: packet-atalk.c,v 1.44 2000/11/16 07:35:37 guy Exp $
  *
  * Simon Wilkinson <sxw@dcs.ed.ac.uk>
  *
@@ -440,7 +440,7 @@ dissect_ddp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   new_tvb = tvb_new_subset(tvb, DDP_HEADER_SIZE, -1, -1);
 
   if (!dissector_try_port(ddp_dissector_table, ddp.type, new_tvb, pinfo, tree))
-    dissect_data(new_tvb, pinfo, tree);
+    dissect_data(new_tvb, 0, pinfo, tree);
 }
 
 void

@@ -2,7 +2,7 @@
  * Routines for Sinec H1 packet disassembly
  * Gerrit Gehnen <G.Gehnen@atrie.de>
  *
- * $Id: packet-h1.c,v 1.12 2000/08/13 14:08:11 deniel Exp $
+ * $Id: packet-h1.c,v 1.13 2000/11/16 07:35:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -242,7 +242,7 @@ static gboolean dissect_h1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  position += tvb_get_guint8(tvb,offset + position + 1);	/* Goto next section */
 	}			/* ..while */
     next_tvb = tvb_new_subset(tvb, offset+tvb_get_guint8(tvb,offset+2), -1, -1);
-    dissect_data(next_tvb, pinfo, tree);
+    dissect_data(next_tvb, 0, pinfo, tree);
 
     return TRUE;
 }

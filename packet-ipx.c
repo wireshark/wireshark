@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-ipx.c,v 1.66 2000/11/10 21:09:49 guy Exp $
+ * $Id: packet-ipx.c,v 1.67 2000/11/16 07:35:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -386,7 +386,7 @@ dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (dissector_try_port(ipx_socket_dissector_table, ipx_ssocket,
 	    next_tvb, pinfo, tree))
 		return;
-	dissect_data(next_tvb, pinfo, tree);
+	dissect_data(next_tvb, 0, pinfo, tree);
 }
 
 
@@ -472,7 +472,7 @@ dissect_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_item(spx_tree, hf_spx_all_nr, tvb, 10, 2, FALSE);
 
 		next_tvb = tvb_new_subset(tvb, SPX_HEADER_LEN, -1, -1);
-		dissect_data(next_tvb, pinfo, tree);
+		dissect_data(next_tvb, 0, pinfo, tree);
 	}
 }
 

@@ -1,7 +1,7 @@
 /* ethertype.c
  * Routines for calling the right protocol for the ethertype.
  *
- * $Id: packet-ethertype.c,v 1.7 2000/08/09 22:10:23 deniel Exp $
+ * $Id: packet-ethertype.c,v 1.8 2000/11/16 07:35:37 guy Exp $
  *
  * Gilbert Ramirez <gram@xiexie.org>
  *
@@ -114,7 +114,7 @@ ethertype(guint16 etype, tvbuff_t *tvb, int offset_after_etype, packet_info *pin
 	    next_tvb, pinfo, tree)) {
 		/* No sub-dissector found.
 		   Label rest of packet as "Data" */
-		dissect_data(next_tvb, pinfo, tree);
+		dissect_data(next_tvb, 0, pinfo, tree);
 
 		/* Label protocol */
 		switch(etype) {

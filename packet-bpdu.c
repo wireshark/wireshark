@@ -1,7 +1,7 @@
 /* packet-bpdu.c
  * Routines for BPDU (Spanning Tree Protocol) disassembly
  *
- * $Id: packet-bpdu.c,v 1.13 2000/08/13 14:08:04 deniel Exp $
+ * $Id: packet-bpdu.c,v 1.14 2000/11/16 07:35:37 guy Exp $
  *
  * Copyright 1999 Christophe Tronche <ch.tronche@computer.org>
  * 
@@ -75,16 +75,19 @@ static int hf_bpdu_forward_delay = -1;
 
 static gint ett_bpdu = -1;
 
-void dissect_bpdu(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
+static void
+dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
       guint16 protocol_identifier;
       guint8  protocol_version_identifier;
       guint8  bpdu_type;
       guint8  flags;
       guint16 root_identifier_bridge_priority;
-      gchar   *root_identifier_mac;
+      guint8  *root_identifier_mac;
+      gchar   *root_identifier_mac_str;
       guint32 root_path_cost;
       guint16 bridge_identifier_bridge_priority;
-      gchar   *bridge_identifier_mac;
+      guint8  *bridge_identifier_mac;
+      gchar   *bridge_identifier_mac_str;
       guint16 port_identifier;
       double message_age;
       double max_age;
@@ -93,54 +96,55 @@ void dissect_bpdu(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
       
       proto_tree *bpdu_tree;
       proto_item *ti;
-      const u_char *bpdu;
 
-      OLD_CHECK_DISPLAY_AS_DATA(proto_bpdu, pd, offset, fd, tree);
+      CHECK_DISPLAY_AS_DATA(proto_bpdu, tvb, pinfo, tree);
 
-      bpdu = pd + offset;
-      bpdu_type = (guint8) bpdu[BPDU_TYPE];
-      flags = (guint8) bpdu[BPDU_FLAGS];
-      root_identifier_bridge_priority = pntohs(bpdu + BPDU_ROOT_IDENTIFIER);
-      root_identifier_mac = ether_to_str(bpdu + BPDU_ROOT_IDENTIFIER + 2);
-      root_path_cost = pntohl(bpdu + BPDU_ROOT_PATH_COST);
-      port_identifier = pntohs(bpdu + BPDU_PORT_IDENTIFIER);
+      pinfo->current_proto = "STP";
 
-      if (check_col(fd, COL_PROTOCOL)) {
-	    col_add_str(fd, COL_PROTOCOL, "STP"); /* Spanning Tree Protocol */
+      bpdu_type = tvb_get_guint8(tvb, BPDU_TYPE);
+      flags = tvb_get_guint8(tvb, BPDU_FLAGS);
+      root_identifier_bridge_priority = tvb_get_ntohs(tvb, BPDU_ROOT_IDENTIFIER);
+      root_identifier_mac = tvb_get_ptr(tvb, BPDU_ROOT_IDENTIFIER + 2, 6);
+      root_identifier_mac_str = ether_to_str(root_identifier_mac);
+      root_path_cost = tvb_get_ntohl(tvb, BPDU_ROOT_PATH_COST);
+      port_identifier = tvb_get_ntohs(tvb, BPDU_PORT_IDENTIFIER);
+
+      if (check_col(pinfo->fd, COL_PROTOCOL)) {
+	    col_add_str(pinfo->fd, COL_PROTOCOL, "STP"); /* Spanning Tree Protocol */
       }
 
-      if (check_col(fd, COL_INFO)) {
+      if (check_col(pinfo->fd, COL_INFO)) {
 	    if (bpdu_type == 0)
-		  col_add_fstr(fd, COL_INFO, "Conf. %sRoot = %d/%s  Cost = %d  Port = 0x%04x", 
+		  col_add_fstr(pinfo->fd, COL_INFO, "Conf. %sRoot = %d/%s  Cost = %d  Port = 0x%04x", 
 			       flags & 0x1 ? "TC + " : "",
-			       root_identifier_bridge_priority, root_identifier_mac, root_path_cost,
+			       root_identifier_bridge_priority, root_identifier_mac_str, root_path_cost,
 			       port_identifier);
 	    else if (bpdu_type == 0x80)
-		  col_add_fstr(fd, COL_INFO, "Topology Change Notification");
+		  col_add_fstr(pinfo->fd, COL_INFO, "Topology Change Notification");
       }
 
       if (tree) {
-	    protocol_identifier = pntohs(bpdu + BPDU_IDENTIFIER);
-	    protocol_version_identifier = (guint8) bpdu[BPDU_VERSION_IDENTIFIER];
+	    protocol_identifier = tvb_get_ntohs(tvb, BPDU_IDENTIFIER);
+	    protocol_version_identifier = tvb_get_guint8(tvb, BPDU_VERSION_IDENTIFIER);
 
-	    ti = proto_tree_add_protocol_format(tree, proto_bpdu, NullTVB, offset, 35,
+	    ti = proto_tree_add_protocol_format(tree, proto_bpdu, tvb, 0, 35,
 			    	"Spanning Tree Protocol");
 	    bpdu_tree = proto_item_add_subtree(ti, ett_bpdu);
-	    proto_tree_add_uint_format(bpdu_tree, hf_bpdu_proto_id, NullTVB,
-				       offset + BPDU_IDENTIFIER, 2, 
+	    proto_tree_add_uint_format(bpdu_tree, hf_bpdu_proto_id, tvb,
+				       BPDU_IDENTIFIER, 2, 
 				       protocol_identifier,
 				       "Protocol Identifier: 0x%04x (%s)", 
 				       protocol_identifier,
 				       protocol_identifier == 0 ? 
 				       "Spanning Tree" : "Unknown Protocol");
 
-	    proto_tree_add_uint(bpdu_tree, hf_bpdu_version_id, NullTVB, 
-				offset + BPDU_VERSION_IDENTIFIER, 1, 
+	    proto_tree_add_uint(bpdu_tree, hf_bpdu_version_id, tvb, 
+				BPDU_VERSION_IDENTIFIER, 1, 
 				protocol_version_identifier);
 	    if (protocol_version_identifier != 0)
-		  proto_tree_add_text(bpdu_tree, NullTVB, offset + BPDU_VERSION_IDENTIFIER, 1, "   (Warning: this version of packet-bpdu only knows about version = 0)");
-	    proto_tree_add_uint_format(bpdu_tree, hf_bpdu_type, NullTVB,
-				       offset + BPDU_TYPE, 1, 
+		  proto_tree_add_text(bpdu_tree, tvb, BPDU_VERSION_IDENTIFIER, 1, "   (Warning: this version of packet-bpdu only knows about version = 0)");
+	    proto_tree_add_uint_format(bpdu_tree, hf_bpdu_type, tvb,
+				       BPDU_TYPE, 1, 
 				       bpdu_type,
 				       "BPDU Type: 0x%02x (%s)", 
 				       bpdu_type,
@@ -148,57 +152,58 @@ void dissect_bpdu(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 				       bpdu_type == 0x80 ? "Topology Change Notification" : "Unknown");
 
 	    if (bpdu_type != 0) {
-	      old_dissect_data(pd, offset + BPDU_TYPE + 1, fd, tree);
+	      dissect_data(tvb, BPDU_TYPE + 1, pinfo, tree);
 	      return;
 	    }
 
-	    bridge_identifier_bridge_priority = pntohs(bpdu + BPDU_BRIDGE_IDENTIFIER);
-	    bridge_identifier_mac = ether_to_str(bpdu + BPDU_BRIDGE_IDENTIFIER + 2);
-	    message_age = pntohs(bpdu + BPDU_MESSAGE_AGE) / 256.0;
-	    max_age = pntohs(bpdu + BPDU_MAX_AGE) / 256.0;
-	    hello_time = pntohs(bpdu + BPDU_HELLO_TIME) / 256.0;
-	    forward_delay = pntohs(bpdu + BPDU_FORWARD_DELAY) / 256.0;
+	    bridge_identifier_bridge_priority = tvb_get_ntohs(tvb, BPDU_BRIDGE_IDENTIFIER);
+	    bridge_identifier_mac = tvb_get_ptr(tvb, BPDU_BRIDGE_IDENTIFIER + 2, 6);
+	    bridge_identifier_mac_str = ether_to_str(bridge_identifier_mac);
+	    message_age = tvb_get_ntohs(tvb, BPDU_MESSAGE_AGE) / 256.0;
+	    max_age = tvb_get_ntohs(tvb, BPDU_MAX_AGE) / 256.0;
+	    hello_time = tvb_get_ntohs(tvb, BPDU_HELLO_TIME) / 256.0;
+	    forward_delay = tvb_get_ntohs(tvb, BPDU_FORWARD_DELAY) / 256.0;
 
-	    proto_tree_add_uint(bpdu_tree, hf_bpdu_flags, NullTVB, 
-				offset + BPDU_FLAGS, 1, flags);
+	    proto_tree_add_uint(bpdu_tree, hf_bpdu_flags, tvb, 
+				BPDU_FLAGS, 1, flags);
 	    if (flags & 0x80)
-		  proto_tree_add_text(bpdu_tree, NullTVB, offset + BPDU_FLAGS, 1, "   1... ....  Topology Change Acknowledgment");
+		  proto_tree_add_text(bpdu_tree, tvb, BPDU_FLAGS, 1, "   1... ....  Topology Change Acknowledgment");
 	    if (flags & 0x01)
-		  proto_tree_add_text(bpdu_tree, NullTVB, offset + BPDU_FLAGS, 1, "   .... ...1  Topology Change");
+		  proto_tree_add_text(bpdu_tree, tvb, BPDU_FLAGS, 1, "   .... ...1  Topology Change");
 
-	    proto_tree_add_ether_hidden(bpdu_tree, hf_bpdu_root_mac, NullTVB,
-				       offset + BPDU_ROOT_IDENTIFIER + 2, 6,
-				       bpdu + BPDU_ROOT_IDENTIFIER + 2);
-	    proto_tree_add_text(bpdu_tree, NullTVB, 
-				offset + BPDU_ROOT_IDENTIFIER, 8, 
+	    proto_tree_add_ether_hidden(bpdu_tree, hf_bpdu_root_mac, tvb,
+				       BPDU_ROOT_IDENTIFIER + 2, 6,
+				       root_identifier_mac);
+	    proto_tree_add_text(bpdu_tree, tvb, 
+				BPDU_ROOT_IDENTIFIER, 8, 
 				"Root Identifier: %d / %s", 
 				root_identifier_bridge_priority, 
-				root_identifier_mac);
-	    proto_tree_add_uint(bpdu_tree, hf_bpdu_root_cost, NullTVB, 
-				offset + BPDU_ROOT_PATH_COST, 4, 
+				root_identifier_mac_str);
+	    proto_tree_add_uint(bpdu_tree, hf_bpdu_root_cost, tvb, 
+				BPDU_ROOT_PATH_COST, 4, 
 				root_path_cost);
-	    proto_tree_add_text(bpdu_tree, NullTVB, 
-				offset + BPDU_BRIDGE_IDENTIFIER, 8, 
+	    proto_tree_add_text(bpdu_tree, tvb, 
+				BPDU_BRIDGE_IDENTIFIER, 8, 
 				"Bridge Identifier: %d / %s", 
 				bridge_identifier_bridge_priority, 
-				bridge_identifier_mac);
-	    proto_tree_add_ether_hidden(bpdu_tree, hf_bpdu_bridge_mac, NullTVB,
-				       offset + BPDU_BRIDGE_IDENTIFIER + 2, 6,
-				       bpdu + BPDU_BRIDGE_IDENTIFIER + 2);
-	    proto_tree_add_uint(bpdu_tree, hf_bpdu_port_id, NullTVB,
-				offset + BPDU_PORT_IDENTIFIER, 2, 
+				bridge_identifier_mac_str);
+	    proto_tree_add_ether_hidden(bpdu_tree, hf_bpdu_bridge_mac, tvb,
+				       BPDU_BRIDGE_IDENTIFIER + 2, 6,
+				       bridge_identifier_mac);
+	    proto_tree_add_uint(bpdu_tree, hf_bpdu_port_id, tvb,
+				BPDU_PORT_IDENTIFIER, 2, 
 				port_identifier);
-	    proto_tree_add_double(bpdu_tree, hf_bpdu_msg_age, NullTVB,
-				offset + BPDU_MESSAGE_AGE, 2, 
+	    proto_tree_add_double(bpdu_tree, hf_bpdu_msg_age, tvb,
+				BPDU_MESSAGE_AGE, 2, 
 				message_age);
-	    proto_tree_add_double(bpdu_tree, hf_bpdu_max_age, NullTVB,
-				offset + BPDU_MAX_AGE, 2, 
+	    proto_tree_add_double(bpdu_tree, hf_bpdu_max_age, tvb,
+				BPDU_MAX_AGE, 2, 
 				max_age);
-	    proto_tree_add_double(bpdu_tree, hf_bpdu_hello_time, NullTVB,
-				offset + BPDU_HELLO_TIME, 2, 
+	    proto_tree_add_double(bpdu_tree, hf_bpdu_hello_time, tvb,
+				BPDU_HELLO_TIME, 2, 
 				hello_time);
-	    proto_tree_add_double(bpdu_tree, hf_bpdu_forward_delay, NullTVB,
-				offset + BPDU_FORWARD_DELAY, 2, 
+	    proto_tree_add_double(bpdu_tree, hf_bpdu_forward_delay, tvb,
+				BPDU_FORWARD_DELAY, 2, 
 				forward_delay);
       }
 }
@@ -264,10 +269,12 @@ proto_register_bpdu(void)
   proto_bpdu = proto_register_protocol("Spanning Tree Protocol", "stp");
   proto_register_field_array(proto_bpdu, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+
+  register_dissector("bpdu", dissect_bpdu);
 }
 
 void
 proto_reg_handoff_bpdu(void)
 {
-  old_dissector_add("llc.dsap", SAP_BPDU, dissect_bpdu);
+  dissector_add("llc.dsap", SAP_BPDU, dissect_bpdu);
 }
