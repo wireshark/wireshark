@@ -1,7 +1,7 @@
 /* packet-vlan.c
  * Routines for VLAN 802.1Q ethernet header disassembly
  *
- * $Id: packet-vlan.c,v 1.4 1999/11/16 11:43:02 guy Exp $
+ * $Id: packet-vlan.c,v 1.5 1999/12/03 21:28:11 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -37,6 +37,7 @@
 
 #include <glib.h>
 #include "packet.h"
+#include "etypes.h"
 
 static int proto_vlan = -1;
 static int hf_vlan_etype = -1;
@@ -75,7 +76,22 @@ dissect_vlan(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     proto_tree_add_item(vlan_tree, hf_vlan_id, offset, 2, tci);
   }
 
-  ethertype(encap_proto, offset+4, pd, fd, tree, vlan_tree, hf_vlan_etype);
+  if ( encap_proto <= IEEE_802_3_MAX_LEN) {
+#if 0
+    if ( pd[offset+4] == 0xff && pd[offset+5] == 0xff ) {
+      dissect_ipx(pd,offset+4,fd,tree);
+		/* should capture_ipx */
+	} else {
+      dissect_llc(pd,offset+4,fd,tree);
+      /* should capture_llc */
+    }
+#else
+	dissect_data(pd,offset+4,fd,tree);
+	/* I don't know what to here, so am just doing as data for now */
+#endif
+  } else {
+    ethertype(encap_proto, offset+4, pd, fd, tree, vlan_tree, hf_vlan_etype);
+  }
 }
 
 void
