@@ -12,11 +12,11 @@ FOP_OPTS=-Xmx256m
 # (comment this out, if you don't want pdf or don't have fop installed)
 # for win32 (cygwin) environments (as of fop-0.20 the cygwin script does
 # not use $FOP_OPTS)
-FOP=FOP_OPTS="$(FOP_OPTS)" fop-0.20.5/fop.bat
+FOP=fop-0.20.5/fop.bat
 # for unix like environments (if you have problems with fop, try to use an absolute path here)
 #FOP="/usr/share/fop-0.20.5/fop.sh"
 # One SUSE 9.1 and 9.2 uncomment the following line (make sure you have at least fop-0.20.5-71.2)
-#FOP=FOP_OPTS="$(FOP_OPTS)" fop
+#FOP=fop
 
 # html help compiler (Win32 only)
 # (comment this out, if you don't want chm or don't have hhc installed)
@@ -31,26 +31,194 @@ XSLTPROC="xsltproc"
 # the XML validator (from the xsltproc package)
 XMLLINT="xmllint"
 
-all: eug edg 
+# Automatically generate .pdf files from .fo files
+.fo.pdf:
+	FOP_OPTS="$(FOP_OPTS)" $(FOP) $< $@
+
+EUG_FILES =	\
+	eug_src/EUG_app_files.xml \
+	eug_src/EUG_app_howitworks.xml \
+	eug_src/EUG_app_messages.xml \
+	eug_src/EUG_app_protocols.xml \
+	eug_src/EUG_app_tools.xml \
+	eug_src/EUG_chapter_advanced.xml \
+	eug_src/EUG_chapter_build_install.xml \
+	eug_src/EUG_chapter_capture.xml \
+	eug_src/EUG_chapter_customize.xml \
+	eug_src/EUG_chapter_introduction.xml \
+	eug_src/EUG_chapter_io.xml \
+	eug_src/EUG_chapter_statistics.xml \
+	eug_src/EUG_chapter_troubleshoot.xml \
+	eug_src/EUG_chapter_use.xml \
+	eug_src/EUG_chapter_work.xml \
+	eug_src/EUG_meta_info.xml \
+	eug_src/EUG_preface.xml
+
+EUG_GRAPHICS =	\
+	graphics/ethereal-3pane.png			\
+	graphics/ethereal-analyze-menu.png		\
+	graphics/ethereal-bytes-pane-popup-menu.png	\
+	graphics/ethereal-bytes-pane-tabs.png		\
+	graphics/ethereal-bytes-pane.png		\
+	graphics/ethereal-capture-info.png		\
+	graphics/ethereal-capture-interfaces.png	\
+	graphics/ethereal-capture-menu.png		\
+	graphics/ethereal-capture-options.png		\
+	graphics/ethereal-capture-preferences.png	\
+	graphics/ethereal-choose-color-rule.png		\
+	graphics/ethereal-coloring-rules-dialog.png	\
+	graphics/ethereal-decode-as-show.png		\
+	graphics/ethereal-decode-as.png			\
+	graphics/ethereal-details-pane-popup-menu.png	\
+	graphics/ethereal-details-pane.png		\
+	graphics/ethereal-display-filter-tcp.png	\
+	graphics/ethereal-edit-color-rule-dialog.png	\
+	graphics/ethereal-edit-menu.png			\
+	graphics/ethereal-empty.png			\
+	graphics/ethereal-enabled-protocols.png		\
+	graphics/ethereal-error-file-exists.png		\
+	graphics/ethereal-error-open.png		\
+	graphics/ethereal-export-pdml.png		\
+	graphics/ethereal-export-plain.png		\
+	graphics/ethereal-export-ps.png			\
+	graphics/ethereal-export-psml.png		\
+	graphics/ethereal-export-selected.png		\
+	graphics/ethereal-file-menu.png			\
+	graphics/ethereal-filter-add-expression.png	\
+	graphics/ethereal-filter-toolbar.png		\
+	graphics/ethereal-filters-2.png			\
+	graphics/ethereal-filters.png			\
+	graphics/ethereal-find-packet.png		\
+	graphics/ethereal-follow-stream.png		\
+	graphics/ethereal-go-menu.png			\
+	graphics/ethereal-goto-packet.png		\
+	graphics/ethereal-gui-colors-preferences.png	\
+	graphics/ethereal-gui-columns-preferences.png	\
+	graphics/ethereal-gui-font-preferences.png	\
+	graphics/ethereal-gui-layout-preferences.png	\
+	graphics/ethereal-gui-preferences.png		\
+	graphics/ethereal-help-menu.png			\
+	graphics/ethereal-list-pane.png			\
+	graphics/ethereal-logo.png			\
+	graphics/ethereal-main-toolbar.png		\
+	graphics/ethereal-main.png			\
+	graphics/ethereal-menu.png			\
+	graphics/ethereal-merge.png			\
+	graphics/ethereal-nameresolution-preferences.png	\
+	graphics/ethereal-open.png			\
+	graphics/ethereal-packet-format.png		\
+	graphics/ethereal-packet-pane-popup-menu.png	\
+	graphics/ethereal-packet-range.png		\
+	graphics/ethereal-packet-selected.png		\
+	graphics/ethereal-packet-sep-win.png		\
+	graphics/ethereal-print.png			\
+	graphics/ethereal-printing-preferences.png	\
+	graphics/ethereal-save-as.png			\
+	graphics/ethereal-statistics-menu.png		\
+	graphics/ethereal-stats-conversations.png	\
+	graphics/ethereal-stats-endpoints.png		\
+	graphics/ethereal-stats-hierarchy.png		\
+	graphics/ethereal-stats-iographs.png		\
+	graphics/ethereal-stats-srt-dcerpc-filter.png	\
+	graphics/ethereal-stats-srt-dcerpc.png		\
+	graphics/ethereal-stats-summary.png		\
+	graphics/ethereal-statusbar-empty.png		\
+	graphics/ethereal-statusbar-loaded.png		\
+	graphics/ethereal-statusbar-selected.png	\
+	graphics/ethereal-time-reference.png		\
+	graphics/ethereal-view-menu.png			\
+	graphics/note.png				\
+	graphics/tip.png				\
+	graphics/warning.png				\
+	graphics/toolbar/capture_24.png 		\
+	graphics/toolbar/cfilter_24.png			\
+	graphics/toolbar/dfilter_24.png			\
+	graphics/toolbar/stock_add_24.png		\
+	graphics/toolbar/stock_bottom_24.png		\
+	graphics/toolbar/stock_close_24.png		\
+	graphics/toolbar/stock_colorselector_24.png	\
+	graphics/toolbar/stock_help_24.png		\
+	graphics/toolbar/stock_jump_to_24.png		\
+	graphics/toolbar/stock_left_arrow_24.png	\
+	graphics/toolbar/stock_open_24.png		\
+	graphics/toolbar/stock_preferences_24.png	\
+	graphics/toolbar/stock_print_24.png		\
+	graphics/toolbar/stock_properties_24.png	\
+	graphics/toolbar/stock_refresh_24.png		\
+	graphics/toolbar/stock_right_arrow_24.png	\
+	graphics/toolbar/stock_save_24.png		\
+	graphics/toolbar/stock_save_as_24.png		\
+	graphics/toolbar/stock_search_24.png		\
+	graphics/toolbar/stock_stop_24.png		\
+	graphics/toolbar/stock_top_24.png		\
+	graphics/toolbar/stock_zoom_1_24.png		\
+	graphics/toolbar/stock_zoom_in_24.png		\
+	graphics/toolbar/stock_zoom_out_24.png
+
+EDG_FILES =	\
+	edg_src/EDG_chapter_build_intro.xml	\
+	edg_src/EDG_chapter_capture.xml		\
+	edg_src/EDG_chapter_dissection.xml	\
+	edg_src/EDG_chapter_env_intro.xml	\
+	edg_src/EDG_chapter_libraries.xml	\
+	edg_src/EDG_chapter_sources.xml		\
+	edg_src/EDG_chapter_tools.xml		\
+	edg_src/EDG_chapter_userinterface.xml	\
+	edg_src/EDG_chapter_works.xml		\
+	edg_src/EDG_meta_info.xml		\
+	edg_src/EDG_preface.xml
+
+EDG_GRAPHICS =	\
+	edg_graphics/ethereal-capture-normal.dia	\
+	edg_graphics/ethereal-capture-normal.png	\
+	edg_graphics/ethereal-capture-sync.dia		\
+	edg_graphics/ethereal-capture-sync.png		\
+	edg_graphics/ethereal-capture_internals.dia	\
+	edg_graphics/ethereal-capture_internals.png	\
+	edg_graphics/ethereal-function-blocks.dia	\
+	edg_graphics/ethereal-function-blocks.png	\
+	edg_graphics/ethereal-logo.png			\
+	edg_graphics/note.png				\
+	edg_graphics/tip.png				\
+	edg_graphics/warning.png
+
+# user-guide.xml must be first in the list (to match $<)
+EUG_SOURCE =	\
+	user-guide.xml		\
+	svn_version.xml		\
+	$(EUG_FILES)		\
+	$(EUG_GRAPHICS)
+
+# developer-guide.xml must be first in the list (to match $<)
+EDG_SOURCE =	\
+	developer-guide.xml	\
+	svn_version.xml		\
+	$(EDG_FILES)		\
+	$(EDG_GRAPHICS)
+
+CLEANFILES =	\
+	*.chm			\
+	*.fo			\
+	*.hhc			\
+	*.hhp			\
+	*.pdf			\
+	*.validated		\
+	edg_chm			\
+	edg_html		\
+	edg_html_chunked	\
+	eug_chm			\
+	eug_html		\
+	eug_html_chunked	\
+	htmlhelp.*		\
+	svn_version.xml		\
+
+
+all: eug.validated edg.validated eug edg
 
 clean:
-	rm -f *.html
-	rm -f htmlhelp.*
-	rm -f *.hhc
-	rm -f *.hhp
-	rm -f *.fo
-	rm -f *.pdf
-	rm -f *.chm
-	rm -f svn_version.xml
-	rm -rf eug_html
-	rm -rf eug_html_chunked
-	rm -rf eug_chm
-	rm -rf edg_html
-	rm -rf edg_html_chunked
-	rm -rf edg_chm
+	rm -rf $(CLEANFILES)
 
-
-eug: eug_validate eug_pdf_a4 eug_pdf_us eug_html eug_html_chunked eug_chm 
+.SUFFIXES: .fo .pdf
 
 #
 # on every build, record the working copy revision string
@@ -62,118 +230,115 @@ svn_version.xml: FORCE
 	echo -n '<!ENTITY SvnVersion "' > svn_version.xml
 	svnversion -n .                   >> svn_version.xml
 	echo '">'   >> svn_version.xml
-    
+
+
+eug: user-guide-a4.pdf user-guide-us.pdf user-guide.html eug_html_chunked user-guide.chm
+
 # validate the content
-eug_validate: svn_version.xml
+eug.validated: $(EUG_SOURCE)
 	@ echo --- VALIDATING XML ---
-	$(XMLLINT) --valid --noout user-guide.xml
+	$(XMLLINT) --valid --noout $<
+	touch $@
 
 # create html single page file
-eug_html: svn_version.xml
+user-guide.html: $(EUG_SOURCE)
 	@ echo --- HTML SINGLE PAGE ---
-	mkdir -p eug_html
-	mkdir -p eug_html/graphics
 	mkdir -p eug_html/graphics/toolbar
-	cp ./graphics/*.* eug_html/graphics
-	cp ./graphics/toolbar/*.* eug_html/graphics/toolbar
-	$(XSLTPROC) --nonet http://docbook.sourceforge.net/release/xsl/current/html/docbook.xsl user-guide.xml > eug_html/user-guide.html
+	cp graphics/*.* eug_html/graphics
+	cp graphics/toolbar/* eug_html/graphics/toolbar
+	$(XSLTPROC) --nonet http://docbook.sourceforge.net/release/xsl/current/html/docbook.xsl $< > eug_html/$@
+	-chmod -R og+rX eug_html
 	
 # create html chunked page files
-eug_html_chunked: svn_version.xml
+eug_html_chunked: $(EUG_SOURCE)
 	@ echo --- HTML CHUNKED ---
-	mkdir -p eug_html_chunked
-	mkdir -p eug_html_chunked/graphics
 	mkdir -p eug_html_chunked/graphics/toolbar
-	cp ./graphics/*.* eug_html_chunked/graphics
-	cp ./graphics/toolbar/*.* eug_html_chunked/graphics/toolbar
-	$(XSLTPROC) --stringparam base.dir eug_html_chunked/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 --nonet http://docbook.sourceforge.net/release/xsl/current/html/chunk.xsl user-guide.xml
+	cp graphics/*.* eug_html_chunked/graphics
+	cp graphics/toolbar/* eug_html_chunked/graphics/toolbar
+	$(XSLTPROC) --stringparam base.dir eug_html_chunked/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 --nonet http://docbook.sourceforge.net/release/xsl/current/html/chunk.xsl $<
+	-chmod -R og+rX eug_html_chunked
 
 # create pdf file (through XSL-FO), portrait pages on US letter paper (the default)
 # you will get lot's of errors, but that's ok
-eug_pdf_us: svn_version.xml
+user-guide-us.fo: $(EUG_SOURCE)
 ifdef FOP
 	@ echo --- PDF US PAPER ---
-	$(XSLTPROC) --stringparam paper.type letter --nonet custom_layer_pdf.xsl user-guide.xml > user-guide-us.fo
-	$(FOP) user-guide-us.fo user-guide-us.pdf
+	$(XSLTPROC) --stringparam paper.type letter --nonet custom_layer_pdf.xsl $< > $@
 endif
 
 # create pdf file (through XSL-FO), portrait pages on A4 paper
 # you will get lot's of errors, but that's ok
-eug_pdf_a4: svn_version.xml
+user-guide-a4.fo: $(EUG_SOURCE)
 ifdef FOP
 	@ echo --- PDF A4 PAPER ---
-	$(XSLTPROC) --stringparam paper.type A4 --nonet custom_layer_pdf.xsl user-guide.xml > user-guide-a4.fo
-	$(FOP) user-guide-a4.fo user-guide-a4.pdf
+	$(XSLTPROC) --stringparam paper.type A4 --nonet custom_layer_pdf.xsl $< > $@
 endif
 
 # create MS html help file (through html chunked pages)
-eug_chm: svn_version.xml
+user-guide.chm: $(EUG_SOURCE)
 ifdef HHC
 	@ echo --- MICROSOFT HTML HELP ---
-	mkdir -p eug_chm
-	mkdir -p eug_chm/graphics
 	mkdir -p eug_chm/graphics/toolbar
-	cp ./graphics/*.* eug_chm/graphics
-	cp ./graphics/toolbar/*.* eug_chm/graphics/toolbar
-	$(XSLTPROC) --stringparam base.dir eug_chm/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 --nonet http://docbook.sourceforge.net/release/xsl/current/htmlhelp/htmlhelp.xsl user-guide.xml
+	-cp graphics/*.* eug_chm/graphics/
+	-cp graphics/toolbar/* eug_chm/graphics/toolbar/
+	$(XSLTPROC) --stringparam base.dir eug_chm/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 --nonet http://docbook.sourceforge.net/release/xsl/current/htmlhelp/htmlhelp.xsl $<
 	-$(HHC) htmlhelp.hhp
-	-mv htmlhelp.chm user-guide.chm
+	-mv htmlhelp.chm $@
 	-rm -r htmlhelp.hhp
 	-rm -r toc.hhc
 endif
 
 
-edg: edg_validate edg_html_chunked edg_pdf_a4 edg_pdf_us edg_html edg_chm 
+edg: developer-guide-a4.pdf developer-guide-us.pdf developer-guide.html edg_html_chunked developer-guide.chm
 
 # validate the content
-edg_validate: svn_version.xml
+edg.validated: $(EDG_SOURCE)
 	@ echo --- VALIDATING XML ---
-	$(XMLLINT) --valid --noout developer-guide.xml
+	$(XMLLINT) --valid --noout $<
+	touch $@
 
 # create html single page file
-edg_html: svn_version.xml
+developer-guide.html: $(EDG_SOURCE)
 	@ echo --- HTML SINGLE PAGE ---
-	mkdir -p edg_html
 	mkdir -p edg_html/edg_graphics
-	cp ./edg_graphics/*.* edg_html/edg_graphics
-	$(XSLTPROC) --nonet http://docbook.sourceforge.net/release/xsl/current/html/docbook.xsl developer-guide.xml > edg_html/developer-guide.html
+	cp edg_graphics/* edg_html/edg_graphics
+	$(XSLTPROC) --nonet http://docbook.sourceforge.net/release/xsl/current/html/docbook.xsl $< > edg_html/$@
+	-chmod -R og+rX edg_html
 	
 # create html chunked page files
-edg_html_chunked: svn_version.xml
+edg_html_chunked: $(EDG_SOURCE)
 	@ echo --- HTML CHUNKED ---
 	mkdir -p edg_html_chunked
-	mkdir -p edg_html_chunked/edg_graphics
-	cp ./edg_graphics/*.* edg_html_chunked/edg_graphics
-	$(XSLTPROC) --stringparam base.dir edg_html_chunked/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path edg_graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 --nonet http://docbook.sourceforge.net/release/xsl/current/html/chunk.xsl developer-guide.xml
+	mkdir -p edg_html/edg_graphics
+	cp edg_graphics/* edg_html/edg_graphics
+	$(XSLTPROC) --stringparam base.dir edg_html_chunked/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path edg_graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 --nonet http://docbook.sourceforge.net/release/xsl/current/html/chunk.xsl $<
+	-chmod -R og+rX edg_html
 
 # create pdf file (through XSL-FO), portrait pages on US letter paper (the default)
 # you will get lot's of errors, but that's ok
-edg_pdf_us: svn_version.xml
+developer-guide-us.fo: $(EDG_SOURCE)
 ifdef FOP
 	@ echo --- PDF US PAPER ---
-	$(XSLTPROC) --stringparam paper.type letter --nonet custom_layer_pdf.xsl developer-guide.xml > developer-guide-us.fo
-	$(FOP) developer-guide-us.fo developer-guide-us.pdf
+	$(XSLTPROC) --stringparam paper.type letter --nonet custom_layer_pdf.xsl $< > $@
 endif
 
 # create pdf file (through XSL-FO), portrait pages on A4 paper
 # you will get lot's of errors, but that's ok
-edg_pdf_a4: svn_version.xml
+developer-guide-a4.fo: $(EDG_SOURCE)
 ifdef FOP
 	@ echo --- PDF A4 PAPER ---
-	$(XSLTPROC) --stringparam paper.type A4 --nonet custom_layer_pdf.xsl developer-guide.xml > developer-guide-a4.fo
-	$(FOP) developer-guide-a4.fo developer-guide-a4.pdf
+	$(XSLTPROC) --stringparam paper.type A4 --nonet custom_layer_pdf.xsl $< > $@
 endif
 
 # create MS html help file (through html chunked pages)
-edg_chm: svn_version.xml
+developer-guide.chm: $(EDG_SOURCE)
 ifdef HHC
 	@ echo --- MICROSOFT HTML HELP ---
-	mkdir -p edg_chm
 	mkdir -p edg_chm/edg_graphics
-	cp ./edg_graphics/*.* edg_chm/edg_graphics
-	$(XSLTPROC) --stringparam base.dir edg_chm/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path edg_graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 --nonet http://docbook.sourceforge.net/release/xsl/current/htmlhelp/htmlhelp.xsl developer-guide.xml
+	cp edg_graphics/* edg_chm/edg_graphics
+	$(XSLTPROC) --stringparam base.dir edg_chm/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path edg_graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 --nonet http://docbook.sourceforge.net/release/xsl/current/htmlhelp/htmlhelp.xsl $<
 	-$(HHC) htmlhelp.hhp
-	-mv htmlhelp.chm developer-guide.chm
+	-mv htmlhelp.chm $@
 	-rm -r htmlhelp.hhp
 	-rm -r toc.hhc
 endif
