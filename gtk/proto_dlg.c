@@ -1,6 +1,6 @@
 /* proto_dlg.c
  *
- * $Id: proto_dlg.c,v 1.27 2003/11/16 23:17:26 guy Exp $
+ * $Id: proto_dlg.c,v 1.28 2004/01/04 02:24:58 guy Exp $
  *
  * Laurent Deniel <laurent.deniel@free.fr>
  *
@@ -567,7 +567,7 @@ show_proto_selection(GtkListStore *proto_store)
 
   for (i = proto_get_first_protocol(&cookie); i != -1;
        i = proto_get_next_protocol(&cookie)) {
-      if (proto_can_disable_protocol(i)) {
+      if (proto_can_toggle_protocol(i)) {
         p = g_malloc(sizeof(protocol_data_t));
         protocol = find_protocol_by_id(i);
         p->name = proto_get_protocol_name(i);
