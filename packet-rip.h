@@ -1,5 +1,7 @@
 /* packet-rip.h (c) 1998 Hannes Boehm */
 
+/* $Id: packet-rip.h,v 1.3 1999/10/06 03:33:48 guy Exp $ */
+
 #define	RIPv1	1
 #define	RIPv2	2
 

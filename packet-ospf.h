@@ -1,5 +1,7 @@
 /* packet-ospf.h (c) 1998 Hannes Boehm */
 
+/* $Id: packet-ospf.h,v 1.4 1999/10/06 03:33:48 guy Exp $ */
+
 #define OSPF_HEADER_LENGTH	24
 
 #define OSPF_HELLO	1
