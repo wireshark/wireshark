@@ -2,7 +2,7 @@
  * Routines for docsis dissection
  * Copyright 2002, Anand V. Narwani <anand[AT]narwani.org>
  *
- * $Id: packet-docsis.c,v 1.13 2003/09/05 07:44:45 jmayer Exp $
+ * $Id: packet-docsis.c,v 1.14 2003/09/09 05:49:15 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -25,7 +25,7 @@
 
 
 /* This code is based on the DOCSIS 1.1 specification available at:
- * http://www.cablemodem.com/specifications.html
+ * http://www.cablemodem.com/specifications/specifications11.html
  *
  * DOCSIS Captures can be facilitated using the Cable Monitor Feature
  * available on Cisco Cable Modem Termination Systems :
@@ -161,10 +161,10 @@ static const value_string fcparm_vals[] = {
   {0x1C, "Concatenation Header"},
   {0, NULL}
 };
-static const value_string ehdron_vals[] = {
-  {0x00, "Extended Header Absent"},
-  {0x01, "Extended Header Present"},
-  {0, NULL}
+
+static const true_false_string ehdron_tfs = {
+  "Extended Header Present",
+  "Extended Header Absent"
 };
 
 static const true_false_string ena_dis_tfs = {
@@ -172,29 +172,16 @@ static const true_false_string ena_dis_tfs = {
   "Disabled"
 };
 
-static const value_string true_false_vals[] = {
-  { 0x00 , "False"},
-  { 0x01 , "True" },
-  { 0x00 , NULL }
+static const true_false_string qind_tfs = {
+  "Rate overrun",
+  "Rate non-overrun"
 };
 
-static const value_string on_off_vals[] = {
-  { 0x00 , "On"},
-  { 0x01 , "Off" },
-  { 0x00 , NULL }
+static const true_false_string odd_even_tfs = {
+  "Odd Key",
+  "Even Key",
 };
 
-static const value_string ena_dis_vals[] = {
-  {0, "Disabled"},
-  {1, "Enabled"},
-  {0, NULL}
-};
-
-static const value_string odd_even_vals[] = {
-  {1, "Odd Key"},
-  {0, "Even Key"},
-  {0, NULL}
-};
 /* Code to actually dissect the packets */
 /* Code to Dissect the extended header */
 static void
@@ -610,7 +597,7 @@ proto_register_docsis (void)
      },
     {&hf_docsis_ehdron,
      {"EHDRON", "docsis.ehdron",
-      FT_UINT8, BASE_HEX, VALS (ehdron_vals), 0x01,
+      FT_BOOLEAN, 8, TFS (&ehdron_tfs), 0x01,
       "Extended Header Presence", HFILL}
      },
     {&hf_docsis_macparm,
@@ -655,12 +642,12 @@ proto_register_docsis (void)
      },
     {&hf_docsis_frag_first,
      {"First Frame", "docsis.frag_first",
-      FT_UINT8, BASE_DEC, VALS(true_false_vals), 0x20,
+      FT_BOOLEAN, 8, NULL, 0x20,
       "First Frame", HFILL}
      },
     {&hf_docsis_frag_last,
      {"Last Frame", "docsis.frag_last",
-      FT_UINT8, BASE_DEC, VALS(true_false_vals), 0x10,
+      FT_BOOLEAN, 8, NULL, 0x10,
       "Last Frame", HFILL}
      },
     {&hf_docsis_frag_seq,
@@ -705,7 +692,7 @@ proto_register_docsis (void)
      },
     {&hf_docsis_ehdr_qind,
      {"Queue Indicator", "docsis.ehdr.qind",
-      FT_UINT8, BASE_DEC, VALS(on_off_vals), 0x80,
+      FT_BOOLEAN, 8, TFS(&qind_tfs), 0x80,
       "Queue Indicator", HFILL}
      },
     {&hf_docsis_ehdr_grants,
@@ -720,12 +707,12 @@ proto_register_docsis (void)
      },
     {&hf_docsis_bpi_en,
      {"Encryption", "docsis.bpi_en",
-      FT_UINT8, BASE_HEX, VALS (ena_dis_vals), 0x80,
+      FT_BOOLEAN, 8, TFS (&ena_dis_tfs), 0x80,
       "BPI Enable", HFILL},
      },
     {&hf_docsis_toggle_bit,
      {"Toggle", "docsis.toggle_bit",
-      FT_UINT8, BASE_HEX, VALS (odd_even_vals), 0x40,
+      FT_BOOLEAN, 8, TFS (&odd_even_tfs), 0x40,
       "Toggle", HFILL},
      },
 
