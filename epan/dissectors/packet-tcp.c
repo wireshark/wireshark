@@ -1130,18 +1130,20 @@ ack_finished:
 	 * i.e. same thing as if the other side would start sending
 	 * zero windows back to us.
 	 */
-	if(win_scale2==-1){
-		if( EQ_SEQ( (seq+seglen), (win2+ack1) ) ){
-			struct tcp_acked *ta;
-			ta=tcp_analyze_get_acked_struct(pinfo->fd->num, TRUE);
-			ta->flags|=TCP_A_WINDOW_FULL;
-		}
-	} else {
-		if( EQ_SEQ( (seq+seglen), ((win2<<win_scale2)+ack1) ) ){
-			struct tcp_acked *ta;
-			ta=tcp_analyze_get_acked_struct(pinfo->fd->num, TRUE);
-			ta->flags|=TCP_A_WINDOW_FULL;
-		}
+	if( !(flags&TH_RST)){ /* RST segments are never WindowFull segments*/
+	  if(win_scale2==-1){
+	    if( EQ_SEQ( (seq+seglen), (win2+ack1) ) ){
+	      struct tcp_acked *ta;
+	      ta=tcp_analyze_get_acked_struct(pinfo->fd->num, TRUE);
+	      ta->flags|=TCP_A_WINDOW_FULL;
+	    }
+	  } else {
+	    if( EQ_SEQ( (seq+seglen), ((win2<<win_scale2)+ack1) ) ){
+	      struct tcp_acked *ta;
+	      ta=tcp_analyze_get_acked_struct(pinfo->fd->num, TRUE);
+	      ta->flags|=TCP_A_WINDOW_FULL;
+	    }
+	  }
 	}
 
 	/* check for zero window probes 
