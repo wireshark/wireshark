@@ -1,7 +1,7 @@
 /* packet-aarp.c
  * Routines for Appletalk ARP packet disassembly
  *
- * $Id: packet-aarp.c,v 1.15 1999/12/08 18:12:06 nneul Exp $
+ * $Id: packet-aarp.c,v 1.16 1999/12/10 00:45:15 nneul Exp $
  *
  * Simon Wilkinson <sxw@dcs.ed.ac.uk>
  *
@@ -56,10 +56,19 @@ static gint ett_aarp = -1;
 #define AARP_PROBE	0x0003
 #endif
 
+/* The following is screwed up shit to deal with the fact that
+   the linux kernel edits the packet inline. */
+#define AARP_REQUEST_SWAPPED    0x0100
+#define AARP_REPLY_SWAPPED  0x0200
+#define AARP_PROBE_SWAPPED  0x0300
+
 static const value_string op_vals[] = {
   {AARP_REQUEST,  "request" },
   {AARP_REPLY,    "reply"   },
   {AARP_PROBE,    "probe"   },
+  {AARP_REQUEST_SWAPPED,  "request" },
+  {AARP_REPLY_SWAPPED,    "reply"   },
+  {AARP_PROBE_SWAPPED,    "probe"   },
   {0,             NULL           } };
 
 /* AARP protocol HARDWARE identifiers. */
@@ -163,12 +172,15 @@ dissect_aarp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   if (check_col(fd, COL_INFO)) {
     switch (ar_op) {
       case AARP_REQUEST:
+      case AARP_REQUEST_SWAPPED:
         col_add_fstr(fd, COL_INFO, "Who has %s?  Tell %s", tpa_str, spa_str);
         break;
       case AARP_REPLY:
+      case AARP_REPLY_SWAPPED:
         col_add_fstr(fd, COL_INFO, "%s is at %s", spa_str, sha_str);
         break;
       case AARP_PROBE:
+      case AARP_PROBE_SWAPPED:
         col_add_fstr(fd, COL_INFO, "Is there a %s", tpa_str);
         break;
       default:
