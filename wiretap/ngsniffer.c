@@ -1,6 +1,6 @@
 /* ngsniffer.c
  *
- * $Id: ngsniffer.c,v 1.49 2000/08/12 07:12:46 guy Exp $
+ * $Id: ngsniffer.c,v 1.50 2000/08/25 21:25:41 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -61,7 +61,6 @@
 
 #include <stdlib.h>
 #include <errno.h>
-#include <time.h>
 #include <string.h>
 #include "wtap-int.h"
 #include "file_wrappers.h"

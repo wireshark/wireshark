@@ -1,6 +1,6 @@
 /* i4btrace.c
  *
- * $Id: i4btrace.c,v 1.8 2000/07/26 00:20:08 guy Exp $
+ * $Id: i4btrace.c,v 1.9 2000/08/25 21:25:37 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1999 by Bert Driehuis <driehuis@playbeing.org>
@@ -26,7 +26,6 @@
 
 #include <stdlib.h>
 #include <errno.h>
-#include <time.h>
 #include "wtap-int.h"
 #include "file_wrappers.h"
 #include "buffer.h"

@@ -1,6 +1,6 @@
 /* radcom.c
  *
- * $Id: radcom.c,v 1.24 2000/07/26 00:20:07 guy Exp $
+ * $Id: radcom.c,v 1.25 2000/08/25 21:25:42 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -26,7 +26,6 @@
 
 #include <stdlib.h>
 #include <errno.h>
-#include <time.h>
 #include "wtap-int.h"
 #include "file_wrappers.h"
 #include "buffer.h"

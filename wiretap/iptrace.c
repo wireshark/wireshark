@@ -1,6 +1,6 @@
 /* iptrace.c
  *
- * $Id: iptrace.c,v 1.29 2000/05/19 23:06:51 gram Exp $
+ * $Id: iptrace.c,v 1.30 2000/08/25 21:25:37 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -25,7 +25,6 @@
 #endif
 #include <stdlib.h>
 #include <errno.h>
-#include <time.h>
 #include <string.h>
 #include "wtap-int.h"
 #include "file_wrappers.h"
