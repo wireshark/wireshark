@@ -2,7 +2,7 @@
  * Routines for Stream Control Transmission Protocol dissection
  * Copyright 2000, Michael Tüxen <Michael.Tuexen@icn.siemens.de>
  *
- * $Id: packet-sctp.c,v 1.13 2001/01/25 06:14:14 guy Exp $
+ * $Id: packet-sctp.c,v 1.14 2001/04/09 00:21:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -575,12 +575,13 @@ dissect_state_cookie_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tr
 static void
 dissect_unrecognized_parameters_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
-  guint16 length, parameter_value_length;
+  guint16 length, padding_length, parameter_value_length;
   tvbuff_t *unrecognized_parameters_tvb;
 
   length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
-  
-  parameter_value_length = length - PARAMETER_HEADER_LENGTH;
+  padding_length = nr_of_padding_bytes(length);
+
+  parameter_value_length = length - PARAMETER_HEADER_LENGTH + padding_length;
 
   unrecognized_parameters_tvb = tvb_new_subset(parameter_tvb, PARAMETER_VALUE_OFFSET, 
 					       parameter_value_length, parameter_value_length);
@@ -732,7 +733,7 @@ dissect_parameter(tvbuff_t *parameter_tvb, proto_tree *chunk_tree)
     dissect_unknown_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
   };
-  if (padding_length > 0)
+  if ((padding_length > 0) && (type != UNREC_PARA_PARAMETER_ID))
     proto_tree_add_text(parameter_tree, parameter_tvb, PARAMETER_HEADER_OFFSET + length, padding_length,
 			"Padding: %u byte%s",
 			padding_length, plurality(padding_length, "", "s"));
@@ -857,12 +858,13 @@ dissect_invalid_mandatory_parameter_cause(tvbuff_t *cause_tvb, proto_tree *cause
 static void
 dissect_unrecognized_parameters_cause(tvbuff_t *cause_tvb, proto_tree *cause_tree, proto_item *cause_item)
 {
-  guint16 length, cause_info_length;
+  guint16 length, padding_length, cause_info_length;
   tvbuff_t *unrecognized_parameters_tvb;
 
   length = tvb_get_ntohs(cause_tvb, CAUSE_LENGTH_OFFSET);
-  
-  cause_info_length = length - CAUSE_HEADER_LENGTH;
+  padding_length = nr_of_padding_bytes(length);
+
+  cause_info_length = length - CAUSE_HEADER_LENGTH + padding_length;
 
   unrecognized_parameters_tvb = tvb_new_subset(cause_tvb, CAUSE_INFO_OFFSET, 
 					       cause_info_length, cause_info_length);
@@ -921,7 +923,7 @@ dissect_error_cause(tvbuff_t *cause_tvb, packet_info *pinfo, proto_tree *chunk_t
   length         = tvb_get_ntohs(cause_tvb, CAUSE_LENGTH_OFFSET);
   padding_length = nr_of_padding_bytes(length);
   total_length   = length + padding_length;
-  
+
   cause_item = proto_tree_add_notext(chunk_tree, cause_tvb, CAUSE_HEADER_OFFSET, total_length);
   proto_item_set_text(cause_item, "BAD ERROR CAUSE");
   cause_tree = proto_item_add_subtree(cause_item, ett_sctp_chunk_cause);
@@ -969,7 +971,7 @@ dissect_error_cause(tvbuff_t *cause_tvb, packet_info *pinfo, proto_tree *chunk_t
     dissect_unknown_cause(cause_tvb, cause_tree, cause_item);
     break;
   };
-  if (padding_length > 0)
+  if ((padding_length > 0) && (code != UNRECOGNIZED_PARAMETERS))
     proto_tree_add_text(cause_tree, cause_tvb, CAUSE_HEADER_OFFSET + length, padding_length,
 			"Padding: %u byte%s",
 			padding_length, plurality(padding_length, "", "s"));
