@@ -1,7 +1,7 @@
 /* packet-pgm.c
  * Routines for pgm packet disassembly
  *
- * $Id: packet-pgm.c,v 1.2 2001/07/12 21:48:46 guy Exp $
+ * $Id: packet-pgm.c,v 1.3 2001/07/13 11:42:44 girlich Exp $
  * 
  * Copyright (c) 2000 by Talarian Corp
  *
@@ -454,7 +454,7 @@ dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree *type_tree = NULL;
 	proto_item *tf;
 	struct hostent *hp;
-	pgm_t pgmhdr;
+	pgm_type pgmhdr;
 	pgm_spm_t spm;
 	pgm_data_t data;
 	pgm_nak_t nak;
@@ -472,8 +472,8 @@ dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (check_col(pinfo->fd, COL_INFO))
 		col_clear(pinfo->fd, COL_INFO);
 
-	tvb_memcpy(tvb, (guint8 *)&pgmhdr, offset, sizeof(pgm_t));
-	hlen = sizeof(pgm_t);
+	tvb_memcpy(tvb, (guint8 *)&pgmhdr, offset, sizeof(pgm_type));
+	hlen = sizeof(pgm_type);
 	pgmhdr.sport = ntohs(pgmhdr.sport);
 	pgmhdr.dport = ntohs(pgmhdr.dport);
 	pgmhdr.tsdulen = ntohs(pgmhdr.tsdulen);
@@ -481,7 +481,7 @@ dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	switch(pgmhdr.type) {
 	case PGM_SPM_PCKT:
 		plen = sizeof(pgm_spm_t);
-		tvb_memcpy(tvb, (guint8 *)&spm, sizeof(pgm_t), plen);
+		tvb_memcpy(tvb, (guint8 *)&spm, sizeof(pgm_type), plen);
 		pktname = "SPM";
 		spm_ntoh(&spm);
 		inaddr.s_addr = htonl(spm.path);
@@ -495,7 +495,7 @@ dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if (pktname == NULL)
 			pktname = "ODATA";
 		plen = sizeof(pgm_data_t);
-		tvb_memcpy(tvb, (guint8 *)&data, sizeof(pgm_t), plen);
+		tvb_memcpy(tvb, (guint8 *)&data, sizeof(pgm_type), plen);
 		data_ntoh(&data);
 		sprintf(buf, "%s: sqn 0x%x tsdulen %d", pktname, data.sqn, 
 			pgmhdr.tsdulen);
@@ -512,7 +512,7 @@ dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if (pktname == NULL)
 			pktname = "NCF";
 		plen = sizeof(pgm_nak_t);
-		tvb_memcpy(tvb, (guint8 *)&nak, sizeof(pgm_t), plen);
+		tvb_memcpy(tvb, (guint8 *)&nak, sizeof(pgm_type), plen);
 		nak_ntoh(&nak);
 		inaddr.s_addr = htonl(nak.src);
 		strcpy(tmpaddr, inet_ntoa(inaddr));
@@ -569,7 +569,7 @@ dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			offset+14, 2, pgmhdr.tsdulen, "Transport Service Data Unit: %u", 
 			pgmhdr.tsdulen);
 
-		offset = sizeof(pgm_t);
+		offset = sizeof(pgm_type);
 		tf = proto_tree_add_text(pgm_tree, tvb, offset, plen, "%s Packet",
 			pktname);
 		switch(pgmhdr.type) {

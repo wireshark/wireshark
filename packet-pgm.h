@@ -1,7 +1,7 @@
 /* packet-pgm.h
  * Declarations for pgm packet disassembly
  *
- * $Id: packet-pgm.h,v 1.2 2001/07/12 21:48:46 guy Exp $
+ * $Id: packet-pgm.h,v 1.3 2001/07/13 11:42:44 girlich Exp $
  * 
  * Copyright (c) 2000 by Talarian Corp
  *
@@ -39,7 +39,7 @@ typedef struct {
 	nshort_t cksum;            /* checksum */
 	nchar_t gsi[6];            /* Global Source ID */
 	nshort_t tsdulen;          /* TSDU length */
-} pgm_t;
+} pgm_type;
 #define pgmhdr_ntoh(_p) \
 	(_p)->sport = ntohs((_p)->sport); \
 	(_p)->dport = ntohs((_p)->dport); \
@@ -57,7 +57,7 @@ typedef struct {
 	nshort_t res;             /* reserved */
 	nlong_t path;             /* Path NLA */
 } pgm_spm_t;
-const size_t PGM_SPM_SZ = sizeof(pgm_t)+sizeof(pgm_spm_t);
+const size_t PGM_SPM_SZ = sizeof(pgm_type)+sizeof(pgm_spm_t);
 #define spm_ntoh(_p) \
 	(_p)->sqn = ntohl((_p)->sqn); \
 	(_p)->trail = ntohl((_p)->trail); \
@@ -74,7 +74,7 @@ typedef struct {
 #define data_ntoh(_p) \
 	(_p)->sqn = ntohl((_p)->sqn); \
 	(_p)->trail = ntohl((_p)->trail)
-const size_t PGM_DATA_HDR_SZ = sizeof(pgm_t)+sizeof(pgm_data_t);
+const size_t PGM_DATA_HDR_SZ = sizeof(pgm_type)+sizeof(pgm_data_t);
 
 /* The PGM NAK (NAK/N-NAK/NCF) header */
 typedef struct {
@@ -86,7 +86,7 @@ typedef struct {
 	nshort_t grp_res;        /* reserved */
 	nlong_t grp;             /* Multicast group NLA */
 } pgm_nak_t;
-const size_t PGM_NAK_SZ = sizeof(pgm_t)+sizeof(pgm_nak_t);
+const size_t PGM_NAK_SZ = sizeof(pgm_type)+sizeof(pgm_nak_t);
 #define nak_ntoh(_p) \
 	(_p)->sqn = ntohl((_p)->sqn); \
 	(_p)->src_afi = ntohs((_p)->src_afi); \
