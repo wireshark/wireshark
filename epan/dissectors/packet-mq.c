@@ -1607,7 +1607,7 @@ dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 									/* Dissect the common part of these structures */
 									guint8* sStructId;
 									sStructId = tvb_get_string(tvb, offset, 4);
-									ti = proto_tree_add_text(mqroot_tree, tvb, offset, -1, (const char*)sStructId);
+									ti = proto_tree_add_text(mqroot_tree, tvb, offset, -1, "%s", (const char*)sStructId);
 									g_free(sStructId);
 									mq_tree = proto_item_add_subtree(ti, ett_mq_spi_base);
 	
