@@ -1,7 +1,7 @@
 /* print.c
  * Routines for printing packet analysis trees.
  *
- * $Id: print.c,v 1.29 2000/04/13 20:39:18 gram Exp $
+ * $Id: print.c,v 1.30 2001/03/23 18:44:20 jfoster Exp $
  *
  * Gilbert Ramirez <gram@xiexie.org>
  *
@@ -177,13 +177,42 @@ void proto_tree_print_node_text(GNode *node, gpointer data)
 	}
 }
 
-void print_hex_data(FILE *fh, gint format, register const u_char *cp,
-		register u_int length, char_enc encoding)
+void print_hex_data(FILE *fh, gint format, frame_data *fd)
 {
-	if (format == PR_FMT_PS)
-		print_hex_data_ps(fh, cp, length, encoding);
-	else
-		print_hex_data_text(fh, cp, length, encoding);
+	gboolean multiple_sources;
+	GSList *src;
+	tvbuff_t *tvb;
+	char *name;
+	char *line;
+	const u_char *cp;
+	guint length;
+
+	/*
+	 * Set "multiple_sources" iff this frame has more than one
+	 * data source; if it does, we need to print the name of
+	 * the data source before printing the data from the
+	 * data source.
+	 */
+	multiple_sources = (fd->data_src->next != NULL);
+
+	for (src = fd->data_src; src != NULL; src = src->next) {
+		tvb = src->data;
+		if (multiple_sources) {
+			name = tvb_get_name(tvb);
+			line = g_malloc(strlen(name) + 3);	/* <name>:\n\0 */
+			strcpy(line, name);
+			strcat(line, ":");
+			print_line(fh, format, line);
+			g_free(line);
+			print_line(fh, format, "\n");
+		}
+		length = tvb_length(tvb);
+		cp = tvb_get_ptr(tvb, 0, length);
+		if (format == PR_FMT_PS)
+			print_hex_data_ps(fh, cp, length, fd->flags.encoding);
+		else
+			print_hex_data_text(fh, cp, length, fd->flags.encoding);
+	}
 }
 
 /* This routine was created by Dan Lasley <DLASLEY@PROMUS.com>, and
