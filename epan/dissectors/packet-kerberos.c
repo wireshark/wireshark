@@ -295,6 +295,153 @@ static char *keytab_filename = "insert filename here";
 
 #endif
 
+#ifdef HAVE_MIT_KERBEROS
+#include <krb5.h>
+
+#define MAX_ORIG_LEN	256
+typedef struct _enc_key_t {
+	struct _enc_key_t	*next;
+	krb5_keytab_entry	key;
+	char 			key_origin[MAX_ORIG_LEN+1];
+} enc_key_t;
+static enc_key_t *enc_key_list=NULL;
+
+
+static void
+add_encryption_key(packet_info *pinfo, int keytype, int keylength, const char *keyvalue, char *origin)
+{
+	enc_key_t *new_key;
+
+	if(pinfo->fd->flags.visited){
+		return;
+	}
+printf("added key in %d\n",pinfo->fd->num);
+
+	new_key=g_malloc(sizeof(enc_key_t));
+	sprintf(new_key->key_origin, "%s learnt from frame %d",origin,pinfo->fd->num);
+	new_key->next=enc_key_list;
+	enc_key_list=new_key;
+	new_key->key.principal=NULL;
+	new_key->key.vno=0;
+	new_key->key.key.enctype=keytype;
+	new_key->key.key.length=keylength;
+	new_key->key.key.contents=g_malloc(keylength);
+	memcpy(new_key->key.key.contents, keyvalue, keylength);
+}
+
+static void
+read_keytab_file(char *filename, krb5_context *context)
+{
+	krb5_keytab keytab;
+	krb5_error_code ret;
+	krb5_kt_cursor cursor;
+	enc_key_t *new_key;
+
+	/* should use a file in the ethereal users dir */
+	ret = krb5_kt_resolve(*context, filename, &keytab);
+	if(ret){
+		fprintf(stderr, "KERBEROS ERROR: Could not open keytab file :%s\n",filename);
+		
+		return;
+	}
+
+	ret = krb5_kt_start_seq_get(*context, keytab, &cursor);
+	if(ret){
+		fprintf(stderr, "KERBEROS ERROR: Could not read from keytab file :%s\n",filename);
+		return;
+	}
+
+	do{
+		new_key=g_malloc(sizeof(enc_key_t));
+		new_key->next=enc_key_list;
+		ret = krb5_kt_next_entry(*context, keytab, &(new_key->key), &cursor);
+		if(ret==0){
+			int i;
+			char *pos;
+
+			/* generate origin string, describing where this key came from */
+			pos=new_key->key_origin;
+			pos+=sprintf(pos, "keytab principal ");
+			for(i=0;i<new_key->key.principal->length;i++){
+				pos+=sprintf(pos,"%s%s",(i?"/":""),(new_key->key.principal->data[i]).data);
+			}
+			pos+=sprintf(pos,"@%s",new_key->key.principal->realm.data);
+			*pos=0;
+/*printf("added key for principal :%s\n", new_key->key_origin);*/
+			enc_key_list=new_key;
+		}
+	}while(ret==0);
+
+	ret = krb5_kt_end_seq_get(*context, keytab, &cursor);
+	if(ret){
+		krb5_kt_close(*context, keytab);
+	}
+
+}
+
+
+static guint8 *
+decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
+			krb5_keyusage usage,
+			int length,
+			const char *cryptotext,
+			int keytype)
+{
+	static int first_time=1;
+	static krb5_context context;
+	krb5_error_code ret;
+	enc_key_t *ek;
+	static krb5_data data = {0,0,NULL};
+
+	/* dont do anything if we are not attempting to decrypt data */
+	if(!krb_decrypt){
+		return NULL;
+	}
+    
+	/* XXX we should only do this for first time, then store somewhere */
+
+	/* should this have a destroy context ?  heidal people would know */
+	if(first_time){
+		first_time=0;
+		ret = krb5_init_context(&context);
+		if(ret){
+			return NULL;
+		}
+		read_keytab_file(keytab_filename, &context);
+	}
+
+	for(ek=enc_key_list;ek;ek=ek->next){	
+		krb5_enc_data input;
+
+		input.enctype = ek->key.key.enctype;
+		input.ciphertext.length = length;
+		input.ciphertext.data = (guint8 *)cryptotext;
+
+		data.length = length;
+		if(data.data){
+			g_free(data.data);
+		}
+		data.data = g_malloc(length);
+		
+		/* shortcircuit and bail out if enctypes are not matching */
+		if(ek->key.key.enctype!=keytype){
+			continue;
+		}
+
+		ret = krb5_c_decrypt(context, &(ek->key.key), usage, 0, &input, &data);
+		if (ret == 0) {
+printf("woohoo decrypted keytype:%d in frame:%d\n", keytype, pinfo->fd->num);
+			proto_tree_add_text(tree, NULL, 0, 0, "[Decrypted using: %s]", ek->key_origin);
+			return data.data;
+		}
+	}
+
+	return NULL;
+}
+#endif
+
+
+
 #ifdef HAVE_HEIMDAL_KERBEROS
 #include <krb5.h>
 
