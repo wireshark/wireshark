@@ -7,7 +7,7 @@
  *
  * Maintained by Andreas Sikkema (andreas.sikkema@philips.com)
  *
- * $Id: packet-h245.c,v 1.33 2003/08/30 22:47:48 sahlberg Exp $
+ * $Id: packet-h245.c,v 1.34 2003/09/02 21:40:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1462,8 +1462,8 @@ static gint ett_h245_lostPicture = -1;
 static gint ett_h245_recoveryReferencePicture = -1;
 static gint ett_h245_iPSourceRouteAddress_route = -1;
 
-static dissector_table_t nsp_object_dissector_table; 
-static dissector_table_t nsp_h221_dissector_table; 
+static dissector_table_t nsp_object_dissector_table;
+static dissector_table_t nsp_h221_dissector_table;
 
 static dissector_handle_t nsp_handle;
 
@@ -1476,7 +1476,7 @@ static guint32 manufacturerCode;
 static guint32 h221NonStandard;
 
 static gboolean h245_reassembly = TRUE;
-
+static gboolean h245_shorttypes = FALSE;
 /* To put the codec type only in COL_INFO when
    an OLC is read */
 char* codec_type = NULL;
@@ -15833,7 +15833,11 @@ static per_choice_t VideoCapability_choice[] = {
 static int
 dissect_h245_VideoCapability(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_VideoCapability, ett_h245_VideoCapability, VideoCapability_choice, "VideoCapability", NULL);
+ 	guint32 value;
+
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_VideoCapability, ett_h245_VideoCapability, VideoCapability_choice, "VideoCapability", &value );
+
+        codec_type = val_to_str(value, VideoCapability_vals, "<unknown>");
 
 	return offset;
 }
@@ -18563,6 +18567,32 @@ dissect_h245_CommunicationModeRequest(tvbuff_t *tvb, int offset, packet_info *pi
 
 
 
+static const value_string IndicationMessage_short_vals[] = {
+	{  0,	"NSM" },
+	{  1,	"FNU" },
+	{  2,	"MSDRelease" },
+	{  3,	"TCSRelease" },
+	{  4,	"OLCConfirm" },
+	{  5,	"RCCRelease" },
+	{  6,	"MESRelease" },
+	{  7,	"RMERelease" },
+	{  8,	"RMRelease" },
+	{  9,	"MI" },
+	{ 10,	"JI" },
+	{ 11,	"H223SI" },
+	{ 12,	"NATMVCI" },
+	{ 13,	"UII" },
+	{ 14,	"H2250MSI" },
+	{ 15,	"MCLI" },
+	{ 16,	"CI" },
+	{ 17,	"VI" },
+	{ 18,	"FNS" },
+	{ 19,	"MultilinkIndication" },
+	{ 20,	"LCRRelease" },
+	{ 21,	"FCIndication" },
+	{ 22,	"MMRI" },
+	{  0, NULL }
+};
 
 
 static const value_string IndicationMessage_vals[] = {
@@ -18648,15 +18678,43 @@ dissect_h245_IndicationMessage(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_IndicationMessage_type, ett_h245_IndicationMessage, IndicationMessage_choice, "IndicationMessage", &value);
 
 	if (check_col(pinfo->cinfo, COL_INFO)){
-		col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
-			val_to_str(value, IndicationMessage_vals, "<unknown>"));
+	        if ( h245_shorttypes == TRUE )
+	        {
+	        	col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
+				val_to_str(value, IndicationMessage_short_vals, "<unknown>"));
+		}
+		else
+		{
+	        	col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
+				val_to_str(value, IndicationMessage_vals, "<unknown>"));
+		}
 	}
+
+	col_set_fence(pinfo->cinfo,COL_INFO);
 
 	return offset;
 }
 
 
 
+static const value_string RequestMessage_short_vals[] = {
+	{  0,	"NSM" },
+	{  1,	"MSD" },
+	{  2,	"TCS" },
+	{  3,	"OLC" },
+	{  4,	"CLC" },
+	{  5,	"RCC" },
+	{  6,	"MES" },
+	{  7,	"RME" },
+	{  8,	"RM" },
+	{  9,	"RTDR" },
+	{ 10,	"MLR" },
+	{ 11,	"CMR" },
+	{ 12,	"CR" },
+	{ 13,	"MR" },
+	{ 14,	"LCRR" },
+	{  0, NULL }
+};
 
 
 static const value_string RequestMessage_vals[] = {
@@ -18716,14 +18774,25 @@ dissect_h245_RequestMessage(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 	guint32 value;
 
 	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_RequestMessage_type, ett_h245_RequestMessage, RequestMessage_choice, "RequestMessage", &value);
+
 	if (check_col(pinfo->cinfo, COL_INFO)){
-		col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
-			val_to_str(value, RequestMessage_vals, "<unknown>"));
+	        if ( h245_shorttypes == TRUE )
+	        {
+	        	col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
+				val_to_str(value, RequestMessage_short_vals, "<unknown>"));
+		}
+		else
+		{
+	        	col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
+				val_to_str(value, RequestMessage_vals, "<unknown>"));
+		}
 	}
 
 	if (( check_col(pinfo->cinfo, COL_INFO)) && ( codec_type != NULL ) && ( value == 3) ){
 		col_append_fstr(pinfo->cinfo, COL_INFO, "(%s) ", codec_type );
 	}
+
+        col_set_fence(pinfo->cinfo,COL_INFO);
 
 	return offset;
 }
@@ -18804,7 +18873,7 @@ dissect_h245_rtpPayloadType_sequence_of(tvbuff_t *tvb, int offset, packet_info *
 static per_sequence_t H223ModeParameters_sequence[] = {
 	{ "adaptationLayerType", EXTENSION_ROOT, NOT_OPTIONAL,
 		dissect_h245_H223ModeParameters_adaptationLayerType },
-	{ "segmentableFlag", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "segmentableFlag", EXTENSION_ROOT, NOT_OPTIONAL,
 		dissect_h245_segmentableFlag },
 	{ NULL, 0, 0, NULL }
 };
@@ -18955,7 +19024,7 @@ static per_sequence_t NewATMVCCommand_sequence[] = {
 		dissect_h245_bitRateLockedToNetworkClock },
 	{ "aal", EXTENSION_ROOT, NOT_OPTIONAL, 
 		dissect_h245_NewATMVCCommand_aal },
-	{ "multiplex", EXTENSION_ROOT, NOT_OPTIONAL, 
+	{ "multiplex", EXTENSION_ROOT, NOT_OPTIONAL,
 		dissect_h245_NewATMVCCommand_multiplex },
 	{ "reverseParameters", EXTENSION_ROOT, NOT_OPTIONAL,
 		dissect_h245_NewATMVCCommand_reverseParameters },
@@ -18969,6 +19038,21 @@ dissect_h245_NewATMVCCommand(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 	return offset;
 }
 
+static const value_string CommandMessage_short_vals[] = {
+	{  0,	"NSM" },
+	{  1,	"MLOC" },
+	{  2,	"STCS" },
+	{  3,	"EC" },
+	{  4,	"FCC" },
+	{  5,	"ESC" },
+	{  6,	"MC" },
+	{  7,	"CMC" },
+	{  8,	"CC" },
+	{  9,	"H223MR" },
+	{ 10,	"NATMVCC" },
+	{ 11,	"MMRC" },
+	{  0, NULL }
+};
 
 
 
@@ -19006,7 +19090,7 @@ static per_choice_t CommandMessage_choice[] = {
 			dissect_h245_CommunicationModeCommand },
 	{  8,	"ConferenceCommand",		NOT_EXTENSION_ROOT,
 			dissect_h245_ConferenceCommand },
-	{  9,	"H223MultiplexReconfiguration",	NOT_EXTENSION_ROOT, 
+	{  9,	"H223MultiplexReconfiguration",	NOT_EXTENSION_ROOT,
 			dissect_h245_H223MultiplexReconfiguration },
 	{ 10,	"NewATMVCCommand",		NOT_EXTENSION_ROOT,
 			dissect_h245_NewATMVCCommand },
@@ -19022,9 +19106,19 @@ dissect_h245_CommandMessage(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_CommandMessage_type, ett_h245_CommandMessage, CommandMessage_choice, "CommandMessage", &value);
 
 	if (check_col(pinfo->cinfo, COL_INFO)){
-		col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
-			val_to_str(value, CommandMessage_vals, "<unknown>"));
+	        if ( h245_shorttypes == TRUE )
+	        {
+	        	col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
+				val_to_str(value, CommandMessage_short_vals, "<unknown>"));
+		}
+		else
+		{
+	        	col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
+				val_to_str(value, CommandMessage_vals, "<unknown>"));
+		}
 	}
+
+	col_set_fence(pinfo->cinfo,COL_INFO);
 
 	return offset;
 }
@@ -19032,6 +19126,33 @@ dissect_h245_CommandMessage(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 
 
 
+static const value_string ResponseMessage_short_vals[] = {
+	{  0,	"NSM" },
+	{  1,	"MSDAck" },
+	{  2,	"MSDReject" },
+	{  3,	"TCSAck" },
+	{  4,	"TCSReject" },
+	{  5,	"OLCAck" },
+	{  6,	"OLCReject" },
+	{  7,	"CLCAck" },
+	{  8,	"RCCAck" },
+	{  9,	"RCCReject" },
+	{ 10,	"MESAck" },
+	{ 11,	"MESReject" },
+	{ 12,	"RMEAck" },
+	{ 13,	"RMEReject" },
+	{ 14,	"RMAck" },
+	{ 15,	"RMReject" },
+	{ 16,	"RTDResponse" },
+	{ 17,	"MLAck" },
+	{ 18,	"MLReject" },
+	{ 19,	"CMResponse" },
+	{ 20,	"CResponse" },
+	{ 21,	"MResponse" },
+	{ 22,	"LCRAck" },
+	{ 23,	"LCRReject" },
+	{  0, NULL }
+};
 
 
 static const value_string ResponseMessage_vals[] = {
@@ -19120,9 +19241,19 @@ dissect_h245_ResponseMessage(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_ResponseMessage_type, ett_h245_ResponseMessage, ResponseMessage_choice, "ResponseMessage", &value);
 
 	if (check_col(pinfo->cinfo, COL_INFO)){
-		col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
-			val_to_str(value, ResponseMessage_vals, "<unknown>"));
+	        if ( h245_shorttypes == TRUE )
+	        {
+	        	col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
+				val_to_str(value, ResponseMessage_short_vals, "<unknown>"));
+		}
+		else
+		{
+	        	col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
+				val_to_str(value, ResponseMessage_vals, "<unknown>"));
+		}
 	}
+
+	col_set_fence(pinfo->cinfo,COL_INFO);
 
 	return offset;
 }
@@ -22516,6 +22647,10 @@ proto_register_h245(void)
 		"Reassemble H.245 over TCP",
 		"Whether the dissector should reassemble H.245 PDUs spanning multiple TCP segments",
 		&h245_reassembly);
+	prefs_register_bool_preference(h245_module, "shorttypes",
+		"Show short message types",
+		"Whether the dissector should show short names or the long names from the standard",
+		&h245_shorttypes);
 	register_dissector("h245dg", dissect_h245_MultimediaSystemControlMessage, proto_h245);
 	register_dissector("h245", dissect_h245, proto_h245);
 
