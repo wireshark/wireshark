@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.18 1999/02/09 00:35:35 guy Exp $
+ * $Id: capture.c,v 1.19 1999/02/11 06:17:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -257,8 +257,8 @@ capture_prep_cb(GtkWidget *w, gpointer d) {
   gtk_box_pack_start(GTK_BOX(caplen_hb), snap_lb, FALSE, FALSE, 6);
   gtk_widget_show(snap_lb);
 
-  adj = (GtkAdjustment *) gtk_adjustment_new((float) cf.snap, 1.0, 4096.0,
-    1.0, 10.0, 0.0);
+  adj = (GtkAdjustment *) gtk_adjustment_new((float) cf.snap, 1.0,
+    MAX_PACKET_SIZE, 1.0, 10.0, 0.0);
   snap_sb = gtk_spin_button_new (adj, 0, 0);
   gtk_spin_button_set_wrap (GTK_SPIN_BUTTON (snap_sb), TRUE);
   gtk_widget_set_usize (snap_sb, 80, 0);
@@ -365,9 +365,9 @@ capture_prep_ok_cb(GtkWidget *w, gpointer data) {
   open = GTK_TOGGLE_BUTTON(open_ck)->active;
   cf.snap = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(snap_sb));
   if (cf.snap < 1)
-    cf.snap = 4096;
-  else if (cf.snap < 68)
-    cf.snap = 68;
+    cf.snap = MAX_PACKET_SIZE;
+  else if (cf.snap < MIN_PACKET_SIZE)
+    cf.snap = MIN_PACKET_SIZE;
 
   gtk_widget_destroy(GTK_WIDGET(data));
   

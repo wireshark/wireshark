@@ -1,6 +1,6 @@
 /* ethereal.c
  *
- * $Id: ethereal.c,v 1.21 1999/02/09 00:35:35 guy Exp $
+ * $Id: ethereal.c,v 1.22 1999/02/11 06:17:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -442,7 +442,7 @@ main(int argc, char *argv[])
   cf.cfilter   = NULL;
   cf.iface     = NULL;
   cf.save_file = NULL;
-  cf.snap      = 68;
+  cf.snap      = MIN_PACKET_SIZE;
   cf.count     = 0;
   cf.cinfo.num_cols = prefs->num_cols;
   cf.cinfo.fmt_matx = (gboolean **) g_malloc(sizeof(gboolean *) *
@@ -543,9 +543,9 @@ main(int argc, char *argv[])
   }
 
   if (cf.snap < 1)
-    cf.snap = 4096;
-  else if (cf.snap < 68)
-    cf.snap = 68;
+    cf.snap = MAX_PACKET_SIZE;
+  else if (cf.snap < MIN_PACKET_SIZE)
+    cf.snap = MIN_PACKET_SIZE;
   
   rc_file = (gchar *) g_malloc(strlen(getenv("HOME")) + strlen(RC_FILE) + 4);
   sprintf(rc_file, "%s/%s", getenv("HOME"), RC_FILE);

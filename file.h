@@ -1,7 +1,7 @@
 /* file.h
  * Definitions for file structures and routines
  *
- * $Id: file.h,v 1.9 1999/01/07 16:15:35 gram Exp $
+ * $Id: file.h,v 1.10 1999/02/11 06:17:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -82,7 +82,7 @@ typedef struct _capture_file {
   gchar      *dfilter;   /* Display filter string */
   gchar      *cfilter;   /* Capture filter string */
   bpf_prog    fcode;     /* Compiled filter program */
-  guint8      pd[4096];  /* Packet data */
+  guint8      pd[MAX_PACKET_SIZE];  /* Packet data */
   GList      *plist;     /* Packet list */
   frame_data *cur;       /* Current list item */
   column_info  cinfo;    /* Column formatting information */

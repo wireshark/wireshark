@@ -1,7 +1,7 @@
 /* ethereal.h
  * Global defines, etc.
  *
- * $Id: ethereal.h,v 1.10 1998/12/29 04:05:35 gerald Exp $
+ * $Id: ethereal.h,v 1.11 1999/02/11 06:17:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -36,6 +36,9 @@
 #define DEF_HEIGHT 550
 #define DEF_READY_MESSAGE " Ready to load or capture"
 #define EXTERNAL_FILTER "/usr/local/bin/ethereal_tcp_filter -f" 
+
+#define MIN_PACKET_SIZE 68	/* minimum amount of packet data we can read */
+#define MAX_PACKET_SIZE 65535	/* maximum amount of packet data we can read */
 
 /* Byte swapping routines */
 #define SWAP16(x) \
