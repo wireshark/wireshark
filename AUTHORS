@@ -590,6 +590,10 @@ Martin Held <Martin.Held@icn.siemens.de> {
 	RANAP support
 }
 
+Riaan Swart <rswart@cs.sun.ac.za> {
+	Modbus/TCP support
+}
+
 Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 
