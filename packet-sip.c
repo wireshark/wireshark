@@ -15,7 +15,7 @@
  * Copyright 2000, Heikki Vatiainen <hessu@cs.tut.fi>
  * Copyright 2001, Jean-Francois Mule <jfm@clarent.com>
  *
- * $Id: packet-sip.c,v 1.24 2002/03/21 03:08:46 gerald Exp $
+ * $Id: packet-sip.c,v 1.25 2002/03/29 01:25:57 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -62,28 +62,31 @@ static gint ett_sip_hdr = -1;
 
 static const char *sip_methods[] = {
         "<Invalid method>",      /* Pad so that the real methods start at index 1 */
-        "INVITE",
         "ACK",
-        "OPTIONS",
         "BYE",
         "CANCEL",
-        "REGISTER",
+        "DO",
         "INFO",
-        "REFER",
-        "SUBSCRIBE",
+        "INVITE",
+        "MESSAGE",
         "NOTIFY",
-	"MESSAGE",
-	"QAUTH",
-	"DO"
+        "OPTIONS",
+        "PRACK",
+        "QAUTH",
+        "REFER",
+        "REGISTER",
+        "SPRACK",
+        "SUBSCRIBE"
 };
 
-static gboolean sip_is_request(tvbuff_t *tvb, guint32 offset);
+static gboolean sip_is_request(tvbuff_t *tvb, guint32 offset, gint eol);
+static gboolean sip_is_known_request(tvbuff_t *tvb, guint32 offset);
 static gint sip_get_msg_offset(tvbuff_t *tvb, guint32 offset);
  
 static dissector_handle_t sdp_handle;
 static dissector_handle_t data_handle;
 
-#define SIP2_HDR "SIP/2.0 "
+#define SIP2_HDR "SIP/2.0"
 #define SIP2_HDR_LEN (strlen (SIP2_HDR))
 
 /* Code to actually dissect the packets */
@@ -92,7 +95,8 @@ static void dissect_sip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         guint32 offset;
         gint eol, next_offset, msg_offset;
         tvbuff_t *next_tvb;
-        gboolean is_request;
+        gboolean is_request, is_known_request;
+        char *req_descr;
 
 	/*
 	 * Note that "tvb_strneql()" doesn't throw exceptions, so
@@ -104,21 +108,24 @@ static void dissect_sip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 */
         offset = 0;
         eol = tvb_find_line_end(tvb, 0, -1, &next_offset);
-        is_request = sip_is_request(tvb, 0);
-	/* XXX - Is this case-sensitive?  RFC 2543 didn't explicitly say. */
-	if (tvb_strneql(tvb, 0, SIP2_HDR, SIP2_HDR_LEN) != 0 && ! is_request)
-		goto bad;
+        /* XXX - Check for a valid status message as well. */
+        is_request = sip_is_request(tvb, 0, eol);
+        is_known_request = sip_is_known_request(tvb, 0);
+        /* XXX - Is this case-sensitive?  RFC 2543 didn't explicitly say. */
+        if (tvb_strneql(tvb, 0, SIP2_HDR, SIP2_HDR_LEN) != 0 && ! is_request)
+                goto bad;
 
         if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
                 col_set_str(pinfo->cinfo, COL_PROTOCOL, "SIP");
     
-
+        req_descr = is_known_request ? "Request" : "Unknown request";
         if (check_col(pinfo->cinfo, COL_INFO))
                 col_add_fstr(pinfo->cinfo, COL_INFO, "%s: %s",
-                             is_request ? "Request" : "Status",
-                             is_request ? 
-                             tvb_format_text(tvb, 0, eol - SIP2_HDR_LEN) :
-                             tvb_format_text(tvb, SIP2_HDR_LEN, eol - SIP2_HDR_LEN));
+                             is_request ? req_descr : "Status",
+                             is_request ?
+                             tvb_format_text(tvb, 0, eol - SIP2_HDR_LEN - 1) :
+                             tvb_format_text(tvb, SIP2_HDR_LEN + 1, eol - SIP2_HDR_LEN - 1));
+
 
         msg_offset = sip_get_msg_offset(tvb, offset);
         if (msg_offset < 0) {
@@ -136,8 +143,8 @@ static void dissect_sip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 ti = proto_tree_add_item(tree, proto_sip, tvb, 0, -1, FALSE);
                 sip_tree = proto_item_add_subtree(ti, ett_sip);
 
-                proto_tree_add_text(sip_tree, tvb, 0, next_offset, "%s-Line: %s",
-                                    is_request ? "Request" : "Status",
+                proto_tree_add_text(sip_tree, tvb, 0, next_offset, "%s line: %s",
+                                    is_request ? req_descr : "Status",
                                     tvb_format_text(tvb, 0, eol));
 
                 offset = next_offset;
@@ -186,13 +193,52 @@ static gint sip_get_msg_offset(tvbuff_t *tvb, guint32 offset)
 
         return -1;
 }
-                
-static gboolean sip_is_request(tvbuff_t *tvb, guint32 offset)
+
+/* From section 4.1 of RFC 2543:
+ *
+ * Request-Line  =  Method SP Request-URI SP SIP-Version CRLF
+ */ 
+
+static gboolean sip_is_request(tvbuff_t *tvb, guint32 offset, gint eol)
 {
-        u_int i;
+        gint meth_len, req_len, req_colon_pos;
+        guint8 req_start, ver_start, ver_len;
+
+        meth_len = tvb_find_guint8(tvb, 0, -1, ' ');
+        req_start = meth_len + 1;
+        req_len = tvb_find_guint8(tvb, req_start, -1, ' ') - meth_len - 1;
+        req_colon_pos = tvb_find_guint8(tvb, req_start + 1, -1, ':');
+        ver_start = meth_len + req_len + 2;
+        ver_len = eol - req_len - meth_len - 2; /*CRLF, plus two spaces */
+
+        /* Do we have:
+         *   A method of at least one character?
+         *   A URI consisting of at least three characters?
+         *   A version string length matching that of SIP2_HDR?
+         */
+        if (meth_len <= 0 || req_len <= 3 || ver_len != SIP2_HDR_LEN)
+                return FALSE;
+
+        /* Does our method have a colon character? */
+        if (req_colon_pos < 0 || req_colon_pos > ver_start)
+                return FALSE;
+        /* XXX - Check for a proper URI prefix? */
+        
+        /* Do we have a proper version string? */
+        if (tvb_strneql(tvb, ver_start, SIP2_HDR, SIP2_HDR_LEN))
+                return TRUE;
+
+        return TRUE;
+}
+
+static gboolean sip_is_known_request(tvbuff_t *tvb, guint32 offset)
+{
+        guint8 i, meth_len;
+
+        meth_len = tvb_find_guint8(tvb, 0, -1, ' ');
 
         for (i = 1; i < array_length(sip_methods); i++) {
-                if (tvb_strneql(tvb, offset, sip_methods[i], strlen(sip_methods[i])) == 0)
+                if ((meth_len == strlen(sip_methods[i])) && tvb_strneql(tvb, offset, sip_methods[i], strlen(sip_methods[i])) == 0)
                         return TRUE;
         }
 
@@ -221,7 +267,7 @@ void proto_register_sip(void)
 
         /* Register the protocol name and description */
         proto_sip = proto_register_protocol("Session Initiation Protocol",
-	    "SIP", "sip");
+            "SIP", "sip");
 
         /* Required function calls to register the header fields and subtrees used */
         proto_register_field_array(proto_sip, hf, array_length(hf));
@@ -231,15 +277,15 @@ void proto_register_sip(void)
 void
 proto_reg_handoff_sip(void)
 {
-	dissector_handle_t sip_handle;
+        dissector_handle_t sip_handle;
 
-	sip_handle = create_dissector_handle(dissect_sip, proto_sip);
+        sip_handle = create_dissector_handle(dissect_sip, proto_sip);
         dissector_add("tcp.port", TCP_PORT_SIP, sip_handle);
         dissector_add("udp.port", UDP_PORT_SIP, sip_handle);
 
-	/*
-	 * Get a handle for the SDP dissector.
-	 */
-	sdp_handle = find_dissector("sdp");
-	data_handle = find_dissector("data");
+        /*
+         * Get a handle for the SDP dissector.
+         */
+        sdp_handle = find_dissector("sdp");
+        data_handle = find_dissector("data");
 }
