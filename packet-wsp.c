@@ -2,7 +2,7 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  *
- * $Id: packet-wsp.c,v 1.77 2003/10/09 18:54:06 guy Exp $
+ * $Id: packet-wsp.c,v 1.78 2003/10/11 00:10:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1289,6 +1289,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	guint contentType = 0;
 	const char *contentTypeStr;
 	tvbuff_t *tmp_tvb;
+	gboolean found_match;
 
 /* Set up structures we will need to add the protocol subtree and manage it */
 	proto_item *ti;
@@ -1448,19 +1449,20 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			offset = headerStart + count;
 
 			add_uri (wsp_tree, pinfo, tvb, uriStart, offset);
-			if (tree) {
-				offset += uriLength;
+			offset += uriLength;
 
+			if (tree)
 				ti = proto_tree_add_uint (wsp_tree, hf_wsp_header_length,tvb,headerStart,count,headersLength);
 
-				if (headersLength == 0)
-					break;
+			if (headersLength == 0)
+				break;
 
-				contentTypeStart = offset;
-				nextOffset = add_content_type (wsp_tree,
-				    tvb, offset, &contentType,
-				    &contentTypeStr);
+			contentTypeStart = offset;
+			nextOffset = add_content_type (wsp_tree,
+			    tvb, offset, &contentType,
+			    &contentTypeStr);
 
+			if (tree) {
 				/* Add headers subtree that will hold the headers fields */
 				/* Runs from nextOffset for headersLength-(length of content-type field)*/
 				headerLength = headersLength-(nextOffset-contentTypeStart);
@@ -1475,16 +1477,32 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			if (tvb_reported_length_remaining(tvb, headerStart + count + uriLength + headersLength) > 0)
 			{
 				tmp_tvb = tvb_new_subset (tvb, headerStart + count + uriLength + headersLength, -1, -1);
-				/* Try finding a dissector for the content first, then fallback */
-				if (!dissector_try_port(wsp_dissector_table,
-							contentType, tmp_tvb, pinfo, tree))
-					if (!dissector_try_string(wsp_dissector_table_text,
-								contentTypeStr, tmp_tvb, pinfo, tree))
-						if (!dissector_try_heuristic(heur_subdissector_list,
-									tmp_tvb, pinfo, tree))
-							if (tree) /* Only display if needed */
-								add_post_data (wsp_tree, tmp_tvb,
-										contentType, contentTypeStr);
+				/*
+				 * Try finding a dissector for the content
+				 * first, then fallback.
+				 */
+				if (contentTypeStr == NULL) {
+					/*
+					 * Content type is numeric.
+					 */
+					found_match =
+					    dissector_try_port(wsp_dissector_table,
+					      contentType, tmp_tvb, pinfo, tree);
+				} else {
+					/*
+					 * Content type is a string.
+					 */
+					found_match = dissector_try_string(wsp_dissector_table_text,
+					    contentTypeStr, tmp_tvb, pinfo, tree);
+				}
+				if (!found_match) {
+					if (!dissector_try_heuristic(heur_subdissector_list,
+					    tmp_tvb, pinfo, tree))
+						if (tree) /* Only display if needed */
+							add_post_data (wsp_tree, tmp_tvb,
+							    contentType,
+							    contentTypeStr);
+				}
 			}
 			break;
 
@@ -1492,26 +1510,28 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			count = 0;	/* Initialise count */
 			headersLength = tvb_get_guintvar (tvb, offset+1, &count);
 			headerStart = offset + count + 1;
-			if (tree) {
-				reply_status = tvb_get_guint8(tvb, offset);
+			reply_status = tvb_get_guint8(tvb, offset);
+			if (tree)
 				ti = proto_tree_add_item (wsp_tree, hf_wsp_header_status,tvb,offset,1,bo_little_endian);
- 				stat_info->status_code = (gint) tvb_get_guint8( tvb, offset);				
-				if (check_col(pinfo->cinfo, COL_INFO))
-				{ /* Append status code to INFO column */
-					col_append_fstr(pinfo->cinfo, COL_INFO, ": \"0x%02x %s\"", reply_status,
-							val_to_str (reply_status, vals_status, "Unknown response status (0x%02x)"));
-				}
-				nextOffset = offset + 1 + count;
+ 			stat_info->status_code = (gint) tvb_get_guint8( tvb, offset);				
+			if (check_col(pinfo->cinfo, COL_INFO))
+			{ /* Append status code to INFO column */
+				col_append_fstr(pinfo->cinfo, COL_INFO, ": \"0x%02x %s\"", reply_status,
+						val_to_str (reply_status, vals_status, "Unknown response status (0x%02x)"));
+			}
+			nextOffset = offset + 1 + count;
+			if (tree)
 				ti = proto_tree_add_uint (wsp_tree, hf_wsp_header_length,tvb,offset+1,count,headersLength);
 
-				if (headersLength == 0)
-					break;
+			if (headersLength == 0)
+				break;
 
-				contentTypeStart = nextOffset;
-				nextOffset = add_content_type (wsp_tree,
-				    tvb, nextOffset, &contentType,
-				    &contentTypeStr);
+			contentTypeStart = nextOffset;
+			nextOffset = add_content_type (wsp_tree,
+			    tvb, nextOffset, &contentType,
+			    &contentTypeStr);
 
+			if (tree) {
 				/* Add headers subtree that will hold the headers fields */
 				/* Runs from nextOffset for headersLength-(length of content-type field)*/
 				headerLength = headersLength-(nextOffset-contentTypeStart);
@@ -1526,17 +1546,32 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			if (tvb_reported_length_remaining(tvb, headerStart + headersLength) > 0)
 			{
 				tmp_tvb = tvb_new_subset (tvb, headerStart + headersLength, -1, -1);
-				/* Try finding a dissector for the content first, then fallback */
-				if (!dissector_try_port(wsp_dissector_table,
-							contentType, tmp_tvb, pinfo, tree))
-					if (!dissector_try_string(wsp_dissector_table_text,
-								contentTypeStr, tmp_tvb, pinfo, tree))
-						if (!dissector_try_heuristic(heur_subdissector_list,
-									tmp_tvb, pinfo, tree))
-							if (tree) /* Only display if needed */
-								ti = proto_tree_add_item (wsp_tree,
-										hf_wsp_reply_data,
-										tmp_tvb, 0, -1, bo_little_endian);
+				/*
+				 * Try finding a dissector for the content
+				 * first, then fallback.
+				 */
+				if (contentTypeStr == NULL) {
+					/*
+					 * Content type is numeric.
+					 */
+					found_match = dissector_try_port(wsp_dissector_table,
+					    contentType, tmp_tvb, pinfo, tree);
+				} else {
+					/*
+					 * Content type is a string.
+					 */
+					found_match = dissector_try_string(wsp_dissector_table_text,
+					    contentTypeStr, tmp_tvb, pinfo, tree);
+				}
+				if (!found_match) {
+					if (!dissector_try_heuristic(heur_subdissector_list,
+					    tmp_tvb, pinfo, tree))
+						if (tree) /* Only display if needed */
+							ti = proto_tree_add_item (wsp_tree,
+							    hf_wsp_reply_data,
+							    tmp_tvb, 0, -1,
+							    bo_little_endian);
+				}
 			}
 			break;
 
@@ -1546,18 +1581,19 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			headersLength = tvb_get_guintvar (tvb, offset, &count);
 			headerStart = offset + count;
 
-			if (tree) {
+			if (tree)
 				ti = proto_tree_add_uint (wsp_tree, hf_wsp_header_length,tvb,offset,count,headersLength);
 
-				if (headersLength == 0)
-					break;
+			if (headersLength == 0)
+				break;
 
-				offset += count;
-				contentTypeStart = offset;
-				nextOffset = add_content_type (wsp_tree,
-				    tvb, offset, &contentType,
-				    &contentTypeStr);
+			offset += count;
+			contentTypeStart = offset;
+			nextOffset = add_content_type (wsp_tree,
+			    tvb, offset, &contentType,
+			    &contentTypeStr);
 
+			if (tree) {
 				/* Add headers subtree that will hold the headers fields */
 				/* Runs from nextOffset for headersLength-(length of content-type field)*/
 				headerLength = headersLength-(nextOffset-contentTypeStart);
@@ -1573,16 +1609,32 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			{
 				tmp_tvb = tvb_new_subset (tvb, headerStart + headersLength, -1, -1);
 				/* Try finding a dissector for the content first, then fallback */
-				if (!dissector_try_port(wsp_dissector_table,
-							contentType, tmp_tvb, pinfo, tree))
-					if (!dissector_try_string(wsp_dissector_table_text,
-								contentTypeStr, tmp_tvb, pinfo, tree))
-						if (!dissector_try_heuristic(heur_subdissector_list,
-									tmp_tvb, pinfo, tree))
-							if (tree) /* Only display if needed */
-								ti = proto_tree_add_item (wsp_tree,
-										hf_wsp_push_data,
-										tmp_tvb, 0, -1, bo_little_endian);
+				/*
+				 * Try finding a dissector for the content
+				 * first, then fallback.
+				 */
+				if (contentTypeStr == NULL) {
+					/*
+					 * Content type is numeric.
+					 */
+					found_match = dissector_try_port(wsp_dissector_table,
+					    contentType, tmp_tvb, pinfo, tree);
+				} else {
+					/*
+					 * Content type is a string.
+					 */
+					found_match = dissector_try_string(wsp_dissector_table_text,
+					    contentTypeStr, tmp_tvb, pinfo, tree);
+				}
+				if (!found_match) {
+					if (!dissector_try_heuristic(heur_subdissector_list,
+					    tmp_tvb, pinfo, tree))
+						if (tree) /* Only display if needed */
+							ti = proto_tree_add_item (wsp_tree,
+							    hf_wsp_push_data,
+							    tmp_tvb, 0, -1,
+							    bo_little_endian);
+				}
 			}
 			break;
 
