@@ -2,7 +2,7 @@
  * Routines for decoding SCSI CDBs and responses
  * Author: Dinesh G Dutt (ddutt@cisco.com)
  *
- * $Id: packet-scsi.c,v 1.16 2002/08/21 07:15:00 guy Exp $
+ * $Id: packet-scsi.c,v 1.17 2002/08/21 07:55:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1148,12 +1148,21 @@ static gint scsi_def_devtype = SCSI_DEV_SBC;
  * We track SCSI requests and responses with a hash table.
  * The key is a "scsi_task_id_t" structure; the data is a
  * "scsi_task_data_t" structure.
+ *
+ * We remember:
+ *
+ *    the command code and type of command (it's not present in the
+ *        response, and we need it to dissect the response);
+ *    the type of device it's on;
+ *
+ * and we also have a field to record flags in case the interpretation
+ * of the response data depends on data from the command.
  */
 typedef struct _scsi_task_data {
     guint32 opcode;
     scsi_cmnd_type cmd;
     scsi_device_type devtype;
-    guint8 flags;               /* used by SCSI Inquiry */
+    guint8 flags;
 } scsi_task_data_t;
 
 /*
@@ -3381,26 +3390,46 @@ dissect_scsi_ssc2_readblocklimits (tvbuff_t *tvb, packet_info *pinfo _U_, proto_
     }
 }
 
+#define SHORT_FORM_BLOCK_ID        0x00
+#define SHORT_FORM_VENDOR_SPECIFIC 0x01
+#define LONG_FORM                  0x06
+#define EXTENDED_FORM              0x08
+
 static const value_string service_action_vals[] = {
-	{0x00, "Short Form - Block ID"},
-	{0x01, "Short Form - Vendor-Specific"},
-	{0x06, "Long Form"},
-	{0x08, "Extended Form"},
+	{SHORT_FORM_BLOCK_ID,        "Short Form - Block ID"},
+	{SHORT_FORM_VENDOR_SPECIFIC, "Short Form - Vendor-Specific"},
+	{LONG_FORM,                  "Long Form"},
+	{EXTENDED_FORM,              "Extended Form"},
 	{0, NULL}
 };
 
+#define BCU  0x20
+#define BYCU 0x10
+#define MPU  0x08
+#define BPU  0x04
+
 static void
 dissect_scsi_ssc2_readposition (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-                    guint offset, gboolean isreq, gboolean iscdb)
+                    guint offset, gboolean isreq, gboolean iscdb,
+                    scsi_task_data_t *cdata)
 {
+    gint service_action;
     guint8 flags;
 
-    if (tree && isreq && iscdb) {
+    if (!tree)
+        return;
+
+    if (isreq && iscdb) {
+        service_action = tvb_get_guint8 (tvb, offset) & 0x1F;
         proto_tree_add_text (tree, tvb, offset, 1,
                              "Service Action: %s",
-                             val_to_str (tvb_get_guint8 (tvb, offset) & 0x1F,
+                             val_to_str (service_action,
                                          service_action_vals,
                                          "Unknown (0x%02x)"));
+        /* Remember the service action so we can decode the reply */
+        if (cdata != NULL) {
+            cdata->flags = service_action;
+        }
         proto_tree_add_text (tree, tvb, offset+6, 2,
                              "Parameter Len: %u",
                              tvb_get_ntohs (tvb, offset+6));
@@ -3410,11 +3439,152 @@ dissect_scsi_ssc2_readposition (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
                                     "Vendor Unique = %u, NACA = %u, Link = %u",
                                     flags & 0xC0, flags & 0x4, flags & 0x1);
     }
+    else if (!isreq) {
+        if (cdata)
+            service_action = cdata->flags;
+        else
+            service_action = -1; /* unknown */
+        switch (service_action) {
+        case SHORT_FORM_BLOCK_ID:
+        case SHORT_FORM_VENDOR_SPECIFIC:
+            flags = tvb_get_guint8 (tvb, offset);
+            proto_tree_add_text (tree, tvb, offset, 1,
+                             "BOP: %u, EOP: %u, BCU: %u, BYCU: %u, BPU: %u, PERR: %u",
+                             (flags & 0x80) >> 7, (flags & 0x40) >> 6,
+                             (flags & BCU) >> 5, (flags & BYCU) >> 4,
+                             (flags & BPU) >> 2, (flags & 0x02) >> 1);
+            offset += 1;
 
-    /*
-     * XXX - need to know the service action in the request to dissect the
-     * reply properly.
-     */
+            proto_tree_add_text (tree, tvb, offset, 1,
+                                 "Partition Number: %u",
+                                 tvb_get_guint8 (tvb, offset));
+            offset += 1;
+
+            offset += 2; /* reserved */
+
+            if (!(flags & BPU)) {
+                proto_tree_add_text (tree, tvb, offset, 4,
+                                     "First Block Location: %u",
+                                     tvb_get_ntohl (tvb, offset));
+                offset += 4;
+
+                proto_tree_add_text (tree, tvb, offset, 4,
+                                     "Last Block Location: %u",
+                                     tvb_get_ntohl (tvb, offset));
+                offset += 4;
+            } else
+                offset += 8;
+
+            offset += 1; /* reserved */
+
+            if (!(flags & BCU)) {
+                proto_tree_add_text (tree, tvb, offset, 3,
+                                     "Number of Blocks in Buffer: %u",
+                                     tvb_get_ntoh24 (tvb, offset));
+            }
+            offset += 3;
+
+            if (!(flags & BYCU)) {
+                proto_tree_add_text (tree, tvb, offset, 4,
+                                     "Number of Bytes in Buffer: %u",
+                                     tvb_get_ntohl (tvb, offset));
+            }
+            offset += 4;
+            break;
+
+        case LONG_FORM:
+            flags = tvb_get_guint8 (tvb, offset);
+            proto_tree_add_text (tree, tvb, offset, 1,
+                             "BOP: %u, EOP: %u, MPU: %u, BPU: %u",
+                             (flags & 0x80) >> 7, (flags & 0x40) >> 6,
+                             (flags & MPU) >> 3, (flags & BPU) >> 2);
+            offset += 1;
+
+            offset += 3; /* reserved */
+
+            if (!(flags & BPU)) {
+                proto_tree_add_text (tree, tvb, offset, 4,
+                                     "Partition Number: %u",
+                                     tvb_get_ntohl (tvb, offset));
+                offset += 4;
+
+                proto_tree_add_text (tree, tvb, offset, 8,
+                                     "Block Number: %s",
+                                     u64toa (tvb_get_ptr (tvb, offset, 8)));
+                 offset += 8;
+            } else
+                offset += 12;
+
+            if (!(flags & MPU)) {
+                proto_tree_add_text (tree, tvb, offset, 8,
+                                     "File Number: %s",
+                                     u64toa (tvb_get_ptr (tvb, offset, 8)));
+                offset += 8;
+
+                proto_tree_add_text (tree, tvb, offset, 8,
+                                     "Set Number: %s",
+                                     u64toa (tvb_get_ptr (tvb, offset, 8)));
+                offset += 8;
+            } else
+                offset += 16;
+            break;
+
+        case EXTENDED_FORM:
+            flags = tvb_get_guint8 (tvb, offset);
+            proto_tree_add_text (tree, tvb, offset, 1,
+                             "BOP: %u, EOP: %u, BCU: %u, BYCU: %u, MPU: %u, BPU: %u, PERR: %u",
+                             (flags & 0x80) >> 7, (flags & 0x40) >> 6,
+                             (flags & BCU) >> 5, (flags & BYCU) >> 4,
+                             (flags & MPU) >> 3, (flags & BPU) >> 2,
+                             (flags & 0x02) >> 1);
+            offset += 1;
+
+            proto_tree_add_text (tree, tvb, offset, 1,
+                                 "Partition Number: %u",
+                                 tvb_get_guint8 (tvb, offset));
+            offset += 1;
+
+            proto_tree_add_text (tree, tvb, offset, 2,
+                                 "Additional Length: %u",
+                                 tvb_get_ntohs (tvb, offset));
+            offset += 2;
+
+            offset += 1; /* reserved */
+
+            if (!(flags & BCU)) {
+                proto_tree_add_text (tree, tvb, offset, 3,
+                                     "Number of Blocks in Buffer: %u",
+                                     tvb_get_ntoh24 (tvb, offset));
+            }
+            offset += 3;
+
+            if (!(flags & BPU)) {
+                proto_tree_add_text (tree, tvb, offset, 8,
+                                     "First Block Location: %s",
+                                     u64toa (tvb_get_ptr (tvb, offset, 8)));
+                offset += 8;
+
+                proto_tree_add_text (tree, tvb, offset, 8,
+                                     "Last Block Location: %s",
+                                     u64toa (tvb_get_ptr (tvb, offset, 8)));
+                offset += 8;
+            } else
+                offset += 16;
+
+            offset += 1; /* reserved */
+
+            if (!(flags & BYCU)) {
+                proto_tree_add_text (tree, tvb, offset, 8,
+                                     "Number of Bytes in Buffer: %s",
+                                     u64toa (tvb_get_ptr (tvb, offset, 8)));
+            }
+            offset += 8;
+            break;
+
+        default:
+            break;
+        }
+    }
 }
 
 static void
@@ -3551,16 +3721,12 @@ dissect_scsi_smc2_element (tvbuff_t *tvb, packet_info *pinfo _U_,
     if (elem_bytecnt < 2)
         return;
     if (flags & EXCEPT) {
-        proto_tree_add_text (tree, tvb, offset, 1,
-                             "Additional Sense Code: 0x%02x",
-                             tvb_get_guint8 (tvb, offset));
-        offset += 1;
-        proto_tree_add_text (tree, tvb, offset, 1,
-                             "Additional Sense Code Qualifier: 0x%02x",
-                             tvb_get_guint8 (tvb, offset));
-        offset += 1;
-    } else
-        offset += 2;
+        proto_tree_add_text (tree, tvb, offset, 2,
+                             "Additional Sense Code+Qualifier: %s",
+                             val_to_str (tvb_get_ntohs (tvb, offset),
+                                         scsi_asc_val, "Unknown"));
+    }
+    offset += 2;
     elem_bytecnt -= 2;
 
     if (elem_bytecnt < 3)
@@ -4216,7 +4382,7 @@ dissect_scsi_cdb (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         case SCSI_SSC2_READ_POSITION:
             dissect_scsi_ssc2_readposition (tvb, pinfo, scsi_tree, offset+1, TRUE,
-                            TRUE);
+                            TRUE, cdata);
             break;
 
         case SCSI_SSC2_REWIND:
@@ -4551,7 +4717,7 @@ dissect_scsi_payload (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
             case SCSI_SSC2_READ_POSITION:
                 dissect_scsi_ssc2_readposition (tvb, pinfo, scsi_tree, offset, isreq,
-                                FALSE);
+                                FALSE, cdata);
                 break;
 
             case SCSI_SSC2_REWIND:
