@@ -2,7 +2,7 @@
  * Routines for NetWare Core Protocol
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-ncp.h,v 1.9 2000/02/15 21:02:40 gram Exp $
+ * $Id: packet-ncp.h,v 1.10 2000/04/20 07:23:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -25,4 +25,3 @@
  */
 
 void dissect_ncp(const u_char *, int, frame_data *, proto_tree *);
-extern guint32 nw_server_address;
