@@ -39,6 +39,17 @@ int drsuapi_dissect_DsReplicaSyncRequest1Info(tvbuff_t *tvb, int offset, packet_
 int drsuapi_dissect_DsReplicaSyncOptions(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 param);
 int drsuapi_dissect_DsReplicaSyncRequest1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 param);
 int drsuapi_dissect_DsGetNCChangesUsnTriple(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 param);
+int drsuapi_dissect_DsReplicaCoursor(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 param);
+int drsuapi_dissect_DsReplicaCoursor05Ctr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 param);
+int drsuapi_dissect_DsGetNCChangesRequest5(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 param);
+int drsuapi_dissect_DsGetNCChangesRequest_Ctr14(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 param);
+int drsuapi_dissect_DsGetNCChangesRequest_Ctr13(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 param);
+int drsuapi_dissect_DsGetNCChangesRequest_Ctr12(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 param);
+int drsuapi_dissect_DsGetNCChangesRequest8(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 param);
+int drsuapi_dissect_DsReplicaCoursorEx(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 param);
+int drsuapi_dissect_DsReplicaCoursorEx05Ctr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 param);
+int drsuapi_dissect_DsGetNCChangesCtr6(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 param);
+int drsuapi_dissect_DsGetNCChangesCtr7(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 param);
 int drsuapi_dissect_DsReplicaUpdateRefsOptions(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 param);
 int drsuapi_dissect_DsReplicaAddOptions(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 param);
 int drsuapi_dissect_DsReplicaDeleteOptions(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 param);
@@ -135,7 +146,6 @@ int drsuapi_dissect_DsReplicaGetInfoRequest1(tvbuff_t *tvb, int offset, packet_i
 int drsuapi_dissect_DsReplicaGetInfoRequest2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 param);
 int drsuapi_dissect_DsReplicaNeighbour(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 param);
 int drsuapi_dissect_DsReplicaNeighbourCtr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 param);
-int drsuapi_dissect_DsReplicaCoursor(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 param);
 int drsuapi_dissect_DsReplicaCoursorCtr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 param);
 int drsuapi_dissect_DsReplicaObjMetaData(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 param);
 int drsuapi_dissect_DsReplicaObjMetaDataCtr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 param);
@@ -162,7 +172,6 @@ int drsuapi_dissect_DsReplicaObjMetaData2(tvbuff_t *tvb, int offset, packet_info
 int drsuapi_dissect_DsReplicaObjMetaData2Ctr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 param);
 int drsuapi_dissect_DsReplicaAttrValMetaData2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 param);
 int drsuapi_dissect_DsReplicaAttrValMetaData2Ctr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 param);
-int drsuapi_dissect_DsReplicaCoursor05Ctr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 param);
 int drsuapi_dissect_DsReplica06(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 param);
 int drsuapi_dissect_DsReplica06Ctr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 param);
 /* END OF INCLUDED FILE : ETH_HDR */

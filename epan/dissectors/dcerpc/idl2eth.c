@@ -1364,9 +1364,11 @@ void parsetypedefstruct(int pass)
 	}
 
 	/* this is pass 0  so reset alignment to zero and update as items are
-	   processed. we need alignment when pass 1 is run */
+	   processed. we need alignment when pass 1 is run.
+	   set alignment initially to 1 so we dont fail for empty structs
+	*/
 	if(pass==0){
-		alignment=0;
+		alignment=1;
 	}
 	/* pass 1  generate header for the struct dissector */
 	if(pass==1){

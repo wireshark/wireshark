@@ -1,5 +1,3 @@
-/*  from samba v4  revision 5742 */
-
 #include "idl_types.h"
 
 [ 
@@ -70,7 +68,6 @@ interface drsuapi
 		uint32 repl_epoch;
 	} drsuapi_DsBindInfo28;
 
-#
 #	typedef struct {
 #		[flag(NDR_REMAINING)] DATA_BLOB info;
 #	} drsuapi_DsBindInfoFallBack;
@@ -80,7 +77,7 @@ interface drsuapi
 #		[case(28)][subcontext(4)] drsuapi_DsBindInfo28 info28;
 #		[default][subcontext(4)] drsuapi_DsBindInfoFallBack FallBack;
 #	} drsuapi_DsBindInfo;
-#
+
 	/* the drsuapi_DsBindInfoCtr was this before
 	 * typedef [flag(NDR_PAHEX)] struct {
 	 *	[range(1,10000)] uint32 length;
@@ -90,12 +87,12 @@ interface drsuapi
 	 * but we don't want the caller to manually decode this blob,
 	 * so we're doing it here
 	 */
-#
+
 #	typedef struct {
 #		[range(1,10000)] uint32 length;
 #		[switch_is(length)] drsuapi_DsBindInfo info;
 #	} drsuapi_DsBindInfoCtr;
-#
+
 	/* this is a magic guid you need to pass to DsBind to make drsuapi_DsWriteAccountSpn() work
 	 * 
 	 * maybe the bind_guid could also be the invocation_id see drsuapi_DsReplicaConnection04
@@ -120,7 +117,6 @@ interface drsuapi
 		uint32 unknown1;
 		uint32 unknown2;
 		GUID guid1;
-		/* this looks like a domain SID followed by a uint32 which is zero */
 		uint8 byte_array[28];
 		uint32 str_len;
 		[size_is(str_len+1)] uint16 nc_dn[];
@@ -178,30 +174,111 @@ interface drsuapi
 		hyper usn3;
 	} drsuapi_DsGetNCChangesUsnTriple;
 
-#	typedef struct {
-#		GUID guid1;
-#		GUID guid2;
-#		uint32 unknown1[20];
-#		drsuapi_DsReplicaSyncRequest1Info sync_req_info1;
-#		drsuapi_DsGetNCChangesUsnTriple usn;
-#	} drsuapi_DsGetNCChangesRequest8;
-#
-#	typedef [switch_type(int32)] union {
-#		[case(8)] drsuapi_DsGetNCChangesRequest8 req8;
-#	} drsuapi_DsGetNCChangesRequest;
+	typedef struct {
+		GUID source_dsa_invocation_id;
+		hyper highest_usn;
+	} drsuapi_DsReplicaCoursor;
 
-#	typedef struct {
-#	} drsuapi_DsGetNCChangesCtr7;
+	typedef struct {
+		uint32 u1;
+		uint32 u2;
+		[range(0,0x100000)] uint32 count;
+		uint32 u3;
+		[size_is(count)] drsuapi_DsReplicaCoursor array[];
+	} drsuapi_DsReplicaCoursor05Ctr;
 
-#	typedef [switch_type(int32)] union {
-#		[case(7)] drsuapi_DsGetNCChangesCtr7 ctr7;
-#	} drsuapi_DsGetNCChangesCtr;
+	typedef struct {
+		GUID guid1;
+		GUID guid2;
+		[ref] drsuapi_DsReplicaSyncRequest1Info *sync_req_info1;
+		drsuapi_DsGetNCChangesUsnTriple usn1;
+		drsuapi_DsReplicaCoursor05Ctr *coursor;
+		uint32 unknown1;
+		uint32 unknown2;
+		uint32 unknown3;
+		uint32 unknown4;
+		hyper h1;
+	} drsuapi_DsGetNCChangesRequest5;
+
+	typedef [flag(NDR_PAHEX)] struct {
+		[range(0,10000)] uint32 length;
+		[size_is(length)] uint8 *byte_array[];
+	} drsuapi_DsGetNCChangesRequest_Ctr14;
+
+	typedef struct {
+		uint32 unknown1;
+		drsuapi_DsGetNCChangesRequest_Ctr14 data;
+	} drsuapi_DsGetNCChangesRequest_Ctr13;
+
+	typedef struct {
+		[range(0,0x100000)] uint32 count;
+		[size_is(count)] drsuapi_DsGetNCChangesRequest_Ctr13 *array[];
+	} drsuapi_DsGetNCChangesRequest_Ctr12;
+
+	typedef struct {
+		GUID guid1;
+		GUID guid2;
+		[ref] drsuapi_DsReplicaSyncRequest1Info *sync_req_info1;
+		drsuapi_DsGetNCChangesUsnTriple usn1;
+		drsuapi_DsReplicaCoursor05Ctr *coursor;
+		uint32 unknown1;
+		uint32 unknown2;
+		uint32 unknown3;
+		uint32 unknown4;
+		hyper h1;
+		uint32 unique_ptr1;
+		uint32 unique_ptr2;
+		drsuapi_DsGetNCChangesRequest_Ctr12 ctr12;
+	} drsuapi_DsGetNCChangesRequest8;
+
+	typedef [switch_type(int32)] union {
+		[case(5)] drsuapi_DsGetNCChangesRequest5 req5;
+		[case(8)] drsuapi_DsGetNCChangesRequest8 req8;
+	} drsuapi_DsGetNCChangesRequest;
+
+	typedef struct {
+		drsuapi_DsReplicaCoursor coursor;
+#		NTTIME_1sec time1;
+		hyper time1;
+	} drsuapi_DsReplicaCoursorEx;
+
+	typedef struct {
+		uint32 u1;
+		uint32 u2;
+		[range(0,0x100000)] uint32 count;
+		uint32 u3;
+		[size_is(count)] drsuapi_DsReplicaCoursorEx array[];
+	} drsuapi_DsReplicaCoursorEx05Ctr;
+
+	typedef struct {
+		GUID guid1;
+		GUID guid2;
+		drsuapi_DsReplicaSyncRequest1Info *sync_req_info1;
+		drsuapi_DsGetNCChangesUsnTriple usn1;
+		drsuapi_DsGetNCChangesUsnTriple usn2;
+		drsuapi_DsReplicaCoursorEx05Ctr *coursor_ex;
+		drsuapi_DsGetNCChangesRequest_Ctr12 ctr12;
+		uint32 u1[3];
+		uint32 ptr1;
+		uint32 u2[3];
+		uint32 len1;
+		uint32 array_ptr1;
+		uint32 u3;
+	} drsuapi_DsGetNCChangesCtr6;
+
+	typedef struct {
+	} drsuapi_DsGetNCChangesCtr7;
+
+	typedef [switch_type(int32)] union {
+		[case(6)] drsuapi_DsGetNCChangesCtr6 ctr6;
+		[case(7)] drsuapi_DsGetNCChangesCtr7 ctr7;
+	} drsuapi_DsGetNCChangesCtr;
 
 	WERROR drsuapi_DsGetNCChanges(
-#		[in,ref] policy_handle *bind_handle,
-#		[in,out] int32 level,
-#		[in,switch_is(level)] drsuapi_DsGetNCChangesRequest req,
-#		[out,switch_is(level)] drsuapi_DsGetNCChangesCtr ctr
+		[in,ref] policy_handle *bind_handle,
+		[in,out] int32 level,
+		[in,switch_is(level),ref] drsuapi_DsGetNCChangesRequest *req,
+		[out,switch_is(level)] drsuapi_DsGetNCChangesCtr ctr
 		);
 
 	/*****************/
@@ -375,7 +452,7 @@ interface drsuapi
 
 	typedef struct {
 #		WERROR status;
-uint32 status;
+		uint32 status;
 	} drsuapi_DsWriteAccountSpnResult1;
 
 	typedef [switch_type(int32)] union {
@@ -460,15 +537,15 @@ uint32 status;
 		[size_is(count)] drsuapi_DsGetDCInfo01 *array[];
 	} drsuapi_DsGetDCInfoCtr01;
 
-	typedef [v1_enum] enum {
-		DRSUAPI_DC_INFO_CTR_1  = 1,
-		DRSUAPI_DC_INFO_CTR_2  = 2,
-		DRSUAPI_DC_INFO_CTR_01 = -1,
-	} drsuapi_DsGetDCInfoCtrLevels;
+ 	typedef [v1_enum] enum {
+ 		DRSUAPI_DC_INFO_CTR_1  = 1,
+ 		DRSUAPI_DC_INFO_CTR_2  = 2,
+ 		DRSUAPI_DC_INFO_CTR_01 = -1,
+ 	} drsuapi_DsGetDCInfoCtrLevels;
 
 	typedef [switch_type(int32)] union {
-		[case(DRSUAPI_DC_INFO_CTR_1)]  drsuapi_DsGetDCInfoCtr1  ctr1;
-		[case(DRSUAPI_DC_INFO_CTR_2)]  drsuapi_DsGetDCInfoCtr2  ctr2;
+		[case(DRSUAPI_DC_INFO_CTR_1)] drsuapi_DsGetDCInfoCtr1 ctr1;
+		[case(DRSUAPI_DC_INFO_CTR_2)] drsuapi_DsGetDCInfoCtr2 ctr2;
 		[case(DRSUAPI_DC_INFO_CTR_01)] drsuapi_DsGetDCInfoCtr01 ctr01;
 	} drsuapi_DsGetDCInfoCtr;
 
@@ -549,7 +626,7 @@ uint32 status;
 		NTTIME last_success;
 		NTTIME last_attempt;
 #		WERROR result_last_attempt;
-uint32 result_last_attempt;
+		uint32 result_last_attempt;
 		uint32 consecutive_sync_failures;
 	} drsuapi_DsReplicaNeighbour;
 
@@ -558,11 +635,6 @@ uint32 result_last_attempt;
 		uint32 reserved;
 		[size_is(count)] drsuapi_DsReplicaNeighbour array[];
 	} drsuapi_DsReplicaNeighbourCtr;
-
-	typedef struct {
-		GUID source_dsa_invocation_id;
-		hyper highest_usn;
-	} drsuapi_DsReplicaCoursor;
 
 	typedef struct {
 		uint32 count;
@@ -591,7 +663,7 @@ uint32 result_last_attempt;
 		NTTIME first_failure;
 		uint32 num_failures;
 #		WERROR last_result;
-uint32 last_result;
+		uint32 last_result;
 	} drsuapi_DsReplicaKccDsaFailure;
 
 	typedef struct {
@@ -733,14 +805,6 @@ uint32 last_result;
 #		uint32 reserved;
 #		[size_is(count)] drsuapi_DsReplicaConnection04 array[];
 #	} drsuapi_DsReplicaConnection04Ctr;
-#
-	typedef struct {
-		uint32 u1;
-		uint32 u2;
-		[range(0,0x100000)] uint32 count;
-		uint32 u3;
-		[size_is(count)] drsuapi_DsReplicaCoursor array[];
-	} drsuapi_DsReplicaCoursor05Ctr;
 
 	typedef struct {
 		unistr *str1;

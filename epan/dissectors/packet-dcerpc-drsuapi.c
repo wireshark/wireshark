@@ -129,6 +129,70 @@ static int hf_drsuapi_DsReplicaSync_req = -1;
 static int hf_drsuapi_DsGetNCChangesUsnTriple_usn1 = -1;
 static int hf_drsuapi_DsGetNCChangesUsnTriple_usn2 = -1;
 static int hf_drsuapi_DsGetNCChangesUsnTriple_usn3 = -1;
+static int hf_drsuapi_DsReplicaCoursor_source_dsa_invocation_id = -1;
+static int hf_drsuapi_DsReplicaCoursor_highest_usn = -1;
+static int hf_drsuapi_DsReplicaCoursor05Ctr_u1 = -1;
+static int hf_drsuapi_DsReplicaCoursor05Ctr_u2 = -1;
+static int hf_drsuapi_DsReplicaCoursor05Ctr_count = -1;
+static int hf_drsuapi_DsReplicaCoursor05Ctr_u3 = -1;
+static int hf_drsuapi_DsReplicaCoursor05Ctr_array = -1;
+static int hf_drsuapi_DsGetNCChangesRequest5_guid1 = -1;
+static int hf_drsuapi_DsGetNCChangesRequest5_guid2 = -1;
+static int hf_drsuapi_DsGetNCChangesRequest5_sync_req_info1 = -1;
+static int hf_drsuapi_DsGetNCChangesRequest5_usn1 = -1;
+static int hf_drsuapi_DsGetNCChangesRequest5_coursor = -1;
+static int hf_drsuapi_DsGetNCChangesRequest5_unknown1 = -1;
+static int hf_drsuapi_DsGetNCChangesRequest5_unknown2 = -1;
+static int hf_drsuapi_DsGetNCChangesRequest5_unknown3 = -1;
+static int hf_drsuapi_DsGetNCChangesRequest5_unknown4 = -1;
+static int hf_drsuapi_DsGetNCChangesRequest5_h1 = -1;
+static int hf_drsuapi_DsGetNCChangesRequest_Ctr14_length = -1;
+static int hf_drsuapi_DsGetNCChangesRequest_Ctr14_byte_array = -1;
+static int hf_drsuapi_DsGetNCChangesRequest_Ctr13_unknown1 = -1;
+static int hf_drsuapi_DsGetNCChangesRequest_Ctr13_data = -1;
+static int hf_drsuapi_DsGetNCChangesRequest_Ctr12_count = -1;
+static int hf_drsuapi_DsGetNCChangesRequest_Ctr12_array = -1;
+static int hf_drsuapi_DsGetNCChangesRequest8_guid1 = -1;
+static int hf_drsuapi_DsGetNCChangesRequest8_guid2 = -1;
+static int hf_drsuapi_DsGetNCChangesRequest8_sync_req_info1 = -1;
+static int hf_drsuapi_DsGetNCChangesRequest8_usn1 = -1;
+static int hf_drsuapi_DsGetNCChangesRequest8_coursor = -1;
+static int hf_drsuapi_DsGetNCChangesRequest8_unknown1 = -1;
+static int hf_drsuapi_DsGetNCChangesRequest8_unknown2 = -1;
+static int hf_drsuapi_DsGetNCChangesRequest8_unknown3 = -1;
+static int hf_drsuapi_DsGetNCChangesRequest8_unknown4 = -1;
+static int hf_drsuapi_DsGetNCChangesRequest8_h1 = -1;
+static int hf_drsuapi_DsGetNCChangesRequest8_unique_ptr1 = -1;
+static int hf_drsuapi_DsGetNCChangesRequest8_unique_ptr2 = -1;
+static int hf_drsuapi_DsGetNCChangesRequest8_ctr12 = -1;
+static int hf_drsuapi_DsGetNCChangesRequest_5_req5 = -1;
+static int hf_drsuapi_DsGetNCChangesRequest_8_req8 = -1;
+static int hf_drsuapi_DsReplicaCoursorEx_coursor = -1;
+static int hf_drsuapi_DsReplicaCoursorEx_time1 = -1;
+static int hf_drsuapi_DsReplicaCoursorEx05Ctr_u1 = -1;
+static int hf_drsuapi_DsReplicaCoursorEx05Ctr_u2 = -1;
+static int hf_drsuapi_DsReplicaCoursorEx05Ctr_count = -1;
+static int hf_drsuapi_DsReplicaCoursorEx05Ctr_u3 = -1;
+static int hf_drsuapi_DsReplicaCoursorEx05Ctr_array = -1;
+static int hf_drsuapi_DsGetNCChangesCtr6_guid1 = -1;
+static int hf_drsuapi_DsGetNCChangesCtr6_guid2 = -1;
+static int hf_drsuapi_DsGetNCChangesCtr6_sync_req_info1 = -1;
+static int hf_drsuapi_DsGetNCChangesCtr6_usn1 = -1;
+static int hf_drsuapi_DsGetNCChangesCtr6_usn2 = -1;
+static int hf_drsuapi_DsGetNCChangesCtr6_coursor_ex = -1;
+static int hf_drsuapi_DsGetNCChangesCtr6_ctr12 = -1;
+static int hf_drsuapi_DsGetNCChangesCtr6_u1 = -1;
+static int hf_drsuapi_DsGetNCChangesCtr6_ptr1 = -1;
+static int hf_drsuapi_DsGetNCChangesCtr6_u2 = -1;
+static int hf_drsuapi_DsGetNCChangesCtr6_len1 = -1;
+static int hf_drsuapi_DsGetNCChangesCtr6_array_ptr1 = -1;
+static int hf_drsuapi_DsGetNCChangesCtr6_u3 = -1;
+static int hf_drsuapi_DsGetNCChangesCtr_6_ctr6 = -1;
+static int hf_drsuapi_DsGetNCChangesCtr_7_ctr7 = -1;
+static int hf_drsuapi_DsGetNCChanges_bind_handle = -1;
+static int hf_drsuapi_DsGetNCChanges_level = -1;
+static int hf_drsuapi_DsGetNCChanges_req = -1;
+static int hf_drsuapi_DsGetNCChanges_ctr = -1;
 static int hf_drsuapi_DsReplicaUpdateRefsOptions_DRSUAPI_DS_REPLICA_UPDATE_ASYNCHRONOUS_OPERATION = -1;
 static int hf_drsuapi_DsReplicaUpdateRefsOptions_DRSUAPI_DS_REPLICA_UPDATE_WRITEABLE = -1;
 static int hf_drsuapi_DsReplicaUpdateRefsOptions_DRSUAPI_DS_REPLICA_UPDATE_ADD_REFERENCE = -1;
@@ -246,8 +310,6 @@ static int hf_drsuapi_DsReplicaNeighbour_consecutive_sync_failures = -1;
 static int hf_drsuapi_DsReplicaNeighbourCtr_count = -1;
 static int hf_drsuapi_DsReplicaNeighbourCtr_reserved = -1;
 static int hf_drsuapi_DsReplicaNeighbourCtr_array = -1;
-static int hf_drsuapi_DsReplicaCoursor_source_dsa_invocation_id = -1;
-static int hf_drsuapi_DsReplicaCoursor_highest_usn = -1;
 static int hf_drsuapi_DsReplicaCoursorCtr_count = -1;
 static int hf_drsuapi_DsReplicaCoursorCtr_reserved = -1;
 static int hf_drsuapi_DsReplicaCoursorCtr_array = -1;
@@ -339,11 +401,6 @@ static int hf_drsuapi_DsReplicaAttrValMetaData2_originating_dsa_obj_dn = -1;
 static int hf_drsuapi_DsReplicaAttrValMetaData2Ctr_count = -1;
 static int hf_drsuapi_DsReplicaAttrValMetaData2Ctr_enumeration_context = -1;
 static int hf_drsuapi_DsReplicaAttrValMetaData2Ctr_array = -1;
-static int hf_drsuapi_DsReplicaCoursor05Ctr_u1 = -1;
-static int hf_drsuapi_DsReplicaCoursor05Ctr_u2 = -1;
-static int hf_drsuapi_DsReplicaCoursor05Ctr_count = -1;
-static int hf_drsuapi_DsReplicaCoursor05Ctr_u3 = -1;
-static int hf_drsuapi_DsReplicaCoursor05Ctr_array = -1;
 static int hf_drsuapi_DsReplica06_str1 = -1;
 static int hf_drsuapi_DsReplica06_u1 = -1;
 static int hf_drsuapi_DsReplica06_u2 = -1;
@@ -390,6 +447,19 @@ static gint ett_drsuapi_DsReplicaSyncOptions = -1;
 static gint ett_drsuapi_DsReplicaSyncRequest1 = -1;
 static gint ett_drsuapi_DsReplicaSyncRequest = -1;
 static gint ett_drsuapi_DsGetNCChangesUsnTriple = -1;
+static gint ett_drsuapi_DsReplicaCoursor = -1;
+static gint ett_drsuapi_DsReplicaCoursor05Ctr = -1;
+static gint ett_drsuapi_DsGetNCChangesRequest5 = -1;
+static gint ett_drsuapi_DsGetNCChangesRequest_Ctr14 = -1;
+static gint ett_drsuapi_DsGetNCChangesRequest_Ctr13 = -1;
+static gint ett_drsuapi_DsGetNCChangesRequest_Ctr12 = -1;
+static gint ett_drsuapi_DsGetNCChangesRequest8 = -1;
+static gint ett_drsuapi_DsGetNCChangesRequest = -1;
+static gint ett_drsuapi_DsReplicaCoursorEx = -1;
+static gint ett_drsuapi_DsReplicaCoursorEx05Ctr = -1;
+static gint ett_drsuapi_DsGetNCChangesCtr6 = -1;
+static gint ett_drsuapi_DsGetNCChangesCtr7 = -1;
+static gint ett_drsuapi_DsGetNCChangesCtr = -1;
 static gint ett_drsuapi_DsReplicaUpdateRefsOptions = -1;
 static gint ett_drsuapi_DsReplicaAddOptions = -1;
 static gint ett_drsuapi_DsReplicaDeleteOptions = -1;
@@ -418,7 +488,6 @@ static gint ett_drsuapi_DsReplicaGetInfoRequest2 = -1;
 static gint ett_drsuapi_DsReplicaGetInfoRequest = -1;
 static gint ett_drsuapi_DsReplicaNeighbour = -1;
 static gint ett_drsuapi_DsReplicaNeighbourCtr = -1;
-static gint ett_drsuapi_DsReplicaCoursor = -1;
 static gint ett_drsuapi_DsReplicaCoursorCtr = -1;
 static gint ett_drsuapi_DsReplicaObjMetaData = -1;
 static gint ett_drsuapi_DsReplicaObjMetaDataCtr = -1;
@@ -437,7 +506,6 @@ static gint ett_drsuapi_DsReplicaObjMetaData2 = -1;
 static gint ett_drsuapi_DsReplicaObjMetaData2Ctr = -1;
 static gint ett_drsuapi_DsReplicaAttrValMetaData2 = -1;
 static gint ett_drsuapi_DsReplicaAttrValMetaData2Ctr = -1;
-static gint ett_drsuapi_DsReplicaCoursor05Ctr = -1;
 static gint ett_drsuapi_DsReplica06 = -1;
 static gint ett_drsuapi_DsReplica06Ctr = -1;
 static gint ett_drsuapi_DsReplicaInfo = -1;
@@ -1722,10 +1790,1051 @@ drsuapi_dissect_DsGetNCChangesUsnTriple(tvbuff_t *tvb, int offset, packet_info *
 
     return offset;
 }
+static int
+drsuapi_dissect_DsReplicaCoursor_source_dsa_invocation_id(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    guint32 param=0;
+    offset=drsuapi_dissect_GUID(tvb, offset, pinfo, tree, drep, hf_drsuapi_DsReplicaCoursor_source_dsa_invocation_id, param);
+    return offset;
+}
+
+static int
+drsuapi_dissect_DsReplicaCoursor_highest_usn(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    guint32 param=0;
+    offset=drsuapi_dissect_uint64(tvb, offset, pinfo, tree, drep, hf_drsuapi_DsReplicaCoursor_highest_usn, param);
+    return offset;
+}
+
+
+int
+drsuapi_dissect_DsReplicaCoursor(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_)
+{
+    proto_item *item=NULL;
+    proto_tree *tree=NULL;
+    int old_offset;
+
+    ALIGN_TO_8_BYTES;
+
+    old_offset=offset;
+    if(parent_tree){
+        item=proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
+        tree=proto_item_add_subtree(item, ett_drsuapi_DsReplicaCoursor);
+    }
+
+    offset=drsuapi_dissect_DsReplicaCoursor_source_dsa_invocation_id(tvb, offset, pinfo, tree, drep);
+
+    offset=drsuapi_dissect_DsReplicaCoursor_highest_usn(tvb, offset, pinfo, tree, drep);
+
+    proto_item_set_len(item, offset-old_offset);
+
+    return offset;
+}
+static int
+drsuapi_dissect_DsReplicaCoursor05Ctr_u1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    guint32 param=0;
+    offset=drsuapi_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_drsuapi_DsReplicaCoursor05Ctr_u1, param);
+    return offset;
+}
+
+static int
+drsuapi_dissect_DsReplicaCoursor05Ctr_u2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    guint32 param=0;
+    offset=drsuapi_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_drsuapi_DsReplicaCoursor05Ctr_u2, param);
+    return offset;
+}
+
+static int
+drsuapi_dissect_DsReplicaCoursor05Ctr_count(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    guint32 param=0;
+    offset=drsuapi_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_drsuapi_DsReplicaCoursor05Ctr_count, param);
+    return offset;
+}
+
+static int
+drsuapi_dissect_DsReplicaCoursor05Ctr_u3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    guint32 param=0;
+    offset=drsuapi_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_drsuapi_DsReplicaCoursor05Ctr_u3, param);
+    return offset;
+}
+
+static int
+drsuapi_dissect_DsReplicaCoursor05Ctr_array(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    guint32 param=0;
+    offset=drsuapi_dissect_DsReplicaCoursor(tvb, offset, pinfo, tree, drep, hf_drsuapi_DsReplicaCoursor05Ctr_array, param);
+    return offset;
+}
+
+static int
+ucarray_drsuapi_dissect_DsReplicaCoursor05Ctr_array(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    offset=dissect_ndr_ucarray(tvb, offset, pinfo, tree, drep, drsuapi_dissect_DsReplicaCoursor05Ctr_array);
+    return offset;
+}
+
+
+int
+drsuapi_dissect_DsReplicaCoursor05Ctr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_)
+{
+    proto_item *item=NULL;
+    proto_tree *tree=NULL;
+    int old_offset;
+
+    ALIGN_TO_8_BYTES;
+
+    old_offset=offset;
+    if(parent_tree){
+        item=proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
+        tree=proto_item_add_subtree(item, ett_drsuapi_DsReplicaCoursor05Ctr);
+    }
+
+    offset=drsuapi_dissect_DsReplicaCoursor05Ctr_u1(tvb, offset, pinfo, tree, drep);
+
+    offset=drsuapi_dissect_DsReplicaCoursor05Ctr_u2(tvb, offset, pinfo, tree, drep);
+
+    offset=drsuapi_dissect_DsReplicaCoursor05Ctr_count(tvb, offset, pinfo, tree, drep);
+
+    offset=drsuapi_dissect_DsReplicaCoursor05Ctr_u3(tvb, offset, pinfo, tree, drep);
+
+    offset=ucarray_drsuapi_dissect_DsReplicaCoursor05Ctr_array(tvb, offset, pinfo, tree, drep);
+
+    proto_item_set_len(item, offset-old_offset);
+
+    return offset;
+}
+static int
+drsuapi_dissect_DsGetNCChangesRequest5_guid1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    guint32 param=0;
+    offset=drsuapi_dissect_GUID(tvb, offset, pinfo, tree, drep, hf_drsuapi_DsGetNCChangesRequest5_guid1, param);
+    return offset;
+}
+
+static int
+drsuapi_dissect_DsGetNCChangesRequest5_guid2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    guint32 param=0;
+    offset=drsuapi_dissect_GUID(tvb, offset, pinfo, tree, drep, hf_drsuapi_DsGetNCChangesRequest5_guid2, param);
+    return offset;
+}
+
+static int
+drsuapi_dissect_DsGetNCChangesRequest5_sync_req_info1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    guint32 param=0;
+    offset=drsuapi_dissect_DsReplicaSyncRequest1Info(tvb, offset, pinfo, tree, drep, hf_drsuapi_DsGetNCChangesRequest5_sync_req_info1, param);
+    return offset;
+}
+
+static int
+ref_drsuapi_dissect_DsGetNCChangesRequest5_sync_req_info1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    offset=dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, drsuapi_dissect_DsGetNCChangesRequest5_sync_req_info1, NDR_POINTER_REF, "sync_req_info1", -1);
+    return offset;
+}
+
+static int
+drsuapi_dissect_DsGetNCChangesRequest5_usn1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    guint32 param=0;
+    offset=drsuapi_dissect_DsGetNCChangesUsnTriple(tvb, offset, pinfo, tree, drep, hf_drsuapi_DsGetNCChangesRequest5_usn1, param);
+    return offset;
+}
+
+static int
+drsuapi_dissect_DsGetNCChangesRequest5_coursor(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    guint32 param=0;
+    offset=drsuapi_dissect_DsReplicaCoursor05Ctr(tvb, offset, pinfo, tree, drep, hf_drsuapi_DsGetNCChangesRequest5_coursor, param);
+    return offset;
+}
+
+static int
+unique_drsuapi_dissect_DsGetNCChangesRequest5_coursor(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    offset=dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, drsuapi_dissect_DsGetNCChangesRequest5_coursor, NDR_POINTER_UNIQUE, "coursor", -1);
+    return offset;
+}
+
+static int
+drsuapi_dissect_DsGetNCChangesRequest5_unknown1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    guint32 param=0;
+    offset=drsuapi_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_drsuapi_DsGetNCChangesRequest5_unknown1, param);
+    return offset;
+}
+
+static int
+drsuapi_dissect_DsGetNCChangesRequest5_unknown2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    guint32 param=0;
+    offset=drsuapi_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_drsuapi_DsGetNCChangesRequest5_unknown2, param);
+    return offset;
+}
+
+static int
+drsuapi_dissect_DsGetNCChangesRequest5_unknown3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    guint32 param=0;
+    offset=drsuapi_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_drsuapi_DsGetNCChangesRequest5_unknown3, param);
+    return offset;
+}
+
+static int
+drsuapi_dissect_DsGetNCChangesRequest5_unknown4(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    guint32 param=0;
+    offset=drsuapi_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_drsuapi_DsGetNCChangesRequest5_unknown4, param);
+    return offset;
+}
+
+static int
+drsuapi_dissect_DsGetNCChangesRequest5_h1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    guint32 param=0;
+    offset=drsuapi_dissect_uint64(tvb, offset, pinfo, tree, drep, hf_drsuapi_DsGetNCChangesRequest5_h1, param);
+    return offset;
+}
+
+
+int
+drsuapi_dissect_DsGetNCChangesRequest5(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_)
+{
+    proto_item *item=NULL;
+    proto_tree *tree=NULL;
+    int old_offset;
+
+    ALIGN_TO_8_BYTES;
+
+    old_offset=offset;
+    if(parent_tree){
+        item=proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
+        tree=proto_item_add_subtree(item, ett_drsuapi_DsGetNCChangesRequest5);
+    }
+
+    offset=drsuapi_dissect_DsGetNCChangesRequest5_guid1(tvb, offset, pinfo, tree, drep);
+
+    offset=drsuapi_dissect_DsGetNCChangesRequest5_guid2(tvb, offset, pinfo, tree, drep);
+
+    offset=ref_drsuapi_dissect_DsGetNCChangesRequest5_sync_req_info1(tvb, offset, pinfo, tree, drep);
+
+    offset=drsuapi_dissect_DsGetNCChangesRequest5_usn1(tvb, offset, pinfo, tree, drep);
+
+    offset=unique_drsuapi_dissect_DsGetNCChangesRequest5_coursor(tvb, offset, pinfo, tree, drep);
+
+    offset=drsuapi_dissect_DsGetNCChangesRequest5_unknown1(tvb, offset, pinfo, tree, drep);
+
+    offset=drsuapi_dissect_DsGetNCChangesRequest5_unknown2(tvb, offset, pinfo, tree, drep);
+
+    offset=drsuapi_dissect_DsGetNCChangesRequest5_unknown3(tvb, offset, pinfo, tree, drep);
+
+    offset=drsuapi_dissect_DsGetNCChangesRequest5_unknown4(tvb, offset, pinfo, tree, drep);
+
+    offset=drsuapi_dissect_DsGetNCChangesRequest5_h1(tvb, offset, pinfo, tree, drep);
+
+    proto_item_set_len(item, offset-old_offset);
+
+    return offset;
+}
+static int
+drsuapi_dissect_DsGetNCChangesRequest_Ctr14_length(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    guint32 param=0;
+    offset=drsuapi_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_drsuapi_DsGetNCChangesRequest_Ctr14_length, param);
+    return offset;
+}
+
+static int
+drsuapi_dissect_DsGetNCChangesRequest_Ctr14_byte_array(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    guint32 param=0;
+    offset=drsuapi_dissect_uint8(tvb, offset, pinfo, tree, drep, hf_drsuapi_DsGetNCChangesRequest_Ctr14_byte_array, param);
+    return offset;
+}
+
+static int
+ucarray_drsuapi_dissect_DsGetNCChangesRequest_Ctr14_byte_array(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    offset=dissect_ndr_ucarray(tvb, offset, pinfo, tree, drep, drsuapi_dissect_DsGetNCChangesRequest_Ctr14_byte_array);
+    return offset;
+}
+
+static int
+unique_ucarray_drsuapi_dissect_DsGetNCChangesRequest_Ctr14_byte_array(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    offset=dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, ucarray_drsuapi_dissect_DsGetNCChangesRequest_Ctr14_byte_array, NDR_POINTER_UNIQUE, "byte_array", -1);
+    return offset;
+}
+
+
+int
+drsuapi_dissect_DsGetNCChangesRequest_Ctr14(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_)
+{
+    proto_item *item=NULL;
+    proto_tree *tree=NULL;
+    int old_offset;
+
+    ALIGN_TO_4_BYTES;
+
+    old_offset=offset;
+    if(parent_tree){
+        item=proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
+        tree=proto_item_add_subtree(item, ett_drsuapi_DsGetNCChangesRequest_Ctr14);
+    }
+
+    offset=drsuapi_dissect_DsGetNCChangesRequest_Ctr14_length(tvb, offset, pinfo, tree, drep);
+
+    offset=unique_ucarray_drsuapi_dissect_DsGetNCChangesRequest_Ctr14_byte_array(tvb, offset, pinfo, tree, drep);
+
+    proto_item_set_len(item, offset-old_offset);
+
+    return offset;
+}
+static int
+drsuapi_dissect_DsGetNCChangesRequest_Ctr13_unknown1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    guint32 param=0;
+    offset=drsuapi_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_drsuapi_DsGetNCChangesRequest_Ctr13_unknown1, param);
+    return offset;
+}
+
+static int
+drsuapi_dissect_DsGetNCChangesRequest_Ctr13_data(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    guint32 param=0;
+    offset=drsuapi_dissect_DsGetNCChangesRequest_Ctr14(tvb, offset, pinfo, tree, drep, hf_drsuapi_DsGetNCChangesRequest_Ctr13_data, param);
+    return offset;
+}
+
+
+int
+drsuapi_dissect_DsGetNCChangesRequest_Ctr13(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_)
+{
+    proto_item *item=NULL;
+    proto_tree *tree=NULL;
+    int old_offset;
+
+    ALIGN_TO_4_BYTES;
+
+    old_offset=offset;
+    if(parent_tree){
+        item=proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
+        tree=proto_item_add_subtree(item, ett_drsuapi_DsGetNCChangesRequest_Ctr13);
+    }
+
+    offset=drsuapi_dissect_DsGetNCChangesRequest_Ctr13_unknown1(tvb, offset, pinfo, tree, drep);
+
+    offset=drsuapi_dissect_DsGetNCChangesRequest_Ctr13_data(tvb, offset, pinfo, tree, drep);
+
+    proto_item_set_len(item, offset-old_offset);
+
+    return offset;
+}
+static int
+drsuapi_dissect_DsGetNCChangesRequest_Ctr12_count(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    guint32 param=0;
+    offset=drsuapi_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_drsuapi_DsGetNCChangesRequest_Ctr12_count, param);
+    return offset;
+}
+
+static int
+drsuapi_dissect_DsGetNCChangesRequest_Ctr12_array(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    guint32 param=0;
+    offset=drsuapi_dissect_DsGetNCChangesRequest_Ctr13(tvb, offset, pinfo, tree, drep, hf_drsuapi_DsGetNCChangesRequest_Ctr12_array, param);
+    return offset;
+}
+
+static int
+ucarray_drsuapi_dissect_DsGetNCChangesRequest_Ctr12_array(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    offset=dissect_ndr_ucarray(tvb, offset, pinfo, tree, drep, drsuapi_dissect_DsGetNCChangesRequest_Ctr12_array);
+    return offset;
+}
+
+static int
+unique_ucarray_drsuapi_dissect_DsGetNCChangesRequest_Ctr12_array(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    offset=dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, ucarray_drsuapi_dissect_DsGetNCChangesRequest_Ctr12_array, NDR_POINTER_UNIQUE, "array", -1);
+    return offset;
+}
+
+
+int
+drsuapi_dissect_DsGetNCChangesRequest_Ctr12(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_)
+{
+    proto_item *item=NULL;
+    proto_tree *tree=NULL;
+    int old_offset;
+
+    ALIGN_TO_4_BYTES;
+
+    old_offset=offset;
+    if(parent_tree){
+        item=proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
+        tree=proto_item_add_subtree(item, ett_drsuapi_DsGetNCChangesRequest_Ctr12);
+    }
+
+    offset=drsuapi_dissect_DsGetNCChangesRequest_Ctr12_count(tvb, offset, pinfo, tree, drep);
+
+    offset=unique_ucarray_drsuapi_dissect_DsGetNCChangesRequest_Ctr12_array(tvb, offset, pinfo, tree, drep);
+
+    proto_item_set_len(item, offset-old_offset);
+
+    return offset;
+}
+static int
+drsuapi_dissect_DsGetNCChangesRequest8_guid1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    guint32 param=0;
+    offset=drsuapi_dissect_GUID(tvb, offset, pinfo, tree, drep, hf_drsuapi_DsGetNCChangesRequest8_guid1, param);
+    return offset;
+}
+
+static int
+drsuapi_dissect_DsGetNCChangesRequest8_guid2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    guint32 param=0;
+    offset=drsuapi_dissect_GUID(tvb, offset, pinfo, tree, drep, hf_drsuapi_DsGetNCChangesRequest8_guid2, param);
+    return offset;
+}
+
+static int
+drsuapi_dissect_DsGetNCChangesRequest8_sync_req_info1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    guint32 param=0;
+    offset=drsuapi_dissect_DsReplicaSyncRequest1Info(tvb, offset, pinfo, tree, drep, hf_drsuapi_DsGetNCChangesRequest8_sync_req_info1, param);
+    return offset;
+}
+
+static int
+ref_drsuapi_dissect_DsGetNCChangesRequest8_sync_req_info1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    offset=dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, drsuapi_dissect_DsGetNCChangesRequest8_sync_req_info1, NDR_POINTER_REF, "sync_req_info1", -1);
+    return offset;
+}
+
+static int
+drsuapi_dissect_DsGetNCChangesRequest8_usn1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    guint32 param=0;
+    offset=drsuapi_dissect_DsGetNCChangesUsnTriple(tvb, offset, pinfo, tree, drep, hf_drsuapi_DsGetNCChangesRequest8_usn1, param);
+    return offset;
+}
+
+static int
+drsuapi_dissect_DsGetNCChangesRequest8_coursor(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    guint32 param=0;
+    offset=drsuapi_dissect_DsReplicaCoursor05Ctr(tvb, offset, pinfo, tree, drep, hf_drsuapi_DsGetNCChangesRequest8_coursor, param);
+    return offset;
+}
+
+static int
+unique_drsuapi_dissect_DsGetNCChangesRequest8_coursor(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    offset=dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, drsuapi_dissect_DsGetNCChangesRequest8_coursor, NDR_POINTER_UNIQUE, "coursor", -1);
+    return offset;
+}
+
+static int
+drsuapi_dissect_DsGetNCChangesRequest8_unknown1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    guint32 param=0;
+    offset=drsuapi_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_drsuapi_DsGetNCChangesRequest8_unknown1, param);
+    return offset;
+}
+
+static int
+drsuapi_dissect_DsGetNCChangesRequest8_unknown2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    guint32 param=0;
+    offset=drsuapi_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_drsuapi_DsGetNCChangesRequest8_unknown2, param);
+    return offset;
+}
+
+static int
+drsuapi_dissect_DsGetNCChangesRequest8_unknown3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    guint32 param=0;
+    offset=drsuapi_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_drsuapi_DsGetNCChangesRequest8_unknown3, param);
+    return offset;
+}
+
+static int
+drsuapi_dissect_DsGetNCChangesRequest8_unknown4(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    guint32 param=0;
+    offset=drsuapi_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_drsuapi_DsGetNCChangesRequest8_unknown4, param);
+    return offset;
+}
+
+static int
+drsuapi_dissect_DsGetNCChangesRequest8_h1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    guint32 param=0;
+    offset=drsuapi_dissect_uint64(tvb, offset, pinfo, tree, drep, hf_drsuapi_DsGetNCChangesRequest8_h1, param);
+    return offset;
+}
+
+static int
+drsuapi_dissect_DsGetNCChangesRequest8_unique_ptr1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    guint32 param=0;
+    offset=drsuapi_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_drsuapi_DsGetNCChangesRequest8_unique_ptr1, param);
+    return offset;
+}
+
+static int
+drsuapi_dissect_DsGetNCChangesRequest8_unique_ptr2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    guint32 param=0;
+    offset=drsuapi_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_drsuapi_DsGetNCChangesRequest8_unique_ptr2, param);
+    return offset;
+}
+
+static int
+drsuapi_dissect_DsGetNCChangesRequest8_ctr12(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    guint32 param=0;
+    offset=drsuapi_dissect_DsGetNCChangesRequest_Ctr12(tvb, offset, pinfo, tree, drep, hf_drsuapi_DsGetNCChangesRequest8_ctr12, param);
+    return offset;
+}
+
+
+int
+drsuapi_dissect_DsGetNCChangesRequest8(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_)
+{
+    proto_item *item=NULL;
+    proto_tree *tree=NULL;
+    int old_offset;
+
+    ALIGN_TO_8_BYTES;
+
+    old_offset=offset;
+    if(parent_tree){
+        item=proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
+        tree=proto_item_add_subtree(item, ett_drsuapi_DsGetNCChangesRequest8);
+    }
+
+    offset=drsuapi_dissect_DsGetNCChangesRequest8_guid1(tvb, offset, pinfo, tree, drep);
+
+    offset=drsuapi_dissect_DsGetNCChangesRequest8_guid2(tvb, offset, pinfo, tree, drep);
+
+    offset=ref_drsuapi_dissect_DsGetNCChangesRequest8_sync_req_info1(tvb, offset, pinfo, tree, drep);
+
+    offset=drsuapi_dissect_DsGetNCChangesRequest8_usn1(tvb, offset, pinfo, tree, drep);
+
+    offset=unique_drsuapi_dissect_DsGetNCChangesRequest8_coursor(tvb, offset, pinfo, tree, drep);
+
+    offset=drsuapi_dissect_DsGetNCChangesRequest8_unknown1(tvb, offset, pinfo, tree, drep);
+
+    offset=drsuapi_dissect_DsGetNCChangesRequest8_unknown2(tvb, offset, pinfo, tree, drep);
+
+    offset=drsuapi_dissect_DsGetNCChangesRequest8_unknown3(tvb, offset, pinfo, tree, drep);
+
+    offset=drsuapi_dissect_DsGetNCChangesRequest8_unknown4(tvb, offset, pinfo, tree, drep);
+
+    offset=drsuapi_dissect_DsGetNCChangesRequest8_h1(tvb, offset, pinfo, tree, drep);
+
+    offset=drsuapi_dissect_DsGetNCChangesRequest8_unique_ptr1(tvb, offset, pinfo, tree, drep);
+
+    offset=drsuapi_dissect_DsGetNCChangesRequest8_unique_ptr2(tvb, offset, pinfo, tree, drep);
+
+    offset=drsuapi_dissect_DsGetNCChangesRequest8_ctr12(tvb, offset, pinfo, tree, drep);
+
+    proto_item_set_len(item, offset-old_offset);
+
+    return offset;
+}
+static int
+drsuapi_dissect_union_DsGetNCChangesRequest_5_req5(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    guint32 param=0;
+    offset=drsuapi_dissect_DsGetNCChangesRequest5(tvb, offset, pinfo, tree, drep, hf_drsuapi_DsGetNCChangesRequest_5_req5, param);
+    return offset;
+}
+
+static int
+drsuapi_dissect_union_DsGetNCChangesRequest_8_req8(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    guint32 param=0;
+    offset=drsuapi_dissect_DsGetNCChangesRequest8(tvb, offset, pinfo, tree, drep, hf_drsuapi_DsGetNCChangesRequest_8_req8, param);
+    return offset;
+}
+
+
+static int
+drsuapi_dissect_union_DsGetNCChangesRequest(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_)
+{
+    proto_item *item=NULL;
+    proto_tree *tree=NULL;
+    int old_offset;
+    guint32 level;
+
+    ALIGN_TO_4_BYTES;
+
+    old_offset=offset;
+    if(parent_tree){
+        item=proto_tree_add_text(parent_tree, tvb, offset, -1, "DsGetNCChangesRequest");
+        tree=proto_item_add_subtree(item, ett_drsuapi_DsGetNCChangesRequest);
+    }
+
+    offset=dissect_ndr_uint32(tvb, offset, pinfo, tree,
+                              drep, hf_index, &level);
+
+    switch(level){
+    case 5:
+        ALIGN_TO_8_BYTES;
+        offset=drsuapi_dissect_union_DsGetNCChangesRequest_5_req5(tvb, offset, pinfo, tree, drep);
+        break;
+
+    case 8:
+        ALIGN_TO_8_BYTES;
+        offset=drsuapi_dissect_union_DsGetNCChangesRequest_8_req8(tvb, offset, pinfo, tree, drep);
+        break;
+
+    }
+
+    proto_item_set_len(item, offset-old_offset);
+
+   return offset;
+}
+static int
+drsuapi_dissect_DsReplicaCoursorEx_coursor(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    guint32 param=0;
+    offset=drsuapi_dissect_DsReplicaCoursor(tvb, offset, pinfo, tree, drep, hf_drsuapi_DsReplicaCoursorEx_coursor, param);
+    return offset;
+}
+
+static int
+drsuapi_dissect_DsReplicaCoursorEx_time1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    guint32 param=0;
+    offset=drsuapi_dissect_uint64(tvb, offset, pinfo, tree, drep, hf_drsuapi_DsReplicaCoursorEx_time1, param);
+    return offset;
+}
+
+
+int
+drsuapi_dissect_DsReplicaCoursorEx(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_)
+{
+    proto_item *item=NULL;
+    proto_tree *tree=NULL;
+    int old_offset;
+
+    ALIGN_TO_8_BYTES;
+
+    old_offset=offset;
+    if(parent_tree){
+        item=proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
+        tree=proto_item_add_subtree(item, ett_drsuapi_DsReplicaCoursorEx);
+    }
+
+    offset=drsuapi_dissect_DsReplicaCoursorEx_coursor(tvb, offset, pinfo, tree, drep);
+
+    offset=drsuapi_dissect_DsReplicaCoursorEx_time1(tvb, offset, pinfo, tree, drep);
+
+    proto_item_set_len(item, offset-old_offset);
+
+    return offset;
+}
+static int
+drsuapi_dissect_DsReplicaCoursorEx05Ctr_u1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    guint32 param=0;
+    offset=drsuapi_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_drsuapi_DsReplicaCoursorEx05Ctr_u1, param);
+    return offset;
+}
+
+static int
+drsuapi_dissect_DsReplicaCoursorEx05Ctr_u2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    guint32 param=0;
+    offset=drsuapi_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_drsuapi_DsReplicaCoursorEx05Ctr_u2, param);
+    return offset;
+}
+
+static int
+drsuapi_dissect_DsReplicaCoursorEx05Ctr_count(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    guint32 param=0;
+    offset=drsuapi_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_drsuapi_DsReplicaCoursorEx05Ctr_count, param);
+    return offset;
+}
+
+static int
+drsuapi_dissect_DsReplicaCoursorEx05Ctr_u3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    guint32 param=0;
+    offset=drsuapi_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_drsuapi_DsReplicaCoursorEx05Ctr_u3, param);
+    return offset;
+}
+
+static int
+drsuapi_dissect_DsReplicaCoursorEx05Ctr_array(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    guint32 param=0;
+    offset=drsuapi_dissect_DsReplicaCoursorEx(tvb, offset, pinfo, tree, drep, hf_drsuapi_DsReplicaCoursorEx05Ctr_array, param);
+    return offset;
+}
+
+static int
+ucarray_drsuapi_dissect_DsReplicaCoursorEx05Ctr_array(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    offset=dissect_ndr_ucarray(tvb, offset, pinfo, tree, drep, drsuapi_dissect_DsReplicaCoursorEx05Ctr_array);
+    return offset;
+}
+
+
+int
+drsuapi_dissect_DsReplicaCoursorEx05Ctr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_)
+{
+    proto_item *item=NULL;
+    proto_tree *tree=NULL;
+    int old_offset;
+
+    ALIGN_TO_8_BYTES;
+
+    old_offset=offset;
+    if(parent_tree){
+        item=proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
+        tree=proto_item_add_subtree(item, ett_drsuapi_DsReplicaCoursorEx05Ctr);
+    }
+
+    offset=drsuapi_dissect_DsReplicaCoursorEx05Ctr_u1(tvb, offset, pinfo, tree, drep);
+
+    offset=drsuapi_dissect_DsReplicaCoursorEx05Ctr_u2(tvb, offset, pinfo, tree, drep);
+
+    offset=drsuapi_dissect_DsReplicaCoursorEx05Ctr_count(tvb, offset, pinfo, tree, drep);
+
+    offset=drsuapi_dissect_DsReplicaCoursorEx05Ctr_u3(tvb, offset, pinfo, tree, drep);
+
+    offset=ucarray_drsuapi_dissect_DsReplicaCoursorEx05Ctr_array(tvb, offset, pinfo, tree, drep);
+
+    proto_item_set_len(item, offset-old_offset);
+
+    return offset;
+}
+static int
+drsuapi_dissect_DsGetNCChangesCtr6_guid1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    guint32 param=0;
+    offset=drsuapi_dissect_GUID(tvb, offset, pinfo, tree, drep, hf_drsuapi_DsGetNCChangesCtr6_guid1, param);
+    return offset;
+}
+
+static int
+drsuapi_dissect_DsGetNCChangesCtr6_guid2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    guint32 param=0;
+    offset=drsuapi_dissect_GUID(tvb, offset, pinfo, tree, drep, hf_drsuapi_DsGetNCChangesCtr6_guid2, param);
+    return offset;
+}
+
+static int
+drsuapi_dissect_DsGetNCChangesCtr6_sync_req_info1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    guint32 param=0;
+    offset=drsuapi_dissect_DsReplicaSyncRequest1Info(tvb, offset, pinfo, tree, drep, hf_drsuapi_DsGetNCChangesCtr6_sync_req_info1, param);
+    return offset;
+}
+
+static int
+unique_drsuapi_dissect_DsGetNCChangesCtr6_sync_req_info1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    offset=dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, drsuapi_dissect_DsGetNCChangesCtr6_sync_req_info1, NDR_POINTER_UNIQUE, "sync_req_info1", -1);
+    return offset;
+}
+
+static int
+drsuapi_dissect_DsGetNCChangesCtr6_usn1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    guint32 param=0;
+    offset=drsuapi_dissect_DsGetNCChangesUsnTriple(tvb, offset, pinfo, tree, drep, hf_drsuapi_DsGetNCChangesCtr6_usn1, param);
+    return offset;
+}
+
+static int
+drsuapi_dissect_DsGetNCChangesCtr6_usn2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    guint32 param=0;
+    offset=drsuapi_dissect_DsGetNCChangesUsnTriple(tvb, offset, pinfo, tree, drep, hf_drsuapi_DsGetNCChangesCtr6_usn2, param);
+    return offset;
+}
+
+static int
+drsuapi_dissect_DsGetNCChangesCtr6_coursor_ex(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    guint32 param=0;
+    offset=drsuapi_dissect_DsReplicaCoursorEx05Ctr(tvb, offset, pinfo, tree, drep, hf_drsuapi_DsGetNCChangesCtr6_coursor_ex, param);
+    return offset;
+}
+
+static int
+unique_drsuapi_dissect_DsGetNCChangesCtr6_coursor_ex(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    offset=dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, drsuapi_dissect_DsGetNCChangesCtr6_coursor_ex, NDR_POINTER_UNIQUE, "coursor_ex", -1);
+    return offset;
+}
+
+static int
+drsuapi_dissect_DsGetNCChangesCtr6_ctr12(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    guint32 param=0;
+    offset=drsuapi_dissect_DsGetNCChangesRequest_Ctr12(tvb, offset, pinfo, tree, drep, hf_drsuapi_DsGetNCChangesCtr6_ctr12, param);
+    return offset;
+}
+
+static int
+drsuapi_dissect_DsGetNCChangesCtr6_u1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    guint32 param=0;
+    offset=drsuapi_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_drsuapi_DsGetNCChangesCtr6_u1, param);
+    return offset;
+}
+
+static int
+fixedarray_drsuapi_dissect_DsGetNCChangesCtr6_u1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    int count=3;
+    while(count--){
+        offset=drsuapi_dissect_DsGetNCChangesCtr6_u1(tvb, offset, pinfo, tree, drep);
+    }
+
+    return offset;
+}
+
+static int
+drsuapi_dissect_DsGetNCChangesCtr6_ptr1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    guint32 param=0;
+    offset=drsuapi_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_drsuapi_DsGetNCChangesCtr6_ptr1, param);
+    return offset;
+}
+
+static int
+drsuapi_dissect_DsGetNCChangesCtr6_u2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    guint32 param=0;
+    offset=drsuapi_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_drsuapi_DsGetNCChangesCtr6_u2, param);
+    return offset;
+}
+
+static int
+fixedarray_drsuapi_dissect_DsGetNCChangesCtr6_u2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    int count=3;
+    while(count--){
+        offset=drsuapi_dissect_DsGetNCChangesCtr6_u2(tvb, offset, pinfo, tree, drep);
+    }
+
+    return offset;
+}
+
+static int
+drsuapi_dissect_DsGetNCChangesCtr6_len1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    guint32 param=0;
+    offset=drsuapi_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_drsuapi_DsGetNCChangesCtr6_len1, param);
+    return offset;
+}
+
+static int
+drsuapi_dissect_DsGetNCChangesCtr6_array_ptr1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    guint32 param=0;
+    offset=drsuapi_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_drsuapi_DsGetNCChangesCtr6_array_ptr1, param);
+    return offset;
+}
+
+static int
+drsuapi_dissect_DsGetNCChangesCtr6_u3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    guint32 param=0;
+    offset=drsuapi_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_drsuapi_DsGetNCChangesCtr6_u3, param);
+    return offset;
+}
+
+
+int
+drsuapi_dissect_DsGetNCChangesCtr6(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_)
+{
+    proto_item *item=NULL;
+    proto_tree *tree=NULL;
+    int old_offset;
+
+    ALIGN_TO_8_BYTES;
+
+    old_offset=offset;
+    if(parent_tree){
+        item=proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
+        tree=proto_item_add_subtree(item, ett_drsuapi_DsGetNCChangesCtr6);
+    }
+
+    offset=drsuapi_dissect_DsGetNCChangesCtr6_guid1(tvb, offset, pinfo, tree, drep);
+
+    offset=drsuapi_dissect_DsGetNCChangesCtr6_guid2(tvb, offset, pinfo, tree, drep);
+
+    offset=unique_drsuapi_dissect_DsGetNCChangesCtr6_sync_req_info1(tvb, offset, pinfo, tree, drep);
+
+    offset=drsuapi_dissect_DsGetNCChangesCtr6_usn1(tvb, offset, pinfo, tree, drep);
+
+    offset=drsuapi_dissect_DsGetNCChangesCtr6_usn2(tvb, offset, pinfo, tree, drep);
+
+    offset=unique_drsuapi_dissect_DsGetNCChangesCtr6_coursor_ex(tvb, offset, pinfo, tree, drep);
+
+    offset=drsuapi_dissect_DsGetNCChangesCtr6_ctr12(tvb, offset, pinfo, tree, drep);
+
+    offset=fixedarray_drsuapi_dissect_DsGetNCChangesCtr6_u1(tvb, offset, pinfo, tree, drep);
+
+    offset=drsuapi_dissect_DsGetNCChangesCtr6_ptr1(tvb, offset, pinfo, tree, drep);
+
+    offset=fixedarray_drsuapi_dissect_DsGetNCChangesCtr6_u2(tvb, offset, pinfo, tree, drep);
+
+    offset=drsuapi_dissect_DsGetNCChangesCtr6_len1(tvb, offset, pinfo, tree, drep);
+
+    offset=drsuapi_dissect_DsGetNCChangesCtr6_array_ptr1(tvb, offset, pinfo, tree, drep);
+
+    offset=drsuapi_dissect_DsGetNCChangesCtr6_u3(tvb, offset, pinfo, tree, drep);
+
+    proto_item_set_len(item, offset-old_offset);
+
+    return offset;
+}
+
+int
+drsuapi_dissect_DsGetNCChangesCtr7(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_)
+{
+    proto_item *item=NULL;
+    proto_tree *tree=NULL;
+    int old_offset;
+
+    old_offset=offset;
+    if(parent_tree){
+        item=proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
+        tree=proto_item_add_subtree(item, ett_drsuapi_DsGetNCChangesCtr7);
+    }
+
+    proto_item_set_len(item, offset-old_offset);
+
+    return offset;
+}
+static int
+drsuapi_dissect_union_DsGetNCChangesCtr_6_ctr6(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    guint32 param=0;
+    offset=drsuapi_dissect_DsGetNCChangesCtr6(tvb, offset, pinfo, tree, drep, hf_drsuapi_DsGetNCChangesCtr_6_ctr6, param);
+    return offset;
+}
+
+static int
+drsuapi_dissect_union_DsGetNCChangesCtr_7_ctr7(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    guint32 param=0;
+    offset=drsuapi_dissect_DsGetNCChangesCtr7(tvb, offset, pinfo, tree, drep, hf_drsuapi_DsGetNCChangesCtr_7_ctr7, param);
+    return offset;
+}
+
+
+static int
+drsuapi_dissect_union_DsGetNCChangesCtr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_)
+{
+    proto_item *item=NULL;
+    proto_tree *tree=NULL;
+    int old_offset;
+    guint32 level;
+
+    ALIGN_TO_4_BYTES;
+
+    old_offset=offset;
+    if(parent_tree){
+        item=proto_tree_add_text(parent_tree, tvb, offset, -1, "DsGetNCChangesCtr");
+        tree=proto_item_add_subtree(item, ett_drsuapi_DsGetNCChangesCtr);
+    }
+
+    offset=dissect_ndr_uint32(tvb, offset, pinfo, tree,
+                              drep, hf_index, &level);
+
+    switch(level){
+    case 6:
+        ALIGN_TO_8_BYTES;
+        offset=drsuapi_dissect_union_DsGetNCChangesCtr_6_ctr6(tvb, offset, pinfo, tree, drep);
+        break;
+
+    case 7:
+        offset=drsuapi_dissect_union_DsGetNCChangesCtr_7_ctr7(tvb, offset, pinfo, tree, drep);
+        break;
+
+    }
+
+    proto_item_set_len(item, offset-old_offset);
+
+   return offset;
+}
+static int
+drsuapi_dissect_DsGetNCChanges_bind_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    guint32 param=0;
+    offset=drsuapi_dissect_policy_handle(tvb, offset, pinfo, tree, drep, hf_drsuapi_DsGetNCChanges_bind_handle, param);
+    return offset;
+}
+
+static int
+ref_drsuapi_dissect_DsGetNCChanges_bind_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    offset=dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, drsuapi_dissect_DsGetNCChanges_bind_handle, NDR_POINTER_REF, "bind_handle", -1);
+    return offset;
+}
+
+static int
+drsuapi_dissect_DsGetNCChanges_level(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    guint32 param=0;
+    offset=drsuapi_dissect_int32(tvb, offset, pinfo, tree, drep, hf_drsuapi_DsGetNCChanges_level, param);
+    return offset;
+}
+
+static int
+drsuapi_dissect_DsGetNCChanges_req(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    guint32 param=0;
+    offset=drsuapi_dissect_union_DsGetNCChangesRequest(tvb, offset, pinfo, tree, drep, hf_drsuapi_DsGetNCChanges_req, param);
+    return offset;
+}
+
+static int
+ref_drsuapi_dissect_DsGetNCChanges_req(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    offset=dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, drsuapi_dissect_DsGetNCChanges_req, NDR_POINTER_REF, "req", -1);
+    return offset;
+}
+
+static int
+drsuapi_dissect_DsGetNCChanges_ctr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    guint32 param=0;
+    offset=drsuapi_dissect_union_DsGetNCChangesCtr(tvb, offset, pinfo, tree, drep, hf_drsuapi_DsGetNCChanges_ctr, param);
+    return offset;
+}
+
 
 static int
 drsuapi_dissect_DsGetNCChanges_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
+        offset=ref_drsuapi_dissect_DsGetNCChanges_bind_handle(tvb, offset, pinfo, tree, drep);
+
+        offset=drsuapi_dissect_DsGetNCChanges_level(tvb, offset, pinfo, tree, drep);
+
+        offset=ref_drsuapi_dissect_DsGetNCChanges_req(tvb, offset, pinfo, tree, drep);
+
 
    return offset;
 }
@@ -1733,6 +2842,10 @@ drsuapi_dissect_DsGetNCChanges_request(tvbuff_t *tvb _U_, int offset _U_, packet
 static int
 drsuapi_dissect_DsGetNCChanges_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
+        offset=drsuapi_dissect_DsGetNCChanges_level(tvb, offset, pinfo, tree, drep);
+
+        offset=drsuapi_dissect_DsGetNCChanges_ctr(tvb, offset, pinfo, tree, drep);
+
    offset=dissect_ntstatus(tvb, offset, pinfo, tree, drep, hf_drsuapi_rc, NULL);
 
 
@@ -4270,46 +5383,6 @@ drsuapi_dissect_DsReplicaNeighbourCtr(tvbuff_t *tvb, int offset, packet_info *pi
     return offset;
 }
 static int
-drsuapi_dissect_DsReplicaCoursor_source_dsa_invocation_id(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
-{
-    guint32 param=0;
-    offset=drsuapi_dissect_GUID(tvb, offset, pinfo, tree, drep, hf_drsuapi_DsReplicaCoursor_source_dsa_invocation_id, param);
-    return offset;
-}
-
-static int
-drsuapi_dissect_DsReplicaCoursor_highest_usn(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
-{
-    guint32 param=0;
-    offset=drsuapi_dissect_uint64(tvb, offset, pinfo, tree, drep, hf_drsuapi_DsReplicaCoursor_highest_usn, param);
-    return offset;
-}
-
-
-int
-drsuapi_dissect_DsReplicaCoursor(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_)
-{
-    proto_item *item=NULL;
-    proto_tree *tree=NULL;
-    int old_offset;
-
-    ALIGN_TO_8_BYTES;
-
-    old_offset=offset;
-    if(parent_tree){
-        item=proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
-        tree=proto_item_add_subtree(item, ett_drsuapi_DsReplicaCoursor);
-    }
-
-    offset=drsuapi_dissect_DsReplicaCoursor_source_dsa_invocation_id(tvb, offset, pinfo, tree, drep);
-
-    offset=drsuapi_dissect_DsReplicaCoursor_highest_usn(tvb, offset, pinfo, tree, drep);
-
-    proto_item_set_len(item, offset-old_offset);
-
-    return offset;
-}
-static int
 drsuapi_dissect_DsReplicaCoursorCtr_count(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
     guint32 param=0;
@@ -5804,83 +6877,6 @@ drsuapi_dissect_DsReplicaAttrValMetaData2Ctr(tvbuff_t *tvb, int offset, packet_i
     return offset;
 }
 static int
-drsuapi_dissect_DsReplicaCoursor05Ctr_u1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
-{
-    guint32 param=0;
-    offset=drsuapi_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_drsuapi_DsReplicaCoursor05Ctr_u1, param);
-    return offset;
-}
-
-static int
-drsuapi_dissect_DsReplicaCoursor05Ctr_u2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
-{
-    guint32 param=0;
-    offset=drsuapi_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_drsuapi_DsReplicaCoursor05Ctr_u2, param);
-    return offset;
-}
-
-static int
-drsuapi_dissect_DsReplicaCoursor05Ctr_count(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
-{
-    guint32 param=0;
-    offset=drsuapi_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_drsuapi_DsReplicaCoursor05Ctr_count, param);
-    return offset;
-}
-
-static int
-drsuapi_dissect_DsReplicaCoursor05Ctr_u3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
-{
-    guint32 param=0;
-    offset=drsuapi_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_drsuapi_DsReplicaCoursor05Ctr_u3, param);
-    return offset;
-}
-
-static int
-drsuapi_dissect_DsReplicaCoursor05Ctr_array(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
-{
-    guint32 param=0;
-    offset=drsuapi_dissect_DsReplicaCoursor(tvb, offset, pinfo, tree, drep, hf_drsuapi_DsReplicaCoursor05Ctr_array, param);
-    return offset;
-}
-
-static int
-ucarray_drsuapi_dissect_DsReplicaCoursor05Ctr_array(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
-{
-    offset=dissect_ndr_ucarray(tvb, offset, pinfo, tree, drep, drsuapi_dissect_DsReplicaCoursor05Ctr_array);
-    return offset;
-}
-
-
-int
-drsuapi_dissect_DsReplicaCoursor05Ctr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_)
-{
-    proto_item *item=NULL;
-    proto_tree *tree=NULL;
-    int old_offset;
-
-    ALIGN_TO_8_BYTES;
-
-    old_offset=offset;
-    if(parent_tree){
-        item=proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
-        tree=proto_item_add_subtree(item, ett_drsuapi_DsReplicaCoursor05Ctr);
-    }
-
-    offset=drsuapi_dissect_DsReplicaCoursor05Ctr_u1(tvb, offset, pinfo, tree, drep);
-
-    offset=drsuapi_dissect_DsReplicaCoursor05Ctr_u2(tvb, offset, pinfo, tree, drep);
-
-    offset=drsuapi_dissect_DsReplicaCoursor05Ctr_count(tvb, offset, pinfo, tree, drep);
-
-    offset=drsuapi_dissect_DsReplicaCoursor05Ctr_u3(tvb, offset, pinfo, tree, drep);
-
-    offset=ucarray_drsuapi_dissect_DsReplicaCoursor05Ctr_array(tvb, offset, pinfo, tree, drep);
-
-    proto_item_set_len(item, offset-old_offset);
-
-    return offset;
-}
-static int
 drsuapi_dissect_DsReplica06_str1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
     guint32 param=0;
@@ -6940,6 +7936,326 @@ proto_register_drsuapi(void)
           NULL, 0,
          "", HFILL }},
 
+        { &hf_drsuapi_DsReplicaCoursor_source_dsa_invocation_id,
+          { "source_dsa_invocation_id", "drsuapi.DsReplicaCoursor.source_dsa_invocation_id", FT_STRING, BASE_NONE,
+          NULL, 0,
+         "", HFILL }},
+
+        { &hf_drsuapi_DsReplicaCoursor_highest_usn,
+          { "highest_usn", "drsuapi.DsReplicaCoursor.highest_usn", FT_UINT64, BASE_DEC,
+          NULL, 0,
+         "", HFILL }},
+
+        { &hf_drsuapi_DsReplicaCoursor05Ctr_u1,
+          { "u1", "drsuapi.DsReplicaCoursor05Ctr.u1", FT_UINT32, BASE_DEC,
+          NULL, 0,
+         "", HFILL }},
+
+        { &hf_drsuapi_DsReplicaCoursor05Ctr_u2,
+          { "u2", "drsuapi.DsReplicaCoursor05Ctr.u2", FT_UINT32, BASE_DEC,
+          NULL, 0,
+         "", HFILL }},
+
+        { &hf_drsuapi_DsReplicaCoursor05Ctr_count,
+          { "count", "drsuapi.DsReplicaCoursor05Ctr.count", FT_UINT32, BASE_DEC,
+          NULL, 0,
+         "", HFILL }},
+
+        { &hf_drsuapi_DsReplicaCoursor05Ctr_u3,
+          { "u3", "drsuapi.DsReplicaCoursor05Ctr.u3", FT_UINT32, BASE_DEC,
+          NULL, 0,
+         "", HFILL }},
+
+        { &hf_drsuapi_DsReplicaCoursor05Ctr_array,
+          { "array", "drsuapi.DsReplicaCoursor05Ctr.array", FT_NONE, BASE_NONE,
+          NULL, 0,
+         "", HFILL }},
+
+        { &hf_drsuapi_DsGetNCChangesRequest5_guid1,
+          { "guid1", "drsuapi.DsGetNCChangesRequest5.guid1", FT_STRING, BASE_NONE,
+          NULL, 0,
+         "", HFILL }},
+
+        { &hf_drsuapi_DsGetNCChangesRequest5_guid2,
+          { "guid2", "drsuapi.DsGetNCChangesRequest5.guid2", FT_STRING, BASE_NONE,
+          NULL, 0,
+         "", HFILL }},
+
+        { &hf_drsuapi_DsGetNCChangesRequest5_sync_req_info1,
+          { "sync_req_info1", "drsuapi.DsGetNCChangesRequest5.sync_req_info1", FT_NONE, BASE_NONE,
+          NULL, 0,
+         "", HFILL }},
+
+        { &hf_drsuapi_DsGetNCChangesRequest5_usn1,
+          { "usn1", "drsuapi.DsGetNCChangesRequest5.usn1", FT_NONE, BASE_NONE,
+          NULL, 0,
+         "", HFILL }},
+
+        { &hf_drsuapi_DsGetNCChangesRequest5_coursor,
+          { "coursor", "drsuapi.DsGetNCChangesRequest5.coursor", FT_NONE, BASE_NONE,
+          NULL, 0,
+         "", HFILL }},
+
+        { &hf_drsuapi_DsGetNCChangesRequest5_unknown1,
+          { "unknown1", "drsuapi.DsGetNCChangesRequest5.unknown1", FT_UINT32, BASE_DEC,
+          NULL, 0,
+         "", HFILL }},
+
+        { &hf_drsuapi_DsGetNCChangesRequest5_unknown2,
+          { "unknown2", "drsuapi.DsGetNCChangesRequest5.unknown2", FT_UINT32, BASE_DEC,
+          NULL, 0,
+         "", HFILL }},
+
+        { &hf_drsuapi_DsGetNCChangesRequest5_unknown3,
+          { "unknown3", "drsuapi.DsGetNCChangesRequest5.unknown3", FT_UINT32, BASE_DEC,
+          NULL, 0,
+         "", HFILL }},
+
+        { &hf_drsuapi_DsGetNCChangesRequest5_unknown4,
+          { "unknown4", "drsuapi.DsGetNCChangesRequest5.unknown4", FT_UINT32, BASE_DEC,
+          NULL, 0,
+         "", HFILL }},
+
+        { &hf_drsuapi_DsGetNCChangesRequest5_h1,
+          { "h1", "drsuapi.DsGetNCChangesRequest5.h1", FT_UINT64, BASE_DEC,
+          NULL, 0,
+         "", HFILL }},
+
+        { &hf_drsuapi_DsGetNCChangesRequest_Ctr14_length,
+          { "length", "drsuapi.DsGetNCChangesRequest_Ctr14.length", FT_UINT32, BASE_DEC,
+          NULL, 0,
+         "", HFILL }},
+
+        { &hf_drsuapi_DsGetNCChangesRequest_Ctr14_byte_array,
+          { "byte_array", "drsuapi.DsGetNCChangesRequest_Ctr14.byte_array", FT_UINT8, BASE_DEC,
+          NULL, 0,
+         "", HFILL }},
+
+        { &hf_drsuapi_DsGetNCChangesRequest_Ctr13_unknown1,
+          { "unknown1", "drsuapi.DsGetNCChangesRequest_Ctr13.unknown1", FT_UINT32, BASE_DEC,
+          NULL, 0,
+         "", HFILL }},
+
+        { &hf_drsuapi_DsGetNCChangesRequest_Ctr13_data,
+          { "data", "drsuapi.DsGetNCChangesRequest_Ctr13.data", FT_NONE, BASE_NONE,
+          NULL, 0,
+         "", HFILL }},
+
+        { &hf_drsuapi_DsGetNCChangesRequest_Ctr12_count,
+          { "count", "drsuapi.DsGetNCChangesRequest_Ctr12.count", FT_UINT32, BASE_DEC,
+          NULL, 0,
+         "", HFILL }},
+
+        { &hf_drsuapi_DsGetNCChangesRequest_Ctr12_array,
+          { "array", "drsuapi.DsGetNCChangesRequest_Ctr12.array", FT_NONE, BASE_NONE,
+          NULL, 0,
+         "", HFILL }},
+
+        { &hf_drsuapi_DsGetNCChangesRequest8_guid1,
+          { "guid1", "drsuapi.DsGetNCChangesRequest8.guid1", FT_STRING, BASE_NONE,
+          NULL, 0,
+         "", HFILL }},
+
+        { &hf_drsuapi_DsGetNCChangesRequest8_guid2,
+          { "guid2", "drsuapi.DsGetNCChangesRequest8.guid2", FT_STRING, BASE_NONE,
+          NULL, 0,
+         "", HFILL }},
+
+        { &hf_drsuapi_DsGetNCChangesRequest8_sync_req_info1,
+          { "sync_req_info1", "drsuapi.DsGetNCChangesRequest8.sync_req_info1", FT_NONE, BASE_NONE,
+          NULL, 0,
+         "", HFILL }},
+
+        { &hf_drsuapi_DsGetNCChangesRequest8_usn1,
+          { "usn1", "drsuapi.DsGetNCChangesRequest8.usn1", FT_NONE, BASE_NONE,
+          NULL, 0,
+         "", HFILL }},
+
+        { &hf_drsuapi_DsGetNCChangesRequest8_coursor,
+          { "coursor", "drsuapi.DsGetNCChangesRequest8.coursor", FT_NONE, BASE_NONE,
+          NULL, 0,
+         "", HFILL }},
+
+        { &hf_drsuapi_DsGetNCChangesRequest8_unknown1,
+          { "unknown1", "drsuapi.DsGetNCChangesRequest8.unknown1", FT_UINT32, BASE_DEC,
+          NULL, 0,
+         "", HFILL }},
+
+        { &hf_drsuapi_DsGetNCChangesRequest8_unknown2,
+          { "unknown2", "drsuapi.DsGetNCChangesRequest8.unknown2", FT_UINT32, BASE_DEC,
+          NULL, 0,
+         "", HFILL }},
+
+        { &hf_drsuapi_DsGetNCChangesRequest8_unknown3,
+          { "unknown3", "drsuapi.DsGetNCChangesRequest8.unknown3", FT_UINT32, BASE_DEC,
+          NULL, 0,
+         "", HFILL }},
+
+        { &hf_drsuapi_DsGetNCChangesRequest8_unknown4,
+          { "unknown4", "drsuapi.DsGetNCChangesRequest8.unknown4", FT_UINT32, BASE_DEC,
+          NULL, 0,
+         "", HFILL }},
+
+        { &hf_drsuapi_DsGetNCChangesRequest8_h1,
+          { "h1", "drsuapi.DsGetNCChangesRequest8.h1", FT_UINT64, BASE_DEC,
+          NULL, 0,
+         "", HFILL }},
+
+        { &hf_drsuapi_DsGetNCChangesRequest8_unique_ptr1,
+          { "unique_ptr1", "drsuapi.DsGetNCChangesRequest8.unique_ptr1", FT_UINT32, BASE_DEC,
+          NULL, 0,
+         "", HFILL }},
+
+        { &hf_drsuapi_DsGetNCChangesRequest8_unique_ptr2,
+          { "unique_ptr2", "drsuapi.DsGetNCChangesRequest8.unique_ptr2", FT_UINT32, BASE_DEC,
+          NULL, 0,
+         "", HFILL }},
+
+        { &hf_drsuapi_DsGetNCChangesRequest8_ctr12,
+          { "ctr12", "drsuapi.DsGetNCChangesRequest8.ctr12", FT_NONE, BASE_NONE,
+          NULL, 0,
+         "", HFILL }},
+
+        { &hf_drsuapi_DsGetNCChangesRequest_5_req5,
+          { "req5", "drsuapi.DsGetNCChangesRequest.req5", FT_NONE, BASE_NONE,
+          NULL, 0,
+         "", HFILL }},
+
+        { &hf_drsuapi_DsGetNCChangesRequest_8_req8,
+          { "req8", "drsuapi.DsGetNCChangesRequest.req8", FT_NONE, BASE_NONE,
+          NULL, 0,
+         "", HFILL }},
+
+        { &hf_drsuapi_DsReplicaCoursorEx_coursor,
+          { "coursor", "drsuapi.DsReplicaCoursorEx.coursor", FT_NONE, BASE_NONE,
+          NULL, 0,
+         "", HFILL }},
+
+        { &hf_drsuapi_DsReplicaCoursorEx_time1,
+          { "time1", "drsuapi.DsReplicaCoursorEx.time1", FT_UINT64, BASE_DEC,
+          NULL, 0,
+         "", HFILL }},
+
+        { &hf_drsuapi_DsReplicaCoursorEx05Ctr_u1,
+          { "u1", "drsuapi.DsReplicaCoursorEx05Ctr.u1", FT_UINT32, BASE_DEC,
+          NULL, 0,
+         "", HFILL }},
+
+        { &hf_drsuapi_DsReplicaCoursorEx05Ctr_u2,
+          { "u2", "drsuapi.DsReplicaCoursorEx05Ctr.u2", FT_UINT32, BASE_DEC,
+          NULL, 0,
+         "", HFILL }},
+
+        { &hf_drsuapi_DsReplicaCoursorEx05Ctr_count,
+          { "count", "drsuapi.DsReplicaCoursorEx05Ctr.count", FT_UINT32, BASE_DEC,
+          NULL, 0,
+         "", HFILL }},
+
+        { &hf_drsuapi_DsReplicaCoursorEx05Ctr_u3,
+          { "u3", "drsuapi.DsReplicaCoursorEx05Ctr.u3", FT_UINT32, BASE_DEC,
+          NULL, 0,
+         "", HFILL }},
+
+        { &hf_drsuapi_DsReplicaCoursorEx05Ctr_array,
+          { "array", "drsuapi.DsReplicaCoursorEx05Ctr.array", FT_NONE, BASE_NONE,
+          NULL, 0,
+         "", HFILL }},
+
+        { &hf_drsuapi_DsGetNCChangesCtr6_guid1,
+          { "guid1", "drsuapi.DsGetNCChangesCtr6.guid1", FT_STRING, BASE_NONE,
+          NULL, 0,
+         "", HFILL }},
+
+        { &hf_drsuapi_DsGetNCChangesCtr6_guid2,
+          { "guid2", "drsuapi.DsGetNCChangesCtr6.guid2", FT_STRING, BASE_NONE,
+          NULL, 0,
+         "", HFILL }},
+
+        { &hf_drsuapi_DsGetNCChangesCtr6_sync_req_info1,
+          { "sync_req_info1", "drsuapi.DsGetNCChangesCtr6.sync_req_info1", FT_NONE, BASE_NONE,
+          NULL, 0,
+         "", HFILL }},
+
+        { &hf_drsuapi_DsGetNCChangesCtr6_usn1,
+          { "usn1", "drsuapi.DsGetNCChangesCtr6.usn1", FT_NONE, BASE_NONE,
+          NULL, 0,
+         "", HFILL }},
+
+        { &hf_drsuapi_DsGetNCChangesCtr6_usn2,
+          { "usn2", "drsuapi.DsGetNCChangesCtr6.usn2", FT_NONE, BASE_NONE,
+          NULL, 0,
+         "", HFILL }},
+
+        { &hf_drsuapi_DsGetNCChangesCtr6_coursor_ex,
+          { "coursor_ex", "drsuapi.DsGetNCChangesCtr6.coursor_ex", FT_NONE, BASE_NONE,
+          NULL, 0,
+         "", HFILL }},
+
+        { &hf_drsuapi_DsGetNCChangesCtr6_ctr12,
+          { "ctr12", "drsuapi.DsGetNCChangesCtr6.ctr12", FT_NONE, BASE_NONE,
+          NULL, 0,
+         "", HFILL }},
+
+        { &hf_drsuapi_DsGetNCChangesCtr6_u1,
+          { "u1", "drsuapi.DsGetNCChangesCtr6.u1", FT_UINT32, BASE_DEC,
+          NULL, 0,
+         "", HFILL }},
+
+        { &hf_drsuapi_DsGetNCChangesCtr6_ptr1,
+          { "ptr1", "drsuapi.DsGetNCChangesCtr6.ptr1", FT_UINT32, BASE_DEC,
+          NULL, 0,
+         "", HFILL }},
+
+        { &hf_drsuapi_DsGetNCChangesCtr6_u2,
+          { "u2", "drsuapi.DsGetNCChangesCtr6.u2", FT_UINT32, BASE_DEC,
+          NULL, 0,
+         "", HFILL }},
+
+        { &hf_drsuapi_DsGetNCChangesCtr6_len1,
+          { "len1", "drsuapi.DsGetNCChangesCtr6.len1", FT_UINT32, BASE_DEC,
+          NULL, 0,
+         "", HFILL }},
+
+        { &hf_drsuapi_DsGetNCChangesCtr6_array_ptr1,
+          { "array_ptr1", "drsuapi.DsGetNCChangesCtr6.array_ptr1", FT_UINT32, BASE_DEC,
+          NULL, 0,
+         "", HFILL }},
+
+        { &hf_drsuapi_DsGetNCChangesCtr6_u3,
+          { "u3", "drsuapi.DsGetNCChangesCtr6.u3", FT_UINT32, BASE_DEC,
+          NULL, 0,
+         "", HFILL }},
+
+        { &hf_drsuapi_DsGetNCChangesCtr_6_ctr6,
+          { "ctr6", "drsuapi.DsGetNCChangesCtr.ctr6", FT_NONE, BASE_NONE,
+          NULL, 0,
+         "", HFILL }},
+
+        { &hf_drsuapi_DsGetNCChangesCtr_7_ctr7,
+          { "ctr7", "drsuapi.DsGetNCChangesCtr.ctr7", FT_NONE, BASE_NONE,
+          NULL, 0,
+         "", HFILL }},
+
+        { &hf_drsuapi_DsGetNCChanges_bind_handle,
+          { "bind_handle", "drsuapi.DsGetNCChanges.bind_handle", FT_BYTES, BASE_NONE,
+          NULL, 0,
+         "", HFILL }},
+
+        { &hf_drsuapi_DsGetNCChanges_level,
+          { "level", "drsuapi.DsGetNCChanges.level", FT_INT32, BASE_DEC,
+          NULL, 0,
+         "", HFILL }},
+
+        { &hf_drsuapi_DsGetNCChanges_req,
+          { "req", "drsuapi.DsGetNCChanges.req", FT_UINT32, BASE_DEC,
+          NULL, 0,
+         "", HFILL }},
+
+        { &hf_drsuapi_DsGetNCChanges_ctr,
+          { "ctr", "drsuapi.DsGetNCChanges.ctr", FT_UINT32, BASE_DEC,
+          NULL, 0,
+         "", HFILL }},
+
         { &hf_drsuapi_DsReplicaUpdateRefsOptions_DRSUAPI_DS_REPLICA_UPDATE_ASYNCHRONOUS_OPERATION,
           { "DRSUAPI_DS_REPLICA_UPDATE_ASYNCHRONOUS_OPERATION", "drsuapi.DsReplicaUpdateRefsOptions.DRSUAPI_DS_REPLICA_UPDATE_ASYNCHRONOUS_OPERATION", FT_BOOLEAN, 32,
           TFS(&DRSUAPI_DS_REPLICA_UPDATE_ASYNCHRONOUS_OPERATION_tfs), 0x00000001,
@@ -7525,16 +8841,6 @@ proto_register_drsuapi(void)
           NULL, 0,
          "", HFILL }},
 
-        { &hf_drsuapi_DsReplicaCoursor_source_dsa_invocation_id,
-          { "source_dsa_invocation_id", "drsuapi.DsReplicaCoursor.source_dsa_invocation_id", FT_STRING, BASE_NONE,
-          NULL, 0,
-         "", HFILL }},
-
-        { &hf_drsuapi_DsReplicaCoursor_highest_usn,
-          { "highest_usn", "drsuapi.DsReplicaCoursor.highest_usn", FT_UINT64, BASE_DEC,
-          NULL, 0,
-         "", HFILL }},
-
         { &hf_drsuapi_DsReplicaCoursorCtr_count,
           { "count", "drsuapi.DsReplicaCoursorCtr.count", FT_UINT32, BASE_DEC,
           NULL, 0,
@@ -7990,31 +9296,6 @@ proto_register_drsuapi(void)
           NULL, 0,
          "", HFILL }},
 
-        { &hf_drsuapi_DsReplicaCoursor05Ctr_u1,
-          { "u1", "drsuapi.DsReplicaCoursor05Ctr.u1", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         "", HFILL }},
-
-        { &hf_drsuapi_DsReplicaCoursor05Ctr_u2,
-          { "u2", "drsuapi.DsReplicaCoursor05Ctr.u2", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         "", HFILL }},
-
-        { &hf_drsuapi_DsReplicaCoursor05Ctr_count,
-          { "count", "drsuapi.DsReplicaCoursor05Ctr.count", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         "", HFILL }},
-
-        { &hf_drsuapi_DsReplicaCoursor05Ctr_u3,
-          { "u3", "drsuapi.DsReplicaCoursor05Ctr.u3", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         "", HFILL }},
-
-        { &hf_drsuapi_DsReplicaCoursor05Ctr_array,
-          { "array", "drsuapi.DsReplicaCoursor05Ctr.array", FT_NONE, BASE_NONE,
-          NULL, 0,
-         "", HFILL }},
-
         { &hf_drsuapi_DsReplica06_str1,
           { "str1", "drsuapi.DsReplica06.str1", FT_STRING, BASE_DEC,
           NULL, 0,
@@ -8183,6 +9464,19 @@ proto_register_drsuapi(void)
         &ett_drsuapi_DsReplicaSyncRequest1,
         &ett_drsuapi_DsReplicaSyncRequest,
         &ett_drsuapi_DsGetNCChangesUsnTriple,
+        &ett_drsuapi_DsReplicaCoursor,
+        &ett_drsuapi_DsReplicaCoursor05Ctr,
+        &ett_drsuapi_DsGetNCChangesRequest5,
+        &ett_drsuapi_DsGetNCChangesRequest_Ctr14,
+        &ett_drsuapi_DsGetNCChangesRequest_Ctr13,
+        &ett_drsuapi_DsGetNCChangesRequest_Ctr12,
+        &ett_drsuapi_DsGetNCChangesRequest8,
+        &ett_drsuapi_DsGetNCChangesRequest,
+        &ett_drsuapi_DsReplicaCoursorEx,
+        &ett_drsuapi_DsReplicaCoursorEx05Ctr,
+        &ett_drsuapi_DsGetNCChangesCtr6,
+        &ett_drsuapi_DsGetNCChangesCtr7,
+        &ett_drsuapi_DsGetNCChangesCtr,
         &ett_drsuapi_DsReplicaUpdateRefsOptions,
         &ett_drsuapi_DsReplicaAddOptions,
         &ett_drsuapi_DsReplicaDeleteOptions,
@@ -8211,7 +9505,6 @@ proto_register_drsuapi(void)
         &ett_drsuapi_DsReplicaGetInfoRequest,
         &ett_drsuapi_DsReplicaNeighbour,
         &ett_drsuapi_DsReplicaNeighbourCtr,
-        &ett_drsuapi_DsReplicaCoursor,
         &ett_drsuapi_DsReplicaCoursorCtr,
         &ett_drsuapi_DsReplicaObjMetaData,
         &ett_drsuapi_DsReplicaObjMetaDataCtr,
@@ -8230,7 +9523,6 @@ proto_register_drsuapi(void)
         &ett_drsuapi_DsReplicaObjMetaData2Ctr,
         &ett_drsuapi_DsReplicaAttrValMetaData2,
         &ett_drsuapi_DsReplicaAttrValMetaData2Ctr,
-        &ett_drsuapi_DsReplicaCoursor05Ctr,
         &ett_drsuapi_DsReplica06,
         &ett_drsuapi_DsReplica06Ctr,
         &ett_drsuapi_DsReplicaInfo,
