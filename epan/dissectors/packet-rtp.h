@@ -58,7 +58,7 @@ struct _rtp_conversation_info
 {
 	gchar   method[MAX_RTP_SETUP_METHOD_SIZE + 1];
 	guint32 frame_number;
-	guint32 rtp_event_pt;	/* this is payload type for dynamic RTP events (RFC2833) */
+	GHashTable *rtp_dyn_payload;   /* a hash table with the dynamic RTP payload */
 };
 
 /* Add an RTP conversation with the given details */
@@ -67,4 +67,8 @@ void rtp_add_address(packet_info *pinfo,
                      int other_port,
                      gchar *setup_method, 
 					 guint32 setup_frame_number,
-					 int rtp_event_pt);
+					 GHashTable *rtp_dyn_payload);
+
+/* Free and destroy the dyn_payload hash table */
+void rtp_free_hash_dyn_payload(GHashTable *rtp_dyn_payload);
+
