@@ -1,7 +1,7 @@
 /* capture_dlg.c
  * Routines for packet capture windows
  *
- * $Id: capture_dlg.c,v 1.51 2001/12/04 09:46:01 guy Exp $
+ * $Id: capture_dlg.c,v 1.52 2001/12/09 03:20:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -652,7 +652,11 @@ capture_prep_ok_cb(GtkWidget *ok_bt, gpointer parent_w) {
     save_file = NULL;
   }
 
-  cfile.count = atoi(gtk_entry_get_text(GTK_ENTRY(GTK_COMBO(count_cb)->entry)));
+  value = get_positive_int(gtk_entry_get_text(GTK_ENTRY(GTK_COMBO(count_cb)->entry)),
+      "maximum packet count");
+  if (value == -1)
+    return;	/* error */
+  cfile.count = value;
 
   value = get_positive_int(gtk_entry_get_text(GTK_ENTRY(GTK_COMBO(filesize_cb)->entry)),
       "maximum capture file size");
