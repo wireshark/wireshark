@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.264 2002/05/26 09:47:47 guy Exp $
+ * $Id: packet-smb.c,v 1.265 2002/05/29 19:55:55 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3415,7 +3415,7 @@ dissect_write_file_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, 
-				", %d byte%s at offset %d", cnt, 
+				", %u byte%s at offset %u", cnt, 
 				(cnt == 1) ? "" : "s", ofs);
 
 	/* remaining */
@@ -3466,7 +3466,7 @@ dissect_write_file_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, 
-				", %d byte%s", cnt, (cnt == 1) ? "" : "s");
+				", %u byte%s", cnt, (cnt == 1) ? "" : "s");
 
 	BYTE_COUNT;
 
@@ -5118,7 +5118,7 @@ dissect_read_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, 
-				", %d byte%s at offset %d", maxcnt, 
+				", %u byte%s at offset %u", maxcnt, 
 				(maxcnt == 1) ? "" : "s", ofs);
 
 	/* min count */
@@ -5203,7 +5203,7 @@ dissect_read_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, 
-				", %d byte%s", datalen, 
+				", %u byte%s", datalen, 
 				(datalen == 1) ? "" : "s");
 
 	/* data offset */
