@@ -4,7 +4,7 @@
  * Uwe Girlich <uwe@planetquake.com>
  *	http://www.idsoftware.com/q1source/q1source.zip
  *
- * $Id: packet-quake.c,v 1.13 2001/01/22 08:03:45 guy Exp $
+ * $Id: packet-quake.c,v 1.14 2001/04/15 09:05:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -515,6 +515,15 @@ dissect_quake(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint32		sequence = 0;
 	guint		rest_length;
 	tvbuff_t	*next_tvb;
+
+	/*
+	 * XXX - this is a conversation dissector, and the code to
+	 * call a conversation dissector doesn't check for disabled
+	 * protocols or set "pinfo->current_proto".
+	 */
+	CHECK_DISPLAY_AS_DATA(proto_quake, tvb, pinfo, tree);
+
+	pinfo->current_proto = "QUAKE";
 
 	if (check_col(pinfo->fd, COL_PROTOCOL))
 		col_set_str(pinfo->fd, COL_PROTOCOL, "QUAKE");
