@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.nmake,v 1.1 2003/06/11 09:17:03 guy Exp $
+# $Id: Makefile.nmake,v 1.2 2003/06/11 14:40:17 gerald Exp $
 #
 
 include ..\..\config.nmake
@@ -11,11 +11,11 @@ CFLAGS=/DHAVE_CONFIG_H /I../.. /I../../wiretap \
 	/I$(GTK_DIR)\gdk /I$(GTK_DIR)\gdk\win32 \
 	/I$(PCAP_DIR)\include -D_U_="" $(LOCAL_CFLAGS)
 
-OBJECTS=packet-artnet.obj 
+OBJECTS=packet-rtnet.obj 
 
-artnet.dll artnet.exp artnet.lib : packet-artnet.obj ..\plugin_api.obj
-	link -dll /out:artnet.dll packet-artnet.obj ..\plugin_api.obj \
+rtnet.dll rtnet.exp rtnet.lib : packet-rtnet.obj ..\plugin_api.obj
+	link -dll /out:rtnet.dll packet-rtnet.obj ..\plugin_api.obj \
 	$(GLIB_DIR)\glib-$(GLIB_VERSION).lib
 
 clean:
-	rm -f $(OBJECTS) artnet.dll artnet.exp artnet.lib $(PDB_FILE)
+	rm -f $(OBJECTS) rtnet.dll rtnet.exp rtnet.lib $(PDB_FILE)
