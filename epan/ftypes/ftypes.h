@@ -1,7 +1,7 @@
 /* ftypes.h
  * Definitions for field types
  *
- * $Id: ftypes.h,v 1.19 2003/08/27 15:23:08 gram Exp $
+ * $Id: ftypes.h,v 1.20 2003/11/25 08:50:38 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -131,8 +131,11 @@ ftype_can_contains(enum ftenum ftype);
 #include <epan/nstime.h>
 #include <epan/dfilter/drange.h>
 
-typedef struct {
-	ftype_t	*ftype;
+typedef struct _fvalue_t {
+	union {
+		struct _fvalue_t *next;
+		ftype_t	*ftype;
+	} ptr_u;
 	union {
 		/* Put a few basic types in here */
 		gpointer	pointer;

@@ -1,5 +1,5 @@
 /*
- * $Id: ftypes.c,v 1.11 2003/08/27 15:23:08 gram Exp $
+ * $Id: ftypes.c,v 1.12 2003/11/25 08:50:37 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -31,7 +31,7 @@
 static ftype_t* type_list[FT_NUM_TYPES];
 
 /* Space for quickly allocating/de-allocating fvalue_t's */
-static GMemChunk *gmc_fvalue = NULL;
+static fvalue_t *fvalue_free_list=NULL;
 
 /* These are the ftype registration functions that need to be called.
  * This list and the initialization function could be produced
@@ -58,19 +58,17 @@ ftypes_initialize(void)
 	ftype_register_string();
 	ftype_register_time();
 	ftype_register_tvbuff();
-
-	if (gmc_fvalue)
-		g_mem_chunk_destroy(gmc_fvalue);
-
-	gmc_fvalue = g_mem_chunk_new("gmc_fvalue", sizeof(fvalue_t),
-			200 * sizeof(fvalue_t), G_ALLOC_AND_FREE);
 }
 
 void
 ftypes_cleanup(void)
 {
-	if (gmc_fvalue)
-		g_mem_chunk_destroy(gmc_fvalue);
+	while (fvalue_free_list) {
+		fvalue_t *tmpfv;
+		tmpfv=fvalue_free_list->ptr_u.next;
+		g_free(fvalue_free_list);
+		fvalue_free_list=tmpfv;
+	}
 }
 
 
@@ -89,21 +87,11 @@ ftype_register(enum ftenum ftype, ftype_t *ft)
 }
 
 /* Given an ftenum number, return an ftype_t* */
-static ftype_t*
-ftype_lookup(enum ftenum ftype)
-{
-	ftype_t* result;
-
-	/* Check input */
-	g_assert(ftype < FT_NUM_TYPES);
-
+#define FTYPE_LOOKUP(ftype, result)	\
+	/* Check input */		\
+	g_assert(ftype < FT_NUM_TYPES);	\
 	result = type_list[ftype];
 
-	/* Check output. */
-	g_assert(result != NULL);
-
-	return result;
-}
 
 
 /* Returns a string representing the name of the type. Useful
@@ -113,7 +101,7 @@ ftype_name(enum ftenum ftype)
 {
 	ftype_t	*ft;
 
-	ft = ftype_lookup(ftype);
+	FTYPE_LOOKUP(ftype, ft);
 	return ft->name;
 }
 
@@ -122,7 +110,7 @@ ftype_pretty_name(enum ftenum ftype)
 {
 	ftype_t	*ft;
 
-	ft = ftype_lookup(ftype);
+	FTYPE_LOOKUP(ftype, ft);
 	return ft->pretty_name;
 }
 
@@ -131,7 +119,7 @@ ftype_length(enum ftenum ftype)
 {
 	ftype_t	*ft;
 
-	ft = ftype_lookup(ftype);
+	FTYPE_LOOKUP(ftype, ft);
 	return ft->wire_size;
 }
 
@@ -140,7 +128,7 @@ ftype_can_slice(enum ftenum ftype)
 {
 	ftype_t	*ft;
 
-	ft = ftype_lookup(ftype);
+	FTYPE_LOOKUP(ftype, ft);
 	return ft->slice ? TRUE : FALSE;
 }
 
@@ -149,7 +137,7 @@ ftype_can_eq(enum ftenum ftype)
 {
 	ftype_t	*ft;
 
-	ft = ftype_lookup(ftype);
+	FTYPE_LOOKUP(ftype, ft);
 	return ft->cmp_eq ? TRUE : FALSE;
 }
 
@@ -158,7 +146,7 @@ ftype_can_ne(enum ftenum ftype)
 {
 	ftype_t	*ft;
 
-	ft = ftype_lookup(ftype);
+	FTYPE_LOOKUP(ftype, ft);
 	return ft->cmp_ne ? TRUE : FALSE;
 }
 
@@ -167,7 +155,7 @@ ftype_can_gt(enum ftenum ftype)
 {
 	ftype_t	*ft;
 
-	ft = ftype_lookup(ftype);
+	FTYPE_LOOKUP(ftype, ft);
 	return ft->cmp_gt ? TRUE : FALSE;
 }
 
@@ -176,7 +164,7 @@ ftype_can_ge(enum ftenum ftype)
 {
 	ftype_t	*ft;
 
-	ft = ftype_lookup(ftype);
+	FTYPE_LOOKUP(ftype, ft);
 	return ft->cmp_ge ? TRUE : FALSE;
 }
 
@@ -185,7 +173,7 @@ ftype_can_lt(enum ftenum ftype)
 {
 	ftype_t	*ft;
 
-	ft = ftype_lookup(ftype);
+	FTYPE_LOOKUP(ftype, ft);
 	return ft->cmp_lt ? TRUE : FALSE;
 }
 
@@ -194,7 +182,7 @@ ftype_can_le(enum ftenum ftype)
 {
 	ftype_t	*ft;
 
-	ft = ftype_lookup(ftype);
+	FTYPE_LOOKUP(ftype, ft);
 	return ft->cmp_le ? TRUE : FALSE;
 }
 
@@ -203,7 +191,7 @@ ftype_can_contains(enum ftenum ftype)
 {
 	ftype_t	*ft;
 
-	ft = ftype_lookup(ftype);
+	FTYPE_LOOKUP(ftype, ft);
 	return ft->cmp_contains ? TRUE : FALSE;
 }
 
@@ -217,10 +205,22 @@ fvalue_new(ftenum_t ftype)
 	ftype_t			*ft;
 	FvalueNewFunc		new_value;
 
-	fv = g_mem_chunk_alloc(gmc_fvalue);
+	if(!fvalue_free_list){
+		int i;
+		fvalue_t *pfv;
+		pfv=g_malloc(200*sizeof(fvalue_t));
+		for(i=0;i<200;i++){
+			fvalue_t *tmpfv;
+			tmpfv=&pfv[i];
+			tmpfv->ptr_u.next=fvalue_free_list;
+			fvalue_free_list=tmpfv;
+		}
+	}
+	fv=fvalue_free_list;
+	fvalue_free_list=fv->ptr_u.next;
 
-	ft = ftype_lookup(ftype);
-	fv->ftype = ft;
+	FTYPE_LOOKUP(ftype, ft);
+	fv->ptr_u.ftype = ft;
 
 	new_value = ft->new_value;
 	if (new_value) {
@@ -236,12 +236,13 @@ fvalue_free(fvalue_t *fv)
 {
 	FvalueFreeFunc	free_value;
 
-	free_value = fv->ftype->free_value;
+	free_value = fv->ptr_u.ftype->free_value;
 	if (free_value) {
 		free_value(fv);
 	}
 
-	g_mem_chunk_free(gmc_fvalue, fv);
+	fv->ptr_u.next=fvalue_free_list;	\
+	fvalue_free_list=fv;	
 }
 
 fvalue_t*
@@ -250,8 +251,8 @@ fvalue_from_unparsed(ftenum_t ftype, char *s, gboolean allow_partial_value, LogF
 	fvalue_t	*fv;
 
 	fv = fvalue_new(ftype);
-	if (fv->ftype->val_from_unparsed) {
-		if (fv->ftype->val_from_unparsed(fv, s, allow_partial_value, logfunc)) {
+	if (fv->ptr_u.ftype->val_from_unparsed) {
+		if (fv->ptr_u.ftype->val_from_unparsed(fv, s, allow_partial_value, logfunc)) {
 			return fv;
 		}
 	}
@@ -269,8 +270,8 @@ fvalue_from_string(ftenum_t ftype, char *s, LogFunc logfunc)
 	fvalue_t	*fv;
 
 	fv = fvalue_new(ftype);
-	if (fv->ftype->val_from_string) {
-		if (fv->ftype->val_from_string(fv, s, logfunc)) {
+	if (fv->ptr_u.ftype->val_from_string) {
+		if (fv->ptr_u.ftype->val_from_string(fv, s, logfunc)) {
 			return fv;
 		}
 	}
@@ -285,34 +286,34 @@ fvalue_from_string(ftenum_t ftype, char *s, LogFunc logfunc)
 const char*
 fvalue_type_name(fvalue_t *fv)
 {
-	return fv->ftype->name;
+	return fv->ptr_u.ftype->name;
 }
 
 
 guint
 fvalue_length(fvalue_t *fv)
 {
-	if (fv->ftype->len)
-		return fv->ftype->len(fv);
+	if (fv->ptr_u.ftype->len)
+		return fv->ptr_u.ftype->len(fv);
 	else
-		return fv->ftype->wire_size;
+		return fv->ptr_u.ftype->wire_size;
 }
 
 int
 fvalue_string_repr_len(fvalue_t *fv, ftrepr_t rtype)
 {
-	g_assert(fv->ftype->len_string_repr);
-	return fv->ftype->len_string_repr(fv, rtype);
+	g_assert(fv->ptr_u.ftype->len_string_repr);
+	return fv->ptr_u.ftype->len_string_repr(fv, rtype);
 }
 
 char *
 fvalue_to_string_repr(fvalue_t *fv, ftrepr_t rtype, char *buf)
 {
-	g_assert(fv->ftype->val_to_string_repr);
+	g_assert(fv->ptr_u.ftype->val_to_string_repr);
 	if (!buf) {
 		buf = g_malloc0(fvalue_string_repr_len(fv, rtype) + 1);
 	}
-	fv->ftype->val_to_string_repr(fv, rtype, buf);
+	fv->ptr_u.ftype->val_to_string_repr(fv, rtype, buf);
 	return buf;
 }
 
@@ -398,7 +399,7 @@ slice_func(gpointer data, gpointer user_data)
 		return;
 	}
 
-	fv->ftype->slice(fv, slice_data->bytes, start_offset, length);
+	fv->ptr_u.ftype->slice(fv, slice_data->bytes, start_offset, length);
 }
 
 
@@ -429,98 +430,98 @@ fvalue_slice(fvalue_t *fv, drange *drange)
 void
 fvalue_set(fvalue_t *fv, gpointer value, gboolean already_copied)
 {
-	g_assert(fv->ftype->set_value);
-	fv->ftype->set_value(fv, value, already_copied);
+	g_assert(fv->ptr_u.ftype->set_value);
+	fv->ptr_u.ftype->set_value(fv, value, already_copied);
 }
 
 void
 fvalue_set_integer(fvalue_t *fv, guint32 value)
 {
-	g_assert(fv->ftype->set_value_integer);
-	fv->ftype->set_value_integer(fv, value);
+	g_assert(fv->ptr_u.ftype->set_value_integer);
+	fv->ptr_u.ftype->set_value_integer(fv, value);
 }
 
 void
 fvalue_set_floating(fvalue_t *fv, gdouble value)
 {
-	g_assert(fv->ftype->set_value_floating);
-	fv->ftype->set_value_floating(fv, value);
+	g_assert(fv->ptr_u.ftype->set_value_floating);
+	fv->ptr_u.ftype->set_value_floating(fv, value);
 }
 
 
 gpointer
 fvalue_get(fvalue_t *fv)
 {
-	g_assert(fv->ftype->get_value);
-	return fv->ftype->get_value(fv);
+	g_assert(fv->ptr_u.ftype->get_value);
+	return fv->ptr_u.ftype->get_value(fv);
 }
 
 guint32
 fvalue_get_integer(fvalue_t *fv)
 {
-	g_assert(fv->ftype->get_value_integer);
-	return fv->ftype->get_value_integer(fv);
+	g_assert(fv->ptr_u.ftype->get_value_integer);
+	return fv->ptr_u.ftype->get_value_integer(fv);
 }
 
 double
 fvalue_get_floating(fvalue_t *fv)
 {
-	g_assert(fv->ftype->get_value_floating);
-	return fv->ftype->get_value_floating(fv);
+	g_assert(fv->ptr_u.ftype->get_value_floating);
+	return fv->ptr_u.ftype->get_value_floating(fv);
 }
 
 gboolean
 fvalue_eq(fvalue_t *a, fvalue_t *b)
 {
 	/* XXX - check compatibility of a and b */
-	g_assert(a->ftype->cmp_eq);
-	return a->ftype->cmp_eq(a, b);
+	g_assert(a->ptr_u.ftype->cmp_eq);
+	return a->ptr_u.ftype->cmp_eq(a, b);
 }
 
 gboolean
 fvalue_ne(fvalue_t *a, fvalue_t *b)
 {
 	/* XXX - check compatibility of a and b */
-	g_assert(a->ftype->cmp_ne);
-	return a->ftype->cmp_ne(a, b);
+	g_assert(a->ptr_u.ftype->cmp_ne);
+	return a->ptr_u.ftype->cmp_ne(a, b);
 }
 
 gboolean
 fvalue_gt(fvalue_t *a, fvalue_t *b)
 {
 	/* XXX - check compatibility of a and b */
-	g_assert(a->ftype->cmp_gt);
-	return a->ftype->cmp_gt(a, b);
+	g_assert(a->ptr_u.ftype->cmp_gt);
+	return a->ptr_u.ftype->cmp_gt(a, b);
 }
 
 gboolean
 fvalue_ge(fvalue_t *a, fvalue_t *b)
 {
 	/* XXX - check compatibility of a and b */
-	g_assert(a->ftype->cmp_ge);
-	return a->ftype->cmp_ge(a, b);
+	g_assert(a->ptr_u.ftype->cmp_ge);
+	return a->ptr_u.ftype->cmp_ge(a, b);
 }
 
 gboolean
 fvalue_lt(fvalue_t *a, fvalue_t *b)
 {
 	/* XXX - check compatibility of a and b */
-	g_assert(a->ftype->cmp_lt);
-	return a->ftype->cmp_lt(a, b);
+	g_assert(a->ptr_u.ftype->cmp_lt);
+	return a->ptr_u.ftype->cmp_lt(a, b);
 }
 
 gboolean
 fvalue_le(fvalue_t *a, fvalue_t *b)
 {
 	/* XXX - check compatibility of a and b */
-	g_assert(a->ftype->cmp_le);
-	return a->ftype->cmp_le(a, b);
+	g_assert(a->ptr_u.ftype->cmp_le);
+	return a->ptr_u.ftype->cmp_le(a, b);
 }
 
 gboolean
 fvalue_contains(fvalue_t *a, fvalue_t *b)
 {
 	/* XXX - check compatibility of a and b */
-	g_assert(a->ftype->cmp_contains);
-	return a->ftype->cmp_contains(a, b);
+	g_assert(a->ptr_u.ftype->cmp_contains);
+	return a->ptr_u.ftype->cmp_contains(a, b);
 }
