@@ -2,7 +2,7 @@
  * Routines for Token-Ring Media Access Control
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-trmac.c,v 1.13 1999/07/29 05:47:06 gram Exp $
+ * $Id: packet-trmac.c,v 1.14 1999/09/09 04:47:17 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -72,6 +72,7 @@ static int
 sv_text(const u_char *pd, int pkt_offset, proto_tree *tree)
 {
 	int	sv_length = pd[0];
+	guint16	beacon_type;
 
 	char *beacon[] = {"Recovery mode set", "Signal loss error",
 		"Streaming signal not Claim Token MAC frame",
@@ -88,8 +89,14 @@ sv_text(const u_char *pd, int pkt_offset, proto_tree *tree)
 
 	switch(pd[1]) {
 		case 0x01: /* Beacon Type */
-			proto_tree_add_text(tree, pkt_offset+1, sv_length-1,
-				"Beacon Type: %s", beacon[ pntohs( &pd[2] ) ] );
+			beacon_type = pntohs(&pd[2]);
+			if (beacon_type < array_length(beacon)) {
+				proto_tree_add_text(tree, pkt_offset+1, sv_length-1,
+					"Beacon Type: %s", beacon[beacon_type] );
+			} else {
+				proto_tree_add_text(tree, pkt_offset+1, sv_length-1,
+					"Beacon Type: Illegal value: %d", beacon_type );
+			}
 			break;
 
 		case 0x02: /* NAUN */

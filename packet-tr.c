@@ -2,7 +2,7 @@
  * Routines for Token-Ring packet disassembly
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-tr.c,v 1.23 1999/08/27 19:27:11 gram Exp $
+ * $Id: packet-tr.c,v 1.24 1999/09/09 04:47:16 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -452,7 +452,10 @@ dissect_tr(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
 			/* if we have more than 2 bytes of RIF, then we have
 				ring/bridge pairs */
-			if (trn_rif_bytes > 2) {
+			if (trn_rif_bytes > 18) {
+				proto_tree_add_text(tr_tree, offset + 14, 1,
+						"Illegal number of RIF bytes: %d", trn_rif_bytes);
+			} else if (trn_rif_bytes > 2) {
 				add_ring_bridge_pairs(trn_rif_bytes,
 					pd + offset, offset, tr_tree);
 			}
