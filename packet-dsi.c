@@ -2,7 +2,7 @@
  * Routines for dsi packet dissection
  * Copyright 2001, Randy McEoin <rmceoin@pe.com>
  *
- * $Id: packet-dsi.c,v 1.9 2002/01/24 09:20:47 guy Exp $
+ * $Id: packet-dsi.c,v 1.10 2002/04/14 22:56:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -117,7 +117,7 @@ typedef struct {
 	int	state;
 	guint8	flags,command;
 	guint16	requestid;
-	guint32	code;
+	gint32	code;
 	guint32	length;		/* total length of this DSI request/reply */
 	guint32	reserved;
 	guint32	seen;		/* bytes seen so far */
@@ -309,7 +309,7 @@ dissect_dsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	gchar	*func_str;
 	guint8	dsi_flags,dsi_command;
 	guint16 dsi_requestid;
-	guint32 dsi_code;
+	gint32 	dsi_code;
 	guint32 dsi_length;
 	guint32 dsi_reserved;
  
@@ -395,7 +395,7 @@ dissect_dsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				offset+1, 1, dsi_command);
 			proto_tree_add_uint(dsi_tree, hf_dsi_requestid, tvb,
 				offset+2, 2, dsi_requestid);
-			proto_tree_add_uint(dsi_tree, hf_dsi_code, tvb,
+			proto_tree_add_int(dsi_tree, hf_dsi_code, tvb,
 				offset+4, 4, dsi_code);
 			proto_tree_add_uint_format(dsi_tree, hf_dsi_length, tvb,
 				offset+8, 4, dsi_length,
@@ -461,7 +461,7 @@ proto_register_dsi(void)
 
     { &hf_dsi_code,
       { "Code",           "dsi.code",
-	FT_UINT32, BASE_HEX, NULL, 0x0,
+	FT_INT32, BASE_DEC, NULL, 0x0,
       	"In Reply packets this is an error code.  In Request Write packets this is a data offset.", HFILL }},
 
     { &hf_dsi_length,
