@@ -3,7 +3,7 @@
  * (c) Copyright Jun-ichiro itojun Hagino <itojun@itojun.org>
  * derived from packet-rip.c
  *
- * $Id: packet-ripng.c,v 1.4 1999/10/15 13:21:14 itojun Exp $
+ * $Id: packet-ripng.c,v 1.5 1999/10/18 00:37:35 itojun Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -40,6 +40,10 @@
 #include "packet-ipv6.h"
 #include "packet-ripng.h"
 
+#ifndef offsetof
+#define	offsetof(type, member)	((size_t)(&((type *)0)->member))
+#endif
+
 static int proto_ripng = -1;
 static int hf_ripng_cmd = -1;
 static int hf_ripng_version = -1;
@@ -49,7 +53,8 @@ dissect_ripng(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     struct rip6 rip6;
     struct netinfo6 ni6;
     proto_tree *ripng_tree = NULL;
-	proto_item *ti; 
+    proto_tree *subtree = NULL;
+    proto_item *ti; 
     static const value_string cmdvals[] = {
 	{ RIP6_REQUEST, "Request" },
 	{ RIP6_RESPONSE, "Response" },
@@ -94,6 +99,23 @@ dissect_ripng(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 				ni6.rip6_plen,
 				ni6.rip6_metric);
 	    }
+	    subtree = proto_item_add_subtree(ti, ETT_RIPNG_ADDR);
+	    proto_tree_add_text(subtree,
+			offset + offsetof(struct netinfo6, rip6_dest),
+			sizeof(ni6.rip6_dest), "IP Address: %s",
+			ip6_to_str(&ni6.rip6_dest));
+	    proto_tree_add_text(subtree,
+			offset + offsetof(struct netinfo6, rip6_tag),
+			sizeof(ni6.rip6_tag), "Tag: 0x%04x",
+			ntohs(ni6.rip6_tag));
+	    proto_tree_add_text(subtree,
+			offset + offsetof(struct netinfo6, rip6_plen),
+			sizeof(ni6.rip6_plen), "Prefix length: %d",
+			ni6.rip6_plen);
+	    proto_tree_add_text(subtree,
+			offset + offsetof(struct netinfo6, rip6_metric),
+			sizeof(ni6.rip6_metric), "Metric: %d",
+			ni6.rip6_metric);
 
             offset += sizeof(ni6);
         }

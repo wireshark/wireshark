@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.113 1999/10/15 20:32:57 guy Exp $
+ * $Id: packet.h,v 1.114 1999/10/18 00:37:35 itojun Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -214,6 +214,7 @@ enum {
 	ETT_RIP,
 	ETT_RIP_VEC,
 	ETT_RIPNG,
+	ETT_RIPNG_ADDR,
 	ETT_PIM,
 	ETT_OSPF,
 	ETT_OSPF_HDR,
