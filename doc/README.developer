@@ -1,11 +1,17 @@
-$Id: README.developer,v 1.17 2000/10/22 20:01:14 guy Exp $
+$Id: README.developer,v 1.18 2000/11/02 15:47:16 gram Exp $
+
+
+	
 
 This file is a HOWTO for Ethereal developers. It describes how to start coding
-a protocol dissector and the use some of the important functions and variables 
-in Ethereal.
+a Ethereal protocol dissector and the use some of the important functions and
+variables.
 
-See also the "proto_tree" file for a more detailed description of the
-protocol tree construction functions.
+The file is target at creating dissectors based upon tvbuffers.  All 
+new dissector should be written with tvbuffers not with the old style, pd packet
+data pointer, dissectors.  The tvbuffer dissectors improve the handling of short
+packets. See the README.tvbuff for more details on tvbuffers.
+
 
 1. Setting up your protocol dissector code.
 
@@ -40,10 +46,12 @@ that where possible you keep to the IANA abbreviated name for the
 protocol, if there is one, or a commonly-used abbreviation for the
 protocol, if any.
 
-You should declare the main dissector routine in a header file whose
-name is "packet-", followed by the abbreviated name for the protocol,
-followed by ".h"; any dissector file that calls your dissector should be
-changed to include that file.
+Dissectors that use the dissector registration to tell a lower level
+dissector don't need to define a prototype in the .h file. For other
+dissectors the main dissector routine should have a prototype in a header
+file whose name is "packet-", followed by the abbreviated name for the
+protocol, followed by ".h"; any dissector file that calls your dissector
+should be changed to include that file.
 
 You may not need to include all the headers listed in the skeleton
 below, and you may need to include additional headers.  For example, the
@@ -57,7 +65,8 @@ code inside
 
 is needed only if you are using the "snprintf()" function.
 
-The "$Id: README.developer,v 1.17 2000/10/22 20:01:14 guy Exp $" in the comment will be updated by CVS when the file is
+The "$Id: README.developer,v 1.18 2000/11/02 15:47:16 gram Exp $"
+in the comment will be updated by CVS when the file is
 checked in; it will allow the RCS "ident" command to report which
 version of the file is currently checked out.
 
@@ -66,7 +75,7 @@ version of the file is currently checked out.
  * Routines for PROTONAME dissection
  * Copyright 2000, YOUR_NAME <YOUR_EMAIL_ADDRESS>
  *
- * $Id: README.developer,v 1.17 2000/10/22 20:01:14 guy Exp $
+ * $Id: README.developer,v 1.18 2000/11/02 15:47:16 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -123,54 +132,75 @@ static gint ett_PROTOABBREV = -1;
 
 /* Code to actually dissect the packets */
 void
-dissect_PROTOABBREV(cont u_char *pd, int offset, frame_data *fd, proto_tree *tree)
+dissect_PROTOABBREV(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 
-/* Set up structures we will need to add the protocol subtree and manage it */
+/* Set up structures needed to add the protocol subtree and manage it */
 	proto_item *ti;
 	proto_tree *PROTOABBREV_tree;
 
 /* Check if protocol decoding is enabled else decode as data and return */
+	CHECK_DISPLAY_AS_DATA(proto_PROTOABBREV, tvb, pinfo, tree);
 
-	OLD_CHECK_DISPLAY_AS_DATA(proto_PROTOABBREV, pd, offset, fd, tree);
+					/* load the display labels 	*/
+	pinfo->current_proto = "PROTO_NAME";
 	
 /* Make entries in Protocol column and Info column on summary display */
-	if (check_col(fd, COL_PROTOCOL)) 
-		col_add_str(fd, COL_PROTOCOL, "PROTOABBREV");
+	if (check_col( pinfo->fd, COL_PROTOCOL)) 
+		col_add_str(pinfo->fd, COL_PROTOCOL, "PROTOABBREV");
     
 /* This field shows up as the "Info" column in the display; you should make
    it, if possible, summarize what's in the packet, so that a user looking
-   at the list of packets can tell what type of packet it is.
+   at the list of packets can tell what type of packet it is. See section 1.5
+   for more information.
 
    "col_add_fstr()" can be used instead of "col_add_str()"; it takes
    "printf()"-like arguments. */
+
 	if (check_col(fd, COL_INFO)) 
-		col_add_str(fd, COL_INFO, "XXX Request");
+		col_add_str(pinfo->fd, COL_INFO, "XXX Request");
 
 /* In the interest of speed, if "tree" is NULL, don't do any work not
    necessary to generate protocol tree items. */
 	if (tree) {
-/* NOTE: The offset and length values in the previous call to
+
+/* NOTE: The offset and length values in the call to
    "proto_tree_add_item()" define what data bytes to highlight in the hex
    display window when the line in the protocol tree display
    corresponding to that item is selected.
 
-   END_OF_FRAME is a handy way to highlight all data from the offset to
+   tvb_lenth(tvb) is a handy way to highlight all data from the offset to
    the end of the packet. */
-		ti = proto_tree_add_item(tree, proto_PROTOABBREV, offset, END_OF_FRAME, NULL);
-	        PROTOABBREV_tree = proto_item_add_subtree(ti, ett_PROTOABBREV);
 
-/* Code to process the packet goes here */
+/* create display subtree for the protocol */
+		ti = proto_tree_add_item(tree, proto_PROTOABBREV, tvb, 0, tvb_length(tvb), FALSE);
+
+		PROTOABBREV_tree = proto_item_add_subtree(ti, ett_PROTOABBREV);
+
+/* add an item to the subtree, see section 1.6 for more information */
+		proto_tree_add_uint(tree, hf_PROTOABBREV_FIELDABBREV, tvb, offset, len, value)
+
+
+/* Continue adding tree items to process the packet here */
 
 
 	}
+
+/* If this protocol has a sub-dissector call it here, see section 1.8 */
 }
 
+
 /* Register the protocol with Ethereal */
+
+/* this format is require because a script is used to build the C function
+   that calls all the protocol registration.
+*/
+
+void
 proto_register_PROTOABBREV(void)
 {                 
 
-/* Setup list of header fields */
+/* Setup list of header fields  See Section 1.6.1 for details*/
 	static hf_register_info hf[] = {
 		{ &hf_PROTOABBREV_FIELDABBREV,
 			{ "FIELDNAME",           "PROTOABBREV.FIELDABBREV",
@@ -190,7 +220,21 @@ proto_register_PROTOABBREV(void)
 /* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array(proto_PROTOABBREV, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
-};
+}
+
+
+/* If this dissector uses sub-dissector registration add a registration routine.
+   This format is required because a script is used to find these routines and
+   create the code that calls these routines.
+*/
+void
+proto_reg_handoff_PROTOABBREV(void)
+{
+	dissector_add("PARENT_SUBFIELD", ID_VALUE, dissect_PROTOABBREV);
+}
+
+ dissector_add("llc.dsap", SAP_NETBIOS, dissect_netbios);
+
 ------------------------------------Cut here------------------------------------
 
 1.3 Explanation of needed substitutions in code skeleton.
@@ -217,62 +261,75 @@ FIELDBASE	BASE_NONE, BASE_DEC, BASE_HEX, BASE_OCT, BASE_BIN
 FIELDCONVERT	VALS(x), TFS(x), NULL
 BITMASK		Usually 0x0 unless using the TFS(x) field conversion.
 FIELDDESCR	A brief description of the field.
+PARENT_SUBFIELD	Lower level protocol field used for lookup, i.e. "tcp.port"
+ID_VALUE	Lower level protocol field value that identifies this protocol
+		For example the TCP or UDP port number
+
 
 1.4 The dissector and the data it receives.
 
+
 1.4.1 Header file.
 
-The dissector has the following header which must be placed into
+This is only need if the dissector doesn't use self-registration to
+register it's self with the lower level dissector 
+
+The dissector has the following header that must be placed into
 packet-PROTOABBREV.h.
 
 void
-dissect_PROTOABBREV(const u_char *pd, int offset, frame_data *fd, proto_tree *tree); 
+dissect_PROTOABBREV(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+
 
 1.4.2 Extracting data from packets.
 
-The "pd" argument to a dissector points to a buffer containing the raw
-data for the frame; the "offset" argument is the offset into that buffer
-of the first byte belonging to the protocol to be dissected by that
-dissector.
+NOTE: See the README.tvbuff for more details
 
-One must not assume that the data to be dissected is aligned on a
-particular boundary in memory, and therefore one must not, for example,
-extract a 4-byte unsigned integer by doing
+The "tvb" argument to a dissector points to a buffer containing the raw
+data for the frame. A tvbuffer is a opaque data structure, the internal
+data structures are hidden and the data must be access via the tvbuffer
+accessors.
 
-	foo = *(guint32 *)pd[offset + 8];
+The accessors are:
 
-as, if "pd + offset" is not aligned on a 4-byte boundary in memory
-(because, for example, "pd" is so aligned but "offset" is not a multiple
-of 4), that line of code may, when executed, cause Ethereal to crash.
+Single-byte accessor:
 
-In addition, one must not assume that Ethereal is running on a machine
-with a particular byte order (big-endian or little-endian); if the field
-one is dissecting is, for example, big-endian, code such as the example
-above, even if "pd + offset" is aligned on a 4-byte boundary or if the
-processor on which Ethereal is running doesn't require addresses to be
-aligned on appropriate boundaries, will not work correctly on
-little-endian systems such as IBM-compatible PCs or most systems with
-Alpha processors - and the same problem would exist if the field were
-little-endian and the code were running on big-endian systems such as
-SPARC machines.
+guint8  tvb_get_guint8(tvbuff_t*, gint offset);
 
-One should, instead, use the "pntohs()", "pntohl()", "pletohs()", or
-"pletohl()" macros:
+Network-to-host-order access for shorts (guint16), longs (guint24), and
+24-bit ints:
 
-	foo = pntohl(&pd[offset + 8]);
+guint16 tvb_get_ntohs(tvbuff_t*, gint offset);
+guint32 tvb_get_ntohl(tvbuff_t*, gint offset);
+guint32 tvb_get_ntoh24(tvbuff_t*, gint offset);
 
-which will extract a 4-byte big-endian value from the field starting at
-an offset of "offset + 8" from the beginning of the frame.
+Little-Endian-to-host-order access for shorts (guint16), longs (guint24), and
+24-bit ints:
 
-The macros in question extract:
+guint16 tvb_get_letohs(tvbuff_t*, gint offset);
+guint32 tvb_get_letohl(tvbuff_t*, gint offset);
+guint32 tvb_get_letoh24(tvbuff_t*, gint offset);
 
-	pntohs()		2-byte, big-endian quantity
+Copying memory:
+guint8* tvb_memcpy(tvbuff_t*, guint8* target, gint offset, gint length);
+guint8* tvb_memdup(tvbuff_t*, gint offset, gint length);
 
-	pntohl()		4-byte, big-endian quantity
 
-	pletohs()		2-byte, little-endian quantity
+Pointer-retrieval:
+/* WARNING! This function is possibly expensive, temporarily allocating
+ * another copy of the packet data. Furthermore, it's dangerous because once
+ * this pointer is given to the user, there's no guarantee that the user will
+ * honor the 'length' and not overstep the boundaries of the buffer.
+ */ 
+guint8* tvb_get_ptr(tvbuff_t*, gint offset, gint length);
 
-	pletohl()		4-byte, little-endian quantity
+The reason that tvb_get_ptr() have to allocate a copy of its data only
+occurs with TVBUFF_COMPOSITES, data that spans multiple tvbuffers. If the
+user request a pointer to a range of bytes that spans the member tvbuffs that
+make up the TVBUFF_COMPOSITE, the data will have to be copied to another
+memory region to assure that all the bytes are contiguous.
+
+
 
 1.5 Functions to handle columns in the traffic summary window.
 
@@ -302,14 +359,16 @@ The value for a column can be specified with one of several functions,
 all of which take the 'fd' argument to the dissector as their first
 argument, and the COL_ value for the column as their second argument.
 
+
 1.5.1 The col_add_str function.
 
 'col_add_str' takes a string as its third argument, and sets the value
 for the column to that value.  For example, to set the "Protocol" column
 to "PROTOABBREV":
 
-	if (check_col(fd, COL_PROTOCOL)) 
-		col_add_str(fd, COL_PROTOCOL, "PROTOABBREV");
+	if (check_col(pinfo->fd, COL_PROTOCOL)) 
+		col_add_str(pinfo->fd, COL_PROTOCOL, "PROTOABBREV");
+
 
 1.5.2 The col_add_fstr function.
 
@@ -320,9 +379,10 @@ the "Info" field to "<XXX> request, <N> bytes", where "reqtype" is a
 string containing the type of the request in the packet and "n" is an
 unsigned integer containing the number of bytes in the request:
 
-	if (check_col(fd, COL_INFO)) 
-		col_add_fstr(fd, COL_INFO, "%s request, %u bytes",
+	if (check_col(pinfo->fd, COL_INFO)) 
+		col_add_fstr(pinfo->fd, COL_INFO, "%s request, %u bytes",
 		    reqtype, n);
+
 
 1.5.3 The col_append_str function.
 
@@ -336,6 +396,7 @@ column.  (Note that no blank separates the appended string from the
 string to which it is appended; if you want a blank there, you must add
 it yourself as part of the string being appended.)
 
+
 1.5.4 The col_append_fstr function.
 
 'col_append_fstr' is to 'col_add_fstr' as 'col_append_str' is to
@@ -343,6 +404,7 @@ it yourself as part of the string being appended.)
 'col_add_fstr', but the formatted string is appended to the end of the
 current value for the column, rather than replacing the value for that
 column.
+
 
 1.6 Constructing the protocol tree.
 
@@ -361,6 +423,7 @@ The pointer to the proto_tree (in this case, 'protocol tree'), is passed
 to the top-level protocol dissector, and then to all subsequent protocol
 dissectors for that packet, and then the GUI tree is drawn via
 proto_tree_draw().
+
 The logical proto_tree needs to know detailed information about the
 protocols and fields about which information will be collected from the
 dissection routines. By strictly defining (or "typing") the data that can
@@ -413,12 +476,7 @@ proto_register_XXX( void )
  
 }
  
-	and so on should work;
-
-	the line containing the "register" routine's name must not
-	contain a semicolon (those lines are ignored, in the hopes of
-	not treating declarations of those routines as definitions of
-	those routines).
+	and so on should work.
 
 For every protocol or field that a dissector wants to register, a variable of
 type int needs to be used to keep track of the protocol. The IDs are
@@ -569,7 +627,7 @@ A 'value_string' structure is a way to map values to strings.
 		gchar   *strptr;
 	} value_string;
 
-For fields of that type, yoou would declare an array of "value_string"s:
+For fields of that type, you would declare an array of "value_string"s:
 
 	static const value_string valstringname[] = {
 		{ INTVAL1, "Descriptive String 1" }, 
@@ -633,6 +691,7 @@ in a future GUI display-filter creation tool. We might also add tooltips
 to the labels in the GUI protocol tree, in which case the blurb would
 be used as the tooltip text.
 
+
 1.6.1 Field Registration.
 
 Protocol registration is handled by creating an instance of the
@@ -675,7 +734,7 @@ to have the compiler compute the array length for you at compile time.
 1.6.2 Adding Items and Values to the Protocol Tree.
 
 A protocol item is added to an existing protocol tree with one of a
-handful of proto_tree_add_XXX() funtions.
+handful of proto_tree_add_XXX() functions.
 
 Subtrees can be made with the proto_item_add_subtree() function:
 
@@ -806,7 +865,7 @@ The code to add the FID to the tree would be;
 	guint8 th_0 = pd[offset];
 	proto_tree_add_item(bf_tree, hf_sna_th_fid, offset, 1, th_0);
 
-Note: we do not do *any* manipulation of th_0 in order to ge the FID value.
+Note: we do not do *any* manipulation of th_0 in order to get the FID value.
 We just pass it to proto_tree_add_item(). The proto_tree already has
 the information about bitmasking and bitshifting, so it does the work
 of masking and shifting for us! This also means that you no longer
@@ -996,7 +1055,121 @@ to generate a string, and will return a pointer to that string.
 them; this permits the results of up to three calls to 'val_to_str' to
 be passed as arguments to a routine using those strings.)
 
-1.8 Editing Makefile.am and Makefile.nmake to add your dissector.
+
+1.8 Calling Other Dissector 
+
+
+1.8.1 TVBuffer Calling Old Style Dissector 
+
+When a TVBuffer based dissector is calling a old style dissector it must
+create the data structures need to make the call.  The tvb_compat function
+is used to set the pd value and the offset value.
+
+
+void
+dissect_my(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+
+	tvbuff_t	*next_tvb;
+	const guint8	*next_pd;
+	int		next_offset;
+
+/* create new tv_buffer that starts at the current offset */
+	next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+
+/* set the pd and offset values need to call next dissector */
+	tvb_compat(next_tvb, &next_pd, &next_offset);
+
+/* call next dissector */
+	dissect_next( next_pd, next_offset, pinfo->fd, tree, 
+			END_OF_FRAME - next_offset);
+
+
+1.8.2 TVBuffer Calling TVBuffer Dissector 
+
+NOTE: This is discussed in the README.tvbuff file.  For more 
+information on tvbuffers consult that file.
+
+As each dissector completes its portion of the protocol analysis, it
+is expected to create a new tvbuff of type TVBUFF_SUBSET which
+contains the payload portion of the protocol (that is, the bytes
+that are relevant to the next dissector).
+
+The syntax for creating a new TVBUFF_SUBSET is:
+
+next_tvb = tvb_new_subset(tvb, offset, length, reported_length)
+
+Where:
+	tvb is the tvbuff that the dissector has been working on. It
+	can be a tvbuff of any type.
+
+	next_tvb is the new TVBUFF_SUBSET.
+
+	offset is the byte offset of 'tvb' at which the new tvbuff
+	should start.  The first byte is the 0th byte.
+
+	length is the number of bytes in the new TVBUFF_SUBSET. A length
+	argument of -1 says to use as many bytes as are available in
+	'tvb'.
+
+	reported_length is the number of bytes that the current protocol
+	says should be in the payload. A reported_length of -1 says that
+	the protocol doesn't say anything about the size of its payload.
+
+
+An example from packet-ipx.c -
+
+void
+dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+        tvbuff_t        *next_tvb;
+        int             reported_length, available_length;
+
+ 
+        /* Make the next tvbuff */
+
+/* IPX does have a length value in the header, so calculate report_length */
+   Set this to -1 if there isn't any length information in the protocol
+*/
+        reported_length = ipx_length - IPX_HEADER_LEN;
+
+/* Calculate the available data in the packet, 
+   set this to -1 to use all the data in the tv_buffer
+*/
+        available_length = tvb_length(tvb) - IPX_HEADER_LEN;
+
+/* Create the tvbuffer for the next dissector */
+        next_tvb = tvb_new_subset(tvb, IPX_HEADER_LEN,
+                        MIN(available_length, reported_length),
+                        reported_length);
+
+/* call the next dissector */
+	dissector_next( next_tvb, pinfo, tree);
+
+
+
+1.8.3 Old Style Dissector calling TVBuffer Dissector
+
+When an old style dissector calls a tvbuffer type dissector it must
+create the tvbuffer to pass to the tvbuffer dissector.  This is done
+with the tvb_create_from_top call.  The functions requires one
+parameter, the offset to the start of the data for the next dissector.
+
+An example -
+
+static void
+dissect_my(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
+
+	tvbuff_t *tvb;
+	int offset = 0;
+
+/* create the tvbuffer for the next dissector */
+	tvb = tvb_create_from_top(offset);
+
+	dissector_next(tvb, &pi, tree);
+
+
+1.9 Editing Makefile.am and Makefile.nmake to add your dissector.
 
 To arrange that your dissector will be built as part of Ethereal, you
 must add the name of the source file for your dissector, and the header
@@ -1016,9 +1189,9 @@ in order for you to build Ethereal on your machine, but both changes
 will need to be checked in to the Ethereal source code, to allow it to
 build on all platforms.
 
-1.9 Using the CVS source code tree.
+1.10 Using the CVS source code tree.
 
-1.10 Submitting code for your new dissector.
+1.11 Submitting code for your new dissector.
 
 2. Advanced dissector topics.
 
@@ -1030,6 +1203,7 @@ In ethereal a conversation is defined as a series of data packet between two
 address:port combinations.  A conversation is not sensitive to the direction of
 the packet.  The same conversation will be returned for a packet bound from
 ServerA:1000 to ClientA:2000 and the packet from ClientA:2000 to ServerA:1000.
+
 There are two routine that you will use to work with a conversation:
 conversation_new and find_conversation.
 
@@ -1053,9 +1227,24 @@ This routine will create a new conversation based upon the source address:port
 and destination address:port. If you want store a pointer to memory structure it
 should be passed in the conversation_new 'data' variable. The ptype variable is
 used to differentiate between conversations over different protocols, ie. TCP
-and UDP.
+and UDP. The options variable is used to define a conversation that will accept 
+any destination address and/or port.  Set options = 0 if the destination port and
+address are know when conversation_new is called.  See section 2.4 for more
+information on usage of the options parameter.
 
-See packet.h for information on the port_type.
+The conversation_new prototype:
+	conversation_t *conversation_new(address *src, address *dst, port_type ptype,
+	    guint32 src_port, guint32 dst_port, void *data, guint options);
+
+Where:
+	address* src 	= data packet source address
+	address* src 	= data packet destination address
+	port_type ptype 	= port type, this is defined in packet.h
+	guint32 src_port	= data packet source port
+	guint32 dst_port	= data packet destination port
+ 	void *data		= dissector data structure
+	guint options	= conversation options, NO_DST_ADDR and/or NO_DST_PORT
+
 
 
 2.2.3 The find_conversation function.
@@ -1063,7 +1252,10 @@ See packet.h for information on the port_type.
 Call this routine to lookup a conversation. If no conversation is found the
 routine will return a NULL value.  You don't have to worry about interchanging
 the source and destination values.  The conversation routine will automatically
-return the same conversation for packets traveling in both directions.
+return the same conversation for packets traveling in both directions. The
+options value is used to define is the destination address and/or port should
+be use to match the lookup.  The matching conversation must have the same options
+as the value of the find call.
 
 
 2.2.4 The example conversation code with GMemChunk's
@@ -1102,7 +1294,7 @@ my_entry_t *data_ptr
 /* pi is a global variable of type packet_info, see  packet.h */
 
 conversation = find_conversation( &pi.src, &pi.dst, pi.ptype,
-	pi.srcport, pi.destport);
+	pi.srcport, pi.destport, 0);
 
 /* if conversation found get the data pointer that you stored */
 if ( conversation)
@@ -1118,7 +1310,7 @@ else {
     /* create the conversation with your data pointer  */
 
     conversation_new( &pi.src, &pi.dst, pi.ptype,
-	    pi.srcport, pi.destport, (void*)data_ptr);
+	    pi.srcport, pi.destport, (void*)data_ptr, 0);
 }
 
 /* at this point the conversation data is ready */
@@ -1126,12 +1318,12 @@ else {
 
 /******************* in the dissector init routine *******************/
 
-#define rlogin_hash_init_count 20
+#define proto_hash_init_count 20
 
 static void
 my_dissector_init( void){
 
-    /* destory memory chunks if needed */
+    /* destroy memory chunks if needed */
 
     if ( my_vals)
 	g_mem_chunk_destroy(my_vals);
@@ -1153,10 +1345,232 @@ register_init_routine( &my_dissector_init);
 
 2.2.4 The example conversation code using conversation index field
 
-Add this latter ............
+Sometimes the conversation isn't enough to define a unique data storage value
+for the network traffic.  For example if you are storing information about requests
+carried in a conversation, the request may have an identifier that is used to 
+define the request. In this case the conversation and the identifier are required
+to find the data storage pointer.  You can use the conversation data structure
+index value to uniquely define the conversation.  
+
+See packet-afs.c for an example of how to use the conversation index.  In
+this dissector multiple requests are sent in the same conversation.  To store
+information for each request the dissector has an internal hash table based
+upon the conversation index and values inside the request packets. 
 
 
-2.3 ??
+/* in the dissector routine */
+
+/* to find a request value, first lookup conversation to get index */
+/* then used the conversation index, and request data to find data */
+/* in the local hash table */
+
+	conversation = find_conversation(&pi.src, &pi.dst, pi.ptype,
+	    pi.srcport, pi.destport, 0);
+	if (conversation == NULL) {
+		/* It's not part of any conversation - create a new one. */
+		conversation = conversation_new(&pi.src, &pi.dst, pi.ptype,
+		    pi.srcport, pi.destport, NULL, 0);
+	}
+
+	request_key.conversation = conversation->index;	
+	request_key.service = pntohs(&rxh->serviceId);
+	request_key.callnumber = pntohl(&rxh->callNumber);
+
+	request_val = (struct afs_request_val *) g_hash_table_lookup(
+		afs_request_hash, &request_key);
+
+	/* only allocate a new hash element when it's a request */
+	opcode = 0;
+	if ( !request_val && !reply)
+	{
+		new_request_key = g_mem_chunk_alloc(afs_request_keys);
+		*new_request_key = request_key;
+
+		request_val = g_mem_chunk_alloc(afs_request_vals);
+		request_val -> opcode = pntohl(&afsh->opcode);
+		opcode = request_val->opcode;
+
+		g_hash_table_insert(afs_request_hash, new_request_key,
+			request_val);
+	}
+
+
+
+2.3 Dynamic conversation dissector registration
+
+
+NOTE: This sections assumes that all information is available to
+	create a complete conversation, source port/address and
+	destination port/address.  If either the destination port or
+	address is know, see section 2.4 Dynamic server port dissector
+	registration.
+
+For protocols that negotiate a secondary port connection, for example
+packet-msproxy.c, a conversation can install a dissector to handle 
+the secondary protocol dissection.  After the conversation is created
+for the negotiated ports use the conversation_set_dissector to define
+the dissection routine.
+
+An example -
+
+
+/* prototype for the dynamic dissector */
+static void sub_dissector( tvbuff_t *tvb, packet_info *pinfo,
+                proto_tree *tree);
+
+
+/* in the main protocol dissector, where the next dissector is setup */
+
+/* if conversation has a data field, create it and load structure */
+
+        new_conv_info = g_mem_chunk_alloc( new_conv_vals);
+        new_conv_info->data1 = value1;
+
+/* create the conversation for the dynamic port */
+        conversation = conversation_new( &pi.src, &pi.dst, protocol,
+                src_port, dst_port, new_conv_info, 0);
+
+/* set the dissector for the new conversation */
+        conversation_set_dissector(conversation, sub_dissector);
+
+
+
+2.4 Dynamic server port dissector registration
+
+NOTE:  While this example used both NO_DST_ADDR and NO_DST_PORT to 
+create a conversation with only the source port and address set, this
+isn't a requirement.  Either the destination port or address can be 
+set when the conversation is create. 
+
+For protocols that define a server address and port for a secondary
+protocol, a conversation can be use to link a protocol dissector to
+the server port and address.  The key is to create the new 
+conversation with the destination address and port set to the accept
+any values.  
+
+There are two support routines that will allow the destination port and/or
+address to be set latter.  
+
+conversation_set_port( conversation_t *conv, guint32 port);
+conversation_set_addr( conversation_t *conv, address addr);
+
+These routines will change the destination information for the conversation.
+So, the server port conversation will be converted into a more complete
+conversation definition. Don't use these routines if you want create a 
+conversation between the server and client and retain the server port
+definition, you must create a new conversation.
+
+
+An example -
+
+/* prototype for the dynamic dissector */
+static void sub_dissector( tvbuff_t *tvb, packet_info *pinfo,
+                proto_tree *tree);
+
+
+/* in the main protocol dissector, where the next dissector is setup */
+
+/* if conversation has a data field, create it and load structure */
+
+        new_conv_info = g_mem_chunk_alloc( new_conv_vals);
+        new_conv_info->data1 = value1;
+
+/* create the conversation for the dynamic server address and port 	*/
+/* NOTE: The destination values don't matter because the NO_DST_ADDR 	*/
+/*	   NO_DST_PORT options are set. 						*/
+
+        conversation = conversation_new( &server_src_addr, 0, protocol,
+                server_src_port, 0, new_conv_info, NO_DST_ADDR | NO_DST_PORT);
+
+/* set the dissector for the new conversation */
+        conversation_set_dissector(conversation, sub_dissector);
+
+
+2.5 Per packet information
+
+Information can be stored for each data packet that is process by the dissector.
+The information is added with the p_add_proto_data function and retreived with the 
+p_get_proto_data function.  The data pointers passed into the p_add_proto_data are
+not managed by the proto_data routines. If you use malloc or any other dynamic 
+memory allocation scheme, you must release the data when it isn't required.
+
+void
+p_add_proto_data(frame_data *fd, int proto, void *proto_data)
+void *
+p_get_proto_data(frame_data *fd, int proto)
+
+Where: 
+	fd         - The fd pointer in the pinfo structure, usually pinfo->fd
+	proto      - Protocol id returned by the proto_register_protocol call during initialization
+	proto_data - pointer to the dissector data.
+
+
+2.5 User Preferences
+
+If the dissector has user options, there is support for adding these preferences
+to a configuration dialog.
+
+You must register the module with the preferences routine with -
+
+module_t *prefs_register_module(const char *name, const char *title,
+    void (*apply_cb)(void))
+
+Where: name     - the module name in the preferences file
+	 title    - Title on the tab in the preferences dialog box
+	 apply_cb - Callback routine that is call when preferences are applied
+
+
+Then you can register the fields that can be configured by the user with these routines -
+
+	/* Register a preference with an unsigned integral value. */
+	void prefs_register_uint_preference(module_t *module, const char *name,
+	    const char *title, const char *description, guint base, guint *var);
+
+	/* Register a preference with an Boolean value. */
+	void prefs_register_bool_preference(module_t *module, const char *name,
+	    const char *title, const char *description, gboolean *var);
+
+	/* Register a preference with an enumerated value. */
+	void prefs_register_enum_preference(module_t *module, const char *name,
+	    const char *title, const char *description, gint *var,
+	    const enum_val *enumvals, gboolean radio_buttons)
+
+	/* Register a preference with a character-string value. */
+	void prefs_register_string_preference(module_t *module, const char *name,
+	    const char *title, const char *description, char **var)
+
+Where: module - Returned by the prefs_register_module routine
+	 name   - Appended to the module name to identify the field in the preference file
+	 title  - Field title in the preferences dialog
+	 description - Comments added to the preference file above the 
+			preference value
+	 var	  - pointer to the storage location that is updated when the
+		    field is changed in the preference dialog box
+	 enumvals - an array of enum_val structures.  This must be NULL terminated
+	 radio_buttons - Is the enumvals a list of radio buttons?
+
+
+An example from packet-bxxp.c -
+	
+
+  /* Register our configuration options for BXXP, particularly our port */
+
+  bxxp_module = prefs_register_module("bxxp", "BXXP", proto_reg_handoff_bxxp);
+
+  prefs_register_uint_preference(bxxp_module, "tcp.port", "BXXP TCP Port",
+				 "Set the port for BXXP messages (if other"
+				 " than the default of 10288)",
+				 10, &global_bxxp_tcp_port);
+
+  prefs_register_bool_preference(bxxp_module, "strict_header_terminator", 
+				 "BXXP Header Requires CRLF", 
+				 "Specifies that BXXP requires CRLF as a "
+				 "terminator, and not just CR or LF",
+				 &global_bxxp_strict_term);
+
+  proto_bxxp = proto_register_protocol("Blocks eXtensible eXchange Protocol",
+				       "bxxp");
+
 
 3. Plugins
 
