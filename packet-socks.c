@@ -2,7 +2,7 @@
  * Routines for socks versions 4 &5  packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-socks.c,v 1.1 2000/04/12 22:53:14 guy Exp $
+ * $Id: packet-socks.c,v 1.2 2000/04/13 11:11:38 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -631,7 +631,7 @@ void display_socks_v5( const u_char *pd, int offset, frame_data *fd,
 		CHECK_PACKET_LENGTH( 2);
 						/* Do remote port	*/
 		proto_tree_add_text( tree, offset, 2,
-				"%s Port: %d",
+				"%sPort: %d",
 				(compare_packet( hash_info->bind_reply_row) ?
 					"Remote Host " : ""),
 				 pntohs( &pd[ offset]));
