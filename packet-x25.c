@@ -2,7 +2,7 @@
  * Routines for x25 packet disassembly
  * Olivier Abad <oabad@cybercable.fr>
  *
- * $Id: packet-x25.c,v 1.47 2001/03/30 10:51:50 guy Exp $
+ * $Id: packet-x25.c,v 1.48 2001/04/07 08:33:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1474,8 +1474,11 @@ dissect_x25(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    spi = tvb_get_guint8(tvb, localoffset);
 	    switch (spi) {
 
-	    /* XXX - handle other NLPIDs, e.g. PPP? */
-
+	    /*
+	     * XXX - handle other NLPIDs, e.g. PPP?
+	     * See RFC 1356 for information on at least some other
+	     * ways of running other protocols atop X.25.
+	     */
 	    case NLPID_IP:
 		x25_hash_add_proto_start(vc, pinfo->fd->abs_secs,
 					 pinfo->fd->abs_usecs, ip_handle);
