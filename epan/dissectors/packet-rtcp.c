@@ -1111,7 +1111,7 @@ static void calculate_roundtrip_delay(tvbuff_t *tvb, packet_info *pinfo,
 
 			gint total_gap = ((seconds_between_packets*1000000) +
 			                 useconds_between_packets) / 1000;
-			gint delay = total_gap - ((double)dlsr/(double)65536) * 1000;
+			gint delay = total_gap - (int)(((double)dlsr/(double)65536) * 1000.0);
 
 			/* No useful calculation can be done if dlsr not set... */
 			if (!dlsr)
