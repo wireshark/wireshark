@@ -1,4 +1,4 @@
-$Id: README.macos,v 1.8 2004/03/23 18:33:25 tuexen Exp $
+$Id: README.macos,v 1.9 2004/07/03 21:46:59 tuexen Exp $
 
 This file tries to help building Ethereal for Mac OS X (Ethereal does
 not work on earlier versions of Mac OS).
@@ -42,7 +42,8 @@ NOTE: you must set the PKG_CONFIG_PATH environment variable to include
 "/usr/X11R6/lib/pkgconfig" (unless you've already set it, set it to
 "/usr/X11R6/lib/pkgconfig") before running the Pango configuration
 script, so that it can be configured to use the version of fontconfig
-that comes with Mac OS X's X11.
+that comes with Mac OS X's X11. This is also needed for the GTK+
+configuration.
 
 NOTE: you must install the pkg-config dependency first; unless it is
 installed, you cannot configure GLib or GTK+.  After that, you must
@@ -61,8 +62,9 @@ do "sudo ranlib /usr/lib/libjpeg.a" after "make install-lib".
 
 For libpng, use scripts/makefile.darwin, not scripts/makefile.macosx.
 
-You will need to run Ethereal's configure script with the
-"--enable-gtk2" argument - by default, it'll try to configure with GLib
+Finally run the configure script. By default it will use
+the Glib2 and GTK+2 libraries. If you run Ethereal's configure script
+with the "--disable-gtk2" argument it'll try to configure with GLib
 1.2[.x] and GTK+ 1.2[.x], in which case:
 
 	if they're not installed, the configure script will fail;
