@@ -1,6 +1,6 @@
 /* buffer.c
  *
- * $Id: buffer.c,v 1.5 1999/08/24 17:36:24 gram Exp $
+ * $Id: buffer.c,v 1.6 1999/11/10 19:47:56 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -41,7 +41,7 @@ void buffer_init(Buffer* buffer, unsigned int space)
 /* Frees the memory used by a buffer, and the buffer struct */
 void buffer_free(Buffer* buffer)
 {
-	free(buffer->data);
+	g_free(buffer->data);
 }
 
 /* Assures that there are 'space' bytes at the end of the used space

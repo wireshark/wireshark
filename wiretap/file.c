@@ -1,6 +1,6 @@
 /* file.c
  *
- * $Id: file.c,v 1.28 1999/10/31 19:30:53 guy Exp $
+ * $Id: file.c,v 1.29 1999/11/10 19:47:56 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -116,7 +116,7 @@ wtap* wtap_open_offline(const char *filename, int *err)
 #endif
 
 	errno = ENOMEM;
-	wth = (wtap*)malloc(sizeof(wtap));
+	wth = g_malloc(sizeof(wtap));
 	if (wth == NULL) {
 		*err = errno;
 		return NULL;
@@ -126,12 +126,12 @@ wtap* wtap_open_offline(const char *filename, int *err)
 	errno = WTAP_ERR_CANT_OPEN;
 	if (!(wth->fd = open(filename, O_RDONLY))) {
 		*err = errno;
-		free(wth);
+		g_free(wth);
 		return NULL;
 	}
 	if (!(wth->fh = filed_open(wth->fd, "rb"))) {
 		*err = errno;
-		free(wth);
+		g_free(wth);
 		return NULL;
 	}
 
@@ -146,7 +146,7 @@ wtap* wtap_open_offline(const char *filename, int *err)
 		case -1:
 			/* I/O error - give up */
 			file_close(wth->fh);
-			free(wth);
+			g_free(wth);
 			return NULL;
 
 		case 0:
@@ -161,7 +161,7 @@ wtap* wtap_open_offline(const char *filename, int *err)
 
 	/* Well, it's not one of the types of file we know about. */
 	file_close(wth->fh);
-	free(wth);
+	g_free(wth);
 	*err = WTAP_ERR_FILE_UNKNOWN_FORMAT;
 	return NULL;
 
@@ -212,7 +212,7 @@ static wtap_dumper* wtap_dump_open_common(FILE *fh, int filetype, int encap,
 {
 	wtap_dumper *wdh;
 
-	wdh = malloc(sizeof (wtap_dumper));
+	wdh = g_malloc(sizeof (wtap_dumper));
 	if (wdh == NULL) {
 		*err = errno;
 		/* NOTE: this means the FD handed to "wtap_dump_fdopen()"
@@ -240,7 +240,7 @@ static wtap_dumper* wtap_dump_open_common(FILE *fh, int filetype, int encap,
 	return wdh;
 
 fail:
-	free(wdh);
+	g_free(wdh);
 	fclose(fh);
 	return NULL;	/* XXX - provide a reason why we failed */
 }
@@ -273,7 +273,7 @@ int wtap_dump_close(wtap_dumper *wdh, int *err)
 		}
 		ret = 0;
 	}
-	free(wdh);
+	g_free(wdh);
 	return ret;
 }
 

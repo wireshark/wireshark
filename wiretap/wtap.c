@@ -1,6 +1,6 @@
 /* wtap.c
  *
- * $Id: wtap.c,v 1.28 1999/11/06 10:31:45 guy Exp $
+ * $Id: wtap.c,v 1.29 1999/11/10 19:47:57 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -204,6 +204,11 @@ void wtap_close(wtap *wth)
 	}
 
 	file_close(wth->fh);
+
+	if (wth->frame_buffer)
+		g_free(wth->frame_buffer);
+
+	g_free(wth);
 }
 
 int wtap_loop(wtap *wth, int count, wtap_handler callback, u_char* user,

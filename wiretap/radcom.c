@@ -1,6 +1,6 @@
 /* radcom.c
  *
- * $Id: radcom.c,v 1.13 1999/10/05 07:06:07 guy Exp $
+ * $Id: radcom.c,v 1.14 1999/11/10 19:47:57 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -213,10 +213,10 @@ int radcom_open(wtap *wth, int *err)
 read_error:
 	*err = file_error(wth->fh);
 	if (*err != 0) {
-		free(wth->capture.radcom);
+		g_free(wth->capture.radcom);
 		return -1;
 	}
-	free(wth->capture.radcom);
+	g_free(wth->capture.radcom);
 	return 0;
 }
 
