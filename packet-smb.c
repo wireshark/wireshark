@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.181 2001/12/06 07:04:02 guy Exp $
+ * $Id: packet-smb.c,v 1.182 2001/12/06 09:24:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -4734,8 +4734,8 @@ static int
 dissect_write_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *smb_tree)
 {
 	guint8	wc, cmd=0xff;
-	guint16 andxoffset=0, bc, datalen=0;
-	smb_info_t *si;
+	guint16 andxoffset=0, bc, datalen=0, dataoffset=0;
+	smb_info_t *si = (smb_info_t *)pinfo->private_data;
 	unsigned int fid;
 
 	WORD_COUNT;
@@ -4764,7 +4764,6 @@ dissect_write_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	offset += 2;
 	if (!pinfo->fd->flags.visited) {
 		/* remember the FID for the processing of the response */
-		si = (smb_info_t *)pinfo->private_data;
 		si->sip->extra_info=(void *)fid;
 	}
 
@@ -4793,7 +4792,8 @@ dissect_write_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	offset += 2;
 
 	/* data offset */
-	proto_tree_add_item(tree, hf_smb_data_offset, tvb, offset, 2, TRUE);
+	dataoffset=tvb_get_letohs(tvb, offset);
+	proto_tree_add_uint(tree, hf_smb_data_offset, tvb, offset, 2, dataoffset);
 	offset += 2;
 
 	if(wc==14){
@@ -4803,6 +4803,43 @@ dissect_write_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	}
 
 	BYTE_COUNT;
+
+	/* is this part of DCERPC over SMB reassembly?*/
+	if(smb_dcerpc_reassembly && !pinfo->fd->flags.visited && (bc<=tvb_length_remaining(tvb, offset)) ){
+		guint32 frame;
+		frame=(guint32)g_hash_table_lookup(si->ct->dcerpc_fid_to_frame,
+			si->sip->extra_info);
+		if(frame){
+			fragment_data *fd_head;
+			/* first fragment is always from a SMB Trans command and
+			   offset 0 of the following read/write SMB commands start
+			   BEYOND the first Trans SMB payload. Look for offset
+			   in first read fragment */
+			fd_head=fragment_get(pinfo, frame, dcerpc_fragment_table);
+			if(fd_head){
+				/* skip to last fragment  and add this data there*/
+				while(fd_head->next){
+					fd_head=fd_head->next;
+				}
+				/* if dataoffset was not specified in the SMB command
+				   then we try to guess it as good as we can
+				*/
+				if(dataoffset==0){
+					dataoffset=offset+bc-datalen;
+				}
+				fd_head=fragment_add(tvb, dataoffset, pinfo,
+					frame, dcerpc_fragment_table,
+					fd_head->offset+fd_head->len, 
+					datalen, TRUE);
+				/* we completed reassembly, abort searching for more 
+				   fragments*/
+				if(fd_head){
+					g_hash_table_remove(si->ct->dcerpc_fid_to_frame,
+						si->sip->extra_info);	
+				}
+			}
+		}
+	}
 
 	/* file data */
 	offset = dissect_file_data(tvb, pinfo, tree, offset, bc, datalen);
