@@ -280,8 +280,10 @@ dissect_bgp_open(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
         (bgpo.bgpo_optlen == 1) ? "byte" : "bytes");
 
     if (hlen > sizeof(struct bgp_open)) {
+	int openoff;
+	openoff = ((char *)&bgpo.bgpo_optlen - (char *)&bgpo) + 1;
 	proto_tree_add_text(tree,
-	    offset + sizeof(struct bgp_open), hlen - sizeof(struct bgp_open),
+	    offset + openoff, hlen - openoff,
 	    "Optional parameters");
     }
 }
