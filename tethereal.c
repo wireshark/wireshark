@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.1 2000/01/14 06:45:52 guy Exp $
+ * $Id: tethereal.c,v 1.2 2000/01/14 14:21:50 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -132,7 +132,7 @@ print_usage(void) {
 	  VERSION, comp_info_str);
   fprintf(stderr, "t%s [-v] [-h] [-n]\n",
 	  PACKAGE);
-  fprintf(stderr, "         [-r infile] [-t <time stamp format>]\n");
+  fprintf(stderr, "         [-r infile] [-t <time stamp format>] -i iface\n");
 }
 
 int
@@ -369,6 +369,11 @@ main(int argc, char *argv[])
     cf_name[0] = '\0';
 #ifdef HAVE_LIBPCAP
   } else {
+    if (!cf.iface) {
+	print_usage();
+	fprintf(stderr, "\nPlease specify an interface with the -i option.\n");
+	exit(1);
+    }
     capture();
 #endif
   }
