@@ -1,3 +1,71 @@
+Overview of changes in Ethereal 0.8.20:
+
+* packet-x25.c - Dissect more diagnostic codes. (Olivier)
+* More mergecap fixes. (Scott Renfro)
+* Fix a typo in packet-ssl.c (Scott)
+* Check for localtime() return value (Scott)
+* Epan fixes (Guy)
+* Add SSL fields to the protocol tree, other SSL fixes. (Guy)
+* Correct a pile of proto_tree_add_* calls in  packet-afs-macros.h,
+    packet-h261.c, packet-iscsi.c packet-ldp.c, packet-mpeg1.c
+    packet-mrdisc.c, packet-rtp.c, packet-sll.c, packet-yhoo.c,
+    packet-x11.c, and packet-zebra.c. (Guy)
+* Fix a string length check in packet-iscsi.c (Guy)
+* README.developer updates (Guy)
+* Change ethereal_gen.py to generate plugins instead of static dissectors.
+    (Olivier)
+* Fix typos and formatting in packet-x25.c and packet-ntp.c (Guy)
+* Documentation makefile changes (Guy)
+* Add "Suppress Unmarked" printing option (Ed)
+* Add a "Mark Frame" packet list menu option (Ed)
+* CORBA IDL updates (Frank)
+* Fix X.25 packet length checking (Olivier)
+* GIOP CosNaming support (Frank)
+* Simplify the addition of plugins to the toplevel makefile (Ed)
+* Many WSP enhancements, add WAP conversation dissection (Guy)
+* Remove unused variables in gtk/proto_draw.c, packet-ip.c,
+    packet-smb-browse.c, mergecap.c (Guy)
+* Keep ethereal_gen.py from generating zero-length arrays, remove
+    zero-length arrays from packet-cosnaming.c (Guy)
+* Added CosEventComm dissector. (Frank)
+* Fix "inline" call in packet-pgm.c (Guy)
+* Update packet-ieee80211.c to handle mishandling of Novell 802.3 packets
+    (Guy)
+* Generalize handling of RFC 1700-style address family numbers. (Guy)
+* Many Quakeworld and Quake2 dissector enhancements.  (Uwe)
+* Add routines used by GIOP plugins to the plugin address table. (Guy)
+* Properly check for GCC version >= 2 when using "__attribute__" (Guy)
+* Quake3 Arena dissector (Uwe)
+* iSCSI updates. (Mark Burton)
+* Update preferences error checking and comments, fix a memory leak, 
+    parser fixes and updates. (Guy)
+* Add GMRP dissector (Markus Seehofer)
+* Add mergecap.rc.in to distribution. (Guy)
+* packet-dcerpc-remact.c fix (Todd Sabin)
+* Add description of CIDR support back into man pages. (Guy)
+* Add "wlan.addr" field. (Guy)
+* Man page white space and emphasis changes. (Guy)
+* GIOP module name lookup fixes. (Guy)
+* MacOS support updates. (Michael Tuexen)
+* Fix premature g_free() in packet-giop.c (Frank)
+* Null PLUGIN_DIR fix. (Michael)
+* Don't build loadable module support if glib doesn't support it. (Guy)
+* Configure-time pcap checking enhancements. (Guy)
+* Kazlib exception code updates. (Gilbert)
+* GIOP dissector fixes. (Frank)
+* Many ethereal_be.py and ethereal_gen.py enhancements. (Frank)
+* String length checking fixes in packet-smb-browse.c and packet-wsp.c.
+    (Guy)
+* Data display fixes in packet-smb.c. (Guy)
+* Update DIAMETER dissector to draft-ietf-aaa-diameter-07. (David Frascone)
+* packet-wsp.c fixes. (Alexandre P. Ferreira)
+* idl2eth man page. (Frank Singleton)
+* Fix port numbers passed by "-u" to text2pcap. (Guy)
+* Properly handle packets sent to "\MAILSLOT\LANMAN". (Guy)
+* Make dissect_pipe_lanman() local to packet-smb-pipe.c. (Guy)
+* 
+
+
 
 Overview of changes in Ethereal 0.8.19:
 
