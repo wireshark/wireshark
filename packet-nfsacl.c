@@ -4,7 +4,7 @@
  *
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-nfsacl.c,v 1.6 2003/04/01 04:38:05 guy Exp $
+ * $Id: packet-nfsacl.c,v 1.7 2003/04/22 20:34:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -350,8 +350,8 @@ dissect_nfsacl3_setacl_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 	offset += 4;
 
-	// if (entry_tree)
-		offset = dissect_nfs_post_op_attr(tvb, offset, tree, "fattr");
+	/* if (entry_tree)
+		offset = dissect_nfs_post_op_attr(tvb, offset, tree, "fattr"); */
 
 
 	return offset;
