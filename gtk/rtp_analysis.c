@@ -1,7 +1,7 @@
 /* rtp_analysis.c
  * RTP analysis addition for ethereal
  *
- * $Id: rtp_analysis.c,v 1.3 2003/09/26 02:09:44 guy Exp $
+ * $Id: rtp_analysis.c,v 1.4 2003/09/29 19:20:51 jmayer Exp $
  *
  * Copyright 2003, Alcatel Business Systems
  * By Lars Ruoff <lars.ruoff@gmx.net>
@@ -151,6 +151,8 @@ struct _info_direction {
 	tap_rtp_save_info_t saveinfo;
 };
 
+#define TMPNAMSIZE 100
+
 /* structure that holds general information about the connection 
 * and structures for both directions */
 typedef struct _user_data_t {
@@ -169,8 +171,8 @@ typedef struct _user_data_t {
 	struct _info_direction forward;
 	struct _info_direction reversed;
 
-	char f_tempname[100];
-	char r_tempname[100];
+	char f_tempname[TMPNAMSIZE];
+	char r_tempname[TMPNAMSIZE];
 
 	/* dialog associated data */
 	dialog_data_t dlg;
@@ -1885,8 +1887,10 @@ void rtp_analysis(
 	}
 
 	/* file names for storing sound data */
-	tmpnam(user_data->f_tempname);
-	tmpnam(user_data->r_tempname);
+	strncpy(user_data->f_tempname, "f_tempnameXXXXXX", TMPNAMSIZE);
+	strncpy(user_data->r_tempname, "r_tempnameXXXXXX", TMPNAMSIZE);
+	mkstemp(user_data->f_tempname);
+	mkstemp(user_data->r_tempname);
 	user_data->forward.saveinfo.fp = NULL;
 	user_data->reversed.saveinfo.fp = NULL;
 	user_data->dlg.save_voice_as_w = NULL;
