@@ -1,5 +1,5 @@
 /*
- * $Id: semcheck.c,v 1.9 2002/02/27 18:54:33 gram Exp $
+ * $Id: semcheck.c,v 1.10 2002/03/02 20:48:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -330,7 +330,7 @@ check_relation_LHS_FIELD(FtypeCanFunc can_func, stnode_t *st_node,
 }
 
 static void
-check_relation_LHS_STRING(FtypeCanFunc can_func, stnode_t *st_node,
+check_relation_LHS_STRING(FtypeCanFunc can_func _U_, stnode_t *st_node,
 		stnode_t *st_arg1, stnode_t *st_arg2)
 {
 	stnode_t		*new_st;
@@ -384,7 +384,7 @@ check_relation_LHS_STRING(FtypeCanFunc can_func, stnode_t *st_node,
 }
 
 static void
-check_relation_LHS_RANGE(FtypeCanFunc can_func, stnode_t *st_node,
+check_relation_LHS_RANGE(FtypeCanFunc can_func _U_, stnode_t *st_node,
 		stnode_t *st_arg1, stnode_t *st_arg2)
 {
 	stnode_t		*new_st;
@@ -492,7 +492,7 @@ check_test(stnode_t *st_node)
 			break;
 
 		case TEST_OP_NOT:
-			semcheck( st_arg1);
+			semcheck(st_arg1);
 			break;
 
 		case TEST_OP_AND:

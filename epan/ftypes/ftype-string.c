@@ -1,5 +1,5 @@
 /*
- * $Id: ftype-string.c,v 1.5 2002/02/05 22:50:17 guy Exp $
+ * $Id: ftype-string.c,v 1.6 2002/03/02 20:48:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -60,7 +60,7 @@ value_get(fvalue_t *fv)
 }
 
 static gboolean
-val_from_string(fvalue_t *fv, char *s, LogFunc logfunc)
+val_from_string(fvalue_t *fv, char *s, LogFunc logfunc _U_)
 {
 	fv->value.string = g_strdup(s);
 	return TRUE;

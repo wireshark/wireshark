@@ -2,7 +2,7 @@
  * Routines for handling of 64-bit integers
  * 2001 Ronnie Sahlberg
  *
- * $Id: int-64bit.c,v 1.1 2001/11/22 03:07:06 hagbard Exp $
+ * $Id: int-64bit.c,v 1.2 2002/03/02 20:48:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -264,7 +264,7 @@ revcmp(const signed char *s1, const signed char *s2, int len)
 {
 	int i;
 
-	for(i=U64STRLEN-1;i>=0;i--){
+	for(i=len-1;i>=0;i--){
 		if(s1[i]==s2[i]){
 			continue;
 		}

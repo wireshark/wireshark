@@ -87,6 +87,7 @@ Joerg Mayer      <jmayer[AT]loplof.de> {
 	In configure scripts, if the compiler is GCC, add to CFLAGS a -D
 	    flag to define _U_ as something that marks an argument
 	    unused in GCC, and as nothing for other compilers
+	Add _U_ to unused arguments, and turn off "-Wno-unused"
 }
 
 Martin Maciaszek <fastjack[AT]i-s-o.net> {

@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.55 2002/02/27 18:54:31 gram Exp $
+ * $Id: proto.c,v 1.56 2002/03/02 20:48:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -298,7 +298,7 @@ free_field_info(void *fi)
 }
 
 static void
-free_GPtrArray_value(gpointer key, gpointer value, gpointer user_data)
+free_GPtrArray_value(gpointer key _U_, gpointer value, gpointer user_data _U_)
 {
     GPtrArray   *ptrs = value;
 
@@ -330,7 +330,7 @@ free_node_field_info(field_info* finfo)
 }
 
 static gboolean
-proto_tree_free_node(GNode *node, gpointer data)
+proto_tree_free_node(GNode *node, gpointer data _U_)
 {
 	field_info *finfo = PITEM_FINFO(node);
 

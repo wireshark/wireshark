@@ -1,7 +1,7 @@
 /* drange.c
  * Routines for providing general range support to the dfilter library
  *
- * $Id: drange.c,v 1.2 2001/03/02 17:04:23 gram Exp $
+ * $Id: drange.c,v 1.3 2002/03/02 20:48:11 guy Exp $
  * 
  * Copyright (c) 2000 by Ed Warnicke <hagbard@physics.rutgers.edu>
  *
@@ -138,7 +138,7 @@ drange_new_from_list(GSList *list)
 
   
 static void
-drange_node_free_wrapper(gpointer data, gpointer userdata)
+drange_node_free_wrapper(gpointer data, gpointer userdata _U_)
 {
   g_free(data);
 }

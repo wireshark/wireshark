@@ -1,7 +1,7 @@
 /* filesystem.c
  * Filesystem utility routines
  *
- * $Id: filesystem.c,v 1.16 2002/01/04 21:50:26 guy Exp $
+ * $Id: filesystem.c,v 1.17 2002/03/02 20:48:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -528,7 +528,11 @@ get_home_dir(void)
  * from earlier versions can be read.
  */
 char *
-get_persconffile_path(const char *filename, gboolean for_writing)
+get_persconffile_path(const char *filename, gboolean for_writing
+#ifndef WIN32
+	_U_
+#endif
+)
 {
 	char *path;
 #ifdef WIN32

@@ -1,7 +1,7 @@
 /* resolv.c
  * Routines for network object lookup
  *
- * $Id: resolv.c,v 1.21 2002/01/30 08:46:29 guy Exp $
+ * $Id: resolv.c,v 1.22 2002/03/02 20:48:10 guy Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
@@ -252,7 +252,7 @@ static guchar *serv_name_lookup(guint port, port_type proto)
 
 jmp_buf hostname_env;
 
-static void abort_network_query(int sig)
+static void abort_network_query(int sig _U_)
 {
   longjmp(hostname_env, 1);
 }

@@ -1,5 +1,5 @@
 /*
- * $Id: gencode.c,v 1.5 2002/01/21 07:37:37 guy Exp $
+ * $Id: gencode.c,v 1.6 2002/03/02 20:48:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -333,7 +333,7 @@ typedef struct {
 } hash_key_iterator;
  
 static void
-get_hash_key(gpointer key, gpointer value, gpointer user_data)
+get_hash_key(gpointer key, gpointer value _U_, gpointer user_data)
 {
     int field_id = GPOINTER_TO_INT(key);
     hash_key_iterator *hki = user_data;

@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.65 2002/02/27 08:57:23 guy Exp $
+ * $Id: packet.c,v 1.66 2002/03/02 20:48:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -139,7 +139,7 @@ register_init_routine(void (*func)(void))
 
 /* Initialize all data structures used for dissection. */
 static void
-call_init_routine(gpointer routine, gpointer dummy)
+call_init_routine(gpointer routine, gpointer dummy _U_)
 {
 	void (*func)(void) = routine;
 
@@ -177,7 +177,7 @@ register_postseq_cleanup_routine(void (*func)(void))
 
 /* Call all the registered "postseq_cleanup" routines. */
 static void
-call_postseq_cleanup_routine(gpointer routine, gpointer dummy)
+call_postseq_cleanup_routine(gpointer routine, gpointer dummy _U_)
 {
 	void (*func)(void) = routine;
 
@@ -397,7 +397,8 @@ dissector_add(const char *name, guint32 pattern, dissector_handle_t handle)
 /*	If temporary dissectors are deleted, then the original dissector must */
 /*	be available. */
 void
-dissector_delete(const char *name, guint32 pattern, dissector_handle_t handle)
+dissector_delete(const char *name, guint32 pattern,
+	dissector_handle_t handle _U_)
 {
 	dissector_table_t sub_dissectors = find_dissector_table( name);
 	dtbl_entry_t *dtbl_entry;
