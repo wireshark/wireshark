@@ -7,7 +7,7 @@
  *
  * Copyright 2000, Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-sip.c,v 1.3 2000/11/11 19:57:09 guy Exp $
+ * $Id: packet-sip.c,v 1.4 2000/11/13 09:04:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -90,8 +90,6 @@ static void dissect_sip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                              is_request ? 
                              tvb_format_text(tvb, 0, eol - strlen(" SIP/2.0")) :
                              tvb_format_text(tvb, strlen("SIP/2.0 "), eol - strlen("SIP/2.0 ")));
-
-        col_set_writable(pinfo->fd, FALSE);
 
         if (tree) {
                 proto_item *ti, *th;
