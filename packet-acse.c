@@ -2,7 +2,7 @@
 *
 * Routine to dissect OSI ACSE Protocol packets
 *
-* $Id: packet-acse.c,v 1.3 2004/01/24 01:53:59 jmayer Exp $
+* $Id: packet-acse.c,v 1.4 2004/04/20 04:17:52 guy Exp $
 *
 * Yuriy Sidelnikov <YSidelnikov@hotmail.com>
 *
@@ -60,14 +60,13 @@ static gint ett_acse_itm           = -1;
 
 /*
 ----------------------------------------------------------------------------------------------------------*/
-static dissector_handle_t ftam_handle = NULL;
-static dissector_handle_t cmip_handle = NULL;
+/* Subdissector tables */ 
+static dissector_table_t application_dissector_table; 
 static dissector_handle_t app_handle = NULL;
 static int hf_acse_type        = -1;
 static int hf_cp_type_message_length = -1;
 static int hf_protocol_version       = -1;
 
-static  int  type_of_application = 0;
 
 
 static const value_string acse_vals[] =
@@ -226,17 +225,15 @@ static void
 call_app_dissector(tvbuff_t *tvb, int offset, guint16 param_len,
     packet_info *pinfo, proto_tree *tree, proto_tree *param_tree)
 {
-	char* name_of_app_dissect;
-	name_of_app_dissect = val_to_str(type_of_application, type_app,"Unknown type of application dissector (0x%02x)");
 	/* do we have OSI app packet dissector ? */
-	if(!app_handle || !type_of_application)
+	if(!app_handle )
 	{
 
 		/* No - display as data */
 		if (tree)
 		{
 			proto_tree_add_text(param_tree, tvb, offset, param_len,
-			    "%s dissector is not available",name_of_app_dissect);
+			    "dissector is not available");
 		}
 	}
 	else
@@ -957,7 +954,7 @@ show_fully_encoded_data(ASN1_SCK *asn,proto_tree *acse_tree,tvbuff_t
 {
 	  proto_tree *acse_tree_ms = NULL;
 	  proto_tree *acse_tree_pc = NULL;
-	  gint    length;
+	  guint    length;
 	  guint   type;
 	  guint   header_len;
 	  proto_item *ms;
@@ -967,7 +964,7 @@ show_fully_encoded_data(ASN1_SCK *asn,proto_tree *acse_tree,tvbuff_t
 	  acse_tree_pc = acse_tree;
 
 /* do we have enough bytes to dissect ? */
-			if( ( length =tvb_reported_length_remaining(tvb, *offset))  < item_len )
+			if( ( length =tvb_reported_length_remaining(tvb, *offset))  < (guint)item_len )
 			{
 					proto_tree_add_text(acse_tree_pc, tvb, *offset, item_len,
 							"Wrong item.Need %u bytes but have %u", item_len,length);
@@ -1276,8 +1273,6 @@ show_request_sequence_top(ASN1_SCK *asn,proto_tree *acse_tree,tvbuff_t
 	gboolean def;
 	proto_item *itm;
 	gint length;
-	unsigned char ftam_oid[] = "1.0.8571.1.1";
-	unsigned char cmip_oid[] ="2.9.0.0.2";
 
 	while(item_len > 0 )
 	{
@@ -1338,22 +1333,25 @@ value_string*)&request_sequence_top_vals,
 												(gchar*)&oid_string);
 									if(tag == APPLICATION_CONTEXT_NAME )
 									{
-										if( !strcmp(oid_string,cmip_oid)  )
+										guint   pos_in_string;
+										/* try to find real OID string from given  */
+										/* function could return "1.0.8571.1.1" or "1.0.8571.1.1 iso.0.8571.1.1" */
+										/* so try to find first blank and strip string */
+										for(pos_in_string=0;pos_in_string<strlen(oid_string);pos_in_string++)
 										{
-											/* it is CMIP   */
-											type_of_application = CMIP_APP;
-											app_handle = cmip_handle;
+											if( oid_string[pos_in_string] == ' ' )
+											{
+												oid_string[pos_in_string] = 0x00;
+												break;
+											}
 										}
-										else
-										if( !strcmp(oid_string,ftam_oid) )
+										/* try to get subdissector handler using given OID */
+										if(pos_in_string )
 										{
-											/* it is CMIP   */
-											type_of_application = FTAM_APP;
-											app_handle = ftam_handle;
-										}
-										else
-										{
-											proto_tree_add_text(acse_tree,tvb,*offset,len1,"Unknown OID");
+											if( !(app_handle = dissector_get_string_handle(application_dissector_table, oid_string)  ))
+											{
+												proto_tree_add_text(acse_tree,tvb,*offset,len1,"Unknown OID");
+											}
 										}
 									}
 								}
@@ -1755,6 +1753,7 @@ proto_register_acse(void)
 	 * grab it by name rather than just referring to it directly
 	 */
 	register_dissector("acse", dissect_acse, proto_acse);
+	application_dissector_table = register_dissector_table("acse.application_context", "Application context OID", FT_STRING, BASE_NONE); 
 }
 
 void
@@ -1762,10 +1761,6 @@ proto_reg_handoff_acse(void)
 {
 	/*   find data dissector  */
 	data_handle = find_dissector("data");
-	/* define ftam sub dissector */
-	ftam_handle = find_dissector("ftam");
-	/* define cmip sub dissector */
-	cmip_handle = find_dissector("cmip");
 
 }
 

@@ -2,7 +2,7 @@
 *
 * Routine to dissect OSI ISO 8571 FTAM Protocol packets
 *
-* $Id: packet-ftam.c,v 1.1 2004/03/23 19:51:06 guy Exp $
+* $Id: packet-ftam.c,v 1.2 2004/04/20 04:17:52 guy Exp $
 *
 * Yuriy Sidelnikov <YSidelnikov@hotmail.com>
 *
@@ -62,7 +62,6 @@ static gint ett_ftam_ms           = -1;
 static gint ett_ftam_itm           = -1;
 /* dissector for data */
 static dissector_handle_t data_handle;
-
 /*
 ----------------------------------------------------------------------------------------------------------*/
 static int hf_ftam_type        = -1;
@@ -3654,19 +3653,18 @@ proto_register_ftam(void)
 	proto_register_subtree_array(ett, array_length(ett));
 
 	ftam_module = prefs_register_protocol(proto_ftam, NULL);
-
-	/*
-	 * Register the dissector by name, so other dissectors can
-	 * grab it by name rather than just referring to it directly
-	 */
-	register_dissector("ftam", dissect_ftam, proto_ftam);
 }
 
 void
 proto_reg_handoff_ftam(void)
 {
+	dissector_handle_t ftam_handle;
+
 	/*   find data dissector  */
 	data_handle = find_dissector("data");
+	ftam_handle = create_dissector_handle(dissect_ftam,proto_ftam);
+	/* Register in acse oid table  */
+	dissector_add_string("acse.application_context", "1.0.8571.1.1", ftam_handle); 
 }
 
 
