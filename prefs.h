@@ -1,7 +1,7 @@
 /* prefs.h
  * Definitions for preference handling routines
  *
- * $Id: prefs.h,v 1.64 2004/05/24 02:25:20 guy Exp $
+ * $Id: prefs.h,v 1.65 2004/06/20 14:48:23 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -140,6 +140,7 @@ typedef struct _e_prefs {
   gboolean capture_prom_mode;
   gboolean capture_real_time;
   gboolean capture_auto_scroll;
+  gboolean capture_show_info;
 } e_prefs;
 
 ETH_VAR_IMPORT e_prefs prefs;

@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.135 2004/05/30 18:27:52 ulfl Exp $
+ * $Id: prefs.c,v 1.136 2004/06/20 14:48:23 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1023,6 +1023,7 @@ read_prefs(int *gpf_errno_return, int *gpf_read_errno_return,
     prefs.capture_prom_mode        = TRUE;
     prefs.capture_real_time        = FALSE;
     prefs.capture_auto_scroll      = FALSE;
+    prefs.capture_show_info        = TRUE;
     prefs.name_resolve             = RESOLV_ALL ^ RESOLV_NETWORK;
     prefs.name_resolve_concurrency = 500;
   }
@@ -1343,6 +1344,7 @@ prefs_set_pref(char *prefarg)
 #define PRS_CAP_PROM_MODE     "capture.prom_mode"
 #define PRS_CAP_REAL_TIME     "capture.real_time_update"
 #define PRS_CAP_AUTO_SCROLL   "capture.auto_scroll"
+#define PRS_CAP_SHOW_INFO     "capture.show_info"
 
 #define RED_COMPONENT(x)   (guint16) (((((x) >> 16) & 0xff) * 65535 / 255))
 #define GREEN_COMPONENT(x) (guint16) (((((x) >>  8) & 0xff) * 65535 / 255))
@@ -1668,6 +1670,8 @@ set_pref(gchar *pref_name, gchar *value)
     prefs.capture_real_time = ((strcasecmp(value, "true") == 0)?TRUE:FALSE);
   } else if (strcmp(pref_name, PRS_CAP_AUTO_SCROLL) == 0) {
     prefs.capture_auto_scroll = ((strcasecmp(value, "true") == 0)?TRUE:FALSE);
+  } else if (strcmp(pref_name, PRS_CAP_SHOW_INFO) == 0) {
+    prefs.capture_show_info = ((strcasecmp(value, "true") == 0)?TRUE:FALSE);
 
 /* handle the global options */
   } else if (strcmp(pref_name, PRS_NAME_RESOLVE) == 0 ||
@@ -2285,6 +2289,11 @@ write_prefs(char **pf_path_return)
   fprintf(pf, PRS_CAP_AUTO_SCROLL ": %s\n",
 		  prefs.capture_auto_scroll == TRUE ? "TRUE" : "FALSE");
 
+  fprintf(pf, "\n# Show capture info dialog while capturing?\n");
+  fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
+  fprintf(pf, PRS_CAP_SHOW_INFO ": %s\n",
+		  prefs.capture_show_info == TRUE ? "TRUE" : "FALSE");
+
   fprintf (pf, "\n######## Printing ########\n");
 
   fprintf (pf, "\n# Can be one of \"text\" or \"postscript\".\n"
@@ -2380,6 +2389,7 @@ copy_prefs(e_prefs *dest, e_prefs *src)
   dest->capture_prom_mode = src->capture_prom_mode;
   dest->capture_real_time = src->capture_real_time;
   dest->capture_auto_scroll = src->capture_auto_scroll;
+  dest->capture_show_info = src->capture_show_info;
   dest->name_resolve = src->name_resolve;
   dest->name_resolve_concurrency = src->name_resolve_concurrency;
 

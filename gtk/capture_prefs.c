@@ -1,7 +1,7 @@
 /* capture_prefs.c
  * Dialog box for capture preferences
  *
- * $Id: capture_prefs.c,v 1.37 2004/06/12 07:47:14 guy Exp $
+ * $Id: capture_prefs.c,v 1.38 2004/06/20 14:48:23 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -49,8 +49,9 @@
 #define PROM_MODE_KEY			"prom_mode"
 #define CAPTURE_REAL_TIME_KEY	"capture_real_time"
 #define AUTO_SCROLL_KEY			"auto_scroll"
+#define SHOW_INFO_KEY           "show_info"
 
-#define CAPTURE_TABLE_ROWS 5
+#define CAPTURE_TABLE_ROWS 6
 
 #define IFOPTS_CALLER_PTR_KEY	"ifopts_caller_ptr"
 #define IFOPTS_DIALOG_PTR_KEY	"ifopts_dialog_ptr"
@@ -80,11 +81,13 @@ GtkWidget*
 capture_prefs_show(void)
 {
 	GtkWidget	*main_tb, *main_vb;
-	GtkWidget	*if_cb, *if_lb, *promisc_cb, *sync_cb, *auto_scroll_cb;
+	GtkWidget	*if_cb, *if_lb, *promisc_cb, *sync_cb, *auto_scroll_cb, *show_info_cb;
 	GtkWidget	*ifopts_lb, *ifopts_bt;
 	GList		*if_list, *combo_list;
 	int		err;
 	char		err_str[PCAP_ERRBUF_SIZE];
+    int         row = 0;
+    GtkTooltips *tooltips = gtk_tooltips_new();
 
 	/* Main vertical box */
 	main_vb = gtk_vbox_new(FALSE, 7);
@@ -99,7 +102,7 @@ capture_prefs_show(void)
 
 	/* Default device */
 	if_lb = gtk_label_new("Default interface:");
-	gtk_table_attach_defaults(GTK_TABLE(main_tb), if_lb, 0, 1, 0, 1);
+	gtk_table_attach_defaults(GTK_TABLE(main_tb), if_lb, 0, 1, row, row+1);
 	gtk_misc_set_alignment(GTK_MISC(if_lb), 1.0, 0.5);
 	gtk_widget_show(if_lb);
 
@@ -117,37 +120,62 @@ capture_prefs_show(void)
 	if (prefs.capture_device)
 		gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(if_cb)->entry),
 		    prefs.capture_device);
-	gtk_table_attach_defaults(GTK_TABLE(main_tb), if_cb, 1, 2, 0, 1);
+	gtk_table_attach_defaults(GTK_TABLE(main_tb), if_cb, 1, 2, row, row+1);
+    gtk_tooltips_set_tip(tooltips, GTK_COMBO(if_cb)->entry, 
+        "The default interface to be captured from.", NULL);
 	gtk_widget_show(if_cb);
 	OBJECT_SET_DATA(main_vb, DEVICE_KEY, if_cb);
+    row++;
 
 	/* Interface properties */
 	ifopts_lb = gtk_label_new("Interfaces:");
-	gtk_table_attach_defaults(GTK_TABLE(main_tb), ifopts_lb, 0, 1, 1, 2);
+	gtk_table_attach_defaults(GTK_TABLE(main_tb), ifopts_lb, 0, 1, row, row+1);
 	gtk_misc_set_alignment(GTK_MISC(ifopts_lb), 1.0, 0.5);
 	gtk_widget_show(ifopts_lb);
 
 	ifopts_bt = BUTTON_NEW_FROM_STOCK(ETHEREAL_STOCK_EDIT);
+    gtk_tooltips_set_tip(tooltips, ifopts_bt, 
+        "Open a dialog box to set various interface options.", NULL);
 	SIGNAL_CONNECT(ifopts_bt, "clicked", ifopts_edit_cb, NULL);
-	gtk_table_attach_defaults(GTK_TABLE(main_tb), ifopts_bt, 1, 2, 1, 2 );
+	gtk_table_attach_defaults(GTK_TABLE(main_tb), ifopts_bt, 1, 2, row, row+1);
+    row++;
 
 	/* Promiscuous mode */
-	promisc_cb = create_preference_check_button(main_tb, 2,
+	promisc_cb = create_preference_check_button(main_tb, row++,
 	    "Capture packets in promiscuous mode:", NULL,
 	    prefs.capture_prom_mode);
+    gtk_tooltips_set_tip(tooltips, promisc_cb, 
+        "Usually a network card will only capture the traffic sent to its own network address. "
+        "If you want to capture all traffic that the network card can \"see\", mark this option. "
+        "See the FAQ for some more details of capturing packets from a switched network.", NULL);
 	OBJECT_SET_DATA(main_vb, PROM_MODE_KEY, promisc_cb);
 
 	/* Real-time capture */
-	sync_cb = create_preference_check_button(main_tb, 3,
+	sync_cb = create_preference_check_button(main_tb, row++,
 	    "Update list of packets in real time:", NULL,
 	    prefs.capture_real_time);
+    gtk_tooltips_set_tip(tooltips, sync_cb,
+        "Update the list of packets while capture is in progress. "
+        "Don't use this option if you notice packet drops.", NULL);
 	OBJECT_SET_DATA(main_vb, CAPTURE_REAL_TIME_KEY, sync_cb);
 
 	/* Auto-scroll real-time capture */
-	auto_scroll_cb = create_preference_check_button(main_tb, 4,
+	auto_scroll_cb = create_preference_check_button(main_tb, row++,
 	    "Automatic scrolling in live capture:", NULL,
 	    prefs.capture_auto_scroll);
+    gtk_tooltips_set_tip(tooltips, auto_scroll_cb,
+        "Automatic scrolling of the packet list while live capture is in progress. ", NULL);
 	OBJECT_SET_DATA(main_vb, AUTO_SCROLL_KEY, auto_scroll_cb);
+
+	/* Show capture info dialog */
+	show_info_cb = create_preference_check_button(main_tb, row++,
+	    "Hide capture info dialog:", NULL,
+	    !prefs.capture_show_info);
+    gtk_tooltips_set_tip(tooltips, show_info_cb,
+        "Hide the capture info dialog while capturing. "
+        "Will only take effect, if the \"Update list of packets in real time\" "
+        "option is also used.", NULL);
+	OBJECT_SET_DATA(main_vb, SHOW_INFO_KEY, show_info_cb);
 
 	/* Show 'em what we got */
 	gtk_widget_show_all(main_vb);
@@ -158,13 +186,14 @@ capture_prefs_show(void)
 void
 capture_prefs_fetch(GtkWidget *w)
 {
-	GtkWidget *if_cb, *promisc_cb, *sync_cb, *auto_scroll_cb;
+	GtkWidget *if_cb, *promisc_cb, *sync_cb, *auto_scroll_cb, *show_info_cb;
 	gchar	*if_text;
 
 	if_cb = (GtkWidget *)OBJECT_GET_DATA(w, DEVICE_KEY);
 	promisc_cb = (GtkWidget *)OBJECT_GET_DATA(w, PROM_MODE_KEY);
 	sync_cb = (GtkWidget *)OBJECT_GET_DATA(w, CAPTURE_REAL_TIME_KEY);
 	auto_scroll_cb = (GtkWidget *)OBJECT_GET_DATA(w, AUTO_SCROLL_KEY);
+    show_info_cb = (GtkWidget *)OBJECT_GET_DATA(w, SHOW_INFO_KEY);
 
 	if (prefs.capture_device != NULL) {
 		g_free(prefs.capture_device);
@@ -187,6 +216,8 @@ capture_prefs_fetch(GtkWidget *w)
 	prefs.capture_real_time = GTK_TOGGLE_BUTTON (sync_cb)->active;
 
 	prefs.capture_auto_scroll = GTK_TOGGLE_BUTTON (auto_scroll_cb)->active;
+
+    prefs.capture_show_info = !(GTK_TOGGLE_BUTTON (show_info_cb)->active);
 }
 
 void

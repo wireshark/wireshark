@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.443 2004/06/20 13:39:44 ulfl Exp $
+ * $Id: main.c,v 1.444 2004/06/20 14:48:24 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1653,7 +1653,7 @@ main(int argc, char *argv[])
   /* And do the same for "Automatic scrolling in live capture" mode. */
   auto_scroll_live = prefs->capture_auto_scroll;
 
-  capture_opts.show_info = TRUE;
+  capture_opts.show_info = prefs->capture_show_info;
 #endif
 
   /* Set the name resolution code's flags from the preferences. */
