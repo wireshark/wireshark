@@ -31,11 +31,10 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/conversation.h>
+#include <epan/prefs.h>
 
 #include "packet-tcp.h"
 #include "reassemble.h"
-
-#define TCP_PORT_PGSQL 5432
 
 
 static int proto_pgsql = -1;
@@ -81,6 +80,7 @@ static int hf_routine = -1;
 static gint ett_pgsql = -1;
 static gint ett_values = -1;
 
+static guint pgsql_port = 5432;
 static gboolean pgsql_desegment = TRUE;
 static gboolean first_message = TRUE;
 
@@ -122,7 +122,7 @@ proto_reg_handoff_pgsql(void)
     dissector_handle_t pgsql_handle;
 
     pgsql_handle = create_dissector_handle(dissect_pgsql, proto_pgsql);
-    dissector_add("tcp.port", TCP_PORT_PGSQL, pgsql_handle);
+    dissector_add("tcp.port", pgsql_port, pgsql_handle);
 }
 
 
@@ -295,9 +295,17 @@ proto_register_pgsql(void)
         &ett_values
     };
 
+    module_t *mod_pgsql;
+
     proto_pgsql = proto_register_protocol("PostgreSQL", "PGSQL", "pgsql");
     proto_register_field_array(proto_pgsql, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    mod_pgsql = prefs_register_protocol(proto_pgsql, NULL);
+    prefs_register_uint_preference(
+        mod_pgsql, "tcp.port", "PGSQL TCP port", "Set the port for PGSQL "
+        "messages (if different from the default of 5432)", 10, &pgsql_port
+    );
 }
 
 
@@ -579,18 +587,17 @@ static void dissect_pgsql_fe_msg(guchar type, guint32 n, guint32 length,
         case 196608:
             while (length > 0) {
                 s = tvb_get_stringz(tvb, n, &l);
-                n += l;
                 length -= l;
                 if (length <= 0) {
                     g_free(s);
                     break;
                 }
-                t = tvb_get_stringz(tvb, n, &l);
-                proto_tree_add_text(tree, tvb, n, l, "%s: %s", s, t);
+                t = tvb_get_stringz(tvb, n+l, &i);
+                proto_tree_add_text(tree, tvb, n, l+i, "%s: %s", s, t);
                 g_free(s);
                 g_free(t);
-                n += l;
-                length -= l;
+                n += l+i;
+                length -= i;
                 if (length == 1 && tvb_get_guint8(tvb, n) == 0)
                     break;
             }
