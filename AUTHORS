@@ -567,6 +567,14 @@ Hannes Gredler <hannes@juniper.net> {
 	Many ISIS enhancements
 }
 
+Inoue <inoue@ainet.or.jp> {
+	Preference dialog crash fix
+}
+
+Olivier Biot <Olivier.Biot@siemens.atea.be> {
+	Fix to WTP retransmission indicator dissection
+}
+
 Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 

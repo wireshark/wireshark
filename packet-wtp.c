@@ -2,7 +2,7 @@
  *
  * Routines to dissect WTP component of WAP traffic.
  * 
- * $Id: packet-wtp.c,v 1.12 2001/03/23 20:11:46 guy Exp $
+ * $Id: packet-wtp.c,v 1.13 2001/04/17 18:57:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -458,8 +458,17 @@ static char transaction_class(unsigned char octet)
 
 static char retransmission_indicator(unsigned char octet)
 {
-	char ch = (octet >> 0) & 0x01; /* ......,X */
-	return ch;
+	switch ( pdu_type(octet) ) {
+		case INVOKE:
+		case RESULT:
+		case ACK:
+		case SEGMENTED_INVOKE:
+		case SEGMENTED_RESULT:
+		case NEGATIVE_ACK:
+			return (octet >> 0) & 0x01; /* ......,X */
+		default:
+			return 0;
+	}
 };
 
 /* Register the protocol with Ethereal */
