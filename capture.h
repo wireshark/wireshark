@@ -104,7 +104,8 @@ capture_opts_add_opt(capture_options *capture_opts, const char *appname, int opt
  */
 extern gboolean do_capture(capture_options *capture_opts);
 
-/** Do the low-level work of a capture (start the capture child). */
+/** Do the low-level work of a capture (start the capture child).
+ *  Returns TRUE if it succeeds, FALSE otherwise. */
 extern int  capture_start(capture_options *capture_opts, gboolean *stats_known, struct pcap_stat *stats);
 
 /** Stop a capture (usually from a menu item). */
@@ -113,7 +114,8 @@ extern void capture_stop(capture_options *capture_opts);
 /** Terminate the capture child cleanly when exiting. */
 extern void capture_kill_child(capture_options *capture_opts);
 
-/** Do the low-level work of a capture. */
+/** Do the low-level work of a capture.
+ *  Returns TRUE if it succeeds, FALSE otherwise. */
 extern int  capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct pcap_stat *stats);
 
 /** Stop a low-level capture. */
