@@ -1,7 +1,7 @@
 /* gui_prefs.c
  * Dialog box for GUI preferences
  *
- * $Id: gui_prefs.c,v 1.64 2004/02/12 22:24:28 guy Exp $
+ * $Id: gui_prefs.c,v 1.65 2004/02/24 18:39:13 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -124,7 +124,7 @@ static const enum_val_t toolbar_style_vals[] = {
 
 static const enum_val_t gui_fileopen_vals[] = {
 	{ "Remember last directory", FO_STYLE_LAST_OPENED },
-	{ "Always start in directory:", FO_STYLE_SPECIFIED },
+	{ "Always start in:", FO_STYLE_SPECIFIED },
 	{ NULL,    0 }
 };
 
@@ -253,12 +253,12 @@ gui_prefs_show(void)
 	/* Allow user to select where they want the File Open dialog to open to
 	 * by default */
 	fileopen_rb = create_preference_radio_buttons(main_tb, pos++,
-	    "File Open dialog behavior:", NULL, gui_fileopen_vals,
+	    "\"File Open\" dialog behavior:", NULL, gui_fileopen_vals,
 	    prefs.gui_fileopen_style);
 
 	/* Directory to default File Open dialog to */
-	fileopen_dir_te = create_preference_entry(main_tb, pos++, "Directory:",
-	    NULL, prefs.gui_fileopen_dir);
+	fileopen_dir_te = create_preference_entry(main_tb, pos++, 
+        "Directory:", NULL, prefs.gui_fileopen_dir);
 	OBJECT_SET_DATA(main_vb, GUI_FILEOPEN_KEY, fileopen_rb);
 	OBJECT_SET_DATA(main_vb, GUI_FILEOPEN_DIR_KEY, fileopen_dir_te);
 	SIGNAL_CONNECT(fileopen_rb, "clicked", fileopen_selected_cb, main_vb);
@@ -267,7 +267,7 @@ gui_prefs_show(void)
 
 	/* Number of entries in the recent_files list ... */
 	recent_files_count_max_te = create_preference_entry(main_tb, pos++,
-	    "Recent Files Count Max:", "Maximum number of recent files", recent_files_count_max_str);
+	    "\"Open Recent\" max. list entries:", "Maximum number of recent files", recent_files_count_max_str);
 	sprintf(current_val_str, "%d", prefs.gui_recent_files_count_max);
 	gtk_entry_set_text(GTK_ENTRY(recent_files_count_max_te), current_val_str);
 	OBJECT_SET_DATA(main_vb, GUI_RECENT_FILES_COUNT_KEY, recent_files_count_max_te);
