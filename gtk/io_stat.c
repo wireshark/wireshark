@@ -1,7 +1,7 @@
 /* io_stat.c
  * io_stat   2002 Ronnie Sahlberg
  *
- * $Id: io_stat.c,v 1.71 2004/02/27 19:07:19 ulfl Exp $
+ * $Id: io_stat.c,v 1.72 2004/03/08 07:47:14 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -973,11 +973,62 @@ gtk_iostat_draw(void *g)
 	io_stat_draw(git->io);
 }
 
+
+/* ok we get called with both the filter and the field. 
+   make sure the field is part of the filter.
+   (make sure and make sure  just append it)
+   the field MUST be part of the filter or else we wont
+   be able to pick up the field values after the edt tree has been
+   pruned 
+*/
 static GString *
-enable_graph(io_stat_graph_t *gio, char *filter)
+enable_graph(io_stat_graph_t *gio, char *filter, char *field)
 {
+	char real_filter[260];
+
 	gio->display=TRUE;
-	return register_tap_listener("frame", gio, filter,
+	
+	real_filter[0]=0;
+	if(filter){
+		/* skip all whitespaces */
+		while(*filter){
+			if(*filter==' '){
+				filter++;
+				continue;
+			}
+			if(*filter=='\t'){
+				filter++;
+				continue;
+			}
+			break;
+		}
+		if(*filter){
+			strncpy(real_filter, filter, 255);
+			real_filter[255]=0;
+		}
+	}
+	if(field){
+		/* skip all whitespaces */
+		while(*field){
+			if(*field==' '){
+				field++;
+				continue;
+			}
+			if(*field=='\t'){
+				field++;
+				continue;
+			}
+			break;
+		}
+		if(*field){
+			if(real_filter[0]!=0){
+				strcat(real_filter, " && ");
+			}
+			strncat(real_filter, field, 259-strlen(real_filter));
+			real_filter[259]=0;
+		}
+	}
+	return register_tap_listener("frame", gio, real_filter[0]?real_filter:NULL,
 	    gtk_iostat_reset, gtk_iostat_packet, gtk_iostat_draw);
 }
 
@@ -1046,7 +1097,7 @@ gtk_iostat_init(char *optarg _U_)
 	}
 	io_stat_reset(io);
 
-	error_string=enable_graph(&io->graphs[0], NULL);
+	error_string=enable_graph(&io->graphs[0], NULL, NULL);
 	if(error_string){
 		fprintf(stderr, "ethereal: Can't attach io_stat tap: %s\n",
 		    error_string->str);
@@ -1458,13 +1509,14 @@ static gint
 filter_callback(GtkWidget *widget _U_, io_stat_graph_t *gio)
 {
 	char *filter;
+	char *field;
 	header_field_info *hfi;
 	dfilter_t *dfilter;
 
+	field=(char *)gtk_entry_get_text(GTK_ENTRY(gio->calc_field));
+
 	/* first check if the field string is valid */
 	if(gio->io->count_type==COUNT_TYPE_ADVANCED){
-		char *field;
-		field=(char *)gtk_entry_get_text(GTK_ENTRY(gio->calc_field));
 		/* warn and bail out if there was no field specified */
 		if(field==NULL || field[0]==0){
 			simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK, "You did not specify a field name.");
@@ -1582,7 +1634,7 @@ filter_callback(GtkWidget *widget _U_, io_stat_graph_t *gio)
 	unprotect_thread_critical_region();
 	
 	io_stat_reset(gio->io);
-	enable_graph(gio, filter);
+	enable_graph(gio, filter, field);
 	retap_packets(&cfile);
 	io_stat_redraw(gio->io);
 
