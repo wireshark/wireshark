@@ -1,7 +1,7 @@
 /* proto_draw.c
  * Routines for GTK+ packet display
  *
- * $Id: proto_draw.c,v 1.93 2004/05/01 15:15:08 ulfl Exp $
+ * $Id: proto_draw.c,v 1.94 2004/05/09 07:01:07 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -630,6 +630,12 @@ byte_view_new(void)
 
   /* this will only have an effect, if no tabs are shown */
   gtk_notebook_set_show_border(GTK_NOTEBOOK(byte_nb), FALSE);
+
+  /* set the tabs scrollable, if they don't fit into the pane */
+  gtk_notebook_set_scrollable(GTK_NOTEBOOK(byte_nb), TRUE);
+
+  /* enable a popup menu containing the tab labels, will be helpful if tabs don't fit into the pane */
+  gtk_notebook_popup_enable(GTK_NOTEBOOK(byte_nb));
 
   /* Add a placeholder byte view so that there's at least something
      displayed in the byte view notebook. */

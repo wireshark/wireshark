@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.192 2004/05/07 12:15:24 ulfl Exp $
+ * $Id: menu.c,v 1.193 2004/05/09 07:01:06 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1386,7 +1386,8 @@ popup_menu_handler(GtkWidget *widget, GdkEvent *event, gpointer data)
         byte_view_select(widget, (GdkEventButton *) event);
     }
 
-    if(event->type == GDK_BUTTON_PRESS) {
+    /* context menu handler (but the byte view notebook pages have their own handler) */
+    if(event->type == GDK_BUTTON_PRESS && widget != byte_nb_ptr) {
         event_button = (GdkEventButton *) event;
 
         /* To qoute the "Gdk Event Structures" doc:
