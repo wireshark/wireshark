@@ -1,7 +1,7 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
  *
- * $Id: packet-dns.c,v 1.66 2001/04/23 18:05:18 guy Exp $
+ * $Id: packet-dns.c,v 1.67 2001/06/18 01:49:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -435,7 +435,7 @@ get_dns_name(const u_char *pd, int offset, int dns_data_offset,
   int len = -1;
   int chars_processed = 0;
   int data_size = pi.len - dns_data_offset;
-  u_int component_len;
+  int component_len;
 
   maxname--;	/* reserve space for the trailing '\0' */
   for (;;) {

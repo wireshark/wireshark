@@ -1,7 +1,7 @@
 /* print.c
  * Routines for printing packet analysis trees.
  *
- * $Id: print.c,v 1.35 2001/06/08 10:07:55 guy Exp $
+ * $Id: print.c,v 1.36 2001/06/18 01:49:17 guy Exp $
  *
  * Gilbert Ramirez <gram@xiexie.org>
  *
@@ -249,7 +249,7 @@ static
 void print_hex_data_text(FILE *fh, register const u_char *cp,
 		register u_int length, char_enc encoding)
 {
-        register int ad, i, j, k;
+        register unsigned int ad, i, j, k;
         u_char c;
         u_char line[80];
 	static u_char binhex[16] = {
@@ -362,7 +362,7 @@ static
 void print_hex_data_ps(FILE *fh, register const u_char *cp,
 		register u_int length, char_enc encoding)
 {
-        register int ad, i, j, k;
+        register unsigned int ad, i, j, k;
         u_char c;
         u_char line[60];
 	static u_char binhex[16] = {

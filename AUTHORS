@@ -78,6 +78,7 @@ Joerg Mayer      <jmayer@loplof.de> {
 	Support for "-N" flag enabling selected forms of name resolution
 	Changes to structure initializations to initialize all members
 	Define __USE_XOPEN in files that use "strptime()"
+	Various signed vs. unsigned fixes
 }
 
 Martin Maciaszek <fastjack@i-s-o.net> {

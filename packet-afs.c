@@ -8,7 +8,7 @@
  * Portions based on information/specs retrieved from the OpenAFS sources at
  *   www.openafs.org, Copyright IBM. 
  *
- * $Id: packet-afs.c,v 1.31 2001/05/27 05:00:17 guy Exp $
+ * $Id: packet-afs.c,v 1.32 2001/06/18 01:49:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -427,7 +427,7 @@ static int
 dissect_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
 	int old_offset;
-	guint32 bytes;
+	gint32 bytes;
 	int i, n, pos, neg, acl;
 	char user[128]; /* Be sure to adjust sscanf()s below if length is changed... */
 

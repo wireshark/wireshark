@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.152 2001/06/15 01:36:46 guy Exp $
+ * $Id: capture.c,v 1.153 2001/06/18 01:49:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1208,7 +1208,8 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
   bpf_u_int32 netnum, netmask;
   struct bpf_program fcode;
   time_t      upd_time, cur_time;
-  int         err, inpkts, i;
+  int         err, inpkts;
+  unsigned int i;
   static const char capstart_msg = SP_CAPSTART;
   char        errmsg[4096+1];
 #ifndef _WIN32

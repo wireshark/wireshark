@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.52 2001/06/04 08:07:34 guy Exp $
+ * $Id: prefs.c,v 1.53 2001/06/18 01:49:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -889,7 +889,7 @@ name_resolve_to_string(guint32 name_resolve)
 {
   static char string[N_NAME_RESOLVE_OPT+1];
   char *p;
-  int i;
+  unsigned int i;
   gboolean all_opts_set = TRUE;
 
   if (name_resolve == PREFS_RESOLV_NONE)
@@ -911,7 +911,7 @@ char
 string_to_name_resolve(char *string, guint32 *name_resolve)
 {
   char c;
-  int i;
+  unsigned int i;
 
   *name_resolve = 0;
   while ((c = *string++) != '\0') {

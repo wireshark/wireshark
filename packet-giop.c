@@ -4,7 +4,7 @@
  * Laurent Deniel <deniel@worldnet.fr>
  * Craig Rodrigues <rodrigc@mediaone.net>
  *
- * $Id: packet-giop.c,v 1.32 2001/04/27 01:27:36 guy Exp $
+ * $Id: packet-giop.c,v 1.33 2001/06/18 01:49:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -99,7 +99,7 @@ static const value_string giop_locate_status_types[] = {
 static const guint GIOP_MAJOR =  1;
 static const guint GIOP_MINOR =  2;
 
-static const guint GIOP_HEADER_SIZE = 12;
+static const gint GIOP_HEADER_SIZE = 12;
 
 static const int KeyAddr       = 0;
 static const int ProfileAddr   = 1;
@@ -198,7 +198,7 @@ typedef enum ReplyStatusType
 }
 ReplyStatusType;
 
-const static value_string reply_status_types[] = { 
+static const value_string reply_status_types[] = { 
    { NO_EXCEPTION, "No Exception" } ,
    { USER_EXCEPTION, "User Exception" } ,
    { SYSTEM_EXCEPTION, "System Exception" } ,
