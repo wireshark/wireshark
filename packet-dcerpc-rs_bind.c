@@ -5,7 +5,7 @@
  * This information is based off the released idl files from opengroup.
  * ftp://ftp.opengroup.org/pub/dce122/dce/src/security.tar.gz security/idl/rs_bind.idl
  *     
- * $Id: packet-dcerpc-rs_bind.c,v 1.1 2003/10/22 02:07:39 sahlberg Exp $
+ * $Id: packet-dcerpc-rs_bind.c,v 1.2 2003/10/22 02:22:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
