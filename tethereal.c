@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.77 2001/04/07 06:58:17 guy Exp $
+ * $Id: tethereal.c,v 1.78 2001/04/11 05:24:08 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -639,9 +639,9 @@ capture(int packet_count, int out_file_type)
 #else
       /* If we got a "can't find PPA for XXX" message, warn the user (who
          is running Ethereal on HP-UX) that they don't have a version
-	 of libpcap patched to properly handle HP-UX (the patched version
-	 says "can't find /dev/dlpi PPA for XXX" rather than "can't find
-	 PPA for XXX"). */
+	 of libpcap that properly handles HP-UX (libpcap 0.6.x and later
+	 versions, which properly handle HP-UX, say "can't find /dev/dlpi
+	 PPA for XXX" rather than "can't find PPA for XXX"). */
       if (strncmp(err_str, ppamsg, sizeof ppamsg - 1) == 0)
 	libpcap_warn =
 	  "\n\n"
@@ -649,14 +649,11 @@ capture(int packet_count, int out_file_type)
 	  "that doesn't handle HP-UX network devices well; this means that\n"
 	  "Tethereal may not be able to capture packets.\n"
 	  "\n"
-	  "To fix this, you will need to download the source to Tethereal\n"
-	  "from www.ethereal.com if you have not already done so, read\n"
-	  "the instructions in the \"README.hpux\" file in the source\n"
-	  "distribution, download the source to libpcap if you have not\n"
-	  "already done so, patch libpcap as per the instructions, rebuild\n"
-	  "and install libpcap, and then build Tethereal (if you have already\n"
-	  "built Tethereal from source, do a \"make distclean\" and re-run\n"
-	  "configure before building).";
+	  "To fix this, you should install libpcap 0.6.2, or a later version\n"
+	  "of libpcap, rather than libpcap 0.4 or 0.5.x.  It is available in\n"
+	  "packaged binary form from the Software Porting And Archive Centre\n"
+	  "for HP-UX; the Centre is at http://hpux.connect.org.uk/ - the page\n"
+	  "at the URL lists a number of mirror sites.";
       else
 	libpcap_warn = "";
     snprintf(errmsg, sizeof errmsg,

@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.146 2001/04/04 23:40:23 guy Exp $
+ * $Id: capture.c,v 1.147 2001/04/11 05:24:08 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1325,9 +1325,9 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
 
       /* If we got a "can't find PPA for XXX" message, warn the user (who
          is running Ethereal on HP-UX) that they don't have a version
-	 of libpcap patched to properly handle HP-UX (the patched version
-	 says "can't find /dev/dlpi PPA for XXX" rather than "can't find
-	 PPA for XXX"). */
+	 of libpcap that properly handles HP-UX (libpcap 0.6.x and later
+	 versions, which properly handle HP-UX, say "can't find /dev/dlpi
+	 PPA for XXX" rather than "can't find PPA for XXX"). */
       if (strncmp(err_str, ppamsg, sizeof ppamsg - 1) == 0)
 	libpcap_warn =
 	  "\n\n"
@@ -1335,14 +1335,11 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
 	  "that doesn't handle HP-UX network devices well; this means that\n"
 	  "Ethereal may not be able to capture packets.\n"
 	  "\n"
-	  "To fix this, you will need to download the source to Ethereal\n"
-	  "from www.ethereal.com if you have not already done so, read\n"
-	  "the instructions in the \"README.hpux\" file in the source\n"
-	  "distribution, download the source to libpcap if you have not\n"
-	  "already done so, patch libpcap as per the instructions, rebuild\n"
-	  "and install libpcap, and then build Ethereal (if you have already\n"
-	  "built Ethereal from source, do a \"make distclean\" and re-run\n"
-	  "configure before building).";
+	  "To fix this, you should install libpcap 0.6.2, or a later version\n"
+	  "of libpcap, rather than libpcap 0.4 or 0.5.x.  It is available in\n"
+	  "packaged binary form from the Software Porting And Archive Centre\n"
+	  "for HP-UX; the Centre is at http://hpux.connect.org.uk/ - the page\n"
+	  "at the URL lists a number of mirror sites.";
       else
 	libpcap_warn = "";
       snprintf(errmsg, sizeof errmsg,

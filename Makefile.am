@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.303 2001/04/10 16:19:33 gram Exp $
+# $Id: Makefile.am,v 1.304 2001/04/11 05:24:08 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -625,9 +625,6 @@ EXTRA_DIST = \
 	image/icon-ethereal.xpm \
 	image/tethereal.rc.in	\
 	INSTALL.configure       \
-	libpcap-0.4.HPUX.HPUXPAC.patch \
-	libpcap-0.4.HPUX.LBL.patch \
-	libpcap-0.5.HPUX.tcpdump.org.patch \
 	Makefile.nmake		\
 	make-reg-dotc		\
 	make-reg-dotc.py	\
