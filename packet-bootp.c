@@ -2,7 +2,7 @@
  * Routines for BOOTP/DHCP packet disassembly
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-bootp.c,v 1.67 2002/06/19 20:21:26 guy Exp $
+ * $Id: packet-bootp.c,v 1.68 2002/06/29 19:45:01 guy Exp $
  *
  * The information used comes from:
  * RFC  951: Bootstrap Protocol
@@ -1142,9 +1142,6 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 	}
 
-	voff = 236;
-	eoff = tvb_reported_length(tvb);
-
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_bootp, tvb, 0, -1, FALSE);
 		bp_tree = proto_item_add_subtree(ti, ett_bootp);
@@ -1223,23 +1220,31 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						   tvb_get_ptr(tvb, 108, 1),
 						   "Boot file name not given");
 		}
+	}
 
-		/* rfc2132 says it SHOULD exist, not that it MUST exist */
-		if (tvb_bytes_exist(tvb, 236, 4)) {
-			tvb_memcpy(tvb, (void *)&ip_addr, 236, sizeof(ip_addr));
-			if (tvb_get_ntohl(tvb, 236) == 0x63825363) {
+	voff = 236;
+
+	/* rfc2132 says it SHOULD exist, not that it MUST exist */
+	if (tvb_bytes_exist(tvb, voff, 4)) {
+		if (tvb_get_ntohl(tvb, voff) == 0x63825363) {
+			if (tree) {
+				tvb_memcpy(tvb, (void *)&ip_addr, voff, sizeof(ip_addr));
 				proto_tree_add_ipv4_format(bp_tree, hf_bootp_cookie, tvb,
-					    236, 4, ip_addr,
-					    "Magic cookie: (OK)");
-				voff += 4;
+				    voff, 4, ip_addr,
+				    "Magic cookie: (OK)");
 			}
-			else {
+			voff += 4;
+		}
+		else {
+			if (tree) {
 				proto_tree_add_text(bp_tree,  tvb,
-						236, 64, "Bootp vendor specific options");
-				voff += 64;
+					voff, 64, "Bootp vendor specific options");
 			}
+			voff += 64;
 		}
 	}
+
+	eoff = tvb_reported_length(tvb);
 
 	/*
 	 * In the first pass, we just look for the DHCP message type
