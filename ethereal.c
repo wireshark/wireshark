@@ -1,6 +1,6 @@
 /* ethereal.c
  *
- * $Id: ethereal.c,v 1.76 1999/08/05 18:20:41 guy Exp $
+ * $Id: ethereal.c,v 1.77 1999/08/08 01:29:15 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -119,6 +119,7 @@ gchar        comp_info_str[256];
 gchar       *ethereal_path = NULL;
 gchar       *medium_font = MONO_MEDIUM_FONT;
 gchar       *bold_font = MONO_BOLD_FONT;
+gchar       *rfilter = NULL;
 
 ts_type timestamp_type = RELATIVE;
 
@@ -1047,7 +1048,7 @@ main(int argc, char *argv[])
 
 #ifndef WIN32
   /* Now get our args */
-  while ((opt = getopt(argc, argv, "b:B:c:f:Fhi:km:nP:Qr:Ss:t:T:w:v")) != EOF) {
+  while ((opt = getopt(argc, argv, "b:B:c:f:Fhi:km:nP:Qr:R:Ss:t:T:w:v")) != EOF) {
     switch (opt) {
       case 'b':	       /* Bold font */
 	bold_font = g_strdup(optarg);
@@ -1095,6 +1096,9 @@ main(int argc, char *argv[])
 #endif
       case 'r':        /* Read capture file xxx */
         cf_name = g_strdup(optarg);
+        break;
+      case 'R':        /* Read file filter */
+        rfilter = g_strdup(optarg);
         break;
 #ifdef HAVE_LIBPCAP
       case 's':        /* Set the snapshot (capture) length */

@@ -19,6 +19,7 @@ S<[ B<-n> ]>
 S<[ B<-P> packet list height ]>
 S<[ B<-Q> ]>
 S<[ B<-r> infile ]>
+S<[ B<-R> filter expression ]>
 S<[ B<-S> ]>
 S<[ B<-s> snaplen ]>
 S<[ B<-T> tree view height ]>
@@ -117,6 +118,13 @@ B<-i> and B<-w> parameters.
 
 Reads packet data from I<file>.
 
+=item -R
+
+Causes the specified filter (which uses the syntax of display filters,
+rather than that of capture filters) to be applied, when a packet file
+is read, to all packets read from the capture file; packets not matching
+the filter are discarded.
+
 =item -S
 
 Specifies that the live packet capture will be performed in a separate
@@ -132,7 +140,7 @@ memory, or saved to disk.
 
 =item -T
 
-Sets the initial height of the tree view (middle) pane
+Sets the initial height of the tree view (middle) pane.
 
 =item -t
 

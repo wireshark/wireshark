@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.57 1999/08/07 01:25:04 guy Exp $
+ * $Id: file.c,v 1.58 1999/08/08 01:29:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -82,11 +82,14 @@ extern GtkWidget *packet_list, *prog_bar, *info_bar, *byte_view, *tree_view;
 extern guint      file_ctx;
 extern int	  sync_mode;
 extern int        sync_pipe[];
+extern gchar     *rfilter;
 
 guint cap_input_id;
 
 static guint32 firstsec, firstusec;
 static guint32 lastsec, lastusec;
+
+static GNode *rfcode; 
 
 static void wtap_dispatch_cb(u_char *, const struct wtap_pkthdr *, int,
     const u_char *);
@@ -209,6 +212,13 @@ load_cap_file(char *fname, capture_file *cf) {
   gtk_statusbar_push(GTK_STATUSBAR(info_bar), file_ctx, load_msg);
   
   timeout = gtk_timeout_add(250, file_progress_cb, (gpointer) cf);
+
+  rfcode = NULL;
+  if (rfilter)
+    if (dfilter_compile(rfilter, &rfcode) != 0) {
+      simple_dialog(ESD_TYPE_WARN, NULL,
+      "Unable to parse filter string \"%s\".", rfilter);
+  }
 
   err = open_cap_file(fname, cf);
   if ((err == 0) && (cf->cd_t != WTAP_FILE_UNKNOWN)) {
@@ -457,15 +467,14 @@ wtap_dispatch_cb(u_char *user, const struct wtap_pkthdr *phdr, int offset,
   const u_char *buf) {
   frame_data   *fdata;
   capture_file *cf = (capture_file *) user;
+  int passed;
+  proto_tree   *protocol_tree;
 
   while (gtk_events_pending())
     gtk_main_iteration();
 
   /* Allocate the next list entry, and add it to the list. */
   fdata = (frame_data *) g_malloc(sizeof(frame_data));
-  cf->plist = g_list_append(cf->plist, (gpointer) fdata);
-
-  cf->count++;
 
   fdata->pkt_len  = phdr->len;
   fdata->cap_len  = phdr->caplen;
@@ -476,7 +485,19 @@ wtap_dispatch_cb(u_char *user, const struct wtap_pkthdr *phdr, int offset,
   fdata->flags = phdr->flags;
   fdata->cinfo = NULL;
 
-  add_packet_to_packet_list(fdata, cf, buf);
+  passed = TRUE;
+  if (rfcode) {
+    protocol_tree = proto_tree_create_root();
+    dissect_packet(buf, fdata, protocol_tree);
+    passed = dfilter_apply(rfcode, protocol_tree, cf->pd);
+    proto_tree_free(protocol_tree);
+  }
+  if (passed) {
+    cf->plist = g_list_append(cf->plist, (gpointer) fdata);
+
+    cf->count++;
+    add_packet_to_packet_list(fdata, cf, buf);
+  } else g_free(fdata);
 }
 
 static void
