@@ -4,7 +4,7 @@
  *
  * Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-hsrp.c,v 1.7 2000/08/13 14:08:12 deniel Exp $
+ * $Id: packet-hsrp.c,v 1.8 2000/10/21 09:46:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -142,7 +142,7 @@ dissect_hsrp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
                 proto_tree_add_text(hsrp_tree, NullTVB, offset++, 1, "Reserved: 0x%x", hsrp.reserved);
 
                 memcpy(auth_buf, hsrp.auth_data, sizeof(hsrp.auth_data));
-                auth_buf[sizeof(auth_buf)] = '\0';
+                auth_buf[sizeof(hsrp.auth_data)] = '\0';
                 proto_tree_add_text(hsrp_tree, NullTVB, offset, 8, "Authentication Data: `%s'", auth_buf);
                 offset+=8;
 
