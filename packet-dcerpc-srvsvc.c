@@ -4,7 +4,7 @@
  * Copyright 2002, Richard Sharpe <rsharpe@ns.aus.com>
  *   decode srvsvc calls where Samba knows them ...
  *
- * $Id: packet-dcerpc-srvsvc.c,v 1.20 2002/06/16 14:29:15 sahlberg Exp $
+ * $Id: packet-dcerpc-srvsvc.c,v 1.21 2002/06/16 14:43:17 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -96,7 +96,7 @@ static e_uuid_t uuid_dcerpc_srvsvc = {
         { 0x12, 0x78, 0x5a, 0x47, 0xbf, 0x6e, 0xe1, 0x88 }
 };
 
-static guint16 ver_dcerpc_srvsvc = 0; /*!!!!! 3*/
+static guint16 ver_dcerpc_srvsvc = 3;
 
 static int
 srvsvc_dissect_ENUM_HANDLE(tvbuff_t *tvb, int offset, 
