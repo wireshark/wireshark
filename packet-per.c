@@ -7,7 +7,7 @@ proper helper routines
  * Routines for dissection of ASN.1 Aligned PER
  * 2003  Ronnie Sahlberg
  *
- * $Id: packet-per.c,v 1.12 2003/08/25 00:00:20 guy Exp $
+ * $Id: packet-per.c,v 1.13 2003/08/26 21:30:08 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -71,7 +71,7 @@ printf("#%d  %s   tvb:0x%08x\n",pinfo->fd->num,x,(int)tvb);
 /* whether the PER helpers should put the internal PER fields into the tree
    or not.
 */
-static guint display_internal_per_fields = TRUE;
+static guint display_internal_per_fields = FALSE;
 
 
 
