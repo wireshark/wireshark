@@ -3806,7 +3806,7 @@ static void rd_value_to_str(gchar *dest, rd_vsa_buffer (*vsabuffer)[VSABUFFER],
 		break;
 
         case( RADIUS_INTEGER4_TAGGED ):
-                if (!avp_length_check(cont, avph, 5))
+                if (!avp_length_check(cont, avph, 4))
                   return;
 		tag = tvb_get_guint8(tvb,offset+2);
 		intval = tvb_get_ntoh24(tvb,offset+3);
