@@ -3,7 +3,7 @@
  *
  * See RFC 1777 (LDAP v2), RFC 2251 (LDAP v3), and RFC 2222 (SASL).
  *
- * $Id: packet-ldap.c,v 1.70 2003/12/04 08:13:27 sahlberg Exp $
+ * $Id: packet-ldap.c,v 1.71 2003/12/18 18:18:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1066,6 +1066,10 @@ static void dissect_ldap_request_bind(ASN1_SCK *a, proto_tree *tree,
           gitem = proto_tree_add_text(tree, tvb, token_offset,
             (a->offset + length) - token_offset, "GSS-API Token");
           gtree = proto_item_add_subtree(gitem, ett_ldap_gssapi_token);
+        }
+        if(length==0){
+          /* for GSSAPI the third pdu will sometimes be "empty" */
+          return;
         }
         available_length = tvb_length_remaining(tvb, token_offset);
         reported_length = tvb_reported_length_remaining(tvb, token_offset);
