@@ -380,6 +380,36 @@ on those calls that match that filter.
 Example: use B<-z "fc,srt,fc.id==01.02.03"> to only collect stats for
 FC packets echanged by the host at FC address 01.02.03 .
 
+B<-z> ldap,srt[,I<filter>]
+
+Collect call/reply SRT (Service Response Time) data for LDAP.  Data collected
+is number of calls for each implemented LDAP command, MinSRT, MaxSRT and AvgSRT. 
+Example: use B<-z ldap,srt>.
+The Service Response Time is calculated as the time delta between the
+Request and the Response.
+
+The data will be presented as separate tables for all implemented LDAP commands,
+Only those commands that are seen in the capture will have its stats
+displayed.
+
+This option can be used multiple times on the command line. 
+
+If the optional filterstring is provided, the stats will only be calculated
+on those calls that match that filter.
+Example: use B<-z "ldap,srt,ip.addr==10.1.1.1"> to only collect stats for
+LDAP packets echanged by the host at IP address 10.1.1.1 .
+
+The only LDAP command that are currently implemented and the stats will be available for are:
+BIND
+SEARCH
+MODIFY
+ADD
+DELETE
+MODRDN
+COMPARE
+EXTENDED
+
+
 B<-z> mgcp,srt[I<,filter>]
 
 Collect requests/response SRT (Service Response Time) data for MGCP. 

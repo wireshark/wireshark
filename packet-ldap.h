@@ -1,6 +1,6 @@
 /* packet-ldap.h
  *
- * $Id: packet-ldap.h,v 1.6 2002/08/28 21:00:19 jmayer Exp $
+ * $Id: packet-ldap.h,v 1.7 2003/11/05 09:04:16 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -75,5 +75,16 @@
 #define LDAP_MOD_ADD            0
 #define LDAP_MOD_DELETE         1
 #define LDAP_MOD_REPLACE        2
+
+
+typedef struct ldap_call_response {
+  gboolean is_request;
+  guint32 req_frame;
+  nstime_t req_time;
+  guint32 rep_frame;
+  guint messageId;
+  guint protocolOpTag;
+} ldap_call_response_t;
+
 
 #endif

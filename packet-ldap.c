@@ -3,7 +3,7 @@
  *
  * See RFC 1777 (LDAP v2), RFC 2251 (LDAP v3), and RFC 2222 (SASL).
  *
- * $Id: packet-ldap.c,v 1.64 2003/08/17 00:52:03 guy Exp $
+ * $Id: packet-ldap.c,v 1.65 2003/11/05 09:04:16 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -63,14 +63,18 @@
 
 #include <epan/packet.h>
 
-#include "packet-ldap.h"
 #include "asn1.h"
 #include "prefs.h"
 #include <epan/conversation.h>
 #include "packet-frame.h"
+#include "tap.h"
+#include "packet-ldap.h"
 
 static int proto_ldap = -1;
 static int proto_cldap = -1;
+static int hf_ldap_response_to = -1;
+static int hf_ldap_response_in = -1;
+static int hf_ldap_time = -1;
 static int hf_ldap_sasl_buffer_length = -1;
 static int hf_ldap_length = -1;
 static int hf_ldap_message_id = -1;
@@ -115,10 +119,13 @@ static int hf_ldap_message_modify_delete = -1;
 
 static int hf_ldap_message_abandon_msgid = -1;
 
+
 static gint ett_ldap = -1;
 static gint ett_ldap_gssapi_token = -1;
 static gint ett_ldap_referrals = -1;
 static gint ett_ldap_attribute = -1;
+
+static int ldap_tap = -1;
 
 /* desegmentation of LDAP */
 static gboolean ldap_desegment = TRUE;
@@ -136,18 +143,60 @@ static dissector_handle_t gssapi_wrap_handle;
  * We keep a linked list of them, so that we can free up all the
  * authentication mechanism strings.
  */
-typedef struct ldap_auth_info_t {
+typedef struct ldap_conv_info_t {
+  struct ldap_conv_info_t *next;
   guint auth_type;		/* authentication type */
   char *auth_mech;		/* authentication mechanism */
   guint32 first_auth_frame;	/* first frame that would use a security layer */
-  struct ldap_auth_info_t *next;
-} ldap_auth_info_t;
+  GHashTable *unmatched;
+  GHashTable *matched;
+} ldap_conv_info_t;
+static GMemChunk *ldap_conv_info_chunk = NULL;
+static guint ldap_conv_info_chunk_count = 20;
+static ldap_conv_info_t *ldap_info_items;
 
-static GMemChunk *ldap_auth_info_chunk = NULL;
+static GMemChunk *ldap_call_response_chunk = NULL;
+static guint ldap_call_response_chunk_count = 200;
 
-static guint ldap_auth_info_chunk_count = 200;
+static gint
+ldap_info_hash_matched(gconstpointer k)
+{
+  ldap_call_response_t *key = (ldap_call_response_t *)k;
 
-static ldap_auth_info_t *auth_info_items;
+  return key->messageId;
+}
+static gint
+ldap_info_equal_matched(gconstpointer k1, gconstpointer k2)
+{
+  ldap_call_response_t *key1 = (ldap_call_response_t *)k1;
+  ldap_call_response_t *key2 = (ldap_call_response_t *)k2;
+
+  if( key1->req_frame && key2->req_frame && (key1->req_frame!=key2->req_frame) ){
+    return 0;
+  }
+  if( key1->rep_frame && key2->rep_frame && (key1->rep_frame!=key2->rep_frame) ){
+    return 0;
+  }
+
+  return key1->messageId==key2->messageId;
+}
+
+static gint
+ldap_info_hash_unmatched(gconstpointer k)
+{
+  ldap_call_response_t *key = (ldap_call_response_t *)k;
+
+  return key->messageId;
+}
+static gint
+ldap_info_equal_unmatched(gconstpointer k1, gconstpointer k2)
+{
+  ldap_call_response_t *key1 = (ldap_call_response_t *)k1;
+  ldap_call_response_t *key2 = (ldap_call_response_t *)k2;
+
+  return key1->messageId==key2->messageId;
+}
+
 
 static value_string msgTypes [] = {
   {LDAP_REQ_BIND, "Bind Request"},
@@ -878,7 +927,7 @@ static void dissect_ldap_result(ASN1_SCK *a, proto_tree *tree, packet_info *pinf
 }
 
 static void dissect_ldap_request_bind(ASN1_SCK *a, proto_tree *tree,
-    tvbuff_t *tvb, packet_info *pinfo)
+    tvbuff_t *tvb, packet_info *pinfo, ldap_conv_info_t *ldap_info)
 {
   guint cls, con, tag;
   gboolean def;
@@ -886,8 +935,6 @@ static void dissect_ldap_request_bind(ASN1_SCK *a, proto_tree *tree,
   int start;
   int end;
   int ret;
-  conversation_t *conversation;
-  ldap_auth_info_t *auth_info;
   char *mechanism, *s = NULL;
   int token_offset;
   gint available_length, reported_length;
@@ -946,45 +993,20 @@ static void dissect_ldap_request_bind(ASN1_SCK *a, proto_tree *tree,
      * type and mechanism, if you can unbind and rebind with a
      * different type and/or mechanism.
      */
-    conversation = find_conversation(&pinfo->src, &pinfo->dst,
-                                     pinfo->ptype, pinfo->srcport,
-                                     pinfo->destport, 0);
-    if (conversation == NULL) {
-      /* We don't yet have a conversation, so create one. */
-      conversation = conversation_new(&pinfo->src, &pinfo->dst,
-                                      pinfo->ptype, pinfo->srcport,
-                                      pinfo->destport, 0);
-    }
-
+    ldap_info->auth_type = tag;
+    ldap_info->auth_mech = mechanism;
+    ldap_info->first_auth_frame = 0;	/* not known until we see the bind reply */
     /*
-     * Do we already have a type and mechanism?
+     * If the mechanism in this request is an empty string (which is
+     * returned as a null pointer), use the saved mechanism instead.
+     * Otherwise, if the saved mechanism is an empty string (null),
+     * save this mechanism.
      */
-    auth_info = conversation_get_proto_data(conversation, proto_ldap);
-    if (auth_info == NULL) {
-      /* No.  Attach that information to the conversation, and add
-         it to the list of information structures. */
-      auth_info = g_mem_chunk_alloc(ldap_auth_info_chunk);
-      auth_info->auth_type = tag;
-      auth_info->auth_mech = mechanism;
-      auth_info->first_auth_frame = 0;	/* not known until we see the bind reply */
-      conversation_add_proto_data(conversation, proto_ldap, auth_info);
-      auth_info->next = auth_info_items;
-      auth_info_items = auth_info;
-    } else {
-      /*
-       * Yes.
-       *
-       * If the mechanism in this request is an empty string (which is
-       * returned as a null pointer), use the saved mechanism instead.
-       * Otherwise, if the saved mechanism is an empty string (null),
-       * save this mechanism.
-       */
-      if (mechanism == NULL)
-      	mechanism = auth_info->auth_mech;
-      else {
-        if (auth_info->auth_mech == NULL)
-          auth_info->auth_mech = mechanism;
-      }
+    if (mechanism == NULL)
+        mechanism = ldap_info->auth_mech;
+    else {
+      if (ldap_info->auth_mech == NULL)
+        ldap_info->auth_mech = mechanism;
     }
 
     if (a->offset < end) {
@@ -1032,15 +1054,13 @@ static void dissect_ldap_request_bind(ASN1_SCK *a, proto_tree *tree,
 }
 
 static void dissect_ldap_response_bind(ASN1_SCK *a, proto_tree *tree,
-		int start, guint length, tvbuff_t *tvb, packet_info *pinfo)
+		int start, guint length, tvbuff_t *tvb, packet_info *pinfo, ldap_conv_info_t *ldap_info)
 {
   guint cls, con, tag;
   gboolean def;
   guint cred_length;
   int end;
   int ret;
-  conversation_t *conversation;
-  ldap_auth_info_t *auth_info;
   int token_offset;
   gint available_length, reported_length;
   tvbuff_t *new_tvb;
@@ -1050,101 +1070,85 @@ static void dissect_ldap_response_bind(ASN1_SCK *a, proto_tree *tree,
   end = start + length;
   dissect_ldap_result(a, tree, pinfo);
   if (a->offset < end) {
-    conversation = find_conversation(&pinfo->src, &pinfo->dst,
-                                     pinfo->ptype, pinfo->srcport,
-                                     pinfo->destport, 0);
-    if (conversation != NULL) {
-      auth_info = conversation_get_proto_data(conversation, proto_ldap);
-      if (auth_info != NULL) {
-        switch (auth_info->auth_type) {
+    switch (ldap_info->auth_type) {
 
-          /* For Kerberos V4, dissect it as a ticket. */
-          /* XXX - what about LDAP_AUTH_SIMPLE? */
+      /* For Kerberos V4, dissect it as a ticket. */
+      /* XXX - what about LDAP_AUTH_SIMPLE? */
 
-        case LDAP_AUTH_SASL:
-          /*
-           * All frames after this are assumed to use a security layer.
-           *
-           * XXX - won't work if there's another reply, with the security
-           * layer, starting in the same TCP segment that ends this
-           * reply, but as LDAP is a request/response protocol, and
-           * as the client probably can't start using authentication until
-           * it gets the bind reply and the server won't send a reply until
-           * it gets a request, that probably won't happen.
-           *
-           * XXX - that assumption is invalid; it's not clear where the
-           * hell you find out whether there's any security layer.  In
-           * one capture, we have two GSS-SPNEGO negotiations, both of
-           * which select MS KRB5, and the only differences in the tokens
-           * is in the RC4-HMAC ciphertext.  The various
-           * draft-ietf--cat-sasl-gssapi-NN.txt drafts seem to imply
-           * that the RFC 2222 spoo with the bitmask and maximum
-           * output message size stuff is done - but where does that
-           * stuff show up?  Is it in the ciphertext, which means it's
-           * presumably encrypted?
-           *
-           * Grrr.  We have to do a gross heuristic, checking whether the
-	   * putative LDAP message begins with 0x00 or not, making the
-	   * assumption that we won't have more than 2^24 bytes of
-	   * encapsulated stuff.
-           */
-          auth_info->first_auth_frame = pinfo->fd->num + 1;
-          if (auth_info->auth_mech != NULL &&
-              strcmp(auth_info->auth_mech, "GSS-SPNEGO") == 0) {
-            /*
-             * This is a GSS-API token.
-             * Find out how big it is by parsing the ASN.1 header for the
-             * OCTET STREAM that contains it.
-             */
-            token_offset = a->offset;
-            ret = asn1_header_decode(a, &cls, &con, &tag, &def, &cred_length);
-            if (ret != ASN1_ERR_NOERROR) {
-              proto_tree_add_text(tree, a->tvb, token_offset, 0,
-                "%s: ERROR: Couldn't parse header: %s",
-                proto_registrar_get_name(hf_ldap_message_bind_auth_credentials),
-                asn1_err_to_str(ret));
-              return;
-            }
-            if (tree) {
-              gitem = proto_tree_add_text(tree, tvb, token_offset,
-                (a->offset + cred_length) - token_offset, "GSS-API Token");
-              gtree = proto_item_add_subtree(gitem, ett_ldap_gssapi_token);
-            }
-            available_length = tvb_length_remaining(tvb, token_offset);
-            reported_length = tvb_reported_length_remaining(tvb, token_offset);
-            g_assert(available_length >= 0);
-            g_assert(reported_length >= 0);
-            if (available_length > reported_length)
-              available_length = reported_length;
-            if ((guint)available_length > cred_length)
-              available_length = cred_length;
-            if ((guint)reported_length > cred_length)
-              reported_length = cred_length;
-            new_tvb = tvb_new_subset(tvb, a->offset, available_length, reported_length);
-            call_dissector(gssapi_handle, new_tvb, pinfo, gtree);
-            a->offset += cred_length;
-          } else {
-            if (read_bytestring(a, tree, hf_ldap_message_bind_server_credentials,
-                                NULL, NULL, ASN1_UNI, ASN1_OTS) != ASN1_ERR_NOERROR)
-              return;
-          }
-          break;
-
-        default:
-          if (read_bytestring(a, tree, hf_ldap_message_bind_server_credentials,
-                              NULL, NULL, ASN1_CTX, 7) != ASN1_ERR_NOERROR)
-            return;
-          break;
+    case LDAP_AUTH_SASL:
+      /*
+       * All frames after this are assumed to use a security layer.
+       *
+       * XXX - won't work if there's another reply, with the security
+       * layer, starting in the same TCP segment that ends this
+       * reply, but as LDAP is a request/response protocol, and
+       * as the client probably can't start using authentication until
+       * it gets the bind reply and the server won't send a reply until
+       * it gets a request, that probably won't happen.
+       *
+       * XXX - that assumption is invalid; it's not clear where the
+       * hell you find out whether there's any security layer.  In
+       * one capture, we have two GSS-SPNEGO negotiations, both of
+       * which select MS KRB5, and the only differences in the tokens
+       * is in the RC4-HMAC ciphertext.  The various
+       * draft-ietf--cat-sasl-gssapi-NN.txt drafts seem to imply
+       * that the RFC 2222 spoo with the bitmask and maximum
+       * output message size stuff is done - but where does that
+       * stuff show up?  Is it in the ciphertext, which means it's
+       * presumably encrypted?
+       *
+       * Grrr.  We have to do a gross heuristic, checking whether the
+       * putative LDAP message begins with 0x00 or not, making the
+       * assumption that we won't have more than 2^24 bytes of
+       * encapsulated stuff.
+       */
+      ldap_info->first_auth_frame = pinfo->fd->num + 1;
+      if (ldap_info->auth_mech != NULL &&
+          strcmp(ldap_info->auth_mech, "GSS-SPNEGO") == 0) {
+        /*
+         * This is a GSS-API token.
+         * Find out how big it is by parsing the ASN.1 header for the
+         * OCTET STREAM that contains it.
+         */
+        token_offset = a->offset;
+        ret = asn1_header_decode(a, &cls, &con, &tag, &def, &cred_length);
+        if (ret != ASN1_ERR_NOERROR) {
+          proto_tree_add_text(tree, a->tvb, token_offset, 0,
+            "%s: ERROR: Couldn't parse header: %s",
+            proto_registrar_get_name(hf_ldap_message_bind_auth_credentials),
+            asn1_err_to_str(ret));
+          return;
         }
+        if (tree) {
+          gitem = proto_tree_add_text(tree, tvb, token_offset,
+            (a->offset + cred_length) - token_offset, "GSS-API Token");
+          gtree = proto_item_add_subtree(gitem, ett_ldap_gssapi_token);
+        }
+        available_length = tvb_length_remaining(tvb, token_offset);
+        reported_length = tvb_reported_length_remaining(tvb, token_offset);
+        g_assert(available_length >= 0);
+        g_assert(reported_length >= 0);
+        if (available_length > reported_length)
+          available_length = reported_length;
+        if ((guint)available_length > cred_length)
+          available_length = cred_length;
+        if ((guint)reported_length > cred_length)
+          reported_length = cred_length;
+        new_tvb = tvb_new_subset(tvb, a->offset, available_length, reported_length);
+        call_dissector(gssapi_handle, new_tvb, pinfo, gtree);
+        a->offset += cred_length;
       } else {
         if (read_bytestring(a, tree, hf_ldap_message_bind_server_credentials,
-                            NULL, NULL, ASN1_CTX, 7) != ASN1_ERR_NOERROR)
+                            NULL, NULL, ASN1_UNI, ASN1_OTS) != ASN1_ERR_NOERROR)
           return;
       }
-    } else {
+      break;
+
+    default:
       if (read_bytestring(a, tree, hf_ldap_message_bind_server_credentials,
                           NULL, NULL, ASN1_CTX, 7) != ASN1_ERR_NOERROR)
         return;
+      break;
     }
   }
 }
@@ -1504,9 +1508,123 @@ static void dissect_ldap_request_abandon(ASN1_SCK *a, proto_tree *tree,
 			    start, length);
 }
 
+static ldap_call_response_t *
+ldap_match_call_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ldap_conv_info_t *ldap_info, guint messageId, guint protocolOpTag)
+{
+  ldap_call_response_t lcr, *lcrp=NULL;
+
+  if (!pinfo->fd->flags.visited) {
+    switch(protocolOpTag){
+      case LDAP_REQ_BIND:
+      case LDAP_REQ_SEARCH:
+      case LDAP_REQ_MODIFY:
+      case LDAP_REQ_ADD:
+      case LDAP_REQ_DELETE:
+      case LDAP_REQ_MODRDN:
+      case LDAP_REQ_COMPARE:
+      /*case LDAP_REQ_ABANDON: we dont match for this one*/
+      /*case LDAP_REQ_UNBIND: we dont match for this one*/
+        /* check that we dont already have one of those in the
+           unmatched list and if so remove it */
+        lcr.messageId=messageId;
+        lcrp=g_hash_table_lookup(ldap_info->unmatched, &lcr);
+        if(lcrp){
+          g_hash_table_remove(ldap_info->unmatched, lcrp);
+        }
+        /* if we cant reuse the old one, grab a new chunk */
+        if(!lcrp){
+          lcrp=g_mem_chunk_alloc(ldap_call_response_chunk);
+        }
+        lcrp->messageId=messageId;
+        lcrp->req_frame=pinfo->fd->num;
+        lcrp->req_time.secs=pinfo->fd->abs_secs;
+        lcrp->req_time.nsecs=pinfo->fd->abs_usecs*1000;
+        lcrp->rep_frame=0;
+        lcrp->protocolOpTag=protocolOpTag;
+        lcrp->is_request=TRUE;
+        g_hash_table_insert(ldap_info->unmatched, lcrp, lcrp);
+        return NULL;
+        break;
+      case LDAP_RES_BIND:
+      case LDAP_RES_SEARCH_ENTRY:
+      case LDAP_RES_SEARCH_REF:
+      case LDAP_RES_SEARCH_RESULT:
+      case LDAP_RES_MODIFY:
+      case LDAP_RES_ADD:
+      case LDAP_RES_DELETE:
+      case LDAP_RES_MODRDN:
+      case LDAP_RES_COMPARE:
+        lcr.messageId=messageId;
+        lcrp=g_hash_table_lookup(ldap_info->unmatched, &lcr);
+        if(lcrp){
+          if(!lcrp->rep_frame){
+            g_hash_table_remove(ldap_info->unmatched, lcrp);
+            lcrp->rep_frame=pinfo->fd->num;
+            lcrp->is_request=FALSE;
+            g_hash_table_insert(ldap_info->matched, lcrp, lcrp);
+          }
+        }
+    }
+  }
+
+  if(!lcrp){
+    lcr.messageId=messageId;
+    switch(protocolOpTag){
+      case LDAP_REQ_BIND:
+      case LDAP_REQ_SEARCH:
+      case LDAP_REQ_MODIFY:
+      case LDAP_REQ_ADD:
+      case LDAP_REQ_DELETE:
+      case LDAP_REQ_MODRDN:
+      case LDAP_REQ_COMPARE:
+      /*case LDAP_REQ_ABANDON: we dont match for this one*/
+      /*case LDAP_REQ_UNBIND: we dont match for this one*/
+        lcr.is_request=TRUE;
+        lcr.req_frame=pinfo->fd->num;
+        lcr.rep_frame=0;
+        break;
+      case LDAP_RES_BIND:
+      case LDAP_RES_SEARCH_ENTRY:
+      case LDAP_RES_SEARCH_REF:
+      case LDAP_RES_SEARCH_RESULT:
+      case LDAP_RES_MODIFY:
+      case LDAP_RES_ADD:
+      case LDAP_RES_DELETE:
+      case LDAP_RES_MODRDN:
+      case LDAP_RES_COMPARE:
+        lcr.is_request=FALSE;
+        lcr.req_frame=0;
+        lcr.rep_frame=pinfo->fd->num;
+        break;
+    }
+    lcrp=g_hash_table_lookup(ldap_info->matched, &lcr);
+    if(lcrp){
+      lcrp->is_request=lcr.is_request;
+    }
+  }
+  if(lcrp){
+    if(lcrp->is_request){
+      proto_tree_add_uint(tree, hf_ldap_response_in, tvb, 0, 0, lcrp->rep_frame);
+    } else {
+      nstime_t ns;
+      proto_tree_add_uint(tree, hf_ldap_response_to, tvb, 0, 0, lcrp->req_frame);
+      ns.secs=pinfo->fd->abs_secs-lcrp->req_time.secs;
+      ns.nsecs=pinfo->fd->abs_usecs*1000-lcrp->req_time.nsecs;
+      if(ns.nsecs<0){
+        ns.nsecs+=1000000000;
+        ns.secs--;
+      }
+      proto_tree_add_time(tree, hf_ldap_time, tvb, 0, 0, &ns);
+    }
+    return lcrp;
+  }
+  return NULL;
+}
+
+
 static void
 dissect_ldap_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
-                     proto_tree *ldap_tree, proto_item *ldap_item, gboolean first_time)
+                     proto_tree *ldap_tree, proto_item *ldap_item, gboolean first_time, ldap_conv_info_t *ldap_info)
 {
   int message_id_start;
   int message_id_length;
@@ -1519,6 +1637,7 @@ dissect_ldap_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
   ASN1_SCK a;
   int start;
   int ret;
+  ldap_call_response_t *lcrp;
 
   asn1_open(&a, tvb, offset);
 
@@ -1597,10 +1716,15 @@ dissect_ldap_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
   if (protocolOpCls == ASN1_APL)
   {
+    lcrp=ldap_match_call_response(tvb, pinfo, ldap_tree, ldap_info, messageId, protocolOpTag);
+    if(lcrp){
+      tap_queue_packet(ldap_tap, pinfo, lcrp);
+    }
+
     switch (protocolOpTag)
     {
      case LDAP_REQ_BIND:
-      dissect_ldap_request_bind(&a, ldap_tree, tvb, pinfo);
+      dissect_ldap_request_bind(&a, ldap_tree, tvb, pinfo, ldap_info);
       break;
      case LDAP_REQ_UNBIND:
       /* Nothing to dissect */
@@ -1627,7 +1751,7 @@ dissect_ldap_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
       dissect_ldap_request_abandon(&a, ldap_tree, start, opLen);
       break;
      case LDAP_RES_BIND:
-      dissect_ldap_response_bind(&a, ldap_tree, start, opLen, tvb, pinfo);
+      dissect_ldap_response_bind(&a, ldap_tree, start, opLen, tvb, pinfo, ldap_info);
       break;
      case LDAP_RES_SEARCH_ENTRY: {
 	    /*
@@ -1697,7 +1821,6 @@ dissect_ldap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   int offset = 0;
   gboolean first_time = TRUE;
   conversation_t *conversation;
-  ldap_auth_info_t *auth_info = NULL;
   gboolean doing_sasl_security = FALSE;
   guint length_remaining;
   guint32 sasl_length;
@@ -1715,6 +1838,8 @@ dissect_ldap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_item *gitem = NULL;
   proto_tree *gtree = NULL;
   tvbuff_t *next_tvb;
+  ldap_conv_info_t *ldap_info=NULL;
+
 
   /*
    * Do we have a conversation for this connection?
@@ -1722,27 +1847,42 @@ dissect_ldap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   conversation = find_conversation(&pinfo->src, &pinfo->dst,
                                    pinfo->ptype, pinfo->srcport,
                                    pinfo->destport, 0);
-  if (conversation != NULL) {
-    /*
-     * Yes - do we have any authentication mechanism for it?
-     */
-    auth_info = conversation_get_proto_data(conversation, proto_ldap);
-    if (auth_info != NULL) {
-      /*
-       * Yes - what's the authentication type?
-       */
-      switch (auth_info->auth_type) {
-
-      case LDAP_AUTH_SASL:
-        /*
-         * It's SASL; are we using a security layer?
-         */
-        if (auth_info->first_auth_frame != 0 &&
-            pinfo->fd->num >= auth_info->first_auth_frame)
-          doing_sasl_security = TRUE;	/* yes */
-      }
-    }
+  if (conversation == NULL) {
+    /* We don't yet have a conversation, so create one. */
+    conversation = conversation_new(&pinfo->src, &pinfo->dst,
+                                    pinfo->ptype, pinfo->srcport,
+                                    pinfo->destport, 0);
   }
+  /*
+   * Do we already have a type and mechanism?
+   */
+  ldap_info = conversation_get_proto_data(conversation, proto_ldap);
+  if (ldap_info == NULL) {
+    /* No.  Attach that information to the conversation, and add
+       it to the list of information structures. */
+    ldap_info = g_mem_chunk_alloc(ldap_conv_info_chunk);
+    ldap_info->auth_type = 0;
+    ldap_info->auth_mech = 0;
+    ldap_info->first_auth_frame = 0;
+    ldap_info->matched=g_hash_table_new(ldap_info_hash_matched, ldap_info_equal_matched);
+    ldap_info->unmatched=g_hash_table_new(ldap_info_hash_unmatched, ldap_info_equal_unmatched);
+    conversation_add_proto_data(conversation, proto_ldap, ldap_info);
+    ldap_info->next = ldap_info_items;
+    ldap_info_items = ldap_info;
+  } 
+
+  switch (ldap_info->auth_type) {
+    case LDAP_AUTH_SASL:
+      /*
+       * It's SASL; are we using a security layer?
+       */
+      if (ldap_info->first_auth_frame != 0 &&
+          pinfo->fd->num >= ldap_info->first_auth_frame)
+        doing_sasl_security = TRUE;	/* yes */
+  }
+
+
+
 
   while (tvb_reported_length_remaining(tvb, offset) > 0) {
     /*
@@ -1872,8 +2012,8 @@ dissect_ldap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                             sasl_length);
       }
 
-      if (auth_info->auth_mech != NULL &&
-          strcmp(auth_info->auth_mech, "GSS-SPNEGO") == 0) {
+      if (ldap_info->auth_mech != NULL &&
+          strcmp(ldap_info->auth_mech, "GSS-SPNEGO") == 0) {
           /*
            * This is GSS-API (using SPNEGO, but we should be done with
            * the negotiation by now).
@@ -1906,7 +2046,7 @@ dissect_ldap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           /*
            * Now dissect the LDAP message.
            */
-          dissect_ldap_message(tvb, 4 + len, pinfo, ldap_tree, ti, first_time);
+          dissect_ldap_message(tvb, 4 + len, pinfo, ldap_tree, ti, first_time, ldap_info);
       } else {
         /*
          * We don't know how to handle other authentication mechanisms
@@ -2026,7 +2166,7 @@ dissect_ldap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         ldap_tree = proto_item_add_subtree(ti, ett_ldap);
       } else
         ldap_tree = NULL;
-      dissect_ldap_message(next_tvb, 0, pinfo, ldap_tree, ti, first_time);
+      dissect_ldap_message(next_tvb, 0, pinfo, ldap_tree, ti, first_time, ldap_info);
 
       offset += messageLength;
     }
@@ -2038,23 +2178,36 @@ dissect_ldap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 ldap_reinit(void)
 {
-  ldap_auth_info_t *auth_info;
+  ldap_conv_info_t *ldap_info;
 
-  /* Free up saved authentication mechanism strings */
-  for (auth_info = auth_info_items; auth_info != NULL;
-       auth_info = auth_info->next) {
-    if (auth_info->auth_mech != NULL)
-      g_free(auth_info->auth_mech);
+  /* Free up state attached to the ldap_info structures */
+  for (ldap_info = ldap_info_items; ldap_info != NULL; ldap_info = ldap_info->next) {
+    if (ldap_info->auth_mech != NULL) {
+      g_free(ldap_info->auth_mech);
+      ldap_info->auth_mech=NULL;
+    }
+    g_hash_table_destroy(ldap_info->matched);
+    ldap_info->matched=NULL;
+    g_hash_table_destroy(ldap_info->unmatched);
+    ldap_info->unmatched=NULL;
   }
 
-  if (ldap_auth_info_chunk != NULL)
-    g_mem_chunk_destroy(ldap_auth_info_chunk);
+  if (ldap_conv_info_chunk != NULL)
+    g_mem_chunk_destroy(ldap_conv_info_chunk);
 
-  auth_info_items = NULL;
+  ldap_info_items = NULL;
 
-  ldap_auth_info_chunk = g_mem_chunk_new("ldap_auth_info_chunk",
-		sizeof(ldap_auth_info_t),
-		ldap_auth_info_chunk_count * sizeof(ldap_auth_info_t),
+  ldap_conv_info_chunk = g_mem_chunk_new("ldap_conv_info_chunk",
+		sizeof(ldap_conv_info_t),
+		ldap_conv_info_chunk_count * sizeof(ldap_conv_info_t),
+		G_ALLOC_ONLY);
+
+  if (ldap_call_response_chunk != NULL)
+    g_mem_chunk_destroy(ldap_call_response_chunk);
+
+  ldap_call_response_chunk = g_mem_chunk_new("ldap_call_response_chunk",
+		sizeof(ldap_call_response_t),
+		ldap_call_response_chunk_count * sizeof(ldap_call_response_t),
 		G_ALLOC_ONLY);
 }
 
@@ -2085,6 +2238,21 @@ proto_register_ldap(void)
   };
 
   static hf_register_info hf[] = {
+    { &hf_ldap_response_in,
+      { "Response In", "ldap.response_in",
+        FT_FRAMENUM, BASE_DEC, NULL, 0x0,
+        "The response to this packet is in this frame", HFILL }},
+
+    { &hf_ldap_response_to,
+      { "Response To", "ldap.response_to",
+        FT_FRAMENUM, BASE_DEC, NULL, 0x0,
+        "This is a response to the LDAP command in this frame", HFILL }},
+
+    { &hf_ldap_time,
+      { "Time", "ldap.time",
+        FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
+        "The time between the Call and the Reply", HFILL }},
+
     { &hf_ldap_sasl_buffer_length,
       { "SASL Buffer Length",	"ldap.sasl_buffer_length",
 	FT_UINT32, BASE_DEC, NULL, 0x0,
@@ -2272,6 +2440,7 @@ proto_register_ldap(void)
 	  "CLDAP", "cldap");
 
   register_init_routine(ldap_reinit);
+  ldap_tap=register_tap("ldap");
 }
 
 void

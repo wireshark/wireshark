@@ -3,7 +3,7 @@
  * Helper routines common to all service response time statistics
  * tap.
  *
- * $Id: service_response_time_table.c,v 1.9 2003/10/10 08:59:17 sahlberg Exp $
+ * $Id: service_response_time_table.c,v 1.10 2003/11/05 09:04:17 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -517,7 +517,6 @@ draw_srt_table_data(srt_stat_table *rst)
 		}
 
 		j=gtk_clist_find_row_from_data(rst->table, (gpointer)i);
-
 		sprintf(str,"%d", rst->procedures[i].num);
 		strp=g_strdup(str);
 		gtk_clist_set_text(rst->table, j, 2, strp);
