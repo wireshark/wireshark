@@ -1,4 +1,4 @@
-$Id: README.win32,v 1.17 2001/01/11 07:21:35 gram Exp $
+$Id: README.win32,v 1.18 2001/01/12 02:35:49 gram Exp $
 
 Running Ethereal, Tethereal, and Editcap on Win32
 =================================================
@@ -16,6 +16,15 @@ or
 	http://www.iki.fi/tml/gimp/win32/
 
 (the mirror nearer to you may be faster).
+
+Plugins (gryphon.dll and mgcp.dll) can go in:
+	C:\Program Files\Ethereal\plugins\<version>
+	C:\Ethereal\plugins\<version>
+
+Where <version> is the version number, without brackets.
+For example, C:\Ethereal\plugins\0.8.15
+
+Yes, the location of plugins needs to be more flexible.
 
 Make sure the glib and gtk DLL's are in your path - i.e., that your path
 includes the directory (folder) or directories (folders) in which those
