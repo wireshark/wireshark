@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  *
- * $Id: packet-rpc.c,v 1.124 2003/05/20 07:37:37 guy Exp $
+ * $Id: packet-rpc.c,v 1.125 2003/05/20 07:38:55 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -553,10 +553,10 @@ dissect_rpc_opaque_data(tvbuff_t *tvb, int offset,
 			    offset + string_length);
 		}
 		else {
-		fill_length_captured = tvb_length_remaining(tvb,
-		    offset + 4 + string_length);
-		fill_length_packet = tvb_reported_length_remaining(tvb,
-		    offset + 4 + string_length);
+			fill_length_captured = tvb_length_remaining(tvb,
+			    offset + 4 + string_length);
+			fill_length_packet = tvb_reported_length_remaining(tvb,
+			    offset + 4 + string_length);
 		}
 		if (fill_length_captured < fill_length) {
 			/* truncated fill bytes */
