@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.59 1999/08/10 04:13:36 guy Exp $
+ * $Id: file.c,v 1.60 1999/08/10 06:54:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -475,6 +475,7 @@ wtap_dispatch_cb(u_char *user, const struct wtap_pkthdr *phdr, int offset,
   /* Allocate the next list entry, and add it to the list. */
   fdata = (frame_data *) g_malloc(sizeof(frame_data));
 
+  fdata->next = NULL;
   fdata->pkt_len  = phdr->len;
   fdata->cap_len  = phdr->caplen;
   fdata->file_off = offset;
