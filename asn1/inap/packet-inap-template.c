@@ -1,10 +1,9 @@
-/* 
 /* packet-inap-template.c
  * Routines for INAP
  * Copyright 2004, Tim Endean <endeant@hotmail.com>
  * Built from the gsm-map dissector Copyright 2004, Anders Broman <anders.broman@ericsson.com>
  *
- * $Id:$
+ * $Id$
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
@@ -33,7 +32,6 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/conversation.h>
-#include <epan/tap.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -69,7 +67,6 @@ static gint ett_inap_ReturnResultPDU = -1;
 static gint ett_inap_ReturnResult_result = -1;
 static gint ett_inap_INAPPDU = -1;
 static gint ett_inapisup_parameter = -1;
-static int inap_tap = -1;
 #include "packet-inap-ett.c"
 
 static int  dissect_invokeCmd(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset);
@@ -311,7 +308,6 @@ dissect_inap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
     proto_item		*item=NULL;
     proto_tree		*tree=NULL;
-    gchar			*str = NULL;
 
 
     if (check_col(pinfo->cinfo, COL_PROTOCOL))

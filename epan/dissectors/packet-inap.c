@@ -1,11 +1,10 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* .\packet-inap.c                                                            */
-/* ../../tools/asn2eth.py -X -b -e -p inap -c inap.cnf -s packet-inap-template INAP.asn */
+/* ./packet-inap.c                                                            */
+/* ../../tools/asn2eth.py -X -b -e -p inap -c inap.cnf -s packet-inap-template inap.asn */
 
 /* Input file: packet-inap-template.c */
 
-/* 
 /* packet-inap-template.c
  * Routines for INAP
  * Copyright 2004, Tim Endean <endeant@hotmail.com>
@@ -40,7 +39,6 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/conversation.h>
-#include <epan/tap.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -295,7 +293,6 @@ static gint ett_inap_ReturnResultPDU = -1;
 static gint ett_inap_ReturnResult_result = -1;
 static gint ett_inap_INAPPDU = -1;
 static gint ett_inapisup_parameter = -1;
-static int inap_tap = -1;
 
 /*--- Included file: packet-inap-ett.c ---*/
 
@@ -4166,7 +4163,6 @@ dissect_inap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
     proto_item		*item=NULL;
     proto_tree		*tree=NULL;
-    gchar			*str = NULL;
 
 
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
