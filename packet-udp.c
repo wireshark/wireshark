@@ -1,7 +1,7 @@
 /* packet-udp.c
  * Routines for UDP packet disassembly
  *
- * $Id: packet-udp.c,v 1.43 1999/12/12 03:05:56 guy Exp $
+ * $Id: packet-udp.c,v 1.44 1999/12/12 05:11:44 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -80,6 +80,7 @@ typedef struct _e_udphdr {
 #define UDP_PORT_SRVLOC 427
 #define UDP_PORT_PIM_RP_DISC 496
 #define UDP_PORT_ISAKMP	500
+#define UDP_PORT_WHO    513
 #define UDP_PORT_RIP    520
 #define UDP_PORT_RIPNG  521
 #define UDP_PORT_NCP    524
@@ -285,6 +286,8 @@ dissect_udp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
       dissect_nbdgm(pd, offset, fd, tree);
   else if (PORT_IS(UDP_PORT_NTP))
       dissect_ntp(pd, offset, fd, tree);
+  else if (PORT_IS(UDP_PORT_WHO))
+      dissect_who(pd, offset, fd, tree);
   else if (PORT_IS(UDP_PORT_IPX)) /* RFC 1234 */
       dissect_ipx(pd, offset, fd, tree);
   else if ((uh_sport >= UDP_PORT_RX_LOW && uh_sport <= UDP_PORT_RX_HIGH) ||

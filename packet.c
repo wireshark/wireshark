@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.58 1999/12/02 01:33:55 guy Exp $
+ * $Id: packet.c,v 1.59 1999/12/12 05:11:45 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -188,6 +188,11 @@ time_secs_to_str(guint32 time)
     cur = &str[2][0];
   } else {  
     cur = &str[0][0];
+  }
+
+  if (time == 0) {
+    sprintf(cur, "0 time");
+    return cur;
   }
 
   secs = time % 60;

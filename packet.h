@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.160 1999/12/12 03:05:57 guy Exp $
+ * $Id: packet.h,v 1.161 1999/12/12 05:11:46 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -407,6 +407,7 @@ void dissect_vines_spp(const u_char *, int, frame_data *, proto_tree *);
 void dissect_vlan(const u_char *, int, frame_data *, proto_tree *);
 void dissect_vrrp(const u_char *, int, frame_data *, proto_tree *);
 void dissect_wccp(const u_char *, int, frame_data *, proto_tree *);
+void dissect_who(const u_char *, int, frame_data *, proto_tree *);
 void dissect_payload_ppp(const u_char *, int, frame_data *, proto_tree *);
 void dissect_x25(const u_char *, int, frame_data *, proto_tree *);
 void dissect_yhoo(const u_char *, int, frame_data *, proto_tree *);

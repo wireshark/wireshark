@@ -1,7 +1,7 @@
 /* gtkpacket.c
  * Routines for GTK+ packet display
  *
- * $Id: proto_draw.c,v 1.7 1999/12/03 21:28:58 nneul Exp $
+ * $Id: proto_draw.c,v 1.8 1999/12/12 05:11:57 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -62,6 +62,7 @@ packet_hex_print(GtkText *bv, guint8 *pd, gint len, gint bstart, gint blen,
   gint     i = 0, j, k, cur;
   gchar    line[128], hexchars[] = "0123456789abcdef", c = '\0';
   GdkFont *cur_font, *new_font;
+  gint	   bend = bstart + blen;
 
   /* Freeze the text for faster display */
   gtk_text_freeze(bv);
@@ -75,7 +76,7 @@ packet_hex_print(GtkText *bv, guint8 *pd, gint len, gint bstart, gint blen,
     sprintf(line, "%04x  ", i);
     gtk_text_insert(bv, m_r_font, NULL, NULL, line, -1);
     /* Do we start in bold? */
-    cur_font = (i >= bstart && i < (bstart + blen)) ? m_b_font : m_r_font;
+    cur_font = (i >= bstart && i < bend) ? m_b_font : m_r_font;
     j   = i;
     k   = i + BYTE_VIEW_WIDTH;
     cur = 0;
@@ -92,7 +93,7 @@ packet_hex_print(GtkText *bv, guint8 *pd, gint len, gint bstart, gint blen,
       /* insert a space every BYTE_VIEW_SEP bytes */
       if( ( i % BYTE_VIEW_SEP ) == 0 ) line[cur++] = ' ';
       /* Did we cross a bold/plain boundary? */
-      new_font = (i >= bstart && i < (bstart + blen)) ? m_b_font : m_r_font;
+      new_font = (i >= bstart && i < bend) ? m_b_font : m_r_font;
       if (cur_font != new_font) {
         gtk_text_insert(bv, cur_font, NULL, NULL, line, cur);
         cur_font = new_font;
@@ -105,7 +106,7 @@ packet_hex_print(GtkText *bv, guint8 *pd, gint len, gint bstart, gint blen,
     cur = 0;
     i = j;
     /* Print the ASCII bit */
-    cur_font = (i >= bstart && i < (bstart + blen)) ? m_b_font : m_r_font;
+    cur_font = (i >= bstart && i < bend) ? m_b_font : m_r_font;
     while (i < k) {
       if (i < len) {
 	      if (encoding == CHAR_ASCII) {
@@ -125,7 +126,7 @@ packet_hex_print(GtkText *bv, guint8 *pd, gint len, gint bstart, gint blen,
       /* insert a space every BYTE_VIEW_SEP bytes */
       if( ( i % BYTE_VIEW_SEP ) == 0 ) line[cur++] = ' ';
       /* Did we cross a bold/plain boundary? */
-      new_font = (i >= bstart && i < (bstart + blen)) ? m_b_font : m_r_font;
+      new_font = (i >= bstart && i < bend) ? m_b_font : m_r_font;
       if (cur_font != new_font) {
         gtk_text_insert(bv, cur_font, NULL, NULL, line, cur);
         cur_font = new_font;
