@@ -167,7 +167,7 @@ window_new_with_geom(GtkWindowType type, const gchar *title, const gchar *geom_n
   window_geometry_t geom;
   GtkWidget *win = window_new(type, title);
 
-  OBJECT_SET_DATA(win, WINDOW_GEOM_KEY, geom_name);
+  OBJECT_SET_DATA(win, WINDOW_GEOM_KEY, (gpointer)geom_name);
 
   /* do we have a previously saved size and position of this window? */
   if(geom_name) {
@@ -984,7 +984,7 @@ simple_list_new(gint cols, gchar **titles) {
         G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING);
     plugins_list = tree_view_new(GTK_TREE_MODEL(store));
     g_object_unref(G_OBJECT(store));
-    gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(plugins_list), (gboolean) titles);
+    gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(plugins_list), (titles != NULL));
     for(i=0; i<cols; i++) {
         renderer = gtk_cell_renderer_text_new();
         column = gtk_tree_view_column_new_with_attributes(titles ? titles[i] : "", renderer,
