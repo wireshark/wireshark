@@ -8,10 +8,10 @@
  * Portions based on information/specs retrieved from the OpenAFS sources at
  *   www.openafs.org, Copyright IBM.
  *
- * $Id: packet-afs-register-info.h,v 1.14 2002/08/28 21:00:07 jmayer Exp $
+ * $Id: packet-afs-register-info.h,v 1.15 2003/01/18 02:18:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
  * Copied from packet-tftp.c
@@ -134,7 +134,7 @@
 { &hf_afs_fs_volname, { "Volume Name", "afs.fs.volname",
 	FT_STRING, BASE_HEX, 0, 0, "Volume Name", HFILL }},
 { &hf_afs_fs_timestamp, { "Timestamp", "afs.fs.timestamp",
-	FT_ABSOLUTE_TIME, BASE_DEC, 0, 0, "Timestamp", HFILL }},
+	FT_ABSOLUTE_TIME, BASE_NONE, 0, 0, "Timestamp", HFILL }},
 { &hf_afs_fs_offlinemsg, { "Offline Message", "afs.fs.offlinemsg",
 	FT_STRING, BASE_HEX, 0, 0, "Volume Name", HFILL }},
 { &hf_afs_fs_motd, { "Message of the Day", "afs.fs.motd",
@@ -176,9 +176,9 @@
 	FT_BOOLEAN, 32, 0, 0x00000400, "FSync", HFILL }},
 
 { &hf_afs_fs_status_clientmodtime, { "Client Modification Time", "afs.fs.status.clientmodtime",
-	FT_ABSOLUTE_TIME, BASE_DEC, 0, 0, "Client Modification Time", HFILL }},
+	FT_ABSOLUTE_TIME, BASE_NONE, 0, 0, "Client Modification Time", HFILL }},
 { &hf_afs_fs_status_servermodtime, { "Server Modification Time", "afs.fs.status.servermodtime",
-	FT_ABSOLUTE_TIME, BASE_DEC, 0, 0, "Server Modification Time", HFILL }},
+	FT_ABSOLUTE_TIME, BASE_NONE, 0, 0, "Server Modification Time", HFILL }},
 { &hf_afs_fs_status_owner, { "Owner", "afs.fs.status.owner",
 	FT_UINT32, BASE_DEC, 0, 0, "Owner", HFILL }},
 { &hf_afs_fs_status_group, { "Group", "afs.fs.status.group",
@@ -220,7 +220,7 @@
 
 
 { &hf_afs_fs_volsync_spare1, { "Volume Creation Timestamp", "afs.fs.volsync.spare1",
-	FT_ABSOLUTE_TIME, BASE_DEC, 0, 0, "Volume Creation Timestamp", HFILL }},
+	FT_ABSOLUTE_TIME, BASE_NONE, 0, 0, "Volume Creation Timestamp", HFILL }},
 { &hf_afs_fs_volsync_spare2, { "Spare 2", "afs.fs.volsync.spare2",
 	FT_UINT32, BASE_DEC, 0, 0, "Spare 2", HFILL }},
 { &hf_afs_fs_volsync_spare3, { "Spare 3", "afs.fs.volsync.spare3",
@@ -266,7 +266,7 @@
 { &hf_afs_fs_callback_version, { "Version", "afs.fs.callback.version",
 	FT_UINT32, BASE_DEC, 0, 0, "Version", HFILL }},
 { &hf_afs_fs_callback_expires, { "Expires", "afs.fs.callback.expires",
-	FT_ABSOLUTE_TIME, BASE_DEC, 0, 0, "Expires", HFILL }},
+	FT_RELATIVE_TIME, BASE_NONE, 0, 0, "Expires", HFILL }},
 { &hf_afs_fs_callback_type, { "Type", "afs.fs.callback.type",
 	FT_UINT32, BASE_DEC, VALS(cb_types), 0, "Type", HFILL }},
 
@@ -320,13 +320,13 @@
 { &hf_afs_bos_host, { "Host", "afs.bos.host",
 	FT_STRING, BASE_HEX, 0, 0, "Host", HFILL }},
 { &hf_afs_bos_newtime, { "New Time", "afs.bos.newtime",
-	FT_ABSOLUTE_TIME, BASE_DEC, 0, 0, "New Time", HFILL }},
+	FT_ABSOLUTE_TIME, BASE_NONE, 0, 0, "New Time", HFILL }},
 { &hf_afs_bos_baktime, { "Backup Time", "afs.bos.baktime",
-	FT_ABSOLUTE_TIME, BASE_DEC, 0, 0, "Backup Time", HFILL }},
+	FT_ABSOLUTE_TIME, BASE_NONE, 0, 0, "Backup Time", HFILL }},
 { &hf_afs_bos_oldtime, { "Old Time", "afs.bos.oldtime",
-	FT_ABSOLUTE_TIME, BASE_DEC, 0, 0, "Old Time", HFILL }},
+	FT_ABSOLUTE_TIME, BASE_NONE, 0, 0, "Old Time", HFILL }},
 { &hf_afs_bos_keymodtime, { "Key Modification Time", "afs.bos.keymodtime",
-	FT_ABSOLUTE_TIME, BASE_DEC, 0, 0, "Key Modification Time", HFILL }},
+	FT_ABSOLUTE_TIME, BASE_NONE, 0, 0, "Key Modification Time", HFILL }},
 { &hf_afs_bos_keychecksum, { "Key Checksum", "afs.bos.keychecksum",
 	FT_UINT32, BASE_DEC, 0, 0, "Key Checksum", HFILL }},
 { &hf_afs_bos_keyspare2, { "Key Spare 2", "afs.bos.keyspare2",
@@ -439,7 +439,7 @@
 { &hf_afs_cb_callback_version, { "Version", "afs.cb.callback.version",
 	FT_UINT32, BASE_DEC, 0, 0, "Version", HFILL }},
 { &hf_afs_cb_callback_expires, { "Expires", "afs.cb.callback.expires",
-	FT_ABSOLUTE_TIME, BASE_DEC, 0, 0, "Expires", HFILL }},
+	FT_ABSOLUTE_TIME, BASE_NONE, 0, 0, "Expires", HFILL }},
 { &hf_afs_cb_callback_type, { "Type", "afs.cb.callback.type",
 	FT_UINT32, BASE_DEC, VALS(cb_types), 0, "Type", HFILL }},
 { &hf_afs_cb_fid_volume, { "FileID (Volume)", "afs.cb.fid.volume",
@@ -481,13 +481,13 @@
 { &hf_afs_ubik_state, { "State", "afs.ubik.state",
 	FT_UINT32, BASE_HEX, 0, 0, "State", HFILL }},
 { &hf_afs_ubik_version_epoch, { "Epoch", "afs.ubik.version.epoch",
-	FT_ABSOLUTE_TIME, BASE_DEC, 0, 0, "Epoch", HFILL }},
+	FT_ABSOLUTE_TIME, BASE_NONE, 0, 0, "Epoch", HFILL }},
 { &hf_afs_ubik_version_counter, { "Counter", "afs.ubik.version.counter",
 	FT_UINT32, BASE_DEC, 0, 0, "Counter", HFILL }},
 { &hf_afs_ubik_votestart, { "Vote Started", "afs.ubik.votestart",
-	FT_ABSOLUTE_TIME, BASE_DEC, 0, 0, "Vote Started", HFILL }},
+	FT_ABSOLUTE_TIME, BASE_NONE, 0, 0, "Vote Started", HFILL }},
 { &hf_afs_ubik_voteend, { "Vote Ends", "afs.ubik.voteend",
-	FT_ABSOLUTE_TIME, BASE_DEC, 0, 0, "Vote Ends", HFILL }},
+	FT_ABSOLUTE_TIME, BASE_NONE, 0, 0, "Vote Ends", HFILL }},
 { &hf_afs_ubik_file, { "File", "afs.ubik.file",
 	FT_UINT32, BASE_DEC, 0, 0, "File", HFILL }},
 { &hf_afs_ubik_pos, { "Position", "afs.ubik.position",

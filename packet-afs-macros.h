@@ -8,7 +8,7 @@
  * Portions based on information/specs retrieved from the OpenAFS sources at
  *   www.openafs.org, Copyright IBM.
  *
- * $Id: packet-afs-macros.h,v 1.21 2002/10/11 21:58:25 guy Exp $
+ * $Id: packet-afs-macros.h,v 1.22 2003/01/18 02:18:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -98,8 +98,10 @@
 	offset += 8; \
 	}
 
-/* Output a UNIX seconds-only timestamp, after converting to an nstime_t */
-#define OUT_DATE(field) \
+/* Output a seconds-only time value, after converting to an nstime_t;
+   this can be an absolute time as a UNIX time-since-epoch, or a
+   relative time in seconds */
+#define OUT_TIMESECS(field) \
 	{ nstime_t ts; \
 	ts.secs = tvb_get_ntohl(tvb, offset); \
 	ts.nsecs = 0; \
@@ -148,7 +150,7 @@
 		save = tree; \
 		tree = proto_item_add_subtree(ti, ett_afs_callback); \
 		OUT_UINT(hf_afs_fs_callback_version); \
-		OUT_DATE(hf_afs_fs_callback_expires); \
+		OUT_TIMESECS(hf_afs_fs_callback_expires); \
 		OUT_UINT(hf_afs_fs_callback_type); \
 		tree = save; \
 	}
@@ -160,7 +162,7 @@
 		save = tree; \
 		tree = proto_item_add_subtree(ti, ett_afs_callback); \
 		OUT_UINT(hf_afs_cb_callback_version); \
-		OUT_DATE(hf_afs_cb_callback_expires); \
+		OUT_TIMESECS(hf_afs_cb_callback_expires); \
 		OUT_UINT(hf_afs_cb_callback_type); \
 		tree = save; \
 	}
@@ -247,7 +249,7 @@
 		save = tree; \
 		tree = proto_item_add_subtree(ti, ett_afs_status); \
 		OUT_FS_STATUSMASK(); \
-		OUT_DATE(hf_afs_fs_status_clientmodtime); \
+		OUT_TIMESECS(hf_afs_fs_status_clientmodtime); \
 		OUT_UINT(hf_afs_fs_status_owner); \
 		OUT_UINT(hf_afs_fs_status_group); \
 		OUT_UINT(hf_afs_fs_status_mode); \
@@ -275,8 +277,8 @@
 		OUT_UINT(hf_afs_fs_status_parentvnode); \
 		OUT_UINT(hf_afs_fs_status_parentunique); \
 		OUT_UINT(hf_afs_fs_status_segsize); \
-		OUT_DATE(hf_afs_fs_status_clientmodtime); \
-		OUT_DATE(hf_afs_fs_status_servermodtime); \
+		OUT_TIMESECS(hf_afs_fs_status_clientmodtime); \
+		OUT_TIMESECS(hf_afs_fs_status_servermodtime); \
 		OUT_UINT(hf_afs_fs_status_group); \
 		OUT_UINT(hf_afs_fs_status_synccounter); \
 		OUT_UINT(hf_afs_fs_status_dataversionhigh); \
@@ -293,7 +295,7 @@
 			"VolSync"); \
 		save = tree; \
 		tree = proto_item_add_subtree(ti, ett_afs_volsync); \
-		OUT_DATE(hf_afs_fs_volsync_spare1); \
+		OUT_TIMESECS(hf_afs_fs_volsync_spare1); \
 		OUT_UINT(hf_afs_fs_volsync_spare2); \
 		OUT_UINT(hf_afs_fs_volsync_spare3); \
 		OUT_UINT(hf_afs_fs_volsync_spare4); \
@@ -424,19 +426,19 @@
 
 #define OUT_UBIK_DebugOld() \
 	{ \
-		OUT_DATE(hf_afs_ubik_now); \
-		OUT_DATE(hf_afs_ubik_lastyestime); \
+		OUT_TIMESECS(hf_afs_ubik_now); \
+		OUT_TIMESECS(hf_afs_ubik_lastyestime); \
 		OUT_IP(hf_afs_ubik_lastyeshost); \
 		OUT_UINT(hf_afs_ubik_lastyesstate); \
-		OUT_DATE(hf_afs_ubik_lastyesclaim); \
+		OUT_TIMESECS(hf_afs_ubik_lastyesclaim); \
 		OUT_IP(hf_afs_ubik_lowesthost); \
-		OUT_DATE(hf_afs_ubik_lowesttime); \
+		OUT_TIMESECS(hf_afs_ubik_lowesttime); \
 		OUT_IP(hf_afs_ubik_synchost); \
-		OUT_DATE(hf_afs_ubik_synctime); \
+		OUT_TIMESECS(hf_afs_ubik_synctime); \
 		OUT_UBIKVERSION("Sync Version"); \
 		OUT_UBIKVERSION("Sync TID"); \
 		OUT_UINT(hf_afs_ubik_amsyncsite); \
-		OUT_DATE(hf_afs_ubik_syncsiteuntil); \
+		OUT_TIMESECS(hf_afs_ubik_syncsiteuntil); \
 		OUT_UINT(hf_afs_ubik_nservers); \
 		OUT_UINT(hf_afs_ubik_lockedpages); \
 		OUT_UINT(hf_afs_ubik_writelockedpages); \
@@ -448,14 +450,14 @@
 		OUT_UINT(hf_afs_ubik_recoverystate); \
 		OUT_UINT(hf_afs_ubik_currenttrans); \
 		OUT_UINT(hf_afs_ubik_writetrans); \
-		OUT_DATE(hf_afs_ubik_epochtime); \
+		OUT_TIMESECS(hf_afs_ubik_epochtime); \
 	}
 
 #define OUT_UBIK_SDebugOld() \
 	{ \
 		OUT_IP(hf_afs_ubik_addr); \
-		OUT_DATE(hf_afs_ubik_lastvotetime); \
-		OUT_DATE(hf_afs_ubik_lastbeaconsent); \
+		OUT_TIMESECS(hf_afs_ubik_lastvotetime); \
+		OUT_TIMESECS(hf_afs_ubik_lastbeaconsent); \
 		OUT_UINT(hf_afs_ubik_lastvote); \
 		OUT_UBIKVERSION("Remote Version"); \
 		OUT_UINT(hf_afs_ubik_currentdb); \

@@ -8,7 +8,7 @@
  * Portions based on information/specs retrieved from the OpenAFS sources at
  *   www.openafs.org, Copyright IBM.
  *
- * $Id: packet-afs.c,v 1.51 2002/11/28 03:57:49 guy Exp $
+ * $Id: packet-afs.c,v 1.52 2003/01/18 02:18:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -590,7 +590,7 @@ dissect_fs_reply(tvbuff_t *tvb, struct rxinfo *rxinfo, proto_tree *tree, int off
 				break;
 			case 160: /* get xstats */
 				OUT_UINT(hf_afs_fs_xstats_version);
-				OUT_DATE(hf_afs_fs_xstats_timestamp);
+				OUT_TIMESECS(hf_afs_fs_xstats_timestamp);
 				OUT_FS_AFS_CollData();
 				break;
 			case 162: /* flush cps */
@@ -861,9 +861,9 @@ dissect_bos_reply(tvbuff_t *tvb, struct rxinfo *rxinfo, proto_tree *tree, int of
 				/* no output */
 				break;
 			case 107: /* get dates */
-				OUT_DATE(hf_afs_bos_newtime);
-				OUT_DATE(hf_afs_bos_baktime);
-				OUT_DATE(hf_afs_bos_oldtime);
+				OUT_TIMESECS(hf_afs_bos_newtime);
+				OUT_TIMESECS(hf_afs_bos_baktime);
+				OUT_TIMESECS(hf_afs_bos_oldtime);
 				break;
 			case 108: /* exec */
 				/* no output */
@@ -1587,7 +1587,7 @@ dissect_ubik_request(tvbuff_t *tvb, struct rxinfo *rxinfo _U_, proto_tree *tree,
 	{
 		case 10000: /* vote-beacon */
 			OUT_UINT(hf_afs_ubik_state);
-			OUT_DATE(hf_afs_ubik_votestart);
+			OUT_TIMESECS(hf_afs_ubik_votestart);
 			OUT_UBIKVERSION("DB Version");
 			OUT_UBIKVERSION("TID");
 			break;
