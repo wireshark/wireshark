@@ -1,7 +1,7 @@
 /* packet-isis-hello.c
  * Routines for decoding isis hello packets and their CLVs
  *
- * $Id: packet-isis-hello.c,v 1.23 2001/12/20 07:33:21 guy Exp $
+ * $Id: packet-isis-hello.c,v 1.24 2001/12/26 21:37:21 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -39,6 +39,7 @@
 #include "packet-isis.h"
 #include "packet-isis-clv.h"
 #include "packet-isis-hello.h"
+#include "epan/resolv.h"
 
 /* hello packets */
 static int hf_isis_hello_circuit_reserved    = -1;
@@ -548,7 +549,7 @@ dissect_hello_is_neighbors_clv(tvbuff_t *tvb, packet_info *pinfo,
 		 */
 		if ( tree ) {
 			proto_tree_add_text ( tree, tvb, offset, 6, 
-				"IS Neighbor: %s", print_system_id( tvb_get_ptr(tvb, offset, 6), 6 ) ); 
+				"IS Neighbor: %s", get_ether_name( tvb_get_ptr(tvb, offset, 6)) );
 		}
 		offset += 6;
 		length -= 6;

@@ -1,7 +1,7 @@
 /* packet-isis-lsp.c
  * Routines for decoding isis lsp packets and their CLVs
  *
- * $Id: packet-isis-lsp.c,v 1.22 2001/12/20 07:33:21 guy Exp $
+ * $Id: packet-isis-lsp.c,v 1.23 2001/12/26 21:37:21 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -90,7 +90,7 @@ static const value_string isis_lsp_istype_vals[] = {
 	{ ISIS_LSP_TYPE_UNUSED0,	"Unused 0x0 (invalid)"},
 	{ ISIS_LSP_TYPE_LEVEL_1,	"Level 1 IS"},
 	{ ISIS_LSP_TYPE_UNUSED2,	"Unused 0x2 (invalid)"},
-	{ ISIS_LSP_TYPE_LEVEL_2,	"Level 2 IS"},
+	{ ISIS_LSP_TYPE_LEVEL_2,	"Level 1 and Level 2 IS"},
 	{ 0, NULL } };
 
 /* 
