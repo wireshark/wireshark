@@ -6,7 +6,7 @@
  * Copyright 2002, Tim Potter <tpot@samba.org>
  * Copyright 1999, Andrew Tridgell <tridge@samba.org>
  *
- * $Id: packet-http.c,v 1.79 2003/12/23 01:42:48 guy Exp $
+ * $Id: packet-http.c,v 1.80 2003/12/23 02:02:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -175,19 +175,27 @@ cleanup_entity_headers(void *arg)
 	g_free(entity_headers->content_type);
 }
 
-/* TODO: remove this ugly global variable */
-http_info_value_t	*stat_info;
-static void
-dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+/*
+ * TODO: remove this ugly global variable.
+ *
+ * XXX - we leak "http_info_value_t" structures.
+ * XXX - this gets overwritten if there's more than one HTTP request or
+ * reply in the tvbuff.
+ */
+static http_info_value_t	*stat_info;
+
+static int
+dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
+    proto_tree *tree)
 {
 	http_proto_t	proto;
 	char		*proto_tag;
 	proto_tree	*http_tree = NULL;
 	proto_item	*ti = NULL;
-	gint		offset = 0;
 	const guchar	*line;
 	gint		next_offset;
 	const guchar	*linep, *lineend;
+	int		orig_offset;
 	int		first_linelen, linelen;
 	gboolean	is_request_or_reply;
 	guchar		c;
@@ -228,7 +236,7 @@ dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			/*
 			 * More data needed for desegmentation.
 			 */
-			return;
+			return -1;
 		}
 	}
 
@@ -270,6 +278,7 @@ dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			col_set_str(pinfo->cinfo, COL_INFO, "Continuation");
 	}
 
+	orig_offset = offset;
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_http, tvb, offset, -1,
 		    FALSE);
@@ -560,6 +569,13 @@ dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			call_dissector(data_handle, next_tvb, pinfo,
 			    http_tree);
 		}
+
+		/*
+		 * We've processed "datalen" bytes worth of data
+		 * (which may be no data at all); advance the
+		 * offset past whatever data we've processed.
+		 */
+		offset += datalen;
 	}
 
 	/*
@@ -569,6 +585,8 @@ dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	CLEANUP_CALL_AND_POP;
 
 	tap_queue_packet(http_tap, pinfo, stat_info);
+
+	return offset - orig_offset;
 }
 
 /* This can be used to dissect an HTTP request until such time
@@ -981,6 +999,33 @@ check_auth_basic(proto_item *hdr_item, tvbuff_t *tvb, gchar *value)
 	return FALSE;
 }
 
+static void
+dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	int		offset = 0;
+	int		len;
+
+	while (tvb_reported_length_remaining(tvb, offset) != 0) {
+		len = dissect_http_message(tvb, offset, pinfo, tree);
+		if (len == -1)
+			break;
+		offset += len;
+
+		/*
+		 * OK, we've set the Protocol and Info columns for the
+		 * first HTTP message; make the columns non-writable,
+		 * so that we don't change it for subsequent HTTP messages.
+		 */
+		col_set_writable(pinfo->cinfo, FALSE);
+	}
+}
+
+static void
+dissect_http_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	dissect_http_message(tvb, 0, pinfo, tree);
+}
+
 void
 proto_register_http(void)
 {
@@ -1058,8 +1103,7 @@ proto_register_http(void)
 	    "of a request spanning multiple TCP segments",
 	    &http_desegment_body);
 
-	register_dissector("http", dissect_http, proto_http);
-	http_handle = find_dissector("http");
+	http_handle = create_dissector_handle(dissect_http, proto_http);
 
 	/*
 	 * Dissectors shouldn't register themselves in this table;
@@ -1116,6 +1160,8 @@ http_dissector_add(guint32 port, dissector_handle_t handle)
 void
 proto_reg_handoff_http(void)
 {
+	dissector_handle_t http_udp_handle;
+
 	data_handle = find_dissector("data");
 
 	dissector_add("tcp.port", TCP_PORT_HTTP, http_handle);
@@ -1128,7 +1174,8 @@ proto_reg_handoff_http(void)
 	 * request or reply?  I.e., should there be an SSDP dissector?
 	 */
 	dissector_add("tcp.port", TCP_PORT_SSDP, http_handle);
-	dissector_add("udp.port", UDP_PORT_SSDP, http_handle);
+	http_udp_handle = create_dissector_handle(dissect_http_udp, proto_http);
+	dissector_add("udp.port", UDP_PORT_SSDP, http_udp_handle);
 
 	ntlmssp_handle = find_dissector("ntlmssp");
 }
