@@ -24,7 +24,7 @@ http://developer.novell.com/ndk/doc/docui/index.htm#../ncp/ncp__enu/data/
 for a badly-formatted HTML version of the same PDF.
 
 
-$Id: ncp2222.py,v 1.27 2002/06/07 15:33:37 gram Exp $
+$Id: ncp2222.py,v 1.28 2002/06/09 01:36:43 guy Exp $
 
 
 Copyright (c) 2000-2002 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -2780,6 +2780,81 @@ NDSRequestFlags 		= bitfield16("nds_request_flags", "NDS Request Flags", [
 	bf_boolean16(0x0800, "nds_request_flags_dn_ref", "Down Referral"),
 ])	
 NDSVerb				= val_string16("nds_verb", "NDS Verb", [
+	[ 1, "Resolve Name" ],
+	[ 2, "Read Entry Information" ],
+	[ 3, "Read" ],
+	[ 4, "Compare" ],
+	[ 5, "List" ],
+	[ 6, "Search Entries" ],
+	[ 7, "Add Entry" ],
+	[ 8, "Remove Entry" ],
+	[ 9, "Modify Entry" ],
+	[ 10, "Modify RDN" ],
+	[ 11, "Create Attribute" ],
+	[ 12, "Read Attribute Definition" ],
+	[ 13, "Remove Attribute Definition" ],
+	[ 14, "Define Class" ],
+	[ 15, "Read Class Definition" ],
+	[ 16, "Modify Class Definition" ],
+	[ 17, "Remove Class Definition" ],
+	[ 18, "List Containable Classes" ],
+	[ 19, "Get Effective Rights" ],
+	[ 20, "Add Partition" ],
+	[ 21, "Remove Partition" ],
+	[ 22, "List Partitions" ],
+	[ 23, "Split Partition" ],
+	[ 24, "Join Partitions" ],
+	[ 25, "Add Replica" ],
+	[ 26, "Remove Replica" ],
+	[ 27, "Open Stream" ],
+	[ 28, "Search Filter" ],
+	[ 29, "Create Subordinate Reference" ],
+	[ 30, "Link Replica" ],
+	[ 31, "Change Replica Type" ],
+	[ 32, "Start Update Schema" ],
+	[ 33, "End Update Schema" ],
+	[ 34, "Update Schema" ],
+	[ 35, "Start Update Replica" ],
+	[ 36, "End Update Replica" ],
+	[ 37, "Update Replica" ],
+	[ 38, "Synchronize Partition" ],
+	[ 39, "Synchronize Schema" ],
+	[ 40, "Read Syntaxes" ],
+	[ 41, "Get Replica Root ID" ],
+	[ 42, "Begin Move Entry" ],
+	[ 43, "Finish Move Entry" ],
+	[ 44, "Release Moved Entry" ],
+	[ 45, "Backup Entry" ],
+	[ 46, "Restore Entry" ],
+	[ 47, "Save DIB" ],
+	[ 50, "Close Iteration" ],
+	[ 51, "Unused" ],
+	[ 52, "Audit Skulking" ],
+	[ 53, "Get Server Address" ],
+	[ 54, "Set Keys" ],
+	[ 55, "Change Password" ],
+	[ 56, "Verify Password" ],
+	[ 57, "Begin Login" ],
+	[ 58, "Finish Login" ],
+	[ 59, "Begin Authentication" ],
+	[ 60, "Finish Authentication" ],
+	[ 61, "Logout" ],
+	[ 62, "Repair Ring" ],
+	[ 63, "Repair Timestamps" ],
+	[ 64, "Create Back Link" ],
+	[ 65, "Delete External Reference" ],
+	[ 66, "Rename External Reference" ],
+	[ 67, "Create Directory Entry" ],
+	[ 68, "Remove Directory Entry" ],
+	[ 69, "Designate New Master" ],
+	[ 70, "Change Tree Name" ],
+	[ 71, "Partition Entry Count" ],
+	[ 72, "Check Login Restrictions" ],
+	[ 73, "Start Join" ],
+	[ 74, "Low Level Split" ],
+	[ 75, "Low Level Join" ],
+	[ 76, "Abort Low Level Join" ],
+	[ 77, "Get All Servers" ],
 ])
 NDSNewVerb			= val_string16("nds_new_verb", "NDS Verb", [
 ])
@@ -2799,6 +2874,10 @@ NetworkAddress.Display("BASE_HEX")
 NetworkNodeAddress		= bytes("network_node_address", "Network Node Address", 6)
 NetworkNumber                   = uint32("network_number", "Network Number")
 NetworkNumber.Display("BASE_HEX")
+#
+# XXX - this should have the "ipx_socket_vals" value_string table
+# from "packet-ipx.c".
+#
 NetworkSocket			= uint16("network_socket", "Network Socket")
 NetworkSocket.Display("BASE_HEX")
 NewAccessRights 		= bitfield16("new_access_rights_mask", "New Access Rights", [
@@ -7150,7 +7229,7 @@ def define_ncp2222():
 		rec( 10, 1, TargetConnectionNumber ),
 	])
 	pkt.Reply(20, [
-		rec( 8, 4, NetworkAddress ),
+		rec( 8, 4, NetworkAddress, BE ),
 		rec( 12, 6, NetworkNodeAddress ),
 		rec( 18, 2, NetworkSocket, BE ),
 	])
@@ -7206,14 +7285,23 @@ def define_ncp2222():
 	pkt.CompletionCodes([0x0000, 0x9602, 0xc101, 0xc200, 0xc500, 0xd900, 0xda00,
 			     0xdb00, 0xdc00, 0xde00])
 	# 2222/171A, 23/26
+	#
+	# XXX - for NCP-over-IP, the NetworkAddress field appears to be
+	# an IP address, rather than an IPX network address, and should
+	# be dissected as an FT_IPv4 value; the NetworkNodeAddress and
+	# NetworkSocket are 0.
+	#
+	# For NCP-over-IPX, it should probably be dissected as an
+	# FT_IPXNET value.
+	#
 	pkt = NCP(0x171A, "Get Internet Address", 'fileserver')
 	pkt.Request(11, [
 		rec( 10, 1, TargetConnectionNumber ),
 	])
 	pkt.Reply(21, [
-		rec( 8, 4, NetworkAddress ),
+		rec( 8, 4, NetworkAddress, BE ),
 		rec( 12, 6, NetworkNodeAddress ),
-		rec( 18, 2, NetworkSocket ),
+		rec( 18, 2, NetworkSocket, BE ),
 		rec( 20, 1, ConnectionType ),
 	])
 	pkt.CompletionCodes([0x0000])
@@ -8490,7 +8578,7 @@ def define_ncp2222():
 		rec( 10, 1, LANDriverNumber ),
 	])
  	pkt.Reply(180, [
-		rec( 8, 4, NetworkAddress ),
+		rec( 8, 4, NetworkAddress, BE ),
 		rec( 12, 6, HostAddress ),
 		rec( 18, 1, BoardInstalled ),
 		rec( 19, 1, OptionNumber ),
@@ -11396,6 +11484,16 @@ def define_ncp2222():
 	])
 	pkt.CompletionCodes([0x0000, 0x8100, 0xfb04, 0xfe0c])
 	# 2222/6802, 104/02
+	#
+	# XXX - if FraggerHandle is not 0xffffffff, this is not the
+	# first fragment, so we can only dissect this by reassembling;
+	# the fields after "Fragment Handle" are bogus for non-0xffffffff
+	# fragments, so we shouldn't dissect them.
+	#
+	# XXX - are there TotalRequest requests in the packet, and
+	# does each of them have NDSFlags and NDSVerb fields, or
+	# does only the first one have it?
+	#
 	pkt = NCP(0x6802, "Send NDS Fragmented Request/Reply", "nds", has_length=0)
 	pkt.Request(26, [
 		rec( 8, 4, FraggerHandle ),
