@@ -600,6 +600,7 @@ Ronnie Sahlberg <sahlberg[AT]optushome.com.au> {
 	SAMR updates
 	NETLOGON implementation
 	LSA updates
+	NFS AUTH stub implementation
 }
 
 Borosa Tomislav <tomislav.borosa[AT]SIEMENS.HR> {

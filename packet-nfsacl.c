@@ -4,7 +4,7 @@
  *
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-nfsacl.c,v 1.1 2002/05/15 07:21:41 guy Exp $
+ * $Id: packet-nfsacl.c,v 1.2 2002/05/16 08:57:12 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -45,6 +45,14 @@ static gint ett_nfsacl = -1;
 
 #define NFSACLPROC_NULL		0
 
+#define NFSACLPROC2_GETACL	1
+#define NFSACLPROC2_SETACL	2
+#define NFSACLPROC2_GETATTR	3
+#define NFSACLPROC2_ACCESS	4
+
+#define NFSACLPROC3_GETACL	1
+#define NFSACLPROC3_SETACL	2
+
 /* proc number, "proc name", dissect_request, dissect_reply */
 /* NULL as function pointer means: type of arguments is "void". */
 static const vsff nfsacl1_proc[] = {
@@ -56,11 +64,23 @@ static const vsff nfsacl1_proc[] = {
 static const vsff nfsacl2_proc[] = {
 	{ NFSACLPROC_NULL,	"NULL",
 		NULL,	NULL },
+	{ NFSACLPROC2_GETACL,	"GETACL",
+		NULL,	NULL },
+	{ NFSACLPROC2_SETACL,	"SETACL",
+		NULL,	NULL },
+	{ NFSACLPROC2_GETATTR,	"GETATTR",
+		NULL,	NULL },
+	{ NFSACLPROC2_ACCESS,	"ACCESS",
+		NULL,	NULL },
 	{ 0,	NULL,	NULL,	NULL }
 };
 
 static const vsff nfsacl3_proc[] = {
 	{ NFSACLPROC_NULL,	"NULL",
+		NULL,	NULL },
+	{ NFSACLPROC3_GETACL,	"GETACL",
+		NULL,	NULL },
+	{ NFSACLPROC3_SETACL,	"SETACL",
 		NULL,	NULL },
 	{ 0,	NULL,	NULL,	NULL }
 };
