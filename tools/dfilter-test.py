@@ -4,7 +4,7 @@ Test-suite to test ethereal's dfilter mechanism.
 """
 
 #
-# $Id: dfilter-test.py,v 1.1 2003/07/09 03:57:34 gram Exp $
+# $Id: dfilter-test.py,v 1.2 2003/07/25 03:44:05 gram Exp $
 #
 # Copyright (C) 2003 by Gilbert Ramirez <gram@alumni.rice.edu>
 #  
@@ -340,11 +340,11 @@ pkt_tftp.data = """
 # Add tests here
 ################################################################################
 
-class Ftype_Bytes(Test):
+class Bytes(Test):
 	"""Tests routines in ftype-bytes.c"""
 
 	def __init__(self):
-		print "Note: Ftype_Bytes does not yet test FT_INT64."
+		print "Note: Bytes test does not yet test FT_INT64."
 
 	def ck_eq_1(self):
 		return self.DFilterCount(pkt_ipx_rip,
@@ -485,7 +485,7 @@ class Ftype_Bytes(Test):
 		]
 
 
-class Ftype_Double(Test):
+class Double(Test):
 	"""Tests routines in ftype-double.c"""
 
 	def ck_eq_1(self):
@@ -564,7 +564,7 @@ class Ftype_Double(Test):
 		ck_le_3,
 		]
 
-class Ftype_Integer(Test):
+class Integer(Test):
 	"""Tests routines in ftype-integer.c"""
 
 	def ck_eq_1(self):
@@ -741,7 +741,7 @@ class Ftype_Integer(Test):
 		ck_ipx_2,
 		]
 
-class Ftype_IPv4(Test):
+class IPv4(Test):
 	"""Tests routines in ftype-ipv4.c"""
 
 	def ck_eq_1(self):
@@ -867,7 +867,7 @@ class Ftype_IPv4(Test):
 		ck_cidr_ne_4,
 		]
 
-class Ftype_String(Test):
+class String(Test):
 	"""Tests routines in ftype-string.c"""
 
 	def ck_eq_1(self):
@@ -998,7 +998,7 @@ class Ftype_String(Test):
 		]
 
 
-class Ftype_Time(Test):
+class Time(Test):
 	"""Tests routines in ftype-time.c"""
 
 	def ck_eq_1(self):
@@ -1099,7 +1099,7 @@ class Ftype_Time(Test):
 		ck_relative_time_3,
 		]
 
-class Ftype_TVB(Test):
+class TVB(Test):
 	"""Tests routines in ftype-tvb.c"""
 
 	def ck_slice_1(self):
@@ -1134,15 +1134,73 @@ class Ftype_TVB(Test):
 #		ck_slice_5,
 		]
 
+
+class Scanner(Test):
+	"""Tests routines in scanner.l"""
+
+	def __init__(self):
+		print "Note: Scanner test does not yet test embedded double-quote."
+
+	def ck_dquote_1(self):
+		return self.DFilterCount(pkt_http,
+			'http.request.method == "HEAD"', 1)
+
+	def ck_dquote_2(self):
+		return self.DFilterCount(pkt_http,
+			'http.request.method == "\\x48EAD"', 1)
+
+	def ck_dquote_3(self):
+		return self.DFilterCount(pkt_http,
+			'http.request.method == "\\x58EAD"', 0)
+
+	def ck_dquote_4(self):
+		return self.DFilterCount(pkt_http,
+			'http.request.method == "\\110EAD"', 1)
+
+	def ck_dquote_5(self):
+		return self.DFilterCount(pkt_http,
+			'http.request.method == "\\111EAD"', 0)
+
+	def ck_dquote_6(self):
+		return self.DFilterCount(pkt_http,
+			'http.request.method == "\\HEAD"', 1)
+
+	tests = [
+		ck_dquote_1,
+		ck_dquote_2,
+		ck_dquote_3,
+		ck_dquote_4,
+		ck_dquote_5,
+		]
+
 ################################################################################
 
+# These are the test objects to run.
+# Keep these in alphabetical order so the help message
+# shows them in order.
+all_tests = [
+	Bytes(),
+	Double(),
+	Integer(),
+	IPv4(),
+	Scanner(),
+	String(),
+	Time(),
+	TVB(),
+	]
+
 def usage():
-	print "usage: %s [OPTS]" % (sys.argv[0],)
+	print "usage: %s [OPTS] [TEST ...]" % (sys.argv[0],)
 	print "\t-p PATH : path to find both tethereal and text2pcap (DEFAULT: . )"
 	print "\t-t FILE : location of tethereal binary"
 	print "\t-x FILE : location of text2pcap binary"
 	print "\t-k      : keep temporary files"
 	print "\t-v      : verbose"
+	print
+	print "By not mentioning a test name, all tests are run."
+	print "Available tests are:"
+	for test in all_tests:
+		print "\t", test.__class__.__name__
 	sys.exit(1)
 
 def main():
@@ -1157,7 +1215,7 @@ def main():
 	longopts = []
 	
 	try:
-		opts, args = getopt.getopt(sys.argv[1:], optstring, longopts)
+		opts, specific_tests = getopt.getopt(sys.argv[1:], optstring, longopts)
 	except getopt.GetoptError:
 		usage()
 
@@ -1185,22 +1243,31 @@ def main():
 		sys.exit("text2pcap program '%s' does not exist." % (TEXT2PCAP,))
 
 
-	# These are the test objects to run.
-	tests = [
-		Ftype_Bytes(),
-		Ftype_Double(),
-		Ftype_Integer(),
-		Ftype_IPv4(),
-		Ftype_String(),
-		Ftype_Time(),
-		Ftype_TVB(),
-		]
+	# Determine which tests to run.
+	tests_to_run = []
+	if specific_tests:
+		# Go through the tests looking for the ones whose names
+		# match the command-line arguments.
+		all_ok = 1
+		for test_name in specific_tests:
+			for test in all_tests:
+				if test_name == test.__class__.__name__:
+					tests_to_run.append(test)
+					break
+			else:
+				print >> sys.stderr, "%s is unrecognized as a test." % \
+					(test_name,)
+				all_ok = 0
+
+		if not all_ok:
+			sys.exit(1)
+	else:
+		tests_to_run = all_tests
 
 	# Run the tests and keep score.
 	tot_run = 0
 	tot_succeeded = 0
-
-	for test in tests:
+	for test in tests_to_run:
 		print test.__class__.__name__
 		(run, succeeded) = test.Run()
 		tot_run += run

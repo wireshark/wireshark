@@ -1,5 +1,5 @@
 /*
- * $Id: semcheck.c,v 1.17 2003/06/13 07:39:26 guy Exp $
+ * $Id: semcheck.c,v 1.18 2003/07/25 03:44:01 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -47,15 +47,15 @@ compatible_ftypes(ftenum_t a, ftenum_t b)
 	switch (a) {
 		case FT_NONE:
 		case FT_PROTOCOL:
-		case FT_FLOAT:
-		case FT_DOUBLE:
+		case FT_FLOAT:		/* XXX - should be able to compare with INT */
+		case FT_DOUBLE:		/* XXX - should be able to compare with INT */
 		case FT_ABSOLUTE_TIME:
 		case FT_RELATIVE_TIME:
 		case FT_IPv4:
 		case FT_IPv6:
 		case FT_IPXNET:
-		case FT_INT64:
-		case FT_UINT64:
+		case FT_INT64:		/* XXX - should be able to compare with INT */
+		case FT_UINT64:		/* XXX - should be able to compare with INT */
 			return a == b;
 
 		case FT_ETHER:
@@ -187,7 +187,7 @@ mk_fvalue_from_val_string(header_field_info *hfinfo, char *s)
 			return mk_uint32_fvalue(FALSE);
 		}
 		else {
-		dfilter_fail("\"%s\" cannot be found among the possible values for %s.",
+			dfilter_fail("\"%s\" cannot be found among the possible values for %s.",
 				s, hfinfo->abbrev);
 			return NULL;
 		}
@@ -256,9 +256,11 @@ is_bytes_type(enum ftenum type)
 	return FALSE;
 }
 
+/* If the LHS of a relation test is a FIELD, run some checks
+ * and possibly some modifications of syntax tree nodes. */
 static void
-check_relation_LHS_FIELD(FtypeCanFunc can_func, stnode_t *st_node,
-		stnode_t *st_arg1, stnode_t *st_arg2)
+check_relation_LHS_FIELD(const char *relation_string, FtypeCanFunc can_func,
+		stnode_t *st_node, stnode_t *st_arg1, stnode_t *st_arg2)
 {
 	stnode_t		*new_st;
 	sttype_id_t		type1, type2;
@@ -275,8 +277,9 @@ check_relation_LHS_FIELD(FtypeCanFunc can_func, stnode_t *st_node,
 	ftype1 = hfinfo1->type;
 
 	if (!can_func(ftype1)) {
-		dfilter_fail("%s (type=%s) cannot participate in specified comparison.",
-				hfinfo1->abbrev, ftype_pretty_name(ftype1));
+		dfilter_fail("%s (type=%s) cannot participate in '%s' comparison.",
+				hfinfo1->abbrev, ftype_pretty_name(ftype1),
+				relation_string);
 		THROW(TypeError);
 	}
 
@@ -301,6 +304,21 @@ check_relation_LHS_FIELD(FtypeCanFunc can_func, stnode_t *st_node,
 	else if (type2 == STTYPE_STRING) {
 		s = stnode_data(st_arg2);
 		fvalue = fvalue_from_string(ftype1, s, dfilter_fail);
+		if (!fvalue) {
+			/* check value_string */
+			fvalue = mk_fvalue_from_val_string(hfinfo1, s);
+			if (!fvalue) {
+				THROW(TypeError);
+			}
+		}
+
+		new_st = stnode_new(STTYPE_FVALUE, fvalue);
+		sttype_test_set2_args(st_node, st_arg1, new_st);
+		stnode_free(st_arg2);
+	}
+	else if (type2 == STTYPE_UNPARSED) {
+		s = stnode_data(st_arg2);
+		fvalue = fvalue_from_unparsed(ftype1, s, dfilter_fail);
 		if (!fvalue) {
 			/* check value_string */
 			fvalue = mk_fvalue_from_val_string(hfinfo1, s);
@@ -381,6 +399,60 @@ check_relation_LHS_STRING(FtypeCanFunc can_func _U_, stnode_t *st_node,
 	else if (type2 == STTYPE_RANGE) {
 		s = stnode_data(st_arg1);
 		fvalue = fvalue_from_string(FT_BYTES, s, dfilter_fail);
+		if (!fvalue) {
+			THROW(TypeError);
+		}
+		new_st = stnode_new(STTYPE_FVALUE, fvalue);
+		sttype_test_set2_args(st_node, new_st, st_arg2);
+		stnode_free(st_arg1);
+	}
+	else {
+		g_assert_not_reached();
+	}
+}
+
+static void
+check_relation_LHS_UNPARSED(FtypeCanFunc can_func _U_, stnode_t *st_node,
+		stnode_t *st_arg1, stnode_t *st_arg2)
+{
+	stnode_t		*new_st;
+	sttype_id_t		type1, type2;
+	header_field_info	*hfinfo2;
+	ftenum_t		ftype2;
+	fvalue_t		*fvalue;
+	char			*s;
+
+	type1 = stnode_type_id(st_arg1);
+	type2 = stnode_type_id(st_arg2);
+
+	if (type2 == STTYPE_FIELD) {
+		hfinfo2 = stnode_data(st_arg2);
+		ftype2 = hfinfo2->type;
+
+		s = stnode_data(st_arg1);
+		fvalue = fvalue_from_unparsed(ftype2, s, dfilter_fail);
+		if (!fvalue) {
+			/* check value_string */
+			fvalue = mk_fvalue_from_val_string(hfinfo2, s);
+			if (!fvalue) {
+				THROW(TypeError);
+			}
+		}
+
+		new_st = stnode_new(STTYPE_FVALUE, fvalue);
+		sttype_test_set2_args(st_node, new_st, st_arg2);
+		stnode_free(st_arg1);
+	}
+	else if (type2 == STTYPE_STRING) {
+		/* Well now that's silly... */
+		dfilter_fail("Neither \"%s\" nor \"%s\" are field or protocol names.",
+				stnode_data(st_arg1),
+				stnode_data(st_arg2));
+		THROW(TypeError);
+	}
+	else if (type2 == STTYPE_RANGE) {
+		s = stnode_data(st_arg1);
+		fvalue = fvalue_from_unparsed(FT_BYTES, s, dfilter_fail);
 		if (!fvalue) {
 			THROW(TypeError);
 		}
@@ -515,6 +587,16 @@ check_relation_LHS_RANGE(FtypeCanFunc can_func _U_, stnode_t *st_node,
 		sttype_test_set2_args(st_node, st_arg1, new_st);
 		stnode_free(st_arg2);
 	}
+	else if (type2 == STTYPE_UNPARSED) {
+		s = stnode_data(st_arg2);
+		fvalue = fvalue_from_unparsed(FT_BYTES, s, dfilter_fail);
+		if (!fvalue) {
+			THROW(TypeError);
+		}
+		new_st = stnode_new(STTYPE_FVALUE, fvalue);
+		sttype_test_set2_args(st_node, st_arg1, new_st);
+		stnode_free(st_arg2);
+	}
 	else if (type2 == STTYPE_RANGE) {
 		check_drange_sanity(st_arg2);
 		/* XXX - check lengths of both ranges */
@@ -525,19 +607,23 @@ check_relation_LHS_RANGE(FtypeCanFunc can_func _U_, stnode_t *st_node,
 }
 
 
+/* Check the semantics of any relational test. */
 static void
-check_relation(FtypeCanFunc can_func, stnode_t *st_node,
+check_relation(const char *relation_string, FtypeCanFunc can_func, stnode_t *st_node,
 		stnode_t *st_arg1, stnode_t *st_arg2)
 {
 	switch (stnode_type_id(st_arg1)) {
 		case STTYPE_FIELD:
-			check_relation_LHS_FIELD(can_func, st_node, st_arg1, st_arg2);
+			check_relation_LHS_FIELD(relation_string, can_func, st_node, st_arg1, st_arg2);
 			break;
 		case STTYPE_STRING:
 			check_relation_LHS_STRING(can_func, st_node, st_arg1, st_arg2);
 			break;
 		case STTYPE_RANGE:
 			check_relation_LHS_RANGE(can_func, st_node, st_arg1, st_arg2);
+			break;
+		case STTYPE_UNPARSED:
+			check_relation_LHS_UNPARSED(can_func, st_node, st_arg1, st_arg2);
 			break;
 
 		case STTYPE_UNINITIALIZED:
@@ -549,6 +635,7 @@ check_relation(FtypeCanFunc can_func, stnode_t *st_node,
 	}
 }
 
+/* Check the semantics of any type of TEST */
 static void
 check_test(stnode_t *st_node)
 {
@@ -577,34 +664,33 @@ check_test(stnode_t *st_node)
 			break;
 
 		case TEST_OP_EQ:
-			check_relation(ftype_can_eq, st_node, st_arg1, st_arg2);
+			check_relation("==", ftype_can_eq, st_node, st_arg1, st_arg2);
 			break;
 		case TEST_OP_NE:
-			check_relation(ftype_can_ne, st_node, st_arg1, st_arg2);
+			check_relation("!=", ftype_can_ne, st_node, st_arg1, st_arg2);
 			break;
 		case TEST_OP_GT:
-			check_relation(ftype_can_gt, st_node, st_arg1, st_arg2);
+			check_relation(">", ftype_can_gt, st_node, st_arg1, st_arg2);
 			break;
 		case TEST_OP_GE:
-			check_relation(ftype_can_ge, st_node, st_arg1, st_arg2);
+			check_relation(">=", ftype_can_ge, st_node, st_arg1, st_arg2);
 			break;
 		case TEST_OP_LT:
-			check_relation(ftype_can_lt, st_node, st_arg1, st_arg2);
+			check_relation("<", ftype_can_lt, st_node, st_arg1, st_arg2);
 			break;
 		case TEST_OP_LE:
-			check_relation(ftype_can_le, st_node, st_arg1, st_arg2);
+			check_relation("<=", ftype_can_le, st_node, st_arg1, st_arg2);
 			break;
 	}
 }
 
 
+/* Check the entire syntax tree. */
 static void
 semcheck(stnode_t *st_node)
 {
-	const char	*name;
-
-	name = stnode_type_name(st_node);
-
+	/* The parser assures that the top-most syntax-tree
+	 * node will be a TEST node, no matter what. So assert that. */
 	switch (stnode_type_id(st_node)) {
 		case STTYPE_TEST:
 			check_test(st_node);
@@ -615,9 +701,15 @@ semcheck(stnode_t *st_node)
 }
 
 
+/* Check the syntax tree for semantic errors, and convert
+ * some of the nodes into the form they need to be in order to
+ * later generate the DFVM bytecode. */
 gboolean
 dfw_semcheck(dfwork_t *dfw)
 {
+	/* Instead of having to check for errors at every stage of
+	 * the semantic-checking, the semantic-checking code will
+	 * throw an exception if a problem is found. */
 	TRY {
 		semcheck(dfw->st_root);
 	}

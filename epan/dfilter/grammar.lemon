@@ -1,4 +1,4 @@
-/* $Id: grammar.lemon,v 1.4 2001/06/22 16:29:13 gram Exp $ */
+/* $Id: grammar.lemon,v 1.5 2003/07/25 03:44:01 gram Exp $ */
 
 %include {
 #ifdef HAVE_CONFIG_H
@@ -69,6 +69,10 @@ any "error" symbols are shifted, if possible. */
 			break;
 		case STTYPE_STRING:
 			dfilter_fail("The string \"%s\" was unexpected in this context.",
+				stnode_data(TOKEN));
+			break;
+		case STTYPE_UNPARSED:
+			dfilter_fail("\"%s\" was unexpected in this context.",
 				stnode_data(TOKEN));
 			break;
 		case STTYPE_INTEGER:
@@ -150,17 +154,8 @@ logical_test(T) ::= FIELD(F).
 /* Entities, or things that can be compared/tested/checked */
 entity(E) ::= FIELD(F).		{ E = F; }
 entity(E) ::= STRING(S).	{ E = S; }
+entity(E) ::= UNPARSED(U).	{ E = U; }
 entity(E) ::= range(R).		{ E = R; }
-
-/* CIDR: ADDRESS/NET */
-entity(E) ::= STRING(A) SLASH STRING(N).
-{
-	E = stnode_new(STTYPE_STRING, g_strjoin("/", stnode_data(A),
-		stnode_data(N), NULL));
-
-	stnode_free(A);
-	stnode_free(N);
-}
 
 
 /* Ranges */

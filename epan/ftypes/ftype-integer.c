@@ -1,5 +1,5 @@
 /*
- * $Id: ftype-integer.c,v 1.13 2003/06/11 21:24:53 gram Exp $
+ * $Id: ftype-integer.c,v 1.14 2003/07/25 03:44:02 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -49,7 +49,7 @@ get_integer(fvalue_t *fv)
 }
 
 static gboolean
-val_from_string(fvalue_t *fv, char *s, LogFunc logfunc)
+val_from_unparsed(fvalue_t *fv, char *s, LogFunc logfunc)
 {
 	char    *endptr;
 
@@ -78,7 +78,7 @@ val_from_string(fvalue_t *fv, char *s, LogFunc logfunc)
 }
 
 static gboolean
-ipxnet_from_string(fvalue_t *fv, char *s, LogFunc logfunc)
+ipxnet_from_unparsed(fvalue_t *fv, char *s, LogFunc logfunc)
 {
 	guint32 	val;
 	gboolean	known;
@@ -88,7 +88,7 @@ ipxnet_from_string(fvalue_t *fv, char *s, LogFunc logfunc)
 	 * up as an IPX network name if it does, and if that fails,
 	 * we'll log a message.
 	 */
-	if (val_from_string(fv, s, NULL)) {
+	if (val_from_unparsed(fv, s, NULL)) {
 		return TRUE;
 	}
 
@@ -223,7 +223,8 @@ ftype_register_integers(void)
 		1,				/* wire_size */
 		int_fvalue_new,			/* new_value */
 		NULL,				/* free_value */
-		val_from_string,		/* val_from_string */
+		val_from_unparsed,		/* val_from_unparsed */
+		NULL,				/* val_from_string */
 		NULL,				/* val_to_string_repr */
 		NULL,				/* len_string_repr */
 
@@ -251,7 +252,8 @@ ftype_register_integers(void)
 		2,				/* wire_size */
 		int_fvalue_new,			/* new_value */
 		NULL,				/* free_value */
-		val_from_string,		/* val_from_string */
+		val_from_unparsed,		/* val_from_unparsed */
+		NULL,				/* val_from_string */
 		NULL,				/* val_to_string_repr */
 		NULL,				/* len_string_repr */
 
@@ -279,7 +281,8 @@ ftype_register_integers(void)
 		3,				/* wire_size */
 		int_fvalue_new,			/* new_value */
 		NULL,				/* free_value */
-		val_from_string,		/* val_from_string */
+		val_from_unparsed,		/* val_from_unparsed */
+		NULL,				/* val_from_string */
 		NULL,				/* val_to_string_repr */
 		NULL,				/* len_string_repr */
 
@@ -307,7 +310,8 @@ ftype_register_integers(void)
 		4,				/* wire_size */
 		int_fvalue_new,			/* new_value */
 		NULL,				/* free_value */
-		val_from_string,		/* val_from_string */
+		val_from_unparsed,		/* val_from_unparsed */
+		NULL,				/* val_from_string */
 		NULL,				/* val_to_string_repr */
 		NULL,				/* len_string_repr */
 
@@ -335,7 +339,8 @@ ftype_register_integers(void)
 		1,				/* wire_size */
 		int_fvalue_new,			/* new_value */
 		NULL,				/* free_value */
-		val_from_string,		/* val_from_string */
+		val_from_unparsed,		/* val_from_unparsed */
+		NULL,				/* val_from_string */
 		NULL,				/* val_to_string_repr */
 		NULL,				/* len_string_repr */
 
@@ -363,7 +368,8 @@ ftype_register_integers(void)
 		2,				/* wire_size */
 		int_fvalue_new,			/* new_value */
 		NULL,				/* free_value */
-		val_from_string,		/* val_from_string */
+		val_from_unparsed,		/* val_from_unparsed */
+		NULL,				/* val_from_string */
 		NULL,				/* val_to_string_repr */
 		NULL,				/* len_string_repr */
 
@@ -391,7 +397,8 @@ ftype_register_integers(void)
 		3,				/* wire_size */
 		int_fvalue_new,			/* new_value */
 		NULL,				/* free_value */
-		val_from_string,		/* val_from_string */
+		val_from_unparsed,		/* val_from_unparsed */
+		NULL,				/* val_from_string */
 		NULL,				/* val_to_string_repr */
 		NULL,				/* len_string_repr */
 
@@ -419,7 +426,8 @@ ftype_register_integers(void)
 		4,				/* wire_size */
 		int_fvalue_new,			/* new_value */
 		NULL,				/* free_value */
-		val_from_string,		/* val_from_string */
+		val_from_unparsed,		/* val_from_unparsed */
+		NULL,				/* val_from_string */
 		NULL,				/* val_to_string_repr */
 		NULL,				/* len_string_repr */
 
@@ -447,7 +455,8 @@ ftype_register_integers(void)
 		0,				/* wire_size */
 		boolean_fvalue_new,		/* new_value */
 		NULL,				/* free_value */
-		val_from_string,		/* val_from_string */
+		val_from_unparsed,		/* val_from_unparsed */
+		NULL,				/* val_from_string */
 		boolean_to_repr,		/* val_to_string_repr */
 		boolean_repr_len,		/* len_string_repr */
 
@@ -476,7 +485,8 @@ ftype_register_integers(void)
 		4,				/* wire_size */
 		int_fvalue_new,			/* new_value */
 		NULL,				/* free_value */
-		ipxnet_from_string,		/* val_from_string */
+		ipxnet_from_unparsed,		/* val_from_unparsed */
+		NULL,				/* val_from_string */
 		NULL,				/* val_to_string_repr */
 		NULL,				/* len_string_repr */
 
@@ -505,7 +515,8 @@ ftype_register_integers(void)
 		4,				/* wire_size */
 		int_fvalue_new,			/* new_value */
 		NULL,				/* free_value */
-		val_from_string,		/* val_from_string */
+		val_from_unparsed,		/* val_from_unparsed */
+		NULL,				/* val_from_string */
 		NULL,				/* val_to_string_repr */
 		NULL,				/* len_string_repr */
 

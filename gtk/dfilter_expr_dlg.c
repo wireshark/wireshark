@@ -7,7 +7,7 @@
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com> and
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: dfilter_expr_dlg.c,v 1.33 2003/03/10 02:06:33 jmayer Exp $
+ * $Id: dfilter_expr_dlg.c,v 1.34 2003/07/25 03:44:04 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -928,7 +928,7 @@ dfilter_expr_dlg_accept_cb(GtkWidget *w, gpointer filter_te_arg)
          * for the type of the field; if a range string was
          * specified, must be valid for FT_BYTES.
          */
-        fvalue = fvalue_from_string(ftype, stripped_value_str,
+        fvalue = fvalue_from_unparsed(ftype, stripped_value_str,
                                     dfilter_report_bad_value);
         if (fvalue == NULL) {
             /*

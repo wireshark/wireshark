@@ -1332,6 +1332,23 @@ you will be using hexadecimal when testing for IPX network values:
 
     ipx.srcnet == 0xc0a82c00
 
+Strings are enclosed in double-quotes:
+
+    http.request.method == "POST"
+
+Inside doulbe quotes, you may use the backslash to embed a double-quote,
+or an arbitrary byte represented in either octal or hexadecimal.
+
+    browser.comment = "An embedded \" double-quote"
+
+Use of hexadecimal to look for "HEAD":
+
+    http.request.method == "\x48EAD"
+
+Use of octal to look for "HEAD":
+
+    http.request.method == "\x110EAD"
+
 A slice operator also exists.  You can check the substring
 (byte-string) of any protocol or field.  For example, you can filter on
 the vendor portion of an ethernet address (the first three bytes) like

@@ -1,7 +1,7 @@
 /* ftypes.h
  * Definitions for field types
  *
- * $Id: ftypes.h,v 1.17 2003/06/11 21:24:54 gram Exp $
+ * $Id: ftypes.h,v 1.18 2003/07/25 03:44:04 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -72,6 +72,7 @@ enum ftrepr {
 };
 
 typedef enum ftrepr ftrepr_t;
+
 
 /* Initialize the ftypes subsytem. Called once. */
 void
@@ -149,6 +150,9 @@ void
 fvalue_free(fvalue_t *fv);
 
 typedef void (*LogFunc)(char*,...);
+
+fvalue_t*
+fvalue_from_unparsed(ftenum_t ftype, char *s, LogFunc log);
 
 fvalue_t*
 fvalue_from_string(ftenum_t ftype, char *s, LogFunc log);

@@ -1,5 +1,5 @@
 /*
- * $Id: ftypes-int.h,v 1.8 2003/06/11 21:24:54 gram Exp $
+ * $Id: ftypes-int.h,v 1.9 2003/07/25 03:44:03 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -29,6 +29,7 @@
 typedef void (*FvalueNewFunc)(fvalue_t*);
 typedef void (*FvalueFreeFunc)(fvalue_t*);
 
+typedef gboolean (*FvalueFromUnparsed)(fvalue_t*, char*, LogFunc);
 typedef gboolean (*FvalueFromString)(fvalue_t*, char*, LogFunc);
 typedef void (*FvalueToStringRepr)(fvalue_t*, ftrepr_t, char*);
 typedef int (*FvalueStringReprLen)(fvalue_t*, ftrepr_t);
@@ -52,6 +53,7 @@ struct _ftype_t {
 	int			wire_size;
 	FvalueNewFunc		new_value;
 	FvalueFreeFunc		free_value;
+	FvalueFromUnparsed	val_from_unparsed;
 	FvalueFromString	val_from_string;
 	FvalueToStringRepr	val_to_string_repr;
 	FvalueStringReprLen	len_string_repr;

@@ -1,6 +1,6 @@
 %{
 /*
- * $Id: scanner.l,v 1.7 2002/04/29 07:55:32 guy Exp $
+ * $Id: scanner.l,v 1.8 2003/07/25 03:44:01 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -46,12 +46,15 @@ static int set_lval(int token, gpointer data);
 static int set_lval_int(int token, char *s);
 static int simple(int token);
 static gboolean str_to_guint32(char *s, guint32* pint);
+GString* quoted_string = NULL;
+
+#define SCAN_FAILED	0
 
 %}
 
 %x RANGE_INT
 %x RANGE_PUNCT
-
+%x DQUOTE
 
 %%
 
@@ -61,7 +64,6 @@ static gboolean str_to_guint32(char *s, guint32* pint);
 
 "("				return simple(TOKEN_LPAREN);
 ")"				return simple(TOKEN_RPAREN);
-"/"				return simple(TOKEN_SLASH);
 
 "=="				return simple(TOKEN_TEST_EQ);
 "eq"				return simple(TOKEN_TEST_EQ);
@@ -94,6 +96,7 @@ static gboolean str_to_guint32(char *s, guint32* pint);
 	BEGIN(RANGE_PUNCT);
 	return set_lval_int(TOKEN_INTEGER, yytext);
 }
+
 <RANGE_INT>[+-]?0x[[:xdigit:]]+		{
 	BEGIN(RANGE_PUNCT);
 	return set_lval_int(TOKEN_INTEGER, yytext);
@@ -119,12 +122,64 @@ static gboolean str_to_guint32(char *s, guint32* pint);
 	return simple(TOKEN_RBRACKET);
 }
 
+\"					{
+	/* start quote */
+	/* The example of how to scan for strings was taken from
+	the flex 2.5.4 manual, from the section "Start Conditions".
+	See:
+	http://www.gnu.org/manual/flex-2.5.4/html_node/flex_11.html */
 
-\"[^"]*\"				{
-	return set_lval(TOKEN_STRING, g_substrdup(yytext, 1, -2));
+	BEGIN(DQUOTE);
+	g_assert(!quoted_string);
+	quoted_string = g_string_new("");
+}
+
+<DQUOTE>\"				{
+	/* end quote */
+	char *my_string = g_strdup(quoted_string->str);
+	BEGIN(INITIAL);
+	g_string_free(quoted_string, TRUE);
+	quoted_string = NULL;
+	return set_lval(TOKEN_STRING, my_string);
+}
+
+<DQUOTE>\\[0-7]{1,3} {
+	/* octal sequence */
+	unsigned int result;
+	sscanf(yytext + 1, "%o", &result);
+	if (result > 0xff) {
+		g_string_free(quoted_string, TRUE);
+		quoted_string = NULL;
+		dfilter_fail("%s is larger than 255.", yytext);
+		return SCAN_FAILED;
+	}
+	g_string_append_c(quoted_string, result);
+}
+
+<DQUOTE>\\x[[:xdigit:]]{1,2} {
+	/* hex sequence */
+	unsigned int result;
+	sscanf(yytext + 2, "%x", &result);
+	g_string_append_c(quoted_string, result);
 }
 
 
+<DQUOTE>\\.				{
+	/* escaped character */
+	g_string_append_c(quoted_string, yytext[1]);
+}
+
+<DQUOTE>[^\\\"]+			{
+	/* non-escaped string */
+	g_string_append(quoted_string, yytext);
+}
+
+
+
+[-[:alnum:]_\.]+\/[[:digit:]]+  {
+        /* CIDR */
+        return set_lval(TOKEN_UNPARSED, g_strdup(yytext));
+}
 
 [-[:alnum:]_.:]+	{
 	/* Is it a field name? */
@@ -136,14 +191,14 @@ static gboolean str_to_guint32(char *s, guint32* pint);
 		return set_lval(TOKEN_FIELD, hfinfo);
 	}
 	else {
-		/* No, so treat it as a string */
-		return set_lval(TOKEN_STRING, g_strdup(yytext));
+		/* No, so treat it as an unparsed string */
+		return set_lval(TOKEN_UNPARSED, g_strdup(yytext));
 	}
 }
 
 . {
 	/* Default */
-	return set_lval(TOKEN_STRING, g_strdup(yytext));
+	return set_lval(TOKEN_UNPARSED, g_strdup(yytext));
 }
 
 
@@ -160,7 +215,6 @@ simple(int token)
 		case TOKEN_COLON:
 		case TOKEN_COMMA:
 		case TOKEN_HYPHEN:
-		case TOKEN_SLASH:
 		case TOKEN_TEST_EQ:
 		case TOKEN_TEST_NE:
 		case TOKEN_TEST_GT:
@@ -189,6 +243,9 @@ set_lval(int token, gpointer data)
 		case TOKEN_FIELD:
 			type_id = STTYPE_FIELD;
 			break;
+		case TOKEN_UNPARSED:
+			type_id = STTYPE_UNPARSED;
+			break;
 		default:
 			g_assert_not_reached();
 	}
@@ -204,7 +261,7 @@ set_lval_int(int token, char *s)
 	guint32		val;
 
 	if (!str_to_guint32(s, &val)) {
-		return 0;
+		return SCAN_FAILED;
 	}	
 
 	switch (token) {

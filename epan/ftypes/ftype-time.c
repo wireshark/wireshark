@@ -1,5 +1,5 @@
 /*
- * $Id: ftype-time.c,v 1.18 2003/02/08 04:22:37 gram Exp $
+ * $Id: ftype-time.c,v 1.19 2003/07/25 03:44:03 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -167,7 +167,7 @@ get_nsecs(char *startp, int *nsecs)
 }
 
 static gboolean
-relative_val_from_string(fvalue_t *fv, char *s, LogFunc logfunc)
+relative_val_from_unparsed(fvalue_t *fv, char *s, LogFunc logfunc)
 {
 	char    *curptr, *endptr;
 
@@ -307,7 +307,8 @@ ftype_register_time(void)
 		0,
 		time_fvalue_new,
 		NULL,
-		absolute_val_from_string,
+		absolute_val_from_string,	/* val_from_unparsed */
+		absolute_val_from_string,	/* val_from_string */
 		NULL,				/* val_to_string_repr */
 		NULL,				/* len_string_repr */
 
@@ -334,7 +335,8 @@ ftype_register_time(void)
 		0,
 		time_fvalue_new,
 		NULL,
-		relative_val_from_string,
+		relative_val_from_unparsed,	/* val_from_unparsed */
+		NULL,				/* val_from_string */
 		NULL,				/* val_to_string_repr */
 		NULL,				/* len_string_repr */
 

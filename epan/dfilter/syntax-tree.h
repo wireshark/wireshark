@@ -1,5 +1,5 @@
 /*
- * $Id: syntax-tree.h,v 1.4 2002/08/28 20:40:56 jmayer Exp $
+ * $Id: syntax-tree.h,v 1.5 2003/07/25 03:44:01 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -30,6 +30,7 @@
 typedef enum {
 	STTYPE_UNINITIALIZED,
 	STTYPE_TEST,
+	STTYPE_UNPARSED,
 	STTYPE_STRING,
 	STTYPE_FIELD,
 	STTYPE_FVALUE,

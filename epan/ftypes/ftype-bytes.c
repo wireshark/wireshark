@@ -1,5 +1,5 @@
 /*
- * $Id: ftype-bytes.c,v 1.15 2003/06/11 21:24:53 gram Exp $
+ * $Id: ftype-bytes.c,v 1.16 2003/07/25 03:44:02 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -129,7 +129,7 @@ is_byte_sep(guint8 c)
 }
 
 static gboolean
-val_from_string(fvalue_t *fv, char *s, LogFunc logfunc)
+val_from_unparsed(fvalue_t *fv, char *s, LogFunc logfunc)
 {
 	GByteArray	*bytes;
 	guint8		val;
@@ -226,7 +226,7 @@ val_from_string(fvalue_t *fv, char *s, LogFunc logfunc)
 }
 
 static gboolean
-ether_from_string(fvalue_t *fv, char *s, LogFunc logfunc)
+ether_from_unparsed(fvalue_t *fv, char *s, LogFunc logfunc)
 {
 	guint8	*mac;
 
@@ -235,7 +235,7 @@ ether_from_string(fvalue_t *fv, char *s, LogFunc logfunc)
 	 * up as an Ethernet host name if it does, and if that fails,
 	 * we'll log a message.
 	 */
-	if (val_from_string(fv, s, NULL)) {
+	if (val_from_unparsed(fv, s, NULL)) {
 		return TRUE;
 	}
 
@@ -251,7 +251,7 @@ ether_from_string(fvalue_t *fv, char *s, LogFunc logfunc)
 }
 
 static gboolean
-ipv6_from_string(fvalue_t *fv, char *s, LogFunc logfunc)
+ipv6_from_unparsed(fvalue_t *fv, char *s, LogFunc logfunc)
 {
 	guint8	buffer[16];
 
@@ -265,7 +265,7 @@ ipv6_from_string(fvalue_t *fv, char *s, LogFunc logfunc)
 }
 
 static gboolean
-u64_from_string(fvalue_t *fv, char *s, LogFunc logfunc)
+u64_from_unparsed(fvalue_t *fv, char *s, LogFunc logfunc)
 {
 	guint8	buffer[8];
 
@@ -279,7 +279,7 @@ u64_from_string(fvalue_t *fv, char *s, LogFunc logfunc)
 }
 
 static gboolean
-i64_from_string(fvalue_t *fv, char *s, LogFunc logfunc)
+i64_from_unparsed(fvalue_t *fv, char *s, LogFunc logfunc)
 {
 	guint8	buffer[8];
 
@@ -587,7 +587,8 @@ ftype_register_bytes(void)
 		0,				/* wire_size */
 		bytes_fvalue_new,		/* new_value */
 		bytes_fvalue_free,		/* free_value */
-		val_from_string,		/* val_from_string */
+		val_from_unparsed,		/* val_from_unparsed */
+		NULL,				/* val_from_string */
 		bytes_to_repr,			/* val_to_string_repr */
 		bytes_repr_len,			/* len_string_repr */
 
@@ -616,7 +617,8 @@ ftype_register_bytes(void)
 		0,				/* wire_size */
 		bytes_fvalue_new,		/* new_value */
 		bytes_fvalue_free,		/* free_value */
-		val_from_string,		/* val_from_string */
+		val_from_unparsed,		/* val_from_unparsed */
+		NULL,				/* val_from_string */
 		bytes_to_repr,			/* val_to_string_repr */
 		bytes_repr_len,			/* len_string_repr */
 
@@ -645,7 +647,8 @@ ftype_register_bytes(void)
 		ETHER_LEN,			/* wire_size */
 		bytes_fvalue_new,		/* new_value */
 		bytes_fvalue_free,		/* free_value */
-		ether_from_string,		/* val_from_string */
+		ether_from_unparsed,		/* val_from_unparsed */
+		NULL,				/* val_from_string */
 		bytes_to_repr,			/* val_to_string_repr */
 		bytes_repr_len,			/* len_string_repr */
 
@@ -674,7 +677,8 @@ ftype_register_bytes(void)
 		IPv6_LEN,			/* wire_size */
 		bytes_fvalue_new,		/* new_value */
 		bytes_fvalue_free,		/* free_value */
-		ipv6_from_string,		/* val_from_string */
+		ipv6_from_unparsed,		/* val_from_unparsed */
+		NULL,				/* val_from_string */
 		NULL,				/* val_to_string_repr */
 		NULL,				/* len_string_repr */
 
@@ -703,7 +707,8 @@ ftype_register_bytes(void)
 		U64_LEN,			/* wire_size */
 		bytes_fvalue_new,		/* new_value */
 		bytes_fvalue_free,		/* free_value */
-		u64_from_string,		/* val_from_string */
+		u64_from_unparsed,		/* val_from_unparsed */
+		NULL,				/* val_from_string */
 		NULL,				/* val_to_string_repr */
 		NULL,				/* len_string_repr */
 
@@ -732,7 +737,8 @@ ftype_register_bytes(void)
 		U64_LEN,			/* wire_size */
 		bytes_fvalue_new,		/* new_value */
 		bytes_fvalue_free,		/* free_value */
-		i64_from_string,		/* val_from_string */
+		i64_from_unparsed,		/* val_from_unparsed */
+		NULL,				/* val_from_string */
 		NULL,				/* val_to_string_repr */
 		NULL,				/* len_string_repr */
 

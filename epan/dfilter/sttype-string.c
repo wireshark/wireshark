@@ -1,5 +1,5 @@
 /*
- * $Id: sttype-string.c,v 1.3 2002/08/28 20:40:56 jmayer Exp $
+ * $Id: sttype-string.c,v 1.4 2003/07/25 03:44:01 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -46,5 +46,13 @@ sttype_register_string(void)
 		string_free,
 	};
 
+	static sttype_t unparsed_type = {
+		STTYPE_UNPARSED,
+		"UNPARSED",
+		string_new,
+		string_free,
+	};
+
 	sttype_register(&string_type);
+	sttype_register(&unparsed_type);
 }

@@ -1,5 +1,5 @@
 /*
- * $Id: ftype-string.c,v 1.9 2003/06/11 21:24:53 gram Exp $
+ * $Id: ftype-string.c,v 1.10 2003/07/25 03:44:03 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -154,6 +154,7 @@ ftype_register_string(void)
 		0,				/* wire_size */
 		string_fvalue_new,		/* new_value */
 		string_fvalue_free,		/* free_value */
+		val_from_string,		/* val_from_unparsed */
 		val_from_string,		/* val_from_string */
 		string_to_repr,			/* val_to_string_repr */
 		string_repr_len,		/* len_string_repr */
@@ -182,7 +183,8 @@ ftype_register_string(void)
 		0,
 		string_fvalue_new,
 		string_fvalue_free,
-		val_from_string,
+		val_from_string,		/* val_from_unparsed */
+		val_from_string,		/* val_from_string */
 		NULL,				/* val_to_string_repr */
 		NULL,				/* len_string_repr */
 
@@ -210,7 +212,8 @@ ftype_register_string(void)
 		0,
 		string_fvalue_new,
 		string_fvalue_free,
-		val_from_string,
+		val_from_string,		/* val_from_unparsed */
+		val_from_string,		/* val_from_string */
 		NULL,				/* val_to_string_repr */
 		NULL,				/* len_string_repr */
 

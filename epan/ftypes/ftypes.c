@@ -1,5 +1,5 @@
 /*
- * $Id: ftypes.c,v 1.9 2003/06/11 21:24:54 gram Exp $
+ * $Id: ftypes.c,v 1.10 2003/07/25 03:44:03 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -235,7 +235,24 @@ fvalue_free(fvalue_t *fv)
 	g_mem_chunk_free(gmc_fvalue, fv);
 }
 
+fvalue_t*
+fvalue_from_unparsed(ftenum_t ftype, char *s, LogFunc logfunc)
+{
+	fvalue_t	*fv;
 
+	fv = fvalue_new(ftype);
+	if (fv->ftype->val_from_unparsed) {
+		if (fv->ftype->val_from_unparsed(fv, s, logfunc)) {
+			return fv;
+		}
+	}
+	else {
+		logfunc("\"%s\" cannot be converted to %s.",
+				s, ftype_pretty_name(ftype));
+	}
+	fvalue_free(fv);
+	return NULL;
+}
 
 fvalue_t*
 fvalue_from_string(ftenum_t ftype, char *s, LogFunc logfunc)
