@@ -3,7 +3,7 @@
  * By Steve Limkemann <stevelim@dgtech.com>
  * Copyright 1998 Steve Limkemann
  *
- * $Id: packet-gryphon.c,v 1.44 2004/01/05 19:27:50 ulfl Exp $
+ * $Id: packet-gryphon.c,v 1.45 2004/01/24 02:07:05 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -912,7 +912,7 @@ resp_time(tvbuff_t *tvb, int offset, proto_tree *pt)
 	guint64			lnglng;
     } ts;
     time_t          timestamp;
-    unsigned char   date[45];
+    char   date[45];
 
     /* XXX This code is neither Endianess independent, nor will it work
      * on platforms that do not support the *optional* guin64 type
@@ -938,7 +938,7 @@ cmd_setfilt(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
     int     	    flag = tvb_get_ntohl(tvb, offset);
     int     	    length, padding;
-    unsigned char   mode[30];
+    char   mode[30];
 
     length =  tvb_get_guint8(tvb, offset+4) + tvb_get_guint8(tvb, offset+5)
 	+ tvb_get_ntohs(tvb, offset+6);
@@ -1745,7 +1745,7 @@ resp_list(tvbuff_t *tvb, int offset, proto_tree *pt)
 static int
 cmd_start(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
-    char	    *string;
+    guint8	    *string;
     gint	    length;
     int             msglen;
     int             hdr_stuff = offset;
@@ -1816,7 +1816,7 @@ cmd_options(tvbuff_t *tvb, int offset, proto_tree *pt)
     proto_item	    *item;
     proto_tree	    *tree;
     unsigned int    i, size, padding, option, option_length, option_value;
-    unsigned char   *string, *string1;
+    char	    *string, *string1;
 
     msglen = tvb_reported_length_remaining(tvb, offset);
     item = proto_tree_add_text(pt, tvb, offset, 1, "Handle: %u",
@@ -1884,7 +1884,7 @@ static int
 cmd_files(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
     int	    msglen;
-    guchar  *which;
+    gchar  *which;
 
     msglen = tvb_reported_length_remaining(tvb, offset);
     if (tvb_get_guint8(tvb, offset) == 0)
@@ -1903,7 +1903,7 @@ static int
 resp_files(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
     int		msglen;
-    guchar  	*flag;
+    gchar  	*flag;
 
     msglen = tvb_reported_length_remaining(tvb, offset);
     flag = tvb_get_guint8(tvb, offset) ? "Yes": "No";
@@ -1917,23 +1917,23 @@ static int
 cmd_usdt(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
     int     ids, id, remain, size, i, j, bytes;
-    guchar  *desc;
+    gchar  *desc;
     guint8  flags;
     proto_tree	    *localTree;
     proto_item	    *localItem;
-    guchar  *actions[] = {"Use 11 bit headers only",
+    gchar  *actions[] = {"Use 11 bit headers only",
                           "Use 29 bit headers only",
                           "Use both 11 & 29 bit headers",
                           "undefined"};
-    guchar *xmit_opts[] = {"Pad messages with less than 8 data bytes with 0x00's",
+    gchar *xmit_opts[] = {"Pad messages with less than 8 data bytes with 0x00's",
                            "Pad messages with less than 8 data bytes with 0xFF's",
                            "Do not pad messages with less than 8 data bytes",
                            "undefined"};
-    guchar *recv_opts[] = {"Do not verify the integrity of long received messages and do not send them to the client",
+    gchar *recv_opts[] = {"Do not verify the integrity of long received messages and do not send them to the client",
                            "Verify the integrity of long received messages and send them to the client",
                            "Verify the integrity of long received messages but do not send them to the client",
                            "undefined"};
-    guchar *block_desc[] = {"USDT request", "USDT response", "UUDT response"};
+    gchar *block_desc[] = {"USDT request", "USDT response", "UUDT response"};
 
     flags = tvb_get_guint8(tvb, offset);
     if (flags & 1)
