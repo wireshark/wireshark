@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.111 2003/11/27 20:34:01 ulfl Exp $
+ * $Id: menu.c,v 1.112 2003/11/28 19:13:25 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -131,34 +131,57 @@ static GtkItemFactoryEntry menu_items[] =
                              0, GTK_STOCK_PASTE),
     ITEM_FACTORY_ENTRY("/Edit/<separator>", NULL, NULL, 0, "<Separator>"),
 #endif
-    ITEM_FACTORY_STOCK_ENTRY("/Edit/_Find Frame...", "<control>F",
+    ITEM_FACTORY_STOCK_ENTRY("/Edit/_Find Packet...", "<control>F",
                              find_frame_cb, 0, GTK_STOCK_FIND),
     ITEM_FACTORY_STOCK_ENTRY("/Edit/Find Ne_xt", "<control>N", find_next_cb,
                              0, GTK_STOCK_GO_FORWARD),
     ITEM_FACTORY_STOCK_ENTRY("/Edit/Find Pre_vious", "<control>B",
                              find_previous_cb, 0, GTK_STOCK_GO_BACK),
     ITEM_FACTORY_ENTRY("/Edit/<separator>", NULL, NULL, 0, "<Separator>", NULL),
-    ITEM_FACTORY_STOCK_ENTRY("/Edit/_Go To Frame...", "<control>G",
+    ITEM_FACTORY_STOCK_ENTRY("/Edit/_Go To Packet...", "<control>G",
                              goto_frame_cb, 0, GTK_STOCK_JUMP_TO),
-    ITEM_FACTORY_ENTRY("/Edit/Go To _Corresponding Frame", NULL, goto_framenum_cb,
+    ITEM_FACTORY_ENTRY("/Edit/Go To _Corresponding Packet", NULL, goto_framenum_cb,
                        0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Edit/<separator>", NULL, NULL, 0, "<Separator>", NULL),
     ITEM_FACTORY_ENTRY("/Edit/Time _Reference", NULL, NULL, 0, "<Branch>", NULL),
     ITEM_FACTORY_ENTRY("/Edit/Time Reference/Set Time Reference (toggle)", "<control>T", reftime_frame_cb, 0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Edit/Time Reference/Find Next", NULL, reftime_frame_cb, 1, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Edit/Time Reference/Find Previous", NULL, reftime_frame_cb, 2, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Edit/_Mark Frame", "<control>M", mark_frame_cb,
+    ITEM_FACTORY_ENTRY("/Edit/_Mark Packet", "<control>M", mark_frame_cb,
                        0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Edit/Mark _All Frames", NULL, mark_all_frames_cb,
+    ITEM_FACTORY_ENTRY("/Edit/Mark _All Packets", NULL, mark_all_frames_cb,
                        0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Edit/_Unmark All Frames", NULL, unmark_all_frames_cb,
+    ITEM_FACTORY_ENTRY("/Edit/_Unmark All Packets", NULL, unmark_all_frames_cb,
                        0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Edit/<separator>", NULL, NULL, 0, "<Separator>", NULL),
     ITEM_FACTORY_STOCK_ENTRY("/Edit/_Preferences...", "<shift><control>P", prefs_cb,
                              0, GTK_STOCK_PREFERENCES),
     ITEM_FACTORY_ENTRY("/_View", NULL, NULL, 0, "<Branch>", NULL),
+#if 0
+	/* XXX: the show/hide functionality of the GUI elements is currently not implemented */
+    ITEM_FACTORY_ENTRY("/View/_Show", NULL, NULL, 0, "<Branch>", NULL),
+    ITEM_FACTORY_ENTRY("/View/_Show/Main Toolbar", NULL, NULL, 0, "<CheckItem>", NULL),
+    ITEM_FACTORY_ENTRY("/View/_Show/Filter Toolbar", NULL, NULL, 0, "<CheckItem>", NULL),
+    ITEM_FACTORY_ENTRY("/View/_Show/Status Bar", NULL, NULL, 0, "<CheckItem>", NULL),
+    ITEM_FACTORY_ENTRY("/View/_Show/Packet List", NULL, NULL, 0, "<CheckItem>", NULL),
+    ITEM_FACTORY_ENTRY("/View/_Show/Packet Dissection", NULL, NULL, 0, "<CheckItem>", NULL),
+    ITEM_FACTORY_ENTRY("/View/_Show/Packet Data", NULL, NULL, 0, "<CheckItem>", NULL),
+	/* XXX: the settings in the "Options" dialog could be seperated into the following menu items. */
+	/* before this, some effort must be taken to transfer the functionality of this dialog to the menu items */
+	/* (getting the current values, handling the radioitems, ...) */
+    ITEM_FACTORY_ENTRY("/View/_Time Display Format", NULL, NULL, 0, "<Branch>", NULL),
+    ITEM_FACTORY_ENTRY("/View/_Time Display Format/Time of day", NULL, NULL, 0, "<RadioItem>", NULL),
+    ITEM_FACTORY_ENTRY("/View/_Time Display Format/Date and time of day", NULL, NULL, 0, "<RadioItem>", NULL),
+    ITEM_FACTORY_ENTRY("/View/_Time Display Format/Seconds since beginning of capture", NULL, NULL, 0, "<RadioItem>", NULL),
+    ITEM_FACTORY_ENTRY("/View/_Time Display Format/Seconds since previous capture", NULL, NULL, 0, "<RadioItem>", NULL),
+    ITEM_FACTORY_ENTRY("/View/_Name Resolution", NULL, NULL, 0, "<Branch>", NULL),
+    ITEM_FACTORY_ENTRY("/View/_Name Resolution/Enable MAC", NULL, NULL, 0, "<CheckItem>", NULL),
+    ITEM_FACTORY_ENTRY("/View/_Name Resolution/Enable Network", NULL, NULL, 0, "<CheckItem>", NULL),
+    ITEM_FACTORY_ENTRY("/View/_Name Resolution/Enable Transport", NULL, NULL, 0, "<CheckItem>", NULL),
+#else
     ITEM_FACTORY_ENTRY("/View/_Options...", NULL, display_opt_cb,
                        0, NULL, NULL),
+#endif
     ITEM_FACTORY_ENTRY("/View/<separator>", NULL, NULL, 0, "<Separator>", NULL),
     ITEM_FACTORY_ENTRY("/View/Collapse _All", NULL, collapse_all_cb,
                        0, NULL, NULL),
@@ -167,12 +190,6 @@ static GtkItemFactoryEntry menu_items[] =
     ITEM_FACTORY_ENTRY("/View/<separator>", NULL, NULL, 0, "<Separator>", NULL),
     ITEM_FACTORY_STOCK_ENTRY("/View/_Coloring Rules...", NULL, color_display_cb,
                        0, GTK_STOCK_SELECT_COLOR),
-    ITEM_FACTORY_ENTRY("/View/<separator>", NULL, NULL, 0, "<Separator>", NULL),
-    ITEM_FACTORY_ENTRY("/View/Enabled _Protocols...", "<shift><control>R", proto_cb, 0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/View/_Decode As...", NULL, decode_as_cb,
-                       0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/View/_User Specified Decodes...", NULL,
-                       decode_show_cb, 0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/View/<separator>", NULL, NULL, 0, "<Separator>", NULL),
     ITEM_FACTORY_ENTRY("/View/_Show Packet In New Window", NULL,
                        new_window_cb, 0, NULL, NULL),
@@ -222,6 +239,12 @@ static GtkItemFactoryEntry menu_items[] =
     ITEM_FACTORY_ENTRY("/Analyze/Prepare/O_r Not Selected", NULL,
                        prepare_selected_cb_or_ptree_not, 0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Analyze/<separator>", NULL, NULL, 0, "<Separator>", NULL),
+    ITEM_FACTORY_ENTRY("/Analyze/_Enabled Protocols...", "<shift><control>R", proto_cb, 0, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/Analyze/Decode _As...", NULL, decode_as_cb,
+                       0, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/Analyze/_User Specified Decodes", NULL,
+                       decode_show_cb, 0, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/Analyze/<separator>", NULL, NULL, 0, "<Separator>", NULL),
     ITEM_FACTORY_ENTRY("/Analyze/_Follow TCP Stream", NULL, follow_stream_cb,
                        0, NULL, NULL),
 /*  {"/Analyze/Graph", NULL, NULL, 0, NULL}, future use */
@@ -235,6 +258,7 @@ static GtkItemFactoryEntry menu_items[] =
                        tcp_graph_cb, 2, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Analyze/TCP Stream Analysis/RTT Graph", NULL,
                        tcp_graph_cb, 3, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/Analyze/<separator>", NULL, NULL, 0, "<Separator>", NULL),
     ITEM_FACTORY_ENTRY("/Analyze/_Summary", NULL, summary_open_cb, 0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Analyze/Protocol _Hierarchy Statistics", NULL,
                        proto_hier_stats_cb, 0, NULL, NULL),
@@ -263,7 +287,7 @@ static GtkItemFactoryEntry packet_list_menu_items[] =
     ITEM_FACTORY_ENTRY("/Display Filters...", NULL, dfilter_dialog_cb,
                        0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/<separator>", NULL, NULL, 0, "<Separator>", NULL),
-    ITEM_FACTORY_ENTRY("/Mark Frame", NULL, mark_frame_cb, 0, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/Mark Packet", NULL, mark_frame_cb, 0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Time Reference", NULL, NULL, 0, "<Branch>", NULL),
     ITEM_FACTORY_ENTRY("/Time Reference/Set Time Reference (toggle)", NULL, reftime_frame_cb, 0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Time Reference/Find Next", NULL, reftime_frame_cb, 1, NULL, NULL),
@@ -313,7 +337,7 @@ static GtkItemFactoryEntry tree_view_menu_items[] =
                        0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/<separator>", NULL, NULL, 0, "<Separator>", NULL),
     ITEM_FACTORY_ENTRY("/_Resolve Name", NULL, resolve_name_cb, 0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/_Go To Corresponding Frame", NULL, goto_framenum_cb, 0, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/_Go To Corresponding Packet", NULL, goto_framenum_cb, 0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Protocol Properties...", NULL, properties_cb,
                        0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Match", NULL, NULL, 0, "<Branch>", NULL),
@@ -818,13 +842,13 @@ set_menus_for_captured_packets(gboolean have_captured_packets)
       have_captured_packets);
   set_menu_sensitivity(packet_list_menu_factory, "/Print...",
       have_captured_packets);
-  set_menu_sensitivity(main_menu_factory, "/Edit/Find Frame...",
+  set_menu_sensitivity(main_menu_factory, "/Edit/Find Packet...",
       have_captured_packets);
   set_menu_sensitivity(main_menu_factory, "/Edit/Find Next",
       have_captured_packets);
   set_menu_sensitivity(main_menu_factory, "/Edit/Find Previous",
       have_captured_packets);
-  set_menu_sensitivity(main_menu_factory, "/Edit/Go To Frame...",
+  set_menu_sensitivity(main_menu_factory, "/Edit/Go To Packet...",
       have_captured_packets);
   set_menu_sensitivity(main_menu_factory, "/View/Coloring Rules...",
       have_captured_packets);
@@ -907,15 +931,15 @@ set_menus_for_selected_packet(capture_file *cf)
       cf->current_frame != NULL);
   set_menu_sensitivity(packet_list_menu_factory, "/Print Packet",
       cf->current_frame != NULL);
-  set_menu_sensitivity(main_menu_factory, "/Edit/Mark Frame",
+  set_menu_sensitivity(main_menu_factory, "/Edit/Mark Packet",
       cf->current_frame != NULL);
   set_menu_sensitivity(main_menu_factory, "/Edit/Time Reference",
       cf->current_frame != NULL);
-  set_menu_sensitivity(packet_list_menu_factory, "/Mark Frame",
+  set_menu_sensitivity(packet_list_menu_factory, "/Mark Packet",
       cf->current_frame != NULL);
-  set_menu_sensitivity(main_menu_factory, "/Edit/Mark All Frames",
+  set_menu_sensitivity(main_menu_factory, "/Edit/Mark All Packets",
       cf->current_frame != NULL);
-  set_menu_sensitivity(main_menu_factory, "/Edit/Unmark All Frames",
+  set_menu_sensitivity(main_menu_factory, "/Edit/Unmark All Packets",
       cf->current_frame != NULL);
   set_menu_sensitivity(main_menu_factory, "/View/Collapse All",
       cf->current_frame != NULL);
@@ -933,7 +957,7 @@ set_menus_for_selected_packet(capture_file *cf)
       cf->current_frame != NULL ? (cf->edt->pi.ipproto == IP_PROTO_TCP) : FALSE);
   set_menu_sensitivity(NULL, "/Follow TCP Stream",
       cf->current_frame != NULL ? (cf->edt->pi.ipproto == IP_PROTO_TCP) : FALSE);
-  set_menu_sensitivity(main_menu_factory, "/View/Decode As...",
+  set_menu_sensitivity(main_menu_factory, "/Analyze/Decode As...",
       cf->current_frame != NULL && decode_as_ok());
   set_menu_sensitivity(NULL, "/Decode As...",
       cf->current_frame != NULL && decode_as_ok());
@@ -1014,9 +1038,9 @@ set_menus_for_selected_tree_row(capture_file *cf)
 	  properties = prefs_is_registered_protocol(proto_registrar_get_abbrev(hfinfo->parent));
 	}
 	set_menu_sensitivity(main_menu_factory,
-	  "/Edit/Go To Corresponding Frame", hfinfo->type == FT_FRAMENUM);
+	  "/Edit/Go To Corresponding Packet", hfinfo->type == FT_FRAMENUM);
 	set_menu_sensitivity(tree_view_menu_factory,
-	  "/Go To Corresponding Frame", hfinfo->type == FT_FRAMENUM);
+	  "/Go To Corresponding Packet", hfinfo->type == FT_FRAMENUM);
 	set_menu_sensitivity(main_menu_factory, "/Analyze/Match",
 	  proto_can_match_selected(cf->finfo_selected, cf->edt));
 	set_menu_sensitivity(tree_view_menu_factory, "/Match",
@@ -1029,9 +1053,9 @@ set_menus_for_selected_tree_row(capture_file *cf)
 	  properties);
   } else {
 	set_menu_sensitivity(main_menu_factory,
-	    "/Edit/Go To Corresponding Frame", FALSE);
+	    "/Edit/Go To Corresponding Packet", FALSE);
 	set_menu_sensitivity(tree_view_menu_factory,
-	    "/Go To Corresponding Frame", FALSE);
+	    "/Go To Corresponding Packet", FALSE);
 	set_menu_sensitivity(main_menu_factory, "/Analyze/Match", FALSE);
 	set_menu_sensitivity(tree_view_menu_factory, "/Match", FALSE);
 	set_menu_sensitivity(main_menu_factory, "/Analyze/Prepare", FALSE);
