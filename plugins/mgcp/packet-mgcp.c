@@ -2,7 +2,7 @@
  * Routines for mgcp packet disassembly
  * RFC 2705
  *
- * $Id: packet-mgcp.c,v 1.5 2000/11/15 07:07:52 guy Exp $
+ * $Id: packet-mgcp.c,v 1.6 2000/11/21 05:38:51 guy Exp $
  * 
  * Copyright (c) 2000 by Ed Warnicke <hagbard@physics.rutgers.edu>
  *
@@ -174,9 +174,9 @@ static void mgcp_raw_text_add(tvbuff_t *tvb, packet_info *pinfo,
  * Some functions which should be moved to a library 
  * as I think that people may find them of general usefulness. 
  */
-static int tvb_crlf_strip(tvbuff_t *tvb, gint offset, gint maxlength);
 static gint tvb_skip_wsp(tvbuff_t* tvb, gint offset, gint maxlength);
-static gint tvb_find_null_line(tvbuff_t* tvb, gint offset, gint maxlength); 
+static gint tvb_find_null_line(tvbuff_t* tvb, gint offset, gint len,
+			       gint* next_offset); 
 static gint tvb_section_length(tvbuff_t* tvb, gint tvb_sectionbegin, 
 			       gint tvb_sectionend);
 static gboolean is_rfc2234_alpha(guint8 c);
@@ -199,7 +199,7 @@ dissect_mgcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   pinfo->current_proto = "MGCP";
 
-  /* Initialize some "where are we now" stuff */
+  /* Initialize variables */
   
   tvb_sectionend = 0;
   tvb_sectionbegin = tvb_sectionend;
@@ -209,7 +209,8 @@ dissect_mgcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   
   /* 
    * Check to see whether we're really dealing with MGCP by looking 
-   * for a valid MGCP verb or response code.
+   * for a valid MGCP verb or response code.  This isn't infallible,
+   * but its cheap and its better than nothing.
    */
   if(is_mgcp_verb(tvb,0,tvb_len) || is_mgcp_rspcode(tvb,0,tvb_len)){
 
@@ -224,56 +225,41 @@ dissect_mgcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       tvb_sectionbegin = 0;
       tvb_current_len = tvb_len;
       tvb_sectionend = tvb_sectionbegin;
-      if( ( tvb_sectionend = tvb_find_guint8(tvb,tvb_sectionbegin,
-					   tvb_current_len, '\n')) != -1){
-	tvb_current_len = tvb_length_remaining(tvb,tvb_sectionbegin);
-	sectionlen = tvb_section_length(tvb,tvb_sectionbegin,tvb_sectionend);
+      sectionlen = tvb_find_line_end(tvb,0,-1,&tvb_sectionend);
+      if( tvb_sectionend < tvb_len ){
 	dissect_mgcp_firstline(tvb_new_subset(tvb, tvb_sectionbegin,
-					      sectionlen,-1)
-			       , pinfo, mgcp_tree);
+					      sectionlen,-1), 
+			       pinfo, mgcp_tree);
       }
+      tvb_sectionbegin = tvb_sectionend;
+
       /* dissect params */
-      tvb_sectionbegin = tvb_sectionend +1;
-      tvb_current_len = tvb_length_remaining(tvb,tvb_sectionbegin);
-      if( (tvb_sectionend = tvb_find_null_line(tvb, tvb_sectionbegin, 
-					       tvb_current_len)) != -1){
-	tvb_sectionend--;
-	sectionlen = tvb_section_length(tvb,tvb_sectionbegin,tvb_sectionend);
-	dissect_mgcp_params(tvb_new_subset(tvb,tvb_sectionbegin, 
+      if(tvb_sectionbegin < tvb_len){
+	sectionlen = tvb_find_null_line(tvb, tvb_sectionbegin, -1,
+					&tvb_sectionend);
+	dissect_mgcp_params(tvb_new_subset(tvb, tvb_sectionbegin, 
 					   sectionlen, -1),
 			    pinfo, mgcp_tree);
-	tvb_sectionbegin = tvb_sectionend  + 1;
+	tvb_sectionbegin = tvb_sectionend;
+      }
 	
-	/* set the mgcp payload length correctly so we don't include the 
-	 * encapsulated SDP
-	 */
-	sectionlen = tvb_section_length(tvb,0,tvb_sectionend);
-	proto_item_set_len(ti,sectionlen);
-      }
-      else { 
-	/* If somehow we didn't manage to find a null line, then assume 
-	 * we've lost the end of the message and count everything 
-	 * we do have as part of the body
-	 */
-	tvb_sectionend = tvb_len -1;
-      }
+      /* set the mgcp payload length correctly so we don't include the 
+       * encapsulated SDP
+       */
+      sectionlen = tvb_sectionend;
+      proto_item_set_len(ti,sectionlen);
 
       /* Display the raw text of the mgcp message if desired */
 
       /* Do we want to display the raw text of our MGCP packet? */
       if(global_mgcp_raw_text){
-	sectionlen = tvb_section_length(tvb,0,tvb_sectionend);
 	mgcp_raw_text_add(tvb_new_subset(tvb,0,sectionlen,-1),pinfo, 
 			  mgcp_tree);
       }
 
       /* dissect sdp payload */
-      tvb_current_len = tvb_length_remaining(tvb,tvb_sectionbegin);
-      if( ( tvb_sectionbegin = tvb_find_guint8(tvb,tvb_sectionbegin,
-					       tvb_current_len,'\n')) != -1){
-	tvb_sectionbegin++;
-	next_tvb = tvb_new_subset(tvb, tvb_sectionbegin, -1, -1);
-	
+      if( tvb_sectionend < tvb_len ){ 
+	next_tvb = tvb_new_subset(tvb, tvb_sectionend, -1, -1);       
 	call_dissector(sdp_handle, next_tvb, pinfo, tree);
       }
     }
@@ -282,14 +268,11 @@ dissect_mgcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      * in order to prevent the column info changing to reflect the SDP.
      */
     tvb_sectionbegin = 0;
-    tvb_current_len = tvb_len;
     if (check_col(pinfo->fd, COL_PROTOCOL))
       col_add_str(pinfo->fd, COL_PROTOCOL, "MGCP");
-    if (check_col(pinfo->fd, COL_INFO) && 
-	((tvb_sectionend = tvb_find_guint8(tvb,tvb_sectionbegin,
-					   tvb_current_len, '\n')) != -1)){
-      sectionlen = tvb_section_length(tvb,tvb_sectionbegin,tvb_sectionend);
-      sectionlen = tvb_crlf_strip(tvb,tvb_sectionbegin,sectionlen);
+    if (check_col(pinfo->fd, COL_INFO) ){
+      sectionlen = tvb_find_line_end(tvb, tvb_sectionbegin,-1,
+				     &tvb_sectionend);
       col_add_fstr(pinfo->fd,COL_INFO, "%s", 
 		   tvb_format_text(tvb,tvb_sectionbegin,sectionlen));
     } 
@@ -298,29 +281,36 @@ dissect_mgcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 /* 
  * Add the raw text of the message to the dissect tree if appropriate 
- * preferences are specified.
+ * preferences are specified.  The args and returns follow the general 
+ * convention for proto dissectors (although this is NOT a proto dissector).
  */
 
 static void mgcp_raw_text_add(tvbuff_t *tvb, packet_info *pinfo, 
 			      proto_tree *tree){
 
-  gint tvb_linebegin,tvb_lineend,tvb_current_len,sectionlen;
+  gint tvb_linebegin,tvb_lineend,tvb_len,linelen;
 
   tvb_linebegin = 0;
-  tvb_current_len = tvb_length(tvb);
-  while((tvb_lineend = tvb_find_guint8(tvb,tvb_linebegin,
-					  tvb_current_len, '\n')) != -1){
-    sectionlen = tvb_section_length(tvb,tvb_linebegin,tvb_lineend);
-    proto_tree_add_text(tree, tvb, tvb_linebegin, sectionlen, 
-			"%s", tvb_format_text(tvb,tvb_linebegin, 
-					      sectionlen));
-    tvb_linebegin = tvb_lineend + 1;
-    tvb_current_len = tvb_length_remaining(tvb,tvb_linebegin);
+  tvb_len = tvb_length(tvb);
+
+  linelen = tvb_find_line_end(tvb,tvb_linebegin,-1,&tvb_lineend);
+  if(tvb_lineend < tvb_len){
+    linelen = tvb_lineend - tvb_linebegin;
   }
-  if(tvb_linebegin < tvb_length(tvb)){
-    proto_tree_add_text(tree, tvb, tvb_linebegin, tvb_current_len, 
+  
+  while(tvb_lineend < tvb_len){
+    proto_tree_add_text(tree, tvb, tvb_linebegin, linelen, 
 			"%s", tvb_format_text(tvb,tvb_linebegin, 
-					      tvb_current_len));
+					      linelen));
+    tvb_linebegin = tvb_lineend;
+    tvb_find_line_end(tvb,tvb_linebegin,-1,&tvb_lineend);
+    linelen = tvb_lineend - tvb_linebegin;
+  }
+  if(tvb_linebegin < tvb_len){
+    linelen = tvb_len - tvb_linebegin;
+    proto_tree_add_text(tree, tvb, tvb_linebegin, linelen, 
+			"%s", tvb_format_text(tvb,tvb_linebegin, 
+					      linelen));
   }
 }
 
@@ -598,38 +588,6 @@ static gboolean is_mgcp_rspcode(tvbuff_t *tvb, gint offset, gint maxlength){
 }
 
 /*
- * tvb_crlf_strip - Subtracts from maxlength necessary to have maxlength
- *                  to be the distance from offset to the first character
- *                  before a CR or LF.  The function assumes that the 
- *                  maxlength is the distance from offset to the end of 
- *                  the line and will scan back (decrementing maxlength)
- *                  until it encounters a non ( CR or LF ) character.
- *
- * Parameters:
- * tvb - The tvbuff in which we are scanning for the first instance of CR 
- *       or LF.
- * offset - The offset in tvb at which we begin looking for a CR or LF.
- * maxlength - The distance from offset to the end of the line in tvb.
- *
- * Return: The distance in tvb from offset to the character immediately 
- *         before the first instance of CR or LF.
- *         The utility of this is that if you have a line this gives you 
- *         the length of that line sans the CRLF at the end thus effectively
- *         stripping the CRLF off the end.
- */
-static gint tvb_crlf_strip(tvbuff_t *tvb, gint offset, gint maxlength){
-  gint returnvalue;
-  guint8 tempchar;
-
-  for(returnvalue = maxlength-1; 
-      ( (returnvalue >= 0 ) && (
-	((tempchar = tvb_get_guint8(tvb,offset + returnvalue) ) == '\r')  ||
-	(tempchar == '\n')));
-      returnvalue--);
-  return ( returnvalue + 1);
-}      
-
-/*
  * is_rfc2234_alpha - Indicates whether the character c is an alphabetical 
  *                    character.  This function is used instead of 
  *                    isalpha because isalpha may deviate from the rfc2234
@@ -892,15 +850,9 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb,
 				tvb_format_text(tvb, tvb_previous_offset,
 						tokenlen));
 	}
-	else if( (mgcp_type == MGCP_RESPONSE) &&
-		 (tvb_current_offset = tvb_find_guint8(tvb,tvb_previous_offset,
-						       tvb_current_len, '\n'))
-		 != -1){
-	  /* Is the following line used ?*/
-	  tvb_current_len = tvb_length_remaining(tvb,tvb_current_offset);
-	  tokenlen = tvb_section_length(tvb, tvb_previous_offset, 
-					tvb_current_offset);
-	  tokenlen = tvb_crlf_strip(tvb,tvb_previous_offset,tokenlen);
+	else if(mgcp_type == MGCP_RESPONSE){
+	  tokenlen = tvb_find_line_end(tvb, tvb_previous_offset, 
+				       -1,&tvb_current_offset);
 	  my_proto_tree_add_string(tree,hf_mgcp_rsp_rspstring, tvb,
 				   tvb_previous_offset, tokenlen,
 				   tvb_format_text(tvb,tvb_previous_offset,
@@ -908,13 +860,9 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb,
 	  break;
 	}
       }
-      if( (tokennum == 3 && mgcp_type == MGCP_REQUEST) &&
-	  (tvb_current_offset = tvb_find_guint8(tvb,tvb_previous_offset,
-						    tvb_current_len, '\n'))
-	  != -1){
-	tokenlen = tvb_section_length(tvb,tvb_previous_offset,
-				      tvb_current_offset);
-	tokenlen = tvb_crlf_strip(tvb, tvb_previous_offset, tokenlen);
+      if( (tokennum == 3 && mgcp_type == MGCP_REQUEST) ){
+	tokenlen = tvb_find_line_end(tvb, tvb_previous_offset, 
+				     -1,&tvb_current_offset);
 	my_proto_tree_add_string(tree,hf_mgcp_version, tvb,
 				 tvb_previous_offset, tokenlen,
 				 tvb_format_text(tvb,tvb_previous_offset,
@@ -964,7 +912,6 @@ static void dissect_mgcp_params(tvbuff_t *tvb, packet_info *pinfo,
   int linelen, tokenlen, *my_param;
   gint tvb_lineend,tvb_current_len, tvb_linebegin,tvb_len;
   gint tvb_tokenbegin;
-  guint8 tempchar;
   proto_tree *mgcp_param_ti, *mgcp_param_tree;
   proto_item* (*my_proto_tree_add_string)(proto_tree*, int, tvbuff_t*, gint,
 					  gint, const char*);
@@ -977,9 +924,9 @@ static void dissect_mgcp_params(tvbuff_t *tvb, packet_info *pinfo,
   if(tree){
     if(global_mgcp_dissect_tree){
       my_proto_tree_add_string = proto_tree_add_string;
-      mgcp_param_ti = proto_tree_add_item(tree,proto_mgcp,tvb, 
+      mgcp_param_ti = proto_tree_add_item(tree, proto_mgcp, tvb, 
 					  tvb_linebegin, tvb_len, FALSE);
-      proto_item_set_text(mgcp_param_ti,"Parameters");
+      proto_item_set_text(mgcp_param_ti, "Parameters");
       mgcp_param_tree = proto_item_add_subtree(mgcp_param_ti, ett_mgcp_param);
     }
     else{
@@ -989,23 +936,18 @@ static void dissect_mgcp_params(tvbuff_t *tvb, packet_info *pinfo,
     }
 
     /* Parse the parameters */
-    tempchar = tvb_get_guint8(tvb,tvb_linebegin);
-    while((tvb_lineend = tvb_find_guint8(tvb,tvb_linebegin,
-					 tvb_current_len, '\n')) != -1){
-      linelen = tvb_section_length(tvb,tvb_linebegin,tvb_lineend);
+    while(tvb_lineend < tvb_len){
+      linelen = tvb_find_line_end(tvb, tvb_linebegin, -1,&tvb_lineend); 
       tvb_tokenbegin = tvb_parse_param(tvb, tvb_linebegin, linelen, 
-					    &my_param);
-      if( tvb_lineend != -1 && my_param != NULL ){
-	tokenlen = tvb_lineend - tvb_tokenbegin;
-	tokenlen = tvb_crlf_strip(tvb,tvb_tokenbegin,tokenlen);
-	linelen = tvb_crlf_strip(tvb,tvb_linebegin,linelen);
+				       &my_param);
+      if( my_param != NULL ){
+	tokenlen = tvb_find_line_end(tvb,tvb_tokenbegin,-1,&tvb_lineend);
 	my_proto_tree_add_string(mgcp_param_tree,*my_param, tvb,
 				 tvb_linebegin, linelen, 
 				 tvb_format_text(tvb,tvb_tokenbegin,
 						 tokenlen));
       }
-      tvb_linebegin = tvb_lineend + 1;
-      tvb_current_len = tvb_length_remaining(tvb,tvb_linebegin);
+      tvb_linebegin = tvb_lineend;
     } 
   }
 }  
@@ -1036,42 +978,55 @@ static gint tvb_skip_wsp(tvbuff_t* tvb, gint offset, gint maxlength){
 }
 
 /*
- * tvb_find_null_line - Returns the offset in tvb off the first null line 
- *                      encountered.  A null line is a line begins with 
- *                      a CR or LF.
+ * tvb_find_null_line - Returns the length from offset to the first null
+ *                      line found (a null line is a line that begins 
+ *                      with a CR or LF.  The offset to the first character
+ *                      after the null line is written into the gint pointed
+ *                      to by next_offset.
  *
  * Parameters: 
  * tvb - The tvbuff in which we are looking for a null line.
  * offset - The offset in tvb at which we will begin looking for 
  *          a null line.
- * maxlength - The maximum distance from offset in tvb that we will look for 
- *             a null line.
+ * len - The maximum distance from offset in tvb that we will look for 
+ *       a null line.  If it is -1 we will look to the end of the buffer.
  *
- * Returns: The offset in tvb of the beginning of the first null line found.
+ * next_offset - The location to write the offset of first character 
+ *               FOLLOWING the null line. 
+ *
+ * Returns: The length from offset to the first character BEFORE 
+ *          the null line..
  */
 static gint tvb_find_null_line(tvbuff_t* tvb, gint offset, 
-			       gint maxlength){
-  gint tvb_lineend,tvb_current_len,tvb_linebegin;
+			       gint len, gint* next_offset){
+  gint tvb_lineend,tvb_current_len,tvb_linebegin,maxoffset;
   guint tempchar;
+
   tvb_linebegin = offset;
-  tvb_current_len = maxlength; 
   tvb_lineend = tvb_linebegin;
 
-  tempchar = tvb_get_guint8(tvb,tvb_linebegin);
+  if(len != -1){
+    tvb_current_len = len;
+  } 
+  else{
+    tvb_current_len = tvb_length_remaining(tvb,offset);
+  }
+  maxoffset = tvb_current_len + offset;
 
+  tempchar = tvb_get_guint8(tvb,tvb_linebegin);
   while( tempchar != '\r' && tempchar != '\n' &&
-	 (tvb_lineend = tvb_find_guint8(tvb,tvb_linebegin,
-						   tvb_current_len, '\n'))
-	 != -1 && 
-	 (tvb_linebegin = tvb_lineend + 1) <= maxlength + offset
-	 ){
-    tempchar = tvb_get_guint8(tvb,tvb_linebegin);
-    tvb_current_len = maxlength - ( tvb_linebegin - offset);
+	 tvb_linebegin < maxoffset){
+    tvb_find_line_end(tvb, tvb_linebegin, tvb_current_len, &tvb_lineend);
+    tempchar = tvb_get_guint8(tvb,tvb_lineend);
+    tvb_current_len -= tvb_section_length(tvb,tvb_linebegin,tvb_lineend); 
+    tvb_linebegin = tvb_lineend;
   }
-  if( tvb_linebegin == offset || tvb_lineend == -1 ){
-    tvb_linebegin = -1;
+  if(tempchar == '\r' || tempchar == '\n'){
+    tvb_find_line_end(tvb,tvb_linebegin,tvb_current_len,next_offset);
   }
-  return (tvb_linebegin);
+  tvb_current_len = tvb_linebegin - offset;
+    
+  return (tvb_current_len);
 }
 
 static gint tvb_section_length(tvbuff_t* tvb, gint tvb_sectionbegin, 
