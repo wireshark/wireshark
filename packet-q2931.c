@@ -2,7 +2,7 @@
  * Routines for Q.2931 frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-q2931.c,v 1.29 2002/08/28 21:00:25 jmayer Exp $
+ * $Id: packet-q2931.c,v 1.30 2002/11/10 20:26:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -50,6 +50,7 @@
 static int proto_q2931 = -1;
 static int hf_q2931_discriminator = -1;
 static int hf_q2931_call_ref_len = -1;
+static int hf_q2931_call_ref_flag = -1;
 static int hf_q2931_call_ref = -1;
 static int hf_q2931_message_type = -1;
 static int hf_q2931_message_type_ext = -1;
@@ -116,6 +117,11 @@ static const value_string q2931_message_type_vals[] = {
 	{ Q2931_LEAF_SETUP_FAIL,	"LEAF SETUP FAILURE" },
 	{ Q2931_LEAF_SETUP_REQ,		"LEAF SETUP REQUEST" },
 	{ 0,				NULL }
+};
+
+static const true_false_string tfs_call_ref_flag = {
+	"Message sent to originating side",
+	"Message sent from originating side"
 };
 
 /*
@@ -2020,10 +2026,13 @@ dissect_q2931(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_uint(q2931_tree, hf_q2931_call_ref_len, tvb, offset, 1, call_ref_len);
 	offset += 1;
 	if (call_ref_len != 0) {
-		/* XXX - split this into flag and value */
 		tvb_memcpy(tvb, call_ref, offset, call_ref_len);
-		if (q2931_tree != NULL)
+		if (q2931_tree != NULL) {
+			proto_tree_add_boolean(q2931_tree, hf_q2931_call_ref_flag,
+			    tvb, offset, 1, (call_ref[0] & 0x80) != 0);
+			call_ref[0] &= 0x7F;
 			proto_tree_add_bytes(q2931_tree, hf_q2931_call_ref, tvb, offset, call_ref_len, call_ref);
+		}
 		offset += call_ref_len;
 	}
 	message_type = tvb_get_guint8(tvb, offset);
@@ -2104,6 +2113,10 @@ proto_register_q2931(void)
 
 		{ &hf_q2931_call_ref_len,
 		  { "Call reference value length", "q2931.call_ref_len", FT_UINT8, BASE_DEC, NULL, 0x0,
+		  	"", HFILL }},
+
+		{ &hf_q2931_call_ref_flag,
+		  { "Call reference flag", "q2931.call_ref_flag", FT_BOOLEAN, BASE_NONE, TFS(&tfs_call_ref_flag), 0x0,
 		  	"", HFILL }},
 
 		{ &hf_q2931_call_ref,
