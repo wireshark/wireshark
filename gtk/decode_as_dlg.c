@@ -1,6 +1,6 @@
 /* decode_as_dlg.c
  *
- * $Id: decode_as_dlg.c,v 1.29 2002/11/09 20:52:39 oabad Exp $
+ * $Id: decode_as_dlg.c,v 1.30 2002/11/11 18:57:00 oabad Exp $
  *
  * Routines to modify dissector tables on the fly.
  *
@@ -692,7 +692,7 @@ decode_transport(GtkWidget *notebook_pg)
     menu = OBJECT_GET_DATA(notebook_pg, E_MENU_SRCDST);
 
     menuitem = gtk_menu_get_active(GTK_MENU(menu));
-    requested_srcdst = GPOINTER_TO_INT(gtk_object_get_user_data(GTK_OBJECT(menuitem)));
+    requested_srcdst = GPOINTER_TO_INT(OBJECT_GET_DATA(menuitem, "user_data"));
 
 #ifdef DEBUG
     string = OBJECT_GET_DATA(notebook_pg, E_PAGE_TITLE);
@@ -908,21 +908,18 @@ decode_add_srcdst_menu (GtkWidget *page)
     menu = gtk_menu_new();
     sprintf(tmp, "source (%u)", cfile.edt->pi.srcport);
     menuitem = gtk_menu_item_new_with_label(tmp);
-    gtk_object_set_user_data(GTK_OBJECT(menuitem),
-			     GINT_TO_POINTER(E_DECODE_SPORT));
+    OBJECT_SET_DATA(menuitem, "user_data", GINT_TO_POINTER(E_DECODE_SPORT));
     gtk_menu_append(GTK_MENU(menu), menuitem);
     gtk_widget_show(menuitem);	/* gtk_widget_show_all() doesn't show this */
 
     sprintf(tmp, "destination (%u)", cfile.edt->pi.destport);
     menuitem = gtk_menu_item_new_with_label(tmp);
-    gtk_object_set_user_data(GTK_OBJECT(menuitem),
-			     GINT_TO_POINTER(E_DECODE_DPORT));
+    OBJECT_SET_DATA(menuitem, "user_data", GINT_TO_POINTER(E_DECODE_DPORT));
     gtk_menu_append(GTK_MENU(menu), menuitem);
     gtk_widget_show(menuitem);	/* gtk_widget_show_all() doesn't show this */
 
     menuitem = gtk_menu_item_new_with_label("both");
-    gtk_object_set_user_data(GTK_OBJECT(menuitem),
-			     GINT_TO_POINTER(E_DECODE_BPORT));
+    OBJECT_SET_DATA(menuitem, "user_data", GINT_TO_POINTER(E_DECODE_BPORT));
     gtk_menu_append(GTK_MENU(menu), menuitem);
     gtk_widget_show(menuitem);	/* gtk_widget_show_all() doesn't show this */
 

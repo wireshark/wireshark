@@ -1,7 +1,7 @@
 /* capture_prefs.c
  * Dialog box for capture preferences
  *
- * $Id: capture_prefs.c,v 1.16 2002/09/05 18:47:44 jmayer Exp $
+ * $Id: capture_prefs.c,v 1.17 2002/11/11 18:57:00 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -40,6 +40,7 @@
 #include "ui_util.h"
 #include "pcap-util.h"
 #include "main.h"
+#include "compat_macros.h"
 
 #define DEVICE_KEY		"device"
 #define PROM_MODE_KEY		"prom_mode"
@@ -85,7 +86,7 @@ capture_prefs_show(void)
 		    prefs.capture_device);
 	gtk_table_attach_defaults(GTK_TABLE(main_tb), if_cb, 1, 2, 0, 1);
 	gtk_widget_show(if_cb);
-	gtk_object_set_data(GTK_OBJECT(main_vb), DEVICE_KEY, if_cb);
+	OBJECT_SET_DATA(main_vb, DEVICE_KEY, if_cb);
 
 	free_interface_list(if_list);
 
@@ -93,21 +94,19 @@ capture_prefs_show(void)
 	promisc_cb = create_preference_check_button(main_tb, 1,
 	    "Capture packets in promiscuous mode:", NULL,
 	    prefs.capture_prom_mode);
-	gtk_object_set_data(GTK_OBJECT(main_vb), PROM_MODE_KEY, promisc_cb);
+	OBJECT_SET_DATA(main_vb, PROM_MODE_KEY, promisc_cb);
 
 	/* Real-time capture */
 	sync_cb = create_preference_check_button(main_tb, 2,
 	    "Update list of packets in real time:", NULL,
 	    prefs.capture_real_time);
-	gtk_object_set_data(GTK_OBJECT(main_vb), CAPTURE_REAL_TIME_KEY,
-	    sync_cb);
+	OBJECT_SET_DATA(main_vb, CAPTURE_REAL_TIME_KEY, sync_cb);
 
 	/* Auto-scroll real-time capture */
 	auto_scroll_cb = create_preference_check_button(main_tb, 3,
 	    "Automatic scrolling in live capture:", NULL,
 	    prefs.capture_auto_scroll);
-	gtk_object_set_data(GTK_OBJECT(main_vb), AUTO_SCROLL_KEY,
-	    auto_scroll_cb);
+	OBJECT_SET_DATA(main_vb, AUTO_SCROLL_KEY, auto_scroll_cb);
 
 	/* Show 'em what we got */
 	gtk_widget_show_all(main_vb);
@@ -121,13 +120,10 @@ capture_prefs_fetch(GtkWidget *w)
 	GtkWidget *if_cb, *promisc_cb, *sync_cb, *auto_scroll_cb;
 	gchar	*if_text;
 
-	if_cb = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(w), DEVICE_KEY);
-	promisc_cb = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(w),
-	    PROM_MODE_KEY);
-	sync_cb = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(w),
-	    CAPTURE_REAL_TIME_KEY);
-	auto_scroll_cb = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(w),
-	    AUTO_SCROLL_KEY);
+	if_cb = (GtkWidget *)OBJECT_GET_DATA(w, DEVICE_KEY);
+	promisc_cb = (GtkWidget *)OBJECT_GET_DATA(w, PROM_MODE_KEY);
+	sync_cb = (GtkWidget *)OBJECT_GET_DATA(w, CAPTURE_REAL_TIME_KEY);
+	auto_scroll_cb = (GtkWidget *)OBJECT_GET_DATA(w, AUTO_SCROLL_KEY);
 
 	if (prefs.capture_device != NULL) {
 		g_free(prefs.capture_device);

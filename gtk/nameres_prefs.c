@@ -1,7 +1,7 @@
 /* nameres_prefs.c
  * Dialog box for name resolution preferences
  *
- * $Id: nameres_prefs.c,v 1.6 2002/09/05 18:47:46 jmayer Exp $
+ * $Id: nameres_prefs.c,v 1.7 2002/11/11 18:57:00 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -36,6 +36,7 @@
 #include "prefs_dlg.h"
 #include "ui_util.h"
 #include "main.h"
+#include "compat_macros.h"
 
 #define M_RESOLVE_KEY	"m_resolve"
 #define N_RESOLVE_KEY	"n_resolve"
@@ -73,19 +74,19 @@ nameres_prefs_show(void)
 	m_resolv_cb = create_preference_check_button(main_tb, 0,
 	    "Enable MAC name resolution:", NULL,
 	    prefs.name_resolve & RESOLV_MAC);
-	gtk_object_set_data(GTK_OBJECT(main_vb), M_RESOLVE_KEY, m_resolv_cb);
+	OBJECT_SET_DATA(main_vb, M_RESOLVE_KEY, m_resolv_cb);
 
 	/* Resolve network addresses */
 	n_resolv_cb = create_preference_check_button(main_tb, 1,
 	    "Enable network name resolution:", NULL,
 	    prefs.name_resolve & RESOLV_NETWORK);
-	gtk_object_set_data(GTK_OBJECT(main_vb), N_RESOLVE_KEY, n_resolv_cb);
+	OBJECT_SET_DATA(main_vb, N_RESOLVE_KEY, n_resolv_cb);
 
 	/* Resolve transport addresses */
 	t_resolv_cb = create_preference_check_button(main_tb, 2,
 	    "Enable transport name resolution:", NULL,
 	    prefs.name_resolve & RESOLV_TRANSPORT);
-	gtk_object_set_data(GTK_OBJECT(main_vb), T_RESOLVE_KEY, t_resolv_cb);
+	OBJECT_SET_DATA(main_vb, T_RESOLVE_KEY, t_resolv_cb);
 
 	/* Show 'em what we got */
 	gtk_widget_show_all(main_vb);
@@ -98,12 +99,9 @@ nameres_prefs_fetch(GtkWidget *w)
 {
 	GtkWidget *m_resolv_cb, *n_resolv_cb, *t_resolv_cb;
 
-	m_resolv_cb = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(w),
-	    M_RESOLVE_KEY);
-	n_resolv_cb = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(w),
-	    N_RESOLVE_KEY);
-	t_resolv_cb = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(w),
-	    T_RESOLVE_KEY);
+	m_resolv_cb = (GtkWidget *)OBJECT_GET_DATA(w, M_RESOLVE_KEY);
+	n_resolv_cb = (GtkWidget *)OBJECT_GET_DATA(w, N_RESOLVE_KEY);
+	t_resolv_cb = (GtkWidget *)OBJECT_GET_DATA(w, T_RESOLVE_KEY);
 
 	prefs.name_resolve = RESOLV_NONE;
 	prefs.name_resolve |= (GTK_TOGGLE_BUTTON (m_resolv_cb)->active ? RESOLV_MAC : RESOLV_NONE);
