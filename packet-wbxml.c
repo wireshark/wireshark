@@ -3,7 +3,7 @@
  * Routines for wbxml dissection
  * Copyright 2003, Olivier Biot <olivier.biot (ad) siemens.com>
  *
- * $Id: packet-wbxml.c,v 1.24 2004/02/05 18:57:14 obiot Exp $
+ * $Id: packet-wbxml.c,v 1.25 2004/03/02 22:15:30 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -71,6 +71,21 @@
  *
  * NOTES:
  *
+ *  - Some WBXML content is *not* backwards compatible across minor versions.
+ *    This painful remark is true for:
+ *      o  WMLC 1.0 with respect to later WMLC 1.x
+ *      o  All WV-CSP versions (never backwards compatible)
+ *    The only way of correctly rendering the WBXML is to let the end-user
+ *    choose from the possible renderings. This only aaplies to the case when
+ *    the WBXML DocType is not included in the WBXML header.
+ *
+ *  - Some WBXML content uses EXT_T_* in a non-tableref manner. This is the
+ *    case with WV-CSP 1.1 and up, where the index points to a value_string
+ *    containing WV-CSP specific token values. This is allowed as it is not
+ *    explicitly forbidden in the WBXML specifications. Hence the global token
+ *    map for content must also contain a function pointer if no tableref
+ *    string is used.
+ *
  *  - Code page switches only apply to the following token. In the WBXML/1.x
  *    ABNF notation, it can be proven that the switch_page can only precede
  *    the following tokens:
@@ -112,8 +127,8 @@
  */
 
 typedef struct _value_valuestring {
-  guint32 value;
-  const value_string *valstrptr;
+	guint32 value;
+	const value_string *valstrptr;
 } value_valuestring;
 
 /* Tries to match val against each element in the value_value_string array vvs.
@@ -244,6 +259,9 @@ static const value_string vals_wbxml1x_global_tokens[] = {
 
 	{ 0x00, NULL }
 };
+
+
+
 
 
 /********************** WBXML token mapping definition **********************/
@@ -1820,6 +1838,1664 @@ static const value_valuestring wbxml_nokiaprovc70_attrStart[] = {
 
 
 
+/* WV-CSP 1.0
+ * 
+ * Wireless Village Client Server Protocol
+ ***************************************/
+
+/*****   Global extension tokens   *****/
+
+/*****         Tag tokens          *****/
+/* Common code page (0x00) */
+static const value_string wbxml_wv_csp_10_tags_cp0[] = {
+	{ 0x05, "Acceptance" },
+	{ 0x06, "AddList" },
+	{ 0x07, "AddNickList" },
+	{ 0x08, "Attribute" },
+	{ 0x09, "AttributeList" },
+	{ 0x0A, "ClientID" },
+	{ 0x0B, "Code" },
+	{ 0x0C, "ContactList" },
+	{ 0x0D, "ContentData" },
+	{ 0x0E, "ContentEncoding" },
+	{ 0x0F, "ContentSize" },
+	{ 0x10, "ContentType" },
+	{ 0x11, "DateTime" },
+	{ 0x12, "Description" },
+	{ 0x13, "DetailedResult" },
+	{ 0x14, "EntityList" },
+	{ 0x15, "Group" },
+	{ 0x16, "GroupID" },
+	{ 0x17, "GroupList" },
+	{ 0x18, "InUse" },
+	{ 0x19, "Logo" },
+	{ 0x1A, "MessageCount" },
+	{ 0x1B, "MessageID" },
+	{ 0x1C, "MessageURI" },
+	{ 0x1D, "MSISDN" },
+	{ 0x1E, "Name" },
+	{ 0x1F, "NickList" },
+	{ 0x20, "NickName" },
+	{ 0x21, "Poll" },
+	{ 0x22, "Presence" },
+	{ 0x23, "PresenceSubList" },
+	{ 0x24, "PresenceValue" },
+	{ 0x25, "Property" },
+	{ 0x26, "Qualifier" },
+	{ 0x27, "Recipient" },
+	{ 0x28, "RemoveList" },
+	{ 0x29, "RemoveNickList" },
+	{ 0x2A, "Result" },
+	{ 0x2B, "ScreenName" },
+	{ 0x2C, "Sender" },
+	{ 0x2D, "Session" },
+	{ 0x2E, "SessionDescriptor" },
+	{ 0x2F, "SessionID" },
+	{ 0x30, "SessionType" },
+	{ 0x31, "Status" },
+	{ 0x32, "Transaction" },
+	{ 0x33, "TransactionContent" },
+	{ 0x34, "TransactionDescriptor" },
+	{ 0x35, "TransactionID" },
+	{ 0x36, "TransactionMode" },
+	{ 0x37, "URL" },
+	{ 0x38, "URLList" },
+	{ 0x39, "User" },
+	{ 0x3A, "UserID" },
+	{ 0x3B, "UserList" },
+	{ 0x3C, "Validity" },
+	{ 0x3D, "Value" },
+	{ 0x3E, "WV-CSP-Message" },
+
+	{ 0x00, NULL }
+};
+
+/* Access code page (0x01) */
+static const value_string wbxml_wv_csp_10_tags_cp1[] = {
+	{ 0x05, "AllFunctions" },
+	{ 0x06, "AllFunctionsRequest" },
+	{ 0x07, "CancelInvite-Request" },
+	{ 0x08, "CancelInviteUser-Request" },
+	{ 0x09, "Capability" },
+	{ 0x0A, "CapabilityList" },
+	{ 0x0B, "CapabilityRequest" },
+	{ 0x0C, "ClientCapability-Request" },
+	{ 0x0D, "ClientCapability-Response" },
+	{ 0x0E, "DigestBytes" },
+	{ 0x0F, "DigestSchema" },
+	{ 0x10, "Disconnect" },
+	{ 0x11, "Functions" },
+	{ 0x12, "GetSPInfo-Request" },
+	{ 0x13, "GetSPInfo-Response" },
+	{ 0x14, "InviteID" },
+	{ 0x15, "InviteNote" },
+	{ 0x16, "Invite-Request" },
+	{ 0x17, "Invite-Response" },
+	{ 0x18, "InviteType" },
+	{ 0x19, "InviteUser-Request" },
+	{ 0x1A, "InviteUser-Response" },
+	{ 0x1B, "KeepAlive-Request" },
+	{ 0x1C, "KeepAliveTime" },
+	{ 0x1D, "Login-Request" },
+	{ 0x1E, "Login-Response" },
+	{ 0x1F, "Logout-Request" },
+	{ 0x20, "Nonce" },
+	{ 0x21, "Password" },
+	{ 0x22, "Polling-Request" },
+	{ 0x23, "ResponseNote" },
+	{ 0x24, "SearchElement" },
+	{ 0x25, "SearchFindings" },
+	{ 0x26, "SearchID" },
+	{ 0x27, "SearchIndex" },
+	{ 0x28, "SearchLimit" },
+	{ 0x29, "SearchOnlineStatus" },
+	{ 0x2A, "SearchPairList" },
+	{ 0x2B, "Search-Request" },
+	{ 0x2C, "Search-Response" },
+	{ 0x2D, "SearchResult" },
+	{ 0x2E, "Service-Request" },
+	{ 0x2F, "Service-Response" },
+	{ 0x30, "SessionCookie" },
+	{ 0x31, "StopSearch-Request" },
+	{ 0x32, "TimeToLive" },
+
+	{ 0x00, NULL }
+};
+
+/* Service code page (0x02) */
+static const value_string wbxml_wv_csp_10_tags_cp2[] = {
+	{ 0x05, "ADDGM" },
+	{ 0x06, "AttListFunc" },
+	{ 0x07, "BLENT" },
+	{ 0x08, "CAAUT" },
+	{ 0x09, "CAINV" },
+	{ 0x0A, "CALI" },
+	{ 0x0B, "CCLI" },
+	{ 0x0C, "ContListFunc" },
+	{ 0x0D, "CREAG" },
+	{ 0x0E, "DALI" },
+	{ 0x0F, "DCLI" },
+	{ 0x10, "DELGR" },
+	{ 0x11, "FundamentalFeat" },
+	{ 0x12, "FWMSG" },
+	{ 0x13, "GALS" },
+	{ 0x14, "GCLI" },
+	{ 0x15, "GETGM" },
+	{ 0x16, "GETGP" },
+	{ 0x17, "GETLM" },
+	{ 0x18, "GETM" },
+	{ 0x19, "GETPR" },
+	{ 0x1A, "GETSPI" },
+	{ 0x1B, "GETWL" },
+	{ 0x1C, "GLBLU" },
+	{ 0x1D, "GRCHN" },
+	{ 0x1E, "GroupAuthFunc" },
+	{ 0x1F, "GroupFeat" },
+	{ 0x20, "GroupMgmtFunc" },
+	{ 0x21, "GroupUseFunc" },
+	{ 0x22, "IMAuthFunc" },
+	{ 0x23, "IMFeat" },
+	{ 0x24, "IMReceiveFunc" },
+	{ 0x25, "IMSendFunc" },
+	{ 0x26, "INVIT" },
+	{ 0x27, "InviteFunc" },
+	{ 0x28, "MBRAC" },
+	{ 0x29, "MCLS" },
+	{ 0x2A, "MDELIV" },
+	{ 0x2B, "NEWM" },
+	{ 0x2C, "NOTIF" },
+	{ 0x2D, "PresenceAuthFunc" },
+	{ 0x2E, "PresenceDeliverFunc" },
+	{ 0x2F, "PresenceFeat" },
+	{ 0x30, "REACT" },
+	{ 0x31, "REJCM" },
+	{ 0x32, "REJEC" },
+	{ 0x33, "RMVGM" },
+	{ 0x34, "SearchFunc" },
+	{ 0x35, "ServiceFunc" },
+	{ 0x36, "SETD" },
+	{ 0x37, "SETGP" },
+	{ 0x38, "SRCH" },
+	{ 0x39, "STSRC" },
+	{ 0x3A, "SUBGCN" },
+	{ 0x3B, "UPDPR" },
+	{ 0x3C, "WVCSPFeat" },
+
+	{ 0x00, NULL }
+};
+
+/* Client capability code page (0x03) */
+static const value_string wbxml_wv_csp_10_tags_cp3[] = {
+	{ 0x05, "AcceptedCharset" },
+	{ 0x06, "AcceptedContentLength" },
+	{ 0x07, "AcceptedContentType" },
+	{ 0x08, "AcceptedTransferEncoding" },
+	{ 0x09, "AnyContent" },
+	{ 0x0A, "ClientType" },
+	{ 0x0B, "InitialDeliveryMethod" },
+	{ 0x0C, "MultiTrans" },
+	{ 0x0D, "ParserSize" },
+	{ 0x0E, "ServerPollMin" },
+	{ 0x0F, "SupportedBearer" },
+	{ 0x10, "SupportedCIRMethod" },
+	{ 0x11, "TCPAddress" },
+	{ 0x12, "TCPPort" },
+	{ 0x13, "UDPPort" },
+
+	{ 0x00, NULL }
+};
+
+/* Presence primitive code page (0x04) */
+static const value_string wbxml_wv_csp_10_tags_cp4[] = {
+	{ 0x05, "CancelAuth-Request" },
+	{ 0x06, "ContactListProperties" },
+	{ 0x07, "CreateAttributeList-Request" },
+	{ 0x08, "CreateList-Request" },
+	{ 0x09, "DefaultAttributeList" },
+	{ 0x0A, "DefaultContactList" },
+	{ 0x0B, "DefaultList" },
+	{ 0x0C, "DeleteAttributeList-Request" },
+	{ 0x0D, "DeleteList-Request" },
+	{ 0x0E, "GetAttributeList-Request" },
+	{ 0x0F, "GetAttributeList-Response" },
+	{ 0x10, "GetList-Request" },
+	{ 0x11, "GetList-Response" },
+	{ 0x12, "GetPresence-Request" },
+	{ 0x13, "GetPresence-Response" },
+	{ 0x14, "GetWatcherList-Request" },
+	{ 0x15, "GetWatcherList-Response" },
+	{ 0x16, "ListManage-Request" },
+	{ 0x17, "ListManage-Response" },
+	{ 0x18, "Presence" },
+	{ 0x19, "PresenceAuth-Request" },
+	{ 0x1A, "PresenceAuth-Response" },
+	{ 0x1B, "PresenceNotification-Request" },
+	{ 0x1C, "PresenceValueList" },
+	{ 0x1D, "SubscribePresence-Request" },
+	{ 0x1E, "UnsubscribePresence-Request" },
+	{ 0x1F, "UpdatePresence-Request" },
+
+	{ 0x00, NULL }
+};
+
+/* Presence attribute code page (0x05) */
+static const value_string wbxml_wv_csp_10_tags_cp5[] = {
+	{ 0x05, "Accuracy" },
+	{ 0x06, "Address" },
+	{ 0x07, "AddrPref" },
+	{ 0x08, "Alias" },
+	{ 0x09, "Altitude" },
+	{ 0x0A, "Building" },
+	{ 0x0B, "CAddr" },
+	{ 0x0C, "City" },
+	{ 0x0D, "ClientInfo" },
+	{ 0x0E, "ClientProducer" },
+	{ 0x0F, "ClientType" },
+	{ 0x10, "ClientVersion" },
+	{ 0x11, "CommC" },
+	{ 0x12, "CommCap" },
+	{ 0x13, "ContactInfo" },
+	{ 0x14, "ContainedvCard" },
+	{ 0x15, "Country" },
+	{ 0x16, "Crossing1" },
+	{ 0x17, "Crossing2" },
+	{ 0x18, "DevManufacturer" },
+	{ 0x19, "DirectContent" },
+	{ 0x1A, "FreeTextLocation" },
+	{ 0x1B, "GeoLocation" },
+	{ 0x1C, "Language" },
+	{ 0x1D, "Latitude" },
+	{ 0x1E, "Longitude" },
+	{ 0x1F, "Model" },
+	{ 0x20, "NamedArea" },
+	{ 0x21, "OnlineStatus" },
+	{ 0x22, "PLMN" },
+	{ 0x23, "PrefC" },
+	{ 0x24, "PreferredContacts" },
+	{ 0x25, "PreferredLanguage" },
+	{ 0x26, "ReferredContent" },
+	{ 0x27, "ReferredvCard" },
+	{ 0x28, "Registration" },
+	{ 0x29, "StatusContent" },
+	{ 0x2A, "StatusMood" },
+	{ 0x2B, "StatusText" },
+	{ 0x2C, "Street" },
+	{ 0x2D, "TimeZone" },
+	{ 0x2E, "UserAvailability" },
+
+	{ 0x00, NULL }
+};
+
+/* Messaging code page (0x06) */
+static const value_string wbxml_wv_csp_10_tags_cp6[] = {
+	{ 0x05, "BlockList" },
+	{ 0x06, "BlockUser-Request" },
+	{ 0x07, "DeliveryMethod" },
+	{ 0x08, "DeliveryReport" },
+	{ 0x09, "DeliveryReport-Request" },
+	{ 0x0A, "ForwardMessage-Request" },
+	{ 0x0B, "GetBlockedList-Request" },
+	{ 0x0C, "GetBlockedList-Response" },
+	{ 0x0D, "GetMessageList-Request" },
+	{ 0x0E, "GetMessageList-Response" },
+	{ 0x0F, "GetMessage-Request" },
+	{ 0x10, "GetMessage-Response" },
+	{ 0x11, "GrantList" },
+	{ 0x12, "MessageDelivered" },
+	{ 0x13, "MessageInfo" },
+	{ 0x14, "MessageNotification" },
+	{ 0x15, "NewMessage" },
+	{ 0x16, "RejectMessage-Request" },
+	{ 0x17, "SendMessage-Request" },
+	{ 0x18, "SendMessage-Response" },
+	{ 0x19, "SetDeliveryMethod-Request" },
+
+	{ 0x00, NULL }
+};
+
+/* Group code page (0x07) */
+static const value_string wbxml_wv_csp_10_tags_cp7[] = {
+	{ 0x05, "AddGroupMembers-Request" },
+	{ 0x06, "Admin" },
+	{ 0x07, "CreateGroup-Request" },
+	{ 0x08, "DeleteGroup-Request" },
+	{ 0x09, "GetGroupMembers-Request" },
+	{ 0x0A, "GetGroupMembers-Response" },
+	{ 0x0B, "GetGroupProps-Request" },
+	{ 0x0C, "GetGroupProps-Response" },
+	{ 0x0D, "GroupChangeNotice" },
+	{ 0x0E, "GroupProperties" },
+	{ 0x0F, "Joined" },
+	{ 0x10, "JoinedRequest" },
+	{ 0x11, "JoinGroup-Request" },
+	{ 0x12, "JoinGroup-Response" },
+	{ 0x13, "LeaveGroup-Request" },
+	{ 0x14, "LeaveGroup-Response" },
+	{ 0x15, "Left" },
+	{ 0x16, "MemberAccess-Request" },
+	{ 0x17, "Mod" },
+	{ 0x18, "OwnProperties" },
+	{ 0x19, "RejectList-Request" },
+	{ 0x1A, "RejectList-Response" },
+	{ 0x1B, "RemoveGroupMembers-Request" },
+	{ 0x1C, "SetGroupProps-Request" },
+	{ 0x1D, "SubscribeGroupNotice-Request" },
+	{ 0x1E, "SubscribeGroupNotice-Response" },
+	{ 0x1F, "Users" },
+	{ 0x20, "WelcomeNote" },
+
+	{ 0x00, NULL }
+};
+
+/*
+ * Attribute start tokens
+ */
+/* common code page (0x00) */
+static const value_string wbxml_wv_csp_10_attrStart_cp0[] = {
+	{ 0x05, "xmlns='http://www.wireless-village.org/CSP'" },
+	{ 0x06, "xmlns='http://www.wireless-village.org/PA'" },
+	{ 0x07, "xmlns='http://www.wireless-village.org/TRC'" },
+
+	{ 0x00, NULL }
+};
+
+/*
+ * Attribute value tokens
+ */
+/* Common value tokens (0x00) */
+static const value_string wbxml_wv_csp_10_attrValue_cp0[] = {
+	{ 0x85, "AccessType" },
+	{ 0x86, "ActiveUsers" },
+	{ 0x87, "Admin" },
+	{ 0x88, "application/" },
+	{ 0x89, "application/vnd.wap.mms-message" },
+	{ 0x8A, "application/x-sms" },
+	{ 0x8B, "BASE64" },
+	{ 0x8C, "Closed" },
+	{ 0x8D, "Default" },
+	{ 0x8E, "DisplayName" },
+	{ 0x8F, "False (No)" },
+	{ 0x90, "Get" },
+	{ 0x91, "Group (GR)" },
+	{ 0x92, "http://" },
+	{ 0x93, "https://" },
+	{ 0x94, "image/" },
+	{ 0x95, "Inband" },
+	{ 0x96, "Instant Messaging (IM)" },
+	{ 0x97, "MaxActiveUsers" },
+	{ 0x98, "Mod" },
+	{ 0x99, "Name" },
+	{ 0x9A, "None" },
+	{ 0x9B, "Notify/Get" },
+	{ 0x9C, "Open" },
+	{ 0x9D, "Outband" },
+	{ 0x9E, "Presence (PR)" },
+	{ 0x9F, "Private" },
+	{ 0xA0, "PrivateMessaging" },
+	{ 0xA1, "PrivilegeLevel" },
+	{ 0xA2, "Public" },
+	{ 0xA3, "Push" },
+	{ 0xA4, "Request" },
+	{ 0xA5, "Response" },
+	{ 0xA6, "ScreenName" },
+	{ 0xA7, "Searchable" },
+	{ 0xA8, "Set" },
+	{ 0xA9, "Shared Content (SC)" },
+	{ 0xAA, "text/" },
+	{ 0xAB, "text/plain" },
+	{ 0xAC, "text/x-vCalendar" },
+	{ 0xAD, "text/x-vCard" },
+	{ 0xAE, "Topic" },
+	{ 0xAF, "True (Yes)" },
+	{ 0xB0, "Type" },
+	{ 0xB1, "Unset" },
+	{ 0xB2, "User (US)" },
+	{ 0xB3, "www.wireless-village.org" },
+
+	{ 0x00, NULL }
+};
+
+/* Access value tokens (0x01) */
+static const value_string wbxml_wv_csp_10_attrValue_cp1[] = {
+	{ 0x85, "GROUP_ID" },
+	{ 0x86, "GROUP_NAME" },
+	{ 0x87, "GROUP_TOPIC" },
+	{ 0x88, "GROUP_USER_ID_JOINED" },
+	{ 0x89, "HTTP" },
+	{ 0x8A, "SMS" },
+	{ 0x8B, "STCP" },
+	{ 0x8C, "SUDP" },
+	{ 0x8D, "USER_ALIAS" },
+	{ 0x8E, "USER_EMAIL_ADDRESS" },
+	{ 0x8F, "USER_FIRST_NAME" },
+	{ 0x90, "USER_ID" },
+	{ 0x91, "USER_LAST_NAME" },
+	{ 0x92, "USER_MOBILE_NUMBER" },
+	{ 0x93, "WAPSMS" },
+	{ 0x94, "WAPUDP" },
+	{ 0x95, "WSP" },
+
+	{ 0x00, NULL }
+};
+
+/* Presence value tokens (0x05) */
+static const value_string wbxml_wv_csp_10_attrValue_cp5[] = {
+	{ 0x85, "ANGRY" },
+	{ 0x86, "ANXIOUS" },
+	{ 0x87, "ASHAMED" },
+	{ 0x88, "AUDIO_CALL" },
+	{ 0x89, "AVAILABLE" },
+	{ 0x8A, "BORED" },
+	{ 0x8B, "CALL" },
+	{ 0x8C, "CLI" },
+	{ 0x8D, "COMPUTER" },
+	{ 0x8E, "DISCREET" },
+	{ 0x8F, "EMAIL" },
+	{ 0x90, "EXCITED" },
+	{ 0x91, "HAPPY" },
+	{ 0x92, "IM" },
+	{ 0x93, "IM_OFFLINE" },
+	{ 0x94, "IM_ONLINE" },
+	{ 0x95, "IN_LOVE" },
+	{ 0x96, "INVINCIBLE" },
+	{ 0x97, "JEALOUS" },
+	{ 0x98, "MMS" },
+	{ 0x99, "MOBILE_PHONE" },
+	{ 0x9A, "NOT_AVAILABLE" },
+	{ 0x9B, "OTHER" },
+	{ 0x9C, "PDA" },
+	{ 0x9D, "SAD" },
+	{ 0x9E, "SLEEPY" },
+	{ 0x9F, "SMS" },
+	{ 0xA0, "VIDEO_CALL" },
+	{ 0xA1, "VIDEO_STREAM" },
+
+	{ 0x00, NULL }
+};
+
+
+/***** Token code page aggregation *****/
+static const value_valuestring wbxml_wv_csp_10_tags[] = {
+	{ 0, wbxml_wv_csp_10_tags_cp0 },
+	{ 1, wbxml_wv_csp_10_tags_cp1 },
+	{ 2, wbxml_wv_csp_10_tags_cp2 },
+	{ 3, wbxml_wv_csp_10_tags_cp3 },
+	{ 4, wbxml_wv_csp_10_tags_cp4 },
+	{ 5, wbxml_wv_csp_10_tags_cp5 },
+	{ 6, wbxml_wv_csp_10_tags_cp6 },
+	{ 7, wbxml_wv_csp_10_tags_cp7 },
+	{ 0, NULL }
+};
+
+static const value_valuestring wbxml_wv_csp_10_attrStart[] = {
+	{ 0, wbxml_wv_csp_10_attrStart_cp0 },
+	{ 0, NULL }
+};
+
+static const value_valuestring wbxml_wv_csp_10_attrValue[] = {
+	{ 0, wbxml_wv_csp_10_attrValue_cp0 },
+	{ 1, wbxml_wv_csp_10_attrValue_cp1 },
+	{ 5, wbxml_wv_csp_10_attrValue_cp5 },
+	{ 0, NULL }
+};
+
+
+
+
+
+/* WV-CSP 1.1
+ * 
+ * Wireless Village Client Server Protocol
+ ***************************************/
+
+/*****   Global extension tokens   *****/
+static const value_string wbxml_wv_csp_11_global_cp0[] = {
+	{ 0x80, "Common value" }, /* EXT_T_0 */
+
+	{ 0x00, NULL }
+};
+
+/*****         Tag tokens          *****/
+/* Common code page */
+static const value_string wbxml_wv_csp_11_tags_cp0[] = {
+	/* 0x00 -- 0x04 GLOBAL */
+	{ 0x05, "Acceptance" },
+	{ 0x06, "AddList" },
+	{ 0x07, "AddNickList" },
+	{ 0x0A, "ClientID" },
+	{ 0x0B, "Code" },
+	{ 0x0C, "ContactList" },
+	{ 0x0D, "ContentData" },
+	{ 0x0E, "ContentEncoding" },
+	{ 0x0F, "ContentSize" },
+	{ 0x10, "ContentType" },
+	{ 0x11, "DateTime" },
+	{ 0x12, "Description" },
+	{ 0x13, "DetailedResult" },
+	{ 0x14, "EntityList" },
+	{ 0x15, "Group" },
+	{ 0x16, "GroupID" },
+	{ 0x17, "GroupList" },
+	{ 0x18, "InUse" },
+	{ 0x19, "Logo" },
+	{ 0x1A, "MessageCount" },
+	{ 0x1B, "MessageID" },
+	{ 0x1C, "MessageURI" },
+	{ 0x1D, "MSISDN" },
+	{ 0x1E, "Name" },
+	{ 0x1F, "NickList" },
+	{ 0x20, "NickName" },
+	{ 0x21, "Poll" },
+	{ 0x22, "Presence" },
+	{ 0x23, "PresenceSubList" },
+	{ 0x24, "PresenceValue" },
+	{ 0x25, "Property" },
+	{ 0x26, "Qualifier" },
+	{ 0x27, "Recipient" },
+	{ 0x28, "RemoveList" },
+	{ 0x29, "RemoveNickList" },
+	{ 0x2A, "Result" },
+	{ 0x2B, "ScreenName" },
+	{ 0x2C, "Sender" },
+	{ 0x2D, "Session" },
+	{ 0x2E, "SessionDescriptor" },
+	{ 0x2F, "SessionID" },
+	{ 0x30, "SessionType" },
+	{ 0x08, "SName" },
+	{ 0x31, "Status" },
+	{ 0x32, "Transaction" },
+	{ 0x33, "TransactionContent" },
+	{ 0x34, "TransactionDescriptor" },
+	{ 0x35, "TransactionID" },
+	{ 0x36, "TransactionMode" },
+	{ 0x37, "URL" },
+	{ 0x38, "URLList" },
+	{ 0x39, "User" },
+	{ 0x3A, "UserID" },
+	{ 0x3B, "UserList" },
+	{ 0x3C, "Validity" },
+	{ 0x3D, "Value" },
+	{ 0x09, "WV-CSP-Message" },
+
+	{ 0x00, NULL }
+};
+
+/* Access code page */
+static const value_string wbxml_wv_csp_11_tags_cp1[] = {
+	/* 0x00 -- 0x04 GLOBAL */
+	{ 0x05, "AllFunctions" },
+	{ 0x06, "AllFunctionsRequest" },
+	{ 0x07, "CancelInvite-Request" },
+	{ 0x08, "CancelInviteUser-Request" },
+	{ 0x09, "Capability" },
+	{ 0x0A, "CapabilityList" },
+	{ 0x0B, "CapabilityRequest" },
+	{ 0x0C, "ClientCapability-Request" },
+	{ 0x0D, "ClientCapability-Response" },
+	{ 0x34, "CompletionFlag" },
+	{ 0x0E, "DigestBytes" },
+	{ 0x0F, "DigestSchema" },
+	{ 0x10, "Disconnect" },
+	{ 0x11, "Functions" },
+	{ 0x12, "GetSPInfo-Request" },
+	{ 0x13, "GetSPInfo-Response" },
+	{ 0x14, "InviteID" },
+	{ 0x15, "InviteNote" },
+	{ 0x16, "Invite-Request" },
+	{ 0x17, "Invite-Response" },
+	{ 0x18, "InviteType" },
+	{ 0x19, "InviteUser-Request" },
+	{ 0x1A, "InviteUser-Response" },
+	{ 0x1B, "KeepAlive-Request" },
+	{ 0x29, "KeepAlive-Response" },
+	{ 0x1C, "KeepAliveTime" },
+	{ 0x1D, "Login-Request" },
+	{ 0x1E, "Login-Response" },
+	{ 0x1F, "Logout-Request" },
+	{ 0x20, "Nonce" },
+	{ 0x21, "Password" },
+	{ 0x22, "Polling-Request" },
+	{ 0x23, "ResponseNote" },
+	{ 0x24, "SearchElement" },
+	{ 0x25, "SearchFindings" },
+	{ 0x26, "SearchID" },
+	{ 0x27, "SearchIndex" },
+	{ 0x28, "SearchLimit" },
+	{ 0x2A, "SearchPairList" },
+	{ 0x2B, "Search-Request" },
+	{ 0x2C, "Search-Response" },
+	{ 0x2D, "SearchResult" },
+	{ 0x33, "SearchString" },
+	{ 0x2E, "Service-Request" },
+	{ 0x2F, "Service-Response" },
+	{ 0x30, "SessionCookie" },
+	{ 0x31, "StopSearch-Request" },
+	{ 0x32, "TimeToLive" },
+
+	{ 0x00, NULL }
+};
+
+/* Service code page */
+static const value_string wbxml_wv_csp_11_tags_cp2[] = {
+	/* 0x00 -- 0x04 GLOBAL */
+	{ 0x5, "ADDGM" },
+	{ 0x6, "AttListFunc" },
+	{ 0x7, "BLENT" },
+	{ 0x8, "CAAUT" },
+	{ 0x9, "CAINV" },
+	{ 0x0A, "CALI" },
+	{ 0x0B, "CCLI" },
+	{ 0x0C, "ContListFunc" },
+	{ 0x0D, "CREAG" },
+	{ 0x0E, "DALI" },
+	{ 0x0F, "DCLI" },
+	{ 0x10, "DELGR" },
+	{ 0x11, "FundamentalFeat" },
+	{ 0x12, "FWMSG" },
+	{ 0x13, "GALS" },
+	{ 0x14, "GCLI" },
+	{ 0x15, "GETGM" },
+	{ 0x16, "GETGP" },
+	{ 0x17, "GETLM" },
+	{ 0x18, "GETM" },
+	{ 0x19, "GETPR" },
+	{ 0x1A, "GETSPI" },
+	{ 0x1B, "GETWL" },
+	{ 0x1C, "GLBLU" },
+	{ 0x1D, "GRCHN" },
+	{ 0x1E, "GroupAuthFunc" },
+	{ 0x1F, "GroupFeat" },
+	{ 0x20, "GroupMgmtFunc" },
+	{ 0x21, "GroupUseFunc" },
+	{ 0x22, "IMAuthFunc" },
+	{ 0x23, "IMFeat" },
+	{ 0x24, "IMReceiveFunc" },
+	{ 0x25, "IMSendFunc" },
+	{ 0x26, "INVIT" },
+	{ 0x27, "InviteFunc" },
+	{ 0x28, "MBRAC" },
+	{ 0x29, "MCLS" },
+	{ 0x2A, "MDELIV" },
+	{ 0x2B, "NEWM" },
+	{ 0x2C, "NOTIF" },
+	{ 0x2D, "PresenceAuthFunc" },
+	{ 0x2E, "PresenceDeliverFunc" },
+	{ 0x2F, "PresenceFeat" },
+	{ 0x30, "REACT" },
+	{ 0x31, "REJCM" },
+	{ 0x32, "REJEC" },
+	{ 0x33, "RMVGM" },
+	{ 0x34, "SearchFunc" },
+	{ 0x35, "ServiceFunc" },
+	{ 0x36, "SETD" },
+	{ 0x37, "SETGP" },
+	{ 0x38, "SRCH" },
+	{ 0x39, "STSRC" },
+	{ 0x3A, "SUBGCN" },
+	{ 0x3B, "UPDPR" },
+	{ 0x3C, "WVCSPFeat" },
+
+	{ 0x00, NULL }
+};
+
+/* Client capability code page */
+static const value_string wbxml_wv_csp_11_tags_cp3[] = {
+	/* 0x00 -- 0x04 GLOBAL */
+	{ 0x05, "AcceptedCharset" },
+	{ 0x06, "AcceptedContentLength" },
+	{ 0x07, "AcceptedContentType" },
+	{ 0x08, "AcceptedTransferEncoding" },
+	{ 0x09, "AnyContent" },
+	{ 0x0A, "DefaultLanguage" },
+	{ 0x0B, "InitialDeliveryMethod" },
+	{ 0x0C, "MultiTrans" },
+	{ 0x0D, "ParserSize" },
+	{ 0x0E, "ServerPollMin" },
+	{ 0x0F, "SupportedBearer" },
+	{ 0x10, "SupportedCIRMethod" },
+	{ 0x11, "TCPAddress" },
+	{ 0x12, "TCPPort" },
+	{ 0x13, "UDPPort" },
+
+	{ 0x00, NULL }
+};
+
+/* Presence primitive code page */
+static const value_string wbxml_wv_csp_11_tags_cp4[] = {
+	/* 0x00 -- 0x04 GLOBAL */
+	{ 0x05, "CancelAuth-Request" },
+	{ 0x06, "ContactListProperties" },
+	{ 0x07, "CreateAttributeList-Request" },
+	{ 0x08, "CreateList-Request" },
+	{ 0x09, "DefaultAttributeList" },
+	{ 0x0A, "DefaultContactList" },
+	{ 0x0B, "DefaultList" },
+	{ 0x0C, "DeleteAttributeList-Request" },
+	{ 0x0D, "DeleteList-Request" },
+	{ 0x0E, "GetAttributeList-Request" },
+	{ 0x0F, "GetAttributeList-Response" },
+	{ 0x10, "GetList-Request" },
+	{ 0x11, "GetList-Response" },
+	{ 0x12, "GetPresence-Request" },
+	{ 0x13, "GetPresence-Response" },
+	{ 0x14, "GetWatcherList-Request" },
+	{ 0x15, "GetWatcherList-Response" },
+	{ 0x16, "ListManage-Request" },
+	{ 0x17, "ListManage-Response" },
+	{ 0x19, "PresenceAuth-Request" },
+	{ 0x1A, "PresenceAuth-User" },
+	{ 0x1B, "PresenceNotification-Request" },
+	{ 0x1D, "SubscribePresence-Request" },
+	{ 0x18, "UnsubscribePresence-Request" },
+	{ 0x1C, "UpdatePresence-Request" },
+
+	{ 0x00, NULL }
+};
+
+/* Presence attribute code page */
+static const value_string wbxml_wv_csp_11_tags_cp5[] = {
+	/* 0x00 -- 0x04 GLOBAL */
+	{ 0x05, "Accuracy" },
+	{ 0x06, "Address" },
+	{ 0x07, "AddrPref" },
+	{ 0x08, "Alias" },
+	{ 0x09, "Altitude" },
+	{ 0x0A, "Building" },
+	{ 0x0B, "Caddr" },
+	{ 0x2F, "Cap" },
+	{ 0x0C, "City" },
+	{ 0x0D, "ClientInfo" },
+	{ 0x0E, "ClientProducer" },
+	{ 0x0F, "ClientType" },
+	{ 0x10, "ClientVersion" },
+	{ 0x30, "Cname" },
+	{ 0x11, "CommC" },
+	{ 0x12, "CommCap" },
+	{ 0x31, "Contact" },
+	{ 0x13, "ContactInfo" },
+	{ 0x14, "ContainedvCard" },
+	{ 0x15, "Country" },
+	{ 0x32, "Cpriority" },
+	{ 0x16, "Crossing1" },
+	{ 0x17, "Crossing2" },
+	{ 0x33, "Cstatus" },
+	{ 0x18, "DevManufacturer" },
+	{ 0x19, "DirectContent" },
+	{ 0x1A, "FreeTextLocation" },
+	{ 0x1B, "GeoLocation" },
+	{ 0x1C, "Language" },
+	{ 0x1D, "Latitude" },
+	{ 0x1E, "Longitude" },
+	{ 0x1F, "Model" },
+	{ 0x20, "NamedArea" },
+	{ 0x34, "Note" },
+	{ 0x21, "OnlineStatus" },
+	{ 0x22, "PLMN" },
+	{ 0x23, "PrefC" },
+	{ 0x24, "PreferredContacts" },
+	{ 0x25, "PreferredLanguage" },
+	{ 0x26, "ReferredContent" },
+	{ 0x27, "ReferredvCard" },
+	{ 0x28, "Registration" },
+	{ 0x29, "StatusContent" },
+	{ 0x2A, "StatusMood" },
+	{ 0x2B, "StatusText" },
+	{ 0x2C, "Street" },
+	{ 0x2D, "TimeZone" },
+	{ 0x2E, "UserAvailability" },
+	{ 0x35, "Zone" },
+
+	{ 0x00, NULL }
+};
+
+/* Messaging code page */
+static const value_string wbxml_wv_csp_11_tags_cp6[] = {
+	/* 0x00 -- 0x04 GLOBAL */
+	{ 0x05, "BlockList" },
+	{ 0x06, "BlockUser-Request" },
+	{ 0x07, "DeliveryMethod" },
+	{ 0x08, "DeliveryReport" },
+	{ 0x09, "DeliveryReport-Request" },
+	{ 0x1A, "DeliveryTime" },
+	{ 0x0A, "ForwardMessage-Request" },
+	{ 0x0B, "GetBlockedList-Request" },
+	{ 0x0C, "GetBlockedList-Response" },
+	{ 0x0D, "GetMessageList-Request" },
+	{ 0x0E, "GetMessageList-Response" },
+	{ 0x0F, "GetMessage-Request" },
+	{ 0x10, "GetMessage-Response" },
+	{ 0x11, "GrantList" },
+	{ 0x12, "MessageDelivered" },
+	{ 0x13, "MessageInfo" },
+	{ 0x14, "MessageNotification" },
+	{ 0x15, "NewMessage" },
+	{ 0x16, "RejectMessage-Request" },
+	{ 0x17, "SendMessage-Request" },
+	{ 0x18, "SendMessage-Response" },
+	{ 0x19, "SetDeliveryMethod-Request" },
+
+	{ 0x00, NULL }
+};
+
+/* Group code page */
+static const value_string wbxml_wv_csp_11_tags_cp7[] = {
+	/* 0x00 -- 0x04 GLOBAL */
+	{ 0x05, "AddGroupMembers-Request" },
+	{ 0x06, "Admin" },
+	{ 0x07, "CreateGroup-Request" },
+	{ 0x08, "DeleteGroup-Request" },
+	{ 0x09, "GetGroupMembers-Request" },
+	{ 0x0A, "GetGroupMembers-Response" },
+	{ 0x0B, "GetGroupProps-Request" },
+	{ 0x0C, "GetGroupProps-Response" },
+	{ 0x0D, "GroupChangeNotice" },
+	{ 0x0E, "GroupProperties" },
+	{ 0x0F, "Joined" },
+	{ 0x21, "JoinGroup" },
+	{ 0x10, "JoinedRequest" },
+	{ 0x11, "JoinGroup-Request" },
+	{ 0x12, "JoinGroup-Response" },
+	{ 0x13, "LeaveGroup-Request" },
+	{ 0x14, "LeaveGroup-Response" },
+	{ 0x15, "Left" },
+	{ 0x16, "MemberAccess-Request" },
+	{ 0x17, "Mod" },
+	{ 0x18, "OwnProperties" },
+	{ 0x19, "RejectList-Request" },
+	{ 0x1A, "RejectList-Response" },
+	{ 0x1B, "RemoveGroupMembers-Request" },
+	{ 0x1C, "SetGroupProps-Request" },
+	{ 0x1D, "SubscribeGroupNotice-Request" },
+	{ 0x1E, "SubscribeGroupNotice-Response" },
+	{ 0x22, "SubscribeNotification" },
+	{ 0x23, "SubscribeType" },
+	{ 0x1F, "Users" },
+	{ 0x20, "WelcomeNote" },
+
+	{ 0x00, NULL }
+};
+
+/*****    Attribute Start tokens   *****/
+/* Common code page */
+static const value_string wbxml_wv_csp_11_attrStart_cp0[] = {
+	/* 0x00 -- 0x04 GLOBAL */
+	{ 0x05, "xmlns='http://www.wireless-village.org/CSP'" },
+	{ 0x06, "xmlns='http://www.wireless-village.org/PA'" },
+	{ 0x07, "xmlns='http://www.wireless-village.org/TRC'" },
+
+	{ 0x00, NULL }
+};
+
+/*****    Attribute Value tokens   *****/
+/*
+ * Element value tokens
+ *
+ * NOTE - WV-CSP uses the EXT_T_0 token in a peculiar way: the mb_u_int32
+ * does *not* reference an offset in the string table, but it refers to
+ * the index in the following value_string.
+ * 
+ * Please note that:
+ *  - Values ‘T’ and ‘F’ are Boolean values representing "True" and "False"
+ *    (or "Yes" and "No" in some circumstances) respectively.
+ *  - Values ‘GR’, ‘IM’, ‘PR’, ‘SC’, ‘GM’ and ‘US’ are enumerated values
+ *    representing "Group", "Instant Messaging", "Presence", "Shared Content",
+ *    "Group membership" and "User" respectively.
+ *  - Values ‘G’, ‘S’ and ‘U’ are enumerated values representing "Get", "Set"
+ *    and "Unset" respectively.
+ *  - Values ‘N’ and ‘P’ are enumerated values representing "Notify/Get" and
+ *    "Push" respectively.
+ *
+ * I repeat: this is NOT a attrValue[] array hence it is not called
+ * wbxml_wv_XXX but vals_wv_XXX.
+ */
+static const value_string vals_wv_csp_11_element_value_tokens[] = {
+	/*
+	 * Common value tokens
+	 */
+	{ 0x00, "'AccessType'" },
+	{ 0x01, "'ActiveUsers'" },
+	{ 0x02, "'Admin'" },
+	{ 0x03, "'application/'" },
+	{ 0x04, "'application/vnd.wap.mms-message'" },
+	{ 0x05, "'application/x-sms'" },
+	{ 0x06, "'AutoJoin'" },
+	{ 0x07, "'BASE64'" },
+	{ 0x08, "'Closed'" },
+	{ 0x09, "'Default'" },
+	{ 0x0A, "'DisplayName'" },
+	{ 0x0B, "'F'" },
+	{ 0x0C, "'G'" },
+	{ 0x0D, "'GR'" },
+	{ 0x0E, "'http://'" },
+	{ 0x0F, "'https://'" },
+	{ 0x10, "'image/'" },
+	{ 0x11, "'Inband'" },
+	{ 0x12, "'IM'" },
+	{ 0x13, "'MaxActiveUsers'" },
+	{ 0x14, "'Mod'" },
+	{ 0x15, "'Name'" },
+	{ 0x16, "'None'" },
+	{ 0x17, "'N'" },
+	{ 0x18, "'Open'" },
+	{ 0x19, "'Outband'" },
+	{ 0x1A, "'PR'" },
+	{ 0x1B, "'Private'" },
+	{ 0x1C, "'PrivateMessaging'" },
+	{ 0x1D, "'PrivilegeLevel'" },
+	{ 0x1E, "'Public'" },
+	{ 0x1F, "'P'" },
+	{ 0x20, "'Request'" },
+	{ 0x21, "'Response'" },
+	{ 0x22, "'Restricted'" },
+	{ 0x23, "'ScreenName'" },
+	{ 0x24, "'Searchable'" },
+	{ 0x25, "'S'" },
+	{ 0x26, "'SC'" },
+	{ 0x27, "'text/'" },
+	{ 0x28, "'text/plain'" },
+	{ 0x29, "'text/x-vCalendar'" },
+	{ 0x2A, "'text/x-vCard'" },
+	{ 0x2B, "'Topic'" },
+	{ 0x2C, "'T'" },
+	{ 0x2D, "'Type'" },
+	{ 0x2E, "'U'" },
+	{ 0x2F, "'US'" },
+	{ 0x30, "'www.wireless-village.org'" },
+	/*
+	 * Access value tokens
+	 */
+	{ 0x3D, "'GROUP_ID'" },
+	{ 0x3E, "'GROUP_NAME'" },
+	{ 0x3F, "'GROUP_TOPIC'" },
+	{ 0x40, "'GROUP_USER_ID_JOINED'" },
+	{ 0x41, "'GROUP_USER_ID_OWNER'" },
+	{ 0x42, "'HTTP'" },
+	{ 0x43, "'SMS'" },
+	{ 0x44, "'STCP'" },
+	{ 0x45, "'SUDP'" },
+	{ 0x46, "'USER_ALIAS'" },
+	{ 0x47, "'USER_EMAIL_ADDRESS'" },
+	{ 0x48, "'USER_FIRST_NAME'" },
+	{ 0x49, "'USER_ID'" },
+	{ 0x4A, "'USER_LAST_NAME'" },
+	{ 0x4B, "'USER_MOBILE_NUMBER'" },
+	{ 0x4C, "'USER_ONLINE_STATUS'" },
+	{ 0x4D, "'WAPSMS'" },
+	{ 0x4E, "'WAPUDP'" },
+	{ 0x4F, "'WSP'" },
+	/*
+	 * Presence value tokens
+	 */
+	{ 0x5B, "'ANGRY'" },
+	{ 0x5C, "'ANXIOUS'" },
+	{ 0x5D, "'ASHAMED'" },
+	{ 0x5E, "'AUDIO_CALL'" },
+	{ 0x5F, "'AVAILABLE'" },
+	{ 0x60, "'BORED'" },
+	{ 0x61, "'CALL'" },
+	{ 0x62, "'CLI'" },
+	{ 0x63, "'COMPUTER'" },
+	{ 0x64, "'DISCREET'" },
+	{ 0x65, "'EMAIL'" },
+	{ 0x66, "'EXCITED'" },
+	{ 0x67, "'HAPPY'" },
+	{ 0x68, "'IM'" },
+	{ 0x69, "'IM_OFFLINE'" },
+	{ 0x6A, "'IM_ONLINE'" },
+	{ 0x6B, "'IN_LOVE'" },
+	{ 0x6C, "'INVINCIBLE'" },
+	{ 0x6D, "'JEALOUS'" },
+	{ 0x6E, "'MMS'" },
+	{ 0x6F, "'MOBILE_PHONE'" },
+	{ 0x70, "'NOT_AVAILABLE'" },
+	{ 0x71, "'OTHER'" },
+	{ 0x72, "'PDA'" },
+	{ 0x73, "'SAD'" },
+	{ 0x74, "'SLEEPY'" },
+	{ 0x75, "'SMS'" },
+	{ 0x76, "'VIDEO_CALL'" },
+	{ 0x77, "'VIDEO_STREAM'" },
+
+	{ 0x00, NULL }
+};
+
+
+/***** Token code page aggregation *****/
+static const value_valuestring wbxml_wv_csp_11_global[] = {
+	{ 0, wbxml_wv_csp_11_global_cp0 },
+	{ 0, NULL }
+};
+
+static const value_valuestring wbxml_wv_csp_11_tags[] = {
+	{ 0, wbxml_wv_csp_11_tags_cp0 },
+	{ 1, wbxml_wv_csp_11_tags_cp1 },
+	{ 2, wbxml_wv_csp_11_tags_cp2 },
+	{ 3, wbxml_wv_csp_11_tags_cp3 },
+	{ 4, wbxml_wv_csp_11_tags_cp4 },
+	{ 5, wbxml_wv_csp_11_tags_cp5 },
+	{ 6, wbxml_wv_csp_11_tags_cp6 },
+	{ 7, wbxml_wv_csp_11_tags_cp7 },
+	{ 0, NULL }
+};
+
+static const value_valuestring wbxml_wv_csp_11_attrStart[] = {
+	{ 0, wbxml_wv_csp_11_attrStart_cp0 },
+	{ 0, NULL }
+};
+
+
+
+
+
+/* WV-CSP 1.2
+ * 
+ * Wireless Village Client Server Protocol
+ ***************************************/
+
+/*****   Global extension tokens   *****/
+/* Same as WV-CSP 1.1 */
+
+/*****         Tag tokens          *****/
+/* Common code page */
+static const value_string wbxml_wv_csp_12_tags_cp0[] = {
+	{ 0x05, "Acceptance" },
+	{ 0x06, "AddList" },
+	{ 0x07, "AddNickList" },
+	{ 0x0A, "ClientID" },
+	{ 0x0B, "Code" },
+	{ 0x0C, "ContactList" },
+	{ 0x0D, "ContentData" },
+	{ 0x0E, "ContentEncoding" },
+	{ 0x0F, "ContentSize" },
+	{ 0x10, "ContentType" },
+	{ 0x11, "DateTime" },
+	{ 0x12, "Description" },
+	{ 0x13, "DetailedResult" },
+	{ 0x14, "EntityList" },
+	{ 0x15, "Group" },
+	{ 0x16, "GroupID" },
+	{ 0x17, "GroupList" },
+	{ 0x18, "InUse" },
+	{ 0x19, "Logo" },
+	{ 0x1A, "MessageCount" },
+	{ 0x1B, "MessageID" },
+	{ 0x1C, "MessageURI" },
+	{ 0x1D, "MSISDN" },
+	{ 0x1E, "Name" },
+	{ 0x1F, "NickList" },
+	{ 0x20, "NickName" },
+	{ 0x21, "Poll" },
+	{ 0x22, "Presence" },
+	{ 0x23, "PresenceSubList" },
+	{ 0x24, "PresenceValue" },
+	{ 0x25, "Property" },
+	{ 0x26, "Qualifier" },
+	{ 0x27, "Recipient" },
+	{ 0x28, "RemoveList" },
+	{ 0x29, "RemoveNickList" },
+	{ 0x2A, "Result" },
+	{ 0x2B, "ScreenName" },
+	{ 0x2C, "Sender" },
+	{ 0x2D, "Session" },
+	{ 0x2E, "SessionDescriptor" },
+	{ 0x2F, "SessionID" },
+	{ 0x30, "SessionType" },
+	{ 0x08, "SName" },
+	{ 0x31, "Status" },
+	{ 0x32, "Transaction" },
+	{ 0x33, "TransactionContent" },
+	{ 0x34, "TransactionDescriptor" },
+	{ 0x35, "TransactionID" },
+	{ 0x36, "TransactionMode" },
+	{ 0x37, "URL" },
+	{ 0x38, "URLList" },
+	{ 0x39, "User" },
+	{ 0x3A, "UserID" },
+	{ 0x3B, "UserList" },
+	{ 0x3C, "Validity" },
+	{ 0x3D, "Value" },
+	{ 0x09, "WV-CSP-Message" },
+
+	{ 0x00, NULL }
+};
+/* Note that the table continues in code page 0x09 */
+
+/* Access code page (0x01) */
+static const value_string wbxml_wv_csp_12_tags_cp1[] = {
+	{ 0x3A, "AgreedCapabilityList" },
+	{ 0x05, "AllFunctions" },
+	{ 0x06, "AllFunctionsRequest" },
+	{ 0x07, "CancelInvite-Request" },
+	{ 0x08, "CancelInviteUser-Request" },
+	{ 0x09, "Capability" },
+	{ 0x0A, "CapabilityList" },
+	{ 0x0B, "CapabilityRequest" },
+	{ 0x0C, "ClientCapability-Request" },
+	{ 0x0D, "ClientCapability-Response" },
+	{ 0x34, "CompletionFlag" },
+	{ 0x0E, "DigestBytes" },
+	{ 0x0F, "DigestSchema" },
+	{ 0x10, "Disconnect" },
+	{ 0x38, "Extended-Request" },
+	{ 0x39, "Extended-Response" },
+	{ 0x3B, "ExtendedData" },
+	{ 0x11, "Functions" },
+	{ 0x12, "GetSPInfo-Request" },
+	{ 0x13, "GetSPInfo-Response" },
+	{ 0x14, "InviteID" },
+	{ 0x15, "InviteNote" },
+	{ 0x16, "Invite-Request" },
+	{ 0x17, "Invite-Response" },
+	{ 0x18, "InviteType" },
+	{ 0x19, "InviteUser-Request" },
+	{ 0x1A, "InviteUser-Response" },
+	{ 0x1B, "KeepAlive-Request" },
+	{ 0x29, "KeepAlive-Response" },
+	{ 0x1C, "KeepAliveTime" },
+	{ 0x1D, "Login-Request" },
+	{ 0x1E, "Login-Response" },
+	{ 0x1F, "Logout-Request" },
+	{ 0x20, "Nonce" },
+	{ 0x3C, "OtherServer" },
+	{ 0x21, "Password" },
+	{ 0x22, "Polling-Request" },
+	{ 0x3D, "PresenceAttributeNSName" },
+	{ 0x36, "ReceiveList" },
+	{ 0x23, "ResponseNote" },
+	{ 0x24, "SearchElement" },
+	{ 0x25, "SearchFindings" },
+	{ 0x26, "SearchID" },
+	{ 0x27, "SearchIndex" },
+	{ 0x28, "SearchLimit" },
+	{ 0x2A, "SearchPairList" },
+	{ 0x2B, "Search-Request" },
+	{ 0x2C, "Search-Response" },
+	{ 0x2D, "SearchResult" },
+	{ 0x33, "SearchString" },
+	{ 0x2E, "Service-Request" },
+	{ 0x2F, "Service-Response" },
+	{ 0x30, "SessionCookie" },
+	{ 0x3E, "SessionNSName" },
+	{ 0x31, "StopSearch-Request" },
+	{ 0x32, "TimeToLive" },
+	{ 0x3F, "TransactionNSName" },
+	{ 0x37, "VerifyID-Request" },
+
+	{ 0x00, NULL }
+};
+/* Note that the table continues in code page 0x0A */
+
+/* Service code page (0x02) */
+static const value_string wbxml_wv_csp_12_tags_cp2[] = {
+	{ 0x05, "ADDGM" },
+	{ 0x06, "AttListFunc" },
+	{ 0x07, "BLENT" },
+	{ 0x08, "CAAUT" },
+	{ 0x09, "CAINV" },
+	{ 0x0A, "CALI" },
+	{ 0x0B, "CCLI" },
+	{ 0x0C, "ContListFunc" },
+	{ 0x0D, "CREAG" },
+	{ 0x0E, "DALI" },
+	{ 0x0F, "DCLI" },
+	{ 0x10, "DELGR" },
+	{ 0x11, "FundamentalFeat" },
+	{ 0x12, "FWMSG" },
+	{ 0x13, "GALS" },
+	{ 0x14, "GCLI" },
+	{ 0x15, "GETGM" },
+	{ 0x16, "GETGP" },
+	{ 0x17, "GETLM" },
+	{ 0x18, "GETM" },
+	{ 0x19, "GETPR" },
+	{ 0x1A, "GETSPI" },
+	{ 0x1B, "GETWL" },
+	{ 0x1C, "GLBLU" },
+	{ 0x1D, "GRCHN" },
+	{ 0x1E, "GroupAuthFunc" },
+	{ 0x1F, "GroupFeat" },
+	{ 0x20, "GroupMgmtFunc" },
+	{ 0x21, "GroupUseFunc" },
+	{ 0x22, "IMAuthFunc" },
+	{ 0x23, "IMFeat" },
+	{ 0x24, "IMReceiveFunc" },
+	{ 0x25, "IMSendFunc" },
+	{ 0x26, "INVIT" },
+	{ 0x27, "InviteFunc" },
+	{ 0x28, "MBRAC" },
+	{ 0x29, "MCLS" },
+	{ 0x3D, "MF" },
+	{ 0x3E, "MG" },
+	{ 0x3F, "MM" },
+	{ 0x2A, "MDELIV" },
+	{ 0x2B, "NEWM" },
+	{ 0x2C, "NOTIF" },
+	{ 0x2D, "PresenceAuthFunc" },
+	{ 0x2E, "PresenceDeliverFunc" },
+	{ 0x2F, "PresenceFeat" },
+	{ 0x30, "REACT" },
+	{ 0x31, "REJCM" },
+	{ 0x32, "REJEC" },
+	{ 0x33, "RMVGM" },
+	{ 0x34, "SearchFunc" },
+	{ 0x35, "ServiceFunc" },
+	{ 0x36, "SETD" },
+	{ 0x37, "SETGP" },
+	{ 0x38, "SRCH" },
+	{ 0x39, "STSRC" },
+	{ 0x3A, "SUBGCN" },
+	{ 0x3B, "UPDPR" },
+	{ 0x3E, "VRID" },
+	{ 0x3C, "WVCSPFeat" },
+
+	{ 0x00, NULL }
+};
+/* Note that the table continues in code page 0x08 */
+
+/* Client capability code page (0x03) */
+static const value_string wbxml_wv_csp_12_tags_cp3[] = {
+	{ 0x05, "AcceptedCharset" },
+	{ 0x06, "AcceptedContentLength" },
+	{ 0x07, "AcceptedContentType" },
+	{ 0x08, "AcceptedTransferEncoding" },
+	{ 0x09, "AnyContent" },
+	{ 0x0A, "DefaultLanguage" },
+	{ 0x0B, "InitialDeliveryMethod" },
+	{ 0x0C, "MultiTrans" },
+	{ 0x0D, "ParserSize" },
+	{ 0x0E, "ServerPollMin" },
+	{ 0x0F, "SupportedBearer" },
+	{ 0x10, "SupportedCIRMethod" },
+	{ 0x11, "TCPAddress" },
+	{ 0x12, "TCPPort" },
+	{ 0x13, "UDPPort" },
+
+	{ 0x00, NULL }
+};
+
+/* Presence primitive code page (0x04) */
+static const value_string wbxml_wv_csp_12_tags_cp4[] = {
+	{ 0x1E, "Auto-Subscribe" },
+	{ 0x05, "CancelAuth-Request" },
+	{ 0x06, "ContactListProperties" },
+	{ 0x07, "CreateAttributeList-Request" },
+	{ 0x08, "CreateList-Request" },
+	{ 0x09, "DefaultAttributeList" },
+	{ 0x0A, "DefaultContactList" },
+	{ 0x0B, "DefaultList" },
+	{ 0x0C, "DeleteAttributeList-Request" },
+	{ 0x0D, "DeleteList-Request" },
+	{ 0x0E, "GetAttributeList-Request" },
+	{ 0x0F, "GetAttributeList-Response" },
+	{ 0x10, "GetList-Request" },
+	{ 0x11, "GetList-Response" },
+	{ 0x12, "GetPresence-Request" },
+	{ 0x13, "GetPresence-Response" },
+	{ 0x1F, "GetReactiveAuthStatus-Request" },
+	{ 0x20, "GetReactiveAuthStatus-Response" },
+	{ 0x14, "GetWatcherList-Request" },
+	{ 0x15, "GetWatcherList-Response" },
+	{ 0x16, "ListManage-Request" },
+	{ 0x17, "ListManage-Response" },
+	{ 0x19, "PresenceAuth-Request" },
+	{ 0x1A, "PresenceAuth-User" },
+	{ 0x1B, "PresenceNotification-Request" },
+	{ 0x1D, "SubscribePresence-Request" },
+	{ 0x18, "UnsubscribePresence-Request" },
+	{ 0x1C, "UpdatePresence-Request" },
+
+	{ 0x00, NULL }
+};
+
+/* Presence attribute code page (0x05) */
+static const value_string wbxml_wv_csp_12_tags_cp5[] = {
+	{ 0x05, "Accuracy" },
+	{ 0x06, "Address" },
+	{ 0x07, "AddrPref" },
+	{ 0x08, "Alias" },
+	{ 0x09, "Altitude" },
+	{ 0x0A, "Building" },
+	{ 0x0B, "Caddr" },
+	{ 0x2F, "Cap" },
+	{ 0x0C, "City" },
+	{ 0x0D, "ClientInfo" },
+	{ 0x0E, "ClientProducer" },
+	{ 0x0F, "ClientType" },
+	{ 0x10, "ClientVersion" },
+	{ 0x30, "Cname" },
+	{ 0x11, "CommC" },
+	{ 0x12, "CommCap" },
+	{ 0x31, "Contact" },
+	{ 0x13, "ContactInfo" },
+	{ 0x14, "ContainedvCard" },
+	{ 0x36, "ContentType" },
+	{ 0x15, "Country" },
+	{ 0x32, "Cpriority" },
+	{ 0x16, "Crossing1" },
+	{ 0x17, "Crossing2" },
+	{ 0x33, "Cstatus" },
+	{ 0x18, "DevManufacturer" },
+	{ 0x19, "DirectContent" },
+	{ 0x1A, "FreeTextLocation" },
+	{ 0x1B, "GeoLocation" },
+	{ 0x37, "Inf_link" },
+	{ 0x38, "InfoLink" },
+	{ 0x1C, "Language" },
+	{ 0x1D, "Latitude" },
+	{ 0x39, "Link" },
+	{ 0x1E, "Longitude" },
+	{ 0x1F, "Model" },
+	{ 0x20, "NamedArea" },
+	{ 0x34, "Note" },
+	{ 0x21, "OnlineStatus" },
+	{ 0x22, "PLMN" },
+	{ 0x23, "PrefC" },
+	{ 0x24, "PreferredContacts" },
+	{ 0x25, "PreferredLanguage" },
+	{ 0x26, "ReferredContent" },
+	{ 0x27, "ReferredvCard" },
+	{ 0x28, "Registration" },
+	{ 0x29, "StatusContent" },
+	{ 0x2A, "StatusMood" },
+	{ 0x2B, "StatusText" },
+	{ 0x2C, "Street" },
+	{ 0x3A, "Text" },
+	{ 0x2D, "TimeZone" },
+	{ 0x2E, "UserAvailability" },
+	{ 0x35, "Zone" },
+
+	{ 0x00, NULL }
+};
+
+/* Messaging code page (0x06) */
+static const value_string wbxml_wv_csp_12_tags_cp6[] = {
+	{ 0x05, "BlockList" },
+	{ 0x06, "BlockEntity-Request" },
+	{ 0x07, "DeliveryMethod" },
+	{ 0x08, "DeliveryReport" },
+	{ 0x09, "DeliveryReport-Request" },
+	{ 0x1A, "DeliveryTime" },
+	{ 0x0A, "ForwardMessage-Request" },
+	{ 0x0B, "GetBlockedList-Request" },
+	{ 0x0C, "GetBlockedList-Response" },
+	{ 0x0D, "GetMessageList-Request" },
+	{ 0x0E, "GetMessageList-Response" },
+	{ 0x0F, "GetMessage-Request" },
+	{ 0x10, "GetMessage-Response" },
+	{ 0x11, "GrantList" },
+	{ 0x12, "MessageDelivered" },
+	{ 0x13, "MessageInfo" },
+	{ 0x14, "MessageNotification" },
+	{ 0x15, "NewMessage" },
+	{ 0x16, "RejectMessage-Request" },
+	{ 0x17, "SendMessage-Request" },
+	{ 0x18, "SendMessage-Response" },
+	{ 0x19, "SetDeliveryMethod-Request" },
+
+	{ 0x00, NULL }
+};
+
+/* Group code page (0x07) */
+static const value_string wbxml_wv_csp_12_tags_cp7[] = {
+	{ 0x05, "AddGroupMembers-Request" },
+	{ 0x06, "Admin" },
+	{ 0x26, "AdminMapList" },
+	{ 0x27, "AdminMapping" },
+	{ 0x07, "CreateGroup-Request" },
+	{ 0x08, "DeleteGroup-Request" },
+	{ 0x09, "GetGroupMembers-Request" },
+	{ 0x0A, "GetGroupMembers-Response" },
+	{ 0x0B, "GetGroupProps-Request" },
+	{ 0x0C, "GetGroupProps-Response" },
+	{ 0x24, "GetJoinedUsers-Request" },
+	{ 0x25, "GetJoinedUsers-Response" },
+	{ 0x0D, "GroupChangeNotice" },
+	{ 0x0E, "GroupProperties" },
+	{ 0x0F, "Joined" },
+	{ 0x21, "JoinGroup" },
+	{ 0x10, "JoinedRequest" },
+	{ 0x11, "JoinGroup-Request" },
+	{ 0x12, "JoinGroup-Response" },
+	{ 0x13, "LeaveGroup-Request" },
+	{ 0x14, "LeaveGroup-Response" },
+	{ 0x15, "Left" },
+	{ 0x28, "Mapping" },
+	{ 0x16, "MemberAccess-Request" },
+	{ 0x17, "Mod" },
+	{ 0x29, "ModMapping" },
+	{ 0x18, "OwnProperties" },
+	{ 0x19, "RejectList-Request" },
+	{ 0x1A, "RejectList-Response" },
+	{ 0x1B, "RemoveGroupMembers-Request" },
+	{ 0x1C, "SetGroupProps-Request" },
+	{ 0x1D, "SubscribeGroupNotice-Request" },
+	{ 0x1E, "SubscribeGroupNotice-Response" },
+	{ 0x22, "SubscribeNotification" },
+	{ 0x23, "SubscribeType" },
+	{ 0x2A, "UserMapList" },
+	{ 0x2B, "UserMapping" },
+	{ 0x1F, "Users" },
+	{ 0x20, "WelcomeNote" },
+
+	{ 0x00, NULL }
+};
+
+/* Service negotiation code page - continued (0x08) */
+static const value_string wbxml_wv_csp_12_tags_cp8[] = {
+	{ 0x06, "GETAUT" },
+	{ 0x07, "GETJU" },
+	{ 0x05, "MP" },
+
+	{ 0x00, NULL }
+};
+
+/* Common code page - continued (0x09) */
+static const value_string wbxml_wv_csp_12_tags_cp9[] = {
+	{ 0x05, "CIR" },
+	{ 0x06, "Domain" },
+	{ 0x07, "ExtBlock" },
+	{ 0x08, "HistoryPeriod" },
+	{ 0x09, "IDList" },
+	{ 0x0A, "MaxWatcherList" },
+	{ 0x0B, "ReactiveAuthState" },
+	{ 0x0C, "ReactiveAuthStatus" },
+	{ 0x0D, "ReactiveAuthStatusList" },
+	{ 0x0E, "Watcher" },
+	{ 0x0C, "WatcherStatus" },
+
+	{ 0x00, NULL }
+};
+
+/* Access code page - continued (0x0A) */
+static const value_string wbxml_wv_csp_12_tags_cp10[] = {
+	{ 0x05, "WV-CSP-NSDiscovery-Request" },
+	{ 0x06, "WV-CSP-NSDiscovery-Response" },
+
+	{ 0x00, NULL }
+};
+
+/*****    Attribute Start tokens   *****/
+/* Common code page (0x00) */
+static const value_string wbxml_wv_csp_12_attrStart_cp0[] = {
+	{ 0x05, "xmlns='http://www.wireless-village.org/CSP'" },
+	{ 0x06, "xmlns='http://www.wireless-village.org/PA'" },
+	{ 0x07, "xmlns='http://www.wireless-village.org/TRC'" },
+	{ 0x08, "xmlns='http://www.openmobilealliance.org/DTD/WV-CSP'" },
+	{ 0x09, "xmlns='http://www.openmobilealliance.org/DTD/WV-PA'" },
+	{ 0x0A, "xmlns http://www.openmobilealliance.org/DTD/WV-TRC'" },
+
+	{ 0x00, NULL }
+};
+
+/*****    Attribute Value tokens   *****/
+/*
+ * Element value tokens
+ *
+ * NOTE - WV-CSP uses the EXT_T_0 token in a peculiar way: the mb_u_int32
+ * does *not* reference an offset in the string table, but it refers to
+ * the index in the following value_string.
+ *
+ * Please note that:
+ *  - Values ‘T’ and ‘F’ are Boolean values representing "True" and "False"
+ *    (or "Yes" and "No" in some circumstances) respectively.
+ *  - Values ‘GR’, ‘IM’, ‘PR’, ‘SC’, ‘GM’ and ‘US’ are enumerated values
+ *    representing "Group", "Instant Messaging", "Presence", "Shared Content",
+ *    "Group membership" and "User" respectively.
+ *  - Values ‘G’, ‘S’ and ‘U’ are enumerated values representing "Get", "Set"
+ *    and "Unset" respectively.
+ *  - Values ‘N’ and ‘P’ are enumerated values representing "Notify/Get" and
+ *    "Push" respectively.
+ *
+ * I repeat: this is NOT a attrValue[] array hence it is not called
+ * wbxml_wv_XXX but vals_wv_XXX.
+ */
+static const value_string vals_wv_csp_12_element_value_tokens[] = {
+	/*
+	 * Common value tokens
+	 */
+	{ 0x00, "'AccessType'" },
+	{ 0x01, "'ActiveUsers'" },
+	{ 0x02, "'Admin'" },
+	{ 0x03, "'application/'" },
+	{ 0x04, "'application/vnd.wap.mms-message'" },
+	{ 0x05, "'application/x-sms'" },
+	{ 0x31, "'AutoDelete'" },
+	{ 0x06, "'AutoJoin'" },
+	{ 0x07, "'BASE64'" },
+	{ 0x08, "'Closed'" },
+	{ 0x09, "'Default'" },
+	{ 0x34, "'DENIED'" },
+	{ 0x0A, "'DisplayName'" },
+	{ 0x0B, "'F'" },
+	{ 0x0C, "'G'" },
+	{ 0x32, "'GM'" },
+	{ 0x0D, "'GR'" },
+	{ 0x35, "'GRANTED'" },
+	{ 0x0E, "'http://'" },
+	{ 0x0F, "'https://'" },
+	{ 0x10, "'image/'" },
+	{ 0x11, "'Inband'" },
+	{ 0x12, "'IM'" },
+	{ 0x13, "'MaxActiveUsers'" },
+	{ 0x14, "'Mod'" },
+	{ 0x15, "'Name'" },
+	{ 0x16, "'None'" },
+	{ 0x17, "'N'" },
+	{ 0x18, "'Open'" },
+	{ 0x19, "'Outband'" },
+	{ 0x36, "'PENDING'" },
+	{ 0x1A, "'PR'" },
+	{ 0x1B, "'Private'" },
+	{ 0x1C, "'PrivateMessaging'" },
+	{ 0x1D, "'PrivilegeLevel'" },
+	{ 0x1E, "'Public'" },
+	{ 0x1F, "'P'" },
+	{ 0x20, "'Request'" },
+	{ 0x21, "'Response'" },
+	{ 0x22, "'Restricted'" },
+	{ 0x23, "'ScreenName'" },
+	{ 0x24, "'Searchable'" },
+	{ 0x25, "'S'" },
+	{ 0x26, "'SC'" },
+	{ 0x34, "'ShowID'" },
+	{ 0x27, "'text/'" },
+	{ 0x28, "'text/plain'" },
+	{ 0x29, "'text/x-vCalendar'" },
+	{ 0x2A, "'text/x-vCard'" },
+	{ 0x2B, "'Topic'" },
+	{ 0x2C, "'T'" },
+	{ 0x2D, "'Type'" },
+	{ 0x2E, "'U'" },
+	{ 0x2F, "'US'" },
+	{ 0x33, "'Validity'" },
+	{ 0x30, "'www.wireless-village.org'" },
+	/*
+	 * Access value tokens
+	 */
+	{ 0x3D, "'GROUP_ID'" },
+	{ 0x3E, "'GROUP_NAME'" },
+	{ 0x3F, "'GROUP_TOPIC'" },
+	{ 0x40, "'GROUP_USER_ID_JOINED'" },
+	{ 0x50, "'GROUP_USER_ID_AUTOJOIN'" },
+	{ 0x41, "'GROUP_USER_ID_OWNER'" },
+	{ 0x42, "'HTTP'" },
+	{ 0x43, "'SMS'" },
+	{ 0x44, "'STCP'" },
+	{ 0x45, "'SUDP'" },
+	{ 0x46, "'USER_ALIAS'" },
+	{ 0x47, "'USER_EMAIL_ADDRESS'" },
+	{ 0x48, "'USER_FIRST_NAME'" },
+	{ 0x49, "'USER_ID'" },
+	{ 0x4A, "'USER_LAST_NAME'" },
+	{ 0x4B, "'USER_MOBILE_NUMBER'" },
+	{ 0x4C, "'USER_ONLINE_STATUS'" },
+	{ 0x4D, "'WAPSMS'" },
+	{ 0x4E, "'WAPUDP'" },
+	{ 0x4F, "'WSP'" },
+	/*
+	 * Presence value tokens
+	 */
+	{ 0x5B, "'ANGRY'" },
+	{ 0x5C, "'ANXIOUS'" },
+	{ 0x5D, "'ASHAMED'" },
+	{ 0x5E, "'AUDIO_CALL'" },
+	{ 0x5F, "'AVAILABLE'" },
+	{ 0x60, "'BORED'" },
+	{ 0x61, "'CALL'" },
+	{ 0x62, "'CLI'" },
+	{ 0x63, "'COMPUTER'" },
+	{ 0x64, "'DISCREET'" },
+	{ 0x65, "'EMAIL'" },
+	{ 0x66, "'EXCITED'" },
+	{ 0x67, "'HAPPY'" },
+	{ 0x68, "'IM'" },
+	{ 0x69, "'IM_OFFLINE'" },
+	{ 0x6A, "'IM_ONLINE'" },
+	{ 0x6B, "'IN_LOVE'" },
+	{ 0x6C, "'INVINCIBLE'" },
+	{ 0x6D, "'JEALOUS'" },
+	{ 0x6E, "'MMS'" },
+	{ 0x6F, "'MOBILE_PHONE'" },
+	{ 0x70, "'NOT_AVAILABLE'" },
+	{ 0x71, "'OTHER'" },
+	{ 0x72, "'PDA'" },
+	{ 0x73, "'SAD'" },
+	{ 0x74, "'SLEEPY'" },
+	{ 0x75, "'SMS'" },
+	{ 0x76, "'VIDEO_CALL'" },
+	{ 0x77, "'VIDEO_STREAM'" },
+
+	{ 0x00, NULL }
+};
+
+
+
+/***** Token code page aggregation *****/
+#define wbxml_wv_csp_12_global wbxml_wv_csp_11_global
+
+static const value_valuestring wbxml_wv_csp_12_tags[] = {
+	{  0, wbxml_wv_csp_12_tags_cp0 },
+	{  1, wbxml_wv_csp_12_tags_cp1 },
+	{  2, wbxml_wv_csp_12_tags_cp2 },
+	{  3, wbxml_wv_csp_12_tags_cp3 },
+	{  4, wbxml_wv_csp_12_tags_cp4 },
+	{  5, wbxml_wv_csp_12_tags_cp5 },
+	{  6, wbxml_wv_csp_12_tags_cp6 },
+	{  7, wbxml_wv_csp_12_tags_cp7 },
+	{  8, wbxml_wv_csp_12_tags_cp8 },
+	{  9, wbxml_wv_csp_12_tags_cp9 },
+	{ 10, wbxml_wv_csp_12_tags_cp10 },
+	{  0, NULL }
+};
+
+static const value_valuestring wbxml_wv_csp_12_attrStart[] = {
+	{ 0, wbxml_wv_csp_12_attrStart_cp0 },
+	{ 0, NULL }
+};
+
+
+
+
 
 /********************** WBXML token mapping aggregation **********************/
 
@@ -1828,9 +3504,9 @@ static const value_valuestring wbxml_nokiaprovc70_attrStart[] = {
  * contains arrays of pointers to value_string arrays (one per code page).
  */
 typedef struct _wbxml_token_map {
-	const guint32 publicid;  /* WBXML DTD number - see WINA (now OMNA) */
-	const gchar *content_type;	/* Content type if no WBXML DTD number */
-	const guint8 defined;    /* Are there mapping tables defined */
+	const guint32 publicid;	    /* WBXML DTD number - see WINA (now OMNA) */
+	const gchar *content_type;  /* Content type if no WBXML DTD number */
+	const gboolean defined;     /* Are there mapping tables defined */
 	const value_valuestring *global;     /* Global token map */
 	const value_valuestring *tags;       /* Tag token map */
 	const value_valuestring *attrStart;  /* Attribute Start token map */
@@ -1860,7 +3536,7 @@ static const wbxml_token_map map[] = {
 	},
 #endif
 	{ 0x04, NULL, TRUE, /* WML 1.1 */
-		wbxml_wmlc11_global,
+		wbxml_wmlc10_global, /* Same as WML 1.0 */
 		wbxml_wmlc11_tags,
 		wbxml_wmlc11_attrStart,
 		wbxml_wmlc11_attrValue
@@ -1890,13 +3566,13 @@ static const wbxml_token_map map[] = {
 		NULL, /* wbxml_channelc10_attrValue - does not exist */
 	},
 	{ 0x09, NULL, TRUE, /* WML 1.2 */
-		wbxml_wmlc12_global,
+		wbxml_wmlc10_global, /* Same as WML 1.0 */
 		wbxml_wmlc12_tags,
 		wbxml_wmlc12_attrStart,
 		wbxml_wmlc12_attrValue
 	},
 	{ 0x0A, NULL, TRUE, /* WML 1.3 */
-		wbxml_wmlc13_global,
+		wbxml_wmlc10_global, /* Same as WML 1.0 */
 		wbxml_wmlc13_tags,
 		wbxml_wmlc13_attrStart,
 		wbxml_wmlc13_attrValue
@@ -1923,6 +3599,18 @@ static const wbxml_token_map map[] = {
 		NULL, NULL, NULL, NULL
 	},
 #endif
+	{ 0x0f, NULL, TRUE, /* WV-CSP 1.0 */
+		NULL,
+		wbxml_wv_csp_10_tags,
+		wbxml_wv_csp_10_attrStart,
+		wbxml_wv_csp_10_attrValue,
+	},
+	{ 0x10, NULL, TRUE /* WV-CSP 1.1 */,
+		wbxml_wv_csp_11_global,
+		wbxml_wv_csp_11_tags,
+		wbxml_wv_csp_11_attrStart,
+		NULL, /* wbxml_wv_csp_11_attrValue - does not exist */
+	},
 	{ 0x020B, NULL, TRUE, /* Nokia OTA Provisioning 7.0 */
 		NULL, /* wbxml_nokiaprovc70_global - does not exist */
 		wbxml_nokiaprovc70_tags,
@@ -1944,7 +3632,7 @@ static const wbxml_token_map map[] = {
 	{ 0x1108, NULL, TRUE, /* Phone.com - WML+ 1.1 */
 		/* Note: I assumed WML+ 1.1 would be not that different from WML 1.1,
 		 *       the real mapping should come from Phone.com (OpenWave)! */
-		wbxml_wmlc11_global, /* Not 100% true */
+		wbxml_wmlc10_global, /* Same as WML 1.0 - Not 100% true */
 		wbxml_wmlc11_tags, /* Not 100% true */
 		wbxml_wmlc11_attrStart, /* Not 100% true */
 		wbxml_wmlc11_attrValue /* Not 100% true */
@@ -1952,7 +3640,7 @@ static const wbxml_token_map map[] = {
 	{ 0x110D, NULL, TRUE, /* Phone.com - WML+ 1.3 */
 		/* Note: I assumed WML+ 1.3 would be not that different from WML 1.3,
 		 *       the real mapping should come from Phone.com (OpenWave)! */
-		wbxml_wmlc13_global, /* Not 100% true */
+		wbxml_wmlc10_global, /* Same as WML 1.0 - Not 100% true */
 		wbxml_wmlc13_tags, /* Not 100% true */
 		wbxml_wmlc13_attrStart, /* Not 100% true */
 		wbxml_wmlc13_attrValue /* Not 100% true */
@@ -1975,7 +3663,13 @@ static const wbxml_token_map textual_map[] = {
 		wbxml_nokiaprovc70_attrStart,
 		NULL, /* wbxml_nokiaprovc70_attrValue - does not exist */
 	},
-	
+	{ 0x00, "application/vnd.wv.csp.wbxml", TRUE,
+		wbxml_wv_csp_12_global,
+		wbxml_wv_csp_12_tags,
+		wbxml_wv_csp_12_attrStart,
+		NULL, /* wbxml_wv_csp_12_attrValue - does not exist */
+	},
+
 	{ 0, NULL, FALSE, NULL, NULL, NULL, NULL }
 };
 
@@ -2042,7 +3736,7 @@ static const wbxml_token_map *wbxml_content_map (guint32 publicid,
 			return &(map[i]);
 		i++;
 	}
-	/* Then look if the content type has a mapping */
+	/* If this fails, then look if the content type string has a mapping */
 	if (content_type && content_type[0]) {
 		DebugLog(("wbxml_token_map(no match for publicid = %u;"
 					" looking up content_type = [%s])\n",
@@ -2496,7 +4190,7 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 						"| %s(%s: \'%s\')",
 						*level, *codepage_stag,
 						peek & 0x0f, Indent (*level),
-						map_token (map->global, *codepage_stag, peek),
+						map_token (map->global, 0, peek),
 						tvb_format_text (tvb, off+1, len-1));
 				off += 1+len;
 				break;
@@ -2534,7 +4228,7 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 						"| EXT_T_%1x    (Extension Token)    "
 						"| %s(%s: \'%s\')",
 						*level, *codepage_stag, peek & 0x0f, Indent (*level),
-						map_token (map->global, *codepage_stag, peek),
+						map_token (map->global, 0, peek),
 						tvb_format_text (tvb, str_tbl+index, str_len-1));
 				off += 1+len;
 				break;
@@ -2558,7 +4252,7 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 						"| EXT_%1x      (Extension Token)    "
 						"| %s(%s)",
 						*level, *codepage_stag, peek & 0x0f, Indent (*level),
-						map_token (map->global, *codepage_stag, peek));
+						map_token (map->global, 0, peek));
 				off++;
 				break;
 			case 0xC3: /* OPAQUE - WBXML 1.1 and newer */
@@ -3287,7 +4981,7 @@ parse_wbxml_attribute_list_defined (proto_tree *tree, tvbuff_t *tvb,
 						"| EXT_I_%1x    (Extension Token)    "
 						"|     %s(%s: \'%s\')",
 						level, *codepage_attr, peek & 0x0f, Indent (level),
-						map_token (map->global, *codepage_attr, peek),
+						map_token (map->global, 0, peek),
 						tvb_format_text (tvb, off+1, len-1));
 				off += 1+len;
 				break;
@@ -3304,7 +4998,7 @@ parse_wbxml_attribute_list_defined (proto_tree *tree, tvbuff_t *tvb,
 						"| EXT_T_%1x    (Extension Token)    "
 						"|     %s(%s: \'%s\')",
 						level, *codepage_attr, peek & 0x0f, Indent (level),
-						map_token (map->global, *codepage_attr, peek),
+						map_token (map->global, 0, peek),
 						tvb_format_text (tvb, str_tbl+index, str_len-1));
 				off += 1+len;
 				break;
@@ -3329,7 +5023,7 @@ parse_wbxml_attribute_list_defined (proto_tree *tree, tvbuff_t *tvb,
 						"| EXT_%1x      (Extension Token)    "
 						"|     %s(%s)",
 						level, *codepage_attr, peek & 0x0f, Indent (level),
-						map_token (map->global, *codepage_attr, peek));
+						map_token (map->global, 0, peek));
 				off++;
 				break;
 			case 0xC3: /* OPAQUE - WBXML 1.1 and newer */
@@ -3685,6 +5379,8 @@ proto_reg_handoff_wbxml(void)
 			"application/vnd.syncml.dm+wbxml", wbxml_handle);
 	dissector_add_string("media_type",
 			"application/vnd.oma.drm.rights+wbxml", wbxml_handle);
+	dissector_add_string("media_type",
+			"application/vnd.wv.csp.wbxml", wbxml_handle);
 
 	/**** Registered WBXML WSP Content-Type values ****/
 
