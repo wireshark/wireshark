@@ -39,12 +39,13 @@ B<atmsnoop>, B<LanAlyzer>, B<Sniffer> (compressed or uncompressed),
 Microsoft B<Network Monitor>, AIX's B<iptrace>, B<NetXray>, B<Sniffer
 Pro>, B<RADCOM>'s WAN/LAN analyzer, B<Lucent/Ascend> router debug
 output, HP-UX's B<nettl>, the dump output from B<Toshiba's> ISDN
-routers, and B<i4btrace> from the ISDN4BSD project.  There is no need to
-tell B<Ethereal> what type of file you are reading; it will determine
-the file type by itself.  B<Ethereal> is also capable of reading any of
-these file formats if they are compressed using gzip.  B<Ethereal>
-recognizes this directly from the file; the '.gz' extension is not
-required for this purpose.
+routers, the output from B<i4btrace> from the ISDN4BSD project, and
+output in IPLog format from the Cisco Secure Intrusion Detection System.
+There is no need to tell B<Ethereal> what type of file you are reading;
+it will determine the file type by itself.  B<Ethereal> is also capable
+of reading any of these file formats if they are compressed using gzip. 
+B<Ethereal> recognizes this directly from the file; the '.gz' extension
+is not required for this purpose.
 
 Like other protocol analyzers, B<Ethereal>'s main window shows 3 views
 of a packet.  It shows a summary line, briefly describing what the
@@ -54,11 +55,11 @@ shows you exactly what the packet looks like when it goes over the wire.
 
 In addition, B<Ethereal> has some features that make it unique.  It can
 assemble all the packets in a TCP conversation and show you the ASCII
-(or EBCDIC) data in that conversation.  Display filters in B<Ethereal>
-are very powerful; more fields are filterable in B<Ethereal> than in other
-protocol analyzers, and the syntax you can use to create your filters is
-richer.  As B<Ethereal> progresses, expect more and more protocol fields to
-be allowed in display filters.
+(or EBCDIC, or hex) data in that conversation.  Display filters in
+B<Ethereal> are very powerful; more fields are filterable in B<Ethereal>
+than in other protocol analyzers, and the syntax you can use to create
+your filters is richer.  As B<Ethereal> progresses, expect more and more
+protocol fields to be allowed in display filters.
 
 Packet capturing is performed with the pcap library.  The capture filter
 syntax follows the rules of the pcap library.  This syntax is different
@@ -324,9 +325,31 @@ ENTER in the display filter text box, thereby invoking your old display
 filter (or resetting it back to no display filter).
 
 The window in which the data stream is displayed lets you select whether
-the data being displayed is to be treated as ASCII or EBCDIC text, and
-lets you print the text, using the same print options that are used for
-the I<File:Print Packet> menu item.
+to display:
+
+=over 4
+
+=item
+
+whether to display the entire conversation, or one or the other side of
+it;
+
+=item
+
+whether the data being displayed is to be treated as ASCII or EBCDIC
+text or as raw hex data;
+
+=back
+
+=back
+
+=over 4
+
+=item
+
+and lets you print what's currently being displayed, using the same
+print options that are used for the I<File:Print Packet> menu item, or
+save it as text to a file.
 
 =back
 
