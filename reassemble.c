@@ -1,7 +1,7 @@
 /* reassemble.c
  * Routines for {fragment,segment} reassembly
  *
- * $Id: reassemble.c,v 1.14 2002/04/17 10:07:57 guy Exp $
+ * $Id: reassemble.c,v 1.15 2002/04/17 10:59:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1016,35 +1016,6 @@ fragment_add_seq_check(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			return fd_head;
 		}
 
-		if (short_frame) {
-			/*
-			 * This is a short frame, so don't do
-			 * reassembly on it.  (We had to be called
-			 * even on short frames, so that we can
-			 * check for fragments that are both the
-			 * first and last fragment, and handle
-			 * them as unfragmented packets.)
-			 *
-			 * If it's the first frame (fragment number
-			 * is 0), handle it as an unfragmented
-			 * packet.
-			 *
-			 * If it's not the first frame, enter it
-			 * into the hash table, but *don't* do
-			 * any further reassembly work on it;
-			 * it'll just sit there in the hash table
-			 * as an indication that we started a
-			 * reassembly, so that when we see the
-			 * last fragment, we don't get confused and
-			 * think it's an unfragmented packet.
-			 */
-			if (frag_number == 0) {
-				fragment_reassembled(fd_head, pinfo,
-				       reassembled_table);
-				return fd_head;
-			}
-		}
-
 		/*
 		 * We're going to use the key to insert the fragment,
 		 * so allocate a structure for it, and copy the
@@ -1057,32 +1028,36 @@ fragment_add_seq_check(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		new_key->id = key.id;
 		g_hash_table_insert(fragment_table, new_key, fd_head);
 
-		if (short_frame)
-			return NULL;
-
-		orig_key = NULL;	/* paranoia */
+		orig_key = new_key;	/* for unhashing it later */
 	} else {
 		/*
 		 * We found it.
 		 */
 		fd_head = value;
+	}
 
-		/*
-		 * If this is a short frame, then we can't, and don't,
-		 * do reassembly on it.  We just return NULL so
-		 * that it's shown as a fragment.
-		 *
-		 * However, if "more_frags" isn't set, we get rid of
-		 * the entry in the hash table for this reassembly,
-		 * as we don't need it any more.
-		 */
-		if (short_frame) {
-			if (!more_frags) {
-				old_key = orig_key;
-				fragment_unhash(fragment_table, old_key);
-			}
-			return NULL;
+	/*
+	 * If this is a short frame, then we can't, and don't, do
+	 * reassembly on it.
+	 *
+	 * If it's the first frame (fragment number is 0), handle it
+	 * as an unfragmented packet.  Otherwise, just handle it
+	 * as a fragment.
+	 *
+	 * If "more_frags" isn't set, we get rid of the entry in the
+	 * hash table for this reassembly, as we don't need it any more.
+	 */
+	if (short_frame) {
+		if (!more_frags) {
+			/*
+			 * Remove this from the table of in-progress
+			 * reassemblies, and free up any memory used for
+			 * it in that table.
+			 */
+			old_key = orig_key;
+			fragment_unhash(fragment_table, old_key);
 		}
+		return frag_number == 0 ? fd_head : NULL;
 	}
 
 	if (fragment_add_seq_work(fd_head, tvb, offset, pinfo, id,
