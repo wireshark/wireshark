@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.159 2000/01/26 07:00:14 oabad Exp $
+# $Id: Makefile.am,v 1.160 2000/01/30 16:57:20 nneul Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -22,6 +22,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
+EXTRA_PROGRAMS = ethereal_static
 bin_PROGRAMS = ethereal editcap tethereal
 
 man_MANS = ethereal.1 editcap.1 tethereal.1
@@ -233,6 +234,9 @@ ethereal_SOURCES = \
 	summary.h      \
 	ui_util.h
 
+ethereal_static_SOURCES = \
+	$(ethereal_SOURCES)
+
 EXTRA_ethereal_SOURCES = \
 	dfilter-grammar.c \
 	dfilter-grammar.h \
@@ -257,7 +261,8 @@ EXTRA_ethereal_SOURCES = \
 # we should probably split this into stuff needed both
 # by ethereal and tethereal and stuff needed only by one or the
 # other.
-ethereal_optional_objects = @SNPRINTF_O@ @STRERROR_O@  @STRNCASECMP_O@ @MKSTEMP_O@ \
+ethereal_optional_objects = @SNPRINTF_O@ @STRERROR_O@ \
+	@STRNCASECMP_O@ @MKSTEMP_O@ \
 	@INET_ATON_O@ @INET_PTON_O@ @INET_NTOP_O@ 
 
 # Additional libs that I know how to build. These will be
@@ -269,6 +274,10 @@ ethereal_DEPENDENCIES = \
 	$(ethereal_optional_objects)	\
 	$(ethereal_additional_libs)	\
 	plugins/gryphon/gryphon.la
+
+ethereal_static_DEPENDENCIES = \
+	$(ethereal_optional_objects)	\
+	$(ethereal_additional_libs)
 
 # This automake variable adds to the link-line for the executable.
 #
@@ -284,7 +293,14 @@ ethereal_LDADD = \
 	"-dlopen" self	\
 	"-dlopen" plugins/gryphon/gryphon.la @PCAP_LIBS@ @GTK_LIBS@
 
+ethereal_static_LDADD = \
+	$(ethereal_optional_objects)	\
+	$(ethereal_additional_libs) \
+	@SNMP_LIBS@			\
+	@PCAP_LIBS@ @GTK_LIBS@
+
 ethereal_LDFLAGS = -export-dynamic
+ethereal_static_LDFLAGS = -Wl,-static
 
 tethereal_SOURCES = \
 	$(DISSECTOR_SOURCES) \

@@ -16,6 +16,7 @@ dfilter-scanner.c
 editcap
 editcap.1
 ethereal
+ethereal_static
 ethereal.1
 ethereal.spec
 install-sh
