@@ -1,7 +1,7 @@
 /* rtp_analysis.c
  * RTP analysis addition for ethereal
  *
- * $Id: rtp_analysis.c,v 1.27 2004/01/25 21:55:11 guy Exp $
+ * $Id: rtp_analysis.c,v 1.28 2004/01/27 18:05:32 obiot Exp $
  *
  * Copyright 2003, Alcatel Business Systems
  * By Lars Ruoff <lars.ruoff@gmx.net>
@@ -44,6 +44,7 @@
 #include "../graph/graph.h"
 #endif
 
+#include "util.h"
 #include "epan/epan_dissect.h"
 #include "epan/filesystem.h"
 #include "tap.h"
@@ -533,12 +534,6 @@ static int rtp_packet_add_info(GtkCList *clist,
 		snprintf(status,40,"Wrong sequence nr.");
 		color = COLOR_ERROR;
 	}
-/*
-	else if ((statinfo->flags & STAT_FLAG_PT_CHANGE)
-		&&  !(statinfo->flags & STAT_FLAG_FIRST)
-		&&  !(statinfo->flags & STAT_FLAG_PT_CN)
-		&&  !(statinfo->flags & STAT_FLAG_FOLLOW_PT_CN)) {
-*/
 	else if (statinfo->flags & STAT_FLAG_REG_PT_CHANGE) {
 		snprintf(status,40,"Payload changed to PT=%u", statinfo->pt);
 		color = COLOR_WARNING;
@@ -703,6 +698,7 @@ static void on_destroy(GtkWidget *win _U_, user_data_t *user_data _U_)
 		fclose(user_data->forward.saveinfo.fp);
 	if (user_data->reversed.saveinfo.fp != NULL)
 		fclose(user_data->reversed.saveinfo.fp);
+	/*XXX: test for error **/
 	remove(user_data->f_tempname);
 	remove(user_data->r_tempname);
 
@@ -1745,9 +1741,11 @@ static gint rtp_sort_column(GtkCList *clist, gconstpointer ptr1, gconstpointer p
 	case 3:
 		f1=atof(text1);
 		f2=atof(text2);
-		if (f1<f2) return -1;
-		else if (f1>f2) return 1;
-		else return 0;
+		if (fabs(f1-f2)<0.0000005)
+			return 0;
+		if (f1<f2)
+			return -1;
+		return 1;
 	}
 	g_assert_not_reached();
 	return 0;
@@ -2147,6 +2145,7 @@ void rtp_analysis(
 		)
 {
 	user_data_t *user_data;
+	int fd;
 
 	/* init */
 	user_data = g_malloc(sizeof(user_data_t));
@@ -2163,10 +2162,13 @@ void rtp_analysis(
 	user_data->ssrc_rev = ssrc_rev;
 
 	/* file names for storing sound data */
-	strncpy(user_data->f_tempname, "f_tempnameXXXXXX", TMPNAMSIZE);
-	strncpy(user_data->r_tempname, "r_tempnameXXXXXX", TMPNAMSIZE);
-	mkstemp(user_data->f_tempname);
-	mkstemp(user_data->r_tempname);
+	/*XXX: check for errors*/
+	fd = create_tempfile(user_data->f_tempname, sizeof(user_data->f_tempname),
+		"ether_rtp_f");
+	close(fd);
+	fd = create_tempfile(user_data->r_tempname, sizeof(user_data->r_tempname),
+		"ether_rtp_r");
+	close(fd);
 	user_data->forward.saveinfo.fp = NULL;
 	user_data->reversed.saveinfo.fp = NULL;
 	user_data->dlg.save_voice_as_w = NULL;
