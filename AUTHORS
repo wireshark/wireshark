@@ -611,6 +611,7 @@ Ronnie Sahlberg <sahlberg[AT]optushome.com.au> {
 	NFS AUTH stub implementation
 	MAPI skeleton dissector
 	DCE/RPC fragment reassembly
+	TCP ACK/SEQ number analysis and relative sequence numbers
 }
 
 Borosa Tomislav <tomislav.borosa[AT]SIEMENS.HR> {
@@ -1339,6 +1340,10 @@ Prabhakar Krishnan <Prabhakar.Krishnan[AT]netapp.com> {
 
 Jim McDonough <jmcd[AT]us.ibm.com> {
 	Support for LsaQueryInformationPolicy2 in the LSA dissector
+}
+
+Sergei Shokhor <sshokhor[AT]uroam.com> {
+	Bugfix for EPM
 }
 
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to

@@ -2,7 +2,7 @@
  * Routines for dcerpc endpoint mapper dissection
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc-epm.c,v 1.12 2002/08/02 23:35:48 jmayer Exp $
+ * $Id: packet-dcerpc-epm.c,v 1.13 2002/08/04 00:45:49 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -205,15 +205,15 @@ epm_dissect_tower_data (tvbuff_t *tvb, int offset,
         
         switch(proto_id){
         case 0x0d: /* UUID */
-            dcerpc_tvb_get_uuid (tvb, offset, drep, &uuid);
-            proto_tree_add_string_format (tr, hf_epm_uuid, tvb, offset, 16, "",
+            dcerpc_tvb_get_uuid (tvb, offset+1, drep, &uuid);
+            proto_tree_add_string_format (tr, hf_epm_uuid, tvb, offset+1, 16, "",
                           "UUID: %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
                           uuid.Data1, uuid.Data2, uuid.Data3,
                           uuid.Data4[0], uuid.Data4[1],
                           uuid.Data4[2], uuid.Data4[3],
                           uuid.Data4[4], uuid.Data4[5],
                           uuid.Data4[6], uuid.Data4[7]);
-            proto_tree_add_text(tr, tvb, offset+16, 2, "Version %d.%d", tvb_get_guint8(tvb, offset+17), tvb_get_guint8(tvb, offset+16));
+            proto_tree_add_text(tr, tvb, offset+17, 2, "Version %d.%d", tvb_get_guint8(tvb, offset+18), tvb_get_guint8(tvb, offset+17));
             break;
         }
         offset += len;
