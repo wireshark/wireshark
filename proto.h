@@ -1,7 +1,7 @@
 /* proto.h
  * Definitions for protocol display
  *
- * $Id: proto.h,v 1.7 1999/08/26 06:20:50 gram Exp $
+ * $Id: proto.h,v 1.8 1999/08/26 07:01:44 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -157,12 +157,22 @@ proto_tree_add_text(proto_tree *tree, gint start, gint length, ...);
 void
 proto_item_fill_label(field_info *fi, gchar *label_str);
 
-/* useful functions for external routines to get info about registered protos and fields */
+/* Returns number of items (protocols or header fields) registered. */
 int proto_registrar_n(void);
+
+/* Returns char* to abbrev for item # n (0-indexed) */
 char* proto_registrar_get_abbrev(int n);
+
+/* Returns enum ftenum for item # n */
 int proto_registrar_get_ftype(int n);
+
+/* Returns parent protocol for item # n.
+ * Returns -1 if item _is_ a protocol */
 int proto_registrar_get_parent(int n);
+
+/* Is item #n a protocol? */
 gboolean proto_registrar_is_protocol(int n);
+
 proto_item* proto_find_field(proto_tree* tree, int id);
 proto_item* proto_find_protocol(proto_tree* tree, int protocol_id);
 void proto_get_field_values(proto_tree* subtree, GNodeTraverseFunc fill_array_func,
@@ -170,5 +180,11 @@ void proto_get_field_values(proto_tree* subtree, GNodeTraverseFunc fill_array_fu
 
 /* Dumps a glossary of the protocol and field registrations to STDOUT */
 void proto_registrar_dump(void);
+
+/* Is the parsing being done for a visible proto_tree or an invisible one?
+ * By setting this correctly, the proto_tree creation is sped up by not
+ * having to call vsnprintf and copy strings around.
+ */
+extern gboolean proto_tree_is_visible;
 
 #endif /* proto.h */

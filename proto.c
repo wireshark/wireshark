@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.17 1999/08/26 06:20:50 gram Exp $
+ * $Id: proto.c,v 1.18 1999/08/26 07:01:43 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -83,8 +83,6 @@ static gboolean proto_check_id(GNode *node, gpointer data);
 
 static int proto_register_field_init(header_field_info *hfinfo, int parent);
 
-void dfilter_yacc_init(void);
-
 /* centralization of registration functions */
 void proto_register_aarp(void);
 void proto_register_arp(void);
@@ -155,6 +153,11 @@ GMemChunk *gmc_item_labels = NULL;
 /* List which stores protocols and fields that have been registered */
 GPtrArray *gpa_hfinfo = NULL;
 
+/* Is the parsing being done for a visible proto_tree or an invisible one?
+ * By setting this correctly, the proto_tree creation is sped up by not
+ * having to call vsnprintf and copy strings around.
+ */
+gboolean proto_tree_is_visible = TRUE;
 
 /* initialize data structures and register protocols and fields */
 void
@@ -353,7 +356,10 @@ proto_tree_add_item_value(proto_tree *tree, int hfindex, gint start,
 
 	if (!tree)
 		return(NULL);
-  
+
+	/* either visibility flag can nullify the other */
+	visible = proto_tree_is_visible && visible;
+
 	fi = g_mem_chunk_alloc(gmc_field_info);
 
 	fi->hfinfo = find_hfinfo_record(hfindex);

@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.82 1999/08/25 00:03:59 gram Exp $
+ * $Id: file.c,v 1.83 1999/08/26 07:01:42 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -214,6 +214,7 @@ read_cap_file(capture_file *cf) {
   timeout = gtk_timeout_add(250, file_progress_cb, (gpointer) cf);
 
   freeze_clist(cf);
+  proto_tree_is_visible = FALSE;
   success = wtap_loop(cf->wth, 0, wtap_dispatch_cb, (u_char *) cf, &err);
   wtap_close(cf->wth);
   cf->wth = NULL;
@@ -677,6 +678,8 @@ filter_packets(capture_file *cf)
   cf->unfiltered_count = cf->count;
   cf->count = 0;
 
+  proto_tree_is_visible = FALSE;
+
 /*  timeout = gtk_timeout_add(250, dfilter_progress_cb, cf);*/
   for (fd = cf->plist; fd != NULL; fd = fd->next) {
     cf->count++;
@@ -745,6 +748,8 @@ print_packets(capture_file *cf, int to_file, const char *dest)
 #if 0
   print_preamble(cf->print_fh);
 #endif
+
+  proto_tree_is_visible = TRUE;
 
   /* Iterate through the list of packets, printing each of them.  */
   cf->count = 0;
@@ -900,6 +905,7 @@ select_packet(capture_file *cf, int row)
   if (cf->protocol_tree)
       proto_tree_free(cf->protocol_tree);
   cf->protocol_tree = proto_tree_create_root();
+  proto_tree_is_visible = TRUE;
   dissect_packet(cf->pd, cf->fd, cf->protocol_tree);
 
   /* Display the GUI protocol tree and hex dump. */
