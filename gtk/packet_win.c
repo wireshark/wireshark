@@ -3,7 +3,7 @@
  *
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet_win.c,v 1.20 2001/03/24 02:14:56 guy Exp $
+ * $Id: packet_win.c,v 1.21 2001/03/24 23:53:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -240,7 +240,7 @@ new_tree_view_select_row_cb(GtkCTree *ctree, GList *node, gint column,
         set_notebook_page ( DataPtr->bv_nb_ptr, i);
         len = get_byte_view_and_data( DataPtr->bv_nb_ptr, &byte_view, &data);
 
-	if ( !byte_view)	/* exit it no hex window to write in */
+	if ( !byte_view)	/* exit if no hex window to write in */
 		return;
         if ( len < 0){
                 data = DataPtr->pd;
@@ -269,7 +269,7 @@ new_tree_view_unselect_row_cb(GtkCTree *ctree, GList *node, gint column,
 
         len = get_byte_view_and_data( DataPtr->bv_nb_ptr, &byte_view, &data);
 
-	if ( !byte_view)	/* exit it no hex window to write in */
+	if ( !byte_view)	/* exit if no hex window to write in */
 		return;
 
 	g_assert( len >= 0);
