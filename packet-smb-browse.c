@@ -2,7 +2,7 @@
  * Routines for SMB Browser packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb-browse.c,v 1.24 2002/08/28 21:00:31 jmayer Exp $
+ * $Id: packet-smb-browse.c,v 1.25 2003/01/30 04:51:30 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -638,7 +638,9 @@ dissect_mailslot_browse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 		offset += namelen;
 		break;
 
-	case BROWSE_REQUEST_ANNOUNCE:
+	case BROWSE_REQUEST_ANNOUNCE: {
+		char *computer_name;
+
 		/* unused/unknown flags */
 		proto_tree_add_item(tree, hf_unused_flags,
 			tvb, offset, 1, TRUE);
@@ -648,8 +650,19 @@ dissect_mailslot_browse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 		namelen = tvb_strsize(tvb, offset);
 		proto_tree_add_item(tree, hf_response_computer_name,
 			tvb, offset, namelen, TRUE);
+
+		computer_name = g_malloc(namelen);
+		tvb_get_nstringz0(tvb, offset, namelen, computer_name);
+
+		if (check_col(pinfo->cinfo, COL_INFO))
+			col_append_fstr(
+				pinfo->cinfo, COL_INFO, " %s", computer_name);
+
+		g_free(computer_name);
+
 		offset += namelen;
 		break;
+	}
 
 	case BROWSE_ELECTION_REQUEST:
 		/* election version */
