@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.115 2003/11/30 04:21:55 sharpe Exp $
+ * $Id: menu.c,v 1.116 2003/11/30 04:37:50 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -66,6 +66,8 @@
 
 GtkWidget *popup_menu_object;
 
+extern void savehex_cb(GtkWidget * w, gpointer data _U_);
+
 #define GTK_MENU_FUNC(a) ((GtkItemFactoryCallback)(a))
 
 static void menus_init(void);
@@ -111,6 +113,8 @@ static GtkItemFactoryEntry menu_items[] =
                              0, GTK_STOCK_SAVE),
     ITEM_FACTORY_STOCK_ENTRY("/File/Save _As...", "<shift><control>S", file_save_as_cmd_cb,
                              0, GTK_STOCK_SAVE_AS),
+    ITEM_FACTORY_STOCK_ENTRY("/File/Save S_elected...", "<control>L", savehex_cb,
+                             0, NULL),
     ITEM_FACTORY_ENTRY("/File/<separator>", NULL, NULL, 0, "<Separator>", NULL),
     ITEM_FACTORY_STOCK_ENTRY("/File/_Print...", "<control>P", file_print_cmd_cb,
                              0, GTK_STOCK_PRINT),
@@ -370,8 +374,6 @@ static GtkItemFactoryEntry tree_view_menu_items[] =
     ITEM_FACTORY_ENTRY("/Collapse All", NULL, collapse_all_cb, 0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Expand All", NULL, expand_all_cb, 0, NULL, NULL)
 };
-
-extern void savehex_cb(GtkWidget * w, gpointer data _U_);
 
 static GtkItemFactoryEntry hexdump_menu_items[] =
 {
