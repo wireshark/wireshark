@@ -1,4 +1,4 @@
-$Id: README.hpux,v 1.17 2002/04/29 22:55:22 guy Exp $
+$Id: README.hpux,v 1.18 2002/04/29 23:09:35 guy Exp $
 
 Contents:
 
@@ -77,6 +77,9 @@ should work.
 If you want to use Ethereal to capture packets, you will have to install
 libpcap; binary distributions are, as noted above, available from the
 Software Porting And Archive Centre for HP-UX, as well as source code.
+
+Versions of libpcap prior to 0.6 didn't handle HP-UX as well as 0.6 and
+later versions do.  You should install the latest version.
 
 The source code is also available from the official home of libpcap and
 tcpdump, at
@@ -183,6 +186,25 @@ which says:
 
 (although those patches may not be the ones to install - there may be
 later patches).
+
+And another message to tcpdump-workers@tcpdump.org, from Rick Jones:
+
+  Date: Mon, 29 Apr 2002 15:59:55 -0700
+  From: Rick Jones
+  To: tcpdump-workers@tcpdump.org 
+  Subject: Re: [tcpdump-workers] I Can't Capture the Outbound Traffic
+
+	...
+
+  http://itrc.hp.com/ would be one place to start in a search for the most
+  up-to-date patches for DLPI and the lan driver(s) used on your system (I
+  cannot guess because 9000/800 is too generic - one hs to use the "model"
+  command these days and/or an ioscan command (see manpage) to guess what
+  the drivers (btlan[3456], gelan, etc) might be involved in addition to
+  DLPI.
+
+  Another option is to upgrade to 11i as outbound promiscuous mode support
+  is there in the base OS, no patches required.
 
 Another posting:
 
