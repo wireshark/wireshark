@@ -1,7 +1,9 @@
 .cvsignore
 .deps
+.libs
 Makefile
 Makefile.in
 *.lib
+*.lo
 *.obj
 *.pdb

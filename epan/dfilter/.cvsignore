@@ -1,5 +1,6 @@
 .cvsignore
 .deps
+.libs
 scanner.c
 Makefile
 grammar.h
@@ -7,5 +8,6 @@ grammar.out
 Makefile.in
 grammar.c
 *.lib
+*.lo
 *.obj
 *.pdb
