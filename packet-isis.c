@@ -2,7 +2,7 @@
  * Routines for ISO/OSI network and transport protocol packet disassembly, core
  * bits.
  *
- * $Id: packet-isis.c,v 1.12 2000/08/07 03:20:46 guy Exp $
+ * $Id: packet-isis.c,v 1.13 2000/08/10 16:04:33 deniel Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -111,7 +111,7 @@ isis_dissect_unknown(int offset,guint length,proto_tree *tree,frame_data *fd,
 	}
 
 	va_start(ap, fmat);
-	proto_tree_add_text(tree, NullTVB, offset, length, fmat, ap);
+	proto_tree_add_text_valist(tree, NullTVB, offset, length, fmat, ap);
 	va_end(ap);
 }
 /*

@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.73 2000/07/30 06:54:03 guy Exp $
+ * $Id: proto.c,v 1.74 2000/08/10 16:04:31 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -34,8 +34,6 @@
 #ifndef _STDIO_H
 #include <stdio.h>
 #endif
-
-#include <stdarg.h>
 
 #ifndef _STRING_H
 #include <string.h>
@@ -300,6 +298,22 @@ proto_tree_add_text(proto_tree *tree, tvbuff_t *tvb, gint start, gint length,
 	va_start(ap, format);
 	proto_tree_set_representation(pi, format, ap);
 	va_end(ap);
+
+	return pi;
+}
+
+/* Add a text-only node to the proto_tree (va_list version) */
+proto_item *
+proto_tree_add_text_valist(proto_tree *tree, tvbuff_t *tvb, gint start, 
+	gint length, const char *format, va_list ap)
+{
+	proto_item	*pi;
+
+	pi = proto_tree_add_notext(tree, tvb, start, length);
+	if (pi == NULL)
+		return(NULL);
+
+	proto_tree_set_representation(pi, format, ap);
 
 	return pi;
 }

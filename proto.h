@@ -1,7 +1,7 @@
 /* proto.h
  * Definitions for protocol display
  *
- * $Id: proto.h,v 1.37 2000/07/27 06:41:59 gram Exp $
+ * $Id: proto.h,v 1.38 2000/08/10 16:04:32 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -31,6 +31,12 @@
 # ifndef _SYS_TIME_H
 #  include <sys/time.h>
 # endif
+#endif
+
+#ifdef HAVE_STDARG_H
+# include <stdarg.h>
+#else
+# include <varargs.h>
 #endif
 
 #ifdef HAVE_WINSOCK_H
@@ -440,6 +446,9 @@ proto_tree_add_text(proto_tree *tree, tvbuff_t *tvb, gint start, gint length, co
 	...);
 #endif
 
+proto_item *
+proto_tree_add_text_valist(proto_tree *tree, tvbuff_t *tvb, gint start,
+	gint length, const char *format, va_list ap);
 
 /* Add a node with no text */
 proto_item *
