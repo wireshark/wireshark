@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.366 2004/01/21 21:19:33 ulfl Exp $
+ * $Id: main.c,v 1.367 2004/01/23 16:07:37 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2895,7 +2895,7 @@ font_apply(void) {
     gui_font_name = font_zoom(prefs.PREFS_GUI_FONT_NAME);
     if (gui_font_name == NULL) {
         simple_dialog(ESD_TYPE_WARN, NULL,
-            "Font name: \"%s\" invalid, please update font setting in Edit->Preferences",
+            "Font name: \"%s\" invalid, please update your font setting in Edit->Preferences!",
             gui_font_name);
         return;
     }
@@ -2913,6 +2913,26 @@ font_apply(void) {
 	pango_font_description_set_weight(new_b_font,
 		PANGO_WEIGHT_BOLD);
 #endif
+    if (new_r_font == NULL || new_b_font == NULL) {
+        simple_dialog(ESD_TYPE_WARN, NULL,
+            "Font name: \"%s\" invalid, cannot load font!", 
+            gui_font_name);
+    /* We're no longer using the new fonts; unreference them. */
+#if GTK_MAJOR_VERSION < 2
+	    if (new_r_font != NULL)
+		    gdk_font_unref(new_r_font);
+	    if (new_b_font != NULL)
+		    gdk_font_unref(new_b_font);
+#else
+	    if (new_r_font != NULL)
+		    pango_font_description_free(new_r_font);
+	    if (new_b_font != NULL)
+		    pango_font_description_free(new_b_font);
+#endif
+        g_free(gui_font_name);
+    }
+
+    /* the font(s) seem to be ok */
 	set_plist_font(new_r_font);
 	set_ptree_font_all(new_r_font);
 	old_r_font = m_r_font;
@@ -2953,7 +2973,9 @@ font_apply(void) {
 #if GTK_MAJOR_VERSION < 2
 
 
-/* coming from: Allin Cottrell, http://www.ecn.wfu.edu/~cottrell/gtk_win32 */
+/* The setting of the MS default font for system stuff (menus, dialogs, ...),
+ * coming from: Allin Cottrell, http://www.ecn.wfu.edu/~cottrell/gtk_win32,
+ * Thank you very much for this! */
 int get_windows_font_gtk1(char *fontspec)
 {
     HDC h_dc;
@@ -3100,6 +3122,8 @@ void foreach_remove_a_child(GtkWidget *widget, gpointer data) {
 void main_widgets_rearrange(void) {
     gint widgets = 0;
     GtkWidget *w[10];
+    /* XXX: add this to the recent settings */
+    gboolean filter_toolbar_show_in_statusbar = TRUE;
 
 
     /* be a bit faster */
@@ -3123,12 +3147,20 @@ void main_widgets_rearrange(void) {
     gtk_container_foreach(GTK_CONTAINER(lower_pane),    foreach_remove_a_child, lower_pane);
     gtk_container_foreach(GTK_CONTAINER(stat_hbox),     foreach_remove_a_child, stat_hbox);
 
+    /* add the menubar always at the top */
     gtk_box_pack_start(GTK_BOX(main_vbox), menubar, FALSE, TRUE, 0);
 
+    /* main toolbar */
     if (recent.main_toolbar_show) {
         gtk_box_pack_start(GTK_BOX(main_vbox), main_tb, FALSE, TRUE, 0);
     }
 
+    /* filter toolbar in toolbar area */
+    if (recent.filter_toolbar_show && !filter_toolbar_show_in_statusbar) {
+        gtk_box_pack_start(GTK_BOX(main_vbox), filter_tb, FALSE, TRUE, 1);
+    }
+
+    /* get the info, which and how many of the main widgets should be shown */
     if (recent.packet_list_show) {
         w[widgets++] = pkt_scrollw;
     }
@@ -3141,6 +3173,7 @@ void main_widgets_rearrange(void) {
         w[widgets++] = byte_nb_ptr;
     }
 
+    /* show the main widgets, depending on their number */
     switch(widgets) {
     case(0):
         break;
@@ -3162,14 +3195,17 @@ void main_widgets_rearrange(void) {
         break;
     }
 
-    if (recent.statusbar_show || recent.filter_toolbar_show) {
+    /* statusbar hbox */
+    if ((recent.filter_toolbar_show && filter_toolbar_show_in_statusbar) || recent.statusbar_show) {
         gtk_box_pack_start(GTK_BOX(main_vbox), stat_hbox, FALSE, TRUE, 0);
     }
 
-    if (recent.filter_toolbar_show) {
+    /* filter toolbar in statusbar hbox */
+    if (recent.filter_toolbar_show && filter_toolbar_show_in_statusbar) {
         gtk_box_pack_start(GTK_BOX(stat_hbox), filter_tb, FALSE, TRUE, 1);
     }
 
+    /* statusbar */
     if (recent.statusbar_show) {
         gtk_box_pack_start(GTK_BOX(stat_hbox), info_bar, TRUE, TRUE, 0);
     }
@@ -3378,7 +3414,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     gtk_statusbar_push(GTK_STATUSBAR(info_bar), main_ctx, DEF_READY_MESSAGE);
     gtk_widget_show(info_bar);
 
-    /* Filter/info hbox */
+    /* Filter/status hbox */
     stat_hbox = gtk_hbox_new(FALSE, 1);
     gtk_container_border_width(GTK_CONTAINER(stat_hbox), 0);
     gtk_widget_show(stat_hbox);
