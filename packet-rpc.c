@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * 
- * $Id: packet-rpc.c,v 1.7 1999/11/11 16:20:24 nneul Exp $
+ * $Id: packet-rpc.c,v 1.8 1999/11/11 21:22:00 nneul Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -196,6 +196,26 @@ rpc_init_prog(int proto, guint32 prog, int ett)
 	g_hash_table_insert(rpc_progs,key,value);
 }
 
+/*	return the name associated with a previously registered program. This
+	should probably eventually be expanded to use the rpc YP/NIS map
+	so that it can give names for programs not handled by ethereal */
+char *rpc_prog_name(guint32 prog)
+{
+	char *progname = NULL;
+	rpc_prog_info_key       rpc_prog_key;
+	rpc_prog_info_value     *rpc_prog;
+
+	rpc_prog_key.prog = prog;
+	if ((rpc_prog = g_hash_table_lookup(rpc_progs,&rpc_prog_key)) == NULL) {
+		progname = "Unknown";
+	}
+	else {
+		progname = rpc_prog->progname;
+	}
+	return progname;
+}
+
+
 /*--------------------------------------*/
 /* end of Hash array with program names */
 /*--------------------------------------*/
@@ -206,24 +226,14 @@ It should vanish, if they are finally present. Up to this point, this
 minimal variant serves as a detector for RPC services and can even find
 request/reply pairs. */
 
-#define	MNT_PROGRAM	100005
 #define	NLM_PROGRAM	100021
-#define STAT_PROGRAM	100024
 
-static int proto_mnt = -1;
 static int proto_nlm = -1;
-static int proto_stat = -1;
 
 void init_incomplete_dissect(void)
 {
-	proto_mnt = proto_register_protocol("Mount", "MNT");
-	rpc_init_prog(proto_mnt, MNT_PROGRAM, ETT_MNT);
-
 	proto_nlm = proto_register_protocol("Network Lock Manager", "NLM");
 	rpc_init_prog(proto_nlm, NLM_PROGRAM, ETT_NLM);
-
-	proto_stat = proto_register_protocol("Status", "STAT");
-	rpc_init_prog(proto_stat, STAT_PROGRAM, ETT_STAT);
 }
 
 

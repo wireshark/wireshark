@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.135 1999/11/11 21:08:52 itojun Exp $
+ * $Id: packet.h,v 1.136 1999/11/11 21:22:00 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -445,6 +445,7 @@ enum {
 	ETT_RPC_CRED,
 	ETT_RPC_VERF,
 	ETT_RPC_GIDS,
+	ETT_MOUNT,
 	ETT_NFS,
 	ETT_NFS_FHANDLE,
 	ETT_NFS_TIMEVAL,
@@ -455,7 +456,6 @@ enum {
 	ETT_NFS_FH3,
 	ETT_NFS_NFSTIME3,
 	ETT_NFS_FATTR3,
-	ETT_MNT,
 	ETT_NLM,
 	ETT_PORTMAP,
 	ETT_STAT,

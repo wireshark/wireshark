@@ -1,5 +1,5 @@
 /* packet-rpc.h (c) 1999 Uwe Girlich */
-/* $Id: packet-rpc.h,v 1.3 1999/11/11 16:20:25 nneul Exp $ */
+/* $Id: packet-rpc.h,v 1.4 1999/11/11 21:22:00 nneul Exp $ */
 
 #ifndef __PACKET_RPC_H__
 #define __PACKET_RPC_H__
@@ -91,6 +91,7 @@ extern rpc_call_info* rpc_call_lookup(rpc_call_info *call);
 
 extern void rpc_init_proc_table(guint prog, guint vers, const vsff *proc_table);
 extern void rpc_init_prog(int proto, guint32 prog, int ett);
+extern char *rpc_prog_name(guint32 prog);
 
 extern void init_dissect_rpc();
 extern void cleanup_dissect_rpc();
