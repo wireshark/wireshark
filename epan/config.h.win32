@@ -1,4 +1,4 @@
-/* $Id: config.h.win32,v 1.1 2000/10/17 09:25:37 guy Exp $ */
+/* $Id: config.h.win32,v 1.2 2000/10/18 09:34:10 guy Exp $ */
 /* config.h.win32 Generated manually. :-) */
 /* config.h.  Generated automatically by configure.  */
 /* config.h.in.  Generated automatically from configure.in by autoheader.  */
@@ -22,9 +22,6 @@
 
 /* Define if you have the <arpa/nameser.h> header file.  */
 /* #undef HAVE_ARPA_NAMESER_H */
-
-/* Define if you have the <direct.h> header file.  */
-#define HAVE_DIRECT_H 1
 
 /* Define if you have the <dirent.h> header file.  */
 /* #undef HAVE_DIRENT_H */
