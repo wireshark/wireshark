@@ -400,6 +400,7 @@ dissect_dnp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint16       dl_dst, dl_src, dl_crc, calc_dl_crc;
     guint8       *tmp = NULL, *tmp_ptr;
     guint8        data_len;
+    int           data_offset;
     gboolean      crc_OK = FALSE;
     tvbuff_t     *al_tvb = NULL;
     guint         i;
@@ -532,18 +533,23 @@ dissect_dnp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   /* extract the application layer data, validating the CRCs */
 
-  data_len = dl_len - 5;
+  /* XXX - check for dl_len <= 5 */
+  data_len = dl_len - 5;	/* XXX - dl_len - 6, as we're no longer including the transport layer byte? */
   tmp = g_malloc(data_len);
   tmp_ptr = tmp;
   i = 0;
+  data_offset = 1;	/* skip the transport layer byte when assembling chunks */
   while(data_len > 0) {
     guint8 chk_size;
+    const guint8 *chk_ptr;
     guint16 calc_crc, act_crc;
+
     chk_size = MIN(data_len, AL_MAX_CHUNK_SIZE);
-    tvb_memcpy(tvb, tmp_ptr, offset, chk_size);
-    calc_crc = calculateCRC(tmp_ptr, chk_size);
+    chk_ptr = tvb_get_ptr(tvb, offset, chk_size);
+    memcpy(tmp_ptr, chk_ptr + data_offset, chk_size - data_offset);
+    calc_crc = calculateCRC(chk_ptr, chk_size);
     offset += chk_size;
-    tmp_ptr += chk_size;
+    tmp_ptr += chk_size - data_offset;
     act_crc = tvb_get_letohs(tvb, offset);
     offset += 2;
     crc_OK = calc_crc == act_crc;
@@ -565,11 +571,12 @@ dissect_dnp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       break;
     }
     i++;
+    data_offset = 0;	/* copy all of the rest of the chunks */
   }
 
   /* if all crc OK, set up new tvb */
   if (crc_OK) {
-    al_tvb = tvb_new_real_data(&tmp[1], tmp_ptr-tmp, tmp_ptr-tmp);
+    al_tvb = tvb_new_real_data(tmp, tmp_ptr-tmp, tmp_ptr-tmp);
     tvb_set_free_cb(al_tvb, g_free);
     tvb_set_child_real_data_tvbuff(tvb, al_tvb);
 
