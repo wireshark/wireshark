@@ -1,7 +1,7 @@
 /* globals.h
  * Global defines, etc.
  *
- * $Id: globals.h,v 1.13 1999/12/29 05:48:25 guy Exp $
+ * $Id: globals.h,v 1.14 2000/01/06 06:28:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -32,10 +32,6 @@
 
 #ifndef __PACKET_H__
 #include "packet.h"
-#endif
-
-#ifndef __PRINT_H__
-#include "print.h"
 #endif
 
 #ifndef __FILE_H__
