@@ -319,7 +319,7 @@ static int dissect_registeredID_impl(packet_info *pinfo, proto_tree *tree, tvbuf
 }
 
 
-static const value_string GeneralName_vals[] = {
+const value_string GeneralName_vals[] = {
   {   1, "rfc822Name" },
   {   2, "dNSName" },
   {   4, "directoryName" },
@@ -341,7 +341,7 @@ static const ber_choice GeneralName_choice[] = {
   { 0, 0, 0, 0, NULL }
 };
 
-static int
+int
 dissect_x509ce_GeneralName(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               GeneralName_choice, hf_index, ett_x509ce_GeneralName);

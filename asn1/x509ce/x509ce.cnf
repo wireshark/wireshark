@@ -15,6 +15,7 @@ SelectedAttributeTypes x509sat
 #.EXPORTS
 
 GeneralNames
+GeneralName
 
 #.PDU
 AttributesSyntax
