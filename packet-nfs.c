@@ -3,7 +3,7 @@
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * Copyright 2000, Mike Frisch <frisch@hummingbird.com> (NFSv4 decoding)
  *
- * $Id: packet-nfs.c,v 1.45 2001/02/09 18:26:04 guy Exp $
+ * $Id: packet-nfs.c,v 1.46 2001/02/13 18:28:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -128,7 +128,8 @@ static int hf_nfs_open4_share_access = -1;
 static int hf_nfs_open4_share_deny = -1;
 static int hf_nfs_open4_result_flags = -1;
 static int hf_nfs_seqid4 = -1;
-static int hf_nfs_attr = -1;
+static int hf_nfs_mand_attr = -1;
+static int hf_nfs_recc_attr = -1;
 static int hf_nfs_time_how4 = -1;
 static int hf_nfs_attrlist4 = -1;
 static int hf_nfs_fattr4_expire_type = -1;
@@ -3564,12 +3565,15 @@ dissect_nfs_client_id4(const u_char *pd, int offset, frame_data *fd,
 }
 
 static const value_string names_ftype4[] = {
-	{	NF4LNK,  "NF4LNK"  },
+	{	NF4REG,	"NF4REG"	},
+	{	NF4DIR,	"NF4DIR"	},
 	{	NF4BLK,	"NF4BLK"  },
 	{	NF4CHR,	"NF4CHR"  },
+	{	NF4LNK,  "NF4LNK"  },
 	{	NF4SOCK,	"NF4SOCK"  },
 	{	NF4FIFO,	"NF4FIFO"  },
-	{	NF4DIR,	"NF4DIR"  },
+	{	NF4ATTRDIR,	"NF4ATTRDIR"	},
+	{	NF4NAMEDATTR,	"NF4NAMEDATTR"	},
 	{ 0, NULL }
 };
 
@@ -4049,8 +4053,10 @@ dissect_nfs_attributes(const u_char *pd, int offset, frame_data *fd,
 
 			if (bitmap[i] & sl)
 			{
-				attr_fitem = proto_tree_add_uint(newftree, hf_nfs_attr, NullTVB, 
-					offset, 4, fattr);
+				/* switch label if attribute is recommended vs. mandatory */
+				attr_fitem = proto_tree_add_uint(newftree, 
+					(fattr < FATTR4_ACL)? hf_nfs_mand_attr: hf_nfs_recc_attr, 
+					NullTVB, offset, 4, fattr);
 
 				if (attr_fitem == NULL)
 					continue;
@@ -4065,6 +4071,12 @@ dissect_nfs_attributes(const u_char *pd, int offset, frame_data *fd,
 					/* do a full decode of the arguments for the set flag */
 					switch(fattr)
 					{
+					case FATTR4_SUPPORTED_ATTRS:
+						attr_vals_offset = dissect_nfs_attributes(pd, 
+							attr_vals_offset, fd, attr_newftree, 
+							"fattr4_supported_attrs", 0);
+						break;
+						
 					case FATTR4_TYPE:
 						attr_vals_offset = dissect_nfs_ftype4(pd, attr_vals_offset,
 							fd, attr_newftree, "fattr4_type");
@@ -5772,9 +5784,13 @@ proto_register_nfs(void)
 			"seqid", "nfs.seqid", FT_UINT32, BASE_HEX,
 			NULL, 0, "Sequence ID" }},
 
-		{ &hf_nfs_attr, {
-			"attr",	"nfs.attr", FT_UINT32, BASE_DEC,
-			VALS(names_fattr4), 0, "File Attribute" }},
+		{ &hf_nfs_mand_attr, {
+			"mand_attr",	"nfs.attr", FT_UINT32, BASE_DEC,
+			VALS(names_fattr4), 0, "Mandatory Attribute" }},
+
+		{ &hf_nfs_recc_attr, {
+			"recc_attr",	"nfs.attr", FT_UINT32, BASE_DEC,
+			VALS(names_fattr4), 0, "Recommended Attribute" }},
 
 		{ &hf_nfs_time_how4,	{
 			"set_it", "nfs.set_it", FT_UINT32, BASE_DEC,
