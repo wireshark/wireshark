@@ -1,7 +1,7 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: nmake -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.33 2000/04/29 07:34:35 guy Exp $
+# $Id: Makefile.nmake,v 1.34 2000/05/10 15:32:09 gram Exp $
 
 include config.nmake
 
@@ -58,10 +58,10 @@ DISSECTOR_SOURCES = \
 	packet-fddi.h  \
 	packet-ftp.c   \
 	packet-giop.c  \
-	packet-giop.h  \
+##	packet-giop.h  \
 	packet-gre.c   \
 	packet-h1.c    \
-	packet-h1.h    \
+##	packet-h1.h    \
 	packet-hsrp.c  \
 	packet-http.c  \
 	packet-http.h  \
@@ -407,12 +407,12 @@ all: $(EXECUTABLES) $(RESOURCES)
 
 ethereal.exe	: config.h $(ethereal_OBJECTS) $(EXTRA_OBJECTS) image\ethereal.res wiretap gtk plugins
 	$(LINK) @<<
-		/OUT:ethereal.exe $(LDFLAGS) /SUBSYSTEM:windows $(ethereal_LIBS) $(ethereal_OBJECTS) $(EXTRA_OBJECTS) image\ethereal.res
+		/OUT:ethereal.exe $(LDFLAGS) /SUBSYSTEM:windows $(ethereal_LIBS) $(ethereal_OBJECTS) $(EXTRA_OBJECTS) image\ethereal.res /NODEFAULTLIB:libcmt
 <<
 
 tethereal.exe	: config.h $(tethereal_OBJECTS) $(EXTRA_OBJECTS) image\tethereal.res wiretap plugins
 	$(LINK) @<<
-		/OUT:tethereal.exe $(LDFLAGS) /SUBSYSTEM:console $(tethereal_LIBS) $(tethereal_OBJECTS) $(EXTRA_OBJECTS) image\tethereal.res
+		/OUT:tethereal.exe $(LDFLAGS) /SUBSYSTEM:console $(tethereal_LIBS) $(tethereal_OBJECTS) $(EXTRA_OBJECTS) image\tethereal.res  /NODEFAULTLIB:libcmt
 <<
 
 editcap.exe	: config.h editcap.obj getopt.obj wiretap image\editcap.res
