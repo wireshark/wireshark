@@ -101,6 +101,14 @@ typedef struct _protocol protocol_t;
   ((void) ((expression) ? 0 : \
    __DISSECTOR_ASSERT (expression, __FILE__, __LINE__)))
 
+/** Same as DISSECTOR_ASSERT(), but will throw DissectorError exception
+ * unconditionally, much like GLIB's g_assert_not_reached works.
+ */
+#define DISSECTOR_ASSERT_NOT_REACHED()  \
+  (REPORT_DISSECTOR_BUG( \
+    g_strdup_printf("%s:%u: failed assertion \"DISSECTOR_ASSERT_NOT_REACHED\"", \
+     __FILE__, __LINE__)))
+
 #define __DISSECTOR_ASSERT_STRINGIFY(s)	# s
 
 #define __DISSECTOR_ASSERT(expression, file, lineno)  \
