@@ -1,7 +1,7 @@
 /* packet-ipv6.c
  * Routines for IPv6 packet disassembly
  *
- * $Id: packet-ipv6.c,v 1.101 2004/01/21 08:39:29 guy Exp $
+ * $Id: packet-ipv6.c,v 1.102 2004/03/23 01:58:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -124,7 +124,6 @@ capture_ipv6(const guchar *pd, int offset, int len, packet_counts *ld)
   }
   nxt = pd[offset+6];		/* get the "next header" value */
   offset += 4+4+16+16;		/* skip past the IPv6 header */
-  len -= 4+4+16+16;
 
 again:
    switch (nxt) {
@@ -142,7 +141,6 @@ again:
        return;
      }
      offset += advance;
-     len -= advance;
      goto again;
    case IP_PROTO_FRAGMENT:
      if (!BYTES_ARE_IN_FRAME(offset, len, 2)) {
@@ -156,7 +154,6 @@ again:
        return;
      }
      offset += advance;
-     len -= advance;
      goto again;
    case IP_PROTO_AH:
      if (!BYTES_ARE_IN_FRAME(offset, len, 2)) {
@@ -170,7 +167,6 @@ again:
        return;
      }
      offset += advance;
-     len -= advance;
      goto again;
    }
 
