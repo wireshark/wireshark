@@ -1,7 +1,7 @@
 /* packet-bpdu.c
  * Routines for BPDU (Spanning Tree Protocol) disassembly
  *
- * $Id: packet-bpdu.c,v 1.42 2002/11/26 10:31:24 jmayer Exp $
+ * $Id: packet-bpdu.c,v 1.43 2002/12/22 00:40:38 guy Exp $
  *
  * Copyright 1999 Christophe Tronche <ch.tronche@computer.org>
  *
@@ -270,11 +270,13 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       }
 
       bpdu_type = tvb_get_guint8(tvb, BPDU_TYPE);
+
+      protocol_version_identifier = tvb_get_guint8(tvb, BPDU_VERSION_IDENTIFIER);
+
       switch (bpdu_type) {
 
       case BPDU_TYPE_CONF:
       case BPDU_TYPE_RST:
-	    protocol_version_identifier = tvb_get_guint8(tvb, BPDU_VERSION_IDENTIFIER);
 	    flags = tvb_get_guint8(tvb, BPDU_FLAGS);
 	    root_identifier_bridge_priority = tvb_get_ntohs(tvb,BPDU_ROOT_IDENTIFIER);
 	    root_identifier_mac = tvb_get_ptr(tvb, BPDU_ROOT_IDENTIFIER + 2, 6);
@@ -285,7 +287,6 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       default:
 	    /* Squelch GCC complaints. */
-	    protocol_version_identifier = 0;
 	    flags = 0;
 	    root_identifier_bridge_priority = 0;
 	    root_identifier_mac = NULL;
