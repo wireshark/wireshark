@@ -875,12 +875,16 @@ main(int argc, char *argv[])
      it's not necessary here. */
   if (argc >= 2 && strcmp(argv[1], "-G") == 0) {
     if (argc == 2)
-      proto_registrar_dump_fields();
+      proto_registrar_dump_fields(1);
     else {
       if (strcmp(argv[2], "fields") == 0)
-        proto_registrar_dump_fields();
+        proto_registrar_dump_fields(1);
+      else if (strcmp(argv[2], "fields2") == 0)
+        proto_registrar_dump_fields(2);
       else if (strcmp(argv[2], "protocols") == 0)
         proto_registrar_dump_protocols();
+      else if (strcmp(argv[2], "values") == 0)
+        proto_registrar_dump_values();
       else {
         fprintf(stderr, "tethereal: Invalid \"%s\" option for -G flag\n",
                 argv[2]);
