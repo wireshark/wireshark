@@ -1,7 +1,7 @@
 ;
 ; ethereal.nsi
 ;
-; $Id: ethereal.nsi,v 1.58 2004/06/29 07:14:39 guy Exp $
+; $Id$
 
  
 !ifdef MAKENSIS_MODERN_UI
@@ -485,14 +485,14 @@ SetShellVarContext all
 
 Delete "$INSTDIR\tethereal.exe"
 IfErrors 0 NoTetherealErrorMsg
-	MessageBox MB_OK "Note: Tethereal could not be removed! Probably in use!" IDOK 0 ;skipped if tethereal.exe removed
-	Abort "Note: tethereal.exe could not be removed! Probably in use! Abort unistall!"
+	MessageBox MB_OK "Please note: tethereal.exe could not be removed, it's probably in use!" IDOK 0 ;skipped if tethereal.exe removed
+	Abort "Please note: tethereal.exe could not be removed, it's probably in use! Abort uninstall process!"
 NoTetherealErrorMsg:
 
 Delete "$INSTDIR\ethereal.exe"
 IfErrors 0 NoEtherealErrorMsg
-	MessageBox MB_OK "Note: Ethereal could not be removed! Probably in use!" IDOK 0 ;skipped if ethereal.exe removed
-	Abort "Note: ethereal.exe could not be removed! Probably in use! Abort uninstall!"
+	MessageBox MB_OK "Please note: ethereal.exe could not be removed, it's probably in use!" IDOK 0 ;skipped if ethereal.exe removed
+	Abort "Please note: ethereal.exe could not be removed, it's probably in use! Abort uninstall process!"
 NoEtherealErrorMsg:
 
 DeleteRegKey HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\Ethereal"
@@ -606,7 +606,7 @@ RMDir "$INSTDIR\snmp"
 RMDir "$INSTDIR"
 
 IfFileExists "$INSTDIR" 0 NoFinalErrorMsg
-    MessageBox MB_OK "Note: $INSTDIR could not be removed!" IDOK 0 ; skipped if file doesn't exist
+    MessageBox MB_OK "Please note: The directory $INSTDIR could not be removed!" IDOK 0 ; skipped if file doesn't exist
 NoFinalErrorMsg: 
 
 SectionEnd
