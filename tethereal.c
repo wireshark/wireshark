@@ -634,6 +634,11 @@ add_decode_as(const gchar *cl_param)
   return TRUE;
 }
 
+typedef struct {
+  ethereal_tap_list *tli;
+  char              *arg;
+} tap_to_run_t;
+
 int
 main(int argc, char *argv[])
 {
@@ -680,8 +685,9 @@ main(int argc, char *argv[])
   dfilter_t           *rfcode = NULL;
   e_prefs             *prefs;
   char                 badopt;
-  ethereal_tap_list *tli = NULL;
-  guint8* tli_optarg = NULL;
+  ethereal_tap_list   *tli;
+  tap_to_run_t        *tap_to_run;
+  GSList              *taps_to_run = NULL;
   
 #ifdef HAVE_LIBPCAP
   capture_opts_init(&capture_opts, NULL /* cfile */);
@@ -1045,11 +1051,15 @@ main(int argc, char *argv[])
       case 'z':
         for(tli=tap_list;tli;tli=tli->next){
           if(!strncmp(tli->cmd,optarg,strlen(tli->cmd))){
-              /* we won't call the init function for the tap this soon
-                as it would disallow mate's fields (which are registered
-                by the preferences set callback) from being used as
-                part of a tap filter */
-			  tli_optarg = g_strdup(optarg);
+            /* We won't call the init function for the tap this soon
+               as it would disallow MATE's fields (which are registered
+               by the preferences set callback) from being used as
+               part of a tap filter.  Instead, we just add the argument
+               to a list of tap arguments. */
+            tap_to_run = g_malloc(sizeof (tap_to_run_t));
+            tap_to_run->tli = tli;
+            tap_to_run->arg = g_strdup(optarg);
+            taps_to_run = g_slist_append(taps_to_run, tap_to_run);
             break;
           }
         }
@@ -1236,12 +1246,15 @@ main(int argc, char *argv[])
      line that their preferences have changed. */
   prefs_apply_all();
 
-  /* At this point mate will have registered its field array so we can
-	  have a filter with one of mate's late registered fields as part
-	  of the tap's filter */
-  if (tli_optarg != NULL) {
-	  (*tli->func)(tli_optarg);
-	  g_free(tli_optarg);
+  /* At this point MATE will have registered its field array so we can
+     have a filter with one of MATE's late-registered fields as part
+     of the tap's filter.  We can now process all the "-z" arguments. */
+  while (taps_to_run != NULL) {
+    tap_to_run = taps_to_run->data;
+    (*tap_to_run->tli->func)(tap_to_run->arg);
+    g_free(tap_to_run->arg);
+    g_free(tap_to_run);
+    taps_to_run = g_slist_remove(taps_to_run, tap_to_run);
   }
   
   /* disabled protocols as per configuration file */

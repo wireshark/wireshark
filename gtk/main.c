@@ -1478,6 +1478,11 @@ void main_cf_callback(gint event, gpointer data, gpointer user_data _U_)
     }
 }
 
+typedef struct {
+  ethereal_tap_list *tli;
+  char              *arg;
+} tap_to_run_t;
+
 /* And now our feature presentation... [ fade to music ] */
 int
 main(int argc, char *argv[])
@@ -1525,8 +1530,9 @@ main(int argc, char *argv[])
   gboolean             rfilter_parse_failed = FALSE;
   e_prefs             *prefs;
   char                 badopt;
-  ethereal_tap_list   *tli = NULL;
-  gchar               *tap_opt = NULL;
+  ethereal_tap_list   *tli;
+  tap_to_run_t        *tap_to_run;
+  GSList              *taps_to_run = NULL;
   GtkWidget           *splash_win = NULL;
   gboolean             capture_child; /* True if this is the child for "-S" */
 
@@ -1968,7 +1974,15 @@ main(int argc, char *argv[])
       case 'z':
         for(tli=tap_list;tli;tli=tli->next){
           if(!strncmp(tli->cmd,optarg,strlen(tli->cmd))){
-            tap_opt = g_strdup(optarg);
+            /* We won't call the init function for the tap this soon
+               as it would disallow MATE's fields (which are registered
+               by the preferences set callback) from being used as
+               part of a tap filter.  Instead, we just add the argument
+               to a list of tap arguments. */
+            tap_to_run = g_malloc(sizeof (tap_to_run_t));
+            tap_to_run->tli = tli;
+            tap_to_run->arg = g_strdup(optarg);
+            taps_to_run = g_slist_append(taps_to_run, tap_to_run);
             break;
           }
         }
@@ -2319,10 +2333,17 @@ main(int argc, char *argv[])
         cfile.rfcode = rfcode;
         /* Open tap windows; we do so after creating the main window,
            to avoid GTK warnings, and after successfully opening the
-           capture file, so we know we have something to tap. */
-        if (tap_opt && tli) {
-          (*tli->func)(tap_opt);
-          g_free(tap_opt);
+           capture file, so we know we have something to tap, and
+           after registering all dissectors, so that MATE will have
+           registered its field array and we can have a filter with
+           one of MATE's late-registered fields as part of the tap's
+           filter. */
+        while (taps_to_run != NULL) {
+          tap_to_run = taps_to_run->data;
+          (*tap_to_run->tli->func)(tap_to_run->arg);
+          g_free(tap_to_run->arg);
+          g_free(tap_to_run);
+          taps_to_run = g_slist_remove(taps_to_run, tap_to_run);
         }
 
         /* Read the capture file. */
@@ -2371,11 +2392,18 @@ main(int argc, char *argv[])
       show_main_window(TRUE);
       if (capture_start(capture_opts)) {
         /* The capture started.  Open tap windows; we do so after creating
-           the main window, to avoid GTK warnings, and after starting the
-           capture, so we know we have something to tap. */
-        if (tap_opt && tli) {
-          (*tli->func)(tap_opt);
-          g_free(tap_opt);
+	   the main window, to avoid GTK warnings, and after successfully
+	   opening the capture file, so we know we have something to tap,
+	   and after registering all dissectors, so that MATE will have
+           registered its field array and we can have a filter with
+           one of MATE's late-registered fields as part of the tap's
+           filter. */
+        while (taps_to_run != NULL) {
+          tap_to_run = taps_to_run->data;
+          (*tap_to_run->tli->func)(tap_to_run->arg);
+          g_free(tap_to_run->arg);
+          g_free(tap_to_run);
+          taps_to_run = g_slist_remove(taps_to_run, tap_to_run);
         }
       }
     }
