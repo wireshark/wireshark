@@ -1,6 +1,6 @@
 /* packet-eigrp.c
  *
- * $Id: packet-eigrp.c,v 1.1 2000/05/28 22:59:18 guy Exp $
+ * $Id: packet-eigrp.c,v 1.2 2000/05/30 03:09:11 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -28,6 +28,10 @@
 
 #ifdef HAVE_SYS_TYPES_H
 # include <sys/types.h>
+#endif
+
+#ifdef HAVE_NETINET_IN_H
+# include <netinet/in.h>
 #endif
 
 #include <glib.h>
