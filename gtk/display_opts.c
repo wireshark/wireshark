@@ -1,7 +1,7 @@
 /* display_opts.c
  * Routines for packet display windows
  *
- * $Id: display_opts.c,v 1.8 2000/06/27 04:35:59 guy Exp $
+ * $Id: display_opts.c,v 1.9 2000/06/27 05:18:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -78,6 +78,7 @@ extern GtkWidget *packet_list;
 
 static void display_opt_ok_cb(GtkWidget *, gpointer);
 static void display_opt_apply_cb(GtkWidget *, gpointer);
+static void get_display_options(GtkWidget *);
 static void display_opt_close_cb(GtkWidget *, gpointer);
 static void display_opt_destroy_cb(GtkWidget *, gpointer);
 
@@ -216,42 +217,29 @@ display_opt_cb(GtkWidget *w, gpointer d) {
 
 static void
 display_opt_ok_cb(GtkWidget *ok_bt, gpointer parent_w) {
-  GtkWidget *button;
-
-  button = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w),
-                                              E_DISPLAY_TIME_ABS_KEY);
-  if (GTK_TOGGLE_BUTTON (button)->active)
-    timestamp_type = ABSOLUTE;
-
-  button = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w),
-                                              E_DISPLAY_TIME_REL_KEY);
-  if (GTK_TOGGLE_BUTTON (button)->active)
-    timestamp_type = RELATIVE;
-
-  button = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w),
-                                              E_DISPLAY_TIME_DELTA_KEY);
-  if (GTK_TOGGLE_BUTTON (button)->active)
-    timestamp_type = DELTA;
-
-  button = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w),
-					     E_DISPLAY_AUTO_SCROLL_KEY);
-  auto_scroll_live = (GTK_TOGGLE_BUTTON (button)->active);
-
-  button = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w),
-					     E_DISPLAY_NAME_RESOLUTION_KEY);
-  g_resolving_actif = (GTK_TOGGLE_BUTTON (button)->active);
-
-  button = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w),
-					     E_DISPLAY_IP_DSCP_KEY);
-  g_ip_dscp_actif = (GTK_TOGGLE_BUTTON (button)->active);
+  get_display_options(GTK_WIDGET(parent_w));
 
   gtk_widget_destroy(GTK_WIDGET(parent_w));
 
-  change_time_formats(&cfile);
+  if (timestamp_type != prev_timestamp_type) {
+    /* Time stamp format changed; update the display. */
+    change_time_formats(&cfile);
+  }
 }
 
 static void
 display_opt_apply_cb(GtkWidget *ok_bt, gpointer parent_w) {
+  get_display_options(GTK_WIDGET(parent_w));
+
+  if (timestamp_type != prev_timestamp_type) {
+    /* Time stamp format changed; update the display. */
+    change_time_formats(&cfile);
+  }
+}
+
+static void
+get_display_options(GtkWidget *parent_w)
+{
   GtkWidget *button;
 
   button = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w),
@@ -280,8 +268,6 @@ display_opt_apply_cb(GtkWidget *ok_bt, gpointer parent_w) {
   button = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w),
 					     E_DISPLAY_IP_DSCP_KEY);
   g_ip_dscp_actif = (GTK_TOGGLE_BUTTON (button)->active);
-
-  change_time_formats(&cfile);
 }
 
 static void
