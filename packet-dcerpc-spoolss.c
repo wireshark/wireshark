@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\spoolss packet disassembly
  * Copyright 2001-2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-spoolss.c,v 1.78 2003/02/03 02:14:01 tpot Exp $
+ * $Id: packet-dcerpc-spoolss.c,v 1.79 2003/02/05 00:36:35 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1016,15 +1016,17 @@ static int dissect_printerdata_data(tvbuff_t *tvb, int offset,
 
 			break;
 		}
+		case DCERPC_REG_BINARY:
+			if (check_col(pinfo->cinfo, COL_INFO))
+				col_append_fstr(
+					pinfo->cinfo, COL_INFO, 
+					" = <binary data>");
+			break;
+
 		default:
 			break;
 		}
 	}
-	
-	if (size)
-		offset = dissect_ndr_uint8s(
-			tvb, offset, pinfo, subtree, drep,
-			hf_spoolss_printerdata_data, size, NULL);
 	
 	proto_item_set_len(item, size + 4);
 
@@ -4060,7 +4062,7 @@ static int SpoolssEnumPrinterData_r(tvbuff_t *tvb, int offset,
 	proto_item_set_len(value_item, value_len * 2 + 4);
 
 	offset = dissect_ndr_uint32(
-		tvb, offset, pinfo, tree, drep,
+		tvb, offset, pinfo, value_subtree, drep,
 		hf_enumprinterdata_value_needed, NULL);
 
 	offset = dissect_ndr_uint32(
