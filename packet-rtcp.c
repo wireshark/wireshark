@@ -1,6 +1,6 @@
 /* packet-rtcp.c
  *
- * $Id: packet-rtcp.c,v 1.40 2004/02/25 09:31:06 guy Exp $
+ * $Id: packet-rtcp.c,v 1.41 2004/05/13 17:24:16 obiot Exp $
  *
  * Routines for RTCP dissection
  * RTCP = Real-time Transport Control Protocol
@@ -418,6 +418,19 @@ dissect_rtcp_sdes( tvbuff_t *tvb, int offset, proto_tree *tree,
 		start_offset = offset;
 
 		ssrc = tvb_get_ntohl( tvb, offset );
+		if (ssrc == 0) {
+		    /* According to RFC1889 section 6.4:
+		     * "The list of items in each chunk is terminated by one or more
+		     * null octets, the first of which is interpreted as an item type
+		     * of zero to denote the end of the list, and the remainder as
+		     * needed to pad until the next 32-bit boundary.
+		     *
+		     * A chunk with zero items (four null octets) is valid but useless."
+		     */
+		    proto_tree_add_text(tree, tvb, offset, 4, "Padding");
+		    offset += 4;
+		    continue;
+		}
 		sdes_item = proto_tree_add_text(tree, tvb, offset, -1,
 		    "Chunk %u, SSRC/CSRC %u", chunk, ssrc);
 		sdes_tree = proto_item_add_subtree( sdes_item, ett_sdes );
