@@ -2,10 +2,10 @@
  * Routines for SMB mailslot packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-smb-mailslot.c,v 1.11 2001/03/18 03:34:22 guy Exp $
+ * $Id: packet-smb-mailslot.c,v 1.12 2001/07/08 11:32:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
  * Copied from packet-pop.c
@@ -143,10 +143,11 @@ dissect_mailslot_smb(const u_char *pd, int offset, frame_data *fd,
 		  strncmp(command, "NET", strlen("NET")) == 0) ||
 		 (strcmp(command, "TEMP\\NETLOGON") == 0) ||
 		 (strcmp(command, "MSSP") == 0)){
+		tvbuff_t *tvb;
+		packet_info *pinfo = &pi;
+		tvb = tvb_create_from_top(DataOffset);
 
-		return dissect_smb_logon(pd, DataOffset, fd, parent, tree,
-			si, max_data, SMB_offset, errcode, dirn,
-			command, DataOffset, DataCount);
+		return dissect_smb_logon(tvb, pinfo, parent);
 		
 	 }
   	return TRUE;

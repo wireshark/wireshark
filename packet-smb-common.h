@@ -2,10 +2,10 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb-common.h,v 1.3 2000/08/11 13:34:00 deniel Exp $
+ * $Id: packet-smb-common.h,v 1.4 2001/07/08 11:32:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
  * Copied from packet-pop.c
@@ -51,40 +51,11 @@
 #include "smb.h"
 #include "alignment.h"
 
+int dissect_smb_unknown(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset);
 
+int display_unicode_string(tvbuff_t *tvb, packet_info *pinfo,
+		proto_tree *tree, int offset, int hf_index);
 
-
-
-
-#define ShortPacketError	proto_tree_add_text(tree, NullTVB, offset, 0, "****FRAME TOO SHORT***"); return;
-#define IncAndCheckOffset	if ( ++offset > fd->cap_len) {ShortPacketError;}
-#define CheckPacketLength(X) 	if ((offset+X) > fd->cap_len) {ShortPacketError;}
-
-#define MoveAndCheckOffset(X)	{int tmp = X; if (( offset + tmp) > fd->cap_len){ ShortPacketError;} else offset += tmp;}
-
-#define UnknowData 	if (tree) proto_tree_add_text(tree, NullTVB, offset, END_OF_FRAME, "Data (%u bytes)",END_OF_FRAME); 
-
-
-struct flag_array_type {
-	guint32	mask;		/* bit mask to test for bit set 	*/
-	char 	*pre_string;	/* string for front of description 	*/
-	char 	*true_string;	/* description string if flag is set 	*/
-	char 	*false_string;	/* description string if flag is not set */
-	char 	*post_string;	/* string for end of description 	*/
-};
-
-
-void display_flags( struct flag_array_type *flag_array, int length,
-	const u_char *pd, int offset, proto_tree *tree);
-
-
-int display_ms_value( char *Name, int len, const u_char *pd, int offset,
-		frame_data *fd, proto_tree *tree);
-int display_ms_string( char *Name, const u_char *pd, int offset,
-		frame_data *fd, proto_tree *tree);
-int display_unicode_string( char *Name, const u_char *pd, int offset,
-		frame_data *fd, proto_tree *tree);
-void dissect_smb_unknown( const u_char *pd, int offset, frame_data *fd,
-		proto_tree *tree);
+int display_ms_string(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int hf_index);
 
 #endif

@@ -537,6 +537,7 @@ Ronnie Sahlberg <rsahlber@bigpond.net.au> {
 	MRDISC support
 	MSNIP support
 	Tvbuffified ISIS dissector
+	Tvbuffified SMB NETLOGON dissector
 }
 
 Borosa Tomislav <tomislav.borosa@SIEMENS.HR> {

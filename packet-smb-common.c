@@ -2,10 +2,10 @@
  * Common routines for smb packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-smb-common.c,v 1.4 2000/05/11 08:15:44 gram Exp $
+ * $Id: packet-smb-common.c,v 1.5 2001/07/08 11:32:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
  * Copied from packet-pop.c
@@ -25,56 +25,35 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-
-
 #include "packet-smb-common.h"
 
+int display_ms_string(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int hf_index)
+{
+	const char *str;
+	int len;
 
+	/* display a string from the tree and return the new offset */
 
-int display_ms_value( char *Name, int len, const u_char *pd, int offset,
-		frame_data *fd, proto_tree *tree)
-
-{/* display an entry from the tree and return the length */
-
-  guint32  Temp32;
-  
-	if( len == 1)
-  		Temp32 = GBYTE(pd, offset);
-	else if( len == 2)
-  		Temp32 = GSHORT(pd, offset);
-	else if( len == 4)
-  		Temp32 = GWORD(pd, offset);
+	/* XXX - should use tvbuff routines to extract string length */
+	str = tvb_get_ptr(tvb, offset, 1);
+	len = strlen(str);
   	
-/* this is an error if we didn't hit one of those three */
-  	else 
-		return 0;
-
-	proto_tree_add_text( tree, NullTVB, offset, len, "%s: %u", Name, Temp32);
+	proto_tree_add_string(tree, hf_index, tvb, offset, len, str);
 	
-	return len;
-}	
-
-int display_ms_string( char *Name, const u_char *pd, int offset,
-		frame_data *fd, proto_tree *tree)
-
-{/* display a string from the tree and return the amount to move offset */
-  	
-	proto_tree_add_text( tree, NullTVB, offset, strlen( &pd[offset]) + 1, "%s: %s ",
-			Name, &pd[offset]);
-	
-	return 	strlen( &pd[offset]) + 1;
+	return 	offset+len+1;
 }
 
 
-int display_unicode_string( char *Name, const u_char *pd, int offset,
-		frame_data *fd, proto_tree *tree){
-
-/* display a unicode string from the tree and return amount to move offset */
+int display_unicode_string(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int hf_index)
+{
+	/* display a unicode string from the tree and return new offset */
 
 	char Temp[100], *OutPtr;
 	const char *InPtr;
 	
-	InPtr = &pd[ offset];		/* point to unicode string */
+	/* this will crash if composite tvbuffs are used */
+	/* XXX - need tvbuff routine to extract DBCS string lengths */
+	InPtr = tvb_get_ptr(tvb, offset, 1);
 	OutPtr = Temp;			/* point to temp space */
 	
 	while ( *InPtr){		/* copy every other byte */ 
@@ -83,73 +62,22 @@ int display_unicode_string( char *Name, const u_char *pd, int offset,
 	} 
 	*OutPtr = 0;			/* terminate out string */	
 	  	
-	proto_tree_add_text( tree, NullTVB, offset, strlen( Temp) * 2 + 2, "%s: %s ",
-			Name, Temp);
+	proto_tree_add_string(tree, hf_index, tvb, 
+		offset, strlen(Temp)*2+2, Temp);
 	
-	return 	strlen( Temp) * 2 + 2;
+	return 	offset+strlen(Temp)*2+2;
 }
 
+int
+dissect_smb_unknown(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
+{
+	/* display data as unknown */
 
-void
-dissect_smb_unknown( const u_char *pd, int offset, frame_data *fd,
-		proto_tree *tree){
+	guint len;
 
-/* display data as unknown */
+	len = tvb_length_remaining(tvb, offset);
   	
-    proto_tree_add_text(tree, NullTVB, offset, END_OF_FRAME, "Data (%u bytes)",
-                        END_OF_FRAME);
+	proto_tree_add_text(tree, tvb, offset, len, "Data (%u bytes)", len);
 
+	return offset+len;
 }
-
-
-
-void
-display_flags( struct flag_array_type *flag_array, int length,
-	const u_char *pd, int offset, proto_tree *tree){
-
-/* Display a bit fields using the flag_array information.  		*/
-/* See packet-smb-common.h for definition of the flag_array structure 	*/
-
-
-/*** NOTE: currently only handles values that are 1, 2, or 4 octets wide.*/
-/***	This should be expanded to handle any bit width. 		 */
-
-/* NOTE: the last entry must have the mask value = 0, this is the end of */
-/*	array flag 							 */
-
-
-	struct flag_array_type *array_ptr = flag_array;
-
-	guint32 flags;
-	
-	switch (length) {
-
-	case 1:
-		flags = GBYTE( pd, offset);
-		break;
-
-	case 2:
-		flags = GSHORT( pd, offset);
-		break;
-
-	case 4:
-		flags = GWORD( pd, offset);
-		break;
-
-	default:
-		g_assert_not_reached();
-		return;
-	}
-
-	while( array_ptr->mask) {
-		proto_tree_add_text( tree, NullTVB, offset, 2, "%s%s%s%s",
-			decode_boolean_bitfield( flags, array_ptr->mask,
-				length * 8, "",""),
-			array_ptr->pre_string,
-			((flags & array_ptr->mask) ? array_ptr->true_string :
-				array_ptr->false_string),
-			array_ptr->post_string);
-	
-		++array_ptr;
-	}
-}	
