@@ -22,6 +22,9 @@
 /* Define if you have the <netinet/in.h> header file.  */
 #undef HAVE_NETINET_IN_H
 
+/* Define if you have the <snmp/snmp.h> header file.  */
+#undef HAVE_SNMP_SNMP_H
+
 /* Define if you have the <stdarg.h> header file.  */
 #undef HAVE_STDARG_H
 
@@ -36,6 +39,9 @@
 
 /* Define if you have the <sys/types.h> header file.  */
 #undef HAVE_SYS_TYPES_H
+
+/* Define if you have the <ucd-snmp/snmp.h> header file.  */
+#undef HAVE_UCD_SNMP_SNMP_H
 
 /* Define if you have the <unistd.h> header file.  */
 #undef HAVE_UNISTD_H

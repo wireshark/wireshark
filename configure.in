@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.23 1999/05/01 05:19:23 gram Exp $
+# $Id: configure.in,v 1.24 1999/05/12 05:56:41 gram Exp $
 dnl Process this file with autoconf to produce a configure script.
 AC_INIT(etypes.h)
 
@@ -117,6 +117,28 @@ AC_HEADER_STDC
 AC_CHECK_HEADERS(fcntl.h sys/ioctl.h sys/time.h unistd.h stdarg.h)
 
 AC_CHECK_HEADERS(sys/sockio.h sys/types.h netinet/in.h)
+
+
+dnl SNMP Check
+AC_ARG_ENABLE(snmp,
+[  --enable-snmp           use SNMP library, if available.  [default=yes]],,enable_snmp=yes)
+
+SNMP_A=''
+SNMP_O=''
+AC_MSG_CHECKING(whether to use SNMP library if available)
+if test "x$enable_snmp" = "xno" ; then
+	AC_MSG_RESULT(no)
+else
+	AC_MSG_RESULT(yes)
+	AC_CHECK_HEADERS(ucd-snmp/snmp.h snmp/snmp.h)
+	AC_CHECK_LIB(snmp, asn_parse_header,
+		[
+		SNMP_A=-lsnmp
+		SNMP_O=packet-snmp.o
+		], )
+fi
+AC_SUBST(SNMP_A)
+AC_SUBST(SNMP_O)
 
 dnl Checks for typedefs, structures, and compiler characteristics.
 # AC_C_CONST

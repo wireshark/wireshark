@@ -68,6 +68,8 @@ LIBWIRETAP_A = @LIBWIRETAP_A@
 MAKEINFO = @MAKEINFO@
 PACKAGE = @PACKAGE@
 RANLIB = @RANLIB@
+SNMP_A = @SNMP_A@
+SNMP_O = @SNMP_O@
 SNPRINTF_C = @SNPRINTF_C@
 SNPRINTF_O = @SNPRINTF_O@
 VERSION = @VERSION@
@@ -78,16 +80,16 @@ man_MANS = ethereal.1
 
 sysconf_DATA = manuf
 
-ethereal_SOURCES =  	capture.c      	column.c       	ethereal.c     	ethertype.c    	file.c         	filter.c       	follow.c       	gtkpacket.c    	menu.c         	packet.c       	packet-aarp.c  	packet-arp.c   	packet-atalk.c 	packet-bootp.c 	packet-cdp.c   	packet-data.c  	packet-dns.c   	packet-eth.c   	packet-ftp.c   	packet-fddi.c  	packet-giop.c  	packet-http.c  	packet-ip.c    	packet-icmpv6.c 	packet-ipsec.c 	packet-ipv6.c  	packet-ipx.c   	packet-llc.c   	packet-lpd.c   	packet-nbipx.c 	packet-nbns.c  	packet-ncp.c   	packet-nntp.c  	packet-null.c  	packet-osi.c   	packet-ospf.c  	packet-pop.c   	packet-ppp.c   	packet-raw.c   	packet-rip.c   	packet-smb.c   	packet-tcp.c   	packet-telnet.c 	packet-tftp.c  	packet-tr.c    	packet-trmac.c 	packet-udp.c   	packet-vines.c 	prefs.c        	print.c        	ps.c           	resolv.c       	util.c         	capture.h      	column.h       	config.h       	ethereal.h     	etypes.h       	file.h         	filter.h       	follow.h       	gtkpacket.h    	menu.h         	packet.h       	packet-dns.h   	packet-ip.h    	packet-ipv6.h  	packet-ipx.h   	packet-ncp.h   	packet-ospf.h  	packet-rip.h   	packet-vines.h 	prefs.h        	print.h        	ps.h           	resolv.h       	util.h
+ethereal_SOURCES =  	alignment.h    	capture.c      	capture.h      	column.c       	column.h       	config.h       	ethereal.c     	ethereal.h     	ethertype.c    	etypes.h       	file.c         	file.h         	filter.c       	filter.h       	follow.c       	follow.h       	gtkpacket.c    	gtkpacket.h    	menu.c         	menu.h         	packet-aarp.c  	packet-arp.c   	packet-atalk.c 	packet-bootp.c 	packet-cdp.c   	packet-data.c  	packet-dns.c   	packet-dns.h   	packet-eth.c   	packet-fddi.c  	packet-ftp.c   	packet-giop.c  	packet-http.c  	packet-icmpv6.c 	packet-ip.c    	packet-ip.h    	packet-ipsec.c 	packet-ipv6.c  	packet-ipv6.h  	packet-ipx.c   	packet-ipx.h   	packet-llc.c   	packet-lpd.c   	packet-nbipx.c 	packet-nbns.c  	packet-ncp.c   	packet-ncp.h   	packet-nntp.c  	packet-null.c  	packet-osi.c   	packet-ospf.c  	packet-ospf.h  	packet-pop.c   	packet-ppp.c   	packet-raw.c   	packet-rip.c   	packet-rip.h   	packet-smb.c   	packet-tcp.c   	packet-telnet.c 	packet-tftp.c  	packet-tr.c    	packet-trmac.c 	packet-udp.c   	packet-vines.c 	packet-vines.h 	packet.c       	packet.h       	prefs.c        	prefs.h        	print.c        	print.h        	ps.c           	ps.h           	resolv.c       	resolv.h       	smb.h          	util.c         	util.h
 
 
-EXTRA_ethereal_SOURCES =  	snprintf.c           	snprintf.h           	snprintf-imp.h
+EXTRA_ethereal_SOURCES =  	packet-snmp.c		snprintf.c		snprintf.h		snprintf-imp.h
 
 
-ethereal_DEPENDENCIES = @SNPRINTF_O@ @LIBWIRETAP_A@
-ethereal_LDADD = @SNPRINTF_O@ @LIBWIRETAP_A@
+ethereal_DEPENDENCIES = @SNMP_O@ @SNPRINTF_O@ @LIBWIRETAP_A@
+ethereal_LDADD = @SNMP_O@ @SNPRINTF_O@ @LIBWIRETAP_A@ @SNMP_A@
 
-DISTCLEANFILES =  	rdps 						ps.c 						*~
+DISTCLEANFILES =  	rdps			ps.c			*~
 
 
 EXTRA_DIST =  	doc/Makefile            	doc/ethereal.pod        	ethereal.1              	ethereal.spec           	image/icon-excl.xpm     	image/icon-ethereal.xpm 	manuf                   	print.ps                	README.tru64			rdps.c				ylwrap
@@ -106,15 +108,15 @@ CPPFLAGS = @CPPFLAGS@
 LDFLAGS = @LDFLAGS@
 LIBS = @LIBS@
 ethereal_OBJECTS =  capture.o column.o ethereal.o ethertype.o file.o \
-filter.o follow.o gtkpacket.o menu.o packet.o packet-aarp.o \
-packet-arp.o packet-atalk.o packet-bootp.o packet-cdp.o packet-data.o \
-packet-dns.o packet-eth.o packet-ftp.o packet-fddi.o packet-giop.o \
-packet-http.o packet-ip.o packet-icmpv6.o packet-ipsec.o packet-ipv6.o \
-packet-ipx.o packet-llc.o packet-lpd.o packet-nbipx.o packet-nbns.o \
-packet-ncp.o packet-nntp.o packet-null.o packet-osi.o packet-ospf.o \
-packet-pop.o packet-ppp.o packet-raw.o packet-rip.o packet-smb.o \
-packet-tcp.o packet-telnet.o packet-tftp.o packet-tr.o packet-trmac.o \
-packet-udp.o packet-vines.o prefs.o print.o ps.o resolv.o util.o
+filter.o follow.o gtkpacket.o menu.o packet-aarp.o packet-arp.o \
+packet-atalk.o packet-bootp.o packet-cdp.o packet-data.o packet-dns.o \
+packet-eth.o packet-fddi.o packet-ftp.o packet-giop.o packet-http.o \
+packet-icmpv6.o packet-ip.o packet-ipsec.o packet-ipv6.o packet-ipx.o \
+packet-llc.o packet-lpd.o packet-nbipx.o packet-nbns.o packet-ncp.o \
+packet-nntp.o packet-null.o packet-osi.o packet-ospf.o packet-pop.o \
+packet-ppp.o packet-raw.o packet-rip.o packet-smb.o packet-tcp.o \
+packet-telnet.o packet-tftp.o packet-tr.o packet-trmac.o packet-udp.o \
+packet-vines.o packet.o prefs.o print.o ps.o resolv.o util.o
 ethereal_LDFLAGS = 
 CFLAGS = @CFLAGS@
 COMPILE = $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
@@ -148,11 +150,11 @@ DEP_FILES =  .deps/capture.P .deps/column.P .deps/ethereal.P \
 .deps/packet-nbns.P .deps/packet-ncp.P .deps/packet-nntp.P \
 .deps/packet-null.P .deps/packet-osi.P .deps/packet-ospf.P \
 .deps/packet-pop.P .deps/packet-ppp.P .deps/packet-raw.P \
-.deps/packet-rip.P .deps/packet-smb.P .deps/packet-tcp.P \
-.deps/packet-telnet.P .deps/packet-tftp.P .deps/packet-tr.P \
-.deps/packet-trmac.P .deps/packet-udp.P .deps/packet-vines.P \
-.deps/packet.P .deps/prefs.P .deps/print.P .deps/ps.P .deps/resolv.P \
-.deps/snprintf.P .deps/util.P
+.deps/packet-rip.P .deps/packet-smb.P .deps/packet-snmp.P \
+.deps/packet-tcp.P .deps/packet-telnet.P .deps/packet-tftp.P \
+.deps/packet-tr.P .deps/packet-trmac.P .deps/packet-udp.P \
+.deps/packet-vines.P .deps/packet.P .deps/prefs.P .deps/print.P \
+.deps/ps.P .deps/resolv.P .deps/snprintf.P .deps/util.P
 SOURCES = $(ethereal_SOURCES) $(EXTRA_ethereal_SOURCES)
 OBJECTS = $(ethereal_OBJECTS)
 

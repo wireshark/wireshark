@@ -5,16 +5,26 @@ man_MANS = ethereal.1
 sysconf_DATA = manuf
 
 ethereal_SOURCES = \
+	alignment.h    \
 	capture.c      \
+	capture.h      \
 	column.c       \
+	column.h       \
+	config.h       \
 	ethereal.c     \
+	ethereal.h     \
 	ethertype.c    \
+	etypes.h       \
 	file.c         \
+	file.h         \
 	filter.c       \
+	filter.h       \
 	follow.c       \
+	follow.h       \
 	gtkpacket.c    \
+	gtkpacket.h    \
 	menu.c         \
-	packet.c       \
+	menu.h         \
 	packet-aarp.c  \
 	packet-arp.c   \
 	packet-atalk.c \
@@ -22,29 +32,36 @@ ethereal_SOURCES = \
 	packet-cdp.c   \
 	packet-data.c  \
 	packet-dns.c   \
+	packet-dns.h   \
 	packet-eth.c   \
-	packet-ftp.c   \
 	packet-fddi.c  \
+	packet-ftp.c   \
 	packet-giop.c  \
 	packet-http.c  \
-	packet-ip.c    \
 	packet-icmpv6.c \
+	packet-ip.c    \
+	packet-ip.h    \
 	packet-ipsec.c \
 	packet-ipv6.c  \
+	packet-ipv6.h  \
 	packet-ipx.c   \
+	packet-ipx.h   \
 	packet-llc.c   \
 	packet-lpd.c   \
 	packet-nbipx.c \
 	packet-nbns.c  \
 	packet-ncp.c   \
+	packet-ncp.h   \
 	packet-nntp.c  \
 	packet-null.c  \
 	packet-osi.c   \
 	packet-ospf.c  \
+	packet-ospf.h  \
 	packet-pop.c   \
 	packet-ppp.c   \
 	packet-raw.c   \
 	packet-rip.c   \
+	packet-rip.h   \
 	packet-smb.c   \
 	packet-tcp.c   \
 	packet-telnet.c \
@@ -53,43 +70,29 @@ ethereal_SOURCES = \
 	packet-trmac.c \
 	packet-udp.c   \
 	packet-vines.c \
-	prefs.c        \
-	print.c        \
-	ps.c           \
-	resolv.c       \
-	util.c         \
-	capture.h      \
-	column.h       \
-	config.h       \
-	ethereal.h     \
-	etypes.h       \
-	file.h         \
-	filter.h       \
-	follow.h       \
-	gtkpacket.h    \
-	menu.h         \
-	packet.h       \
-	packet-dns.h   \
-	packet-ip.h    \
-	packet-ipv6.h  \
-	packet-ipx.h   \
-	packet-ncp.h   \
-	packet-ospf.h  \
-	packet-rip.h   \
 	packet-vines.h \
+	packet.c       \
+	packet.h       \
+	prefs.c        \
 	prefs.h        \
+	print.c        \
 	print.h        \
+	ps.c           \
 	ps.h           \
+	resolv.c       \
 	resolv.h       \
+	smb.h          \
+	util.c         \
 	util.h
 
 EXTRA_ethereal_SOURCES = \
-	snprintf.c           \
-	snprintf.h           \
+	packet-snmp.c	\
+	snprintf.c	\
+	snprintf.h	\
 	snprintf-imp.h
 
-ethereal_DEPENDENCIES = @SNPRINTF_O@ @LIBWIRETAP_A@
-ethereal_LDADD = @SNPRINTF_O@ @LIBWIRETAP_A@
+ethereal_DEPENDENCIES = @SNMP_O@ @SNPRINTF_O@ @LIBWIRETAP_A@
+ethereal_LDADD = @SNMP_O@ @SNPRINTF_O@ @LIBWIRETAP_A@ @SNMP_A@
 
 ps.c: print.ps rdps
 	./rdps print.ps ps.c
@@ -97,9 +100,9 @@ ps.c: print.ps rdps
 rdps: rdps.c
 	$(CC) -o rdps rdps.c
 
-DISTCLEANFILES =			\
-	rdps 					\
-	ps.c 					\
+DISTCLEANFILES =	\
+	rdps		\
+	ps.c		\
 	*~
 
 EXTRA_DIST =                \
