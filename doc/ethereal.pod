@@ -1934,7 +1934,7 @@ B<http://www.ethereal.com>.
   Tom Uijldert             <Tom.Uijldert[AT]cmg.nl>
   Akira Endoh              <endoh[AT]netmarks.co.jp>
   Graeme Hewson            <graeme.hewson[AT]oracle.com>
-  Pasi Eronen              <pasi.eronen[at]nixu.com>
+  Pasi Eronen              <pe[at]iki.fi>
   Georg von Zezschwitz     <gvz[AT]2scale.net>
   Steffen Weinreich        <steve[AT]weinreich.org>
   Marc Milgram             <ethereal[AT]mmilgram.NOSPAMmail.net>

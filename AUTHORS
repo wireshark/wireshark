@@ -989,7 +989,7 @@ Graeme Hewson <graeme.hewson[AT]oracle.com> {
 	Make dialog box pop up only after a minimum period of time
 }
 
-Pasi Eronen <pasi.eronen[at]nixu.com> {
+Pasi Eronen <pe[at]iki.fi> {
 	Patches to the dcerpc dissector for data representation decoding
 	XDMCP support
 	Support for PCT cipher suites and record layer in SSL
