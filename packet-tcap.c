@@ -9,7 +9,7 @@
  *
  * (append your name here for newer version)
  *
- * $Id: packet-tcap.c,v 1.2 2003/10/16 18:15:54 guy Exp $
+ * $Id: packet-tcap.c,v 1.3 2003/11/14 01:35:08 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -96,7 +96,7 @@ static gint ett_dtid = -1;
 static gint ett_dlg_portion = -1;
 static gint ett_dlg_req = -1;
 static gint ett_dlg_rsp = -1;
-static gint ett_dlg_abrt = -1;
+static gint ett_dlg_abort = -1;
 static gint ett_cmp_portion = -1;
 static gint ett_reason = -1;
 static gint ett_component = -1;
@@ -137,7 +137,7 @@ static const value_string msg_type_strings[] = {
 #define ANSI_ST_MSG_TYP_RSP 0xe4
 #define ANSI_ST_MSG_TYP_CWP 0xe5
 #define ANSI_ST_MSG_TYP_CWOP 0xe6
-#define ANSI_ST_MSG_TYP_PABT 0xf6
+#define ANSI_ST_MSG_TYP_ABT 0xf6
 static const value_string ansi_msg_type_strings[] = {
 	{ ANSI_ST_MSG_TYP_UNI, "TC-UNI" },
 	{ ANSI_ST_MSG_TYP_QWP, "TC-QUERY W PERM" },
@@ -145,7 +145,7 @@ static const value_string ansi_msg_type_strings[] = {
 	{ ANSI_ST_MSG_TYP_RSP, "TC-RESPONSE" },
 	{ ANSI_ST_MSG_TYP_CWP, "TC-CONV W PERM" },
 	{ ANSI_ST_MSG_TYP_CWOP, "TC-CONV WO PERM" },
-	{ ANSI_ST_MSG_TYP_PABT, "TC-PABORT" },
+	{ ANSI_ST_MSG_TYP_ABT, "TC-ABORT" },
 	{ 0, NULL },
 };
 
@@ -1823,7 +1823,7 @@ dissect_tcap_dlg_abrt(ASN1_SCK *asn1, proto_tree *tree)
     saved_offset = asn1->offset;
     ret = asn1_id_decode1(asn1, &tag);
     req_item = proto_tree_add_none_format(tree, hf_tcap_none, asn1->tvb, saved_offset, -1, "Dialogue Abort");
-    subtree = proto_item_add_subtree(req_item, ett_dlg_abrt );
+    subtree = proto_item_add_subtree(req_item, ett_dlg_abort );
     proto_tree_add_uint(subtree, hf_tcap_dlg_type, asn1->tvb, saved_offset, asn1->offset - saved_offset, tag);
 
     dissect_tcap_len(asn1, subtree, &abort_def_len, &len);
@@ -2312,7 +2312,9 @@ dissect_ansi_tcap_abort(ASN1_SCK *asn1, proto_tree *tcap_tree, proto_item *ti)
     guint trans_start = asn1->offset;
     guchar *poctets;
     guint32 val;
+    gint32 value;
     gboolean def_len;
+    gchar *str;
 
     saved_offset = asn1->offset;
     ret = asn1_id_decode1(asn1, &tag);
@@ -2323,13 +2325,17 @@ dissect_ansi_tcap_abort(ASN1_SCK *asn1, proto_tree *tcap_tree, proto_item *ti)
 	return TC_DS_FAIL;
     }
 
-    trans_item = proto_tree_add_none_format(tcap_tree, hf_tcap_none, asn1->tvb, saved_offset, -1, "Transaction Portion");
+    trans_item =
+	proto_tree_add_none_format(tcap_tree, hf_tcap_none, asn1->tvb,
+	saved_offset, -1, "Transaction Portion");
+
     subtree = proto_item_add_subtree(trans_item, ett_dlg_portion);
 
-    proto_tree_add_uint_format(subtree, hf_tcap_tag, asn1->tvb, saved_offset, asn1->offset - saved_offset, tag,
+    proto_tree_add_uint_format(subtree, hf_tcap_tag, asn1->tvb,
+	saved_offset, asn1->offset - saved_offset, tag,
 	"Responding Transaction ID Identifier");
 
-    dissect_tcap_len(asn1, tcap_tree, &def_len, &len);
+    dissect_tcap_len(asn1, subtree, &def_len, &len);
 
     if (len != 4)
     {
@@ -2338,6 +2344,7 @@ dissect_ansi_tcap_abort(ASN1_SCK *asn1, proto_tree *tcap_tree, proto_item *ti)
 
     saved_offset = asn1->offset;
     ret = asn1_string_value_decode(asn1, len, &poctets);
+
     val = 0;
     memcpy(&val, poctets, len);
     ti = proto_tree_add_uint(subtree, hf_tcap_id, asn1->tvb, saved_offset, asn1->offset - saved_offset, val);
@@ -2348,32 +2355,63 @@ dissect_ansi_tcap_abort(ASN1_SCK *asn1, proto_tree *tcap_tree, proto_item *ti)
 
     proto_item_set_len(trans_item, asn1->offset - trans_start);
 
+    if (tvb_length_remaining(asn1->tvb, asn1->offset) <= 0)
+    {
+	proto_tree_add_text(tcap_tree, asn1->tvb, asn1->offset, -1,
+	    "!!! Missing Component Portion !!!");
+
+	return TC_DS_FAIL;
+    }
+
     saved_offset = asn1->offset;
     ret = asn1_id_decode1(asn1, &tag);
 
 #define ANSI_TC_PABRT_CAUSE_TAG 0xd7
     if (tag == ANSI_TC_PABRT_CAUSE_TAG)
     {
-	trans_item = proto_tree_add_none_format(tcap_tree, hf_tcap_none, asn1->tvb, saved_offset, -1, "P-Abort Portion");
-/*
-	subtree = proto_item_add_subtree(trans_item, ett_dlg_abrt);
+	trans_item =
+	    proto_tree_add_none_format(tcap_tree, hf_tcap_none, asn1->tvb,
+		saved_offset, -1, "P-Abort Portion");
 
-	proto_tree_add_uint_format(subtree, hf_tcap_tag, asn1->tvb, saved_offset, asn1->offset - saved_offset, tag,
-	    "Responding Transaction ID Identifier");
-*/
+	subtree = proto_item_add_subtree(trans_item, ett_dlg_abort);
 
-	dissect_tcap_len(asn1, tcap_tree, &def_len, &len);
-	dissect_tcap_integer(asn1, tcap_tree, len, "P-Abort Cause:");
+	dissect_tcap_len(asn1, subtree, &def_len, &len);
+
+	proto_item_set_len(trans_item, (asn1->offset - saved_offset) + len);
+
+	saved_offset = asn1->offset;
+	asn1_int32_value_decode(asn1, len, &value);
+
+	switch (value)
+	{
+	case 1: str = "Unrecognized Package Type"; break;
+	case 2: str = "Incorrect Transaction Portion"; break;
+	case 3: str = "Badly Structured Transaction Portion"; break;
+	case 4: str = "Unrecognized Transaction ID"; break;
+	case 5: str = "Permission to Release"; break;
+	case 6: str = "Resource Unavailable"; break;
+	default:
+	    str = "Undefined";
+	    break;
+	}
+
+	proto_tree_add_text(subtree, asn1->tvb,
+	    saved_offset, asn1->offset - saved_offset, "P-Abort Cause Value %s (%d)",
+	    str, value);
     }
 #define ANSI_TC_UABRT_INFO_TAG 0xd8
     else if (tag == ANSI_TC_UABRT_INFO_TAG)
     {
-	trans_item = proto_tree_add_none_format(tcap_tree, hf_tcap_none, asn1->tvb, saved_offset, -1, "U-Abort Portion");
+	trans_item =
+	    proto_tree_add_none_format(tcap_tree, hf_tcap_none, asn1->tvb,
+		saved_offset, -1, "U-Abort Portion");
 
-	dissect_tcap_len(asn1, tcap_tree, &def_len, &len);
+	subtree = proto_item_add_subtree(trans_item, ett_dlg_abort);
+
+	dissect_tcap_len(asn1, subtree, &def_len, &len);
 	if (len > 0)
 	{
-	    dissect_tcap_integer(asn1, tcap_tree, len, "User Abort Information:");
+	    dissect_tcap_integer(asn1, subtree, len, "User Abort Information:");
 	}
     }
 
@@ -2554,7 +2592,7 @@ dissect_ansi_tcap_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tcap_tr
     case ANSI_ST_MSG_TYP_CWOP:
 	dissect_ansi_tcap_cwp_cwop(&asn1, tcap_tree, ti);
 	break;
-    case ANSI_ST_MSG_TYP_PABT:
+    case ANSI_ST_MSG_TYP_ABT:
 	dissect_ansi_tcap_abort(&asn1, tcap_tree, ti);
 	break;
     default:
@@ -2687,7 +2725,7 @@ proto_register_tcap(void)
 	&ett_reason,
 	&ett_dlg_req,
 	&ett_dlg_rsp,
-	&ett_dlg_abrt,
+	&ett_dlg_abort,
 	&ett_component,
 	&ett_error,
 	&ett_problem,
