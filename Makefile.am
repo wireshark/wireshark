@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.731 2004/05/22 21:51:30 guy Exp $
+# $Id: Makefile.am,v 1.732 2004/05/31 13:40:03 ulfl Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -433,6 +433,7 @@ EXTRA_DIST = \
 	doc/randpkt.txt		\
 	doc/tethereal.pod	\
 	doc/text2pcap.pod	\
+	doxygen.cfg		\
 	editcap.c		\
 	epan/libethereal.def	\
 	ethereal_be.py		\

@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for the GTK interface routines for Ethereal
 #
-# $Id: Makefile.am,v 1.98 2004/05/22 04:25:57 guy Exp $
+# $Id: Makefile.am,v 1.99 2004/05/31 13:42:17 ulfl Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -102,6 +102,7 @@ libui_a_SOURCES = \
 endif
 
 EXTRA_DIST = \
+	doxygen.cfg \
 	Makefile.common \
 	Makefile.nmake \
 	print_mswin.c  \
