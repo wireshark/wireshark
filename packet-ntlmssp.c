@@ -2,7 +2,7 @@
  * Routines for NTLM Secure Service Provider
  * Devin Heitmueller <dheitmueller@netilla.com>
  *
- * $Id: packet-ntlmssp.c,v 1.20 2002/09/11 16:45:07 sharpe Exp $
+ * $Id: packet-ntlmssp.c,v 1.21 2002/09/11 17:47:32 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -386,10 +386,10 @@ dissect_ntlmssp_negotiate (tvbuff_t *tvb, int offset,
 					    negotiate_flags);
 
   offset = dissect_ntlmssp_string(tvb, offset, ntlmssp_tree, FALSE, 
-				  hf_ntlmssp_negotiate_workstation,
+				  hf_ntlmssp_negotiate_domain,
 				  &workstation_end);
   offset = dissect_ntlmssp_string(tvb, offset, ntlmssp_tree, FALSE, 
-				  hf_ntlmssp_negotiate_domain,
+				  hf_ntlmssp_negotiate_workstation,
 				  &domain_end);
 
   return MAX(workstation_end, domain_end);
