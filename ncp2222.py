@@ -24,7 +24,7 @@ http://developer.novell.com/ndk/doc/docui/index.htm#../ncp/ncp__enu/data/
 for a badly-formatted HTML version of the same PDF.
 
 
-$Id: ncp2222.py,v 1.47 2003/02/05 20:52:48 guy Exp $
+$Id: ncp2222.py,v 1.48 2003/02/08 02:59:05 guy Exp $
 
 
 Copyright (c) 2000-2002 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -1164,6 +1164,12 @@ class bitfield32(bitfield, uint32):
 		uint32.__init__(self, abbrev, descr, endianness)
 		bitfield.__init__(self, vars)
 
+#
+# Force the endianness of a field to a non-default value; used in
+# the list of fields of a structure.
+#
+def endian(field, endianness):
+	return [-1, field.Length(), field, endianness, NO_VAR, NO_REPEAT, NO_REQ_COND]
 
 ##############################################################################
 # NCP Field Types. Defined in Appendix A of "Programmer's Guide..."
@@ -4183,19 +4189,14 @@ DirEntryStruct			= struct("dir_entry_struct", [
 	DOSDirectoryEntryNumber,
 	VolumeNumberLong,
 ], "Directory Entry Information")
-#
-# XXX - CreationDate and CreationTime here appear to be big-endian,
-# but there's no way to say that *this* instance of a field is
-# big-endian but *other* instances are little-endian.
-#
 DirectoryInstance               = struct("directory_instance", [
         SearchSequenceWord,
         DirectoryID,
         DirectoryName14,
         DirectoryAttributes,
         DirectoryAccessRights,
-	CreationDate,
-        CreationTime,
+	endian(CreationDate, BE),
+        endian(AccessDate, BE),
 	CreatorID,
         Reserved2,
         DirectoryStamp,
@@ -4344,12 +4345,6 @@ FileInfoStruct                  = struct("file_info_struct", [
         TotalBlocksToDecompress,
         CurrentBlockBeingDecompressed,
 ], "File Information")
-#
-# XXX - CreationDate, CreationTime, UpdateDate, and UpdateTime here
-# appear to be big-endian, but there's no way to say that *this*
-# instance of a field is big-endian but *other* instances are
-# little-endian.
-#
 FileInstance                    = struct("file_instance", [
         SearchSequenceWord,
         DirectoryID,
@@ -4357,10 +4352,10 @@ FileInstance                    = struct("file_instance", [
         AttributesDef,
         FileMode,
         FileSize,
-	CreationDate,
-        CreationTime,
-	UpdateDate,
-        UpdateTime,
+	endian(CreationDate, BE),
+        endian(AccessDate, BE),
+	endian(UpdateDate, BE),
+        endian(UpdateTime, BE),
 ], "File Instance")
 FileNameStruct                  = struct("file_name_struct", [
         FileName,
