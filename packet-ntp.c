@@ -2,7 +2,7 @@
  * Routines for NTP packet dissection
  * Copyright 1999, Nathan Neulinger <nneul@umr.edu>
  *
- * $Id: packet-ntp.c,v 1.19 2000/11/19 16:58:57 gerald Exp $
+ * $Id: packet-ntp.c,v 1.20 2000/11/19 21:18:10 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -333,11 +333,14 @@ dissect_ntp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 					break;
 				}
 			}
-		} else
-			strncpy (buff, get_hostname (pntohl(pkt->refid)), sizeof buff - 1);
+		} else {
+			buff[sizeof(buff) - 1] = '\0';
+			strncpy (buff, get_hostname (pntohl(pkt->refid)), sizeof(buff));
+			if (buff[sizeof(buff) - 1] != '\0')
+				strcpy(&buff[sizeof(buff) - 4], "...");
+		}
 		proto_tree_add_bytes_format(ntp_tree, hf_ntp_refid, NullTVB, offset+12, 4, pkt->refid,
 					   "Reference Clock ID: %s", buff);
-			buff[sizeof buff - 1] = '\0';
 		/* Reference Timestamp: This is the time at which the local clock was
 		 * last set or corrected.
 		 */
