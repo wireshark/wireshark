@@ -190,6 +190,7 @@ dissect_daap_one_tag(proto_tree *tree, tvbuff_t *tvb, int offset, int length)
 
       tagname = tvb_get_ntohl(tvb, offset);
       tagsize = tvb_get_ntohl(tvb, offset+4);
+      tvb_ensure_bytes_exist(tvb, offset, tagsize+8);
       ti = proto_tree_add_text(tree, tvb, offset, tagsize+8, 
 			       "Tag: %c%c%c%c, Size: %d", 
 			       tvb_get_guint8(tvb, offset),
