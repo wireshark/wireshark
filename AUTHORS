@@ -449,7 +449,7 @@ Dug Song                <dugsong[AT]monkey.org> {
 	RPCSEC_GSS credential/verifier dissection for ONC RPC
 }
 
-Michael Tuexen          <tuexen [AT] fh-muenster.de> {
+Michael Tüxen          <tuexen [AT] fh-muenster.de> {
 	SCTP support
 	M3UA support
 	ISDN Q.921-User Adaptation Layer (IUA) support
