@@ -1,7 +1,7 @@
 /* packet-ppp.c
  * Routines for ppp packet disassembly
  *
- * $Id: packet-ppp.c,v 1.57 2001/03/22 16:24:14 gram Exp $
+ * $Id: packet-ppp.c,v 1.58 2001/03/29 09:18:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -89,13 +89,7 @@ static gint ppp_fcs_decode = 0; /* 0 = No FCS, 1 = 16 bit FCS, 2 = 32 bit FCS */
 #define FCS_16 1
 #define FCS_32 2
 
-/* PPP structs and definitions */
-
-typedef struct _e_ppphdr {
-  guint8  ppp_addr;
-  guint8  ppp_ctl;
-  guint16 ppp_prot;
-} e_ppphdr;
+/* PPP definitions */
 
 static const value_string ppp_vals[] = {
 	{PPP_IP,        "IP"             },
@@ -527,6 +521,9 @@ static const ip_tcp_opt ipcp_opts[] = {
 };
 
 #define N_IPCP_OPTS	(sizeof ipcp_opts / sizeof ipcp_opts[0])
+
+static void dissect_payload_ppp(tvbuff_t *tvb, packet_info *pinfo,
+    proto_tree *tree);
 
 const unsigned int fcstab_32[256] =
       {
@@ -1159,20 +1156,30 @@ dissect_cp( tvbuff_t *tvb, int proto_id, int proto_subtree_index,
 /* Protocol field compression */
 #define PFC_BIT 0x01
 
-static gboolean
+static void
 dissect_ppp_stuff( tvbuff_t *tvb, packet_info *pinfo,
-		proto_tree *tree, proto_tree *fh_tree ) {
+		proto_tree *tree, proto_tree *fh_tree,
+		proto_item *ti ) {
   guint16 ppp_prot;
   int     proto_len;
   tvbuff_t	*next_tvb;
 
-  if (tvb_get_guint8(tvb, 0) & PFC_BIT) {
-    ppp_prot = tvb_get_guint8(tvb, 0);
+  ppp_prot = tvb_get_guint8(tvb, 0);
+  if (ppp_prot & PFC_BIT) {
+    /* Compressed protocol field - just the byte we fetched. */
     proto_len = 1;
   } else {
+    /* Uncompressed protocol field - fetch all of it. */
     ppp_prot = tvb_get_ntohs(tvb, 0);
     proto_len = 2;
   }
+
+  /* If "ti" is not null, it refers to the top-level "proto_ppp" item
+     for PPP, and was given a length equal to the length of any
+     stuff in the header preceding the protocol type, e.g. an HDLC
+     header; add the length of the protocol type field to it. */
+  if (ti != NULL)
+    proto_item_set_len(ti, proto_item_get_len(ti) + proto_len);
 
   if (tree) {
     proto_tree_add_text(fh_tree, tvb, 0, proto_len, "Protocol: %s (0x%04x)",
@@ -1182,14 +1189,14 @@ dissect_ppp_stuff( tvbuff_t *tvb, packet_info *pinfo,
   next_tvb = tvb_new_subset(tvb, proto_len, -1, -1);
 
   /* do lookup with the subdissector table */
-  if (dissector_try_port(subdissector_table, ppp_prot, next_tvb, pinfo, tree))
-    return TRUE;
-
-  if (check_col(pinfo->fd, COL_INFO))
-    col_add_fstr(pinfo->fd, COL_INFO, "PPP %s (0x%04x)",
-		val_to_str(ppp_prot, ppp_vals, "Unknown"), ppp_prot);
-  dissect_data(next_tvb, 0, pinfo, tree);
-  return FALSE;
+  if (!dissector_try_port(subdissector_table, ppp_prot, next_tvb, pinfo, tree)) {
+    if (check_col(pinfo->fd, COL_PROTOCOL))
+      col_add_fstr(pinfo->fd, COL_PROTOCOL, "0x%04x", ppp_prot);
+    if (check_col(pinfo->fd, COL_INFO))
+      col_add_fstr(pinfo->fd, COL_INFO, "PPP %s (0x%04x)",
+		   val_to_str(ppp_prot, ppp_vals, "Unknown"), ppp_prot);
+    dissect_data(next_tvb, 0, pinfo, tree);
+  }
 }
 
 static void
@@ -1225,8 +1232,8 @@ static const true_false_string frag_truth = {
 static void
 dissect_mp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  proto_tree *mp_tree, *hdr_tree, *fh_tree = NULL;
-  proto_item *ti;
+  proto_tree *mp_tree, *hdr_tree;
+  proto_item *ti = NULL;
   guint8      flags;
   gchar      *flag_str;
   tvbuff_t   *next_tvb;
@@ -1267,40 +1274,44 @@ dissect_mp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_item(mp_tree, hf_mp_sequence_num, tvb,  1, 3, FALSE);
   }
 
-  next_tvb = tvb_new_subset(tvb, 4, -1, -1);
-
-  if (tvb_length(next_tvb) > 0) {
-    if (tree) {
-      ti = proto_tree_add_item(tree, proto_ppp, next_tvb, 0, 1, FALSE);
-      fh_tree = proto_item_add_subtree(ti, ett_ppp);
-    }
-    dissect_ppp_stuff(next_tvb, pinfo, tree, fh_tree);
+  if (tvb_reported_length_remaining(tvb, 4) > 0) {
+    next_tvb = tvb_new_subset(tvb, 4, -1, -1);
+    dissect_payload_ppp(next_tvb, pinfo, tree);
   }
 }
 
+/*
+ * Handles PPP without HDLC headers, just a protocol field.
+ */
 static void
 dissect_payload_ppp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree ) {
-  proto_item *ti;
+  proto_item *ti = NULL;
   proto_tree *fh_tree = NULL;
 
-  /* XXX - the length shouldn't be 2, it should be based on the length
-     of the protocol field. */
   if(tree) {
-    ti = proto_tree_add_item(tree, proto_ppp, tvb, 0, 2, FALSE);
+    ti = proto_tree_add_item(tree, proto_ppp, tvb, 0, 0, FALSE);
     fh_tree = proto_item_add_subtree(ti, ett_ppp);
   }
 
-  dissect_ppp_stuff(tvb, pinfo, tree, fh_tree);
+  dissect_ppp_stuff(tvb, pinfo, tree, fh_tree, ti);
 }
 
+/*
+ * Handles link-layer encapsulations where the frame might be:
+ *
+ *	a PPP frame with no HDLC header;
+ *
+ *	a PPP frame with an HDLC header (FF 03);
+ *
+ *	a Cisco HDLC frame.
+ */
 static void
 dissect_ppp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree ) {
-  e_ppphdr   ph;
-  proto_item *ti;
+  proto_item *ti = NULL;
   proto_tree *fh_tree = NULL;
+  guint8     byte0;
   int        proto_offset;
   tvbuff_t   *next_tvb;
-  guint8     byte0;
   int        rx_fcs_offset;
   guint32    rx_fcs_exp;
   guint32    rx_fcs_got;
@@ -1317,15 +1328,10 @@ dissect_ppp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree ) {
    */
 
   /* PPP HDLC encapsulation */
-  if (byte0 == 0xff) {
-    ph.ppp_addr = tvb_get_guint8(tvb, 0);
-    ph.ppp_ctl  = tvb_get_guint8(tvb, 1);
-    ph.ppp_prot = tvb_get_ntohs(tvb, 2);
-    proto_offset =  2;
-  }
+  if (byte0 == 0xff)
+    proto_offset = 2;
   else {
     /* address and control are compressed (NULL) */
-    ph.ppp_prot = tvb_get_ntohs(tvb, 0);
     proto_offset = 0;
   }
 
@@ -1340,20 +1346,18 @@ dissect_ppp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree ) {
     col_set_str(pinfo->fd, COL_PROTOCOL, "PPP" );
 
   if(tree) {
-    ti = proto_tree_add_item(tree, proto_ppp, tvb, 0, 4, FALSE);
+    ti = proto_tree_add_item(tree, proto_ppp, tvb, 0, proto_offset, FALSE);
     fh_tree = proto_item_add_subtree(ti, ett_ppp);
     if (byte0 == 0xff) {
-      proto_tree_add_text(fh_tree, tvb, 0, 1, "Address: %02x", ph.ppp_addr);
-      proto_tree_add_text(fh_tree, tvb, 1, 1, "Control: %02x", ph.ppp_ctl);
+      proto_tree_add_text(fh_tree, tvb, 0, 1, "Address: %02x",
+			  tvb_get_guint8(tvb, 0));
+      proto_tree_add_text(fh_tree, tvb, 1, 1, "Control: %02x",
+			  tvb_get_guint8(tvb, 1));
     }
   }
 
   next_tvb = tvb_new_subset(tvb, proto_offset, -1, -1);
-
-  if (!dissect_ppp_stuff(next_tvb, pinfo, tree, fh_tree)) {
-    if (check_col(pinfo->fd, COL_PROTOCOL))
-      col_add_fstr(pinfo->fd, COL_PROTOCOL, "0x%04x", ph.ppp_prot);
-  }
+  dissect_ppp_stuff(next_tvb, pinfo, tree, fh_tree, ti);
 
   /* Calculate the FCS check */
   /* XXX - deal with packets cut off by the snapshot length */
