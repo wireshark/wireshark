@@ -1,7 +1,7 @@
 /* ipproto.c
  * Routines for converting IPv4 protocol/v6 nxthdr field into string
  *
- * $Id: ipproto.c,v 1.7 2000/03/21 05:15:11 guy Exp $
+ * $Id: ipproto.c,v 1.8 2000/05/26 21:54:50 guy Exp $
  *
  * Gilbert Ramirez <gram@xiexie.org>
  *
@@ -96,6 +96,7 @@ static const value_string ipproto_val[] = {
     { IP_PROTO_IPCOMP,	"IPComp" },
     { IP_PROTO_VRRP,	"VRRP" },
     { IP_PROTO_VINES,	"VINES" },
+    { IP_PROTO_SCTP,    "SCTP" },
     { 0,		NULL },
 };
 

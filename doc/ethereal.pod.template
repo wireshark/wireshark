@@ -866,6 +866,7 @@ B<http://ethereal.zing.org>.
   Yaniv Kaul               <ykaul@checkpoint.com>
   Paul Ionescu             <ipaul@romsys.ro>
   Mark Burton              <markb@ordern.com>
+  Michael Tuexen           <Michael.Tuexen@icn.siemens.de>
 
 Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to give his
 permission to use his version of snprintf.c.

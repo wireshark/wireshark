@@ -1,7 +1,7 @@
 /* packet-ip.h
  * Definitions for IP packet disassembly structures and routines
  *
- * $Id: packet-ip.h,v 1.13 2000/04/25 08:55:04 gram Exp $
+ * $Id: packet-ip.h,v 1.14 2000/05/26 21:54:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -61,6 +61,7 @@ void dissect_ip(const u_char *, int, frame_data *, proto_tree *);
 #define IP_PROTO_PIM		103		/* Protocol Independent Mcast */
 #define IP_PROTO_IPCOMP		108		/* IP payload compression */
 #define IP_PROTO_VRRP		112		/* Virtual Router Redundancy Protocol */
+#define IP_PROTO_SCTP           132             /* Stream Control Transmission Protocol */
 
 typedef enum {
   NO_LENGTH,		/* option has no data, hence no length */
