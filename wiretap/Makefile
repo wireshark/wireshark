@@ -61,12 +61,17 @@ CC = gcc
 GTK_CFLAGS = -I/usr/lib/glib/include -I/usr/X11R6/include
 GTK_CONFIG = /usr/bin/gtk-config
 GTK_LIBS = -L/usr/lib -L/usr/X11R6/lib -lgtk -lgdk -lglib -lXext -lX11 -lm
+LIBWIRETAP_A = 
 MAKEINFO = makeinfo
 PACKAGE = libwtap.a
 RANLIB = ranlib
 VERSION = 0.0.0
 
-noinst_LIBRARIES = libwiretap.a
+noinst_LIBRARIES = 
+
+EXTRA_LIBRARIES = libwiretap.a
+
+CLEANFILES = libwiretap.a
 
 libwiretap_a_SOURCES = \
 	buffer.c		\

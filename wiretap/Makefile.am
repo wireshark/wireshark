@@ -1,4 +1,8 @@
-noinst_LIBRARIES = libwiretap.a
+noinst_LIBRARIES = @LIBWIRETAP_A@
+
+EXTRA_LIBRARIES = libwiretap.a
+
+CLEANFILES = libwiretap.a
 
 libwiretap_a_SOURCES = \
 	buffer.c		\
