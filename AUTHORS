@@ -501,6 +501,7 @@ Ronnie Sahlberg <rsahlber@bigpond.net.au> {
 	HCLNFSD dissector enhancements
 	IP fragment reassembly
 	YPPASSWD support
+	KLM support
 }
 
 Borosa Tomislav <tomislav.borosa@SIEMENS.HR> {
