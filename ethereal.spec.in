@@ -26,11 +26,15 @@ make
 
 %install
 rm -rf $RPM_BUILD_ROOT
-mkdir -p $RPM_BUILD_ROOT/{etc,usr/X11R6/bin,usr/X11R6/man/man1}
+mkdir -p $RPM_BUILD_ROOT/{etc,usr/X11R6/bin,usr/X11R6/man/man1,usr/bin,usr/man/man1}
 
 # can't use make install here. It would put manuf directly into /etc
 cp ethereal $RPM_BUILD_ROOT/usr/X11R6/bin
+cp tethereal $RPM_BUILD_ROOT/usr/bin
+cp editcap $RPM_BUILD_ROOT/usr/bin
 cp ethereal.1 $RPM_BUILD_ROOT/usr/X11R6/man/man1
+cp tethereal.1 $RPM_BUILD_ROOT/usr/man/man1
+cp editcap.1 $RPM_BUILD_ROOT/usr/man/man1
 cp manuf $RPM_BUILD_ROOT/etc
 
 %clean
@@ -39,9 +43,15 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(-, root, root)
 %doc AUTHORS COPYING ChangeLog INSTALL NEWS README
+README.hpux  README.linux  README.vmware
+README.aix  README.irix  README.tru64  README.win32
 %config /etc/manuf
 /usr/X11R6/bin/ethereal
 /usr/X11R6/man/man1/ethereal.1
+/usr/bin/tethereal
+/usr/bin/editcap
+/usr/man/man1/tethereal.1
+/usr/man/man1/editcap.1
 
 %changelog
 * Tue Aug 24 1999 Gilbert Ramirez
