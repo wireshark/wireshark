@@ -906,6 +906,7 @@ Graeme Hewson <graeme.hewson[AT]oracle.com> {
 	Fix various capture problems
 	Add some sanity checks to DNS dissector to avoid loops
 	Command-line interface cleanups
+	Varargs code cleanup in "simple_dialog.c"
 }
 
 Pasi Eronen <pasi.eronen[at]nixu.com> {
