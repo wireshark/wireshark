@@ -1,7 +1,7 @@
 /* plugins.c
  * plugin routines
  *
- * $Id: plugins.c,v 1.39 2001/11/04 03:37:28 guy Exp $
+ * $Id: plugins.c,v 1.40 2001/11/04 22:14:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -61,6 +61,7 @@
 #include "prefs.h"
 
 #ifdef PLUGINS_NEED_ADDRESS_TABLE
+#include "conversation.h"
 #include "packet-giop.h"
 #include "plugins/plugin_table.h"
 static plugin_address_table_t	patable;
