@@ -1,7 +1,7 @@
 /* print.c
  * Routines for printing packet analysis trees.
  *
- * $Id: print.c,v 1.51 2002/06/22 01:24:23 guy Exp $
+ * $Id: print.c,v 1.52 2002/06/22 01:43:57 guy Exp $
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -45,8 +45,7 @@
 #include "util.h"
 #include "packet-data.h"
 
-static void proto_tree_print_node_text(GNode *node, gpointer data);
-static void proto_tree_print_node_ps(GNode *node, gpointer data);
+static void proto_tree_print_node(GNode *node, gpointer data);
 static void print_hex_data_buffer(FILE *fh, register const u_char *cp,
     register u_int length, char_enc encoding, gint format);
 static void ps_clean_string(unsigned char *out, const unsigned char *in,
@@ -59,6 +58,7 @@ typedef struct {
 	gboolean	print_all_levels;
 	gboolean	print_hex_for_data;
 	char_enc	encoding;
+	gint		format;		/* text or PostScript */
 } print_data;
 
 FILE *open_print_dest(int to_file, const char *dest)
@@ -109,14 +109,10 @@ void proto_tree_print(print_args_t *print_args, epan_dissect_t *edt,
 	data.print_hex_for_data = !print_args->print_hex;
 	    /* If we're printing the entire packet in hex, don't
 	       print uninterpreted data fields in hex as well. */
+	data.format = print_args->format;
 
-	if (print_args->format == PR_FMT_TEXT) {
-		g_node_children_foreach((GNode*) edt->tree, G_TRAVERSE_ALL,
-			proto_tree_print_node_text, &data);
-	} else {
-		g_node_children_foreach((GNode*) edt->tree, G_TRAVERSE_ALL,
-			proto_tree_print_node_ps, &data);
-	}
+	g_node_children_foreach((GNode*) edt->tree, G_TRAVERSE_ALL,
+		proto_tree_print_node, &data);
 }
 
 /*
@@ -146,9 +142,11 @@ get_field_data(GSList *src_list, field_info *fi)
 
 #define MAX_INDENT	160
 
-/* Print a tree's data, and any child nodes, in plain text */
+#define MAX_PS_LINE_LENGTH 256
+
+/* Print a tree's data, and any child nodes. */
 static
-void proto_tree_print_node_text(GNode *node, gpointer data)
+void proto_tree_print_node(GNode *node, gpointer data)
 {
 	field_info	*fi = PITEM_FINFO(node);
 	print_data	*pdata = (print_data*) data;
@@ -158,6 +156,7 @@ void proto_tree_print_node_text(GNode *node, gpointer data)
 	const guint8	*pd;
 	gchar		label_str[ITEM_LABEL_LENGTH];
 	gchar		*label_ptr;
+	char		psbuffer[MAX_PS_LINE_LENGTH]; /* static sized buffer! */
 
 	/* Don't print invisible entries. */
 	if (!fi->visible)
@@ -172,19 +171,25 @@ void proto_tree_print_node_text(GNode *node, gpointer data)
 		proto_item_fill_label(fi, label_str);
 	}
 		
-	/* Prepare the tabs for printing, depending on tree level */
-	num_spaces = pdata->level * 4;
-	if (num_spaces > MAX_INDENT) {
-		num_spaces = MAX_INDENT;
-	}
-	for (i = 0; i < num_spaces; i++) {
-		space[i] = ' ';
-	}
-	/* The string is NUL-terminated */
-	space[num_spaces] = '\0';
+	if (pdata->format == PR_FMT_PS) {
+		/* Print the text, as PostScript */
+		ps_clean_string(psbuffer, label_ptr, MAX_PS_LINE_LENGTH);
+		fprintf(pdata->fh, "%d (%s) putline\n", pdata->level, psbuffer);
+	} else {
+		/* Prepare the tabs for printing, depending on tree level */
+		num_spaces = pdata->level * 4;
+		if (num_spaces > MAX_INDENT) {
+			num_spaces = MAX_INDENT;
+		}
+		for (i = 0; i < num_spaces; i++) {
+			space[i] = ' ';
+		}
+		/* The string is NUL-terminated */
+		space[num_spaces] = '\0';
 
-	/* Print the text */
-	fprintf(pdata->fh, "%s%s\n", space, label_ptr);
+		/* Print the text */
+		fprintf(pdata->fh, "%s%s\n", space, label_ptr);
+	}
 
 	/* If it's uninterpreted data, dump it (unless our caller will
 	   be printing the entire packet in hex). */
@@ -194,7 +199,7 @@ void proto_tree_print_node_text(GNode *node, gpointer data)
 		 */
 		pd = get_field_data(pdata->src_list, fi);
 		print_hex_data_buffer(pdata->fh, pd, fi->length,
-		    pdata->encoding, PR_FMT_TEXT);
+		    pdata->encoding, pdata->format);
 	}
 
 	/* If we're printing all levels, or if this node is one with a
@@ -206,7 +211,7 @@ void proto_tree_print_node_text(GNode *node, gpointer data)
 		if (g_node_n_children(node) > 0) {
 			pdata->level++;
 			g_node_children_foreach(node, G_TRAVERSE_ALL,
-				proto_tree_print_node_text, pdata);
+				proto_tree_print_node, pdata);
 			pdata->level--;
 		}
 	}
@@ -308,55 +313,6 @@ print_hex_data_buffer(FILE *fh, register const u_char *cp,
 	}
 }
 
-#define MAX_LINE_LENGTH 256
-
-/* Print a node's data, and any child nodes, in PostScript */
-static
-void proto_tree_print_node_ps(GNode *node, gpointer data)
-{
-	field_info	*fi = PITEM_FINFO(node);
-	print_data	*pdata = (print_data*) data;
-	gchar		label_str[ITEM_LABEL_LENGTH];
-	gchar		*label_ptr;
-	const guint8	*pd;
-	char		psbuffer[MAX_LINE_LENGTH]; /* static sized buffer! */
-
-	if (!fi->visible)
-		return;
-
-	/* was a free format label produced? */
-	if (fi->representation) {
-		label_ptr = fi->representation;
-	}
-	else { /* no, make a generic label */
-		label_ptr = label_str;
-		proto_item_fill_label(fi, label_str);
-	}
-		
-	/* Print the text */
-	ps_clean_string(psbuffer, label_ptr, MAX_LINE_LENGTH);
-	fprintf(pdata->fh, "%d (%s) putline\n", pdata->level, psbuffer);
-
-	/* If it's uninterpreted data, dump it (unless our caller will
-	   be printing the entire packet in hex). */
-	if (fi->hfinfo->id == proto_data && pdata->print_hex_for_data) {
-		/*
-		 * Find the data for this field.
-		 */
-		pd = get_field_data(pdata->src_list, fi);
-		print_hex_data_buffer(pdata->fh, pd, fi->length,
-		    pdata->encoding, PR_FMT_PS);
-	}
-
-	/* Recurse into the subtree, if it exists */
-	if (g_node_n_children(node) > 0) {
-		pdata->level++;
-		g_node_children_foreach(node, G_TRAVERSE_ALL,
-			proto_tree_print_node_ps, pdata);
-		pdata->level--;
-	}
-}
-
 static
 void ps_clean_string(unsigned char *out, const unsigned char *in,
 			int outbuf_size)
@@ -387,10 +343,10 @@ void ps_clean_string(unsigned char *out, const unsigned char *in,
 
 void print_line(FILE *fh, gint format, char *line)
 {
-	char		psbuffer[MAX_LINE_LENGTH]; /* static sized buffer! */
+	char		psbuffer[MAX_PS_LINE_LENGTH]; /* static sized buffer! */
 
 	if (format == PR_FMT_PS) {
-		ps_clean_string(psbuffer, line, MAX_LINE_LENGTH);
+		ps_clean_string(psbuffer, line, MAX_PS_LINE_LENGTH);
 		fprintf(fh, "(%s) hexdump\n", psbuffer);
 	} else {
 		fputs(line, fh);
