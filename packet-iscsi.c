@@ -4,7 +4,7 @@
  *
  * Conforms to the protocol described in: draft-ietf-ips-iscsi-08.txt
  *
- * $Id: packet-iscsi.c,v 1.14 2001/10/21 19:04:20 guy Exp $
+ * $Id: packet-iscsi.c,v 1.15 2001/10/23 05:40:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1667,7 +1667,7 @@ proto_register_iscsi(void)
     };
 
     /* Register the protocol name and description */
-    proto_iscsi = proto_register_protocol("iSCSI", "ISCSI", "iscsi");
+    proto_iscsi = proto_register_protocol("iSCSI", "iSCSI", "iscsi");
 
     /* Required function calls to register the header fields and
      * subtrees used */

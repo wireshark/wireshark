@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.35 2001/09/14 07:10:10 guy Exp $
+ * $Id: proto.c,v 1.36 2001/10/23 05:40:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1588,7 +1588,7 @@ proto_compare_name(gconstpointer p1_arg, gconstpointer p2_arg)
 	const protocol_t *p1 = p1_arg;
 	const protocol_t *p2 = p2_arg;
 
-	return strcmp(p1->short_name, p2->short_name);
+	return g_strcasecmp(p1->short_name, p2->short_name);
 }
 
 int
