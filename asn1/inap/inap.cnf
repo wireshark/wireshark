@@ -1,0 +1,52 @@
+# inap.cnf
+# inap conformation file
+
+# $Id: gsmmap.cnf 12498 2004-11-09 07:04:12Z etxrab $
+
+#.MODULE_IMPORT
+
+#.EXPORTS
+
+
+#.PDU
+
+
+#.NO_EMIT
+
+#.TYPE_RENAME
+
+#.FIELD_RENAME
+
+#.FN_BODY Connectarg/redirectingPartyIDXX
+
+proto_item* parameter_item;
+ guint8 class;
+ gboolean pc, ind;
+ guint32 tag;
+ guint32 len;
+tvbuff_t *cgpn_tvb;
+
+offset = dissect_ber_identifier(pinfo, tree, tvb, offset, &class, &pc, &tag);
+offset = dissect_ber_length(pinfo, tree, tvb, offset, &len, &ind);
+cgpn_tvb = tvb_new_subset(tvb, 2, len, len );
+parameter_item = proto_tree_add_text(tree, cgpn_tvb, offset,-1,"");
+ dissect_isup_called_party_number_parameter(cgpn_tvb, tree, parameter_item);
+ offset+=len;
+
+#.FN_BODY InitialDP/dialledDigitsxxx
+ proto_item* parameter_item;
+ proto_item* parameter_tree;
+ guint8 class;
+  tvbuff_t *cgpn_tvb;
+parameter_item = proto_tree_add_item(tree, hf_index, tvb, offset, -1, FALSE);
+parameter_tree = proto_item_add_subtree(parameter_item, ett_inapisup_parameter);
+cgpn_tvb = tvb_new_subset(tvb, offset,-1 , -1 );
+dissect_isup_called_party_number_parameter(cgpn_tvb, parameter_tree, parameter_item);
+
+#.TYPE_ATTR
+#Ss-Code  TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(ssCode_vals)
+#Teleservice  TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(Teleservice_vals)
+
+#.END
+
+

@@ -1,0 +1,861 @@
+IN-CS-1-Operations-appendix { ccitt recommendation q 1218 modules(0) cs-1-operations-app(4) version1(0) }
+--  This module contains additional type definitions for IN CS-1 operations.
+DEFINITIONS IMPLICIT TAGS ::=
+BEGIN
+--  TYPE DEFINITION FOR ADDITIONAL	IN CS-1	OPERATIONS
+--  SCF-SSF operations
+--  SCF ? SSF
+--  This operation is used to release a call party connection during a call between two or more parties.
+--LegIDAlreadyAssigned ::= ERROR
+--  Indicates that a legID has already been assigned with the requested value.
+--TooLate ::= ERROR
+--  Indicates that the operation could not be performed in a timely manner.
+--UnknownLegID ::= ERROR
+--  Indicates that the legID does not exist.
+--  TYPE DEFINITION FOR ADDITIONAL	IN CS-1	DATA TYPES
+--  Argument Data Types
+AddPartyArg ::= SEQUENCE {
+	originalCallID	[0]	CallID	OPTIONAL,
+	destinationCallID	[1]	CallID	OPTIONAL
+	}
+--  OPTIONAL denotes network operator specific use.
+AttachArg ::= SEQUENCE {
+	newLegID	[0]	IMPLICIT OCTET STRING	OPTIONAL,
+	correlationidentifier	[1]	IMPLICIT OCTET STRING	OPTIONAL
+	}
+--  OPTIONAL denotes network operator specific use.
+CallPartyHandlingResultsArg ::= SEQUENCE OF LegInformation
+ChangePartiesArg ::= SEQUENCE {
+	callID	[0]	CallID	OPTIONAL,
+	targetCallID	[1]	CallID,
+	legToBeConnectedID	[2]	IMPLICIT OCTET STRING	
+	}
+--  OPTIONAL denotes network operator specific use.
+DetachArg ::= SEQUENCE {
+	legToBeDetached	[0]	IMPLICIT OCTET STRING	OPTIONAL,
+	correlationidentifier 	[1]	IMPLICIT OCTET STRING	OPTIONAL
+	}
+--  OPTIONAL denotes network operator specific use.
+ 
+HoldCallPartyConnectionArg ::= SEQUENCE {
+	callID	[0]	CallID	OPTIONAL,
+	legID	[1]	LegID
+	}
+LegID ::= CHOICE {
+	sendingSideID [0] IMPLICIT OCTET STRING (SIZE (1)),
+	receivingSideID [1] IMPLICIT OCTET STRING (SIZE (1))}
+--  OPTIONAL denotes network operator specific use.
+ReconnectArg ::= SEQUENCE {
+	callID	[0]	CallID	OPTIONAL,
+	heldLegID	[1]	LegID
+	}
+--  OPTIONAL denotes network operator specific use.
+ReleaseCallPartyConnectionArg ::= SEQUENCE {
+	legToBeReleased	[0]	LegID,
+	callID	[1]	CallID	OPTIONAL,
+	releaseCause	[2]	Cause	OPTIONAL
+	}
+--  OPTIONAL denotes network operator specific use. Common Data Types
+CallID ::= INTEGER
+--  Indicates an identifier to reference an instance of a Call accessible to the SCF. Refer to
+--  4.2.2.1/Q.1214 for a description of Call Segment.
+Cause ::= OCTET STRING
+--  Indicates the cause for interface related information. Refer to the Q.763 Cause parameter 
+--  for encoding.
+LegInformation ::= SEQUENCE {
+	legID	[0]	LegID,
+	legStatus	[1]	LegStatus
+	}
+--  Indicates call party information, as defined by a Leg object. This includes a LegID to reference 
+--  each call party, and a LegStatus to indicate whether the call party is connected or not.
+LegStatus ::= ENUMERATED {
+	connected(0),
+	unconnected(1),
+	pending(2),
+	interacting(3)	--  user connected to a resource
+	}
+--  Indicates the state of the call party.
+--  OPERATION AND ERROR CODE DEFINITION
+--  Code point values are for further study. The operations are grouped by the identified ASEs.
+--  Call party handling ASE
+addParty	AddParty ::= ffs
+changeParties	ChangeParties ::= ffs
+holdCallPartyConnection		HoldCallPartyConnection ::= ffs
+reconnect		Reconnect ::= ffs
+releaseCallPartyConnection		ReleaseCallPartyConnection ::= ffs
+--  Attach ASE
+attach	Attach ::= ffs
+detach	Detach ::= ffs
+
+VariableParts ::= SEQUENCE SIZE (1..5) OF
+	CHOICE {
+	integer	[0] IMPLICIT INTEGER (0..2147483647),
+	number	[1] IMPLICIT OCTET STRING ,
+	time	[2] IMPLICIT OCTET STRING ,
+	date	[3] IMPLICIT OCTET STRING ,
+	price	[4] IMPLICIT OCTET STRING }
+
+VariableMessage ::= SEQUENCE {
+	elementaryMessageID [0] IMPLICIT INTEGER (0..2147483647),
+	variableParts [1] IMPLICIT VariableParts }
+	
+TriggerType ::= ENUMERATED {
+	featureActivation (0),
+	verticalServiceCode (1),
+	customizedAccess (2),
+	customizedIntercom (3),
+	emergencyService (12),
+	aFR (13),
+	sharedIOTrunk (14),
+	offHookDelay (17),
+	channelSetupPRI (18),
+	tNoAnswer (25),
+	tBusy (26),
+	oCalledPartyBusy (27),
+	oNoAnswer (29),
+	originationAttemptAuthorized (30),
+	oAnswer (31),
+	oDisconnect (32),
+	termAttemptAuthorized (33),
+	tAnswer (34),
+	tDisconnect (35)}
+	
+Tone ::= SEQUENCE {
+	toneID	[0] IMPLICIT INTEGER (0..2147483647),
+	tduration	[1] IMPLICIT INTEGER (0..2147483647) OPTIONAL}	
+Text ::= SEQUENCE {
+	messageContent [0] IMPLICIT IA5String ,
+	attributes [1] IMPLICIT OCTET STRING  OPTIONAL}
+MessageID ::= CHOICE {
+	elementaryMessageID [0] IMPLICIT INTEGER (0..2147483647),
+	text	[1] IMPLICIT Text,
+	elementaryMessageIDs [29] IMPLICIT SEQUENCE SIZE (1..10) OF
+	INTEGER (0..2147483647),
+	variableMessage [30] IMPLICIT VariableMessage}
+	
+	InformationToSend ::= CHOICE {
+	inbandInfo [0] IMPLICIT SEQUENCE {
+	messageID [0] MessageID,
+	numberOfRepetitions [1] IMPLICIT INTEGER (1..127) OPTIONAL,
+	mduration	[2] IMPLICIT INTEGER (0..32767) OPTIONAL,
+	interval	[3] IMPLICIT INTEGER (0..32767) OPTIONAL},
+		tone	[1] IMPLICIT Tone,
+	displayInformation [2] IMPLICIT IA5String } 
+FilteringCriteria ::= CHOICE {
+	dialledNumber [0] IMPLICIT OCTET STRING ,
+	callingLineID [1] IMPLICIT OCTET STRING ,
+	serviceKey [2] IMPLICIT INTEGER (0..2147483647),
+	addressAndService [30] IMPLICIT SEQUENCE {
+	calledAddressValue [0] IMPLICIT OCTET STRING ,
+	serviceKey [1] IMPLICIT INTEGER (0..2147483647),
+	callingAddressValue [2] IMPLICIT OCTET STRING  OPTIONAL,
+	locationNumber [3] IMPLICIT OCTET STRING  OPTIONAL}}
+Extensions ::= SEQUENCE SIZE (1..10) OF
+	SEQUENCE {
+	type INTEGER,
+	criticality ENUMERATED {
+	ignore	(0),
+	abort	(1)} DEFAULT ignore ,
+	value	[1] IMPLICIT OCTET STRING 	}
+	
+ActivateServiceFilteringarg	::=	SEQUENCE {
+	filteredCallTreatment [0] IMPLICIT SEQUENCE {
+	sFBillingChargingCharacteristics [0] IMPLICIT OCTET STRING ,
+	informationToSend [1] InformationToSend OPTIONAL,
+	maximumNumberOfCounters [2] IMPLICIT INTEGER  OPTIONAL,
+	releaseCause [3] IMPLICIT Cause  OPTIONAL},
+	filteringCharacteristics [1] CHOICE {
+	interval [0] IMPLICIT INTEGER (0..32767),
+	numberOfCalls [1] IMPLICIT INTEGER (0..2147483647)},
+	filteringTimeOut [2] CHOICE {
+	aduration [0] IMPLICIT INTEGER (-2..86400),
+	stopTime [1] IMPLICIT OCTET STRING (SIZE (6))},
+	filteringCriteria [3] FilteringCriteria,
+	startTime [4] IMPLICIT OCTET STRING (SIZE (6)) OPTIONAL,
+	extensions [5] IMPLICIT Extensions OPTIONAL}
+	
+MiscCallInfo ::= SEQUENCE {
+	messageType [0] IMPLICIT ENUMERATED {
+	request (0),
+	notification (1)},
+ 
+	dpAssignment [1] IMPLICIT ENUMERATED {
+	individualLine (0),
+	groupBased (1),
+	officeBased (2)} OPTIONAL}
+	
+ServiceAddressInformation ::= SEQUENCE {
+	serviceKey [0] IMPLICIT INTEGER (0..2147483647) OPTIONAL,
+	miscCallInfo [1] IMPLICIT MiscCallInfo,
+	triggerType [2] IMPLICIT TriggerType OPTIONAL}
+	
+TerminalType ::= ENUMERATED {
+	unknown	(0),
+	dialPulse	(1),
+	dtmf	(2),
+	isdn	(3),
+	isdnNoDtmf	(4),
+	spare (16)}
+RouteList ::= SEQUENCE SIZE (1..3) OF OCTET STRING
+CGEncountered ::= ENUMERATED {
+	noCGencountered (0),
+	manualCGencountered (1),
+	scpOverload (2)}
+BearerCapability ::= CHOICE {
+	bearerCap[0] IMPLICIT OCTET STRING,
+	tmr [1] IMPLICIT OCTET STRING (SIZE(1))}
+DpSpecificCommonParameters ::= SEQUENCE {
+	serviceAddressInformation [0] IMPLICIT ServiceAddressInformation ,
+	bearerCapability [1] BearerCapability OPTIONAL,
+	calledPartyNumber [2] IMPLICIT OCTET STRING  OPTIONAL,
+	callingPartyNumber [3] IMPLICIT OCTET STRING  OPTIONAL,
+	callingPartysCategory [4] IMPLICIT OCTET STRING (SIZE (1)) OPTIONAL,
+	iPSSPCapabilities [5] IMPLICIT OCTET STRING  OPTIONAL,
+	iPAvailable [6] IMPLICIT OCTET STRING  OPTIONAL,
+	iSDNAccessRelatedInformation [7] IMPLICIT OCTET STRING OPTIONAL,
+	cGEncountered [8] IMPLICIT CGEncountered OPTIONAL,
+	locationNumber [9] IMPLICIT OCTET STRING  OPTIONAL,
+	serviceProfileIdentifier [10] IMPLICIT OCTET STRING OPTIONAL,
+	terminalType [11] IMPLICIT TerminalType OPTIONAL,
+	extensions [12] IMPLICIT Extensions OPTIONAL,
+	chargeNumber [13] IMPLICIT OCTET STRING  OPTIONAL,
+	servingAreaID [14] IMPLICIT OCTET STRING  OPTIONAL}
+
+CallingFacilityGroup ::= CHOICE {
+	trunkGroupID [0] IMPLICIT INTEGER,
+	privateFacilityID [1] IMPLICIT INTEGER,
+	huntGroup [2] IMPLICIT OCTET STRING,
+	routeIndex [3] IMPLICIT OCTET STRING}
+AnalysedInformationarg ::=	SEQUENCE {
+	dpSpecificCommonParameters [0] IMPLICIT DpSpecificCommonParameters,
+	dialledDigits [1] IMPLICIT OCTET STRING  OPTIONAL,
+	callingPartyBusinessGroupID [2] IMPLICIT OCTET STRING OPTIONAL,
+	callingPartySubaddress [3] IMPLICIT OCTET STRING OPTIONAL,
+	callingFacilityGroup [4] CallingFacilityGroup OPTIONAL,
+	callingFacilityGroupMember [5] IMPLICIT INTEGER OPTIONAL,
+	originalCalledPartyID [6] IMPLICIT OCTET STRING  OPTIONAL,
+	prefix [7] IMPLICIT OCTET STRING  OPTIONAL,
+	redirectingPartyID [8] IMPLICIT OCTET STRING  OPTIONAL,
+	redirectionInformation [9] IMPLICIT OCTET STRING (SIZE (2)) OPTIONAL,
+	routeList [10] IMPLICIT RouteList  OPTIONAL,
+	travellingClassMark [11] IMPLICIT OCTET STRING  OPTIONAL,
+	extensions [12] IMPLICIT Extensions OPTIONAL,
+	featureCode [13] IMPLICIT OCTET STRING  OPTIONAL,
+	accessCode [14] IMPLICIT OCTET STRING  OPTIONAL,
+	carrier [15] IMPLICIT OCTET STRING OPTIONAL}
+DestinationAddress ::= OCTET STRING
+AnalyseInformationarg ::=	SEQUENCE {
+	destinationRoutingAddress [0] IMPLICIT SEQUENCE SIZE (1..3) OF DestinationAddress,
+	alertingPattern [1] IMPLICIT OCTET STRING (SIZE (3)) OPTIONAL,
+	iSDNAccessRelatedInformation [2] IMPLICIT OCTET STRING OPTIONAL,
+	originalCalledPartyID [3] IMPLICIT OCTET STRING  OPTIONAL,
+	extensions [4] IMPLICIT Extensions OPTIONAL,
+	callingPartyNumber [5] IMPLICIT OCTET STRING  OPTIONAL,
+	callingPartysCategory [6] IMPLICIT OCTET STRING (SIZE (1)) OPTIONAL,
+	calledPartyNumber [7] IMPLICIT OCTET STRING  OPTIONAL,
+	chargeNumber [8] IMPLICIT OCTET STRING  OPTIONAL,
+	travellingClassMark [9] IMPLICIT OCTET STRING  OPTIONAL,
+	carrier [10] IMPLICIT OCTET STRING OPTIONAL}
+PartyToCharge ::= CHOICE {
+	sendingSideID [0] IMPLICIT OCTET STRING (SIZE (1)),
+	receivingSideID [1] IMPLICIT OCTET STRING (SIZE (1))}
+ApplyChargingarg ::=	SEQUENCE {
+	aChBillingChargingCharacteristics [0] IMPLICIT OCTET STRING ,
+	partyToCharge [2] PartyToCharge OPTIONAL,
+	extensions [3] IMPLICIT Extensions OPTIONAL}
+ 
+ApplyChargingReportarg ::=	OCTET STRING 
+AssistRequestInstructionsarg ::=	SEQUENCE {
+	correlationID [0] IMPLICIT OCTET STRING ,
+	iPAvailable [1] IMPLICIT OCTET STRING  OPTIONAL,
+	iPSSPCapabilities [2] IMPLICIT OCTET STRING  OPTIONAL,
+	extensions [3] IMPLICIT Extensions OPTIONAL}
+
+CallGaparg ::=	SEQUENCE {
+	gapCriteria [0] CHOICE {
+	calledAddressValue [0] IMPLICIT OCTET STRING ,
+	gapOnService [2] IMPLICIT SEQUENCE {
+	serviceKey [0] IMPLICIT INTEGER (0..2147483647),
+	dpCriteria [1] IMPLICIT ENUMERATED {
+	origAttemptAuthorized (1),
+	collectedInfo (2),
+	analysedInformation (3),
+	routeSelectFailure (4),
+	oCalledPartyBusy (5),
+	oNoAnswer (6),
+	oAnswer (7),
+	oMidCall (8),
+	oDisconnect (9),
+	oAbandon (10),
+	termAttemptAuthorized (12),
+	tBusy (13),
+	tNoAnswer (14),
+ 
+	tAnswer (15),
+	tMidCall (16),
+	tDisconnect (17),
+	tAbandon (18)} OPTIONAL},
+	calledAddressAndService [29] IMPLICIT SEQUENCE {
+	calledAddressValue [0] IMPLICIT OCTET STRING ,
+	serviceKey [1] IMPLICIT INTEGER (0..2147483647)},
+	callingAddressAndService [30] IMPLICIT SEQUENCE {
+	callingAddressValue [0] IMPLICIT OCTET STRING ,
+	serviceKey [1] IMPLICIT INTEGER (0..2147483647),
+	locationNumber [2] IMPLICIT OCTET STRING  OPTIONAL}},
+	gapIndicators [1] IMPLICIT SEQUENCE {
+	cgduration [0] IMPLICIT INTEGER (-2..86400),
+	gapInterval [1] IMPLICIT INTEGER (-1..60000)},
+	controlType [2] IMPLICIT ENUMERATED {
+	sCPOverloaded (0),
+	manuallyInitiated (1),
+	destinationOverload (2)} OPTIONAL,
+	gapTreatment [3] CHOICE {
+	informationToSend [0] InformationToSend,
+	releaseCause [1] IMPLICIT Cause,
+	both [2] IMPLICIT Both} OPTIONAL,
+	extensions [4] IMPLICIT Extensions OPTIONAL}
+Both ::= SEQUENCE {
+	informationToSend [0] InformationToSend,
+	releaseCause [1] IMPLICIT Cause}
+CallInformationReportarg ::=	SEQUENCE {
+	requestedInformationList [0] IMPLICIT SEQUENCE SIZE (1..5) OF
+	SEQUENCE {
+	requestedInformationType [0] IMPLICIT ENUMERATED {
+	callAttemptElapsedTime (0),
+	callStopTime (1),
+	callConnectedElapsedTime (2),
+	calledAddress (3),
+	releaseCause (30)},
+	requestedInformationValue [1] CHOICE {
+	callAttemptElapsedTimeValue [0] IMPLICIT INTEGER (0..255),
+	callStopTimeValue [1] IMPLICIT OCTET STRING (SIZE (6)),
+	callConnectedElapsedTimeValue [2] IMPLICIT INTEGER (0..2147483647),
+	calledAddressValue [3] IMPLICIT OCTET STRING ,
+	releaseCauseValue [30] IMPLICIT Cause }},
+	correlationID [1] IMPLICIT OCTET STRING  OPTIONAL,
+	extensions [2] IMPLICIT Extensions OPTIONAL}
+	 
+CallInformationRequestarg ::=	SEQUENCE {
+	requestedInformationTypeList [0] IMPLICIT SEQUENCE SIZE (1..5) OF
+	ENUMERATED {
+	callAttemptElapsedTime (0),
+	callStopTime (1),
+	callConnectedElapsedTime (2),
+	calledAddress (3),
+	releaseCause (30)},
+	correlationID [1] IMPLICIT OCTET STRING  OPTIONAL,
+	extensions [2] IMPLICIT Extensions OPTIONAL}
+ 
+Cancelarg ::=	CHOICE {
+	invokeID [0] IMPLICIT INTEGER (-128..127),
+	allRequests [1] IMPLICIT NULL}
+	
+FacilityGroupID ::= CHOICE {
+	trunkGroupID [0] IMPLICIT INTEGER,
+	privateFacilityID [1] IMPLICIT INTEGER,
+	huntGroup [2] IMPLICIT OCTET STRING,
+	routeIndex [3] IMPLICIT OCTET STRING}
+	
+ResourceID ::= CHOICE {
+	lineID [0] IMPLICIT OCTET STRING ,
+	facilityGroupID [1] FacilityGroupID,
+	facilityGroupMemberID [2] IMPLICIT INTEGER,
+	trunkGroupID [3] IMPLICIT INTEGER}
+CancelStatusReportRequestarg ::=	SEQUENCE {
+	resourceID [0] ResourceID OPTIONAL,
+	extensions [1] IMPLICIT Extensions OPTIONAL}
+CollectedInformationarg ::=	SEQUENCE {
+	dpSpecificCommonParameters [0] IMPLICIT DpSpecificCommonParameters,
+	dialledDigits [1] IMPLICIT OCTET STRING  OPTIONAL,
+	callingPartyBusinessGroupID [2] IMPLICIT OCTET STRING OPTIONAL,
+	callingPartySubaddress [3] IMPLICIT OCTET STRING OPTIONAL,
+	callingFacilityGroup [4] CallingFacilityGroup OPTIONAL,
+	callingFacilityGroupMember [5] IMPLICIT INTEGER OPTIONAL,
+	originalCalledPartyID [6] IMPLICIT OCTET STRING  OPTIONAL,
+	prefix [7] IMPLICIT OCTET STRING  OPTIONAL,
+	redirectingPartyID [8] IMPLICIT OCTET STRING  OPTIONAL,
+	redirectionInformation [9] IMPLICIT OCTET STRING (SIZE (2)) OPTIONAL,
+	travellingClassMark [10] IMPLICIT OCTET STRING  OPTIONAL,
+	extensions [11] IMPLICIT Extensions OPTIONAL,
+	featureCode [12] IMPLICIT OCTET STRING  OPTIONAL,
+	accessCode [13] IMPLICIT OCTET STRING  OPTIONAL,
+	carrier [14] IMPLICIT OCTET STRING OPTIONAL}
+CollectInformationarg ::=	SEQUENCE {
+	alertingPattern [0] IMPLICIT OCTET STRING (SIZE (3)) OPTIONAL,
+	numberingPlan [1] IMPLICIT OCTET STRING (SIZE (1)) OPTIONAL,
+	originalCalledPartyID [2] IMPLICIT OCTET STRING  OPTIONAL,
+	travellingClassMark [3] IMPLICIT OCTET STRING  OPTIONAL,
+	extensions [4] IMPLICIT Extensions OPTIONAL,
+	callingPartyNumber [5] IMPLICIT OCTET STRING  OPTIONAL,
+	dialledDigits [6] IMPLICIT OCTET STRING  OPTIONAL}
+Connectarg ::=	SEQUENCE {
+	destinationRoutingAddress [0] IMPLICIT SEQUENCE SIZE (1..3) OF	DestinationAddress ,
+	alertingPattern [1] IMPLICIT OCTET STRING (SIZE (3)) OPTIONAL,
+	correlationID [2] IMPLICIT OCTET STRING  OPTIONAL,
+	cutAndPaste [3] IMPLICIT INTEGER (0..22) OPTIONAL,
+	forwardingCondition [4] IMPLICIT ENUMERATED {
+	busy (0),
+	noanswer (1)} OPTIONAL,
+	iSDNAccessRelatedInformation [5] IMPLICIT OCTET STRING OPTIONAL,
+	originalCalledPartyID [6] IMPLICIT OCTET STRING  OPTIONAL,
+	routeList [7] IMPLICIT RouteList  OPTIONAL,
+	scfID [8] IMPLICIT OCTET STRING  OPTIONAL,
+	travellingClassMark [9] IMPLICIT OCTET STRING  OPTIONAL,
+	extensions [10] IMPLICIT Extensions OPTIONAL,
+	carrier [11] IMPLICIT OCTET STRING OPTIONAL,
+	serviceInteractionIndicators [26] IMPLICIT OCTET STRING  OPTIONAL,
+	callingPartyNumber [27] IMPLICIT OCTET STRING  OPTIONAL,
+	callingPartysCategory [28] IMPLICIT OCTET STRING (SIZE (1)) OPTIONAL,
+	redirectingPartyID [29] IMPLICIT OCTET STRING  OPTIONAL,
+	redirectionInformation [30] IMPLICIT OCTET STRING (SIZE (2)) OPTIONAL}
+ 
+ConnectToResource ::=	SEQUENCE {
+	resourceAddress CHOICE {
+	ipRoutingAddress [0] IMPLICIT OCTET STRING ,
+	legID [1] LegID,
+	both [2] IMPLICIT Both,
+	none [3] IMPLICIT NULL},
+	extensions [4] IMPLICIT Extensions OPTIONAL,
+	serviceInteractionIndicators [30] IMPLICIT OCTET STRING  OPTIONAL}
+EstablishTemporaryConnection ::=	SEQUENCE {
+	assistingSSPIPRoutingAddress [0] IMPLICIT OCTET STRING ,
+	correlationID [1] IMPLICIT OCTET STRING  OPTIONAL,
+	legID	[2] LegID OPTIONAL,
+	scfID	[3] IMPLICIT OCTET STRING  OPTIONAL,
+	extensions [4] IMPLICIT Extensions OPTIONAL,
+	carrier	[5] IMPLICIT OCTET STRING OPTIONAL,
+	serviceInteractionIndicators [30] IMPLICIT OCTET STRING  OPTIONAL}
+ 
+ MonitorMode ::=  ENUMERATED {
+	interrupted (0),
+	notifyAndContinue (1),
+	transparent (2)} 
+	
+EventNotificationChargingarg ::=	SEQUENCE {
+	eventTypeCharging [0] IMPLICIT OCTET STRING ,
+	eventSpecificInformationCharging [1] IMPLICIT OCTET STRING  OPTIONAL,
+	legID [2] LegID OPTIONAL,
+	extensions [3] IMPLICIT Extensions OPTIONAL,
+	monitorMode [30] IMPLICIT MonitorMode}
+ EventTypeBCSM ::= ENUMERATED {
+	origAttemptAuthorized (1),
+	collectedInfo (2),
+	analysedInformation (3),
+	routeSelectFailure (4),
+	oCalledPartyBusy (5),
+	oNoAnswer (6),
+	oAnswer (7),
+	oMidCall (8),
+	oDisconnect (9),
+	oAbandon (10),
+	termAttemptAuthorized (12),
+	tBusy (13),
+	tNoAnswer (14),
+	tAnswer (15),
+	tMidCall (16),
+	tDisconnect (17),
+	tAbandon (18)}
+EventReportBCSM ::=	SEQUENCE {
+	eventTypeBCSM [0] IMPLICIT EventTypeBCSM,
+	bcsmEventCorrelationID [1] IMPLICIT OCTET STRING  OPTIONAL,
+	eventSpecificInformationBCSM [2] CHOICE {
+	collectedInfoSpecificInfo [0] IMPLICIT SEQUENCE {
+	calledPartynumber [0] IMPLICIT OCTET STRING },
+	analyzedInfoSpecificInfo [1] IMPLICIT SEQUENCE {
+	calledPartynumber [0] IMPLICIT OCTET STRING },
+	routeSelectFailureSpecificInfo [2] IMPLICIT SEQUENCE {
+	failureCause [0] IMPLICIT OCTET STRING (SIZE (2..10)) OPTIONAL},
+	oCalledPartyBusySpecificInfo [3] IMPLICIT SEQUENCE {
+	busyCause [0] IMPLICIT OCTET STRING (SIZE (2..10)) OPTIONAL},
+	oNoAnswerSpecificInfo [4] IMPLICIT SEQUENCE {},
+	oAnswerSpecificInfo [5] IMPLICIT SEQUENCE {},
+	oMidCallSpecificInfo [6] IMPLICIT SEQUENCE {
+	connectTime [0] IMPLICIT INTEGER (0..2147483647) OPTIONAL},
+	oDisconnectSpecificInfo [7] IMPLICIT SEQUENCE {
+	releaseCause [0] IMPLICIT Cause OPTIONAL,
+	connectTime [1] IMPLICIT INTEGER (0..2147483647) OPTIONAL},
+	tBusySpecificInfo [8] IMPLICIT SEQUENCE {
+	busyCause [0] IMPLICIT OCTET STRING (SIZE (2..10)) OPTIONAL},
+	tNoAnswerSpecificInfo [9] IMPLICIT SEQUENCE {},
+	tAnswerSpecificInfo [10] IMPLICIT SEQUENCE {},
+	tMidCallSpecificInfo [11] IMPLICIT SEQUENCE {
+	connectTime [0] IMPLICIT INTEGER (0..2147483647) OPTIONAL},
+	tDisconnectSpecificInfo [12] IMPLICIT SEQUENCE {
+	releaseCause [0] IMPLICIT Cause OPTIONAL,
+	connectTime [1] IMPLICIT INTEGER (0..2147483647) OPTIONAL}} OPTIONAL,
+ 
+	legID  [3] LegID OPTIONAL,
+	miscCallInfo [4] IMPLICIT MiscCallInfo,
+	extensions [5] IMPLICIT Extensions OPTIONAL}
+	 
+FurnishChargingInformationarg ::=	OCTET STRING 
+HoldCallInNetworkarg ::=	CHOICE {
+	holdcause [0] IMPLICIT OCTET STRING,
+	empty [1] IMPLICIT NULL}
+InitialDP ::=	SEQUENCE {
+	serviceKey [0] IMPLICIT INTEGER (0..2147483647) OPTIONAL,
+	dialledDigits [1] IMPLICIT OCTET STRING  OPTIONAL,
+	calledPartyNumber [2] IMPLICIT OCTET STRING  OPTIONAL,
+	callingPartyNumber [3] IMPLICIT OCTET STRING  OPTIONAL,
+	callingPartyBusinessGroupID [4] IMPLICIT OCTET STRING OPTIONAL,
+	callingPartysCategory [5] IMPLICIT OCTET STRING (SIZE (1)) OPTIONAL,
+	callingPartySubaddress [6] IMPLICIT OCTET STRING OPTIONAL,
+	cGEncountered [7] IMPLICIT CGEncountered OPTIONAL,
+	iPSSPCapabilities [8] IMPLICIT OCTET STRING  OPTIONAL,
+	iPAvailable [9] IMPLICIT OCTET STRING  OPTIONAL,
+	locationNumber [10] IMPLICIT OCTET STRING  OPTIONAL,
+	miscCallInfo [11] IMPLICIT MiscCallInfo OPTIONAL,
+	originalCalledPartyID [12] IMPLICIT OCTET STRING  OPTIONAL,
+	serviceProfileIdentifier [13] IMPLICIT OCTET STRING OPTIONAL,
+	terminalType [14] IMPLICIT TerminalType OPTIONAL,
+	extensions [15] IMPLICIT Extensions OPTIONAL,
+	triggerType [16] IMPLICIT TriggerType OPTIONAL,
+	highLayerCompatibility [23] IMPLICIT OCTET STRING (SIZE (2)) OPTIONAL,
+	serviceInteractionIndicators [24] IMPLICIT OCTET STRING  OPTIONAL,
+	additionalCallingPartyNumber [25] IMPLICIT OCTET STRING  OPTIONAL,
+	forwardCallIndicators [26] IMPLICIT OCTET STRING (SIZE (2)) OPTIONAL,
+	bearerCapability [27] BearerCapability OPTIONAL,
+	eventTypeBCSM [28] IMPLICIT EventTypeBCSM OPTIONAL,
+	redirectingPartyID [29] IMPLICIT OCTET STRING  OPTIONAL,
+	redirectionInformation [30] IMPLICIT OCTET STRING (SIZE (2)) OPTIONAL}
+ 
+InitiateCallAttempt ::=	SEQUENCE {
+	destinationRoutingAddress [0] IMPLICIT SEQUENCE SIZE (1..3) OF DestinationAddress,
+	alertingPattern [1] IMPLICIT OCTET STRING (SIZE (3)) OPTIONAL,
+	iSDNAccessRelatedInformation [2] IMPLICIT OCTET STRING OPTIONAL,
+	travellingClassMark [3] IMPLICIT OCTET STRING  OPTIONAL,
+	extensions [4] IMPLICIT Extensions OPTIONAL,
+	serviceInteractionIndicators [29] IMPLICIT OCTET STRING  OPTIONAL,
+	callingPartyNumber [30] IMPLICIT OCTET STRING  OPTIONAL}
+	OAnswer ::=	SEQUENCE {
+	dpSpecificCommonParameters [0] IMPLICIT DpSpecificCommonParameters,
+	callingPartyBusinessGroupID [1] IMPLICIT OCTET STRING OPTIONAL,
+	callingPartySubaddress [2] IMPLICIT OCTET STRING OPTIONAL,
+	callingFacilityGroup [3] CallingFacilityGroup OPTIONAL,
+	callingFacilityGroupMember [4] IMPLICIT INTEGER OPTIONAL,
+	originalCalledPartyID [5] IMPLICIT OCTET STRING  OPTIONAL,
+	redirectingPartyID [6] IMPLICIT OCTET STRING  OPTIONAL,
+	redirectionInformation [7] IMPLICIT OCTET STRING (SIZE (2)) OPTIONAL,
+	routeList [8] IMPLICIT RouteList OPTIONAL,
+	travellingClassMark [9] IMPLICIT OCTET STRING  OPTIONAL,
+	extensions [10] IMPLICIT Extensions OPTIONAL}
+ 
+OCalledPartyBusy ::=	SEQUENCE {
+	dpSpecificCommonParameters [0] IMPLICIT DpSpecificCommonParameters,
+	busyCause [1] IMPLICIT OCTET STRING (SIZE (2..10)) OPTIONAL,
+	callingPartyBusinessGroupID [2] IMPLICIT OCTET STRING OPTIONAL,
+	callingPartySubaddress [3] IMPLICIT OCTET STRING OPTIONAL,
+	callingFacilityGroup [4] CallingFacilityGroup OPTIONAL,
+	callingFacilityGroupMember [5] IMPLICIT INTEGER OPTIONAL,
+	originalCalledPartyID [6] IMPLICIT OCTET STRING  OPTIONAL,
+	prefix [7] IMPLICIT OCTET STRING  OPTIONAL,
+	redirectingPartyID [8] IMPLICIT OCTET STRING  OPTIONAL,
+	redirectionInformation [9] IMPLICIT OCTET STRING (SIZE (2)) OPTIONAL,
+	routeList [10] IMPLICIT RouteList  OPTIONAL,
+	travellingClassMark [11] IMPLICIT OCTET STRING  OPTIONAL,
+	extensions [12] IMPLICIT Extensions OPTIONAL,
+	carrier [13] IMPLICIT OCTET STRING OPTIONAL}
+ODisconnect ::=	SEQUENCE {
+	dpSpecificCommonParameters [0] IMPLICIT DpSpecificCommonParameters,
+	callingPartyBusinessGroupID [1] IMPLICIT OCTET STRING OPTIONAL,
+	callingPartySubaddress [2] IMPLICIT OCTET STRING OPTIONAL,
+	callingFacilityGroup [3] CallingFacilityGroup OPTIONAL,
+	callingFacilityGroupMember [4] IMPLICIT INTEGER OPTIONAL,
+	releaseCause [5] IMPLICIT Cause OPTIONAL,
+	routeList [6] IMPLICIT RouteList OPTIONAL,
+	extensions [7] IMPLICIT Extensions OPTIONAL,
+	carrier [8] IMPLICIT OCTET STRING OPTIONAL,
+	connectTime [9] IMPLICIT INTEGER (0..2147483647) OPTIONAL}
+	
+	
+	FeatureRequestIndicator ::= ENUMERATED {
+	hold (0),
+	retrieve (1),
+	featureActivation (2),
+	spare1 (3),
+ 
+	sparen (127)}
+OMidCall   ::=	SEQUENCE {
+	dpSpecificCommonParameters [0] IMPLICIT DpSpecificCommonParameters,
+	calledPartyBusinessGroupID [1] IMPLICIT OCTET STRING OPTIONAL,
+	calledPartySubaddress [2] IMPLICIT OCTET STRING OPTIONAL,
+	callingPartyBusinessGroupID [3] IMPLICIT OCTET STRING OPTIONAL,
+	callingPartySubaddress [4] IMPLICIT OCTET STRING OPTIONAL,
+	featureRequestIndicator [5] IMPLICIT FeatureRequestIndicator OPTIONAL,
+	extensions [6] IMPLICIT Extensions OPTIONAL,
+	carrier [7] IMPLICIT OCTET STRING OPTIONAL}
+ONoAnswer ::=	SEQUENCE {
+	dpSpecificCommonParameters [0] IMPLICIT DpSpecificCommonParameters,
+	callingPartyBusinessGroupID [1] IMPLICIT OCTET STRING OPTIONAL,
+	callingPartySubaddress [2] IMPLICIT OCTET STRING OPTIONAL,
+	callingFacilityGroup [3] CallingFacilityGroup OPTIONAL,
+	callingFacilityGroupMember [4] IMPLICIT INTEGER OPTIONAL,
+	originalCalledPartyID [5] IMPLICIT OCTET STRING  OPTIONAL,
+	prefix [6] IMPLICIT OCTET STRING  OPTIONAL,
+	redirectingPartyID [7] IMPLICIT OCTET STRING  OPTIONAL,
+	redirectionInformation [8] IMPLICIT OCTET STRING (SIZE (2)) OPTIONAL,
+	routeList  [9] IMPLICIT RouteList OPTIONAL,
+	travellingClassMark [10] IMPLICIT OCTET STRING  OPTIONAL,
+	extensions [11] IMPLICIT Extensions OPTIONAL,
+	carrier [12] IMPLICIT OCTET STRING OPTIONAL}
+OriginationAttemptAuthorized ::=	SEQUENCE {
+	dpSpecificCommonParameters [0] IMPLICIT DpSpecificCommonParameters,
+	dialledDigits [1] IMPLICIT OCTET STRING  OPTIONAL,
+	callingPartyBusinessGroupID [2] IMPLICIT OCTET STRING OPTIONAL,
+	callingPartySubaddress [3] IMPLICIT OCTET STRING OPTIONAL,
+	callingFacilityGroup [4] CallingFacilityGroup OPTIONAL,
+	callingFacilityGroupMember [5] IMPLICIT INTEGER OPTIONAL,
+	travellingClassMark [6] IMPLICIT OCTET STRING  OPTIONAL,
+	extensions [7] IMPLICIT Extensions OPTIONAL,
+	carrier [8] IMPLICIT OCTET STRING OPTIONAL}
+ 
+PlayAnnouncement ::=	SEQUENCE {
+	informationToSend [0] InformationToSend,
+	disconnectFromIPForbidden [1] IMPLICIT BOOLEAN DEFAULT TRUE,
+	requestAnnouncementComplete [2] IMPLICIT BOOLEAN DEFAULT TRUE,
+	extensions [3] IMPLICIT Extensions OPTIONAL}
+PromptAndCollectUserInformationarg ::=	SEQUENCE {
+	collectedInfo [0] CHOICE {
+ 
+	collectedDigits [0] IMPLICIT SEQUENCE {
+	minimumNbOfDigits [0] IMPLICIT INTEGER (1..127) DEFAULT 1,
+	maximumNbOfDigits [1] IMPLICIT INTEGER (1..127),
+	endOfReplyDigit [2] IMPLICIT OCTET STRING (SIZE (1..2)) OPTIONAL,
+	cancelDigit [3] IMPLICIT OCTET STRING (SIZE (1..2)) OPTIONAL,
+	startDigit [4] IMPLICIT OCTET STRING (SIZE (1..2)) OPTIONAL,
+	firstDigitTimeOut [5] IMPLICIT INTEGER (1..127) OPTIONAL,
+	interDigitTimeOut [6] IMPLICIT INTEGER (1..127) OPTIONAL,
+	errorTreatment [7] IMPLICIT ENUMERATED {
+	reportErrorToScf (0),
+	help (1),
+	repeatPrompt (2)} DEFAULT reportErrorToScf ,
+	interruptableAnnInd [8] IMPLICIT BOOLEAN DEFAULT TRUE,
+	voiceInformation [9] IMPLICIT BOOLEAN DEFAULT FALSE,
+	voiceBack [10] IMPLICIT BOOLEAN DEFAULT FALSE},
+	iA5Information [1] IMPLICIT BOOLEAN},
+	disconnectFromIPForbidden [1] IMPLICIT BOOLEAN DEFAULT TRUE,
+	informationToSend [2] InformationToSend OPTIONAL,
+	extensions [3] IMPLICIT Extensions OPTIONAL}
+PromptAndCollectUserInformationres ::=	CHOICE {
+	digitsResponse [0] IMPLICIT OCTET STRING ,
+	iA5Response [1] IMPLICIT IA5String  }
+ ResourceStatus ::= ENUMERATED {
+	busy (0),
+	idle (1)}
+ReleaseCall ::=	OCTET STRING (SIZE (2..10)) 
+RequestCurrentStatusReportarg ::= 	CHOICE {
+	lineID [0] IMPLICIT OCTET STRING ,
+	facilityGroupID [1] FacilityGroupID,
+	facilityGroupMemberID [2] IMPLICIT INTEGER,
+	trunkGroupID [3] IMPLICIT INTEGER}
+RequestCurrentStatusReportres ::= 	SEQUENCE {
+	resourceStatus [0] IMPLICIT ResourceStatus,
+	resourceID [1] ResourceID OPTIONAL,
+	extensions [2] IMPLICIT Extensions OPTIONAL}
+RequestEveryStatusChangeReport ::=	SEQUENCE {
+	resourceID [0] ResourceID,
+	correlationID [1] IMPLICIT OCTET STRING  OPTIONAL,
+	monitorDuration [2] IMPLICIT INTEGER (-2..86400) OPTIONAL,
+	extensions [3] IMPLICIT Extensions OPTIONAL}
+ 
+RequestFirstStatusMatchReport ::=	SEQUENCE {
+	resourceID [0] ResourceID OPTIONAL,
+	resourceStatus [1] IMPLICIT ResourceStatus OPTIONAL,
+	correlationID [2] IMPLICIT OCTET STRING  OPTIONAL,
+	monitorDuration [3] IMPLICIT INTEGER (-2..86400) OPTIONAL,
+	extensions [4] IMPLICIT Extensions OPTIONAL,
+	bearerCapability [5] BearerCapability OPTIONAL}
+RequestNotificationChargingEvent ::=	SEQUENCE SIZE (1..10) OF
+	SEQUENCE {
+	eventTypeCharging [0] IMPLICIT OCTET STRING ,
+	monitorMode [1] IMPLICIT MonitorMode,
+	legID [2] LegID OPTIONAL}
+RequestReportBCSMEvent ::=	SEQUENCE {
+	bcsmEvents [0] IMPLICIT SEQUENCE SIZE (1..10) OF
+	SEQUENCE {
+	eventTypeBCSM [0] IMPLICIT EventTypeBCSM,
+	monitorMode [1] IMPLICIT MonitorMode,
+	legID [2] LegID OPTIONAL,
+	dpSpecificCriteria [30] CHOICE {
+	numberOfDigits [0] IMPLICIT INTEGER (1..255),
+	applicationTimer [1] IMPLICIT INTEGER (0..2047)} OPTIONAL},
+	bcsmEventCorrelationID [1] IMPLICIT OCTET STRING  OPTIONAL,
+	extensions [2] IMPLICIT Extensions OPTIONAL}
+ResetTimer ::=	SEQUENCE {
+	timerID [0] IMPLICIT ENUMERATED {
+	tssf (0)} DEFAULT tssf   ,
+	timervalue [1] IMPLICIT INTEGER (0..2147483647),
+	extensions [2] IMPLICIT Extensions OPTIONAL}
+ 
+RouteSelectFailure ::=	SEQUENCE {
+	dpSpecificCommonParameters [0] IMPLICIT DpSpecificCommonParameters,
+	dialledDigits [1] IMPLICIT OCTET STRING  OPTIONAL,
+	callingPartyBusinessGroupID [2] IMPLICIT OCTET STRING OPTIONAL,
+	callingPartySubaddress [3] IMPLICIT OCTET STRING OPTIONAL,
+	callingFacilityGroup [4] CallingFacilityGroup OPTIONAL,
+	callingFacilityGroupMember [5] IMPLICIT INTEGER OPTIONAL,
+	failureCause [6] IMPLICIT OCTET STRING (SIZE (2..10)) OPTIONAL,
+	originalCalledPartyID [7] IMPLICIT OCTET STRING  OPTIONAL,
+	prefix [8] IMPLICIT OCTET STRING  OPTIONAL,
+	redirectingPartyID [9] IMPLICIT OCTET STRING  OPTIONAL,
+	redirectionInformation [10] IMPLICIT OCTET STRING (SIZE (2)) OPTIONAL,
+	routeList [11] IMPLICIT RouteList OPTIONAL,
+	travellingClassMark [12] IMPLICIT OCTET STRING  OPTIONAL,
+	extensions [13] IMPLICIT Extensions OPTIONAL,
+	carrier [14] IMPLICIT OCTET STRING OPTIONAL}
+	
+CalledFacilityGroup ::= CHOICE {
+	trunkGroupID [0] IMPLICIT INTEGER,
+	privateFacilityID [1] IMPLICIT INTEGER,
+	huntGroup  [2] IMPLICIT OCTET STRING,
+	routeIndex [3] IMPLICIT OCTET STRING}
+	
+SelectFacility ::=	SEQUENCE {
+	alertingPattern [0] IMPLICIT OCTET STRING (SIZE (3)) OPTIONAL,
+	destinationNumberRoutingAddress [1] IMPLICIT OCTET STRING  OPTIONAL,
+	iSDNAccessRelatedInformation [2] IMPLICIT OCTET STRING OPTIONAL,
+	calledFacilityGroup [3] CalledFacilityGroup OPTIONAL,
+	calledFacilityGroupMember [4] IMPLICIT INTEGER OPTIONAL,
+	originalCalledPartyID [5] IMPLICIT OCTET STRING  OPTIONAL,
+	extensions [6] IMPLICIT Extensions OPTIONAL}
+SelectRoute ::=	SEQUENCE {
+	destinationRoutingAddress [0] IMPLICIT SEQUENCE SIZE (1..3) OF DestinationAddress ,
+	alertingPattern [1] IMPLICIT OCTET STRING (SIZE (3)) OPTIONAL,
+	correlationID [2] IMPLICIT OCTET STRING  OPTIONAL,
+	iSDNAccessRelatedInformation [3] IMPLICIT OCTET STRING OPTIONAL,
+	originalCalledPartyID [4] IMPLICIT OCTET STRING  OPTIONAL,
+	routeList [5] IMPLICIT RouteList OPTIONAL,
+	scfID [6] IMPLICIT OCTET STRING  OPTIONAL,
+	travellingClassMark [7] IMPLICIT OCTET STRING  OPTIONAL,
+	extensions [8] IMPLICIT Extensions OPTIONAL,
+	carrier [9] IMPLICIT OCTET STRING OPTIONAL}
+SendChargingInformation ::=	SEQUENCE {
+	sCIBillingChargingCharacteristics [0] IMPLICIT OCTET STRING ,
+	partyToCharge [1] PartyToCharge,
+	extensions [2] IMPLICIT Extensions OPTIONAL}
+ServiceFilteringResponse ::=	SEQUENCE {
+	countersValue [0] IMPLICIT SEQUENCE SIZE (0..100) OF
+	SEQUENCE {
+	counterID  [0] IMPLICIT INTEGER (0..99),
+	counterValue [1] IMPLICIT INTEGER (0..2147483647)},
+ 
+	filteringCriteria [1] FilteringCriteria,
+	extensions [2] IMPLICIT Extensions OPTIONAL,
+	responseCondition [3] IMPLICIT ENUMERATED {
+	intermediateResponse (0),
+	lastResponse (1)} OPTIONAL}
+ 
+StatusReport ::=	SEQUENCE {
+	resourceStatus [0] IMPLICIT ResourceStatus OPTIONAL,
+	correlationID [1] IMPLICIT OCTET STRING  OPTIONAL,
+	resourceID [2] ResourceID OPTIONAL,
+	extensions [3] IMPLICIT Extensions OPTIONAL,
+	reportCondition [4] IMPLICIT ENUMERATED {
+	statusReport (0),
+	timerExpired (1),
+	canceled (2)} OPTIONAL}
+ 
+TAnswer ::= SEQUENCE {
+	dpSpecificCommonParameters [0] IMPLICIT DpSpecificCommonParameters,
+	calledPartyBusinessGroupID [1] IMPLICIT OCTET STRING OPTIONAL,
+	calledPartySubaddress [2] IMPLICIT OCTET STRING OPTIONAL,
+	calledFacilityGroup [3] CalledFacilityGroup OPTIONAL,
+	calledFacilityGroupMember [4] IMPLICIT INTEGER OPTIONAL,
+	extensions [5] IMPLICIT Extensions OPTIONAL}
+ 
+TBusy ::=	SEQUENCE {
+	dpSpecificCommonParameters [0] IMPLICIT DpSpecificCommonParameters,
+	busyCause [1] IMPLICIT OCTET STRING (SIZE (2..10)) OPTIONAL,
+	calledPartyBusinessGroupID [2] IMPLICIT OCTET STRING OPTIONAL,
+	calledPartySubaddress [3] IMPLICIT OCTET STRING OPTIONAL,
+	originalCalledPartyID [4] IMPLICIT OCTET STRING  OPTIONAL,
+	redirectingPartyID [5] IMPLICIT OCTET STRING  OPTIONAL,
+	redirectionInformation [6] IMPLICIT OCTET STRING (SIZE (2)) OPTIONAL,
+	routeList [7] IMPLICIT RouteList OPTIONAL,
+	travellingClassMark [8] IMPLICIT OCTET STRING  OPTIONAL,
+	extensions [9] IMPLICIT Extensions OPTIONAL}
+TDisconnect ::=	SEQUENCE {
+	dpSpecificCommonParameters [0] IMPLICIT DpSpecificCommonParameters,
+	calledPartyBusinessGroupID [1] IMPLICIT OCTET STRING OPTIONAL,
+	calledPartySubaddress [2] IMPLICIT OCTET STRING OPTIONAL,
+	calledFacilityGroup [3] CalledFacilityGroup OPTIONAL,
+	calledFacilityGroupMember [4] IMPLICIT INTEGER OPTIONAL,
+	releaseCause [5] IMPLICIT Cause OPTIONAL,
+	extensions [6] IMPLICIT Extensions OPTIONAL,
+	connectTime [7] IMPLICIT INTEGER (0..2147483647) OPTIONAL}
+TermAttemptAuthorized ::=	SEQUENCE {
+	dpSpecificCommonParameters [0] IMPLICIT DpSpecificCommonParameters,
+	calledPartyBusinessGroupID [1] IMPLICIT OCTET STRING OPTIONAL,
+	calledPartySubaddress [2] IMPLICIT OCTET STRING OPTIONAL,
+	callingPartyBusinessGroupID [3] IMPLICIT OCTET STRING OPTIONAL,
+	originalCalledPartyID [4] IMPLICIT OCTET STRING  OPTIONAL,
+	redirectingPartyID [5] IMPLICIT OCTET STRING  OPTIONAL,
+	redirectionInformation [6] IMPLICIT OCTET STRING (SIZE (2)) OPTIONAL,
+	routeList [7] IMPLICIT RouteList OPTIONAL,
+	travellingClassMark [8] IMPLICIT OCTET STRING  OPTIONAL,
+	extensions [9] IMPLICIT Extensions OPTIONAL}
+TMidCall ::=	SEQUENCE {
+	dpSpecificCommonParameters [0] IMPLICIT DpSpecificCommonParameters,
+	calledPartyBusinessGroupID [1] IMPLICIT OCTET STRING OPTIONAL,
+	calledPartySubaddress [2] IMPLICIT OCTET STRING OPTIONAL,
+	callingPartyBusinessGroupID [3] IMPLICIT OCTET STRING OPTIONAL,
+	callingPartySubaddress [4] IMPLICIT OCTET STRING OPTIONAL,
+	featureRequestIndicator [5] IMPLICIT FeatureRequestIndicator OPTIONAL,
+	extensions [6] IMPLICIT Extensions OPTIONAL,
+	carrier [7] IMPLICIT OCTET STRING OPTIONAL}
+TNoAnswer ::=	SEQUENCE {
+	dpSpecificCommonParameters [0] IMPLICIT DpSpecificCommonParameters,
+	calledPartyBusinessGroupID [1] IMPLICIT OCTET STRING OPTIONAL,
+	calledPartySubaddress [2] IMPLICIT OCTET STRING OPTIONAL,
+	calledFacilityGroup [3] CalledFacilityGroup OPTIONAL,
+	calledFacilityGroupMember [4] IMPLICIT INTEGER OPTIONAL,
+	originalCalledPartyID [5] IMPLICIT OCTET STRING  OPTIONAL,
+	redirectingPartyID [6] IMPLICIT OCTET STRING  OPTIONAL,
+	redirectionInformation [7] IMPLICIT OCTET STRING (SIZE (2)) OPTIONAL,
+	travellingClassMark [8] IMPLICIT OCTET STRING  OPTIONAL,
+	extensions [9] IMPLICIT Extensions OPTIONAL}
+--Canceled  ::= localValue 0
+ 
+CancelFailed ::=	SEQUENCE {
+	problem [0] IMPLICIT ENUMERATED {
+	unknownOperation (0),
+	tooLate (1),
+	operationNotCancellable (2)},
+	operation [1] IMPLICIT INTEGER (-128..127)}
+ --::= localValue 1
+--ETCFailed  ::= localValue 3
+--ImproperCallerResponse  ::= localValue 4
+--MissingCustomerRecord  ::= localValue 6
+--MissingParameter  ::= localValue 7
+--parameterOutOfRange ERROR
+ --::= localValue 8
+RequestedInfoError ::= ENUMERATED {
+	unknownRequestedInfo (1),
+	requestedInfoNotAvailable (2)}
+ --::= localValue 10
+SystemFailure ::= ENUMERATED {
+	unavailableResources (0),
+	componentFailure (1),
+	basicCallProcessingException (2),
+	resourceStatusFailure (3),
+	endUserFailure (4)}
+ 
+TaskRefused ::=	ENUMERATED {
+	generic (0),
+	unobtainable (1),
+	congestion  (2)}
+ --::= localValue 12
+--unavailableResource ERROR
+-- ::= localValue 13
+--unexpectedComponentSequence ERROR
+-- ::= localValue 14
+--unexpectedDataValue ERROR
+-- ::= localValue 15
+--unexpectedParameter ERROR
+-- ::= localValue 16
+--unknownLegID ERROR
+-- ::= localValue 17-
+--unknownResource ERROR
+-- ::= localValue 18
+
+END
