@@ -1,7 +1,7 @@
 /* ftypes.h
  * Definitions for field types
  *
- * $Id: ftypes.h,v 1.23 2003/12/02 21:15:48 guy Exp $
+ * $Id: ftypes.h,v 1.24 2003/12/03 08:53:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -128,7 +128,6 @@ ftype_can_contains(enum ftenum ftype);
 
 typedef struct _fvalue_t {
 	union {
-		struct _fvalue_t *next;
 		ftype_t	*ftype;
 	} ptr_u;
 	union {
@@ -226,7 +225,7 @@ extern fvalue_t *fvalue_free_list;
 #define FVALUE_FREE(fv)						\
 	{							\
 		FVALUE_CLEANUP(fv)				\
-		SLAB_FREE(fv, fv->ptr_u.next, fvalue_free_list);\
+		SLAB_FREE(fv, fvalue_free_list);		\
 	}
 
 

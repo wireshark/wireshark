@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.120 2003/12/02 21:15:47 guy Exp $
+ * $Id: proto.c,v 1.121 2003/12/03 08:53:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -156,27 +156,27 @@ static GMemChunk *gmc_hfinfo = NULL;
 static field_info *field_info_free_list=NULL;
 static field_info *field_info_tmp=NULL;
 #define FIELD_INFO_NEW(fi)					\
-	SLAB_ALLOC(fi, fi->ptr_u.next, field_info_free_list)
+	SLAB_ALLOC(fi, field_info_free_list)
 #define FIELD_INFO_FREE(fi)					\
-	SLAB_FREE(fi, fi->ptr_u.next, field_info_free_list)
+	SLAB_FREE(fi, field_info_free_list)
 
 
 
 /* Contains the space for proto_nodes. */
 static proto_node *proto_node_free_list=NULL;
 #define PROTO_NODE_NEW(node)				\
-	SLAB_ALLOC(node, node->next, proto_node_free_list)
+	SLAB_ALLOC(node, proto_node_free_list)
 #define PROTO_NODE_FREE(node)				\
-	SLAB_FREE(node, node->next, proto_node_free_list)
+	SLAB_FREE(node, proto_node_free_list)
 
 
 
 /* String space for protocol and field items for the GUI */
 static item_label_t *item_label_free_list = NULL;
 #define ITEM_LABEL_NEW(il)				\
-	SLAB_ALLOC(il, il->next, item_label_free_list)
+	SLAB_ALLOC(il, item_label_free_list)
 #define ITEM_LABEL_FREE(il)				\
-	SLAB_FREE(il, il->next, item_label_free_list)
+	SLAB_FREE(il, item_label_free_list)
 
 
 
