@@ -2,7 +2,7 @@
  * Routines for DCERPC TAPI packet disassembly
  * Copyright 2002, Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-tapi.c,v 1.3 2002/08/28 21:00:11 jmayer Exp $
+ * $Id: packet-dcerpc-tapi.c,v 1.4 2003/01/28 06:39:41 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -77,13 +77,13 @@ dissect_tapi_UNKNOWN_00_rqst(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_tapi_unknown_long, NULL);
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			dissect_ndr_nt_UNICODE_STRING_str, NDR_POINTER_REF,
-			"unknown string", hf_tapi_unknown_string, 0);
+	offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_REF, "unknown string", 
+			 hf_tapi_unknown_string);
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			dissect_ndr_nt_UNICODE_STRING_str, NDR_POINTER_REF,
-			"unknown string", hf_tapi_unknown_string, 0);
+	offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_REF, "unknown string", 
+			 hf_tapi_unknown_string);
 
 	return offset;
 }
@@ -143,7 +143,7 @@ dissect_tapi_UNKNOWN_01_rqst(tvbuff_t *tvb, int offset,
 
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			dissect_tapi_TYPE_1, NDR_POINTER_REF,
-			"unknown array", -1, 0);
+			"unknown array", -1);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_tapi_unknown_long, NULL);

@@ -2,7 +2,7 @@
  * Routines for dcerpc endpoint mapper dissection
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc-epm.c,v 1.18 2002/11/28 03:57:50 guy Exp $
+ * $Id: packet-dcerpc-epm.c,v 1.19 2003/01/28 06:39:39 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -124,11 +124,11 @@ epm_dissect_ept_lookup_rqst (tvbuff_t *tvb, int offset,
 
     offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
                              epm_dissect_pointer_UUID, NDR_POINTER_PTR,
-                             "Object:", hf_epm_object, 0);
+                             "Object:", hf_epm_object);
 
     offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
                              epm_dissect_pointer_IF_ID, NDR_POINTER_PTR,
-                             "Interface:", hf_epm_if_id, 0);
+                             "Interface:", hf_epm_if_id);
 
     offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
                                  hf_epm_ver_opt, NULL);
@@ -170,7 +170,7 @@ epm_dissect_ept_entry_t(tvbuff_t *tvb, int offset,
 
     offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
                              epm_dissect_tower, NDR_POINTER_PTR,
-                             "Tower pointer:", -1, 1);
+                             "Tower pointer:", -1);
 
     offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
                                  hf_epm_ann_offset, NULL);
@@ -220,7 +220,7 @@ epm_dissect_ept_lookup_resp (tvbuff_t *tvb, int offset,
 
     offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
                              epm_dissect_ept_entry_t_array, NDR_POINTER_REF,
-                             "Entries:", -1, 1);
+                             "Entries:", -1);
 
     offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
                                  hf_epm_rc, NULL);
@@ -409,7 +409,7 @@ epm_dissect_tower_pointer (tvbuff_t *tvb, int offset,
 {
     offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
                              epm_dissect_tower, NDR_POINTER_PTR,
-                             "Tower pointer:", -1, 1);
+                             "Tower pointer:", -1);
     return offset;
 }
 static int
@@ -444,7 +444,7 @@ epm_dissect_ept_map_rqst (tvbuff_t *tvb, int offset,
     /* [in, ptr] twr_p_t map_tower */
     offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
                              epm_dissect_tower, NDR_POINTER_PTR,
-                             "Tower pointer:", -1, 1);
+                             "Tower pointer:", -1);
 
     /* [in, out] ept_lookup_handle_t *entry_handle */
     offset = dissect_ndr_ctx_hnd (tvb, offset, pinfo, tree, drep,
@@ -473,7 +473,7 @@ epm_dissect_ept_map_resp (tvbuff_t *tvb, int offset,
     /* [out, length_is(*num_towers), size_is(max_towers), ptr] twr_p_t towers[] */
     offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
                              epm_dissect_tower_array, NDR_POINTER_REF,
-                             "Tower array:", -1, 1);
+                             "Tower array:", -1);
 
     /* [out] error_status_t *status */
     offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
@@ -507,7 +507,7 @@ epm_dissect_ept_insert_rqst (tvbuff_t *tvb, int offset,
 
     offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
                              epm_dissect_ept_entry_t_ucarray, NDR_POINTER_REF,
-                             "Entries:", -1, 1);
+                             "Entries:", -1);
 
     offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
                                  hf_epm_replace, NULL);
@@ -543,7 +543,7 @@ epm_dissect_ept_delete_rqst (tvbuff_t *tvb, int offset,
 
     offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
                              epm_dissect_ept_entry_t_ucarray, NDR_POINTER_REF,
-                             "Entries:", -1, 1);
+                             "Entries:", -1);
 
     return offset;
 }

@@ -1,9 +1,9 @@
 /* packet-dcerpc-lsa-ds.c
  * Routines for SMB \PIPE\lsarpc packet disassembly
- * Copyright 2002, Tim Potter <tpot@samba.org>
+ * Copyright 2002-2003, Tim Potter <tpot@samba.org>
  * Copyright 2002, Jim McDonough <jmcd@samba.org>
  *
- * $Id: packet-dcerpc-lsa-ds.c,v 1.6 2002/11/21 03:45:23 tpot Exp $
+ * $Id: packet-dcerpc-lsa-ds.c,v 1.7 2003/01/28 06:39:39 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -86,15 +86,15 @@ lsa_ds_dissect_DSROLE_BASIC_INFO(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 				    hf_lsa_ds_dominfo_flags, 0);
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		dissect_ndr_nt_UNICODE_STRING_str, NDR_POINTER_UNIQUE,
-		"NetBIOS domain name pointer", hf_lsa_ds_dominfo_netb_name, 0);
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		dissect_ndr_nt_UNICODE_STRING_str, NDR_POINTER_UNIQUE,
-		"DNS domain pointer", hf_lsa_ds_dominfo_dns_name, 0);
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		dissect_ndr_nt_UNICODE_STRING_str, NDR_POINTER_UNIQUE,
-		"DNS forest name pointer", hf_lsa_ds_dominfo_forest_name, 0);
+	offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+		NDR_POINTER_UNIQUE, "NetBIOS domain name pointer", 
+		hf_lsa_ds_dominfo_netb_name);
+	offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+		NDR_POINTER_UNIQUE, "DNS domain pointer", 
+		hf_lsa_ds_dominfo_dns_name);
+	offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+		NDR_POINTER_UNIQUE, "DNS forest name pointer", 
+		hf_lsa_ds_dominfo_forest_name);
 
 	/* GUID */
 	offset = dissect_nt_GUID(tvb, offset, pinfo, tree, drep);
@@ -202,7 +202,7 @@ lsa_ds_dissect_role_get_dom_info_reply(tvbuff_t *tvb, int offset,
 {
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 		lsa_ds_dissect_DS_DOMINFO_CTR, NDR_POINTER_UNIQUE,
-		"DOMAIN_INFORMATION pointer", -1, 0);
+		"DOMAIN_INFORMATION pointer", -1);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_lsa_ds_rc, NULL);

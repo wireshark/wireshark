@@ -2,7 +2,7 @@
  * Routines for DCERPC Browser packet disassembly
  * Copyright 2001, Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-browser.c,v 1.8 2002/08/28 21:00:08 jmayer Exp $
+ * $Id: packet-dcerpc-browser.c,v 1.9 2003/01/28 06:39:39 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -120,7 +120,7 @@ dissect_browser_TYPE_4(tvbuff_t *tvb, int offset,
 
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 		dissect_browser_TYPE_4_data, NDR_POINTER_UNIQUE,
-		"unknown TYPE_4", -1, -1);
+		"unknown TYPE_4", -1);
 
 	return offset;
 }
@@ -167,7 +167,7 @@ dissect_browser_TYPE_3(tvbuff_t *tvb, int offset,
 
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 		dissect_browser_TYPE_3_data, NDR_POINTER_UNIQUE,
-		"unknown TYPE_3", -1, -1);
+		"unknown TYPE_3", -1);
 
 	return offset;
 }
@@ -197,12 +197,12 @@ dissect_browser_TYPE_2(tvbuff_t *tvb, int offset,
 	case 100:
 		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			dissect_browser_TYPE_3, NDR_POINTER_UNIQUE,
-			"unknown TYPE_3", -1, -1);
+			"unknown TYPE_3", -1);
 		break;
 	case 101:
 		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			dissect_browser_TYPE_4, NDR_POINTER_UNIQUE,
-			"unknown TYPE_4", -1, -1);
+			"unknown TYPE_4", -1);
 		break;
 	}
 
@@ -249,21 +249,21 @@ dissect_browser_UNKNOWN_00_rqst(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
 			char *drep)
 {
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			dissect_ndr_nt_UNICODE_STRING_str, NDR_POINTER_UNIQUE,
-			"unknown string", hf_browser_unknown_string, 0);
+	offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_UNIQUE, "unknown string", 
+			hf_browser_unknown_string);
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			dissect_ndr_nt_UNICODE_STRING_str, NDR_POINTER_UNIQUE,
-			"unknown string", hf_browser_unknown_string, 0);
+	offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_UNIQUE, "unknown string", 
+                        hf_browser_unknown_string);
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			dissect_ndr_nt_UNICODE_STRING_str, NDR_POINTER_UNIQUE,
-			"unknown string", hf_browser_unknown_string, 0);
+	offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_UNIQUE, "unknown string", 
+			hf_browser_unknown_string);
 
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			dissect_browser_TYPE_1, NDR_POINTER_REF,
-			"unknown TYPE_1", -1, 0);
+			"unknown TYPE_1", -1);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_browser_unknown_long, NULL);
@@ -271,13 +271,13 @@ dissect_browser_UNKNOWN_00_rqst(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_browser_unknown_long, NULL);
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			dissect_ndr_nt_UNICODE_STRING_str, NDR_POINTER_UNIQUE,
-			"unknown string", hf_browser_unknown_string, 0);
+	offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_UNIQUE, "unknown string", 
+			hf_browser_unknown_string);
 
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			dissect_browser_long_pointer, NDR_POINTER_UNIQUE,
-			"unknown long", hf_browser_unknown_long, 0);
+			dissect_browser_long_pointer, NDR_POINTER_UNIQUE, 
+			"unknown long", hf_browser_unknown_long);
 
 	return offset;
 }
@@ -288,14 +288,14 @@ dissect_browser_UNKNOWN_00_reply(tvbuff_t *tvb, int offset,
 {
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			dissect_browser_TYPE_1, NDR_POINTER_REF,
-			"unknown TYPE_1", -1, 0);
+			"unknown TYPE_1", -1);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_browser_unknown_long, NULL);
 
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			dissect_browser_long_pointer, NDR_POINTER_UNIQUE,
-			"unknown long", hf_browser_unknown_long, 0);
+			"unknown long", hf_browser_unknown_long);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_browser_rc, NULL);
@@ -315,9 +315,9 @@ dissect_browser_UNKNOWN_01_rqst(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
 			char *drep)
 {
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			dissect_ndr_nt_UNICODE_STRING_str, NDR_POINTER_UNIQUE,
-			"unknown string", hf_browser_unknown_string, 0);
+	offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_UNIQUE, "unknown string", 
+			hf_browser_unknown_string);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_browser_unknown_long, NULL);
@@ -351,13 +351,13 @@ dissect_browser_UNKNOWN_02_rqst(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
 			char *drep)
 {
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			dissect_ndr_nt_UNICODE_STRING_str, NDR_POINTER_UNIQUE,
-			"unknown string", hf_browser_unknown_string, 0);
+	offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_UNIQUE, "unknown string", 
+			hf_browser_unknown_string);
 
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			dissect_browser_TYPE_1, NDR_POINTER_REF,
-			"unknown TYPE_1", -1, 0);
+			"unknown TYPE_1", -1);
 
 	return offset;
 }
@@ -386,9 +386,9 @@ dissect_browser_UNKNOWN_03_rqst(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
 			char *drep)
 {
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			dissect_ndr_nt_UNICODE_STRING_str, NDR_POINTER_UNIQUE,
-			"unknown string", hf_browser_unknown_string, 0);
+	offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_UNIQUE, "unknown string", 
+			hf_browser_unknown_string);
 
 	return offset;
 }
@@ -415,13 +415,13 @@ dissect_browser_UNKNOWN_04_rqst(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
 			char *drep)
 {
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			dissect_ndr_nt_UNICODE_STRING_str, NDR_POINTER_UNIQUE,
-			"unknown string", hf_browser_unknown_string, 0);
+	offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_UNIQUE, "unknown string", 
+			hf_browser_unknown_string);
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			dissect_ndr_nt_UNICODE_STRING_str, NDR_POINTER_REF,
-			"unknown string", hf_browser_unknown_string, 0);
+	offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_REF, "unknown string", 
+			hf_browser_unknown_string);
 
 	return offset;
 }
@@ -542,9 +542,9 @@ dissect_browser_UNKNOWN_05_rqst(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
 			char *drep)
 {
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			dissect_ndr_nt_UNICODE_STRING_str, NDR_POINTER_UNIQUE,
-			"unknown string", hf_browser_unknown_string, 0);
+	offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_UNIQUE, "unknown string", 
+			hf_browser_unknown_string);
 
 	return offset;
 }
@@ -555,7 +555,7 @@ dissect_browser_UNKNOWN_05_reply(tvbuff_t *tvb, int offset,
 {
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			dissect_browser_TYPE_5, NDR_POINTER_UNIQUE,
-			"unknown TYPE_5", -1, 0);
+			"unknown TYPE_5", -1);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_browser_rc, NULL);
@@ -574,9 +574,9 @@ dissect_browser_UNKNOWN_06_rqst(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
 			char *drep)
 {
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			dissect_ndr_nt_UNICODE_STRING_str, NDR_POINTER_UNIQUE,
-			"unknown string", hf_browser_unknown_string, 0);
+	offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_UNIQUE, "unknown string", 
+			hf_browser_unknown_string);
 
 	return offset;
 }
@@ -602,9 +602,9 @@ dissect_browser_UNKNOWN_07_rqst(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
 			char *drep)
 {
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			dissect_ndr_nt_UNICODE_STRING_str, NDR_POINTER_UNIQUE,
-			"unknown string", hf_browser_unknown_string, 0);
+	offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_UNIQUE, "unknown string", 
+			hf_browser_unknown_string);
 
 	return offset;
 }
@@ -723,7 +723,7 @@ dissect_browser_TYPE_10(tvbuff_t *tvb, int offset,
 
         offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 		dissect_browser_TYPE_11_array, NDR_POINTER_UNIQUE,
-		"unknown TYPE_11_ARRAY", -1, 0);
+		"unknown TYPE_11_ARRAY", -1);
 
 	return offset;
 }
@@ -771,7 +771,7 @@ dissect_browser_TYPE_9(tvbuff_t *tvb, int offset,
 
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 		dissect_browser_TYPE_9_data, NDR_POINTER_UNIQUE,
-		"unknown TYPE_9", -1, -1);
+		"unknown TYPE_9", -1);
 
 	return offset;
 }
@@ -800,12 +800,12 @@ dissect_browser_TYPE_8(tvbuff_t *tvb, int offset,
 	case 100:
 		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			dissect_browser_TYPE_9, NDR_POINTER_UNIQUE,
-			"unknown TYPE_9", -1, -1);
+			"unknown TYPE_9", -1);
 		break;
 	case 101:
 		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			dissect_browser_TYPE_10, NDR_POINTER_UNIQUE,
-			"unknown TYPE_10", -1, -1);
+			"unknown TYPE_10", -1);
 		break;
 	}
 
@@ -845,16 +845,16 @@ dissect_browser_UNKNOWN_08_rqst(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
 			char *drep)
 {
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			dissect_ndr_nt_UNICODE_STRING_str, NDR_POINTER_UNIQUE,
-			"unknown string", hf_browser_unknown_string, 0);
+	offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_UNIQUE, "unknown string", 
+			hf_browser_unknown_string);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_browser_unknown_long, NULL);
 
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			dissect_browser_TYPE_7, NDR_POINTER_REF,
-			"unknown TYPE_7", -1, 0);
+			"unknown TYPE_7", -1);
 
 	return offset;
 }
@@ -865,7 +865,7 @@ dissect_browser_UNKNOWN_08_reply(tvbuff_t *tvb, int offset,
 {
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			dissect_browser_TYPE_7, NDR_POINTER_REF,
-			"unknown TYPE_7", -1, 0);
+			"unknown TYPE_7", -1);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_browser_rc, NULL);
@@ -887,17 +887,17 @@ dissect_browser_UNKNOWN_09_rqst(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
 			char *drep)
 {
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			dissect_ndr_nt_UNICODE_STRING_str, NDR_POINTER_UNIQUE,
-			"unknown string", hf_browser_unknown_string, 0);
+	offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_UNIQUE, "unknown string", 
+			hf_browser_unknown_string);
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			dissect_ndr_nt_UNICODE_STRING_str, NDR_POINTER_REF,
-			"unknown string", hf_browser_unknown_string, 0);
+	offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_REF, "unknown string", 
+                        hf_browser_unknown_string);
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			dissect_ndr_nt_UNICODE_STRING_str, NDR_POINTER_UNIQUE,
-			"unknown string", hf_browser_unknown_string, 0);
+	offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_UNIQUE, "unknown string", 
+			hf_browser_unknown_string);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_browser_unknown_long, NULL);
@@ -960,7 +960,7 @@ dissect_browser_TYPE_12(tvbuff_t *tvb, int offset,
 
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 		dissect_browser_TYPE_12_data, NDR_POINTER_UNIQUE,
-		"unknown TYPE_12", -1, -1);
+		"unknown TYPE_12", -1);
 
 	return offset;
 }
@@ -977,13 +977,13 @@ dissect_browser_UNKNOWN_0a_rqst(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
 			char *drep)
 {
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			dissect_ndr_nt_UNICODE_STRING_str, NDR_POINTER_UNIQUE,
-			"unknown string", hf_browser_unknown_string, 0);
+	offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_UNIQUE, "unknown string", 
+			hf_browser_unknown_string);
 
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			dissect_browser_TYPE_12, NDR_POINTER_REF,
-			"unknown TYPE_12", -1, 0);
+			"unknown TYPE_12", -1);
 
 	return offset;
 }
@@ -994,7 +994,7 @@ dissect_browser_UNKNOWN_0a_reply(tvbuff_t *tvb, int offset,
 {
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			dissect_browser_TYPE_12, NDR_POINTER_REF,
-			"unknown TYPE_12", -1, 0);
+			"unknown TYPE_12", -1);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_browser_rc, NULL);
@@ -1021,21 +1021,21 @@ dissect_browser_UNKNOWN_0b_rqst(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
 			char *drep)
 {
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			dissect_ndr_nt_UNICODE_STRING_str, NDR_POINTER_UNIQUE,
-			"unknown string", hf_browser_unknown_string, 0);
+	offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_UNIQUE, "unknown string", 
+			hf_browser_unknown_string);
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			dissect_ndr_nt_UNICODE_STRING_str, NDR_POINTER_UNIQUE,
-			"unknown string", hf_browser_unknown_string, 0);
+	offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_UNIQUE, "unknown string", 
+			hf_browser_unknown_string);
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			dissect_ndr_nt_UNICODE_STRING_str, NDR_POINTER_UNIQUE,
-			"unknown string", hf_browser_unknown_string, 0);
+	offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_UNIQUE, "unknown string", 
+			hf_browser_unknown_string);
 
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			dissect_browser_TYPE_1, NDR_POINTER_REF,
-			"unknown TYPE_1", -1, 0);
+			"unknown TYPE_1", -1);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_browser_unknown_long, NULL);
@@ -1043,13 +1043,13 @@ dissect_browser_UNKNOWN_0b_rqst(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_browser_unknown_long, NULL);
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			dissect_ndr_nt_UNICODE_STRING_str, NDR_POINTER_UNIQUE,
-			"unknown string", hf_browser_unknown_string, 0);
+	offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_UNIQUE, "unknown string", 
+			hf_browser_unknown_string);
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			dissect_ndr_nt_UNICODE_STRING_str, NDR_POINTER_UNIQUE,
-			"unknown string", hf_browser_unknown_string, 0);
+	offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_UNIQUE, "unknown string", 
+			hf_browser_unknown_string);
 
 	return offset;
 }
@@ -1060,7 +1060,7 @@ dissect_browser_UNKNOWN_0b_reply(tvbuff_t *tvb, int offset,
 {
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			dissect_browser_TYPE_1, NDR_POINTER_REF,
-			"unknown TYPE_1", -1, 0);
+			"unknown TYPE_1", -1);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_browser_unknown_long, NULL);

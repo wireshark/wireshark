@@ -1,8 +1,8 @@
 /* packet-dcerpc-reg.c
  * Routines for SMB \PIPE\winreg packet disassembly
- * Copyright 2001, 2002 Tim Potter <tpot@samba.org>
+ * Copyright 2001-2003 Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-reg.c,v 1.12 2002/08/29 19:05:40 guy Exp $
+ * $Id: packet-dcerpc-reg.c,v 1.13 2003/01/28 06:39:40 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -107,7 +107,7 @@ RegOpenHKLM_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = dissect_ndr_pointer(
 		tvb, offset, pinfo, tree, drep,
 		dissect_open_data,
-		NDR_POINTER_UNIQUE, "Unknown", -1, 0);
+		NDR_POINTER_UNIQUE, "Unknown", -1);
 
 	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
@@ -162,7 +162,7 @@ RegOpenHKU_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = dissect_ndr_pointer(
 		tvb, offset, pinfo, tree, drep,
 		dissect_open_data,
-		NDR_POINTER_UNIQUE, "Unknown", -1, 0);
+		NDR_POINTER_UNIQUE, "Unknown", -1);
 
 	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
@@ -217,7 +217,7 @@ RegOpenHKCR_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = dissect_ndr_pointer(
 		tvb, offset, pinfo, tree, drep,
 		dissect_open_data,
-		NDR_POINTER_UNIQUE, "Unknown", -1, 0);
+		NDR_POINTER_UNIQUE, "Unknown", -1);
 
 	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
@@ -325,7 +325,7 @@ RegQueryKey_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		hf_hnd, NULL, FALSE, FALSE);
 
 	offset = dissect_ndr_nt_UNICODE_STRING(
-		tvb, offset, pinfo, tree, drep, hf_querykey_class, 0);
+		tvb, offset, pinfo, tree, drep, hf_querykey_class);
 
 	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
@@ -346,7 +346,7 @@ RegQueryKey_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	/* Parse packet */
 
 	offset = dissect_ndr_nt_UNICODE_STRING(
-		tvb, offset, pinfo, tree, drep, hf_querykey_class, 0);
+		tvb, offset, pinfo, tree, drep, hf_querykey_class);
 
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, tree, drep,
@@ -409,7 +409,7 @@ RegOpenEntry_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		hf_hnd, NULL, FALSE, FALSE);
 
 	offset = dissect_ndr_nt_UNICODE_STRING(
-		tvb, offset, pinfo, tree, drep, hf_querykey_class, 0);
+		tvb, offset, pinfo, tree, drep, hf_querykey_class);
 
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, tree, drep,
