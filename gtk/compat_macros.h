@@ -1,7 +1,7 @@
 /* compat_macros.h
  * GTK-related Global defines, etc.
  *
- * $Id: compat_macros.h,v 1.2 2002/11/11 17:30:26 guy Exp $
+ * $Id: compat_macros.h,v 1.3 2002/11/15 23:50:06 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -36,71 +36,83 @@
 
 #define SIGNAL_CONNECT(widget, name, callback, arg) \
 gtk_signal_connect(GTK_OBJECT(widget), name, GTK_SIGNAL_FUNC(callback), \
-                   (gpointer)(arg));
+                   (gpointer)(arg))
 
 #define SIGNAL_CONNECT_OBJECT(widget, name, callback, arg) \
 gtk_signal_connect_object(GTK_OBJECT(widget), name, GTK_SIGNAL_FUNC(callback), \
-                          (gpointer)(arg));
+                          (gpointer)(arg))
 
 #define SIGNAL_DISCONNECT_BY_FUNC(object, func, data) \
-gtk_signal_disconnect_by_func(GTK_OBJECT(object), func, data);
+gtk_signal_disconnect_by_func(GTK_OBJECT(object), func, data)
 
 #define OBJECT_SET_DATA(widget, key, data) \
-gtk_object_set_data(GTK_OBJECT(widget), key, data);
+gtk_object_set_data(GTK_OBJECT(widget), key, data)
 
 #define OBJECT_SET_DATA_FULL(widget, key, data, destroy) \
 gtk_object_set_data_full(GTK_OBJECT(widget), key, (gpointer)(data), \
-                         (GtkDestroyNotify)(destroy));
+                         (GtkDestroyNotify)(destroy))
 
 #define OBJECT_GET_DATA(widget, key) \
 gtk_object_get_data(GTK_OBJECT(widget), key)
 
 #define WIDGET_SET_SIZE(widget, width, height) \
-gtk_widget_set_usize(GTK_WIDGET(widget), width, height);
+gtk_widget_set_usize(GTK_WIDGET(widget), width, height)
 
 #define SIGNAL_EMIT_BY_NAME(widget, name) \
-gtk_signal_emit_by_name(GTK_OBJECT(widget), name);
+gtk_signal_emit_by_name(GTK_OBJECT(widget), name)
 
 #define SIGNAL_EMIT_BY_NAME1(widget, name, arg) \
-gtk_signal_emit_by_name(GTK_OBJECT(widget), name, arg);
+gtk_signal_emit_by_name(GTK_OBJECT(widget), name, arg)
 
 #define SIGNAL_EMIT_STOP_BY_NAME(widget, name) \
-gtk_signal_emit_stop_by_name(GTK_OBJECT(widget), name);
+gtk_signal_emit_stop_by_name(GTK_OBJECT(widget), name)
+
+#define ITEM_FACTORY_ENTRY(path, accelerator, callback, action, type, data) \
+{path, accelerator, GTK_MENU_FUNC(callback), action, type}
+
+#define ITEM_FACTORY_STOCK_ENTRY(path, accelerator, callback, action, data) \
+{path, accelerator, GTK_MENU_FUNC(callback), action, NULL}
 
 #else /* GTK_MAJOR_VERSION >= 2 */
 
 #define SIGNAL_CONNECT(widget, name, callback, arg) \
 g_signal_connect(G_OBJECT(widget), name, G_CALLBACK(callback), \
-                 (gpointer)(arg));
+                 (gpointer)(arg))
 
 #define SIGNAL_CONNECT_OBJECT(widget, name, callback, arg) \
 g_signal_connect_swapped(G_OBJECT(widget), name, G_CALLBACK(callback), \
-                         (gpointer)(arg));
+                         (gpointer)(arg))
 
 #define SIGNAL_DISCONNECT_BY_FUNC(object, func, data) \
-g_signal_handlers_disconnect_by_func(G_OBJECT(object), func, data);
+g_signal_handlers_disconnect_by_func(G_OBJECT(object), func, data)
 
 #define OBJECT_SET_DATA(widget, key, data) \
-g_object_set_data(G_OBJECT(widget), key, data);
+g_object_set_data(G_OBJECT(widget), key, data)
 
 #define OBJECT_SET_DATA_FULL(widget, key, data, destroy) \
 g_object_set_data_full(G_OBJECT(widget), key, (gpointer)(data), \
-                       (GDestroyNotify)(destroy));
+                       (GDestroyNotify)(destroy))
 
 #define OBJECT_GET_DATA(widget, key) \
 g_object_get_data(G_OBJECT(widget), key)
 
 #define WIDGET_SET_SIZE(widget, width, height) \
-gtk_widget_set_size_request(GTK_WIDGET(widget), width, height);
+gtk_widget_set_size_request(GTK_WIDGET(widget), width, height)
 
 #define SIGNAL_EMIT_BY_NAME(widget, name) \
-g_signal_emit_by_name(G_OBJECT(widget), name);
+g_signal_emit_by_name(G_OBJECT(widget), name)
 
 #define SIGNAL_EMIT_BY_NAME1(widget, name, arg) \
-g_signal_emit_by_name(G_OBJECT(widget), name, arg);
+g_signal_emit_by_name(G_OBJECT(widget), name, arg)
 
 #define SIGNAL_EMIT_STOP_BY_NAME(widget, name) \
-g_signal_stop_emission_by_name(G_OBJECT(widget), name);
+g_signal_stop_emission_by_name(G_OBJECT(widget), name)
+
+#define ITEM_FACTORY_ENTRY(path, accelerator, callback, action, type, data) \
+{path, accelerator, GTK_MENU_FUNC(callback), action, type, data}
+
+#define ITEM_FACTORY_STOCK_ENTRY(path, accelerator, callback, action, data) \
+{path, accelerator, GTK_MENU_FUNC(callback), action, "<StockItem>", data}
 
 #endif /* GTK_MAJOR_VERSION */
 
