@@ -2,7 +2,7 @@
  * The main toolbar
  * Copyright 2003, Ulf Lamping <ulf.lamping@web.de>
  *
- * $Id: toolbar.c,v 1.11 2003/10/22 22:13:13 guy Exp $
+ * $Id: toolbar.c,v 1.12 2003/10/29 22:39:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -250,16 +250,6 @@ static void get_main_toolbar(GtkWidget *window, GtkWidget **toolbar)
     GdkPixmap *icon;
     GtkWidget *iconw;
     GdkBitmap * mask;
-
-    /* Display filter construct dialog has only a "Save" and a "Close" button.
-     * XXX - Adding the "Ok" and "Apply" buttons would need some more work here
-     */	
-    static construct_args_t args = {
-        "Ethereal: Edit Display Filter",
-        FALSE,
-        FALSE
-    };
-
 
     /* this function should be only called once! */
     g_assert(!toolbar_init);
@@ -514,8 +504,7 @@ static void get_main_toolbar(GtkWidget *window, GtkWidget **toolbar)
     display_filter_button =
         gtk_toolbar_append_item(GTK_TOOLBAR(*toolbar), "DFilter",
                                 "Edit Display Filters...", "Private", iconw,
-                                GTK_SIGNAL_FUNC(display_filter_construct_cb),
-                                &args);
+                                GTK_SIGNAL_FUNC(dfilter_dialog_cb), NULL);
 
     /* color filter button */
 #if GTK_MAJOR_VERSION < 2
