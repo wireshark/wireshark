@@ -14,6 +14,7 @@ S<[ B<-h> ]>
 S<[ B<-i> interface ]> 
 S<[ B<-l> ]>
 S<[ B<-n> ]>
+S<[ B<-N> resolving flags ] ...>
 S<[ B<-o> preference setting ] ...>
 S<[ B<-p> ]>
 S<[ B<-r> infile ]>
@@ -162,6 +163,14 @@ standard output buffer containing that data fills up.
 
 Disables network object name resolution (such as hostname, TCP and UDP port
 names).
+
+=item -N
+
+Turns on name resolving for particular types of addresses and port
+numbers; the argument is a string that may contain the letters B<m> to
+enable MAC address resolution, B<n> to enable network address
+resolution, and B<t> to enable transport-layer port number resolution. 
+This overrides B<-n> if both B<-N> and B<-n> are present.
 
 =item -o
 

@@ -15,6 +15,7 @@ S<[ B<-k> ]>
 S<[ B<-l> ]>
 S<[ B<-m> font ]>
 S<[ B<-n> ]>
+S<[ B<-N> resolving flags ] ...>
 S<[ B<-o> preference setting ] ...>
 S<[ B<-p> ]>
 S<[ B<-P> packet list height ]>
@@ -126,6 +127,14 @@ protocol tree pane from the name of the main text font.
 
 Disables network object name resolution (such as hostname, TCP and UDP port
 names).
+
+=item -N
+
+Turns on name resolving for particular types of addresses and port
+numbers; the argument is a string that may contain the letters B<m> to
+enable MAC address resolution, B<n> to enable network address
+resolution, and B<t> to enable transport-layer port number resolution. 
+This overrides B<-n> if both B<-N> and B<-n> are present.
 
 =item -o
 
@@ -714,8 +723,9 @@ the I<Update list of packets in real time> check box, can specify
 whether in such a capture the packet list pane should scroll to show the
 most recently captured packets with the I<Automatic scrolling in live
 capture> check box, and can specify whether addresses should be
-translated to names in the display with the I<Enable name resolution>
-check box.
+translated to names in the display with the I<Enable MAC name resolution>,
+I<Enable network name resolution> and I<Enable transport name resolution>
+check boxes.
 
 =item Display Options
 
@@ -726,8 +736,9 @@ date, "Seconds since beginning of capture" for relative time stamps, or
 "Seconds since previous frame" for delta time stamps.  You can also
 specify whether, when the display is updated as packets are captured,
 the list should automatically scroll to show the most recently captured
-packets or not and whether addresses should be translated to names in
-the display.
+packets or not and whether addresses or port numbers should be
+translated to names in the display on a MAC, network and transport layer
+basis.
 
 =item Plugins
 

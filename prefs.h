@@ -1,7 +1,7 @@
 /* prefs.h
  * Definitions for preference handling routines
  *
- * $Id: prefs.h,v 1.29 2001/04/15 03:37:13 guy Exp $
+ * $Id: prefs.h,v 1.30 2001/05/31 08:36:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -33,6 +33,24 @@
 #define PR_DEST_CMD  0
 #define PR_DEST_FILE 1
 
+/* 32 types are sufficient (as are 640k of RAM) */
+/* FIXME: Maybe MANUF/m, IP/i, IP6/6, IPX/x, UDP+TCP/t etc would be
+   more useful/consistent */
+#define PREFS_RESOLV_NONE	0x0
+#define PREFS_RESOLV_MAC	0x1
+#define PREFS_RESOLV_NETWORK	0x2
+#define PREFS_RESOLV_TRANSPORT	0x4
+#define PREFS_RESOLV_ALL	0xFFFFFFFF
+
+/*
+ * Convert a string listing name resolution types to a bitmask of
+ * those types.
+ *
+ * Set "*name_resolve" to the bitmask, and return '\0', on success;
+ * return the bad character in the string on error.
+ */
+char string_to_name_resolve(char *string, guint32 *name_resolve);
+
 typedef struct _e_prefs {
   gint     pr_format;
   gint     pr_dest;
@@ -50,11 +68,10 @@ typedef struct _e_prefs {
   gchar   *gui_font_name;
   color_t  gui_marked_fg;
   color_t  gui_marked_bg;
-  gboolean name_resolve;
+  guint32  name_resolve;
   gboolean capture_prom_mode;
   gboolean capture_real_time;
   gboolean capture_auto_scroll;
-
 } e_prefs;
 
 extern e_prefs prefs;

@@ -1,7 +1,7 @@
 /* capture_dlg.c
  * Routines for packet capture windows
  *
- * $Id: capture_dlg.c,v 1.42 2001/05/31 05:33:15 guy Exp $
+ * $Id: capture_dlg.c,v 1.43 2001/05/31 08:36:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -72,7 +72,9 @@
 #define E_CAP_PROMISC_KEY     "cap_promisc"
 #define E_CAP_SYNC_KEY        "cap_sync"
 #define E_CAP_AUTO_SCROLL_KEY "cap_auto_scroll"
-#define E_CAP_RESOLVE_KEY     "cap_resolve"
+#define E_CAP_M_RESOLVE_KEY   "cap_m_resolve"
+#define E_CAP_N_RESOLVE_KEY   "cap_n_resolve"
+#define E_CAP_T_RESOLVE_KEY   "cap_t_resolve"
 
 #define E_FS_CALLER_PTR_KEY       "fs_caller_ptr"
 #define E_FILE_SEL_DIALOG_PTR_KEY "file_sel_dialog_ptr"
@@ -121,7 +123,8 @@ capture_prep_cb(GtkWidget *w, gpointer d)
                 *file_bt, *file_te,
                 *caplen_hb, *table,
                 *bbox, *ok_bt, *cancel_bt, *snap_lb,
-                *snap_sb, *promisc_cb, *sync_cb, *auto_scroll_cb, *resolv_cb;
+                *snap_sb, *promisc_cb, *sync_cb, *auto_scroll_cb,
+		*m_resolv_cb, *n_resolv_cb, *t_resolv_cb;
   GtkAccelGroup *accel_group;
   GtkAdjustment *adj;
   GList         *if_list, *count_list = NULL;
@@ -276,11 +279,26 @@ capture_prep_cb(GtkWidget *w, gpointer d)
   gtk_container_add(GTK_CONTAINER(main_vb), auto_scroll_cb);
   gtk_widget_show(auto_scroll_cb);
 
-  resolv_cb = dlg_check_button_new_with_label_with_mnemonic(
-		"Enable _name resolution", accel_group);
-  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(resolv_cb), prefs.name_resolve);
-  gtk_container_add(GTK_CONTAINER(main_vb), resolv_cb);
-  gtk_widget_show(resolv_cb);
+  m_resolv_cb = dlg_check_button_new_with_label_with_mnemonic(
+		"Enable _MAC name resolution", accel_group);
+  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(m_resolv_cb),
+		prefs.name_resolve & PREFS_RESOLV_MAC);
+  gtk_container_add(GTK_CONTAINER(main_vb), m_resolv_cb);
+  gtk_widget_show(m_resolv_cb);
+
+  n_resolv_cb = dlg_check_button_new_with_label_with_mnemonic(
+		"Enable _network name resolution", accel_group);
+  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(n_resolv_cb),
+		prefs.name_resolve & PREFS_RESOLV_NETWORK);
+  gtk_container_add(GTK_CONTAINER(main_vb), n_resolv_cb);
+  gtk_widget_show(n_resolv_cb);
+
+  t_resolv_cb = dlg_check_button_new_with_label_with_mnemonic(
+		"Enable _transport name resolution", accel_group);
+  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(t_resolv_cb),
+		prefs.name_resolve & PREFS_RESOLV_TRANSPORT);
+  gtk_container_add(GTK_CONTAINER(main_vb), t_resolv_cb);
+  gtk_widget_show(t_resolv_cb);
   
   /* Button row: OK and cancel buttons */
   bbox = gtk_hbutton_box_new();
@@ -313,7 +331,9 @@ capture_prep_cb(GtkWidget *w, gpointer d)
   gtk_object_set_data(GTK_OBJECT(cap_open_w), E_CAP_PROMISC_KEY, promisc_cb);
   gtk_object_set_data(GTK_OBJECT(cap_open_w), E_CAP_SYNC_KEY,  sync_cb);
   gtk_object_set_data(GTK_OBJECT(cap_open_w), E_CAP_AUTO_SCROLL_KEY, auto_scroll_cb);
-  gtk_object_set_data(GTK_OBJECT(cap_open_w), E_CAP_RESOLVE_KEY,  resolv_cb);
+  gtk_object_set_data(GTK_OBJECT(cap_open_w), E_CAP_M_RESOLVE_KEY,  m_resolv_cb);
+  gtk_object_set_data(GTK_OBJECT(cap_open_w), E_CAP_N_RESOLVE_KEY,  n_resolv_cb);
+  gtk_object_set_data(GTK_OBJECT(cap_open_w), E_CAP_T_RESOLVE_KEY,  t_resolv_cb);
 
   /* Catch the "activate" signal on the frame number and file name text
      entries, so that if the user types Return there, we act as if the
@@ -435,7 +455,7 @@ cap_prep_fs_destroy_cb(GtkWidget *win, gpointer data)
 static void
 capture_prep_ok_cb(GtkWidget *ok_bt, gpointer parent_w) {
   GtkWidget *if_cb, *filter_te, *file_te, *count_cb, *snap_sb, *promisc_cb,
-            *sync_cb, *auto_scroll_cb, *resolv_cb;
+            *sync_cb, *auto_scroll_cb, *m_resolv_cb, *n_resolv_cb, *t_resolv_cb;
   gchar *if_text;
   gchar *if_name;
   gchar *filter_text;
@@ -449,7 +469,9 @@ capture_prep_ok_cb(GtkWidget *ok_bt, gpointer parent_w) {
   promisc_cb = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w), E_CAP_PROMISC_KEY);
   sync_cb   = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w), E_CAP_SYNC_KEY);
   auto_scroll_cb = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w), E_CAP_AUTO_SCROLL_KEY);
-  resolv_cb = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w), E_CAP_RESOLVE_KEY);
+  m_resolv_cb = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w), E_CAP_M_RESOLVE_KEY);
+  n_resolv_cb = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w), E_CAP_N_RESOLVE_KEY);
+  t_resolv_cb = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w), E_CAP_T_RESOLVE_KEY);
 
   if_text =
     g_strdup(gtk_entry_get_text(GTK_ENTRY(GTK_COMBO(if_cb)->entry)));
@@ -502,7 +524,10 @@ capture_prep_ok_cb(GtkWidget *ok_bt, gpointer parent_w) {
 
   prefs.capture_auto_scroll = GTK_TOGGLE_BUTTON (auto_scroll_cb)->active;
 
-  prefs.name_resolve = GTK_TOGGLE_BUTTON (resolv_cb)->active;
+  prefs.name_resolve = PREFS_RESOLV_NONE;
+  prefs.name_resolve |= (GTK_TOGGLE_BUTTON (m_resolv_cb)->active ? PREFS_RESOLV_MAC : PREFS_RESOLV_NONE);
+  prefs.name_resolve |= (GTK_TOGGLE_BUTTON (n_resolv_cb)->active ? PREFS_RESOLV_NETWORK : PREFS_RESOLV_NONE);
+  prefs.name_resolve |= (GTK_TOGGLE_BUTTON (t_resolv_cb)->active ? PREFS_RESOLV_TRANSPORT : PREFS_RESOLV_NONE);
 
   gtk_widget_destroy(GTK_WIDGET(parent_w));
 

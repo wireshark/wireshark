@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.82 2001/04/20 21:50:06 guy Exp $
+ * $Id: tethereal.c,v 1.83 2001/05/31 08:36:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -151,14 +151,14 @@ print_usage(void)
   fprintf(stderr, "This is GNU t%s %s, compiled %s\n", PACKAGE, VERSION,
 	comp_info_str->str);
 #ifdef HAVE_LIBPCAP
-  fprintf(stderr, "t%s [ -DvVhlp ] [ -c count ] [ -f <capture filter> ]\n", PACKAGE);
-  fprintf(stderr, "\t[ -F <capture file type> ] [ -i interface ] [ -n ]\n");
-  fprintf(stderr, "\t[ -o <preference setting> ] ... [ -r infile ] [ -R <read filter> ]\n");
-  fprintf(stderr, "\t[ -s snaplen ] [ -t <time stamp format> ] [ -w savefile ] [ -x ]\n");
+  fprintf(stderr, "t%s [ -DvVhlp ] [ -c <count> ] [ -f <capture filter> ]\n", PACKAGE);
+  fprintf(stderr, "\t[ -F <capture file type> ] [ -i <interface> ] [ -n ] [ -N <resolving> ]\n");
+  fprintf(stderr, "\t[ -o <preference setting> ] ... [ -r <infile> ] [ -R <read filter> ]\n");
+  fprintf(stderr, "\t[ -s <snaplen> ] [ -t <time stamp format> ] [ -w <savefile> ] [ -x ]\n");
 #else
-  fprintf(stderr, "t%s [ -vVhl ] [ -F <capture file type> ] [ -n ]\n", PACKAGE);
-  fprintf(stderr, "\t[ -o <preference setting> ] ... [ -r infile ] [ -R <read filter> ]\n");
-  fprintf(stderr, "\t[ -t <time stamp format> ] [ -w savefile ] [ -x ]\n");
+  fprintf(stderr, "t%s [ -vVhl ] [ -F <capture file type> ] [ -n ] [ -N <resolving> ]\n", PACKAGE);
+  fprintf(stderr, "\t[ -o <preference setting> ] ... [ -r <infile> ] [ -R <read filter> ]\n");
+  fprintf(stderr, "\t[ -t <time stamp format> ] [ -w <savefile> ] [ -x ]\n");
 #endif
   fprintf(stderr, "Valid file type arguments to the \"-F\" flag:\n");
   for (i = 0; i < WTAP_NUM_FILE_TYPES; i++) {
@@ -223,10 +223,11 @@ main(int argc, char *argv[])
 #else
   gboolean             capture_option_specified = FALSE;
 #endif
-  int                 out_file_type = WTAP_FILE_PCAP;
+  int                  out_file_type = WTAP_FILE_PCAP;
   gchar               *cf_name = NULL, *rfilter = NULL;
   dfilter_t           *rfcode = NULL;
   e_prefs             *prefs;
+  char                 badopt;
 
   /* Register all dissectors; we must do this before checking for the
      "-G" flag, as the "-G" flag dumps a list of fields registered
@@ -336,7 +337,7 @@ main(int argc, char *argv[])
 #endif
     
   /* Now get our args */
-  while ((opt = getopt(argc, argv, "c:Df:F:hi:lno:pr:R:s:t:vw:Vx")) != EOF) {
+  while ((opt = getopt(argc, argv, "c:Df:F:hi:lnN:o:pr:R:s:t:vw:Vx")) != EOF) {
     switch (opt) {
       case 'c':        /* Capture xxx packets */
 #ifdef HAVE_LIBPCAP
@@ -417,8 +418,18 @@ main(int argc, char *argv[])
 	line_buffered = TRUE;
 	break;
       case 'n':        /* No name resolution */
-	prefs->name_resolve = 0;
-	break;
+        prefs->name_resolve = PREFS_RESOLV_NONE;
+        break;
+      case 'N':        /* Select what types of addresses/port #s to resolve */
+        if (prefs->name_resolve == PREFS_RESOLV_ALL)
+          prefs->name_resolve = PREFS_RESOLV_NONE;
+        badopt = string_to_name_resolve(optarg, &prefs->name_resolve);
+        if (badopt != '\0') {
+          fprintf(stderr, "tethereal: -N specifies unknown resolving option '%c'; valid options are 'm', 'n', and 't'\n",
+			badopt);
+          exit(1);
+        }
+        break;
       case 'o':        /* Override preference from command line */
         switch (prefs_set_pref(optarg)) {
 

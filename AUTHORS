@@ -75,6 +75,7 @@ Joerg Mayer      <jmayer@loplof.de> {
 	Banyan Vines support
 	NTP fixes
 	DHCP support for Intel PXEclient DHCP requests
+	Support for "-N" flag enabling selected forms of name resolution
 }
 
 Martin Maciaszek <fastjack@i-s-o.net> {

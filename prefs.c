@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.50 2001/04/15 03:37:13 guy Exp $
+ * $Id: prefs.c,v 1.51 2001/05/31 08:36:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -615,8 +615,7 @@ read_prefs(int *gpf_errno_return, char **gpf_path_return,
     prefs.capture_prom_mode   =     0;
     prefs.capture_real_time   =     0;
     prefs.capture_auto_scroll =     0;
-    prefs.name_resolve=     1;
-
+    prefs.name_resolve        = PREFS_RESOLV_ALL;
   }
 
   /* Read the global preferences file, if it exists. */
@@ -873,6 +872,66 @@ prefs_set_pref(char *prefarg)
 static gchar *pr_formats[] = { "text", "postscript" };
 static gchar *pr_dests[]   = { "command", "file" };
 
+typedef struct {
+  char    letter;
+  guint32 value;
+} name_resolve_opt_t;
+
+static name_resolve_opt_t name_resolve_opt[] = {
+  { 'm', PREFS_RESOLV_MAC },
+  { 'n', PREFS_RESOLV_NETWORK },
+  { 't', PREFS_RESOLV_TRANSPORT },
+};
+
+#define N_NAME_RESOLVE_OPT	(sizeof name_resolve_opt / sizeof name_resolve_opt[0])
+
+static char *
+name_resolve_to_string(guint32 name_resolve)
+{
+  static char string[N_NAME_RESOLVE_OPT+1];
+  char *p;
+  int i;
+  gboolean all_opts_set = TRUE;
+
+  if (name_resolve == PREFS_RESOLV_NONE)
+    return "FALSE";
+  p = &string[0];
+  for (i = 0; i < N_NAME_RESOLVE_OPT; i++) {
+    if (name_resolve & name_resolve_opt[i].value)
+      *p++ =  name_resolve_opt[i].letter;
+    else
+      all_opts_set = FALSE;
+  }
+  *p = '\0';
+  if (all_opts_set)
+    return "TRUE";
+  return string;
+}
+
+char
+string_to_name_resolve(char *string, guint32 *name_resolve)
+{
+  char c;
+  int i;
+
+  *name_resolve = 0;
+  while ((c = *string++) != '\0') {
+    for (i = 0; i < N_NAME_RESOLVE_OPT; i++) {
+      if (c == name_resolve_opt[i].letter) {
+        *name_resolve |= name_resolve_opt[i].value;
+        break;
+      }
+    }
+    if (i == N_NAME_RESOLVE_OPT) {
+      /*
+       * Unrecognized letter.
+       */
+      return c;
+    }
+  }
+  return '\0';
+}
+
 static int
 set_pref(gchar *pref_name, gchar *value)
 {
@@ -953,21 +1012,21 @@ set_pref(gchar *pref_name, gchar *value)
     prefs.st_server_bg.green = GREEN_COMPONENT(cval);
     prefs.st_server_bg.blue  = BLUE_COMPONENT(cval);
   } else if (strcmp(pref_name, PRS_GUI_SCROLLBAR_ON_RIGHT) == 0) {
-    if (strcmp(value, "TRUE") == 0) {
+    if (strcasecmp(value, "true") == 0) {
 	    prefs.gui_scrollbar_on_right = TRUE;
     }
     else {
 	    prefs.gui_scrollbar_on_right = FALSE;
     }
   } else if (strcmp(pref_name, PRS_GUI_PLIST_SEL_BROWSE) == 0) {
-    if (strcmp(value, "TRUE") == 0) {
+    if (strcasecmp(value, "true") == 0) {
 	    prefs.gui_plist_sel_browse = TRUE;
     }
     else {
 	    prefs.gui_plist_sel_browse = FALSE;
     }
   } else if (strcmp(pref_name, PRS_GUI_PTREE_SEL_BROWSE) == 0) {
-    if (strcmp(value, "TRUE") == 0) {
+    if (strcasecmp(value, "true") == 0) {
 	    prefs.gui_ptree_sel_browse = TRUE;
     }
     else {
@@ -1001,18 +1060,32 @@ set_pref(gchar *pref_name, gchar *value)
 
 /* handle the capture options */ 
   } else if (strcmp(pref_name, PRS_CAP_PROM_MODE) == 0) {
-    prefs.capture_prom_mode = ((strcmp(value, "TRUE") == 0)?TRUE:FALSE); 
+    prefs.capture_prom_mode = ((strcasecmp(value, "true") == 0)?TRUE:FALSE); 
  
   } else if (strcmp(pref_name, PRS_CAP_REAL_TIME) == 0) {
-    prefs.capture_real_time = ((strcmp(value, "TRUE") == 0)?TRUE:FALSE); 
+    prefs.capture_real_time = ((strcasecmp(value, "true") == 0)?TRUE:FALSE); 
 
   } else if (strcmp(pref_name, PRS_CAP_AUTO_SCROLL) == 0) {
-    prefs.capture_auto_scroll = ((strcmp(value, "TRUE") == 0)?TRUE:FALSE); 
+    prefs.capture_auto_scroll = ((strcasecmp(value, "true") == 0)?TRUE:FALSE); 
  
+/* handle the global options */
   } else if (strcmp(pref_name, PRS_NAME_RESOLVE) == 0 ||
 	     strcmp(pref_name, PRS_CAP_NAME_RESOLVE) == 0) {
-    prefs.name_resolve = ((strcmp(value, "TRUE") == 0)?TRUE:FALSE); 
-
+    /*
+     * "TRUE" and "FALSE", for backwards compatibility, are synonyms for
+     * PREFS_RESOLV_ALL and PREFS_RESOLV_NONE.
+     *
+     * Otherwise, we treat it as a list of name types we want to resolve.
+     */
+    if (strcasecmp(value, "true") == 0)
+      prefs.name_resolve = PREFS_RESOLV_ALL;
+    else if (strcasecmp(value, "false") == 0)
+      prefs.name_resolve = PREFS_RESOLV_NONE;
+    else {
+      prefs.name_resolve = PREFS_RESOLV_NONE;	/* start out with none set */
+      if (string_to_name_resolve(value, &prefs.name_resolve) != '\0')
+        return PREFS_SET_SYNTAX_ERR;
+    }
   } else {
     /* To which module does this preference belong? */
     dotp = strchr(pref_name, '.');
@@ -1337,9 +1410,9 @@ write_prefs(char **pf_path_return)
     (prefs.gui_marked_bg.green * 255 / 65535),
     (prefs.gui_marked_bg.blue * 255 / 65535));
 
-  fprintf(pf, "\n# Resolve addresses to names? TRUE/FALSE\n");
+  fprintf(pf, "\n# Resolve addresses to names? TRUE/FALSE/{list of address types to resolve}\n");
   fprintf(pf, PRS_NAME_RESOLVE ": %s\n",
-		  prefs.name_resolve == TRUE ? "TRUE" : "FALSE");
+		  name_resolve_to_string(prefs.name_resolve));
 
 /* write the capture options */
   fprintf(pf, "\n# Capture in promiscuous mode? TRUE/FALSE\n");

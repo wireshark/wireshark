@@ -1,7 +1,7 @@
 /* file_dlg.c
  * Dialog boxes for handling files
  *
- * $Id: file_dlg.c,v 1.38 2001/04/15 03:37:16 guy Exp $
+ * $Id: file_dlg.c,v 1.39 2001/05/31 08:36:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -57,7 +57,9 @@ static void select_file_type_cb(GtkWidget *w, gpointer data);
 static void file_save_as_ok_cb(GtkWidget *w, GtkFileSelection *fs);
 static void file_save_as_destroy_cb(GtkWidget *win, gpointer user_data);
 
-#define E_FILE_RESOLVE_KEY	  "file_dlg_resolve_key"
+#define E_FILE_M_RESOLVE_KEY	  "file_dlg_mac_resolve_key"
+#define E_FILE_N_RESOLVE_KEY	  "file_dlg_network_resolve_key"
+#define E_FILE_T_RESOLVE_KEY	  "file_dlg_transport_resolve_key"
 
 /*
  * Keep a static pointer to the current "Open Capture File" window, if
@@ -71,8 +73,9 @@ static GtkWidget *file_open_w;
 void
 file_open_cmd_cb(GtkWidget *w, gpointer data)
 {
-  GtkWidget	*filter_hbox, *filter_bt, *filter_te,
-  		*resolv_cb;
+  GtkWidget	*main_vb, *filter_hbox, *filter_bt, *filter_te,
+  		*m_resolv_cb, *n_resolv_cb, *t_resolv_cb;
+  GtkAccelGroup *accel_group;
   /* No Apply button, and "OK" just sets our text widget, it doesn't
      activate it (i.e., it doesn't cause us to try to open the file). */
   static construct_args_t args = {
@@ -91,33 +94,27 @@ file_open_cmd_cb(GtkWidget *w, gpointer data)
   gtk_signal_connect(GTK_OBJECT(file_open_w), "destroy",
 	GTK_SIGNAL_FUNC(file_open_destroy_cb), NULL);
 
+  /* Accelerator group for the accelerators (or, as they're called in
+     Windows and, I think, in Motif, "mnemonics"; Alt+<key> is a mnemonic,
+     Ctrl+<key> is an accelerator). */
+  accel_group = gtk_accel_group_new();
+  gtk_window_add_accel_group(GTK_WINDOW(file_open_w), accel_group);
+
   /* If we've opened a file, start out by showing the files in the directory
      in which that file resided. */
   if (last_open_dir)
     gtk_file_selection_set_filename(GTK_FILE_SELECTION(file_open_w), last_open_dir);
 
-  resolv_cb = dlg_check_button_new_with_label_with_mnemonic(
-		  "Enable name resolution", NULL);
-  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(resolv_cb), prefs.name_resolve);
-  gtk_box_pack_end(GTK_BOX(GTK_FILE_SELECTION(file_open_w)->main_vbox),
-		  resolv_cb, FALSE, FALSE, 5);
-  gtk_widget_show(resolv_cb);
-  gtk_object_set_data(GTK_OBJECT(GTK_FILE_SELECTION(file_open_w)->ok_button),
-		  E_FILE_RESOLVE_KEY,  resolv_cb);
-
-  
-  /* Connect the ok_button to file_open_ok_cb function and pass along a
-     pointer to the file selection box widget */
-  gtk_signal_connect(GTK_OBJECT (GTK_FILE_SELECTION (file_open_w)->ok_button),
-    "clicked", (GtkSignalFunc) file_open_ok_cb, file_open_w);
-
-  gtk_object_set_data(GTK_OBJECT(GTK_FILE_SELECTION(file_open_w)->ok_button),
-      E_DFILTER_TE_KEY, gtk_object_get_data(GTK_OBJECT(w), E_DFILTER_TE_KEY));
+  /* Container for each row of widgets */
+  main_vb = gtk_vbox_new(FALSE, 3);
+  gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
+  gtk_box_pack_start(GTK_BOX(GTK_FILE_SELECTION(file_open_w)->action_area),
+    main_vb, FALSE, FALSE, 0);
+  gtk_widget_show(main_vb);
 
   filter_hbox = gtk_hbox_new(FALSE, 1);
   gtk_container_border_width(GTK_CONTAINER(filter_hbox), 0);
-  gtk_box_pack_start(GTK_BOX(GTK_FILE_SELECTION(file_open_w)->action_area),
-    filter_hbox, FALSE, FALSE, 0);
+  gtk_box_pack_start(GTK_BOX(main_vb), filter_hbox, FALSE, FALSE, 0);
   gtk_widget_show(filter_hbox);
 
   filter_bt = gtk_button_new_with_label("Filter:");
@@ -133,6 +130,41 @@ file_open_cmd_cb(GtkWidget *w, gpointer data)
 
   gtk_object_set_data(GTK_OBJECT(GTK_FILE_SELECTION(file_open_w)->ok_button),
     E_RFILTER_TE_KEY, filter_te);
+
+  m_resolv_cb = dlg_check_button_new_with_label_with_mnemonic(
+		  "Enable _MAC name resolution", accel_group);
+  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(m_resolv_cb),
+	prefs.name_resolve & PREFS_RESOLV_MAC);
+  gtk_box_pack_start(GTK_BOX(main_vb), m_resolv_cb, FALSE, FALSE, 0);
+  gtk_widget_show(m_resolv_cb);
+  gtk_object_set_data(GTK_OBJECT(GTK_FILE_SELECTION(file_open_w)->ok_button),
+		  E_FILE_M_RESOLVE_KEY, m_resolv_cb);
+
+  n_resolv_cb = dlg_check_button_new_with_label_with_mnemonic(
+		  "Enable _network name resolution", accel_group);
+  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(n_resolv_cb),
+	prefs.name_resolve & PREFS_RESOLV_NETWORK);
+  gtk_box_pack_start(GTK_BOX(main_vb), n_resolv_cb, FALSE, FALSE, 0);
+  gtk_widget_show(n_resolv_cb);
+  gtk_object_set_data(GTK_OBJECT(GTK_FILE_SELECTION(file_open_w)->ok_button),
+		  E_FILE_N_RESOLVE_KEY, n_resolv_cb);
+
+  t_resolv_cb = dlg_check_button_new_with_label_with_mnemonic(
+		  "Enable _transport name resolution", accel_group);
+  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(t_resolv_cb),
+	prefs.name_resolve & PREFS_RESOLV_TRANSPORT);
+  gtk_box_pack_start(GTK_BOX(main_vb), t_resolv_cb, FALSE, FALSE, 0);
+  gtk_widget_show(t_resolv_cb);
+  gtk_object_set_data(GTK_OBJECT(GTK_FILE_SELECTION(file_open_w)->ok_button),
+		  E_FILE_T_RESOLVE_KEY, t_resolv_cb);
+  
+  /* Connect the ok_button to file_open_ok_cb function and pass along a
+     pointer to the file selection box widget */
+  gtk_signal_connect(GTK_OBJECT (GTK_FILE_SELECTION(file_open_w)->ok_button),
+    "clicked", (GtkSignalFunc) file_open_ok_cb, file_open_w);
+
+  gtk_object_set_data(GTK_OBJECT(GTK_FILE_SELECTION(file_open_w)->ok_button),
+      E_DFILTER_TE_KEY, gtk_object_get_data(GTK_OBJECT(w), E_DFILTER_TE_KEY));
 
   /* Connect the cancel_button to destroy the widget */
   gtk_signal_connect_object(GTK_OBJECT (GTK_FILE_SELECTION
@@ -150,7 +182,7 @@ file_open_cmd_cb(GtkWidget *w, gpointer data)
 static void
 file_open_ok_cb(GtkWidget *w, GtkFileSelection *fs) {
   gchar     *cf_name, *rfilter, *s;
-  GtkWidget *filter_te, *resolv_cb;
+  GtkWidget *filter_te, *m_resolv_cb, *n_resolv_cb, *t_resolv_cb;
   dfilter_t *rfcode = NULL;
   int        err;
 
@@ -190,8 +222,13 @@ file_open_ok_cb(GtkWidget *w, GtkFileSelection *fs) {
   cfile.rfcode = rfcode;
 
   /* Set the global resolving variable */
-  resolv_cb = gtk_object_get_data(GTK_OBJECT(w), E_FILE_RESOLVE_KEY);
-  prefs.name_resolve = GTK_TOGGLE_BUTTON (resolv_cb)->active;
+  prefs.name_resolve = 0;
+  m_resolv_cb = gtk_object_get_data(GTK_OBJECT(w), E_FILE_M_RESOLVE_KEY);
+  prefs.name_resolve |= GTK_TOGGLE_BUTTON (m_resolv_cb)->active ? PREFS_RESOLV_MAC : PREFS_RESOLV_NONE;
+  n_resolv_cb = gtk_object_get_data(GTK_OBJECT(w), E_FILE_N_RESOLVE_KEY);
+  prefs.name_resolve |= GTK_TOGGLE_BUTTON (n_resolv_cb)->active ? PREFS_RESOLV_NETWORK : PREFS_RESOLV_NONE;
+  t_resolv_cb = gtk_object_get_data(GTK_OBJECT(w), E_FILE_T_RESOLVE_KEY);
+  prefs.name_resolve |= GTK_TOGGLE_BUTTON (t_resolv_cb)->active ? PREFS_RESOLV_TRANSPORT : PREFS_RESOLV_NONE;
 
   /* We've crossed the Rubicon; get rid of the file selection box. */
   gtk_widget_hide(GTK_WIDGET (fs));

@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.198 2001/05/01 00:41:46 guy Exp $
+ * $Id: main.c,v 1.199 2001/05/31 08:36:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -539,8 +539,8 @@ void expand_all_cb(GtkWidget *widget, gpointer data) {
 
 void resolve_name_cb(GtkWidget *widget, gpointer data) {
   if (cfile.protocol_tree) {
-    int tmp = prefs.name_resolve;
-    prefs.name_resolve = 1;
+    gint tmp = prefs.name_resolve;
+    prefs.name_resolve = PREFS_RESOLV_ALL;
     gtk_clist_clear ( GTK_CLIST(tree_view) );
     proto_tree_draw(cfile.protocol_tree, tree_view);
     prefs.name_resolve = tmp;
@@ -730,17 +730,19 @@ print_usage(void) {
   fprintf(stderr, "This is GNU " PACKAGE " " VERSION ", compiled %s\n",
 	  comp_info_str->str);
 #ifdef HAVE_LIBPCAP
-  fprintf(stderr, "%s [ -vh ] [ -klpQS ] [ -B <byte view height> ] [ -c count ]\n",
+  fprintf(stderr, "%s [ -vh ] [ -klpQS ] [ -B <byte view height> ] [ -c <count> ]\n",
 	  PACKAGE);
-  fprintf(stderr, "\t[ -f <capture filter> ] [ -i interface ] [ -m <medium font> ] \n");
-  fprintf(stderr, "\t[ -n ] [ -o <preference setting> ] ... [ -P <packet list height> ]\n");
-  fprintf(stderr, "\t[ -r infile ] [ -R <read filter> ] [ -s snaplen ] \n");
-  fprintf(stderr, "\t[ -t <time stamp format> ] [ -T <tree view height> ] [ -w savefile ]\n");
+  fprintf(stderr, "\t[ -f <capture filter> ] [ -i <interface> ] [ -m <medium font> ] \n");
+  fprintf(stderr, "\t[ -n ] [ -N <resolving> ]\n");
+  fprintf(stderr, "\t[ -o <preference setting> ] ... [ -P <packet list height> ]\n");
+  fprintf(stderr, "\t[ -r <infile> ] [ -R <read filter> ] [ -s <snaplen> ] \n");
+  fprintf(stderr, "\t[ -t <time stamp format> ] [ -T <tree view height> ] [ -w <savefile> ]\n");
 #else
-  fprintf(stderr, "%s [ -vh ] [ -B <byte view height> ] [ -m <medium font> ] [ -n ]\n",
+  fprintf(stderr, "%s [ -vh ] [ -B <byte view height> ] [ -m <medium font> ]\n";
+  fprintf(stderr, "\t[ -n ] [ -N <resolving> ]\n",
 	  PACKAGE);
   fprintf(stderr, "\t[ -o <preference setting> ... [ -P <packet list height> ]\n");
-  fprintf(stderr, "\t[ -r infile ] [ -R <read filter> ] [ -t <time stamp format> ]\n");
+  fprintf(stderr, "\t[ -r <infile> ] [ -R <read filter> ] [ -t <time stamp format> ]\n");
   fprintf(stderr, "\t[ -T <tree view height> ]\n");
 #endif
 }
@@ -823,6 +825,7 @@ main(int argc, char *argv[])
   dfilter_t           *rfcode = NULL;
   gboolean             rfilter_parse_failed = FALSE;
   e_prefs             *prefs;
+  char                 badopt;
   char                *bold_font_name;
 
   ethereal_path = argv[0];
@@ -983,7 +986,7 @@ main(int argc, char *argv[])
 #endif
 
   /* Now get our args */
-  while ((opt = getopt(argc, argv, "B:c:f:hi:klm:no:pP:Qr:R:Ss:t:T:w:W:vZ:")) !=  EOF) {
+  while ((opt = getopt(argc, argv, "B:c:f:hi:klm:nN:o:pP:Qr:R:Ss:t:T:w:W:vZ:")) !=  EOF) {
     switch (opt) {
       case 'B':        /* Byte view pane height */
         bv_size = get_positive_int(optarg, "byte view pane height");
@@ -1032,11 +1035,21 @@ main(int argc, char *argv[])
       case 'm':        /* Fixed-width font for the display */
         if (prefs->gui_font_name != NULL)
           g_free(prefs->gui_font_name);
-	prefs->gui_font_name = g_strdup(optarg);
-	break;
+        prefs->gui_font_name = g_strdup(optarg);
+        break;
       case 'n':        /* No name resolution */
-	prefs->name_resolve = 0;
-	break;
+        prefs->name_resolve = PREFS_RESOLV_NONE;
+        break;
+      case 'N':        /* Select what types of addresses/port #s to resolve */
+        if (prefs->name_resolve == PREFS_RESOLV_ALL)
+          prefs->name_resolve = PREFS_RESOLV_NONE;
+        badopt = string_to_name_resolve(optarg, &prefs->name_resolve);
+        if (badopt != '\0') {
+          fprintf(stderr, "ethereal: -N specifies unknown resolving option '%c'; valid options are 'm', 'n', and 't'\n",
+			badopt);
+          exit(1);
+        }
+        break;
       case 'o':        /* Override preference from command line */
         switch (prefs_set_pref(optarg)) {
 
