@@ -2,7 +2,7 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  * 
- * $Id: packet-wsp.c,v 1.31 2001/07/30 05:20:44 guy Exp $
+ * $Id: packet-wsp.c,v 1.32 2001/07/30 21:24:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -750,7 +750,7 @@ static void add_warning_header (proto_tree *, tvbuff_t *, int, tvbuff_t *,
     value_type_t, int);
 static void add_accept_application_header (proto_tree *, tvbuff_t *, int,
     tvbuff_t *, value_type_t, int);
-static void add_capabilities (proto_tree *tree, tvbuff_t *tvb);
+static void add_capabilities (proto_tree *tree, tvbuff_t *tvb, int type);
 static value_type_t get_value_type_len (tvbuff_t *, int, guint *, int *, int *);
 static guint get_uintvar (tvbuff_t *, guint, guint);
 static gint get_integer (tvbuff_t *, guint, guint, value_type_t, guint *);
@@ -1045,7 +1045,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				if (capabilityLength > 0)
 				{
 					tmp_tvb = tvb_new_subset (tvb, offset, capabilityLength, capabilityLength);
-					add_capabilities (wsp_tree, tmp_tvb);
+					add_capabilities (wsp_tree, tmp_tvb, CONNECT);
 					offset += capabilityLength;
 				}
 
@@ -1079,7 +1079,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				if (capabilityLength > 0)
 				{
 					tmp_tvb = tvb_new_subset (tvb, offset, capabilityLength, capabilityLength);
-					add_capabilities (wsp_tree, tmp_tvb);
+					add_capabilities (wsp_tree, tmp_tvb, CONNECTREPLY);
 					offset += capabilityLength;
 				}
 
@@ -2271,7 +2271,7 @@ add_accept_application_header (proto_tree *tree, tvbuff_t *header_buff,
 }
 
 static void
-add_capabilities (proto_tree *tree, tvbuff_t *tvb)
+add_capabilities (proto_tree *tree, tvbuff_t *tvb, int type)
 {
 	proto_item *ti;
 	proto_tree *wsp_capabilities;
@@ -2366,18 +2366,32 @@ add_capabilities (proto_tree *tree, tvbuff_t *tvb)
 			case 0x05 : /* Extended Methods */ 
 				offsetStr = offset;
 				offset++;
-				i = 0;
-				while ((offsetStr-capabilitiesStart) <= length)
+				if (type == CONNECT)
 				{
-					value = tvb_get_guint8(tvb, offsetStr);
-					i += snprintf(valString+i,200-i,"(%d - ",value);
-					offsetStr++;
-					for (;(valString[i] = tvb_get_guint8(tvb, offsetStr));i++,offsetStr++);
-					offsetStr++;
-					valString[i++] = ')';
-					valString[i++] = ' ';
+					i = 0;
+					while ((offsetStr-capabilitiesStart) <= length)
+					{
+						value = tvb_get_guint8(tvb, offsetStr);
+						i += snprintf(valString+i,200-i,"(%d - ",value);
+						offsetStr++;
+						for (;(valString[i] = tvb_get_guint8(tvb, offsetStr));i++,offsetStr++);
+						offsetStr++;
+						valString[i++] = ')';
+						valString[i++] = ' ';
+					}
+					valString[i]=0;
 				}
-				valString[i]=0;
+				else
+				{
+					i = 0;
+					while ((offsetStr-capabilitiesStart) <= length)
+					{
+						value = tvb_get_guint8(tvb, offsetStr);
+						i += snprintf(valString+i,200-i,"(%d) ",value);
+						offsetStr++;
+					}
+					valString[i]=0;
+				}
 				proto_tree_add_string(wsp_capabilities, hf_wsp_capabilities_extended_methods, tvb, capabilitiesStart, length+1, valString);
 				break;
 			case 0x06 : /* Header Code Pages */ 
