@@ -121,12 +121,30 @@ static int dissect_aim_snac_signon_signon_reply(tvbuff_t *tvb,
 	return offset;
 }
 
+static int dissect_aim_tlv_value_registration(proto_item *ti _U_, guint16 value_id _U_, tvbuff_t *tvb _U_, packet_info *pinfo)
+{
+	/* FIXME */
+	return 0;
+}
+
+#define REG_TLV_REGISTRATION_INFO 	0x0001
+
+static const aim_tlv registration_tlvs[] = {
+	{ REG_TLV_REGISTRATION_INFO, "Registration Info", dissect_aim_tlv_value_registration },
+	{ 0, "Unknown", NULL },
+};
+
+static int dissect_aim_snac_register (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	return dissect_aim_tlv(tvb, pinfo, 0, tree, registration_tlvs);
+}
+
 static const aim_subtype aim_fnac_family_signon[] = {
 	{ 0x0001, "Error", dissect_aim_snac_error },
 	{ 0x0002, "Logon", dissect_aim_snac_signon_logon },
 	{ 0x0003, "Logon Reply", dissect_aim_snac_signon_logon_reply },
-	{ 0x0004, "Request UIN", NULL },
-	{ 0x0005, "New UIN response", NULL },
+	{ 0x0004, "Request UIN", dissect_aim_snac_register },
+	{ 0x0005, "New UIN response", dissect_aim_snac_register },
 	{ 0x0006, "Sign-on", dissect_aim_snac_signon_signon },
 	{ 0x0007, "Sign-on Reply", dissect_aim_snac_signon_signon_reply },
 	{ 0x000a, "Server SecureID Request", NULL },

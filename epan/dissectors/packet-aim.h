@@ -25,12 +25,15 @@
 #ifndef __PACKET_AIM_H__
 #define __PACKET_AIM_H__
 
+/* For e_uuid_t */
+#include "packet-dcerpc.h"
+
 #define MAX_BUDDYNAME_LENGTH 30
 
 typedef struct _aim_tlv {
   guint16 valueid;
   char *desc;
-  int (*dissector) (proto_item *ti, guint16 value_id, tvbuff_t *tvb);
+  int (*dissector) (proto_item *ti, guint16 value_id, tvbuff_t *tvb, packet_info *);
 } aim_tlv;
 
 struct aiminfo {
@@ -71,17 +74,18 @@ int dissect_aim_tlv_sequence(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, 
 const aim_family *aim_get_family( guint16 family );
 const aim_subtype *aim_get_subtype( guint16 family, guint16 subtype);
 
-int dissect_aim_tlv_value_string(proto_item *ti, guint16, tvbuff_t *);
-int dissect_aim_tlv_value_uint8(proto_item *ti, guint16, tvbuff_t *);
-int dissect_aim_tlv_value_uint16(proto_item *ti, guint16, tvbuff_t *);
-int dissect_aim_tlv_value_uint32(proto_item *ti, guint16, tvbuff_t *);
-int dissect_aim_tlv_value_bytes(proto_item *ti, guint16, tvbuff_t *);
-int dissect_aim_tlv_value_ipv4(proto_item *ti, guint16, tvbuff_t *);
-int dissect_aim_tlv_value_time(proto_item *ti, guint16, tvbuff_t *);
-int dissect_aim_tlv_value_client_capabilities(proto_item *ti, guint16, tvbuff_t *);
+int dissect_aim_tlv_value_string(proto_item *ti, guint16, tvbuff_t *, packet_info *);
+int dissect_aim_tlv_value_uint8(proto_item *ti, guint16, tvbuff_t *, packet_info *);
+int dissect_aim_tlv_value_uint16(proto_item *ti, guint16, tvbuff_t *, packet_info *);
+int dissect_aim_tlv_value_uint32(proto_item *ti, guint16, tvbuff_t *, packet_info *);
+int dissect_aim_tlv_value_bytes(proto_item *ti, guint16, tvbuff_t *, packet_info *);
+int dissect_aim_tlv_value_ipv4(proto_item *ti, guint16, tvbuff_t *, packet_info *);
+int dissect_aim_tlv_value_time(proto_item *ti, guint16, tvbuff_t *, packet_info *);
+int dissect_aim_tlv_value_client_capabilities(proto_item *ti, guint16, tvbuff_t *, packet_info *);
+int dissect_aim_capability(proto_tree *entry, tvbuff_t *tvb, int offset);
 int dissect_aim_userclass(tvbuff_t *tvb, int offset, int len, proto_item *ti, guint32 flags);
-int dissect_aim_tlv_value_userclass(proto_item *ti, guint16, tvbuff_t *);
-int dissect_aim_tlv_value_messageblock (proto_item *ti, guint16 valueid _U_, tvbuff_t *tvb);
+int dissect_aim_tlv_value_userclass(proto_item *ti, guint16, tvbuff_t *, packet_info *);
+int dissect_aim_tlv_value_messageblock (proto_item *ti, guint16 valueid _U_, tvbuff_t *tvb, packet_info *);
 
 extern const aim_tlv client_tlvs[];
 extern const aim_tlv onlinebuddy_tlvs[];

@@ -60,7 +60,33 @@ static const aim_tlv messaging_incoming_ch1_tlvs[] = {
   { INCOMING_CH1_ICON_PRESENT, "Icon present", dissect_aim_tlv_value_bytes },
   { INCOMING_CH1_BUDDY_REQ, "Buddy Req", dissect_aim_tlv_value_bytes },
   { INCOMING_CH1_TYPING, "Non-direct connect typing notification", dissect_aim_tlv_value_bytes },
-  { 0, "Unknown", NULL }
+  { 0, "Unknown", NULL },
+};
+
+int dissect_aim_tlv_value_rendezvous ( proto_item *ti, guint16 valueid _U_, tvbuff_t *tvb, packet_info *pinfo _U_);
+extern int dissect_aim_tlv_value_capability_data ( proto_item *ti, guint16 valueid _U_, tvbuff_t *tvb, packet_info *pinfo _U_);
+
+
+#define INCOMING_CH2_SERVER_ACK_REQ    	   0x0003
+#define INCOMING_CH2_RENDEZVOUS_DATA       0x0005
+
+static const aim_tlv messaging_incoming_ch2_tlvs[] = {
+  { INCOMING_CH2_SERVER_ACK_REQ, "Server Ack Requested", dissect_aim_tlv_value_bytes },
+  { INCOMING_CH2_RENDEZVOUS_DATA, "Rendez Vous Data", dissect_aim_tlv_value_rendezvous },
+  { 0, "Unknown", NULL },
+};
+
+#define RENDEZVOUS_TLV_INT_IP				0x0003
+#define RENDEZVOUS_TLV_EXT_IP				0x0004
+#define RENDEZVOUS_TLV_EXT_PORT				0x0005
+#define RENDEZVOUS_TLV_CAPABILITY_DATA		0x2711
+
+static const aim_tlv rendezvous_tlvs[] = {
+	{ RENDEZVOUS_TLV_INT_IP, "Internal IP", dissect_aim_tlv_value_ipv4 },
+	{ RENDEZVOUS_TLV_EXT_IP, "External IP", dissect_aim_tlv_value_ipv4 },
+	{ RENDEZVOUS_TLV_EXT_PORT, "External Port", dissect_aim_tlv_value_uint16 },
+	{ RENDEZVOUS_TLV_CAPABILITY_DATA, "Capability Data", dissect_aim_tlv_value_capability_data },
+	{ 0, "Unknown", NULL },
 };
 
 #define MINITYPING_FINISHED_SIGN			0x0000
@@ -72,6 +98,17 @@ static const value_string minityping_type[] = {
 	{MINITYPING_TEXT_TYPED_SIGN, "Text typed sign" },
 	{MINITYPING_BEGUN_SIGN, "Typing begun sign" },
 	{0, NULL }
+};
+
+#define RENDEZVOUS_MSG_REQUEST 		0
+#define RENDEZVOUS_MSG_CANCEL		1
+#define RENDEZVOUS_MSG_ACCEPT 		2
+
+static const value_string rendezvous_msg_types[] = {
+	{ RENDEZVOUS_MSG_REQUEST, "Request" },
+	{ RENDEZVOUS_MSG_CANCEL, "Cancel" },
+	{ RENDEZVOUS_MSG_ACCEPT, "Accept" },
+	{ 0, "Unknown" },
 };
 
 #define EVIL_ORIGIN_ANONYMOUS		1
@@ -100,18 +137,39 @@ static int hf_aim_message_channel_id = -1;
 static int hf_aim_icbm_evil = -1;
 static int hf_aim_evil_warn_level = -1;
 static int hf_aim_evil_new_warn_level = -1;
+static int hf_aim_rendezvous_msg_type = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_aim_messaging = -1;
+static gint ett_aim_rendezvous_data = -1;
+
+int dissect_aim_tlv_value_rendezvous ( proto_item *ti, guint16 valueid _U_, tvbuff_t *tvb, packet_info *pinfo _U_)
+{
+	int offset = 0;
+	proto_tree *entry = proto_item_add_subtree(ti, ett_aim_rendezvous_data);
+	proto_tree_add_item(entry, hf_aim_rendezvous_msg_type, tvb, offset, 2, FALSE);
+	offset+=2;
+	
+	proto_tree_add_item(entry, hf_aim_icbm_cookie, tvb, offset, 8, FALSE);
+	offset += 8;
+
+	offset = dissect_aim_capability(entry, tvb, offset);
+
+	return dissect_aim_tlv_sequence(tvb, pinfo, offset, entry, rendezvous_tlvs);
+}
 
 static int dissect_aim_msg_outgoing(tvbuff_t *tvb, packet_info *pinfo, proto_tree *msg_tree)
 {
 	int offset = 0;
+	const aim_tlv *ch_tlvs = NULL;
+	guint16 channel_id;
+	
 	/* ICBM Cookie */
 	proto_tree_add_item(msg_tree, hf_aim_icbm_cookie, tvb, offset, 8, FALSE);
 	offset += 8;
 
 	/* Message Channel ID */
+	channel_id = tvb_get_ntohs(tvb, offset);
 	proto_tree_add_item(msg_tree, hf_aim_message_channel_id, tvb, offset, 2,
 						FALSE);
 	offset += 2;
@@ -127,21 +185,22 @@ static int dissect_aim_msg_outgoing(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
 	offset = dissect_aim_buddyname(tvb, pinfo, offset, msg_tree);
 
-	while(tvb_reported_length_remaining(tvb, offset) > 0) {
-		/* djh - Note that we reuse the "incoming ch1 tlv" set even though this
-		   is outgoing.  We may need to split this to a separate TLV set, but
-		   so far I haven't seen the need @@@@@@@@ */
-		offset = dissect_aim_tlv(tvb, pinfo, offset, msg_tree, 
-								 messaging_incoming_ch1_tlvs);
+	switch(channel_id) {
+	case 1: ch_tlvs = messaging_incoming_ch1_tlvs; break;
+	case 2: ch_tlvs = messaging_incoming_ch2_tlvs; break;
+	default: return offset;
 	}
-
-	return offset;
+			
+	return dissect_aim_tlv_sequence(tvb, pinfo, offset, msg_tree, ch_tlvs);
 }
 
 
 static int dissect_aim_msg_incoming(tvbuff_t *tvb, packet_info *pinfo, proto_tree *msg_tree)
 {
 	int offset = 0;
+	const aim_tlv *ch_tlvs;
+	guint16 channel_id; 
+	
 	/* ICBM Cookie */
 	proto_tree_add_item(msg_tree, hf_aim_icbm_cookie, tvb, offset, 8, FALSE);
 	offset += 8;
@@ -149,12 +208,19 @@ static int dissect_aim_msg_incoming(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	/* Message Channel ID */
 	proto_tree_add_item(msg_tree, hf_aim_message_channel_id, tvb, offset, 2,
 						FALSE);
+	channel_id = tvb_get_ntohs(tvb, offset);
 	offset += 2;
 
 	offset = dissect_aim_userinfo(tvb, pinfo, offset, msg_tree);
+				
+	switch(channel_id) {
+	case 1: ch_tlvs = messaging_incoming_ch1_tlvs; break;
+	case 2: ch_tlvs = messaging_incoming_ch2_tlvs; break;
+	default: return offset;
+	}
 
 	return dissect_aim_tlv_sequence(tvb, pinfo, offset, msg_tree, 
-								 messaging_incoming_ch1_tlvs);
+								 ch_tlvs);
 }
 
 static int dissect_aim_msg_params(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *msg_tree)
@@ -202,8 +268,8 @@ static const aim_subtype aim_fnac_family_messaging[] = {
 	{ 0x0003, "Reset ICBM Parameter", NULL },
 	{ 0x0004, "Request Parameter Info", NULL},
 	{ 0x0005, "Parameter Info", dissect_aim_msg_params },
-	{ 0x0006, "Incoming", dissect_aim_msg_incoming },
-	{ 0x0007, "Outgoing", dissect_aim_msg_outgoing },
+	{ 0x0006, "Outgoing", dissect_aim_msg_outgoing },
+	{ 0x0007, "Incoming", dissect_aim_msg_incoming },
 	{ 0x0008, "Evil Request", dissect_aim_msg_evil_req },
 	{ 0x0009, "Evil Response", dissect_aim_msg_evil_repl  },
 	{ 0x000a, "Missed Call", NULL },
@@ -267,11 +333,15 @@ proto_register_aim_messaging(void)
 		{ &hf_aim_icbm_notification_type,
 			{ "Notification Type", "aim.notification.type", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL },
 		},
+		{ &hf_aim_rendezvous_msg_type,
+			{ "Message Type", "aim.rendezvous.msg_type", FT_UINT16, BASE_HEX, VALS(rendezvous_msg_types), 0x0, "", HFILL },
+		},
 	};
 
 	/* Setup protocol subtree array */
 	static gint *ett[] = {
 		&ett_aim_messaging,
+		&ett_aim_rendezvous_data,
 	};
 
 	/* Register the protocol name and description */

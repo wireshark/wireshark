@@ -231,8 +231,8 @@ const aim_tlv client_tlvs[] = {
 };
 
 
-static int dissect_aim_tlv_value_userstatus(proto_item *ti, guint16 valueid _U_, tvbuff_t *tvb);
-static int dissect_aim_tlv_value_dcinfo(proto_item *ti, guint16 valueid _U_, tvbuff_t *tvb);
+static int dissect_aim_tlv_value_userstatus(proto_item *ti, guint16 valueid _U_, tvbuff_t *tvb, packet_info *pinfo _U_);
+static int dissect_aim_tlv_value_dcinfo(proto_item *ti, guint16 valueid _U_, tvbuff_t *tvb, packet_info *pinfo _U_);
 
 #define AIM_ONLINEBUDDY_USERCLASS      0x0001
 #define AIM_ONLINEBUDDY_ONSINCE        0x0003
@@ -674,7 +674,8 @@ int dissect_aim_snac_error(tvbuff_t *tvb, packet_info *pinfo,
 
   proto_tree_add_item (aim_tree, hf_aim_snac_error,
 			   tvb, 0, 2, FALSE);
-  return tvb_length_remaining(tvb, 2);
+  
+  return dissect_aim_tlv_sequence(tvb, pinfo, 2, aim_tree, client_tlvs);
 }
 
 int dissect_aim_userinfo(tvbuff_t *tvb, packet_info *pinfo, 
@@ -866,19 +867,21 @@ int dissect_aim_buddyname(tvbuff_t *tvb, packet_info *pinfo _U_, int offset,
    return offset+buddyname_length;
 }
 
-typedef struct _e_uuid_t {
-    guint32 Data1;
-    guint16 Data2;
-    guint16 Data3;
-    guint8 Data4[8];
-} e_uuid_t;
+typedef struct _aim_client_capability
+{
+	const char *name;
+	e_uuid_t clsid;	
+} aim_client_capability;
 
-typedef struct _aim_client_capabilities {
-	const char *description;
-	e_uuid_t clsid;
-} aim_client_capabilities;
+static const aim_client_capability known_client_caps[] = {
+	{ "Send File", 
+	  {0x09461343, 0x4c7f, 0x11d1,
+	    { 0x82, 0x22, 0x44, 0x45, 0x53, 0x54, 0x00, 0x00}}},
 
-static const aim_client_capabilities client_caps[] = {
+	{ "Recv File",
+	    { 0x09461348, 0x4c7f, 0x11d1,
+		   { 0x82, 0x22, 0x44, 0x45, 0x53, 0x54, 0x00, 0x00}}},
+	
 	{ "iChat",
 	 {0x09460000, 0x4c7f, 0x11d1, 
 	   { 0x82, 0x22, 0x44, 0x45, 0x53, 0x54, 0x00, 0x00}}},
@@ -911,15 +914,6 @@ static const aim_client_capabilities client_caps[] = {
 	 {0x09461341, 0x4c7f, 0x11d1, 
 		 { 0x82, 0x22, 0x44, 0x45, 0x53, 0x54, 0x00, 0x00}}},
 
-	{ "Send File",
-	 {0x09461343, 0x4c7f, 0x11d1, 
-		 { 0x82, 0x22, 0x44, 0x45, 0x53, 0x54, 0x00, 0x00}}},
-
-	{ "Receive File",
-	 {0x09461348, 0x4c7f, 0x11d1,
-		 { 0x82, 0x22, 0x44, 0x45, 0x53, 0x54, 0x00, 0x00}}},
-
-
 	{ "Direct ICQ Communication",
 	 {0x09461344, 0x4c7f, 0x11d1, 
 		 {0x82, 0x22, 0x44, 0x45, 0x53, 0x54, 0x00, 0x00}}},
@@ -935,7 +929,6 @@ static const aim_client_capabilities client_caps[] = {
 	{ "Add-Ins",
 	 {0x09461347, 0x4c7f, 0x11d1,
 		 {0x82, 0x22, 0x44, 0x45, 0x53, 0x54, 0x00, 0x00}}},
-
 
 	{ "ICQ Server Relaying",
 	 {0x09461349, 0x4c7f, 0x11d1,
@@ -997,10 +990,53 @@ static const aim_client_capabilities client_caps[] = {
 	 {0x0946f003, 0x4c7f, 0x11d1,
 		 {0x82, 0x22, 0x44, 0x45, 0x53, 0x54, 0x00, 0x00}}},
 
-	{ "Unknown", {0x0, 0x0, 0x0, { 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 } } }
+	{ NULL, {0x0, 0x0, 0x0, { 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 } } }
 };
 
-int dissect_aim_tlv_value_client_capabilities(proto_item *ti _U_, guint16 valueid _U_, tvbuff_t *tvb)
+const aim_client_capability *aim_find_capability ( e_uuid_t clsid)
+{
+	int i;
+
+	for(i = 0; known_client_caps[i].name; i++) 
+	{
+		const aim_client_capability *caps = &(known_client_caps[i]);
+
+		if(memcmp(&(caps->clsid), &clsid, sizeof(e_uuid_t)) == 0)
+			return caps;
+	}
+
+	return NULL;
+}
+
+int dissect_aim_tlv_value_capability_data ( proto_item *ti, guint16 valueid _U_, tvbuff_t *tvb _U_, packet_info *pinfo _U_)
+{
+	return 0;
+}
+
+int dissect_aim_capability(proto_tree *entry, tvbuff_t *tvb, int offset)
+{
+	const aim_client_capability *caps = NULL;
+	e_uuid_t clsid;
+
+	clsid.Data1 = tvb_get_ntohl(tvb, offset);
+	clsid.Data2 = tvb_get_ntohs(tvb, offset+4);
+	clsid.Data3 = tvb_get_ntohs(tvb, offset+6);
+	tvb_memcpy(tvb, clsid.Data4, offset+8, 8);
+
+	caps = aim_find_capability(clsid);
+
+	proto_tree_add_text(entry, tvb, offset, 16, 
+		"%s {%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x}", 
+		caps?caps->name:"Unknown", clsid.Data1, clsid.Data2, 
+		clsid.Data3, clsid.Data4[0], clsid.Data4[1], clsid.Data4[2], 
+		clsid.Data4[3], clsid.Data4[4],	clsid.Data4[5], clsid.Data4[6], 
+			clsid.Data4[7]
+	);
+
+	return offset+16;
+}
+
+int dissect_aim_tlv_value_client_capabilities(proto_item *ti _U_, guint16 valueid _U_, tvbuff_t *tvb, packet_info *pinfo _U_)
 {
 	int offset = 0;
 	proto_tree *entry;
@@ -1010,38 +1046,13 @@ int dissect_aim_tlv_value_client_capabilities(proto_item *ti _U_, guint16 valuei
 	entry = proto_item_add_subtree(ti, ett_aim_client_capabilities);
 	
   	while (tvb_length_remaining(tvb, offset) > 0) {
-		int i;
-		const aim_client_capabilities *caps = NULL;
-		e_uuid_t clsid;
-
-		clsid.Data1 = tvb_get_ntohl(tvb, offset);
-		clsid.Data2 = tvb_get_ntohs(tvb, offset+4);
-		clsid.Data3 = tvb_get_ntohs(tvb, offset+6);
-		tvb_memcpy(tvb, clsid.Data4, offset+8, 8);
-
-		for(i = 0; client_caps[i].description; i++) {
-
-			if(memcmp(&(client_caps[i].clsid), &clsid, sizeof(e_uuid_t)) == 0) {
-				caps = &client_caps[i];
-				break;
-			}
-		}
-
-		proto_tree_add_text(entry, tvb, offset, 16, 
-			"%s {%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x}", 
-			caps?caps->description:"Unknown", clsid.Data1, clsid.Data2, 
-			clsid.Data3, clsid.Data4[0], clsid.Data4[1], clsid.Data4[2], 
-			clsid.Data4[3], clsid.Data4[4],	clsid.Data4[5], clsid.Data4[6], 
-			clsid.Data4[7]
-			);
-
-		offset+=16;
+		offset = dissect_aim_capability(entry, tvb, offset);
 	}
 
 	return tvb_length(tvb);
 }
 
-int dissect_aim_tlv_value_time(proto_item *ti _U_, guint16 valueid _U_, tvbuff_t *tvb)
+int dissect_aim_tlv_value_time(proto_item *ti _U_, guint16 valueid _U_, tvbuff_t *tvb, packet_info *pinfo _U_)
 {
 	/* FIXME */
 	return tvb_length(tvb);
@@ -1067,20 +1078,20 @@ int dissect_aim_userclass(tvbuff_t *tvb, int offset, int len, proto_item *ti, gu
 	return offset+len;
 }
 
-int dissect_aim_tlv_value_userclass(proto_item *ti, guint16 valueid _U_, tvbuff_t *tvb)
+int dissect_aim_tlv_value_userclass(proto_item *ti, guint16 valueid _U_, tvbuff_t *tvb, packet_info *pinfo _U_)
 {
 	guint16 value16 = tvb_get_ntohs(tvb, 0);
 	proto_item_set_text(ti, "Value: 0x%04x", value16);
 	return dissect_aim_userclass(tvb, 0, 2, ti, value16);
 }
 
-static int dissect_aim_tlv_value_userstatus(proto_item *ti _U_, guint16 valueid _U_, tvbuff_t *tvb)
+static int dissect_aim_tlv_value_userstatus(proto_item *ti _U_, guint16 valueid _U_, tvbuff_t *tvb, packet_info *pinfo _U_)
 {
 	/* FIXME */
 	return tvb_length(tvb);
 }
 
-static int dissect_aim_tlv_value_dcinfo(proto_item *ti, guint16 valueid _U_, tvbuff_t *tvb)
+static int dissect_aim_tlv_value_dcinfo(proto_item *ti, guint16 valueid _U_, tvbuff_t *tvb, packet_info *pinfo _U_)
 {
 	int offset = 0;
 	
@@ -1101,7 +1112,7 @@ static int dissect_aim_tlv_value_dcinfo(proto_item *ti, guint16 valueid _U_, tvb
 	return offset;
 }
 
-int dissect_aim_tlv_value_string (proto_item *ti, guint16 valueid _U_, tvbuff_t *tvb)
+int dissect_aim_tlv_value_string (proto_item *ti, guint16 valueid _U_, tvbuff_t *tvb, packet_info *pinfo _U_)
 {
    guint8 *buf;
    gint string_len;
@@ -1113,37 +1124,37 @@ int dissect_aim_tlv_value_string (proto_item *ti, guint16 valueid _U_, tvbuff_t 
    return string_len;
 }
 
-int dissect_aim_tlv_value_bytes (proto_item *ti _U_, guint16 valueid _U_, tvbuff_t *tvb _U_)
+int dissect_aim_tlv_value_bytes (proto_item *ti _U_, guint16 valueid _U_, tvbuff_t *tvb _U_, packet_info *pinfo _U_)
 {
    return tvb_length(tvb);
 }
 
-int dissect_aim_tlv_value_uint8 (proto_item *ti, guint16 valueid _U_, tvbuff_t *tvb){
+int dissect_aim_tlv_value_uint8 (proto_item *ti, guint16 valueid _U_, tvbuff_t *tvb, packet_info *pinfo _U_){
   guint8 value8 = tvb_get_guint8(tvb, 0);
   proto_item_set_text(ti, "Value: %d", value8);
   return 1;
 }
 
-int dissect_aim_tlv_value_uint16 (proto_item *ti, guint16 valueid _U_, tvbuff_t *tvb){
+int dissect_aim_tlv_value_uint16 (proto_item *ti, guint16 valueid _U_, tvbuff_t *tvb, packet_info *pinfo _U_){
   guint16 value16 = tvb_get_ntohs(tvb, 0);
   proto_item_set_text(ti, "Value: %d", value16);
   return 2;
 }
 
-int dissect_aim_tlv_value_ipv4 (proto_item *ti, guint16 valueid _U_, tvbuff_t *tvb){
+int dissect_aim_tlv_value_ipv4 (proto_item *ti, guint16 valueid _U_, tvbuff_t *tvb, packet_info *pinfo _U_){
   /* FIXME: Somewhat more readable format ? */
   guint32 value32 = tvb_get_ntoh24(tvb, 0);
   proto_item_set_text(ti, "Value: %d", value32);
   return 4;
 }
 
-int dissect_aim_tlv_value_uint32 (proto_item *ti, guint16 valueid _U_, tvbuff_t *tvb){
+int dissect_aim_tlv_value_uint32 (proto_item *ti, guint16 valueid _U_, tvbuff_t *tvb, packet_info *pinfo _U_){
   guint32 value32 = tvb_get_ntoh24(tvb, 0);
   proto_item_set_text(ti, "Value: %d", value32);
   return 4;
 }
 
-int dissect_aim_tlv_value_messageblock (proto_item *ti, guint16 valueid _U_, tvbuff_t *tvb){
+int dissect_aim_tlv_value_messageblock (proto_item *ti, guint16 valueid _U_, tvbuff_t *tvb, packet_info *pinfo _U_){
   proto_tree *entry;
   guint8 *buf;
   guint16 featurelen;
@@ -1262,7 +1273,7 @@ int dissect_aim_tlv(tvbuff_t *tvb, packet_info *pinfo _U_,
 			      "Value");
 	
     if (tmp[i].dissector) {
-      tmp[i].dissector(ti1, valueid, tvb_new_subset(tvb, offset, length, length));
+      tmp[i].dissector(ti1, valueid, tvb_new_subset(tvb, offset, length, length), pinfo);
     } 
 
     offset += length;
