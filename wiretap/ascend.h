@@ -1,6 +1,6 @@
 /* ascend.h
  *
- * $Id: ascend.h,v 1.1 1999/09/11 04:53:26 gerald Exp $
+ * $Id: ascend.h,v 1.2 1999/09/11 06:49:42 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -44,7 +44,6 @@ typedef struct {
 #define ASCEND_PKTHDR_OFFSET sizeof(ascend_pkthdr)
 
 int ascend_open(wtap *wth, int *err);
-static int ascend_read(wtap *wth, int *err);
 void init_parse_ascend();
 int parse_ascend(FILE *fh, void *pd, int len);
 int ascend_seek_read (FILE *fh, int seek_off, guint8 *pd, int len);

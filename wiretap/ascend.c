@@ -1,6 +1,6 @@
 /* ascend.c
  *
- * $Id: ascend.c,v 1.1 1999/09/11 04:53:26 gerald Exp $
+ * $Id: ascend.c,v 1.2 1999/09/11 06:49:42 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -71,6 +71,8 @@ static const char ascend_emagic[] = { 'E', 'T', 'H', 'E', 'R', ' ' };
 #define ASCEND_X_SIZE (sizeof ascend_xmagic / sizeof ascend_xmagic[0])
 #define ASCEND_R_SIZE (sizeof ascend_rmagic / sizeof ascend_rmagic[0])
 #define ASCEND_E_SIZE (sizeof ascend_emagic / sizeof ascend_emagic[0])
+
+static int ascend_read(wtap *wth, int *err);
 
 /* Seeks to the beginning of the next packet, and returns the
    byte offset.  Returns 0 on failure.  A valid offset is 0; since
