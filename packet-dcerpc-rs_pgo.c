@@ -1,11 +1,11 @@
 /* packet-dcerpc-rs_pgo.c
  *
  * Routines for dcerpc Afs4Int dissection
- * Copyright 2002, Jaime Fournier <jafour1@yahoo.com>
+ * Copyright 2002, Jaime Fournier <Jaime.Fournier@hush.com>
  * This information is based off the released idl files from opengroup.
  * ftp://ftp.opengroup.org/pub/dce122/dce/src/security.tar.gz  security/idl/rs_pgo.idl
  *
- * $Id: packet-dcerpc-rs_pgo.c,v 1.8 2004/02/21 09:49:35 guy Exp $
+ * $Id: packet-dcerpc-rs_pgo.c,v 1.9 2004/02/21 10:03:15 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
