@@ -2,7 +2,7 @@
  * Routines for ISUP dissection
  * Copyright 2001, Martina Obermeier <martina.obermeier@icn.siemens.de>
  *
- * $Id: packet-isup.c,v 1.23 2003/06/25 04:27:51 guy Exp $
+ * $Id: packet-isup.c,v 1.24 2003/06/26 08:39:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -4169,7 +4169,7 @@ proto_register_isup(void)
 	static hf_register_info hf[] = {
 		{ &hf_isup_cic,
 			{ "CIC",           "isup.cic",
-			FT_UINT16, BASE_HEX, NULL, 0xFF0F,
+			FT_UINT16, BASE_HEX, NULL, 0x0,
 			  "", HFILL }},
 
 		{ &hf_isup_message_type,
