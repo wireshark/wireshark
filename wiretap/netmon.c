@@ -1,6 +1,6 @@
 /* netmon.c
  *
- * $Id: netmon.c,v 1.35 2000/11/19 03:47:35 guy Exp $
+ * $Id: netmon.c,v 1.36 2001/01/25 21:47:23 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -477,6 +477,8 @@ static gboolean netmon_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 	char *hdrp;
 	int hdr_size;
 	int nwritten;
+	double t;
+	guint32 time_low, time_high;
 
 	/* NetMon files have a capture start time in the file header,
 	   and have times relative to that in the packet headers;
@@ -500,7 +502,18 @@ static gboolean netmon_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 		break;
 
 	case WTAP_FILE_NETMON_2_x:
-		/* XXX - fill in 64-bit time diff in microseconds */
+		/*
+		 * Unfortunately, not all the platforms on which we run
+		 * support 64-bit integral types, even though most do
+		 * (even on 32-bit processors), so we do it in floating
+		 * point.
+		 */
+		t = (phdr->ts.tv_sec - netmon->first_record_time.tv_sec)*1000000.0
+		  + (phdr->ts.tv_usec - netmon->first_record_time.tv_usec);
+		time_high = t/4294967296.0;
+		time_low = t - (time_high*4294967296.0);
+		rec_2_x_hdr.ts_delta_lo = htolel(time_low);
+		rec_2_x_hdr.ts_delta_hi = htolel(time_high);
 		rec_2_x_hdr.orig_len = htolel(phdr->len);
 		rec_2_x_hdr.incl_len = htolel(phdr->caplen);
 		hdrp = (char *)&rec_2_x_hdr;
@@ -594,14 +607,16 @@ static gboolean netmon_dump_close(wtap_dumper *wdh, int *err)
 		magicp = netmon_1_x_magic;
 		magic_size = sizeof netmon_1_x_magic;
 		/* current NetMon version, for 1.x, is 1.1 */
-		file_hdr.ver_minor = 1;
 		file_hdr.ver_major = 1;
+		file_hdr.ver_minor = 1;
 		break;
 
 	case WTAP_FILE_NETMON_2_x:
 		magicp = netmon_2_x_magic;
 		magic_size = sizeof netmon_2_x_magic;
-		/* XXX - fill in V2 stuff. */
+		/* current NetMon version, for 2.x, is 2.0 */
+		file_hdr.ver_major = 2;
+		file_hdr.ver_minor = 0;
 		break;
 
 	default:
