@@ -4,7 +4,7 @@
  *
  * RFC 2865, RFC 2866, RFC 2867, RFC 2868, RFC 2869
  *
- * $Id: packet-radius.c,v 1.49 2002/02/26 11:55:37 guy Exp $
+ * $Id: packet-radius.c,v 1.50 2002/03/22 02:38:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -263,6 +263,7 @@ static value_string radius_service_type_vals[]=
 #define VENDOR_JUNIPER 2636
 #define VENDOR_COSINE 3085
 #define VENDOR_UNISPHERE 4874
+#define VENDOR_ISSANNI 5948
 
 static value_string radius_vendor_specific_vendors[]=
 {{VENDOR_ACC,"ACC"},
@@ -275,6 +276,7 @@ static value_string radius_vendor_specific_vendors[]=
 {VENDOR_JUNIPER,"Juniper Networks"},
 {VENDOR_COSINE,"CoSine Communications"},
 {VENDOR_UNISPHERE,"Unisphere Networks"},
+{VENDOR_ISSANNI,"Issanni Communications"},
 {0,NULL}};
 
 #define VENDOR_COSINE_VSA_CONNECION_PROFILE_NAME 1
@@ -295,6 +297,44 @@ static value_string radius_vendor_cosine_types[]=
 {VENDOR_COSINE_VSA_DLCI,"DLCI"},
 {VENDOR_COSINE_VSA_LNS_IP_ADDRESS,"LNS IP Address"},
 {VENDOR_COSINE_VSA_CLI_USER_PERMISSION_ID,"CLI User Permission ID"},
+{0,NULL}};
+
+#define VENDOR_ISSANNI_VSA_SOFTFLOW_TEMPLATE   1
+#define VENDOR_ISSANNI_VSA_NAT_POOL_NAME       2
+#define VENDOR_ISSANNI_VSA_VRD                 3
+#define VENDOR_ISSANNI_VSA_TUNNEL_NAME         4
+#define VENDOR_ISSANNI_VSA_IP_POOL_NAME        5
+#define VENDOR_ISSANNI_VSA_PPPOE_URL           6
+#define VENDOR_ISSANNI_VSA_PPPOE_MOTM          7
+#define VENDOR_ISSANNI_VSA_SERVICE             8
+#define VENDOR_ISSANNI_VSA_PRI_DNS             9
+#define VENDOR_ISSANNI_VSA_SEC_DNS             10
+#define VENDOR_ISSANNI_VSA_PRI_NBNS            11
+#define VENDOR_ISSANNI_VSA_SEC_NBNS            12
+#define VENDOR_ISSANNI_VSA_TRAFFIC_CLASS       13
+#define VENDOR_ISSANNI_VSA_TUNNEL_TYPE         14
+#define VENDOR_ISSANNI_VSA_NAT_TYPE            15
+#define VENDOR_ISSANNI_VSA_QOS_CLASS           16
+#define VENDOR_ISSANNI_VSA_IFACE_NAME          17
+
+static value_string radius_vendor_issanni_types[]=
+{{VENDOR_ISSANNI_VSA_SOFTFLOW_TEMPLATE,"Softflow Template"},
+{VENDOR_ISSANNI_VSA_NAT_POOL_NAME,"NAT Pool"},
+{VENDOR_ISSANNI_VSA_VRD,"Virtual Routing Domain"},
+{VENDOR_ISSANNI_VSA_TUNNEL_NAME,"Tunnel Name"},
+{VENDOR_ISSANNI_VSA_IP_POOL_NAME,"IP Pool Name"},
+{VENDOR_ISSANNI_VSA_PPPOE_URL,"PPPoE URL"},
+{VENDOR_ISSANNI_VSA_PPPOE_MOTM,"PPPoE MOTM"},
+{VENDOR_ISSANNI_VSA_SERVICE,"PPPoE Service"},
+{VENDOR_ISSANNI_VSA_PRI_DNS,"Primary DNS"},
+{VENDOR_ISSANNI_VSA_SEC_DNS,"Secondary DNS"},
+{VENDOR_ISSANNI_VSA_PRI_NBNS,"Primary NBNS"},
+{VENDOR_ISSANNI_VSA_SEC_NBNS,"Secondary NBNS"},
+{VENDOR_ISSANNI_VSA_TRAFFIC_CLASS,"Policing Traffic Class"},
+{VENDOR_ISSANNI_VSA_TUNNEL_TYPE,"Tunnel Type"},
+{VENDOR_ISSANNI_VSA_NAT_TYPE,"NAT Type"},
+{VENDOR_ISSANNI_VSA_QOS_CLASS,"QoS Traffic Class"},
+{VENDOR_ISSANNI_VSA_IFACE_NAME,"Interface Name"},
 {0,NULL}};
 
 static value_string radius_framed_protocol_vals[]=
@@ -832,6 +872,45 @@ gchar *rd_value_to_str(e_avphdr *avph, tvbuff_t *tvb, int offset)
 			case ( VENDOR_COSINE_VSA_LNS_IP_ADDRESS ):
 				sprintf(cont," Type:%s, Value:",
 					rd_match_strval(vtype, radius_vendor_cosine_types));
+				cont=&textbuffer[strlen(textbuffer)];
+				ip_to_str_buf(tvb_get_ptr(tvb,offset+8,4),cont);
+				break;
+			default:
+				sprintf(cont," Unknown Value Type");
+				break;
+			}
+			break;
+		case ( VENDOR_ISSANNI ):
+			vtype = tvb_get_guint8(tvb,offset+6);
+			switch (vtype) {
+			case ( VENDOR_ISSANNI_VSA_SOFTFLOW_TEMPLATE ):
+			case ( VENDOR_ISSANNI_VSA_NAT_POOL_NAME ):
+			case ( VENDOR_ISSANNI_VSA_VRD ):
+			case ( VENDOR_ISSANNI_VSA_TUNNEL_NAME ):
+			case ( VENDOR_ISSANNI_VSA_IP_POOL_NAME ):
+			case ( VENDOR_ISSANNI_VSA_PPPOE_URL ):
+			case ( VENDOR_ISSANNI_VSA_PPPOE_MOTM ):
+			case ( VENDOR_ISSANNI_VSA_SERVICE ):
+			case ( VENDOR_ISSANNI_VSA_TRAFFIC_CLASS ):
+			case ( VENDOR_ISSANNI_VSA_QOS_CLASS ):
+			case ( VENDOR_ISSANNI_VSA_IFACE_NAME ):
+				sprintf(cont," Type:%s, Value:",
+					rd_match_strval(vtype, radius_vendor_issanni_types));
+				cont=&textbuffer[strlen(textbuffer)];
+				rdconvertbufftostr(cont,tvb,offset+8,avph->avp_length-8);
+				break;
+			case ( VENDOR_ISSANNI_VSA_NAT_TYPE ):
+			case ( VENDOR_ISSANNI_VSA_TUNNEL_TYPE ):
+				sprintf(cont," Type:%s, Value:%u",
+					rd_match_strval(vtype, radius_vendor_issanni_types),
+					tvb_get_ntohl(tvb,offset+8));
+				break;
+			case ( VENDOR_ISSANNI_VSA_PRI_DNS ):
+			case ( VENDOR_ISSANNI_VSA_SEC_DNS ):
+			case ( VENDOR_ISSANNI_VSA_PRI_NBNS ):
+			case ( VENDOR_ISSANNI_VSA_SEC_NBNS ):
+				sprintf(cont," Type:%s, Value:",
+					rd_match_strval(vtype, radius_vendor_issanni_types));
 				cont=&textbuffer[strlen(textbuffer)];
 				ip_to_str_buf(tvb_get_ptr(tvb,offset+8,4),cont);
 				break;

@@ -1104,6 +1104,11 @@ Jakob Schlyter <jakob[AT]crt.se> {
 	SIP method additions
 }
 
+Jim Sienicki <sienicki[AT]issanni.com> {
+	Additional vendor (Issani) for Radius
+	Issani VSA support for Radius
+}
+
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 
