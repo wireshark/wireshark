@@ -1,7 +1,7 @@
 /* packet-ppp.c
  * Routines for ppp packet disassembly
  *
- * $Id: packet-ppp.c,v 1.34 2000/05/19 05:29:43 guy Exp $
+ * $Id: packet-ppp.c,v 1.35 2000/05/25 07:42:25 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -216,8 +216,7 @@ static void dissect_lcp_bap_link_discriminator_opt(const ip_tcp_opt *optp,
 static void dissect_lcp_internationalization_opt(const ip_tcp_opt *optp,
 			const u_char *opd, int offset, guint length,
 			proto_tree *tree);
-static void dissect_mp(const u_char *pd, int offset, frame_data *fd,
-  proto_tree *tree, proto_tree *fh_tree);
+static void dissect_mp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 static const ip_tcp_opt lcp_opts[] = {
 	{
@@ -503,16 +502,16 @@ static const ip_tcp_opt ipcp_opts[] = {
 #define N_IPCP_OPTS	(sizeof ipcp_opts / sizeof ipcp_opts[0])
 
 void
-capture_ppp( const u_char *pd, packet_counts *ld ) {
-  switch (pntohs(&pd[2])) {
+capture_ppp( const u_char *pd, int offset, packet_counts *ld ) {
+  switch (pntohs(&pd[offset + 2])) {
     case PPP_IP:
-      capture_ip(pd, 4, ld);
+      capture_ip(pd, offset + 4, ld);
       break;
     case PPP_IPX:
-      capture_ipx(pd, 4, ld);
+      capture_ipx(pd, offset + 4, ld);
       break;
     case PPP_VINES:
-      capture_ipx(pd, 4, ld);
+      capture_vines(pd, offset + 4, ld);
       break;
     default:
       ld->other++;
@@ -844,10 +843,10 @@ static void dissect_ipcp_addr_opt(const ip_tcp_opt *optp, const u_char *opd,
 }
 
 static void
-dissect_cp( const u_char *pd, int offset, const char *proto_short_name,
+dissect_cp( tvbuff_t *tvb, const char *proto_short_name,
 	const char *proto_long_name, int proto_subtree_index,
 	const value_string *proto_vals, int options_subtree_index,
-	const ip_tcp_opt *opts, int nopts, frame_data *fd, proto_tree *tree ) {
+	const ip_tcp_opt *opts, int nopts, packet_info *pinfo, proto_tree *tree ) {
   proto_item *ti;
   proto_tree *fh_tree = NULL;
   proto_item *tf;
@@ -855,29 +854,29 @@ dissect_cp( const u_char *pd, int offset, const char *proto_short_name,
 
   guint8 code;
   guint8 id;
-  int length;
+  int length, offset;
   guint16 protocol;
 
-  code = pd[0+offset];
-  id = pd[1+offset];
-  length = pntohs(&pd[2+offset]);
+  code = tvb_get_guint8(tvb, 0);
+  id = tvb_get_guint8(tvb, 1);
+  length = tvb_get_ntohs(tvb, 2);
 
-  if(check_col(fd, COL_INFO))
-	col_add_fstr(fd, COL_INFO, "%sCP %s", proto_short_name,
+  if(check_col(pinfo->fd, COL_INFO))
+	col_add_fstr(pinfo->fd, COL_INFO, "%sCP %s", proto_short_name,
 		val_to_str(code, proto_vals, "Unknown"));
 
   if(tree) {
-    ti = proto_tree_add_text(tree, NullTVB, 0+offset, 4, "%s Control Protocol",
+    ti = proto_tree_add_text(tree, tvb, 0, 4, "%s Control Protocol",
 				proto_long_name);
     fh_tree = proto_item_add_subtree(ti, proto_subtree_index);
-    proto_tree_add_text(fh_tree, NullTVB, 0+offset, 1, "Code: %s (0x%02x)",
+    proto_tree_add_text(fh_tree, tvb, 0, 1, "Code: %s (0x%02x)",
       val_to_str(code, proto_vals, "Unknown"), code);
-    proto_tree_add_text(fh_tree, NullTVB, 1+offset, 1, "Identifier: 0x%02x",
+    proto_tree_add_text(fh_tree, tvb, 1, 1, "Identifier: 0x%02x",
 			id);
-    proto_tree_add_text(fh_tree, NullTVB, 2+offset, 2, "Length: %u",
+    proto_tree_add_text(fh_tree, tvb, 2, 2, "Length: %u",
 			length);
   }
-  offset += 4;
+  offset = 4;
   length -= 4;
 
   switch (code) {
@@ -887,11 +886,16 @@ dissect_cp( const u_char *pd, int offset, const char *proto_short_name,
     case CONFREJ:
       if(tree) {
         if (length > 0) {
-          tf = proto_tree_add_text(fh_tree, NullTVB, offset, length,
+	  const guint8	*this_pd;
+	  int		this_offset;
+
+	  tvb_compat(tvb, &this_pd, &this_offset);
+
+          tf = proto_tree_add_text(fh_tree, tvb, offset, length,
             "Options: (%d byte%s)", length, plurality(length, "", "s"));
           field_tree = proto_item_add_subtree(tf, options_subtree_index);
-          dissect_ip_tcp_options(&pd[offset], offset, length, opts, nopts,
-				-1, field_tree);
+          dissect_ip_tcp_options(&this_pd[this_offset + offset],this_offset + offset,
+			  length, opts, nopts, -1, field_tree);
         }
       }
       break;
@@ -901,41 +905,41 @@ dissect_cp( const u_char *pd, int offset, const char *proto_short_name,
     case DISCREQ:
     case IDENT:
       if(tree) {
-	proto_tree_add_text(fh_tree, NullTVB, offset, 4, "Magic number: 0x%08x",
-			pntohl(&pd[offset]));
+	proto_tree_add_text(fh_tree, tvb, offset, 4, "Magic number: 0x%08x",
+			tvb_get_ntohl(tvb, offset));
 	offset += 4;
 	length -= 4;
 	if (length > 0)
-          proto_tree_add_text(fh_tree, NullTVB, offset, length, "Message (%d byte%s)",
+          proto_tree_add_text(fh_tree, tvb, offset, length, "Message (%d byte%s)",
 				length, plurality(length, "", "s"));
       }
       break;
 
     case TIMEREMAIN:
       if(tree) {
-	proto_tree_add_text(fh_tree, NullTVB, offset, 4, "Magic number: 0x%08x",
-			pntohl(&pd[offset]));
+	proto_tree_add_text(fh_tree, tvb, offset, 4, "Magic number: 0x%08x",
+			tvb_get_ntohl(tvb, offset));
 	offset += 4;
 	length -= 4;
-	proto_tree_add_text(fh_tree, NullTVB, offset, 4, "Seconds remaining: %u",
-			pntohl(&pd[offset]));
+	proto_tree_add_text(fh_tree, tvb, offset, 4, "Seconds remaining: %u",
+			tvb_get_ntohl(tvb, offset));
 	offset += 4;
 	length -= 4;
 	if (length > 0)
-          proto_tree_add_text(fh_tree, NullTVB, offset, length, "Message (%d byte%s)",
+          proto_tree_add_text(fh_tree, tvb, offset, length, "Message (%d byte%s)",
 				length, plurality(length, "", "s"));
       }
       break;
 
     case PROTREJ:
       if(tree) {
-      	protocol = pntohs(&pd[offset]);
-	proto_tree_add_text(fh_tree, NullTVB, offset, 2, "Rejected protocol: %s (0x%04x)",
+      	protocol = tvb_get_ntohs(tvb, offset);
+	proto_tree_add_text(fh_tree, tvb, offset, 2, "Rejected protocol: %s (0x%04x)",
 		val_to_str(protocol, ppp_vals, "Unknown"), protocol);
 	offset += 2;
 	length -= 2;
 	if (length > 0)
-          proto_tree_add_text(fh_tree, NullTVB, offset, length, "Rejected packet (%d byte%s)",
+          proto_tree_add_text(fh_tree, tvb, offset, length, "Rejected packet (%d byte%s)",
 				length, plurality(length, "", "s"));
 		/* XXX - should be dissected as a PPP packet */
       }
@@ -944,20 +948,20 @@ dissect_cp( const u_char *pd, int offset, const char *proto_short_name,
     case CODEREJ:
 		/* decode the rejected LCP packet here. */
       if (length > 0)
-        proto_tree_add_text(fh_tree, NullTVB, offset, length, "Rejected packet (%d byte%s)",
+        proto_tree_add_text(fh_tree, tvb, offset, length, "Rejected packet (%d byte%s)",
 				length, plurality(length, "", "s"));
       break;
 
     case TERMREQ:
     case TERMACK:
       if (length > 0)
-        proto_tree_add_text(fh_tree, NullTVB, offset, length, "Data (%d byte%s)",
+        proto_tree_add_text(fh_tree, tvb, offset, length, "Data (%d byte%s)",
 				length, plurality(length, "", "s"));
       break;
 
     default:
       if (length > 0)
-        proto_tree_add_text(fh_tree, NullTVB, offset, length, "Stuff (%d byte%s)",
+        proto_tree_add_text(fh_tree, tvb, offset, length, "Stuff (%d byte%s)",
 				length, plurality(length, "", "s"));
       break;
   }
@@ -967,51 +971,55 @@ dissect_cp( const u_char *pd, int offset, const char *proto_short_name,
 #define PFC_BIT 0x01
 
 static gboolean
-dissect_ppp_stuff( const u_char *pd, int offset, frame_data *fd,
+dissect_ppp_stuff( tvbuff_t *tvb, packet_info *pinfo,
 		proto_tree *tree, proto_tree *fh_tree ) {
   guint16 ppp_prot;
   int     proto_len;
+  tvbuff_t	*next_tvb;
+  const guint8	*next_pd;
+  int		next_offset;
 
-  if (pd[offset] & PFC_BIT) {
-    ppp_prot = pd[offset];
+  if (tvb_get_guint8(tvb, 0) & PFC_BIT) {
+    ppp_prot = tvb_get_guint8(tvb, 0);
     proto_len = 1;
   } else {
-    ppp_prot = pntohs(&pd[offset]);
+    ppp_prot = tvb_get_ntohs(tvb, 0);
     proto_len = 2;
   }
 
   if (tree) {
-    proto_tree_add_text(fh_tree, NullTVB, offset, proto_len, "Protocol: %s (0x%04x)",
+    proto_tree_add_text(fh_tree, tvb, 0, proto_len, "Protocol: %s (0x%04x)",
       val_to_str(ppp_prot, ppp_vals, "Unknown"), ppp_prot);
   }
-  offset += proto_len;
+
+  next_tvb = tvb_new_subset(tvb, proto_len, -1, -1);
+  tvb_compat(next_tvb, &next_pd, &next_offset);
 
   /* do lookup with the subdissector table */
-  if (dissector_try_port(subdissector_table, ppp_prot, pd, offset, fd, tree))
+  if (dissector_try_port(subdissector_table, ppp_prot, next_pd, next_offset, pinfo->fd, tree))
       return TRUE;
 
   /* XXX - make "dissect_lcp()" and "dissect_ipcp()", have them just
      call "dissect_cp()", and register them as well?
 
-     We can't do that for "dissect_mp()", though, as it takes an additional
-     argument. */
+     We can do that for "dissect_mp()", too. */
   switch (ppp_prot) {
     case PPP_MP:
-      dissect_mp(pd, offset, fd, tree, fh_tree);
+      dissect_mp(next_tvb, pinfo, tree);
       return TRUE;
     case PPP_LCP:
-      dissect_cp(pd, offset, "L", "Link", ett_lcp, lcp_vals, ett_lcp_options,
-		lcp_opts, N_LCP_OPTS, fd, tree);
+      dissect_cp(next_tvb, "L", "Link", ett_lcp, lcp_vals, ett_lcp_options,
+		lcp_opts, N_LCP_OPTS, pinfo, tree);
       return TRUE;
     case PPP_IPCP:
-      dissect_cp(pd, offset, "IP", "IP", ett_ipcp, cp_vals, ett_ipcp_options,
-		ipcp_opts, N_IPCP_OPTS, fd, tree);
+      dissect_cp(next_tvb, "IP", "IP", ett_ipcp, cp_vals, ett_ipcp_options,
+		ipcp_opts, N_IPCP_OPTS, pinfo, tree);
       return TRUE;
     default:
-      if (check_col(fd, COL_INFO))
-        col_add_fstr(fd, COL_INFO, "PPP %s (0x%04x)",
+      if (check_col(pinfo->fd, COL_INFO))
+        col_add_fstr(pinfo->fd, COL_INFO, "PPP %s (0x%04x)",
 		val_to_str(ppp_prot, ppp_vals, "Unknown"), ppp_prot);
-      dissect_data(pd, offset, fd, tree);
+      dissect_data_tvb(next_tvb, pinfo, tree);
       return FALSE;
   }
 }
@@ -1028,63 +1036,64 @@ dissect_ppp_stuff( const u_char *pd, int offset, frame_data *fd,
    headers are four bytes.  - gcc
  */
 static void
-dissect_mp(const u_char *pd, int offset, frame_data *fd,
-  proto_tree *tree, proto_tree *fh_tree)
+dissect_mp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  proto_tree *ti, *mp_tree, *hdr_tree;
+  proto_tree *mp_tree, *hdr_tree, *fh_tree = NULL;
+  proto_item *ti;
   guint8      flags;
   guint32     seq;
-  gchar       flag_str[12];
+  gchar       *flag_str;
   int         first, last;
+  tvbuff_t	*next_tvb;
 
-  flags = pd[offset];
+  flags = tvb_get_guint8(tvb, 0);
   first = flags && MP_FRAG_FIRST;
   last  = flags && MP_FRAG_LAST;
-  seq = pd[offset+1] << 16 | pd[offset+2] << 8 | pd[offset+3];
+  seq   = tvb_get_ntoh24(tvb, 1);
 
-  if (check_col(fd, COL_INFO))
-    col_add_fstr(fd, COL_INFO, "PPP Multilink");
+  if (check_col(pinfo->fd, COL_INFO))
+    col_add_fstr(pinfo->fd, COL_INFO, "PPP Multilink");
 
   if (tree) {
     switch (flags) {
       case MP_FRAG_FIRST:
-        strcpy(flag_str, "First");
+        flag_str = "First";
         break;
       case MP_FRAG_LAST:
-        strcpy(flag_str, "Last");
+        flag_str = "Last";
         break;
       case MP_FRAG_FIRST|MP_FRAG_LAST:
-        strcpy(flag_str, "First, Last");
+        flag_str = "First, Last";
         break;
       default:
-        strcpy(flag_str, "Unknown");
+        flag_str = "Unknown";
         break;
     }
-    ti = proto_tree_add_item(tree, proto_mp, NullTVB, offset, 4, NULL);
+    ti = proto_tree_add_item(tree, proto_mp, tvb, 0, 4, NULL);
     mp_tree = proto_item_add_subtree(ti, ett_mp);
-    ti = proto_tree_add_text(mp_tree, NullTVB, offset, 1, "Fragment: 0x%2X (%s)",
+    ti = proto_tree_add_text(mp_tree, tvb, 0, 1, "Fragment: 0x%2X (%s)",
       flags, flag_str);
     hdr_tree = proto_item_add_subtree(ti, ett_mp_flags);
-    proto_tree_add_boolean_format(hdr_tree, hf_mp_frag_first, NullTVB, offset, 1, first,
+    proto_tree_add_boolean_format(hdr_tree, hf_mp_frag_first, tvb, 0, 1, first,
       "%s", decode_boolean_bitfield(flags, MP_FRAG_FIRST, sizeof(flags) * 8,
         "first", "not first"));
-    proto_tree_add_boolean_format(hdr_tree, hf_mp_frag_last, NullTVB, offset, 1, last,
+    proto_tree_add_boolean_format(hdr_tree, hf_mp_frag_last, tvb, 0, 1, last,
       "%s", decode_boolean_bitfield(flags, MP_FRAG_LAST, sizeof(flags) * 8,
         "last", "not last"));
-    proto_tree_add_text(hdr_tree, NullTVB, offset, 1, "%s",
+    proto_tree_add_text(hdr_tree, tvb, 0, 1, "%s",
       decode_boolean_bitfield(flags, MP_FRAG_RESERVED, sizeof(flags) * 8,
         "reserved", "reserved"));
-    proto_tree_add_item(mp_tree, hf_mp_sequence_num, NullTVB, offset + 1, 3, seq);
+    proto_tree_add_item(mp_tree, hf_mp_sequence_num, tvb,  1, 3, seq);
  }
 
-  offset += 4;
+  next_tvb = tvb_new_subset(tvb, 4, -1, -1);
 
-  if (IS_DATA_IN_FRAME(offset)) {
-    if (tree) {
-      ti = proto_tree_add_item(tree, proto_ppp, NullTVB, offset, 1, NULL);
-      fh_tree = proto_item_add_subtree(ti, ett_ppp);
-    }
-    dissect_ppp_stuff(pd, offset, fd, tree, fh_tree);
+  if (tvb_length(next_tvb) > 0) {
+	  if (tree) {
+	    ti = proto_tree_add_item(tree, proto_ppp, next_tvb, 0, 1, NULL);
+	    fh_tree = proto_item_add_subtree(ti, ett_ppp);
+	  }
+	  dissect_ppp_stuff(next_tvb, pinfo, tree, fh_tree);
   }
 }
 
@@ -1092,6 +1101,7 @@ void
 dissect_payload_ppp( const u_char *pd, int offset, frame_data *fd, proto_tree *tree ) {
   proto_item *ti;
   proto_tree *fh_tree = NULL;
+  tvbuff_t   *next_tvb;
 
   /* populate a tree in the second pane with the status of the link
      layer (ie none) */
@@ -1100,52 +1110,60 @@ dissect_payload_ppp( const u_char *pd, int offset, frame_data *fd, proto_tree *t
     fh_tree = proto_item_add_subtree(ti, ett_ppp);
   }
 
-  dissect_ppp_stuff(pd, offset, fd, tree, fh_tree);
+  next_tvb = tvb_new_subset(pi.compat_top_tvb, offset, -1, -1);
+  dissect_ppp_stuff(next_tvb, &pi, tree, fh_tree);
 }
 
 void
-dissect_ppp( const u_char *pd, int offset, frame_data *fd, proto_tree *tree ) {
+dissect_ppp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree ) {
   e_ppphdr   ph;
   proto_item *ti;
   proto_tree *fh_tree = NULL;
   int        proto_offset;
+  tvbuff_t   *next_tvb;
+  guint8     byte0;
 
-  if (pd[offset] == 0xff) {
-    ph.ppp_addr = pd[offset+0];
-    ph.ppp_ctl  = pd[offset+1];
-    ph.ppp_prot = pntohs(&pd[offset+2]);
-    proto_offset = offset + 2;
+  pinfo->current_proto = "PPP";
+  byte0 = tvb_get_guint8(tvb, 0);
+
+  if (byte0 == 0xff) {
+    ph.ppp_addr = tvb_get_guint8(tvb, 0);
+    ph.ppp_ctl  = tvb_get_guint8(tvb, 1);
+    ph.ppp_prot = tvb_get_ntohs(tvb, 2);
+    proto_offset =  2;
   }
   else {
     /* address and control are compressed (NULL) */
-    ph.ppp_prot = pntohs(&pd[offset]);
-    proto_offset = offset;
+    ph.ppp_prot = tvb_get_ntohs(tvb, 0);
+    proto_offset = 0;
   }
 
   /* load the top pane info. This should be overwritten by
      the next protocol in the stack */
 
-  if(check_col(fd, COL_RES_DL_SRC))
-    col_add_str(fd, COL_RES_DL_SRC, "N/A" );
-  if(check_col(fd, COL_RES_DL_DST))
-    col_add_str(fd, COL_RES_DL_DST, "N/A" );
-  if(check_col(fd, COL_PROTOCOL))
-    col_add_str(fd, COL_PROTOCOL, "PPP" );
+  if(check_col(pinfo->fd, COL_RES_DL_SRC))
+    col_add_str(pinfo->fd, COL_RES_DL_SRC, "N/A" );
+  if(check_col(pinfo->fd, COL_RES_DL_DST))
+    col_add_str(pinfo->fd, COL_RES_DL_DST, "N/A" );
+  if(check_col(pinfo->fd, COL_PROTOCOL))
+    col_add_str(pinfo->fd, COL_PROTOCOL, "PPP" );
 
   /* populate a tree in the second pane with the status of the link
      layer (ie none) */
   if(tree) {
-    ti = proto_tree_add_item(tree, proto_ppp, NullTVB, 0, 4, NULL);
+    ti = proto_tree_add_item(tree, proto_ppp, tvb, 0, 4, NULL);
     fh_tree = proto_item_add_subtree(ti, ett_ppp);
-    if (pd[offset] == 0xff) {
-      proto_tree_add_text(fh_tree, NullTVB, 0, 1, "Address: %02x", ph.ppp_addr);
-      proto_tree_add_text(fh_tree, NullTVB, 1, 1, "Control: %02x", ph.ppp_ctl);
+    if (byte0 == 0xff) {
+      proto_tree_add_text(fh_tree, tvb, 0, 1, "Address: %02x", ph.ppp_addr);
+      proto_tree_add_text(fh_tree, tvb, 1, 1, "Control: %02x", ph.ppp_ctl);
     }
   }
 
-  if (!dissect_ppp_stuff(pd, proto_offset, fd, tree, fh_tree)) {
-    if (check_col(fd, COL_PROTOCOL))
-      col_add_fstr(fd, COL_PROTOCOL, "0x%04x", ph.ppp_prot);
+  next_tvb = tvb_new_subset(tvb, proto_offset, -1, -1);
+
+  if (!dissect_ppp_stuff(next_tvb, pinfo, tree, fh_tree)) {
+    if (check_col(pinfo->fd, COL_PROTOCOL))
+      col_add_fstr(pinfo->fd, COL_PROTOCOL, "0x%04x", ph.ppp_prot);
   }
 }
 

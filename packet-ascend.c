@@ -1,7 +1,7 @@
 /* packet-ascend.c
  * Routines for decoding Lucent/Ascend packet traces
  *
- * $Id: packet-ascend.c,v 1.14 2000/05/19 23:06:08 gram Exp $
+ * $Id: packet-ascend.c,v 1.15 2000/05/25 07:42:24 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -57,8 +57,6 @@ dissect_ascend(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   proto_tree			*fh_tree;
   proto_item			*ti;
-  const guint8			*pd;
-  int				offset;
   union wtap_pseudo_header	*pseudo_header = pinfo->pseudo_header;
 
   pinfo->current_proto = "Lucent/Ascend";
@@ -100,8 +98,7 @@ dissect_ascend(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   switch (pseudo_header->ascend.type) {
     case ASCEND_PFX_WDS_X:
     case ASCEND_PFX_WDS_R:
-      tvb_compat(tvb, &pd, &offset);
-      dissect_ppp(pd, offset, pinfo->fd, tree);
+      dissect_ppp(tvb, pinfo, tree);
       break;
     case ASCEND_PFX_WDD:
       dissect_eth(tvb, pinfo, tree);

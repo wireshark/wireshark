@@ -1,7 +1,7 @@
 /* packet-raw.c
  * Routines for raw packet disassembly
  *
- * $Id: packet-raw.c,v 1.16 2000/05/19 21:47:37 gram Exp $
+ * $Id: packet-raw.c,v 1.17 2000/05/25 07:42:25 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -36,6 +36,7 @@
 #include "packet.h"
 #include "packet-raw.h"
 #include "packet-ip.h"
+#include "packet-ppp.h"
 
 static gint ett_raw = -1;
 
@@ -50,10 +51,17 @@ capture_raw( const u_char *pd, packet_counts *ld ) {
   /* Currently, the Linux 2.1.xxx PPP driver passes back some of the header
    * sometimes.  This check should be removed when 2.2 is out.
    */
-  if (pd[0] == 0xff && pd[1] == 0x03)
-    capture_ip(pd, 4, ld);
-  else
+  if (BYTES_ARE_IN_FRAME(0,2) && pd[0] == 0xff && pd[1] == 0x03) {
+    capture_ppp(pd, 0, ld);
+  }
+  /* The Linux ISDN driver sends a fake MAC address before the PPP header
+   * on its ippp interfaces. */
+  else if (BYTES_ARE_IN_FRAME(0,8) && pd[6] == 0xff && pd[7] == 0x03) {
+    capture_ppp(pd, 6, ld);
+  }
+  else {
     capture_ip(pd, 0, ld);
+  }
 }
 
 void
@@ -93,14 +101,22 @@ dissect_raw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    * sometimes.  This check should be removed when 2.2 is out.
    */
   if (tvb_get_ntohs(tvb, 0) == 0xff03) {
-	next_tvb = tvb_new_subset(tvb, 4, -1, -1);
-	tvb_compat(next_tvb, &next_pd, &next_offset);
+	dissect_ppp(tvb, pinfo, tree);
+	return;
+  }
+  /* The Linux ISDN driver sends a fake MAC address before the PPP header
+   * on its ippp interfaces. */
+  else if (tvb_get_ntohs(tvb, 6) == 0xff03) {
+	next_tvb = tvb_new_subset(tvb, 6, -1, -1);
+	dissect_ppp(next_tvb, pinfo, tree);
+	return;
   }
   else {
 	tvb_compat(tvb, &next_pd, &next_offset);
+	dissect_ip(next_pd, next_offset, pinfo->fd, tree);
+	return;
   }
-
-  dissect_ip(next_pd, next_offset, pinfo->fd, tree);
+  g_assert_not_reached();
 }
 
 void

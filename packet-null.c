@@ -1,7 +1,7 @@
 /* packet-null.c
  * Routines for null packet disassembly
  *
- * $Id: packet-null.c,v 1.23 2000/05/19 05:18:26 guy Exp $
+ * $Id: packet-null.c,v 1.24 2000/05/25 07:42:24 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -179,7 +179,7 @@ capture_null( const u_char *pd, packet_counts *ld )
     /*
      * Hand it to PPP.
      */
-    capture_ppp(pd, ld);
+    capture_ppp(pd, 0, ld);
   } else {
     /*
      * Treat it as a normal DLT_NULL header.
@@ -236,8 +236,7 @@ dissect_null(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /*
      * Hand it to PPP.
      */
-    tvb_compat(tvb, &next_pd, &next_offset);
-    dissect_ppp(next_pd, next_offset, pinfo->fd, tree);
+    dissect_ppp(tvb, pinfo, tree);
   } else {
 
     /* load the top pane info. This should be overwritten by

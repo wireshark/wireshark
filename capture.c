@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.104 2000/05/19 22:37:57 guy Exp $
+ * $Id: capture.c,v 1.105 2000/05/25 07:42:23 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -987,7 +987,7 @@ capture_pcap_cb(u_char *user, const struct pcap_pkthdr *phdr,
       capture_null(pd, &ld->counts);
       break;
     case WTAP_ENCAP_PPP:
-      capture_ppp(pd, &ld->counts);
+      capture_ppp(pd, 0, &ld->counts);
       break;
     case WTAP_ENCAP_RAW_IP:
       capture_raw(pd, &ld->counts);

@@ -1,6 +1,6 @@
 /* packet-ppp.h
  *
- * $Id: packet-ppp.h,v 1.2 2000/03/27 17:53:20 gram Exp $
+ * $Id: packet-ppp.h,v 1.3 2000/05/25 07:42:25 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -22,6 +22,6 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-void capture_ppp(const u_char *, packet_counts *);
-void dissect_ppp(const u_char *, int, frame_data *, proto_tree *);
+void capture_ppp(const u_char *, int, packet_counts *);
+void dissect_ppp(tvbuff_t *, packet_info *, proto_tree *);
 void dissect_payload_ppp(const u_char *, int, frame_data *, proto_tree *);
