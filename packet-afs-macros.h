@@ -8,7 +8,7 @@
  * Portions based on information/specs retrieved from the OpenAFS sources at
  *   www.openafs.org, Copyright IBM. 
  *
- * $Id: packet-afs-macros.h,v 1.13 2002/01/18 21:30:05 nneul Exp $
+ * $Id: packet-afs-macros.h,v 1.14 2002/02/03 16:54:49 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -425,22 +425,18 @@
 /* Output a rx style string, up to a maximum length first 
    4 bytes - length, then char data */
 #define OUT_STRING(field) \
-	{	int i; \
+	{	int i,len; \
 		i = tvb_get_ntohl(tvb, offset); \
 		offset += 4; \
-		if ( i > 0 ) { \
-			char *tmp; \
-			tmp = g_malloc(i+1); \
-			memcpy(tmp, tvb_get_ptr(tvb,offset,i), i); \
-			tmp[i] = '\0'; \
-			proto_tree_add_string(tree, field, tvb, offset-4, i+4, \
-			(void *)tmp); \
-			g_free(tmp); \
-		} else { \
-			proto_tree_add_string(tree, field, tvb, offset-4, 4, \
-			""); \
-		} \
-		offset += i; \
+		len = ((i+4-1)/4)*4; \
+		char *tmp; \
+		tmp = g_malloc(i+1); \
+		memcpy(tmp, tvb_get_ptr(tvb,offset,i), i); \
+		tmp[i] = '\0'; \
+		proto_tree_add_string(tree, field, tvb, offset-4, len+4, \
+		(void *)tmp); \
+		g_free(tmp); \
+		offset += len; \
 	}
 
 /* Output a fixed length vectorized string (each char is a 32 bit int) */
