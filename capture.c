@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.74 1999/09/30 06:49:53 guy Exp $
+ * $Id: capture.c,v 1.75 1999/10/01 21:51:55 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -82,6 +82,12 @@
 #include "util.h"
 #include "prefs.h"
 #include "globals.h"
+
+int sync_mode;	/* fork a child to do the capture, and sync between them */
+int sync_pipe[2]; /* used to sync father */
+int fork_mode;	/* fork a child to do the capture */
+int quit_after_cap; /* Makes a "capture only mode". Implies -k */
+gboolean capture_child;	/* if this is the child for "-F"/"-S" */
 
 static void capture_stop_cb(GtkWidget *, gpointer);
 static void capture_pcap_cb(u_char *, const struct pcap_pkthdr *,

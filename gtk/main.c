@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.12 1999/09/30 07:19:35 guy Exp $
+ * $Id: main.c,v 1.13 1999/10/01 21:52:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -112,14 +112,6 @@ gchar       *last_open_dir = NULL;
 ts_type timestamp_type = RELATIVE;
 
 GtkStyle *item_style;
-
-#ifdef HAVE_LIBPCAP
-int sync_mode;	/* fork a child to do the capture, and sync between them */
-int sync_pipe[2]; /* used to sync father */
-int fork_mode;	/* fork a child to do the capture */
-int quit_after_cap; /* Makes a "capture only mode". Implies -k */
-gboolean capture_child;	/* if this is the child for "-F"/"-S" */
-#endif
 
 /* Specifies byte offsets for object selected in tree */
 static gint tree_selected_start=-1, tree_selected_len=-1; 
