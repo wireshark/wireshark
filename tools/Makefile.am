@@ -29,6 +29,7 @@ EXTRA_DIST = \
 	cvsdiff-fix.py		\
 	dfilter-test.py 	\
 	msnchat			\
+	netscreen2dump.py	\
 	pkt-from-core.py	\
 	unix2dos.pl		\
 	win32-setup.sh
