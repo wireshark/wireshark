@@ -1,4 +1,4 @@
-$Id: README.win32,v 1.24 2001/07/13 08:14:03 guy Exp $
+$Id: README.win32,v 1.25 2001/09/26 21:22:02 guy Exp $
 
 Installing Ethereal, Tethereal, and Editcap on Win32
 ====================================================
@@ -33,27 +33,37 @@ another product (e.g., a sniffer, firewall, or intrustion detection system)
 and did not wish to install WinPcap, the library Ethereal uses
 to capture packets on Win32 platforms.
 
-Now that WinPcap 2.1 has been released as a DLL, Ethereal can
-detect its presence at run time. Thus, only one version of
-the Ethereal binaries need to be shipped.
+As of WinPcap 2.1, all the WinPcap libraries have been released as DLLs. 
+This means that Ethereal can detect the presence of WinPcap at run time,
+which means that only one version of the Ethereal binaries needs to be
+shipped.
 
 If you don't want to capture packets, just install the Ethereal
 package. If you do want to capture packets, install Ethereal *and*
-install WinPcap 2.1, available from:
+install the latest non-beta version of WinPcap, available from:
 
 	http://netgroup-serv.polito.it/winpcap/
 
-If you already have WinPcap 2.0 installed, you need to un-install
-it and install WinPcap 2.1.  If you use other applications
-that use WinPcap 2.0, you will have to decide which applications
-to keep, since WinPcap 2.0 and WinPcap 2.1 cannot be installed
-on the same system at the same time.
+and mirrored at
 
-If Ethereal is not capturing packets and you have WinPcap installed,
-you can test your WinPcap installation by installing WinDump
-(TCPdump for Windows) ported by the same folks who make WinPcap. It's at:
+	http://www.wiretapped.net/security/packet-capture/winpcap/default.htm
+
+If you already have an earlier version of WinPcap installed, you need to
+un-install it and install the latest version.  If the older version is
+WinPcap 2.0 or 2.02, and you have other applications that use the older
+version , you will have to decide which applications to keep, since
+WinPcap 2.0/2.02 and later versions cannot be installed on the same
+system at the same time.
+
+If Ethereal is not capturing packets and you have WinPcap installed, you
+can test your WinPcap installation by installing WinDump (tcpdump for
+Windows) ported by the same folks who make WinPcap.  It's at:
 
 	http://netgroup-serv.polito.it/windump/
+
+and mirrored at
+
+	http://www.wiretapped.net/security/packet-capture/windump/default.htm
 
 They also make Analyzer, a GUI sniffer for Win32:
 
@@ -119,6 +129,9 @@ WinPcap home page:
 
 	http://netgroup-serv.polito.it/winpcap/
 
+or the mirror site at
+
+	http://www.wiretapped.net/security/packet-capture/winpcap/default.htm
 
 Compiling the Ethereal distribution from source
 ===============================================
