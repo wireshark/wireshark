@@ -1,8 +1,8 @@
 /* packet-pptp.c
- * Routines for the Point-to-Point Tunnelling Protocol (PPTP)
+ * Routines for the Point-to-Point Tunnelling Protocol (PPTP) (RFC 2637)
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-pptp.c,v 1.7 2000/01/07 22:05:35 guy Exp $
+ * $Id: packet-pptp.c,v 1.8 2000/01/20 07:31:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -445,7 +445,7 @@ dissect_cntrl_req(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
   offset += sizeof(hdr->major_ver) + sizeof(hdr->minor_ver);
 
   proto_tree_add_text(tree, offset, sizeof(hdr->resv),
-		      "Reserved: %u", hdr->resv);
+		      "Reserved: %u", pntohs(&hdr->resv));
   offset += sizeof(hdr->resv);
 
   frame = pntohl(&hdr->frame);
@@ -459,11 +459,11 @@ dissect_cntrl_req(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
   offset += sizeof(hdr->bearer);
 
   proto_tree_add_text(tree, offset, sizeof(hdr->max_chan),
-		      "Maximum channels: %u", hdr->max_chan);
+		      "Maximum channels: %u", pntohs(&hdr->max_chan));
   offset += sizeof(hdr->max_chan);
   
   proto_tree_add_text(tree, offset, sizeof(hdr->firm_rev),
-		      "Firmware revision: %u", hdr->firm_rev);
+		      "Firmware revision: %u", pntohs(&hdr->firm_rev));
   offset += sizeof(hdr->firm_rev);
   
   proto_tree_add_text(tree, offset, sizeof(hdr->host),
@@ -503,11 +503,11 @@ dissect_cntrl_reply(const u_char *pd, int offset, frame_data *fd, proto_tree *tr
   offset += sizeof(hdr->bearer);
 
   proto_tree_add_text(tree, offset, sizeof(hdr->max_chan),
-		      "Maximum channels: %u", hdr->max_chan);
+		      "Maximum channels: %u", pntohs(&hdr->max_chan));
   offset += sizeof(hdr->max_chan);
   
   proto_tree_add_text(tree, offset, sizeof(hdr->firm_rev),
-		      "Firmware revision: %u", hdr->firm_rev);
+		      "Firmware revision: %u", pntohs(&hdr->firm_rev));
   offset += sizeof(hdr->firm_rev);
   
   proto_tree_add_text(tree, offset, sizeof(hdr->host),
@@ -531,7 +531,7 @@ dissect_stop_req(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
   offset += sizeof(hdr->resv0);
   
   proto_tree_add_text(tree, offset, sizeof(hdr->resv1),
-		      "Reserved: %u", hdr->resv1);
+		      "Reserved: %u", pntohs(&hdr->resv1));
   offset += sizeof(hdr->resv1);
 }
 
@@ -548,7 +548,7 @@ dissect_stop_reply(const u_char *pd, int offset, frame_data *fd, proto_tree *tre
   offset += sizeof(hdr->error);
   
   proto_tree_add_text(tree, offset, sizeof(hdr->resv),
-		      "Reserved: %u", hdr->resv);
+		      "Reserved: %u", pntohs(&hdr->resv));
   offset += sizeof(hdr->resv);
 }
 
@@ -557,7 +557,7 @@ dissect_echo_req(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
   struct echo_req *	hdr = (struct echo_req *)(pd + offset);
   
   proto_tree_add_text(tree, offset, sizeof(hdr->ident),
-		      "Identifier: %u", hdr->ident);
+		      "Identifier: %u", pntohl(&hdr->ident));
   offset += sizeof(hdr->ident);
 }
 
@@ -566,7 +566,7 @@ dissect_echo_reply(const u_char *pd, int offset, frame_data *fd, proto_tree *tre
   struct echo_reply *	hdr = (struct echo_reply *)(pd + offset);
   
   proto_tree_add_text(tree, offset, sizeof(hdr->ident),
-		      "Identifier: %u", hdr->ident);
+		      "Identifier: %u", pntohl(&hdr->ident));
   offset += sizeof(hdr->ident);
   
   proto_tree_add_text(tree, offset, sizeof(hdr->result),
@@ -578,7 +578,7 @@ dissect_echo_reply(const u_char *pd, int offset, frame_data *fd, proto_tree *tre
   offset += sizeof(hdr->error);
   
   proto_tree_add_text(tree, offset, sizeof(hdr->resv),
-		      "Reserved: %u", hdr->resv);
+		      "Reserved: %u", pntohs(&hdr->resv));
   offset += sizeof(hdr->resv);
 }
 
@@ -589,19 +589,19 @@ dissect_out_req(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) 
   guint32		frame;
   
   proto_tree_add_text(tree, offset, sizeof(hdr->call_id),
-		      "Call ID: %u", hdr->call_id);
+		      "Call ID: %u", pntohs(&hdr->call_id));
   offset += sizeof(hdr->call_id);
   
   proto_tree_add_text(tree, offset, sizeof(hdr->call_serial),
-		      "Call Serial Number: %u", hdr->call_serial);
+		      "Call Serial Number: %u", pntohs(&hdr->call_serial));
   offset += sizeof(hdr->call_serial);
   
   proto_tree_add_text(tree, offset, sizeof(hdr->min_bps),
-		      "Minimum BPS: %u", hdr->min_bps);
+		      "Minimum BPS: %u", pntohl(&hdr->min_bps));
   offset += sizeof(hdr->min_bps);
   
   proto_tree_add_text(tree, offset, sizeof(hdr->max_bps),
-		      "Maximum BPS: %u", hdr->max_bps);
+		      "Maximum BPS: %u", pntohl(&hdr->max_bps));
   offset += sizeof(hdr->max_bps);
   
   bearer = pntohl(&hdr->bearer);
@@ -615,19 +615,19 @@ dissect_out_req(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) 
   offset += sizeof(hdr->frame);
 
   proto_tree_add_text(tree, offset, sizeof(hdr->win_size),
-		      "Receive window size: %u", hdr->win_size);
+		      "Receive window size: %u", pntohs(&hdr->win_size));
   offset += sizeof(hdr->win_size);
 
   proto_tree_add_text(tree, offset, sizeof(hdr->delay),
-		      "Processing delay: %u", hdr->delay);
+		      "Processing delay: %u", pntohs(&hdr->delay));
   offset += sizeof(hdr->delay);
   
   proto_tree_add_text(tree, offset, sizeof(hdr->phone_len),
-		      "Phone number length: %u", hdr->phone_len);
+		      "Phone number length: %u", pntohs(&hdr->phone_len));
   offset += sizeof(hdr->phone_len);
   
   proto_tree_add_text(tree, offset, sizeof(hdr->resv),
-		      "Reserved: %u", hdr->resv);
+		      "Reserved: %u", pntohs(&hdr->resv));
   offset += sizeof(hdr->resv);
   
   proto_tree_add_text(tree, offset, sizeof(hdr->phone),
@@ -644,11 +644,11 @@ dissect_out_reply(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
   struct out_reply *	hdr = (struct out_reply *)(pd + offset);
 
   proto_tree_add_text(tree, offset, sizeof(hdr->call_id),
-		      "Call ID: %u", hdr->call_id);
+		      "Call ID: %u", pntohs(&hdr->call_id));
   offset += sizeof(hdr->call_id);
   
   proto_tree_add_text(tree, offset, sizeof(hdr->peer_id),
-		      "Peer's call ID: %u", hdr->peer_id);
+		      "Peer's call ID: %u", pntohs(&hdr->peer_id));
   offset += sizeof(hdr->peer_id);
 
   proto_tree_add_text(tree, offset, sizeof(hdr->result),
@@ -660,23 +660,23 @@ dissect_out_reply(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
   offset += sizeof(hdr->error);
 
   proto_tree_add_text(tree, offset, sizeof(hdr->cause),
-		      "Cause code: %u", hdr->cause);
+		      "Cause code: %u", pntohs(&hdr->cause));
   offset += sizeof(hdr->cause);
   
   proto_tree_add_text(tree, offset, sizeof(hdr->speed),
-		      "Connect speed: %u", hdr->speed);
+		      "Connect speed: %u", pntohl(&hdr->speed));
   offset += sizeof(hdr->speed);
 
   proto_tree_add_text(tree, offset, sizeof(hdr->win_size),
-		      "Receive window size: %u", hdr->win_size);
+		      "Receive window size: %u", pntohs(&hdr->win_size));
   offset += sizeof(hdr->win_size);
 
   proto_tree_add_text(tree, offset, sizeof(hdr->delay),
-		      "Processing delay: %u", hdr->delay);
+		      "Processing delay: %u", pntohs(&hdr->delay));
   offset += sizeof(hdr->delay);
   
   proto_tree_add_text(tree, offset, sizeof(hdr->channel_id),
-		      "Physical channel ID: %u", hdr->channel_id);
+		      "Physical channel ID: %u", pntohl(&hdr->channel_id));
   offset += sizeof(hdr->channel_id);
 }
 
@@ -687,11 +687,11 @@ dissect_in_req(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   guint32		bearer;
   
   proto_tree_add_text(tree, offset, sizeof(hdr->call_id),
-		      "Call ID: %u", hdr->call_id);
+		      "Call ID: %u", pntohs(&hdr->call_id));
   offset += sizeof(hdr->call_id);
   
   proto_tree_add_text(tree, offset, sizeof(hdr->call_serial),
-		      "Call serial number: %u", hdr->call_serial);
+		      "Call serial number: %u", pntohs(&hdr->call_serial));
   offset += sizeof(hdr->call_serial);
   
   bearer = pntohl(&hdr->bearer);
@@ -700,15 +700,15 @@ dissect_in_req(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   offset += sizeof(hdr->bearer);
 
   proto_tree_add_text(tree, offset, sizeof(hdr->channel_id),
-		      "Physical channel ID: %u", hdr->channel_id);
+		      "Physical channel ID: %u", pntohl(&hdr->channel_id));
   offset += sizeof(hdr->channel_id);
 
   proto_tree_add_text(tree, offset, sizeof(hdr->dialed_len),
-		      "Dialed number length: %u", hdr->dialed_len);
+		      "Dialed number length: %u", pntohs(&hdr->dialed_len));
   offset += sizeof(hdr->dialed_len);
   
   proto_tree_add_text(tree, offset, sizeof(hdr->dialing_len),
-		      "Dialing number length: %u", hdr->dialing_len);
+		      "Dialing number length: %u", pntohs(&hdr->dialing_len));
   offset += sizeof(hdr->dialing_len);
   
   proto_tree_add_text(tree, offset, sizeof(hdr->dialed),
@@ -729,11 +729,11 @@ dissect_in_reply(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
   struct in_reply *	hdr = (struct in_reply *)(pd + offset);
   
   proto_tree_add_text(tree, offset, sizeof(hdr->call_id),
-		      "Call ID: %u", hdr->call_id);
+		      "Call ID: %u", pntohs(&hdr->call_id));
   offset += sizeof(hdr->call_id);
   
   proto_tree_add_text(tree, offset, sizeof(hdr->peer_id),
-		      "Peer's call ID: %u", hdr->peer_id);
+		      "Peer's call ID: %u", pntohs(&hdr->peer_id));
   offset += sizeof(hdr->peer_id);
 
   proto_tree_add_text(tree, offset, sizeof(hdr->result),
@@ -745,11 +745,11 @@ dissect_in_reply(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
   offset += sizeof(hdr->error);
 
   proto_tree_add_text(tree, offset, sizeof(hdr->win_size),
-		      "Receive window size: %u", hdr->win_size);
+		      "Receive window size: %u", pntohs(&hdr->win_size));
   offset += sizeof(hdr->win_size);
 
   proto_tree_add_text(tree, offset, sizeof(hdr->delay),
-		      "Processing delay: %u", hdr->delay);
+		      "Processing delay: %u", pntohs(&hdr->delay));
   offset += sizeof(hdr->delay);
   
   proto_tree_add_text(tree, offset, sizeof(hdr->resv),
@@ -763,23 +763,23 @@ dissect_in_connected(const u_char *pd, int offset, frame_data *fd, proto_tree *t
   guint32		frame;
   
   proto_tree_add_text(tree, offset, sizeof(hdr->peer_id),
-		      "Peer's call ID: %u", hdr->peer_id);
+		      "Peer's call ID: %u", pntohs(&hdr->peer_id));
   offset += sizeof(hdr->peer_id);
 
   proto_tree_add_text(tree, offset, sizeof(hdr->resv),
-		      "Reserved: %u", hdr->resv);
+		      "Reserved: %u", pntohs(&hdr->resv));
   offset += sizeof(hdr->resv);
 
   proto_tree_add_text(tree, offset, sizeof(hdr->speed),
-		      "Connect speed: %u", hdr->speed);
+		      "Connect speed: %u", pntohl(&hdr->speed));
   offset += sizeof(hdr->speed);
   
   proto_tree_add_text(tree, offset, sizeof(hdr->win_size),
-		      "Receive window size: %u", hdr->win_size);
+		      "Receive window size: %u", pntohs(&hdr->win_size));
   offset += sizeof(hdr->win_size);
 
   proto_tree_add_text(tree, offset, sizeof(hdr->delay),
-		      "Processing delay: %u", hdr->delay);
+		      "Processing delay: %u", pntohs(&hdr->delay));
   offset += sizeof(hdr->delay);
   
   frame = pntohl(&hdr->frame);
@@ -793,11 +793,11 @@ dissect_clear_req(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
   struct clear_req *	hdr = (struct clear_req *)(pd + offset);
   
   proto_tree_add_text(tree, offset, sizeof(hdr->call_id),
-		      "Call ID: %u", hdr->call_id);
+		      "Call ID: %u", pntohs(&hdr->call_id));
   offset += sizeof(hdr->call_id);
 
   proto_tree_add_text(tree, offset, sizeof(hdr->resv),
-		      "Reserved: %u", hdr->resv);
+		      "Reserved: %u", pntohs(&hdr->resv));
   offset += sizeof(hdr->resv);
 }
 
@@ -806,7 +806,7 @@ dissect_disc_notify(const u_char *pd, int offset, frame_data *fd, proto_tree *tr
   struct disc_notify *	hdr = (struct disc_notify *)(pd + offset);
   
   proto_tree_add_text(tree, offset, sizeof(hdr->call_id),
-		      "Call ID: %u", hdr->call_id);
+		      "Call ID: %u", pntohs(&hdr->call_id));
   offset += sizeof(hdr->call_id);
 
   proto_tree_add_text(tree, offset, sizeof(hdr->result),
@@ -818,11 +818,11 @@ dissect_disc_notify(const u_char *pd, int offset, frame_data *fd, proto_tree *tr
   offset += sizeof(hdr->error);
 
   proto_tree_add_text(tree, offset, sizeof(hdr->cause),
-		      "Cause code: %u", hdr->cause);
+		      "Cause code: %u", pntohs(&hdr->cause));
   offset += sizeof(hdr->cause);
   
   proto_tree_add_text(tree, offset, sizeof(hdr->resv),
-		      "Reserved: %u", hdr->resv);
+		      "Reserved: %u", pntohs(&hdr->resv));
   offset += sizeof(hdr->resv);
 
   proto_tree_add_text(tree, offset, sizeof(hdr->stats),
@@ -835,35 +835,35 @@ dissect_error_notify(const u_char *pd, int offset, frame_data *fd, proto_tree *t
   struct error_notify *	hdr = (struct error_notify *)(pd + offset);
   
   proto_tree_add_text(tree, offset, sizeof(hdr->peer_id),
-		      "Peer's call ID: %u", hdr->peer_id);
+		      "Peer's call ID: %u", pntohs(&hdr->peer_id));
   offset += sizeof(hdr->peer_id);
 
   proto_tree_add_text(tree, offset, sizeof(hdr->resv),
-		      "Reserved: %u", hdr->resv);
+		      "Reserved: %u", pntohs(&hdr->resv));
   offset += sizeof(hdr->resv);
 
   proto_tree_add_text(tree, offset, sizeof(hdr->crc),
-		      "CRC errors: %u", hdr->crc);
+		      "CRC errors: %u", pntohl(&hdr->crc));
   offset += sizeof(hdr->crc);
   
   proto_tree_add_text(tree, offset, sizeof(hdr->frame),
-		      "Framing errors: %u", hdr->frame);
+		      "Framing errors: %u", pntohl(&hdr->frame));
   offset += sizeof(hdr->frame);
   
   proto_tree_add_text(tree, offset, sizeof(hdr->hardware),
-		      "Hardware overruns: %u", hdr->hardware);
+		      "Hardware overruns: %u", pntohl(&hdr->hardware));
   offset += sizeof(hdr->hardware);
   
   proto_tree_add_text(tree, offset, sizeof(hdr->buffer),
-		      "Buffer overruns: %u", hdr->buffer);
+		      "Buffer overruns: %u", pntohl(&hdr->buffer));
   offset += sizeof(hdr->buffer);
   
   proto_tree_add_text(tree, offset, sizeof(hdr->timeout),
-		      "Time-out errors: %u", hdr->timeout);
+		      "Time-out errors: %u", pntohl(&hdr->timeout));
   offset += sizeof(hdr->timeout);
   
   proto_tree_add_text(tree, offset, sizeof(hdr->alignment),
-		      "Alignment errors: %u", hdr->alignment);
+		      "Alignment errors: %u", pntohl(&hdr->alignment));
   offset += sizeof(hdr->alignment);
 }
 
@@ -872,19 +872,19 @@ dissect_set_link(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
   struct set_link *	hdr = (struct set_link *)(pd + offset);
   
   proto_tree_add_text(tree, offset, sizeof(hdr->peer_id),
-		      "Peer's call ID: %u", hdr->peer_id);
+		      "Peer's call ID: %u", pntohs(&hdr->peer_id));
   offset += sizeof(hdr->peer_id);
 
   proto_tree_add_text(tree, offset, sizeof(hdr->resv),
-		      "Reserved: %u", hdr->resv);
+		      "Reserved: %u", pntohs(&hdr->resv));
   offset += sizeof(hdr->resv);
 
   proto_tree_add_text(tree, offset, sizeof(hdr->send_acm),
-		      "Send ACCM: %#08x", hdr->send_acm);
+		      "Send ACCM: %#08x", pntohl(&hdr->send_acm));
   offset += sizeof(hdr->send_acm);
   
   proto_tree_add_text(tree, offset, sizeof(hdr->recv_acm),
-		      "Recv ACCM: %#08x", hdr->recv_acm);
+		      "Recv ACCM: %#08x", pntohl(&hdr->recv_acm));
   offset += sizeof(hdr->recv_acm);
 }
 
