@@ -1517,7 +1517,7 @@ static const value_string cmd_GetFanLevel_data_OverrideFanLevel_vals[] = {
 typedef struct _ipmi_cmd_dissect{
   guint8  netfn;
   guint8  cmd;
-  void*   dissectfunc;  
+  void   (*dissectfunc)(proto_tree *, proto_tree *, packet_info *, tvbuff_t *, gint *, guint8, guint8, guint8);  
 } ipmi_cmd_dissect;
 
 
