@@ -1,4 +1,4 @@
-$Id: README.developer,v 1.1 2003/04/02 20:21:45 guy Exp $
+$Id: README.developer,v 1.2 2003/09/24 23:53:11 guy Exp $
 
 This is a very quick and very dirty guide to adding support for new
 capture file formats.  If you see any errors or have any improvements,
@@ -32,17 +32,32 @@ To add the ability to read a new capture file format, you have to:
 	otherwise leave it set to NULL;
 
 	add a pointer to the "open" routine to the "open_routines[]"
-	table in "file.c" - if it uses a magic number, put it in the
-	first section of that list, and, if it uses a heuristic, put it
-	in the second section, preferably putting the heuristic routines
-	for binary files before the heuristic routines for text files;
+	table in "file_access.c" - if it uses a magic number, put it in
+	the first section of that list, and, if it uses a heuristic, put
+	it in the second section, preferably putting the heuristic
+	routines for binary files before the heuristic routines for text
+	files;
 
 	add an entry for that file type in the "dump_open_table[]" in
-	"file.c", giving a descriptive name, a short name that's
+	"file_access.c", giving a descriptive name, a short name that's
 	convenient to type on a command line (no blanks or capital
 	letters, please), and pointers to the "can_write_encap" and
 	"dump_open" routines if writing that file is supported (see
 	below), otherwise just null pointers.
+
+Wiretap applications typically first perform sequential reads through
+the capture file and may later do "seek and read" for individual frames. 
+The "read" routine should set the variable data_offset to the byte
+offset within the capture file from which the "seek and read" routine
+will read.  If the capture records consist of:
+
+	capture record header
+	pseudo-header (e.g., for ATM)
+	frame data
+
+then data_offset should point to the pseudo-header.  The first
+sequential read pass will process and store the capture record header
+data, but it will not store the pseudo-header.
 
 To add the ability to write a new capture file format, you have to:
 
