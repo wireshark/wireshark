@@ -2,7 +2,7 @@
  * Definitions of OSI NLPIDs (Network Layer Protocol IDs)
  * Laurent Deniel <laurent.deniel@free.fr>
  *
- * $Id: nlpid.h,v 1.13 2003/02/24 19:49:03 guy Exp $
+ * $Id: nlpid.h,v 1.14 2003/09/03 05:39:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -32,7 +32,8 @@
 #define NLPID_IPI_T_70		0x01	/* T.70, when an IPI */
 #define NLPID_SPI_X_29		0x01	/* X.29, when an SPI */
 #define NLPID_X_633		0x03	/* X.633 */
-#define NLPID_Q_931		0x08	/* Q.931, Q.932, Q.933, X.36, ISO 11572, ISO 11582 */
+#define NLPID_Q_931		0x08	/* Q.931, Q.932, X.36, ISO 11572, ISO 11582 */
+#define NLPID_Q_933		0x08	/* Q.933, on Frame Relay */
 #define NLPID_Q_2931		0x09	/* Q.2931 */
 #define NLPID_Q_2119		0x0c	/* Q.2119 */
 #define NLPID_SNAP		0x80

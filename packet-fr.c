@@ -3,7 +3,7 @@
  *
  * Copyright 2001, Paul Ionescu	<paul@acorp.ro>
  *
- * $Id: packet-fr.c,v 1.40 2003/09/02 23:42:01 guy Exp $
+ * $Id: packet-fr.c,v 1.41 2003/09/03 05:39:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -142,6 +142,7 @@ static const value_string fr_nlpid_vals[] = {
 };
 
 static dissector_table_t fr_subdissector_table;
+static dissector_table_t fr_osinl_subdissector_table;
 
 static void dissect_fr_nlpid(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			     proto_tree *tree, proto_item *ti,
@@ -411,9 +412,15 @@ static void dissect_fr_nlpid(tvbuff_t *tvb, int offset, packet_info *pinfo,
    * OSI network layer protocols consider the NLPID to be part
    * of the frame, so we'll pass it as part of the payload and,
    * if the protocol is one of those, add it as a hidden item here.
+   * We check both the generic OSI NLPID dissector table and
+   * the Frame Relay OSI NLPID dissector table - the latter is for
+   * NLPID's such as 0x08, which is Q.933 in Frame Relay but
+   * other protocols (e.g., Q.931) on other network layers.
    */
   next_tvb = tvb_new_subset(tvb,offset,-1,-1);
   if (dissector_try_port(osinl_subdissector_table, fr_nlpid, next_tvb,
+			 pinfo, tree) ||
+      dissector_try_port(fr_osinl_subdissector_table, fr_nlpid, next_tvb,
 			 pinfo, tree)) {
 	/*
 	 * Yes, we got a match.  Add the NLPID as a hidden item,
@@ -575,6 +582,8 @@ void proto_register_fr(void)
 
   fr_subdissector_table = register_dissector_table("fr.ietf",
 	"Frame Relay NLPID", FT_UINT8, BASE_HEX);
+  fr_osinl_subdissector_table = register_dissector_table("fr.osinl",
+	"Frame Relay OSI NLPID", FT_UINT8, BASE_HEX);
 
   register_dissector("fr_uncompressed", dissect_fr_uncompressed, proto_fr);
   register_dissector("fr", dissect_fr, proto_fr);
