@@ -4,7 +4,7 @@
  * Copyright 2002, Richard Sharpe <rsharpe@samba.org> Added a few 
  *		   bits and pieces ...
  *
- * $Id: packet-gssapi.c,v 1.25 2002/11/28 06:48:41 guy Exp $
+ * $Id: packet-gssapi.c,v 1.26 2002/12/02 20:04:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -58,8 +58,8 @@ static GHashTable *gssapi_oids;
 
 static gint gssapi_oid_equal(gconstpointer k1, gconstpointer k2)
 {
-	char *key1 = (char *)k1;
-	char *key2 = (char *)k2;
+	const char *key1 = (const char *)k1;
+	const char *key2 = (const char *)k2;
 
 	return strcmp(key1, key2) == 0;
 }
@@ -67,7 +67,7 @@ static gint gssapi_oid_equal(gconstpointer k1, gconstpointer k2)
 static guint
 gssapi_oid_hash(gconstpointer k)
 {
-	char *key = (char *)k;
+	const char *key = (const char *)k;
 	guint hash = 0, i;
 
 	for (i = 0; i < strlen(key); i++)
