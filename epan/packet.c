@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.103 2004/02/28 20:59:23 guy Exp $
+ * $Id: packet.c,v 1.104 2004/04/23 19:47:11 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -189,7 +189,7 @@ add_new_data_source(packet_info *pinfo, tvbuff_t *tvb, char *name)
 	 * we don't need to allocate a buffer for a copy and make a
 	 * copy, and wouldn't need to free the buffer, either.
 	 */
-	src->name = g_strdup(name);
+	src->name = g_strdup_printf("%s (%u bytes)", name, tvb_length(tvb));
 	pinfo->data_src = g_slist_append(pinfo->data_src, src);
 }
 
