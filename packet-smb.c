@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.249 2002/04/24 07:19:25 tpot Exp $
+ * $Id: packet-smb.c,v 1.250 2002/04/27 21:23:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -871,6 +871,7 @@ static int smb_nt_transact_info_init_count = 200;
 typedef struct {
 	int subcmd;
 	int info_level;
+	gboolean resume_keys;	/* if "return resume" keys set in T2 FIND_FIRST request */
 } smb_transact2_info_t;
 
 static GMemChunk *smb_transact2_info_chunk = NULL;
@@ -1233,8 +1234,8 @@ dissect_smb_datetime(tvbuff_t *tvb, packet_info *pinfo,
 		dos_time = tvb_get_letohs(tvb, offset+2);
 	}
 
-	if ((dos_time == 0xffff && dos_time == 0xffff) ||
-	    (dos_time == 0 && dos_time == 0)) {
+	if ((dos_date == 0xffff && dos_time == 0xffff) ||
+	    (dos_date == 0 && dos_time == 0)) {
 		/*
 		 * No date/time specified.
 		 */
@@ -2189,7 +2190,14 @@ dissect_negprot_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 			COUNT_BYTES(ekl);
 		}
 
-		/* domain */
+		/*
+		 * Primary domain.
+		 *
+		 * XXX - not present if negotiated dialect isn't
+		 * "DOS LANMAN 2.1" or "LANMAN2.1", but we'd either
+		 * have to see the request, or assume what dialect strings
+		 * were sent, to determine that.
+		 */
 		dn = get_unicode_or_ascii_string(tvb, &offset,
 			pinfo, &dn_len, FALSE, FALSE, &bc);
 		if (dn == NULL)
@@ -8784,7 +8792,7 @@ static const true_false_string tfs_fs_attr_vic = {
 	"This FS is NOT on a compressed volume"
 };
 
-
+#define FF2_RESUME	0x0004
 
 static int
 dissect_ff2_flags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset)
@@ -8792,8 +8800,19 @@ dissect_ff2_flags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, in
 	guint16 mask;
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
+	smb_info_t *si;
+	smb_transact2_info_t *t2i;
 
 	mask = tvb_get_letohs(tvb, offset);
+
+	si = (smb_info_t *)pinfo->private_data;
+	if (si->sip != NULL) {
+		t2i = si->sip->extra_info;
+		if (t2i != NULL) {
+			if (!pinfo->fd->flags.visited)
+				t2i->resume_keys = (mask & FF2_RESUME);
+		}
+	}
 
 	if(parent_tree){
 		item = proto_tree_add_text(parent_tree, tvb, offset, 2,
@@ -10388,6 +10407,7 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 						t2i = g_mem_chunk_alloc(smb_transact2_info_chunk);
 						t2i->subcmd = subcmd;
 						t2i->info_level = -1;
+						t2i->resume_keys = FALSE;
 						si->sip->extra_info = t2i;
 					}
 				}     
@@ -10614,13 +10634,27 @@ dissect_4_3_4_1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	smb_info_t *si;
+	smb_transact2_info_t *t2i;
+	gboolean resume_keys = FALSE;
 
 	si = (smb_info_t *)pinfo->private_data;
+	if (si->sip != NULL) {
+		t2i = si->sip->extra_info;
+		if (t2i != NULL)
+			resume_keys = t2i->resume_keys;
+	}
 
 	if(parent_tree){
 		item = proto_tree_add_text(parent_tree, tvb, offset, *bcp, "%s",
 		    val_to_str(si->info_level, ff2_il_vals, "Unknown (0x%02x)"));
 		tree = proto_item_add_subtree(item, ett_smb_ff2_data);
+	}
+
+	if (resume_keys) {
+		/* resume key */
+		CHECK_BYTE_COUNT_SUBR(4);
+		proto_tree_add_item(tree, hf_smb_resume, tvb, offset, 4, TRUE);
+		COUNT_BYTES_SUBR(4);
 	}
 
 	/* create time */
@@ -10664,6 +10698,10 @@ dissect_4_3_4_1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	fn_len = tvb_get_guint8(tvb, offset);
 	proto_tree_add_uint(tree, hf_smb_file_name_len, tvb, offset, 1, fn_len);
 	COUNT_BYTES_SUBR(1);
+	if (si->unicode)
+		fn_len += 2;	/* include terminating '\0' */
+	else
+		fn_len++;	/* include terminating '\0' */
 
 	/* file name */
 	fn = get_unicode_or_ascii_string(tvb, &offset, pinfo, &fn_len, FALSE, TRUE, bcp);
@@ -10694,13 +10732,27 @@ dissect_4_3_4_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	smb_info_t *si;
+	smb_transact2_info_t *t2i;
+	gboolean resume_keys = FALSE;
 
 	si = (smb_info_t *)pinfo->private_data;
+	if (si->sip != NULL) {
+		t2i = si->sip->extra_info;
+		if (t2i != NULL)
+			resume_keys = t2i->resume_keys;
+	}
 
 	if(parent_tree){
 		item = proto_tree_add_text(parent_tree, tvb, offset, *bcp, "%s",
 		    val_to_str(si->info_level, ff2_il_vals, "Unknown (0x%02x)"));
 		tree = proto_item_add_subtree(item, ett_smb_ff2_data);
+	}
+
+	if (resume_keys) {
+		/* resume key */
+		CHECK_BYTE_COUNT_SUBR(4);
+		proto_tree_add_item(tree, hf_smb_resume, tvb, offset, 4, TRUE);
+		COUNT_BYTES_SUBR(4);
 	}
  
 	/* create time */
@@ -10756,6 +10808,10 @@ dissect_4_3_4_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	proto_tree_add_string(tree, hf_smb_file_name, tvb, offset, fn_len,
 		fn);
 	COUNT_BYTES_SUBR(fn_len);
+	if (si->unicode)
+		fn_len += 2;	/* include terminating '\0' */
+	else
+		fn_len++;	/* include terminating '\0' */
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
@@ -10789,6 +10845,11 @@ dissect_4_3_4_4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 		    val_to_str(si->info_level, ff2_il_vals, "Unknown (0x%02x)"));
 		tree = proto_item_add_subtree(item, ett_smb_ff2_data);
 	}
+
+	/*
+	 * We assume that the presence of a next entry offset implies the
+	 * absence of a resume key, as appears to be the case for 4.3.4.6.
+	 */
 
 	/* next entry offset */
 	CHECK_BYTE_COUNT_SUBR(4);
@@ -10900,6 +10961,11 @@ dissect_4_3_4_5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 		    val_to_str(si->info_level, ff2_il_vals, "Unknown (0x%02x)"));
 		tree = proto_item_add_subtree(item, ett_smb_ff2_data);
 	}
+
+	/*
+	 * We assume that the presence of a next entry offset implies the
+	 * absence of a resume key, as appears to be the case for 4.3.4.6.
+	 */
 
 	/* next entry offset */
 	CHECK_BYTE_COUNT_SUBR(4);
@@ -11016,6 +11082,12 @@ dissect_4_3_4_6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 		    val_to_str(si->info_level, ff2_il_vals, "Unknown (0x%02x)"));
 		tree = proto_item_add_subtree(item, ett_smb_ff2_data);
 	}
+
+	/*
+	 * XXX - I have not seen any of these that contain a resume
+	 * key, even though some of the requests had the "return resume
+	 * key" flag set.
+	 */
 
 	/* next entry offset */
 	CHECK_BYTE_COUNT_SUBR(4);
@@ -11150,7 +11222,12 @@ dissect_4_3_4_7(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 		    val_to_str(si->info_level, ff2_il_vals, "Unknown (0x%02x)"));
 		tree = proto_item_add_subtree(item, ett_smb_ff2_data);
 	}
- 
+
+	/*
+	 * We assume that the presence of a next entry offset implies the
+	 * absence of a resume key, as appears to be the case for 4.3.4.6.
+	 */
+
 	/* next entry offset */
 	CHECK_BYTE_COUNT_SUBR(4);
 	neo = tvb_get_letohl(tvb, offset);
@@ -16150,7 +16227,7 @@ proto_register_smb(void)
 
 	{ &hf_smb_ff2_resume,
 		{ "Resume", "smb.find_first2.flags.resume", FT_BOOLEAN, 16,
-		TFS(&tfs_ff2_resume), 0x0004, "Return resume keys for each entry found", HFILL }},
+		TFS(&tfs_ff2_resume), FF2_RESUME, "Return resume keys for each entry found", HFILL }},
 
 	{ &hf_smb_ff2_close_eos,
 		{ "Close on EOS", "smb.find_first2.flags.eos", FT_BOOLEAN, 16,
