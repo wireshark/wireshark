@@ -5,7 +5,7 @@
  *		<anders.broman@ericsson.com>
  * Inserted routines for BICC dissection according to Q.765.5 Q.1902 Q.1970 Q.1990,
  * calling SDP dissector for RFC2327 decoding.
- * $Id: packet-isup.c,v 1.30 2003/10/06 08:35:30 guy Exp $
+ * $Id: packet-isup.c,v 1.31 2003/10/06 20:46:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1274,7 +1274,7 @@ static int hf_isup_inband_information_ind = -1;
 static int hf_isup_call_diversion_may_occur_ind = -1;
 static int hf_isup_mlpp_user_ind = -1;
 
-static int hf_isup_access_delivery_ind =- -1;
+static int hf_isup_access_delivery_ind = -1;
 
 static int hf_isup_transmission_medium_requirement_prime = -1;
 
@@ -5529,11 +5529,6 @@ proto_register_isup(void)
 			{ "Backbone network connection characteristics", "bat_ase.char",
 			FT_UINT8, BASE_HEX, VALS(bearer_network_connection_characteristics_vals),0x0,	
 			  "", HFILL }},
-
-		{ &hf_isup_app_cont_ident,
-			{ "Application context identifier",  "isup.app_context_identifier",
-			FT_UINT8, BASE_DEC, VALS(isup_application_transport_parameter_value),0x0,
-			"", HFILL }},
 
 		{ &hf_Organization_Identifier,
 			{ "Organization identifier subfield ",  "bat_ase.organization_identifier_subfield",

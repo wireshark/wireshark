@@ -2,7 +2,7 @@
  * Routines for Frame Relay Local Management Interface (LMI) disassembly
  * Copyright 2001, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-lmi.c,v 1.13 2003/10/06 07:26:10 guy Exp $
+ * $Id: packet-lmi.c,v 1.14 2003/10/06 20:46:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -169,15 +169,15 @@ dissect_lmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			ele_id = tvb_get_guint8( tvb, offset);
 			len =  tvb_get_guint8( tvb, offset + 1);
 
-			ti = proto_tree_add_uint(lmi_tree, hf_lmi_inf_ele, tvb, offset, len + 2,
-				tvb_get_guint8( tvb, offset));
+			ti = proto_tree_add_text(lmi_tree, tvb, offset, len + 2,
+				"Information Element: %s",
+				val_to_str(ele_id, element_type_str, "Unknown (%u)"));
 
 			lmi_subtree = proto_item_add_subtree(ti, ett_lmi_ele);
 
 	                proto_tree_add_uint(lmi_subtree, hf_lmi_inf_ele, tvb, offset, 1,
-				tvb_get_guint8( tvb, offset));
+				ele_id);
 			++offset;
-			len =  tvb_get_guint8( tvb, offset);
 	                proto_tree_add_uint(lmi_subtree, hf_lmi_inf_len, tvb, offset, 1, len);
 			++offset;
 			if (( ele_id == 1) || (ele_id == 51))
@@ -207,9 +207,6 @@ proto_register_lmi(void)
 	  { "Message Type", "lmi.msg_type", FT_UINT8, BASE_HEX, VALS(msg_type_str), 0,
 	  	"Message Type", HFILL }},
 
-	{ &hf_lmi_inf_ele,
-	  { "Information Element", "lmi.inf_ele", FT_UINT8, BASE_DEC, VALS(element_type_str), 0,
-	  	"Information Element", HFILL }},
 	{ &hf_lmi_inf_ele,
 	  { "Type", "lmi.inf_ele_type", FT_UINT8, BASE_DEC, VALS(element_type_str), 0,
 	  	"Information Element Type", HFILL }},

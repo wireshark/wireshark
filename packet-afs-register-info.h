@@ -8,7 +8,7 @@
  * Portions based on information/specs retrieved from the OpenAFS sources at
  *   www.openafs.org, Copyright IBM.
  *
- * $Id: packet-afs-register-info.h,v 1.18 2003/03/08 07:27:41 guy Exp $
+ * $Id: packet-afs-register-info.h,v 1.19 2003/10/06 20:46:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -143,7 +143,7 @@
 	FT_UINT32, BASE_DEC, 0, 0, "XStats Version", HFILL }},
 { &hf_afs_fs_xstats_clientversion, { "Client Version", "afs.fs.xstats.clientversion",
 	FT_UINT32, BASE_DEC, 0, 0, "Client Version", HFILL }},
-{ &hf_afs_fs_xstats_version, { "Collection Number", "afs.fs.xstats.collnumber",
+{ &hf_afs_fs_xstats_collnumber, { "Collection Number", "afs.fs.xstats.collnumber",
 	FT_UINT32, BASE_DEC, VALS(xstat_collections), 0, "Collection Number", HFILL }},
 { &hf_afs_fs_xstats_timestamp, { "XStats Timestamp", "afs.fs.xstats.timestamp",
 	FT_UINT32, BASE_DEC, 0, 0, "XStats Timestamp", HFILL }},
@@ -155,10 +155,9 @@
 	FT_UINT32, BASE_DEC, 0, 0, "CPS Spare3", HFILL }},
 { &hf_afs_fs_vicelocktype, { "Vice Lock Type", "afs.fs.vicelocktype",
 	FT_UINT32, BASE_DEC, VALS(vice_lock_types), 0, "Vice Lock Type", HFILL }},
+/* XXX - is this an IP address? */
 { &hf_afs_fs_viceid, { "Vice ID", "afs.fs.viceid",
 	FT_UINT32, BASE_DEC, 0, 0, "Vice ID", HFILL }},
-{ &hf_afs_fs_viceid, { "IP Address", "afs.fs.ipaddr",
-	FT_IPv4, BASE_HEX, 0, 0, "IP Address", HFILL }},
 
 { &hf_afs_fs_status_mask, { "Mask", "afs.fs.status.mask",
 	FT_UINT32, BASE_HEX, 0, 0, "Mask", HFILL }},

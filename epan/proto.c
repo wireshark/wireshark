@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.99 2003/08/25 00:15:01 guy Exp $
+ * $Id: proto.c,v 1.100 2003/10/06 20:46:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2283,6 +2283,16 @@ proto_register_field_array(int parent, hf_register_info *hf, int num_records)
 
 	proto = find_protocol_by_id(parent);
 	for (i = 0; i < num_records; i++, ptr++) {
+		/*
+		 * Make sure we haven't registed this yet.
+		 * Most fields have variables associated with them
+		 * that are initialized to -1; some have array elements,
+		 * or possibly uninitialized variables, so we also allow
+		 * 0 (which is unlikely to be the field ID we get back
+		 * from "proto_register_field_init()").
+		 */
+		g_assert(*ptr->p_id == -1 || *ptr->p_id == 0);
+
 		if (proto != NULL) {
 			if (proto->fields == NULL) {
 				proto->fields = g_list_append(NULL, ptr);

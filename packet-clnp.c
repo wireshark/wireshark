@@ -1,7 +1,7 @@
 /* packet-clnp.c
  * Routines for ISO/OSI network and transport protocol packet disassembly
  *
- * $Id: packet-clnp.c,v 1.77 2003/08/28 04:19:28 guy Exp $
+ * $Id: packet-clnp.c,v 1.78 2003/10/06 20:46:50 guy Exp $
  * Laurent Deniel <laurent.deniel@free.fr>
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
@@ -2284,12 +2284,6 @@ void proto_register_cotp(void)
 void proto_register_cltp(void)
 {
   static hf_register_info hf[] = {
-    { &hf_cotp_srcref,
-      { "Source reference", "cotp.srcref", FT_UINT16, BASE_HEX, NULL, 0x0,
-        "Source address reference", HFILL}},
-    { &hf_cotp_destref,
-      { "Destination reference", "cotp.destref", FT_UINT16, BASE_HEX, NULL, 0x0,
-        "Destination address reference", HFILL}}, 
     { &hf_cltp_type,
       { "CLTP PDU Type", "cltp.type", FT_UINT8, BASE_HEX, VALS(cltp_tpdu_type_abbrev_vals), 0x0,
         "CLTP PDU Type", HFILL}},

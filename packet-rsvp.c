@@ -3,7 +3,7 @@
  *
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-rsvp.c,v 1.82 2003/04/22 20:40:32 deniel Exp $
+ * $Id: packet-rsvp.c,v 1.83 2003/10/06 20:46:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -878,10 +878,6 @@ static hf_register_info rsvpf_info[] = {
 
     {&rsvp_filter[RSVPF_MESSAGE_ID_LIST],
      { "MESSAGE-ID LIST", "rsvp.msgid_list", FT_NONE, BASE_NONE, NULL, 0x0,
-     	"", HFILL }},
-
-    {&rsvp_filter[RSVPF_HELLO_OBJ],
-     { "HELLO", "rsvp.hello", FT_NONE, BASE_NONE, NULL, 0x0,
      	"", HFILL }},
 
     {&rsvp_filter[RSVPF_DCLASS],

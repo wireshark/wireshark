@@ -3,7 +3,7 @@
  *
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-lmp.c,v 1.15 2003/01/28 23:56:39 guy Exp $
+ * $Id: packet-lmp.c,v 1.16 2003/10/06 20:46:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -458,13 +458,6 @@ static hf_register_info lmpf_info[] = {
      	"", HFILL }},
     {&lmp_filter[LMPF_CLASS_REMOTE_CCID],
      { "REMOTE_CCID", "lmp.obj.remote_ccid", FT_NONE, BASE_NONE, NULL, 0x0,
-     	"", HFILL }},
-
-    {&lmp_filter[LMPF_CLASS_LOCAL_NODE_ID],
-     { "LOCAL_NODE_ID", "lmp.obj.local_nodeid", FT_NONE, BASE_NONE, NULL, 0x0,
-     	"", HFILL }},
-    {&lmp_filter[LMPF_CLASS_REMOTE_NODE_ID],
-     { "REMOTE_NODE_ID", "lmp.obj.remote_nodeid", FT_NONE, BASE_NONE, NULL, 0x0,
      	"", HFILL }},
 
     {&lmp_filter[LMPF_CLASS_LOCAL_NODE_ID],

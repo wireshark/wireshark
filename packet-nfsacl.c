@@ -4,7 +4,7 @@
  *
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-nfsacl.c,v 1.10 2003/09/28 01:52:57 sahlberg Exp $
+ * $Id: packet-nfsacl.c,v 1.11 2003/10/06 20:46:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -43,7 +43,7 @@ static int hf_nfsacl2_status = -1;
 static int hf_nfsacl3_status = -1;
 static int hf_nfsacl_aclent = -1;
 static int hf_nfsacl_aclent_type = -1;
-static int hf_nfsacl_aclent_uid = 1;
+static int hf_nfsacl_aclent_uid = -1;
 static int hf_nfsacl_aclent_perm = -1;
 static int hf_nfsacl_create = -1;
 

@@ -7,7 +7,7 @@
  *
  * Copyright 2000, 2001, 2002, 2003 Michael Tuexen <tuexen [AT] fh-muenster.de>
  *
- * $Id: packet-m3ua.c,v 1.35 2003/09/05 20:11:44 tuexen Exp $
+ * $Id: packet-m3ua.c,v 1.36 2003/10/06 20:46:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1723,7 +1723,6 @@ proto_register_m3ua(void)
     { &hf_correlation_identifier,           { "Correlation Identifier",       "m3ua.correlation_identifier",                FT_UINT32, BASE_DEC,  NULL,                                         0x0, "", HFILL } },
     { &hf_registration_status,              { "Registration status",          "m3ua.registration_status",                   FT_UINT32, BASE_DEC,  VALS(registration_status_values),             0x0, "", HFILL } },
     { &hf_deregistration_status,            { "Deregistration status",        "m3ua.deregistration_status",                 FT_UINT32, BASE_DEC,  VALS(deregistration_status_values),           0x0, "", HFILL } },
-    { &hf_traffic_mode_type,                { "Traffic mode Type",            "m3ua.traffic_mode_type",                     FT_UINT32, BASE_DEC,  NULL,                                         0x0, "", HFILL } },
     { &hf_registration_result_identifier,   { "Local RK-identifier value",    "m3ua.registration_result_identifier",        FT_UINT32, BASE_DEC,  NULL,                                         0x0, "", HFILL } },
     { &hf_registration_result_status,       { "Registration status",          "m3ua.registration_results_status",           FT_UINT32, BASE_DEC,  VALS(registration_result_status_values),      0x0, "", HFILL } },
     { &hf_registration_result_context,      { "Routing context",              "m3ua.registration_result_routing_context",   FT_UINT32, BASE_DEC,  NULL,                                         0x0, "", HFILL } },

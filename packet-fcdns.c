@@ -2,7 +2,7 @@
  * Routines for FC distributed Name Server (dNS)
  * Copyright 2001, Dinesh G Dutt <ddutt@andiamo.com>
  *
- * $Id: packet-fcdns.c,v 1.1 2003/01/14 01:17:44 guy Exp $
+ * $Id: packet-fcdns.c,v 1.2 2003/10/06 20:46:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1790,9 +1790,6 @@ proto_register_fcdns (void)
         { &hf_fcdns_fc4type,
           {"FC-4 Type", "fcdns.req.fc4type", FT_STRING, BASE_HEX, NULL, 0x0,
            "", HFILL}},
-        { &hf_fcdns_rply_fc4desc,
-          {"FC-4 Descriptor", "fcdns.rply.fc4desc", FT_STRING, BASE_HEX, NULL,
-           0x0, "", HFILL}},
         { &hf_fcdns_rply_fc4feat,
           {"FC-4 Features", "fcdns.rply.fc4features", FT_STRING, BASE_HEX,
            NULL, 0x0, "", HFILL}},
