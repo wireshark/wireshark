@@ -5,7 +5,7 @@
  *		<anders.broman@ericsson.com>
  * Inserted routines for BICC dissection according to Q.765.5 Q.1902 Q.1970 Q.1990,
  * calling SDP dissector for RFC2327 decoding.
- * $Id: packet-isup.c,v 1.27 2003/09/29 21:12:15 guy Exp $
+ * $Id: packet-isup.c,v 1.28 2003/09/29 21:50:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1454,8 +1454,7 @@ dissect_isup_called_party_number_parameter(tvbuff_t *parameter_tvb, proto_tree *
 					    "Called Party Number");
   address_digits_tree = proto_item_add_subtree(address_digits_item, ett_isup_address_digits);
 
-  length = tvb_length_remaining(parameter_tvb, offset);
-  while(length > 0){
+  while((length = tvb_reported_length_remaining(parameter_tvb, offset)) > 0){
     address_digit_pair = tvb_get_guint8(parameter_tvb, offset);
     proto_tree_add_uint(address_digits_tree, hf_isup_called_party_odd_address_signal_digit, parameter_tvb, offset, 1, address_digit_pair);
     called_number[i++] = number_to_char(address_digit_pair & ISUP_ODD_ADDRESS_SIGNAL_DIGIT_MASK);
@@ -1464,7 +1463,6 @@ dissect_isup_called_party_number_parameter(tvbuff_t *parameter_tvb, proto_tree *
       called_number[i++] = number_to_char((address_digit_pair & ISUP_EVEN_ADDRESS_SIGNAL_DIGIT_MASK) / 0x10);
     }
     offset++;
-    length = tvb_length_remaining(parameter_tvb, offset);
   }
 
   if  (((indicators1 & 0x80) == 0) && (tvb_length(parameter_tvb) > 0)){ /* Even Indicator set -> last even digit is valid & has be displayed */
@@ -1501,8 +1499,7 @@ dissect_isup_subsequent_number_parameter(tvbuff_t *parameter_tvb, proto_tree *pa
 					    "Subsequent Number");
   address_digits_tree = proto_item_add_subtree(address_digits_item, ett_isup_address_digits);
 
-  length = tvb_length_remaining(parameter_tvb, offset);
-  while(length > 0){
+  while((length = tvb_reported_length_remaining(parameter_tvb, offset)) > 0){
     address_digit_pair = tvb_get_guint8(parameter_tvb, offset);
     proto_tree_add_uint(address_digits_tree, hf_isup_called_party_odd_address_signal_digit, parameter_tvb, offset, 1, address_digit_pair);
     called_number[i++] = number_to_char(address_digit_pair & ISUP_ODD_ADDRESS_SIGNAL_DIGIT_MASK);
@@ -1511,7 +1508,6 @@ dissect_isup_subsequent_number_parameter(tvbuff_t *parameter_tvb, proto_tree *pa
       called_number[i++] = number_to_char((address_digit_pair & ISUP_EVEN_ADDRESS_SIGNAL_DIGIT_MASK) / 0x10);
     }
     offset++;
-    length = tvb_length_remaining(parameter_tvb, offset);
   }
 
   if (((indicators1 & 0x80) == 0) && (tvb_length(parameter_tvb) > 0)){ /* Even Indicator set -> last even digit is valid & has be displayed */
@@ -1692,8 +1688,8 @@ static const value_string q850_cause_code_vals[] = {
 
 static void
 dissect_isup_cause_indicators_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
-{ guint length = tvb_length(parameter_tvb);
-  proto_tree_add_text(parameter_tree, parameter_tvb,0, length, "Cause indicators (-> Q.850)");
+{ guint length = tvb_reported_length(parameter_tvb);
+  proto_tree_add_text(parameter_tree, parameter_tvb,0, -1, "Cause indicators (-> Q.850)");
   dissect_q931_cause_ie(parameter_tvb,0,length,
 					    parameter_tree,
 					    hf_isup_cause_indicator);
@@ -1723,9 +1719,9 @@ dissect_isup_range_and_status_parameter(tvbuff_t *parameter_tvb, proto_tree *par
 
   range = tvb_get_guint8(parameter_tvb, 0);
   proto_tree_add_uint_format(parameter_tree, hf_isup_range_indicator, parameter_tvb, 0, RANGE_LENGTH, range, "Range: %u", range);
-  actual_status_length = tvb_length_remaining(parameter_tvb, RANGE_LENGTH);
+  actual_status_length = tvb_reported_length_remaining(parameter_tvb, RANGE_LENGTH);
   if (actual_status_length > 0)
-    proto_tree_add_text(parameter_tree, parameter_tvb , RANGE_LENGTH, actual_status_length, "Status subfield");
+    proto_tree_add_text(parameter_tree, parameter_tvb , RANGE_LENGTH, -1, "Status subfield");
   else
     proto_tree_add_text(parameter_tree, parameter_tvb , 0, 0, "Status subfield is not present with this message type");
 
@@ -1770,11 +1766,9 @@ dissect_isup_circuit_state_ind_parameter(tvbuff_t *parameter_tvb, proto_tree *pa
   gint i=0;
   gint length;
 
-  length = tvb_length_remaining(parameter_tvb, offset);
-  while(length > 0){
+  while((length = tvb_reported_length_remaining(parameter_tvb, offset)) > 0){
     circuit_state_item = proto_tree_add_text(parameter_tree, parameter_tvb,
-					     offset,
-					     tvb_length_remaining(parameter_tvb, offset),
+					     offset, -1,
 					     "Circuit# CIC+%u state", i);
     circuit_state_tree = proto_item_add_subtree(circuit_state_item, ett_isup_circuit_state_ind);
     circuit_state = tvb_get_guint8(parameter_tvb, offset);
@@ -1789,7 +1783,6 @@ dissect_isup_circuit_state_ind_parameter(tvbuff_t *parameter_tvb, proto_tree *pa
       proto_item_set_text(circuit_state_item, "Circuit# CIC+%u state: %s", i++, val_to_str(circuit_state&BA_8BIT_MASK, isup_mtc_blocking_state_DCnot00_value, "unknown"));
     }
     offset++;
-    length = tvb_length_remaining(parameter_tvb, offset);
   }
   proto_item_set_text(parameter_item, "Circuit state indicator (national use)");
 }
@@ -1812,8 +1805,8 @@ dissect_isup_event_information_parameter(tvbuff_t *parameter_tvb, proto_tree *pa
  */
 static void
 dissect_isup_user_to_user_information_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
-{ guint length = tvb_length(parameter_tvb);
-  proto_tree_add_text(parameter_tree, parameter_tvb, 0, length, "User-to-user info (-> Q.931)");
+{ guint length = tvb_reported_length(parameter_tvb);
+  proto_tree_add_text(parameter_tree, parameter_tvb, 0, -1, "User-to-user info (-> Q.931)");
   dissect_q931_user_user_ie(parameter_tvb, 0, length,
     parameter_tree );
   proto_item_set_text(parameter_item, "User-to-user information, see Q.931 (%u byte%s length)", length , plurality(length, "", "s"));
@@ -1839,8 +1832,8 @@ dissect_isup_call_reference_parameter(tvbuff_t *parameter_tvb, proto_tree *param
  */
 static void
 dissect_isup_access_transport_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
-{ guint length = tvb_length(parameter_tvb);
-  proto_tree_add_text(parameter_tree, parameter_tvb, 0, length, "Access transport parameter field (-> Q.931)");
+{ guint length = tvb_reported_length(parameter_tvb);
+  proto_tree_add_text(parameter_tree, parameter_tvb, 0, -1, "Access transport parameter field (-> Q.931)");
   proto_item_set_text(parameter_item, "Access transport, see Q.931 (%u byte%s length)", length , plurality(length, "", "s"));
 }
 
@@ -2082,8 +2075,9 @@ static const value_string BAt_ASE_Signal_Type_vals[] = {
 /*	Contents n			p					*/
 
 static void
-dissect_bat_ase_Encapsulated_Application_Information(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *parameter_tree,  gint offset, gint length)
+dissect_bat_ase_Encapsulated_Application_Information(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *parameter_tree, gint offset)
 { 
+	gint		length = tvb_reported_length_remaining(parameter_tvb, offset);
 	tvbuff_t	*next_tvb;
 	proto_tree	*bat_ase_tree, *bat_ase_element_tree;
 	proto_item	*bat_ase_item, *bat_ase_element_item;
@@ -2094,28 +2088,27 @@ dissect_bat_ase_Encapsulated_Application_Information(tvbuff_t *parameter_tvb, pa
 	element_no = 0;
 
 	bat_ase_item = proto_tree_add_text(parameter_tree,parameter_tvb,
-					   offset,(length-offset),
+					   offset, -1,
 "Bearer Association Transport (BAT) Application Service Element (ASE) Encapsulated Application Information:");
 	bat_ase_tree = proto_item_add_subtree(bat_ase_item , ett_bat_ase);
 
-	proto_tree_add_text(bat_ase_tree, parameter_tvb, offset, (length-offset), "BAT ASE Encapsulated Application Information, (%u byte%s length)", (length - offset ), plurality(length, "", "s"));
-	while(length > offset){
+	proto_tree_add_text(bat_ase_tree, parameter_tvb, offset, -1, "BAT ASE Encapsulated Application Information, (%u byte%s length)", length, plurality(length, "", "s"));
+	while(tvb_reported_length_remaining(parameter_tvb, offset) > 0){
 		element_no = element_no + 1;
 		identifier = tvb_get_guint8(parameter_tvb, offset);
 		offset = offset + 1;
 /* length indicator may be 11 bits long 			*/
 /*        temp_length = tvb_get_ntohs(parameter_tvb, offset);*/
 	
-		length_indicator = tvb_get_guint8(parameter_tvb, offset);
-
+		length_indicator = tvb_get_guint8(parameter_tvb, offset) & 0x7f;
 
 		bat_ase_element_item = proto_tree_add_text(bat_ase_tree,parameter_tvb,
-					  ( offset - 1),(length_indicator + 1),"BAT ASE Element %u, Identifier: %s",element_no,
+					  ( offset - 1),(length_indicator + 2),"BAT ASE Element %u, Identifier: %s",element_no,
 					val_to_str(identifier,bat_ase_list_of_Identifiers_vals,"unknown (%u)"));
 		bat_ase_element_tree = proto_item_add_subtree(bat_ase_element_item , ett_bat_ase_element);
 
 		proto_tree_add_uint(bat_ase_element_tree , hf_bat_ase_identifier , parameter_tvb, offset - 1, 1, identifier );
-		proto_tree_add_uint(bat_ase_element_tree , hf_length_indicator  , parameter_tvb, offset, 1, length_indicator & 0x7f );
+		proto_tree_add_uint(bat_ase_element_tree , hf_length_indicator  , parameter_tvb, offset, 1, length_indicator );
 
 		offset = offset + 1;
 		compatibility_info = tvb_get_guint8(parameter_tvb, offset);
@@ -2125,7 +2118,7 @@ dissect_bat_ase_Encapsulated_Application_Information(tvbuff_t *parameter_tvb, pa
 		proto_tree_add_boolean(bat_ase_element_tree, hf_Send_notification_ind_for_pass_on_not_possible , parameter_tvb, offset, 1, compatibility_info );
 		proto_tree_add_boolean(bat_ase_element_tree, hf_isup_extension_ind , parameter_tvb, offset, 1, compatibility_info );
 		offset = offset + 1;
-		content_len = ( length_indicator & 0x7f ) - 1 ; /* exclude the treated Compatibility information */
+		content_len = length_indicator - 1 ; /* exclude the treated Compatibility information */
 
 		/* content will be different depending on identifier */
 		switch ( identifier ){
@@ -2173,15 +2166,15 @@ dissect_bat_ase_Encapsulated_Application_Information(tvbuff_t *parameter_tvb, pa
 				tempdata = tvb_get_guint8(parameter_tvb, offset);
 				proto_tree_add_uint(bat_ase_element_tree, hf_codec_type , parameter_tvb, offset, 1, tempdata );
 				offset = offset +1;
-				proto_tree_add_text(bat_ase_element_tree, parameter_tvb, offset,content_len , "Not decoded yet, (%u byte%s length)", (content_len), plurality(length, "", "s"));
+				proto_tree_add_text(bat_ase_element_tree, parameter_tvb, offset,content_len , "Not decoded yet, (%u byte%s length)", (content_len), plurality(content_len, "", "s"));
 				offset = offset + content_len - 2;
 			break;
 			case CODEC :                             	
-				proto_tree_add_text(bat_ase_element_tree, parameter_tvb, offset,content_len , "Not decoded yet, (%u byte%s length)", (content_len), plurality(length, "", "s"));
+				proto_tree_add_text(bat_ase_element_tree, parameter_tvb, offset,content_len , "Not decoded yet, (%u byte%s length)", (content_len), plurality(content_len, "", "s"));
 				offset = offset + content_len;
 			break;
 			case BAT_COMPATIBILITY_REPORT :                	
-				proto_tree_add_text(bat_ase_element_tree, parameter_tvb, offset,content_len , "Not decoded yet, (%u byte%s length)", (content_len), plurality(length, "", "s"));
+				proto_tree_add_text(bat_ase_element_tree, parameter_tvb, offset,content_len , "Not decoded yet, (%u byte%s length)", (content_len), plurality(content_len, "", "s"));
 				offset = offset + content_len;
 			break;
 			case BEARER_NETWORK_CONNECTION_CHARACTERISTICS :	
@@ -2252,7 +2245,7 @@ dissect_bat_ase_Encapsulated_Application_Information(tvbuff_t *parameter_tvb, pa
 					proto_tree_add_text(bat_ase_element_tree, parameter_tvb, offset, tempdata , "Network ID: %s",
 							    tvb_bytes_to_str(parameter_tvb, offset, tempdata));
 					offset = offset + tempdata;
-		} /* end if */
+				} /* end if */
 
 				Local_BCU_ID = tvb_get_letohl(parameter_tvb, offset);
 				proto_tree_add_uint_format(bat_ase_element_tree, hf_Local_BCU_ID , parameter_tvb, offset, 4, Local_BCU_ID , "Local BCU ID : 0x%08x", Local_BCU_ID );
@@ -2293,7 +2286,7 @@ dissect_bat_ase_Encapsulated_Application_Information(tvbuff_t *parameter_tvb, pa
 				offset = offset + content_len;
 			break;
 			default :
-				proto_tree_add_text(bat_ase_element_tree, parameter_tvb, offset,content_len , "Default ?, (%u byte%s length)", (content_len), plurality(length, "", "s"));
+				proto_tree_add_text(bat_ase_element_tree, parameter_tvb, offset,content_len , "Default ?, (%u byte%s length)", (content_len), plurality(content_len, "", "s"));
 				offset = offset + content_len;
 			}                                	
   	} 
@@ -2310,59 +2303,56 @@ dissect_isup_application_transport_parameter(tvbuff_t *parameter_tvb, packet_inf
   guint8 pointer_to_transparent_data;
   guint16 application_context_identifier16;
   gint offset = 0;
-  guint length = tvb_length(parameter_tvb);
+  guint length = tvb_reported_length(parameter_tvb);
   
-  proto_tree_add_text(parameter_tree, parameter_tvb, 0, length, "Application transport parameter fields:");
+  proto_tree_add_text(parameter_tree, parameter_tvb, 0, -1, "Application transport parameter fields:");
   proto_item_set_text(parameter_item, "Application transport, (%u byte%s length)", length , plurality(length, "", "s"));
   application_context_identifier = tvb_get_guint8(parameter_tvb, 0);
  
   if ( (application_context_identifier & H_8BIT_MASK) == 0x80) {
-      proto_tree_add_uint(parameter_tree, hf_isup_app_cont_ident, parameter_tvb,offset, 1, (application_context_identifier & GFEDCBA_8BIT_MASK));
-	offset = offset + 1;
-	if ((application_context_identifier & 0x7f) > 6) return;
-       }
-  else
-	{
-	application_context_identifier16 = tvb_get_letohs(parameter_tvb,offset); 
-	proto_tree_add_text(parameter_tree, parameter_tvb, offset, 2, "Application context identifier: 0x%x", application_context_identifier16);
-	offset = offset + 2;
-	return; /* no further decoding of this element */
-	}
-  proto_tree_add_text(parameter_tree, parameter_tvb, offset, length, "Application transport instruction indictators: ");
+    proto_tree_add_uint(parameter_tree, hf_isup_app_cont_ident, parameter_tvb,offset, 1, (application_context_identifier & GFEDCBA_8BIT_MASK));
+    offset = offset + 1;
+    if ((application_context_identifier & 0x7f) > 6)
+      return;
+  }
+  else {
+    application_context_identifier16 = tvb_get_letohs(parameter_tvb,offset); 
+    proto_tree_add_text(parameter_tree, parameter_tvb, offset, 2, "Application context identifier: 0x%x", application_context_identifier16);
+    offset = offset + 2;
+    return; /* no further decoding of this element */
+  }
+  proto_tree_add_text(parameter_tree, parameter_tvb, offset, -1, "Application transport instruction indicators: ");
   application_transport_instruction_ind = tvb_get_guint8(parameter_tvb, offset);	
   proto_tree_add_boolean(parameter_tree, hf_isup_app_Release_call_ind, parameter_tvb, offset, 1, application_transport_instruction_ind);
   proto_tree_add_boolean(parameter_tree, hf_isup_app_Send_notification_ind, parameter_tvb, offset, 1, application_transport_instruction_ind);
   offset = offset + 1; 
   if ( (application_transport_instruction_ind & H_8BIT_MASK) == 0x80) {
-        proto_tree_add_text(parameter_tree, parameter_tvb, offset, length, "APM segmentation indicator:");
+        proto_tree_add_text(parameter_tree, parameter_tvb, offset, 1, "APM segmentation indicator:");
 	si_and_apm_segmentation_indicator  = tvb_get_guint8(parameter_tvb, offset);
 	proto_tree_add_uint(parameter_tree, hf_isup_apm_segmentation_ind , parameter_tvb, offset, 1, si_and_apm_segmentation_indicator  );
 	proto_tree_add_boolean(parameter_tree, hf_isup_apm_si_ind , parameter_tvb, offset, 1, si_and_apm_segmentation_indicator  );
 	offset = offset + 1;
 
-	  if ( (si_and_apm_segmentation_indicator & H_8BIT_MASK) == 0x80) {
-		apm_Segmentation_local_ref  = tvb_get_guint8(parameter_tvb, offset);
-		proto_tree_add_text(parameter_tree, parameter_tvb, offset, 1, "Segmentation local reference (SLR): 0x%x", apm_Segmentation_local_ref  );
-		offset = offset + 1;
-  	  }
+	if ( (si_and_apm_segmentation_indicator & H_8BIT_MASK) == 0x80) {
+	  apm_Segmentation_local_ref  = tvb_get_guint8(parameter_tvb, offset);
+	  proto_tree_add_text(parameter_tree, parameter_tvb, offset, 1, "Segmentation local reference (SLR): 0x%x", apm_Segmentation_local_ref  );
+	  offset = offset + 1;
+  	}
   }	
 
-   proto_tree_add_text(parameter_tree, parameter_tvb, offset, length, "APM-user information field"  );
-   /* dissect BAT ASE element, without transparent data ( Q.765.5-200006) */ 
-   if ((application_context_identifier & 0x7f) != 5) {
-		proto_tree_add_text(parameter_tree, parameter_tvb, offset, length, "No further dissection of APM-user information field");
-		return;
-	}
-   pointer_to_transparent_data = tvb_get_guint8(parameter_tvb, offset);
-   if (pointer_to_transparent_data != 0)
-		proto_tree_add_text(parameter_tree, parameter_tvb, offset, 1, "Pointer to transparent data: 0x%x Don't know how to dissect further", pointer_to_transparent_data  );
-   proto_tree_add_text(parameter_tree, parameter_tvb, offset, 1, "Pointer to transparent data: 0x%x No transparent data", pointer_to_transparent_data  );
-   offset = offset + 1;
+  proto_tree_add_text(parameter_tree, parameter_tvb, offset, -1, "APM-user information field"  );
+  /* dissect BAT ASE element, without transparent data ( Q.765.5-200006) */ 
+  if ((application_context_identifier & 0x7f) != 5) {
+    proto_tree_add_text(parameter_tree, parameter_tvb, offset, -1, "No further dissection of APM-user information field");
+    return;
+  }
+  pointer_to_transparent_data = tvb_get_guint8(parameter_tvb, offset);
+  if (pointer_to_transparent_data != 0)
+    proto_tree_add_text(parameter_tree, parameter_tvb, offset, 1, "Pointer to transparent data: 0x%x Don't know how to dissect further", pointer_to_transparent_data  );
+  proto_tree_add_text(parameter_tree, parameter_tvb, offset, 1, "Pointer to transparent data: 0x%x No transparent data", pointer_to_transparent_data  );
+  offset = offset + 1;
  
-   dissect_bat_ase_Encapsulated_Application_Information(parameter_tvb , pinfo, parameter_tree, offset, length);
-
-
-
+  dissect_bat_ase_Encapsulated_Application_Information(parameter_tvb, pinfo, parameter_tree, offset);
 }
 
 
