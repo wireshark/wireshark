@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\spoolss packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-spoolss.c,v 1.5 2002/03/19 22:09:23 guy Exp $
+ * $Id: packet-dcerpc-spoolss.c,v 1.6 2002/03/20 09:09:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1005,7 +1005,7 @@ static int prs_uint16uni(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	/* Get remaining data in buffer as a string */
 
-	remaining = tvb_length_remaining(tvb, offset);
+	remaining = tvb_length_remaining(tvb, offset)/2;
 	text = fake_unicode(tvb, offset, remaining);
 	len = strlen(text);
 
