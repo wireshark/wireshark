@@ -3,7 +3,7 @@
  * Gilbert Ramirez <gram@alumni.rice.edu>
  * Modified to allow NCP over TCP/IP decodes by James Coe <jammer@cin.net>
  *
- * $Id: packet-ncp.c,v 1.59 2002/05/15 21:17:21 guy Exp $
+ * $Id: packet-ncp.c,v 1.60 2002/05/15 21:37:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -253,8 +253,6 @@ dissect_ncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_uint(ncp_tree, hf_ncp_seq,	tvb, commhdr + 2, 1, header.sequence);
 		proto_tree_add_uint(ncp_tree, hf_ncp_connection,tvb, commhdr + 3, 3, nw_connection);
 		proto_tree_add_item(ncp_tree, hf_ncp_task,	tvb, commhdr + 4, 1, FALSE);
-		proto_tree_add_text(ncp_tree, tvb, commhdr + 5, 1,
-		    "Connection Number High: %u", header.conn_high);
 		break;
 
 	case NCP_BURST_MODE_XFER:	/* Packet Burst Packet */
