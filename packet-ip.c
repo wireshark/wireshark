@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.71 2000/01/24 04:44:35 guy Exp $
+ * $Id: packet-ip.c,v 1.72 2000/02/02 22:07:38 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -526,25 +526,18 @@ dissect_ipopt_timestamp(const ip_tcp_opt *optp, const u_char *opd,
 
   while (optlen > 0) {
     if (flg == IPOPT_TS_TSANDADDR) {
-      if (optlen < 4) {
+      /* XXX - check whether it goes past end of packet */
+      if (optlen < 8) {
         proto_tree_add_text(field_tree, offset + optoffset, optlen,
           "(suboption would go past end of option)");
         break;
       }
-      /* XXX - check whether it goes past end of packet */
-      ts = pntohl(opd);
-      opd += 4;
-      optlen -= 4;
-      if (optlen < 4) {
-        proto_tree_add_text(field_tree, offset + optoffset, optlen,
-          "(suboption would go past end of option)");
-        break;
-      }
-      /* XXX - check whether it goes past end of packet */
       memcpy((char *)&addr, (char *)opd, sizeof(addr));
       opd += 4;
-      optlen -= 4;
-      proto_tree_add_text(field_tree, offset,      8,
+      ts = pntohl(opd);
+      opd += 4;
+      optlen -= 8;
+      proto_tree_add_text(field_tree, offset + optoffset,      8,
           "Address = %s, time stamp = %u",
           ((addr.s_addr == 0) ? "-" :  (char *)get_hostname(addr.s_addr)),
           ts);
