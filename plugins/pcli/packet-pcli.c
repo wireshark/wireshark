@@ -1,8 +1,7 @@
 /* packet-pcli.c
- * Routines for Packet Cable Lawful Intercept  packet disassembly
- * RFC 2705
+ * Routines for Packet Cable Lawful Intercept packet disassembly
  *
- * $Id: packet-pcli.c,v 1.1 2002/10/03 02:56:59 hagbard Exp $
+ * $Id: packet-pcli.c,v 1.2 2002/10/08 08:26:31 guy Exp $
  *
  * Copyright (c) 2000 by Ed Warnicke <hagbard@physics.rutgers.edu>
  *
