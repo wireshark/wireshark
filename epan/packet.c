@@ -299,6 +299,7 @@ dissect_packet(epan_dissect_t *edt, union wtap_pseudo_header *pseudo_header,
         edt->pi.vsan = 0;
         edt->pi.dcectxid = 0;
         edt->pi.dcetransporttype = -1;
+        edt->pi.layer_names = NULL;
 
 	TRY {
 		edt->tvb = tvb_new_real_data(pd, fd->cap_len, fd->pkt_len);
@@ -431,6 +432,16 @@ call_dissector_work(dissector_handle_t handle, tvbuff_t *tvb,
 	if (handle->protocol != NULL) {
 		pinfo->current_proto =
 		    proto_get_protocol_short_name(handle->protocol);
+
+		/*
+		 * Add the protocol name to the layers
+		 */
+		if (pinfo->layer_names) {
+			if (pinfo->layer_names->len > 0)
+				g_string_append(pinfo->layer_names, ":");
+			g_string_append(pinfo->layer_names, 
+				proto_get_protocol_filter_name(proto_get_id(handle->protocol)));
+		}
 	}
 
 	if (pinfo->in_error_pkt) {
@@ -575,7 +586,7 @@ find_dissector_table(const char *name)
 	return g_hash_table_lookup( dissector_tables, name );
 }
 
-/* Find an entry in a uint dissector table. */ 
+/* Find an entry in a uint dissector table. */
 static dtbl_entry_t *
 find_uint_dtbl_entry(dissector_table_t sub_dissectors, guint32 pattern)
 {
@@ -821,7 +832,7 @@ dissector_get_port_handle(dissector_table_t sub_dissectors, guint32 port)
 		return NULL;
 }
 
-/* Find an entry in a string dissector table. */ 
+/* Find an entry in a string dissector table. */
 static dtbl_entry_t *
 find_string_dtbl_entry(dissector_table_t sub_dissectors, const gchar *pattern)
 {

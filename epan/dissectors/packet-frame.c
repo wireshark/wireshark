@@ -46,6 +46,7 @@ static int hf_frame_p2p_dir = -1;
 static int hf_frame_file_off = -1;
 static int hf_frame_marked = -1;
 static int hf_frame_ref_time = -1;
+static int hf_frame_protocols = -1;
 
 static int proto_short = -1;
 int proto_malformed = -1;
@@ -166,6 +167,10 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		0, 0, cap_len, "Capture Length: %d byte%s", cap_len,
 		plurality(cap_len, "", "s"));
 
+	  ti = proto_tree_add_string(fh_tree, hf_frame_protocols, tvb,
+	  	0, 0, "");
+	  pinfo->layer_names = g_string_new("");
+
 	  /* Check for existences of P2P pseudo header */
 	  if (pinfo->p2p_dir != P2P_DIR_UNKNOWN) {
 		  proto_tree_add_uint(fh_tree, hf_frame_p2p_dir, tvb,
@@ -179,7 +184,6 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				  pinfo->fd->file_off, pinfo->fd->file_off);
 	  }
 	}
-
 
 	TRY {
 		if (!dissector_try_port(wtap_encap_dissector_table, pinfo->fd->lnk_t,
@@ -198,8 +202,14 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 	ENDTRY;
 
+	if (tree) {
+		proto_item_append_string(ti, pinfo->layer_names->str);
+		g_string_free(pinfo->layer_names, TRUE);
+		pinfo->layer_names = NULL;
+	}
+
 	tap_queue_packet(frame_tap, pinfo, NULL);
-	
+
 	if (mate_handle) call_dissector(mate_handle,tvb, pinfo, tree);
 
 }
@@ -313,6 +323,10 @@ proto_register_frame(void)
 		{ &hf_frame_ref_time,
 		{ "This is a Ref Time frame",	"frame.ref_time", FT_NONE, 0, NULL, 0x0,
 			"This frame is a Reference Time frame", HFILL }},
+
+		{ &hf_frame_protocols,
+		{ "Protocols in frame",	"frame.protocols", FT_STRING, 0, NULL, 0x0,
+			"Protocols carried by this frame", HFILL }},
 	};
 	static gint *ett[] = {
 		&ett_frame,

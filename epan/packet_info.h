@@ -85,13 +85,13 @@ typedef struct _packet_info {
   guint16 want_pdu_tracking;	/* >0 if the subdissector has specified
 				   a value in 'bytes_until_next_pdu'.
 				   When a dissector detects that the next PDU
-				   will start beyond the start of the next 
-				   segment, it can set this value to 2 
-				   and 'bytes_until_next_pdu' to the number of 
-				   bytes beyond the next segment where the 
+				   will start beyond the start of the next
+				   segment, it can set this value to 2
+				   and 'bytes_until_next_pdu' to the number of
+				   bytes beyond the next segment where the
 				   next PDU starts.
 
-				   If the protocol dissector below this 
+				   If the protocol dissector below this
 				   one is capable of PDU tracking it can
 				   use this hint to detect PDUs that starts
 				   unaligned to the segment boundaries.
@@ -99,7 +99,7 @@ typedef struct _packet_info {
 				   (some) protocols to detect when a new PDU
 				   starts in the middle of a tcp segment.
 
-				   There is intelligence in the glue between 
+				   There is intelligence in the glue between
 				   dissector layers to make sure that this
 				   request is only passed down to the protocol
 				   immediately below the current one and not
@@ -107,7 +107,7 @@ typedef struct _packet_info {
 				*/
   guint32 bytes_until_next_pdu;
 
-				    
+
   int     iplen;
   int     iphdrlen;
   int	  p2p_dir;
@@ -131,6 +131,7 @@ typedef struct _packet_info {
                                       * in the SCTP packet
                                       */
   void    *private_data;	/* pointer to data passed from one dissector to another */
+  GString *layer_names; 	/* layers of each protocol */
 } packet_info;
 
 #endif /* __PACKET_INFO_H__ */
