@@ -8,12 +8,15 @@
  * $Id$
  *
  * The information used comes from:
- * RFC3315.txt
- * RFC3319.txt
- * RFC3633.txt
- * RFC3646.txt
- * draft-ietf-dhc-dhcpv6-opt-nisconfig-02.txt
- * draft-ietf-dhc-dhcpv6-opt-timeconfig-02.txt
+ * RFC3315.txt (DHCPv6)
+ * RFC3319.txt (SIP options)
+ * RFC3633.txt (Prefix options)
+ * RFC3646.txt (DNS servers/domains)
+ * RFC3898.txt (NIS options)
+ * draft-ietf-dhc-dhcpv6-opt-timeconfig-03.txt
+ * draft-ietf-dhc-dhcpv6-opt-fqdn-00.txt
+ * draft-ietf-dhc-dhcpv6-opt-lifetime-00.txt
+ *
  * Note that protocol constants are still subject to change, based on IANA
  * assignment decisions.
  *
@@ -47,6 +50,10 @@
 
 static int proto_dhcpv6 = -1;
 static int hf_dhcpv6_msgtype = -1;
+static int hf_fqdn_1 = -1;
+static int hf_fqdn_2 = -1;
+static int hf_fqdn_3 = -1;
+static int hf_fqdn_4 = -1;
 
 static gint ett_dhcpv6 = -1;
 static gint ett_dhcpv6_option = -1;
@@ -96,16 +103,18 @@ static gint ett_dhcpv6_option = -1;
 #define	OPTION_DOMAIN_LIST      24
 #define	OPTION_IA_PD		25
 #define	OPTION_IAPREFIX		26
+#define OPTION_NIS_SERVERS	27
+#define OPTION_NISP_SERVERS	28
+#define OPTION_NIS_DOMAIN_NAME  29
+#define OPTION_NISP_DOMAIN_NAME 30
 
 /*
  * The followings are unassigned numbers.
  */
-#define OPTION_NIS_SERVERS	35
-#define OPTION_NISP_SERVERS	36
-#define OPTION_NIS_DOMAIN_NAME  37
-#define OPTION_NISP_DOMAIN_NAME 38
-#define OPTION_NTP_SERVERS	40
+#define OPTION_CLIENT_FQDN      34
+#define OPTION_SNTP_SERVERS	40
 #define OPTION_TIME_ZONE	41
+#define OPTION_LIFETIME         42
 
 #define	DUID_LLT		1
 #define	DUID_EN			2
@@ -132,8 +141,8 @@ static const value_string msgtype_vals[] = {
 static const value_string opttype_vals[] = {
 	{ OPTION_CLIENTID,	"Client Identifier" },
 	{ OPTION_SERVERID,	"Server Identifier" },
-	{ OPTION_IA_NA,		"Identify Association" },
-	{ OPTION_IA_TA,		"Identify Association for Temporary Address" },
+	{ OPTION_IA_NA,		"Identity Association" },
+	{ OPTION_IA_TA,		"Identity Association for Temporary Address" },
 	{ OPTION_IAADDR,	"IA Address" },
 	{ OPTION_ORO,		"Option Request" },
 	{ OPTION_PREFERENCE,	"Preference" },
@@ -154,14 +163,16 @@ static const value_string opttype_vals[] = {
 	{ OPTION_SIP_SERVER_A,	"SIP Servers IPv6 Address List" },
 	{ OPTION_DNS_SERVERS,	"DNS recursive name server" },
 	{ OPTION_DOMAIN_LIST,	"Domain Search List" },
-	{ OPTION_IA_PD,		"Identify Association for Prefix Delegation" },
+	{ OPTION_IA_PD,		"Identity Association for Prefix Delegation" },
 	{ OPTION_IAPREFIX,	"IA Prefix" },
 	{ OPTION_NIS_SERVERS,	"Network Information Server" },
 	{ OPTION_NISP_SERVERS,	"Network Information Server V2" },
 	{ OPTION_NIS_DOMAIN_NAME, "Network Information Server Domain Name" },
 	{ OPTION_NISP_DOMAIN_NAME,"Network Information Server V2 Domain Name" },
-	{ OPTION_NTP_SERVERS,	"Network Time Protocol Server" },
+	{ OPTION_SNTP_SERVERS,	"Simple Network Time Protocol Server" },
 	{ OPTION_TIME_ZONE,	"Time zone" },
+	{ OPTION_LIFETIME,      "Lifetime" },
+	{ OPTION_CLIENT_FQDN,   "Fully Qualified Domain Name" },
 	{ 0,	NULL }
 };
 
@@ -186,11 +197,57 @@ static const value_string duidtype_vals[] =
 	{ 0, NULL }
 };
 
+static const true_false_string tfs_present = {
+    "present",
+    "absent"
+};
+
+/* This FQDN draft is a mess, I've tried to understand, 
+   but N,O,S bit descriptions are really cryptic */
+static const true_false_string fqdn_n = {
+/*    "Client doesn't want server to perform DNS update", "" */
+    "N bit set","N bit cleared"
+};
+
+static const true_false_string fqdn_o = {
+    "O bit set", "O bit cleared" 
+};
+
+static const true_false_string fqdn_s = {
+/*    "Forward mapping (FQDN-to-IPv6, AAAA) performed by client", 
+      "Forward mapping (FQDN-to-IPv6, AAAA) performed by server" */
+    "S bit set", "S bit cleared"
+}; 
+
+/* Adds domain */
+static void
+dhcpv6_domain(proto_tree * subtree, tvbuff_t *tvb, int off, guint16 optlen)
+{
+    guint8 len;
+    char *domain;
+
+    while (optlen) {
+	len = tvb_get_guint8(tvb, off);
+	if (len==0)
+	    break;
+	if (len>optlen) {
+	    proto_tree_add_text(subtree, tvb, off, optlen, "Malformed option");
+	    return;
+	}
+	domain = tvb_get_string(tvb, off+1, len);
+	proto_tree_add_text(subtree, tvb, off, len+1, "Domain: %s", domain);
+	g_free(domain);
+	off    += len+1;
+	optlen -= len+1;
+    };
+}
+
 /* Returns the number of bytes consumed by this option. */
 static int
 dhcpv6_option(tvbuff_t *tvb, proto_tree *bp_tree, int off, int eoff,
     gboolean *at_end)
 {
+	guint8 *buf;
 	guint16	opttype;
 	guint16	optlen;
 	guint16	temp_optlen = 0;
@@ -300,10 +357,21 @@ dhcpv6_option(tvbuff_t *tvb, proto_tree *bp_tree, int off, int eoff,
 	  proto_tree_add_text(subtree, tvb, off, 4,
 			      "IAID: %u",
 			      tvb_get_ntohl(tvb, off));
-	  proto_tree_add_text(subtree, tvb, off+4, 4,
-			      "T1: %u", tvb_get_ntohl(tvb, off+4));
-	  proto_tree_add_text(subtree, tvb, off+8, 4,
-			      "T2: %u", tvb_get_ntohl(tvb, off+8));
+	  if (tvb_get_ntohl(tvb, off+4) == DHCPV6_LEASEDURATION_INFINITY) {
+	      proto_tree_add_text(subtree, tvb, off+4, 4,
+				  "T1: infinity");
+	  } else {
+	      proto_tree_add_text(subtree, tvb, off+4, 4,
+				  "T1: %u", tvb_get_ntohl(tvb, off+4));
+	  }
+
+	  if (tvb_get_ntohl(tvb, off+8) == DHCPV6_LEASEDURATION_INFINITY) {
+	      proto_tree_add_text(subtree, tvb, off+8, 4,
+				  "T2: infinity");
+	  } else {
+	      proto_tree_add_text(subtree, tvb, off+8, 4,
+				  "T2: %u", tvb_get_ntohl(tvb, off+8));
+	  }
 
           temp_optlen = 12;
 	  while ((optlen - temp_optlen) > 0) {
@@ -527,6 +595,8 @@ dhcpv6_option(tvbuff_t *tvb, proto_tree *bp_tree, int off, int eoff,
 			proto_tree_add_text(subtree, tvb, off, optlen,
 				"SIP Servers Domain Search List");
 		}
+		dhcpv6_domain(subtree,tvb, off, optlen);
+		break;
 	case OPTION_SIP_SERVER_A:
 		if (optlen % 16) {
 			proto_tree_add_text(subtree, tvb, off, optlen,
@@ -557,6 +627,7 @@ dhcpv6_option(tvbuff_t *tvb, proto_tree *bp_tree, int off, int eoff,
 	  if (optlen > 0) {
 	    proto_tree_add_text(subtree, tvb, off, optlen, "DNS Domain Search List");
 	  }
+	  dhcpv6_domain(subtree,tvb, off, optlen);
 	  break;
 	case OPTION_NIS_SERVERS:
 		if (optlen % 16) {
@@ -588,30 +659,65 @@ dhcpv6_option(tvbuff_t *tvb, proto_tree *bp_tree, int off, int eoff,
 	  if (optlen > 0) {
 	    proto_tree_add_text(subtree, tvb, off, optlen, "nis-domain-name");
 	  }
+	  dhcpv6_domain(subtree,tvb, off, optlen);
 	  break;
 	case OPTION_NISP_DOMAIN_NAME:
 	  if (optlen > 0) {
 	    proto_tree_add_text(subtree, tvb, off, optlen, "nisp-domain-name");
 	  }
+	  dhcpv6_domain(subtree,tvb, off, optlen);
 	  break;
-	case OPTION_NTP_SERVERS:
+	case OPTION_SNTP_SERVERS:
 		if (optlen % 16) {
 			proto_tree_add_text(subtree, tvb, off, optlen,
-				"NTP servers address: malformed option");
+				"SNTP servers address: malformed option");
 			break;
 		}
 		for (i = 0; i < optlen; i += 16) {
 			tvb_memcpy(tvb, (guint8 *)&in6, off + i, sizeof(in6));
 			proto_tree_add_text(subtree, tvb, off + i,
-				sizeof(in6), "NTP servers address: %s",
+				sizeof(in6), "SNTP servers address: %s",
 				ip6_to_str(&in6));
 		}
 		break;
 	case OPTION_TIME_ZONE:
 	  if (optlen > 0) {
-	    proto_tree_add_text(subtree, tvb, off, optlen, "time-zone");
+	      buf = tvb_get_string(tvb, off, optlen);
+	      proto_tree_add_text(subtree, tvb, off, optlen, "time-zone: %s", buf);
+	      g_free(buf);
 	  }
 	  break;
+	case OPTION_LIFETIME:
+	  if (optlen != 4) {
+	    proto_tree_add_text(subtree, tvb, off,
+				optlen, "LIFETIME: malformed option");
+	    break;
+	  }
+	  proto_tree_add_text(subtree, tvb, off, 4,
+			      "Lifetime: %d",
+			      (guint32)tvb_get_ntohl(tvb, off));
+	  break;
+	case OPTION_CLIENT_FQDN:
+	  if (optlen < 1) {
+	    proto_tree_add_text(subtree, tvb, off,
+				optlen, "FQDN: malformed option");
+	    break;
+	  }
+	  /*
+	   * +-----+-+-+-+
+	   * | MBZ |N|O|S|
+	   * +-----+-+-+-+
+	   */
+	  proto_tree_add_item(subtree, hf_fqdn_1, tvb, off, 1, FALSE);
+	  proto_tree_add_item(subtree, hf_fqdn_2, tvb, off, 1, FALSE);
+	  proto_tree_add_item(subtree, hf_fqdn_3, tvb, off, 1, FALSE);
+	  proto_tree_add_item(subtree, hf_fqdn_4, tvb, off, 1, FALSE);
+/* 	  proto_tree_add_text(subtree, tvb, off, 1, */
+/* 			      "flags: %d", */
+/* 			      (guint32)tvb_get_guint8(tvb, off)); */
+	  dhcpv6_domain(subtree,tvb, off+1, optlen-1);
+	  break;
+
 	case OPTION_IAPREFIX:
 	    {
 		guint32 preferred_lifetime, valid_lifetime;
@@ -787,10 +893,20 @@ void
 proto_register_dhcpv6(void)
 {
   static hf_register_info hf[] = {
+
     { &hf_dhcpv6_msgtype,
       { "Message type",			"dhcpv6.msgtype",	 FT_UINT8,
          BASE_DEC, 			VALS(msgtype_vals),   0x0,
       	"", HFILL }},
+    { &hf_fqdn_1,
+      { "Reserved", "", FT_UINT8, BASE_HEX, NULL, 0xF8, "", HFILL}},
+    { &hf_fqdn_2,
+      { "N", "", FT_BOOLEAN, 8, TFS(&fqdn_n), 0x4, "", HFILL}},
+    { &hf_fqdn_3,
+      { "O", "", FT_BOOLEAN, 8, TFS(&fqdn_o), 0x2, "", HFILL}},
+    { &hf_fqdn_4,
+      { "S", "", FT_BOOLEAN, 8, TFS(&fqdn_s), 0x1, "", HFILL}}
+    
   };
   static gint *ett[] = {
     &ett_dhcpv6,
