@@ -1232,6 +1232,8 @@ Devin Heitmueller <dheitmueller[AT]netilla.com> {
 	Add MD4 and RC4 crypto support
 	Decrypt the NT password encryption block in
 	    UnicodeChangePassword2
+	Supply offset to dissectors for connection-oriented DCERPC PDU
+	    types
 }
 
 Chenjiang Hu <chu[AT]chiaro.com> {

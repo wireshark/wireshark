@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.89 2002/12/05 18:26:10 guy Exp $
+ * $Id: packet-dcerpc.c,v 1.90 2002/12/11 19:50:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1588,8 +1588,8 @@ static guint16 get_smb_fid (void *private_data)
  */
 
 static void
-dissect_dcerpc_cn_bind (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tree,
-                        e_dce_cn_common_hdr_t *hdr)
+dissect_dcerpc_cn_bind (tvbuff_t *tvb, gint offset, packet_info *pinfo, 
+			proto_tree *dcerpc_tree, e_dce_cn_common_hdr_t *hdr)
 {
     conversation_t *conv = NULL;
     guint8 num_ctx_items;
@@ -1602,7 +1602,6 @@ dissect_dcerpc_cn_bind (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
     e_uuid_t trans_id;
     guint32 trans_ver;
     guint16 if_ver, if_ver_minor;
-    int offset = 16;
     char uuid_str[DCERPC_UUID_STR_LEN]; 
     int uuid_str_len;
 
@@ -1745,8 +1744,8 @@ dissect_dcerpc_cn_bind (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
 }
 
 static void
-dissect_dcerpc_cn_bind_ack (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tree,
-                            e_dce_cn_common_hdr_t *hdr)
+dissect_dcerpc_cn_bind_ack (tvbuff_t *tvb, gint offset, packet_info *pinfo, 
+			    proto_tree *dcerpc_tree, e_dce_cn_common_hdr_t *hdr)
 {
     guint16 max_xmit, max_recv;
     guint16 sec_addr_len;
@@ -1758,8 +1757,6 @@ dissect_dcerpc_cn_bind_ack (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerp
     guint32 trans_ver;
     char uuid_str[DCERPC_UUID_STR_LEN]; 
     int uuid_str_len;
-
-    int offset = 16;
 
     offset = dissect_dcerpc_uint16 (tvb, offset, pinfo, dcerpc_tree, hdr->drep,
                                     hf_dcerpc_cn_max_xmit, &max_xmit);
@@ -1849,14 +1846,12 @@ dissect_dcerpc_cn_bind_ack (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerp
 }
 
 static void
-dissect_dcerpc_cn_bind_nak (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tree,
-                            e_dce_cn_common_hdr_t *hdr)
+dissect_dcerpc_cn_bind_nak (tvbuff_t *tvb, gint offset, packet_info *pinfo, 
+			    proto_tree *dcerpc_tree, e_dce_cn_common_hdr_t *hdr)
 {
     guint16 reason;
     guint8 num_protocols;
     guint i;
-
-    int offset = 16;
 
     offset = dissect_dcerpc_uint16 (tvb, offset, pinfo, dcerpc_tree,
                                     hdr->drep, hf_dcerpc_cn_reject_reason,
@@ -2014,8 +2009,8 @@ dissect_dcerpc_cn_stub (tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 static void
-dissect_dcerpc_cn_rqst (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tree,
-                        proto_tree *tree, e_dce_cn_common_hdr_t *hdr)
+dissect_dcerpc_cn_rqst (tvbuff_t *tvb, gint offset, packet_info *pinfo, 
+			proto_tree *dcerpc_tree, proto_tree *tree, e_dce_cn_common_hdr_t *hdr)
 {
     conversation_t *conv;
     guint16 ctx_id;
@@ -2023,7 +2018,6 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
     e_uuid_t obj_id;
     int auth_sz = 0;
     int auth_level;
-    int offset = 16;
     guint32 alloc_hint;
     int length;
     char uuid_str[DCERPC_UUID_STR_LEN]; 
@@ -2159,14 +2153,13 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
 }
 
 static void
-dissect_dcerpc_cn_resp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tree,
-                        proto_tree *tree, e_dce_cn_common_hdr_t *hdr)
+dissect_dcerpc_cn_resp (tvbuff_t *tvb, gint offset, packet_info *pinfo,
+			proto_tree *dcerpc_tree, proto_tree *tree, e_dce_cn_common_hdr_t *hdr)
 {
     dcerpc_call_value *value = NULL;
     conversation_t *conv;
     guint16 ctx_id;
     int auth_sz = 0;
-    int offset = 16;
     int auth_level;
     guint32 alloc_hint;
     int length;
@@ -2262,7 +2255,7 @@ dissect_dcerpc_cn_resp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
 }
 
 static void
-dissect_dcerpc_cn_fault (tvbuff_t *tvb, packet_info *pinfo,
+dissect_dcerpc_cn_fault (tvbuff_t *tvb, gint offset, packet_info *pinfo,
                          proto_tree *dcerpc_tree, e_dce_cn_common_hdr_t *hdr)
 {
     dcerpc_call_value *value = NULL;
@@ -2270,7 +2263,6 @@ dissect_dcerpc_cn_fault (tvbuff_t *tvb, packet_info *pinfo,
     guint16 ctx_id;
     guint32 status;
     int auth_sz = 0;
-    int offset = 16;
     int auth_level;
     guint32 alloc_hint;
 
@@ -2574,17 +2566,17 @@ dissect_dcerpc_cn (tvbuff_t *tvb, int offset, packet_info *pinfo,
     hdr.call_id = dcerpc_tvb_get_ntohl (tvb, offset, hdr.drep);
     offset += 4;
 
-    offset = start_offset;
     if (can_desegment && pinfo->can_desegment
-        && hdr.frag_len > tvb_length_remaining (tvb, offset)) {
-        pinfo->desegment_offset = offset;
-        pinfo->desegment_len = hdr.frag_len - tvb_length_remaining (tvb, offset);
+        && hdr.frag_len > tvb_length_remaining (tvb, start_offset)) {
+        pinfo->desegment_offset = start_offset;
+        pinfo->desegment_len = hdr.frag_len - tvb_length_remaining (tvb, start_offset);
         return 0;	/* desegmentation required */
     }
 
     if (check_col (pinfo->cinfo, COL_INFO))
         col_append_fstr (pinfo->cinfo, COL_INFO, ": call_id: %u", hdr.call_id);
     if (tree) {
+      offset = start_offset;
         ti = proto_tree_add_item (tree, proto_dcerpc, tvb, offset, hdr.frag_len, FALSE);
         if (ti) {
             dcerpc_tree = proto_item_add_subtree (ti, ett_dcerpc);
@@ -2625,19 +2617,18 @@ dissect_dcerpc_cn (tvbuff_t *tvb, int offset, packet_info *pinfo,
         offset += 4;
     }
 
-
     /*
      * Packet type specific stuff is next.
      */
     switch (hdr.ptype) {
     case PDU_BIND:
     case PDU_ALTER:
-        dissect_dcerpc_cn_bind (tvb, pinfo, dcerpc_tree, &hdr);
+        dissect_dcerpc_cn_bind (tvb, offset, pinfo, dcerpc_tree, &hdr);
         break;
 
     case PDU_BIND_ACK:
     case PDU_ALTER_ACK:
-        dissect_dcerpc_cn_bind_ack (tvb, pinfo, dcerpc_tree, &hdr);
+        dissect_dcerpc_cn_bind_ack (tvb, offset, pinfo, dcerpc_tree, &hdr);
         break;
 
     case PDU_AUTH3:
@@ -2648,19 +2639,19 @@ dissect_dcerpc_cn (tvbuff_t *tvb, int offset, packet_info *pinfo,
         break;
 
     case PDU_REQ:
-        dissect_dcerpc_cn_rqst (tvb, pinfo, dcerpc_tree, tree, &hdr);
+        dissect_dcerpc_cn_rqst (tvb, offset, pinfo, dcerpc_tree, tree, &hdr);
         break;
 
     case PDU_RESP:
-        dissect_dcerpc_cn_resp (tvb, pinfo, dcerpc_tree, tree, &hdr);
+        dissect_dcerpc_cn_resp (tvb, offset, pinfo, dcerpc_tree, tree, &hdr);
         break;
 
     case PDU_FAULT:
-        dissect_dcerpc_cn_fault (tvb, pinfo, dcerpc_tree, &hdr);
+        dissect_dcerpc_cn_fault (tvb, offset, pinfo, dcerpc_tree, &hdr);
         break;
 
     case PDU_BIND_NAK:
-        dissect_dcerpc_cn_bind_nak (tvb, pinfo, dcerpc_tree, &hdr);
+        dissect_dcerpc_cn_bind_nak (tvb, offset, pinfo, dcerpc_tree, &hdr);
         break;
 
     case PDU_CO_CANCEL:
