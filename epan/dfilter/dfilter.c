@@ -1,5 +1,5 @@
 /*
- * $Id: dfilter.c,v 1.2 2001/02/01 20:31:18 gram Exp $
+ * $Id: dfilter.c,v 1.3 2001/02/12 10:06:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -117,7 +117,12 @@ dfilter_init(void)
 		g_assert(abbrev[0] != 0);	/* Not empty string */
 
 		/* We allow multiple hfinfo's to be registered under the same
-		 * abbreviation. This was done for X.25 */
+		 * abbreviation. This was done for X.25, as, depending
+		 * on whether it's modulo-8 or modulo-128 operation,
+		 * some bitfield fields may be in different bits of
+		 * a byte, and we want to be able to refer to that field
+		 * with one name regardless of whether the packets
+		 * are modulo-8 or modulo-128 packets. */
 		same_name_hfinfo = g_tree_lookup(dfilter_tokens, abbrev);
 		if (same_name_hfinfo) {
 			/* Set the "same_name" pointer in the hfinfo, then

@@ -7,7 +7,7 @@
  * Copyright 2000, Jeffrey C. Foster<jfoste@woodward.com> and
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: dfilter_expr_dlg.c,v 1.11 2001/02/12 09:06:19 guy Exp $
+ * $Id: dfilter_expr_dlg.c,v 1.12 2001/02/12 10:06:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1013,12 +1013,14 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
 
 		/*
 		 * If there's another field with the same name as this
-		 * one, skip it - all fields with the same name should
-		 * have the same type/radix/value list, they would
-		 * just have different bit masks.  (If a field isn't
-		 * a bitfield, but can be, say, 1 or 2 bytes long,
-		 * it can just be made FT_UINT16, meaning the *maximum*
-		 * length is 2 bytes.)
+		 * one, skip this field - all fields with the same name
+		 * are really just versions of the same field stored in
+		 * different bits, and should have the same type/radix/
+		 * value list, and just differ in their bit masks.
+		 * (If a field isn't a bitfield, but can be, say, 1 or 2
+		 * bytes long, it can just be made FT_UINT16, meaning the
+		 * *maximum* length is 2 bytes, and be used for all
+		 * lengths.)
 		 */
 		if (hfinfo->same_name != NULL)
 			continue;

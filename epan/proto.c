@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.8 2001/02/01 21:48:02 guy Exp $
+ * $Id: proto.c,v 1.9 2001/02/12 10:06:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -2596,6 +2596,21 @@ proto_registrar_dump(void)
 		}
 		/* format for header fields */
 		else {
+			/*
+			 * If there's another field with the same name as
+			 * this one, skip this field - all fields with the
+			 * same name are really just versions of the
+			 * same field stored in different bits, and should
+			 * have the same type/radix/value list, and just
+			 * differ in their bit masks.  (If a field isn't
+			 * a bitfield, but can be, say, 1 or 2 bytes long,
+			 * it can just be made FT_UINT16, meaning the
+			 * *maximum* length is 2 bytes, and be used
+			 * for all lengths.)
+			 */
+			if (hfinfo->same_name != NULL)
+				continue;
+
 			parent_hfinfo = proto_registrar_get_nth(hfinfo->parent);
 			g_assert(parent_hfinfo);
 
