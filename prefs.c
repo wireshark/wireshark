@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.109 2003/10/14 23:20:15 guy Exp $
+ * $Id: prefs.c,v 1.110 2003/10/16 21:19:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -78,17 +78,22 @@ static int mgcp_udp_port_count;
 
 e_prefs prefs;
 
-gchar	*gui_ptree_line_style_text[] =
+static gchar	*gui_ptree_line_style_text[] =
 	{ "NONE", "SOLID", "DOTTED", "TABBED", NULL };
 
-gchar	*gui_ptree_expander_style_text[] =
+static gchar	*gui_ptree_expander_style_text[] =
 	{ "NONE", "SQUARE", "TRIANGLE", "CIRCULAR", NULL };
 
-gchar	*gui_hex_dump_highlight_style_text[] =
+static gchar	*gui_hex_dump_highlight_style_text[] =
 	{ "BOLD", "INVERSE", NULL };
 
-gchar	*gui_fileopen_style_text[] =
+static gchar	*gui_fileopen_style_text[] =
 	{ "LAST_OPENED", "SPECIFIED", NULL };
+
+/* GTK knows of two ways representing "both", vertical and horizontal aligned.
+ * as this may not work on other guis, we use only "both" in general here */
+static gchar	*gui_toolbar_style_text[] =
+	{ "ICONS", "TEXT", "BOTH", NULL };
 
 /*
  * List of all modules with preference settings.
@@ -912,6 +917,7 @@ read_prefs(int *gpf_errno_return, int *gpf_read_errno_return,
     prefs.gui_ptree_line_style = 0;
     prefs.gui_ptree_expander_style = 1;
     prefs.gui_hex_dump_highlight_style = 1;
+    prefs.gui_toolbar_main_style = TB_STYLE_ICONS;
 #ifdef WIN32
     prefs.gui_font_name = g_strdup("-*-lucida console-medium-r-*-*-*-100-*-*-*-*-*-*");
 #else
@@ -1266,6 +1272,7 @@ prefs_set_pref(char *prefarg)
 #define PRS_GUI_GEOMETRY_MAIN_Y          "gui.geometry.main.y"
 #define PRS_GUI_GEOMETRY_MAIN_WIDTH      "gui.geometry.main.width"
 #define PRS_GUI_GEOMETRY_MAIN_HEIGHT     "gui.geometry.main.height"
+#define PRS_GUI_TOOLBAR_MAIN_STYLE       "gui.toolbar_main_style"
 
 /*
  * This applies to more than just captures, so it's not "capture.name_resolve";
@@ -1499,6 +1506,11 @@ set_pref(gchar *pref_name, gchar *value)
   } else if (strcmp(pref_name, PRS_GUI_HEX_DUMP_HIGHLIGHT_STYLE) == 0) {
     prefs.gui_hex_dump_highlight_style =
 	find_index_from_string_array(value, gui_hex_dump_highlight_style_text, 1);
+  } else if (strcmp(pref_name, PRS_GUI_TOOLBAR_MAIN_STYLE) == 0) {
+    /* see toolbar.c for details, "icons only" is default */
+	prefs.gui_toolbar_main_style =
+	    find_index_from_string_array(value, gui_toolbar_style_text,
+				     TB_STYLE_ICONS);
   } else if (strcmp(pref_name, PRS_GUI_FONT_NAME) == 0) {
     if (prefs.gui_font_name != NULL)
       g_free(prefs.gui_font_name);
@@ -2065,6 +2077,11 @@ write_prefs(char **pf_path_return)
   fprintf(pf, PRS_GUI_HEX_DUMP_HIGHLIGHT_STYLE ": %s\n",
 		  gui_hex_dump_highlight_style_text[prefs.gui_hex_dump_highlight_style]);
 
+  fprintf(pf, "\n# Main Toolbar style.\n");
+  fprintf(pf, "# One of: ICONS, TEXT, BOTH\n");
+  fprintf(pf, PRS_GUI_TOOLBAR_MAIN_STYLE ": %s\n",
+		  gui_toolbar_style_text[prefs.gui_toolbar_main_style]);
+
   fprintf(pf, "\n# Font name for packet list, protocol tree, and hex dump panes.\n");
   fprintf(pf, PRS_GUI_FONT_NAME ": %s\n", prefs.gui_font_name);
 
@@ -2204,6 +2221,7 @@ copy_prefs(e_prefs *dest, e_prefs *src)
   dest->gui_ptree_line_style = src->gui_ptree_line_style;
   dest->gui_ptree_expander_style = src->gui_ptree_expander_style;
   dest->gui_hex_dump_highlight_style = src->gui_hex_dump_highlight_style;
+  dest->gui_toolbar_main_style = src->gui_toolbar_main_style;
   dest->gui_font_name = g_strdup(src->gui_font_name);
   dest->gui_marked_fg = src->gui_marked_fg;
   dest->gui_marked_bg = src->gui_marked_bg;

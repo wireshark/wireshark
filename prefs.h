@@ -1,7 +1,7 @@
 /* prefs.h
  * Definitions for preference handling routines
  *
- * $Id: prefs.h,v 1.48 2003/10/14 23:20:16 guy Exp $
+ * $Id: prefs.h,v 1.49 2003/10/16 21:19:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -52,6 +52,13 @@ char string_to_name_resolve(char *string, guint32 *name_resolve);
 #define FO_STYLE_LAST_OPENED	0	/* start in last directory we looked at */
 #define FO_STYLE_SPECIFIED	1	/* start in specified directory */
 
+/*
+ * Toolbar styles.
+ */
+#define TB_STYLE_ICONS		0
+#define TB_STYLE_TEXT		1
+#define TB_STYLE_BOTH		2
+
 typedef struct _e_prefs {
   gint     pr_format;
   gint     pr_dest;
@@ -67,6 +74,7 @@ typedef struct _e_prefs {
   gint     gui_ptree_line_style;
   gint     gui_ptree_expander_style;
   gboolean gui_hex_dump_highlight_style;
+  gint     gui_toolbar_main_style;
   gchar   *gui_font_name;
   color_t  gui_marked_fg;
   color_t  gui_marked_bg;

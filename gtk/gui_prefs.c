@@ -1,7 +1,7 @@
 /* gui_prefs.c
  * Dialog box for GUI preferences
  *
- * $Id: gui_prefs.c,v 1.41 2003/10/14 23:20:17 guy Exp $
+ * $Id: gui_prefs.c,v 1.42 2003/10/16 21:19:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -45,6 +45,7 @@
 #include "proto_draw.h"
 #include "main.h"
 #include "compat_macros.h"
+#include "toolbar.h"
 
 static void font_browse_cb(GtkWidget *w, gpointer data);
 static void font_browse_ok_cb(GtkWidget *w, GtkFontSelectionDialog *fs);
@@ -84,6 +85,8 @@ static void fileopen_selected_cb(GtkWidget *mybutton_rb _U_, gpointer parent_w);
 #define GUI_FILEOPEN_KEY	"fileopen_behavior"
 #define GUI_FILEOPEN_DIR_KEY	"fileopen_directory"
 
+#define GUI_TOOLBAR_STYLE_KEY	"toolbar_style"
+
 static const enum_val_t scrollbar_placement_vals[] = {
 	{ "Left",  FALSE },
 	{ "Right", TRUE },
@@ -121,9 +124,16 @@ static const enum_val_t altern_colors_vals[] = {
 #endif
 
 static const enum_val_t highlight_style_vals[] = {
-  	{ "Bold",     0 },
-  	{ "Inverse",  1 },
+  	{ "Bold",     FALSE },
+  	{ "Inverse",  TRUE },
 	{ NULL,       0 }
+};
+
+static const enum_val_t toolbar_style_vals[] = {
+  	{ "Icons only",     TB_STYLE_ICONS },
+  	{ "Text only",      TB_STYLE_TEXT },
+  	{ "Icons & Text",   TB_STYLE_BOTH },
+	{ NULL,             0 }
 };
 
 static const enum_val_t gui_fileopen_vals[] = {
@@ -156,7 +166,7 @@ gui_prefs_show(void)
 	GtkWidget *main_tb, *main_vb, *hbox, *font_bt, *color_bt;
 	GtkWidget *scrollbar_om, *plist_browse_om;
 	GtkWidget *ptree_browse_om, *highlight_style_om;
-        GtkWidget *fileopen_rb, *fileopen_dir_te;
+        GtkWidget *fileopen_rb, *fileopen_dir_te, *toolbar_style_om;
 	GtkWidget *save_position_cb, *save_size_cb;
 #if GTK_MAJOR_VERSION < 2
 	GtkWidget *expander_style_om, *line_style_om;
@@ -229,6 +239,13 @@ gui_prefs_show(void)
 	    prefs.gui_hex_dump_highlight_style);
 	OBJECT_SET_DATA(main_vb, HEX_DUMP_HIGHLIGHT_STYLE_KEY,
                         highlight_style_om);
+
+	/* Toolbar prefs */
+	toolbar_style_om = create_preference_option_menu(main_tb, pos++,
+	    "Toolbar style:", NULL, toolbar_style_vals,
+	    prefs.gui_toolbar_main_style);
+	OBJECT_SET_DATA(main_vb, GUI_TOOLBAR_STYLE_KEY,
+                        toolbar_style_om);
 
 	/* Geometry prefs */
 	save_position_cb = create_preference_check_button(main_tb, pos++,
@@ -479,6 +496,9 @@ gui_prefs_fetch(GtkWidget *w)
 	prefs.gui_hex_dump_highlight_style = fetch_enum_value(
 	    OBJECT_GET_DATA(w, HEX_DUMP_HIGHLIGHT_STYLE_KEY),
             highlight_style_vals);
+	prefs.gui_toolbar_main_style = fetch_enum_value(
+	    OBJECT_GET_DATA(w, GUI_TOOLBAR_STYLE_KEY),
+            toolbar_style_vals);	
 	prefs.gui_geometry_save_position =
 	    gtk_toggle_button_get_active(OBJECT_GET_DATA(w,
 	    	GEOMETRY_POSITION_KEY));
@@ -549,6 +569,9 @@ gui_prefs_apply(GtkWidget *w _U_)
 	   or the colors to use changed. */
 	follow_redraw_all();
 
+	/* XXX: redraw the toolbar only, if style changed */
+	toolbar_redraw_all();
+	
 	set_scrollbar_placement_all();
 	set_plist_sel_browse(prefs.gui_plist_sel_browse);
 	set_ptree_sel_browse_all(prefs.gui_ptree_sel_browse);

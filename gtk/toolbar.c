@@ -2,7 +2,7 @@
  * The main toolbar
  * Copyright 2003, Ulf Lamping <ulf.lamping@web.de>
  *
- * $Id: toolbar.c,v 1.5 2003/10/16 21:04:20 oabad Exp $
+ * $Id: toolbar.c,v 1.6 2003/10/16 21:19:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -33,7 +33,8 @@
  *
  * Hint: gtk2 in comparison to gtk1 has a better way to handle with "common"
  * icons; gtk2 calls this kind of icons "stock-icons"
- * (stock-icons including: icons for "open", "save", "print", ...)
+ * (stock-icons including: icons for "open", "save", "print", ...).
+ * The gtk2 version of this code uses them.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -87,16 +88,15 @@
 #define E_TB_MAIN_HB_KEY          "toolbar_main_handlebox"
 
 
-gboolean toolbar_init = FALSE;
+static gboolean toolbar_init = FALSE;
 
-GtkWidget *new_button, *stop_button;
-GtkWidget *open_button, *save_button, *close_button, *reload_button;
-GtkWidget *print_button, *find_button, *find_next_button, *go_to_button;
-GtkWidget *capture_filter_button, *display_filter_button;
-GtkWidget *color_display_button, *prefs_button, *help_button;
+static GtkWidget *new_button, *stop_button;
+static GtkWidget *open_button, *save_button, *close_button, *reload_button;
+static GtkWidget *print_button, *find_button, *find_next_button, *go_to_button;
+static GtkWidget *capture_filter_button, *display_filter_button;
+static GtkWidget *color_display_button, *prefs_button, *help_button;
 
-void toolbar_redraw_all(void);
-void get_main_toolbar(GtkWidget *window, GtkWidget **toolbar);
+static void get_main_toolbar(GtkWidget *window, GtkWidget **toolbar);
 
 
 /*
@@ -137,27 +137,16 @@ toolbar_redraw_all(void)
 {
     GtkWidget     *main_tb, *main_tb_hb;
     gboolean      gui_toolbar_main_show;
-    gint          gui_toolbar_main_style;
-
-    /* Possible toolbar styles (from GTK): 
-       typedef enum
-       {
-       GTK_TOOLBAR_ICONS,
-       GTK_TOOLBAR_TEXT,
-       GTK_TOOLBAR_BOTH,
-       GTK_TOOLBAR_BOTH_HORIZ
-       } GtkToolbarStyle;
-     */
+    static const GtkToolbarStyle styles[] = {
+	GTK_TOOLBAR_ICONS,
+	GTK_TOOLBAR_TEXT,
+	GTK_TOOLBAR_BOTH
+    };
 
     /* default: show toolbar */
     /* XXX: get this info from a preference setting */
     gui_toolbar_main_show = TRUE;
     /* gui_toolbar_main_style = prefs.gui_toolbar_main_show; */
-
-    /* default style: icons only */
-    gui_toolbar_main_style = GTK_TOOLBAR_ICONS;
-    /* XXX: get this style from a preference setting */
-    /* gui_toolbar_main_style = prefs.gui_toolbar_main_style; */
 
     main_tb_hb = OBJECT_GET_DATA(top_level, E_TB_MAIN_HB_KEY);
 
@@ -165,12 +154,25 @@ toolbar_redraw_all(void)
     if (gui_toolbar_main_show) {
         /* yes, set the style he/she prefers (texts, icons, both) */
         main_tb = OBJECT_GET_DATA(top_level, E_TB_MAIN_KEY);
-        gtk_toolbar_set_style(GTK_TOOLBAR(main_tb), gui_toolbar_main_style);
+        gtk_toolbar_set_style(GTK_TOOLBAR(main_tb),
+                          styles[prefs.gui_toolbar_main_style]);
         gtk_widget_show(main_tb_hb);
     } else {
         /* no */
         gtk_widget_hide(main_tb_hb);
     }
+
+    /* resize ALL elements in the top_level container */
+#if GTK_MAJOR_VERSION >= 2
+    /* XXX - do this on GTK+ 2.x as well?  If we don't do it in 1.2[.x],
+       the toolbar takes the maximum vertical size it ever had, even
+       if you change the style in such a way as to reduce its height. */
+#if 0
+    gtk_container_resize_children(GTK_CONTAINER(top_level));
+#endif
+#else
+    gtk_container_queue_resize(GTK_CONTAINER(top_level));
+#endif
 }
 
 
@@ -224,7 +226,7 @@ void set_toolbar_for_captured_packets(gboolean have_captured_packets) {
 
 
 /* helper function: add a separator to the toolbar */
-void toolbar_append_separator(GtkWidget *toolbar) {
+static void toolbar_append_separator(GtkWidget *toolbar) {
     /* XXX - the usage of a gtk_separator doesn't seem to work for a toolbar.
      * (at least in the win32 port of gtk 1.3)
      * So simply add a few spaces */
@@ -235,7 +237,7 @@ void toolbar_append_separator(GtkWidget *toolbar) {
 
 
 /* get the main toolbar (remember: call this only once!) */
-void get_main_toolbar(GtkWidget *window, GtkWidget **toolbar)
+static void get_main_toolbar(GtkWidget *window, GtkWidget **toolbar)
 {
     GdkPixmap *icon;
     GtkWidget *iconw;
