@@ -1,6 +1,6 @@
 /* netxray.c
  *
- * $Id: netxray.c,v 1.37 2001/03/10 06:33:57 guy Exp $
+ * $Id: netxray.c,v 1.38 2001/03/23 23:16:29 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -40,15 +40,6 @@ static const char netxray_magic[] = {	/* magic header */
 	'X', 'C', 'P', '\0'
 };
 
-#ifdef G_HAVE_GINT64
-typedef guint64 netxray_ticks;
-#else
-typedef struct {
-	guint32	lo;	/* lower 32 bits of time stamp */
-	guint32	hi;	/* upper 32 bits of time stamp */
-} netxray_ticks;
-#endif
-
 /* NetXRay file header (minus magic number). */
 struct netxray_hdr {
 	char	version[8];	/* version number */
@@ -60,7 +51,8 @@ struct netxray_hdr {
 	guint32 xxy[3];		/* unknown */
 	guint16	network;	/* datalink type */
 	guint8	xxz[6];
-	netxray_ticks t;
+	guint32	timelo;		/* lower 32 bits of time stamp of capture start */
+	guint32	timehi;		/* upper 32 bits of time stamp of capture start */
 	/*
 	 * XXX - other stuff.
 	 */
@@ -85,7 +77,8 @@ static const char vers_2_002[] = {
 
 /* NetXRay 1.x data record format - followed by frame data. */
 struct netxrayrec_1_x_hdr {
-	netxray_ticks t;
+	guint32	timelo;		/* lower 32 bits of time stamp */
+	guint32	timehi;		/* upper 32 bits of time stamp */
 	guint16	orig_len;	/* packet length */
 	guint16	incl_len;	/* capture length */
 	guint32	xxx[4];		/* unknown */
@@ -93,7 +86,8 @@ struct netxrayrec_1_x_hdr {
 
 /* NetXRay 2.x data record format - followed by frame data. */
 struct netxrayrec_2_x_hdr {
-	netxray_ticks t;
+	guint32	timelo;		/* lower 32 bits of time stamp */
+	guint32	timehi;		/* upper 32 bits of time stamp */
 	guint16	orig_len;	/* packet length */
 	guint16	incl_len;	/* capture length */
 	guint32	xxx[7];		/* unknown */
@@ -104,26 +98,6 @@ static void netxray_close(wtap *wth);
 static gboolean netxray_dump_1_1(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 	const union wtap_pseudo_header *pseudo_header, const u_char *pd, int *err);
 static gboolean netxray_dump_close_1_1(wtap_dumper *wdh, int *err);
-
-static double netxray_ticks2double(netxray_ticks *t)
-{
-#	ifdef G_HAVE_GINT64
-	return (gint64)pletohll(t);
-#	else
-	return pletohl(&t->lo) +
-	       pletohl(&t->hi) * 4294967296.0;
-#	endif	
-}
-
-static void double2netxray_ticks(netxray_ticks *t, double d)
-{
-#	ifdef G_HAVE_GINT64
-	*t = htolell(d);
-#	else
-	t->lo = htolel((guint32) (d % 4294967296.0));
-	t->hi = htolel((guint32) (d / 4294967296.0));
-#	endif	
-}
 
 int netxray_open(wtap *wth, int *err)
 {
@@ -221,8 +195,9 @@ int netxray_open(wtap *wth, int *err)
 	wth->snapshot_length = 16384;	/* XXX - not available in header */
 	wth->capture.netxray->start_time = pletohl(&hdr.start_time);
 	wth->capture.netxray->timeunit = timeunit;
-	t =  netxray_ticks2double(&hdr.t);
-	t /= timeunit;
+	t = (double)pletohl(&hdr.timelo)
+	    + (double)pletohl(&hdr.timehi)*4294967296.0;
+	t = t/timeunit;
 	wth->capture.netxray->start_timestamp = t;
 	wth->capture.netxray->version_major = version_major;
 	/*wth->frame_number = 0;*/
@@ -311,11 +286,13 @@ reread:
 	}
 	wth->data_offset += packet_size;
 
-	t =  netxray_ticks2double(&hdr.hdr_1_x.t);
+	t = (double)pletohl(&hdr.hdr_1_x.timelo)
+	    + (double)pletohl(&hdr.hdr_1_x.timehi)*4294967296.0;
 	t /= wth->capture.netxray->timeunit;
 	t -= wth->capture.netxray->start_timestamp;
 	wth->phdr.ts.tv_sec = wth->capture.netxray->start_time + (long)t;
-	wth->phdr.ts.tv_usec = (t - (unsigned long)(t)) * 1.0e6;
+	wth->phdr.ts.tv_usec = (unsigned long)((t-(double)(unsigned long)(t))
+		*1.0e6);
 	wth->phdr.caplen = packet_size;
 	wth->phdr.len = pletohs(&hdr.hdr_1_x.orig_len);
 	wth->phdr.pkt_encap = wth->file_encap;
@@ -411,9 +388,10 @@ static gboolean netxray_dump_1_1(wtap_dumper *wdh, const struct wtap_pkthdr *phd
 
     /* build the header for each packet */
     memset(&rec_hdr, '\0', sizeof(rec_hdr));
-    timestamp = (phdr->ts.tv_sec - netxray->start.tv_sec)*1000000.0 +
-	phdr->ts.tv_usec;
-    double2netxray_ticks(&rec_hdr.t, timestamp);
+    timestamp = (phdr->ts.tv_sec - netxray->start.tv_sec)*1000000 +
+        phdr->ts.tv_usec;
+    rec_hdr.timelo = htolel(timestamp);
+    rec_hdr.timehi = htolel(0);
     rec_hdr.orig_len = htoles(phdr->len);
     rec_hdr.incl_len = htoles(phdr->caplen);
 	
@@ -474,7 +452,8 @@ static gboolean netxray_dump_close_1_1(wtap_dumper *wdh, int *err)
     file_hdr.start_offset = htolel(CAPTUREFILE_HEADER_SIZE);
     file_hdr.end_offset = htolel(filelen);
     file_hdr.network = htoles(wtap_encap[wdh->encap]);
-    double2netxray_ticks(&file_hdr.t, 0);
+    file_hdr.timelo = htolel(0);
+    file_hdr.timehi = htolel(0);
 
     memset(hdr_buf, '\0', sizeof hdr_buf);
     memcpy(hdr_buf, &file_hdr, sizeof(file_hdr));
