@@ -11,7 +11,7 @@
  * Dissection of multiple SMPP PDUs within one packet
  * provided by Chris Wilson.
  *
- * $Id: packet-smpp.c,v 1.26 2004/01/18 00:07:02 obiot Exp $
+ * $Id: packet-smpp.c,v 1.27 2004/01/20 17:58:37 obiot Exp $
  *
  * Note on SMS Message reassembly
  * ------------------------------
@@ -76,6 +76,7 @@
 
 #include "prefs.h"
 #include "reassemble.h"
+#include "packet-tcp.h"
 
 /* General-purpose debug logger.
  * Requires double parentheses because of variable arguments of printf().
@@ -93,8 +94,11 @@
 #endif
 
 /* Forward declarations		*/
-static void dissect_smpp(tvbuff_t *, packet_info *, proto_tree *t);
-static void dissect_smpp_gsm_sms(tvbuff_t *, packet_info *, proto_tree *t);
+static void dissect_smpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+static guint get_smpp_pdu_len(tvbuff_t *tvb, int offset);
+static void dissect_smpp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+
+static void dissect_smpp_gsm_sms(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 /*
  * Initialize the protocol and registered fields
@@ -254,7 +258,6 @@ static int hf_sm_reassembled_in				= -1;
 
 /* Initialize the subtree pointers */
 static gint ett_smpp		= -1;
-static gint ett_smpp_pdu	= -1;
 static gint ett_dlist		= -1;
 static gint ett_dlist_resp	= -1;
 static gint ett_opt_param	= -1;
@@ -290,6 +293,8 @@ static const fragment_items sm_frag_items = {
 	"Short Message fragments"
 };
 
+/* Reassemble SMPP TCP segments */
+static gboolean reassemble_over_tcp = FALSE;
 /* Dissect all SM data as WSP if the UDH contains a Port Number IE */
 static gboolean port_number_udh_means_wsp = FALSE;
 /* Always try dissecting the 1st fragment of a SM,
@@ -2015,41 +2020,95 @@ dissect_smpp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     return TRUE;
 }
 
-/* Code to actually dissect the packets */
+static guint
+get_smpp_pdu_len(tvbuff_t *tvb, int offset)
+{
+    return tvb_get_ntohl(tvb, offset);
+}
+
+/*
+ * This global SMPP variable is used to determine whether the PDU to dissect
+ * is the first SMPP PDU in the packet (or reassembled buffer), requiring
+ * different column update code than subsequent SMPP PDUs within this packet
+ * (or reassembled buffer).
+ *
+ * FIXME - This approach is NOT dissection multi-thread safe!
+ */
+static gboolean first = TRUE;
+
 static void
 dissect_smpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    first = TRUE;
+    if (pinfo->ptype == PT_TCP)	{	/* are we running on top of TCP */
+	tcp_dissect_pdus(tvb, pinfo, tree,
+		reassemble_over_tcp,	/* Do we try to reassemble	*/
+		16,			/* Length of fixed header	*/
+		get_smpp_pdu_len,	/* Function returning PDU len	*/
+		dissect_smpp_pdu);	/* PDU dissector		*/
+    } else {				/* no? probably X.25		*/
+	guint32 offset = 0;
+	while (tvb_reported_length_remaining(tvb, offset) > 0) {
+    	    guint16 pdu_len = tvb_get_ntohl(tvb, offset);
+	    gint pdu_real_len = tvb_length_remaining(tvb, offset);
+    	    tvbuff_t *pdu_tvb;
+
+	    if (pdu_real_len <= 0)
+		return;
+	    if (pdu_real_len > pdu_len)
+		pdu_real_len = pdu_len;
+	    pdu_tvb = tvb_new_subset(tvb, offset, pdu_real_len, pdu_len);
+    	    dissect_smpp_pdu(pdu_tvb, pinfo, tree);
+	    offset += pdu_len;
+	    first = FALSE;
+	}
+    }
+}
+
+
+/* Dissect a single SMPP PDU contained within "tvb". */
+static void
+dissect_smpp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     int		 offset = 0;		/* Offset within tvbuff	*/
     guint	 command_length;	/* length of PDU	*/
     guint	 command_id;		/* SMPP command		*/
     guint	 command_status;	/* Status code		*/
     guint	 sequence_number;	/* ...of command	*/
-    /* Multiple PDUs within one tvbuffer */
-    gboolean first = TRUE;		/* First PDU		*/
-    gboolean more_pdus = FALSE;		/* More PDUs		*/
+    gchar	*command_str;
+    gchar	*command_status_str = NULL;
     /* Set up structures needed to add the protocol subtree and manage it */
     proto_item	*ti = NULL;
     proto_tree	*smpp_tree = NULL;
 
     /*
-     * Safety: don't even try it when the mandatory header isn't present.
+     * Safety: don't even try to dissect the PDU
+     * when the mandatory header isn't present.
      */
     if (tvb_reported_length(tvb) < 4 * 4)
 	return;
     command_length = tvb_get_ntohl(tvb, offset);
     offset += 4;
     command_id = tvb_get_ntohl(tvb, offset);
+    command_str = val_to_str(command_id, vals_command_id,
+	    "(Unknown SMPP Operation 0x%08X)");
     offset += 4;
     command_status = tvb_get_ntohl(tvb, offset);
-    offset +=4;
+    if (command_id & 0x80000000) {
+	command_status_str = val_to_str(command_status, vals_command_status,
+		"(Reserved Error 0x%08X)");
+    }
+    offset += 4;
     sequence_number = tvb_get_ntohl(tvb, offset);
     offset += 4;
 
     /*
      * Update the protocol column.
      */
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, "SMPP");
+    if (first == TRUE) {
+    	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+    	    col_set_str(pinfo->cinfo, COL_PROTOCOL, "SMPP");
+    }
 
     /*
      * Create display subtree for the protocol
@@ -2062,62 +2121,30 @@ dissect_smpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /*
      * Cycle over the encapsulated PDUs
      */
-    while (first || more_pdus) {
-	gchar *command_str = NULL, *command_status_str = NULL;
+    {
 	tvbuff_t *pdu_tvb;
 
-	more_pdus = FALSE;
-    	/*
-	 * Check whether there are any more PDUs in the packet
-	 * by inspecting the reported number of remaining bytes.
-	 */
-	if (tvb_reported_length_remaining(tvb, offset + command_length) > 0)
-	    more_pdus = TRUE;
-
 	/*
-	 * Make entries in Protocol column and Info column
-	 * on the summary display
+	 * Make entries in the Info column on the summary display
 	 */
-	if (first == TRUE) {
-	    /*
-	     * First PDU - We already computed the fixed header
-	     */
-	    command_str = val_to_str(command_id, vals_command_id,
-			    "(Unknown SMPP Operation 0x%08X)");
-	    if (check_col(pinfo->cinfo, COL_INFO)) {
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+	    if (first == TRUE) {
+		/*
+		 * First PDU - We already computed the fixed header
+		 */
 		col_clear(pinfo->cinfo, COL_INFO);
 		col_add_fstr(pinfo->cinfo, COL_INFO, "SMPP %s", command_str);
-	    }
-	    first = FALSE;
-	} else {
-	    /*
-	     * Fixed header - throw exception if required
-	     */
-	    command_length = tvb_get_ntohl(tvb, offset);
-	    offset += 4;
-	    command_id = tvb_get_ntohl(tvb, offset);
-	    offset += 4;
-	    command_status = tvb_get_ntohl(tvb, offset);
-	    offset +=4;
-	    sequence_number = tvb_get_ntohl(tvb, offset);
-	    offset += 4;
-	    /*
-	     * Subsequent PDUs
-	     */
-	    command_str = val_to_str(command_id, vals_command_id,
-			    "(Unknown SMPP Operation 0x%08X)");
-	    if (check_col(pinfo->cinfo, COL_INFO)) {
+		first = FALSE;
+	    } else {
+		/*
+		 * Subsequent PDUs
+		 */
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", command_str);
 	    }
-	}
-
-	/*
-	 * Display command status of responses in Info column
-	 */
-	if (command_id & 0x80000000) {
-	    command_status_str = val_to_str(command_status,
-		    vals_command_status, "(Reserved Error 0x%08X)");
-	    if (check_col(pinfo->cinfo, COL_INFO)) {
+	    /*
+	     * Display command status of responses in Info column
+	     */
+	    if (command_id & 0x80000000) {
 		col_append_fstr(pinfo->cinfo, COL_INFO, ": \"%s\"",
 			command_status_str);
 	    }
@@ -2152,35 +2179,28 @@ dissect_smpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 */
 	if (tree || (command_id == 4))
 	{
-	    proto_tree *pdu_tree = NULL;
-	    proto_item *pdu_ti = NULL;
 	    /*
 	     * Create display subtree for the PDU
 	     */
 	    if (tree) {
-    		pdu_ti = proto_tree_add_text(smpp_tree, pdu_tvb,
-    			0, pdu_tvb->length, "SMPP PDU");
-    		pdu_tree = proto_item_add_subtree(pdu_ti, ett_smpp_pdu);
-    		proto_tree_add_uint(pdu_tree, hf_smpp_command_length,
+    		proto_tree_add_uint(smpp_tree, hf_smpp_command_length,
     			pdu_tvb, 0, 4, command_length);
-    		proto_tree_add_uint(pdu_tree, hf_smpp_command_id,
+    		proto_tree_add_uint(smpp_tree, hf_smpp_command_id,
 			pdu_tvb, 4, 4, command_id);
-    		proto_item_append_text(ti, ", %s", command_str);
-    		proto_item_append_text(pdu_ti, ", Command: %s", command_str);
+    		proto_item_append_text(ti, ", Command: %s", command_str);
 
 		/*
 		 * Status is only meaningful with responses
 		 */
 		if (command_id & 0x80000000) {
-		    proto_tree_add_uint(pdu_tree, hf_smpp_command_status,
+		    proto_tree_add_uint(smpp_tree, hf_smpp_command_status,
 			    pdu_tvb, 8, 4, command_status);
-		    proto_item_append_text (ti, ": \"%s\"", command_status_str);
-		    proto_item_append_text (pdu_ti, ", Status: \"%s\"",
+		    proto_item_append_text (ti, ", Status: \"%s\"",
 			    command_status_str);
 		}
-		proto_tree_add_uint(pdu_tree, hf_smpp_sequence_number,
+		proto_tree_add_uint(smpp_tree, hf_smpp_sequence_number,
 			pdu_tvb, 12, 4, sequence_number);
-		proto_item_append_text(pdu_ti, ", Seq: %u, Len: %u",
+		proto_item_append_text(ti, ", Seq: %u, Len: %u",
 			sequence_number, command_length);
 	    }
 
@@ -2208,35 +2228,35 @@ dissect_smpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			    break;
 			case   1:
 			    if (!command_status)
-				bind_receiver_resp(pdu_tree, tmp_tvb);
+				bind_receiver_resp(smpp_tree, tmp_tvb);
 			    break;
 			case   2:
 			    if (!command_status)
-				bind_transmitter_resp(pdu_tree, tmp_tvb);
+				bind_transmitter_resp(smpp_tree, tmp_tvb);
 			    break;
 			case   3:
 			    if (!command_status)
-				query_sm_resp(pdu_tree, tmp_tvb);
+				query_sm_resp(smpp_tree, tmp_tvb);
 			    break;
 			case   4:
 			    if (!command_status)
-				submit_sm_resp(pdu_tree, tmp_tvb);
+				submit_sm_resp(smpp_tree, tmp_tvb);
 			    break;
 			case   5:
 			    if (!command_status)
-				deliver_sm_resp(pdu_tree, tmp_tvb);
+				deliver_sm_resp(smpp_tree, tmp_tvb);
 			    break;
 			case   9:
 			    if (!command_status)
-				bind_transceiver_resp(pdu_tree, tmp_tvb);
+				bind_transceiver_resp(smpp_tree, tmp_tvb);
 			    break;
 			case  33:
 			    if (!command_status)
-				submit_multi_resp(pdu_tree, tmp_tvb);
+				submit_multi_resp(smpp_tree, tmp_tvb);
 			    break;
 			case 259:
 			    if (!command_status)
-				data_sm_resp(pdu_tree, tmp_tvb);
+				data_sm_resp(smpp_tree, tmp_tvb);
 			    break;
 			default:
 			    break;
@@ -2246,43 +2266,43 @@ dissect_smpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		{
 		    switch (command_id) {
 			case   1:
-			    bind_receiver(pdu_tree, tmp_tvb);
+			    bind_receiver(smpp_tree, tmp_tvb);
 			    break;
 			case   2:
-			    bind_transmitter(pdu_tree, tmp_tvb);
+			    bind_transmitter(smpp_tree, tmp_tvb);
 			    break;
 			case   3:
-			    query_sm(pdu_tree, tmp_tvb);
+			    query_sm(smpp_tree, tmp_tvb);
 			    break;
 			case   4:
-			    submit_sm(pdu_tree, tmp_tvb, pinfo, tree);
+			    submit_sm(smpp_tree, tmp_tvb, pinfo, tree);
 			    break;
 			case   5:
-			    deliver_sm(pdu_tree, tmp_tvb, pinfo, tree);
+			    deliver_sm(smpp_tree, tmp_tvb, pinfo, tree);
 			    break;
 			case   6:	/* Unbind		*/
 			case  21:	/* Enquire link		*/
 			    break;
 			case   7:
-			    replace_sm(pdu_tree, tmp_tvb);
+			    replace_sm(smpp_tree, tmp_tvb);
 			    break;
 			case   8:
-			    cancel_sm(pdu_tree, tmp_tvb);
+			    cancel_sm(smpp_tree, tmp_tvb);
 			    break;
 			case   9:
-			    bind_transceiver(pdu_tree, tmp_tvb);
+			    bind_transceiver(smpp_tree, tmp_tvb);
 			    break;
 			case  11:
-			    outbind(pdu_tree, tmp_tvb);
+			    outbind(smpp_tree, tmp_tvb);
 			    break;
 			case  33:
-			    submit_multi(pdu_tree, tmp_tvb);
+			    submit_multi(smpp_tree, tmp_tvb);
 			    break;
 			case  258:
-			    alert_notification(pdu_tree, tmp_tvb);
+			    alert_notification(smpp_tree, tmp_tvb);
 			    break;
 			case  259:
-			    data_sm(pdu_tree, tmp_tvb);
+			    data_sm(smpp_tree, tmp_tvb);
 			    break;
 			default:
 			    break;
@@ -2292,9 +2312,8 @@ dissect_smpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    offset += command_length;
 	} /* if (tree || (command_id == 4)) */
 	first = FALSE;
-    } /* while (first || more_pdus) */
+    }
 
-    /* If this protocol has a sub-dissector call it here.	*/
     return;
 }
 
@@ -2453,18 +2472,18 @@ proto_register_smpp_gsm_sms(void)
 	};
 
     static gint *ett[] = {
-		&ett_gsm_sms,
-		&ett_udh,
-	    &ett_udh_ie,
-		&ett_sm_fragment,
-		&ett_sm_fragments,
+	&ett_gsm_sms,
+	&ett_udh,
+	&ett_udh_ie,
+	&ett_sm_fragment,
+	&ett_sm_fragments,
     };
-	DebugLog(("Registering SMPP GSM SMS dissector\n"));
+    DebugLog(("Registering SMPP GSM SMS dissector\n"));
     /* Register the protocol name and description */
     proto_smpp_gsm_sms = proto_register_protocol(
-			"SMPP - GSM Short Message Service",	/* Name */
-			"SMPP GSM SMS",						/* Short name */
-			"smpp-gsm-sms");					/* Filter name */
+	    "SMPP - GSM Short Message Service",	/* Name */
+	    "SMPP GSM SMS",			/* Short name */
+	    "smpp-gsm-sms");			/* Filter name */
 
     /* Required function calls to register header fields and subtrees used */
     proto_register_field_array(proto_smpp, hf, array_length(hf));
@@ -2472,29 +2491,29 @@ proto_register_smpp_gsm_sms(void)
 
     /* Subdissector code */
     gsm_sms_dissector_table = register_dissector_table("smpp.gsm-sms.udh.port",
-			"GSM SMS port IE in UDH", FT_UINT16, BASE_DEC);
+	    "GSM SMS port IE in UDH", FT_UINT16, BASE_DEC);
 
-	/* Preferences for SMPP */
-	smpp_gsm_sms_module = prefs_register_protocol (proto_smpp_gsm_sms, NULL);
-	prefs_register_bool_preference (smpp_gsm_sms_module,
-			"port_number_udh_means_wsp",
-			"Port Number IE in UDH always triggers CL-WSP dissection",
-			"Always decode a GSM Short Message as Connectionless WSP "
-			"if a Port Number Information Element is present "
-			"in the SMS User Data Header.",
-			&port_number_udh_means_wsp);
-	prefs_register_bool_preference (smpp_gsm_sms_module, "try_dissect_1st_fragment",
-			"Always try subdissection of 1st Short Message fragment",
-			"Always try subdissection of the 1st fragment of a fragmented "
-			"GSM Short Message. If reassembly is possible, the Short Message "
-			"may be dissected twice (once as a short frame, once in its "
-			"entirety).",
-			&try_dissect_1st_frag);
+    /* Preferences for SMPP */
+    smpp_gsm_sms_module = prefs_register_protocol (proto_smpp_gsm_sms, NULL);
+    prefs_register_bool_preference (smpp_gsm_sms_module,
+	    "port_number_udh_means_wsp",
+	    "Port Number IE in UDH always triggers CL-WSP dissection",
+	    "Always decode a GSM Short Message as Connectionless WSP "
+	    "if a Port Number Information Element is present "
+	    "in the SMS User Data Header.",
+	    &port_number_udh_means_wsp);
+    prefs_register_bool_preference (smpp_gsm_sms_module, "try_dissect_1st_fragment",
+	    "Always try subdissection of 1st Short Message fragment",
+	    "Always try subdissection of the 1st fragment of a fragmented "
+	    "GSM Short Message. If reassembly is possible, the Short Message "
+	    "may be dissected twice (once as a short frame, once in its "
+	    "entirety).",
+	    &try_dissect_1st_frag);
 
-	register_dissector("smpp-gsm-sms", dissect_smpp_gsm_sms, proto_smpp_gsm_sms);
+    register_dissector("smpp-gsm-sms", dissect_smpp_gsm_sms, proto_smpp_gsm_sms);
 
-	/* SMPP dissector initialization routines */
-	register_init_routine (sm_defragment_init);
+    /* SMPP dissector initialization routines */
+    register_init_routine (sm_defragment_init);
 }
 
 void
@@ -2513,6 +2532,8 @@ proto_reg_handoff_smpp_gsm_sms(void)
 void
 proto_register_smpp(void)
 {
+    module_t *smpp_module; /* Preferences for SMPP */
+
     /* Setup list of header fields	*/
     static hf_register_info hf[] = {
 	{   &hf_smpp_command_length,
@@ -3261,19 +3282,12 @@ proto_register_smpp(void)
     /* Setup protocol subtree array */
     static gint *ett[] = {
 	&ett_smpp,
-	&ett_smpp_pdu,
 	&ett_dlist,
 	&ett_dlist_resp,
 	&ett_opt_param,
 	&ett_dcs,
-		/*
-		&ett_udh,
-	    &ett_udh_ie,
-		&ett_sm_fragment,
-		&ett_sm_fragments,
-		*/
     };
-	DebugLog(("Registering SMPP dissector\n"));
+    DebugLog(("Registering SMPP dissector\n"));
     /* Register the protocol name and description */
     proto_smpp = proto_register_protocol("Short Message Peer to Peer",
     					 "SMPP", "smpp");
@@ -3281,6 +3295,14 @@ proto_register_smpp(void)
     /* Required function calls to register header fields and subtrees used */
     proto_register_field_array(proto_smpp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    /* Preferences */
+    smpp_module = prefs_register_protocol (proto_smpp, NULL);
+    prefs_register_bool_preference (smpp_module,
+	    "reassemble_smpp_over_tcp",
+	    "Reassemble SMPP over TCP",
+	    "Reassemble TCP segments that convey SMPP traffic.",
+	    &reassemble_over_tcp);
 }
 
 /*
@@ -3314,4 +3336,3 @@ proto_reg_handoff_smpp(void)
 	gsm_sms_handle = find_dissector("smpp-gsm-sms");
 	g_assert (gsm_sms_handle);
 }
-
