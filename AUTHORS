@@ -159,6 +159,7 @@ Jeff Foster <jfoste@woodward.com> {
 	Support for conversations with "wildcard" destination addresses
 	   and/or ports
 	Initial support for constructing filter expressions
+	Support for reading Sniffer Frame Relay captures
 }
 
 Peter Torvals <petertv@xoommail.com> {

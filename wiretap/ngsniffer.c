@@ -1,6 +1,6 @@
 /* ngsniffer.c
  *
- * $Id: ngsniffer.c,v 1.56 2000/11/29 08:24:14 guy Exp $
+ * $Id: ngsniffer.c,v 1.57 2001/01/08 22:18:22 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -733,13 +733,18 @@ found:
 		/*
 		 * OK, this is from an "Internetwork analyzer"; let's
 		 * look at the first byte of the packet, and figure
-		 * out whether it's LAPB, LAPD or PPP.
+		 * out whether it's LAPB, LAPD, PPP, or Frame Relay.
 		 */
 		if (pd[0] == 0xFF) {
 			/*
 			 * PPP.
 			 */
 			wth->file_encap = WTAP_ENCAP_PPP;
+		} else if (pd[0] == 0x34 || pd[0] == 0x28) {
+			/*
+			 * Frame Relay.
+			 */
+			wth->file_encap = WTAP_ENCAP_FRELAY;
 		} else if (pd[0] & 1) {
 			/*
 			 * LAPB.
