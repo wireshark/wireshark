@@ -1,7 +1,7 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.73 2004/05/09 10:03:40 guy Exp $
+# $Id: Makefile.nmake,v 1.74 2004/05/20 11:53:52 ulfl Exp $
 
 include ..\config.nmake
 
@@ -36,7 +36,7 @@ ETHEREAL_WIN32_GTK_OBJECTS = $(ETHEREAL_WIN32_GTK_SRC:.c=.obj)
 libui.lib	: ..\config.h $(ETHEREAL_WIN32_GTK_OBJECTS) $(ETHEREAL_TAP_OBJECTS)
 	lib /out:libui.lib $(ETHEREAL_WIN32_GTK_OBJECTS) $(ETHEREAL_TAP_OBJECTS)
 
-ethereal-tap-register.c: $(ETHEREAL_TAP_SRC) ../make-tapreg-dotc
+ethereal-tap-register.c: $(ETHEREAL_TAP_SRC) ../make-tapreg-dotc Makefile.common
 	@echo Making ethereal-tap-register.c
 	@$(SH) ../make-tapreg-dotc ethereal-tap-register.c . $(ETHEREAL_TAP_SRC)
 
