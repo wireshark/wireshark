@@ -1,7 +1,7 @@
 /* packet-atalk.c
  * Routines for Appletalk packet disassembly (DDP, currently).
  *
- * $Id: packet-atalk.c,v 1.66 2002/04/28 19:21:39 guy Exp $
+ * $Id: packet-atalk.c,v 1.67 2002/04/28 22:19:49 guy Exp $
  *
  * Simon Wilkinson <sxw@dcs.ed.ac.uk>
  *
@@ -736,13 +736,10 @@ dissect_asp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   		   (fn == ASPFUNC_CMD || fn  == ASPFUNC_WRITE)) {
 	tvbuff_t   *new_tvb;
 
-	if (len) {
-
-		if (asp_tree)
-			proto_item_set_len(asp_tree, 4); 
-		new_tvb = tvb_new_subset(tvb, offset,-1,len);
-		call_dissector(afp_handle, new_tvb, pinfo, tree);  	
-	}
+	if (asp_tree)
+		proto_item_set_len(asp_tree, 4);
+	new_tvb = tvb_new_subset(tvb, offset,-1,len);
+	call_dissector(afp_handle, new_tvb, pinfo, tree);  	
   }
   else {	
 	call_dissector(data_handle,tvb_new_subset(tvb, offset,-1,len), pinfo, tree); 
