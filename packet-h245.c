@@ -92,7 +92,7 @@ All in all a lot of work.
  *       with great support with testing and providing capturefiles
  *       from Martin Regner
  *
- * $Id: packet-h245.c,v 1.18 2003/07/13 01:43:33 sahlberg Exp $
+ * $Id: packet-h245.c,v 1.19 2003/07/16 08:17:14 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -133,6 +133,8 @@ static dissector_handle_t MultimediaSystemControlMessage_handle;
 static int proto_h245 = -1;
 static int hf_h245_pdu_type = -1;
 static int hf_h245_DialingInformationNumber_networkAddress = -1;
+static int hf_h245_signalType = -1;
+static int hf_h245_e164Address = -1;
 static int hf_h245_subAddress = -1;
 static int hf_h245_domainBased = -1;
 static int hf_h245_internationalNumber = -1;
@@ -17955,7 +17957,8 @@ dissect_h245_FunctionNotUnderstood(tvbuff_t *tvb, int offset, packet_info *pinfo
 static int
 dissect_h245_signalType(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-NOT_DECODED_YET("signalType");
+	offset=dissect_per_restricted_character_string(tvb, offset, pinfo, tree, hf_h245_signalType, 1, 128, "0123456789#*ABCD!", 17);
+
 	return offset;
 }
 
@@ -18092,7 +18095,8 @@ dissect_h245_Q2931Address(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 static int
 dissect_h245_e164Address(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-NOT_DECODED_YET("e164Address");
+	offset=dissect_per_restricted_character_string(tvb, offset, pinfo, tree, hf_h245_e164Address, 1, 128, "0123456789#*,", 13);
+
 	return offset;
 }
 
@@ -21754,6 +21758,12 @@ proto_register_h245(void)
 	{ &hf_h245_subAddress,
 		{ "subAddress", "h245.subAddress", FT_STRING, FT_NONE,
 		NULL, 0, "String for subAddress", HFILL }},
+	{ &hf_h245_e164Address,
+		{ "e164Address", "h245.e164Address", FT_STRING, FT_NONE,
+		NULL, 0, "String for e164Address", HFILL }},
+	{ &hf_h245_signalType,
+		{ "signalType", "h245.signalType", FT_STRING, FT_NONE,
+		NULL, 0, "String for signalType", HFILL }},
 	{ &hf_h245_DialingInformationNumber_networkAddress,
 		{ "networkAddress", "h245.DialingInformationNumber_networkAddress", FT_STRING, FT_NONE,
 		NULL, 0, "String for DialingInformationNumber_networkAddress", HFILL }},

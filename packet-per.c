@@ -7,7 +7,7 @@ proper helper routines
  * Routines for dissection of ASN.1 Aligned PER
  * 2003  Ronnie Sahlberg
  *
- * $Id: packet-per.c,v 1.2 2003/07/13 01:43:33 sahlberg Exp $
+ * $Id: packet-per.c,v 1.3 2003/07/16 08:17:14 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -263,7 +263,7 @@ dissect_per_IA5String(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_t
 }
 
 /* XXX we dont do >64k length strings   yet */
-static guint32
+guint32
 dissect_per_restricted_character_string(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index, int min_len, int max_len, char *alphabet, int alphabet_length)
 {
 	guint32 length;
@@ -368,7 +368,7 @@ DEBUG_ENTRY("dissect_per_restricted_character_string");
 guint32
 dissect_per_NumericString(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index, int min_len, int max_len)
 {
-	offset=dissect_per_restricted_character_string(tvb, offset, pinfo, tree, hf_index, min_len, max_len, "0123456789 ", 11);
+	offset=dissect_per_restricted_character_string(tvb, offset, pinfo, tree, hf_index, min_len, max_len, " 0123456789", 11);
 
 	return offset;
 }
