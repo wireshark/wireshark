@@ -9,7 +9,7 @@
  *
  * By Tim Newsham
  *
- * $Id: packet-prism.c,v 1.1 2001/11/28 07:11:07 guy Exp $
+ * $Id: packet-prism.c,v 1.2 2001/11/28 19:59:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -167,7 +167,7 @@ dissect_prism(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 #define IFHELP2(size, name, var, str) \
         { &hf_prism_ ## name, {					   \
-            str, "prism." #var, size, BASE_HEX, NULL, 0x0, "" } },
+            str, "prism." #var, size, BASE_HEX, NULL, 0x0, "", HFILL } },
 #define INTFIELD2(size, name, str)	IFHELP2(size, name, name, str)
 #define VALFIELD2(name, str) \
    IFHELP2(FT_UINT32, name ## _data, name ## .data, str ## " Field")
