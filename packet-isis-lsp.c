@@ -1,7 +1,7 @@
 /* packet-isis-lsp.c
  * Routines for decoding isis lsp packets and their CLVs
  *
- * $Id: packet-isis-lsp.c,v 1.38 2003/03/30 22:10:13 guy Exp $
+ * $Id: packet-isis-lsp.c,v 1.39 2003/03/31 07:37:23 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -90,7 +90,7 @@ static const value_string isis_lsp_istype_vals[] = {
 	{ ISIS_LSP_TYPE_LEVEL_2,	"Level 2"},
 	{ 0, NULL } };
 
-static const true_false_string attached_string = {
+static const true_false_string supported_string = {
 		"Supported",
 		"Unsupported"
 	};
@@ -1796,7 +1796,7 @@ isis_register_lsp(int proto_isis) {
 
 		{ &hf_isis_lsp_p,
 		{ "Partition Repair",	"isis.lsp.partition_repair", FT_BOOLEAN, 8,
-			TFS(&attached_string), ISIS_LSP_PARTITION_MASK,
+			TFS(&supported_string), ISIS_LSP_PARTITION_MASK,
 			"If set, this router supports the optional Partion Repair function", HFILL }},
 
 		{ &hf_isis_lsp_att,
@@ -1810,7 +1810,7 @@ isis_register_lsp(int proto_isis) {
 			"If set, this router will not be used by any decision process to calculate routes", HFILL }},
 
 		{ &hf_isis_lsp_is_type,
-		{ "Type of Intermadiate System",	"isis.lsp.is_type", FT_UINT8, BASE_DEC,
+		{ "Type of Intermediate System",	"isis.lsp.is_type", FT_UINT8, BASE_DEC,
 			VALS(isis_lsp_istype_vals), ISIS_LSP_IS_TYPE_MASK,
 			"", HFILL }},
 	};
