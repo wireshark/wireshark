@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.504 2002/09/23 17:14:54 jmayer Exp $
+# $Id: Makefile.am,v 1.505 2002/09/29 19:10:05 gerald Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -474,6 +474,7 @@ noinst_HEADERS = \
 	packet-data.h \
 	packet-dccp.h \
 	packet-dcerpc-browser.h \
+	packet-dcerpc-dce122.h \
 	packet-dcerpc-dfs.h \
 	packet-dcerpc-dnsserver.h \
 	packet-dcerpc-lsa.h \
@@ -960,7 +961,10 @@ EXTRA_DIST = \
 	README.vmware		\
 	README.win32		\
 	TODO			\
-	aclocal-fallback/*.m4	\
+	aclocal-fallback/glib-2.0.m4 \
+	aclocal-fallback/glib.m4 \
+	aclocal-fallback/gtk-2.0.m4 \
+	aclocal-fallback/gtk.m4 \
 	aclocal-flags		\
 	autogen.sh		\
 	capture-wpcap.c		\

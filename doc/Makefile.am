@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal documentation
 #
-# $Id: Makefile.am,v 1.14 2002/05/14 18:27:27 guy Exp $
+# $Id: Makefile.am,v 1.15 2002/09/29 19:10:07 gerald Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -65,3 +65,16 @@ tethereal.pod: tethereal.pod.template  ../tethereal
 	--center="The Ethereal Network Analyzer" \
 	--release=$(VERSION)			 \
 	> ../text2pcap.1
+
+CLEANFILES =	\
+	ethereal.pod	\
+	tethereal.pod	\
+	../ethereal.1	\
+	../editcap.1	\
+	../mergecap.1	\
+	../tethereal.1	\
+	../text2pcap.1	\
+	../idl2eth.1
+
+EXTRA_DIST = \
+	Ethereal.desktop	\
