@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.259 2000/12/17 07:38:14 guy Exp $
+# $Id: Makefile.am,v 1.260 2000/12/22 15:55:36 nneul Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -27,7 +27,7 @@ ACLOCAL_AMFLAGS = `./aclocal-flags`
 bin_PROGRAMS = @ethereal_bin@ @editcap_bin@ @tethereal_bin@
 man_MANS = @ethereal_man@ @editcap_man@ @tethereal_man@
 
-EXTRA_PROGRAMS = ethereal ethereal_static tethereal editcap
+EXTRA_PROGRAMS = ethereal ethereal_static tethereal tethereal_static editcap
 EXTRA_MANS = ethereal.1 tethereal.1 editcap.1
 
 sysconf_DATA = manuf
@@ -386,6 +386,9 @@ tethereal_SOURCES = \
 	$(ETHEREAL_COMMON_SOURCES) \
 	tethereal.c
 
+tethereal_static_SOURCES = \
+	$(tethereal_SOURCES)
+
 # Additional libs that I know how to build. These will be
 # linked into the tethereal executable.
 tethereal_additional_libs = wiretap/libwiretap.a epan/libethereal.a
@@ -397,6 +400,10 @@ tethereal_DEPENDENCIES = \
 	plugins/gryphon/gryphon.la	\
 	plugins/mgcp/mgcp.la
 
+tethereal_static_DEPENDENCIES = \
+	$(ethereal_optional_objects)	\
+	$(tethereal_additional_libs)	
+
 # This automake variable adds to the link-line for the executable
 tethereal_LDADD = wiretap/libwiretap.a	\
 	$(ethereal_optional_objects)	\
@@ -407,7 +414,15 @@ tethereal_LDADD = wiretap/libwiretap.a	\
 	"-dlopen" plugins/mgcp/mgcp.la @GLIB_LIBS@ -lm \
 	@PCAP_LIBS@ @SOCKET_LIBS@ @NSL_LIBS@
 
+tethereal_static_LDADD = wiretap/libwiretap.a	\
+	$(ethereal_optional_objects)	\
+	$(tethereal_additional_libs)	\
+	@SNMP_LIBS@			\
+	@GLIB_LIBS@ -lm \
+	@PCAP_LIBS@ @SOCKET_LIBS@ @NSL_LIBS@
+
 tethereal_LDFLAGS = -export-dynamic
+tethereal_static_LDFLAGS = -Wl,-static
 
 editcap_SOURCES = editcap.c
 
