@@ -215,13 +215,13 @@ CallIdentifier/guid guid
 	h225_pi->is_destinationInfo = FALSE;
   }
   else
-	offset = dissect_per_restricted_character_string(tvb, offset, pinfo, tree, hf_index, 1, 128, "#,*0123456789", 13, NULL, NULL);
+	offset = dissect_per_restricted_character_string(tvb, offset, pinfo, tree, hf_index, 1, 128, "#,*0123456789", 13, NULL, 0);
 #.END
 #----------------------------------------------------------------------------------------
 # TODO asn2eth can't handle restriced string ?
 #.FN_BODY NumberDigits
 
-	offset=dissect_per_restricted_character_string(tvb, offset, pinfo, tree, hf_index, 1, 128, "#,*0123456789", 13, NULL, NULL);
+	offset=dissect_per_restricted_character_string(tvb, offset, pinfo, tree, hf_index, 1, 128, "#,*0123456789", 13, NULL, 0);
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY H245TransportAddress/h245ipAddress/h245ipv4

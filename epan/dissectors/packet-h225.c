@@ -2237,7 +2237,7 @@ dissect_h225_DialedDigits(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, pro
 	h225_pi->is_destinationInfo = FALSE;
   }
   else
-	offset = dissect_per_restricted_character_string(tvb, offset, pinfo, tree, hf_index, 1, 128, "#,*0123456789", 13, NULL, NULL);
+	offset = dissect_per_restricted_character_string(tvb, offset, pinfo, tree, hf_index, 1, 128, "#,*0123456789", 13, NULL, 0);
 
   return offset;
 }
@@ -2519,7 +2519,7 @@ static int dissect_publicTypeOfNumber(tvbuff_t *tvb, int offset, packet_info *pi
 static int
 dissect_h225_NumberDigits(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
 
-	offset=dissect_per_restricted_character_string(tvb, offset, pinfo, tree, hf_index, 1, 128, "#,*0123456789", 13, NULL, NULL);
+	offset=dissect_per_restricted_character_string(tvb, offset, pinfo, tree, hf_index, 1, 128, "#,*0123456789", 13, NULL, 0);
 
   return offset;
 }
