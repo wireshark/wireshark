@@ -73,7 +73,6 @@ static int hf_jxta_element_encoding = -1;
 static int hf_jxta_element_data_length = -1;
 static int hf_jxta_element_content_len = -1;
 static int hf_jxta_element_content = -1;
-static int hf_jxta_element_signature = -1;
 
 static gint ett_jxta_welcome = -1;
 static gint ett_jxta_udp = -1;
@@ -198,10 +197,6 @@ static hf_register_info hf[] = {
     { "Element Content", "jxta.message.element.content", FT_BYTES, BASE_HEX, NULL, 0x0,
       "JXTA Message Element Content", HFILL }
   },
-  { &hf_jxta_element_signature,
-    { "Element Signature", "jxta.message.element.signature", FT_NONE, BASE_NONE, NULL, 0x0,
-      "JXTA Message Element Signature", HFILL }
-  }
 };
 
 /** setup protocol subtree array */
@@ -237,32 +232,27 @@ static void dissect_jxta_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
   if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "JXTA");
-    }
+  }
 
   if (check_col(pinfo->cinfo, COL_INFO)) {
     /*
      * bondolo For now just say its a message. eventually put in dest addr.
+     * XXX - if "dest addr" means the IP destination address, that's
+     * already going to be in the "destination address" column if you're
+     * displaying that.
      */
     col_add_fstr(pinfo->cinfo, COL_INFO, "%s", "UDP Message");
   }
 
-  guint32 udpsignature = tvb_get_ntohl( tvb, 0 );
-    
-  gboolean goodsig = 0 == (udpsignature ^ 0x4A585441U);
-    
   if (tree) {
     ti = proto_tree_add_item(tree, hf_jxta_udp, tvb, 0, -1, FALSE);
     jxta_tree = proto_item_add_subtree(ti, ett_jxta_udp);
     
     ti = proto_tree_add_item( jxta_tree, hf_jxta_udpsig, tvb, 0, 4, FALSE );
-    
-    if( goodsig ) {
-        PROTO_ITEM_SET_HIDDEN( ti );
-    }
   }
   
-  if( goodsig ) {
-    tvbuff_t* jxta_framed_message_tvb = tvb_new_subset( tvb, 4, tvb_length(tvb) - 4, tvb_length(tvb) - 4 );
+  if( tvb_memeql(tvb, 0, "JXTA", 4) == 0 ) {
+    tvbuff_t* jxta_framed_message_tvb = tvb_new_subset( tvb, 4, -1, -1 );
 
     dissect_jxta_framing( jxta_framed_message_tvb, pinfo, tree );
   }
@@ -283,7 +273,8 @@ static void dissect_jxta_framing(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
   proto_tree      *jxta_tree = NULL;
   proto_item      *ti;
   guint offset = 0;
-    
+  tvbuff_t* jxta_message_tvb;
+  
   if (tree) {
     ti = proto_tree_add_item(tree, hf_jxta_framing, tvb, 0, -1, FALSE);
     jxta_tree = proto_item_add_subtree(ti, ett_jxta_framing);
@@ -294,16 +285,14 @@ static void dissect_jxta_framing(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     guint8 headernamelen = tvb_get_guint8( tvb, offset );
 
     if(tree) {
-      ti = proto_tree_add_item( jxta_tree, hf_jxta_framing_header_name_length, tvb, offset, 1, FALSE );
-      PROTO_ITEM_SET_HIDDEN( ti );
+      proto_tree_add_item( jxta_tree, hf_jxta_framing_header_name_length, tvb, offset, 1, headernamelen );
     }
     
-    if( tree && (headernamelen > 0) ) {
+    if( tree && (headernamelen != 0) ) {
       /*
        * Put header name into protocol tree.
        */
-      ti = proto_tree_add_string(jxta_tree, hf_jxta_framing_header_name, tvb, offset+1, headernamelen, 
-        tvb_format_text(tvb, offset+1, headernamelen));
+      proto_tree_add_item(jxta_tree, hf_jxta_framing_header_name, tvb, offset+1, headernamelen, FALSE);
     }
     
     offset += 1 + headernamelen;
@@ -312,15 +301,14 @@ static void dissect_jxta_framing(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
       guint16 headervaluelen = tvb_get_ntohs( tvb, offset );
 
       if( tree ) {
-        ti = proto_tree_add_item(jxta_tree, hf_jxta_framing_header_value_length, tvb, offset, 2, FALSE );
-        PROTO_ITEM_SET_HIDDEN( ti );
+        proto_tree_add_uint(jxta_tree, hf_jxta_framing_header_value_length, tvb, offset, 2, headervaluelen );
 
         /** TODO bondolo Add specific handling for known header types */
 
         /*
          * Put header value into protocol tree.
          */
-        ti = proto_tree_add_item(jxta_tree, hf_jxta_framing_header_value, tvb, offset+2, headervaluelen, FALSE );
+        proto_tree_add_item(jxta_tree, hf_jxta_framing_header_value, tvb, offset+2, headervaluelen, FALSE );
       }
       
       offset += 2 + headervaluelen;
@@ -331,7 +319,7 @@ static void dissect_jxta_framing(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     }
   } while( TRUE );
   
-  tvbuff_t* jxta_message_tvb = tvb_new_subset( tvb, offset, tvb_length(tvb) - offset, tvb_length(tvb) - offset );
+  jxta_message_tvb = tvb_new_subset( tvb, offset, -1, -1 );
 
   /* Call it a new layer and pass the tree as we got it */
   dissect_jxta_message( jxta_message_tvb, pinfo, tree );
@@ -346,11 +334,14 @@ static void dissect_jxta_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
   if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "JXTA");
-    }
+  }
 
   if (check_col(pinfo->cinfo, COL_INFO)) {
     /*
      * TODO bondolo For now just say its a message. eventually put in dest addr.
+     * XXX - if "dest addr" means the IP destination address, that's
+     * already going to be in the "destination address" column if you're
+     * displaying that.
      */
     col_add_fstr(pinfo->cinfo, COL_INFO, "%s", "Message");
   }
@@ -359,20 +350,15 @@ static void dissect_jxta_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     ti = proto_tree_add_item(tree, hf_jxta_message, tvb, 0, -1, FALSE);
     jxta_tree = proto_item_add_subtree(ti, ett_jxta_udp);
   }
-  
-  guint32 msgsignature = tvb_get_ntohl( tvb, 0 );
-    
-  gboolean goodsig = 0 == (msgsignature ^ 0x6A786D67U);
-  
+
   if( tree ) {
-    ti = proto_tree_add_item( jxta_tree, hf_jxta_message_sig, tvb, 0, sizeof(guint32), FALSE );
+    proto_tree_add_item( jxta_tree, hf_jxta_message_sig, tvb, 0, 4, FALSE);
     
-    if( goodsig ) {
+    if( tvb_memeql(tvb, 0, "jxmg", 4) == 0) {
         guint8 messageVersion;
-        PROTO_ITEM_SET_HIDDEN( ti );
         
         messageVersion = tvb_get_guint8( tvb, sizeof(guint32) );
-        ti = proto_tree_add_item( jxta_tree, hf_jxta_message_version, tvb, sizeof(guint32), 1, FALSE );
+        proto_tree_add_uint( jxta_tree, hf_jxta_message_version, tvb, sizeof(guint32), 1, messageVersion );
         
         if( 0 == messageVersion ) {
             int eachNamespace;
@@ -385,21 +371,19 @@ static void dissect_jxta_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
             for( eachNamespace = 0; eachNamespace < messageNamespaceCount; eachNamespace++ ) {
                 guint8 namespaceLen = tvb_get_guint8( tvb, offset );
                 
-                ti = proto_tree_add_item(jxta_tree, hf_jxta_message_namespace_len, tvb, offset++, namespaceLen, FALSE );
-                PROTO_ITEM_SET_HIDDEN( ti );
+                proto_tree_add_uint(jxta_tree, hf_jxta_message_namespace_len, tvb, offset++, namespaceLen, namespaceLen );
                 
-                ti = proto_tree_add_string(jxta_tree, hf_jxta_message_namespace_name, tvb, offset, namespaceLen, 
-                    tvb_format_text(tvb, offset, namespaceLen));
+                proto_tree_add_item(jxta_tree, hf_jxta_message_namespace_name, tvb, offset, namespaceLen, FALSE);
                     
                 offset += namespaceLen;
             }
             
             /* parse elements */
             numberOfElements = tvb_get_ntohs( tvb, offset );
-            ti = proto_tree_add_item(jxta_tree, hf_jxta_message_element_count, tvb, offset, sizeof(guint16), FALSE );
+            proto_tree_add_item(jxta_tree, hf_jxta_message_element_count, tvb, offset, sizeof(guint16), FALSE );
             offset += sizeof(guint16);
             
-            while( offset < tvb_length(tvb) ) {
+            while( offset < tvb_reported_length(tvb) ) {
                     proto_tree   *jxta_elem_tree = NULL;
                     proto_item      *elem_ti;
                     
@@ -409,61 +393,51 @@ static void dissect_jxta_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
                 /* gross hack for parsing of signature element */
                 element_parse :
                 {
-                guint32 elemsignature = tvb_get_ntohl( tvb, offset );
-                gboolean goodsig = 0 == (elemsignature ^ 0x6A78656CU);
-   
-                ti = proto_tree_add_item( jxta_tree, hf_jxta_element_sig, tvb, offset, 4, FALSE );
+                proto_tree_add_item( jxta_tree, hf_jxta_element_sig, tvb, offset, 4, FALSE );
                 offset += 4;
-                if( goodsig ) {
+                if( tvb_memeql(tvb, offset - 4, "jxel", 4) == 0 ) {
                     guint8 namespaceID;
                     guint8 flags;
                     guint16 nameLen;
                     guint32 elemContentLength;
-                    PROTO_ITEM_SET_HIDDEN( ti );
 
                     namespaceID = tvb_get_guint8( tvb, offset );
-                    ti = proto_tree_add_item( jxta_elem_tree, hf_jxta_element_namespaceid, tvb, offset, sizeof(guint8), FALSE );
+                    proto_tree_add_uint( jxta_elem_tree, hf_jxta_element_namespaceid, tvb, offset, sizeof(guint8), namespaceID );
                     offset += sizeof(guint8);
                 
                     flags = tvb_get_guint8( tvb, offset );
-                    ti = proto_tree_add_item( jxta_elem_tree, hf_jxta_element_flags, tvb, offset, sizeof(guint8), FALSE );
+                    proto_tree_add_uint( jxta_elem_tree, hf_jxta_element_flags, tvb, offset, sizeof(guint8), flags );
                     offset += sizeof(guint8);
                     
                     nameLen  = tvb_get_ntohs( tvb, offset );
-                    ti = proto_tree_add_item( jxta_elem_tree, hf_jxta_element_name_len, tvb, offset, sizeof(guint16), FALSE );
+                    proto_tree_add_uint( jxta_elem_tree, hf_jxta_element_name_len, tvb, offset, sizeof(guint16), nameLen );
                     offset += sizeof(guint16);
-                    PROTO_ITEM_SET_HIDDEN( ti );
                     
-                    ti = proto_tree_add_string(jxta_elem_tree, hf_jxta_element_name, tvb, offset, nameLen, 
-                        tvb_format_text(tvb, offset, nameLen));
+                    proto_tree_add_item(jxta_elem_tree, hf_jxta_element_name, tvb, offset, nameLen, FALSE);
                         
                     offset += nameLen;
                     
                     /* process type */
                     if( (flags & 0x01) != 0 ) {
                         guint16 typeLen  = tvb_get_ntohs( tvb, offset );
-                        ti = proto_tree_add_item( jxta_elem_tree, hf_jxta_element_type_len, tvb, offset, sizeof(guint16), FALSE );
+                        proto_tree_add_uint( jxta_elem_tree, hf_jxta_element_type_len, tvb, offset, sizeof(guint16), typeLen );
                         offset += sizeof(guint16);
-                        PROTO_ITEM_SET_HIDDEN( ti );
 
-                        ti = proto_tree_add_string(jxta_elem_tree, hf_jxta_element_type, tvb, offset, typeLen, 
-                            tvb_format_text(tvb, offset, typeLen));
+                        proto_tree_add_item(jxta_elem_tree, hf_jxta_element_type, tvb, offset, typeLen, FALSE);
 
                         offset += typeLen;
-                        }
+                    }
                     
                     /* process encoding */
                     if( (flags & 0x02) != 0 ) {
                         guint16 encodingLen  = tvb_get_ntohs( tvb, offset );
                         ti = proto_tree_add_item( jxta_elem_tree, hf_jxta_element_encoding_len, tvb, offset, sizeof(guint16), FALSE );
                         offset += sizeof(guint16);
-                        PROTO_ITEM_SET_HIDDEN( ti );
 
-                        ti = proto_tree_add_string(jxta_elem_tree, hf_jxta_element_encoding, tvb, offset, encodingLen, 
-                            tvb_format_text(tvb, offset, encodingLen));
+                        proto_tree_add_item(jxta_elem_tree, hf_jxta_element_encoding, tvb, offset, encodingLen, FALSE);
 
                         offset += encodingLen;
-                        }
+                    }
                     
                     /* content */
                     elemContentLength = tvb_get_ntohl( tvb, offset );
@@ -476,10 +450,10 @@ static void dissect_jxta_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
                     /* XXX Evil Hack Warning : handle parsing of signature element. Would be better with recursion.*/
                     if( (flags & 0x04) != 0 ) {
                         goto element_parse;
-                        }
                     }
+                }
                     
-                    proto_item_set_end( elem_ti, tvb, offset - 1 );
+                proto_item_set_end( elem_ti, tvb, offset - 1 );
                 }
             }
         }
