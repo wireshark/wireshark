@@ -1518,10 +1518,10 @@ set_menus_for_capture_in_progress(gboolean capture_in_progress)
       !capture_in_progress);
   set_menu_sensitivity(main_menu_factory, "/Capture/Stop",
       capture_in_progress);
-#endif /* HAVE_LIBPCAP */
   set_toolbar_for_capture_in_progress(capture_in_progress);
 
   set_capture_if_dialog_for_capture_in_progress(capture_in_progress);
+#endif /* HAVE_LIBPCAP */
 }
 
 /* Enable or disable menu items based on whether you have some captured

@@ -1612,6 +1612,7 @@ main(int argc, char *argv[])
 		    console_log_handler, NULL);
 #endif
 
+#ifdef HAVE_LIBPCAP
   command_name = get_basename(ethereal_path);
   /* Set "capture_child" to indicate whether this is going to be a child
      process for a "-S" capture. */
@@ -1622,7 +1623,9 @@ main(int argc, char *argv[])
     /* We want a splash screen only if we're not a child process */
     splash_win = splash_new("Loading Ethereal ...");
   }
-
+#else
+    splash_win = splash_new("Loading Ethereal ...");
+#endif
 
   splash_update(splash_win, "Registering dissectors ...");
 
