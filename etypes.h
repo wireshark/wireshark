@@ -1,7 +1,7 @@
 /* etypes.h
  * Defines ethernet packet types, similar to tcpdump's ethertype.h
  *
- * $Id: etypes.h,v 1.27 2002/09/20 09:17:38 sahlberg Exp $
+ * $Id: etypes.h,v 1.28 2002/11/16 08:25:35 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -177,6 +177,10 @@
 
 #ifndef ETHERTYPE_EAPOL
 #define ETHERTYPE_EAPOL 	0x888e  /* 802.1x Authentication */
+#endif
+
+#ifndef ETHERTYPE_HYPERSCSI
+#define ETHERTYPE_HYPERSCSI     0x889A  /* HyperSCSI */
 #endif
 
 #ifndef ETHERTYPE_LOOP
