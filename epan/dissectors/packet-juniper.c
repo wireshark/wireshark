@@ -192,17 +192,16 @@ dissect_juniper_atm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16
   if ((flags & JUNIPER_FLAG_NO_L2) == JUNIPER_FLAG_NO_L2) { /* no link header present ? */
       next_tvb = tvb_new_subset(tvb, offset, -1, -1);
       ipvers = ip_heuristic_guess(tvb_get_guint8(tvb, offset)); /* try IP */
-      if ( ipvers != 0) {
-          ti = proto_tree_add_text (tree, tvb, offset, 1,
+      if (ipvers != 0) {
+          ti = proto_tree_add_text (subtree, tvb, offset, 0,
                                     "Payload Type: Null encapsulation IPv%u",
                                     ipvers);
-          subtree = proto_item_add_subtree(ti, ett_juniper);
           switch (ipvers) {
           case 6:
-              call_dissector(ipv6_handle, next_tvb, pinfo, subtree);
+              call_dissector(ipv6_handle, next_tvb, pinfo, tree);
               break;
           case 4:
-              call_dissector(ipv4_handle, next_tvb, pinfo, subtree);  
+              call_dissector(ipv4_handle, next_tvb, pinfo, tree);  
               break;
           }
       }
@@ -229,72 +228,87 @@ dissect_juniper_atm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16
     
   proto = tvb_get_ntoh24(tvb, offset); /* first try: 24-Bit guess */
 
-  if (proto == JUNIPER_HDR_NLPID) { /* NLPID encaps ? */
-      ti = proto_tree_add_text (tree, tvb, offset, 3, "Payload Type: LLC/NLPID ");
-      subtree = proto_item_add_subtree(ti, ett_juniper);
-      call_dissector(llc_handle, next_tvb, pinfo, subtree);
+  if (proto == JUNIPER_HDR_NLPID) {
+      /*
+       * This begins with something that appears to be an LLC header for
+       * OSI; is this LLC-multiplexed traffic?
+       */
+      ti = proto_tree_add_text (subtree, tvb, offset, 0, "Payload Type: LLC/NLPID ");
+      call_dissector(llc_handle, next_tvb, pinfo, tree);
       return;
   }
 
-  if (proto == JUNIPER_HDR_SNAP) { /* SNAP encaps ? */
-      ti = proto_tree_add_text (tree, tvb, offset, 3, "Payload Type: LLC/SNAP ");
-      subtree = proto_item_add_subtree(ti, ett_juniper);
-      call_dissector(llc_handle, next_tvb, pinfo, subtree);
+  if (proto == JUNIPER_HDR_SNAP) {
+      /*
+       * This begins with something that appears to be an LLC header for
+       * SNAP; is this LLC-multiplexed traffic?
+       */
+      ti = proto_tree_add_text (subtree, tvb, offset, 0, "Payload Type: LLC/SNAP ");
+      call_dissector(llc_handle, next_tvb, pinfo, tree);
       return;
   }
 
   if (direction != JUNIPER_FLAG_PKT_IN && /* ether-over-1483 encaps ? */
       (cookie1 & JUNIPER_ATM2_GAP_COUNT_MASK) &&
       atm_pictype != JUNIPER_ATM1) {
-      ti = proto_tree_add_text (tree, tvb, 4, 1, "Payload Type: Ethernet");
-      subtree = proto_item_add_subtree(ti, ett_juniper);
-      call_dissector(eth_handle, next_tvb, pinfo, subtree);
+      ti = proto_tree_add_text (subtree, tvb, offset, 0, "Payload Type: Ethernet");
+      call_dissector(eth_handle, next_tvb, pinfo, tree);
       return;
   }
 
   proto = tvb_get_ntohs(tvb, offset); /* second try: 16-Bit guess */
 
   if ( ppp_heuristic_guess(proto) && 
-       atm_pictype != JUNIPER_ATM1) { /* VC-MUX PPPoA encaps ? - not supported on ATM1 PICs */
-      ti = proto_tree_add_text (tree, tvb, offset, 2, "Payload Type: VC-MUX PPP");
-      subtree = proto_item_add_subtree(ti, ett_juniper);
-      call_dissector(ppp_handle, next_tvb, pinfo, subtree);  
+       atm_pictype != JUNIPER_ATM1) {
+      /*
+       * This begins with something that appears to be a PPP protocol
+       * type; is this VC-multiplexed PPPoA?
+       * That's not supported on ATM1 PICs.
+       */
+      ti = proto_tree_add_text (subtree, tvb, offset, 0, "Payload Type: VC-MUX PPP");
+      call_dissector(ppp_handle, next_tvb, pinfo, tree);
       return;
   }
 
   proto = tvb_get_guint8(tvb, offset); /* third try: 8-Bit guess */
 
-  if ( proto == JUNIPER_HDR_CNLPID ) { /* Cisco style NLPID encaps ? */
-      ti = proto_tree_add_text (tree, tvb, offset, 1, "Payload Type: Cisco NLPID");
-      subtree = proto_item_add_subtree(ti, ett_juniper);
+  if ( proto == JUNIPER_HDR_CNLPID ) {
+      /*
+       * Cisco style NLPID encaps?
+       * Is the 0x03 an LLC UI control field?
+       */
+      ti = proto_tree_add_text (subtree, tvb, offset, 1, "Payload Type: Cisco NLPID");
       proto = tvb_get_guint8(tvb, offset+1);
-      if(dissector_try_port(osinl_subdissector_table, proto, next_tvb, pinfo, subtree))
+      if(dissector_try_port(osinl_subdissector_table, proto, next_tvb, pinfo, tree))
           return;
       next_tvb = tvb_new_subset(tvb, offset+2, -1, -1);
-      if(dissector_try_port(osinl_excl_subdissector_table, proto, next_tvb, pinfo, subtree))
+      if(dissector_try_port(osinl_excl_subdissector_table, proto, next_tvb, pinfo, tree))
           return;
   }
 
   ipvers = ip_heuristic_guess(proto);
-  if ( ipvers != 0) { /* last resort: VC-MUX encaps ? */
-      ti = proto_tree_add_text (tree, tvb, offset, 1,
+  if (ipvers != 0) { /* last resort: VC-MUX encaps ? */
+      /*
+       * This begins with something that might be the first byte of
+       * an IPv4 or IPv6 packet; is this VC-multiplexed IP?
+       */
+      ti = proto_tree_add_text (subtree, tvb, offset, 0,
                                 "Payload Type: VC-MUX IPv%u",
                                 ipvers);
-      subtree = proto_item_add_subtree(ti, ett_juniper);
       switch (ipvers) {
       case 6:
-          call_dissector(ipv6_handle, next_tvb, pinfo, subtree);
+          call_dissector(ipv6_handle, next_tvb, pinfo, tree);
           break;
       case 4:
-          call_dissector(ipv4_handle, next_tvb, pinfo, subtree);  
+          call_dissector(ipv4_handle, next_tvb, pinfo, tree);  
           break;
       }
       return;
   }
 
   /* could not figure what it is */
-  ti = proto_tree_add_text (tree, tvb, offset, -1, "Payload Type: unknown");
-
+  ti = proto_tree_add_text (subtree, tvb, offset, -1, "Payload Type: unknown");
+  call_dissector(data_handle, next_tvb, pinfo, tree);  
 }
 
 /* list of Juniper supported PPP proto IDs */
