@@ -38,7 +38,6 @@
 #include <epan/strutil.h>
 
 #include "packet-aim.h"
-#include <epan/prefs.h>
 
 #define STRIP_TAGS 1
 
