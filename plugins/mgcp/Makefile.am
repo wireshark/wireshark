@@ -1,7 +1,7 @@
 # Makefile.am
-# Automake file for Ethereal/Gryphon
+# Automake file for Ethereal/MGCP
 #
-# $Id: Makefile.am,v 1.5 2002/07/06 20:40:48 guy Exp $
+# $Id: Makefile.am,v 1.6 2003/03/07 04:13:26 gerald Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Steve Limkemann <stevelim@dgtech.com>
@@ -28,7 +28,7 @@ INCLUDES = -I$(top_srcdir)
 plugindir = @plugindir@
 
 plugin_LTLIBRARIES = mgcp.la
-mgcp_la_SOURCES = packet-mgcp.c moduleinfo.h
+mgcp_la_SOURCES = packet-mgcp.c packet-mgcp.h moduleinfo.h
 mgcp_la_LDFLAGS = -module -avoid-version
 
 # Libs must be cleared, or else libtool won't create a shared module.
