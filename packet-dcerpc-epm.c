@@ -2,7 +2,7 @@
  * Routines for dcerpc endpoint mapper dissection
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc-epm.c,v 1.7 2002/05/02 21:47:47 guy Exp $
+ * $Id: packet-dcerpc-epm.c,v 1.8 2002/05/26 10:51:06 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -49,9 +49,15 @@ static int hf_epm_if_id = -1;
 static int hf_epm_ver_maj = -1;
 static int hf_epm_ver_min = -1;
 static int hf_epm_ver_opt = -1;
-static int hf_epm_lookup_hnd = -1;
+static int hf_epm_hnd = -1;
 static int hf_epm_max_ents = -1;
 static int hf_epm_num_ents = -1;
+static int hf_epm_uuid = -1;
+static int hf_epm_tower_length = -1;
+static int hf_epm_tower_data = -1;
+static int hf_epm_max_towers = -1;
+static int hf_epm_num_towers = -1;
+static int hf_epm_rc = -1;
 
 static gint ett_epm = -1;
 
@@ -87,7 +93,7 @@ epm_dissect_ept_lookup_rqst (tvbuff_t *tvb, int offset,
     offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
                                  hf_epm_ver_opt, NULL);
     if (tree) {
-        proto_tree_add_bytes (tree, hf_epm_lookup_hnd, tvb, offset, 20,
+        proto_tree_add_bytes (tree, hf_epm_hnd, tvb, offset, 20,
                               tvb_get_ptr (tvb, offset, 20));
     }
     offset += 20;
@@ -104,7 +110,7 @@ epm_dissect_ept_lookup_resp (tvbuff_t *tvb, int offset,
                              char *drep)
 {
     offset = dissect_ndr_ctx_hnd (tvb, offset, pinfo, tree, drep,
-                                  hf_epm_lookup_hnd, NULL);
+                                  hf_epm_hnd, NULL);
 
     offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
                                  hf_epm_num_ents, NULL);
@@ -112,12 +118,136 @@ epm_dissect_ept_lookup_resp (tvbuff_t *tvb, int offset,
     return offset;
 }
 
+#if 0
+static int
+epm_dissect_uuid (tvbuff_t *tvb, int offset, 
+                             packet_info *pinfo, proto_tree *tree, 
+                             char *drep)
+{
+    offset = dissect_ndr_uuid_t (tvb, offset, pinfo, tree, drep,
+                                  hf_epm_uuid, NULL);
+    return offset;
+}
+#endif
+
+/* typedef struct {
+      unsigned int tower_len,
+      [size_is(tower_len)] char tower[];
+   } twr_t, *twr_p_t;
+*/
+static int
+epm_dissect_tower (tvbuff_t *tvb, int offset, 
+                             packet_info *pinfo, proto_tree *tree, 
+                             char *drep)
+{
+    guint32 len;
+    dcerpc_info *di;
+
+    di=pinfo->private_data;
+    if(di->conformant_run){
+        return offset;
+    }
+
+    /* first one is the header of the conformant array, second one is the
+       length field */
+    offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                 hf_epm_tower_length, &len);
+    offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                 hf_epm_tower_length, NULL);
+    proto_tree_add_item(tree, hf_epm_tower_data, tvb, offset, len, FALSE);
+    offset += len;
+
+    return offset;
+}
+static int
+epm_dissect_tower_pointer (tvbuff_t *tvb, int offset, 
+                             packet_info *pinfo, proto_tree *tree, 
+                             char *drep)
+{
+    offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+                             epm_dissect_tower, NDR_POINTER_PTR,
+                             "Tower pointer:", -1, 1);
+    return offset;
+}
+static int
+epm_dissect_tower_array (tvbuff_t *tvb, int offset, 
+                             packet_info *pinfo, proto_tree *tree, 
+                             char *drep)
+{
+    offset = dissect_ndr_ucvarray(tvb, offset, pinfo, tree, drep,
+                             epm_dissect_tower_pointer);
+
+    return offset;
+}
+
+static int
+epm_dissect_ept_map_rqst (tvbuff_t *tvb, int offset, 
+                             packet_info *pinfo, proto_tree *tree, 
+                             char *drep)
+{
+    /* [in] handle_t h */
+    offset = dissect_ndr_ctx_hnd (tvb, offset, pinfo, tree, drep,
+                                  hf_epm_hnd, NULL);
+
+#if 0
+    /* according to opengroup we should have an uuid pointer here.
+       in my w2k captures i can not see any such thing */
+    /* [in, ptr] uuid_p_t object */
+    offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+                             epm_dissect_uuid, NDR_POINTER_PTR,
+                             "UUID pointer:", -1, 1);
+#endif
+
+    /* [in, ptr] twr_p_t map_tower */
+    offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+                             epm_dissect_tower, NDR_POINTER_PTR,
+                             "Tower pointer:", -1, 1);
+
+    /* [in, out] ept_lookup_handle_t *entry_handle */
+    offset = dissect_ndr_ctx_hnd (tvb, offset, pinfo, tree, drep,
+                                  hf_epm_hnd, NULL);
+
+    /* [in] unsigned32 max_towers */
+    offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                 hf_epm_max_towers, NULL);
+
+    return offset;
+}
+
+static int
+epm_dissect_ept_map_resp (tvbuff_t *tvb, int offset, 
+                             packet_info *pinfo, proto_tree *tree, 
+                             char *drep)
+{
+    /* [in, out] ept_lookup_handle_t *entry_handle */
+    offset = dissect_ndr_ctx_hnd (tvb, offset, pinfo, tree, drep,
+                                  hf_epm_hnd, NULL);
+
+    /* [out, ptr] unsigned32 *num_towers */
+    offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                 hf_epm_num_towers, NULL);
+
+    /* [out, length_is(*num_towers), size_is(max_towers), ptr] twr_p_t towers[] */
+    offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+                             epm_dissect_tower_array, NDR_POINTER_REF,
+                             "Tower array:", -1, 1);
+
+    /* [out] error_status_t *status */
+    offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                 hf_epm_rc, NULL);
+
+    return offset;
+}
 
 static dcerpc_sub_dissector epm_dissectors[] = {
     { 0, "ept_insert", NULL, NULL },
     { 1, "ept_delete", NULL, NULL },
-    { 2, "ept_lookup", epm_dissect_ept_lookup_rqst, epm_dissect_ept_lookup_resp },
-    { 3, "ept_map", NULL, NULL },
+    { 2, "ept_lookup", 
+	epm_dissect_ept_lookup_rqst, 
+	epm_dissect_ept_lookup_resp },
+    { 3, "Map", 
+	epm_dissect_ept_map_rqst, 
+	epm_dissect_ept_map_resp },
     { 4, "ept_lookup_handle_free", NULL, NULL },
     { 5, "ept_inq_object", NULL, NULL },
     { 6, "ept_mgmt_delete", NULL, NULL },
@@ -145,12 +275,24 @@ proto_register_epm (void)
           { "Version Minor", "epm.ver_min", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
         { &hf_epm_ver_opt,
           { "Version Option", "epm.ver_opt", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},	
-        { &hf_epm_lookup_hnd,
-          { "Lookup Handle", "epm.lookup_hnd", FT_BYTES, BASE_NONE, NULL, 0x0, "", HFILL }},	
+        { &hf_epm_hnd,
+          { "Handle", "epm.hnd", FT_BYTES, BASE_NONE, NULL, 0x0, "Context handle", HFILL }},	
         { &hf_epm_max_ents,
           { "Max entries", "epm.max_ents", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
         { &hf_epm_num_ents,
           { "Num entries", "epm.num_ents", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+        { &hf_epm_uuid,
+          { "UUID", "epm.uuid", FT_STRING, BASE_NONE, NULL, 0x0, "UUID", HFILL }},	
+        { &hf_epm_tower_length,
+          { "Length", "epm.tower.len", FT_UINT32, BASE_DEC, NULL, 0x0, "Length of tower data", HFILL }},
+        { &hf_epm_tower_data,
+          { "Tower", "epm.tower", FT_BYTES, BASE_HEX, NULL, 0x0, "Tower data", HFILL }},
+        { &hf_epm_max_towers,
+          { "Max Towers", "epm.max_towers", FT_UINT32, BASE_DEC, NULL, 0x0, "Maximum number of towers to return", HFILL }},
+        { &hf_epm_num_towers,
+          { "Num Towers", "epm.num_towers", FT_UINT32, BASE_DEC, NULL, 0x0, "Number number of towers to return", HFILL }},
+        { &hf_epm_rc,
+          { "Return code", "epm.rc", FT_UINT32, BASE_HEX, NULL, 0x0, "EPM return value", HFILL }},
     };
 
 	static gint *ett[] = {
