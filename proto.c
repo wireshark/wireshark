@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.59 2000/04/04 06:17:29 guy Exp $
+ * $Id: proto.c,v 1.60 2000/04/04 17:07:07 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -506,7 +506,8 @@ proto_tree_add_bytes_format(proto_tree *tree, int hfindex, gint start, gint leng
 static void
 proto_tree_set_bytes(field_info *fi, const guint8* start_ptr, gint length)
 {
-
+	g_assert(start_ptr != NULL);
+	g_assert(length > 0);
 	/* This g_malloc'ed memory is freed in
 	   proto_tree_free_node() */
 	fi->value.bytes = g_malloc(length);
@@ -834,6 +835,7 @@ proto_tree_add_field_info(int hfindex, gint start, gint length, int visible)
 
 	fi = g_mem_chunk_alloc(gmc_field_info);
 
+	g_assert(hfindex >= 0 && hfindex < gpa_hfinfo->len);
 	fi->hfinfo = proto_registrar_get_nth(hfindex);
 	g_assert(fi->hfinfo != NULL);
 	fi->start = start;
