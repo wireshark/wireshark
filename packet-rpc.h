@@ -1,6 +1,6 @@
 /* packet-rpc.h
  *
- * $Id: packet-rpc.h,v 1.25 2001/02/09 06:49:29 guy Exp $
+ * $Id: packet-rpc.h,v 1.26 2001/02/09 07:59:00 guy Exp $
  *
  * (c) 1999 Uwe Girlich
  *
@@ -123,7 +123,11 @@ extern int dissect_rpc_uint64_tvb(tvbuff_t *tvb, packet_info *pinfo,
 	proto_tree *tree, int hfindex, int offset);
 
 extern int dissect_rpc_indir_call(tvbuff_t *tvb, packet_info *pinfo,
-	proto_tree *tree, int offset, guint32 prog, guint32 vers, guint32 proc);
+	proto_tree *tree, int offset, int args_id, guint32 prog, guint32 vers,
+	guint32 proc);
+extern int dissect_rpc_indir_reply(tvbuff_t *tvb, packet_info *pinfo,
+	proto_tree *tree, int offset, int result_id, int prog_id, int vers_id,
+	int proc_id);
 
 #endif /* packet-rpc.h */
 

@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * 
- * $Id: packet-rpc.c,v 1.53 2001/02/09 06:49:29 guy Exp $
+ * $Id: packet-rpc.c,v 1.54 2001/02/09 07:59:00 guy Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -403,6 +403,8 @@ typedef struct _rpc_call_info_value {
 static GMemChunk *rpc_call_info_value_chunk;
 
 static GHashTable *rpc_calls;
+
+static GHashTable *rpc_indir_calls;
 
 /* compare 2 keys */
 gint
@@ -1118,13 +1120,21 @@ dissect_rpc_authgss_priv_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 /*
  * Dissect the arguments to an indirect call; used by the portmapper/RPCBIND
  * dissector.
+ *
+ * Record this call in a hash table, similar to the hash table for
+ * direct calls, so we can find it when dissecting an indirect call reply.
  */
 int
 dissect_rpc_indir_call(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-    int offset, guint32 prog, guint32 vers, guint32 proc)
+    int offset, int args_id, guint32 prog, guint32 vers, guint32 proc)
 {
+	conversation_t* conversation;
+	static address null_address = { AT_NONE, 0, NULL };
 	rpc_proc_info_key key;
 	rpc_proc_info_value *value;
+	rpc_call_info_value *rpc_call;
+	rpc_call_info_key rpc_call_key;
+	rpc_call_info_key *new_rpc_call_key;
 	old_dissect_function_t *old_dissect_function = NULL;
 	dissect_function_t *dissect_function = NULL;
 
@@ -1136,15 +1146,184 @@ dissect_rpc_indir_call(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			old_dissect_function = value->dissect_call.old;
 		else
 			dissect_function = value->dissect_call.new;
+
+		/* Keep track of the address and port whence the call came,
+		   and the port to which the call is being sent, so that
+		   we can match up calls wityh replies.  (We don't worry
+		   about the address to which the call was sent and from
+		   which the reply was sent, because there's no
+		   guarantee that the reply will come from the address
+		   to which the call was sent.) */
+		conversation = find_conversation(&pinfo->src, &null_address,
+		    pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
+		if (conversation == NULL) {
+			/* It's not part of any conversation - create a new
+			   one.
+
+			   XXX - this should never happen, as we should've
+			   created a conversation for it in the RPC
+			   dissector. */
+			conversation = conversation_new(&pinfo->src,
+			    &null_address, pinfo->ptype, pinfo->srcport,
+			    pinfo->destport, NULL, 0);
+		}
+
+		/* Prepare the key data.
+
+		   Dissectors for RPC procedure calls and replies shouldn't
+		   create new tvbuffs, and we don't create one ourselves,
+		   so we should have been handed the tvbuff for this RPC call;
+		   as such, the XID is at offset 0 in this tvbuff. */
+		rpc_call_key.xid = tvb_get_ntohl(tvb, 0);
+		rpc_call_key.conversation = conversation;
+
+		/* look up the request */
+		rpc_call = g_hash_table_lookup(rpc_indir_calls, &rpc_call_key);
+		if (rpc_call == NULL) {
+			/* We didn't find it; create a new entry.
+			   Prepare the value data.
+			   Not all of it is needed for handling indirect
+			   calls, so we set a bunch of items to 0. */
+			new_rpc_call_key = g_mem_chunk_alloc(rpc_call_info_key_chunk);
+			*new_rpc_call_key = rpc_call_key;
+			rpc_call = g_mem_chunk_alloc(rpc_call_info_value_chunk);
+			rpc_call->req_num = 0;
+			rpc_call->rep_num = 0;
+			rpc_call->prog = prog;
+			rpc_call->vers = vers;
+			rpc_call->proc = proc;
+			rpc_call->flavor = 0;
+			rpc_call->gss_proc = 0;
+			rpc_call->gss_svc = 0;
+			rpc_call->proc_info = value;
+			/* store it */
+			g_hash_table_insert(rpc_indir_calls, new_rpc_call_key,
+			    rpc_call);
+		}
 	}
 	else {
-		/* happens only with strange program versions or
-		   non-existing dissectors */
+		/* We don't know the procedure.
+		   Happens only with strange program versions or
+		   non-existing dissectors.
+		   Just show the arguments as opaque data. */
+		offset = dissect_rpc_data_tvb(tvb, pinfo, tree, args_id,
+		    offset);
+		return offset;
+	}
+
+	if ( tree )
+	{
+		proto_tree_add_text(tree, tvb, offset, 4,
+			"Argument length: %u",
+			tvb_get_ntohl(tvb, offset));
+	}
+	offset += 4;
+
+	/* Dissect the arguments */
+	offset = call_dissect_function(tvb, pinfo, tree, offset,
+			old_dissect_function, dissect_function, NULL);
+	return offset;
+}
+
+/*
+ * Dissect the results in an indirect reply; used by the portmapper/RPCBIND
+ * dissector.
+ */
+int
+dissect_rpc_indir_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+    int offset, int result_id, int prog_id, int vers_id, int proc_id)
+{
+	conversation_t* conversation;
+	static address null_address = { AT_NONE, 0, NULL };
+	rpc_call_info_key rpc_call_key;
+	rpc_call_info_value *rpc_call;
+	char *procname = NULL;
+	char procname_static[20];
+	old_dissect_function_t *old_dissect_function = NULL;
+	dissect_function_t *dissect_function = NULL;
+
+	/* Look for the matching call in the hash table of indirect
+	   calls.  A reply must match a call that we've seen, and the
+	   reply must be sent to the same port and address that the
+	   call came from, and must come from the port to which the
+	   call was sent.  (We don't worry about the address to which
+	   the call was sent and from which the reply was sent, because
+	   there's no guarantee that the reply will come from the address
+	   to which the call was sent.) */
+	conversation = find_conversation(&null_address, &pinfo->dst,
+	    pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
+	if (conversation == NULL) {
+		/* We haven't seen an RPC call for that conversation,
+		   so we can't check for a reply to that call.
+		   Just show the reply stuff as opaque data. */
+		offset = dissect_rpc_data_tvb(tvb, pinfo, tree, result_id,
+		    offset);
+		return offset;
+	}
+
+	/* The XIDs of the call and reply must match. */
+	rpc_call_key.xid = tvb_get_ntohl(tvb, 0);
+	rpc_call_key.conversation = conversation;
+	rpc_call = g_hash_table_lookup(rpc_indir_calls, &rpc_call_key);
+	if (rpc_call == NULL) {
+		/* The XID doesn't match a call from that
+		   conversation, so it's probably not an RPC reply.
+		   Just show the reply stuff as opaque data. */
+		offset = dissect_rpc_data_tvb(tvb, pinfo, tree, result_id,
+		    offset);
+		return offset;
+	}
+
+	if (rpc_call->proc_info != NULL) {
+		if (rpc_call->proc_info->is_old_dissector)
+			old_dissect_function = rpc_call->proc_info->dissect_reply.old;
+		else
+			dissect_function = rpc_call->proc_info->dissect_reply.new;
+		if (rpc_call->proc_info->name != NULL) {
+			procname = rpc_call->proc_info->name;
+		}
+		else {
+			sprintf(procname_static, "proc-%u", rpc_call->proc);
+			procname = procname_static;
+		}
+	}
+	else {
 #if 0
 		dissect_function = NULL;
 #endif
+		sprintf(procname_static, "proc-%u", rpc_call->proc);
+		procname = procname_static;
 	}
 
+	if ( tree )
+	{
+		/* Put the program, version, and procedure into the tree. */
+		proto_tree_add_uint_format(tree, prog_id, tvb,
+			0, 0, rpc_call->prog, "Program: %s (%u)",
+			rpc_prog_name(rpc_call->prog), rpc_call->prog);
+		proto_tree_add_uint(tree, vers_id, tvb, 0, 0, rpc_call->vers);
+		proto_tree_add_uint_format(tree, proc_id, tvb,
+			0, 0, rpc_call->proc, "Procedure: %s (%u)",
+			procname, rpc_call->proc);
+	}
+
+	if (dissect_function == NULL) {
+		/* We don't know how to dissect the reply procedure.
+		   Just show the reply stuff as opaque data. */
+		offset = dissect_rpc_data_tvb(tvb, pinfo, tree, result_id,
+		    offset);
+		return offset;
+	}
+
+	if (tree) {
+		/* Put the length of the reply value into the tree. */
+		proto_tree_add_text(tree, tvb, offset, 4,
+			"Argument length: %u",
+			tvb_get_ntohl(tvb, offset));
+	}
+	offset += 4;
+
+	/* Dissect the return value */
 	offset = call_dissect_function(tvb, pinfo, tree, offset,
 			old_dissect_function, dissect_function, NULL);
 	return offset;
@@ -1747,12 +1926,15 @@ rpc_init_protocol(void)
 {
 	if (rpc_calls != NULL)
 		g_hash_table_destroy(rpc_calls);
+	if (rpc_indir_calls != NULL)
+		g_hash_table_destroy(rpc_indir_calls);
 	if (rpc_call_info_key_chunk != NULL)
 		g_mem_chunk_destroy(rpc_call_info_key_chunk);
 	if (rpc_call_info_value_chunk != NULL)
 		g_mem_chunk_destroy(rpc_call_info_value_chunk);
 
 	rpc_calls = g_hash_table_new(rpc_call_hash, rpc_call_equal);
+	rpc_indir_calls = g_hash_table_new(rpc_call_hash, rpc_call_equal);
 	rpc_call_info_key_chunk = g_mem_chunk_new("call_info_key_chunk",
 	    sizeof(rpc_call_info_key),
 	    200 * sizeof(rpc_call_info_key),

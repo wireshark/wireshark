@@ -1,7 +1,7 @@
 /* packet-portmap.c
  * Routines for portmap dissection
  *
- * $Id: packet-portmap.c,v 1.27 2001/02/09 06:49:29 guy Exp $
+ * $Id: packet-portmap.c,v 1.28 2001/02/09 07:59:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -50,6 +50,8 @@ static int hf_portmap_proc = -1;
 static int hf_portmap_version = -1;
 static int hf_portmap_port = -1;
 static int hf_portmap_answer = -1;
+static int hf_portmap_args = -1;
+static int hf_portmap_result = -1;
 static int hf_portmap_rpcb = -1;
 static int hf_portmap_rpcb_prog = -1;
 static int hf_portmap_rpcb_version = -1;
@@ -231,31 +233,39 @@ int dissect_callit_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			rpc_proc_name(prog, vers, proc), proc);
 	}
 
-	if ( tree )
-	{
-		proto_tree_add_text(tree, tvb, offset+12, 4,
-			"Argument length: %u",
-			tvb_get_ntohl(tvb, offset+12));
-	}
-
-	offset += 16;
+	offset += 12;
 
 	/* Dissect the arguments for this procedure.
 	   Make the columns non-writable, so the dissector won't change
 	   them out from under us. */
 	col_set_writable(pinfo->fd, FALSE);
-	offset = dissect_rpc_indir_call(tvb, pinfo, tree, offset, prog,
-		vers, proc);
+	offset = dissect_rpc_indir_call(tvb, pinfo, tree, offset,
+		hf_portmap_args, prog, vers, proc);
 
 	return offset;
 }
 
-/*
- * XXX - to dissect a CALLIT reply, we'd need to somehow associate
- * the program/version/procedure information we get on a call with
- * the RPC dissector's information about the call, and get that
- * information from the reply dissector.
- */
+/* Dissect a callit reply */
+int dissect_callit_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
+	proto_tree *tree)
+{
+	if ( tree )
+	{
+		proto_tree_add_item(tree, hf_portmap_port, tvb,
+			offset, 4, FALSE);
+	}
+	offset += 4;
+
+	/* Dissect the result of this procedure.
+	   Make the columns non-writable, so the dissector won't change
+	   them out from under us. */
+	col_set_writable(pinfo->fd, FALSE);
+	offset = dissect_rpc_indir_reply(tvb, pinfo, tree, offset,
+		hf_portmap_result, hf_portmap_prog, hf_portmap_version,
+		hf_portmap_proc);
+
+	return offset;
+}
 
 /* proc number, "proc name", dissect_request, dissect_reply */
 /* NULL as function pointer means: type of arguments is "void". */
@@ -282,7 +292,7 @@ static const vsff portmap2_proc[] = {
 	{ PORTMAPPROC_DUMP, "DUMP",
 		NULL, dissect_dump_reply },
 	{ PORTMAPPROC_CALLIT, "CALLIT",
-		dissect_callit_call, NULL },
+		dissect_callit_call, dissect_callit_reply },
 	{ 0, NULL, NULL, NULL }
 };
 /* end of Portmap version 2 */
@@ -359,6 +369,25 @@ int dissect_rpcb3_dump_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	return offset;
 }
 
+/* RFC 1833, page 4 */
+int dissect_rpcb_rmtcallres(tvbuff_t *tvb, int offset, packet_info *pinfo,
+	proto_tree *tree)
+{
+	/* Dissect the remote universal address. */
+	offset = dissect_rpc_string_tvb(tvb, pinfo, tree,
+	    hf_portmap_rpcb_addr, offset, NULL);
+
+	/* Dissect the result of this procedure.
+	   Make the columns non-writable, so the dissector won't change
+	   them out from under us. */
+	col_set_writable(pinfo->fd, FALSE);
+	offset = dissect_rpc_indir_reply(tvb, pinfo, tree, offset,
+		hf_portmap_result, hf_portmap_prog, hf_portmap_version,
+		hf_portmap_proc);
+
+	return offset;
+}
+
 
 /* Portmapper version 3, RFC 1833, Page 7 */
 static const vsff portmap3_proc[] = {
@@ -373,7 +402,7 @@ static const vsff portmap3_proc[] = {
 	{ RPCBPROC_DUMP,	"DUMP",
 		NULL, dissect_rpcb3_dump_reply },
 	{ RPCBPROC_CALLIT,	"CALLIT",
-		dissect_callit_call, NULL },
+		dissect_callit_call, dissect_rpcb_rmtcallres },
 	{ RPCBPROC_GETTIME,	"GETTIME",
 		NULL, NULL },
 	{ RPCBPROC_UADDR2TADDR,	"UADDR2TADDR",
@@ -398,7 +427,7 @@ static const vsff portmap4_proc[] = {
 	{ RPCBPROC_DUMP,	"DUMP",
 		NULL, dissect_rpcb3_dump_reply },
 	{ RPCBPROC_BCAST,	"BCAST",
-		dissect_callit_call, NULL },
+		dissect_callit_call, dissect_rpcb_rmtcallres },
 	{ RPCBPROC_GETTIME,	"GETTIME",
 		NULL, NULL },
 	{ RPCBPROC_UADDR2TADDR,	"UADDR2TADDR",
@@ -408,7 +437,7 @@ static const vsff portmap4_proc[] = {
 	{ RPCBPROC_GETVERSADDR,	"GETVERSADDR",
 		NULL, NULL },
 	{ RPCBPROC_INDIRECT,	"INDIRECT",
-		dissect_callit_call, NULL },
+		dissect_callit_call, dissect_rpcb_rmtcallres },
 	{ RPCBPROC_GETADDRLIST,	"GETADDRLIST",
 		NULL, NULL },
 	{ RPCBPROC_GETSTAT,	"GETSTAT",
@@ -439,6 +468,12 @@ proto_register_portmap(void)
 		{ &hf_portmap_answer, {
 			"Answer", "portmap.answer", FT_BOOLEAN, BASE_DEC,
 			NULL, 0, "Answer" }},
+		{ &hf_portmap_args, {
+			"Arguments", "portmap.args", FT_BYTES, BASE_HEX,
+			NULL, 0, "Arguments" }},
+		{ &hf_portmap_result, {
+			"Result", "portmap.result", FT_BYTES, BASE_HEX,
+			NULL, 0, "Result" }},
 		{ &hf_portmap_rpcb, {
 			"RPCB", "portmap.rpcb", FT_NONE, 0,
 			NULL, 0, "RPCB" }},
