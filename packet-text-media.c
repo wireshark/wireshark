@@ -6,7 +6,7 @@
  *
  * (C) Olivier Biot, 2004 <Olivier.Biot (ad) siemens.com>
  *
- * $Id: packet-text-media.c,v 1.3 2004/01/13 07:55:24 guy Exp $
+ * $Id: packet-text-media.c,v 1.4 2004/01/26 23:49:43 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -149,4 +149,5 @@ proto_reg_handoff_text_lines(void)
 	dissector_add_string("media_type", "text/vnd.wap.emn", text_lines_handle);
 	/* Other */
 	dissector_add_string("media_type", "text/vnd.sun.j2me.app-descriptor", text_lines_handle);
+	dissector_add_string("media_type", "application/smil", text_lines_handle);
 }
