@@ -1,7 +1,7 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
  *
- * $Id: packet-dns.c,v 1.103 2003/05/24 21:05:36 gerald Exp $
+ * $Id: packet-dns.c,v 1.104 2003/10/05 21:57:36 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -35,6 +35,7 @@
 #endif
 
 #include <glib.h>
+#include <epan/ipv6-utils.h>
 #include <epan/packet.h>
 #include "ipproto.h"
 #include <epan/resolv.h>
@@ -1350,7 +1351,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
       int pname_len;
       int a6_offset;
       int suf_offset;
-      guint8 suffix[16];
+      struct e_in6_addr suffix;
 
       a6_offset = cur_offset;
       pre_len = tvb_get_guint8(tvb, cur_offset);
@@ -1359,10 +1360,10 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
       suf_octet_count = suf_len ? (suf_len - 1) / 8 + 1 : 0;
       /* Pad prefix */
       for (suf_offset = 0; suf_offset < 16 - suf_octet_count; suf_offset++) {
-        suffix[suf_offset] = 0;
+        suffix.s6_addr8[suf_offset] = 0;
       }
       for (; suf_offset < 16; suf_offset++) {
-        suffix[suf_offset] = tvb_get_guint8(tvb, cur_offset);
+        suffix.s6_addr8[suf_offset] = tvb_get_guint8(tvb, cur_offset);
         cur_offset++;
       }
 
@@ -1377,7 +1378,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
       if (cinfo != NULL) {
         col_append_fstr(cinfo, COL_INFO, " %d %s %s",
                         pre_len,
-                        ip6_to_str((struct e_in6_addr *)&suffix),
+                        ip6_to_str(&suffix),
                         pname);
       }
       if (dns_tree != NULL) {
@@ -1387,7 +1388,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
         if (suf_len) {
           proto_tree_add_text(rr_tree, tvb, a6_offset, suf_octet_count,
                               "Address suffix: %s",
-                              ip6_to_str((struct e_in6_addr *)&suffix));
+                              ip6_to_str(&suffix));
           a6_offset += suf_octet_count;
         }
         if (pre_len > 0) {
@@ -1396,7 +1397,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
         }
         proto_item_append_text(trr, ", addr %d %s %s",
                             pre_len,
-                            ip6_to_str((struct e_in6_addr *)&suffix),
+                            ip6_to_str(&suffix),
                             pname);
       }
     }
