@@ -2,7 +2,7 @@
  * Basic Fibre Channel Header definitions
  * Copyright 2002 Dinesh G Dutt (ddutt@cisco.com)
  *
- * $Id: packet-fc.h,v 1.1 2002/12/08 02:32:17 gerald Exp $
+ * $Id: packet-fc.h,v 1.2 2002/12/10 02:49:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -33,43 +33,34 @@
 #define FC_RCTL_VIDEO          0x40
 #define FC_RCTL_BLS            0x80
 #define FC_RCTL_LINK_CTL       0xC0
+/* XXX - is 0xF0 Extended Routing?  It is in the FC-FS draft on the T11
+   Web site. */
 
-/* TYPE (FC-4) Definitions */
+#define FC_TYPE_CMNSVC         0x0  /* Used in PRLI Svc Param Page */
 
-#define FC_TYPE_SCSI           0x8
-#define FC_TYPE_IP             0x5
-#define FC_TYPE_LLCSNAP        0x4
+/* TYPE definitions for Basic or Extended Link_Data */
 #define FC_TYPE_ELS            0x1
+
+/* TYPE definitions for FC-4 */
+#define FC_TYPE_LLCSNAP        0x4
+#define FC_TYPE_IP             0x5
+#define FC_TYPE_SCSI           0x8
 #define FC_TYPE_FCCT           0x20
 #define FC_TYPE_SWILS          0x22
 #define FC_TYPE_AL             0x23
 #define FC_TYPE_SNMP           0x24
-#define FC_TYPE_CMNSVC         0x0  /* Used in PRLI Svc Param Page */
 
-static const value_string fc_fc4_val[] = {
-    {FC_TYPE_SCSI    , "FCP"},
-    {FC_TYPE_IP      , "IP/FC"},
-    {FC_TYPE_LLCSNAP , "LLC_SNAP"},
-    {FC_TYPE_ELS     , "Ext Link Svc"},
-    {FC_TYPE_FCCT    , "FC_CT"},
-    {FC_TYPE_SWILS   , "SW_ILS"},
-    {FC_TYPE_AL      , "AL"},
-    {FC_TYPE_SNMP    , "SNMP"},
-    {0, NULL},
-};
+extern const value_string fc_fc4_val[];
 
-static const value_string fc_prli_fc4_val[] = {
-    {FC_TYPE_SCSI    , "FCP"},
-    {FC_TYPE_IP      , "IP/FC"},
-    {FC_TYPE_LLCSNAP , "LLC_SNAP"},
-    {FC_TYPE_ELS     , "Ext Link Svc"},
-    {FC_TYPE_FCCT    , "FC_CT"},
-    {FC_TYPE_SWILS   , "SW_ILS"},
-    {FC_TYPE_AL      , "AL"},
-    {FC_TYPE_SNMP    , "SNMP"},
-    {FC_TYPE_CMNSVC  , "Common to all FC-4 Types"},
-    {0, NULL},
-};
+/* DF_CTL bits */
+#define FC_DFCTL_DH         0x03   /* Device_Header type bits: */
+#define FC_DFCTL_DH_NONE    0x00   /* No Device_Header */
+#define FC_DFCTL_DH_16_BYTE 0x01   /* 16 Byte Device_Header */
+#define FC_DFCTL_DH_32_BYTE 0x02   /* 32 Byte Device_Header */
+#define FC_DFCTL_DH_64_BYTE 0x03   /* 64 Byte Device_Header */
+#define FC_DFCTL_AH         0x10   /* Association_Header bit */
+#define FC_DFCTL_NH         0x20   /* Association_Header bit */
+#define FC_DFCTL_SH         0x40   /* reserved for security header */
 
 /* Derived Frame types (used for ULP demux) */
 #define FC_FTYPE_UNDEF         0x0
@@ -83,20 +74,6 @@ static const value_string fc_prli_fc4_val[] = {
 #define FC_FTYPE_VDO           0x9
 #define FC_FTYPE_LINKCTL       0xA
 #define FC_FTYPE_SWILS_RSP     0xB
-
-static const value_string fc_ftype_vals [] = {
-    {FC_FTYPE_UNDEF ,    "Unknown frame"},
-    {FC_FTYPE_SWILS,     "SW_ILS"},
-    {FC_FTYPE_IP ,       "IP/FC"},
-    {FC_FTYPE_SCSI ,     "FCP"},
-    {FC_FTYPE_BLS ,      "Basic Link Svc"},
-    {FC_FTYPE_ELS ,      "ELS"},
-    {FC_FTYPE_FCCT ,     "FC_CT"},
-    {FC_FTYPE_LINKDATA,  "Link Data"},
-    {FC_FTYPE_VDO,       "Video Data"},
-    {FC_FTYPE_LINKCTL,   "Link Ctl"},
-    {0, NULL},
-};
 
 /* Well-known Address Definitions (in Network order) */
 #define FC_WKA_MULTICAST       0xFFFFF5
@@ -113,21 +90,6 @@ static const value_string fc_ftype_vals [] = {
 
 /* Well-known Address Definitions (in little endian) */
 
-static const value_string fc_wka_vals[] = {
-    {FC_WKA_MULTICAST,    "Multicast Server"},
-    {FC_WKA_CLKSYNC,      "Clock Sync Server"},
-    {FC_WKA_KEYDIST,      "Key Distribution Server"},
-    {FC_WKA_ALIAS,        "Alias Server"},
-    {FC_WKA_QOSF,         "QoS Facilitator"},
-    {FC_WKA_MGMT,         "Management Server"},
-    {FC_WKA_TIME,         "Time Server"},
-    {FC_WKA_DNS,          "Directory Server"},
-    {FC_WKA_FABRIC_CTRLR, "Fabric Ctlr"},
-    {FC_WKA_FPORT,        "F_Port Server"},
-    {FC_WKA_BCAST,        "Broadcast ID"},
-    {0, NULL},
-};
-
 /* Information Categories for Link Data & Link Control Frames */
 #define FC_IU_UNCATEGORIZED     0x0
 #define FC_IU_SOLICITED_DATA    0x1
@@ -138,16 +100,4 @@ static const value_string fc_wka_vals[] = {
 #define FC_IU_UNSOLICITED_CMD   0x6
 #define FC_IU_CMD_STATUS        0x7
 
-static const value_string fc_iu_val[] = {
-    {FC_IU_UNCATEGORIZED   , "Uncategorized Data"},
-    {FC_IU_SOLICITED_DATA  , "Solicited Data"},
-    {FC_IU_UNSOLICITED_CTL , "Unsolicited Control"},
-    {FC_IU_SOLICITED_CTL   , "Solicited Control"},
-    {FC_IU_UNSOLICITED_DATA, "Solicited Data"},
-    {FC_IU_DATA_DESCRIPTOR , "Data Descriptor"},
-    {FC_IU_UNSOLICITED_CMD , "Unsolicited Command"},
-    {FC_IU_CMD_STATUS      , "Command Status"},
-    {0, NULL},
-};
-
-#endif
+#endif /* __PACKET_FC_H_ */

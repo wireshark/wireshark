@@ -2,7 +2,7 @@
  * Routines for IEEE 802.2 LLC layer
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-llc.c,v 1.104 2002/12/08 22:01:20 guy Exp $
+ * $Id: packet-llc.c,v 1.105 2002/12/10 02:49:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -35,6 +35,7 @@
 #include "llcsaps.h"
 #include "bridged_pids.h"
 #include "ppptypes.h"
+#include "packet-fc.h"
 #include "packet-ip.h"
 #include "packet-ipx.h"
 #include "packet-netbios.h"
@@ -560,4 +561,6 @@ proto_reg_handoff_llc(void)
 	dissector_add("udp.port", UDP_PORT_LLC3, llc_handle);
 	dissector_add("udp.port", UDP_PORT_LLC4, llc_handle);
 	dissector_add("udp.port", UDP_PORT_LLC5, llc_handle);
+	/* IP-over-FC when we have the full FC frame */
+	dissector_add("fc.ftype", FC_FTYPE_IP, llc_handle);
 }

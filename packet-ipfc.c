@@ -1,8 +1,10 @@
 /* packet-ipfc.c
- * Routines for Decoding FC header for IP/FC
+ * Routines for Decoding Network_Header for IP-over-FC when we only
+ * capture the frame starting at the Network_Header (as opposed to
+ * when we have the full FC frame).
  * Copyright 2001, Dinesh G Dutt <ddutt@cisco.com>
  *
- * $Id: packet-ipfc.c,v 1.4 2002/12/08 22:35:30 guy Exp $
+ * $Id: packet-ipfc.c,v 1.5 2002/12/10 02:49:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -74,8 +76,8 @@ dissect_ipfc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "IP/FC");
 
     if (tree) {
-        ti = proto_tree_add_text (tree, tvb, offset, 16,
-                                         "Network Header");
+        ti = proto_tree_add_protocol_format (tree, proto_ipfc, tvb, offset, 16,
+                                         "IP Over FC Network_Header");
         ipfc_tree = proto_item_add_subtree (ti, ett_ipfc);
 
         proto_tree_add_string (ipfc_tree, hf_ipfc_network_da, tvb, offset, 8,
@@ -101,10 +103,10 @@ proto_register_ipfc (void)
 /* Setup list of header fields  See Section 1.6.1 for details*/
     static hf_register_info hf[] = {
         { &hf_ipfc_network_da,
-          {"Network DA", "ipfc.nethdr.da", FT_STRING, BASE_HEX, NULL,
+          {"Network DA", "ipfc.nh.da", FT_STRING, BASE_HEX, NULL,
            0x0, "", HFILL}},
         { &hf_ipfc_network_sa,
-          {"Network SA", "ipfc.nethdr.sa", FT_STRING, BASE_HEX, NULL,
+          {"Network SA", "ipfc.nh.sa", FT_STRING, BASE_HEX, NULL,
            0x0, "", HFILL}},
     };
 
@@ -131,7 +133,6 @@ proto_reg_handoff_ipfc (void)
     dissector_handle_t ipfc_handle;
 
     ipfc_handle = create_dissector_handle (dissect_ipfc, proto_ipfc);
-    dissector_add("fc.ftype", FC_FTYPE_IP, ipfc_handle);
     dissector_add("wtap_encap", WTAP_ENCAP_IP_OVER_FC, ipfc_handle);
 
     llc_handle = find_dissector ("llc");

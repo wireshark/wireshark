@@ -2,17 +2,11 @@
  * Routines for Fibre Channel Decoding (FC Header, Link Ctl & Basic Link Svc) 
  * Copyright 2001, Dinesh G Dutt <ddutt@cisco.com>
  *
- * $Id: packet-fc.c,v 1.1 2002/12/08 02:32:17 gerald Exp $
+ * $Id: packet-fc.c,v 1.2 2002/12/10 02:49:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
- * Copied from WHATEVER_FILE_YOU_USED (where "WHATEVER_FILE_YOU_USED"
- * is a dissector file; if you just copied this from README.developer,
- * don't bother with the "Copied from" - you don't even need to put
- * in a "Copied from" if you copied an existing dissector, especially
- * if the bulk of the code in the new dissector is your code)
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -95,6 +89,10 @@ static int hf_fc_exchg_orig = -1;
 static int hf_fc_exchg_resp = -1;
 static int hf_fc_reassembled = -1;
 
+/* Network_Header fields */
+static int hf_fc_nh_da = -1;
+static int hf_fc_nh_sa = -1;
+
 /* For Basic Link Svc */
 static int hf_fc_bls_seqid_vld = -1;
 static int hf_fc_bls_lastvld_seqid = -1;
@@ -105,6 +103,7 @@ static int hf_fc_bls_hiseqcnt = -1;
 static int hf_fc_bls_rjtcode = -1;
 static int hf_fc_bls_rjtdetail = -1;
 static int hf_fc_bls_vendor = -1;
+
 
 /* Initialize the subtree pointers */
 static gint ett_fc = -1;
@@ -117,6 +116,59 @@ static dissector_handle_t data_handle;
 static gboolean fc_reassemble = TRUE;
 static guint32  fc_max_frame_size = 1024;
 static GHashTable *fc_fragment_table = NULL;
+
+const value_string fc_fc4_val[] = {
+    {FC_TYPE_ELS     , "Ext Link Svc"},
+    {FC_TYPE_LLCSNAP , "LLC_SNAP"},
+    {FC_TYPE_IP      , "IP/FC"},
+    {FC_TYPE_SCSI    , "FCP"},
+    {FC_TYPE_FCCT    , "FC_CT"},
+    {FC_TYPE_SWILS   , "SW_ILS"},
+    {FC_TYPE_AL      , "AL"},
+    {FC_TYPE_SNMP    , "SNMP"},
+    {0, NULL},
+};
+
+static const value_string fc_ftype_vals [] = {
+    {FC_FTYPE_UNDEF ,    "Unknown frame"},
+    {FC_FTYPE_SWILS,     "SW_ILS"},
+    {FC_FTYPE_IP ,       "IP/FC"},
+    {FC_FTYPE_SCSI ,     "FCP"},
+    {FC_FTYPE_BLS ,      "Basic Link Svc"},
+    {FC_FTYPE_ELS ,      "ELS"},
+    {FC_FTYPE_FCCT ,     "FC_CT"},
+    {FC_FTYPE_LINKDATA,  "Link Data"},
+    {FC_FTYPE_VDO,       "Video Data"},
+    {FC_FTYPE_LINKCTL,   "Link Ctl"},
+    {0, NULL},
+};
+
+static const value_string fc_wka_vals[] = {
+    {FC_WKA_MULTICAST,    "Multicast Server"},
+    {FC_WKA_CLKSYNC,      "Clock Sync Server"},
+    {FC_WKA_KEYDIST,      "Key Distribution Server"},
+    {FC_WKA_ALIAS,        "Alias Server"},
+    {FC_WKA_QOSF,         "QoS Facilitator"},
+    {FC_WKA_MGMT,         "Management Server"},
+    {FC_WKA_TIME,         "Time Server"},
+    {FC_WKA_DNS,          "Directory Server"},
+    {FC_WKA_FABRIC_CTRLR, "Fabric Ctlr"},
+    {FC_WKA_FPORT,        "F_Port Server"},
+    {FC_WKA_BCAST,        "Broadcast ID"},
+    {0, NULL},
+};
+
+static const value_string fc_iu_val[] = {
+    {FC_IU_UNCATEGORIZED   , "Uncategorized Data"},
+    {FC_IU_SOLICITED_DATA  , "Solicited Data"},
+    {FC_IU_UNSOLICITED_CTL , "Unsolicited Control"},
+    {FC_IU_SOLICITED_CTL   , "Solicited Control"},
+    {FC_IU_UNSOLICITED_DATA, "Solicited Data"},
+    {FC_IU_DATA_DESCRIPTOR , "Data Descriptor"},
+    {FC_IU_UNSOLICITED_CMD , "Unsolicited Command"},
+    {FC_IU_CMD_STATUS      , "Command Status"},
+    {0, NULL},
+};
 
 static void fc_defragment_init(void)
 {
@@ -291,16 +343,16 @@ dissect_fc_ba_acc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         ti = proto_tree_add_text (tree, tvb, 0, tvb_length (tvb), "Basic Link Svc");
         acc_tree = proto_item_add_subtree (ti, ett_fcbls);
 
-        proto_tree_add_item (acc_tree, hf_fc_bls_seqid_vld, tvb, offset++, 1, 0);
-        proto_tree_add_item (acc_tree, hf_fc_bls_lastvld_seqid, tvb, offset++, 1, 0);
+        proto_tree_add_item (acc_tree, hf_fc_bls_seqid_vld, tvb, offset++, 1, FALSE);
+        proto_tree_add_item (acc_tree, hf_fc_bls_lastvld_seqid, tvb, offset++, 1, FALSE);
         offset += 2; /* Skip reserved field */
-        proto_tree_add_item (acc_tree, hf_fc_bls_oxid, tvb, offset, 2, 0);
+        proto_tree_add_item (acc_tree, hf_fc_bls_oxid, tvb, offset, 2, FALSE);
         offset += 2;
-        proto_tree_add_item (acc_tree, hf_fc_bls_rxid, tvb, offset, 2, 0);
+        proto_tree_add_item (acc_tree, hf_fc_bls_rxid, tvb, offset, 2, FALSE);
         offset += 2;
-        proto_tree_add_item (acc_tree, hf_fc_bls_lowseqcnt, tvb, offset, 2, 0);
+        proto_tree_add_item (acc_tree, hf_fc_bls_lowseqcnt, tvb, offset, 2, FALSE);
         offset += 2;
-        proto_tree_add_item (acc_tree, hf_fc_bls_hiseqcnt, tvb, offset, 2, 0);
+        proto_tree_add_item (acc_tree, hf_fc_bls_hiseqcnt, tvb, offset, 2, FALSE);
     }
 }
 
@@ -323,9 +375,9 @@ dissect_fc_ba_rjt (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         ti = proto_tree_add_text (tree, tvb, 0, tvb_length (tvb), "Basic Link Svc");
         rjt_tree = proto_item_add_subtree (ti, ett_fcbls);
 
-        proto_tree_add_item (rjt_tree, hf_fc_bls_rjtcode, tvb, offset+1, 1, 0);
-        proto_tree_add_item (rjt_tree, hf_fc_bls_rjtdetail, tvb, offset+2, 1, 0);
-        proto_tree_add_item (rjt_tree, hf_fc_bls_vendor, tvb, offset+3, 1, 0);
+        proto_tree_add_item (rjt_tree, hf_fc_bls_rjtcode, tvb, offset+1, 1, FALSE);
+        proto_tree_add_item (rjt_tree, hf_fc_bls_rjtdetail, tvb, offset+2, 1, FALSE);
+        proto_tree_add_item (rjt_tree, hf_fc_bls_vendor, tvb, offset+3, 1, FALSE);
     }
 }
 
@@ -387,13 +439,13 @@ dissect_fc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_item *ti;
     proto_tree *fc_tree = NULL;
     tvbuff_t *next_tvb;
-    int offset = 0;
+    int offset = 0, next_offset;
     gboolean is_lastframe_inseq;
     gboolean is_exchg_resp = 0;
     fragment_data *fcfrag_head;
     guint32 frag_id;
     guint32 frag_size;
-    guint8 r_ctl, type;
+    guint8 r_ctl, type, df_ctl;
     
     gchar str[256];
     guint32 param;
@@ -465,7 +517,7 @@ dissect_fc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                                     fc_bls_proto_val, "0x%x")); 
         }
         else {
-            proto_tree_add_item (fc_tree, hf_fc_rctl, tvb, offset, 1, 0);
+            proto_tree_add_item (fc_tree, hf_fc_rctl, tvb, offset, 1, FALSE);
         }
         
         proto_tree_add_uint_hidden (fc_tree, hf_fc_ftype, tvb, offset, 1,
@@ -473,7 +525,7 @@ dissect_fc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_string (fc_tree, hf_fc_did, tvb, offset+1, 3,
                                fc_to_str ((guint8 *)tvb_get_ptr (tvb,
                                                                  offset+1, 3)));
-        proto_tree_add_item (fc_tree, hf_fc_csctl, tvb, offset+4, 1, 0);
+        proto_tree_add_item (fc_tree, hf_fc_csctl, tvb, offset+4, 1, FALSE);
 
         proto_tree_add_string (fc_tree, hf_fc_sid, tvb, offset+5, 3,
                                fc_to_str ((guint8 *)tvb_get_ptr (tvb,
@@ -492,11 +544,11 @@ dissect_fc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                                                 type));
             }
             else {
-                proto_tree_add_item (fc_tree, hf_fc_type, tvb, offset+8, 1, 0);
+                proto_tree_add_item (fc_tree, hf_fc_type, tvb, offset+8, 1, FALSE);
             }
         }
         else {
-            proto_tree_add_item (fc_tree, hf_fc_type, tvb, offset+8, 1, 0);
+            proto_tree_add_item (fc_tree, hf_fc_type, tvb, offset+8, 1, FALSE);
         }
 
         proto_tree_add_uint_format (fc_tree, hf_fc_fctl, tvb, offset+9,
@@ -520,11 +572,14 @@ dissect_fc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                            offset+9, 1, 0);
         }
         
-        proto_tree_add_item (fc_tree, hf_fc_seqid, tvb, offset+12, 1, 0);
-        proto_tree_add_item (fc_tree, hf_fc_dfctl, tvb, offset+13, 1, 0);
-        proto_tree_add_item (fc_tree, hf_fc_seqcnt, tvb, offset+14, 2, 0);
-        proto_tree_add_item (fc_tree, hf_fc_oxid, tvb, offset+16, 2, 0);
-        proto_tree_add_uint (fc_tree, hf_fc_rxid, tvb, offset+18, 2, 0);
+        proto_tree_add_item (fc_tree, hf_fc_seqid, tvb, offset+12, 1, FALSE);
+    }
+    df_ctl = tvb_get_guint8(tvb, offset+13);
+    if (tree) {
+        proto_tree_add_uint (fc_tree, hf_fc_dfctl, tvb, offset+13, 1, df_ctl);
+        proto_tree_add_item (fc_tree, hf_fc_seqcnt, tvb, offset+14, 2, FALSE);
+        proto_tree_add_item (fc_tree, hf_fc_oxid, tvb, offset+16, 2, FALSE);
+        proto_tree_add_item (fc_tree, hf_fc_rxid, tvb, offset+18, 2, FALSE);
 
         if (ftype == FC_FTYPE_LINKCTL) {
             if (((r_ctl & 0x0F) == FC_LCTL_FRJT) ||
@@ -540,7 +595,7 @@ dissect_fc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                                                  param));
             }
             else {
-                proto_tree_add_item (fc_tree, hf_fc_param, tvb, offset+20, 4, 0);
+                proto_tree_add_item (fc_tree, hf_fc_param, tvb, offset+20, 4, FALSE);
             }
         }
         else if (ftype == FC_FTYPE_BLS) {
@@ -553,13 +608,30 @@ dissect_fc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             }
             else {
                 proto_tree_add_item (fc_tree, hf_fc_param, tvb, offset+20,
-                                     4, 0);
+                                     4, FALSE);
             }
         }
         else {
-            proto_tree_add_item (fc_tree, hf_fc_param, tvb, offset+20, 4, 0);
+            proto_tree_add_item (fc_tree, hf_fc_param, tvb, offset+20, 4, FALSE);
         }
     }
+
+    /* Skip the Frame_Header */
+    next_offset = offset + FC_HEADER_SIZE;
+
+    /* Network_Header present? */
+    if (df_ctl & FC_DFCTL_NH) {
+        /* Yes - dissect it. */
+        if (tree) {
+            proto_tree_add_string (fc_tree, hf_fc_nh_da, tvb, next_offset, 8,
+                                   fcwwn_to_str (tvb_get_ptr (tvb, offset, 8)));
+            proto_tree_add_string (fc_tree, hf_fc_nh_sa, tvb, offset+8, 8,
+                                   fcwwn_to_str (tvb_get_ptr (tvb, offset+8, 8)));
+        }
+        next_offset += 16;
+    }
+
+    /* XXX - handle Association_Header and Device_Header here */
 
     if (ftype == FC_FTYPE_LINKCTL) {
         /* ACK_1 frames and other LINK_CTL frames echo the last seq bit if the
@@ -617,7 +689,7 @@ dissect_fc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 proto_tree_add_boolean_hidden (fc_tree, hf_fc_reassembled,
                                                tvb, offset+9, 1, 0);
             }
-            next_tvb = tvb_new_subset (tvb, offset+FC_HEADER_SIZE, -1, -1);
+            next_tvb = tvb_new_subset (tvb, next_offset, -1, -1);
             call_dissector (data_handle, next_tvb, pinfo, tree);
             return;
         }
@@ -627,7 +699,7 @@ dissect_fc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             proto_tree_add_boolean_hidden (fc_tree, hf_fc_reassembled,
                                            tvb, offset+9, 1, 0);
         }
-        next_tvb = tvb_new_subset (tvb, offset+FC_HEADER_SIZE, -1, -1);
+        next_tvb = tvb_new_subset (tvb, next_offset, -1, -1);
     }
 
     if ((ftype != FC_FTYPE_LINKCTL) && (ftype != FC_FTYPE_BLS)) {
@@ -697,6 +769,22 @@ proto_register_fc(void)
           {"Parameter", "fc.parameter", FT_UINT32, BASE_HEX, NULL, 0x0, "Parameter",
            HFILL}},
 
+        { &hf_fc_exchg_orig,
+          {"Exchange Originator", "fc.xchg_orig", FT_BOOLEAN, BASE_HEX, NULL,
+           0x0, "", HFILL}},
+        { &hf_fc_exchg_resp,
+          {"Exchange Responder", "fc.xchg_resp", FT_BOOLEAN, BASE_HEX, NULL,
+           0x0, "", HFILL}},
+        { &hf_fc_reassembled,
+          {"Reassembled Frame", "fc.reassembled", FT_BOOLEAN, BASE_HEX, NULL,
+           0x0, "", HFILL}},
+        { &hf_fc_nh_da,
+          {"Network DA", "fc.nethdr.da", FT_STRING, BASE_HEX, NULL,
+           0x0, "", HFILL}},
+        { &hf_fc_nh_sa,
+          {"Network SA", "fc.nethdr.sa", FT_STRING, BASE_HEX, NULL,
+           0x0, "", HFILL}},
+
         /* Basic Link Svc field definitions */
         { &hf_fc_bls_seqid_vld,
           {"SEQID Valid", "fc.bls_seqidvld", FT_UINT8, BASE_HEX,
@@ -722,15 +810,6 @@ proto_register_fc(void)
            VALS (fc_bls_barjt_det_val), 0x0, "", HFILL}},
         { &hf_fc_bls_vendor,
           {"Vendor Unique Reason", "fc.bls_vnduniq", FT_UINT8, BASE_HEX, NULL,
-           0x0, "", HFILL}},
-        { &hf_fc_exchg_orig,
-          {"Exchange Originator", "fc.xchg_orig", FT_BOOLEAN, BASE_HEX, NULL,
-           0x0, "", HFILL}},
-        { &hf_fc_exchg_resp,
-          {"Exchange Responder", "fc.xchg_resp", FT_BOOLEAN, BASE_HEX, NULL,
-           0x0, "", HFILL}},
-        { &hf_fc_reassembled,
-          {"Reassembled Frame", "fc.reassembled", FT_BOOLEAN, BASE_HEX, NULL,
            0x0, "", HFILL}},
     };
 

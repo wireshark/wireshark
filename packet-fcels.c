@@ -2,18 +2,12 @@
  * Routines for FC Extended Link Services
  * Copyright 2001, Dinesh G Dutt <ddutt@cisco.com>
  *
- * $Id: packet-fcels.c,v 1.1 2002/12/08 02:32:17 gerald Exp $
+ * $Id: packet-fcels.c,v 1.2 2002/12/10 02:49:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
- * Copied from WHATEVER_FILE_YOU_USED (where "WHATEVER_FILE_YOU_USED"
- * is a dissector file; if you just copied this from README.developer,
- * don't bother with the "Copied from" - you don't even need to put
- * in a "Copied from" if you copied an existing dissector, especially
- * if the bulk of the code in the new dissector is your code)
- * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
@@ -164,6 +158,19 @@ static gint ett_fcels_rlir;
 static gint ett_fcels_lirr;
 static gint ett_fcels_srl;
 static gint ett_fcels_rpsc;         
+
+static const value_string fc_prli_fc4_val[] = {
+    {FC_TYPE_SCSI    , "FCP"},
+    {FC_TYPE_IP      , "IP/FC"},
+    {FC_TYPE_LLCSNAP , "LLC_SNAP"},
+    {FC_TYPE_ELS     , "Ext Link Svc"},
+    {FC_TYPE_FCCT    , "FC_CT"},
+    {FC_TYPE_SWILS   , "SW_ILS"},
+    {FC_TYPE_AL      , "AL"},
+    {FC_TYPE_SNMP    , "SNMP"},
+    {FC_TYPE_CMNSVC  , "Common to all FC-4 Types"},
+    {0, NULL},
+};
 
 typedef struct _fcels_conv_key {
     guint32 conv_idx;
@@ -472,12 +479,12 @@ dissect_fcels_logi (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     
     if (tree) {
         logi_tree = proto_item_add_subtree (ti, ett_fcels_logi);
-        proto_tree_add_item (logi_tree, hf_fcels_opcode, tvb, offset, 1, 0);
+        proto_tree_add_item (logi_tree, hf_fcels_opcode, tvb, offset, 1, FALSE);
         
         subti = proto_tree_add_text (logi_tree, tvb, offset+4, 16,
                                      "Common Svc Parameters");
         cmnsvc_tree = proto_item_add_subtree (subti, ett_fcels_logi_cmnsvc);
-        proto_tree_add_item (cmnsvc_tree, hf_fcels_b2b, tvb, offset+6, 2, 0);
+        proto_tree_add_item (cmnsvc_tree, hf_fcels_b2b, tvb, offset+6, 2, FALSE);
         flag = tvb_get_ntohs (tvb, offset+8);
         
         if (flag & 0x0001) {
@@ -490,11 +497,11 @@ dissect_fcels_logi (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                                     "Common Svc Parameters: 0x%x (%s)",
                                     flag, flagstr);
         
-        proto_tree_add_item (cmnsvc_tree, hf_fcels_bbscnum, tvb, offset+10, 1, 0);
-        proto_tree_add_item (cmnsvc_tree, hf_fcels_rcvsize, tvb, offset+10, 2, 0);
-        proto_tree_add_item (cmnsvc_tree, hf_fcels_maxconseq, tvb, offset+12, 2, 0);
-        proto_tree_add_item (cmnsvc_tree, hf_fcels_reloffset, tvb, offset+14, 2, 0);
-        proto_tree_add_item (cmnsvc_tree, hf_fcels_edtov, tvb, offset+16, 4, 0);
+        proto_tree_add_item (cmnsvc_tree, hf_fcels_bbscnum, tvb, offset+10, 1, FALSE);
+        proto_tree_add_item (cmnsvc_tree, hf_fcels_rcvsize, tvb, offset+10, 2, FALSE);
+        proto_tree_add_item (cmnsvc_tree, hf_fcels_maxconseq, tvb, offset+12, 2, FALSE);
+        proto_tree_add_item (cmnsvc_tree, hf_fcels_reloffset, tvb, offset+14, 2, FALSE);
+        proto_tree_add_item (cmnsvc_tree, hf_fcels_edtov, tvb, offset+16, 4, FALSE);
         proto_tree_add_string (cmnsvc_tree, hf_fcels_npname, tvb, offset+20, 8,
                                fcwwn_to_str (tvb_get_ptr (tvb, offset+20, 8)));
         proto_tree_add_string (cmnsvc_tree, hf_fcels_fnname, tvb, offset+28, 8,
@@ -529,19 +536,19 @@ dissect_fcels_logi (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                                             flagstr);
 
                 proto_tree_add_item (cmnsvc_tree, hf_fcels_clsrcvsize, tvb,
-                                     offset+6, 2, 0);
+                                     offset+6, 2, FALSE);
                 proto_tree_add_item (cmnsvc_tree, hf_fcels_conseq, tvb,
-                                     offset+8, 2, 0);
+                                     offset+8, 2, FALSE);
                 proto_tree_add_item (cmnsvc_tree, hf_fcels_e2e, tvb,
-                                     offset+10, 2, 0);
+                                     offset+10, 2, FALSE);
                 proto_tree_add_item (cmnsvc_tree, hf_fcels_openseq, tvb,
-                                     offset+12, 2, 0);
+                                     offset+12, 2, FALSE);
             }
             offset += 16;
         }
-        proto_tree_add_item (logi_tree, hf_fcels_vendorvers, tvb, offset, 16, 0);
+        proto_tree_add_item (logi_tree, hf_fcels_vendorvers, tvb, offset, 16, FALSE);
         if (svcvld) {
-            proto_tree_add_item (logi_tree, hf_fcels_svcavail, tvb, offset+32, 8, 0);
+            proto_tree_add_item (logi_tree, hf_fcels_svcavail, tvb, offset+32, 8, FALSE);
         }
     }
 }
@@ -571,7 +578,7 @@ dissect_fcels_logout (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     if (tree) {
         logo_tree = proto_item_add_subtree (ti, ett_fcels_logo);
 
-        proto_tree_add_item (logo_tree, hf_fcels_opcode, tvb, offset-5, 1, 0);
+        proto_tree_add_item (logo_tree, hf_fcels_opcode, tvb, offset-5, 1, FALSE);
 
         if (!isreq) {
             /* Accept has no payload */
@@ -596,7 +603,7 @@ dissect_fcels_abtx (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     if (tree) {
         abtx_tree = proto_item_add_subtree (ti, ett_fcels_abtx);
 
-        proto_tree_add_item (abtx_tree, hf_fcels_opcode, tvb, offset, 1, 0);
+        proto_tree_add_item (abtx_tree, hf_fcels_opcode, tvb, offset, 1, FALSE);
 
         if (!isreq) {
             return;
@@ -607,8 +614,8 @@ dissect_fcels_abtx (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                              tvb_get_guint8 (tvb, offset+4));
         proto_tree_add_string (abtx_tree, hf_fcels_nportid, tvb, offset+5, 3,
                                fc_to_str (tvb_get_ptr (tvb, offset+5, 3)));
-        proto_tree_add_item (abtx_tree, hf_fcels_oxid, tvb, offset+8, 2, 0);
-        proto_tree_add_item (abtx_tree, hf_fcels_rxid, tvb, offset+10, 2, 0);
+        proto_tree_add_item (abtx_tree, hf_fcels_oxid, tvb, offset+8, 2, FALSE);
+        proto_tree_add_item (abtx_tree, hf_fcels_rxid, tvb, offset+10, 2, FALSE);
     }
 }
 
@@ -623,15 +630,15 @@ dissect_fcels_rsi (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     if (tree) {
         rsi_tree = proto_item_add_subtree (ti, ett_fcels_rsi);
 
-        proto_tree_add_item (rsi_tree, hf_fcels_opcode, tvb, offset-4, 1, 0);
+        proto_tree_add_item (rsi_tree, hf_fcels_opcode, tvb, offset-4, 1, FALSE);
         if (!isreq)
             return;
 
-        proto_tree_add_item (rsi_tree, hf_fcels_recovqual, tvb, offset, 1, 0);
+        proto_tree_add_item (rsi_tree, hf_fcels_recovqual, tvb, offset, 1, FALSE);
         proto_tree_add_string (rsi_tree, hf_fcels_nportid, tvb, offset+1, 3,
                                fc_to_str (tvb_get_ptr (tvb, offset+1, 3)));
-        proto_tree_add_item (rsi_tree, hf_fcels_rxid, tvb, offset+4, 2, 0);
-        proto_tree_add_item (rsi_tree, hf_fcels_oxid, tvb, offset+6, 2, 0);
+        proto_tree_add_item (rsi_tree, hf_fcels_rxid, tvb, offset+4, 2, FALSE);
+        proto_tree_add_item (rsi_tree, hf_fcels_oxid, tvb, offset+6, 2, FALSE);
     }
 }
 
@@ -646,14 +653,14 @@ dissect_fcels_rrq (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     if (tree) {
         rrq_tree = proto_item_add_subtree (ti, ett_fcels_rrq);
 
-        proto_tree_add_item (rrq_tree, hf_fcels_opcode, tvb, offset, 1, 0);
+        proto_tree_add_item (rrq_tree, hf_fcels_opcode, tvb, offset, 1, FALSE);
         if (!isreq)
             return;
 
         proto_tree_add_string (rrq_tree, hf_fcels_nportid, tvb, offset+5, 3,
                                fc_to_str (tvb_get_ptr (tvb, offset+5, 3)));
-        proto_tree_add_item (rrq_tree, hf_fcels_oxid, tvb, offset+8, 2, 0);
-        proto_tree_add_item (rrq_tree, hf_fcels_rxid, tvb, offset+10, 2, 0);
+        proto_tree_add_item (rrq_tree, hf_fcels_oxid, tvb, offset+8, 2, FALSE);
+        proto_tree_add_item (rrq_tree, hf_fcels_rxid, tvb, offset+10, 2, FALSE);
     }
 }
 
@@ -682,7 +689,7 @@ dissect_fcels_adisc (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     if (tree) {
         adisc_tree = proto_item_add_subtree (ti, ett_fcels_adisc);
 
-        proto_tree_add_item (adisc_tree, hf_fcels_opcode, tvb, offset-5, 1, 0);
+        proto_tree_add_item (adisc_tree, hf_fcels_opcode, tvb, offset-5, 1, FALSE);
 
         proto_tree_add_string (adisc_tree, hf_fcels_hardaddr, tvb, offset, 3,
                                fc_to_str (tvb_get_ptr (tvb, offset, 3)));
@@ -706,14 +713,14 @@ dissect_fcels_farp (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     if (tree) {
         farp_tree = proto_item_add_subtree (ti, ett_fcels_farp);
 
-        proto_tree_add_item (farp_tree, hf_fcels_opcode, tvb, offset-4, 1, 0);
+        proto_tree_add_item (farp_tree, hf_fcels_opcode, tvb, offset-4, 1, FALSE);
 
         proto_tree_add_item (farp_tree, hf_fcels_farp_matchcodept,
-                             tvb, offset, 1, 0);
+                             tvb, offset, 1, FALSE);
         proto_tree_add_string (farp_tree, hf_fcels_nportid, tvb, offset+1,
                                3, fc_to_str (tvb_get_ptr (tvb, offset+1, 3)));
         proto_tree_add_item (farp_tree, hf_fcels_farp_respaction, tvb,
-                             offset+4, 1, 0);
+                             offset+4, 1, FALSE);
         proto_tree_add_string (farp_tree, hf_fcels_resportid, tvb, offset+5,
                                3, fc_to_str (tvb_get_ptr (tvb, offset+5, 3)));
         proto_tree_add_string (farp_tree, hf_fcels_npname, tvb, offset+8,
@@ -725,9 +732,9 @@ dissect_fcels_farp (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
         proto_tree_add_string (farp_tree, hf_fcels_respnname, tvb, offset+32,
                                8, fcwwn_to_str (tvb_get_ptr (tvb, offset+32, 8)));
         proto_tree_add_item (farp_tree, hf_fcels_reqipaddr, tvb, offset+40,
-                             16, 0);
+                             16, FALSE);
         proto_tree_add_item (farp_tree, hf_fcels_respipaddr, tvb, offset+56,
-                             16, 0);
+                             16, FALSE);
     }
 }
 
@@ -760,9 +767,9 @@ dissect_fcels_rps (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
         rps_tree = proto_item_add_subtree (ti, ett_fcels_rps);
 
         if (isreq) {
-            proto_tree_add_item (rps_tree, hf_fcels_rps_flag, tvb, offset, 1, 0);
+            proto_tree_add_item (rps_tree, hf_fcels_rps_flag, tvb, offset, 1, FALSE);
 
-            proto_tree_add_item (rps_tree, hf_fcels_opcode, tvb, offset-3, 1, 0);
+            proto_tree_add_item (rps_tree, hf_fcels_opcode, tvb, offset-3, 1, FALSE);
 
             if (flag & 0x2) {
                 proto_tree_add_string (rps_tree, hf_fcels_npname, tvb, offset+1,
@@ -772,31 +779,31 @@ dissect_fcels_rps (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
             }
             else if (flag & 0x1) {
                 proto_tree_add_item (rps_tree, hf_fcels_rps_portnum, tvb,
-                                     offset+5, 3, 0);
+                                     offset+5, 3, FALSE);
             }
         }
         else {
-            proto_tree_add_item (rps_tree, hf_fcels_rps_flag, tvb, offset, 1, 0);
+            proto_tree_add_item (rps_tree, hf_fcels_rps_flag, tvb, offset, 1, FALSE);
             proto_tree_add_item (rps_tree, hf_fcels_rps_portstatus, tvb,
-                                 offset+3, 2, 0);
+                                 offset+3, 2, FALSE);
             /* Next 6 fields are from Link Error Status Block (LESB) */
             proto_tree_add_text (rps_tree, tvb, offset+5, 4,
-                                 "Link Failure Count: %d",
+                                 "Link Failure Count: %u",
                                  tvb_get_ntohl (tvb, offset+5));
             proto_tree_add_text (rps_tree, tvb, offset+9, 4,
-                                 "Loss of Sync Count: %d",
+                                 "Loss of Sync Count: %u",
                                  tvb_get_ntohl (tvb, offset+9));
             proto_tree_add_text (rps_tree, tvb, offset+13, 4,
-                                 "Loss of Signal Count: %d",
+                                 "Loss of Signal Count: %u",
                                  tvb_get_ntohl (tvb, offset+13));
             proto_tree_add_text (rps_tree, tvb, offset+17, 4,
-                                 "Primitive Seq Protocol Err: %d",
+                                 "Primitive Seq Protocol Err: %u",
                                  tvb_get_ntohl (tvb, offset+17));
             proto_tree_add_text (rps_tree, tvb, offset+21, 4,
-                                 "Invalid Xmission Word: %d",
+                                 "Invalid Xmission Word: %u",
                                  tvb_get_ntohl (tvb, offset+21));
             proto_tree_add_text (rps_tree, tvb, offset+25, 4,
-                                 "Invalid CRC Count: %d",
+                                 "Invalid CRC Count: %u",
                                  tvb_get_ntohl (tvb, offset+25));
             if (flag & 0x01) {
                 /* Next 6 fields are from L_Port Extension field */
@@ -807,22 +814,22 @@ dissect_fcels_rps (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                                      "LIP AL_PS: 0x%x",
                                      tvb_get_guint8 (tvb, offset+36));
                 proto_tree_add_text (rps_tree, tvb, offset+37, 4,
-                                     "LIP F7 Initiated Count: %d",
+                                     "LIP F7 Initiated Count: %u",
                                      tvb_get_ntohl (tvb, offset+37));
                 proto_tree_add_text (rps_tree, tvb, offset+41, 4,
-                                     "LIP F7 Received Count: %d",
+                                     "LIP F7 Received Count: %u",
                                      tvb_get_ntohl (tvb, offset+41));
                 proto_tree_add_text (rps_tree, tvb, offset+45, 4,
-                                     "LIP F8 Initiated Count: %d",
+                                     "LIP F8 Initiated Count: %u",
                                      tvb_get_ntohl (tvb, offset+45));
                 proto_tree_add_text (rps_tree, tvb, offset+49, 4,
-                                     "LIP F8 Received Count: %d",
+                                     "LIP F8 Received Count: %u",
                                      tvb_get_ntohl (tvb, offset+49));
                 proto_tree_add_text (rps_tree, tvb, offset+53, 4,
-                                     "LIP Reset Initiated Count: %d",
+                                     "LIP Reset Initiated Count: %u",
                                      tvb_get_ntohl (tvb, offset+53));
                 proto_tree_add_text (rps_tree, tvb, offset+57, 4,
-                                     "LIP Reset Received Count: %d",
+                                     "LIP Reset Received Count: %u",
                                      tvb_get_ntohl (tvb, offset+57));
             }
         }
@@ -842,36 +849,36 @@ dissect_fcels_rpl (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     if (tree) {
         rpl_tree = proto_item_add_subtree (ti, ett_fcels_rpl);
 
-        proto_tree_add_item (rpl_tree, hf_fcels_opcode, tvb, offset, 1, 0);
+        proto_tree_add_item (rpl_tree, hf_fcels_opcode, tvb, offset, 1, FALSE);
 
         if (isreq) {
             proto_tree_add_text (rpl_tree, tvb, offset+6, 2,
-                                 "Max Size: %d",
+                                 "Max Size: %u",
                                  tvb_get_ntohs (tvb, offset+6));
             proto_tree_add_text (rpl_tree, tvb, offset+9, 3,
-                                 "Index: %d",
+                                 "Index: %u",
                                  tvb_get_ntoh24 (tvb, offset+9));
         }
         else {
             /* Reply consists of a header and a number of port blocks */
             proto_tree_add_text (rpl_tree, tvb, offset+2, 2, 
-                                 "Payload Length: %d",
+                                 "Payload Length: %u",
                                  tvb_get_ntohs (tvb, offset+2));
             proto_tree_add_text (rpl_tree, tvb, offset+5, 3, 
-                                 "List Length: %d",
+                                 "List Length: %u",
                                  tvb_get_ntoh24 (tvb, offset+5));
             proto_tree_add_text (rpl_tree, tvb, offset+9, 3,
-                                 "Index of I Port Block: %d",
+                                 "Index of I Port Block: %u",
                                  tvb_get_ntoh24 (tvb, offset+9));
             offset = 12;
             /* The following loop is for dissecting the port blocks */
             for (loop = tvb_get_ntoh24 (tvb, 5); loop > 0; loop--) {
                 subti = proto_tree_add_text (rpl_tree, tvb, offset+12, 16,
-                                             "Port Block %d", loop);
+                                             "Port Block %u", loop);
                 pb_tree = proto_item_add_subtree (subti, ett_fcels_rplpb);
 
                 proto_tree_add_text (pb_tree, tvb, offset, 4,
-                                     "Physical Port #: %d",
+                                     "Physical Port #: %u",
                                      tvb_get_ntohl (tvb, offset));
                 proto_tree_add_text (pb_tree, tvb, offset+5, 3,
                                      "Port Identifier: %s",
@@ -896,7 +903,7 @@ dissect_fcels_fan (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     if (tree) {
         fan_tree = proto_item_add_subtree (ti, ett_fcels_fan);
 
-        proto_tree_add_item (fan_tree, hf_fcels_opcode, tvb, offset-5, 1, 0);
+        proto_tree_add_item (fan_tree, hf_fcels_opcode, tvb, offset-5, 1, FALSE);
 
         proto_tree_add_string (fan_tree, hf_fcels_fabricaddr, tvb, offset, 3,
                                fc_to_str (tvb_get_ptr (tvb, offset, 3)));
@@ -920,33 +927,33 @@ dissect_fcels_rscn (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     if (tree) {
         rscn_tree = proto_item_add_subtree (ti, ett_fcels_rscn);
 
-        proto_tree_add_item (rscn_tree, hf_fcels_opcode, tvb, offset-1, 1, 0);
+        proto_tree_add_item (rscn_tree, hf_fcels_opcode, tvb, offset-1, 1, FALSE);
         if (!isreq)
             return;
 
         proto_tree_add_text (rscn_tree, tvb, offset, 1,
-                             "Page Len: %d", tvb_get_guint8 (tvb, offset));
+                             "Page Len: %u", tvb_get_guint8 (tvb, offset));
         plen = tvb_get_ntohs (tvb, offset+1);
         proto_tree_add_text (rscn_tree, tvb, offset+1, 2,
-                             "Payload Len: %d", plen);
+                             "Payload Len: %u", plen);
         numrec = (plen - 4)/4;
         
         offset = 4;
         for (i = 0; i < numrec; i++) {
             subti = proto_tree_add_text (rscn_tree, tvb, offset, 4,
-                                         "Affected N_Port Page %d", i);
+                                         "Affected N_Port Page %u", i);
             rectree = proto_item_add_subtree (subti, ett_fcels_rscn_rec);
 
             proto_tree_add_item (rectree, hf_fcels_rscn_evqual, tvb, offset,
-                                 1, 0);
+                                 1, FALSE);
             proto_tree_add_item (rectree, hf_fcels_rscn_addrfmt, tvb, offset,
-                                 1, 0);
+                                 1, FALSE);
             proto_tree_add_item (rectree, hf_fcels_rscn_domain, tvb, offset+1,
-                                 1, 0);
+                                 1, FALSE);
             proto_tree_add_item (rectree, hf_fcels_rscn_area, tvb, offset+2,
-                                 1, 0);
+                                 1, FALSE);
             proto_tree_add_item (rectree, hf_fcels_rscn_port, tvb, offset+3,
-                                 1, 0);
+                                 1, FALSE);
             offset += 4;
         }
     }
@@ -962,9 +969,9 @@ dissect_fcels_scr (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
     if (tree) {
         scr_tree = proto_item_add_subtree (ti, ett_fcels_scr);
-        proto_tree_add_item (scr_tree, hf_fcels_opcode, tvb, offset-7, 1, 0);
+        proto_tree_add_item (scr_tree, hf_fcels_opcode, tvb, offset-7, 1, FALSE);
         if (isreq)
-            proto_tree_add_item (scr_tree, hf_fcels_scrregn, tvb, offset, 1, 0);
+            proto_tree_add_item (scr_tree, hf_fcels_scrregn, tvb, offset, 1, FALSE);
     }
 }
 
@@ -980,32 +987,32 @@ dissect_fcels_rnft (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     if (tree) {
         rnft_tree = proto_item_add_subtree (ti, ett_fcels_rnft);
 
-        proto_tree_add_item (rnft_tree, hf_fcels_opcode, tvb, offset, 1, 0);
+        proto_tree_add_item (rnft_tree, hf_fcels_opcode, tvb, offset, 1, FALSE);
 
         if (isreq) {
             proto_tree_add_text (rnft_tree, tvb, offset+2, 2,
-                                 "Max Size: %d", tvb_get_ntohs (tvb, offset+2));
+                                 "Max Size: %u", tvb_get_ntohs (tvb, offset+2));
             proto_tree_add_text (rnft_tree, tvb, offset+7, 1,
-                                 "Index: %d", tvb_get_guint8 (tvb, offset+7));
+                                 "Index: %u", tvb_get_guint8 (tvb, offset+7));
         }
         else {
             proto_tree_add_text (rnft_tree, tvb, offset+2, 2,
-                                 "Payload Len: %d",
+                                 "Payload Len: %u",
                                  tvb_get_ntohs (tvb, offset+2));
             numrec = tvb_get_guint8 (tvb, offset+5);
             proto_tree_add_text (rnft_tree, tvb, offset+5, 1,
-                                 "List Length: %d", numrec);
+                                 "List Length: %u", numrec);
             proto_tree_add_text (rnft_tree, tvb, offset+7, 1,
-                                 "Index of First Rec in List: %d",
+                                 "Index of First Rec in List: %u",
                                  tvb_get_guint8 (tvb, offset+7));
             offset = 8;
             for (i = 0; i < numrec; i++) {
                 subti = proto_tree_add_text (rnft_tree, tvb, offset, 4,
-                                             "FC-4 Entry #%d", i);
+                                             "FC-4 Entry #%u", i);
                 fc4_tree = proto_item_add_subtree (subti, ett_fcels_rnft_fc4);
 
                 proto_tree_add_item (fc4_tree, hf_fcels_rnft_fc4type, tvb,
-                                     offset, 1, 0);
+                                     offset, 1, FALSE);
                 proto_tree_add_text (fc4_tree, tvb, offset+1, 3,
                                      "FC-4 Qualifier 0x%x",
                                      tvb_get_ntoh24 (tvb, offset+1));
@@ -1026,21 +1033,21 @@ dissect_fcels_lsts (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     if (tree) {
         lsts_tree = proto_item_add_subtree (ti, ett_fcels_lsts);
 
-        proto_tree_add_item (lsts_tree, hf_fcels_opcode, tvb, offset-5, 1, 0);
+        proto_tree_add_item (lsts_tree, hf_fcels_opcode, tvb, offset-5, 1, FALSE);
         if (isreq) {
             /* In case of LSTS, the reply has the meat */
             return;
         }
-        proto_tree_add_item (lsts_tree, hf_fcels_failedrcvr, tvb, offset, 1, 0);
+        proto_tree_add_item (lsts_tree, hf_fcels_failedrcvr, tvb, offset, 1, FALSE);
         proto_tree_add_item (lsts_tree, hf_fcels_flacompliance, tvb, offset+1,
-                             1, 0);
-        proto_tree_add_item (lsts_tree, hf_fcels_loopstate, tvb, offset+2, 1, 0);
+                             1, FALSE);
+        proto_tree_add_item (lsts_tree, hf_fcels_loopstate, tvb, offset+2, 1, FALSE);
         proto_tree_add_item (lsts_tree, hf_fcels_publicloop_bmap, tvb, offset+3,
-                             16, 0);
+                             16, FALSE);
         proto_tree_add_item (lsts_tree, hf_fcels_pvtloop_bmap, tvb, offset+19,
-                             16, 0);
+                             16, FALSE);
         proto_tree_add_item (lsts_tree, hf_fcels_alpa_map, tvb, offset+35,
-                             128, 0);
+                             128, FALSE);
     }
 }
 
@@ -1061,20 +1068,20 @@ dissect_fcels_prlilo_payload (tvbuff_t *tvb, packet_info *pinfo _U_,
      */
     prli_tree = proto_item_add_subtree (ti, ett_fcels_prli);
 
-    proto_tree_add_item (prli_tree, hf_fcels_opcode, tvb, offset, 1, 0);
+    proto_tree_add_item (prli_tree, hf_fcels_opcode, tvb, offset, 1, FALSE);
 
     proto_tree_add_text (prli_tree, tvb, offset+1, 1,
-                         "Page Length: %d",
+                         "Page Length: %u",
                          tvb_get_guint8 (tvb, offset+1));
     payload_len = tvb_get_ntohs (tvb, offset+2);
     proto_tree_add_text (prli_tree, tvb, offset+2, 2,
-                         "Payload Length: %d", payload_len);
+                         "Payload Length: %u", payload_len);
     num_svcpg = payload_len/16;
 
     offset = 4;
     for (i = 0; i < num_svcpg; i++) {
         subti = proto_tree_add_text (prli_tree, tvb, offset, 16,
-                                     "Service Parameter Page %d", i);
+                                     "Service Parameter Page %u", i);
         svcpg_tree = proto_item_add_subtree (subti, ett_fcels_prli_svcpg);
 
         type = tvb_get_guint8 (tvb, offset);
@@ -1083,7 +1090,7 @@ dissect_fcels_prlilo_payload (tvbuff_t *tvb, packet_info *pinfo _U_,
                              val_to_str (type,
                                          fc_prli_fc4_val, "0x%x"));
         proto_tree_add_text (svcpg_tree, tvb, offset+1, 1,
-                             "TYPE Code Extension: %d",
+                             "TYPE Code Extension: %u",
                              tvb_get_guint8 (tvb, offset+1));
 
         flag = tvb_get_guint8 (tvb, offset+2);
@@ -1265,7 +1272,7 @@ dissect_fcels_lirr (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     if (tree) {
         lirr_tree = proto_item_add_subtree (ti, ett_fcels_lirr);
 
-        proto_tree_add_item (lirr_tree, hf_fcels_opcode, tvb, offset-4, 1, 0);
+        proto_tree_add_item (lirr_tree, hf_fcels_opcode, tvb, offset-4, 1, FALSE);
 
         proto_tree_add_text (lirr_tree, tvb, offset, 1,
                              "Regn. Function: %s",
@@ -1300,7 +1307,7 @@ dissect_fcels_srl (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     if (tree) {
         srl_tree = proto_item_add_subtree (ti, ett_fcels_srl);
 
-        proto_tree_add_item (srl_tree, hf_fcels_opcode, tvb, offset-4, 1, 0);
+        proto_tree_add_item (srl_tree, hf_fcels_opcode, tvb, offset-4, 1, FALSE);
         if (!isreq)
             return;
 
@@ -1333,13 +1340,13 @@ dissect_fcels_rpsc (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     if (tree) {
         rpsc_tree = proto_item_add_subtree (ti, ett_fcels_rpsc);
 
-        proto_tree_add_item (rpsc_tree, hf_fcels_opcode, tvb, offset-2, 1, 0);
+        proto_tree_add_item (rpsc_tree, hf_fcels_opcode, tvb, offset-2, 1, FALSE);
         if (isreq)
             return;
 
         num_entries = tvb_get_ntohs (tvb, offset);
         proto_tree_add_text (rpsc_tree, tvb, offset, 2,
-                             "Number of Entries: %d", num_entries);
+                             "Number of Entries: %u", num_entries);
         offset = 4;
         for (i = 0; i < num_entries; i++) {
             cap = tvb_get_ntohs (tvb, offset);
@@ -1363,7 +1370,7 @@ dissect_fcels_rpsc (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
             }
             strcpy (&speed_str[stroff], "Gb");
             proto_tree_add_text (rpsc_tree, tvb, offset, 2,
-                                 "Port Speed Capabilities (Port %d): %s", i,
+                                 "Port Speed Capabilities (Port %u): %s", i,
                                  speed_str);
             cap = tvb_get_ntohs (tvb, offset+2);
             proto_tree_add_text (rpsc_tree, tvb, offset+2, 2,
@@ -1386,21 +1393,21 @@ dissect_fcels_rnid (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     if (tree) {
         rnid_tree = proto_item_add_subtree (ti, ett_fcels_rnid);
 
-        proto_tree_add_item (rnid_tree, hf_fcels_opcode, tvb, offset, 1, 0);
+        proto_tree_add_item (rnid_tree, hf_fcels_opcode, tvb, offset, 1, FALSE);
         if (isreq) {
             proto_tree_add_item (rnid_tree, hf_fcels_nodeidfmt, tvb, offset+4,
-                                 1, 0);
+                                 1, FALSE);
         }
         else {
             /* We only decode responses to nodeid fmt DF */
             proto_tree_add_item (rnid_tree, hf_fcels_nodeidfmt, tvb, offset+4,
-                                 1, 0);
+                                 1, FALSE);
             clen = tvb_get_guint8 (tvb, offset+5);
             proto_tree_add_text (rnid_tree, tvb, offset+5, 1,
-                                 "Common Identification Data Length: %d", clen);
+                                 "Common Identification Data Length: %u", clen);
             slen = tvb_get_guint8 (tvb, offset+7);
             proto_tree_add_item (rnid_tree, hf_fcels_spidlen, tvb, offset+7,
-                                 1, 0);
+                                 1, FALSE);
             if (clen) {
                 proto_tree_add_string (rnid_tree, hf_fcels_npname, tvb,
                                        offset+8, 8,
@@ -1415,23 +1422,23 @@ dissect_fcels_rnid (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
             if (tvb_get_guint8 (tvb, offset+4) == 0xDF) {
                 /* Decode the Specific Node ID Format as this is known */
                 proto_tree_add_item (rnid_tree, hf_fcels_vendoruniq, tvb,
-                                     offset+24, 16, 0);
+                                     offset+24, 16, FALSE);
                 proto_tree_add_item (rnid_tree, hf_fcels_asstype, tvb,
-                                     offset+40, 4, 0);
+                                     offset+40, 4, FALSE);
                 proto_tree_add_item (rnid_tree, hf_fcels_physport, tvb,
-                                     offset+44, 4, 0);
+                                     offset+44, 4, FALSE);
                 proto_tree_add_item (rnid_tree, hf_fcels_attnodes, tvb,
-                                     offset+48, 4, 0);
+                                     offset+48, 4, FALSE);
                 proto_tree_add_item (rnid_tree, hf_fcels_nodemgmt, tvb,
-                                     offset+52, 1, 0);
+                                     offset+52, 1, FALSE);
                 proto_tree_add_item (rnid_tree, hf_fcels_ipvers, tvb,
-                                     offset+53, 1, 0);
+                                     offset+53, 1, FALSE);
                 proto_tree_add_item (rnid_tree, hf_fcels_tcpport, tvb,
-                                     offset+54, 2, 0);
+                                     offset+54, 2, FALSE);
                 proto_tree_add_item (rnid_tree, hf_fcels_ip, tvb, offset+56,
-                                     16, 0);
+                                     16, FALSE);
                 proto_tree_add_item (rnid_tree, hf_fcels_vendorsp, tvb,
-                                     offset+74, 2, 0);
+                                     offset+74, 2, FALSE);
             }
         }
     }
@@ -1459,11 +1466,11 @@ dissect_fcels_lsrjt (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     if (tree) {
         lsrjt_tree = proto_item_add_subtree (ti, ett_fcels_lsrjt);
 
-        proto_tree_add_item (lsrjt_tree, hf_fcels_opcode, tvb, offset-5, 1, 0);
+        proto_tree_add_item (lsrjt_tree, hf_fcels_opcode, tvb, offset-5, 1, FALSE);
 
-        proto_tree_add_item (lsrjt_tree, hf_fcels_rjtcode, tvb, offset++, 1, 0);
-        proto_tree_add_item (lsrjt_tree, hf_fcels_rjtdetcode, tvb, offset++, 1, 0);
-        proto_tree_add_item (lsrjt_tree, hf_fcels_vnduniq, tvb, offset, 1, 0);
+        proto_tree_add_item (lsrjt_tree, hf_fcels_rjtcode, tvb, offset++, 1, FALSE);
+        proto_tree_add_item (lsrjt_tree, hf_fcels_rjtdetcode, tvb, offset++, 1, FALSE);
+        proto_tree_add_item (lsrjt_tree, hf_fcels_vnduniq, tvb, offset, 1, FALSE);
     }
 }
 
