@@ -2,17 +2,11 @@
  * Routines for decoding MDS Port Analyzer Adapter (FC in Eth) Header
  * Copyright 2001, Dinesh G Dutt <ddutt@andiamo.com>
  *
- * $Id: packet-brdwlk.c,v 1.3 2003/07/21 21:30:10 guy Exp $
+ * $Id: packet-brdwlk.c,v 1.4 2003/07/21 21:52:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
- * Copied from WHATEVER_FILE_YOU_USED (where "WHATEVER_FILE_YOU_USED"
- * is a dissector file; if you just copied this from README.developer,
- * don't bother with the "Copied from" - you don't even need to put
- * in a "Copied from" if you copied an existing dissector, especially
- * if the bulk of the code in the new dissector is your code)
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -169,6 +163,7 @@ dissect_brdwlk (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         offset = 0;
     gint len, reported_len;
     guint16 pkt_cnt;
+    gboolean dropped_packets;
     gchar errstr[512];
 
     /* Make entries in Protocol column and Info column on summary display */
@@ -223,22 +218,48 @@ dissect_brdwlk (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         len -= 4;
         reported_len -= 4;
         offset = tvb_reported_length(tvb) - 4;
-        if (tree) {
-            proto_tree_add_item (brdwlk_tree, hf_brdwlk_pktcnt, tvb, offset,
-                                 2, 0);
-        }
         pkt_cnt = tvb_get_ntohs (tvb, offset);
-        if (pkt_cnt != packet_count + 1) {
+        if (tree) {
+            proto_tree_add_uint (brdwlk_tree, hf_brdwlk_pktcnt, tvb, offset,
+                                 2, pkt_cnt);
+        }
+        dropped_packets = FALSE;
+        if (pinfo->fd->flags.visited) {
+            /*
+             * This isn't the first pass, so we can't use the global
+             * "packet_count" variable to determine whether there were
+             * any dropped frames or not.
+             * We therefore attach a non-null pointer as frame data to
+             * any frame preceded by dropped packets.
+             */
+            if (p_get_proto_data(pinfo->fd, proto_brdwlk) != NULL)
+                dropped_packets = TRUE;
+        } else {
+            /*
+             * This is the first pass, so we have to use the global
+             * "packet_count" variable to determine whether there were
+             * any dropped frames or not.
+             *
+             * XXX - can there be more than one stream of packets, so that
+             * we can't just use a global variable?
+             */
+            if (pkt_cnt != packet_count + 1) {
+                if (!first_pkt &&
+                    (pkt_cnt != 0 || (packet_count != BRDWLK_MAX_PACKET_CNT))) {
+                    dropped_packets = TRUE;
+
+                    /*
+                     * Mark this frame as having been preceded by dropped
+                     * packets.  (The data we use as the frame data doesn't
+                     * matter - it just matters that it's non-null.)
+                     */
+                    p_add_proto_data(pinfo->fd, proto_brdwlk, &packet_count);
+                }
+            }
+
             if (tree) {
-                if (first_pkt ||
-                    (!pkt_cnt && (packet_count == BRDWLK_MAX_PACKET_CNT))) {
-                    proto_tree_add_boolean_hidden (brdwlk_tree, hf_brdwlk_drop,
-                                                   tvb, offset, 0, FALSE);
-                }
-                else {
-                    proto_tree_add_boolean_hidden (brdwlk_tree, hf_brdwlk_drop,
-                                                   tvb, offset, 0, TRUE);
-                }
+                proto_tree_add_boolean_hidden (brdwlk_tree, hf_brdwlk_drop,
+                                               tvb, offset, 0, dropped_packets);
             }
         }
         packet_count = pkt_cnt;
@@ -269,6 +290,12 @@ dissect_brdwlk (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 }
 
+static void
+brdwlk_init(void)
+{
+    packet_count = 0;
+    first_pkt = TRUE;
+}
 
 /* Register the protocol with Ethereal */
 
@@ -315,6 +342,7 @@ proto_register_brdwlk (void)
     proto_register_field_array(proto_brdwlk, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
+    register_init_routine(&brdwlk_init);
 }
 
 
