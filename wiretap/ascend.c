@@ -1,6 +1,6 @@
 /* ascend.c
  *
- * $Id: ascend.c,v 1.18 2000/09/07 05:34:07 gram Exp $
+ * $Id: ascend.c,v 1.19 2000/11/11 03:15:07 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -158,6 +158,7 @@ static int ascend_seek(wtap *wth, int max_seek)
 int ascend_open(wtap *wth, int *err)
 {
   int offset;
+  struct stat statbuf;
 
   file_seek(wth->fh, 0, SEEK_SET);
   offset = ascend_seek(wth, ASCEND_MAX_SEEK);
@@ -178,11 +179,9 @@ int ascend_open(wtap *wth, int *err)
      from reporting packet times near the epoch, we subtract the first
      packet's timestamp from the capture file's ctime, which gives us an
      offset that we can apply to each packet.
-
-     NOTE: Since we can't fstat a compressed file, assume that the first
-     packet time is 0 and other packets are relative to this.
    */
-  wth->capture.ascend->inittime = 0;
+  fstat(wtap_fd(wth), &statbuf);
+  wth->capture.ascend->inittime = statbuf.st_ctime;
   wth->capture.ascend->adjusted = 0;
   wth->capture.ascend->seek_add = -1;
 
@@ -218,7 +217,22 @@ static gboolean ascend_read(wtap *wth, int *err, int *data_offset)
 
   if (! wth->capture.ascend->adjusted) {
     wth->capture.ascend->adjusted = 1;
-    wth->capture.ascend->inittime = -header.secs;
+    if (header.start_time != 0) {
+      /*
+       * Capture file contained a date and time.
+       * We do this only if this is the very first packet we've seen -
+       * i.e., if "wth->capture.ascend->adjusted" is false - because
+       * if we get a date and time after the first packet, we can't
+       * go back and adjust the time stamps of the packets we've already
+       * processed, and basing the time stamps of this and following
+       * packets on the time stamp from the file text rather than the
+       * ctime of the capture file means times before this and after
+       * this can't be compared.
+       */
+      wth->capture.ascend->inittime = header.start_time;
+    }
+    if (wth->capture.ascend->inittime > header.secs)
+      wth->capture.ascend->inittime -= header.secs;
   }
   wth->phdr.ts.tv_sec = header.secs + wth->capture.ascend->inittime;
   wth->phdr.ts.tv_usec = header.usecs;

@@ -2,7 +2,7 @@
  * Definitions for routines common to multiple modules in the Lucent/Ascend
  * capture file reading code code, but not used outside that code.
  *
- * $Id: ascend-int.h,v 1.6 2000/05/19 08:18:14 guy Exp $
+ * $Id: ascend-int.h,v 1.7 2000/11/11 03:15:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -28,6 +28,7 @@
 #define __ASCEND_INT_H__
 
 typedef struct {
+  time_t start_time;
   time_t secs;
   time_t usecs;
   guint32 caplen;

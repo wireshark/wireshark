@@ -1,7 +1,7 @@
 %{
 /* ascend-grammar.y
  *
- * $Id: ascend-grammar.y,v 1.15 2000/11/11 01:44:05 guy Exp $
+ * $Id: ascend-grammar.y,v 1.16 2000/11/11 03:15:07 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -68,12 +68,11 @@ int yyparse(void);
 void yyerror(char *);
 
 int bcur = 0, bcount;
-guint32 secs, usecs, caplen, wirelen;
+guint32 start_time, secs, usecs, caplen, wirelen;
 ascend_pkthdr *header;
 struct ascend_phdr *pseudo_header;
 char *pkt_data;
 FILE *nfh = NULL;
-struct tm wddt;
 
 %}
  
@@ -137,14 +136,22 @@ WD_DIALOUT_DISP: chunk 2515EE type IP.
 */
 /*          1       2      3      4      5       6      7      8      9      10     11      12     13      14      15      16     17     18     19      20     21*/
 wdd_hdr: KEYWORD decnum decnum decnum KEYWORD decnum decnum decnum KEYWORD string KEYWORD hexnum KEYWORD KEYWORD hexnum KEYWORD decnum decnum decnum KEYWORD HEXNUM {
-  wddt.tm_sec  = $4;
-  wddt.tm_min  = $3;
-  wddt.tm_hour = $2;
-  wddt.tm_mday = $6;
-  wddt.tm_mon  = $7;
-  wddt.tm_year = ($8 > 1970) ? $8 - 1900 : 70;
+  /*
+   * Supply the date/time value to the code above us; it will use the
+   * first date/time value supplied as the capture start date/time.
+   */
+  struct tm wddt;
+
+  wddt.tm_sec  = $8;
+  wddt.tm_min  = $7;
+  wddt.tm_hour = $6;
+  wddt.tm_mday = $3;
+  wddt.tm_mon  = $2 - 1;
+  wddt.tm_year = ($4 > 1970) ? $4 - 1900 : 70;
   wddt.tm_isdst = -1;
   
+  start_time = mktime(&wddt);
+
   wirelen = $19;
   caplen = ($19 < ASCEND_MAX_PKT_LEN) ? $19 : ASCEND_MAX_PKT_LEN;
   /* If we don't have as many bytes of data as the octet count in
@@ -152,7 +159,7 @@ wdd_hdr: KEYWORD decnum decnum decnum KEYWORD decnum decnum decnum KEYWORD strin
      actually have. */
   if (bcount > 0 && bcount <= caplen)
     caplen = bcount;
-  secs = mktime(&wddt);
+  secs = $17;
   usecs = $18;
   if (pseudo_header != NULL) {
     /* pseudo_header->call_num is set in ascend-scanner.l */
@@ -175,6 +182,7 @@ byte: HEXBYTE {
 
   if (bcur >= caplen) {
     if (header != NULL) {
+      header->start_time = start_time;
       header->secs = secs;
       header->usecs = usecs;
       header->caplen = caplen;
@@ -223,6 +231,7 @@ init_parse_ascend()
 {
   bcur = 0;
   at_eof = 0;
+  start_time = 0;	/* we haven't see a date/time yet */
   
   /* In order to keep flex from printing a lot of newlines while reading
      the capture data, we open up /dev/null and point yyout at the null
