@@ -1,6 +1,6 @@
 /* netmon.c
  *
- * $Id: netmon.c,v 1.6 1999/03/28 18:32:02 gram Exp $
+ * $Id: netmon.c,v 1.7 1999/05/12 21:40:06 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -36,9 +36,14 @@
 /* Capture file header, *including* magic number, is padded to 128 bytes. */
 #define	CAPTUREFILE_HEADER_SIZE	128
 
-/* Magic number in Network Monitor files. */
-static const char netmon_magic[] = {
+/* Magic number in Network Monitor 1.x files. */
+static const char netmon_1_x_magic[] = {
 	'R', 'T', 'S', 'S'
+};
+
+/* Magic number in Network Monitor 2.x files. */
+static const char netmon_2_x_magic[] = {
+	'G', 'M', 'B', 'U'
 };
 
 /* Network Monitor file header (minus magic number). */
@@ -68,23 +73,38 @@ struct netmon_hdr {
 
 /* Network Monitor record header; not defined in STRUCT.H, but deduced by
  * looking at capture files. */
-struct netmonrec_hdr {
+struct netmonrec_1_x_hdr {
 	guint32	ts_delta;	/* time stamp - msecs since start of capture */
 	guint16	orig_len;	/* actual length of packet */
 	guint16	incl_len;	/* number of octets captured in file */
+};
+
+struct netmonrec_2_x_hdr {
+	guint32	ts_delta_lo;	/* time stamp - usecs since start of capture */
+	guint32	ts_delta_hi;	/* time stamp - usecs since start of capture */
+	guint32	orig_len;	/* actual length of packet */
+	guint32	incl_len;	/* number of octets captured in file */
 };
 
 /* Returns WTAP_FILE_NETMON on success, WTAP_FILE_UNKNOWN on failure */
 int netmon_open(wtap *wth)
 {
 	int bytes_read;
-	char magic[sizeof netmon_magic];
+	char magic[sizeof netmon_1_x_magic];
 	struct netmon_hdr hdr;
 	static const int netmon_encap[] = {
 		WTAP_ENCAP_NONE,
 		WTAP_ENCAP_ETHERNET,
-		WTAP_ENCAP_TR
-
+		WTAP_ENCAP_TR,
+		WTAP_ENCAP_FDDI,
+		WTAP_ENCAP_NONE,	/* WAN */
+		WTAP_ENCAP_NONE,	/* LocalTalk */
+		WTAP_ENCAP_NONE,	/* "DIX" - should not occur */
+		WTAP_ENCAP_NONE,	/* ARCNET raw */
+		WTAP_ENCAP_NONE,	/* ARCNET 878.2 */
+		WTAP_ENCAP_NONE,	/* ATM */
+		WTAP_ENCAP_NONE,	/* Wireless WAN */
+		WTAP_ENCAP_NONE		/* IrDA */
 	};
 	#define NUM_NETMON_ENCAPS (sizeof netmon_encap / sizeof netmon_encap[0])
 	struct tm tm;
@@ -98,13 +118,26 @@ int netmon_open(wtap *wth)
 		return WTAP_FILE_UNKNOWN;
 	}
 
-	if (memcmp(magic, netmon_magic, sizeof netmon_magic) != 0) {
+	if (memcmp(magic, netmon_1_x_magic, sizeof netmon_1_x_magic) != 0
+	 && memcmp(magic, netmon_2_x_magic, sizeof netmon_1_x_magic) != 0) {
 		return WTAP_FILE_UNKNOWN;
 	}
 
 	/* Read the rest of the header. */
 	bytes_read = fread(&hdr, 1, sizeof hdr, wth->fh);
 	if (bytes_read != sizeof hdr) {
+		return WTAP_FILE_UNKNOWN;
+	}
+
+	switch (hdr.ver_major) {
+
+	case 1:
+		break;
+
+	case 2:
+		break;
+
+	default:
 		return WTAP_FILE_UNKNOWN;
 	}
 
@@ -145,7 +178,9 @@ int netmon_open(wtap *wth)
 	 * intervals since 1601-01-01 00:00:00 "UTC", there, instead
 	 * of stuffing a SYSTEMTIME, which is time-zone-dependent, there?).
 	 */
-	wth->capture.netmon->start_msecs = pletohs(&hdr.ts_msec);
+	wth->capture.netmon->start_usecs = pletohs(&hdr.ts_msec)*1000;
+
+	wth->capture.netmon->version_major = hdr.ver_major;
 
 	/*
 	 * The "frame index table" appears to come after the last
@@ -163,12 +198,17 @@ int netmon_open(wtap *wth)
 /* Read the next packet */
 int netmon_read(wtap *wth)
 {
-	int	packet_size;
+	int	packet_size = 0;
 	int	bytes_read;
-	struct netmonrec_hdr hdr;
+	union {
+		struct netmonrec_1_x_hdr hdr_1_x;
+		struct netmonrec_2_x_hdr hdr_2_x;
+	}	hdr;
+	int	hdr_size = 0;
 	int	data_offset;
 	time_t	secs;
-	guint32	msecs;
+	guint32	usecs;
+	double	t;
 
 	/* Have we reached the end of the packet data? */
 	data_offset = ftell(wth->fh);
@@ -177,8 +217,19 @@ int netmon_read(wtap *wth)
 		return 0;
 	}
 	/* Read record header. */
-	bytes_read = fread(&hdr, 1, sizeof hdr, wth->fh);
-	if (bytes_read != sizeof hdr) {
+	/* Read record header. */
+	switch (wth->capture.netmon->version_major) {
+
+	case 1:
+		hdr_size = sizeof (struct netmonrec_1_x_hdr);
+		break;
+
+	case 2:
+		hdr_size = sizeof (struct netmonrec_2_x_hdr);
+		break;
+	}
+	bytes_read = fread(&hdr, 1, hdr_size, wth->fh);
+	if (bytes_read != hdr_size) {
 		if (bytes_read != 0) {
 			g_error("netmon_read: not enough packet header data (%d bytes)",
 					bytes_read);
@@ -186,9 +237,18 @@ int netmon_read(wtap *wth)
 		}
 		return 0;
 	}
-	data_offset += sizeof hdr;
+	data_offset += hdr_size;
 
-	packet_size = pletohs(&hdr.incl_len);
+	switch (wth->capture.netmon->version_major) {
+
+	case 1:
+		packet_size = pletohs(&hdr.hdr_1_x.incl_len);
+		break;
+
+	case 2:
+		packet_size = pletohl(&hdr.hdr_2_x.incl_len);
+		break;
+	}
 	buffer_assure_space(wth->frame_buffer, packet_size);
 	bytes_read = fread(buffer_start_ptr(wth->frame_buffer), 1,
 			packet_size, wth->fh);
@@ -203,13 +263,33 @@ int netmon_read(wtap *wth)
 		return -1;
 	}
 
-	msecs = wth->capture.netmon->start_msecs + pletohl(&hdr.ts_delta);
-	secs = wth->capture.netmon->start_secs + msecs/1000;
-	msecs = msecs%1000;
-	wth->phdr.ts.tv_sec = secs;
-	wth->phdr.ts.tv_usec = msecs*1000;
+	t = (double)wth->capture.netmon->start_usecs;
+	switch (wth->capture.netmon->version_major) {
+
+	case 1:
+		t += ((double)pletohl(&hdr.hdr_1_x.ts_delta))*1000;
+		break;
+
+	case 2:
+		t += (double)pletohl(&hdr.hdr_2_x.ts_delta_lo)
+		    + (double)pletohl(&hdr.hdr_2_x.ts_delta_hi)*4294967296.0;
+		break;
+	}
+	secs = (time_t)(t/1000000);
+	usecs = (guint32)(t - secs*1000000);
+	wth->phdr.ts.tv_sec = wth->capture.netmon->start_secs + secs;
+	wth->phdr.ts.tv_usec = usecs;
 	wth->phdr.caplen = packet_size;
-	wth->phdr.len = pletohs(&hdr.orig_len);
+	switch (wth->capture.netmon->version_major) {
+
+	case 1:
+		wth->phdr.len = pletohs(&hdr.hdr_1_x.orig_len);
+		break;
+
+	case 2:
+		wth->phdr.len = pletohl(&hdr.hdr_2_x.orig_len);
+		break;
+	}
 	wth->phdr.pkt_encap = wth->file_encap;
 
 	return data_offset;

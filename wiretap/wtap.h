@@ -1,6 +1,6 @@
 /* wtap.h
  *
- * $Id: wtap.h,v 1.17 1999/03/28 18:32:03 gram Exp $
+ * $Id: wtap.h,v 1.18 1999/05/12 21:40:07 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -87,7 +87,8 @@ typedef struct {
 
 typedef struct {
 	time_t	start_secs;
-	guint32	start_msecs;
+	guint32	start_usecs;
+	guint8	version_major;
 	int	end_offset;
 } netmon_t;
 
