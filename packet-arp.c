@@ -1,7 +1,7 @@
 /* packet-arp.c
  * Routines for ARP packet disassembly
  *
- * $Id: packet-arp.c,v 1.40 2001/01/03 06:55:27 guy Exp $
+ * $Id: packet-arp.c,v 1.41 2001/01/09 01:02:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -632,6 +632,8 @@ dissect_atmarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 }
 
+static const guint8 mac_broadcast[6] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
+
 static void
 dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -746,6 +748,7 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* inform resolv.c module of the new discovered addresses */
 
     u_int ip;
+    guint8 *mac;
 
     /* add sender address in all cases */
 
@@ -753,9 +756,12 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     add_ether_byip(ip, tvb_get_ptr(tvb, sha_offset, 6));
     
     if (ar_op == ARPOP_REQUEST) {
-      /* add destination address */
+      /* Add target address *if* the target MAC address isn't a
+         broadcast address. */
       tvb_memcpy(tvb, (guint8 *)&ip, tpa_offset, sizeof(ip));
-      add_ether_byip(ip, tvb_get_ptr(tvb, tha_offset, 6));
+      mac = tvb_get_ptr(tvb, tha_offset, 6);
+      if (memcmp(mac, mac_broadcast, 6) != 0)
+        add_ether_byip(ip, mac);
     }
   }
 
