@@ -1,7 +1,7 @@
 /* packet-ppp.c
  * Routines for ppp packet disassembly
  *
- * $Id: packet-ppp.c,v 1.107 2003/01/28 23:56:39 guy Exp $
+ * $Id: packet-ppp.c,v 1.108 2003/02/07 20:09:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -154,7 +154,7 @@ static int proto_ipv6cp = -1;  /* IPv6CP vars */
 
 static gint ett_ipv6cp = -1;
 static gint ett_ipv6cp_options = -1;
-static gint ett_ipv6cp_if_token_opt = -1;
+static gint ett_ipv6cp_if_id_opt = -1;
 static gint ett_ipv6cp_compressprot_opt = -1;  
 
 /*
@@ -1296,21 +1296,21 @@ static const ip_tcp_opt pppmuxcp_opts[] = {
 /*
  * Options.  (IPv6CP)
  */
-#define CI_IPV6CP_IF_TOKEN	1	/* Interface Token (RFC 2472) */
+#define CI_IPV6CP_IF_ID		1	/* Interface Identifier (RFC 2472) */
 #define CI_IPV6CP_COMPRESSTYPE	2	/* Compression Type (RFC 2472) */
 
-static void dissect_ipv6cp_if_token_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
+static void dissect_ipv6cp_if_id_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
 			int offset, guint length, packet_info *pinfo,
 			proto_tree *tree);
 
 static const ip_tcp_opt ipv6cp_opts[] = {
 	{
-		CI_IPV6CP_IF_TOKEN,
-		"Interface Token",
-		&ett_ipv6cp_if_token_opt,
+		CI_IPV6CP_IF_ID,
+		"Interface Identifier",
+		&ett_ipv6cp_if_id_opt,
 		FIXED_LENGTH,
 		10,
-		dissect_ipv6cp_if_token_opt
+		dissect_ipv6cp_if_id_opt
 	},
 	{
 		CI_COMPRESSTYPE,
@@ -3194,11 +3194,11 @@ dissect_ipv6cp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	     ipv6cp_opts, N_IPV6CP_OPTS, pinfo, tree);
 }
 
-static void dissect_ipv6cp_if_token_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
+static void dissect_ipv6cp_if_id_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
 			int offset, guint length, packet_info *pinfo _U_,
 			proto_tree *tree)
 {
-  proto_tree_add_text(tree, tvb, offset, length, "%s: %x:%x:%x:%x:%x:%x:%x:%x",
+  proto_tree_add_text(tree, tvb, offset, length, "%s: %02x%02x:%02x%02x:%02x%x:%02x%02x",
 		      optp->name,
 		      tvb_get_guint8(tvb, offset + 2),
 		      tvb_get_guint8(tvb, offset + 3),
@@ -3744,7 +3744,7 @@ proto_register_ipv6cp(void)
   static gint *ett[] = {
     &ett_ipv6cp,
     &ett_ipv6cp_options,
-    &ett_ipv6cp_if_token_opt,
+    &ett_ipv6cp_if_id_opt,
     &ett_ipv6cp_compressprot_opt,
   };
 
