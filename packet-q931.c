@@ -2,7 +2,7 @@
  * Routines for Q.931 frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-q931.c,v 1.51 2003/02/28 23:16:15 guy Exp $
+ * $Id: packet-q931.c,v 1.52 2003/03/12 00:23:52 guy Exp $
  *
  * Modified by Andreas Sikkema for possible use with H.323
  *
@@ -2646,13 +2646,12 @@ proto_register_q931(void)
 			"", HFILL }},
 
 		{ &hf_q931_connected_number,
-		  { "Called party number digits", "q931.connected_number.digits", FT_STRING, BASE_NONE, NULL, 0x0,
+		  { "Connected party number digits", "q931.connected_number.digits", FT_STRING, BASE_NONE, NULL, 0x0,
 			"", HFILL }},
 
 		{ &hf_q931_redirecting_number,
-		  { "Called party number digits", "q931.redirecting_number.digits", FT_STRING, BASE_NONE, NULL, 0x0,
+		  { "Redirecting party number digits", "q931.redirecting_number.digits", FT_STRING, BASE_NONE, NULL, 0x0,
 			"", HFILL }},
-
 	};
 	static gint *ett[] = {
 		&ett_q931,
