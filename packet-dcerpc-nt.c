@@ -2,7 +2,7 @@
  * Routines for DCERPC over SMB packet disassembly
  * Copyright 2001-2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-nt.c,v 1.57 2003/01/28 23:26:11 tpot Exp $
+ * $Id: packet-dcerpc-nt.c,v 1.58 2003/01/30 06:08:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -979,6 +979,11 @@ void cb_str_postprocess(packet_info *pinfo, proto_tree *tree _U_,
 {
 	gint options = GPOINTER_TO_INT(callback_args);
 	char *s;
+
+	/* Align start_offset on 4-byte boundary. */
+
+	if (start_offset % 4)
+		start_offset += 4 - (start_offset % 4);
 
 	/* Get string value */
 
