@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB 
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.25 2001/06/20 06:15:07 guy Exp $
+ * $Id: packet-ieee80211.c,v 1.26 2001/06/20 06:22:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1511,7 +1511,7 @@ proto_register_wlan (void)
 {
 
   static const value_string tofrom_ds[] = {
-    {0, "Not leaving DS or network is operating in AD-HOC mode ( To DS: 0  From DS: 0)"},
+    {0, "Not leaving DS or network is operating in AD-HOC mode (To DS: 0  From DS: 0)"},
     {1, "Frame is exiting DS (To DS: 0  From DS: 1)"},
     {2, "Frame is entering DS (To DS: 1  From DS: 0)"},
     {3, "Frame part of WDS (To DS: 1  From DS: 1)"},
