@@ -5,7 +5,7 @@
 # ASN.1 to Ethereal dissector compiler
 # 2004 Tomas Kukosa 
 #
-# $Id: asn2eth.py,v 1.7 2004/06/12 01:21:02 sahlberg Exp $
+# $Id: asn2eth.py,v 1.8 2004/06/12 01:34:29 sahlberg Exp $
 #
 
 """ASN.1 to Ethereal dissector compiler"""
@@ -2312,8 +2312,8 @@ class BitStringType (Type):
     if (ectx.OBer()):
       body = ectx.eth_fn_call('dissect_ber_bitstring' + ectx.pvp(), ret='offset',
                               par=(('implicit_tag', 'pinfo', 'tree', 'tvb', 'offset'),
-                                   (bitsp, 'hf_index', tree),
-                                   ('NULL',)))
+                                   (bitsp, 'hf_index', '-1'),
+                                   (tree,)))
     elif (ectx.NPer()):
       body = ectx.eth_fn_call('dissect_per_bit_string' + ectx.pvp(), ret='offset',
                               par=(('tvb', 'offset', 'pinfo', 'tree'),
