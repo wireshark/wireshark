@@ -2,9 +2,6 @@
 
 Ethereal 0.9.7 has been released.
 
-Bugs Fixed
-
-
 New Features
 
   In order to improve the out-of-box responsiveness of Ethereal and
@@ -25,99 +22,26 @@ New Features
   The Ethernet "manuf" file now handles addresses specified with a
   mask, and  contains many well-known addresses.
 
-* BGP segfault?
-* NTLMSSP crash?
 
 New Protocols
 
-DCE/RPC:
-AFS4INT,
-BOSSVR,
-CDS_CLERKSERVER,
-CDS_SOLICIT,
-CPRPC_SERVER,
-DNSSERVER,
-DTSPROVIDER,
-DTSSTIME_REQ,
-FLDB,
-FTSERVER,
-KRB5RPC,
-REPADMIN,
-REP_PROC, 
-ROVERRIDE,
-RPRIV,
-RS_ATTR,
-RSEC_LOGIN,
-RS_MISC,
-RS_PGO,
-RS_REPLIST,
-RS_UNIX,
-SECIDMAP,
-TKN4INT,
-UBIKDISK,
-UKIKVOTE,
+  802.1s MSTP, FIX, GSS-API, Interbase, NDPS, Netflow (Cisco and Juniper),
+  SCCP-Management, SPNEGO
 
-Other:
-802.1s MSTP,
-FIX,
-GSS-API,
-Interbase,
-NDPS,
-Netflow (Cisco and Juniper),
-SCCP-Management,
-SPNEGO,
+  The following DCE/RPC protocols were also added:
+
+  AFS4INT, BOSSVR, CDS_CLERKSERVER, CDS_SOLICIT, CPRPC_SERVER, DNSSERVER,
+  DTSPROVIDER, DTSSTIME_REQ, FLDB, FTSERVER, KRB5RPC, REPADMIN, REP_PROC, 
+  ROVERRIDE, RPRIV, RS_ATTR, RSEC_LOGIN, RS_MISC, RS_PGO, RS_REPLIST,
+  RS_UNIX, SECIDMAP, TKN4INT, UBIKDISK, UKIKVOTE
 
 
 Updated Protocols
 
-AFP,
-AODV/AODV6,
-BGP,
-CHDLC,
-CHPA,
-DCE/RPC CONV,
-DCE/RPC LSA,
-DCE/RPC NT,
-DCE/RPC SAMR,
-DNS,
-DOCSIS,
-EAP,
-GTP,
-HTTP,
-IP,
-iSCSI,
-IS-IS,
-Kerberos,
-LDAP,
-LDP,
-M2PA
-MMSE,
-NBNS,
-NCP,
-NDS,
-NETLOGON,
-NTLMSSP,
-OSI
-Q.931
-RPC,
-RPCSTAT,
-SCSI,
-Skinny,
-SMB,
-SNEGO,
-SPOOLSS,
-SRVSVC,
-TCP,
-WSP,
-
-
-
-Capture File Updates
-
-
-
-
-
+  AFP, AODV/AODV6, BGP, CHDLC, CHPA, DCE/RPC CONV, DCE/RPC LSA, DCE/RPC
+  NT, DCE/RPC SAMR, DHCP, DNS, DOCSIS, EAP, GTP, HTTP, IP, iSCSI, IS-IS,
+  Kerberos, LDAP, LDP, M2PA MMSE, NBNS, NCP, NDS, NETLOGON, NTLMSSP, OSI
+  Q.931 RPC, RPCSTAT, SCSI, Skinny, SMB, SNEGO, SPOOLSS, SRVSVC, TCP, WSP,
 
 
 == August 20, 2002

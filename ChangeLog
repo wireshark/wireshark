@@ -285,9 +285,16 @@ Overview of changes in Ethereal 0.9.7:
 * DCE/RPC CONV updates (Jaime)
 * iSCSI updates (Mark Burton)
 * RPC_STAT filter string display and GUI enhancements (Ronnie)
-* 
-
-Last entry: http://www.ethereal.com/lists/ethereal-cvs/200209/msg00216.html
+* Add support for DHCP option 52 (overload) (Gerald)
+* Prettyfied Colorization dialog (Ulf)
+* Add GTK2 support to the Win32 code (Ulf)
+* Bugfix for one NETLOGON command (Luke)
+* Disable network name resolution by default (Gerald)
+* Add MS SQL 7 auth support to TDS (Steve Langasek)
+* Fix offset shifting after coding standard octet in Q.931 (Tomas Kukosa)
+* More NETLOGON updates (Luke)
+* Include <string.h> in packet-gssapi.c (Gerald)
+* Makefile.am fixes to pass "make distcheck" tests (Gerald)
 
 
 Overview of changes in Ethereal 0.9.6:
