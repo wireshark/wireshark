@@ -1,6 +1,6 @@
 /* wtap.c
  *
- * $Id: wtap.c,v 1.12 1999/08/02 02:04:38 guy Exp $
+ * $Id: wtap.c,v 1.13 1999/08/02 02:35:57 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -96,8 +96,16 @@ void wtap_close(wtap *wth)
 			g_free(wth->capture.ngsniffer);
 			break;
 
+		case WTAP_FILE_RADCOM:
+			g_free(wth->capture.radcom);
+			break;
+
 		case WTAP_FILE_NETMON:
 			g_free(wth->capture.netmon);
+			break;
+
+		case WTAP_FILE_NETXRAY:
+			g_free(wth->capture.netxray);
 			break;
 
 		/* default:
