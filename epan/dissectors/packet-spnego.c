@@ -407,11 +407,11 @@ dissect_spnego_krb5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 #ifdef HAVE_KERBEROS
 #include <epan/crypt-md5.h>
 
-#ifndef HAVE_KEYTYPE_ARCFOUR_56
+#ifndef KEYTYPE_ARCFOUR_56
 # define KEYTYPE_ARCFOUR_56 24
 #endif
 /* XXX - We should probably do a configure-time check for this instead */
-#ifndef HAVE_HEIMDAL_KERBEROS
+#ifndef KRB5_KU_USAGE_SEAL
 # define KRB5_KU_USAGE_SEAL 22
 #endif
 
@@ -664,7 +664,7 @@ decrypt_arcfour(packet_info *pinfo,
 #ifdef HAVE_HEIMDAL_KERBEROS
 
 static void
-decrypt_heimdal_gssapi_krb_arcfour_wrap(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int keytype)
+decrypt_gssapi_krb_arcfour_wrap(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int keytype)
 {
 	int ret;
 	enc_key_t *ek;
@@ -708,7 +708,7 @@ decrypt_heimdal_gssapi_krb_arcfour_wrap(proto_tree *tree, packet_info *pinfo, tv
 
 	for(ek=enc_key_list;ek;ek=ek->next){
 		/* shortcircuit and bail out if enctypes are not matching */
-		if(ek->key.keyblock.keytype!=keytype){
+		if(ek->keytype!=keytype){
 			continue;
 		}
 
@@ -722,9 +722,9 @@ decrypt_heimdal_gssapi_krb_arcfour_wrap(proto_tree *tree, packet_info *pinfo, tv
 		ret=decrypt_arcfour(pinfo,
 				cryptocopy,
 				output_message_buffer,
-				ek->key.keyblock.keyvalue.data,
-				ek->key.keyblock.keyvalue.length,
-				ek->key.keyblock.keytype
+				ek->keyvalue,
+				ek->keylength,
+				ek->keytype
 					    );
 		if (ret >= 0) {
 			proto_tree_add_text(tree, NULL, 0, 0, "[Decrypted using: %s]", ek->key_origin);
@@ -849,7 +849,7 @@ dissect_spnego_krb5_wrap_base(tvbuff_t *tvb, int offset, packet_info *pinfo
 					GSS_ARCFOUR_WRAP_TOKEN_SIZE);
 			}
 #ifdef HAVE_HEIMDAL_KERBEROS
-			decrypt_heimdal_gssapi_krb_arcfour_wrap(tree,
+			decrypt_gssapi_krb_arcfour_wrap(tree,
 				pinfo,
 				tvb,
 				23 /* rc4-hmac */);
