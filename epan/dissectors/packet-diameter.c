@@ -308,7 +308,11 @@ static void dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
  * the xmlsoft examples.
  */
 static xmlDocPtr
-xmlParseFilePush( char *filename, int checkValid) {
+xmlParseFilePush( char *filename, int checkValid
+#ifndef ETHEREAL_XML_DO_VALIDITY_CHECKING
+                 _U_
+#endif
+) {
   FILE *f;
   xmlDocPtr doc=NULL;
 #ifdef ETHEREAL_XML_DO_VALIDITY_CHECKING
