@@ -2,7 +2,7 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  * 
- * $Id: packet-wsp.c,v 1.26 2001/07/20 08:04:11 guy Exp $
+ * $Id: packet-wsp.c,v 1.27 2001/07/20 08:16:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3445,11 +3445,12 @@ proto_register_wsp(void)
 		},
 		{ &hf_wsp_header_bearer_indication,
 			/*
-			 * XXX - what do the values mean?
+			 * XXX - I'm assuming that the bearer indication is
+			 * just a bearer type.
 			 */
 			{ 	"Bearer-indication",           
 				"wsp.header.bearer_indication",
-				 FT_UINT32, BASE_DEC, NULL, 0x00,
+				 FT_UINT32, BASE_HEX, VALS(vals_bearer_types), 0x00,
 				"Bearer-indication", HFILL
 			}
 		},
