@@ -1,7 +1,7 @@
 /* stream_prefs.c
  * Dialog boxes for preferences for the stream window
  *
- * $Id: stream_prefs.c,v 1.19 2004/01/16 11:53:40 ulfl Exp $
+ * $Id: stream_prefs.c,v 1.20 2004/03/11 00:22:41 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -123,7 +123,7 @@ stream_prefs_show()
     gtk_menu_append (GTK_MENU (menu), menuitem);
   }
   gtk_option_menu_set_menu (GTK_OPTION_MENU (optmenu), menu);
-  gtk_table_attach_defaults(GTK_TABLE(main_tb), optmenu, 1, 2, 0, 1);
+  gtk_table_attach(GTK_TABLE(main_tb), optmenu, 1, 2, 0, 1, GTK_SHRINK, GTK_SHRINK, 0, 0);
   gtk_widget_show(optmenu);
 
 #if GTK_MAJOR_VERSION < 2
