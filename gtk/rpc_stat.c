@@ -1,7 +1,7 @@
 /* rpc_stat.c
  * rpc_stat   2002 Ronnie Sahlberg
  *
- * $Id: rpc_stat.c,v 1.2 2002/09/27 11:07:10 sahlberg Exp $
+ * $Id: rpc_stat.c,v 1.3 2002/10/23 23:12:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -88,7 +88,7 @@ rpcstat_reset(rpcstat_t *rs)
 
 
 static int
-rpcstat_packet(rpcstat_t *rs, packet_info *pinfo, rpc_call_info_value *ri)
+rpcstat_packet(rpcstat_t *rs, packet_info *pinfo, epan_dissect_t *edt _U_, rpc_call_info_value *ri)
 {
 	nstime_t delta;
 	rpc_procedure_t *rp;

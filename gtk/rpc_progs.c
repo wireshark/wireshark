@@ -1,7 +1,7 @@
 /* rpc_progs.c
  * rpc_progs   2002 Ronnie Sahlberg
  *
- * $Id: rpc_progs.c,v 1.1 2002/09/07 10:02:31 sahlberg Exp $
+ * $Id: rpc_progs.c,v 1.2 2002/10/23 23:12:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -125,7 +125,7 @@ add_new_program(rpc_program_t *rp)
 
 
 static int
-rpcprogs_packet(void *dummy _U_, packet_info *pinfo, rpc_call_info_value *ri)
+rpcprogs_packet(void *dummy _U_, packet_info *pinfo, epan_dissect_t *edt _U_, rpc_call_info_value *ri)
 {
 	nstime_t delta;
 	rpc_program_t *rp;

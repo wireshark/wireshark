@@ -1,7 +1,7 @@
 /* tap-rpcstat.c
  * rpcstat   2002 Ronnie Sahlberg
  *
- * $Id: tap-rpcstat.c,v 1.3 2002/09/27 11:06:59 sahlberg Exp $
+ * $Id: tap-rpcstat.c,v 1.4 2002/10/23 23:12:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -124,7 +124,7 @@ rpcstat_reset(rpcstat_t *rs)
  * !0: state has changed, call (*draw) sometime later
  */
 static int
-rpcstat_packet(rpcstat_t *rs, packet_info *pinfo, rpc_call_info_value *ri)
+rpcstat_packet(rpcstat_t *rs, packet_info *pinfo, epan_dissect_t *edt _U_, rpc_call_info_value *ri)
 {
 	nstime_t delta;
 	rpc_procedure_t *rp;

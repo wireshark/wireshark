@@ -1,7 +1,7 @@
 /* tap.h
  * packet tap interface   2002 Ronnie Sahlberg
  *
- * $Id: tap.h,v 1.3 2002/10/17 02:11:20 guy Exp $
+ * $Id: tap.h,v 1.4 2002/10/23 23:12:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -35,7 +35,7 @@ void tap_push_tapped_queue(epan_dissect_t *edt);
 extern int tapping_is_active;
 void reset_tap_listeners(void);
 void draw_tap_listeners(gboolean draw_all);
-int register_tap_listener(char *tapname, void *tapdata, char *fstring, void (*reset)(void *tapdata), int (*packet)(void *tapdata, packet_info *pinfo, void *data), void (*draw)(void *tapdata));
+int register_tap_listener(char *tapname, void *tapdata, char *fstring, void (*reset)(void *tapdata), int (*packet)(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, void *data), void (*draw)(void *tapdata));
 void remove_tap_listener(void *tapdata);
 
 

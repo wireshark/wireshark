@@ -1,7 +1,7 @@
 /* tap-rpcprogs.c
  * rpcstat   2002 Ronnie Sahlberg
  *
- * $Id: tap-rpcprogs.c,v 1.1 2002/09/05 09:27:50 sahlberg Exp $
+ * $Id: tap-rpcprogs.c,v 1.2 2002/10/23 23:12:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -58,7 +58,7 @@ static rpc_program_t *prog_list=NULL;
 static int already_enabled=0;
 
 static int
-rpcprogs_packet(void *dummy1 _U_, packet_info *pinfo, rpc_call_info_value *ri)
+rpcprogs_packet(void *dummy1 _U_, packet_info *pinfo, epan_dissect_t *edt _U_, rpc_call_info_value *ri)
 {
 	nstime_t delta;
 	rpc_program_t *rp=NULL;

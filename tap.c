@@ -1,7 +1,7 @@
 /* tap.c
  * packet tap interface   2002 Ronnie Sahlberg
  *
- * $Id: tap.c,v 1.5 2002/10/17 02:11:20 guy Exp $
+ * $Id: tap.c,v 1.6 2002/10/23 23:12:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -75,7 +75,7 @@ typedef struct _tap_listener_t {
 	dfilter_t *code;
 	void *tapdata;
 	void (*reset)(void *tapdata);
-	int  (*packet)(void *tapdata, packet_info *pinfo, void *data);
+	int  (*packet)(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, void *data);
 	void (*draw)(void *tapdata);
 } tap_listener_t;
 static volatile tap_listener_t *tap_listener_queue=NULL;
@@ -260,7 +260,7 @@ tap_push_tapped_queue(epan_dissect_t *edt)
 					passed=dfilter_apply_edt(tl->code, edt);
 				}
 				if(passed && tl->packet){
-					tl->needs_redraw|=tl->packet(tl->tapdata, tp->pinfo, tp->tap_specific_data);
+					tl->needs_redraw|=tl->packet(tl->tapdata, tp->pinfo, edt, tp->tap_specific_data);
 				}
 			}
 		}
@@ -339,7 +339,7 @@ find_tap_id(char *name)
  * !0: error
 */
 int
-register_tap_listener(char *tapname, void *tapdata, char *fstring, void (*reset)(void *tapdata), int (*packet)(void *tapdata, packet_info *pinfo, void *data), void (*draw)(void *tapdata))
+register_tap_listener(char *tapname, void *tapdata, char *fstring, void (*reset)(void *tapdata), int (*packet)(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, void *data), void (*draw)(void *tapdata))
 {
 	tap_listener_t *tl;
 	int tap_id;
