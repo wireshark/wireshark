@@ -4,7 +4,7 @@
  * Jason Lango <jal@netapp.com>
  * Liberally copied from packet-http.c, by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-rtsp.c,v 1.10 2000/04/21 01:45:57 guy Exp $
+ * $Id: packet-rtsp.c,v 1.11 2000/04/21 01:52:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -94,8 +94,8 @@ static void
 rtsp_create_conversation(const u_char *trans_begin, const u_char *trans_end)
 {
 	conversation_t	*conv;
-	char		tbuf[256];
-	char		*tmp;
+	u_char		tbuf[256];
+	u_char		*tmp;
 	int		c_data_port, c_mon_port;
 	int		s_data_port, s_mon_port;
 
