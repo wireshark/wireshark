@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.176 2002/06/04 22:15:12 guy Exp $
+ * $Id: capture.c,v 1.177 2002/06/06 19:03:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1012,21 +1012,8 @@ signame(int sig)
 
 /*
  * Timeout, in milliseconds, for reads from the stream of captured packets.
- *
- * XXX - Michael Tuexen says MacOS X's BPF appears to be broken, in that
- * if you use a timeout of 250 in "pcap_open_live()", you don't see
- * packets until a large number of packets arrive; the timeout doesn't
- * cause a smaller number of packets to be delivered.  Perhaps a timeout
- * that's less than 1 second acts like no timeout at all, so that you
- * don't see packets until the BPF buffer fills up?
- *
- * The workaround is to use a timeout of 1000 seconds on MacOS X.
  */
-#ifdef __APPLE__
-#define	CAP_READ_TIMEOUT	1000
-#else
 #define	CAP_READ_TIMEOUT	250
-#endif
 
 #ifndef _WIN32
 /* Take carre of byte order in the libpcap headers read from pipes.
