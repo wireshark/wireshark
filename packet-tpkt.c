@@ -7,7 +7,7 @@
  * Routine to dissect RFC 1006 TPKT packet containing OSI TP PDU
  * Copyright 2001, Martin Thomas <Martin_A_Thomas@yahoo.com>
  *
- * $Id: packet-tpkt.c,v 1.14 2002/02/22 21:52:09 guy Exp $
+ * $Id: packet-tpkt.c,v 1.15 2002/02/23 02:30:15 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -69,15 +69,12 @@ static dissector_handle_t osi_tp_handle;
 
 /*
  * Check whether this could be a TPKT-encapsulated PDU.
- * Returns -1 if it's not.
- * Sets "*offset" to the offset of the first byte past the TPKT header,
- * and returns the length from the TPKT header, if it is.
+ * Returns -1 if it's not, and the PDU length from the TPKT header
+ * if it is.
  */
 int
-is_tpkt( tvbuff_t *tvb, int *offset )
+is_tpkt(tvbuff_t *tvb)
 {
-	guint16 data_len;
-
 	/*
 	 * If TPKT is disabled, don't dissect it, just return -1, meaning
 	 * "this isn't TPKT".
@@ -86,7 +83,7 @@ is_tpkt( tvbuff_t *tvb, int *offset )
 		return -1;
 
 	/* There should at least be 4 bytes left in the frame */
-	if (!tvb_bytes_exist(tvb, *offset, 4))
+	if (!tvb_bytes_exist(tvb, 0, 4))
 		return -1;	/* there aren't */
 
 	/*
@@ -94,14 +91,13 @@ is_tpkt( tvbuff_t *tvb, int *offset )
 	 * The H.323 implementers guide suggests that this might not 
 	 * always be the case....
 	 */
-	if ( ! ( ( tvb_get_guint8( tvb, ( *offset ) ) == 3 ) && 
-		 ( tvb_get_guint8( tvb, ( *offset ) + 1 ) == 0 ) ) )
+	if (!(tvb_get_guint8(tvb, 0) == 3 && tvb_get_guint8(tvb, 1) == 0))
 		return -1;	/* They're not */
 
-	data_len = tvb_get_ntohs( tvb, ( *offset ) + 2 );
-
-	*offset += 4;
-	return data_len;
+	/*
+	 * Return the length from the TPKT header.
+	 */
+	return tvb_get_ntohs(tvb, 2);
 }
 
 /*

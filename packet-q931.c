@@ -2,7 +2,7 @@
  * Routines for Q.931 frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-q931.c,v 1.38 2002/02/22 08:56:45 guy Exp $
+ * $Id: packet-q931.c,v 1.39 2002/02/23 02:30:15 guy Exp $
  *
  * Modified by Andreas Sikkema for possible use with H.323
  *
@@ -2498,16 +2498,13 @@ dissect_q931_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 static gboolean
 dissect_q931_tpkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	int offset = 0;
-	int q931_offset;
 	int lv_tpkt_len;
 
 	/*
 	 * Check whether this looks like a TPKT-encapsulated
 	 * Q.931 packet.
 	 */
-	q931_offset = offset;
-	lv_tpkt_len = is_tpkt(tvb, &q931_offset);
+	lv_tpkt_len = is_tpkt(tvb);
 	if (lv_tpkt_len == -1) {
 		/*
 		 * It's not a TPKT packet; reject it.
@@ -2516,6 +2513,19 @@ dissect_q931_tpkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	/*
+	 * If this segment is *exactly* the length of a TPKT header,
+	 * we assume that, as it looks like a TPKT header, it
+	 * is one, and that the code put a TPKT header in one
+	 * segment and the rest of the PDU in another.
+	 */
+	if (tvb_length(tvb) == 4)
+		return TRUE;
+
+	/*
+	 * Well, we have more data than just the TPKT header;
+	 * check whether it looks like the beginning of a
+	 * Q.931 message.
+	 *
 	 * The minimum length of a Q.931 message is 3:
 	 * 1 byte for the protocol discriminator,
 	 * 1 for the call_reference length,
@@ -2524,7 +2534,7 @@ dissect_q931_tpkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * Check that we have that many bytes past the
 	 * TPKT header.
 	 */
-	if (!tvb_bytes_exist(tvb, q931_offset, 3))
+	if (!tvb_bytes_exist(tvb, 4, 3))
 		return FALSE;
 
 	/*
@@ -2535,7 +2545,7 @@ dissect_q931_tpkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		return FALSE;
 
 	/* Check the protocol discriminator */
-	if (tvb_get_guint8(tvb, q931_offset) != NLPID_Q_931) {
+	if (tvb_get_guint8(tvb, 4) != NLPID_Q_931) {
 		/* Doesn't look like Q.931 inside TPKT */
 		return FALSE;
 	}

@@ -5,7 +5,7 @@
  * Copyright 2000, Philips Electronics N.V.
  * Andreas Sikkema <andreas.sikkema@philips.com>
  *
- * $Id: packet-tpkt.h,v 1.6 2002/02/22 08:56:46 guy Exp $
+ * $Id: packet-tpkt.h,v 1.7 2002/02/23 02:30:15 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -28,11 +28,10 @@
 
 /*
  * Check whether this could be a TPKT-encapsulated PDU.
- * Returns -1 if it's not.
- * Sets "*offset" to the offset of the first byte past the TPKT header,
- * and returns the length from the TPKT header, if it is.
+ * Returns -1 if it's not, and the PDU length from the TPKT header
+ * if it is.
  */
-extern int is_tpkt(tvbuff_t *tvb, int *offset);
+extern int is_tpkt(tvbuff_t *tvb);
 
 /*
  * Dissect TPKT-encapsulated data in a TCP stream.
