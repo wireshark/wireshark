@@ -55,6 +55,8 @@ static gint ett_gssapi = -1;
  * Subdissectors
  */
 
+static dissector_handle_t ntlmssp_handle = NULL;
+
 static GHashTable *gssapi_oids;
 
 static gint gssapi_oid_equal(gconstpointer k1, gconstpointer k2)
@@ -247,14 +249,19 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		  }
 		  if (!value)
 		  {
-		    proto_tree_add_text(subtree, tvb, offset, 0,
-			"Unknown header (cls=%d, con=%d, tag=%d)",
-			cls, con, tag);
+		    /* It could be NTLMSSP, with no OID.  This can happen 
+		       for anything that microsoft calls 'Negotiate' or GSS-SPNEGO */
+		    if (tvb_strneql(tvb, offset, "NTLMSSP", 7) == 0) {
+		      call_dissector(ntlmssp_handle, tvb_new_subset(tvb, offset, -1, -1), pinfo, subtree);
+		    } else {
+		      proto_tree_add_text(subtree, tvb, offset, 0,
+					  "Unknown header (cls=%d, con=%d, tag=%d)",
+					  cls, con, tag);
+		    }
 		    return_offset = tvb_length(tvb);
 		    goto done;
-		  }
-		  else 
-		  {
+
+		  } else {
 		    tvbuff_t *oid_tvb;
 
 		    /* Naughty ... no way to reset the offset */
@@ -511,6 +518,8 @@ void
 proto_reg_handoff_gssapi(void)
 {
 	data_handle = find_dissector("data");
+
+	ntlmssp_handle = find_dissector("ntlmssp");
 
 	register_dcerpc_auth_subdissector(DCE_C_AUTHN_LEVEL_CONNECT,
 					  DCE_C_RPC_AUTHN_PROTOCOL_SPNEGO,
