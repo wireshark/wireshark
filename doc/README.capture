@@ -1,0 +1,110 @@
+This document is an attempt, to bring some light to the things done, when 
+packet capturing is performed. There might be things missing, and others 
+maybe wrong :-( The following will concentrate a bit on the win32 gtk 
+port of ethereal.
+
+
+XXX: when ongoing file reorganisation will be completed, the following 
+two lists maybe won't be needed any longer!
+
+libpcap related source files:
+-----------------------------
+pcap-util.c
+pcap-util.h
+pcap-util-int.h
+pcap-util-unix.c
+capture-wpcap.c
+capture-wpcap.h
+
+Capture related source files:
+-----------------------------
+capture.c (XXX: parts of this should be seperated and moved to the gtk dir)
+capture.h
+capture-stop-conditions.c
+capture-stop-conditions.h
+conditions.c (XXX: is conditions generic or capture specific?)
+conditions.h
+
+
+Capture driver
+--------------
+Etheral doesn't have direct access to the capture hardware. Instead of this, 
+it uses the Libpcap/Winpcap library to capture data from network cards.
+
+On Win32, in capture-wpcap.c the function g_module_open("wpcap") is called 
+to load the wpcap.dll. This dll includes all functions needed for 
+packet capturing.
+
+
+
+Capture File
+------------
+There are some kind of targets to put the capture data into:
+
+-temporary file
+-user specified "single" capture file
+-user specified "ringbuffer" capture file
+
+Which kind of file is used depends on the user settings. In principle there 
+is no difference in handling these files, so if not otherwise notified, 
+I will call it the capture file.
+
+The capture file is stored, using the wiretap library.
+
+
+Start capture
+-------------
+A capture is started, by specifying at the command line to start the capture, 
+or trigger the ok button in the "Capture Options" dialog box. The capture start 
+is actually done by calling the do_capture() function in capture.c.
+
+
+Normal capturing
+----------------
+In normal mode, Ethereal will open the target capture file, prepare pcap things,
+init stop conditions, init the capture statistic dialog and start a loop which 
+is running until the flag ld.go is FALSE.
+
+Inside this loop, 
+
+-gtk main things are updated
+-pcap_dispatch(capture_pcap_cb) is called
+-the capture stop conditions are checked (ld.go is set to FALSE to finish)
+-update the capture statistic dialog
+
+While this loop is running, the pcap_dispatch() will call capture_pcap_cb() 
+for every packet captured. Inside this, the packet data is converted into 
+wtap (wiretap) format and saved to file. Beside saving, it is trying to 
+do some basic dissecting (for the statistic window), by calling the appropriate 
+capture_xxx function.
+
+When the stop button in the menu/toolbar or at the statistics dialog is pressed, 
+it will simply set the ld.go flag to FALSE, and the loop will finish.
+
+
+Sync mode
+---------
+When the "update list of packets in real time" option is used for capturing, 
+another Ethereal instance is spawned and the two instances linked together 
+using a pipe. To open the pipe, a "command line" is build and a second 
+Ethereal instance (another process) is spawn with it. As the old instance 
+doesn't need it's end of the pipe, the write direction is closed immediately.
+
+The new instance will open the capture statistic dialog, capture the data 
+in the normal way described above and send the captured data through the pipe 
+to the old instance. It will not open a main screen to show packets. 
+When the capture is finished (using the close button in the dialog), 
+the new instance closes it's side of the pipe and exits completely.
+
+In the old instance, the cap_file_input_cb() function is called cyclically 
+(unix:pipe, win32:timer,1000ms) to read data from the pipe and show it 
+on the main screen. While this capture is in progress, no other capture file 
+can be opened. The closing of the pipe indicates the old instance that 
+the capturing is finished.
+
+
+Updating
+--------
+The actual packet capturing inside the libpcap is done using it's own task.
+Catching and processing the packet data from the libpcap is done using the
+pcap_dispatch() function. 
