@@ -1,7 +1,7 @@
 /* display_opts.c
  * Routines for packet display windows
  *
- * $Id: display_opts.c,v 1.1 1999/10/18 12:48:13 gram Exp $
+ * $Id: display_opts.c,v 1.2 2000/01/24 04:44:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -92,6 +92,7 @@ extern GtkWidget *packet_list;
 #define E_DISPLAY_TIME_DELTA_KEY "display_time_delta"
 #define E_DISPLAY_AUTO_SCROLL_KEY "display_auto_scroll"
 #define E_DISPLAY_NAME_RESOLUTION_KEY "display_name_resolution"
+#define E_DISPLAY_IP_DSCP_KEY "display_ip_dscp"
 
 static void display_opt_ok_cb(GtkWidget *, gpointer);
 static void display_opt_apply_cb(GtkWidget *, gpointer);
@@ -172,6 +173,13 @@ display_opt_cb(GtkWidget *w, gpointer d) {
   gtk_box_pack_start(GTK_BOX(main_vb), button, TRUE, TRUE, 0);
   gtk_widget_show(button);
   
+  button = gtk_check_button_new_with_label("Decode IPv4 TOS field as DiffServ Field");
+  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(button), g_ip_dscp_actif);
+  gtk_object_set_data(GTK_OBJECT(display_opt_w), E_DISPLAY_IP_DSCP_KEY,
+		      button);
+  gtk_box_pack_start(GTK_BOX(main_vb), button, TRUE, TRUE, 0);
+  gtk_widget_show(button);
+  
   /* Button row: OK, Apply, and Cancel buttons */
   bbox = gtk_hbutton_box_new();
   gtk_button_box_set_layout (GTK_BUTTON_BOX (bbox), GTK_BUTTONBOX_END);
@@ -232,6 +240,10 @@ display_opt_ok_cb(GtkWidget *ok_bt, gpointer parent_w) {
 					     E_DISPLAY_NAME_RESOLUTION_KEY);
   g_resolving_actif = (GTK_TOGGLE_BUTTON (button)->active);
 
+  button = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w),
+					     E_DISPLAY_IP_DSCP_KEY);
+  g_ip_dscp_actif = (GTK_TOGGLE_BUTTON (button)->active);
+
   gtk_widget_destroy(GTK_WIDGET(parent_w));
   display_opt_window_active = FALSE;
 
@@ -264,6 +276,10 @@ display_opt_apply_cb(GtkWidget *ok_bt, gpointer parent_w) {
   button = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w),
 					     E_DISPLAY_NAME_RESOLUTION_KEY);
   g_resolving_actif = (GTK_TOGGLE_BUTTON (button)->active);
+
+  button = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w),
+					     E_DISPLAY_IP_DSCP_KEY);
+  g_ip_dscp_actif = (GTK_TOGGLE_BUTTON (button)->active);
 
   change_time_formats(&cf);
 }

@@ -1,7 +1,7 @@
 /* globals.h
  * Global defines, etc.
  *
- * $Id: globals.h,v 1.14 2000/01/06 06:28:54 guy Exp $
+ * $Id: globals.h,v 1.15 2000/01/24 04:44:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -85,6 +85,7 @@ extern gchar       *bold_font;
 extern gchar       *last_open_dir;
 extern gboolean     auto_scroll_live;
 extern int          g_resolving_actif;
+extern gboolean     g_ip_dscp_actif;
 extern field_info  *finfo_selected;
 
 extern ts_type timestamp_type;

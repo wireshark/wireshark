@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.12 2000/01/22 07:19:26 guy Exp $
+ * $Id: tethereal.c,v 1.13 2000/01/24 04:44:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -144,8 +144,8 @@ print_usage(void)
   fprintf(stderr, "This is GNU t%s %s, compiled with %s\n", PACKAGE,
 	  VERSION, comp_info_str);
 
-  fprintf(stderr, "t%s [ -vVh ] [ -c count ] [ -f <filter expression> ] [ -F <capture type> ]\n", PACKAGE);
-  fprintf(stderr, "\t[ -i iface ] [ -r infile ] [ -R <filter expression> ]\n");
+  fprintf(stderr, "t%s [ -vVh ] [ -c count ] [ -D ] [ -f <filter expression> ] [ -F <capture type> ]\n", PACKAGE);
+  fprintf(stderr, "\t[ -i iface ] [ -n ] [ -r infile ] [ -R <filter expression> ]\n");
   fprintf(stderr, "\t[ -s snaplen ] [ -t <time stamp format> ] [ -w savefile ] [ -x ]\n");
   fprintf(stderr, "Valid file type arguments to the \"-F\" flag:\n");
   for (i = 0; i < WTAP_NUM_FILE_TYPES; i++) {
@@ -266,7 +266,7 @@ main(int argc, char *argv[])
    );
     
   /* Now get our args */
-  while ((opt = getopt(argc, argv, "c:f:F:hi:nr:R:s:t:vw:Vx")) != EOF) {
+  while ((opt = getopt(argc, argv, "c:Df:F:hi:nr:R:s:t:vw:Vx")) != EOF) {
     switch (opt) {
       case 'c':        /* Capture xxx packets */
 #ifdef HAVE_LIBPCAP
@@ -276,6 +276,9 @@ main(int argc, char *argv[])
         arg_error = TRUE;
 #endif
         break;
+      case 'D':        /* Turn off DSCP printing */
+	g_ip_dscp_actif = FALSE;
+	break;
       case 'f':
 #ifdef HAVE_LIBPCAP
 	cf.cfilter = g_strdup(optarg);

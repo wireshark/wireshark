@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.92 2000/01/18 08:38:16 guy Exp $
+ * $Id: main.c,v 1.93 2000/01/24 04:44:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1157,7 +1157,7 @@ main(int argc, char *argv[])
 
 #ifndef WIN32
   /* Now get our args */
-  while ((opt = getopt(argc, argv, "b:B:c:f:hi:km:nP:Qr:R:Ss:t:T:w:W:v")) != EOF) {
+  while ((opt = getopt(argc, argv, "b:B:c:Df:hi:km:nP:Qr:R:Ss:t:T:w:W:v")) != EOF) {
     switch (opt) {
       case 'b':	       /* Bold font */
 	bold_font = g_strdup(optarg);
@@ -1173,6 +1173,9 @@ main(int argc, char *argv[])
         arg_error = TRUE;
 #endif
         break;
+      case 'D':        /* Turn off DSCP printing */
+	g_ip_dscp_actif = FALSE;
+	break;
       case 'f':
 #ifdef HAVE_LIBPCAP
 	if (cf.cfilter)

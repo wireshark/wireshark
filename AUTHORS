@@ -183,6 +183,8 @@ Heikki Vatiainen <hessu@cs.tut.fi> {
 	SAP (Session Announcement Protocol) support
 	VRRP (Virtual Router Redundancy)
 	HSRP (Hot Standby Router Protocol)
+	option to control whether to interpret the IPv4 TOS field as
+	such or as the DiffServ field
 }
 
 Greg Hankins <gregh@twoguys.org> {
