@@ -2,7 +2,7 @@
  * Defines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: smb.h,v 1.50 2003/03/25 09:41:42 sahlberg Exp $
+ * $Id: smb.h,v 1.51 2003/04/12 08:14:02 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -291,6 +291,10 @@ typedef struct conv_tables {
 	GHashTable *matched;
 	/* this tables is used by DCERPC over SMB reassembly*/
 	GHashTable *dcerpc_fid_to_frame;
+	/* this table is to keep track of which frames we saw which dcerpc
+	   pdu in */
+	GHashTable *dcerpc_frame_to_dcerpc_pdu;	  
+
 	/* This table is used to track TID->services for a conversation */
 	GHashTable *tid_service;
         gboolean raw_ntlmssp;   /* Do extended security exc use raw ntlmssp */

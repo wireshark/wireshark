@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.321 2003/04/10 08:41:58 sahlberg Exp $
+ * $Id: packet-smb.c,v 1.322 2003/04/12 08:14:01 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -5307,48 +5307,7 @@ dissect_read_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
 	BYTE_COUNT;
 
-	/* is this part of DCERPC over SMB reassembly?*/
-	if(smb_dcerpc_reassembly && !pinfo->fd->flags.visited
-	    && (bc<=tvb_length_remaining(tvb, offset)) ){
-		gpointer hash_value;
-		if (si->sip != NULL && (hash_value = g_hash_table_lookup(
-						si->ct->dcerpc_fid_to_frame,
-						si->sip->extra_info)) != NULL) {
-			fragment_data *fd_head;
-			guint32 frame = GPOINTER_TO_UINT(hash_value);
 
-			/* first fragment is always from a SMB Trans command and
-			   offset 0 of the following read/write SMB commands start
-			   BEYOND the first Trans SMB payload. Look for offset
-			   in first read fragment */
-			fd_head=fragment_get(pinfo, frame, dcerpc_fragment_table);
-			if(fd_head){
-				/* skip to last fragment  and add this data there*/
-				while(fd_head->next){
-					fd_head=fd_head->next;
-				}
-				/* if dataoffset was not specified in the SMB command
-				   then we try to guess it as good as we can
-				*/
-				if(dataoffset==0){
-					dataoffset=offset+bc-datalen;
-				}
-				fd_head=fragment_add(tvb, dataoffset, pinfo,
-					frame, dcerpc_fragment_table,
-					fd_head->offset+fd_head->len,
-					datalen, TRUE);
-				/* we completed reassembly, abort searching for more
-				   fragments*/
-				if(fd_head){
-					g_hash_table_remove(si->ct->dcerpc_fid_to_frame,
-						si->sip->extra_info);
-				}
-			}
-		}
-	}
-
-	/* another way to transport DCERPC over SMB is to skip Transaction completely and just
-	   read write */
 	if(bc){
 		if(si->sip != NULL && si->sip->flags&SMB_SIF_TID_IS_IPC){
 			/* dcerpc call */
@@ -5380,6 +5339,7 @@ dissect_write_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	smb_info_t *si = (smb_info_t *)pinfo->private_data;
 	unsigned int fid=0;
 	guint16 mode = 0;
+
 
 	WORD_COUNT;
 
@@ -5455,60 +5415,26 @@ dissect_write_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
 	BYTE_COUNT;
 
-	/* if both the MessageStart and the  WriteRawNamedPipe flags are set
-	   the first two bytes of the payload is the length of the data */
-	if((mode&0x000c)==0x000c){
+	/* if the MessageStart flag is set
+	   the first two bytes of the payload is the length of the data
+	   also this tells us that this is indeed the IPC$ share
+	   (if we didnt already know that 
+	*/
+	if((mode&0x0008)==0x0008){
 		proto_tree_add_item(tree, hf_smb_pipe_write_len, tvb, offset, 2, TRUE);
 		offset += 2;
 		dataoffset += 2;
 		bc -= 2;
 		datalen -= 2;
-	}
-
-
-
-	/* is this part of DCERPC over SMB reassembly?*/
-	if(smb_dcerpc_reassembly && !pinfo->fd->flags.visited && (bc<=tvb_length_remaining(tvb, offset)) ){
-		gpointer hash_value;
-		hash_value = g_hash_table_lookup(si->ct->dcerpc_fid_to_frame,
-			si->sip->extra_info);
-		if(hash_value){
-			fragment_data *fd_head;
-			guint32 frame = GPOINTER_TO_UINT(hash_value);
-
-			/* first fragment is always from a SMB Trans command and
-			   offset 0 of the following read/write SMB commands start
-			   BEYOND the first Trans SMB payload. Look for offset
-			   in first read fragment */
-			fd_head=fragment_get(pinfo, frame, dcerpc_fragment_table);
-			if(fd_head){
-				/* skip to last fragment  and add this data there*/
-				while(fd_head->next){
-					fd_head=fd_head->next;
-				}
-				/* if dataoffset was not specified in the SMB command
-				   then we try to guess it as good as we can
-				*/
-				if(dataoffset==0){
-					dataoffset=offset+bc-datalen;
-				}
-				fd_head=fragment_add(tvb, dataoffset, pinfo,
-					frame, dcerpc_fragment_table,
-					fd_head->offset+fd_head->len,
-					datalen, TRUE);
-				/* we completed reassembly, abort searching for more
-				   fragments*/
-				if(fd_head){
-					g_hash_table_remove(si->ct->dcerpc_fid_to_frame,
-						si->sip->extra_info);
-				}
-			}
+		if(si->sip){
+			si->sip->flags|=SMB_SIF_TID_IS_IPC;
 		}
 	}
 
+
 	/* file data */
 	if (bc != 0) {
-		if( (si->sip && si->sip->flags&SMB_SIF_TID_IS_IPC) && ((ofs==0)||((mode&0x000c)==0x000c)) ){
+		if( si->sip && (si->sip->flags&SMB_SIF_TID_IS_IPC) ){
 			/* dcerpc call */
 			offset = dissect_file_data_dcerpc(tvb, pinfo, tree,
 			    top_tree, offset, bc, datalen, fid);
@@ -14239,6 +14165,8 @@ free_hash_tables(gpointer ctarg, gpointer user_data _U_)
 		g_hash_table_destroy(ct->matched);
 	if (ct->dcerpc_fid_to_frame)
 		g_hash_table_destroy(ct->dcerpc_fid_to_frame);
+	if (ct->dcerpc_frame_to_dcerpc_pdu)
+		g_hash_table_destroy(ct->dcerpc_frame_to_dcerpc_pdu);
 	if (ct->tid_service)
 		g_hash_table_destroy(ct->tid_service);
 }
@@ -15679,6 +15607,9 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		si->ct->unmatched= g_hash_table_new(smb_saved_info_hash_unmatched,
 			smb_saved_info_equal_unmatched);
 		si->ct->dcerpc_fid_to_frame=g_hash_table_new(
+			smb_saved_info_hash_unmatched,
+			smb_saved_info_equal_unmatched);
+		si->ct->dcerpc_frame_to_dcerpc_pdu=g_hash_table_new(
 			smb_saved_info_hash_unmatched,
 			smb_saved_info_equal_unmatched);
 		si->ct->tid_service=g_hash_table_new(
