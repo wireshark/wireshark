@@ -1,8 +1,15 @@
-/* packet-x509if.h
- * Routines for X.509 Information Framework packet dissection
- *  Ronnie Sahlberg 2004
+/* Do not modify this file.                                                   */
+/* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
+/* ./packet-ess.h                                                             */
+/* ../../tools/asn2eth.py -X -b -k -e -p ess -c ess.cnf -s packet-ess-template ExtendedSecurityServices.asn */
+
+/* Input file: packet-ess-template.h */
+
+/* packet-ess.h
+ * Routines for RFC2634 Extended Security Services packet dissection
+ *    Ronnie Sahlberg 2004
  *
- * $Id$
+ * $Id: packet-ess-template.h 12437 2004-10-30 02:18:44Z sahlberg $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -23,10 +30,10 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef PACKET_X509IF_H
-#define PACKET_X509IF_H
+#ifndef PACKET_ESS_H
+#define PACKET_ESS_H
 
-#include "packet-x509if-exp.h"
+/*#include "packet-ess-exp.h"*/
 
-#endif  /* PACKET_X509IF_H */
+#endif  /* PACKET_ESS_H */
 

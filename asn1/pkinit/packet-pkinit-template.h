@@ -1,5 +1,6 @@
 /* packet-pkinit.h
  * Routines for PKINIT packet dissection
+ *  Ronnie Sahlberg 2004
  *
  * $Id$
  *

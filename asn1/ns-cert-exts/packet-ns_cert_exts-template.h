@@ -1,5 +1,6 @@
 /* packet-ns-cert-exts.h
  * Routines for NetScape Certificate Extensions packet dissection
+ *  Ronnie Sahlberg 2004
  *
  * $Id$
  *

@@ -1,5 +1,6 @@
 /* packet-x509af.c
  * Routines for X.509 Authentication Framework packet dissection
+ *  Ronnie Sahlberg 2004
  *
  * $Id$
  *

@@ -1,8 +1,8 @@
-/* packet-x509if.c
- * Routines for X.509 Information Framework packet dissection
- *  Ronnie Sahlberg 2004
+/* packet-ess.c
+ * Routines for RFC2634 Extended Security Services packet dissection
+ *   Ronnie Sahlberg 2004
  *
- * $Id$
+ * $Id: packet-ess-template.c 12438 2004-10-30 02:36:58Z sahlberg $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -29,59 +29,61 @@
 
 #include <glib.h>
 #include <epan/packet.h>
-#include <epan/conversation.h>
 
 #include <stdio.h>
 #include <string.h>
 
 #include "packet-ber.h"
-#include "packet-x509if.h"
+#include "packet-ess.h"
+#include "packet-cms.h"
+#include "packet-x509ce.h"
+#include "packet-x509af.h"
 
-#define PNAME  "X.509 Information Framework"
-#define PSNAME "X509IF"
-#define PFNAME "x509if"
+#define PNAME  "Extended Security Services"
+#define PSNAME "ESS"
+#define PFNAME "ess"
 
 /* Initialize the protocol and registered fields */
-int proto_x509if = -1;
-static int hf_x509if_object_identifier_id = -1;
-#include "packet-x509if-hf.c"
+static int proto_ess = -1;
+static int hf_ess_SecurityCategory_type_OID = -1;
+#include "packet-ess-hf.c"
 
 /* Initialize the subtree pointers */
-#include "packet-x509if-ett.c"
+#include "packet-ess-ett.c"
 
 static char object_identifier_id[64]; /*64 chars should be long enough? */
 
-#include "packet-x509if-fn.c"
+#include "packet-ess-fn.c"
 
 
-/*--- proto_register_x509if ----------------------------------------------*/
-void proto_register_x509if(void) {
+/*--- proto_register_ess ----------------------------------------------*/
+void proto_register_ess(void) {
 
   /* List of fields */
   static hf_register_info hf[] = {
-    { &hf_x509if_object_identifier_id, 
-      { "Id", "x509if.id", FT_STRING, BASE_NONE, NULL, 0,
-	"Object identifier Id", HFILL }},
-			 
-#include "packet-x509if-hfarr.c"
+    { &hf_ess_SecurityCategory_type_OID, 
+      { "type", "ess.type_OID", FT_STRING, BASE_NONE, NULL, 0,
+	"Type of Security Category", HFILL }},
+#include "packet-ess-hfarr.c"
   };
 
   /* List of subtrees */
   static gint *ett[] = {
-#include "packet-x509if-ettarr.c"
+#include "packet-ess-ettarr.c"
   };
 
   /* Register protocol */
-  proto_x509if = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  proto_ess = proto_register_protocol(PNAME, PSNAME, PFNAME);
 
   /* Register fields and subtrees */
-  proto_register_field_array(proto_x509if, hf, array_length(hf));
+  proto_register_field_array(proto_ess, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
 }
 
 
-/*--- proto_reg_handoff_x509if -------------------------------------------*/
-void proto_reg_handoff_x509if(void) {
+/*--- proto_reg_handoff_ess -------------------------------------------*/
+void proto_reg_handoff_ess(void) {
+#include "packet-ess-dis-tab.c"
 }
 

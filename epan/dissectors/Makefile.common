@@ -214,6 +214,7 @@ DISSECTOR_SRC =	\
 	packet-enip.c	\
 	packet-enrp.c	\
 	packet-esis.c	\
+	packet-ess.c	\
 	packet-eth.c	\
 	packet-etheric.c	\
 	packet-etherip.c	\
@@ -596,6 +597,7 @@ DISSECTOR_INCLUDES =	\
 	packet-e164.h   \
 	packet-edonkey.h	\
 	packet-esis.h	\
+	packet-ess.h	\
 	packet-eth.h	\
 	packet-fc.h	\
 	packet-fcbls.h	\

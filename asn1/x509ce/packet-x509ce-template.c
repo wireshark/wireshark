@@ -1,5 +1,6 @@
 /* packet-x509ce.c
  * Routines for X.509 Certificate Extensions packet dissection
+ *  Ronnie Sahlberg 2004
  *
  * $Id$
  *

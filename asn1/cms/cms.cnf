@@ -12,11 +12,17 @@ InformationFramework x509if
 
 #.EXPORTS
 ContentInfo
+ContentType
+DigestAlgorithmIdentifiers
 EncapsulatedContentInfo
-SignedData
-Countersignature
 IssuerAndSerialNumber
-OtherKeyAttribute
+SignedAttributes
+SignedData
+SignerIdentifier
+SignerInfo
+SignerInfos
+SignatureValue
+UnsignedAttributes
 
 #.REGISTER
 SignedData        B "1.2.840.113549.1.7.2"      "id-signedData"

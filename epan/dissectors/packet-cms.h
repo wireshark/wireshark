@@ -1,12 +1,13 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
 /* ./packet-cms.h                                                             */
-/* ../../tools/asn2eth.py -e -X -b -p cms -c cms.cnf -s packet-cms-template CryptographicMessageSyntax.asn */
+/* ../../tools/asn2eth.py -X -b -k -e -p cms -c cms.cnf -s packet-cms-template CryptographicMessageSyntax.asn */
 
 /* Input file: packet-cms-template.h */
 
 /* packet-cms.h
  * Routines for RFC2630 Cryptographic Message Syntax packet dissection
+ *   Ronnie Sahlberg 2004
  *
  * $Id: packet-cms-template.h 12434 2004-10-29 12:11:42Z sahlberg $
  *
@@ -35,12 +36,19 @@
 
 /*--- Included file: packet-cms-exp.h ---*/
 
+extern const value_string SignerIdentifier_vals[];
 int dissect_cms_ContentInfo(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
+int dissect_cms_ContentType(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 int dissect_cms_SignedData(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
+int dissect_cms_DigestAlgorithmIdentifiers(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
+int dissect_cms_SignerInfos(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 int dissect_cms_EncapsulatedContentInfo(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
+int dissect_cms_SignerInfo(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
+int dissect_cms_SignerIdentifier(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
+int dissect_cms_SignedAttributes(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
+int dissect_cms_UnsignedAttributes(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
+int dissect_cms_SignatureValue(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 int dissect_cms_IssuerAndSerialNumber(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
-int dissect_cms_OtherKeyAttribute(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
-int dissect_cms_Countersignature(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 
 /*--- End of included file: packet-cms-exp.h ---*/
 

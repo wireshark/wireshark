@@ -7,6 +7,7 @@
 
 /* packet-pkinit.h
  * Routines for PKINIT packet dissection
+ *  Ronnie Sahlberg 2004
  *
  * $Id: packet-pkinit-template.h 12203 2004-10-05 09:18:55Z guy $
  *

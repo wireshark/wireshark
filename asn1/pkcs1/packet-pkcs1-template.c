@@ -1,5 +1,6 @@
 /* packet-pkcs1.c
  * Routines for PKCS#1/RFC2313 packet dissection
+ *  Ronnie Sahlberg 2004
  *
  * $Id$
  *

@@ -1,5 +1,6 @@
 /* packet-x509sat.h
  * Routines for X.509 Selected Attribute Types packet dissection
+ *   Ronnie Sahlberg 2004
  *
  * $Id$
  *

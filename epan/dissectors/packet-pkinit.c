@@ -7,6 +7,7 @@
 
 /* packet-pkinit.c
  * Routines for PKINIT packet dissection
+ *  Ronnie Sahlberg 2004
  *
  * $Id: packet-pkinit-template.c 12463 2004-11-01 17:49:53Z gerald $
  *
@@ -152,7 +153,7 @@ static const ber_choice TrustedCA_choice[] = {
 };
 
 static int
-dissect_pkinit_TrustedCA(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_pkinit_TrustedCA(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               TrustedCA_choice, hf_index, ett_pkinit_TrustedCA);
 
@@ -167,7 +168,7 @@ static const ber_sequence SEQUNCE_OF_TrustedCA_sequence_of[1] = {
 };
 
 static int
-dissect_pkinit_SEQUNCE_OF_TrustedCA(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_pkinit_SEQUNCE_OF_TrustedCA(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
                                    SEQUNCE_OF_TrustedCA_sequence_of, hf_index, ett_pkinit_SEQUNCE_OF_TrustedCA);
 
@@ -185,7 +186,7 @@ static const ber_sequence PaPkAsReq_sequence[] = {
 };
 
 static int
-dissect_pkinit_PaPkAsReq(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_pkinit_PaPkAsReq(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                 PaPkAsReq_sequence, hf_index, ett_pkinit_PaPkAsReq);
 
@@ -195,7 +196,7 @@ dissect_pkinit_PaPkAsReq(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, p
 
 
 static int
-dissect_pkinit_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_pkinit_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_integer_new(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
@@ -210,7 +211,7 @@ static int dissect_dhNonce(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, 
 
 
 static int
-dissect_pkinit_INTEGER_0_4294967295(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_pkinit_INTEGER_0_4294967295(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_integer_new(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
@@ -228,7 +229,7 @@ static const ber_sequence PKAuthenticator_sequence[] = {
 };
 
 static int
-dissect_pkinit_PKAuthenticator(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_pkinit_PKAuthenticator(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                 PKAuthenticator_sequence, hf_index, ett_pkinit_PKAuthenticator);
 
@@ -243,7 +244,7 @@ static const ber_sequence SEQUNCE_OF_AlgorithmIdentifier_sequence_of[1] = {
 };
 
 static int
-dissect_pkinit_SEQUNCE_OF_AlgorithmIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_pkinit_SEQUNCE_OF_AlgorithmIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
                                    SEQUNCE_OF_AlgorithmIdentifier_sequence_of, hf_index, ett_pkinit_SEQUNCE_OF_AlgorithmIdentifier);
 
@@ -261,7 +262,7 @@ static const ber_sequence AuthPack_sequence[] = {
 };
 
 static int
-dissect_pkinit_AuthPack(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_pkinit_AuthPack(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                 AuthPack_sequence, hf_index, ett_pkinit_AuthPack);
 
@@ -282,7 +283,7 @@ static const ber_choice PaPkAsRep_choice[] = {
 };
 
 static int
-dissect_pkinit_PaPkAsRep(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_pkinit_PaPkAsRep(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               PaPkAsRep_choice, hf_index, ett_pkinit_PaPkAsRep);
 
@@ -291,7 +292,7 @@ dissect_pkinit_PaPkAsRep(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, p
 
 
 static int
-dissect_pkinit_BIT_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_pkinit_BIT_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, pinfo, tree, tvb, offset,
                                  NULL, hf_index, -1,
                                  NULL);
@@ -310,7 +311,7 @@ static const ber_sequence KDCDHKeyInfo_sequence[] = {
 };
 
 static int
-dissect_pkinit_KDCDHKeyInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_pkinit_KDCDHKeyInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                 KDCDHKeyInfo_sequence, hf_index, ett_pkinit_KDCDHKeyInfo);
 

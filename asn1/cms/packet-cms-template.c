@@ -1,5 +1,6 @@
 /* packet-cms.c
  * Routines for RFC2630 Cryptographic Message Syntax packet dissection
+ *   Ronnie Sahlberg 2004
  *
  * $Id$
  *

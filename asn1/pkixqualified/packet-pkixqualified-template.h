@@ -1,5 +1,6 @@
 /* packet-pkixqualified.h
  * Routines for RFC3739 PKIXqualified packet dissection
+ *  Ronnie Sahlberg 2004
  *
  * $Id: packet-pkixqualified-template.h 12434 2004-10-29 12:11:42Z sahlberg $
  *

@@ -1,12 +1,13 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
 /* ./packet-cms.c                                                             */
-/* ../../tools/asn2eth.py -e -X -b -p cms -c cms.cnf -s packet-cms-template CryptographicMessageSyntax.asn */
+/* ../../tools/asn2eth.py -X -b -k -e -p cms -c cms.cnf -s packet-cms-template CryptographicMessageSyntax.asn */
 
 /* Input file: packet-cms-template.c */
 
 /* packet-cms.c
  * Routines for RFC2630 Cryptographic Message Syntax packet dissection
+ *   Ronnie Sahlberg 2004
  *
  * $Id: packet-cms-template.c 12434 2004-10-29 12:11:42Z sahlberg $
  *
@@ -209,7 +210,7 @@ static int dissect_serialNumber(packet_info *pinfo, proto_tree *tree, tvbuff_t *
 }
 
 
-static int
+int
 dissect_cms_ContentType(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset,
                                          hf_index, NULL);
@@ -302,7 +303,7 @@ static const ber_sequence DigestAlgorithmIdentifiers_set_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_DigestAlgorithmIdentifiers_item },
 };
 
-static int
+int
 dissect_cms_DigestAlgorithmIdentifiers(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_set_of(implicit_tag, pinfo, tree, tvb, offset,
                               DigestAlgorithmIdentifiers_set_of, hf_index, ett_cms_DigestAlgorithmIdentifiers);
@@ -575,7 +576,7 @@ static int dissect_subjectKeyIdentifier_impl(packet_info *pinfo, proto_tree *tre
 }
 
 
-static const value_string SignerIdentifier_vals[] = {
+const value_string SignerIdentifier_vals[] = {
   {   0, "issuerAndSerialNumber" },
   {   1, "subjectKeyIdentifier" },
   { 0, NULL }
@@ -587,7 +588,7 @@ static const ber_choice SignerIdentifier_choice[] = {
   { 0, 0, 0, 0, NULL }
 };
 
-static int
+int
 dissect_cms_SignerIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               SignerIdentifier_choice, hf_index, ett_cms_SignerIdentifier);
@@ -602,7 +603,7 @@ static const ber_sequence SignedAttributes_set_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_SignedAttributes_item },
 };
 
-static int
+int
 dissect_cms_SignedAttributes(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_set_of(implicit_tag, pinfo, tree, tvb, offset,
                               SignedAttributes_set_of, hf_index, ett_cms_SignedAttributes);
@@ -614,7 +615,7 @@ static int dissect_signedAttrs_impl(packet_info *pinfo, proto_tree *tree, tvbuff
 }
 
 
-static int
+int
 dissect_cms_SignatureValue(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                     NULL);
@@ -629,7 +630,7 @@ static const ber_sequence UnsignedAttributes_set_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_UnsignedAttributes_item },
 };
 
-static int
+int
 dissect_cms_UnsignedAttributes(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_set_of(implicit_tag, pinfo, tree, tvb, offset,
                               UnsignedAttributes_set_of, hf_index, ett_cms_UnsignedAttributes);
@@ -651,7 +652,7 @@ static const ber_sequence SignerInfo_sequence[] = {
   { 0, 0, 0, NULL }
 };
 
-static int
+int
 dissect_cms_SignerInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                 SignerInfo_sequence, hf_index, ett_cms_SignerInfo);
@@ -666,7 +667,7 @@ static const ber_sequence SignerInfos_set_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_SignerInfos_item },
 };
 
-static int
+int
 dissect_cms_SignerInfos(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_set_of(implicit_tag, pinfo, tree, tvb, offset,
                               SignerInfos_set_of, hf_index, ett_cms_SignerInfos);
@@ -889,7 +890,7 @@ static const ber_sequence OtherKeyAttribute_sequence[] = {
   { 0, 0, 0, NULL }
 };
 
-int
+static int
 dissect_cms_OtherKeyAttribute(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                 OtherKeyAttribute_sequence, hf_index, ett_cms_OtherKeyAttribute);
@@ -1260,7 +1261,7 @@ dissect_cms_AuthenticatedData(gboolean implicit_tag _U_, tvbuff_t *tvb, int offs
 }
 
 
-int
+static int
 dissect_cms_Countersignature(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_cms_SignerInfo(implicit_tag, tvb, offset, pinfo, tree, hf_index);
 

@@ -1,0 +1,43 @@
+# ess.cnf
+# ExtendedSecurityServices conformation file
+
+# $Id: ess.cnf 12558 2004-11-21 10:16:06Z sahlberg $
+
+#.MODULE_IMPORT
+AuthenticationFramework		x509af
+CertificateExtensions		x509ce
+CryptographicMessageSyntax	cms
+
+#.INCLUDE ../x509af/x509af-exp.cnf
+#.INCLUDE ../x509ce/x509ce-exp.cnf
+#.INCLUDE ../cms/cms-exp.cnf
+
+#.EXPORTS
+
+#.PDU
+
+#.REGISTER
+ReceiptRequest	   B "1.2.840.113549.1.9.16.2.1"  "id-aa-receiptRequest"
+ContentIdentifier  B "1.2.840.113549.1.9.16.2.7"  "id-aa-contentIdentifier"
+Receipt            B "1.2.840.113549.1.9.16.1.1"  "id-ct-receipt"
+ContentHints       B "1.2.840.113549.1.9.16.2.4"  "id-aa-contentHint"
+MsgSigDigest       B "1.2.840.113549.1.9.16.2.5"  "id-aa-msgSigDigest"
+ContentReference   B "1.2.840.113549.1.9.16.2.10" "id-aa-contentReference"
+MLExpansionHistory B "1.2.840.113549.1.9.16.2.3"  "id-aa-mlExpandHistory"
+SigningCertificate B "1.2.840.113549.1.9.16.2.12" "id-aa-signingCertificate"
+
+#.NO_EMIT
+
+#.TYPE_RENAME
+
+#.FIELD_RENAME
+
+#.FN_BODY SecurityCategory/type
+  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
+                                         hf_ess_SecurityCategory_type_OID, object_identifier_id);
+
+#.FN_BODY SecurityCategory/value
+  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
+
+#.END
+
