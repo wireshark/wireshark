@@ -99,8 +99,8 @@
 	Installation of the cygwin tools is very simple. As cygwin uses an 
 	unix emulation layer,
 	it might be a bit slower compared to the native tools, but at an 
-	acceptable level. All tools will be installed into one folder, the default 
-	is <filename>c:\cygwin</filename>.
+	acceptable level. All tools will be installed into one base folder, the 
+	default is <filename>c:\cygwin</filename>.
 	</para>
 	<para>
 	Cygwin provides a unix emulation layer with a lot of unix based tools
@@ -126,10 +126,45 @@
 	the command line (command.exe/cmd.exe) in win32, but much more powerful.
 	</para>
 	<para>
-	If you want to add additional cygwin packages, you should start the
-	setup.exe again, and select them in the packages window. You will find a 
-	list of required / recommended packages needed to develop Ethereal in
-	<xref linkend="ChToolsWin32Recommended"/>.
+	If you want to add additional, update installed or remove packages, you 
+	should start the setup.exe again. At the "Select Packages" page, the 
+	entry in the "New" column will control what is done (or not) with the 
+	package. If a new version of a package is available, the new version 
+	number will be displayed, so it will be automatically updated. You can 
+	change the current setting by simply clicking at it, it will change 
+	between:
+	<itemizedlist>
+	<listitem>
+	<para>
+	a specific version number - this different package version will be 
+	installed
+	</para>
+	</listitem>
+	<listitem>
+	<para>
+	Skip - not installed, no changes
+	</para>
+	</listitem>
+	<listitem>
+	<para>
+	Keep - already installed, no changes
+	</para>
+	</listitem>
+	<listitem>
+	<para>
+	Uninstall - uninstall this package
+	</para>
+	</listitem>
+	<listitem>
+	<para>
+	Reinstall - reinstall this package
+	</para>
+	</listitem>
+	</itemizedlist>
+	</para>
+	<para>
+	You will find a list of required / recommended packages needed to develop 
+	Ethereal in <xref linkend="ChToolsWin32Recommended"/>.
 	</para>	
 	</section>
 	
