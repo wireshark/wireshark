@@ -72,6 +72,22 @@ G_MODULE_EXPORT const gchar version[] = "0.0.1";
 
 
 
+/* Struct prototype declaration Start */
+ 
+
+
+/* Struct prototype declaration End */
+ 
+
+
+/* Union prototype declaration Start */
+ 
+
+
+/* Union prototype declaration End */
+ 
+
+
 /* Initialise the protocol and subtree pointers */
 
 static int proto_coseventcomm = -1;
@@ -117,6 +133,27 @@ static const char CosEventComm_PullConsumer_disconnect_pull_consumer_op[] = "dis
 /*  End Exception (containing members) String Declare  */
 
 
+/*
+ * IDL Attributes Start
+ */
+ 
+ 
+
+/*
+ * IDL Attributes End
+ */
+ 
+
+/*
+ * IDL Enums Start
+ */
+ 
+ 
+/*
+ * IDL Enums End
+ */
+ 
+ 
 /*  Begin Exception Helper Functions  */
 
 
@@ -142,6 +179,13 @@ static gboolean decode_user_exception(tvbuff_t *tvb, packet_info *pinfo, proto_t
 
 }
     
+
+/*  Begin Attribute Helper Functions  */
+
+
+    
+/*  End Attribute Helper Functions  */
+
 
 
 /*
@@ -650,6 +694,14 @@ static gboolean dissect_coseventcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
        col_set_str(pinfo->cinfo, COL_PROTOCOL, "COSEVENTCOMM");
+
+/* 
+ * Do not clear COL_INFO, as nothing is being written there by 
+ * this dissector yet. So leave it as is from the GIOP dissector.
+ * TODO: add something useful to COL_INFO 
+ *  if (check_col(pinfo->cinfo, COL_INFO))
+ *     col_clear(pinfo->cinfo, COL_INFO);
+ */
 
     if (ptree) {
        ti = proto_tree_add_item(ptree, proto_coseventcomm, tvb, *offset, tvb_length(tvb) - *offset, FALSE);
