@@ -23,7 +23,7 @@
  *
  * Some structures from RFC2630
  *
- * $Id: packet-kerberos.c,v 1.64 2004/05/25 02:59:14 guy Exp $
+ * $Id: packet-kerberos.c,v 1.65 2004/05/26 08:53:45 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -112,6 +112,7 @@ static gint hf_krb_encrypted_KDC_REP_data = -1;
 static gint hf_krb_PA_DATA_type = -1;
 static gint hf_krb_PA_DATA_value = -1;
 static gint hf_krb_etype_info_salt = -1;
+static gint hf_krb_SAFE_BODY_user_data = -1;
 static gint hf_krb_realm = -1;
 static gint hf_krb_crealm = -1;
 static gint hf_krb_sname = -1;
@@ -125,6 +126,7 @@ static gint hf_krb_from = -1;
 static gint hf_krb_till = -1;
 static gint hf_krb_authtime = -1;
 static gint hf_krb_patimestamp = -1;
+static gint hf_krb_SAFE_BODY_timestamp = -1;
 static gint hf_krb_pausec = -1;
 static gint hf_krb_lr_time = -1;
 static gint hf_krb_starttime = -1;
@@ -136,6 +138,7 @@ static gint hf_krb_ctime = -1;
 static gint hf_krb_cusec = -1;
 static gint hf_krb_stime = -1;
 static gint hf_krb_susec = -1;
+static gint hf_krb_SAFE_BODY_usec = -1;
 static gint hf_krb_nonce = -1;
 static gint hf_krb_transitedtype = -1;
 static gint hf_krb_transitedcontents = -1;
@@ -168,6 +171,7 @@ static gint hf_krb_LastReq = -1;
 static gint hf_krb_Authenticator = -1;
 static gint hf_krb_Checksum = -1;
 static gint hf_krb_signedAuthPack = -1;
+static gint hf_krb_s_address = -1;
 static gint hf_krb_HostAddress = -1;
 static gint hf_krb_HostAddresses = -1;
 static gint hf_krb_APOptions = -1;
@@ -203,6 +207,8 @@ static gint hf_krb_KDCOptions_enc_tkt_in_skey = -1;
 static gint hf_krb_KDCOptions_renew = -1;
 static gint hf_krb_KDCOptions_validate = -1;
 static gint hf_krb_KDC_REQ_BODY = -1;
+static gint hf_krb_SAFE = -1;
+static gint hf_krb_SAFE_BODY = -1;
 static gint hf_krb_PRIV_BODY = -1;
 static gint hf_krb_ENC_PRIV = -1;
 static gint hf_krb_authenticator_enc = -1;
@@ -235,6 +241,7 @@ static gint ett_krb_LastReqs = -1;
 static gint ett_krb_IF_RELEVANT = -1;
 static gint ett_krb_PA_DATA_tree = -1;
 static gint ett_krb_PAC = -1;
+static gint ett_krb_s_address = -1;
 static gint ett_krb_HostAddress = -1;
 static gint ett_krb_HostAddresses = -1;
 static gint ett_krb_authenticator_enc = -1;
@@ -245,6 +252,8 @@ static gint ett_krb_request = -1;
 static gint ett_krb_recordmark = -1;
 static gint ett_krb_ticket = -1;
 static gint ett_krb_ticket_enc = -1;
+static gint ett_krb_SAFE = -1;
+static gint ett_krb_SAFE_BODY = -1;
 static gint ett_krb_PRIV = -1;
 static gint ett_krb_PRIV_enc = -1;
 
@@ -820,6 +829,7 @@ static int dissect_krb5_KDC_REQ(packet_info *pinfo, proto_tree *tree, tvbuff_t *
 static int dissect_krb5_KDC_REP(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset);
 static int dissect_krb5_AP_REQ(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset);
 static int dissect_krb5_AP_REP(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset);
+static int dissect_krb5_SAFE(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset);
 static int dissect_krb5_PRIV(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset);
 static int dissect_krb5_ERROR(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset);
 
@@ -835,6 +845,7 @@ static const ber_choice kerberos_applications_choice[] = {
 	{ KRB5_MSG_ENC_AS_REP_PART, BER_CLASS_APP, KRB5_MSG_ENC_AS_REP_PART, 0, dissect_krb5_EncKDCRepPart },
 	{ KRB5_MSG_ENC_TGS_REP_PART, BER_CLASS_APP, KRB5_MSG_ENC_TGS_REP_PART, 0, dissect_krb5_EncKDCRepPart },
 	{ KRB5_MSG_ENC_AP_REP_PART, BER_CLASS_APP, KRB5_MSG_ENC_AP_REP_PART, 0, dissect_krb5_EncAPRepPart },
+	{ KRB5_MSG_SAFE,	BER_CLASS_APP,	KRB5_MSG_SAFE,		0,	dissect_krb5_SAFE },
 	{ KRB5_MSG_PRIV,	BER_CLASS_APP,	KRB5_MSG_PRIV,		0,	dissect_krb5_PRIV },
 	{ KRB5_MSG_ERROR,	BER_CLASS_APP,	KRB5_MSG_ERROR,		0,	dissect_krb5_ERROR },
 	{ 0, 0, 0, 0, NULL }
@@ -1165,6 +1176,14 @@ dissect_krb5_HostAddress(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, in
 {
 
 	offset=dissect_ber_sequence(FALSE, pinfo, tree, tvb, offset, HostAddress_sequence, hf_krb_HostAddress, ett_krb_HostAddress);
+
+	return offset;
+}
+static int
+dissect_krb5_s_address(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
+{
+
+	offset=dissect_ber_sequence(FALSE, pinfo, tree, tvb, offset, HostAddress_sequence, hf_krb_s_address, ett_krb_s_address);
 
 	return offset;
 }
@@ -2467,6 +2486,74 @@ dissect_krb5_PRIV(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offse
 }
 
 
+static int
+dissect_krb5_SAFE_BODY_user_data(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
+{
+	offset=dissect_ber_octet_string(FALSE, pinfo, tree, tvb, offset, hf_krb_SAFE_BODY_user_data, NULL);
+	return offset;
+}
+static int 
+dissect_krb5_SAFE_BODY_timestamp(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
+{
+	offset=dissect_ber_generalized_time(pinfo, tree, tvb, offset, hf_krb_SAFE_BODY_timestamp);
+	return offset;
+}
+
+static int
+dissect_krb5_SAFE_BODY_usec(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
+{
+	offset=dissect_ber_integer(pinfo, tree, tvb, offset, hf_krb_SAFE_BODY_usec, NULL);
+	return offset;
+}
+
+static ber_sequence SAFE_BODY_sequence[] = {
+	{ BER_CLASS_CON, 0, 0, 
+		dissect_krb5_SAFE_BODY_user_data },
+	{ BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, 
+		dissect_krb5_SAFE_BODY_timestamp },
+	{ BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL, 
+		dissect_krb5_SAFE_BODY_usec },
+	{ BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL,
+		dissect_krb5_seq_number },
+	/*XXX this one is OPTIONAL in packetcable?  but mandatory in kerberos */
+	{ BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL,
+		dissect_krb5_s_address },
+	{ BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL,
+		dissect_krb5_HostAddresses },
+	{ 0, 0, 0, NULL }
+};
+static int
+dissect_krb5_SAFE_BODY(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
+{
+
+	offset=dissect_ber_sequence(FALSE, pinfo, tree, tvb, offset, SAFE_BODY_sequence, hf_krb_SAFE_BODY, ett_krb_SAFE_BODY);
+
+	return offset;
+}
+
+
+
+static ber_sequence SAFE_sequence[] = {
+	{ BER_CLASS_CON, 0, 0, 
+		dissect_krb5_pvno },
+	{ BER_CLASS_CON, 1, 0, 
+		dissect_krb5_msg_type },
+	{ BER_CLASS_CON, 2, 0, 
+		dissect_krb5_SAFE_BODY },
+	{ BER_CLASS_CON, 3, 0, 
+		dissect_krb5_Checksum },
+	{ 0, 0, 0, NULL }
+};
+static int
+dissect_krb5_SAFE(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
+{
+
+	offset=dissect_ber_sequence(FALSE, pinfo, tree, tvb, offset, SAFE_sequence, hf_krb_SAFE, ett_krb_SAFE);
+
+	return offset;
+}
+
+
 /*
  * KDC-REQ-BODY ::=   SEQUENCE {
  *           kdc-options[0]       KDCOptions,
@@ -3269,6 +3356,9 @@ proto_register_kerberos(void)
 	{ &hf_krb_authtime, {
 	    "Authtime", "kerberos.authtime", FT_STRING, BASE_NONE,
 	    NULL, 0, "Time of initial authentication", HFILL }},
+	{ &hf_krb_SAFE_BODY_timestamp, {
+	    "Timestamp", "kerberos.SAFE_BODY.timestamp", FT_STRING, BASE_NONE,
+	    NULL, 0, "Timestamp of this SAFE_BODY", HFILL }},
 	{ &hf_krb_patimestamp, {
 	    "patimestamp", "kerberos.patimestamp", FT_STRING, BASE_NONE,
 	    NULL, 0, "Time of client", HFILL }},
@@ -3299,6 +3389,9 @@ proto_register_kerberos(void)
 	{ &hf_krb_cusec, {
 	    "cusec", "kerberos.cusec", FT_UINT32, BASE_DEC,
 	    NULL, 0, "micro second component of client time", HFILL }},
+	{ &hf_krb_SAFE_BODY_usec, {
+	    "usec", "kerberos.SAFE_BODY.usec", FT_UINT32, BASE_DEC,
+	    NULL, 0, "micro second component of SAFE_BODY time", HFILL }},
 	{ &hf_krb_stime, {
 	    "stime", "kerberos.stime", FT_STRING, BASE_NONE,
 	    NULL, 0, "Current Time on the server host", HFILL }},
@@ -3395,6 +3488,12 @@ proto_register_kerberos(void)
 	{ &hf_krb_PRIV_BODY, {
 	    "PRIV_BODY", "kerberos.priv_body", FT_NONE, BASE_NONE,
 	    NULL, 0, "Kerberos PRIVate BODY", HFILL }},
+	{ &hf_krb_SAFE, {
+	    "SAFE", "kerberos.safe", FT_NONE, BASE_NONE,
+	    NULL, 0, "Kerberos SAFE structure", HFILL }},
+	{ &hf_krb_SAFE_BODY, {
+	    "SAFE BODY", "kerberos.safe_body", FT_NONE, BASE_NONE,
+	    NULL, 0, "Kerberos SAFE_BODY structure", HFILL }},
 	{ &hf_krb_encrypted_PRIV, {
 	    "Encrypted PRIV", "kerberos.enc_priv", FT_NONE, BASE_NONE,
 	    NULL, 0, "Kerberos Encrypted PRIVate blob data", HFILL }},
@@ -3494,6 +3593,9 @@ proto_register_kerberos(void)
 	{ &hf_krb_etype_info_salt, {
 	    "Salt", "kerberos.etype_info.salt", FT_BYTES, BASE_HEX,
 	    NULL, 0, "Salt", HFILL }},
+	{ &hf_krb_SAFE_BODY_user_data, {
+	    "User Data", "kerberos.SAFE_BODY.user_data", FT_BYTES, BASE_HEX,
+	    NULL, 0, "SAFE BODY userdata field", HFILL }},
 	{ &hf_krb_pac_signature_signature, {
 	    "Signature", "kerberos.pac.signature.signature", FT_BYTES, BASE_HEX,
 	    NULL, 0, "A PAC signature blob", HFILL }},
@@ -3509,6 +3611,9 @@ proto_register_kerberos(void)
 	{ &hf_krb_HostAddress, {
 	    "HostAddress", "kerberos.hostaddress", FT_NONE, BASE_DEC,
 	    NULL, 0, "This is a Kerberos HostAddress sequence", HFILL }},
+	{ &hf_krb_s_address, {
+	    "S-Address", "kerberos.s_address", FT_NONE, BASE_DEC,
+	    NULL, 0, "This is the Senders address", HFILL }},
 	{ &hf_krb_signedAuthPack, {
 	    "signedAuthPack", "kerberos.signedAuthPack", FT_NONE, BASE_DEC,
 	    NULL, 0, "This is a Kerberos ContentInfo sequence", HFILL }},
@@ -3621,6 +3726,7 @@ proto_register_kerberos(void)
         &ett_krb_LastReqs,
         &ett_krb_IF_RELEVANT,
 	&ett_krb_PA_DATA_tree,
+        &ett_krb_s_address,
         &ett_krb_HostAddress,
         &ett_krb_HostAddresses,
 	&ett_krb_authenticator_enc,
@@ -3631,6 +3737,8 @@ proto_register_kerberos(void)
         &ett_krb_recordmark,
         &ett_krb_ticket,
 	&ett_krb_ticket_enc,
+        &ett_krb_SAFE,
+        &ett_krb_SAFE_BODY,
         &ett_krb_PRIV,
         &ett_krb_PRIV_enc,
         &ett_krb_EncTicketPart,
