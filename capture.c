@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.124 2000/09/14 22:59:00 grahamb Exp $
+ * $Id: capture.c,v 1.125 2000/09/15 05:32:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -109,6 +109,7 @@
 #include "packet-raw.h"
 #include "packet-tr.h"
 
+int promisc_mode = TRUE; /* capture in promiscuous mode */
 int sync_mode;	/* fork a child to do the capture, and sync between them */
 static int sync_pipe[2]; /* used to sync father */
 enum PIPES { READ, WRITE }; /* Constants 0 and 1 for READ and WRITE */
@@ -158,6 +159,45 @@ static int pipe_dispatch(int, loop_data *, struct pcap_hdr *);
 int child_process;
 #endif
 
+/* Add a string pointer to a NULL-terminated array of string pointers. */
+static char **
+add_arg(char **args, int *argc, char *arg)
+{
+  /* Grow the array; "*argc" currently contains the number of string
+     pointers, *not* counting the NULL pointer at the end, so we have
+     to add 2 in order to get the new size of the array, including the
+     new pointer and the terminating NULL pointer. */
+  args = g_realloc(args, (*argc + 2) * sizeof (char *));
+
+  /* Stuff the pointer into the penultimate element of the array, which
+     is the one at the index specified by "*argc". */
+  args[*argc] = arg;
+
+  /* Now bump the count. */
+  (*argc)++;
+
+  /* We overwrite the NULL pointer; put it back right after the
+     element we added. */
+  args[*argc] = NULL;
+
+  return args;
+}
+
+#ifdef _WIN32
+/* Given a string, return a pointer to a quote-encapsulated version of
+   the string, so we can pass it as an argument with "spawnvp" even
+   if it contains blanks. */
+char *
+quote_encapsulate(const char *string)
+{
+  char *encapsulated_string;
+
+  encapsulated_string = g_new(char, strlen(string) + 3);
+  sprintf(encapsulated_string, "\"%s\"", string);
+  return encapsulated_string;
+}
+#endif
+
 /* Open a specified file, or create a temporary file, and start a capture
    to the file in question. */
 void
@@ -203,14 +243,43 @@ do_capture(char *capfile_name)
     char save_file_fd[24];
     char errmsg[1024+1];
     int error;
+    int argc;
+    char **argv;
 #ifdef _WIN32
     char sync_pipe_fd[24];
+    char *fontstring;
     char *filterstring;
 #endif
 
-    sprintf(ssnap,"%d",cfile.snap); /* in lieu of itoa */
+    /* Allocate the string pointer array with enough space for the
+       terminating NULL pointer. */
+    argc = 0;
+    argv = g_malloc(sizeof (char *));
+    *argv = NULL;
+
+    /* Now add those arguments used on all platforms. */
+    argv = add_arg(argv, &argc, CHILD_NAME);
+
+    argv = add_arg(argv, &argc, "-i");
+    argv = add_arg(argv, &argc, cfile.iface);
+
+    argv = add_arg(argv, &argc, "-w");
+    argv = add_arg(argv, &argc, cfile.save_file);
+
+    argv = add_arg(argv, &argc, "-W");
+    sprintf(save_file_fd,"%d",cfile.save_file_fd);	/* in lieu of itoa */
+    argv = add_arg(argv, &argc, save_file_fd);
+
+    argv = add_arg(argv, &argc, "-c");
     sprintf(scount,"%d",cfile.count);
-    sprintf(save_file_fd,"%d",cfile.save_file_fd);
+    argv = add_arg(argv, &argc, scount);
+
+    argv = add_arg(argv, &argc, "-s");
+    sprintf(ssnap,"%d",cfile.snap);
+    argv = add_arg(argv, &argc, ssnap);
+
+    if (!promisc_mode)
+      argv = add_arg(argv, &argc, "-p");
 
 #ifdef _WIN32
     /* Create a pipe for the child process */
@@ -226,20 +295,26 @@ do_capture(char *capfile_name)
       return;
     }
 
+    /* Convert font name to a quote-encapsulated string and pass to child */
+    argv = add_arg(argv, &argc, "-m");
+    fontstring = quote_encapsulate(prefs.gui_font_name);
+    argv = add_arg(argv, &argc, fontstring);
+
     /* Convert pipe write handle to a string and pass to child */
+    argv = add_arg(argv, &argc, "-Z");
     itoa(sync_pipe[WRITE], sync_pipe_fd, 10);
-    /* Convert filter string to a quote delimited string */
-    filterstring = g_new(char, strlen(cfile.cfilter) + 3);
-    sprintf(filterstring, "\"%s\"", cfile.cfilter);
-    filterstring[strlen(cfile.cfilter) + 2] = 0;
+    argv = add_arg(argv, &argc, sync_pipe_fd);
+
+    /* Convert filter string to a quote delimited string and pass to child */
+    if (cfile.cfilter != NULL && strlen(cfile.cfilter) != 0) {
+      argv = add_arg(argv, &argc, "-f");
+      filterstring = quote_encapsulate(cfile.cfilter);
+      argv = add_arg(argv, &argc, filterstring);
+    }
+
     /* Spawn process */
-    fork_child = spawnlp(_P_NOWAIT, ethereal_path, CHILD_NAME, "-i", cfile.iface,
-                         "-w", cfile.save_file, "-W", save_file_fd,
-                         "-c", scount, "-s", ssnap,
-                         "-Z", sync_pipe_fd,
-                         strlen(cfile.cfilter) == 0 ? (const char *)NULL : "-f",
-                         strlen(cfile.cfilter) == 0 ? (const char *)NULL : filterstring,
-                         (const char *)NULL);
+    fork_child = spawnvp(_P_NOWAIT, ethereal_path, argv);
+    g_free(fontstring);
     g_free(filterstring);
     /* Keep a copy for later evaluation by _cwait() */
     child_process = fork_child;
@@ -255,6 +330,15 @@ do_capture(char *capfile_name)
 			strerror(error));
       return;
     }
+
+    argv = add_arg(argv, &argc, "-m");
+    argv = add_arg(argv, &argc, prefs.gui_font_name);
+
+    if (cfile.cfilter != NULL && strlen(cfile.cfilter) != 0) {
+      argv = add_arg(argv, &argc, "-f");
+      argv = add_arg(argv, &argc, cfile.cfilter);
+    }
+
     if ((fork_child = fork()) == 0) {
       /*
        * Child process - run Ethereal with the right arguments to make
@@ -272,13 +356,7 @@ do_capture(char *capfile_name)
       close(1);
       dup(sync_pipe[WRITE]);
       close(sync_pipe[READ]);
-      execlp(ethereal_path, CHILD_NAME, "-i", cfile.iface,
-		"-w", cfile.save_file, "-W", save_file_fd,
-		"-c", scount, "-s", ssnap, 
-		"-m", prefs.gui_font_name,
-		(cfile.cfilter == NULL)? 0 : "-f",
-		(cfile.cfilter == NULL)? 0 : cfile.cfilter,
-		(const char *)NULL);	
+      execvp(ethereal_path, argv);
       snprintf(errmsg, sizeof errmsg, "Couldn't run %s in child process: %s",
 		ethereal_path, strerror(errno));
       send_errmsg_to_parent(errmsg);
@@ -293,6 +371,7 @@ do_capture(char *capfile_name)
 
     /* Parent process - read messages from the child process over the
        sync pipe. */
+    g_free(argv);	/* free up arg array */
 
     /* Close the write side of the pipe, so that only the child has it
        open, and thus it completely closes, and thus returns to us
@@ -1003,7 +1082,8 @@ capture(void)
   ld.pdh            = NULL;
 
   /* Open the network interface to capture from it. */
-  pch = pcap_open_live(cfile.iface, cfile.snap, 1, CAP_READ_TIMEOUT, err_str);
+  pch = pcap_open_live(cfile.iface, cfile.snap, promisc_mode,
+			CAP_READ_TIMEOUT, err_str);
 
   if (pch == NULL) {
 #ifdef _WIN32

@@ -13,6 +13,7 @@ S<[ B<-h> ]>
 S<[ B<-i> interface ]> 
 S<[ B<-n> ]>
 S<[ B<-o> preference setting ] ...>
+S<[ B<-p> ]>
 S<[ B<-r> infile ]>
 S<[ B<-R> filter expression ]>
 S<[ B<-s> snaplen ]>
@@ -136,6 +137,15 @@ from a preference file.  The argument to the flag is a string of the
 form I<prefname>B<:>I<value>, where I<prefname> is the name of the
 preference (which is the same name that would appear in the preference
 file), and I<value> is the value to which it should be set.
+
+=item -p
+
+I<Don't> put the interface into promiscuous mode.  Note that the
+interface might be in promiscuous mode for some other reason; hence,
+B<-p> cannot be used to ensure that the only traffic that is captured is
+traffic sent to or from the machine on which B<Tethereal> is running,
+broadcast traffic, and multicast traffic to addresses received by that
+machine.
 
 =item -r
 

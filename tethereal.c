@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.45 2000/09/10 06:44:37 guy Exp $
+ * $Id: tethereal.c,v 1.46 2000/09/15 05:32:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -126,6 +126,7 @@ capture_file cfile;
 FILE        *data_out_file = NULL;
 guint        main_ctx, file_ctx;
 ts_type timestamp_type = RELATIVE;
+static int promisc_mode = TRUE;
 
 static void 
 print_usage(void)
@@ -135,7 +136,7 @@ print_usage(void)
   fprintf(stderr, "This is GNU t%s %s, compiled with %s\n", PACKAGE,
 	  VERSION, comp_info_str);
 #ifdef HAVE_LIBPCAP
-  fprintf(stderr, "t%s [ -vVh ] [ -c count ] [ -f <capture filter> ]\n", PACKAGE);
+  fprintf(stderr, "t%s [ -vVhp ] [ -c count ] [ -f <capture filter> ]\n", PACKAGE);
   fprintf(stderr, "\t[ -F <capture file type> ] [ -i interface ] [ -n ]\n");
   fprintf(stderr, "\t[ -o <preference setting> ] ... [ -r infile ] [ -R <read filter> ]\n");
   fprintf(stderr, "\t[ -s snaplen ] [ -t <time stamp format> ] [ -w savefile ] [ -x ]\n");
@@ -284,7 +285,7 @@ main(int argc, char *argv[])
    );
     
   /* Now get our args */
-  while ((opt = getopt(argc, argv, "c:Df:F:hi:no:r:R:s:t:vw:Vx")) != EOF) {
+  while ((opt = getopt(argc, argv, "c:Df:F:hi:no:pr:R:s:t:vw:Vx")) != EOF) {
     switch (opt) {
       case 'c':        /* Capture xxx packets */
 #ifdef HAVE_LIBPCAP
@@ -341,6 +342,14 @@ main(int argc, char *argv[])
           break;
         }
         break;
+      case 'p':        /* Don't capture in promiscuous mode */
+#ifdef HAVE_LIBPCAP
+	promisc_mode = 0;
+#else
+        capture_option_specified = TRUE;
+        arg_error = TRUE;
+#endif
+	break;
       case 'r':        /* Read capture file xxx */
         cf_name = g_strdup(optarg);
         break;
@@ -526,7 +535,7 @@ capture(int packet_count, int out_file_type)
   ld.pdh            = NULL;
 
   /* Open the network interface to capture from it. */
-  ld.pch = pcap_open_live(cfile.iface, cfile.snap, 1, 1000, err_str);
+  ld.pch = pcap_open_live(cfile.iface, cfile.snap, promisc_mode, 1000, err_str);
 
   if (ld.pch == NULL) {
     /* Well, we couldn't start the capture. */

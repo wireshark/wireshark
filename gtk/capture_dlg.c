@@ -1,7 +1,7 @@
 /* capture_dlg.c
  * Routines for packet capture windows
  *
- * $Id: capture_dlg.c,v 1.32 2000/08/23 20:55:44 deniel Exp $
+ * $Id: capture_dlg.c,v 1.33 2000/09/15 05:32:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -61,6 +61,7 @@
 #define E_CAP_FILE_TE_KEY     "cap_file_te"
 #define E_CAP_COUNT_KEY       "cap_count"
 #define E_CAP_SNAP_KEY        "cap_snap"
+#define E_CAP_PROMISC_KEY     "cap_promisc"
 #define E_CAP_SYNC_KEY        "cap_sync"
 #define E_CAP_AUTO_SCROLL_KEY "cap_auto_scroll"
 #define E_CAP_RESOLVE_KEY     "cap_resolve"
@@ -106,7 +107,7 @@ capture_prep_cb(GtkWidget *w, gpointer d)
                 *file_bt, *file_te,
                 *caplen_hb, *table,
                 *bbox, *ok_bt, *cancel_bt, *snap_lb,
-                *snap_sb, *sync_cb, *auto_scroll_cb, *resolv_cb;
+                *snap_sb, *promisc_cb, *sync_cb, *auto_scroll_cb, *resolv_cb;
   GtkAccelGroup *accel_group;
   GtkAdjustment *adj;
   GList         *if_list, *count_list = NULL;
@@ -231,6 +232,12 @@ capture_prep_cb(GtkWidget *w, gpointer d)
   gtk_box_pack_start (GTK_BOX(caplen_hb), snap_sb, FALSE, FALSE, 3); 
   gtk_widget_show(snap_sb);
   
+  promisc_cb = dlg_check_button_new_with_label_with_mnemonic(
+		"Capture packets in _promiscuous mode", accel_group);
+  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(promisc_cb), promisc_mode);
+  gtk_container_add(GTK_CONTAINER(main_vb), promisc_cb);
+  gtk_widget_show(promisc_cb);
+
   sync_cb = dlg_check_button_new_with_label_with_mnemonic(
 		"_Update list of packets in real time", accel_group);
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(sync_cb), sync_mode);
@@ -277,6 +284,7 @@ capture_prep_cb(GtkWidget *w, gpointer d)
   gtk_object_set_data(GTK_OBJECT(cap_open_w), E_CAP_FILE_TE_KEY,  file_te);
   gtk_object_set_data(GTK_OBJECT(cap_open_w), E_CAP_COUNT_KEY, count_cb);
   gtk_object_set_data(GTK_OBJECT(cap_open_w), E_CAP_SNAP_KEY,  snap_sb);
+  gtk_object_set_data(GTK_OBJECT(cap_open_w), E_CAP_PROMISC_KEY, promisc_cb);
   gtk_object_set_data(GTK_OBJECT(cap_open_w), E_CAP_SYNC_KEY,  sync_cb);
   gtk_object_set_data(GTK_OBJECT(cap_open_w), E_CAP_AUTO_SCROLL_KEY, auto_scroll_cb);
   gtk_object_set_data(GTK_OBJECT(cap_open_w), E_CAP_RESOLVE_KEY,  resolv_cb);
@@ -400,8 +408,8 @@ cap_prep_fs_destroy_cb(GtkWidget *win, gpointer data)
 
 static void
 capture_prep_ok_cb(GtkWidget *ok_bt, gpointer parent_w) {
-  GtkWidget *if_cb, *filter_te, *file_te, *count_cb, *snap_sb, *sync_cb,
-            *auto_scroll_cb, *resolv_cb;
+  GtkWidget *if_cb, *filter_te, *file_te, *count_cb, *snap_sb, *promisc_cb,
+            *sync_cb, *auto_scroll_cb, *resolv_cb;
   gchar *if_text;
   gchar *if_name;
   gchar *filter_text;
@@ -412,6 +420,7 @@ capture_prep_ok_cb(GtkWidget *ok_bt, gpointer parent_w) {
   file_te   = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w), E_CAP_FILE_TE_KEY);
   count_cb  = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w), E_CAP_COUNT_KEY);
   snap_sb   = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w), E_CAP_SNAP_KEY);
+  promisc_cb = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w), E_CAP_PROMISC_KEY);
   sync_cb   = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w), E_CAP_SYNC_KEY);
   auto_scroll_cb = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w), E_CAP_AUTO_SCROLL_KEY);
   resolv_cb = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w), E_CAP_RESOLVE_KEY);
@@ -460,6 +469,8 @@ capture_prep_ok_cb(GtkWidget *ok_bt, gpointer parent_w) {
     cfile.snap = WTAP_MAX_PACKET_SIZE;
   else if (cfile.snap < MIN_PACKET_SIZE)
     cfile.snap = MIN_PACKET_SIZE;
+
+  promisc_mode = GTK_TOGGLE_BUTTON (promisc_cb)->active;
 
   sync_mode = GTK_TOGGLE_BUTTON (sync_cb)->active;
 

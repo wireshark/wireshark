@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.157 2000/09/14 22:59:08 grahamb Exp $
+ * $Id: main.c,v 1.158 2000/09/15 05:32:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -788,7 +788,7 @@ print_usage(void) {
   fprintf(stderr, "This is GNU " PACKAGE " " VERSION ", compiled with %s\n",
 	  comp_info_str);
 #ifdef HAVE_LIBPCAP
-  fprintf(stderr, "%s [ -vh ] [ -kQS ] [ -B <byte view height> ] [ -c count ]\n",
+  fprintf(stderr, "%s [ -vh ] [ -kpQS ] [ -B <byte view height> ] [ -c count ]\n",
 	  PACKAGE);
   fprintf(stderr, "\t[ -f <capture filter> ] [ -i interface ] [ -m <medium font> ] \n");
   fprintf(stderr, "\t[ -n ] [ -o <preference setting> ] ... [ -P <packet list height> ]\n");
@@ -964,7 +964,7 @@ main(int argc, char *argv[])
    );
 
   /* Now get our args */
-  while ((opt = getopt(argc, argv, "B:c:Df:hi:km:no:P:Qr:R:Ss:t:T:w:W:vZ:")) != EOF) {
+  while ((opt = getopt(argc, argv, "B:c:Df:hi:km:no:pP:Qr:R:Ss:t:T:w:W:vZ:")) != EOF) {
     switch (opt) {
       case 'B':        /* Byte view pane height */
         bv_size = atoi(optarg);
@@ -1030,6 +1030,14 @@ main(int argc, char *argv[])
           break;
         }
         break;
+      case 'p':        /* Don't capture in promiscuous mode */
+#ifdef HAVE_LIBPCAP
+	promisc_mode = 0;
+#else
+        capture_option_specified = TRUE;
+        arg_error = TRUE;
+#endif
+	break;
       case 'P':        /* Packet list pane height */
         pl_size = atoi(optarg);
         break;
