@@ -14,7 +14,7 @@
  *
  *	http://www.ietf.org/internet-drafts/draft-ietf-krb-wg-kerberos-clarifications-03.txt
  *
- * $Id: packet-kerberos.c,v 1.42 2003/12/04 08:15:20 sahlberg Exp $
+ * $Id: packet-kerberos.c,v 1.43 2004/01/20 19:24:42 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -75,6 +75,8 @@ static gint ett_encrypted = -1;
 static gint ett_etype = -1;
 static gint ett_additional_tickets = -1;
 static gint ett_recordmark = -1;
+
+#define KRB_ERR_RETURN	(~ 0U)
 
 /* TCP Record Mark */
 #define	KRB_RM_RESERVED	0x80000000L
@@ -404,29 +406,29 @@ static const value_string krb5_msg_types[] = {
 
 static struct { char *set; char *unset; } bitval = { "Set", "Not set" };
 
-static int dissect_PrincipalName(char *title, ASN1_SCK *asn1p,
+static guint dissect_PrincipalName(char *title, ASN1_SCK *asn1p,
                                  packet_info *pinfo, proto_tree *tree,
-                                 int start_offset);
-static int dissect_Ticket(ASN1_SCK *asn1p, packet_info *pinfo,
-                          proto_tree *tree, int start_offset);
-static int dissect_EncryptedData(char *title, ASN1_SCK *asn1p,
+                                 guint start_offset);
+static guint dissect_Ticket(ASN1_SCK *asn1p, packet_info *pinfo,
+                          proto_tree *tree, guint start_offset);
+static guint dissect_EncryptedData(char *title, ASN1_SCK *asn1p,
 				 packet_info *pinfo, proto_tree *tree,
-				 int start_offset);
-static int dissect_Addresses(ASN1_SCK *asn1p, packet_info *pinfo,
-                             proto_tree *tree, int start_offset);
+				 guint start_offset);
+static guint dissect_Addresses(ASN1_SCK *asn1p, packet_info *pinfo,
+                             proto_tree *tree, guint start_offset);
 static void dissect_kerberos_udp(tvbuff_t *tvb, packet_info *pinfo,
 				 proto_tree *tree);
 static void dissect_kerberos_tcp(tvbuff_t *tvb, packet_info *pinfo,
 				 proto_tree *tree);
-static gint dissect_kerberos_common(tvbuff_t *tvb, packet_info *pinfo,
+static guint dissect_kerberos_common(tvbuff_t *tvb, packet_info *pinfo,
 					proto_tree *tree, int do_col_info,
 					gboolean have_rm);
 static void show_krb_recordmark(proto_tree *kerberos_tree, tvbuff_t *tvb,
 				gint start, guint32 krb_rm);
-static gint kerberos_rm_to_reclen(guint krb_rm);
+static guint kerberos_rm_to_reclen(guint krb_rm);
 static void dissect_kerberos_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo,
 				proto_tree *tree);
-static guint get_krb_pdu_len(tvbuff_t *tvb, int offset);
+static guint get_krb_pdu_len(tvbuff_t *tvb, guint offset);
 
 static const char *
 to_error_str(int ret) {
@@ -452,7 +454,7 @@ to_error_str(int ret) {
 }
 
 static void
-krb_proto_tree_add_time(proto_tree *tree, tvbuff_t *tvb, int offset,
+krb_proto_tree_add_time(proto_tree *tree, tvbuff_t *tvb, guint offset,
 			int str_len, char *name, guchar *str)
 {
     if (tree)
@@ -476,13 +478,13 @@ krb_proto_tree_add_time(proto_tree *tree, tvbuff_t *tvb, int offset,
        if (check_col(pinfo->cinfo, COL_INFO)) \
            col_add_fstr(pinfo->cinfo, COL_INFO, "ERROR: Problem at %s: %s, offset: %d", \
                     token, to_error_str(ret), start); \
-       return -1; \
+       return KRB_ERR_RETURN; \
    } \
    if (!def) {\
        if (check_col(pinfo->cinfo, COL_INFO)) \
            col_add_fstr(pinfo->cinfo, COL_INFO, "not definite: %s", token); \
        fprintf(stderr,"not definite: %s\n", token); \
-       return -1; \
+       return KRB_ERR_RETURN; \
    } \
    offset += (asn1p->offset - start);
 
@@ -505,7 +507,7 @@ krb_proto_tree_add_time(proto_tree *tree, tvbuff_t *tvb, int offset,
       if (check_col(pinfo->cinfo, COL_INFO)) \
          col_add_fstr(pinfo->cinfo, COL_INFO, "ERROR: Problem at %s: %s (tag=%d exp=%d, con=%d, cls=%d, offset=%0x)", \
                       token, to_error_str(ASN1_ERR_WRONG_TYPE), tag, expected_tag, con, cls, start); \
-      return -1; \
+      return KRB_ERR_RETURN; \
     }
 
 #define KRB_DECODE_APPLICATION_TAGGED_HEAD_OR_DIE(token, expected_tag) \
@@ -522,7 +524,7 @@ krb_proto_tree_add_time(proto_tree *tree, tvbuff_t *tvb, int offset,
        if (check_col(pinfo->cinfo, COL_INFO)) \
            col_add_fstr(pinfo->cinfo, COL_INFO, "ERROR: Problem at %s: %s", \
                     token, to_error_str(ret)); \
-       return -1; \
+       return KRB_ERR_RETURN; \
    } \
    offset += header_len;
 
@@ -532,7 +534,7 @@ krb_proto_tree_add_time(proto_tree *tree, tvbuff_t *tvb, int offset,
        if (check_col(pinfo->cinfo, COL_INFO)) \
          col_add_fstr(pinfo->cinfo, COL_INFO, "ERROR: Problem at %s: %s", \
                      token, to_error_str(ret)); \
-        return -1; \
+        return KRB_ERR_RETURN; \
     } \
 
 #define KRB_DECODE_UINT32_OR_DIE(token, val) \
@@ -544,7 +546,7 @@ krb_proto_tree_add_time(proto_tree *tree, tvbuff_t *tvb, int offset,
        if (check_col(pinfo->cinfo, COL_INFO)) \
          col_add_fstr(pinfo->cinfo, COL_INFO, "ERROR: Problem at %s: %s", \
                      token, to_error_str(ret)); \
-        return -1; \
+        return KRB_ERR_RETURN; \
     }
 
 #define KRB_DECODE_OCTET_STRING_OR_DIE(token, val, val_len, item_len) \
@@ -576,7 +578,7 @@ krb_proto_tree_add_time(proto_tree *tree, tvbuff_t *tvb, int offset,
  * so we will pass in the ETT value to build the flags etc
  */
 static void 
-dissect_ap_options(tvbuff_t *tvb, int offset)
+dissect_ap_options(tvbuff_t *tvb, guint offset)
 {
 
 }
@@ -584,10 +586,10 @@ dissect_ap_options(tvbuff_t *tvb, int offset)
 #endif
  
 static void
-dissect_type_value_pair(ASN1_SCK *asn1p, int *inoff,
-                        guint32 *type, int *type_len, int *type_off,
-                        guchar **val, int *val_len, int *val_off) {
-    int offset = *inoff;
+dissect_type_value_pair(ASN1_SCK *asn1p, guint *inoff,
+                        guint32 *type, guint *type_len, guint *type_off,
+                        guchar **val, guint *val_len, guint *val_off) {
+    guint offset = *inoff;
     guint cls, con, tag;
     gboolean def;
     int start;
@@ -632,7 +634,7 @@ dissect_type_value_pair(ASN1_SCK *asn1p, int *inoff,
     *inoff = offset + *val_len;
 }
 
-gint
+guint
 dissect_kerberos_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int do_col_info)
 {
     return (dissect_kerberos_common(tvb, pinfo, tree, do_col_info, FALSE));
@@ -647,14 +649,14 @@ dissect_kerberos_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     (void)dissect_kerberos_common(tvb, pinfo, tree, TRUE, FALSE);
 }
 
-static gint
+static guint
 kerberos_rm_to_reclen(guint krb_rm)
 {
     return (krb_rm & KRB_RM_RECLEN);
 }
 
 static guint
-get_krb_pdu_len(tvbuff_t *tvb, int offset)
+get_krb_pdu_len(tvbuff_t *tvb, guint offset)
 {
     guint krb_rm;
     gint pdulen;
@@ -668,7 +670,7 @@ static void
 dissect_kerberos_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     pinfo->fragmented = TRUE;
-    if (dissect_kerberos_common(tvb, pinfo, tree, TRUE, TRUE) < 0) {
+    if (dissect_kerberos_common(tvb, pinfo, tree, TRUE, TRUE) == KRB_ERR_RETURN) {
 	/*
 	 * The dissector failed to recognize this as a valid
 	 * Kerberos message.  Mark it as a continuation packet.
@@ -710,11 +712,11 @@ show_krb_recordmark(proto_tree *tree, tvbuff_t *tvb, gint start, guint32 krb_rm)
     proto_tree_add_uint(rm_tree, hf_krb_rm_reclen, tvb, start, 4, krb_rm);
 }
 
-static gint
+static guint
 dissect_kerberos_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     int do_col_info, gboolean have_rm)
 {
-    int offset = 0;
+    guint offset = 0;
     proto_tree *kerberos_tree = NULL;
     proto_tree *etype_tree = NULL;
     proto_tree *preauth_tree = NULL;
@@ -723,10 +725,10 @@ dissect_kerberos_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     ASN1_SCK asn1, *asn1p = &asn1;
     proto_item *item = NULL;
 
-    gint length;
+    guint length;
     guint cls, con, tag;
     gboolean def;
-    gint item_len;
+    guint item_len;
     guint total_len;
     int start, end, message_end, sequence_end;
 
@@ -740,9 +742,9 @@ dissect_kerberos_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     guint32 tmp_int;
 
     /* simple holders */
-    int str_len;
+    guint str_len;
     guchar *str;
-    int tmp_pos1, tmp_pos2;
+    guint tmp_pos1, tmp_pos2;
 
     /* TCP record mark and length */
     guint32 krb_rm = 0;
@@ -756,7 +758,7 @@ dissect_kerberos_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	 * What is a reasonable size limit?
 	 */
 	if (krb_reclen > 10 * 1024 * 1024) {
-	    return (-1);
+	    return (KRB_ERR_RETURN);
 	}
 	offset += 4;
     }
@@ -910,8 +912,8 @@ dissect_kerberos_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         if (CHECK_CONTEXT_TYPE(KRB5_BODY_CNAME)) {
             item_len = dissect_PrincipalName("Client Name", asn1p, pinfo,
                                              request_tree, offset);
-            if (item_len == -1)
-                return -1;
+            if (item_len == KRB_ERR_RETURN)
+                return KRB_ERR_RETURN;
             offset += item_len;
             KRB_HEAD_DECODE_OR_DIE("Realm");
         }
@@ -928,8 +930,8 @@ dissect_kerberos_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         if (CHECK_CONTEXT_TYPE(KRB5_BODY_SNAME)) {
             item_len = dissect_PrincipalName("Server Name", asn1p, pinfo,
                                              request_tree, offset);
-            if (item_len == -1)
-                return -1;
+            if (item_len == KRB_ERR_RETURN)
+                return KRB_ERR_RETURN;
             offset += item_len;
             KRB_HEAD_DECODE_OR_DIE("From or Till");
         }
@@ -996,8 +998,8 @@ dissect_kerberos_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
             length = dissect_Addresses(asn1p, pinfo, kerberos_tree,
                                        offset);
-            if (offset == -1)
-                return -1;
+            if (offset == KRB_ERR_RETURN)
+                return KRB_ERR_RETURN;
             offset += length;
             if (asn1p->offset >= sequence_end)
                 break;
@@ -1008,8 +1010,8 @@ dissect_kerberos_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             /* enc-authorization-data supplied */
             length = dissect_EncryptedData("Encrypted Payload", asn1p, pinfo,
                                            kerberos_tree, offset);
-            if (length == -1)
-                return -1;
+            if (length == KRB_ERR_RETURN)
+                return KRB_ERR_RETURN;
             offset += length;
             if (asn1p->offset >= sequence_end)
                 break;
@@ -1027,8 +1029,8 @@ dissect_kerberos_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             KRB_DECODE_CONTEXT_HEAD_OR_DIE("ticket", KRB5_KDC_REP_TICKET);
             length = dissect_Ticket(asn1p, pinfo, additional_tickets_tree,
                                     offset);
-            if (length == -1)
-                return -1;
+            if (length == KRB_ERR_RETURN)
+                return KRB_ERR_RETURN;
             offset += length;
         }
 
@@ -1062,22 +1064,22 @@ dissect_kerberos_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         KRB_DECODE_CONTEXT_HEAD_OR_DIE("cname", KRB5_KDC_REP_CNAME);
         item_len = dissect_PrincipalName("Client Name", asn1p, pinfo,
                                          kerberos_tree, offset);
-        if (item_len == -1)
-            return -1;
+        if (item_len == KRB_ERR_RETURN)
+            return KRB_ERR_RETURN;
         offset += item_len;
 
         KRB_DECODE_CONTEXT_HEAD_OR_DIE("ticket", KRB5_KDC_REP_TICKET);
         length = dissect_Ticket(asn1p, pinfo, kerberos_tree, offset);
-        if (length == -1)
-            return -1;
+        if (length == KRB_ERR_RETURN)
+            return KRB_ERR_RETURN;
         offset += length;
 
         KRB_DECODE_CONTEXT_HEAD_OR_DIE("enc-msg-part",
                                               KRB5_KDC_REP_ENC_PART);
         length = dissect_EncryptedData("Encrypted Payload", asn1p, pinfo,
                                        kerberos_tree, offset);
-        if (length == -1)
-            return -1;
+        if (length == KRB_ERR_RETURN)
+            return KRB_ERR_RETURN;
         offset += length;
         break;
 
@@ -1099,24 +1101,24 @@ dissect_kerberos_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         KRB_DECODE_CONTEXT_HEAD_OR_DIE("ticket", KRB5_AP_REQ_TICKET);
         length = dissect_Ticket(asn1p, pinfo, kerberos_tree, offset);
-        if (length == -1)
-            return -1;
+        if (length == KRB_ERR_RETURN)
+            return KRB_ERR_RETURN;
         offset += length;
 
         KRB_DECODE_CONTEXT_HEAD_OR_DIE("authenticator",
                                               KRB5_AP_REQ_ENC_DATA);
         length = dissect_EncryptedData("Authenticator", asn1p, pinfo,
                                        kerberos_tree, offset);
-        if (length == -1)
-            return -1;
+        if (length == KRB_ERR_RETURN)
+            return KRB_ERR_RETURN;
         offset += length;
 	break;
 
     case KRB5_MSG_AP_REP:
         length = dissect_EncryptedData("EncPart", asn1p, pinfo,
                                        kerberos_tree, offset);
-        if (length == -1)
-            return -1;
+        if (length == KRB_ERR_RETURN)
+            return KRB_ERR_RETURN;
         offset += length;
 	break;
 
@@ -1211,8 +1213,8 @@ dissect_kerberos_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	if (CHECK_CONTEXT_TYPE(KRB5_ERROR_CNAME)) {
 	    item_len = dissect_PrincipalName("cname", asn1p, pinfo,
                                          kerberos_tree, offset);
-	    if (item_len == -1)
-		return -1;
+	    if (item_len == KRB_ERR_RETURN)
+		return KRB_ERR_RETURN;
 	    offset += item_len;
 	    KRB_HEAD_DECODE_OR_DIE("realm");
 	}
@@ -1229,8 +1231,8 @@ dissect_kerberos_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	DIE_IF_NOT_CONTEXT_TYPE("sname", KRB5_ERROR_SNAME);
 	item_len = dissect_PrincipalName("sname", asn1p, pinfo,
                                          kerberos_tree, offset);
-	if (item_len == -1)
-		return -1;
+	if (item_len == KRB_ERR_RETURN)
+		return KRB_ERR_RETURN;
 	offset += item_len;
 
         if (asn1p->offset >= message_end)
@@ -1266,9 +1268,9 @@ dissect_kerberos_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     return offset;
 }
 
-static int
+static guint
 dissect_PrincipalName(char *title, ASN1_SCK *asn1p, packet_info *pinfo,
-                       proto_tree *tree, int start_offset)
+                       proto_tree *tree, guint start_offset)
 {
 /*
    PrincipalName ::=   SEQUENCE {
@@ -1277,7 +1279,7 @@ dissect_PrincipalName(char *title, ASN1_SCK *asn1p, packet_info *pinfo,
    }
 */
     proto_tree *princ_tree = NULL;
-    int offset = start_offset;
+    guint offset = start_offset;
 
     guint32 princ_type;
 
@@ -1290,7 +1292,7 @@ dissect_PrincipalName(char *title, ASN1_SCK *asn1p, packet_info *pinfo,
     guint length;
     gboolean def;
 
-    int type_offset;
+    guint type_offset;
 
     guchar *name;
     guint name_len;
@@ -1354,11 +1356,11 @@ dissect_PrincipalName(char *title, ASN1_SCK *asn1p, packet_info *pinfo,
     return offset - start_offset;
 }
 
-static int
+static guint
 dissect_Addresses(ASN1_SCK *asn1p, packet_info *pinfo,
-                  proto_tree *tree, int start_offset) {
+                  proto_tree *tree, guint start_offset) {
     proto_tree *address_tree = NULL;
-    int offset = start_offset;
+    guint offset = start_offset;
 
     int start, end;
     guint cls, con, tag;
@@ -1368,10 +1370,10 @@ dissect_Addresses(ASN1_SCK *asn1p, packet_info *pinfo,
     proto_item *item = NULL;
     gboolean def;
 
-    int tmp_pos1, tmp_pos2;
+    guint tmp_pos1, tmp_pos2;
     guint32 address_type;
 
-    int str_len;
+    guint str_len;
     guchar *str;
 
     char netbios_name[(NETBIOS_NAME_LEN - 1)*4 + 1];
@@ -1434,9 +1436,9 @@ dissect_Addresses(ASN1_SCK *asn1p, packet_info *pinfo,
     return offset - start_offset;
 }
 
-static int
+static guint
 dissect_EncryptedData(char *title, ASN1_SCK *asn1p, packet_info *pinfo,
-		      proto_tree *tree, int start_offset)
+		      proto_tree *tree, guint start_offset)
 {
 /*
    EncryptedData ::=   SEQUENCE {
@@ -1446,7 +1448,7 @@ dissect_EncryptedData(char *title, ASN1_SCK *asn1p, packet_info *pinfo,
    }
 */
     proto_tree *encr_tree = NULL;
-    int offset = start_offset;
+    guint offset = start_offset;
 
     int start;
     guint cls, con, tag;
@@ -1504,9 +1506,9 @@ dissect_EncryptedData(char *title, ASN1_SCK *asn1p, packet_info *pinfo,
     return offset - start_offset;
 }
 
-static int
+static guint
 dissect_Ticket(ASN1_SCK *asn1p, packet_info *pinfo,
-	       proto_tree *tree, int start_offset)
+	       proto_tree *tree, guint start_offset)
 {
 /*
    Ticket ::=                    [APPLICATION 1] SEQUENCE {
@@ -1517,20 +1519,20 @@ dissect_Ticket(ASN1_SCK *asn1p, packet_info *pinfo,
    }
 */
     proto_tree *ticket_tree = NULL;
-    int offset = start_offset;
+    guint offset = start_offset;
 
     int start;
     guint cls, con, tag;
     guint header_len, total_len;
-    gint item_len;
+    guint item_len;
     int ret;
 
     proto_item *item = NULL;
-    gint length;
+    guint length;
     gboolean def;
     guint32 val;
 
-    int str_len;
+    guint str_len;
     guchar *str;
 
     KRB_DECODE_APPLICATION_TAGGED_HEAD_OR_DIE("Ticket section", 1);
@@ -1568,16 +1570,16 @@ dissect_Ticket(ASN1_SCK *asn1p, packet_info *pinfo,
     KRB_DECODE_CONTEXT_HEAD_OR_DIE("Ticket sname", KRB5_TKT_SNAME);
     item_len = dissect_PrincipalName("Service Name", asn1p, pinfo, ticket_tree,
                                      offset);
-    if (item_len == -1)
-        return -1;
+    if (item_len == KRB_ERR_RETURN)
+        return KRB_ERR_RETURN;
     offset += item_len;
 
     /* encrypted part */
     KRB_DECODE_CONTEXT_HEAD_OR_DIE("enc-part", KRB5_TKT_ENC_PART);
     length = dissect_EncryptedData("Ticket data", asn1p, pinfo, ticket_tree,
 				   offset);
-    if (length == -1)
-        return -1;
+    if (length == KRB_ERR_RETURN)
+        return KRB_ERR_RETURN;
     offset += length;
 
     return offset - start_offset;
