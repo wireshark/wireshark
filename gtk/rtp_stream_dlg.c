@@ -1,7 +1,7 @@
 /* rtp_stream_dlg.c
  * RTP streams summary addition for ethereal
  *
- * $Id: rtp_stream_dlg.c,v 1.22 2004/06/01 17:33:37 ulfl Exp $
+ * $Id: rtp_stream_dlg.c,v 1.23 2004/06/01 22:12:37 ulfl Exp $
  *
  * Copyright 2003, Alcatel Business Systems
  * By Lars Ruoff <lars.ruoff@gmx.net>
@@ -51,6 +51,7 @@
 
 extern GtkWidget *main_display_filter_widget;
 
+#if 0
 static const value_string rtp_payload_type_vals[] =
 {
 	{ PT_PCMU,	"ITU-T G.711 PCMU" },
@@ -81,7 +82,7 @@ static const value_string rtp_payload_type_vals[] =
 	{ PT_H263,	"ITU-T H.263" },
 	{ 0,		NULL },
 };
-
+#endif
 
 typedef const guint8 * ip_addr_p;
 
