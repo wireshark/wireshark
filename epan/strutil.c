@@ -260,7 +260,7 @@ format_text(const guchar *string, int len)
 }
 
 /* Max string length for displaying byte string.  */
-#define	MAX_BYTE_STR_LEN	32
+#define	MAX_BYTE_STR_LEN	48
 
 /* Turn an array of bytes into a string showing the bytes in hex. */
 #define	N_BYTES_TO_STR_STRINGS	6
