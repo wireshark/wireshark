@@ -6,6 +6,7 @@ text2pcap - Generate a capture file from an ASCII hexdump of packets
 =head1 SYNOPSYS
 
 B<text2pcap>
+S<[ B<-h> ]>
 S<[ B<-d> ]>
 S<[ B<-q> ]>
 S<[ B<-o> hex|oct ]>
@@ -14,7 +15,7 @@ S<[ B<-e> l3pid ]>
 S<[ B<-i> proto ]>
 S<[ B<-u> srcport,destport ]>
 S<[ B<-s> srcport,destport,tag ]>
-S<[ B<-S> srcport,destport,tag ]>
+S<[ B<-S> srcport,destport,ppi ]>
 S<[ B<-t> timefmt ]>
 I<infile>
 I<outfile>
@@ -81,6 +82,10 @@ handle these dumps.
 =head1 OPTIONS
 
 =over 4
+
+=item -h
+
+Displays a help message.
 
 =item -d
 
