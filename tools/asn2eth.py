@@ -5,7 +5,7 @@
 # ASN.1 to Ethereal dissector compiler
 # 2004 Tomas Kukosa 
 #
-# $Id: asn2eth.py,v 1.5 2004/06/04 11:28:04 sahlberg Exp $
+# $Id: asn2eth.py,v 1.6 2004/06/07 07:44:36 sahlberg Exp $
 #
 
 """ASN.1 to Ethereal PER dissector compiler"""
@@ -2215,11 +2215,6 @@ class IntegerType (Type):
 
   def eth_type_fn(self, proto, tname, ectx):
     out = '\n'
-    vals = []
-    if (self.named_list):
-      for e in (self.named_list):
-        vals.append((int(e.val), e.ident))
-      out += ectx.eth_vals(tname, vals)
     out += ectx.eth_type_fn_hdr(tname)
     if (ectx.Ber()):
       body = ectx.eth_fn_call('dissect_ber_integer' + ectx.pvp(), ret='offset',
