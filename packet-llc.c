@@ -2,7 +2,7 @@
  * Routines for IEEE 802.2 LLC layer
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-llc.c,v 1.79 2001/01/10 09:07:35 guy Exp $
+ * $Id: packet-llc.c,v 1.80 2001/01/11 07:24:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -332,7 +332,7 @@ dissect_llc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (is_snap) {
 		dissect_snap(tvb, 3, pinfo, tree, llc_tree, control,
-		    hf_llc_oui, hf_llc_type, hf_llc_pid, -1);
+		    hf_llc_oui, hf_llc_type, hf_llc_pid, 2);
 	}
 	else {
 		if (check_col(pinfo->fd, COL_INFO)) {
@@ -421,16 +421,6 @@ dissect_snap(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 			    etype);
 		}
 
-		if (bridge_pad == -1) {
-			/*
-			 * This is LLC, for example, which, as far as I
-			 * know, doesn't support that type of bridging.
-			 */
-			next_tvb = tvb_new_subset(tvb, offset+5, -1, -1);
-			dissect_data(next_tvb, 0, pinfo, tree);
-			break;
-		}
-			
 		switch (etype) {
 
 		case BPID_ETH_WITH_FCS:
