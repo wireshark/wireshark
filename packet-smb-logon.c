@@ -2,7 +2,7 @@
  * Routines for SMB net logon packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-smb-logon.c,v 1.23 2002/01/25 08:02:01 guy Exp $
+ * $Id: packet-smb-logon.c,v 1.24 2002/01/25 09:42:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -465,12 +465,11 @@ dissect_announce_change(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 		offset += 4;
 
 		proto_tree_add_item(info_tree, hf_large_serial, tvb, offset, 8,
-		    FALSE);
+		    TRUE);
 		offset += 8;
 
-		proto_tree_add_item(info_tree, hf_nt_date_time, tvb, offset, 8,
-		    FALSE);
-		offset += 8;
+		offset = dissect_smb_64bit_time(tvb, pinfo, info_tree, offset,
+		    "NT Date/Time", hf_nt_date_time);
 
 		info_count--;
 	}
@@ -979,14 +978,12 @@ proto_register_smb_logon( void)
 			{ "Database Index", "netlogon.db_index", FT_UINT32, BASE_DEC,
 			  NULL, 0, "NETLOGON Database Index", HFILL }},
 
-		/* XXX - 64-bit integer? */
 		{ &hf_large_serial,
-			{ "Large Serial Number", "netlogon.large_serial", FT_BYTES, BASE_NONE,
+			{ "Large Serial Number", "netlogon.large_serial", FT_UINT64, BASE_DEC,
 			  NULL, 0, "NETLOGON Large Serial Number", HFILL }},
 
-		/* XXX - 64-bit FILETIME */
 		{ &hf_nt_date_time,
-			{ "NT Date/Time", "netlogon.nt_date_time", FT_BYTES, BASE_NONE,
+			{ "NT Date/Time", "netlogon.nt_date_time", FT_ABSOLUTE_TIME, BASE_NONE,
 			  NULL, 0, "NETLOGON NT Date/Time", HFILL }},
 	};
 
