@@ -1,7 +1,7 @@
 /* tap-httpstat.c
  * tap-httpstat   2003 Jean-Michel FAYARD
  *
- * $Id: tap-httpstat.c,v 1.2 2003/09/02 23:09:10 guy Exp $
+ * $Id: tap-httpstat.c,v 1.3 2003/09/29 19:18:43 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -27,13 +27,13 @@
 #endif
 
 #include <stdio.h>
+#include <string.h>
 
 #include "epan/packet_info.h"
 #include "epan/value_string.h"
 #include "tap.h"
 #include "register.h"
 #include "packet-http.h"
-#include <string.h>
 
 	
 /* used to keep track of the statictics for an entire program interface */
@@ -48,7 +48,7 @@ typedef struct _http_stats_t {
  * which means we captured 3 reply http/1.1 404 Not Found */
 typedef struct _http_response_code_t {
 	guint32 	 packets;		/* 3 */
-	guint	 	 response_code;	/* 404 */
+	guint	 	 response_code;		/* 404 */
 	gchar		*name;			/* Not Found */
 	httpstat_t	*sp;
 } http_response_code_t;
@@ -144,7 +144,7 @@ http_draw_hash_requests( gchar *key _U_ , http_request_methode_t *data, gchar * 
 static void
 http_draw_hash_responses( gint * key _U_ , http_response_code_t *data, char * format)
 {
-	if (data==NULL){
+	if (data==NULL) {
 		g_warning("C'est quoi ce borderl key=%d\n", *key);
 		exit(EXIT_FAILURE);
 	}
@@ -198,7 +198,7 @@ httpstat_packet(void *psp , packet_info *pinfo _U_, epan_dissect_t *edt _U_, voi
 		guint *key=g_malloc( sizeof(guint) );
 		http_response_code_t *sc;
 		
-		*key=value->response_code ;
+		*key=value->response_code;
 		sc =  g_hash_table_lookup( 
 				sp->hash_responses, 
 				key);
@@ -255,7 +255,6 @@ httpstat_packet(void *psp , packet_info *pinfo _U_, epan_dissect_t *edt _U_, voi
 }
 
 
-
 static void
 httpstat_draw(void *psp  )
 {
@@ -285,7 +284,7 @@ gtk_httpstat_init(char *optarg)
 {
 	httpstat_t *sp;
 	char *filter=NULL;
-	GString		*error_string;
+	GString	*error_string;
 	
 	if (!strncmp (optarg, "http,stat,", 10)){
 		filter=optarg+10;

@@ -1,7 +1,7 @@
 /* http_stat.c
  * http_stat   2003 Jean-Michel FAYARD
  *
- * $Id: http_stat.c,v 1.6 2003/09/26 02:09:44 guy Exp $
+ * $Id: http_stat.c,v 1.7 2003/09/29 19:18:44 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -27,6 +27,8 @@
 #endif
 
 #include <gtk/gtk.h>
+#include <string.h>
+
 #include "epan/packet_info.h"
 #include "epan/epan.h"
 #include "menu.h"
@@ -34,10 +36,9 @@
 #include "dlg_utils.h"
 #include "tap.h"
 #include "../register.h"
+#include "../packet-http.h"
 #include "../globals.h"
 #include "compat_macros.h"
-#include "../packet-http.h"
-#include <string.h>
 
 	
 /* used to keep track of the statictics for an entire program interface */
@@ -170,13 +171,13 @@ http_draw_hash_requests( gchar *key _U_ , http_request_methode_t *data, gchar * 
 		gtk_label_set( GTK_LABEL(data->widget), string_buff);
 	}
 }
-		
 
 static void
 http_draw_hash_responses( gint * key _U_ , http_response_code_t *data, gchar * string_buff)
 {
-	if (data==NULL)
+	if (data==NULL) {
 		g_warning("C'est quoi ce borderl key=%d\n", *key);
+	}
 	if (data->packets==0)
 		return;
 	/*sprintf(string_buff, "%d packets %d:%s", data->packets, data->response_code, data->name); */
@@ -364,7 +365,6 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
 	g_free(sp);
 }
 
-
 /* When called, this function will create a new instance of gtk_httpstat.
  */
 static void
@@ -372,8 +372,8 @@ gtk_httpstat_init(char *optarg)
 {
 	httpstat_t *sp;
 	char *filter=NULL;
-	char *title=NULL;
 	GString	*error_string;
+	char *title=NULL;
 	GtkWidget  *main_vb, *separator,
 		*informational_fr, *success_fr, *redirection_fr, 
 		*client_errors_fr, *server_errors_fr, *request_fr;
