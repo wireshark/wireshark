@@ -2,7 +2,7 @@
  * Routines for DCERPC over SMB packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-nt.c,v 1.14 2002/03/12 08:16:41 sahlberg Exp $
+ * $Id: packet-dcerpc-nt.c,v 1.15 2002/03/13 07:38:34 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -567,16 +567,35 @@ dissect_ndr_nt_STRING_string (tvbuff_t *tvb, int offset,
                                      hf_nt_str_max_len, &max_len);
 
 	old_offset=offset;
-	offset = prs_uint8s(tvb, offset, pinfo, tree, max_len, &text, NULL);
-
 	hfi = proto_registrar_get_nth(di->hf_index);
-	proto_tree_add_string_format(tree, di->hf_index, 
-		tvb, old_offset, offset-old_offset,
-		text, "%s: %s", hfi->name, text);
 
-	if(tree){
-		proto_item_set_text(tree, "%s: %s", hfi->name, text);
-		proto_item_set_text(tree->parent, "%s: %s", hfi->name, text);
+	switch(hfi->type){
+	case FT_STRING:
+		offset = prs_uint8s(tvb, offset, pinfo, tree, max_len, &text, NULL);
+		proto_tree_add_string_format(tree, di->hf_index, 
+			tvb, old_offset, offset-old_offset,
+			text, "%s: %s", hfi->name, text);
+		break;
+	case FT_BYTES:
+		text="";
+		proto_tree_add_item(tree, di->hf_index, tvb, offset, max_len, FALSE);
+		offset += max_len;
+		break;
+	default:
+		g_assert_not_reached();
+	}
+
+	if(tree && (di->levels>-1)){
+		proto_item_append_text(tree, ": %s", text);
+		if(di->levels>-1){
+			tree=tree->parent;
+			proto_item_append_text(tree, ": %s", text);
+			while(di->levels>0){
+				tree=tree->parent;
+				proto_item_append_text(tree, " %s", text);
+				di->levels--;
+			}
+		}
 	}
   	return offset;
 }
@@ -590,6 +609,7 @@ dissect_ndr_nt_STRING (tvbuff_t *tvb, int offset,
 	proto_tree *tree=NULL;
 	int old_offset=offset;
 	dcerpc_info *di;
+	char *name;
 
 	ALIGN_TO_4_BYTES;  /* strcture starts with short, but is aligned for longs */
 
@@ -599,9 +619,10 @@ dissect_ndr_nt_STRING (tvbuff_t *tvb, int offset,
 		return offset;
 	}
 
+	name = proto_registrar_get_name(hf_index);
 	if(parent_tree){
-		item = proto_tree_add_text(parent_tree, tvb, offset, 0,
-			"string");
+		item = proto_tree_add_text(parent_tree, tvb, offset, -1,
+			"%s", name);
 		tree = proto_item_add_subtree(item, ett_nt_unicode_string);
 	}
 
@@ -611,7 +632,7 @@ dissect_ndr_nt_STRING (tvbuff_t *tvb, int offset,
                                      hf_nt_string_size, NULL);
         offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			dissect_ndr_nt_STRING_string, NDR_POINTER_UNIQUE,
-			"", hf_index, levels);
+			name, hf_index, levels);
 
 	proto_item_set_len(item, offset-old_offset);
 	return offset;

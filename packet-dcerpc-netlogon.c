@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *  2002 structure and command dissectors by Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-netlogon.c,v 1.3 2002/03/12 08:16:41 sahlberg Exp $
+ * $Id: packet-dcerpc-netlogon.c,v 1.4 2002/03/13 07:38:33 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -5247,11 +5247,11 @@ static hf_register_info hf[] = {
 		NULL, 0x0, "", HFILL }},
 
 	{ &hf_netlogon_nt_chal_resp,
-		{ "NT Chal resp", "netlogon.nt_chal_resp", FT_STRING, BASE_NONE,
+		{ "NT Chal resp", "netlogon.nt_chal_resp", FT_BYTES, BASE_HEX,
 		NULL, 0, "Challenge response for NT authentication", HFILL }},
 
 	{ &hf_netlogon_lm_chal_resp,
-		{ "LM Chal resp", "netlogon.lm_chal_resp", FT_STRING, BASE_NONE,
+		{ "LM Chal resp", "netlogon.lm_chal_resp", FT_BYTES, BASE_HEX,
 		NULL, 0, "Challenge response for LM authentication", HFILL }},
 
 	{ &hf_netlogon_acct_name,
