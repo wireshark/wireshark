@@ -1,7 +1,7 @@
 /* gtk2-rpcstat.c
  * rpcstat   2002 Ronnie Sahlberg
  *
- * $Id: gtk2-rpcstat.c,v 1.3 2002/09/05 18:48:51 jmayer Exp $
+ * $Id: gtk2-rpcstat.c,v 1.4 2002/09/06 08:58:20 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -38,7 +38,6 @@
 #include "tap-rpcstat.h"
 #include "packet-rpc.h"
 
-extern GStaticMutex update_thread_mutex;
 
 /* used to keep track of statistics for a specific procedure */
 typedef struct _rpc_procedure_t {
@@ -253,14 +252,16 @@ rpcstat_find_vers(gpointer *key, gpointer *value _U_, gpointer *user_data _U_)
  *
  * there should not be any other critical regions in gtk2
  */
+void protect_thread_critical_region(void);
+void unprotect_thread_critical_region(void);
 static void
 win_destroy_cb(GtkWindow *win _U_, gpointer data)
 {
 	rpcstat_t *rs=(rpcstat_t *)data;
 
-	g_static_mutex_lock(&update_thread_mutex);
+	protect_thread_critical_region();
 	remove_tap_listener(rs);
-	g_static_mutex_unlock(&update_thread_mutex);
+	unprotect_thread_critical_region();
 
 	g_free(rs->procedures);
 	g_free(rs);

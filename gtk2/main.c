@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.4 2002/09/05 18:48:51 jmayer Exp $
+ * $Id: main.c,v 1.5 2002/09/06 08:58:20 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1195,8 +1195,14 @@ set_autostop_criterion(const char *autostoparg)
 #endif
 
 
-GStaticMutex update_thread_mutex = G_STATIC_MUTEX_INIT;
+/* if these three functions are copied to gtk1 ethereal, since gtk1 does not
+   use threads all updte_thread_mutex can be dropped and protect/unprotect 
+   would just be empty functions.
 
+   This allows gtk2-rpcstat.c and friends to be copied unmodified to 
+   gtk1-ethereal and it will just work.
+ */
+static GStaticMutex update_thread_mutex = G_STATIC_MUTEX_INIT;
 gpointer
 update_thread(gpointer data _U_)
 {
@@ -1212,6 +1218,16 @@ update_thread(gpointer data _U_)
 		}while(tv2.tv_sec<(tv1.tv_sec+2));
 	}
 	return NULL;
+}
+void
+protect_thread_critical_region(void)
+{
+	g_static_mutex_lock(&update_thread_mutex);
+}
+void
+unprotect_thread_critical_region(void)
+{
+	g_static_mutex_unlock(&update_thread_mutex);
 }
 
 /* And now our feature presentation... [ fade to music ] */
