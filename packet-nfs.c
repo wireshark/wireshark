@@ -2,7 +2,7 @@
  * Routines for nfs dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  *
- * $Id: packet-nfs.c,v 1.35 2000/08/14 13:21:15 girlich Exp $
+ * $Id: packet-nfs.c,v 1.36 2000/08/15 21:27:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -466,7 +466,6 @@ static void
 dissect_fhandle_data(const u_char *pd, int offset, frame_data* fd, proto_tree *tree, int fhlen)
 {
 	tvbuff_t *tvb = tvb_create_from_top(offset);
-	packet_info *pinfo = &pi;
 	int fhtype = FHT_UNKNOWN;
 
 	/* filehandle too long */
