@@ -1,7 +1,7 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.40 2004/05/09 10:03:40 guy Exp $
+# $Id: Makefile.nmake,v 1.41 2004/05/09 18:54:00 guy Exp $
 
 include ..\config.nmake
 include <win32.mak>
@@ -57,8 +57,6 @@ OBJECTS=addr_and_mask.obj \
 	to_str.obj	\
 	tvbuff.obj       \
 	value_string.obj
-
-all: ftypes dfilter ethereal.lib
 
 !IFDEF ENABLE_LIBETHEREAL
 all: ftypes dfilter libethereal.dll

@@ -243,6 +243,7 @@ get_dirname
 get_dissector_table_base
 get_dissector_table_selector_type
 get_dissector_table_ui_name
+get_ether_name
 get_hostname
 get_hostname6
 get_persconffile_path
