@@ -3,7 +3,7 @@
  *
  * Huagang XIE <huagang@intruvert.com>
  *
- * $Id: packet-ssh.c,v 1.4 2003/01/29 07:03:39 guy Exp $
+ * $Id: packet-ssh.c,v 1.5 2003/01/30 08:11:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -833,83 +833,83 @@ proto_register_ssh(void)
 
     { &hf_ssh_cookie,
       { "Cookie",	  "ssh.cookie",
-	FT_STRING, BASE_DEC, NULL, 0x0,
+	FT_STRING, BASE_NONE, NULL, 0x0,
       	"SSH Cookie", HFILL }},
 
 
     { &hf_ssh_encrypted_packet,
       { "Encrypted Packet",	  "ssh.encrypted_packet",
-	FT_STRING, BASE_DEC, NULL, 0x0,
+	FT_BYTES, BASE_NONE, NULL, 0x0,
       	"SSH Protocol Packet", HFILL }},
 
     { &hf_ssh_protocol,
       { "Protocol",	  "ssh.protocol",
-	FT_STRING, BASE_DEC, NULL, 0x0,
+	FT_STRING, BASE_NONE, NULL, 0x0,
       	"SSH Protocol", HFILL }},
 
     { &hf_ssh_payload,
-      { "Payload String",	  "ssh.payload",
-	FT_STRING, BASE_DEC, NULL, 0x0,
-      	"SSH Payload String", HFILL }},
+      { "Payload",	  "ssh.payload",
+	FT_BYTES, BASE_NONE, NULL, 0x0,
+      	"SSH Payload", HFILL }},
 
     { &hf_ssh_padding_string,
       { "Padding String",	  "ssh.padding_string",
-	FT_STRING, BASE_DEC, NULL, 0x0,
+	FT_STRING, BASE_NONE, NULL, 0x0,
       	"SSH Padding String", HFILL }},
 
     { &hf_ssh_mac_string,
       { "MAC String",	  "ssh.mac_string",
-	FT_STRING, BASE_DEC, NULL, 0x0,
+	FT_STRING, BASE_NONE, NULL, 0x0,
       	"SSH MAC String", HFILL }},
 
   { &hf_ssh_kex_algorithms,
       { "kex_algorithms string",         "ssh.kex_algorithms",
-        FT_STRINGZ, BASE_DEC, NULL, 0x0,
+        FT_STRINGZ, BASE_NONE, NULL, 0x0,
         "SSH kex_algorithms string", HFILL }},
 
   { &hf_ssh_server_host_key_algorithms,
       { "server_host_key_algorithms string",         "ssh.server_host_key_algorithms",
-        FT_STRINGZ, BASE_DEC, NULL, 0x0,
+        FT_STRINGZ, BASE_NONE, NULL, 0x0,
         "SSH server_host_key_algorithms string", HFILL }},
 
   { &hf_ssh_encryption_algorithms_client_to_server,
       { "encryption_algorithms_client_to_server string",         "ssh.encryption_algorithms_client_to_server",
-        FT_STRINGZ, BASE_DEC, NULL, 0x0,
+        FT_STRINGZ, BASE_NONE, NULL, 0x0,
         "SSH encryption_algorithms_client_to_server string", HFILL }},
 
   { &hf_ssh_encryption_algorithms_server_to_client,
       { "encryption_algorithms_server_to_client string",         "ssh.encryption_algorithms_server_to_client",
-        FT_STRINGZ, BASE_DEC, NULL, 0x0,
+        FT_STRINGZ, BASE_NONE, NULL, 0x0,
         "SSH encryption_algorithms_server_to_client string", HFILL }},
 
   { &hf_ssh_mac_algorithms_client_to_server,
       { "mac_algorithms_client_to_server string",         "ssh.mac_algorithms_client_to_server",
-        FT_STRINGZ, BASE_DEC, NULL, 0x0,
+        FT_STRINGZ, BASE_NONE, NULL, 0x0,
         "SSH mac_algorithms_client_to_server string", HFILL }},
 
   { &hf_ssh_mac_algorithms_server_to_client,
       { "mac_algorithms_server_to_client string",         "ssh.mac_algorithms_server_to_client",
-        FT_STRINGZ, BASE_DEC, NULL, 0x0,
+        FT_STRINGZ, BASE_NONE, NULL, 0x0,
         "SSH mac_algorithms_server_to_client string", HFILL }},
 
   { &hf_ssh_compression_algorithms_client_to_server,
       { "compression_algorithms_client_to_server string",         "ssh.compression_algorithms_client_to_server",
-        FT_STRINGZ, BASE_DEC, NULL, 0x0,
+        FT_STRINGZ, BASE_NONE, NULL, 0x0,
         "SSH compression_algorithms_client_to_server string", HFILL }},
 
   { &hf_ssh_compression_algorithms_server_to_client,
       { "compression_algorithms_server_to_client string",         "ssh.compression_algorithms_server_to_client",
-        FT_STRINGZ, BASE_DEC, NULL, 0x0,
+        FT_STRINGZ, BASE_NONE, NULL, 0x0,
         "SSH compression_algorithms_server_to_client string", HFILL }},
 
   { &hf_ssh_languages_client_to_server,
       { "languages_client_to_server string",         "ssh.languages_client_to_server",
-        FT_STRINGZ, BASE_DEC, NULL, 0x0,
+        FT_STRINGZ, BASE_NONE, NULL, 0x0,
         "SSH languages_client_to_server string", HFILL }},
 
   { &hf_ssh_languages_server_to_client,
       { "languages_server_to_client string",         "ssh.languages_server_to_client",
-        FT_STRINGZ, BASE_DEC, NULL, 0x0,
+        FT_STRINGZ, BASE_NONE, NULL, 0x0,
         "SSH languages_server_to_client string", HFILL }},
 	
   { &hf_ssh_kex_algorithms_length,
