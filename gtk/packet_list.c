@@ -1,7 +1,7 @@
 /* packet_list.c
  * packet list related functions   2002 Olivier Abad
  *
- * $Id: packet_list.c,v 1.12 2004/01/28 09:53:09 guy Exp $
+ * $Id: packet_list.c,v 1.13 2004/01/28 10:19:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -96,6 +96,25 @@ typedef struct column_arrows {
 GtkWidget *packet_list;
 
 /* GTKClist compare routine, overrides default to allow numeric comparison */
+
+
+#define COMPARE_NUM(n1, n2)	(((n1) < (n2)) ? -1 : \
+				 ((n1) > (n2)) ? 1 : \
+				 0)
+
+/* Compare time stamps.
+   A packet whose time is a reference time is considered to have
+   a lower time stamp than any frame with a non-reference time;
+   if both packets' times are reference times, we compare the
+   times of the packets. */
+#define COMPARE_TS(ts1r, ts1s, ts1u, ts2r, ts2s, ts2u) \
+				(((ts1r) && !(ts2r)) ? -1 : \
+				 (!(ts1r) && (ts2r)) ? 1 : \
+				 ((ts1s) < (ts2s)) ? -1 : \
+				 ((ts1s) > (ts2s)) ? 1 : \
+				 ((ts1u) < (ts2u)) ? -1 :\
+				 ((ts1u) > (ts2u)) ? 1 : \
+				 0)
 static gint
 packet_list_compare(EthCList *clist, gconstpointer  ptr1, gconstpointer  ptr2)
 {
@@ -112,152 +131,93 @@ packet_list_compare(EthCList *clist, gconstpointer  ptr1, gconstpointer  ptr2)
   const char *text2 = GTK_CELL_TEXT (row2->cell[clist->sort_column])->text;
 
   /* Attempt to convert to numbers */
-  double  num1 = atof(text1);
-  double  num2 = atof(text2);
+  double  num1;
+  double  num2;
 
   gint  col_fmt = cfile.cinfo.col_fmt[clist->sort_column];
 
-  if (col_fmt == COL_NUMBER) {
+  switch (col_fmt) {
 
-    /* Compare row numbers */
+  case COL_NUMBER:
+    return COMPARE_NUM(fdata1->num, fdata2->num);
 
-    if (fdata1->num < fdata2->num)
-      return -1;
-    else if (fdata1->num > fdata2->num)
-      return 1;
-    else
-      return 0;
-  }
+  case COL_CLS_TIME:
+    switch (timestamp_type) {
 
-  else if (col_fmt == COL_ABS_TIME ||
-      ((col_fmt == COL_CLS_TIME) && (timestamp_type == TS_ABSOLUTE))) {
+    case TS_ABSOLUTE:
+    case TS_ABSOLUTE_WITH_DATE:
+      return COMPARE_TS(fdata1->flags.ref_time, fdata1->abs_secs,
+			  fdata1->abs_usecs,
+			fdata2->flags.ref_time, fdata2->abs_secs,
+		          fdata2->abs_usecs);
 
-    /* Compare absolute time stamps.
-       A packet whose time is a reference time is considered to have
-       a lower time stamp than any frame with a non-reference time;
-       if both packets' times are reference times, we compare the
-       times of the packets. */
+    case TS_RELATIVE:
+      return COMPARE_TS(fdata1->flags.ref_time, fdata1->rel_secs,
+			  fdata1->rel_usecs,
+			fdata2->flags.ref_time, fdata2->rel_secs,
+			  fdata2->rel_usecs);
 
-    if (fdata1->flags.ref_time && !fdata2->flags.ref_time)
-      return -1;
-    else if (!fdata1->flags.ref_time && fdata2->flags.ref_time)
-      return 1;
-    else if (fdata1->abs_secs < fdata2->abs_secs)
-      return -1;
-    else if (fdata1->abs_secs > fdata2->abs_secs)
-      return 1;
-    else {
-      if (fdata1->abs_usecs < fdata2->abs_usecs)
-        return -1;
-      else if (fdata1->abs_usecs > fdata2->abs_usecs)
-        return 1;
-      else
-        return 0;
+    case TS_DELTA:
+      return COMPARE_TS(fdata1->flags.ref_time, fdata1->del_secs,
+			  fdata1->del_usecs,
+			fdata2->flags.ref_time, fdata2->del_secs,
+			  fdata2->del_usecs);
     }
-  }
+    return 0;
 
-  else if (col_fmt == COL_REL_TIME ||
-      ((col_fmt == COL_CLS_TIME) && (timestamp_type == TS_RELATIVE))) {
+  case COL_ABS_TIME:
+    return COMPARE_TS(fdata1->flags.ref_time, fdata1->abs_secs,
+			fdata1->abs_usecs,
+		      fdata2->flags.ref_time, fdata2->abs_secs,
+		        fdata2->abs_usecs);
 
-    /* Compare relative time stamps
-       A packet whose time is a reference time is considered to have
-       a lower time stamp than any frame with a non-reference time;
-       if both packets' times are reference times, we compare the
-       times of the packets. */
+  case COL_REL_TIME:
+    return COMPARE_TS(fdata1->flags.ref_time, fdata1->rel_secs,
+			fdata1->rel_usecs,
+		      fdata2->flags.ref_time, fdata2->rel_secs,
+			fdata2->rel_usecs);
 
-    if (fdata1->flags.ref_time && !fdata2->flags.ref_time)
-      return -1;
-    else if (!fdata1->flags.ref_time && fdata2->flags.ref_time)
-      return 1;
-    else if (fdata1->rel_secs < fdata2->rel_secs)
-      return -1;
-    else if (fdata1->rel_secs > fdata2->rel_secs)
-      return 1;
-    else {
-      if (fdata1->rel_usecs < fdata2->rel_usecs)
-        return -1;
-      else if (fdata1->rel_usecs > fdata2->rel_usecs)
-        return 1;
-      else
-        return 0;
-    }
-  }
+  case COL_DELTA_TIME:
+    return COMPARE_TS(fdata1->flags.ref_time, fdata1->del_secs,
+			fdata1->del_usecs,
+		      fdata2->flags.ref_time, fdata2->del_secs,
+			fdata2->del_usecs);
 
-  else if (col_fmt == COL_DELTA_TIME ||
-      ((col_fmt == COL_CLS_TIME) && (timestamp_type == TS_DELTA))) {
 
-    /* Compare delta time stamps
-       A packet whose time is a reference time is considered to have
-       a lower time stamp than any frame with a non-reference time;
-       if both packets' times are reference times, we compare the
-       times of the packets. */
+  case COL_PACKET_LENGTH:
+    return COMPARE_NUM(fdata1->pkt_len, fdata2->pkt_len);
 
-    if (fdata1->flags.ref_time && !fdata2->flags.ref_time)
-      return -1;
-    else if (!fdata1->flags.ref_time && fdata2->flags.ref_time)
-      return 1;
-    else if (fdata1->del_secs < fdata2->del_secs)
-      return -1;
-    else if (fdata1->del_secs > fdata2->del_secs)
-      return 1;
-    else {
-      if (fdata1->del_usecs < fdata2->del_usecs)
-        return -1;
-      else if (fdata1->del_usecs > fdata2->del_usecs)
-        return 1;
-      else
-        return 0;
-    }
-  }
+  case COL_CULMULATIVE_BYTES:
+    return COMPARE_NUM(fdata1->cul_bytes, fdata2->cul_bytes);
 
-  else if (col_fmt == COL_PACKET_LENGTH) {
-
-    /* Compare packet lengths */
-
-    if (fdata1->pkt_len < fdata2->pkt_len)
-      return -1;
-    else if (fdata1->pkt_len > fdata2->pkt_len)
-      return 1;
-    else
-      return 0;
-  }
-
-  else if (col_fmt == COL_CULMULATIVE_BYTES) {
-
-    /* Compare cumulative bytes */
-
-    if (fdata1->cul_bytes < fdata2->cul_bytes)
-      return -1;
-    else if (fdata1->cul_bytes > fdata2->cul_bytes)
-      return 1;
-    else
-      return 0;
-  }
-
-  else if ((col_fmt == COL_UNRES_SRC_PORT) || (col_fmt == COL_UNRES_DST_PORT) ||
-      ((num1 != 0) && (num2 != 0) && ((col_fmt == COL_DEF_SRC_PORT) || (col_fmt == COL_RES_SRC_PORT) ||
+  default:
+    num1 = atof(text1);
+    num2 = atof(text2);
+    if ((col_fmt == COL_UNRES_SRC_PORT) || (col_fmt == COL_UNRES_DST_PORT) ||
+        ((num1 != 0) && (num2 != 0) && ((col_fmt == COL_DEF_SRC_PORT) || (col_fmt == COL_RES_SRC_PORT) ||
                                       (col_fmt == COL_DEF_DST_PORT) || (col_fmt == COL_RES_DST_PORT)))) {
 
-    /* Compare numeric column */
+      /* Compare numeric column */
 
-    if (num1 < num2)
-      return -1;
-    else if (num1 > num2)
-      return 1;
-    else
-      return 0;
-  }
+      if (num1 < num2)
+        return -1;
+      else if (num1 > num2)
+        return 1;
+      else
+        return 0;
+    }
 
-  else {
+    else {
 
-    /* Compare text column */
-    if (!text2)
-      return (text1 != NULL);
+      /* Compare text column */
+      if (!text2)
+        return (text1 != NULL);
 
-    if (!text1)
-      return -1;
+      if (!text1)
+        return -1;
 
-    return strcmp(text1, text2);
+      return strcmp(text1, text2);
+    }
   }
 }
 
