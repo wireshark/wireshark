@@ -1,7 +1,7 @@
 /* capture_dlg.c
  * Routines for packet capture windows
  *
- * $Id: capture_dlg.c,v 1.65 2002/03/05 12:03:26 guy Exp $
+ * $Id: capture_dlg.c,v 1.66 2002/04/14 19:24:26 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -172,7 +172,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
 		  "\n"
 		  "or the mirror at\n"
 		  "\n"
-		  "        http://netgroup-mirror.ethereal.com/winpcap/\n"
+		  "        http://winpcap.mirror.ethereal.com/\n"
 		  "\n"
 		  "or the mirror at\n"
 		  "\n"
