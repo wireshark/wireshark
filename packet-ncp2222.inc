@@ -8,7 +8,7 @@
  * Gilbert Ramirez <gram@alumni.rice.edu>
  * Modified to decode NDS packets by Greg Morris <gmorris@novell.com>
  *
- * $Id: packet-ncp2222.inc,v 1.35 2002/10/15 07:36:16 guy Exp $
+ * $Id: packet-ncp2222.inc,v 1.36 2002/10/15 07:47:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -8273,24 +8273,24 @@ dissect_ping_req(tvbuff_t *tvb, packet_info *pinfo,
        		}
        	}
         
-	/* If the dissection throws an exception, be sure to free
-	 * the temporary proto_tree that was created. Because of the
-	 * way the CLEANUP_PUSH macro works, we can't put it in an 'if'
-	 * block; it has to be in the same scope as the terminating
-	 * CLEANUP_POP or CLEANUP_POP_AND_ALLOC. So, we always
-	 * call CLEANUP_POP and friends, but the value of temp_tree is
-	 * NULL if no cleanup is needed, and non-null if cleanup is needed. 
-	 */
-	CLEANUP_PUSH(free_proto_tree, temp_tree);
+	if (ncp_tree) {
+		/* If the dissection throws an exception, be sure to free
+		 * the temporary proto_tree that was created. Because of the
+		 * way the CLEANUP_PUSH macro works, we can't put it in an 'if'
+		 * block; it has to be in the same scope as the terminating
+		 * CLEANUP_POP or CLEANUP_POP_AND_ALLOC. So, we always
+		 * call CLEANUP_POP and friends, but the value of temp_tree is
+		 * NULL if no cleanup is needed, and non-null if cleanup is needed. 
+		 */
+		CLEANUP_PUSH(free_proto_tree, temp_tree);
         
-	switch (type) {
+		switch (type) {
 
-	case NCP_BROADCAST_SLOT:
-		; /* nothing */
-		break;
+		case NCP_BROADCAST_SLOT:
+			; /* nothing */
+			break;
         
-	case NCP_SERVICE_REQUEST:
-		if (ncp_tree) {
+		case NCP_SERVICE_REQUEST:
 			proto_tree_add_uint_format(ncp_tree, hf_ncp_func, tvb, 6, 1,
 				func, "Function: %d (0x%02X), %s",
 				func, func, ncp_rec ? ncp_rec->name : "Unknown");
@@ -8298,20 +8298,16 @@ dissect_ping_req(tvbuff_t *tvb, packet_info *pinfo,
 			proto_tree_add_uint_format(ncp_tree, hf_ncp_subfunc, tvb, 7, 1,
 				subfunc, "SubFunction: %d (0x%02x)",
 				subfunc, subfunc);
-		}
                                         
-		length_remaining = tvb_reported_length_remaining(tvb, 8);
-		if (length_remaining >= 8) {
-			if (ncp_tree) {
+			length_remaining = tvb_reported_length_remaining(tvb, 8);
+			if (length_remaining >= 8) {
 				proto_tree_add_item(ncp_tree, hf_nds_version, tvb, 8, 4,
 					FALSE);
-			}
 
-			nds_flags = tvb_get_letohl(tvb, 12);
-			if (request_value)
-				request_value->req_nds_flags = nds_flags;
+				nds_flags = tvb_get_letohl(tvb, 12);
+				if (request_value)
+					request_value->req_nds_flags = nds_flags;
 
-			if (ncp_tree) {
 				strcpy(flags_str, " ");
 				sep = "(";
 				if (nds_flags & nds_flag_tree) {
@@ -8351,20 +8347,20 @@ dissect_ping_req(tvbuff_t *tvb, packet_info *pinfo,
 						tvb, 12, 4, TRUE);
 				}
 			}
-		}
-		break;
+			break;
        
-	default:
-		; /* nothing */
-		break;
-	}
-	ptvc = ptvcursor_new(ncp_tree, tvb, 7);
-	if (ncp_rec && ncp_rec->request_ptvc) {
-		clear_repeat_vars();
-		process_ptvc_record(ptvc, ncp_rec->request_ptvc, NULL, TRUE, ncp_rec);
-	}
-	ptvcursor_free(ptvc);
+		default:
+			; /* nothing */
+			break;
+		}
+		ptvc = ptvcursor_new(ncp_tree, tvb, 7);
+		if (ncp_rec && ncp_rec->request_ptvc) {
+			clear_repeat_vars();
+			process_ptvc_record(ptvc, ncp_rec->request_ptvc, NULL, TRUE, ncp_rec);
+		}
+		ptvcursor_free(ptvc);
 
-	/* Free the temporary proto_tree */
-	CLEANUP_CALL_AND_POP;
+		/* Free the temporary proto_tree */
+		CLEANUP_CALL_AND_POP;
+	}
 }
