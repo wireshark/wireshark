@@ -1,7 +1,7 @@
 /* file_dlg.c
  * Dialog boxes for handling files
  *
- * $Id: file_dlg.c,v 1.113 2004/06/18 07:41:21 ulfl Exp $
+ * $Id: file_dlg.c,v 1.114 2004/06/19 10:48:06 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -78,6 +78,16 @@ static void file_color_export_destroy_cb(GtkWidget *win, gpointer user_data);
 
 #define ARGUMENT_CL "argument_cl"
 
+
+#define PREVIEW_TABLE_KEY       "preview_table_key"
+#define PREVIEW_FILENAME_KEY    "preview_filename_key"
+#define PREVIEW_FORMAT_KEY      "preview_format_key"
+#define PREVIEW_SIZE_KEY        "preview_size_key"
+#define PREVIEW_ELAPSED_KEY     "preview_elapsed_key"
+#define PREVIEW_PACKETS_KEY     "preview_packets_key"
+#define PREVIEW_FIRST_KEY       "preview_first_key"
+
+
 /*
  * Keep a static pointer to the current "Save Capture File As" window, if
  * any, so that if somebody tries to do "File:Save" or "File:Save As"
@@ -87,6 +97,264 @@ static void file_color_export_destroy_cb(GtkWidget *win, gpointer user_data);
 static GtkWidget *file_save_as_w;
 
 
+#ifdef HAVE_SYS_STAT_H
+#include <sys/stat.h>
+#endif
+#define SUM_STR_MAX     1024
+
+static double
+secs_usecs( guint32 s, guint32 us)
+{
+  return (us / 1000000.0) + (double)s;
+}
+
+
+/* set a new filename for the preview widget */
+static gboolean
+preview_set_filename(GtkWidget *prev, const gchar *cf_name)
+{
+    GtkWidget  *label;
+    wtap       *wth;
+    const struct wtap_pkthdr *phdr;
+    int         err;
+    gchar      *err_info;
+    struct stat cf_stat;
+	long		data_offset;
+    gchar       string_buff[SUM_STR_MAX];
+    long        packet = 0;
+    double	    start_time;	/* seconds, with msec resolution */
+    double	    stop_time;	/* seconds, with msec resolution */
+    double      cur_time;
+    time_t      ti_time;
+    struct tm  *ti_tm;
+    long        elapsed_time;
+
+
+    label = OBJECT_GET_DATA(prev, PREVIEW_FILENAME_KEY);
+    gtk_label_set_text(GTK_LABEL(label), get_basename((char *)cf_name));
+    label = OBJECT_GET_DATA(prev, PREVIEW_FORMAT_KEY);
+    gtk_label_set_text(GTK_LABEL(label), "-");
+    label = OBJECT_GET_DATA(prev, PREVIEW_SIZE_KEY);
+    gtk_label_set_text(GTK_LABEL(label), "-");
+    label = OBJECT_GET_DATA(prev, PREVIEW_ELAPSED_KEY);
+    gtk_label_set_text(GTK_LABEL(label), "-");
+    label = OBJECT_GET_DATA(prev, PREVIEW_PACKETS_KEY);
+    gtk_label_set_text(GTK_LABEL(label), "-");
+    label = OBJECT_GET_DATA(prev, PREVIEW_FIRST_KEY);
+    gtk_label_set_text(GTK_LABEL(label), "-");
+
+    if (test_for_directory(cf_name) == EISDIR) {
+        label = OBJECT_GET_DATA(prev, PREVIEW_FORMAT_KEY);
+        gtk_label_set_text(GTK_LABEL(label), "directory");
+        return FALSE;
+    }
+
+
+    wth = wtap_open_offline(cf_name, &err, &err_info, TRUE);
+    if (wth == NULL) {
+        label = OBJECT_GET_DATA(prev, PREVIEW_FORMAT_KEY);
+        if(err == WTAP_ERR_FILE_UNKNOWN_FORMAT) {
+            gtk_label_set_text(GTK_LABEL(label), "unknown file format");
+        } else {
+            gtk_label_set_text(GTK_LABEL(label), "error opening file");
+        }
+        return FALSE;
+    }
+
+    /* Find the size of the file. */
+    if (fstat(wtap_fd(wth), &cf_stat) < 0) {
+        wtap_close(wth);
+        return FALSE;
+    }
+
+    /* size */
+    g_snprintf(string_buff, SUM_STR_MAX, "%u bytes", cf_stat.st_size);
+    label = OBJECT_GET_DATA(prev, PREVIEW_SIZE_KEY);
+    gtk_label_set_text(GTK_LABEL(label), string_buff);
+
+    /* type */
+    g_snprintf(string_buff, SUM_STR_MAX, "%s", wtap_file_type_string(wtap_file_type(wth)));
+    label = OBJECT_GET_DATA(prev, PREVIEW_FORMAT_KEY);
+    gtk_label_set_text(GTK_LABEL(label), string_buff);
+
+	while ( (wtap_read(wth, &err, &err_info, &data_offset)) ) {
+        phdr = wtap_phdr(wth);        
+        cur_time = secs_usecs(phdr->ts.tv_sec, phdr->ts.tv_usec);
+        if(packet == 0) {
+            start_time 	= cur_time;
+            stop_time = cur_time;
+        }
+        if (cur_time < start_time) {
+            start_time = cur_time;
+        }
+        if (cur_time > stop_time){
+            stop_time = cur_time;
+        }
+        packet++;
+	}
+
+    if(err != 0) {
+        g_snprintf(string_buff, SUM_STR_MAX, "error after reading %u packets", packet);
+        label = OBJECT_GET_DATA(prev, PREVIEW_PACKETS_KEY);
+        gtk_label_set_text(GTK_LABEL(label), string_buff);
+        wtap_close(wth);
+        return TRUE;
+    }
+
+    /* packet count */
+    g_snprintf(string_buff, SUM_STR_MAX, "%u", packet);
+    label = OBJECT_GET_DATA(prev, PREVIEW_PACKETS_KEY);
+    gtk_label_set_text(GTK_LABEL(label), string_buff);
+
+    /* first packet */
+    ti_time = (long)start_time;
+    ti_tm = localtime( &ti_time );
+    g_snprintf(string_buff, SUM_STR_MAX,
+             "%04d-%02d-%02d %02d:%02d:%02d",
+             ti_tm->tm_year + 1900,
+             ti_tm->tm_mon + 1,
+             ti_tm->tm_mday,
+             ti_tm->tm_hour,
+             ti_tm->tm_min,
+             ti_tm->tm_sec);
+    label = OBJECT_GET_DATA(prev, PREVIEW_FIRST_KEY);
+    gtk_label_set_text(GTK_LABEL(label), string_buff);
+
+    /* elapsed time */
+    elapsed_time = (long)(stop_time-start_time);
+    if(elapsed_time/86400) {
+      g_snprintf(string_buff, SUM_STR_MAX, "%02u days %02u:%02u:%02u", 
+        elapsed_time/86400, elapsed_time%86400/3600, elapsed_time%3600/60, elapsed_time%60);
+    } else {
+      g_snprintf(string_buff, SUM_STR_MAX, "%02u:%02u:%02u", 
+        elapsed_time%86400/3600, elapsed_time%3600/60, elapsed_time%60);
+    }
+    label = OBJECT_GET_DATA(prev, PREVIEW_ELAPSED_KEY);
+    gtk_label_set_text(GTK_LABEL(label), string_buff);
+
+    wtap_close(wth);
+
+    return TRUE;
+}
+
+#if 0
+/* as the dialog layout will look very ugly when using the file chooser preview mechanism,
+   simply use the same layout as in GTK1 */
+/* (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2 */
+static void
+update_preview_cb (GtkFileChooser *file_chooser, gpointer data)
+{
+    GtkWidget *prev = GTK_WIDGET (data);
+    char *cf_name;
+    gboolean have_preview;
+
+    cf_name = gtk_file_chooser_get_preview_filename (file_chooser);
+
+    have_preview = preview_set_filename(prev, cf_name);
+
+    g_free (cf_name);
+
+    have_preview = TRUE;
+    gtk_file_chooser_set_preview_widget_active (file_chooser, have_preview);
+}
+#endif
+
+
+/* the text entry changed */
+static void
+file_open_entry_changed(GtkWidget *w, gpointer file_sel)
+{
+    GtkWidget *prev = OBJECT_GET_DATA(file_sel, PREVIEW_TABLE_KEY);
+    G_CONST_RETURN gchar* cf_name;
+    long packet = 0;
+    gboolean have_preview;
+
+
+    /* get the filename */
+#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+    cf_name = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(file_sel));
+#else
+    cf_name = gtk_file_selection_get_filename(GTK_FILE_SELECTION(file_sel));
+#endif
+
+    /* set the filename to the preview */
+    have_preview = preview_set_filename(prev, cf_name);
+
+    /* make the preview widget sensitive */
+    gtk_widget_set_sensitive(prev, have_preview);
+
+    /* make the open/save/... dialog button sensitive */
+#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+    gtk_dialog_set_response_sensitive(file_sel, GTK_RESPONSE_ACCEPT, have_preview);
+#else
+    gtk_widget_set_sensitive(GTK_FILE_SELECTION(file_sel)->ok_button, have_preview);
+#endif
+}
+
+
+/* copied from summary_dlg.c */
+static GtkWidget *
+add_string_to_table_sensitive(GtkWidget *list, guint *row, gchar *title, gchar *value, gboolean sensitive)
+{
+    GtkWidget *label;
+    gchar     *indent;
+
+    if(strlen(value) != 0) {
+        indent = g_strdup_printf("   %s", title);
+    } else {
+        indent = g_strdup(title);
+    }
+    label = gtk_label_new(indent);
+    g_free(indent);
+    gtk_misc_set_alignment(GTK_MISC(label), 0.0, 0.5);
+    gtk_widget_set_sensitive(label, sensitive);
+    gtk_table_attach_defaults(GTK_TABLE(list), label, 0, 1, *row, *row+1);
+
+    label = gtk_label_new(value);
+    gtk_misc_set_alignment(GTK_MISC(label), 0.0, 0.5);
+    gtk_widget_set_sensitive(label, sensitive);
+    gtk_table_attach_defaults(GTK_TABLE(list), label, 1, 2, *row, *row+1);
+
+    *row = *row + 1;
+
+    return label;
+}
+
+static GtkWidget *
+add_string_to_table(GtkWidget *list, guint *row, gchar *title, gchar *value)
+{
+    return add_string_to_table_sensitive(list, row, title, value, TRUE);
+}
+
+
+
+static GtkWidget *
+preview_new(void)
+{
+    GtkWidget *table, *label;
+    guint         row;
+
+    table = gtk_table_new(1, 2, FALSE);
+    gtk_table_set_col_spacings(GTK_TABLE(table), 6);
+    gtk_table_set_row_spacings(GTK_TABLE(table), 3);
+    row = 0;
+
+    label = add_string_to_table(table, &row, "Filename:", "-");
+    WIDGET_SET_SIZE(label, DEF_WIDTH/3, -1);
+    OBJECT_SET_DATA(table, PREVIEW_FILENAME_KEY, label);
+    label = add_string_to_table(table, &row, "Format:", "-");
+    OBJECT_SET_DATA(table, PREVIEW_FORMAT_KEY, label);
+    label = add_string_to_table(table, &row, "Size:", "-");
+    OBJECT_SET_DATA(table, PREVIEW_SIZE_KEY, label);
+    label = add_string_to_table(table, &row, "Packets:", "-");
+    OBJECT_SET_DATA(table, PREVIEW_PACKETS_KEY, label);
+    label = add_string_to_table(table, &row, "First Packet:", "-");
+    OBJECT_SET_DATA(table, PREVIEW_FIRST_KEY, label);
+    label = add_string_to_table(table, &row, "Elapsed time:", "-");
+    OBJECT_SET_DATA(table, PREVIEW_ELAPSED_KEY, label);
+
+    return table;
+}
 
 /*
  * Keep a static pointer to the current "Open Capture File" window, if
@@ -100,8 +368,8 @@ static GtkWidget *file_open_w;
 void
 file_open_cmd(GtkWidget *w)
 {
-  GtkWidget	*main_vb, *filter_hbox, *filter_bt, *filter_te,
-  		*m_resolv_cb, *n_resolv_cb, *t_resolv_cb;
+  GtkWidget	*main_hb, *main_vb, *filter_hbox, *filter_bt, *filter_te,
+  		*m_resolv_cb, *n_resolv_cb, *t_resolv_cb, *prev;
 #if GTK_MAJOR_VERSION < 2
   GtkAccelGroup *accel_group;
 #endif
@@ -121,8 +389,7 @@ file_open_cmd(GtkWidget *w)
 
   file_open_w = file_selection_new("Ethereal: Open Capture File",
                                    FILE_SELECTION_OPEN);
-  /* window is already shown here, gtk_window_set_default_size() will not work */
-  WIDGET_SET_SIZE(file_open_w, DEF_WIDTH, DEF_HEIGHT);
+  gtk_window_set_default_size(GTK_WINDOW(file_open_w), DEF_WIDTH, DEF_HEIGHT);
 
 #if GTK_MAJOR_VERSION < 2
   /* Accelerator group for the accelerators (or, as they're called in
@@ -151,13 +418,19 @@ file_open_cmd(GtkWidget *w)
       file_selection_set_current_folder(file_open_w, prefs.gui_fileopen_dir);
     break;
   }
-    
+
+  
+  main_hb = gtk_hbox_new(FALSE, 3);
+  file_selection_set_extra_widget(file_open_w, main_hb);
+  gtk_widget_show(main_hb);
+
   /* Container for each row of widgets */
   main_vb = gtk_vbox_new(FALSE, 3);
   gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
-  file_selection_set_extra_widget(file_open_w, main_vb);
+  gtk_box_pack_start(GTK_BOX(main_hb), main_vb, FALSE, FALSE, 0);
   gtk_widget_show(main_vb);
 
+  /* filter row */
   filter_hbox = gtk_hbox_new(FALSE, 1);
   gtk_container_border_width(GTK_CONTAINER(filter_hbox), 0);
   gtk_box_pack_start(GTK_BOX(main_vb), filter_hbox, FALSE, FALSE, 0);
@@ -182,6 +455,7 @@ file_open_cmd(GtkWidget *w)
                   E_RFILTER_TE_KEY, filter_te);
 #endif
 
+  /* resolve buttons */
   m_resolv_cb = CHECK_BUTTON_NEW_WITH_MNEMONIC("Enable _MAC name resolution", accel_group);
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(m_resolv_cb),
 	g_resolv_flags & RESOLV_MAC);
@@ -222,7 +496,17 @@ file_open_cmd(GtkWidget *w)
 
   SIGNAL_CONNECT(file_open_w, "destroy", file_open_destroy_cb, NULL);
 
+  /* preview widget */
+  prev = preview_new();
+  OBJECT_SET_DATA(file_open_w, PREVIEW_TABLE_KEY, prev);
+  gtk_widget_show_all(prev);
+  gtk_box_pack_start(GTK_BOX(main_hb), prev, TRUE, TRUE, 0);
+
 #if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+  SIGNAL_CONNECT(GTK_FILE_CHOOSER(file_open_w), "selection-changed", 
+      file_open_entry_changed, file_open_w);
+  file_open_entry_changed(file_open_w, file_open_w);
+
   OBJECT_SET_DATA(file_open_w, E_DFILTER_TE_KEY,
                   OBJECT_GET_DATA(w, E_DFILTER_TE_KEY));
   if (gtk_dialog_run(GTK_DIALOG(file_open_w)) == GTK_RESPONSE_ACCEPT)
@@ -231,6 +515,9 @@ file_open_cmd(GtkWidget *w)
   }
   else window_destroy(file_open_w);
 #else
+  SIGNAL_CONNECT(GTK_FILE_SELECTION(file_open_w)->selection_entry, "changed", 
+      file_open_entry_changed, file_open_w);
+
   /* Connect the ok_button to file_open_ok_cb function and pass along a
      pointer to the file selection box widget */
   SIGNAL_CONNECT(GTK_FILE_SELECTION(file_open_w)->ok_button, "clicked",
@@ -391,8 +678,8 @@ static GtkWidget *file_merge_w;
 void
 file_merge_cmd(GtkWidget *w)
 {
-  GtkWidget	*main_vb, *filter_hbox, *filter_bt, *filter_te,
-  		*prepend_rb, *chrono_rb, *append_rb;
+  GtkWidget	*main_hb, *main_vb, *filter_hbox, *filter_bt, *filter_te,
+  		*prepend_rb, *chrono_rb, *append_rb, *prev;
 #if GTK_MAJOR_VERSION < 2
   GtkAccelGroup *accel_group;
 #endif
@@ -444,10 +731,14 @@ file_merge_cmd(GtkWidget *w)
     break;
   }
     
+  main_hb = gtk_hbox_new(FALSE, 3);
+  file_selection_set_extra_widget(file_merge_w, main_hb);
+  gtk_widget_show(main_hb);
+
   /* Container for each row of widgets */
   main_vb = gtk_vbox_new(FALSE, 3);
   gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
-  file_selection_set_extra_widget(file_merge_w, main_vb);
+  gtk_box_pack_start(GTK_BOX(main_hb), main_vb, FALSE, FALSE, 0);
   gtk_widget_show(main_vb);
 
   filter_hbox = gtk_hbox_new(FALSE, 1);
@@ -520,7 +811,17 @@ file_merge_cmd(GtkWidget *w)
 
   SIGNAL_CONNECT(file_merge_w, "destroy", file_merge_destroy_cb, NULL);
 
+  /* preview widget */
+  prev = preview_new();
+  OBJECT_SET_DATA(file_merge_w, PREVIEW_TABLE_KEY, prev);
+  gtk_widget_show_all(prev);
+  gtk_box_pack_start(GTK_BOX(main_hb), prev, TRUE, TRUE, 0);
+
 #if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+  SIGNAL_CONNECT(GTK_FILE_CHOOSER(file_merge_w), "selection-changed", 
+      file_open_entry_changed, file_merge_w);
+  file_open_entry_changed(file_merge_w, file_merge_w);
+
   OBJECT_SET_DATA(file_merge_w, E_DFILTER_TE_KEY,
                   OBJECT_GET_DATA(w, E_DFILTER_TE_KEY));
   if (gtk_dialog_run(GTK_DIALOG(file_merge_w)) == GTK_RESPONSE_ACCEPT)
@@ -529,6 +830,9 @@ file_merge_cmd(GtkWidget *w)
   }
   else window_destroy(file_merge_w);
 #else
+  SIGNAL_CONNECT(GTK_FILE_SELECTION(file_merge_w)->selection_entry, "changed", 
+      file_open_entry_changed, file_merge_w);
+
   /* Connect the ok_button to file_merge_ok_cb function and pass along a
      pointer to the file selection box widget */
   SIGNAL_CONNECT(GTK_FILE_SELECTION(file_merge_w)->ok_button, "clicked",
