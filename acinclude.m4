@@ -733,7 +733,8 @@ AC_DEFUN([AC_ETHEREAL_UCDSNMP_CHECK],
 		#
 		for extras in "" "-L/usr/kerberos/lib -ldes425" "-lkstat"
 		do
-			LIBS="$SOCKET_LIBS $NSL_LIBS $SSL_LIBS $extras"
+			ac_save_LIBS="$LIBS"
+			LIBS="-lsnmp $extras $SOCKET_LIBS $NSL_LIBS $SSL_LIBS"
 			AC_TRY_LINK(
 			[
 			],
@@ -763,6 +764,7 @@ AC_DEFUN([AC_ETHEREAL_UCDSNMP_CHECK],
 #				unset ac_cv_lib_snmp_sprint_realloc_objid
 #			  ], $SOCKET_LIBS $NSL_LIBS $SSL_LIBS $extras)
 		done
+		LIBS=$ac_save_LIBS
 
 		#
 		# If we didn't find "sprint_realloc_objid()", fail.
