@@ -1,7 +1,7 @@
 /* capture_prefs.c
  * Dialog box for capture preferences
  *
- * $Id: capture_prefs.c,v 1.31 2004/03/13 15:15:22 ulfl Exp $
+ * $Id: capture_prefs.c,v 1.32 2004/04/17 01:10:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -659,7 +659,7 @@ ifopts_if_clist_add(GtkCList *clist)
 	
 	if_list = get_interface_list(&err, err_str);
 	if (if_list == NULL && err == CANT_GET_INTERFACE_LIST) {
-		simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 				"Can't get list of interfaces: %s", err_str);
 		return;
 	}

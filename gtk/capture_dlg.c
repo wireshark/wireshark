@@ -1,7 +1,7 @@
 /* capture_dlg.c
  * Routines for packet capture windows
  *
- * $Id: capture_dlg.c,v 1.126 2004/04/08 19:07:43 ulfl Exp $
+ * $Id: capture_dlg.c,v 1.127 2004/04/17 01:09:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -531,7 +531,7 @@ capture_prep(void)
 
   if_list = get_interface_list(&err, err_str);
   if (if_list == NULL && err == CANT_GET_INTERFACE_LIST) {
-    simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK, "Can't get list of interfaces: %s",
+    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Can't get list of interfaces: %s",
 			err_str);
   }
 
