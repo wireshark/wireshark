@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.160 2000/01/25 17:51:11 gram Exp $
+ * $Id: file.c,v 1.161 2000/01/27 09:53:50 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -230,6 +230,7 @@ close_cap_file(capture_file *cf, void *w)
   set_menus_for_unsaved_capture_file(FALSE);
   set_menus_for_captured_packets(FALSE);
   set_menus_for_selected_packet(FALSE);
+  set_menus_for_capture_in_progress(FALSE);
 }
 
 /* Set the file name in the status line, in the name for the main window,
