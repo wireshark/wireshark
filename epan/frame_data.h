@@ -1,7 +1,7 @@
 /* frame_data.h
  * Definitions for frame_data structures and routines
  *
- * $Id: frame_data.h,v 1.2 2001/12/10 00:26:16 guy Exp $
+ * $Id: frame_data.h,v 1.3 2001/12/10 02:16:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -66,6 +66,3 @@ void frame_data_init(void);
 void frame_data_cleanup(void);
 
 #endif  /* __FRAME_DATA__ */
-
-
-
