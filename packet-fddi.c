@@ -3,7 +3,7 @@
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
- * $Id: packet-fddi.c,v 1.9 1999/02/09 00:35:37 guy Exp $
+ * $Id: packet-fddi.c,v 1.10 1999/03/02 20:50:05 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -207,6 +207,8 @@ void dissect_fddi(const u_char *pd, frame_data *fd, GtkTree *tree)
   if (check_col(fd, COL_INFO))
     col_add_str(fd, COL_INFO, "FDDI");
 
+  offset = FDDI_HEADER_SIZE;
+
   if (tree) {
     ti = add_item_to_tree(GTK_WIDGET(tree), 0, offset,
 			  "FDDI %s",
@@ -221,8 +223,6 @@ void dissect_fddi(const u_char *pd, frame_data *fd, GtkTree *tree)
       add_item_to_tree(fh_tree, FDDI_P_SHOST, 6, "Source: %s (%s)",
 		       ether_to_str(src), get_ether_name(src));
     }
-
-  offset = FDDI_HEADER_SIZE;
 
   switch (fc) {
 
