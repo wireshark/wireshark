@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.100 1999/09/29 22:19:14 guy Exp $
+ * $Id: file.c,v 1.101 1999/09/30 07:15:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -46,6 +46,7 @@
 #include <sys/stat.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <signal.h>
 
 #ifdef NEED_SNPRINTF_H
 # ifdef HAVE_STDARG_H
@@ -300,6 +301,12 @@ cap_file_input_cb (gpointer data, gint source, GdkInputCondition condition) {
   int  to_read = 0;
   gboolean exit_loop = FALSE;
   int  err;
+  int  wstatus;
+  int  wsignal;
+  char *msg;
+  char *sigmsg;
+  char sigmsg_buf[6+1+3+1];
+  char *coredumped;
 
   /* avoid reentrancy problems and stack overflow */
   gtk_input_remove(cap_input_id);
@@ -307,8 +314,93 @@ cap_file_input_cb (gpointer data, gint source, GdkInputCondition condition) {
   if ((nread = read(sync_pipe[0], buffer, 256)) <= 0) {
 
     /* The child has closed the sync pipe, meaning it's not going to be
-       capturing any more packets.  Read what remains of the capture file,
-       and stop capture (restore menu items) */
+       capturing any more packets.  Pick up its exit status, and
+       complain if it died of a signal. */
+    if (wait(&wstatus) != -1) {
+      /* XXX - are there any platforms on which we can run that *don't*
+         support POSIX.1's <sys/wait.h> and macros therein? */
+      wsignal = wstatus & 0177;
+      coredumped = "";
+      if (wstatus == 0177) {
+      	/* It stopped, rather than exiting.  "Should not happen." */
+      	msg = "stopped";
+      	wsignal = (wstatus >> 8) & 0xFF;
+      } else {
+        msg = "terminated";
+        if (wstatus & 0200)
+          coredumped = " - core dumped";
+      }
+      if (wsignal != 0) {
+        switch (wsignal) {
+
+        case SIGHUP:
+          sigmsg = "Hangup";
+          break;
+
+        case SIGINT:
+          sigmsg = "Interrupted";
+          break;
+
+        case SIGQUIT:
+          sigmsg = "Quit";
+          break;
+
+        case SIGILL:
+          sigmsg = "Illegal instruction";
+          break;
+
+        case SIGTRAP:
+          sigmsg = "Trace trap";
+          break;
+
+        case SIGABRT:
+          sigmsg = "Abort";
+          break;
+
+        case SIGFPE:
+          sigmsg = "Arithmetic exception";
+          break;
+
+        case SIGKILL:
+          sigmsg = "Killed";
+          break;
+
+        case SIGBUS:
+          sigmsg = "Bus error";
+          break;
+
+        case SIGSEGV:
+          sigmsg = "Segmentation violation";
+          break;
+
+        case SIGSYS:
+          sigmsg = "Bad system call";
+          break;
+
+        case SIGPIPE:
+          sigmsg = "Broken pipe";
+          break;
+
+        case SIGALRM:
+          sigmsg = "Alarm clock";
+          break;
+
+        case SIGTERM:
+          sigmsg = "Terminated";
+          break;
+
+        default:
+          sprintf(sigmsg_buf, "Signal %d", wsignal);
+          sigmsg = sigmsg_buf;
+          break;
+        }
+	simple_dialog(ESD_TYPE_WARN, NULL,
+		"Child capture process %s: %s%s", msg, sigmsg, coredumped);
+      }
+    }
+      
+    /* Read what remains of the capture file, and stop capture (restore
+       menu items) */
     gtk_clist_freeze(GTK_CLIST(packet_list));
 
     /* XXX - do something if this fails? */
