@@ -1,7 +1,7 @@
 /* print.c
  * Routines for printing packet analysis trees.
  *
- * $Id: print.c,v 1.67 2003/12/10 22:52:08 gram Exp $
+ * $Id: print.c,v 1.68 2003/12/30 23:13:32 guy Exp $
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -131,6 +131,7 @@ get_field_data(GSList *src_list, field_info *fi)
 	GSList *src_le;
 	data_source *src;
 	tvbuff_t *src_tvb;
+	gint length, tvbuff_length;
 
 	for (src_le = src_list; src_le != NULL; src_le = src_le->next) {
 		src = src_le->data;
@@ -138,8 +139,20 @@ get_field_data(GSList *src_list, field_info *fi)
 		if (fi->ds_tvb == src_tvb) {
 			/*
 			 * Found it.
+			 *
+			 * XXX - a field can have a length that runs past
+			 * the end of the tvbuff.  Ideally, that should
+			 * be fixed when adding an item to the protocol
+			 * tree, but checking the length when doing
+			 * that could be expensive.  Until we fix that,
+			 * we'll do the check here.
 			 */
-			return tvb_get_ptr(src_tvb, fi->start, fi->length);
+			length = fi->length;
+			tvbuff_length = tvb_length_remaining(src_tvb,
+			    fi->start);
+			if (length > tvbuff_length)
+				length = tvbuff_length;
+			return tvb_get_ptr(src_tvb, fi->start, length);
 		}
 	}
 	g_assert_not_reached();
@@ -184,7 +197,7 @@ void proto_tree_print_node(proto_node *node, gpointer data)
 		pd = get_field_data(pdata->src_list, fi);
 		print_hex_data_buffer(pdata->fh, pd, fi->length,
 		    pdata->encoding, pdata->format);
-    }
+	}
 
 	/* If we're printing all levels, or if this node is one with a
 	   subtree and its subtree is expanded, recurse into the subtree,
