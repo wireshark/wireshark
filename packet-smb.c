@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.285 2002/08/29 00:35:54 sharpe Exp $
+ * $Id: packet-smb.c,v 1.286 2002/08/29 05:26:45 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -10360,7 +10360,7 @@ dissect_4_2_14_4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 	*bcp -= 8;
 
 	/* File Attributes */
-	CHECK_BYTE_COUNT_SUBR(2);
+	CHECK_BYTE_COUNT_SUBR(4);
 	offset = dissect_file_attributes(tvb, tree, offset, 4);
 	*bcp -= 4;
 

@@ -2,7 +2,7 @@
  * Dissector for GSS-API tokens as described in rfc2078, section 3.1
  * Copyright 2002, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-gssapi.c,v 1.7 2002/08/28 21:00:14 jmayer Exp $
+ * $Id: packet-gssapi.c,v 1.8 2002/08/29 05:26:45 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -140,6 +140,13 @@ dissect_gssapi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		goto done;
 	}
 
+	/* FIXME!
+	 * If we do not recognise an Application class, then
+	 * then we are probably dealing with an inner context
+	 * token, and we should retrieve the dissector from
+	 * the conversation that exists or we created from pinfo
+	 */
+
 	if (!(cls == ASN1_APL && con == ASN1_CON && tag == 0)) {
 		proto_tree_add_text(
 			subtree, tvb, offset, 0,
@@ -159,6 +166,12 @@ dissect_gssapi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				    "GSS-API token", ret);
 		goto done;
 	}
+
+	/* FIXME!
+	 * Here we should create a conversation if needed and 
+	 * save the OID and dissector handle in it for the 
+	 * GSSAPI protocol.
+	 */
 
 	oid_string = format_oid(oid, oid_len);
 
