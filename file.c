@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.350 2004/01/25 22:27:12 guy Exp $
+ * $Id: file.c,v 1.351 2004/01/26 06:43:00 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -940,6 +940,14 @@ int
 filter_packets(capture_file *cf, gchar *dftext)
 {
   dfilter_t *dfcode;
+  char      *filter_new = dftext ? dftext : "";
+  char      *filter_old = cf->dfilter ? cf->dfilter : "";
+
+
+  /* if new filter equals old one, do nothing */
+  if (strcmp(filter_new, filter_old) == 0) {
+    return 1;
+  }
 
   if (dftext == NULL) {
     /* The new filter is an empty filter (i.e., display all packets). */
@@ -953,6 +961,7 @@ filter_packets(capture_file *cf, gchar *dftext)
     if (!dfilter_compile(dftext, &dfcode)) {
       /* The attempt failed; report an error. */
       simple_dialog(ESD_TYPE_CRIT, NULL, dfilter_error_msg);
+      g_free(dftext);
       return 0;
     }
 
