@@ -874,7 +874,11 @@ netxray_set_pseudo_header(wtap *wth, const guint8 *pd, int len,
 			 *
 			 * It also appears that if the low-order bit of
 			 * hdr->hdr_2_x.xxx[8] is set, the packet has a
-			 * bad FCS.
+			 * bad FCS.  According to Ken Mann, the 0x4 bit
+			 * is sometimes also set for errors.
+			 *
+			 * Ken also says that xxx[11] is 0x5 when the
+			 * packet is WEP-encrypted.
 			 */
 			if (hdr->hdr_2_x.xxx[2] == 0xff &&
 			    hdr->hdr_2_x.xxx[3] == 0xff) {
@@ -902,6 +906,12 @@ netxray_set_pseudo_header(wtap *wth, const guint8 *pd, int len,
 			    hdr->hdr_2_x.xxx[13];
 			pseudo_header->ieee_802_11.signal_level =
 			    hdr->hdr_2_x.xxx[14];
+			/*
+			 * According to Ken Mann, at least in the captures
+			 * he's seen, xxx[15] is the noise level, which
+			 * is either 0xFF meaning "none reported" or a value
+			 * from 0x00 to 0x7F for 0 to 100%.
+			 */
 			break;
 
 		case WTAP_ENCAP_ISDN:
