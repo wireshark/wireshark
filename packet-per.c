@@ -7,7 +7,7 @@ proper helper routines
  * Routines for dissection of ASN.1 Aligned PER
  * 2003  Ronnie Sahlberg
  *
- * $Id: packet-per.c,v 1.24 2004/02/16 18:31:39 sahlberg Exp $
+ * $Id: packet-per.c,v 1.25 2004/02/16 20:58:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1315,7 +1315,8 @@ DEBUG_ENTRY("dissect_per_bit_string");
 	/* 15.9 if length is fixed and less than or equal to sixteen bits*/
 	if((min_len==max_len)&&(max_len<=16)){
 		static char bytes[4];
-		guint32 i, old_offset=offset;
+		int i;
+		guint32 old_offset=offset;
 		gboolean bit;
 
 		bytes[0]=bytes[1]=bytes[2]=0;
