@@ -8,7 +8,7 @@
  * Gilbert Ramirez <gram@alumni.rice.edu>
  * Modified to decode NDS packets by Greg Morris <gmorris@novell.com>
  *
- * $Id: packet-ncp2222.inc,v 1.29 2002/10/10 23:06:00 guy Exp $
+ * $Id: packet-ncp2222.inc,v 1.30 2002/10/10 23:32:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -4356,7 +4356,7 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                 if (ping_version == 9) {
                                         nds_string_len = tvb_get_ntohl(tvb, 9);
                                         nds_offset = nds_string_len+16;
-                		        proto_tree_add_item(ncp_tree, hf_nds_string, tvb, 16, nds_string_len, FALSE);
+                		        proto_tree_add_item(ncp_tree, hf_nds_tree_name, tvb, 16, nds_string_len, FALSE);
                                        	proto_tree_add_item(ncp_tree, hf_nds_reply_depth, tvb, nds_offset, 4, FALSE);
                                        	proto_tree_add_item(ncp_tree, hf_nds_reply_rev, tvb, (nds_offset+4), 4, FALSE);
                                        	proto_tree_add_item(ncp_tree, hf_nds_reply_flags, tvb, (nds_offset+8), 4, TRUE);
@@ -4391,13 +4391,11 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                 nds_offset = 8;
                                         
                                 nds_reply_buffer = tvb_get_letohl(tvb, nds_offset);        
-                                proto_tree_add_uint_format(ncp_tree, hf_ncp_fragment_size, tvb, 8,
-                                        4, nds_reply_buffer, "NDS Fragment Size %d",
-        			        nds_reply_buffer);
+                                proto_tree_add_uint(ncp_tree, hf_ncp_fragment_size, tvb, 8,
+                                        4, nds_reply_buffer);
                                 nds_frag = tvb_get_letohl(tvb, 12);        
-                                proto_tree_add_uint_format(ncp_tree, hf_ncp_fragment_handle, tvb, 12,
-                                        4, nds_frag, "NDS Fragment Handle 0x%08x",
-        			        nds_frag);
+                                proto_tree_add_uint(ncp_tree, hf_ncp_fragment_handle, tvb, 12,
+                                        4, nds_frag);
                                 if (nds_reply_buffer > 7)
                                 {                        
                                         proto_tree_add_uint_format(ncp_tree, hf_nds_reply_error, tvb, nds_offset,
@@ -5659,9 +5657,8 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                         foffset = 28;
                 }
                 nds_reply_buffer = tvb_get_letohl(tvb, foffset);        
-                proto_tree_add_uint_format(ncp_tree, hf_nds_buffer_size, tvb, foffset,
-                        4, nds_reply_buffer, "NDS Reply Buffer Size %d",
-        		nds_reply_buffer);
+                proto_tree_add_uint(ncp_tree, hf_nds_buffer_size, tvb, foffset,
+                        4, nds_reply_buffer);
                 foffset = foffset+4;        
                 switch(nds_verb) {
                 
@@ -7699,8 +7696,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
         				subfunc, "SubFunction: %d (0x%02x)",
         				subfunc, subfunc);
                                                 
-        			proto_tree_add_uint_format(ncp_tree, hf_ncp_fragment_handle, tvb, 8, 4,
-        				nds_frag, "Fragment Handle: (0x%08x)",
+        			proto_tree_add_uint(ncp_tree, hf_ncp_fragment_handle, tvb, 8, 4,
         				nds_frag);
                                                 
                                 if (nds_frag == 0xffffffff) {
@@ -8305,8 +8301,7 @@ dissect_ping_req(tvbuff_t *tvb, packet_info *pinfo,
 					subfunc, "SubFunction: %d (0x%02x)",
 					subfunc, subfunc);
                                         
-				proto_tree_add_uint_format(ncp_tree, hf_nds_version, tvb, 8, 4,
-					nds_version, "NDS Version: (0x%x)",
+				proto_tree_add_uint(ncp_tree, hf_nds_version, tvb, 8, 4,
 					nds_version);
                                
         		        length_remaining = tvb_length_remaining(tvb, 8);

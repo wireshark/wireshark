@@ -24,7 +24,7 @@ http://developer.novell.com/ndk/doc/docui/index.htm#../ncp/ncp__enu/data/
 for a badly-formatted HTML version of the same PDF.
 
 
-$Id: ncp2222.py,v 1.35 2002/09/26 02:08:20 jmayer Exp $
+$Id: ncp2222.py,v 1.36 2002/10/10 23:32:01 guy Exp $
 
 
 Copyright (c) 2000-2002 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -5769,8 +5769,7 @@ static int hf_bit13l1flagsh = -1;
 static int hf_bit14l1flagsh = -1;
 static int hf_bit15l1flagsh = -1;
 static int hf_bit16l1flagsh = -1;
-static int hf_nds_string = -1;
-static int hf_nds_string_value = -1;
+static int hf_nds_tree_name = -1;
 static int hf_nds_reply_error = -1;
 static int hf_nds_net = -1;
 static int hf_nds_node = -1;
@@ -6321,14 +6320,11 @@ proto_register_ncp2222(void)
         { "NDS Version", "ncp.ping_version", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
         
 	{ &hf_nds_version,
-	{ "NDS Version", "ncp.ndsver", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+	{ "NDS Version", "ncp.nds_version", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
         
-	{ &hf_nds_string,                             
-	{ "Tree Name", "ncp.nds_string", FT_STRING, BASE_DEC, NULL, 0x0, "", HFILL }},
+	{ &hf_nds_tree_name,                             
+	{ "Tree Name", "ncp.nds_tree_name", FT_STRING, BASE_DEC, NULL, 0x0, "", HFILL }},
                         
-	{ &hf_nds_string_value,
-	{ "NDS String :", "ncp.nds_string_value", FT_STRING, BASE_DEC, NULL, 0x0, "", HFILL }},
-                               
         /*
 	 * XXX - the page at
 	 *
@@ -7057,7 +7053,7 @@ proto_register_ncp2222(void)
 	{ "Stream Name ", "ncp.nds_stream_name", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
         
  	{ &hf_nds_buffer_size,
-	{ "Reply Buffer Size", "ncp.nds_reply_buf", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+	{ "NDS Reply Buffer Size", "ncp.nds_reply_buf", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
         
  	{ &hf_nds_ver,
 	{ "NDS Version", "ncp.nds_ver", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
