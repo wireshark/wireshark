@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.46 1999/08/10 20:13:21 guy Exp $
+ * $Id: capture.c,v 1.47 1999/08/14 23:47:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -417,7 +417,7 @@ capture_prep_close_cb(GtkWidget *close_bt, gpointer parent_w)
 
 void
 capture(void) {
-  GtkWidget  *cap_w, *main_vb, *count_lb, *tcp_lb, *udp_lb, 
+  GtkWidget  *cap_w, *main_vb, *count_lb, *tcp_lb, *udp_lb, *icmp_lb,
              *ospf_lb, *gre_lb, *netbios_lb, *other_lb, *stop_bt;
   pcap_t     *pch;
   gchar       err_str[PCAP_ERRBUF_SIZE], label_str[32];
@@ -433,6 +433,7 @@ capture(void) {
   ld.sync_packets   = 0;
   ld.counts.tcp     = 0;
   ld.counts.udp     = 0;
+  ld.counts.icmp    = 0;
   ld.counts.ospf    = 0;
   ld.counts.gre     = 0;
   ld.counts.netbios = 0;
@@ -516,6 +517,10 @@ capture(void) {
     gtk_box_pack_start(GTK_BOX(main_vb), udp_lb, FALSE, FALSE, 3);
     gtk_widget_show(udp_lb);
 
+    icmp_lb = gtk_label_new("ICMP: 0 (0.0%)");
+    gtk_box_pack_start(GTK_BOX(main_vb), icmp_lb, FALSE, FALSE, 3);
+    gtk_widget_show(icmp_lb);
+
     ospf_lb = gtk_label_new("OSPF: 0 (0.0%)");
     gtk_box_pack_start(GTK_BOX(main_vb), ospf_lb, FALSE, FALSE, 3);
     gtk_widget_show(ospf_lb);
@@ -567,6 +572,10 @@ capture(void) {
         sprintf(label_str, "UDP: %d (%.1f%%)", ld.counts.udp,
 	  pct(ld.counts.udp, ld.counts.total));
         gtk_label_set(GTK_LABEL(udp_lb), label_str);
+
+        sprintf(label_str, "ICMP: %d (%.1f%%)", ld.counts.icmp,
+	  pct(ld.counts.icmp, ld.counts.total));
+        gtk_label_set(GTK_LABEL(icmp_lb), label_str);
 
         sprintf(label_str, "OSPF: %d (%.1f%%)", ld.counts.ospf,
 	  pct(ld.counts.ospf, ld.counts.total));
