@@ -2,7 +2,7 @@
  * Routines for docsis dissection
  * Copyright 2002, Anand V. Narwani <anarwani@cisco.com>
  *
- * $Id: packet-docsis.c,v 1.8 2002/08/28 20:38:59 jmayer Exp $
+ * $Id: packet-docsis.c,v 1.9 2002/08/30 10:02:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -109,6 +109,9 @@ static int hf_docsis_toggle_bit = -1;
 static int hf_docsis_key_seq = -1;
 static int hf_docsis_ehdr_ver = -1;
 static int hf_docsis_said = -1;
+static int hf_docsis_ehdr_phsi = -1;
+static int hf_docsis_ehdr_qind = -1;
+static int hf_docsis_ehdr_grants = -1;
 static int hf_docsis_reserved = -1;
 
 static dissector_handle_t docsis_handle;
@@ -175,6 +178,12 @@ static const value_string true_false_vals[] = {
   { 0x00 , NULL }
 };
 
+static const value_string on_off_vals[] = {
+  { 0x00 , "On"},
+  { 0x01 , "Off" },
+  { 0x00 , NULL }
+};
+
 static const value_string ena_dis_vals[] = {
   {0, "Disabled"},
   {1, "Enabled"},
@@ -197,6 +206,7 @@ dissect_ehdr (tvbuff_t * tvb, proto_tree * tree, gboolean isfrag)
   int pos;
   guint8 type;
   guint8 len;
+  guint8 val;
   guint8 mini_slots;
   guint16 sid;
 
@@ -207,10 +217,16 @@ dissect_ehdr (tvbuff_t * tvb, proto_tree * tree, gboolean isfrag)
   ehdr_tree = proto_item_add_subtree (it, ett_ehdr);
   while (pos < (int)(ehdrlen + 4))
     {
-      proto_tree_add_item (ehdr_tree, hf_docsis_eh_type, tvb, pos, 1, FALSE);
-      proto_tree_add_item (ehdr_tree, hf_docsis_eh_len, tvb, pos, 1, FALSE);
       type = (tvb_get_guint8 (tvb, pos) & 0xF0);
       len = (tvb_get_guint8 (tvb, pos) & 0x0F);
+      if ((((type >> 4) & 0x0F)== 6) && (len == 2)) 
+        {
+          proto_tree_add_item_hidden (ehdr_tree, hf_docsis_eh_type, tvb, pos, 1, FALSE);
+	  proto_tree_add_text(ehdr_tree, tvb, pos, 1, "0110 ....  = Unsolicited Grant Sync EHDR Sub-Element" );
+        }
+      else
+        proto_tree_add_item (ehdr_tree, hf_docsis_eh_type, tvb, pos, 1, FALSE);
+      proto_tree_add_item (ehdr_tree, hf_docsis_eh_len, tvb, pos, 1, FALSE);
       switch ((type >> 4) & 0x0F)
 	{
 	case EH_REQUEST:
@@ -277,6 +293,23 @@ dissect_ehdr (tvbuff_t * tvb, proto_tree * tree, gboolean isfrag)
 			       FALSE);
 	  proto_tree_add_item (ehdr_tree, hf_docsis_reserved, tvb, pos + 4, 1,
 			       FALSE);
+	  break;
+	case EH_SFLOW_HDR_DOWN:
+	case EH_SFLOW_HDR_UP:
+	  val = tvb_get_guint8 (tvb, pos+1);
+	  if (val == 0)
+	  {
+	    proto_tree_add_item_hidden (ehdr_tree, hf_docsis_ehdr_phsi, tvb, pos+1, 1, FALSE);
+	    proto_tree_add_text (ehdr_tree, tvb, pos+1, 1, "0000 0000 = No PHS on current packet" );
+	  }
+	  else
+	    proto_tree_add_item(ehdr_tree, hf_docsis_ehdr_phsi, tvb, pos+1, 1, FALSE);
+
+	  if (len == 2) 
+	  {
+	    proto_tree_add_item (ehdr_tree, hf_docsis_ehdr_qind, tvb, pos+2, 1, FALSE);
+	    proto_tree_add_item (ehdr_tree, hf_docsis_ehdr_grants, tvb, pos+2, 1, FALSE);
+	  }
 	  break;
 	default:
 	  if (len > 0)
@@ -661,9 +694,24 @@ proto_register_docsis (void)
       "Key Sequence", HFILL}
      },
     {&hf_docsis_ehdr_ver,
-     {"Version", "docsis.ehdr.",
+     {"Version", "docsis.ehdr.ver",
       FT_UINT8, BASE_DEC, NULL, 0x0F,
       "Version", HFILL}
+     },
+    {&hf_docsis_ehdr_phsi,
+     {"Payload Header Supression Index", "docsis.ehdr.phsi",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      "Payload Header Supression Index", HFILL}
+     },
+    {&hf_docsis_ehdr_qind,
+     {"Queue Indicator", "docsis.ehdr.qind",
+      FT_UINT8, BASE_DEC, VALS(on_off_vals), 0x80,
+      "Queue Indicator", HFILL}
+     },
+    {&hf_docsis_ehdr_grants,
+     {"Active Grants", "docsis.ehdr.act_grants",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      "Active Grants", HFILL}
      },
     {&hf_docsis_hcs,
      {"Header check sequence", "docsis.hcs",
