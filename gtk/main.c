@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.72 1999/12/15 04:34:44 guy Exp $
+ * $Id: main.c,v 1.73 1999/12/15 06:52:23 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -764,13 +764,13 @@ packet_list_unselect_cb(GtkWidget *w, gint row, gint col, gpointer evt) {
 
 void
 tree_view_cb(GtkWidget *w, gpointer data) {
-
+#if 0
   field_info	*finfo;
   int		tree_selected_start = -1;
   int		tree_selected_len = -1;
 
   if (GTK_TREE(w)->selection) {
-    finfo = 
+    finfo = gtk_ctree_node 
 	gtk_object_get_data(GTK_OBJECT(GTK_TREE(w)->selection->data),
 				   E_TREEINFO_FIELD_INFO_KEY);
     g_assert(finfo);
@@ -782,6 +782,7 @@ tree_view_cb(GtkWidget *w, gpointer data) {
   packet_hex_print(GTK_TEXT(byte_view), cf.pd, cf.current_frame->cap_len, 
 		   tree_selected_start, tree_selected_len,
 		   cf.current_frame->encoding);
+#endif
 }
 
 void collapse_all_cb(GtkWidget *widget, gpointer data) {
@@ -1262,14 +1263,11 @@ main(int argc, char *argv[])
   gtk_widget_set_usize(tv_scrollw, -1, tv_size);
   gtk_widget_show(tv_scrollw);
   
-  tree_view = gtk_tree_new();
+  tree_view = gtk_ctree_new(1, 0);
   gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(tv_scrollw), tree_view);
-  gtk_tree_set_selection_mode(GTK_TREE(tree_view), GTK_SELECTION_SINGLE);
-
-  gtk_tree_set_view_lines(GTK_TREE(tree_view), FALSE);
-  gtk_tree_set_view_mode(GTK_TREE(tree_view), GTK_TREE_VIEW_ITEM);
-
-  gtk_signal_connect(GTK_OBJECT(tree_view), "selection_changed",
+  gtk_ctree_set_line_style(GTK_CTREE(tree_view), GTK_CTREE_LINES_NONE);
+  gtk_ctree_set_expander_style(GTK_CTREE(tree_view), GTK_CTREE_EXPANDER_SQUARE);
+  gtk_signal_connect(GTK_OBJECT(tree_view), "tree-select-row",
     GTK_SIGNAL_FUNC(tree_view_cb), NULL);
   gtk_widget_show(tree_view);
 
