@@ -1,7 +1,7 @@
 /* column-utils.c
  * Routines for column utilities.
  *
- * $Id: column-utils.c,v 1.39 2003/09/12 02:48:21 sahlberg Exp $
+ * $Id: column-utils.c,v 1.40 2003/12/02 23:14:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -50,9 +50,13 @@
 void
 col_setup(column_info *col_info, gint num_cols)
 {
+  int i;
+
   col_info->num_cols	= num_cols;
   col_info->col_fmt	= (gint *) g_malloc(sizeof(gint) * num_cols);
   col_info->fmt_matx	= (gboolean **) g_malloc(sizeof(gboolean *) * num_cols);
+  col_info->col_first	= (int *) g_malloc(sizeof(int) * (NUM_COL_FMTS));
+  col_info->col_last 	= (int *) g_malloc(sizeof(int) * (NUM_COL_FMTS));
   col_info->col_width	= (gint *) g_malloc(sizeof(gint) * num_cols);
   col_info->col_title	= (gchar **) g_malloc(sizeof(gchar *) * num_cols);
   col_info->col_data	= (gchar **) g_malloc(sizeof(gchar *) * num_cols);
@@ -60,6 +64,11 @@ col_setup(column_info *col_info, gint num_cols)
   col_info->col_fence	= (int *) g_malloc(sizeof(int) * num_cols);
   col_info->col_expr	= (gchar **) g_malloc(sizeof(gchar *) * num_cols);
   col_info->col_expr_val = (gchar **) g_malloc(sizeof(gchar *) * num_cols);
+
+  for (i = 0; i < NUM_COL_FMTS; i++) {
+    col_info->col_first[i] = -1;
+    col_info->col_last[i] = -1;
+  }
 }
 
 /* Initialize the data structures for constructing column data. */
@@ -95,12 +104,12 @@ col_set_writable(column_info *cinfo, gboolean writable)
    the packet list */
 gint
 check_col(column_info *cinfo, gint el) {
-  int i;
 
   if (cinfo && cinfo->writable) {
-    for (i = 0; i < cinfo->num_cols; i++) {
-      if (cinfo->fmt_matx[i][el])
-        return TRUE;
+    /* We are constructing columns, and they're writable */
+    if (cinfo->col_first[el] >= 0) {
+      /* There is at least one column in that format */
+      return TRUE;
     }
   }
   return FALSE;
@@ -113,9 +122,14 @@ col_set_fence(column_info *cinfo, gint el)
   int i;
 
   if (cinfo && cinfo->writable) {
-    for (i = 0; i < cinfo->num_cols; i++) {
-      if (cinfo->fmt_matx[i][el])
-        cinfo->col_fence[i] = strlen(cinfo->col_data[i]);
+    /* We are constructing columns, and they're writable */
+    if (cinfo->col_first[el] >= 0) {
+      /* There is at least one column in that format */
+      for (i = cinfo->col_first[el]; i <= cinfo->col_last[el]; i++) {
+        if (cinfo->fmt_matx[i][el]) {
+          cinfo->col_fence[i] = strlen(cinfo->col_data[i]);
+        }
+      }
     }
   }
 }
@@ -132,7 +146,8 @@ col_clear(column_info *cinfo, gint el)
   int    i;
   int    fence;
 
-  for (i = 0; i < cinfo->num_cols; i++) {
+  g_assert(cinfo->col_first[el] >= 0);
+  for (i = cinfo->col_first[el]; i <= cinfo->col_last[el]; i++) {
     if (cinfo->fmt_matx[i][el]) {
       /*
        * At this point, either
@@ -188,7 +203,8 @@ col_set_str(column_info *cinfo, gint el, gchar* str)
   else
 	max_len = COL_MAX_LEN;
 
-  for (i = 0; i < cinfo->num_cols; i++) {
+  g_assert(cinfo->col_first[el] >= 0);
+  for (i = cinfo->col_first[el]; i <= cinfo->col_last[el]; i++) {
     if (cinfo->fmt_matx[i][el]) {
       fence = cinfo->col_fence[i];
       if (fence != 0) {
@@ -220,13 +236,14 @@ col_add_fstr(column_info *cinfo, gint el, const gchar *format, ...) {
   int     fence;
   size_t  max_len;
 
+  g_assert(cinfo->col_first[el] >= 0);
   if (el == COL_INFO)
 	max_len = COL_MAX_INFO_LEN;
   else
 	max_len = COL_MAX_LEN;
 
   va_start(ap, format);
-  for (i = 0; i < cinfo->num_cols; i++) {
+  for (i = cinfo->col_first[el]; i <= cinfo->col_last[el]; i++) {
     if (cinfo->fmt_matx[i][el]) {
       fence = cinfo->col_fence[i];
       if (fence != 0) {
@@ -255,13 +272,14 @@ col_append_fstr(column_info *cinfo, gint el, const gchar *format, ...)
   int     i;
   size_t  len, max_len;
 
+  g_assert(cinfo->col_first[el] >= 0);
   if (el == COL_INFO)
 	max_len = COL_MAX_INFO_LEN;
   else
 	max_len = COL_MAX_LEN;
 
   va_start(ap, format);
-  for (i = 0; i < cinfo->num_cols; i++) {
+  for (i = cinfo->col_first[el]; i <= cinfo->col_last[el]; i++) {
     if (cinfo->fmt_matx[i][el]) {
       /*
        * First arrange that we can append, if necessary.
@@ -286,13 +304,14 @@ col_prepend_fstr(column_info *cinfo, gint el, const gchar *format, ...)
   char   *orig;
   size_t  max_len;
 
+  g_assert(cinfo->col_first[el] >= 0);
   if (el == COL_INFO)
 	max_len = COL_MAX_INFO_LEN;
   else
 	max_len = COL_MAX_LEN;
 
   va_start(ap, format);
-  for (i = 0; i < cinfo->num_cols; i++) {
+  for (i = cinfo->col_first[el]; i <= cinfo->col_last[el]; i++) {
     if (cinfo->fmt_matx[i][el]) {
       if (cinfo->col_data[i] != cinfo->col_buf[i]) {
       	/* This was set with "col_set_str()"; which is effectively const */
@@ -328,12 +347,13 @@ col_add_str(column_info *cinfo, gint el, const gchar* str)
   int    fence;
   size_t max_len;
 
+  g_assert(cinfo->col_first[el] >= 0);
   if (el == COL_INFO)
 	max_len = COL_MAX_INFO_LEN;
   else
 	max_len = COL_MAX_LEN;
 
-  for (i = 0; i < cinfo->num_cols; i++) {
+  for (i = cinfo->col_first[el]; i <= cinfo->col_last[el]; i++) {
     if (cinfo->fmt_matx[i][el]) {
       fence = cinfo->col_fence[i];
       if (fence != 0) {
@@ -360,12 +380,13 @@ col_append_str(column_info *cinfo, gint el, const gchar* str)
   int    i;
   size_t len, max_len;
 
+  g_assert(cinfo->col_first[el] >= 0);
   if (el == COL_INFO)
 	max_len = COL_MAX_INFO_LEN;
   else
 	max_len = COL_MAX_LEN;
 
-  for (i = 0; i < cinfo->num_cols; i++) {
+  for (i = cinfo->col_first[el]; i <= cinfo->col_last[el]; i++) {
     if (cinfo->fmt_matx[i][el]) {
       /*
        * First arrange that we can append, if necessary.

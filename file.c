@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.324 2003/11/25 14:07:42 sahlberg Exp $
+ * $Id: file.c,v 1.325 2003/12/02 23:14:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1482,6 +1482,7 @@ change_time_formats(capture_file *cf)
   float       prog_val;
   GTimeVal    start_time;
   gchar       status_str[100];
+  int         first, last;
 
   /* Are there any columns with time stamps in the "command-line-specified"
      format?
@@ -1494,6 +1495,9 @@ change_time_formats(capture_file *cf)
        to do. */
     return;
   }
+  first = cf->cinfo.col_first[COL_CLS_TIME];
+  g_assert(first >= 0);
+  last = cf->cinfo.col_last[COL_CLS_TIME];
 
   /* Freeze the packet list while we redo it, so we don't get any
      screen updates while it happens. */
@@ -1559,7 +1563,7 @@ change_time_formats(capture_file *cf)
     if (row != -1) {
       /* This packet is in the summary list, on row "row". */
 
-      for (i = 0; i < cf->cinfo.num_cols; i++) {
+      for (i = first; i <= last; i++) {
         if (cf->cinfo.fmt_matx[i][COL_CLS_TIME]) {
           /* This is one of the columns that shows the time in
              "command-line-specified" format; update it. */
@@ -1578,7 +1582,7 @@ change_time_formats(capture_file *cf)
 
   /* Set the column widths of those columns that show the time in
      "command-line-specified" format. */
-  for (i = 0; i < cf->cinfo.num_cols; i++) {
+  for (i = first; i <= last; i++) {
     if (cf->cinfo.fmt_matx[i][COL_CLS_TIME]) {
       packet_list_set_cls_time_width(i);
     }

@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.334 2003/12/02 21:15:49 guy Exp $
+ * $Id: main.c,v 1.335 2003/12/02 23:14:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2263,6 +2263,19 @@ main(int argc, char *argv[])
     cfile.cinfo.col_fence[i] = 0;
     cfile.cinfo.col_expr[i] = (gchar *) g_malloc(sizeof(gchar) * COL_MAX_LEN);
     cfile.cinfo.col_expr_val[i] = (gchar *) g_malloc(sizeof(gchar) * COL_MAX_LEN);
+  }
+
+  for (i = 0; i < cfile.cinfo.num_cols; i++) {
+      int j;
+
+      for (j = 0; j < NUM_COL_FMTS; j++) {
+         if (!cfile.cinfo.fmt_matx[i][j])
+             continue;
+         
+         if (cfile.cinfo.col_first[j] == -1)
+             cfile.cinfo.col_first[j] = i;
+         cfile.cinfo.col_last[j] = i;
+      }
   }
 
 #ifdef HAVE_LIBPCAP
