@@ -63,5 +63,6 @@
 #define PT_H263		34	/* from Chunrong Zhu of Intel; see the Web page */
 
 ETH_VAR_IMPORT const value_string rtp_payload_type_vals[];
+ETH_VAR_IMPORT const value_string rtp_payload_type_short_vals[];
 
 #endif

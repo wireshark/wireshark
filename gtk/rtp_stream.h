@@ -65,10 +65,15 @@ typedef struct _rtp_stream_info {
 	guint32 npackets;
 
 	guint32 first_frame_num; /* frame number of first frame */
+	guint32 setup_frame_number; /* frame number of setup message */
 	/* start of recording (GMT) of this stream */
     guint32 start_sec;         /* seconds */
     guint32 start_usec;        /* microseconds */
 	gboolean tag_vlan_error;
+	guint32 start_rel_sec;         /* start stream rel seconds */
+	guint32 start_rel_usec;        /* start stream rel microseconds */
+	guint32 stop_rel_sec;         /* stop stream rel seconds */
+	guint32 stop_rel_usec;        /* stop stream rel microseconds */
 	gboolean tag_diffserv_error;
 	guint16 vlan_id;
 

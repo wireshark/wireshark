@@ -147,9 +147,9 @@ CallIdentifier/guid guid
 			val_to_str(message_body_val, T_h323_message_body_vals, "<unknown>"));
         }
 
-	if (h225_pi.msg_type == H225_CS) {
+	if (h225_pi->msg_type == H225_CS) {
 		/* Don't override msg_tag value from IRR */
-		h225_pi.msg_tag = message_body_val;
+		h225_pi->msg_tag = message_body_val;
 	}
 
 	if (contains_faststart == TRUE )
@@ -167,14 +167,19 @@ CallIdentifier/guid guid
 #.FN_BODY FastStart/_item
 	guint32 newoffset;
 	guint32 length;
+	char codec_str[50];
 
 	offset=dissect_per_length_determinant(tvb, offset, pinfo, tree, hf_h225_fastStart_item_length, &length);
 	newoffset=offset + (length<<3);	/* please note that offset is in bits in
 					   PER dissectors, but the item length
 					   is in octets */
-	offset=dissect_h245_OpenLogicalChannel(tvb,offset, pinfo, tree, hf_index);
+	offset=dissect_h245_OpenLogicalChannelCodec(tvb,offset, pinfo, tree, hf_index, codec_str);
+
+    /* Add to packet info */
+    g_snprintf(h225_pi->frame_label, 50, "%s %s", h225_pi->frame_label, codec_str);
+
 	contains_faststart = TRUE;
-	h225_pi.is_faststart = TRUE;
+	h225_pi->is_faststart = TRUE;
 
 	return newoffset;
 
@@ -192,7 +197,7 @@ CallIdentifier/guid guid
 			val_to_str(rasmessage_value, RasMessage_vals, "<unknown>"));
 	}
 
-	h225_pi.msg_tag = rasmessage_value;
+	h225_pi->msg_tag = rasmessage_value;
 #.END
 #----------------------------------------------------------------------------------------
 # TODO asn2eth can't handle restriced string ?
@@ -241,28 +246,85 @@ guint32 value_len;
 
 #.END
 #----------------------------------------------------------------------------------------
+#.FN_FTR NULL
+  if (h225_pi->cs_type == H225_OTHER) h225_pi->cs_type = H225_EMPTY;
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_FTR Status-UUIE
+  /* Add to packet info */
+  h225_pi->cs_type = H225_STATUS;
+  g_snprintf(h225_pi->frame_label, 50, "%s", val_to_str(h225_pi->cs_type, T_h323_message_body_vals, "<unknown>"));
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_FTR Information-UUIE
+  /* Add to packet info */
+  h225_pi->cs_type = H225_INFORMATION;
+  g_snprintf(h225_pi->frame_label, 50, "%s", val_to_str(h225_pi->cs_type, T_h323_message_body_vals, "<unknown>"));
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_FTR Progress-UUIE
+  /* Add to packet info */
+  h225_pi->cs_type = H225_PROGRESS;
+  if (contains_faststart == TRUE )
+        g_snprintf(h225_pi->frame_label, 50, "%s OLC (%s)", val_to_str(h225_pi->cs_type, T_h323_message_body_vals, "<unknown>"), h225_pi->frame_label);
+  else 
+        g_snprintf(h225_pi->frame_label, 50, "%s", val_to_str(h225_pi->cs_type, T_h323_message_body_vals, "<unknown>"));
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_FTR Facility-UUIE
+  /* Add to packet info */
+  h225_pi->cs_type = H225_FACILITY;
+  g_snprintf(h225_pi->frame_label, 50, "%s", val_to_str(h225_pi->cs_type, T_h323_message_body_vals, "<unknown>"));
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_BODY H323-UU-PDU/h245Tunneling
+	offset=dissect_per_boolean(tvb, offset, pinfo, tree, hf_h225_h245Tunneling, &(h225_pi->is_h245Tunneling), NULL);
+#.END
+#----------------------------------------------------------------------------------------
 #.FN_HDR Setup-UUIE
   contains_faststart = FALSE;
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_FTR Setup-UUIE
-  h225_pi.cs_type = H225_SETUP;
+  /* Add to packet info */
+  h225_pi->cs_type = H225_SETUP;
+  if (contains_faststart == TRUE )
+      g_snprintf(h225_pi->frame_label, 50, "%s OLC (%s)", val_to_str(h225_pi->cs_type, T_h323_message_body_vals, "<unknown>"), h225_pi->frame_label);
+  else
+      g_snprintf(h225_pi->frame_label, 50, "%s", val_to_str(h225_pi->cs_type, T_h323_message_body_vals, "<unknown>"));
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_FTR CallProceeding-UUIE
-  h225_pi.cs_type = H225_CALL_PROCEDING;
+  /* Add to packet info */
+  h225_pi->cs_type = H225_CALL_PROCEDING;
+  if (contains_faststart == TRUE )
+        g_snprintf(h225_pi->frame_label, 50, "%s OLC (%s)", val_to_str(h225_pi->cs_type, T_h323_message_body_vals, "<unknown>"), h225_pi->frame_label);
+  else
+        g_snprintf(h225_pi->frame_label, 50, "%s", val_to_str(h225_pi->cs_type, T_h323_message_body_vals, "<unknown>"));
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_FTR Alerting-UUIE
-  h225_pi.cs_type = H225_ALERTING;
+  /* Add to packet info */
+  h225_pi->cs_type = H225_ALERTING;
+  if (contains_faststart == TRUE )
+       g_snprintf(h225_pi->frame_label, 50, "%s OLC (%s)", val_to_str(h225_pi->cs_type, T_h323_message_body_vals, "<unknown>"), h225_pi->frame_label);
+  else 
+       g_snprintf(h225_pi->frame_label, 50, "%s", val_to_str(h225_pi->cs_type, T_h323_message_body_vals, "<unknown>"));
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_FTR ReleaseComplete-UUIE
-  h225_pi.cs_type = H225_RELEASE_COMPLET;
+  /* Add to packet info */
+  h225_pi->cs_type = H225_RELEASE_COMPLET;
+  g_snprintf(h225_pi->frame_label, 50, "%s", val_to_str(h225_pi->cs_type, T_h323_message_body_vals, "<unknown>"));
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_FTR Connect-UUIE
-  h225_pi.cs_type = H225_CONNECT;
+  /* Add to packet info */
+  h225_pi->cs_type = H225_CONNECT;
+  if (contains_faststart == TRUE )
+      g_snprintf(h225_pi->frame_label, 50, "%s OLC (%s)", val_to_str(h225_pi->cs_type, T_h323_message_body_vals, "<unknown>"), h225_pi->frame_label);
+  else 
+      g_snprintf(h225_pi->frame_label, 50, "%s", val_to_str(h225_pi->cs_type, T_h323_message_body_vals, "<unknown>"));
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_HDR H245TransportAddress
@@ -273,9 +335,9 @@ guint32 value_len;
 #----------------------------------------------------------------------------------------
 #.FN_FTR H245TransportAddress
 	/* we need this info for TAPing */
-	h225_pi.is_h245 = TRUE;
-	h225_pi.h245_address = ipv4_address;	
-	h225_pi.h245_port = ipv4_port;	
+	h225_pi->is_h245 = TRUE;
+	h225_pi->h245_address = ipv4_address;	
+	h225_pi->h245_port = ipv4_port;	
 
 	if((!pinfo->fd->flags.visited) && ipv4_address!=0 && ipv4_port!=0 && h245_handle){
 		address src_addr;
@@ -300,7 +362,7 @@ guint32 value_len;
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
                               ett_h225_FacilityReason, FacilityReason_choice, "FacilityReason",
                               &value);
-	h225_pi.reason = value;
+	h225_pi->reason = value;
 
 #.END
 #----------------------------------------------------------------------------------------
@@ -310,7 +372,7 @@ guint32 value_len;
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
                               ett_h225_GatekeeperRejectReason, GatekeeperRejectReason_choice, "GatekeeperRejectReason",
                               &value);
-  h225_pi.reason = value;
+  h225_pi->reason = value;
 
 #.END
 #----------------------------------------------------------------------------------------
@@ -320,7 +382,7 @@ guint32 value_len;
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
                               ett_h225_UnregRequestReason, UnregRequestReason_choice, "UnregRequestReason",
                               &value);
-  h225_pi.reason = value;
+  h225_pi->reason = value;
 
 #.END
 #----------------------------------------------------------------------------------------
@@ -330,7 +392,7 @@ guint32 value_len;
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
                               ett_h225_UnregRejectReason, UnregRejectReason_choice, "UnregRejectReason",
                               &value);
-  h225_pi.reason = value;
+  h225_pi->reason = value;
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY BandRejectReason
@@ -338,7 +400,7 @@ guint32 value_len;
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
                               ett_h225_BandRejectReason, BandRejectReason_choice, "BandRejectReason",
                               &value);
-  h225_pi.reason = value;
+  h225_pi->reason = value;
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY DisengageReason
@@ -347,7 +409,7 @@ guint32 value_len;
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
                               ett_h225_DisengageReason, DisengageReason_choice, "DisengageReason",
                               &value);
-  h225_pi.reason = value;
+  h225_pi->reason = value;
 #----------------------------------------------------------------------------------------
 #.FN_BODY DisengageRejectReason
   guint32 value;
@@ -355,7 +417,7 @@ guint32 value_len;
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
                               ett_h225_DisengageRejectReason, DisengageRejectReason_choice, "DisengageRejectReason",
                               &value);
-  h225_pi.reason = value;
+  h225_pi->reason = value;
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY AdmissionRejectReason
@@ -364,7 +426,7 @@ guint32 value_len;
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
                               ett_h225_AdmissionRejectReason, AdmissionRejectReason_choice, "AdmissionRejectReason",
                               &value);
-  h225_pi.reason = value;
+  h225_pi->reason = value;
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY LocationRejectReason
@@ -373,7 +435,7 @@ guint32 value_len;
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
                               ett_h225_LocationRejectReason, LocationRejectReason_choice, "LocationRejectReason",
                               &value);
-  h225_pi.reason = value;
+  h225_pi->reason = value;
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY RegistrationRejectReason
@@ -382,7 +444,7 @@ guint32 value_len;
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
                               ett_h225_RegistrationRejectReason, RegistrationRejectReason_choice, "RegistrationRejectReason",
                               &value);
-  h225_pi.reason = value;
+  h225_pi->reason = value;
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY InfoRequestNakReason
@@ -391,7 +453,7 @@ guint32 value_len;
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
                               ett_h225_InfoRequestNakReason, InfoRequestNakReason_choice, "InfoRequestNakReason",
                               &value);
-  h225_pi.reason = value;
+  h225_pi->reason = value;
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY ReleaseCompleteReason
@@ -400,19 +462,19 @@ guint32 value_len;
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
                               ett_h225_ReleaseCompleteReason, ReleaseCompleteReason_choice, "ReleaseCompleteReason",
                               &value);
-  h225_pi.reason = value;
+  h225_pi->reason = value;
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY CallIdentifier/guid
   guint32 guid_offset,guid_len;
 
   offset = dissect_per_octet_string(tvb,offset,pinfo,tree,hf_index,16,16,&guid_offset,&guid_len);
-  tvb_memcpy(tvb,h225_pi.guid,guid_offset,guid_len);
+  tvb_memcpy(tvb,h225_pi->guid,guid_offset,guid_len);
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY RequestSeqNum
   offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                           1U, 65535U, &(h225_pi.requestSeqNum), NULL, FALSE);
+                                           1U, 65535U, &(h225_pi->requestSeqNum), NULL, FALSE);
 
 #----------------------------------------------------------------------------------------
 #.FN_BODY H323-UU-PDU/h4501SupplementaryService/_item

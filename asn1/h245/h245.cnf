@@ -33,6 +33,20 @@ OpenLogicalChannel
 	}
 
         col_set_fence(pinfo->cinfo,COL_INFO);
+
+    /* Add to packet info */
+
+    /* if it is TCS*/
+    if ((codec_type != NULL) && ( value == 2))
+                g_snprintf(h245_pi->frame_label, 50, "%s (%s) ",val_to_str(value, h245_RequestMessage_short_vals, "UKN"), h245_pi->frame_label);
+    else
+                g_snprintf(h245_pi->frame_label, 50, "%s ", val_to_str(value, h245_RequestMessage_short_vals, "UKN"));
+
+    g_snprintf(h245_pi->comment, 50, "%s %s ", h245_pi->comment, val_to_str(value, h245_RequestMessage_vals, "<unknown>"));
+
+    /* if it is OLC or RM*/
+    if ((codec_type != NULL) && (( value == 3) || ( value == 8)))
+                g_snprintf(h245_pi->frame_label, 50, "%s (%s) ", h245_pi->frame_label, codec_type);
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY ResponseMessage
@@ -56,6 +70,10 @@ OpenLogicalChannel
 	}
 
 	col_set_fence(pinfo->cinfo,COL_INFO);
+
+    /* Add to packet info */
+    g_snprintf(h245_pi->frame_label, 50, "%s %s ", h245_pi->frame_label, val_to_str(value, h245_ResponseMessage_short_vals, "UKN"));
+    g_snprintf(h245_pi->comment, 50, "%s %s ", h245_pi->comment, val_to_str(value, h245_ResponseMessage_vals, "<unknown>"));
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY IndicationMessage
@@ -79,6 +97,9 @@ OpenLogicalChannel
 	}
 
 	col_set_fence(pinfo->cinfo,COL_INFO);
+    /* Add to packet info */
+    g_snprintf(h245_pi->frame_label, 50, "%s %s ", h245_pi->frame_label, val_to_str(value, h245_IndicationMessage_short_vals, "UKN"));
+    g_snprintf(h245_pi->comment, 50, "%s %s ", h245_pi->comment, val_to_str(value, h245_IndicationMessage_vals, "<unknown>"));
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY CommandMessage
@@ -102,6 +123,10 @@ OpenLogicalChannel
 	}
 
 	col_set_fence(pinfo->cinfo,COL_INFO);
+    /* Add to packet info */
+    g_snprintf(h245_pi->frame_label, 50, "%s %s ", h245_pi->frame_label, val_to_str(value, h245_CommandMessage_short_vals, "UKN"));
+    g_snprintf(h245_pi->comment, 50, "%s %s ", h245_pi->comment, val_to_str(value, h245_CommandMessage_vals, "<unknown>"));
+
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY AudioCapability
@@ -111,7 +136,9 @@ OpenLogicalChannel
                               ett_h245_AudioCapability, AudioCapability_choice, "AudioCapability",
                               &value);
 
-        codec_type = val_to_str(value, h245_AudioCapability_vals, "<unknown>");
+        codec_type = val_to_str(value, h245_AudioCapability_short_vals, "<unknown>");
+		if (h245_pi != NULL) g_snprintf(h245_pi->frame_label, 50, "%s %s", h245_pi->frame_label, val_to_str(value, h245_AudioCapability_short_vals, "ukn"));
+
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY VideoCapability
@@ -122,6 +149,8 @@ OpenLogicalChannel
                               &value);
 
         codec_type = val_to_str(value, h245_VideoCapability_vals, "<unknown>");
+		if (h245_pi != NULL) g_snprintf(h245_pi->frame_label, 50, "%s %s", h245_pi->frame_label, codec_type);
+
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY Application
@@ -132,76 +161,77 @@ OpenLogicalChannel
                               &value);
 
         codec_type = val_to_str(value, h245_Application_vals, "<unknown>");
+		if (h245_pi != NULL) g_snprintf(h245_pi->frame_label, 50, "%s %s", h245_pi->frame_label, codec_type);
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_FTR MasterSlaveDeterminationAck
 
-  h245_pi.msg_type = H245_MastSlvDetAck;
+  h245_pi->msg_type = H245_MastSlvDetAck;
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_FTR MasterSlaveDeterminationReject
 
-  h245_pi.msg_type = H245_MastSlvDetRjc;
+  h245_pi->msg_type = H245_MastSlvDetRjc;
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_FTR OpenLogicalChannelReject
 
-  h245_pi.msg_type = H245_OpenLogChnRjc;
+  h245_pi->msg_type = H245_OpenLogChnRjc;
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_FTR CloseLogicalChannel
 
-  h245_pi.msg_type = H245_CloseLogChn;
+  h245_pi->msg_type = H245_CloseLogChn;
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_FTR CloseLogicalChannelAck
 
-  h245_pi.msg_type = H245_CloseLogChnAck;
+  h245_pi->msg_type = H245_CloseLogChnAck;
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_FTR OpenLogicalChannelConfirm
 
-  h245_pi.msg_type = H245_OpenLogChnCnf;
+  h245_pi->msg_type = H245_OpenLogChnCnf;
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_FTR TerminalCapabilitySetAck
 
-  h245_pi.msg_type = H245_TermCapSetAck;
+  h245_pi->msg_type = H245_TermCapSetAck;
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_FTR MasterSlaveDetermination
 
-  h245_pi.msg_type = H245_MastSlvDet;
+  h245_pi->msg_type = H245_MastSlvDet;
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_FTR TerminalCapabilitySetReject
 
-  h245_pi.msg_type = H245_TermCapSetRjc;
+  h245_pi->msg_type = H245_TermCapSetRjc;
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_FTR MasterSlaveDeterminationRelease
 
-  h245_pi.msg_type = H245_MastSlvDetRls;
+  h245_pi->msg_type = H245_MastSlvDetRls;
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_FTR TerminalCapabilitySet
 
-  h245_pi.msg_type = H245_TermCapSet;
+  h245_pi->msg_type = H245_TermCapSet;
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_FTR TerminalCapabilitySetRelease
 
-  h245_pi.msg_type = H245_TermCapSetRls;
+  h245_pi->msg_type = H245_TermCapSetRls;
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_FTR OpenLogicalChannel
 
-  h245_pi.msg_type = H245_OpenLogChn;
+  if (h245_pi != NULL) h245_pi->msg_type = H245_OpenLogChn;
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_FTR OpenLogicalChannelAck
 
-  h245_pi.msg_type = H245_OpenLogChnAck;
+  h245_pi->msg_type = H245_OpenLogChnAck;
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY CapabilityIdentifier/standard

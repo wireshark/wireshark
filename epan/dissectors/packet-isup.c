@@ -1315,6 +1315,10 @@ static gint ett_bat_ase_iwfa						= -1;
 static dissector_handle_t sdp_handle = NULL;
 static dissector_handle_t q931_ie_handle = NULL; 
 
+/* Info for the tap that must be passed between procedures */
+gchar *tap_called_number = NULL;
+gchar *tap_calling_number = NULL;
+
 /* ------------------------------------------------------------------
   Mapping number to ASCII-character
  ------------------------------------------------------------------ */
@@ -1461,6 +1465,7 @@ dissect_isup_called_party_number_parameter(tvbuff_t *parameter_tvb, proto_tree *
     proto_tree_add_string(address_digits_tree, hf_isup_called, parameter_tvb, 
 	  offset - length, length, called_number);
   }
+  tap_called_number = g_strdup(called_number);
 }
 /* ------------------------------------------------------------------
   Dissector Parameter  Subsequent number
@@ -2868,8 +2873,8 @@ dissect_isup_calling_party_number_parameter(tvbuff_t *parameter_tvb, proto_tree 
   } else {
     proto_tree_add_string(address_digits_tree, hf_isup_calling, parameter_tvb,
 	  offset - length, length, calling_number);
-
   }
+  tap_calling_number = g_strdup(calling_number);
 }
 /* ------------------------------------------------------------------
   Dissector Parameter Original called  number
@@ -5143,8 +5148,8 @@ dissect_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *isup
    offset +=  MESSAGE_TYPE_LENGTH;
 
    tap_rec.message_type = message_type;
-
-   tap_queue_packet(isup_tap, pinfo, &tap_rec);
+   tap_rec.calling_number = NULL;
+   tap_rec.called_number = NULL;
 
    parameter_tvb = tvb_new_subset(message_tvb, offset, -1, -1);
 
@@ -5359,7 +5364,11 @@ dissect_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *isup
    }
    else if (message_type !=MESSAGE_TYPE_CHARGE_INFO)
      proto_tree_add_text(isup_tree, message_tvb, 0, 0, "No optional parameters are possible with this message type");
+   /* if there are calling/called number, we'll get them for the tap */
 
+   tap_rec.calling_number=tap_calling_number;
+   tap_rec.called_number=tap_called_number;
+   tap_queue_packet(isup_tap, pinfo, &tap_rec);
 }
 
 /* ------------------------------------------------------------------ */

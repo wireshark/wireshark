@@ -57,6 +57,9 @@
 #include <epan/conversation.h>
 #include <epan/strutil.h>
 
+#include "tap.h"
+#include "packet-sdp.h"
+
 #include "packet-rtp.h"
 #include "rtp_pt.h"
 #include "packet-rtcp.h"
@@ -67,6 +70,10 @@ static dissector_handle_t rtp_handle=NULL;
 static dissector_handle_t rtcp_handle=NULL;
 
 static dissector_handle_t t38_handle=NULL;
+
+static void reset_sdp_packet_info(sdp_packet_info *pi);
+static int sdp_tap = -1;
+static sdp_packet_info *sdp_pi;
 
 static int proto_sdp = -1;
 
@@ -212,6 +219,10 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	gboolean	is_ipv6_addr=FALSE;
     guint32 	ipaddr[4];
 	gint		n;
+
+    /* Initialise packet info for passing to tap */
+    sdp_pi = g_malloc(sizeof(sdp_packet_info));
+    sdp_pi->summary_str[0] = '\0';
 
 	/* Initialise RTP channel info */
 	transport_info.connection_address=NULL;
@@ -436,6 +447,8 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_text(sdp_tree, tvb, offset, datalen,
 		    "Data (%d bytes)", datalen);
 	}
+    /* Report this packet to the tap */
+    tap_queue_packet(sdp_tap, pinfo, sdp_pi);
 }
 
 static void
@@ -884,6 +897,7 @@ dissect_sdp_media(tvbuff_t *tvb, proto_item *ti,
       media_format = tvb_get_string(tvb, offset, tokenlen);
       proto_tree_add_string(sdp_media_tree, hf_media_format, tvb, offset,
                              tokenlen, val_to_str(atol(media_format), rtp_payload_type_vals, "%u"));
+      g_snprintf(sdp_pi->summary_str, 50, "%s %s", sdp_pi->summary_str, val_to_str(atol(media_format), rtp_payload_type_short_vals, "%u"));
       g_free(media_format);
     } else {
       proto_tree_add_item(sdp_media_tree, hf_media_format, tvb,
@@ -1167,6 +1181,9 @@ proto_register_sdp(void)
    * on Windows without stuffing it into the Big Transfer Vector).
    */
   register_dissector("sdp", dissect_sdp, proto_sdp);
+
+  /* Register for tapping */
+  sdp_tap = register_tap("sdp");
 }
 
 void

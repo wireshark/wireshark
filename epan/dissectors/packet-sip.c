@@ -605,12 +605,17 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	char *media_type_str_lower_case = NULL;
 	char *content_type_parameter_str = NULL;
 	guint resend_for_packet = 0;
+	char  *string;
 
 	/* Initialise stat info for passing to tap */
 	stat_info = g_malloc(sizeof(sip_info_value_t));
 	stat_info->response_code = 0;
 	stat_info->request_method = NULL;
+	stat_info->reason_phrase = NULL;
 	stat_info->resend = 0;
+	stat_info->tap_call_id = NULL;
+	stat_info->tap_from_addr = NULL;
+	stat_info->tap_to_addr = NULL;
 
         /*
          * Note that "tvb_find_line_end()" will return a value that
@@ -660,6 +665,11 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                         col_add_fstr(pinfo->cinfo, COL_INFO, "Status: %s",
                              tvb_format_text(tvb, SIP2_HDR_LEN + 1, linelen - SIP2_HDR_LEN - 1));
                 }
+                string = tvb_get_string(tvb, SIP2_HDR_LEN + 5, linelen - (SIP2_HDR_LEN + 5));
+                stat_info->reason_phrase = g_malloc(linelen - (SIP2_HDR_LEN + 5) + 1);
+                strncpy(stat_info->reason_phrase, string, linelen - (SIP2_HDR_LEN + 5) + 1);
+                /* String no longer needed */
+                g_free(string);
 		break;
 
 	case OTHER_LINE:
@@ -843,6 +853,9 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 						parameter_len = parameter_end_offset - parameter_offset;
 						proto_tree_add_item(sip_element_tree, hf_sip_to_addr, tvb, parameter_offset,
 							parameter_len, FALSE);
+						/*info for the tap for voip_calls.c*/
+						stat_info->tap_to_addr=tvb_get_string(tvb, parameter_offset, parameter_len);
+
 						parameter_offset = parameter_end_offset + 1;
 						/*  
 						 * URI parameters ?
@@ -875,6 +888,8 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 					parameter_len = parameter_end_offset - parameter_offset;
 					proto_tree_add_item(sip_element_tree, hf_sip_to_addr, tvb, parameter_offset,
 						parameter_len, FALSE);
+					/*info for the tap for voip_calls.c*/
+					stat_info->tap_to_addr=tvb_get_string(tvb, parameter_offset, parameter_len);
 					offset = parameter_end_offset;
 					}
 					/* Find parameter tag if present.
@@ -948,6 +963,8 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 						parameter_len = parameter_end_offset - parameter_offset;
 						dfilter_store_sip_from_addr(tvb, sip_element_tree, 
 							parameter_offset, parameter_len);
+						/*info for the tap for voip_calls.c*/
+						stat_info->tap_from_addr=tvb_get_string(tvb, parameter_offset, parameter_len);
 						parameter_offset = parameter_end_offset + 1;
 						/*  
 						 * URI parameters ?
@@ -980,6 +997,8 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 					parameter_len = parameter_end_offset - parameter_offset;
 					proto_tree_add_item(sip_element_tree, hf_sip_from_addr, tvb, parameter_offset,
 						parameter_len, FALSE);
+					/*info for the tap for voip_calls.c*/
+					stat_info->tap_from_addr=tvb_get_string(tvb, parameter_offset, parameter_len);
 					offset = parameter_end_offset;
 					}
 					/* Find parameter tag if present.
@@ -1008,6 +1027,7 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 					/* Store the sequence number */
 					cseq_number = atoi(value);
 					cseq_number_set = 1;
+					stat_info->tap_cseq_number=cseq_number;
 
 					/* Extract method name from value */
 					for (value_offset = 0; value_offset < (gint)strlen(value); value_offset++)
@@ -1034,7 +1054,8 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 						strlen(value)+1 < MAX_CALL_ID_SIZE ?
 							strlen(value)+1 :
 							MAX_CALL_ID_SIZE);
-
+					stat_info->tap_call_id = g_strdup(call_id);
+					
 					/* Add 'Call-id' string item to tree */
 					if(hdr_tree) {
 						proto_tree_add_string_format(hdr_tree,

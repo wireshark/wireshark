@@ -211,6 +211,8 @@ static int rtpstream_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _
 	GList* list;
 	rtp_sample_t sample;
 
+	struct _rtp_conversation_info *p_conv_data = NULL;
+
 	/* gather infos on the stream this packet is part of */
 	COPY_ADDRESS(&(tmp_strinfo.src_addr), &(pinfo->src));
 	tmp_strinfo.src_port = pinfo->srcport;
@@ -238,9 +240,20 @@ static int rtpstream_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _
 			tmp_strinfo.first_frame_num = pinfo->fd->num;
 			tmp_strinfo.start_sec = pinfo->fd->abs_secs;
 			tmp_strinfo.start_usec = pinfo->fd->abs_usecs;
+			tmp_strinfo.start_rel_sec = pinfo->fd->rel_secs;
+			tmp_strinfo.start_rel_usec = pinfo->fd->rel_usecs;
 			tmp_strinfo.tag_vlan_error = 0;
 			tmp_strinfo.tag_diffserv_error = 0;
 			tmp_strinfo.vlan_id = 0;
+			
+            /* Get the Setup frame number who set this RTP stream */
+
+            p_conv_data = p_get_proto_data(pinfo->fd, proto_get_id_by_filter_name("rtp"));
+            if (p_conv_data)
+				tmp_strinfo.setup_frame_number = p_conv_data->frame_number;
+            else
+                tmp_strinfo.setup_frame_number = 0xFFFFFFFF;
+
 			strinfo = g_malloc(sizeof(rtp_stream_info_t));
 			*strinfo = tmp_strinfo;  /* memberwise copy of struct */
 			tapinfo->strinfo_list = g_list_append(tapinfo->strinfo_list, strinfo);
@@ -248,6 +261,8 @@ static int rtpstream_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _
 
 		/* increment the packets counter for this stream */
 		++(strinfo->npackets);
+		strinfo->stop_rel_sec = pinfo->fd->rel_secs;
+		strinfo->stop_rel_usec = pinfo->fd->rel_usecs;
 
 		/* increment the packets counter of all streams */
 		++(tapinfo->npackets);

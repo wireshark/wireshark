@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* .\packet-h245.c                                                            */
+/* ./packet-h245.c                                                            */
 /* ../../tools/asn2eth.py -X -e -p h245 -c h245.cnf -s packet-h245-template h245.asn */
 
 /* Input file: packet-h245-template.c */
@@ -77,7 +77,10 @@ static int hf_h245_pdu_type = -1;
 static int hf_h245Manufacturer = -1;
 static int h245_tap = -1;
 static int ett_h245 = -1;
-static h245_packet_info h245_pi;
+static int h245dg_tap = -1;
+static h245_packet_info pi_arr[5]; /* We assuming a maximum of 5 H245 messaages per packet */
+static int pi_current=0;
+h245_packet_info *h245_pi=NULL;
 
 static gboolean h245_reassembly = TRUE;
 static gboolean h245_shorttypes = FALSE;
@@ -170,6 +173,34 @@ static const value_string h245_CommandMessage_short_vals[] = {
 	{ 11,	"MMRC" },
 	{ 12,	"GC" },
 	{  0, NULL }
+};
+static const value_string h245_AudioCapability_short_vals[] = {
+        {  0, "nonStd" },
+        {  1, "g711A" },
+        {  2, "g711A56k" },
+        {  3, "g711U" },
+        {  4, "g711U56k" },
+        {  5, "g722-64k" },
+        {  6, "g722-56k" },
+        {  7, "g722-48k" },
+        {  8, "g7231" },
+        {  9, "g728" },
+        { 10, "g729" },
+        { 11, "g729A" },
+        { 12, "is11172" },
+        { 13, "is13818" },
+        { 14, "g729B" },
+        { 15, "g729AB" },
+        { 16, "g7231C" },
+        { 17, "gsmFR" },
+        { 18, "gsmHR" },
+        { 19, "gsmEFR" },
+        { 20, "generic" },
+        { 21, "g729Ext" },
+        { 22, "vbd" },
+        { 23, "audioTelEvent" },
+        { 24, "audioTone" },
+        {  0, NULL }
 };
 
 /* To put the codec type only in COL_INFO when
@@ -2418,7 +2449,7 @@ dissect_h245_MasterSlaveDetermination(tvbuff_t *tvb, int offset, packet_info *pi
                                 ett_h245_MasterSlaveDetermination, MasterSlaveDetermination_sequence);
 
 
-  h245_pi.msg_type = H245_MastSlvDet;
+  h245_pi->msg_type = H245_MastSlvDet;
   return offset;
 }
 static int dissect_masterSlaveDetermination(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
@@ -5460,6 +5491,7 @@ dissect_h245_Application(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, prot
                               &value);
 
         codec_type = val_to_str(value, h245_Application_vals, "<unknown>");
+		if (h245_pi != NULL) g_snprintf(h245_pi->frame_label, 50, "%s %s", h245_pi->frame_label, codec_type);
 
   return offset;
 }
@@ -7226,6 +7258,8 @@ dissect_h245_VideoCapability(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, 
                               &value);
 
         codec_type = val_to_str(value, h245_VideoCapability_vals, "<unknown>");
+		if (h245_pi != NULL) g_snprintf(h245_pi->frame_label, 50, "%s %s", h245_pi->frame_label, codec_type);
+
 
   return offset;
 }
@@ -7595,7 +7629,9 @@ dissect_h245_AudioCapability(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, 
                               ett_h245_AudioCapability, AudioCapability_choice, "AudioCapability",
                               &value);
 
-        codec_type = val_to_str(value, h245_AudioCapability_vals, "<unknown>");
+        codec_type = val_to_str(value, h245_AudioCapability_short_vals, "<unknown>");
+		if (h245_pi != NULL) g_snprintf(h245_pi->frame_label, 50, "%s %s", h245_pi->frame_label, val_to_str(value, h245_AudioCapability_short_vals, "ukn"));
+
 
   return offset;
 }
@@ -8187,7 +8223,7 @@ dissect_h245_TerminalCapabilitySet(tvbuff_t *tvb, int offset, packet_info *pinfo
                                 ett_h245_TerminalCapabilitySet, TerminalCapabilitySet_sequence);
 
 
-  h245_pi.msg_type = H245_TermCapSet;
+  h245_pi->msg_type = H245_TermCapSet;
   return offset;
 }
 static int dissect_terminalCapabilitySet(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
@@ -10089,7 +10125,7 @@ dissect_h245_OpenLogicalChannel(tvbuff_t *tvb, int offset, packet_info *pinfo _U
                                 ett_h245_OpenLogicalChannel, OpenLogicalChannel_sequence);
 
 
-  h245_pi.msg_type = H245_OpenLogChn;
+  if (h245_pi != NULL) h245_pi->msg_type = H245_OpenLogChn;
   return offset;
 }
 static int dissect_openLogicalChannel(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
@@ -10161,7 +10197,7 @@ dissect_h245_CloseLogicalChannel(tvbuff_t *tvb, int offset, packet_info *pinfo _
                                 ett_h245_CloseLogicalChannel, CloseLogicalChannel_sequence);
 
 
-  h245_pi.msg_type = H245_CloseLogChn;
+  h245_pi->msg_type = H245_CloseLogChn;
   return offset;
 }
 static int dissect_closeLogicalChannel(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
@@ -12166,6 +12202,20 @@ dissect_h245_RequestMessage(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, p
 
         col_set_fence(pinfo->cinfo,COL_INFO);
 
+    /* Add to packet info */
+
+    /* if it is TCS*/
+    if ((codec_type != NULL) && ( value == 2))
+                g_snprintf(h245_pi->frame_label, 50, "%s (%s) ",val_to_str(value, h245_RequestMessage_short_vals, "UKN"), h245_pi->frame_label);
+    else
+                g_snprintf(h245_pi->frame_label, 50, "%s ", val_to_str(value, h245_RequestMessage_short_vals, "UKN"));
+
+    g_snprintf(h245_pi->comment, 50, "%s %s ", h245_pi->comment, val_to_str(value, h245_RequestMessage_vals, "<unknown>"));
+
+    /* if it is OLC or RM*/
+    if ((codec_type != NULL) && (( value == 3) || ( value == 8)))
+                g_snprintf(h245_pi->frame_label, 50, "%s (%s) ", h245_pi->frame_label, codec_type);
+
   return offset;
 }
 static int dissect_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
@@ -12208,7 +12258,7 @@ dissect_h245_MasterSlaveDeterminationAck(tvbuff_t *tvb, int offset, packet_info 
                                 ett_h245_MasterSlaveDeterminationAck, MasterSlaveDeterminationAck_sequence);
 
 
-  h245_pi.msg_type = H245_MastSlvDetAck;
+  h245_pi->msg_type = H245_MastSlvDetAck;
   return offset;
 }
 static int dissect_masterSlaveDeterminationAck(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
@@ -12249,7 +12299,7 @@ dissect_h245_MasterSlaveDeterminationReject(tvbuff_t *tvb, int offset, packet_in
                                 ett_h245_MasterSlaveDeterminationReject, MasterSlaveDeterminationReject_sequence);
 
 
-  h245_pi.msg_type = H245_MastSlvDetRjc;
+  h245_pi->msg_type = H245_MastSlvDetRjc;
   return offset;
 }
 static int dissect_masterSlaveDeterminationReject(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
@@ -12267,7 +12317,7 @@ dissect_h245_TerminalCapabilitySetAck(tvbuff_t *tvb, int offset, packet_info *pi
                                 ett_h245_TerminalCapabilitySetAck, TerminalCapabilitySetAck_sequence);
 
 
-  h245_pi.msg_type = H245_TermCapSetAck;
+  h245_pi->msg_type = H245_TermCapSetAck;
   return offset;
 }
 static int dissect_terminalCapabilitySetAck(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
@@ -12340,7 +12390,7 @@ dissect_h245_TerminalCapabilitySetReject(tvbuff_t *tvb, int offset, packet_info 
                                 ett_h245_TerminalCapabilitySetReject, TerminalCapabilitySetReject_sequence);
 
 
-  h245_pi.msg_type = H245_TermCapSetRjc;
+  h245_pi->msg_type = H245_TermCapSetRjc;
   return offset;
 }
 static int dissect_terminalCapabilitySetReject(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
@@ -12510,7 +12560,7 @@ dissect_h245_OpenLogicalChannelAck(tvbuff_t *tvb, int offset, packet_info *pinfo
                                 ett_h245_OpenLogicalChannelAck, OpenLogicalChannelAck_sequence);
 
 
-  h245_pi.msg_type = H245_OpenLogChnAck;
+  h245_pi->msg_type = H245_OpenLogChnAck;
   return offset;
 }
 static int dissect_openLogicalChannelAck(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
@@ -12578,7 +12628,7 @@ dissect_h245_OpenLogicalChannelReject(tvbuff_t *tvb, int offset, packet_info *pi
                                 ett_h245_OpenLogicalChannelReject, OpenLogicalChannelReject_sequence);
 
 
-  h245_pi.msg_type = H245_OpenLogChnRjc;
+  h245_pi->msg_type = H245_OpenLogChnRjc;
   return offset;
 }
 static int dissect_openLogicalChannelReject(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
@@ -12596,7 +12646,7 @@ dissect_h245_CloseLogicalChannelAck(tvbuff_t *tvb, int offset, packet_info *pinf
                                 ett_h245_CloseLogicalChannelAck, CloseLogicalChannelAck_sequence);
 
 
-  h245_pi.msg_type = H245_CloseLogChnAck;
+  h245_pi->msg_type = H245_CloseLogChnAck;
   return offset;
 }
 static int dissect_closeLogicalChannelAck(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
@@ -13867,6 +13917,10 @@ dissect_h245_ResponseMessage(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, 
 
 	col_set_fence(pinfo->cinfo,COL_INFO);
 
+    /* Add to packet info */
+    g_snprintf(h245_pi->frame_label, 50, "%s %s ", h245_pi->frame_label, val_to_str(value, h245_ResponseMessage_short_vals, "UKN"));
+    g_snprintf(h245_pi->comment, 50, "%s %s ", h245_pi->comment, val_to_str(value, h245_ResponseMessage_vals, "<unknown>"));
+
   return offset;
 }
 static int dissect_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
@@ -15032,6 +15086,10 @@ dissect_h245_CommandMessage(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, p
 	}
 
 	col_set_fence(pinfo->cinfo,COL_INFO);
+    /* Add to packet info */
+    g_snprintf(h245_pi->frame_label, 50, "%s %s ", h245_pi->frame_label, val_to_str(value, h245_CommandMessage_short_vals, "UKN"));
+    g_snprintf(h245_pi->comment, 50, "%s %s ", h245_pi->comment, val_to_str(value, h245_CommandMessage_vals, "<unknown>"));
+
 
   return offset;
 }
@@ -15076,7 +15134,7 @@ dissect_h245_MasterSlaveDeterminationRelease(tvbuff_t *tvb, int offset, packet_i
                                 ett_h245_MasterSlaveDeterminationRelease, MasterSlaveDeterminationRelease_sequence);
 
 
-  h245_pi.msg_type = H245_MastSlvDetRls;
+  h245_pi->msg_type = H245_MastSlvDetRls;
   return offset;
 }
 static int dissect_masterSlaveDeterminationRelease(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
@@ -15093,7 +15151,7 @@ dissect_h245_TerminalCapabilitySetRelease(tvbuff_t *tvb, int offset, packet_info
                                 ett_h245_TerminalCapabilitySetRelease, TerminalCapabilitySetRelease_sequence);
 
 
-  h245_pi.msg_type = H245_TermCapSetRls;
+  h245_pi->msg_type = H245_TermCapSetRls;
   return offset;
 }
 static int dissect_terminalCapabilitySetRelease(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
@@ -15111,7 +15169,7 @@ dissect_h245_OpenLogicalChannelConfirm(tvbuff_t *tvb, int offset, packet_info *p
                                 ett_h245_OpenLogicalChannelConfirm, OpenLogicalChannelConfirm_sequence);
 
 
-  h245_pi.msg_type = H245_OpenLogChnCnf;
+  h245_pi->msg_type = H245_OpenLogChnCnf;
   return offset;
 }
 static int dissect_openLogicalChannelConfirm(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
@@ -16193,6 +16251,9 @@ dissect_h245_IndicationMessage(tvbuff_t *tvb, int offset, packet_info *pinfo _U_
 	}
 
 	col_set_fence(pinfo->cinfo,COL_INFO);
+    /* Add to packet info */
+    g_snprintf(h245_pi->frame_label, 50, "%s %s ", h245_pi->frame_label, val_to_str(value, h245_IndicationMessage_short_vals, "UKN"));
+    g_snprintf(h245_pi->comment, 50, "%s %s ", h245_pi->comment, val_to_str(value, h245_IndicationMessage_vals, "<unknown>"));
 
   return offset;
 }
@@ -16255,12 +16316,18 @@ dissect_h245_Moderfc2733(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, prot
 void
 dissect_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
-	reset_h245_packet_info(&(h245_pi));
-        h245_pi.msg_type = H245_OTHER;
+    pi_current++;
+    if(pi_current==5){
+        pi_current=0;
+    }
+    h245_pi=&pi_arr[pi_current];
+
+    reset_h245_packet_info(h245_pi);
+       h245_pi->msg_type = H245_OTHER;
 
 	dissect_tpkt_encap(tvb, pinfo, parent_tree, h245_reassembly, MultimediaSystemControlMessage_handle);
 
-	tap_queue_packet(h245_tap, pinfo, &h245_pi);
+	tap_queue_packet(h245_tap, pinfo, h245_pi);
 }
 
 void
@@ -16270,6 +16337,14 @@ dissect_h245_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	proto_tree *tr;
 	guint32 offset=0;
 
+    pi_current++;
+    if(pi_current==5){
+      pi_current=0;
+    }
+    h245_pi=&pi_arr[pi_current];
+
+    reset_h245_packet_info(h245_pi);
+    h245_pi->msg_type = H245_OTHER;
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL)){
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "H.245");
@@ -16278,8 +16353,23 @@ dissect_h245_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	it=proto_tree_add_protocol_format(parent_tree, proto_h245, tvb, 0, tvb_length(tvb), "H.245");
 	tr=proto_item_add_subtree(it, ett_h245);
 	dissect_h245_MultimediaSystemControlMessage(tvb, offset, pinfo ,tr, hf_h245_pdu_type);
+	tap_queue_packet(h245dg_tap, pinfo, h245_pi);
 }
 
+int
+dissect_h245_OpenLogicalChannelCodec(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index, char *codec_str) {
+  offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
+                                ett_h245_OpenLogicalChannel, OpenLogicalChannel_sequence);
+
+
+  if (h245_pi != NULL) h245_pi->msg_type = H245_OpenLogChn;
+
+  if (codec_str){
+        g_strlcpy(codec_str, codec_type, 50);
+  }
+
+  return offset;
+}
 
 /*--- proto_register_h245 -------------------------------------------*/
 void proto_register_h245(void) {
@@ -22148,6 +22238,7 @@ void proto_register_h245(void) {
   nsp_object_dissector_table = register_dissector_table("h245.nsp.object", "H.245 NonStandardParameter (object)", FT_STRING, BASE_NONE);
   nsp_h221_dissector_table = register_dissector_table("h245.nsp.h221", "H.245 NonStandardParameter (h221)", FT_UINT32, BASE_HEX);
   h245_tap = register_tap("h245");
+  h245dg_tap = register_tap("h245dg");
 
   register_ber_oid_name("0.0.8.239.1.1","itu-t(0) recommendation(0) h(8) h239(239) generic-capabilities(1) h239ControlCapability(1)");
   register_ber_oid_name("0.0.8.239.1.2","itu-t(0) recommendation(0) h(8) h239(239) generic-capabilities(1) h239ExtendedVideoCapability(2)");
@@ -22187,5 +22278,7 @@ static void reset_h245_packet_info(h245_packet_info *pi)
         }
 
         pi->msg_type = H245_OTHER;
+		pi->frame_label[0] = '\0';
+		sprintf(pi->comment, "H245 ");
 }
 

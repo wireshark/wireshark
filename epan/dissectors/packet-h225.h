@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* .\packet-h225.h                                                            */
+/* ./packet-h225.h                                                            */
 /* ../../tools/asn2eth.py -X -e -p h225 -c h225.cnf -s packet-h225-template h225.asn */
 
 /* Input file: packet-h225-template.h */
@@ -40,12 +40,20 @@ typedef enum _h225_msg_type {
 } h225_msg_type;
 
 typedef enum _h225_cs_type {
-	H225_SETUP,
-	H225_CALL_PROCEDING,
-	H225_ALERTING,
-	H225_CONNECT,
-	H225_RELEASE_COMPLET,
-	H225_OTHER
+    H225_SETUP,
+    H225_CALL_PROCEDING,
+    H225_CONNECT,
+    H225_ALERTING,
+    H225_INFORMATION,
+    H225_RELEASE_COMPLET,
+    H225_FACILITY,
+    H225_PROGRESS,
+    H225_EMPTY,
+    H225_STATUS,
+    H225_STATUS_INQUIRY,
+    H225_SETUP_ACK,
+    H225_NOTIFY,
+    H225_OTHER
 } h225_cs_type;
 
 typedef struct _h225_packet_info {
@@ -61,8 +69,10 @@ typedef struct _h225_packet_info {
 	/* added for h225 conversations analysis */
 	gboolean is_faststart;		/* true, if faststart field is included */
 	gboolean is_h245;
+	gboolean is_h245Tunneling;
 	guint32 h245_address;
 	guint16 h245_port;
+	gchar frame_label[50]; /* the Fram label used by graph_analysis, what is a abreviation of cinfo */
 } h225_packet_info;
 
 /*

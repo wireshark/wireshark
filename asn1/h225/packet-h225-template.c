@@ -67,7 +67,9 @@ static void reset_h225_packet_info(h225_packet_info *pi);
 static void ras_call_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, h225_packet_info *pi);
 static int dissect_h225_H323UserInformation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
-static h225_packet_info h225_pi; 
+static h225_packet_info pi_arr[5]; /* We assuming a maximum of 5 H225 messaages per packet */
+static int pi_current=0;
+h225_packet_info *h225_pi=NULL;
 
 static dissector_handle_t h225ras_handle;
 static dissector_handle_t H323UserInformation_handle;
@@ -132,9 +134,15 @@ dissect_h225_H323UserInformation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	proto_tree *tr;
 	int offset = 0;
 
+    pi_current++;
+    if(pi_current==5){
+      pi_current=0;
+    }
+    h225_pi=&pi_arr[pi_current];
+
 	/* Init struct for collecting h225_packet_info */
-	reset_h225_packet_info(&(h225_pi));
-	h225_pi.msg_type = H225_CS;
+    reset_h225_packet_info(h225_pi);
+    h225_pi->msg_type = H225_CS;
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL)){
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "H.225.0");
@@ -148,7 +156,7 @@ dissect_h225_H323UserInformation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
 	offset = dissect_h225_H323_UserInformation(tvb, offset,pinfo, tr, hf_h225_H323_UserInformation);
 
-	tap_queue_packet(h225_tap, pinfo, &h225_pi);
+	tap_queue_packet(h225_tap, pinfo, h225_pi);
 
 	return offset;
 }
@@ -158,9 +166,15 @@ dissect_h225_h225_RasMessage(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	proto_tree *tr;
 	guint32 offset=0;
 
+    pi_current++;
+    if(pi_current==5){
+        pi_current=0;
+    }
+    h225_pi=&pi_arr[pi_current];
+
 	/* Init struct for collecting h225_packet_info */
-	reset_h225_packet_info(&(h225_pi));
-	h225_pi.msg_type = H225_RAS;
+    reset_h225_packet_info(h225_pi);
+    h225_pi->msg_type = H225_RAS;
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL)){
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "H.225.0");
@@ -171,12 +185,13 @@ dissect_h225_h225_RasMessage(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
 	offset = dissect_h225_RasMessage(tvb, 0, pinfo,tr, hf_h225_RasMessage );
 
-	ras_call_matching(tvb, pinfo, tr, &(h225_pi));
+	ras_call_matching(tvb, pinfo, tr, h225_pi);
 
-	tap_queue_packet(h225_tap, pinfo, &h225_pi);
+	tap_queue_packet(h225_tap, pinfo, h225_pi);
 
 	return offset;
 }
+
 /*--- proto_register_h225 -------------------------------------------*/
 void proto_register_h225(void) {
 
@@ -279,8 +294,10 @@ static void reset_h225_packet_info(h225_packet_info *pi)
 	pi->request_available = FALSE;
 	pi->is_faststart = FALSE;
 	pi->is_h245 = FALSE;
+	pi->is_h245Tunneling = FALSE;
 	pi->h245_address = 0;
 	pi->h245_port = 0;
+	pi->frame_label[0] = '\0';
 }
 
 /*

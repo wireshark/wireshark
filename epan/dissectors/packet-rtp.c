@@ -190,6 +190,38 @@ const value_string rtp_payload_type_vals[] =
 	{ 0,		NULL },
 };
 
+const value_string rtp_payload_type_short_vals[] =
+{
+       { PT_PCMU,      "g711U" },
+       { PT_1016,      "fs-1016" },
+       { PT_G721,      "g721" },
+       { PT_GSM,       "GSM" },
+       { PT_G723,      "g723" },
+       { PT_DVI4_8000, "DVI4 8k" },
+       { PT_DVI4_16000, "DVI4 16k" },
+       { PT_LPC,       "Exp. from Xerox PARC" },
+       { PT_PCMA,      "g711A" },
+       { PT_G722,      "g722" },
+       { PT_L16_STEREO, "16-bit audio, stereo" },
+       { PT_L16_MONO,  "16-bit audio, monaural" },
+       { PT_QCELP,     "Qualcomm" },
+       { PT_CN,        "CN" },
+       { PT_MPA,       "MPEG-I/II Audio"},
+       { PT_G728,      "g728" },
+       { PT_DVI4_11025, "DVI4 11k" },
+       { PT_DVI4_22050, "DVI4 22k" },
+       { PT_G729,      "g729" },
+       { PT_CN_OLD,    "CN(old)" },
+       { PT_CELB,      "CellB" },
+       { PT_JPEG,      "JPEG" },
+       { PT_NV,        "NV" },
+       { PT_H261,      "h261" },
+       { PT_MPV,       "MPEG-I/II Video"},
+       { PT_MP2T,      "MPEG-II streams"},
+       { PT_H263,      "h263" },
+       { 0,            NULL },
+};
+
 /* Set up an RTP conversation */
 void rtp_add_address(packet_info *pinfo,
                      address *addr, int port,

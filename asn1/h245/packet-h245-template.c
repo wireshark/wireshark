@@ -70,7 +70,10 @@ static int hf_h245_pdu_type = -1;
 static int hf_h245Manufacturer = -1;
 static int h245_tap = -1;
 static int ett_h245 = -1;
-static h245_packet_info h245_pi;
+static int h245dg_tap = -1;
+static h245_packet_info pi_arr[5]; /* We assuming a maximum of 5 H245 messaages per packet */
+static int pi_current=0;
+h245_packet_info *h245_pi=NULL;
 
 static gboolean h245_reassembly = TRUE;
 static gboolean h245_shorttypes = FALSE;
@@ -164,6 +167,34 @@ static const value_string h245_CommandMessage_short_vals[] = {
 	{ 12,	"GC" },
 	{  0, NULL }
 };
+static const value_string h245_AudioCapability_short_vals[] = {
+        {  0, "nonStd" },
+        {  1, "g711A" },
+        {  2, "g711A56k" },
+        {  3, "g711U" },
+        {  4, "g711U56k" },
+        {  5, "g722-64k" },
+        {  6, "g722-56k" },
+        {  7, "g722-48k" },
+        {  8, "g7231" },
+        {  9, "g728" },
+        { 10, "g729" },
+        { 11, "g729A" },
+        { 12, "is11172" },
+        { 13, "is13818" },
+        { 14, "g729B" },
+        { 15, "g729AB" },
+        { 16, "g7231C" },
+        { 17, "gsmFR" },
+        { 18, "gsmHR" },
+        { 19, "gsmEFR" },
+        { 20, "generic" },
+        { 21, "g729Ext" },
+        { 22, "vbd" },
+        { 23, "audioTelEvent" },
+        { 24, "audioTone" },
+        {  0, NULL }
+};
 
 /* To put the codec type only in COL_INFO when
    an OLC is read */
@@ -199,12 +230,18 @@ int proto_h245 = -1;
 void
 dissect_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
-	reset_h245_packet_info(&(h245_pi));
-        h245_pi.msg_type = H245_OTHER;
+    pi_current++;
+    if(pi_current==5){
+        pi_current=0;
+    }
+    h245_pi=&pi_arr[pi_current];
+
+    reset_h245_packet_info(h245_pi);
+       h245_pi->msg_type = H245_OTHER;
 
 	dissect_tpkt_encap(tvb, pinfo, parent_tree, h245_reassembly, MultimediaSystemControlMessage_handle);
 
-	tap_queue_packet(h245_tap, pinfo, &h245_pi);
+	tap_queue_packet(h245_tap, pinfo, h245_pi);
 }
 
 void
@@ -214,6 +251,14 @@ dissect_h245_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	proto_tree *tr;
 	guint32 offset=0;
 
+    pi_current++;
+    if(pi_current==5){
+      pi_current=0;
+    }
+    h245_pi=&pi_arr[pi_current];
+
+    reset_h245_packet_info(h245_pi);
+    h245_pi->msg_type = H245_OTHER;
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL)){
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "H.245");
@@ -222,8 +267,23 @@ dissect_h245_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	it=proto_tree_add_protocol_format(parent_tree, proto_h245, tvb, 0, tvb_length(tvb), "H.245");
 	tr=proto_item_add_subtree(it, ett_h245);
 	dissect_h245_MultimediaSystemControlMessage(tvb, offset, pinfo ,tr, hf_h245_pdu_type);
+	tap_queue_packet(h245dg_tap, pinfo, h245_pi);
 }
 
+int
+dissect_h245_OpenLogicalChannelCodec(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index, char *codec_str) {
+  offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
+                                ett_h245_OpenLogicalChannel, OpenLogicalChannel_sequence);
+
+
+  if (h245_pi != NULL) h245_pi->msg_type = H245_OpenLogChn;
+
+  if (codec_str){
+        g_strlcpy(codec_str, codec_type, 50);
+  }
+
+  return offset;
+}
 
 /*--- proto_register_h245 -------------------------------------------*/
 void proto_register_h245(void) {
@@ -270,6 +330,7 @@ void proto_register_h245(void) {
   nsp_object_dissector_table = register_dissector_table("h245.nsp.object", "H.245 NonStandardParameter (object)", FT_STRING, BASE_NONE);
   nsp_h221_dissector_table = register_dissector_table("h245.nsp.h221", "H.245 NonStandardParameter (h221)", FT_UINT32, BASE_HEX);
   h245_tap = register_tap("h245");
+  h245dg_tap = register_tap("h245dg");
 
   register_ber_oid_name("0.0.8.239.1.1","itu-t(0) recommendation(0) h(8) h239(239) generic-capabilities(1) h239ControlCapability(1)");
   register_ber_oid_name("0.0.8.239.1.2","itu-t(0) recommendation(0) h(8) h239(239) generic-capabilities(1) h239ExtendedVideoCapability(2)");
@@ -309,5 +370,7 @@ static void reset_h245_packet_info(h245_packet_info *pi)
         }
 
         pi->msg_type = H245_OTHER;
+		pi->frame_label[0] = '\0';
+		sprintf(pi->comment, "H245 ");
 }
 

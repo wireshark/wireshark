@@ -44,7 +44,19 @@ extern void dissect_q931_user_user_ie(tvbuff_t *tvb, int offset, int len,
 
 extern const value_string q931_cause_location_vals[];
 
-extern const value_string q931_cause_code_vals[];
+typedef struct _q931_packet_info {
+       gchar *calling_number;
+       gchar *called_number;
+       guint8 cause_value;
+       gint32 crv;
+} q931_packet_info;
+
+/*
+ * the following allows TAP code access to the messages
+ * without having to duplicate it. With MSVC and a
+ * libethereal.dll, we need a special declaration.
+ */
+ETH_VAR_IMPORT const value_string q931_cause_code_vals[];
 
 extern const value_string q931_protocol_discriminator_vals[];
 

@@ -2,7 +2,7 @@
  * Routines for h245 packet dissection
  * Copyright 2005, Anders Broman <anders.broman@ericsson.com>
  *
- * $Id: packet-h245-template.h 12203 2004-10-05 09:18:55Z guy $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -45,10 +45,14 @@ typedef enum _h245_msg_type {
 
 typedef struct _h245_packet_info {
         h245_msg_type msg_type;         /* type of message */
+        gchar frame_label[50];          /* the Frame label used by graph_analysis, what is a abreviation of cinfo */
+        gchar comment[50];                      /* the Frame Comment used by graph_analysis, what is a message desc */
 } h245_packet_info;
 
 
 #include "packet-h245-exp.h"*/
+int dissect_h245_OpenLogicalChannelCodec(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index, char *codec_str);
+
 
 #endif  /* PACKET_H245_H */
 

@@ -33,6 +33,7 @@
 #include <glib.h>
 #include <string.h>
 #include <epan/packet.h>
+#include <epan/tap.h>
 #include <epan/strutil.h>
 #include "nlpid.h"
 #include "packet-q931.h"
@@ -54,6 +55,12 @@
  * http://www.andrews-arnold.co.uk/isdn/q931cause.html
  * http://www.tulatelecom.ru/staff/german/DSSHelp/MessList/InfEl/InfElList.html
  */
+static void reset_q931_packet_info(q931_packet_info *pi);
+static gboolean have_valid_q931_pi=FALSE;
+static q931_packet_info pi_arr[5]; /* We assuming a maximum of 5 q931 messaages per packet */
+static int pi_current=0;
+static q931_packet_info *q931_pi=NULL;
+static int q931_tap = -1;
 
 static int proto_q931 					= -1;
 static int hf_q931_discriminator			= -1;
@@ -1211,6 +1218,12 @@ dissect_q931_cause_ie(tvbuff_t *tvb, int offset, int len,
 		return;
 	octet = tvb_get_guint8(tvb, offset);
 	cause_value = octet & 0x7F;
+
+	/* add cause value to packet info for use in tap */
+	if(have_valid_q931_pi) {
+		q931_pi->cause_value = cause_value;
+	}
+
 	proto_tree_add_uint(tree, hf_cause_value, tvb, offset, 1, cause_value);
 	proto_tree_add_boolean(tree, hf_q931_extension_ind, tvb, offset, 1, octet);
 	offset += 1;
@@ -2112,6 +2125,11 @@ dissect_q931_number_ie(tvbuff_t *tvb, int offset, int len,
 		}
 	}
 
+    /* Collect q931_packet_info */
+    if ( e164_info.e164_number_type == CALLING_PARTY_NUMBER && have_valid_q931_pi)
+          q931_pi->calling_number = tvb_get_string(tvb, offset, len);
+    if ( e164_info.e164_number_type == CALLED_PARTY_NUMBER && have_valid_q931_pi)
+          q931_pi->called_number = tvb_get_string(tvb, offset, len);
 }
 
 /*
@@ -2352,6 +2370,15 @@ dissect_q931_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	fragment_data *fd_head;
 	tvbuff_t *next_tvb = NULL;
 
+	pi_current++;
+	if(pi_current==5){
+		pi_current=0;
+	}
+	q931_pi=&pi_arr[pi_current];
+	/* Init struct for collecting q931_packet_info */
+	reset_q931_packet_info(q931_pi);
+	have_valid_q931_pi=TRUE;
+
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "Q.931");
 
@@ -2382,7 +2409,11 @@ dissect_q931_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			call_ref[0] &= 0x7F;
 			proto_tree_add_bytes(q931_tree, hf_q931_call_ref,
 			    tvb, offset, call_ref_len, call_ref);
+		} else
+		{       /* info for the tap */
+			call_ref[0] &= 0x7F;
 		}
+		g_memmove(&(q931_pi->crv), call_ref, call_ref_len);
 		offset += call_ref_len;
 	}
 	message_type = tvb_get_guint8(tvb, offset);
@@ -2689,196 +2720,202 @@ dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree,
 					proto_tree_add_text(q931_tree, tvb, offset + 4, tvb_reported_length_remaining(tvb, offset + 4), "Message segment");
 					info_element_len += tvb_reported_length_remaining(tvb, offset + 4);
 				}
-			} else if (q931_tree != NULL) {
-				switch ((codeset << 8) | info_element) {
+			} else {
+				/* we move calling, called number and release cause to not check tree=NULL for the tap used in Voip Calls... */
+			    	switch ((codeset << 8) | info_element){
+					case CS0 | Q931_IE_CALLING_PARTY_NUMBER:
+						e164_info.e164_number_type = CALLING_PARTY_NUMBER;
+						dissect_q931_number_ie(tvb,
+							offset + 2, info_element_len,
+							ie_tree,
+							hf_q931_calling_party_number, e164_info);
+						break;
+					case CS0 | Q931_IE_CALLED_PARTY_NUMBER:
+						e164_info.e164_number_type = CALLED_PARTY_NUMBER;
+						dissect_q931_number_ie(tvb,
+							offset + 2, info_element_len,
+							ie_tree,
+							hf_q931_called_party_number, e164_info);
+						break;
+					case CS0 | Q931_IE_CAUSE:
+						dissect_q931_cause_ie(tvb,
+							offset + 2, info_element_len,
+							ie_tree,
+							hf_q931_cause_value);
+						break;
+				}
+				if (q931_tree != NULL) {
+					switch ((codeset << 8) | info_element) {
 
-				case CS0 | Q931_IE_BEARER_CAPABILITY:
-				case CS0 | Q931_IE_LOW_LAYER_COMPAT:
-					dissect_q931_bearer_capability_ie(tvb,
-					    offset + 2, info_element_len,
-					    ie_tree);
-					break;
+					case CS0 | Q931_IE_BEARER_CAPABILITY:
+					case CS0 | Q931_IE_LOW_LAYER_COMPAT:
+						dissect_q931_bearer_capability_ie(tvb,
+							offset + 2, info_element_len,
+							ie_tree);
+						break;
 
-				case CS0 | Q931_IE_CAUSE:
-					dissect_q931_cause_ie(tvb,
-					    offset + 2, info_element_len,
-					    ie_tree,
-					    hf_q931_cause_value);
-					break;
+					case CS0 | Q931_IE_CALL_STATE:
+						dissect_q931_call_state_ie(tvb,
+							offset + 2, info_element_len,
+							ie_tree);
+						break;
 
-				case CS0 | Q931_IE_CALL_STATE:
-					dissect_q931_call_state_ie(tvb,
-					    offset + 2, info_element_len,
-					    ie_tree);
-					break;
+					case CS0 | Q931_IE_CHANNEL_IDENTIFICATION:
+						dissect_q931_channel_identification_ie(
+							tvb, offset + 2, info_element_len,
+							ie_tree);
+						break;
 
-				case CS0 | Q931_IE_CHANNEL_IDENTIFICATION:
-					dissect_q931_channel_identification_ie(
-					    tvb, offset + 2, info_element_len,
-					    ie_tree);
-					break;
+					case CS0 | Q931_IE_PROGRESS_INDICATOR:
+						dissect_q931_progress_indicator_ie(tvb,
+							offset + 2, info_element_len,
+							ie_tree);
+						break;
 
-				case CS0 | Q931_IE_PROGRESS_INDICATOR:
-					dissect_q931_progress_indicator_ie(tvb,
-					    offset + 2, info_element_len,
-					    ie_tree);
-					break;
+					case CS0 | Q931_IE_NETWORK_SPECIFIC_FACIL:
+					case CS0 | Q931_IE_TRANSIT_NETWORK_SEL:
+						dissect_q931_ns_facilities_ie(tvb,
+							offset + 2, info_element_len,
+							ie_tree);
+						break;
 
-				case CS0 | Q931_IE_NETWORK_SPECIFIC_FACIL:
-				case CS0 | Q931_IE_TRANSIT_NETWORK_SEL:
-					dissect_q931_ns_facilities_ie(tvb,
-					    offset + 2, info_element_len,
-					    ie_tree);
-					break;
+					case CS0 | Q931_IE_NOTIFICATION_INDICATOR:
+						dissect_q931_notification_indicator_ie(
+							tvb, offset + 2, info_element_len,
+							ie_tree);
+						break;
 
-				case CS0 | Q931_IE_NOTIFICATION_INDICATOR:
-					dissect_q931_notification_indicator_ie(
-					    tvb, offset + 2, info_element_len,
-					    ie_tree);
-					break;
+					case CS0 | Q931_IE_DISPLAY:
+						dissect_q931_ia5_ie(tvb, offset + 2,
+							info_element_len, ie_tree,
+							"Display information");
+						break;
 
-				case CS0 | Q931_IE_DISPLAY:
-					dissect_q931_ia5_ie(tvb, offset + 2,
-					    info_element_len, ie_tree,
-					    "Display information");
-					break;
+					case CS0 | Q931_IE_DATE_TIME:
+						dissect_q931_date_time_ie(tvb,
+							offset + 2, info_element_len,
+							ie_tree);
+						break;
 
-				case CS0 | Q931_IE_DATE_TIME:
-					dissect_q931_date_time_ie(tvb,
-					    offset + 2, info_element_len,
-					    ie_tree);
-					break;
+					case CS0 | Q931_IE_KEYPAD_FACILITY:
+						dissect_q931_ia5_ie(tvb, offset + 2,
+							info_element_len, ie_tree,
+							"Keypad facility");
+						break;
 
-				case CS0 | Q931_IE_KEYPAD_FACILITY:
-					dissect_q931_ia5_ie(tvb, offset + 2,
-					    info_element_len, ie_tree,
-					    "Keypad facility");
-					break;
+					case CS0 | Q931_IE_SIGNAL:
+						dissect_q931_signal_ie(tvb,
+							offset + 2, info_element_len,
+							ie_tree);
+						break;
 
-				case CS0 | Q931_IE_SIGNAL:
-					dissect_q931_signal_ie(tvb,
-					    offset + 2, info_element_len,
-					    ie_tree);
-					break;
+					case CS0 | Q931_IE_INFORMATION_RATE:
+						dissect_q931_information_rate_ie(tvb,
+							offset + 2, info_element_len,
+							ie_tree);
+						break;
 
-				case CS0 | Q931_IE_INFORMATION_RATE:
-					dissect_q931_information_rate_ie(tvb,
-					    offset + 2, info_element_len,
-					    ie_tree);
-					break;
+					case CS0 | Q931_IE_E2E_TRANSIT_DELAY:
+						dissect_q931_e2e_transit_delay_ie(tvb,
+							offset + 2, info_element_len,
+							ie_tree);
+						break;
 
-				case CS0 | Q931_IE_E2E_TRANSIT_DELAY:
-					dissect_q931_e2e_transit_delay_ie(tvb,
-					    offset + 2, info_element_len,
-					    ie_tree);
-					break;
+					case CS0 | Q931_IE_TD_SELECTION_AND_INT:
+						dissect_q931_td_selection_and_int_ie(
+							tvb, offset + 2, info_element_len,
+							ie_tree);
+						break;
 
-				case CS0 | Q931_IE_TD_SELECTION_AND_INT:
-					dissect_q931_td_selection_and_int_ie(
-					    tvb, offset + 2, info_element_len,
-					    ie_tree);
-					break;
+					case CS0 | Q931_IE_PL_BINARY_PARAMETERS:
+						dissect_q931_pl_binary_parameters_ie(
+							tvb, offset + 2, info_element_len,
+							ie_tree);
+						break;
 
-				case CS0 | Q931_IE_PL_BINARY_PARAMETERS:
-					dissect_q931_pl_binary_parameters_ie(
-					    tvb, offset + 2, info_element_len,
-					    ie_tree);
-					break;
+					case CS0 | Q931_IE_PL_WINDOW_SIZE:
+						dissect_q931_pl_window_size_ie(tvb,
+							offset + 2, info_element_len,
+							ie_tree);
+						break;
 
-				case CS0 | Q931_IE_PL_WINDOW_SIZE:
-					dissect_q931_pl_window_size_ie(tvb,
-					    offset + 2, info_element_len,
-					    ie_tree);
-					break;
+					case CS0 | Q931_IE_PACKET_SIZE:
+						dissect_q931_packet_size_ie(tvb,
+							offset + 2, info_element_len,
+							ie_tree);
+						break;
 
-				case CS0 | Q931_IE_PACKET_SIZE:
-					dissect_q931_packet_size_ie(tvb,
-					    offset + 2, info_element_len,
-					    ie_tree);
-					break;
+					case CS0 | Q931_IE_CUG:
+						dissect_q931_cug_ie(tvb,
+							offset + 2, info_element_len,
+							ie_tree);
+						break;
 
-				case CS0 | Q931_IE_CUG:
-					dissect_q931_cug_ie(tvb,
-					    offset + 2, info_element_len,
-					    ie_tree);
-					break;
+					case CS0 | Q931_IE_REVERSE_CHARGE_IND:
+						dissect_q931_reverse_charge_ind_ie(tvb,
+							offset + 2, info_element_len,
+							ie_tree);
+						break;
 
-				case CS0 | Q931_IE_REVERSE_CHARGE_IND:
-					dissect_q931_reverse_charge_ind_ie(tvb,
-					    offset + 2, info_element_len,
-					    ie_tree);
-					break;
+					case CS0 | Q931_IE_CONNECTED_NUMBER_DEFAULT:
+						dissect_q931_number_ie(tvb,
+							offset + 2, info_element_len,
+							ie_tree,
+							hf_q931_connected_number, e164_info);
+						break;
 
-				case CS0 | Q931_IE_CALLING_PARTY_NUMBER:
-					e164_info.e164_number_type = CALLING_PARTY_NUMBER;
-					dissect_q931_number_ie(tvb,
-					    offset + 2, info_element_len,
-					    ie_tree,
-					    hf_q931_calling_party_number, e164_info);
-					break;
+					case CS0 | Q931_IE_REDIRECTING_NUMBER:
+						dissect_q931_number_ie(tvb,
+							offset + 2, info_element_len,
+							ie_tree,
+							hf_q931_redirecting_number, e164_info);
+						break;
 
-				case CS0 | Q931_IE_CONNECTED_NUMBER_DEFAULT:
-					dissect_q931_number_ie(tvb,
-					    offset + 2, info_element_len,
-					    ie_tree,
-					    hf_q931_connected_number, e164_info);
-					break;
+					case CS0 | Q931_IE_CALLING_PARTY_SUBADDR:
+					case CS0 | Q931_IE_CALLED_PARTY_SUBADDR:
+						dissect_q931_party_subaddr_ie(tvb,
+							offset + 2, info_element_len,
+							ie_tree);
+						break;
 
-				case CS0 | Q931_IE_CALLED_PARTY_NUMBER:
-					e164_info.e164_number_type = CALLED_PARTY_NUMBER;
-					dissect_q931_number_ie(tvb,
-					    offset + 2, info_element_len,
-					    ie_tree,
-					    hf_q931_called_party_number, e164_info);
-					break;
+					case CS0 | Q931_IE_RESTART_INDICATOR:
+						dissect_q931_restart_indicator_ie(tvb,
+							offset + 2, info_element_len,
+							ie_tree);
+						break;
 
-				case CS0 | Q931_IE_REDIRECTING_NUMBER:
-					dissect_q931_number_ie(tvb,
-					    offset + 2, info_element_len,
-					    ie_tree,
-					    hf_q931_redirecting_number, e164_info);
-					break;
+					case CS0 | Q931_IE_HIGH_LAYER_COMPAT:
+						dissect_q931_high_layer_compat_ie(tvb,
+							offset + 2, info_element_len,
+							ie_tree);
+						break;
 
-				case CS0 | Q931_IE_CALLING_PARTY_SUBADDR:
-				case CS0 | Q931_IE_CALLED_PARTY_SUBADDR:
-					dissect_q931_party_subaddr_ie(tvb,
-					    offset + 2, info_element_len,
-					    ie_tree);
-					break;
+					case CS0 | Q931_IE_USER_USER:
+						dissect_q931_user_user_ie(tvb,
+							offset + 2, info_element_len,
+							ie_tree);
+						break;
 
-				case CS0 | Q931_IE_RESTART_INDICATOR:
-					dissect_q931_restart_indicator_ie(tvb,
-					    offset + 2, info_element_len,
-					    ie_tree);
-					break;
-
-				case CS0 | Q931_IE_HIGH_LAYER_COMPAT:
-					dissect_q931_high_layer_compat_ie(tvb,
-					    offset + 2, info_element_len,
-					    ie_tree);
-					break;
-
-				case CS0 | Q931_IE_USER_USER:
-					dissect_q931_user_user_ie(tvb,
-					    offset + 2, info_element_len,
-					    ie_tree);
-					break;
-
-				default:
-					proto_tree_add_text(ie_tree, tvb,
-					    offset + 2, info_element_len,
-					    "Data: %s",
-					    bytes_to_str(
-					      tvb_get_ptr(tvb, offset + 2,
-					          info_element_len),
-						  info_element_len));
-					break;
+					default:
+						proto_tree_add_text(ie_tree, tvb,
+							offset + 2, info_element_len,
+							"Data: %s",
+							bytes_to_str(
+							  tvb_get_ptr(tvb, offset + 2,
+								  info_element_len),
+							  info_element_len));
+						break;
+					}
 				}
 			}
 			offset += 1 + 1 + info_element_len;
 		}
 		codeset = locked_codeset;
 	}
+	if(have_valid_q931_pi) {
+		tap_queue_packet(q931_tap, pinfo, q931_pi);
+	}
+	have_valid_q931_pi=FALSE;
 }
 
 /*
@@ -3143,6 +3180,8 @@ proto_register_q931(void)
 	    "Reassemble segmented Q.931 messages",
 	    "Reassemble segmented Q.931 messages (Q.931 - Annex H)",
 	    &q931_reassembly);
+       /* Register for tapping */
+       q931_tap = register_tap("q931");
 }
 
 void
@@ -3165,4 +3204,18 @@ proto_reg_handoff_q931(void)
 	 * For H.323.
 	 */
 	heur_dissector_add("tcp", dissect_q931_tpkt, proto_q931);
+}
+
+static void reset_q931_packet_info(q931_packet_info *pi)
+{
+    if(pi == NULL) {
+        return;
+    }
+
+    g_free(pi->calling_number);
+    g_free(pi->called_number);
+    pi->calling_number = NULL;
+    pi->called_number = NULL;
+    pi->cause_value = 0xFF;
+    pi->crv = -1;
 }

@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* .\packet-h245.h                                                            */
+/* ./packet-h245.h                                                            */
 /* ../../tools/asn2eth.py -X -e -p h245 -c h245.cnf -s packet-h245-template h245.asn */
 
 /* Input file: packet-h245-template.h */
@@ -52,6 +52,8 @@ typedef enum _h245_msg_type {
 
 typedef struct _h245_packet_info {
         h245_msg_type msg_type;         /* type of message */
+        gchar frame_label[50];          /* the Frame label used by graph_analysis, what is a abreviation of cinfo */
+        gchar comment[50];                      /* the Frame Comment used by graph_analysis, what is a message desc */
 } h245_packet_info;
 
 
@@ -64,6 +66,8 @@ int dissect_h245_T38FaxProfile(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 int dissect_h245_OpenLogicalChannel(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 
 /*--- End of included file: packet-h245-exp.h ---*/
+
+int dissect_h245_OpenLogicalChannelCodec(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index, char *codec_str);
 
 
 #endif  /* PACKET_H245_H */

@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* .\packet-h225.c                                                            */
+/* ./packet-h225.c                                                            */
 /* ../../tools/asn2eth.py -X -e -p h225 -c h225.cnf -s packet-h225-template h225.asn */
 
 /* Input file: packet-h225-template.c */
@@ -74,7 +74,9 @@ static void reset_h225_packet_info(h225_packet_info *pi);
 static void ras_call_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, h225_packet_info *pi);
 static int dissect_h225_H323UserInformation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
-static h225_packet_info h225_pi; 
+static h225_packet_info pi_arr[5]; /* We assuming a maximum of 5 H225 messaages per packet */
+static int pi_current=0;
+h225_packet_info *h225_pi=NULL;
 
 static dissector_handle_t h225ras_handle;
 static dissector_handle_t H323UserInformation_handle;
@@ -129,7 +131,7 @@ static int hf_h225_notify = -1;                   /* Notify_UUIE */
 static int hf_h225_nonStandardData = -1;          /* NonStandardParameter */
 static int hf_h225_h4501SupplementaryService = -1;  /* T_h4501SupplementaryService */
 static int hf_h225_h4501SupplementaryService_item = -1;  /* T_h4501SupplementaryService_item */
-static int hf_h225_h245Tunneling = -1;            /* BOOLEAN */
+static int hf_h225_h245Tunneling = -1;            /* T_h245Tunneling */
 static int hf_h225_h245Control = -1;              /* H245Control */
 static int hf_h225_nonStandardControl = -1;       /* SEQUENCE_OF_NonStandardParameter */
 static int hf_h225_nonStandardControl_item = -1;  /* NonStandardParameter */
@@ -1345,6 +1347,7 @@ dissect_h225_NULL(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree 
   proto_item_append_text(ti_tmp, ": NULL");
   }
 
+  if (h225_pi->cs_type == H225_OTHER) h225_pi->cs_type = H225_EMPTY;
   return offset;
 }
 static int dissect_empty_flg(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
@@ -2209,9 +2212,9 @@ dissect_h225_H245TransportAddress(tvbuff_t *tvb, int offset, packet_info *pinfo 
                               NULL);
 
 	/* we need this info for TAPing */
-	h225_pi.is_h245 = TRUE;
-	h225_pi.h245_address = ipv4_address;	
-	h225_pi.h245_port = ipv4_port;	
+	h225_pi->is_h245 = TRUE;
+	h225_pi->h245_address = ipv4_address;	
+	h225_pi->h245_port = ipv4_port;	
 
 	if((!pinfo->fd->flags.visited) && ipv4_address!=0 && ipv4_port!=0 && h245_handle){
 		address src_addr;
@@ -3506,9 +3509,6 @@ dissect_h225_BOOLEAN(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tr
 
   return offset;
 }
-static int dissect_h245Tunneling(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h225_BOOLEAN(tvb, offset, pinfo, tree, hf_h225_h245Tunneling);
-}
 static int dissect_multipleCalls(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h225_BOOLEAN(tvb, offset, pinfo, tree, hf_h225_multipleCalls);
 }
@@ -4002,7 +4002,7 @@ dissect_h225_T_guid(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tre
   guint32 guid_offset,guid_len;
 
   offset = dissect_per_octet_string(tvb,offset,pinfo,tree,hf_index,16,16,&guid_offset,&guid_len);
-  tvb_memcpy(tvb,h225_pi.guid,guid_offset,guid_len);
+  tvb_memcpy(tvb,h225_pi->guid,guid_offset,guid_len);
 
   return offset;
 }
@@ -4242,14 +4242,19 @@ static int
 dissect_h225_FastStart_item(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
 	guint32 newoffset;
 	guint32 length;
+	char codec_str[50];
 
 	offset=dissect_per_length_determinant(tvb, offset, pinfo, tree, hf_h225_fastStart_item_length, &length);
 	newoffset=offset + (length<<3);	/* please note that offset is in bits in
 					   PER dissectors, but the item length
 					   is in octets */
-	offset=dissect_h245_OpenLogicalChannel(tvb,offset, pinfo, tree, hf_index);
+	offset=dissect_h245_OpenLogicalChannelCodec(tvb,offset, pinfo, tree, hf_index, codec_str);
+
+    /* Add to packet info */
+    g_snprintf(h225_pi->frame_label, 50, "%s %s", h225_pi->frame_label, codec_str);
+
 	contains_faststart = TRUE;
-	h225_pi.is_faststart = TRUE;
+	h225_pi->is_faststart = TRUE;
 
 	return newoffset;
 
@@ -5337,7 +5342,12 @@ dissect_h225_Setup_UUIE(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto
   offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
                                 ett_h225_Setup_UUIE, Setup_UUIE_sequence);
 
-  h225_pi.cs_type = H225_SETUP;
+  /* Add to packet info */
+  h225_pi->cs_type = H225_SETUP;
+  if (contains_faststart == TRUE )
+      g_snprintf(h225_pi->frame_label, 50, "%s OLC (%s)", val_to_str(h225_pi->cs_type, T_h323_message_body_vals, "<unknown>"), h225_pi->frame_label);
+  else
+      g_snprintf(h225_pi->frame_label, 50, "%s", val_to_str(h225_pi->cs_type, T_h323_message_body_vals, "<unknown>"));
   return offset;
 }
 static int dissect_setup(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
@@ -5384,7 +5394,12 @@ dissect_h225_CallProceeding_UUIE(tvbuff_t *tvb, int offset, packet_info *pinfo _
   offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
                                 ett_h225_CallProceeding_UUIE, CallProceeding_UUIE_sequence);
 
-  h225_pi.cs_type = H225_CALL_PROCEDING;
+  /* Add to packet info */
+  h225_pi->cs_type = H225_CALL_PROCEDING;
+  if (contains_faststart == TRUE )
+        g_snprintf(h225_pi->frame_label, 50, "%s OLC (%s)", val_to_str(h225_pi->cs_type, T_h323_message_body_vals, "<unknown>"), h225_pi->frame_label);
+  else
+        g_snprintf(h225_pi->frame_label, 50, "%s", val_to_str(h225_pi->cs_type, T_h323_message_body_vals, "<unknown>"));
   return offset;
 }
 static int dissect_callProceeding(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
@@ -5431,7 +5446,12 @@ dissect_h225_Connect_UUIE(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, pro
   offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
                                 ett_h225_Connect_UUIE, Connect_UUIE_sequence);
 
-  h225_pi.cs_type = H225_CONNECT;
+  /* Add to packet info */
+  h225_pi->cs_type = H225_CONNECT;
+  if (contains_faststart == TRUE )
+      g_snprintf(h225_pi->frame_label, 50, "%s OLC (%s)", val_to_str(h225_pi->cs_type, T_h323_message_body_vals, "<unknown>"), h225_pi->frame_label);
+  else 
+      g_snprintf(h225_pi->frame_label, 50, "%s", val_to_str(h225_pi->cs_type, T_h323_message_body_vals, "<unknown>"));
   return offset;
 }
 static int dissect_connect(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
@@ -5464,7 +5484,12 @@ dissect_h225_Alerting_UUIE(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, pr
   offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
                                 ett_h225_Alerting_UUIE, Alerting_UUIE_sequence);
 
-  h225_pi.cs_type = H225_ALERTING;
+  /* Add to packet info */
+  h225_pi->cs_type = H225_ALERTING;
+  if (contains_faststart == TRUE )
+       g_snprintf(h225_pi->frame_label, 50, "%s OLC (%s)", val_to_str(h225_pi->cs_type, T_h323_message_body_vals, "<unknown>"), h225_pi->frame_label);
+  else 
+       g_snprintf(h225_pi->frame_label, 50, "%s", val_to_str(h225_pi->cs_type, T_h323_message_body_vals, "<unknown>"));
   return offset;
 }
 static int dissect_alerting(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
@@ -5487,6 +5512,9 @@ dissect_h225_Information_UUIE(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
   offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
                                 ett_h225_Information_UUIE, Information_UUIE_sequence);
 
+  /* Add to packet info */
+  h225_pi->cs_type = H225_INFORMATION;
+  g_snprintf(h225_pi->frame_label, 50, "%s", val_to_str(h225_pi->cs_type, T_h323_message_body_vals, "<unknown>"));
   return offset;
 }
 static int dissect_information(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
@@ -5618,7 +5646,7 @@ dissect_h225_ReleaseCompleteReason(tvbuff_t *tvb, int offset, packet_info *pinfo
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
                               ett_h225_ReleaseCompleteReason, ReleaseCompleteReason_choice, "ReleaseCompleteReason",
                               &value);
-  h225_pi.reason = value;
+  h225_pi->reason = value;
 
   return offset;
 }
@@ -5646,7 +5674,9 @@ dissect_h225_ReleaseComplete_UUIE(tvbuff_t *tvb, int offset, packet_info *pinfo 
   offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
                                 ett_h225_ReleaseComplete_UUIE, ReleaseComplete_UUIE_sequence);
 
-  h225_pi.cs_type = H225_RELEASE_COMPLET;
+  /* Add to packet info */
+  h225_pi->cs_type = H225_RELEASE_COMPLET;
+  g_snprintf(h225_pi->frame_label, 50, "%s", val_to_str(h225_pi->cs_type, T_h323_message_body_vals, "<unknown>"));
   return offset;
 }
 static int dissect_releaseComplete(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
@@ -5691,7 +5721,7 @@ dissect_h225_FacilityReason(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, p
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
                               ett_h225_FacilityReason, FacilityReason_choice, "FacilityReason",
                               &value);
-	h225_pi.reason = value;
+	h225_pi->reason = value;
 
 
   return offset;
@@ -5760,6 +5790,9 @@ dissect_h225_Facility_UUIE(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, pr
   offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
                                 ett_h225_Facility_UUIE, Facility_UUIE_sequence);
 
+  /* Add to packet info */
+  h225_pi->cs_type = H225_FACILITY;
+  g_snprintf(h225_pi->frame_label, 50, "%s", val_to_str(h225_pi->cs_type, T_h323_message_body_vals, "<unknown>"));
   return offset;
 }
 static int dissect_facility(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
@@ -5786,6 +5819,12 @@ dissect_h225_Progress_UUIE(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, pr
   offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
                                 ett_h225_Progress_UUIE, Progress_UUIE_sequence);
 
+  /* Add to packet info */
+  h225_pi->cs_type = H225_PROGRESS;
+  if (contains_faststart == TRUE )
+        g_snprintf(h225_pi->frame_label, 50, "%s OLC (%s)", val_to_str(h225_pi->cs_type, T_h323_message_body_vals, "<unknown>"), h225_pi->frame_label);
+  else 
+        g_snprintf(h225_pi->frame_label, 50, "%s", val_to_str(h225_pi->cs_type, T_h323_message_body_vals, "<unknown>"));
   return offset;
 }
 static int dissect_progress(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
@@ -5805,6 +5844,9 @@ dissect_h225_Status_UUIE(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, prot
   offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
                                 ett_h225_Status_UUIE, Status_UUIE_sequence);
 
+  /* Add to packet info */
+  h225_pi->cs_type = H225_STATUS;
+  g_snprintf(h225_pi->frame_label, 50, "%s", val_to_str(h225_pi->cs_type, T_h323_message_body_vals, "<unknown>"));
   return offset;
 }
 static int dissect_status(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
@@ -5917,9 +5959,9 @@ dissect_h225_T_h323_message_body(tvbuff_t *tvb, int offset, packet_info *pinfo _
 			val_to_str(message_body_val, T_h323_message_body_vals, "<unknown>"));
         }
 
-	if (h225_pi.msg_type == H225_CS) {
+	if (h225_pi->msg_type == H225_CS) {
 		/* Don't override msg_tag value from IRR */
-		h225_pi.msg_tag = message_body_val;
+		h225_pi->msg_tag = message_body_val;
 	}
 
 	if (contains_faststart == TRUE )
@@ -5970,6 +6012,17 @@ dissect_h225_T_h4501SupplementaryService(tvbuff_t *tvb, int offset, packet_info 
 }
 static int dissect_h4501SupplementaryService(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h225_T_h4501SupplementaryService(tvb, offset, pinfo, tree, hf_h225_h4501SupplementaryService);
+}
+
+
+static int
+dissect_h225_T_h245Tunneling(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+	offset=dissect_per_boolean(tvb, offset, pinfo, tree, hf_h225_h245Tunneling, &(h225_pi->is_h245Tunneling), NULL);
+
+  return offset;
+}
+static int dissect_h245Tunneling(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h225_T_h245Tunneling(tvb, offset, pinfo, tree, hf_h225_h245Tunneling);
 }
 
 
@@ -6428,7 +6481,7 @@ static int dissect_securityError(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 static int
 dissect_h225_RequestSeqNum(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                           1U, 65535U, &(h225_pi.requestSeqNum), NULL, FALSE);
+                                           1U, 65535U, &(h225_pi->requestSeqNum), NULL, FALSE);
 
 
   return offset;
@@ -7055,7 +7108,7 @@ dissect_h225_GatekeeperRejectReason(tvbuff_t *tvb, int offset, packet_info *pinf
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
                               ett_h225_GatekeeperRejectReason, GatekeeperRejectReason_choice, "GatekeeperRejectReason",
                               &value);
-  h225_pi.reason = value;
+  h225_pi->reason = value;
 
 
   return offset;
@@ -7328,7 +7381,7 @@ dissect_h225_RegistrationRejectReason(tvbuff_t *tvb, int offset, packet_info *pi
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
                               ett_h225_RegistrationRejectReason, RegistrationRejectReason_choice, "RegistrationRejectReason",
                               &value);
-  h225_pi.reason = value;
+  h225_pi->reason = value;
 
   return offset;
 }
@@ -7390,7 +7443,7 @@ dissect_h225_UnregRequestReason(tvbuff_t *tvb, int offset, packet_info *pinfo _U
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
                               ett_h225_UnregRequestReason, UnregRequestReason_choice, "UnregRequestReason",
                               &value);
-  h225_pi.reason = value;
+  h225_pi->reason = value;
 
 
   return offset;
@@ -7478,7 +7531,7 @@ dissect_h225_UnregRejectReason(tvbuff_t *tvb, int offset, packet_info *pinfo _U_
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
                               ett_h225_UnregRejectReason, UnregRejectReason_choice, "UnregRejectReason",
                               &value);
-  h225_pi.reason = value;
+  h225_pi->reason = value;
 
   return offset;
 }
@@ -7784,7 +7837,7 @@ dissect_h225_AdmissionRejectReason(tvbuff_t *tvb, int offset, packet_info *pinfo
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
                               ett_h225_AdmissionRejectReason, AdmissionRejectReason_choice, "AdmissionRejectReason",
                               &value);
-  h225_pi.reason = value;
+  h225_pi->reason = value;
 
   return offset;
 }
@@ -7917,7 +7970,7 @@ dissect_h225_BandRejectReason(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
                               ett_h225_BandRejectReason, BandRejectReason_choice, "BandRejectReason",
                               &value);
-  h225_pi.reason = value;
+  h225_pi->reason = value;
 
   return offset;
 }
@@ -7971,7 +8024,7 @@ dissect_h225_DisengageReason(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, 
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
                               ett_h225_DisengageReason, DisengageReason_choice, "DisengageReason",
                               &value);
-  h225_pi.reason = value;
+  h225_pi->reason = value;
 
   return offset;
 }
@@ -8061,7 +8114,7 @@ dissect_h225_DisengageRejectReason(tvbuff_t *tvb, int offset, packet_info *pinfo
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
                               ett_h225_DisengageRejectReason, DisengageRejectReason_choice, "DisengageRejectReason",
                               &value);
-  h225_pi.reason = value;
+  h225_pi->reason = value;
 
   return offset;
 }
@@ -8212,7 +8265,7 @@ dissect_h225_LocationRejectReason(tvbuff_t *tvb, int offset, packet_info *pinfo 
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
                               ett_h225_LocationRejectReason, LocationRejectReason_choice, "LocationRejectReason",
                               &value);
-  h225_pi.reason = value;
+  h225_pi->reason = value;
 
   return offset;
 }
@@ -8605,7 +8658,7 @@ dissect_h225_InfoRequestNakReason(tvbuff_t *tvb, int offset, packet_info *pinfo 
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
                               ett_h225_InfoRequestNakReason, InfoRequestNakReason_choice, "InfoRequestNakReason",
                               &value);
-  h225_pi.reason = value;
+  h225_pi->reason = value;
 
   return offset;
 }
@@ -8832,7 +8885,7 @@ dissect_h225_RasMessage(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto
 			val_to_str(rasmessage_value, RasMessage_vals, "<unknown>"));
 	}
 
-	h225_pi.msg_tag = rasmessage_value;
+	h225_pi->msg_tag = rasmessage_value;
 
   return offset;
 }
@@ -8849,9 +8902,15 @@ dissect_h225_H323UserInformation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	proto_tree *tr;
 	int offset = 0;
 
+    pi_current++;
+    if(pi_current==5){
+      pi_current=0;
+    }
+    h225_pi=&pi_arr[pi_current];
+
 	/* Init struct for collecting h225_packet_info */
-	reset_h225_packet_info(&(h225_pi));
-	h225_pi.msg_type = H225_CS;
+    reset_h225_packet_info(h225_pi);
+    h225_pi->msg_type = H225_CS;
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL)){
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "H.225.0");
@@ -8865,7 +8924,7 @@ dissect_h225_H323UserInformation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
 	offset = dissect_h225_H323_UserInformation(tvb, offset,pinfo, tr, hf_h225_H323_UserInformation);
 
-	tap_queue_packet(h225_tap, pinfo, &h225_pi);
+	tap_queue_packet(h225_tap, pinfo, h225_pi);
 
 	return offset;
 }
@@ -8875,9 +8934,15 @@ dissect_h225_h225_RasMessage(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	proto_tree *tr;
 	guint32 offset=0;
 
+    pi_current++;
+    if(pi_current==5){
+        pi_current=0;
+    }
+    h225_pi=&pi_arr[pi_current];
+
 	/* Init struct for collecting h225_packet_info */
-	reset_h225_packet_info(&(h225_pi));
-	h225_pi.msg_type = H225_RAS;
+    reset_h225_packet_info(h225_pi);
+    h225_pi->msg_type = H225_RAS;
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL)){
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "H.225.0");
@@ -8888,12 +8953,13 @@ dissect_h225_h225_RasMessage(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
 	offset = dissect_h225_RasMessage(tvb, 0, pinfo,tr, hf_h225_RasMessage );
 
-	ras_call_matching(tvb, pinfo, tr, &(h225_pi));
+	ras_call_matching(tvb, pinfo, tr, h225_pi);
 
-	tap_queue_packet(h225_tap, pinfo, &h225_pi);
+	tap_queue_packet(h225_tap, pinfo, h225_pi);
 
 	return offset;
 }
+
 /*--- proto_register_h225 -------------------------------------------*/
 void proto_register_h225(void) {
 
@@ -12231,8 +12297,10 @@ static void reset_h225_packet_info(h225_packet_info *pi)
 	pi->request_available = FALSE;
 	pi->is_faststart = FALSE;
 	pi->is_h245 = FALSE;
+	pi->is_h245Tunneling = FALSE;
 	pi->h245_address = 0;
 	pi->h245_port = 0;
+	pi->frame_label[0] = '\0';
 }
 
 /*

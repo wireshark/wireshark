@@ -430,6 +430,7 @@ proto_tree_children_foreach
 proto_tree_get_parent
 p_add_proto_data
 p_get_proto_data
+q931_cause_code_vals           DATA
 range_convert_range
 range_convert_str
 range_copy
@@ -470,6 +471,7 @@ rpc_roundup
 rtcp_add_address
 rtp_add_address
 rtp_payload_type_vals           DATA
+rtp_payload_type_short_vals    DATA
 set_actual_length
 set_timestamp_setting
 show_fragment_seq_tree
