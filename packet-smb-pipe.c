@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb-pipe.c,v 1.6 2000/05/14 03:17:26 guy Exp $
+ * $Id: packet-smb-pipe.c,v 1.7 2000/05/14 04:00:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -558,6 +558,7 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
   proto_tree          *lanman_tree = NULL, *flags_tree = NULL;
   proto_item          *ti;
   struct lanman_desc  *lanman;
+  guint32             string_offset;
 
   if (check_col(fd, COL_PROTOCOL))
     col_add_fstr(fd, COL_PROTOCOL, "LANMAN");
@@ -959,7 +960,13 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
 
 	loc_offset += 2;
 
-	Comment = pd + SMB_offset + DataOffset + (GWORD(pd, loc_offset) & 0xFFFF) - Convert;
+	/* XXX - should check whether all of the string is within the
+	   frame. */
+	string_offset = SMB_offset + DataOffset + (GWORD(pd, loc_offset) & 0xFFFF) - Convert;
+	if (IS_DATA_IN_FRAME(string_offset))
+	  Comment = pd + string_offset;
+	else
+	  Comment = "<String goes past end of frame>";
 
 	if (tree) {
 
@@ -1108,7 +1115,13 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
 
 	  loc_offset += 4;
 
-	  Comment = pd + SMB_offset + DataOffset + (GWORD(pd, loc_offset) & 0xFFFF) - Convert;
+	  /* XXX - should check whether all of the string is within the
+	     frame. */
+	  string_offset = SMB_offset + DataOffset + (GWORD(pd, loc_offset) & 0xFFFF) - Convert;
+	  if (IS_DATA_IN_FRAME(string_offset))
+	    Comment = pd + string_offset;
+	  else
+	    Comment = "<String goes past end of frame>";
 
 	  if (tree) {
 
