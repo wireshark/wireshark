@@ -194,32 +194,32 @@ dissect_fw1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
   }
 
-	if (check_col(pinfo->cinfo, COL_IF_DIR))
-		col_add_str(pinfo->cinfo, COL_IF_DIR, header + sizeof(fw1_header) + 1);
+  if (check_col(pinfo->cinfo, COL_IF_DIR))
+    col_add_str(pinfo->cinfo, COL_IF_DIR, header + sizeof(fw1_header) + 1);
 
-	if (tree) {
-		if (!fw1_summary_in_tree)
-			/* Do not show the summary in Protocol Tree */
-			ti = proto_tree_add_protocol_format(tree, proto_fw1, tvb, 0, ETH_HEADER_SIZE, fw1_header);
-		else
-			ti = proto_tree_add_protocol_format(tree, proto_fw1, tvb, 0, ETH_HEADER_SIZE, header);
+  if (tree) {
+    if (!fw1_summary_in_tree)
+      /* Do not show the summary in Protocol Tree */
+      ti = proto_tree_add_protocol_format(tree, proto_fw1, tvb, 0, ETH_HEADER_SIZE, fw1_header);
+    else
+      ti = proto_tree_add_protocol_format(tree, proto_fw1, tvb, 0, ETH_HEADER_SIZE, header);
 
-		/* create display subtree for the protocol */
-		fh_tree = proto_item_add_subtree(ti, ett_fw1);
+    /* create display subtree for the protocol */
+    fh_tree = proto_item_add_subtree(ti, ett_fw1);
 
-		proto_tree_add_item(fh_tree, hf_fw1_direction, tvb, 0, 1, FALSE);
+    proto_tree_add_item(fh_tree, hf_fw1_direction, tvb, 0, 1, FALSE);
 
-		if (fw1_iflist_with_chain)
-			proto_tree_add_item(fh_tree, hf_fw1_chain, tvb, 1,1, FALSE);
+    if (fw1_iflist_with_chain)
+      proto_tree_add_item(fh_tree, hf_fw1_chain, tvb, 1, 1, FALSE);
 
-		proto_tree_add_string_format(fh_tree, hf_fw1_interface, tvb, 2, iface_len, "Interface: %s", interface_name);
-	
-		if (fw1_with_uuid) 
-			proto_tree_add_item(fh_tree, hf_fw1_uuid, tvb, 8, 4, FALSE);
-	}
+    proto_tree_add_string_format(fh_tree, hf_fw1_interface, tvb, 2, iface_len, "Interface: %s", interface_name);
+  
+    if (fw1_with_uuid) 
+      proto_tree_add_item(fh_tree, hf_fw1_uuid, tvb, 8, 4, FALSE);
+  }
 
-	etype = tvb_get_ntohs(tvb, 12);
-	ethertype(etype, tvb, ETH_HEADER_SIZE, pinfo, tree, fh_tree, hf_fw1_type, hf_fw1_trailer, 0);
+  etype = tvb_get_ntohs(tvb, 12);
+  ethertype(etype, tvb, ETH_HEADER_SIZE, pinfo, tree, fh_tree, hf_fw1_type, hf_fw1_trailer, 0);
 }
 
 void
@@ -227,10 +227,10 @@ proto_register_fw1(void)
 {
   static hf_register_info hf[] = {
 	{ &hf_fw1_direction,
-	{ "Direction",	"fw1.direction", FT_STRING, BASE_DEC, NULL, 0x0,
+	{ "Direction",	"fw1.direction", FT_STRING, BASE_NONE, NULL, 0x0,
 		"Direction", HFILL }},
 	{ &hf_fw1_chain,
-	{ "Chain Position",	"fw1.chain", FT_STRING, BASE_HEX, NULL, 0x0,
+	{ "Chain Position",	"fw1.chain", FT_STRING, BASE_NONE, NULL, 0x0,
 		"Chain Position", HFILL }},
 	{ &hf_fw1_interface,
 	{ "Interface",	"fw1.interface", FT_STRING, BASE_NONE, NULL, 0x0,
