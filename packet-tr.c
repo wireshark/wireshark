@@ -2,7 +2,7 @@
  * Routines for Token-Ring packet disassembly
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-tr.c,v 1.73 2002/08/28 21:00:36 jmayer Exp $
+ * $Id: packet-tr.c,v 1.74 2003/01/22 01:17:01 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -33,6 +33,7 @@
 #include <epan/packet.h>
 #include "packet-tr.h"
 #include "packet-llc.h"
+#include "tap.h"
 
 static int proto_tr = -1;
 static int hf_tr_dst = -1;
@@ -58,6 +59,8 @@ static int hf_tr_rif_bridge = -1;
 static gint ett_token_ring = -1;
 static gint ett_token_ring_ac = -1;
 static gint ett_token_ring_fc = -1;
+
+static int tr_tap = -1;
 
 #define TR_MIN_HEADER_LEN 14
 #define TR_MAX_HEADER_LEN 32
@@ -316,11 +319,9 @@ dissect_tr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	volatile guint16	first2_sr;
 	tvbuff_t		*volatile tr_tvb;
 
-	/* The trn_hdr struct, as separate variables */
-	guint8			trn_ac;		/* access control field */
-	guint8			trn_fc;		/* field control field */
-	const guint8		*trn_dhost;	/* destination host */
-	const guint8		*trn_shost;	/* source host */
+	static tr_hdr trh_arr[4];
+	static int trh_current=0;
+	tr_hdr *trh;
 
 	/* non-source-routed version of source addr */
 	static guint8		trn_shost_nonsr[6];
@@ -328,6 +329,13 @@ dissect_tr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* Token-Ring Strings */
 	char *fc[] = { "MAC", "LLC", "Reserved", "Unknown" };
+
+
+	trh_current++;
+	if(trh_current==4){
+		trh_current=0;
+	}
+	trh=&trh_arr[trh_current];
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "TR");
@@ -342,21 +350,20 @@ dissect_tr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	/* Get the data */
-	trn_fc		= tvb_get_guint8(tr_tvb, 1);
-	trn_dhost	= tvb_get_ptr(tr_tvb, 2, 6);
-	trn_shost	= tvb_get_ptr(tr_tvb, 8, 6);
+	trh->fc		= tvb_get_guint8(tr_tvb, 1);
+	tvb_memcpy(tvb, trh->dst, 2, 6);
+	tvb_memcpy(tvb, trh->src, 8, 6);
 
-
-	memcpy(trn_shost_nonsr, trn_shost, 6);
+	memcpy(trn_shost_nonsr, trh->src, 6);
 	trn_shost_nonsr[0] &= 127;
-	frame_type = (trn_fc & 192) >> 6;
+	frame_type = (trh->fc & 192) >> 6;
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_add_fstr(pinfo->cinfo, COL_INFO, "Token-Ring %s", fc[frame_type]);
 
 	/* if the high bit on the first byte of src hwaddr is 1, then
 		this packet is source-routed */
-	source_routed = trn_shost[0] & 128;
+	source_routed = trh->src[0] & 128;
 
 	trn_rif_bytes = tvb_get_guint8(tr_tvb, 14) & 31;
 
@@ -451,8 +458,8 @@ dissect_tr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	   just making "trn_shost_nonsr" static? */
 	SET_ADDRESS(&pinfo->dl_src,	AT_ETHER, 6, trn_shost_nonsr);
 	SET_ADDRESS(&pinfo->src,	AT_ETHER, 6, trn_shost_nonsr);
-	SET_ADDRESS(&pinfo->dl_dst,	AT_ETHER, 6, trn_dhost);
-	SET_ADDRESS(&pinfo->dst,	AT_ETHER, 6, trn_dhost);
+	SET_ADDRESS(&pinfo->dl_dst,	AT_ETHER, 6, trh->dst);
+	SET_ADDRESS(&pinfo->dst,	AT_ETHER, 6, trh->dst);
 
 	/* protocol analysis tree */
 	if (tree) {
@@ -461,25 +468,25 @@ dissect_tr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		tr_tree = proto_item_add_subtree(ti, ett_token_ring);
 
 		/* Create the Access Control bitfield tree */
-		trn_ac = tvb_get_guint8(tr_tvb, 0);
-		ti = proto_tree_add_uint(tr_tree, hf_tr_ac, tr_tvb, 0, 1, trn_ac);
+		trh->ac = tvb_get_guint8(tr_tvb, 0);
+		ti = proto_tree_add_uint(tr_tree, hf_tr_ac, tr_tvb, 0, 1, trh->ac);
 		bf_tree = proto_item_add_subtree(ti, ett_token_ring_ac);
 
-		proto_tree_add_uint(bf_tree, hf_tr_priority, tr_tvb, 0, 1, trn_ac);
-		proto_tree_add_boolean(bf_tree, hf_tr_frame, tr_tvb, 0, 1, trn_ac);
-		proto_tree_add_uint(bf_tree, hf_tr_monitor_cnt, tr_tvb, 0, 1, trn_ac);
-		proto_tree_add_uint(bf_tree, hf_tr_priority_reservation, tr_tvb, 0, 1, trn_ac);
+		proto_tree_add_uint(bf_tree, hf_tr_priority, tr_tvb, 0, 1, trh->ac);
+		proto_tree_add_boolean(bf_tree, hf_tr_frame, tr_tvb, 0, 1, trh->ac);
+		proto_tree_add_uint(bf_tree, hf_tr_monitor_cnt, tr_tvb, 0, 1, trh->ac);
+		proto_tree_add_uint(bf_tree, hf_tr_priority_reservation, tr_tvb, 0, 1, trh->ac);
 
 		/* Create the Frame Control bitfield tree */
-		ti = proto_tree_add_uint(tr_tree, hf_tr_fc, tr_tvb, 1, 1, trn_fc);
+		ti = proto_tree_add_uint(tr_tree, hf_tr_fc, tr_tvb, 1, 1, trh->fc);
 		bf_tree = proto_item_add_subtree(ti, ett_token_ring_fc);
 
-		proto_tree_add_uint(bf_tree, hf_tr_fc_type, tr_tvb, 1, 1, trn_fc);
-		proto_tree_add_uint(bf_tree, hf_tr_fc_pcf, tr_tvb,  1, 1, trn_fc);
-		proto_tree_add_ether(tr_tree, hf_tr_dst, tr_tvb, 2, 6, trn_dhost);
-		proto_tree_add_ether(tr_tree, hf_tr_src, tr_tvb, 8, 6, trn_shost);
-		proto_tree_add_ether_hidden(tr_tree, hf_tr_addr, tr_tvb, 2, 6, trn_dhost);
-		proto_tree_add_ether_hidden(tr_tree, hf_tr_addr, tr_tvb, 8, 6, trn_shost);
+		proto_tree_add_uint(bf_tree, hf_tr_fc_type, tr_tvb, 1, 1, trh->fc);
+		proto_tree_add_uint(bf_tree, hf_tr_fc_pcf, tr_tvb,  1, 1, trh->fc);
+		proto_tree_add_ether(tr_tree, hf_tr_dst, tr_tvb, 2, 6, trh->dst);
+		proto_tree_add_ether(tr_tree, hf_tr_src, tr_tvb, 8, 6, trh->src);
+		proto_tree_add_ether_hidden(tr_tree, hf_tr_addr, tr_tvb, 2, 6, trh->dst);
+		proto_tree_add_ether_hidden(tr_tree, hf_tr_addr, tr_tvb, 8, 6, trh->src);
 
 		proto_tree_add_boolean(tr_tree, hf_tr_sr, tr_tvb, 8, 1, source_routed);
 
@@ -539,6 +546,8 @@ dissect_tr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			call_dissector(data_handle,next_tvb, pinfo, tree);
 			break;
 	}
+
+	tap_queue_packet(tr_tap, pinfo, trh);
 }
 
 /* this routine is taken from the Linux net/802/tr.c code, which shows
@@ -677,6 +686,7 @@ proto_register_tr(void)
 	proto_register_field_array(proto_tr, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 	register_dissector("tr", dissect_tr, proto_tr);
+	tr_tap=register_tap("tr");
 }
 
 void
