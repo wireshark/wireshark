@@ -2,7 +2,7 @@
  * Routines for Universal Computer Protocol dissection
  * Copyright 2001, Tom Uijldert <tom.uijldert@cmg.nl>
  *
- * $Id: packet-ucp.c,v 1.8 2001/12/10 00:25:40 guy Exp $
+ * $Id: packet-ucp.c,v 1.9 2001/12/17 23:17:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1537,9 +1537,6 @@ static gboolean
 dissect_ucp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     guint8	 O_R;		/* Request or response			*/
-
-    if (!proto_is_protocol_enabled(proto_ucp))
-	return FALSE;		/* UCP was disabled	*/
 
     /* This runs atop TCP, so we are guaranteed that there is at least one
        byte in the tvbuff. */
