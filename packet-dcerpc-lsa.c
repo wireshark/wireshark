@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *  2002  Added LSA command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-lsa.c,v 1.37 2002/04/30 10:14:34 sahlberg Exp $
+ * $Id: packet-dcerpc-lsa.c,v 1.38 2002/04/30 10:17:53 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3223,6 +3223,36 @@ lsa_dissect_lsalookupnames2_reply(tvbuff_t *tvb, int offset,
 }
 
 
+static int
+lsa_dissect_lsacreateaccount_rqst(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	/* [in] LSA_HANDLE hnd */
+	offset = lsa_dissect_LSA_HANDLE(tvb, offset,
+		pinfo, tree, drep);
+
+	offset = dissect_ndr_nt_SID(tvb, offset,
+		pinfo, tree, drep);
+
+	offset = lsa_dissect_ACCESS_MASK(tvb, offset,
+		pinfo, tree, drep);
+
+	return offset;
+}
+
+static int
+lsa_dissect_lsacreateaccount_reply(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	offset = lsa_dissect_LSA_HANDLE(tvb, offset,
+		pinfo, tree, drep);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_lsa_rc, NULL);
+
+	return offset;
+}
+
 
 static dcerpc_sub_dissector dcerpc_lsa_dissectors[] = {
 	{ LSA_LSACLOSE, "LSACLOSE",
@@ -3256,11 +3286,8 @@ static dcerpc_sub_dissector dcerpc_lsa_dissectors[] = {
 		lsa_dissect_lsaclearauditlog_rqst,
 		lsa_dissect_lsaclearauditlog_reply },
 	{ LSA_LSACREATEACCOUNT, "LSACREATEACCOUNT",
-		NULL, NULL },  /* 0x0a */
-#ifdef REMOVED
 		lsa_dissect_lsacreateaccount_rqst,
 		lsa_dissect_lsacreateaccount_reply },
-#endif
 	{ LSA_LSAENUMERATEACCOUNTS, "LSAENUMERATEACCOUNTS",
 		lsa_dissect_lsaenumerateaccounts_rqst,
 		lsa_dissect_lsaenumerateaccounts_reply },
