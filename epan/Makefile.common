@@ -3,7 +3,7 @@
 #     a) common to both files and
 #     b) portable between both files
 #
-# $Id: Makefile.common,v 1.25 2004/05/13 20:20:34 gerald Exp $
+# $Id: Makefile.common,v 1.26 2004/05/18 08:22:27 sahlberg Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -352,6 +352,7 @@ DISSECTOR_SRC =	\
 	../packet-pflog.c	\
 	../packet-pgm.c	\
 	../packet-pim.c	\
+	../packet-pktc.c	\
 	../packet-pop.c	\
 	../packet-portmap.c	\
 	../packet-postgresql.c	\

@@ -23,7 +23,7 @@
  *
  * Some structures from RFC2630
  *
- * $Id: packet-kerberos.c,v 1.62 2004/05/17 20:03:36 sahlberg Exp $
+ * $Id: packet-kerberos.c,v 1.63 2004/05/18 08:22:26 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3202,6 +3202,8 @@ dissect_kerberos_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 
     offset=dissect_ber_choice(pinfo, kerberos_tree, tvb, offset, kerberos_applications_choice, -1, -1);
+
+    proto_item_set_len(item, offset);
     return offset;
 }
 

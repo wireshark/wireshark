@@ -3,7 +3,7 @@
 #     a) common to both files and
 #     b) portable between both files
 #
-# $Id: Makefile.common,v 1.44 2004/05/13 20:20:33 gerald Exp $
+# $Id: Makefile.common,v 1.45 2004/05/18 08:22:26 sahlberg Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -151,6 +151,7 @@ DISSECTOR_INCLUDES =	\
 	packet-per.h	\
 	packet-pflog.h	\
 	packet-pim.h	\
+	packet-pktc.h	\
 	packet-portmap.h	\
 	packet-ppp.h	\
 	packet-pres.h	\
