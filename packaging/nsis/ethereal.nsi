@@ -1,7 +1,7 @@
 ;
 ; ethereal.nsi
 ;
-; $Id: ethereal.nsi,v 1.28 2003/12/10 23:21:52 gerald Exp $
+; $Id: ethereal.nsi,v 1.29 2003/12/15 04:28:57 guy Exp $
 
 ; ============================================================================
 ; Header configuration
@@ -71,18 +71,11 @@ SetShellVarContext all
 
 SetOutPath $INSTDIR
 File "..\..\wiretap\wiretap-${WTAP_VERSION}.dll"
-!ifndef GLIB2
-File "${COMMON_FILES_GNU}\iconv-1.3.dll"
-File "${COMMON_FILES_GNU}\glib-1.3.dll"
-File "${COMMON_FILES_GNU}\gmodule-1.3.dll"
-File "${COMMON_FILES_GNU}\gnu-intl.dll"
-!else
 File "${COMMON_FILES_GNU}\iconv.dll"
 File "${COMMON_FILES_GNU}\libglib-2.0-0.dll"
 File "${COMMON_FILES_GNU}\libgmodule-2.0-0.dll"
 File "${COMMON_FILES_GNU}\libgobject-2.0-0.dll"
 File "${COMMON_FILES_GNU}\intl.dll"
-!endif
 File "${COMMON_FILES_GNU}\zlib1.dll"
 File "${COMMON_FILES_GNU}\adns_dll.dll"
 File "${COMMON_FILES_GNU}\pcre.dll"
@@ -124,31 +117,26 @@ File "..\..\ethereal.exe"
 File "..\..\doc\ethereal.html"
 File "..\..\doc\ethereal-filter.html"
 !ifndef GTK2
-!ifndef GLIB2
-File "${COMMON_FILES_GNU}\gtk-1.3.dll"
-File "${COMMON_FILES_GNU}\gdk-1.3.dll"
-!else
 File "${COMMON_FILES_GNU}\libgtk-0.dll"
 File "${COMMON_FILES_GNU}\libgdk-0.dll"
-!endif
 !else
-File "${COMMON_FILES_GNU}\libgdk-win32-2.0-0.dll"
-File "${COMMON_FILES_GNU}\libgdk_pixbuf-2.0-0.dll"
-File "${COMMON_FILES_GNU}\libgtk-win32-2.0-0.dll"
-File "${COMMON_FILES_GNU}\libatk-1.0-0.dll"
-File "${COMMON_FILES_GNU}\libpango-1.0-0.dll"
-File "${COMMON_FILES_GNU}\libpangowin32-1.0-0.dll"
+File "${GTK_DIR}\bin\libgdk-win32-2.0-0.dll"
+File "${GTK_DIR}\bin\libgdk_pixbuf-2.0-0.dll"
+File "${GTK_DIR}\bin\libgtk-win32-2.0-0.dll"
+File "${GTK_DIR}\bin\libatk-1.0-0.dll"
+File "${GTK_DIR}\bin\libpango-1.0-0.dll"
+File "${GTK_DIR}\bin\libpangowin32-1.0-0.dll"
 SetOutPath $INSTDIR\etc\gtk-2.0
-File "${COMMON_FILES_GNU}\etc\gtk-2.0\gdk-pixbuf.loaders"
-File "${COMMON_FILES_GNU}\etc\gtk-2.0\gtk.immodules"
+File "${GTK_DIR}\etc\gtk-2.0\gdk-pixbuf.loaders"
+File "${GTK_DIR}\etc\gtk-2.0\gtk.immodules"
 SetOutPath $INSTDIR\etc\pango
-File "${COMMON_FILES_GNU}\etc\pango\pango.modules"
+File "${GTK_DIR}\etc\pango\pango.modules"
 SetOutPath $INSTDIR\lib\gtk-2.0\2.2.0\loaders
-File "${COMMON_FILES_GNU}\lib\gtk-2.0\2.2.0\loaders\libpixbufloader-*.dll"
+File "${GTK_DIR}\lib\gtk-2.0\2.2.0\loaders\libpixbufloader-*.dll"
 SetOutPath $INSTDIR\lib\gtk-2.0\2.2.0\immodules
-File "${COMMON_FILES_GNU}\lib\gtk-2.0\2.2.0\immodules\im-*.dll"
+File "${GTK_DIR}\lib\gtk-2.0\2.2.0\immodules\im-*.dll"
 SetOutPath $INSTDIR\lib\pango\1.2.0\modules
-File "${COMMON_FILES_GNU}\lib\pango\1.2.0\modules\pango-*.dll"
+File "${GTK_DIR}\lib\pango\1.2.0\modules\pango-*.dll"
 !endif
 SectionEnd
 
