@@ -1,7 +1,7 @@
 /* packet-icmpv6.c
  * Routines for ICMPv6 packet disassembly 
  *
- * $Id: packet-icmpv6.c,v 1.9 1999/10/12 06:20:07 gram Exp $
+ * $Id: packet-icmpv6.c,v 1.10 1999/10/16 20:41:37 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -354,10 +354,9 @@ dissect_icmpv6(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		dp->icmp6_code,
 		"Code: 0x%02x (%s)", dp->icmp6_code, codename);
 	}
-	proto_tree_add_item_format(icmp6_tree, hf_icmpv6_checksum,
+	proto_tree_add_item(icmp6_tree, hf_icmpv6_checksum,
 	    offset + offsetof(struct icmp6_hdr, icmp6_cksum), 2,
-	    (guint16)htons(dp->icmp6_cksum),
-	    "Checksum: 0x%04x", (guint16)htons(dp->icmp6_cksum));
+	    (guint16)htons(dp->icmp6_cksum));
 
 	/* decode... */
 	switch (dp->icmp6_type) {
