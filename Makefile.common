@@ -3,7 +3,7 @@
 #     a) common to both files and
 #     b) portable between both files
 #
-# $Id: Makefile.common,v 1.13 2004/02/11 04:19:02 guy Exp $
+# $Id: Makefile.common,v 1.14 2004/02/11 20:23:19 jmayer Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -369,6 +369,7 @@ DISSECTOR_SRC =	\
 	packet-slimp3.c	\
 	packet-sll.c	\
 	packet-slowprotocols.c	\
+	packet-slsk.c	\
 	packet-smb-browse.c	\
 	packet-smb-common.c	\
 	packet-smb-logon.c	\
