@@ -113,6 +113,8 @@ typedef struct {
 #define SMC_RECEIVE_TIME_ATTRIBUTE	660
 #define SMC_STAT_TIME_ATTRIBUTE		661
 
+#define OPSI_FLAGS_ATTRIBUTE		674
+#define OPSI_APPLICATION_NAME_ATTRIBUTE	675
 
 /*
  * Published API functions.  NOTE, "local" API functions 

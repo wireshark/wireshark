@@ -302,6 +302,11 @@ WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninst
 WriteRegDWORD HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\Ethereal" "NoModify" 1
 WriteRegDWORD HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\Ethereal" "NoRepair" 1
 WriteUninstaller "uninstall.exe"
+
+; Write an entry for ShellExecute
+WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\App Paths\ethereal.exe" "" '$INSTDIR\ethereal.exe'
+WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\App Paths\ethereal.exe" "Path" '$INSTDIR'
+
 SectionEnd
 
 !ifdef GTK1_DIR
@@ -544,7 +549,8 @@ IfErrors 0 NoEtherealErrorMsg
 NoEtherealErrorMsg:
 
 DeleteRegKey HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\Ethereal"
-DeleteRegKey HKEY_LOCAL_MACHINE SOFTWARE\Ethereal
+DeleteRegKey HKEY_LOCAL_MACHINE "Software\Ethereal"
+DeleteRegKey HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\App Paths\ethereal.exe"
 
 push $R0
 	StrCpy $R0 ".5vw"
