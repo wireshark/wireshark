@@ -21,7 +21,7 @@
  *
  *      http://www.ietf.org/internet-drafts/draft-ietf-krb-wg-kerberos-referrals-03.txt
  *
- * $Id: packet-kerberos.c,v 1.55 2004/04/05 00:49:32 sahlberg Exp $
+ * $Id: packet-kerberos.c,v 1.56 2004/04/15 07:47:47 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -116,11 +116,14 @@ static gint hf_krb_cname = -1;
 static gint hf_krb_name_string = -1;
 static gint hf_krb_e_text = -1;
 static gint hf_krb_name_type = -1;
+static gint hf_krb_lr_type = -1;
 static gint hf_krb_from = -1;
 static gint hf_krb_till = -1;
 static gint hf_krb_authtime = -1;
+static gint hf_krb_lr_time = -1;
 static gint hf_krb_starttime = -1;
 static gint hf_krb_endtime = -1;
+static gint hf_krb_key_expire = -1;
 static gint hf_krb_renew_till = -1;
 static gint hf_krb_rtime = -1;
 static gint hf_krb_ctime = -1;
@@ -138,6 +141,7 @@ static gint hf_krb_adtype = -1;
 static gint hf_krb_advalue = -1;
 static gint hf_krb_etype = -1;
 static gint hf_krb_etypes = -1;
+static gint hf_krb_LastReqs = -1;
 static gint hf_krb_IF_RELEVANT = -1;
 static gint hf_krb_addr_type = -1;
 static gint hf_krb_address_ip = -1;
@@ -153,6 +157,8 @@ static gint hf_krb_subkey = -1;
 static gint hf_krb_seq_number = -1;
 static gint hf_krb_EncTicketPart = -1;
 static gint hf_krb_EncAPRepPart = -1;
+static gint hf_krb_EncKDCRepPart = -1;
+static gint hf_krb_LastReq = -1;
 static gint hf_krb_Authenticator = -1;
 static gint hf_krb_Checksum = -1;
 static gint hf_krb_HostAddress = -1;
@@ -205,6 +211,8 @@ static gint ett_krb_PAC_CLIENT_INFO_TYPE = -1;
 static gint ett_krb_KDC_REP_enc = -1;
 static gint ett_krb_EncTicketPart = -1;
 static gint ett_krb_EncAPRepPart = -1;
+static gint ett_krb_EncKDCRepPart = -1;
+static gint ett_krb_LastReq = -1;
 static gint ett_krb_Authenticator = -1;
 static gint ett_krb_Checksum = -1;
 static gint ett_krb_key = -1;
@@ -215,6 +223,7 @@ static gint ett_krb_cname = -1;
 static gint ett_krb_AP_REP_enc = -1;
 static gint ett_krb_padata = -1;
 static gint ett_krb_etypes = -1;
+static gint ett_krb_LastReqs = -1;
 static gint ett_krb_IF_RELEVANT = -1;
 static gint ett_krb_PA_DATA_tree = -1;
 static gint ett_krb_PAC = -1;
@@ -409,6 +418,8 @@ printf("woohoo decrypted keytype:%d in frame:%d\n", keytype, pinfo->fd->num);
 #define KRB5_MSG_SAFE     		20	/* KRB-SAFE type */
 #define KRB5_MSG_PRIV     		21	/* KRB-PRIV type */
 #define KRB5_MSG_CRED     		22	/* KRB-CRED type */
+#define KRB5_MSG_ENC_AS_REP_PART	25	/* EncASRepPart */
+#define KRB5_MSG_ENC_TGS_REP_PART	26	/* EncTGSRepPart */
 #define KRB5_MSG_ENC_AP_REP_PART     	27	/* EncAPRepPart */
 #define KRB5_MSG_ERROR    		30	/* KRB-ERROR type */
 
@@ -776,6 +787,8 @@ static const value_string krb5_msg_types[] = {
 	{ KRB5_MSG_SAFE,		"KRB-SAFE" },
 	{ KRB5_MSG_PRIV,		"KRB-PRIV" },
 	{ KRB5_MSG_CRED,		"KRB-CRED" },
+	{ KRB5_MSG_ENC_AS_REP_PART,	"EncASRepPart" },
+	{ KRB5_MSG_ENC_TGS_REP_PART,	"EncTGSRepPart" },
 	{ KRB5_MSG_ENC_AP_REP_PART,	"EncAPRepPart" },
 	{ KRB5_MSG_ERROR,		"KRB-ERROR" },
         { 0, NULL },
@@ -788,6 +801,7 @@ static int dissect_krb5_application_choice(packet_info *pinfo, proto_tree *tree,
 static int dissect_krb5_Authenticator(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset);
 static int dissect_krb5_EncTicketPart(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset);
 static int dissect_krb5_EncAPRepPart(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset);
+static int dissect_krb5_EncKDCRepPart(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset);
 static int dissect_krb5_KDC_REQ(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset);
 static int dissect_krb5_KDC_REP(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset);
 static int dissect_krb5_AP_REQ(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset);
@@ -804,6 +818,8 @@ static const ber_choice kerberos_applications_choice[] = {
 	{ KRB5_MSG_TGS_REP,	BER_CLASS_APP,	KRB5_MSG_TGS_REP,	0,	dissect_krb5_KDC_REP },
 	{ KRB5_MSG_AP_REQ,	BER_CLASS_APP,	KRB5_MSG_AP_REQ,	0,	dissect_krb5_AP_REQ },
 	{ KRB5_MSG_AP_REP,	BER_CLASS_APP,	KRB5_MSG_AP_REP,	0,	dissect_krb5_AP_REP },
+	{ KRB5_MSG_ENC_AS_REP_PART, BER_CLASS_APP, KRB5_MSG_ENC_AS_REP_PART, 0, dissect_krb5_EncKDCRepPart },
+	{ KRB5_MSG_ENC_TGS_REP_PART, BER_CLASS_APP, KRB5_MSG_ENC_TGS_REP_PART, 0, dissect_krb5_EncKDCRepPart },
 	{ KRB5_MSG_ENC_AP_REP_PART, BER_CLASS_APP, KRB5_MSG_ENC_AP_REP_PART, 0, dissect_krb5_EncAPRepPart },
 	{ KRB5_MSG_PRIV,	BER_CLASS_APP,	KRB5_MSG_PRIV,		0,	dissect_krb5_PRIV },
 	{ KRB5_MSG_ERROR,	BER_CLASS_APP,	KRB5_MSG_ERROR,		0,	dissect_krb5_ERROR },
@@ -2038,6 +2054,99 @@ dissect_krb5_EncAPRepPart(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, i
 
 
 
+static guint32 lr_type;
+static const value_string krb5_lr_types[] = {
+    { 0              , "No information available" },
+    { 1              , "Time of last initial TGT request" },
+    { 2              , "Time of last initial request" },
+    { 3              , "Time of issue of latest TGT ticket" },
+    { 4              , "Time of last renewal" },
+    { 5              , "Time of last request" },
+    { 6              , "Time when password will expire" },
+    { 7              , "Time when account will expire" },
+    { 0, NULL }
+};
+static int
+dissect_krb5_lr_type(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
+{
+	offset=dissect_ber_integer(pinfo, tree, tvb, offset, hf_krb_lr_type, &lr_type);
+
+	return offset;
+}
+static int
+dissect_krb5_lr_value(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
+{
+	offset=dissect_ber_generalized_time(pinfo, tree, tvb, offset, hf_krb_lr_time);
+
+	return offset;
+}
+
+static ber_sequence LastReq_sequence[] = {
+	{ BER_CLASS_CON, 0, 0,
+		dissect_krb5_lr_type },
+	{ BER_CLASS_CON, 1, 0,
+		dissect_krb5_lr_value },
+	{ 0, 0, 0, NULL }
+};
+static int
+dissect_krb5_LastReq(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
+{
+	offset=dissect_ber_sequence(FALSE, pinfo, tree, tvb, offset, LastReq_sequence, hf_krb_LastReq, ett_krb_LastReq);
+
+	return offset;
+}
+static ber_sequence LastReq_sequence_of[1] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_krb5_LastReq },
+};
+static int
+dissect_krb5_LastReq_sequence_of(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
+{
+	offset=dissect_ber_sequence_of(FALSE, pinfo, tree, tvb, offset, LastReq_sequence_of, hf_krb_LastReqs, ett_krb_LastReqs);
+
+	return offset;
+}
+
+static int 
+dissect_krb5_key_expiration(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
+{
+	offset=dissect_ber_generalized_time(pinfo, tree, tvb, offset, hf_krb_key_expire);
+	return offset;
+}
+
+static ber_sequence EncKDCRepPart_sequence[] = {
+	{ BER_CLASS_CON, 0, 0,
+		dissect_krb5_key },
+	{ BER_CLASS_CON, 1, 0,
+		dissect_krb5_LastReq_sequence_of },
+	{ BER_CLASS_CON, 2, 0,
+		dissect_krb5_nonce },
+	{ BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL,
+		dissect_krb5_key_expiration },
+	{ BER_CLASS_CON, 4, 0,
+		dissect_krb5_TicketFlags },
+	{ BER_CLASS_CON, 5, 0,
+		dissect_krb5_authtime },
+	{ BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL,
+		dissect_krb5_starttime },
+	{ BER_CLASS_CON, 7, 0,
+		dissect_krb5_endtime },
+	{ BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL,
+		dissect_krb5_renew_till },
+	{ BER_CLASS_CON, 9, 0, 
+		dissect_krb5_realm },
+	{ BER_CLASS_CON, 10, 0,
+		dissect_krb5_sname },
+	{ BER_CLASS_CON, 11, BER_FLAGS_OPTIONAL,
+		dissect_krb5_HostAddresses },
+	{ 0, 0, 0, NULL }
+};
+static int
+dissect_krb5_EncKDCRepPart(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
+{
+	offset=dissect_ber_sequence(FALSE, pinfo, tree, tvb, offset, EncKDCRepPart_sequence, hf_krb_EncKDCRepPart, ett_krb_EncKDCRepPart);
+
+	return offset;
+}
 
 
 static int
@@ -2953,6 +3062,9 @@ proto_register_kerberos(void)
 	{ &hf_krb_name_type, {
 	    "Name-type", "kerberos.name_type", FT_UINT32, BASE_DEC,
 	    VALS(krb5_princ_types), 0, "Type of principal name", HFILL }},
+	{ &hf_krb_lr_type, {
+	    "Lr-type", "kerberos.lr_type", FT_UINT32, BASE_DEC,
+	    VALS(krb5_lr_types), 0, "Type of lastreq value", HFILL }},
 	{ &hf_krb_address_ip, {
 	    "IP Address", "kerberos.addr_ip", FT_IPv4, BASE_NONE,
 	    NULL, 0, "IP Address", HFILL }},
@@ -2962,12 +3074,18 @@ proto_register_kerberos(void)
 	{ &hf_krb_authtime, {
 	    "Authtime", "kerberos.authtime", FT_STRING, BASE_NONE,
 	    NULL, 0, "Time of initial authentication", HFILL }},
+	{ &hf_krb_lr_time, {
+	    "Lr-time", "kerberos.lr_time", FT_STRING, BASE_NONE,
+	    NULL, 0, "Time of LR-entry", HFILL }},
 	{ &hf_krb_starttime, {
 	    "Start time", "kerberos.starttime", FT_STRING, BASE_NONE,
 	    NULL, 0, "The time after which the ticket is valid", HFILL }},
 	{ &hf_krb_endtime, {
 	    "End time", "kerberos.endtime", FT_STRING, BASE_NONE,
 	    NULL, 0, "The time after which the ticket has expired", HFILL }},
+	{ &hf_krb_key_expire, {
+	    "Key Expiration", "kerberos.key_expiration", FT_STRING, BASE_NONE,
+	    NULL, 0, "The time after which the key will expire", HFILL }},
 	{ &hf_krb_renew_till, {
 	    "Renew-till", "kerberos.renenw_till", FT_STRING, BASE_NONE,
 	    NULL, 0, "The maximum time we can renew the ticket until", HFILL }},
@@ -3205,6 +3323,12 @@ proto_register_kerberos(void)
 	{ &hf_krb_EncAPRepPart, {
 	    "EncAPRepPart", "kerberos.EncAPRepPart", FT_NONE, BASE_DEC,
 	    NULL, 0, "This is a decrypted Kerberos EncAPRepPart sequence", HFILL }},
+	{ &hf_krb_EncKDCRepPart, {
+	    "EncKDCRepPart", "kerberos.EncKDCRepPart", FT_NONE, BASE_DEC,
+	    NULL, 0, "This is a decrypted Kerberos EncKDCRepPart sequence", HFILL }},
+	{ &hf_krb_LastReq, {
+	    "LastReq", "kerberos.LastReq", FT_NONE, BASE_DEC,
+	    NULL, 0, "This is a LastReq sequence", HFILL }},
 	{ &hf_krb_Authenticator, {
 	    "Authenticator", "kerberos.Authenticator", FT_NONE, BASE_DEC,
 	    NULL, 0, "This is a decrypted Kerberos Authenticator sequence", HFILL }},
@@ -3220,6 +3344,9 @@ proto_register_kerberos(void)
 	{ &hf_krb_etypes, {
 	    "Encryption Types", "kerberos.etypes", FT_NONE, BASE_DEC,
 	    NULL, 0, "This is a list of Kerberos encryption types", HFILL }},
+	{ &hf_krb_LastReqs, {
+	    "LastReqs", "kerberos.LastReqs", FT_NONE, BASE_DEC,
+	    NULL, 0, "This is a list of LastReq structures", HFILL }},
 	{ &hf_krb_sname, {
 	    "Server Name", "kerberos.sname", FT_NONE, BASE_DEC,
 	    NULL, 0, "This is the name part server's identity", HFILL }},
@@ -3284,6 +3411,7 @@ proto_register_kerberos(void)
 	&ett_krb_AP_REP_enc,
         &ett_krb_padata,
         &ett_krb_etypes,
+        &ett_krb_LastReqs,
         &ett_krb_IF_RELEVANT,
 	&ett_krb_PA_DATA_tree,
         &ett_krb_HostAddress,
@@ -3300,6 +3428,8 @@ proto_register_kerberos(void)
         &ett_krb_PRIV_enc,
         &ett_krb_EncTicketPart,
         &ett_krb_EncAPRepPart,
+        &ett_krb_EncKDCRepPart,
+        &ett_krb_LastReq,
         &ett_krb_Authenticator,
         &ett_krb_Checksum,
         &ett_krb_key,
