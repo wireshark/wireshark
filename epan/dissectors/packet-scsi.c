@@ -265,7 +265,8 @@ static const value_string scsi_spc2_val[] = {
 #define SCSI_SBC2_READ10                 0x28
 #define SCSI_SBC2_READ12                 0xA8
 #define SCSI_SBC2_READ16                 0x88
-#define SCSI_SBC2_READCAPACITY           0x25
+#define SCSI_SBC2_READCAPACITY10         0x25
+#define SCSI_SBC2_SERVICEACTIONIN16      0x9E
 #define SCSI_SBC2_READDEFDATA10          0x37
 #define SCSI_SBC2_READDEFDATA12          0xB7
 #define SCSI_SBC2_READLONG               0x3E
@@ -315,7 +316,8 @@ static const value_string scsi_sbc2_val[] = {
     {SCSI_SBC2_READ10        , "Read(10)"},
     {SCSI_SBC2_READ12        , "Read(12)"},
     {SCSI_SBC2_READ16        , "Read(16)"},
-    {SCSI_SBC2_READCAPACITY  , "Read Capacity"},
+    {SCSI_SBC2_READCAPACITY10, "Read Capacity(10)"},
+    {SCSI_SBC2_SERVICEACTIONIN16, "Service Action In(16)"},
     {SCSI_SBC2_READDEFDATA10 , "Read Defect Data(10)"},
     {SCSI_SBC2_READDEFDATA12 , "Read Defect Data(12)"},
     {SCSI_SBC2_READLONG, "Read Long"},
@@ -3321,7 +3323,7 @@ dissect_scsi_rdwr16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 }
 
 static void
-dissect_scsi_readcapacity (tvbuff_t *tvb, packet_info *pinfo _U_,
+dissect_scsi_readcapacity10 (tvbuff_t *tvb, packet_info *pinfo _U_,
                            proto_tree *tree, guint offset, gboolean isreq,
                            gboolean iscdb)
 {
@@ -3362,6 +3364,89 @@ dissect_scsi_readcapacity (tvbuff_t *tvb, packet_info *pinfo _U_,
         proto_tree_add_text (tree, tvb, offset, 4, "LBA: %u (%u %s)",
                              len, tot_len, un);
         proto_tree_add_text (tree, tvb, offset+4, 4, "Block Length: %u bytes",
+                             block_len);
+    }
+}
+
+#define SHORT_FORM_BLOCK_ID        0x00
+#define SHORT_FORM_VENDOR_SPECIFIC 0x01
+#define LONG_FORM                  0x06
+#define EXTENDED_FORM              0x08
+#define SERVICE_READ_CAPACITY16	0x10
+#define SERVICE_READ_LONG16	0x11
+
+static const value_string service_action_vals[] = {
+	{SHORT_FORM_BLOCK_ID,        "Short Form - Block ID"},
+	{SHORT_FORM_VENDOR_SPECIFIC, "Short Form - Vendor-Specific"},
+	{LONG_FORM,                  "Long Form"},
+	{EXTENDED_FORM,              "Extended Form"},
+	{SERVICE_READ_CAPACITY16,    "Read Capacity(16)"},
+	{SERVICE_READ_LONG16,	     "Read Long(16)"},
+	{0, NULL}
+};
+
+
+/* this is either readcapacity16  or  readlong16  depending of what service 
+   action is set to.   for now we only implement readcapacity16
+*/
+static void
+dissect_scsi_serviceactionin16 (tvbuff_t *tvb, packet_info *pinfo _U_,
+                           proto_tree *tree, guint offset, gboolean isreq,
+                           gboolean iscdb)
+{
+    guint8 service_action, flags;
+    guint32 block_len;
+    guint64 len, tot_len;
+    char *un;
+
+    if (!tree)
+        return;
+
+    if (isreq && iscdb) {
+        service_action = tvb_get_guint8 (tvb, offset) & 0x1F;
+	/* we should store this one for later so the data in can be decoded */
+	switch(service_action){
+	case SERVICE_READ_CAPACITY16:
+        	proto_tree_add_text (tree, tvb, offset, 1,
+                             "Service Action: %s",
+                             val_to_str (service_action,
+                                         service_action_vals,
+                                         "Unknown (0x%02x)"));
+		offset++;
+
+        	proto_tree_add_text (tree, tvb, offset, 8,
+                             "Logical Block Address: %" PRIu64,
+                              tvb_get_ntoh64 (tvb, offset));
+        	offset += 8;
+
+	        proto_tree_add_item (tree, hf_scsi_alloclen32, tvb, offset, 4, 0);
+		offset += 4;
+
+	        proto_tree_add_item (tree, hf_scsi_readcapacity_pmi, tvb, offset, 1, 0);
+		offset++;
+
+	        flags = tvb_get_guint8 (tvb, offset);
+        	proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset, 1,
+                                    flags,
+                                    "Vendor Unique = %u, NACA = %u, Link = %u",
+                                    flags & 0xC0, flags & 0x4, flags & 0x1);
+		offset++;
+
+		break;
+	};
+    } else if (!iscdb) {
+	/* assuming for now that all such data in PDUs are read capacity16 */
+        len = tvb_get_ntoh64 (tvb, offset);
+        block_len = tvb_get_ntohl (tvb, offset+8);
+        tot_len=((len/1024)*block_len)/1024; /*MB*/
+        un="MB";
+        if(tot_len>20000){
+            tot_len/=1024;
+            un="GB";
+        }
+        proto_tree_add_text (tree, tvb, offset, 8, "LBA: %" PRIu64 " (%" PRIu64 " %s)",
+                             len, tot_len, un);
+        proto_tree_add_text (tree, tvb, offset+8, 4, "Block Length: %u bytes",
                              block_len);
     }
 }
@@ -3637,19 +3722,6 @@ dissect_scsi_ssc2_readblocklimits (tvbuff_t *tvb, packet_info *pinfo _U_, proto_
                              tvb_get_ntohs (tvb, offset+4));
     }
 }
-
-#define SHORT_FORM_BLOCK_ID        0x00
-#define SHORT_FORM_VENDOR_SPECIFIC 0x01
-#define LONG_FORM                  0x06
-#define EXTENDED_FORM              0x08
-
-static const value_string service_action_vals[] = {
-	{SHORT_FORM_BLOCK_ID,        "Short Form - Block ID"},
-	{SHORT_FORM_VENDOR_SPECIFIC, "Short Form - Vendor-Specific"},
-	{LONG_FORM,                  "Long Form"},
-	{EXTENDED_FORM,              "Extended Form"},
-	{0, NULL}
-};
 
 #define BCU  0x20
 #define BYCU 0x10
@@ -4618,8 +4690,13 @@ dissect_scsi_cdb (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                  TRUE);
             break;
 
-        case SCSI_SBC2_READCAPACITY:
-            dissect_scsi_readcapacity (tvb, pinfo, scsi_tree, offset+1,
+        case SCSI_SBC2_READCAPACITY10:
+            dissect_scsi_readcapacity10 (tvb, pinfo, scsi_tree, offset+1,
+                                       TRUE, TRUE);
+            break;
+
+        case SCSI_SBC2_SERVICEACTIONIN16:
+            dissect_scsi_serviceactionin16 (tvb, pinfo, scsi_tree, offset+1,
                                        TRUE, TRUE);
             break;
 
@@ -4996,8 +5073,13 @@ dissect_scsi_payload (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                      FALSE);
                 break;
 
-            case SCSI_SBC2_READCAPACITY:
-                dissect_scsi_readcapacity (tvb, pinfo, scsi_tree, offset,
+            case SCSI_SBC2_READCAPACITY10:
+                dissect_scsi_readcapacity10 (tvb, pinfo, scsi_tree, offset,
+                                           isreq, FALSE);
+                break;
+
+            case SCSI_SBC2_SERVICEACTIONIN16:
+                dissect_scsi_serviceactionin16 (tvb, pinfo, scsi_tree, offset,
                                            isreq, FALSE);
                 break;
 
