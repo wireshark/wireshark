@@ -1,6 +1,6 @@
 /* netxray.c
  *
- * $Id: netxray.c,v 1.78 2003/03/03 23:29:59 guy Exp $
+ * $Id: netxray.c,v 1.79 2003/03/04 02:04:00 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -689,6 +689,7 @@ netxray_set_pseudo_header(wtap *wth, const guint8 *pd, int len,
 			break;
 
 		case WTAP_ENCAP_PPP_WITH_PHDR:
+		case WTAP_ENCAP_SDLC:
 			pseudo_header->p2p.sent =
 			    (hdr->hdr_2_x.xxx[12] & 0x01) ? TRUE : FALSE;
 			break;
@@ -1106,6 +1107,11 @@ static gboolean netxray_dump_2_0(wtap_dumper *wdh,
 	rec_hdr.xxx[12] = pseudo_header->ieee_802_11.channel;
 	rec_hdr.xxx[13] = pseudo_header->ieee_802_11.data_rate;
 	rec_hdr.xxx[14] = pseudo_header->ieee_802_11.signal_level;
+	break;
+
+    case WTAP_ENCAP_PPP_WITH_PHDR:
+    case WTAP_ENCAP_SDLC:
+	rec_hdr.xxx[12] |= pseudo_header->p2p.sent ? 0x01 : 0x00;
 	break;
 
     case WTAP_ENCAP_FRELAY_WITH_PHDR:
