@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.26 2000/02/29 06:24:39 guy Exp $
+ * $Id: menu.c,v 1.27 2000/03/29 22:39:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -117,8 +117,6 @@ static GtkItemFactoryEntry menu_items[] =
   {"/Display/_Options...", NULL, GTK_MENU_FUNC(display_opt_cb), 0, NULL},
   {"/Display/_Match Selected", NULL, GTK_MENU_FUNC(match_selected_cb), 0, NULL},
   {"/Display/_Colorize Display...", NULL, GTK_MENU_FUNC(color_display_cb), 0, NULL},
-  {"/Display/_Find Frame...", NULL, GTK_MENU_FUNC(find_frame_cb), 0, NULL},
-  {"/Display/_Go To Frame...", NULL, GTK_MENU_FUNC(goto_frame_cb), 0, NULL},
   {"/Display/Collapse _All", NULL, GTK_MENU_FUNC(collapse_all_cb), 0, NULL},
   {"/Display/_Expand All", NULL, GTK_MENU_FUNC(expand_all_cb), 0, NULL},
   {"/Display/_Show Packet In New Window", NULL, GTK_MENU_FUNC(new_window_cb), 0, NULL},
@@ -319,8 +317,6 @@ set_menus_for_captured_packets(gboolean have_captured_packets)
   set_menu_sensitivity("/Edit/Go To Frame...", have_captured_packets);
   set_menu_sensitivity("/Display/Match Selected", have_captured_packets);
   set_menu_sensitivity("/Display/Colorize Display...", have_captured_packets);
-  set_menu_sensitivity("/Display/Find Frame...", have_captured_packets);
-  set_menu_sensitivity("/Display/Go To Frame...", have_captured_packets);
   set_menu_sensitivity("/Tools/Summary", have_captured_packets);
 }
 
