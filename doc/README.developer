@@ -1,4 +1,4 @@
-$Id: README.developer,v 1.18 2000/11/02 15:47:16 gram Exp $
+$Id: README.developer,v 1.19 2000/11/05 07:14:40 guy Exp $
 
 
 	
@@ -65,7 +65,7 @@ code inside
 
 is needed only if you are using the "snprintf()" function.
 
-The "$Id: README.developer,v 1.18 2000/11/02 15:47:16 gram Exp $"
+The "$Id: README.developer,v 1.19 2000/11/05 07:14:40 guy Exp $"
 in the comment will be updated by CVS when the file is
 checked in; it will allow the RCS "ident" command to report which
 version of the file is currently checked out.
@@ -75,7 +75,7 @@ version of the file is currently checked out.
  * Routines for PROTONAME dissection
  * Copyright 2000, YOUR_NAME <YOUR_EMAIL_ADDRESS>
  *
- * $Id: README.developer,v 1.18 2000/11/02 15:47:16 gram Exp $
+ * $Id: README.developer,v 1.19 2000/11/05 07:14:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -146,7 +146,7 @@ dissect_PROTOABBREV(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	pinfo->current_proto = "PROTO_NAME";
 	
 /* Make entries in Protocol column and Info column on summary display */
-	if (check_col( pinfo->fd, COL_PROTOCOL)) 
+	if (check_col(pinfo->fd, COL_PROTOCOL)) 
 		col_add_str(pinfo->fd, COL_PROTOCOL, "PROTOABBREV");
     
 /* This field shows up as the "Info" column in the display; you should make
@@ -157,7 +157,7 @@ dissect_PROTOABBREV(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    "col_add_fstr()" can be used instead of "col_add_str()"; it takes
    "printf()"-like arguments. */
 
-	if (check_col(fd, COL_INFO)) 
+	if (check_col(pinfo->fd, COL_INFO)) 
 		col_add_str(pinfo->fd, COL_INFO, "XXX Request");
 
 /* In the interest of speed, if "tree" is NULL, don't do any work not
@@ -169,7 +169,7 @@ dissect_PROTOABBREV(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    display window when the line in the protocol tree display
    corresponding to that item is selected.
 
-   tvb_lenth(tvb) is a handy way to highlight all data from the offset to
+   tvb_length(tvb) is a handy way to highlight all data from the offset to
    the end of the packet. */
 
 /* create display subtree for the protocol */
