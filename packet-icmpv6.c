@@ -1,13 +1,15 @@
 /* packet-icmpv6.c
  * Routines for ICMPv6 packet disassembly
  *
- * $Id: packet-icmpv6.c,v 1.48 2001/07/02 07:11:39 guy Exp $
+ * $Id: packet-icmpv6.c,v 1.49 2001/09/04 21:04:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
  * MobileIPv6 support added by Tomislav Borosa <tomislav.borosa@siemens.hr>
+ *
+ * HMIPv6 support added by Martti Kuparinen <martti.kuparinen@iki.fi>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -155,7 +157,7 @@ static void
 dissect_icmpv6opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *icmp6opt_tree, *field_tree;
-	proto_item *ti, *tf;
+    proto_item *ti, *tf;
     struct nd_opt_hdr nd_opt_hdr, *opt;
     int len;
     char *typename;
@@ -204,6 +206,9 @@ again:
 	break;
     case ND_OPT_HOMEAGENT_INFO:
 	typename = "Home Agent Information";
+	break;
+    case ND_OPT_MAP:
+	typename = "HMIPv6 MAP option";
 	break;
     default:
 	typename = "Unknown";
@@ -310,6 +315,59 @@ again:
 	    offset + offsetof(struct nd_opt_ha_info, nd_opt_ha_info_ha_life),
 	    2, "Home Agent Lifetime: %d",
 	    pntohs(&pi->nd_opt_ha_info_ha_life));
+	break;
+      }
+    case ND_OPT_MAP:
+      {
+	struct nd_opt_map_info mapbuf, *map;
+	int flagoff;
+
+	map = &mapbuf;
+	tvb_memcpy(tvb, (guint8 *)map, offset, sizeof *map);
+	proto_tree_add_text(icmp6opt_tree, tvb,
+	    offset + offsetof(struct nd_opt_map_info, nd_opt_map_distance),
+	    1, "Distance: %d", map->nd_opt_map_distance);
+	proto_tree_add_text(icmp6opt_tree, tvb,
+	    offset + offsetof(struct nd_opt_map_info, nd_opt_map_preference),
+	    1, "Preference: %d", map->nd_opt_map_preference);
+	proto_tree_add_text(icmp6opt_tree, tvb,
+	    offset + offsetof(struct nd_opt_map_info, nd_opt_map_prefixlen),
+	    1, "Prefix Length: %d", map->nd_opt_map_prefixlen);
+	flagoff = offset + offsetof(struct nd_opt_map_info,
+	    nd_opt_map_flags);
+	tf = proto_tree_add_text(icmp6opt_tree, tvb, flagoff, 1,
+	    "Flags: 0x%02x",
+	    tvb_get_guint8(tvb, offset + offsetof(struct nd_opt_map_info,
+	    nd_opt_map_flags)));
+	field_tree = proto_item_add_subtree(tf, ett_icmpv6flag);
+	proto_tree_add_text(field_tree, tvb, flagoff, 1, "%s",
+	    decode_boolean_bitfield(map->nd_opt_map_flags,
+		ND_OPT_MAP_FLAG_R, 8, "R", ""));
+	proto_tree_add_text(field_tree, tvb, flagoff, 1, "%s",
+	    decode_boolean_bitfield(map->nd_opt_map_flags,
+		ND_OPT_MAP_FLAG_M, 8, "M", ""));
+	proto_tree_add_text(field_tree, tvb, flagoff, 1, "%s",
+	    decode_boolean_bitfield(map->nd_opt_map_flags,
+		ND_OPT_MAP_FLAG_I, 8, "I", ""));
+	proto_tree_add_text(field_tree, tvb, flagoff, 1, "%s",
+	    decode_boolean_bitfield(map->nd_opt_map_flags,
+		ND_OPT_MAP_FLAG_T, 8, "T", ""));
+	proto_tree_add_text(field_tree, tvb, flagoff, 1, "%s",
+	    decode_boolean_bitfield(map->nd_opt_map_flags,
+		ND_OPT_MAP_FLAG_P, 8, "P", ""));
+	proto_tree_add_text(icmp6opt_tree, tvb,
+	    offset + offsetof(struct nd_opt_map_info, nd_opt_map_lifetime),
+	    4, "Lifetime: %d", pntohs(&map->nd_opt_map_lifetime));
+
+	proto_tree_add_text(icmp6opt_tree, tvb,
+	    offset + offsetof(struct nd_opt_map_info, nd_opt_map_address), 16,
+#ifdef INET6
+	    "Address of MAP: %s (%s)",
+	    get_hostname6(&map->nd_opt_map_address),
+#else
+	    "Address of MAP: %s",
+#endif
+	    ip6_to_str(&map->nd_opt_map_address));
 	break;
       }
     case ND_OPT_ROUTE_INFO:

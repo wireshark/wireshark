@@ -1,7 +1,7 @@
 /* packet-ipv6.c
  * Routines for IPv6 packet disassembly
  *
- * $Id: packet-ipv6.c,v 1.61 2001/06/29 09:46:52 guy Exp $
+ * $Id: packet-ipv6.c,v 1.62 2001/09/04 21:04:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -972,7 +972,7 @@ dissect_ipv6_none(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     if (hf_ipv6_mipv6_length != -1) {
 	if (check_col(pinfo->fd, COL_INFO))
-	    col_add_fstr(pinfo->fd, COL_INFO, "MobileIPv6 Destination Option");
+	    col_add_fstr(pinfo->fd, COL_INFO, "Mobile IPv6 Destination Option");
     } else {
 	if (check_col(pinfo->fd, COL_INFO))
 	    col_add_fstr(pinfo->fd, COL_INFO, "IPv6 no next header");

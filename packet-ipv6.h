@@ -1,7 +1,7 @@
 /* packet-ipv6.h
  * Definitions for IPv6 packet disassembly 
  *
- * $Id: packet-ipv6.h,v 1.23 2001/06/26 17:31:36 itojun Exp $
+ * $Id: packet-ipv6.h,v 1.24 2001/09/04 21:04:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -9,6 +9,8 @@
  * Copyright 1998 Gerald Combs
  *
  * MobileIPv6 support added by Tomislav Borosa <tomislav.borosa@siemens.hr>
+ *
+ * HMIPv6 support added by Martti Kuparinen <martti.kuparinen@iki.fi>
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -390,8 +392,13 @@ struct nd_opt_hdr {		/* Neighbor discovery option header */
 #define ND_OPT_MTU			5
 #define ND_OPT_ADVINTERVAL		7
 #define ND_OPT_HOMEAGENT_INFO		8
+#define ND_OPT_SOURCE_ADDRLIST		9
+#define ND_OPT_TARGET_ADDRLIST		10
+
 /* draft-ietf-ipngwg-router-preference, not officially assigned yet */
-#define ND_OPT_ROUTE_INFO		9
+#define ND_OPT_ROUTE_INFO		200
+/* draft-ietf-mobileip-hmipv6, not officially assigned yet */
+#define ND_OPT_MAP			201
 
 struct nd_opt_prefix_info {	/* prefix information */
 	guint8	nd_opt_pi_type;
@@ -447,6 +454,24 @@ struct nd_opt_route_info {	/* route info */
 	guint32	nd_opt_rti_lifetime;
 	/* prefix follows */
 };
+
+struct nd_opt_map_info {	/* HMIPv6 MAP option */
+	guint8			nd_opt_map_type;
+	guint8			nd_opt_map_len;
+	guint8			nd_opt_map_distance;
+	guint8			nd_opt_map_preference;
+	guint8			nd_opt_map_prefixlen;
+	guint8			nd_opt_map_flags;
+	guint16			nd_opt_map_unused;
+	guint32			nd_opt_map_lifetime;
+	struct e_in6_addr	nd_opt_map_address;
+};
+
+#define ND_OPT_MAP_FLAG_R	0x80
+#define ND_OPT_MAP_FLAG_M	0x40
+#define ND_OPT_MAP_FLAG_I	0x20
+#define ND_OPT_MAP_FLAG_T	0x10
+#define ND_OPT_MAP_FLAG_P	0x08
 
 /*
  * icmp6 node information
