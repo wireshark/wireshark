@@ -38,8 +38,7 @@ INCLUDES = -I$(srcdir)/..
 
 libethereal_la_SOURCES = \
 	$(LIBETHEREAL_SRC)	\
-	$(LIBETHEREAL_INCLUDES)	\
-	$(DISSECTOR_SUPPORT_SRC)
+	$(LIBETHEREAL_INCLUDES)
 
 EXTRA_libethereal_la_SOURCES =	\
 	g_ascii_strtoull.c	\

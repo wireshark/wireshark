@@ -142,6 +142,4 @@ LIBETHEREAL_INCLUDES = 		\
 	xdlc.h			\
 	xmlstub.h
 
-# dissector helpers (needed from the dissectors, but not a dissector itself)
-DISSECTOR_SUPPORT_SRC =
 

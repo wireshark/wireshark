@@ -27,14 +27,8 @@ PLATFORM_SRC = capture-wpcap.c
 
 include Makefile.common
 
-include epan\Makefile.common
-
 BUILT_SOURCES =	$(BUILT_SOURCES) \
 	svnversion.h
-
-DISSECTOR_SUPPORT_SRC = $(DISSECTOR_SUPPORT_SRC:../=)
-DISSECTOR_SUPPORT_OBJECTS = $(DISSECTOR_SUPPORT_SRC:.c=.obj)
-#DISSECTOR_SUPPORT_OBJECTS = $(DISSECTOR_SUPPORT_OBJECTS:../=)
 
 ethereal_OBJECTS = $(ethereal_SOURCES:.c=.obj)
 tethereal_OBJECTS = $(tethereal_SOURCES:.c=.obj)
@@ -352,7 +346,7 @@ gtk2:: help config.h svnversion.h AUTHORS-SHORT
 	$(MAKE) /$(MAKEFLAGS) /f Makefile.nmake GTK_CFLAGS="$(GTK2_CFLAGS)" GTK_LIBS="$(GTK2_LIBS)" libui.lib
 	cd ..
 
-epan:: $(DISSECTOR_SUPPORT_OBJECTS) $(EXTRA_OBJECTS) $(RESOURCES) $(BUILT_SOURCES) doxygen
+epan:: $(EXTRA_OBJECTS) $(RESOURCES) $(BUILT_SOURCES) doxygen
 	cd epan
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
 	cd ..
