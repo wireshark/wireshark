@@ -2284,7 +2284,7 @@ main(int argc, char *argv[])
   dnd_init(top_level);
 
   colors_init();
-  colfilter_init();
+  color_filters_init();
   decode_as_init();
 
   /* the window can be sized only, if it's not already shown, so do it now! */

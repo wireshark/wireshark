@@ -55,7 +55,7 @@ GSList *removed_filter_list = NULL;
  * This way, unmarking and marking a packet which matches a now removed
  * color filter will still be colored correctly as the color filter is
  * still reachable. */
-void remove_color_filter(color_filter_t *colorf)
+void color_filter_remove(color_filter_t *colorf)
 {
 	/* Remove colorf from the list of color filters */
 	color_filter_list = g_slist_remove(color_filter_list, colorf);
@@ -98,7 +98,7 @@ delete_all_color_filters (void)
 
 /* Initialize the filter structures (reading from file) for general running, including app startup */
 void
-colfilter_init(void)
+color_filters_init(void)
 {
 	delete_all_color_filters();
 	if (!read_filters())
@@ -107,7 +107,7 @@ colfilter_init(void)
 
 /* Create a new filter */
 color_filter_t *
-new_color_filter(gchar *name,          /* The name of the filter to create */
+color_filter_new(gchar *name,          /* The name of the filter to create */
                  gchar *filter_string, /* The string representing the filter */
                  color_t *bg_color,    /* The background color */
                  color_t *fg_color)    /* The foreground color */
@@ -139,7 +139,7 @@ prime_edt(gpointer data, gpointer user_data)
 /* Prime the epan_dissect_t with all the compiler
  * color filters in 'color_filter_list'. */
 void
-filter_list_prime_edt(epan_dissect_t *edt)
+color_filters_prime_edt(epan_dissect_t *edt)
 {
 	g_slist_foreach(color_filter_list, prime_edt, edt);
 }
@@ -276,12 +276,12 @@ read_filters_file(FILE *f, gpointer arg)
 				continue;
 			}
 
-			colorf = new_color_filter(name, filter_exp, &bg_color,
+			colorf = color_filter_new(name, filter_exp, &bg_color,
 			    &fg_color);
 			colorf->c_colorfilter = temp_dfilter;
 
 			if (arg != NULL)
-				color_add_filter_cb (colorf, arg);
+				color_filter_add_cb (colorf, arg);
 		}    /* if sscanf */
 
 		skip_end_of_line = TRUE;
@@ -348,7 +348,7 @@ read_global_filters(void)
 
 /* read filters from some other filter file (import) */
 gboolean
-read_other_filters(gchar *path, gpointer arg)
+color_filters_import(gchar *path, gpointer arg)
 {
 	FILE *f;
 	gboolean ret;
@@ -408,7 +408,7 @@ write_filters_file(FILE *f, gboolean only_marked)
 
 /* save filters in users filter file */
 gboolean
-write_filters(void)
+color_filters_write(void)
 {
 	gchar *pf_dir_path;
 	const gchar *path;
@@ -438,7 +438,7 @@ write_filters(void)
 
 /* delete users filter file and reload global filters */
 gboolean
-revert_filters(void)
+color_filters_revert(void)
 {
 	gchar *pf_dir_path;
 	gchar *path;
@@ -462,14 +462,14 @@ revert_filters(void)
 	g_free(path);
 
 	/* Reload the (global) filters - Note: this does not update the dialog. */
-	colfilter_init();
+	color_filters_init();
         return TRUE;
 }
 
 
 /* save filters in some other filter file (export) */
 gboolean
-write_other_filters(gchar *path, gboolean only_marked)
+color_filters_export(gchar *path, gboolean only_marked)
 {
 	FILE *f;
 

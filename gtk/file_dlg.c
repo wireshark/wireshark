@@ -1624,7 +1624,7 @@ file_color_import_ok_cb(GtkWidget *w, gpointer fs) {
   gchar     *cf_name, *s;
   gpointer  argument;
 
-  argument = OBJECT_GET_DATA(w, ARGUMENT_CL);     /* to be passed back into read_other_filters */
+  argument = OBJECT_GET_DATA(w, ARGUMENT_CL);     /* to be passed back into color_filters_import */
   
 #if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
   cf_name = g_strdup(gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fs)));
@@ -1635,16 +1635,16 @@ file_color_import_ok_cb(GtkWidget *w, gpointer fs) {
      Check whether they did. */
   if (test_for_directory(cf_name) == EISDIR) {
 	/* It's a directory - set the file selection box to display that
-	   directory, don't try to open the directory as a capture file. */
+	   directory, don't try to open the directory as a color filter file. */
         set_last_open_dir(cf_name);
         g_free(cf_name);
         file_selection_set_current_folder(fs, get_last_open_dir());
     	return;
   }
 
-  /* Try to open the capture file. */
+  /* Try to open the color filter file. */
 
-  if (!read_other_filters(cf_name, argument)) {
+  if (!color_filters_import(cf_name, argument)) {
     /* We couldn't open it; don't dismiss the open dialog box,
        just leave it around so that the user can, after they
        dismiss the alert box popped up for the open error,
@@ -1796,7 +1796,7 @@ file_color_export_ok_cb(GtkWidget *w _U_, gpointer fs) {
   /* Write out the filters (all, or only the ones that are currently
      displayed or marked) to the file with the specified name. */
 
-   if (!write_other_filters(cf_name, color_marked))
+   if (!color_filters_export(cf_name, color_marked))
    {
     /* The write failed; don't dismiss the open dialog box,
        just leave it around so that the user can, after they

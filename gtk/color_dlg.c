@@ -869,7 +869,7 @@ color_add_colorf(GtkWidget *color_filters, color_filter_t *colorf)
 }
 
 void
-color_add_filter_cb (color_filter_t *colorf, gpointer arg)
+color_filter_add_cb(color_filter_t *colorf, gpointer arg)
 {
   GtkWidget        *color_filters = arg;
 
@@ -926,7 +926,7 @@ create_new_color_filter(GtkButton *button, char *filter)
   style = gtk_widget_get_style(packet_list);
   gdkcolor_to_color_t(&bg_color, &style->base[GTK_STATE_NORMAL]);
   gdkcolor_to_color_t(&fg_color, &style->text[GTK_STATE_NORMAL]);
-  colorf = new_color_filter("name", filter, &bg_color, &fg_color); /* Adds at end! */
+  colorf = color_filter_new("name", filter, &bg_color, &fg_color); /* Adds at end! */
 
   color_add_colorf(color_filters, colorf);
 
@@ -986,7 +986,7 @@ color_delete(gint row, GtkWidget  *color_filters)
     window_destroy(colorf->edit_dialog);
     
     /* Remove the color filter from the list of color filters. */
-    remove_color_filter(colorf);
+    color_filter_remove(colorf);
     
     /* If we grab the focus after updating the selection, the first
     * row is always selected, so we do it before */
@@ -1004,7 +1004,7 @@ color_delete(gint row, GtkWidget  *color_filters)
         window_destroy(colorf->edit_dialog);
 
     /* Remove the color filter from the list of color filters. */
-    remove_color_filter(colorf);
+    color_filter_remove(colorf);
 
 #endif
 }
@@ -1050,7 +1050,7 @@ color_delete_cb(GtkWidget *widget, gpointer user_data _U_)
 static void
 color_save_cb(GtkButton *button _U_, gpointer user_data _U_)
 {
-  if (!write_filters())
+  if (!color_filters_write())
 	simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 	    "Could not open filter file: %s", strerror(errno));
 }
@@ -1068,7 +1068,7 @@ color_clear_cmd(GtkWidget *widget)
         color_delete (num_of_filters-1, color_filters);
     }
 
-    if (!revert_filters())
+    if (!color_filters_revert())
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
             "Could not delete filter file: %s", strerror(errno));
 

@@ -789,7 +789,7 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
       epan_dissect_prime_dfilter(edt, cf->dfcode);
   }
   if (color_filter_list) {
-      filter_list_prime_edt(edt);
+      color_filters_prime_edt(edt);
   }
   tap_queue_init(edt);
   epan_dissect_run(edt, pseudo_header, buf, fdata, &cf->cinfo);
