@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.7 2000/01/15 10:47:56 oabad Exp $
+ * $Id: tethereal.c,v 1.8 2000/01/16 02:47:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -152,6 +152,7 @@ main(int argc, char *argv[])
   int                  err;
 #ifdef HAVE_LIBPCAP
   int                  packet_count = 0;
+  GList               *if_list;
   gchar                err_str[PCAP_ERRBUF_SIZE];
 #else
   gboolean             capture_option_specified = FALSE;
@@ -380,13 +381,24 @@ main(int argc, char *argv[])
 #ifdef HAVE_LIBPCAP
     /* Yes; did the user specify an interface to use? */
     if (cf.iface == NULL) {
-        /* No - have libpcap pick one. */
-        cf.iface = pcap_lookupdev(err_str);
-        if (cf.iface == NULL) {
-            /* It couldn't pick one. */
-            fprintf(stderr, "tethereal: %s\n", err_str);
+        /* No - pick the first one from the list of interfaces. */
+        if_list = get_interface_list(&err, err_str);
+        if (if_list == NULL) {
+            switch (err) {
+
+            case CANT_GET_INTERFACE_LIST:
+                fprintf(stderr, "tethereal: Can't get list of interfaces: %s\n",
+			err_str);
+                break;
+
+            case NO_INTERFACES_FOUND:
+                fprintf(stderr, "tethereal: There are no interfaces on which a capture can be done\n");
+                break;
+            }
             exit(2);
         }
+        cf.iface = g_strdup(if_list->data);	/* first interface */
+        free_interface_list(if_list);
     }
     capture(packet_count);
 #else

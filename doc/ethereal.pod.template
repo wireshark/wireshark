@@ -102,9 +102,11 @@ It should match one of the names listed in "B<netstat -i>" or
 
 Starts the capture session immediately.  If the B<-i> flag was
 specified, the capture uses the specified interface.  Otherwise,
-B<Ethereal> searches the list of interfaces on the system for the
-lowest-numbered, configured-up interface (excluding loopback
-interfaces); ties are broken by choosing the earliest match.
+B<Ethereal> searches the list of interfaces, choosing the first
+non-loopback interface if there are any non-loopback interfaces, and
+choosing the first loopback interface if there are no non-loopback
+interfaces; if there are no interfaces, B<Ethereal> reports an error and
+doesn't start the capture.
 
 =item -m
 

@@ -1,7 +1,7 @@
 /* capture_dlg.c
  * Routines for packet capture windows
  *
- * $Id: capture_dlg.c,v 1.16 2000/01/06 05:09:01 guy Exp $
+ * $Id: capture_dlg.c,v 1.17 2000/01/16 02:48:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -41,21 +41,6 @@
 
 #include <time.h>
 
-#ifdef HAVE_SYS_SOCKET_H
-#include <sys/socket.h>
-#endif
-
-#ifdef HAVE_SYS_IOCTL_H
-#include <sys/ioctl.h>
-#endif
-
-#ifdef HAVE_NET_IF_H
-#include <net/if.h>
-#endif
-
-#include <signal.h>
-#include <errno.h>
-
 #ifdef NEED_SNPRINTF_H
 # ifdef HAVE_STDARG_H
 #  include <stdarg.h>
@@ -65,17 +50,13 @@
 # include "snprintf.h"
 #endif
 
-#ifdef HAVE_SYS_SOCKIO_H
-# include <sys/sockio.h>
-#endif
-
-#include <wiretap/wtap.h>
 #include "capture.h"
 #include "globals.h"
 #include "main.h"
 #include "capture_dlg.h"
 #include "prefs_dlg.h"
 #include "simple_dialog.h"
+#include "util.h"
 
 /* Capture callback data keys */
 #define E_CAP_IFACE_KEY    "cap_iface"
@@ -85,9 +66,6 @@
 #define E_CAP_SNAP_KEY     "cap_snap"
 #define E_CAP_SYNC_KEY     "cap_sync"
 #define E_CAP_RESOLVE_KEY  "cap_resolve"
-
-static GList*
-get_interface_list();
 
 static void
 capture_prep_file_cb(GtkWidget *w, gpointer te);
@@ -104,12 +82,6 @@ capture_prep_ok_cb(GtkWidget *ok_bt, gpointer parent_w);
 static void
 capture_prep_close_cb(GtkWidget *close_bt, gpointer parent_w);
 
-static void
-search_for_if_cb(gpointer data, gpointer user_data);
-
-static void
-free_if_cb(gpointer data, gpointer user_data);
-
 void
 capture_prep_cb(GtkWidget *w, gpointer d)
 {
@@ -123,8 +95,14 @@ capture_prep_cb(GtkWidget *w, gpointer d)
   GtkAdjustment *adj;
   GList         *if_list, *count_list = NULL;
   gchar         *count_item1 = "0 (Infinite)", count_item2[16];
+  int           err;
+  char          err_str[PCAP_ERRBUF_SIZE];
 
-  if_list = get_interface_list();
+  if_list = get_interface_list(&err, err_str);
+  if (if_list == NULL && err == CANT_GET_INTERFACE_LIST) {
+    simple_dialog(ESD_TYPE_WARN, NULL, "Can't get list of interfaces: %s",
+			err_str);
+  }
   
   cap_open_w = gtk_window_new(GTK_WINDOW_TOPLEVEL);
   gtk_window_set_title(GTK_WINDOW(cap_open_w), "Ethereal: Capture Preferences");
@@ -154,10 +132,7 @@ capture_prep_cb(GtkWidget *w, gpointer d)
   gtk_box_pack_start(GTK_BOX(if_hb), if_cb, FALSE, FALSE, 0);
   gtk_widget_show(if_cb);
   
-  while (if_list) {
-    g_free(if_list->data);
-    if_list = g_list_remove_link(if_list, if_list);
-  }
+  free_interface_list(if_list);
 
   /* Count row */
   count_hb = gtk_hbox_new(FALSE, 3);
@@ -387,152 +362,6 @@ capture_prep_close_cb(GtkWidget *close_bt, gpointer parent_w)
 {
   gtk_grab_remove(GTK_WIDGET(parent_w));
   gtk_widget_destroy(GTK_WIDGET(parent_w));
-}
-
-struct search_user_data {
-	char	*name;
-	int	found;
-};
-
-static GList *
-get_interface_list() {
-  GList  *il = NULL;
-  gint    nonloopback_pos = 0;
-  struct  ifreq *ifr, *last;
-  struct  ifconf ifc;
-  struct  ifreq ifrflags;
-  int     sock = socket(AF_INET, SOCK_DGRAM, 0);
-  struct search_user_data user_data;
-  pcap_t *pch;
-  gchar   err_str[PCAP_ERRBUF_SIZE];
-
-  if (sock < 0)
-  {
-    simple_dialog(ESD_TYPE_WARN, NULL,
-      "Can't list interfaces: error opening socket.");
-    return NULL;
-  }
-
-  /* Since we have to grab the interface list all at once, we'll make
-     plenty of room */
-  ifc.ifc_len = 1024 * sizeof(struct ifreq);
-  ifc.ifc_buf = malloc(ifc.ifc_len);
-
-  if (ioctl(sock, SIOCGIFCONF, &ifc) < 0 ||
-    ifc.ifc_len < sizeof(struct ifreq))
-  {
-    simple_dialog(ESD_TYPE_WARN, NULL,
-      "Can't list interfaces: SIOCGIFCONF error: %s", strerror(errno));
-    goto fail;
-  }
-
-  ifr  = (struct ifreq *) ifc.ifc_req;
-  last = (struct ifreq *) ((char *) ifr + ifc.ifc_len);
-  while (ifr < last)
-  {
-    /*
-     * Skip addresses that begin with "dummy", or that include a ":"
-     * (the latter are Solaris virtuals).
-     */
-    if (strncmp(ifr->ifr_name, "dummy", 5) == 0 ||
-	strchr(ifr->ifr_name, ':') != NULL)
-      goto next;
-
-    /*
-     * If we already have this interface name on the list, don't add
-     * it (SIOCGIFCONF returns, at least on BSD-flavored systems, one
-     * entry per interface *address*; if an interface has multiple
-     * addresses, we get multiple entries for it).
-     */
-    user_data.name = ifr->ifr_name;
-    user_data.found = FALSE;
-    g_list_foreach(il, search_for_if_cb, &user_data);
-    if (user_data.found)
-      goto next;
-
-    /*
-     * Get the interface flags.
-     */
-    memset(&ifrflags, 0, sizeof ifrflags);
-    strncpy(ifrflags.ifr_name, ifr->ifr_name, sizeof ifrflags.ifr_name);
-    if (ioctl(sock, SIOCGIFFLAGS, (char *)&ifrflags) < 0) {
-      if (errno == ENXIO)
-        goto next;
-      simple_dialog(ESD_TYPE_WARN, NULL,
-        "Can't list interfaces: SIOCGIFFLAGS error on %s: %s",
-        ifr->ifr_name, strerror(errno));
-      goto fail;
-    }
-
-    /*
-     * Skip interfaces that aren't up.
-     */
-    if (!(ifrflags.ifr_flags & IFF_UP))
-      goto next;
-
-    /*
-     * Skip interfaces that we can't open with "libpcap".
-     * Open with the minimum packet size - it appears that the
-     * IRIX SIOCSNOOPLEN "ioctl" may fail if the capture length
-     * supplied is too large, rather than just truncating it.
-     */
-    pch = pcap_open_live(ifr->ifr_name, MIN_PACKET_SIZE, 0, 0, err_str);
-    if (pch == NULL)
-      goto next;
-    pcap_close(pch);
-
-    /*
-     * If it's a loopback interface, add it at the end of the list,
-     * otherwise add it after the last non-loopback interface,
-     * so all loopback interfaces go at the end - we don't want a
-     * loopback interface to be the default capture device unless there
-     * are no non-loopback devices.
-     */
-    if ((ifrflags.ifr_flags & IFF_LOOPBACK) ||
-	strncmp(ifr->ifr_name, "lo", 2) == 0)
-      il = g_list_insert(il, g_strdup(ifr->ifr_name), -1);
-    else {
-      il = g_list_insert(il, g_strdup(ifr->ifr_name), nonloopback_pos);
-      /* Insert the next non-loopback interface after this one. */
-      nonloopback_pos++;
-    }
-
-next:
-#ifdef HAVE_SA_LEN
-    ifr = (struct ifreq *) ((char *) ifr + ifr->ifr_addr.sa_len + IFNAMSIZ);
-#else
-    ifr = (struct ifreq *) ((char *) ifr + sizeof(struct ifreq));
-#endif
-  }
-
-  free(ifc.ifc_buf);
-  close(sock);
-
-  return il;
-
-fail:
-  if (il != NULL) {
-    g_list_foreach(il, free_if_cb, NULL);
-    g_list_free(il);
-  }
-  free(ifc.ifc_buf);
-  close(sock);
-  return NULL;
-}
-
-static void
-search_for_if_cb(gpointer data, gpointer user_data)
-{
-	struct search_user_data *search_user_data = user_data;
-
-	if (strcmp((char *)data, search_user_data->name) == 0)
-		search_user_data->found = TRUE;
-}
-
-static void
-free_if_cb(gpointer data, gpointer user_data)
-{
-	g_free(data);
 }
 
 #endif /* HAVE_LIBPCAP */

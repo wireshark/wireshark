@@ -1,7 +1,7 @@
 /* util.h
  * Utility definitions
  *
- * $Id: util.h,v 1.14 1999/12/09 07:19:05 guy Exp $
+ * $Id: util.h,v 1.15 2000/01/16 02:47:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -36,6 +36,18 @@ void ASCII_to_EBCDIC(guint8 *buf, guint bytes);
 guint8 ASCII_to_EBCDIC1(guint8 c);
 void EBCDIC_to_ASCII(guint8 *buf, guint bytes);
 guint8 EBCDIC_to_ASCII1(guint8 c);
+
+#ifdef HAVE_LIBPCAP
+
+GList *get_interface_list(int *err, char *err_str);
+
+/* Error values from "get_interface_list()". */
+#define	CANT_GET_INTERFACE_LIST	0	/* error getting list */
+#define	NO_INTERFACES_FOUND	1	/* list is empty */
+
+void free_interface_list(GList *if_list);
+
+#endif
 
 #ifdef __cplusplus
 }
