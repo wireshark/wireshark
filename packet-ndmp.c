@@ -12,7 +12,7 @@
  * Routines for NDMP dissection
  * 2001 Ronnie Sahlberg (see AUTHORS for email)
  *
- * $Id: packet-ndmp.c,v 1.5 2002/01/05 20:08:47 guy Exp $
+ * $Id: packet-ndmp.c,v 1.6 2002/01/15 10:01:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3059,7 +3059,7 @@ proto_register_ndmp(void)
 
   /* desegmentation */
   ndmp_module = prefs_register_protocol(proto_ndmp, NULL);
-  prefs_register_bool_preference(ndmp_module, "ndmp.desegment", "Desegment all NDMP messages spanning multiple TCP segments", "Whether the dissector should desegment NDMP over TCP PDUs or not", &ndmp_desegment);
+  prefs_register_bool_preference(ndmp_module, "desegment", "Desegment all NDMP messages spanning multiple TCP segments", "Whether the dissector should desegment NDMP over TCP PDUs or not", &ndmp_desegment);
 
 }
 

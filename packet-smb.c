@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.193 2002/01/15 09:42:26 guy Exp $
+ * $Id: packet-smb.c,v 1.194 2002/01/15 10:01:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -7551,7 +7551,7 @@ dissect_nt_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 		it = proto_tree_add_text(tree, tvb, 0, 0, "Fragments");
 		tr = proto_item_add_subtree(it, ett_smb_segments);
 		for(fd=r_fd->next;fd;fd=fd->next){
-			proto_tree_add_text(tr, tvb, 0, 0, "Frame:%d Data:%d-%d",
+			proto_tree_add_text(tr, tvb, 0, 0, "Frame:%u Data:%u-%u",
 					    fd->frame, fd->offset, fd->offset+fd->len-1);
 		}
 		
@@ -11338,7 +11338,7 @@ dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 		it = proto_tree_add_text(tree, tvb, 0, 0, "Fragments");
 		tr = proto_item_add_subtree(it, ett_smb_segments);
 		for(fd=r_fd->next;fd;fd=fd->next){
-			proto_tree_add_text(tr, tvb, 0, 0, "Frame:%d Data:%d-%d",
+			proto_tree_add_text(tr, tvb, 0, 0, "Frame:%u Data:%u-%u",
 					    fd->frame, fd->offset, fd->offset+fd->len-1);
 		}
 		
@@ -15800,11 +15800,11 @@ proto_register_smb(void)
 	proto_register_field_array(proto_smb, hf, array_length(hf));
 	register_init_routine(&smb_init_protocol);
 	smb_module = prefs_register_protocol(proto_smb, NULL);
-	prefs_register_bool_preference(smb_module, "smb.trans.reassembly",
+	prefs_register_bool_preference(smb_module, "trans_reassembly",
 		"Reassemble SMB Transaction payload",
 		"Whether the dissector should do reassembly the payload of SMB Transaction commands spanning multiple SMB PDUs",
 		&smb_trans_reassembly);
-	prefs_register_bool_preference(smb_module, "smb.dcerpc.reassembly",
+	prefs_register_bool_preference(smb_module, "dcerpc_reassembly",
 		"Reassemble DCERPC over SMB",
 		"Whether the dissector should do reassembly of DCERPC over SMB commands",
 		&smb_dcerpc_reassembly);

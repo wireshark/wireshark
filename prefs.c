@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.77 2002/01/13 20:35:08 guy Exp $
+ * $Id: prefs.c,v 1.78 2002/01/15 10:01:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1447,6 +1447,20 @@ set_pref(gchar *pref_name, gchar *value)
           /* Otherwise it's from the command line, and we don't bother
              mapping it. */
 	}
+      } else if (strncmp(pref_name, "smb.", 4) == 0) {
+        /* Handle old names for SMB preferences. */
+        if (strcmp(dotp, "smb.trans.reassembly") == 0)
+          pref = find_preference(module, "trans_reassembly");
+        else if (strcmp(dotp, "smb.dcerpc.reassembly") == 0)
+          pref = find_preference(module, "dcerpc_reassembly");
+      } else if (strncmp(pref_name, "ndmp.", 5) == 0) {
+        /* Handle old names for NDMP preferences. */
+        if (strcmp(dotp, "ndmp.desegment") == 0)
+          pref = find_preference(module, "desegment");
+      } else if (strncmp(pref_name, "diameter.", 9) == 0) {
+        /* Handle old names for Diameter preferences. */
+        if (strcmp(dotp, "diameter.desegment") == 0)
+          pref = find_preference(module, "desegment");
       }
     }
     if (pref == NULL)
