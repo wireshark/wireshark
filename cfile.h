@@ -62,7 +62,6 @@ typedef struct _capture_file {
   int          snap;      /* Maximum captured packet length */
   gchar       *iface;     /* Interface */
   gchar       *save_file; /* File that user saved capture to */
-  int          save_file_fd; /* File descriptor for saved file */
   wtap        *wth;       /* Wiretap session */
   dfilter_t   *rfcode;    /* Compiled read filter program */
   gchar       *dfilter;   /* Display filter string */

@@ -251,7 +251,7 @@ sync_pipe_do_capture(capture_options *capture_opts, gboolean is_tempfile) {
     argv = sync_pipe_add_arg(argv, &argc, cfile.save_file);
 
     argv = sync_pipe_add_arg(argv, &argc, "-W");
-    sprintf(save_file_fd,"%d",cfile.save_file_fd);	/* in lieu of itoa */
+    sprintf(save_file_fd,"%d",capture_opts->save_file_fd);	/* in lieu of itoa */
     argv = sync_pipe_add_arg(argv, &argc, save_file_fd);
 
     if (capture_opts->has_autostop_packets) {
@@ -396,7 +396,7 @@ sync_pipe_do_capture(capture_options *capture_opts, gboolean is_tempfile) {
 
     /* Close the save file FD, as we won't be using it - we'll be opening
        it and reading the save file through Wiretap. */
-    close(cfile.save_file_fd);
+    close(capture_opts->save_file_fd);
 
     if (fork_child == -1) {
       /* We couldn't even create the child process. */

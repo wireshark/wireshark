@@ -47,6 +47,7 @@ typedef struct capture_options_tag {
 	int linktype;			/**< Data link type to use, or -1 for
 					   "use default" */
 	gboolean capture_child;	/**< True if this is the child for "-S" */
+    int      save_file_fd;  /**< File descriptor for saved file */
 
     /* GUI related */
 	gboolean sync_mode;			/**< Fork a child to do the capture,

@@ -799,7 +799,7 @@ static int capture_loop_open_wiretap_output(capture_options *capture_opts, loop_
     ld->wtap_pdh = ringbuf_init_wtap_dump_fdopen(WTAP_FILE_PCAP, ld->wtap_linktype,
       file_snaplen, &err);
   } else {
-    ld->wtap_pdh = wtap_dump_fdopen(cfile.save_file_fd, WTAP_FILE_PCAP,
+    ld->wtap_pdh = wtap_dump_fdopen(capture_opts->save_file_fd, WTAP_FILE_PCAP,
       ld->wtap_linktype, file_snaplen, &err);
   }
 
@@ -1106,7 +1106,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
           }
 
           /* Switch to the next ringbuffer file */
-          if (ringbuf_switch_file(&ld.wtap_pdh, &cfile.save_file, &cfile.save_file_fd, &ld.err)) {
+          if (ringbuf_switch_file(&ld.wtap_pdh, &cfile.save_file, &capture_opts->save_file_fd, &ld.err)) {
             /* File switch succeeded: reset the conditions */
             cnd_reset(cnd_autostop_size);
             if (cnd_file_duration) {
@@ -1175,7 +1175,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
           }
 
           /* Switch to the next ringbuffer file */
-          if (ringbuf_switch_file(&ld.wtap_pdh, &cfile.save_file, &cfile.save_file_fd, &ld.err)) {
+          if (ringbuf_switch_file(&ld.wtap_pdh, &cfile.save_file, &capture_opts->save_file_fd, &ld.err)) {
             /* file switch succeeded: reset the conditions */
             cnd_reset(cnd_file_duration);
             if(cnd_autostop_size)
@@ -1283,7 +1283,7 @@ error:
   } else {
     /* We can't use the save file, and we have no wtap_dump stream
        to close in order to close it, so close the FD directly. */
-    close(cfile.save_file_fd);
+    close(capture_opts->save_file_fd);
 
     /* We couldn't even start the capture, so get rid of the capture
        file. */

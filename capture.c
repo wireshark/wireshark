@@ -96,23 +96,23 @@ capture_open_output(capture_options *capture_opts, const char *save_file, gboole
     capfile_name = g_strdup(save_file);
     if (capture_opts->multi_files_on) {
       /* ringbuffer is enabled */
-      cfile.save_file_fd = ringbuf_init(capfile_name,
+      capture_opts->save_file_fd = ringbuf_init(capfile_name,
           (capture_opts->has_ring_num_files) ? capture_opts->ring_num_files : 0);
     } else {
       /* Try to open/create the specified file for use as a capture buffer. */
-      cfile.save_file_fd = open(capfile_name, O_RDWR|O_BINARY|O_TRUNC|O_CREAT,
+      capture_opts->save_file_fd = open(capfile_name, O_RDWR|O_BINARY|O_TRUNC|O_CREAT,
 				0600);
     }
     *is_tempfile = FALSE;
   } else {
     /* Choose a random name for the temporary capture buffer */
-    cfile.save_file_fd = create_tempfile(tmpname, sizeof tmpname, "ether");
+    capture_opts->save_file_fd = create_tempfile(tmpname, sizeof tmpname, "ether");
     capfile_name = g_strdup(tmpname);
     *is_tempfile = TRUE;
   }
 
   /* did we fail to open the output file? */
-  if (cfile.save_file_fd == -1) {
+  if (capture_opts->save_file_fd == -1) {
     if (is_tempfile) {
       simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 	"The temporary file to which the capture would be saved (\"%s\")"

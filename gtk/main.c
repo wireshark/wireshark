@@ -1854,6 +1854,7 @@ main(int argc, char *argv[])
 #ifdef _WIN32
   capture_opts->buffer_size = 1;
 #endif
+  capture_opts->save_file_fd = -1;
   capture_opts->quit_after_cap  = FALSE;
 
   capture_opts->has_autostop_packets = FALSE;
@@ -2204,7 +2205,7 @@ main(int argc, char *argv[])
        * the error flags for the user in the non-libpcap case.
        */
       case 'W':        /* Write to capture file FD xxx */
-        cfile.save_file_fd = atoi(optarg);
+        capture_opts->save_file_fd = atoi(optarg);
 	break;
 #endif
       case 'z':
@@ -2373,7 +2374,7 @@ main(int argc, char *argv[])
   }
 
   if (capture_opts->capture_child) {
-    if (cfile.save_file_fd == -1) {
+    if (capture_opts->save_file_fd == -1) {
       /* XXX - send this to the standard output as something our parent
 	 should put in an error message box? */
       fprintf(stderr, "%s: \"-W\" flag not specified\n", CHILD_NAME);

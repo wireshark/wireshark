@@ -1716,6 +1716,7 @@ capture(int out_file_type)
   gboolean    write_err;
   gboolean    dump_ok;
   dfilter_t   *rfcode = NULL;
+  int         save_file_fd;
 
   /* Initialize all data structures used for dissection. */
   init_dissection();
@@ -1876,9 +1877,9 @@ capture(int out_file_type)
       goto error;
     }
     if (capture_opts.ringbuffer_on) {
-      cfile.save_file_fd = ringbuf_init(cfile.save_file,
+      save_file_fd = ringbuf_init(cfile.save_file,
         capture_opts.ringbuffer_num_files);
-      if (cfile.save_file_fd != -1) {
+      if (save_file_fd != -1) {
         ld.pdh = ringbuf_init_wtap_dump_fdopen(out_file_type, ld.linktype,
           file_snaplen, &err);
       } else {
@@ -2034,7 +2035,7 @@ capture(int out_file_type)
            its maximum size. */
         if (capture_opts.ringbuffer_on) {
           /* Switch to the next ringbuffer file */
-          if (ringbuf_switch_file(&ld.pdh, &cfile.save_file, &cfile.save_file_fd, &loop_err)) {
+          if (ringbuf_switch_file(&ld.pdh, &cfile.save_file, &save_file_fd, &loop_err)) {
             /* File switch succeeded: reset the condition */
             cnd_reset(cnd_stop_capturesize);
 	    if (cnd_ring_timeout) {
@@ -2168,6 +2169,7 @@ capture_pcap_cb(guchar *user, const struct pcap_pkthdr *phdr,
   loop_data *ldat = (loop_data *) user;
   int loop_err;
   int err;
+  int save_file_fd;
 
   /* Convert from libpcap to Wiretap format.
      If that fails, ignore the packet (wtap_process_pcap_packet has
@@ -2193,7 +2195,7 @@ capture_pcap_cb(guchar *user, const struct pcap_pkthdr *phdr,
    */
   if (cnd_ring_timeout != NULL && cnd_eval(cnd_ring_timeout)) {
     /* time elapsed for this ring file, switch to the next */
-    if (ringbuf_switch_file(&ldat->pdh, &cfile.save_file, &cfile.save_file_fd, &loop_err)) {
+    if (ringbuf_switch_file(&ldat->pdh, &cfile.save_file, &save_file_fd, &loop_err)) {
       /* File switch succeeded: reset the condition */
       cnd_reset(cnd_ring_timeout);
     } else {

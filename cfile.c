@@ -57,7 +57,6 @@ init_cap_file(capture_file *cf)
 #endif
   cf->iface		= NULL;
   cf->save_file	= NULL;
-  cf->save_file_fd	= -1;
   cf->has_snap	= FALSE;
   cf->snap		= WTAP_MAX_PACKET_SIZE;
   cf->count		= 0;
