@@ -21,7 +21,7 @@
 # "aclocal" will look in that directory twice, and get well and truly
 # confused, reporting a ton of duplicate macro definitions.)
 #
-# $Id: aclocal-flags,v 1.1 2000/07/26 08:03:40 guy Exp $
+# $Id: aclocal-flags,v 1.2 2000/11/22 04:03:22 gram Exp $
 #
 
 #
@@ -32,7 +32,14 @@ aclocal_dir=`aclocal --print-ac-dir`
 #
 # And where do we want to make sure it looks?
 #
-gtk_aclocal_dir=`gtk-config --prefix`/share/aclocal
+gtk_prefix=`gtk-config --prefix`
+
+if [ -z "$gtk_prefix" ]
+then
+	gtk_aclocal_dir=""
+else
+	gtk_aclocal_dir=$gtk_prefix/share/aclocal
+fi
 
 #
 # If there's no "aclocal", the former will be empty; if there's no

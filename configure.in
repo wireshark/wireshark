@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.109 2000/11/20 17:10:24 gram Exp $
+# $Id: configure.in,v 1.110 2000/11/22 04:03:22 gram Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -158,6 +158,22 @@ case "$host_os" in
   ;;
 esac
 
+
+# Enable/disable tethereal
+
+GTK_OK=yes
+
+AC_ARG_ENABLE(ethereal,
+[  --enable-ethereal       build GTK+-based ethereal.  [default=yes]],,enable_ethereal=yes)
+
+# GTK checks
+# We don't add $GLIB_LIBS to LIBS, because we don't want to force all
+# programs to be built with GTK+.
+#
+if test "x$enable_ethereal" = "xyes" ; then
+	AM_PATH_GTK(1.2.0, CFLAGS="$CFLAGS $GTK_CFLAGS", GTK_OK=no )
+fi
+
 # GLib checks
 # This doesn't add GLIB_CFLAGS to CFLAGS, because AM_PATH_GTK will add
 # GTK_CFLAGS to CFLAGS, and GTK_CFLAGS is a superset of CFLAGS.
@@ -168,14 +184,59 @@ esac
 # We don't add $GLIB_LIBS to LIBS, because we don't want to force all
 # programs to be built with GLib.
 #
-AM_PATH_GLIB(1.2.0, , AC_MSG_ERROR(GLib distribution not found.), gmodule)
+if test "$GTK_OK" = "yes" -a "x$enable_ethereal" = "xyes" ; then
+	ethereal_bin="ethereal"
+	ethereal_man="ethereal.1"
+	ethereal_SUBDIRS="gtk"
 
-# GTK checks
-# We don't add $GLIB_LIBS to LIBS, because we don't want to force all
-# programs to be built with GTK+.
-#
-AM_PATH_GTK(1.2.0, CFLAGS="$CFLAGS $GTK_CFLAGS",
-                   AC_MSG_ERROR(GTK+ distribution not found.))
+	# Ignore GLIB_CFLAGS
+	AM_PATH_GLIB(1.2.0, , AC_MSG_ERROR(GLib distribution not found.), gmodule)
+else
+	enable_ethereal="no"
+	ethereal_bin=""
+	ethereal_man=""
+	# Honor GLIB_CFLAGS
+	AM_PATH_GLIB(1.2.0, CFLAGS="$CFLAGS $GLIB_CFLAGS", AC_MSG_ERROR(GLib distribution not found.), gmodule)
+fi
+
+AC_SUBST(ethereal_bin)
+AC_SUBST(ethereal_man)
+
+
+
+# Enable/disable tethereal
+
+AC_ARG_ENABLE(tethereal,
+[  --enable-tethereal      build tethereal.  [default=yes]],,enable_tethereal=yes)
+
+if test "x$enable_tethereal" = "xyes" ; then
+	tethereal_bin="tethereal"
+	tethereal_man="tethereal.1"
+else
+	tethereal_bin=""
+	tethereal_man=""
+fi
+AC_SUBST(tethereal_bin)
+AC_SUBST(tethereal_man)
+
+
+
+# Enable/disable editcap
+
+AC_ARG_ENABLE(editcap,
+[  --enable-editcap        build editcap.  [default=yes]],,enable_editcap=yes)
+
+if test "x$enable_editcap" = "xyes" ; then
+	editcap_bin="editcap"
+	editcap_man="editcap.1"
+else
+	editcap_bin=""
+	editcap_man=""
+fi
+AC_SUBST(editcap_bin)
+AC_SUBST(editcap_man)
+
+
 
 dnl Checks for "gethostbyname()" - and "-lnsl", if we need it to get
 dnl "gethostbyname()".
@@ -416,4 +477,33 @@ AC_OUTPUT(
   plugins/Makefile
   plugins/gryphon/Makefile
   plugins/mgcp/Makefile)
+
+
+# Pretty messages
+
+if test "x$enable_setuid_install" = "xyes" ; then
+	setuid_message="yes (DANGEROUS!!!)"
+else
+	setuid_message="no"
+fi
+
+if test "x$SNMP_LIBS" = "x" ; then
+	snmp_libs_message="no"
+else
+	snmp_libs_message="yes"
+fi
+
+
+
+echo ""
+echo "The Ethereal package has been configured with the following options."
+echo "                    Build ethereal : $enable_ethereal"
+echo "                   Build tethereal : $enable_tethereal"
+echo "                     Build editcap : $enable_editcap"
+echo "                    Install setuid : $setuid_message"
+echo "                  Use pcap library : $enable_pcap"
+echo "                  Use zlib library : $enable_zlib"
+echo "          Use IPv6 name resolution : $enable_ipv6"
+echo "                  Use SNMP library : $snmp_libs_message"
+
 

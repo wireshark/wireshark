@@ -49,6 +49,11 @@ Installation Checklist
          You won't be able to capture packets, but you can read traces
          that have already been captured to disk by other programs.
 
+	 You can build or not build ethereal, tethereal, and editcap
+	 with the appropriate --enable-XXX or --disable-XXX flags.
+	 The default is to build everything. If GTK+ is not detected
+	 on the system, then ethereal won't be built.
+
   [ ] 4. Run 'make'.  Hopefully, you won't run into any problems.
 
   [ ] 5. Run './ethereal', and make sure things are working.  You must

@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.251 2000/11/21 23:54:07 guy Exp $
+# $Id: Makefile.am,v 1.252 2000/11/22 04:03:22 gram Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -24,10 +24,11 @@
 
 ACLOCAL_AMFLAGS = `./aclocal-flags`
 
-EXTRA_PROGRAMS = ethereal_static
-bin_PROGRAMS = ethereal editcap tethereal
+bin_PROGRAMS = @ethereal_bin@ @editcap_bin@ @tethereal_bin@
+man_MANS = @ethereal_man@ @editcap_man@ @tethereal_man@
 
-man_MANS = ethereal.1 editcap.1 tethereal.1
+EXTRA_PROGRAMS = ethereal ethereal_static tethereal editcap
+EXTRA_MANS = ethereal.1 tethereal.1 editcap.1
 
 sysconf_DATA = manuf
 
@@ -546,7 +547,7 @@ endif
 #dist-hook:
 #	@rm -f $(distdir)/register.c
 
-SUBDIRS = wiretap epan gtk plugins packaging @ethereal_SUBDIRS@
+SUBDIRS = wiretap epan plugins packaging @ethereal_SUBDIRS@
 
 ethereal.1: ethereal doc/ethereal.pod.template
 	(cd doc ; \

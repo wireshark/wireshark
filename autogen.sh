@@ -2,7 +2,7 @@
 #
 # Run this to generate all the initial makefiles.
 #
-# $Id: autogen.sh,v 1.12 2000/10/16 23:18:03 guy Exp $
+# $Id: autogen.sh,v 1.13 2000/11/22 04:03:22 gram Exp $
 
 DIE=true
 PROJECT="Ethereal"
@@ -13,7 +13,7 @@ python -c "print 'Checking for python.'"
 if [ $? != 0 ] ; then
   cat >&2 <<_EOF_
 
-  	You must have Python in order to compiler $PROJECT.
+  	You must have Python in order to compile $PROJECT.
 	Download the appropriate package for your distribution/OS,
 	or get the source tarball at http://www.python.org/
 _EOF_
