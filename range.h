@@ -1,6 +1,8 @@
 /* range.h
  * Packet range routines (save, print, ...)
  *
+ * $Id: range.h,v 1.2 2003/12/29 20:40:44 guy Exp $
+ *
  * Dick Gooris <gooris@lucent.com>
  * Ulf Lamping <ulf.lamping@web.de>
  *
