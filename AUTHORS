@@ -2029,6 +2029,10 @@ Christian Wagner <Christian.Wagner [AT] stud.uni-karlsruhe.de> {
 	Soul Seek (slsk) protocol support
 }
 
+Edwin Calo <calo [AT] fusemail.com> {
+	Extract strings from a Postgresql datastream
+}
+
 And assorted fixes and enhancements by the people listed above and by:
 
 	Pavel Roskin <proski [AT] gnu.org>

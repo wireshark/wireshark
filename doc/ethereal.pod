@@ -2127,6 +2127,7 @@ B<http://www.ethereal.com>.
   Peter J. Creath          <peter-ethereal [AT] creath.net>
   Magnus Hansson           <mah [AT] hms.se>
   Pavel Kankovsky          <kan [AT] dcit.cz>
+  Edwin Calo               <calo [AT] fusemail.com>
 
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to give his
 permission to use his version of snprintf.c.
