@@ -1,7 +1,7 @@
 /* endpoint_talkers_udpip.c
  * endpoint_talkers_udpip   2003 Ronnie Sahlberg
  *
- * $Id: endpoint_talkers_udpip.c,v 1.2 2003/08/23 13:56:40 sahlberg Exp $
+ * $Id: endpoint_talkers_udpip.c,v 1.3 2003/08/24 01:39:55 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -78,7 +78,7 @@ udpip_address_to_str(address *addr)
 		strp=ip_to_str(addr->data);
 		break;
 	case AT_IPv6:
-		strp=ip6_to_str(addr->data);
+		strp=ip6_to_str((struct e_in6_addr *)addr->data);
 		break;
 	default:
 		fprintf(stderr, "Unsupported transport for UDP in the UDP talkers tap.\n");
@@ -99,7 +99,7 @@ udpip_port_to_str(guint32 port)
 	}
 	strp=str[i];
 
-	sprintf(strp, "%d", port);
+	sprintf(strp, "%u", port);
 
 	return strp;
 }
