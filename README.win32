@@ -381,6 +381,9 @@ Cygwin package:
 
 After installing them, you will probably have to modify the config.nmake
 file to specify where the Cygwin binaries are installed.
+Note that installing cygwin with the "Default Text File Type" set to DOS 
+may break the compilation because all the required tools may not be found. 
+Set this parameter to UNIX instead.
 
 Python for Win32 is available from:
 

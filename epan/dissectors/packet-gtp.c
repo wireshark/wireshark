@@ -205,6 +205,7 @@ static gint ett_gtp_data_resp		= -1;
 static gint ett_gtp_priv_ext		= -1;
 
 static gboolean	gtp_tpdu		= TRUE;
+static gboolean	gtp_over_tcp		= TRUE;
 static gboolean	gtp_etsi_order		= FALSE;
 static int	gtpv0_port		= 0;
 static int	gtpv1c_port		= 0;
@@ -4553,11 +4554,17 @@ proto_register_gtp(void)
 	prefs_register_uint_preference(gtp_module, "v1c_port", "GTPv1 control plane (GTP-C) port", "GTPv1 control plane port (default 2123)", 10, &g_gtpv1c_port);
 	prefs_register_uint_preference(gtp_module, "v1u_port", "GTPv1 user plane (GTP-U) port", "GTPv1 user plane port (default 2152)", 10, &g_gtpv1u_port);
 	prefs_register_bool_preference(gtp_module, "dissect_tpdu", "Dissect T-PDU", "Dissect T-PDU", &gtp_tpdu);
+	
 	prefs_register_obsolete_preference (gtp_module, "v0_dissect_cdr_as");
 	prefs_register_obsolete_preference (gtp_module, "v0_check_etsi");
 	prefs_register_obsolete_preference (gtp_module, "v1_check_etsi");
 	prefs_register_bool_preference (gtp_module, "check_etsi", "Compare GTP order with ETSI", "GTP ETSI order", &gtp_etsi_order);
 	prefs_register_obsolete_preference(gtp_module, "ppp_reorder");
+	
+	/* This preference can be used to disable the dissection of GTP over TCP. Most of the Wireless operators uses GTP over UDP.
+		 * The preference is set to TRUE by default fo rbackward compatibility
+		 */
+	prefs_register_bool_preference(gtp_module, "dissect_gtp_over_tcp", "Dissect GTP over TCP", "Dissect GTP over TCP", &gtp_over_tcp);
 
 	register_dissector("gtp", dissect_gtp, proto_gtp);
 }
@@ -4574,11 +4581,15 @@ proto_reg_handoff_gtp(void)
 		Initialized = TRUE;
 	} else {
 		dissector_delete ("udp.port", gtpv0_port, gtp_handle);
-		dissector_delete ("tcp.port", gtpv0_port, gtp_handle);
 		dissector_delete ("udp.port", gtpv1c_port, gtp_handle);
-		dissector_delete ("tcp.port", gtpv1c_port, gtp_handle);
 		dissector_delete ("udp.port", gtpv1u_port, gtp_handle);
-		dissector_delete ("tcp.port", gtpv1u_port, gtp_handle);
+		
+		if ( !gtp_over_tcp ) {
+			dissector_delete ("tcp.port", gtpv0_port, gtp_handle);
+			dissector_delete ("tcp.port", gtpv1c_port, gtp_handle);
+			dissector_delete ("tcp.port", gtpv1u_port, gtp_handle);
+		}
+		
 	}
 
 	gtpv0_port = g_gtpv0_port;
@@ -4586,14 +4597,17 @@ proto_reg_handoff_gtp(void)
 	gtpv1u_port = g_gtpv1u_port;
 
 	dissector_add ("udp.port", g_gtpv0_port, gtp_handle);
-	dissector_add ("tcp.port", g_gtpv0_port, gtp_handle);
 	dissector_add ("udp.port", g_gtpv1c_port, gtp_handle);
-	dissector_add ("tcp.port", g_gtpv1c_port, gtp_handle);
 	dissector_add ("udp.port", g_gtpv1u_port, gtp_handle);
-	dissector_add ("tcp.port", g_gtpv1u_port, gtp_handle);
-
+	
+	if ( gtp_over_tcp ) {
+		dissector_add ("tcp.port", g_gtpv0_port, gtp_handle);
+		dissector_add ("tcp.port", g_gtpv1c_port, gtp_handle);
+		dissector_add ("tcp.port", g_gtpv1u_port, gtp_handle);
+	}
+	
 	ip_handle = find_dissector("ip");
-        ipv6_handle = find_dissector("ipv6");
+  ipv6_handle = find_dissector("ipv6");
 	ppp_handle = find_dissector("ppp");
 	data_handle = find_dissector("data");
 	gtpcdr_handle = find_dissector("gtpcdr");
