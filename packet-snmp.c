@@ -2,7 +2,7 @@
  * Routines for SNMP (simple network management protocol)
  * D.Jorand (c) 1998
  *
- * $Id: packet-snmp.c,v 1.32 2000/05/15 08:02:39 guy Exp $
+ * $Id: packet-snmp.c,v 1.33 2000/05/19 07:00:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1571,7 +1571,7 @@ dissect_snmp_pdu(const u_char *pd, int offset, frame_data *fd,
 
 static void
 dissect_smux_pdu(const u_char *pd, int offset, frame_data *fd,
-    proto_tree *tree, char *proto_name, int proto, gint ett)
+    proto_tree *tree, int proto, gint ett)
 {
 	ASN1_SCK asn1;
 	const guchar *start;
@@ -1605,7 +1605,7 @@ dissect_smux_pdu(const u_char *pd, int offset, frame_data *fd,
 	guint cls, con;
 
 	if (check_col(fd, COL_PROTOCOL))
-		col_add_str(fd, COL_PROTOCOL, proto_name);
+		col_add_str(fd, COL_PROTOCOL, "SMUX");
 
 	if (tree) {
 		item = proto_tree_add_item(tree, proto, NullTVB, offset,
@@ -1842,7 +1842,7 @@ dissect_snmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 static void
 dissect_smux(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) 
 {
-	dissect_smux_pdu(pd, offset, fd, tree, "SMUX", proto_smux, ett_smux);
+	dissect_smux_pdu(pd, offset, fd, tree, proto_smux, ett_smux);
 }
 
 void
