@@ -1921,6 +1921,7 @@ Giles Scott             <gscott [AT] arubanetworks.com> {
 	Port weak key detection from Airsnort
 	Wlan tap
 	Retix spanning tree protocol support
+	Aruba ADP protocol support
 }
 
 Vincent Jardin          <vincent.jardin [AT] 6wind.com> {
