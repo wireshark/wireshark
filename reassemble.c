@@ -1,7 +1,7 @@
 /* reassemble.c
  * Routines for {fragment,segment} reassembly
  *
- * $Id: reassemble.c,v 1.37 2003/04/20 11:36:16 guy Exp $
+ * $Id: reassemble.c,v 1.38 2003/04/30 22:13:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -932,7 +932,8 @@ fragment_add_seq_work(fragment_data *fd_head, tvbuff_t *tvb, int offset,
 			}
 		} else {
 			/* this was the first tail fragment, now we know the
-			 * length of the packet
+			 * sequence number of that fragment (which is NOT
+			 * the length of the packet!)
 			 */
 			fd_head->datalen = fd->offset;
 		}
@@ -947,8 +948,9 @@ fragment_add_seq_work(fragment_data *fd_head, tvbuff_t *tvb, int offset,
 		fd->flags      |= FD_OVERLAP;
 		fd_head->flags |= FD_OVERLAP;
 
-		/* make sure its not too long */
+		/* make sure it's not past the end */
 		if (fd->offset > fd_head->datalen) {
+			/* new fragment comes after the end */
 			fd->flags      |= FD_TOOLONGFRAGMENT;
 			fd_head->flags |= FD_TOOLONGFRAGMENT;
 			LINK_FRAG(fd_head,fd);
@@ -963,23 +965,68 @@ fragment_add_seq_work(fragment_data *fd_head, tvbuff_t *tvb, int offset,
 		  }
 		  last_fd=fd_i;
 		}
-		if(fd_i->datalen!=fd->datalen){
-			fd->flags      |= FD_OVERLAPCONFLICT;
-			fd_head->flags |= FD_OVERLAPCONFLICT;
+		if(fd_i){
+			/* new fragment overlaps existing fragment */
+			if(fd_i->len!=fd->len){
+				/*
+				 * They have different lengths; this
+				 * is definitely a conflict.
+				 */
+				fd->flags      |= FD_OVERLAPCONFLICT;
+				fd_head->flags |= FD_OVERLAPCONFLICT;
+				LINK_FRAG(fd_head,fd);
+				return TRUE;
+			}
+			g_assert(fd_head->len >= dfpos + fd->len);
+			if ( memcmp(fd_head->data+dfpos,
+			    tvb_get_ptr(tvb,offset,fd->len),fd->len) ){
+				/*
+				 * They have the same length, but the
+				 * data isn't the same.
+				 */
+				fd->flags      |= FD_OVERLAPCONFLICT;
+				fd_head->flags |= FD_OVERLAPCONFLICT;
+				LINK_FRAG(fd_head,fd);
+				return TRUE;
+			}
+			/* it was just an overlap, link it and return */
+			LINK_FRAG(fd_head,fd);
+			return TRUE;
+		} else {
+			/*
+			 * New fragment doesn't overlap an existing
+			 * fragment - there was presumably a gap in
+			 * the sequence number space.
+			 *
+			 * XXX - what should we do here?  Is it always
+			 * the case that there are no gaps, or are there
+			 * protcols using sequence numbers where there
+			 * can be gaps?
+			 *
+			 * If the former, the check below for having
+			 * received all the fragments should check for
+			 * holes in the sequence number space and for the
+			 * first sequence number being 0.  If we do that,
+			 * the only way we can get here is if this fragment
+			 * is past the end of the sequence number space -
+			 * but the check for "fd->offset > fd_head->datalen"
+			 * would have caught that above, so it can't happen.
+			 *
+			 * If the latter, we don't have a good way of
+			 * knowing whether reassembly is complete if we
+			 * get packet out of order such that the "last"
+			 * fragment doesn't show up last - but, unless
+			 * in-order reliable delivery of fragments is
+			 * guaranteed, an implementation of the protocol
+			 * has no way of knowing whether reassembly is
+			 * complete, either.
+			 *
+			 * For now, we just link the fragment in and
+			 * return.
+			 */
 			LINK_FRAG(fd_head,fd);
 			return TRUE;
 		}
-		g_assert(fd_head->len >= dfpos + fd->len);
-		if ( memcmp(fd_head->data+dfpos,
-			tvb_get_ptr(tvb,offset,fd->len),fd->len) ){
-			fd->flags      |= FD_OVERLAPCONFLICT;
-			fd_head->flags |= FD_OVERLAPCONFLICT;
-			LINK_FRAG(fd_head,fd);
-			return TRUE;
-		}
-		/* it was just an overlap, link it and return */
-		LINK_FRAG(fd_head,fd);
-		return TRUE;
 	}
 
 	/* If we have reached this point, the packet is not defragmented yet.
@@ -993,8 +1040,9 @@ fragment_add_seq_work(fragment_data *fd_head, tvbuff_t *tvb, int offset,
 
 
 	if( !(fd_head->datalen) ){
-		/* if we dont know the datalen, there are still missing
-		 * packets. Cheaper than the check below.
+		/* if we dont know the sequence number of the last fragment,
+		 * there are definitely still missing packets. Cheaper than
+		 * the check below.
 		 */
 		return FALSE;
 	}
