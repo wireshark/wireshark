@@ -2,7 +2,7 @@
  * Routines for T.38 packet dissection
  * 2003  Hans Viens
  *
- * $Id: packet-t38.c,v 1.3 2003/10/09 22:35:07 guy Exp $
+ * $Id: packet-t38.c,v 1.4 2004/01/09 23:24:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -23,6 +23,16 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+/* TO DO:
+ * - Currently there is not support for T.38 IFP over TPKT over TCP, 
+ *      just T.38 UDPTL over UDP and T.38 IFP packets directly over TCP.  
+ * - Currently no TCP desegmentation is done.  
+ * - SDP and H.245 dissectors should maybe be updated to start conversations for T.38 similar to RTP.
+ * - It would be nice if we could dissect the T.30 data.
+ * - Sometimes the last octet is not high-lighted when selecting something in the tree. Bug in PER dissector? 
+ */
+
+
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
@@ -37,13 +47,38 @@
 #include "prefs.h"
 #include "ipproto.h"
 #include "packet-per.h"
+#include "prefs.h"
 
-#define PORT_T38 6004
+#define PORT_T38 6004  
+static guint global_t38_tcp_port = PORT_T38;
+static guint global_t38_udp_port = PORT_T38;
+
+/*
+* Variables to allow for proper deletion of dissector registration when
+* the user changes port from the gui.
+*/
+static guint tcp_port = 0;
+static guint udp_port = 0;
+
+/* dissect using the Pre Corrigendum T.38 ASN.1 specification (1998) */
+static gboolean use_pre_corrigendum_asn1_specification = TRUE;
+
+/* dissect packets that looks like RTP version 2 packets as RTP     */
+/* instead of as T.38. This may result in that some T.38 UPTL       */
+/* packets with sequence number values higher than 32767 may be     */
+/* shown as RTP packets.                                            */ 
+/* XXX - this should be handled by having starting and ending       */
+/* frames for conversations and by having H.245 close conversations */
+/* and start new ones when appropriate.                             */
+static gboolean dissect_possible_rtpv2_packets_as_rtp = FALSE;
 
 static dissector_handle_t t38_handle;
+static dissector_handle_t rtp_handle;
 
 static guint32 Type_of_msg_value;
 static guint32 Data_Field_field_type_value;
+static guint32 Data_value;
+static guint32 T30ind_value;
 
 static int proto_t38 = -1;
 static int hf_t38_IFPPacket = -1;
@@ -80,6 +115,15 @@ static gint ett_t38_error_recovery = -1;
 static gint ett_t38_secondary_ifp_packets = -1;
 static gint ett_t38_fec_info = -1;
 static gint ett_t38_fec_data = -1;
+
+static gboolean primary_part = TRUE;
+static guint32 seq_number = 0;
+
+
+/* RTP Version is the first 2 bits of the first octet in the UDP payload*/
+#define RTP_VERSION(octet)	((octet) >> 6)
+
+void proto_reg_handoff_t38(void);
 
 
 static int
@@ -170,7 +214,12 @@ dissect_t38_t30_indicator(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 {
     offset=dissect_per_choice(tvb, offset, pinfo,
         tree, hf_t38_t30_indicator, ett_t38_t30_indicator,
-        t30_indicator_choice, "T30 Indicator", NULL);
+        t30_indicator_choice, "T30 Indicator", &T30ind_value);
+
+	if (check_col(pinfo->cinfo, COL_INFO) && primary_part){
+        col_append_fstr(pinfo->cinfo, COL_INFO, " t30ind: %s",
+         val_to_str(T30ind_value,t30_indicator_vals,"<unknown>"));
+	}
 	return offset;
 }
 
@@ -230,9 +279,14 @@ static const value_string data_vals[] = {
 static int
 dissect_t38_data(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-   offset=dissect_per_choice(tvb, offset, pinfo,
+    offset=dissect_per_choice(tvb, offset, pinfo,
         tree, hf_t38_data, ett_t38_data,
-        data_choice, "data", NULL);
+        data_choice, "data", &Data_value);
+
+    if (check_col(pinfo->cinfo, COL_INFO) && primary_part){
+        col_append_fstr(pinfo->cinfo, COL_INFO, " data:%s:",
+         val_to_str(Data_value,data_vals,"<unknown>"));
+	}
 	return offset;
 }
 
@@ -259,7 +313,7 @@ dissect_t38_Type_of_msg(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 	return offset;
 }
 
-static per_choice_t Data_Field_field_type_choice[] = {
+static per_choice_t Data_Field_field_type_PreCorrigendum_choice[] = {
 	{ 0, "hdlc-data", ASN1_NO_EXTENSIONS,
 		dissect_t38_NULL},
 	{ 1, "hdlc-sig-end", ASN1_NO_EXTENSIONS,
@@ -279,6 +333,28 @@ static per_choice_t Data_Field_field_type_choice[] = {
 	{ 0, NULL, 0, NULL }
 };
 
+
+static per_choice_t Data_Field_field_type_choice[] = {
+	{ 0, "hdlc-data", ASN1_EXTENSION_ROOT,
+		dissect_t38_NULL},
+	{ 1, "hdlc-sig-end", ASN1_EXTENSION_ROOT,
+		dissect_t38_NULL},
+	{ 2, "hdlc-fcs-OK", ASN1_EXTENSION_ROOT,
+		dissect_t38_NULL},
+	{ 3, "hdlc-fcs-BAD", ASN1_EXTENSION_ROOT,
+		dissect_t38_NULL},
+	{ 4, "hdlc-fcs-OK-sig-end", ASN1_EXTENSION_ROOT,
+		dissect_t38_NULL},
+	{ 5, "hdlc-fcs-BAD-sig-end", ASN1_EXTENSION_ROOT,
+		dissect_t38_NULL},
+	{ 6, "t4-non-ecm-data", ASN1_EXTENSION_ROOT,
+		dissect_t38_NULL},
+	{ 7, "t4-non-ecm-sig-end", ASN1_EXTENSION_ROOT,
+		dissect_t38_NULL},
+	{ 0, NULL, 0, NULL }
+};
+
+
 static const value_string Data_Field_field_type_vals[] = {
 	{ 0, "hdlc-data" },
 	{ 1, "hdlc-sig-end" },
@@ -294,18 +370,45 @@ static const value_string Data_Field_field_type_vals[] = {
 static int
 dissect_t38_Data_Field_field_type(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-    offset=dissect_per_choice(tvb, offset, pinfo,
-        tree, hf_t38_Data_Field_field_type, ett_t38_Data_Field_field_type,
-        Data_Field_field_type_choice, "Field Type", &Data_Field_field_type_value);
+	if(use_pre_corrigendum_asn1_specification){
+		offset=dissect_per_choice(tvb, offset, pinfo,
+			tree, hf_t38_Data_Field_field_type, ett_t38_Data_Field_field_type,
+			Data_Field_field_type_PreCorrigendum_choice, "Field Type", &Data_Field_field_type_value);
+	}
+	else{
+		offset=dissect_per_choice(tvb, offset, pinfo,
+			tree, hf_t38_Data_Field_field_type, ett_t38_Data_Field_field_type,
+			Data_Field_field_type_choice, "Field Type", &Data_Field_field_type_value);
+	}
+
+    if (check_col(pinfo->cinfo, COL_INFO) && primary_part){
+        col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
+         val_to_str(Data_Field_field_type_value,Data_Field_field_type_vals,"<unknown>"));
+	}
+
     return offset;
 }
 
 static int
 dissect_t38_Data_Field_field_data(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
+	guint32 value_offset = 0;
+	guint32 value_len = 0;
+
 	offset=dissect_per_octet_string(tvb, offset, pinfo,
         tree, hf_t38_Data_Field_field_data, 1, 65535,
-        NULL, NULL);
+        &value_offset, &value_len);
+
+	if (check_col(pinfo->cinfo, COL_INFO) && primary_part){
+        if(value_len < 8){
+        	col_append_fstr(pinfo->cinfo, COL_INFO, "[%s]",
+               tvb_bytes_to_str(tvb,value_offset,value_len));
+        }
+        else {
+        	col_append_fstr(pinfo->cinfo, COL_INFO, "[%s...]",
+               tvb_bytes_to_str(tvb,value_offset,7));
+        }
+	}
 	return offset;
 }
 
@@ -357,7 +460,11 @@ dissect_t38_seq_number(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo,
 		tree, hf_t38_seq_number, 0, 65535,
-		NULL, NULL, FALSE);
+		&seq_number, NULL, FALSE);
+
+      if (check_col(pinfo->cinfo, COL_INFO)){
+        col_append_fstr(pinfo->cinfo, COL_INFO, "Seq=%05u ",seq_number);
+	}
 	return offset;
 }
 
@@ -365,6 +472,7 @@ static int
 dissect_t38_primary_ifp_packet(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
     guint32 length;
+	primary_part = TRUE;
 
     offset=dissect_per_length_determinant(tvb, offset, pinfo,
         tree, hf_t38_primary_ifp_packet_length, &length);
@@ -460,9 +568,14 @@ static const value_string error_recovery_vals[] = {
 static int
 dissect_t38_error_recovery(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
+	primary_part = FALSE;
+
     offset=dissect_per_choice(tvb, offset, pinfo,
         tree, hf_t38_error_recovery, ett_t38_error_recovery,
         error_recovery_choice, "Error recovery", NULL);
+
+	primary_part = TRUE;
+
 	return offset;
 }
 
@@ -507,11 +620,12 @@ dissect_t38_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         "ITU-T Recommendation T.38");
 	tr=proto_item_add_subtree(it, ett_t38);
 
+	if (check_col(pinfo->cinfo, COL_INFO)){
+        col_append_fstr(pinfo->cinfo, COL_INFO, "UDP: UDPTLPacket ");
+	}
+
     offset=dissect_t38_UDPTLPacket(tvb, offset, pinfo, tr);
 
-    if (check_col(pinfo->cinfo, COL_INFO)){
-        col_prepend_fstr(pinfo->cinfo, COL_INFO, "UDP: UDPTLPacket");
-	}
 }
 
 static void
@@ -532,22 +646,34 @@ dissect_t38_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         "ITU-T Recommendation T.38");
 	tr=proto_item_add_subtree(it, ett_t38);
 
+	if (check_col(pinfo->cinfo, COL_INFO)){
+        col_append_fstr(pinfo->cinfo, COL_INFO, "TCP: IFPPacket");
+	}
+
     offset=dissect_t38_IFPPacket(tvb, offset, pinfo, tr);
 
-    if (check_col(pinfo->cinfo, COL_INFO)){
-        col_prepend_fstr(pinfo->cinfo, COL_INFO, "TCP: IFPPacket");
-	}
 }
 
 static void
 dissect_t38(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
+	guint8      octet1;
+	unsigned int offset = 0;
+	primary_part = TRUE;
+
 	if(pinfo->ipproto == IP_PROTO_TCP)
 	{
 		dissect_t38_tcp(tvb, pinfo, tree);
 	}
 	else if(pinfo->ipproto == IP_PROTO_UDP)
-	{
+	{   
+		if(dissect_possible_rtpv2_packets_as_rtp){
+			octet1 = tvb_get_guint8( tvb, offset );
+			if(RTP_VERSION(octet1) == 2){
+                call_dissector(rtp_handle,tvb,pinfo,tree);
+				return;
+			}
+		}
 		dissect_t38_udp(tvb, pinfo, tree);
 	}
 }
@@ -636,17 +762,54 @@ proto_register_t38(void)
         &ett_t38_fec_info,
         &ett_t38_fec_data,
 	};
+	module_t *t38_module;
 
 	proto_t38 = proto_register_protocol("T38", "T38", "t38");
 	proto_register_field_array(proto_t38, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 	register_dissector("t38", dissect_t38, proto_t38);
+
+	t38_module = prefs_register_protocol(proto_t38, proto_reg_handoff_t38);
+	prefs_register_bool_preference(t38_module, "use_pre_corrigendum_asn1_specification",
+	    "Use the Pre-Corrigendum ASN.1 specification",
+	    "Whether the T.38 dissector should decode using the Pre-Corrigendum T.38 "
+		"ASN.1 specification (1998).",
+	    &use_pre_corrigendum_asn1_specification);
+	prefs_register_bool_preference(t38_module, "dissect_possible_rtpv2_packets_as_rtp",
+	    "Dissect possible RTP version 2 packets with RTP dissector",
+	    "Whether a UDP packet that looks like RTP version 2 packet will "
+		"be dissected as RTP packet or T.38 packet. If enabled there is a risk that T.38 UDPTL "
+		"packets with sequence number higher than 32767 may be dissected as RTP.",
+	    &dissect_possible_rtpv2_packets_as_rtp);
+	prefs_register_uint_preference(t38_module, "tcp.port",
+		"T.38 TCP Port",
+		"Set the TCP port for T.38 messages",
+		10, &global_t38_tcp_port);
+	prefs_register_uint_preference(t38_module, "udp.port",
+		"T.38 UDP Port",
+		"Set the UDP port for T.38 messages",
+		10, &global_t38_udp_port);	
+
 }
 
 void
 proto_reg_handoff_t38(void)
 {
-	t38_handle=create_dissector_handle(dissect_t38, proto_t38);
-	dissector_add("udp.port", PORT_T38, t38_handle);
-    dissector_add("tcp.port", PORT_T38, t38_handle);
+	static int t38_prefs_initialized = FALSE;
+
+	if (!t38_prefs_initialized) {
+		t38_handle=create_dissector_handle(dissect_t38, proto_t38);
+		t38_prefs_initialized = TRUE;
+	}
+	else {
+		dissector_delete("tcp.port", tcp_port, t38_handle);
+		dissector_delete("udp.port", udp_port, t38_handle);
+	}
+	tcp_port = global_t38_tcp_port;
+	udp_port = global_t38_udp_port;
+
+	dissector_add("tcp.port", tcp_port, t38_handle);
+	dissector_add("udp.port", udp_port, t38_handle);
+
+	rtp_handle = find_dissector("rtp");
 }
