@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.29 1999/07/15 15:32:41 gram Exp $
+ * $Id: packet-ip.c,v 1.30 1999/07/17 04:19:03 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -57,6 +57,14 @@ int hf_ip_len = -1;
 int hf_ip_id = -1;
 int hf_ip_dst = -1;
 int hf_ip_src = -1;
+int hf_ip_addr = -1;
+		
+int proto_igmp = -1;
+int hf_igmp_version = -1;
+int hf_igmp_type = -1;
+int hf_igmp_unused = -1;
+int hf_igmp_checksum = -1;
+int hf_igmp_group = -1;
 
 /* ICMP structs and definitions */
 typedef struct _e_icmp {
@@ -707,6 +715,8 @@ dissect_ip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
     proto_tree_add_item(ip_tree, hf_ip_src, offset + 12, 4, iph.ip_src);
     proto_tree_add_item(ip_tree, hf_ip_dst, offset + 16, 4, iph.ip_dst);
+    proto_tree_add_item_hidden(ip_tree, hf_ip_addr, offset + 12, 4, iph.ip_src);
+    proto_tree_add_item_hidden(ip_tree, hf_ip_addr, offset + 16, 4, iph.ip_dst);
 
     /* Decode IP options, if any. */
     if (hlen > sizeof (e_ip)) {
@@ -1050,8 +1060,7 @@ dissect_igmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   if (check_col(fd, COL_INFO))
     col_add_str(fd, COL_INFO, type_str);
   if (tree) {
-    ti = proto_tree_add_text(tree, offset, 4,
-      "Internet Group Management Protocol");
+    ti = proto_tree_add_text(tree, proto_igmp, offset, 4, NULL);
     igmp_tree = proto_item_add_subtree(ti, ETT_IGMP);
     proto_tree_add_text(igmp_tree, offset,     1, "Version: %d",
       hi_nibble(ih.igmp_v_t));
@@ -1064,6 +1073,31 @@ dissect_igmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     proto_tree_add_text(igmp_tree, offset + 4, 4, "Group address: %s",
       ip_to_str((guint8 *) &ih.igmp_gaddr));
   }
+}
+
+void
+proto_register_igmp(void)
+{
+	static hf_register_info hf[] = {
+
+		{ &hf_igmp_version,
+		{ "Version",		"igmp.version", FT_UINT8, NULL }},
+
+		{ &hf_igmp_type,
+		{ "Type",		"igmp.type", FT_UINT8, NULL }},
+
+		{ &hf_igmp_unused,
+		{ "Unused",		"igmp.unused", FT_UINT8, NULL }},
+
+		{ &hf_igmp_checksum,
+		{ "Checksum",		"igmp.checksum", FT_UINT16, NULL }},
+
+		{ &hf_igmp_group,
+		{ "Group address",	"igmp.group", FT_IPv4, NULL }}
+	};
+
+	proto_igmp = proto_register_protocol ("Internet Group Management Protocol", "igmp");
+	proto_register_field_array(proto_igmp, hf, array_length(hf));
 }
 
 void
@@ -1093,7 +1127,10 @@ proto_register_ip(void)
 		{ "Destination",	"ip.dst", FT_IPv4, NULL }},
 
 		{ &hf_ip_src,
-		{ "Source",		"ip.src", FT_IPv4, NULL }}
+		{ "Source",		"ip.src", FT_IPv4, NULL }},
+
+		{ &hf_ip_addr,
+		{ "Source or Destination Address", "ip.addr", FT_IPv4, NULL }}
 	};
 
 	proto_ip = proto_register_protocol ("Internet Protocol", "ip");

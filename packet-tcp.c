@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.26 1999/07/07 22:51:55 gram Exp $
+ * $Id: packet-tcp.c,v 1.27 1999/07/17 04:19:04 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -60,6 +60,13 @@ extern packet_info pi;
 
 static gchar info_str[COL_MAX_LEN];
 static int   info_len;
+
+int proto_tcp = -1;
+int hf_tcp_srcport = -1;
+int hf_tcp_dstport = -1;
+int hf_tcp_port = -1;
+int hf_tcp_seq = -1;
+int hf_tcp_ack = -1;
 
 /* TCP Ports */
 
@@ -388,18 +395,17 @@ dissect_tcp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   }
   
   if (tree) {
-    ti = proto_tree_add_text(tree, offset, hlen,
-      "Transmission Control Protocol");
+    ti = proto_tree_add_item(tree, proto_tcp, offset, hlen, NULL);
     tcp_tree = proto_item_add_subtree(ti, ETT_TCP);
-    proto_tree_add_text(tcp_tree, offset,      2, "Source port: %s (%u)",
-      get_tcp_port(th.th_sport), th.th_sport);
-    proto_tree_add_text(tcp_tree, offset +  2, 2, "Destination port: %s (%u)",
-      get_tcp_port(th.th_dport), th.th_dport);
-    proto_tree_add_text(tcp_tree, offset +  4, 4, "Sequence number: %u",
-      th.th_seq);
+    proto_tree_add_item_format(tcp_tree, hf_tcp_srcport, offset, 2, th.th_sport,
+	"Source port: %s (%u)", get_tcp_port(th.th_sport), th.th_sport);
+    proto_tree_add_item_format(tcp_tree, hf_tcp_dstport, offset + 2, 2, th.th_dport,
+	"Destination port: %s (%u)", get_tcp_port(th.th_dport), th.th_dport);
+    proto_tree_add_item_hidden(tcp_tree, hf_tcp_port, offset, 2, th.th_sport);
+    proto_tree_add_item_hidden(tcp_tree, hf_tcp_port, offset + 2, 2, th.th_dport);
+    proto_tree_add_item(tcp_tree, hf_tcp_seq, offset + 4, 4, th.th_seq);
     if (th.th_flags & TH_ACK)
-      proto_tree_add_text(tcp_tree, offset +  8, 4, "Acknowledgement number: %u",
-        th.th_ack);
+      proto_tree_add_item(tcp_tree, hf_tcp_ack, offset + 8, 4, th.th_ack);
     proto_tree_add_text(tcp_tree, offset + 12, 1, "Header length: %u bytes", hlen);
      tf = proto_tree_add_text(tcp_tree, offset + 13, 1, "Flags: 0x%x", th.th_flags);
      field_tree = proto_item_add_subtree(tf, ETT_TCP_FLAGS);
@@ -502,4 +508,29 @@ dissect_tcp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
         ( th.th_flags & 0x02 ), /* is syn set? */
         pi.ip_src ); /* src ip */
   }
+}
+
+void
+proto_register_tcp(void)
+{
+	static hf_register_info hf[] = {
+
+		{ &hf_tcp_srcport,
+		{ "Source Port",		"tcp.srcport", FT_UINT16, NULL }},
+
+		{ &hf_tcp_dstport,
+		{ "Destination Port",		"tcp.dstport", FT_UINT16, NULL }},
+
+		{ &hf_tcp_port,
+		{ "Source or Destination Port",	"tcp.port", FT_UINT16, NULL }},
+
+		{ &hf_tcp_seq,
+		{ "Sequence Number",		"tcp.seq", FT_UINT32, NULL }},
+
+		{ &hf_tcp_ack,
+		{ "Acknowledgement number",	"tcp.ack", FT_UINT32, NULL }},
+	};
+
+	proto_tcp = proto_register_protocol ("Transmission Control Protocol", "tcp");
+	proto_register_field_array(proto_tcp, hf, array_length(hf));
 }

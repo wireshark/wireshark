@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.2 1999/07/15 15:32:44 gram Exp $
+ * $Id: proto.c,v 1.3 1999/07/17 04:19:05 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -84,9 +84,12 @@ void proto_register_data(void);
 void proto_register_eth(void);
 void proto_register_fddi(void);
 void proto_register_frame(void);
+void proto_register_igmp(void);
 void proto_register_ip(void);
+void proto_register_ipx(void);
 void proto_register_llc(void);
 void proto_register_null(void);
+void proto_register_tcp(void);
 void proto_register_tr(void);
 
 /* special-case header field used within proto.c */
@@ -138,10 +141,13 @@ proto_init(void)
 	proto_register_eth();
 	proto_register_fddi();
 	proto_register_frame();
+	proto_register_igmp();
 	proto_register_ip();
+	proto_register_ipx();
 	proto_register_llc();
 	proto_register_null();
 	proto_register_tr();
+	proto_register_tcp();
 
 	/* Register one special-case FT_TEXT_ONLY field for use when
 		converting ethereal to new-style proto_tree. These fields

@@ -4,6 +4,6 @@
 	--release=`cat ../VERSION`               \
 	> ../ethereal.1
 
-ethereal.pod: ethereal.pod.template 
-	cat ../out | ./dfilter2pod ethereal.pod.template > ethereal.pod
+ethereal.pod: ethereal.pod.template  ../ethereal
+	../ethereal -G | ./dfilter2pod ethereal.pod.template > ethereal.pod
 

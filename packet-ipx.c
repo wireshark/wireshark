@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-ipx.c,v 1.21 1999/07/07 22:51:45 gram Exp $
+ * $Id: packet-ipx.c,v 1.22 1999/07/17 04:19:04 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -48,6 +48,11 @@
   And from the ncpfs source code by Volker Lendecke
 
 */
+	
+int proto_ipx = -1;
+int proto_spx = -1;
+int proto_ipxrip = -1;
+int proto_sap = -1;
 
 static void
 dissect_spx(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data);
@@ -223,8 +228,7 @@ dissect_ipx(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 		ipx_checksum = pntohs(&pd[offset]);
 		ipx_hops = pd[offset+4];
 
-		ti = proto_tree_add_text(tree, offset, 30,
-			"Internetwork Packet Exchange");
+		ti = proto_tree_add_item(tree, proto_ipx, offset, 30, NULL);
 		ipx_tree = proto_item_add_subtree(ti, ETT_IPX);
 		proto_tree_add_text(ipx_tree, offset,      2, "Checksum: 0x%04x",
 				ipx_checksum);
@@ -346,7 +350,7 @@ dissect_spx(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int
 		col_add_str(fd, COL_INFO, "SPX");
 
 	if (tree) {
-		ti = proto_tree_add_text(tree, offset, 12, "Sequenced Packet Exchange");
+		ti = proto_tree_add_item(tree, proto_spx, offset, 12, NULL);
 		spx_tree = proto_item_add_subtree(ti, ETT_SPX);
 
 		proto_tree_add_text(spx_tree, offset,      1,
@@ -406,8 +410,7 @@ dissect_ipxrip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 	}
 
 	if (tree) {
-		ti = proto_tree_add_text(tree, offset, END_OF_FRAME,
-			"IPX Routing Information Protocol");
+		ti = proto_tree_add_item(tree, proto_ipxrip, offset, END_OF_FRAME, NULL);
 		rip_tree = proto_item_add_subtree(ti, ETT_IPXRIP);
 
 		if (operation < 2) {
@@ -527,8 +530,7 @@ dissect_sap(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 	}
 
 	if (tree) {
-		ti = proto_tree_add_text(tree, offset, END_OF_FRAME,
-			"Service Advertising Protocol");
+		ti = proto_tree_add_text(tree, proto_sap, offset, END_OF_FRAME, NULL);
 		sap_tree = proto_item_add_subtree(ti, ETT_IPXSAP);
 
 		if (query.query_type < 4) {
@@ -574,3 +576,15 @@ dissect_sap(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 	}
 }
 
+
+void
+proto_register_ipx(void)
+{
+	proto_ipx = proto_register_protocol ("Internetwork Packet eXchange", "ipx");
+
+	proto_spx = proto_register_protocol ("Sequenced Packet eXchange", "spx");
+	
+	proto_ipxrip = proto_register_protocol ("IPX Routing Information Protocol", "ipxrip");
+
+	proto_sap = proto_register_protocol ("Service Advertisement Protocol", "sap");
+}

@@ -155,6 +155,3 @@ ethereal.1: doc/ethereal.pod VERSION
 	(cd doc ; \
 	make ../ethereal.1 )
 
-doc/ethereal.pod: doc/ethereal.pod.template ethereal
-	(cd doc ; \
-	make ethereal.pod )

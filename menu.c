@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.25 1999/07/13 03:08:06 gram Exp $
+ * $Id: menu.c,v 1.26 1999/07/17 04:19:02 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -149,7 +149,7 @@ menus_init(void) {
     set_menu_sensitivity("/Tools/Graph", FALSE);
     set_menu_sensitivity("/Tools/Summary", FALSE);
 
-    set_menu_sensitivity("/Tools/Follow TCP Stream", FALSE);
+    /*set_menu_sensitivity("/Tools/Follow TCP Stream", FALSE);*/
     set_menu_sensitivity("/Display/Match Selected", FALSE);
   }
 }

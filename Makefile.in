@@ -615,10 +615,6 @@ ethereal.1: doc/ethereal.pod VERSION
 	(cd doc ; \
 	make ../ethereal.1 )
 
-doc/ethereal.pod: doc/ethereal.pod.template ethereal
-	(cd doc ; \
-	make ethereal.pod )
-
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:
