@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\spoolss packet disassembly
  * Copyright 2001-2002, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-spoolss.c,v 1.61 2002/11/23 08:57:15 guy Exp $
+ * $Id: packet-dcerpc-spoolss.c,v 1.62 2002/11/28 04:56:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -681,7 +681,7 @@ dissect_spoolss_buffer_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	BUFFER *b = (BUFFER *)di->private_data;
 	proto_item *item;
 	guint32 size;
-	guint8 *data;
+	const guint8 *data;
 
 	if (di->conformant_run)
 		return offset;
