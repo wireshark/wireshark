@@ -76,7 +76,7 @@ static void
 dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_tree	*fh_tree;
-	proto_item	*ti;
+	proto_item	*volatile ti = NULL;
 	nstime_t	ts;
 	int		cap_len, pkt_len;
 
