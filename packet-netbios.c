@@ -5,7 +5,7 @@
  * 
  * derived from the packet-nbns.c
  *
- * $Id: packet-netbios.c,v 1.36 2001/09/28 22:43:56 guy Exp $
+ * $Id: packet-netbios.c,v 1.37 2001/09/29 00:57:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -957,20 +957,17 @@ void (*dissect_netb[])(tvbuff_t *, int, proto_tree *) = {
 static heur_dissector_list_t netbios_heur_subdissector_list;
 
 void
-dissect_netbios_payload(tvbuff_t *tvb, int offset, packet_info *pinfo,
-   proto_tree *tree, int max_data)
+dissect_netbios_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	tvbuff_t	*next_tvb;
-	const guint8	*next_pd;
-	int		next_offset;
-
-	next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+	const guint8	*pd;
+	int		offset;
+	int		max_data;
 
 	/*
 	 * Try the heuristic dissectors for NetBIOS.
 	 */
 	if (dissector_try_heuristic(netbios_heur_subdissector_list,
-				    next_tvb, pinfo, tree))
+				    tvb, pinfo, tree))
 		return;
 
 	/*
@@ -978,15 +975,16 @@ dissect_netbios_payload(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	 * (XXX - once the SMB dissector is tvbuffified, it should
 	 * become a regular heuristic dissector.)
 	 */
-	tvb_compat(next_tvb, &next_pd, &next_offset);
+	tvb_compat(tvb, &pd, &offset);
+	max_data = tvb_length(tvb);
 
-	if (dissect_smb(next_pd, next_offset, pinfo->fd, tree, max_data))
+	if (dissect_smb(pd, offset, pinfo->fd, tree, max_data))
 		return;
 
 	/*
 	 * It's none of the above.  Dissect it as data.
 	 */
-	dissect_data(next_tvb, 0, pinfo, tree);
+	dissect_data(tvb, 0, pinfo, tree);
 }
 
 static void
@@ -998,6 +996,7 @@ dissect_netbios(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint16			hdr_len, command;
 	char 			name[(NETBIOS_NAME_LEN - 1)*4 + 1];
 	int			name_type;
+	tvbuff_t		*next_tvb;
 
 	int offset = 0;
 
@@ -1070,8 +1069,8 @@ dissect_netbios(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	offset += hdr_len;			/* move past header */
 
-	dissect_netbios_payload(tvb, offset, pinfo, tree,
-			tvb_length_remaining(tvb, offset));
+	next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+	dissect_netbios_payload(next_tvb, pinfo, tree);
 }
 
 

@@ -4,7 +4,7 @@
  * Gilbert Ramirez <gram@xiexie.org>
  * Much stuff added by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-nbns.c,v 1.58 2001/09/29 00:00:26 guy Exp $
+ * $Id: packet-nbns.c,v 1.59 2001/09/29 00:57:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1158,7 +1158,6 @@ dissect_nbdgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int			msglen;
 	int			flags;
 	int			message_index;
-	int			max_data = tvb_length_remaining(tvb, offset);
 	tvbuff_t		*next_tvb;
 
 	static const value_string error_codes[] = {
@@ -1241,7 +1240,6 @@ dissect_nbdgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	offset += 10;
-	max_data -= 10;
 
 	switch (header.msg_type) {
 
@@ -1256,7 +1254,6 @@ dissect_nbdgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 
 		offset += 4;
-		max_data -= 4;
 
 		/* Source name */
 		len = get_nbns_name(tvb, offset, offset, name, &name_type);
@@ -1266,7 +1263,6 @@ dissect_nbdgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			    "Source name", name, name_type);
 		}
 		offset += len;
-		max_data -= len;
 
 		/* Destination name */
 		len = get_nbns_name(tvb, offset, offset, name, &name_type);
@@ -1276,7 +1272,6 @@ dissect_nbdgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			    "Destination name", name, name_type);
 		}
 		offset += len;
-		max_data -= len;
 
 		/*
 		 * Here we can pass the packet off to the next protocol.
@@ -1284,7 +1279,8 @@ dissect_nbdgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 * only our stuff.
 		 */
 		proto_item_set_len(ti, offset);
-		dissect_netbios_payload(tvb, offset, pinfo, tree, max_data);
+		next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+		dissect_netbios_payload(next_tvb, pinfo, tree);
 		break;
 
 	case NBDS_ERROR:
@@ -1374,6 +1370,8 @@ dissect_nbss_packet(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	int		len;
 	char		name[(NETBIOS_NAME_LEN - 1)*4 + MAXDNAME];
 	int		name_type;
+	gint		reported_len;
+	tvbuff_t	*next_tvb;
 
 	msg_type = tvb_get_guint8(tvb, offset);
 
@@ -1484,12 +1482,19 @@ dissect_nbss_packet(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	case SESSION_MESSAGE:
 	  /*
-	   * Here we can pass the packet off to the next protocol.
+	   * Here we can pass the message off to the next protocol.
 	   * Set the length of our top-level tree item to include
 	   * only our stuff.
 	   */
 	  proto_item_set_len(ti, offset);
-	  dissect_netbios_payload(tvb, offset, pinfo, tree, length);
+	  len = tvb_length_remaining(tvb, offset);
+	  reported_len = tvb_reported_length_remaining(tvb, offset);
+	  if (len > length)
+	    len = length;
+	  if (reported_len > length)
+	    reported_len = length;
+	  next_tvb = tvb_new_subset(tvb, offset, len, reported_len);
+	  dissect_netbios_payload(next_tvb, pinfo, tree);
 	  break;
 
 	}
