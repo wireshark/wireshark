@@ -1,7 +1,7 @@
 %{
 /* ascend-scanner.l
  *
- * $Id: ascend-scanner.l,v 1.23 2001/12/06 08:25:52 guy Exp $
+ * $Id: ascend-scanner.l,v 1.24 2003/07/08 02:11:09 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -280,8 +280,6 @@ task:|task|at|time:|octets { return KEYWORD; }
 (.|\n) ;
 
 %%
-
-int ascendwrap() { return 1; }
 
 void ascend_init_lexer(FILE_T fh)
 {
