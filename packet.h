@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.80 1999/08/10 04:13:35 guy Exp $
+ * $Id: packet.h,v 1.81 1999/08/10 20:05:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -97,6 +97,7 @@ typedef struct _packet_counts {
   gint           udp;
   gint           ospf;
   gint           gre;
+  gint           netbios;
   gint           other;
   gint           total;
 } packet_counts;
@@ -227,6 +228,9 @@ enum {
 	ETT_NBNS_NAME_FLAGS,
 	ETT_NBNS_QRY,
 	ETT_NBNS_QD,
+	ETT_NETB,
+	ETT_NETB_FLAGS,
+	ETT_NETB_NAME,
 	ETT_NBNS_ANS,
 	ETT_NBNS_RR,
 	ETT_NBIPX,
@@ -374,6 +378,7 @@ void capture_tr(const u_char *, guint32, packet_counts *);
  * packet_counts *
  * They should never modify the packet data.
  */
+void capture_netbios(const u_char *, int, guint32, packet_counts *);
 void capture_llc(const u_char *, int, guint32, packet_counts *);
 void capture_ip(const u_char *, int, guint32, packet_counts *);
 
@@ -418,6 +423,7 @@ void dissect_ipx(const u_char *, int, frame_data *, proto_tree *);
 void dissect_llc(const u_char *, int, frame_data *, proto_tree *);
 void dissect_lpd(const u_char *, int, frame_data *, proto_tree *);
 void dissect_nbdgm(const u_char *, int, frame_data *, proto_tree *, int);
+void dissect_netbios(const u_char *, int, frame_data *, proto_tree *);
 void dissect_nbipx_ns(const u_char *, int, frame_data *, proto_tree *, int);
 void dissect_nbns(const u_char *, int, frame_data *, proto_tree *);
 void dissect_ncp(const u_char *, int, frame_data *, proto_tree *, int);

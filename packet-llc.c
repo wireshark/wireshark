@@ -2,7 +2,7 @@
  * Routines for IEEE 802.2 LLC layer
  * Gilbert Ramirez <gramirez@tivoli.com>
  *
- * $Id: packet-llc.c,v 1.18 1999/08/04 04:37:45 guy Exp $
+ * $Id: packet-llc.c,v 1.19 1999/08/10 20:05:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -97,7 +97,7 @@ static struct sap_info	saps[] = {
 	{ 0xBA, NULL,		NULL },
 	{ 0xBC, NULL,		NULL },
 	{ 0xE0, NULL,		dissect_ipx },
-	{ 0xF0, NULL,		NULL },
+	{ 0xF0, capture_netbios, dissect_netbios },
 	{ 0xF4, NULL,		NULL },
 	{ 0xF5, NULL,		NULL },
 	{ 0xF8, NULL,		NULL },

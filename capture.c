@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.44 1999/08/10 11:30:03 deniel Exp $
+ * $Id: capture.c,v 1.45 1999/08/10 20:05:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -418,7 +418,7 @@ capture_prep_close_cb(GtkWidget *close_bt, gpointer parent_w)
 void
 capture(void) {
   GtkWidget  *cap_w, *main_vb, *count_lb, *tcp_lb, *udp_lb, 
-             *ospf_lb, *gre_lb, *other_lb, *stop_bt;
+             *ospf_lb, *gre_lb, *netbios_lb, *other_lb, *stop_bt;
   pcap_t     *pch;
   gchar       err_str[PCAP_ERRBUF_SIZE], label_str[32];
   loop_data   ld;
@@ -426,17 +426,18 @@ capture(void) {
   time_t      upd_time, cur_time;
   int         err, inpkts;
   
-  ld.go           = TRUE;
-  ld.counts.total = 0;
-  ld.max          = cf.count;
-  ld.linktype     = DLT_NULL;
-  ld.sync_packets = 0;
-  ld.counts.tcp   = 0;
-  ld.counts.udp   = 0;
-  ld.counts.ospf  = 0;
-  ld.counts.gre   = 0;
-  ld.counts.other = 0;
-  ld.pdh          = NULL;
+  ld.go             = TRUE;
+  ld.counts.total   = 0;
+  ld.max            = cf.count;
+  ld.linktype       = DLT_NULL;
+  ld.sync_packets   = 0;
+  ld.counts.tcp     = 0;
+  ld.counts.udp     = 0;
+  ld.counts.ospf    = 0;
+  ld.counts.gre     = 0;
+  ld.counts.netbios = 0;
+  ld.counts.other   = 0;
+  ld.pdh            = NULL;
 
   close_cap_file(&cf, info_bar, file_ctx);
 
@@ -523,6 +524,10 @@ capture(void) {
     gtk_box_pack_start(GTK_BOX(main_vb), gre_lb, FALSE, FALSE, 3);
     gtk_widget_show(gre_lb);
 
+    netbios_lb = gtk_label_new("NetBEUI/NBF: 0 (0.0%)");
+    gtk_box_pack_start(GTK_BOX(main_vb), netbios_lb, FALSE, FALSE, 3);
+    gtk_widget_show(netbios_lb);
+
     other_lb = gtk_label_new("Other: 0 (0.0%)");
     gtk_box_pack_start(GTK_BOX(main_vb), other_lb, FALSE, FALSE, 3);
     gtk_widget_show(other_lb);
@@ -570,6 +575,10 @@ capture(void) {
         sprintf(label_str, "GRE: %d (%.1f%%)", ld.counts.gre,
 	  pct(ld.counts.gre, ld.counts.total));
         gtk_label_set(GTK_LABEL(gre_lb), label_str);
+
+        sprintf(label_str, "NetBEUI/NBF: %d (%.1f%%)", ld.counts.netbios,
+	  pct(ld.counts.netbios, ld.counts.total));
+        gtk_label_set(GTK_LABEL(netbios_lb), label_str);
 
         sprintf(label_str, "Other: %d (%.1f%%)", ld.counts.other,
           pct(ld.counts.other, ld.counts.total));

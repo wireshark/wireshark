@@ -63,6 +63,7 @@ ethereal_SOURCES = \
 	packet-nbns.c  \
 	packet-ncp.c   \
 	packet-ncp.h   \
+	packet-netbios.c \
 	packet-nntp.c  \
 	packet-null.c  \
 	packet-osi.c   \

@@ -123,6 +123,11 @@ Thierry Andry <Thierry.Andry@advalvas.be> {
 	Linux ATM Classical IP support
 }
 
+Jeff Foster <jjfoste@woodward.com> {
+	NetBEUI/NBF support (NetBIOS atop 802.2 LLC, the
+	original NetBIOS encapsulation)
+}
+
 Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 
