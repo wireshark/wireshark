@@ -2,7 +2,7 @@
  * Routines for docsis dissection
  * Copyright 2002, Anand V. Narwani <anand[AT]narwani.org>
  *
- * $Id: packet-docsis.c,v 1.14 2003/09/09 05:49:15 guy Exp $
+ * $Id: packet-docsis.c,v 1.15 2003/09/09 07:18:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -360,7 +360,7 @@ dissect_docsis (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   else
     {
       framelen = 6 + len_sid;
-      pdulen = len_sid - ((guint16) (mac_parm & 0xFF));
+      pdulen = len_sid - (mac_parm + 2);
     }
 
 /* if this is a concatenated frame setup the length of the concatenated
