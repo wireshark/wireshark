@@ -1,7 +1,7 @@
 /* packet-ipv6.c
  * Routines for IPv6 packet disassembly
  *
- * $Id: packet-ipv6.c,v 1.80 2002/05/02 08:55:52 guy Exp $
+ * $Id: packet-ipv6.c,v 1.81 2002/05/02 11:52:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -965,18 +965,19 @@ again:
            put something in the Info column; leave it there. */
       	if (!ah) {
           if (hopopts || routing || dstopts) {
-            char *sep = "";
+            char *sep = "IPv6 ";
             if (hopopts) {
-              col_append_str(pinfo->cinfo, COL_INFO, "IPv6 hop-by-hop options");
+              col_append_fstr(pinfo->cinfo, COL_INFO, "%shop-by-hop options",
+                             sep);
               sep = ", ";
             }
             if (routing) {
-              col_append_fstr(pinfo->cinfo, COL_INFO, "%sIPv6 routing", sep);
+              col_append_fstr(pinfo->cinfo, COL_INFO, "%srouting", sep);
               sep = ", ";
             }
             if (dstopts) {
-              col_append_fstr(pinfo->cinfo, COL_INFO,
-                              "%sIPv6 destination options", sep);
+              col_append_fstr(pinfo->cinfo, COL_INFO, "%sdestination options",
+                              sep);
             }
           } else
             col_set_str(pinfo->cinfo, COL_INFO, "IPv6 no next header");
