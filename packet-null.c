@@ -1,7 +1,7 @@
 /* packet-null.c
  * Routines for null packet disassembly
  *
- * $Id: packet-null.c,v 1.58 2003/07/02 00:08:17 guy Exp $
+ * $Id: packet-null.c,v 1.59 2003/08/26 05:52:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -34,6 +34,7 @@
 #include <epan/packet.h>
 #include "packet-null.h"
 #include <epan/atalk-utils.h>
+#include "prefs.h"
 #include "packet-ip.h"
 #include "packet-ipx.h"
 #include "packet-osi.h"

@@ -4,7 +4,7 @@
  * Copyright 2001, Michal Melerowicz <michal.melerowicz@nokia.com>
  *                 Nicolas Balkota <balkota@mac.com>
  *
- * $Id: packet-gtp.c,v 1.55 2003/07/09 07:12:23 guy Exp $
+ * $Id: packet-gtp.c,v 1.56 2003/08/26 05:52:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -36,10 +36,10 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include "prefs.h"
 #include "packet-gtp.h"
 #include "packet-ipv6.h"
 #include "packet-ppp.h"
-#include "prefs.h"
 
 static dissector_table_t ppp_subdissector_table;
 

@@ -1,7 +1,7 @@
 /* crc32.h
  * Declaration of CRC-32 routine and table
  *
- * $Id: crc32.h,v 1.1 2003/08/26 05:09:55 guy Exp $
+ * $Id: crc32.h,v 1.2 2003/08/26 05:52:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -27,3 +27,5 @@
 extern const guint32 crc32_table[256];
 
 extern guint32 crc32(const unsigned char* buf, unsigned int len);
+extern guint32 crc32_802(const unsigned char* buf, unsigned int len);
+

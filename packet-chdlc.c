@@ -1,7 +1,7 @@
 /* packet-chdlc.c
  * Routines for Cisco HDLC packet disassembly
  *
- * $Id: packet-chdlc.c,v 1.19 2003/01/27 19:28:52 guy Exp $
+ * $Id: packet-chdlc.c,v 1.20 2003/08/26 05:52:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -29,9 +29,11 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include "etypes.h"
+#include "prefs.h"
 #include "chdlctypes.h"
 #include <epan/resolv.h>
 #include "packet-chdlc.h"
+#include "packet-ppp.h"
 #include "packet-ip.h"
 
 /*
@@ -104,7 +106,7 @@ const value_string chdlc_vals[] = {
 
 void
 capture_chdlc( const guchar *pd, int offset, int len, packet_counts *ld ) {
-  if (!BYTES_ARE_IN_FRAME(offset, len, 2)) {
+  if (!BYTES_ARE_IN_FRAME(offset, len, 4)) {
     ld->other++;
     return;
   }
@@ -139,6 +141,8 @@ chdlctype(guint16 chdlctype, tvbuff_t *tvb, int offset_after_chdlctype,
     call_dissector(data_handle,next_tvb, pinfo, tree);
   }
 }
+
+static gint chdlc_fcs_decode = 0; /* 0 = No FCS, 1 = 16 bit FCS, 2 = 32 bit FCS */
 
 static void
 dissect_chdlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -187,6 +191,8 @@ dissect_chdlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_uint(fh_tree, hf_chdlc_addr, tvb, 0, 1, addr);
   }
 
+  decode_fcs(tvb, fh_tree, chdlc_fcs_decode, 2);
+
   chdlctype(proto, tvb, 4, pinfo, tree, fh_tree, hf_chdlc_proto);
 }
 
@@ -205,6 +211,8 @@ proto_register_chdlc(void)
     &ett_chdlc,
   };
 
+  module_t *chdlc_module;
+
   proto_chdlc = proto_register_protocol("Cisco HDLC", "CHDLC", "chdlc");
   proto_register_field_array(proto_chdlc, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
@@ -214,6 +222,17 @@ proto_register_chdlc(void)
 	"Cisco HDLC frame type", FT_UINT16, BASE_HEX);
 
   register_dissector("chdlc", dissect_chdlc, proto_chdlc);
+
+  /* Register the preferences for the chdlc protocol */
+  chdlc_module = prefs_register_protocol(proto_chdlc, NULL);
+
+  prefs_register_enum_preference(chdlc_module,
+	"fcs_type",
+	"CHDLC Frame Checksum Type",
+	"The type of CHDLC frame checksum (none, 16-bit, 32-bit)",
+	&chdlc_fcs_decode,
+	fcs_options, FALSE);
+
 }
 
 void

@@ -1,6 +1,6 @@
 /* packet-ppp.h
  *
- * $Id: packet-ppp.h,v 1.13 2003/04/29 17:56:49 guy Exp $
+ * $Id: packet-ppp.h,v 1.14 2003/08/26 05:52:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -29,9 +29,16 @@ extern gboolean ppp_vj_decomp;/* FALSE = No VJ header decompression,
                                  TRUE  = Decompress VJ */
 void capture_ppp_hdlc(const guchar *, int, int, packet_counts *);
 
+tvbuff_t *decode_fcs(tvbuff_t *tvb, proto_tree *fh_tree, int fcs_decode, int proto_offset);
+
 /*
  * Used by the GTP dissector as well.
  */
 extern const value_string ppp_vals[];
+
+/*
+ * Used by CHDLC dissector as well.
+ */
+extern const enum_val_t fcs_options[];
 
 #endif
