@@ -1,8 +1,16 @@
 /* packet-sctp.c
  * Routines for Stream Control Transmission Protocol dissection
- * Copyright 2000, Michael Tüxen <Michael.Tuexen@icn.siemens.de>
+ * It should be compilant to
+ * - RFC 2960, for basic SCTP support
+ * - http://www.ietf.org/internet-drafts/draft-ietf-tsvwg-addip-sctp-03.txt for the add-IP extension
+ * - http://www.sctp.org/draft-ietf-tsvwg-usctp-01.txt for the 'Limited Retransmission' extension
+ * Copyright 2000, Michael Tuexen <Michael.Tuexen@icn.siemens.de>
+ * Still to do (so stay tuned)
+ * - support for reassembly
+ * - support for new checksum
+ * - code cleanup
  *
- * $Id: packet-sctp.c,v 1.24 2001/12/10 00:25:34 guy Exp $
+ * $Id: packet-sctp.c,v 1.25 2001/12/19 20:01:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -57,6 +65,7 @@ static int hf_sctp_source_port      = -1;
 static int hf_sctp_destination_port = -1;
 static int hf_sctp_verification_tag = -1;
 static int hf_sctp_checksum         = -1;
+static int hf_sctp_checksum_correct = -1;
 
 static int hf_sctp_chunk_type       = -1;
 static int hf_sctp_chunk_flags      = -1;
@@ -114,6 +123,21 @@ static int hf_sctp_cause_measure_of_staleness = -1;
 
 static int hf_sctp_cause_tsn = -1;
 
+static int hf_sctp_forward_tsn_chunk_tsn = -1;
+
+static int hf_sctp_ustreams_start = -1;
+static int hf_sctp_ustreams_end   = -1;
+
+static int hf_sctp_asconf_ack_serial = -1;
+static int hf_sctp_asconf_ack_correlation_id = -1;
+
+static int hf_sctp_asconf_serial = -1;
+static int hf_sctp_asconf_correlation_id = -1;
+static int hf_sctp_asconf_reserved = -1;
+static int hf_sctp_asconf_addr_type = -1;
+static int hf_sctp_asconf_addr = -1;
+static int hf_sctp_adap_indication = -1;
+
 static dissector_table_t sctp_port_dissector_table;
 static dissector_table_t sctp_ppi_dissector_table;
 
@@ -126,6 +150,7 @@ static gint ett_sctp_data_chunk_flags = -1;
 static gint ett_sctp_sack_chunk_gap_block = -1;
 static gint ett_sctp_supported_address_types_parameter = -1;
 static gint ett_sctp_unrecognized_parameter_parameter = -1;
+static gint ett_sctp_unreliable_streams_interval = -1;
 
 #define SCTP_DATA_CHUNK_ID               0
 #define SCTP_INIT_CHUNK_ID               1
@@ -142,6 +167,10 @@ static gint ett_sctp_unrecognized_parameter_parameter = -1;
 #define SCTP_ECNE_CHUNK_ID              12
 #define SCTP_CWR_CHUNK_ID               13
 #define SCTP_SHUTDOWN_COMPLETE_CHUNK_ID 14
+#define SCTP_FORWARD_TSN_CHUNK_ID      192 
+#define SCTP_ASCONF_ACK_CHUNK_ID      0x80
+#define SCTP_ASCONF_CHUNK_ID          0XC1
+
 #define SCTP_IETF_EXT                  255
 
 static const value_string sctp_chunk_type_values[] = {
@@ -160,6 +189,9 @@ static const value_string sctp_chunk_type_values[] = {
   { SCTP_ECNE_CHUNK_ID,              "ECNE" },
   { SCTP_CWR_CHUNK_ID,               "CWR" },
   { SCTP_SHUTDOWN_COMPLETE_CHUNK_ID, "SHUTDOWN_COMPLETE" },
+  { SCTP_FORWARD_TSN_CHUNK_ID,       "FORWARD TSN" },
+  { SCTP_ASCONF_ACK_CHUNK_ID,        "ASCONF_ACK" },
+  { SCTP_ASCONF_CHUNK_ID,            "ASCONF" },
   { SCTP_IETF_EXT,                   "IETF_EXTENSION" },
   { 0,                               NULL } };
 
@@ -172,6 +204,13 @@ static const value_string sctp_chunk_type_values[] = {
 #define HOSTNAME_ADDRESS_PARAMETER_ID        0x000b
 #define SUPPORTED_ADDRESS_TYPES_PARAMETER_ID 0x000c
 #define ECN_PARAMETER_ID                     0x8000
+#define UNRELIABLE_STREAMS_PARAMETER_ID      0xC000
+#define ADD_IP_ADDRESS_PARAMETER_ID          0xC001
+#define DEL_IP_ADDRESS_PARAMETER_ID          0xC002
+#define ERROR_CAUSE_INDICATION_PARAMETER_ID  0xC003
+#define SET_PRIMARY_ADDRESS_PARAMETER_ID     0xC004
+#define SUCCESS_REPORT_PARAMETER_ID          0xC005
+#define ADAP_LAYER_INDICATION_PARAMETER_ID   0xC006
 
 static const value_string sctp_parameter_identifier_values[] = {
   { HEARTBEAT_INFO_PARAMETER_ID,          "Heartbeat info" },
@@ -183,6 +222,13 @@ static const value_string sctp_parameter_identifier_values[] = {
   { HOSTNAME_ADDRESS_PARAMETER_ID,        "Hostname address" },
   { SUPPORTED_ADDRESS_TYPES_PARAMETER_ID, "Supported address types" },
   { ECN_PARAMETER_ID,                     "ECN" },
+  { UNRELIABLE_STREAMS_PARAMETER_ID,      "Unreliable streams" },
+  { ADD_IP_ADDRESS_PARAMETER_ID,          "Add IP address" },
+  { DEL_IP_ADDRESS_PARAMETER_ID,          "Delete IP address" },
+  { ERROR_CAUSE_INDICATION_PARAMETER_ID,  "Error cause indication" },
+  { SET_PRIMARY_ADDRESS_PARAMETER_ID,     "Set primary address" },
+  { SUCCESS_REPORT_PARAMETER_ID,          "Success report" },
+  { ADAP_LAYER_INDICATION_PARAMETER_ID,   "Adaptation Layer Indication" },
   { 0,                                    NULL } };
 
 #define PARAMETER_TYPE_LENGTH            2
@@ -234,29 +280,35 @@ static const value_string sctp_parameter_identifier_values[] = {
 #define CAUSE_TSN_LENGTH 4
 #define CAUSE_TSN_OFFSET CAUSE_INFO_OFFSET
 
-#define INVALID_STREAM_IDENTIFIER              0x01
-#define MISSING_MANDATORY_PARAMETERS           0x02
-#define STALE_COOKIE_ERROR                     0x03
-#define OUT_OF_RESOURCE                        0x04
-#define UNRESOLVABLE_ADDRESS                   0x05
-#define UNRECOGNIZED_CHUNK_TYPE                0x06
-#define INVALID_MANDATORY_PARAMETER            0x07
-#define UNRECOGNIZED_PARAMETERS                0x08
-#define NO_USER_DATA                           0x09
-#define COOKIE_RECEIVED_WHILE_SHUTTING_DOWN    0x0a
+#define INVALID_STREAM_IDENTIFIER                  0x01
+#define MISSING_MANDATORY_PARAMETERS               0x02
+#define STALE_COOKIE_ERROR                         0x03
+#define OUT_OF_RESOURCE                            0x04
+#define UNRESOLVABLE_ADDRESS                       0x05
+#define UNRECOGNIZED_CHUNK_TYPE                    0x06
+#define INVALID_MANDATORY_PARAMETER                0x07
+#define UNRECOGNIZED_PARAMETERS                    0x08
+#define NO_USER_DATA                               0x09
+#define COOKIE_RECEIVED_WHILE_SHUTTING_DOWN        0x0a
+#define REQUEST_TO_DELETE_LAST_ADDRESS             0x0c
+#define OPERATION_REFUSED_DUE_TO_RESOURCE_SHORTAGE 0X0d
+#define REQUEST_TO_DELETE_SOURCE_ADDRESS           0x0e
 
 static const value_string sctp_cause_code_values[] = {
-  { INVALID_STREAM_IDENTIFIER,           "Invalid stream identifier" },
-  { MISSING_MANDATORY_PARAMETERS,        "Missing mandator parameter" },
-  { STALE_COOKIE_ERROR,                  "Stale cookie error" },
-  { OUT_OF_RESOURCE,                     "Out of resource" },
-  { UNRESOLVABLE_ADDRESS,                "Unresolvable address" },
-  { UNRECOGNIZED_CHUNK_TYPE,             "Unrecognized chunk type " },
-  { INVALID_MANDATORY_PARAMETER,         "Invalid mandatory parameter" },
-  { UNRECOGNIZED_PARAMETERS,             "Unrecognized parameters" },
-  { NO_USER_DATA,                        "No user data" },
-  { COOKIE_RECEIVED_WHILE_SHUTTING_DOWN, "Cookie received while shutting down" },
-  { 0,                           NULL } };
+  { INVALID_STREAM_IDENTIFIER,                  "Invalid stream identifier" },
+  { MISSING_MANDATORY_PARAMETERS,               "Missing mandator parameter" },
+  { STALE_COOKIE_ERROR,                         "Stale cookie error" },
+  { OUT_OF_RESOURCE,                            "Out of resource" },
+  { UNRESOLVABLE_ADDRESS,                       "Unresolvable address" },
+  { UNRECOGNIZED_CHUNK_TYPE,                    "Unrecognized chunk type " },
+  { INVALID_MANDATORY_PARAMETER,                "Invalid mandatory parameter" },
+  { UNRECOGNIZED_PARAMETERS,                    "Unrecognized parameters" },
+  { NO_USER_DATA,                               "No user data" },
+  { COOKIE_RECEIVED_WHILE_SHUTTING_DOWN,        "Cookie received while shutting down" },
+  { REQUEST_TO_DELETE_LAST_ADDRESS,             "Request to delete last address" },
+  { OPERATION_REFUSED_DUE_TO_RESOURCE_SHORTAGE, "Operation refused due to resource shortage" },
+  { REQUEST_TO_DELETE_SOURCE_ADDRESS,           "Request to delete source address" },
+  { 0,                                          NULL } };
 
 #define NOT_SPECIFIED_PROTOCOL_ID  0
 #define IUA_PAYLOAD_PROTOCOL_ID    1
@@ -474,6 +526,18 @@ static char
     return "incorrect";
 }
 
+static gboolean 
+sctp_checksum_correct(tvbuff_t *tvb, guint orig_checksum)
+{
+  guint length;
+  
+  length = tvb_length(tvb);
+  if (orig_checksum == sctp_adler_32(tvb_get_ptr(tvb, 0, length), length))
+    return TRUE;
+  else
+    return FALSE;
+}
+
 static guint 
 nr_of_padding_bytes (guint length)
 {
@@ -492,13 +556,16 @@ nr_of_padding_bytes (guint length)
  */
 
 static void
-dissect_parameter(tvbuff_t *, proto_tree *);
+dissect_parameter(tvbuff_t *, packet_info *, proto_tree *);
+
+static void
+dissect_error_cause(tvbuff_t *cause_tvb, packet_info *pinfo, proto_tree *chunk_tree);
 
 static gboolean
 dissect_sctp_chunk(tvbuff_t *, packet_info *, proto_tree *, proto_tree *);
 
 static void 
-dissect_tlv_parameter_list(tvbuff_t *parameter_list_tvb, proto_tree *tree)
+dissect_tlv_parameter_list(tvbuff_t *parameter_list_tvb, packet_info *pinfo, proto_tree *tree)
 {
   guint offset, length, padding_length, total_length;
   tvbuff_t *parameter_tvb;
@@ -510,7 +577,7 @@ dissect_tlv_parameter_list(tvbuff_t *parameter_list_tvb, proto_tree *tree)
     total_length   = length + padding_length;
     /* create a tvb for the chunk including the padding bytes */
     parameter_tvb    = tvb_new_subset(parameter_list_tvb, offset, total_length, total_length);
-    dissect_parameter(parameter_tvb, tree); 
+    dissect_parameter(parameter_tvb, pinfo, tree); 
     /* get rid of the handled parameter */
     offset += total_length;
   }
@@ -573,7 +640,7 @@ dissect_state_cookie_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tr
 }
 
 static void
-dissect_unrecognized_parameters_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
+dissect_unrecognized_parameters_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   guint16 length, padding_length, parameter_value_length;
   tvbuff_t *unrecognized_parameters_tvb;
@@ -585,7 +652,7 @@ dissect_unrecognized_parameters_parameter(tvbuff_t *parameter_tvb, proto_tree *p
 
   unrecognized_parameters_tvb = tvb_new_subset(parameter_tvb, PARAMETER_VALUE_OFFSET, 
 					       parameter_value_length, parameter_value_length);
-  dissect_tlv_parameter_list(unrecognized_parameters_tvb, parameter_tree);
+  dissect_tlv_parameter_list(unrecognized_parameters_tvb, pinfo, parameter_tree);
    
   proto_item_set_text(parameter_item, "Unrecognized parameter of type");
 }
@@ -660,6 +727,119 @@ dissect_ecn_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto
    proto_item_set_text(parameter_item, "ECN parameter");
 }
 
+#define USTREAMS_START_LENGTH    2
+#define USTREAMS_END_LENGTH      2
+#define USTREAMS_INTERVAL_LENGTH (USTREAMS_START_LENGTH + USTREAMS_END_LENGTH)
+
+static void
+dissect_unreliable_streams_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
+{  
+    guint16 length, start, end, number_of_intervals, interval_number;
+    proto_item *interval_item;
+    proto_tree *interval_tree;
+    gint interval_offset;
+    
+    length              = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
+    number_of_intervals = (length - PARAMETER_HEADER_LENGTH) / USTREAMS_INTERVAL_LENGTH;
+    
+    interval_offset     = PARAMETER_VALUE_OFFSET;
+    for(interval_number = 1; interval_number <= number_of_intervals; interval_number++) {
+      start = tvb_get_ntohs(parameter_tvb, interval_offset);
+      end   = tvb_get_ntohs(parameter_tvb, interval_offset + USTREAMS_START_LENGTH);
+      interval_item = proto_tree_add_text(parameter_tree, parameter_tvb, interval_offset, USTREAMS_INTERVAL_LENGTH, "Unreliable streams (%u-%u)", start, end);
+      interval_tree = proto_item_add_subtree(interval_item, ett_sctp_unreliable_streams_interval);
+      proto_tree_add_uint(interval_tree, hf_sctp_ustreams_start, parameter_tvb, interval_offset, USTREAMS_START_LENGTH, start);
+      proto_tree_add_uint(interval_tree, hf_sctp_ustreams_end,  parameter_tvb, interval_offset + USTREAMS_START_LENGTH, USTREAMS_END_LENGTH, end);
+      interval_offset += USTREAMS_INTERVAL_LENGTH;
+    };
+   proto_item_set_text(parameter_item, "Unreliable streams parameter");
+}
+
+static void
+dissect_add_ip_address_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *parameter_tree, proto_item *parameter_item)
+{
+  guint16 length, parameter_value_length;
+  tvbuff_t *address_tvb;
+
+  length                 = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
+  parameter_value_length = length - PARAMETER_HEADER_LENGTH;
+
+  address_tvb            =  tvb_new_subset(parameter_tvb, PARAMETER_VALUE_OFFSET, parameter_value_length, parameter_value_length);
+  dissect_parameter(address_tvb, pinfo, parameter_tree); 
+
+  proto_item_set_text(parameter_item, "Add IP address parameter");
+}
+
+static void
+dissect_del_ip_address_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *parameter_tree, proto_item *parameter_item)
+{
+  guint16 length, parameter_value_length;
+  tvbuff_t *address_tvb;
+
+  length                 = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
+  parameter_value_length = length - PARAMETER_HEADER_LENGTH;
+
+  address_tvb            =  tvb_new_subset(parameter_tvb, PARAMETER_VALUE_OFFSET, parameter_value_length, parameter_value_length);
+  dissect_parameter(address_tvb, pinfo, parameter_tree); 
+
+  proto_item_set_text(parameter_item, "Delete IP address parameter");
+}
+
+static void
+dissect_error_cause_indication_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *parameter_tree, proto_item *parameter_item)
+{
+  guint16 length, padding_length, total_length;
+  gint offset;
+  tvbuff_t *error_cause_tvb;
+
+  offset = PARAMETER_VALUE_OFFSET;
+  while(tvb_length_remaining(parameter_tvb, offset)) {
+    length         = tvb_get_ntohs(parameter_tvb, offset + CAUSE_LENGTH_OFFSET);
+    padding_length = nr_of_padding_bytes(length);
+    total_length   = length + padding_length;
+    /* create a tvb for the chunk including the padding bytes */
+    error_cause_tvb    = tvb_new_subset(parameter_tvb, offset , total_length, total_length);
+    dissect_error_cause(error_cause_tvb, pinfo, parameter_tree); 
+    /* get rid of the handled parameter */
+    offset += total_length;
+  }
+  proto_item_set_text(parameter_item, "Error cause indication");
+}
+
+static void
+dissect_set_primary_address_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *parameter_tree, proto_item *parameter_item)
+{
+  guint16 length, parameter_value_length;
+  tvbuff_t *address_tvb;
+
+  length                 = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
+  parameter_value_length = length - PARAMETER_HEADER_LENGTH;
+
+  address_tvb            =  tvb_new_subset(parameter_tvb, PARAMETER_VALUE_OFFSET, parameter_value_length, parameter_value_length);
+  dissect_parameter(address_tvb, pinfo, parameter_tree); 
+
+  proto_item_set_text(parameter_item, "Set primary address parameter");
+}
+
+static void
+dissect_success_report_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
+{
+   proto_item_set_text(parameter_item, "Success report parameter");
+}
+
+#define ADAP_INDICATION_LENGTH 4
+#define ADAP_INDICATION_OFFSET PARAMETER_VALUE_OFFSET
+
+static void
+dissect_adap_indication_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
+{
+  guint32 indication;
+
+  indication =  tvb_get_ntohl(parameter_tvb, ADAP_INDICATION_OFFSET);
+  proto_tree_add_uint(parameter_tree, hf_sctp_adap_indication, parameter_tvb, ADAP_INDICATION_OFFSET, ADAP_INDICATION_LENGTH, indication);
+  proto_item_set_text(parameter_item, "Adaptation layer indication");
+}
+
 static void
 dissect_unknown_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
@@ -679,7 +859,7 @@ dissect_unknown_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, p
 }
 
 static void
-dissect_parameter(tvbuff_t *parameter_tvb, proto_tree *chunk_tree)
+dissect_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *chunk_tree)
 {
   guint16 type, length, padding_length, total_length;
   proto_item *parameter_item;
@@ -716,7 +896,7 @@ dissect_parameter(tvbuff_t *parameter_tvb, proto_tree *chunk_tree)
     dissect_state_cookie_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
   case UNREC_PARA_PARAMETER_ID:
-    dissect_unrecognized_parameters_parameter(parameter_tvb, parameter_tree, parameter_item);
+    dissect_unrecognized_parameters_parameter(parameter_tvb, pinfo,  parameter_tree, parameter_item);
     break;
   case COOKIE_PRESERVATIVE_PARAMETER_ID:
     dissect_cookie_preservative_parameter(parameter_tvb, parameter_tree, parameter_item);
@@ -730,6 +910,27 @@ dissect_parameter(tvbuff_t *parameter_tvb, proto_tree *chunk_tree)
   case ECN_PARAMETER_ID:
     dissect_ecn_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
+  case UNRELIABLE_STREAMS_PARAMETER_ID:
+    dissect_unreliable_streams_parameter(parameter_tvb, parameter_tree, parameter_item);
+    break;
+  case ADD_IP_ADDRESS_PARAMETER_ID:
+    dissect_add_ip_address_parameter(parameter_tvb, pinfo, parameter_tree, parameter_item);
+    break;
+  case DEL_IP_ADDRESS_PARAMETER_ID:
+    dissect_del_ip_address_parameter(parameter_tvb, pinfo, parameter_tree, parameter_item);
+    break;
+  case ERROR_CAUSE_INDICATION_PARAMETER_ID:
+    dissect_error_cause_indication_parameter(parameter_tvb, pinfo, parameter_tree, parameter_item);
+    break;
+  case SET_PRIMARY_ADDRESS_PARAMETER_ID:
+    dissect_set_primary_address_parameter(parameter_tvb, pinfo, parameter_tree, parameter_item);
+    break;    
+  case SUCCESS_REPORT_PARAMETER_ID:
+    dissect_success_report_parameter(parameter_tvb, parameter_tree, parameter_item);
+    break; 
+  case ADAP_LAYER_INDICATION_PARAMETER_ID:
+    dissect_adap_indication_parameter(parameter_tvb, parameter_tree, parameter_item);
+    break;    
   default:
     dissect_unknown_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
@@ -806,7 +1007,7 @@ dissect_out_of_resource_cause(tvbuff_t *cause_tvb, proto_tree *cause_tree, proto
 }
 
 static void
-dissect_unresolvable_address_cause(tvbuff_t *cause_tvb, proto_tree *cause_tree, proto_item *cause_item)
+dissect_unresolvable_address_cause(tvbuff_t *cause_tvb, packet_info *pinfo, proto_tree *cause_tree, proto_item *cause_item)
 {
   guint16 code, length, parameter_length, parameter_type;
   tvbuff_t *parameter_tvb;
@@ -818,7 +1019,7 @@ dissect_unresolvable_address_cause(tvbuff_t *cause_tvb, proto_tree *cause_tree, 
   parameter_tvb = tvb_new_subset(cause_tvb, CAUSE_INFO_OFFSET, 
 				 parameter_length, parameter_length);
 
-  dissect_parameter(parameter_tvb, cause_tree);
+  dissect_parameter(parameter_tvb, pinfo, cause_tree);
   parameter_type = tvb_get_ntohs(parameter_tvb, PARAMETER_TYPE_OFFSET);
  
   proto_item_set_text(cause_item, "Error cause reporting unresolvable address of type 0x%04x (%s)",
@@ -837,8 +1038,7 @@ dissect_unrecognized_chunk_type_cause(tvbuff_t *cause_tvb,  packet_info *pinfo,
   
   chunk_length = length - CAUSE_HEADER_LENGTH;
 
-  unrecognized_chunk_tvb = tvb_new_subset(cause_tvb, CAUSE_INFO_OFFSET, 
-					  chunk_length, chunk_length);
+  unrecognized_chunk_tvb = tvb_new_subset(cause_tvb, CAUSE_INFO_OFFSET, chunk_length, chunk_length);
   dissect_sctp_chunk(unrecognized_chunk_tvb, pinfo, cause_tree,cause_tree);
 
   unrecognized_type   = tvb_get_guint8(unrecognized_chunk_tvb, CHUNK_TYPE_OFFSET);
@@ -855,19 +1055,17 @@ dissect_invalid_mandatory_parameter_cause(tvbuff_t *cause_tvb, proto_tree *cause
 }
 
 static void
-dissect_unrecognized_parameters_cause(tvbuff_t *cause_tvb, proto_tree *cause_tree, proto_item *cause_item)
+dissect_unrecognized_parameters_cause(tvbuff_t *cause_tvb, packet_info *pinfo, proto_tree *cause_tree, proto_item *cause_item)
 {
   guint16 length, padding_length, cause_info_length;
   tvbuff_t *unrecognized_parameters_tvb;
 
-  length = tvb_get_ntohs(cause_tvb, CAUSE_LENGTH_OFFSET);
-  padding_length = nr_of_padding_bytes(length);
-
+  length            = tvb_get_ntohs(cause_tvb, CAUSE_LENGTH_OFFSET);
+  padding_length    = nr_of_padding_bytes(length);
   cause_info_length = length - CAUSE_HEADER_LENGTH + padding_length;
 
-  unrecognized_parameters_tvb = tvb_new_subset(cause_tvb, CAUSE_INFO_OFFSET, 
-					       cause_info_length, cause_info_length);
-  dissect_tlv_parameter_list(unrecognized_parameters_tvb, cause_tree);
+  unrecognized_parameters_tvb = tvb_new_subset(cause_tvb, CAUSE_INFO_OFFSET, cause_info_length, cause_info_length);
+  dissect_tlv_parameter_list(unrecognized_parameters_tvb, pinfo, cause_tree);
  
   proto_item_set_text(cause_item, "Error cause reporting unrecognized parameters");
 }
@@ -891,6 +1089,45 @@ static void
 dissect_cookie_received_while_shutting_down_cause(tvbuff_t *cause_tvb, proto_tree *cause_tree, proto_item *cause_item)
 {
   proto_item_set_text(cause_item, "Error cause reporting cookie reception while shutting down");
+}
+
+static void
+dissect_delete_last_address_cause(tvbuff_t *cause_tvb, packet_info *pinfo, proto_tree *cause_tree, proto_item *cause_item)
+{
+  guint16 length, cause_info_length;
+  tvbuff_t *parameter_tvb;
+
+  length = tvb_get_ntohs(cause_tvb, CAUSE_LENGTH_OFFSET);
+  cause_info_length = length - CAUSE_HEADER_LENGTH;
+  parameter_tvb    = tvb_new_subset(cause_tvb, CAUSE_INFO_OFFSET, cause_info_length, cause_info_length);
+  dissect_parameter(parameter_tvb, pinfo, cause_tree); 
+  proto_item_set_text(cause_item, "Delete last address cause");
+}
+
+static void
+dissect_resource_outage_cause(tvbuff_t *cause_tvb, packet_info *pinfo, proto_tree *cause_tree, proto_item *cause_item)
+{
+  guint16 length, cause_info_length;
+  tvbuff_t *parameter_tvb;
+
+  length = tvb_get_ntohs(cause_tvb, CAUSE_LENGTH_OFFSET);
+  cause_info_length = length - CAUSE_HEADER_LENGTH;
+  parameter_tvb    = tvb_new_subset(cause_tvb, CAUSE_INFO_OFFSET, cause_info_length, cause_info_length);
+  dissect_parameter(parameter_tvb, pinfo, cause_tree); 
+  proto_item_set_text(cause_item, "Operation refused due to resource shortage");
+}
+
+static void
+dissect_delete_source_address_cause(tvbuff_t *cause_tvb, packet_info *pinfo, proto_tree *cause_tree, proto_item *cause_item)
+{
+  guint16 length, cause_info_length;
+  tvbuff_t *parameter_tvb;
+
+  length = tvb_get_ntohs(cause_tvb, CAUSE_LENGTH_OFFSET);
+  cause_info_length = length - CAUSE_HEADER_LENGTH;
+  parameter_tvb    = tvb_new_subset(cause_tvb, CAUSE_INFO_OFFSET, cause_info_length, cause_info_length);
+  dissect_parameter(parameter_tvb, pinfo, cause_tree); 
+  proto_item_set_text(cause_item, "Delete source address cause");
 }
 
 static void
@@ -949,7 +1186,7 @@ dissect_error_cause(tvbuff_t *cause_tvb, packet_info *pinfo, proto_tree *chunk_t
     dissect_out_of_resource_cause(cause_tvb, cause_tree, cause_item);
     break;
   case UNRESOLVABLE_ADDRESS:
-    dissect_unresolvable_address_cause(cause_tvb, cause_tree, cause_item);
+    dissect_unresolvable_address_cause(cause_tvb, pinfo, cause_tree, cause_item);
     break;
   case UNRECOGNIZED_CHUNK_TYPE:
     dissect_unrecognized_chunk_type_cause(cause_tvb, pinfo, cause_tree, cause_item);
@@ -958,13 +1195,22 @@ dissect_error_cause(tvbuff_t *cause_tvb, packet_info *pinfo, proto_tree *chunk_t
     dissect_invalid_mandatory_parameter_cause(cause_tvb, cause_tree, cause_item);
     break;
   case UNRECOGNIZED_PARAMETERS:
-    dissect_unrecognized_parameters_cause(cause_tvb, cause_tree, cause_item);
+    dissect_unrecognized_parameters_cause(cause_tvb, pinfo, cause_tree, cause_item);
     break;
   case NO_USER_DATA:
     dissect_no_user_data_cause(cause_tvb, cause_tree, cause_item);
     break;
   case COOKIE_RECEIVED_WHILE_SHUTTING_DOWN:
     dissect_cookie_received_while_shutting_down_cause(cause_tvb, cause_tree, cause_item);
+    break;
+  case REQUEST_TO_DELETE_LAST_ADDRESS:
+    dissect_delete_last_address_cause(cause_tvb, pinfo, cause_tree, cause_item);
+    break;
+  case OPERATION_REFUSED_DUE_TO_RESOURCE_SHORTAGE:
+    dissect_resource_outage_cause(cause_tvb, pinfo, cause_tree, cause_item);
+    break;
+  case REQUEST_TO_DELETE_SOURCE_ADDRESS:
+    dissect_delete_source_address_cause(cause_tvb, pinfo, cause_tree, cause_item);
     break;
   default:
     dissect_unknown_cause(cause_tvb, cause_tree, cause_item);
@@ -1109,7 +1355,7 @@ dissect_init_chunk(tvbuff_t *chunk_tvb,  packet_info *pinfo, proto_tree *tree,
     
     /* handle variable paramters */
     parameter_list_tvb = tvb_new_subset(chunk_tvb, INIT_CHUNK_VARIABLE_LENGTH_PARAMETER_OFFSET, -1, -1);
-    dissect_tlv_parameter_list(parameter_list_tvb, chunk_tree);
+    dissect_tlv_parameter_list(parameter_list_tvb, pinfo, chunk_tree);
     
     proto_item_set_text(chunk_item, 
 			"%s chunk requesting for %u outbound stream%s and accepting up to %u inbound stream%s",
@@ -1221,7 +1467,7 @@ dissect_heartbeat_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tre
     total_length   = info_length + padding_length;
     parameter_tvb  = tvb_new_subset(chunk_tvb, HEARTBEAT_CHUNK_INFO_OFFSET, total_length, total_length);
     
-    dissect_parameter(parameter_tvb, chunk_tree);
+    dissect_parameter(parameter_tvb, pinfo, chunk_tree);
     
     proto_item_set_text(chunk_item, "HEARTBEAT chunk");
   }
@@ -1245,7 +1491,7 @@ dissect_heartbeat_ack_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree 
 
     parameter_tvb  = tvb_new_subset(chunk_tvb, HEARTBEAT_CHUNK_INFO_OFFSET, total_length, total_length);
     
-    dissect_parameter(parameter_tvb, chunk_tree);
+    dissect_parameter(parameter_tvb, pinfo, chunk_tree);
     
     proto_item_set_text(chunk_item, "HEARTBEAT ACK chunk");
   } 
@@ -1449,6 +1695,104 @@ dissect_shutdown_complete_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_t
   } 
 }
 
+#define FORWARD_TSN_CHUNK_TSN_OFFSET CHUNK_VALUE_OFFSET
+#define FORWARD_TSN_CHUNK_TSN_LENGTH 4
+
+static void
+dissect_forward_tsn_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tree, proto_tree *chunk_tree, proto_item *chunk_item, proto_item *flags_item)
+{ 
+  guint32 tsn;
+  
+  if (check_col(pinfo->cinfo, COL_INFO))
+    col_append_str(pinfo->cinfo, COL_INFO, "FORWARD TSN ");
+
+  if (chunk_tree) {
+    tsn = tvb_get_ntohl(chunk_tvb, FORWARD_TSN_CHUNK_TSN_OFFSET);
+    proto_tree_add_uint(chunk_tree, hf_sctp_forward_tsn_chunk_tsn, chunk_tvb, FORWARD_TSN_CHUNK_TSN_OFFSET, FORWARD_TSN_CHUNK_TSN_LENGTH, tsn);
+    proto_item_set_text(chunk_item, "FORWARD TSN chunk (new cumulative TSN %u)", tsn);
+  } 
+}
+
+#define SERIAL_NUMBER_LENGTH    4
+#define CORRELATION_ID_LENGTH   4
+#define ASCONF_RESERVED_LENGTH  3
+#define ASCONF_ADDR_TYPE_LENGTH 1
+#define ASCONF_ADDR_LENGTH      16
+#define SERIAL_NUMBER_OFFSET    PARAMETER_VALUE_OFFSET
+
+static void
+dissect_asconf_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tree, proto_tree *chunk_tree, proto_item *chunk_item, proto_item *flags_item)
+{ 
+  guint32 serial_number, correlation_id;
+  guint offset, length, padding_length, total_length;
+  guint8 addr_type;
+  tvbuff_t *parameter_tvb;
+
+  if (check_col(pinfo->cinfo, COL_INFO))
+    col_append_str(pinfo->cinfo, COL_INFO, "ASCONF ");
+
+  if (chunk_tree) {
+    offset = SERIAL_NUMBER_OFFSET;
+    serial_number    = tvb_get_ntohl(chunk_tvb, offset);
+    proto_tree_add_uint(chunk_tree, hf_sctp_asconf_serial, chunk_tvb, offset, SERIAL_NUMBER_LENGTH, serial_number);
+    offset          += SERIAL_NUMBER_LENGTH;
+    proto_tree_add_bytes(chunk_tree, hf_sctp_asconf_reserved, chunk_tvb, offset, ASCONF_RESERVED_LENGTH, tvb_get_ptr(chunk_tvb, offset, ASCONF_RESERVED_LENGTH));
+    offset          += ASCONF_RESERVED_LENGTH;
+    addr_type = tvb_get_guint8(chunk_tvb, offset);
+    proto_tree_add_uint(chunk_tree, hf_sctp_asconf_addr_type, chunk_tvb, offset, ASCONF_ADDR_TYPE_LENGTH, addr_type);
+    offset          += ASCONF_ADDR_TYPE_LENGTH;
+    proto_tree_add_bytes(chunk_tree, hf_sctp_asconf_addr, chunk_tvb, offset, ASCONF_ADDR_LENGTH, tvb_get_ptr(chunk_tvb, offset, ASCONF_ADDR_LENGTH));
+    offset          += ASCONF_ADDR_LENGTH;
+    proto_item_set_text(chunk_item, "ASCONF chunk");
+    
+    while(tvb_length_remaining(chunk_tvb, offset)) {
+      correlation_id = tvb_get_ntohl(chunk_tvb, offset);
+      proto_tree_add_uint(chunk_tree, hf_sctp_asconf_correlation_id, chunk_tvb, offset, CORRELATION_ID_LENGTH, correlation_id);
+      offset        += CORRELATION_ID_LENGTH;
+      length         = tvb_get_ntohs(chunk_tvb, offset + PARAMETER_LENGTH_OFFSET);
+      padding_length = nr_of_padding_bytes(length);
+      total_length   = length + padding_length;
+      /* create a tvb for the chunk including the padding bytes */
+      parameter_tvb  = tvb_new_subset(chunk_tvb, offset, total_length, total_length);
+      dissect_parameter(parameter_tvb, pinfo, chunk_tree); 
+      /* get rid of the handled parameter */
+      offset        += total_length;
+    }
+  } 
+}
+
+static void
+dissect_asconf_ack_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tree, proto_tree *chunk_tree, proto_item *chunk_item, proto_item *flags_item)
+{ 
+  guint32 serial_number, correlation_id;
+  guint offset, length, padding_length, total_length;
+  tvbuff_t *parameter_tvb;
+
+  if (check_col(pinfo->cinfo, COL_INFO))
+    col_append_str(pinfo->cinfo, COL_INFO, "ASCONF-ACK ");
+
+  if (chunk_tree) {
+    serial_number = tvb_get_ntohl(chunk_tvb, SERIAL_NUMBER_OFFSET);
+    proto_tree_add_uint(chunk_tree, hf_sctp_asconf_ack_serial, chunk_tvb, SERIAL_NUMBER_OFFSET, SERIAL_NUMBER_LENGTH, serial_number);
+    proto_item_set_text(chunk_item, "ASCONF-ACK chunk");
+    
+    offset = SERIAL_NUMBER_OFFSET + SERIAL_NUMBER_LENGTH;
+    while(tvb_length_remaining(chunk_tvb, offset)) {
+      correlation_id = tvb_get_ntohl(chunk_tvb, offset);
+      proto_tree_add_uint(chunk_tree, hf_sctp_asconf_ack_correlation_id, chunk_tvb, offset, CORRELATION_ID_LENGTH, correlation_id);
+      offset        += CORRELATION_ID_LENGTH;
+      length         = tvb_get_ntohs(chunk_tvb, offset + PARAMETER_LENGTH_OFFSET);
+      padding_length = nr_of_padding_bytes(length);
+      total_length   = length + padding_length;
+      /* create a tvb for the chunk including the padding bytes */
+      parameter_tvb  = tvb_new_subset(chunk_tvb, offset, total_length, total_length);
+      dissect_parameter(parameter_tvb, pinfo, chunk_tree); 
+      /* get rid of the handled parameter */
+      offset        += total_length;
+    }
+  } 
+}
+
 static void
 dissect_unknown_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tree,
 		      proto_tree *chunk_tree, proto_item *chunk_item, proto_item *flags_item)
@@ -1500,20 +1844,13 @@ dissect_sctp_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tree, pr
  
   if (tree) {
     /* create proto_tree stuff */
-    chunk_item   = proto_tree_add_text(sctp_tree, chunk_tvb,
-				       CHUNK_HEADER_OFFSET, tvb_length(chunk_tvb), "Incomplete chunk");
+    chunk_item   = proto_tree_add_text(sctp_tree, chunk_tvb, CHUNK_HEADER_OFFSET, tvb_length(chunk_tvb), "Incomplete chunk");
     chunk_tree   = proto_item_add_subtree(chunk_item, ett_sctp_chunk);
     
     /* then insert the chunk header components into the protocol tree */
-    proto_tree_add_uint(chunk_tree, hf_sctp_chunk_type, 
-			chunk_tvb, CHUNK_TYPE_OFFSET, CHUNK_TYPE_LENGTH,
-			type);
-    flags_item = proto_tree_add_uint(chunk_tree, hf_sctp_chunk_flags, 
-				     chunk_tvb, CHUNK_FLAGS_OFFSET, CHUNK_FLAGS_LENGTH,
-				     flags);
-    proto_tree_add_uint(chunk_tree, hf_sctp_chunk_length, 
-			chunk_tvb, CHUNK_LENGTH_OFFSET, CHUNK_LENGTH_LENGTH,
-			length);
+    proto_tree_add_uint(chunk_tree, hf_sctp_chunk_type, chunk_tvb, CHUNK_TYPE_OFFSET, CHUNK_TYPE_LENGTH, type);
+    flags_item = proto_tree_add_uint(chunk_tree, hf_sctp_chunk_flags, chunk_tvb, CHUNK_FLAGS_OFFSET, CHUNK_FLAGS_LENGTH, flags);
+    proto_tree_add_uint(chunk_tree, hf_sctp_chunk_length, chunk_tvb, CHUNK_LENGTH_OFFSET, CHUNK_LENGTH_LENGTH, length);
   } else {
     chunk_tree = NULL;
     chunk_item = NULL;
@@ -1567,7 +1904,16 @@ dissect_sctp_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tree, pr
     break;
   case SCTP_SHUTDOWN_COMPLETE_CHUNK_ID:
     dissect_shutdown_complete_chunk(chunk_tvb, pinfo, tree, chunk_tree, chunk_item, flags_item);
-      break;
+    break;
+  case SCTP_FORWARD_TSN_CHUNK_ID:
+    dissect_forward_tsn_chunk(chunk_tvb, pinfo, tree, chunk_tree, chunk_item, flags_item);
+    break;
+  case SCTP_ASCONF_ACK_CHUNK_ID:
+    dissect_asconf_ack_chunk(chunk_tvb, pinfo, tree, chunk_tree, chunk_item, flags_item);
+    break;
+  case SCTP_ASCONF_CHUNK_ID:
+    dissect_asconf_chunk(chunk_tvb, pinfo, tree, chunk_tree, chunk_item, flags_item);
+    break;
   default:
     dissect_unknown_chunk(chunk_tvb, pinfo, tree, chunk_tree, chunk_item, flags_item);
     break;
@@ -1576,8 +1922,7 @@ dissect_sctp_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tree, pr
 }
 
 static void
-dissect_sctp_chunks(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-		    proto_item *sctp_item, proto_tree *sctp_tree)
+dissect_sctp_chunks(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *sctp_item, proto_tree *sctp_tree)
 { 
   tvbuff_t *chunk_tvb;
   guint16 length, padding_length, total_length;
@@ -1625,7 +1970,9 @@ static void
 dissect_sctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   guint16 source_port, destination_port;
-  guint32 verification_tag, checksum;
+  guint32 verification_tag, checksum, calculated_checksum;
+  guint length;
+  gboolean checksum_correct;
   proto_item *sctp_item;
   proto_tree *sctp_tree;
 
@@ -1656,19 +2003,21 @@ dissect_sctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     sctp_tree = proto_item_add_subtree(sctp_item, ett_sctp);
 
     /* add the components of the common header to the protocol tree */
-    proto_tree_add_uint(sctp_tree, hf_sctp_source_port, 
-			tvb, SOURCE_PORT_OFFSET, SOURCE_PORT_LENGTH,
-			source_port);
-    proto_tree_add_uint(sctp_tree, hf_sctp_destination_port,
-			tvb, DESTINATION_PORT_OFFSET, DESTINATION_PORT_LENGTH,
-			destination_port);
-    proto_tree_add_uint(sctp_tree, hf_sctp_verification_tag,
-			tvb, VERIFICATION_TAG_OFFSET, VERIFICATION_TAG_LENGTH,
-			verification_tag);
-    proto_tree_add_uint_format(sctp_tree, hf_sctp_checksum,
-			       tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH, checksum,
-			       "Adler-32 checksum: 0x%08x (%s)",
-			       checksum, sctp_checksum_state(tvb, checksum));
+    proto_tree_add_uint(sctp_tree, hf_sctp_source_port, tvb, SOURCE_PORT_OFFSET, SOURCE_PORT_LENGTH, source_port);
+    proto_tree_add_uint(sctp_tree, hf_sctp_destination_port, tvb, DESTINATION_PORT_OFFSET, DESTINATION_PORT_LENGTH, destination_port);
+    proto_tree_add_uint(sctp_tree, hf_sctp_verification_tag, tvb, VERIFICATION_TAG_OFFSET, VERIFICATION_TAG_LENGTH, verification_tag);
+  
+    length = tvb_length(tvb);
+    calculated_checksum = sctp_adler_32(tvb_get_ptr(tvb, 0, length), length);
+    checksum_correct = (checksum == calculated_checksum);
+    if (checksum_correct)
+      proto_tree_add_uint_format(sctp_tree, hf_sctp_checksum, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH, checksum, 
+                                 "Adler-32 checksum: 0x%08x (correct)", checksum);
+    else {
+      proto_tree_add_uint_format(sctp_tree, hf_sctp_checksum, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH, checksum,
+                                 "Adler-32 checksum: 0x%08x (incorrect, should be 0x%08x)", checksum, calculated_checksum);    
+      proto_tree_add_boolean_hidden(sctp_tree, hf_sctp_checksum_correct, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH, checksum_correct);
+    };
   } else {
     sctp_tree = NULL;
     sctp_item = NULL;
@@ -1686,23 +2035,28 @@ proto_register_sctp(void)
   static hf_register_info hf[] = {
     { &hf_sctp_source_port,
       { "Source port", "sctp.srcport",
-	FT_UINT16, BASE_DEC, NULL, 0x0,          
-	"", HFILL }
+	      FT_UINT16, BASE_DEC, NULL, 0x0,          
+	      "", HFILL }
     },
     { &hf_sctp_destination_port,
       { "Destination port", "sctp.dstport",
-	FT_UINT16, BASE_DEC, NULL, 0x0,          
-	"", HFILL }
+	       FT_UINT16, BASE_DEC, NULL, 0x0,          
+	       "", HFILL }
     }, 
     { &hf_sctp_verification_tag,
       { "Verification tag", "sctp.verfication_tag",
-	FT_UINT32, BASE_HEX, NULL, 0x0,          
-	"", HFILL }
+	       FT_UINT32, BASE_HEX, NULL, 0x0,          
+	       "", HFILL }
     },
     { &hf_sctp_checksum,
       { "Adler-32 checksum", "sctp.checksum",
-	FT_UINT32, BASE_HEX, NULL, 0x0,          
-	"", HFILL }
+	      FT_UINT32, BASE_HEX, NULL, 0x0,          
+	      "", HFILL }
+    },
+    { &hf_sctp_checksum_correct,
+      { "Adler-32 checksum correct", "sctp.checksum_correct",
+	      FT_BOOLEAN, BASE_NONE, NULL, 0x0,          
+	      "", HFILL }
     },
     { &hf_sctp_chunk_type,
       { "Identifier", "sctp.chunk_type",
@@ -1839,6 +2193,11 @@ proto_register_sctp(void)
        FT_BOOLEAN, 8, TFS(&sctp_shutdown_complete_chunk_t_bit_value), SCTP_SHUTDOWN_COMPLETE_CHUNK_T_BIT,
        "", HFILL }
     },
+    {&hf_sctp_forward_tsn_chunk_tsn,
+     { "New cumulative TSN", "sctp.forward_tsn.tsn",
+       FT_UINT32, BASE_DEC, NULL, 0x0,          
+       "", HFILL }
+    }, 
     {&hf_sctp_chunk_parameter_type,
      { "Parameter type", "sctp.parameter.type",
        FT_UINT16, BASE_HEX, VALS(sctp_parameter_identifier_values), 0x0,
@@ -1872,6 +2231,56 @@ proto_register_sctp(void)
     {&hf_sctp_supported_address_types_parameter,
      { "Supported address type", "sctp.parameter.supported_addres_type",
        FT_UINT16, BASE_DEC, NULL, 0x0,          
+       "", HFILL }
+    }, 
+    {&hf_sctp_ustreams_start,
+     { "Start", "sctp.unreliable_streams.start",
+       FT_UINT16, BASE_DEC, NULL, 0x0,          
+       "", HFILL }
+    }, 
+    {&hf_sctp_ustreams_end,
+     { "End", "sctp.unreliable_streams.end",
+       FT_UINT16, BASE_DEC, NULL, 0x0,          
+       "", HFILL }
+    },     
+    {&hf_sctp_asconf_serial,
+     { "Serial Number", "sctp.asconf.serial_number",
+       FT_UINT32, BASE_HEX, NULL, 0x0,          
+       "", HFILL }
+    }, 
+    {&hf_sctp_asconf_correlation_id,
+     { "Correlation_id", "sctp.asconf.correlation_id",
+       FT_UINT32, BASE_HEX, NULL, 0x0,          
+       "", HFILL }
+    }, 
+    {&hf_sctp_asconf_reserved,
+     { "Reserved", "sctp.asconf.reserved",
+       FT_BYTES, BASE_NONE, NULL, 0x0,          
+       "", HFILL }
+    }, 
+    {&hf_sctp_asconf_addr_type,
+     { "Address type", "sctp.asconf.address_type",
+       FT_UINT8, BASE_HEX, NULL, 0x0,          
+       "", HFILL }
+    }, 
+    {&hf_sctp_asconf_addr,
+     { "Address bytes", "sctp.asconf.address_bytes",
+       FT_BYTES, BASE_NONE, NULL, 0x0,          
+       "", HFILL }
+    }, 
+    {&hf_sctp_asconf_ack_serial,
+     { "Serial Number", "sctp.asconf_ack.serial_number",
+       FT_UINT32, BASE_HEX, NULL, 0x0,          
+       "", HFILL }
+    }, 
+    {&hf_sctp_asconf_ack_correlation_id,
+     { "Correlation_id", "sctp.asconf_ack.correlation_id",
+       FT_UINT32, BASE_HEX, NULL, 0x0,          
+       "", HFILL }
+    },
+    {&hf_sctp_adap_indication,
+     { "Indication", "sctp.adapation_layer_indication.indication",
+       FT_UINT32, BASE_HEX, NULL, 0x0,          
        "", HFILL }
     }, 
     {&hf_sctp_cause_code,
@@ -1920,7 +2329,8 @@ proto_register_sctp(void)
     &ett_sctp_data_chunk_flags,
     &ett_sctp_sack_chunk_gap_block,
     &ett_sctp_supported_address_types_parameter,
-    &ett_sctp_unrecognized_parameter_parameter
+    &ett_sctp_unrecognized_parameter_parameter,
+    &ett_sctp_unreliable_streams_interval
   };
   
   /* Register the protocol name and description */
