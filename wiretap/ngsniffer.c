@@ -1,6 +1,6 @@
 /* ngsniffer.c
  *
- * $Id: ngsniffer.c,v 1.8 1998/12/13 05:08:04 gram Exp $
+ * $Id: ngsniffer.c,v 1.9 1998/12/15 04:11:58 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -175,7 +175,7 @@ int ngsniffer_open(wtap *wth)
 				tm.tm_mday = (start_date&0x1f);
 				/* The time does not appear to act as an
 				 * offset; only the date
-				tm.tm_hour = (start_time&0xfc00)>>11;
+				tm.tm_hour = (start_time&0xf800)>>11;
 				tm.tm_min = (start_time&0x7e0)>>5;
 				tm.tm_sec = (start_time&0x1f)<<1;*/
 				tm.tm_hour = 0;
