@@ -3,7 +3,7 @@
 #     a) common to both files and
 #     b) portable between both files
 #
-# $Id: Makefile.common,v 1.3 2004/01/22 21:32:54 guy Exp $
+# $Id: Makefile.common,v 1.4 2004/01/22 23:09:55 jmayer Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -29,58 +29,58 @@
 # code, while the DLL for GTK+ on Windows is gtk+-1.3.
 #
 ETHEREAL_GTK_SRC = \
-	capture_combo_utils.c \
-	capture_dlg.c \
-	capture_prefs.c \
-	capture_info_dlg.c \
-	color_dlg.c    \
-	color_filters.c \
-	color_utils.c  \
+	capture_combo_utils.c	\
+	capture_dlg.c	\
+	capture_info_dlg.c	\
+	capture_prefs.c	\
+	color_dlg.c	\
+	color_filters.c	\
+	color_utils.c	\
 	colors.c	\
 	column_prefs.c	\
-	decode_as_dlg.c \
-	dfilter_expr_dlg.c \
+	decode_as_dlg.c	\
+	dfilter_expr_dlg.c	\
 	dlg_utils.c	\
-	endpoint_talkers_table.c \
-	ethereal-tap-register.c \
-	file_dlg.c \
-	filter_prefs.c \
-	find_dlg.c \
-	follow_dlg.c \
-	goto_dlg.c \
+	endpoint_talkers_table.c	\
+	ethereal-tap-register.c	\
+	file_dlg.c	\
+	filter_prefs.c	\
+	find_dlg.c	\
+	follow_dlg.c	\
+	goto_dlg.c	\
 	gtk_stat_util.c	\
 	gui_prefs.c	\
-	help_dlg.c \
+	help_dlg.c	\
 	main.c 	\
 	menu.c 	\
-	nameres_prefs.c \
-	packet_list.c \
+	nameres_prefs.c	\
+	packet_list.c	\
 	packet_win.c	\
 	plugins_dlg.c	\
-	prefs_dlg.c \
-	print_dlg.c \
-	print_prefs.c  \
-	progress_dlg.c \
-	proto_dlg.c \
-	proto_draw.c \
+	prefs_dlg.c	\
+	print_dlg.c	\
+	print_prefs.c	\
+	progress_dlg.c	\
+	proto_dlg.c	\
+	proto_draw.c	\
 	proto_hier_stats_dlg.c	\
-	recent.c    \
-	rtp_stream.c    \
+	recent.c	\
+	rtp_stream.c	\
 	service_response_time_table.c	\
-	simple_dialog.c \
-	stream_prefs.c \
-	summary_dlg.c \
-	supported_protos_dlg.c \
-	tap_dfilter_dlg.c \
-	tcp_graph.c \
-	toolbar.c       \
+	simple_dialog.c	\
+	stream_prefs.c	\
+	summary_dlg.c	\
+	supported_protos_dlg.c	\
+	tap_dfilter_dlg.c	\
+	tcp_graph.c	\
+	toolbar.c	\
 	ui_util.c
 
 
 ETHEREAL_TAP_SRC = \
-	ansi_a_stat.c   \
-	ansi_map_stat.c \
-	bootp_stat.c    \
+	ansi_a_stat.c	\
+	ansi_map_stat.c	\
+	bootp_stat.c	\
 	dcerpc_stat.c	\
 	endpoint_talkers_eth.c	\
 	endpoint_talkers_fc.c	\
@@ -91,17 +91,17 @@ ETHEREAL_TAP_SRC = \
 	endpoint_talkers_tr.c	\
 	endpoint_talkers_udpip.c	\
 	fc_stat.c	\
-	gsm_a_stat.c    \
+	gsm_a_stat.c	\
 	h225_counter.c	\
 	h225_ras_srt.c	\
 	http_stat.c	\
 	io_stat.c	\
-	isup_stat.c     \
+	isup_stat.c	\
 	ldap_stat.c	\
 	mgcp_stat.c	\
-	rpc_stat.c	\
 	rpc_progs.c	\
+	rpc_stat.c	\
+	rtp_analysis.c	\
+	rtp_stream_dlg.c	\
 	smb_stat.c	\
-	rtp_analysis.c  \
-	rtp_stream_dlg.c \
 	wsp_stat.c
