@@ -615,6 +615,7 @@ the display filter. The type of the field is also given.
 =insert_dfilter_table
 
 =head1 FILES
+
 B</etc/ethers> is consulted to correlate 6-byte hardware addresses to names. If an address is not
 found in B</etc/ethers>, the
 B<$HOME/.ethereal/ethers> file is consulted next.
