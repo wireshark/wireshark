@@ -2,7 +2,7 @@
  * Routines for DCERPC over SMB packet disassembly
  * Copyright 2001-2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-nt.c,v 1.54 2003/01/16 22:40:48 tpot Exp $
+ * $Id: packet-dcerpc-nt.c,v 1.55 2003/01/24 05:32:53 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -788,22 +788,207 @@ dissect_nt_access_mask(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	return offset;
 }
 
-/*
- * Initialise global DCERPC/SMB data structures
- */
+/* Check if there is unparsed data remaining in a frame and display an
+   error.  I guess this could be made into an exception like the malformed
+   frame exception.  For the DCERPC over SMB dissectors a long frame
+   indicates a bug in a dissector. */
 
-static void dcerpc_smb_init(void)
+void dcerpc_smb_check_long_frame(tvbuff_t *tvb, int offset,
+				 packet_info *pinfo, proto_tree *tree)
 {
-	/* Initialise policy handle hash */
+	if (tvb_length_remaining(tvb, offset) != 0) {
 
-	init_pol_hash();
+		proto_tree_add_text(
+			tree, tvb, offset, tvb_length_remaining(tvb, offset),
+			"[Long frame (%d bytes): SPOOLSS]",
+			tvb_length_remaining(tvb, offset));
+
+		if (check_col(pinfo->cinfo, COL_INFO))
+			col_append_fstr(pinfo->cinfo, COL_INFO,
+					"[Long frame (%d bytes): SPOOLSS]",
+					tvb_length_remaining(tvb, offset));
+	}
+}
+
+/* Dissect a NT status code */
+
+int
+dissect_ntstatus(tvbuff_t *tvb, gint offset, packet_info *pinfo,
+		 proto_tree *tree, char *drep,
+		 int hfindex, guint32 *pdata)
+{
+	guint32 status;
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+				    hfindex, &status);
+
+	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
+				val_to_str(status, NT_errors,
+					   "Unknown error 0x%08x"));
+	if (pdata)
+		*pdata = status;
+
+	return offset;
+}
+
+/* Dissect a DOS status code */
+
+int
+dissect_doserror(tvbuff_t *tvb, gint offset, packet_info *pinfo,
+	       proto_tree *tree, char *drep,
+	       int hfindex, guint32 *pdata)
+{
+	guint32 status;
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+				    hfindex, &status);
+
+	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
+				val_to_str(status, DOS_errors,
+					   "Unknown error 0x%08x"));
+	if (pdata)
+		*pdata = status;
+
+	return offset;
+}
+
+/* Dissect a NT policy handle */
+
+static int hf_nt_policy_open_frame = -1;
+static int hf_nt_policy_close_frame = -1;
+
+int
+dissect_nt_policy_hnd(tvbuff_t *tvb, gint offset, packet_info *pinfo,
+		      proto_tree *tree, char *drep, int hfindex,
+		      e_ctx_hnd *pdata, gboolean is_open, gboolean is_close)
+{
+	proto_item *item;
+	proto_tree *subtree;
+	e_ctx_hnd hnd;
+	guint32 open_frame = 0, close_frame = 0;
+	char *name;
+	int old_offset = offset;
+
+	/* Add to proto tree */
+
+	item = proto_tree_add_text(tree, tvb, offset, sizeof(e_ctx_hnd),
+				   "Policy Handle");
+
+	subtree = proto_item_add_subtree(item, ett_nt_policy_hnd);
+
+	offset = dissect_ndr_ctx_hnd(tvb, offset, pinfo, subtree, drep,
+				     hfindex, &hnd);
+
+	/* Store request/reply information */
+
+	dcerpc_smb_store_pol_pkts(&hnd, 0, is_close ? pinfo->fd->num : 0);
+	dcerpc_smb_store_pol_pkts(&hnd, is_open ? pinfo->fd->num: 0, 0);
+
+	/* Insert request/reply information if known */
+
+	if (dcerpc_smb_fetch_pol(&hnd, &name, &open_frame, &close_frame)) {
+
+		if (open_frame)
+			proto_tree_add_uint(
+				subtree, hf_nt_policy_open_frame, tvb,
+				old_offset, sizeof(e_ctx_hnd), open_frame);
+
+		if (close_frame)
+			proto_tree_add_uint(
+				subtree, hf_nt_policy_close_frame, tvb,
+				old_offset, sizeof(e_ctx_hnd), close_frame);
+
+		if (name != NULL)
+			proto_item_append_text(item, ": %s", name);
+	}
+
+	if (pdata)
+		*pdata = hnd;
+
+	return offset;
+}
+
+/* Some helper routines to dissect a range of uint8 characters.  I don't
+   think these are "official" NDR representations and are probably specific
+   to NT so for the moment they're put here instead of in packet-dcerpc.c
+   and packet-dcerpc-ndr.c. */
+
+int
+dissect_dcerpc_uint8s(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
+                      proto_tree *tree, char *drep, int hfindex,
+		      int length, const guint8 **pdata)
+{
+    const guint8 *data;
+
+    data = (const guint8 *)tvb_get_ptr(tvb, offset, length);
+
+    if (tree) {
+        proto_tree_add_item (tree, hfindex, tvb, offset, length, (drep[0] & 0x10));
+    }
+
+    if (pdata)
+        *pdata = data;
+
+    return offset + length;
+}
+
+int
+dissect_ndr_uint8s(tvbuff_t *tvb, gint offset, packet_info *pinfo,
+                   proto_tree *tree, char *drep,
+                   int hfindex, int length, const guint8 **pdata)
+{
+    dcerpc_info *di;
+
+    di=pinfo->private_data;
+    if(di->conformant_run){
+      /* just a run to handle conformant arrays, no scalars to dissect */
+      return offset;
+    }
+
+    /* no alignment needed */
+    return dissect_dcerpc_uint8s(tvb, offset, pinfo,
+                                 tree, drep, hfindex, length, pdata);
+}
+
+int
+dissect_dcerpc_uint16s(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
+                      proto_tree *tree, char *drep, int hfindex,
+		      int length)
+{
+    if (tree) {
+        proto_tree_add_item (tree, hfindex, tvb, offset, length * 2, (drep[0] & 0x10));
+    }
+
+    return offset + length * 2;
+}
+
+int
+dissect_ndr_uint16s(tvbuff_t *tvb, gint offset, packet_info *pinfo,
+                   proto_tree *tree, char *drep,
+                   int hfindex, int length)
+{
+    dcerpc_info *di;
+
+    di=pinfo->private_data;
+    if(di->conformant_run){
+      /* just a run to handle conformant arrays, no scalars to dissect */
+      return offset;
+    }
+
+    if (offset % 2)
+        offset++;
+
+    return dissect_dcerpc_uint16s(tvb, offset, pinfo,
+                                 tree, drep, hfindex, length);
 }
 
 /*
- * Register ett_ values, and register "dcerpc_smb_init()" as an
- * initialisation routine.
+ * Register ett/hf values and perform DCERPC over SMB specific
+ * initialisation.
  */
-void proto_register_dcerpc_smb(void)
+void dcerpc_smb_init(int proto_dcerpc)
 {
 	static hf_register_info hf[] = {
 
@@ -943,6 +1128,18 @@ void proto_register_dcerpc_smb(void)
 		  { "Specific access, bit 0", "nt.access_mask.specific_0",
 		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
 		    0x0001, "Specific access, bit 0", HFILL }},
+
+		/* Policy handles */
+
+		{ &hf_nt_policy_open_frame,
+		  { "Frame handle opened", "dcerpc.nt.open_frame",
+		    FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+		    "Frame handle opened", HFILL }},
+
+		{ &hf_nt_policy_close_frame,
+		  { "Frame handle close", "dcerpc.nt.close_frame",
+		    FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+		    "Frame handle closed", HFILL }},
 	};
 
 	static gint *ett[] = {
@@ -954,213 +1151,12 @@ void proto_register_dcerpc_smb(void)
 		&ett_nt_access_mask_specific,
 	};
 
-	static int proto_dcerpc_nt = -1;
-
-	/* Register ett's */
+	/* Register ett's and hf's */
 
 	proto_register_subtree_array(ett, array_length(ett));
+	proto_register_field_array(proto_dcerpc, hf, array_length(hf));
 
-	/* Register hf's */
+	/* Initialise policy handle hash */
 
-	proto_dcerpc_nt = proto_register_protocol(
-		"Dummy Protocol", "DCERPC_NT", "DCERPC_NT");
-
-	proto_register_field_array(proto_dcerpc_nt, hf, array_length(hf));
-
-        /* Register a routine to be called whenever initialisation
-           is done. */
-
-        register_init_routine(dcerpc_smb_init);
-}
-
-/* Check if there is unparsed data remaining in a frame and display an
-   error.  I guess this could be made into an exception like the malformed
-   frame exception.  For the DCERPC over SMB dissectors a long frame
-   indicates a bug in a dissector. */
-
-void dcerpc_smb_check_long_frame(tvbuff_t *tvb, int offset,
-				 packet_info *pinfo, proto_tree *tree)
-{
-	if (tvb_length_remaining(tvb, offset) != 0) {
-
-		proto_tree_add_text(
-			tree, tvb, offset, tvb_length_remaining(tvb, offset),
-			"[Long frame (%d bytes): SPOOLSS]",
-			tvb_length_remaining(tvb, offset));
-
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_append_fstr(pinfo->cinfo, COL_INFO,
-					"[Long frame (%d bytes): SPOOLSS]",
-					tvb_length_remaining(tvb, offset));
-	}
-}
-
-/* Dissect a NT status code */
-
-int
-dissect_ntstatus(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-		 proto_tree *tree, char *drep,
-		 int hfindex, guint32 *pdata)
-{
-	guint32 status;
-
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-				    hfindex, &status);
-
-	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
-				val_to_str(status, NT_errors,
-					   "Unknown error 0x%08x"));
-	if (pdata)
-		*pdata = status;
-
-	return offset;
-}
-
-/* Dissect a DOS status code */
-
-int
-dissect_doserror(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-	       proto_tree *tree, char *drep,
-	       int hfindex, guint32 *pdata)
-{
-	guint32 status;
-
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-				    hfindex, &status);
-
-	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
-				val_to_str(status, DOS_errors,
-					   "Unknown error 0x%08x"));
-	if (pdata)
-		*pdata = status;
-
-	return offset;
-}
-
-/* Dissect a NT policy handle */
-
-int
-dissect_nt_policy_hnd(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-		      proto_tree *tree, char *drep, int hfindex,
-		      e_ctx_hnd *pdata, gboolean is_open, gboolean is_close)
-{
-	proto_item *item;
-	proto_tree *subtree;
-	e_ctx_hnd hnd;
-	guint32 open_frame = 0, close_frame = 0;
-	char *name;
-	int old_offset = offset;
-
-	/* Add to proto tree */
-
-	item = proto_tree_add_text(tree, tvb, offset, sizeof(e_ctx_hnd),
-				   "Policy Handle");
-
-	subtree = proto_item_add_subtree(item, ett_nt_policy_hnd);
-
-	offset = dissect_ndr_ctx_hnd(tvb, offset, pinfo, subtree, drep,
-				     hfindex, &hnd);
-
-	/* Store request/reply information */
-
-	dcerpc_smb_store_pol_pkts(&hnd, 0, is_close ? pinfo->fd->num : 0);
-	dcerpc_smb_store_pol_pkts(&hnd, is_open ? pinfo->fd->num: 0, 0);
-
-	/* Insert request/reply information if known */
-
-	if (dcerpc_smb_fetch_pol(&hnd, &name, &open_frame, &close_frame)) {
-
-		if (open_frame)
-			proto_tree_add_text(subtree, tvb, old_offset,
-					    sizeof(e_ctx_hnd),
-					    "Opened in frame %u", open_frame);
-
-		if (close_frame)
-			proto_tree_add_text(subtree, tvb, old_offset,
-					    sizeof(e_ctx_hnd),
-					    "Closed in frame %u", close_frame);
-		if (name != NULL)
-			proto_item_append_text(item, ": %s", name);
-	}
-
-	if (pdata)
-		*pdata = hnd;
-
-	return offset;
-}
-
-/* Some helper routines to dissect a range of uint8 characters.  I don't
-   think these are "official" NDR representations and are probably specific
-   to NT so for the moment they're put here instead of in packet-dcerpc.c
-   and packet-dcerpc-ndr.c. */
-
-int
-dissect_dcerpc_uint8s(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
-                      proto_tree *tree, char *drep, int hfindex,
-		      int length, const guint8 **pdata)
-{
-    const guint8 *data;
-
-    data = (const guint8 *)tvb_get_ptr(tvb, offset, length);
-
-    if (tree) {
-        proto_tree_add_item (tree, hfindex, tvb, offset, length, (drep[0] & 0x10));
-    }
-
-    if (pdata)
-        *pdata = data;
-
-    return offset + length;
-}
-
-int
-dissect_ndr_uint8s(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                   proto_tree *tree, char *drep,
-                   int hfindex, int length, const guint8 **pdata)
-{
-    dcerpc_info *di;
-
-    di=pinfo->private_data;
-    if(di->conformant_run){
-      /* just a run to handle conformant arrays, no scalars to dissect */
-      return offset;
-    }
-
-    /* no alignment needed */
-    return dissect_dcerpc_uint8s(tvb, offset, pinfo,
-                                 tree, drep, hfindex, length, pdata);
-}
-
-int
-dissect_dcerpc_uint16s(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
-                      proto_tree *tree, char *drep, int hfindex,
-		      int length)
-{
-    if (tree) {
-        proto_tree_add_item (tree, hfindex, tvb, offset, length * 2, (drep[0] & 0x10));
-    }
-
-    return offset + length * 2;
-}
-
-int
-dissect_ndr_uint16s(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                   proto_tree *tree, char *drep,
-                   int hfindex, int length)
-{
-    dcerpc_info *di;
-
-    di=pinfo->private_data;
-    if(di->conformant_run){
-      /* just a run to handle conformant arrays, no scalars to dissect */
-      return offset;
-    }
-
-    if (offset % 2)
-        offset++;
-
-    return dissect_dcerpc_uint16s(tvb, offset, pinfo,
-                                 tree, drep, hfindex, length);
+	init_pol_hash();
 }

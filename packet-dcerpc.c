@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.96 2003/01/14 22:03:33 guy Exp $
+ * $Id: packet-dcerpc.c,v 1.97 2003/01/24 05:32:54 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3906,4 +3906,5 @@ proto_reg_handoff_dcerpc (void)
     ntlmssp_enc_payload_handle = find_dissector("ntlmssp_encrypted_payload");
     gssapi_handle = find_dissector("gssapi");
     gssapi_verf_handle = find_dissector("gssapi_verf");
+    dcerpc_smb_init(proto_dcerpc);
 }

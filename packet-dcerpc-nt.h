@@ -2,7 +2,7 @@
  * Routines for DCERPC over SMB packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-nt.h,v 1.34 2003/01/11 04:42:16 tpot Exp $
+ * $Id: packet-dcerpc-nt.h,v 1.35 2003/01/24 05:32:53 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -178,5 +178,10 @@ int
 dissect_nt_access_mask(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		       proto_tree *tree, char *drep, int hfindex,
 		       nt_access_mask_fn_t *specific_rights_fn);
+
+
+/* Initialise DCERPC over SMB */
+
+void dcerpc_smb_init(int proto_dcerpc);
 
 #endif /* packet-dcerpc-nt.h */
