@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.160 2001/11/28 07:11:07 guy Exp $
+ * $Id: capture.c,v 1.161 2001/11/30 07:14:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -149,6 +149,7 @@
 #include "wiretap/libpcap.h"
 #include "wiretap/wtap.h"
 
+#include "packet-atalk.h"
 #include "packet-clip.h"
 #include "packet-eth.h"
 #include "packet-fddi.h"
@@ -1158,7 +1159,7 @@ pipe_dispatch(int fd, loop_data *ld, struct pcap_hdr *hdr)
     case WTAP_ENCAP_FDDI_BITSWAPPED:
       capture_fddi(pd, whdr.caplen, &ld->counts);
       break;
-    case WTAP_ENCAP_PRISM:
+    case WTAP_ENCAP_PRISM_HEADER:
       capture_prism(pd, 0, whdr.caplen, &ld->counts);
       break;
     case WTAP_ENCAP_TOKEN_RING:
@@ -1181,6 +1182,9 @@ pipe_dispatch(int fd, loop_data *ld, struct pcap_hdr *hdr)
       break;
     case WTAP_ENCAP_CHDLC:
       capture_chdlc(pd, 0, whdr.caplen, &ld->counts);
+      break;
+    case WTAP_ENCAP_LOCALTALK:
+      capture_llap(pd, whdr.caplen, &ld->counts);
       break;
     /* XXX - FreeBSD may append 4-byte ATM pseudo-header to DLT_ATM_RFC1483,
        with LLC header following; we should implement it at some
@@ -1879,6 +1883,9 @@ capture_pcap_cb(u_char *user, const struct pcap_pkthdr *phdr,
     case WTAP_ENCAP_FDDI_BITSWAPPED:
       capture_fddi(pd, phdr->len, &ld->counts);
       break;
+    case WTAP_ENCAP_PRISM_HEADER:
+      capture_prism(pd, 0, phdr->len, &ld->counts);
+      break;
     case WTAP_ENCAP_TOKEN_RING:
       capture_tr(pd, 0, phdr->len, &ld->counts);
       break;
@@ -1896,6 +1903,9 @@ capture_pcap_cb(u_char *user, const struct pcap_pkthdr *phdr,
       break;
     case WTAP_ENCAP_LINUX_ATM_CLIP:
       capture_clip(pd, phdr->len, &ld->counts);
+      break;
+    case WTAP_ENCAP_LOCALTALK:
+      capture_llap(pd, phdr->len, &ld->counts);
       break;
     /* XXX - FreeBSD may append 4-byte ATM pseudo-header to DLT_ATM_RFC1483,
        with LLC header following; we should implement it at some

@@ -1,7 +1,7 @@
 /* packet-atalk.c
  * Routines for Appletalk packet disassembly (DDP, currently).
  *
- * $Id: packet-atalk.c,v 1.56 2001/11/26 01:03:35 hagbard Exp $
+ * $Id: packet-atalk.c,v 1.57 2001/11/30 07:14:20 guy Exp $
  *
  * Simon Wilkinson <sxw@dcs.ed.ac.uk>
  *
@@ -38,6 +38,11 @@
 #include "ppptypes.h"
 #include "aftypes.h"
 #include "atalk-utils.h"
+
+static int proto_llap = -1;
+static int hf_llap_dst = -1;
+static int hf_llap_src = -1;
+static int hf_llap_type = -1;
 
 static int proto_ddp = -1;
 static int hf_ddp_hopcount = -1;
@@ -81,11 +86,14 @@ static gint ett_nbp_node = -1;
 static gint ett_rtmp = -1;
 static gint ett_rtmp_tuple = -1;
 static gint ett_ddp = -1;
+static gint ett_llap = -1;
 static gint ett_pstring = -1;
 
 static dissector_table_t ddp_dissector_table;
 
 static dissector_handle_t data_handle;
+
+#define DDP_SHORT_HEADER_SIZE 5
 
 /*
  * P = Padding, H = Hops, L = Len
@@ -358,7 +366,66 @@ dissect_nbp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 }
 
 static void
-dissect_ddp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+dissect_ddp_short(tvbuff_t *tvb, packet_info *pinfo, guint8 dnode,
+		  guint8 snode, proto_tree *tree)
+{
+  guint16 len;
+  guint8  dport;
+  guint8  sport;
+  guint8  type;
+  proto_tree *ddp_tree = NULL;
+  proto_item *ti;
+  static struct atalk_ddp_addr src, dst;
+  tvbuff_t   *new_tvb;
+
+  if (check_col(pinfo->fd, COL_PROTOCOL))
+    col_set_str(pinfo->fd, COL_PROTOCOL, "DDP");
+  if (check_col(pinfo->fd, COL_INFO))
+    col_clear(pinfo->fd, COL_INFO);
+
+  if (tree) {
+    ti = proto_tree_add_item(tree, proto_ddp, tvb, 0, DDP_SHORT_HEADER_SIZE,
+			     FALSE);
+    ddp_tree = proto_item_add_subtree(ti, ett_ddp);
+  }
+  len = tvb_get_ntohs(tvb, 0);
+  if (tree)
+      proto_tree_add_uint(ddp_tree, hf_ddp_len, tvb, 0, 2, len);
+  dport = tvb_get_guint8(tvb, 2);
+  if (tree)
+    proto_tree_add_uint(ddp_tree, hf_ddp_dst_socket, tvb, 2, 1, dport);
+  sport = tvb_get_guint8(tvb, 3);
+  if (tree)
+    proto_tree_add_uint(ddp_tree, hf_ddp_src_socket, tvb, 3, 1, sport);
+  type = tvb_get_guint8(tvb, 4);
+  
+  src.net = 0;
+  src.node = snode;
+  src.port = sport;
+  dst.net = 0;
+  dst.node = dnode;
+  dst.port = dport;
+  SET_ADDRESS(&pinfo->net_src, AT_ATALK, sizeof src, (guint8 *)&src);
+  SET_ADDRESS(&pinfo->src, AT_ATALK, sizeof src, (guint8 *)&src);
+  SET_ADDRESS(&pinfo->net_dst, AT_ATALK, sizeof dst, (guint8 *)&dst);
+  SET_ADDRESS(&pinfo->dst, AT_ATALK, sizeof dst, (guint8 *)&dst);
+
+  if (check_col(pinfo->fd, COL_INFO)) {
+    col_add_str(pinfo->fd, COL_INFO,
+      val_to_str(type, op_vals, "Unknown DDP protocol (%02x)"));
+  }
+  if (tree)
+    proto_tree_add_uint(ddp_tree, hf_ddp_type, tvb, 4, 1, type);
+  
+  new_tvb = tvb_new_subset(tvb, DDP_SHORT_HEADER_SIZE, -1, -1);
+
+  if (!dissector_try_port(ddp_dissector_table, type, new_tvb, pinfo, tree))
+    call_dissector(data_handle,new_tvb, pinfo, tree);
+}
+
+static void
+dissect_ddp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
   e_ddp       ddp;
   proto_tree *ddp_tree;
   proto_item *ti;
@@ -423,9 +490,91 @@ dissect_ddp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     call_dissector(data_handle,new_tvb, pinfo, tree);
 }
 
+static const value_string llap_type_vals[] = {
+  {0x01, "Short DDP"},
+  {0x02, "DDP" },
+  {0x81, "Enquiry"},
+  {0x82, "Acknowledgement"},
+  {0x84, "RTS"},
+  {0x85, "CTS"},
+  {0, NULL}
+};
+
+void
+capture_llap(const u_char *pd, int len, packet_counts *ld)
+{
+  ld->other++;
+}
+
+static void
+dissect_llap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  guint8 dnode;
+  guint8 snode;
+  guint8 type;
+  proto_tree *llap_tree = NULL;
+  proto_item *ti;
+  tvbuff_t   *new_tvb;
+
+  if (check_col(pinfo->fd, COL_PROTOCOL))
+    col_set_str(pinfo->fd, COL_PROTOCOL, "LLAP");
+  if (check_col(pinfo->fd, COL_INFO))
+    col_clear(pinfo->fd, COL_INFO);
+
+  if (tree) {
+    ti = proto_tree_add_item(tree, proto_llap, tvb, 0, 3, FALSE);
+    llap_tree = proto_item_add_subtree(ti, ett_llap);
+  }
+
+  dnode = tvb_get_guint8(tvb, 0);
+  if (tree)  
+    proto_tree_add_uint(llap_tree, hf_llap_dst, tvb, 0, 1, dnode);
+  snode = tvb_get_guint8(tvb, 1);
+  if (tree)
+    proto_tree_add_uint(llap_tree, hf_llap_src, tvb, 1, 1, snode);
+  type = tvb_get_guint8(tvb, 2);
+  if (check_col(pinfo->fd, COL_INFO)) {
+    col_add_str(pinfo->fd, COL_INFO,
+      val_to_str(type, llap_type_vals, "Unknown LLAP type (%02x)"));
+  }
+  if (tree)
+    proto_tree_add_uint(llap_tree, hf_llap_type, tvb, 2, 1, type);
+  
+  new_tvb = tvb_new_subset(tvb, 3, -1, -1);
+
+  if (proto_is_protocol_enabled(proto_ddp)) {
+    pinfo->current_proto = "DDP";
+    switch (type) {
+
+    case 0x01:
+      dissect_ddp_short(new_tvb, pinfo, dnode, snode, tree);
+      return;
+
+    case 0x02:
+      dissect_ddp(new_tvb, pinfo, tree);
+      return;
+    }
+  }
+  call_dissector(data_handle,new_tvb, pinfo, tree);
+}
+
 void
 proto_register_atalk(void)
 {
+  static hf_register_info hf_llap[] = {
+    { &hf_llap_dst,
+      { "Destination Node",	"llap.dst",	FT_UINT8,  BASE_DEC, NULL, 0x0,
+      	"", HFILL }},
+
+    { &hf_llap_src,
+      { "Source Node",		"llap.src",	FT_UINT8,  BASE_DEC, NULL, 0x0,
+      	"", HFILL }},
+
+    { &hf_llap_type,
+      { "Type",			"llap.type",	FT_UINT8,  BASE_HEX, VALS(llap_type_vals), 0x0,
+      	"", HFILL }},
+  };
+
   static hf_register_info hf_ddp[] = {
     { &hf_ddp_hopcount,
       { "Hop count",		"ddp.hopcount",	FT_UINT8,  BASE_DEC, NULL, 0x0,
@@ -533,6 +682,7 @@ proto_register_atalk(void)
 
 
   static gint *ett[] = {
+  	&ett_llap,
 	&ett_ddp,
 	&ett_nbp,
 	&ett_nbp_info,
@@ -541,6 +691,9 @@ proto_register_atalk(void)
 	&ett_rtmp,
 	&ett_rtmp_tuple
   };
+
+  proto_llap = proto_register_protocol("LocalTalk Link Access Protocol", "LLAP", "llap");
+  proto_register_field_array(proto_llap, hf_llap, array_length(hf_llap));
 
   proto_ddp = proto_register_protocol("Datagram Delivery Protocol", "DDP", "ddp");
   proto_register_field_array(proto_ddp, hf_ddp, array_length(hf_ddp));
@@ -568,5 +721,6 @@ proto_reg_handoff_atalk(void)
   dissector_add("ddp.type", DDP_NBP, dissect_nbp, proto_nbp);
   dissector_add("ddp.type", DDP_RTMPREQ, dissect_rtmp_request, proto_rtmp);
   dissector_add("ddp.type", DDP_RTMPDATA, dissect_rtmp_data, proto_rtmp);
+  dissector_add("wtap_encap", WTAP_ENCAP_LOCALTALK, dissect_llap, proto_llap);
   data_handle = find_dissector("data");
 }

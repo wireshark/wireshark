@@ -9,7 +9,7 @@
  *
  * By Tim Newsham
  *
- * $Id: packet-prism.c,v 1.2 2001/11/28 19:59:24 guy Exp $
+ * $Id: packet-prism.c,v 1.3 2001/11/30 07:14:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -205,5 +205,5 @@ proto_reg_handoff_prism(void)
     /* handle for 802.11 dissector */
     ieee80211_handle = find_dissector("wlan");
 
-    dissector_add("wtap_encap", WTAP_ENCAP_PRISM, dissect_prism, proto_prism);
+    dissector_add("wtap_encap", WTAP_ENCAP_PRISM_HEADER, dissect_prism, proto_prism);
 }

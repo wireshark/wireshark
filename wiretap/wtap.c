@@ -1,6 +1,6 @@
 /* wtap.c
  *
- * $Id: wtap.c,v 1.57 2001/11/28 07:11:10 guy Exp $
+ * $Id: wtap.c,v 1.58 2001/11/30 07:14:22 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -128,7 +128,10 @@ static const struct encap_type_info {
 	/* WTAP_ENCAP_CISCO_IOS */
 	{ "Cisco IOS internal", "ios" },
 
-	/* WTAP_ENCAP_PRISM */
+	/* WTAP_ENCAP_LOCALTALK */
+	{ "Localtalk", "ltalk" },
+
+	/* WTAP_ENCAP_PRISM_HEADER */
 	{ "IEEE 802.11 plus Prism II monitor mode header", "prism" },
 };
 
