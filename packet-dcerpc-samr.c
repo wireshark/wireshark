@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *   2002 Added all command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-samr.c,v 1.49 2002/07/02 02:33:07 tpot Exp $
+ * $Id: packet-dcerpc-samr.c,v 1.50 2002/07/06 17:44:47 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3114,8 +3114,8 @@ samr_dissect_USER_INFO (tvbuff_t *tvb, int offset,
 				hf_samr_workstations, 0);
 		break;
 	case 16:
-	        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-        	                             hf_samr_unknown_long, NULL);
+	        offset = dissect_ndr_nt_acct_ctrl(tvb, offset, pinfo, tree,
+        	                             drep);
 		break;
 	case 17:
 		offset = dissect_ndr_nt_NTTIME(tvb, offset, pinfo, tree, drep,
