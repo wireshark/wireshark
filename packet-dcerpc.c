@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.82 2002/10/24 06:17:34 guy Exp $
+ * $Id: packet-dcerpc.c,v 1.83 2002/10/25 01:08:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -446,20 +446,7 @@ dcerpc_reassemble_init(void)
  */
 
 /* the registered subdissectors */
-static GHashTable *dcerpc_uuids;
-
-typedef struct _dcerpc_uuid_key {
-    e_uuid_t uuid;
-    guint16 ver;
-} dcerpc_uuid_key;
-
-typedef struct _dcerpc_uuid_value {
-    int proto;
-    int ett;
-    gchar *name;
-    dcerpc_sub_dissector *procs;
-    int opnum_hf;
-} dcerpc_uuid_value;
+GHashTable *dcerpc_uuids=NULL;
 
 static gint
 dcerpc_uuid_equal (gconstpointer k1, gconstpointer k2)

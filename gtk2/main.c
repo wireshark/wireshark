@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.17 2002/10/25 00:29:12 guy Exp $
+ * $Id: main.c,v 1.18 2002/10/25 01:08:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -133,6 +133,8 @@
 #include "../tap.h"
 #include "rpc_stat.h"
 #include "rpc_progs.h"
+#include "../packet-dcerpc.h"
+#include "dcerpc_stat.h"
 
 #ifdef WIN32
 #include "capture-wpcap.h"
@@ -1776,8 +1778,42 @@ main(int argc, char *argv[])
                 fprintf(stderr, "   \"-z rpc,programs\"\n");
                 exit(1);
               }
+            } else if(!strncmp(optarg,"dcerpc,",7)){
+              if(!strncmp(optarg,"dcerpc,rtt,",11)){
+                e_uuid_t uuid;
+                int d1,d2,d3,d40,d41,d42,d43,d44,d45,d46,d47;
+                int major, minor;
+                int pos=0;
+                if(sscanf(optarg,"dcerpc,rtt,%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x,%d.%d%n", &d1,&d2,&d3,&d40,&d41,&d42,&d43,&d44,&d45,&d46,&d47,&major,&minor,&pos)==13){
+                  uuid.Data1=d1;
+                  uuid.Data2=d2;
+                  uuid.Data3=d3;
+                  uuid.Data4[0]=d40;
+                  uuid.Data4[1]=d41;
+                  uuid.Data4[2]=d42;
+                  uuid.Data4[3]=d43;
+                  uuid.Data4[4]=d44;
+                  uuid.Data4[5]=d45;
+                  uuid.Data4[6]=d46;
+                  uuid.Data4[7]=d47;
+                  if(pos){
+                    gtk_dcerpcstat_init(&uuid,major,minor,optarg+pos);
+                  } else {
+                    gtk_dcerpcstat_init(&uuid,major,minor,NULL);
+                  }
+                } else {
+                  fprintf(stderr, "ethereal: invalid \"-z dcerpc,rtt,<uuid>,<major version>.<minor version>[,<filter>]\" argument\n");
+                  exit(1);
+                }
+              } else {
+                fprintf(stderr, "tethereal: invalid -z argument. Argument must be one of:\n");
+                fprintf(stderr, "   \"-z dcerpc,rtt,<uuid>,<major version>.<minor version>[,<filter>]\"\n");
+                exit(1);
+              }
             } else {
-              fprintf(stderr, "ethereal: invalid -z argument. Argument must be \"-z rpc,...\"\n");
+              fprintf(stderr, "ethereal: invalid -z argument. Argument must be one of:\n");
+              fprintf(stderr, "   \"-z rpc,...\"\n");
+              fprintf(stderr, "   \"-z dcerpc,...\"\n");
               exit(1);
             }
             break;

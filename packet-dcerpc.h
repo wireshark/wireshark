@@ -1,7 +1,7 @@
 /* packet-dcerpc.h
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.h,v 1.23 2002/10/23 03:49:10 guy Exp $
+ * $Id: packet-dcerpc.h,v 1.24 2002/10/25 01:08:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -94,6 +94,7 @@ typedef struct _e_dce_dg_common_hdr_t {
 #define PDU_SHUTDOWN   17
 #define PDU_CO_CANCEL  18
 #define PDU_ORPHANED   19
+
 
 /*
  * helpers for packet-dcerpc.c and packet-dcerpc-ndr.c
@@ -237,5 +238,23 @@ typedef struct _dcerpc_info {
 	dcerpc_call_value *call_data;
 	void *private_data;
 } dcerpc_info;
+
+
+/* the registered subdissectors */
+extern GHashTable *dcerpc_uuids;
+
+typedef struct _dcerpc_uuid_key {
+    e_uuid_t uuid;
+    guint16 ver;
+} dcerpc_uuid_key;
+
+typedef struct _dcerpc_uuid_value {
+    int proto;
+    int ett;
+    gchar *name;
+    dcerpc_sub_dissector *procs;
+    int opnum_hf;
+} dcerpc_uuid_value;
+
 
 #endif /* packet-dcerpc.h */

@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.68 2002/09/07 10:02:31 sahlberg Exp $
+ * $Id: menu.c,v 1.69 2002/10/25 01:08:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -59,6 +59,8 @@
 #include <epan/epan_dissect.h>
 #include "rpc_stat.h"
 #include "rpc_progs.h"
+#include "../packet-dcerpc.h"
+#include "dcerpc_stat.h"
 
 GtkWidget *popup_menu_object;
 
@@ -176,6 +178,8 @@ static GtkItemFactoryEntry menu_items[] =
   {"/Tools/Statistics/ONC-RPC", NULL, NULL, 0, "<Branch>", },
   {"/Tools/Statistics/ONC-RPC/RTT", NULL, GTK_MENU_FUNC(gtk_rpcstat_cb), 0, NULL, },
   {"/Tools/Statistics/ONC-RPC/Programs", NULL, GTK_MENU_FUNC(gtk_rpcprogs_init), 0, NULL, },
+  {"/Tools/Statistics/DCE-RPC", NULL, NULL, 0, "<Branch>", },
+  {"/Tools/Statistics/DCE-RPC/RTT", NULL, GTK_MENU_FUNC(gtk_dcerpcstat_cb), 0, NULL, },
   {"/_Help", NULL, NULL, 0, "<LastBranch>" },
   {"/Help/_Help", NULL, GTK_MENU_FUNC(help_cb), 0, NULL},
   {"/Help/<separator>", NULL, NULL, 0, "<Separator>"},
