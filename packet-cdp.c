@@ -2,7 +2,7 @@
  * Routines for the disassembly of the "Cisco Discovery Protocol"
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-cdp.c,v 1.15 1999/10/12 06:20:03 gram Exp $
+ * $Id: packet-cdp.c,v 1.16 1999/10/16 14:27:00 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -41,6 +41,9 @@
 #define	TLV_LENGTH	2
 
 static int proto_cdp = -1;
+static int hf_cdp_version = -1;
+static int hf_cdp_flags = -1;
+static int hf_cdp_ttl = -1;
 static int hf_cdp_tlvtype = -1;
 static int hf_cdp_tlvlength = -1;
 
@@ -88,13 +91,15 @@ dissect_cdp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	cdp_tree = proto_item_add_subtree(ti, ETT_CDP);
 	
 	/* CDP header */
-	proto_tree_add_text(cdp_tree, offset, 1, "Version: %u", pd[offset]);
+	proto_tree_add_item(cdp_tree, hf_cdp_version, offset, 1, pd[offset]);
 	offset += 1;
-	proto_tree_add_text(cdp_tree, offset, 1, "Flags: %x (unknown)",
-	    pd[offset]);
+	proto_tree_add_item_format(cdp_tree, hf_cdp_flags, offset, 1,
+				   pd[offset], 
+				   "Flags: %x (unknown)", pd[offset]);
 	offset += 1;
-	proto_tree_add_text(cdp_tree, offset, 2, "TTL: %u (unknown)",
-	    pntohs(&pd[offset]));
+	proto_tree_add_item_format(cdp_tree, hf_cdp_ttl, offset, 2, 
+				   pntohs(&pd[offset]),
+				   "TTL: %u (unknown)", pntohs(&pd[offset]));
 	offset += 2;
 
 	while( IS_DATA_IN_FRAME(offset) ){
@@ -279,6 +284,18 @@ void
 proto_register_cdp(void)
 {
         static hf_register_info hf[] = {
+                { &hf_cdp_version,
+                { "Version",		"cdp.version",  FT_UINT8, BASE_DEC, NULL, 0x0,
+			"" }},
+
+                { &hf_cdp_flags,
+                { "Flags",		"cdp.flags", FT_UINT8, BASE_HEX, NULL, 0x0,
+			"" }},
+
+                { &hf_cdp_ttl,
+                { "TTL",		"cdp.ttl", FT_UINT16, BASE_DEC, NULL, 0x0,
+			"" }},
+
                 { &hf_cdp_tlvtype,
                 { "Type",		"cdp.tlv.type", FT_UINT16, BASE_HEX, VALS(type_vals), 0x0,
 			"" }},
