@@ -179,8 +179,9 @@ typedef struct _loop_data {
 
 static void capture_loop_packet_cb(guchar *user, const struct pcap_pkthdr *phdr,
   const guchar *pd);
-static void capture_loop_popup_errmsg(const char *);
-static void capture_loop_get_errmsg(char *, int, const char *, int, gboolean);
+static void capture_loop_popup_errmsg(capture_options *capture_opts, const char *errmsg);
+static void capture_loop_get_errmsg(char *errmsg, int errmsglen, const char *fname,
+			  int err, gboolean is_close);
 
 
 
@@ -598,7 +599,7 @@ static int capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
        mode or fork mode, it shouldn't do any UI stuff until we pop up the
        capture-progress window, and, since we couldn't start the
        capture, we haven't popped it up. */
-    if (!capture_child) {
+    if (!capture_opts->capture_child) {
       main_window_update();
     }
 
@@ -627,7 +628,7 @@ static int capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
        * capture-progress window, and, since we couldn't start the
        * capture, we haven't popped it up.
        */
-      if (!capture_child) {
+      if (!capture_opts->capture_child) {
           main_window_update();
       }
 
@@ -871,7 +872,7 @@ capture_loop_dispatch(loop_data *ld, char *errmsg, int errmsg_len) {
         if (sel_ret < 0 && errno != EINTR) {
           g_snprintf(errmsg, errmsg_len,
             "Unexpected error from select: %s", strerror(errno));
-          capture_loop_popup_errmsg(errmsg);
+          capture_loop_popup_errmsg(capture_opts, errmsg);
           ld->go = FALSE;
         }
       } else {
@@ -937,7 +938,7 @@ capture_loop_dispatch(loop_data *ld, char *errmsg, int errmsg_len) {
         if (sel_ret < 0 && errno != EINTR) {
           g_snprintf(errmsg, errmsg_len,
             "Unexpected error from select: %s", strerror(errno));
-          capture_loop_popup_errmsg(errmsg);
+          capture_loop_popup_errmsg(capture_opts, errmsg);
           ld->go = FALSE;
         }
       }
@@ -1038,7 +1039,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
      in other places as well - and I don't think that works all the
      time in any case, due to libpcap bugs. */
 
-  if (capture_child) {
+  if (capture_opts->capture_child) {
     /* Well, we should be able to start capturing.
 
        This is the child process for a sync mode capture, so sync out
@@ -1146,7 +1147,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
         /* do sync here */
         fflush(wtap_dump_file(ld.wtap_pdh));
 
-        if (capture_child) {
+        if (capture_opts->capture_child) {
 	  /* This is the child process for a sync mode capture, so send
 	     our parent a message saying we've written out "ld.sync_packets"
 	     packets to the capture file. */
@@ -1213,11 +1214,11 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
   if (ld.pcap_err) {
     g_snprintf(errmsg, sizeof(errmsg), "Error while capturing packets: %s",
       pcap_geterr(ld.pcap_h));
-    capture_loop_popup_errmsg(errmsg);
+    capture_loop_popup_errmsg(capture_opts, errmsg);
   }
 #ifndef _WIN32
     else if (ld.from_cap_pipe && ld.cap_pipe_err == PIPERR)
-      capture_loop_popup_errmsg(errmsg);
+      capture_loop_popup_errmsg(capture_opts, errmsg);
 #endif
 
   /* did we had an error while capturing? */
@@ -1226,7 +1227,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
   } else {
     capture_loop_get_errmsg(errmsg, sizeof(errmsg), cfile.save_file, ld.err,
 			      FALSE);
-    capture_loop_popup_errmsg(errmsg);
+    capture_loop_popup_errmsg(capture_opts, errmsg);
     write_ok = FALSE;
   }
 
@@ -1238,7 +1239,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
   if (!close_ok && write_ok) {
     capture_loop_get_errmsg(errmsg, sizeof(errmsg), cfile.save_file, err_close,
 		TRUE);
-    capture_loop_popup_errmsg(errmsg);
+    capture_loop_popup_errmsg(capture_opts, errmsg);
   }
 
   /*
@@ -1257,7 +1258,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
        dropped. */
     if (pcap_stats(ld.pcap_h, stats) >= 0) {
       *stats_known = TRUE;
-      if (capture_child) {
+      if (capture_opts->capture_child) {
       	/* Let the parent process know. */
         sync_pipe_drops_to_parent(stats->ps_drop);
       }
@@ -1265,7 +1266,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
       g_snprintf(errmsg, sizeof(errmsg),
 		"Can't get packet-drop statistics: %s",
 		pcap_geterr(ld.pcap_h));
-      capture_loop_popup_errmsg(errmsg);
+      capture_loop_popup_errmsg(capture_opts, errmsg);
     }
   }
 
@@ -1290,7 +1291,7 @@ error:
     g_free(cfile.save_file);
   }
   cfile.save_file = NULL;
-  capture_loop_popup_errmsg(errmsg);
+  capture_loop_popup_errmsg(capture_opts, errmsg);
 
   /* close the input file (pcap or cap_pipe) */
   capture_loop_close_input(&ld);
@@ -1364,9 +1365,9 @@ capture_loop_get_errmsg(char *errmsg, int errmsglen, const char *fname,
 }
 
 static void
-capture_loop_popup_errmsg(const char *errmsg)
+capture_loop_popup_errmsg(capture_options *capture_opts, const char *errmsg)
 {
-  if (capture_child) {
+  if (capture_opts->capture_child) {
     /* This is the child process for a sync mode capture.
        Send the error message to our parent, so they can display a
        dialog box containing it. */

@@ -51,11 +51,6 @@
 #include "follow_dlg.h"
 
 
-/* XXX - use capture.h instead */
-/*#include "capture.h"*/
-extern gboolean capture_child;	
-
-
 
 #if GTK_MAJOR_VERSION < 2
 guint	     m_font_height, m_font_width;
@@ -715,7 +710,7 @@ static void try_to_get_windows_font_gtk2(void)
 #endif /* _WIN32 */
 
 
-void font_init(void)
+void font_init(gboolean capture_child)
 {
 #if GTK_MAJOR_VERSION < 2
   gchar *bold_font_name;

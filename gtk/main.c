@@ -1622,13 +1622,15 @@ main(int argc, char *argv[])
 		    console_log_handler, NULL);
 #endif
 
-#ifdef HAVE_LIBPCAP
+#ifndef HAVE_LIBPCAP
+  capture_opts->capture_child = FALSE;
+#else
   command_name = get_basename(ethereal_path);
   /* Set "capture_child" to indicate whether this is going to be a child
      process for a "-S" capture. */
-  capture_child = (strcmp(command_name, CHILD_NAME) == 0);
+  capture_opts->capture_child = (strcmp(command_name, CHILD_NAME) == 0);
   /* We want a splash screen only if we're not a child process */
-  if (capture_child) {
+  if (capture_opts->capture_child) {
     strcat(optstring, OPTSTRING_CHILD);
   } else
 #endif
@@ -1784,7 +1786,7 @@ main(int argc, char *argv[])
 
      Otherwise, set promiscuous mode from the preferences setting. */
   /* the same applies to other preferences settings as well. */
-  if (capture_child) {
+  if (capture_opts->capture_child) {
     capture_opts->promisc_mode   = TRUE;     /* maybe changed by command line below */
     capture_opts->show_info      = TRUE;     /* maybe changed by command line below */
     capture_opts->sync_mode      = TRUE;     /* always true in child process */
@@ -2277,7 +2279,7 @@ main(int argc, char *argv[])
     }
   }
 
-  if (capture_child) {
+  if (capture_opts->capture_child) {
     if (cfile.save_file_fd == -1) {
       /* XXX - send this to the standard output as something our parent
 	 should put in an error message box? */
@@ -2379,7 +2381,7 @@ main(int argc, char *argv[])
   rc_file = get_persconffile_path(RC_FILE, FALSE);
   gtk_rc_parse(rc_file);
 
-  font_init();
+  font_init(capture_opts->capture_child);
 
   /* close the splash screen, as we are going to open the main window now */
   splash_destroy(splash_win);
@@ -2388,7 +2390,7 @@ main(int argc, char *argv[])
   /* Is this a "child" ethereal, which is only supposed to pop up a
      capture box to let us stop the capture, and run a capture
      to a file that our parent will read? */
-  if (!capture_child) {
+  if (!capture_opts->capture_child) {
 #endif
     /* No.  Pop up the main window, and read in a capture file if
        we were told to. */

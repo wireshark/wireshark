@@ -69,11 +69,6 @@
 #endif
 #include "ui_util.h"
 
-/*
- * Capture options.
- */
-gboolean capture_child;	        /* if this is the child for "-S" */
-
 
 /* Win32 needs the O_BINARY flag for open() */
 #ifndef O_BINARY
@@ -299,7 +294,7 @@ capture_start(capture_options *capture_opts, gboolean *stats_known, struct pcap_
    * Catch SIGUSR1, so that we exit cleanly if the parent process
    * kills us with it due to the user selecting "Capture->Stop".
    */
-  if (capture_child)
+  if (capture_opts->capture_child)
     signal(SIGUSR1, stop_capture_signal_handler);
 #endif
 

@@ -46,6 +46,7 @@ typedef struct capture_options_tag {
 	gboolean promisc_mode;  /**< Capture in promiscuous mode */
 	int linktype;			/**< Data link type to use, or -1 for
 					   "use default" */
+	gboolean capture_child;	/**< True if this is the child for "-S" */
 
     /* GUI related */
 	gboolean sync_mode;			/**< Fork a child to do the capture,
@@ -76,9 +77,6 @@ typedef struct capture_options_tag {
 					   is specified */
 	gint32 autostop_duration;	/**< Maximum capture duration */
 } capture_options;
-
-/** True if this is the child for "-S" */
-extern gboolean capture_child;	
 
 
 /** Open a specified file, or create a temporary file, and start a capture
