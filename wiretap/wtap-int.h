@@ -1,6 +1,6 @@
 /* wtap-int.h
  *
- * $Id: wtap-int.h,v 1.17 2001/12/04 08:26:00 guy Exp $
+ * $Id: wtap-int.h,v 1.18 2001/12/13 05:49:13 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -346,5 +346,10 @@ struct wtap_dumper {
 		} \
 	} \
 	G_STMT_END
+
+/* glib doesn't have g_ptr_array_len of all things!*/
+#ifndef g_ptr_array_len
+#define g_ptr_array_len(a)      ((a)->len)
+#endif
 
 #endif /* __WTAP_INT_H__ */
