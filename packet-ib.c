@@ -4,7 +4,7 @@
  * Erik Kunze <kunze@philosys.de>
  * Uwe Girlich <Uwe.Girlich@philosys.de>
  *
- * $Id: packet-ib.c,v 1.1 2002/08/29 12:24:57 girlich Exp $
+ * $Id: packet-ib.c,v 1.2 2003/01/20 08:03:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -142,16 +142,34 @@ static const value_string names_opcode[] = {
 { 0, NULL }
 };
 
-static void
+static int
 dissect_ib(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
+	guint32		opcode;
 	proto_item	*ti = NULL;
 	proto_tree	*ib_tree = NULL;
 	int		offset;
-	guint		rest_length;
 	tvbuff_t	*next_tvb;
-	guint32		opcode;
 
+	offset = 0;
+
+	/*
+	 * Check that the opcode is one we recognize.
+	 */
+	if (!tvb_bytes_exist(tvb, offset, 4)) {
+		/*
+		 * We don't have enough bytes for an opcode.
+		 */
+		return 0;
+	}
+	opcode = tvb_get_ntohl(tvb, offset + 0);
+	if (match_strval(opcode, names_opcode) == NULL) {
+		/*
+		 * This isn't an opcode we recognize.
+		 */
+		return 0;
+	}
+		
 	if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "IB");
     
@@ -169,9 +187,6 @@ dissect_ib(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		ib_tree = proto_item_add_subtree(ti, ett_ib);
 	}
 
-	offset = 0;
-
-	opcode = tvb_get_ntohl(tvb, offset + 0);
 	if (ib_tree) {
 		proto_tree_add_uint(ib_tree,
 			hf_ib_opcode, tvb, offset + 0, 4, opcode);
@@ -182,10 +197,10 @@ dissect_ib(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 	offset += 4;
 
-	rest_length = tvb_reported_length(tvb) - offset;
-	next_tvb = tvb_new_subset(tvb, offset, rest_length , rest_length);
+	next_tvb = tvb_new_subset(tvb, offset, -1, -1);
 
 	call_dissector(data_handle, next_tvb, pinfo, ib_tree);
+	return tvb_length(tvb);
 }
 
 /* Register the protocol with Ethereal */
@@ -218,7 +233,7 @@ proto_reg_handoff_ib(void)
 {
   dissector_handle_t ib_handle;
 
-  ib_handle = create_dissector_handle(dissect_ib, proto_ib);
+  ib_handle = new_create_dissector_handle(dissect_ib, proto_ib);
   dissector_add("tcp.port", TCP_PORT_IB, ib_handle);
   data_handle = find_dissector("data");
 }
