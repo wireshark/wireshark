@@ -3,7 +3,7 @@
 #     a) common to both files and
 #     b) portable between both files
 #
-# $Id: Makefile.common,v 1.11 2004/04/22 21:29:34 ulfl Exp $
+# $Id: Makefile.common,v 1.12 2004/04/29 17:03:27 ulfl Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -52,6 +52,7 @@ ETHEREAL_GTK_SRC = \
 	gui_prefs.c	\
 	help_dlg.c	\
 	hostlist_table.c \
+	layout_prefs.c	\
 	main.c 	\
 	menu.c 	\
 	nameres_prefs.c	\

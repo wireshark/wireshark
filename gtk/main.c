@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.426 2004/04/27 19:16:11 ulfl Exp $
+ * $Id: main.c,v 1.427 2004/04/29 17:03:27 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -89,6 +89,7 @@
 #include "color_filters.h"
 #include "color_utils.h"
 #include "filter_prefs.h"
+#include "layout_prefs.h"
 #include "file_dlg.h"
 #include "column.h"
 #include "print.h"
@@ -131,7 +132,8 @@
 capture_file cfile;
 GtkWidget   *main_display_filter_widget=NULL;
 GtkWidget   *top_level = NULL, *tree_view, *byte_nb_ptr, *tv_scrollw;
-GtkWidget   *main_upper_pane, *main_lower_pane;
+GtkWidget   *none_lb, *main_pane_v1, *main_pane_v2, *main_pane_h1, *main_pane_h2;
+GtkWidget   *main_first_pane, *main_second_pane;
 GtkWidget   *status_pane;
 GtkWidget   *menubar, *main_vbox, *main_tb, *pkt_scrollw, *stat_hbox, *filter_tb;
 static GtkWidget	*info_bar;
@@ -1287,12 +1289,13 @@ main_load_window_geometry(GtkWidget *widget
         }
     }
 
+    /* XXX - rename recent settings? */
     if (recent.gui_geometry_main_upper_pane)
-        gtk_paned_set_position(GTK_PANED(main_upper_pane),      recent.gui_geometry_main_upper_pane);
+        gtk_paned_set_position(GTK_PANED(main_first_pane),  recent.gui_geometry_main_upper_pane);
     if (recent.gui_geometry_main_lower_pane)
-        gtk_paned_set_position(GTK_PANED(main_lower_pane),      recent.gui_geometry_main_lower_pane);
+        gtk_paned_set_position(GTK_PANED(main_second_pane), recent.gui_geometry_main_lower_pane);
     if (recent.gui_geometry_status_pane)
-        gtk_paned_set_position(GTK_PANED(status_pane),     recent.gui_geometry_status_pane);
+        gtk_paned_set_position(GTK_PANED(status_pane),      recent.gui_geometry_status_pane);
 #endif
 }
 
@@ -1348,8 +1351,8 @@ main_save_window_geometry(GtkWidget *widget)
         recent.gui_geometry_main_maximized = (state == GDK_WINDOW_STATE_MAXIMIZED);
     }
 
-    recent.gui_geometry_main_upper_pane     = gtk_paned_get_position(GTK_PANED(main_upper_pane));
-    recent.gui_geometry_main_lower_pane     = gtk_paned_get_position(GTK_PANED(main_lower_pane));
+    recent.gui_geometry_main_upper_pane     = gtk_paned_get_position(GTK_PANED(main_first_pane));
+    recent.gui_geometry_main_lower_pane     = gtk_paned_get_position(GTK_PANED(main_second_pane));
     recent.gui_geometry_status_pane         = gtk_paned_get_position(GTK_PANED(status_pane));
 #endif
 }
@@ -3524,12 +3527,34 @@ void foreach_remove_a_child(GtkWidget *widget, gpointer data) {
     gtk_container_remove(GTK_CONTAINER(data), widget);
 }
 
+GtkWidget *main_widget_layout(gint layout_content)
+{
+    switch(layout_content) {
+    case(layout_pane_content_none):
+        return none_lb;
+        break;
+    case(layout_pane_content_plist):
+        return pkt_scrollw;
+        break;
+    case(layout_pane_content_pdetails):
+        return tv_scrollw;
+        break;
+    case(layout_pane_content_pbytes):
+        return byte_nb_ptr;
+        break;
+    default:
+        g_assert_not_reached();
+        return NULL;
+    }
+}
+
+
 /*
  * Rearrange the main window widgets
  */
 void main_widgets_rearrange(void) {
     gint widgets = 0;
-    GtkWidget *w[10];
+    GtkWidget *pane_content[3];
     gboolean filter_toolbar_show_in_statusbar = prefs.filter_toolbar_show_in_statusbar;
 
     /* be a bit faster */
@@ -3542,19 +3567,24 @@ void main_widgets_rearrange(void) {
     gtk_widget_ref(pkt_scrollw);
     gtk_widget_ref(tv_scrollw);
     gtk_widget_ref(byte_nb_ptr);
-    gtk_widget_ref(main_upper_pane);
-    gtk_widget_ref(main_lower_pane);
     gtk_widget_ref(stat_hbox);
     gtk_widget_ref(info_bar);
     gtk_widget_ref(packets_bar);
     gtk_widget_ref(status_pane);
+    gtk_widget_ref(none_lb);
+    gtk_widget_ref(main_pane_v1);
+    gtk_widget_ref(main_pane_v2);
+    gtk_widget_ref(main_pane_h1);
+    gtk_widget_ref(main_pane_h2);
 
     /* empty all containers participating */
-    gtk_container_foreach(GTK_CONTAINER(main_vbox),         foreach_remove_a_child, main_vbox);
-    gtk_container_foreach(GTK_CONTAINER(main_upper_pane),   foreach_remove_a_child, main_upper_pane);
-    gtk_container_foreach(GTK_CONTAINER(main_lower_pane),   foreach_remove_a_child, main_lower_pane);
+    gtk_container_foreach(GTK_CONTAINER(main_vbox),     foreach_remove_a_child, main_vbox);
     gtk_container_foreach(GTK_CONTAINER(stat_hbox),     foreach_remove_a_child, stat_hbox);
-    gtk_container_foreach(GTK_CONTAINER(status_pane),  foreach_remove_a_child, status_pane);
+    gtk_container_foreach(GTK_CONTAINER(status_pane),   foreach_remove_a_child, status_pane);
+    gtk_container_foreach(GTK_CONTAINER(main_pane_v1),  foreach_remove_a_child, main_pane_v1);
+    gtk_container_foreach(GTK_CONTAINER(main_pane_v2),  foreach_remove_a_child, main_pane_v2);
+    gtk_container_foreach(GTK_CONTAINER(main_pane_h1),  foreach_remove_a_child, main_pane_h1);
+    gtk_container_foreach(GTK_CONTAINER(main_pane_h2),  foreach_remove_a_child, main_pane_h2);
 
     /* add the menubar always at the top */
     gtk_box_pack_start(GTK_BOX(main_vbox), menubar, FALSE, TRUE, 0);
@@ -3569,39 +3599,85 @@ void main_widgets_rearrange(void) {
         gtk_box_pack_start(GTK_BOX(main_vbox), filter_tb, FALSE, TRUE, 1);
     }
 
-    /* get the info, which and how many of the main widgets should be shown */
+    /* get the corresponding widgets to the content setting */
+    pane_content[0] = main_widget_layout(prefs.gui_layout_content_1);
+    pane_content[1] = main_widget_layout(prefs.gui_layout_content_2);
+    pane_content[2] = main_widget_layout(prefs.gui_layout_content_3);
+
+    /* fill the main layout panes */
+    switch(prefs.gui_layout_type) {
+    case(layout_type_5):
+        main_first_pane  = main_pane_v1;
+        main_second_pane = main_pane_v2;
+        gtk_paned_add1(GTK_PANED(main_first_pane), pane_content[0]);
+        gtk_paned_add2(GTK_PANED(main_first_pane), main_second_pane);
+        gtk_paned_pack1(GTK_PANED(main_second_pane), pane_content[1], TRUE, TRUE);
+        gtk_paned_pack2(GTK_PANED(main_second_pane), pane_content[2], FALSE, FALSE);
+        break;
+    case(layout_type_2):
+        main_first_pane  = main_pane_v1;
+        main_second_pane = main_pane_h1;
+        gtk_paned_add1(GTK_PANED(main_first_pane), pane_content[0]);
+        gtk_paned_add2(GTK_PANED(main_first_pane), main_second_pane);
+        gtk_paned_pack1(GTK_PANED(main_second_pane), pane_content[1], TRUE, TRUE);
+        gtk_paned_pack2(GTK_PANED(main_second_pane), pane_content[2], FALSE, FALSE);
+        break;
+    case(layout_type_1):
+        main_first_pane  = main_pane_v1;
+        main_second_pane = main_pane_h1;
+        gtk_paned_add1(GTK_PANED(main_first_pane), main_second_pane);
+        gtk_paned_add2(GTK_PANED(main_first_pane), pane_content[2]);
+        gtk_paned_pack1(GTK_PANED(main_second_pane), pane_content[0], TRUE, TRUE);
+        gtk_paned_pack2(GTK_PANED(main_second_pane), pane_content[1], FALSE, FALSE);
+        break;
+    case(layout_type_4):
+        main_first_pane  = main_pane_h1;
+        main_second_pane = main_pane_v1;
+        gtk_paned_add1(GTK_PANED(main_first_pane), pane_content[0]);
+        gtk_paned_add2(GTK_PANED(main_first_pane), main_second_pane);
+        gtk_paned_pack1(GTK_PANED(main_second_pane), pane_content[1], TRUE, TRUE);
+        gtk_paned_pack2(GTK_PANED(main_second_pane), pane_content[2], FALSE, FALSE);
+        break;
+    case(layout_type_3):
+        main_first_pane  = main_pane_h1;
+        main_second_pane = main_pane_v1;
+        gtk_paned_add1(GTK_PANED(main_first_pane), main_second_pane);
+        gtk_paned_add2(GTK_PANED(main_first_pane), pane_content[2]);
+        gtk_paned_pack1(GTK_PANED(main_second_pane), pane_content[0], TRUE, TRUE);
+        gtk_paned_pack2(GTK_PANED(main_second_pane), pane_content[1], FALSE, FALSE);
+        break;
+    case(layout_type_6):
+        main_first_pane  = main_pane_h1;
+        main_second_pane = main_pane_h2;
+        gtk_paned_add1(GTK_PANED(main_first_pane), pane_content[0]);
+        gtk_paned_add2(GTK_PANED(main_first_pane), main_second_pane);
+        gtk_paned_pack1(GTK_PANED(main_second_pane), pane_content[1], TRUE, TRUE);
+        gtk_paned_pack2(GTK_PANED(main_second_pane), pane_content[2], FALSE, FALSE);
+        break;
+    default:
+        g_assert_not_reached();
+    }
+
+    gtk_container_add(GTK_CONTAINER(main_vbox), main_first_pane);
+
+    /* hide widgets on users recent settings */
+    /* XXX - do we still need this? */
     if (recent.packet_list_show) {
-        w[widgets++] = pkt_scrollw;
+        gtk_widget_show(pkt_scrollw);
+    } else {
+        gtk_widget_hide(pkt_scrollw);
     }
 
     if (recent.tree_view_show) {
-        w[widgets++] = tv_scrollw;
+        gtk_widget_show(tv_scrollw);
+    } else {
+        gtk_widget_hide(tv_scrollw);
     }
 
     if (recent.byte_view_show) {
-        w[widgets++] = byte_nb_ptr;
-    }
-
-    /* show the main widgets, depending on their number */
-    switch(widgets) {
-    case(0):
-        break;
-    case(1):
-        gtk_container_add(GTK_CONTAINER(main_vbox), w[0]);
-        break;
-    case(2):
-        gtk_container_add(GTK_CONTAINER(main_vbox), main_upper_pane);
-        gtk_paned_pack1(GTK_PANED(main_upper_pane), w[0], TRUE, TRUE);
-        gtk_paned_pack2(GTK_PANED(main_upper_pane), w[1], FALSE, FALSE);
-        break;
-    case(3):
-        gtk_container_add(GTK_CONTAINER(main_vbox), main_upper_pane);
-        gtk_paned_add1(GTK_PANED(main_upper_pane), w[0]);
-        gtk_paned_add2(GTK_PANED(main_upper_pane), main_lower_pane);
-
-        gtk_paned_pack1(GTK_PANED(main_lower_pane), w[1], TRUE, TRUE);
-        gtk_paned_pack2(GTK_PANED(main_lower_pane), w[2], FALSE, FALSE);
-        break;
+        gtk_widget_show(byte_nb_ptr);
+    } else {
+        gtk_widget_hide(byte_nb_ptr);
     }
 
     /* statusbar hbox */
@@ -3623,6 +3699,7 @@ void main_widgets_rearrange(void) {
 
     gtk_widget_show(main_vbox);
 }
+
 
 static void
 create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
@@ -3712,13 +3789,16 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
 
 
     /* Panes for the packet list, tree, and byte view */
-    main_lower_pane = gtk_vpaned_new();
-    gtk_paned_gutter_size(GTK_PANED(main_lower_pane), (GTK_PANED(main_lower_pane))->handle_size);
-    gtk_widget_show(main_lower_pane);
+    none_lb = gtk_label_new("None");
 
-    main_upper_pane = gtk_vpaned_new();
-    gtk_paned_gutter_size(GTK_PANED(main_upper_pane), (GTK_PANED(main_upper_pane))->handle_size);
-    gtk_widget_show(main_upper_pane);
+    main_pane_v1 = gtk_vpaned_new();
+    gtk_widget_show(main_pane_v1);
+    main_pane_v2 = gtk_vpaned_new();
+    gtk_widget_show(main_pane_v2);
+    main_pane_h1 = gtk_hpaned_new();
+    gtk_widget_show(main_pane_h1);
+    main_pane_h2 = gtk_hpaned_new();
+    gtk_widget_show(main_pane_h2);
 
     /* filter toolbar */
 #if GTK_MAJOR_VERSION < 2

@@ -1,7 +1,7 @@
 /* prefs_dlg.c
  * Routines for handling preferences
  *
- * $Id: prefs_dlg.c,v 1.80 2004/03/13 15:15:25 ulfl Exp $
+ * $Id: prefs_dlg.c,v 1.81 2004/04/29 17:03:27 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -42,6 +42,7 @@
 #include "print_prefs.h"
 #include "stream_prefs.h"
 #include "gui_prefs.h"
+#include "layout_prefs.h"
 #include "capture_prefs.h"
 #include "nameres_prefs.h"
 #include "ui_util.h"
@@ -71,6 +72,7 @@ static void	prefs_tree_select_cb(GtkTreeSelection *, gpointer);
 #endif
 
 #define E_GUI_PAGE_KEY	        "gui_options_page"
+#define E_GUI_LAYOUT_PAGE_KEY	"gui_layout_page"
 #define E_GUI_COLUMN_PAGE_KEY   "gui_column_options_page"
 #define E_GUI_FONT_PAGE_KEY     "gui_font_options_page"
 #define E_GUI_STREAM_PAGE_KEY   "gui_tcp_stream_options_page"
@@ -338,7 +340,7 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
 {
   GtkWidget         *top_hb, *bbox, *prefs_nb, *ct_sb, *frame,
                     *ok_bt, *apply_bt, *save_bt, *cancel_bt;
-  GtkWidget         *gui_pg, *gui_font_pg, *gui_column_pg, *gui_stream_pg;
+  GtkWidget         *gui_pg, *gui_layout_pg, *gui_font_pg, *gui_column_pg, *gui_stream_pg;
 #ifdef HAVE_LIBPCAP
   GtkWidget         *capture_pg;
 #endif
@@ -465,6 +467,27 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
 #endif
   cts.page++;
 
+  /* GUI layout prefs */
+  frame = gtk_frame_new("Layout");
+  gtk_widget_show(GTK_WIDGET(frame));
+  gui_layout_pg = layout_prefs_show();
+  gtk_container_add(GTK_CONTAINER(frame), gui_layout_pg);
+  OBJECT_SET_DATA(prefs_w, E_GUI_LAYOUT_PAGE_KEY, gui_layout_pg);
+  gtk_notebook_append_page (GTK_NOTEBOOK(prefs_nb), frame, NULL);
+  strcpy(label_str, "Layout");
+#if GTK_MAJOR_VERSION < 2
+  ct_node = gtk_ctree_insert_node(GTK_CTREE(cts.tree), ct_base_node, NULL,
+  		&label_ptr, 5, NULL, NULL, NULL, NULL, TRUE, TRUE);
+  gtk_ctree_node_set_row_data(GTK_CTREE(cts.tree), ct_node,
+  		GINT_TO_POINTER(cts.page));
+#else
+  gtk_tree_store_append(store, &iter, &base_iter);
+  gtk_tree_store_set(store, &iter, 0, label_str, 1, cts.page, -1);
+  /* expand the parent */
+  gtk_tree_view_expand_all(GTK_TREE_VIEW(cts.tree));
+#endif
+  cts.page++;
+
   /* GUI Column prefs */
   frame = gtk_frame_new("Columns");
   gtk_widget_show(GTK_WIDGET(frame));
@@ -481,8 +504,6 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
 #else
   gtk_tree_store_append(store, &iter, &base_iter);
   gtk_tree_store_set(store, &iter, 0, label_str, 1, cts.page, -1);
-  /* expand the parent */
-  gtk_tree_view_expand_all(GTK_TREE_VIEW(cts.tree));
 #endif
   cts.page++;
 
@@ -1007,6 +1028,7 @@ prefs_main_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
   column_prefs_fetch(OBJECT_GET_DATA(parent_w, E_GUI_COLUMN_PAGE_KEY));
   stream_prefs_fetch(OBJECT_GET_DATA(parent_w, E_GUI_STREAM_PAGE_KEY));
   gui_prefs_fetch(OBJECT_GET_DATA(parent_w, E_GUI_PAGE_KEY));
+  layout_prefs_fetch(OBJECT_GET_DATA(parent_w, E_GUI_LAYOUT_PAGE_KEY));
 #ifdef HAVE_LIBPCAP
 #ifdef _WIN32
   /* Is WPcap loaded? */
@@ -1025,6 +1047,7 @@ prefs_main_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
   column_prefs_apply(OBJECT_GET_DATA(parent_w, E_GUI_COLUMN_PAGE_KEY));
   stream_prefs_apply(OBJECT_GET_DATA(parent_w, E_GUI_STREAM_PAGE_KEY));
   gui_prefs_apply(OBJECT_GET_DATA(parent_w, E_GUI_PAGE_KEY));
+  layout_prefs_apply(OBJECT_GET_DATA(parent_w, E_GUI_LAYOUT_PAGE_KEY));
 #ifdef HAVE_LIBPCAP
 #ifdef _WIN32
   /* Is WPcap loaded? */
@@ -1059,6 +1082,7 @@ prefs_main_apply_cb(GtkWidget *apply_bt _U_, gpointer parent_w)
   column_prefs_fetch(OBJECT_GET_DATA(parent_w, E_GUI_COLUMN_PAGE_KEY));
   stream_prefs_fetch(OBJECT_GET_DATA(parent_w, E_GUI_STREAM_PAGE_KEY));
   gui_prefs_fetch(OBJECT_GET_DATA(parent_w, E_GUI_PAGE_KEY));
+  layout_prefs_fetch(OBJECT_GET_DATA(parent_w, E_GUI_LAYOUT_PAGE_KEY));
 #ifdef HAVE_LIBPCAP
 #ifdef _WIN32
   /* Is WPcap loaded? */
@@ -1077,6 +1101,7 @@ prefs_main_apply_cb(GtkWidget *apply_bt _U_, gpointer parent_w)
   column_prefs_apply(OBJECT_GET_DATA(parent_w, E_GUI_COLUMN_PAGE_KEY));
   stream_prefs_apply(OBJECT_GET_DATA(parent_w, E_GUI_STREAM_PAGE_KEY));
   gui_prefs_apply(OBJECT_GET_DATA(parent_w, E_GUI_PAGE_KEY));
+  layout_prefs_apply(OBJECT_GET_DATA(parent_w, E_GUI_LAYOUT_PAGE_KEY));
 #ifdef HAVE_LIBPCAP
 #ifdef _WIN32
   /* Is WPcap loaded? */
@@ -1111,6 +1136,7 @@ prefs_main_save_cb(GtkWidget *save_bt _U_, gpointer parent_w)
   column_prefs_fetch(OBJECT_GET_DATA(parent_w, E_GUI_COLUMN_PAGE_KEY));
   stream_prefs_fetch(OBJECT_GET_DATA(parent_w, E_GUI_STREAM_PAGE_KEY));
   gui_prefs_fetch(OBJECT_GET_DATA(parent_w, E_GUI_PAGE_KEY));
+  layout_prefs_fetch(OBJECT_GET_DATA(parent_w, E_GUI_LAYOUT_PAGE_KEY));
 #ifdef HAVE_LIBPCAP
 #ifdef _WIN32
   /* Is WPcap loaded? */
@@ -1160,6 +1186,7 @@ prefs_main_save_cb(GtkWidget *save_bt _U_, gpointer parent_w)
   column_prefs_apply(OBJECT_GET_DATA(parent_w, E_GUI_COLUMN_PAGE_KEY));
   stream_prefs_apply(OBJECT_GET_DATA(parent_w, E_GUI_STREAM_PAGE_KEY));
   gui_prefs_apply(OBJECT_GET_DATA(parent_w, E_GUI_PAGE_KEY));
+  layout_prefs_apply(OBJECT_GET_DATA(parent_w, E_GUI_LAYOUT_PAGE_KEY));
 #ifdef HAVE_LIBPCAP
 #ifdef _WIN32
   /* Is WPcap loaded? */
@@ -1259,6 +1286,7 @@ prefs_main_cancel_cb(GtkWidget *cancel_bt _U_, gpointer parent_w)
   column_prefs_apply(OBJECT_GET_DATA(parent_w, E_GUI_COLUMN_PAGE_KEY));
   stream_prefs_apply(OBJECT_GET_DATA(parent_w, E_GUI_STREAM_PAGE_KEY));
   gui_prefs_apply(OBJECT_GET_DATA(parent_w, E_GUI_PAGE_KEY));
+  layout_prefs_apply(OBJECT_GET_DATA(parent_w, E_GUI_LAYOUT_PAGE_KEY));
   nameres_prefs_apply(OBJECT_GET_DATA(parent_w, E_NAMERES_PAGE_KEY));
   prefs_apply_all();
 
@@ -1289,6 +1317,7 @@ prefs_main_destroy_cb(GtkWidget *win _U_, gpointer user_data _U_)
   column_prefs_destroy(OBJECT_GET_DATA(prefs_w, E_GUI_COLUMN_PAGE_KEY));
   stream_prefs_destroy(OBJECT_GET_DATA(prefs_w, E_GUI_STREAM_PAGE_KEY));
   gui_prefs_destroy(OBJECT_GET_DATA(prefs_w, E_GUI_PAGE_KEY));
+  layout_prefs_destroy(OBJECT_GET_DATA(prefs_w, E_GUI_LAYOUT_PAGE_KEY));
 #ifdef HAVE_LIBPCAP
 #ifdef _WIN32
   /* Is WPcap loaded? */

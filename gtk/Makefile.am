@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for the GTK interface routines for Ethereal
 #
-# $Id: Makefile.am,v 1.95 2004/04/23 02:00:13 gerald Exp $
+# $Id: Makefile.am,v 1.96 2004/04/29 17:03:27 ulfl Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -59,6 +59,7 @@ noinst_HEADERS = \
 	help_dlg.h	\
 	hostlist_table.h \
 	keys.h		\
+	layout_prefs.h	\
 	main.h		\
 	menu.h		\
 	mtp3_stat.h	\

@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.128 2004/04/06 19:02:17 ulfl Exp $
+ * $Id: prefs.c,v 1.129 2004/04/29 17:03:26 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -94,6 +94,9 @@ static gchar	*gui_fileopen_style_text[] =
  * as this may not work on other guis, we use only "both" in general here */
 static gchar	*gui_toolbar_style_text[] =
 	{ "ICONS", "TEXT", "BOTH", NULL };
+
+static gchar	*gui_layout_content_text[] =
+	{ "NONE", "PLIST", "PDETAILS", "PBYTES", NULL };
 
 /*
  * List of all modules with preference settings.
@@ -990,6 +993,10 @@ read_prefs(int *gpf_errno_return, int *gpf_read_errno_return,
     prefs.gui_fileopen_style         = FO_STYLE_LAST_OPENED;
     prefs.gui_recent_files_count_max = 10;
     prefs.gui_fileopen_dir           = g_strdup("");
+    prefs.gui_layout_type            = 1;
+    prefs.gui_layout_content_1       = 0;
+    prefs.gui_layout_content_2       = 1;
+    prefs.gui_layout_content_3       = 2;
 
 /* set the default values for the capture dialog box */
     prefs.capture_device           = NULL;
@@ -1293,6 +1300,10 @@ prefs_set_pref(char *prefarg)
 #define PRS_GUI_GEOMETRY_MAIN_HEIGHT     "gui.geometry.main.height"
 #define PRS_GUI_TOOLBAR_MAIN_SHOW        "gui.toolbar_main_show"
 #define PRS_GUI_TOOLBAR_MAIN_STYLE       "gui.toolbar_main_style"
+#define PRS_GUI_LAYOUT_TYPE              "gui.layout_type"
+#define PRS_GUI_LAYOUT_CONTENT_1         "gui.layout_content_1"
+#define PRS_GUI_LAYOUT_CONTENT_2         "gui.layout_content_2"
+#define PRS_GUI_LAYOUT_CONTENT_3         "gui.layout_content_3"
 
 /*
  * This applies to more than just captures, so it's not "capture.name_resolve";
@@ -1600,6 +1611,19 @@ set_pref(gchar *pref_name, gchar *value)
       g_free(prefs.gui_fileopen_dir);
     prefs.gui_fileopen_dir = g_strdup(value);
   } else if (strcmp(pref_name, PRS_GUI_FILEOPEN_REMEMBERED_DIR) == 0) { /* deprecated */
+
+  } else if (strcmp(pref_name, PRS_GUI_LAYOUT_TYPE) == 0) {
+    prefs.gui_layout_type = strtoul(value, NULL, 10);
+
+  } else if (strcmp(pref_name, PRS_GUI_LAYOUT_CONTENT_1) == 0) {
+    prefs.gui_layout_content_1 =
+	find_index_from_string_array(value, gui_layout_content_text, 0);
+  } else if (strcmp(pref_name, PRS_GUI_LAYOUT_CONTENT_2) == 0) {
+    prefs.gui_layout_content_2 =
+	find_index_from_string_array(value, gui_layout_content_text, 0);
+  } else if (strcmp(pref_name, PRS_GUI_LAYOUT_CONTENT_3) == 0) {
+    prefs.gui_layout_content_3 =
+	find_index_from_string_array(value, gui_layout_content_text, 0);
 
 /* handle the capture options */
   } else if (strcmp(pref_name, PRS_CAP_DEVICE) == 0) {
@@ -2190,6 +2214,19 @@ write_prefs(char **pf_path_return)
                   prefs.gui_fileopen_dir);
   }
                   
+  fprintf(pf, "\n# Layout type (1-6).\n");
+  fprintf(pf, PRS_GUI_LAYOUT_TYPE ": %d\n",
+	          prefs.gui_layout_type);
+
+  fprintf(pf, "\n# Layout content of the panes (1-3).\n");
+  fprintf(pf, "# One of: NONE, PLIST, PDETAILS, PBYTES\n");
+  fprintf(pf, PRS_GUI_LAYOUT_CONTENT_1 ": %s\n",
+	          gui_layout_content_text[prefs.gui_layout_content_1]);
+  fprintf(pf, PRS_GUI_LAYOUT_CONTENT_2 ": %s\n",
+	          gui_layout_content_text[prefs.gui_layout_content_2]);
+  fprintf(pf, PRS_GUI_LAYOUT_CONTENT_3 ": %s\n",
+	          gui_layout_content_text[prefs.gui_layout_content_3]);
+
   fprintf(pf, "\n####### Name Resolution ########\n");
   
   fprintf(pf, "\n# Resolve addresses to names?\n");
@@ -2283,6 +2320,10 @@ copy_prefs(e_prefs *dest, e_prefs *src)
   dest->gui_toolbar_main_style = src->gui_toolbar_main_style;
   dest->gui_fileopen_dir = g_strdup(src->gui_fileopen_dir);
   dest->gui_fileopen_style = src->gui_fileopen_style;
+  dest->gui_layout_type = src->gui_layout_type;
+  dest->gui_layout_content_1 = src->gui_layout_content_1;
+  dest->gui_layout_content_2 = src->gui_layout_content_2;
+  dest->gui_layout_content_3 = src->gui_layout_content_3;
   dest->gui_font_name1 = g_strdup(src->gui_font_name1);
   dest->gui_font_name2 = g_strdup(src->gui_font_name2);
   dest->gui_marked_fg = src->gui_marked_fg;
