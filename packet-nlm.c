@@ -1,7 +1,7 @@
 /* packet-nlm.c
  * Routines for nlm dissection
  *
- * $Id: packet-nlm.c,v 1.1 1999/11/15 14:17:19 nneul Exp $
+ * $Id: packet-nlm.c,v 1.2 1999/11/15 14:32:16 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -74,7 +74,7 @@ const vsff nlm3_proc[] = {
 void
 proto_register_nlm(void)
 {
-	proto_nlm = proto_register_protocol("Network Lock Manager Protocol", "NLM");
+	proto_nlm = proto_register_protocol("Network Lock Manager Protocol", "nlm");
 
 	/* Register the protocol as RPC */
 	rpc_init_prog(proto_nlm, NLM_PROGRAM, ETT_NLM);
