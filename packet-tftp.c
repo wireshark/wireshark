@@ -5,7 +5,7 @@
  * Craig Newell <CraigN@cheque.uq.edu.au>
  *	RFC2347 TFTP Option Extension
  *
- * $Id: packet-tftp.c,v 1.16 2000/11/10 09:22:46 guy Exp $
+ * $Id: packet-tftp.c,v 1.17 2000/11/13 08:58:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -212,7 +212,7 @@ tftp_dissect_options(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
 	int i1, i2;
 
-	while (tvb_length_remaining(tvb, offset)) {
+	while (tvb_offset_exists(tvb, offset)) {
 	  i1 = tvb_strnlen(tvb, offset, -1);	/* length of option */
 	  i2 = tvb_strnlen(tvb, offset+i1+1, -1);	/* length of value */
 	  proto_tree_add_text(tree, tvb, offset, i1+i2+2,

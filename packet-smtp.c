@@ -1,7 +1,7 @@
 /* packet-smtp.c
  * Routines for SMTP packet disassembly
  *
- * $Id: packet-smtp.c,v 1.10 2000/11/12 03:13:44 guy Exp $
+ * $Id: packet-smtp.c,v 1.11 2000/11/13 08:58:13 guy Exp $
  *
  * Copyright (c) 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  *
@@ -435,7 +435,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	   * Message body.
 	   * Put its lines into the protocol tree, a line at a time.
 	   */
-	  while (tvb_length_remaining(tvb, offset) != 0) {
+	  while (tvb_offset_exists(tvb, offset)) {
 
 	    /*
 	     * Find the end of the line.
@@ -504,7 +504,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * that doesn't have a continuation indication on it.
 	 */
 
-	while (tvb_length_remaining(tvb, offset) != 0) {
+	while (tvb_offset_exists(tvb, offset)) {
 
 	  /*
 	   * Find the end of the line.

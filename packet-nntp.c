@@ -2,7 +2,7 @@
  * Routines for nntp packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-nntp.c,v 1.14 2000/11/09 10:56:32 guy Exp $
+ * $Id: packet-nntp.c,v 1.15 2000/11/13 08:58:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -105,7 +105,7 @@ dissect_nntp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 * matching request was, although the latter requires us to
 		 * know what the matching request was....
 		 */
-		while (tvb_length_remaining(tvb, offset)) {
+		while (tvb_offset_exists(tvb, offset)) {
 			/*
 			 * Find the end of the line.
 			 */

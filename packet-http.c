@@ -3,7 +3,7 @@
  *
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-http.c,v 1.25 2000/11/09 10:56:31 guy Exp $
+ * $Id: packet-http.c,v 1.26 2000/11/13 08:58:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -107,7 +107,7 @@ dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/*
 		 * Process the packet data, a line at a time.
 		 */
-		while (tvb_length_remaining(tvb, offset)) {
+		while (tvb_offset_exists(tvb, offset)) {
 			/*
 			 * Find the end of the line.
 			 */

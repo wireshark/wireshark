@@ -1,7 +1,7 @@
 /* packet-atalk.c
  * Routines for Appletalk packet disassembly (DDP, currently).
  *
- * $Id: packet-atalk.c,v 1.42 2000/11/13 04:26:14 guy Exp $
+ * $Id: packet-atalk.c,v 1.43 2000/11/13 08:57:57 guy Exp $
  *
  * Simon Wilkinson <sxw@dcs.ed.ac.uk>
  *
@@ -262,7 +262,7 @@ dissect_rtmp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     offset += 3 + nodelen;
 
     i = 1;
-    while (tvb_length_remaining(tvb, offset) != 0) {
+    while (tvb_offset_exists(tvb, offset)) {
       proto_tree *tuple_item, *tuple_tree;
       guint16 tuple_net;
       guint8 tuple_dist;

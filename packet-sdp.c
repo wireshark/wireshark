@@ -4,7 +4,7 @@
  * Jason Lango <jal@netapp.com>
  * Liberally copied from packet-http.c, by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-sdp.c,v 1.14 2000/11/13 01:43:02 guy Exp $
+ * $Id: packet-sdp.c,v 1.15 2000/11/13 08:58:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -98,7 +98,7 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * Show the SDP message a line at a time.
 	 */
 	section = 0;
-	while (tvb_length_remaining(tvb, offset)) {
+	while (tvb_offset_exists(tvb, offset)) {
 		/*
 		 * Find the end of the line.
 		 */

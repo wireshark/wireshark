@@ -2,7 +2,7 @@
  * Routines for NetBIOS over IPX packet disassembly
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-nbipx.c,v 1.25 2000/11/10 21:29:27 gram Exp $
+ * $Id: packet-nbipx.c,v 1.26 2000/11/13 08:58:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -269,7 +269,7 @@ dissect_nbipx_dg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			return;
 		offset += NETBIOS_NAME_LEN;
 
-		if (tvb_length_remaining(tvb, offset) != 0) {
+		if (tvb_offset_exists(tvb, offset)) {
 			next_tvb = tvb_new_subset(tvb, offset, -1, -1);
 			tvb_compat(next_tvb, &next_pd, &next_offset);
 			dissect_smb(next_pd, next_offset, pinfo->fd, tree,
@@ -417,7 +417,7 @@ dissect_nwlink_dg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	offset += 68;
 
-	if (tvb_length_remaining(tvb, offset) != 0) {
+	if (tvb_offset_exists(tvb, offset)) {
 		next_tvb = tvb_new_subset(tvb, offset, -1, -1);
 
 		switch (packet_type) {

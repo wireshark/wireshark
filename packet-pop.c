@@ -2,7 +2,7 @@
  * Routines for pop packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-pop.c,v 1.18 2000/11/10 08:02:34 guy Exp $
+ * $Id: packet-pop.c,v 1.19 2000/11/13 08:58:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -166,7 +166,7 @@ dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 * Show the rest of the request or response as text,
 		 * a line at a time.
 		 */
-		while (tvb_length_remaining(tvb, offset)) {
+		while (tvb_offset_exists(tvb, offset)) {
 			/*
 			 * Find the end of the line.
 			 */

@@ -2,7 +2,7 @@
  * Routines for telnet packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-telnet.c,v 1.19 2000/11/12 00:59:07 guy Exp $
+ * $Id: packet-telnet.c,v 1.20 2000/11/13 08:58:15 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -305,7 +305,7 @@ telnet_add_text(proto_tree *tree, tvbuff_t *tvb, int offset, int len)
   guint8 c;
   gboolean last_char_was_cr;
 
-  while (len != 0 && tvb_length_remaining(tvb, offset) != 0) {
+  while (len != 0 && tvb_offset_exists(tvb, offset)) {
     /*
      * Find the end of the line.
      */
@@ -329,7 +329,7 @@ telnet_add_text(proto_tree *tree, tvbuff_t *tvb, int offset, int len)
        */
       if (tvb_get_guint8(tvb, offset + linelen) == '\r') {
       	last_char_was_cr = TRUE;
-      	while (len != 0 && tvb_length_remaining(tvb, next_offset) != 0) {
+      	while (len != 0 && tvb_offset_exists(tvb, next_offset)) {
           c = tvb_get_guint8(tvb, next_offset);
       	  next_offset++;	/* skip over that character */
       	  len--;
@@ -386,7 +386,7 @@ dissect_telnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  /*
 	   * Scan through the buffer looking for an IAC byte.
 	   */
-	  while ((len = tvb_length_remaining(tvb, offset)) != 0) {
+	  while ((len = tvb_length_remaining(tvb, offset)) > 0) {
 	    iac_offset = tvb_find_guint8(tvb, offset, len, TN_IAC);
 	    if (iac_offset != -1) {
 	      /*
