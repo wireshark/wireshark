@@ -23,13 +23,6 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-/*
- TODO:
-
- - make GTK+ 1.2[.x] implementation columns autoresize
- 
-*/
-
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -216,6 +209,7 @@ static void init_gtk_tree(char* optarg) {
 		"Rate",
 		"Percent",
 	};
+	int i;
 #endif
 	
 	if (abbr) {
@@ -309,8 +303,15 @@ static void init_gtk_tree(char* optarg) {
 	gtk_tree_view_append_column (GTK_TREE_VIEW (st->pr->tree), column);
 #else
 
-	/* XXX - make them all autosize and all resizeable? */
 	st->pr->ctree = gtk_ctree_new_with_titles (N_COLUMNS, 0, titles);
+	for (i = 0; i < N_COLUMNS; i++) {
+		/*
+		 * XXX - unfortunately, GtkCTree columns can't be
+		 * both auto-resizing and resizeable.
+		 */
+		gtk_clist_set_column_auto_resize(GTK_CLIST(st->pr->ctree), i,
+		    TRUE);
+	}
 	
 	gtk_container_add( GTK_CONTAINER(scr_win), st->pr->ctree);
 #endif
