@@ -1,31 +1,38 @@
-$Id: NEWS,v 1.154 2004/07/07 00:09:51 obiot Exp $
+$Id: NEWS,v 1.155 2004/07/07 20:03:22 gerald Exp $
 
 == July ??, 2004
 
 Ethereal 0.10.5 has been released.
 
 
+This release fixes bugs in iSNS, SMB, and SNMP, as described in the
+following advisory:
+
+    http://www.ethereal.com/appnotes/enpa-sa-00015.html
+
+Everyone is encouraged to upgrade.
 
 
 New and updated features
 
-Ethereal can now merge multiple files (you don't have to resort to 
-mergecap on the command line).
+  Ethereal can now merge multiple files (you don't have to resort to
+  mergecap on the command line).
 
-A preview pane has been added to the file dialog.
+  A preview pane has been added to the file dialog.
 
-The capture progress dialog can now be disabled.
+  The capture progress dialog can now be disabled.
 
-The about dialog has received further improvements.
+  The about dialog has received further improvements.
 
-The behavior of Ethereal's dialog windows has been normalized somewhat.
+  The behavior of Ethereal's dialog windows has been normalized somewhat.
 
-The Windows installer can now associate standard file extensions with
-Ethereal.
+  The Windows installer can now associate standard file extensions
+  with Ethereal.
 
-Ethereal can be configured not to bug you about unsaved captures.
+  Ethereal can be configured not to bug you about unsaved captures.
 
-Ethereal can open help documentation using the default web browser.
+  Ethereal can open help documentation using the default web browser.
+
 
 New protocol support
 
@@ -73,6 +80,7 @@ NCP,
 NetFlow,
 NFS,
 OSPF,
+PIM,
 RADIUS,
 RIP,
 RSVP,
