@@ -5,7 +5,7 @@
  * AVPs.  If libxml is in the LD_LIBRARY_PATH, and dictionary.xml exists,
  * then it will not be used.
  *
- * $Id: packet-diameter-defs.h,v 1.9 2004/03/21 23:08:05 guy Exp $
+ * $Id: packet-diameter-defs.h,v 1.10 2004/03/22 20:01:01 guy Exp $
  * Generated: Fri Feb 23 13:04:15 2001
  * References:
  * http://www.ietf.org/rfc/rfc3588.txt
@@ -144,14 +144,14 @@ static value_string diameter_acct_terminate_cause_vals[]={
 static value_string diameter_nas_port_type_vals[]={
    {0, "Async"},
    {1, "Sync"},
-   {2, "ISDN-Sync"},
-   {3, "ISDN-Async-v120"},
-   {4, "ISDN-Async-v110"},
+   {2, "ISDN Sync"},
+   {3, "ISDN Async V.120"},
+   {4, "ISDN Async V.110"},
    {5, "Virtual"},
    {6, "PIAFS"},
    {7, "HDLC-Clear-Channel"},
-   {8, "X25"},
-   {9, "X75"},
+   {8, "X.25"},
+   {9, "X.75"},
    {10,"G.3 Fax"},
    {11,"SDSL - Symmetric DSL"},
    {12,"ADSL-CAP - Asymmetric DSL, Carrierless Amplitude Phase Modulation"},
