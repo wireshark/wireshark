@@ -160,7 +160,6 @@ typedef struct _loop_data {
          STATE_EXPECT_REC_HDR, STATE_READ_REC_HDR,
          STATE_EXPECT_DATA,     STATE_READ_DATA
        } pipe_state;
-
   enum { PIPOK, PIPEOF, PIPERR, PIPNEXIST } pipe_err;
 #endif
 } loop_data;
@@ -169,47 +168,46 @@ static loop_data ld;
 
 #ifdef HAVE_LIBPCAP
 typedef struct {
-    gchar    *save_file;    /* File that user saved capture to */
-    gchar       *cfilter;   /* Capture filter string */
-    gchar       *iface;     /* the network interface to capture from */
-	int snaplen;			/* Maximum captured packet length */
-	int promisc_mode;		/* Capture in promiscuous mode */
-	int autostop_count;		/* Maximum packet count */
-	gboolean has_autostop_duration;	/* TRUE if maximum capture duration
-					   is specified */
-	gint32 autostop_duration;	/* Maximum capture duration */
-	gboolean has_autostop_filesize;	/* TRUE if maximum capture file size
-					   is specified */
-	gint32 autostop_filesize;	/* Maximum capture file size */
-	gboolean ringbuffer_on;		/* TRUE if ring buffer in use */
-	guint32 ringbuffer_num_files;	/* Number of ring buffer files */
-	gboolean has_ring_duration;	/* TRUE if ring duration specified */
-	gint32 ringbuffer_duration;     /* Switch file after n seconds */
-	int linktype;			/* Data link type to use, or -1 for
-					   "use default" */
+    gchar    *save_file;            /* File that user saved capture to */
+    gchar    *cfilter;              /* Capture filter string */
+    gchar    *iface;                /* the network interface to capture from */
+    int      snaplen;               /* Maximum captured packet length */
+    int      promisc_mode;          /* Capture in promiscuous mode */
+    int      autostop_count;        /* Maximum packet count */
+    gboolean has_autostop_duration; /* TRUE if maximum capture duration
+                                       is specified */
+    gint32   autostop_duration;     /* Maximum capture duration */
+    gboolean has_autostop_filesize; /* TRUE if maximum capture file size
+                                       is specified */
+    gint32   autostop_filesize;     /* Maximum capture file size */
+    gboolean ringbuffer_on;         /* TRUE if ring buffer in use */
+    guint32  ringbuffer_num_files;  /* Number of ring buffer files */
+    gboolean has_ring_duration;     /* TRUE if ring duration specified */
+    gint32   ringbuffer_duration;   /* Switch file after n seconds */
+    int      linktype;              /* Data link type to use, or -1 for
+                                       "use default" */
 } capture_options;
 
 static capture_options capture_opts = {
-    "",
-    "",
-    NULL,
-	WTAP_MAX_PACKET_SIZE,		/* snapshot length - default is
-					   infinite, in effect */
-	TRUE,				/* promiscuous mode is the default */
-	0,				/* max packet count - default is 0,
-					   meaning infinite */
-	FALSE,				/* maximum capture duration not
-					   specified by default */
-	0,				/* maximum capture duration */
-	FALSE,				/* maximum capture file size not
-					   specified by default */
-	0,				/* maximum capture file size */
-	FALSE,				/* ring buffer off by default */
-	RINGBUFFER_MIN_NUM_FILES,	/* default number of ring buffer
-					   files */
-	FALSE,				/* Switch ring file after some */
-	0,				/* specified time is off by default */
-	-1				/* Default to not change link type */
+    NULL,                           /* We're not writing to a capture file */
+    "",                             /* No capture filter string specified */
+    NULL,                           /* Default is "pick the first interface" */
+    WTAP_MAX_PACKET_SIZE,           /* snapshot length - default is
+                                       infinite, in effect */
+    TRUE,                           /* promiscuous mode is the default */
+    0,                              /* max packet count - default is 0,
+                                       meaning infinite */
+    FALSE,                          /* maximum capture duration not
+                                       specified by default */
+    0,                              /* maximum capture duration */
+    FALSE,                          /* maximum capture file size not
+                                       specified by default */
+    0,                              /* maximum capture file size */
+    FALSE,                          /* ring buffer off by default */
+    RINGBUFFER_MIN_NUM_FILES,       /* default number of ring buffer files */
+    FALSE,                          /* Switch ring file after some */
+    0,                              /* specified time is off by default */
+    -1                              /* Default to not change link type */
 };
 
 static gboolean list_link_layer_types;
