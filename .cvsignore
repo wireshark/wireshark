@@ -11,8 +11,11 @@ configure
 dfilter-grammar.c
 dfilter-grammar.h
 dfilter-scanner.c
+ethereal
 ethereal.1
 ethereal.spec
 ps.c
+randpkt
+rdps
 stamp-h
 stamp-h.in
