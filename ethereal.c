@@ -1,6 +1,6 @@
 /* ethereal.c
  *
- * $Id: ethereal.c,v 1.15 1998/12/17 05:42:21 gram Exp $
+ * $Id: ethereal.c,v 1.16 1998/12/22 00:41:24 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -605,7 +605,7 @@ main(int argc, char *argv[])
   gtk_widget_show(tv_scrollw);
   
   tree_view = gtk_tree_new();
-#ifdef GTK_HAVE_FEATURES_1_1_0
+#ifdef GTK_HAVE_FEATURES_1_1_4
   gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(tv_scrollw),
 		  tree_view);
 #else
