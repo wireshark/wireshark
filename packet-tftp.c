@@ -2,8 +2,10 @@
  * Routines for tftp packet dissection
  *
  * Richard Sharpe <rsharpe@ns.aus.com>
+ * Craig Newell <CraigN@cheque.uq.edu.au>
+ *	RFC2347 TFTP Option Extension
  *
- * $Id: packet-tftp.c,v 1.8 2000/01/07 22:05:41 guy Exp $
+ * $Id: packet-tftp.c,v 1.9 2000/01/27 07:09:15 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -52,6 +54,7 @@ static gint ett_tftp = -1;
 #define	DATA	3
 #define	ACK	4
 #define	ERROR	5
+#define OACK	6
 
 char *tftp_opcodes[8] = {
   "Unknown Request",
@@ -60,7 +63,7 @@ char *tftp_opcodes[8] = {
   "Data Packet",
   "Acknowledgement",
   "Error Code",
-  "Unknown Request",
+  "Option Acknowledgement",
   "Unknown Request"
 };
 
@@ -88,7 +91,7 @@ dissect_tftp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	if (check_col(fd, COL_INFO)) {
 
 	  i1 = pntohs(&pd[offset]);
-	  col_add_fstr(fd, COL_INFO, "TFTP %s", i1 <= ERROR ? tftp_opcodes[i1 % 8] : "Unknown Request");
+	  col_add_fstr(fd, COL_INFO, "TFTP %s", i1 <= OACK ? tftp_opcodes[i1 % 8] : "Unknown Request");
 
 	}
 
@@ -107,7 +110,17 @@ dissect_tftp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	    i1 = strlen(pd+offset);
 	    proto_tree_add_text(tftp_tree, offset, i1+1, "Source File: %s", pd+offset);
 	    offset += i1 + 1;
-	    proto_tree_add_text(tftp_tree, offset, END_OF_FRAME, "Type: %s",pd+offset);
+	    i1 = strlen(pd+offset);
+	    proto_tree_add_text(tftp_tree, offset, i1+1, "Type: %s",pd+offset);
+	    offset += i1 + 1;
+	    while (offset < pi.captured_len) {
+	      int i2;
+	      i1 = strlen(pd+offset);			/* length of option */
+	      i2 = strlen(pd+offset+i1+1);		/* length of value */
+	      proto_tree_add_text(tftp_tree, offset, i1+i2+2, "Option: %s = %s", 
+                pd+offset, pd+offset+i1+1);
+	      offset += i1 + i2 + 2;
+	    }
 	    break;
 	  case WRQ:
 	    proto_tree_add_text(tftp_tree, offset, 2, "Write Request");
@@ -115,7 +128,17 @@ dissect_tftp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	    i1 = strlen(pd+offset);
 	    proto_tree_add_text(tftp_tree, offset, i1+1, "Destination File: %s", pd+offset);
 	    offset += i1 + 1;
-	    proto_tree_add_text(tftp_tree, offset+2, END_OF_FRAME, "Type: %s",pd+offset);
+	    i1 = strlen(pd+offset);
+	    proto_tree_add_text(tftp_tree, offset, i1+1, "Type: %s",pd+offset);
+	    offset += i1 + 1;
+	    while (offset < pi.captured_len) {
+	      int i2;
+	      i1 = strlen(pd+offset);			/* length of option */
+	      i2 = strlen(pd+offset+i1+1);		/* length of value */
+	      proto_tree_add_text(tftp_tree, offset, i1+i2+2, "Option: %s = %s", 
+                pd+offset, pd+offset+i1+1);
+	      offset += i1 + i2 + 2;
+	    }
 	    break;
 	  case DATA:
 	    proto_tree_add_text(tftp_tree, offset, 2, "Data Packet");
@@ -140,6 +163,21 @@ dissect_tftp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	    proto_tree_add_text(tftp_tree, offset, 2, "Code = %s", tftp_errors[i1 % 8]);
 	    offset += 2;
 	    proto_tree_add_text(tftp_tree, offset, END_OF_FRAME, "Error Message: %s", pd + offset);
+	    break;
+	  case OACK:
+	    proto_tree_add_text(tftp_tree, offset, 2, "Option Acknowledgement");
+	    offset += 2;
+	    i1 = pntohs(pd+offset);
+	    proto_tree_add_text(tftp_tree, offset, 2, "Block = %u", i1);
+	    offset += 2;
+	    while (offset < pi.captured_len) {
+	      int i2;
+	      i1 = strlen(pd+offset);			/* length of option */
+	      i2 = strlen(pd+offset+i1+1);		/* length of value */
+	      proto_tree_add_text(tftp_tree, offset, i1+i2+2, "Option: %s = %s", 
+                pd+offset, pd+offset+i1+1);
+	      offset += i1 + i2 + 2;
+	    }
 	    break;
 	  default:
 	    proto_tree_add_text(tftp_tree, offset, 2, "Unknown TFTP Request: %0X.", i1);
