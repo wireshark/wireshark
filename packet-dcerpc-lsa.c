@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *  2002  Added LSA command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-lsa.c,v 1.52 2002/06/24 00:03:17 tpot Exp $
+ * $Id: packet-dcerpc-lsa.c,v 1.53 2002/07/31 21:22:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3106,7 +3106,7 @@ lsa_dissect_lsasettrusteddomaininfo_reply(tvbuff_t *tvb, int offset,
 }
 
 static int
-lsa_dissect_lsafunction_2e_rqst(tvbuff_t *tvb, int offset,
+lsa_dissect_lsaqueryinformationpolicy2_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
@@ -3120,11 +3120,13 @@ lsa_dissect_lsafunction_2e_rqst(tvbuff_t *tvb, int offset,
 }
 
 static int
-lsa_dissect_lsafunction_2e_reply(tvbuff_t *tvb, int offset,
+lsa_dissect_lsaqueryinformationpolicy2_reply(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
+	/* This is really a pointer to a pointer though the first level is REF
+	  so we just ignore that one */
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		lsa_dissect_POLICY_INFORMATION, NDR_POINTER_REF,
+		lsa_dissect_POLICY_INFORMATION, NDR_POINTER_UNIQUE,
 		"POLICY_INFORMATION pointer: info", -1, 0);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
@@ -3933,9 +3935,9 @@ static dcerpc_sub_dissector dcerpc_lsa_dissectors[] = {
 	{ LSA_LSAGETUSERNAME, "GetUsername",
 		lsa_dissect_lsagetusername_rqst,
 		lsa_dissect_lsagetusername_reply },
-	{ LSA_LSAFUNCTION_2E, "LSAFUNCTION_2E",
-		lsa_dissect_lsafunction_2e_rqst,
-		lsa_dissect_lsafunction_2e_reply },
+	{ LSA_LSAQUERYINFORMATIONPOLICY2, "QueryInformationPolicy2",
+		lsa_dissect_lsaqueryinformationpolicy2_rqst,
+		lsa_dissect_lsaqueryinformationpolicy2_reply },
 	{ LSA_LSAFUNCTION_2F, "LSAFUNCTION_2F",
 		lsa_dissect_lsafunction_2f_rqst,
 		lsa_dissect_lsafunction_2f_reply },
@@ -4025,7 +4027,7 @@ static const value_string lsa_opnum_vals[] = {
 	{ LSA_LSARETRIEVEPRIVATEDATA, "RetrievePrivateData" },
 	{ LSA_LSAOPENPOLICY2, "OpenPolicy2" },
 	{ LSA_LSAGETUSERNAME, "GetUsername" },
-	{ LSA_LSAFUNCTION_2E, "LSAFUNCTION_2E" },
+	{ LSA_LSAQUERYINFORMATIONPOLICY2, "QueryInformationPolicy2" },
 	{ LSA_LSAFUNCTION_2F, "LSAFUNCTION_2F" },
 	{ LSA_LSAQUERYTRUSTEDDOMAININFOBYNAME, "QueryTrustedDomainInfoByName" },
 	{ LSA_LSASETTRUSTEDDOMAININFOBYNAME, "SetTrustedDomainInfoByName" },
