@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.238 2001/06/05 07:38:33 guy Exp $
+ * $Id: file.c,v 1.239 2001/06/08 06:27:15 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -88,6 +88,7 @@
 #include "gtk/packet_win.h"
 #include "dfilter/dfilter.h"
 #include "conversation.h"
+#include "reassemble.h"
 #include "globals.h"
 #include "gtk/colors.h"
 
@@ -148,6 +149,12 @@ open_cap_file(char *fname, gboolean is_tempfile, capture_file *cf)
 
   /* Initialize protocol-specific variables */
   init_all_protocols();
+
+  /* Initialize the common data structures for fragment reassembly.
+     Must be done *after* "init_all_protocols()", as "init_all_protocols()"
+     may free up space for fragments, which it finds by using the
+     data structures that "reassemble_init()" frees. */
+  reassemble_init();
 
   /* We're about to start reading the file. */
   cf->state = FILE_READ_IN_PROGRESS;
@@ -912,6 +919,12 @@ rescan_packets(capture_file *cf, const char *action, gboolean refilter,
 
     /* Initialize protocol-specific variables */
     init_all_protocols();
+
+    /* Initialize the common data structures for fragment reassembly.
+       Must be done *after* "init_all_protocols()", as "init_all_protocols()"
+       may free up space for fragments, which it finds by using the
+       data structures that "reassemble_init()" frees. */
+    reassemble_init();
   }
 
   /* Freeze the packet list while we redo it, so we don't get any

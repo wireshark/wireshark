@@ -1,12 +1,11 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.332 2001/06/06 01:30:28 guy Exp $
+# $Id: Makefile.am,v 1.333 2001/06/08 06:27:15 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
 # Copyright 1998 Gerald Combs
-#
 # 
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -373,6 +372,8 @@ ETHEREAL_COMMON_SRC = \
 	ps.h           \
 	ptvcursor.c	\
 	ptvcursor.h	\
+	reassemble.c   \
+	reassemble.h   \
 	register.c     \
 	register.h     \
 	smb.h          \

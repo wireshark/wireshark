@@ -1,12 +1,11 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.134 2001/06/05 05:54:14 guy Exp $
+ * $Id: packet-ip.c,v 1.135 2001/06/08 06:27:15 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -47,6 +46,7 @@
 #include "resolv.h"
 #include "ipproto.h"
 #include "prefs.h"
+#include "reassemble.h"
 #include "etypes.h"
 #include "greproto.h"
 #include "ppptypes.h"
@@ -301,318 +301,13 @@ typedef struct _e_ip
 /*
  * defragmentation of IPv4
  */
-static GHashTable *ip_fragment_table=NULL;
-
-typedef struct _ip_fragment_key {
-	guint32	srcip;
-	guint32	dstip;
-	guint32	id;
-} ip_fragment_key;
-
-/* make sure that all flags that are set in a fragment entry is also set for
- * the flags field of ipfd_head !!!
- */
-/* only in ipfd_head: packet is defragmented */
-#define IPD_DEFRAGMENTED	0x0001
-/* there are overlapping fragments */
-#define IPD_OVERLAP		0x0002
-/* overlapping fragments contain different data */ 
-#define IPD_OVERLAPCONFLICT	0x0004  
-/* more than one fragment which indicates end-of data */
-#define IPD_MULTIPLETAILS	0x0008
-/* fragment contains data past the end of the datagram */
-#define IPD_TOOLONGFRAGMENT	0x0010
-typedef struct _ip_fragment_data {
-	struct _ip_fragment_data *next;
-	guint32 frame;
-	guint32	offset;
-	guint32	len;
-	guint32 datalen; /*Only valid in first item of list */
-	guint32 flags;
-	unsigned char *data;
-} ip_fragment_data;
-
-#define LINK_FRAG(ipfd_head,ipfd)					\
-	{ 	ip_fragment_data *ipfd_i;				\
-		/* add fragment to list, keep list sorted */		\
-		for(ipfd_i=ipfd_head;ipfd_i->next;ipfd_i=ipfd_i->next){	\
-			if( (ipfd->offset) < (ipfd_i->next->offset) )	\
-				break;					\
-		}							\
-		ipfd->next=ipfd_i->next;				\
-		ipfd_i->next=ipfd;					\
-	}
-
-
-static gint
-ip_fragment_equal(gconstpointer k1, gconstpointer k2)
-{
-	ip_fragment_key* key1 = (ip_fragment_key*) k1;
-	ip_fragment_key* key2 = (ip_fragment_key*) k2;
-
-	return ( ( (key1->srcip == key2->srcip) &&
-		   (key1->dstip == key2->dstip) &&
-		   (key1->id    == key2->id) 
-		 ) ?
-		 TRUE : FALSE);
-}
-
-static guint
-ip_fragment_hash(gconstpointer k)
-{
-	ip_fragment_key* key = (ip_fragment_key*) k;
-
-	return (key->srcip ^ key->dstip ^ key->id);
-}
-
-static gboolean
-free_all_fragments(gpointer key, gpointer value, gpointer user_data)
-{
-	ip_fragment_data *ipfd_head;
-	ip_fragment_data *ipfd_i;
-
-	ipfd_head=value;
-	while(ipfd_head){
-		ipfd_i=ipfd_head->next;
-		if(ipfd_head->data){
-			g_free(ipfd_head->data);
-		}
-		g_free(ipfd_head);
-		ipfd_head=ipfd_i;
-	}
-
-	g_free(key);
-	return TRUE;
-}
+static GHashTable *ip_fragment_table = NULL;
 
 static void
 ip_defragment_init(void)
 {
-	if( ip_fragment_table != NULL ){
-		/* The fragment hash table exists.
-		 * 
-		 * Remove all entries and free all memory.
-		 */
-		g_hash_table_foreach_remove(ip_fragment_table,free_all_fragments,NULL);
-	} else {
-		/* The fragment table does not exist. Create it */
-		ip_fragment_table = g_hash_table_new(ip_fragment_hash,
-				ip_fragment_equal);
-	}
+  fragment_table_init(&ip_fragment_table);
 }
-
-/* This function adds a new fragment to the fragment hash table
- * If this is the first fragment seen in for this ip packet,
- * a new entry is created in the hash table, otherwise
- * This fragment is just added to the linked list of 
- * fragments for this packet.
- * The list of fragments for a specific ip-packet is kept sorted for
- * easier handling.
- * tvb had better contain an IPv4 packet, or BAD things will probably happen.
- *
- * Returns a pointer to the head of the fragment data list if we have all the
- * fragments, NULL otherwise.
- */
-static ip_fragment_data *
-ip_fragment_add(tvbuff_t *tvb, int offset, packet_info *pinfo, guint32 id,
-		guint32 floff)
-{
-	ip_fragment_key *ipfk;
-	ip_fragment_data *ipfd_head;
-	ip_fragment_data *ipfd;
-	ip_fragment_data *ipfd_i;
-	guint32 frag_offset;
-	guint32 max,dfpos;
-
-
-	/* create key to search hash with */
-	ipfk=g_malloc(sizeof(ip_fragment_key));
-	memcpy(&ipfk->srcip, pinfo->src.data, sizeof(ipfk->srcip));
-	memcpy(&ipfk->dstip, pinfo->dst.data, sizeof(ipfk->dstip));
-	ipfk->id    = id;
-
-	ipfd_head=g_hash_table_lookup(ip_fragment_table, ipfk);
-
-
-	/* have we already seen this frame ?*/
-	if( pinfo->fd->flags.visited ){
-		g_free(ipfk);
-		if (ipfd_head != NULL && ipfd_head->flags & IPD_DEFRAGMENTED) {
-			return ipfd_head;
-		} else {
-			return NULL;
-		}
-	}
-
-
-
-	frag_offset = (floff & IP_OFFSET)*8;
-
-	if (ipfd_head==NULL){
-		/* not found, this must be the first snooped fragment for this
-                 * ip packet. Create list-head.
-		 */
-		ipfd_head=g_malloc(sizeof(ip_fragment_data));
-		/* head/first structure in list only holds no other data than
-                 * 'datalen' then we dont have to change the head of the list
-                 * even if we want to keep it sorted
-                 */
-		ipfd_head->next=NULL;
-		ipfd_head->datalen=0;
-		ipfd_head->offset=0;
-		ipfd_head->len=0;
-		ipfd_head->flags=0;
-		ipfd_head->data=NULL;
-		g_hash_table_insert(ip_fragment_table, ipfk, ipfd_head);
-	} else {
-		/* this was not the first fragment, so we can throw ipfk 
-		 * away, only used for the first fragment, 3 lines up
-		 */
-		g_free(ipfk);
-	}
-
-
-	/* create new ipfd describing this fragment */
-	ipfd = g_malloc(sizeof(ip_fragment_data));
-	ipfd->next = NULL;
-	ipfd->flags = 0;
-	ipfd->frame = pinfo->fd->num;
-	ipfd->offset = frag_offset;
-	ipfd->len  = pinfo->iplen;
-	ipfd->len  -= (pinfo->iphdrlen*4);
-	ipfd->data = NULL;
-
-
-
-	if( !(floff&IP_MF) ){  
-		/* this is a tail fragment */
-		if (ipfd_head->datalen) {
-			/* ok we have already seen other tails for this packet
-			 * it might be a duplicate.
-			 */
-			if (ipfd_head->datalen != (ipfd->offset + ipfd->len) ){
-				/* Oops, this tail indicates a different packet
-				 * len than the previous ones. Somethings wrong
-				 */
-				ipfd->flags      |= IPD_MULTIPLETAILS;
-				ipfd_head->flags |= IPD_MULTIPLETAILS;
-			}
-		} else {
-			/* this was the first tail fragment, now we know the
-			 * length of the packet
-			 */
-			ipfd_head->datalen = ipfd->offset + ipfd->len;
-		}
-	}
-
-
-
-
-	/* If the packet is already defragmented, this MUST be an overlap.
-         * The entire defragmented packet is in ipfd_head->data
-	 * Even if we have previously defragmented this packet, we still check
-	 * check it. Someone might play overlap and TTL games.
-         */
-	if (ipfd_head->flags & IPD_DEFRAGMENTED) {
-		ipfd->flags      |= IPD_OVERLAP;
-		ipfd_head->flags |= IPD_OVERLAP;
-		/* make sure its not too long */
-		if (ipfd->offset + ipfd->len > ipfd_head->datalen) {
-			ipfd->flags      |= IPD_TOOLONGFRAGMENT;
-			ipfd_head->flags |= IPD_TOOLONGFRAGMENT;
-			LINK_FRAG(ipfd_head,ipfd);
-			return (ipfd_head);
-		}
-		/* make sure it doesnt conflict with previous data */
-		if ( memcmp(ipfd_head->data+ipfd->offset,
-			tvb_get_ptr(tvb,offset,ipfd->len),ipfd->len) ){
-			ipfd->flags      |= IPD_OVERLAPCONFLICT;
-			ipfd_head->flags |= IPD_OVERLAPCONFLICT;
-			LINK_FRAG(ipfd_head,ipfd);
-			return (ipfd_head);
-		}
-		/* it was just an overlap, link it and return */
-		LINK_FRAG(ipfd_head,ipfd);
-		return (ipfd_head);
-	}
-
-
-
-	/* If we have reached this point, the packet is not defragmented yet.
-         * Save all payload in a buffer until we can defragment.
-	 */
-	ipfd->data = g_malloc(ipfd->len);
-	tvb_memcpy(tvb, ipfd->data, offset, ipfd->len);
-	LINK_FRAG(ipfd_head,ipfd);
-
-
-	if( !(ipfd_head->datalen) ){
-		/* if we dont know the datalen, there are still missing
-		 * packets. Cheaper than the check below.
-		 */
-		return NULL;
-	}
-
-
-	/* check if we have received the entire fragment
-	 * this is easy since the list is sorted and the head is faked.
-	 */
-	max = 0;
-	for (ipfd_i=ipfd_head->next;ipfd_i;ipfd_i=ipfd_i->next) {
-		if ( ((ipfd_i->offset)<=max) && 
-		    ((ipfd_i->offset+ipfd_i->len)>max) ){
-			max = ipfd_i->offset+ipfd_i->len;
-		}
-	}
-
-	if (max < (ipfd_head->datalen)) {
-		/* we have not received all packets yet */
-		return NULL;
-	}
-
-
-	if (max > (ipfd_head->datalen)) {
-		/* oops, too long fragment detected */
-		ipfd->flags      |= IPD_TOOLONGFRAGMENT;
-		ipfd_head->flags |= IPD_TOOLONGFRAGMENT;
-	}
-
-
-	/* we have received an entire packet, defragment it and
-         * free all fragments 
-         */
-	ipfd_head->data = g_malloc(max);
-
-	/* add all data fragments */
-	for (dfpos=0,ipfd_i=ipfd_head;ipfd_i;ipfd_i=ipfd_i->next) {
-		if (ipfd_i->len) {
-			if (ipfd_i->offset < dfpos) {
-				ipfd_i->flags    |= IPD_OVERLAP;
-				ipfd_head->flags |= IPD_OVERLAP;
-				if ( memcmp(ipfd_head->data+ipfd_i->offset,
-					ipfd_i->data,
-					MIN(ipfd_i->len,(dfpos-ipfd_i->offset))
-				   	) ){
-					ipfd_i->flags    |= IPD_OVERLAPCONFLICT;
-					ipfd_head->flags |= IPD_OVERLAPCONFLICT;
-				}
-			}
-			memcpy(ipfd_head->data+ipfd_i->offset,ipfd_i->data,ipfd_i->len);
-			g_free(ipfd_i->data);
-			ipfd_i->data=NULL;
-
-			dfpos=MAX(dfpos,(ipfd_i->offset+ipfd_i->len));
-		}
-	}
-
-	/* mark this packet as defragmented.
-           allows us to skip any trailing fragments */
-	ipfd_head->flags |= IPD_DEFRAGMENTED;
-
-	return ipfd_head;
-}
-
-
 
 void
 capture_ip(const u_char *pd, int offset, packet_counts *ld) {
@@ -1101,7 +796,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint16    flags;
   guint8     nxt;
   guint16    ipsum;
-  ip_fragment_data *ipfd_head;
+  fragment_data *ipfd_head;
   tvbuff_t   *next_tvb;
   packet_info save_pi;
   gboolean must_restore_pi = FALSE;
@@ -1273,13 +968,17 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
        Add the fragment to the hash table if the checksum is ok
        and the frame isn't truncated. */
     if ((ipsum==0) && (tvb_reported_length(tvb) <= tvb_length(tvb))) {
-      ipfd_head = ip_fragment_add(tvb, offset, pinfo, iph.ip_id, iph.ip_off);
+      ipfd_head = fragment_add(tvb, offset, pinfo, iph.ip_id,
+			       ip_fragment_table,
+			       (iph.ip_off & IP_OFFSET)*8,
+			       pinfo->iplen - (pinfo->iphdrlen*4),
+			       iph.ip_off & IP_MF);
     } else {
       ipfd_head=NULL;
     }
 
     if (ipfd_head != NULL) {
-      ip_fragment_data *ipfd;
+      fragment_data *ipfd;
       proto_tree *ft=NULL;
       proto_item *fi=NULL;
 
@@ -1289,8 +988,8 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 tvb, 0, 0, FALSE);
       ft = proto_item_add_subtree(fi, ett_ip_fragments);
       for (ipfd=ipfd_head->next; ipfd; ipfd=ipfd->next){
-        if (ipfd->flags & (IPD_OVERLAP|IPD_OVERLAPCONFLICT
-                          |IPD_MULTIPLETAILS|IPD_TOOLONGFRAGMENT) ) {
+        if (ipfd->flags & (FD_OVERLAP|FD_OVERLAPCONFLICT
+                          |FD_MULTIPLETAILS|FD_TOOLONGFRAGMENT) ) {
           /* this fragment has some flags set, create a subtree 
            * for it and display the flags.
            */
@@ -1298,8 +997,8 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           proto_item *fei=NULL;
           int hf;
 
-          if (ipfd->flags & (IPD_OVERLAPCONFLICT
-                      |IPD_MULTIPLETAILS|IPD_TOOLONGFRAGMENT) ) {
+          if (ipfd->flags & (FD_OVERLAPCONFLICT
+                      |FD_MULTIPLETAILS|FD_TOOLONGFRAGMENT) ) {
             hf = hf_ip_fragment_error;
           } else {
             hf = hf_ip_fragment;
@@ -1312,22 +1011,22 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                    ipfd->offset+ipfd->len-1
           );
           fet = proto_item_add_subtree(fei, ett_ip_fragment);
-          if (ipfd->flags&IPD_OVERLAP) {
+          if (ipfd->flags&FD_OVERLAP) {
             proto_tree_add_boolean(fet, 
                  hf_ip_fragment_overlap, tvb, 0, 0, 
                  TRUE);
           }
-          if (ipfd->flags&IPD_OVERLAPCONFLICT) {
+          if (ipfd->flags&FD_OVERLAPCONFLICT) {
             proto_tree_add_boolean(fet, 
                  hf_ip_fragment_overlap_conflict, tvb, 0, 0, 
                  TRUE);
           }
-          if (ipfd->flags&IPD_MULTIPLETAILS) {
+          if (ipfd->flags&FD_MULTIPLETAILS) {
             proto_tree_add_boolean(fet, 
                  hf_ip_fragment_multiple_tails, tvb, 0, 0, 
                  TRUE);
           }
-          if (ipfd->flags&IPD_TOOLONGFRAGMENT) {
+          if (ipfd->flags&FD_TOOLONGFRAGMENT) {
             proto_tree_add_boolean(fet, 
                  hf_ip_fragment_too_long_fragment, tvb, 0, 0, 
                  TRUE);
@@ -1343,8 +1042,8 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           );
         }
       }
-      if (ipfd_head->flags & (IPD_OVERLAPCONFLICT
-                        |IPD_MULTIPLETAILS|IPD_TOOLONGFRAGMENT) ) {
+      if (ipfd_head->flags & (FD_OVERLAPCONFLICT
+                        |FD_MULTIPLETAILS|FD_TOOLONGFRAGMENT) ) {
         if (check_col(pinfo->fd, COL_INFO)) {
           col_set_str(pinfo->fd, COL_INFO, "[Illegal fragments]");
           update_col_info = FALSE;

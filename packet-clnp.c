@@ -1,7 +1,7 @@
 /* packet-clnp.c
  * Routines for ISO/OSI network and transport protocol packet disassembly
  *
- * $Id: packet-clnp.c,v 1.29 2001/06/05 09:06:19 guy Exp $
+ * $Id: packet-clnp.c,v 1.30 2001/06/08 06:27:15 guy Exp $
  * Laurent Deniel <deniel@worldnet.fr>
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
@@ -39,6 +39,7 @@
 #include <glib.h>
 #include "prefs.h"
 #include "packet.h"
+#include "reassemble.h"
 #include "packet-osi.h"
 #include "packet-osi-options.h"
 #include "packet-isis.h"
@@ -50,6 +51,8 @@
 static int  proto_clnp         = -1;
 static gint ett_clnp           = -1;
 static gint ett_clnp_type      = -1;
+static gint ett_clnp_segments  = -1;
+static gint ett_clnp_segment   = -1;
 static gint ett_clnp_disc_pdu  = -1;
 static int  proto_cotp         = -1;
 static gint ett_cotp           = -1;
@@ -67,6 +70,13 @@ static int hf_clnp_dest_length = -1;
 static int hf_clnp_dest        = -1;
 static int hf_clnp_src_length  = -1;
 static int hf_clnp_src         = -1;
+static int hf_clnp_segments    = -1;
+static int hf_clnp_segment     = -1;
+static int hf_clnp_segment_overlap = -1;
+static int hf_clnp_segment_overlap_conflict = -1;
+static int hf_clnp_segment_multiple_tails = -1;
+static int hf_clnp_segment_too_long_segment = -1;
+static int hf_clnp_segment_error = -1;
 
 /*
  * ISO 8473 OSI CLNP definition (see RFC994)
@@ -259,9 +269,15 @@ static u_short dst_ref;
    Subset of CLNP. */
 static heur_dissector_list_t cotp_is_heur_subdissector_list;
 
+/*
+ * Reassembly of CLNP.
+ */
+static GHashTable *clnp_segment_table = NULL;
+
 /* options */
 static guint tp_nsap_selector = NSEL_TP;
 static gboolean always_decode_transport = FALSE;
+static gboolean clnp_reassemble = FALSE;
 
 /* function definitions */
 
@@ -1560,8 +1576,10 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   char       *pdu_type_string;
   proto_tree *type_tree;
   guint16     segment_length;
+  guint16     du_id = 0;
   guint16     segment_offset = 0;
   guint16     cnf_cksum;
+  cksum_status_t cksum_status;
   int         offset;
   u_char      src_len, dst_len, nsel, opt_len = 0;
   const guint8     *dst_addr, *src_addr;
@@ -1574,7 +1592,11 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   address     save_net_dst;
   address     save_src;
   address     save_dst;
+  fragment_data *fd_head;
   tvbuff_t   *next_tvb;
+  packet_info save_pi;
+  gboolean must_restore_pi = FALSE;
+  gboolean update_col_info = TRUE;
 
   if (check_col(pinfo->fd, COL_PROTOCOL))
     col_set_str(pinfo->fd, COL_PROTOCOL, "CLNP");
@@ -1670,11 +1692,12 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 
   segment_length = tvb_get_ntohs(tvb, P_CLNP_SEGLEN);
+  cnf_cksum = tvb_get_ntohs(tvb, P_CLNP_CKSUM);
+  cksum_status = calc_checksum(tvb, 0, cnf_hdr_len, cnf_cksum);
   if (tree) {
     proto_tree_add_uint(clnp_tree, hf_clnp_pdu_length, tvb, P_CLNP_SEGLEN, 2,
 			segment_length);
-    cnf_cksum = tvb_get_ntohs(tvb, P_CLNP_CKSUM);
-    switch (calc_checksum(tvb, 0, cnf_hdr_len, cnf_cksum)) {
+    switch (cksum_status) {
 
     default:
 	/*
@@ -1754,10 +1777,11 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     tvb_memcpy(tvb, (guint8 *)&seg, offset, sizeof(seg));	/* XXX - not used */
     
     segment_offset = tvb_get_ntohs(tvb, offset + 2);
+    du_id = tvb_get_ntohs(tvb, offset);
     if (tree) {
       proto_tree_add_text(clnp_tree, tvb, offset, 2, 
 			"Data unit identifier: %06u",
-			tvb_get_ntohs(tvb, offset));
+			du_id);
       proto_tree_add_text(clnp_tree, tvb, offset + 2 , 2,
 			"Segment offset      : %6u", 
 			segment_offset);
@@ -1803,10 +1827,156 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      fragment in a fragmented IP datagram; in the future, we will
      probably reassemble fragments for IP, and may reassemble segments
      for CLNP. */
-  if ((cnf_type & CNF_SEG_OK) && segment_offset != 0) {
+  /* If clnp_reassemble is on and this is a segment, then just add the segment
+   * to the hashtable.
+   */
+  if (clnp_reassemble && (cnf_type & CNF_SEG_OK) &&
+	((cnf_type & CNF_MORE_SEGS) || segment_offset != 0)) {
+    /* We're reassembling, and this is part of a segmented datagram.
+       Add the segment to the hash table if the checksum is ok
+       and the frame isn't truncated. */
+    if (cksum_status != CKSUM_NOT_OK &&
+	(tvb_reported_length(tvb) <= tvb_length(tvb))) {
+      fd_head = fragment_add(tvb, offset, pinfo, du_id, clnp_segment_table,
+			     segment_offset, segment_length - cnf_hdr_len,
+			     cnf_type & CNF_MORE_SEGS);
+    } else {
+      fd_head=NULL;
+    }
+
+    if (fd_head != NULL) {
+      fragment_data *fd;
+      proto_tree *ft=NULL;
+      proto_item *fi=NULL;
+
+      /* OK, we have the complete reassembled payload. */
+      /* show all segments */
+      fi = proto_tree_add_item(clnp_tree, hf_clnp_segments, 
+                tvb, 0, 0, FALSE);
+      ft = proto_item_add_subtree(fi, ett_clnp_segments);
+      for (fd = fd_head->next; fd != NULL; fd = fd->next){
+        if (fd->flags & (FD_OVERLAP|FD_OVERLAPCONFLICT
+                          |FD_MULTIPLETAILS|FD_TOOLONGFRAGMENT) ) {
+          /* this segment has some flags set, create a subtree 
+           * for it and display the flags.
+           */
+          proto_tree *fet = NULL;
+          proto_item *fei = NULL;
+          int hf;
+
+          if (fd->flags & (FD_OVERLAPCONFLICT
+                      |FD_MULTIPLETAILS|FD_TOOLONGFRAGMENT) ) {
+            hf = hf_clnp_segment_error;
+          } else {
+            hf = hf_clnp_segment;
+          }
+          fei = proto_tree_add_none_format(ft, hf, 
+                   tvb, 0, 0,
+                   "Frame:%d payload:%d-%d",
+                   fd->frame,
+                   fd->offset,
+                   fd->offset+fd->len-1
+          );
+          fet = proto_item_add_subtree(fei, ett_clnp_segment);
+          if (fd->flags&FD_OVERLAP) {
+            proto_tree_add_boolean(fet, 
+                 hf_clnp_segment_overlap, tvb, 0, 0, 
+                 TRUE);
+          }
+          if (fd->flags&FD_OVERLAPCONFLICT) {
+            proto_tree_add_boolean(fet, 
+                 hf_clnp_segment_overlap_conflict, tvb, 0, 0, 
+                 TRUE);
+          }
+          if (fd->flags&FD_MULTIPLETAILS) {
+            proto_tree_add_boolean(fet, 
+                 hf_clnp_segment_multiple_tails, tvb, 0, 0, 
+                 TRUE);
+          }
+          if (fd->flags&FD_TOOLONGFRAGMENT) {
+            proto_tree_add_boolean(fet, 
+                 hf_clnp_segment_too_long_segment, tvb, 0, 0, 
+                 TRUE);
+          }
+        } else {
+          /* nothing of interest for this segment */
+          proto_tree_add_none_format(ft, hf_clnp_segment, 
+                   tvb, 0, 0,
+                   "Frame:%d payload:%d-%d",
+                   fd->frame,
+                   fd->offset,
+                   fd->offset+fd->len-1
+          );
+        }
+      }
+      if (fd_head->flags & (FD_OVERLAPCONFLICT
+                        |FD_MULTIPLETAILS|FD_TOOLONGFRAGMENT) ) {
+        if (check_col(pinfo->fd, COL_INFO)) {
+          col_set_str(pinfo->fd, COL_INFO, "[Illegal segments]");
+          update_col_info = FALSE;
+        }
+      }
+
+      /* Allocate a new tvbuff, referring to the reassembled payload. */
+      next_tvb = tvb_new_real_data(fd_head->data, fd_head->datalen,
+	fd_head->datalen, "Reassembled");
+
+      /* Add the tvbuff to the list of tvbuffs to which the tvbuff we
+         were handed refers, so it'll get cleaned up when that tvbuff
+         is cleaned up. */
+      tvb_set_child_real_data_tvbuff(tvb, next_tvb);
+
+      /* Add the defragmented data to the data source list. */
+      pinfo->fd->data_src = g_slist_append(pinfo->fd->data_src, next_tvb);
+
+      /* It's not fragmented. */
+      pinfo->fragmented = FALSE;
+
+      /* Save the current value of "pi", and adjust certain fields to
+         reflect the new tvbuff. */
+      save_pi = pi;
+      pi.compat_top_tvb = next_tvb;
+      pi.len = tvb_reported_length(next_tvb);
+      pi.captured_len = tvb_length(next_tvb);
+      must_restore_pi = TRUE;
+    } else {
+      /* We don't have the complete reassembled payload. */
+      next_tvb = NULL;
+    }
+  } else {
+    /* If this is the first segment, dissect its contents, otherwise
+       just show it as a segment.
+
+       XXX - if we eventually don't save the reassembled contents of all
+       segmented datagrams, we may want to always reassemble. */
+    if ((cnf_type & CNF_SEG_OK) && segment_offset != 0) {
+      /* Not the first segment - don't dissect it. */
+      next_tvb = NULL;
+    } else {
+      /* First segment, or not segmented.  Dissect what we have here. */
+
+      /* Get a tvbuff for the payload. */
+      next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+
+      /*
+       * If this is the first segment, but not the only segment,
+       * tell the next protocol that.
+       */
+      if ((cnf_type & (CNF_SEG_OK|CNF_MORE_SEGS)) == (CNF_SEG_OK|CNF_MORE_SEGS))
+        pinfo->fragmented = TRUE;
+      else
+        pinfo->fragmented = FALSE;
+    }
+  }
+
+  if (next_tvb == NULL) {
+    /* Just show this as a segment. */
     if (check_col(pinfo->fd, COL_INFO))
       col_add_fstr(pinfo->fd, COL_INFO, "Fragmented %s NPDU %s(off=%u)",
 		pdu_type_string, flag_string, segment_offset);
+
+    /* As we haven't reassembled anything, we haven't changed "pi", so
+       we don't have to restore it. */
     dissect_data(tvb, offset, pinfo, tree);
     return;
   }
@@ -1821,7 +1991,6 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
          PDU, skip that? */
 
       if (nsel == (char)tp_nsap_selector || always_decode_transport) { 
-        next_tvb = tvb_new_subset(tvb, offset, -1, -1);
         if (dissect_ositp_internal(next_tvb, pinfo, tree, FALSE))
           return;	/* yes, it appears to be COTP or CLTP */
       }
@@ -1855,7 +2024,6 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           ti = proto_tree_add_text(clnp_tree, tvb, offset, next_length,
             "Discarded PDU");
           discpdu_tree = proto_item_add_subtree(ti, ett_clnp_disc_pdu);
-          next_tvb = tvb_new_subset(tvb, offset, -1, -1);
           dissect_clnp(next_tvb, pinfo, discpdu_tree);
 
           /* Restore the addresses. */
@@ -1879,11 +2047,15 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
   if (check_col(pinfo->fd, COL_INFO))
     col_add_fstr(pinfo->fd, COL_INFO, "%s NPDU %s", pdu_type_string, flag_string);
-  next_tvb = tvb_new_subset(tvb, offset, -1, -1);
   dissect_data(next_tvb, 0, pinfo, tree);
 
 } /* dissect_clnp */
 
+static void
+clnp_reassemble_init(void)
+{
+  fragment_table_init(&clnp_segment_table);
+}
 
 void proto_register_clnp(void)
 {
@@ -1921,10 +2093,40 @@ void proto_register_clnp(void)
 
     { &hf_clnp_src,
       { " SA ", "clnp.ssap",     FT_BYTES, BASE_NONE, NULL, 0x0, "" }},
+
+    { &hf_clnp_segment_overlap,
+      { "Segment overlap", "clnp.segment.overlap", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+	"Segment overlaps with other segments" }},
+
+    { &hf_clnp_segment_overlap_conflict,
+      { "Conflicting data in segment overlap", "clnp.segment.overlap.conflict", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+	"Overlapping segments contained conflicting data" }},
+
+    { &hf_clnp_segment_multiple_tails,
+      { "Multiple tail segments found", "clnp.segment.multipletails", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+	"Several tails were found when reassembling the packet" }},
+
+    { &hf_clnp_segment_too_long_segment,
+      { "Segment too long", "clnp.segment.toolongsegment", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+	"Segment contained data past end of packet" }},
+
+    { &hf_clnp_segment_error,
+      { "Reassembly error", "clnp.segment.error", FT_NONE, BASE_DEC, NULL, 0x0,
+	"Reassembly error due to illegal segments" }},
+
+    { &hf_clnp_segment,
+      { "CLNP Segment", "clnp.segment", FT_NONE, BASE_DEC, NULL, 0x0,
+	"CLNP Segment" }},
+
+    { &hf_clnp_segments,
+      { "CLNP Segments", "clnp.segments", FT_NONE, BASE_DEC, NULL, 0x0,
+	"CLNP Segments" }},
   };
   static gint *ett[] = {
     &ett_clnp,
     &ett_clnp_type,
+    &ett_clnp_segments,
+    &ett_clnp_segment,
     &ett_clnp_disc_pdu,
   };
 
@@ -1943,7 +2145,10 @@ void proto_register_clnp(void)
 	"Always try to decode NSDU as transport PDUs",
 	"Always try to decode NSDU as transport PDUs",
        	&always_decode_transport);
-
+  prefs_register_bool_preference(clnp_module, "reassemble",
+	"Reassemble segmented CLNP datagrams",
+	"Whether segmented CLNP datagrams should be reassembled",
+	&clnp_reassemble);
 }
 
 void proto_register_cotp(void)
@@ -1980,6 +2185,7 @@ void proto_register_cltp(void)
         proto_cltp = proto_register_protocol(PROTO_STRING_CLTP, "CLTP", "cltp");
  /*       proto_register_field_array(proto_cotp, hf, array_length(hf));*/
 	proto_register_subtree_array(ett, array_length(ett));
+	register_init_routine(clnp_reassemble_init);
 }
 
 void

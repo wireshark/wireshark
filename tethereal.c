@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.84 2001/06/05 07:38:33 guy Exp $
+ * $Id: tethereal.c,v 1.85 2001/06/08 06:27:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -93,6 +93,7 @@
 #include "resolv.h"
 #include "util.h"
 #include "conversation.h"
+#include "reassemble.h"
 #include "plugins.h"
 #include "register.h"
 
@@ -650,6 +651,12 @@ capture(int packet_count, int out_file_type)
 
   /* Initialize protocol-specific variables */
   init_all_protocols();
+
+  /* Initialize the common data structures for fragment reassembly.
+     Must be done *after* "init_all_protocols()", as "init_all_protocols()"
+     may free up space for fragments, which it finds by using the
+     data structures that "reassemble_init()" frees. */
+  reassemble_init();
 
   ld.linktype       = WTAP_ENCAP_UNKNOWN;
   ld.pdh            = NULL;
@@ -1500,6 +1507,12 @@ open_cap_file(char *fname, gboolean is_tempfile, capture_file *cf)
 
   /* Initialize protocol-specific variables */
   init_all_protocols();
+
+  /* Initialize the common data structures for fragment reassembly.
+     Must be done *after* "init_all_protocols()", as "init_all_protocols()"
+     may free up space for fragments, which it finds by using the
+     data structures that "reassemble_init()" frees. */
+  reassemble_init();
 
   cf->wth = wth;
   cf->filed = fd;

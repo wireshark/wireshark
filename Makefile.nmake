@@ -1,7 +1,7 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.114 2001/06/06 01:30:28 guy Exp $
+# $Id: Makefile.nmake,v 1.115 2001/06/08 06:27:15 guy Exp $
 
 include config.nmake
 include <win32.mak>
@@ -220,6 +220,7 @@ ETHEREAL_COMMON_OBJECTS = \
 	print.obj        \
 	ps.obj           \
 	ptvcursor.obj    \
+	reassemble.obj   \
 	register.obj     \
 	util.obj         \
 	xdlc.obj         \
