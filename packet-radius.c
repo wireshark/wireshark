@@ -2,7 +2,7 @@
  * Routines for RADIUS packet disassembly
  * Copyright 1999 Johan Feyaerts
  *
- * $Id: packet-radius.c,v 1.36 2001/10/01 08:47:50 sharpe Exp $
+ * $Id: packet-radius.c,v 1.37 2001/10/23 04:11:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -145,11 +145,17 @@ typedef struct _value_value_pair {
 #define RD_TP_TUNNEL_MEDIUM_TYPE 65
 #define RD_TP_TUNNEL_CLIENT_ENDPOINT 66
 #define RD_TP_TUNNEL_SERVER_ENDPOINT 67
+#define RD_TP_TUNNEL_CONNECTION 68
 #define RD_TP_TUNNEL_PASSWORD 69
 #define RD_TP_CONNECT_INFO 77
 #define RD_TP_MESSAGE_AUTHENTICATOR 80
+#define RD_TP_TUNNEL_PRIVATE_GROUP_ID 81
 #define RD_TP_TUNNEL_ASSIGNMENT_ID 82
+#define RD_TP_TUNNEL_TUNNEL_PREFERENCE 83
+#define RD_TP_TUNNEL_PACKETS_LOST 86
 #define RD_TP_NAS_PORT_ID 87
+#define RD_TP_TUNNEL_CLIENT_AUTH_ID 90
+#define RD_TP_TUNNEL_SERVER_AUTH_ID 91
 #define RD_TP_ASCEND_MODEM_PORTNO 120
 #define RD_TP_ASCEND_MODEM_SLOTNO 121
 #define RD_TP_ASCEND_MULTILINK_ID 187
@@ -196,6 +202,7 @@ typedef struct _value_value_pair {
 #define RADIUS_STRING_TAGGED 19
 #define RADIUS_VENDOR_SPECIFIC 20
 #define RADIUS_TIMESTAMP 21
+#define RADIUS_INTEGER4_TAGGED 22
 
 static value_string radius_vals[] = {
  {RADIUS_ACCESS_REQUEST, "Access Request"},
@@ -321,6 +328,12 @@ static value_string radius_accounting_status_type_vals[]=
 {3, "Interim-Update"},
 {7,"Accounting-On"},
 {8,"Accounting-Off"},
+{9, "Tunnel-Start"}, /* Tunnel accounting */
+{10, "Tunnel-Stop"}, /* Tunnel accounting */
+{11, "Tunnel-Reject"}, /* Tunnel accounting */
+{12, "Tunnel-Link-Start"}, /* Tunnel accounting */
+{13, "Tunnel-Link-Stop"}, /* Tunnel accounting */
+{14, "Tunnel-Link-Reject"}, /* Tunnel accounting */
 {0,NULL}};
 
 static value_string radius_accounting_authentication_vals[]=
@@ -471,11 +484,17 @@ static value_value_pair radius_printinfo[] = {
 { RD_TP_TUNNEL_MEDIUM_TYPE, RADIUS_TUNNEL_MEDIUM_TYPE},
 { RD_TP_TUNNEL_CLIENT_ENDPOINT, RADIUS_STRING_TAGGED},
 { RD_TP_TUNNEL_SERVER_ENDPOINT, RADIUS_STRING_TAGGED},
+{ RD_TP_TUNNEL_CONNECTION, RADIUS_BINSTRING},
 { RD_TP_TUNNEL_PASSWORD, RADIUS_STRING_TAGGED},
 { RD_TP_CONNECT_INFO, RADIUS_STRING_TAGGED},
 { RD_TP_MESSAGE_AUTHENTICATOR, RADIUS_BINSTRING},
+{ RD_TP_TUNNEL_PRIVATE_GROUP_ID, RADIUS_STRING_TAGGED},
 { RD_TP_TUNNEL_ASSIGNMENT_ID, RADIUS_STRING_TAGGED},
+{ RD_TP_TUNNEL_TUNNEL_PREFERENCE, RADIUS_INTEGER4_TAGGED},
+{ RD_TP_TUNNEL_PACKETS_LOST, RADIUS_INTEGER4},
 { RD_TP_NAS_PORT_ID, RADIUS_STRING},
+{ RD_TP_TUNNEL_CLIENT_AUTH_ID, RADIUS_STRING_TAGGED},
+{ RD_TP_TUNNEL_SERVER_AUTH_ID, RADIUS_STRING_TAGGED},
 { RD_TP_ASCEND_MODEM_PORTNO, RADIUS_INTEGER4},
 { RD_TP_ASCEND_MODEM_SLOTNO, RADIUS_INTEGER4},
 { RD_TP_ASCEND_MULTILINK_ID, RADIUS_INTEGER4},
@@ -558,11 +577,17 @@ static value_string radius_attrib_type_vals[] = {
 { RD_TP_TUNNEL_MEDIUM_TYPE, "Tunnel Medium Type"},
 { RD_TP_TUNNEL_CLIENT_ENDPOINT, "Tunnel Client Endpoint"},
 { RD_TP_TUNNEL_SERVER_ENDPOINT, "Tunnel Server Endpoint"},
+{ RD_TP_TUNNEL_CONNECTION, "Tunnel Connection"},
 { RD_TP_TUNNEL_PASSWORD, "Tunnel Password"},
 { RD_TP_CONNECT_INFO, "Connect-Info"},
 { RD_TP_MESSAGE_AUTHENTICATOR, "Message Authenticator"},
+{ RD_TP_TUNNEL_PRIVATE_GROUP_ID, "Tunnel Private Group ID"},
 { RD_TP_TUNNEL_ASSIGNMENT_ID, "Tunnel Assignment ID"},
+{ RD_TP_TUNNEL_TUNNEL_PREFERENCE, "Tunnel Preference"},
+{ RD_TP_TUNNEL_PACKETS_LOST, "Tunnel Packets Lost"},
 { RD_TP_NAS_PORT_ID, "NAS Port ID"},
+{ RD_TP_TUNNEL_CLIENT_AUTH_ID, "Tunnel Client Auth ID"},
+{ RD_TP_TUNNEL_SERVER_AUTH_ID, "Tunnel Server Auth ID"},
 { RD_TP_ASCEND_MODEM_PORTNO, "Ascend Modem Port No"},
 { RD_TP_ASCEND_MODEM_SLOTNO, "Ascend Modem Slot No"},
 { RD_TP_ASCEND_MULTILINK_ID, "Ascend Multilink ID"},
@@ -792,6 +817,17 @@ gchar *rd_value_to_str(e_avphdr *avph, tvbuff_t *tvb, int offset)
 		rtimestamp=ctime((time_t*)&intval);
 		rtimestamp[strlen(rtimestamp)-1]=0;
 		sprintf(cont,"%d (%s %s)", tvb_get_ntohl(tvb,offset+2), rtimestamp, *tzname);
+		break;
+        case( RADIUS_INTEGER4_TAGGED ):
+		intval = tvb_get_ntohl(tvb,offset+2);
+		/* Tagged ? */
+		if (intval >> 24) {
+			sprintf(textbuffer, "Tag:%u, Value:%u",
+				intval >> 24,
+				intval & 0xffffff);
+			break;
+		}
+		sprintf(cont,"%u", intval);
 		break;
         case( RADIUS_UNKNOWN ):
         default:
