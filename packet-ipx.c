@@ -6,7 +6,7 @@
  * Portions Copyright (c) 2000-2002 by Gilbert Ramirez.
  * Portions Copyright (c) Novell, Inc. 2002-2003
  *
- * $Id: packet-ipx.c,v 1.132 2003/08/04 23:55:39 guy Exp $
+ * $Id: packet-ipx.c,v 1.133 2003/08/05 05:45:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -284,9 +284,9 @@ dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		/* Destination */
 		ipx_dnet = tvb_get_ntohl(tvb, 6);
-		proto_tree_add_uint(ipx_tree, hf_ipx_dnet, tvb, 6, 4,
+		proto_tree_add_ipxnet(ipx_tree, hf_ipx_dnet, tvb, 6, 4,
 			ipx_dnet);
-		proto_tree_add_uint_hidden(ipx_tree, hf_ipx_net, tvb, 6, 4,
+		proto_tree_add_ipxnet_hidden(ipx_tree, hf_ipx_net, tvb, 6, 4,
 			ipx_dnet);
 		ipx_dnode = tvb_get_ptr(tvb, 10,  6);
 		proto_tree_add_ether(ipx_tree, hf_ipx_dnode, tvb, 10, 6,
@@ -300,9 +300,9 @@ dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		/* Source */
 		ipx_snet = tvb_get_ntohl(tvb, 18);
-		proto_tree_add_uint(ipx_tree, hf_ipx_snet, tvb, 18, 4,
+		proto_tree_add_ipxnet(ipx_tree, hf_ipx_snet, tvb, 18, 4,
 			ipx_snet);
-		proto_tree_add_uint_hidden(ipx_tree, hf_ipx_net, tvb, 18, 4,
+		proto_tree_add_ipxnet_hidden(ipx_tree, hf_ipx_net, tvb, 18, 4,
 			ipx_snet);
 		ipx_snode = tvb_get_ptr(tvb, 22, 6);
 		proto_tree_add_ether(ipx_tree, hf_ipx_snode, tvb, 22, 6,
