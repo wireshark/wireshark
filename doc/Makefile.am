@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal documentation
 #
-# $Id: Makefile.am,v 1.22 2004/05/22 21:52:37 guy Exp $
+# $Id: Makefile.am,v 1.23 2004/05/22 22:29:28 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -25,7 +25,7 @@
 # capture when $(VERSION) changes.
 
 ethereal-tmp.pod: ethereal.pod ../AUTHORS-SHORT
-	cat --binary ethereal.pod ../AUTHORS-SHORT > ethereal-tmp.pod
+	cat ethereal.pod ../AUTHORS-SHORT > ethereal-tmp.pod
 
 ../ethereal.1: ethereal-tmp.pod ../config.h
 	$(POD2MAN)                     \
