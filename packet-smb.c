@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.348 2003/06/08 09:11:04 guy Exp $
+ * $Id: packet-smb.c,v 1.349 2003/06/09 00:02:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -9567,55 +9567,54 @@ static const value_string ff2_il_vals[] = {
 	TRANS2_QUERY_FILE_INFORMATION
 */
 static const value_string qpi_loi_vals[] = {
-	{ 1,		"Info Standard  (4.2.14.1)"},
-	{ 2,		"Info Query EA Size  (4.2.14.1)"},
-	{ 3,		"Info Query EAs From List  (4.2.14.2)"},
-	{ 4,		"Info Query All EAs  (4.2.14.2)"},
-	{ 6,		"Info Is Name Valid  (4.2.14.3)"},
-	{ 0x0101,	"Query File Basic Info  (4.2.14.4)"},
-	{ 0x0102,	"Query File Standard Info  (4.2.14.5)"},
-	{ 0x0103,	"Query File EA Info  (4.2.14.6)"},
-	{ 0x0104,	"Query File Name Info  (4.2.14.7)"},
-	{ 0x0107,	"Query File All Info  (4.2.14.8)"},
-	{ 0x0108,	"Query File Alt Name Info  (4.2.14.7)"},
-	{ 0x0109,	"Query File Stream Info  (4.2.14.10)"},
-	{ 0x010b,	"Query File Compression Info  (4.2.14.11)"},
-	{ 0x0200,	"Set File Unix Basic"},
-	{ 0x0201,	"Set File Unix Link"},
-	{ 0x0202,	"Set File Unix HardLink"},
-	{ 1004,		"Query File Basic Info  (4.2.14.4)"},
-	{ 1005,		"Query File Standard Info  (4.2.14.5)"},
-	{ 1006,		"Query File Internal Info  (4.2.14.?)"},
-	{ 1007,		"Query File EA Info  (4.2.14.6)"},
-	{ 1009,		"Query File Name Info  (4.2.14.7)"},
-	{ 1010,		"Query File Rename Info  (4.2.14.?)"},
-	{ 1011,		"Query File Link Info  (4.2.14.?)"},
-	{ 1012,		"Query File Names Info  (4.2.14.?)"},
-	{ 1013,		"Query File Disposition Info  (4.2.14.?)"},
-	{ 1014,		"Query File Position Info  (4.2.14.?)"},
-	{ 1015,		"Query File Full EA Info  (4.2.14.?)"},
-	{ 1016,		"Query File Mode Info  (4.2.14.?)"},
-	{ 1017,		"Query File Alignment Info  (4.2.14.?)"},
-	{ 1018,		"Query File All Info  (4.2.14.8)"},
-	{ 1019,		"Query File Allocation Info  (4.2.14.?)"},
-	{ 1020,		"Query File End of File Info  (4.2.14.?)"},
-	{ 1021,		"Query File Alt Name Info  (4.2.14.7)"},
-	{ 1022,		"Query File Stream Info  (4.2.14.10)"},
-	{ 1023,		"Query File Pipe Info  (4.2.14.?)"},
-	{ 1024,		"Query File Pipe Local Info  (4.2.14.?)"},
-	{ 1025,		"Query File Pipe Remote Info  (4.2.14.?)"},
-	{ 1026,		"Query File Mailslot Query Info  (4.2.14.?)"},
-	{ 1027,		"Query File Mailslot Set Info  (4.2.14.?)"},
-	{ 1028,		"Query File Compression Info  (4.2.14.11)"},
-	{ 1029,		"Query File ObjectID Info  (4.2.14.?)"},
-	{ 1030,		"Query File Completion Info  (4.2.14.?)"},
-	{ 1031,		"Query File Move Cluster Info  (4.2.14.?)"},
-	{ 1032,		"Query File Quota Info  (4.2.14.?)"},
-	{ 1033,		"Query File Reparsepoint Info  (4.2.14.?)"},
-	{ 1034,		"Query File Network Open Info  (4.2.14.?)"},
-	{ 1035,		"Query File Attribute Tag Info  (4.2.14.?)"},
-	{ 1036,		"Query File Tracking Info  (4.2.14.?)"},
-	{ 1037,		"Query File Maximum Info  (4.2.14.?)"},
+	{ 1,		"Info Standard  (4.2.16.1)"},
+	{ 2,		"Info Query EA Size  (4.2.16.1)"},
+	{ 3,		"Info Query EAs From List  (4.2.16.2)"},
+	{ 4,		"Info Query All EAs  (4.2.16.2)"},
+	{ 6,		"Info Is Name Valid  (4.2.16.3)"},
+	{ 0x0101,	"Query File Basic Info  (4.2.16.4)"},
+	{ 0x0102,	"Query File Standard Info  (4.2.16.5)"},
+	{ 0x0103,	"Query File EA Info  (4.2.16.6)"},
+	{ 0x0104,	"Query File Name Info  (4.2.16.7)"},
+	{ 0x0107,	"Query File All Info  (4.2.16.8)"},
+	{ 0x0108,	"Query File Alt Name Info  (4.2.16.9)"},
+	{ 0x0109,	"Query File Stream Info  (4.2.16.10)"},
+	{ 0x010b,	"Query File Compression Info  (4.2.16.11)"},
+	{ 0x0200,	"Query File Unix Basic (4.2.16.12)"},
+	{ 0x0201,	"Query File Unix Link (4.2.16.13)"},
+	{ 1004,		"Query File Basic Info  (4.2.16.4)"},
+	{ 1005,		"Query File Standard Info  (4.2.16.5)"},
+	{ 1006,		"Query File Internal Info  (4.2.16.?)"},
+	{ 1007,		"Query File EA Info  (4.2.16.6)"},
+	{ 1009,		"Query File Name Info  (4.2.16.7)"},
+	{ 1010,		"Query File Rename Info  (4.2.16.?)"},
+	{ 1011,		"Query File Link Info  (4.2.16.?)"},
+	{ 1012,		"Query File Names Info  (4.2.16.?)"},
+	{ 1013,		"Query File Disposition Info  (4.2.16.?)"},
+	{ 1014,		"Query File Position Info  (4.2.16.?)"},
+	{ 1015,		"Query File Full EA Info  (4.2.16.?)"},
+	{ 1016,		"Query File Mode Info  (4.2.16.?)"},
+	{ 1017,		"Query File Alignment Info  (4.2.16.?)"},
+	{ 1018,		"Query File All Info  (4.2.16.8)"},
+	{ 1019,		"Query File Allocation Info  (4.2.16.?)"},
+	{ 1020,		"Query File End of File Info  (4.2.16.?)"},
+	{ 1021,		"Query File Alt Name Info  (4.2.16.7)"},
+	{ 1022,		"Query File Stream Info  (4.2.16.10)"},
+	{ 1023,		"Query File Pipe Info  (4.2.16.?)"},
+	{ 1024,		"Query File Pipe Local Info  (4.2.16.?)"},
+	{ 1025,		"Query File Pipe Remote Info  (4.2.16.?)"},
+	{ 1026,		"Query File Mailslot Query Info  (4.2.16.?)"},
+	{ 1027,		"Query File Mailslot Set Info  (4.2.16.?)"},
+	{ 1028,		"Query File Compression Info  (4.2.16.11)"},
+	{ 1029,		"Query File ObjectID Info  (4.2.16.?)"},
+	{ 1030,		"Query File Completion Info  (4.2.16.?)"},
+	{ 1031,		"Query File Move Cluster Info  (4.2.16.?)"},
+	{ 1032,		"Query File Quota Info  (4.2.16.?)"},
+	{ 1033,		"Query File Reparsepoint Info  (4.2.16.?)"},
+	{ 1034,		"Query File Network Open Info  (4.2.16.?)"},
+	{ 1035,		"Query File Attribute Tag Info  (4.2.16.?)"},
+	{ 1036,		"Query File Tracking Info  (4.2.16.?)"},
+	{ 1037,		"Query File Maximum Info  (4.2.16.?)"},
 	{0, NULL}
 };
 
@@ -10632,10 +10631,10 @@ dissect_get_dfs_referral_data(tvbuff_t *tvb, packet_info *pinfo,
 
 
 /* this dissects the SMB_INFO_STANDARD and SMB_INFO_QUERY_EA_SIZE
-   as described in 4.2.14.1
+   as described in 4.2.16.1
 */
 static int
-dissect_4_2_14_1(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+dissect_4_2_16_1(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     int offset, guint16 *bcp, gboolean *trunc)
 {
 	/* create time */
@@ -10684,10 +10683,10 @@ dissect_4_2_14_1(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 }
 
 /* this dissects the SMB_INFO_QUERY_EAS_FROM_LIST and SMB_INFO_QUERY_ALL_EAS
-   as described in 4.2.14.2
+   as described in 4.2.16.2
 */
 static int
-dissect_4_2_14_2(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+dissect_4_2_16_2(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     int offset, guint16 *bcp, gboolean *trunc)
 {
 	guint8 name_len;
@@ -10761,10 +10760,10 @@ dissect_4_2_14_2(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 }
 
 /* this dissects the SMB_INFO_IS_NAME_VALID
-   as described in 4.2.14.3
+   as described in 4.2.16.3
 */
 static int
-dissect_4_2_14_3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+dissect_4_2_16_3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     int offset, guint16 *bcp, gboolean *trunc)
 {
 	smb_info_t *si = pinfo->private_data;
@@ -10783,10 +10782,10 @@ dissect_4_2_14_3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 /* this dissects the SMB_QUERY_FILE_BASIC_INFO
-   as described in 4.2.14.4
+   as described in 4.2.16.4
 */
 static int
-dissect_4_2_14_4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+dissect_4_2_16_4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     int offset, guint16 *bcp, gboolean *trunc)
 {
 	/* create time */
@@ -10820,10 +10819,10 @@ dissect_4_2_14_4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 }
 
 /* this dissects the SMB_QUERY_FILE_STANDARD_INFO
-   as described in 4.2.14.5
+   as described in 4.2.16.5
 */
 static int
-dissect_4_2_14_5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+dissect_4_2_16_5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     int offset, guint16 *bcp, gboolean *trunc)
 {
 	/* allocation size */
@@ -10856,10 +10855,10 @@ dissect_4_2_14_5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 }
 
 /* this dissects the SMB_QUERY_FILE_EA_INFO
-   as described in 4.2.14.6
+   as described in 4.2.16.6
 */
 static int
-dissect_4_2_14_6(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+dissect_4_2_16_6(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     int offset, guint16 *bcp, gboolean *trunc)
 {
 	/* ea length */
@@ -10872,12 +10871,12 @@ dissect_4_2_14_6(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 }
 
 /* this dissects the SMB_QUERY_FILE_NAME_INFO
-   as described in 4.2.14.7
+   as described in 4.2.16.7
    this is the same as SMB_QUERY_FILE_ALT_NAME_INFO
-   as described in 4.2.14.9
+   as described in 4.2.16.9
 */
 static int
-dissect_4_2_14_7(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+dissect_4_2_16_7(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     int offset, guint16 *bcp, gboolean *trunc)
 {
 	smb_info_t *si = pinfo->private_data;
@@ -10901,18 +10900,18 @@ dissect_4_2_14_7(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 /* this dissects the SMB_QUERY_FILE_ALL_INFO
-   as described in 4.2.14.8
+   as described in 4.2.16.8
 */
 static int
-dissect_4_2_14_8(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+dissect_4_2_16_8(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     int offset, guint16 *bcp, gboolean *trunc)
 {
 
-	offset = dissect_4_2_14_4(tvb, pinfo, tree, offset, bcp, trunc);
+	offset = dissect_4_2_16_4(tvb, pinfo, tree, offset, bcp, trunc);
 	if (*trunc) {
 		return offset;
 	}
-	offset = dissect_4_2_14_5(tvb, pinfo, tree, offset, bcp, trunc);
+	offset = dissect_4_2_16_5(tvb, pinfo, tree, offset, bcp, trunc);
 	if (*trunc) {
 		return offset;
 	}
@@ -10922,7 +10921,7 @@ dissect_4_2_14_8(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	proto_tree_add_item(tree, hf_smb_index_number, tvb, offset, 8, TRUE);
 	COUNT_BYTES_SUBR(8);
 
-	offset = dissect_4_2_14_6(tvb, pinfo, tree, offset, bcp, trunc);
+	offset = dissect_4_2_16_6(tvb, pinfo, tree, offset, bcp, trunc);
 	if (*trunc)
 		return offset;
 
@@ -10951,16 +10950,16 @@ dissect_4_2_14_8(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	proto_tree_add_item(tree, hf_smb_t2_alignment, tvb, offset, 4, TRUE);
 	COUNT_BYTES_SUBR(4);
 
-	offset = dissect_4_2_14_6(tvb, pinfo, tree, offset, bcp, trunc);
+	offset = dissect_4_2_16_6(tvb, pinfo, tree, offset, bcp, trunc);
 
 	return offset;
 }
 
 /* this dissects the SMB_QUERY_FILE_STREAM_INFO
-   as described in 4.2.14.10
+   as described in 4.2.16.10
 */
 static int
-dissect_4_2_14_10(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
+dissect_4_2_16_10(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
     int offset, guint16 *bcp, gboolean *trunc)
 {
 	proto_item *item;
@@ -11037,10 +11036,10 @@ dissect_4_2_14_10(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 }
 
 /* this dissects the SMB_QUERY_FILE_COMPRESSION_INFO
-   as described in 4.2.14.11
+   as described in 4.2.16.11
 */
 static int
-dissect_4_2_14_11(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+dissect_4_2_16_11(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     int offset, guint16 *bcp, gboolean *trunc)
 {
 	/* compressed file size */
@@ -11146,57 +11145,57 @@ dissect_qpi_loi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 	case 1:		/*Info Standard*/
 		
 	case 2:		/*Info Query EA Size*/
-		offset = dissect_4_2_14_1(tvb, pinfo, tree, offset, bcp,
+		offset = dissect_4_2_16_1(tvb, pinfo, tree, offset, bcp,
 		    &trunc);
 		break;
 	case 3:		/*Info Query EAs From List*/
 	case 4:		/*Info Query All EAs*/
-		offset = dissect_4_2_14_2(tvb, pinfo, tree, offset, bcp,
+		offset = dissect_4_2_16_2(tvb, pinfo, tree, offset, bcp,
 		    &trunc);
 		break;
 	case 6:		/*Info Is Name Valid*/
-		offset = dissect_4_2_14_3(tvb, pinfo, tree, offset, bcp,
+		offset = dissect_4_2_16_3(tvb, pinfo, tree, offset, bcp,
 		    &trunc);
 		break;
 	case 0x0101:	/*Query File Basic Info*/
 	case 1004:	/* SMB_FILE_BASIC_INFORMATION */
-		offset = dissect_4_2_14_4(tvb, pinfo, tree, offset, bcp,
+		offset = dissect_4_2_16_4(tvb, pinfo, tree, offset, bcp,
 		    &trunc);
 		break;
 	case 0x0102:	/*Query File Standard Info*/
 	case 1005:	/* SMB_FILE_STANDARD_INFORMATION */
-		offset = dissect_4_2_14_5(tvb, pinfo, tree, offset, bcp,
+		offset = dissect_4_2_16_5(tvb, pinfo, tree, offset, bcp,
 		    &trunc);
 		break;
 	case 0x0103:	/*Query File EA Info*/
 	case 1007:	/* SMB_FILE_EA_INFORMATION */
-		offset = dissect_4_2_14_6(tvb, pinfo, tree, offset, bcp,
+		offset = dissect_4_2_16_6(tvb, pinfo, tree, offset, bcp,
 		    &trunc);
 		break;
 	case 0x0104:	/*Query File Name Info*/
 	case 1009:	/* SMB_FILE_NAME_INFORMATION */
-		offset = dissect_4_2_14_7(tvb, pinfo, tree, offset, bcp,
+		offset = dissect_4_2_16_7(tvb, pinfo, tree, offset, bcp,
 		    &trunc);
 		break;
 	case 0x0107:	/*Query File All Info*/
 	case 1018:	/* SMB_FILE_ALL_INFORMATION */
-		offset = dissect_4_2_14_8(tvb, pinfo, tree, offset, bcp,
+		offset = dissect_4_2_16_8(tvb, pinfo, tree, offset, bcp,
 		    &trunc);
 		break;
 	case 0x0108:	/*Query File Alt File Info*/
 	case 1021:	/* SMB_FILE_ALTERNATE_NAME_INFORMATION */
-		offset = dissect_4_2_14_7(tvb, pinfo, tree, offset, bcp,
+		offset = dissect_4_2_16_7(tvb, pinfo, tree, offset, bcp,
 		    &trunc);
 		break;
 	case 1022:	/* SMB_FILE_STREAM_INFORMATION */
 	        ((smb_info_t *)(pinfo->private_data))->unicode = TRUE;
 	case 0x0109:	/*Query File Stream Info*/
-		offset = dissect_4_2_14_10(tvb, pinfo, tree, offset, bcp,
+		offset = dissect_4_2_16_10(tvb, pinfo, tree, offset, bcp,
 		    &trunc);
 		break;
 	case 0x010b:	/*Query File Compression Info*/
 	case 1028:	/* SMB_FILE_COMPRESSION_INFORMATION */
-		offset = dissect_4_2_14_11(tvb, pinfo, tree, offset, bcp,
+		offset = dissect_4_2_16_11(tvb, pinfo, tree, offset, bcp,
 		    &trunc);
 		break;
 	case 0x0200:	/*Set File Unix Basic*/
@@ -11231,15 +11230,15 @@ dissect_spi_loi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 	case 1:		/*Info Standard*/
 		
 	case 2:		/*Info Query EA Size*/
-		offset = dissect_4_2_14_1(tvb, pinfo, tree, offset, bcp,
+		offset = dissect_4_2_16_1(tvb, pinfo, tree, offset, bcp,
 		    &trunc);
 		break;
 	case 4:		/*Info Query All EAs*/
-		offset = dissect_4_2_14_2(tvb, pinfo, tree, offset, bcp,
+		offset = dissect_4_2_16_2(tvb, pinfo, tree, offset, bcp,
 		    &trunc);
 		break;
 	case 0x0101:	/*Set File Basic Info*/
-		offset = dissect_4_2_14_4(tvb, pinfo, tree, offset, bcp,
+		offset = dissect_4_2_16_4(tvb, pinfo, tree, offset, bcp,
 		    &trunc);
 		break;
 	case 0x0102:	/*Set File Disposition Info*/
