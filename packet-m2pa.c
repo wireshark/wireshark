@@ -2,12 +2,12 @@
  * Routines for MTP2 Peer Adaptation Layer dissection
  * It is hopefully (needs testing) compliant to
  * http://www.ietf.org/internet-drafts/draft-ietf-sigtran-m2pa-02.txt
- * http://www.ietf.org/internet-drafts/draft-ietf-sigtran-m2pa-09.txt
+ * http://www.ietf.org/internet-drafts/draft-ietf-sigtran-m2pa-11.txt
  *
  * Copyright 2001, 2002, Jeff Morriss <jeff.morriss[AT]ulticom.com>,
  * updated by Michael Tuexen <tuexen [AT] fh-muenster.de>
  *
- * $Id: packet-m2pa.c,v 1.22 2003/09/04 14:32:34 tuexen Exp $
+ * $Id: packet-m2pa.c,v 1.23 2004/03/23 18:59:44 tuexen Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -76,10 +76,10 @@ static dissector_handle_t mtp3_handle;
 
 typedef enum {
   M2PA_V2 = 1,
-  M2PA_V9 = 2
+  M2PA_V11 = 2
 } Version_Type;
 
-static Version_Type m2pa_version = M2PA_V9;
+static Version_Type m2pa_version = M2PA_V11;
 
 #define VERSION_LENGTH         1
 #define SPARE_LENGTH           1
@@ -247,9 +247,11 @@ static const value_string v2_link_status_values[] = {
 #define FILLER_OFFSET    (STATUS_OFFSET + STATUS_LENGTH)
 
 static void
-dissect_v2_link_status_message(tvbuff_t *message_data_tvb, proto_tree *m2pa_tree)
+dissect_v2_link_status_message(tvbuff_t *message_data_tvb, packet_info *pinfo, proto_tree *m2pa_tree)
 {
- if (m2pa_tree)
+  if (check_col(pinfo->cinfo, COL_INFO))
+    col_append_fstr(pinfo->cinfo, COL_INFO, "(%s) ", val_to_str(tvb_get_ntohl(message_data_tvb, STATUS_OFFSET), v2_link_status_values, "Unknown"));
+  if (m2pa_tree)
     proto_tree_add_item(m2pa_tree, hf_v2_status, message_data_tvb, STATUS_OFFSET, STATUS_LENGTH, NETWORK_BYTE_ORDER);
 }
 
@@ -266,9 +268,12 @@ static const value_string v8_link_status_values[] = {
   { 0, NULL } };
 
 static void
-dissect_v8_link_status_message(tvbuff_t *message_data_tvb, proto_tree *m2pa_tree)
+dissect_v8_link_status_message(tvbuff_t *message_data_tvb, packet_info *pinfo, proto_tree *m2pa_tree)
 {
   guint16 filler_length;
+  
+  if (check_col(pinfo->cinfo, COL_INFO))
+    col_append_fstr(pinfo->cinfo, COL_INFO, "(%s) ", val_to_str(tvb_get_ntohl(message_data_tvb, STATUS_OFFSET), v8_link_status_values, "Unknown"));
 
   filler_length = tvb_length(message_data_tvb) - STATUS_LENGTH;
   
@@ -296,7 +301,7 @@ dissect_v2_message_data(tvbuff_t *message_tvb, packet_info *pinfo, proto_item *m
   guint16 type;
   tvbuff_t *message_data_tvb;
 
-  message_data_length = tvb_get_ntohl(message_tvb,  V2_LENGTH_OFFSET);
+  message_data_length = tvb_get_ntohl(message_tvb, V2_LENGTH_OFFSET);
   message_data_tvb    = tvb_new_subset(message_tvb, V2_MESSAGE_DATA_OFFSET, message_data_length, message_data_length);
   type                = tvb_get_ntohs(message_tvb, V2_TYPE_OFFSET);
 
@@ -305,7 +310,7 @@ dissect_v2_message_data(tvbuff_t *message_tvb, packet_info *pinfo, proto_item *m
     dissect_v2_user_data_message(message_data_tvb, pinfo, m2pa_item, m2pa_tree, tree);
     break;
   case V2_LINK_STATUS_TYPE:
-    dissect_v2_link_status_message(message_data_tvb, m2pa_tree);
+    dissect_v2_link_status_message(message_data_tvb, pinfo, m2pa_tree);
     break;
   default:
     dissect_unknown_message(message_data_tvb, m2pa_tree);
@@ -331,7 +336,7 @@ dissect_v8_message_data(tvbuff_t *message_tvb, packet_info *pinfo, proto_item *m
     dissect_v8_user_data_message(message_data_tvb, pinfo, m2pa_item, m2pa_tree, tree);
     break;
   case V8_LINK_STATUS_TYPE:
-    dissect_v8_link_status_message(message_data_tvb, m2pa_tree);
+    dissect_v8_link_status_message(message_data_tvb, pinfo, m2pa_tree);
     break;
   default:
     dissect_unknown_message(message_data_tvb, m2pa_tree);
@@ -363,8 +368,8 @@ dissect_m2pa(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case M2PA_V2:
       col_set_str(pinfo->cinfo, COL_PROTOCOL, "M2PA (ID 02)");
       break;
-    case M2PA_V9:
-      col_set_str(pinfo->cinfo, COL_PROTOCOL, "M2PA (ID 09)");
+    case M2PA_V11:
+      col_set_str(pinfo->cinfo, COL_PROTOCOL, "M2PA (ID 11)");
       break;
     };      
 
@@ -380,7 +385,7 @@ dissect_m2pa(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case M2PA_V2:
       dissect_v2_message(tvb, pinfo, m2pa_item, m2pa_tree, tree);
       break;
-    case M2PA_V9:
+    case M2PA_V11:
       dissect_v8_message(tvb, pinfo, m2pa_item, m2pa_tree, tree);
       break;
   };      
@@ -416,7 +421,7 @@ proto_register_m2pa(void)
 
   static enum_val_t m2pa_version_options[] = {
     { "Internet Draft version 2", M2PA_V2 },
-    { "Internet Draft version 9", M2PA_V9 },
+    { "Internet Draft version 11", M2PA_V11 },
     { NULL, 0 }
   };
 
