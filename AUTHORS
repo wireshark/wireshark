@@ -2306,6 +2306,10 @@ Charlie Lenahan		<clenahan [AT] fortresstech.com> {
 	Support for the Cisco DTP Protocol
 }
 
+Herbert Lischka		<lischka [AT] kieback-peter.de> {
+	Interpretation of many BACNET tags
+}
+
 And assorted fixes and enhancements by the people listed above
 and by:
 
