@@ -1,7 +1,7 @@
 /* ringbuffer.c
  * Routines for packet capture windows
  *
- * $Id: ringbuffer.c,v 1.9 2004/02/25 05:52:37 guy Exp $
+ * $Id: ringbuffer.c,v 1.10 2004/06/02 18:49:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -259,7 +259,8 @@ ringbuf_switch_file(capture_file *cf, wtap_dumper **pdh, int *err)
   /* close current file */
 
   if (!wtap_dump_close(rb_data.pdh, err)) {
-    close(rb_data.fd);
+    close(rb_data.fd);	/* XXX - the above should have closed this already */
+    rb_data.pdh = NULL;	/* it's still closed, we just got an error while closing */
     rb_data.fd = -1;
     return FALSE;
   }
@@ -298,16 +299,18 @@ ringbuf_wtap_dump_close(capture_file *cf, int *err)
 {
   gboolean  ret_val = TRUE;
 
-  /* close current file */
+  /* close current file, if it's open */
+  if (rb_data.pdh != NULL) {
+    if (!wtap_dump_close(rb_data.pdh, err)) {
+      close(rb_data.fd);
+      ret_val = FALSE;
+    }
 
-  if (!wtap_dump_close(rb_data.pdh, err)) {
-    close(rb_data.fd);
-    ret_val = FALSE;
+    rb_data.pdh = NULL;
+    rb_data.fd  = -1;
   }
 
-  rb_data.pdh = NULL;
-  rb_data.fd  = -1;
-
+  /* set the save file name to the current file */
   cf->save_file = rb_data.files[rb_data.curr_file_num].name;
   return ret_val;
 }
@@ -357,6 +360,8 @@ ringbuf_error_cleanup(void)
   }
 
   /* close directly if still open */
+  /* XXX - it shouldn't still be open; "wtap_dump_close()" should leave the
+     file closed even if it fails */
   if (rb_data.fd != -1) {
     close(rb_data.fd);
     rb_data.fd = -1;
