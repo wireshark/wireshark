@@ -1,7 +1,7 @@
 /* reassemble.c
  * Routines for {fragment,segment} reassembly
  *
- * $Id: reassemble.c,v 1.35 2003/04/20 08:06:01 guy Exp $
+ * $Id: reassemble.c,v 1.36 2003/04/20 08:40:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -173,8 +173,18 @@ free_all_reassembled_fragments(gpointer key_arg _U_, gpointer value,
 	fragment_data *fd_head;
 
 	for (fd_head = value; fd_head != NULL; fd_head = fd_head->next) {
-		if(fd_head->data && !(fd_head->flags&FD_NOT_MALLOCED))
+		if(fd_head->data && !(fd_head->flags&FD_NOT_MALLOCED)) {
 			g_free(fd_head->data);
+
+			/*
+			 * A reassembled packet is inserted into the
+			 * hash table once for every frame that made
+			 * up the reassembled packet; clear the data
+			 * pointer so that we only free the data the
+			 * first time we see it.
+			 */
+			fd_head->data = NULL;
+		}
 	}
 
 	return TRUE;
@@ -423,14 +433,19 @@ fragment_unhash(GHashTable *fragment_table, fragment_key *key)
 
 /*
  * This function adds fragment_data structure to a reassembled-packet
- * hash table, using the frame data structure as the key.
+ * hash table, using the frame numbers of each of the frames from
+ * which it was reassembled as keys.
  */
 void
 fragment_reassembled(fragment_data *fd_head, packet_info *pinfo,
 	     GHashTable *reassembled_table)
 {
-	g_hash_table_insert(reassembled_table, (gpointer)pinfo->fd->num,
-	    fd_head);
+	fragment_data *fd;
+
+	for (fd = fd_head->next; fd != NULL; fd = fd->next){
+		g_hash_table_insert(reassembled_table, (gpointer)fd->frame,
+		    fd_head);
+	}
 }
 
 /*
@@ -1344,42 +1359,6 @@ process_reassembled_data(tvbuff_t *tvb, packet_info *pinfo, char *name,
 	tvbuff_t *next_tvb;
 
 	if (fd_head != NULL) {
-		/*
-		 * XXX - Now that we're using "fragment_add_check()",
-		 * so that we don't get confused by reused IP IDs,
-		 * reassembled fragments are hashed by the number of
-		 * the frame in whch they're reassembled, so the only
-		 * one of the frames for which we'll get the frame info
-		 * is the one in which it's reassembled.
-		 *
-		 * That means we can't put the "reassembled in" information
-		 * into the protocol tree or Info column for packets other
-		 * than the last fragment.  In order to do that, we'd need
-		 * to hash the entry into the hash table multiple times - or
-		 * retroactively attach the entry to all the other frames
-		 * with, say, "p_add_proto_data()" and use that.  (That could
-		 * only be done by the reassembly code in "reassemble.c" if
-		 * we either guaranteed that no protocol doing reassembly
-		 * attached its own per-protocol data or if we added another
-		 * list of reassembly data to all frames, growing the
-		 * per-frame overhead by one pointer.)
-		 *
-		 * Note that putting it into the Info column doesn't work
-		 * when the file is read in or reprocessed; it works only
-		 * when the capture is filtered.  If we switch to a scheme
-		 * in which the column text is generated on the fly, by
-		 * having the column list widget get the text to draw by
-		 * calling back to a routine that would read and re-dissect
-		 * the packet, that problem would go away, although doing so
-		 * without running the risk of dragging the scroll bar
-		 * causing stalls requires fast random access even to
-		 * gzipped files and fast generation of protocol trees.
-		 * The former can probably be done by saving the string
-		 * dictionary at "checkpoint" locations; the latter may
-		 * require that we build protocol trees using our own code,
-		 * as "g_node_append()" is linear in the length of the list
-		 * to which it's appending.)
-		 */
 		if (pinfo->fd->num == fd_head->reassembled_in) {
 			/*
 			 * OK, we have the complete reassembled payload.
