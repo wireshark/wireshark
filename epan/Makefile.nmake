@@ -1,7 +1,7 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.44 2004/06/25 07:10:54 jmayer Exp $
+# $Id: Makefile.nmake,v 1.45 2004/06/26 02:16:15 guy Exp $
 
 include ..\config.nmake
 include <win32.mak>
@@ -76,7 +76,7 @@ libethereal.dll: ..\config.h $(OBJECTS) libethereal.def ftypes dfilter doxygen
 		
 
 ethereal.lib	: ..\config.h $(OBJECTS)
-	lib /out:ethereal.lib $(OBJECTS)
+	link /lib /out:ethereal.lib $(OBJECTS)
 
 ..\config.h	: ..\config.h.win32 ..\config.nmake
 	cd ..

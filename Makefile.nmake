@@ -1,7 +1,7 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.424 2004/06/21 17:27:35 ulfl Exp $
+# $Id: Makefile.nmake,v 1.425 2004/06/26 02:16:15 guy Exp $
 
 include config.nmake
 include <win32.mak>
@@ -196,7 +196,7 @@ randpkt.exe	: $(randpkt_OBJECTS) $(EXTRA_OBJECTS)
 <<
 
 dissectors.lib: config.h $(DISSECTOR_OBJECTS) $(DISSECTOR_SUPPORT_OBJECTS) $(EXTRA_OBJECTS)
-	lib /out:dissectors.lib $(DISSECTOR_OBJECTS) $(DISSECTOR_SUPPORT_OBJECTS) $(EXTRA_OBJECTS)
+	link /lib /out:dissectors.lib $(DISSECTOR_OBJECTS) $(DISSECTOR_SUPPORT_OBJECTS) $(EXTRA_OBJECTS)
 
 config.h	: config.h.win32 config.nmake
 	sed -e s/@VERSION@/$(VERSION)/ \
