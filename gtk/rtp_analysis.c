@@ -1,7 +1,7 @@
 /* rtp_analysis.c
  * RTP analysis addition for ethereal
  *
- * $Id: rtp_analysis.c,v 1.8 2003/10/31 19:45:16 guy Exp $
+ * $Id: rtp_analysis.c,v 1.9 2003/11/03 20:45:25 guy Exp $
  *
  * Copyright 2003, Alcatel Business Systems
  * By Lars Ruoff <lars.ruoff@gmx.net>
@@ -366,7 +366,7 @@ static int rtp_packet_analyse(tap_rtp_stat_t *statinfo,
 		statinfo->flags |= STAT_FLAG_MARKER;
 	}
 	/* if neither then it is a normal packet */
-	{
+	if (!(statinfo->first_packet) && !(rtpinfo->info_marker_set)) {
 		if (statinfo->delay > statinfo->max_delay) {
 			statinfo->max_delay = statinfo->delay;
 			statinfo->max_nr = pinfo->fd->num;
