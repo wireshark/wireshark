@@ -1,8 +1,9 @@
 /* packet-dcerpc-lsa.c
  * Routines for SMB \PIPE\lsarpc packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
+ *  2002  Added LSA command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-lsa.c,v 1.9 2002/04/17 09:24:08 sahlberg Exp $
+ * $Id: packet-dcerpc-lsa.c,v 1.10 2002/04/17 09:51:11 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1387,8 +1388,9 @@ static dcerpc_sub_dissector dcerpc_lsa_dissectors[] = {
 	{ LSA_LSADELETE, "LSADELETE",
 		lsa_dissect_lsadelete_rqst,
 		lsa_dissect_lsadelete_reply },
-#ifdef REMOVED
 	{ LSA_LSAENUMERATEPRIVILEGES, "LSAENUMERATEPRIVILEGES",
+		NULL, NULL },
+#ifdef REMOVED
 		lsa_dissect_lsaenumerateprivileges_rqst,
 		lsa_dissect_lsaenumerateprivileges_reply },
 #endif
@@ -1413,40 +1415,66 @@ static dcerpc_sub_dissector dcerpc_lsa_dissectors[] = {
 	{ LSA_LSACLEARAUDITLOG, "LSACLEARAUDITLOG",
 		lsa_dissect_lsaclearauditlog_rqst,
 		lsa_dissect_lsaclearauditlog_reply },
-#ifdef REMOVED
 	{ LSA_LSACREATEACCOUNT, "LSACREATEACCOUNT",
+		NULL, NULL },
+#ifdef REMOVED
 		lsa_dissect_lsacreateaccount_rqst,
 		lsa_dissect_lsacreateaccount_reply },
+#endif
 	{ LSA_LSAENUMERATEACCOUNTS, "LSAENUMERATEACCOUNTS",
+		NULL, NULL },
+#ifdef REMOVED
 		lsa_dissect_lsaenumerateaccounts_rqst,
 		lsa_dissect_lsaenumerateaccounts_reply },
+#endif
 	{ LSA_LSACREATETRUSTEDDOMAIN, "LSACREATETRUSTEDDOMAIN",
+		NULL, NULL },
+#ifdef REMOVED
 		lsa_dissect_lsacreatetrusteddomain_rqst,
 		lsa_dissect_lsacreatetrusteddomain_reply },
+#endif
 	{ LSA_LSAENUMERATETRUSTEDDOMAINS, "LSAENUMERATETRUSTEDDOMAINS",
+		NULL, NULL },
+#ifdef REMOVED
 		lsa_dissect_lsaenumeratetrusteddomains_rqst,
 		lsa_dissect_lsaenumeratetrusteddomains_reply },
+#endif
 	{ LSA_LSALOOKUPNAMES, "LSALOOKUPNAMES",
+		NULL, NULL },
+#ifdef REMOVED
 		lsa_dissect_lsalookupnames_rqst,
 		lsa_dissect_lsalookupnames_reply },
 #endif
 	{ LSA_LSALOOKUPSIDS, "LSALOOKUPSIDS",
 		lsa_dissect_lsalookupsids_rqst,
 		lsa_dissect_lsalookupsids_reply },
-#ifdef REMOVED
 	{ LSA_LSACREATESECRET, "LSACREATESECRET",
+		NULL, NULL },
+#ifdef REMOVED
 		lsa_dissect_lsacreatesecret_rqst,
 		lsa_dissect_lsacreatesecret_reply },
+#endif
 	{ LSA_LSAOPENACCOUNT, "LSAOPENACCOUNT",
+		NULL, NULL },
+#ifdef REMOVED
 		lsa_dissect_lsaopenaccount_rqst,
 		lsa_dissect_lsaopenaccount_reply },
+#endif
 	{ LSA_LSAENUMERATEPRIVILEGESACCOUNT, "LSAENUMERATEPRIVILEGESACCOUNT",
+		NULL, NULL },
+#ifdef REMOVED
 		lsa_dissect_lsaenumerateprivilegesaccount_rqst,
 		lsa_dissect_lsaenumerateprivilegesaccount_reply },
+#endif
 	{ LSA_LSAADDPRIVILEGESTOACCOUNT, "LSAADDPRIVILEGESTOACCOUNT",
+		NULL, NULL },
+#ifdef REMOVED
 		lsa_dissect_lsaaddprivilegestoaccount_rqst,
 		lsa_dissect_lsaaddprivilegestoaccount_reply },
+#endif
 	{ LSA_LSAREMOVEPRIVILEGESFROMACCOUNT, "LSAREMOVEPRIVILEGESFROMACCOUNT",
+		NULL, NULL },
+#ifdef REMOVED
 		lsa_dissect_lsaremoveprivilegesfromaccount_rqst,
 		lsa_dissect_lsaremoveprivilegesfromaccount_reply },
 #endif
@@ -1465,111 +1493,201 @@ static dcerpc_sub_dissector dcerpc_lsa_dissectors[] = {
 	{ LSA_LSAOPENTRUSTEDDOMAIN, "LSAOPENTRUSTEDDOMAIN",
 		lsa_dissect_lsaopentrusteddomain_rqst,
 		lsa_dissect_lsaopentrusteddomain_reply },
-#ifdef REMOVED
 	{ LSA_LSAQUERYINFOTRUSTEDDOMAIN, "LSAQUERYINFOTRUSTEDDOMAIN",
+		NULL, NULL },
+#ifdef REMOVED
 		lsa_dissect_lsaqueryinfotrusteddomain_rqst,
 		lsa_dissect_lsaqueryinfotrusteddomain_reply },
+#endif
 	{ LSA_LSASETINFORMATIONTRUSTEDDOMAIN, "LSASETINFORMATIONTRUSTEDDOMAIN",
+		NULL, NULL },
+#ifdef REMOVED
 		lsa_dissect_lsasetinformationtrusteddomain_rqst,
 		lsa_dissect_lsasetinformationtrusteddomain_reply },
+#endif
 	{ LSA_LSAOPENSECRET, "LSAOPENSECRET",
+		NULL, NULL },
+#ifdef REMOVED
 		lsa_dissect_lsaopensecret_rqst,
 		lsa_dissect_lsaopensecret_reply },
+#endif
 	{ LSA_LSASETSECRET, "LSASETSECRET",
+		NULL, NULL },
+#ifdef REMOVED
 		lsa_dissect_lsasetsecret_rqst,
 		lsa_dissect_lsasetsecret_reply },
+#endif
 	{ LSA_LSAQUERYSECRET, "LSAQUERYSECRET",
+		NULL, NULL },
+#ifdef REMOVED
 		lsa_dissect_lsaquerysecret_rqst,
 		lsa_dissect_lsaquerysecret_reply },
+#endif
 	{ LSA_LSALOOKUPPRIVILEGEVALUE, "LSALOOKUPPRIVILEGEVALUE",
+		NULL, NULL },
+#ifdef REMOVED
 		lsa_dissect_lsalookupprivilegevalue_rqst,
 		lsa_dissect_lsalookupprivilegevalue_reply },
+#endif
 	{ LSA_LSALOOKUPPRIVILEGENAME, "LSALOOKUPPRIVILEGENAME",
+		NULL, NULL },
+#ifdef REMOVED
 		lsa_dissect_lsalookupprivilegename_rqst,
 		lsa_dissect_lsalookupprivilegename_reply },
+#endif
 	{ LSA_LSALOOKUPPRIVILEGEDISPLAYNAME, "LSALOOKUPPRIVILEGEDISPLAYNAME",
+		NULL, NULL },
+#ifdef REMOVED
 		lsa_dissect_lsalookupprivilegedisplayname_rqst,
 		lsa_dissect_lsalookupprivilegedisplayname_reply },
+#endif
 	{ LSA_LSADELETEOBJECT, "LSADELETEOBJECT",
+		NULL, NULL },
+#ifdef REMOVED
 		lsa_dissect_lsadeleteobject_rqst,
 		lsa_dissect_lsadeleteobject_reply },
+#endif
 	{ LSA_LSAENUMERATEACCOUNTSWITHUSERRIGHT, "LSAENUMERATEACCOUNTSWITHUSERRIGHT",
+		NULL, NULL },
+#ifdef REMOVED
 		lsa_dissect_lsaenumerateaccountswithuserright_rqst,
 		lsa_dissect_lsaenumerateaccountswithuserright_reply },
+#endif
 	{ LSA_LSAENUMERATEACCOUNTRIGHTS, "LSAENUMERATEACCOUNTRIGHTS",
+		NULL, NULL },
+#ifdef REMOVED
 		lsa_dissect_lsaenumerateaccountrights_rqst,
 		lsa_dissect_lsaenumerateaccountrights_reply },
+#endif
 	{ LSA_LSAADDACCOUNTRIGHTS, "LSAADDACCOUNTRIGHTS",
+		NULL, NULL },
+#ifdef REMOVED
 		lsa_dissect_lsaaddaccountrights_rqst,
 		lsa_dissect_lsaaddaccountrights_reply },
+#endif
 	{ LSA_LSAREMOVEACCOUNTRIGHTS, "LSAREMOVEACCOUNTRIGHTS",
+		NULL, NULL },
+#ifdef REMOVED
 		lsa_dissect_lsaremoveaccountrights_rqst,
 		lsa_dissect_lsaremoveaccountrights_reply },
+#endif
 	{ LSA_LSAQUERYTRUSTEDDOMAININFO, "LSAQUERYTRUSTEDDOMAININFO",
+		NULL, NULL },
+#ifdef REMOVED
 		lsa_dissect_lsaquerytrusteddomaininfo_rqst,
 		lsa_dissect_lsaquerytrusteddomaininfo_reply },
+#endif
 	{ LSA_LSASETTRUSTEDDOMAININFO, "LSASETTRUSTEDDOMAININFO",
+		NULL, NULL },
+#ifdef REMOVED
 		lsa_dissect_lsasettrusteddomaininfo_rqst,
 		lsa_dissect_lsasettrusteddomaininfo_reply },
 #endif
 	{ LSA_LSADELETETRUSTEDDOMAIN, "LSADELETETRUSTEDDOMAIN",
 		lsa_dissect_lsadeletetrusteddomain_rqst,
 		lsa_dissect_lsadeletetrusteddomain_reply },
-#ifdef REMOVED
 	{ LSA_LSASTOREPRIVATEDATA, "LSASTOREPRIVATEDATA",
+		NULL, NULL },
+#ifdef REMOVED
 		lsa_dissect_lsastoreprivatedata_rqst,
 		lsa_dissect_lsastoreprivatedata_reply },
+#endif
 	{ LSA_LSARETRIEVEPRIVATEDATA, "LSARETRIEVEPRIVATEDATA",
+		NULL, NULL },
+#ifdef REMOVED
 		lsa_dissect_lsaretrieveprivatedata_rqst,
 		lsa_dissect_lsaretrieveprivatedata_reply },
 #endif
 	{ LSA_LSAOPENPOLICY2, "LSAOPENPOLICY2",
 		lsa_dissect_lsaopenpolicy_rqst,
 		lsa_dissect_lsaopenpolicy_reply },
-#ifdef REMOVED
 	{ LSA_LSAGETUSERNAME, "LSAGETUSERNAME",
+		NULL, NULL },
+#ifdef REMOVED
 		lsa_dissect_lsagetusername_rqst,
 		lsa_dissect_lsagetusername_reply },
+#endif
 	{ LSA_LSAFUNCTION_2E, "LSAFUNCTION_2E",
+		NULL, NULL },
+#ifdef REMOVED
 		lsa_dissect_lsafunction_2e_rqst,
 		lsa_dissect_lsafunction_2e_reply },
+#endif
 	{ LSA_LSAFUNCTION_2F, "LSAFUNCTION_2F",
+		NULL, NULL },
+#ifdef REMOVED
 		lsa_dissect_lsafunction_2f_rqst,
 		lsa_dissect_lsafunction_2f_reply },
+#endif
 	{ LSA_LSAQUERYTRUSTEDDOMAININFOBYNAME, "LSAQUERYTRUSTEDDOMAININFOBYNAME",
+		NULL, NULL },
+#ifdef REMOVED
 		lsa_dissect_lsaquerytrusteddomaininfobyname_rqst,
 		lsa_dissect_lsaquerytrusteddomaininfobyname_reply },
+#endif
 	{ LSA_LSASETTRUSTEDDOMAININFOBYNAME, "LSASETTRUSTEDDOMAININFOBYNAME",
+		NULL, NULL },
+#ifdef REMOVED
 		lsa_dissect_lsasettrusteddomaininfobyname_rqst,
 		lsa_dissect_lsasettrusteddomaininfobyname_reply },
+#endif
 	{ LSA_LSAENUMERATETRUSTEDDOMAINSEX, "LSAENUMERATETRUSTEDDOMAINSEX",
+		NULL, NULL },
+#ifdef REMOVED
 		lsa_dissect_lsaenumeratetrusteddomainsex_rqst,
 		lsa_dissect_lsaenumeratetrusteddomainsex_reply },
+#endif
 	{ LSA_LSACREATETRUSTEDDOMAINEX, "LSACREATETRUSTEDDOMAINEX",
+		NULL, NULL },
+#ifdef REMOVED
 		lsa_dissect_lsacreatetrusteddomainex_rqst,
 		lsa_dissect_lsacreatetrusteddomainex_reply },
+#endif
 	{ LSA_LSACLOSETRUSTEDDOMAINEX, "LSACLOSETRUSTEDDOMAINEX",
+		NULL, NULL },
+#ifdef REMOVED
 		lsa_dissect_lsaclosetrusteddomainex_rqst,
 		lsa_dissect_lsaclosetrusteddomainex_reply },
+#endif
 	{ LSA_LSAQUERYDOMAININFORMATIONPOLICY, "LSAQUERYDOMAININFORMATIONPOLICY",
+		NULL, NULL },
+#ifdef REMOVED
 		lsa_dissect_lsaquerydomaininformationpolicy_rqst,
 		lsa_dissect_lsaquerydomaininformationpolicy_reply },
+#endif
 	{ LSA_LSASETDOMAININFORMATIONPOLICY, "LSASETDOMAININFORMATIONPOLICY",
+		NULL, NULL },
+#ifdef REMOVED
 		lsa_dissect_lsasetdomaininformationpolicy_rqst,
 		lsa_dissect_lsasetdomaininformationpolicy_reply },
+#endif
 	{ LSA_LSAOPENTRUSTEDDOMAINBYNAME, "LSAOPENTRUSTEDDOMAINBYNAME",
+		NULL, NULL },
+#ifdef REMOVED
 		lsa_dissect_lsaopentrusteddomainbyname_rqst,
 		lsa_dissect_lsaopentrusteddomainbyname_reply },
+#endif
 	{ LSA_LSAFUNCTION_38, "LSAFUNCTION_38",
+		NULL, NULL },
+#ifdef REMOVED
 		lsa_dissect_lsafunction_38_rqst,
 		lsa_dissect_lsafunction_38_reply },
+#endif
 	{ LSA_LSALOOKUPSIDS2, "LSALOOKUPSIDS2",
+		NULL, NULL },
+#ifdef REMOVED
 		lsa_dissect_lsalookupsids2_rqst,
 		lsa_dissect_lsalookupsids2_reply },
+#endif
 	{ LSA_LSALOOKUPNAMES2, "LSALOOKUPNAMES2",
+		NULL, NULL },
+#ifdef REMOVED
 		lsa_dissect_lsalookupnames2_rqst,
 		lsa_dissect_lsalookupnames2_reply },
+#endif
 	{ LSA_LSAFUNCTION_3B, "LSAFUNCTION_3B",
+		NULL, NULL },
+#ifdef REMOVED
 		lsa_dissect_lsafunction_3b_rqst,
 		lsa_dissect_lsafunction_3b_reply },
 #endif

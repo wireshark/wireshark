@@ -593,6 +593,7 @@ Ronnie Sahlberg <sahlberg[AT]optushome.com.au> {
 	DCE RPC enhancements
 	SAMR updates
 	NETLOGON implementation
+	LSA updates
 }
 
 Borosa Tomislav <tomislav.borosa[AT]SIEMENS.HR> {
