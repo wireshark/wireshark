@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.13 2002/09/27 11:07:15 sahlberg Exp $
+ * $Id: main.c,v 1.14 2002/09/28 09:29:49 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1195,6 +1195,19 @@ set_autostop_criterion(const char *autostoparg)
 }
 #endif
 
+#ifdef WIN32
+/* 
+ *    Once every 3 seconds we get a callback here which we use to update
+ *       the tap extensions. Since Gtk1 is single threaded we dont have to
+ *          worry about any locking or critical regions.
+ *           */
+static gint
+update_cb(gpointer data _U_)
+{
+	draw_tap_listeners(FALSE);
+	return 1;
+}
+#else
 
 /* if these three functions are copied to gtk1 ethereal, since gtk1 does not
    use threads all updte_thread_mutex can be dropped and protect/unprotect 
@@ -1208,15 +1221,15 @@ gpointer
 update_thread(gpointer data _U_)
 {
 	while(1){
-		struct timeval tv1, tv2;
-		gettimeofday(&tv1, NULL);
+		GTimeVal tv1, tv2;
+		g_get_current_time(&tv1);
 		g_static_mutex_lock(&update_thread_mutex);
 		gdk_threads_enter();
 		draw_tap_listeners(FALSE);
 		gdk_threads_leave();
 		g_static_mutex_unlock(&update_thread_mutex);
 		g_thread_yield();
-		gettimeofday(&tv2, NULL);
+		g_get_current_time(&tv2);
 		if( ((tv1.tv_sec + 2) * 1000000 + tv1.tv_usec) > (tv2.tv_sec * 1000000 + tv2.tv_usec) ){
 			g_usleep(((tv1.tv_sec + 2) * 1000000 + tv1.tv_usec) -
 				(tv2.tv_sec * 1000000 + tv2.tv_usec));
@@ -1224,15 +1237,21 @@ update_thread(gpointer data _U_)
 	}
 	return NULL;
 }
+#endif
+
 void
 protect_thread_critical_region(void)
 {
+#ifndef WIN32
 	g_static_mutex_lock(&update_thread_mutex);
+#endif
 }
 void
 unprotect_thread_critical_region(void)
 {
+#ifndef WIN32
 	g_static_mutex_unlock(&update_thread_mutex);
+#endif
 }
 
 /* And now our feature presentation... [ fade to music ] */
@@ -1376,6 +1395,8 @@ main(int argc, char *argv[])
         exit(0);
     }
 
+    /* multithread support currently doesn't seem to work in win32 gtk2.0.6 */
+#ifndef WIN32
     /* if we have thread support via glib2 try to start the low level
        thread to update applications asynchronously
      */
@@ -1386,8 +1407,12 @@ main(int argc, char *argv[])
         gdk_threads_init();
         ut=g_thread_create(update_thread, NULL, FALSE, NULL);
         g_thread_set_priority(ut, G_THREAD_PRIORITY_LOW);
-#endif
+#endif /* G_THREADS_ENABLED */
     }
+#else  /* WIN32 */
+    /* this is to keep tap extensions updating once every 3 seconds */
+    gtk_timeout_add(3000, (GtkFunction)update_cb,(gpointer)NULL);
+#endif /* WIN32 */
 
     /* Set the current locale according to the program environment.
      * We haven't localized anything, but some GTK widgets are localized
