@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.95 2000/02/09 19:17:50 gram Exp $
+ * $Id: capture.c,v 1.96 2000/02/15 21:01:53 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -95,6 +95,13 @@
 #include "simple_dialog.h"
 #include "prefs.h"
 #include "globals.h"
+
+#include "packet-eth.h"
+#include "packet-fddi.h"
+#include "packet-null.h"
+#include "packet-ppp.h"
+#include "packet-raw.h"
+#include "packet-tr.h"
 
 int sync_mode;	/* fork a child to do the capture, and sync between them */
 static int sync_pipe[2]; /* used to sync father */

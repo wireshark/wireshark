@@ -4,7 +4,7 @@
  *
  * Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-sap.c,v 1.4 2000/01/07 22:05:36 guy Exp $
+ * $Id: packet-sap.c,v 1.5 2000/02/15 21:03:07 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -43,7 +43,7 @@
 #include <glib.h>
 #include "packet.h"
 #include "packet-ipv6.h"
-
+#include "packet-sdp.h"
 
 #define MCAST_SAP_VERSION_MASK 0xE0 /* 3 bits for  SAP version*/
 #define MCAST_SAP_VERSION_SHIFT 5   /* Right shift 5 bits to get the version */

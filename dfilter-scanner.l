@@ -3,7 +3,7 @@
 /* dfilter-scanner.l
  * Scanner for display filters
  *
- * $Id: dfilter-scanner.l,v 1.28 2000/02/05 06:07:16 guy Exp $
+ * $Id: dfilter-scanner.l,v 1.29 2000/02/15 21:01:55 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -79,6 +79,10 @@
  */
 YY_BUFFER_STATE	string_input_buffer;
 
+/* We don't need yyunput, so use this macro to get it out of the
+ * generated C file, avoiding a compiler warning about its lack of use */
+#define YY_NO_UNPUT 1
+
 #else
 
 static char *in_buffer;
@@ -86,6 +90,7 @@ static char *in_buffer;
 #define getc(fp)  (*in_buffer == 0 ? EOF : *in_buffer++)
 
 #endif
+
 
 %}
 

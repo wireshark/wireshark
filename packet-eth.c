@@ -1,7 +1,7 @@
 /* packet-eth.c
  * Routines for ethernet packet disassembly
  *
- * $Id: packet-eth.c,v 1.28 2000/01/24 18:46:44 guy Exp $
+ * $Id: packet-eth.c,v 1.29 2000/02/15 21:02:07 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -35,6 +35,9 @@
 #include "packet.h"
 #include "etypes.h"
 #include "resolv.h"
+#include "packet-ipx.h"
+#include "packet-isl.h"
+#include "packet-llc.h"
 
 extern const value_string etype_vals[];
 

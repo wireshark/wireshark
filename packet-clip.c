@@ -1,7 +1,7 @@
 /* packet-clip.c
  * Routines for clip packet disassembly
  *
- * $Id: packet-clip.c,v 1.4 2000/01/23 08:55:32 guy Exp $
+ * $Id: packet-clip.c,v 1.5 2000/02/15 21:02:05 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -35,6 +35,7 @@
 
 #include <glib.h>
 #include "packet.h"
+#include "packet-ip.h"
 
 static gint ett_clip = -1;
 

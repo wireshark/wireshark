@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.56 2000/01/16 02:54:49 guy Exp $
+ * $Id: packet-tcp.c,v 1.57 2000/02/15 21:03:15 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -52,9 +52,29 @@
 
 #include "plugins.h"
 
-#ifndef __PACKET_IP_H__
+#include "packet-bgp.h"
 #include "packet-ip.h"
-#endif
+#include "packet-ftp.h"
+#include "packet-giop.h"
+#include "packet-http.h"
+#include "packet-imap.h"
+#include "packet-irc.h"
+#include "packet-ldap.h"
+#include "packet-lpd.h"
+#include "packet-mapi.h"
+#include "packet-nbns.h"
+#include "packet-ncp.h"
+#include "packet-nntp.h"
+#include "packet-ntp.h"
+#include "packet-pop.h"
+#include "packet-pptp.h"
+#include "packet-rpc.h"
+#include "packet-rtsp.h"
+#include "packet-srvloc.h"
+#include "packet-tacacs.h"
+#include "packet-telnet.h"
+#include "packet-tns.h"
+#include "packet-yhoo.h"
 
 extern FILE* data_out_file;
 
@@ -569,7 +589,7 @@ dissect_tcp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
       dissect_srvloc(pd, offset, fd, tree);
     } else if (PORT_IS(TCP_PORT_NCP)) {
       pi.match_port = TCP_PORT_NCP;
-      dissect_ncp(pd, offset, fd, tree);
+      dissect_ncp(pd, offset, fd, tree); /* XXX -- need to handle nw_server_address */
     } else {
         /* check existence of high level protocols */
 

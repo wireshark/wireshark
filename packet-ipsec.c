@@ -1,7 +1,7 @@
 /* packet-ipsec.c
  * Routines for IPsec/IPComp packet disassembly 
  *
- * $Id: packet-ipsec.c,v 1.10 1999/11/16 11:42:35 guy Exp $
+ * $Id: packet-ipsec.c,v 1.11 2000/02/15 21:02:19 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -39,6 +39,7 @@
 
 #include <glib.h>
 #include "packet.h"
+#include "packet-ipsec.h"
 #include "resolv.h"
 
 static int proto_ah = -1;

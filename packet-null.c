@@ -1,7 +1,7 @@
 /* packet-null.c
  * Routines for null packet disassembly
  *
- * $Id: packet-null.c,v 1.18 2000/01/23 08:55:35 guy Exp $
+ * $Id: packet-null.c,v 1.19 2000/02/15 21:02:44 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -39,6 +39,12 @@
 #endif
 
 #include "packet.h"
+#include "packet-atalk.h"
+#include "packet-ip.h"
+#include "packet-ipv6.h"
+#include "packet-ipx.h"
+#include "packet-osi.h"
+#include "packet-ppp.h"
 #include "etypes.h"
 
 extern const value_string etype_vals[];

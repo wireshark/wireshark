@@ -3,7 +3,7 @@
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
- * $Id: packet-fddi.c,v 1.26 2000/01/23 08:55:32 guy Exp $
+ * $Id: packet-fddi.c,v 1.27 2000/02/15 21:02:08 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -36,6 +36,7 @@
 #include <stdio.h>
 #include <glib.h>
 #include "packet.h"
+#include "packet-llc.h"
 #include "resolv.h"
 
 static int proto_fddi = -1;

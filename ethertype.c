@@ -2,7 +2,7 @@
  * Routines for calling the right protocol for the ethertype.
  * This is called by both packet-eth.c (Ethernet II) and packet-llc.c (SNAP)
  *
- * $Id: ethertype.c,v 1.26 2000/01/23 08:55:31 guy Exp $
+ * $Id: ethertype.c,v 1.27 2000/02/15 21:01:56 gram Exp $
  *
  * Gilbert Ramirez <gram@xiexie.org>
  *
@@ -37,6 +37,17 @@
 #include <glib.h>
 #include "packet.h"
 #include "etypes.h"
+#include "packet-aarp.h"
+#include "packet-arp.h"
+#include "packet-atalk.h"
+#include "packet-ip.h"
+#include "packet-ipv6.h"
+#include "packet-ipx.h"
+#include "packet-pppoe.h"
+#include "packet-snmp.h"
+#include "packet-vines.h"
+#include "packet-vlan.h"
+#include "packet-x25.h"
 
 const value_string etype_vals[] = {
     {ETHERTYPE_IP,     "IP"             },

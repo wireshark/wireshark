@@ -1,6 +1,6 @@
 /* packet-ospf.h (c) 1998 Hannes Boehm */
 
-/* $Id: packet-ospf.h,v 1.5 1999/10/19 15:59:04 gram Exp $ */
+/* $Id: packet-ospf.h,v 1.6 2000/02/15 21:02:49 gram Exp $ */
 
 #define OSPF_HEADER_LENGTH	24
 
@@ -130,7 +130,7 @@ typedef struct _e_ospf_crypto {
     guint32   sequence_num;
 } e_ospf_crypto;
 
-
+void dissect_ospf(const u_char *, int, frame_data *, proto_tree *);
 void dissect_ospf_hello(const u_char*, int, frame_data*, proto_tree*);
 void dissect_ospf_db_desc(const u_char*, int, frame_data*, proto_tree*); 
 void dissect_ospf_ls_req(const u_char*, int, frame_data*, proto_tree*); 

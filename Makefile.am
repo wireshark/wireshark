@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.166 2000/02/14 04:02:02 guy Exp $
+# $Id: Makefile.am,v 1.167 2000/02/15 21:01:50 gram Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -34,48 +34,72 @@ YFLAGS=-d -p dfilter_
 
 DISSECTOR_SOURCES = \
 	packet-aarp.c  \
+	packet-aarp.h  \
 	packet-afs.c   \
 	packet-afs.h   \
 	packet-arp.c   \
 	packet-arp.h   \
 	packet-ascend.c\
+	packet-ascend.h\
 	packet-atalk.c \
 	packet-atalk.h \
 	packet-atm.c   \
+	packet-atm.h   \
 	packet-auto_rp.c   \
+	packet-auto_rp.h   \
 	packet-bgp.c   \
 	packet-bgp.h   \
 	packet-bootp.c \
+	packet-bootp.h \
 	packet-bootparams.c \
 	packet-bootparams.h \
 	packet-bpdu.c  \
+	packet-bpdu.h  \
 	packet-cdp.c   \
+	packet-cdp.h   \
 	packet-cgmp.c  \
+	packet-cgmp.h  \
 	packet-clip.c  \
+	packet-clip.h  \
 	packet-data.c  \
 	packet-dns.c   \
 	packet-dns.h   \
 	packet-eth.c   \
+	packet-eth.h   \
 	packet-fddi.c  \
+	packet-fddi.h  \
 	packet-ftp.c   \
+	packet-ftp.h   \
 	packet-giop.c  \
+	packet-giop.h  \
 	packet-gre.c   \
+	packet-gre.h   \
 	packet-hsrp.c  \
+	packet-hsrp.h  \
 	packet-http.c  \
+	packet-http.h  \
 	packet-icmpv6.c\
+	packet-icmpv6.h\
 	packet-icp.c   \
+	packet-icp.h   \
 	packet-icq.c   \
+	packet-icq.h   \
 	packet-imap.c   \
+	packet-imap.h   \
 	packet-ip.c    \
 	packet-ip.h    \
 	packet-ipp.c   \
+	packet-ipp.h   \
 	packet-ipsec.c \
+	packet-ipsec.h \
 	packet-ipv6.c  \
 	packet-ipv6.h  \
 	packet-ipx.c   \
 	packet-ipx.h   \
 	packet-irc.c   \
+	packet-irc.h   \
 	packet-isakmp.c\
+	packet-isakmp.h\
 	packet-isis.h  \
 	packet-isis.c  \
 	packet-isis-clv.h \
@@ -87,17 +111,27 @@ DISSECTOR_SOURCES = \
 	packet-isis-snp.h \
 	packet-isis-snp.c \
 	packet-isl.c   \
+	packet-isl.h   \
 	packet-l2tp.c  \
+	packet-l2tp.h  \
 	packet-lapb.c  \
+	packet-lapb.h  \
 	packet-lapd.c  \
+	packet-lapd.h  \
 	packet-ldap.c  \
+	packet-ldap.h  \
 	packet-llc.c   \
+	packet-llc.h   \
 	packet-lpd.c   \
+	packet-lpd.h   \
 	packet-mapi.c  \
+	packet-mapi.h  \
 	packet-mount.c \
 	packet-mount.h \
 	packet-nbipx.c \
+	packet-nbipx.h \
 	packet-nbns.c  \
+	packet-nbns.h  \
 	packet-ncp.c   \
 	packet-ncp.h   \
 	packet-netbios.c \
@@ -107,24 +141,35 @@ DISSECTOR_SOURCES = \
 	packet-nlm.c   \
 	packet-nlm.h   \
 	packet-nntp.c  \
+	packet-nntp.h  \
 	packet-ntp.c  \
 	packet-ntp.h  \
 	packet-null.c  \
+	packet-null.h  \
 	packet-osi.c   \
+	packet-osi.h   \
 	packet-ospf.c  \
 	packet-ospf.h  \
 	packet-pim.c   \
+	packet-pim.h   \
 	packet-pop.c   \
+	packet-pop.h   \
 	packet-portmap.c   \
 	packet-portmap.h   \
 	packet-ppp.c   \
+	packet-ppp.h   \
 	packet-pppoe.c \
+	packet-pppoe.h \
 	packet-pptp.c  \
+	packet-pptp.h  \
 	packet-q2931.c \
+	packet-q2931.h \
 	packet-q931.c  \
 	packet-q931.h  \
 	packet-radius.c\
+	packet-radius.h\
 	packet-raw.c   \
+	packet-raw.h   \
 	packet-rip.c   \
 	packet-rip.h   \
 	packet-ripng.c \
@@ -134,11 +179,15 @@ DISSECTOR_SOURCES = \
 	packet-rsvp.c  \
 	packet-rsvp.h  \
 	packet-rtsp.c  \
+	packet-rtsp.h  \
 	packet-rx.c  \
 	packet-rx.h  \
 	packet-sap.c   \
+	packet-sap.h   \
 	packet-sdp.c   \
+	packet-sdp.h   \
 	packet-smb.c   \
+	packet-smb.h   \
 	packet-smb-browse.c \
 	packet-smb-common.c \
 	packet-smb-common.h \
@@ -150,28 +199,45 @@ DISSECTOR_SOURCES = \
 	packet-snmp.c	\
 	packet-snmp.h	\
 	packet-srvloc.c \
+	packet-srvloc.h \
 	packet-sscop.c \
+	packet-sscop.h \
 	packet-stat.c   \
 	packet-stat.h   \
 	packet-tacacs.c \
+	packet-tacacs.h \
 	packet-tcp.c   \
+	packet-tcp.h   \
 	packet-telnet.c\
+	packet-telnet.h\
 	packet-tftp.c  \
+	packet-tftp.h  \
 	packet-time.c  \
+	packet-time.h  \
 	packet-tns.c \
 	packet-tns.h \
 	packet-tr.c    \
+	packet-tr.h    \
 	packet-trmac.c \
+	packet-trmac.h \
 	packet-udp.c   \
+	packet-udp.h   \
 	packet-v120.c \
+	packet-v120.h \
 	packet-vines.c \
 	packet-vines.h \
 	packet-vlan.c \
+	packet-vlan.h \
 	packet-vrrp.c \
+	packet-vrrp.h \
 	packet-vtp.c  \
+	packet-vtp.h  \
 	packet-wccp.c\
+	packet-wccp.h\
 	packet-who.c\
+	packet-who.h\
 	packet-x25.c   \
+	packet-x25.h   \
 	packet-yhoo.c  \
 	packet-yhoo.h  \
 	packet-ypbind.c \

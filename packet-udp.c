@@ -1,7 +1,7 @@
 /* packet-udp.c
  * Routines for UDP packet disassembly
  *
- * $Id: packet-udp.c,v 1.49 2000/02/09 19:09:02 guy Exp $
+ * $Id: packet-udp.c,v 1.50 2000/02/15 21:03:23 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -45,6 +45,33 @@
 #include "resolv.h"
 
 #include "plugins.h"
+
+#include "packet-auto_rp.h"
+#include "packet-bootp.h"
+#include "packet-dns.h"
+#include "packet-hsrp.h"
+#include "packet-icp.h"
+#include "packet-icq.h"
+#include "packet-ipx.h"
+#include "packet-isakmp.h"
+#include "packet-l2tp.h"
+#include "packet-nbns.h"
+#include "packet-ncp.h"
+#include "packet-ntp.h"
+#include "packet-radius.h"
+#include "packet-rip.h"
+#include "packet-ripng.h"
+#include "packet-rpc.h"
+#include "packet-rx.h"
+#include "packet-sap.h"
+#include "packet-snmp.h"
+#include "packet-srvloc.h"
+#include "packet-tacacs.h"
+#include "packet-tftp.h"
+#include "packet-time.h"
+#include "packet-vines.h"
+#include "packet-wccp.h"
+#include "packet-who.h"
 
 static int proto_udp = -1;		
 static int hf_udp_srcport = -1;
@@ -280,7 +307,7 @@ dissect_udp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   } else if (PORT_IS(UDP_PORT_RIPNG))
       dissect_ripng(pd, offset, fd, tree);
   else if (PORT_IS(UDP_PORT_NCP))
-      dissect_ncp(pd, offset, fd, tree);
+      dissect_ncp(pd, offset, fd, tree); /* XXX -- need to handle nw_server_address */
   else if (PORT_IS(UDP_PORT_NBNS))
       dissect_nbns(pd, offset, fd, tree);
   else if (PORT_IS(UDP_PORT_NBDGM))

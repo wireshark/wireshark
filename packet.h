@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.171 2000/02/09 17:15:47 gram Exp $
+ * $Id: packet.h,v 1.172 2000/02/15 21:03:35 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -266,181 +266,20 @@ void register_init_routine(void (*func)(void));
 /* Call all the registered "init" routines. */
 void init_all_protocols(void);
 
-void dissect_packet(const u_char *, frame_data *, proto_tree *);
-
-/*
- * Routines in packet-*.c
- * Routines should take two args: packet data *, packet_counts *
- * They should never modify the packet data.
- */
-void capture_clip(const u_char *, packet_counts *);
-void capture_fddi(const u_char *, packet_counts *);
-void capture_null(const u_char *, packet_counts *);
-void capture_ppp(const u_char *, packet_counts *);
-void capture_raw(const u_char *, packet_counts *);
-
-/*
- * Routines in packet-*.c
- * Routines should take three args: packet data *, offset, packet_counts *
- * They should never modify the packet data.
- */
-void capture_eth(const u_char *, int, packet_counts *);
-void capture_ip(const u_char *, int, packet_counts *);
-void capture_ipx(const u_char *, int, packet_counts *);
-void capture_isl(const u_char *, int, packet_counts *);
-void capture_llc(const u_char *, int, packet_counts *);
-void capture_netbios(const u_char *, int, packet_counts *);
-void capture_tr(const u_char *, int, packet_counts *);
-void capture_vines(const u_char *, int, packet_counts *);
-void capture_vlan(const u_char *, int, packet_counts *);
-
-/*
- * Routines in packet-*.c
- * Routines should take three args: packet data *, frame_data *, tree *
- * They should never modify the packet data.
- */
-void dissect_ascend(const u_char *, frame_data *, proto_tree *);
-void dissect_atm(const u_char *, frame_data *, proto_tree *);
-void dissect_clip(const u_char *, frame_data *, proto_tree *);
-void dissect_lapb(const u_char *, frame_data *, proto_tree *);
-void dissect_lapd(const u_char *, frame_data *, proto_tree *);
-void dissect_null(const u_char *, frame_data *, proto_tree *);
-void dissect_ppp(const u_char *, frame_data *, proto_tree *);
-void dissect_raw(const u_char *, frame_data *, proto_tree *);
-void dissect_v120(const u_char *, frame_data *, proto_tree *);
-
-/*
- * Routines in packet-*.c
- * Routines should take four args: packet data *, frame_data *, tree *,
- * gboolean
- * They should never modify the packet data.
- */
-void dissect_fddi(const u_char *, frame_data *, proto_tree *, gboolean);
+void init_dissect_rpc(void);
+void init_dissect_udp(void);
+void init_dissect_x25(void);
 
 typedef void	(*DissectFunc)	(const u_char*, int, frame_data*, proto_tree*);
 
 /*
- * Routines in packet-*.c
  * Routines should take four args: packet data *, offset, frame_data *,
  * tree *
  * They should never modify the packet data.
  */
-int dissect_ah(const u_char *, int, frame_data *, proto_tree *);
-void dissect_aarp(const u_char *, int, frame_data *, proto_tree *);
-void dissect_afs(const u_char *, int, frame_data *, proto_tree *);
-void dissect_arp(const u_char *, int, frame_data *, proto_tree *);
-void dissect_auto_rp(const u_char *, int, frame_data *, proto_tree *);
-void dissect_bgp(const u_char *, int, frame_data *, proto_tree *);
-void dissect_bootp(const u_char *, int, frame_data *, proto_tree *);
-void dissect_bpdu(const u_char *, int, frame_data *, proto_tree *);
-void dissect_cdp(const u_char *, int, frame_data *, proto_tree *);
-void dissect_cgmp(const u_char *, int, frame_data *, proto_tree *);
-void dissect_cotp(const u_char *, int, frame_data *, proto_tree *);
+void dissect_packet(const u_char *, frame_data *, proto_tree *);
 void dissect_data(const u_char *, int, frame_data *, proto_tree *);
-void dissect_ddp(const u_char *, int, frame_data *, proto_tree *);
-void dissect_dns(const u_char *, int, frame_data *, proto_tree *);
-void dissect_eigrp(const u_char *, int, frame_data *, proto_tree *);            
-void dissect_esp(const u_char *, int, frame_data *, proto_tree *);
-void dissect_eth(const u_char *, int, frame_data *, proto_tree *);
-void dissect_ftp(const u_char *, int, frame_data *, proto_tree *);
-void dissect_ftpdata(const u_char *, int, frame_data *, proto_tree *);
-void dissect_giop(const u_char *, int, frame_data *, proto_tree *);
-void dissect_hsrp(const u_char *, int, frame_data *, proto_tree *);
-void dissect_http(const u_char *, int, frame_data *, proto_tree *);
-void dissect_icmp(const u_char *, int, frame_data *, proto_tree *);
-void dissect_icmpv6(const u_char *, int, frame_data *, proto_tree *);
-void dissect_igmp(const u_char *, int, frame_data *, proto_tree *);
-void dissect_ip(const u_char *, int, frame_data *, proto_tree *);
-void dissect_ipcomp(const u_char *, int, frame_data *, proto_tree *);
-void dissect_ipp(const u_char *, int, frame_data *, proto_tree *);
-void dissect_ipv6(const u_char *, int, frame_data *, proto_tree *);
-void dissect_ipx(const u_char *, int, frame_data *, proto_tree *);
-void dissect_irc(const u_char *, int, frame_data *, proto_tree *);
-void dissect_isis(const u_char *, int, frame_data *, proto_tree *);
-void dissect_isl(const u_char *, int, frame_data *, proto_tree *);
-void dissect_ldap(const u_char *, int, frame_data *, proto_tree *);
-void dissect_llc(const u_char *, int, frame_data *, proto_tree *);
-void dissect_lpd(const u_char *, int, frame_data *, proto_tree *);
-void dissect_mapi(const u_char *, int, frame_data *, proto_tree *);
-void dissect_nbdgm(const u_char *, int, frame_data *, proto_tree *);
-void dissect_netbios(const u_char *, int, frame_data *, proto_tree *);
-void dissect_nbipx(const u_char *, int, frame_data *, proto_tree *);
-void dissect_nbns(const u_char *, int, frame_data *, proto_tree *);
-void dissect_nbss(const u_char *, int, frame_data *, proto_tree *);
-void dissect_ncp(const u_char *, int, frame_data *, proto_tree *);
-void dissect_nntp(const u_char *, int, frame_data *, proto_tree *);
-void dissect_ntp(const u_char *, int, frame_data *, proto_tree *);
-void dissect_nwlink_dg(const u_char *, int, frame_data *, proto_tree *);
-void dissect_osi(const u_char *, int, frame_data *, proto_tree *);
-void dissect_ospf(const u_char *, int, frame_data *, proto_tree *);
-void dissect_ospf_hello(const u_char *, int, frame_data *, proto_tree *);
-void dissect_pim(const u_char *, int, frame_data *, proto_tree *);
-void dissect_pop(const u_char *, int, frame_data *, proto_tree *);
-void dissect_pppoed(const u_char *, int, frame_data *, proto_tree *);
-void dissect_pppoes(const u_char *, int, frame_data *, proto_tree *);
-void dissect_icp(const u_char *,int, frame_data *, proto_tree *);
-void dissect_icq(const u_char *,int, frame_data *, proto_tree *);
-void dissect_imap(const u_char *,int, frame_data *, proto_tree *);
-void dissect_isakmp(const u_char *, int, frame_data *, proto_tree *);
-void dissect_pim(const u_char *, int, frame_data *, proto_tree *);
-void dissect_q931(const u_char *, int, frame_data *, proto_tree *);
-void dissect_q2931(const u_char *, int, frame_data *, proto_tree *);
-void dissect_radius(const u_char *, int, frame_data *, proto_tree *);
-void dissect_l2tp(const u_char *, int, frame_data *, proto_tree *);
-void dissect_rip(const u_char *, int, frame_data *, proto_tree *);
-void dissect_ripng(const u_char *, int, frame_data *, proto_tree *);
-void dissect_rsvp(const u_char *, int, frame_data *, proto_tree *);
-void dissect_rtsp(const u_char *, int, frame_data *, proto_tree *);
-void dissect_rx(const u_char *, int, frame_data *, proto_tree *);
-void dissect_sap(const u_char *, int, frame_data *, proto_tree *);
-void dissect_sdp(const u_char *, int, frame_data *, proto_tree *);
-void dissect_sna(const u_char *, int, frame_data *, proto_tree *);
-void dissect_snmp(const u_char *, int, frame_data *, proto_tree *);
-void dissect_sscop(const u_char *, int, frame_data *, proto_tree *);
-void dissect_tacacs(const u_char *, int, frame_data *, proto_tree *);
-void dissect_tacplus(const u_char *, int, frame_data *, proto_tree *);
-void dissect_tcp(const u_char *, int, frame_data *, proto_tree *);
-void dissect_telnet(const u_char *, int, frame_data *, proto_tree *);
-void dissect_tftp(const u_char *, int, frame_data *, proto_tree *);
-void dissect_time(const u_char *, int, frame_data *, proto_tree *);
-void dissect_tns(const u_char *, int, frame_data *, proto_tree *);
-void dissect_tr(const u_char *, int, frame_data *, proto_tree *);
-void dissect_trmac(const u_char *, int, frame_data *, proto_tree *);
-void dissect_udp(const u_char *, int, frame_data *, proto_tree *);
-void dissect_vines(const u_char *, int, frame_data *, proto_tree *);
-void dissect_vines_arp(const u_char *, int, frame_data *, proto_tree *);
-void dissect_vines_frp(const u_char *, int, frame_data *, proto_tree *);
-void dissect_vines_icp(const u_char *, int, frame_data *, proto_tree *);
-void dissect_vines_ipc(const u_char *, int, frame_data *, proto_tree *);
-void dissect_vines_rtp(const u_char *, int, frame_data *, proto_tree *);
-void dissect_vines_spp(const u_char *, int, frame_data *, proto_tree *);
-void dissect_vlan(const u_char *, int, frame_data *, proto_tree *);
-void dissect_vrrp(const u_char *, int, frame_data *, proto_tree *);
-void dissect_vtp(const u_char *, int, frame_data *, proto_tree *);
-void dissect_wccp(const u_char *, int, frame_data *, proto_tree *);
-void dissect_who(const u_char *, int, frame_data *, proto_tree *);
-void dissect_payload_ppp(const u_char *, int, frame_data *, proto_tree *);
-void dissect_x25(const u_char *, int, frame_data *, proto_tree *);
-void dissect_yhoo(const u_char *, int, frame_data *, proto_tree *);
-void dissect_srvloc(const u_char *, int, frame_data *, proto_tree *);
 
-void dissect_smb(const u_char *, int, frame_data *, proto_tree *, int);
-void dissect_pptp(const u_char *, int, frame_data *, proto_tree *);
-void dissect_gre(const u_char *, int, frame_data *, proto_tree *);
-
-/*
- * Routines in packet-*.c
- * Routines should take four args: packet data *, offset, frame_data *,
- * tree *
- * They should never modify the packet data.
- * They should return TRUE if the packet is of the type the routine would
- * dissect, FALSE otherwise.
- */
-gboolean dissect_rpc(const u_char *, int, frame_data *, proto_tree *);
-
-void init_dissect_rpc(void);
-void init_dissect_udp(void);
-void init_dissect_x25(void);
 
 /* These functions are in ethertype.c */
 void capture_ethertype(guint16 etype, int offset,

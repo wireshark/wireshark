@@ -1,7 +1,7 @@
 /* packet-isl.c
  * Routines for Cisco ISL Ethernet header disassembly
  *
- * $Id: packet-isl.c,v 1.4 2000/01/24 21:56:24 guy Exp $
+ * $Id: packet-isl.c,v 1.5 2000/02/15 21:02:27 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -37,6 +37,8 @@
 
 #include <glib.h>
 #include "packet.h"
+#include "packet-eth.h"
+#include "packet-tr.h"
 #include "etypes.h"
 
 /*

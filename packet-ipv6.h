@@ -1,7 +1,7 @@
 /* packet-ipv6.h
  * Definitions for IPv6 packet disassembly 
  *
- * $Id: packet-ipv6.h,v 1.11 1999/12/06 20:20:35 guy Exp $
+ * $Id: packet-ipv6.h,v 1.12 2000/02/15 21:02:22 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -25,6 +25,8 @@
 
 #ifndef __PACKET_IPV6_H_DEFINED__
 #define __PACKET_IPV6_H_DEFINED__
+
+void dissect_ipv6(const u_char *, int, frame_data *, proto_tree *);
 
 struct e_in6_addr {
 	union {

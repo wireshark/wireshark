@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.73 2000/02/09 19:17:51 gram Exp $
+ * $Id: packet-ip.c,v 1.74 2000/02/15 21:02:15 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -50,9 +50,22 @@
 # include "snprintf.h"
 #endif
 
-#ifndef __PACKET_IP_H__
+#include "packet-gre.h"
 #include "packet-ip.h"
-#endif
+#include "packet-ipsec.h"
+#include "packet-ipv6.h"
+#include "packet-ospf.h"
+#include "packet-pim.h"
+#include "packet-rsvp.h"
+#include "packet-tcp.h"
+#include "packet-udp.h"
+#include "packet-vines.h"
+#include "packet-vrrp.h"
+
+static void dissect_eigrp(const u_char *, int, frame_data *, proto_tree *);
+static void dissect_icmp(const u_char *, int, frame_data *, proto_tree *);
+static void dissect_igmp(const u_char *, int, frame_data *, proto_tree *);
+
 
 /* Decode the old IPv4 TOS field as the DiffServ DS Field */
 gboolean g_ip_dscp_actif = TRUE;
@@ -1094,7 +1107,7 @@ static const gchar *par_str[] = {"IP header bad", "Required option missing"};
 
 #define	N_PARAMPROB	(sizeof par_str / sizeof par_str[0])
 
-void
+static void
 dissect_icmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   e_icmp     ih;
   proto_tree *icmp_tree;
@@ -1298,7 +1311,7 @@ dissect_icmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   }
 }
 
-void
+static void
 dissect_igmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   e_igmp     ih;
   proto_tree *igmp_tree;
@@ -1549,7 +1562,7 @@ static int proto_eigrp = -1;
 
 static gint ett_eigrp = -1;
 
-void
+static void
 dissect_eigrp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   e_eigrp     ih;
   proto_tree *eigrp_tree;

@@ -1,7 +1,7 @@
 /* packet-bgp.c
  * Definitions for BGP packet disassembly structures and routine
  *
- * $Id: packet-bgp.h,v 1.6 2000/01/07 22:05:30 guy Exp $
+ * $Id: packet-bgp.h,v 1.7 2000/02/15 21:02:02 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -24,6 +24,8 @@
 
 #ifndef __PACKET_BGP_H__
 #define __PACKET_BGP_H__
+
+void dissect_bgp(const u_char *, int, frame_data *, proto_tree *);
 
 /* some handy things to know */
 #define BGP_MAX_PACKET_SIZE		4096

@@ -2,7 +2,7 @@
  * Routines for x25 packet disassembly
  * Olivier Abad <abad@daba.dhis.net>
  *
- * $Id: packet-x25.c,v 1.17 2000/01/30 05:58:02 guy Exp $
+ * $Id: packet-x25.c,v 1.18 2000/02/15 21:03:29 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -37,6 +37,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include "packet.h"
+#include "packet-ip.h"
+#include "packet-osi.h"
 #include "nlpid.h"
 
 #define FROM_DCE			0x80

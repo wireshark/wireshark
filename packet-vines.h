@@ -1,7 +1,7 @@
 /* packet-vines.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet-vines.h,v 1.3 1999/10/22 08:30:04 guy Exp $
+ * $Id: packet-vines.h,v 1.4 2000/02/15 21:03:25 gram Exp $
  *
  * Don Lafontaine <lafont02@cn.ca>
  *
@@ -37,6 +37,16 @@
 
 #ifndef __PACKETVINES_H__
 #define __PACKETVINES_H__
+
+void capture_vines(const u_char *, int, packet_counts *);
+void dissect_vines(const u_char *, int, frame_data *, proto_tree *);
+void dissect_vines_arp(const u_char *, int, frame_data *, proto_tree *);
+void dissect_vines_frp(const u_char *, int, frame_data *, proto_tree *);
+void dissect_vines_icp(const u_char *, int, frame_data *, proto_tree *);
+void dissect_vines_ipc(const u_char *, int, frame_data *, proto_tree *);
+void dissect_vines_rtp(const u_char *, int, frame_data *, proto_tree *);
+void dissect_vines_spp(const u_char *, int, frame_data *, proto_tree *);
+
 
 /* VINES IP structs and definitions */
 

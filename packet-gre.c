@@ -2,7 +2,7 @@
  * Routines for the Generic Routing Encapsulation (GRE) protocol
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-gre.c,v 1.14 2000/01/07 22:05:31 guy Exp $
+ * $Id: packet-gre.c,v 1.15 2000/02/15 21:02:11 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -37,6 +37,8 @@
 #endif
 #include <glib.h>
 #include "packet.h"
+#include "packet-ip.h"
+#include "packet-ppp.h"
 
 static int proto_gre = -1;
 static int hf_gre_proto = -1;

@@ -2,7 +2,7 @@
  * Routines for PIM disassembly
  * (c) Copyright Jun-ichiro itojun Hagino <itojun@itojun.org>
  *
- * $Id: packet-pim.c,v 1.8 2000/01/15 04:17:35 guy Exp $
+ * $Id: packet-pim.c,v 1.9 2000/02/15 21:02:49 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -45,6 +45,7 @@
 
 #include <glib.h>
 #include "packet.h"
+#include "packet-ip.h"
 #include "packet-ipv6.h"
 
 #ifndef offsetof

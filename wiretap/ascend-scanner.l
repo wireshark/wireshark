@@ -1,7 +1,7 @@
 %{
 /* ascend-scanner.l
  *
- * $Id: ascend-scanner.l,v 1.12 2000/01/22 06:22:35 guy Exp $
+ * $Id: ascend-scanner.l,v 1.13 2000/02/15 21:06:58 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -48,6 +48,11 @@ result = (c==EOF) ? YY_NULL : (buf[0] = c, 1); }
 
 int at_eof;
 int mul, scratch;
+
+/* We don't need yyunput, so use this macro to get it out of the
+ * generated C file, avoiding a compiler warning about its lack of use */
+#define YY_NO_UNPUT 1
+
 %}
 
 /* %option debug */

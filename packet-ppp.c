@@ -1,7 +1,7 @@
 /* packet-ppp.c
  * Routines for ppp packet disassembly
  *
- * $Id: packet-ppp.c,v 1.27 2000/01/29 04:47:34 gram Exp $
+ * $Id: packet-ppp.c,v 1.28 2000/02/15 21:02:51 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -34,7 +34,11 @@
 
 #include <glib.h>
 #include "packet.h"
+#include "packet-atalk.h"
 #include "packet-ip.h"
+#include "packet-ipv6.h"
+#include "packet-ipx.h"
+#include "packet-vines.h"
 
 static int proto_ppp = -1;
 

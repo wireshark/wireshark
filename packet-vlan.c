@@ -1,7 +1,7 @@
 /* packet-vlan.c
  * Routines for VLAN 802.1Q ethernet header disassembly
  *
- * $Id: packet-vlan.c,v 1.7 2000/01/23 08:55:37 guy Exp $
+ * $Id: packet-vlan.c,v 1.8 2000/02/15 21:03:25 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -37,6 +37,8 @@
 
 #include <glib.h>
 #include "packet.h"
+#include "packet-ipx.h"
+#include "packet-llc.h"
 #include "etypes.h"
 
 static int proto_vlan = -1;

@@ -4,7 +4,7 @@
  * Based on routines from tcpdump patches by
  *   Ken Hornstein <kenh@cmf.nrl.navy.mil>
  *
- * $Id: packet-rx.c,v 1.7 2000/01/14 19:11:26 guy Exp $
+ * $Id: packet-rx.c,v 1.8 2000/02/15 21:03:05 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -45,6 +45,7 @@
 #include <glib.h>
 #include "packet.h"
 #include "packet-rx.h"
+#include "packet-afs.h"
 #include "resolv.h"
 
 static const value_string rx_types[] = {

@@ -1,7 +1,7 @@
 /* packet-ntp.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet-ntp.h,v 1.2 1999/10/22 06:30:45 guy Exp $
+ * $Id: packet-ntp.h,v 1.3 2000/02/15 21:02:43 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -28,6 +28,8 @@
 
 #ifndef PACKET_NTP_H
 #define PACKET_NTP_H
+
+void dissect_ntp(const u_char *, int, frame_data *, proto_tree *);
 
 #define NTP_LI_MASK	192
 #define NTP_LI_NONE	0

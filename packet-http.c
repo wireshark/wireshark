@@ -3,7 +3,7 @@
  *
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-http.c,v 1.13 2000/01/22 06:22:13 guy Exp $
+ * $Id: packet-http.c,v 1.14 2000/02/15 21:02:12 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -40,6 +40,7 @@
 
 #include <glib.h>
 #include "packet.h"
+#include "packet-ipp.h"
 
 static int proto_http = -1;
 static int hf_http_response = -1;

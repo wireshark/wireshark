@@ -1,7 +1,7 @@
 /* packet-arp.c
  * Routines for ARP packet disassembly
  *
- * $Id: packet-pppoe.c,v 1.4 1999/11/16 11:42:48 guy Exp $
+ * $Id: packet-pppoe.c,v 1.5 2000/02/15 21:02:54 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -33,6 +33,7 @@
 
 #include <glib.h>
 #include "packet.h"
+#include "packet-ppp.h"
 
 static gint ett_pppoed = -1;
 static gint ett_pppoed_tags = -1;

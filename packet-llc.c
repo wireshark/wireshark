@@ -2,7 +2,7 @@
  * Routines for IEEE 802.2 LLC layer
  * Gilbert Ramirez <gramirez@tivoli.com>
  *
- * $Id: packet-llc.c,v 1.48 2000/02/12 11:22:26 guy Exp $
+ * $Id: packet-llc.c,v 1.49 2000/02/15 21:02:33 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -37,7 +37,16 @@
 #include "oui.h"
 #include "xdlc.h"
 #include "etypes.h"
-	
+#include "packet-bpdu.h"
+#include "packet-cdp.h"
+#include "packet-cgmp.h"
+#include "packet-ip.h"
+#include "packet-ipx.h"
+#include "packet-netbios.h"
+#include "packet-osi.h"
+#include "packet-sna.h"
+#include "packet-vtp.h"
+
 static int proto_llc = -1;
 static int hf_llc_dsap = -1;
 static int hf_llc_ssap = -1;

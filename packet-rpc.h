@@ -1,5 +1,5 @@
 /* packet-rpc.h (c) 1999 Uwe Girlich */
-/* $Id: packet-rpc.h,v 1.12 2000/01/22 05:49:08 guy Exp $ */
+/* $Id: packet-rpc.h,v 1.13 2000/02/15 21:03:00 gram Exp $ */
 
 #ifndef __PACKET_RPC_H__
 #define __PACKET_RPC_H__
@@ -97,6 +97,7 @@ extern void init_dissect_rpc();
 extern void cleanup_dissect_rpc();
 
 extern unsigned int rpc_roundup(unsigned int a);
+gboolean dissect_rpc(const u_char *, int, frame_data *, proto_tree *);
 extern int dissect_rpc_bool(const u_char *pd, int offset, frame_data *fd,
 	proto_tree *tree, int hfindex);
 extern int dissect_rpc_string(const u_char *pd, int offset, frame_data *fd,

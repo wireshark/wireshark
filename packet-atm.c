@@ -1,7 +1,7 @@
 /* packet-atm.c
  * Routines for ATM packet disassembly
  *
- * $Id: packet-atm.c,v 1.11 1999/12/29 05:20:00 guy Exp $
+ * $Id: packet-atm.c,v 1.12 2000/02/15 21:02:00 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -37,7 +37,11 @@
 #include "oui.h"
 #include "resolv.h"
 
+#include "packet-eth.h"
+#include "packet-llc.h"
 #include "packet-snmp.h"
+#include "packet-sscop.h"
+#include "packet-tr.h"
 
 static int proto_atm = -1;
 static int hf_atm_vpi = -1;

@@ -1,7 +1,7 @@
 /* packet-yhoo.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet-yhoo.h,v 1.4 1999/10/20 16:36:08 gram Exp $
+ * $Id: packet-yhoo.h,v 1.5 2000/02/15 21:03:32 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -28,6 +28,8 @@
 
 #ifndef YAHOO_LIB_H
 #define YAHOO_LIB_H
+
+void dissect_yhoo(const u_char *, int, frame_data *, proto_tree *);
 
 /* Service constants */
 #define YAHOO_SERVICE_LOGON		1

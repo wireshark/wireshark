@@ -1,6 +1,6 @@
 /* packet-rip.h (c) 1998 Hannes Boehm */
 
-/* $Id: packet-rip.h,v 1.3 1999/10/06 03:33:48 guy Exp $ */
+/* $Id: packet-rip.h,v 1.4 2000/02/15 21:02:59 gram Exp $ */
 
 #define	RIPv1	1
 #define	RIPv2	2
@@ -33,3 +33,5 @@ typedef union _e_rip_entry {
     e_rip_vektor	vektor;
     e_rip_authentication authentication;
 } e_rip_entry;
+
+void dissect_rip(const u_char *, int, frame_data *, proto_tree *);

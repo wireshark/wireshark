@@ -2,7 +2,7 @@
  * Routines for lapb frame disassembly
  * Olivier Abad <abad@daba.dhis.net>
  *
- * $Id: packet-lapb.c,v 1.9 1999/11/29 22:44:47 gram Exp $
+ * $Id: packet-lapb.c,v 1.10 2000/02/15 21:02:29 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -36,6 +36,7 @@
 #include <glib.h>
 #include <string.h>
 #include "packet.h"
+#include "packet-x25.h"
 #include "xdlc.h"
 
 #define FROM_DCE	0x80

@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.63 2000/01/10 17:32:52 gram Exp $
+ * $Id: packet.c,v 1.64 2000/02/15 21:03:33 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -68,12 +68,21 @@
 #include "timestamp.h"
 #include "file.h"
 
+#include "packet-ascend.h"
 #include "packet-atalk.h"
-
+#include "packet-atm.h"
+#include "packet-clip.h"
+#include "packet-eth.h"
+#include "packet-fddi.h"
 #include "packet-ipv6.h"
-
+#include "packet-lapb.h"
+#include "packet-lapd.h"
+#include "packet-null.h"
+#include "packet-ppp.h"
+#include "packet-raw.h"
 #include "packet-sna.h"
-
+#include "packet-tr.h"
+#include "packet-v120.h"
 #include "packet-vines.h"
 
 #ifndef __RESOLV_H__

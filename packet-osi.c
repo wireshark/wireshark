@@ -1,7 +1,7 @@
 /* packet-osi.c
  * Routines for ISO/OSI network and transport protocol packet disassembly
  *
- * $Id: packet-osi.c,v 1.20 2000/01/30 05:50:02 guy Exp $
+ * $Id: packet-osi.c,v 1.21 2000/02/15 21:02:46 gram Exp $
  * Laurent Deniel <deniel@worldnet.fr>
  *
  * Ethereal - Network traffic analyzer
@@ -44,6 +44,7 @@
 #include <string.h>
 #include <glib.h>
 #include "packet.h"
+#include "packet-isis.h"
 #include "nlpid.h"
 
 /* protocols and fields */

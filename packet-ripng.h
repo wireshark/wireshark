@@ -2,7 +2,7 @@
  * RIPng definition
  * (c) Copyright Jun-ichiro itojun Hagino <itojun@itojun.org>
  *
- * $Id: packet-ripng.h,v 1.1 1999/10/12 23:12:06 guy Exp $
+ * $Id: packet-ripng.h,v 1.2 2000/02/15 21:02:59 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -30,6 +30,12 @@
 #ifndef __GLOBALS_H__
 #include "globals.h"
 #endif
+
+#ifndef __PACKET_IPV6_H_DEFINED__
+#include "packet-ipv6.h"
+#endif
+
+void dissect_ripng(const u_char *, int, frame_data *, proto_tree *);
 
 /*
  * KAME Header: /cvsroot/kame/kame/kame/kame/route6d/route6d.h,v 1.1.1.1 1999/08/08 23:31:35 itojun Exp
