@@ -1,7 +1,7 @@
 /* capture_dlg.c
  * Routines for packet capture windows
  *
- * $Id: capture_dlg.c,v 1.62 2002/02/24 09:25:36 guy Exp $
+ * $Id: capture_dlg.c,v 1.63 2002/03/05 02:25:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -200,7 +200,7 @@ capture_prep_cb(GtkWidget *w, gpointer d)
   accel_group = gtk_accel_group_new();
   gtk_window_add_accel_group(GTK_WINDOW(cap_open_w), accel_group);
   
-  main_vb = gtk_vbox_new(FALSE, 3);
+  main_vb = gtk_vbox_new(FALSE, 0);
   gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
   gtk_container_add(GTK_CONTAINER(cap_open_w), main_vb);
   gtk_widget_show(main_vb);
@@ -210,7 +210,7 @@ capture_prep_cb(GtkWidget *w, gpointer d)
   gtk_container_add(GTK_CONTAINER(main_vb), capture_fr);
   gtk_widget_show(capture_fr);
 
-  capture_vb = gtk_vbox_new(FALSE, 3);
+  capture_vb = gtk_vbox_new(FALSE, 0);
   gtk_container_add(GTK_CONTAINER(capture_fr), capture_vb);
   gtk_widget_show(capture_vb);
 
@@ -293,7 +293,7 @@ capture_prep_cb(GtkWidget *w, gpointer d)
   gtk_box_pack_start(GTK_BOX(filter_hb), filter_te, TRUE, TRUE, 3); 
   gtk_widget_show(filter_te);
   
-  /* File-related options frame */
+  /* Capture file-related options frame */
   file_fr = gtk_frame_new("Capture file(s)");
   gtk_container_add(GTK_CONTAINER(main_vb), file_fr);
   gtk_widget_show(file_fr);
@@ -355,7 +355,7 @@ capture_prep_cb(GtkWidget *w, gpointer d)
   gtk_container_add(GTK_CONTAINER(main_vb), display_fr);
   gtk_widget_show(display_fr);
 
-  display_vb = gtk_vbox_new(FALSE, 3);
+  display_vb = gtk_vbox_new(FALSE, 0);
   gtk_container_add(GTK_CONTAINER(display_fr), display_vb);
   gtk_widget_show(display_vb);
 
@@ -381,7 +381,7 @@ capture_prep_cb(GtkWidget *w, gpointer d)
   gtk_container_add(GTK_CONTAINER(main_vb), limit_fr);
   gtk_widget_show(limit_fr);
 
-  limit_vb = gtk_vbox_new(FALSE, 3);
+  limit_vb = gtk_vbox_new(FALSE, 0);
   gtk_container_add(GTK_CONTAINER(limit_fr), limit_vb);
   gtk_widget_show(limit_vb);
 
@@ -468,7 +468,7 @@ capture_prep_cb(GtkWidget *w, gpointer d)
   gtk_container_add(GTK_CONTAINER(main_vb), resolv_fr);
   gtk_widget_show(resolv_fr);
 
-  resolv_vb = gtk_vbox_new(FALSE, 3);
+  resolv_vb = gtk_vbox_new(FALSE, 0);
   gtk_container_add(GTK_CONTAINER(resolv_fr), resolv_vb);
   gtk_widget_show(resolv_vb);
 
