@@ -1040,6 +1040,7 @@ Tomas Kukosa <tomas.kukosa [AT] siemens.com> {
 	Support in Wiretap for DLT_HHDLC
 	Fix to summary-printing code to handle reallocated line buffer
 	Support for registering subdissectors for Q.931 IEs and codesets
+	Reassembly of segmented Q.931 messages
 }
 
 Andreas Stockmeier <a.stockmeier[AT]avm.de> {

@@ -2,7 +2,7 @@
  * Routines for Q.931 frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-q931.c,v 1.69 2004/02/18 20:43:37 guy Exp $
+ * $Id: packet-q931.c,v 1.70 2004/02/20 10:34:42 guy Exp $
  *
  * Modified by Andreas Sikkema for possible use with H.323
  *
@@ -37,6 +37,7 @@
 #include "nlpid.h"
 #include "packet-q931.h"
 #include "prefs.h"
+#include "reassemble.h"
 
 #include "lapd_sapi.h"
 #include "packet-tpkt.h"
@@ -74,8 +75,42 @@ static int hf_q931_called_party_number 			= -1;
 static int hf_q931_connected_number 			= -1;
 static int hf_q931_redirecting_number 			= -1;
 
+static int hf_q931_segments = -1;
+static int hf_q931_segment = -1;
+static int hf_q931_segment_overlap = -1;
+static int hf_q931_segment_overlap_conflict = -1;
+static int hf_q931_segment_multiple_tails = -1;
+static int hf_q931_segment_too_long_segment = -1;
+static int hf_q931_segment_error = -1;
+static int hf_q931_reassembled_in = -1; 
+
 static gint ett_q931 					= -1;
 static gint ett_q931_ie 				= -1;
+
+static gint ett_q931_segments = -1;
+static gint ett_q931_segment = -1;
+
+static const fragment_items q931_frag_items = {
+	&ett_q931_segment,
+	&ett_q931_segments,
+
+	&hf_q931_segments,
+	&hf_q931_segment,
+	&hf_q931_segment_overlap,
+	&hf_q931_segment_overlap_conflict,
+	&hf_q931_segment_multiple_tails,
+	&hf_q931_segment_too_long_segment,
+	&hf_q931_segment_error,
+    &hf_q931_reassembled_in,
+	"segments"
+};
+
+/* Tables for reassembly of fragments. */
+static GHashTable *q931_fragment_table = NULL;
+static GHashTable *q931_reassembled_table = NULL;
+
+/* Preferences */
+static gboolean q931_reassembly = TRUE;
 
 static dissector_table_t codeset_dissector_table;
 static dissector_table_t ie_dissector_table;
@@ -2285,10 +2320,18 @@ dissect_q931_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 {
 	int		offset = 0;
 	proto_tree	*q931_tree = NULL;
-	proto_item	*ti;
+	proto_tree	*ie_tree = NULL;
+	proto_item	*ti, *ti_ie;
 	guint8		call_ref_len;
 	guint8		call_ref[15];
-	guint8		message_type;
+	guint32		call_ref_val;
+	guint8		message_type, segmented_message_type;
+	guint8		info_element;
+	guint16		info_element_len;
+	gboolean	more_frags; 
+	guint32		frag_len;
+	fragment_data *fd_head;
+	tvbuff_t *next_tvb = NULL;
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "Q.931");
@@ -2305,6 +2348,13 @@ dissect_q931_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	if (q931_tree != NULL)
 		proto_tree_add_uint(q931_tree, hf_q931_call_ref_len, tvb, offset, 1, call_ref_len);
 	offset += 1;
+	switch (call_ref_len) {
+		case 0: call_ref_val = 0; break;
+		case 1:	call_ref_val = tvb_get_guint8(tvb, offset);	break;
+		case 2:	call_ref_val = tvb_get_ntohs(tvb, offset); break;
+		case 3:	call_ref_val = tvb_get_ntoh24(tvb, offset); break;
+		default: call_ref_val = tvb_get_ntohl(tvb, offset);
+	} 
 	if (call_ref_len != 0) {
 		tvb_memcpy(tvb, call_ref, offset, call_ref_len);
 		if (q931_tree != NULL) {
@@ -2329,7 +2379,58 @@ dissect_q931_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	/*
 	 * And now for the information elements....
 	 */
-	dissect_q931_IEs(tvb, pinfo, tree, q931_tree,is_tpkt, offset);
+	if ((message_type != Q931_SEGMENT) || !q931_reassembly || 
+			(tvb_reported_length_remaining(tvb, offset) <= 4)) {
+		dissect_q931_IEs(tvb, pinfo, tree, q931_tree, is_tpkt, offset);
+		return;
+	}
+	info_element = tvb_get_guint8(tvb, offset);
+	info_element_len = tvb_get_guint8(tvb, offset + 1);
+	if ((info_element != Q931_IE_SEGMENTED_MESSAGE) || (info_element_len < 2)) {
+		dissect_q931_IEs(tvb, pinfo, tree, q931_tree, is_tpkt, offset);
+		return;
+	}
+	/* Segmented message IE */
+	ti_ie = proto_tree_add_text(q931_tree, tvb, offset, 1+1+info_element_len, "%s",
+				    val_to_str(info_element, q931_info_element_vals[0], "Unknown information element (0x%02X)"));
+	ie_tree = proto_item_add_subtree(ti_ie, ett_q931_ie);
+	proto_tree_add_text(ie_tree, tvb, offset, 1, "Information element: %s",
+				    val_to_str(info_element, q931_info_element_vals[0], "Unknown (0x%02X)"));
+	proto_tree_add_text(ie_tree, tvb, offset + 1, 1, "Length: %u", info_element_len);
+	dissect_q931_segmented_message_ie(tvb, offset + 2, info_element_len, ie_tree);
+    more_frags = (tvb_get_guint8(tvb, offset + 2) & 0x7F) != 0;
+	segmented_message_type = tvb_get_guint8(tvb, offset + 3);
+	offset += 1 + 1 + info_element_len;
+	/* Reassembly */
+	frag_len = tvb_length_remaining(tvb, offset);
+	fd_head = fragment_add_seq_next(tvb, offset, pinfo, call_ref_val,
+									q931_fragment_table, q931_reassembled_table,
+									frag_len, more_frags);
+	if (fd_head) {
+		if (pinfo->fd->num == fd_head->reassembled_in) {  /* last fragment */
+			if (fd_head->next != NULL) {  /* 2 or more segments */
+				next_tvb = tvb_new_real_data(fd_head->data, fd_head->len, fd_head->len);
+				tvb_set_child_real_data_tvbuff(tvb, next_tvb);
+				add_new_data_source(pinfo, next_tvb, "Reassembled Q.931 IEs");
+				/* Show all fragments. */
+				if (tree) show_fragment_seq_tree(fd_head, &q931_frag_items, q931_tree, pinfo, next_tvb);
+			} else {  /* only 1 segment */
+				next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+			}
+			if (check_col(pinfo->cinfo, COL_INFO)) {
+				col_add_fstr(pinfo->cinfo, COL_INFO, "%s [reassembled]",
+				    val_to_str(segmented_message_type, q931_message_type_vals, "Unknown message type (0x%02X)"));
+			}
+		} else {
+			if (tree) proto_tree_add_uint(q931_tree, hf_q931_reassembled_in, tvb, offset, frag_len, fd_head->reassembled_in);
+		}
+	} else {
+		if (check_col(pinfo->cinfo, COL_INFO)) {
+			col_append_str(pinfo->cinfo, COL_INFO, " [segment]");
+		}
+	}
+    if (next_tvb)
+		dissect_q931_IEs(next_tvb, pinfo, tree, q931_tree, is_tpkt, 0);
 }
 
 static const value_string q931_codeset_vals[] = {
@@ -2842,6 +2943,13 @@ dissect_q931(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	dissect_q931_pdu(tvb, pinfo, tree, FALSE);
 }
 
+static void 
+q931_init(void) {
+	/* Initialize the fragment and reassembly tables */
+	fragment_table_init(&q931_fragment_table);
+	reassembled_table_init(&q931_reassembled_table);
+}
+
 void
 proto_register_q931(void)
 {
@@ -2922,16 +3030,60 @@ proto_register_q931(void)
 		{ &hf_q931_redirecting_number,
 		  { "Redirecting party number digits", "q931.redirecting_number.digits", FT_STRING, BASE_NONE, NULL, 0x0,
 			"", HFILL }},
+    /* desegmentation fields */
+		{ &hf_q931_segment_overlap,
+			{ "Segment overlap",	"q931.segment.overlap",
+			FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+			"Fragment overlaps with other fragments"}
+		},
+		{ &hf_q931_segment_overlap_conflict,
+			{ "Conflicting data in fragment overlap", "q931.segment.overlap.conflict",
+			FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+			"Overlapping fragments contained conflicting data"}
+		},
+		{ &hf_q931_segment_multiple_tails,
+			{ "Multiple tail fragments found", "q931.segment.multipletails",
+			FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+			"Several tails were found when defragmenting the packet"}
+		},
+		{ &hf_q931_segment_too_long_segment,
+			{ "Segment too long",	"q931.segment.toolongfragment",
+			FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+			"Segment contained data past end of packet"}
+		},
+		{ &hf_q931_segment_error,
+			{ "Defragmentation error",	"q931.segment.error",
+			FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+			"Defragmentation error due to illegal fragments"}
+		},
+		{ &hf_q931_segment,
+			{ "Q.931 Segment",	"q931.segment",
+			FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+			"Q.931 Segment"}
+		},
+		{ &hf_q931_segments,
+			{ "Q.931 Segments",	"q931.segments",
+			FT_NONE, BASE_NONE, NULL, 0x0,
+			"Q.931 Segments"}
+		},
+        { &hf_q931_reassembled_in,
+            { "Reassembled Q.931 in frame", "q931.reassembled_in", 
+            FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+            "This Q.931 message is reassembled in this frame"}
+        }, 
 	};
 	static gint *ett[] = {
 		&ett_q931,
 		&ett_q931_ie,
+		&ett_q931_segments,
+		&ett_q931_segment,
 	};
 	module_t *q931_module;
 
 	proto_q931 = proto_register_protocol("Q.931", "Q.931", "q931");
 	proto_register_field_array (proto_q931, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	register_init_routine(q931_init);
 
 	register_dissector("q931", dissect_q931, proto_q931);
 	q931_tpkt_pdu_handle = create_dissector_handle(dissect_q931_tpkt_pdu,
@@ -2946,6 +3098,10 @@ proto_register_q931(void)
 	    "Desegment all Q.931 messages spanning multiple TCP segments",
 	    "Whether the Q.931 dissector should desegment all messages spanning multiple TCP segments",
 	    &q931_desegment);
+	prefs_register_bool_preference(q931_module, "reassembly",
+	    "Reassembly segmented Q.931 messages",
+	    "Reassembly segmented Q.931 messages (Q.931 - Annex H)",
+	    &q931_reassembly);
 }
 
 void
