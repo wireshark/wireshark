@@ -1,1 +1,3 @@
-EXTRA_DIST = ethereal.spec.in
+SUBDIRS = SPECS
+clean-local:
+	rm -rf BUILD RPMS SOURCES SRPMS

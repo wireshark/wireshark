@@ -2,7 +2,7 @@ dnl Macros that test for specific features.
 dnl This file is part of the Autoconf packaging for Ethereal.
 dnl Copyright (C) 1998-2000 by Gerald Combs.
 dnl
-dnl $Id: acinclude.m4,v 1.37 2002/01/18 08:28:22 guy Exp $
+dnl $Id: acinclude.m4,v 1.38 2002/01/20 23:05:22 gerald Exp $
 dnl
 dnl This program is free software; you can redistribute it and/or modify
 dnl it under the terms of the GNU General Public License as published by
@@ -490,5 +490,25 @@ AC_DEFUN(AC_ETHEREAL_SSL_CHECK,
 		)
 	else
 		AC_MSG_RESULT(not required)
+	fi
+])
+
+#
+# AC_ETHEREAL_RPM_CHECK
+# Looks for the rpm program, and checks to see if we can redefine "_topdir".
+#
+AC_DEFUN(AC_ETHEREAL_RPM_CHECK,
+[
+	AC_CHECK_PROG(ac_cv_ethereal_have_rpm, rpm, "yes", "no")
+	if test "x$ac_cv_ethereal_have_rpm" = "xyes"; then
+		rpm --define '_topdir /tmp' > /dev/null 2>&1
+		AC_MSG_CHECKING(to see if we can redefine _topdir)
+		if test $? -eq 0 ; then
+			AC_MSG_RESULT(yes)
+			HAVE_RPM=yes
+		else
+			AC_MSG_RESULT(no.  You'll have to build packages manually.)
+			HAVE_RPM=no
+		fi
 	fi
 ])

@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.144 2002/01/09 23:21:54 gram Exp $
+# $Id: configure.in,v 1.145 2002/01/20 23:05:22 gerald Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -38,7 +38,6 @@ AC_SUBST(PYTHON)
 AC_CHECK_PROG(HAVE_PKGPROTO, pkgproto, "yes", "no")
 AC_CHECK_PROG(HAVE_PKGMK, pkgmk, "yes", "no")
 AC_CHECK_PROG(HAVE_PKGTRANS, pkgtrans, "yes", "no")
-AC_CHECK_PROG(HAVE_RPM, rpm, "yes", "no")
 
 if test x$HAVE_PKGPROTO = xyes -a x$HAVE_PKGMK = xyes \
      -a x$HAVE_PKGTRANS = xyes ; then
@@ -48,38 +47,8 @@ else
 fi
 AC_SUBST(HAVE_SVR4_PACKAGING)
 
-# Grr.  Rpm 2.x has a nifty "--showrc" flag that lists all of the current
-# configuration values.  Version 3.x took the niftiness away by returning
-# the values in their raw, unexpanded, macro-embedded form.  We can either
-# try to expand the values we get from 3.x, or poke around for popular build
-# directories.
-HAVE_RPM_PACKAGING=no
-if test x$HAVE_RPM = xyes ; then
-  AC_MSG_CHECKING(for rpm build directories)
-  RPM_SOURCESDIR=`rpm --showrc | grep "^sourcedir" | \
-    sed -e 's/.*: //' 2> /dev/null`
-  if test x$RPM_SPECDIR = x ; then
-    # Red Hat  : /usr/src/redhat
-    # Mandrake : /usr/scr/rpm
-    # SuSE     : /usr/src/packages
-    for TEST_DIR in /usr/src/redhat /usr/src/rpm /usr/src/packages ; do
-      if test -d $TEST_DIR/SPECS -a -d $TEST_DIR/SOURCES -a \
-              -d $TEST_DIR/RPMS -a -d $TEST_DIR/SRPMS -a \
-              -d $TEST_DIR/BUILD ; then
-        RPM_SOURCESDIR=$TEST_DIR/SOURCES
-      fi
-    done
-  fi
-  if test x$RPM_SOURCESDIR = x ; then
-    AC_MSG_RESULT(not found)
-    RPM_SOURCESDIR=""
-  else
-    AC_MSG_RESULT(found)
-    HAVE_RPM_PACKAGING=yes
-  fi
-fi
-AC_SUBST(HAVE_RPM_PACKAGING)
-
+AC_ETHEREAL_RPM_CHECK
+AC_SUBST(HAVE_RPM)
 
 # If we're running gcc, add '-Wall' to CFLAGS.
 AC_MSG_CHECKING(to see if we can add '-Wall' to CFLAGS)
@@ -698,7 +667,8 @@ AC_OUTPUT(
   packaging/Makefile
   packaging/nsis/Makefile
   packaging/rpm/Makefile
-  packaging/rpm/ethereal.spec
+  packaging/rpm/SPECS/Makefile
+  packaging/rpm/SPECS/ethereal.spec
   packaging/svr4/Makefile
   packaging/svr4/checkinstall
   packaging/svr4/pkginfo

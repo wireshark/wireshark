@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.404 2002/01/10 01:28:43 guy Exp $
+# $Id: Makefile.am,v 1.405 2002/01/20 23:05:22 gerald Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -969,24 +969,30 @@ svr4-package: $(bin_SCRIPTS) $(lib_LTLIBRARIES)
 
 solaris-package: svr4-package
 
-specfile=$(top_srcdir)/packaging/rpm/ethereal.spec
-
+rpm_topdir=`cd $(top_srcdir) && pwd`/packaging/rpm
 rpm-package: dist
-	if test x$(HAVE_RPM_PACKAGING) = xyes ; then \
-		cp $(top_srcdir)/$(distdir).tar.gz $(RPM_SOURCEDIR) ; \
-		rpm -bb --clean --rmsource $(specfile) ; \
+	if test x$(HAVE_RPM) = xyes ; then \
+		cd $(rpm_topdir) ; \
+		mkdir BUILD RPMS SOURCES ; \
+		cd SOURCES ; \
+		ln -s ../../../$(distdir).tar.gz ; \
+		cd .. ; \
+		rpm --define "_topdir `cd . && pwd`" -bb SPECS/ethereal.spec && \
+			echo "Package successfully built in `pwd`/RPMS." ; \
 	else \
 		echo "Error: RPM executable and/or source directory not found." ; \
-		echo "Package build abandoned." ; \
 	fi
-
 srpm-package: dist
-	if test x$(HAVE_RPM_PACKAGING) = xyes ; then \
-		cp $(top_srcdir)/$(distdir).tar.gz $(RPM_SOURCEDIR) ; \
-		rpm -bs --clean --rmsource $(specfile) ; \
+	if test x$(HAVE_RPM) = xyes ; then \
+		cd $(rpm_topdir) ; \
+		mkdir BUILD SRPMS SOURCES ; \
+		cd SOURCES ; \
+		ln -s ../../../$(distdir).tar.gz ; \
+		cd .. ; \
+		rpm --define "_topdir `cd . && pwd`" -bs SPECS/ethereal.spec && \
+			echo "Package successfully built in `pwd`/SRPMS." ; \
 	else \
 		echo "Error: RPM executable and/or source directory not found." ; \
-		echo "Package build abandoned." ; \
 	fi
 
 debian-package: debian/rules
