@@ -788,10 +788,10 @@ AC_DEFUN([AC_ETHEREAL_UCDSNMP_CHECK],
 			[
 			],
 			[
-			sprint_realloc_objid();
+				sprint_realloc_objid();
 			],
 			[
-			SNMP_LIBS="-lsnmp $extras"; break;
+				SNMP_LIBS="-lsnmp $extras"; break;
 			],
 			[
 			])
@@ -980,6 +980,8 @@ changequote([, ])dnl
 #
 AC_DEFUN([AC_ETHEREAL_KRB5_CHECK],
 [
+	ethereal_save_CFLAGS="$CFLAGS"
+	ethereal_save_CPPFLAGS="$CPPFLAGS"
 	if test "x$krb5_dir" != "x"
 	then
 	  #
@@ -994,13 +996,9 @@ AC_DEFUN([AC_ETHEREAL_KRB5_CHECK],
 	  # as the compiler and/or linker will search that other
 	  # directory before it searches the specified directory.
 	  #
-	  ethereal_save_CFLAGS="$CFLAGS"
 	  CFLAGS="$CFLAGS -I$krb5_dir/include"
-	  ethereal_save_CPPFLAGS="$CPPFLAGS"
 	  CPPFLAGS="$CPPFLAGS -I$krb5_dir/include"
-	  KRB5_LIBS="-lkrb5 -lasn1 $SSL_LIBS -lroken -lcrypt -lresolv"
-	  ethereal_save_LDFLAGS="$LDFLAGS"
-	  LDFLAGS="$LDFLAGS -L$krb5_dir/lib"
+	  KRB5_LIBS="-L$krb5_dir/lib -lkrb5 -lasn1 $SSL_LIBS -lroken -lcrypt"
 	  ac_krb5_version=`grep heimdal $krb5_dir/include/krb5.h | head -n 1 | sed 's/^.*heimdal.*$/HEIMDAL/'`
 	else
 	  AC_PATH_PROG(KRB5_CONFIG, krb5-config) 
@@ -1033,20 +1031,6 @@ AC_DEFUN([AC_ETHEREAL_KRB5_CHECK],
 		fi
 		;;
 	    esac
-	    #
-	    # Looks like krb5-config is lacking -lresolv on some systems.
-	    # At least on some of those systems (such as FreeBSD 4.6),
-	    # this is because it is not required and, in fact, is not
-	    # even present!  This means that just adding -lresolv
-	    # if it's missing is the wrong thing to do.
-	    #
-	    # If there are systems where it's not present, but is
-	    # required, we'd have to add a test that tries to link
-	    # a program using Heimdal with just KRB5_LIBS and, if
-	    # that fails, adds -lresolv to KRB5_LIBS and tries that.
-	    #
-	    # 
-	    #LIBS="$LIBS $KRB5_LIBS"
 	    ac_krb5_version=`"$KRB5_CONFIG" --version | head -n 1 | sed 's/^.*heimdal.*$/HEIMDAL/'`
  	  fi
 	fi
@@ -1087,42 +1071,62 @@ AC_DEFUN([AC_ETHEREAL_KRB5_CHECK],
 
 	if test "x$want_krb5" != "xno" -a "x$ac_krb5_version" = "xHEIMDAL"
 	then
-		#
-		# Well, we at least have the krb5 header file.
-		#
+	    #
+	    # Well, we at least have the krb5 header file.
+	    # Check whether we have krb5_kt_resolve - and whether
+	    # we need to link with -lresolv when linking with
+	    # the Kerberos library.
+	    #
+	    for extras in "" "-lresolv"
+	    do
 		AC_CHECK_LIB(krb5, krb5_kt_resolve,
 		[
-			if test "x$krb5_dir" != "x"
-			then
-				#
-				# Put the "-I" and "-L" flags for krb5 at
-				# the beginning of CFLAGS, CPPFLAGS,
-				# LDFLAGS, and LIBS.
-				#
-				KRB5_LIBS="-L$krb5_dir/lib $KRB5_LIBS"
-			fi
-			AC_DEFINE(HAVE_KERBEROS, 1, [Define to use kerberos])
-			AC_DEFINE(HAVE_HEIMDAL_KERBEROS, 1, [Define to use heimdal kerberos])
-		],[
-			if test "x$krb5_dir" != "x"
-			then
-				#
-				# Restore the versions of CFLAGS, CPPFLAGS,
-				# LDFLAGS, and LIBS before we added the
-				# "--with-krb5=" directory, as we didn't
-				# actually find kerberos there.
-				#
-				CFLAGS="$ethereal_save_CFLAGS"
-				CPPFLAGS="$ethereal_save_CPPFLAGS"
-				LDFLAGS="$ethereal_save_LDFLAGS"
-				#LIBS="$ethereal_save_LIBS"
-				KRB5_LIBS=""
-			fi
-			want_krb5=no
-		], $KRB5_LIBS)
-	else
+		    if test "x$krb5_dir" != "x"
+		    then
+			#
+			# Put the "-I" and "-L" flags for krb5 at
+			# the beginning of CFLAGS, CPPFLAGS,
+			# LDFLAGS, and LIBS.
+			#
+			KRB5_LIBS="-L$krb5_dir/lib $KRB5_LIBS"
+		    fi
+		    KRB5_LIBS="$KRB5_LIBS $extras"
+		    AC_DEFINE(HAVE_KERBEROS, 1, [Define to use kerberos])
+		    AC_DEFINE(HAVE_HEIMDAL_KERBEROS, 1, [Define to use heimdal kerberos])
+		    break
+		],, $KRB5_LIBS $extras)
+	    done
+	    if test "$ac_cv_lib_krb5_krb5_kt_resolve" = no
+	    then
+		#
+		# We didn't find "krb5_kt_resolve()" in the
+		# Kerberos library, even when we tried linking
+		# with -lresolv; we can't link with kerberos.
+		#
+		# Restore the versions of CFLAGS and CPPFLAGS
+		# from before we added the flags for Kerberos.
+		#
+		CFLAGS="$ethereal_save_CFLAGS"
+		CPPFLAGS="$ethereal_save_CPPFLAGS"
 		KRB5_LIBS=""
 		want_krb5=no
+	    fi
+	else
+	    #
+	    # The user didn't ask for Kerberos, or they did but we don't
+	    # have Heimdal.
+	    # XXX - if they did ask for it, should we fail and tell
+	    # them that the Kerberos library they have isn't one we can
+	    # use?
+	    #
+	    #
+	    # Restore the versions of CFLAGS and CPPFLAGS
+	    # from before we added the flags for Kerberos.
+	    #
+	    CFLAGS="$ethereal_save_CFLAGS"
+	    CPPFLAGS="$ethereal_save_CPPFLAGS"
+	    KRB5_LIBS=""
+	    want_krb5=no
 	fi
 	AC_SUBST(KRB5_LIBS)
 ])
