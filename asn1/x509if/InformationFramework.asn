@@ -25,13 +25,13 @@ IMPORTS
 
 AttributeId ::= OBJECT IDENTIFIER
 
---AttributeValue ::= ANY
---
+AttributeValue ::= ANY
+
 -- attribute data types 
 Attribute ::= SEQUENCE {
-  type               AttributeId
---  value
---     SET SIZE (0..MAX) OF AttributeValue
+  type               AttributeId,
+  values
+     SET SIZE (0..MAX) OF AttributeValue
 --   valuesWithContext
 --     SET SIZE (1..MAX) OF
 --       SEQUENCE {value        ANY,
@@ -96,7 +96,7 @@ RelativeDistinguishedName ::=
 
 AttributeTypeAndDistinguishedValue ::= SEQUENCE {
   type                  AttributeId,
-  value                 ANY,
+  value                 AttributeValue,
   primaryDistinguished  BOOLEAN OPTIONAL
 --   valuesWithContext
 --     SET SIZE (1..MAX) OF

@@ -26,9 +26,6 @@ RDNSequence
 #.FN_BODY AttributeValue
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
 
-#.FN_BODY AttributeTypeAndDistinguishedValue/value
-  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
-
 
 #.END
 

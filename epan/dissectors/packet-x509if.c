@@ -54,10 +54,12 @@ int hf_x509if_object_identifier_id = -1;
 /*--- Included file: packet-x509if-hf.c ---*/
 
 static int hf_x509if_type = -1;                   /* AttributeId */
+static int hf_x509if_values = -1;                 /* SET_OF_AttributeValue */
+static int hf_x509if_values_item = -1;            /* AttributeValue */
 static int hf_x509if_rdnSequence = -1;            /* RDNSequence */
 static int hf_x509if_RDNSequence_item = -1;       /* RelativeDistinguishedName */
 static int hf_x509if_RelativeDistinguishedName_item = -1;  /* AttributeTypeAndDistinguishedValue */
-static int hf_x509if_value = -1;                  /* T_value */
+static int hf_x509if_value = -1;                  /* AttributeValue */
 static int hf_x509if_primaryDistinguished = -1;   /* BOOLEAN */
 /* named bits */
 static int hf_x509if_AllowedSubset_baseObject = -1;
@@ -72,6 +74,7 @@ static int hf_x509if_AllowedSubset_wholeSubtree = -1;
 /*--- Included file: packet-x509if-ett.c ---*/
 
 static gint ett_x509if_Attribute = -1;
+static gint ett_x509if_SET_OF_AttributeValue = -1;
 static gint ett_x509if_Name = -1;
 static gint ett_x509if_RDNSequence = -1;
 static gint ett_x509if_RelativeDistinguishedName = -1;
@@ -102,8 +105,41 @@ static int dissect_type(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int
   return dissect_x509if_AttributeId(FALSE, tvb, offset, pinfo, tree, hf_x509if_type);
 }
 
+
+
+static int
+dissect_x509if_AttributeValue(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
+
+
+
+  return offset;
+}
+static int dissect_values_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509if_AttributeValue(FALSE, tvb, offset, pinfo, tree, hf_x509if_values_item);
+}
+static int dissect_value(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509if_AttributeValue(FALSE, tvb, offset, pinfo, tree, hf_x509if_value);
+}
+
+static const ber_sequence SET_OF_AttributeValue_set_of[1] = {
+  { BER_CLASS_ANY, 0, BER_FLAGS_NOOWNTAG, dissect_values_item },
+};
+
+static int
+dissect_x509if_SET_OF_AttributeValue(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_ber_set_of(implicit_tag, pinfo, tree, tvb, offset,
+                              SET_OF_AttributeValue_set_of, hf_index, ett_x509if_SET_OF_AttributeValue);
+
+  return offset;
+}
+static int dissect_values(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509if_SET_OF_AttributeValue(FALSE, tvb, offset, pinfo, tree, hf_x509if_values);
+}
+
 static const ber_sequence Attribute_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_type },
+  { BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_values },
   { 0, 0, 0, NULL }
 };
 
@@ -121,20 +157,6 @@ dissect_x509if_AttributeType(gboolean implicit_tag _U_, tvbuff_t *tvb, int offse
   offset = dissect_x509if_AttributeId(implicit_tag, tvb, offset, pinfo, tree, hf_index);
 
   return offset;
-}
-
-
-
-static int
-dissect_x509if_T_value(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
-
-
-
-  return offset;
-}
-static int dissect_value(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_x509if_T_value(FALSE, tvb, offset, pinfo, tree, hf_x509if_value);
 }
 
 
@@ -292,6 +314,14 @@ void proto_register_x509if(void) {
       { "type", "x509if.type",
         FT_STRING, BASE_NONE, NULL, 0,
         "", HFILL }},
+    { &hf_x509if_values,
+      { "values", "x509if.values",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "Attribute/values", HFILL }},
+    { &hf_x509if_values_item,
+      { "Item", "x509if.values_item",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "Attribute/values/_item", HFILL }},
     { &hf_x509if_rdnSequence,
       { "rdnSequence", "x509if.rdnSequence",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -335,6 +365,7 @@ void proto_register_x509if(void) {
 /*--- Included file: packet-x509if-ettarr.c ---*/
 
     &ett_x509if_Attribute,
+    &ett_x509if_SET_OF_AttributeValue,
     &ett_x509if_Name,
     &ett_x509if_RDNSequence,
     &ett_x509if_RelativeDistinguishedName,
