@@ -1,7 +1,7 @@
 /* simple_dialog.c
  * Simple message dialog box routines.
  *
- * $Id: simple_dialog.c,v 1.21 2004/01/31 12:13:23 ulfl Exp $
+ * $Id: simple_dialog.c,v 1.22 2004/01/31 12:49:54 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -134,9 +134,9 @@ simple_dialog(gint type, gint btn_mask, gchar *msg_format, ...) {
 
 #if GTK_MAJOR_VERSION >= 2
   gtk_label_set_markup(GTK_LABEL(msg_label), message);
+  gtk_label_set_selectable(GTK_LABEL(msg_label), TRUE);
 #endif
 
-  gtk_label_set_selectable(GTK_LABEL(msg_label), TRUE);
   gtk_label_set_justify(GTK_LABEL(msg_label), GTK_JUSTIFY_FILL);
   gtk_misc_set_alignment (GTK_MISC (type_pm), 0.5, 0.0);
   gtk_container_add(GTK_CONTAINER(top_hb), msg_label);
