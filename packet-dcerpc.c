@@ -3,7 +3,7 @@
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  * Copyright 2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc.c,v 1.150 2003/10/23 07:14:21 guy Exp $
+ * $Id: packet-dcerpc.c,v 1.151 2003/11/06 07:44:13 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1936,7 +1936,11 @@ dcerpc_try_handoff (packet_info *pinfo, proto_tree *tree,
             pinfo->private_data = saved_private_data;
         } else {
             /* No subdissector - show it as *decrypted* stub data. */
-            show_stub_data (decrypted_tvb, 0, sub_tree, auth_info, FALSE);
+            if(decrypted_tvb){
+               show_stub_data (decrypted_tvb, 0, tree, auth_info, FALSE);
+            } else {
+               show_stub_data (tvb, 0, tree, auth_info, TRUE);
+            }
         }
     } else
         show_stub_data (tvb, 0, sub_tree, auth_info, TRUE);
@@ -2642,7 +2646,11 @@ end_cn_stub:
 			" [DCE/RPC %s fragment]", fragment_type(hdr->flags));
 	}
 
-        show_stub_data (decrypted_tvb, 0, tree, auth_info, FALSE);
+	if(decrypted_tvb){
+	        show_stub_data (decrypted_tvb, 0, tree, auth_info, FALSE);
+	} else {
+	        show_stub_data (payload_tvb, 0, tree, auth_info, TRUE);
+	}
     }
 
     pinfo->fragmented = save_fragmented;
