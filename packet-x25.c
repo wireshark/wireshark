@@ -2,7 +2,7 @@
  * Routines for X.25 packet disassembly
  * Olivier Abad <oabad@noos.fr>
  *
- * $Id: packet-x25.c,v 1.81 2003/03/04 19:50:20 guy Exp $
+ * $Id: packet-x25.c,v 1.82 2003/03/05 01:12:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -73,6 +73,14 @@ typedef enum {
 
 #define PACKET_IS_DATA(type)		(!(type & X25_NONDATA_BIT))
 #define PACKET_TYPE_FC(type)		(type & 0x1F)
+
+#define X25_MBIT_MOD8			0x10
+#define X25_MBIT_MOD128			0x01
+
+#define X25_ABIT			0x8000
+
+#define X25_QBIT			0x8000
+#define X25_DBIT			0x4000
 
 #define X25_FAC_CLASS_MASK		0xC0
 
@@ -1452,6 +1460,8 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     char *short_name = NULL, *long_name = NULL;
     tvbuff_t *next_tvb = NULL;
     gboolean q_bit_set = FALSE;
+    gboolean m_bit_set;
+    gint payload_len;
     void *saved_private_data;
     fragment_data *fd_head;
 
@@ -1466,7 +1476,7 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     pinfo->ctype = CT_X25;
     pinfo->circuit_id = vc;
 
-    if (bytes0_1 & 0x8000) toa = TRUE;
+    if (bytes0_1 & X25_ABIT) toa = TRUE;
     else toa = FALSE;
 
     x25_pkt_len = get_x25_pkt_len(tvb);
@@ -1482,7 +1492,7 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     pkt_type = tvb_get_guint8(tvb, 2);
     if (PACKET_IS_DATA(pkt_type)) {
-	if (bytes0_1 & 0x8000)
+	if (bytes0_1 & X25_QBIT)
 	    q_bit_set = TRUE;
     }
 
@@ -2074,13 +2084,13 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			    "Data VC:%d P(S):%d P(R):%d %s", vc,
 			    (pkt_type >> 1) & 0x07,
 			    (pkt_type >> 5) & 0x07,
-			    ((pkt_type >> 4) & 0x01) ? " M" : "");
+			    (pkt_type & X25_MBIT_MOD8) ? " M" : "");
 		else
 		    col_add_fstr(pinfo->cinfo, COL_INFO,
 			    "Data VC:%d P(S):%d P(R):%d %s", vc,
 			    tvb_get_guint8(tvb, localoffset+1) >> 1,
 			    pkt_type >> 1,
-			    (tvb_get_guint8(tvb, localoffset+1) & 0x01) ? " M" : "");
+			    (tvb_get_guint8(tvb, localoffset+1) & X25_MBIT_MOD128) ? " M" : "");
 	    }
 	    if (x25_tree) {
 		proto_tree_add_uint(x25_tree, hf_x25_lcn, tvb, localoffset-2,
@@ -2108,31 +2118,36 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			    tvb_get_guint8(tvb, localoffset+1));
 		}
 	    }
-	    localoffset += (modulo == 8) ? 1 : 2;
-	    if (reassemble_x25)
-	      {
+	    if (modulo == 8) {
+		m_bit_set = pkt_type & X25_MBIT_MOD8;
+		localoffset += 1;
+	    } else {
+		m_bit_set = tvb_get_guint8(tvb, localoffset+1) & X25_MBIT_MOD128;
+		localoffset += 2;
+	    }
+	    payload_len = tvb_reported_length_remaining(tvb, localoffset);
+	    if (reassemble_x25 && tvb_bytes_exist(tvb, localoffset, payload_len)) {
 		fd_head = fragment_add_seq_next(tvb, localoffset, 
 						pinfo, vc, x25_segment_table,
 						x25_reassembled_table,
-						tvb_reported_length(tvb) - localoffset,
-						(pkt_type >> 4) & 0x01);
-		pinfo->fragmented = (pkt_type >> 4) & 0x01;
+						payload_len, m_bit_set);
+		pinfo->fragmented = m_bit_set;
 	      
-		if (fd_head)
-		  if (fd_head->next)
-		    {
-		      /* This is the last packet */
-		      next_tvb = tvb_new_real_data(fd_head->data, 
-						   fd_head->len,
-						   fd_head->len);
-		      tvb_set_child_real_data_tvbuff(tvb, next_tvb);
-		      add_new_data_source(pinfo, next_tvb, "Reassembled X25");
-		      show_fragment_seq_tree(fd_head, 
-					     &x25_frag_items, 
-					     x25_tree, 
-					     pinfo, next_tvb);
-	       }
-	      }
+		if (fd_head) {
+		    if (fd_head->next) {
+		        /* This is the last packet */
+			next_tvb = tvb_new_real_data(fd_head->data, 
+						     fd_head->len,
+						     fd_head->len);
+			tvb_set_child_real_data_tvbuff(tvb, next_tvb);
+			add_new_data_source(pinfo, next_tvb, "Reassembled X.25");
+			show_fragment_seq_tree(fd_head, 
+					       &x25_frag_items, 
+					       x25_tree, 
+					       pinfo, next_tvb);
+	            }
+	        }
+	    }
 	    break;
 	}
 	switch (PACKET_TYPE_FC(pkt_type))
@@ -2319,13 +2334,13 @@ proto_register_x25(void)
 	  { "GFI", "x.25.gfi", FT_UINT16, BASE_DEC, NULL, 0xF000,
 	  	"General format identifier", HFILL }},
 	{ &hf_x25_abit,
-	  { "A Bit", "x.25.a", FT_BOOLEAN, 16, NULL, 0x8000,
+	  { "A Bit", "x.25.a", FT_BOOLEAN, 16, NULL, X25_ABIT,
 	  	"Address Bit", HFILL }},
 	{ &hf_x25_qbit,
-	  { "Q Bit", "x.25.q", FT_BOOLEAN, 16, NULL, 0x8000,
+	  { "Q Bit", "x.25.q", FT_BOOLEAN, 16, NULL, X25_QBIT,
 	  	"Qualifier Bit", HFILL }},
 	{ &hf_x25_dbit,
-	  { "D Bit", "x.25.d", FT_BOOLEAN, 16, NULL, 0x4000,
+	  { "D Bit", "x.25.d", FT_BOOLEAN, 16, NULL, X25_DBIT,
 	  	"Delivery Confirmation Bit", HFILL }},
 	{ &hf_x25_mod,
 	  { "Modulo", "x.25.mod", FT_UINT16, BASE_DEC, VALS(vals_modulo), 0x3000,
@@ -2349,10 +2364,10 @@ proto_register_x25(void)
 	  { "P(R)", "x.25.p_r", FT_UINT8, BASE_DEC, NULL, 0xFE,
 	  	"Packet Receive Sequence Number", HFILL }},
 	{ &hf_x25_mbit_mod8,
-	  { "M Bit", "x.25.m", FT_BOOLEAN, 8, TFS(&m_bit_tfs), 0x10,
+	  { "M Bit", "x.25.m", FT_BOOLEAN, 8, TFS(&m_bit_tfs), X25_MBIT_MOD8,
 	  	"More Bit", HFILL }},
 	{ &hf_x25_mbit_mod128,
-	  { "M Bit", "x.25.m", FT_BOOLEAN, 8, TFS(&m_bit_tfs), 0x01,
+	  { "M Bit", "x.25.m", FT_BOOLEAN, 8, TFS(&m_bit_tfs), X25_MBIT_MOD128,
 	  	"More Bit", HFILL }},
 	{ &hf_x25_p_s_mod8,
 	  { "P(S)", "x.25.p_s", FT_UINT8, BASE_DEC, NULL, 0x0E,
@@ -2436,7 +2451,7 @@ proto_register_x25(void)
             "Default to QLLC/SNA",
             "If CALL REQUEST not seen or didn't specify protocol, dissect as QLLC/SNA",
             &payload_is_qllc_sna);
-    prefs_register_bool_preference(x25_module, "reassemble_x25",
+    prefs_register_bool_preference(x25_module, "reassemble",
 				   "Reassemble fragmented X.25 packets",
 				   "Reassemble fragmented X.25 packets",
 				   &reassemble_x25);
