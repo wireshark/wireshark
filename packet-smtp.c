@@ -1,7 +1,7 @@
 /* packet-smtp.c
  * Routines for SMTP packet disassembly
  *
- * $Id: packet-smtp.c,v 1.4 2000/08/24 11:32:09 sharpe Exp $
+ * $Id: packet-smtp.c,v 1.5 2000/08/26 11:25:28 sharpe Exp $
  *
  * Copyright (c) 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  *
@@ -129,7 +129,7 @@ static void
 smtp_init_protocol(void)
 {
 #if defined(DEBUG_SMTP_HASH)
-  printf("Initializing SMB hashtable area\n");
+  printf("Initializing SMTP hashtable area\n");
 #endif
 
   if (smtp_request_hash)
