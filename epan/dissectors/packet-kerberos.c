@@ -1462,7 +1462,7 @@ dissect_krb5_rtime(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offs
 	return offset;
 }
 
-static int
+int
 dissect_krb5_ctime(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
 {
 	offset=dissect_ber_generalized_time(pinfo, tree, tvb, offset, hf_krb_ctime);
@@ -2805,7 +2805,7 @@ static ber_sequence Checksum_sequence[] = {
 		dissect_krb5_checksum_checksum },
 	{ 0, 0, 0, NULL }
 };
-static int
+int
 dissect_krb5_Checksum(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
 {
 	offset=dissect_ber_sequence(FALSE, pinfo, tree, tvb, offset, Checksum_sequence, hf_krb_Checksum, ett_krb_Checksum);

@@ -44,6 +44,7 @@
 #include "packet-pkinit.h"
 #include "packet-cms.h"
 #include "packet-pkix1explicit.h"
+#include "packet-kerberos.h"
 
 #define PNAME  "PKINIT"
 #define PSNAME "PKInit"
@@ -54,14 +55,27 @@ static int proto_pkinit = -1;
 
 /*--- Included file: packet-pkinit-hf.c ---*/
 
+static int hf_pkinit_AuthPack_PDU = -1;           /* AuthPack */
+static int hf_pkinit_KDCDHKeyInfo_PDU = -1;       /* KDCDHKeyInfo */
 static int hf_pkinit_signedAuthPack = -1;         /* ContentInfo */
 static int hf_pkinit_trustedCertifiers = -1;      /* SEQUNCE_OF_TrustedCA */
 static int hf_pkinit_trustedCertifiers_item = -1;  /* TrustedCA */
 static int hf_pkinit_kdcCert = -1;                /* IssuerAndSerialNumber */
 static int hf_pkinit_caName = -1;                 /* Name */
 static int hf_pkinit_issuerAndSerial = -1;        /* IssuerAndSerialNumber */
+static int hf_pkinit_pkAuthenticator = -1;        /* PKAuthenticator */
+static int hf_pkinit_clientPublicValue = -1;      /* SubjectPublicKeyInfo */
+static int hf_pkinit_supportedCMSTypes = -1;      /* SEQUNCE_OF_AlgorithmIdentifier */
+static int hf_pkinit_supportedCMSTypes_item = -1;  /* AlgorithmIdentifier */
+static int hf_pkinit_cusec = -1;                  /* INTEGER */
+static int hf_pkinit_ctime = -1;                  /* KerberosTime */
+static int hf_pkinit_nonce = -1;                  /* INTEGER_0_4294967295 */
+static int hf_pkinit_paChecksum = -1;             /* Checksum */
 static int hf_pkinit_dhSignedData = -1;           /* ContentInfo */
 static int hf_pkinit_encKeyPack = -1;             /* ContentInfo */
+static int hf_pkinit_subjectPublicKey = -1;       /* BIT_STRING */
+static int hf_pkinit_nonce1 = -1;                 /* INTEGER */
+static int hf_pkinit_dhKeyExpiration = -1;        /* KerberosTime */
 
 /*--- End of included file: packet-pkinit-hf.c ---*/
 
@@ -73,11 +87,17 @@ static int hf_pkinit_encKeyPack = -1;             /* ContentInfo */
 static gint ett_pkinit_PaPkAsReq = -1;
 static gint ett_pkinit_SEQUNCE_OF_TrustedCA = -1;
 static gint ett_pkinit_TrustedCA = -1;
+static gint ett_pkinit_AuthPack = -1;
+static gint ett_pkinit_SEQUNCE_OF_AlgorithmIdentifier = -1;
+static gint ett_pkinit_PKAuthenticator = -1;
 static gint ett_pkinit_PaPkAsRep = -1;
+static gint ett_pkinit_KDCDHKeyInfo = -1;
 
 /*--- End of included file: packet-pkinit-ett.c ---*/
 
 
+static int dissect_KerberosV5Spec2_KerberosTime(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index _U_);
+static int dissect_KerberosV5Spec2_Checksum(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index _U_);
 
 
 /*--- Included file: packet-pkinit-fn.c ---*/
@@ -96,11 +116,26 @@ static int dissect_caName(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, i
 static int dissect_issuerAndSerial(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_cms_IssuerAndSerialNumber(FALSE, tvb, offset, pinfo, tree, hf_pkinit_issuerAndSerial);
 }
+static int dissect_clientPublicValue(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_pkix1explicit_SubjectPublicKeyInfo(FALSE, tvb, offset, pinfo, tree, hf_pkinit_clientPublicValue);
+}
+static int dissect_supportedCMSTypes_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_pkix1explicit_AlgorithmIdentifier(FALSE, tvb, offset, pinfo, tree, hf_pkinit_supportedCMSTypes_item);
+}
+static int dissect_ctime(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_KerberosV5Spec2_KerberosTime(FALSE, tvb, offset, pinfo, tree, hf_pkinit_ctime);
+}
+static int dissect_paChecksum(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_KerberosV5Spec2_Checksum(FALSE, tvb, offset, pinfo, tree, hf_pkinit_paChecksum);
+}
 static int dissect_dhSignedData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_cms_ContentInfo(FALSE, tvb, offset, pinfo, tree, hf_pkinit_dhSignedData);
 }
 static int dissect_encKeyPack(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_cms_ContentInfo(FALSE, tvb, offset, pinfo, tree, hf_pkinit_encKeyPack);
+}
+static int dissect_dhKeyExpiration(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_KerberosV5Spec2_KerberosTime(FALSE, tvb, offset, pinfo, tree, hf_pkinit_dhKeyExpiration);
 }
 
 
@@ -158,6 +193,82 @@ dissect_pkinit_PaPkAsReq(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, p
 }
 
 
+
+static int
+dissect_pkinit_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_ber_integer(pinfo, tree, tvb, offset, hf_index, NULL);
+
+  return offset;
+}
+static int dissect_cusec(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_pkinit_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_pkinit_cusec);
+}
+static int dissect_nonce1(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_pkinit_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_pkinit_nonce1);
+}
+
+
+
+static int
+dissect_pkinit_INTEGER_0_4294967295(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_ber_integer(pinfo, tree, tvb, offset, hf_index, NULL);
+
+  return offset;
+}
+static int dissect_nonce(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_pkinit_INTEGER_0_4294967295(FALSE, tvb, offset, pinfo, tree, hf_pkinit_nonce);
+}
+
+static const ber_sequence PKAuthenticator_sequence[] = {
+  { BER_CLASS_CON, 0, 0, dissect_cusec },
+  { BER_CLASS_CON, 1, 0, dissect_ctime },
+  { BER_CLASS_CON, 2, 0, dissect_nonce },
+  { BER_CLASS_CON, 3, 0, dissect_paChecksum },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_pkinit_PKAuthenticator(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                PKAuthenticator_sequence, hf_index, ett_pkinit_PKAuthenticator);
+
+  return offset;
+}
+static int dissect_pkAuthenticator(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_pkinit_PKAuthenticator(FALSE, tvb, offset, pinfo, tree, hf_pkinit_pkAuthenticator);
+}
+
+static const ber_sequence SEQUNCE_OF_AlgorithmIdentifier_sequence_of[1] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_supportedCMSTypes_item },
+};
+
+static int
+dissect_pkinit_SEQUNCE_OF_AlgorithmIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
+                                   SEQUNCE_OF_AlgorithmIdentifier_sequence_of, hf_index, ett_pkinit_SEQUNCE_OF_AlgorithmIdentifier);
+
+  return offset;
+}
+static int dissect_supportedCMSTypes(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_pkinit_SEQUNCE_OF_AlgorithmIdentifier(FALSE, tvb, offset, pinfo, tree, hf_pkinit_supportedCMSTypes);
+}
+
+static const ber_sequence AuthPack_sequence[] = {
+  { BER_CLASS_CON, 0, 0, dissect_pkAuthenticator },
+  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_clientPublicValue },
+  { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL, dissect_supportedCMSTypes },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_pkinit_AuthPack(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                AuthPack_sequence, hf_index, ett_pkinit_AuthPack);
+
+  return offset;
+}
+
+
 static const value_string PaPkAsRep_vals[] = {
   {   0, "dhSignedData" },
   {   1, "encKeyPack" },
@@ -179,6 +290,43 @@ dissect_pkinit_PaPkAsRep(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, p
 }
 
 
+static int
+dissect_pkinit_BIT_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_ber_bitstring(implicit_tag, pinfo, tree, tvb, offset,
+                                 NULL, hf_index, -1,
+                                 NULL);
+
+  return offset;
+}
+static int dissect_subjectPublicKey(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_pkinit_BIT_STRING(FALSE, tvb, offset, pinfo, tree, hf_pkinit_subjectPublicKey);
+}
+
+static const ber_sequence KDCDHKeyInfo_sequence[] = {
+  { BER_CLASS_CON, 0, 0, dissect_subjectPublicKey },
+  { BER_CLASS_CON, 1, 0, dissect_nonce1 },
+  { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL, dissect_dhKeyExpiration },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_pkinit_KDCDHKeyInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                KDCDHKeyInfo_sequence, hf_index, ett_pkinit_KDCDHKeyInfo);
+
+  return offset;
+}
+
+/*--- PDUs ---*/
+
+static void dissect_AuthPack_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_pkinit_AuthPack(FALSE, tvb, 0, pinfo, tree, hf_pkinit_AuthPack_PDU);
+}
+static void dissect_KDCDHKeyInfo_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_pkinit_KDCDHKeyInfo(FALSE, tvb, 0, pinfo, tree, hf_pkinit_KDCDHKeyInfo_PDU);
+}
+
+
 /*--- End of included file: packet-pkinit-fn.c ---*/
 
 
@@ -194,6 +342,18 @@ dissect_pkinit_PA_PK_AS_REP(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
   return offset;
 }
 
+static int
+dissect_KerberosV5Spec2_KerberosTime(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_krb5_ctime(pinfo, tree, tvb, offset);
+  return offset;
+}
+
+static int
+dissect_KerberosV5Spec2_Checksum(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_krb5_Checksum(pinfo, tree, tvb, offset);
+  return offset;
+}
+
 
 /*--- proto_register_pkinit ----------------------------------------------*/
 void proto_register_pkinit(void) {
@@ -203,6 +363,14 @@ void proto_register_pkinit(void) {
 
 /*--- Included file: packet-pkinit-hfarr.c ---*/
 
+    { &hf_pkinit_AuthPack_PDU,
+      { "AuthPack", "pkinit.AuthPack",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "AuthPack", HFILL }},
+    { &hf_pkinit_KDCDHKeyInfo_PDU,
+      { "KDCDHKeyInfo", "pkinit.KDCDHKeyInfo",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "KDCDHKeyInfo", HFILL }},
     { &hf_pkinit_signedAuthPack,
       { "signedAuthPack", "pkinit.signedAuthPack",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -227,6 +395,38 @@ void proto_register_pkinit(void) {
       { "issuerAndSerial", "pkinit.issuerAndSerial",
         FT_NONE, BASE_NONE, NULL, 0,
         "TrustedCA/issuerAndSerial", HFILL }},
+    { &hf_pkinit_pkAuthenticator,
+      { "pkAuthenticator", "pkinit.pkAuthenticator",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "AuthPack/pkAuthenticator", HFILL }},
+    { &hf_pkinit_clientPublicValue,
+      { "clientPublicValue", "pkinit.clientPublicValue",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "AuthPack/clientPublicValue", HFILL }},
+    { &hf_pkinit_supportedCMSTypes,
+      { "supportedCMSTypes", "pkinit.supportedCMSTypes",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "AuthPack/supportedCMSTypes", HFILL }},
+    { &hf_pkinit_supportedCMSTypes_item,
+      { "Item", "pkinit.supportedCMSTypes_item",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "AuthPack/supportedCMSTypes/_item", HFILL }},
+    { &hf_pkinit_cusec,
+      { "cusec", "pkinit.cusec",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "PKAuthenticator/cusec", HFILL }},
+    { &hf_pkinit_ctime,
+      { "ctime", "pkinit.ctime",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "PKAuthenticator/ctime", HFILL }},
+    { &hf_pkinit_nonce,
+      { "nonce", "pkinit.nonce",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "PKAuthenticator/nonce", HFILL }},
+    { &hf_pkinit_paChecksum,
+      { "paChecksum", "pkinit.paChecksum",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "PKAuthenticator/paChecksum", HFILL }},
     { &hf_pkinit_dhSignedData,
       { "dhSignedData", "pkinit.dhSignedData",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -235,6 +435,18 @@ void proto_register_pkinit(void) {
       { "encKeyPack", "pkinit.encKeyPack",
         FT_NONE, BASE_NONE, NULL, 0,
         "PaPkAsRep/encKeyPack", HFILL }},
+    { &hf_pkinit_subjectPublicKey,
+      { "subjectPublicKey", "pkinit.subjectPublicKey",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "KDCDHKeyInfo/subjectPublicKey", HFILL }},
+    { &hf_pkinit_nonce1,
+      { "nonce", "pkinit.nonce",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "KDCDHKeyInfo/nonce", HFILL }},
+    { &hf_pkinit_dhKeyExpiration,
+      { "dhKeyExpiration", "pkinit.dhKeyExpiration",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "KDCDHKeyInfo/dhKeyExpiration", HFILL }},
 
 /*--- End of included file: packet-pkinit-hfarr.c ---*/
 
@@ -248,7 +460,11 @@ void proto_register_pkinit(void) {
     &ett_pkinit_PaPkAsReq,
     &ett_pkinit_SEQUNCE_OF_TrustedCA,
     &ett_pkinit_TrustedCA,
+    &ett_pkinit_AuthPack,
+    &ett_pkinit_SEQUNCE_OF_AlgorithmIdentifier,
+    &ett_pkinit_PKAuthenticator,
     &ett_pkinit_PaPkAsRep,
+    &ett_pkinit_KDCDHKeyInfo,
 
 /*--- End of included file: packet-pkinit-ettarr.c ---*/
 
@@ -266,5 +482,7 @@ void proto_register_pkinit(void) {
 
 /*--- proto_reg_handoff_pkinit -------------------------------------------*/
 void proto_reg_handoff_pkinit(void) {
+  register_ber_oid_dissector("1.3.6.1.5.2.3.1", dissect_AuthPack_PDU, proto_pkinit, "id-pkauthdata");
+  register_ber_oid_dissector("1.3.6.1.5.2.3.2", dissect_KDCDHKeyInfo_PDU, proto_pkinit, "id-pkdhkeydata");
 }
 

@@ -24,6 +24,7 @@ AuthenticatedData B "1.2.840.113549.1.9.16.1.2" "id-ct-authenticatedData"
 
 #.NO_EMIT
 OtherKeyAttribute
+EncapsulatedContentInfo
 
 #.TYPE_RENAME
 

@@ -49,6 +49,7 @@ DigestAlgorithmIdentifiers ::= SET OF DigestAlgorithmIdentifier
 
 SignerInfos ::= SET OF SignerInfo
 
+--             Implemented by hand in the template
 EncapsulatedContentInfo ::= SEQUENCE {
   eContentType ContentType,
   eContent [0] EXPLICIT OCTET STRING OPTIONAL }

@@ -37,6 +37,7 @@
 #include "packet-pkinit.h"
 #include "packet-cms.h"
 #include "packet-pkix1explicit.h"
+#include "packet-kerberos.h"
 
 #define PNAME  "PKINIT"
 #define PSNAME "PKInit"
@@ -49,6 +50,8 @@ static int proto_pkinit = -1;
 /* Initialize the subtree pointers */
 #include "packet-pkinit-ett.c"
 
+static int dissect_KerberosV5Spec2_KerberosTime(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index _U_);
+static int dissect_KerberosV5Spec2_Checksum(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index _U_);
 
 #include "packet-pkinit-fn.c"
 
@@ -61,6 +64,18 @@ dissect_pkinit_PA_PK_AS_REQ(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
 int
 dissect_pkinit_PA_PK_AS_REP(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   offset = dissect_pkinit_PaPkAsRep(FALSE, tvb, offset, pinfo, tree, -1);
+  return offset;
+}
+
+static int
+dissect_KerberosV5Spec2_KerberosTime(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_krb5_ctime(pinfo, tree, tvb, offset);
+  return offset;
+}
+
+static int
+dissect_KerberosV5Spec2_Checksum(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_krb5_Checksum(pinfo, tree, tvb, offset);
   return offset;
 }
 
@@ -90,5 +105,7 @@ void proto_register_pkinit(void) {
 
 /*--- proto_reg_handoff_pkinit -------------------------------------------*/
 void proto_reg_handoff_pkinit(void) {
+  register_ber_oid_dissector("1.3.6.1.5.2.3.1", dissect_AuthPack_PDU, proto_pkinit, "id-pkauthdata");
+  register_ber_oid_dissector("1.3.6.1.5.2.3.2", dissect_KDCDHKeyInfo_PDU, proto_pkinit, "id-pkdhkeydata");
 }
 
