@@ -1,7 +1,7 @@
 /* conditions.c
  * Implementation for condition handler.
  *
- * $Id: conditions.c,v 1.4 2002/12/02 23:43:25 guy Exp $
+ * $Id: conditions.c,v 1.5 2002/12/03 02:07:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -168,7 +168,7 @@ void cnd_unregister_class(const char* class_id){
   /* find the key for this class id and store it in 'pkey' */
   g_hash_table_foreach(classes,
                        _cnd_find_hash_key_for_class_id,
-                       key);
+                       (gpointer)key);
   /* find the class structure for this class id */
   cls = (_cnd_class*)g_hash_table_lookup(classes, class_id);
   /* remove constructor from hash table */

@@ -1,7 +1,7 @@
 /* packet-nlm.c
  * Routines for nlm dissection
  *
- * $Id: packet-nlm.c,v 1.32 2002/12/02 23:43:28 guy Exp $
+ * $Id: packet-nlm.c,v 1.33 2002/12/03 02:07:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -122,7 +122,7 @@ nlm_msg_res_unmatched_free_all(gpointer key_arg _U_, gpointer value, gpointer us
 {
 	nlm_msg_res_unmatched_data *umd = (nlm_msg_res_unmatched_data *)value;
 
-	g_free(umd->cookie);
+	g_free((gpointer)umd->cookie);
 	g_free(umd);
 
 	return TRUE;
@@ -286,7 +286,7 @@ nlm_register_unmatched_res(packet_info *pinfo, tvbuff_t *tvb, int offset)
 		g_hash_table_insert(nlm_msg_res_matched, (gpointer)md->rep_frame, (gpointer)md);
 
 		g_hash_table_remove(nlm_msg_res_unmatched, (gconstpointer)old_umd);
-		g_free(old_umd->cookie);
+		g_free((gpointer)old_umd->cookie);
 		g_free(old_umd);
 	}
 }
@@ -312,7 +312,7 @@ nlm_register_unmatched_msg(packet_info *pinfo, tvbuff_t *tvb, int offset)
 	old_umd=g_hash_table_lookup(nlm_msg_res_unmatched, (gconstpointer)umd);
 	if(old_umd){
 		g_hash_table_remove(nlm_msg_res_unmatched, (gconstpointer)old_umd);
-		g_free(old_umd->cookie);
+		g_free((gpointer)old_umd->cookie);
 		g_free(old_umd);
 	}
 
