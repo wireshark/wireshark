@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.92 1999/09/13 23:45:22 guy Exp $
+ * $Id: file.c,v 1.93 1999/09/19 15:54:54 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -87,6 +87,7 @@ extern int	  sync_mode;
 extern int        sync_pipe[];
 
 guint cap_input_id;
+gboolean auto_scroll_live = FALSE;
 
 static guint32 firstsec, firstusec;
 static guint32 prevsec, prevusec;
@@ -310,6 +311,9 @@ cap_file_input_cb (gpointer data, gint source, GdkInputCondition condition) {
     wtap_loop(cf->wth, 0, wtap_dispatch_cb, (u_char *) cf, &err);
 
     thaw_clist(cf);
+    if (auto_scroll_live)
+      gtk_clist_moveto(GTK_CLIST(packet_list), 
+		       cf->plist_end->row, -1, 1.0, 1.0);
 
     wtap_close(cf->wth);
     cf->wth = NULL;
@@ -318,9 +322,7 @@ cap_file_input_cb (gpointer data, gint source, GdkInputCondition condition) {
     set_menu_sensitivity("/File/Save As...", TRUE);
     set_menu_sensitivity("/File/Print...", TRUE);
     set_menu_sensitivity("/File/Reload", TRUE);
-#ifdef HAVE_LIBPCAP
     set_menu_sensitivity("/Capture/Start...", TRUE);
-#endif
     set_menu_sensitivity("/Tools/Summary", TRUE);
     gtk_statusbar_push(GTK_STATUSBAR(info_bar), file_ctx, " File: <none>");
     return;
@@ -350,6 +352,8 @@ cap_file_input_cb (gpointer data, gint source, GdkInputCondition condition) {
   /* XXX - do something if this fails? */
   wtap_loop(cf->wth, to_read, wtap_dispatch_cb, (u_char *) cf, &err);
   gtk_clist_thaw(GTK_CLIST(packet_list));
+  if (auto_scroll_live)
+    gtk_clist_moveto(GTK_CLIST(packet_list), cf->plist_end->row, -1, 1.0, 1.0);
 
   /* restore pipe handler */
   cap_input_id = gtk_input_add_full (sync_pipe[0],
@@ -370,9 +374,7 @@ tail_cap_file(char *fname, capture_file *cf) {
 
     set_menu_sensitivity("/File/Open...", FALSE);
     set_menu_sensitivity("/Display/Options...", TRUE);
-#ifdef HAVE_LIBPCAP
     set_menu_sensitivity("/Capture/Start...", FALSE);
-#endif
 
     for (i = 0; i < cf->cinfo.num_cols; i++) {
       if (get_column_resize_type(cf->cinfo.col_fmt[i]) == RESIZE_LIVE)
@@ -401,7 +403,7 @@ tail_cap_file(char *fname, capture_file *cf) {
   }
   return err;
 }
-#endif
+#endif /* HAVE_LIBPCAP */
 
 /* To do: Add check_col checks to the col_add* routines */
 

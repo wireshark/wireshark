@@ -1,7 +1,7 @@
 /* display.c
  * Routines for packet display windows
  *
- * $Id: display.c,v 1.9 1999/07/13 02:52:48 gram Exp $
+ * $Id: display.c,v 1.10 1999/09/19 15:54:54 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -80,6 +80,7 @@
 #include "packet.h"
 #include "file.h"
 #include "display.h"
+#include "globals.h"
 
 extern capture_file  cf;
 extern GtkWidget *packet_list;
@@ -88,6 +89,7 @@ extern GtkWidget *packet_list;
 #define E_DISPLAY_TIME_ABS_KEY   "display_time_abs"
 #define E_DISPLAY_TIME_REL_KEY   "display_time_rel"
 #define E_DISPLAY_TIME_DELTA_KEY "display_time_delta"
+#define E_DISPLAY_AUTO_SCROLL_KEY "display_auto_scroll"
 
 static void display_opt_ok_cb(GtkWidget *, gpointer);
 static void display_opt_apply_cb(GtkWidget *, gpointer);
@@ -153,6 +155,13 @@ display_opt_cb(GtkWidget *w, gpointer d) {
 		button);
   gtk_box_pack_start(GTK_BOX(main_vb), button, TRUE, TRUE, 0);
   gtk_widget_show(button);
+
+  button = gtk_check_button_new_with_label("Automatic scrolling in live capture");
+  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(button), auto_scroll_live);
+  gtk_object_set_data(GTK_OBJECT(display_opt_w), E_DISPLAY_AUTO_SCROLL_KEY,
+		      button);
+  gtk_box_pack_start(GTK_BOX(main_vb), button, TRUE, TRUE, 0);
+  gtk_widget_show(button);
   
   /* Button row: OK, Apply, and Cancel buttons */
   bbox = gtk_hbutton_box_new();
@@ -206,6 +215,10 @@ display_opt_ok_cb(GtkWidget *ok_bt, gpointer parent_w) {
   if (GTK_TOGGLE_BUTTON (button)->active)
     timestamp_type = DELTA;
 
+  button = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w),
+					     E_DISPLAY_AUTO_SCROLL_KEY);
+  auto_scroll_live = (GTK_TOGGLE_BUTTON (button)->active);
+
   gtk_widget_destroy(GTK_WIDGET(parent_w));
   display_opt_window_active = FALSE;
 
@@ -230,6 +243,10 @@ display_opt_apply_cb(GtkWidget *ok_bt, gpointer parent_w) {
                                               E_DISPLAY_TIME_DELTA_KEY);
   if (GTK_TOGGLE_BUTTON (button)->active)
     timestamp_type = DELTA;
+
+  button = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w),
+					     E_DISPLAY_AUTO_SCROLL_KEY);
+  auto_scroll_live = (GTK_TOGGLE_BUTTON (button)->active);
 
   change_time_formats(&cf);
 }
