@@ -4,7 +4,7 @@
  * Copyright 2001, Michal Melerowicz <michal.melerowicz@nokia.com>
  *                 Nicolas Balkota <balkota@mac.com>
  *
- * $Id: packet-gtp.c,v 1.39 2002/10/26 06:13:33 guy Exp $
+ * $Id: packet-gtp.c,v 1.40 2002/10/26 06:30:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3200,7 +3200,6 @@ decode_gtp_mm_cntxt(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tre
 
 	guint16		length, quint_len, net_cap, con_len;
 	guint8		cksn, count, sec_mode, cipher, trans_id, proto_disc, message, drx_split, drx_len, drx_ccch, non_drx_timer;
-	guint32		kc[4], ik[4];
 	proto_tree	*ext_tree_mm;
 	proto_item	*te;
 
@@ -3232,10 +3231,8 @@ decode_gtp_mm_cntxt(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tre
 			} else {
 				proto_tree_add_text(ext_tree_mm, tvb, offset+4, 1, "Ciphering: GEA/%u", cipher);
 			}
-			tvb_memcpy(tvb, (guint8 *)&kc, offset+5, 16);
-			proto_tree_add_text(ext_tree_mm, tvb, offset+5, 16, "Ciphering key CK: %x%x%x%x", kc[0], kc[1], kc[2], kc[3]);
-			tvb_memcpy(tvb, (guint8 *)&ik, offset+21, 16);
-			proto_tree_add_text(ext_tree_mm, tvb, offset+21, 16, "Integrity key CK: %x%x%x%x", ik[0], ik[1], ik[2], ik[3]);
+			proto_tree_add_text(ext_tree_mm, tvb, offset+5, 16, "Ciphering key CK: %s", tvb_bytes_to_str(tvb, offset+5, 16));
+			proto_tree_add_text(ext_tree_mm, tvb, offset+21, 16, "Integrity key CK: %s", tvb_bytes_to_str(tvb, offset+21, 16));
 			quint_len = tvb_get_ntohs(tvb, offset+37);
 			proto_tree_add_text(ext_tree_mm, tvb, offset+37, 2, "Quintuplets length: %x", quint_len);
 
@@ -3249,17 +3246,14 @@ decode_gtp_mm_cntxt(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tre
 			} else {
 				proto_tree_add_text(ext_tree_mm, tvb, offset+4, 1, "Ciphering: GEA/%u", cipher);
 			}
-			tvb_memcpy(tvb, (guint8 *)&kc, offset+5, 8);
-			proto_tree_add_text(ext_tree_mm, tvb, offset+5, 8, "Ciphering key Kc: %x%x", kc[0], kc[1]);
+			proto_tree_add_text(ext_tree_mm, tvb, offset+5, 8, "Ciphering key Kc: %s", tvb_bytes_to_str(tvb, offset+5, 8));
 
 			offset = offset + decode_triplet(tvb, offset+13, ext_tree_mm, count) + 13;
 
 			break;
 		case 2:
-			tvb_memcpy(tvb, (guint8 *)&kc, offset+5, 16);
-			proto_tree_add_text(ext_tree_mm, tvb, offset+5, 16, "Ciphering key CK: %x%x%x%x", kc[0], kc[1], kc[2], kc[3]);
-			tvb_memcpy(tvb, (guint8 *)&ik, offset+21, 16);
-			proto_tree_add_text(ext_tree_mm, tvb, offset+21, 16, "Integrity key CK: %x%x%x%x", ik[0], ik[1], ik[2], ik[3]);
+			proto_tree_add_text(ext_tree_mm, tvb, offset+5, 16, "Ciphering key CK: %s", tvb_bytes_to_str(tvb, offset+5, 16));
+			proto_tree_add_text(ext_tree_mm, tvb, offset+21, 16, "Integrity key CK: %s", tvb_bytes_to_str(tvb, offset+21, 16));
 			quint_len = tvb_get_ntohs(tvb, offset+37);
 			proto_tree_add_text(ext_tree_mm, tvb, offset+37, 2, "Quintuplets length: %x", quint_len);
 
@@ -3272,8 +3266,7 @@ decode_gtp_mm_cntxt(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tre
 			} else {
 				proto_tree_add_text(ext_tree_mm, tvb, offset+4, 1, "Ciphering: GEA/%u", cipher);
 			}
-			tvb_memcpy(tvb, (guint8 *)&kc, offset+5, 8);
-			proto_tree_add_text(ext_tree_mm, tvb, offset+5, 8, "Ciphering key Kc: %x%x", kc[0], kc[1]);
+			proto_tree_add_text(ext_tree_mm, tvb, offset+5, 8, "Ciphering key Kc: %s", tvb_bytes_to_str(tvb, offset+5, 8));
 			quint_len = tvb_get_ntohs(tvb, offset+13);
 			proto_tree_add_text(ext_tree_mm, tvb, offset+13, 2, "Quintuplets length: %x", quint_len);
 
