@@ -6,10 +6,10 @@
  * Extended by Jan Kiszka <jan.kiszka@web.de>
  * Copyright 2003 Jan Kiszka
  *
- * $Id: packet-irda.c,v 1.3 2003/12/21 03:48:27 jmayer Exp $
+ * $Id: packet-irda.c,v 1.4 2004/01/18 08:32:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@unicom.net>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
@@ -69,39 +69,14 @@
 /* Frame types and templates */
 #define INVALID   0xff
 
-/* Unnumbered (U) commands */
-#define SNRM_CMD  0x83 /* Set Normal Response Mode */
-#define DISC_CMD  0x43 /* Disconnect */
-#define UI_CMD    0x03 /* Unnumbered Information */
-#define XID_CMD   0x2f /* Exchange Station Identification */
-#define TEST_CMD  0xe3 /* Test */
-
-/* Unnumbered responses */
-#define RNRM_RSP  0x83 /* Request Normal Response Mode */
-#define UA_RSP    0x63 /* Unnumbered Acknowledgement */
-#define FRMR_RSP  0x87 /* Frame Reject */
-#define DM_RSP    0x0f /* Disconnect Mode */
-#define RD_RSP    0x43 /* Request Disconnection */
-#define UI_RSP    0x03 /* Unnumbered Information */
-#define XID_RSP   0xaf /* Exchange Station Identification */
-#define TEST_RSP  0xe3 /* Test frame */
-
-/* Supervisory (S) */
-#define RR        0x01 /* Receive Ready */
-#define REJ       0x09 /* Reject */
-#define RNR       0x05 /* Receive Not Ready */
-#define SREJ      0x0d /* Selective Reject */
-
-/* Information (I) */
-#define I_FRAME   0x00 /* Information Format */
-#define UI_FRAME  0x03 /* Unnumbered Information */
+/*
+ * XXX - the IrDA spec gives XID as 0x2c; HDLC (and other HDLC-derived
+ * protocolc) use 0xAC.
+ */
+#define IRDA_XID_CMD   0x2c /* Exchange Station Identification */
 
 #define CMD_FRAME 0x01
 #define RSP_FRAME 0x00
-
-#define PF_BIT    0x10 /* Poll/final bit */
-#define NR_MASK   0xE0 /* Ns bits */
-#define NS_MASK   0x0E /* Nr bits */
 
 /* Discovery Flags */
 #define S_MASK    0x03
@@ -183,13 +158,15 @@ static int hf_lap_a = -1;
 static int hf_lap_a_cr = -1;
 static int hf_lap_a_address = -1;
 static int hf_lap_c = -1;
-static int hf_lap_c_pf = -1;
-static int hf_lap_c_u_cmd = -1;
-static int hf_lap_c_u_rsp = -1;
-static int hf_lap_c_s = -1;
-static int hf_lap_c_i = -1;
 static int hf_lap_c_nr = -1;
 static int hf_lap_c_ns = -1;
+static int hf_lap_c_p = -1;
+static int hf_lap_c_f = -1;
+static int hf_lap_c_s = -1;
+static int hf_lap_c_u_cmd = -1;
+static int hf_lap_c_u_rsp = -1;
+static int hf_lap_c_i = -1;
+static int hf_lap_c_s_u = -1;
 static int hf_lap_i = -1;
 static int hf_snrm_saddr = -1;
 static int hf_snrm_daddr = -1;
@@ -275,6 +252,18 @@ static gint ett_param[MAX_PARAMETERS];
 
 static gint ett_iap_entry[MAX_IAP_ENTRIES];
 
+static const xdlc_cf_items irlap_cf_items = {
+	&hf_lap_c_nr,
+	&hf_lap_c_ns,
+	&hf_lap_c_p,
+	&hf_lap_c_f,
+	&hf_lap_c_s,
+	&hf_lap_c_u_cmd,
+	&hf_lap_c_u_rsp,
+	&hf_lap_c_i,
+	&hf_lap_c_s_u
+};
+
 /* IAP conversation type */
 typedef struct iap_conversation {
     struct iap_conversation*    pnext;
@@ -304,67 +293,53 @@ static const true_false_string set_notset = {
 };
 
 static const value_string lap_c_u_cmd_abbr_vals[] = {
-/* Unnumbered (U) commands */
-    { SNRM_CMD, "SNRM" },
-    { DISC_CMD, "DISC" },
-    { UI_CMD,   "UI" },
-    { XID_CMD,  "XID" },
-    { TEST_CMD, "TEST" },
-    { 0,         NULL }
+    { XDLC_SNRM,    "SNRM" },
+    { XDLC_DISC,    "DISC" },
+    { XDLC_UI,      "UI" },
+    { IRDA_XID_CMD, "XID" },
+    { XDLC_TEST,    "TEST" },
+    { 0,            NULL }
 };
 
 static const value_string lap_c_u_rsp_abbr_vals[] = {
-/* Unnumbered responses */
-    { RNRM_RSP,  "RNRM" },
-    { UA_RSP,    "UA" },
-    { FRMR_RSP,  "FRMR" },
-    { DM_RSP,    "DM" },
-    { RD_RSP,    "RD" },
-    { UI_RSP,    "UI" },
-    { XID_RSP,   "XID" },
-    { TEST_RSP,  "TEST" },
-    { 0,         NULL }
-};
-
-static const value_string lap_c_s_abbr_vals[] = {
-/* Supervisory (S) */
-    { RR,        "RR" },
-    { REJ,       "REJ" },
-    { RNR,       "RNR" },
-    { SREJ,      "SREJ" },
+    { XDLC_SNRM, "RNRM" },
+    { XDLC_UA,   "UA" },
+    { XDLC_FRMR, "FRMR" },
+    { XDLC_DM,   "DM" },
+    { XDLC_RD,   "RD" },
+    { XDLC_UI,   "UI" },
+    { XDLC_XID,  "XID" },
+    { XDLC_TEST, "TEST" },
     { 0,         NULL }
 };
 
 static const value_string lap_c_u_cmd_vals[] = {
-/* Unnumbered (U) commands */
-    { SNRM_CMD, "Set Normal Response Mode" },
-    { DISC_CMD, "Disconnect" },
-    { UI_CMD,   "Unnumbered Information" },
-    { XID_CMD,  "Exchange Station Identification" },
-    { TEST_CMD, "Test" },
-    { 0,         NULL }
+    { XDLC_SNRM>>2,    "Set Normal Response Mode" },
+    { XDLC_DISC>>2,    "Disconnect" },
+    { XDLC_UI>>2,      "Unnumbered Information" },
+    { IRDA_XID_CMD>>2, "Exchange Station Identification" },
+    { XDLC_TEST>>2,    "Test" },
+    { 0,               NULL }
 };
 
 static const value_string lap_c_u_rsp_vals[] = {
-/* Unnumbered responses */
-    { RNRM_RSP,  "Request Normal Response Mode" },
-    { UA_RSP,    "Unnumbered Acknowledgement" },
-    { FRMR_RSP,  "Frame Reject" },
-    { DM_RSP,    "Disconnect Mode" },
-    { RD_RSP,    "Request Disconnect" },
-    { UI_RSP,    "Unnumbered Information" },
-    { XID_RSP,   "Exchange Station Identification" },
-    { TEST_RSP,  "Test" },
-    { 0,         NULL }
+    { XDLC_SNRM>>2,  "Request Normal Response Mode" },
+    { XDLC_UA>>2,    "Unnumbered Acknowledge" },
+    { XDLC_FRMR>>2,  "Frame Reject" },
+    { XDLC_DM>>2,    "Disconnect Mode" },
+    { XDLC_RD>>2,    "Request Disconnect" },
+    { XDLC_UI>>2,    "Unnumbered Information" },
+    { XDLC_XID>>2,   "Exchange Station Identification" },
+    { XDLC_TEST>>2,  "Test" },
+    { 0,             NULL }
 };
 
 static const value_string lap_c_s_vals[] = {
-/* Supervisory (S) */
-    { RR,        "Receive Ready" },
-    { REJ,       "Reject" },
-    { RNR,       "Receive Not Ready" },
-    { SREJ,      "Selective Reject" },
-    { 0,         NULL }
+    { XDLC_RR>>2,   "Receiver ready" },
+    { XDLC_RNR>>2,  "Receiver not ready" },
+    { XDLC_REJ>>2,  "Reject" },
+    { XDLC_SREJ>>2, "Selective reject" },
+    { 0,            NULL }
 };
 
 static const value_string xid_slot_numbers[] = {
@@ -465,15 +440,18 @@ unsigned dissect_param_tuple(tvbuff_t* tvb, proto_tree* tree, unsigned offset)
 {
     guint8  len = tvb_get_guint8(tvb, offset + 1);
 
-    proto_tree_add_item(tree, hf_param_pi, tvb, offset, 1, FALSE);
+    if (tree)
+        proto_tree_add_item(tree, hf_param_pi, tvb, offset, 1, FALSE);
     offset++;
 
-    proto_tree_add_item(tree, hf_param_pl, tvb, offset, 1, FALSE);
+    if (tree)
+        proto_tree_add_item(tree, hf_param_pl, tvb, offset, 1, FALSE);
     offset++;
 
     if (len > 0)
     {
-        proto_tree_add_item(tree, hf_param_pv, tvb, offset, len, FALSE);
+        if (tree)
+            proto_tree_add_item(tree, hf_param_pv, tvb, offset, len, FALSE);
         offset += len;
     }
 
@@ -1306,200 +1284,201 @@ void add_lmp_conversation(packet_info* pinfo, guint8 dlsap, gboolean ttp, dissec
  */
 static unsigned dissect_negotiation(tvbuff_t* tvb, proto_tree* tree, unsigned offset)
 {
-    unsigned    len = tvb_length(tvb);
     unsigned    n   = 0;
     proto_item* ti;
     proto_tree* p_tree;
     char        buf[256];
     guint8      pv;
 
-
-    while (offset < len)
+    while (tvb_reported_length_remaining(tvb, offset) > 0)
     {
         guint8  p_len = tvb_get_guint8(tvb, offset + 1);
 
-
-        ti = proto_tree_add_item(tree, hf_negotiation_param, tvb, offset, p_len + 2, FALSE);
-        p_tree = proto_item_add_subtree(ti, ett_param[n]);
-
-        pv = tvb_get_guint8(tvb, offset+2);
-        buf[0] = 0;
-
-        switch (tvb_get_guint8(tvb, offset))
+        if (tree)
         {
-            case PI_BAUD_RATE:
-                proto_item_append_text(ti, ": Baud Rate (");
+            ti = proto_tree_add_item(tree, hf_negotiation_param, tvb, offset, p_len + 2, FALSE);
+            p_tree = proto_item_add_subtree(ti, ett_param[n]);
 
-                if (pv & 0x01)
-                    strcat(buf, ", 2400");
-                if (pv & 0x02)
-                    strcat(buf, ", 9600");
-                if (pv & 0x04)
-                    strcat(buf, ", 19200");
-                if (pv & 0x08)
-                    strcat(buf, ", 38400");
-                if (pv & 0x10)
-                    strcat(buf, ", 57600");
-                if (pv & 0x20)
-                    strcat(buf, ", 115200");
-                if (pv & 0x40)
-                    strcat(buf, ", 576000");
-                if (pv & 0x80)
-                    strcat(buf, ", 1152000");
-                if ((p_len > 1) && (tvb_get_guint8(tvb, offset+3) & 0x01))
-                    strcat(buf, ", 4000000");
+            pv = tvb_get_guint8(tvb, offset+2);
+            buf[0] = 0;
 
-                strcat(buf, " bps)");
+            switch (tvb_get_guint8(tvb, offset))
+            {
+                case PI_BAUD_RATE:
+                    proto_item_append_text(ti, ": Baud Rate (");
 
-                proto_item_append_text(ti, buf+2);
+                    if (pv & 0x01)
+                        strcat(buf, ", 2400");
+                    if (pv & 0x02)
+                        strcat(buf, ", 9600");
+                    if (pv & 0x04)
+                        strcat(buf, ", 19200");
+                    if (pv & 0x08)
+                        strcat(buf, ", 38400");
+                    if (pv & 0x10)
+                        strcat(buf, ", 57600");
+                    if (pv & 0x20)
+                        strcat(buf, ", 115200");
+                    if (pv & 0x40)
+                        strcat(buf, ", 576000");
+                    if (pv & 0x80)
+                        strcat(buf, ", 1152000");
+                    if ((p_len > 1) && (tvb_get_guint8(tvb, offset+3) & 0x01))
+                        strcat(buf, ", 4000000");
 
-                break;
+                    strcat(buf, " bps)");
 
-            case PI_MAX_TURN_TIME:
-                proto_item_append_text(ti, ": Maximum Turn Time (");
+                    proto_item_append_text(ti, buf+2);
 
-                if (pv & 0x01)
-                    strcat(buf, ", 500");
-                if (pv & 0x02)
-                    strcat(buf, ", 250");
-                if (pv & 0x04)
-                    strcat(buf, ", 100");
-                if (pv & 0x08)
-                    strcat(buf, ", 50");
+                    break;
 
-                strcat(buf, " ms)");
+                case PI_MAX_TURN_TIME:
+                    proto_item_append_text(ti, ": Maximum Turn Time (");
 
-                proto_item_append_text(ti, buf+2);
+                    if (pv & 0x01)
+                        strcat(buf, ", 500");
+                    if (pv & 0x02)
+                        strcat(buf, ", 250");
+                    if (pv & 0x04)
+                        strcat(buf, ", 100");
+                    if (pv & 0x08)
+                        strcat(buf, ", 50");
 
-                break;
+                    strcat(buf, " ms)");
 
-            case PI_DATA_SIZE:
-                proto_item_append_text(ti, ": Data Size (");
+                    proto_item_append_text(ti, buf+2);
 
-                if (pv & 0x01)
-                    strcat(buf, ", 64");
-                if (pv & 0x02)
-                    strcat(buf, ", 128");
-                if (pv & 0x04)
-                    strcat(buf, ", 256");
-                if (pv & 0x08)
-                    strcat(buf, ", 512");
-                if (pv & 0x10)
-                    strcat(buf, ", 1024");
-                if (pv & 0x20)
-                    strcat(buf, ", 2048");
+                    break;
 
-                strcat(buf, " bytes)");
+                case PI_DATA_SIZE:
+                    proto_item_append_text(ti, ": Data Size (");
 
-                proto_item_append_text(ti, buf+2);
+                    if (pv & 0x01)
+                        strcat(buf, ", 64");
+                    if (pv & 0x02)
+                        strcat(buf, ", 128");
+                    if (pv & 0x04)
+                        strcat(buf, ", 256");
+                    if (pv & 0x08)
+                        strcat(buf, ", 512");
+                    if (pv & 0x10)
+                        strcat(buf, ", 1024");
+                    if (pv & 0x20)
+                        strcat(buf, ", 2048");
 
-                break;
+                    strcat(buf, " bytes)");
 
-            case PI_WINDOW_SIZE:
-                proto_item_append_text(ti, ": Window Size (");
+                    proto_item_append_text(ti, buf+2);
 
-                if (pv & 0x01)
-                    strcat(buf, ", 1");
-                if (pv & 0x02)
-                    strcat(buf, ", 2");
-                if (pv & 0x04)
-                    strcat(buf, ", 3");
-                if (pv & 0x08)
-                    strcat(buf, ", 4");
-                if (pv & 0x10)
-                    strcat(buf, ", 5");
-                if (pv & 0x20)
-                    strcat(buf, ", 6");
-                if (pv & 0x40)
-                    strcat(buf, ", 7");
+                    break;
 
-                strcat(buf, " frame window)");
+                case PI_WINDOW_SIZE:
+                    proto_item_append_text(ti, ": Window Size (");
 
-                proto_item_append_text(ti, buf+2);
+                    if (pv & 0x01)
+                        strcat(buf, ", 1");
+                    if (pv & 0x02)
+                        strcat(buf, ", 2");
+                    if (pv & 0x04)
+                        strcat(buf, ", 3");
+                    if (pv & 0x08)
+                        strcat(buf, ", 4");
+                    if (pv & 0x10)
+                        strcat(buf, ", 5");
+                    if (pv & 0x20)
+                        strcat(buf, ", 6");
+                    if (pv & 0x40)
+                        strcat(buf, ", 7");
 
-                break;
+                    strcat(buf, " frame window)");
 
-            case PI_ADD_BOFS:
-                proto_item_append_text(ti, ": Additional BOFs (");
+                    proto_item_append_text(ti, buf+2);
 
-                if (pv & 0x01)
-                    strcat(buf, ", 48");
-                if (pv & 0x02)
-                    strcat(buf, ", 24");
-                if (pv & 0x04)
-                    strcat(buf, ", 12");
-                if (pv & 0x08)
-                    strcat(buf, ", 5");
-                if (pv & 0x10)
-                    strcat(buf, ", 3");
-                if (pv & 0x20)
-                    strcat(buf, ", 2");
-                if (pv & 0x40)
-                    strcat(buf, ", 1");
-                if (pv & 0x80)
-                    strcat(buf, ", 0");
+                    break;
 
-                strcat(buf, " additional BOFs at 115200)");
+                case PI_ADD_BOFS:
+                    proto_item_append_text(ti, ": Additional BOFs (");
 
-                proto_item_append_text(ti, buf+2);
+                    if (pv & 0x01)
+                        strcat(buf, ", 48");
+                    if (pv & 0x02)
+                        strcat(buf, ", 24");
+                    if (pv & 0x04)
+                        strcat(buf, ", 12");
+                    if (pv & 0x08)
+                        strcat(buf, ", 5");
+                    if (pv & 0x10)
+                        strcat(buf, ", 3");
+                    if (pv & 0x20)
+                        strcat(buf, ", 2");
+                    if (pv & 0x40)
+                        strcat(buf, ", 1");
+                    if (pv & 0x80)
+                        strcat(buf, ", 0");
 
-                break;
+                    strcat(buf, " additional BOFs at 115200)");
 
-            case PI_MIN_TURN_TIME:
-                proto_item_append_text(ti, ": Minimum Turn Time (");
+                    proto_item_append_text(ti, buf+2);
 
-                if (pv & 0x01)
-                    strcat(buf, ", 10");
-                if (pv & 0x02)
-                    strcat(buf, ", 5");
-                if (pv & 0x04)
-                    strcat(buf, ", 1");
-                if (pv & 0x08)
-                    strcat(buf, ", 0.5");
-                if (pv & 0x10)
-                    strcat(buf, ", 0.1");
-                if (pv & 0x20)
-                    strcat(buf, ", 0.05");
-                if (pv & 0x40)
-                    strcat(buf, ", 0.01");
-                if (pv & 0x80)
-                    strcat(buf, ", 0");
+                    break;
 
-                strcat(buf, " ms)");
+                case PI_MIN_TURN_TIME:
+                    proto_item_append_text(ti, ": Minimum Turn Time (");
 
-                proto_item_append_text(ti, buf+2);
+                    if (pv & 0x01)
+                        strcat(buf, ", 10");
+                    if (pv & 0x02)
+                        strcat(buf, ", 5");
+                    if (pv & 0x04)
+                        strcat(buf, ", 1");
+                    if (pv & 0x08)
+                        strcat(buf, ", 0.5");
+                    if (pv & 0x10)
+                        strcat(buf, ", 0.1");
+                    if (pv & 0x20)
+                        strcat(buf, ", 0.05");
+                    if (pv & 0x40)
+                        strcat(buf, ", 0.01");
+                    if (pv & 0x80)
+                        strcat(buf, ", 0");
 
-                break;
+                    strcat(buf, " ms)");
 
-            case PI_LINK_DISC:
-                proto_item_append_text(ti, ": Link Disconnect/Threshold Time (");
+                    proto_item_append_text(ti, buf+2);
 
-                if (pv & 0x01)
-                    strcat(buf, ", 3/0");
-                if (pv & 0x02)
-                    strcat(buf, ", 8/3");
-                if (pv & 0x04)
-                    strcat(buf, ", 12/3");
-                if (pv & 0x08)
-                    strcat(buf, ", 16/3");
-                if (pv & 0x10)
-                    strcat(buf, ", 20/3");
-                if (pv & 0x20)
-                    strcat(buf, ", 25/3");
-                if (pv & 0x40)
-                    strcat(buf, ", 30/3");
-                if (pv & 0x80)
-                    strcat(buf, ", 40/3");
+                    break;
 
-                strcat(buf, " s)");
+                case PI_LINK_DISC:
+                    proto_item_append_text(ti, ": Link Disconnect/Threshold Time (");
 
-                proto_item_append_text(ti, buf+2);
+                    if (pv & 0x01)
+                        strcat(buf, ", 3/0");
+                    if (pv & 0x02)
+                        strcat(buf, ", 8/3");
+                    if (pv & 0x04)
+                        strcat(buf, ", 12/3");
+                    if (pv & 0x08)
+                        strcat(buf, ", 16/3");
+                    if (pv & 0x10)
+                        strcat(buf, ", 20/3");
+                    if (pv & 0x20)
+                        strcat(buf, ", 25/3");
+                    if (pv & 0x40)
+                        strcat(buf, ", 30/3");
+                    if (pv & 0x80)
+                        strcat(buf, ", 40/3");
 
-                break;
+                    strcat(buf, " s)");
 
-            default:
-                proto_item_append_text(ti, ": unknown");
-        }
+                    proto_item_append_text(ti, buf+2);
+
+                    break;
+
+                default:
+                    proto_item_append_text(ti, ": unknown");
+            }
+        } else
+            p_tree = NULL;
 
         offset = dissect_param_tuple(tvb, p_tree, offset);
         n++;
@@ -1512,58 +1491,89 @@ static unsigned dissect_negotiation(tvbuff_t* tvb, proto_tree* tree, unsigned of
 /*
  * Dissect XID packet
  */
-static void dissect_xid(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root, proto_tree* lap_tree)
+static void dissect_xid(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root, proto_tree* lap_tree, gboolean is_command)
 {
-    unsigned    len    = tvb_length(tvb);
-    unsigned    offset = 0;
-
+    int         offset = 0;
+    proto_item* ti = NULL;
+    proto_tree* i_tree = NULL;
+    proto_tree* flags_tree;
+    guint32     saddr, daddr;
+    guint8      s;
+    proto_tree* lmp_tree = NULL;
 
     if (lap_tree)
     {
-        proto_item* ti;
-        proto_tree* i_tree;
-        proto_tree* flags_tree;
-
-
         ti = proto_tree_add_item(lap_tree, hf_lap_i, tvb, offset, -1, FALSE);
         i_tree = proto_item_add_subtree(ti, ett_lap_i);
 
         proto_tree_add_item(i_tree, hf_xid_ident, tvb, offset, 1, FALSE);
-        offset++;
+    }
+    offset++;
 
-        proto_tree_add_item(i_tree, hf_xid_saddr, tvb, offset, 4, FALSE);
-        offset += 4;
+    saddr = tvb_get_letohl(tvb, offset);
+    if (check_col(pinfo->cinfo, COL_DEF_SRC))
+        col_add_fstr(pinfo->cinfo, COL_DEF_SRC, "0x%08X", saddr);
+    if (lap_tree)
+        proto_tree_add_uint(i_tree, hf_xid_saddr, tvb, offset, 4, saddr);
+    offset += 4;
 
-        proto_tree_add_item(i_tree, hf_xid_daddr, tvb, offset, 4, FALSE);
-        offset += 4;
+    daddr = tvb_get_letohl(tvb, offset);
+    if (check_col(pinfo->cinfo, COL_DEF_DST))
+        col_add_fstr(pinfo->cinfo, COL_DEF_DST, "0x%08X", daddr);
+    if (lap_tree)
+        proto_tree_add_uint(i_tree, hf_xid_daddr, tvb, offset, 4, daddr);
+    offset += 4;
 
+    if (lap_tree)
+    {
         ti = proto_tree_add_item(i_tree, hf_xid_flags, tvb, offset, 1, FALSE);
         flags_tree = proto_item_add_subtree(ti, ett_xid_flags);
         proto_tree_add_item(flags_tree, hf_xid_s, tvb, offset, 1, FALSE);
         proto_tree_add_item(flags_tree, hf_xid_conflict, tvb, offset, 1, FALSE);
-        offset++;
-
-        ti = proto_tree_add_item(i_tree, hf_xid_slotnr, tvb, offset, 1, FALSE);
-        if (tvb_get_guint8(tvb, offset) == 0xFF)
-            proto_item_append_text(ti, " (final)");
-        offset++;
-
-        proto_tree_add_item(i_tree, hf_xid_version, tvb, offset, 1, FALSE);
-        offset++;
-
-        proto_item_set_len(lap_tree, proto_item_get_len(lap_tree) - (tvb_length(tvb) - offset));
-        proto_item_set_len(i_tree, offset);
     }
-    else
-        offset += 12; /* skip IrLAP-related XID content */
+    offset++;
 
-    if (offset < len)
+    if (is_command)
+    {
+        s = tvb_get_guint8(tvb, offset);
+        if (check_col(pinfo->cinfo, COL_INFO))
+        {
+            if (s == 0xFF)
+                col_append_str(pinfo->cinfo, COL_INFO, ", s=final");
+            else
+                col_append_fstr(pinfo->cinfo, COL_INFO, ", s=%u", s);
+        }
+        if (lap_tree)
+        {
+            ti = proto_tree_add_uint(i_tree, hf_xid_slotnr, tvb, offset, 1, s);
+            if (s == 0xFF)
+                proto_item_append_text(ti, " (final)");
+        }
+    }
+    offset++;
+
+    if (lap_tree)
+        proto_tree_add_item(i_tree, hf_xid_version, tvb, offset, 1, FALSE);
+    offset++;
+
+    if (lap_tree)
+    {
+        proto_item_set_end(lap_tree, tvb, offset);
+        proto_item_set_end(i_tree, tvb, offset);
+    }
+
+    if (tvb_reported_length_remaining(tvb, offset) > 0)
     {
         unsigned    hints_len;
         guint8      hint1 = 0;
         guint8      hint2 = 0;
 
-        
+        if (root)
+        {
+            ti = proto_tree_add_item(root, proto_irlmp, tvb, offset, -1, FALSE);
+            lmp_tree = proto_item_add_subtree(ti, ett_irlmp);
+	}
+
         for (hints_len = 0;;)
         {
             guint8 hint = tvb_get_guint8(tvb, offset + hints_len++);
@@ -1577,37 +1587,12 @@ static void dissect_xid(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root, pro
                 break;
         }
 
-        if (check_col(pinfo->cinfo, COL_INFO) && ((offset + hints_len) < len) &&
-            (tvb_get_guint8(tvb, offset + hints_len) == 0x00))
-        {
-            char buf[23];
-            unsigned name_len = len - offset - hints_len - 1;
-
-            if (name_len > 22)
-                name_len = 22;
-            tvb_memcpy(tvb, buf, offset + hints_len + 1, name_len);
-            buf[name_len] = 0;
-            col_append_str(pinfo->cinfo, COL_INFO, ", \"");
-            col_append_str(pinfo->cinfo, COL_INFO, buf);
-            col_append_str(pinfo->cinfo, COL_INFO, "\"");
-        }
-
         if (root)
         {
-            proto_item* ti;
-            proto_tree* lmp_tree;
-
-
-            ti = proto_tree_add_item(root, proto_irlmp, tvb, offset, -1, FALSE);
-            lmp_tree = proto_item_add_subtree(ti, ett_irlmp);
-
             ti = proto_tree_add_item(lmp_tree, hf_lmp_xid_hints, tvb, offset, hints_len, FALSE);
-            offset += hints_len;
-
             if ((hint1 | hint2) != 0)
             {
                 char    service_hints[256];
-
 
                 service_hints[0] = 0;
 
@@ -1640,17 +1625,45 @@ static void dissect_xid(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root, pro
 
                 proto_item_append_text(ti, service_hints);
             }
+        }
+        offset += hints_len;
 
-            if (offset < len)
-            {            
-                proto_tree_add_item(lmp_tree, hf_lmp_xid_charset, tvb, offset, 1, FALSE);
+        if (tvb_reported_length_remaining(tvb, offset) > 0)
+        {
+            guint8 cset;
+            gint name_len;
 
-                if (tvb_get_guint8(tvb, offset++) == 0x00)
-                    proto_tree_add_item(lmp_tree, hf_lmp_xid_name, tvb, offset,
-                                        len - offset, FALSE);
+            cset = tvb_get_guint8(tvb, offset);
+            if (root)
+                proto_tree_add_uint(lmp_tree, hf_lmp_xid_charset, tvb, offset, 1, cset);
+            offset++;
+            name_len = tvb_reported_length_remaining(tvb, offset);
+            if (name_len > 0)
+            {
+                if (cset == 0x00)
+                {
+                    if (check_col(pinfo->cinfo, COL_INFO))
+                    {
+                        char buf[23];
+
+                        if (name_len > 22)
+                            name_len = 22;
+                        tvb_memcpy(tvb, buf, offset, name_len);
+                        buf[name_len] = 0;
+                        col_append_str(pinfo->cinfo, COL_INFO, ", \"");
+                        col_append_str(pinfo->cinfo, COL_INFO, buf);
+                        col_append_str(pinfo->cinfo, COL_INFO, "\"");
+                    }
+                    if (root)
+                        proto_tree_add_item(lmp_tree, hf_lmp_xid_name, tvb, offset,
+                                            -1, FALSE);
+                }
                 else
-                    proto_tree_add_item(lmp_tree, hf_lmp_xid_name_no_ascii, tvb, offset,
-                                        len - offset, FALSE);
+                {
+                    if (root)
+                        proto_tree_add_item(lmp_tree, hf_lmp_xid_name_no_ascii, tvb, offset,
+                                            -1, FALSE);
+                }
             }
         }
     }
@@ -1710,135 +1723,23 @@ static void dissect_log(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root)
  */
 static void dissect_irlap(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root)
 {
-    guint8  a, c, op;
-    guint   offset = 0;
-    int     set_ca = TRUE;
-    char    addr[9];
-
-
-    /* decode values used for demuxing */
-    a = tvb_get_guint8(tvb, 0);
-    c = tvb_get_guint8(tvb, 1);
-
-    /* save connection address field in pinfo */
-    pinfo->circuit_id = a;
+    int      offset = 0;
+    guint8   a, c;
+    gboolean is_response;
+    char     addr[9];
+    proto_item* ti = NULL;
+    proto_tree* tree = NULL;
+    proto_tree* i_tree = NULL;
+    guint32  saddr, daddr;
+    guint8   ca;
 
     /* Make entries in Protocol column on summary display */
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "IrLAP");
 
-    switch (c & 3)
-    {
-        case 1:
-            /* Supervisory (S) */
-            op = c & ~(PF_BIT | NR_MASK);
-            if (check_col(pinfo->cinfo, COL_INFO))
-            {
-                col_add_str(pinfo->cinfo, COL_INFO, val_to_str(op, lap_c_s_abbr_vals, "0x%02X"));
-                col_append_fstr(pinfo->cinfo, COL_INFO, "%s, Nr=%d",
-                                ((a & CMD_FRAME) != 0) ? " command" : " response", c >> 5);
-            }
-            break;
-
-        case 3:
-            /* Unnumbered (U) */
-            op = c & ~PF_BIT;
-            if (check_col(pinfo->cinfo, COL_INFO))
-            {
-                if ((a & CMD_FRAME) != 0)
-                    col_add_str(pinfo->cinfo, COL_INFO,
-                                val_to_str(op, lap_c_u_cmd_abbr_vals, "0x%02X"));
-                else
-                    col_add_str(pinfo->cinfo, COL_INFO,
-                                val_to_str(op, lap_c_u_rsp_abbr_vals, "0x%02X"));
-                col_append_str(pinfo->cinfo, COL_INFO,
-                               ((a & CMD_FRAME) != 0) ? " command" : " response");
-            }
-            break;
-
-        default:
-            /* Information (I) */
-            op = I_FRAME;
-    }
-
-    switch (op)
-    {
-        case SNRM_CMD:  /* includes RNRM_RSP! */
-            if ((a & CMD_FRAME) != 0)
-            {
-                if (check_col(pinfo->cinfo, COL_DEF_SRC))
-                    col_add_fstr(pinfo->cinfo, COL_DEF_SRC, "0x%08X", tvb_get_letohl(tvb, 2));
-                if (check_col(pinfo->cinfo, COL_DEF_DST))
-                    col_add_fstr(pinfo->cinfo, COL_DEF_DST, "0x%08X", tvb_get_letohl(tvb, 6));
-                set_ca = FALSE;
-
-                if (check_col(pinfo->cinfo, COL_INFO))
-                    col_append_fstr(pinfo->cinfo, COL_INFO, ", ca=0x%02X",
-                                    tvb_get_guint8(tvb, 10) >> 1);
-            }
-            break;
-
-        case XID_CMD:
-        {
-            guint8  s;
-
-
-            if (check_col(pinfo->cinfo, COL_DEF_SRC))
-                col_add_fstr(pinfo->cinfo, COL_DEF_SRC, "0x%08X", tvb_get_letohl(tvb, 3));
-            if (check_col(pinfo->cinfo, COL_DEF_DST))
-                col_add_fstr(pinfo->cinfo, COL_DEF_DST, "0x%08X", tvb_get_letohl(tvb, 7));
-            set_ca = FALSE;
-
-            if (check_col(pinfo->cinfo, COL_INFO))
-            {
-                s = tvb_get_guint8(tvb, 12);
-                if (s == 0xFF)
-                    col_append_str(pinfo->cinfo, COL_INFO, ", s=final");
-                else
-                    col_append_fstr(pinfo->cinfo, COL_INFO, ", s=%d", s);
-            }
-            break;
-        }
-        case UA_RSP:
-            if (tvb_length(tvb) > 2)
-            {
-                if (check_col(pinfo->cinfo, COL_DEF_SRC))
-                    col_add_fstr(pinfo->cinfo, COL_DEF_SRC, "0x%08X", tvb_get_letohl(tvb, 2));
-                if (check_col(pinfo->cinfo, COL_DEF_DST))
-                    col_add_fstr(pinfo->cinfo, COL_DEF_DST, "0x%08X", tvb_get_letohl(tvb, 6));
-                set_ca = FALSE;
-            }
-            break;
-
-        case XID_RSP:
-        {
-            guint8  s;
-
-
-            if (check_col(pinfo->cinfo, COL_DEF_SRC))
-                col_add_fstr(pinfo->cinfo, COL_DEF_SRC, "0x%08X", tvb_get_letohl(tvb, 3));
-            if (check_col(pinfo->cinfo, COL_DEF_DST))
-                col_add_fstr(pinfo->cinfo, COL_DEF_DST, "0x%08X", tvb_get_letohl(tvb, 7));
-            set_ca = FALSE;
-
-            if (check_col(pinfo->cinfo, COL_INFO))
-            {
-                s = tvb_get_guint8(tvb, 12);
-                col_append_fstr(pinfo->cinfo, COL_INFO, ", s=%d", s);
-            }
-            break;
-        }
-    }
-
-    /* set address columns to connection address? */
-    if (set_ca)
-    {
-        snprintf(addr, sizeof(addr)-1, "0x%02X", a >> 1);
-        if (check_col(pinfo->cinfo, COL_DEF_SRC))
-            col_add_str(pinfo->cinfo, COL_DEF_SRC, addr);
-        if (check_col(pinfo->cinfo, COL_DEF_DST))
-            col_add_str(pinfo->cinfo, COL_DEF_DST, addr);
-    }
+    /* Clear Info column */
+    if (check_col(pinfo->cinfo, COL_INFO))
+        col_clear(pinfo->cinfo, COL_INFO);
 
     /* set direction column */
     if (check_col(pinfo->cinfo, COL_IF_DIR))
@@ -1855,18 +1756,29 @@ static void dissect_irlap(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root)
         }
     }
 
+    /* decode values used for demuxing */
+    a = tvb_get_guint8(tvb, 0);
+
+    /* save connection address field in pinfo */
+    pinfo->circuit_id = a;
+
+    /* initially set address columns to connection address */
+    snprintf(addr, sizeof(addr)-1, "0x%02X", a >> 1);
+    if (check_col(pinfo->cinfo, COL_DEF_SRC))
+        col_add_str(pinfo->cinfo, COL_DEF_SRC, addr);
+    if (check_col(pinfo->cinfo, COL_DEF_DST))
+        col_add_str(pinfo->cinfo, COL_DEF_DST, addr);
+
     if (root)
     {
-        /* create display subtree for the protocol */
-        proto_item* ti   = proto_tree_add_item(root, proto_irlap, tvb, 0, -1, FALSE);
-        proto_tree* tree = proto_item_add_subtree(ti, ett_irlap);
-
-        /* Set up structures needed to add the protocol subtree and manage it */
         proto_tree* a_tree;
         proto_item* addr_item;
-        proto_tree* c_tree;
-        proto_tree* i_tree;
 
+        /* create display subtree for the protocol */
+        ti   = proto_tree_add_item(root, proto_irlap, tvb, 0, -1, FALSE);
+        tree = proto_item_add_subtree(ti, ett_irlap);
+
+        /* create subtree for the address field */
         ti     = proto_tree_add_item(tree, hf_lap_a, tvb, offset, 1, FALSE);
         a_tree = proto_item_add_subtree(ti, ett_lap_a);
         proto_tree_add_item(a_tree, hf_lap_a_cr, tvb, offset, 1, FALSE);
@@ -1880,123 +1792,118 @@ static void dissect_irlap(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root)
                 proto_item_append_text(addr_item, " (Broadcast)");
                 break;
         }
-        offset++;
+    }
+    is_response = ((a & CMD_FRAME) == 0);
+    offset++;
 
-        ti = proto_tree_add_item(tree, hf_lap_c, tvb, offset, 1, FALSE);
-        proto_item_append_text(ti, " (");
-        c_tree = proto_item_add_subtree(ti, ett_lap_c);
-        switch (c & 3)
+    /* process the control field */
+    c = dissect_xdlc_control(tvb, 1, pinfo, tree, hf_lap_c,
+	    ett_lap_c, &irlap_cf_items, NULL, lap_c_u_cmd_abbr_vals,
+	    lap_c_u_rsp_abbr_vals, is_response, FALSE, FALSE);
+    offset++;
+
+    if ((c & XDLC_I_MASK) == XDLC_I) {
+        /* I frame */
+        proto_item_set_len(tree, offset);
+        tvb = tvb_new_subset(tvb, offset, -1, -1);
+        dissect_irlmp(tvb, pinfo, root);
+        return;
+    }
+
+    if ((c & 0x03) == XDLC_U) {
+    	/* U frame */
+        switch (c & XDLC_U_MODIFIER_MASK)
         {
-            case 1:
-                /* Supervisory (S) */
-                proto_item_append_text(ti, val_to_str(op, lap_c_s_abbr_vals, "0x%02X"));
-                proto_tree_add_item(c_tree, hf_lap_c_s, tvb, offset, 1, FALSE);
-                proto_tree_add_item(c_tree, hf_lap_c_pf, tvb, offset, 1, FALSE);
-                proto_tree_add_item(c_tree, hf_lap_c_nr, tvb, offset, 1, FALSE);
-                break;
-            case 3:
-                /* Unnumbered (U) */
-                if ((a & CMD_FRAME) != 0)
-                {
-                    proto_item_append_text(ti, val_to_str(op, lap_c_u_cmd_abbr_vals, "0x%02X"));
-                    proto_tree_add_item(c_tree, hf_lap_c_u_cmd, tvb, offset, 1, FALSE);
-                }
-                else
-                {
-                    proto_item_append_text(ti, val_to_str(op, lap_c_u_rsp_abbr_vals, "0x%02X"));
-                    proto_tree_add_item(c_tree, hf_lap_c_u_rsp, tvb, offset, 1, FALSE);
-                }
-                proto_tree_add_item(c_tree, hf_lap_c_pf, tvb, offset, 1, FALSE);
-                break;
-            default:
-                /* Information (I) */
-                proto_item_append_text(ti, "I");
-                proto_tree_add_item(c_tree, hf_lap_c_i, tvb, offset, 1, FALSE);
-                proto_tree_add_item(c_tree, hf_lap_c_ns, tvb, offset, 1, FALSE);
-                proto_tree_add_item(c_tree, hf_lap_c_pf, tvb, offset, 1, FALSE);
-                proto_tree_add_item(c_tree, hf_lap_c_nr, tvb, offset, 1, FALSE);
-        }
-        proto_item_append_text(ti, ")");
-        offset++;
-
-        switch (op)
-        {
-            case SNRM_CMD:
-            {
-                guint8  ca;
-                guint   i_start = offset;
-
-
-                ti = proto_tree_add_item(tree, hf_lap_i, tvb, offset, -1, FALSE);
-                i_tree = proto_item_add_subtree(ti, ett_lap_i);
-
-                proto_tree_add_item(i_tree, hf_snrm_saddr, tvb, offset, 4, TRUE);
-                offset += 4;
-
-                proto_tree_add_item(i_tree, hf_snrm_daddr, tvb, offset, 4, TRUE);
-                offset += 4;
-
-                ca = tvb_get_guint8(tvb, offset);
-                proto_tree_add_uint(i_tree, hf_snrm_ca, tvb, offset, 1, ca >> 1);
-                offset++;
-
-                offset = dissect_negotiation(tvb, i_tree, offset);
-                proto_item_set_len(ti, offset - i_start);
-                break;
-            }
-            case UA_RSP:
-            {
-                guint   i_start = offset;
-
-
-                if ((tvb_length(tvb) - offset) > 0)
+            case XDLC_SNRM:
+                if (root)
                 {
                     ti = proto_tree_add_item(tree, hf_lap_i, tvb, offset, -1, FALSE);
                     i_tree = proto_item_add_subtree(ti, ett_lap_i);
+                }
 
-                    proto_tree_add_item(i_tree, hf_ua_saddr, tvb, offset, 4, FALSE);
+                saddr = tvb_get_letohl(tvb, offset);
+                if (!is_response)
+                {
+                    if (check_col(pinfo->cinfo, COL_DEF_SRC))
+                        col_add_fstr(pinfo->cinfo, COL_DEF_SRC, "0x%08X", saddr);
+                }
+                if (root)
+                    proto_tree_add_uint(i_tree, hf_snrm_saddr, tvb, offset, 4, saddr);
+                offset += 4;
+
+                daddr = tvb_get_letohl(tvb, offset);
+                if (!is_response)
+                {
+                    if (check_col(pinfo->cinfo, COL_DEF_DST))
+                        col_add_fstr(pinfo->cinfo, COL_DEF_DST, "0x%08X", daddr);
+                }
+                if (root)
+                    proto_tree_add_uint(i_tree, hf_snrm_daddr, tvb, offset, 4, daddr);
+                offset += 4;
+
+                ca = tvb_get_guint8(tvb, offset);
+                if (!is_response)
+                {
+                    if (check_col(pinfo->cinfo, COL_INFO))
+                        col_append_fstr(pinfo->cinfo, COL_INFO, ", ca=0x%02X",
+                                        ca >> 1);
+                }
+                if (root)
+                    proto_tree_add_uint(i_tree, hf_snrm_ca, tvb, offset, 1, ca >> 1);
+                offset++;
+
+                offset = dissect_negotiation(tvb, i_tree, offset);
+                if (root)
+                    proto_item_set_end(ti, tvb, offset);
+                break;
+
+            case IRDA_XID_CMD:
+                tvb = tvb_new_subset(tvb, offset, -1, -1);
+                dissect_xid(tvb, pinfo, root, tree, TRUE);
+                return;
+
+            case XDLC_UA:
+                if (tvb_reported_length_remaining(tvb, offset) > 0)
+                {
+                    if (root)
+                    {
+                        ti = proto_tree_add_item(tree, hf_lap_i, tvb, offset, -1, FALSE);
+                        i_tree = proto_item_add_subtree(ti, ett_lap_i);
+                    }
+
+                    saddr = tvb_get_letohl(tvb, offset);
+                    if (check_col(pinfo->cinfo, COL_DEF_SRC))
+                        col_add_fstr(pinfo->cinfo, COL_DEF_SRC, "0x%08X", saddr);
+                    if (root)
+                        proto_tree_add_uint(i_tree, hf_ua_saddr, tvb, offset, 4, saddr);
                     offset += 4;
 
-                    proto_tree_add_item(i_tree, hf_ua_daddr, tvb, offset, 4, FALSE);
+                    daddr = tvb_get_letohl(tvb, offset);
+                    if (check_col(pinfo->cinfo, COL_DEF_DST))
+                        col_add_fstr(pinfo->cinfo, COL_DEF_DST, "0x%08X", daddr);
+                    if (root)
+                        proto_tree_add_uint(i_tree, hf_ua_daddr, tvb, offset, 4, daddr);
                     offset += 4;
 
                     offset = dissect_negotiation(tvb, i_tree, offset);
-                    proto_item_set_len(ti, offset - i_start);
+                    if (root)
+                        proto_item_set_end(ti, tvb, offset);
                 }
-		break;
-            }
-            case XID_CMD:
-            case XID_RSP:
-                dissect_xid(tvb_new_subset(tvb, offset, -1, -1), pinfo, root, tree);
-                return;
+                break;
 
-            case I_FRAME:
-                proto_item_set_len(tree, offset);
-                dissect_irlmp(tvb_new_subset(tvb, offset, -1, -1), pinfo, root);
+            case XDLC_XID:
+                tvb = tvb_new_subset(tvb, offset, -1, -1);
+                dissect_xid(tvb, pinfo, root, tree, FALSE);
                 return;
-        }
-    }
-    else
-    {
-        /* no tree, still check for subdissectors though */
-        switch (op)
-        {
-            case XID_CMD:
-            case XID_RSP:
-                offset = 2; /* skip A and C Field */
-                dissect_xid(tvb_new_subset(tvb, offset, -1, -1), pinfo, 0, 0);
-                return;
-
-            case I_FRAME:
-                offset = 2; /* skip A and C Field */
-                dissect_irlmp(tvb_new_subset(tvb, offset, -1, -1), pinfo, 0);
-                return;
-        }
+         }
     }
 
     /* If any bytes remain, send it to the generic data dissector */
-    tvb = tvb_new_subset(tvb, offset, -1, -1);
-    call_dissector(data_handle, tvb, pinfo, root);
+    if (tvb_reported_length_remaining(tvb, offset) > 0)
+    {
+        tvb = tvb_new_subset(tvb, offset, -1, -1);
+        call_dissector(data_handle, tvb, pinfo, root);
+    }
 }
 
 
@@ -2064,33 +1971,41 @@ static void proto_register_irda(void)
             { "Control Field", "irlap.c",
                 FT_UINT8, BASE_HEX, NULL, 0,
                 "", HFILL }},
-        { &hf_lap_c_u_cmd,
-            { "Unnumbered", "irlap.c.u_c",
-                FT_UINT8, BASE_HEX, VALS(lap_c_u_cmd_vals), ~PF_BIT,
-                "", HFILL }},
-        { &hf_lap_c_u_rsp,
-            { "Unnumbered", "irlap.c.u_r",
-                FT_UINT8, BASE_HEX, VALS(lap_c_u_rsp_vals), ~PF_BIT,
-                "", HFILL }},
-        { &hf_lap_c_s,
-            { "Supervisory", "irlap.c.s",
-                FT_UINT8, BASE_HEX, VALS(lap_c_s_vals), ~(PF_BIT | NR_MASK),
-                "", HFILL }},
-        { &hf_lap_c_i,
-            { "Information Format", "irlap.c.i",
-                FT_UINT8, BASE_HEX, NULL, ~(PF_BIT | NR_MASK | NS_MASK),
-                "", HFILL }},
-        { &hf_lap_c_pf,
-            { "Poll/Final", "irlap.c.pf",
-                FT_BOOLEAN, 8, TFS(&set_notset), PF_BIT,
-                "", HFILL }},
         { &hf_lap_c_nr,
-            { "Nr", "irlap.c.nr",
-                FT_UINT8, BASE_DEC, NULL, NR_MASK,
+            { "N(R)", "irlap.c.n_r",
+                FT_UINT8, BASE_DEC, NULL, XDLC_N_R_MASK,
                 "", HFILL }},
         { &hf_lap_c_ns,
-            { "Ns", "irlap.c.ns",
-                FT_UINT8, BASE_DEC, NULL, NS_MASK,
+            { "N(S)", "irlap.c.n_s",
+                FT_UINT8, BASE_DEC, NULL, XDLC_N_S_MASK,
+                "", HFILL }},
+        { &hf_lap_c_p,
+            { "Poll", "irlap.c.p",
+                FT_BOOLEAN, 8, TFS(&set_notset), XDLC_P_F,
+                "", HFILL }},
+        { &hf_lap_c_f,
+            { "Final", "irlap.c.f",
+                FT_BOOLEAN, 8, TFS(&set_notset), XDLC_P_F,
+                "", HFILL }},
+        { &hf_lap_c_s,
+            { "Supervisory frame type", "irlap.c.s_ftype",
+                FT_UINT8, BASE_HEX, VALS(lap_c_s_vals), XDLC_S_FTYPE_MASK,
+                "", HFILL }},
+        { &hf_lap_c_u_cmd,
+            { "Command", "irlap.c.u_modifier_cmd",
+                FT_UINT8, BASE_HEX, VALS(lap_c_u_cmd_vals), XDLC_U_MODIFIER_MASK,
+                "", HFILL }},
+        { &hf_lap_c_u_rsp,
+            { "Response", "irlap.c.u_modifier_resp",
+                FT_UINT8, BASE_HEX, VALS(lap_c_u_rsp_vals), XDLC_U_MODIFIER_MASK,
+                "", HFILL }},
+        { &hf_lap_c_i,
+            { "Frame Type", "irlap.c.ftype",
+                FT_UINT8, BASE_HEX, VALS(ftype_vals), XDLC_I_MASK,
+                "", HFILL }},
+        { &hf_lap_c_s_u,
+            { "Frame Type", "irlap.c.ftype",
+                FT_UINT8, BASE_HEX, VALS(ftype_vals), XDLC_S_U_MASK,
                 "", HFILL }},
         { &hf_lap_i,
             { "Information Field", "irlap.i",

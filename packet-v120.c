@@ -2,7 +2,7 @@
  * Routines for v120 frame disassembly
  * Bert Driehuis <driehuis@playbeing.org>
  *
- * $Id: packet-v120.c,v 1.32 2004/01/03 03:49:22 guy Exp $
+ * $Id: packet-v120.c,v 1.33 2004/01/18 08:32:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -165,7 +165,7 @@ dissect_v120(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
     control = dissect_xdlc_control(tvb, 2, pinfo, v120_tree, hf_v120_control,
 	    ett_v120_control, &v120_cf_items, &v120_cf_items_ext,
-	    is_response, TRUE, FALSE);
+	    NULL, NULL, is_response, TRUE, FALSE);
     if (tree) {
 	v120len = 2 + XDLC_CONTROL_LEN(control, TRUE);
 	if (tvb_bytes_exist(tvb, v120len, 1))

@@ -1,7 +1,7 @@
 /* packet-sdlc.c
  * Routines for SDLC frame disassembly
  *
- * $Id: packet-sdlc.c,v 1.3 2004/01/03 03:49:22 guy Exp $
+ * $Id: packet-sdlc.c,v 1.4 2004/01/18 08:32:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -128,7 +128,8 @@ dissect_sdlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * to control what to use.
 	 */
 	control = dissect_xdlc_control(tvb, 1, pinfo, sdlc_tree, hf_sdlc_control,
-	    ett_sdlc_control, &sdlc_cf_items, NULL, is_response, FALSE, FALSE);
+	    ett_sdlc_control, &sdlc_cf_items, NULL, NULL, NULL,
+	    is_response, FALSE, FALSE);
 	sdlc_header_len += XDLC_CONTROL_LEN(control, FALSE);
 
 	if (tree)

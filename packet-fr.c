@@ -3,7 +3,7 @@
  *
  * Copyright 2001, Paul Ionescu	<paul@acorp.ro>
  *
- * $Id: packet-fr.c,v 1.46 2004/01/03 03:49:22 guy Exp $
+ * $Id: packet-fr.c,v 1.47 2004/01/18 08:32:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -370,7 +370,7 @@ dissect_fr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (fr_ctrl == XDLC_U) {
       dissect_xdlc_control(tvb, offset, pinfo, fr_tree, hf_fr_control,
  			   ett_fr_control, &fr_cf_items, &fr_cf_items_ext,
- 			   is_response, TRUE, TRUE);
+ 			   NULL, NULL, is_response, TRUE, TRUE);
       offset++;
 
       /*
@@ -395,7 +395,7 @@ dissect_fr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		dissect_xdlc_control(tvb, offset, pinfo, fr_tree,
 				     hf_fr_control, ett_fr_control,
 				     &fr_cf_items, &fr_cf_items_ext,
-				     is_response, TRUE, TRUE);
+				     NULL, NULL, is_response, TRUE, TRUE);
 		dissect_lapf(tvb_new_subset(tvb,offset,-1,-1),pinfo,tree);
 		return;
       }
@@ -403,7 +403,7 @@ dissect_fr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		dissect_xdlc_control(tvb, offset, pinfo, fr_tree,
 				     hf_fr_control, ett_fr_control,
 				     &fr_cf_items, &fr_cf_items_ext,
-				     is_response, TRUE, TRUE);
+				     NULL, NULL, is_response, TRUE, TRUE);
 		dissect_fr_xid(tvb_new_subset(tvb,offset,-1,-1),pinfo,tree);
 		return;
       }

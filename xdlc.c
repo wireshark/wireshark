@@ -2,7 +2,7 @@
  * Routines for use by various SDLC-derived protocols, such as HDLC
  * and its derivatives LAPB, IEEE 802.2 LLC, etc..
  *
- * $Id: xdlc.c,v 1.22 2004/01/03 03:49:23 guy Exp $
+ * $Id: xdlc.c,v 1.23 2004/01/18 08:32:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -173,7 +173,9 @@ int
 dissect_xdlc_control(tvbuff_t *tvb, int offset, packet_info *pinfo,
   proto_tree *xdlc_tree, int hf_xdlc_control, gint ett_xdlc_control,
   const xdlc_cf_items *cf_items_nonext, const xdlc_cf_items *cf_items_ext,
-  int is_response, int is_extended, int append_info)
+  const value_string *u_modifier_short_vals_cmd,
+  const value_string *u_modifier_short_vals_resp, int is_response,
+  int is_extended, int append_info)
 {
     guint16 control;
     int control_len;
@@ -272,16 +274,20 @@ dissect_xdlc_control(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	 * control field of a U frame, there doesn't appear to be any
 	 * need for it to be 2 bytes in extended operation.
 	 */
+	if (u_modifier_short_vals_cmd == NULL)
+		u_modifier_short_vals_cmd = modifier_short_vals_cmd;
+	if (u_modifier_short_vals_resp == NULL)
+		u_modifier_short_vals_resp = modifier_short_vals_resp;
 	control = tvb_get_guint8(tvb, offset);
 	control_len = 1;
 	cf_items = cf_items_nonext;
 	control_format = "Control field: %s (0x%02X)";
 	if (is_response) {
 		modifier = match_strval(control & XDLC_U_MODIFIER_MASK,
-			modifier_short_vals_resp);
+			u_modifier_short_vals_resp);
 	} else {
 		modifier = match_strval(control & XDLC_U_MODIFIER_MASK,
-			modifier_short_vals_cmd);
+			u_modifier_short_vals_cmd);
 	}
 	if (modifier == NULL)
 		modifier = "Unknown";

@@ -2,7 +2,7 @@
  * Routines for IEEE 802.2 LLC layer
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-llc.c,v 1.117 2004/01/03 03:49:22 guy Exp $
+ * $Id: packet-llc.c,v 1.118 2004/01/18 08:32:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -386,7 +386,7 @@ dissect_llc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	control = dissect_xdlc_control(tvb, 2, pinfo, llc_tree,
 				hf_llc_ctrl, ett_llc_ctrl,
 				&llc_cf_items, &llc_cf_items_ext,
-				ssap & SSAP_CR_BIT, TRUE, FALSE);
+				NULL, NULL, ssap & SSAP_CR_BIT, TRUE, FALSE);
 	llc_header_len += XDLC_CONTROL_LEN(control, TRUE);
 	if (is_snap)
 		llc_header_len += 5;	/* 3 bytes of OUI, 2 bytes of protocol ID */
