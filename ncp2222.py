@@ -24,7 +24,7 @@ http://developer.novell.com/ndk/doc/docui/index.htm#../ncp/ncp__enu/data/
 for a badly-formatted HTML version of the same PDF.
 
 
-$Id: ncp2222.py,v 1.43 2003/01/30 22:39:51 guy Exp $
+$Id: ncp2222.py,v 1.44 2003/02/05 06:24:30 guy Exp $
 
 
 Copyright (c) 2000-2002 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -1420,6 +1420,7 @@ ClientIDNumber.Display("BASE_HEX")
 ClientList			= uint32("client_list", "Client List")
 ClientListCount			= uint16("client_list_cnt", "Client List Count")
 ClientListLen			= uint8("client_list_len", "Client List Length")
+ClientName			= nstring8("client_name", "Client Name")
 ClientRecordArea		= fw_string("client_record_area", "Client Record Area", 152)
 ClientStation			= uint8("client_station", "Client Station")
 ClientStationLong		= uint32("client_station_long", "Client Station")
@@ -2147,7 +2148,7 @@ FileName14			= fw_string("file_name_14", "Filename", 14)
 FileNameLen			= uint8("file_name_len", "Filename Length")
 FileOffset			= uint32("file_offset", "File Offset")
 FilePath			= nstring8("file_path", "File Path")
-FileSize			= uint32("file_size", "File Size")
+FileSize			= uint32("file_size", "File Size", BE)
 FileSystemID			= uint8("file_system_id", "File System ID")
 FileTime			= uint16("file_time", "File Time")
 FileTime.NWTime()
@@ -3771,7 +3772,7 @@ UnusedDiskBlocks		= uint32("unused_disk_blocks", "Unused Disk Blocks")
 UnUsedExtendedDirectoryExtants	= uint32("un_used_extended_directory_extants", "Unused Extended Directory Extants")
 UpdateDate                      = uint16("update_date", "Update Date")
 UpdateDate.NWDate()
-UpdateID			= uint32("update_id", "Update ID")
+UpdateID			= uint32("update_id", "Update ID", BE)
 UpdateID.Display("BASE_HEX")
 UpdateTime                      = uint16("update_time", "Update Time")
 UpdateTime.NWTime()
@@ -4174,10 +4175,14 @@ DirEntryStruct			= struct("dir_entry_struct", [
 	DOSDirectoryEntryNumber,
 	VolumeNumberLong,
 ], "Directory Entry Information")
+#
+# XXX - CreationDate and CreationTime here appear to be big-endian,
+# but there's no way to say that *this* instance of a field is
+# big-endian but *other* instances are little-endian.
+#
 DirectoryInstance               = struct("directory_instance", [
         SearchSequenceWord,
         DirectoryID,
-        Reserved2,
         DirectoryName14,
         DirectoryAttributes,
         DirectoryAccessRights,
@@ -4331,10 +4336,15 @@ FileInfoStruct                  = struct("file_info_struct", [
         TotalBlocksToDecompress,
         CurrentBlockBeingDecompressed,
 ], "File Information")
+#
+# XXX - CreationDate, CreationTime, UpdateDate, and UpdateTime here
+# appear to be big-endian, but there's no way to say that *this*
+# instance of a field is big-endian but *other* instances are
+# little-endian.
+#
 FileInstance                    = struct("file_instance", [
         SearchSequenceWord,
         DirectoryID,
-        Reserved2,
         FileName14,
         AttributesDef,
         FileMode,
@@ -8655,9 +8665,17 @@ def define_ncp2222():
 	],info_str=(VolumeNumber, "Get Name Space Information for Volume %d", ", %d"))
 	pkt.Reply( (13,521), [
 		rec( 8, 1, DefinedNameSpaces ),
+		#
+		# XXX - there's actually a sequence of DefinedNameSpaces
+		# NameSpaceNames here, not just one.
+		#
 		rec( 9, (1,255), NameSpaceName ),
 		rec( -1, 1, DefinedDataStreams ),
 		rec( -1, 1, AssociatedNameSpace ),
+		#
+		# XXX - there's actually a sequence of DefinedDataStreams
+		# DataStreamNames here, not just one.
+		#
 		rec( -1, (1,255), DataStreamName ),
 	])
 	pkt.CompletionCodes([0x0000])
@@ -8930,8 +8948,9 @@ def define_ncp2222():
 	pkt.CompletionCodes([0x0000, 0xff00])
 	# 2222/1714, 23/20
 	pkt = NCP(0x1714, "Login Object", 'file')
-	pkt.Request( (12, 58), [
-		rec( 10, (1,16), UserName ),
+	pkt.Request( (14, 60), [
+		rec( 10, 2, ObjectType, BE ),
+		rec( 12, (1,16), ClientName ),
 		rec( -1, (1,32), Password ),
 	], info_str=(UserName, "Login Object: %s", ", %s"))
 	pkt.Reply(8)
@@ -8941,8 +8960,9 @@ def define_ncp2222():
 			     0xfc06, 0xfe07, 0xff00])
 	# 2222/1715, 23/21
 	pkt = NCP(0x1715, "Get Object Connection List", 'file')
-	pkt.Request( (11, 26), [
-		rec( 10, (1,16), UserName ),
+	pkt.Request( (13, 28), [
+		rec( 10, 2, ObjectType, BE ),
+		rec( 12, (1,16), ObjectName ),
 	], info_str=(UserName, "Get Object Connection List: %s", ", %s"))
 	pkt.Reply( (9, 136), [
 		rec( 8, (1, 128), ConnectionNumberList ),
@@ -11213,6 +11233,14 @@ def define_ncp2222():
                 rec( 13, (1,255), Path ),
 	], info_str=(Path, "File Search Continue: %s", ", %s"))
 	pkt.Reply( NO_LENGTH_CHECK, [
+		#
+		# XXX - don't show this if we got back a non-zero
+		# completion code?  For example, 255 means "No
+		# matching files or directories were found", so
+		# presumably it can't show you a matching file or
+		# directory instance - it appears to just leave crap
+		# there.
+		#
 		srec( DirectoryInstance, req_cond="ncp.sattr_sub==TRUE"),
 		srec( FileInstance, req_cond="ncp.sattr_sub!=TRUE"),
 	])
