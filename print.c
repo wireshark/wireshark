@@ -797,12 +797,6 @@ print_line(print_stream_t *self, int indent, const char *line)
 	return (self->ops->print_line)(self, indent, line);
 }
 
-gboolean
-print_raw(print_stream_t *self, const unsigned char *buf, int len)
-{
-	return (self->ops->print_raw)(self, buf, len);
-}
-
 /* Insert bookmark */
 gboolean
 print_bookmark(print_stream_t *self, const gchar *name, const gchar *title)
@@ -867,14 +861,6 @@ print_line_text(print_stream_t *self, int indent, const char *line)
 }
 
 static gboolean
-print_raw_text(print_stream_t *self, const unsigned char *buf, int len)
-{
-	output_text *output = self->data;
-	fwrite(buf, 1, len, output->fh);
-	return !ferror(output->fh);
-}
-
-static gboolean
 print_bookmark_text(print_stream_t *self _U_, const gchar *name _U_,
     const gchar *title _U_)
 {
@@ -913,7 +899,6 @@ destroy_text(print_stream_t *self)
 static const print_stream_ops_t print_text_ops = {
 	print_preamble_text,
 	print_line_text,
-	print_raw_text,
 	print_bookmark_text,
 	new_page_text,
 	print_finale_text,
@@ -1053,7 +1038,6 @@ destroy_ps(print_stream_t *self)
 
 static const print_stream_ops_t print_ps_ops = {
 	print_preamble_ps,
-	print_line_ps,
 	print_line_ps,
 	print_bookmark_ps,
 	new_page_ps,

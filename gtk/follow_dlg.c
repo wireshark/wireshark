@@ -557,9 +557,26 @@ typedef enum {
 	FRS_PRINT_ERROR
 } frs_return_t;
 
+/*
+ * XXX - the routine pointed to by "print_line" doesn't get handed lines,
+ * it gets handed bufferfuls.  That's fine for "follow_write_raw()"
+ * and "follow_add_to_gtk_text()", but, as "follow_print_text()" calls
+ * the "print_line()" routine from "print.c", and as that routine might
+ * genuinely expect to be handed a line (if, for example, it's using
+ * some OS or desktop environment's printing API, and that API expects
+ * to be handed lines), "follow_print_text()" should probably accumulate
+ * lines in a buffer and hand them "print_line()".  (If there's a
+ * complete line in a buffer - i.e., there's nothing of the line in
+ * the previous buffer or the next buffer - it can just hand that to
+ * "print_line()" after filtering out non-printables, as an
+ * optimization.)
+ *
+ * This might or might not be the reason why C arrays display
+ * correctly but get extra blank lines very other line when printed.
+ */
 static frs_return_t
 follow_read_stream(follow_info_t *follow_info,
-		   gboolean (*print_line) (char *, int, gboolean, void *),
+		   gboolean (*print_line) (char *, size_t, gboolean, void *),
 		   void *arg)
 {
     tcp_stream_chunk	sc;
@@ -575,8 +592,7 @@ follow_read_stream(follow_info_t *follow_info,
     guint32             client_packet_count = 0;
     char                buffer[FLT_BUF_SIZE];
     size_t              nchars;
-    /* declare and initialize only once instead of once per loop below */
-    gchar		hexchars[] = "0123456789abcdef";
+    static const gchar	hexchars[16] = "0123456789abcdef";
 
     iplen = (follow_info->is_ipv6) ? 16 : 4;
 
@@ -615,8 +631,8 @@ follow_read_stream(follow_info_t *follow_info,
 	    nchars = fread(buffer, 1, bcount, data_out_file);
 	    if (nchars == 0)
 		break;
-	    sc.dlen -= nchars; /* changed from bcount to account
-				  for short read */
+	    sc.dlen -= nchars;
+
 	    if (!skip) {
 		switch (follow_info->show_type) {
 
@@ -627,10 +643,17 @@ follow_read_stream(follow_info_t *follow_info,
 			goto print_error;
 		    break;
 
-		case SHOW_RAW:
 		case SHOW_ASCII:
 		    /* If our native arch is EBCDIC, call:
 		     * ASCII_TO_EBCDIC(buffer, nchars);
+		     */
+		    if (!(*print_line) (buffer, nchars, is_server, arg))
+			goto print_error;
+		    break;
+
+		case SHOW_RAW:
+		    /* Don't translate, no matter what the native arch
+		     * is.
 		     */
 		    if (!(*print_line) (buffer, nchars, is_server, arg))
 			goto print_error;
@@ -756,10 +779,10 @@ print_error:
  * suggestion.
  */
 static gboolean
-follow_print_text(char *buffer, int nchars, gboolean is_server _U_, void *arg)
+follow_print_text(char *buffer, size_t nchars, gboolean is_server _U_, void *arg)
 {
     print_stream_t *stream = arg;
-    int i;
+    size_t i;
     char *str;
 
     /* convert non printable characters */
@@ -782,11 +805,14 @@ follow_print_text(char *buffer, int nchars, gboolean is_server _U_, void *arg)
 }
 
 static gboolean
-follow_print_raw(char *buffer, int nchars, gboolean is_server _U_, void *arg)
+follow_write_raw(char *buffer, size_t nchars, gboolean is_server _U_, void *arg)
 {
-    print_stream_t *stream = arg;
+    FILE *fh = arg;
+    size_t nwritten;
 
-    print_raw(stream, buffer, nchars);
+    nwritten = fwrite(buffer, 1, nchars, fh);
+    if (nwritten != nchars)
+	return FALSE;
 
     return TRUE;
 }
@@ -933,7 +959,7 @@ static GtkTextTag *server_tag, *client_tag;
 #endif
 
 static gboolean
-follow_add_to_gtk_text(char *buffer, int nchars, gboolean is_server,
+follow_add_to_gtk_text(char *buffer, size_t nchars, gboolean is_server,
 		       void *arg)
 {
     GtkWidget *text = arg;
@@ -948,7 +974,7 @@ follow_add_to_gtk_text(char *buffer, int nchars, gboolean is_server,
      * to be able to see the data we *should* see
      * in the GtkText widget.
      */
-    int i;
+    size_t i;
 
     for (i = 0; i < nchars; i++) {
         if (buffer[i] == '\n' || buffer[i] == '\r')
@@ -1084,9 +1110,8 @@ follow_save_as_ok_cb(GtkWidget * w _U_, gpointer fs)
     gchar		*to_name;
     follow_info_t	*follow_info;
     FILE		*fh;
-    print_stream_t	*stream;
+    print_stream_t	*stream = NULL;
     gchar		*dirname;
-    frs_return_t	ret;
 
 #if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
     to_name = g_strdup(gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fs)));
@@ -1105,38 +1130,58 @@ follow_save_as_ok_cb(GtkWidget * w _U_, gpointer fs)
         return;
     }
 
-    fh = fopen(to_name, "wb");
+    follow_info = OBJECT_GET_DATA(fs, E_FOLLOW_INFO_KEY);
+    if (follow_info->show_type == SHOW_RAW) {
+        /* Write the data out as raw binary data */
+        fh = fopen(to_name, "wb");
+    } else {
+        /* Write it out as text */
+        fh = fopen(to_name, "w");
+    }
     if (fh == NULL) {
         open_failure_alert_box(to_name, errno, TRUE);
         g_free(to_name);
         return;
     }
-    stream = print_stream_text_stdio_new(fh);
 
     gtk_widget_hide(GTK_WIDGET(fs));
-    follow_info = OBJECT_GET_DATA(fs, E_FOLLOW_INFO_KEY);
     window_destroy(GTK_WIDGET(fs));
 
-    if (follow_info->show_type == SHOW_RAW)
-	ret = follow_read_stream(follow_info, follow_print_raw, stream);
-    else
-	ret = follow_read_stream(follow_info, follow_print_text, stream);
+    if (follow_info->show_type == SHOW_RAW) {
+        switch (follow_read_stream(follow_info, follow_write_raw, fh)) {
+        case FRS_OK:
+            if (fclose(fh) == EOF)
+                write_failure_alert_box(to_name, errno);
+            break;
 
-    switch (ret) {
-    case FRS_OK:
-        if (!destroy_print_stream(stream))
+        case FRS_OPEN_ERROR:
+        case FRS_READ_ERROR:
+            fclose(fh);
+            break;
+
+        case FRS_PRINT_ERROR:
             write_failure_alert_box(to_name, errno);
-        break;
+            fclose(fh);
+            break;
+        }
+    } else {
+	stream = print_stream_text_stdio_new(fh);
+	switch (follow_read_stream(follow_info, follow_print_text, stream)) {
+        case FRS_OK:
+            if (!destroy_print_stream(stream))
+                write_failure_alert_box(to_name, errno);
+            break;
 
-    case FRS_OPEN_ERROR:
-    case FRS_READ_ERROR:
-        destroy_print_stream(stream);
-        break;
+        case FRS_OPEN_ERROR:
+        case FRS_READ_ERROR:
+            destroy_print_stream(stream);
+            break;
 
-    case FRS_PRINT_ERROR:
-        write_failure_alert_box(to_name, errno);
-        destroy_print_stream(stream);
-        break;
+        case FRS_PRINT_ERROR:
+            write_failure_alert_box(to_name, errno);
+            destroy_print_stream(stream);
+            break;
+        }
     }
 
     /* Save the directory name for future file dialogs. */
