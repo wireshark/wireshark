@@ -7,7 +7,7 @@
  *       In particular I have not had an opportunity to see how it
  *       responds to SRVLOC over TCP.
  *
- * $Id: packet-srvloc.c,v 1.38 2003/02/24 02:04:18 guy Exp $
+ * $Id: packet-srvloc.c,v 1.39 2003/02/24 19:23:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -567,6 +567,14 @@ dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 offset += 2;
                 add_v1_string(srvloc_tree, hf_srvloc_srvdereg_taglist, tvb, offset, length, encoding);
                 offset += length;
+                /*
+                 * XXX - this was there before, but RFC 2165 doesn't speak
+                 * of there being an attribute authentication block in
+                 * a Service Deregister message.  Is that a post-RFC-2165
+                 * addition?
+                 */
+                if ( (flags & FLAG_A) == FLAG_A )
+                    offset = dissect_authblk(tvb, offset, srvloc_tree);
             break;
 
             case SRVACK:
