@@ -9,7 +9,7 @@
  * Frank Singleton <frank.singleton@ericsson.com>
  * Trevor Shepherd <eustrsd@am1.ericsson.se>
  *
- * $Id: packet-giop.c,v 1.39 2001/06/29 20:49:29 guy Exp $
+ * $Id: packet-giop.c,v 1.40 2001/07/03 02:27:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3006,7 +3006,7 @@ dissect_reply_body (tvbuff_t *tvb, u_int offset, packet_info *pinfo,
 
     default:
       
-      g_warning("giop: UNKNOWN_EXCEPTION %i request_id = %u\n",reply_status, header->req_id);
+      g_warning("giop: Unknown reply status %i request_id = %u\n",reply_status, header->req_id);
       
       break;
       
