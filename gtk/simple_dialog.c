@@ -1,7 +1,7 @@
 /* simple_dialog.c
  * Simple message dialog box routines.
  *
- * $Id: simple_dialog.c,v 1.38 2004/06/18 07:41:21 ulfl Exp $
+ * $Id: simple_dialog.c,v 1.39 2004/06/29 22:21:04 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -260,6 +260,7 @@ display_queued_messages(void)
 gpointer
 vsimple_dialog(ESD_TYPE_E type, gint btn_mask, const gchar *msg_format, va_list ap)
 {
+  gchar             *vmessage;
   gchar             *message;
   queued_message_t *queued_message;
   GtkWidget        *win;
@@ -268,7 +269,15 @@ vsimple_dialog(ESD_TYPE_E type, gint btn_mask, const gchar *msg_format, va_list 
 #endif
 
   /* Format the message. */
-  message = g_strdup_vprintf(msg_format, ap);
+  vmessage = g_strdup_vprintf(msg_format, ap);
+
+#if GTK_MAJOR_VERSION >= 2
+  /* convert character encoding from locale to UTF8 (using iconv) */
+  message = g_locale_to_utf8(vmessage, -1, NULL, NULL, NULL);
+  g_free(vmessage);
+#else
+  message = vmessage;
+#endif
 
 #if GTK_MAJOR_VERSION >= 2
   if (top_level != NULL) {
