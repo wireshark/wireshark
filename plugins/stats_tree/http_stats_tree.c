@@ -113,8 +113,8 @@ static int http_reqs_stats_tree_packet(stats_tree* st, packet_info* pinfo, epan_
 		g_snprintf(ip_str,sizeof(ip_str),"%s",address_to_str(&pinfo->dst));
 
 		tick_stat_node(st, st_str_reqs, 0, FALSE);
-		tick_stat_node(st, st_node_reqs_by_srv_addr, st_node_reqs, TRUE);
-		tick_stat_node(st, st_node_reqs_by_http_host, st_node_reqs, TRUE);
+		tick_stat_node(st, st_str_reqs_by_srv_addr, st_node_reqs, TRUE);
+		tick_stat_node(st, st_str_reqs_by_http_host, st_node_reqs, TRUE);
 		reqs_by_this_addr = tick_stat_node(st, ip_str, st_node_reqs_by_srv_addr, TRUE);
 		
 		if (v->http_host) {
