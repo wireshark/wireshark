@@ -2,6 +2,8 @@
  * Routines for lapb frame disassembly
  * Olivier Abad <abad@daba.dhis.org>
  *
+ * $Id: packet-lapb.c,v 1.3 1999/08/05 02:26:21 guy Exp $
+ *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
  * Copyright 1998
