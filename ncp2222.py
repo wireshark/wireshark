@@ -24,7 +24,7 @@ http://developer.novell.com/ndk/doc/docui/index.htm#../ncp/ncp__enu/data/
 for a badly-formatted HTML version of the same PDF.
 
 
-$Id: ncp2222.py,v 1.14.2.16 2002/03/02 16:58:20 gram Exp $
+$Id: ncp2222.py,v 1.14.2.17 2002/03/03 00:11:04 gram Exp $
 
 
 Copyright (c) 2000-2002 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -811,21 +811,39 @@ class uint8(Type, CountingNumber):
 	def __init__(self, abbrev, descr):
 		Type.__init__(self, abbrev, descr, 1)
 
-class boolean8(uint8):
-	type	= "boolean8"
-	ftype	= "FT_BOOLEAN"
-
 class uint16(Type, CountingNumber):
 	type	= "uint16"
 	ftype	= "FT_UINT16"
 	def __init__(self, abbrev, descr, endianness = BE):
 		Type.__init__(self, abbrev, descr, 2, endianness)
 
+class uint24(Type, CountingNumber):
+	type	= "uint24"
+	ftype	= "FT_UINT24"
+	def __init__(self, abbrev, descr, endianness = BE):
+		Type.__init__(self, abbrev, descr, 3, endianness)
+
 class uint32(Type, CountingNumber):
 	type	= "uint32"
 	ftype	= "FT_UINT32"
 	def __init__(self, abbrev, descr, endianness = BE):
 		Type.__init__(self, abbrev, descr, 4, endianness)
+
+class boolean8(uint8):
+	type	= "boolean8"
+	ftype	= "FT_BOOLEAN"
+
+class boolean16(uint16):
+	type	= "boolean16"
+	ftype	= "FT_BOOLEAN"
+
+class boolean24(uint24):
+	type	= "boolean24"
+	ftype	= "FT_BOOLEAN"
+
+class boolean32(uint32):
+	type	= "boolean32"
+	ftype	= "FT_BOOLEAN"
 
 class nstring:
 	pass
@@ -974,6 +992,30 @@ class bitfield8(bitfield, uint8):
 		uint8.__init__(self, abbrev, descr)
 		bitfield.__init__(self, vars)
 
+class bitfield16(bitfield, uint16):
+	type	= "bitfield16"
+	ftype	= "FT_UINT16"
+
+	def __init__(self, abbrev, descr, vars):
+		uint16.__init__(self, abbrev, descr)
+		bitfield.__init__(self, vars)
+
+class bitfield24(bitfield, uint24):
+	type	= "bitfield24"
+	ftype	= "FT_UINT24"
+
+	def __init__(self, abbrev, descr, vars):
+		uint24.__init__(self, abbrev, descr)
+		bitfield.__init__(self, vars)
+
+class bitfield32(bitfield, uint32):
+	type	= "bitfield32"
+	ftype	= "FT_UINT32"
+
+	def __init__(self, abbrev, descr, vars):
+		uint32.__init__(self, abbrev, descr)
+		bitfield.__init__(self, vars)
+
 class bf_uint(Type):
 	type	= "bf_uint"
 	disp	= None
@@ -983,7 +1025,6 @@ class bf_uint(Type):
 		Type.__init__(self, abbrev, descr, bytes, NA)
 		self.bitmask = bitmask
 
-
 	def Mask(self):
 		return self.bitmask
 
@@ -992,15 +1033,20 @@ class bf_boolean8(bf_uint, boolean8):
 	ftype	= "FT_BOOLEAN"
 	disp	= "8"
 
+class bf_boolean16(bf_uint, boolean16):
+	type	= "bf_boolean16"
+	ftype	= "FT_BOOLEAN"
+	disp	= "16"
 
-#class data(Type):
-#	type	= "data"
-#	ftype	= "FT_BYTES"
-#	def __init__(self, abbrev, descr):
-#		Type.__init__(self, abbrev, descr, -1)
-#
-#	def length_var(self, length_var):
-#		self.length_var = length_var
+class bf_boolean24(bf_uint, boolean24):
+	type	= "bf_boolean24"
+	ftype	= "FT_BOOLEAN"
+	disp	= "24"
+
+class bf_boolean32(bf_uint, boolean32):
+	type	= "bf_boolean32"
+	ftype	= "FT_BOOLEAN"
+	disp	= "32"
 
 ##############################################################################
 # NCP Field Types. Defined in Appendix A of "Programmer's Guide..."
@@ -1758,19 +1804,17 @@ ExtAttrCount			= uint32("ext_attr_count", "Extended Attributes Count")
 ExtAttrKeySize			= uint32("ext_attr_key_size", "Extended Attributes Key Size")
 ExtendedAttributesDefined	= uint32("extended_attributes_defined", "Extended Attributes Defined", LE)
 ExtendedAttributeExtantsUsed	= uint32("extended_attribute_extants_used", "Extended Attribute Extants Used", LE)
-ExtendedInfoHigh	 	= bitfield8("ext_info_high", "Extended Information", [
-	bf_boolean8(0x01, "ext_info_l_access", "Last Access"),
-	bf_boolean8(0x80, "ext_info_newstyle", "New Style"),
-])
-ExtendedInfoLow  		= bitfield8("ext_info_low", "Extended Information", [
-	bf_boolean8(0x01, "ext_info_l_update", "Update"),
-	bf_boolean8(0x02, "ext_info_l_dos_name", "DOS Name"),
-	bf_boolean8(0x04, "ext_info_l_flush", "Flush"),
-	bf_boolean8(0x08, "ext_info_l_parental", "Parental"),
-	bf_boolean8(0x10, "ext_info_l_mac_finder", "MAC Finder"),
-	bf_boolean8(0x20, "ext_info_l_sibling", "Sibling"),
-	bf_boolean8(0x40, "ext_info_l_effective", "Effective"),
-	bf_boolean8(0x80, "ext_info_l_mac_date", "MAC Date"),
+ExtendedInfo	 	= bitfield16("ext_info", "Extended Information", [
+	bf_boolean16(0x0001, "ext_info_access", "Last Access"),
+	bf_boolean16(0x0080, "ext_info_newstyle", "New Style"),
+	bf_boolean16(0x0100, "ext_info_update", "Update"),
+	bf_boolean16(0x0200, "ext_info_dos_name", "DOS Name"),
+	bf_boolean16(0x0400, "ext_info_flush", "Flush"),
+	bf_boolean16(0x0800, "ext_info_parental", "Parental"),
+	bf_boolean16(0x1000, "ext_info_mac_finder", "MAC Finder"),
+	bf_boolean16(0x2000, "ext_info_sibling", "Sibling"),
+	bf_boolean16(0x4000, "ext_info_effective", "Effective"),
+	bf_boolean16(0x8000, "ext_info_mac_date", "MAC Date"),
 ])
 ExtRouterActiveFlag             = boolean8("ext_router_active_flag", "External Router Active Flag")
 
@@ -3115,25 +3159,23 @@ RestrictionsEnforced 		= val_string8("restrictions_enforced", "Disk Restrictions
 	[ 0xff, "Not Enforced" ],
 ])
 ReturnInfoCount			= uint32("return_info_count", "Return Information Count")
-ReturnInfoMaskHigh 		= bitfield8("ret_info_mask_high", "Return Information (byte 2)", [
-	bf_boolean8(0x01, "ret_info_mask_create", "Return Creation Information"),
-	bf_boolean8(0x02, "ret_info_mask_ns", "Return Name Space Information"),
-	bf_boolean8(0x04, "ret_info_mask_dir", "Return Directory Information"),
-	bf_boolean8(0x08, "ret_info_mask_rights", "Return Rights Information"),
-	bf_boolean8(0x10, "ret_info_mask_id", "Return ID Information"),
-	bf_boolean8(0x20, "ret_info_mask_ns_attr", "Return Name Space Attributes Information"),
-	bf_boolean8(0x40, "ret_info_mask_actual", "Return Actual Information"),
-	bf_boolean8(0x80, "ret_info_mask_logical", "Return Logical Information"),
-])
-ReturnInfoMaskLow 		= bitfield8("ret_info_mask_low", "Return Information", [
-	bf_boolean8(0x01, "ret_info_mask_fname", "Return File Name Information"),
-	bf_boolean8(0x02, "ret_info_mask_alloc", "Return Allocation Space Information"),
-	bf_boolean8(0x04, "ret_info_mask_attr", "Return Attribute Information"),
-	bf_boolean8(0x08, "ret_info_mask_size", "Return Size Information"),
-	bf_boolean8(0x10, "ret_info_mask_tspace", "Return Total Space Information"),
-	bf_boolean8(0x20, "ret_info_mask_eattr", "Return Extended Attributes Information"),
-	bf_boolean8(0x40, "ret_info_mask_arch", "Return Archive Information"),
-	bf_boolean8(0x80, "ret_info_mask_mod", "Return Modify Information"),
+ReturnInfoMask 		= bitfield16("ret_info_mask", "Return Information", [
+	bf_boolean16(0x0001, "ret_info_mask_create", "Return Creation Information"),
+	bf_boolean16(0x0002, "ret_info_mask_ns", "Return Name Space Information"),
+	bf_boolean16(0x0004, "ret_info_mask_dir", "Return Directory Information"),
+	bf_boolean16(0x0008, "ret_info_mask_rights", "Return Rights Information"),
+	bf_boolean16(0x0010, "ret_info_mask_id", "Return ID Information"),
+	bf_boolean16(0x0020, "ret_info_mask_ns_attr", "Return Name Space Attributes Information"),
+	bf_boolean16(0x0040, "ret_info_mask_actual", "Return Actual Information"),
+	bf_boolean16(0x0080, "ret_info_mask_logical", "Return Logical Information"),
+	bf_boolean16(0x0100, "ret_info_mask_fname", "Return File Name Information"),
+	bf_boolean16(0x0200, "ret_info_mask_alloc", "Return Allocation Space Information"),
+	bf_boolean16(0x0400, "ret_info_mask_attr", "Return Attribute Information"),
+	bf_boolean16(0x0800, "ret_info_mask_size", "Return Size Information"),
+	bf_boolean16(0x1000, "ret_info_mask_tspace", "Return Total Space Information"),
+	bf_boolean16(0x2000, "ret_info_mask_eattr", "Return Extended Attributes Information"),
+	bf_boolean16(0x4000, "ret_info_mask_arch", "Return Archive Information"),
+	bf_boolean16(0x8000, "ret_info_mask_mod", "Return Modify Information"),
 ])
 ReturnedListCount		= uint32("returned_list_count", "Returned List Count")
 Revision			= uint32("revision", "Revision", LE)
@@ -9555,10 +9597,8 @@ def define_ncp2222():
 		rec( 9, 1, OpenCreateMode ),
 		rec( 10, 1, SearchAttributesLow ),
 		rec( 11, 1, SearchAttributesHigh ),
-		rec( 12, 1, ReturnInfoMaskLow ),
-		rec( 13, 1, ReturnInfoMaskHigh ),
-		rec( 14, 1, ExtendedInfoLow ),
-		rec( 15, 1, ExtendedInfoHigh ),
+		rec( 12, 2, ReturnInfoMask ),
+		rec( 14, 2, ExtendedInfo ),
 		rec( 16, 1, AttributesDefLow ),
 		rec( 17, 1, AttributesDefLow2 ),
 		rec( 18, 1, AttributesDefLow3 ),
@@ -9620,10 +9660,8 @@ def define_ncp2222():
 		rec( 9, 1, DataStream ),
 		rec( 10, 1, SearchAttributesLow ),
 		rec( 11, 1, SearchAttributesHigh ),
-		rec( 12, 1, ReturnInfoMaskLow ),
-		rec( 13, 1, ReturnInfoMaskHigh ),
-		rec( 14, 1, ExtendedInfoLow ),
-		rec( 15, 1, ExtendedInfoHigh ),
+		rec( 12, 2, ReturnInfoMask ),
+		rec( 14, 2, ExtendedInfo ),
 		rec( 16, 9, SearchSequence ),
 		rec( 25, (1,255), SearchPattern ),
 	])
@@ -9712,10 +9750,8 @@ def define_ncp2222():
 		rec( 11, 1, DestNameSpace ),
 		rec( 12, 1, SearchAttributesLow ),
 		rec( 13, 1, SearchAttributesHigh ),
-		rec( 14, 1, ReturnInfoMaskLow ),
-		rec( 15, 1, ReturnInfoMaskHigh ),
-		rec( 16, 1, ExtendedInfoLow ),
-		rec( 17, 1, ExtendedInfoHigh ),
+		rec( 14, 2, ReturnInfoMask ),
+		rec( 16, 2, ExtendedInfo ),
 		rec( 18, 1, VolumeNumber ),
 		rec( 19, 4, DirectoryBase, LE ),
 		rec( 23, 1, HandleFlag ),
@@ -9891,10 +9927,8 @@ def define_ncp2222():
 	pkt.Request((26,280), [
 		rec( 8, 1, NameSpace ),
 		rec( 9, 1, DataStream ),
-		rec( 10, 1, ReturnInfoMaskLow ),
-		rec( 11, 1, ReturnInfoMaskHigh ),
-		rec( 12, 1, ExtendedInfoLow ),
-		rec( 13, 1, ExtendedInfoHigh ),
+		rec( 10, 2, ReturnInfoMask ),
+		rec( 12, 2, ExtendedInfo ),
 		rec( 14, 4, SequenceNumber, LE ),
 		rec( 18, 1, VolumeNumber ),
 		rec( 19, 4, DirectoryBase, LE ),
@@ -10009,10 +10043,8 @@ def define_ncp2222():
 		rec( 9, 1, DataStream ),
 		rec( 10, 1, SearchAttributesLow ),
 		rec( 11, 1, SearchAttributesHigh ),
-		rec( 12, 1, ReturnInfoMaskLow ),
-		rec( 13, 1, ReturnInfoMaskHigh ),
-		rec( 14, 1, ExtendedInfoLow ),
-		rec( 15, 1, ExtendedInfoHigh ),
+		rec( 12, 2, ReturnInfoMask ),
+		rec( 14, 2, ExtendedInfo ),
 		rec( 16, 2, ReturnInfoCount, LE ),
 		rec( 18, 9, SearchSequence ),
 		rec( 27, (1,255), SearchPattern ),
@@ -10199,10 +10231,8 @@ def define_ncp2222():
 		rec( 9, 1, DestNameSpace ),
 		rec( 10, 1, SearchAttributesLow ),
 		rec( 11, 1, SearchAttributesHigh ),
-		rec( 12, 1, ReturnInfoMaskLow ),
-		rec( 13, 1, ReturnInfoMaskHigh ),
-		rec( 14, 1, ExtendedInfoLow ),
-		rec( 15, 1, ExtendedInfoHigh ),
+		rec( 12, 2, ReturnInfoMask ),
+		rec( 14, 2, ExtendedInfo ),
 		rec( 16, 1, VolumeNumber ),
 		rec( 17, 4, DirectoryBase, LE ),
 		rec( 21, 1, HandleFlag ),
@@ -10250,10 +10280,8 @@ def define_ncp2222():
 		rec( 12, 1, SearchAttributesLow ),
 		rec( 13, 1, SearchAttributesHigh ),
 		rec( 14, 2, Reserved2 ),
-		rec( 16, 1, ReturnInfoMaskLow ),
-		rec( 17, 1, ReturnInfoMaskHigh ),
-		rec( 18, 1, ExtendedInfoLow ),
-		rec( 19, 1, ExtendedInfoHigh ),
+		rec( 16, 2, ReturnInfoMask ),
+		rec( 18, 2, ExtendedInfo ),
 		rec( 20, 1, AttributesDefLow ),
 		rec( 21, 1, AttributesDefLow2 ),
 		rec( 22, 1, AttributesDefLow3 ),
@@ -10321,10 +10349,8 @@ def define_ncp2222():
 		rec( 9, 1, OpenCreateMode ),
 		rec( 10, 1, SearchAttributesLow ),
 		rec( 11, 1, SearchAttributesHigh ),
-		rec( 12, 1, ReturnInfoMaskLow ),
-		rec( 13, 1, ReturnInfoMaskHigh ),
-		rec( 14, 1, ExtendedInfoLow ),
-		rec( 15, 1, ExtendedInfoHigh ),
+		rec( 12, 2, ReturnInfoMask ),
+		rec( 14, 2, ExtendedInfo ),
 		rec( 16, 1, AttributesDefLow ),
 		rec( 17, 1, AttributesDefLow2 ),
 		rec( 18, 1, AttributesDefLow3 ),
@@ -10382,10 +10408,8 @@ def define_ncp2222():
 		rec( 12, 1, SearchAttributesLow ),
 		rec( 13, 1, SearchAttributesHigh ),
 		rec( 14, 2, Reserved2 ),
-		rec( 16, 1, ReturnInfoMaskLow ),
-		rec( 17, 1, ReturnInfoMaskHigh ),
-		rec( 18, 1, ExtendedInfoLow ),
-		rec( 19, 1, ExtendedInfoHigh ),
+		rec( 16, 2, ReturnInfoMask ),
+		rec( 18, 2, ExtendedInfo ),
 		rec( 20, 1, AttributesDefLow ),
 		rec( 21, 1, AttributesDefLow2 ),
 		rec( 22, 1, AttributesDefLow3 ),
@@ -10446,10 +10470,8 @@ def define_ncp2222():
 		rec( 9, 2, FlagsDef, LE ),
 		rec( 11, 1, SearchAttributesLow ),
 		rec( 12, 1, SearchAttributesHigh ),
-		rec( 13, 1, ReturnInfoMaskLow ),
-		rec( 14, 1, ReturnInfoMaskHigh ),
-		rec( 15, 1, ExtendedInfoLow ),
-		rec( 16, 1, ExtendedInfoHigh ),
+		rec( 13, 2, ReturnInfoMask ),
+		rec( 15, 2, ExtendedInfo ),
 		rec( 17, 1, AttributesDefLow ),
 		rec( 18, 1, AttributesDefLow2 ),
 		rec( 19, 1, AttributesDefLow3 ),
@@ -10553,10 +10575,8 @@ def define_ncp2222():
 		rec( 9, 1, DataStream ),
 		rec( 10, 1, SearchAttributesLow ),
 		rec( 11, 1, SearchAttributesHigh ),
-		rec( 12, 1, ReturnInfoMaskLow ),
-		rec( 13, 1, ReturnInfoMaskHigh ),
-		rec( 14, 1, ExtendedInfoLow ),
-		rec( 15, 1, ExtendedInfoHigh ),
+		rec( 12, 2, ReturnInfoMask ),
+		rec( 14, 2, ExtendedInfo ),
 		rec( 16, 2, ReturnInfoCount, LE ),
 		rec( 18, 9, SearchSequence ),
 		rec( 27, (1,255), SearchPattern ),
