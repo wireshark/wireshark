@@ -258,7 +258,7 @@ dissect_juniper_atm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16
 
   proto = tvb_get_ntohs(tvb, offset); /* second try: 16-Bit guess */
 
-  if ( ppp_heuristic_guess(proto) && 
+  if ( ppp_heuristic_guess( (guint16) proto) && 
        atm_pictype != JUNIPER_ATM1) {
       /*
        * This begins with something that appears to be a PPP protocol
@@ -286,7 +286,7 @@ dissect_juniper_atm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16
           return;
   }
 
-  ipvers = ip_heuristic_guess(proto);
+  ipvers = ip_heuristic_guess( (guint8) proto);
   if (ipvers != 0) { /* last resort: VC-MUX encaps ? */
       /*
        * This begins with something that might be the first byte of
