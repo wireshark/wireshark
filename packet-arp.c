@@ -1,7 +1,7 @@
 /* packet-arp.c
- * Routines for ARP packet disassembly
+ * Routines for ARP packet disassembly (RFC 826)
  *
- * $Id: packet-arp.c,v 1.59 2004/06/17 08:32:59 jmayer Exp $
+ * $Id: packet-arp.c,v 1.60 2004/06/17 20:04:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -669,7 +669,6 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   gchar       *op_str;
   int         sha_offset, spa_offset, tha_offset, tpa_offset;
   const guint8      *sha_val, *spa_val, *tha_val, *tpa_val;
-  gchar       *sha_str, *spa_str, *tha_str, *tpa_str;
   gboolean    is_gratuitous;
 
   /* Call it ARP, for now, so that if we throw an exception before
@@ -705,16 +704,6 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      was padding. */
   tvb_set_reported_length(tvb, tot_len);
 
-  /* Get the offsets of the addresses. */
-  /* Source Hardware Address */
-  sha_offset = MIN_ARP_HEADER_SIZE;
-  /* Source Protocol Address */
-  spa_offset = sha_offset + ar_hln;
-  /* Target Hardware Address */
-  tha_offset = spa_offset + ar_pln;
-  /* Target Protocol Address */
-  tpa_offset = tha_offset + ar_hln;
-
   if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
     switch (ar_op) {
 
@@ -736,50 +725,15 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
   }
 
-  if (tree || check_col(pinfo->cinfo, COL_INFO)) {
-    sha_val = tvb_get_ptr(tvb, sha_offset, ar_hln);
-    sha_str = arphrdaddr_to_str(sha_val, ar_hln, ar_hrd);
-
-    spa_val = tvb_get_ptr(tvb, spa_offset, ar_pln);
-    spa_str = arpproaddr_to_str(spa_val, ar_pln, ar_pro);
-
-    tha_val = tvb_get_ptr(tvb, tha_offset, ar_hln);
-    tha_str = arphrdaddr_to_str(tha_val, ar_hln, ar_hrd);
-
-    tpa_val = tvb_get_ptr(tvb, tpa_offset, ar_pln);
-    tpa_str = arpproaddr_to_str(tpa_val, ar_pln, ar_pro);
-
-    if ((ar_op == ARPOP_REQUEST) && !strcmp(tpa_str, spa_str))
-	is_gratuitous = TRUE;
-    else
-	is_gratuitous = FALSE;
-  }
-  if (check_col(pinfo->cinfo, COL_INFO)) {
-    switch (ar_op) {
-      case ARPOP_REQUEST:
-	if (is_gratuitous)
-          col_add_fstr(pinfo->cinfo, COL_INFO, "Who has %s?  Gratuitous arp", tpa_str);
-	else
-          col_add_fstr(pinfo->cinfo, COL_INFO, "Who has %s?  Tell %s", tpa_str, spa_str);
-        break;
-      case ARPOP_REPLY:
-        col_add_fstr(pinfo->cinfo, COL_INFO, "%s is at %s", spa_str, sha_str);
-        break;
-      case ARPOP_RREQUEST:
-      case ARPOP_IREQUEST:
-        col_add_fstr(pinfo->cinfo, COL_INFO, "Who is %s?  Tell %s", tha_str, sha_str);
-        break;
-      case ARPOP_RREPLY:
-        col_add_fstr(pinfo->cinfo, COL_INFO, "%s is at %s", tha_str, tpa_str);
-        break;
-      case ARPOP_IREPLY:
-        col_add_fstr(pinfo->cinfo, COL_INFO, "%s is at %s", sha_str, spa_str);
-        break;
-      default:
-        col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown ARP opcode 0x%04x", ar_op);
-        break;
-    }
-  }
+  /* Get the offsets of the addresses. */
+  /* Source Hardware Address */
+  sha_offset = MIN_ARP_HEADER_SIZE;
+  /* Source Protocol Address */
+  spa_offset = sha_offset + ar_hln;
+  /* Target Hardware Address */
+  tha_offset = spa_offset + ar_pln;
+  /* Target Protocol Address */
+  tpa_offset = tha_offset + ar_hln;
 
   if ((ar_op == ARPOP_REPLY || ar_op == ARPOP_REQUEST) &&
       ARP_HW_IS_ETHER(ar_hrd, ar_hln) &&
@@ -807,10 +761,69 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       add_ether_byip(ip, mac);
   }
 
+  if (!tree && !check_col(pinfo->cinfo, COL_INFO)) {
+    /* We're not building a protocol tree and we're not setting the Info
+       column, so we don't have any more work to do. */
+    return;
+  }
+
+  sha_val = tvb_get_ptr(tvb, sha_offset, ar_hln);
+  spa_val = tvb_get_ptr(tvb, spa_offset, ar_pln);
+  tha_val = tvb_get_ptr(tvb, tha_offset, ar_hln);
+  tpa_val = tvb_get_ptr(tvb, tpa_offset, ar_pln);
+
+  /* ARP requests with the same sender and target protocol address
+     are flagged as "gratuitous ARPs", i.e. ARPs sent out as, in
+     effect, an announcement that the machine has MAC address
+     XX:XX:XX:XX:XX:XX and IPv4 address YY.YY.YY.YY, to provoke
+     complaints if some other machine has the same IPv4 address. */
+  if ((ar_op == ARPOP_REQUEST) && (memcmp(spa_val, tpa_val, ar_pln) == 0))
+    is_gratuitous = TRUE;
+  else
+    is_gratuitous = FALSE;
+
+  if (check_col(pinfo->cinfo, COL_INFO)) {
+    switch (ar_op) {
+      case ARPOP_REQUEST:
+	if (is_gratuitous)
+          col_add_fstr(pinfo->cinfo, COL_INFO, "Who has %s?  Gratuitous ARP",
+                       arpproaddr_to_str(tpa_val, ar_pln, ar_pro));
+	else
+          col_add_fstr(pinfo->cinfo, COL_INFO, "Who has %s?  Tell %s",
+                       arpproaddr_to_str(tpa_val, ar_pln, ar_pro),
+                       arpproaddr_to_str(spa_val, ar_pln, ar_pro));
+        break;
+      case ARPOP_REPLY:
+        col_add_fstr(pinfo->cinfo, COL_INFO, "%s is at %s",
+                     arpproaddr_to_str(spa_val, ar_pln, ar_pro),
+                     arphrdaddr_to_str(sha_val, ar_hln, ar_hrd));
+        break;
+      case ARPOP_RREQUEST:
+      case ARPOP_IREQUEST:
+        col_add_fstr(pinfo->cinfo, COL_INFO, "Who is %s?  Tell %s",
+                     arphrdaddr_to_str(tha_val, ar_hln, ar_hrd),
+                     arphrdaddr_to_str(sha_val, ar_hln, ar_hrd));
+        break;
+      case ARPOP_RREPLY:
+        col_add_fstr(pinfo->cinfo, COL_INFO, "%s is at %s",
+                     arphrdaddr_to_str(tha_val, ar_hln, ar_hrd),
+                     arpproaddr_to_str(tpa_val, ar_pln, ar_pro));
+        break;
+      case ARPOP_IREPLY:
+        col_add_fstr(pinfo->cinfo, COL_INFO, "%s is at %s",
+                     arphrdaddr_to_str(sha_val, ar_hln, ar_hrd),
+                     arpproaddr_to_str(spa_val, ar_pln, ar_pro));
+        break;
+      default:
+        col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown ARP opcode 0x%04x", ar_op);
+        break;
+    }
+  }
+
   if (tree) {
     if ((op_str = match_strval(ar_op, op_vals)))  {
       if (is_gratuitous)
-        op_str = "request/gratuitous arp";
+        op_str = "request/gratuitous ARP";
       ti = proto_tree_add_protocol_format(tree, proto_arp, tvb, 0, tot_len,
 					"Address Resolution Protocol (%s)", op_str);
     } else
