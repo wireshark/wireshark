@@ -1,7 +1,7 @@
 /* packet-ppp.c
  * Routines for ppp packet disassembly
  *
- * $Id: packet-ppp.c,v 1.101 2002/11/28 20:46:09 guy Exp $
+ * $Id: packet-ppp.c,v 1.102 2002/11/28 22:18:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2366,6 +2366,7 @@ dissect_cp( tvbuff_t *tvb, int proto_id, int proto_subtree_index,
 	volatile address save_net_dst;
 	volatile address save_src;
 	volatile address save_dst;
+	gboolean save_in_error_pkt;
 	tvbuff_t *next_tvb;
 
 	protocol = tvb_get_ntohs(tvb, offset);
@@ -2398,6 +2399,13 @@ dissect_cp( tvbuff_t *tvb, int proto_id, int proto_subtree_index,
 	  save_src = pinfo->src;
 	  save_dst = pinfo->dst;
 
+	  /* Save the current value of the "we're inside an error packet"
+	     flag, and set that flag; subdissectors may treat packets
+	     that are the payload of error packets differently from
+	     "real" packets. */
+	  save_in_error_pkt = pinfo->in_error_pkt;
+	  pinfo->in_error_pkt = TRUE;
+
 	  /* Dissect the contained packet.
 	     Catch ReportedBoundsError, and do nothing if we see it,
 	     because it's not an error if the contained packet is short;
@@ -2416,6 +2424,9 @@ dissect_cp( tvbuff_t *tvb, int proto_id, int proto_subtree_index,
 	    ; /* do nothing */
 	  }
 	  ENDTRY;
+
+	  /* Restore the "we're inside an error packet" flag. */
+	  pinfo->in_error_pkt = save_in_error_pkt;
 
 	  /* Restore the addresses. */
 	  pinfo->dl_src = save_dl_src;
