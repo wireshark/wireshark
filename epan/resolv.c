@@ -1,7 +1,7 @@
 /* resolv.c
  * Routines for network object lookup
  *
- * $Id: resolv.c,v 1.3 2000/10/19 22:59:24 guy Exp $
+ * $Id: resolv.c,v 1.4 2000/11/19 19:45:54 gerald Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
@@ -1351,10 +1351,12 @@ gboolean get_host_ipaddr(const char *host, guint32 *addrp)
 		if (hp == NULL) {
 			/* No. */
 			return FALSE;
-		} else {
-			/* XXX - is "hp->h_length" the size of a
-			 * "struct in_addr"?  It should be. */
+			/* Apparently, some versions of gethostbyaddr can
+			 * return IPv6 addresses. */
+		} else if (hp->h_length <= sizeof (struct in_addr)) {
 			memcpy(&ipaddr, hp->h_addr, hp->h_length);
+		} else {
+			return FALSE;
 		}
 	}
 
