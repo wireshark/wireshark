@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.28 2001/04/01 04:11:51 hagbard Exp $
+ * $Id: packet.h,v 1.29 2001/04/01 04:50:42 hagbard Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -35,6 +35,7 @@
 #include "value_string.h"
 #include "column_info.h"
 #include "frame_data.h"
+#include "packet_info.h"
 
 #define hi_nibble(b) (((b) & 0xf0) >> 4)
 #define lo_nibble(b) ((b) & 0x0f)
@@ -82,73 +83,6 @@ typedef enum {
 	CHAR_ASCII	 = 0,	/* ASCII */
 	CHAR_EBCDIC	 = 1	/* EBCDIC */
 } char_enc;
-
-/* Types of addresses Ethereal knows about. */
-typedef enum {
-  AT_NONE,		/* no link-layer address */
-  AT_ETHER,		/* MAC (Ethernet, 802.x, FDDI) address */
-  AT_IPv4,		/* IPv4 */
-  AT_IPv6,		/* IPv6 */
-  AT_IPX,		/* IPX */
-  AT_SNA,		/* SNA */
-  AT_ATALK,		/* Appletalk DDP */
-  AT_VINES,		/* Banyan Vines */
-  AT_OSI,		/* OSI NSAP */
-  AT_DLCI               /* Frame Relay DLCI */
-} address_type;
-
-typedef struct _address {
-  address_type  type;		/* type of address */
-  int           len;		/* length of address, in bytes */
-  const guint8 *data;		/* bytes that constitute address */
-} address;
-
-#define	SET_ADDRESS(addr, addr_type, addr_len, addr_data) { \
-	(addr)->type = (addr_type); \
-	(addr)->len = (addr_len); \
-	(addr)->data = (addr_data); \
-	}
-
-/* Types of port numbers Ethereal knows about. */
-typedef enum {
-  PT_NONE,		/* no port number */
-  PT_SCTP,              /* SCTP */
-  PT_TCP,		/* TCP */
-  PT_UDP,		/* UDP */
-  PT_NCP		/* NCP connection */
-} port_type;
-
-#define P2P_DIR_UNKNOWN	-1
-#define P2P_DIR_SENT	0
-#define P2P_DIR_RECV	1
-
-typedef struct _packet_info {
-  const char *current_proto;	/* name of protocol currently being dissected */
-  frame_data *fd;
-  tvbuff_t *compat_top_tvb;	/* only needed while converting Ethereal to use tvbuffs */
-  union wtap_pseudo_header *pseudo_header;
-  int     len;
-  int     captured_len;
-  address dl_src;		/* link-layer source address */
-  address dl_dst;		/* link-layer destination address */
-  address net_src;		/* network-layer source address */
-  address net_dst;		/* network-layer destination address */
-  address src;			/* source address (net if present, DL otherwise )*/
-  address dst;			/* destination address (net if present, DL otherwise )*/
-  guint32 ethertype;		/* Ethernet Type Code, if this is an Ethernet packet */
-  guint32 ipproto;		/* IP protocol, if this is an IP packet */
-  guint32 ipxptype;		/* IPX packet type, if this is an IPX packet */
-  gboolean fragmented;		/* TRUE if the protocol is only a fragment */
-  port_type ptype;		/* type of the following two port numbers */
-  guint32 srcport;		/* source port */
-  guint32 destport;		/* destination port */
-  guint32 match_port;
-  int     iplen;
-  int     iphdrlen;
-  int	  p2p_dir;
-} packet_info;
-
-extern packet_info pi;
 
 /* Struct for boolean enumerations */
 typedef struct true_false_string {
@@ -300,8 +234,6 @@ void       col_add_str(frame_data *, gint, const gchar *);
 void       col_append_str(frame_data *, gint, gchar *);
 void       col_set_cls_time(frame_data *, int);
 void       fill_in_columns(frame_data *);
-
-void blank_packetinfo(void);
 
 /* Do all one-time initialization. */
 void dissect_init(void);

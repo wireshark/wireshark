@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.27 2001/04/01 04:11:51 hagbard Exp $
+ * $Id: packet.c,v 1.28 2001/04/01 04:50:42 hagbard Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -603,24 +603,6 @@ fill_in_columns(frame_data *fd)
   }
 }
 	
-void blank_packetinfo(void)
-{
-  pi.dl_src.type = AT_NONE;
-  pi.dl_dst.type = AT_NONE;
-  pi.net_src.type = AT_NONE;
-  pi.net_dst.type = AT_NONE;
-  pi.src.type = AT_NONE;
-  pi.dst.type = AT_NONE;
-  pi.ethertype  = 0;
-  pi.ipproto  = 0;
-  pi.ptype = PT_NONE;
-  pi.srcport  = 0;
-  pi.destport = 0;
-  pi.current_proto = "<Missing Protocol Name>";
-  pi.p2p_dir = P2P_DIR_UNKNOWN;
-}
-
-
 /* Allow protocols to register "init" routines, which are called before
    we make a pass through a capture file and dissect all its packets
    (e.g., when we read in a new capture file, or run a "filter packets"
