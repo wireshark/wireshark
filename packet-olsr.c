@@ -7,7 +7,7 @@
  *
  * http://www.ietf.org/rfc/rfc3626.txt
  *
- * $Id: packet-olsr.c,v 1.2 2004/01/16 22:31:54 guy Exp $
+ * $Id: packet-olsr.c,v 1.3 2004/01/18 11:10:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -87,9 +87,16 @@ static int hf_olsr_network6_addr = -1;
 /* Initialize the subtree pointers*/
 static gint ett_olsr = -1;
 
+static const value_string message_type_vals[] = {
+	{ HELLO, "HELLO" },
+	{ TC,    "TC" },
+	{ MID,   "MID" },
+	{ HNA,   "HNA" },
+	{ 0,     NULL }
+};
 
 /*------------------------- Packet Dissecting Code-------------------------*/
-static void
+static int
 dissect_olsr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_item *ti;
@@ -100,7 +107,6 @@ dissect_olsr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	double Vtime, Htime;
 	
 	guint16 packet_len;
-	guint16 packet_seq_num;
 	
 	guint32 origin_addr;
 	guint32 neighbor_addr;
@@ -113,14 +119,46 @@ dissect_olsr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	struct e_in6_addr network6_addr, *network=&network6_addr;
 	struct e_in6_addr netmask6, *netmask_v6=&netmask6;
 	
+
+	/* Does this packet have a valid message type at the beginning? */
+	if (!tvb_bytes_exist(tvb, 0, 2))
+		return 0;	/* not enough bytes for the packet length */
+	packet_len = tvb_get_ntohs(tvb, 0);
+	if (packet_len < 4)
+		return 0;	/* length not enough for a packet header */
+	if (packet_len > 4) {
+		/*
+		 * The packet claims to have more than just a packet
+		 * header.
+		 */
+		if (packet_len < 8) {
+			/*
+			 * ...but it doesn't claim to have enough for
+			 * a full message header.
+			 */
+			return 0;
+		}
+
+		/*
+		 * OK, let's look at the type of the first message and
+		 * at its size field.
+		 */
+		if (!tvb_bytes_exist(tvb, 4, 4))
+			return 0;	/* not enough bytes for them */
+		message_type = tvb_get_guint8(tvb, 4);
+		if (match_strval(message_type, message_type_vals) == NULL)
+			return 0;	/* not valid */
+		/* OK, what about the message length? */
+		message_size = tvb_get_ntohs(tvb, 4+2);
+		if (message_size < 4)
+			return 0;	/* length not enough for a message header */
+	}
+
 	/*-------------Setting the Protocol and Info Columns in the Ethereal Display----------*/
 	if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "UDP");
 	if (check_col(pinfo->cinfo, COL_INFO)) 
 		col_clear(pinfo->cinfo, COL_INFO);
-
-	packet_len = tvb_get_ntohs(tvb, 0);
-	packet_seq_num = tvb_get_ntohs(tvb, 2);
 
 	if (check_col(pinfo->cinfo, COL_INFO) && (pinfo->src.type==AT_IPv4))
 		col_add_fstr(pinfo->cinfo, COL_INFO, "OLSR (IPv4) Packet,  Length: %u Bytes", packet_len);
@@ -133,30 +171,14 @@ dissect_olsr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		olsr_tree = proto_item_add_subtree(ti, ett_olsr);
 
 		proto_tree_add_uint_format(olsr_tree, hf_olsr_packet_len, tvb, 0, 2, packet_len, "Packet Length: %u bytes", packet_len);
-		proto_tree_add_uint_format(olsr_tree, hf_olsr_packet_seq_num, tvb, 2, 2, packet_seq_num, "Packet Sequence Number: %u", packet_seq_num);
+		proto_tree_add_item(olsr_tree, hf_olsr_packet_seq_num, tvb, 2, 2, FALSE);
 		
 		packet_size = (packet_len - 4) / 4;
 		position = 4;
 
 		while(packet_size>0)   {
 			message_type = tvb_get_guint8(tvb, position);
-			switch(message_type)	{
-				case 1:
-					proto_tree_add_uint_format(olsr_tree, hf_olsr_message_type, tvb, position, 1, tvb_get_guint8(tvb, position), "Message Type: HELLO");
-					break;
-				case 2:
-					proto_tree_add_uint_format(olsr_tree, hf_olsr_message_type, tvb, position, 1, tvb_get_guint8(tvb, position), "Message Type: TC");
-					break;
-				case 3:
-					proto_tree_add_uint_format(olsr_tree, hf_olsr_message_type, tvb, position, 1, tvb_get_guint8(tvb, position), "Message Type: MID");
-					break;
-				case 4:
-					proto_tree_add_uint_format(olsr_tree, hf_olsr_message_type, tvb, position, 1, tvb_get_guint8(tvb, position), "Message Type: HNA");
-					break;
-				default:
-					proto_tree_add_uint_format(olsr_tree, hf_olsr_message_type, tvb, position, 1, tvb_get_guint8(tvb, position), "Message Type: Invalid!");
-					break;
-			}
+			proto_tree_add_uint(olsr_tree, hf_olsr_message_type, tvb, position, 1, message_type);
 			
 			/*-------------Dissect Validity Time-------------------------*/
 			vtime = tvb_get_guint8(tvb, position+1);
@@ -166,10 +188,15 @@ dissect_olsr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_tree_add_double_format(olsr_tree, hf_olsr_vtime, tvb, position+1, 1, Vtime, "Validity Time: %.3f (in seconds)", Vtime);
 			
 			/*-------------Dissect Message Size---------------------------*/
-			proto_tree_add_uint_format(olsr_tree, hf_olsr_message_size, tvb, position+2, 2, tvb_get_ntohs(tvb, position+2),"Message Size: %u bytes", tvb_get_ntohs(tvb, position+2));
+			message_size = tvb_get_ntohs(tvb, position+2);
+			if (message_size < 4) {
+				proto_tree_add_uint_format(olsr_tree, hf_olsr_message_size, tvb, position+2, 2, message_size,"Message Size: %u bytes (too short, must be >= 4)", message_size);
+				break;
+			}
+			proto_tree_add_uint_format(olsr_tree, hf_olsr_message_size, tvb, position+2, 2, message_size,"Message Size: %u bytes", message_size);
 			
 			packet_size--;
-			message_size = (tvb_get_ntohs(tvb, position+2) - 4) /4;
+			message_size = (message_size - 4) /4;
 			offset = position + 4;
 			position = offset;
 			
@@ -329,7 +356,7 @@ dissect_olsr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		olsr_tree = proto_item_add_subtree(ti, ett_olsr);
 
 		proto_tree_add_uint_format(olsr_tree, hf_olsr_packet_len, tvb, 0, 2, packet_len, "Packet Length: %u bytes", packet_len);
-		proto_tree_add_uint_format(olsr_tree, hf_olsr_packet_seq_num, tvb, 2, 2, packet_seq_num, "Packet Sequence Number: %u", packet_seq_num);
+		proto_tree_add_item(olsr_tree, hf_olsr_packet_seq_num, tvb, 2, 2, FALSE);
 
 		
 		packet_size = (packet_len - 4) / 4;
@@ -337,23 +364,7 @@ dissect_olsr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		while(packet_size>0)   {
 			message_type = tvb_get_guint8(tvb, position);
-			switch(message_type)	{
-				case 1:
-					proto_tree_add_uint_format(olsr_tree, hf_olsr_message_type, tvb, position, 1, tvb_get_guint8(tvb, position), "Message Type: HELLO");
-					break;
-				case 2:
-					proto_tree_add_uint_format(olsr_tree, hf_olsr_message_type, tvb, position, 1, tvb_get_guint8(tvb, position), "Message Type: TC");
-					break;
-				case 3:
-					proto_tree_add_uint_format(olsr_tree, hf_olsr_message_type, tvb, position, 1, tvb_get_guint8(tvb, position), "Message Type: MID");
-					break;
-				case 4:
-					proto_tree_add_uint_format(olsr_tree, hf_olsr_message_type, tvb, position, 1, tvb_get_guint8(tvb, position), "Message Type: HNA");
-					break;
-				default:
-					proto_tree_add_uint_format(olsr_tree, hf_olsr_message_type, tvb, position, 1, tvb_get_guint8(tvb, position), "Message Type: Invalid!");
-					break;
-			}
+			proto_tree_add_uint(olsr_tree, hf_olsr_message_type, tvb, position, 1, message_type);
 
 			/*-------------Dissect Validity Time-------------------------*/
 			vtime = tvb_get_guint8(tvb, position+1);
@@ -362,11 +373,16 @@ dissect_olsr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			Vtime = ((1<<low_bits)/16.0)*(1.0+(high_bits/16.0));
 			proto_tree_add_double_format(olsr_tree, hf_olsr_vtime, tvb, position+1, 1, Vtime, "Validity Time: %.3f (in seconds)", Vtime);
 				 
-			/*--------------------Dissect Message Size-------------------------------*/
-			proto_tree_add_uint_format(olsr_tree, hf_olsr_message_size, tvb, position+2, 2, tvb_get_ntohs(tvb, position+2),"Message Size: %u bytes", tvb_get_ntohs(tvb, position+2));
+			/*-------------Dissect Message Size---------------------------*/
+			message_size = tvb_get_ntohs(tvb, position+2);
+			if (message_size < 4) {
+				proto_tree_add_uint_format(olsr_tree, hf_olsr_message_size, tvb, position+2, 2, message_size,"Message Size: %u bytes (too short, must be >= 4)", message_size);
+				break;
+			}
+			proto_tree_add_uint_format(olsr_tree, hf_olsr_message_size, tvb, position+2, 2, message_size,"Message Size: %u bytes", message_size);
 			
 			packet_size--;
-			message_size = (tvb_get_ntohs(tvb, position+2) - 4) /4;
+			message_size = (message_size - 4) /4;
 
 			offset = position + 4;
 			position = offset;
@@ -518,6 +534,7 @@ dissect_olsr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			} /* end if for HNA */
 		} /* end while for message alive */
 	} /* end if for IPV6 */
+	return tvb_length(tvb);
 } /* end Dissecting */
 	
 /*-----------Register the Dissector for OLSR--------------*/
@@ -537,7 +554,7 @@ proto_register_olsr(void)
 
 		{ &hf_olsr_message_type,
 			{ "Message Type", "olsr.message_type",
-			   FT_UINT8, BASE_DEC, NULL, 0,          
+			   FT_UINT8, BASE_DEC, VALS(message_type_vals), 0,
 			  "Message Type", HFILL }},
 
 		{ &hf_olsr_message_size,
@@ -660,6 +677,6 @@ proto_reg_handoff_olsr(void)
 {
 	dissector_handle_t olsr_handle;
 
-	olsr_handle = create_dissector_handle(dissect_olsr, proto_olsr);
+	olsr_handle = new_create_dissector_handle(dissect_olsr, proto_olsr);
 	dissector_add("udp.port", UDP_PORT_OLSR, olsr_handle);
 }
