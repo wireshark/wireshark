@@ -3,7 +3,7 @@
  * Copyright 2002, Tim Potter <tpot@samba.org>
  * Copyright 2002, Jim McDonough <jmcd@samba.org>
  *
- * $Id: packet-dcerpc-lsa-ds.c,v 1.3 2002/11/14 04:39:39 sharpe Exp $
+ * $Id: packet-dcerpc-lsa-ds.c,v 1.4 2002/11/15 08:46:42 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -39,6 +39,8 @@
 #define LSA_DS_DSROLEGETDOMINFO 0x0000
 
 #define LSA_DS_DSROLE_BASIC_INFO 0x0001
+#define LSA_DS_DSROLE_UPGRADE_STATUS 0x0002
+#define LSA_DS_DSROLE_OP_STATUS 0x0003
 
 static int proto_dcerpc_lsa_ds = -1;
 
@@ -49,11 +51,16 @@ static int hf_lsa_ds_dominfo_flags = -1;
 static int hf_lsa_ds_dominfo_netb_name = -1;
 static int hf_lsa_ds_dominfo_dns_name = -1;
 static int hf_lsa_ds_dominfo_forest_name = -1;
+static int hf_lsa_ds_upgrade_state = -1;
+static int hf_lsa_ds_previous_role = -1;
+static int hf_lsa_ds_op_status = -1;
 static int hf_lsa_ds_rc = -1;
 
 static gint ett_dcerpc_lsa_ds = -1;
 static gint ett_lsa_ds_domain_info = -1;
 static gint ett_lsa_ds_basic_domain_info = -1;
+static gint ett_lsa_ds_upgrade_status = -1;
+static gint ett_lsa_ds_op_status = -1;
 
 static int
 lsa_ds_dissect_DSROLE_BASIC_INFO(tvbuff_t *tvb, int offset,
@@ -74,7 +81,6 @@ lsa_ds_dissect_DSROLE_BASIC_INFO(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep,
 				    hf_lsa_ds_machine_role, 0);
 
-	ALIGN_TO_4_BYTES;
 	/* flags */
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 				    hf_lsa_ds_dominfo_flags, 0);
@@ -96,7 +102,53 @@ lsa_ds_dissect_DSROLE_BASIC_INFO(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
+static int 
+lsa_ds_dissect_DSROLE_UPGRADE_STATUS(tvbuff_t *tvb, int offset,
+				     packet_info *pinfo, 
+				     proto_tree *parent_tree, char *drep)
+{
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
+	int old_offset=offset;
 
+	if(parent_tree){
+		item = proto_tree_add_text(parent_tree, tvb, offset, -1,
+			"DSROLE_UPGRADE_STATUS:");
+		tree = proto_item_add_subtree(item, 
+					      ett_lsa_ds_upgrade_status);
+	}
+
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_lsa_ds_upgrade_state, NULL);
+        offset = dissect_ndr_uint16 (tvb, offset, pinfo, tree, drep,
+                                     hf_lsa_ds_previous_role, NULL);
+	proto_item_set_len(item, offset-old_offset);
+
+	return offset;
+}
+
+static int
+lsa_ds_dissect_DSROLE_OP_STATUS(tvbuff_t *tvb, int offset,
+				     packet_info *pinfo, 
+				     proto_tree *parent_tree, char *drep)
+{
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
+	int old_offset=offset;
+
+	if(parent_tree){
+		item = proto_tree_add_text(parent_tree, tvb, offset, -1,
+			"DSROLE_OP_STATUS:");
+		tree = proto_item_add_subtree(item, 
+					      ett_lsa_ds_op_status);
+	}
+        offset = dissect_ndr_uint16 (tvb, offset, pinfo, tree, drep,
+                                     hf_lsa_ds_op_status, NULL);
+	proto_item_set_len(item, offset-old_offset);
+
+	return offset;
+}
+	
 static int
 lsa_ds_dissect_DS_DOMINFO_CTR(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *parent_tree, char *drep)
@@ -114,15 +166,21 @@ lsa_ds_dissect_DS_DOMINFO_CTR(tvbuff_t *tvb, int offset,
 
         offset = dissect_ndr_uint16 (tvb, offset, pinfo, tree, drep,
                                      hf_lsa_ds_dominfo_level, &level);
-	ALIGN_TO_4_BYTES; 
-	/* We only know one level so far */
+
 	switch(level){
 	case LSA_DS_DSROLE_BASIC_INFO:
 		offset = lsa_ds_dissect_DSROLE_BASIC_INFO(
 			tvb, offset, pinfo, tree, drep);
 		break;
+	case LSA_DS_DSROLE_UPGRADE_STATUS:
+		offset = lsa_ds_dissect_DSROLE_UPGRADE_STATUS(
+			tvb, offset, pinfo, tree, drep);
+		break;
+	case LSA_DS_DSROLE_OP_STATUS:
+		offset = lsa_ds_dissect_DSROLE_OP_STATUS(
+			tvb, offset, pinfo, tree, drep);
+		break;
 	}
-
 	proto_item_set_len(item, offset-old_offset);
 
 	return offset;
@@ -159,9 +217,28 @@ static const value_string lsa_ds_opnum_vals[] = {
 
 static const value_string lsa_ds_dominfo_levels[] = {
 	{ LSA_DS_DSROLE_BASIC_INFO, "DsRoleBasicInfo"},
+	{ LSA_DS_DSROLE_UPGRADE_STATUS, "DsRoleUpgradeStatus"},
+	{ LSA_DS_DSROLE_OP_STATUS, "DsRoleOpStatus"},
 	{ 0, NULL }
 };
 
+static const value_string lsa_ds_upgrade_vals[] = {
+	{ 0, "Not currently upgrading"},
+	{ 1, "Upgrade in progress"},
+	{ 0, NULL }
+};
+
+static const value_string lsa_ds_previous_roles[] = {
+	{ 0, "Unknown state" },
+	{ 1, "Primary" },
+	{ 2, "Backup" }
+};
+
+static const value_string lsa_ds_op_states[] = {
+	{ 0, "Idle" },
+	{ 1, "Active" },
+	{ 2, "Needs reboot" }
+};
 
 void
 proto_register_dcerpc_lsa_ds(void)
@@ -197,6 +274,20 @@ proto_register_dcerpc_lsa_ds(void)
 	  { "Forest name", "lsa_ds.dominfo.forest", FT_STRING, BASE_NONE,
 	    NULL, 0x0, "DNS Forest Name", HFILL}},
 
+	{ &hf_lsa_ds_upgrade_state,
+	  { "Upgrading", "ls_ads.upgrading", FT_UINT32, BASE_DEC,
+	    VALS(lsa_ds_upgrade_vals), 0x0, "Upgrade State", HFILL }},
+	
+	{ &hf_lsa_ds_previous_role,
+	  { "Previous role", "ls_ads.upgrading", FT_UINT16, BASE_DEC,
+	    VALS(lsa_ds_previous_roles), 0x0, 
+	    "Previous server role before upgrade", HFILL }},
+
+	{ &hf_lsa_ds_op_status,
+	  { "Operational status", "ls_ads.op_status", FT_UINT16, BASE_DEC,
+	    VALS(lsa_ds_op_states), 0x0, 
+	    "Current operational status", HFILL }},
+	
 	{ &hf_lsa_ds_rc,
 	  { "Return code", "lsa_ds.rc", FT_UINT32, BASE_HEX,
 	  VALS (NT_errors), 0x0, "LSA_DS return status code", HFILL }},
@@ -205,7 +296,9 @@ proto_register_dcerpc_lsa_ds(void)
         static gint *ett[] = {
                 &ett_dcerpc_lsa_ds,
 		&ett_lsa_ds_domain_info,
-		&ett_lsa_ds_basic_domain_info
+		&ett_lsa_ds_basic_domain_info,
+		&ett_lsa_ds_upgrade_status,
+		&ett_lsa_ds_op_status
         };
 
         proto_dcerpc_lsa_ds = proto_register_protocol(
