@@ -1,7 +1,7 @@
 ;
 ; ethereal.nsi
 ;
-; $Id: ethereal.nsi,v 1.53 2004/05/09 10:03:41 guy Exp $
+; $Id: ethereal.nsi,v 1.54 2004/05/14 02:46:38 gerald Exp $
 
  
 !ifdef MAKENSIS_MODERN_UI
@@ -10,8 +10,8 @@ SetCompressor lzma
 !endif
 
 !ifdef GTK1_DIR & GTK2_DIR
-InstType "Ethereal (typical)"
-InstType "Ethereal with modern GTK2 user interface"
+InstType "Ethereal (GTK2 user interface)"
+InstType "Ethereal (legacy GTK1 user interface)"
 !endif
 
 ; ============================================================================
@@ -200,7 +200,7 @@ SectionEnd
 Section "Ethereal GTK1" SecEtherealGTK1
 ;-------------------------------------------
 !ifdef GTK1_DIR & GTK2_DIR
-SectionIn 1 RO
+SectionIn 2 RO
 !endif
 SetOutPath $INSTDIR
 File "..\..\ethereal.exe"
@@ -213,7 +213,7 @@ SectionEnd
 Section "Ethereal GTK2" SecEtherealGTK2
 ;-------------------------------------------
 !ifdef GTK1_DIR & GTK2_DIR
-SectionIn 2 RO
+SectionIn 1 RO
 !endif
 SetOutPath $INSTDIR
 File /oname=ethereal.exe "..\..\ethereal-gtk2.exe"
@@ -241,9 +241,6 @@ SectionEnd
 !ifdef GTK_WIMP_DIR
 Section "GTK-Wimp" SecGTKWimp
 ;-------------------------------------------
-!ifdef GTK1_DIR & GTK2_DIR
-SectionIn 2
-!endif
 SetOutPath $INSTDIR\lib\gtk-2.0\2.2.0\engines
 File "${GTK_WIMP_DIR}\libwimp.dll"
 SetOutPath $INSTDIR\share\themes\Default\gtk-2.0
@@ -348,7 +345,7 @@ CreateShortCut "$SMPROGRAMS\Ethereal\Ethereal Manual.lnk" "$INSTDIR\ethereal.htm
 CreateShortCut "$SMPROGRAMS\Ethereal\Display Filters Manual.lnk" "$INSTDIR\ethereal-filter.html"
 CreateShortCut "$SMPROGRAMS\Ethereal\Ethereal Program Directory.lnk" \
           "$INSTDIR"
-CreateShortCut "$SMPROGRAMS\Ethereal\Ethereal Uninstall.lnk" "$INSTDIR\uninstall.exe"
+CreateShortCut "$SMPROGRAMS\Ethereal\Uninstall Ethereal.lnk" "$INSTDIR\uninstall.exe"
 SectionEnd
 
 Section "Desktop Icon" SecDesktopIcon
