@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.87 2003/04/22 00:16:58 guy Exp $
+ * $Id: menu.c,v 1.88 2003/04/22 04:02:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -453,7 +453,7 @@ static void
 set_menu_sensitivity(GtkItemFactory *ifactory, gchar *path, gint val)
 {
   GSList *menu_list;
-  GtkWidget *menu;
+  GtkWidget *menu_item;
 
   if (ifactory == NULL) {
     /*
@@ -466,8 +466,21 @@ set_menu_sensitivity(GtkItemFactory *ifactory, gchar *path, gint val)
     /*
      * Do it for that particular menu.
      */
-    if ((menu = gtk_item_factory_get_widget(ifactory, path)) != NULL)
-      gtk_widget_set_sensitive(menu, val);
+    if ((menu_item = gtk_item_factory_get_widget(ifactory, path)) != NULL) {
+      if (GTK_IS_MENU(menu_item)) {
+        /*
+         * "path" refers to a submenu; "gtk_item_factory_get_widget()"
+         * gets the menu, not the item that, when selected, pops up
+         * the submenu.
+         *
+         * We have to change the latter item's sensitivity, so that
+         * it shows up normally if sensitive and grayed-out if
+         * insensitive.
+         */
+        menu_item = gtk_menu_get_attach_widget(GTK_MENU(menu_item));
+      } 
+      gtk_widget_set_sensitive(menu_item, val);
+    }
   }
 }
 
