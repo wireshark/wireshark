@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.375 2001/11/04 22:19:22 guy Exp $
+# $Id: Makefile.am,v 1.376 2001/11/06 13:43:44 girlich Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -191,6 +191,7 @@ DISSECTOR_SRC = \
 	packet-osi.c   \
 	packet-osi-options.c \
 	packet-ospf.c  \
+	packet-pcnfsd.c \
 	packet-pgm.c   \
 	packet-pim.c   \
 	packet-pop.c   \
