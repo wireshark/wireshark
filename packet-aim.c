@@ -2,7 +2,7 @@
  * Routines for AIM Instant Messenger (OSCAR) dissection
  * Copyright 2000, Ralf Hoelzer <ralf@well.com>
  *
- * $Id: packet-aim.c,v 1.30 2003/06/12 08:33:28 guy Exp $
+ * $Id: packet-aim.c,v 1.31 2003/12/21 11:40:45 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1945,7 +1945,7 @@ proto_register_aim(void)
     "Desegment all AIM messages spanning multiple TCP segments",
     "Whether the AIM dissector should desegment all messages spanning multiple TCP segments",
     &aim_desegment);
-};
+}
 
 void
 proto_reg_handoff_aim(void)
