@@ -344,6 +344,25 @@ on those calls that match that filter.
 Example: use B<-z "smb,srt,ip.addr==1.2.3.4"> to only collect stats for
 SMB packets echanged by the host at IP address 1.2.3.4 .
 
+B<-z> fc,srt[,I<filter>]
+
+Collect call/reply SRT (Service Response Time) data for FC.  Data collected
+is number of calls for each Fibre Channel command, MinSRT, MaxSRT and AvgSRT. 
+Example: use B<-z fc,srt>.
+The Service Response Time is calculated as the time delta between the
+First frame of the exchange and the Last frame of the exchange.
+
+The data will be presented as separate tables for all normal FC commands,
+Only those commands that are seen in the capture will have its stats
+displayed.
+
+This option can be used multiple times on the command line. 
+
+If the optional filterstring is provided, the stats will only be calculated
+on those calls that match that filter.
+Example: use B<-z "fc,srt,fc.id==01.02.03"> to only collect stats for
+FC packets echanged by the host at FC address 01.02.03 .
+
 B<-z> mgcp,rtd[I<,filter>]
 
 Collect requests/response RTD (Response Time Delay) data for MGCP. 
@@ -635,6 +654,22 @@ files into B<Ethereal>.
 
 This dialog will also allow an optional filter string to be used.
 If an optional filter string is used only such DCE-RPC request/response pairs 
+that match that filter will be used to calculate the statistics. If no filter 
+string is specified all request/response pairs will be used.
+
+=item Tools:Statistics:Service Response Time:Fibre Channel
+
+Open a window to display Service Response Time statistics for Fibre Channel
+and display B<FC Type>, B<Number of Calls>, B<Minimum SRT>,
+B<Maximum SRT> and B<Average SRT> for all FC types.
+These windows opened will update in semi-real time to
+reflect changes when doing live captures or when reading new capture
+files into B<Ethereal>.
+The Service Response Time is calculated as the time delta between the
+First frame of the exchange and the Last frame of the exchange.
+
+This dialog will also allow an optional filter string to be used.
+If an optional filter string is used only such FC first/last exchange pairs 
 that match that filter will be used to calculate the statistics. If no filter 
 string is specified all request/response pairs will be used.
 

@@ -4,7 +4,7 @@
  *   Copyright 2003  Ronnie Sahlberg, exchange first/last matching and 
  *                                    tap listener and misc updates
  *
- * $Id: packet-fc.c,v 1.10 2003/06/25 10:21:44 sahlberg Exp $
+ * $Id: packet-fc.c,v 1.11 2003/06/25 11:15:33 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -688,7 +688,7 @@ dissect_fc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint8 ftype;
     gboolean is_ack;
 
-    fc_hdr fchdr;
+    static fc_hdr fchdr;
     fc_exchange_data *fc_ex=NULL;
 
     fchdr.fced=NULL;
@@ -749,6 +749,7 @@ dissect_fc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if(fchdr.fctl&FC_FCTL_EXCHANGE_FIRST){
         if(!pinfo->fd->flags.visited){
             fc_exchange_data fced, *old_fced;
+
             /* first check if we already have seen this exchange and it
                is still open/unmatched. 
             */
@@ -763,19 +764,18 @@ dissect_fc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             old_fced->oxid=fchdr.oxid;
             old_fced->s_id=fchdr.s_id;
             old_fced->d_id=fchdr.d_id;
-old_fced->first_exchange_frame=pinfo->fd->num;
+	    old_fced->first_exchange_frame=pinfo->fd->num;
             old_fced->fc_time.nsecs = pinfo->fd->abs_usecs*1000;
             old_fced->fc_time.secs = pinfo->fd->abs_secs;
             g_hash_table_insert(fc_exchange_unmatched, old_fced, old_fced);
+            fc_ex=old_fced;
         } else {
             fc_exchange_data fced, *old_fced;
             fced.oxid=fchdr.oxid;
             fced.first_exchange_frame=pinfo->fd->num;
             fced.last_exchange_frame=0;
             old_fced=g_hash_table_lookup(fc_exchange_matched, &fced);
-            if(old_fced){
-                fc_ex=old_fced;
-            }
+            fc_ex=old_fced;
         }
     }
     if(fchdr.fctl&FC_FCTL_EXCHANGE_LAST){
@@ -791,15 +791,14 @@ old_fced->first_exchange_frame=pinfo->fd->num;
                 old_fced->last_exchange_frame=pinfo->fd->num;
                 g_hash_table_insert(fc_exchange_matched, old_fced, old_fced);
             }
+            fc_ex=old_fced;
         } else {
             fc_exchange_data fced, *old_fced;
             fced.oxid=fchdr.oxid;
             fced.first_exchange_frame=0;
             fced.last_exchange_frame=pinfo->fd->num;
             old_fced=g_hash_table_lookup(fc_exchange_matched, &fced);
-            if(old_fced){
-                fc_ex=old_fced;
-            }
+            fc_ex=old_fced;
         }
     }
     if(fc_ex){
