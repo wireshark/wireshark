@@ -3,7 +3,7 @@
  *
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-rsvp.c,v 1.65 2002/05/30 08:34:18 guy Exp $
+ * $Id: packet-rsvp.c,v 1.66 2002/06/02 23:55:11 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -74,6 +74,7 @@
 
 #include "packet-rsvp.h"
 #include "packet-ip.h"
+#include "packet-frame.h"
 
 static int proto_rsvp = -1;
 
@@ -3590,12 +3591,18 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			    ver_flags & 0xf);
 	proto_tree_add_uint(rsvp_header_tree, rsvp_filter[RSVPF_MSG], tvb, 
 			    offset+1, 1, message_type);
-	if (message_type <= RSVPF_RTEARCONFIRM &&
+	if (RSVPF_MSG + message_type <= RSVPF_RTEARCONFIRM &&
 			message_type != RSVPF_JUNK_MSG8 &&
-			message_type != RSVPF_JUNK_MSG9 ) {
+			message_type != RSVPF_JUNK_MSG9 &&
+			message_type > 0) {
 	       proto_tree_add_boolean_hidden(rsvp_header_tree, rsvp_filter[RSVPF_MSG + message_type], tvb, 
 				   offset+1, 1, 1);
+	} else {
+		proto_tree_add_protocol_format(rsvp_header_tree, proto_malformed, tvb, offset+1, 1,
+			"Invalid message type: %u", message_type);
+		return;
 	}
+
 	cksum = tvb_get_ntohs(tvb, offset+2);
 	if (!pinfo->fragmented && (int) tvb_length(tvb) >= msg_length) {
 	    /* The packet isn't part of a fragmented datagram and isn't

@@ -3,7 +3,7 @@
  *
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-lmp.c,v 1.7 2002/06/02 21:42:58 gerald Exp $
+ * $Id: packet-lmp.c,v 1.8 2002/06/02 23:55:11 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -828,7 +828,8 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			    offset+3, 1, message_type);
 	proto_tree_add_text(lmp_header_tree, tvb, offset+4, 2, "Length: %d bytes",
 			    msg_length);
-	if (LMPF_MSG + message_type <= LMPF_MSG_CHANNEL_STATUS_RESP) {
+	if (LMPF_MSG + message_type <= LMPF_MSG_CHANNEL_STATUS_RESP &&
+		       message_type > 0) {
 		proto_tree_add_boolean_hidden(lmp_header_tree, lmp_filter[LMPF_MSG + message_type], tvb, 
 				      offset+3, 1, 1);
 	} else {
