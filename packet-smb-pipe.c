@@ -8,7 +8,7 @@ XXX  Fixme : shouldnt show [malformed frame] for long packets
  * significant rewrite to tvbuffify the dissector, Ronnie Sahlberg and
  * Guy Harris 2001
  *
- * $Id: packet-smb-pipe.c,v 1.99 2003/12/21 04:31:56 jmayer Exp $
+ * $Id: packet-smb-pipe.c,v 1.100 2004/06/03 23:55:57 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -129,6 +129,7 @@ static int hf_month = -1;
 static int hf_year = -1;
 static int hf_weekday = -1;
 static int hf_enumeration_domain = -1;
+static int hf_last_entry = -1;
 static int hf_computer_name = -1;
 static int hf_user_name = -1;
 static int hf_group_name = -1;
@@ -995,6 +996,16 @@ static const item_t lm_params_resp_netserverenum2[] = {
 	{ NULL, NULL, PARAM_NONE }
 };
 
+
+static const item_t lm_params_req_netserverenum3[] = {
+	{ &hf_detail_level, add_detail_level, PARAM_WORD },
+	{ &no_hf, add_server_type_info, PARAM_DWORD },
+	{ &hf_enumeration_domain, add_string_param, PARAM_STRINGZ },
+	{ &hf_last_entry, add_string_param, PARAM_STRINGZ },
+	{ NULL, NULL, PARAM_NONE }
+};
+
+
 static const item_t lm_params_req_netwkstagetinfo[] = {
 	{ &hf_detail_level, add_detail_level, PARAM_WORD },
 	{ NULL, NULL, PARAM_NONE }
@@ -1531,6 +1542,20 @@ static const struct lanman_desc lmd[] = {
 	  NULL,
 	  NULL,
 	  lm_null_list,
+	  lm_null },
+
+	{ API_NetServerEnum3,
+	  lm_params_req_netserverenum3,
+	  NULL,
+	  NULL,
+	  lm_null,
+	  lm_null,
+	  lm_params_resp_netserverenum2,
+	  "Servers",
+	  &ett_lanman_servers,
+	  netserverenum2_server_entry,
+	  &ett_lanman_server,
+	  lm_data_serverinfo,
 	  lm_null },
 
 	{ -1,
@@ -3009,6 +3034,10 @@ proto_register_pipe_lanman(void)
 		{ &hf_enumeration_domain,
 			{ "Enumeration Domain", "lanman.enumeration_domain", FT_STRING, BASE_NONE,
 			NULL, 0, "LANMAN Domain in which to enumerate servers", HFILL }},
+
+		{ &hf_last_entry,
+			{ "Last Entry", "lanman.last_entry", FT_STRING, BASE_NONE,
+			NULL, 0, "LANMAN last reported entry of the enumerated servers", HFILL }},
 
 		{ &hf_computer_name,
 			{ "Computer Name", "lanman.computer_name", FT_STRING, BASE_NONE,
