@@ -2221,6 +2221,7 @@ Luca Deri	<deri [AT] ntop.org> {
 
 Viorel Suman	<vsuman [AT] avmob.ro> {
 	TALI (RFC 3094) support
+	Various GSM SMS fixes
 }
 
 Alejandro Vaquero	<alejandro.vaquero [AT] verso.com> {
@@ -2237,10 +2238,6 @@ Bill Meier		<wmeier [AT] newsguy.com> {
 
 Susanne Edlund		<Susanne.Edlund [AT] ericsson.com> {
 	NSIP protocol support
-}
-
-Viorel Suman		<vsuman [AT] avmob.ro> {
-	Various GSM SMS fixes
 }
 
 
