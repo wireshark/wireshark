@@ -87,6 +87,16 @@
 	</para>
   </section>
 
+  <section id="ChLibsCygwin">
+    <title>Win32: cygwin libraries</title>
+	<para>
+	It is not recommended to use the cygwin libraries!
+	</para>
+	<para>
+	XXX - explain why!
+	</para>
+  </section>
+	
   <section id="ChLibsGtk">
 	<title>GTK+ / GLib / GDK / Pango / ATK / GNU gettext / GNU libiconv</title>
 	<para>
@@ -107,27 +117,34 @@
 	<para>
 	As the requirements for the GLib/GTK libraries increased in the past, it 
 	depends on the GLib/GTK versions you have, which additional libraries are 
-	required. The 1.x versions only needed GLib/GDK/GTK+, while the 2.x versions
-	require all mentioned libs.
+	required. The 1.x versions only needed GLib/GDK/GTK+, while the 2.x 
+	versions require all mentioned libs.
 	</para>
 
 	<section id="ChLibsUnixGTK">
 	<title>Unix: ...</title>
 	<para>
-	<ulink url="http://www.gtk.org"/>
+	The GLib/GTK+ libraries are available for many unix-like platforms and 
+	cygwin.
+	</para>
+	<para>
+	If these libraries aren't already installed and also not available as a 
+	package for your platform, you can get them at: 
+	<ulink url="http://www.gtk.org"/>.
 	</para>
 	</section>
 
 	<section id="ChLibsWin32GTK">
 	<title>Win32 native: ...</title>
 	<para>
-	<ulink url="http://www.gimp.org/%7Etml/gimp/win32/downloads.html"/>
+	You can get the latest version at: 
+	<ulink url="http://www.gimp.org/%7Etml/gimp/win32/downloads.html"/>.
 	</para>
 	</section>
   </section>
   
   <section id="ChLibsSNMP">
-	<title>Net SNMP</title>
+	<title>Net SNMP (previously known as "ucd-snmp")</title>
 	<para>
 	"Various tools relating to the Simple Network Management Protocol"
 	</para>
@@ -135,14 +152,17 @@
 	<section id="ChLibsUnixSNMP">
 	<title>Unix: Net SNMP</title>
 	<para>
-	Unix: XXX: where to find the right binaries?
+	If this library isn't already installed and also not available as a 
+	package for your platform, you can get it at: 
+	<ulink url="http://sourceforge.net/projects/net-snmp/"/>.
 	</para>
 	</section>
 
 	<section id="ChLibsWin32SNMP">
 	<title>Win32 native: Net SNMP</title>
 	<para>
-	Win32 native: XXX: where to find the right binaries?
+	You can get the latest version at: 
+	<ulink url="http://sourceforge.net/projects/net-snmp/"/>.
 	</para>
 	</section>
 		
@@ -159,14 +179,17 @@ utilities."
 	<section id="ChLibsUnixADNS">
 	<title>Unix: GNU ADNS</title>
 	<para>
-	Unix: XXX: where to find the right binaries?
+	If this library isn't already installed and also not available as a 
+	package for your platform, you can get it at: 
+	<ulink url="http://www.gnu.org/software/adns/"/>.
 	</para>
 	</section>
 
 	<section id="ChLibsWin32ADNS">
 	<title>Win32 native: GNU ADNS</title>
 	<para>
-	Win32 native: <ulink url="http://adns.jgaa.com/"/>
+	You can get the latest version at: 
+	<ulink url="http://adns.jgaa.com/"/>
 	</para>
 	</section>
 	
@@ -182,14 +205,17 @@ utilities."
 	<section id="ChLibsUnixPCRE">
 	<title>Unix: PCRE</title>
 	<para>
-	Unix: XXX: where to find the right binaries?
+	If this library isn't already installed and also not available as a 
+	package for your platform, you can get it at: 
+	<ulink url="http://www.pcre.org/"/>.
 	</para>
 	</section>
 
 	<section id="ChLibsWin32PCRE">
 	<title>Win32 native: PCRE</title>
 	<para>
-	Win32 native: <ulink url="http://gnuwin32.sourceforge.net/packages/pcre.htm"/>
+	You can get the latest version at: 
+	<ulink url="http://gnuwin32.sourceforge.net/packages/pcre.htm"/>
 	</para>
 	</section>
 		
@@ -209,14 +235,17 @@ utilities."
 	<section id="ChLibsUnixZlib">
 	<title>Unix: zlib</title>
 	<para>
-	Unix: XXX: where to find the right binaries?
+	If this library isn't already installed and also not available as a 
+	package for your platform, you can get it at: 
+	<ulink url="http://www.gzip.org/zlib/"/>.
 	</para>
 	</section>
 
 	<section id="ChLibsWin32Zlib">
 	<title>Win32 native: zlib</title>
 	<para>
-	Win32 native: <ulink url="http://www.gzip.org/zlib/"/>
+	You can get the latest version at: 
+	<ulink url="http://gnuwin32.sourceforge.net/packages/zlib.htm"/>
 	</para>
 	</section>
 
@@ -232,17 +261,17 @@ utilities."
 	<section id="ChLibsLibpcap">
 	<title>Unix: libpcap</title>
 	<para>
-	Unix: XXX
+	If this library isn't already installed and also not available as a 
+	package for your platform, you can get it at: 
+	<ulink url="http://www.tcpdump.org/"/>.
 	</para>
 	</section>
 
 	<section id="ChLibsWinpPcap">
 	<title>Win32 native: WinPcap</title>
 	<para>
-	"Windows packet capture library"
-	</para>
-	<para>
-	Win32 native: <ulink url="http://winpcap.polito.it/install/default.htm"/>
+	You can get the "Windows packet capture library" at:
+	<ulink url="http://winpcap.polito.it/install/default.htm"/>
 	</para>
 	</section>
 
