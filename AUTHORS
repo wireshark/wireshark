@@ -587,6 +587,7 @@ Ronnie Sahlberg <sahlberg[AT]optushome.com.au> {
 	File handle to file name resolution in NFS and related protocols
 	DCE RPC enhancements
 	SAMR updates
+	NETLOGON implementation
 }
 
 Borosa Tomislav <tomislav.borosa[AT]SIEMENS.HR> {

@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *  2002 structure and command dissectors by Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-netlogon.c,v 1.8 2002/03/14 05:46:59 guy Exp $
+ * $Id: packet-dcerpc-netlogon.c,v 1.9 2002/03/14 09:19:17 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -125,7 +125,6 @@ static int hf_netlogon_secure_channel_type = -1;
 static int hf_netlogon_logonsrv_handle = -1;
 static int hf_netlogon_lsa_secret = -1;
 static int hf_netlogon_lsa_sd_size = -1;
-static int hf_netlogon_lsa_sd_data = -1;
 
 static gint ett_dcerpc_netlogon = -1;
 static gint ett_NETLOGON_SECURITY_DESCRIPTOR = -1;
@@ -187,7 +186,6 @@ static gint ett_USER_SESSION_KEY = -1;
 static gint ett_BLOB = -1;
 static gint ett_rid_array = -1;
 static gint ett_attrib_array = -1;
-static gint ett_netlogon_lsa_sd_data = -1;
 
 static e_uuid_t uuid_dcerpc_netlogon = {
         0x12345678, 0x1234, 0xabcd,
@@ -216,9 +214,6 @@ lsa_dissect_LSA_SECURITY_DESCRIPTOR_data(tvbuff_t *tvb, int offset,
 
 	dissect_nt_sec_desc(tvb, pinfo, offset, tree, len);
 	offset += len;
-/*	proto_tree_add_item(tree, hf_netlogon_lsa_sd_data, tvb, offset, len, FALSE);
-	offset += len;
-*/
 
 	return offset;
 }
@@ -5322,10 +5317,6 @@ static hf_register_info hf[] = {
 		{ "LSA Secret", "netlogon.lsa.secret", FT_BYTES, BASE_HEX,
 		NULL, 0, "", HFILL }},
 
-	{ &hf_netlogon_lsa_sd_data,
-		{ "Sec Desc", "netlogon.lsa.sd.data", FT_BYTES, BASE_HEX,
-		NULL, 0, "LSA security descriptor data", HFILL }},
-
 	{ &hf_netlogon_acct_name,
 		{ "Acct Name", "netlogon.acct_name", FT_STRING, BASE_NONE,
 		NULL, 0, "Account Name", HFILL }},
@@ -5482,6 +5473,10 @@ static hf_register_info hf[] = {
 		{ "Size", "netlogon.blob.size", FT_UINT32, BASE_DEC, 
 		NULL, 0x0, "Size in bytes of BLOB", HFILL }},
 
+	{ &hf_netlogon_code,
+		{ "Code", "netlogon.code", FT_UINT32, BASE_HEX, 
+		NULL, 0x0, "Code", HFILL }},
+
 	{ &hf_netlogon_level_long,
 		{ "Level", "netlogon.level32", FT_UINT32, BASE_DEC, 
 		NULL, 0x0, "Which option of the union is represented here", HFILL }},
@@ -5625,7 +5620,6 @@ static hf_register_info hf[] = {
 		&ett_BLOB,
 		&ett_rid_array,
 		&ett_attrib_array,
-		&ett_netlogon_lsa_sd_data,
         };
 
         proto_dcerpc_netlogon = proto_register_protocol(
