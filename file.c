@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.206 2000/08/15 21:03:16 deniel Exp $
+ * $Id: file.c,v 1.207 2000/08/19 18:20:58 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -412,8 +412,9 @@ read_cap_file(capture_file *cf, int *err)
       break;
 
     default:
-      sprintf(errmsg_errno, "An error occurred while reading the"
-                              " capture file: %s.", wtap_strerror(*err));
+      snprintf(errmsg_errno, sizeof(errmsg_errno),
+	       "An error occurred while reading the"
+	       " capture file: %s.", wtap_strerror(*err));
       errmsg = errmsg_errno;
       break;
     }

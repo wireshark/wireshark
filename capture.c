@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.119 2000/08/14 08:36:39 guy Exp $
+ * $Id: capture.c,v 1.120 2000/08/19 18:20:56 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -947,7 +947,7 @@ capture(void)
   pcap_t     *pch;
   int         pcap_encap;
   int         snaplen;
-  gchar       err_str[PCAP_ERRBUF_SIZE], label_str[32];
+  gchar       err_str[PCAP_ERRBUF_SIZE], label_str[64];
   loop_data   ld;
   bpf_u_int32 netnum, netmask;
   time_t      upd_time, cur_time;
@@ -1131,11 +1131,13 @@ capture(void)
 
     default:
       if (err < 0) {
-        sprintf(errmsg, "The file to which the capture would be"
+        snprintf(errmsg, sizeof(errmsg),
+		     "The file to which the capture would be"
                      " saved (\"%s\") could not be opened: Error %d.",
  			cfile.save_file, err);
       } else {
-        sprintf(errmsg, "The file to which the capture would be"
+        snprintf(errmsg, sizeof(errmsg),
+		     "The file to which the capture would be"
                      " saved (\"%s\") could not be opened: %s.",
  			cfile.save_file, strerror(err));
       }

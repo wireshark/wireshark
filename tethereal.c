@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.41 2000/08/14 08:36:41 guy Exp $
+ * $Id: tethereal.c,v 1.42 2000/08/19 18:20:59 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1038,8 +1038,9 @@ file_open_error_message(int err, gboolean for_writing)
     break;
 
   default:
-    sprintf(errmsg_errno, "The file \"%%s\" could not be opened: %s.",
-				wtap_strerror(err));
+    snprintf(errmsg_errno, sizeof(errmsg_errno),
+	     "The file \"%%s\" could not be opened: %s.",
+	     wtap_strerror(err));
     errmsg = errmsg_errno;
     break;
   }
