@@ -104,6 +104,7 @@ DISSECTOR_SUPPORT_SRC =	\
 	../ptvcursor.c	\
 	../reassemble.c	\
 	../req_resp_hdrs.c	\
+	../sha1.c	\
 	../t35.c	\
 	../tap.c	\
 	../util.c	\
