@@ -2,7 +2,7 @@
  * Routines for ssl dissection
  * Copyright (c) 2000-2001, Scott Renfro <scott@renfro.org>
  *
- * $Id: packet-ssl.c,v 1.29 2004/02/05 19:08:59 obiot Exp $
+ * $Id: packet-ssl.c,v 1.30 2004/06/01 01:03:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -35,6 +35,12 @@
  * for SSL 3.0 specs.
  *
  * See RFC 2246 for SSL 3.1/TLS 1.0 specs.
+ *
+ * See (among other places)
+ *
+ *	http://www.graphcomp.com/info/specs/ms/pct.htm
+ *
+ * for PCT 1 draft specs.
  *
  * Notes:
  *
@@ -148,6 +154,16 @@ static int hf_ssl2_handshake_session_id_hit  = -1;
 static int hf_ssl2_handshake_cert_type       = -1;
 static int hf_ssl2_handshake_connection_id_len = -1;
 static int hf_ssl2_handshake_connection_id   = -1;
+static int hf_pct_handshake_cipher_spec	= -1;
+static int hf_pct_handshake_hash_spec	= -1;
+static int hf_pct_handshake_cert_spec	= -1;
+static int hf_pct_handshake_cert	= -1;
+static int hf_pct_handshake_exch_spec	= -1;
+static int hf_pct_handshake_hash	= -1;
+static int hf_pct_handshake_cipher	= -1;
+static int hf_pct_handshake_exch	= -1;
+static int hf_pct_handshake_sig		= -1;
+static int hf_pct_msg_error_type	= -1;
 
 /* Initialize the subtree pointers */
 static gint ett_ssl                   = -1;
@@ -159,6 +175,10 @@ static gint ett_ssl_comp_methods      = -1;
 static gint ett_ssl_certs             = -1;
 static gint ett_ssl_cert_types        = -1;
 static gint ett_ssl_dnames            = -1;
+static gint ett_pct_cipher_suites	  = -1;
+static gint ett_pct_hash_suites		  = -1;
+static gint ett_pct_cert_suites		  = -1;
+static gint ett_pct_exch_suites		  = -1;
 
 /* The TCP port to associate with by default */
 #define TCP_PORT_SSL                    443
@@ -209,13 +229,54 @@ static gchar* ssl_version_short_names[] = {
 #define SSL2_HND_REQUEST_CERTIFICATE   0x07
 #define SSL2_HND_CLIENT_CERTIFICATE    0x08
 
-#define PCT_VERSION_1		       0x8001
+#define PCT_VERSION_1					0x8001
 
-#define PCT_MSG_CLIENT_HELLO           0x01
-#define PCT_MSG_SERVER_HELLO           0x02
-#define PCT_MSG_CLIENT_MASTER_KEY      0x03
-#define PCT_MSG_SERVER_VERIFY          0x04
-#define PCT_MSG_ERROR                  0x05
+#define PCT_MSG_CLIENT_HELLO			0x01
+#define PCT_MSG_SERVER_HELLO			0x02
+#define PCT_MSG_CLIENT_MASTER_KEY		0x03
+#define PCT_MSG_SERVER_VERIFY			0x04
+#define PCT_MSG_ERROR					0x05
+
+#define PCT_CH_OFFSET_V1				0xa
+
+#define PCT_CIPHER_DES					0x01
+#define PCT_CIPHER_IDEA					0x02
+#define PCT_CIPHER_RC2					0x03
+#define PCT_CIPHER_RC4					0x04
+#define PCT_CIPHER_DES_112				0x05
+#define PCT_CIPHER_DES_168				0x06
+
+#define PCT_HASH_MD5					0x0001
+#define PCT_HASH_MD5_TRUNC_64			0x0002
+#define PCT_HASH_SHA					0x0003
+#define PCT_HASH_SHA_TRUNC_80			0x0004
+#define PCT_HASH_DES_DM					0x0005
+
+#define PCT_CERT_NONE					0x00
+#define PCT_CERT_X509					0x01
+#define PCT_CERT_PKCS7					0x02
+
+#define PCT_SIG_NONE					0x0000
+#define PCT_SIG_RSA_MD5					0x0001
+#define PCT_SIG_RSA_SHA					0x0002
+#define PCT_SIG_DSA_SHA					0x0003
+
+#define PCT_EXCH_RSA_PKCS1				0x01
+#define PCT_EXCH_RSA_PKCS1_TOKEN_DES	0x02
+#define PCT_EXCH_RSA_PKCS1_TOKEN_DES3	0x03
+#define PCT_EXCH_RSA_PKCS1_TOKEN_RC2	0x04
+#define PCT_EXCH_RSA_PKCS1_TOKEN_RC4	0x05
+#define PCT_EXCH_DH_PKCS3				0x06
+#define PCT_EXCH_DH_PKCS3_TOKEN_DES		0x07
+#define PCT_EXCH_DH_PKCS3_TOKEN_DES3	0x08
+#define PCT_EXCH_FORTEZZA_TOKEN			0x09
+
+#define PCT_ERR_BAD_CERTIFICATE			0x01
+#define PCT_ERR_CLIENT_AUTH_FAILED		0x02
+#define PCT_ERR_ILLEGAL_MESSAGE			0x03
+#define PCT_ERR_INTEGRITY_CHECK_FAILED	0x04
+#define PCT_ERR_SERVER_AUTH_FAILED		0x05
+#define PCT_ERR_SPECS_MISMATCH			0x06
 
 /*
  * Lookup tables
@@ -505,6 +566,61 @@ static const value_string pct_msg_types[] = {
     { 0x00, NULL },
 };
 
+static const value_string pct_cipher_type[] = {
+	{ PCT_CIPHER_DES, "DES" },
+	{ PCT_CIPHER_IDEA, "IDEA" },
+	{ PCT_CIPHER_RC2, "RC2" },
+	{ PCT_CIPHER_RC4, "RC4" },
+	{ PCT_CIPHER_DES_112, "DES 112 bit" },
+	{ PCT_CIPHER_DES_168, "DES 168 bit" },
+	{ 0x00, NULL },
+};
+
+static const value_string pct_hash_type[] = {
+	{ PCT_HASH_MD5, "MD5" },
+	{ PCT_HASH_MD5_TRUNC_64, "MD5_TRUNC_64"},
+	{ PCT_HASH_SHA, "SHA"},
+	{ PCT_HASH_SHA_TRUNC_80, "SHA_TRUNC_80"},
+	{ PCT_HASH_DES_DM, "DES_DM"},
+	{ 0x00, NULL },
+};
+
+static const value_string pct_cert_type[] = {
+	{ PCT_CERT_NONE, "None" },
+	{ PCT_CERT_X509, "X.509" },
+	{ PCT_CERT_PKCS7, "PKCS #7" },
+	{ 0x00, NULL },
+};
+static const value_string pct_sig_type[]  = {
+	{ PCT_SIG_NONE, "None" },
+	{ PCT_SIG_RSA_MD5, "MD5" },
+	{ PCT_SIG_RSA_SHA, "RSA SHA" },
+	{ PCT_SIG_DSA_SHA, "DSA SHA" },
+	{ 0x00, NULL },
+};
+
+static const value_string pct_exch_type[] = {
+	{ PCT_EXCH_RSA_PKCS1, "RSA PKCS#1" },
+	{ PCT_EXCH_RSA_PKCS1_TOKEN_DES, "RSA PKCS#1 Token DES" },
+	{ PCT_EXCH_RSA_PKCS1_TOKEN_DES3, "RSA PKCS#1 Token 3DES" },	
+	{ PCT_EXCH_RSA_PKCS1_TOKEN_RC2, "RSA PKCS#1 Token RC-2" },
+	{ PCT_EXCH_RSA_PKCS1_TOKEN_RC4, "RSA PKCS#1 Token RC-4" },
+	{ PCT_EXCH_DH_PKCS3, "DH PKCS#3" },
+	{ PCT_EXCH_DH_PKCS3_TOKEN_DES, "DH PKCS#3 Token DES" },
+	{ PCT_EXCH_DH_PKCS3_TOKEN_DES3, "DH PKCS#3 Token 3DES" },
+	{ PCT_EXCH_FORTEZZA_TOKEN, "Fortezza" },
+	{ 0x00, NULL },
+};
+
+static const value_string pct_error_code[] = {
+	{ PCT_ERR_BAD_CERTIFICATE, "PCT_ERR_BAD_CERTIFICATE" },
+	{ PCT_ERR_CLIENT_AUTH_FAILED, "PCT_ERR_CLIENT_AUTH_FAILE" },
+	{ PCT_ERR_ILLEGAL_MESSAGE, "PCT_ERR_ILLEGAL_MESSAGE" },
+	{ PCT_ERR_INTEGRITY_CHECK_FAILED, "PCT_ERR_INTEGRITY_CHECK_FAILED" },
+	{ PCT_ERR_SERVER_AUTH_FAILED, "PCT_ERR_SERVER_AUTH_FAILED" },
+	{ PCT_ERR_SPECS_MISMATCH, "PCT_ERR_SPECS_MISMATCH" },
+	{ 0x00, NULL },
+};
 
 /*********************************************************************
  *
@@ -577,15 +693,34 @@ static void dissect_ssl2_hnd_client_hello(tvbuff_t *tvb,
                                           proto_tree *tree,
                                           guint32 offset);
 
+static void dissect_pct_msg_client_hello(tvbuff_t *tvb,
+                                          proto_tree *tree,
+                                          guint32 offset);
+
 /* client master key dissector */
 static void dissect_ssl2_hnd_client_master_key(tvbuff_t *tvb,
                                                proto_tree *tree,
                                                guint32 offset);
+static void dissect_pct_msg_client_master_key(tvbuff_t *tvb,
+					      proto_tree *tree,
+					      guint32 offset);
 
 /* server hello dissector */
 static void dissect_ssl2_hnd_server_hello(tvbuff_t *tvb,
                                           proto_tree *tree,
                                           guint32 offset);
+static void dissect_pct_msg_server_hello(tvbuff_t *tvb,
+					 proto_tree *tree,
+					 guint32 offset);
+
+
+static void dissect_pct_msg_server_verify(tvbuff_t *tvb,
+					      proto_tree *tree,
+					      guint32 offset);
+
+static void dissect_pct_msg_error(tvbuff_t *tvb,
+					      proto_tree *tree,
+					      guint32 offset);
 
 /*
  * Support Functions
@@ -1522,7 +1657,8 @@ dissect_ssl3_hnd_cert(tvbuff_t *tvb,
                                             "Certificate (%u byte%s)",
                                             cert_length,
                                             plurality(cert_length, "", "s"));
-                offset += cert_length;
+
+			   offset += cert_length;
             }
         }
 
@@ -1912,11 +2048,19 @@ dissect_ssl2_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         /* dissect the message */
         switch (msg_type) {
         case PCT_MSG_CLIENT_HELLO:
+			dissect_pct_msg_client_hello(tvb, ssl_record_tree, offset);
+			break;
         case PCT_MSG_SERVER_HELLO:
+			dissect_pct_msg_server_hello(tvb, ssl_record_tree, offset);
+			break;
         case PCT_MSG_CLIENT_MASTER_KEY:
+			dissect_pct_msg_client_master_key(tvb, ssl_record_tree, offset);
+			break;
         case PCT_MSG_SERVER_VERIFY:
-        case PCT_MSG_ERROR:
-            /* unimplemented */
+			dissect_pct_msg_server_verify(tvb, ssl_record_tree, offset);
+			break;
+		case PCT_MSG_ERROR:
+			dissect_pct_msg_error(tvb, ssl_record_tree, offset);
             break;
 
         default:                    /* unknown */
@@ -2025,6 +2169,333 @@ dissect_ssl2_hnd_client_hello(tvbuff_t *tvb,
             offset += challenge_length;
         }
     }
+}
+
+static void
+dissect_pct_msg_client_hello(tvbuff_t *tvb,
+							proto_tree *tree, guint32 offset)
+{
+	guint16 CH_CLIENT_VERSION, CH_OFFSET, CH_CIPHER_SPECS_LENGTH, CH_HASH_SPECS_LENGTH, CH_CERT_SPECS_LENGTH, CH_EXCH_SPECS_LENGTH, CH_KEY_ARG_LENGTH; 
+	proto_item *CH_CIPHER_SPECS_ti, *CH_HASH_SPECS_ti, *CH_CERT_SPECS_ti, *CH_EXCH_SPECS_ti;
+	proto_tree *CH_CIPHER_SPECS_tree, *CH_HASH_SPECS_tree, *CH_CERT_SPECS_tree, *CH_EXCH_SPECS_tree;
+	gint i;
+
+	CH_CLIENT_VERSION = tvb_get_ntohs(tvb, offset);
+	if(CH_CLIENT_VERSION != PCT_VERSION_1)
+		proto_tree_add_text(tree, tvb, offset, 2, "Client Version, should be %x in PCT version 1", PCT_VERSION_1);
+	else
+		proto_tree_add_text(tree, tvb, offset, 2, "Client Version (%x)", PCT_VERSION_1);
+	offset += 2;
+	
+	proto_tree_add_text(tree, tvb, offset, 1, "PAD");
+	offset += 1;
+	
+	proto_tree_add_text(tree, tvb, offset, 32, "Client Session ID Data (32 bytes)");
+	offset += 32;
+	
+	proto_tree_add_text(tree, tvb, offset, 32, "Challange Data(32 bytes)");
+	offset += 32;
+	
+	CH_OFFSET = tvb_get_ntohs(tvb, offset);
+	if(CH_OFFSET != PCT_CH_OFFSET_V1)
+		proto_tree_add_text(tree, tvb, offset, 2, "CH_OFFSET: %d, should be %d in PCT version 1", CH_OFFSET, PCT_CH_OFFSET_V1);
+	else
+		proto_tree_add_text(tree, tvb, offset, 2, "CH_OFFSET: %d", CH_OFFSET);
+	offset += 2;
+	
+	CH_CIPHER_SPECS_LENGTH = tvb_get_ntohs(tvb, offset);
+	proto_tree_add_text(tree, tvb, offset, 2, "CIPHER_SPECS Length: %d", CH_CIPHER_SPECS_LENGTH);
+	offset += 2;
+	
+	CH_HASH_SPECS_LENGTH = tvb_get_ntohs(tvb, offset);
+	proto_tree_add_text(tree, tvb, offset, 2, "HASH_SPECS Length: %d", CH_HASH_SPECS_LENGTH);
+	offset += 2;
+	
+	CH_CERT_SPECS_LENGTH = tvb_get_ntohs(tvb, offset);
+	proto_tree_add_text(tree, tvb, offset, 2, "CERT_SPECS Length: %d", CH_CERT_SPECS_LENGTH);
+	offset += 2;
+	
+	CH_EXCH_SPECS_LENGTH = tvb_get_ntohs(tvb, offset);
+	proto_tree_add_text(tree, tvb, offset, 2, "EXCH_SPECS Length: %d", CH_EXCH_SPECS_LENGTH);
+	offset += 2;
+	
+	CH_KEY_ARG_LENGTH = tvb_get_ntohs(tvb, offset);
+	proto_tree_add_text(tree, tvb, offset, 2, "IV Length: %d", CH_KEY_ARG_LENGTH);
+	offset += 2;
+	
+	if(CH_CIPHER_SPECS_LENGTH) {
+		CH_CIPHER_SPECS_ti = proto_tree_add_item(tree, hf_pct_handshake_cipher_spec, tvb, offset, CH_CIPHER_SPECS_LENGTH, FALSE);
+		CH_CIPHER_SPECS_tree = proto_item_add_subtree(CH_CIPHER_SPECS_ti, ett_pct_cipher_suites);
+		
+		for(i=0; i<(CH_CIPHER_SPECS_LENGTH/4); i++) {
+			proto_tree_add_item(CH_CIPHER_SPECS_tree, hf_pct_handshake_cipher, tvb, offset, 2, FALSE);
+			offset += 2;
+			proto_tree_add_text(CH_CIPHER_SPECS_tree, tvb, offset, 1, "Encryption key length: %d", tvb_get_guint8(tvb, offset));
+			offset += 1;
+			proto_tree_add_text(CH_CIPHER_SPECS_tree, tvb, offset, 1, "MAC key length in bits: %d", tvb_get_guint8(tvb, offset) + 64);
+			offset += 1;
+		}
+	}
+	
+	if(CH_HASH_SPECS_LENGTH) {
+		CH_HASH_SPECS_ti = proto_tree_add_item(tree, hf_pct_handshake_hash_spec, tvb, offset, CH_HASH_SPECS_LENGTH, FALSE);
+		CH_HASH_SPECS_tree = proto_item_add_subtree(CH_HASH_SPECS_ti, ett_pct_hash_suites);
+		
+		for(i=0; i<(CH_HASH_SPECS_LENGTH/2); i++) {
+			proto_tree_add_item(CH_HASH_SPECS_tree, hf_pct_handshake_hash, tvb, offset, 2, FALSE);
+			offset += 2;
+		}
+	}
+	
+	if(CH_CERT_SPECS_LENGTH) {
+		CH_CERT_SPECS_ti = proto_tree_add_item(tree, hf_pct_handshake_cert_spec, tvb, offset, CH_CERT_SPECS_LENGTH, FALSE);
+		CH_CERT_SPECS_tree = proto_item_add_subtree(CH_CERT_SPECS_ti, ett_pct_cert_suites);
+		
+		for(i=0; i< (CH_CERT_SPECS_LENGTH/2); i++) {
+			proto_tree_add_item(CH_CERT_SPECS_tree, hf_pct_handshake_cert, tvb, offset, 2, FALSE);
+			offset += 2;
+		}
+	}
+	
+	if(CH_EXCH_SPECS_LENGTH) {
+		CH_EXCH_SPECS_ti = proto_tree_add_item(tree, hf_pct_handshake_exch_spec, tvb, offset, CH_EXCH_SPECS_LENGTH, FALSE);
+		CH_EXCH_SPECS_tree = proto_item_add_subtree(CH_EXCH_SPECS_ti, ett_pct_exch_suites);
+		
+		for(i=0; i<(CH_EXCH_SPECS_LENGTH/2); i++) {
+			proto_tree_add_item(CH_EXCH_SPECS_tree, hf_pct_handshake_exch, tvb, offset, 2, FALSE);
+			offset += 2;
+		}
+	}
+	
+	if(CH_KEY_ARG_LENGTH) {
+		proto_tree_add_text(tree, tvb, offset, CH_KEY_ARG_LENGTH, "IV data (%d bytes)", CH_KEY_ARG_LENGTH);
+		offset += CH_KEY_ARG_LENGTH;
+	}
+}
+
+static void
+dissect_pct_msg_server_hello(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
+{
+/* structure: 
+char SH_MSG_SERVER_HELLO
+char SH_PAD
+char SH_SERVER_VERSION_MSB
+char SH_SERVER_VERSION_LSB
+char SH_RESTART_SESSION_OK
+char SH_CLIENT_AUTH_REQ
+char SH_CIPHER_SPECS_DATA[4]
+char SH_HASH_SPECS_DATA[2]
+char SH_CERT_SPECS_DATA[2]
+char SH_EXCH_SPECS_DATA[2]
+char SH_CONNECTION_ID_DATA[32]
+char SH_CERTIFICATE_LENGTH_MSB
+char SH_CERTIFICATE_LENGTH_LSB
+char SH_CLIENT_CERT_SPECS_LENGTH_MSB
+char SH_CLIENT_CERT_SPECS_LENGTH_LSB
+char SH_CLIENT_SIG_SPECS_LENGTH_MSB
+char SH_CLIENT_SIG_SPECS_LENGTH_LSB
+char SH_RESPONSE_LENGTH_MSB
+char SH_RESPONSE_LENGTH_LSB
+char SH_CERTIFICATE_DATA[MSB<<8|LSB]
+char SH_CLIENT_CERT_SPECS_DATA[MSB<<8|LSB]
+char SH_CLIENT_SIG_SPECS_DATA[MSB<<8|LSB]
+char SH_RESPONSE_DATA[MSB<<8|LSB]
+
+*/
+
+	guint16 SH_SERVER_VERSION, SH_CERT_LENGTH, SH_CERT_SPECS_LENGTH, SH_CLIENT_SIG_LENGTH, SH_RESPONSE_LENGTH; 
+
+	proto_tree_add_text(tree, tvb, offset, 1, "PAD");
+	offset += 1;
+
+	SH_SERVER_VERSION = tvb_get_ntohs(tvb, offset);
+	if(SH_SERVER_VERSION != PCT_VERSION_1)
+		proto_tree_add_text(tree, tvb, offset, 2, "Server Version, should be %x in PCT version 1", PCT_VERSION_1);
+	else
+		proto_tree_add_text(tree, tvb, offset, 2, "Server Version (%x)", PCT_VERSION_1);
+	offset += 2;
+	
+	proto_tree_add_text(tree, tvb, offset, 1, "SH_RESTART_SESSION_OK flag");
+	offset += 1;
+
+	proto_tree_add_text(tree, tvb, offset, 1, "SH_CLIENT_AUTH_REQ flag");
+	offset += 1;
+	
+	proto_tree_add_item(tree, hf_pct_handshake_cipher, tvb, offset, 2, FALSE);
+	offset += 2;
+	proto_tree_add_text(tree, tvb, offset, 1, "Encryption key length: %d", tvb_get_guint8(tvb, offset));
+	offset += 1;
+	proto_tree_add_text(tree, tvb, offset, 1, "MAC key length in bits: %d", tvb_get_guint8(tvb, offset) + 64);
+	offset += 1;
+
+	proto_tree_add_item(tree, hf_pct_handshake_hash, tvb, offset, 2, FALSE);
+	offset += 2;
+
+	proto_tree_add_item(tree, hf_pct_handshake_cert, tvb, offset, 2, FALSE);
+	offset += 2;
+
+	proto_tree_add_item(tree, hf_pct_handshake_exch, tvb, offset, 2, FALSE);
+	offset += 2;
+
+	proto_tree_add_text(tree, tvb, offset, 32, "Connection ID Data (32 bytes)");
+	offset += 32;
+
+	SH_CERT_LENGTH = tvb_get_ntohs(tvb, offset);
+	proto_tree_add_text(tree, tvb, offset, 2, "Server Certificate Length: %d", SH_CERT_LENGTH);
+	offset += 2;
+	
+	SH_CERT_SPECS_LENGTH = tvb_get_ntohs(tvb, offset);
+	proto_tree_add_text(tree, tvb, offset, 2, "Client CERT_SPECS Length: %d", SH_CERT_SPECS_LENGTH);
+	offset += 2;
+	
+	SH_CLIENT_SIG_LENGTH = tvb_get_ntohs(tvb, offset);
+	proto_tree_add_text(tree, tvb, offset, 2, "Client SIG_SPECS Length: %d", SH_CLIENT_SIG_LENGTH);
+	offset += 2;
+	
+	SH_RESPONSE_LENGTH = tvb_get_ntohs(tvb, offset);
+	proto_tree_add_text(tree, tvb, offset, 2, "Response Length: %d", SH_RESPONSE_LENGTH);
+	offset += 2;
+	
+	if(SH_CERT_LENGTH) {
+		proto_tree_add_text(tree, tvb, offset, SH_CERT_LENGTH, "Server Certificate (%d bytes)", SH_CERT_LENGTH);
+		offset += SH_CERT_LENGTH;
+	}
+
+	if(SH_CERT_SPECS_LENGTH) {
+		proto_tree_add_text(tree, tvb, offset, SH_CERT_SPECS_LENGTH, "Client CERT_SPECS (%d bytes)", SH_CERT_SPECS_LENGTH);
+		offset += SH_CERT_SPECS_LENGTH;
+	}
+
+	if(SH_CLIENT_SIG_LENGTH) {
+		proto_tree_add_text(tree, tvb, offset, SH_CLIENT_SIG_LENGTH, "Client Signature (%d bytes)", SH_CLIENT_SIG_LENGTH);
+		offset += SH_CLIENT_SIG_LENGTH;
+	}
+
+	if(SH_RESPONSE_LENGTH) {
+		proto_tree_add_text(tree, tvb, offset, SH_RESPONSE_LENGTH, "Server Response (%d bytes)", SH_RESPONSE_LENGTH);
+		offset += SH_RESPONSE_LENGTH;
+	}
+
+}
+
+static void
+dissect_pct_msg_client_master_key(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
+{
+	guint16 CMK_CLEAR_KEY_LENGTH, CMK_ENCRYPTED_KEY_LENGTH, CMK_KEY_ARG_LENGTH, CMK_VERIFY_PRELUDE, CMK_CLIENT_CERT_LENGTH, CMK_RESPONSE_LENGTH;
+
+	proto_tree_add_text(tree, tvb, offset, 1, "PAD");
+	offset += 1;
+
+	proto_tree_add_item(tree, hf_pct_handshake_cert, tvb, offset, 2, FALSE);
+	offset += 2;
+
+	proto_tree_add_item(tree, hf_pct_handshake_sig, tvb, offset, 2, FALSE);
+	offset += 2;
+
+	CMK_CLEAR_KEY_LENGTH = tvb_get_ntohs(tvb, offset);
+	proto_tree_add_text(tree, tvb, offset, 2, "Clear Key Length: %d",CMK_CLEAR_KEY_LENGTH);
+	offset += 2;
+
+	CMK_ENCRYPTED_KEY_LENGTH = tvb_get_ntohs(tvb, offset);
+	proto_tree_add_text(tree, tvb, offset, 2, "Encrypted Key Length: %d",CMK_ENCRYPTED_KEY_LENGTH);
+	offset += 2;
+
+	CMK_KEY_ARG_LENGTH= tvb_get_ntohs(tvb, offset);
+	proto_tree_add_text(tree, tvb, offset, 2, "IV Length: %d",CMK_KEY_ARG_LENGTH);
+	offset += 2;
+
+	CMK_VERIFY_PRELUDE = tvb_get_ntohs(tvb, offset);
+	proto_tree_add_text(tree, tvb, offset, 2, "Verify Prelude Length: %d",CMK_VERIFY_PRELUDE);
+	offset += 2;
+
+	CMK_CLIENT_CERT_LENGTH = tvb_get_ntohs(tvb, offset);
+	proto_tree_add_text(tree, tvb, offset, 2, "Client Cert Length: %d",CMK_CLIENT_CERT_LENGTH);
+	offset += 2;
+
+	CMK_RESPONSE_LENGTH = tvb_get_ntohs(tvb, offset);
+	proto_tree_add_text(tree, tvb, offset, 2, "Response Length: %d",CMK_RESPONSE_LENGTH);
+	offset += 2;
+
+	if(CMK_CLEAR_KEY_LENGTH) {
+		proto_tree_add_text(tree, tvb, offset, CMK_CLEAR_KEY_LENGTH, "Clear Key data (%d bytes)", CMK_CLEAR_KEY_LENGTH);
+		offset += CMK_CLEAR_KEY_LENGTH;
+	}
+	if(CMK_ENCRYPTED_KEY_LENGTH) {
+		proto_tree_add_text(tree, tvb, offset, CMK_ENCRYPTED_KEY_LENGTH, "Encrypted Key data (%d bytes)", CMK_ENCRYPTED_KEY_LENGTH);
+		offset += CMK_ENCRYPTED_KEY_LENGTH;
+	}
+	if(CMK_KEY_ARG_LENGTH) {
+		proto_tree_add_text(tree, tvb, offset, CMK_KEY_ARG_LENGTH, "IV data (%d bytes)", CMK_KEY_ARG_LENGTH);
+		offset += CMK_KEY_ARG_LENGTH;
+	}
+	if(CMK_VERIFY_PRELUDE) {
+		proto_tree_add_text(tree, tvb, offset, CMK_VERIFY_PRELUDE, "Verify Prelude data (%d bytes)", CMK_VERIFY_PRELUDE);
+		offset += CMK_VERIFY_PRELUDE;
+	}
+	if(CMK_CLIENT_CERT_LENGTH) {
+		proto_tree_add_text(tree, tvb, offset, CMK_CLIENT_CERT_LENGTH, "Client Certificate data (%d bytes)", CMK_CLIENT_CERT_LENGTH);
+		offset += CMK_CLIENT_CERT_LENGTH;
+	}
+	if(CMK_RESPONSE_LENGTH) {
+		proto_tree_add_text(tree, tvb, offset, CMK_RESPONSE_LENGTH, "Response data (%d bytes)", CMK_RESPONSE_LENGTH);
+		offset += CMK_RESPONSE_LENGTH;
+	}
+}
+
+static void
+dissect_pct_msg_server_verify(tvbuff_t *tvb,
+							proto_tree *tree, guint32 offset)
+{
+	guint16 SV_RESPONSE_LENGTH;
+
+	proto_tree_add_text(tree, tvb, offset, 1, "PAD");
+	offset += 1;
+
+	proto_tree_add_text(tree, tvb, offset, 32, "Server Session ID data (32 bytes)");
+	offset += 32;
+
+	SV_RESPONSE_LENGTH = tvb_get_ntohs(tvb, offset);
+	proto_tree_add_text(tree, tvb, offset, 2, "Server Response Length: %d", SV_RESPONSE_LENGTH);
+	offset += 2;
+
+	if(SV_RESPONSE_LENGTH) {
+		proto_tree_add_text(tree, tvb, offset, SV_RESPONSE_LENGTH, "Server Response (%d bytes)", SV_RESPONSE_LENGTH);
+		offset += SV_RESPONSE_LENGTH;
+	}
+}
+
+static void
+dissect_pct_msg_error(tvbuff_t *tvb,
+							proto_tree *tree, guint32 offset)
+{
+	guint16 ERROR_CODE, INFO_LEN;
+
+	ERROR_CODE = tvb_get_ntohs(tvb, offset);
+	proto_tree_add_item(tree, hf_pct_msg_error_type, tvb, offset, 2, FALSE);
+	offset += 2;
+
+	INFO_LEN = tvb_get_ntohs(tvb, offset);
+	proto_tree_add_text(tree, tvb, offset, 2, "Eror Information Length: %d", INFO_LEN);
+	offset += 2;
+	if (ERROR_CODE == PCT_ERR_SPECS_MISMATCH && INFO_LEN == 6)
+	{
+		proto_tree_add_text(tree, tvb, offset, 1, "SPECS_MISMATCH_CIPHER");
+		offset += 1;
+		proto_tree_add_text(tree, tvb, offset, 1, "SPECS_MISMATCH_HASH");
+		offset += 1;
+		proto_tree_add_text(tree, tvb, offset, 1, "SPECS_MISMATCH_CERT");
+		offset += 1;
+		proto_tree_add_text(tree, tvb, offset, 1, "SPECS_MISMATCH_EXCH");
+		offset += 1;
+		proto_tree_add_text(tree, tvb, offset, 1, "SPECS_MISMATCH_CLIENT_CERT");
+		offset += 1;
+		proto_tree_add_text(tree, tvb, offset, 1, "SPECS_MISMATCH_CLIENT_SIG");
+		offset += 1;
+	}
+	else if(INFO_LEN) {
+		proto_tree_add_text(tree, tvb, offset, INFO_LEN, "Error Information dta (%d bytes)", INFO_LEN);
+		offset += INFO_LEN;
+	}
 }
 
 static void
@@ -2841,6 +3312,56 @@ proto_register_ssl(void)
             FT_NONE, BASE_NONE, NULL, 0x0,
             "Server's challenge to client", HFILL }
         },
+		{ &hf_pct_handshake_cipher_spec,
+		  { "Cipher Spec", "pct.handshake.cipherspec",
+			FT_NONE, BASE_NONE, NULL, 0x0,
+			"PCT Cipher specification", HFILL }
+		},
+		{ &hf_pct_handshake_cipher,
+		  { "Cipher", "pct.handshake.cipher",
+			FT_UINT16, BASE_HEX, VALS(pct_cipher_type), 0x0, 
+			"PCT Ciper", HFILL }
+	},
+		{ &hf_pct_handshake_hash_spec,
+		  { "Hash Spec", "pct.handshake.hashspec",
+			FT_NONE, BASE_NONE, NULL, 0x0,
+			"PCT Hash specification", HFILL }
+		},
+		{ &hf_pct_handshake_hash,
+		  { "Hash", "pct.handshake.hash",
+			FT_UINT16, BASE_HEX, VALS(pct_hash_type), 0x0,
+			"PCT Hash", HFILL }
+		},
+		{ &hf_pct_handshake_cert_spec,
+		  { "Cert Spec", "pct.handshake.certspec",
+			FT_NONE, BASE_NONE, NULL, 0x0,
+			"PCT Certificate specification", HFILL }
+		},
+		{ &hf_pct_handshake_cert,
+		  { "Cert Spec", "pct.handshake.cert",
+			FT_UINT16, BASE_HEX, VALS(pct_cert_type), 0x0,
+			"PCT Certificate", HFILL }
+		},
+		{ &hf_pct_handshake_exch_spec,
+		  { "Exchange Spec", "pct.handshake.exchspec",
+			FT_NONE, BASE_NONE, NULL, 0x0,
+			"PCT Exchange specification", HFILL }
+		},
+		{ &hf_pct_handshake_exch,
+		  { "Exchange", "pct.handshake.exch",
+			FT_UINT16, BASE_HEX, VALS(pct_exch_type), 0x0,
+			"PCT Exchange", HFILL }
+		},
+		{ &hf_pct_handshake_sig,
+		  { "Sig Spec", "pct.handshake.sig",
+			FT_UINT16, BASE_HEX, VALS(pct_sig_type), 0x0,
+			"PCT Signature", HFILL }
+		},
+		{ &hf_pct_msg_error_type,
+		  { "PCT Error Code", "pct.msg_error_code",
+			FT_UINT16, BASE_HEX, VALS(pct_error_code), 0x0,
+			"PCT Error Code", HFILL }
+		},
     };
 
     /* Setup protocol subtree array */
@@ -2854,6 +3375,10 @@ proto_register_ssl(void)
         &ett_ssl_certs,
         &ett_ssl_cert_types,
         &ett_ssl_dnames,
+	&ett_pct_cipher_suites,
+	&ett_pct_hash_suites,
+	&ett_pct_cert_suites,
+	&ett_pct_exch_suites,
     };
 
     /* Register the protocol name and description */

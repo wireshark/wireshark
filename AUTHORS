@@ -408,6 +408,7 @@ Yaniv Kaul              <ykaul[AT]netvision.net.il> {
 	DCERPC OXID operation #5 dissection
 	TDS enhancements
 	DCERPC: Resolve UUID to interface names on win32 platforms
+	PCT support
 }
 
 Paul Ionescu            <paul[AT]acorp.ro> {
