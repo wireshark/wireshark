@@ -2,7 +2,7 @@
  * Routines for IEEE 802.2 LLC layer
  * Gilbert Ramirez <gramirez@tivoli.com>
  *
- * $Id: packet-llc.c,v 1.33 1999/12/13 21:48:18 nneul Exp $
+ * $Id: packet-llc.c,v 1.34 1999/12/13 23:39:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -61,7 +61,39 @@ struct sap_info {
 	dissect_func_t *dissect_func;
 };
 
-/* These are for SSAP and DSAP, wth last bit always zero */
+/*
+ * Group/Individual bit, in the DSAP.
+ */
+#define	DSAP_GI_BIT	0x01
+
+/*
+ * Command/Response bit, in the SSAP.
+ *
+ * The low-order bit of the SSAP apparently determines whether this
+ * is a request or a response.  (RFC 1390, "Transmission of IP and
+ * ARP over FDDI Networks", says
+ *
+ *	Command frames are identified by having the low order
+ *	bit of the SSAP address reset to zero.  Response frames
+ *	have the low order bit of the SSAP address set to one.
+ *
+ * and a page I've seen seems to imply that's part of 802.2.)
+ *
+ * XXX - that page also implies that LLC Type 2 always uses
+ * extended operation, so we don't need to determine whether
+ * it's basic or extended operation; is that the case?
+ */
+#define	SSAP_CR_BIT	0x01
+
+/*
+ * Mask to extrace the SAP number from the DSAP or the SSAP.
+ */
+#define	SAP_MASK	0xFE
+
+/*
+ * These are for SSAP and DSAP, wth last bit always zero.
+ * XXX - what about 0xFF, "Global LSAP"?
+ */
 static const value_string sap_vals[] = {
 	{ 0x00, "NULL LSAP" },
 	{ 0x02, "LLC Sub-Layer Management" },
@@ -166,7 +198,6 @@ sap_dissect_func(u_char sap) {
 	return dissect_data;
 }
 
-
 void
 capture_llc(const u_char *pd, int offset, guint32 cap_len, packet_counts *ld) {
 
@@ -185,21 +216,13 @@ capture_llc(const u_char *pd, int offset, guint32 cap_len, packet_counts *ld) {
 	llc_header_len = 2;	/* DSAP + SSAP */
 
 	/*
-	 * The low-order bit of the SSAP apparently determines whether this
-	 * is a request or a response.  (RFC 1390, "Transmission of IP and
-	 * ARP over FDDI Networks", says
-	 *
-	 *	Command frames are identified by having the low order
-	 *	bit of the SSAP address reset to zero.  Response frames
-	 *	have the low order bit of the SSAP address set to one.
-	 *
-	 * and a page I've seen seems to imply that's part of 802.2.)
-	 *
-	 * XXX - that page also implies that LLC Type 2 always uses
-	 * extended operation, so we don't need to determine whether
-	 * it's basic or extended operation; is that the case?
+	 * XXX - the page referred to in the comment above about the
+	 * Command/Response bit also implies that LLC Type 2 always
+	 * uses extended operation, so we don't need to determine
+	 * whether it's basic or extended operation; is that the case?
 	 */
-	control = get_xdlc_control(pd, offset+2, pd[offset+1] & 0x01, TRUE);
+	control = get_xdlc_control(pd, offset+2, pd[offset+1] & SSAP_CR_BIT,
+	    TRUE);
 	llc_header_len += XDLC_CONTROL_LEN(control, TRUE);
 	if (is_snap)
 		llc_header_len += 5;	/* 3 bytes of OUI, 2 bytes of protocol ID */
@@ -283,34 +306,25 @@ dissect_llc(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 		ti = proto_tree_add_item(tree, proto_llc, offset, 0, NULL);
 		llc_tree = proto_item_add_subtree(ti, ett_llc);
 		proto_tree_add_item(llc_tree, hf_llc_dsap, offset, 
-			1, pd[offset] & 0xFE);
+			1, pd[offset] & SAP_MASK);
 		proto_tree_add_item(llc_tree, hf_llc_dsap_ig, offset, 
-			1, pd[offset] & 0x01);
+			1, pd[offset] & DSAP_GI_BIT);
 		proto_tree_add_item(llc_tree, hf_llc_ssap, offset+1, 
-			1, pd[offset+1] & 0xFE);
+			1, pd[offset+1] & SAP_MASK);
 		proto_tree_add_item(llc_tree, hf_llc_ssap_cr, offset+1, 
-			1, pd[offset+1] & 0x01);
+			1, pd[offset+1] & SSAP_CR_BIT);
 	} else
 		llc_tree = NULL;
 
 	/*
-	 * The low-order bit of the SSAP apparently determines whether this
-	 * is a request or a response.  (RFC 1390, "Transmission of IP and
-	 * ARP over FDDI Networks", says
-	 *
-	 *	Command frames are identified by having the low order
-	 *	bit of the SSAP address reset to zero.  Response frames
-	 *	have the low order bit of the SSAP address set to one.
-	 *
-	 * and a page I've seen seems to imply that's part of 802.2.)
-	 *
-	 * XXX - that page also implies that LLC Type 2 always uses
-	 * extended operation, so we don't need to determine whether
-	 * it's basic or extended operation; is that the case?
+	 * XXX - the page referred to in the comment above about the
+	 * Command/Response bit also implies that LLC Type 2 always
+	 * uses extended operation, so we don't need to determine
+	 * whether it's basic or extended operation; is that the case?
 	 */
 	control = dissect_xdlc_control(pd, offset+2, fd, llc_tree,
 				hf_llc_ctrl, ett_llc_ctrl,
-				pd[offset+1] & 0x01, TRUE);
+				pd[offset+1] & SSAP_CR_BIT, TRUE);
 	llc_header_len += XDLC_CONTROL_LEN(control, TRUE);
 	if (is_snap)
 		llc_header_len += 5;	/* 3 bytes of OUI, 2 bytes of protocol ID */
@@ -368,12 +382,14 @@ dissect_llc(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	else {
 		if (check_col(fd, COL_INFO)) {
 			col_add_fstr(fd, COL_INFO, 
-				"DSAP %s %s, SSAP %s %s",
-				val_to_str(pd[offset] & 0xFE, sap_vals, "%02x"),
-				pd[offset] & 0x01 ? "Group" : "Individual",
-				val_to_str(pd[offset+1] & 0xFE, sap_vals, "%02x"),
-				pd[offset+1] & 0x01 ? "Command" : "Response"
-				);
+			    "DSAP %s %s, SSAP %s %s",
+			    val_to_str(pd[offset] & SAP_MASK, sap_vals, "%02x"),
+			    pd[offset] & DSAP_GI_BIT ?
+			      "Group" : "Individual",
+			    val_to_str(pd[offset+1] & SAP_MASK, sap_vals, "%02x"),
+			    pd[offset+1] & SSAP_CR_BIT ?
+			      "Command" : "Response"
+			);
 		}
 
 		if (XDLC_HAS_PAYLOAD(control)) {
