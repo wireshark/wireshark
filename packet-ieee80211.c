@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB 
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.19 2001/06/01 01:15:28 guy Exp $
+ * $Id: packet-ieee80211.c,v 1.20 2001/06/08 06:01:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -91,6 +91,8 @@
 #define COOK_WEP_KEY(x)       ((x & 0xC0000000) >> 30)
 #define COL_SHOW_INFO(fd,info) if (check_col(fd,COL_INFO)) \
 col_add_str(fd,COL_INFO,info);
+#define COL_SHOW_INFO_CONST(fd,info) if (check_col(fd,COL_INFO)) \
+col_set_str(fd,COL_INFO,info);
 
 #define IS_TO_DS(x)            ((x & 0x1))
 #define IS_FROM_DS(x)          ((x & 0x2))
@@ -785,24 +787,24 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
       hdr_tree = proto_item_add_subtree (ti, ett_80211);
 
       fc_item = proto_tree_add_uint_format (hdr_tree, hf_fc_field, tvb, 0, 2,
-					    tvb_get_letohs (tvb, 0),
+					    fcf,
 					    "Frame Control: 0x%04X",
-					    tvb_get_letohs (tvb, 0));
+					    fcf);
 
       fc_tree = proto_item_add_subtree (fc_item, ett_fc_tree);
 
 
       proto_tree_add_uint (fc_tree, hf_fc_proto_version, tvb, 0, 1,
-			   COOK_PROT_VERSION (tvb_get_letohs (tvb, 0)));
+			   COOK_PROT_VERSION (fcf));
 
       proto_tree_add_uint (fc_tree, hf_fc_frame_type, tvb, 0, 1,
-			   COOK_FRAME_TYPE (tvb_get_letohs (tvb, 0)));
+			   COOK_FRAME_TYPE (fcf));
 
       proto_tree_add_uint (fc_tree, hf_fc_frame_subtype,
 			   tvb, 0, 1,
-			   COOK_FRAME_SUBTYPE (tvb_get_letohs (tvb, 0)));
+			   COOK_FRAME_SUBTYPE (fcf));
 
-      flags = COOK_FLAGS (tvb_get_letohs (tvb, 0));
+      flags = COOK_FLAGS (fcf);
 
       flag_item =
 	proto_tree_add_uint_format (fc_tree, hf_fc_flags, tvb, 1, 1,
@@ -1007,7 +1009,7 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     {
 
     case MGT_ASSOC_REQ:
-      COL_SHOW_INFO (pinfo->fd, "Association Request");
+      COL_SHOW_INFO_CONST (pinfo->fd, "Association Request");
       if (tree)
 	{
 	  fixed_tree = get_fixed_parameter_tree (tree, tvb, MGT_FRAME_LEN, 4);
@@ -1034,7 +1036,7 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
 
     case MGT_ASSOC_RESP:
-      COL_SHOW_INFO (pinfo->fd, "Association Response");
+      COL_SHOW_INFO_CONST (pinfo->fd, "Association Response");
 
       if (tree)
 	{
@@ -1063,7 +1065,7 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
 
     case MGT_REASSOC_REQ:
-      COL_SHOW_INFO (pinfo->fd, "Reassociation Request");
+      COL_SHOW_INFO_CONST (pinfo->fd, "Reassociation Request");
       if (tree)
 	{
 	  fixed_tree = get_fixed_parameter_tree (tree, tvb, MGT_FRAME_LEN, 10);
@@ -1089,7 +1091,7 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
       break;
 
     case MGT_REASSOC_RESP:
-      COL_SHOW_INFO (pinfo->fd, "Reassociation Response");
+      COL_SHOW_INFO_CONST (pinfo->fd, "Reassociation Response");
       if (tree)
 	{
 	  fixed_tree = get_fixed_parameter_tree (tree, tvb, MGT_FRAME_LEN, 10);
@@ -1116,7 +1118,7 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
 
     case MGT_PROBE_REQ:
-      COL_SHOW_INFO (pinfo->fd, "Probe Request");
+      COL_SHOW_INFO_CONST (pinfo->fd, "Probe Request");
       if (tree)
 	{
 	  next_idx = MGT_FRAME_LEN;
@@ -1136,7 +1138,7 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
 
     case MGT_PROBE_RESP:
-      COL_SHOW_INFO (pinfo->fd, "Probe Response");
+      COL_SHOW_INFO_CONST (pinfo->fd, "Probe Response");
       if (tree)
 	{
 	  fixed_tree = get_fixed_parameter_tree (tree, tvb, MGT_FRAME_LEN, 12);
@@ -1163,7 +1165,7 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
 
     case MGT_BEACON:		/* Dissect protocol payload fields  */
-      COL_SHOW_INFO (pinfo->fd, "Beacon frame");
+      COL_SHOW_INFO_CONST (pinfo->fd, "Beacon frame");
 
       if (tree)
 	{
@@ -1194,14 +1196,14 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
 
     case MGT_ATIM:
-      COL_SHOW_INFO (pinfo->fd, "ATIM");
+      COL_SHOW_INFO_CONST (pinfo->fd, "ATIM");
       if (tree)
 	{
 	}
       break;
 
     case MGT_DISASS:
-      COL_SHOW_INFO (pinfo->fd, "Dissassociate");
+      COL_SHOW_INFO_CONST (pinfo->fd, "Dissassociate");
       if (tree)
 	{
 	  fixed_tree = get_fixed_parameter_tree (tree, tvb, MGT_FRAME_LEN, cap_len);
@@ -1210,21 +1212,22 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
       break;
 
     case MGT_AUTHENTICATION:
-      COL_SHOW_INFO (pinfo->fd, "Authentication");
-      if (tree)
+      COL_SHOW_INFO_CONST (pinfo->fd, "Authentication");
+      if (IS_WEP(COOK_FLAGS(fcf)))
 	{
-	  if (IS_WEP(COOK_FLAGS(fcf)))
-	    {
-	      int pkt_len = tvb_reported_length (tvb);
-	      int cap_len = tvb_length (tvb);
+	  int pkt_len = tvb_reported_length (tvb);
+	  int cap_len = tvb_length (tvb);
 
-	      get_wep_parameter_tree (tree, tvb, MGT_FRAME_LEN, pkt_len);
-	      pkt_len = MAX (pkt_len - 8 - MGT_FRAME_LEN, 0);
-	      cap_len = MIN (pkt_len, MAX (cap_len - 8 - MGT_FRAME_LEN, 0));
-	      next_tvb = tvb_new_subset (tvb, MGT_FRAME_LEN + 4, cap_len, pkt_len);
-	      dissect_data (next_tvb, 0, pinfo, tree);
-	    }
-	  else
+	  if (tree)
+	    get_wep_parameter_tree (tree, tvb, MGT_FRAME_LEN, pkt_len);
+	  pkt_len = MAX (pkt_len - 8 - MGT_FRAME_LEN, 0);
+	  cap_len = MIN (pkt_len, MAX (cap_len - 8 - MGT_FRAME_LEN, 0));
+	  next_tvb = tvb_new_subset (tvb, MGT_FRAME_LEN + 4, cap_len, pkt_len);
+	  dissect_data (next_tvb, 0, pinfo, tree);
+	}
+      else
+	{
+	  if (tree)
 	    {
 	      fixed_tree = get_fixed_parameter_tree (tree, tvb, MGT_FRAME_LEN, 6);
 	      add_fixed_field (fixed_tree, tvb, MGT_FRAME_LEN, FIELD_AUTH_ALG);
@@ -1256,7 +1259,7 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
       break;
 
     case MGT_DEAUTHENTICATION:
-      COL_SHOW_INFO (pinfo->fd, "Deauthentication");
+      COL_SHOW_INFO_CONST (pinfo->fd, "Deauthentication");
       if (tree)
 	{
 	  fixed_tree = get_fixed_parameter_tree (hdr_tree, tvb, MGT_FRAME_LEN, 2);
@@ -1267,7 +1270,7 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
 
     case CTRL_PS_POLL:
-      COL_SHOW_INFO (pinfo->fd, "Power-Save poll");
+      COL_SHOW_INFO_CONST (pinfo->fd, "Power-Save poll");
 
       src = tvb_get_ptr (tvb, 10, 6);
       dst = tvb_get_ptr (tvb, 4, 6);
@@ -1297,7 +1300,7 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
 
     case CTRL_RTS:
-      COL_SHOW_INFO (pinfo->fd, "Request-to-send");
+      COL_SHOW_INFO_CONST (pinfo->fd, "Request-to-send");
       src = tvb_get_ptr (tvb, 10, 6);
       dst = tvb_get_ptr (tvb, 4, 6);
 
@@ -1326,7 +1329,7 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
 
     case CTRL_CTS:
-      COL_SHOW_INFO (pinfo->fd, "Clear-to-send");
+      COL_SHOW_INFO_CONST (pinfo->fd, "Clear-to-send");
 
       dst = tvb_get_ptr (tvb, 4, 6);
 
@@ -1346,7 +1349,7 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
 
     case CTRL_ACKNOWLEDGEMENT:
-      COL_SHOW_INFO (pinfo->fd, "Acknowledgement");
+      COL_SHOW_INFO_CONST (pinfo->fd, "Acknowledgement");
 
       dst = tvb_get_ptr (tvb, 4, 6);
 
@@ -1363,7 +1366,7 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
 
     case CTRL_CFP_END:
-      COL_SHOW_INFO (pinfo->fd, "CF-End (Control-frame)");
+      COL_SHOW_INFO_CONST (pinfo->fd, "CF-End (Control-frame)");
 
       src = tvb_get_ptr (tvb, 10, 6);
       dst = tvb_get_ptr (tvb, 4, 6);
@@ -1389,7 +1392,7 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
 
     case CTRL_CFP_ENDACK:
-      COL_SHOW_INFO (pinfo->fd, "CF-End + CF-Ack (Control-frame)");
+      COL_SHOW_INFO_CONST (pinfo->fd, "CF-End + CF-Ack (Control-frame)");
 
       src = tvb_get_ptr (tvb, 10, 6);
       dst = tvb_get_ptr (tvb, 4, 6);
@@ -1415,129 +1418,121 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
 
     case DATA:
-      COL_SHOW_INFO (pinfo->fd, "Data");
-      if (tree)
+      COL_SHOW_INFO_CONST (pinfo->fd, "Data");
+      hdr_len = find_header_length (tvb_get_ptr (tvb, 0, cap_len), 0);
+
+      next_tvb = tvb_new_subset (tvb, hdr_len, -1, -1);
+
+      if (IS_WEP(COOK_FLAGS(fcf)))
 	{
-	  hdr_len = find_header_length (tvb_get_ptr (tvb, 0, cap_len), 0);
+	  int pkt_len = tvb_reported_length (next_tvb);
+	  int cap_len = tvb_length (next_tvb);
 
-	  next_tvb = tvb_new_subset (tvb, hdr_len, -1, -1);
-
-	  if (IS_WEP(COOK_FLAGS(fcf)))
-	    {
-	      int pkt_len = tvb_reported_length (next_tvb);
-	      int cap_len = tvb_length (next_tvb);
-
-	      get_wep_parameter_tree (tree, next_tvb, 0, pkt_len);
-	      pkt_len = MAX (pkt_len - 8, 0);
-	      cap_len = MIN (pkt_len, MAX (cap_len - 8, 0));
-	      next_tvb = tvb_new_subset (tvb, hdr_len + 4, cap_len, pkt_len);
-	      dissect_data (next_tvb, 0, pinfo, tree);
-	    }
-	  else
-	    call_dissector (llc_handle, next_tvb, pinfo, tree);
+	  if (tree)
+	    get_wep_parameter_tree (tree, next_tvb, 0, pkt_len);
+	  pkt_len = MAX (pkt_len - 8, 0);
+	  cap_len = MIN (pkt_len, MAX (cap_len - 8, 0));
+	  next_tvb = tvb_new_subset (tvb, hdr_len + 4, cap_len, pkt_len);
+	  dissect_data (next_tvb, 0, pinfo, tree);
 	}
+      else
+	call_dissector (llc_handle, next_tvb, pinfo, tree);
       break;
 
 
 
     case DATA_CF_ACK:
-      COL_SHOW_INFO (pinfo->fd, "Data + CF-Acknowledgement");
-      if (tree)
+      COL_SHOW_INFO_CONST (pinfo->fd, "Data + CF-Acknowledgement");
+      hdr_len = find_header_length (tvb_get_ptr (tvb, 0, cap_len), 0);
+
+      next_tvb = tvb_new_subset (tvb, hdr_len, -1, -1);
+
+      if (IS_WEP(COOK_FLAGS(fcf)))
 	{
-	  hdr_len = find_header_length (tvb_get_ptr (tvb, 0, cap_len), 0);
+	  int pkt_len = tvb_reported_length (next_tvb);
+	  int cap_len = tvb_length (next_tvb);
 
-	  next_tvb = tvb_new_subset (tvb, hdr_len, -1, -1);
-
-	  if (IS_WEP(COOK_FLAGS(fcf)))
-	    {
-	      int pkt_len = tvb_reported_length (next_tvb);
-	      int cap_len = tvb_length (next_tvb);
-
-	      get_wep_parameter_tree (tree, next_tvb, 0, pkt_len);
-	      pkt_len = MAX (pkt_len - 8, 0);
-	      cap_len = MIN (pkt_len, MAX (cap_len - 8, 0));
-	      next_tvb = tvb_new_subset (tvb, hdr_len + 4, cap_len, pkt_len);
-	      dissect_data (next_tvb, 0, pinfo, tree);
-	    }
-	  else
-	    call_dissector (llc_handle, next_tvb, pinfo, tree);
+	  if (tree)
+	    get_wep_parameter_tree (tree, next_tvb, 0, pkt_len);
+	  pkt_len = MAX (pkt_len - 8, 0);
+	  cap_len = MIN (pkt_len, MAX (cap_len - 8, 0));
+	  next_tvb = tvb_new_subset (tvb, hdr_len + 4, cap_len, pkt_len);
+	  dissect_data (next_tvb, 0, pinfo, tree);
 	}
+      else
+	call_dissector (llc_handle, next_tvb, pinfo, tree);
       break;
 
 
 
     case DATA_CF_POLL:
-      COL_SHOW_INFO (pinfo->fd, "Data + CF-Poll");
-      if (tree)
+      COL_SHOW_INFO_CONST (pinfo->fd, "Data + CF-Poll");
+      hdr_len = find_header_length (tvb_get_ptr (tvb, 0, cap_len), 0);
+      next_tvb = tvb_new_subset (tvb, hdr_len, -1, -1);
+
+      if (IS_WEP(COOK_FLAGS(fcf)))
 	{
-	  hdr_len = find_header_length (tvb_get_ptr (tvb, 0, cap_len), 0);
-	  next_tvb = tvb_new_subset (tvb, hdr_len, -1, -1);
+	  int pkt_len = tvb_reported_length (next_tvb);
+	  int cap_len = tvb_length (next_tvb);
 
-	  if (IS_WEP(COOK_FLAGS(fcf)))
-	    {
-	      int pkt_len = tvb_reported_length (next_tvb);
-	      int cap_len = tvb_length (next_tvb);
-
-	      get_wep_parameter_tree (tree, next_tvb, 0, pkt_len);
-	      pkt_len = MAX (pkt_len - 8, 0);
-	      cap_len = MIN (pkt_len, MAX (cap_len - 8, 0));
-	      next_tvb = tvb_new_subset (tvb, hdr_len + 4, cap_len, pkt_len);
-	      dissect_data (next_tvb, 0, pinfo, tree);
-	    }
-	  else
-	    call_dissector (llc_handle, next_tvb, pinfo, tree);
+	  if (tree)
+	    get_wep_parameter_tree (tree, next_tvb, 0, pkt_len);
+	  pkt_len = MAX (pkt_len - 8, 0);
+	  cap_len = MIN (pkt_len, MAX (cap_len - 8, 0));
+	  next_tvb = tvb_new_subset (tvb, hdr_len + 4, cap_len, pkt_len);
+	  dissect_data (next_tvb, 0, pinfo, tree);
 	}
+      else
+	call_dissector (llc_handle, next_tvb, pinfo, tree);
       break;
 
 
 
     case DATA_CF_ACK_POLL:
-      COL_SHOW_INFO (pinfo->fd, "Data + CF-Acknowledgement/Poll");
-      if (tree)
+      COL_SHOW_INFO_CONST (pinfo->fd, "Data + CF-Acknowledgement/Poll");
+      hdr_len = find_header_length (tvb_get_ptr (tvb, 0, cap_len), 0);
+      next_tvb = tvb_new_subset (tvb, hdr_len, -1, -1);
+
+      if (IS_WEP(COOK_FLAGS(fcf)))
 	{
-	  hdr_len = find_header_length (tvb_get_ptr (tvb, 0, cap_len), 0);
-	  next_tvb = tvb_new_subset (tvb, hdr_len, -1, -1);
+	  int pkt_len = tvb_reported_length (next_tvb);
+	  int cap_len = tvb_length (next_tvb);
 
-	  if (IS_WEP(COOK_FLAGS(fcf)))
-	    {
-	      int pkt_len = tvb_reported_length (next_tvb);
-	      int cap_len = tvb_length (next_tvb);
-
-	      get_wep_parameter_tree (tree, next_tvb, 0, pkt_len);
-	      pkt_len = MAX (pkt_len - 8, 0);
-	      cap_len = MIN (pkt_len, MAX (cap_len - 8, 0));
-	      next_tvb = tvb_new_subset (tvb, hdr_len + 4, cap_len, pkt_len);
-	      dissect_data (next_tvb, 0, pinfo, tree);
-	    }
-	  else
-	    call_dissector (llc_handle, next_tvb, pinfo, tree);
+	  if (tree)
+	    get_wep_parameter_tree (tree, next_tvb, 0, pkt_len);
+	  pkt_len = MAX (pkt_len - 8, 0);
+	  cap_len = MIN (pkt_len, MAX (cap_len - 8, 0));
+	  next_tvb = tvb_new_subset (tvb, hdr_len + 4, cap_len, pkt_len);
+	  dissect_data (next_tvb, 0, pinfo, tree);
 	}
+      else
+	call_dissector (llc_handle, next_tvb, pinfo, tree);
       break;
 
 
 
     case DATA_NULL_FUNCTION:
-      COL_SHOW_INFO (pinfo->fd, "Null function (No data)");
+      COL_SHOW_INFO_CONST (pinfo->fd, "Null function (No data)");
       break;
 
 
     case DATA_CF_ACK_NOD:
-      COL_SHOW_INFO (pinfo->fd, "Data + Acknowledgement(No data)");
+      COL_SHOW_INFO_CONST (pinfo->fd, "Data + Acknowledgement(No data)");
       break;
 
 
     case DATA_CF_POLL_NOD:
-      COL_SHOW_INFO (pinfo->fd, "Data + CF-Poll (No data)");
+      COL_SHOW_INFO_CONST (pinfo->fd, "Data + CF-Poll (No data)");
       break;
 
 
     case DATA_CF_ACK_POLL_NOD:
-      COL_SHOW_INFO (pinfo->fd, "Data + CF-Acknowledgement/Poll (No data)");
+      COL_SHOW_INFO_CONST (pinfo->fd, "Data + CF-Acknowledgement/Poll (No data)");
       break;
 
 
     default:
-      COL_SHOW_INFO (pinfo->fd, "Unrecognized (Reserved frame)");
+      COL_SHOW_INFO_CONST (pinfo->fd, "Unrecognized (Reserved frame)");
       break;
     }
 }
