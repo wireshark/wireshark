@@ -6,7 +6,7 @@
  * Portions based on information retrieved from the RX definitions
  *   in Arla, the free AFS client at http://www.stacken.kth.se/project/arla/
  *
- * $Id: packet-afs.c,v 1.14 2000/10/21 05:52:21 guy Exp $
+ * $Id: packet-afs.c,v 1.15 2000/10/23 04:26:55 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -653,9 +653,9 @@ static void dissect_backup_reply(const u_char *pd,
 
 
 /*
- * Hash Functions - copied from packet-afs.c
+ * Hash Functions
  */
-gint
+static gint
 afs_equal(gconstpointer v, gconstpointer w)
 {
   struct afs_request_key *v1 = (struct afs_request_key *)v;
@@ -671,7 +671,7 @@ afs_equal(gconstpointer v, gconstpointer w)
   return 0;
 }
 
-guint
+static guint
 afs_hash (gconstpointer v)
 {
 	struct afs_request_key *key = (struct afs_request_key *)v;
