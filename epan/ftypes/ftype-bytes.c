@@ -1,5 +1,5 @@
 /*
- * $Id: ftype-bytes.c,v 1.20 2003/12/18 13:02:19 obiot Exp $
+ * $Id: ftype-bytes.c,v 1.21 2003/12/29 04:07:06 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -138,96 +138,16 @@ value_get(fvalue_t *fv)
 }
 
 static gboolean
-is_byte_sep(guint8 c)
-{
-	return (c == '-' || c == ':' || c == '.');
-}
-
-static gboolean
 bytes_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, LogFunc logfunc)
 {
 	GByteArray	*bytes;
-	guint8		val;
-	guchar		*p, *q, *punct;
-	char		two_digits[3];
-	char		one_digit[2];
-	gboolean	fail = FALSE;
+	gboolean	res;
 
 	bytes = g_byte_array_new();
 
-	p = (guchar *)s;
-	while (*p) {
-		q = p+1;
-		if (*q && isxdigit(*p) && isxdigit(*q)) {
-			two_digits[0] = *p;
-			two_digits[1] = *q;
-			two_digits[2] = '\0';
+	res = hex_str_to_bytes(s, bytes);
 
-			/*
-			 * Two or more hex digits in a row.
-			 * "strtoul()" will succeed, as it'll see at
-			 * least one hex digit.
-			 */
-			val = (guint8) strtoul(two_digits, NULL, 16);
-			g_byte_array_append(bytes, &val, 1);
-			punct = q + 1;
-			if (*punct) {
-				/*
-				 * Make sure the character after
-				 * the second hex digit is a byte
-				 * separator, i.e. that we don't have
-				 * more than two hex digits, or a
-				 * bogus character.
-				 */
-				if (is_byte_sep(*punct)) {
-					p = punct + 1;
-					continue;
-				}
-				else {
-					fail = TRUE;
-					break;
-				}
-			}
-			else {
-				p = punct;
-				continue;
-			}
-		}
-		else if (*q && isxdigit(*p) && is_byte_sep(*q)) {
-			one_digit[0] = *p;
-			one_digit[1] = '\0';
-
-			/*
-			 * Only one hex digit.
-			 * "strtoul()" will succeed, as it'll see that
-			 * hex digit.
-			 */
-			val = (guint8) strtoul(one_digit, NULL, 16);
-			g_byte_array_append(bytes, &val, 1);
-			p = q + 1;
-			continue;
-		}
-		else if (!*q && isxdigit(*p)) {
-			one_digit[0] = *p;
-			one_digit[1] = '\0';
-
-			/*
-			 * Only one hex digit.
-			 * "strtoul()" will succeed, as it'll see that
-			 * hex digit.
-			 */
-			val = (guint8) strtoul(one_digit, NULL, 16);
-			g_byte_array_append(bytes, &val, 1);
-			p = q;
-			continue;
-		}
-		else {
-			fail = TRUE;
-			break;
-		}
-	}
-
-	if (fail) {
+	if (!res) {
 		if (logfunc != NULL)
 			logfunc("\"%s\" is not a valid byte string.", s);
 		g_byte_array_free(bytes, TRUE);

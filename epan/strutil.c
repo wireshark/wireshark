@@ -1,7 +1,7 @@
 /* strutil.c
  * String utility routines
  *
- * $Id: strutil.c,v 1.13 2003/12/24 01:12:17 guy Exp $
+ * $Id: strutil.c,v 1.14 2003/12/29 04:06:09 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -301,6 +301,97 @@ bytes_to_str_punct(const guint8 *bd, int bd_len, gchar punct) {
   *p = '\0';
   return cur;
 }
+
+static gboolean
+is_byte_sep(guint8 c)
+{
+	return (c == '-' || c == ':' || c == '.');
+}
+
+/* Turn a string of hex digits with optional separators (defined by
+ * is_byte_sep() into a byte array.
+ */
+gboolean
+hex_str_to_bytes(const guchar *hex_str, const GByteArray *bytes) {
+	guint8		val;
+	guchar		*p, *q, *punct;
+	char		two_digits[3];
+	char		one_digit[2];
+
+	g_byte_array_set_size(bytes, 0);
+	p = (guchar *)hex_str;
+	while (*p) {
+		q = p+1;
+		if (*q && isxdigit(*p) && isxdigit(*q)) {
+			two_digits[0] = *p;
+			two_digits[1] = *q;
+			two_digits[2] = '\0';
+
+			/*
+			 * Two or more hex digits in a row.
+			 * "strtoul()" will succeed, as it'll see at
+			 * least one hex digit.
+			 */
+			val = (guint8) strtoul(two_digits, NULL, 16);
+			g_byte_array_append(bytes, &val, 1);
+			punct = q + 1;
+			if (*punct) {
+				/*
+				 * Make sure the character after
+				 * the second hex digit is a byte
+				 * separator, i.e. that we don't have
+				 * more than two hex digits, or a
+				 * bogus character.
+				 */
+				if (is_byte_sep(*punct)) {
+					p = punct + 1;
+					continue;
+				}
+				else {
+					return FALSE;
+					break;
+				}
+			}
+			else {
+				p = punct;
+				continue;
+			}
+		}
+		else if (*q && isxdigit(*p) && is_byte_sep(*q)) {
+			one_digit[0] = *p;
+			one_digit[1] = '\0';
+
+			/*
+			 * Only one hex digit.
+			 * "strtoul()" will succeed, as it'll see that
+			 * hex digit.
+			 */
+			val = (guint8) strtoul(one_digit, NULL, 16);
+			g_byte_array_append(bytes, &val, 1);
+			p = q + 1;
+			continue;
+		}
+		else if (!*q && isxdigit(*p)) {
+			one_digit[0] = *p;
+			one_digit[1] = '\0';
+
+			/*
+			 * Only one hex digit.
+			 * "strtoul()" will succeed, as it'll see that
+			 * hex digit.
+			 */
+			val = (guint8) strtoul(one_digit, NULL, 16);
+			g_byte_array_append(bytes, &val, 1);
+			p = q;
+			continue;
+		}
+		else {
+			return FALSE;
+		}
+	}
+	return TRUE;
+}
+
 
 /* Return the first occurrence of needle in haystack.
  * If not found, return NULL.

@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.102 2003/12/20 03:21:19 guy Exp $
+ * $Id: packet-ieee80211.c,v 1.103 2003/12/29 04:02:39 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -57,6 +57,7 @@
 #include <epan/proto.h>
 #include <epan/packet.h>
 #include <epan/resolv.h>
+#include <epan/strutil.h>
 #include "prefs.h"
 #include "reassemble.h"
 #include "packet-ipx.h"
@@ -2695,9 +2696,10 @@ static int wep_decrypt(guint8 *buf, guint32 len, int key_override) {
 }
 
 static void init_wepkeys(void) {
-  char *tmp, *tmp2;
-  guint8 *tmp3;
-  guint i, j;
+  char *tmp;
+  guint i;
+  GByteArray *bytes;
+  gboolean res;
 
 #ifdef USE_ENV
   guint8 buf[128];
@@ -2724,6 +2726,7 @@ static void init_wepkeys(void) {
 
   wep_keys = g_malloc(num_wepkeys * sizeof(guint8*));
   wep_keylens = g_malloc(num_wepkeys * sizeof(int));
+  bytes = g_byte_array_new();
 
   for (i = 0 ; i < num_wepkeys; i++) {
     wep_keys[i] = NULL;
@@ -2737,7 +2740,6 @@ static void init_wepkeys(void) {
 #endif
 
     if (tmp) {
-      j = 0;
 #if 0
 #ifdef USE_ENV
       printf("%s -- %s\n", buf, tmp);
@@ -2746,26 +2748,27 @@ static void init_wepkeys(void) {
 #endif
 #endif
 
-      if (wep_keys[i])
+      if (wep_keys[i]) {
 	g_free(wep_keys[i]);
-      wep_keys[i] = g_malloc(32 * sizeof(guint8));
-      memset(wep_keys[i], 0, 32 * sizeof(guint8));
-      tmp3 = wep_keys[i];
-      while ((tmp != NULL) && (*tmp != 0)) {
-	tmp3[j] = strtoul(tmp, &tmp2, 16) & 0xff;
-#if 0
-	printf("%d %d -- %02x\n", i, j, tmp3[j]);
-#endif
-	tmp = tmp2;
-	wep_keylens[i]++;
+      }
 
-	if ((tmp != NULL) && (*tmp == ':'))
-	  tmp++;
-	j++;
+      res = hex_str_to_bytes(tmp, bytes);
+      if (res && bytes->len > 0) {
+        if (bytes->len > 32) {
+	  bytes->len = 32;
+	}
+	wep_keys[i] = g_malloc(32 * sizeof(guint8));
+	memset(wep_keys[i], 0, 32 * sizeof(guint8));
+	memcpy(wep_keys[i], bytes->data, bytes->len * sizeof(guint8));
+	wep_keylens[i] = bytes->len;
+#if 0
+	printf("%d: %d bytes\n", i, bytes->len);
+	printf("%d: %s\n", i, bytes_to_str(bytes->data, bytes->len));
+#endif
+      } else {
+        g_warning("Could not parse WEP key %d: %s", i + 1, tmp);
       }
     }
-
   }
-
-  return;
+  g_byte_array_free(bytes, TRUE);
 }
