@@ -1,7 +1,7 @@
 ;
 ; ethereal.nsi
 ;
-; $Id: ethereal.nsi,v 1.8 2002/12/07 21:10:22 gerald Exp $
+; $Id: ethereal.nsi,v 1.9 2003/01/28 22:18:06 guy Exp $
 
 ; ============================================================================
 ; Header configuration
@@ -140,7 +140,9 @@ File "..\..\plugins\docsis\docsis.dll"
 File "..\..\plugins\giop\coseventcomm.dll"
 File "..\..\plugins\giop\cosnaming.dll"
 File "..\..\plugins\gryphon\gryphon.dll"
+File "..\..\plugins\megaco\megaco.dll"
 File "..\..\plugins\mgcp\mgcp.dll"
+File "..\..\plugins\pcli\pcli.dll"
 SectionEnd
 
 Section "SNMP MIBs"
