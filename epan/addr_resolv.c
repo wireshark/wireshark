@@ -450,7 +450,9 @@ static gchar *host_name_lookup6(struct e_in6_addr *addr, gboolean *found)
 {
   int hash_idx;
   hashipv6_t * volatile tp;
+#ifdef INET6
   struct hostent *hostp;
+#endif
 
   *found = TRUE;
 
