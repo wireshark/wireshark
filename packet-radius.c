@@ -4,7 +4,7 @@
  *
  * RFC 2865, RFC 2866, RFC 2867, RFC 2868, RFC 2869
  *
- * $Id: packet-radius.c,v 1.51 2002/03/22 11:41:59 guy Exp $
+ * $Id: packet-radius.c,v 1.52 2002/03/27 02:37:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -257,6 +257,7 @@ static value_string radius_service_type_vals[]=
 #define VENDOR_CISCO 9
 #define VENDOR_SHIVA 166
 #define VENDOR_LIVINGSTON 307
+#define VENDOR_MICROSOFT 311
 #define VENDOR_3COM 429
 #define VENDOR_ASCEND 529
 #define VENDOR_BAY 1584
@@ -269,6 +270,7 @@ static value_string radius_vendor_specific_vendors[]=
 {{VENDOR_ACC,"ACC"},
 {VENDOR_CISCO,"Cisco"},
 {VENDOR_SHIVA,"Shiva"},
+{VENDOR_MICROSOFT,"Microsoft"},
 {VENDOR_LIVINGSTON,"Livingston"},
 {VENDOR_3COM,"3Com"},
 {VENDOR_ASCEND,"Ascend"},
@@ -279,7 +281,151 @@ static value_string radius_vendor_specific_vendors[]=
 {VENDOR_ISSANNI,"Issanni Communications"},
 {0,NULL}};
 
-#define VENDOR_COSINE_VSA_CONNECION_PROFILE_NAME 1
+#define VENDOR_CISCO_AVP_CISCO                 1
+#define VENDOR_CISCO_NAS_PORT                  2
+#define VENDOR_CISCO_FAX_ACCOUNT_ID_ORIGIN     3
+#define VENDOR_CISCO_FAX_MSG_ID                4
+#define VENDOR_CISCO_FAX_PAGES                 5
+#define VENDOR_CISCO_FAX_COVERPAGE_FLAG        6
+#define VENDOR_CISCO_FAX_MODEM_TIME            7
+#define VENDOR_CISCO_FAX_CONNECT_SPEED         8
+#define VENDOR_CISCO_FAX_RECIPENT_COUNT        9
+#define VENDOR_CISCO_FAX_PROCESS_ABORT_FLAG    10
+#define VENDOR_CISCO_FAX_DSN_ADDRESS           11
+#define VENDOR_CISCO_FAX_DSN_FLAG              12
+#define VENDOR_CISCO_FAX_MDN_ADDRESS           13
+#define VENDOR_CISCO_FAX_MDN_FLAG              14
+#define VENDOR_CISCO_FAX_AUTH_STATUS           15
+#define VENDOR_CISCO_EMAIL_SERVER_ADDRESS      16
+#define VENDOR_CISCO_EMAIL_SERVER_ACK_FLAG     17
+#define VENDOR_CISCO_GATEWAY_ID                18
+#define VENDOR_CISCO_CALL_TYPE                 19
+#define VENDOR_CISCO_PORT_USED                 20
+#define VENDOR_CISCO_ABORT_CAUSE               21
+#define VENDOR_CISCO_UNKNOWN_21                21 /* UNKNOWN ! */
+#define VENDOR_CISCO_UNKNOWN_22                22 /* UNKNOWN ! */
+#define VENDOR_CISCO_H323_REMOTE_ADDRESS	23	
+#define VENDOR_CISCO_H323_CONF_ID		24	
+#define VENDOR_CISCO_H323_SETUP_TIME		25	
+#define VENDOR_CISCO_H323_CALL_ORIGIN		26	
+#define VENDOR_CISCO_H323_CALL_TYPE		27	
+#define VENDOR_CISCO_H323_CONNECT_TIME		28	
+#define VENDOR_CISCO_H323_DISCONNECT_TIME	29	
+#define VENDOR_CISCO_H323_DISCONNECT_CAUSE	30	
+#define VENDOR_CISCO_H323_VOICE_QUALITY	31	
+#define VENDOR_CISCO_UNKNOWN_32                32 /* UNKNOWN ! */
+#define VENDOR_CISCO_H323_GW_ID		33	
+#define VENDOR_CISCO_UNKNOWN_34                34 /* UNKNOWN ! */
+#define VENDOR_CISCO_H323_INCOMING_CONF_ID	35	
+#define VENDOR_CISCO_H323_CREDIT_AMOUNT	101	
+#define VENDOR_CISCO_H323_CREDIT_TIME		102	
+#define VENDOR_CISCO_H323_RETURN_CODE		103	
+#define VENDOR_CISCO_H323_PROMPT_ID		104	
+#define VENDOR_CISCO_H323_TIME_AND_DAY		105	
+#define VENDOR_CISCO_H323_REDIRECT_NUMBER	106	
+#define VENDOR_CISCO_H323_PREFERRED_LANG	107	
+#define VENDOR_CISCO_H323_REDIRECT_IP_ADDRESS	108	
+#define VENDOR_CISCO_H323_BILLING_MODEL	109	
+#define VENDOR_CISCO_H323_CURRENCY_TYPE	110	
+#define VENDOR_CISCO_MULTILINK_ID              187     
+#define VENDOR_CISCO_NUM_IN_MULTILINK          188     
+#define VENDOR_CISCO_PRE_INPUT_OCTETS          190     
+#define VENDOR_CISCO_PRE_OUTPUT_OCTETS         191     
+#define VENDOR_CISCO_PRE_INPUT_PACKETS         192     
+#define VENDOR_CISCO_PRE_OUTPUT_PACKETS        193     
+#define VENDOR_CISCO_MAXIMUM_TIME              194     
+#define VENDOR_CISCO_DISCONNECT_CAUSE          195     
+#define VENDOR_CISCO_DATA_RATE                 197     
+#define VENDOR_CISCO_PRESESSION_TIME           198     
+#define VENDOR_CISCO_PW_LIFETIME               208     
+#define VENDOR_CISCO_IP_DIRECT                 209     
+#define VENDOR_CISCO_PPP_VJ_SLOT_COMP          210     
+#define VENDOR_CISCO_PPP_ASYNC_MAP             212     
+#define VENDOR_CISCO_IP_POOL_DEFINITION        217     
+#define VENDOR_CISCO_ASING_IP_POOL             218     
+#define VENDOR_CISCO_ROUTE_IP                  228     
+#define VENDOR_CISCO_LINK_COMPRESSION          233     
+#define VENDOR_CISCO_TARGET_UTIL               234     
+#define VENDOR_CISCO_MAXIMUM_CHANNELS          235     
+#define VENDOR_CISCO_DATA_FILTER               242     
+#define VENDOR_CISCO_CALL_FILTER               243     
+#define VENDOR_CISCO_IDLE_LIMIT                244     
+#define VENDOR_CISCO_XMIT_RATE                 255     
+
+static value_string radius_vendor_cisco_types[]=
+{{VENDOR_CISCO_AVP_CISCO              ,"Cisco AV Pair" },
+{ VENDOR_CISCO_NAS_PORT               ,"Cisco NAS Port" },
+{ VENDOR_CISCO_FAX_ACCOUNT_ID_ORIGIN  ,"Fax Account Id Origin" },    
+{ VENDOR_CISCO_FAX_MSG_ID             ,"Fax Msg Id" },    
+{ VENDOR_CISCO_FAX_PAGES              ,"Fax Pages" },    
+{ VENDOR_CISCO_FAX_COVERPAGE_FLAG     ,"Fax Cover Page Flag" },    
+{ VENDOR_CISCO_FAX_MODEM_TIME         ,"Fax Modem Time" },    
+{ VENDOR_CISCO_FAX_CONNECT_SPEED      ,"Fax Connect Speed" },    
+{ VENDOR_CISCO_FAX_RECIPENT_COUNT     ,"Fax Recipent Count" },    
+{ VENDOR_CISCO_FAX_PROCESS_ABORT_FLAG ,"Fax Process Abort Flag" },    
+{ VENDOR_CISCO_FAX_DSN_ADDRESS        ,"Fax DSN Address" },    
+{ VENDOR_CISCO_FAX_DSN_FLAG           ,"Fax DSN Flag" },    
+{ VENDOR_CISCO_FAX_MDN_ADDRESS        ,"Fax MDN Address" },    
+{ VENDOR_CISCO_FAX_MDN_FLAG           ,"Fax MDN Flag" },    
+{ VENDOR_CISCO_FAX_AUTH_STATUS        ,"Fax Auth Status" },    
+{ VENDOR_CISCO_EMAIL_SERVER_ADDRESS   ,"Email Server Address" },    
+{ VENDOR_CISCO_EMAIL_SERVER_ACK_FLAG  ,"Email Server Ack Flag" },    
+{ VENDOR_CISCO_GATEWAY_ID             ,"Gateway Id" },    
+{ VENDOR_CISCO_CALL_TYPE              ,"Call Type" },    
+{ VENDOR_CISCO_PORT_USED              ,"Port Used" },    
+{ VENDOR_CISCO_ABORT_CAUSE            ,"Abort Cause" },    
+{ VENDOR_CISCO_UNKNOWN_21             ,"Vendor Cisco **UNKNOWN** 21" },
+{ VENDOR_CISCO_UNKNOWN_22             ,"Vendor Cisco **UNKNOWN** 22" },
+{ VENDOR_CISCO_H323_REMOTE_ADDRESS    ,"H323 Remote Address" },
+{ VENDOR_CISCO_H323_CONF_ID           ,"H323 Conf Id" },
+{ VENDOR_CISCO_H323_SETUP_TIME        ,"H323 Setup Time" },
+{ VENDOR_CISCO_H323_CALL_ORIGIN       ,"H323 Call Origin" },
+{ VENDOR_CISCO_H323_CALL_TYPE         ,"H323 Call Type" },
+{ VENDOR_CISCO_H323_CONNECT_TIME      ,"H323 Connect Time" },
+{ VENDOR_CISCO_H323_DISCONNECT_TIME   ,"H323 Disconnect Time" },
+{ VENDOR_CISCO_H323_DISCONNECT_CAUSE  ,"H323 Disconnect Cause" },
+{ VENDOR_CISCO_H323_VOICE_QUALITY     ,"H323 Voice Quality" },
+{ VENDOR_CISCO_UNKNOWN_32             ,"Vendor Cisco **UNKNOWN** 32" },
+{ VENDOR_CISCO_H323_GW_ID             ,"H323 GW Id" },
+{ VENDOR_CISCO_UNKNOWN_34             ,"Vendor Cisco **UNKNOWN** 34" },
+{ VENDOR_CISCO_H323_INCOMING_CONF_ID  ,"H323 Incoming Conf Id" },
+{ VENDOR_CISCO_H323_CREDIT_AMOUNT     ,"H323 Credit Amount" },
+{ VENDOR_CISCO_H323_CREDIT_TIME       ,"H323 Credit Time" },
+{ VENDOR_CISCO_H323_RETURN_CODE       ,"H323 Return Code" },
+{ VENDOR_CISCO_H323_PROMPT_ID         ,"H323 Prompt Id" },
+{ VENDOR_CISCO_H323_TIME_AND_DAY      ,"H323 Time And Day" },
+{ VENDOR_CISCO_H323_REDIRECT_NUMBER   ,"H323 Redirect Number" },
+{ VENDOR_CISCO_H323_PREFERRED_LANG    ,"H323 Preferred Lang" },
+{ VENDOR_CISCO_H323_REDIRECT_IP_ADDRESS ,"H323 Redirect Ip Address" },
+{ VENDOR_CISCO_H323_BILLING_MODEL     ,"H323 Billing Model" },
+{ VENDOR_CISCO_H323_CURRENCY_TYPE     ,"H323 Currency Type" },
+{ VENDOR_CISCO_MULTILINK_ID           ,"Cisco Multilink ID" },
+{ VENDOR_CISCO_NUM_IN_MULTILINK       ,"Cisco Num In Multilink" },
+{ VENDOR_CISCO_PRE_INPUT_OCTETS       ,"Cisco Pre Input Octets" },
+{ VENDOR_CISCO_PRE_OUTPUT_OCTETS      ,"Cisco Pre Output Octets" },
+{ VENDOR_CISCO_PRE_INPUT_PACKETS      ,"Cisco Pre Input Packets" },
+{ VENDOR_CISCO_PRE_OUTPUT_PACKETS     ,"Cisco Pre Output Packets" },
+{ VENDOR_CISCO_MAXIMUM_TIME           ,"Cisco Maximum Time" },
+{ VENDOR_CISCO_DISCONNECT_CAUSE       ,"Cisco Disconnect Cause" },
+{ VENDOR_CISCO_DATA_RATE              ,"Cisco Data Rate" },
+{ VENDOR_CISCO_PRESESSION_TIME        ,"Cisco PreSession Time" },
+{ VENDOR_CISCO_PW_LIFETIME            ,"Cisco PW Lifetime" },
+{ VENDOR_CISCO_IP_DIRECT              ,"Cisco IP Direct" },
+{ VENDOR_CISCO_PPP_VJ_SLOT_COMP       ,"Cisco PPP VJ Slot Comp" },
+{ VENDOR_CISCO_PPP_ASYNC_MAP          ,"Cisco PPP Async Map" },
+{ VENDOR_CISCO_IP_POOL_DEFINITION     ,"Cisco IP Pool Definition" },
+{ VENDOR_CISCO_ASING_IP_POOL          ,"Cisco Asing IP Pool" },
+{ VENDOR_CISCO_ROUTE_IP               ,"Cisco Route IP" },
+{ VENDOR_CISCO_LINK_COMPRESSION       ,"Cisco Link Compression" },
+{ VENDOR_CISCO_TARGET_UTIL            ,"Cisco Target Util" },
+{ VENDOR_CISCO_MAXIMUM_CHANNELS       ,"Cisco Maximum Channels" },
+{ VENDOR_CISCO_DATA_FILTER            ,"Cisco Data Filter" },
+{ VENDOR_CISCO_CALL_FILTER            ,"Cisco Call Filter" },
+{ VENDOR_CISCO_IDLE_LIMIT             ,"Cisco Idle Limit" },
+{ VENDOR_CISCO_XMIT_RATE              ,"Cisco Xmit Rate" },
+{0,NULL}};
+
+#define VENDOR_COSINE_VSA_CONNECTION_PROFILE_NAME 1
 #define VENDOR_COSINE_VSA_ENTERPRISE_ID 2
 #define VENDOR_COSINE_VSA_ADDRESS_POOL_NAME 3
 #define VENDOR_COSINE_VSA_DS_BYTE 4
@@ -289,7 +435,7 @@ static value_string radius_vendor_specific_vendors[]=
 #define VENDOR_COSINE_VSA_CLI_USER_PERMISSION_ID 8
 
 static value_string radius_vendor_cosine_types[]=
-{{VENDOR_COSINE_VSA_CONNECION_PROFILE_NAME,"Connection Profile Name"},
+{{VENDOR_COSINE_VSA_CONNECTION_PROFILE_NAME,"Connection Profile Name"},
 {VENDOR_COSINE_VSA_ENTERPRISE_ID,"Enterprise ID"},
 {VENDOR_COSINE_VSA_ADDRESS_POOL_NAME,"Address Pool Name"},
 {VENDOR_COSINE_VSA_DS_BYTE,"DS Byte"},
@@ -845,10 +991,31 @@ gchar *rd_value_to_str(e_avphdr *avph, tvbuff_t *tvb, int offset)
 			rd_match_strval(tvb_get_ntohl(tvb,offset+2),valstrarr));
 		cont=&textbuffer[strlen(textbuffer)];
 		switch (tvb_get_ntohl(tvb,offset+2)) {
+		case ( VENDOR_CISCO ):
+		  vtype = tvb_get_guint8(tvb,offset+6);
+		  switch (vtype) {
+		  case ( VENDOR_CISCO_AVP_CISCO ):
+		    sprintf(cont," Type:%s, Len:%i Value:",
+			    rd_match_strval(vtype,radius_vendor_cisco_types),
+			    avph->avp_length-8);
+		    cont=&textbuffer[strlen(textbuffer)];
+		    rdconvertbufftostr(cont,tvb,offset+8,
+				       avph->avp_length-8);
+		    break;
+		  default:
+		    sprintf(cont," Type:%s, Len:%i Value:",
+			    rd_match_strval(vtype,radius_vendor_cisco_types),
+			    avph->avp_length-8);
+		    cont=&textbuffer[strlen(textbuffer)];
+		    rdconvertbufftostr(cont,tvb,offset+8,
+				       avph->avp_length-8);
+		    break;
+		  }
+		  break;
 		case ( VENDOR_COSINE ):
 			vtype = tvb_get_guint8(tvb,offset+6);
 			switch (vtype) {
-			case ( VENDOR_COSINE_VSA_CONNECION_PROFILE_NAME ):
+			case ( VENDOR_COSINE_VSA_CONNECTION_PROFILE_NAME ):
 			case ( VENDOR_COSINE_VSA_ENTERPRISE_ID ):
 			case ( VENDOR_COSINE_VSA_ADDRESS_POOL_NAME ):
 			case ( VENDOR_COSINE_VSA_CLI_USER_PERMISSION_ID ):
