@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * 
- * $Id: packet-rpc.c,v 1.52 2001/02/06 06:46:10 guy Exp $
+ * $Id: packet-rpc.c,v 1.53 2001/02/09 06:49:29 guy Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -178,7 +178,26 @@ static gint ett_rpc_gss_data = -1;
 static GHashTable *rpc_progs;
 
 /* Hash table with info on RPC procedure numbers */
-GHashTable *rpc_procs;
+static GHashTable *rpc_procs;
+
+typedef struct _rpc_proc_info_key {
+	guint32	prog;
+	guint32	vers;
+	guint32	proc;
+} rpc_proc_info_key;
+
+typedef struct _rpc_proc_info_value {
+	gchar		*name;
+	gboolean	is_old_dissector;
+	union {
+		old_dissect_function_t *old;
+		dissect_function_t *new;
+	} dissect_call;
+	union {
+		old_dissect_function_t *old;
+		dissect_function_t *new;
+	} dissect_reply;
+} rpc_proc_info_value;
 
 typedef struct _rpc_prog_info_key {
 	guint32 prog;
@@ -189,6 +208,7 @@ typedef struct _rpc_prog_info_value {
 	int ett;
 	char* progname;
 } rpc_prog_info_value;
+
 
 /***********************************/
 /* Hash array with procedure names */
@@ -264,6 +284,29 @@ rpc_init_proc_table(guint prog, guint vers, const vsff *proc_table)
 
 		g_hash_table_insert(rpc_procs,key,value);
 	}
+}
+
+/*	return the name associated with a previously registered procedure. */
+char *rpc_proc_name(guint32 prog, guint32 vers, guint32 proc)
+{
+	rpc_proc_info_key key;
+	rpc_proc_info_value *value;
+	char *procname;
+	static char procname_static[20];
+
+	key.prog = prog;
+	key.vers = vers;
+	key.proc = proc;
+
+	if ((value = g_hash_table_lookup(rpc_procs,&key)) != NULL)
+		procname = value->name;
+	else {
+		/* happens only with strange program versions or
+		   non-existing dissectors */
+		sprintf(procname_static, "proc-%u", key.proc);
+		procname = procname_static;
+	}
+	return procname;
 }
 
 /*----------------------------------------*/
@@ -988,7 +1031,7 @@ dissect_rpc_authgss_initres(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree,
 }
 
 
-int
+static int
 call_dissect_function(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	int offset, old_dissect_function_t *old_dissect_function,
 	dissect_function_t* dissect_function, const char *progname)
@@ -1072,6 +1115,40 @@ dissect_rpc_authgss_priv_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 	return offset;
 }
 
+/*
+ * Dissect the arguments to an indirect call; used by the portmapper/RPCBIND
+ * dissector.
+ */
+int
+dissect_rpc_indir_call(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+    int offset, guint32 prog, guint32 vers, guint32 proc)
+{
+	rpc_proc_info_key key;
+	rpc_proc_info_value *value;
+	old_dissect_function_t *old_dissect_function = NULL;
+	dissect_function_t *dissect_function = NULL;
+
+	key.prog = prog;
+	key.vers = vers;
+	key.proc = proc;
+	if ((value = g_hash_table_lookup(rpc_procs,&key)) != NULL) {
+		if (value->is_old_dissector)
+			old_dissect_function = value->dissect_call.old;
+		else
+			dissect_function = value->dissect_call.new;
+	}
+	else {
+		/* happens only with strange program versions or
+		   non-existing dissectors */
+#if 0
+		dissect_function = NULL;
+#endif
+	}
+
+	offset = call_dissect_function(tvb, pinfo, tree, offset,
+			old_dissect_function, dissect_function, NULL);
+	return offset;
+}
 
 static gboolean
 dissect_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)

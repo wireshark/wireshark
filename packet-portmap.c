@@ -1,7 +1,7 @@
 /* packet-portmap.c
  * Routines for portmap dissection
  *
- * $Id: packet-portmap.c,v 1.26 2001/02/06 06:56:19 guy Exp $
+ * $Id: packet-portmap.c,v 1.27 2001/02/09 06:49:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -206,50 +206,29 @@ int dissect_dump_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 int dissect_callit_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree *tree)
 {
-	rpc_proc_info_key key;
-	rpc_proc_info_value *value;
-	char *procname = NULL;
-	char procname_static[20];
-	old_dissect_function_t *old_dissect_function = NULL;
-	dissect_function_t *dissect_function = NULL;
+	guint32 prog, vers, proc;
 
-	key.prog = tvb_get_ntohl(tvb, offset+0);
+	prog = tvb_get_ntohl(tvb, offset+0);
 	if ( tree )
 	{
 		proto_tree_add_uint_format(tree, hf_portmap_prog, tvb,
-			offset, 4, key.prog, "Program: %s (%u)",
-			rpc_prog_name(key.prog), key.prog);
+			offset, 4, prog, "Program: %s (%u)",
+			rpc_prog_name(prog), prog);
 	}
 
-	key.vers = tvb_get_ntohl(tvb, offset+4);
+	vers = tvb_get_ntohl(tvb, offset+4);
 	if ( tree )
 	{
 		proto_tree_add_uint(tree, hf_portmap_version, tvb,
-			offset+4, 4, key.vers);
+			offset+4, 4, vers);
 	}
 
-	key.proc = tvb_get_ntohl(tvb, offset+8);
-	if ((value = g_hash_table_lookup(rpc_procs,&key)) != NULL) {
-		if (value->is_old_dissector)
-			old_dissect_function = value->dissect_call.old;
-		else
-			dissect_function = value->dissect_call.new;
-		procname = value->name;
-	}
-	else {
-		/* happens only with strange program versions or
-		   non-existing dissectors */
-#if 0
-		dissect_function = NULL;
-#endif
-		sprintf(procname_static, "proc-%u", key.proc);
-		procname = procname_static;
-	}
+	proc = tvb_get_ntohl(tvb, offset+8);
 	if ( tree )
 	{
 		proto_tree_add_uint_format(tree, hf_portmap_proc, tvb,
-			offset+8, 4, key.proc, "Procedure: %s (%u)",
-			procname, key.proc);
+			offset+8, 4, proc, "Procedure: %s (%u)",
+			rpc_proc_name(prog, vers, proc), proc);
 	}
 
 	if ( tree )
@@ -261,12 +240,12 @@ int dissect_callit_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	offset += 16;
 
-	/* Call the call dissector to dissect the opaque arguments.
-	   Make the columns non-writable, so it won't change them out
-	   from under us. */
+	/* Dissect the arguments for this procedure.
+	   Make the columns non-writable, so the dissector won't change
+	   them out from under us. */
 	col_set_writable(pinfo->fd, FALSE);
-	offset = call_dissect_function(tvb, pinfo, tree, offset,
-			old_dissect_function, dissect_function, NULL);
+	offset = dissect_rpc_indir_call(tvb, pinfo, tree, offset, prog,
+		vers, proc);
 
 	return offset;
 }
