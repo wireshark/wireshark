@@ -4,7 +4,7 @@
  * endpoint_talkers_table   2003 Ronnie Sahlberg
  * Helper routines common to all endpoint talkers tap.
  *
- * $Id: endpoint_talkers_table.c,v 1.21 2003/10/07 09:30:34 sahlberg Exp $
+ * $Id: endpoint_talkers_table.c,v 1.22 2003/10/07 10:07:47 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -316,6 +316,7 @@ ett_click_column_cb(GtkCList *clist, gint column, gpointer data)
 	2: Find Frame
 	3:   Find Next
 	4:   Find Previous
+	5: Colorize Conversation
    filter_type:
 	0: Selected
 	1: Not Selected
@@ -529,6 +530,10 @@ ett_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callba
 	case 4:
 		/* find previous */
 		find_previous_next_frame_with_filter(str, TRUE);
+		break;
+	case 5:
+		/* colorize conversation */
+		color_display_with_filter(str);
 		break;
 	}
 
@@ -855,6 +860,26 @@ static GtkItemFactoryEntry ett_list_menu_items[] =
 		ett_select_filter_cb, 4*65536+0*256+7, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Find Frame/Find Previous/ANY --> EP2", NULL,
 		ett_select_filter_cb, 4*65536+0*256+8, NULL, NULL),
+	/* Colorize Conversation */
+	ITEM_FACTORY_ENTRY("/Colorize Conversation", NULL, NULL, 0, "<Branch>", NULL),
+	ITEM_FACTORY_ENTRY("/Colorize Conversation/EP1 <-> EP2", NULL,
+		ett_select_filter_cb, 5*65536+0*256+0, NULL, NULL),
+	ITEM_FACTORY_ENTRY("/Colorize Conversation/EP1 --> EP2", NULL,
+		ett_select_filter_cb, 5*65536+0*256+1, NULL, NULL),
+	ITEM_FACTORY_ENTRY("/Colorize Conversation/EP1 <-- EP2", NULL,
+		ett_select_filter_cb, 5*65536+0*256+2, NULL, NULL),
+	ITEM_FACTORY_ENTRY("/Colorize Conversation/EP1 <-> ANY", NULL,
+		ett_select_filter_cb, 5*65536+0*256+3, NULL, NULL),
+	ITEM_FACTORY_ENTRY("/Colorize Conversation/EP1 --> ANY", NULL,
+		ett_select_filter_cb, 5*65536+0*256+4, NULL, NULL),
+	ITEM_FACTORY_ENTRY("/Colorize Conversation/EP1 <-- ANY", NULL,
+		ett_select_filter_cb, 5*65536+0*256+5, NULL, NULL),
+	ITEM_FACTORY_ENTRY("/Colorize Conversation/ANY <-> EP2", NULL,
+		ett_select_filter_cb, 5*65536+0*256+6, NULL, NULL),
+	ITEM_FACTORY_ENTRY("/Colorize Conversation/ANY <-- EP2", NULL,
+		ett_select_filter_cb, 5*65536+0*256+7, NULL, NULL),
+	ITEM_FACTORY_ENTRY("/Colorize Conversation/ANY --> EP2", NULL,
+		ett_select_filter_cb, 5*65536+0*256+8, NULL, NULL),
 
 
 };

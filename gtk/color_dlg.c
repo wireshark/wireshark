@@ -1,7 +1,7 @@
 /* color_dlg.c
  * Definitions for dialog boxes for color filters
  *
- * $Id: color_dlg.c,v 1.26 2003/08/27 22:55:51 guy Exp $
+ * $Id: color_dlg.c,v 1.27 2003/10/07 10:07:47 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -46,7 +46,7 @@
 #include "compat_macros.h"
 #include "file_dlg.h"
 
-static GtkWidget* colorize_dialog_new(void);
+static GtkWidget* colorize_dialog_new(char *filter);
 static void add_filter_to_list(gpointer filter_arg, gpointer list_arg);
 static void color_filter_up_cb(GtkButton *button, gpointer user_data);
 static void color_filter_down_cb(GtkButton *button, gpointer user_data);
@@ -60,6 +60,7 @@ static void remember_selected_row(GtkTreeSelection *sel, gpointer list);
 #endif
 static void color_destroy_cb(GtkButton *button, gpointer user_data);
 static void destroy_edit_dialog_cb(gpointer filter_arg, gpointer dummy);
+static void create_new_color_filter(GtkButton *button, char *filter);
 static void color_new_cb(GtkButton *button, gpointer user_data);
 static void color_edit_cb(GtkButton *button, gpointer user_data);
 static void color_delete_cb(GtkWidget *widget, gpointer user_data);
@@ -120,7 +121,20 @@ color_display_cb(GtkWidget *w _U_, gpointer d _U_)
     reactivate_window(colorize_win);
   } else {
     /* Create a new "Colorize Display" dialog. */
-    colorize_win = colorize_dialog_new();
+    colorize_win = colorize_dialog_new(NULL);
+  }
+}
+
+/* this opens the colorize dialogue and presets the filter string */
+void
+color_display_with_filter(char *filter)
+{
+  if (colorize_win != NULL) {
+    /* There's already a color dialog box active; reactivate it. */
+    reactivate_window(colorize_win);
+  } else {
+    /* Create a new "Colorize Display" dialog. */
+    colorize_win = colorize_dialog_new(filter);
   }
 }
 
@@ -147,7 +161,7 @@ int color_marked_count(void)
 
 /* Create the "Apply Color Filters" dialog. */
 static GtkWidget*
-colorize_dialog_new (void)
+colorize_dialog_new (char *filter)
 {
   GtkWidget *color_win;
   GtkWidget *dlg_vbox;
@@ -507,6 +521,12 @@ colorize_dialog_new (void)
   gtk_widget_show (color_win);
 
   dlg_set_cancel(color_win, color_cancel);
+
+  if(filter){
+    /* if we specified a preset filter string, open the new dialog and
+       set the filter */
+    create_new_color_filter(GTK_BUTTON(color_new), filter);
+  }
 
   return color_win;
 }
@@ -950,7 +970,7 @@ color_import_cb(GtkButton *button, gpointer user_data )
 /* Create a new filter in the list, and pop up an "Edit color filter"
    dialog box to edit it. */
 static void
-color_new_cb(GtkButton *button, gpointer user_data _U_)
+create_new_color_filter(GtkButton *button, char *filter)
 {
   color_filter_t   *colorf;
   GtkWidget        *color_filters;
@@ -967,7 +987,7 @@ color_new_cb(GtkButton *button, gpointer user_data _U_)
   gtk_clist_unselect_all (GTK_CLIST(color_filters));
 #endif
 
-  colorf = new_color_filter("name", "filter"); /* Adds at end! */
+  colorf = new_color_filter("name", filter); /* Adds at end! */
 
   color_add_colorf(color_filters, colorf);
 
@@ -977,6 +997,14 @@ color_new_cb(GtkButton *button, gpointer user_data _U_)
 #if GTK_MAJOR_VERSION >= 2
   gtk_widget_grab_focus(color_filters);
 #endif
+}
+
+/* Create a new filter in the list, and pop up an "Edit color filter"
+   dialog box to edit it. */
+static void
+color_new_cb(GtkButton *button, gpointer user_data _U_)
+{
+  create_new_color_filter(button, "filter");
 }
 
 /* Pop up an "Edit color filter" dialog box to edit an existing filter. */
