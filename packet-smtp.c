@@ -1,7 +1,7 @@
 /* packet-smtp.c
  * Routines for SMTP packet disassembly
  *
- * $Id: packet-smtp.c,v 1.9 2000/11/12 02:29:20 guy Exp $
+ * $Id: packet-smtp.c,v 1.10 2000/11/12 03:13:44 guy Exp $
  *
  * Copyright (c) 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  *
@@ -468,8 +468,8 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	   * DATA command this terminates before sending another
 	   * request, but we should probably handle it.
 	   */
-	  proto_tree_add_protocol_format(smtp_tree, proto_smtp, tvb, offset,
-	      linelen, "EOM: %s", format_text(line, linelen));
+	  proto_tree_add_text(smtp_tree, tvb, offset, linelen,
+	      "EOM: %s", format_text(line, linelen));
 
 	  break;
 
@@ -487,12 +487,11 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    cmdlen = 4;
 	  else
 	    cmdlen = linelen;
-	  proto_tree_add_protocol_format(smtp_tree, proto_smtp, tvb,
-	      offset, cmdlen, "Command: %s", format_text(line, cmdlen));
+	  proto_tree_add_text(smtp_tree, tvb, offset, cmdlen,
+	      "Command: %s", format_text(line, cmdlen));
 	  if (linelen > 5) {
-	    proto_tree_add_protocol_format(smtp_tree, proto_smtp, tvb,
-	        offset + 5, linelen - 5, "Parameter: %s",
-		format_text(line + 5, linelen - 5));
+	    proto_tree_add_text(smtp_tree, tvb, offset + 5, linelen - 5,
+	        "Parameter: %s", format_text(line + 5, linelen - 5));
 	  }
 
 	}
@@ -521,12 +520,11 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  /*
 	   * Put it into the protocol tree.
 	   */
-	  proto_tree_add_protocol_format(smtp_tree, proto_smtp, tvb,
-	      offset, 3, "Response: %s", tvb_format_text(tvb, offset, 3));
+	  proto_tree_add_text(smtp_tree, tvb, offset, 3,
+	      "Response: %s", tvb_format_text(tvb, offset, 3));
 	  if (linelen >= 4) {
-	    proto_tree_add_protocol_format(smtp_tree, proto_smtp, tvb,
-	        offset + 4, linelen - 4, "Parameter: %s",
-	        tvb_format_text(tvb, offset + 4, linelen - 4));
+	    proto_tree_add_text(smtp_tree, tvb, offset + 4, linelen - 4,
+	        "Parameter: %s", tvb_format_text(tvb, offset + 4, linelen - 4));
 	  }
 
 	  /*
