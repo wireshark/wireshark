@@ -1,7 +1,7 @@
 /* summary_dlg.c
  * Routines for capture file summary window
  *
- * $Id: summary_dlg.c,v 1.3 2000/04/13 09:17:09 guy Exp $
+ * $Id: summary_dlg.c,v 1.4 2000/05/03 07:44:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -45,6 +45,7 @@
 
 #include "summary.h"
 #include "summary_dlg.h"
+#include "dlg_utils.h"
 
 #define SUM_STR_MAX 1024
 
@@ -196,8 +197,15 @@ summary_open_cb(GtkWidget *w, gpointer d)
   gtk_signal_connect_object(GTK_OBJECT(close_bt), "clicked",
     GTK_SIGNAL_FUNC(gtk_widget_destroy),
     GTK_OBJECT(sum_open_w));
+  GTK_WIDGET_SET_FLAGS(close_bt, GTK_CAN_DEFAULT);
   gtk_box_pack_start(GTK_BOX(main_vb), close_bt, FALSE,FALSE, 0);
-  gtk_widget_show( close_bt );
+  gtk_widget_grab_default(close_bt);
+  gtk_widget_show(close_bt);
+
+  /* Catch the "key_press_event" signal in the window, so that we can catch
+     the ESC key being pressed and act as if the "Close" button had
+     been selected. */
+  dlg_set_cancel(sum_open_w, close_bt);
 
   gtk_window_set_position(GTK_WINDOW(sum_open_w), GTK_WIN_POS_MOUSE);
   gtk_widget_show(sum_open_w);
