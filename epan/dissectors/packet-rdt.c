@@ -6,7 +6,7 @@
  * Copyright 2005
  * Written by Martin Mathieson
  *
- * $Id: packet-rdt.c 13357 2005-02-08 21:12:54Z lroland $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
