@@ -1,7 +1,7 @@
 /* rtp_stream_dlg.c
  * RTP streams summary addition for ethereal
  *
- * $Id: rtp_stream_dlg.c,v 1.19 2004/03/14 14:04:39 deniel Exp $
+ * $Id: rtp_stream_dlg.c,v 1.20 2004/04/12 18:01:27 ulfl Exp $
  *
  * Copyright 2003, Alcatel Business Systems
  * By Lars Ruoff <lars.ruoff@gmx.net>
@@ -743,7 +743,12 @@ static void rtpstream_dlg_create (void)
     bt_close = BUTTON_NEW_FROM_STOCK(GTK_STOCK_CLOSE);
 	gtk_widget_show (bt_close);
 	gtk_container_add (GTK_CONTAINER (hbuttonbox2), bt_close);
-	
+
+	/* Catch the "key_press_event" signal in the window, so that we can 
+	   catch the ESC key being pressed and act as if the "Close" button had
+	   been selected. */
+	dlg_set_cancel(rtpstream_dlg_w, bt_close);
+    
 	SIGNAL_CONNECT(rtpstream_dlg_w, "destroy", rtpstream_on_destroy, NULL);
 	SIGNAL_CONNECT(clist, "select_row", rtpstream_on_select_row, NULL);
 	SIGNAL_CONNECT(bt_unselect, "clicked", rtpstream_on_unselect, NULL);
