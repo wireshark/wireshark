@@ -17,7 +17,7 @@
 # http://www.pobox.com/~asl2/software/PyZ3950/
 # (ASN.1 to Python compiler functionality is broken but not removed, it could be revived if necessary)
 #
-# It requires Dave Beazley's PLY parsing package licensed under the LGPL (tested with version 1.3.1)
+# It requires Dave Beazley's PLY parsing package licensed under the LGPL (tested with version 1.5)
 # http://systems.cs.uchicago.edu/ply/
 # 
 # 
@@ -1040,10 +1040,9 @@ class EthCtx:
         dis = self.proto
         if (pdu['reg'] != '.'):
           dis += '.' + pdu['reg']
-        ret = ''
+        fx.write('  register_dissector("%s", dissect_%s, proto_%s);\n' % (dis, f, self.eproto))
         if (not pdu['hidden']):
-          ret = '%s_handle = ' % (asn2c(dis))
-        fx.write('  %sregister_dissector("%s", dissect_%s, proto_%s);\n' % (ret, dis, f, self.eproto))
+          fx.write('  %s_handle = find_dissector("%s");\n' % (asn2c(dis), dis))
         fempty = False
     fx.write('\n')
     self.output.file_close(fx, discard=fempty)
@@ -1052,22 +1051,27 @@ class EthCtx:
   def eth_output_dis_tab(self):
     fx = self.output.file_open('dis-tab')
     fempty = True
-    for f in self.eth_hfpdu_ord:
-      pdu = self.eth_hf[f]['pdu']
-      if (pdu and pdu.has_key('rtype')):
-        if (pdu['rtype'] in ('NUM', 'STR')):
-          rstr = ''
-          if (pdu['rtype'] == 'STR'): rstr = '_string'
-          if (pdu and pdu['reg'] and not pdu['hidden']):
-            dis = self.proto
-            if (pdu['reg'] != '.'): dis += '.' + pdu['reg']
+    for k in self.conform.get_order('REGISTER'):
+      reg = self.conform.use_item('REGISTER', k)
+      if not self.field.has_key(reg['pdu']): continue
+      f = self.field[reg['pdu']]['ethname']
+      pdu = self.eth_hf[f]['pdu'] 
+      if (reg['rtype'] in ('NUM', 'STR')):
+        rstr = ''
+        if (reg['rtype'] == 'STR'): rstr = '_string'
+        if (pdu['reg']):
+          dis = self.proto
+          if (pdu['reg'] != '.'): dis += '.' + pdu['reg']
+          if  (not pdu['hidden']):
             hnd = '%s_handle' % (asn2c(dis))
           else:
-            hnd = 'create_dissector_handle(dissect_%s, proto_%s)' % (f, self.eproto)
-          fx.write(' dissector_add%s("%s", %s, %s);\n' % (rstr, pdu['rtable'], pdu['rport'], hnd))
-        elif (pdu['rtype'] in ('BER', 'PER')):
-          fx.write(' register_%s_oid_dissector(%s, dissect_%s, proto_%s, %s);\n' % (pdu['rtype'].lower(), pdu['roid'], f, self.eproto, pdu['roidname']))
-        fempty = False
+            hnd = 'find_dissector("%s")' % (dis)
+        else:
+          hnd = 'create_dissector_handle(dissect_%s, proto_%s)' % (f, self.eproto)
+        fx.write(' dissector_add%s("%s", %s, %s);\n' % (rstr, reg['rtable'], reg['rport'], hnd))
+      elif (reg['rtype'] in ('BER', 'PER')):
+        fx.write(' register_%s_oid_dissector(%s, dissect_%s, proto_%s, %s);\n' % (reg['rtype'].lower(), reg['roid'], f, self.eproto, reg['roidname']))
+      fempty = False
     fx.write('\n')
     self.output.file_close(fx, discard=fempty)
 
@@ -1103,10 +1107,12 @@ class EthCnf:
   def __init__(self):
     self.tblcfg = {}
     self.table = {}
+    self.order = {}
     self.fn = {}
     #                                   Value name             Default value       Duplicity check   Usage check
     self.tblcfg['EXPORTS']         = { 'val_nm' : 'flag',     'val_dflt' : 0,     'chk_dup' : True, 'chk_use' : True }
     self.tblcfg['PDU']             = { 'val_nm' : 'attr',     'val_dflt' : None,  'chk_dup' : True, 'chk_use' : True }
+    self.tblcfg['REGISTER']        = { 'val_nm' : 'attr',     'val_dflt' : None,  'chk_dup' : True, 'chk_use' : True }
     self.tblcfg['USER_DEFINED']    = { 'val_nm' : 'flag',     'val_dflt' : 0,     'chk_dup' : True, 'chk_use' : True }
     self.tblcfg['NO_EMIT']         = { 'val_nm' : 'flag',     'val_dflt' : 0,     'chk_dup' : True, 'chk_use' : True }
     self.tblcfg['MODULE_IMPORT']   = { 'val_nm' : 'proto',    'val_dflt' : None,  'chk_dup' : True, 'chk_use' : True }
@@ -1123,6 +1129,7 @@ class EthCnf:
 
     for k in self.tblcfg.keys() :
       self.table[k] = {}
+      self.order[k] = []
 
   def add_item(self, table, key, fn, lineno, **kw):
     if self.tblcfg[table]['chk_dup'] and self.table[table].has_key(key):
@@ -1132,6 +1139,10 @@ class EthCnf:
       return
     self.table[table][key] = {'fn' : fn, 'lineno' : lineno, 'used' : False}
     self.table[table][key].update(kw)
+    self.order[table].append(key)
+
+  def get_order(self, table):
+    return self.order[table]
 
   def check_item(self, table, key):
     return self.table[table].has_key(key)
@@ -1166,6 +1177,39 @@ class EthCnf:
     if (not self.fn[name][ctx]):
       return '';
     return self.fn[name][ctx]['text']
+
+  def add_pdu(self, par, fn, lineno):
+    #print "add_pdu(par=%s, %s, %d)" % (str(par), fn, lineno)
+    (reg, hidden) = (None, False)
+    if (len(par) > 1): reg = par[1]
+    if (reg and reg[0]=='@'): (reg, hidden) = (reg[1:], True)
+    attr = {'reg' : reg, 'hidden' : hidden}
+    self.add_item('PDU', par[0], attr=attr, fn=fn, lineno=lineno)
+    return
+
+  def add_register(self, pdu, par, fn, lineno):
+    #print "add_pdu(pdu=%s, par=%s, %s, %d)" % (pdu, str(par), fn, lineno)
+    if (par[0] in ('N', 'NUM')):   rtype = 'NUM'; (pmin, pmax) = (2, 2)
+    elif (par[0] in ('S', 'STR')): rtype = 'STR'; (pmin, pmax) = (2, 2)
+    elif (par[0] in ('B', 'BER')): rtype = 'BER'; (pmin, pmax) = (1, 2)
+    elif (par[0] in ('P', 'PER')): rtype = 'PER'; (pmin, pmax) = (1, 2)
+    else: warnings.warn_explicit("Unknown registration type '%s'" % (par[2]), UserWarning, fn, lineno); return
+    if ((len(par)-1) < pmin):
+      warnings.warn_explicit("Too few parameters for %s registration type. At least %d parameters are required" % (rtype, pmin), UserWarning, fn, lineno)
+      return
+    if ((len(par)-1) > pmax):
+      warnings.warn_explicit("Too many parameters for %s registration type. Only %d parameters are allowed" % (rtype, pmax), UserWarning, fn, lineno)
+    attr = {'pdu' : pdu, 'rtype' : rtype}
+    if (rtype in ('NUM', 'STR')): 
+      attr['rtable'] = par[1]
+      attr['rport'] = par[2]
+      rkey = '/'.join([rtype, attr['rtable'], attr['rport']])
+    elif (rtype in ('BER', 'PER')): 
+      attr['roid'] = par[1]
+      attr['roidname'] = '""'
+      if (len(par)>=3): attr['roidname'] = par[2]
+      rkey = '/'.join([rtype, attr['roid']])
+    self.add_item('REGISTER', rkey, attr=attr, fn=fn, lineno=lineno)
 
   def read(self, fn):
     def get_par(line, pmin, pmax, fn, lineno):
@@ -1243,7 +1287,7 @@ class EthCnf:
       if comment.search(line): continue
       result = directive.search(line)
       if result:  # directive
-        if result.group('name') in ('EXPORTS', 'PDU', 'USER_DEFINED', 'NO_EMIT', 'MODULE_IMPORT', 'OMIT_ASSIGNMENT', 
+        if result.group('name') in ('EXPORTS', 'PDU', 'REGISTER', 'USER_DEFINED', 'NO_EMIT', 'MODULE_IMPORT', 'OMIT_ASSIGNMENT', 
                                     'TYPE_RENAME', 'FIELD_RENAME', 'IMPORT_TAG',
                                     'TYPE_ATTR', 'ETYPE_ATTR', 'FIELD_ATTR', 'EFIELD_ATTR'):
           ctx = result.group('name')
@@ -1293,32 +1337,16 @@ class EthCnf:
         if empty.match(line): continue
         par = get_par(line, 1, 5, fn=fn, lineno=lineno)
         if not par: continue
-        (reg, hidden) = (None, False)
-        if (len(par) > 1): reg = par[1]
-        if (reg and reg[0]=='@'): (reg, hidden) = (reg[1:], True)
-        attr = {'reg' : reg, 'hidden' : hidden}
-        rtype = None
+        self.add_pdu(par[0:2], fn, lineno)
         if (len(par)>=3):
-          if (par[2] in ('N', 'NUM')):   rtype = 'NUM'; (pmin, pmax) = (2, 2)
-          elif (par[2] in ('S', 'STR')): rtype = 'STR'; (pmin, pmax) = (2, 2)
-          elif (par[2] in ('B', 'BER')): rtype = 'BER'; (pmin, pmax) = (1, 2)
-          elif (par[2] in ('P', 'PER')): rtype = 'PER'; (pmin, pmax) = (1, 2)
-          else: warnings.warn_explicit("Unknown registration type '%s'" % (par[2]), UserWarning, fn, lineno)
-        if (rtype and ((len(par)-3) < pmin)):
-          warnings.warn_explicit("Too few parameters for %s registration type. At least %d parameters are required" % (rtype, pmin), UserWarning, fn, lineno)
-          rtype = None
-        if (rtype and ((len(par)-3) > pmax)):
-          warnings.warn_explicit("Too many parameters for %s registration type. Only %d parameters are allowed" % (rtype, pmax), UserWarning, fn, lineno)
-        if (rtype):
-          attr['rtype'] = rtype
-          if (rtype in ('NUM', 'STR')): 
-            attr['rtable'] = par[3]
-            attr['rport'] = par[4]
-          elif (rtype in ('BER', 'PER')): 
-            attr['roid'] = par[3]
-            attr['roidname'] = '""'
-            if (len(par)>=5): attr['roidname'] = par[4]
-        self.add_item('PDU', par[0], attr=attr, fn=fn, lineno=lineno)
+          self.add_register(par[0], par[2:5], fn, lineno)
+      elif ctx == 'REGISTER':
+        if empty.match(line): continue
+        par = get_par(line, 3, 4, fn=fn, lineno=lineno)
+        if not par: continue
+        if not self.check_item('PDU', par[0]):
+          self.add_pdu(par[0:1], fn, lineno)
+        self.add_register(par[0], par[1:4], fn, lineno)
       elif ctx == 'MODULE_IMPORT':
         if empty.match(line): continue
         par = get_par(line, 2, 2, fn=fn, lineno=lineno)
@@ -1501,7 +1529,7 @@ class Node:
                 l.append (x.str_depth (depth+1))
               else:
                 l.append (indent + "  " + str(x) + "\n")
-            return keystr + "[\n" + ''.join (l) + indent + "]\n"
+            return keystr + "[\n" + ''.join(l) + indent + "]\n"
         else:
             return keystr + str (child) + "\n"
     def str_depth (self, depth): # ugh
@@ -1551,8 +1579,10 @@ class Type (Node):
   def HasOwnTag(self):
     return self.__dict__.has_key('tag')
 
-  def HasImplicitTag(self):
-    return self.HasOwnTag() and (self.tag.mode == 'IMPLICIT')
+  def HasImplicitTag(self, ectx):
+    return (self.HasOwnTag() and
+            ((self.tag.mode == 'IMPLICIT') or
+             ((self.tag.mode == 'default') and (ectx.tag_def == 'IMPLICIT'))))
 
   def IndetermTag(self, ectx):
     return False
@@ -1615,7 +1645,7 @@ class Type (Node):
       if self.type == 'Type_Ref':
         ectx.eth_reg_type(nm, self)
       if (ectx.conform.check_item('PDU', nm)):
-        ectx.eth_reg_field(nm, nm, impl=self.HasImplicitTag(), pdu=ectx.conform.use_item('PDU', nm))
+        ectx.eth_reg_field(nm, nm, impl=self.HasImplicitTag(ectx), pdu=ectx.conform.use_item('PDU', nm))
     if self.type == 'Type_Ref':
       if ectx.conform.check_item('TYPE_RENAME', nm) or ectx.conform.get_fn_presence(nm):
         ectx.eth_reg_type(nm, self)  # new type
@@ -1626,9 +1656,9 @@ class Type (Node):
       ectx.eth_reg_type(nm, self)
     if ident:
       if self.type == 'Type_Ref':
-        ectx.eth_reg_field(nm, trnm, idx=idx, parent=parent, impl=self.HasImplicitTag())
+        ectx.eth_reg_field(nm, trnm, idx=idx, parent=parent, impl=self.HasImplicitTag(ectx))
       else:
-        ectx.eth_reg_field(nm, nm, idx=idx, parent=parent, impl=self.HasImplicitTag())
+        ectx.eth_reg_field(nm, nm, idx=idx, parent=parent, impl=self.HasImplicitTag(ectx))
     self.eth_reg_sub(nm, ectx)
 
   def eth_get_size_constr(self, ):
@@ -1709,6 +1739,7 @@ class Module (Node):
   def to_eth (self, ectx):
     if (not ectx.proto):
       ectx.proto = self.ident.val
+    ectx.tag_def = self.tag_def.dfl_tag
     self.body.to_eth(ectx)
 
 class Module_Body (Node):
@@ -1830,7 +1861,7 @@ class SqType (Type):
     efd = ef
     if (ectx.OBer() and ectx.field[f]['impl']):
       efd += '_impl'
-    if (ectx.encoding == 'ber'):
+    if (ectx.Ber()):
       #print "optional=%s, e.val.HasOwnTag()=%s, e.val.IndetermTag()=%s" % (str(e.optional), str(e.val.HasOwnTag()), str(e.val.IndetermTag(ectx)))
       #print val.str_depth(1)
       opt = ''
@@ -1839,7 +1870,7 @@ class SqType (Type):
       if (not val.HasOwnTag()):
         if (opt): opt += '|'
         opt += 'BER_FLAGS_NOOWNTAG'
-      elif (val.HasImplicitTag()):
+      elif (val.HasImplicitTag(ectx)):
         if (opt): opt += '|'
         opt += 'BER_FLAGS_IMPLTAG'
       if (val.IndetermTag(ectx)):
@@ -2072,7 +2103,7 @@ class SequenceType (SqType):
         for e in (self.ext_list):
           f = fname + '/' + e.val.name
           out += self.out_item(f, e.val, e.optional, 'ASN1_NOT_EXTENSION_ROOT', ectx)
-      if (ectx.encoding == 'ber'):
+      if (ectx.Ber()):
         out += "  { 0, 0, 0, NULL }\n};\n"
       else:
         out += "  { NULL, 0, 0, NULL }\n};\n"
@@ -2248,7 +2279,7 @@ class ChoiceType (Type):
         efd = ef
         if (ectx.field[f]['impl']):
           efd += '_impl'
-        if (ectx.encoding == 'ber'):
+        if (ectx.Ber()):
           opt = ''
           if (not e.HasOwnTag()):
             opt = 'BER_FLAGS_NOOWNTAG'
@@ -2305,7 +2336,7 @@ class ChoiceType (Type):
           else: val = str(cnt)
           out += out_item(val, e, 'ASN1_NOT_EXTENSION_ROOT', ectx)
           cnt += 1
-      if (ectx.encoding == 'ber'):
+      if (ectx.Ber()):
         out += "  { 0, 0, 0, 0, NULL }\n};\n"
       else:
         out += "  { 0, NULL, 0, NULL }\n};\n"
