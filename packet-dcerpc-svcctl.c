@@ -3,7 +3,7 @@
  * Copyright 2003, Tim Potter <tpot@samba.org>
  * Copyright 2003, Ronnie Sahlberg,  added function dissectors
  *
- * $Id: packet-dcerpc-svcctl.c,v 1.12 2003/10/02 21:40:22 guy Exp $
+ * $Id: packet-dcerpc-svcctl.c,v 1.13 2003/12/17 21:34:44 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -386,21 +386,21 @@ svcctl_dissect_QueryServiceLockStatus_reply(tvbuff_t *tvb, int offset,
 
 
 
-#define SERVICE_DRIVER	0x0b
-#define SERVICE_WIN32	0x30
+#define SVCCTL_SERVICE_DRIVER	0x0b
+#define SVCCTL_SERVICE_WIN32	0x30
 static const value_string svcctl_service_type_vals[] = {
-	{ SERVICE_DRIVER,	"SERVICE_DRIVER" },
-	{ SERVICE_WIN32,	"SERVICE_WIN32" },
+	{ SVCCTL_SERVICE_DRIVER,    "SERVICE_DRIVER" },
+	{ SVCCTL_SERVICE_WIN32,     "SERVICE_WIN32" },
 	{ 0, NULL }
 };
 
-#define SERVICE_ACTIVE		0x01
-#define SERVICE_INACTIVE	0x02
-#define SERVICE_STATE_ALL	0x03
+#define SVCCTL_SERVICE_ACTIVE       0x01
+#define SVCCTL_SERVICE_INACTIVE     0x02
+#define SVCCTL_SERVICE_STATE_ALL    0x03
 static const value_string svcctl_service_status_vals[] = {
-	{ SERVICE_ACTIVE,	"SERVICE_ACTIVE" },
-	{ SERVICE_INACTIVE,	"SERVICE_INACTIVE" },
-	{ SERVICE_STATE_ALL,	"SERVICE_STATE_ALL" },
+	{ SVCCTL_SERVICE_ACTIVE,    "SERVICE_ACTIVE" },
+	{ SVCCTL_SERVICE_INACTIVE,  "SERVICE_INACTIVE" },
+	{ SVCCTL_SERVICE_STATE_ALL, "SERVICE_STATE_ALL" },
 	{ 0, NULL }
 };
 
