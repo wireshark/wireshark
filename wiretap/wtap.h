@@ -1,6 +1,6 @@
 /* wtap.h
  *
- * $Id: wtap.h,v 1.87 2001/07/05 00:34:42 guy Exp $
+ * $Id: wtap.h,v 1.88 2001/09/23 21:55:21 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -53,7 +53,7 @@
  * it on the machine on which the capture was taken.
  *
  * WTAP_ENCAP_LINUX_ATM_CLIP is the encapsulation you get with the
- * ATM on Linux code from <http://lrcwww.epfl.ch/linux-atm/>;
+ * ATM on Linux code from <http://linux-atm.sourceforge.net/>;
  * that code adds a DLT_ATM_CLIP DLT_ code of 19, and that
  * encapsulation isn't the same as the DLT_ATM_RFC1483 encapsulation
  * presumably used on some BSD systems, which we turn into
