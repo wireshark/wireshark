@@ -4,7 +4,7 @@
  * Copyright 2002, Richard Sharpe <rsharpe@ns.aus.com>
  *   decode srvsvc calls where Samba knows them ...
  *
- * $Id: packet-dcerpc-srvsvc.c,v 1.31 2002/06/21 12:41:37 sahlberg Exp $
+ * $Id: packet-dcerpc-srvsvc.c,v 1.32 2002/06/21 14:24:38 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -42,6 +42,7 @@
 static int proto_dcerpc_srvsvc = -1;
 static int hf_srvsvc_reserved = -1;
 static int hf_srvsvc_server = -1;
+static int hf_srvsvc_emulated_server = -1;
 static int hf_srvsvc_alerts = -1;
 static int hf_srvsvc_guest = -1;
 static int hf_srvsvc_transport = -1;
@@ -182,11 +183,13 @@ static int hf_srvsvc_transport_address = -1;
 static int hf_srvsvc_transport_address_len = -1;
 static int hf_srvsvc_transport_networkaddress = -1;
 static int hf_srvsvc_service_bits = -1;
+static int hf_srvsvc_service_bits_of_interest = -1;
 static int hf_srvsvc_update_immediately = -1;
 static int hf_srvsvc_path_flags = -1;
 static int hf_srvsvc_path_type = -1;
 static int hf_srvsvc_outbuflen = -1;
 static int hf_srvsvc_prefix = -1;
+static int hf_srvsvc_hnd = -1;
 
 static gint ett_dcerpc_srvsvc = -1;
 static gint ett_srvsvc_share_info_1 = -1;
@@ -5726,6 +5729,237 @@ srvsvc_dissect_netrnamecompare_rqst(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
+/* XXX dont know the out parameters. only the in parameters.
+ *
+ * IDL long NetrShareEnumSticky(
+ * IDL      [in] [string] [unique] wchar_t *ServerName,
+ * IDL      [in] [ref] SHARE_ENUM_STRUCT *share,
+ * IDL      [in] long MaxLen,
+ * IDL      [in] [unique] *ResumeHandle
+ * IDL );
+ */
+static int
+srvsvc_dissect_netrshareenumsticky_rqst(tvbuff_t *tvb, int offset, 
+				     packet_info *pinfo, proto_tree *tree, 
+				     char *drep)
+{
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
+			srvsvc_dissect_pointer_UNICODE_STRING,
+			NDR_POINTER_UNIQUE, "Server",
+			hf_srvsvc_server, 0);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+			srvsvc_dissect_SHARE_ENUM_STRUCT,
+			NDR_POINTER_REF, "Shares",
+			-1, 0);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+			hf_srvsvc_preferred_len, 0);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+			srvsvc_dissect_ENUM_HANDLE,
+			NDR_POINTER_UNIQUE, "Enum Handle", -1, 0);
+
+	return offset;
+}
+
+/* XXX dont know the out parameters. only the in parameters.
+ *
+ * IDL long NetrShareDelStart(
+ * IDL      [in] [string] [unique] wchar_t *ServerName,
+ * IDL      [in] [string] [ref] wchar_t *Share,
+ * IDL      long reserved;
+ * IDL );
+ */
+static int
+srvsvc_dissect_netrsharedelstart_rqst(tvbuff_t *tvb, int offset, 
+				     packet_info *pinfo, proto_tree *tree, 
+				     char *drep)
+{
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
+			srvsvc_dissect_pointer_UNICODE_STRING,
+			NDR_POINTER_UNIQUE, "Server",
+			hf_srvsvc_server, 0);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
+			srvsvc_dissect_pointer_UNICODE_STRING,
+			NDR_POINTER_REF, "Share",
+			hf_srvsvc_share, 0);
+
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_srvsvc_reserved, NULL);
+	
+	return offset;
+}
+
+/* XXX dont know the out parameters. only the in parameters.
+ *
+ * IDL long NetrShareDelCommit(
+ * IDL     [in] contect_handle
+ * IDL );
+ */
+static int
+srvsvc_dissect_netrsharedelcommit_rqst(tvbuff_t *tvb, int offset, 
+				     packet_info *pinfo, proto_tree *tree, 
+				     char *drep)
+{
+        offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
+				       hf_srvsvc_hnd, NULL, TRUE, FALSE);
+
+	return offset;
+}
+
+/* XXX dont know the out parameters. only the in parameters.
+ *
+ * IDL long NetrGetFileSecurity(
+ * IDL      [in] [string] [unique] wchar_t *ServerName,
+ * IDL      [in] [string] [unique] wchar_t *Share,
+ * IDL      [in] [string] [ref] wchar_t *File,
+ * IDL      [in] long requetedinformation
+ * IDL );
+ */
+static int
+srvsvc_dissect_netrgetfilesecurity_rqst(tvbuff_t *tvb, int offset, 
+				     packet_info *pinfo, proto_tree *tree, 
+				     char *drep)
+{
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
+			srvsvc_dissect_pointer_UNICODE_STRING,
+			NDR_POINTER_UNIQUE, "Server",
+			hf_srvsvc_server, 0);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
+			srvsvc_dissect_pointer_UNICODE_STRING,
+			NDR_POINTER_UNIQUE, "Share",
+			hf_srvsvc_share, 0);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
+			srvsvc_dissect_pointer_UNICODE_STRING,
+			NDR_POINTER_REF, "Path",
+			hf_srvsvc_path, 0);
+
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+			hf_srvsvc_info_level, 0);
+
+	return offset;
+}
+
+/* XXX dont know the out parameters. only the in parameters.
+ *
+ * IDL long NetrSetFileSecurity(
+ * IDL      [in] [string] [unique] wchar_t *ServerName,
+ * IDL      [in] [string] [unique] wchar_t *Share,
+ * IDL      [in] [string] [ref] wchar_t *File,
+ * IDL      [in] long sequrityinformation
+ * IDL      SECDESC [ref] *securitysecriptor; 4byte-len followed by bytestring
+ * IDL );
+ */
+static int
+srvsvc_dissect_netrsetfilesecurity_rqst(tvbuff_t *tvb, int offset, 
+				     packet_info *pinfo, proto_tree *tree, 
+				     char *drep)
+{
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
+			srvsvc_dissect_pointer_UNICODE_STRING,
+			NDR_POINTER_UNIQUE, "Server",
+			hf_srvsvc_server, 0);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
+			srvsvc_dissect_pointer_UNICODE_STRING,
+			NDR_POINTER_UNIQUE, "Share",
+			hf_srvsvc_share, 0);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
+			srvsvc_dissect_pointer_UNICODE_STRING,
+			NDR_POINTER_REF, "Path",
+			hf_srvsvc_path, 0);
+
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+			hf_srvsvc_info_level, 0);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+			lsa_dissect_LSA_SECURITY_DESCRIPTOR_data, NDR_POINTER_REF,
+			"LSA SECURITY DESCRIPTOR data:", -1, 0);
+
+	return offset;
+}
+
+/* XXX dont know the out parameters. only the in parameters.
+ *
+ * IDL long NetrServerTransportAddEx(
+ * IDL      [in] [string] [unique] wchar_t *ServerName,
+ * IDL      [in] long Level
+ * IDL      [in] [ref] SERVER_XPORT_ENUM_STRUCT *sxes;
+ * IDL );
+ */
+static int
+srvsvc_dissect_netrservertransportaddex_rqst(tvbuff_t *tvb, int offset, 
+				     packet_info *pinfo, proto_tree *tree, 
+				     char *drep)
+{
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
+			srvsvc_dissect_pointer_UNICODE_STRING,
+			NDR_POINTER_UNIQUE, "Server",
+			hf_srvsvc_server, 0);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+			hf_srvsvc_info_level, 0);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
+			srvsvc_dissect_SERVER_XPORT_ENUM_STRUCT,
+			NDR_POINTER_REF, "Transports",
+			-1, 0);
+
+	return offset;
+}
+
+/* XXX dont know the out parameters. only the in parameters.
+ *
+ * IDL long NetrServerSetServiceBits2(
+ * IDL      [in] [string] [unique] wchar_t *ServerName,
+ * IDL      [in] [string] [unique] wchar_t *EmulatedServerName,
+ * IDL      [in] [string] [unique] wchar_t *Transport,
+ * IDL      [in] long servicebitsofinterest
+ * IDL      [in] long servicebits
+ * IDL      [in] long updateimmediately
+ * IDL );
+ */
+static int
+srvsvc_dissect_netrserversetservicebits2_rqst(tvbuff_t *tvb, int offset, 
+				     packet_info *pinfo, proto_tree *tree, 
+				     char *drep)
+{
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
+			srvsvc_dissect_pointer_UNICODE_STRING,
+			NDR_POINTER_UNIQUE, "Server",
+			hf_srvsvc_server, 0);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
+			srvsvc_dissect_pointer_UNICODE_STRING,
+			NDR_POINTER_UNIQUE, "Emulated Server",
+			hf_srvsvc_emulated_server, 0);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
+			srvsvc_dissect_pointer_UNICODE_STRING,
+			NDR_POINTER_UNIQUE, "Transport:",
+			hf_srvsvc_transport, 0);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+			hf_srvsvc_service_bits_of_interest, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+			hf_srvsvc_service_bits, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+			hf_srvsvc_update_immediately, NULL);
+
+	return offset;
+}
+
+
+
 
 
 static dcerpc_sub_dissector dcerpc_srvsvc_dissectors[] = {
@@ -5837,13 +6071,27 @@ static dcerpc_sub_dissector dcerpc_srvsvc_dissectors[] = {
 	{SRV_NETRPRNAMECOMPARE,		"NetrpNameCompare",
 		srvsvc_dissect_netrnamecompare_rqst, 
 		NULL},
-	{SRV_NETRSHAREENUMSTICKY,	"NetrShareEnumSticky", NULL, NULL},
-	{SRV_NETRSHAREDELSTART,		"NetrShareDelStart", NULL, NULL},
-	{SRV_NETRSHAREDELCOMMIT,	"NetrShareDelCommit", NULL, NULL},
-	{SRV_NETRPGETFILESECURITY,	"NetrpGetFileSecurity", NULL, NULL},
-	{SRV_NETRPSETFILESECURITY,	"NetrpSetFileSecurity", NULL, NULL},
-	{SRV_NETRSERVERTRANSPORTADDEX,	"NetrServerTransportAddEx", NULL, NULL},
-	{SRV_NETRSERVERSETSERVICEBITS2,	"NetrServerSetServiceBits2", NULL, NULL},
+	{SRV_NETRSHAREENUMSTICKY,	"NetrShareEnumSticky",
+		srvsvc_dissect_netrshareenumsticky_rqst, 
+		NULL},
+	{SRV_NETRSHAREDELSTART,		"NetrShareDelStart",
+		srvsvc_dissect_netrsharedelstart_rqst, 
+		NULL},
+	{SRV_NETRSHAREDELCOMMIT,	"NetrShareDelCommit",
+		srvsvc_dissect_netrsharedelcommit_rqst, 
+		NULL},
+	{SRV_NETRPGETFILESECURITY,	"NetrpGetFileSecurity",
+		srvsvc_dissect_netrgetfilesecurity_rqst, 
+		NULL},
+	{SRV_NETRPSETFILESECURITY,	"NetrpSetFileSecurity",
+		srvsvc_dissect_netrsetfilesecurity_rqst, 
+		NULL},
+	{SRV_NETRSERVERTRANSPORTADDEX,	"NetrServerTransportAddEx",
+		srvsvc_dissect_netrservertransportaddex_rqst, 
+		NULL},
+	{SRV_NETRSERVERSETSERVICEBITS2,	"NetrServerSetServiceBits2",
+		srvsvc_dissect_netrserversetservicebits2_rqst, 
+		NULL},
 	{0, NULL, NULL, NULL}
 };
 
@@ -5863,6 +6111,9 @@ proto_register_dcerpc_srvsvc(void)
 	  { &hf_srvsvc_server,
 	    { "Server", "srvsvc.server", FT_STRING, BASE_NONE,
 	    NULL, 0x0, "Server Name", HFILL}},
+	  { &hf_srvsvc_emulated_server,
+	    { "Emulated Server", "srvsvc.emulated_server", FT_STRING, BASE_NONE,
+	    NULL, 0x0, "Emulated Server Name", HFILL}},
 	  { &hf_srvsvc_alerts,
 	    { "Alerts", "srvsvc.alerts", FT_STRING, BASE_NONE,
 	    NULL, 0x0, "Alerts", HFILL}},
@@ -6288,6 +6539,9 @@ proto_register_dcerpc_srvsvc(void)
 	  { &hf_srvsvc_service_bits,
 	    { "Service Bits", "srvsvc.service_bits", FT_UINT32,
 	      BASE_HEX, NULL, 0x0, "Service Bits", HFILL}},
+	  { &hf_srvsvc_service_bits_of_interest,
+	    { "Service Bits Of Interest", "srvsvc.service_bits_of_interest", FT_UINT32,
+	      BASE_HEX, NULL, 0x0, "Service Bits Of Interest", HFILL}},
 	  { &hf_srvsvc_update_immediately,
 	    { "Update Immediately", "srvsvc.update_immediately", FT_UINT32,
 	      BASE_DEC, NULL, 0x0, "Update Immediately", HFILL}},
@@ -6303,6 +6557,9 @@ proto_register_dcerpc_srvsvc(void)
 	  { &hf_srvsvc_prefix,
 	    { "Prefix", "srvsvc.prefix", FT_UINT32,
 	      BASE_HEX, NULL, 0x0, "Path Prefix", HFILL}},
+	  { &hf_srvsvc_hnd,
+	    { "Context Handle", "srvsvc.hnd", FT_BYTES,
+	      BASE_NONE, NULL, 0x0, "Context Handle", HFILL}},
 	};
 
         static gint *ett[] = {
