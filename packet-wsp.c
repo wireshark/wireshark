@@ -2,7 +2,7 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  *
- * $Id: packet-wsp.c,v 1.69 2003/05/25 19:36:51 guy Exp $
+ * $Id: packet-wsp.c,v 1.70 2003/06/30 23:24:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -335,6 +335,7 @@ static const value_string vals_status[] = {
 	{ 0x63, "Service Unavailable" },
 	{ 0x64, "Gateway Timeout" },
 	{ 0x65, "HTTP Version Not Supported" },
+
 	{ 0x00, NULL }
 };
 
@@ -1242,6 +1243,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	int offset = 0;
 
 	guint8 pdut;
+	guint8 reply_status;
 	guint count = 0;
 	guint value = 0;
 	guint uriLength = 0;
@@ -1451,7 +1453,13 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			headersLength = tvb_get_guintvar (tvb, offset+1, &count);
 			headerStart = offset + count + 1;
 			if (tree) {
+				reply_status = tvb_get_guint8(tvb, offset);
 				ti = proto_tree_add_item (wsp_tree, hf_wsp_header_status,tvb,offset,1,bo_little_endian);
+				if (check_col(pinfo->cinfo, COL_INFO))
+				{ /* Append status code to INFO column */
+					col_append_fstr(pinfo->cinfo, COL_INFO, ": \"0x%02x %s\"", reply_status,
+							val_to_str (reply_status, vals_status, "Unknown response status (0x%02x)"));
+				}
 				nextOffset = offset + 1 + count;
 				ti = proto_tree_add_uint (wsp_tree, hf_wsp_header_length,tvb,offset+1,count,headersLength);
 
@@ -5205,6 +5213,10 @@ proto_reg_handoff_wsp(void)
 	/* Only connection-less WSP has no previous handler */
 	dissector_add("udp.port", UDP_PORT_WSP, wsp_fromudp_handle);
 	dissector_add("udp.port", UDP_PORT_WSP_PUSH, wsp_fromudp_handle);
+
+	/* SMPP dissector can also carry WSP */
+	dissector_add("smpp.udh.port", UDP_PORT_WSP, wsp_fromudp_handle);
+	dissector_add("smpp.udh.port", UDP_PORT_WSP_PUSH, wsp_fromudp_handle);
 
 	/* This dissector is also called from the WTP and WTLS dissectors */
 }

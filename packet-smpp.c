@@ -1,8 +1,9 @@
 /* packet-smpp.c
  * Routines for Short Message Peer to Peer dissection
  * Copyright 2001, Tom Uijldert <tom.uijldert@cmg.nl>
+ * UDH and WSP dissection of SMS message by Olivier Biot
  *
- * $Id: packet-smpp.c,v 1.13 2003/06/26 08:55:27 guy Exp $
+ * $Id: packet-smpp.c,v 1.14 2003/06/30 23:24:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -159,11 +160,28 @@ static int hf_smpp_its_session_number		= -1;
 static int hf_smpp_its_session_sequence		= -1;
 static int hf_smpp_its_session_ind		= -1;
 
+/*
+ * User Data Header section
+ */
+static int hf_smpp_udh_length	= -1;
+static int hf_smpp_udh_multiple_messages			= -1;
+static int hf_smpp_udh_multiple_messages_msg_id		= -1;
+static int hf_smpp_udh_multiple_messages_msg_parts	= -1;
+static int hf_smpp_udh_multiple_messages_msg_part	= -1;
+static int hf_smpp_udh_ports		= -1;
+static int hf_smpp_udh_ports_src	= -1;
+static int hf_smpp_udh_ports_dst	= -1;
+
 /* Initialize the subtree pointers */
 static gint ett_smpp		= -1;
 static gint ett_dlist		= -1;
 static gint ett_dlist_resp	= -1;
 static gint ett_opt_param	= -1;
+static gint ett_udh_multiple_messages	= -1;
+static gint ett_udh_ports				= -1;
+
+/* Subdissector declarations */
+static dissector_table_t smpp_dissector_table;
 
 /*
  * Value-arrays for field-contents
@@ -1051,11 +1069,103 @@ outbind(proto_tree *tree, tvbuff_t *tvb)
     smpp_handle_string(tree, tvb, hf_smpp_password, &offset);
 }
 
+/* Parse Short Message, only if UDH present
+ * Call WSP dissector if port matches WSP traffic
+ */
 static void
-submit_sm(proto_tree *tree, tvbuff_t *tvb)
+parse_sm_message(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo)
 {
+	tvbuff_t *tmp_tvb;
+	proto_item *subtree;
+	guint8 udh_len, udh, len, a1, a2, a3;
+	guint8 p = 0; /* Check for Ports UDH */
+	guint16 p_src = 0, p_dst = 0;
+	guint32 i = 0;
+
+	udh_len = tvb_get_guint8(tvb, i++);
+	proto_tree_add_uint(tree, hf_smpp_udh_length, tvb, 0, 1, udh_len);
+	while (i < udh_len) {
+		udh = tvb_get_guint8(tvb, i++);
+		len = tvb_get_guint8(tvb, i++);
+		switch (udh) {
+			case 0x00: /* Multiple messages */
+				subtree = proto_tree_add_item(tree,
+						hf_smpp_udh_multiple_messages, tvb, i-2, 2+len, FALSE);
+				if (len == 3) {
+					a1 = tvb_get_guint8(tvb, i++);
+					a2 = tvb_get_guint8(tvb, i++);
+					a3 = tvb_get_guint8(tvb, i++);
+					proto_item_append_text(subtree,
+							": Message %d, Part %d of %d", a1, a3, a2);
+					subtree = proto_item_add_subtree(subtree,
+							ett_udh_multiple_messages);
+					proto_tree_add_uint (subtree,
+							hf_smpp_udh_multiple_messages_msg_id,
+							tvb, i-3, 1, a1);
+					proto_tree_add_uint (subtree,
+							hf_smpp_udh_multiple_messages_msg_parts,
+							tvb, i-2, 1, a2);
+					proto_tree_add_uint (subtree,
+							hf_smpp_udh_multiple_messages_msg_part,
+							tvb, i-1, 1, a3);
+				} else {
+					proto_item_append_text(subtree, "Invalid format!");
+					i += len;
+				}
+				break;
+
+			case 0x05: /* Port Number UDH */
+				subtree = proto_tree_add_item(tree,
+						hf_smpp_udh_ports, tvb, i-2, 2+len, FALSE);
+				if (len == 4) { /* Port fields */
+					p_src = tvb_get_guint8(tvb, i++) << 8;
+					p_src += tvb_get_guint8(tvb, i++);
+					p_dst = tvb_get_guint8(tvb, i++) << 8;
+					p_dst += tvb_get_guint8(tvb, i++);
+					proto_item_append_text(subtree,
+							": source port %d, destination port %d",
+							p_src, p_dst);
+					subtree = proto_item_add_subtree(subtree, ett_udh_ports);
+					proto_tree_add_uint (subtree, hf_smpp_udh_ports_src,
+							tvb, i-4, 2, p_src);
+					proto_tree_add_uint (subtree, hf_smpp_udh_ports_dst,
+							tvb, i-2, 2, p_dst);
+					p = 1;
+				} else {
+					proto_item_append_text(subtree, "Invalid format!");
+					i += len;
+				}
+				break;
+
+			default:
+				proto_tree_add_text(tree, tvb, i-2, 2+len,
+						"Undecoded UDH (0x%02x)", udh);
+				i += len;
+				break;
+		}
+	}
+	if (p && tvb_reported_length_remaining(tvb, i) > 0) {
+		tmp_tvb = tvb_new_subset (tvb, i, -1, -1);
+		/* Try finding a dissector for the content first, then fallback */
+		if (!dissector_try_port(smpp_dissector_table, p_src,
+					tmp_tvb, pinfo, tree)) {
+			if (!dissector_try_port(smpp_dissector_table, p_dst,
+					tmp_tvb, pinfo, tree)) {
+					if (tree) /* Only display if needed */
+						proto_tree_add_text (tree, tmp_tvb, 0, -1,
+								"Message body");
+			}
+		}
+	}
+	return;
+}
+
+static void
+submit_sm(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo)
+{
+    tvbuff_t	*tvb_msg;
     int		 offset = 0;
-    guint8	 flag;
+    guint8	 flag, udhi;
     guint8	 length;
 
     smpp_handle_string(tree, tvb, hf_smpp_service_type, &offset);
@@ -1066,6 +1176,7 @@ submit_sm(proto_tree *tree, tvbuff_t *tvb)
     smpp_handle_int1(tree, tvb, hf_smpp_dest_addr_npi, &offset);
     smpp_handle_string(tree, tvb, hf_smpp_destination_addr, &offset);
     flag = tvb_get_guint8(tvb, offset);
+    udhi = flag & 0x40;
     proto_tree_add_item(tree, hf_smpp_esm_submit_msg_mode,
 			tvb, offset, 1, flag);
     proto_tree_add_item(tree, hf_smpp_esm_submit_msg_type,
@@ -1090,13 +1201,21 @@ submit_sm(proto_tree *tree, tvbuff_t *tvb)
     length = tvb_get_guint8(tvb, offset);
     proto_tree_add_uint(tree, hf_smpp_sm_length, tvb, offset++, 1, length);
     if (length)
+    {
 	proto_tree_add_item(tree, hf_smpp_short_message,
 			    tvb, offset, length, FALSE);
-    offset += length;
+	if (udhi) /* UDHI indicator present */
+	{
+	    tvb_msg = tvb_new_subset (tvb, offset,
+				      MIN(length, tvb_reported_length(tvb) - offset), length);
+	    parse_sm_message(tree, tvb_msg, pinfo);
+	}
+    	offset += length;
+    }
     smpp_handle_tlv(tree, tvb, &offset);
 }
 
-#define deliver_sm(a, b) submit_sm(a, b)
+#define deliver_sm(a, b, c) submit_sm(a, b, c)
 
 static void
 replace_sm(proto_tree *tree, tvbuff_t *tvb)
@@ -1454,10 +1573,10 @@ dissect_smpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    query_sm(smpp_tree, tmp_tvb);
 		    break;
 		case  4:
-		    submit_sm(smpp_tree, tmp_tvb);
+		    submit_sm(smpp_tree, tmp_tvb, pinfo);
 		    break;
 		case  5:
-		    deliver_sm(smpp_tree, tmp_tvb);
+		    deliver_sm(smpp_tree, tmp_tvb, pinfo);
 		    break;
 		case  6:			/* Unbind	*/
 		case 21:			/* Enquire link	*/
@@ -2166,13 +2285,71 @@ proto_register_smpp(void)
 		HFILL
 	    }
 	},
+	{   &hf_smpp_udh_length,
+	    {	"UDH Length", "smpp.udh.len",
+		FT_UINT8, BASE_DEC, NULL, 0x00,
+		"Length of the User Data Header (bytes)",
+		HFILL
+	    }
+	},
+	{   &hf_smpp_udh_multiple_messages,
+	    {	"Multiple messages UDH", "smpp.udh.mm",
+		FT_NONE, BASE_NONE, NULL, 0x00,
+		"Multiple messages User Data Header",
+		HFILL
+	    }
+	},
+	{   &hf_smpp_udh_multiple_messages_msg_id,
+	    {	"Message identifier", "smpp.udh.mm.msg_id",
+		FT_UINT8, BASE_DEC, NULL, 0x00,
+		"Identification of the message",
+		HFILL
+	    }
+	},
+	{   &hf_smpp_udh_multiple_messages_msg_parts,
+	    {	"Message parts", "smpp.udh.mm.msg_parts",
+		FT_UINT8, BASE_DEC, NULL, 0x00,
+		"Total number of message parts (fragments)",
+		HFILL
+	    }
+	},
+	{   &hf_smpp_udh_multiple_messages_msg_part,
+	    {	"Message part number", "smpp.udh.mm.msg_part",
+		FT_UINT8, BASE_DEC, NULL, 0x00,
+		"Message part (fragment) sequence number",
+		HFILL
+	    }
+	},
+	{   &hf_smpp_udh_ports,
+	    {	"Port number UDH", "smpp.udh.ports",
+		FT_NONE, BASE_NONE, NULL, 0x00,
+		"Port number User Data Header",
+		HFILL
+	    }
+	},
+	{   &hf_smpp_udh_ports_src,
+	    {	"Source port", "smpp.udh.ports.src",
+		FT_UINT8, BASE_DEC, NULL, 0x00,
+		"Source port",
+		HFILL
+	    }
+	},
+	{   &hf_smpp_udh_ports_dst,
+	    {	"Destination port", "smpp.udh.ports.dst",
+		FT_UINT8, BASE_DEC, NULL, 0x00,
+		"Destination port",
+		HFILL
+	    }
+	},
     };
     /* Setup protocol subtree array */
     static gint *ett[] = {
 	    &ett_smpp,
 	    &ett_dlist,
 	    &ett_dlist_resp,
-	    &ett_opt_param
+	    &ett_opt_param,
+	    &ett_udh_multiple_messages,
+	    &ett_udh_ports,
     };
     /* Register the protocol name and description */
     proto_smpp = proto_register_protocol("Short Message Peer to Peer",
@@ -2181,6 +2358,10 @@ proto_register_smpp(void)
     /* Required function calls to register header fields and subtrees used */
     proto_register_field_array(proto_smpp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    /* Subdissector code */
+    smpp_dissector_table = register_dissector_table("smpp.udh.port",
+			"SMPP UDH port", FT_UINT16, BASE_DEC);
 }
 
 /*

@@ -726,6 +726,8 @@ Olivier Biot <Olivier.Biot[AT]siemens.com> {
 	Various WTP fixes and enhancements
 	WBXML/WMLC support
 	README.win32 updates for Cygwin
+	UDH dissection in SMPP
+	WTP-over-SMPP and WSP-over-SMPP
 }
 
 Patrick Wolfe <pjw[AT]zocalo.cellular.ameritech.com> {
