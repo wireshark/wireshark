@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.51 1999/12/07 06:10:00 guy Exp $
+ * $Id: packet-tcp.c,v 1.52 1999/12/09 04:06:53 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -107,6 +107,7 @@ static gint ett_tcp_option_sack = -1;
 #define TCP_PORT_MAPI     1065
 #define TCP_PORT_TNS      1521
 #define TCP_PORT_IRC      6667 /* good candidate for dynamic port specification */
+#define TCP_PORT_LDAP	  389
 
 /* TCP structs and definitions */
 
@@ -539,6 +540,9 @@ dissect_tcp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     } else if (PORT_IS(TCP_PORT_IRC)) {
       pi.match_port = TCP_PORT_IRC;
       dissect_irc(pd, offset, fd, tree);
+    } else if (PORT_IS(TCP_PORT_LDAP)) {
+      pi.match_port = TCP_PORT_LDAP;
+      dissect_ldap(pd, offset, fd, tree);
     } else if (PORT_IS(TCP_PORT_SRVLOC)) {
       pi.match_port = TCP_PORT_SRVLOC;
       dissect_srvloc(pd, offset, fd, tree);
