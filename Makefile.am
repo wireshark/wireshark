@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.145 2000/01/08 19:36:10 gram Exp $
+# $Id: Makefile.am,v 1.146 2000/01/08 21:56:29 gram Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -265,7 +265,7 @@ ethereal_additional_libs = wiretap/libwiretap.a gtk/libui.a
 ethereal_DEPENDENCIES = \
 	$(ethereal_optional_objects)	\
 	$(ethereal_additional_libs)	\
-	@LIBTDL@
+	@LIBLTDL@
 	plugins/gryphon/gryphon.la
 
 # This automake variable adds to the link-line for the executable
