@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.265 2004/06/09 03:08:12 gerald Exp $
+# $Id: configure.in,v 1.266 2004/06/17 14:37:43 jmayer Exp $
 #
 AC_INIT(etypes.h)
 
@@ -733,7 +733,7 @@ AC_MSG_CHECKING(whether to use kerberos/heimdal)
 
 AC_ARG_WITH(krb5,
 changequote(<<, >>)dnl
-<<  --with-krb5[=DIR]       use kerberos/heimdal (located in directory DIR, if supplied) to use in kerberos dissection  [default=no]>>,
+<<  --with-krb5[=DIR]       use kerberos/heimdal (located in directory DIR, if supplied) to use in kerberos dissection  [default=yes]>>,
 changequote([, ])dnl
 [
 	if test $withval = no
@@ -750,7 +750,7 @@ changequote([, ])dnl
 	#
 	# Use kerberos/heimdal if specified, otherwise don't.
 	#
-	want_krb5=no
+	want_krb5=yes
 	krb5_dir=
 ])
 if test "x$want_krb5" = "xno" ; then
