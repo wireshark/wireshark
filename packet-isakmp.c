@@ -4,7 +4,7 @@
  * for ISAKMP (RFC 2407)
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-isakmp.c,v 1.68 2003/09/15 19:08:27 guy Exp $
+ * $Id: packet-isakmp.c,v 1.69 2003/10/04 16:44:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -330,7 +330,7 @@ dissect_payloads(tvbuff_t *tvb, proto_tree *tree, guint8 initial_payload,
     if (ntree == NULL)
       break;
     if (payload_length >= 4) {	/* XXX = > 4? */
-      if (payload < NUM_LOAD_TYPES) {
+      if (payload < NUM_LOAD_TYPES && strfuncs[payload].func != NULL) {
         (*strfuncs[payload].func)(tvb, offset + 4, payload_length - 4, ntree,
 				  -1);
       }
