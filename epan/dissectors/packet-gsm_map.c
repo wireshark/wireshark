@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* ./packet-gsm_map.c                                                         */
+/* .\packet-gsm_map.c                                                         */
 /* ../../tools/asn2eth.py -X -b -e -p gsm_map -c gsmmap.cnf -s packet-gsm_map-template GSMMAP.asn */
 
 /* Input file: packet-gsm_map-template.c */
@@ -120,7 +120,7 @@ static int hf_gsm_map_skipSubscriberDataUpdate = -1;  /* NULL */
 static int hf_gsm_map_hlr_Number = -1;            /* Hlr_Number */
 static int hf_gsm_map_PrivateExtensionList_item = -1;  /* PrivateExtension */
 static int hf_gsm_map_extId = -1;                 /* OBJECT_IDENTIFIER */
-static int hf_gsm_map_extType = -1;               /* OCTET_STRING */
+static int hf_gsm_map_extType = -1;               /* T_extType */
 static int hf_gsm_map_identity = -1;              /* T_identity */
 static int hf_gsm_map_imsi_WithLMSI = -1;         /* T_imsi_WithLMSI */
 static int hf_gsm_map_cancellationType = -1;      /* CancellationType */
@@ -251,7 +251,7 @@ static int hf_gsm_map_vgcsSubscriptionData_item = -1;  /* T_vgcsSubscriptionData
 static int hf_gsm_map_groupId = -1;               /* OCTET_STRING_SIZE_3 */
 static int hf_gsm_map_vlrCamelSubscriptionInfo = -1;  /* T_vlrCamelSubscriptionInfo */
 static int hf_gsm_map_o_CSI = -1;                 /* O_CSI */
-static int hf_gsm_map_ss_CSI = -1;                /* T_ss_CSI */
+static int hf_gsm_map_ss_CSI = -1;                /* ss_CSI */
 static int hf_gsm_map_ss_CamelData = -1;          /* Ss_CamelData */
 static int hf_gsm_map_o_BcsmCamelTDP_CriteriaList = -1;  /* O_BcsmCamelTDP_CriteriaList */
 static int hf_gsm_map_tif_CSI = -1;               /* NULL */
@@ -318,7 +318,7 @@ static int hf_gsm_map_naea_PreferredCIC = -1;     /* OCTET_STRING_SIZE_3 */
 static int hf_gsm_map_O_BcsmCamelTDP_CriteriaList_item = -1;  /* O_BcsmCamelTDP_CriteriaList_item */
 static int hf_gsm_map_o_BcsmTriggerDetectionPoint = -1;  /* BcsmTriggerDetectionPoint */
 static int hf_gsm_map_destinationNumberCriteria = -1;  /* DestinationNumberCriteria */
-static int hf_gsm_map_basicServiceCriteria = -1;  /* BasicServiceGroupList */
+static int hf_gsm_map_basicServiceCriteria_lst = -1;  /* BasicServiceGroupList */
 static int hf_gsm_map_callTypeCriteria = -1;      /* CallTypeCriteria */
 static int hf_gsm_map_cliRestrictionOption = -1;  /* CliRestrictionOption */
 static int hf_gsm_map_overrideCategory = -1;      /* OverrideCategory */
@@ -366,7 +366,7 @@ static int hf_gsm_map_roamingNumber = -1;         /* RoamingNumber */
 static int hf_gsm_map_forwardingData = -1;        /* ForwardingData */
 static int hf_gsm_map_camelRoutingInfo = -1;      /* T_camelRoutingInfo */
 static int hf_gsm_map_gmscCamelSubscriptionInfo = -1;  /* T_gmscCamelSubscriptionInfo */
-static int hf_gsm_map_t_CSI = -1;                 /* T_t_CSI */
+static int hf_gsm_map_t_CSI = -1;                 /* t_CSI */
 static int hf_gsm_map_t_BcsmCamelTDPDataList = -1;  /* BcsmCamelTDPDataList */
 static int hf_gsm_map_cugSubscriptionFlag = -1;   /* NULL */
 static int hf_gsm_map_subscriberInfo = -1;        /* SubscriberInfo */
@@ -465,7 +465,7 @@ static int hf_gsm_map_ss_SubscriptionOption = -1;  /* Ss_SubscriptionOption */
 static int hf_gsm_map_ccbs_Index = -1;            /* INTEGER_1_5 */
 static int hf_gsm_map_b_subscriberNumber = -1;    /* B_subscriberNumber */
 static int hf_gsm_map_b_subscriberSubaddress = -1;  /* OCTET_STRING_SIZE_1_21 */
-static int hf_gsm_map_forwardingFeatureList = -1;  /* SEQUENCE_SIZE_1_13_OF_ForwardingFeatureList */
+static int hf_gsm_map_forwardingFeatureList_1_13 = -1;  /* SEQUENCE_SIZE_1_13_OF_ForwardingFeatureList */
 static int hf_gsm_map_genericServiceInfo = -1;    /* T_genericServiceInfo */
 static int hf_gsm_map_maximumEntitledPriority = -1;  /* INTEGER_0_15 */
 static int hf_gsm_map_ccbs_FeatureList = -1;      /* T_ccbs_FeatureList */
@@ -517,30 +517,24 @@ static int hf_gsm_map_supportedVLR_CAMEL_Phases_flg = -1;  /* NULL */
 static int hf_gsm_map_supportedSGSN_CAMEL_Phases_flg = -1;  /* NULL */
 static int hf_gsm_map_additionalRequestedCAMEL_SubscriptionInfo = -1;  /* AdditionalRequestedCAMEL_SubscriptionInfo */
 static int hf_gsm_map_callForwardingData = -1;    /* T_callForwardingData */
-static int hf_gsm_map_forwardingFeatureList1 = -1;  /* ForwardingFeatureList */
+static int hf_gsm_map_forwardingFeatureList = -1;  /* ForwardingFeatureList */
 static int hf_gsm_map_notificationToCSE = -1;     /* NULL */
 static int hf_gsm_map_callBarringData = -1;       /* T_callBarringData */
 static int hf_gsm_map_password = -1;              /* NumericString */
 static int hf_gsm_map_wrongPasswordAttemptsCounter = -1;  /* INTEGER_0_4 */
 static int hf_gsm_map_odb_Info = -1;              /* T_odb_Info */
 static int hf_gsm_map_camel_SubscriptionInfo = -1;  /* T_camel_SubscriptionInfo */
-static int hf_gsm_map_o_BcsmCamelTDP_CriteriaList1 = -1;  /* T_o_BcsmCamelTDP_CriteriaList */
-static int hf_gsm_map_o_BcsmCamelTDP_CriteriaList_item = -1;  /* T_o_BcsmCamelTDP_CriteriaList_item */
-static int hf_gsm_map_o_BcsmTriggerDetectionPoint1 = -1;  /* T_o_BcsmTriggerDetectionPoint */
-static int hf_gsm_map_basicServiceCriteria1 = -1;  /* BasicServiceCriteria */
-static int hf_gsm_map_o_CauseValueCriteria = -1;  /* O_CauseValueCriteria */
 static int hf_gsm_map_d_CSI = -1;                 /* T_d_CSI */
 static int hf_gsm_map_dp_AnalysedInfoCriteriaList = -1;  /* Dp_AnalysedInfoCriteriaList */
 static int hf_gsm_map_csi_Active = -1;            /* NULL */
-static int hf_gsm_map_t_CSI1 = -1;                /* T_t_CSI1 */
 static int hf_gsm_map_t_BCSM_CAMEL_TDP_CriteriaList = -1;  /* T_t_BCSM_CAMEL_TDP_CriteriaList */
 static int hf_gsm_map_t_BCSM_CAMEL_TDP_CriteriaList_item = -1;  /* T_t_BCSM_CAMEL_TDP_CriteriaList_item */
-static int hf_gsm_map_t_BCSM_TriggerDetectionPoint = -1;  /* T_t_BCSM_TriggerDetectionPoint */
+static int hf_gsm_map_t_BCSM_TriggerDetectionPoint = -1;  /* t_BCSM_TriggerDetectionPoint */
+static int hf_gsm_map_basicServiceCriteria = -1;  /* BasicServiceCriteria */
 static int hf_gsm_map_t_CauseValueCriteria = -1;  /* T_CauseValueCriteria */
 static int hf_gsm_map_vt_CSI = -1;                /* T_vt_CSI */
 static int hf_gsm_map_vt_BCSM_CAMEL_TDP_CriteriaList = -1;  /* T_vt_BCSM_CAMEL_TDP_CriteriaList */
 static int hf_gsm_map_vt_BCSM_CAMEL_TDP_CriteriaList_item = -1;  /* T_vt_BCSM_CAMEL_TDP_CriteriaList_item */
-static int hf_gsm_map_t_BCSM_TriggerDetectionPoint1 = -1;  /* T_t_BCSM_TriggerDetectionPoint1 */
 static int hf_gsm_map_tif_CSI_NotificationToCSE = -1;  /* NULL */
 static int hf_gsm_map_gprs_CSI = -1;              /* T_gprs_CSI */
 static int hf_gsm_map_gprs_CamelTDPDataList = -1;  /* T_gprs_CamelTDPDataList */
@@ -549,14 +543,13 @@ static int hf_gsm_map_gprs_TriggerDetectionPoint = -1;  /* T_gprs_TriggerDetecti
 static int hf_gsm_map_defaultSessionHandling = -1;  /* T_defaultSessionHandling */
 static int hf_gsm_map_mo_sms_CSI = -1;            /* T_mo_sms_CSI */
 static int hf_gsm_map_sms_CAMEL_TDP_DataList = -1;  /* Sms_CAMEL_TDP_DataList */
-static int hf_gsm_map_ss_CSI1 = -1;               /* T_ss_CSI1 */
 static int hf_gsm_map_m_CSI = -1;                 /* T_m_CSI */
 static int hf_gsm_map_mobilityTriggers = -1;      /* MobilityTriggers */
 static int hf_gsm_map_specificCSIDeletedList = -1;  /* T_specificCSIDeletedList */
 static int hf_gsm_map_mt_sms_CSI = -1;            /* T_mt_sms_CSI */
 static int hf_gsm_map_mt_smsCAMELTDP_CriteriaList = -1;  /* T_mt_smsCAMELTDP_CriteriaList */
 static int hf_gsm_map_mt_smsCAMELTDP_CriteriaList_item = -1;  /* T_mt_smsCAMELTDP_CriteriaList_item */
-static int hf_gsm_map_sms_TriggerDetectionPoint = -1;  /* T_sms_TriggerDetectionPoint */
+static int hf_gsm_map_sms_TriggerDetectionPoint = -1;  /* sms_TriggerDetectionPoint */
 static int hf_gsm_map_tpdu_TypeCriterion = -1;    /* T_tpdu_TypeCriterion */
 static int hf_gsm_map_tpdu_TypeCriterion_item = -1;  /* T_tpdu_TypeCriterion_item */
 static int hf_gsm_map_mg_csi = -1;                /* T_mg_csi */
@@ -564,18 +557,16 @@ static int hf_gsm_map_o_IM_CSI = -1;              /* T_o_IM_CSI */
 static int hf_gsm_map_csiActive = -1;             /* NULL */
 static int hf_gsm_map_o_IM_BcsmCamelTDP_CriteriaList = -1;  /* T_o_IM_BcsmCamelTDP_CriteriaList */
 static int hf_gsm_map_o_IM_BcsmCamelTDP_CriteriaList_item = -1;  /* T_o_IM_BcsmCamelTDP_CriteriaList_item */
-static int hf_gsm_map_o_BcsmTriggerDetectionPoint2 = -1;  /* T_o_BcsmTriggerDetectionPoint1 */
+static int hf_gsm_map_o_CauseValueCriteria = -1;  /* O_CauseValueCriteria */
 static int hf_gsm_map_d_IM_CSI = -1;              /* T_d_IM_CSI */
 static int hf_gsm_map_vt_IM_CSI = -1;             /* T_vt_IM_CSI */
 static int hf_gsm_map_vt_IM_BCSM_CAMEL_TDP_CriteriaList = -1;  /* T_vt_IM_BCSM_CAMEL_TDP_CriteriaList */
 static int hf_gsm_map_vt_IM_BCSM_CAMEL_TDP_CriteriaList_item = -1;  /* T_vt_IM_BCSM_CAMEL_TDP_CriteriaList_item */
-static int hf_gsm_map_t_BCSM_TriggerDetectionPoint2 = -1;  /* T_t_BCSM_TriggerDetectionPoint2 */
 static int hf_gsm_map_supportedVLR_CAMEL_Phases = -1;  /* T_supportedVLR_CAMEL_Phases */
 static int hf_gsm_map_supportedSGSN_CAMEL_Phases = -1;  /* T_supportedSGSN_CAMEL_Phases */
 static int hf_gsm_map_offeredCamel4CSIsInVLR = -1;  /* T_offeredCamel4CSIsInVLR */
 static int hf_gsm_map_offeredCamel4CSIsInSGSN = -1;  /* T_offeredCamel4CSIsInSGSN */
 static int hf_gsm_map_Sms_CAMEL_TDP_DataList_item = -1;  /* Sms_CAMEL_TDP_DataList_item */
-static int hf_gsm_map_sms_TriggerDetectionPoint1 = -1;  /* T_sms_TriggerDetectionPoint1 */
 static int hf_gsm_map_defaultSMS_Handling = -1;   /* T_defaultSMS_Handling */
 static int hf_gsm_map_T_CauseValueCriteria_item = -1;  /* OCTET_STRING_SIZE_1 */
 static int hf_gsm_map_O_CauseValueCriteria_item = -1;  /* OCTET_STRING_SIZE_1 */
@@ -586,11 +577,10 @@ static int hf_gsm_map_ext_Teleservice = -1;       /* OCTET_STRING_SIZE_1_5 */
 static int hf_gsm_map_Dp_AnalysedInfoCriteriaList_item = -1;  /* Dp_AnalysedInfoCriteriaList_item */
 static int hf_gsm_map_dialledNumber = -1;         /* T_dialledNumber */
 static int hf_gsm_map_modificationRequestFor_CF_Info = -1;  /* T_modificationRequestFor_CF_Info */
-static int hf_gsm_map_basicService1 = -1;         /* T_basicService */
-static int hf_gsm_map_noReplyConditionTime1 = -1;  /* INTEGER_1_100 */
+static int hf_gsm_map_basicService_ext = -1;      /* BasicService_ext */
+static int hf_gsm_map_noReplyConditionTime_1_100 = -1;  /* INTEGER_1_100 */
 static int hf_gsm_map_modifyNotificationToCSE = -1;  /* ModifyNotificationToCSE */
 static int hf_gsm_map_modificationRequestFor_CB_Info = -1;  /* T_modificationRequestFor_CB_Info */
-static int hf_gsm_map_basicService2 = -1;         /* T_basicService1 */
 static int hf_gsm_map_modificationRequestFor_CSI = -1;  /* T_modificationRequestFor_CSI */
 static int hf_gsm_map_requestedCamel_SubscriptionInfo = -1;  /* T_requestedCamel_SubscriptionInfo */
 static int hf_gsm_map_modifyCSI_State = -1;       /* T_modifyCSI_State */
@@ -671,13 +661,13 @@ static int hf_gsm_map_T_supportedLCS_CapabilitySets_lcsCapabilitySet1 = -1;
 static int hf_gsm_map_T_supportedLCS_CapabilitySets_lcsCapabilitySet2 = -1;
 static int hf_gsm_map_T_supportedLCS_CapabilitySets_lcsCapabilitySet3 = -1;
 static int hf_gsm_map_T_supportedLCS_CapabilitySets_lcsCapabilitySet4 = -1;
-static int hf_gsm_map_T_offeredCamel4CSIs_ocsi = -1;
-static int hf_gsm_map_T_offeredCamel4CSIs_dcsi = -1;
-static int hf_gsm_map_T_offeredCamel4CSIs_vtcsi = -1;
-static int hf_gsm_map_T_offeredCamel4CSIs_tcsi = -1;
-static int hf_gsm_map_T_offeredCamel4CSIs_mtsmscsi = -1;
-static int hf_gsm_map_T_offeredCamel4CSIs_mgcsi = -1;
-static int hf_gsm_map_T_offeredCamel4CSIs_psienhancements = -1;
+static int hf_gsm_map_T_offeredCamel4CSIs_o_csi = -1;
+static int hf_gsm_map_T_offeredCamel4CSIs_d_csi = -1;
+static int hf_gsm_map_T_offeredCamel4CSIs_vt_csi = -1;
+static int hf_gsm_map_T_offeredCamel4CSIs_t_csi = -1;
+static int hf_gsm_map_T_offeredCamel4CSIs_mt_sms_csi = -1;
+static int hf_gsm_map_T_offeredCamel4CSIs_mg_csi = -1;
+static int hf_gsm_map_T_offeredCamel4CSIs_psi_enhancements = -1;
 static int hf_gsm_map_Odb_GeneralData_allOGCallsBarred = -1;
 static int hf_gsm_map_Odb_GeneralData_internationalOGCallsBarred = -1;
 static int hf_gsm_map_Odb_GeneralData_internationalOGCallsNotToHPLMNCountryBarred = -1;
@@ -846,7 +836,7 @@ static gint ett_gsm_map_T_vbsSubscriptionData_item = -1;
 static gint ett_gsm_map_T_vgcsSubscriptionData = -1;
 static gint ett_gsm_map_T_vgcsSubscriptionData_item = -1;
 static gint ett_gsm_map_T_vlrCamelSubscriptionInfo = -1;
-static gint ett_gsm_map_T_ss_CSI = -1;
+static gint ett_gsm_map_ss_CSI = -1;
 static gint ett_gsm_map_T_gprsSubscriptionData = -1;
 static gint ett_gsm_map_T_gprsDataList = -1;
 static gint ett_gsm_map_T_gprsDataList_item = -1;
@@ -901,7 +891,7 @@ static gint ett_gsm_map_T_extendedRoutingInfo = -1;
 static gint ett_gsm_map_T_routingInfo = -1;
 static gint ett_gsm_map_T_camelRoutingInfo = -1;
 static gint ett_gsm_map_T_gmscCamelSubscriptionInfo = -1;
-static gint ett_gsm_map_T_t_CSI = -1;
+static gint ett_gsm_map_t_CSI = -1;
 static gint ett_gsm_map_T_ccbs_Indicators = -1;
 static gint ett_gsm_map_SubscriberState = -1;
 static gint ett_gsm_map_LocationInformation = -1;
@@ -984,10 +974,7 @@ static gint ett_gsm_map_T_callForwardingData = -1;
 static gint ett_gsm_map_T_callBarringData = -1;
 static gint ett_gsm_map_T_odb_Info = -1;
 static gint ett_gsm_map_T_camel_SubscriptionInfo = -1;
-static gint ett_gsm_map_T_o_BcsmCamelTDP_CriteriaList = -1;
-static gint ett_gsm_map_T_o_BcsmCamelTDP_CriteriaList_item = -1;
 static gint ett_gsm_map_T_d_CSI = -1;
-static gint ett_gsm_map_T_t_CSI1 = -1;
 static gint ett_gsm_map_T_t_BCSM_CAMEL_TDP_CriteriaList = -1;
 static gint ett_gsm_map_T_t_BCSM_CAMEL_TDP_CriteriaList_item = -1;
 static gint ett_gsm_map_T_vt_CSI = -1;
@@ -997,7 +984,6 @@ static gint ett_gsm_map_T_gprs_CSI = -1;
 static gint ett_gsm_map_T_gprs_CamelTDPDataList = -1;
 static gint ett_gsm_map_T_gprs_CamelTDPDataList_item = -1;
 static gint ett_gsm_map_T_mo_sms_CSI = -1;
-static gint ett_gsm_map_T_ss_CSI1 = -1;
 static gint ett_gsm_map_T_m_CSI = -1;
 static gint ett_gsm_map_T_specificCSIDeletedList = -1;
 static gint ett_gsm_map_T_mt_sms_CSI = -1;
@@ -1028,11 +1014,11 @@ static gint ett_gsm_map_Dp_AnalysedInfoCriteriaList_item = -1;
 static gint ett_gsm_map_SubscriberIdentity = -1;
 static gint ett_gsm_map_AnyTimeModificationArg = -1;
 static gint ett_gsm_map_T_modificationRequestFor_CF_Info = -1;
-static gint ett_gsm_map_T_basicService = -1;
+static gint ett_gsm_map_BasicService_ext = -1;
 static gint ett_gsm_map_T_modificationRequestFor_CB_Info = -1;
-static gint ett_gsm_map_T_basicService1 = -1;
 static gint ett_gsm_map_T_modificationRequestFor_CSI = -1;
 static gint ett_gsm_map_T_modificationRequestFor_ODB_data = -1;
+static gint ett_gsm_map_AnyTimeModificationRes = -1;
 static gint ett_gsm_map_Odb_data = -1;
 static gint ett_gsm_map_Ss_InvocationNotificationArg = -1;
 static gint ett_gsm_map_T_ss_EventSpecification = -1;
@@ -1111,6 +1097,8 @@ static gint ett_gsm_map_ExtensionContainer = -1;
 
 
 static dissector_table_t	sms_dissector_table;	/* SMS TPDU */
+static dissector_handle_t data_handle;
+
 /* Preferenc settings default */
 static guint tcap_itu_ssn1 = 6;
 static guint tcap_itu_ssn2 = 7;
@@ -1123,6 +1111,7 @@ static guint global_tcap_itu_ssn3 = 8;
 static guint global_tcap_itu_ssn4 = 9;
 
 /* Global variables */
+
 static proto_tree *top_tree;
 int application_context_version;
 gint protocolId;
@@ -1226,7 +1215,6 @@ dissect_gsm_map_SignalInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
 		break;
 }
 
-
   return offset;
 }
 static int dissect_signalInfo(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
@@ -1246,32 +1234,24 @@ static int dissect_extId(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, in
 }
 
 
+
 static int
-dissect_gsm_map_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                    NULL);
+dissect_gsm_map_T_extType(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+
+  proto_tree_add_text(tree, tvb, offset, -1, "Extension Data");
+  call_dissector(data_handle, tvb, pinfo, tree);	
+  offset = tvb_length_remaining(tvb,offset);		
+
 
   return offset;
 }
 static int dissect_extType(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_gsm_map_OCTET_STRING(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_extType);
-}
-static int dissect_bearerService_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_gsm_map_OCTET_STRING(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_bearerService);
-}
-static int dissect_dataCodingScheme_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_gsm_map_OCTET_STRING(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_dataCodingScheme);
-}
-static int dissect_nameString_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_gsm_map_OCTET_STRING(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_nameString);
-}
-static int dissect_lcsClientDialedByMS_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_gsm_map_OCTET_STRING(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_lcsClientDialedByMS);
+  return dissect_gsm_map_T_extType(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_extType);
 }
 
 static const ber_sequence_t PrivateExtension_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_extId },
-  { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extType },
+  { BER_CLASS_ANY, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extType },
   { 0, 0, 0, NULL }
 };
 
@@ -1805,13 +1785,13 @@ static int dissect_supportedLCS_CapabilitySets_impl(packet_info *pinfo, proto_tr
 }
 
 static const asn_namedbit T_offeredCamel4CSIs_bits[] = {
-  {  0, &hf_gsm_map_T_offeredCamel4CSIs_ocsi, -1, -1, NULL, NULL },
-  {  1, &hf_gsm_map_T_offeredCamel4CSIs_dcsi, -1, -1, NULL, NULL },
-  {  2, &hf_gsm_map_T_offeredCamel4CSIs_vtcsi, -1, -1, NULL, NULL },
-  {  3, &hf_gsm_map_T_offeredCamel4CSIs_tcsi, -1, -1, NULL, NULL },
-  {  4, &hf_gsm_map_T_offeredCamel4CSIs_mtsmscsi, -1, -1, NULL, NULL },
-  {  5, &hf_gsm_map_T_offeredCamel4CSIs_mgcsi, -1, -1, NULL, NULL },
-  {  6, &hf_gsm_map_T_offeredCamel4CSIs_psienhancements, -1, -1, NULL, NULL },
+  {  0, &hf_gsm_map_T_offeredCamel4CSIs_o_csi, -1, -1, NULL, NULL },
+  {  1, &hf_gsm_map_T_offeredCamel4CSIs_d_csi, -1, -1, NULL, NULL },
+  {  2, &hf_gsm_map_T_offeredCamel4CSIs_vt_csi, -1, -1, NULL, NULL },
+  {  3, &hf_gsm_map_T_offeredCamel4CSIs_t_csi, -1, -1, NULL, NULL },
+  {  4, &hf_gsm_map_T_offeredCamel4CSIs_mt_sms_csi, -1, -1, NULL, NULL },
+  {  5, &hf_gsm_map_T_offeredCamel4CSIs_mg_csi, -1, -1, NULL, NULL },
+  {  6, &hf_gsm_map_T_offeredCamel4CSIs_psi_enhancements, -1, -1, NULL, NULL },
   { 0, NULL, 0, 0, NULL, NULL }
 };
 
@@ -3319,6 +3299,27 @@ static int dissect_overrideCategory_impl(packet_info *pinfo, proto_tree *tree, t
 }
 
 
+static int
+dissect_gsm_map_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                    NULL);
+
+  return offset;
+}
+static int dissect_bearerService_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_gsm_map_OCTET_STRING(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_bearerService);
+}
+static int dissect_dataCodingScheme_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_gsm_map_OCTET_STRING(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_dataCodingScheme);
+}
+static int dissect_nameString_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_gsm_map_OCTET_STRING(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_nameString);
+}
+static int dissect_lcsClientDialedByMS_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_gsm_map_OCTET_STRING(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_lcsClientDialedByMS);
+}
+
+
 static const value_string gsm_map_BasicService_vals[] = {
   {   2, "bearerService" },
   {   3, "teleservice" },
@@ -3365,8 +3366,8 @@ static int dissect_basicServiceGroupList(packet_info *pinfo, proto_tree *tree, t
 static int dissect_basicServiceGroupList_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_gsm_map_BasicServiceGroupList(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_basicServiceGroupList);
 }
-static int dissect_basicServiceCriteria_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_gsm_map_BasicServiceGroupList(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_basicServiceCriteria);
+static int dissect_basicServiceCriteria_lst_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_gsm_map_BasicServiceGroupList(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_basicServiceCriteria_lst);
 }
 static int dissect_basicServiceList_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_gsm_map_BasicServiceGroupList(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_basicServiceList);
@@ -3853,8 +3854,8 @@ dissect_gsm_map_ForwardingFeatureList(gboolean implicit_tag _U_, tvbuff_t *tvb, 
 static int dissect_forwardingFeatureList_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_gsm_map_ForwardingFeatureList(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_forwardingFeatureList_item);
 }
-static int dissect_forwardingFeatureList1(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_gsm_map_ForwardingFeatureList(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_forwardingFeatureList1);
+static int dissect_forwardingFeatureList(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_gsm_map_ForwardingFeatureList(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_forwardingFeatureList);
 }
 
 static const ber_sequence_t SEQUENCE_SIZE_1_32_OF_ForwardingFeatureList_sequence_of[1] = {
@@ -4367,21 +4368,21 @@ static int dissect_ss_CamelData(packet_info *pinfo, proto_tree *tree, tvbuff_t *
   return dissect_gsm_map_Ss_CamelData(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_ss_CamelData);
 }
 
-static const ber_sequence_t T_ss_CSI_sequence[] = {
+static const ber_sequence_t ss_CSI_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_ss_CamelData },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
 };
 
 static int
-dissect_gsm_map_T_ss_CSI(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_gsm_map_ss_CSI(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                T_ss_CSI_sequence, hf_index, ett_gsm_map_T_ss_CSI);
+                                ss_CSI_sequence, hf_index, ett_gsm_map_ss_CSI);
 
   return offset;
 }
 static int dissect_ss_CSI_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_gsm_map_T_ss_CSI(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_ss_CSI);
+  return dissect_gsm_map_ss_CSI(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_ss_CSI);
 }
 
 
@@ -4495,7 +4496,7 @@ static int dissect_callTypeCriteria_impl(packet_info *pinfo, proto_tree *tree, t
 static const ber_sequence_t O_BcsmCamelTDP_CriteriaList_item_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_o_BcsmTriggerDetectionPoint },
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_destinationNumberCriteria_impl },
-  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_basicServiceCriteria_impl },
+  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_basicServiceCriteria_lst_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callTypeCriteria_impl },
   { 0, 0, 0, NULL }
 };
@@ -5672,7 +5673,7 @@ static int dissect_routingInfo(packet_info *pinfo, proto_tree *tree, tvbuff_t *t
   return dissect_gsm_map_T_routingInfo(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_routingInfo);
 }
 
-static const ber_sequence_t T_t_CSI_sequence[] = {
+static const ber_sequence_t t_CSI_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_t_BcsmCamelTDPDataList },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_camelCapabilityHandling_impl },
@@ -5680,14 +5681,14 @@ static const ber_sequence_t T_t_CSI_sequence[] = {
 };
 
 static int
-dissect_gsm_map_T_t_CSI(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_gsm_map_t_CSI(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                T_t_CSI_sequence, hf_index, ett_gsm_map_T_t_CSI);
+                                t_CSI_sequence, hf_index, ett_gsm_map_t_CSI);
 
   return offset;
 }
 static int dissect_t_CSI_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_gsm_map_T_t_CSI(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_t_CSI);
+  return dissect_gsm_map_t_CSI(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_t_CSI);
 }
 
 static const ber_sequence_t T_gmscCamelSubscriptionInfo_sequence[] = {
@@ -6820,8 +6821,8 @@ dissect_gsm_map_SEQUENCE_SIZE_1_13_OF_ForwardingFeatureList(gboolean implicit_ta
 
   return offset;
 }
-static int dissect_forwardingFeatureList_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_gsm_map_SEQUENCE_SIZE_1_13_OF_ForwardingFeatureList(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_forwardingFeatureList);
+static int dissect_forwardingFeatureList_1_13_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_gsm_map_SEQUENCE_SIZE_1_13_OF_ForwardingFeatureList(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_forwardingFeatureList_1_13);
 }
 
 static const ber_sequence_t T_ccbs_FeatureList_item_sequence[] = {
@@ -6890,7 +6891,7 @@ static const value_string gsm_map_InterrogateSS_Res_vals[] = {
 static const ber_choice_t InterrogateSS_Res_choice[] = {
   {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_ss_Status_impl },
   {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_basicServiceGroupList_impl },
-  {   3, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_forwardingFeatureList_impl },
+  {   3, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_forwardingFeatureList_1_13_impl },
   {   4, BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_genericServiceInfo_impl },
   { 0, 0, 0, 0, NULL }
 };
@@ -7768,7 +7769,7 @@ dissect_gsm_map_AnyTimeSubscriptionInterrogationArg(gboolean implicit_tag _U_, t
 }
 
 static const ber_sequence_t T_callForwardingData_sequence[] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_forwardingFeatureList1 },
+  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_forwardingFeatureList },
   { BER_CLASS_UNI, BER_UNI_TAG_NULL, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_notificationToCSE },
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensionContainer_impl },
   { 0, 0, 0, NULL }
@@ -7855,114 +7856,6 @@ static int dissect_odb_Info_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t 
 }
 
 
-static const value_string gsm_map_T_o_BcsmTriggerDetectionPoint_vals[] = {
-  {   2, "collectedInfo" },
-  {   4, "routeSelectFailure" },
-  { 0, NULL }
-};
-
-
-static int
-dissect_gsm_map_T_o_BcsmTriggerDetectionPoint(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
-
-  return offset;
-}
-static int dissect_o_BcsmTriggerDetectionPoint1(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_gsm_map_T_o_BcsmTriggerDetectionPoint(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_o_BcsmTriggerDetectionPoint1);
-}
-
-
-static const value_string gsm_map_BasicServiceCriteria_item_vals[] = {
-  {   2, "ext-BearerService" },
-  {   3, "ext-Teleservice" },
-  { 0, NULL }
-};
-
-static const ber_choice_t BasicServiceCriteria_item_choice[] = {
-  {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_ext_BearerService_impl },
-  {   3, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_ext_Teleservice_impl },
-  { 0, 0, 0, 0, NULL }
-};
-
-static int
-dissect_gsm_map_BasicServiceCriteria_item(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              BasicServiceCriteria_item_choice, hf_index, ett_gsm_map_BasicServiceCriteria_item);
-
-  return offset;
-}
-static int dissect_BasicServiceCriteria_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_gsm_map_BasicServiceCriteria_item(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_BasicServiceCriteria_item);
-}
-
-static const ber_sequence_t BasicServiceCriteria_sequence_of[1] = {
-  { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_BasicServiceCriteria_item },
-};
-
-static int
-dissect_gsm_map_BasicServiceCriteria(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
-                                   BasicServiceCriteria_sequence_of, hf_index, ett_gsm_map_BasicServiceCriteria);
-
-  return offset;
-}
-static int dissect_basicServiceCriteria1_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_gsm_map_BasicServiceCriteria(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_basicServiceCriteria1);
-}
-
-static const ber_sequence_t O_CauseValueCriteria_sequence_of[1] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_O_CauseValueCriteria_item },
-};
-
-static int
-dissect_gsm_map_O_CauseValueCriteria(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
-                                   O_CauseValueCriteria_sequence_of, hf_index, ett_gsm_map_O_CauseValueCriteria);
-
-  return offset;
-}
-static int dissect_o_CauseValueCriteria_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_gsm_map_O_CauseValueCriteria(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_o_CauseValueCriteria);
-}
-
-static const ber_sequence_t T_o_BcsmCamelTDP_CriteriaList_item_sequence[] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_o_BcsmTriggerDetectionPoint1 },
-  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_destinationNumberCriteria_impl },
-  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_basicServiceCriteria1_impl },
-  { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callTypeCriteria_impl },
-  { BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_o_CauseValueCriteria_impl },
-  { BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensionContainer_impl },
-  { 0, 0, 0, NULL }
-};
-
-static int
-dissect_gsm_map_T_o_BcsmCamelTDP_CriteriaList_item(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                T_o_BcsmCamelTDP_CriteriaList_item_sequence, hf_index, ett_gsm_map_T_o_BcsmCamelTDP_CriteriaList_item);
-
-  return offset;
-}
-static int dissect_o_BcsmCamelTDP_CriteriaList_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_gsm_map_T_o_BcsmCamelTDP_CriteriaList_item(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_o_BcsmCamelTDP_CriteriaList_item);
-}
-
-static const ber_sequence_t T_o_BcsmCamelTDP_CriteriaList_sequence_of[1] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_o_BcsmCamelTDP_CriteriaList_item },
-};
-
-static int
-dissect_gsm_map_T_o_BcsmCamelTDP_CriteriaList(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
-                                   T_o_BcsmCamelTDP_CriteriaList_sequence_of, hf_index, ett_gsm_map_T_o_BcsmCamelTDP_CriteriaList);
-
-  return offset;
-}
-static int dissect_o_BcsmCamelTDP_CriteriaList1_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_gsm_map_T_o_BcsmCamelTDP_CriteriaList(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_o_BcsmCamelTDP_CriteriaList1);
-}
-
-
 static int
 dissect_gsm_map_T_dialledNumber(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
@@ -8029,28 +7922,8 @@ static int dissect_d_CSI_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
   return dissect_gsm_map_T_d_CSI(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_d_CSI);
 }
 
-static const ber_sequence_t T_t_CSI1_sequence[] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_t_BcsmCamelTDPDataList },
-  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
-  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_camelCapabilityHandling_impl },
-  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_notificationToCSE_impl },
-  { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_csi_Active_impl },
-  { 0, 0, 0, NULL }
-};
 
-static int
-dissect_gsm_map_T_t_CSI1(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                T_t_CSI1_sequence, hf_index, ett_gsm_map_T_t_CSI1);
-
-  return offset;
-}
-static int dissect_t_CSI1_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_gsm_map_T_t_CSI1(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_t_CSI1);
-}
-
-
-static const value_string gsm_map_T_t_BCSM_TriggerDetectionPoint_vals[] = {
+static const value_string gsm_map_t_BCSM_TriggerDetectionPoint_vals[] = {
   {  12, "termAttemptAuthorized" },
   {  13, "tBusy" },
   {  14, "tNoAnswer" },
@@ -8059,13 +7932,52 @@ static const value_string gsm_map_T_t_BCSM_TriggerDetectionPoint_vals[] = {
 
 
 static int
-dissect_gsm_map_T_t_BCSM_TriggerDetectionPoint(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_gsm_map_t_BCSM_TriggerDetectionPoint(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
 static int dissect_t_BCSM_TriggerDetectionPoint(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_gsm_map_T_t_BCSM_TriggerDetectionPoint(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_t_BCSM_TriggerDetectionPoint);
+  return dissect_gsm_map_t_BCSM_TriggerDetectionPoint(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_t_BCSM_TriggerDetectionPoint);
+}
+
+
+static const value_string gsm_map_BasicServiceCriteria_item_vals[] = {
+  {   2, "ext-BearerService" },
+  {   3, "ext-Teleservice" },
+  { 0, NULL }
+};
+
+static const ber_choice_t BasicServiceCriteria_item_choice[] = {
+  {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_ext_BearerService_impl },
+  {   3, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_ext_Teleservice_impl },
+  { 0, 0, 0, 0, NULL }
+};
+
+static int
+dissect_gsm_map_BasicServiceCriteria_item(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+                              BasicServiceCriteria_item_choice, hf_index, ett_gsm_map_BasicServiceCriteria_item);
+
+  return offset;
+}
+static int dissect_BasicServiceCriteria_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_gsm_map_BasicServiceCriteria_item(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_BasicServiceCriteria_item);
+}
+
+static const ber_sequence_t BasicServiceCriteria_sequence_of[1] = {
+  { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_BasicServiceCriteria_item },
+};
+
+static int
+dissect_gsm_map_BasicServiceCriteria(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
+                                   BasicServiceCriteria_sequence_of, hf_index, ett_gsm_map_BasicServiceCriteria);
+
+  return offset;
+}
+static int dissect_basicServiceCriteria_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_gsm_map_BasicServiceCriteria(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_basicServiceCriteria);
 }
 
 static const ber_sequence_t T_CauseValueCriteria_sequence_of[1] = {
@@ -8085,7 +7997,7 @@ static int dissect_t_CauseValueCriteria_impl(packet_info *pinfo, proto_tree *tre
 
 static const ber_sequence_t T_t_BCSM_CAMEL_TDP_CriteriaList_item_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_t_BCSM_TriggerDetectionPoint },
-  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_basicServiceCriteria1_impl },
+  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_basicServiceCriteria_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_t_CauseValueCriteria_impl },
   { 0, 0, 0, NULL }
 };
@@ -8136,28 +8048,9 @@ static int dissect_vt_CSI_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *t
   return dissect_gsm_map_T_vt_CSI(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_vt_CSI);
 }
 
-
-static const value_string gsm_map_T_t_BCSM_TriggerDetectionPoint1_vals[] = {
-  {  12, "termAttemptAuthorized" },
-  {  13, "tBusy" },
-  {  14, "tNoAnswer" },
-  { 0, NULL }
-};
-
-
-static int
-dissect_gsm_map_T_t_BCSM_TriggerDetectionPoint1(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
-
-  return offset;
-}
-static int dissect_t_BCSM_TriggerDetectionPoint1(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_gsm_map_T_t_BCSM_TriggerDetectionPoint1(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_t_BCSM_TriggerDetectionPoint1);
-}
-
 static const ber_sequence_t T_vt_BCSM_CAMEL_TDP_CriteriaList_item_sequence[] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_t_BCSM_TriggerDetectionPoint1 },
-  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_basicServiceCriteria1_impl },
+  { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_t_BCSM_TriggerDetectionPoint },
+  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_basicServiceCriteria_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_t_CauseValueCriteria_impl },
   { 0, 0, 0, NULL }
 };
@@ -8283,7 +8176,7 @@ static int dissect_gprs_CSI_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t 
 }
 
 
-static const value_string gsm_map_T_sms_TriggerDetectionPoint1_vals[] = {
+static const value_string gsm_map_sms_TriggerDetectionPoint_vals[] = {
   {   1, "sms-CollectedInfo" },
   {   2, "sms-DeliveryRequest" },
   { 0, NULL }
@@ -8291,13 +8184,16 @@ static const value_string gsm_map_T_sms_TriggerDetectionPoint1_vals[] = {
 
 
 static int
-dissect_gsm_map_T_sms_TriggerDetectionPoint1(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_gsm_map_sms_TriggerDetectionPoint(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
-static int dissect_sms_TriggerDetectionPoint1_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_gsm_map_T_sms_TriggerDetectionPoint1(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_sms_TriggerDetectionPoint1);
+static int dissect_sms_TriggerDetectionPoint(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_gsm_map_sms_TriggerDetectionPoint(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_sms_TriggerDetectionPoint);
+}
+static int dissect_sms_TriggerDetectionPoint_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_gsm_map_sms_TriggerDetectionPoint(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_sms_TriggerDetectionPoint);
 }
 
 
@@ -8319,7 +8215,7 @@ static int dissect_defaultSMS_Handling_impl(packet_info *pinfo, proto_tree *tree
 }
 
 static const ber_sequence_t Sms_CAMEL_TDP_DataList_item_sequence[] = {
-  { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_sms_TriggerDetectionPoint1_impl },
+  { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_sms_TriggerDetectionPoint_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_serviceKey_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_gsmSCF_Address_impl },
   { BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_defaultSMS_Handling_impl },
@@ -8371,25 +8267,6 @@ dissect_gsm_map_T_mo_sms_CSI(gboolean implicit_tag _U_, tvbuff_t *tvb, int offse
 }
 static int dissect_mo_sms_CSI_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_gsm_map_T_mo_sms_CSI(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_mo_sms_CSI);
-}
-
-static const ber_sequence_t T_ss_CSI1_sequence[] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_ss_CamelData },
-  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
-  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_notificationToCSE_impl },
-  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_csi_Active_impl },
-  { 0, 0, 0, NULL }
-};
-
-static int
-dissect_gsm_map_T_ss_CSI1(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                T_ss_CSI1_sequence, hf_index, ett_gsm_map_T_ss_CSI1);
-
-  return offset;
-}
-static int dissect_ss_CSI1_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_gsm_map_T_ss_CSI1(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_ss_CSI1);
 }
 
 static const ber_sequence_t MobilityTriggers_sequence_of[1] = {
@@ -8476,24 +8353,6 @@ dissect_gsm_map_T_mt_sms_CSI(gboolean implicit_tag _U_, tvbuff_t *tvb, int offse
 }
 static int dissect_mt_sms_CSI_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_gsm_map_T_mt_sms_CSI(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_mt_sms_CSI);
-}
-
-
-static const value_string gsm_map_T_sms_TriggerDetectionPoint_vals[] = {
-  {   1, "sms-CollectedInfo" },
-  {   2, "sms-DeliveryRequest" },
-  { 0, NULL }
-};
-
-
-static int
-dissect_gsm_map_T_sms_TriggerDetectionPoint(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
-
-  return offset;
-}
-static int dissect_sms_TriggerDetectionPoint(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_gsm_map_T_sms_TriggerDetectionPoint(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_sms_TriggerDetectionPoint);
 }
 
 
@@ -8603,28 +8462,25 @@ static int dissect_o_IM_CSI_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t 
   return dissect_gsm_map_T_o_IM_CSI(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_o_IM_CSI);
 }
 
-
-static const value_string gsm_map_T_o_BcsmTriggerDetectionPoint1_vals[] = {
-  {   2, "collectedInfo" },
-  {   4, "routeSelectFailure" },
-  { 0, NULL }
+static const ber_sequence_t O_CauseValueCriteria_sequence_of[1] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_O_CauseValueCriteria_item },
 };
 
-
 static int
-dissect_gsm_map_T_o_BcsmTriggerDetectionPoint1(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+dissect_gsm_map_O_CauseValueCriteria(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
+                                   O_CauseValueCriteria_sequence_of, hf_index, ett_gsm_map_O_CauseValueCriteria);
 
   return offset;
 }
-static int dissect_o_BcsmTriggerDetectionPoint2(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_gsm_map_T_o_BcsmTriggerDetectionPoint1(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_o_BcsmTriggerDetectionPoint2);
+static int dissect_o_CauseValueCriteria_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_gsm_map_O_CauseValueCriteria(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_o_CauseValueCriteria);
 }
 
 static const ber_sequence_t T_o_IM_BcsmCamelTDP_CriteriaList_item_sequence[] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_o_BcsmTriggerDetectionPoint2 },
+  { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_o_BcsmTriggerDetectionPoint },
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_destinationNumberCriteria_impl },
-  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_basicServiceCriteria1_impl },
+  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_basicServiceCriteria_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callTypeCriteria_impl },
   { BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_o_CauseValueCriteria_impl },
   { BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensionContainer_impl },
@@ -8697,28 +8553,9 @@ static int dissect_vt_IM_CSI_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t
   return dissect_gsm_map_T_vt_IM_CSI(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_vt_IM_CSI);
 }
 
-
-static const value_string gsm_map_T_t_BCSM_TriggerDetectionPoint2_vals[] = {
-  {  12, "termAttemptAuthorized" },
-  {  13, "tBusy" },
-  {  14, "tNoAnswer" },
-  { 0, NULL }
-};
-
-
-static int
-dissect_gsm_map_T_t_BCSM_TriggerDetectionPoint2(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
-
-  return offset;
-}
-static int dissect_t_BCSM_TriggerDetectionPoint2(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_gsm_map_T_t_BCSM_TriggerDetectionPoint2(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_t_BCSM_TriggerDetectionPoint2);
-}
-
 static const ber_sequence_t T_vt_IM_BCSM_CAMEL_TDP_CriteriaList_item_sequence[] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_t_BCSM_TriggerDetectionPoint2 },
-  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_basicServiceCriteria1_impl },
+  { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_t_BCSM_TriggerDetectionPoint },
+  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_basicServiceCriteria_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_t_CauseValueCriteria_impl },
   { 0, 0, 0, NULL }
 };
@@ -8751,9 +8588,9 @@ static int dissect_vt_IM_BCSM_CAMEL_TDP_CriteriaList_impl(packet_info *pinfo, pr
 
 static const ber_sequence_t T_camel_SubscriptionInfo_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_o_CSI_impl },
-  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_o_BcsmCamelTDP_CriteriaList1_impl },
+  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_o_BcsmCamelTDP_CriteriaList_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_d_CSI_impl },
-  { BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_t_CSI1_impl },
+  { BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_t_CSI_impl },
   { BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_t_BCSM_CAMEL_TDP_CriteriaList_impl },
   { BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_vt_CSI_impl },
   { BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_vt_BCSM_CAMEL_TDP_CriteriaList_impl },
@@ -8761,7 +8598,7 @@ static const ber_sequence_t T_camel_SubscriptionInfo_sequence[] = {
   { BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tif_CSI_NotificationToCSE_impl },
   { BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprs_CSI_impl },
   { BER_CLASS_CON, 10, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mo_sms_CSI_impl },
-  { BER_CLASS_CON, 11, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ss_CSI1_impl },
+  { BER_CLASS_CON, 11, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ss_CSI_impl },
   { BER_CLASS_CON, 12, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_m_CSI_impl },
   { BER_CLASS_CON, 13, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensionContainer_impl },
   { BER_CLASS_CON, 14, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_specificCSIDeletedList_impl },
@@ -8895,27 +8732,27 @@ dissect_gsm_map_AnyTimeSubscriptionInterrogationRes(gboolean implicit_tag _U_, t
 }
 
 
-static const value_string gsm_map_T_basicService_vals[] = {
+static const value_string gsm_map_BasicService_ext_vals[] = {
   {   2, "ext-BearerService" },
   {   3, "ext-Teleservice" },
   { 0, NULL }
 };
 
-static const ber_choice_t T_basicService_choice[] = {
+static const ber_choice_t BasicService_ext_choice[] = {
   {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_ext_BearerService_impl },
   {   3, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_ext_Teleservice_impl },
   { 0, 0, 0, 0, NULL }
 };
 
 static int
-dissect_gsm_map_T_basicService(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_gsm_map_BasicService_ext(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              T_basicService_choice, hf_index, ett_gsm_map_T_basicService);
+                              BasicService_ext_choice, hf_index, ett_gsm_map_BasicService_ext);
 
   return offset;
 }
-static int dissect_basicService1(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_gsm_map_T_basicService(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_basicService1);
+static int dissect_basicService_ext(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_gsm_map_BasicService_ext(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_basicService_ext);
 }
 
 
@@ -8926,8 +8763,8 @@ dissect_gsm_map_INTEGER_1_100(gboolean implicit_tag _U_, tvbuff_t *tvb, int offs
 
   return offset;
 }
-static int dissect_noReplyConditionTime1_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_gsm_map_INTEGER_1_100(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_noReplyConditionTime1);
+static int dissect_noReplyConditionTime_1_100_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_gsm_map_INTEGER_1_100(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_noReplyConditionTime_1_100);
 }
 
 
@@ -8950,11 +8787,11 @@ static int dissect_modifyNotificationToCSE_impl(packet_info *pinfo, proto_tree *
 
 static const ber_sequence_t T_modificationRequestFor_CF_Info_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_ss_Code_impl },
-  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_basicService1 },
+  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_basicService_ext },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ss_Status_impl },
   { BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_forwardedToNumber_impl },
   { BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_forwardedToSubaddress_impl },
-  { BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_noReplyConditionTime1_impl },
+  { BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_noReplyConditionTime_1_100_impl },
   { BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_modifyNotificationToCSE_impl },
   { BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensionContainer_impl },
   { 0, 0, 0, NULL }
@@ -8971,33 +8808,9 @@ static int dissect_modificationRequestFor_CF_Info_impl(packet_info *pinfo, proto
   return dissect_gsm_map_T_modificationRequestFor_CF_Info(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_modificationRequestFor_CF_Info);
 }
 
-
-static const value_string gsm_map_T_basicService1_vals[] = {
-  {   2, "ext-BearerService" },
-  {   3, "ext-Teleservice" },
-  { 0, NULL }
-};
-
-static const ber_choice_t T_basicService1_choice[] = {
-  {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_ext_BearerService_impl },
-  {   3, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_ext_Teleservice_impl },
-  { 0, 0, 0, 0, NULL }
-};
-
-static int
-dissect_gsm_map_T_basicService1(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              T_basicService1_choice, hf_index, ett_gsm_map_T_basicService1);
-
-  return offset;
-}
-static int dissect_basicService2(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_gsm_map_T_basicService1(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_basicService2);
-}
-
 static const ber_sequence_t T_modificationRequestFor_CB_Info_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_ss_Code_impl },
-  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_basicService2 },
+  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_basicService_ext },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ss_Status_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_password_impl },
   { BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_wrongPasswordAttemptsCounter_impl },
@@ -9114,6 +8927,18 @@ static int
 dissect_gsm_map_AnyTimeModificationArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                 AnyTimeModificationArg_sequence, hf_index, ett_gsm_map_AnyTimeModificationArg);
+
+  return offset;
+}
+
+static const ber_sequence_t AnyTimeModificationRes_sequence[] = {
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_gsm_map_AnyTimeModificationRes(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                AnyTimeModificationRes_sequence, hf_index, ett_gsm_map_AnyTimeModificationRes);
 
   return offset;
 }
@@ -10675,8 +10500,10 @@ const value_string gsm_map_opr_code_strings[] = {
   {  59, "processUnstructuredSS-Request" },
   {  60, "unstructuredSS-Request" },
   {  61, "unstructuredSS-Notify" },
+  {  62, "anyTimeSubscriptionInterrogation" },
   {  63, "informServiceCentre" },
   {  64, "alertServiceCentre" },
+  {  65, "anyTimeModification" },
   {  66, "readyForSM" },
   {  67, "purgeMS" },
   {  68, "prepareHandover" },
@@ -10966,12 +10793,18 @@ static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
   case 61: /*unstructuredSS-Notify*/
     offset=dissect_gsm_map_Ussd_Arg(FALSE, tvb, offset, pinfo, tree, -1);
     break;
+  case 62: /*AnyTimeSubscriptionInterrogation*/
+	  offset=dissect_gsm_map_AnyTimeSubscriptionInterrogationArg(FALSE, tvb, offset, pinfo, tree, -1);
+	  break;
   case 63: /*informServiceCentre*/
     offset=dissect_gsm_map_InformServiceCentreArg(FALSE, tvb, offset, pinfo, tree, -1);
     break;
   case 64: /*alertServiceCentre*/
     offset=dissect_gsm_map_AlertServiceCentreArg(FALSE, tvb, offset, pinfo, tree, -1);
     break;
+  case 65: /*AnyTimeModification*/
+	  offset=dissect_gsm_map_AnyTimeModificationArg(FALSE, tvb, offset, pinfo, tree, -1);
+	  break;
   case 66: /*readyForSM*/
     offset=dissect_gsm_map_ReadyForSM_Arg(FALSE, tvb, offset, pinfo, tree, -1);
     break;
@@ -11152,6 +10985,12 @@ static int dissect_returnResultData(packet_info *pinfo, proto_tree *tree, tvbuff
     /* TRUE ? */
     proto_tree_add_text(tree, tvb, offset, -1, "Unknown returnResultData blob");
     break;
+  case 62: /*AnyTimeSubscriptionInterrogation*/
+	  offset=dissect_gsm_map_AnyTimeSubscriptionInterrogationRes(FALSE, tvb, offset, pinfo, tree, -1);
+	  break;
+  case 65: /*AnyTimeModification*/
+	  offset=dissect_gsm_map_AnyTimeModificationRes(FALSE, tvb, offset, pinfo, tree, -1);
+	  break;
   case 66: /*readyForSM*/
     offset=dissect_gsm_map_ReadyForSM_Res(FALSE, tvb, offset, pinfo, tree, -1);
     break;
@@ -11550,6 +11389,7 @@ void proto_reg_handoff_gsm_map(void) {
 	static int map_prefs_initialized = FALSE;
 
     map_handle = create_dissector_handle(dissect_gsm_map, proto_gsm_map);
+	data_handle = find_dissector("data");
 
 	if (!map_prefs_initialized) {
 		map_prefs_initialized = TRUE;
@@ -11820,7 +11660,7 @@ void proto_register_gsm_map(void) {
         "PrivateExtension/extId", HFILL }},
     { &hf_gsm_map_extType,
       { "extType", "gsm_map.extType",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_NONE, BASE_NONE, NULL, 0,
         "PrivateExtension/extType", HFILL }},
     { &hf_gsm_map_identity,
       { "identity", "gsm_map.identity",
@@ -12345,7 +12185,7 @@ void proto_register_gsm_map(void) {
     { &hf_gsm_map_ss_CSI,
       { "ss-CSI", "gsm_map.ss_CSI",
         FT_NONE, BASE_NONE, NULL, 0,
-        "InsertSubscriberDataArg/vlrCamelSubscriptionInfo/ss-CSI", HFILL }},
+        "", HFILL }},
     { &hf_gsm_map_ss_CamelData,
       { "ss-CamelData", "gsm_map.ss_CamelData",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -12605,12 +12445,12 @@ void proto_register_gsm_map(void) {
     { &hf_gsm_map_o_BcsmTriggerDetectionPoint,
       { "o-BcsmTriggerDetectionPoint", "gsm_map.o_BcsmTriggerDetectionPoint",
         FT_UINT32, BASE_DEC, VALS(gsm_map_BcsmTriggerDetectionPoint_vals), 0,
-        "O-BcsmCamelTDP-CriteriaList/_item/o-BcsmTriggerDetectionPoint", HFILL }},
+        "", HFILL }},
     { &hf_gsm_map_destinationNumberCriteria,
       { "destinationNumberCriteria", "gsm_map.destinationNumberCriteria",
         FT_NONE, BASE_NONE, NULL, 0,
         "", HFILL }},
-    { &hf_gsm_map_basicServiceCriteria,
+    { &hf_gsm_map_basicServiceCriteria_lst,
       { "basicServiceCriteria", "gsm_map.basicServiceCriteria",
         FT_NONE, BASE_NONE, NULL, 0,
         "O-BcsmCamelTDP-CriteriaList/_item/basicServiceCriteria", HFILL }},
@@ -12805,7 +12645,7 @@ void proto_register_gsm_map(void) {
     { &hf_gsm_map_t_CSI,
       { "t-CSI", "gsm_map.t_CSI",
         FT_NONE, BASE_NONE, NULL, 0,
-        "SendRoutingInfoRes/extendedRoutingInfo/camelRoutingInfo/gmscCamelSubscriptionInfo/t-CSI", HFILL }},
+        "", HFILL }},
     { &hf_gsm_map_t_BcsmCamelTDPDataList,
       { "t-BcsmCamelTDPDataList", "gsm_map.t_BcsmCamelTDPDataList",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -13198,7 +13038,7 @@ void proto_register_gsm_map(void) {
       { "b-subscriberSubaddress", "gsm_map.b_subscriberSubaddress",
         FT_BYTES, BASE_HEX, NULL, 0,
         "", HFILL }},
-    { &hf_gsm_map_forwardingFeatureList,
+    { &hf_gsm_map_forwardingFeatureList_1_13,
       { "forwardingFeatureList", "gsm_map.forwardingFeatureList",
         FT_NONE, BASE_NONE, NULL, 0,
         "InterrogateSS-Res/forwardingFeatureList", HFILL }},
@@ -13406,7 +13246,7 @@ void proto_register_gsm_map(void) {
       { "callForwardingData", "gsm_map.callForwardingData",
         FT_NONE, BASE_NONE, NULL, 0,
         "AnyTimeSubscriptionInterrogationRes/callForwardingData", HFILL }},
-    { &hf_gsm_map_forwardingFeatureList1,
+    { &hf_gsm_map_forwardingFeatureList,
       { "forwardingFeatureList", "gsm_map.forwardingFeatureList",
         FT_NONE, BASE_NONE, NULL, 0,
         "AnyTimeSubscriptionInterrogationRes/callForwardingData/forwardingFeatureList", HFILL }},
@@ -13434,26 +13274,6 @@ void proto_register_gsm_map(void) {
       { "camel-SubscriptionInfo", "gsm_map.camel_SubscriptionInfo",
         FT_NONE, BASE_NONE, NULL, 0,
         "AnyTimeSubscriptionInterrogationRes/camel-SubscriptionInfo", HFILL }},
-    { &hf_gsm_map_o_BcsmCamelTDP_CriteriaList1,
-      { "o-BcsmCamelTDP-CriteriaList", "gsm_map.o_BcsmCamelTDP_CriteriaList",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "AnyTimeSubscriptionInterrogationRes/camel-SubscriptionInfo/o-BcsmCamelTDP-CriteriaList", HFILL }},
-    { &hf_gsm_map_o_BcsmCamelTDP_CriteriaList_item,
-      { "Item", "gsm_map.o_BcsmCamelTDP_CriteriaList_item",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "AnyTimeSubscriptionInterrogationRes/camel-SubscriptionInfo/o-BcsmCamelTDP-CriteriaList/_item", HFILL }},
-    { &hf_gsm_map_o_BcsmTriggerDetectionPoint1,
-      { "o-BcsmTriggerDetectionPoint", "gsm_map.o_BcsmTriggerDetectionPoint",
-        FT_UINT32, BASE_DEC, VALS(gsm_map_T_o_BcsmTriggerDetectionPoint_vals), 0,
-        "AnyTimeSubscriptionInterrogationRes/camel-SubscriptionInfo/o-BcsmCamelTDP-CriteriaList/_item/o-BcsmTriggerDetectionPoint", HFILL }},
-    { &hf_gsm_map_basicServiceCriteria1,
-      { "basicServiceCriteria", "gsm_map.basicServiceCriteria",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "", HFILL }},
-    { &hf_gsm_map_o_CauseValueCriteria,
-      { "o-CauseValueCriteria", "gsm_map.o_CauseValueCriteria",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "", HFILL }},
     { &hf_gsm_map_d_CSI,
       { "d-CSI", "gsm_map.d_CSI",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -13466,10 +13286,6 @@ void proto_register_gsm_map(void) {
       { "csi-Active", "gsm_map.csi_Active",
         FT_NONE, BASE_NONE, NULL, 0,
         "", HFILL }},
-    { &hf_gsm_map_t_CSI1,
-      { "t-CSI", "gsm_map.t_CSI",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "AnyTimeSubscriptionInterrogationRes/camel-SubscriptionInfo/t-CSI", HFILL }},
     { &hf_gsm_map_t_BCSM_CAMEL_TDP_CriteriaList,
       { "t-BCSM-CAMEL-TDP-CriteriaList", "gsm_map.t_BCSM_CAMEL_TDP_CriteriaList",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -13480,8 +13296,12 @@ void proto_register_gsm_map(void) {
         "AnyTimeSubscriptionInterrogationRes/camel-SubscriptionInfo/t-BCSM-CAMEL-TDP-CriteriaList/_item", HFILL }},
     { &hf_gsm_map_t_BCSM_TriggerDetectionPoint,
       { "t-BCSM-TriggerDetectionPoint", "gsm_map.t_BCSM_TriggerDetectionPoint",
-        FT_UINT32, BASE_DEC, VALS(gsm_map_T_t_BCSM_TriggerDetectionPoint_vals), 0,
-        "AnyTimeSubscriptionInterrogationRes/camel-SubscriptionInfo/t-BCSM-CAMEL-TDP-CriteriaList/_item/t-BCSM-TriggerDetectionPoint", HFILL }},
+        FT_UINT32, BASE_DEC, VALS(gsm_map_t_BCSM_TriggerDetectionPoint_vals), 0,
+        "", HFILL }},
+    { &hf_gsm_map_basicServiceCriteria,
+      { "basicServiceCriteria", "gsm_map.basicServiceCriteria",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "", HFILL }},
     { &hf_gsm_map_t_CauseValueCriteria,
       { "t-CauseValueCriteria", "gsm_map.t_CauseValueCriteria",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -13498,10 +13318,6 @@ void proto_register_gsm_map(void) {
       { "Item", "gsm_map.vt_BCSM_CAMEL_TDP_CriteriaList_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "AnyTimeSubscriptionInterrogationRes/camel-SubscriptionInfo/vt-BCSM-CAMEL-TDP-CriteriaList/_item", HFILL }},
-    { &hf_gsm_map_t_BCSM_TriggerDetectionPoint1,
-      { "t-BCSM-TriggerDetectionPoint", "gsm_map.t_BCSM_TriggerDetectionPoint",
-        FT_UINT32, BASE_DEC, VALS(gsm_map_T_t_BCSM_TriggerDetectionPoint1_vals), 0,
-        "AnyTimeSubscriptionInterrogationRes/camel-SubscriptionInfo/vt-BCSM-CAMEL-TDP-CriteriaList/_item/t-BCSM-TriggerDetectionPoint", HFILL }},
     { &hf_gsm_map_tif_CSI_NotificationToCSE,
       { "tif-CSI-NotificationToCSE", "gsm_map.tif_CSI_NotificationToCSE",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -13534,10 +13350,6 @@ void proto_register_gsm_map(void) {
       { "sms-CAMEL-TDP-DataList", "gsm_map.sms_CAMEL_TDP_DataList",
         FT_NONE, BASE_NONE, NULL, 0,
         "", HFILL }},
-    { &hf_gsm_map_ss_CSI1,
-      { "ss-CSI", "gsm_map.ss_CSI",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "AnyTimeSubscriptionInterrogationRes/camel-SubscriptionInfo/ss-CSI", HFILL }},
     { &hf_gsm_map_m_CSI,
       { "m-CSI", "gsm_map.m_CSI",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -13564,8 +13376,8 @@ void proto_register_gsm_map(void) {
         "AnyTimeSubscriptionInterrogationRes/camel-SubscriptionInfo/mt-smsCAMELTDP-CriteriaList/_item", HFILL }},
     { &hf_gsm_map_sms_TriggerDetectionPoint,
       { "sms-TriggerDetectionPoint", "gsm_map.sms_TriggerDetectionPoint",
-        FT_UINT32, BASE_DEC, VALS(gsm_map_T_sms_TriggerDetectionPoint_vals), 0,
-        "AnyTimeSubscriptionInterrogationRes/camel-SubscriptionInfo/mt-smsCAMELTDP-CriteriaList/_item/sms-TriggerDetectionPoint", HFILL }},
+        FT_UINT32, BASE_DEC, VALS(gsm_map_sms_TriggerDetectionPoint_vals), 0,
+        "", HFILL }},
     { &hf_gsm_map_tpdu_TypeCriterion,
       { "tpdu-TypeCriterion", "gsm_map.tpdu_TypeCriterion",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -13594,10 +13406,10 @@ void proto_register_gsm_map(void) {
       { "Item", "gsm_map.o_IM_BcsmCamelTDP_CriteriaList_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "AnyTimeSubscriptionInterrogationRes/camel-SubscriptionInfo/o-IM-BcsmCamelTDP-CriteriaList/_item", HFILL }},
-    { &hf_gsm_map_o_BcsmTriggerDetectionPoint2,
-      { "o-BcsmTriggerDetectionPoint", "gsm_map.o_BcsmTriggerDetectionPoint",
-        FT_UINT32, BASE_DEC, VALS(gsm_map_T_o_BcsmTriggerDetectionPoint1_vals), 0,
-        "AnyTimeSubscriptionInterrogationRes/camel-SubscriptionInfo/o-IM-BcsmCamelTDP-CriteriaList/_item/o-BcsmTriggerDetectionPoint", HFILL }},
+    { &hf_gsm_map_o_CauseValueCriteria,
+      { "o-CauseValueCriteria", "gsm_map.o_CauseValueCriteria",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "AnyTimeSubscriptionInterrogationRes/camel-SubscriptionInfo/o-IM-BcsmCamelTDP-CriteriaList/_item/o-CauseValueCriteria", HFILL }},
     { &hf_gsm_map_d_IM_CSI,
       { "d-IM-CSI", "gsm_map.d_IM_CSI",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -13614,10 +13426,6 @@ void proto_register_gsm_map(void) {
       { "Item", "gsm_map.vt_IM_BCSM_CAMEL_TDP_CriteriaList_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "AnyTimeSubscriptionInterrogationRes/camel-SubscriptionInfo/vt-IM-BCSM-CAMEL-TDP-CriteriaList/_item", HFILL }},
-    { &hf_gsm_map_t_BCSM_TriggerDetectionPoint2,
-      { "t-BCSM-TriggerDetectionPoint", "gsm_map.t_BCSM_TriggerDetectionPoint",
-        FT_UINT32, BASE_DEC, VALS(gsm_map_T_t_BCSM_TriggerDetectionPoint2_vals), 0,
-        "AnyTimeSubscriptionInterrogationRes/camel-SubscriptionInfo/vt-IM-BCSM-CAMEL-TDP-CriteriaList/_item/t-BCSM-TriggerDetectionPoint", HFILL }},
     { &hf_gsm_map_supportedVLR_CAMEL_Phases,
       { "supportedVLR-CAMEL-Phases", "gsm_map.supportedVLR_CAMEL_Phases",
         FT_BYTES, BASE_HEX, NULL, 0,
@@ -13638,10 +13446,6 @@ void proto_register_gsm_map(void) {
       { "Item", "gsm_map.Sms_CAMEL_TDP_DataList_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "Sms-CAMEL-TDP-DataList/_item", HFILL }},
-    { &hf_gsm_map_sms_TriggerDetectionPoint1,
-      { "sms-TriggerDetectionPoint", "gsm_map.sms_TriggerDetectionPoint",
-        FT_UINT32, BASE_DEC, VALS(gsm_map_T_sms_TriggerDetectionPoint1_vals), 0,
-        "Sms-CAMEL-TDP-DataList/_item/sms-TriggerDetectionPoint", HFILL }},
     { &hf_gsm_map_defaultSMS_Handling,
       { "defaultSMS-Handling", "gsm_map.defaultSMS_Handling",
         FT_UINT32, BASE_DEC, VALS(gsm_map_T_defaultSMS_Handling_vals), 0,
@@ -13682,11 +13486,11 @@ void proto_register_gsm_map(void) {
       { "modificationRequestFor-CF-Info", "gsm_map.modificationRequestFor_CF_Info",
         FT_NONE, BASE_NONE, NULL, 0,
         "AnyTimeModificationArg/modificationRequestFor-CF-Info", HFILL }},
-    { &hf_gsm_map_basicService1,
+    { &hf_gsm_map_basicService_ext,
       { "basicService", "gsm_map.basicService",
-        FT_UINT32, BASE_DEC, VALS(gsm_map_T_basicService_vals), 0,
-        "AnyTimeModificationArg/modificationRequestFor-CF-Info/basicService", HFILL }},
-    { &hf_gsm_map_noReplyConditionTime1,
+        FT_UINT32, BASE_DEC, VALS(gsm_map_BasicService_ext_vals), 0,
+        "", HFILL }},
+    { &hf_gsm_map_noReplyConditionTime_1_100,
       { "noReplyConditionTime", "gsm_map.noReplyConditionTime",
         FT_UINT32, BASE_DEC, NULL, 0,
         "AnyTimeModificationArg/modificationRequestFor-CF-Info/noReplyConditionTime", HFILL }},
@@ -13698,10 +13502,6 @@ void proto_register_gsm_map(void) {
       { "modificationRequestFor-CB-Info", "gsm_map.modificationRequestFor_CB_Info",
         FT_NONE, BASE_NONE, NULL, 0,
         "AnyTimeModificationArg/modificationRequestFor-CB-Info", HFILL }},
-    { &hf_gsm_map_basicService2,
-      { "basicService", "gsm_map.basicService",
-        FT_UINT32, BASE_DEC, VALS(gsm_map_T_basicService1_vals), 0,
-        "AnyTimeModificationArg/modificationRequestFor-CB-Info/basicService", HFILL }},
     { &hf_gsm_map_modificationRequestFor_CSI,
       { "modificationRequestFor-CSI", "gsm_map.modificationRequestFor_CSI",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -14018,32 +13818,32 @@ void proto_register_gsm_map(void) {
       { "lcsCapabilitySet4", "gsm_map.lcsCapabilitySet4",
         FT_BOOLEAN, 8, NULL, 0x10,
         "", HFILL }},
-    { &hf_gsm_map_T_offeredCamel4CSIs_ocsi,
-      { "ocsi", "gsm_map.ocsi",
+    { &hf_gsm_map_T_offeredCamel4CSIs_o_csi,
+      { "o-csi", "gsm_map.o-csi",
         FT_BOOLEAN, 8, NULL, 0x80,
         "", HFILL }},
-    { &hf_gsm_map_T_offeredCamel4CSIs_dcsi,
-      { "dcsi", "gsm_map.dcsi",
+    { &hf_gsm_map_T_offeredCamel4CSIs_d_csi,
+      { "d-csi", "gsm_map.d-csi",
         FT_BOOLEAN, 8, NULL, 0x40,
         "", HFILL }},
-    { &hf_gsm_map_T_offeredCamel4CSIs_vtcsi,
-      { "vtcsi", "gsm_map.vtcsi",
+    { &hf_gsm_map_T_offeredCamel4CSIs_vt_csi,
+      { "vt-csi", "gsm_map.vt-csi",
         FT_BOOLEAN, 8, NULL, 0x20,
         "", HFILL }},
-    { &hf_gsm_map_T_offeredCamel4CSIs_tcsi,
-      { "tcsi", "gsm_map.tcsi",
+    { &hf_gsm_map_T_offeredCamel4CSIs_t_csi,
+      { "t-csi", "gsm_map.t-csi",
         FT_BOOLEAN, 8, NULL, 0x10,
         "", HFILL }},
-    { &hf_gsm_map_T_offeredCamel4CSIs_mtsmscsi,
-      { "mtsmscsi", "gsm_map.mtsmscsi",
+    { &hf_gsm_map_T_offeredCamel4CSIs_mt_sms_csi,
+      { "mt-sms-csi", "gsm_map.mt-sms-csi",
         FT_BOOLEAN, 8, NULL, 0x08,
         "", HFILL }},
-    { &hf_gsm_map_T_offeredCamel4CSIs_mgcsi,
-      { "mgcsi", "gsm_map.mgcsi",
+    { &hf_gsm_map_T_offeredCamel4CSIs_mg_csi,
+      { "mg-csi", "gsm_map.mg-csi",
         FT_BOOLEAN, 8, NULL, 0x04,
         "", HFILL }},
-    { &hf_gsm_map_T_offeredCamel4CSIs_psienhancements,
-      { "psienhancements", "gsm_map.psienhancements",
+    { &hf_gsm_map_T_offeredCamel4CSIs_psi_enhancements,
+      { "psi-enhancements", "gsm_map.psi-enhancements",
         FT_BOOLEAN, 8, NULL, 0x02,
         "", HFILL }},
     { &hf_gsm_map_Odb_GeneralData_allOGCallsBarred,
@@ -14440,7 +14240,7 @@ void proto_register_gsm_map(void) {
     &ett_gsm_map_T_vgcsSubscriptionData,
     &ett_gsm_map_T_vgcsSubscriptionData_item,
     &ett_gsm_map_T_vlrCamelSubscriptionInfo,
-    &ett_gsm_map_T_ss_CSI,
+    &ett_gsm_map_ss_CSI,
     &ett_gsm_map_T_gprsSubscriptionData,
     &ett_gsm_map_T_gprsDataList,
     &ett_gsm_map_T_gprsDataList_item,
@@ -14495,7 +14295,7 @@ void proto_register_gsm_map(void) {
     &ett_gsm_map_T_routingInfo,
     &ett_gsm_map_T_camelRoutingInfo,
     &ett_gsm_map_T_gmscCamelSubscriptionInfo,
-    &ett_gsm_map_T_t_CSI,
+    &ett_gsm_map_t_CSI,
     &ett_gsm_map_T_ccbs_Indicators,
     &ett_gsm_map_SubscriberState,
     &ett_gsm_map_LocationInformation,
@@ -14578,10 +14378,7 @@ void proto_register_gsm_map(void) {
     &ett_gsm_map_T_callBarringData,
     &ett_gsm_map_T_odb_Info,
     &ett_gsm_map_T_camel_SubscriptionInfo,
-    &ett_gsm_map_T_o_BcsmCamelTDP_CriteriaList,
-    &ett_gsm_map_T_o_BcsmCamelTDP_CriteriaList_item,
     &ett_gsm_map_T_d_CSI,
-    &ett_gsm_map_T_t_CSI1,
     &ett_gsm_map_T_t_BCSM_CAMEL_TDP_CriteriaList,
     &ett_gsm_map_T_t_BCSM_CAMEL_TDP_CriteriaList_item,
     &ett_gsm_map_T_vt_CSI,
@@ -14591,7 +14388,6 @@ void proto_register_gsm_map(void) {
     &ett_gsm_map_T_gprs_CamelTDPDataList,
     &ett_gsm_map_T_gprs_CamelTDPDataList_item,
     &ett_gsm_map_T_mo_sms_CSI,
-    &ett_gsm_map_T_ss_CSI1,
     &ett_gsm_map_T_m_CSI,
     &ett_gsm_map_T_specificCSIDeletedList,
     &ett_gsm_map_T_mt_sms_CSI,
@@ -14622,11 +14418,11 @@ void proto_register_gsm_map(void) {
     &ett_gsm_map_SubscriberIdentity,
     &ett_gsm_map_AnyTimeModificationArg,
     &ett_gsm_map_T_modificationRequestFor_CF_Info,
-    &ett_gsm_map_T_basicService,
+    &ett_gsm_map_BasicService_ext,
     &ett_gsm_map_T_modificationRequestFor_CB_Info,
-    &ett_gsm_map_T_basicService1,
     &ett_gsm_map_T_modificationRequestFor_CSI,
     &ett_gsm_map_T_modificationRequestFor_ODB_data,
+    &ett_gsm_map_AnyTimeModificationRes,
     &ett_gsm_map_Odb_data,
     &ett_gsm_map_Ss_InvocationNotificationArg,
     &ett_gsm_map_T_ss_EventSpecification,
