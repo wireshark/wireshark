@@ -31,6 +31,7 @@
 
 #include <epan/filesystem.h>
 #include <epan/plugins.h>
+#include "prefs-recent.h"
 #include "about_dlg.h"
 #include "ui_util.h"
 #include "dlg_utils.h"

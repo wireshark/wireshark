@@ -135,7 +135,7 @@ static textbox_val_map gui_tb_map[] = {
 };
 
 static spinner_val_map gui_sp_map[] = {
-    { "prefs.gui_recent_files_count_max", &tmp_prefs.gui_recent_files_count_max, 0, 128 },
+    { "prefs.gui_recent_files_count_max", &tmp_prefs.gui_recent_files_count_max, 0, 50 },
     { NULL,                               NULL,                              0, 0}
 };
 

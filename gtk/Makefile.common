@@ -68,7 +68,6 @@ ETHEREAL_GTK_SRC = \
 	proto_draw.c	\
 	proto_hier_stats_dlg.c	\
 	range_utils.c \
-	recent.c	\
 	rtp_stream.c	\
 	service_response_time_table.c	\
 	simple_dialog.c	\

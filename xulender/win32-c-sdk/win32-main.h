@@ -5,5 +5,6 @@ void filter_apply_cb();
 void filter_clear_cb();
 void set_last_open_dir(char *dirname);
 void font_apply();
+extern gboolean main_do_quit(void);
 
 #endif /* win32-main.h */

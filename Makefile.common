@@ -159,6 +159,7 @@ ethereal_SOURCES =	\
 	filters.c	\
 	g711.c \
 	merge.c	\
+	prefs-recent.c	\
 	proto_hier_stats.c	\
 	summary.c
 
@@ -195,7 +196,8 @@ wethereal_SOURCES =	\
 	capture.c	\
 	color_filters.c	\
 	file.c		\
-	filters.c
+	filters.c	\
+	prefs-recent.c
 
 # text2pcap specifics
 text2pcap_SOURCES = \

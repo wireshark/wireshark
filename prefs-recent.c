@@ -1,4 +1,4 @@
-/* recent.c
+/* prefs-recent.c
  * Recent "preference" handling routines
  * Copyright 2004, Ulf Lamping <ulf.lamping@web.de>
  *
@@ -27,19 +27,18 @@
 # include "config.h"
 #endif
 
-#include <gtk/gtk.h>
 #include <stdio.h>
 #include <string.h>
+#include <errno.h>
 
-#include "recent.h"
+#include <glib.h>
+
 #include <epan/epan.h>
 #include <epan/filesystem.h>
-#include "menu.h"
-#include "main.h"
+#include <epan/timestamp.h>
 #include "prefs.h"
+#include "prefs-recent.h"
 #include "prefs-int.h"
-#include "ui_util.h"
-#include "dlg_utils.h"
 
 
 #define RECENT_KEY_MAIN_TOOLBAR_SHOW        "gui.toolbar_main_show"
@@ -59,18 +58,21 @@
 #define RECENT_GUI_GEOMETRY_MAIN_LOWER_PANE "gui.geometry_main_lower_pane"
 #define RECENT_GUI_GEOMETRY_STATUS_PANE     "gui.geometry_status_pane"
 #define RECENT_GUI_FILEOPEN_REMEMBERED_DIR  "gui.fileopen_remembered_dir"
-#define RECENT_GUI_GEOMETRY "gui.geom."
 
 #define RECENT_FILE_NAME "recent"
 
-
-/* #include "../menu.h" */
-extern void add_menu_recent_capture_file(gchar *file);
-
 recent_settings_t recent;
+
+static gchar *last_open_dir = NULL;
+static gboolean updated_last_open_dir = FALSE;
 
 static char *ts_type_text[] =
 	{ "RELATIVE", "ABSOLUTE", "ABSOLUTE_WITH_DATE", "DELTA", NULL };
+
+
+/* the geometry hashtable for all known window classes,
+ * the window name is the key, and the geometry struct is the value */
+GHashTable *window_geom_hash = NULL;
 
 /* Takes an string and a pointer to an array of strings, and a default int value.
  * The array must be terminated by a NULL string. If the string is found in the array
@@ -176,7 +178,7 @@ write_recent(char **rf_path_return)
   		  recent.gui_geometry_main_width);
   fprintf(rf, RECENT_GUI_GEOMETRY_MAIN_HEIGHT ": %d\n",
   		  recent.gui_geometry_main_height);
-  
+
   fprintf(rf, "\n# Main window maximized (GTK2 only).\n");
   fprintf(rf, "# TRUE or FALSE (case-insensitive).\n");
   fprintf(rf, RECENT_GUI_GEOMETRY_MAIN_MAXIMIZED ": %s\n",
@@ -214,26 +216,56 @@ write_recent(char **rf_path_return)
 }
 
 
-/* write the geometry values of a window to recent file */
-void 
-write_recent_geom(gpointer key _U_, gpointer value, gpointer rf)
+/* read in a single key value pair from the recent file into the geometry hashtable */
+static void
+window_geom_recent_read_pair(const char *name, const char *key, const char *value)
 {
-    window_geometry_t *geom = value;
+    window_geometry_t geom;
 
-    fprintf(rf, "\n# Geometry and maximized state (GTK2 only) of %s window.\n", geom->key);
-    fprintf(rf, "# Decimal integers.\n");
-    fprintf(rf, RECENT_GUI_GEOMETRY "%s.x: %d\n", geom->key, geom->x);
-    fprintf(rf, RECENT_GUI_GEOMETRY "%s.y: %d\n", geom->key, geom->y);
-    fprintf(rf, RECENT_GUI_GEOMETRY "%s.width: %d\n", geom->key,
-  	      geom->width);
-    fprintf(rf, RECENT_GUI_GEOMETRY "%s.height: %d\n", geom->key,
-  	      geom->height);
 
-    fprintf(rf, "# TRUE or FALSE (case-insensitive).\n");
-    fprintf(rf, RECENT_GUI_GEOMETRY "%s.maximized: %s\n", geom->key,
-	      geom->maximized == TRUE ? "TRUE" : "FALSE");
+    /* find window geometry maybe already in hashtable */
+    if(!window_geom_load(name, &geom)) {
+        /* not in table, init geom with "basic" values */
+        geom.key        = g_strdup(name);
+        geom.set_pos    = FALSE;
+        geom.x          = -1;
+        geom.y          = -1;
+        geom.set_size   = FALSE;
+        geom.width      = -1;
+        geom.height     = -1;
 
+        geom.set_maximized = FALSE;/* this is valid in GTK2 only */
+        geom.maximized  = FALSE;   /* this is valid in GTK2 only */
+    }
+
+    if (strcmp(key, "x") == 0) {
+        geom.x = strtol(value, NULL, 10);
+        geom.set_pos = TRUE;
+    } else if (strcmp(key, "y") == 0) {
+        geom.y = strtol(value, NULL, 10);
+        geom.set_pos = TRUE;
+    } else if (strcmp(key, "width") == 0) {
+        geom.width = strtol(value, NULL, 10);
+        geom.set_size = TRUE;
+    } else if (strcmp(key, "height") == 0) {
+        geom.height = strtol(value, NULL, 10);
+        geom.set_size = TRUE;
+    } else if (strcmp(key, "maximized") == 0) {
+        if (strcasecmp(value, "true") == 0) {
+            geom.maximized = TRUE;
+        }
+        else {
+            geom.maximized = FALSE;
+        }
+        geom.set_maximized = TRUE;
+    } else {
+        g_assert_not_reached();
+    }
+
+    /* save / replace geometry in hashtable */
+    window_geom_save(name, &geom);
 }
+
 
 
 /* set one user's recent file key/value pair */
@@ -418,6 +450,128 @@ read_recent(char **rf_path_return, int *rf_errno_return)
       *rf_path_return = rf_path;
     }
   }
+}
+
+void
+set_last_open_dir(char *dirname)
+{
+	int len;
+	gchar *new_last_open_dir;
+
+	if (dirname) {
+		len = strlen(dirname);
+		if (dirname[len-1] == G_DIR_SEPARATOR) {
+			new_last_open_dir = g_strconcat(dirname, NULL);
+		}
+		else {
+			new_last_open_dir = g_strconcat(dirname,
+				G_DIR_SEPARATOR_S, NULL);
+		}
+
+		if (last_open_dir == NULL ||
+		    strcmp(last_open_dir, new_last_open_dir) != 0)
+			updated_last_open_dir = TRUE;
+	}
+	else {
+		new_last_open_dir = NULL;
+		if (last_open_dir != NULL)
+			updated_last_open_dir = TRUE;
+	}
+
+	if (last_open_dir) {
+		g_free(last_open_dir);
+	}
+	last_open_dir = new_last_open_dir;
+}
+
+char *
+get_last_open_dir(void)
+{
+    return last_open_dir;
+}
+
+
+
+/* save the window and it's current geometry into the geometry hashtable */
+void
+window_geom_save(const gchar *name, window_geometry_t *geom)
+{
+    gchar *key;
+    window_geometry_t *work;
+
+    /* init hashtable, if not already done */
+    if(!window_geom_hash) {
+        window_geom_hash = g_hash_table_new (g_str_hash, g_str_equal);
+    }
+    /* if we have an old one, remove and free it first */
+    work = g_hash_table_lookup(window_geom_hash, name);
+    if(work) {
+        g_hash_table_remove(window_geom_hash, name);
+        g_free(work->key);
+        g_free(work);
+    }
+
+    /* malloc and insert the new one */
+    work = g_malloc(sizeof(*geom));
+    *work = *geom;
+    key = g_strdup(name);
+    work->key = key;
+    g_hash_table_insert(window_geom_hash, key, work);
+}
+
+
+/* load the desired geometry for this window from the geometry hashtable */
+gboolean
+window_geom_load(const gchar *name, window_geometry_t *geom)
+{
+    window_geometry_t *p;
+
+    /* init hashtable, if not already done */
+    if(!window_geom_hash) {
+        window_geom_hash = g_hash_table_new (g_str_hash, g_str_equal);
+    }
+
+    p = g_hash_table_lookup(window_geom_hash, name);
+    if(p) {
+        *geom = *p;
+        return TRUE;
+    } else {
+        return FALSE;
+    }
+}
+
+
+/* write all geometry values of all windows from the hashtable to the recent file */
+void
+window_geom_recent_write_all(gpointer rf)
+{
+    /* init hashtable, if not already done */
+    if(!window_geom_hash) {
+        window_geom_hash = g_hash_table_new (g_str_hash, g_str_equal);
+    }
+
+    g_hash_table_foreach(window_geom_hash, write_recent_geom, rf);
+}
+
+/* write the geometry values of a window to recent file */
+void
+write_recent_geom(gpointer key _U_, gpointer value, gpointer rf)
+{
+    window_geometry_t *geom = value;
+
+    fprintf(rf, "\n# Geometry and maximized state (GTK2 only) of %s window.\n", geom->key);
+    fprintf(rf, "# Decimal integers.\n");
+    fprintf(rf, RECENT_GUI_GEOMETRY "%s.x: %d\n", geom->key, geom->x);
+    fprintf(rf, RECENT_GUI_GEOMETRY "%s.y: %d\n", geom->key, geom->y);
+    fprintf(rf, RECENT_GUI_GEOMETRY "%s.width: %d\n", geom->key,
+  	      geom->width);
+    fprintf(rf, RECENT_GUI_GEOMETRY "%s.height: %d\n", geom->key,
+  	      geom->height);
+
+    fprintf(rf, "# TRUE or FALSE (case-insensitive).\n");
+    fprintf(rf, RECENT_GUI_GEOMETRY "%s.maximized: %s\n", geom->key,
+	      geom->maximized == TRUE ? "TRUE" : "FALSE");
+
 }
 
 

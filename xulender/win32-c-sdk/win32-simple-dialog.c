@@ -98,7 +98,7 @@ display_queued_messages(void)
  */
 
 gpointer
-vsimple_dialog(gint type, gint btn_mask, const gchar *msg_format, va_list ap)
+vsimple_dialog(ESD_TYPE_E type, gint btn_mask, const gchar *msg_format, va_list ap)
 {
     gchar            *message;
     queued_message_t *queued_message;
@@ -132,7 +132,7 @@ vsimple_dialog(gint type, gint btn_mask, const gchar *msg_format, va_list ap)
 }
 
 gpointer
-simple_dialog(gint type, gint btn_mask, const gchar *msg_format, ...)
+simple_dialog(ESD_TYPE_E type, gint btn_mask, const gchar *msg_format, ...)
 {
     va_list ap;
     gpointer ret;

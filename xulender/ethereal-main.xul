@@ -14,10 +14,18 @@
           label="Open..."
           command="ethereal-main-open"
         />
-        <menuitem
+        <menu
           label="Open Recent"
           command="ethereal-main-open-recent"
-        />
+        >
+          <menupopup>
+            <menuseparator />
+            <menuitem
+              label="Clear"
+              command="ethereal-main-open-recent-clear"
+            />
+          </menupopup>
+        </menu>
         <menuitem
           label="Close"
           command="ethereal-main-close"

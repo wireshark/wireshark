@@ -70,6 +70,7 @@
 #include "pcap-util.h"
 #include "disabled_protos.h"
 #include "prefs.h"
+#include "prefs-recent.h"
 #include "alert_box.h"
 #include "capture-wpcap.h"
 #include "simple_dialog.h"
@@ -79,6 +80,7 @@
 #include "win32-c-sdk.h"
 
 #include "win32-globals.h"
+#include "win32-menu.h"
 #include "capture-util.h"
 
 #include "ethereal-main.h"
@@ -99,13 +101,14 @@ static void capture_start_prep();
 
 capture_file cfile;
 ts_type timestamp_type = RELATIVE;
-gchar       *last_open_dir = NULL;
-static gboolean updated_last_open_dir = FALSE;
 
 TCHAR open_name[MAX_PATH] = "\0";
 
 GString *comp_info_str, *runtime_info_str;
 gchar   *ethereal_path = NULL;
+
+/* XXX: use a preference for this setting! */
+static guint dfilter_combo_max_recent = 10;
 
 static gboolean has_no_console = TRUE; /* TRUE if app has no console */
 static gboolean console_was_created = FALSE; /* TRUE if console was created */
@@ -113,6 +116,10 @@ static void create_console(void);
 static void destroy_console(void);
 static void console_log_handler(const char *log_domain,
     GLogLevelFlags log_level, const char *message, gpointer user_data);
+static void main_load_window_geometry(HWND hw_mainwin);
+static void main_save_window_geometry(HWND hw_mainwin);
+static void file_save_as_cmd(void);
+static void file_quit_cmd(void);
 
 #ifdef HAVE_LIBPCAP
 static gboolean list_link_layer_types;
@@ -391,6 +398,8 @@ WinMain( HINSTANCE h_instance, HINSTANCE h_prev_instance, LPSTR lpsz_cmd_line, i
     MSG                    msg;
     char                  *s;
     int                    i;
+    char                  *rf_path;
+    int                    rf_open_errno;
     char                  *gpf_path, *pf_path;
     char                  *cf_path, *df_path;
     char                  *gdp_path, *dp_path;
@@ -1167,6 +1176,12 @@ WinMain( HINSTANCE h_instance, HINSTANCE h_prev_instance, LPSTR lpsz_cmd_line, i
 
 	main_window_update();
 
+	/* Read the recent file, as we have the gui now ready for it. */
+	read_recent(&rf_path, &rf_open_errno);
+
+	/* the window can be sized only, if it's not already shown, so do it now! */
+	main_load_window_geometry(g_hw_mainwin);
+
 	/* If we were given the name of a capture file, read it in now;
 	   we defer it until now, so that, if we can't open it, and pop
 	   up an alert box, the alert box is more likely to come up on
@@ -1217,7 +1232,7 @@ WinMain( HINSTANCE h_instance, HINSTANCE h_prev_instance, LPSTR lpsz_cmd_line, i
 		    s = get_dirname(cf_name);
 		    /* we might already set this from the recent file, don't overwrite this */
 
-		    if(last_open_dir == NULL)
+		    if(get_last_open_dir() == NULL)
 			set_last_open_dir(s);
 		    g_free(cf_name);
 		    cf_name = NULL;
@@ -1396,7 +1411,7 @@ win32_main_wnd_proc(HWND hw_mainwin, UINT msg, WPARAM w_param, LPARAM l_param)
     BOOL ret;
     read_status_t err;
 
-    switch( msg ) {
+    switch(msg) {
 	case WM_CREATE:
 	    ethereal_main_handle_wm_create(hw_mainwin);
 	    break;
@@ -1409,50 +1424,57 @@ win32_main_wnd_proc(HWND hw_mainwin, UINT msg, WPARAM w_param, LPARAM l_param)
 	    break;
 
 	case WM_COMMAND:
-	    switch( w_param ) {
-		case IDM_ETHEREAL_MAIN_OPEN:
-		    ret = win32_open_file(hw_mainwin, open_name, MAX_PATH);
-		    if (ret) {
-			err = cf_open(open_name, FALSE, &cfile);
-			if (err != 0) {
-			    epan_cleanup();
-			    exit(2);
+		switch(w_param) {
+		    case IDM_ETHEREAL_MAIN_OPEN:
+			ret = win32_open_file(hw_mainwin, open_name, MAX_PATH);
+			if (ret) {
+			    err = cf_open(open_name, FALSE, &cfile);
+			    if (err != 0) {
+				epan_cleanup();
+				exit(2);
+			    }
+			    err = cf_read(&cfile);
+			    if (err == READ_SUCCESS) {
+				ethereal_packetlist_init(&cfile);
+			    }
 			}
-			err = cf_read(&cfile);
-			if (err == READ_SUCCESS) {
-			    ethereal_packetlist_init(&cfile);
+			break;
+		    case IDM_ETHEREAL_MAIN_OPEN_RECENT_CLEAR:
+			clear_menu_recent(hw_mainwin);
+			break;
+		    case IDM_ETHEREAL_MAIN_CLOSE:
+			cf_close(&cfile);
+			break;
+		    case IDM_ETHEREAL_MAIN_EDIT_PREFERENCES:
+			prefs_dialog_init(hw_mainwin);
+			break;
+		    case IDM_ETHEREAL_MAIN_CAPTURE_START:
+			capture_start_prep();
+			break;
+		    case IDM_ETHEREAL_MAIN_CAPTURE_STOP:
+			capture_stop();
+			break;
+		    case IDM_ETHEREAL_MAIN_ABOUT_ETHEREAL:
+			about_dialog_init(hw_mainwin);
+			break;
+		    case IDM_ETHEREAL_MAIN_EXIT:
+			file_quit_cmd();
+			break;
+		    default:
+			if (w_param >= IDM_RECENT_FILE_START && w_param < IDM_RECENT_FILE_START + prefs.gui_recent_files_count_max) {
+			    open_menu_recent_capture_file(hw_mainwin, w_param);
 			}
-		    }
+			break;
+		}
 		break;
-		case IDM_ETHEREAL_MAIN_CLOSE:
-		    cf_close(&cfile);
-		break;
-		case IDM_ETHEREAL_MAIN_EDIT_PREFERENCES:
-		    prefs_dialog_init(hw_mainwin);
-		    break;
-		case IDM_ETHEREAL_MAIN_CAPTURE_START:
-		    capture_start_prep();
-		break;
-		case IDM_ETHEREAL_MAIN_CAPTURE_STOP:
-		    capture_stop();
-		break;
-		case IDM_ETHEREAL_MAIN_ABOUT_ETHEREAL:
-		    about_dialog_init(hw_mainwin);
-		break;
-		case IDM_ETHEREAL_MAIN_EXIT:
-		    PostQuitMessage(0);
-		break;
-		default:
-		break;
-	    }
-	break;
 
 	case WM_DESTROY:
-		PostQuitMessage( 0 );
-		break;
+//	    main_do_quit();
+	    break;
 
 	default:
-		return( DefWindowProc( hw_mainwin, msg, w_param, l_param ));
+	    return( DefWindowProc( hw_mainwin, msg, w_param, l_param ));
+	    break;
     }
 
     return 0;
@@ -1537,8 +1559,8 @@ main_filter_packets(capture_file *cf, gchar *dftext)
 void
 filter_apply_cb(win32_element_t *el) {
     win32_element_t *dfilter_el = win32_identifier_get_str("dfilter-entry");
-    int len;
-    gchar *dftext;
+    int              len;
+    gchar           *dftext;
 
     win32_element_assert(dfilter_el);
 
@@ -1561,6 +1583,135 @@ filter_clear_cb(win32_element_t *el) {
 
     SendMessage(dfilter_el->h_wnd, WM_SETTEXT, 0, (LPARAM)(LPCTSTR) "");
     main_filter_packets(&cfile, "");
+}
+
+/* Write all non empty display filters (until maximum count)
+ * of the combo box list to the user's recent file */
+void
+dfilter_recent_combo_write_all(FILE *rf) {
+    win32_element_t *dfilter_el = win32_identifier_get_str("dfilter-entry");
+    guint            count = 0, cb_item = 0, cb_count;
+    gchar           *dftext;
+    LRESULT          len = 256, new_len;
+
+    win32_element_assert(dfilter_el);
+    dftext = g_malloc(len);
+
+    /* We have to pay attention to the number of items in the combobox _and_
+     * the number of items we've written, so we use two counters. */
+    cb_count = SendMessage(dfilter_el->h_wnd, CB_GETCOUNT, 0, 0);
+    while (cb_item < cb_count && count < dfilter_combo_max_recent) {
+	new_len = SendMessage(dfilter_el->h_wnd, CB_GETLBTEXTLEN, (WPARAM) cb_item, 0);
+	if (new_len > len) {
+	    len = new_len;
+	    dftext = g_realloc(dftext, len);
+	}
+	if (SendMessage(dfilter_el->h_wnd, CB_GETLBTEXT, (WPARAM) cb_item, (LPARAM) (LPCSTR) dftext)) {
+	    fprintf (rf, RECENT_KEY_DISPLAY_FILTER ": %s\n", dftext);
+	    count++;
+	}
+	cb_item++;
+    }
+    g_free(dftext);
+}
+
+/* Empty the combobox entry field */
+void
+dfilter_combo_add_empty(void) {
+    filter_clear_cb(NULL);
+}
+
+/* Add a display filter coming from the user's recent file to the dfilter combo box */
+gboolean
+dfilter_combo_add_recent(gchar *dftext) {
+    win32_element_t *dfilter_el = win32_identifier_get_str("dfilter-entry");
+
+    if (SendMessage(dfilter_el->h_wnd, CB_FINDSTRINGEXACT, (WPARAM) -1, (LPARAM) (LPCTSTR) dftext) == CB_ERR) {
+	if (SendMessage(dfilter_el->h_wnd, CB_ADDSTRING, 0, (LPARAM) (LPCTSTR) dftext) != CB_ERR) {
+	    return TRUE;
+	}
+    }
+
+    return FALSE;
+}
+
+/* XXX - Copied verbatim from gtk/main.c */
+gboolean
+main_do_quit(void)
+{
+    gchar *rec_path;
+
+    /* get the current geometry, before writing it to disk */
+    main_save_window_geometry(g_hw_mainwin);
+
+    /* write user's recent file to disk
+     * It is no problem to write this file, even if we do not quit */
+    write_recent(&rec_path);
+
+    /* XXX - should we check whether the capture file is an
+       unsaved temporary file for a live capture and, if so,
+       pop up a "do you want to exit without saving the capture
+       file?" dialog, and then just return, leaving said dialog
+       box to forcibly quit if the user clicks "OK"?
+
+       If so, note that this should be done in a subroutine that
+       returns TRUE if we do so, and FALSE otherwise, and if it
+       returns TRUE we should return TRUE without nuking anything.
+
+       Note that, if we do that, we might also want to check if
+       an "Update list of packets in real time" capture is in
+       progress and, if so, ask whether they want to terminate
+       the capture and discard it, and return TRUE, before nuking
+       any child capture, if they say they don't want to do so. */
+
+#ifdef HAVE_LIBPCAP
+    /* Nuke any child capture in progress. */
+    kill_capture_child();
+#endif
+
+    /* Are we in the middle of reading a capture? */
+    if (cfile.state == FILE_READ_IN_PROGRESS) {
+	/* Yes, so we can't just close the file and quit, as
+	   that may yank the rug out from under the read in
+	   progress; instead, just set the state to
+	   "FILE_READ_ABORTED" and return - the code doing the read
+	   will check for that and, if it sees that, will clean
+	   up and quit. */
+	cfile.state = FILE_READ_ABORTED;
+
+	/* Say that the window should *not* be deleted;
+	   that'll be done by the code that cleans up. */
+	return TRUE;
+    } else {
+	/* Close any capture file we have open; on some OSes, you
+	   can't unlink a temporary capture file if you have it
+	   open.
+	   "cf_close()" will unlink it after closing it if
+	   it's a temporary file.
+
+	   We do this here, rather than after the main loop returns,
+	   as, after the main loop returns, the main window may have
+	   been destroyed (if this is called due to a "destroy"
+	   even on the main window rather than due to the user
+	   selecting a menu item), and there may be a crash
+	   or other problem when "cf_close()" tries to
+	   clean up stuff in the main window.
+
+	   XXX - is there a better place to put this?
+	   Or should we have a routine that *just* closes the
+	   capture file, and doesn't do anything with the UI,
+	   which we'd call here, and another routine that
+	   calls that routine and also cleans up the UI, which
+	   we'd call elsewhere? */
+	cf_close(&cfile);
+
+	/* Exit by leaving the main loop, so that any quit functions
+	   we registered get called. */
+	PostQuitMessage(0);
+
+	/* Say that the window should be deleted. */
+	return FALSE;
+    }
 }
 
 /* Make sure we can perform a capture, and if so open the capture options dialog */
@@ -1791,38 +1942,6 @@ void tap_dfilter_dlg_update (void) {
 }
 
 void
-set_last_open_dir(char *dirname)
-{
-    int len;
-    gchar *new_last_open_dir;
-
-    if (dirname) {
-	len = strlen(dirname);
-	if (dirname[len-1] == G_DIR_SEPARATOR) {
-		new_last_open_dir = g_strconcat(dirname, NULL);
-	}
-	else {
-	    new_last_open_dir = g_strconcat(dirname,
-		G_DIR_SEPARATOR_S, NULL);
-	}
-
-	if (last_open_dir == NULL ||
-	    strcmp(last_open_dir, new_last_open_dir) != 0)
-		updated_last_open_dir = TRUE;
-    }
-    else {
-	new_last_open_dir = NULL;
-	if (last_open_dir != NULL)
-	    updated_last_open_dir = TRUE;
-    }
-
-    if (last_open_dir) {
-	g_free(last_open_dir);
-    }
-    last_open_dir = new_last_open_dir;
-}
-
-void
 font_apply() {
     win32_element_t *byteview;
     byteview = win32_identifier_get_str("main-byteview");
@@ -1835,4 +1954,82 @@ font_apply() {
  */
 void
 color_add_filter_cb (color_filter_t *colorf, gpointer arg) {
+}
+
+static void
+main_save_window_geometry(HWND hwnd)
+{
+    window_geometry_t geom;
+
+    window_get_geometry(hwnd, &geom);
+
+    if (prefs.gui_geometry_save_position) {
+	recent.gui_geometry_main_x = geom.x;
+	recent.gui_geometry_main_y = geom.y;
+    }
+
+    if (prefs.gui_geometry_save_size) {
+	recent.gui_geometry_main_width  = geom.width,
+	recent.gui_geometry_main_height = geom.height;
+    }
+    /* XXX - Pane sizes */
+}
+
+static void
+main_load_window_geometry(HWND hw_mainwin) {
+    window_geometry_t geom;
+
+    geom.set_pos        = prefs.gui_geometry_save_position;
+    geom.x              = recent.gui_geometry_main_x;
+    geom.y              = recent.gui_geometry_main_y;
+    geom.set_size       = prefs.gui_geometry_save_size;
+    if (recent.gui_geometry_main_width > 0 &&
+	recent.gui_geometry_main_height > 0) {
+	geom.width          = recent.gui_geometry_main_width;
+	geom.height         = recent.gui_geometry_main_height;
+	geom.set_maximized  = prefs.gui_geometry_save_maximized;
+    } else {
+	/* We assume this means the width and height weren't set in
+	   the "recent" file (or that there is no "recent" file),
+	   and weren't set to a default value, so we don't set the
+	   size.  (The "recent" file code rejects non-positive width
+	   and height values.) */
+       geom.set_size = FALSE;
+    }
+    geom.maximized      = recent.gui_geometry_main_maximized;
+
+    window_set_geometry(hw_mainwin, &geom);
+    /* XXX - Size our panes */
+}
+
+static void
+file_save_as_cmd(void) {
+}
+
+static void
+file_quit_cmd(void) {
+    gint btn;
+
+    if((cfile.state != FILE_CLOSED) && !cfile.user_saved && prefs.gui_ask_unsaved) {
+	/* user didn't saved his current file, ask him */
+	btn = (gint) simple_dialog(ESD_TYPE_CONFIRMATION, ESD_BTNS_SAVE_DONTSAVE_CANCEL,
+		"Save capture file before program quit?\n\n"
+		"If you quit the program without saving, your capture data will be discarded.");
+	switch(btn) {
+	    case(ESD_BTN_SAVE):
+		/* save file first */
+//		file_save_as_cmd(after_save_exit, NULL);
+		break;
+	    case(ESD_BTN_DONT_SAVE):
+		main_do_quit();
+		break;
+	    case(ESD_BTN_CANCEL):
+		break;
+	    default:
+		g_assert_not_reached();
+	}
+    } else {
+	/* unchanged file, just exit */
+	main_do_quit();
+    }
 }

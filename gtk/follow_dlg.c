@@ -55,6 +55,7 @@
 #include "simple_dialog.h"
 #include <epan/dissectors/packet-ipv6.h>
 #include "prefs.h"
+#include "prefs-recent.h"
 #include <epan/resolv.h>
 #include "util.h"
 #include "ui_util.h"

@@ -28,14 +28,16 @@
 # include "config.h"
 #endif
 
+#include <stdio.h>
+
 #include <windows.h>
 
-# include <io.h>
+#include <io.h>
 
 #include "prefs.h"
+#include "prefs-recent.h"
 #include "epan/epan.h"
 #include "../../ui_util.h"
-// #include "compat_macros.h"
 
 #include "win32-globals.h"
 #include "win32-element.h"
@@ -53,24 +55,6 @@ void main_window_update(void)
 	TranslateMessage(&msg);
 	DispatchMessage(&msg);
     }
-}
-
-/* exit the main window */
-void main_window_exit(void)
-{
-    PostQuitMessage(0);
-}
-
-/* quit a nested main window */
-void main_window_nested_quit(void)
-{
-    PostQuitMessage(0);
-}
-
-/* quit the main window */
-void main_window_quit(void)
-{
-    PostQuitMessage(0);
 }
 
 typedef struct pipe_input_tag {
@@ -143,3 +127,59 @@ void pipe_input_set_handler(gint source, gpointer user_data, int *child_process,
 
 
 #endif /* HAVE_LIBPCAP */
+
+/* exit the main window */
+void main_window_exit(void)
+{
+    PostQuitMessage(0);
+}
+
+/* quit a nested main window */
+void main_window_nested_quit(void)
+{
+    PostQuitMessage(0);
+}
+
+/* quit the main window */
+void main_window_quit(void)
+{
+    PostQuitMessage(0);
+}
+
+/* Retrieve the geometry of a window */
+void
+window_get_geometry(HWND hwnd, window_geometry_t *geom) {
+    LONG wstyle;
+    RECT wr;
+
+    GetWindowRect(hwnd, &wr);
+    wstyle = GetWindowLong(hwnd, GWL_STYLE);
+
+    geom->x         = wr.left;
+    geom->y         = wr.top;
+    geom->width     = wr.right - wr.left;
+    geom->height    = wr.bottom - wr.top;
+    geom->maximized = wstyle & WS_MAXIMIZE;
+}
+
+/* Set the geometry of a window */
+void
+window_set_geometry(HWND hwnd, window_geometry_t *geom) {
+    LONG wstyle;
+
+    /* as we now have the geometry from the recent file, set it */
+    if (geom->set_pos) {
+	SetWindowPos(hwnd, HWND_TOP, geom->x, geom->y, 0, 0,
+	    SWP_NOACTIVATE | SWP_NOZORDER | SWP_NOSIZE);
+    }
+
+    if (geom->set_size) {
+	SetWindowPos(hwnd, HWND_TOP, 0, 0, geom->width, geom->height,
+	    SWP_NOACTIVATE | SWP_NOZORDER | SWP_NOMOVE);
+    }
+
+    if (geom->set_maximized && geom->maximized) {
+	wstyle = GetWindowLong(hwnd, GWL_STYLE);
+	SetWindowLong(hwnd, GWL_STYLE, wstyle | WS_MAXIMIZE);
+    }
+}

@@ -198,21 +198,6 @@ typedef enum {
  */
 extern void reftime_frame_cb(GtkWidget *widget, gpointer data, REFTIME_ACTION_E action);
 
-/** Add a display filter coming from the user's recent file to the dfilter combo box.
- *
- * @param dftext the filter string
- */
-extern gboolean dfilter_combo_add_recent(gchar *dftext);
-
-/** Empty out the combobox entry field */
-extern void dfilter_combo_add_empty(void);
-
-/** Write all non empty display filters (until maximum count) 
- *  of the combo box GList to the user's recent file.
- *
- * @param rf the recent file
- */
-extern void dfilter_recent_combo_write_all(FILE *rf);
 
 /** Quit the program.
  *

@@ -26,6 +26,10 @@
 # include "config.h"
 #endif
 
+#include <string.h>
+#include <stdio.h>
+#include <stdarg.h>
+
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>
 
@@ -34,23 +38,16 @@
 #include "globals.h"
 
 #include "gtkglobals.h"
+#include "prefs-recent.h"
 #include "ui_util.h"
 #include "dlg_utils.h"
 #include "keys.h"
 #include "compat_macros.h"
 #include "main.h"
 
-#include <string.h>
-#include <stdio.h>
-#include <stdarg.h>
-
 
 /* Keys ... */
 #define E_FS_CALLER_PTR_KEY       "fs_caller_ptr"
-
-static gchar *last_open_dir = NULL;
-static gboolean updated_last_open_dir = FALSE;
-
 
 static void
 dlg_activate (GtkWidget *widget, gpointer ok_button);
@@ -78,7 +75,7 @@ dlg_button_new(GtkWidget *hbox, GtkWidget *button_hbox, gchar *stock_id)
 
 /* create a button row for a dialog */
 
-/* The purpose of this is, to have one place available, where all button rows 
+/* The purpose of this is, to have one place available, where all button rows
  * from all dialogs are layouted. This will:
  *
  * a.) keep the button layout more consistent over the different dialogs
@@ -127,7 +124,7 @@ dlg_button_row_new(gchar *stock_id_first, ...)
         } else if (strcmp(stock_id, GTK_STOCK_SAVE) == 0) {
             save = stock_id;
         } else if (strcmp(stock_id, ETHEREAL_STOCK_DONT_SAVE) == 0) {
-        	dont_save = stock_id;  
+        	dont_save = stock_id;
         } else if (strcmp(stock_id, GTK_STOCK_CANCEL) == 0) {
             cancel = stock_id;
         } else if (strcmp(stock_id, GTK_STOCK_CLOSE) == 0) {
@@ -395,8 +392,8 @@ file_selection_new(const gchar *title, file_selection_action_t action)
 
   /* If we've opened a file before, start out by showing the files in the directory
      in which that file resided. */
-  if (last_open_dir)
-    file_selection_set_current_folder(win, last_open_dir);
+  if (get_last_open_dir())
+    file_selection_set_current_folder(win, get_last_open_dir());
 
   return win;
 }
@@ -419,8 +416,8 @@ file_selection_new(const gchar *title, file_selection_action_t action _U_)
 
   /* If we've opened a file before, start out by showing the files in the directory
      in which that file resided. */
-  if (last_open_dir)
-    file_selection_set_current_folder(win, last_open_dir);
+  if (get_last_open_dir())
+    file_selection_set_current_folder(win, get_last_open_dir());
 
   return win;
 }
@@ -436,7 +433,7 @@ file_selection_set_current_folder(GtkWidget *fs, const gchar *filename)
     gchar *new_filename;
 
     /* trim filename, so gtk_file_chooser_set_current_folder() likes it, see below */
-    if (filename[filename_len -1] == G_DIR_SEPARATOR 
+    if (filename[filename_len -1] == G_DIR_SEPARATOR
 #ifdef WIN32
         && filename_len > 3)    /* e.g. "D:\" */
 #else
@@ -477,7 +474,7 @@ file_selection_set_extra_widget(GtkWidget *fs, GtkWidget *extra)
 /*
  * A generic select_file routine that is intended to be connected to
  * a Browse button on other dialog boxes. This allows the user to browse
- * for a file and select it. We fill in the text_entry that is given to us. 
+ * for a file and select it. We fill in the text_entry that is given to us.
  *
  * We display the window label specified in our args.
  */
@@ -511,7 +508,7 @@ file_selection_browse(GtkWidget *file_bt, GtkWidget *file_te, const char *label,
 
   /* Call a handler when the file selection box is destroyed, so we can inform
      our caller, if any, that it's been destroyed. */
-  SIGNAL_CONNECT(fs, "destroy", GTK_SIGNAL_FUNC(file_selection_browse_destroy_cb), 
+  SIGNAL_CONNECT(fs, "destroy", GTK_SIGNAL_FUNC(file_selection_browse_destroy_cb),
 		 file_te);
 
 #if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
@@ -523,7 +520,7 @@ file_selection_browse(GtkWidget *file_bt, GtkWidget *file_te, const char *label,
   }
   window_destroy(fs);
 #else
-  SIGNAL_CONNECT(GTK_FILE_SELECTION(fs)->ok_button, "clicked", 
+  SIGNAL_CONNECT(GTK_FILE_SELECTION(fs)->ok_button, "clicked",
 		 file_selection_browse_ok_cb, fs);
 
   window_set_cancel_button(fs, GTK_FILE_SELECTION(fs)->cancel_button, NULL);
@@ -551,7 +548,7 @@ file_selection_browse_ok_cb(GtkWidget *w _U_, gpointer data)
         /* It's a directory - set the file selection box to display it. */
         set_last_open_dir(f_name);
         g_free(f_name);
-        file_selection_set_current_folder(data, last_open_dir);
+        file_selection_set_current_folder(data, get_last_open_dir());
         return;
   }
 
@@ -581,44 +578,6 @@ file_selection_browse_destroy_cb(GtkWidget *win, GtkWidget* parent_te)
   gtk_widget_grab_focus(parent_te);
 }
 
-
-void
-set_last_open_dir(char *dirname)
-{
-	int len;
-	gchar *new_last_open_dir;
-
-	if (dirname) {
-		len = strlen(dirname);
-		if (dirname[len-1] == G_DIR_SEPARATOR) {
-			new_last_open_dir = g_strconcat(dirname, NULL);
-		}
-		else {
-			new_last_open_dir = g_strconcat(dirname,
-				G_DIR_SEPARATOR_S, NULL);
-		}
-
-		if (last_open_dir == NULL ||
-		    strcmp(last_open_dir, new_last_open_dir) != 0)
-			updated_last_open_dir = TRUE;
-	}
-	else {
-		new_last_open_dir = NULL;
-		if (last_open_dir != NULL)
-			updated_last_open_dir = TRUE;
-	}
-
-	if (last_open_dir) {
-		g_free(last_open_dir);
-	}
-	last_open_dir = new_last_open_dir;
-}
-
-char *
-get_last_open_dir(void)
-{
-    return last_open_dir;
-}
 
 /* Set the "activate" signal for a widget to call a routine to
    activate the "OK" button for a dialog box.

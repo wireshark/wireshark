@@ -37,7 +37,7 @@
 #include <windows.h>
 #endif
 
-#include "recent.h"
+#include "prefs-recent.h"
 #include "prefs.h"
 
 #include "gtkglobals.h"

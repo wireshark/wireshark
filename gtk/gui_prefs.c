@@ -46,7 +46,7 @@
 #include "font_utils.h"
 #include "packet_list.h"
 #include "toolbar.h"
-#include "recent.h"
+#include "prefs-recent.h"
 #include "webbrowser.h"
 
 

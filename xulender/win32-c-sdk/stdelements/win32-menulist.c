@@ -113,7 +113,7 @@ gchar * win32_menulist_get_string(win32_element_t *ml_el, gint item) {
 
     win32_element_assert(ml_el);
 
-    len = SendMessage(ml_el->h_wnd, CB_GETLBTEXT, (WPARAM) item, 0);
+    len = SendMessage(ml_el->h_wnd, CB_GETLBTEXTLEN, (WPARAM) item, 0);
     if (len == CB_ERR) {
 	return NULL;
     }

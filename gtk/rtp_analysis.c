@@ -46,6 +46,7 @@
 
 #include <epan/epan_dissect.h>
 #include <epan/filesystem.h>
+#include "prefs-recent.h"
 
 #include "util.h"
 #include "tap.h"

@@ -24,10 +24,10 @@
 
 /** @defgroup dialog_group Dialogs
  *
- * Dialogs are specially created windows and are related to their parent windows (usually the main window). 
+ * Dialogs are specially created windows and are related to their parent windows (usually the main window).
  * See: @ref howto_window_page for details.
  *
- * @section normal_dialogs Normal dialogs 
+ * @section normal_dialogs Normal dialogs
  *
  * Normal dialogs are created using dlg_window_new().
  *
@@ -61,7 +61,7 @@
  * - "Help for TCP graphing" callback_create_help()
  * - "Tcp Graph Magnify" magnify_create()
  *
- * @section file_sel_dialogs File selection dialogs 
+ * @section file_sel_dialogs File selection dialogs
  *
  * File selection dialogs are created using file_selection_new().
  *
@@ -75,11 +75,11 @@
  * - "Save Data As CSV" save_csv_as_cb()
  * - "Save Payload As ..." on_save_bt_clicked()
  * - "Save selected stream in rtpdump" rtpstream_on_save()
- * 
+ *
  */
 
 /** @file
- * Utilities for dialog boxes. Depending on the window functions in 
+ * Utilities for dialog boxes. Depending on the window functions in
  * ui_util.h, see: @ref howto_window_page for details.
  * @ingroup dialog_group
  */
@@ -89,7 +89,7 @@
 
 
 /** Create a dialog box window that belongs to Ethereal's main window.
- * If you want to create a window, use window_new() instead. 
+ * If you want to create a window, use window_new() instead.
  * See window_new() for general window usage.
  *
  * @param title the title for the new dialog
@@ -120,7 +120,7 @@ extern GtkWidget *file_selection_new(const gchar *title, file_selection_action_t
  */
 extern gboolean file_selection_set_current_folder(GtkWidget *fs, const gchar *filename);
 
-/** Set the "extra" widget for a file selection dialog. This is needed to support 
+/** Set the "extra" widget for a file selection dialog. This is needed to support
  *  user-supplied options.
  *
  * @param fs the file selection dialog from file_selection_new()
@@ -141,20 +141,6 @@ extern void file_selection_set_extra_widget(GtkWidget *fs, GtkWidget *extra);
  */
 extern void
 file_selection_browse(GtkWidget *file_bt, GtkWidget *file_te, const char *title, file_selection_action_t action);
-
-/** Get the latest opened directory.
- *
- * @return the dirname
- */
-extern char *get_last_open_dir(void);
-
-/** Set the latest opened directory.
- *  Will already be done when using file_selection_new().
- *
- * @param dirname the dirname
- */
-extern void set_last_open_dir(char *dirname);
-
 
 /** Create a button row (with variable number of buttons) for a dialog.
  *  The button widgets will be available by OBJECT_GET_DATA(dlg, stock_id) later.

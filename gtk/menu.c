@@ -36,6 +36,7 @@
 #include <epan/packet.h>
 #include <epan/resolv.h>
 #include "prefs.h"
+#include "prefs-recent.h"
 #include "about_dlg.h"
 #include "capture_dlg.h"
 #include "color_dlg.h"
@@ -66,7 +67,6 @@
 #include "../ipproto.h"
 #include "packet_list.h"
 #include "ethclist.h"
-#include "recent.h"
 #include "../ui_util.h"
 #include "proto_draw.h"
 #include "conversations_table.h"

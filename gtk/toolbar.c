@@ -60,7 +60,6 @@
 #include "toolbar.h"
 #include "keys.h"
 #include "compat_macros.h"
-#include "recent.h"
 
 /* All of the icons used here are coming (or are derived) from GTK2 stock icons.
  * They were converted using "The Gimp" with standard conversion from png to xpm.

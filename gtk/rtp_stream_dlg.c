@@ -35,6 +35,7 @@
 
 #include "globals.h"
 #include "epan/filesystem.h"
+#include "prefs-recent.h"
 
 #include "tap_menu.h"
 #include "dlg_utils.h"

@@ -47,7 +47,7 @@
 #include "main.h"
 #include "compat_macros.h"
 #include "prefs.h"
-#include "recent.h"
+#include "prefs-recent.h"
 #include "color.h"
 #include "../ui_util.h"
 #include "color_filters.h"
