@@ -5,7 +5,7 @@
  *		<anders.broman@ericsson.com>
  * Inserted routines for BICC dissection according to Q.765.5 Q.1902 Q.1970 Q.1990,
  * calling SDP dissector for RFC2327 decoding.
- * $Id: packet-isup.c,v 1.33 2003/10/10 10:04:19 guy Exp $
+ * $Id: packet-isup.c,v 1.34 2003/10/14 17:50:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -5392,7 +5392,7 @@ dissect_isup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 /* Make entries in Protocol column and Info column on summary display */
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "ISUP");
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "ISUP (ITU)");
 
 /* Extract message type field */
 	message_type = tvb_get_guint8(tvb, CIC_OFFSET + CIC_LENGTH);
