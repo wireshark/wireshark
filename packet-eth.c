@@ -1,7 +1,7 @@
 /* packet-eth.c
  * Routines for ethernet packet disassembly
  *
- * $Id: packet-eth.c,v 1.26 2000/01/23 08:55:32 guy Exp $
+ * $Id: packet-eth.c,v 1.27 2000/01/24 01:15:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -95,10 +95,11 @@ capture_eth(const u_char *pd, int offset, packet_counts *ld)
     }
 
     /* Convert the LLC length from the 802.3 header to a total
-       length, by adding in the Ethernet header size, and set
-       the payload and captured-payload lengths to the minima
+       frame length, by adding in the size of any data that preceded
+       the Ethernet header, and adding in the Ethernet header size,
+       and set the payload and captured-payload lengths to the minima
        of the total length and the frame lengths. */
-    length += ETH_HEADER_SIZE;
+    length += offset + ETH_HEADER_SIZE;
     if (pi.len > length)
       pi.len = length;
     if (pi.captured_len > length)
@@ -122,7 +123,8 @@ capture_eth(const u_char *pd, int offset, packet_counts *ld)
 }
 
 void
-dissect_eth(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
+dissect_eth(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
+{
   guint16    etype, length;
   proto_tree *fh_tree = NULL;
   proto_item *ti;
@@ -177,10 +179,11 @@ dissect_eth(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     }
 
     /* Convert the LLC length from the 802.3 header to a total
-       length, by adding in the Ethernet header size, and set
-       the payload and captured-payload lengths to the minima
+       frame length, by adding in the size of any data that preceded
+       the Ethernet header, and adding in the Ethernet header size,
+       and set the payload and captured-payload lengths to the minima
        of the total length and the frame lengths. */
-    length += ETH_HEADER_SIZE;
+    length += offset + ETH_HEADER_SIZE;
     if (pi.len > length)
       pi.len = length;
     if (pi.captured_len > length)
