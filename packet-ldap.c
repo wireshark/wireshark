@@ -3,7 +3,7 @@
  *
  * See RFC 1777 (LDAP v2), RFC 2251 (LDAP v3), and RFC 2222 (SASL).
  *
- * $Id: packet-ldap.c,v 1.60 2003/07/18 06:12:43 guy Exp $
+ * $Id: packet-ldap.c,v 1.61 2003/07/30 08:08:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1159,7 +1159,7 @@ static void dissect_ldap_request_search(ASN1_SCK *a, proto_tree *tree, packet_in
     return;
 
   if (check_col(pinfo->cinfo, COL_INFO))
-	  col_append_fstr(pinfo->cinfo, COL_INFO, ", Base DN=%s", s);
+    col_append_fstr(pinfo->cinfo, COL_INFO, ", Base DN=%s", s != NULL ? s : "(null)");
   g_free(s);
 
   if (read_integer(a, tree, hf_ldap_message_search_scope, 0, 0, ASN1_ENUM) != ASN1_ERR_NOERROR)
@@ -1264,7 +1264,7 @@ static void dissect_ldap_request_add(ASN1_SCK *a, proto_tree *tree, packet_info 
     return;
 
   if (check_col(pinfo->cinfo, COL_INFO))
-	  col_append_fstr(pinfo->cinfo, COL_INFO, ", DN=%s", s);
+    col_append_fstr(pinfo->cinfo, COL_INFO, ", DN=%s", s != NULL ? s : "(null)");
   g_free(s);  
 
   ret = read_sequence(a, &seq_length);
