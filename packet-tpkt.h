@@ -5,7 +5,7 @@
  * Copyright 2000, Philips Electronics N.V.
  * Andreas Sikkema <andreas.sikkema@philips.com>
  *
- * $Id: packet-tpkt.h,v 1.7 2002/02/23 02:30:15 guy Exp $
+ * $Id: packet-tpkt.h,v 1.8 2002/05/13 21:18:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -30,8 +30,12 @@
  * Check whether this could be a TPKT-encapsulated PDU.
  * Returns -1 if it's not, and the PDU length from the TPKT header
  * if it is.
+ *
+ * "min_len" is the minimum length of the PDU; the length field in the
+ * TPKT header must be at least "4+min_len" in order for this to be a
+ * valid TPKT PDU for the protocol in question.
  */
-extern int is_tpkt(tvbuff_t *tvb);
+extern int is_tpkt(tvbuff_t *tvb, int min_len);
 
 /*
  * Dissect TPKT-encapsulated data in a TCP stream.

@@ -2,7 +2,7 @@
  * Routines for Q.931 frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-q931.c,v 1.42 2002/03/25 20:23:17 guy Exp $
+ * $Id: packet-q931.c,v 1.43 2002/05/13 21:18:25 guy Exp $
  *
  * Modified by Andreas Sikkema for possible use with H.323
  *
@@ -2503,8 +2503,13 @@ dissect_q931_tpkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/*
 	 * Check whether this looks like a TPKT-encapsulated
 	 * Q.931 packet.
+	 *
+	 * The minimum length of a Q.931 message is 3:
+	 * 1 byte for the protocol discriminator,
+	 * 1 for the call_reference length,
+	 * and one for the message type.
 	 */
-	lv_tpkt_len = is_tpkt(tvb);
+	lv_tpkt_len = is_tpkt(tvb, 3);
 	if (lv_tpkt_len == -1) {
 		/*
 		 * It's not a TPKT packet; reject it.
@@ -2533,22 +2538,15 @@ dissect_q931_tpkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * check whether it looks like the beginning of a
 	 * Q.931 message.
 	 *
-	 * The minimum length of a Q.931 message is 3:
-	 * 1 byte for the protocol discriminator,
-	 * 1 for the call_reference length,
-	 * and one for the message type.
+	 * The minimum length of a Q.931 message is 3, as per the
+	 * above.
 	 *
-	 * Check that we have that many bytes past the
-	 * TPKT header.
+	 * Check that we have that many bytes past the TPKT header in
+	 * the tvbuff; we already know that the TPKT header says we
+	 * have that many bytes (as we passed 3 as the "min_len" argument
+	 * to "is_tpkt()").
 	 */
 	if (!tvb_bytes_exist(tvb, 4, 3))
-		return FALSE;
-
-	/*
-	 * And check that we have that many bytes in the TPKT
-	 * packet.
-	 */
-	if (lv_tpkt_len < 3)
 		return FALSE;
 
 	/* Check the protocol discriminator */

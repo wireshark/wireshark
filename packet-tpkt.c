@@ -7,7 +7,7 @@
  * Routine to dissect RFC 1006 TPKT packet containing OSI TP PDU
  * Copyright 2001, Martin Thomas <Martin_A_Thomas@yahoo.com>
  *
- * $Id: packet-tpkt.c,v 1.18 2002/03/25 20:17:09 guy Exp $
+ * $Id: packet-tpkt.c,v 1.19 2002/05/13 21:18:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -71,10 +71,16 @@ static dissector_handle_t osi_tp_handle;
  * Check whether this could be a TPKT-encapsulated PDU.
  * Returns -1 if it's not, and the PDU length from the TPKT header
  * if it is.
+ *
+ * "min_len" is the minimum length of the PDU; the length field in the
+ * TPKT header must be at least "4+min_len" in order for this to be a
+ * valid TPKT PDU for the protocol in question.
  */
 int
-is_tpkt(tvbuff_t *tvb)
+is_tpkt(tvbuff_t *tvb, int min_len)
 {
+	guint16 pkt_len;
+
 	/*
 	 * If TPKT is disabled, don't dissect it, just return -1, meaning
 	 * "this isn't TPKT".
@@ -92,12 +98,20 @@ is_tpkt(tvbuff_t *tvb)
 	 * always be the case....
 	 */
 	if (!(tvb_get_guint8(tvb, 0) == 3 && tvb_get_guint8(tvb, 1) == 0))
-		return -1;	/* They're not */
+		return -1;	/* they're not */
 
 	/*
-	 * Return the length from the TPKT header.
+	 * Get the length from the TPKT header.  Make sure it's large
+	 * enough.
 	 */
-	return tvb_get_ntohs(tvb, 2);
+	pkt_len = tvb_get_ntohs(tvb, 2);
+	if (pkt_len < 4 + min_len)
+		return -1;	/* it's not */
+
+	/*
+	 * Return the length from the header.
+	 */
+	return pkt_len;
 }
 
 /*
