@@ -3,7 +3,7 @@
  *
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-rsvp.c,v 1.41 2001/05/01 18:19:04 ashokn Exp $
+ * $Id: packet-rsvp.c,v 1.42 2001/05/01 18:33:06 ashokn Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -62,7 +62,6 @@
 #endif
 
 #include <glib.h>
-#include <arpa/inet.h>
 
 #ifdef NEED_SNPRINTF_H
 # include "snprintf.h"
