@@ -1,7 +1,7 @@
 /* packet-gryphon.c
  * Routines for Gryphon protocol packet disassembly
  *
- * $Id: packet-gryphon.c,v 1.1 1999/12/15 06:53:30 gram Exp $
+ * $Id: packet-gryphon.c,v 1.2 1999/12/26 22:37:39 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Steve Limkemann <stevelim@dgtech.com>
@@ -76,6 +76,12 @@ static gint ett_gryphon_pgm_list = -1;
 static gint ett_gryphon_pgm_status = -1;
 static gint ett_gryphon_pgm_options = -1;
 
+#define gryphon_LTX_desc          desc
+#define gryphon_LTX_dissector     dissector
+#define gryphon_LTX_filter_string filter_string
+#define gryphon_LTX_proto_init    proto_init
+#define gryphon_LTX_protocol      protocol
+#define gryphon_LTX_version       version
 
 void dissector(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {

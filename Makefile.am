@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.138 1999/12/22 20:12:38 guy Exp $
+# $Id: Makefile.am,v 1.139 1999/12/26 22:37:19 gerald Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -30,6 +30,15 @@ sysconf_DATA = manuf
 
 # Any POSIX-compatible YACC should honor the -p flag
 YFLAGS=-d -p dfilter_
+
+## use @LIBLTDL@ because some broken makes do not accept macros in targets
+## we can only do this because our LIBLTDL does not contain ${top_builddir}
+@LIBLTDL@: libtool libltdl/libtool libltdl/config.h \
+	$(srcdir)/libltdl/ltdl.c $(srcdir)/libltdl/ltdl.h
+	(cd libltdl; $(MAKE) `echo $(LIBLTDL) | sed 's,.*\.\./libltdl/,,g'`)
+# Without the following line, the check may fail if libltdl/libtool is
+# removed after libltdl is configured
+libltdl/libtool libltdl/config.h:
 
 DISSECTOR_SOURCES = \
 	packet-aarp.c  \
@@ -240,12 +249,18 @@ EXTRA_ethereal_SOURCES = \
 	inet_ntop.c
 
 ethereal_DEPENDENCIES = @SNPRINTF_O@ @STRERROR_O@ \
-@STRNCASECMP_O@ @MKSTEMP_O@ @INET_ATON_O@ @INET_PTON_O@ @INET_NTOP_O@\
-wiretap/libwiretap.a gtk/libui.a
+	@STRNCASECMP_O@ @MKSTEMP_O@ @INET_ATON_O@ @INET_PTON_O@ @INET_NTOP_O@\
+	wiretap/libwiretap.a gtk/libui.a \
+	@LIBLTDL@ \
+	plugins/gryphon/gryphon.la
 ethereal_LDADD = @SNPRINTF_O@ @STRERROR_O@ \
-@STRNCASECMP_O@ @MKSTEMP_O@ @INET_ATON_O@ @INET_PTON_O@ @INET_NTOP_O@\
-wiretap/libwiretap.a gtk/libui.a \
-@SNMP_A@
+	@STRNCASECMP_O@ @MKSTEMP_O@ @INET_ATON_O@ @INET_PTON_O@ @INET_NTOP_O@\
+	wiretap/libwiretap.a gtk/libui.a \
+	@SNMP_A@ \
+	@LIBLTDL@ "-dlopen" self \
+	"-dlopen" plugins/gryphon/gryphon.la
+ethereal_LDFLAGS = -export-dynamic
+
 
 #
 # Build "register.c", which contains a function "register_all_protocols()"
@@ -341,7 +356,7 @@ EXTRA_DIST = \
 dist-hook:
 	@rm -f $(distdir)/register.c
 
-SUBDIRS = wiretap gtk @ethereal_SUBDIRS@
+SUBDIRS = wiretap gtk plugins libltdl @ethereal_SUBDIRS@
 
 ethereal.1: ethereal doc/ethereal.pod.template
 	(cd doc ; \
@@ -349,3 +364,8 @@ ethereal.1: ethereal doc/ethereal.pod.template
 
 dfilter-scanner.c : dfilter-scanner.l
 	$(LEX) -Pdfilter_ -t $(srcdir)/dfilter-scanner.l > dfilter-scanner.c
+
+INCLUDES = -I$(srcdir)/libltdl
+
+libtool: $(LIBTOOL_DEPS)
+	$(SHELL) ./config.status --recheck

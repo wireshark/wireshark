@@ -1,7 +1,7 @@
 /* plugins_dlg.c
  * Dialog boxes for plugins
  *
- * $Id: plugins_dlg.c,v 1.3 1999/12/12 10:22:41 oabad Exp $
+ * $Id: plugins_dlg.c,v 1.4 1999/12/26 22:37:28 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -33,6 +33,7 @@
 #include <sys/types.h>
 #include <dirent.h>
 #include <stdlib.h>
+#include <string.h>
 #include <dlfcn.h>
 
 #include "globals.h"
@@ -154,6 +155,8 @@ tools_plugins_cmd_cb(GtkWidget *widget, gpointer data)
 	    GTK_SIGNAL_FUNC(plugins_close_cb), GTK_OBJECT(plugins_window));
 
     gtk_widget_show(plugins_window);
+
+    lt_dlinit();
 }
 
 /*
@@ -182,7 +185,7 @@ plugins_scan(GtkWidget *clist)
     while (pt_plug)
     {
 	plugent[0] = pt_plug->name;
-	plugent[1] = (gchar *)dlsym(pt_plug->handle, "desc");
+	plugent[1] = (gchar *)lt_dlsym(pt_plug->handle, "desc");
 	plugent[2] = pt_plug->version;
 	plugent[3] = (pt_plug->enabled ? "Yes" : "No");
 	gtk_clist_append(GTK_CLIST(clist), plugent);
@@ -196,14 +199,17 @@ plugins_scan_dir(const char *dirname)
     DIR           *dir;             /* scanned directory */
     struct dirent *file;            /* current file */
     gchar          filename[512];   /* current file name */
-    void          *handle;          /* handle returned by dlopen */
+    lt_dlhandle    handle;          /* handle returned by dlopen */
     gchar         *name;
     gchar         *version;
     gchar         *protocol;
     gchar         *filter_string;
+    gchar         *dot;
     dfilter       *filter = NULL;
     void         (*dissector) (const u_char *, int, frame_data *, proto_tree *);
     int            cr;
+
+#define LT_LIB_EXT ".la"
 
     if ((dir = opendir(dirname)) != NULL)
     {
@@ -212,21 +218,26 @@ plugins_scan_dir(const char *dirname)
 	    /* don't try to open "." and ".." */
 	    if (!(strcmp(file->d_name, "..") &&
 		  strcmp(file->d_name, "."))) continue;
+
+            /* skip anything but .la */
+            dot = strrchr(file->d_name, '.');
+            if (dot == NULL || ! strcmp(dot, LT_LIB_EXT)) continue;
+
 	    sprintf(filename, "%s/%s", dirname, file->d_name);
 
-	    if ((handle = dlopen(filename, RTLD_LAZY)) == NULL) continue;
+	    if ((handle = lt_dlopen(filename)) == NULL) continue;
 	    name = (gchar *)file->d_name;
-	    if ((version = (gchar *)dlsym(handle, "version")) == NULL)
+	    if ((version = (gchar *)lt_dlsym(handle, "version")) == NULL)
 	    {
 		dlclose(handle);
 		continue;
 	    }
-	    if ((protocol = (gchar *)dlsym(handle, "protocol")) == NULL)
+	    if ((protocol = (gchar *)lt_dlsym(handle, "protocol")) == NULL)
 	    {
 		dlclose(handle);
 		continue;
 	    }
-	    if ((filter_string = (gchar *)dlsym(handle, "filter_string")) == NULL)
+	    if ((filter_string = (gchar *)lt_dlsym(handle, "filter_string")) == NULL)
 	    {
 		dlclose(handle);
 		continue;
@@ -237,7 +248,7 @@ plugins_scan_dir(const char *dirname)
 	    }
 	    if ((dissector = (void (*)(const u_char *, int,
 				frame_data *,
-				proto_tree *)) dlsym(handle, "dissector")) == NULL)
+				proto_tree *)) lt_dlsym(handle, "dissector")) == NULL)
 	    {
 		if (filter != NULL)
 		    dfilter_destroy(filter);
@@ -301,7 +312,7 @@ plugins_enable_cb(GtkWidget *button, gpointer clist)
 	simple_dialog(ESD_TYPE_WARN, NULL, "Plugin not found");
 	return;
     }
-    proto_init = (void (*)())dlsym(pt_plug->handle, "proto_init");
+    proto_init = (void (*)())lt_dlsym(pt_plug->handle, "proto_init");
     if (proto_init)
 	proto_init();
 

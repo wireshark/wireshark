@@ -1,7 +1,7 @@
 /* plugins.h
  * definitions for plugins structures
  *
- * $Id: plugins.h,v 1.2 1999/12/09 20:55:36 oabad Exp $
+ * $Id: plugins.h,v 1.3 1999/12/26 22:37:19 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -26,16 +26,18 @@
 #ifndef __PLUGINS_H__
 #define __PLUGINS_H__
 
+#include "ltdl.h"
+
 typedef struct _plugin {
-    void    *handle;          /* handle returned by dlopen */
-    gchar   *name;            /* plugin name */
-    gchar   *version;         /* plugin version */
-    gboolean enabled;         /* is it active ? */
-    gchar   *protocol;        /* protocol which should call the dissector
-			       * for this plugin eg "tcp" */
-    gchar   *filter_string;   /* display filter string matching frames for
-			       * which the dissector should be used */
-    dfilter *filter;          /* compiled display filter */
+    lt_dlhandle  handle;          /* handle returned by dlopen */
+    gchar       *name;            /* plugin name */
+    gchar       *version;         /* plugin version */
+    gboolean     enabled;         /* is it active ? */
+    gchar       *protocol;        /* protocol which should call the dissector
+                                   * for this plugin eg "tcp" */
+    gchar       *filter_string;   /* display filter string matching frames for
+			           * which the dissector should be used */
+    dfilter     *filter;          /* compiled display filter */
     /* the dissector */
     void (*dissector) (const u_char *, int, frame_data *, proto_tree *);
     struct _plugin *next;     /* forward link */

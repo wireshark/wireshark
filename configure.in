@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.66 1999/12/22 17:19:04 gerald Exp $
+# $Id: configure.in,v 1.67 1999/12/26 22:37:19 gerald Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -273,7 +273,21 @@ AC_CHECK_FUNCS(getprotobynumber gethostbyname2)
 dnl blank for now, but will be used in future
 AC_SUBST(ethereal_SUBDIRS)
 
+dnl libtool defs
+AC_LIBLTDL_CONVENIENCE(libltdl)
+AC_LIBTOOL_DLOPEN
+AM_PROG_LIBTOOL
+AC_SUBST(LIBLTDL)
+AC_SUBST(LIBTOOL_DEPS)
+
 AM_CONFIG_HEADER(config.h)
-AC_CONFIG_SUBDIRS(wiretap)
-AC_OUTPUT(Makefile ethereal.spec doc/Makefile doc/dfilter2pod gtk/Makefile,
+AC_CONFIG_SUBDIRS(wiretap libltdl)
+AC_OUTPUT(
+  Makefile
+  ethereal.spec
+  doc/Makefile
+  doc/dfilter2pod
+  gtk/Makefile
+  plugins/Makefile
+  plugins/gryphon/Makefile,
 	[chmod +x doc/dfilter2pod])
