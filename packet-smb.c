@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.164 2001/11/21 02:01:03 guy Exp $
+ * $Id: packet-smb.c,v 1.165 2001/11/21 06:04:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -8860,6 +8860,12 @@ dissect_trans_data(tvbuff_t *s_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
 	}
 }
 
+/* This routine handles the following 4 calls
+   Transaction  0x25
+   Transaction Secondary 0x26
+   Transaction2 0x32
+   Transaction2 Secondary 0x33
+*/
 static int
 dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *smb_tree)
 {
@@ -8989,6 +8995,9 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		po = tvb_get_letohs(tvb, offset);
 		proto_tree_add_uint(tree, hf_smb_param_offset16, tvb, offset, 2, po);
 		offset += 2;
+
+		/* param displacement is zero here */
+		pd = 0;
 
 		/* data count */
 		dc = tvb_get_letohs(tvb, offset);
@@ -10844,7 +10853,7 @@ smb_function smb_dissector[256] = {
   /* 0x23 Query Info2*/  {dissect_fid, dissect_query_information2_response},
   /* 0x24 Locking And X*/  {dissect_locking_andx_request, dissect_locking_andx_response},
   /* 0x25 Transaction*/		{dissect_transaction_request, dissect_transaction_response},
-  /* 0x26 */  {dissect_unknown, dissect_unknown},
+  /* 0x26 Transaction Secondary */  {dissect_transaction_request, dissect_unknown}, /*This SMB has no response */
   /* 0x27 */  {dissect_unknown, dissect_unknown},
   /* 0x28 */  {dissect_unknown, dissect_unknown},
   /* 0x29 */  {dissect_unknown, dissect_unknown},
@@ -10858,7 +10867,7 @@ smb_function smb_dissector[256] = {
   /* 0x30 */  {dissect_unknown, dissect_unknown},
   /* 0x31 */  {dissect_unknown, dissect_unknown},
   /* 0x32 Transaction2*/		{dissect_transaction_request, dissect_transaction_response},
-  /* 0x33 */  {dissect_unknown, dissect_unknown},
+  /* 0x33 Transaction2 Secondary*/  {dissect_transaction_request, dissect_unknown}, /*This SMB has no response */
   /* 0x34 Find Close2*/  {dissect_sid, dissect_empty},
   /* 0x35 */  {dissect_unknown, dissect_unknown},
   /* 0x36 */  {dissect_unknown, dissect_unknown},
