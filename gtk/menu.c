@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.88 2003/04/22 04:02:49 guy Exp $
+ * $Id: menu.c,v 1.89 2003/04/22 04:49:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -633,17 +633,11 @@ set_menus_for_captured_packets(gboolean have_captured_packets)
       have_captured_packets);
   set_menu_sensitivity(main_menu_factory,
       "/Tools/Protocol Hierarchy Statistics", have_captured_packets);
-  set_menu_sensitivity(main_menu_factory, "/Display/Match",
-      have_captured_packets);
   set_menu_sensitivity(packet_list_menu_factory, "/Match",
-      have_captured_packets);
-  set_menu_sensitivity(tree_view_menu_factory, "/Match",
-      have_captured_packets);
-  set_menu_sensitivity(main_menu_factory, "/Display/Prepare",
       have_captured_packets);
   set_menu_sensitivity(packet_list_menu_factory, "/Prepare",
       have_captured_packets);
-  set_menu_sensitivity(tree_view_menu_factory, "/Prepare",
+  set_menu_sensitivity(main_menu_factory, "/Tools/Statistics",
       have_captured_packets);
 }
 
@@ -672,6 +666,8 @@ set_menus_for_selected_packet(gboolean have_selected_packet)
   set_menu_sensitivity(tree_view_menu_factory, "/Expand All",
       have_selected_packet);
   set_menu_sensitivity(main_menu_factory, "/Display/Show Packet In New Window",
+      have_selected_packet);
+  set_menu_sensitivity(packet_list_menu_factory, "/Show Packet In New Window",
       have_selected_packet);
   set_menu_sensitivity(main_menu_factory, "/Tools/Follow TCP Stream",
       have_selected_packet ? (cfile.edt->pi.ipproto == 6) : FALSE);
