@@ -1,10 +1,10 @@
 /* packet-quake.c
- * Routines for quake packet dissection
+ * Routines for Quake packet dissection
  *
  * Uwe Girlich <uwe@planetquake.com>
  *	http://www.idsoftware.com/q1source/q1source.zip
  *
- * $Id: packet-quake.c,v 1.15 2001/06/18 02:17:51 guy Exp $
+ * $Id: packet-quake.c,v 1.16 2001/06/21 15:13:42 girlich Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -42,6 +42,7 @@
 #include <glib.h>
 #include "packet.h"
 #include "conversation.h"
+#include "prefs.h"
 
 static int proto_quake = -1;
 static int hf_quake_header_flags = -1; 
@@ -84,6 +85,7 @@ static gint ett_quake_flags = -1;
 #define NETFLAG_LENGTH_MASK 0x0000ffff
 #define NET_HEADERSIZE 8
 #define DEFAULTnet_hostport 26000
+static unsigned int gbl_quakeServerPort=DEFAULTnet_hostport;
 
 #define NETFLAG_LENGTH_MASK     0x0000ffff
 #define NETFLAG_DATA            0x00010000
@@ -285,7 +287,7 @@ dissect_quake_CCREP_SERVER_INFO
 
 	offset = 0;
 
-	maxbufsize = MIN(sizeof(address), tvb_length_remaining(tvb, offset));
+	maxbufsize = MIN((int)sizeof(address), tvb_length_remaining(tvb, offset));
 	len = tvb_get_nstringz0(tvb, offset, maxbufsize, address);
 	if (tree) {
 		proto_tree_add_string(tree, hf_quake_CCREP_SERVER_INFO_address,
@@ -293,7 +295,7 @@ dissect_quake_CCREP_SERVER_INFO
 	}
 	offset += len + 1;
 
-	maxbufsize = MIN(sizeof(server), tvb_length_remaining(tvb, offset));
+	maxbufsize = MIN((int)sizeof(server), tvb_length_remaining(tvb, offset));
 	len = tvb_get_nstringz0(tvb, offset, maxbufsize, server);
 	if (tree) {
 		proto_tree_add_string(tree, hf_quake_CCREP_SERVER_INFO_server,
@@ -301,7 +303,7 @@ dissect_quake_CCREP_SERVER_INFO
 	}
 	offset += len + 1;
 	
-	maxbufsize = MIN(sizeof(map), tvb_length_remaining(tvb, offset));
+	maxbufsize = MIN((int)sizeof(map), tvb_length_remaining(tvb, offset));
 	len = tvb_get_nstringz0(tvb, offset, maxbufsize, map);
 	if (tree) {
 		proto_tree_add_string(tree, hf_quake_CCREP_SERVER_INFO_map,
@@ -349,7 +351,7 @@ dissect_quake_CCREP_PLAYER_INFO
 	}
 	offset += 1;
 	
-	maxbufsize = MIN(sizeof(name), tvb_length_remaining(tvb, offset));
+	maxbufsize = MIN((int)sizeof(name), tvb_length_remaining(tvb, offset));
 	len = tvb_get_nstringz0(tvb, offset, maxbufsize, name);
 	if (tree) {
 		proto_tree_add_string(tree, hf_quake_CCREP_PLAYER_INFO_name,
@@ -386,7 +388,7 @@ dissect_quake_CCREP_PLAYER_INFO
 	}
 	offset += 3*4;
 
-	maxbufsize = MIN(sizeof(address), tvb_length_remaining(tvb, offset));
+	maxbufsize = MIN((int)sizeof(address), tvb_length_remaining(tvb, offset));
 	len = tvb_get_nstringz0(tvb, offset, maxbufsize, address);
 	if (tree) {
 		proto_tree_add_string(tree, hf_quake_CCREP_PLAYER_INFO_address,
@@ -410,7 +412,7 @@ dissect_quake_CCREP_RULE_INFO
 
 	offset = 0;
 
-	maxbufsize = MIN(sizeof(rule), tvb_length_remaining(tvb, offset));
+	maxbufsize = MIN((int)sizeof(rule), tvb_length_remaining(tvb, offset));
 	len = tvb_get_nstringz0(tvb, offset, maxbufsize, rule);
 	if (tree) {
 		proto_tree_add_string(tree, hf_quake_CCREP_RULE_INFO_rule,
@@ -418,7 +420,7 @@ dissect_quake_CCREP_RULE_INFO
 	}
 	offset += len + 1;
 
-	maxbufsize = MIN(sizeof(value), tvb_length_remaining(tvb, offset));
+	maxbufsize = MIN((int)sizeof(value), tvb_length_remaining(tvb, offset));
 	len = tvb_get_nstringz0(tvb, offset, maxbufsize, value);
 	if (tree) {
 		proto_tree_add_string(tree, hf_quake_CCREP_RULE_INFO_value,
@@ -596,10 +598,30 @@ dissect_quake(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	dissect_data(next_tvb, 0, pinfo, quake_tree);
 }
 
+
+void
+proto_reg_handoff_quake(void)
+{
+	static int Initialized=FALSE;
+	static int ServerPort=0;
+ 
+	if (Initialized) {
+		dissector_delete("udp.port", ServerPort, dissect_quake);
+	} else {
+		Initialized=TRUE;
+	}
+ 
+	/* set port for future deletes */
+	ServerPort=gbl_quakeServerPort;
+ 
+	dissector_add("udp.port", gbl_quakeServerPort,
+                        dissect_quake, proto_quake);
+}
+
+
 void
 proto_register_quake(void)
 {
-
   static hf_register_info hf[] = {
     { &hf_quake_header_flags,
       { "Flags", "quake.header.flags",
@@ -706,22 +728,26 @@ proto_register_quake(void)
 	FT_STRING, BASE_DEC, NULL, 0x0,
 	"Rule Value", HFILL }},
   };
-  static gint *ett[] = {
-    &ett_quake,
-    &ett_quake_control,
-    &ett_quake_control_colors,
-    &ett_quake_flags,
-  };
+	static gint *ett[] = {
+		&ett_quake,
+		&ett_quake_control,
+		&ett_quake_control_colors,
+		&ett_quake_flags,
+	};
+	module_t *quake_module;
 
-  proto_quake = proto_register_protocol("Quake Network Protocol",
+	proto_quake = proto_register_protocol("Quake Network Protocol",
 					"QUAKE", "quake");
-  proto_register_field_array(proto_quake, hf, array_length(hf));
-  proto_register_subtree_array(ett, array_length(ett));
+	proto_register_field_array(proto_quake, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
+
+	/* Register a configuration option for port */
+	quake_module = prefs_register_protocol(proto_quake,
+		proto_reg_handoff_quake);
+	prefs_register_uint_preference(quake_module, "udp.port",
+					"Quake Server UDP Port",
+					"Set the UDP port for the Quake Server",
+					10, &gbl_quakeServerPort);
 }
 
 
-void
-proto_reg_handoff_quake(void)
-{
-  dissector_add("udp.port", DEFAULTnet_hostport, dissect_quake, proto_quake);
-}
