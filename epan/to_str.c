@@ -1,7 +1,7 @@
 /* to_str.c
  * Routines for utilities to convert various other types to strings.
  *
- * $Id: to_str.c,v 1.23 2003/01/21 05:04:07 guy Exp $
+ * $Id: to_str.c,v 1.24 2003/02/11 19:42:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -416,7 +416,7 @@ abs_time_to_str(nstime_t *abs_time)
 {
         struct tm *tmp;
         static gchar *cur;
-        static char str[3][3+1+2+2+4+1+2+1+2+1+2+1+6+1 + 5 /* extra */];
+        static char str[3][3+1+2+2+4+1+2+1+2+1+2+1+9+1];
 
         if (cur == &str[0][0]) {
                 cur = &str[1][0];
@@ -428,17 +428,45 @@ abs_time_to_str(nstime_t *abs_time)
 
         tmp = localtime(&abs_time->secs);
         if (tmp) {
-          sprintf(cur, "%s %2d, %d %02d:%02d:%02d.%09ld",
-                  mon_names[tmp->tm_mon],
-                  tmp->tm_mday,
-                  tmp->tm_year + 1900,
-                  tmp->tm_hour,
-                  tmp->tm_min,
-                  tmp->tm_sec,
-                  (long)abs_time->nsecs);
+		sprintf(cur, "%s %2d, %d %02d:%02d:%02d.%09ld",
+		    mon_names[tmp->tm_mon],
+		    tmp->tm_mday,
+		    tmp->tm_year + 1900,
+		    tmp->tm_hour,
+		    tmp->tm_min,
+		    tmp->tm_sec,
+		    (long)abs_time->nsecs);
+        } else
+		strncpy(cur, "Not representable", sizeof(str[0]));
+        return cur;
+}
+
+gchar *
+abs_time_secs_to_str(guint32 abs_time)
+{
+        struct tm *tmp;
+        static gchar *cur;
+        static char str[3][3+1+2+2+4+1+2+1+2+1+2+1];
+
+        if (cur == &str[0][0]) {
+                cur = &str[1][0];
+        } else if (cur == &str[1][0]) {
+                cur = &str[2][0];
         } else {
-          strncpy(cur, "Not representable", sizeof(str[0]));
+                cur = &str[0][0];
         }
+
+        tmp = localtime(&abs_time);
+        if (tmp) {
+		sprintf(cur, "%s %2d, %d %02d:%02d:%02d",
+		    mon_names[tmp->tm_mon],
+		    tmp->tm_mday,
+		    tmp->tm_year + 1900,
+		    tmp->tm_hour,
+		    tmp->tm_min,
+		    tmp->tm_sec);
+        } else
+		strncpy(cur, "Not representable", sizeof(str[0]));
         return cur;
 }
 
