@@ -272,7 +272,7 @@ sync_pipe_do_capture(capture_options *capture_opts, gboolean is_tempfile) {
       sprintf(ssnap,"%s",pcap_datalink_val_to_name(capture_opts->linktype));
 #else
       /* XXX - just treat it as a number */
-      sprintf(ssnap,"%d",capture_opts.linktype);
+      sprintf(ssnap,"%d",capture_opts->linktype);
 #endif
       argv = sync_pipe_add_arg(argv, &argc, ssnap);
     }
