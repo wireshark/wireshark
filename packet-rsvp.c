@@ -3,7 +3,7 @@
  *
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-rsvp.c,v 1.56 2002/03/01 21:39:01 ashokn Exp $
+ * $Id: packet-rsvp.c,v 1.57 2002/03/02 07:22:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2657,7 +2657,7 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 break;
 
 	    case RSVP_CLASS_ADMIN_STATUS: {
-		ulong status = 0;
+		guint32 status;
 		rsvp_object_tree = proto_item_add_subtree(ti, ett_rsvp_admin_status);
 		proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
 				    "Length: %u", obj_length);
@@ -2671,7 +2671,7 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					"C-type: 1");
 		    status = tvb_get_ntohl(tvb, offset2);
 		    ti2 = proto_tree_add_text(rsvp_object_tree, tvb, offset2, 4,
-					      "Admin Status: 0x%04lx", status);
+					      "Admin Status: 0x%08x", status);
 		    rsvp_admin_subtree = 
 			proto_item_add_subtree(ti2, ett_rsvp_admin_status_flags); 
 		    proto_tree_add_text(rsvp_admin_subtree, tvb, offset2, 1,
