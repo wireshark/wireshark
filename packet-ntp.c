@@ -2,7 +2,7 @@
  * Routines for NTP packet dissection
  * Copyright 1999, Nathan Neulinger <nneul@umr.edu>
  *
- * $Id: packet-ntp.c,v 1.2 1999/10/22 06:30:45 guy Exp $
+ * $Id: packet-ntp.c,v 1.3 1999/10/25 01:55:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -47,6 +47,49 @@
 #include "resolv.h"
 #include "packet-ntp.h"
 
+/*
+ * Dissecting NTP packets version 3 and 4 (RFC2030, RFC1769, RFC1361,
+ * RFC1305).
+ *
+ * Those packets have simple structure:
+ *                      1                   2                   3
+ *  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+ * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ * |LI | VN  |Mode |    Stratum    |     Poll      |   Precision   |
+ * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ * |                          Root Delay                           |
+ * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ * |                       Root Dispersion                         |
+ * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ * |                    Reference Identifier                       |
+ * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ * |                   Reference Timestamp (64)                    |
+ * |                                                               |
+ * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ * |                   Originate Timestamp (64)                    |
+ * |                                                               |
+ * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ * |                    Receive Timestamp (64)                     |
+ * |                                                               |
+ * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ * |                    Transmit Timestamp (64)                    |
+ * |                                                               |
+ * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ * |                 Key Identifier (optional) (32)                |
+ * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ * |                 Message Digest (optional) (128)               |
+ * |                                                               |
+ * |                                                               |
+ * |                                                               |
+ * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ * NTP timestamps are represented as a 64-bit unsigned fixed-point number,
+ * in seconds relative to 0h on 1 January 1900. The integer part is in the
+ * first 32 bits and the fraction part in the last 32 bits.
+ */
+
+ /* Leap indicator, 2bit field is used to warn of a inserted/deleted
+  * second, or to alarm loosed synchronization.
+  */
 static const value_string li_types[] = {
 	{ NTP_LI_NONE,	"no warning" },
 	{ NTP_LI_61,	"last minute has 61 seconds" },
@@ -55,6 +98,13 @@ static const value_string li_types[] = {
 	{ 0,		NULL}
 };
 
+/* Version info, 3bit field informs about NTP version used in particular
+ * packet. According to rfc2030, version info could be only 3 or 4, but I
+ * have noticed packets with 1 or even 6 as version numbers. They are
+ * produced as a result of ntptrace command. Are those packets mailformed
+ * on purpose? I don't know yet, probably some browsing through ntp sources
+ * would help. My solution is to put them as reserved for now.
+ */
 static const value_string ver_nums[] = {
 	{ NTP_VN_R0,	"reserved" },
 	{ NTP_VN_R1,	"reserved" },
@@ -67,6 +117,8 @@ static const value_string ver_nums[] = {
 	{ 0,		NULL}
 };
 
+/* Mode, 3bit field representing mode of comunication.
+ */
 static const value_string mode_types[] = {
 	{ NTP_MODE_RSV,		"reserved" },
 	{ NTP_MODE_SYMACT,	"symmetric active" },
@@ -79,6 +131,9 @@ static const value_string mode_types[] = {
 	{ 0,		NULL}
 };
 
+/* According to rfc, primary (stratum-0 and stratum-1) servers should set
+ * their Reference Clock ID (4bytes field) according to following table:
+ */
 static const struct {
 	char *id;
 	char *data;
@@ -126,6 +181,11 @@ static int hf_ntp_xmt = -1;
 static int hf_ntp_keyid = -1;
 static int hf_ntp_mac = -1;
 
+/* ntm_fmt_ts - converts NTP timestamp to human readable string.
+ * tsdata - 64bit timestamp (IN)
+ * buff - string buffer for result (OUT)
+ * returns pointer to filled buffer.
+ */
 char *
 ntp_fmt_ts(guint32 tsdata[2], char* buff)
 {
@@ -150,7 +210,12 @@ ntp_fmt_ts(guint32 tsdata[2], char* buff)
 	return buff;
 }
 		
-
+/* dissect_ntp - dissects NTP packet data
+ * pd - pointer to packet data (IN)
+ * offset - offset of NTP data in pd (IN)
+ * fd - frame data
+ * proto_tree - resolved protocol tree
+ */
 void
 dissect_ntp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
@@ -173,10 +238,12 @@ dissect_ntp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		col_add_str(fd, COL_INFO, "NTP");
 
 	if (tree) {
+		/* Adding NTP item and subtree */
 		ti = proto_tree_add_item(tree, proto_ntp, offset, END_OF_FRAME, NULL);
 		ntp_tree = proto_item_add_subtree(ti, ETT_NTP);
 		tf = proto_tree_add_item(ntp_tree, hf_ntp_flags, offset, 1, pkt->flags);
 
+		/* Adding flag subtree and items */
 		flags_tree = proto_item_add_subtree(tf, ETT_NTP_FLAGS);
 		proto_tree_add_item_format(flags_tree, hf_ntp_flags_li, offset, 1,
 					   *pkt->flags & NTP_LI_MASK,
@@ -191,6 +258,8 @@ dissect_ntp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 					   decode_enumerated_bitfield(*pkt->flags, NTP_MODE_MASK,
 				           sizeof(pkt->flags) * 8, mode_types, "Mode: %s"));
 
+		/* Stratum, 1byte field represents distance from primary source
+		 */
 		if (*pkt->stratum == 0) {
 			strcpy (buff, "Peer Clock Stratum: unspecified or unavailable (%d)");
 		} else if (*pkt->stratum == 1) {
@@ -202,22 +271,41 @@ dissect_ntp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		}
 		proto_tree_add_item_format(ntp_tree, hf_ntp_stratum, offset+1, 1, pkt->stratum,
 					   buff, (int) *pkt->stratum);
+		/* Poll interval, 1byte field indicating the maximum interval between
+		 * successive messages, in seconds to the nearest power of two.
+		 */
 		proto_tree_add_item_format(ntp_tree, hf_ntp_ppoll, offset+2, 1, pkt->ppoll,
 					   (((*pkt->ppoll >= 4) && (*pkt->ppoll <= 16)) ? 
 					   "Peer Pooling Interval: %d (%d sec)" :
 					   "Peer Pooling Interval: invalid (%d)"), (int) *pkt->ppoll,
 					   1 << *pkt->ppoll);
+		/* Precision, 1byte field indicating the precision of the
+		 * local clock, in seconds to the nearest power of two.
+		 */
 		proto_tree_add_item_format(ntp_tree, hf_ntp_precision, offset+3, 1, pkt->precision,
 					   "Peer Clock Precision: %8.6f sec", pow(2, *pkt->precision));
+		/* Root Delay is a 32-bit signed fixed-point number indicating the
+		 * total roundtrip delay to the primary reference source, in seconds
+		 * with fraction point between bits 15 and 16.
+		 */
 		proto_tree_add_item_format(ntp_tree, hf_ntp_rootdelay, offset+4, 4, pkt->rootdelay,
 					   "Root Delay: %9.4f sec",
 					   ((gint32) pntohs(pkt->rootdelay)) +
 					   pntohs(pkt->rootdelay + 2) / 65536.0);
+		/* Root Dispersion, 32-bit unsigned fixed-point number indicating
+		 * the nominal error relative to the primary reference source, in
+		 * seconds with fraction point between bits 15 and 16.
+		 */
 		proto_tree_add_item_format(ntp_tree, hf_ntp_rootdispersion, offset+8, 4, pkt->rootdispersion,
 					   "Clock Dispersion: %9.4f sec",
 					   ((gint32) pntohs(pkt->rootdispersion)) +
 					   pntohs(pkt->rootdispersion + 2) / 65536.0);
-
+		/* Now, there is a problem with secondary servers.  Standards asks
+		 * from stratum-2 - stratum-15 servers to set this to the low order
+		 * 32 bits of the latest transmit timestamp of the reference source.
+		 * But, all V3 and V4 servers set this to IP adress of their higher
+		 * level server. My decision was to resolve this address.
+		 */
 		if (*pkt->stratum <= 1) {
 			strcpy (buff, "unindentified reference source"); 
 			for (i = 0; primary_sources[i].id; i++)
@@ -226,19 +314,36 @@ dissect_ntp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		} else strcpy (buff, get_hostname (*((u_int *) pkt->refid)));
 		proto_tree_add_item_format(ntp_tree, hf_ntp_refid, offset+12, 4, pkt->refid,
 					   "Reference Clock ID: %s", buff);
+		/* Reference Timestamp: This is the time at which the local clock was
+		 * last set or corrected.
+		 */
 		proto_tree_add_item_format(ntp_tree, hf_ntp_reftime, offset+16, 8, pkt->reftime,
 				           "Reference Clock Update Time: %s", 
 					   ntp_fmt_ts((guint32 *) pkt->reftime, buff));
+		/* Originate Timestamp: This is the time at which the request departed
+		 * the client for the server.
+		 */
 		proto_tree_add_item_format(ntp_tree, hf_ntp_org, offset+24, 8, pkt->org,
 				           "Originate Time Stamp: %s", 
 					   ntp_fmt_ts((guint32 *) pkt->org, buff));
+		/* Receive Timestamp: This is the time at which the request arrived at
+		 * the server.
+		 */
 		proto_tree_add_item_format(ntp_tree, hf_ntp_rec, offset+32, 8, pkt->rec,
 				           "Receive Time Stamp: %s", 
 					   ntp_fmt_ts((guint32 *) pkt->rec, buff));
+		/* Transmit Timestamp: This is the time at which the reply departed the
+		 * server for the client.
+		 */
 		proto_tree_add_item_format(ntp_tree, hf_ntp_xmt, offset+40, 8, pkt->xmt,
 				           "Transmit Time Stamp: %s", 
 					   ntp_fmt_ts((guint32 *) pkt->xmt, buff));
 
+		/* When the NTP authentication scheme is implemented, the Key Identifier
+		 * and Message Digest fields contain the message authentication code
+		 * (MAC) information defined in Appendix C of RFC-1305. Will print this as
+		 * hex code for now.
+		 */
 		if ( BYTES_ARE_IN_FRAME(offset, 50) )
 			proto_tree_add_item(ntp_tree, hf_ntp_keyid, offset+48, 4, pkt->keyid);
 		if ( BYTES_ARE_IN_FRAME(offset, 53) )
