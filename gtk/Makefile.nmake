@@ -1,14 +1,13 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.57 2003/11/05 09:04:17 sahlberg Exp $
+# $Id: Makefile.nmake,v 1.58 2003/11/07 23:26:15 guy Exp $
 
 include ..\config.nmake
 
 ############### no need to modify below this line #########
 
 CFLAGS=-DHAVE_CONFIG_H /I.. /I../wiretap $(GTK_CFLAGS) \
-	/I$(ZLIB_DIR) \
 	/I$(PCAP_DIR)\WPCAP\LIBPCAP /I$(PCAP_DIR)\WPCAP\LIBPCAP\bpf \
 	/I$(PCAP_DIR)\WPCAP\LIBPCAP\lbl \
 	/I$(PCAP_DIR)\include /I$(NET_SNMP_DIR)\include \
