@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.75 1999/08/19 05:31:22 guy Exp $
+ * $Id: file.c,v 1.76 1999/08/20 06:55:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -557,7 +557,7 @@ wtap_dispatch_cb(u_char *user, const struct wtap_pkthdr *phdr, int offset,
   fdata->lnk_t = phdr->pkt_encap;
   fdata->abs_secs  = phdr->ts.tv_sec;
   fdata->abs_usecs = phdr->ts.tv_usec;
-  fdata->flags = phdr->flags;
+  fdata->pseudo_header = phdr->pseudo_header;
   fdata->cinfo = NULL;
 
   passed = TRUE;

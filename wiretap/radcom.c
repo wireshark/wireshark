@@ -248,7 +248,7 @@ static int radcom_read(wtap *wth, int *err)
 			*err = WTAP_ERR_SHORT_READ;
 		return -1;
 	}
-	wth->phdr.flags = (dce & 0x1) ? 0x00 : 0x80;
+	wth->phdr.pseudo_header.x25.flags = (dce & 0x1) ? 0x00 : 0x80;
 
 	fseek(wth->fh, 9, SEEK_CUR);
 

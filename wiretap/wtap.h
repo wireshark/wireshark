@@ -1,6 +1,6 @@
 /* wtap.h
  *
- * $Id: wtap.h,v 1.28 1999/08/20 04:49:18 gram Exp $
+ * $Id: wtap.h,v 1.29 1999/08/20 06:55:19 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -54,6 +54,7 @@
 #define WTAP_ENCAP_ATM_RFC1483			8
 #define WTAP_ENCAP_LINUX_ATM_CLIP		9
 #define WTAP_ENCAP_LAPB				10
+#define WTAP_ENCAP_ATM_SNIFFER			11
 
 /* last WTAP_ENCAP_ value + 1 */
 #define WTAP_NUM_ENCAP_TYPES			11
@@ -91,10 +92,6 @@
 typedef struct {
 	double	timeunit;
 	time_t	start;
-	guint16	pkt_len;
-	guint16	size;
-	guint16	true_size;
-	double	t;
 	int	is_atm;
 } ngsniffer_t;
 
@@ -128,12 +125,87 @@ typedef struct {
 	int	version_major;
 } netxray_t;
 
+/* Packet "pseudo-header" information for X.25 capture files. */
+struct x25_phdr {
+	guint8	flags; /* ENCAP_LAPB : 1st bit means From DCE */
+};
+
+/* Packet "pseudo-header" for ATM Sniffer capture files. */
+struct ngsniffer_atm_phdr {
+	guint8	AppTrafType;	/* traffic type */
+	guint8	AppHLType;	/* protocol type */
+	guint16	Vpi;		/* virtual path identifier */
+	guint16	Vci;		/* virtual circuit identifier */
+	guint16	channel;	/* link: 0 for DCE, 1 for DTE */
+	guint16	cells;		/* number of cells */
+	guint16	aal5t_u2u;	/* user-to-user indicator */
+	guint16	aal5t_len;	/* length of the packet */
+	guint32	aal5t_chksum;	/* checksum for AAL5 packet */
+};
+
+/*
+ * Bits in AppTrafType.
+ *
+ * For AAL types other than AAL5, the packet data is presumably for a
+ * single cell, not a reassembled frame, as the ATM Sniffer manual says
+ * it dosn't reassemble cells other than AAL5 cells.
+ */
+#define	ATT_AALTYPE		0x0F	/* AAL type: */
+#define	ATT_AAL_UNKNOWN		0x00	/* Unknown AAL */
+#define	ATT_AAL1		0x01	/* AAL1 */
+#define	ATT_AAL3_4		0x02	/* AAL3/4 */
+#define	ATT_AAL5		0x03	/* AAL5 */
+#define	ATT_AAL_USER		0x04	/* User AAL */
+#define	ATT_AAL_SIGNALLING	0x05	/* Signaling AAL */
+#define	ATT_OAMCELL		0x06	/* OAM cell */
+
+#define	ATT_HLTYPE		0xF0	/* Higher-layer type: */
+#define	ATT_HL_UNKNOWN		0x00	/* unknown */
+#define	ATT_HL_LLCMX		0x10	/* LLC multiplexed (probably RFC 1483) */
+#define	ATT_HL_VCMX		0x20	/* VC multiplexed (probably RFC 1483) */
+#define	ATT_HL_LANE		0x30	/* LAN Emulation */
+#define	ATT_HL_ILMI		0x40	/* ILMI */
+#define	ATT_HL_FRMR		0x50	/* Frame Relay */
+#define	ATT_HL_SPANS		0x60	/* FORE SPANS */
+#define	ATT_HL_IPSILON		0x70	/* Ipsilon */
+
+/*
+ * Values for AppHLType; the interpretation depends on the ATT_HLTYPE
+ * bits in AppTrafType.
+ */
+#define	AHLT_UNKNOWN		0x0
+#define	AHLT_VCMX_802_3_FCS	0x1	/* VCMX: 802.3 FCS */
+#define	AHLT_LANE_LE_CTRL	0x1	/* LANE: LE Ctrl */
+#define	AHLT_IPSILON_FT0	0x1	/* Ipsilon: Flow Type 0 */
+#define	AHLT_VCMX_802_4_FCS	0x2	/* VCMX: 802.4 FCS */
+#define	AHLT_LANE_802_3		0x2	/* LANE: 802.3 */
+#define	AHLT_IPSILON_FT1	0x2	/* Ipsilon: Flow Type 1 */
+#define	AHLT_VCMX_802_5_FCS	0x3	/* VCMX: 802.5 FCS */
+#define	AHLT_LANE_802_5		0x3	/* LANE: 802.5 */
+#define	AHLT_IPSILON_FT2	0x3	/* Ipsilon: Flow Type 2 */
+#define	AHLT_VCMX_FDDI_FCS	0x4	/* VCMX: FDDI FCS */
+#define	AHLT_LANE_802_3_MC	0x4	/* LANE: 802.3 multicast */
+#define	AHLT_VCMX_802_6_FCS	0x5	/* VCMX: 802.6 FCS */
+#define	AHLT_LANE_802_5_MC	0x5	/* LANE: 802.5 multicast */
+#define	AHLT_VCMX_802_3		0x7	/* VCMX: 802.3 */
+#define	AHLT_VCMX_802_4		0x8	/* VCMX: 802.4 */
+#define	AHLT_VCMX_802_5		0x9	/* VCMX: 802.5 */
+#define	AHLT_VCMX_FDDI		0xa	/* VCMX: FDDI */
+#define	AHLT_VCMX_802_6		0xb	/* VCMX: 802.6 */
+#define	AHLT_VCMX_FRAGMENTS	0xc	/* VCMX: Fragments */
+#define	AHLT_VCMX_BPDU		0xe	/* VCMX: BPDU */
+
+union pseudo_header {
+	struct x25_phdr x25;
+	struct ngsniffer_atm_phdr ngsniffer_atm;
+};
+
 struct wtap_pkthdr {
 	struct timeval ts;
 	guint32	caplen;
 	guint32 len;
 	int pkt_encap;
-	guint8	flags; /* ENCAP_LAPB : 1st bit means From DCE */
+	union pseudo_header pseudo_header;
 };
 
 typedef void (*wtap_handler)(u_char*, const struct wtap_pkthdr*,

@@ -1,6 +1,6 @@
 /* ngsniffer.c
  *
- * $Id: ngsniffer.c,v 1.15 1999/08/19 05:31:33 guy Exp $
+ * $Id: ngsniffer.c,v 1.16 1999/08/20 06:55:19 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -234,12 +234,6 @@ struct frame4_rec {
 	ATMSaveInfo atm_info;	/* ATM-specific stuff */
 };
 
-/*
- * Size of ATM LANE header - we have to strip it off as our caller expects
- * a MAC header at the beginning of the frame data.
- */
-#define	ATM_LANE_HEADER_LEN	2
-
 /* values for V.timeunit */
 #define NUM_NGSNIFF_TIMEUNITS 7
 static double Usec[] = { 15.0, 0.838096, 15.0, 0.5, 2.0, 0.0, 0.1 };
@@ -257,13 +251,10 @@ static int sniffer_encap[] = {
 		WTAP_ENCAP_LAPB,	/* Internetwork analyzer */
 		WTAP_ENCAP_NONE,	/* type 8 not defined in Sniffer */
 		WTAP_ENCAP_FDDI,
-		WTAP_ENCAP_NONE		/* ATM */
+		WTAP_ENCAP_ATM_SNIFFER	/* ATM */
 };
 
 static int ngsniffer_read(wtap *wth, int *err);
-
-static int get_atm_linktype(wtap *wth, int *err);
-static int linktype_for_packet(u_int app_traf_type, u_int app_hl_type);
 
 int ngsniffer_open(wtap *wth, int *err)
 {
@@ -358,6 +349,8 @@ int ngsniffer_open(wtap *wth, int *err)
 	wth->snapshot_length = 16384;	/* not available in header, only in frame */
 	wth->capture.ngsniffer->timeunit = Usec[version.timeunit];
 	wth->file_encap = sniffer_encap[version.network];
+	wth->capture.ngsniffer->is_atm =
+	    (wth->file_encap == WTAP_ENCAP_ATM_SNIFFER);
 
 	/* Get capture start time */
 	start_time = pletohs(&version.time);
@@ -390,237 +383,7 @@ int ngsniffer_open(wtap *wth, int *err)
 	 * isn't stored in the capture file.
 	 */
 
-	/*
-	 * Unless this is an ATM capture file, we won't have to read
-	 * any data records to figure out the network type; zero out
-	 * "pkt_len" to indicate that we've not read the first packet's
-	 * header.
-	 */
-	wth->capture.ngsniffer->pkt_len = 0;
-	wth->capture.ngsniffer->is_atm = 0;
-
-	if (version.network == NGSNIFF_ENCAP_ATM) {
-		/*
-		 * Gak.  There's no link-layer header; however, the
-		 * frame is probably the data that AAL5 handed up,
-		 * which contains RFC 1483 stuff or LANE stuff or SPANS
-		 * stuff or whatever, or, if the "frame" is just an
-		 * ATM cell, it's probably just the cell.
-		 *
-		 * I.e., there *is* no appropriate "link type".
-		 *
-		 * So what we do is scan forward, looking for the first
-		 * LANE or RFC 1483 LLC-multiplexed frame, use that to
-		 * determine the link type, and arrange to discard all
-		 * frames other than those of that type.  That denies
-		 * "libpcap" applications access to anything other
-		 * than that, but I *suspect* you don't get a mix of
-		 * RFC 1483 LLC-multiplexed and LANE traffic, and
-		 * the applications probably would have no idea how
-		 * to cope with raw cells or other types of frames
-		 * anyway; the only place you lose is with FORE
-		 * SPANS.
-		 *
-		 * XXX - eventually add a "Sniffer ATM encapsulation"
-		 * that returns the full data, including the ATM
-		 * pseudo-header.
-		 */
-		*err = WTAP_ERR_UNSUPPORTED;
-		wth->file_encap = get_atm_linktype(wth, err);
-		if (wth->file_encap == -1) {
-			/*
-			 * Oops, we couldn't find a link type we can
-			 * handle.
-			 */
-			free(wth->capture.ngsniffer);
-			g_message("ngsniffer: no LANE or RFC 1483 LLC-multiplexed frames found");
-			return -1;
-		}
-		wth->capture.ngsniffer->is_atm = 1;
-	}
 	return 1;
-}
-
-static int get_atm_linktype(wtap *wth, int *err)
-{
-	int	bytes_read;
-	char record_type[2];
-	char record_length[4]; /* only 1st 2 bytes are length */
-	guint16 type, length;
-	struct frame4_rec frame4;
-	int linktype;
-	guint16 time_low, time_med, time_high, true_size, size;
-
-	for (;;) {
-		/*
-		 * Read the record header.
-		 */
-		errno = WTAP_ERR_CANT_READ;
-		bytes_read = fread(record_type, 1, 2, wth->fh);
-		if (bytes_read != 2) {
-			/*
-			 * End of file or error.  Probably means there *are*
-			 * no LANE or RFC 1483 LLC-multiplexed frames,
-			 * which means we can't handle this in
-			 * "wiretap".  Return an error.
-			 */
-			if (ferror(wth->fh))
-				*err = errno;
-			else {
-				/*
-				 * If we read no bytes at all, treat
-				 * that as an EOF, not a short read;
-				 * "*err" got set initially to
-				 * WTAP_ERR_UNSUPPORTED, which is the
-				 * most appropriate error if we just
-				 * ran out of packets without seeing
-				 * any LANE or RFC 1483 LLC-multiplexed
-				 * frames.
-				 */
-				if (bytes_read != 0)
-					*err = WTAP_ERR_SHORT_READ;
-			}
-			return -1;
-		}
-		errno = WTAP_ERR_CANT_READ;
-		bytes_read = fread(record_length, 1, 4, wth->fh);
-		if (bytes_read != 4) {
-			if (ferror(wth->fh))
-				*err = errno;
-			else
-				*err = WTAP_ERR_SHORT_READ;
-			return -1;
-		}
-
-		type = pletohs(record_type);
-		length = pletohs(record_length);
-
-		if (type == REC_EOF) {
-			/*
-			 * End of file.  Probably means there *are*
-			 * no LANE or RFC 1483 LLC-multiplexed frames,
-			 * which means we can't handle this in
-			 * "wiretap".  "*err" got set initially to
-			 * WTAP_ERR_UNSUPPORTED, which is the most
-			 * appropriate error if we just ran out of
-			 * packets without seeing any LANE or RFC
-			 * 1483 LLC-multiplexed frames.
-			 */
-			return -1;
-		}
-
-		switch (type) {
-
-		case REC_FRAME2:
-			/*
-			 * Umm, we're not supposed to get these in an
-			 * ATM Sniffer file; return an error.
-			 */
-			g_message("ngsniffer: REC_FRAME2 record in an ATM Sniffer file");
-			*err = WTAP_ERR_BAD_RECORD;
-			return -1;
-
-		case REC_FRAME4:
-			/* Read the f_frame4_struct */
-			errno = WTAP_ERR_CANT_READ;
-			bytes_read = fread(&frame4, 1, sizeof frame4, wth->fh);
-			if (bytes_read != sizeof frame4) {
-				if (ferror(wth->fh))
-					*err = errno;
-				else
-					*err = WTAP_ERR_SHORT_READ;
-				return -1;
-			}
-			time_low = pletohs(&frame4.time_low);
-			time_med = pletohs(&frame4.time_med);
-			time_high = frame4.time_high;
-			size = pletohs(&frame4.size);
-			true_size = pletohs(&frame4.true_size);
-
-			length -= sizeof frame4;	/* we already read that much */
-
-			/*
-			 * Skip it if it's not an AAL5 frame.
-			 */
-			if ((frame4.atm_info.AppTrafType & ATT_AALTYPE)
-			    != ATT_AAL5)
-				break;
-
-			/*
-			 * OK, can we determine a network type from it?
-			 */
-			linktype = linktype_for_packet(
-			    frame4.atm_info.AppTrafType,
-			    frame4.atm_info.AppHLType);
-			if (linktype == -1) {
-				/*
-				 * Nope - keep looking.
-				 */
-				break;
-			}
-
-			/*
-			 * XXX - use the "time_day" field?  Is that for captures
-			 * that take a *really* long time?
-			 */
-			wth->capture.ngsniffer->t = (double)time_low+(double)(time_med)*65536.0 +
-			    (double)time_high*4294967296.0;
-
-			wth->capture.ngsniffer->true_size = true_size;
-			wth->capture.ngsniffer->size = size;
-			goto found;
-
-		default:
-			break;	/* unknown type, skip it */
-		}
-
-		/*
-		 * Well, we don't know what it is, or we know what
-		 * it is but can't handle it.  Skip past the data
-		 * portion, and keep looping.
-		 */
-		fseek(wth->fh, length, SEEK_CUR);
-	}
-
-found:
-	/*
-	 * Note that we've already read the header, so that we don't do
-	 * it in "ngsniffer_read()"; we've saved the stuff we need
-	 * from the header, so we use it instead - and we save the
-	 * length of the record, so we know how much to read.
-	 */
-	wth->capture.ngsniffer->pkt_len = length;
-	return (linktype);
-}
-
-static int linktype_for_packet(u_int app_traf_type, u_int app_hl_type)
-{
-	switch (app_traf_type & ATT_HLTYPE) {
-
-	case ATT_HL_LLCMX:
-		return (WTAP_ENCAP_ATM_RFC1483);
-
-	case ATT_HL_LANE:
-		/*
-		 * OK, is it 802.3, 802.5, or "none of the above"?
-		 */
-		switch (app_hl_type) {
-
-		case AHLT_LANE_802_3:
-		case AHLT_LANE_802_3_MC:
-			return (WTAP_ENCAP_ETHERNET);
-
-		case AHLT_LANE_802_5:
-		case AHLT_LANE_802_5_MC:
-			return (WTAP_ENCAP_TR);
-		}
-	}
-
-	/*
-	 * Keep looking until we find one of the above or run out of
-	 * capture file.
-	 */
-	return (-1);
 }
 
 /* Read the next packet */
@@ -636,20 +399,6 @@ static int ngsniffer_read(wtap *wth, int *err)
 	double t;
 	guint16 time_low, time_med, time_high, true_size, size;
 	int	data_offset;
-
-	/*
-	 * If we've already read the first packet's header, get the
-	 * information we saved from it, and skip ahead and read
-	 * the data.
-	 */
-	if (wth->capture.ngsniffer->pkt_len != 0) {
-		length = wth->capture.ngsniffer->pkt_len;
-		true_size = wth->capture.ngsniffer->true_size;
-		size = wth->capture.ngsniffer->size;
-		t = wth->capture.ngsniffer->t;
-		wth->capture.ngsniffer->pkt_len = 0;	/* won't have read header for next packet */
-		goto found;
-	}
 
 	for (;;) {
 		/*
@@ -684,6 +433,16 @@ static int ngsniffer_read(wtap *wth, int *err)
 		switch (type) {
 
 		case REC_FRAME2:
+			if (wth->capture.ngsniffer->is_atm) {
+				/*
+				 * We shouldn't get a frame2 record in
+				 * an ATM capture.
+				 */
+				g_message("ngsniffer: REC_FRAME2 record in an ATM Sniffer file");
+				*err = WTAP_ERR_BAD_RECORD;
+				return -1;
+			}
+
 			/* Read the f_frame2_struct */
 			errno = WTAP_ERR_CANT_READ;
 			bytes_read = fread(&frame2, 1, sizeof frame2, wth->fh);
@@ -705,11 +464,21 @@ static int ngsniffer_read(wtap *wth, int *err)
 			t = (double)time_low+(double)(time_med)*65536.0 +
 			    (double)time_high*4294967296.0;
 
-			wth->phdr.flags = frame2.fs & 0x80;
+			wth->phdr.pseudo_header.x25.flags = frame2.fs & 0x80;
 
 			goto found;
 
 		case REC_FRAME4:
+			if (!wth->capture.ngsniffer->is_atm) {
+				/*
+				 * We shouldn't get a frame2 record in
+				 * a non-ATM capture.
+				 */
+				g_message("ngsniffer: REC_FRAME4 record in a non-ATM Sniffer file");
+				*err = WTAP_ERR_BAD_RECORD;
+				return -1;
+			}
+
 			/* Read the f_frame4_struct */
 			errno = WTAP_ERR_CANT_READ;
 			bytes_read = fread(&frame4, 1, sizeof frame4, wth->fh);
@@ -729,29 +498,30 @@ static int ngsniffer_read(wtap *wth, int *err)
 			length -= sizeof frame4;	/* we already read that much */
 
 			/*
-			 * Skip it if it's not an AAL5 frame.
-			 */
-			if ((frame4.atm_info.AppTrafType & ATT_AALTYPE)
-			    != ATT_AAL5)
-				break;
-
-			/*
-			 * Skip it if it's not a frame of the type we're
-			 * handling.
-			 */
-			linktype = linktype_for_packet(
-			    frame4.atm_info.AppTrafType,
-			    frame4.atm_info.AppHLType);
-			if (wth->file_encap != linktype)
-				break;
-
-			/*
 			 * XXX - use the "time_day" field?  Is that for captures
 			 * that take a *really* long time?
 			 */
 			t = (double)time_low+(double)(time_med)*65536.0 +
 			    (double)time_high*4294967296.0;
 
+			wth->phdr.pseudo_header.ngsniffer_atm.AppTrafType =
+			    frame4.atm_info.AppTrafType;
+			wth->phdr.pseudo_header.ngsniffer_atm.AppHLType =
+			    frame4.atm_info.AppHLType;
+			wth->phdr.pseudo_header.ngsniffer_atm.Vpi =
+			    frame4.atm_info.Vpi;
+			wth->phdr.pseudo_header.ngsniffer_atm.Vci =
+			    frame4.atm_info.Vci;
+			wth->phdr.pseudo_header.ngsniffer_atm.channel =
+			    frame4.atm_info.channel;
+			wth->phdr.pseudo_header.ngsniffer_atm.cells =
+			    frame4.atm_info.cells;
+			wth->phdr.pseudo_header.ngsniffer_atm.aal5t_u2u =
+			    frame4.atm_info.Trailer.aal5t_u2u;
+			wth->phdr.pseudo_header.ngsniffer_atm.aal5t_len =
+			    frame4.atm_info.Trailer.aal5t_len;
+			wth->phdr.pseudo_header.ngsniffer_atm.aal5t_chksum =
+			    frame4.atm_info.Trailer.aal5t_chksum;
 			goto found;
 
 		case REC_EOF:
@@ -775,20 +545,6 @@ static int ngsniffer_read(wtap *wth, int *err)
 found:
 	wth->phdr.len = true_size ? true_size : size;
 	wth->phdr.caplen = size;
-
-	/*
-	 * For ATM LANE, skip the 2-byte LAN Emulation header.  That
-	 * leaves an Ethernet/802.3 header for Ethernet/802.3, and
-	 * leaves a pad byte and an 802.5 frame control byte for 802.5.
-	 */
-	if (wth->capture.ngsniffer->is_atm && wth->file_encap != WTAP_ENCAP_ATM_RFC1483) {
-		if (length <= ATM_LANE_HEADER_LEN)
-			return -1;
-		fseek(wth->fh, ATM_LANE_HEADER_LEN, SEEK_CUR);
-		wth->phdr.caplen -= ATM_LANE_HEADER_LEN;
-		wth->phdr.len -= ATM_LANE_HEADER_LEN;
-		length -= ATM_LANE_HEADER_LEN;
-	}
 
 	/*
 	 * Read the packet data.

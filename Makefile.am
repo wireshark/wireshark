@@ -37,6 +37,7 @@ ethereal_SOURCES = \
 	packet-aarp.c  \
 	packet-arp.c   \
 	packet-atalk.c \
+	packet-atm.c   \
 	packet-bootp.c \
 	packet-cdp.c   \
 	packet-clip.c  \

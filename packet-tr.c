@@ -2,7 +2,7 @@
  * Routines for Token-Ring packet disassembly
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-tr.c,v 1.19 1999/08/10 02:54:59 gram Exp $
+ * $Id: packet-tr.c,v 1.20 1999/08/20 06:55:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -111,7 +111,7 @@ static const value_string direction_vals[] = {
 };
 
 static void
-add_ring_bridge_pairs(int rcf_len, const u_char *pd, proto_tree *tree);
+add_ring_bridge_pairs(int rcf_len, const u_char *pd, int offset, proto_tree *tree);
 
 void
 capture_tr(const u_char *pd, guint32 cap_len, packet_counts *ld) {
@@ -204,11 +204,10 @@ capture_tr(const u_char *pd, guint32 cap_len, packet_counts *ld) {
 
 
 void
-dissect_tr(const u_char *pd, frame_data *fd, proto_tree *tree) {
+dissect_tr(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
 	proto_tree	*tr_tree, *bf_tree;
 	proto_item	*ti;
-	int			offset = 14;
 
 	int			source_routed = 0;
 	int			frame_type;
@@ -232,14 +231,14 @@ dissect_tr(const u_char *pd, frame_data *fd, proto_tree *tree) {
 	char *fc[] = { "MAC", "LLC", "Reserved", "Unknown" };
 
 	/* get the data */
-	memcpy(&trn_ac, &pd[0], sizeof(guint8));
-	memcpy(&trn_fc, &pd[1], sizeof(guint8));
-	memcpy(trn_dhost, &pd[2], 6 * sizeof(guint8));
-	memcpy(trn_shost, &pd[8], 6 * sizeof(guint8));
-	memcpy(&trn_rcf, &pd[14], sizeof(guint16));
-	memcpy(trn_rseg, &pd[16], 8 * sizeof(guint16));
+	memcpy(&trn_ac, &pd[offset+0], sizeof(guint8));
+	memcpy(&trn_fc, &pd[offset+1], sizeof(guint8));
+	memcpy(trn_dhost, &pd[offset+2], 6 * sizeof(guint8));
+	memcpy(trn_shost, &pd[offset+8], 6 * sizeof(guint8));
+	memcpy(&trn_rcf, &pd[offset+14], sizeof(guint16));
+	memcpy(trn_rseg, &pd[offset+16], 8 * sizeof(guint16));
 
-	memcpy(trn_shost_nonsr, &pd[8], 6 * sizeof(guint8));
+	memcpy(trn_shost_nonsr, &pd[offset+8], 6 * sizeof(guint8));
 	trn_shost_nonsr[0] &= 127;
 	frame_type = (trn_fc & 192) >> 6;
 
@@ -247,7 +246,7 @@ dissect_tr(const u_char *pd, frame_data *fd, proto_tree *tree) {
 		this packet is source-routed */
 	source_routed = trn_shost[0] & 128;
 
-	trn_rif_bytes = pd[14] & 31;
+	trn_rif_bytes = pd[offset+14] & 31;
 
 	/* sometimes we have a RCF but no RIF... half source-routed? */
 	/* I'll check for 2 bytes of RIF and the 0x70 byte */
@@ -263,18 +262,20 @@ dissect_tr(const u_char *pd, frame_data *fd, proto_tree *tree) {
 		 * my RIF fields.
 		 */
 		else if ( (
-			pd[0x0e + trn_rif_bytes] == 0xaa &&
-			pd[0x0f + trn_rif_bytes] == 0xaa &&
-			pd[0x10 + trn_rif_bytes] == 0x03) ||
+			pd[offset + 0x0e + trn_rif_bytes] == 0xaa &&
+			pd[offset + 0x0f + trn_rif_bytes] == 0xaa &&
+			pd[offset + 0x10 + trn_rif_bytes] == 0x03) ||
 			  (
-			pd[0x0e + trn_rif_bytes] == 0xe0 &&
-			pd[0x0f + trn_rif_bytes] == 0xe0) ) {
+			pd[offset + 0x0e + trn_rif_bytes] == 0xe0 &&
+			pd[offset + 0x0f + trn_rif_bytes] == 0xe0) ) {
 
 			source_routed = 1;
 		}
 /*		else {
-			printf("0e+%d = %02X   0f+%d = %02X\n", trn_rif_bytes, pd[0x0e + trn_rif_bytes],
-					trn_rif_bytes, pd[0x0f + trn_rif_bytes]);
+			printf("0e+%d = %02X   0f+%d = %02X\n", trn_rif_bytes,
+					pd[offset + 0x0e + trn_rif_bytes],
+					trn_rif_bytes,
+					pd[offset + 0x0f + trn_rif_bytes]);
 		} */
 
 	}
@@ -293,17 +294,20 @@ dissect_tr(const u_char *pd, frame_data *fd, proto_tree *tree) {
 	if ((source_routed && trn_rif_bytes == 2 && frame_type == 1) ||
 		(!source_routed && frame_type == 1)) {
 		/* look for SNAP or IPX only */
-		if ( (pd[0x20] == 0xaa && pd[0x21] == 0xaa && pd[0x22] == 03) ||
-			 (pd[0x20] == 0xe0 && pd[0x21] == 0xe0) ) {
+		if ( (pd[offset + 0x20] == 0xaa &&
+		      pd[offset + 0x21] == 0xaa &&
+		      pd[offset + 0x22] == 03)
+		 ||
+		     (pd[offset + 0x20] == 0xe0 &&
+		      pd[offset + 0x21] == 0xe0) ) {
 			actual_rif_bytes = 18;
 		}
 	}
-	offset += actual_rif_bytes;
-
 
 	/* information window */
 	if (check_col(fd, COL_RES_DL_DST))
-		col_add_str(fd, COL_RES_DL_DST, ether_to_str((guint8 *)&pd[2]));
+		col_add_str(fd, COL_RES_DL_DST,
+		  ether_to_str((guint8 *)&pd[offset + 2]));
 	if (check_col(fd, COL_RES_DL_SRC))
 		col_add_str(fd, COL_RES_DL_SRC, ether_to_str(trn_shost_nonsr));
 	if (check_col(fd, COL_PROTOCOL))
@@ -314,57 +318,58 @@ dissect_tr(const u_char *pd, frame_data *fd, proto_tree *tree) {
 	/* protocol analysis tree */
 	if (tree) {
 		/* Create Token-Ring Tree */
-		ti = proto_tree_add_item(tree, proto_tr, 0, 14 + actual_rif_bytes, NULL);
+		ti = proto_tree_add_item(tree, proto_tr, offset, 14 + actual_rif_bytes, NULL);
 		tr_tree = proto_item_add_subtree(ti, ETT_TOKEN_RING);
 
 		/* Create the Access Control bitfield tree */
-		ti = proto_tree_add_item_format(tr_tree, hf_tr_ac, 0, 1, trn_ac,
+		ti = proto_tree_add_item_format(tr_tree, hf_tr_ac, offset, 1, trn_ac,
 			"Access Control (0x%02x)", trn_ac);
 		bf_tree = proto_item_add_subtree(ti, ETT_TOKEN_RING_AC);
 
-		proto_tree_add_item_format(bf_tree, hf_tr_priority, 0, 1, trn_ac & 0xe0,
+		proto_tree_add_item_format(bf_tree, hf_tr_priority, offset, 1, trn_ac & 0xe0,
 			decode_numeric_bitfield(trn_ac, 0xe0, 8, "Priority = %d"));
 
-		proto_tree_add_item_format(bf_tree, hf_tr_frame, 0, 1, trn_ac & 0x10,
+		proto_tree_add_item_format(bf_tree, hf_tr_frame, offset, 1, trn_ac & 0x10,
 			decode_enumerated_bitfield(trn_ac, 0x10, 8, ac_vals, "%s"));
 
-		proto_tree_add_item_format(bf_tree, hf_tr_monitor_cnt, 0, 1, trn_ac & 0x08,
+		proto_tree_add_item_format(bf_tree, hf_tr_monitor_cnt, offset, 1, trn_ac & 0x08,
 			decode_numeric_bitfield(trn_ac, 0x08, 8, "Monitor Count"));
 
-		proto_tree_add_item_format(bf_tree, hf_tr_priority_reservation, 0, 1, trn_ac & 0x07,
+		proto_tree_add_item_format(bf_tree, hf_tr_priority_reservation, offset, 1, trn_ac & 0x07,
 			decode_numeric_bitfield(trn_ac, 0x07, 8, "Priority Reservation = %d"));
 
 		/* Create the Frame Control bitfield tree */
-		ti = proto_tree_add_item_format(tr_tree, hf_tr_fc, 1, 1, trn_fc,
+		ti = proto_tree_add_item_format(tr_tree, hf_tr_fc, offset + 1, 1, trn_fc,
 			"Frame Control (0x%02x)", trn_fc);
 		bf_tree = proto_item_add_subtree(ti, ETT_TOKEN_RING_FC);
 
-		proto_tree_add_item_format(bf_tree, hf_tr_fc_type, 1, 1, trn_fc & 0xc0,
+		proto_tree_add_item_format(bf_tree, hf_tr_fc_type, offset + 1, 1, trn_fc & 0xc0,
 			decode_enumerated_bitfield(trn_fc, 0xc0, 8, frame_vals, "%s"));
 
-		proto_tree_add_item_format(bf_tree, hf_tr_fc_pcf, 1, 1, trn_fc & 0x0f,
+		proto_tree_add_item_format(bf_tree, hf_tr_fc_pcf, offset + 1, 1, trn_fc & 0x0f,
 			decode_enumerated_bitfield(trn_fc, 0x0f, 8, pcf_vals, "%s"));
 
-		proto_tree_add_item(tr_tree, hf_tr_dst, 2, 6, trn_dhost);
-		proto_tree_add_item(tr_tree, hf_tr_src, 8, 6, trn_shost);
-		proto_tree_add_item_hidden(tr_tree, hf_tr_sr, 8, 1, source_routed);
+		proto_tree_add_item(tr_tree, hf_tr_dst, offset + 2, 6, trn_dhost);
+		proto_tree_add_item(tr_tree, hf_tr_src, offset + 8, 6, trn_shost);
+		proto_tree_add_item_hidden(tr_tree, hf_tr_sr, offset + 8, 1, source_routed);
 
 		/* non-source-routed version of src addr */
-		proto_tree_add_item_hidden(tr_tree, hf_tr_src, 8, 6, trn_shost_nonsr);
+		proto_tree_add_item_hidden(tr_tree, hf_tr_src, offset + 8, 6, trn_shost_nonsr);
 
 		if (source_routed) {
 			/* RCF Byte 1 */
-			proto_tree_add_item(tr_tree, hf_tr_rif_bytes, 14, 1, trn_rif_bytes);
-			proto_tree_add_item(tr_tree, hf_tr_broadcast, 14, 1, pd[14] & 224);
+			proto_tree_add_item(tr_tree, hf_tr_rif_bytes, offset + 14, 1, trn_rif_bytes);
+			proto_tree_add_item(tr_tree, hf_tr_broadcast, offset + 14, 1, pd[offset + 14] & 224);
 
 			/* RCF Byte 2 */
-			proto_tree_add_item(tr_tree, hf_tr_max_frame_size, 15, 1, pd[15] & 112);
-			proto_tree_add_item(tr_tree, hf_tr_direction, 15, 1, pd[15] & 128);
+			proto_tree_add_item(tr_tree, hf_tr_max_frame_size, offset + 15, 1, pd[offset + 15] & 112);
+			proto_tree_add_item(tr_tree, hf_tr_direction, offset + 15, 1, pd[offset + 15] & 128);
 
 			/* if we have more than 2 bytes of RIF, then we have
 				ring/bridge pairs */
 			if (trn_rif_bytes > 2) {
-				add_ring_bridge_pairs(trn_rif_bytes, pd, tr_tree);
+				add_ring_bridge_pairs(trn_rif_bytes,
+					pd + offset, offset, tr_tree);
 			}
 		}
 
@@ -383,6 +388,8 @@ dissect_tr(const u_char *pd, frame_data *fd, proto_tree *tree) {
 				"is also running a protocol stack.");
 		}
 	}
+	offset += 14 + actual_rif_bytes;
+
 	/* The package is either MAC or LLC */
 	switch (frame_type) {
 		/* MAC */
@@ -400,9 +407,9 @@ dissect_tr(const u_char *pd, frame_data *fd, proto_tree *tree) {
 }
 
 /* this routine is taken from the Linux net/802/tr.c code, which shows
-ring-bridge paires in the /proc/net/tr_rif virtual file. */
+ring-bridge pairs in the /proc/net/tr_rif virtual file. */
 static void
-add_ring_bridge_pairs(int rcf_len, const u_char *pd, proto_tree *tree)
+add_ring_bridge_pairs(int rcf_len, const u_char *pd, int offset, proto_tree *tree)
 {
 	int 	j, size;
 	int 	segment, brdgnmb;
@@ -413,19 +420,19 @@ add_ring_bridge_pairs(int rcf_len, const u_char *pd, proto_tree *tree)
 
 	for(j = 1; j < rcf_len - 1; j += 2) {
 		if (j==1) {
-			segment=pntohs(&pd[16]) >> 4;
+			segment=pntohs(&pd[offset + 16]) >> 4;
 			size = sprintf(buffer, "%03X",segment);
-			proto_tree_add_item_hidden(tree, hf_tr_rif_ring, 16, 2, segment);
+			proto_tree_add_item_hidden(tree, hf_tr_rif_ring, offset + 16, 2, segment);
 			buff_offset += size;
 		}
-		segment=pntohs(&pd[17+j]) >> 4;
-		brdgnmb=pd[16+j] & 0x0f;
+		segment=pntohs(&pd[offset+17+j]) >> 4;
+		brdgnmb=pd[offset+16+j] & 0x0f;
 		size = sprintf(buffer+buff_offset, "-%01X-%03X",brdgnmb,segment);
-		proto_tree_add_item_hidden(tree, hf_tr_rif_ring, 17+j, 2, segment);
-		proto_tree_add_item_hidden(tree, hf_tr_rif_bridge, 16+j, 1, brdgnmb);
+		proto_tree_add_item_hidden(tree, hf_tr_rif_ring, offset+17+j, 2, segment);
+		proto_tree_add_item_hidden(tree, hf_tr_rif_bridge, offset+16+j, 1, brdgnmb);
 		buff_offset += size;	
 	}
-	proto_tree_add_item(tree, hf_tr_rif, 16, rcf_len, buffer);
+	proto_tree_add_item(tree, hf_tr_rif, offset+16, rcf_len, buffer);
 }
 
 void

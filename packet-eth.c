@@ -1,7 +1,7 @@
 /* packet-eth.c
  * Routines for ethernet packet disassembly
  *
- * $Id: packet-eth.c,v 1.15 1999/08/18 00:57:50 guy Exp $
+ * $Id: packet-eth.c,v 1.16 1999/08/20 06:55:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -104,27 +104,26 @@ capture_eth(const u_char *pd, guint32 cap_len, packet_counts *ld) {
 }
 
 void
-dissect_eth(const u_char *pd, frame_data *fd, proto_tree *tree) {
+dissect_eth(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   guint16    etype, length;
-  int        offset = ETH_HEADER_SIZE;
   proto_tree *fh_tree = NULL;
   proto_item *ti;
   int        ethhdr_type;	/* the type of ethernet frame */
 
   if (check_col(fd, COL_RES_DL_DST))
-    col_add_str(fd, COL_RES_DL_DST, get_ether_name((u_char *)&pd[0]));
+    col_add_str(fd, COL_RES_DL_DST, get_ether_name((u_char *)&pd[offset+0]));
   if (check_col(fd, COL_RES_DL_SRC))
-    col_add_str(fd, COL_RES_DL_SRC, get_ether_name((u_char *)&pd[6]));
+    col_add_str(fd, COL_RES_DL_SRC, get_ether_name((u_char *)&pd[offset+6]));
   if (check_col(fd, COL_UNRES_DL_DST))
-    col_add_str(fd, COL_UNRES_DL_DST, ether_to_str((u_char *)&pd[0]));
+    col_add_str(fd, COL_UNRES_DL_DST, ether_to_str((u_char *)&pd[offset+0]));
   if (check_col(fd, COL_UNRES_DL_SRC))
-    col_add_str(fd, COL_UNRES_DL_SRC, ether_to_str((u_char *)&pd[6]));
+    col_add_str(fd, COL_UNRES_DL_SRC, ether_to_str((u_char *)&pd[offset+6]));
   if (check_col(fd, COL_PROTOCOL))
     col_add_str(fd, COL_PROTOCOL, "N/A");
   if (check_col(fd, COL_INFO))
     col_add_str(fd, COL_INFO, "Ethernet II");
 
-  etype = (pd[12] << 8) | pd[13];
+  etype = (pd[offset+12] << 8) | pd[offset+13];
 
 	/* either ethernet802.3 or ethernet802.2 */
   if (etype <= IEEE_802_3_MAX_LEN) {
@@ -136,7 +135,7 @@ dissect_eth(const u_char *pd, frame_data *fd, proto_tree *tree) {
      (IPX/SPX is they only thing that can be contained inside a
      straight 802.3 packet). A non-0xffff value means that there's an
      802.2 layer inside the 802.3 layer */
-    if (pd[14] == 0xff && pd[15] == 0xff) {
+    if (pd[offset+14] == 0xff && pd[offset+15] == 0xff) {
       ethhdr_type = ETHERNET_802_3;
     }
     else {
@@ -152,8 +151,8 @@ dissect_eth(const u_char *pd, frame_data *fd, proto_tree *tree) {
 
 	fh_tree = proto_item_add_subtree(ti, ETT_IEEE8023);
 
-	proto_tree_add_item(fh_tree, hf_eth_dst, 0, 6, &pd[0]);
-	proto_tree_add_item(fh_tree, hf_eth_src, 6, 6, &pd[6]);
+	proto_tree_add_item(fh_tree, hf_eth_dst, 0, 6, &pd[offset+0]);
+	proto_tree_add_item(fh_tree, hf_eth_src, 6, 6, &pd[offset+6]);
 	proto_tree_add_item(fh_tree, hf_eth_len, 12, 2, length);
 
 	/* Convert the LLC length from the 802.3 header to a total
@@ -176,15 +175,16 @@ dissect_eth(const u_char *pd, frame_data *fd, proto_tree *tree) {
 
 	fh_tree = proto_item_add_subtree(ti, ETT_ETHER2);
 
-	proto_tree_add_item_format(fh_tree, hf_eth_dst, 0, 6, &pd[0],
-		"Destination: %s (%s)", ether_to_str((guint8 *) &pd[0]),
-		get_ether_name((u_char *) &pd[0]));
+	proto_tree_add_item_format(fh_tree, hf_eth_dst, 0, 6, &pd[offset+0],
+		"Destination: %s (%s)", ether_to_str((guint8 *) &pd[offset+0]),
+		get_ether_name((u_char *) &pd[offset+0]));
 
-	proto_tree_add_item_format(fh_tree, hf_eth_src, 6, 6, &pd[6],
-		"Source: %s (%s)", ether_to_str((guint8 *) &pd[6]),
-		get_ether_name((u_char *) &pd[6]));
+	proto_tree_add_item_format(fh_tree, hf_eth_src, 6, 6, &pd[offset+6],
+		"Source: %s (%s)", ether_to_str((guint8 *) &pd[offset+6]),
+		get_ether_name((u_char *) &pd[offset+6]));
     }
   }
+  offset += ETH_HEADER_SIZE;
 
   switch (ethhdr_type) {
     case ETHERNET_802_3:

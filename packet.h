@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.85 1999/08/18 16:28:22 gram Exp $
+ * $Id: packet.h,v 1.86 1999/08/20 06:55:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -26,6 +26,10 @@
 
 #ifndef __PACKET_H__
 #define __PACKET_H__
+
+#ifndef __WTAP_H__
+#include "wiretap/wtap.h"
+#endif
 
 #ifndef __PROTO_H__
 #include "proto.h"
@@ -119,7 +123,7 @@ typedef struct _frame_data {
   gint         row;       /* Row number for this packet in the display */
   int          lnk_t;     /* Per-packet encapsulation/data-link type */
   gboolean     passed_dfilter; /* TRUE = display, FALSE = no display */
-  guint8       flags;     /* for ENCAP_LAPB : 1st bit means From DCE */
+  union pseudo_header pseudo_header; /* "pseudo-header" from wiretap */
 } frame_data;
 
 typedef struct _packet_info {
@@ -309,6 +313,11 @@ enum {
 	ETT_LAPB,
 	ETT_X25,
 	ETT_XDLC_CONTROL,
+	ETT_ATM,
+	ETT_ATM_LANE,
+	ETT_ATM_LANE_LC_FLAGS,
+	ETT_ATM_LANE_LC_LAN_DEST,
+	ETT_ATM_LANE_LC_LAN_DEST_RD,
 	NUM_TREE_TYPES	/* last item number plus one */
 };
 
@@ -375,14 +384,13 @@ void capture_ip(const u_char *, int, guint32, packet_counts *);
  * Routines should take three args: packet data *, frame_data *, tree *
  * They should never modify the packet data.
  */
+void dissect_atm(const u_char *, frame_data *, proto_tree *);
 void dissect_clip(const u_char *, frame_data *, proto_tree *);
-void dissect_eth(const u_char *, frame_data *, proto_tree *);
 void dissect_fddi(const u_char *, frame_data *, proto_tree *);
 void dissect_lapb(const u_char *, frame_data *, proto_tree *);
 void dissect_null(const u_char *, frame_data *, proto_tree *);
 void dissect_ppp(const u_char *, frame_data *, proto_tree *);
 void dissect_raw(const u_char *, frame_data *, proto_tree *);
-void dissect_tr(const u_char *, frame_data *, proto_tree *);
 
 /*
  * Routines in packet-*.c
@@ -400,6 +408,7 @@ void dissect_data(const u_char *, int, frame_data *, proto_tree *);
 void dissect_ddp(const u_char *, int, frame_data *, proto_tree *);
 void dissect_dns(const u_char *, int, frame_data *, proto_tree *);
 void dissect_esp(const u_char *, int, frame_data *, proto_tree *);
+void dissect_eth(const u_char *, int, frame_data *, proto_tree *);
 void dissect_ftp(const u_char *, int, frame_data *, proto_tree *);
 void dissect_ftpdata(const u_char *, int, frame_data *, proto_tree *);
 void dissect_giop(const u_char *, int, frame_data *, proto_tree *);
@@ -436,6 +445,7 @@ void dissect_snmp(const u_char *, int, frame_data *, proto_tree *);
 void dissect_tcp(const u_char *, int, frame_data *, proto_tree *);
 void dissect_telnet(const u_char *, int, frame_data *, proto_tree *);
 void dissect_tftp(const u_char *, int, frame_data *, proto_tree *);
+void dissect_tr(const u_char *, int, frame_data *, proto_tree *);
 void dissect_trmac(const u_char *, int, frame_data *, proto_tree *);
 void dissect_udp(const u_char *, int, frame_data *, proto_tree *);
 void dissect_vines(const u_char *, int, frame_data *, proto_tree *);

@@ -2,7 +2,7 @@
  * Routines for x25 packet disassembly
  * Olivier Abad <abad@daba.dhis.org>
  *
- * $Id: packet-x25.c,v 1.4 1999/08/05 02:26:21 guy Exp $
+ * $Id: packet-x25.c,v 1.5 1999/08/20 06:55:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1024,14 +1024,14 @@ dissect_x25(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
 	if(check_col(fd, COL_INFO))
 	    col_add_fstr(fd, COL_INFO, "%s VC:%d",
-		    (fd->flags & FROM_DCE) ? "Inc. call"
-		                           : "Call req." ,
+		    (fd->pseudo_header.x25.flags & FROM_DCE) ? "Inc. call"
+		                                             : "Call req." ,
                     vc);
 	if (x25_tree)
 	    proto_tree_add_item_format(x25_tree, hf_x25_type, localoffset+2, 1,
 		    "CALL",
-		    (fd->flags & FROM_DCE) ? "Incoming call"
-			                   : "Call request");
+		    (fd->pseudo_header.x25.flags & FROM_DCE) ? "Incoming call"
+			                                     : "Call request");
 	localoffset += 3;
 	x25_ntoa(x25_tree, &localoffset, &pd[localoffset], fd, toa);
 
@@ -1075,14 +1075,14 @@ dissect_x25(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
 	if(check_col(fd, COL_INFO))
 	    col_add_fstr(fd, COL_INFO, "%s VC:%d",
-		    (fd->flags & FROM_DCE) ? "Call conn."
-			                   : "Call acc." ,
+		    (fd->pseudo_header.x25.flags & FROM_DCE) ? "Call conn."
+			                                     : "Call acc." ,
 		    vc);
 	if (x25_tree)
 	    proto_tree_add_item_format(x25_tree, hf_x25_type, localoffset+2, 1,
 		    "CALL ACC",
-		    (fd->flags & FROM_DCE) ? "Call connected"
-		                           : "Call accepted");
+		    (fd->pseudo_header.x25.flags & FROM_DCE) ? "Call connected"
+		                                             : "Call accepted");
 	localoffset += 3;
 	x25_ntoa(x25_tree, &localoffset, &pd[localoffset], fd, toa);
 
@@ -1099,8 +1099,8 @@ dissect_x25(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
     case X25_CLEAR_REQUEST:
 	if(check_col(fd, COL_INFO)) {
 	    col_add_fstr(fd, COL_INFO, "%s VC:%d %s - %s",
-		    (fd->flags & FROM_DCE) ? "Clear ind."
-			                   : "Clear req." ,
+		    (fd->pseudo_header.x25.flags & FROM_DCE) ? "Clear ind."
+			                                     : "Clear req." ,
 		    vc, clear_code(pd[localoffset+3]),
 		    clear_diag(pd[localoffset+4]));
 	}
@@ -1108,8 +1108,8 @@ dissect_x25(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	if (x25_tree) {
 	    proto_tree_add_item_format(x25_tree, hf_x25_type, localoffset+2, 1,
 		    "CLEAR",
-		    (fd->flags & FROM_DCE) ? "Clear indication"
-		                           : "Clear request");
+		    (fd->pseudo_header.x25.flags & FROM_DCE) ? "Clear indication"
+		                                             : "Clear request");
 	    proto_tree_add_text(x25_tree, localoffset+3, 1,
 				"Cause : %s", clear_code(pd[localoffset+3]));
 	    proto_tree_add_text(x25_tree, localoffset+4, 1,
@@ -1167,8 +1167,8 @@ dissect_x25(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
     case X25_RESET_REQUEST:
 	if(check_col(fd, COL_INFO)) {
 	    col_add_fstr(fd, COL_INFO, "%s VC:%d %s - Diag.:%d",
-		    (fd->flags & FROM_DCE) ? "Reset ind."
-		                           : "Reset req.",
+		    (fd->pseudo_header.x25.flags & FROM_DCE) ? "Reset ind."
+		                                             : "Reset req.",
 		    vc, reset_code(pd[localoffset+3]),
 		    (int)pd[localoffset+4]);
 	}
@@ -1176,8 +1176,8 @@ dissect_x25(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	if (x25_tree) {
 	    proto_tree_add_item_format(x25_tree, hf_x25_type, localoffset+2, 1,
 		    "RESET",
-		    (fd->flags & FROM_DCE) ? "Reset indication"
-                                           : "Reset request");
+		    (fd->pseudo_header.x25.flags & FROM_DCE) ? "Reset indication"
+                                                             : "Reset request");
 	    proto_tree_add_text(x25_tree, localoffset+3, 1,
 				"Cause : %s", reset_code(pd[localoffset+3]));
 	    proto_tree_add_text(x25_tree, localoffset+4, 1,
@@ -1196,8 +1196,8 @@ dissect_x25(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
     case X25_RESTART_REQUEST:
 	if(check_col(fd, COL_INFO)) {
 	    col_add_fstr(fd, COL_INFO, "%s VC:%d %s - Diag.:%d",
-		    (fd->flags & FROM_DCE) ? "Restart ind."
-		                           : "Restart req.",
+		    (fd->pseudo_header.x25.flags & FROM_DCE) ? "Restart ind."
+		                                             : "Restart req.",
 		    vc, restart_code(pd[localoffset+3]),
 		    (int)pd[localoffset+4]);
 	}
@@ -1205,8 +1205,8 @@ dissect_x25(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	if (x25_tree) {
 	    proto_tree_add_item_format(x25_tree, hf_x25_type, localoffset+2, 1,
 		    "RESTART",
-		    (fd->flags & FROM_DCE) ? "Restart indication"
-		                           : "Restart request");
+		    (fd->pseudo_header.x25.flags & FROM_DCE) ? "Restart indication"
+		                                             : "Restart request");
 	    proto_tree_add_text(x25_tree, localoffset+3, 1,
 				"Cause : %s", restart_code(pd[localoffset+3]));
 	    proto_tree_add_text(x25_tree, localoffset+4, 1,

@@ -2,7 +2,7 @@
  * Routines for lapb frame disassembly
  * Olivier Abad <abad@daba.dhis.org>
  *
- * $Id: packet-lapb.c,v 1.3 1999/08/05 02:26:21 guy Exp $
+ * $Id: packet-lapb.c,v 1.4 1999/08/20 06:55:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -55,7 +55,7 @@ dissect_lapb(const u_char *pd, frame_data *fd, proto_tree *tree)
 
     if(check_col(fd, COL_RES_DL_SRC))
 	col_add_fstr(fd, COL_RES_DL_SRC, "0x%02X", pd[0]);
-    if (fd->flags & FROM_DCE) {
+    if (fd->pseudo_header.x25.flags & FROM_DCE) {
 	if(check_col(fd, COL_RES_DL_DST))
 	    col_add_str(fd, COL_RES_DL_DST, "DTE");
 	if(check_col(fd, COL_RES_DL_SRC))
@@ -68,8 +68,8 @@ dissect_lapb(const u_char *pd, frame_data *fd, proto_tree *tree)
 	    col_add_str(fd, COL_RES_DL_SRC, "DTE");
     }
 
-    if (((fd->flags & FROM_DCE) && pd[0] == 0x01) ||
-       (!(fd->flags & FROM_DCE) && pd[0] == 0x03))
+    if (((fd->pseudo_header.x25.flags & FROM_DCE) && pd[0] == 0x01) ||
+       (!(fd->pseudo_header.x25.flags & FROM_DCE) && pd[0] == 0x03))
 	is_response = TRUE;
     else
 	is_response = FALSE;
