@@ -32,6 +32,7 @@
 #endif
 
 #include <epan/packet.h>
+#include <epan/conversation.h>
 #include <etypes.h>
 
 static int proto_aoe;
@@ -52,8 +53,12 @@ static int hf_aoe_sector_count=-1;
 static int hf_aoe_acmd=-1;
 static int hf_aoe_astatus=-1;
 static int hf_aoe_lba=-1;
+static int hf_aoe_response_in=-1;
+static int hf_aoe_response_to=-1;
+static int hf_aoe_time=-1;
 
 static gint ett_aoe = -1; 
+static gint ett_aoe_flags = -1; 
 
 #define AOE_FLAGS_RESPONSE 0x08
 #define AOE_FLAGS_ERROR    0x04
@@ -169,11 +174,129 @@ static const value_string ata_cmd_vals[] = {
   { 0, NULL}
 };
 
-static void
-dissect_ata_pdu(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gboolean response)
+typedef struct ata_info_t {
+  guint32 tag;
+  void *conversation; /* just used to multiplex different conversations */
+  guint32 request_frame;
+  guint32 response_frame;
+  nstime_t req_time;
+  guint8 cmd;
+} ata_info_t;
+static GMemChunk *ata_info_chunk = NULL;
+static guint ata_info_chunk_count = 50;
+static GHashTable *ata_cmd_unmatched;
+static GHashTable *ata_cmd_matched;
+
+static guint
+ata_cmd_hash_matched(gconstpointer k)
 {
+  return (guint)k;
+}
+
+static gint
+ata_cmd_equal_matched(gconstpointer k1, gconstpointer k2)
+{
+  return k1==k2;
+}
+
+static guint
+ata_cmd_hash_unmatched(gconstpointer k)
+{
+  ata_info_t *key = (ata_info_t *)k;
+
+  return key->tag;
+}
+
+static gint
+ata_cmd_equal_unmatched(gconstpointer k1, gconstpointer k2)
+{
+  ata_info_t *key1 = (ata_info_t *)k1;
+  ata_info_t *key2 = (ata_info_t *)k2;
+
+  return (key1->tag==key2->tag)&&(key1->conversation==key2->conversation);
+}
+
+static void
+dissect_ata_pdu(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gboolean response, guint32 tag)
+{
+  proto_item *tmp_item;
   guint8 aflags;
   guint64 lba;
+  ata_info_t *ata_info=NULL;
+  conversation_t *conversation;
+
+  /* only create a conversation for ATA commands */
+  conversation = find_conversation(&pinfo->src, &pinfo->dst,
+                                   pinfo->ptype, pinfo->srcport,
+                                   pinfo->destport, 0);
+  if (conversation == NULL) {
+    /* We don't yet have a conversation, so create one. */
+    conversation = conversation_new(&pinfo->src, &pinfo->dst,
+                                    pinfo->ptype, pinfo->srcport,
+                                    pinfo->destport, 0);
+  }
+
+  if( !(pinfo->fd->flags.visited) ){
+    if(!response){
+      ata_info_t *tmp_ata_info;
+      /* first time we see this request so add a struct for request/response
+         matching */
+      ata_info=g_mem_chunk_alloc(ata_info_chunk);
+      ata_info->tag=tag;
+      ata_info->conversation=conversation;
+      ata_info->request_frame=pinfo->fd->num;
+      ata_info->response_frame=0;
+      ata_info->cmd=tvb_get_guint8(tvb, offset+3);
+      ata_info->req_time.secs=pinfo->fd->abs_secs;
+      ata_info->req_time.nsecs=pinfo->fd->abs_usecs*1000;
+
+      tmp_ata_info=g_hash_table_lookup(ata_cmd_unmatched, ata_info);
+      if(tmp_ata_info){
+        g_hash_table_remove(ata_cmd_unmatched, tmp_ata_info);
+      }
+      g_hash_table_insert(ata_cmd_unmatched, ata_info, ata_info);
+    } else {
+      ata_info_t tmp_ata_info;
+      /* first time we see this response so see if we can match it with
+         a request */
+      tmp_ata_info.tag=tag;
+      tmp_ata_info.conversation=conversation;
+      ata_info=g_hash_table_lookup(ata_cmd_unmatched, &tmp_ata_info);
+      /* woo hoo we could, so no need to store this in unmatched any more,
+         move both request and response to the matched table */
+      if(ata_info){
+        ata_info->response_frame=pinfo->fd->num;
+        g_hash_table_remove(ata_cmd_unmatched, ata_info);
+        g_hash_table_insert(ata_cmd_matched, (void *)ata_info->request_frame, ata_info);
+        g_hash_table_insert(ata_cmd_matched, (void *)ata_info->response_frame, ata_info);
+      }
+    }
+  } else {
+    ata_info=g_hash_table_lookup(ata_cmd_matched, (void *)pinfo->fd->num);
+  }
+
+  if(ata_info){
+    if(response){
+      if(ata_info->request_frame){
+	nstime_t ns;
+        tmp_item=proto_tree_add_uint(tree, hf_aoe_response_to, tvb, 0, 0, ata_info->request_frame);
+        PROTO_ITEM_SET_GENERATED(tmp_item);
+        ns.secs= pinfo->fd->abs_secs-ata_info->req_time.secs;
+        ns.nsecs=pinfo->fd->abs_usecs*1000-ata_info->req_time.nsecs;
+        if(ns.nsecs<0){
+          ns.nsecs+=1000000000;
+          ns.secs--;
+        }
+        tmp_item=proto_tree_add_time(tree, hf_aoe_time, tvb, offset, 0,	&ns);
+        PROTO_ITEM_SET_GENERATED(tmp_item);
+      }
+    } else {
+      if(ata_info->response_frame){
+        tmp_item=proto_tree_add_uint(tree, hf_aoe_response_in, tvb, 0, 0, ata_info->response_frame);
+        PROTO_ITEM_SET_GENERATED(tmp_item);
+      }
+    }
+  }
 
   /* aflags */
   aflags=tvb_get_guint8(tvb, offset);
@@ -203,6 +326,14 @@ dissect_ata_pdu(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset,
     }
   } else {
     proto_tree_add_item(tree, hf_aoe_astatus, tvb, offset, 1, FALSE);
+    if(ata_info && ata_info->request_frame){
+      /* we dont know what command it was unless we saw the request_frame */
+      tmp_item=proto_tree_add_uint(tree, hf_aoe_acmd, tvb, 0, 0, ata_info->cmd);
+      PROTO_ITEM_SET_GENERATED(tmp_item);
+      if (check_col(pinfo->cinfo, COL_INFO)) {
+        col_append_fstr(pinfo->cinfo, COL_INFO, " ATA:%s", val_to_str(ata_info->cmd, ata_cmd_vals, " Unknown ATA<0x%02x>"));
+      }
+    }
   }
   offset++;
 
@@ -218,11 +349,25 @@ static void
 dissect_aoe_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   guint8 flags, cmd;
+  guint32 tag;
+  proto_item *flags_item=NULL;
+  proto_tree *flags_tree=NULL;
 
   /* read and dissect the flags */
   flags=tvb_get_guint8(tvb, 0)&0x0f;
-  proto_tree_add_item(tree, hf_aoe_flags_response, tvb, 0, 1, FALSE);
-  proto_tree_add_item(tree, hf_aoe_flags_error, tvb, 0, 1, FALSE);
+  if(tree){
+    flags_item=proto_tree_add_text(tree, tvb, 0, 1, "Flags:");
+    flags_tree=proto_item_add_subtree(flags_item, ett_aoe_flags);
+  }
+  proto_tree_add_item(flags_tree, hf_aoe_flags_response, tvb, 0, 1, FALSE);
+  proto_tree_add_item(flags_tree, hf_aoe_flags_error, tvb, 0, 1, FALSE);
+  if(flags_item){
+    proto_item_append_text(flags_item,(flags&AOE_FLAGS_RESPONSE)?" Response":" Request");
+    if(flags&AOE_FLAGS_ERROR){
+      proto_item_append_text(flags_item, " Error");
+    }  
+  }  
+
 
   /* error */
   if(flags&AOE_FLAGS_ERROR){
@@ -244,11 +389,13 @@ dissect_aoe_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 
   /* tag */
+  tag=tvb_get_letohl(tvb, 6);
   proto_tree_add_item(tree, hf_aoe_tag, tvb, 6, 4, FALSE);
+
 
   switch(cmd){
   case AOE_CMD_ISSUE_ATA_COMMAND:
-    dissect_ata_pdu(pinfo, tree, tvb, 10, flags&AOE_FLAGS_RESPONSE);
+    dissect_ata_pdu(pinfo, tree, tvb, 10, flags&AOE_FLAGS_RESPONSE, tag);
     break;
   case AOE_CMD_QUERY_CONFIG_INFO:
     break;
@@ -280,6 +427,31 @@ dissect_aoe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
     dissect_aoe_v1(tvb, pinfo, tree);
     break;
   }
+}
+
+static void
+ata_init(void)
+{
+  if (ata_info_chunk != NULL){
+    g_mem_chunk_destroy(ata_info_chunk);
+    ata_info_chunk=NULL;
+  }
+  ata_info_chunk = g_mem_chunk_new("ata_info_chunk",
+		sizeof(ata_info_t),
+		ata_info_chunk_count * sizeof(ata_info_t),
+		G_ALLOC_ONLY);
+  if(ata_cmd_unmatched){
+    g_hash_table_destroy(ata_cmd_unmatched);
+    ata_cmd_unmatched=NULL;
+  }
+  ata_cmd_unmatched=g_hash_table_new(ata_cmd_hash_unmatched, ata_cmd_equal_unmatched);
+
+  if(ata_cmd_matched){
+    g_hash_table_destroy(ata_cmd_matched);
+    ata_cmd_matched=NULL;
+  }
+  ata_cmd_matched=g_hash_table_new(ata_cmd_hash_matched, ata_cmd_equal_matched);
+
 }
 
 void
@@ -331,10 +503,17 @@ proto_register_aoe(void)
       { "W", "aoe.aflags.w", FT_BOOLEAN, 8, TFS(&tfs_aflags_w), AOE_AFLAGS_W, "Is this a command writing data to the device or not", HFILL}},
     { &hf_aoe_lba,
       { "Lba", "aoe.lba", FT_UINT64, BASE_HEX, NULL, 0x00, "Lba address", HFILL}},
+    { &hf_aoe_response_in,
+      { "Response In", "aoe.response_in", FT_FRAMENUM, BASE_DEC, NULL, 0x0, "The response to this packet is in this frame", HFILL }},
+    { &hf_aoe_response_to,
+      { "Response To", "aoe.response_to", FT_FRAMENUM, BASE_DEC, NULL, 0x0, "This is a response to the ATA command in this frame", HFILL }},
+    { &hf_aoe_time, 
+      { "Time from request", "aoe.time", FT_RELATIVE_TIME, BASE_NONE, NULL, 0, "Time between Request and Reply for ATA calls", HFILL }},
   };
 
   static gint *ett[] = {
     &ett_aoe,
+    &ett_aoe_flags,
   };
   
   proto_aoe = proto_register_protocol("ATAoverEthernet", "AOE", "aoe");
@@ -342,6 +521,7 @@ proto_register_aoe(void)
   proto_register_subtree_array(ett, array_length(ett));
 
   register_dissector("aoe", dissect_aoe, proto_aoe);
+  register_init_routine(ata_init);
 }
 
 void
