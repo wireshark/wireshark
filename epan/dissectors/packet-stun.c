@@ -89,6 +89,7 @@ static int stun_att_error_reason = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_stun = -1;
+static gint ett_stun_att_type = -1;
 static gint ett_stun_att = -1;
 
 
@@ -141,10 +142,15 @@ dissect_stun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item *ti;
 	proto_item *ta;
 	proto_tree *stun_tree;
+	proto_tree *att_type_tree;
 	proto_tree *att_tree;
+	guint16 msg_type;
+	guint16 msg_length;
+	char *msg_type_str;
 	guint16 att_type;
 	guint16 att_length;
 	guint16 offset;
+	guint i;
 
 	/*
 	 * First check if the frame is really meant for us.
@@ -154,26 +160,21 @@ dissect_stun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (!tvb_bytes_exist(tvb, 0, STUN_HDR_LEN))
 		return 0;
 	
-	att_type = tvb_get_ntohs(tvb, 0);
+	msg_type = tvb_get_ntohs(tvb, 0);
 	
 	/* check if message type is correct */
-	if( 	(att_type != BINDING_REQUEST) &&
-		(att_type != BINDING_RESPONSE) &&
-		(att_type != BINDING_ERROR_RESPONSE) &&
-	    	(att_type != SHARED_SECRET_REQUEST) &&
-	    	(att_type != SHARED_SECRET_RESPONSE) &&
-	    	(att_type != SHARED_SECRET_ERROR_RESPONSE)
-	  )
+	msg_type_str = match_strval(msg_type, messages);
+	if (msg_type_str == NULL)
 		return 0;
 	
-	
-	att_length = tvb_get_ntohs(tvb, 2);
+	msg_length = tvb_get_ntohs(tvb, 2);
 	
 	/* check if payload enough */
-	if (!tvb_bytes_exist(tvb, 0, STUN_HDR_LEN+att_length))
+	if (!tvb_bytes_exist(tvb, 0, STUN_HDR_LEN+msg_length))
 		return 0;
 
-	if(tvb_bytes_exist(tvb, 0, STUN_HDR_LEN+att_length+1))
+	/* Check if too much payload */
+	if (tvb_bytes_exist(tvb, 0, STUN_HDR_LEN+msg_length+1))
 		return 0;
 
 	/* The message seems to be a valid STUN message! */
@@ -182,115 +183,106 @@ dissect_stun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "STUN");
     
 	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		
-		col_add_fstr(pinfo->cinfo, COL_INFO, "Message : %s",
-				(att_type==BINDING_REQUEST)?"Binding Request":
-				(att_type==BINDING_RESPONSE)?"Binding Response":
-				(att_type==BINDING_ERROR_RESPONSE)?"Binding Error Response":
-				(att_type==SHARED_SECRET_REQUEST)?"Shared Secret Request":
-				(att_type==SHARED_SECRET_RESPONSE)?"Shared Secret Response":
-				(att_type==SHARED_SECRET_ERROR_RESPONSE)?"Shared Secret Error Response":"UNKNOWN"
-			);
-			    
+		col_add_fstr(pinfo->cinfo, COL_INFO, "Message: %s",
+		    msg_type_str);
 	}
 
-
 	if (tree) {
-
-
 		ti = proto_tree_add_item(tree, proto_stun, tvb, 0, -1, FALSE);
 			    
 		stun_tree = proto_item_add_subtree(ti, ett_stun);
 
-
-
-
-		proto_tree_add_item(stun_tree, hf_stun_type, tvb, 0, 2, FALSE);
-		proto_tree_add_item(stun_tree, hf_stun_length, tvb, 2, 2, FALSE);
+		proto_tree_add_uint(stun_tree, hf_stun_type, tvb, 0, 2, msg_type);
+		proto_tree_add_uint(stun_tree, hf_stun_length, tvb, 2, 2, msg_length);
 		proto_tree_add_item(stun_tree, hf_stun_id, tvb, 4, 16, FALSE);
 
-		ta = proto_tree_add_item(stun_tree, hf_stun_att, tvb, STUN_HDR_LEN, -1, FALSE);
-		att_tree = proto_item_add_subtree(ta, ett_stun_att);
+		if (msg_length > 0) {
+		    ta = proto_tree_add_item(stun_tree, hf_stun_att, tvb, STUN_HDR_LEN, msg_length, FALSE);
+		    att_type_tree = proto_item_add_subtree(ta, ett_stun_att_type);
 
-		offset = STUN_HDR_LEN;
+		    offset = STUN_HDR_LEN;
 
-		while(1){
-			if( !tvb_bytes_exist(tvb, offset, ATTR_HDR_LEN) ) /* no data anymore */
-			    break;
-			    
+		    while( msg_length > 0) {
 			att_type = tvb_get_ntohs(tvb, offset); /* Type field in attribute header */
 			att_length = tvb_get_ntohs(tvb, offset+2); /* Length field in attribute header */
 			
+			ta = proto_tree_add_text(att_type_tree, tvb, offset,
+			    ATTR_HDR_LEN+att_length,
+			    "Attribute: %s",
+			    val_to_str(att_type, attributes, "Unknown (0x%04x)"));
+			att_tree = proto_item_add_subtree(ta, ett_stun_att);
 			
+			proto_tree_add_uint(att_tree, stun_att_type, tvb,
+			    offset, 2, att_type);
+			offset += 2;
+			if (ATTR_HDR_LEN+att_length > msg_length) {
+				proto_tree_add_uint_format(att_tree,
+				    stun_att_length, tvb, offset, 2,
+				    att_length,
+				    "Attribute Length: %u (bogus, goes past the end of the message)",
+				    att_length);
+				break;
+			}
+			proto_tree_add_uint(att_tree, stun_att_length, tvb,
+			    offset, 2, att_length);
+			offset += 2;
 			switch( att_type ){
 				case MAPPED_ADDRESS:
 				case RESPONSE_ADDRESS:
 				case SOURCE_ADDRESS:
 				case CHANGED_ADDRESS:
 				case REFLECTED_FROM:
-					proto_tree_add_item(att_tree, stun_att_type, tvb, offset, 2, FALSE);
-					proto_tree_add_item(att_tree, stun_att_length, tvb, offset+2, 2, FALSE);
-					proto_tree_add_item(att_tree, stun_att_family, tvb, offset+5, 1, FALSE);
-					proto_tree_add_item(att_tree, stun_att_port, tvb, offset+6, 2, FALSE);
-					proto_tree_add_item(att_tree, stun_att_ip, tvb, offset+8, 4, FALSE);
-
-					offset = offset+(ATTR_HDR_LEN+att_length);
-					
+					if (att_length < 2)
+						break;
+					proto_tree_add_item(att_tree, stun_att_family, tvb, offset+1, 1, FALSE);
+					if (att_length < 4)
+						break;
+					proto_tree_add_item(att_tree, stun_att_port, tvb, offset+2, 2, FALSE);
+					if (att_length < 8)
+						break;
+					proto_tree_add_item(att_tree, stun_att_ip, tvb, offset+4, 4, FALSE);
 					break;
 					
 				case CHANGE_REQUEST:
-					proto_tree_add_item(att_tree, stun_att_type, tvb, offset, 2, FALSE);
-					proto_tree_add_item(att_tree, stun_att_length, tvb, offset+2, 2, FALSE);
-					proto_tree_add_item(att_tree, stun_att_change_ip, tvb, offset+4, 4, FALSE);
-					proto_tree_add_item(att_tree, stun_att_change_port, tvb, offset+4, 4, FALSE);
-
-					offset = offset+(ATTR_HDR_LEN+att_length);
-					
+					if (att_length < 4)
+						break;
+					proto_tree_add_item(att_tree, stun_att_change_ip, tvb, offset, 4, FALSE);
+					proto_tree_add_item(att_tree, stun_att_change_port, tvb, offset, 4, FALSE);
 					break;					
 					
 				case USERNAME:
 				case PASSWORD:
 				case MESSAGE_INTEGRITY:
-					proto_tree_add_item(att_tree, stun_att_type, tvb, offset, 2, FALSE);
-					proto_tree_add_item(att_tree, stun_att_length, tvb, offset+2, 2, FALSE);
-					proto_tree_add_item(att_tree, stun_att_value, tvb, offset+4, att_length, FALSE);
-					
-					offset = offset+(ATTR_HDR_LEN+att_length);
-					
+					if (att_length < 1)
+						break;
+					proto_tree_add_item(att_tree, stun_att_value, tvb, offset, att_length, FALSE);
 					break;
 					
 				case ERROR_CODE:
-					proto_tree_add_item(att_tree, stun_att_type, tvb, offset, 2, FALSE);
-					proto_tree_add_item(att_tree, stun_att_length, tvb, offset+2, 2, FALSE);
-					
-					proto_tree_add_item(att_tree, stun_att_error_class, tvb, offset+6, 1, FALSE);
-					proto_tree_add_item(att_tree, stun_att_error_number, tvb, offset+7, 1, FALSE);
+					if (att_length < 3)
+						break;
+					proto_tree_add_item(att_tree, stun_att_error_class, tvb, offset+2, 1, FALSE);
+					if (att_length < 4)
+						break;
+					proto_tree_add_item(att_tree, stun_att_error_number, tvb, offset+3, 1, FALSE);
+					if (att_length < 5)
+						break;
 					proto_tree_add_item(att_tree, stun_att_error_reason, tvb, offset+8, (att_length-4), FALSE);
-					
-					offset = offset+(ATTR_HDR_LEN+att_length);
-					
-					break;				
-				
+					break;
 				
 				case UNKNOWN_ATTRIBUTES:
-					proto_tree_add_item(att_tree, stun_att_type, tvb, offset, 2, FALSE);
-					proto_tree_add_item(att_tree, stun_att_length, tvb, offset+2, 2, FALSE);
-
-					offset = offset + ATTR_HDR_LEN;
-					while(tvb_bytes_exist(tvb, offset, 4)){	/* UNKNOWN-ATTRIBUTES is 4 bytes aligned */
-						proto_tree_add_item(att_tree, stun_att_unknown, tvb, offset, 2, FALSE);
-						proto_tree_add_item(att_tree, stun_att_unknown, tvb, offset+2, 2, FALSE);
-						offset = offset + 4;
+					for (i = 0; i < att_length; i += 4) {
+						proto_tree_add_item(att_tree, stun_att_unknown, tvb, offset+i, 2, FALSE);
+						proto_tree_add_item(att_tree, stun_att_unknown, tvb, offset+i+2, 2, FALSE);
 					}
-							
 					break;
 					
 				default:
-					return tvb_length(tvb);
-				
+					break;
 			}
-			
+			offset += att_length;
+			msg_length -= ATTR_HDR_LEN+att_length;
+		    }
 		}
 	}
 	return tvb_length(tvb);
@@ -383,6 +375,7 @@ proto_register_stun(void)
 /* Setup protocol subtree array */
 	static gint *ett[] = {
 		&ett_stun,
+		&ett_stun_att_type,
 		&ett_stun_att,
 	};
 
@@ -393,6 +386,8 @@ proto_register_stun(void)
 /* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array(proto_stun, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+	new_register_dissector("stun", dissect_stun, proto_stun);
 }
 
 
@@ -401,7 +396,8 @@ proto_reg_handoff_stun(void)
 {
 	dissector_handle_t stun_handle;
 
-	stun_handle = new_create_dissector_handle(dissect_stun, proto_stun);
+	stun_handle = find_dissector("stun");
+
 	dissector_add("tcp.port", TCP_PORT_STUN, stun_handle);
 	dissector_add("udp.port", UDP_PORT_STUN, stun_handle);
 
