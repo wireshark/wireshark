@@ -4,7 +4,7 @@
  * Copyright 2001, Michal Melerowicz <michal.melerowicz@nokia.com>
  *                 Nicolas Balkota <balkota@mac.com>
  *
- * $Id: packet-gtp.c,v 1.42 2002/11/01 08:21:57 guy Exp $
+ * $Id: packet-gtp.c,v 1.43 2002/11/05 23:00:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1202,7 +1202,7 @@ static const value_string mm_rr_mess[] = {
 	{ 0x10, "Channel mode modify" },
 	{ 0x12, "RR status" },
 	{ 0x17, "Channel mode modify ack" },
-	{ 0x14, "Frequency redefinition " },
+	{ 0x14, "Frequency redefinition" },
 	{ 0x15, "Measurement report" },
 	{ 0x16, "Classmark change" },
 	{ 0x13, "Classmark enquiry" },
