@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.19 2000/01/18 09:05:24 guy Exp $
+ * $Id: menu.c,v 1.20 2000/01/18 19:01:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -206,7 +206,6 @@ menus_init(void) {
     set_menu_sensitivity("/Edit/Cut", FALSE);
     set_menu_sensitivity("/Edit/Copy", FALSE);
     set_menu_sensitivity("/Edit/Paste", FALSE);
-    set_menu_sensitivity("/Edit/Find", FALSE);
     set_menus_for_captured_packets(FALSE);
     set_menus_for_selected_packet(FALSE);
   }
@@ -224,7 +223,7 @@ set_menu_sensitivity_meat(GtkItemFactory *ifactory, gchar *path, gint val) {
 static void
 set_menu_sensitivity (gchar *path, gint val) {
   GSList *menu_list = popup_menu_list;
-  gchar *shortpath = rindex(path, '/');
+  gchar *shortpath = strrchr(path, '/');
 
   set_menu_sensitivity_meat(factory, path, val);
 
@@ -247,7 +246,7 @@ set_menu_object_data_meat(GtkItemFactory *ifactory, gchar *path, gchar *key, gpo
 void
 set_menu_object_data (gchar *path, gchar *key, gpointer data) {
   GSList *menu_list = popup_menu_list;
-  gchar *shortpath = rindex(path, '/');
+  gchar *shortpath = strrchr(path, '/');
   
   set_menu_object_data_meat(factory, path, key, data);
   while (menu_list != NULL) {
@@ -309,6 +308,8 @@ void
 set_menus_for_captured_packets(gboolean have_captured_packets)
 {
   set_menu_sensitivity("/File/Print...", have_captured_packets);
+  set_menu_sensitivity("/Edit/Find Frame...", have_captured_packets);
+  set_menu_sensitivity("/Edit/Go To Frame...", have_captured_packets);
   set_menu_sensitivity("/Display/Match Selected", have_captured_packets);
   set_menu_sensitivity("/Display/Colorize Display...", have_captured_packets);
   set_menu_sensitivity("/Display/Find Frame...", have_captured_packets);
