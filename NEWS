@@ -19,6 +19,13 @@ Overview of changes in Ethereal 0.8.7:
 * Compile tethereal and editcap for Win32 (Gilbert)
 * Support CIFS-over-TCP w/o NBSS (Mark Muhlestein)
 * .cvsignore updates (Ben Fowler)
+* Add SOCKS[45] dissector, plus changes to conversation.c (Jeff Foster)
+* Fix int size for I and S LLC frames. (Guy)
+* Update packet-osi.c [CLNP] (Guy)
+* Update packet-isis.c (Guy)
+* Fix typo in packet-h1.c (Guy)
+* Update Win32 doco (Guy)
+* Fix null filter string display in summary dialogue (Guy)
 
 Overview of changes in Ethereal 0.8.6:
 * L2TP spelling fix (Florian)
