@@ -155,7 +155,7 @@ to write the file.  The following output formats are supported:
 
 =over 4
 
-=item*
+=item *
 B<libpcap> - libpcap (tcpdump, Ethereal, etc.)
 
 =item *
