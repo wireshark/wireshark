@@ -46,6 +46,7 @@
 #include <epan/t35.h>
 #include "packet-rtp.h"
 #include "packet-rtcp.h"
+#include "packet-ber.h"
 
 static dissector_handle_t rtp_handle=NULL;
 static dissector_handle_t rtcp_handle=NULL;
@@ -22485,6 +22486,8 @@ proto_register_h245(void)
 	nsp_h221_dissector_table = register_dissector_table("h245.nsp.h221", "H.245 NonStandardParameter (h221)", FT_UINT32, BASE_HEX);
 
 	h245_tap = register_tap("h245");
+	register_ber_oid_name("0.0.8.245.1.1.1","itu-t(0) recommendation(0) h(8) h245(245) generic-capabilities(1) audio(1) amr(1)");
+
 }
 
 void

@@ -45,6 +45,7 @@
 #include "packet-h245.h"
 #include <epan/t35.h>
 #include "h225-persistentdata.h"
+#include "packet-ber.h"
 
 #define UDP_PORT_RAS1 1718
 #define UDP_PORT_RAS2 1719
@@ -10544,6 +10545,8 @@ proto_register_h225(void)
 
 	register_init_routine(&h225_init_routine);
 	h225_tap = register_tap("h225");
+	register_ber_oid_name("0.0.8.2250.0.2","itu-t(0) recommendation(0) h(8) h225-0(2250) version(0) 2");
+
 }
 
 void
