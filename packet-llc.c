@@ -2,7 +2,7 @@
  * Routines for IEEE 802.2 LLC layer
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-llc.c,v 1.107 2003/02/13 00:47:42 guy Exp $
+ * $Id: packet-llc.c,v 1.108 2003/03/02 21:52:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -133,9 +133,9 @@ const value_string sap_vals[] = {
 	{ SAP_NETWARE,        "NetWare" },
 	{ SAP_NETBIOS,        "NetBIOS" },
 	{ SAP_IBMNM,          "IBM Net Management" },
-	{ SAP_RPL1,           "Remote Program Load" },
+	{ SAP_HPEXT,          "HP Extended LLC" },
 	{ SAP_UB,             "Ungermann-Bass" },
-	{ SAP_RPL2,           "Remote Program Load" },
+	{ SAP_RPL,            "Remote Program Load" },
 	{ SAP_OSINL,          "ISO Network Layer" },
 	{ SAP_GLOBAL,         "Global LSAP" },
 	{ 0x00,               NULL }

@@ -348,6 +348,9 @@ Jochen Friedrich <jochen+ethereal[AT]scram.de> {
 	Zebra support
 	HPR/UDP (RFC 2353, Enterprise Extender)
 	RPL support
+	HP extended 802.2 LLC support
+	HP remote management protocol support
+	SNMP over HP extended 802.2 LLC support
 }
 
 Paul Welchinski <paul.welchinski[AT]telusplanet.net> {

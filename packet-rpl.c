@@ -2,7 +2,7 @@
  * Routines for RPL
  * Jochen Friedrich <jochen@scram.de>
  *
- * $Id: packet-rpl.c,v 1.4 2003/02/18 21:47:01 deniel Exp $
+ * $Id: packet-rpl.c,v 1.5 2003/03/02 21:52:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -402,5 +402,5 @@ proto_reg_handoff_rpl(void)
 
 	data_handle = find_dissector("data");
 	rpl_handle = find_dissector("rpl");
-	dissector_add("llc.dsap", SAP_RPL2, rpl_handle);
+	dissector_add("llc.dsap", SAP_RPL, rpl_handle);
 }

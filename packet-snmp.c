@@ -10,7 +10,7 @@
  *
  * See RFCs 2570-2576 for SNMPv3
  *
- * $Id: packet-snmp.c,v 1.103 2003/01/28 22:53:22 deniel Exp $
+ * $Id: packet-snmp.c,v 1.104 2003/03/02 21:52:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -52,6 +52,7 @@
 #include <epan/conversation.h>
 #include "etypes.h"
 #include "packet-ipx.h"
+#include "packet-hpext.h"
 
 #ifdef HAVE_SOME_SNMP
 
@@ -2144,5 +2145,6 @@ proto_reg_handoff_snmp(void)
 	dissector_add("ethertype", ETHERTYPE_SNMP, snmp_handle);
 	dissector_add("ipx.socket", IPX_SOCKET_SNMP_AGENT, snmp_handle);
 	dissector_add("ipx.socket", IPX_SOCKET_SNMP_SINK, snmp_handle);
+	dissector_add("hpext.dxsap", HPEXT_SNMP, snmp_handle);
 	data_handle = find_dissector("data");
 }
