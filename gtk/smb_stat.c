@@ -1,22 +1,22 @@
 /* smb_stat.c
  * smb_stat   2003 Ronnie Sahlberg
  *
- * $Id: smb_stat.c,v 1.5 2003/04/23 08:20:06 guy Exp $
+ * $Id: smb_stat.c,v 1.6 2003/04/25 20:54:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -40,17 +40,11 @@
 #include "../epan/value_string.h"
 #include "../smb.h"
 #include "../register.h"
+#include "../timestats.h"
 #include "compat_macros.h"
 #include "../simple_dialog.h"
 #include "../file.h"
 #include "../globals.h"
-
-typedef struct _smb_procedure_t {
-	int num;
-	nstime_t min;
-	nstime_t max;
-	nstime_t tot;
-} smb_procedure_t;
 
 /* used to keep track of the statistics for an entire program interface */
 typedef struct _smbstat_t {
@@ -60,9 +54,9 @@ typedef struct _smbstat_t {
 	GtkWidget *table;
 	int table_height;
 	GtkWidget *table_widgets[768];
-	smb_procedure_t proc[256];
-	smb_procedure_t trans2[256];
-	smb_procedure_t nt_trans[256];
+	timestat_t proc[256];
+	timestat_t trans2[256];
+	timestat_t nt_trans[256];
 } smbstat_t;
 
 
@@ -91,15 +85,19 @@ smbstat_reset(void *pss)
 	guint32 i;
 
 	for(i=0;i<256;i++){
-		ss->proc[i].num=0;	
+		ss->proc[i].num=0;
+		ss->proc[i].min_num=0;
+		ss->proc[i].max_num=0;
 		ss->proc[i].min.secs=0;
 		ss->proc[i].min.nsecs=0;
 		ss->proc[i].max.secs=0;
 		ss->proc[i].max.nsecs=0;
 		ss->proc[i].tot.secs=0;
 		ss->proc[i].tot.nsecs=0;
-		
-		ss->trans2[i].num=0;	
+
+		ss->trans2[i].num=0;
+		ss->trans2[i].min_num=0;
+		ss->trans2[i].max_num=0;
 		ss->trans2[i].min.secs=0;
 		ss->trans2[i].min.nsecs=0;
 		ss->trans2[i].max.secs=0;
@@ -107,7 +105,9 @@ smbstat_reset(void *pss)
 		ss->trans2[i].tot.secs=0;
 		ss->trans2[i].tot.nsecs=0;
 
-		ss->nt_trans[i].num=0;	
+		ss->nt_trans[i].num=0;
+		ss->nt_trans[i].min_num=0;
+		ss->nt_trans[i].max_num=0;
 		ss->nt_trans[i].min.secs=0;
 		ss->nt_trans[i].min.nsecs=0;
 		ss->nt_trans[i].max.secs=0;
@@ -123,7 +123,7 @@ smbstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, void *psi
 	smbstat_t *ss=(smbstat_t *)pss;
 	smb_info_t *si=psi;
 	nstime_t delta;
-	smb_procedure_t *sp;
+	timestat_t *sp;
 
 	/* we are only interested in reply packets */
 	if(si->request){
@@ -156,39 +156,7 @@ smbstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, void *psi
 		delta.secs--;
 	}
 
-	if((sp->max.secs==0)
-	&& (sp->max.nsecs==0) ){
-		sp->max.secs=delta.secs;
-		sp->max.nsecs=delta.nsecs;
-	}
-
-	if((sp->min.secs==0)
-	&& (sp->min.nsecs==0) ){
-		sp->min.secs=delta.secs;
-		sp->min.nsecs=delta.nsecs;
-	}
-
-	if( (delta.secs<sp->min.secs)
-	||( (delta.secs==sp->min.secs)
-	  &&(delta.nsecs<sp->min.nsecs) ) ){
-		sp->min.secs=delta.secs;
-		sp->min.nsecs=delta.nsecs;
-	}
-
-	if( (delta.secs>sp->max.secs)
-	||( (delta.secs==sp->max.secs)
-	  &&(delta.nsecs>sp->max.nsecs) ) ){
-		sp->max.secs=delta.secs;
-		sp->max.nsecs=delta.nsecs;
-	}
-	
-	sp->tot.secs += delta.secs;
-	sp->tot.nsecs += delta.nsecs;
-	if(sp->tot.nsecs>1000000000){
-		sp->tot.nsecs-=1000000000;
-		sp->tot.secs++;
-	}
-	sp->num++;
+	time_stat_update(sp,&delta, pinfo);
 
 	return 1;
 }
@@ -371,7 +339,6 @@ static void
 gtk_smbstat_init(char *optarg)
 {
 	smbstat_t *ss;
-	guint32 i;
 	char *filter=NULL;
 	GtkWidget *stat_label;
 	GtkWidget *filter_label;
@@ -392,31 +359,7 @@ gtk_smbstat_init(char *optarg)
 		ss->filter=NULL;
 	}
 
-	for(i=0;i<256;i++){
-		ss->proc[i].num=0;	
-		ss->proc[i].min.secs=0;
-		ss->proc[i].min.nsecs=0;
-		ss->proc[i].max.secs=0;
-		ss->proc[i].max.nsecs=0;
-		ss->proc[i].tot.secs=0;
-		ss->proc[i].tot.nsecs=0;
-		
-		ss->trans2[i].num=0;	
-		ss->trans2[i].min.secs=0;
-		ss->trans2[i].min.nsecs=0;
-		ss->trans2[i].max.secs=0;
-		ss->trans2[i].max.nsecs=0;
-		ss->trans2[i].tot.secs=0;
-		ss->trans2[i].tot.nsecs=0;
-
-		ss->nt_trans[i].num=0;	
-		ss->nt_trans[i].min.secs=0;
-		ss->nt_trans[i].min.nsecs=0;
-		ss->nt_trans[i].max.secs=0;
-		ss->nt_trans[i].max.nsecs=0;
-		ss->nt_trans[i].tot.secs=0;
-		ss->nt_trans[i].tot.nsecs=0;
-	}
+	smbstat_reset(ss);
 
 	ss->win=gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_title(GTK_WINDOW(ss->win), "SMB RTT Statistics");
@@ -542,7 +485,7 @@ gtk_smbstat_cb(GtkWidget *w _U_, gpointer d _U_)
 	filter_entry=gtk_entry_new_with_max_length(250);
 	gtk_box_pack_start(GTK_BOX(filter_box), filter_entry, FALSE, FALSE, 0);
 	gtk_widget_show(filter_entry);
-	
+
 	gtk_box_pack_start(GTK_BOX(dlg_box), filter_box, TRUE, TRUE, 0);
 	gtk_widget_show(filter_box);
 

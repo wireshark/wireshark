@@ -1643,7 +1643,7 @@ Laurent Meyer <laurent.meyer [AT] thales-avionics.com> {
 
 Lars Roland <Lars.Roland [AT] gmx.net> {
 	MGCP request/response matching and MGCP statistics tap
-	Routines for handling time statistics
+	Common routines for use by statistics taps
 }
 
 Miha Jemec <m.jemec [AT] iskratel.si> {

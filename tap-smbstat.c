@@ -1,22 +1,22 @@
 /* tap-smbstat.c
  * smbstat   2003 Ronnie Sahlberg
  *
- * $Id: tap-smbstat.c,v 1.3 2003/04/23 08:20:02 guy Exp $
+ * $Id: tap-smbstat.c,v 1.4 2003/04/25 20:54:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -38,21 +38,14 @@
 #include "epan/value_string.h"
 #include "smb.h"
 #include "register.h"
-
-
-typedef struct _smb_procedure_t {
-	int num;
-	nstime_t min;
-	nstime_t max;
-	nstime_t tot;
-} smb_procedure_t;
+#include "timestats.h"
 
 /* used to keep track of the statistics for an entire program interface */
 typedef struct _smbstat_t {
 	char *filter;
-	smb_procedure_t proc[256];
-	smb_procedure_t trans2[256];
-	smb_procedure_t nt_trans[256];
+	timestat_t proc[256];
+	timestat_t trans2[256];
+	timestat_t nt_trans[256];
 } smbstat_t;
 
 
@@ -63,7 +56,7 @@ smbstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, void *psi
 	smbstat_t *ss=(smbstat_t *)pss;
 	smb_info_t *si=psi;
 	nstime_t delta;
-	smb_procedure_t *sp;
+	timestat_t *sp;
 
 	/* we are only interested in reply packets */
 	if(si->request){
@@ -96,39 +89,7 @@ smbstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, void *psi
 		delta.secs--;
 	}
 
-	if((sp->max.secs==0)
-	&& (sp->max.nsecs==0) ){
-		sp->max.secs=delta.secs;
-		sp->max.nsecs=delta.nsecs;
-	}
-
-	if((sp->min.secs==0)
-	&& (sp->min.nsecs==0) ){
-		sp->min.secs=delta.secs;
-		sp->min.nsecs=delta.nsecs;
-	}
-
-	if( (delta.secs<sp->min.secs)
-	||( (delta.secs==sp->min.secs)
-	  &&(delta.nsecs<sp->min.nsecs) ) ){
-		sp->min.secs=delta.secs;
-		sp->min.nsecs=delta.nsecs;
-	}
-
-	if( (delta.secs>sp->max.secs)
-	||( (delta.secs==sp->max.secs)
-	  &&(delta.nsecs>sp->max.nsecs) ) ){
-		sp->max.secs=delta.secs;
-		sp->max.nsecs=delta.nsecs;
-	}
-	
-	sp->tot.secs += delta.secs;
-	sp->tot.nsecs += delta.nsecs;
-	if(sp->tot.nsecs>1000000000){
-		sp->tot.nsecs-=1000000000;
-		sp->tot.secs++;
-	}
-	sp->num++;
+	time_stat_update(sp,&delta, pinfo);
 
 	return 1;
 }
@@ -264,21 +225,35 @@ smbstat_init(char *optarg)
 	}
 
 	for(i=0;i<256;i++){
-		ss->proc[i].num=0;	
+		ss->proc[i].num=0;
+		ss->proc[i].min_num=0;
+		ss->proc[i].max_num=0;
 		ss->proc[i].min.secs=0;
 		ss->proc[i].min.nsecs=0;
 		ss->proc[i].max.secs=0;
 		ss->proc[i].max.nsecs=0;
 		ss->proc[i].tot.secs=0;
 		ss->proc[i].tot.nsecs=0;
-		
-		ss->trans2[i].num=0;	
+
+		ss->trans2[i].num=0;
+		ss->trans2[i].min_num=0;
+		ss->trans2[i].max_num=0;
 		ss->trans2[i].min.secs=0;
 		ss->trans2[i].min.nsecs=0;
 		ss->trans2[i].max.secs=0;
 		ss->trans2[i].max.nsecs=0;
 		ss->trans2[i].tot.secs=0;
 		ss->trans2[i].tot.nsecs=0;
+
+		ss->nt_trans[i].num=0;
+		ss->nt_trans[i].min_num=0;
+		ss->nt_trans[i].max_num=0;
+		ss->nt_trans[i].min.secs=0;
+		ss->nt_trans[i].min.nsecs=0;
+		ss->nt_trans[i].max.secs=0;
+		ss->nt_trans[i].max.nsecs=0;
+		ss->nt_trans[i].tot.secs=0;
+		ss->nt_trans[i].tot.nsecs=0;
 	}
 
 	error_string=register_tap_listener("smb", ss, filter, NULL, smbstat_packet, smbstat_draw);
