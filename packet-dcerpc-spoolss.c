@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\spoolss packet disassembly
  * Copyright 2001-2002, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-spoolss.c,v 1.66 2002/12/13 04:58:56 tpot Exp $
+ * $Id: packet-dcerpc-spoolss.c,v 1.67 2002/12/13 06:07:04 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -181,8 +181,10 @@ static int hf_spoolss_time_msec = -1;
 
 /* Printer data */
 
+static int hf_spoolss_printerdata_key = -1;
 static int hf_spoolss_printerdata_value = -1;
 static int hf_spoolss_printerdata_type = -1;
+static int hf_spoolss_printerdata_size = -1;
 
 /* enumprinterdata */
 
@@ -498,7 +500,6 @@ static int hf_spoolss_enumforms_num = -1;
 
 /* Printerdata */
 
-static int hf_spoolss_printerdata_size = -1;
 static int hf_spoolss_printerdata_data = -1;
 
 /*
@@ -1160,9 +1161,9 @@ static int SpoolssGetPrinterData_q(tvbuff_t *tvb, int offset,
 		tvb, offset, pinfo, tree, drep, hf_spoolss_hnd, NULL,
 		FALSE, FALSE);
 
- 	offset = prs_struct_and_referents(tvb, offset, pinfo, tree,
- 					  prs_UNISTR2_dp, (void **)&value_name,
- 					  NULL);
+	offset = dissect_unistr2(
+		tvb, offset, pinfo, tree, drep, hf_spoolss_printerdata_value,
+		&value_name);
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", value_name);
@@ -1227,9 +1228,9 @@ static int SpoolssGetPrinterDataEx_q(tvbuff_t *tvb, int offset,
 		tvb, offset, pinfo, tree, drep, hf_spoolss_hnd, NULL,
 		FALSE, FALSE);
 
-	offset = prs_struct_and_referents(tvb, offset, pinfo, tree,
-					  prs_UNISTR2_dp, (void **)&key_name,
-					  NULL);
+	offset = dissect_unistr2(
+		tvb, offset, pinfo, tree, drep, hf_spoolss_printerdata_key,
+		&key_name);
 
 	/*
 	 * Register a cleanup function in case on of our tvbuff accesses
@@ -1237,9 +1238,9 @@ static int SpoolssGetPrinterDataEx_q(tvbuff_t *tvb, int offset,
 	 */
 	CLEANUP_PUSH(g_free, key_name);
 
-	offset = prs_struct_and_referents(tvb, offset, pinfo, tree,
-					  prs_UNISTR2_dp, (void **)&value_name,
-					  NULL);
+	offset = dissect_unistr2(
+		tvb, offset, pinfo, tree, drep, hf_spoolss_printerdata_value,
+		&value_name);
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s/%s",
@@ -1256,7 +1257,8 @@ static int SpoolssGetPrinterDataEx_q(tvbuff_t *tvb, int offset,
 	 */
 	g_free(value_name);
 
-	offset = prs_uint32(tvb, offset, pinfo, tree, NULL, "Size");
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+				    hf_spoolss_printerdata_size, NULL);
 
 	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
@@ -1316,9 +1318,9 @@ static int SpoolssSetPrinterData_q(tvbuff_t *tvb, int offset,
 		tvb, offset, pinfo, tree, drep, hf_spoolss_hnd, NULL,
 		FALSE, FALSE);
 
-	offset = prs_struct_and_referents(tvb, offset, pinfo, tree,
-					  prs_UNISTR2_dp, (void **)&value_name,
-					  NULL);
+	offset = dissect_unistr2(
+		tvb, offset, pinfo, tree, drep, hf_spoolss_printerdata_value,
+		&value_name);
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", value_name);
@@ -1330,7 +1332,8 @@ static int SpoolssSetPrinterData_q(tvbuff_t *tvb, int offset,
 
 	offset = dissect_printerdata_data(tvb, offset, pinfo, tree, drep);
 
-	offset = prs_uint32(tvb, offset, pinfo, tree, NULL, "Offered");
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+				    hf_spoolss_offered, NULL);
 
 	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
@@ -1381,19 +1384,21 @@ static int SpoolssSetPrinterDataEx_q(tvbuff_t *tvb, int offset,
 		tvb, offset, pinfo, tree, drep, hf_spoolss_hnd, NULL,
 		FALSE, FALSE);
 
-	offset = prs_struct_and_referents(tvb, offset, pinfo, tree,
-					  prs_UNISTR2_dp, (void **)&key_name,
-					  NULL);
+	offset = dissect_unistr2(
+		tvb, offset, pinfo, tree, drep, hf_spoolss_printerdata_key,
+		&key_name);
 
-	offset = prs_struct_and_referents(tvb, offset, pinfo, tree,
-					  prs_UNISTR2_dp, (void **)&value_name,
-					  NULL);
+	CLEANUP_PUSH(g_free, key_name);
+
+	offset = dissect_unistr2(
+		tvb, offset, pinfo, tree, drep, hf_spoolss_printerdata_value,
+		&value_name);
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s/%s",
 				key_name, value_name);
 
-	g_free(key_name);
+	CLEANUP_CALL_AND_POP;
 	g_free(value_name);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
@@ -3773,7 +3778,8 @@ static int SpoolssEnumForms_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = prs_struct_and_referents(tvb, offset, pinfo, tree,
 					  prs_BUFFER, NULL, NULL);
 
-	offset = prs_uint32(tvb, offset, pinfo, tree, NULL, "Offered");
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+				    hf_spoolss_offered, NULL);
 
 	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
@@ -4156,7 +4162,8 @@ static int SpoolssEnumPrinters_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = prs_struct_and_referents(tvb, offset, pinfo, tree,
 					  prs_BUFFER, NULL, NULL);
 
-	offset = prs_uint32(tvb, offset, pinfo, tree, NULL, "Offered");
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+				    hf_spoolss_offered, NULL);
 
 	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
@@ -5522,9 +5529,9 @@ static int SpoolssDeletePrinterData_q(tvbuff_t *tvb, int offset,
 		tvb, offset, pinfo, tree, drep, hf_spoolss_hnd, NULL,
 		FALSE, FALSE);
 
- 	offset = prs_struct_and_referents(tvb, offset, pinfo, tree,
- 					  prs_UNISTR2_dp, (void **)&value_name,
- 					  NULL);
+	offset = dissect_unistr2(
+		tvb, offset, pinfo, tree, drep, hf_spoolss_printerdata_value,
+		&value_name);
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", value_name);
@@ -6491,16 +6498,17 @@ static int SpoolssEnumPrinterKey_q(tvbuff_t *tvb, int offset,
 		tvb, offset, pinfo, tree, drep, hf_spoolss_hnd, NULL,
 		FALSE, FALSE);
 
- 	offset = prs_struct_and_referents(tvb, offset, pinfo, tree,
- 					  prs_UNISTR2_dp, (void **)&key_name,
- 					  NULL);
+	offset = dissect_unistr2(
+		tvb, offset, pinfo, tree, drep, hf_spoolss_printerdata_key,
+		&key_name);
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", key_name);
 
 	g_free(key_name);
 
-	offset = prs_uint32(tvb, offset, pinfo, tree, NULL, "Size");
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+				    hf_spoolss_printerdata_size, NULL);
 
 	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
@@ -6551,16 +6559,17 @@ static int SpoolssEnumPrinterDataEx_q(tvbuff_t *tvb, int offset,
 		tvb, offset, pinfo, tree, drep, hf_spoolss_hnd, NULL,
 		FALSE, FALSE);
 
- 	offset = prs_struct_and_referents(tvb, offset, pinfo, tree,
- 					  prs_UNISTR2_dp, (void **)&key_name,
- 					  NULL);
+	offset = dissect_unistr2(
+		tvb, offset, pinfo, tree, drep, hf_spoolss_printerdata_key,
+		&key_name);
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", key_name);
 
 	g_free(key_name);
 
-	offset = prs_uint32(tvb, offset, pinfo, tree, NULL, "Size");
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+				    hf_spoolss_printerdata_size, NULL);
 
 	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
@@ -7096,6 +7105,10 @@ proto_register_dcerpc_spoolss(void)
 
 		/* Printer data */
 
+		{ &hf_spoolss_printerdata_key,
+		  { "Printer data key", "spoolss.printerdata.key", FT_STRING, 
+		    BASE_NONE, NULL, 0, "Printer data key", HFILL }},
+
 		{ &hf_spoolss_printerdata_value,
 		  { "Printer data value", "spoolss.printerdata.value", FT_STRING, BASE_NONE,
 		    NULL, 0, "Printer data value", HFILL }},
@@ -7103,6 +7116,10 @@ proto_register_dcerpc_spoolss(void)
 		{ &hf_spoolss_printerdata_type,
 		  { "Printer data type", "spoolss.printerdata.type", FT_UINT32, BASE_DEC,
 		    VALS(reg_datatypes), 0, "Printer data type", HFILL }},
+
+		{ &hf_spoolss_printerdata_type,
+		  { "Printer data size", "spoolss.printerdata.size", FT_UINT32,
+		    BASE_DEC, NULL, 0, "Printer data size", HFILL }},
 
 		/* SetJob RPC */
 
