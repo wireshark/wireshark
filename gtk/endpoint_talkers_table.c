@@ -4,7 +4,7 @@
  * endpoint_talkers_table   2003 Ronnie Sahlberg
  * Helper routines common to all endpoint talkers tap.
  *
- * $Id: endpoint_talkers_table.c,v 1.25 2003/12/14 10:28:20 guy Exp $
+ * $Id: endpoint_talkers_table.c,v 1.26 2003/12/16 05:04:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -46,6 +46,7 @@
 #include "gtk/find_dlg.h"
 #include "color.h"
 #include "gtk/color_dlg.h"
+#include "gtkglobals.h"
 
 extern GtkWidget   *main_display_filter_widget;
 
@@ -517,6 +518,8 @@ ett_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callba
 		/* match */
 		gtk_entry_set_text(GTK_ENTRY(main_display_filter_widget), str);
 		filter_packets(&cfile, str);
+		gdk_window_raise(top_level->window);
+		break;
 	case 1:
 		/* prepare */
 		gtk_entry_set_text(GTK_ENTRY(main_display_filter_widget), str);
