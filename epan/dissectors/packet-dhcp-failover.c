@@ -343,7 +343,8 @@ dissect_dhcpfo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint additionalHBlength;
 	struct payloadMessage *helpliste;
 	int actualoffset;
-	guint8 htype, reject_reason, message_digest_type;
+	guint8 htype, reject_reason;
+	guint16 message_digest_type;
 	const guint8 *chaddr;
 	guint8 binding_status;
 	gchar *binding_status_str, *reject_reason_str;
@@ -835,7 +836,7 @@ dissect_dhcpfo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         			case DHCP_FO_PD_MESSAGE_DIGEST:
 
-					message_digest_type = (guint8) tvb_get_ntohs(tvb,helpliste->actualpoffset+4);
+					message_digest_type = tvb_get_ntohs(tvb,helpliste->actualpoffset+4);
 					if(message_digest_type == 1)
 					{
 						proto_item_append_text(oi, ", HMAC-MD5");
