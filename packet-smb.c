@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.380 2003/12/28 12:43:38 ulfl Exp $
+ * $Id: packet-smb.c,v 1.381 2003/12/30 04:38:20 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -12805,8 +12805,8 @@ dissect_4_3_4_6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 1, TRUE);
 	COUNT_BYTES_SUBR(1);
 
-	/* short file name */
-	sfn = get_unicode_or_ascii_string(tvb, &offset, si->unicode, &sfn_len, FALSE, TRUE, bcp);
+	/* short file name, it is always in UNICODE, it seems */
+	sfn = get_unicode_or_ascii_string(tvb, &offset, TRUE, &sfn_len, FALSE, TRUE, bcp);
 	CHECK_STRING_SUBR(sfn);
 	proto_tree_add_string(tree, hf_smb_short_file_name, tvb, offset, 24,
 		sfn);
