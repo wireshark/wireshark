@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.199 2003/08/29 22:15:19 guy Exp $
+ * $Id: packet-ip.c,v 1.200 2003/10/15 22:00:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -135,6 +135,11 @@ static int hf_icmp_type = -1;
 static int hf_icmp_code = -1;
 static int hf_icmp_checksum = -1;
 static int hf_icmp_checksum_bad = -1;
+static int hf_icmp_ident = -1;
+static int hf_icmp_seq_num = -1;
+static int hf_icmp_mtu = -1;
+static int hf_icmp_redir_gw = -1;
+
 
 /* Mobile ip */
 static int hf_icmp_mip_type = -1;
@@ -1444,17 +1449,14 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       case ICMP_IREQREPLY:
       case ICMP_MASKREQ:
       case ICMP_MASKREPLY:
-	proto_tree_add_text(icmp_tree, tvb, 4, 2, "Identifier: 0x%04x",
-	  tvb_get_ntohs(tvb, 4));
-	proto_tree_add_text(icmp_tree, tvb, 6, 2, "Sequence number: %02x:%02x",
-	  tvb_get_guint8(tvb, 6), tvb_get_guint8(tvb, 7));
+        proto_tree_add_item(icmp_tree, hf_icmp_ident, tvb, 4, 2, FALSE);
+        proto_tree_add_item(icmp_tree, hf_icmp_seq_num, tvb, 6, 2, FALSE);
 	break;
 
       case ICMP_UNREACH:
         switch (icmp_code) {
           case ICMP_FRAG_NEEDED:
-            proto_tree_add_text(icmp_tree, tvb, 6, 2, "MTU of next hop: %u",
-                  tvb_get_ntohs(tvb, 6));
+            proto_tree_add_item(icmp_tree, hf_icmp_mtu, tvb, 6, 2, FALSE);
             break;
 	}
         break;
@@ -1476,8 +1478,7 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	break;
 
       case ICMP_REDIRECT:
-	proto_tree_add_text(icmp_tree, tvb, 4, 4, "Gateway address: %s",
-	  ip_to_str(tvb_get_ptr(tvb, 4, 4)));
+        proto_tree_add_item(icmp_tree, hf_icmp_redir_gw, tvb, 4, 4, FALSE);
 	break;
     }
 
@@ -1776,6 +1777,22 @@ proto_register_icmp(void)
     { &hf_icmp_checksum_bad,
       { "Bad Checksum",	"icmp.checksum_bad",	FT_BOOLEAN, BASE_NONE,	NULL, 0x0,
 	"", HFILL }},
+
+    { &hf_icmp_ident,
+      {"Identifier", "icmp.ident",              FT_UINT16, BASE_HEX,    NULL, 0x0,
+       "", HFILL }},
+
+    { &hf_icmp_seq_num,
+      {"Sequence number", "icmp.seq",           FT_UINT16, BASE_HEX,    NULL, 0x0,
+       "", HFILL }},
+
+    { &hf_icmp_mtu,
+      {"MTU of next hop", "icmp.mtu",           FT_UINT16, BASE_DEC,    NULL, 0x0,
+       "", HFILL}},
+
+    { &hf_icmp_redir_gw,
+      {"Gateway address", "icmp.redir_gw",      FT_IPv4, BASE_NONE,     NULL, 0x0,
+       "", HFILL }},
 
     { &hf_icmp_mip_type,
       { "Extension Type", "icmp.mip.type",	FT_UINT8, BASE_DEC,
