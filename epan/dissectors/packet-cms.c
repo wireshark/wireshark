@@ -70,7 +70,7 @@ static int hf_cms_sid = -1;                       /* SignerIdentifier */
 static int hf_cms_digestAlgorithm = -1;           /* DigestAlgorithmIdentifier */
 static int hf_cms_signedAttrs = -1;               /* SignedAttributes */
 static int hf_cms_signatureAlgorithm = -1;        /* SignatureAlgorithmIdentifier */
-static int hf_cms_signature = -1;                 /* SignatureValue */
+static int hf_cms_signatureValue = -1;            /* SignatureValue */
 static int hf_cms_unsignedAttrs = -1;             /* UnsignedAttributes */
 static int hf_cms_issuerAndSerialNumber = -1;     /* IssuerAndSerialNumber */
 static int hf_cms_subjectKeyIdentifier = -1;      /* SubjectKeyIdentifier */
@@ -100,7 +100,7 @@ static int hf_cms_originatorKey = -1;             /* OriginatorPublicKey */
 static int hf_cms_algorithm = -1;                 /* AlgorithmIdentifier */
 static int hf_cms_publicKey = -1;                 /* BIT_STRING */
 static int hf_cms_RecipientEncryptedKeys_item = -1;  /* RecipientEncryptedKey */
-static int hf_cms_rid1 = -1;                      /* KeyAgreeRecipientIdentifier */
+static int hf_cms_rekRid = -1;                    /* KeyAgreeRecipientIdentifier */
 static int hf_cms_rKeyId = -1;                    /* RecipientKeyIdentifier */
 static int hf_cms_date = -1;                      /* GeneralizedTime */
 static int hf_cms_other = -1;                     /* OtherKeyAttribute */
@@ -121,7 +121,7 @@ static int hf_cms_CertificateSet_item = -1;       /* CertificateChoices */
 static int hf_cms_issuer = -1;                    /* Name */
 static int hf_cms_serialNumber = -1;              /* CertificateSerialNumber */
 static int hf_cms_extendedCertificateInfo = -1;   /* ExtendedCertificateInfo */
-static int hf_cms_signature1 = -1;                /* Signature */
+static int hf_cms_signature = -1;                 /* Signature */
 static int hf_cms_attributes = -1;                /* UnauthAttributes */
 
 /*--- End of included file: packet-cms-hf.c ---*/
@@ -397,14 +397,14 @@ dissect_cms_Signature(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pack
 
   return offset;
 }
-static int dissect_signature1(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_cms_Signature(FALSE, tvb, offset, pinfo, tree, hf_cms_signature1);
+static int dissect_signature(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cms_Signature(FALSE, tvb, offset, pinfo, tree, hf_cms_signature);
 }
 
 static const ber_sequence ExtendedCertificate_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_extendedCertificateInfo },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_signatureAlgorithm },
-  { BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_NOOWNTAG, dissect_signature1 },
+  { BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_NOOWNTAG, dissect_signature },
   { 0, 0, 0, NULL }
 };
 
@@ -557,8 +557,8 @@ dissect_cms_SignatureValue(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
 
   return offset;
 }
-static int dissect_signature(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_cms_SignatureValue(FALSE, tvb, offset, pinfo, tree, hf_cms_signature);
+static int dissect_signatureValue(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cms_SignatureValue(FALSE, tvb, offset, pinfo, tree, hf_cms_signatureValue);
 }
 
 static const ber_sequence UnsignedAttributes_set_of[1] = {
@@ -582,7 +582,7 @@ static const ber_sequence SignerInfo_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_digestAlgorithm },
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_signedAttrs_impl },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_signatureAlgorithm },
-  { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_signature },
+  { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_signatureValue },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_unsignedAttrs_impl },
   { 0, 0, 0, NULL }
 };
@@ -835,12 +835,12 @@ dissect_cms_KeyAgreeRecipientIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb
 
   return offset;
 }
-static int dissect_rid1(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_cms_KeyAgreeRecipientIdentifier(FALSE, tvb, offset, pinfo, tree, hf_cms_rid1);
+static int dissect_rekRid(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cms_KeyAgreeRecipientIdentifier(FALSE, tvb, offset, pinfo, tree, hf_cms_rekRid);
 }
 
 static const ber_sequence RecipientEncryptedKey_sequence[] = {
-  { -1/*choice*/ , -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_rid1 },
+  { -1/*choice*/ , -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_rekRid },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_encryptedKey },
   { 0, 0, 0, NULL }
 };
@@ -1325,7 +1325,7 @@ void proto_register_cms(void) {
       { "signatureAlgorithm", "cms.signatureAlgorithm",
         FT_NONE, BASE_NONE, NULL, 0,
         "", HFILL }},
-    { &hf_cms_signature,
+    { &hf_cms_signatureValue,
       { "signature", "cms.signature",
         FT_BYTES, BASE_HEX, NULL, 0,
         "SignerInfo/signature", HFILL }},
@@ -1445,7 +1445,7 @@ void proto_register_cms(void) {
       { "Item", "cms.RecipientEncryptedKeys_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "RecipientEncryptedKeys/_item", HFILL }},
-    { &hf_cms_rid1,
+    { &hf_cms_rekRid,
       { "rid", "cms.rid",
         FT_UINT32, BASE_DEC, VALS(KeyAgreeRecipientIdentifier_vals), 0,
         "RecipientEncryptedKey/rid", HFILL }},
@@ -1529,7 +1529,7 @@ void proto_register_cms(void) {
       { "extendedCertificateInfo", "cms.extendedCertificateInfo",
         FT_NONE, BASE_NONE, NULL, 0,
         "ExtendedCertificate/extendedCertificateInfo", HFILL }},
-    { &hf_cms_signature1,
+    { &hf_cms_signature,
       { "signature", "cms.signature",
         FT_BYTES, BASE_HEX, NULL, 0,
         "ExtendedCertificate/signature", HFILL }},
