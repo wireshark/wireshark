@@ -5,7 +5,7 @@
  * 
  * derived from the packet-nbns.c
  *
- * $Id: packet-netbios.c,v 1.1 1999/08/10 20:05:41 guy Exp $
+ * $Id: packet-netbios.c,v 1.2 1999/08/18 22:49:41 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -175,7 +175,7 @@ void capture_netbios(const u_char *pd, int offset, guint32 cap_len,
 }
 
 
-static uint get_netbios_name(const u_char *data_ptr, int offset, char *name_ret)
+static guint get_netbios_name(const u_char *data_ptr, int offset, char *name_ret)
 
 {/*  Extract the name string and name type.  Return the name string in  */
  /* name_ret and return the name_type. */
@@ -190,7 +190,7 @@ static uint get_netbios_name(const u_char *data_ptr, int offset, char *name_ret)
 	}
 
 	*name_ret = 0;
-	return (uint)name_type;
+	return (guint)name_type;
 }
 
 
@@ -230,7 +230,7 @@ static void netbios_add_flags( const u_char *pd, proto_tree *tree, int offset)
 
 	proto_tree *field_tree;
 	proto_item *tf;
-	uint flags = *(pd + offset);
+	guint flags = *(pd + offset);
 					/* decode the flag field */
 
 
@@ -258,7 +258,7 @@ static void netbios_add_ses_confirm_flags( const u_char *pd, proto_tree *tree,
 {
 	proto_tree *field_tree;
 	proto_item *tf;
-	uint flags = *(pd + offset);
+	guint flags = *(pd + offset);
 					/* decode the flag field */
 
 
@@ -282,7 +282,7 @@ static void netbios_data_only_flags( const u_char *pd, proto_tree *tree,
 {
 	proto_tree *field_tree;
 	proto_item *tf;
-	uint flags = *(pd + offset);
+	guint flags = *(pd + offset);
 					/* decode the flag field for data_only packet*/
 
 

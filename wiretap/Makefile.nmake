@@ -1,5 +1,6 @@
-GLIB_DIR=d:\prj\src\glib-1.2
-LOCAL_CFLAGS=/Ic:\tools\msdev\include
+GLIB_DIR=c:\prj\gtk+-win32\src\glib
+#LOCAL_CFLAGS=/Ic:\tools\msdev\include
+LOCAL_CFLAGS=
 
 #################3
 CFLAGS=/DHAVE_CONFIG_H /I$(GLIB_DIR) $(LOCAL_CFLAGS)

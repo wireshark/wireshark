@@ -2,12 +2,13 @@
 ## Use: nmake -f makefile.nmake
 
 GTK_VERSION=1.3
-GLIB_VERSION=1.2
+GLIB_VERSION=1.3
 
-GLIB_DIR=d:\prj\src\glib-1.2
-GTK_DIR=d:\prj\src\gtk-plus
+GLIB_DIR=c:\prj\gtk+-win32\src\glib
+GTK_DIR=c:\prj\gtk+-win32\src\gtk+
 
-LOCAL_CFLAGS=/Ic:\tools\msdev\include
+#LOCAL_CFLAGS=/Ic:\tools\msdev\include
+LOCAL_CFLAGS=
 
 ############### no need to modify below this line #########
 
@@ -49,6 +50,7 @@ OBJECTS=capture.obj column.obj dfilter-grammar.obj dfilter-scanner.obj \
 	packet-nbipx.obj \
 	packet-nbns.obj \
 	packet-ncp.obj \
+	packet-netbios.obj \
 	packet-nntp.obj \
 	packet-null.obj \
 	packet-osi.obj \
@@ -79,7 +81,7 @@ OBJECTS=capture.obj column.obj dfilter-grammar.obj dfilter-scanner.obj \
 
 LIBS= wiretap\libwtap.lib wsock32.lib \
 	$(GTK_DIR)\gtk\gtk-$(GTK_VERSION).lib \
-	$(GTK_DIR)\gdk\gdk-$(GTK_VERSION).lib \
+	$(GTK_DIR)\gdk\win32\gdk-$(GTK_VERSION).lib \
 	$(GLIB_DIR)\glib-$(GLIB_VERSION).lib \
 	$(GLIB_DIR)\gmodule-$(GLIB_VERSION).lib
 
