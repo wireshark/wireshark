@@ -1,6 +1,6 @@
 # -*- python -*-
 #
-# $Id: ethereal_gen.py,v 1.28 2002/08/02 23:35:46 jmayer Exp $
+# $Id: ethereal_gen.py,v 1.29 2004/02/20 13:51:30 jmayer Exp $
 #                           
 # ethereal_gen.py (part of idl2eth)           
 #
@@ -1192,8 +1192,16 @@ class ethereal_gen_C:
             self.st.out(self.template_union_code_save_discriminant_long, discname=un.identifier() )
             self.addvar(self.c_s_disc + un.identifier() + ";")            
 
+        elif (st.kind() == idltype.tk_ulong):
+            self.st.out(self.template_union_code_save_discriminant_ulong, discname=un.identifier() )
+            self.addvar(self.c_s_disc + un.identifier() + ";")            
+
         elif (st.kind() == idltype.tk_short):
             self.st.out(self.template_union_code_save_discriminant_short, discname=un.identifier() )
+            self.addvar(self.c_s_disc + un.identifier() + ";")            
+
+        elif (st.kind() == idltype.tk_ushort):
+            self.st.out(self.template_union_code_save_discriminant_ushort, discname=un.identifier() )
             self.addvar(self.c_s_disc + un.identifier() + ";")            
 
         elif (st.kind() == idltype.tk_boolean):
@@ -2690,8 +2698,16 @@ disc_s_@discname@ = (gint32) u_octet4;     /* save Enum Value  discriminant and 
 disc_s_@discname@ = (gint32) s_octet4;     /* save gint32 discriminant and cast to gint32 */
 """
 
+    template_union_code_save_discriminant_ulong = """\
+disc_s_@discname@ = (gint32) u_octet4;     /* save guint32 discriminant and cast to gint32 */
+"""    
+
     template_union_code_save_discriminant_short = """\
 disc_s_@discname@ = (gint32) s_octet2;     /* save gint16 discriminant and cast to gint32 */
+"""    
+
+    template_union_code_save_discriminant_ushort = """\
+disc_s_@discname@ = (gint32) u_octet2;     /* save guint16 discriminant and cast to gint32 */
 """    
     
     template_union_code_save_discriminant_char = """\
