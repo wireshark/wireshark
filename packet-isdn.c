@@ -1,7 +1,7 @@
 /* packet-isdn.c
  * Routines for ISDN packet disassembly
  *
- * $Id: packet-isdn.c,v 1.1 2002/10/31 07:12:23 guy Exp $
+ * $Id: packet-isdn.c,v 1.2 2002/11/01 05:39:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -32,7 +32,6 @@
 #include <epan/circuit.h>
 
 static int proto_isdn = -1;
-static int hf_isdn_direction = -1;
 static int hf_isdn_channel = -1;
 
 static gint ett_isdn = -1;
@@ -41,11 +40,6 @@ static dissector_handle_t lapd_handle;
 static dissector_handle_t ppp_hdlc_handle;
 static dissector_handle_t v120_handle;
 static dissector_handle_t data_handle;
-
-static const true_false_string direction_tfs = {
-	"User-to-network",
-	"Network-to-user"
-};
 
 static const value_string channel_vals[] = {
 	{ 0,	"D" },
@@ -113,8 +107,6 @@ dissect_isdn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		ti = proto_tree_add_item(tree, proto_isdn, tvb, 0, 0, FALSE);
 		isdn_tree = proto_item_add_subtree(ti, ett_isdn);
 
-		proto_tree_add_boolean(isdn_tree, hf_isdn_direction, tvb, 0, 0,
-		    pinfo->pseudo_header->isdn.uton);
 		proto_tree_add_uint(isdn_tree, hf_isdn_channel, tvb, 0, 0,
 		    pinfo->pseudo_header->isdn.channel);
 	}
@@ -194,10 +186,6 @@ void
 proto_register_isdn(void)
 {
 	static hf_register_info hf[] = {
-		{ &hf_isdn_direction,
-		{ "Direction",	"isdn.direction", FT_BOOLEAN, BASE_NONE,
-		  TFS(&direction_tfs), 0x0, "", HFILL }},
-
 		{ &hf_isdn_channel,
 		{ "Channel",	"isdn.channel", FT_UINT8, BASE_DEC,
 		  VALS(channel_vals), 0x0, "", HFILL }},
