@@ -1,6 +1,6 @@
 /* netmon.c
  *
- * $Id: netmon.c,v 1.45 2002/01/24 23:02:56 guy Exp $
+ * $Id: netmon.c,v 1.46 2002/01/25 09:44:52 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -29,7 +29,9 @@
 #include "file_wrappers.h"
 #include "buffer.h"
 #include "netmon.h"
+#ifdef HAVE_NETINET_IN_H
 #include <netinet/in.h>
+#endif
 
 /* The file at
  *
