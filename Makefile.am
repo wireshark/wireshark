@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.708 2004/02/10 12:11:22 jmayer Exp $
+# $Id: Makefile.am,v 1.709 2004/02/19 08:24:44 ulfl Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -544,18 +544,25 @@ EXTRA_DIST = \
 	image/toolbar/capture_24.xpm	\
 	image/toolbar/cfilter_24.xpm	\
 	image/toolbar/dfilter_24.xpm	\
+	image/toolbar/stock_bottom_24.xpm \
 	image/toolbar/stock_close_24.xpm	\
 	image/toolbar/stock_colorselector_24.xpm	\
 	image/toolbar/stock_help_24.xpm	\
 	image/toolbar/stock_jump_to_24.xpm	\
+	image/toolbar/stock_left_arrow_24.xpm \
 	image/toolbar/stock_open_24.xpm	\
 	image/toolbar/stock_preferences_24.xpm	\
 	image/toolbar/stock_print_24.xpm	\
 	image/toolbar/stock_refresh_24.xpm	\
 	image/toolbar/stock_right_arrow_24.xpm	\
 	image/toolbar/stock_save_24.xpm	\
+	image/toolbar/stock_save_as_24.xpm \
 	image/toolbar/stock_search_24.xpm	\
 	image/toolbar/stock_stop_24.xpm	\
+	image/toolbar/stock_top_24.xpm \
+	image/toolbar/stock_zoom_1_24.xpm \
+	image/toolbar/stock_zoom_in_24.xpm \
+	image/toolbar/stock_zoom_out_24.xpm \
 	image/up_arrow.xpm	\
 	make-manuf		\
 	make-reg-dotc		\
