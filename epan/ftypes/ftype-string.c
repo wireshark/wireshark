@@ -1,5 +1,5 @@
 /*
- * $Id: ftype-string.c,v 1.20 2004/02/27 12:00:32 obiot Exp $
+ * $Id: ftype-string.c,v 1.21 2004/04/26 02:09:37 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -33,6 +33,8 @@
 #else
 #define CMP_MATCHES NULL
 #endif
+
+#include <ctype.h>
 
 static void
 string_fvalue_new(fvalue_t *fv)
@@ -76,12 +78,21 @@ string_repr_len(fvalue_t *fv, ftrepr_t rtype)
 		case FTREPR_DFILTER:
 			repr_len = 0;
 			for (p = fv->value.string; (c = *p) != '\0'; p++) {
+				/* Backslashes and double-quotes must
+				 * be escaped */
 				if (c == '\\' || c == '"') {
-					/* Backslashes and double-quotes
-					   must be escaped. */
+					repr_len += 2;
+				}
+				/* Values that can't nicely be represented
+				 * in ASCII need to be escaped. */
+				else if (!isprint(c)) {
+					/* c --> \xNN */
+					repr_len += 4;
+				}
+				/* Other characters are just passed through. */
+				else {
 					repr_len++;
 				}
-				repr_len++;
 			}
 			return repr_len + 2;	/* string plus leading and trailing quotes */
 	}
@@ -94,17 +105,32 @@ string_to_repr(fvalue_t *fv, ftrepr_t rtype, char *buf)
 {
 	gchar *p, c;
 	char *bufp;
+	char hex[2];
 
 	if (rtype == FTREPR_DFILTER) {
 		bufp = buf;
 		*bufp++ = '"';
 		for (p = fv->value.string; (c = *p) != '\0'; p++) {
+			/* Backslashes and double-quotes must
+			 * be escaped. */
 			if (c == '\\' || c == '"') {
-				/* Backslashes and double-quotes
-				   must be escaped. */
 				*bufp++ = '\\';
+				*bufp++ = c;
 			}
-			*bufp++ = c;
+			/* Values that can't nicely be represented
+			 * in ASCII need to be escaped. */
+			else if (!isprint(c)) {
+				/* c --> \xNN */
+				sprintf(hex, "%02x", (unsigned int) c);
+				*bufp++ = '\\';
+				*bufp++ = 'x';
+				*bufp++ = hex[0];
+				*bufp++ = hex[1];
+			}
+			/* Other characters are just passed through. */
+			else {
+				*bufp++ = c;
+			}
 		}
 		*bufp++ = '"';
 		*bufp = '\0';
