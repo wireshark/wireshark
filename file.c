@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.88 1999/09/11 04:50:34 gerald Exp $
+ * $Id: file.c,v 1.89 1999/09/11 12:33:56 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -911,6 +911,8 @@ select_packet(capture_file *cf, int row)
 
   /* A packet is selected, so "File/Print Packet" has something to print. */
   set_menu_sensitivity("/File/Print Packet", TRUE);
+  set_menu_sensitivity("/Display/Collapse All", TRUE);
+  set_menu_sensitivity("/Display/Expand All", TRUE);
 }
 
 /* Unselect the selected packet, if any. */
@@ -931,6 +933,8 @@ unselect_packet(capture_file *cf)
 
   /* No packet is selected, so "File/Print Packet" has nothing to print. */
   set_menu_sensitivity("/File/Print Packet", FALSE);
+  set_menu_sensitivity("/Display/Collapse All", FALSE);
+  set_menu_sensitivity("/Display/Expand All", FALSE);
 }
 
 static void

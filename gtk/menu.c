@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.3 1999/09/09 03:32:02 gram Exp $
+ * $Id: menu.c,v 1.4 1999/09/11 12:38:18 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -101,6 +101,8 @@ static GtkItemFactoryEntry menu_items[] =
   {"/Display/_Options...", NULL, GTK_MENU_FUNC(display_opt_cb), 0, NULL},
   {"/Display/_Match Selected", NULL, GTK_MENU_FUNC(match_selected_cb), 0, NULL},
   {"/Display/_Colorize Display...", NULL, GTK_MENU_FUNC(color_display_cb), 0, NULL},
+  {"/Display/Collapse _All", NULL, GTK_MENU_FUNC(collapse_all_cb), 0, NULL},
+  {"/Display/_Expand All", NULL, GTK_MENU_FUNC(expand_all_cb), 0, NULL},
   {"/_Tools", NULL, NULL, 0, "<Branch>" },
   {"/Tools/_Follow TCP Stream", NULL, GTK_MENU_FUNC(follow_stream_cb), 0, NULL},
 /*  {"/Tools/Graph", NULL, NULL, 0, NULL}, future use */
@@ -148,6 +150,8 @@ menus_init(void) {
     set_menu_sensitivity("/Edit/Copy", FALSE);
     set_menu_sensitivity("/Edit/Paste", FALSE);
     set_menu_sensitivity("/Edit/Find", FALSE);
+    set_menu_sensitivity("/Display/Collapse All", FALSE);
+    set_menu_sensitivity("/Display/Expand All", FALSE);
     set_menu_sensitivity("/Tools/Graph", FALSE);
     set_menu_sensitivity("/Tools/Summary", FALSE);
   }

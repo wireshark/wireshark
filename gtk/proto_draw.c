@@ -1,7 +1,7 @@
 /* gtkpacket.c
  * Routines for GTK+ packet display
  *
- * $Id: proto_draw.c,v 1.1 1999/09/09 02:42:40 gram Exp $
+ * $Id: proto_draw.c,v 1.2 1999/09/11 12:38:18 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -51,6 +51,8 @@
 
 extern GtkWidget    *byte_view;
 extern GdkFont      *m_r_font, *m_b_font;
+
+static gint	     tree_type[NUM_TREE_TYPES];
 
 static void
 proto_tree_draw_node(GNode *node, gpointer data);
@@ -119,6 +121,24 @@ packet_hex_print(GtkText *bv, guint8 *pd, gint len, gint bstart, gint blen) {
   }
 }
 
+void expand_all_tree(proto_tree *protocol_tree, GtkWidget *tree_view) {
+  int i;
+  for(i=0; i < NUM_TREE_TYPES; i++) {
+    tree_type[i] = 1;
+  }
+  gtk_tree_clear_items(GTK_TREE(tree_view), 0, -1);
+  proto_tree_draw(protocol_tree, tree_view);
+}
+
+void collapse_all_tree(proto_tree *protocol_tree, GtkWidget *tree_view) {
+  int i;
+  for(i=0; i < NUM_TREE_TYPES; i++) {
+    tree_type[i] = 0;
+  }
+  gtk_tree_clear_items(GTK_TREE(tree_view), 0, -1);
+  proto_tree_draw(protocol_tree, tree_view);
+}
+
 static void
 expand_tree(GtkWidget *w, gpointer data) {
   gint *val = (gint *) data;
@@ -152,7 +172,6 @@ proto_tree_draw_node(GNode *node, gpointer data)
 	GtkWidget	*ti, *subtree;
 	gchar		label_str[ITEM_LABEL_LENGTH];
 	gchar		*label_ptr;
-	static gint	tree_type[NUM_TREE_TYPES];
 
 	if (!fi->visible)
 		return;
