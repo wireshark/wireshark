@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.259 2004/05/13 03:34:14 gerald Exp $
+# $Id: configure.in,v 1.260 2004/05/13 21:56:09 jmayer Exp $
 #
 AC_INIT(etypes.h)
 
@@ -734,12 +734,12 @@ changequote([, ])dnl
 	then
 		want_krb5=yes
 	else
-		want_krb5=no
+		want_krb5=yes
 		krb5_dir=$withval
 	fi
 ],[
 	#
-	# Use kerberos/heimdal if it's present, otherwise don't.
+	# Use kerberos/heimdal if specified, otherwise don't.
 	#
 	want_krb5=no
 	krb5_dir=
