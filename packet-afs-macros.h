@@ -8,7 +8,7 @@
  * Portions based on information/specs retrieved from the OpenAFS sources at
  *   www.openafs.org, Copyright IBM.
  *
- * $Id: packet-afs-macros.h,v 1.23 2004/01/19 18:36:32 jmayer Exp $
+ * $Id: packet-afs-macros.h,v 1.24 2004/05/11 14:21:48 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -53,6 +53,18 @@
 #define OUT_INT(field) \
 	proto_tree_add_int(tree, field, tvb, offset, sizeof(gint32), tvb_get_ntohl(tvb, offset)); \
 	offset += 4;
+
+/* Output a unsigned integer, stored into field 'field'
+   Assumes it is in network byte order, converts to host before using */
+#define OUT_UINT64(field) \
+	proto_tree_add_item(tree, field, tvb, offset, 8, FALSE); \
+	offset += 8;
+
+/* Output a unsigned integer, stored into field 'field'
+   Assumes it is in network byte order, converts to host before using */
+#define OUT_INT64(field) \
+	proto_tree_add_item(tree, field, tvb, offset, 8, FALSE); \
+	offset += 8;
 
 /* Output a unsigned integer, stored into field 'field'
    Assumes it is in network byte order, converts to host before using,

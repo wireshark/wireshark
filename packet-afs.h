@@ -1,7 +1,7 @@
 /* packet-afs.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet-afs.h,v 1.7 2001/05/27 05:00:17 guy Exp $
+ * $Id: packet-afs.h,v 1.8 2004/05/11 14:21:48 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -64,7 +64,7 @@
 #define CB_TYPE_DROPPED 3
 
 #define OPCODE_LOW 		0
-#define OPCODE_HIGH     550 /* arbitrary, is just a fuzzy check for encrypted traffic */
+#define OPCODE_HIGH     66000 /* arbitrary, is just a fuzzy check for encrypted traffic */
 #define VOTE_LOW        10000
 #define VOTE_HIGH       10007
 #define DISK_LOW        20000

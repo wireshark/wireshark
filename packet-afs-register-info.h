@@ -8,7 +8,7 @@
  * Portions based on information/specs retrieved from the OpenAFS sources at
  *   www.openafs.org, Copyright IBM.
  *
- * $Id: packet-afs-register-info.h,v 1.19 2003/10/06 20:46:50 guy Exp $
+ * $Id: packet-afs-register-info.h,v 1.20 2004/05/11 14:21:48 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -113,6 +113,13 @@
 	FT_UINT32, BASE_DEC, 0, 0, "Length", HFILL }},
 { &hf_afs_fs_flength, { "FLength", "afs.fs.flength",
 	FT_UINT32, BASE_DEC, 0, 0, "FLength", HFILL }},
+{ &hf_afs_fs_offset64, { "Offset64", "afs.fs.offset64",
+	FT_UINT64, BASE_DEC,
+	0, 0, "Offset64", HFILL }},
+{ &hf_afs_fs_length64, { "Length64", "afs.fs.length64",
+	FT_UINT64, BASE_DEC, 0, 0, "Length64", HFILL }},
+{ &hf_afs_fs_flength64, { "FLength64", "afs.fs.flength64",
+	FT_UINT64, BASE_DEC, 0, 0, "FLength64", HFILL }},
 { &hf_afs_fs_errcode, { "Error Code", "afs.fs.errcode",
 	FT_UINT32, BASE_DEC, VALS(afs_errors), 0, "Error Code", HFILL }},
 { &hf_afs_fs_data, { "Data", "afs.fs.data",

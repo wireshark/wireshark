@@ -8,7 +8,7 @@
  * Portions based on information/specs retrieved from the OpenAFS sources at
  *   www.openafs.org, Copyright IBM.
  *
- * $Id: packet-afs.c,v 1.56 2004/01/19 18:36:32 jmayer Exp $
+ * $Id: packet-afs.c,v 1.57 2004/05/11 14:21:48 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -798,6 +798,31 @@ dissect_fs_request(tvbuff_t *tvb, struct rxinfo *rxinfo, proto_tree *tree, int o
 			OUT_RXString(hf_afs_fs_symlink_name);
 			OUT_RXString(hf_afs_fs_symlink_content);
 			OUT_FS_AFSStoreStatus("Symlink Status");
+			break;
+		case 220: /* residencycmd */
+			OUT_FS_AFSFid("Target");
+			/* need residency inputs here */
+			break;
+		case 65536: /* inline bulk status */
+			OUT_FS_AFSCBFids();
+			break;
+		case 65537: /* fetch-data-64 */
+			OUT_FS_AFSFid("Target");
+			OUT_INT64(hf_afs_fs_offset64);
+			OUT_INT64(hf_afs_fs_length64);
+			/* need more here */
+			break;
+		case 65538: /* store-data-64 */
+			OUT_FS_AFSFid("Target");
+			OUT_FS_AFSStoreStatus("Status");
+			OUT_INT64(hf_afs_fs_offset64);
+			OUT_INT64(hf_afs_fs_length64);
+			OUT_INT64(hf_afs_fs_flength64);
+			/* need residency inputs here */
+			break;
+		case 65539: /* give up all cbs */
+			break;
+		case 65540: /* get capabilities */
 			break;
 	}
 }

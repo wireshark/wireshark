@@ -8,7 +8,7 @@
  * Portions based on information/specs retrieved from the OpenAFS sources at
  *   www.openafs.org, Copyright IBM.
  *
- * $Id: packet-afs-defs.h,v 1.13 2003/03/05 09:52:22 sahlberg Exp $
+ * $Id: packet-afs-defs.h,v 1.14 2004/05/11 14:21:48 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -68,6 +68,11 @@ static const value_string fs_req[] = {
 	{ 162,		"dfs-flushcps" },
 	{ 163,		"dfs-symlink" },
 	{ 220,		"residency" },
+	{ 65536, 	"inline-bulk-status" },
+	{ 65537, 	"fetch-data-64" },
+	{ 65538, 	"store-data-64" },
+	{ 65539, 	"give-up-all-callbacks" },
+	{ 65540, 	"get-capabilities" },
 	{ 0,		NULL },
 };
 
@@ -87,6 +92,9 @@ static const value_string cb_req[] = {
 	{ 216,		"get-cellservdb" },
 	{ 217,		"get-local-cell" },
 	{ 218,		"get-cache-config" },
+	{ 65536,	"get-ce-64" },
+	{ 65537,	"get-cell-by-num" },
+	{ 65538,	"get-capabilities" },
 	{ 0,		NULL },
 };
 
@@ -206,6 +214,8 @@ static const value_string vol_req[] = {
 	{ 126,		"set-info" },
 	{ 127,		"x-list-partitions" },
 	{ 128,		"forward-multiple" },
+	{ 65536,	"convert-ro" },
+	{ 65537,	"getsize" },
 	{ 0,		NULL },
 };
 
@@ -530,6 +540,9 @@ static int hf_afs_fs_fid_uniqifier = -1;
 static int hf_afs_fs_offset = -1;
 static int hf_afs_fs_length = -1;
 static int hf_afs_fs_flength = -1;
+static int hf_afs_fs_offset64 = -1;
+static int hf_afs_fs_length64 = -1;
+static int hf_afs_fs_flength64 = -1;
 static int hf_afs_fs_errcode = -1;
 static int hf_afs_fs_data = -1;
 static int hf_afs_fs_name = -1;
