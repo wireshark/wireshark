@@ -3,7 +3,7 @@
  * Copyright 2001,2003 Tim Potter <tpot@samba.org>
  *  2002 structure and command dissectors by Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-netlogon.c,v 1.91 2003/09/12 11:13:17 sahlberg Exp $
+ * $Id: packet-dcerpc-netlogon.c,v 1.92 2003/09/22 00:59:47 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -839,7 +839,7 @@ netlogon_dissect_GROUP_MEMBERSHIP(tvbuff_t *tvb, int offset,
 	}
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_user_rid, NULL);
+		hf_netlogon_group_rid, NULL);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_netlogon_attrs, NULL);
@@ -1731,7 +1731,7 @@ netlogon_dissect_DELTA_USER(tvbuff_t *tvb, int offset,
 			char *drep)
 {
 	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_acct_name, 0);
+		hf_netlogon_acct_name, 3);
 
 	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
 		hf_netlogon_full_name, 0);
@@ -1872,7 +1872,7 @@ netlogon_dissect_DELTA_DOMAIN(tvbuff_t *tvb, int offset,
 			char *drep)
 {
 	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_domain_name, 1);
+		hf_netlogon_domain_name, 3);
 
 	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
 		hf_netlogon_oem_info, 0);
@@ -1955,7 +1955,7 @@ netlogon_dissect_DELTA_GROUP(tvbuff_t *tvb, int offset,
 			char *drep)
 {
 	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_group_name, 0);
+		hf_netlogon_group_name, 3);
 
 	offset = netlogon_dissect_GROUP_MEMBERSHIP(tvb, offset,
 		pinfo, tree, drep);
@@ -2972,13 +2972,13 @@ netlogon_dissect_DELTA_ID_UNION(tvbuff_t *tvb, int offset,
 	}
 
 	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_level16, &level);
+		hf_netlogon_delta_type, &level);
 
 	ALIGN_TO_4_BYTES;
 	switch(level){
 	case 1:
 		offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-			hf_netlogon_user_rid, NULL);
+			hf_netlogon_group_rid, NULL);
 		break;
 	case 2:
 		offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
@@ -3083,6 +3083,7 @@ netlogon_dissect_DELTA_ENUM(tvbuff_t *tvb, int offset,
 	proto_item *item=NULL;
 	proto_tree *tree=NULL;
  	int old_offset=offset;
+	guint16 type;
 
 	if(parent_tree){
 		item = proto_tree_add_text(parent_tree, tvb, offset, 0,
@@ -3091,7 +3092,10 @@ netlogon_dissect_DELTA_ENUM(tvbuff_t *tvb, int offset,
 	}
 
 	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_delta_type, NULL);
+		hf_netlogon_delta_type, &type);
+
+	proto_item_append_text(item, val_to_str(
+				       type, delta_type_vals, "Unknown"));
 
 	offset = netlogon_dissect_DELTA_ID_UNION(tvb, offset,
 		pinfo, tree, drep);
