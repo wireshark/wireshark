@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.316 2003/04/03 05:43:59 tpot Exp $
+ * $Id: packet-smb.c,v 1.317 2003/04/03 09:12:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -44,6 +44,7 @@
 #include "prefs.h"
 #include "reassemble.h"
 #include "tap.h"
+#include "packet-ipx.h"
 
 #include "packet-smb-common.h"
 #include "packet-smb-mailslot.h"
@@ -91,6 +92,8 @@
  */
 static int proto_smb = -1;
 static int hf_smb_cmd = -1;
+static int hf_smb_session_id = -1;
+static int hf_smb_sequence_num = -1;
 static int hf_smb_pid = -1;
 static int hf_smb_tid = -1;
 static int hf_smb_uid = -1;
@@ -15566,7 +15569,7 @@ dissect_smb_flags2(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 #define SMB_FLAGS_DIRN 0x80
 
 
-static gboolean
+static void
 dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
 	int offset = 0;
@@ -15594,17 +15597,6 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	si=&si_arr[si_counter];
 
 	top_tree=parent_tree;
-
-	/* must check that this really is a smb packet */
-	if (!tvb_bytes_exist(tvb, 0, 4))
-		return FALSE;
-
-	if( (tvb_get_guint8(tvb, 0) != 0xff)
-	    || (tvb_get_guint8(tvb, 1) != 'S')
-	    || (tvb_get_guint8(tvb, 2) != 'M')
-	    || (tvb_get_guint8(tvb, 3) != 'B') ){
-		return FALSE;
-	}
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL)){
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "SMB");
@@ -15969,22 +15961,47 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	 *	the next four bytes are, for SMB-over-IPX (with no
 	 *	NetBIOS involved) two bytes of Session ID and two bytes
 	 *	of SequenceNumber.
-	 *
-	 * If we ever implement SMB-over-IPX (which I suspect goes over
-	 * IPX sockets 0x0550, 0x0552, and maybe 0x0554, as per the
-	 * document in question), we'd probably want to have some way
-	 * to determine whether this is SMB-over-IPX or not (which could
-	 * be done by adding a PT_IPXSOCKET port type, having the
-	 * IPX dissector set "pinfo->srcport" and "pinfo->destport",
-	 * and having the SMB dissector check for a port type of
-	 * PT_IPXSOCKET and for "pinfo->match_port" being either
-	 * IPX_SOCKET_NWLINK_SMB_SERVER or IPX_SOCKET_NWLINK_SMB_REDIR
-	 * or, if it also uses 0x0554, IPX_SOCKET_NWLINK_SMB_MESSENGER).
 	 */
+	if (pinfo->ptype == PT_IPX &&
+	    (pinfo->match_port == IPX_SOCKET_NWLINK_SMB_SERVER ||
+	     pinfo->match_port == IPX_SOCKET_NWLINK_SMB_REDIR ||
+	     pinfo->match_port == IPX_SOCKET_NWLINK_SMB_MESSENGER)) {
+		/*
+		 * This is SMB-over-IPX.
+		 * XXX - high part of pid?
+		 * XXX - doe we have to worry about "sequenced commands",
+		 * as per the Samba document?  They say that for
+		 * "unsequenced commands" (with a sequence number of 0),
+		 * the Mid must be unique, but perhaps the Mid doesn't
+		 * have to be unique for sequenced commands.  In at least
+		 * one capture with SMB-over-IPX, however, the Mids
+		 * are unique even for sequenced commands.
+		 */
+		proto_tree_add_item(htree, hf_smb_reserved, tvb, offset, 6,
+		    TRUE);
+		offset += 6;
 
-	/* 12 reserved bytes */
-	proto_tree_add_item(htree, hf_smb_reserved, tvb, offset, 12, TRUE);
-	offset += 12;
+		/* Session ID */
+		proto_tree_add_item(htree, hf_smb_session_id, tvb, offset, 2,
+		    TRUE);
+		offset += 2;
+
+		/* Sequence number */
+		proto_tree_add_item(htree, hf_smb_sequence_num, tvb, offset, 2,
+		    TRUE);
+		offset += 2;
+
+		proto_tree_add_item(htree, hf_smb_reserved, tvb, offset, 2,
+		    TRUE);
+		offset += 2;
+	} else {
+		/*
+		 * 12 reserved bytes.
+		 * XXX - high part of pid?
+		 */
+		proto_tree_add_item(htree, hf_smb_reserved, tvb, offset, 12, TRUE);
+		offset += 12;
+	}
 
 	/* TID */
 	proto_tree_add_uint(htree, hf_smb_tid, tvb, offset, 2, si->tid);
@@ -16038,6 +16055,23 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	}
 
 	tap_queue_packet(smb_tap, pinfo, si);
+}
+
+static gboolean
+dissect_smb_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
+{
+	/* must check that this really is a smb packet */
+	if (!tvb_bytes_exist(tvb, 0, 4))
+		return FALSE;
+
+	if( (tvb_get_guint8(tvb, 0) != 0xff)
+	    || (tvb_get_guint8(tvb, 1) != 'S')
+	    || (tvb_get_guint8(tvb, 2) != 'M')
+	    || (tvb_get_guint8(tvb, 3) != 'B') ){
+		return FALSE;
+	}
+
+	dissect_smb(tvb, pinfo, parent_tree);
 	return TRUE;
 }
 
@@ -16088,6 +16122,14 @@ proto_register_smb(void)
 	{ &hf_smb_reserved,
 		{ "Reserved", "smb.reserved", FT_BYTES, BASE_HEX,
 		NULL, 0, "Reserved bytes, must be zero", HFILL }},
+
+	{ &hf_smb_session_id,
+		{ "Session ID", "smb.sessid", FT_UINT16, BASE_DEC,
+		NULL, 0, "Session ID", HFILL }},
+
+	{ &hf_smb_sequence_num,
+		{ "Sequence Number", "smb.sequence_num", FT_UINT16, BASE_DEC,
+		NULL, 0, "Sequence Number", HFILL }},
 
 	{ &hf_smb_pid,
 		{ "Process ID", "smb.pid", FT_UINT16, BASE_DEC,
@@ -18309,7 +18351,15 @@ proto_register_smb(void)
 void
 proto_reg_handoff_smb(void)
 {
-	heur_dissector_add("netbios", dissect_smb, proto_smb);
+	dissector_handle_t smb_handle;
+
 	gssapi_handle = find_dissector("gssapi");
 	ntlmssp_handle = find_dissector("ntlmssp");
+
+	heur_dissector_add("netbios", dissect_smb_heur, proto_smb);
+	smb_handle = create_dissector_handle(dissect_smb, proto_smb);
+	dissector_add("ipx.socket", IPX_SOCKET_NWLINK_SMB_SERVER, smb_handle);
+	dissector_add("ipx.socket", IPX_SOCKET_NWLINK_SMB_REDIR, smb_handle);
+	dissector_add("ipx.socket", IPX_SOCKET_NWLINK_SMB_MESSENGER,
+	    smb_handle);
 }
