@@ -1198,6 +1198,7 @@ H225calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 							break;
 						}
 					}
+			        list = g_list_next (list);
 				}
 					foo = g_list_length(list);
 				/* Set the Setup address if it was not set */
