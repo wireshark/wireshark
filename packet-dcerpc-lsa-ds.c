@@ -3,7 +3,7 @@
  * Copyright 2002-2003, Tim Potter <tpot@samba.org>
  * Copyright 2002, Jim McDonough <jmcd@samba.org>
  *
- * $Id: packet-dcerpc-lsa-ds.c,v 1.9 2003/02/14 06:14:27 tpot Exp $
+ * $Id: packet-dcerpc-lsa-ds.c,v 1.10 2003/04/27 04:33:09 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -210,8 +210,8 @@ lsa_ds_dissect_role_get_dom_info_reply(tvbuff_t *tvb, int offset,
 		lsa_ds_dissect_DS_DOMINFO_CTR, NDR_POINTER_UNIQUE,
 		"DOMAIN_INFORMATION pointer", -1);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-		hf_lsa_ds_rc, NULL);
+	offset = dissect_ntstatus(
+		tvb, offset, pinfo, tree, drep, hf_lsa_ds_rc, NULL);
 
 	return offset;
 }
