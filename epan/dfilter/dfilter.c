@@ -1,5 +1,5 @@
 /*
- * $Id: dfilter.c,v 1.17 2004/06/15 10:38:14 guy Exp $
+ * $Id: dfilter.c,v 1.18 2004/06/16 07:33:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -241,7 +241,9 @@ dfilter_compile(const gchar *text, dfilter_t **dfp)
 	/* Tell the parser that we have reached the end of input; that
 	 * way, it'll reset its state for the next compile.  (We want
 	 * to do that even if we got a syntax error, to make sure the
-	 * parser state is cleaned up.) */
+	 * parser state is cleaned up; we don't create a new parser
+	 * object when we start a new parse, and don't destroy it when
+	 * the parse finishes.) */
 	Dfilter(ParserObj, 0, NULL, dfw);
 
 	/* One last check for syntax error (after EOF) */
