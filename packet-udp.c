@@ -1,7 +1,7 @@
 /* packet-udp.c
  * Routines for UDP packet disassembly
  *
- * $Id: packet-udp.c,v 1.68 2000/04/18 04:46:07 guy Exp $
+ * $Id: packet-udp.c,v 1.69 2000/04/20 07:05:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -140,7 +140,7 @@ decode_udp_ports( const u_char *pd, int offset, frame_data *fd,
 }
 
 
-void
+static void
 dissect_udp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   e_udphdr  uh;
   guint16    uh_sport, uh_dport, uh_ulen, uh_sum;

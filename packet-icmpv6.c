@@ -1,7 +1,7 @@
 /* packet-icmpv6.c
  * Routines for ICMPv6 packet disassembly 
  *
- * $Id: packet-icmpv6.c,v 1.14 2000/03/12 04:47:38 gram Exp $
+ * $Id: packet-icmpv6.c,v 1.15 2000/04/20 07:05:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -56,6 +56,7 @@
 #include <glib.h>
 #include "packet.h"
 #include "packet-ipv6.h"
+#include "packet-ip.h"
 #include "resolv.h"
 
 #ifndef offsetof
@@ -198,7 +199,7 @@ again:
     goto again;
 }
 
-void
+static void
 dissect_icmpv6(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
     proto_tree *icmp6_tree, *field_tree;
@@ -600,3 +601,10 @@ proto_register_icmpv6(void)
   proto_register_field_array(proto_icmpv6, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 }
+
+void
+proto_reg_handoff_icmpv6(void)
+{
+  dissector_add("ip.proto", IP_PROTO_ICMPV6, dissect_icmpv6);
+}
+

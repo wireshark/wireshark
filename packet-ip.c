@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.82 2000/04/17 00:32:38 guy Exp $
+ * $Id: packet-ip.c,v 1.83 2000/04/20 07:05:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -98,7 +98,8 @@ static gint ett_ip_option_sec = -1;
 static gint ett_ip_option_route = -1;
 static gint ett_ip_option_timestamp = -1;
 
-static dissector_table_t ip_dissector_table;
+/* Used by IPv6 as well, so not static */
+dissector_table_t ip_dissector_table;
 
 static int proto_igmp = -1;
 static int hf_igmp_version = -1;
@@ -862,28 +863,6 @@ dissect_ip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   /* XXX - check to make sure this is at least IPH_MIN_LEN. */
   hlen = lo_nibble(iph.ip_v_hl) * 4;	/* IP header length, in bytes */
   
-  switch (iph.ip_p) {
-    case IP_PROTO_ICMP:
-    case IP_PROTO_IGMP:
-    case IP_PROTO_TCP:
-    case IP_PROTO_UDP:
-    case IP_PROTO_OSPF:
-    case IP_PROTO_GRE:
-    case IP_PROTO_ESP:
-    case IP_PROTO_AH:
-    case IP_PROTO_IPV6:
-    case IP_PROTO_PIM:
-    case IP_PROTO_VINES:
-      /* Names are set in the associated dissect_* routines */
-      break;
-    default:
-      if (check_col(fd, COL_PROTOCOL))
-        col_add_str(fd, COL_PROTOCOL, "IP");
-      if (check_col(fd, COL_INFO))
-        col_add_fstr(fd, COL_INFO, "%s (0x%02x)",
-	    ipprotostr(iph.ip_p), iph.ip_p);
-  }
-
   if (tree) {
 
     switch (IPTOS_TOS(iph.ip_tos)) {
@@ -995,20 +974,22 @@ dissect_ip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   }
 
 again:
-
-  /* do lookup with the subdissector table */
-  if (dissector_try_port(ip_dissector_table, nxt, pd, offset, fd, tree))
-      return;
-
   switch (nxt) {
     case IP_PROTO_AH:
       advance = dissect_ah(pd, offset, fd, tree);
       nxt = pd[offset];
       offset += advance;
       goto again;
-    default:
-      dissect_data(pd, offset, fd, tree);
-      break;
+  }
+
+  /* do lookup with the subdissector table */
+  if (!dissector_try_port(ip_dissector_table, nxt, pd, offset, fd, tree)) {
+    /* Unknown protocol */
+    if (check_col(fd, COL_PROTOCOL))
+      col_add_str(fd, COL_PROTOCOL, "IP");
+    if (check_col(fd, COL_INFO))
+      col_add_fstr(fd, COL_INFO, "%s (0x%02x)", ipprotostr(iph.ip_p), iph.ip_p);
+    dissect_data(pd, offset, fd, tree);
   }
 }
 
@@ -1486,8 +1467,9 @@ proto_reg_handoff_ip(void)
 {
 	dissector_add("ethertype", ETHERTYPE_IP, dissect_ip);
 	dissector_add("ppp.protocol", PPP_IP, dissect_ip);
-	dissector_add("ip.proto", IP_PROTO_IPV4, dissect_ip);
 	dissector_add("llc.dsap", SAP_IP, dissect_ip);
+	dissector_add("ip.proto", IP_PROTO_IPV4, dissect_ip);
+	dissector_add("ip.proto", IP_PROTO_IPIP, dissect_ip);
 }
 
 void

@@ -1,7 +1,7 @@
 /* packet-ipv6.c
  * Routines for IPv6 packet disassembly 
  *
- * $Id: packet-ipv6.c,v 1.34 2000/04/16 22:46:20 guy Exp $
+ * $Id: packet-ipv6.c,v 1.35 2000/04/20 07:05:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -45,11 +45,9 @@
 #include "etypes.h"
 #include "ppptypes.h"
 #include "packet.h"
-#include "packet-icmpv6.h"
 #include "packet-ip.h"
 #include "packet-ipsec.h"
 #include "packet-ipv6.h"
-#include "packet-pim.h"
 #include "packet-tcp.h"
 #include "packet-udp.h"
 #include "resolv.h"
@@ -268,9 +266,6 @@ dissect_ipv6(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   SET_ADDRESS(&pi.net_dst, AT_IPv6, 16, &pd[offset + IP6H_DST]);
   SET_ADDRESS(&pi.dst, AT_IPv6, 16, &pd[offset + IP6H_DST]);
 
-  if (check_col(fd, COL_PROTOCOL))
-    col_add_str(fd, COL_PROTOCOL, "IPv6");
-
   if (tree) {
     /* !!! specify length */
     ti = proto_tree_add_item(tree, proto_ipv6, offset, 40, NULL);
@@ -345,9 +340,6 @@ again:
 	nxt = pd[poffset = offset];
 	offset += advance;
 	goto again;
-    case IP_PROTO_IPIP:
-	dissect_ip(pd, offset, fd, tree);
-	break;
     case IP_PROTO_ROUTING:
 	advance = dissect_routing6(pd, offset, fd, tree);
 	nxt = pd[poffset = offset];
@@ -358,74 +350,46 @@ again:
 	nxt = pd[poffset = offset];
 	offset += advance;
 	goto again;
-    case IP_PROTO_ICMPV6:
-#ifdef TEST_FINALHDR
-	proto_tree_add_item_hidden(ipv6_tree, hf_ipv6_final, poffset, 1, nxt);
-#endif
-	if (!frag)
-		dissect_icmpv6(pd, offset, fd, tree);
-	else
-		dissect_data(pd, offset, fd, tree);
-	break;
-    case IP_PROTO_NONE:
-#ifdef TEST_FINALHDR
-	proto_tree_add_item_hidden(ipv6_tree, hf_ipv6_final, poffset, 1, nxt);
-#endif
-	if (check_col(fd, COL_INFO)) {
-	    col_add_fstr(fd, COL_INFO, "IPv6 no next header");
-	}
-	break;
     case IP_PROTO_AH:
 	advance = dissect_ah(pd, offset, fd, tree);
 	nxt = pd[poffset = offset];
 	offset += advance;
 	goto again;
-    case IP_PROTO_ESP:
-	dissect_esp(pd, offset, fd, tree);
-	break;
     case IP_PROTO_DSTOPTS:
 	advance = dissect_dstopts(pd, offset, fd, tree);
 	nxt = pd[poffset = offset];
 	offset += advance;
 	goto again;
-    case IP_PROTO_TCP:
-#ifdef TEST_FINALHDR
-	proto_tree_add_item_hidden(ipv6_tree, hf_ipv6_final, poffset, 1, nxt);
-#endif
-	if (!frag)
-		dissect_tcp(pd, offset, fd, tree);
-	else
-		dissect_data(pd, offset, fd, tree);
-	break;
-    case IP_PROTO_UDP:
-#ifdef TEST_FINALHDR
-	proto_tree_add_item_hidden(ipv6_tree, hf_ipv6_final, poffset, 1, nxt);
-#endif
-	if (!frag)
-		dissect_udp(pd, offset, fd, tree);
-	else
-		dissect_data(pd, offset, fd, tree);
-	break;
-    case IP_PROTO_PIM:
-#ifdef TEST_FINALHDR
-	proto_tree_add_item_hidden(ipv6_tree, hf_ipv6_final, poffset, 1, nxt);
-#endif
-	dissect_pim(pd, offset, fd, tree);
-	break;
-    case IP_PROTO_IPCOMP:
-	dissect_ipcomp(pd, offset, fd, tree);
-	break;
-    default:
-#ifdef TEST_FINALHDR
-	proto_tree_add_item_hidden(ipv6_tree, hf_ipv6_final, poffset, 1, nxt);
-#endif
-	if (check_col(fd, COL_INFO)) {
-	    col_add_fstr(fd, COL_INFO, "%s (0x%02x)",
-		ipprotostr(nxt), nxt);
-	}
-	dissect_data(pd, offset, fd, tree);
-	break;
     }
+
+#ifdef TEST_FINALHDR
+  proto_tree_add_item_hidden(ipv6_tree, hf_ipv6_final, poffset, 1, nxt);
+#endif
+  if (frag) {
+    /* fragmented */
+    if (check_col(fd, COL_PROTOCOL))
+      col_add_str(fd, COL_PROTOCOL, "IPv6");
+    /* COL_INFO was filled in by "dissect_frag6()" */
+    dissect_data(pd, offset, fd, tree);
+  } else {
+    /* do lookup with the subdissector table */
+    if (!dissector_try_port(ip_dissector_table, nxt, pd, offset, fd, tree)) {
+      /* Unknown protocol */
+      if (check_col(fd, COL_PROTOCOL))
+	col_add_str(fd, COL_PROTOCOL, "IPv6");
+      if (check_col(fd, COL_INFO))
+	col_add_fstr(fd, COL_INFO, "%s (0x%02x)", ipprotostr(nxt), nxt);
+      dissect_data(pd, offset, fd, tree);
+    }
+  }
+}
+
+static void
+dissect_ipv6_none(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
+  if (check_col(fd, COL_INFO))
+    col_add_fstr(fd, COL_INFO, "IPv6 no next header");
+
+  /* XXX - dissect the payload as padding? */
 }
 
 void
@@ -479,4 +443,5 @@ proto_reg_handoff_ipv6(void)
 	dissector_add("ethertype", ETHERTYPE_IPv6, dissect_ipv6);
 	dissector_add("ppp.protocol", PPP_IPV6, dissect_ipv6);
 	dissector_add("ip.proto", IP_PROTO_IPV6, dissect_ipv6);
+	dissector_add("ip.proto", IP_PROTO_NONE, dissect_ipv6_none);
 }

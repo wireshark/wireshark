@@ -1,7 +1,7 @@
 /* packet-ipsec.c
  * Routines for IPsec/IPComp packet disassembly 
  *
- * $Id: packet-ipsec.c,v 1.13 2000/04/16 22:46:20 guy Exp $
+ * $Id: packet-ipsec.c,v 1.14 2000/04/20 07:05:55 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -141,7 +141,7 @@ dissect_ah(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
     return advance;
 }
 
-void
+static void
 dissect_esp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
     proto_tree *esp_tree;
@@ -178,7 +178,7 @@ dissect_esp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
     }
 }
 
-void
+static void
 dissect_ipcomp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
     proto_tree *ipcomp_tree;

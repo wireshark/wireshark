@@ -2,7 +2,7 @@
  * Routines for PIM disassembly
  * (c) Copyright Jun-ichiro itojun Hagino <itojun@itojun.org>
  *
- * $Id: packet-pim.c,v 1.11 2000/04/16 22:46:22 guy Exp $
+ * $Id: packet-pim.c,v 1.12 2000/04/20 07:05:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -162,7 +162,7 @@ dissect_pim_addr(const u_char *bp, const u_char *ep, enum pimv2_addrtype at,
     return buf;
 }
 
-void 
+static void 
 dissect_pim(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     struct pim pim;
     static const value_string type1vals[] = {

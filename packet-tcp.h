@@ -1,6 +1,6 @@
 /* packet-tcp.h
  *
- * $Id: packet-tcp.h,v 1.3 2000/04/12 22:53:15 guy Exp $
+ * $Id: packet-tcp.h,v 1.4 2000/04/20 07:05:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -27,5 +27,3 @@ extern guint16   tcp_urgent_pointer;
 
 extern void decode_tcp_ports(const u_char *, int, frame_data *,
 	proto_tree *, int, int);
-
-void dissect_tcp(const u_char *, int, frame_data *, proto_tree *);

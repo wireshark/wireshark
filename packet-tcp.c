@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.71 2000/04/17 02:39:54 guy Exp $
+ * $Id: packet-tcp.c,v 1.72 2000/04/20 07:05:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -423,7 +423,7 @@ decode_tcp_ports( const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 }
 
 
-void
+static void
 dissect_tcp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   e_tcphdr   th;
   proto_tree *tcp_tree = NULL, *field_tree = NULL;

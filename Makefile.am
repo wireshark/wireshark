@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.190 2000/04/20 02:17:54 guy Exp $
+# $Id: Makefile.am,v 1.191 2000/04/20 07:05:52 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -82,7 +82,6 @@ DISSECTOR_SOURCES = \
 	packet-http.c  \
 	packet-http.h  \
 	packet-icmpv6.c\
-	packet-icmpv6.h\
 	packet-icp.c   \
 	packet-icq.c   \
 	packet-imap.c   \
@@ -148,7 +147,6 @@ DISSECTOR_SOURCES = \
 	packet-ospf.c  \
 	packet-ospf.h  \
 	packet-pim.c   \
-	packet-pim.h   \
 	packet-pop.c   \
 	packet-portmap.c   \
 	packet-portmap.h   \
