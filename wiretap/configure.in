@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.24 2000/10/17 00:09:43 guy Exp $
+# $Id: configure.in,v 1.25 2000/10/17 07:30:35 guy Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -33,6 +33,33 @@ if test x$GCC != x ; then
   AC_MSG_RESULT(yes)
 else
   AC_MSG_RESULT(no)
+fi
+
+#
+# Add any platform-specific compiler flags needed.
+#
+AC_MSG_CHECKING(for platform-specific compiler flags)
+if test "x$GCC" = x
+then
+	#
+	# Not GCC - assume it's the vendor's compiler.
+	#
+	case "$host_os" in
+	hpux*)
+		#
+		# HP's ANSI C compiler; flags suggested by Jost Martin.
+		# "-Ae" for ANSI C plus extensions such as "long long".
+		# "+O2", for optimization.  XXX - works with "-g"?
+		#
+		CFLAGS="-Ae +O2 $CFLAGS"
+		AC_MSG_RESULT(HP ANSI C compiler - added -Ae +O2)
+		;;
+	*)
+		AC_MSG_RESULT(none needed)
+		;;
+	esac
+else
+	AC_MSG_RESULT(none needed)
 fi
 
 # Checks for glib first, or gtk+ if not present
