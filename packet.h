@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.163 1999/12/15 04:34:20 guy Exp $
+ * $Id: packet.h,v 1.164 1999/12/29 07:25:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -251,6 +251,8 @@ void       col_append_fstr(frame_data *, gint, gchar *, ...);
 #endif
 void       col_add_str(frame_data *, gint, const gchar *);
 void       col_append_str(frame_data *, gint, gchar *);
+void       col_set_cls_time(frame_data *, int);
+void       fill_in_columns(frame_data *);
 
 void blank_packetinfo(void);
 

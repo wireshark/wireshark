@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.60 1999/12/12 22:39:29 gram Exp $
+ * $Id: packet.c,v 1.61 1999/12/29 07:25:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -63,7 +63,20 @@
 
 #include "packet.h"
 #include "print.h"
+#include "timestamp.h"
 #include "file.h"
+
+#include "packet-atalk.h"
+
+#include "packet-ipv6.h"
+
+#include "packet-sna.h"
+
+#include "packet-vines.h"
+
+#ifndef __RESOLV_H__
+#include "resolv.h"
+#endif
 
 extern capture_file  cf;
 
@@ -723,6 +736,277 @@ col_append_str(frame_data *fd, gint el, gchar* str) {
 	max_len = COL_MAX_INFO_LEN;
       strncat(fd->cinfo->col_data[i], str, max_len - len);
       fd->cinfo->col_data[i][max_len - 1] = 0;
+    }
+  }
+}
+
+/* To do: Add check_col checks to the col_add* routines */
+
+static void
+col_set_abs_time(frame_data *fd, int col)
+{
+  struct tm *tmp;
+  time_t then;
+
+  then = fd->abs_secs;
+  tmp = localtime(&then);
+  snprintf(fd->cinfo->col_data[col], COL_MAX_LEN, "%02d:%02d:%02d.%04ld",
+    tmp->tm_hour,
+    tmp->tm_min,
+    tmp->tm_sec,
+    (long)fd->abs_usecs/100);
+}
+
+static void
+col_set_rel_time(frame_data *fd, int col)
+{
+  snprintf(fd->cinfo->col_data[col], COL_MAX_LEN, "%d.%06d", fd->rel_secs,
+    fd->rel_usecs);
+}
+
+static void
+col_set_delta_time(frame_data *fd, int col)
+{
+  snprintf(fd->cinfo->col_data[col], COL_MAX_LEN, "%d.%06d", fd->del_secs,
+    fd->del_usecs);
+}
+
+/* Add "command-line-specified" time.
+   XXX - this is called from "file.c" when the user changes the time
+   format they want for "command-line-specified" time; it's a bit ugly
+   that we have to export it, but if we go to a CList-like widget that
+   invokes callbacks to get the text for the columns rather than
+   requiring us to stuff the text into the widget from outside, we
+   might be able to clean this up. */
+void
+col_set_cls_time(frame_data *fd, int col)
+{
+  switch (timestamp_type) {
+    case ABSOLUTE:
+      col_set_abs_time(fd, col);
+      break;
+
+    case RELATIVE:
+      col_set_rel_time(fd, col);
+      break;
+
+    case DELTA:
+      col_set_delta_time(fd, col);
+      break;
+  }
+}
+
+static void
+col_set_addr(frame_data *fd, int col, address *addr, gboolean is_res)
+{
+  u_int ipv4_addr;
+  struct e_in6_addr ipv6_addr;
+  struct atalk_ddp_addr ddp_addr;
+  struct sna_fid_type_4_addr sna_fid_type_4_addr;
+
+  switch (addr->type) {
+
+  case AT_ETHER:
+    if (is_res)
+      strncpy(fd->cinfo->col_data[col], get_ether_name(addr->data), COL_MAX_LEN);
+    else
+      strncpy(fd->cinfo->col_data[col], ether_to_str(addr->data), COL_MAX_LEN);
+    break;
+
+  case AT_IPv4:
+    memcpy(&ipv4_addr, addr->data, sizeof ipv4_addr);
+    if (is_res)
+      strncpy(fd->cinfo->col_data[col], get_hostname(ipv4_addr), COL_MAX_LEN);
+    else
+      strncpy(fd->cinfo->col_data[col], ip_to_str(addr->data), COL_MAX_LEN);
+    break;
+
+  case AT_IPv6:
+    memcpy(&ipv6_addr.s6_addr, addr->data, sizeof ipv6_addr.s6_addr);
+    if (is_res)
+      strncpy(fd->cinfo->col_data[col], get_hostname6(&ipv6_addr), COL_MAX_LEN);
+    else
+      strncpy(fd->cinfo->col_data[col], ip6_to_str(&ipv6_addr), COL_MAX_LEN);
+    break;
+
+  case AT_IPX:
+    strncpy(fd->cinfo->col_data[col],
+      ipx_addr_to_str(pntohl(&addr->data[0]), &addr->data[4]), COL_MAX_LEN);
+    break;
+
+  case AT_SNA:
+    switch (addr->len) {
+
+    case 1:
+      snprintf(fd->cinfo->col_data[col], COL_MAX_LEN, "%04X", addr->data[0]);
+      break;
+
+    case 2:
+      snprintf(fd->cinfo->col_data[col], COL_MAX_LEN, "%04X",
+        pntohs(&addr->data[0]));
+      break;
+
+    case SNA_FID_TYPE_4_ADDR_LEN:
+      memcpy(&sna_fid_type_4_addr, addr->data, SNA_FID_TYPE_4_ADDR_LEN);
+      strncpy(fd->cinfo->col_data[col],
+        sna_fid_type_4_addr_to_str(&sna_fid_type_4_addr), COL_MAX_LEN);
+      break;
+    }
+    break;
+
+  case AT_ATALK:
+    memcpy(&ddp_addr, addr->data, sizeof ddp_addr);
+    strncpy(fd->cinfo->col_data[col], atalk_addr_to_str(&ddp_addr),
+      COL_MAX_LEN);
+    break;
+
+  case AT_VINES:
+    strncpy(fd->cinfo->col_data[col], vines_addr_to_str(&addr->data[0]),
+      COL_MAX_LEN);
+    break;
+
+  default:
+    break;
+  }
+  fd->cinfo->col_data[col][COL_MAX_LEN - 1] = '\0';
+}
+
+static void
+col_set_port(frame_data *fd, int col, port_type ptype, guint32 port,
+		gboolean is_res)
+{
+  switch (ptype) {
+
+  case PT_TCP:
+    if (is_res)
+      strncpy(fd->cinfo->col_data[col], get_tcp_port(port), COL_MAX_LEN);
+    else
+      snprintf(fd->cinfo->col_data[col], COL_MAX_LEN, "%u", port);
+    break;
+
+  case PT_UDP:
+    if (is_res)
+      strncpy(fd->cinfo->col_data[col], get_udp_port(port), COL_MAX_LEN);
+    else
+      snprintf(fd->cinfo->col_data[col], COL_MAX_LEN, "%u", port);
+    break;
+
+  default:
+    break;
+  }
+  fd->cinfo->col_data[col][COL_MAX_LEN - 1] = '\0';
+}
+
+void
+fill_in_columns(frame_data *fd)
+{
+  int i;
+
+  for (i = 0; i < fd->cinfo->num_cols; i++) {
+    switch (fd->cinfo->col_fmt[i]) {
+
+    case COL_NUMBER:
+      snprintf(fd->cinfo->col_data[i], COL_MAX_LEN, "%u", fd->num);
+      break;
+
+    case COL_CLS_TIME:
+      col_set_cls_time(fd, i);
+      break;
+
+    case COL_ABS_TIME:
+      col_set_abs_time(fd, i);
+      break;
+
+    case COL_REL_TIME:
+      col_set_rel_time(fd, i);
+      break;
+
+    case COL_DELTA_TIME:
+      col_set_delta_time(fd, i);
+      break;
+
+    case COL_DEF_SRC:
+    case COL_RES_SRC:	/* COL_DEF_SRC is currently just like COL_RES_SRC */
+      col_set_addr(fd, i, &pi.src, TRUE);
+      break;
+
+    case COL_UNRES_SRC:
+      col_set_addr(fd, i, &pi.src, FALSE);
+      break;
+
+    case COL_DEF_DL_SRC:
+    case COL_RES_DL_SRC:
+      col_set_addr(fd, i, &pi.dl_src, TRUE);
+      break;
+
+    case COL_UNRES_DL_SRC:
+      col_set_addr(fd, i, &pi.dl_src, FALSE);
+      break;
+
+    case COL_DEF_NET_SRC:
+    case COL_RES_NET_SRC:
+      col_set_addr(fd, i, &pi.net_src, TRUE);
+      break;
+
+    case COL_UNRES_NET_SRC:
+      col_set_addr(fd, i, &pi.net_src, FALSE);
+      break;
+
+    case COL_DEF_DST:
+    case COL_RES_DST:	/* COL_DEF_DST is currently just like COL_RES_DST */
+      col_set_addr(fd, i, &pi.dst, TRUE);
+      break;
+
+    case COL_UNRES_DST:
+      col_set_addr(fd, i, &pi.dst, FALSE);
+      break;
+
+    case COL_DEF_DL_DST:
+    case COL_RES_DL_DST:
+      col_set_addr(fd, i, &pi.dl_dst, TRUE);
+      break;
+
+    case COL_UNRES_DL_DST:
+      col_set_addr(fd, i, &pi.dl_dst, FALSE);
+      break;
+
+    case COL_DEF_NET_DST:
+    case COL_RES_NET_DST:
+      col_set_addr(fd, i, &pi.net_dst, TRUE);
+      break;
+
+    case COL_UNRES_NET_DST:
+      col_set_addr(fd, i, &pi.net_dst, FALSE);
+      break;
+
+    case COL_DEF_SRC_PORT:
+    case COL_RES_SRC_PORT:	/* COL_DEF_SRC_PORT is currently just like COL_RES_SRC_PORT */
+      col_set_port(fd, i, pi.ptype, pi.srcport, TRUE);
+      break;
+
+    case COL_UNRES_SRC_PORT:
+      col_set_port(fd, i, pi.ptype, pi.srcport, FALSE);
+      break;
+
+    case COL_DEF_DST_PORT:
+    case COL_RES_DST_PORT:	/* COL_DEF_DST_PORT is currently just like COL_RES_DST_PORT */
+      col_set_port(fd, i, pi.ptype, pi.destport, TRUE);
+      break;
+
+    case COL_UNRES_DST_PORT:
+      col_set_port(fd, i, pi.ptype, pi.destport, FALSE);
+      break;
+
+    case COL_PROTOCOL:	/* currently done by dissectors */
+    case COL_INFO:	/* currently done by dissectors */
+      break;
+
+    case COL_PACKET_LENGTH:
+      snprintf(fd->cinfo->col_data[i], COL_MAX_LEN, "%d", fd->pkt_len);
+      break;
+
+    case NUM_COL_FMTS:	/* keep compiler happy - shouldn't get here */
+      break;
     }
   }
 }
