@@ -5,7 +5,7 @@
  * 
  * derived from the packet-nbns.c
  *
- * $Id: packet-netbios.c,v 1.24 2000/11/11 06:47:07 guy Exp $
+ * $Id: packet-netbios.c,v 1.25 2000/11/13 03:52:16 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -469,7 +469,7 @@ static void nb_local_session( tvbuff_t *tvb, int offset, proto_tree *tree)
 
 {/* add the local session to tree */
 
-	proto_tree_add_uint( tree, hf_netb_local_ses_no, tvb, offset, 1, 
+	proto_tree_add_uint( tree, hf_netb_local_ses_no, tvb, offset + NB_LOCAL_SES, 1, 
 		tvb_get_guint8( tvb, offset + NB_LOCAL_SES));
 
 }
@@ -479,7 +479,7 @@ static void nb_remote_session( tvbuff_t *tvb, int offset, proto_tree *tree)
 
 {/* add the remote session to tree */
 
-	proto_tree_add_uint( tree, hf_netb_remote_ses_no, tvb, offset, 1,
+	proto_tree_add_uint( tree, hf_netb_remote_ses_no, tvb, offset + NB_RMT_SES, 1,
 		tvb_get_guint8( tvb, offset + NB_RMT_SES));
 
 }
@@ -493,7 +493,7 @@ static void nb_data2(char *label, int len, tvbuff_t *tvb, int offset,
 	int value = (len == 1 ? tvb_get_guint8( tvb, offset + NB_DATA2)
 	   		: tvb_get_letohs( tvb, offset + NB_DATA2));
 	
-	proto_tree_add_uint( tree, hf_netb_data2, tvb, offset, 1, value);
+	proto_tree_add_uint( tree, hf_netb_data2, tvb, offset + NB_DATA2, 2, value);
 
 }
 
@@ -1149,11 +1149,15 @@ void proto_register_netbios(void)
 			"" }},
 
 		{ &hf_netb_local_ses_no,
-		{ "Local Session No. ", "netbios.local_session", FT_UINT16, BASE_HEX, NULL, 0x0,
+		{ "Local Session No. ", "netbios.local_session", FT_UINT8, BASE_HEX, NULL, 0x0,
 			"" }},
 
 		{ &hf_netb_remote_ses_no,
-		{ "Remote Session No. ", "netbios.remote_session", FT_UINT16, BASE_HEX, NULL, 0x0,
+		{ "Remote Session No. ", "netbios.remote_session", FT_UINT8, BASE_HEX, NULL, 0x0,
+			"" }},
+
+		{ &hf_netb_data2,
+		{ "DATA2 value ", "netbios.data2", FT_UINT16, BASE_HEX, NULL, 0x0,
 			"" }},
 		};
 
