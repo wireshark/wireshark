@@ -8,7 +8,7 @@
  *
  * Copyright 2002, Jeff Morriss <jeff.morriss[AT]ulticom.com>
  *
- * $Id: packet-sccp.c,v 1.18 2003/12/17 23:35:29 ulfl Exp $
+ * $Id: packet-sccp.c,v 1.19 2003/12/18 00:43:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -685,14 +685,14 @@ dissect_sccp_unknown_message(tvbuff_t *message_tvb, proto_tree *sccp_tree)
 }
 
 static void
-dissect_sccp_unknown_param(tvbuff_t *tvb, proto_tree *tree, guint8 type, guint16 length)
+dissect_sccp_unknown_param(tvbuff_t *tvb, proto_tree *tree, guint8 type, guint length)
 {
   proto_tree_add_text(tree, tvb, 0, length, "Unknown parameter 0x%x (%u byte%s)",
 		      type, length, plurality(length, "", "s"));
 }
 
 static void
-dissect_sccp_dlr_param(tvbuff_t *tvb, proto_tree *tree, guint8 length)
+dissect_sccp_dlr_param(tvbuff_t *tvb, proto_tree *tree, guint length)
 {
   guint32 reference;
 
@@ -701,7 +701,7 @@ dissect_sccp_dlr_param(tvbuff_t *tvb, proto_tree *tree, guint8 length)
 }
 
 static void
-dissect_sccp_slr_param(tvbuff_t *tvb, proto_tree *tree, guint8 length)
+dissect_sccp_slr_param(tvbuff_t *tvb, proto_tree *tree, guint length)
 {
   guint32 reference;
 
@@ -711,10 +711,10 @@ dissect_sccp_slr_param(tvbuff_t *tvb, proto_tree *tree, guint8 length)
 
 static void
 dissect_sccp_gt_address_information(tvbuff_t *tvb, proto_tree *tree,
-				    guint8 length, gboolean even_length,
+				    guint length, gboolean even_length,
 				    gboolean called)
 {
-  guint8 offset = 0;
+  guint offset = 0;
   guint8 odd_signal, even_signal = 0x0f;
   char gt_digits[GT_MAX_SIGNALS] = { 0 };
 
@@ -747,13 +747,13 @@ dissect_sccp_gt_address_information(tvbuff_t *tvb, proto_tree *tree,
 }
 
 static void
-dissect_sccp_global_title(tvbuff_t *tvb, proto_tree *tree, guint8 length,
+dissect_sccp_global_title(tvbuff_t *tvb, proto_tree *tree, guint length,
 			  guint8 gti, gboolean called)
 {
   proto_item *gt_item = 0;
   proto_tree *gt_tree = 0;
   tvbuff_t *signals_tvb;
-  guint8 offset = 0;
+  guint offset = 0;
   guint8 odd_even, nai, tt, np, es;
   gboolean even = TRUE;
 
@@ -829,15 +829,17 @@ dissect_sccp_global_title(tvbuff_t *tvb, proto_tree *tree, guint8 length,
   }
 
   /* Decode address signal(s) */
+  if (length < offset)
+    return;
   signals_tvb = tvb_new_subset(tvb, offset, (length - offset),
 			       (length - offset));
-  dissect_sccp_gt_address_information(signals_tvb, gt_tree, (guint8) (length - offset),
+  dissect_sccp_gt_address_information(signals_tvb, gt_tree, (length - offset),
 				      even,
 				      called);
 }
 
 static int
-dissect_sccp_3byte_pc(tvbuff_t *tvb, proto_tree *call_tree, guint8 offset,
+dissect_sccp_3byte_pc(tvbuff_t *tvb, proto_tree *call_tree, guint offset,
                      gboolean called)
 {
   guint32 dpc;
@@ -905,11 +907,11 @@ dissect_sccp_3byte_pc(tvbuff_t *tvb, proto_tree *call_tree, guint8 offset,
  */
 static void
 dissect_sccp_called_calling_param(tvbuff_t *tvb, proto_tree *tree,
-				  guint8 length, gboolean called)
+				  guint length, gboolean called)
 {
   proto_item *call_item = 0, *call_ai_item = 0;
   proto_tree *call_tree = 0, *call_ai_tree = 0;
-  guint8 offset;
+  guint offset;
   guint8 national = -1, routing_ind, gti, pci, ssni, ssn;
   guint32 dpc;
   tvbuff_t *gt_tvb;
@@ -1003,9 +1005,11 @@ dissect_sccp_called_calling_param(tvbuff_t *tvb, proto_tree *tree,
 
     /* Dissect GT (if present) */
     if (gti != AI_GTI_NO_GT) {
+      if (length < offset)
+        return;
       gt_tvb = tvb_new_subset(tvb, offset, (length - offset),
 			      (length - offset));
-      dissect_sccp_global_title(gt_tvb, call_tree, (guint8) (length - offset), gti,
+      dissect_sccp_global_title(gt_tvb, call_tree, (length - offset), gti,
 				called);
     }
 
@@ -1055,9 +1059,11 @@ dissect_sccp_called_calling_param(tvbuff_t *tvb, proto_tree *tree,
 
     /* Dissect GT (if present) */
     if (gti != AI_GTI_NO_GT) {
+      if (length < offset)
+        return;
       gt_tvb = tvb_new_subset(tvb, offset, (length - offset),
 			      (length - offset));
-      dissect_sccp_global_title(gt_tvb, call_tree, (guint8) (length - offset), gti,
+      dissect_sccp_global_title(gt_tvb, call_tree, (length - offset), gti,
 				called);
     }
 
@@ -1066,19 +1072,19 @@ dissect_sccp_called_calling_param(tvbuff_t *tvb, proto_tree *tree,
 }
 
 static void
-dissect_sccp_called_param(tvbuff_t *tvb, proto_tree *tree, guint8 length)
+dissect_sccp_called_param(tvbuff_t *tvb, proto_tree *tree, guint length)
 {
   dissect_sccp_called_calling_param(tvb, tree, length, TRUE);
 }
 
 static void
-dissect_sccp_calling_param(tvbuff_t *tvb, proto_tree *tree, guint8 length)
+dissect_sccp_calling_param(tvbuff_t *tvb, proto_tree *tree, guint length)
 {
   dissect_sccp_called_calling_param(tvb, tree, length, FALSE);
 }
 
 static void
-dissect_sccp_class_param(tvbuff_t *tvb, proto_tree *tree, guint8 length)
+dissect_sccp_class_param(tvbuff_t *tvb, proto_tree *tree, guint length)
 {
   guint8 class, handling;
 
@@ -1092,7 +1098,7 @@ dissect_sccp_class_param(tvbuff_t *tvb, proto_tree *tree, guint8 length)
 }
 
 static void
-dissect_sccp_segmenting_reassembling_param(tvbuff_t *tvb, proto_tree *tree, guint8 length)
+dissect_sccp_segmenting_reassembling_param(tvbuff_t *tvb, proto_tree *tree, guint length)
 {
   guint8 more;
 
@@ -1101,7 +1107,7 @@ dissect_sccp_segmenting_reassembling_param(tvbuff_t *tvb, proto_tree *tree, guin
 }
 
 static void
-dissect_sccp_receive_sequence_number_param(tvbuff_t *tvb, proto_tree *tree, guint8 length)
+dissect_sccp_receive_sequence_number_param(tvbuff_t *tvb, proto_tree *tree, guint length)
 {
   guint8 rsn;
 
@@ -1110,7 +1116,7 @@ dissect_sccp_receive_sequence_number_param(tvbuff_t *tvb, proto_tree *tree, guin
 }
 
 static void
-dissect_sccp_sequencing_segmenting_param(tvbuff_t *tvb, proto_tree *tree, guint8 length)
+dissect_sccp_sequencing_segmenting_param(tvbuff_t *tvb, proto_tree *tree, guint length)
 {
   guint8 rsn, ssn, more;
   proto_item *param_item;
@@ -1137,7 +1143,7 @@ dissect_sccp_sequencing_segmenting_param(tvbuff_t *tvb, proto_tree *tree, guint8
 }
 
 static void
-dissect_sccp_credit_param(tvbuff_t *tvb, proto_tree *tree, guint8 length)
+dissect_sccp_credit_param(tvbuff_t *tvb, proto_tree *tree, guint length)
 {
   guint8 credit;
 
@@ -1146,7 +1152,7 @@ dissect_sccp_credit_param(tvbuff_t *tvb, proto_tree *tree, guint8 length)
 }
 
 static void
-dissect_sccp_release_cause_param(tvbuff_t *tvb, proto_tree *tree, guint8 length)
+dissect_sccp_release_cause_param(tvbuff_t *tvb, proto_tree *tree, guint length)
 {
   guint8 cause;
 
@@ -1155,7 +1161,7 @@ dissect_sccp_release_cause_param(tvbuff_t *tvb, proto_tree *tree, guint8 length)
 }
 
 static void
-dissect_sccp_return_cause_param(tvbuff_t *tvb, proto_tree *tree, guint8 length)
+dissect_sccp_return_cause_param(tvbuff_t *tvb, proto_tree *tree, guint length)
 {
   guint8 cause;
 
@@ -1164,7 +1170,7 @@ dissect_sccp_return_cause_param(tvbuff_t *tvb, proto_tree *tree, guint8 length)
 }
 
 static void
-dissect_sccp_reset_cause_param(tvbuff_t *tvb, proto_tree *tree, guint8 length)
+dissect_sccp_reset_cause_param(tvbuff_t *tvb, proto_tree *tree, guint length)
 {
   guint8 cause;
 
@@ -1173,7 +1179,7 @@ dissect_sccp_reset_cause_param(tvbuff_t *tvb, proto_tree *tree, guint8 length)
 }
 
 static void
-dissect_sccp_error_cause_param(tvbuff_t *tvb, proto_tree *tree, guint8 length)
+dissect_sccp_error_cause_param(tvbuff_t *tvb, proto_tree *tree, guint length)
 {
   guint8 cause;
 
@@ -1182,7 +1188,7 @@ dissect_sccp_error_cause_param(tvbuff_t *tvb, proto_tree *tree, guint8 length)
 }
 
 static void
-dissect_sccp_refusal_cause_param(tvbuff_t *tvb, proto_tree *tree, guint8 length)
+dissect_sccp_refusal_cause_param(tvbuff_t *tvb, proto_tree *tree, guint length)
 {
   guint8 cause;
 
@@ -1215,7 +1221,7 @@ dissect_sccp_data_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static void
-dissect_sccp_segmentation_param(tvbuff_t *tvb, proto_tree *tree, guint8 length)
+dissect_sccp_segmentation_param(tvbuff_t *tvb, proto_tree *tree, guint length)
 {
   guint8 first, class, remaining;
   guint32 slr;
@@ -1244,7 +1250,7 @@ dissect_sccp_segmentation_param(tvbuff_t *tvb, proto_tree *tree, guint8 length)
 }
 
 static void
-dissect_sccp_hop_counter_param(tvbuff_t *tvb, proto_tree *tree, guint8 length)
+dissect_sccp_hop_counter_param(tvbuff_t *tvb, proto_tree *tree, guint length)
 {
   guint8 hops;
 
@@ -1253,7 +1259,7 @@ dissect_sccp_hop_counter_param(tvbuff_t *tvb, proto_tree *tree, guint8 length)
 }
 
 static void
-dissect_sccp_importance_param(tvbuff_t *tvb, proto_tree *tree, guint8 length)
+dissect_sccp_importance_param(tvbuff_t *tvb, proto_tree *tree, guint length)
 {
   guint8 importance;
 
@@ -1262,10 +1268,10 @@ dissect_sccp_importance_param(tvbuff_t *tvb, proto_tree *tree, guint8 length)
 }
 
 static void
-dissect_sccp_isni_param(tvbuff_t *tvb, proto_tree *tree, guint8 length)
+dissect_sccp_isni_param(tvbuff_t *tvb, proto_tree *tree, guint length)
 {
   guint8 mi, iri, ti, network, netspec;
-  guint8 offset = 0;
+  guint offset = 0;
   proto_item *param_item;
   proto_tree *param_tree;
 
@@ -1347,62 +1353,62 @@ dissect_sccp_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
       break;
 
     case PARAMETER_DESTINATION_LOCAL_REFERENCE:
-      dissect_sccp_dlr_param(parameter_tvb, sccp_tree, (guint8) parameter_length);
+      dissect_sccp_dlr_param(parameter_tvb, sccp_tree, parameter_length);
       break;
 
     case PARAMETER_SOURCE_LOCAL_REFERENCE:
-      dissect_sccp_slr_param(parameter_tvb, sccp_tree, (guint8) parameter_length);
+      dissect_sccp_slr_param(parameter_tvb, sccp_tree, parameter_length);
       break;
 
     case PARAMETER_CALLED_PARTY_ADDRESS:
-      dissect_sccp_called_param(parameter_tvb, sccp_tree, (guint8) parameter_length);
+      dissect_sccp_called_param(parameter_tvb, sccp_tree, parameter_length);
       break;
 
     case PARAMETER_CALLING_PARTY_ADDRESS:
-      dissect_sccp_calling_param(parameter_tvb, sccp_tree, (guint8) parameter_length);
+      dissect_sccp_calling_param(parameter_tvb, sccp_tree, parameter_length);
       break;
 
     case PARAMETER_CLASS:
-      dissect_sccp_class_param(parameter_tvb, sccp_tree, (guint8) parameter_length);
+      dissect_sccp_class_param(parameter_tvb, sccp_tree, parameter_length);
       break;
 
     case PARAMETER_SEGMENTING_REASSEMBLING:
       dissect_sccp_segmenting_reassembling_param(parameter_tvb, sccp_tree,
-						   (guint8) parameter_length);
+						   parameter_length);
       break;
 
     case PARAMETER_RECEIVE_SEQUENCE_NUMBER:
       dissect_sccp_receive_sequence_number_param(parameter_tvb, sccp_tree,
-						 (guint8) parameter_length);
+						 parameter_length);
       break;
 
     case PARAMETER_SEQUENCING_SEGMENTING:
       dissect_sccp_sequencing_segmenting_param(parameter_tvb, sccp_tree,
-					       (guint8) parameter_length);
+					       parameter_length);
       break;
 
     case PARAMETER_CREDIT:
-      dissect_sccp_credit_param(parameter_tvb, sccp_tree, (guint8) parameter_length);
+      dissect_sccp_credit_param(parameter_tvb, sccp_tree, parameter_length);
       break;
 
     case PARAMETER_RELEASE_CAUSE:
-      dissect_sccp_release_cause_param(parameter_tvb, sccp_tree, (guint8) parameter_length);
+      dissect_sccp_release_cause_param(parameter_tvb, sccp_tree, parameter_length);
       break;
 
     case PARAMETER_RETURN_CAUSE:
-      dissect_sccp_return_cause_param(parameter_tvb, sccp_tree, (guint8) parameter_length);
+      dissect_sccp_return_cause_param(parameter_tvb, sccp_tree, parameter_length);
       break;
 
     case PARAMETER_RESET_CAUSE:
-      dissect_sccp_reset_cause_param(parameter_tvb, sccp_tree, (guint8) parameter_length);
+      dissect_sccp_reset_cause_param(parameter_tvb, sccp_tree, parameter_length);
       break;
 
     case PARAMETER_ERROR_CAUSE:
-      dissect_sccp_error_cause_param(parameter_tvb, sccp_tree, (guint8) parameter_length);
+      dissect_sccp_error_cause_param(parameter_tvb, sccp_tree, parameter_length);
       break;
 
     case PARAMETER_REFUSAL_CAUSE:
-      dissect_sccp_refusal_cause_param(parameter_tvb, sccp_tree, (guint8) parameter_length);
+      dissect_sccp_refusal_cause_param(parameter_tvb, sccp_tree, parameter_length);
       break;
 
     case PARAMETER_DATA:
@@ -1416,16 +1422,16 @@ dissect_sccp_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
       break;
 
     case PARAMETER_SEGMENTATION:
-      dissect_sccp_segmentation_param(parameter_tvb, sccp_tree, (guint8) parameter_length);
+      dissect_sccp_segmentation_param(parameter_tvb, sccp_tree, parameter_length);
       break;
 
     case PARAMETER_HOP_COUNTER:
-      dissect_sccp_hop_counter_param(parameter_tvb, sccp_tree, (guint8) parameter_length);
+      dissect_sccp_hop_counter_param(parameter_tvb, sccp_tree, parameter_length);
       break;
 
     case PARAMETER_IMPORTANCE:
       if (mtp3_standard != ANSI_STANDARD)
-	dissect_sccp_importance_param(parameter_tvb, sccp_tree, (guint8) parameter_length);
+	dissect_sccp_importance_param(parameter_tvb, sccp_tree, parameter_length);
       else
 	dissect_sccp_unknown_param(parameter_tvb, sccp_tree, parameter_type,
 				   parameter_length);
@@ -1444,7 +1450,7 @@ dissect_sccp_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
 	dissect_sccp_unknown_param(parameter_tvb, sccp_tree, parameter_type,
 				   parameter_length);
       else
-	dissect_sccp_isni_param(parameter_tvb, sccp_tree, (guint8) parameter_length);
+	dissect_sccp_isni_param(parameter_tvb, sccp_tree, parameter_length);
       break;
 
     default:
