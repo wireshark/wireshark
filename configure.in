@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.183 2002/10/22 20:06:15 jmayer Exp $
+# $Id: configure.in,v 1.184 2002/10/23 03:54:04 guy Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -796,4 +796,4 @@ echo "               Use GTK+ v2 library : $enable_gtk2"
 echo "                  Use pcap library : $want_pcap"
 echo "                  Use zlib library : $zlib_message"
 echo "          Use IPv6 name resolution : $enable_ipv6"
-echo "              Use UCD SNMP library : $snmp_libs_message"
+echo "     Use UCD SNMP/NET-SNMP library : $snmp_libs_message"
