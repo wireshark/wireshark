@@ -10,6 +10,7 @@ OBJECTS=ascend-grammar.obj \
 	ascend.obj \
 	buffer.obj \
 	file.obj \
+	file_wrappers.obj \
 	i4btrace.obj \
 	iptrace.obj \
 	lanalyzer.obj \
