@@ -8,7 +8,7 @@
  *
  * Copyright 2002, Jeff Morriss <jeff.morriss[AT]ulticom.com>
  *
- * $Id: packet-sccp.c,v 1.10 2003/04/19 20:13:22 tuexen Exp $
+ * $Id: packet-sccp.c,v 1.11 2003/06/26 06:28:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2218,15 +2218,15 @@ proto_register_sccp(void)
     /* ISNI is ANSI only */
     { &hf_sccp_ansi_isni_mi,
       { "ISNI Mark for Identification Indicator", "sccp.isni.mi",
-	FT_UINT8, BASE_HEX, NULL, ANSI_ISNI_MI_MASK,
+	FT_UINT8, BASE_HEX, VALS(sccp_isni_mark_for_id_values), ANSI_ISNI_MI_MASK,
 	"", HFILL}},
     { &hf_sccp_ansi_isni_iri,
       { "ISNI Routing Indicator", "sccp.isni.iri",
-	FT_UINT8, BASE_HEX, NULL, ANSI_ISNI_IRI_MASK,
+	FT_UINT8, BASE_HEX, VALS(sccp_isni_iri_values), ANSI_ISNI_IRI_MASK,
 	"", HFILL}},
     { &hf_sccp_ansi_isni_ti,
       { "ISNI Type Indicator", "sccp.isni.ti",
-	FT_UINT8, BASE_HEX, NULL, ANSI_ISNI_TI_MASK,
+	FT_UINT8, BASE_HEX, VALS(sccp_isni_ti_values), ANSI_ISNI_TI_MASK,
 	"", HFILL}},
     { &hf_sccp_ansi_isni_netspec,
       { "ISNI Network Specific (Type 1)", "sccp.isni.netspec",
