@@ -2,7 +2,7 @@
  * Routines for NetBIOS over IPX packet disassembly
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-nbipx.c,v 1.12 1999/09/03 00:24:40 guy Exp $
+ * $Id: packet-nbipx.c,v 1.13 1999/09/03 00:38:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -141,8 +141,10 @@ nbipx_ns(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 	proto_tree		*nbipx_tree;
 	proto_item		*ti;
 	int			i;
-	guint8			name_flags;
 	guint8			packet_type;
+	guint8			name_type_flag;
+	proto_tree		*name_type_flag_tree;
+	proto_item		*tf;
 	int			name_offset;
 	char			name[(NETBIOS_NAME_LEN - 1)*4 + 1];
 	int			name_type;
@@ -159,7 +161,7 @@ nbipx_ns(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 	}
 
 
-	name_flags = pd[offset+32];
+	name_type_flag = pd[offset+32];
 	packet_type = pd[offset+33];
 	name_type = get_netbios_name(pd, offset+name_offset, name);
 
@@ -244,8 +246,26 @@ nbipx_ns(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 			}
 		}
 
-		proto_tree_add_text(nbipx_tree, offset+32, 1, "Name Type: %02X",
-				name_flags);
+		tf = proto_tree_add_text(nbipx_tree, offset+32, 1,
+				"Name type flag: 0x%02x",
+				name_type_flag);
+		name_type_flag_tree = proto_item_add_subtree(tf,
+					ETT_NBIPX_NAME_TYPE_FLAGS);
+		proto_tree_add_text(name_type_flag_tree, offset+32, 1, "%s",
+			decode_boolean_bitfield(name_type_flag, 0x80, 8,
+			    "Group name", "Unique name"));
+		proto_tree_add_text(name_type_flag_tree, offset+32, 1, "%s",
+			decode_boolean_bitfield(name_type_flag, 0x40, 8,
+			    "Name in use", "Name not used"));
+		proto_tree_add_text(name_type_flag_tree, offset+32, 1, "%s",
+			decode_boolean_bitfield(name_type_flag, 0x04, 8,
+			    "Name registered", "Name not registered"));
+		proto_tree_add_text(name_type_flag_tree, offset+32, 1, "%s",
+			decode_boolean_bitfield(name_type_flag, 0x02, 8,
+			    "Name duplicated", "Name not duplicated"));
+		proto_tree_add_text(name_type_flag_tree, offset+32, 1, "%s",
+			decode_boolean_bitfield(name_type_flag, 0x01, 8,
+			    "Name deregistered", "Name not deregistered"));
 
 		if (nbipx == NETBIOS_NETWARE) {
 			netbios_add_name("Name", &pd[offset], offset,
