@@ -8,7 +8,7 @@ XXX  Fixme : shouldnt show [malformed frame] for long packets
  * significant rewrite to tvbuffify the dissector, Ronnie Sahlberg and
  * Guy Harris 2001
  *
- * $Id: packet-smb-pipe.c,v 1.89 2003/03/05 07:17:50 guy Exp $
+ * $Id: packet-smb-pipe.c,v 1.90 2003/04/12 08:14:48 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -71,6 +71,7 @@ static int hf_pipe_fragment_overlap_conflict = -1;
 static int hf_pipe_fragment_multiple_tails = -1;
 static int hf_pipe_fragment_too_long_fragment = -1;
 static int hf_pipe_fragment_error = -1;
+static int hf_pipe_reassembled_in = -1;
 
 static gint ett_smb_pipe = -1;
 static gint ett_smb_pipe_fragment = -1;
@@ -3201,14 +3202,20 @@ dissect_pipe_dcerpc(tvbuff_t *d_tvb, packet_info *pinfo, proto_tree *parent_tree
 {
 	dcerpc_private_info dcerpc_priv;
 	smb_info_t *smb_priv = (smb_info_t *)pinfo->private_data;
-	gboolean result;
+	gboolean result=0;
 	gboolean save_fragmented;
 	guint reported_len;
+	gpointer hash_value;
+	fragment_data *fd_head;
+	tvbuff_t *new_tvb;
+	guint32 frame;
+
 
 	dcerpc_priv.transport_type = DCERPC_TRANSPORT_SMB;
 	dcerpc_priv.data.smb.fid = fid;
 
 	pinfo->private_data = &dcerpc_priv;
+
 
 	/*
 	 * Offer desegmentation service to DCERPC if we have all the
@@ -3224,14 +3231,103 @@ dissect_pipe_dcerpc(tvbuff_t *d_tvb, packet_info *pinfo, proto_tree *parent_tree
 
 	save_fragmented = pinfo->fragmented;
 
-	/* see if this packet is already desegmented */
-	if(smb_dcerpc_reassembly && pinfo->fd->flags.visited){
-		fragment_data *fd_head;
-		tvbuff_t *new_tvb;
 
-		fd_head=fragment_get(pinfo, pinfo->fd->num ,
-			dcerpc_fragment_table);
-		if(fd_head && fd_head->flags&FD_DEFRAGMENTED){
+	/* if we are not offering desegmentation, just try the heuristics
+	   and bail out
+	*/
+	if(!pinfo->can_desegment){
+		result = dissector_try_heuristic(smb_transact_heur_subdissector_list, d_tvb, pinfo, parent_tree);
+		goto clean_up_and_exit;
+	}
+
+
+	/* below this line, we know we are doing reassembly */
+	
+
+	/* this is a new packet, see if we are already reassembling this
+	   pdu and if not, check if the dissector wants us
+	   to reassemble it
+	*/
+	if((!pinfo->fd->flags.visited) && smb_priv->sip){
+		/* check if we are already reassembling this pdu or not */
+		hash_value = g_hash_table_lookup(smb_priv->ct->dcerpc_fid_to_frame, fid);
+		if(!hash_value){
+			/* this is a new pdu. check if the dissector wants us
+			   to reassemble it or if we already got the full pdu
+			   in this tvb.
+			*/
+
+			/* first, just check if it looks like dcerpc or not */
+			result = dissector_try_heuristic(smb_transact_heur_subdissector_list, d_tvb, pinfo, NULL);
+			
+			/* no this didnt look like something we know */
+			if(!result){
+				goto clean_up_and_exit;
+			}
+
+			/* did the subdissector want us to reassemble any
+			   more data ?
+			*/
+			if(pinfo->desegment_len){
+				fragment_add(d_tvb, 0, pinfo, pinfo->fd->num,
+					dcerpc_fragment_table,
+					0, reported_len, TRUE);
+				fragment_set_tot_len(pinfo, pinfo->fd->num,
+					dcerpc_fragment_table,
+					pinfo->desegment_len+reported_len);
+				/* we also need to store this fid value so we 
+				   know for the next Write/Read/Trans call
+				   to this fid that we are doing reassembly
+
+				   we know this entry does not exist already
+				   from the code above
+				*/
+				g_hash_table_insert(smb_priv->ct->dcerpc_fid_to_frame, (void *)fid,(void *)pinfo->fd->num);
+
+				/* store the frame to hash_key value so we can
+				   find this pdu later */
+				g_hash_table_insert(smb_priv->ct->dcerpc_frame_to_dcerpc_pdu, (void *)pinfo->fd->num,(void *)pinfo->fd->num);
+
+				goto clean_up_and_exit;
+			}
+
+			/* guess we have the full pdu in this tvb then,
+			   just dissect it and continue.
+			*/
+			result = dissector_try_heuristic(smb_transact_heur_subdissector_list, d_tvb, pinfo, parent_tree);
+			goto clean_up_and_exit;
+		}
+
+		/* ok this seems to be a new fragment to add to an existing
+		   reassembly 
+		*/
+		frame = GPOINTER_TO_UINT(hash_value);
+
+		/* find the existing reassembly structure */
+		fd_head=fragment_get(pinfo, frame, dcerpc_fragment_table);
+		/* if we got here, there MUST be a reassembly structure */
+		g_assert(fd_head);
+		/* skip to last segment in the existing reassembly structure
+		   and add this fragment there
+
+		   XXX we might add code here to use any offset values
+		   we might pick up from the Read/Write calls instead of
+		   assuming we always get them in the correct order
+		*/
+		while(fd_head->next){
+			fd_head=fd_head->next;
+		}
+		fd_head=fragment_add(d_tvb, 0, pinfo,
+			frame, dcerpc_fragment_table,
+			fd_head->offset+fd_head->len,
+			reported_len, TRUE);
+		/* store the frame to hash_key value so we can
+		   find this pdu later */
+		g_hash_table_insert(smb_priv->ct->dcerpc_frame_to_dcerpc_pdu, (void *)pinfo->fd->num,(void *)frame);
+
+		/* if we completed reassembly */
+		if(fd_head){
+			g_hash_table_remove(smb_priv->ct->dcerpc_fid_to_frame, fid);
 			new_tvb = tvb_new_real_data(fd_head->data,
 				  fd_head->datalen, fd_head->datalen);
 			tvb_set_child_real_data_tvbuff(d_tvb, new_tvb);
@@ -3244,32 +3340,69 @@ dissect_pipe_dcerpc(tvbuff_t *d_tvb, packet_info *pinfo, proto_tree *parent_tree
 			/* list what segments we have */
 			show_fragment_tree(fd_head, &smb_pipe_frag_items,
 			    tree, pinfo, d_tvb);
+
+			/* dissect the full PDU */
+			result = dissector_try_heuristic(smb_transact_heur_subdissector_list, d_tvb, pinfo, parent_tree);
 		}
+		goto clean_up_and_exit;
 	}
 
-	result = dissector_try_heuristic(smb_transact_heur_subdissector_list, d_tvb,
-					 pinfo, parent_tree);
-	pinfo->private_data = smb_priv;
 
-	/* check if dissector wanted us to desegment the data */
-	if(smb_dcerpc_reassembly && !pinfo->fd->flags.visited && pinfo->desegment_len){
-		fragment_add(d_tvb, 0, pinfo, pinfo->fd->num,
-			dcerpc_fragment_table,
-			0, reported_len, TRUE);
-		fragment_set_tot_len(pinfo, pinfo->fd->num,
-			dcerpc_fragment_table,
-			pinfo->desegment_len+reported_len);
-		/* since the other fragments are in normal ReadAndX and WriteAndX calls
-		   we must make sure we can map FID values to this defragmentation
-		   session */
-		/* first remove any old mappings */
-		if(g_hash_table_lookup(smb_priv->ct->dcerpc_fid_to_frame, (void *)fid)){
-			g_hash_table_remove(smb_priv->ct->dcerpc_fid_to_frame, (void *)fid);
-		}
-		g_hash_table_insert(smb_priv->ct->dcerpc_fid_to_frame, (void *)fid,
-			(void *)pinfo->fd->num);
+	/* this is not a new packet so just see if we have already
+	   seen this fragment and if so if we were able to reassemble it
+	   or not.
+	*/
+	hash_value = g_hash_table_lookup(smb_priv->ct->dcerpc_frame_to_dcerpc_pdu, pinfo->fd->num);
+	if(!hash_value){
+		/* we didnt find it, try any of the heurisitc dissectors
+		   and bail out 
+		*/
+		result = dissector_try_heuristic(smb_transact_heur_subdissector_list, d_tvb, pinfo, parent_tree);
+		goto clean_up_and_exit;
 	}
+	fd_head=fragment_get(pinfo, hash_value, dcerpc_fragment_table);
+	if(!fd_head){
+		/* we didnt find it, try any of the heurisitc dissectors
+		   and bail out 
+		*/
+		result = dissector_try_heuristic(smb_transact_heur_subdissector_list, d_tvb, pinfo, parent_tree);
+		goto clean_up_and_exit;
+	}
+	if(!fd_head->flags&FD_DEFRAGMENTED){
+		/* we dont have a fully reassembled frame */
+		result = dissector_try_heuristic(smb_transact_heur_subdissector_list, d_tvb, pinfo, parent_tree);
+		goto clean_up_and_exit;
+	}
+
+	/* it is reassembled but it was reassembled in a different frame */
+	if(pinfo->fd->num!=fd_head->reassembled_in){
+		proto_tree_add_uint(parent_tree, hf_pipe_reassembled_in, d_tvb, 0, 0, fd_head->reassembled_in);
+		goto clean_up_and_exit;
+	}
+
+
+	/* display the reassembled pdu */
+	new_tvb = tvb_new_real_data(fd_head->data,
+		  fd_head->datalen, fd_head->datalen);
+	tvb_set_child_real_data_tvbuff(d_tvb, new_tvb);
+	add_new_data_source(pinfo, new_tvb,
+		  "DCERPC over SMB");
+	pinfo->fragmented=FALSE;
+
+	d_tvb=new_tvb;
+
+	/* list what segments we have */
+	show_fragment_tree(fd_head, &smb_pipe_frag_items,
+		    tree, pinfo, d_tvb);
+
+	/* dissect the full PDU */
+	result = dissector_try_heuristic(smb_transact_heur_subdissector_list, d_tvb, pinfo, parent_tree);
+	
+
+
+clean_up_and_exit:
 	/* clear out the variables */
+	pinfo->private_data = smb_priv;
 	pinfo->can_desegment=0;
 	pinfo->desegment_offset = 0;
 	pinfo->desegment_len = 0;
@@ -3730,6 +3863,9 @@ proto_register_smb_pipe(void)
 		{ &hf_pipe_fragments,
 			{ "Fragments", "pipe.fragments", FT_NONE,
 			BASE_NONE, NULL, 0x0, "Pipe Fragments", HFILL }},
+		{ &hf_pipe_reassembled_in,
+			{ "This PDU is reassembled in", "pipe.reassembled_in", FT_FRAMENUM,
+			BASE_NONE, NULL, 0x0, "The DCE/RPC PDU is completely reassembled in this frame", HFILL }},
 	};
 	static gint *ett[] = {
 		&ett_smb_pipe,
