@@ -2,7 +2,7 @@
  * Routines for SNA
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-sna.c,v 1.21 2001/01/03 16:41:07 gram Exp $
+ * $Id: packet-sna.c,v 1.22 2001/01/03 21:52:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -885,7 +885,7 @@ dissect_rh (const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 		proto_tree_add_boolean(bf_tree, hf_sna_rh_bbi, NullTVB,  offset, 1, rh_2);
 		proto_tree_add_boolean(bf_tree, hf_sna_rh_ebi, NullTVB,  offset, 1, rh_2);
 		proto_tree_add_boolean(bf_tree, hf_sna_rh_cdi, NullTVB,  offset, 1, rh_2);
-		proto_tree_add_boolean(bf_tree, hf_sna_rh_csi, NullTVB,  offset, 1, rh_2);
+		proto_tree_add_uint(bf_tree, hf_sna_rh_csi, NullTVB,  offset, 1, rh_2);
 		proto_tree_add_boolean(bf_tree, hf_sna_rh_edi, NullTVB,  offset, 1, rh_2);
 		proto_tree_add_boolean(bf_tree, hf_sna_rh_pdi, NullTVB,  offset, 1, rh_2);
 		proto_tree_add_boolean(bf_tree, hf_sna_rh_cebi, NullTVB, offset, 1, rh_2);
