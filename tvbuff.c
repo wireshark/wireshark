@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.c,v 1.11 2000/09/08 06:16:57 sharpe Exp $
+ * $Id: tvbuff.c,v 1.12 2000/09/08 09:54:20 guy Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@xiexie.org>
  *
@@ -1035,8 +1035,6 @@ tvb_format_text(tvbuff_t *tvb, gint offset, gint size)
 {
   guint8 *ptr;
   gint len = size;
-
-  fprintf(stderr, "tvb_format_text called: size = %d\n", size);
 
   if ((ptr = ensure_contiguous(tvb, offset, size)) == NULL) {
 
