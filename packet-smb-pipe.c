@@ -8,7 +8,7 @@ XXX  Fixme : shouldnt show [malformed frame] for long packets
  * significant rewrite to tvbuffify the dissector, Ronnie Sahlberg and
  * Guy Harris 2001
  *
- * $Id: packet-smb-pipe.c,v 1.38 2001/11/03 00:58:49 guy Exp $
+ * $Id: packet-smb-pipe.c,v 1.39 2001/11/12 08:58:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2218,6 +2218,22 @@ dissect_pipe_lanman(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	return TRUE;
 }
 
+static heur_dissector_list_t msrpc_heur_subdissector_list;
+
+static gboolean
+dissect_pipe_msrpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
+{
+        gboolean result;
+
+        result = dissector_try_heuristic(msrpc_heur_subdissector_list, tvb,
+                                         pinfo, parent_tree);
+
+        if (!result)
+                dissect_data(tvb, 0, pinfo, parent_tree);
+
+        return TRUE;
+}
+
 gboolean
 dissect_pipe_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -2232,6 +2248,16 @@ dissect_pipe_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		return dissect_pipe_lanman(tvb, pinfo, tree);
 	}
+
+        /* MSRPC pipes are transacts on an unnamed pipe (i.e \PIPE\) which
+           is stripped off in the transact dissector */
+
+        if (smb_info->trans_cmd && strcmp(smb_info->trans_cmd, "") == 0) {
+                
+                /* Try to decode a msrpc pipe */
+
+                return dissect_pipe_msrpc(tvb, pinfo, tree);
+        }
 
 	return FALSE;
 }
@@ -2567,4 +2593,6 @@ register_proto_smb_pipe(void)
 		"Microsoft Windows Lanman Remote API Protocol", "LANMAN", "lanman");
 	proto_register_field_array(proto_smb_lanman, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+        register_heur_dissector_list("msrpc", &msrpc_heur_subdissector_list);
 }

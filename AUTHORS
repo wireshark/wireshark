@@ -889,6 +889,11 @@ Kazushi Sugyo <k-sugyou[AT]nwsl.mesh.ad.jp> {
 	Fix to code to scan the SIOCGIFCONF list
 }
 
+Tim Potter <tpot[AT]samba.org> {
+	Support for DCE RPC atop SMB
+	Support for several Microsoft DCE RPC services used with SMB
+}
+
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 
