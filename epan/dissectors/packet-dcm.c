@@ -814,7 +814,7 @@ dissect_dcm_data(dcmState_t *dcm_data, proto_item *ti, tvbuff_t *tvb)
 	V = tvb_get_guint8(tvb, offset); offset++;
 	R = tvb_get_guint8(tvb, offset); offset++;
 	len += 2;
-	/* 4byte lenghts OB, OW, OF, SQ, UN, UT */
+	/* 4byte lengths OB, OW, OF, SQ, UN, UT */
 	state = D_LEN2;
 	nlen = 2;
 	if ((('O' == V) && ('B' == R || 'W' == R || 'F' == R))

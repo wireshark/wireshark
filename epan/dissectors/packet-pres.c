@@ -1371,7 +1371,7 @@ show_connection_request_confirm(ASN1_SCK *asn,proto_tree *pres_tree,tvbuff_t
 				proto_tree_add_uint(pres_tree_ms, hf_pres_ms_type, tvb, (*offset)-1, 1, 
 type);
 				proto_tree_add_text(pres_tree_ms, tvb, *offset, (asn->offset-*offset),
-										"Lenght:%u",*item_len);
+										"Length:%u",*item_len);
 				*offset=asn->offset;
 				show_integer(asn,pres_tree_ms,tvb,offset,*item_len);
 					break;
@@ -1380,7 +1380,7 @@ type);
 				proto_tree_add_uint(pres_tree_ms, hf_pres_seq_type, tvb, (*offset)-1, 1, 
 type);
 				proto_tree_add_text(pres_tree_ms, tvb, *offset, (asn->offset-*offset),
-										"Lenght:%u",*item_len);
+										"Length:%u",*item_len);
 				*offset=asn->offset;
 				show_sequence_top(asn,pres_tree_ms,tvb,pinfo,offset,*item_len);
 					break;

@@ -1174,7 +1174,7 @@ dissect_rtcp_xr(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, proto_tree *t
 					gchar* run_type = (value & 0x4000) ? "1s" : "0s";
 					value &= 0x7FFF;
 					proto_tree_add_text(chunks_tree, tvb, offset, 2,
-										"Chunk: %u -- Lenght Run %s, lenght: %u",
+										"Chunk: %u -- Length Run %s, length: %u",
 										count, run_type, value);
 				} else {
 					gchar* bits;

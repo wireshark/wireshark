@@ -547,9 +547,9 @@ typedef enum {
 /**
  * xmlCharEncodingInputFunc:
  * @out:  a pointer ot an array of bytes to store the UTF-8 result
- * @outlen:  the lenght of @out
+ * @outlen:  the length of @out
  * @in:  a pointer ot an array of chars in the original encoding
- * @inlen:  the lenght of @in
+ * @inlen:  the length of @in
  *
  * Take a block of chars in the original encoding and try to convert
  * it to an UTF-8 block of chars out.
@@ -567,9 +567,9 @@ typedef int (* xmlCharEncodingInputFunc)(unsigned char* out, int *outlen,
 /**
  * xmlCharEncodingOutputFunc:
  * @out:  a pointer ot an array of bytes to store the result
- * @outlen:  the lenght of @out
+ * @outlen:  the length of @out
  * @in:  a pointer ot an array of UTF-8 chars
- * @inlen:  the lenght of @in
+ * @inlen:  the length of @in
  *
  * Take a block of UTF-8 chars in and try to convert it to an other
  * encoding.

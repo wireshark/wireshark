@@ -1450,7 +1450,7 @@ proto_register_lwres(void)
 
 	{ &hf_adn_addr_len,
 	{ "Address length", "lwres.adn.addr.length", FT_UINT16, BASE_DEC, NULL, 0x0,
-	"lwres adn addr lenght", HFILL }},
+	"lwres adn addr length", HFILL }},
 
 	{ &hf_adn_addr_addr,
     { "IP Address", "lwres.adn.addr.addr", FT_STRING, BASE_DEC, NULL, 0x0,

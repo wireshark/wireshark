@@ -937,7 +937,7 @@ proto_register_acn(void) {
 		"res", HFILL }},
 
 	{ &hf_acn_pdu_length,
-	    { "Lenght","acn.pdu.length",
+	    { "Length","acn.pdu.length",
 		FT_UINT8, BASE_DEC, NULL, 0x0,
 		"Length", HFILL }},
 

@@ -505,7 +505,7 @@ int udvm_state_access(tvbuff_t *tvb, proto_tree *tree,guint8 *buff,guint16 p_id_
 	 * p_id_start			= Partial state identifier start pos in the buffer(buff)
 	 * p-id_length			= Partial state identifier length
 	 * state_begin			= Where to start to read state from
-	 * state_length			= Lenght of state
+	 * state_length			= Length of state
 	 * state_adress			= Address where to store the state in the buffer(buff)
 	 * state_instruction	=
 	 * FALSE				= Indicates that state_* is in the stored state 

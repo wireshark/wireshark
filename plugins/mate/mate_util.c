@@ -1624,7 +1624,7 @@ LoAL* load_loal_error(FILE* fp, LoAL* loal, AVPL* curr, int linenum, guint8* fmt
 }
 
 
-/*  the maximum lenght allowed for a line */
+/*  the maximum length allowed for a line */
 #define MAX_ITEM_LEN	8192
 
 /* this two ugly things are used for tokenizing */
@@ -1694,7 +1694,7 @@ extern LoAL* loal_from_file(guint8* filename) {
 			}
 
 			if ( i >= MAX_ITEM_LEN - 1  ) {
-				return load_loal_error(fp,loal,curr,linenum,"Maximum item lenght exceeded");
+				return load_loal_error(fp,loal,curr,linenum,"Maximum item length exceeded");
 			}
 
 			switch(state) {

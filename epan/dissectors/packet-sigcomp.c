@@ -429,7 +429,7 @@ dissect_sigcomp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			 * p_id_start			= Partial state identifier start pos in the buffer(buff)
 			 * partial_state_len	= Partial state identifier length
 			 * state_begin			= Where to start to read state from
-			 * state_length			= Lenght of state
+			 * state_length			= Length of state
 			 * state_address			= Address where to store the state in the buffer(buff)
 			 * state_instruction	=
 			 * TRUE					= Indicates that state_* is in the stored state 
