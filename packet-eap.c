@@ -2,7 +2,7 @@
  * Routines for EAP Extensible Authentication Protocol dissection
  * RFC 2284
  *
- * $Id: packet-eap.c,v 1.18 2002/03/19 12:02:03 guy Exp $
+ * $Id: packet-eap.c,v 1.19 2002/03/19 20:55:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -48,6 +48,7 @@ static int hf_eap_code = -1;
 static int hf_eap_identifier = -1;
 static int hf_eap_len = -1;
 static int hf_eap_type = -1;
+static int hf_eap_type_nak = -1;
 
 static gint ett_eap = -1;
 
@@ -77,13 +78,15 @@ References:
 */
 
 #define EAP_TYPE_ID     1
+#define EAP_TYPE_NOTIFY 2
+#define EAP_TYPE_NAK    3
 #define EAP_TYPE_TLS	13
 #define EAP_TYPE_LEAP	17
 
 static const value_string eap_type_vals[] = { 
   {EAP_TYPE_ID,  "Identity [RFC2284]" },
-  {  2,          "Notification [RFC2284]" },
-  {  3,          "Nak (Response only) [RFC2284]" },
+  {EAP_TYPE_NOTIFY,"Notification [RFC2284]" },
+  {EAP_TYPE_NAK, "Nak (Response only) [RFC2284]" },
   {  4,          "MD5-Challenge [RFC2284]" },
   {  5,          "One Time Password (OTP) [RFC2289]" },
   {  6,          "Generic Token Card [RFC2284]" },
@@ -177,9 +180,6 @@ dissect_eap_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   case EAP_RESPONSE:
     eap_type = tvb_get_guint8(tvb, 4);
 
-    if(eap_type == EAP_TYPE_ID)
-      leap_state = 0;
-
     if (check_col(pinfo->cinfo, COL_INFO))
       col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
 		      val_to_str(eap_type, eap_type_vals,
@@ -195,9 +195,22 @@ dissect_eap_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	case EAP_TYPE_ID:
 	  proto_tree_add_text(eap_tree, tvb, offset, size, 
-			      "Type-Data (%d byte%s) Value: %s",
+			      "Identity (%d byte%s): %s",
 			      size, plurality(size, "", "s"),
 			      tvb_format_text(tvb, offset, size));
+	  leap_state = 0;
+	  break;
+
+	case EAP_TYPE_NOTIFY:
+	  proto_tree_add_text(eap_tree, tvb, offset, size, 
+			      "Notification (%d byte%s): %s",
+			      size, plurality(size, "", "s"),
+			      tvb_format_text(tvb, offset, size));
+	  break;
+
+	case EAP_TYPE_NAK:
+	  proto_tree_add_uint(eap_tree, hf_eap_type_nak, tvb,
+			      offset, size, eap_type);
 	  break;
 
 	case EAP_TYPE_TLS:
@@ -244,19 +257,22 @@ dissect_eap_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	    /* Version (byte) */
 	    field = tvb_get_guint8(tvb, offset);
-	    proto_tree_add_text(eap_tree, tvb, offset, 1, "Version: %i",field);
+	    proto_tree_add_text(eap_tree, tvb, offset, 1, 
+				"Version: %i",field);
 	    size--;
 	    offset++;
 
 	    /* Unused  (byte) */
 	    field = tvb_get_guint8(tvb, offset);
-	    proto_tree_add_text(eap_tree, tvb, offset, 1, "Reserved: %i",field);
+	    proto_tree_add_text(eap_tree, tvb, offset, 1, 
+				"Reserved: %i",field);
 	    size--;
 	    offset++;
 
 	    /* Count   (byte) */
 	    count = tvb_get_guint8(tvb, offset);
-	    proto_tree_add_text(eap_tree, tvb, offset, 1, "Count: %i",count);
+	    proto_tree_add_text(eap_tree, tvb, offset, 1, 
+				"Count: %i",count);
 	    size--;
 	    offset++;
 
@@ -347,6 +363,9 @@ proto_register_eap(void)
 		NULL, 0x0, "", HFILL }},
 	{ &hf_eap_type, { 
 		"Type", "eap.type", FT_UINT8, BASE_DEC, 
+		VALS(eap_type_vals), 0x0, "", HFILL }},
+	{ &hf_eap_type_nak, { 
+		"Desired Auth Type", "eap.type", FT_UINT8, BASE_DEC, 
 		VALS(eap_type_vals), 0x0, "", HFILL }},
   };
   static gint *ett[] = {
