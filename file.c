@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.56 1999/08/05 16:46:04 gram Exp $
+ * $Id: file.c,v 1.57 1999/08/07 01:25:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -209,7 +209,7 @@ load_cap_file(char *fname, capture_file *cf) {
   gtk_statusbar_push(GTK_STATUSBAR(info_bar), file_ctx, load_msg);
   
   timeout = gtk_timeout_add(250, file_progress_cb, (gpointer) cf);
-  
+
   err = open_cap_file(fname, cf);
   if ((err == 0) && (cf->cd_t != WTAP_FILE_UNKNOWN)) {
     freeze_clist(cf);
@@ -712,9 +712,9 @@ clear_tree_and_hex_views(void)
   gtk_text_set_point(GTK_TEXT(byte_view), 0);
   gtk_text_forward_delete(GTK_TEXT(byte_view),
     gtk_text_get_length(GTK_TEXT(byte_view)));
+  gtk_text_thaw(GTK_TEXT(byte_view));
 
   /* Clear the protocol tree view. */
-  gtk_text_thaw(GTK_TEXT(byte_view));
   gtk_tree_clear_items(GTK_TREE(tree_view), 0,
     g_list_length(GTK_TREE(tree_view)->children));
 }
@@ -727,7 +727,7 @@ select_packet(capture_file *cf, int row)
   gtk_text_freeze(GTK_TEXT(byte_view));
   gtk_text_set_point(GTK_TEXT(byte_view), 0);
   gtk_text_forward_delete(GTK_TEXT(byte_view),
-  gtk_text_get_length(GTK_TEXT(byte_view)));
+    gtk_text_get_length(GTK_TEXT(byte_view)));
 
   /* Get the frame data struct pointer for this frame. */
   cf->fd = (frame_data *) gtk_clist_get_row_data(GTK_CLIST(packet_list), row);
