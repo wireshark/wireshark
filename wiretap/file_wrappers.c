@@ -1,6 +1,6 @@
 /* file_wrappers.c
  *
- * $Id: file_wrappers.c,v 1.3 2000/01/22 06:22:37 guy Exp $
+ * $Id: file_wrappers.c,v 1.4 2000/01/25 04:49:55 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -84,10 +84,16 @@
 int
 file_seek(void *stream, long offset, int whence)
 {
-	return gzseek(stream, offset, whence);
+	return gzseek(stream, (z_off_t)offset, whence);
+}
+
+long
+file_tell(void *stream)
+{
+	return (long)gztell(stream);
 }
 #else /* HAVE_LIBZ */
-int
+long
 file_seek(FILE *stream, long offset, int whence)
 {
 	return fseek(stream, offset, whence);

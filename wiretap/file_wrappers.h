@@ -1,6 +1,6 @@
 /* file_wrappers.h
  *
- * $Id: file_wrappers.h,v 1.2 2000/01/22 06:22:37 guy Exp $
+ * $Id: file_wrappers.h,v 1.3 2000/01/25 04:49:55 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -31,7 +31,7 @@ extern int file_seek(void *stream, long offset, int whence);
 #define file_read(buf, bsize, count, file) gzread((file),(buf),((count)*(bsize)))
 #define file_write(buf, bsize, count, file) gzwrite((file),(buf),((count)*(bsize)))
 #define file_close gzclose
-#define file_tell gztell
+extern long file_tell(void *stream);
 #define file_getc gzgetc
 #define file_gets(buf, len, file) gzgets((file), (buf), (len))
 extern int file_error(void *fh);
