@@ -1,7 +1,7 @@
 /* packet-nlm.c
  * Routines for nlm dissection
  *
- * $Id: packet-nlm.c,v 1.11 2001/01/16 20:56:13 guy Exp $
+ * $Id: packet-nlm.c,v 1.12 2001/01/18 09:44:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -50,6 +50,12 @@
  * implementations or in the nice book:
  * Brent Callaghan: "NFS Illustrated", Addison-Wesley, ISBN 0-201-32570-5
  * which I use here as reference (BC).
+ *
+ * They can also be found if you go to
+ *
+ *	http://www.opengroup.org/publications/catalog/c702.htm
+ *
+ * and follow the links to the HTML version of the document.
  */
 
 static int proto_nlm = -1;
@@ -184,6 +190,7 @@ static int
 dissect_nlm_test(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int version)
 {
 	int noffset;
+
 	noffset = dissect_rpc_data_tvb(tvb, pinfo, tree, hf_nlm_cookie, 0);
 	dissect_rpc_bool_tvb(tvb, pinfo, tree, hf_nlm_exclusive, noffset);
 	noffset += 4;
@@ -590,21 +597,21 @@ dissect_nlm3_freeall(const u_char* pd, int offset, frame_data* fd, proto_tree* t
 
 
 /* proc number, "proc name", dissect_request, dissect_reply */
-/* NULL as function pointer means: take the generic one. */
+/* NULL as function pointer means: type of arguments is "void". */
 /* NLM protocol version 1 */
-const vsff nlm1_proc[] = {
+static const vsff nlm1_proc[] = {
 	{ NLM_NULL,		"NULL",		
 		NULL,				NULL },
 	{ NLM_TEST,		"TEST",
-		dissect_nlm1_test,		NULL },
+		dissect_nlm1_test,		dissect_nlm1_test_res },
 	{ NLM_LOCK,		"LOCK",	
-		dissect_nlm1_lock,		NULL },
+		dissect_nlm1_lock,		dissect_nlm_gen_reply },
 	{ NLM_CANCEL,		"CANCEL",
-		dissect_nlm1_cancel,		NULL },
+		dissect_nlm1_cancel,		dissect_nlm_gen_reply },
 	{ NLM_UNLOCK,		"UNLOCK",
-		dissect_nlm1_unlock,		NULL },
+		dissect_nlm1_unlock,		dissect_nlm_gen_reply },
 	{ NLM_GRANTED,		"GRANTED",
-		dissect_nlm1_granted,		NULL },
+		dissect_nlm1_granted,		dissect_nlm_gen_reply },
 	{ NLM_TEST_MSG,		"TEST_MSG",
 		dissect_nlm1_test,		NULL },
 	{ NLM_LOCK_MSG,		"LOCK_MSG",
@@ -630,7 +637,7 @@ const vsff nlm1_proc[] = {
 /* end of NLM protocol version 1 */
 
 /* NLM protocol version 2 */
-const vsff nlm2_proc[] = {
+static const vsff nlm2_proc[] = {
 	{ NLM_NULL,		"NULL",		NULL,	NULL },
 	{ NLM_TEST,		"TEST",		NULL,	NULL },
 	{ NLM_LOCK,		"LOCK",		NULL,	NULL },
@@ -652,7 +659,7 @@ const vsff nlm2_proc[] = {
 /* end of NLM protocol version 2 */
 
 /* NLM protocol version 3 */
-const vsff nlm3_proc[] = {
+static const vsff nlm3_proc[] = {
 	{ NLM_NULL,		"NULL",		NULL,	NULL },
 	{ NLM_TEST,		"TEST",		NULL,	NULL },
 	{ NLM_LOCK,		"LOCK",		NULL,	NULL },
@@ -670,11 +677,11 @@ const vsff nlm3_proc[] = {
 	{ NLM_UNLOCK_RES,	"UNLOCK_RES",	NULL,	NULL },
 	{ NLM_GRANTED_RES,	"GRANTED_RES",	NULL,	NULL },
 	{ NLM_SHARE,		"SHARE",	
-		dissect_nlm3_share,		NULL },
+		dissect_nlm3_share,		NULL },	/* XXX */
 	{ NLM_UNSHARE,		"UNSHARE",	
-		dissect_nlm3_share,		NULL },
+		dissect_nlm3_share,		NULL },	/* XXX */
 	{ NLM_NM_LOCK,		"NM_LOCK",	
-		dissect_nlm1_lock,	NULL },
+		dissect_nlm1_lock,	dissect_nlm_gen_reply },
 	{ NLM_FREE_ALL,		"FREE_ALL",	
 		dissect_nlm3_freeall,		NULL },
 	{ 0,			NULL,		NULL,	NULL }
@@ -683,7 +690,7 @@ const vsff nlm3_proc[] = {
 
 
 /* NLM protocol version 4 */
-const vsff nlm4_proc[] = {
+static const vsff nlm4_proc[] = {
 	{ NLM_NULL,		"NULL",		
 		NULL,				NULL },
 	{ NLM_TEST,		"TEST",		
