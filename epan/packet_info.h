@@ -1,7 +1,7 @@
 /* packet_info.h
  * Definitions for packet info structures and routines
  *
- * $Id: packet_info.h,v 1.40 2004/03/23 01:02:40 guy Exp $
+ * $Id: packet_info.h,v 1.41 2004/06/25 06:31:47 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -121,7 +121,8 @@ typedef enum {
   CT_DLCI,		/* Frame Relay DLCI */
   CT_ISDN,		/* ISDN channel number */
   CT_X25,		/* X.25 logical channel number */
-  CT_ISUP		/* ISDN User Part CIC */
+  CT_ISUP,		/* ISDN User Part CIC */
+  CT_IAX2		/* IAX2 call id */
   /* Could also have ATM VPI/VCI pairs */
 } circuit_type;
 

@@ -2144,6 +2144,10 @@ Dominic Béchaz          <bdo [AT] zhwin.ch> {
 	IEEE 1588 / PTP support
 }
 
+Richard van der Hoff     <richardv [AT] mxtelecom.com> {
+	IAX2 updates
+	CRC16 routines
+}
 
 And assorted fixes and enhancements by the people listed above and by:
 

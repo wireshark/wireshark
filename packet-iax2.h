@@ -7,7 +7,7 @@
  *
  * Mark Spencer <markster@linux-support.net>
  *
- * $Id: packet-iax2.h,v 1.2 2004/05/15 21:26:09 guy Exp $
+ * $Id: packet-iax2.h,v 1.3 2004/06/25 06:31:46 sahlberg Exp $
  *
  * This program is free software, distributed under the terms of
  * the GNU General Public License
@@ -112,6 +112,10 @@
 #define IAX_IE_MUSICONHOLD			26		/* Request musiconhold with QUELCH -- none or string */
 #define IAX_IE_TRANSFERID			27		/* Transfer Request Identifier -- int */
 #define IAX_IE_RDNIS				28		/* Referring DNIS -- string */
+#define IAX_IE_PROVISIONING			29		/* Provisioning info */
+#define IAX_IE_AESPROVISIONING			30		/* AES Provisioning info */
+#define IAX_IE_DATETIME				31		/* Date/Time */
+#define IAX_IE_DATAFORMAT			255		/* Data call format -- iax_dataformat_t */
 
 #define IAX_AUTH_PLAINTEXT			(1 << 0)
 #define IAX_AUTH_MD5				(1 << 1)
@@ -125,21 +129,5 @@
 #define IAX_DPSTATUS_NONEXISTANT	(1 << 2)
 #define IAX_DPSTATUS_IGNOREPAT		(1 << 14)
 #define IAX_DPSTATUS_MATCHMORE		(1 << 15)
-
-#define AST_FORMAT_G723_1   (1 << 0)    /* G.723.1 compression */
-#define AST_FORMAT_GSM      (1 << 1)    /* GSM compression */
-#define AST_FORMAT_ULAW     (1 << 2)    /* Raw mu-law data (G.711) */
-#define AST_FORMAT_ALAW     (1 << 3)    /* Raw A-law data (G.711) */
-#define AST_FORMAT_G726	    (1 << 4)    /* ADPCM (G.726, 32kbps) */
-#define AST_FORMAT_ADPCM    (1 << 5)    /* ADPCM (IMA) */
-#define AST_FORMAT_SLINEAR  (1 << 6)    /* Raw 16-bit Signed Linear (8000 Hz) PCM */
-#define AST_FORMAT_LPC10    (1 << 7)    /* LPC10, 180 samples/frame */
-#define AST_FORMAT_G729A    (1 << 8)    /* G.729a Audio */
-#define AST_FORMAT_SPEEX    (1 << 9)    /* SpeeX Free Compression */
-#define AST_FORMAT_ILBC	    (1 << 10)   /* iLBC Free Compression */
-#define AST_FORMAT_JPEG	    (1 << 16)   /* JPEG Images */
-#define AST_FORMAT_PNG	    (1 << 17)   /* PNG Images */
-#define AST_FORMAT_H261	    (1 << 18)   /* H.261 Video */
-#define AST_FORMAT_H263	    (1 << 19)   /* H.263 Video */
 
 #endif

@@ -5,7 +5,7 @@
  * Copyright 2003 Niklas Ögren <niklas.ogren@7l.se>
  * Seven Levels Consultants AB
  *
- * $Id: packet-h263.c,v 1.4 2003/08/25 21:48:44 guy Exp $
+ * $Id: packet-h263.c,v 1.5 2004/06/25 06:31:46 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -45,6 +45,7 @@
 #include <string.h>
 
 #include "rtp_pt.h"
+#include "iax2_codec_type.h"
 
 /* H.263 header fields             */
 static int proto_h263          = -1;
@@ -526,6 +527,7 @@ proto_register_h263(void)
 	    "H.263", "h263");
 	proto_register_field_array(proto_h263, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	register_dissector("h263", dissect_h263, proto_h263);
 }
 
 void
@@ -533,6 +535,7 @@ proto_reg_handoff_h263(void)
 {
 	dissector_handle_t h263_handle;
 
-	h263_handle = create_dissector_handle(dissect_h263, proto_h263);
+	h263_handle = find_dissector("h263");
 	dissector_add("rtp.pt", PT_H263, h263_handle);
+	dissector_add("iax2.codec", AST_FORMAT_H263, h263_handle);
 }
