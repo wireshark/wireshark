@@ -231,7 +231,6 @@ sync_pipe_do_capture(capture_options *capture_opts, gboolean is_tempfile) {
     enum PIPES { PIPE_READ, PIPE_WRITE };   /* Constants 0 and 1 for PIPE_READ and PIPE_WRITE */
     int sync_pipe[2];                       /* pipes used to sync between instances */
 
-
     capture_opts->fork_child = -1;
 
     /* Allocate the string pointer array with enough space for the
@@ -797,7 +796,7 @@ sync_pipe_signame(int sig)
 void
 sync_pipe_stop(capture_options *capture_opts)
 {
-  if (capture_opts->fork_child != -1) {
+  if (capture_opts->fork_child != -1 && capture_opts->fork_child != 0) {
 #ifndef _WIN32
       kill(capture_opts->fork_child, SIGUSR1);
 #else
@@ -806,12 +805,16 @@ sync_pipe_stop(capture_options *capture_opts)
        * then getting window handle hWnd of that process (using EnumChildWindows),
        * and then do a SendMessage(hWnd, WM_CLOSE, 0, 0) 
        *
-       * Unfortunately, I don't know how to get the process id from the handle */
-      /* Hint: OpenProcess will get an handle from the id, not vice versa :-(
+       * Unfortunately, I don't know how to get the process id from the
+       * handle.  OpenProcess will get an handle (not a window handle)
+       * from the process ID; it will not get a window handle from the
+       * process ID.  (How could it?  A process can have more than one
+       * window.)
        *
-       * Hint: GenerateConsoleCtrlEvent() will only work, if both processes are 
-       * running in the same console, I don't know if that is true for our case.
-       * And this also will require to have the process id
+       * Hint: GenerateConsoleCtrlEvent() will only work if both processes are 
+       * running in the same console; that's not necessarily the case for
+       * us, as we might not be running in a console.
+       * And this also will require to have the process id.
        */
       TerminateProcess((HANDLE) (capture_opts->fork_child), 0);
 #endif
@@ -822,7 +825,7 @@ sync_pipe_stop(capture_options *capture_opts)
 void
 sync_pipe_kill(capture_options *capture_opts)
 {
-  if (capture_opts->fork_child != -1)
+  if (capture_opts->fork_child != -1 && capture_opts->fork_child != 0) {
 #ifndef _WIN32
       kill(capture_opts->fork_child, SIGTERM);	/* SIGTERM so it can clean up if necessary */
 #else
@@ -831,16 +834,20 @@ sync_pipe_kill(capture_options *capture_opts)
        * then getting window handle hWnd of that process (using EnumChildWindows),
        * and then do a SendMessage(hWnd, WM_CLOSE, 0, 0) 
        *
-       * Unfortunately, I don't know how to get the process id from the handle */
-      /* Hint: OpenProcess will get an handle from the id, not vice versa :-(
+       * Unfortunately, I don't know how to get the process id from the
+       * handle.  OpenProcess will get an handle (not a window handle)
+       * from the process ID; it will not get a window handle from the
+       * process ID.  (How could it?  A process can have more than one
+       * window.)
        *
-       * Hint: GenerateConsoleCtrlEvent() will only work, if both processes are 
-       * running in the same console, I don't know if that is true for our case.
-       * And this also will require to have the process id
+       * Hint: GenerateConsoleCtrlEvent() will only work if both processes are 
+       * running in the same console; that's not necessarily the case for
+       * us, as we might not be running in a console.
+       * And this also will require to have the process id.
        */
       TerminateProcess((HANDLE) (capture_opts->fork_child), 0);
 #endif
+  }
 }
-
 
 #endif /* HAVE_LIBPCAP */
