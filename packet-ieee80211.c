@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.91 2003/06/05 22:10:49 gerald Exp $
+ * $Id: packet-ieee80211.c,v 1.92 2003/06/24 06:23:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2526,7 +2526,7 @@ proto_register_ieee80211 (void)
   register_init_routine(wlan_defragment_init);
 
   /* Register configuration options */
-  wlan_module = prefs_register_protocol(proto_wlan, NULL);
+  wlan_module = prefs_register_protocol(proto_wlan, init_wepkeys);
   prefs_register_bool_preference(wlan_module, "defragment",
 	"Reassemble fragmented 802.11 datagrams",
 	"Whether fragmented 802.11 datagrams should be reassembled",
@@ -2550,19 +2550,19 @@ proto_register_ieee80211 (void)
 
   prefs_register_string_preference(wlan_module, "wep_key1",
 				   "WEP key #1",
-				   "First WEP key (A:B:C:D:E:F)",
+				   "First WEP key (A:B:C:D:E) [40bit], (A:B:C:D:E:F:G:H:I:J:K:L:M) [104bit], or whatever key length you're using",
 				   &wep_keystr[0]);
   prefs_register_string_preference(wlan_module, "wep_key2",
 				   "WEP key #2",
-				   "Second WEP key (A:B:C:D:E:F)",
+				   "Second WEP key (A:B:C:D:E) [40bit], (A:B:C:D:E:F:G:H:I:J:K:L:M) [104bit], or whatever key length you're using",
 				   &wep_keystr[1]);
   prefs_register_string_preference(wlan_module, "wep_key3",
 				   "WEP key #3",
-				   "Third WEP key (A:B:C:D:E:F)",
+				   "Third WEP key (A:B:C:D:E) [40bit], (A:B:C:D:E:F:G:H:I:J:K:L:M) [104bit], or whatever key length you're using",
 				   &wep_keystr[2]);
   prefs_register_string_preference(wlan_module, "wep_key4",
 				   "WEP key #4",
-				   "Fourth WEP key (A:B:C:D:E:F)",
+				   "Fourth WEP key (A:B:C:D:E) [40bit] (A:B:C:D:E:F:G:H:I:J:K:L:M) [104bit], or whatever key length you're using",
 				   &wep_keystr[3]);
 #endif
 }
@@ -2650,8 +2650,6 @@ static tvbuff_t *try_decrypt_wep(tvbuff_t *tvb, guint32 offset, guint32 len) {
 
   if (num_wepkeys < 1)
     return NULL;
-  if (wep_keylens == NULL)
-    init_wepkeys();
 
   if ((tmp = g_malloc(len)) == NULL)
     return NULL;  /* krap! */
@@ -2794,8 +2792,11 @@ static void init_wepkeys(void) {
   if (num_wepkeys < 1)
     return;
 
-  if (wep_keylens != NULL)
-    return;
+  if (wep_keys)
+    g_free(wep_keys);
+
+  if (wep_keylens)
+    g_free(wep_keylens);
 
   wep_keys = g_malloc(num_wepkeys * sizeof(guint8*));
   wep_keylens = g_malloc(num_wepkeys * sizeof(int));
@@ -2821,6 +2822,8 @@ static void init_wepkeys(void) {
 #endif
 #endif
 
+      if (wep_keys[i])
+	g_free(wep_keys[i]);
       wep_keys[i] = g_malloc(32 * sizeof(guint8));
       memset(wep_keys[i], 0, 32 * sizeof(guint8));
       tmp3 = wep_keys[i];
