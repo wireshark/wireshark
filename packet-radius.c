@@ -6,7 +6,7 @@
  *
  * RFC 2865, RFC 2866, RFC 2867, RFC 2868, RFC 2869
  *
- * $Id: packet-radius.c,v 1.98 2004/03/20 18:51:08 guy Exp $
+ * $Id: packet-radius.c,v 1.99 2004/03/20 19:09:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2246,34 +2246,6 @@ find_radius_attr_info(guint32 attr_type, const radius_attr_info *table)
     return(NULL);
 }
 
-static void
-rdconvertbufftostr(gchar *dest, tvbuff_t *tvb, int offset, int length)
-{
-/*converts the raw buffer into printable text */
-	guint32 i;
-	guint32 totlen=0;
-	const guint8 *pd = tvb_get_ptr(tvb, offset, length);
-
-        dest[0]='"';
-        dest[1]=0;
-        totlen=1;
-        for (i=0; i < (guint32)length; i++)
-        {
-                if( isalnum((int)pd[i])||ispunct((int)pd[i])
-                                ||((int)pd[i]==' '))            {
-                        dest[totlen]=(gchar)pd[i];
-                        totlen++;
-                }
-                else
-                {
-                        sprintf(&(dest[totlen]), "\\%03o", pd[i]);
-                        totlen=totlen+strlen(&(dest[totlen]));
-                }
-        }
-        dest[totlen]='"';
-        dest[totlen+1]=0;
-}
-
 #if GLIB_MAJOR_VERSION >= 2
 /*
  * XXX - "isprint()" can return "true" for non-ASCII characters, but
@@ -2292,6 +2264,53 @@ rdconvertbufftostr(gchar *dest, tvbuff_t *tvb, int offset, int length)
 #endif
 
 static void
+rdconvertbufftostr(gchar *dest, tvbuff_t *tvb, int offset, int length)
+{
+/*converts the raw buffer into printable text */
+	guint32 i;
+	guint32 totlen=0;
+	const guint8 *pd = tvb_get_ptr(tvb, offset, length);
+
+        dest[0]='"';
+        dest[1]=0;
+        totlen=1;
+        for (i=0; i < (guint32)length; i++)
+        {
+                if( isprint((int)pd[i])) {
+                        dest[totlen]=(gchar)pd[i];
+                        totlen++;
+                }
+                else
+                {
+                        sprintf(&(dest[totlen]), "\\%03o", pd[i]);
+                        totlen=totlen+strlen(&(dest[totlen]));
+                }
+        }
+        dest[totlen]='"';
+        dest[totlen+1]=0;
+}
+
+static void
+rdconvertbufftobinstr(gchar *dest, tvbuff_t *tvb, int offset, int length)
+{
+/*converts the raw buffer into printable hex display */
+	guint32 i;
+	guint32 totlen=0;
+	const guint8 *pd = tvb_get_ptr(tvb, offset, length);
+	static const char hex[16] = { '0', '1', '2', '3', '4', '5', '6', '7',
+				      '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
+
+        for (i=0; i < (guint32)length; i++)
+        {
+		dest[totlen] = hex[pd[i] >> 4];
+		totlen++;
+		dest[totlen] = hex[pd[i] & 0xF];
+		totlen++;
+        }
+        dest[totlen]='\0';
+}
+
+static void
 rddecryptpass(gchar *dest,tvbuff_t *tvb,int offset,int length)
 {
     md5_state_t md_ctx;
@@ -2302,7 +2321,7 @@ rddecryptpass(gchar *dest,tvbuff_t *tvb,int offset,int length)
     guchar c;
 
     if (shared_secret[0] == '\0' || !authenticator ) {
-	rdconvertbufftostr(dest,tvb,offset,length);
+	rdconvertbufftobinstr(dest,tvb,offset,length);
 	return;
     }
 
@@ -2338,26 +2357,6 @@ rddecryptpass(gchar *dest,tvbuff_t *tvb,int offset,int length)
     }
     dest[totlen]='"';
     dest[totlen+1] = '\0';
-}
-
-static void
-rdconvertbufftobinstr(gchar *dest, tvbuff_t *tvb, int offset, int length)
-{
-/*converts the raw buffer into printable text */
-	guint32 i;
-	guint32 totlen=0;
-	const guint8 *pd = tvb_get_ptr(tvb, offset, length);
-	static const char hex[16] = { '0', '1', '2', '3', '4', '5', '6', '7',
-				      '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
-
-        for (i=0; i < (guint32)length; i++)
-        {
-		dest[totlen] = hex[pd[i] >> 4];
-		totlen++;
-		dest[totlen] = hex[pd[i] & 0xF];
-		totlen++;
-        }
-        dest[totlen]='\0';
 }
 
 static gchar *rd_match_strval(guint32 val, const value_string *vs) {
