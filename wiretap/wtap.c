@@ -1,6 +1,6 @@
 /* wtap.c
  *
- * $Id: wtap.c,v 1.18 1999/09/11 04:50:44 gerald Exp $
+ * $Id: wtap.c,v 1.19 1999/09/11 06:48:33 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -27,6 +27,7 @@
 #endif
 #include "wtap.h"
 #include "buffer.h"
+#include "ascend.h"
 
 FILE* wtap_file(wtap *wth)
 {
@@ -187,13 +188,14 @@ int wtap_loop(wtap *wth, int count, wtap_handler callback, u_char* user,
 		return TRUE;	/* success */
 }
 
-int wtap_seek_read (int encaps, FILE *fh, int seek_off, guint8 *pd, int len) {
+int wtap_seek_read(int encaps, FILE *fh, int seek_off, guint8 *pd, int len)
+{
 	switch (encaps) {
-		case WTAP_ENCAP_ASCEND:
-			ascend_seek_read(fh, seek_off, pd, len);
-			break;
-		default:
-			wtap_def_seek_read(fh, seek_off, pd, len);
-			break;
+
+	case WTAP_ENCAP_ASCEND:
+		return ascend_seek_read(fh, seek_off, pd, len);
+
+	default:
+		return wtap_def_seek_read(fh, seek_off, pd, len);
 	}
 }
