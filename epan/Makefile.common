@@ -76,6 +76,7 @@ LIBETHEREAL_INCLUDES = 		\
 	address.h		\
 	adler32.h		\
 	afn.h			\
+	arptypes.h		\
 	atalk-utils.h		\
 	base64.h		\
 	bitswap.h		\

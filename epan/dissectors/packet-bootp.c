@@ -70,10 +70,11 @@
 #include <epan/packet.h>
 #include "packet-arp.h"
 #include "packet-dns.h"				/* for get_dns_name() */
-
+#include <epan/addr_resolv.h>
 #include <epan/prefs.h>
 #include <epan/tap.h>
 #include <epan/strutil.h>
+#include <epan/arptypes.h>
 
 static int bootp_dhcp_tap = -1;
 static int proto_bootp = -1;
@@ -107,6 +108,7 @@ static int hf_bootp_fqdn_name = -1;
 static int hf_bootp_fqdn_asciiname = -1;
 static int hf_bootp_pkt_mtacap_len = -1;
 static int hf_bootp_docsis_cmcap_len = -1;
+static int hf_bootp_hw_ether_addr = -1;
 
 static gint ett_bootp = -1;
 static gint ett_bootp_flags = -1;
@@ -859,7 +861,6 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 		   (e.g. a fully qualified domain name). */
 
 		if (optlen == 7 && byte > 0 && byte < 48) {
-
 			vti = proto_tree_add_text(bp_tree, tvb, voff,
 				consumed, "Option %d: %s", code, text);
 			v_tree = proto_item_add_subtree(vti, ett_bootp_option);
@@ -867,9 +868,14 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 				"Hardware type: %s",
 				arphrdtype_to_str(byte,
 					"Unknown (0x%02x)"));
-			proto_tree_add_text(v_tree, tvb, optoff+1, 6,
-				"Client hardware address: %s",
-				arphrdaddr_to_str(tvb_get_ptr(tvb, optoff+1, 6),
+			if (byte == ARPHRD_ETHER || byte == ARPHRD_IEEE802)
+				proto_tree_add_item(v_tree,
+				    hf_bootp_hw_ether_addr, tvb, optoff+1, 6,
+				    FALSE);
+			else
+				proto_tree_add_text(v_tree, tvb, optoff+1, 6,
+					"Client hardware address: %s",
+					arphrdaddr_to_str(tvb_get_ptr(tvb, optoff+1, 6),
 					6, byte));
 		} else {
 			/* otherwise, it's opaque data */
@@ -2725,8 +2731,14 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		switch (op) {
 
 		case BOOTREQUEST:
-			col_add_fstr(pinfo->cinfo, COL_INFO, "Boot Request from %s",
-				arphrdaddr_to_str(tvb_get_ptr(tvb, 28, hlen),
+			if ((htype == ARPHRD_ETHER || htype == ARPHRD_IEEE802) && hlen == 6)
+				col_add_fstr(pinfo->cinfo, COL_INFO, "Boot Request from %s (%s)",
+				    arphrdaddr_to_str(tvb_get_ptr(tvb, 28, hlen),
+				        hlen, htype),
+				    get_ether_name(tvb_get_ptr(tvb, 28, hlen)));
+			else
+				col_add_fstr(pinfo->cinfo, COL_INFO, "Boot Request from %s",
+				    arphrdaddr_to_str(tvb_get_ptr(tvb, 28, hlen),
 					hlen, htype));
 			break;
 
@@ -2781,8 +2793,11 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_item(bp_tree, hf_bootp_ip_relay, tvb,
 				    24, 4, FALSE);
 
-		if (hlen > 0) {
+		if (hlen > 0 && hlen <= 16) {
 			haddr = tvb_get_ptr(tvb, 28, hlen);
+			if((htype == 1 || htype == 6) && hlen == 6)
+				proto_tree_add_ether(bp_tree, hf_bootp_hw_ether_addr, tvb, 28, 6, haddr);
+			else
 			proto_tree_add_bytes_format(bp_tree, hf_bootp_hw_addr, tvb,
 				/* The chaddr element is 16 bytes in length, although
 				   only the first hlen bytes are used */
@@ -2981,6 +2996,11 @@ proto_register_bootp(void)
 
     { &hf_bootp_hw_addr,
       { "Client hardware address",	"bootp.hw.addr", FT_BYTES,
+        BASE_NONE,			NULL,		 0x0,
+      	"", HFILL }},
+
+    { &hf_bootp_hw_ether_addr,
+      { "Client MAC address",		"bootp.hw.mac_addr", FT_ETHER,
         BASE_NONE,			NULL,		 0x0,
       	"", HFILL }},
 
