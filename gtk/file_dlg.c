@@ -1,7 +1,7 @@
 /* file_dlg.c
  * Dialog boxes for handling files
  *
- * $Id: file_dlg.c,v 1.71 2004/01/01 13:10:45 ulfl Exp $
+ * $Id: file_dlg.c,v 1.72 2004/01/02 21:48:24 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -946,19 +946,21 @@ file_save_as_ok_cb(GtkWidget *w _U_, GtkFileSelection *fs) {
         return;
   }
 
-  /* Write out the packets (all, or only the ones that are currently
-     displayed or marked) to the file with the specified name. */
+  /* don't show the dialog while saving */
+  gtk_widget_hide(GTK_WIDGET (fs));
 
+  /* Write out the packets (all, or only the ones from the current
+     range) to the file with the specified name. */
   if (! cf_save(cf_name, &cfile, &range, filetype)) {
     /* The write failed; don't dismiss the open dialog box,
        just leave it around so that the user can, after they
        dismiss the alert box popped up for the error, try again. */
     g_free(cf_name);
+    gtk_widget_show(GTK_WIDGET (fs));
     return;
   }
 
   /* The write succeeded; get rid of the file selection box. */
-  gtk_widget_hide(GTK_WIDGET (fs));
   gtk_widget_destroy(GTK_WIDGET (fs));
 
   /* Save the directory name for future file dialogs. */
