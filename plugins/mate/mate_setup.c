@@ -114,7 +114,7 @@ static mate_cfg_item* new_mate_cfg_item(guint8* name) {
 	new->drop_gop = matecfg->drop_gop;
 	new->expiration = matecfg->gog_expiration;
 	new->show_pdu_tree = matecfg->show_pdu_tree;
-	new->show_gop_times = matecfg->show_gop_times;
+	new->show_times = matecfg->show_times;
 	new->last_id = 0;
 	new->hfid_ranges = NULL;
 	new->hfids_attr = NULL;
@@ -131,9 +131,9 @@ static mate_cfg_item* new_mate_cfg_item(guint8* name) {
 	new->items = g_hash_table_new(g_direct_hash,g_direct_equal);
 
 	new->hfid_gop_pdu = -1;
-	new->hfid_gop_start_time = -1;
-	new->hfid_gop_stop_time = -1;
-	new->hfid_gop_last_time = -1;
+	new->hfid_start_time = -1;
+	new->hfid_stop_time = -1;
+	new->hfid_last_time = -1;
 	new->hfid_gop_num_pdus = -1;
 
 	new->hfid_gog_num_of_gops = -1;
@@ -144,6 +144,9 @@ static mate_cfg_item* new_mate_cfg_item(guint8* name) {
 	new->ett_times = -1;
 	new->ett_children = -1;
 
+	new->gop_index = NULL;
+	new->gog_index = NULL;
+	
 	return new;
 }
 
@@ -197,6 +200,9 @@ static mate_cfg_gop* new_gopcfg(guint8* name) {
 
 	g_hash_table_insert(matecfg->gopcfgs,(gpointer) new->name, (gpointer) new);
 
+	new->gop_index = g_hash_table_new(g_str_hash,g_str_equal);
+	new->gog_index = g_hash_table_new(g_str_hash,g_str_equal);
+	
 	return new;
 }
 
@@ -566,7 +572,7 @@ static gboolean config_settings(AVPL*avpl) {
 	matecfg->drop_pdu = extract_named_bool(avpl, KEYWORD_DROPPDU,matecfg->drop_pdu);
 	matecfg->drop_gop = extract_named_bool(avpl, KEYWORD_DROPGOP,matecfg->drop_gop);
 	matecfg->show_pdu_tree = extract_named_bool(avpl, KEYWORD_SHOWPDUTREE,matecfg->show_pdu_tree);
-	matecfg->show_gop_times = extract_named_bool(avpl, KEYWORD_SHOWGOPTIMES,matecfg->show_gop_times);
+	matecfg->show_times = extract_named_bool(avpl, KEYWORD_SHOWGOPTIMES,matecfg->show_times);
 
 	if(( avp = extract_avp_by_name(avpl,KEYWORD_DEBUGFILENAME) )) {
 		matecfg->dbg_facility = dbg_facility = fopen(avp->v,"w");
@@ -721,7 +727,7 @@ static gboolean config_gop(AVPL* avpl) {
 
 	cfg->drop_gop = extract_named_bool(avpl, KEYWORD_DROPGOP,matecfg->drop_gop);
 	cfg->show_pdu_tree = extract_named_bool(avpl, KEYWORD_SHOWPDUTREE, matecfg->show_pdu_tree);
-	cfg->show_gop_times = extract_named_bool(avpl, KEYWORD_SHOWGOPTIMES,matecfg->show_gop_times);
+	cfg->show_times = extract_named_bool(avpl, KEYWORD_SHOWGOPTIMES,matecfg->show_times);
 
 	cfg->key = avpl;
 
@@ -784,7 +790,7 @@ static gboolean config_gopextra(AVPL* avpl) {
 
 	cfg->drop_gop = extract_named_bool(avpl, KEYWORD_DROPGOP,cfg->drop_gop);
 	cfg->show_pdu_tree = extract_named_bool(avpl, KEYWORD_SHOWPDUTREE, cfg->show_pdu_tree);
-	cfg->show_gop_times = extract_named_bool(avpl, KEYWORD_SHOWGOPTIMES,cfg->show_gop_times);
+	cfg->show_times = extract_named_bool(avpl, KEYWORD_SHOWGOPTIMES,cfg->show_times);
 
 	merge_avpl(cfg->extra,avpl,TRUE);
 
@@ -1235,7 +1241,7 @@ static void analyze_gop_config(gpointer k _U_, gpointer v, gpointer p _U_) {
 
 	g_array_append_val(matecfg->hfrs,hfri);
 
-	hfri.p_id = &(cfg->hfid_gop_start_time);
+	hfri.p_id = &(cfg->hfid_start_time);
 	hfri.hfinfo.name = g_strdup_printf("%s start time",cfg->name);
 	hfri.hfinfo.abbrev = g_strdup_printf("mate.%s.StartTime",cfg->name);
 	hfri.hfinfo.type = FT_FLOAT;
@@ -1244,14 +1250,14 @@ static void analyze_gop_config(gpointer k _U_, gpointer v, gpointer p _U_) {
 
 	g_array_append_val(matecfg->hfrs,hfri);
 
-	hfri.p_id = &(cfg->hfid_gop_stop_time);
+	hfri.p_id = &(cfg->hfid_stop_time);
 	hfri.hfinfo.name = g_strdup_printf("%s hold time",cfg->name);
 	hfri.hfinfo.abbrev = g_strdup_printf("mate.%s.Time",cfg->name);
 	hfri.hfinfo.blurb = g_strdup_printf("Duration in seconds from start to stop of this %s",cfg->name);
 
 	g_array_append_val(matecfg->hfrs,hfri);
 
-	hfri.p_id = &(cfg->hfid_gop_last_time);
+	hfri.p_id = &(cfg->hfid_last_time);
 	hfri.hfinfo.name = g_strdup_printf("%s duration",cfg->name);
 	hfri.hfinfo.abbrev = g_strdup_printf("mate.%s.Duration",cfg->name);
 	hfri.hfinfo.blurb = g_strdup_printf("Time passed between the start of this %s and the last pdu assigned to it",cfg->name);
@@ -1324,6 +1330,7 @@ static void analyze_gog_config(gpointer k _U_, gpointer v, gpointer p _U_) {
 	void* avpl_cookie;
 	AVP* avp;
 	AVPL* avpl;
+	AVPL* key_avps;
 	hf_register_info hfri = { NULL, {NULL, NULL, FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL}};
 	gint* ett;
 
@@ -1335,16 +1342,32 @@ static void analyze_gog_config(gpointer k _U_, gpointer v, gpointer p _U_) {
 	hfri.hfinfo.display = BASE_DEC;
 
 	g_array_append_val(matecfg->hfrs,hfri);
-
+	
 	hfri.p_id = &(cfg->hfid_gog_num_of_gops);
 	hfri.hfinfo.name = "number of GOPs";
 	hfri.hfinfo.abbrev = g_strdup_printf("mate.%s.NumOfGops",cfg->name);
 	hfri.hfinfo.type = FT_UINT32;
 	hfri.hfinfo.display = BASE_DEC;
 	hfri.hfinfo.blurb = g_strdup_printf("Number of GOPs assigned to this %s",cfg->name);
-
+	
 	g_array_append_val(matecfg->hfrs,hfri);
-
+	
+	hfri.p_id = &(cfg->hfid_start_time);
+	hfri.hfinfo.name = g_strdup_printf("%s start time",cfg->name);
+	hfri.hfinfo.abbrev = g_strdup_printf("mate.%s.StartTime",cfg->name);
+	hfri.hfinfo.type = FT_FLOAT;
+	hfri.hfinfo.blurb = g_strdup_printf("Seconds passed since the begining of caputre to the start of this %s",cfg->name);
+	
+	g_array_append_val(matecfg->hfrs,hfri);
+		
+	hfri.p_id = &(cfg->hfid_last_time);
+	hfri.hfinfo.name = g_strdup_printf("%s duration",cfg->name);
+	hfri.hfinfo.abbrev = g_strdup_printf("mate.%s.Duration",cfg->name);
+	hfri.hfinfo.blurb = g_strdup_printf("Time passed between the start of this %s and the last pdu assigned to it",cfg->name);
+	
+	g_array_append_val(matecfg->hfrs,hfri);
+	
+	/* this might become mate.gogname.gopname */
 	hfri.p_id = &(cfg->hfid_gog_gop);
 	hfri.hfinfo.name = "a GOP";
 	hfri.hfinfo.abbrev = g_strdup_printf("mate.%s.Gop",cfg->name);
@@ -1354,12 +1377,15 @@ static void analyze_gog_config(gpointer k _U_, gpointer v, gpointer p _U_) {
 
 	g_array_append_val(matecfg->hfrs,hfri);
 
+	key_avps = new_avpl("");
+	
 	avpl_cookie = NULL;
 	while (( avpl = get_next_avpl(cfg->keys,&avpl_cookie) )) {
 		avp_cookie = NULL;
 		while (( avp = get_next_avp(avpl,&avp_cookie) )) {
 			if (! g_hash_table_lookup(cfg->my_hfids,avp->n))  {
 				new_attr_hfri(cfg,avp->n);
+				insert_avp(key_avps,avp);
 			}
 		}
 	}
@@ -1370,7 +1396,10 @@ static void analyze_gog_config(gpointer k _U_, gpointer v, gpointer p _U_) {
 			new_attr_hfri(cfg,avp->n);
 		}
 	}
-
+	
+	merge_avpl(cfg->extra,key_avps,TRUE);
+	delete_avpl(key_avps,FALSE);
+	
 	analyze_transform_hfrs(cfg);
 
 	ett = &cfg->ett;
@@ -1382,6 +1411,9 @@ static void analyze_gog_config(gpointer k _U_, gpointer v, gpointer p _U_) {
 	ett = &cfg->ett_children;
 	g_array_append_val(matecfg->ett,ett);
 
+	ett = &cfg->ett_times;
+	g_array_append_val(matecfg->ett,ett);
+	
 }
 
 static size_t analyze_config() {
@@ -1499,17 +1531,7 @@ static void init_actions() {
 
 }
 
-void reset_cfg(gpointer k _U_, gpointer v, gpointer p _U_) {
-	mate_cfg_item* c = v;
-	c->last_id = 0;
-}
-
 extern mate_config* mate_cfg() {
-
-	g_hash_table_foreach(matecfg->pducfgs,reset_cfg,NULL);
-	g_hash_table_foreach(matecfg->gopcfgs,reset_cfg,NULL);
-	g_hash_table_foreach(matecfg->gogcfgs,reset_cfg,NULL);
-
 	return matecfg;
 }
 
@@ -1525,7 +1547,7 @@ extern mate_config* mate_make_config(guint8* filename) {
 	matecfg->drop_pdu = FALSE;
 	matecfg->drop_gop = FALSE;
 	matecfg->show_pdu_tree = TRUE;
-	matecfg->show_gop_times = TRUE;
+	matecfg->show_times = TRUE;
 	matecfg->last_to_be_created = FALSE;
 	matecfg->match_mode = AVPL_STRICT;
 	matecfg->replace_mode = AVPL_INSERT;

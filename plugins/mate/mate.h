@@ -157,7 +157,7 @@ typedef struct _mate_cfg_item {
 	gint ett_attr;
 	gint ett_times;
 	gint ett_children;
-	
+		
 	/* pdu */
 	gboolean discard_pdu_attributes;
 	gboolean last_to_be_created;
@@ -170,18 +170,24 @@ typedef struct _mate_cfg_item {
 	int hfid_pdu_rel_time;
 	int hfid_pdu_time_in_gop;
 	
+	
+	/* common to gop and gog */
+	int hfid_start_time;
+	int hfid_stop_time;
+	int hfid_last_time;
+	
 	/* gop */
 	AVPL* start; /* start candidate avpl */
 	AVPL* stop;  /* stop candidate avpl */
 	AVPL* key; /* key candidate avpl */
 	gboolean show_pdu_tree;
-	gboolean show_gop_times;
+	gboolean show_times;
 	gboolean drop_gop; 
 	int hfid_gop_pdu;
-	int hfid_gop_start_time;
-	int hfid_gop_stop_time;
-	int hfid_gop_last_time;
 	int hfid_gop_num_pdus;
+	
+	GHashTable* gop_index;
+	GHashTable* gog_index;
 	
 	/* gog */
 	LoAL* keys;
@@ -199,7 +205,7 @@ typedef struct _mate_config {
 	gboolean drop_gop; /* destroy the gop if not assign to a gog */
 	guint8* mate_lib_path; /* where to look for "Include" files first */
 	gboolean show_pdu_tree;
-	gboolean show_gop_times;
+	gboolean show_times;
 	gboolean last_to_be_created;
 	avpl_match_mode match_mode;
 	avpl_replace_mode replace_mode;
@@ -240,9 +246,6 @@ typedef struct _mate_runtime_data {
 	guint highest_analyzed_frame;
 	
 	GHashTable* frames; /* k=frame.num v=pdus */
-	GHashTable* items; /* k=item->id v=item */
-	GHashTable* gops; /* k=gop_key_match v=gop */
-	GHashTable* gogs; /* k=gog_key_match v=gog */
 	
 } mate_runtime_data;
 
@@ -255,6 +258,14 @@ struct _mate_item {
 	AVPL* avpl; /* the attributes of the pdu/gop/gog */
 		
 	mate_item* next; /* in pdu: next in gop; in gop: next in gog; in gog this doesn't make any sense yet */
+	
+	float expiration; /* when will it expire after release (all gops releases if gog)? */
+	float idle_expiration; /* when will it expire if no new pdus are assigned to it */
+	
+	/* on gop and gog: */
+	float start_time; /* time of start */
+	float release_time; /* when this gop/gog was released */
+	float last_time; /* the rel_time at which the last pdu has been added (to gop or gog's gop) */
 	
 	/* union _payload { */
 		/* struct _pdu { */
@@ -275,16 +286,12 @@ struct _mate_item {
 			gboolean released; /* has this gop been released? */
 			int num_of_pdus; /* how many gops a gog has? */
 			int num_of_after_release_pdus;  /* how many pdus have arrived since it's been released */
-			float start_time; /* time of start */
-			float release_time; /* when this gop was released */
-			float last_time; /* the rel time at which the last pdu/gop has been added */
 			guint8* gop_key; /* used by gop */
 			mate_pdu* last_pdu; /* last pdu in pdu's list */
 		/* } gop; */
 		
 		/* struct _gog { */
 			mate_gop* gops; /* gops that belong to a gog (NULL in gop) */
-			float expiration; /* when will it expire once released? */
 			int num_of_gops; /* how many gops a gog has? */
 			int num_of_released_gops;  /* how many of them have already been released */
 			guint last_n; /* the number of attributes the avpl had the last time we checked */

@@ -67,6 +67,8 @@ void mate_gop_tree(proto_tree* pdu_tree, tvbuff_t *tvb, mate_gop* gop);
 void mate_gog_tree(proto_tree* tree, tvbuff_t *tvb, mate_gog* gog, mate_gop* gop) {
 	proto_item *gog_item;
 	proto_tree *gog_tree;
+	proto_item *gog_time_item;
+	proto_tree *gog_time_tree;
 	proto_item *gog_gop_item;
 	proto_tree *gog_gop_tree;
 	mate_gop* gog_gops;
@@ -80,6 +82,14 @@ void mate_gog_tree(proto_tree* tree, tvbuff_t *tvb, mate_gog* gog, mate_gop* gop
 	gog_tree = proto_item_add_subtree(gog_item,gog->cfg->ett);
 			
 	attrs_tree(gog_tree,tvb,gog);
+	
+	if (gog->cfg->show_times) {
+		gog_time_item = proto_tree_add_text(gog_tree,tvb,0,0,"%s Times",gog->cfg->name);
+		gog_time_tree = proto_item_add_subtree(gog_time_item, gog->cfg->ett_times);
+		
+		proto_tree_add_float(gog_time_tree, gog->cfg->hfid_start_time, tvb, 0, 0, gog->start_time);
+		proto_tree_add_float(gog_time_tree, gog->cfg->hfid_last_time, tvb, 0, 0, gog->last_time - gog->start_time); 
+	}
 	
 	gog_gop_item = proto_tree_add_uint(gog_tree, gog->cfg->hfid_gog_num_of_gops,
 									   tvb, 0, 0, gog->num_of_gops);
@@ -115,17 +125,17 @@ void mate_gop_tree(proto_tree* tree, tvbuff_t *tvb, mate_gop* gop) {
 	
 	attrs_tree(gop_tree,tvb,gop);
 	
-	if (gop->cfg->show_gop_times) {
+	if (gop->cfg->show_times) {
 		gop_time_item = proto_tree_add_text(gop_tree,tvb,0,0,"%s Times",gop->cfg->name);
 		gop_time_tree = proto_item_add_subtree(gop_time_item, gop->cfg->ett_times);
 		
-		proto_tree_add_float(gop_time_tree, gop->cfg->hfid_gop_start_time, tvb, 0, 0, gop->start_time);
+		proto_tree_add_float(gop_time_tree, gop->cfg->hfid_start_time, tvb, 0, 0, gop->start_time);
 		
 		if (gop->released) { 
-			proto_tree_add_float(gop_time_tree, gop->cfg->hfid_gop_stop_time, tvb, 0, 0, gop->release_time - gop->start_time);
-			proto_tree_add_float(gop_time_tree, gop->cfg->hfid_gop_last_time, tvb, 0, 0, gop->last_time - gop->start_time); 
+			proto_tree_add_float(gop_time_tree, gop->cfg->hfid_stop_time, tvb, 0, 0, gop->release_time - gop->start_time);
+			proto_tree_add_float(gop_time_tree, gop->cfg->hfid_last_time, tvb, 0, 0, gop->last_time - gop->start_time); 
 		} else {
-			proto_tree_add_float(gop_time_tree, gop->cfg->hfid_gop_last_time, tvb, 0, 0, gop->last_time - gop->start_time); 
+			proto_tree_add_float(gop_time_tree, gop->cfg->hfid_last_time, tvb, 0, 0, gop->last_time - gop->start_time); 
 		}
 	}
 
@@ -212,7 +222,7 @@ extern void mate_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	mate_pdu* pdus;
 	proto_tree *mate_t;
 	
-	if ( ! (tree && mc) ) return;
+	if ( ! mc || ! tree ) return;
 
 	analyze_frame(pinfo,tree);
 

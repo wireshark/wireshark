@@ -1,6 +1,7 @@
 # isup.mate
 # $Id$
 
+
 #Action=Transform;  Name=isup_msg_type;	Mode=Insert; Match=Strict;     isup_msg=1;		.isup_IAM=;
 #Action=Transform;  Name=isup_msg_type;	Mode=Insert; Match=Strict;     isup_msg=2;		.isup_SAM=;
 #Action=Transform;  Name=isup_msg_type;	Mode=Insert; Match=Strict;     isup_msg=3;		.isup_INR=;
@@ -21,3 +22,4 @@ Action=PduDef; Name=isup_pdu; Proto=isup; Transport=mtp3; mtp3pc=mtp3.dpc; mtp3p
 Action=GopDef; Name=isup_leg; On=isup_pdu; ShowPduTree=TRUE; mtp3pc; mtp3pc; cic;
 Action=GopStart; For=isup_leg; isup_msg=1;
 Action=GopStop; For=isup_leg; isup_msg=16;
+

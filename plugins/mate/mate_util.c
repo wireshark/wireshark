@@ -95,23 +95,22 @@ void dbg_print(const guint* which, guint how, FILE* where, guint8* fmt, ... ) {
  *
  *  Initializes the scs hash.
  **/
- 
+
 /* Don't call variables "small" or "huge". They are keywords for the MSVC compiler. Rename them to "mate_small" and "mate_huge"*/
 struct _scs_collection {
 	GHashTable* hash;	/* key: a string value: guint number of subscribers */
 	GMemChunk* ctrs;
 	GMemChunk* mate_small;	
-	GMemChunk* medium;
-	GMemChunk* large;
+	GMemChunk* mate_medium;
+	GMemChunk* mate_large;
 	GMemChunk* mate_huge;
-	guint8* buf;
 };
 
 extern void destroy_scs_collection(SCS_collection* c) {
 	if ( c->ctrs ) g_mem_chunk_destroy(c->ctrs);
 	if ( c->mate_small ) g_mem_chunk_destroy(c->mate_small);
-	if ( c->medium ) g_mem_chunk_destroy(c->medium);
-	if ( c->large ) g_mem_chunk_destroy(c->large);
+	if ( c->mate_medium ) g_mem_chunk_destroy(c->mate_medium);
+	if ( c->mate_large ) g_mem_chunk_destroy(c->mate_large);
 	if ( c->mate_huge ) g_mem_chunk_destroy(c->mate_huge);
 	
 	if (c->hash) g_hash_table_destroy(c->hash);
@@ -128,17 +127,14 @@ extern SCS_collection* scs_init(void) {
 	c->mate_small = g_mem_chunk_new("small_scs_chunk", SCS_SMALL_SIZE,
 							   SCS_SMALL_SIZE * SCS_SMALL_CHUNK_SIZE, G_ALLOC_AND_FREE);
 	
-	c->medium = g_mem_chunk_new("medium_scs_chunk", SCS_MEDIUM_SIZE,
+	c->mate_medium = g_mem_chunk_new("medium_scs_chunk", SCS_MEDIUM_SIZE,
 							   SCS_MEDIUM_SIZE * SCS_MEDIUM_CHUNK_SIZE, G_ALLOC_AND_FREE);
 	
-	c->large = g_mem_chunk_new("large_scs_chunk", SCS_LARGE_SIZE,
+	c->mate_large = g_mem_chunk_new("large_scs_chunk", SCS_LARGE_SIZE,
 							   SCS_LARGE_SIZE * SCS_LARGE_CHUNK_SIZE, G_ALLOC_AND_FREE);
 	
 	c->mate_huge = g_mem_chunk_new("huge_scs_chunk", SCS_HUGE_SIZE,
 							   SCS_HUGE_SIZE * SCS_HUGE_CHUNK_SIZE, G_ALLOC_AND_FREE);
-	
-	c->buf =  g_mem_chunk_alloc0(c->mate_huge);
-	
 	return c;
 }
 
@@ -159,41 +155,43 @@ guint8* scs_subscribe(SCS_collection* c, guint8* s) {
 	guint8* orig = NULL;
 	guint* ip = NULL;
 	size_t len = 0;
-	guint8* new = NULL;
 	GMemChunk* chunk = NULL;
 	
 	g_hash_table_lookup_extended(c->hash,s,(gpointer*)&orig,(gpointer*)&ip);
 
 	if (ip) {
 		(*ip)++;
-		new = orig;
 	} else {
 		ip = g_mem_chunk_alloc(c->ctrs);
 		*ip = 0;
 		
 		len = strlen(s) + 1;
+		
 		if (len <= SCS_SMALL_SIZE) {
 			chunk = c->mate_small;
+			len = SCS_SMALL_SIZE;
 		} else if (len <= SCS_MEDIUM_SIZE) {
-			chunk = c->medium;
+			chunk = c->mate_medium;
+			len = SCS_MEDIUM_SIZE;
 		} else if (len <= SCS_LARGE_SIZE) {
-			chunk = c->large;
+			chunk = c->mate_large;
+			len = SCS_LARGE_SIZE;
 		} else if (len < SCS_HUGE_SIZE) {
 			chunk = c->mate_huge;
+			len = SCS_HUGE_SIZE;
 		} else {
 			chunk = c->mate_huge;
 			len = SCS_HUGE_SIZE;
 			g_warning("mate SCS: string truncated to huge size");
 		}
 		
-		--len;
-		new = g_mem_chunk_alloc(chunk);
-		strncpy(new,s,len);
+		orig = g_mem_chunk_alloc(chunk);
+		strncpy(orig,s,len);
 		
-		g_hash_table_insert(c->hash,new,ip);
+		g_hash_table_insert(c->hash,orig,ip);
 	}
 
-	return new;
+	return orig;
 }
 
 /**
@@ -221,9 +219,9 @@ void scs_unsubscribe(SCS_collection* c, guint8* s) {
 			if (len < SCS_SMALL_SIZE) {
 				chunk = c->mate_small;
 			} else if (len < SCS_MEDIUM_SIZE) {
-				chunk = c->medium;
+				chunk = c->mate_medium;
 			} else if (len < SCS_LARGE_SIZE) {
-				chunk = c->large;
+				chunk = c->mate_large;
 			} else {
 				chunk = c->mate_huge;
 			} 
@@ -231,7 +229,9 @@ void scs_unsubscribe(SCS_collection* c, guint8* s) {
 			g_mem_chunk_free(chunk,orig);
 			g_mem_chunk_free(c->ctrs,ip);
 		}
-		else (*ip)--;
+		else {
+			(*ip)--;
+		}
 	} else {
 		g_warning("unsusbcribe: already deleted: '%s'?",s);
 	}
@@ -248,14 +248,30 @@ void scs_unsubscribe(SCS_collection* c, guint8* s) {
  **/
 extern guint8* scs_subscribe_printf(SCS_collection* c, guint8* fmt, ...) {
 	va_list list;
-
+	static guint8 buf[SCS_HUGE_SIZE];
+	
 	va_start( list, fmt );
-	g_vsnprintf(c->buf, SCS_HUGE_SIZE-1 ,fmt, list);
+	g_vsnprintf(buf, SCS_HUGE_SIZE-1 ,fmt, list);
 	va_end( list );
 
-	return scs_subscribe(c,c->buf);
+	return scs_subscribe(c,buf);
 }
 
+extern guint8* scs_subscribe_int(SCS_collection* c, int i) {
+	static guint8 buf[SCS_SMALL_SIZE];
+	
+	g_snprintf(buf, SCS_SMALL_SIZE-1 ,"%i", i);
+	
+	return scs_subscribe(c,buf);
+}
+
+extern guint8* scs_subscribe_float(SCS_collection* c, float f) {
+	static guint8 buf[SCS_SMALL_SIZE];
+	
+	g_snprintf(buf, SCS_SMALL_SIZE-1 ,"%f", f);
+	
+	return scs_subscribe(c,buf);
+}
 
 /***************************************************************************
 *  AVPs & Co.
@@ -357,22 +373,21 @@ extern void avp_init(void) {
 extern AVP* new_avp_from_finfo(guint8* name, field_info* finfo) {
 	AVP* new = g_mem_chunk_alloc(avp_chunk);
 	guint8* value;
-	guint8* str;
+	
 	new->n = scs_subscribe(avp_strings, name);
 
 	if (finfo->value.ftype->get_value_integer) {
-		value = scs_subscribe_printf(avp_strings, "%i",fvalue_get_integer(&finfo->value));
+		value = scs_subscribe_int(avp_strings, fvalue_get_integer(&finfo->value));
 #ifdef _AVP_DEBUGGING
 		dbg_print (dbg_avp,2,dbg_fp,"new_avp_from_finfo: from integer: %s",value);
 #endif
 	} else if (finfo->value.ftype->val_to_string_repr) {
-		str = fvalue_to_string_repr(&finfo->value,FTREPR_DISPLAY,NULL);
-		value = scs_subscribe(avp_strings, str);
+		value = scs_subscribe(avp_strings, fvalue_to_string_repr(&finfo->value,FTREPR_DISPLAY,NULL));
 #ifdef _AVP_DEBUGGING
 		dbg_print (dbg_avp,2,dbg_fp,"new_avp_from_finfo: from string: %s",value);
 #endif
 	} else if (finfo->value.ftype->get_value_floating) {
-		value = scs_subscribe_printf(avp_strings, "%f",fvalue_get_floating(&finfo->value));
+		value = scs_subscribe_float(avp_strings, fvalue_get_floating(&finfo->value));
 #ifdef _AVP_DEBUGGING
 		dbg_print (dbg_avp,2,dbg_fp,"new_avp_from_finfo: from float: %s",value);
 #endif
@@ -380,7 +395,7 @@ extern AVP* new_avp_from_finfo(guint8* name, field_info* finfo) {
 #ifdef _AVP_DEBUGGING
 		dbg_print (dbg_avp,2,dbg_fp,"new_avp_from_finfo: a proto: %s",finfo->hfinfo->abbrev);
 #endif
-		value = scs_subscribe(avp_strings, finfo->hfinfo->abbrev);
+		value = scs_subscribe(avp_strings, "");
 	}
 
 	new->v = value;
@@ -1420,7 +1435,7 @@ extern AVPL_Transf* new_avpl_transform(guint8* name, AVPL* mixed, avpl_match_mod
 
 	while (( avp = extract_first_avp(mixed) )) {
 		if (*(avp->n) == '.') {
-			rename_avp(avp,(avp->n+1));
+			rename_avp(avp,((avp->n)+1));
 			insert_avp(t->replace, avp);
 		} else {
 			insert_avp(t->match, avp);
@@ -1476,7 +1491,6 @@ extern void avpl_transform(AVPL* src, AVPL_Transf* op) {
 	AVPN* cs;
 	AVPN* cm;
 	AVPN* n;
-	gboolean d;
 
 #ifdef _AVP_DEBUGGING
 	dbg_print(dbg_avpl_op,3,dbg_fp,"avpl_transform: src=%X op=%X",src,op);
@@ -1498,9 +1512,8 @@ extern void avpl_transform(AVPL* src, AVPL_Transf* op) {
 				case AVPL_REPLACE:
 					cs = src->null.next;
 					cm = avpl->null.next;
-					d = FALSE;
 					while(cs->avp) {
-						if (cs->avp == cm->avp) {
+						if (cm->avp && cs->avp->n == cm->avp->n && cs->avp->v == cm->avp->v) {
 							n = cs->next;
 
 							cs->prev->next = cs->next;
@@ -1514,7 +1527,7 @@ extern void avpl_transform(AVPL* src, AVPL_Transf* op) {
 						}
 					}
 
-						merge_avpl(src,avpl,TRUE);
+					merge_avpl(src,op->replace,TRUE);
 					delete_avpl(avpl,TRUE);
 					return;
 			}
