@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.78 2002/11/15 23:50:06 oabad Exp $
+ * $Id: menu.c,v 1.79 2002/11/17 11:43:40 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -242,9 +242,9 @@ static GtkItemFactoryEntry menu_items[] =
                        NULL),
     ITEM_FACTORY_ENTRY("/Tools/Statistics/DCE-RPC/RTT", NULL, gtk_dcerpcstat_cb,
                        0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Tools/Statistics/Traffic", NULL, NULL, 0, "<Branch>",
+    ITEM_FACTORY_ENTRY("/Tools/Statistics/IO", NULL, NULL, 0, "<Branch>",
                        NULL),
-    ITEM_FACTORY_ENTRY("/Tools/Statistics/Traffic/IO-Stat", NULL, gtk_iostat_cb,
+    ITEM_FACTORY_ENTRY("/Tools/Statistics/IO/IO-Stat", NULL, gtk_iostat_cb,
                        0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/_Help", NULL, NULL, 0, "<LastBranch>", NULL),
     ITEM_FACTORY_STOCK_ENTRY("/Help/_Help", NULL, help_cb, 0, GTK_STOCK_HELP),

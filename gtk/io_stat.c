@@ -1,7 +1,7 @@
 /* io_stat.c
  * io_stat   2002 Ronnie Sahlberg
  *
- * $Id: io_stat.c,v 1.5 2002/11/16 21:40:32 guy Exp $
+ * $Id: io_stat.c,v 1.6 2002/11/17 11:43:40 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -110,10 +110,13 @@ typedef struct _io_stat_tick_interval_t {
 	int interval;
 } io_stat_tick_interval_t;
 
+
 typedef struct _io_stat_t {
 	int needs_redraw;
 	gint32 interval;    /* measurement interval in ms */
 	nstime_t time_base;
+	guint32 last_interval; 
+	guint32 max_interval;
 
 	struct _io_stat_graph_t graphs[MAX_GRAPHS];
 	struct _io_stat_yscale_t yscale[MAX_YSCALE];
@@ -123,6 +126,8 @@ typedef struct _io_stat_t {
 	GtkWidget *window;
 	GtkWidget *draw_area;
 	GdkPixmap *pixmap;
+	GtkAdjustment *scrollbar_adjustment;
+	GtkWidget *scrollbar;
 	int pixmap_width;
 	int pixmap_height;
 	int pixels_per_tick;
@@ -176,6 +181,8 @@ gtk_iostat_reset(void *g)
 	gio->counts->frames=0;
 	gio->counts->bytes=0;
 
+	gio->io->last_interval=0xffffffff;
+	gio->io->max_interval=0;
 	gio->io->time_base.secs=0;
 	gio->io->time_base.nsecs=0;
 }
@@ -233,6 +240,10 @@ gtk_iostat_packet(void *g, packet_info *pinfo, epan_dissect_t *edt _U_, void *du
 		it->time=(adjusted_time/git->io->interval)*git->io->interval;
 		it->frames=0;
 		it->bytes=0;
+		
+		if(it->time>git->io->max_interval){
+			git->io->max_interval=it->time;
+		}
 	}
 
 	/* it will now give us the current structure to use to store the data in */
@@ -275,16 +286,12 @@ gtk_iostat_draw(void *g)
 	}
 	git->io->needs_redraw=0;
 
-
-	/* loop over all items to find the last measured interval*/
-	last_interval=0;
-	for(i=0;i<MAX_GRAPHS;i++){
-		if( (!io->graphs[i].display) || (!io->graphs[i].counts) ){
-			continue;
-		}
-		if(io->graphs[i].counts->prev->time>last_interval){
-			last_interval=io->graphs[i].counts->prev->time;
-		}
+	/* if we havent specified the last_interval via the gui,
+	   then just pick the most recent one */
+	if(io->last_interval==0xffffffff){
+		last_interval=io->max_interval;
+	} else {
+		last_interval=io->last_interval;
 	}
 	
 
@@ -475,6 +482,14 @@ gtk_iostat_draw(void *g)
 			guint32 val=0;
 			guint32 next_val=0;
 
+			/* skip it if is outside the graph */
+			if(it->time<first_interval){
+				continue;
+			}
+			if(it->time>last_interval){
+				continue;
+			}
+
 			switch(io->count_type){
 			case 0:
 				val=it->frames;
@@ -551,6 +566,19 @@ gtk_iostat_draw(void *g)
 			0, 0,
 			io->pixmap_width, io->pixmap_height);
 
+
+	/* update the scrollbar */
+	io->scrollbar_adjustment->upper=io->max_interval;
+	io->scrollbar_adjustment->step_increment=(last_interval-first_interval)/10;
+	io->scrollbar_adjustment->page_increment=(last_interval-first_interval);
+	if((last_interval-first_interval)*100 < io->max_interval){
+		io->scrollbar_adjustment->page_size=io->max_interval/100;
+	} else {
+		io->scrollbar_adjustment->page_size=(last_interval-first_interval);
+	}
+	io->scrollbar_adjustment->value=last_interval-io->scrollbar_adjustment->page_size;
+	gtk_adjustment_changed(io->scrollbar_adjustment);
+	gtk_adjustment_value_changed(io->scrollbar_adjustment);
 }
 
 
@@ -573,6 +601,8 @@ gtk_iostat_init(char *optarg _U_)
 	io->window=NULL;
 	io->draw_area=NULL;
 	io->pixmap=NULL;
+	io->scrollbar=NULL;
+	io->scrollbar_adjustment=NULL;
 	io->pixmap_width=500;
 	io->pixmap_height=200;
 	io->pixels_per_tick=5;
@@ -580,6 +610,8 @@ gtk_iostat_init(char *optarg _U_)
 	io->count_type=0;
 	io->time_base.secs=0;
 	io->time_base.nsecs=0;
+	io->last_interval=0xffffffff;
+	io->max_interval=0;
 
 	for(i=0;i<MAX_GRAPHS;i++){
 		io->graphs[i].counts=g_malloc(sizeof(io_stat_item_t));
@@ -708,6 +740,28 @@ configure_event(GtkWidget *widget, GdkEventConfigure *event _U_)
 	return TRUE;
 }
 
+static gint
+scrollbar_changed(GtkWidget *widget _U_, gpointer data)
+{
+	io_stat_t *io=(io_stat_t *)data;
+	guint32 mi;
+
+	mi=io->scrollbar_adjustment->value+io->scrollbar_adjustment->page_size;
+	if(io->last_interval==mi){
+		return TRUE;
+	}
+	if( (io->last_interval==0xffffffff)
+	&&  (mi==io->max_interval) ){
+		return TRUE;
+	}
+
+	io->last_interval=(mi/io->interval)*io->interval;
+	io->needs_redraw=1;
+	gtk_iostat_draw(&io->graphs[0]);
+
+	return TRUE;
+}
+
 /* redraw the screen from the backing pixmap */
 static gint
 expose_event(GtkWidget *widget, GdkEventExpose *event)
@@ -745,6 +799,13 @@ create_draw_area(io_stat_t *io, GtkWidget *box)
 
 	gtk_widget_show(io->draw_area);
 	gtk_box_pack_start(GTK_BOX(box), io->draw_area, TRUE, TRUE, 0);
+
+	/* create the associated scrollbar */
+	io->scrollbar_adjustment=(GtkAdjustment *)gtk_adjustment_new(0,0,0,0,0,0);
+	io->scrollbar=gtk_hscrollbar_new(io->scrollbar_adjustment);
+	gtk_widget_show(io->scrollbar);
+	gtk_box_pack_start(GTK_BOX(box), io->scrollbar, TRUE, TRUE, 0);
+	SIGNAL_CONNECT(io->scrollbar_adjustment, "value_changed", scrollbar_changed, io);
 }
 
 
@@ -917,7 +978,7 @@ create_ctrl_area(io_stat_t *io, GtkWidget *box)
 	create_ctrl_menu(io, vbox, "Unit:", create_frames_or_bytes_menu_items);
 	create_ctrl_menu(io, vbox, "Tick Interval:", create_tick_interval_menu_items);
 	create_ctrl_menu(io, vbox, "Pixels Per Tick:", create_pixels_per_tick_menu_items);
-	create_ctrl_menu(io, vbox, "Y-scale Max:", create_yscale_max_menu_items);
+	create_ctrl_menu(io, vbox, "Y-scale:", create_yscale_max_menu_items);
 
 	return vbox;
 }
@@ -1070,7 +1131,6 @@ init_io_stat_window(io_stat_t *io)
 	gtk_widget_show(vbox);
 
 	create_draw_area(io, vbox);
-
 
 	hbox=gtk_hbox_new(FALSE, 0);
 	gtk_container_add(GTK_CONTAINER(vbox), hbox);
