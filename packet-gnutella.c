@@ -2,7 +2,7 @@
  * Routines for gnutella dissection
  * Copyright 2001, B. Johannessen <bob@havoq.com>
  *
- * $Id: packet-gnutella.c,v 1.2 2001/06/18 02:17:46 guy Exp $
+ * $Id: packet-gnutella.c,v 1.3 2001/08/18 07:59:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -446,21 +446,6 @@ static void dissect_gnutella(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	}
 
 	if (tree) {
-		offset = 0;
-
-		size = tvb_get_letohl(
-			tvb,
-			offset + GNUTELLA_HEADER_SIZE_OFFSET);
-		if(size > GNUTELLA_MAX_SNAP_SIZE) {
-			proto_tree_add_item(tree,
-				hf_gnutella_stream,
-				tvb,
-				offset,
-				snap_len,
-				FALSE);
-			return;
-		}
-
 		ti = proto_tree_add_item(tree,
 			proto_gnutella,
 			tvb,
@@ -468,6 +453,21 @@ static void dissect_gnutella(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 			tvb_length(tvb),
 			FALSE);
 		gnutella_tree = proto_item_add_subtree(ti, ett_gnutella);
+
+		offset = 0;
+
+		size = tvb_get_letohl(
+			tvb,
+			offset + GNUTELLA_HEADER_SIZE_OFFSET);
+		if(size > GNUTELLA_MAX_SNAP_SIZE) {
+			proto_tree_add_item(gnutella_tree,
+				hf_gnutella_stream,
+				tvb,
+				offset,
+				snap_len,
+				FALSE);
+			return;
+		}
 
 		while(snap_len - offset >= GNUTELLA_HEADER_LENGTH) {
 			payload_descriptor = tvb_get_guint8(
@@ -818,4 +818,3 @@ void proto_reg_handoff_gnutella(void) {
 			dissect_gnutella,
 			proto_gnutella);
 }
-
