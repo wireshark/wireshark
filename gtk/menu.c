@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.145 2004/01/23 00:43:29 ulfl Exp $
+ * $Id: menu.c,v 1.146 2004/01/23 16:10:09 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -195,19 +195,19 @@ static GtkItemFactoryEntry menu_items[] =
     ITEM_FACTORY_ENTRY("/View/Show/<separator>", NULL, NULL, 0, "<Separator>", NULL),
     ITEM_FACTORY_ENTRY("/View/Show/Status Bar", NULL, statusbar_show_cb, 0, "<CheckItem>", NULL),
     ITEM_FACTORY_ENTRY("/View/_Time Display Format", NULL, NULL, 0, "<Branch>", NULL),
-    ITEM_FACTORY_ENTRY("/View/Time Display Format/Time of day", NULL, timestamp_absolute_cb, 
+    ITEM_FACTORY_ENTRY("/View/Time Display Format/Time of Day", NULL, timestamp_absolute_cb, 
                         0, "<RadioItem>", NULL),
-    ITEM_FACTORY_ENTRY("/View/Time Display Format/Date and time of day", NULL, timestamp_absolute_date_cb, 
-                        0, "/View/Time Display Format/Time of day", NULL),
-    ITEM_FACTORY_ENTRY("/View/Time Display Format/Seconds since beginning of capture", NULL, timestamp_relative_cb, 
-                        0, "/View/Time Display Format/Time of day", NULL),
-    ITEM_FACTORY_ENTRY("/View/Time Display Format/Seconds since previous capture", NULL, timestamp_delta_cb, 
-                        0, "/View/Time Display Format/Time of day", NULL),
+    ITEM_FACTORY_ENTRY("/View/Time Display Format/Date and Time of Day", NULL, timestamp_absolute_date_cb, 
+                        0, "/View/Time Display Format/Time of Day", NULL),
+    ITEM_FACTORY_ENTRY("/View/Time Display Format/Seconds Since Beginning of Capture", NULL, timestamp_relative_cb, 
+                        0, "/View/Time Display Format/Time of Day", NULL),
+    ITEM_FACTORY_ENTRY("/View/Time Display Format/Seconds Since Previous Packet", NULL, timestamp_delta_cb, 
+                        0, "/View/Time Display Format/Time of Day", NULL),
     ITEM_FACTORY_ENTRY("/View/_Name Resolution", NULL, NULL, 0, "<Branch>", NULL),
-    ITEM_FACTORY_ENTRY("/View/Name Resolution/Enable for _MAC layer", NULL, name_resolution_mac_cb, 0, "<CheckItem>", NULL),
-    ITEM_FACTORY_ENTRY("/View/Name Resolution/Enable for _Network layer", NULL, name_resolution_mac_cb, 0, "<CheckItem>", NULL),
-    ITEM_FACTORY_ENTRY("/View/Name Resolution/Enable for _Transport layer", NULL, name_resolution_transport_cb, 0, "<CheckItem>", NULL),
-    ITEM_FACTORY_ENTRY("/View/Auto scroll in live capture", NULL, auto_scroll_live_cb, 0, "<CheckItem>", NULL),
+    ITEM_FACTORY_ENTRY("/View/Name Resolution/Enable for _MAC Layer", NULL, name_resolution_mac_cb, 0, "<CheckItem>", NULL),
+    ITEM_FACTORY_ENTRY("/View/Name Resolution/Enable for _Network Layer", NULL, name_resolution_mac_cb, 0, "<CheckItem>", NULL),
+    ITEM_FACTORY_ENTRY("/View/Name Resolution/Enable for _Transport Layer", NULL, name_resolution_transport_cb, 0, "<CheckItem>", NULL),
+    ITEM_FACTORY_ENTRY("/View/Auto Scroll in Live Capture", NULL, auto_scroll_live_cb, 0, "<CheckItem>", NULL),
     ITEM_FACTORY_ENTRY("/View/<separator>", NULL, NULL, 0, "<Separator>", NULL),
     ITEM_FACTORY_STOCK_ENTRY("/View/Zoom In", "<control>plus", view_zoom_in_cb,
                              0, GTK_STOCK_ZOOM_IN),
@@ -1072,16 +1072,16 @@ menu_recent_read_finished(void) {
     menu = gtk_item_factory_get_widget(main_menu_factory, "/View/Show/Status Bar");
     gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), recent.statusbar_show);
 
-    menu = gtk_item_factory_get_widget(main_menu_factory, "/View/Name Resolution/Enable for MAC layer");
+    menu = gtk_item_factory_get_widget(main_menu_factory, "/View/Name Resolution/Enable for MAC Layer");
     gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), g_resolv_flags & RESOLV_MAC);
 
-    menu = gtk_item_factory_get_widget(main_menu_factory, "/View/Name Resolution/Enable for Network layer");
+    menu = gtk_item_factory_get_widget(main_menu_factory, "/View/Name Resolution/Enable for Network Layer");
     gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), g_resolv_flags & RESOLV_NETWORK);
 
-    menu = gtk_item_factory_get_widget(main_menu_factory, "/View/Name Resolution/Enable for Transport layer");
+    menu = gtk_item_factory_get_widget(main_menu_factory, "/View/Name Resolution/Enable for Transport Layer");
     gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), g_resolv_flags & RESOLV_TRANSPORT);
 
-    menu = gtk_item_factory_get_widget(main_menu_factory, "/View/Auto scroll in live capture");
+    menu = gtk_item_factory_get_widget(main_menu_factory, "/View/Auto Scroll in Live Capture");
     gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), auto_scroll_live);
 
     main_widgets_rearrange();
@@ -1094,7 +1094,7 @@ menu_recent_read_finished(void) {
     switch(recent.gui_time_format) {
     case(TS_ABSOLUTE):
         menu = gtk_item_factory_get_widget(main_menu_factory, 
-            "/View/Time Display Format/Time of day");
+            "/View/Time Display Format/Time of Day");
         /* set_active will not trigger the callback when activating an active item! */
         recent.gui_time_format = -1;
         gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), FALSE);
@@ -1102,19 +1102,19 @@ menu_recent_read_finished(void) {
         break;
     case(TS_ABSOLUTE_WITH_DATE):
         menu = gtk_item_factory_get_widget(main_menu_factory, 
-            "/View/Time Display Format/Date and time of day");
+            "/View/Time Display Format/Date and Time of Day");
         recent.gui_time_format = -1;
         gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), TRUE);
         break;
     case(TS_RELATIVE):
         menu = gtk_item_factory_get_widget(main_menu_factory, 
-            "/View/Time Display Format/Seconds since beginning of capture");
+            "/View/Time Display Format/Seconds Since Beginning of Capture");
         recent.gui_time_format = -1;
         gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), TRUE);
         break;
     case(TS_DELTA):
         menu = gtk_item_factory_get_widget(main_menu_factory, 
-            "/View/Time Display Format/Seconds since previous capture");
+            "/View/Time Display Format/Seconds Since Previous Packet");
         recent.gui_time_format = -1;
         gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), TRUE);
         break;
