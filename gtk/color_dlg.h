@@ -1,7 +1,7 @@
 /* color_dlg.h
  * Definitions for dialog boxes for color filters
  *
- * $Id: color_dlg.h,v 1.2 2002/08/28 21:03:46 jmayer Exp $
+ * $Id: color_dlg.h,v 1.3 2003/08/18 21:27:10 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -27,5 +27,6 @@
 #define __COLOR_DLG_H__
 
 void color_display_cb(GtkWidget *w, gpointer d);
-
+int color_marked_count(void);
+void color_add_filter_cb (color_filter_t *colorf, gpointer arg);
 #endif /* color_dlg.h */

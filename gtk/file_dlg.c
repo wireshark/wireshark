@@ -1,7 +1,7 @@
 /* file_dlg.c
  * Dialog boxes for handling files
  *
- * $Id: file_dlg.c,v 1.57 2003/07/22 03:14:30 gerald Exp $
+ * $Id: file_dlg.c,v 1.58 2003/08/18 21:27:10 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -43,16 +43,25 @@
 #include "main.h"
 #include "compat_macros.h"
 #include "prefs.h"
+#include "color.h"
+#include "gtk/color_filters.h"
+#include "gtk/color_dlg.h"
 
 static void file_open_ok_cb(GtkWidget *w, GtkFileSelection *fs);
 static void file_open_destroy_cb(GtkWidget *win, gpointer user_data);
 static void select_file_type_cb(GtkWidget *w, gpointer data);
 static void file_save_as_ok_cb(GtkWidget *w, GtkFileSelection *fs);
 static void file_save_as_destroy_cb(GtkWidget *win, gpointer user_data);
+static void file_color_import_ok_cb(GtkWidget *w, GtkFileSelection *fs);
+static void file_color_import_destroy_cb(GtkWidget *win, gpointer user_data);
+static void file_color_export_ok_cb(GtkWidget *w, GtkFileSelection *fs);
+static void file_color_export_destroy_cb(GtkWidget *win, gpointer user_data);
 
 #define E_FILE_M_RESOLVE_KEY	  "file_dlg_mac_resolve_key"
 #define E_FILE_N_RESOLVE_KEY	  "file_dlg_network_resolve_key"
 #define E_FILE_T_RESOLVE_KEY	  "file_dlg_transport_resolve_key"
+
+#define ARGUMENT_CL "argument_cl"
 
 /*
  * Keep a static pointer to the current "Open Capture File" window, if
@@ -301,9 +310,11 @@ file_save_cmd_cb(GtkWidget *w, gpointer data) {
 /* XXX - can we make these not be static? */
 static gboolean filtered;
 static gboolean marked;
+static gboolean color_marked;
 static int filetype;
 static GtkWidget *filter_cb;
 static GtkWidget *mark_cb;
+static GtkWidget *cfmark_cb;
 static GtkWidget *ft_om;
 
 static gboolean
@@ -661,3 +672,295 @@ file_reload_cmd_cb(GtkWidget *w, gpointer data _U_) {
      we should free up our copy. */
   g_free(filename);
 }
+
+/******************** Color Filters *********************************/
+/*
+ * Keep a static pointer to the current "Color Export" window, if
+ * any, so that if somebody tries to do "Export"
+ * while there's already a "Color Export" window up, we just pop
+ * up the existing one, rather than creating a new one.
+ */
+static GtkWidget *file_color_import_w;
+
+/* sets the file path to the global color filter file.
+   WARNING: called by both the import and the export dialog.
+*/
+static void
+color_global_cb(GtkWidget *widget _U_, gpointer data)
+{
+  GtkWidget *fs_widget = data;
+  
+	gchar *path;
+
+	/* decide what file to open (from dfilter code) */
+	path = get_datafile_path("colorfilters");
+
+  gtk_file_selection_set_filename (GTK_FILE_SELECTION(fs_widget), path);
+
+  g_free((gchar *)path);
+}
+
+/* Import color filters */
+void
+file_color_import_cmd_cb(GtkWidget *w _U_, gpointer data)
+{
+  GtkWidget	*main_vb, *cfglobal_but;
+#if GTK_MAJOR_VERSION < 2
+  GtkAccelGroup *accel_group;
+#endif
+  /* No Apply button, and "OK" just sets our text widget, it doesn't
+     activate it (i.e., it doesn't cause us to try to open the file). */
+
+  if (file_color_import_w != NULL) {
+    /* There's already an "Import Color Filters" dialog box; reactivate it. */
+    reactivate_window(file_color_import_w);
+    return;
+  }
+
+  file_color_import_w = gtk_file_selection_new ("Ethereal: Import Color Filters");
+  SIGNAL_CONNECT(file_color_import_w, "destroy", file_color_import_destroy_cb, NULL);
+
+#if GTK_MAJOR_VERSION < 2
+  /* Accelerator group for the accelerators (or, as they're called in
+     Windows and, I think, in Motif, "mnemonics"; Alt+<key> is a mnemonic,
+     Ctrl+<key> is an accelerator). */
+  accel_group = gtk_accel_group_new();
+  gtk_window_add_accel_group(GTK_WINDOW(file_color_import_w), accel_group);
+#endif
+
+  /* If we've opened a file, start out by showing the files in the directory
+     in which that file resided. */
+  if (last_open_dir)
+    gtk_file_selection_set_filename(GTK_FILE_SELECTION(file_color_import_w), last_open_dir);
+
+  /* Container for each row of widgets */
+  main_vb = gtk_vbox_new(FALSE, 3);
+  gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
+  gtk_box_pack_start(GTK_BOX(GTK_FILE_SELECTION(file_color_import_w)->action_area),
+    main_vb, FALSE, FALSE, 0);
+  gtk_widget_show(main_vb);
+
+
+  cfglobal_but = gtk_button_new_with_label("Global Color Filter File");
+  gtk_container_add(GTK_CONTAINER(main_vb), cfglobal_but);
+  SIGNAL_CONNECT(cfglobal_but, "clicked", color_global_cb, file_color_import_w);
+  gtk_widget_show(cfglobal_but);
+
+  /* Connect the ok_button to file_open_ok_cb function and pass along a
+     pointer to the file selection box widget */
+  SIGNAL_CONNECT(GTK_FILE_SELECTION(file_color_import_w)->ok_button, "clicked",
+                 file_color_import_ok_cb, file_color_import_w);
+
+  OBJECT_SET_DATA(GTK_FILE_SELECTION(file_color_import_w)->ok_button,
+                  ARGUMENT_CL, data);
+
+  /* Connect the cancel_button to destroy the widget */
+  SIGNAL_CONNECT_OBJECT(GTK_FILE_SELECTION(file_color_import_w)->cancel_button,
+                        "clicked", (GtkSignalFunc)gtk_widget_destroy,
+                        file_color_import_w);
+
+  /* Catch the "key_press_event" signal in the window, so that we can catch
+     the ESC key being pressed and act as if the "Cancel" button had
+     been selected. */
+  dlg_set_cancel(file_color_import_w, GTK_FILE_SELECTION(file_color_import_w)->cancel_button);
+
+  gtk_widget_show(file_color_import_w);
+}
+
+static void
+file_color_import_ok_cb(GtkWidget *w, GtkFileSelection *fs) {
+  gchar     *cf_name, *s;
+  gpointer  argument;
+
+  argument = OBJECT_GET_DATA(w, ARGUMENT_CL);     /* to be passed back into read_other_filters */
+  
+  cf_name = g_strdup(gtk_file_selection_get_filename(GTK_FILE_SELECTION (fs)));
+  /* Perhaps the user specified a directory instead of a file.
+     Check whether they did. */
+  if (test_for_directory(cf_name) == EISDIR) {
+	/* It's a directory - set the file selection box to display that
+	   directory, don't try to open the directory as a capture file. */
+	set_last_open_dir(cf_name);
+        g_free(cf_name);
+	gtk_file_selection_set_filename(GTK_FILE_SELECTION(fs), last_open_dir);
+    	return;
+  }
+
+  /* Try to open the capture file. */
+
+  if (!read_other_filters(cf_name, argument)) {
+    /* We couldn't open it; don't dismiss the open dialog box,
+       just leave it around so that the user can, after they
+       dismiss the alert box popped up for the open error,
+       try again. */
+    g_free(cf_name);
+    return;
+  }
+
+  /* We've crossed the Rubicon; get rid of the file selection box. */
+  gtk_widget_hide(GTK_WIDGET (fs));
+  gtk_widget_destroy(GTK_WIDGET (fs));
+
+  /* Save the name of the containing directory specified in the path name,
+     if any; we can write over cf_name, which is a good thing, given that
+     "get_dirname()" does write over its argument. */
+  s = get_dirname(cf_name);
+  set_last_open_dir(s);
+  gtk_widget_grab_focus(packet_list);
+
+  g_free(cf_name);
+}
+
+static void
+file_color_import_destroy_cb(GtkWidget *win _U_, gpointer user_data _U_)
+{
+  /* Note that we no longer have a "Open Capture File" dialog box. */
+  file_color_import_w = NULL;
+}
+
+static GtkWidget *file_color_export_w;
+/*
+ * Set the "Export only marked filters" toggle button as appropriate for
+ * the current output file type and count of marked filters.
+ *
+ * Called when the "Export" dialog box is created and when the marked
+ * count changes.
+ */
+void
+color_set_export_marked_sensitive(GtkWidget * cfmark_cb)
+{
+  if (file_color_export_w == NULL) {
+    /* We don't currently have an "Export" dialog box up. */
+    return;
+  }
+
+  /* We can request that only the marked filters be saved only if
+        there *are* marked filters. */
+  if (color_marked_count() != 0)
+    gtk_widget_set_sensitive(cfmark_cb, TRUE);
+  else {
+    /* Force the "Export only marked filters" toggle to "false", turn
+       off the flag it controls. */
+    color_marked = FALSE;
+    gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(cfmark_cb), FALSE);
+    gtk_widget_set_sensitive(cfmark_cb, FALSE);
+  }
+}
+
+static void
+color_toggle_marked_cb(GtkWidget *widget, gpointer data _U_)
+{
+  color_marked = GTK_TOGGLE_BUTTON (widget)->active;
+}
+
+void
+file_color_export_cmd_cb(GtkWidget *w _U_, gpointer data _U_)
+{
+  GtkWidget *ok_bt, *main_vb, *cfglobal_but;
+
+  if (file_color_export_w != NULL) {
+    /* There's already an "Color Filter Export" dialog box; reactivate it. */
+    reactivate_window(file_color_export_w);
+    return;
+  }
+
+  /* Default to saving all packets, in the file's current format. */
+  filtered = FALSE;
+  color_marked   = FALSE;
+  filetype = cfile.cd_t;
+
+  file_color_export_w = gtk_file_selection_new ("Ethereal: Export Color Filters");
+  SIGNAL_CONNECT(file_color_export_w, "destroy", file_color_export_destroy_cb, NULL);
+
+  /* If we've opened a file, start out by showing the files in the directory
+     in which that file resided. */
+  if (last_open_dir)
+    gtk_file_selection_set_filename(GTK_FILE_SELECTION(file_color_export_w), last_open_dir);
+
+  /* Connect the ok_button to file_export_ok_cb function and pass along a
+     pointer to the file selection box widget */
+  ok_bt = GTK_FILE_SELECTION (file_color_export_w)->ok_button;
+  SIGNAL_CONNECT(ok_bt, "clicked", file_color_export_ok_cb, file_color_export_w);
+
+  /* Container for each row of widgets */
+  main_vb = gtk_vbox_new(FALSE, 3);
+  gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
+  gtk_box_pack_start(GTK_BOX(GTK_FILE_SELECTION(file_color_export_w)->action_area),
+    main_vb, FALSE, FALSE, 0);
+  gtk_widget_show(main_vb);
+
+  cfmark_cb = gtk_check_button_new_with_label("Export only marked filters");
+  gtk_container_add(GTK_CONTAINER(main_vb), cfmark_cb);
+  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(cfmark_cb), FALSE);
+  SIGNAL_CONNECT(cfmark_cb, "toggled", color_toggle_marked_cb, NULL);
+  gtk_widget_show(cfmark_cb);
+  color_set_export_marked_sensitive(cfmark_cb);
+
+  cfglobal_but = gtk_button_new_with_label("Global Color Filter File");
+  gtk_container_add(GTK_CONTAINER(main_vb), cfglobal_but);
+  SIGNAL_CONNECT(cfglobal_but, "clicked", color_global_cb, file_color_export_w);
+  gtk_widget_show(cfglobal_but);
+
+  /* Connect the cancel_button to destroy the widget */
+  SIGNAL_CONNECT_OBJECT(GTK_FILE_SELECTION(file_color_export_w)->cancel_button,
+                        "clicked", (GtkSignalFunc)gtk_widget_destroy,
+                        file_color_export_w);
+
+  /* Catch the "key_press_event" signal in the window, so that we can catch
+     the ESC key being pressed and act as if the "Cancel" button had
+     been selected. */
+  dlg_set_cancel(file_color_export_w, GTK_FILE_SELECTION(file_color_export_w)->cancel_button);
+
+  gtk_file_selection_set_filename(GTK_FILE_SELECTION(file_color_export_w), "");
+
+  gtk_widget_show(file_color_export_w);
+}
+
+static void
+file_color_export_ok_cb(GtkWidget *w _U_, GtkFileSelection *fs) {
+  gchar	*cf_name;
+  gchar	*dirname;
+
+  cf_name = g_strdup(gtk_file_selection_get_filename(GTK_FILE_SELECTION(fs)));
+
+  /* Perhaps the user specified a directory instead of a file.
+     Check whether they did. */
+  if (test_for_directory(cf_name) == EISDIR) {
+        /* It's a directory - set the file selection box to display that
+           directory, and leave the selection box displayed. */
+        set_last_open_dir(cf_name);
+        g_free(cf_name);
+        gtk_file_selection_set_filename(GTK_FILE_SELECTION(fs), last_open_dir);
+        return;
+  }
+
+  /* Write out the filters (all, or only the ones that are currently
+     displayed or marked) to the file with the specified name. */
+
+   if (!write_other_filters(cf_name, color_marked))
+   {
+    /* The write failed; don't dismiss the open dialog box,
+       just leave it around so that the user can, after they
+       dismiss the alert box popped up for the error, try again. */
+
+       g_free(cf_name);
+       return;
+   }
+
+  /* The write succeeded; get rid of the file selection box. */
+  gtk_widget_hide(GTK_WIDGET (fs));
+  gtk_widget_destroy(GTK_WIDGET (fs));
+
+  /* Save the directory name for future file dialogs. */
+  dirname = get_dirname(cf_name);  /* Overwrites cf_name */
+  set_last_open_dir(dirname);
+  g_free(cf_name);
+}
+
+static void
+file_color_export_destroy_cb(GtkWidget *win _U_, gpointer user_data _U_)
+{
+  file_color_export_w = NULL;
+}
+
+

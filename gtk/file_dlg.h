@@ -1,7 +1,7 @@
 /* file_dlg.h
  * Definitions for dialog boxes for handling files
  *
- * $Id: file_dlg.h,v 1.3 2002/08/28 21:03:47 jmayer Exp $
+ * $Id: file_dlg.h,v 1.4 2003/08/18 21:27:11 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -30,6 +30,9 @@ void file_save_cmd_cb(GtkWidget *, gpointer);
 void file_save_as_cmd_cb(GtkWidget *, gpointer);
 void file_close_cmd_cb(GtkWidget *, gpointer);
 void file_reload_cmd_cb(GtkWidget *, gpointer);
+
+void file_color_import_cmd_cb(GtkWidget *w, gpointer data);
+void file_color_export_cmd_cb(GtkWidget *, gpointer);
 
 /*
  * Set the "Save only marked packets" toggle button as appropriate for

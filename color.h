@@ -1,7 +1,7 @@
 /* color.h
  * Definitions for "toolkit-independent" colors
  *
- * $Id: color.h,v 1.3 2002/09/23 19:09:47 oabad Exp $
+ * $Id: color.h,v 1.4 2003/08/18 21:27:07 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -53,6 +53,7 @@ typedef struct _color_filter {
         dfilter_t *c_colorfilter; /* compiled filter expression */
         void      *edit_dialog;   /* if filter is being edited, dialog
                                    * box for it */
+	gboolean    marked;         /* set if the filter is marked in the color dialog box */
 } color_filter_t;
 
 /* List of all color filters. */

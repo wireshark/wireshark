@@ -551,6 +551,89 @@ ignored.  Therefore, if you are filtering on the existence of protocols,
 you should list the higher-level protocols first, and the lower-level
 protocols last.
 
+How Colorization Works
+----------------------
+Packets are colored according to a list of color filters. Each filter
+consists of a name, a filter expression and a coloration. A packet is
+colored according to the first filter that it matches, Color filter
+expressions use exactly the same syntax as display filter expressions.
+ 
+When Ethereal starts the color filters are loaded from:
+1. The user's personal colorfilters file or, if that does not exist,
+2. The global colorfilters file.
+If neither of these exist then the packets will not be colored.
+
+The Color Filters Dialog
+------------------------
+This dialog displays a list of color filters and allows it to be
+modified.
+
+THE FILTER LIST
+Single rows may be selected by clicking. Multiple rows may be selected
+by using the ctrl and shift keys in combination with the mouse button.
+
+UP
+Moves the selected filter(s) up the list, making it more likely that
+they will be used to color packets.
+
+DOWN
+Moves the selected filter(s) down the list, making it less likely that
+they will be used to color packets.
+
+NEW
+Adds a new filter at the bottom of the list and opens the Edit Color
+Filter dialog box. You will have to alter the filter expression at
+least before the filter will be accepted. The format of color filter
+expressions is identical to that of display filters. The new filter is
+selected, so it may immediately be moved up and down, deleted or edited.
+To avoid confusion all filters are unselected before the new filter is
+created.
+
+EDIT
+Opens the Edit Color Filter dialog box for the selected filter. (If this
+button is disabled you may have more than one filter selected, making it
+ambiguous which is to be edited.)
+
+DELETE
+Deletes the selected color filter(s).
+
+OK
+Closes the dialog and uses the color filters as they stand.
+
+APPLY
+Colors the packets according to the current list of color filters, but
+does not close the dialog.
+
+SAVE
+Saves the current list of color filters in your personal colorfilters
+file. Unless you do this they will not be used the next time you start
+Ethereal.
+
+REVERT
+Deletes your personal colorfilters file, reloads the global
+colorfilters file, if any, and closes the dialog.
+
+EXPORT (Save As if using GTK2+)
+Allows you to choose a file in which to save the current list of color
+filters. You may also choose to save only the selected filters. A
+button is provided to save the filters in the global colorfilter file,
+(you must have sufficient permissions to write this file, of course.)
+
+IMPORT (Open if using GTK2+)
+Allows you to choose a file containing color filters which are then
+added to the bottom of the current list. All the added filters are
+selected, so they may be moved to the correct position in the list as a
+group. To avoid confusion all filters are unselected before the new
+filters are imported. A button is provided to load the filters from the
+global colorfilter file.
+
+CANCEL
+Closes the dialog without changing the coloration of the packets. Note
+that changes you have made to the current list of color filters is not
+undone.
+  
+
+
 =item Display:Collapse All
 
 Collapse the protocol tree branches.

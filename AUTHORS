@@ -1422,9 +1422,10 @@ Liviu Daia <Liviu.Daia[AT]imar.ro> {
 	    from the command line
 }
 
-Richard Urwin <rurwin[AT]schenck.co.uk> {
+Richard Urwin <richard[AT]soronlin.org.uk> {
 	Developer documentation fixes and updates
-	Support for a system-wide color filter file
+	Support for a system-wide color filter file and color filter
+	    import and export
 }
 
 Prabhakar Krishnan <Prabhakar.Krishnan[AT]netapp.com> {
