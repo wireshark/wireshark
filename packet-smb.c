@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.228 2002/03/18 08:34:18 sahlberg Exp $
+ * $Id: packet-smb.c,v 1.229 2002/03/18 09:45:27 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -544,6 +544,7 @@ static int hf_smb_quota_flags_log_limit = -1;
 static int hf_smb_quota_flags_log_warning = -1;
 static int hf_smb_soft_quota_limit = -1;
 static int hf_smb_hard_quota_limit = -1;
+static int hf_smb_user_quota_offset = -1;
 
 static gint ett_smb = -1;
 static gint ett_smb_hdr = -1;
@@ -6955,28 +6956,48 @@ dissect_nt_sec_desc(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *p
 static int
 dissect_nt_user_quota(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, guint16 *bcp)
 {
-	int old_offset=offset;
+	int old_offset, old_sid_offset;
+	guint32 qsize;
 
-	/* first 24 bytes are unknown */
-	CHECK_BYTE_COUNT_TRANS_SUBR(24);
-	proto_tree_add_item(tree, hf_smb_unknown, tvb,
-		    offset, 24, TRUE);
-	COUNT_BYTES_TRANS_SUBR(24);
+	do {
+		old_offset=offset;
 
-	/* number of bytes for quota warning */
-	CHECK_BYTE_COUNT_TRANS_SUBR(8);
-	proto_tree_add_item(tree, hf_smb_soft_quota_limit, tvb, offset, 8, TRUE);
-	COUNT_BYTES_TRANS_SUBR(8);
+		CHECK_BYTE_COUNT_TRANS_SUBR(4);
+		qsize=tvb_get_letohl(tvb, offset);
+		proto_tree_add_uint(tree, hf_smb_user_quota_offset, tvb, offset, 4, qsize);
+		COUNT_BYTES_TRANS_SUBR(4);
 
-	/* number of bytes for quota limit */
-	CHECK_BYTE_COUNT_TRANS_SUBR(8);
-	proto_tree_add_item(tree, hf_smb_hard_quota_limit, tvb, offset, 8, TRUE);
-	COUNT_BYTES_TRANS_SUBR(8);
+		CHECK_BYTE_COUNT_TRANS_SUBR(4);
+		/* length of SID */
+		proto_tree_add_text(tree, tvb, offset, 4, "Length of SID: %d", tvb_get_letohl(tvb, offset));
+		COUNT_BYTES_TRANS_SUBR(4);
 
-	/* SID of the user */
-	old_offset=offset;
-	offset = dissect_nt_sid(tvb, pinfo, offset, tree, "Quota");
-	*bcp -= (offset-old_offset);
+		/* 16 unknown bytes */
+		CHECK_BYTE_COUNT_TRANS_SUBR(16);
+		proto_tree_add_item(tree, hf_smb_unknown, tvb,
+			    offset, 16, TRUE);
+		COUNT_BYTES_TRANS_SUBR(16);
+
+		/* number of bytes for quota warning */
+		CHECK_BYTE_COUNT_TRANS_SUBR(8);
+		proto_tree_add_item(tree, hf_smb_soft_quota_limit, tvb, offset, 8, TRUE);
+		COUNT_BYTES_TRANS_SUBR(8);
+
+		/* number of bytes for quota limit */
+		CHECK_BYTE_COUNT_TRANS_SUBR(8);
+		proto_tree_add_item(tree, hf_smb_hard_quota_limit, tvb, offset, 8, TRUE);
+		COUNT_BYTES_TRANS_SUBR(8);
+
+		/* SID of the user */
+		old_sid_offset=offset;
+		offset = dissect_nt_sid(tvb, pinfo, offset, tree, "Quota");
+		*bcp -= (offset-old_sid_offset);
+
+		if(qsize){
+			offset = old_offset+qsize;
+		}
+	}while(qsize);
+
 
 	return offset;
 }
@@ -7469,6 +7490,7 @@ dissect_nt_trans_data_response(tvbuff_t *tvb, packet_info *pinfo, int offset, pr
 	proto_tree *tree = NULL;
 	smb_info_t *si;
 	smb_nt_transact_info_t *nti;
+	guint16 bcp;
 
 	si = (smb_info_t *)pinfo->private_data;
 	if (si->sip != NULL)
@@ -7521,7 +7543,8 @@ dissect_nt_trans_data_response(tvbuff_t *tvb, packet_info *pinfo, int offset, pr
 		offset = dissect_nt_sec_desc(tvb, pinfo, offset, tree, len);
 		break;
 	case NT_TRANS_GET_USER_QUOTA:
-		/* not decoded yet */
+		bcp=len;
+		offset = dissect_nt_user_quota(tvb, pinfo, tree, offset, &bcp);
 		break;
 	case NT_TRANS_SET_USER_QUOTA:
 		/* not decoded yet */
@@ -16236,6 +16259,10 @@ proto_register_smb(void)
 	{ &hf_smb_acl_num_aces,
 		{ "Num ACEs", "smb.acl.num_aces", FT_UINT32, BASE_DEC,
 		NULL, 0, "Number of ACE structures for this ACL", HFILL }},
+
+	{ &hf_smb_user_quota_offset,
+		{ "Next Offset", "smb.quota.user.offset", FT_UINT32, BASE_DEC,
+		NULL, 0, "Relative offset to next user quota structure", HFILL }},
 
 	{ &hf_smb_ace_type,
 		{ "Type", "smb.ace.type", FT_UINT8, BASE_DEC,
