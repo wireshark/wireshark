@@ -2,7 +2,7 @@
  * mgcp-statistics for ethereal
  * Copyright 2003 Lars Roland
  *
- * $Id: mgcp_stat.c,v 1.1 2003/04/16 07:24:06 guy Exp $
+ * $Id: mgcp_stat.c,v 1.2 2003/04/23 03:51:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -342,7 +342,7 @@ gtk_mgcpstat_init(char *optarg)
 void
 register_tap_listener_gtkmgcpstat(void)
 {
-	register_ethereal_tap("mgcp,rtd", gtk_mgcpstat_init, NULL, NULL);
+	register_ethereal_tap("mgcp,rtd", gtk_mgcpstat_init);
 }
 
 

@@ -1,7 +1,7 @@
 /* tap-iousers.c
  * iostat   2003 Ronnie Sahlberg
  *
- * $Id: tap-iousers.c,v 1.4 2003/03/03 23:46:48 sahlberg Exp $
+ * $Id: tap-iousers.c,v 1.5 2003/04/23 03:50:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -459,6 +459,6 @@ iousers_init(char *optarg)
 void
 register_tap_listener_iousers(void)
 {
-	register_ethereal_tap("io,users,", iousers_init, NULL, NULL);
+	register_ethereal_tap("io,users,", iousers_init);
 }
 

@@ -1,7 +1,7 @@
 /* smb_stat.c
  * smb_stat   2003 Ronnie Sahlberg
  *
- * $Id: smb_stat.c,v 1.2 2003/04/22 09:30:59 sahlberg Exp $
+ * $Id: smb_stat.c,v 1.3 2003/04/23 03:51:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -489,7 +489,7 @@ gtk_smbstat_init(char *optarg)
 void
 register_tap_listener_gtksmbstat(void)
 {
-	register_ethereal_tap("smb,rtt", gtk_smbstat_init, NULL, NULL);
+	register_ethereal_tap("smb,rtt", gtk_smbstat_init);
 }
 
 

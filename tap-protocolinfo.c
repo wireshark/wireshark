@@ -1,7 +1,7 @@
 /* tap-protocolinfo.c
  * protohierstat   2002 Ronnie Sahlberg
  *
- * $Id: tap-protocolinfo.c,v 1.1 2002/11/04 12:10:59 sahlberg Exp $
+ * $Id: tap-protocolinfo.c,v 1.2 2003/04/23 03:50:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -122,6 +122,6 @@ protocolinfo_init(char *optarg)
 void
 register_tap_listener_protocolinfo(void)
 {
-	register_ethereal_tap("proto,colinfo,", protocolinfo_init, NULL, NULL);
+	register_ethereal_tap("proto,colinfo,", protocolinfo_init);
 }
 

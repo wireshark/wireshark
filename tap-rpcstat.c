@@ -1,7 +1,7 @@
 /* tap-rpcstat.c
  * rpcstat   2002 Ronnie Sahlberg
  *
- * $Id: tap-rpcstat.c,v 1.6 2002/11/01 01:11:59 sahlberg Exp $
+ * $Id: tap-rpcstat.c,v 1.7 2003/04/23 03:50:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -358,6 +358,6 @@ rpcstat_init(char *optarg)
 void
 register_tap_listener_rpcstat(void)
 {
-	register_ethereal_tap("rpc,rtt,", rpcstat_init, NULL, NULL);
+	register_ethereal_tap("rpc,rtt,", rpcstat_init);
 }
 

@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.288 2003/04/16 05:55:41 guy Exp $
+ * $Id: main.c,v 1.289 2003/04/23 03:51:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1356,7 +1356,7 @@ typedef struct _ethereal_tap_list {
 static ethereal_tap_list *tap_list=NULL;
 
 void
-register_ethereal_tap(char *cmd, void (*func)(char *arg), char *dummy _U_, void (*dummy2)(void) _U_)
+register_ethereal_tap(char *cmd, void (*func)(char *arg))
 {
 	ethereal_tap_list *newtl;
 
@@ -1462,6 +1462,9 @@ main(int argc, char *argv[])
      dissectors, and we must do it before we read the preferences, in
      case any dissectors register preferences. */
   epan_init(PLUGIN_DIR,register_all_protocols,register_all_protocol_handoffs);
+
+  /* Register all tap listeners; we do this before we parse the arguments,
+     as the "-z" argument can specify a registered tap. */
   register_all_tap_listeners();
 
   /* Now register the preferences for any non-dissector modules.
@@ -2072,10 +2075,12 @@ main(int argc, char *argv[])
      to a file that our parent will read? */
   if (!capture_child) {
 #endif
-    /* No.  Pop up the main window, and read in a capture file if
+    /* No.  Pop up the main window, register menus for taps (which we
+       must do after creating the main window, so that we can add
+       menu items to the main menu), and read in a capture file if
        we were told to. */
-
     create_main_window(pl_size, tv_size, bv_size, prefs);
+    register_all_tap_menus();
     set_menus_for_capture_file(FALSE);
 
     /* open tap windows after creating the main window to avoid GTK warnings */

@@ -1,7 +1,7 @@
 /* tap-protohierstat.c
  * protohierstat   2002 Ronnie Sahlberg
  *
- * $Id: tap-protohierstat.c,v 1.1 2002/11/01 05:29:34 sahlberg Exp $
+ * $Id: tap-protohierstat.c,v 1.2 2003/04/23 03:50:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -212,6 +212,6 @@ protohierstat_init(char *optarg)
 void
 register_tap_listener_protohierstat(void)
 {
-	register_ethereal_tap("io,phs", protohierstat_init, NULL, NULL);
+	register_ethereal_tap("io,phs", protohierstat_init);
 }
 

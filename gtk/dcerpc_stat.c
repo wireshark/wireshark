@@ -1,7 +1,7 @@
 /* dcerpc_stat.c
  * dcerpc_stat   2002 Ronnie Sahlberg
  *
- * $Id: dcerpc_stat.c,v 1.3 2002/11/11 15:39:05 oabad Exp $
+ * $Id: dcerpc_stat.c,v 1.4 2003/04/23 03:51:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -610,5 +610,5 @@ gtk_dcerpcstat_cb(GtkWidget *w _U_, gpointer d _U_)
 void
 register_tap_listener_gtkdcerpcstat(void)
 {
-	register_ethereal_tap("dcerpc,rtt,", gtk_dcerpcstat_init, NULL, NULL);
+	register_ethereal_tap("dcerpc,rtt,", gtk_dcerpcstat_init);
 }

@@ -1,7 +1,7 @@
 /* tap-iostat.c
  * iostat   2002 Ronnie Sahlberg
  *
- * $Id: tap-iostat.c,v 1.4 2003/04/22 09:02:47 sahlberg Exp $
+ * $Id: tap-iostat.c,v 1.5 2003/04/23 03:50:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -312,6 +312,6 @@ iostat_init(char *optarg)
 void
 register_tap_listener_iostat(void)
 {
-	register_ethereal_tap("io,stat,", iostat_init, NULL, NULL);
+	register_ethereal_tap("io,stat,", iostat_init);
 }
 

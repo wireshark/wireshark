@@ -1,7 +1,7 @@
 /* rpc_stat.c
  * rpc_stat   2002 Ronnie Sahlberg
  *
- * $Id: rpc_stat.c,v 1.6 2002/11/11 15:39:06 oabad Exp $
+ * $Id: rpc_stat.c,v 1.7 2003/04/23 03:51:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -604,5 +604,5 @@ gtk_rpcstat_cb(GtkWidget *w _U_, gpointer d _U_)
 void
 register_tap_listener_gtkrpcstat(void)
 {
-	register_ethereal_tap("rpc,rtt,", gtk_rpcstat_init, NULL, NULL);
+	register_ethereal_tap("rpc,rtt,", gtk_rpcstat_init);
 }

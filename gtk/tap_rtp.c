@@ -1,7 +1,7 @@
 /*
  * tap_rtp.c
  *
- * $Id: tap_rtp.c,v 1.8 2003/03/11 08:46:26 sahlberg Exp $
+ * $Id: tap_rtp.c,v 1.9 2003/04/23 03:51:03 guy Exp $
  *
  * RTP analysing addition for ethereal
  *
@@ -98,7 +98,6 @@
 #endif
 
 #include <gtk/gtk.h>
-#include "tap_rtp.h"
 #include "globals.h"
 #include <string.h>
 #include "epan/packet_info.h"
@@ -111,6 +110,7 @@
 #include "dlg_utils.h"
 #include "ui_util.h"
 #include "simple_dialog.h"
+#include "menu.h"
 #include "main.h"
 #include <math.h>
 #include "progress_dlg.h"
@@ -1611,7 +1611,7 @@ static void get_reversed_ssrc(void *prs)
 
 /* XXX only handles RTP over IPv4, should add IPv6 support */
 /* when the user clicks the RTP dialog button */
-void rtp_analyse_cb(GtkWidget *w _U_, gpointer data _U_) 
+static void rtp_analyse_cb(GtkWidget *w _U_, gpointer data _U_) 
 { 
   info_stat *rs;
   gchar filter_text[256];
@@ -1734,11 +1734,16 @@ rtp_analyse_init(char *dummy _U_)
 	rtp_analyse_cb(NULL, NULL);
 }
 
-/* XXX compiler warning:passing arg 2 of `register_ethereal_tap' from incompatible pointer type */
 void
 register_tap_listener_gtkrtp(void)
 {
-	register_ethereal_tap("rtp", rtp_analyse_init, NULL, NULL);
+	register_ethereal_tap("rtp", rtp_analyse_init);
+}
+
+void
+register_tap_menu_gtkrtp(void)
+{
+	register_tap_menu_item("RTP Analysis...", rtp_analyse_cb);
 }
 
 
@@ -1918,4 +1923,3 @@ static gboolean copy_file(gchar *dest, gint channels, /*gint format,*/ void *dat
 	return TRUE;
 
 }
-

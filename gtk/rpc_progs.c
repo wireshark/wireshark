@@ -1,7 +1,7 @@
 /* rpc_progs.c
  * rpc_progs   2002 Ronnie Sahlberg
  *
- * $Id: rpc_progs.c,v 1.6 2002/12/16 07:02:05 sahlberg Exp $
+ * $Id: rpc_progs.c,v 1.7 2003/04/23 03:51:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -397,5 +397,5 @@ gtk_rpcprogs_cb(GtkWidget *w _U_, gpointer d _U_)
 void
 register_tap_listener_gtkrpcprogs(void)
 {
-	register_ethereal_tap("rpc,programs", gtk_rpcprogs_init, NULL, NULL);
+	register_ethereal_tap("rpc,programs", gtk_rpcprogs_init);
 }

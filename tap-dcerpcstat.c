@@ -1,7 +1,7 @@
 /* tap-dcerpcstat.c
  * dcerpcstat   2002 Ronnie Sahlberg
  *
- * $Id: tap-dcerpcstat.c,v 1.3 2002/10/31 22:16:01 guy Exp $
+ * $Id: tap-dcerpcstat.c,v 1.4 2003/04/23 03:50:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -277,5 +277,5 @@ dcerpcstat_init(char *optarg)
 void
 register_tap_listener_dcerpcstat(void)
 {
-	register_ethereal_tap("dcerpc,rtt,", dcerpcstat_init, NULL, NULL);
+	register_ethereal_tap("dcerpc,rtt,", dcerpcstat_init);
 }

@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.90 2003/04/23 03:13:16 guy Exp $
+ * $Id: menu.c,v 1.91 2003/04/23 03:51:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -65,7 +65,6 @@
 #include "mgcp_stat.h"
 #include "compat_macros.h"
 #include "gtkglobals.h"
-#include "tap_rtp.h"
 #include "../tap.h"
 
 GtkWidget *popup_menu_object;
@@ -259,8 +258,6 @@ static GtkItemFactoryEntry menu_items[] =
     ITEM_FACTORY_ENTRY("/Tools/Statistics/MGCP", NULL, NULL, 0, "<Branch>",
                        NULL),
     ITEM_FACTORY_ENTRY("/Tools/Statistics/MGCP/RTD", NULL, gtk_mgcpstat_cb,
-                       0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Tools/Statistics/RTP Analysis...", NULL, rtp_analyse_cb,
                        0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/_Help", NULL, NULL, 0, "<LastBranch>", NULL),
     ITEM_FACTORY_STOCK_ENTRY("/Help/_Help", NULL, help_cb, 0, GTK_STOCK_HELP),

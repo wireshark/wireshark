@@ -1,7 +1,7 @@
 /* tap-mgcpstat.c
  * mgcpstat   2003 Lars Roland
  *
- * $Id: tap-mgcpstat.c,v 1.4 2003/04/16 07:24:04 guy Exp $
+ * $Id: tap-mgcpstat.c,v 1.5 2003/04/23 03:50:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -230,6 +230,6 @@ mgcpstat_init(char *optarg)
 void
 register_tap_listener_mgcpstat(void)
 {
-	register_ethereal_tap("mgcp,rtd", mgcpstat_init, NULL, NULL);
+	register_ethereal_tap("mgcp,rtd", mgcpstat_init);
 }
 

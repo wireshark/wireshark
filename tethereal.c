@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.180 2003/04/16 05:55:37 guy Exp $
+ * $Id: tethereal.c,v 1.181 2003/04/23 03:50:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -329,7 +329,7 @@ typedef struct _ethereal_tap_list {
 static ethereal_tap_list *tap_list=NULL;
 
 void
-register_ethereal_tap(char *cmd, void (*func)(char *arg), char *dummy _U_, void (*dummy2)(void) _U_)
+register_ethereal_tap(char *cmd, void (*func)(char *arg))
 {
 	ethereal_tap_list *newtl;
 
@@ -378,6 +378,9 @@ main(int argc, char *argv[])
      dissectors, and we must do it before we read the preferences, in
      case any dissectors register preferences. */
   epan_init(PLUGIN_DIR,register_all_protocols,register_all_protocol_handoffs);
+
+  /* Register all tap listeners; we do this before we parse the arguments,
+     as the "-z" argument can specify a registered tap. */
   register_all_tap_listeners();
 
   /* Now register the preferences for any non-dissector modules.

@@ -39,4 +39,23 @@ done | while read func; do
 done 
 echo '}' >>${outfile}-tmp
 
+#
+# Build code to call all the tap listener menu item registration routines.
+#
+echo 'void register_all_tap_menus(void) {' >>${outfile}-tmp
+for f in "$@"
+do
+	if [ -f $f ]
+	then
+		srcfile=$f
+	else
+		srcfile=$srcdir/$f
+	fi
+	grep '^register_tap_menu_[a-z_0-9A-Z]* *(' $srcfile 2>/dev/null | grep -v ';' | sed -e 's/(.*//'
+done | while read func; do
+	echo "  { extern void $func (void);" >>${outfile}-tmp
+	echo "    $func ();}" >>${outfile}-tmp
+done 
+echo '}' >>${outfile}-tmp
+
 mv ${outfile}-tmp ${outfile}
