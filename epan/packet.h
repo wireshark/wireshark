@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.21 2001/02/01 07:34:30 guy Exp $
+ * $Id: packet.h,v 1.22 2001/02/27 07:28:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -172,6 +172,7 @@ typedef struct _packet_info {
   address dst;			/* destination address (net if present, DL otherwise )*/
   guint32 ethertype;		/* Ethernet Type Code, if this is an Ethernet packet */
   guint32 ipproto;		/* IP protocol, if this is an IP packet */
+  guint32 ipxptype;		/* IPX packet type, if this is an IPX packet */
   gboolean fragmented;		/* TRUE if the protocol is only a fragment */
   port_type ptype;		/* type of the following two port numbers */
   guint32 srcport;		/* source port */

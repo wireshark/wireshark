@@ -2,7 +2,7 @@
  * Routines for NetBIOS over IPX packet disassembly
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-nbipx.c,v 1.36 2001/01/15 04:39:28 guy Exp $
+ * $Id: packet-nbipx.c,v 1.37 2001/02/27 07:28:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -45,16 +45,9 @@ static gint ett_nbipx = -1;
 static gint ett_nbipx_conn_ctrl = -1;
 static gint ett_nbipx_name_type_flags = -1;
 
-enum nbipx_protocol {
-	NETBIOS_NETWARE,
-	NETBIOS_NWLINK
-};
-
-static void
-dissect_nbipx_ns(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-
-static void
-dissect_nbipx_dg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+static void dissect_conn_control(tvbuff_t *tvb, int offset, proto_tree *tree);
+static void dissect_packet_type(tvbuff_t *tvb, int offset, guint8 packet_type,
+    proto_tree *tree);
 
 /* There is no RFC or public specification of Netware or Microsoft
  * NetBIOS over IPX packets. I have had to decode the protocol myself,
@@ -67,12 +60,108 @@ dissect_nbipx_dg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
  * and at least some of those packet types appear to match what's in
  * some NBIPX packets.
  *
- * Note, however, that the offset of the packet type in an NBIPX packet
- * *DEPENDS ON THE PACKET TYPE*; "Find name" and "Name recognized" have
- * it at one offset, "Directed datagram" has it at another.  Does the
- * NBIPX code base it on the length, or what?  Non-broadcast directed
- * datagram packets have an IPX type of "IPX", just as "Find name" and
- * "Name recognized" do....  For now, we base it on the length.
+ * Note, however, that it appears that sometimes NBIPX packets have
+ * 8 IPX addresses at the beginning, and sometimes they don't.
+ *
+ * In the section on "NetBIOS Broadcasts", the document at
+ *
+ *	http://www.microsoft.com/technet/network/ipxrout.asp
+ *
+ * says that "the NetBIOS over IPX Broadcast header" contains 8 IPX
+ * network numbers in the "IPX WAN broadcast header", and that it's
+ * followed by a "Name Type Flags" byte (giving information about the
+ * name being registered, deregistered, or checked), a "Data Stream
+ * Type 2" byte giving the type of operation (NBIPX_FIND_NAME,
+ * NBIPX_NAME_RECOGNIZED, or NBIPX_CHECK_NAME - the latter is called
+ * "Add Name"), and a 16-byte NetBIOS name.
+ *
+ * It also says that "NetBIOS over IPX Broadcast packets" have a
+ * packet type of 0x14 (20, or IPX_PACKET_TYPE_WANBCAST) and a
+ * socket number of 0x455 (IPX_SOCKET_NETBIOS).
+ *
+ * However, there are also non-broadcast packets that *also* contain
+ * the 8 IPX network numbers; they appear to be replies to broadcast
+ * packets, and have a packet type of 0x4 (IPX_PACKET_TYPE_PEP).
+ *
+ * Other IPX_PACKET_TYPE_PEP packets to and from the IPX_SOCKET_NETBIOS
+ * socket, however, *don't* have the 8 IPX network numbers; there does
+ * not seem to be any obvious algorithm to determine whether the packet
+ * has the addresses or not.  Microsoft Knowledge Base article Q128335
+ * appears to show some code from the NBIPX implementation in NT that
+ * tries to determine the packet type - and it appears to use heuristics
+ * based on the packet length and on looking at what might be the NBIPX
+ * "Data Stream Type" byte depending on whether the packet has the 8
+ * IPX network numbers or not.
+ *
+ * So, for now, we treat *all* NBIPX packets as having a "Data Stream
+ * Type" byte, preceded by another byte of NBIPX information and
+ * followed by more NBIPX stuff, and assume that it's preceded by
+ * 8 IPX network numbers iff:
+ *
+ *	the packet is a WAN Broadcast packet
+ *
+ * or
+ *
+ *	the packet is the right size for one of those PEP name replies
+ *	(50 bytes) *and* has a name packet type as the Data Stream
+ *	Type byte at the offset where that byte would be if the packet
+ *	does have the 8 IPX network numbers at the beginning.
+ *
+ * The page at
+ *
+ *	http://ourworld.compuserve.com/homepages/TimothyDEvans/encap.htm
+ *
+ * indicates, under "NBIPX session packets", that "NBIPX session packets"
+ * have
+ *
+ *	1 byte of NBIPX connection control flag
+ *	1 byte of data stream type
+ *	2 bytes of source connection ID
+ *	2 bytes of destination connection ID
+ *	2 bytes of send sequence number
+ *	2 bytes of total data length
+ *	2 bytes of offset
+ *	2 bytes of data length
+ *	2 bytes of receive sequence number
+ *	2 bytes of "bytes received"
+ *
+ * followed by data.
+ *
+ * Packets with a data stream type of NBIPX_DIRECTED_DATAGRAM appear to
+ * have, following the data stream type, two NetBIOS names, the first
+ * of which is the receiver's NetBIOS name and the second of which is
+ * the sender's NetBIOS name.  The page at
+ *
+ *	http://support.microsoft.com/support/kb/articles/q203/0/51.asp
+ *
+ * speaks of type 4 (PEP) packets as being used for "SAP, NetBIOS sessions
+ * and directed datagrams" and type 20 (WAN Broadcast) as being used for
+ * "NetBIOS name resolution broadcasts" (but nothing about the non-broadcast
+ * type 4 name resolution stuff).
+ *
+ * We assume that this means that, once you get past the 8 IPX network
+ * numbers if present:
+ *
+ *	the first byte is a name type byte for the name packets
+ *	and a connection control flag for the other packets;
+ *
+ *	the second byte is a data stream type;
+ *
+ *	the rest of the bytes are:
+ *
+ *		the NetBIOS name being registered/deregistered/etc.,
+ *		for name packets;
+ *
+ *		the two NetBIOS names, followed by the NetBIOS
+ *		datagram, for NBIPX_DIRECTED_DATAGRAM packets;
+ *
+ *		the session packet header, possibly followed by
+ *		session data, for session packets.
+ *
+ * We don't know yet how to interpret NBIPX_STATUS_QUERY or
+ * NBIPX_STATUS_RESPONSE.
+ *
+ * For now, we treat the datagrams and session data as SMB stuff.
  */
 #define NBIPX_FIND_NAME		1
 #define NBIPX_NAME_RECOGNIZED	2
@@ -101,42 +190,6 @@ static const value_string nbipx_data_stream_type_vals[] = {
 	{0,				NULL}
 };
 
-#define NWLINK_NAME_QUERY	1
-#define	NWLINK_SMB		2
-#define	NWLINK_NETBIOS_DATAGRAM	3
-
-static const value_string nwlink_data_stream_type_vals[] = {
-	{NWLINK_NAME_QUERY,		"Name query"},
-	{NWLINK_SMB,			"SMB"},
-	{NWLINK_NETBIOS_DATAGRAM,	"NetBIOS datagram"},
-	{0,				NULL}
-};
-
-/* NetWare */
-static void
-dissect_nbipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	CHECK_DISPLAY_AS_DATA(proto_nbipx, tvb, pinfo, tree);
-
-	pinfo->current_proto = "NBIPX";
-
-	if (check_col(pinfo->fd, COL_PROTOCOL))
-		col_set_str(pinfo->fd, COL_PROTOCOL, "NBIPX");
-	if (check_col(pinfo->fd, COL_INFO))
-		col_clear(pinfo->fd, COL_INFO);
-
-	/*
-	 * As said above, we look at the length of the packet to decide
-	 * whether to treat it as a name-service packet or a datagram
-	 * (the packet type would tell us, but it's at a *DIFFERENT
-	 * LOCATION* in different types of packet...).
-	 */
-	if (tvb_reported_length(tvb) == 50)
-		dissect_nbipx_ns(tvb, pinfo, tree);
-	else
-		dissect_nbipx_dg(tvb, pinfo, tree);
-}
-
 static void
 add_routers(proto_tree *tree, tvbuff_t *tvb, int offset)
 {
@@ -157,105 +210,283 @@ add_routers(proto_tree *tree, tvbuff_t *tvb, int offset)
 }
 
 static void
-dissect_nbipx_ns(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_nbipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	proto_tree		*nbipx_tree;
-	proto_item		*ti;
-	int			offset = 0;
-	guint8			packet_type;
-	guint8			name_type_flag;
-	proto_tree		*name_type_flag_tree;
-	proto_item		*tf;
-	char			name[(NETBIOS_NAME_LEN - 1)*4 + 1];
-	int			name_type;
+	gboolean	has_routes;
+	proto_tree	*nbipx_tree = NULL;
+	proto_item	*ti = NULL;
+	int		offset = 0;
+	guint8		packet_type;
+	guint8		name_type_flag;
+	proto_tree	*name_type_flag_tree;
+	proto_item	*tf;
+	tvbuff_t	*next_tvb;
+	const guint8	*next_pd;
+	int		next_offset;
+	char		name[(NETBIOS_NAME_LEN - 1)*4 + 1];
+	int		name_type;
+	gboolean	has_payload;
 
-	name_type_flag = tvb_get_guint8(tvb, offset+32);
-	packet_type = tvb_get_guint8(tvb, offset+33);
-	name_type = get_netbios_name(tvb, offset+34, name);
+	if (check_col(pinfo->fd, COL_PROTOCOL))
+		col_set_str(pinfo->fd, COL_PROTOCOL, "NBIPX");
+	if (check_col(pinfo->fd, COL_INFO))
+		col_clear(pinfo->fd, COL_INFO);
 
-	if (check_col(pinfo->fd, COL_INFO)) {
-		switch (packet_type) {
-		case NBIPX_FIND_NAME:
-		case NBIPX_NAME_RECOGNIZED:
-		case NBIPX_CHECK_NAME:
-		case NBIPX_NAME_IN_USE:
-		case NBIPX_DEREGISTER_NAME:
-			col_add_fstr(pinfo->fd, COL_INFO, "%s %s<%02x>",
-				val_to_str(packet_type, nbipx_data_stream_type_vals, "Unknown"),
-				name, name_type);
-			break;
+	if (pinfo->ipxptype == IPX_PACKET_TYPE_WANBCAST) {
+		/*
+		 * This is a WAN Broadcast packet; we assume it will have
+		 * 8 IPX addresses at the beginning.
+		 */
+		has_routes = TRUE;
+	} else {
+		/*
+		 * This isn't a WAN Broadcast packet, but it still might
+		 * have the 8 addresses.
+		 *
+		 * If it's the right length for a name operation,
+		 * and, if we assume it has routes, the packet type
+		 * is a name operation, assume it has routes.
+		 *
+		 * NOTE: this will throw an exception if the byte that
+		 * would be the packet type byte if this has the 8
+		 * addresses isn't present; if that's the case, we don't
+		 * know how to interpret this packet, so we can't dissect
+		 * it anyway.
+		 */
+		has_routes = FALSE;	/* start out assuming it doesn't */
+		if (tvb_reported_length(tvb) == 50) {
+			packet_type = tvb_get_guint8(tvb, offset + 32 + 1);
+			switch (packet_type) {
 
-		default:
-			col_add_fstr(pinfo->fd, COL_INFO, "%s",
-				val_to_str(packet_type, nbipx_data_stream_type_vals, "Unknown"));
-			break;
+			case NBIPX_FIND_NAME:
+			case NBIPX_NAME_RECOGNIZED:
+			case NBIPX_CHECK_NAME:
+			case NBIPX_NAME_IN_USE:
+			case NBIPX_DEREGISTER_NAME:
+				has_routes = TRUE;
+				break;
+			}
 		}
 	}
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_nbipx, tvb, offset, 50,
-		    FALSE);
+		ti = proto_tree_add_item(tree, proto_nbipx, tvb, 0,
+		    0, FALSE);
 		nbipx_tree = proto_item_add_subtree(ti, ett_nbipx);
+	}
 
-		add_routers(nbipx_tree, tvb, offset);
+	if (has_routes) {
+		if (tree)
+			add_routers(nbipx_tree, tvb, 0);
+		offset += 32;
+	}
 
-		tf = proto_tree_add_text(nbipx_tree, tvb, offset+32, 1,
-			"Name type flag: 0x%02x", name_type_flag);
-		name_type_flag_tree = proto_item_add_subtree(tf,
-				ett_nbipx_name_type_flags);
-		proto_tree_add_text(name_type_flag_tree, tvb, offset+32,
-		    1, "%s",
-		    decode_boolean_bitfield(name_type_flag, 0x80, 8,
-		      "Group name", "Unique name"));
-		proto_tree_add_text(name_type_flag_tree, tvb, offset+32,
-		    1, "%s",
-		    decode_boolean_bitfield(name_type_flag, 0x40, 8,
-		      "Name in use", "Name not used"));
-		proto_tree_add_text(name_type_flag_tree, tvb, offset+32,
-		    1, "%s",
-		    decode_boolean_bitfield(name_type_flag, 0x04, 8,
-		      "Name registered", "Name not registered"));
-		proto_tree_add_text(name_type_flag_tree, tvb, offset+32,
-		    1, "%s",
-		    decode_boolean_bitfield(name_type_flag, 0x02, 8,
-		      "Name duplicated", "Name not duplicated"));
-		proto_tree_add_text(name_type_flag_tree, tvb, offset+32,
-		    1, "%s",
-		    decode_boolean_bitfield(name_type_flag, 0x01, 8,
-		      "Name deregistered", "Name not deregistered"));
+	packet_type = tvb_get_guint8(tvb, offset + 1);
 
-		proto_tree_add_text(nbipx_tree, tvb, offset+33, 1,
-			"Packet Type: %s (%02X)",
-			val_to_str(packet_type, nbipx_data_stream_type_vals, "Unknown"),
-			packet_type);
+	switch (packet_type) {
 
-		netbios_add_name("Name", tvb, offset + 34, nbipx_tree);
+	case NBIPX_FIND_NAME:
+	case NBIPX_NAME_RECOGNIZED:
+	case NBIPX_CHECK_NAME:
+	case NBIPX_NAME_IN_USE:
+	case NBIPX_DEREGISTER_NAME:
+		name_type_flag = tvb_get_guint8(tvb, offset);
+		name_type = get_netbios_name(tvb, offset+2, name);
+		if (check_col(pinfo->fd, COL_INFO)) {
+			col_add_fstr(pinfo->fd, COL_INFO, "%s %s<%02x>",
+				val_to_str(packet_type, nbipx_data_stream_type_vals, "Unknown"),
+				name, name_type);
+		}
+		if (nbipx_tree) {
+			tf = proto_tree_add_text(nbipx_tree, tvb, offset, 1,
+				"Name type flag: 0x%02x", name_type_flag);
+			name_type_flag_tree = proto_item_add_subtree(tf,
+					ett_nbipx_name_type_flags);
+			proto_tree_add_text(name_type_flag_tree, tvb, offset,
+			    1, "%s",
+			    decode_boolean_bitfield(name_type_flag, 0x80, 8,
+			      "Group name", "Unique name"));
+			proto_tree_add_text(name_type_flag_tree, tvb, offset,
+			    1, "%s",
+			    decode_boolean_bitfield(name_type_flag, 0x40, 8,
+			      "Name in use", "Name not used"));
+			proto_tree_add_text(name_type_flag_tree, tvb, offset,
+			    1, "%s",
+			    decode_boolean_bitfield(name_type_flag, 0x04, 8,
+			      "Name registered", "Name not registered"));
+			proto_tree_add_text(name_type_flag_tree, tvb, offset,
+			    1, "%s",
+			    decode_boolean_bitfield(name_type_flag, 0x02, 8,
+			      "Name duplicated", "Name not duplicated"));
+			proto_tree_add_text(name_type_flag_tree, tvb, offset,
+			    1, "%s",
+			    decode_boolean_bitfield(name_type_flag, 0x01, 8,
+			      "Name deregistered", "Name not deregistered"));
+		}
+		offset += 1;
+
+		dissect_packet_type(tvb, offset, packet_type, nbipx_tree);
+		offset += 1;
+
+		if (nbipx_tree)
+			netbios_add_name("Name", tvb, offset, nbipx_tree);
+		offset += NETBIOS_NAME_LEN;
+
+		/*
+		 * No payload to be interpreted by another protocol.
+		 */
+		has_payload = FALSE;
+		break;
+
+	case NBIPX_SESSION_DATA:
+	case NBIPX_SESSION_END:
+	case NBIPX_SESSION_END_ACK:
+		if (check_col(pinfo->fd, COL_INFO)) {
+			col_add_fstr(pinfo->fd, COL_INFO, "%s",
+				val_to_str(packet_type, nbipx_data_stream_type_vals, "Unknown"));
+		}
+		dissect_conn_control(tvb, offset, nbipx_tree);
+		offset += 1;
+
+		dissect_packet_type(tvb, offset, packet_type, nbipx_tree);
+		offset += 1;
+
+		if (nbipx_tree) {
+			proto_tree_add_text(nbipx_tree, tvb, offset, 2,
+			    "Source connection ID: 0x%04X",
+			    tvb_get_letohs(tvb, offset));
+		}
+		offset += 2;
+
+		if (nbipx_tree) {
+			proto_tree_add_text(nbipx_tree, tvb, offset, 2,
+			    "Destination connection ID: 0x%04X",
+			    tvb_get_letohs(tvb, offset));
+		}
+		offset += 2;
+
+		if (nbipx_tree) {
+			proto_tree_add_text(nbipx_tree, tvb, offset, 2,
+			    "Send sequence number: %u",
+			    tvb_get_letohs(tvb, offset));
+		}
+		offset += 2;
+
+		if (nbipx_tree) {
+			proto_tree_add_text(nbipx_tree, tvb, offset, 2,
+			    "Total data length: %u",
+			    tvb_get_letohs(tvb, offset));
+		}
+		offset += 2;
+
+		if (nbipx_tree) {
+			proto_tree_add_text(nbipx_tree, tvb, offset, 2,
+			    "Offset: %u",
+			    tvb_get_letohs(tvb, offset));
+		}
+		offset += 2;
+
+		if (nbipx_tree) {
+			proto_tree_add_text(nbipx_tree, tvb, offset, 2,
+			    "Data length: %u",
+			    tvb_get_letohs(tvb, offset));
+		}
+		offset += 2;
+
+		if (nbipx_tree) {
+			proto_tree_add_text(nbipx_tree, tvb, offset, 2,
+			    "Receive sequence number: %u",
+			    tvb_get_letohs(tvb, offset));
+		}
+		offset += 2;
+
+		if (nbipx_tree) {
+			proto_tree_add_text(nbipx_tree, tvb, offset, 2,
+			    "Bytes received: %u",
+			    tvb_get_letohs(tvb, offset));
+		}
+		offset += 2;
+
+		/*
+		 * We may have payload to dissect.
+		 */
+		has_payload = TRUE;
+		break;
+
+	case NBIPX_DIRECTED_DATAGRAM:
+		if (check_col(pinfo->fd, COL_INFO)) {
+			col_add_fstr(pinfo->fd, COL_INFO, "%s",
+				val_to_str(packet_type, nbipx_data_stream_type_vals, "Unknown"));
+		}
+		dissect_conn_control(tvb, offset, nbipx_tree);
+		offset += 1;
+
+		dissect_packet_type(tvb, offset, packet_type, nbipx_tree);
+		offset += 1;
+
+		if (nbipx_tree)
+			netbios_add_name("Receiver's Name", tvb, offset,
+			    nbipx_tree);
+		offset += NETBIOS_NAME_LEN;
+
+		if (nbipx_tree)
+			netbios_add_name("Sender's Name", tvb, offset,
+			    nbipx_tree);
+		offset += NETBIOS_NAME_LEN;
+
+		/*
+		 * We may have payload to dissect.
+		 */
+		has_payload = TRUE;
+		break;
+
+	default:
+		if (check_col(pinfo->fd, COL_INFO)) {
+			col_add_fstr(pinfo->fd, COL_INFO, "%s",
+				val_to_str(packet_type, nbipx_data_stream_type_vals, "Unknown"));
+		}
+
+		/*
+		 * We don't know what the first byte is.
+		 */
+		offset += 1;
+
+		/*
+		 * The second byte is a data stream type byte.
+		 */
+		dissect_packet_type(tvb, offset, packet_type, nbipx_tree);
+		offset += 1;
+
+		/*
+		 * We don't know what the rest of the packet is.
+		 */
+		has_payload = FALSE;
+	}
+
+	/*
+	 * Set the length of the NBIPX tree item.
+	 */
+	if (ti != NULL)
+		proto_item_set_len(ti, offset);
+
+	if (has_payload && tvb_offset_exists(tvb, offset)) {
+		next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+		tvb_compat(next_tvb, &next_pd, &next_offset);
+		dissect_smb(next_pd, next_offset, pinfo->fd, tree,
+		    tvb_length(next_tvb));
 	}
 }
 
 static void
-dissect_nbipx_dg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_conn_control(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
-	proto_tree			*nbipx_tree = NULL;
-	proto_item			*ti;
-	int				offset = 0;
-	guint8				conn_control;
-	proto_tree			*cc_tree;
-	guint8				packet_type;
-	tvbuff_t			*next_tvb;
-	const guint8			*next_pd;
-	int				next_offset;
-
-	if (check_col(pinfo->fd, COL_INFO))
-		col_add_fstr(pinfo->fd, COL_INFO, "NetBIOS datagram over NBIPX");
+	guint8		conn_control;
+	proto_item	*ti;
+	proto_tree	*cc_tree;
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_nbipx, tvb, offset,
-		    2+NETBIOS_NAME_LEN+NETBIOS_NAME_LEN, FALSE);
-		nbipx_tree = proto_item_add_subtree(ti, ett_nbipx);
-
 		conn_control = tvb_get_guint8(tvb, offset);
-		ti = proto_tree_add_text(nbipx_tree, tvb, offset, 1,
+		ti = proto_tree_add_text(tree, tvb, offset, 1,
 		    "Connection control: 0x%02x", conn_control);
 		cc_tree = proto_item_add_subtree(ti, ett_nbipx_conn_ctrl);
 		proto_tree_add_text(cc_tree, tvb, offset, 1, "%s",
@@ -263,7 +494,8 @@ dissect_nbipx_dg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			      "System packet", "Non-system packet"));
 		proto_tree_add_text(cc_tree, tvb, offset, 1, "%s",
 		      decode_boolean_bitfield(conn_control, 0x40, 8,
-			      "Send acknowledge", "No send acknowledge"));
+			      "Acknowledgement required",
+			      "Acknowledgement not required"));
 		proto_tree_add_text(cc_tree, tvb, offset, 1, "%s",
 		      decode_boolean_bitfield(conn_control, 0x20, 8,
 			      "Attention", "No attention"));
@@ -274,190 +506,17 @@ dissect_nbipx_dg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		      decode_boolean_bitfield(conn_control, 0x08, 8,
 			      "Resend", "No resend"));
 	}
-	offset += 1;
-
-	packet_type = tvb_get_guint8(tvb, offset);
-	if (tree) {
-		proto_tree_add_text(nbipx_tree, tvb, offset, 1,
-				"Packet Type: %s (%02X)",
-				val_to_str(packet_type, nbipx_data_stream_type_vals, "Unknown"),
-				packet_type);
-	}
-	offset += 1;
-
-	if (tree)
-		netbios_add_name("Receiver's Name", tvb, offset, nbipx_tree);
-	offset += NETBIOS_NAME_LEN;
-
-	if (tree)
-		netbios_add_name("Sender's Name", tvb, offset, nbipx_tree);
-	offset += NETBIOS_NAME_LEN;
-
-	if (tvb_offset_exists(tvb, offset)) {
-		next_tvb = tvb_new_subset(tvb, offset, -1, -1);
-		tvb_compat(next_tvb, &next_pd, &next_offset);
-		dissect_smb(next_pd, next_offset, pinfo->fd, tree,
-		    tvb_length(next_tvb));
-	}
 }
 
 static void
-dissect_nwlink_dg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_packet_type(tvbuff_t *tvb, int offset, guint8 packet_type,
+    proto_tree *tree)
 {
-	proto_tree	*nbipx_tree;
-	proto_item	*ti;
-	int		offset = 0;
-	guint8		packet_type;
-	guint8		name_type_flag;
-	proto_tree	*name_type_flag_tree;
-	proto_item	*tf;
-	char		name[(NETBIOS_NAME_LEN - 1)*4 + 1];
-	int		name_type;
-	char		node_name[(NETBIOS_NAME_LEN - 1)*4 + 1];
-	int		node_name_type = 0;
-	tvbuff_t	*next_tvb;
-	const guint8	*next_pd;
-	int		next_offset;
-
-	/*
-	 * XXX - we don't use "node_name" or "node_name_type".
-	 */
-	name_type_flag = tvb_get_guint8(tvb, offset+32);
-	packet_type = tvb_get_guint8(tvb, offset+33);
-	name_type = get_netbios_name(tvb, offset+36, name);
-	node_name_type = get_netbios_name(tvb, offset+52, node_name);
-
-	/*
-	 * XXX - if this is labeled as "NWLink", rather than "NBIPX",
-	 * should it be a separate protocol?
-	 */
-	if (check_col(pinfo->fd, COL_PROTOCOL))
-		col_set_str(pinfo->fd, COL_PROTOCOL, "NWLink");
-
-	if (check_col(pinfo->fd, COL_INFO)) {
-		/*
-		 * XXX - Microsoft Network Monitor thinks that the octet
-		 * at 32 is a packet type, e.g. "mailslot write" for
-		 * browser announcements, and that the octet at 33 is a
-		 * name type, in the sense of the 16th byte of a
-		 * NetBIOS name.
-		 *
-		 * A name type of 2 shows up in a "host announcement",
-		 * and a name type of 3 shows up in a "local master
-		 * annoumcement", so maybe that field really *is* a
-		 * name type - the fact that it's not associated with
-		 * any of the NetBIOS names in the packet nonwithstanding.
-		 *
-		 * I haven't seen any packets with the name type octet
-		 * being anything other than 2 or 3, so I don't know
-		 * whether those are name service operations; however,
-		 * given that NWLink, unlike socket-0x0455 NBIPX,
-		 * has separate sockets for name queries and datagrams,
-		 * it may be that this really is a name type, and that
-		 * these are all datagrams, not name queries.
-		 */
-		switch (packet_type) {
-		case NWLINK_NAME_QUERY:
-			col_add_fstr(pinfo->fd, COL_INFO, "Name Query for %s<%02x>",
-					name, name_type);
-			break;
-
-		case NWLINK_SMB:
-			/* Session? */
-			col_add_fstr(pinfo->fd, COL_INFO, "SMB over NBIPX");
-			break;
-
-		case NWLINK_NETBIOS_DATAGRAM:
-			/* Datagram? (Where did we see this?) */
-			col_add_fstr(pinfo->fd, COL_INFO, "NetBIOS datagram over NBIPX");
-			break;
-				
-		default:
-			col_set_str(pinfo->fd, COL_INFO, "NetBIOS over IPX (NWLink)");
-			break;
-		}
-	}
-
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_nbipx, tvb, offset, 68, FALSE);
-		nbipx_tree = proto_item_add_subtree(ti, ett_nbipx);
-
-		add_routers(nbipx_tree, tvb, offset);
-
-		/*
-		 * XXX - is "packet_type" really a packet type?  See
-		 * above.
-		 */
-		if (packet_type != NWLINK_SMB &&
-		      packet_type != NWLINK_NETBIOS_DATAGRAM) {
-			tf = proto_tree_add_text(nbipx_tree, tvb, offset+32, 1,
-				"Name type flag: 0x%02x",
-				name_type_flag);
-			name_type_flag_tree = proto_item_add_subtree(tf,
-					ett_nbipx_name_type_flags);
-			proto_tree_add_text(name_type_flag_tree, tvb, offset+32,
-			    1, "%s",
-			    decode_boolean_bitfield(name_type_flag, 0x80, 8,
-			      "Group name", "Unique name"));
-			proto_tree_add_text(name_type_flag_tree, tvb, offset+32,
-			    1, "%s",
-			    decode_boolean_bitfield(name_type_flag, 0x40, 8,
-			      "Name in use", "Name not used"));
-			proto_tree_add_text(name_type_flag_tree, tvb, offset+32,
-			    1, "%s",
-			    decode_boolean_bitfield(name_type_flag, 0x04, 8,
-			      "Name registered", "Name not registered"));
-			proto_tree_add_text(name_type_flag_tree, tvb, offset+32,
-			    1, "%s",
-			    decode_boolean_bitfield(name_type_flag, 0x02, 8,
-			      "Name duplicated", "Name not duplicated"));
-			proto_tree_add_text(name_type_flag_tree, tvb, offset+32,
-			    1, "%s",
-			    decode_boolean_bitfield(name_type_flag, 0x01, 8,
-			      "Name deregistered", "Name not deregistered"));
-
-			netbios_add_name("Group name", tvb, offset+36,
-			    nbipx_tree);
-			netbios_add_name("Node name", tvb, offset+52,
-			    nbipx_tree);
-			proto_tree_add_text(nbipx_tree, tvb, offset+33, 1,
-			    "Packet Type: %s (%02X)",
-			    val_to_str(packet_type, nwlink_data_stream_type_vals, "Unknown"),
-			    packet_type);
-		} else {
-			proto_tree_add_text(nbipx_tree, tvb, offset+32, 1,
-			    "Packet type: 0x%02x", name_type_flag);
-			proto_tree_add_text(nbipx_tree, tvb, offset+33, 1,
-			    "Name Type: %s (0x%02x)",
-			    netbios_name_type_descr(packet_type),
-			    packet_type);
-			proto_tree_add_text(nbipx_tree, tvb, offset+34, 2,
-			    "Message ID: 0x%04x",
-			    tvb_get_letohs(tvb, offset+34));
-			netbios_add_name("Requested name", tvb, offset+36,
-			    nbipx_tree);
-			netbios_add_name("Source name", tvb, offset+52,
-			    nbipx_tree);
-		}
-	}
-
-	offset += 68;
-
-	if (tvb_offset_exists(tvb, offset)) {
-		next_tvb = tvb_new_subset(tvb, offset, -1, -1);
-
-		switch (packet_type) {
-		case NWLINK_SMB:
-		case NWLINK_NETBIOS_DATAGRAM:
-			tvb_compat(next_tvb, &next_pd, &next_offset);
-			dissect_smb(next_pd, next_offset, pinfo->fd, tree,
-			    tvb_length(next_tvb));
-			break;
-				
-		default:
-			dissect_data(next_tvb, 0, pinfo, tree);
-			break;
-		}
+		proto_tree_add_text(tree, tvb, offset, 1,
+				"Packet Type: %s (%02X)",
+				val_to_str(packet_type, nbipx_data_stream_type_vals, "Unknown"),
+				packet_type);
 	}
 }
 
@@ -478,13 +537,275 @@ proto_register_nbipx(void)
 	    "NBIPX", "nbipx");
  /*       proto_register_field_array(proto_nbipx, hf, array_length(hf));*/
 	proto_register_subtree_array(ett, array_length(ett));
-
-	register_dissector("nbipx", dissect_nbipx, proto_nbipx);
 }
 
 void
 proto_reg_handoff_nbipx(void)
 {
-	dissector_add("ipx.socket", IPX_SOCKET_NWLINK_SMB_DGRAM,
-	    dissect_nwlink_dg, proto_nbipx);
+	dissector_add("ipx.socket", IPX_SOCKET_NETBIOS, dissect_nbipx,
+	    proto_nbipx);
+}
+
+/*
+ * Microsoft appear to have something they call "direct hosting", where
+ * SMB - and, I infer, related stuff, such as name resolution - runs
+ * directly over IPX.  (In Windows 2000, they also run SMB directly over
+ * TCP, on port 445, and that also appears to be called "direct hosting".
+ * Ethereal handles SMB-over-TCP.)
+ *
+ * The document at
+ *
+ *	http://support.microsoft.com/support/kb/articles/q203/0/51.asp
+ *
+ * speaks of NMPI - the "Name Management Protocol on IPX" - as being
+ * "Microsoft's protocol for name management support when you use IPX
+ * without the NetBIOS interface," and says that "This process of routing
+ * the SMB protocol directly through IPX is known as Direct Hosting."
+ *
+ * It speaks of IPX socket 0x551 as being for NMPI; we define it as
+ * IPX_SOCKET_NWLINK_SMB_NAMEQUERY.
+ *
+ * We also define IPX_SOCKET_NWLINK_SMB_DGRAM as 0x0553 and define
+ * IPX_SOCKET_NWLINK_SMB_BROWSE as 0x0555 (with a "? not sure on this"
+ * comment after the latter one).
+ *
+ * We have seen at least some browser announcements on IPX socket 0x553;
+ * those are WAN broadcast packets, complete with 8 IPX network
+ * numbers, and with the header containing the usual two NetBIOS names
+ * that show up in NetBIOS datagrams.
+ *
+ * Network Monitor calls those packets NMPI packets, even though they're
+ * on socket 0x553, not socket 0x551, and contain SMB datagrams, not name
+ * resolution packets.
+ *
+ * At least some of this is discussed in the "SMBPUB.DOC" Word document
+ * stored in
+ *
+ *	ftp://ftp.microsoft.com/developr/drg/CIFS/smbpub.zip
+ *
+ * which can also be found in text form at
+ *
+ *	http://www.samba.org/samba/ftp/specs/smbpub.txt
+ *
+ * which says that for "connectionless IPX transport" the sockets that
+ * are used are:
+ *
+ *	SMB_SERVER_SOCKET (0x550) - SMB requests from clients
+ *	SMB_NAME_SOCKET (0x551) - name claims and name query messages
+ *	REDIR_SOCKET (0x552) - used by the redirector (client) for
+ *		sending SMB requests and receiving SMB replies
+ *	MAILSLOT_SOCKET (0x553) - used by the redirector and browser
+ * 		for mailslot datagrams
+ *	MESSENGER_SOCKET (0x554) - used by the redirector to send
+ *		messages from client to client		
+ *
+ * Name claim/query packets, and mailslot datagrams, are:
+ *
+ *	8 IPX network addresses
+ *	1 byte of opcode
+ *	1 byte of name type
+ * 	2 bytes of message ID
+ *	16 bytes of name being sought or claimed
+ *	16 bytes of requesting machine
+ *
+ * The opcode is one of:
+ *
+ *	INAME_CLAIM (0xf1) - server name claim message
+ *	INAME_DELETE (0xf2) - relinquish server name
+ *	INAME_QUERY (0xf3) - locate server name
+ *	INAME_FOUND (0xf4) - response to INAME_QUERY
+ *	IMSG_HANGUP (0xf5) - messenger hangup
+ *	IMSLOT_SEND (0xfc) - mailslot write
+ *	IMSLOT_FIND (0xfd) - find name for mailslot write
+ *	IMSLOT_NAME (0xfe) - response to IMSLOT_FIND
+ *
+ * The name type is one of:
+ *
+ *	INTYPE_MACHINE	1
+ *	INTYPE_WKGROUP	2
+ *	INTYPE_BROWSER	3
+ */
+static int proto_nmpi = -1;
+
+static gint ett_nmpi = -1;
+static gint ett_nmpi_name_type_flags = -1;
+
+/*
+ * Opcodes.
+ */
+#define	INAME_CLAIM	0xf1
+#define INAME_DELETE	0xf2
+#define INAME_QUERY	0xf3
+#define INAME_FOUND	0xf4
+#define IMSG_HANGUP	0xf5
+#define	IMSLOT_SEND	0xfc
+#define IMSLOT_FIND	0xfd
+#define IMSLOT_NAME	0xfe
+
+static const value_string nmpi_opcode_vals[] = {
+	{INAME_CLAIM,	"Claim name"},
+	{INAME_DELETE,	"Delete name"},
+	{INAME_QUERY,	"Query name"},
+	{INAME_FOUND,	"Name found"},
+	{IMSG_HANGUP,	"Messenger hangup"},
+	{IMSLOT_SEND,	"Mailslot write"},
+	{IMSLOT_FIND,	"Find mailslot name"},
+	{IMSLOT_NAME,	"Mailslot name found"},
+	{0,		NULL}
+};
+
+/*
+ * Name types.
+ */
+#define INTYPE_MACHINE		1
+#define INTYPE_WORKGROUP	2
+#define INTYPE_BROWSER		3
+
+static const value_string nmpi_name_type_vals[] = {
+	{INTYPE_MACHINE,	"Machine"},
+	{INTYPE_WORKGROUP,	"Workgroup"},
+	{INTYPE_BROWSER,	"Browser"},
+	{0,			NULL}
+};
+
+static void
+dissect_nmpi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	proto_tree	*nmpi_tree = NULL;
+	proto_item	*ti;
+	int		offset = 0;
+	guint8		opcode;
+	guint8		nmpi_name_type;
+	char		name[(NETBIOS_NAME_LEN - 1)*4 + 1];
+	int		name_type;
+	char		node_name[(NETBIOS_NAME_LEN - 1)*4 + 1];
+	int		node_name_type = 0;
+	tvbuff_t	*next_tvb;
+	const guint8	*next_pd;
+	int		next_offset;
+
+	if (check_col(pinfo->fd, COL_PROTOCOL))
+		col_set_str(pinfo->fd, COL_PROTOCOL, "NMPI");
+	if (check_col(pinfo->fd, COL_INFO))
+		col_clear(pinfo->fd, COL_INFO);
+
+	if (tree) {
+		ti = proto_tree_add_item(tree, proto_nmpi, tvb, offset, 68,
+		    FALSE);
+		nmpi_tree = proto_item_add_subtree(ti, ett_nmpi);
+
+		add_routers(nmpi_tree, tvb, offset);
+	}
+	offset += 32;
+
+	/*
+	 * XXX - we don't use "node_name" or "node_name_type".
+	 */
+	opcode = tvb_get_guint8(tvb, offset);
+	nmpi_name_type = tvb_get_guint8(tvb, offset+1);
+	name_type = get_netbios_name(tvb, offset+4, name);
+	node_name_type = get_netbios_name(tvb, offset+20, node_name);
+
+	if (check_col(pinfo->fd, COL_INFO)) {
+		switch (opcode) {
+
+		case INAME_CLAIM:
+			col_add_fstr(pinfo->fd, COL_INFO, "Claim name %s<%02x>",
+					name, name_type);
+			break;
+
+		case INAME_DELETE:
+			col_add_fstr(pinfo->fd, COL_INFO, "Delete name %s<%02x>",
+					name, name_type);
+			break;
+
+		case INAME_QUERY:
+			col_add_fstr(pinfo->fd, COL_INFO, "Query name %s<%02x>",
+					name, name_type);
+			break;
+
+		case INAME_FOUND:
+			col_add_fstr(pinfo->fd, COL_INFO, "Name %s<%02x> found",
+					name, name_type);
+			break;
+
+		case IMSG_HANGUP:
+			col_add_fstr(pinfo->fd, COL_INFO,
+			    "Messenger hangup on %s<%02x>", name, name_type);
+			break;
+
+		case IMSLOT_SEND:
+			col_add_fstr(pinfo->fd, COL_INFO,
+			    "Mailslot write to %s<%02x>", name, name_type);
+			break;
+
+		case IMSLOT_FIND:
+			col_add_fstr(pinfo->fd, COL_INFO,
+			    "Find mailslot name %s<%02x>", name, name_type);
+			break;
+
+		case IMSLOT_NAME:
+			col_add_fstr(pinfo->fd, COL_INFO,
+			    "Mailslot name %s<%02x> found", name, name_type);
+			break;
+
+		default:
+			col_add_fstr(pinfo->fd, COL_INFO,
+			    "Unknown NMPI op 0x%02x: name %s<%02x>",
+			    opcode, name, name_type);
+			break;
+		}
+	}
+
+	if (tree) {
+		proto_tree_add_text(nmpi_tree, tvb, offset, 1,
+		    "Opcode: %s (0x%02x)",
+		    val_to_str(opcode, nmpi_opcode_vals, "Unknown"),
+		    opcode);
+		proto_tree_add_text(nmpi_tree, tvb, offset+1, 1,
+		    "Name Type: %s (0x%02x)",
+		    val_to_str(nmpi_name_type, nmpi_name_type_vals, "Unknown"),
+		    nmpi_name_type);
+		proto_tree_add_text(nmpi_tree, tvb, offset+2, 2,
+		    "Message ID: 0x%04x",
+		    tvb_get_letohs(tvb, offset+2));
+		netbios_add_name("Requested name", tvb, offset+4, nmpi_tree);
+		netbios_add_name("Source name", tvb, offset+20, nmpi_tree);
+	}
+
+	offset += 1 + 1 + 2 + NETBIOS_NAME_LEN + NETBIOS_NAME_LEN;
+
+	if (opcode == IMSLOT_SEND && tvb_offset_exists(tvb, offset)) {
+		next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+		tvb_compat(next_tvb, &next_pd, &next_offset);
+		dissect_smb(next_pd, next_offset, pinfo->fd, tree,
+		    tvb_length(next_tvb));
+	}
+}
+
+void
+proto_register_nmpi(void)
+{
+/*        static hf_register_info hf[] = {
+                { &variable,
+                { "Name",           "nmpi.abbreviation", TYPE, VALS_POINTER }},
+        };*/
+	static gint *ett[] = {
+		&ett_nmpi,
+		&ett_nmpi_name_type_flags,
+	};
+
+        proto_nmpi = proto_register_protocol("Name Management Protocol over IPX",
+	    "NMPI", "nmpi");
+ /*       proto_register_field_array(proto_nmpi, hf, array_length(hf));*/
+	proto_register_subtree_array(ett, array_length(ett));
+}
+
+void
+proto_reg_handoff_nmpi(void)
+{
+	dissector_add("ipx.socket", IPX_SOCKET_NWLINK_SMB_NAMEQUERY,
+	    dissect_nmpi, proto_nmpi);
+	dissector_add("ipx.socket", IPX_SOCKET_NWLINK_SMB_MAILSLOT,
+	    dissect_nmpi, proto_nmpi);
 }

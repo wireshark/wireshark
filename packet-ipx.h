@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-ipx.h,v 1.11 2001/01/09 09:59:28 guy Exp $
+ * $Id: packet-ipx.h,v 1.12 2001/02/27 07:28:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -126,8 +126,11 @@ struct ipx_rip_packet
 #define IPX_SOCKET_NETBIOS		0x0455
 #define IPX_SOCKET_DIAGNOSTIC		0x0456
 #define IPX_SOCKET_SERIALIZATION	0x0457
+#define IPX_SOCKET_NWLINK_SMB_SERVER	0x0550
 #define IPX_SOCKET_NWLINK_SMB_NAMEQUERY	0x0551
-#define IPX_SOCKET_NWLINK_SMB_DGRAM	0x0553
+#define IPX_SOCKET_NWLINK_SMB_REDIR	0x0552
+#define IPX_SOCKET_NWLINK_SMB_MAILSLOT	0x0553
+#define IPX_SOCKET_NWLINK_SMB_MESSENGER	0x0554
 #define IPX_SOCKET_NWLINK_SMB_BROWSE	0x0555 /* ? not sure on this
 	but I guessed based on the content of the packet I saw */
 #define IPX_SOCKET_ATTACHMATE_GW	0x055d

@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-ipx.c,v 1.77 2001/01/22 00:20:29 guy Exp $
+ * $Id: packet-ipx.c,v 1.78 2001/02/27 07:28:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -73,8 +73,6 @@ static gint ett_ipx = -1;
 static dissector_table_t ipx_type_dissector_table;
 static dissector_table_t ipx_socket_dissector_table;
 
-static dissector_handle_t nbipx_handle;
-
 static int proto_spx = -1;
 static int hf_spx_connection_control = -1;
 static int hf_spx_datastream_type = -1;
@@ -131,8 +129,11 @@ static const value_string ipx_socket_vals[] = {
 	{ IPX_SOCKET_NETBIOS,			"NetBIOS" },
 	{ IPX_SOCKET_DIAGNOSTIC,		"Diagnostic" },
 	{ IPX_SOCKET_SERIALIZATION,		"Serialization" },
+	{ IPX_SOCKET_NWLINK_SMB_SERVER,		"NWLink SMB Server" },
 	{ IPX_SOCKET_NWLINK_SMB_NAMEQUERY,	"NWLink SMB Name Query" },
-	{ IPX_SOCKET_NWLINK_SMB_DGRAM,		"NWLink SMB Datagram" },
+	{ IPX_SOCKET_NWLINK_SMB_REDIR,		"NWLink SMB Redirector" },
+	{ IPX_SOCKET_NWLINK_SMB_MAILSLOT,	"NWLink SMB Mailslot Datagram" },
+	{ IPX_SOCKET_NWLINK_SMB_MESSENGER,	"NWLink SMB Messenger" },
 	{ IPX_SOCKET_NWLINK_SMB_BROWSE,		"NWLink SMB Browse" },
 	{ IPX_SOCKET_ATTACHMATE_GW,		"Attachmate Gateway" },
 	{ IPX_SOCKET_IPX_MESSAGE,		"IPX Message" },
@@ -363,21 +364,10 @@ dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    pinfo, tree))
 		return;
 
-	switch (ipx_type) {
-		case IPX_PACKET_TYPE_WANBCAST:
-		case IPX_PACKET_TYPE_PEP:
-			if (ipx_dsocket == IPX_SOCKET_NETBIOS) {
-				call_dissector(nbipx_handle, next_tvb, pinfo,
-				    tree);
-				return;
-			}
-			/* else fall through */
-
-		case 0: /* IPX, fall through to default */
-			/* XXX - should type 0's be dissected as NBIPX
-			   if they're aimed at the NetBIOS socket? */
-			break;
-	}
+	/*
+	 * Let the subdissector know what type of IPX packet this is.
+	 */
+	pinfo->ipxptype = ipx_type;
 
 	if (dissector_try_port(ipx_socket_dissector_table, ipx_dsocket,
 	    next_tvb, pinfo, tree))
@@ -901,11 +891,6 @@ proto_register_ipx(void)
 void
 proto_reg_handoff_ipx(void)
 {
-	/*
-	 * Get handle for the NBIPX dissector.
-	 */
-	nbipx_handle = find_dissector("nbipx");
-
 	dissector_add("udp.port", UDP_PORT_IPX, dissect_ipx, proto_ipx);
 	dissector_add("ethertype", ETHERTYPE_IPX, dissect_ipx, proto_ipx);
 	dissector_add("fr.cisco", ETHERTYPE_IPX, dissect_ipx, proto_ipx);
