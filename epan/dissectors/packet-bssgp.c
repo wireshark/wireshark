@@ -506,8 +506,6 @@ static gint16
 make_mask(guint8 num_bits, guint8 shift_value) {
   guint16 mask;
 
-  g_assert(num_bits < 9);
-
   switch (num_bits) {
   case 0: mask = 0x0000; break;
   case 1: mask = 0x8000; break;
@@ -518,6 +516,7 @@ make_mask(guint8 num_bits, guint8 shift_value) {
   case 6: mask = 0xfc00; break;
   case 7: mask = 0xfe00; break;
   case 8: mask = 0xff00; break;
+  default: g_assert_not_reached(); mask = 0; break;
   }
   return mask >> shift_value;
 }
@@ -1147,6 +1146,7 @@ translate_msrac_high_multislot_capability(guint8 capability, guint8 class) {
     }
   }
   g_assert_not_reached();
+  return 0;
 }
 
 static char*
@@ -1158,6 +1158,7 @@ translate_channel_needed(guint8 value) {
   case 3: return "TCH/H or TCH/F (Dual rate)";
   }
   g_assert_not_reached();
+  return NULL;
 }
 
 static proto_item* 
@@ -1191,8 +1192,8 @@ decode_mobile_identity(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   const guint8 MASK_ODD_EVEN_INDICATION = 0x08;
   const guint8 MASK_TYPE_OF_IDENTITY = 0x07;
   const guint8 ODD = 1;
-  proto_item *ti, *pi;
-  proto_tree *tf;
+  proto_item *ti = NULL, *pi;
+  proto_tree *tf = NULL;
   guint8 data, odd_even, type, num_digits, i, hf_id;
   guint32 tmsi;
   guint8 digits[MAX_NUM_IMSI_DIGITS];
@@ -1263,7 +1264,29 @@ decode_mobile_identity(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
 	proto_item_append_text(ti, "%u", digits[i]);
 	g_snprintf(&digits_str[i], 2, "%u", digits[i]);
       }
+      switch (type) {
+      case BSSGP_MOBILE_IDENTITY_TYPE_IMSI:
+        hf_id = hf_bssgp_imsi;
+        break;
+      case BSSGP_MOBILE_IDENTITY_TYPE_IMEI:
+        hf_id = hf_bssgp_imei;
+        break;
+      case BSSGP_MOBILE_IDENTITY_TYPE_IMEISV:
+        hf_id = hf_bssgp_imeisv;
+        break;
+      default:
+        g_assert_not_reached();
+        hf_id = -1;
+        break;
+      }
+      proto_tree_add_string(tf, hf_id, bi->tvb, 0, num_digits, digits_str);
     } 
+    if (check_col(bi->pinfo->cinfo, COL_INFO)) {
+      col_append_sep_fstr(bi->pinfo->cinfo, COL_INFO, BSSGP_SEP, "%s %s", 
+			  val_to_str(type, tab_type_of_identity, 
+				     "Mobile identity unknown"),
+			  digits_str);
+    }
     break;
   case BSSGP_MOBILE_IDENTITY_TYPE_TMSI_PTMSI:
     tmsi = tvb_get_ntohl(bi->tvb, bi->offset);
@@ -1282,24 +1305,6 @@ decode_mobile_identity(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   default:
     ;    
   };
-
-  if (bi->bssgp_tree) {
-    switch (type) {
-    case BSSGP_MOBILE_IDENTITY_TYPE_IMSI: hf_id = hf_bssgp_imsi; break;
-    case BSSGP_MOBILE_IDENTITY_TYPE_IMEI: hf_id = hf_bssgp_imei; break;
-    case BSSGP_MOBILE_IDENTITY_TYPE_IMEISV: hf_id = hf_bssgp_imeisv; break;
-    default: ;
-    }
-    proto_tree_add_string(tf, hf_id, bi->tvb, 0, num_digits, digits_str);
-  }
-  if (type != BSSGP_MOBILE_IDENTITY_TYPE_TMSI_PTMSI) {
-    if (check_col(bi->pinfo->cinfo, COL_INFO)) {
-      col_append_sep_fstr(bi->pinfo->cinfo, COL_INFO, BSSGP_SEP, "%s %s", 
-			  val_to_str(type, tab_type_of_identity, 
-				     "Mobile identity unknown"),
-			  digits_str);
-    }
-  }
 #undef MAX_NUM_IMSI_DIGITS
 }
 
@@ -1548,7 +1553,7 @@ decode_simple_ie(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset,
   case 2: value = tvb_get_ntohs(bi->tvb, bi->offset); break;
   case 3: value = tvb_get_ntoh24(bi->tvb, bi->offset); break;
   case 4: value = tvb_get_ntohl(bi->tvb, bi->offset); break;
-  default: ;
+  default: value = 0; break;
   }
 
   if (bi->bssgp_tree) {
@@ -2415,7 +2420,6 @@ static void
 decode_msrac_value_part(proto_tree *tree, tvbuff_t *tvb, guint64 bo) {
   /* No need to check bi->bssgp_tree here */
   const guint8 ADD_ACC_TECHN = 0x0f;
-  guint32 value_part_len;
   guint8 att, length, bit, bl;
   proto_item *ti, *ti2, *pi;
   proto_tree *tf, *tf2;
@@ -2447,18 +2451,16 @@ decode_msrac_value_part(proto_tree *tree, tvbuff_t *tvb, guint64 bo) {
     ti2 = bit_proto_tree_add_text(tf, tvb, bo, length,
 				  "Additional Access Technologies");
     tf2 = proto_item_add_subtree(ti2, ett_bssgp_msrac_additional_access_technologies);
-    value_part_len = get_num_octets_spanned(start_bo, 4 + 7 + length + 1 + 1);
+    proto_item_set_len(ti, get_num_octets_spanned(start_bo, 4 + 7 + length + 1 + 1));
     decode_msrac_additional_access_technologies(tf2, tvb, bo, length);
   }
   else if (att <= 0x0b) { 
     ti2 = bit_proto_tree_add_text(tf, tvb, bo, length, "Access Capabilities");
     tf2 = proto_item_add_subtree(ti2, ett_bssgp_msrac_access_capabilities);
-    value_part_len = get_num_octets_spanned(start_bo, 4 + 7 + length + 1);
+    proto_item_set_len(ti, get_num_octets_spanned(start_bo, 4 + 7 + length + 1));
     decode_msrac_access_capabilities(tf2, tvb, bo, length); 
   }
   /* else unknown Access Technology Type */
-
-  proto_item_set_len(ti, value_part_len);
 
   bo += length;
   bit = tvb_get_bits8(tvb, bo, 1);
