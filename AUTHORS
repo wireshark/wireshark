@@ -1276,6 +1276,7 @@ Kan Sasaki <sasaki[AT]fcc.ad.jp> {
 
 Stefan Wenk <stefan.wenk[AT]gmx.at> {
 	SIP heuristic dissector
+	Filterable header fields in SIP dissector
 }
 
 Ruud Linders <ruud[AT]lucent.com> {
