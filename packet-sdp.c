@@ -4,7 +4,7 @@
  * Jason Lango <jal@netapp.com>
  * Liberally copied from packet-http.c, by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-sdp.c,v 1.39 2003/12/07 03:46:04 guy Exp $
+ * $Id: packet-sdp.c,v 1.40 2003/12/31 09:47:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -324,7 +324,8 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					         linelen - tokenoffset));
 		g_free(string);
 		call_sdp_subdissector(tvb_new_subset(tvb,offset+tokenoffset,
-						     linelen-tokenoffset,-1),
+						     linelen-tokenoffset,
+						     linelen-tokenoffset),
 				      hf,sub_ti,&transport_info),
 		offset = next_offset;
 	}
