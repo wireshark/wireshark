@@ -2,7 +2,7 @@
  * Routines for MSN Messenger Service packet dissection
  * Copyright 2003, Chris Waters <chris@waters.co.nz>
  *
- * $Id: packet-msn-messenger.c,v 1.3 2003/02/13 23:49:19 jmayer Exp $
+ * $Id: packet-msn-messenger.c,v 1.4 2004/02/19 20:27:43 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -146,4 +146,8 @@ proto_reg_handoff_msnms(void)
   msnms_handle = create_dissector_handle(dissect_msnms, proto_msnms);
   dissector_add("tcp.port", TCP_PORT_MSNMS, msnms_handle);
   data_handle = find_dissector("data");
+  /*
+   * For MSN Messenger Protocol over HTTP
+   */
+  dissector_add_string("media_type", "application/x-msn-messenger", msnms_handle);
 }
