@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.25 2001/04/23 01:19:39 guy Exp $
+ * $Id: proto.c,v 1.26 2001/05/07 21:06:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1524,7 +1524,11 @@ proto_item_set_text(proto_item *pi, const char *format, ...)
 void
 proto_item_set_len(proto_item *pi, gint length)
 {
-	field_info *fi = (field_info*) (((GNode*)pi)->data);
+	field_info *fi;
+	
+	if (pi == NULL)
+		return;
+	fi = (field_info*) (((GNode*)pi)->data);
 	fi->length = length;
 }
 
