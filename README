@@ -1,4 +1,4 @@
-$Id: README,v 1.57 2002/05/20 19:13:20 guy Exp $
+$Id: README,v 1.58 2002/05/29 19:16:40 guy Exp $
 
 General Information
 ------- -----------
@@ -167,13 +167,23 @@ Script done on <date/time>
 IPv6
 ----
 If your operating system includes IPv6 support, ethereal will attempt to
-use reverse name resolution capabilities when decoding IPv6 packets. If
-you want to turn off name resolution while using ethereal, start ethereal
-with the "-n" option. If you would like to compile ethereal without
-support for IPv6 name resolution, use the "--disable-ipv6" option with
-"./configure". If you compile ethereal without IPv6 name resolution,
-you will still be able to decode IPv6 packets, but you'll only see IPv6
-addresses, not host names.
+use reverse name resolution capabilities when decoding IPv6 packets.
+
+If you want to turn off name resolution while using ethereal, start
+ethereal with the "-n" option to turn off all name resolution (including
+resolution of MAC addresses and TCP/UDP/SMTP port numbers to names), or
+with the "-N mt" option to turn off name resolution for all
+network-layer addresses (IPv4, IPv6, IPX).
+
+You can make that the default setting by opening the Preferences dialog
+box using the Preferences item in the Edit menu, selecting "Name
+resolution", turning off the appropriate name resolution options,
+clicking "Save", and clicking "OK".
+
+If you would like to compile ethereal without support for IPv6 name
+resolution, use the "--disable-ipv6" option with "./configure".  If you
+compile ethereal without IPv6 name resolution, you will still be able to
+decode IPv6 packets, but you'll only see IPv6 addresses, not host names.
 
 
 SNMP
