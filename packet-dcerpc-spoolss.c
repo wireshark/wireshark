@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\spoolss packet disassembly
  * Copyright 2001-2002, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-spoolss.c,v 1.21 2002/04/29 08:20:07 guy Exp $
+ * $Id: packet-dcerpc-spoolss.c,v 1.22 2002/04/30 01:44:34 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -245,14 +245,9 @@ static int SpoolssClosePrinter_q(tvbuff_t *tvb, int offset,
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	const guint8 *policy_hnd;
 
-	/* Update informational fields */
-
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, "ClosePrinter request");
-
 	if (dcv->rep_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
-				    "Response in frame %u", dcv->rep_frame);
+				    "Reply in frame %u", dcv->rep_frame);
 	/* Parse packet */
 
 	offset = prs_policy_hnd(tvb, offset, pinfo, NULL, &policy_hnd);
@@ -273,11 +268,6 @@ static int SpoolssClosePrinter_r(tvbuff_t *tvb, int offset,
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	const guint8 *policy_hnd;
-
-	/* Update informational fields */
-
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, "ClosePrinter response");
 
 	if (dcv->req_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
@@ -361,14 +351,9 @@ static int SpoolssGetPrinterData_q(tvbuff_t *tvb, int offset,
 	char *value_name = NULL;
 	const guint8 *policy_hnd;
 
-	/* Update informational fields */
-
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, "GetPrinterData request");
-
 	if (dcv->rep_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
-				    "Response in frame %u", dcv->rep_frame);
+				    "Reply in frame %u", dcv->rep_frame);
 
 	/* Parse packet */
 
@@ -399,11 +384,6 @@ static int SpoolssGetPrinterData_r(tvbuff_t *tvb, int offset,
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	guint32 size, type;
-
-	/* Update information fields */
-
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, "GetPrinterData response");
 
 	if (dcv->req_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
@@ -442,14 +422,9 @@ static int SpoolssGetPrinterDataEx_q(tvbuff_t *tvb, int offset,
 	char *key_name, *value_name;
 	const guint8 *policy_hnd;
 
-	/* Update informational fields */
-
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, "GetPrinterDataEx request");
-
 	if (dcv->rep_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
-				    "Response in frame %u", dcv->rep_frame);
+				    "Reply in frame %u", dcv->rep_frame);
 
 	/* Parse packet */
 
@@ -501,11 +476,6 @@ static int SpoolssGetPrinterDataEx_r(tvbuff_t *tvb, int offset,
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	guint32 size, type;
 
-	/* Update informational fields */
-
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, "GetPrinterDataEx response");
-
 	if (dcv->req_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
 				    "Request in frame %u", dcv->req_frame);
@@ -544,14 +514,9 @@ static int SpoolssSetPrinterData_q(tvbuff_t *tvb, int offset,
 	guint32 type, max_len;
 	const guint8 *policy_hnd;
 
-	/* Update informational fields */
-
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, "SetPrinterData request");
-
 	if (dcv->rep_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
-				    "Response in frame %u", dcv->rep_frame);
+				    "Reply in frame %u", dcv->rep_frame);
 
 	/* Parse packet */
 
@@ -592,11 +557,6 @@ static int SpoolssSetPrinterData_r(tvbuff_t *tvb, int offset,
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 
-	/* Update informational fields */
-
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, "SetPrinterData response");
-
 	if (dcv->req_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
 				    "Request in frame %u", dcv->req_frame);
@@ -624,14 +584,9 @@ static int SpoolssSetPrinterDataEx_q(tvbuff_t *tvb, int offset,
 	guint32 type, max_len;
 	const guint8 *policy_hnd;
 
-	/* Update informational fields */
-
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, "SetPrinterDataEx request");
-
 	if (dcv->rep_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
-				    "Response in frame %u", dcv->rep_frame);
+				    "Reply in frame %u", dcv->rep_frame);
 
 	/* Parse packet */
 
@@ -677,11 +632,6 @@ static int SpoolssSetPrinterDataEx_r(tvbuff_t *tvb, int offset,
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
-
-	/* Update informational fields */
-
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, "SetPrinterDataEx response");
 
 	if (dcv->req_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
@@ -1189,14 +1139,9 @@ static int SpoolssOpenPrinterEx_q(tvbuff_t *tvb, int offset,
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	guint32 ptr = 0;
 
-	/* Update informational fields */
-
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, "OpenPrinterEx request");
-
 	if (dcv->rep_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
-				    "Response in frame %u", dcv->rep_frame);
+				    "Reply in frame %u", dcv->rep_frame);
 
 	/* Parse packet */
 
@@ -1214,7 +1159,7 @@ static int SpoolssOpenPrinterEx_q(tvbuff_t *tvb, int offset,
 			col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
 					printer_name);
 		
-		/* Store printer name to match with response packet */
+		/* Store printer name to match with reply packet */
 
 		dcv->private_data = printer_name;
 	}
@@ -1240,11 +1185,6 @@ static int SpoolssOpenPrinterEx_r(tvbuff_t *tvb, int offset,
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	guint32 status;
 	const guint8 *policy_hnd;
-
-	/* Display informational data */
-
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, "OpenPrinterEx response");
 
 	if (dcv->req_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
@@ -1418,14 +1358,9 @@ static int SpoolssRFFPCNEX_q(tvbuff_t *tvb, int offset,
 	guint32 ptr = 0;
 	const guint8 *policy_hnd;
 
-	/* Update informational fields */
-
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, "RFFPCNEX request");
-
 	if (dcv->rep_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
-				    "Response in frame %u", dcv->rep_frame);
+				    "Reply in frame %u", dcv->rep_frame);
 
 	/* Parse packet */
 
@@ -1473,11 +1408,6 @@ static int SpoolssRFFPCNEX_r(tvbuff_t *tvb, int offset,
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 
-	/* Update informational fields */
-
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, "RFFPCNEX response");
-
 	if (dcv->req_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
 				    "Request in frame %u", dcv->req_frame);
@@ -1503,14 +1433,9 @@ static int SpoolssReplyOpenPrinter_q(tvbuff_t *tvb, int offset,
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	guint32 type;
 
-	/* Update informational fields */
-
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, "ReplyOpenPrinter request");
-
 	if (dcv->rep_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
-				    "Response in frame %u", dcv->rep_frame);
+				    "Reply in frame %u", dcv->rep_frame);
 
 	/* Parse packet */
 
@@ -1540,11 +1465,6 @@ static int SpoolssReplyOpenPrinter_r(tvbuff_t *tvb, int offset,
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	const guint8 *policy_hnd;
-
-	/* Update informational fields */
-
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, "ReplyOpenPrinter response");
 
 	if (dcv->req_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
@@ -1656,14 +1576,9 @@ static int SpoolssGetPrinter_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	guint32 level;
 	const guint8 *policy_hnd;
 
-	/* Update informational fields */
-
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, "GetPrinter request");
-
 	if (dcv->rep_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
-				    "Response in frame %u", dcv->rep_frame);
+				    "Reply in frame %u", dcv->rep_frame);
 
 	/* Parse packet */
 
@@ -1697,11 +1612,6 @@ static int SpoolssGetPrinter_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	void **data_list;
 	struct BUFFER_DATA *bd = NULL;
 	gint16 level = (guint32)dcv->private_data;
-
-	/* Update informational fields */
-
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, "GetPrinter response");
 
 	if (dcv->req_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
@@ -1799,14 +1709,9 @@ static int SpoolssSetPrinter_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	guint32 level;
 	const guint8 *policy_hnd;
 
-	/* Update informational fields */
-
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, "SetPrinter request");
-
 	if (dcv->rep_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
-				    "Response in frame %u", dcv->rep_frame);
+				    "Reply in frame %u", dcv->rep_frame);
 
 	/* Parse packet */
 
@@ -1840,11 +1745,6 @@ static int SpoolssSetPrinter_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
-
-	/* Update informational fields */
-
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, "SetPrinter response");
 
 	if (dcv->req_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
@@ -1924,14 +1824,9 @@ static int SpoolssEnumForms_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	guint32 level;
 	const guint8 *policy_hnd;
 
-	/* Update informational fields */
-
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, "EnumForms request");
-
 	if (dcv->rep_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
-				    "Response in frame %u", dcv->rep_frame);
+				    "Reply in frame %u", dcv->rep_frame);
 
 	/* Parse packet */
 
@@ -1964,11 +1859,6 @@ static int SpoolssEnumForms_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	guint32 count;
 	struct BUFFER_DATA *bd = NULL;
 	void **data_list;
-
-	/* Update informational fields */
-
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, "EnumForms response");
 
 	if (dcv->req_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
@@ -2033,14 +1923,9 @@ static int SpoolssDeletePrinter_q(tvbuff_t *tvb, int offset,
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	const guint8 *policy_hnd;
 
-	/* Update informational fields */
-
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, "DeletePrinter request");
-	
 	if (dcv->rep_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
-				    "Response in frame %u", dcv->rep_frame);
+				    "Reply in frame %u", dcv->rep_frame);
 
 	/* Parse packet */
 
@@ -2060,11 +1945,6 @@ static int SpoolssDeletePrinter_r(tvbuff_t *tvb, int offset,
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	const guint8 *policy_hnd;
-
-	/* Update informational fields */
-
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, "DeletePrinter response");
 
 	if (dcv->req_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
@@ -2095,14 +1975,9 @@ static int SpoolssAddPrinterEx_q(tvbuff_t *tvb, int offset,
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	guint32 ptr;
 	
-	/* Update informational fields */
-	
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, "AddPrinterEx request");
-	
 	if (dcv->rep_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
-				    "Response in frame %u", dcv->rep_frame);
+				    "Reply in frame %u", dcv->rep_frame);
 
 	/* Parse packet */
 	
@@ -2144,11 +2019,6 @@ static int SpoolssAddPrinterEx_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	guint32 status;
 	const guint8 *policy_hnd;
-
-	/* Update informational fields */
-
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, "AddPrinterEx response");
 
 	if (dcv->req_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
@@ -2198,14 +2068,9 @@ static int SpoolssEnumPrinterData_q(tvbuff_t *tvb, int offset,
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	const guint8 *policy_hnd;
 
-	/* Update informational fields */
-
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, "EnumPrinterData request");
-
 	if (dcv->rep_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
-				    "Response in frame %u", dcv->rep_frame);
+				    "Reply in frame %u", dcv->rep_frame);
 
 	/* Parse packet */
 
@@ -2233,11 +2098,6 @@ static int SpoolssEnumPrinterData_r(tvbuff_t *tvb, int offset,
 	guint32 data_size, type, value_size;
 	int uint16s_offset;
 	char *text;
-
-	/* Update informational fields */
-
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, "EnumPrinterData response");
 
 	if (dcv->req_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
@@ -2293,14 +2153,9 @@ static int SpoolssEnumPrinters_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	guint32 ptr, level;
 
-	/* Update informational fields */
-
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, "EnumPrinters request");
-
 	if (dcv->rep_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
-				    "Response in frame %u", dcv->rep_frame);
+				    "Reply in frame %u", dcv->rep_frame);
 
 	/* Parse packet */
 
@@ -2333,11 +2188,6 @@ static int SpoolssEnumPrinters_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 
-	/* Update informational fields */
-
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, "EnumPrinters response");
-
 	if (dcv->req_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
 				    "Request in frame %u", dcv->req_frame);
@@ -2369,14 +2219,9 @@ static int SpoolssAddPrinterDriver_q(tvbuff_t *tvb, int offset,
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 
-	/* Update informational fields */
-
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, "AddPrinterDriver request");
-
 	if (dcv->rep_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
-				    "Response in frame %u", dcv->rep_frame);
+				    "Reply in frame %u", dcv->rep_frame);
 
 	/* Parse packet */
 
@@ -2391,11 +2236,6 @@ static int SpoolssAddPrinterDriver_r(tvbuff_t *tvb, int offset,
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
-
-	/* Update informational fields */
-
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, "AddPrinterDriver response");
 
 	if (dcv->req_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
@@ -2503,14 +2343,9 @@ static int SpoolssAddForm_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	const guint8 *policy_hnd;
 	guint32 level;
 
-	/* Update informational fields */
-
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, "AddForm request");
-
 	if (dcv->rep_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
-				    "Response in frame %u", dcv->rep_frame);
+				    "Reply in frame %u", dcv->rep_frame);
 
 	/* Parse packet */
 
@@ -2523,7 +2358,7 @@ static int SpoolssAddForm_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", level %d", level);
 
-	/* Store info level to match with response packet */
+	/* Store info level to match with reply packet */
 
 	dcv->private_data = (void *)level;
 
@@ -2540,11 +2375,6 @@ static int SpoolssAddForm_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
-
-	/* Update informational fields */
-
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, "AddForm response");
 
 	if (dcv->req_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
@@ -2571,14 +2401,9 @@ static int SpoolssDeleteForm_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	const guint8 *policy_hnd;
 	char *form_name;
 
-	/* Update informational fields */
-
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, "DeleteForm request");
-
 	if (dcv->rep_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
-				    "Response in frame %u", dcv->rep_frame);
+				    "Reply in frame %u", dcv->rep_frame);
 
 	/* Parse packet */
 
@@ -2606,11 +2431,6 @@ static int SpoolssDeleteForm_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 
-	/* Update informational fields */
-
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, "DeleteForm response");
-
 	if (dcv->req_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
 				    "Request in frame %u", dcv->req_frame);
@@ -2637,14 +2457,9 @@ static int SpoolssSetForm_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	guint32 level;
 	char *form_name;
 
-	/* Update informational fields */
-
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, "SetForm request");
-
 	if (dcv->rep_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
-				    "Response in frame %u", dcv->rep_frame);
+				    "Reply in frame %u", dcv->rep_frame);
 
 	/* Parse packet */
 
@@ -2680,11 +2495,6 @@ static int SpoolssSetForm_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 
-	/* Update informational fields */
-
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, "SetForm response");
-
 	if (dcv->req_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
 				    "Request in frame %u", dcv->req_frame);
@@ -2711,14 +2521,9 @@ static int SpoolssGetForm_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	const guint8 *policy_hnd;
 	char *form_name;
 
-	/* Update informational fields */
-
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, "GetForm request");
-
 	if (dcv->rep_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
-				    "Response in frame %u", dcv->rep_frame);
+				    "Reply in frame %u", dcv->rep_frame);
 
 	/* Parse packet */
 
@@ -2759,11 +2564,6 @@ static int SpoolssGetForm_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	void **data_list;
 	struct BUFFER_DATA *bd = NULL;
-
-	/* Update informational fields */
-
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, "GetForm response");
 
 	if (dcv->req_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
@@ -2887,14 +2687,9 @@ static int SpoolssEnumJobs_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	const guint8 *policy_hnd;
 	guint32 level;
 
-	/* Update informational fields */
-
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, "EnumJobs request");
-
 	if (dcv->rep_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
-				    "Response in frame %d", dcv->rep_frame);
+				    "Reply in frame %d", dcv->rep_frame);
 
 	/* Parse packet */
 
@@ -2931,11 +2726,6 @@ static int SpoolssEnumJobs_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	void **data_list;
 	struct BUFFER_DATA *bd = NULL;
 	gint16 level = (guint32)dcv->private_data;
-
-	/* Update informational fields */
-
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, "EnumJobs response");
 
 	if (dcv->req_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
@@ -2986,14 +2776,9 @@ static int SpoolssFoo_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 
-	/* Update informational fields */
-
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, "Foo request");
-
 	if (dcv->rep_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
-				    "Response in frame %u", dcv->rep_frame);
+				    "Reply in frame %u", dcv->rep_frame);
 
 	/* Parse packet */
 
@@ -3007,11 +2792,6 @@ static int SpoolssFoo_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
-
-	/* Update informational fields */
-
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, "Foo response");
 
 	if (dcv->req_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
@@ -3031,153 +2811,168 @@ static int SpoolssFoo_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
  */
 
 static dcerpc_sub_dissector dcerpc_spoolss_dissectors[] = {
-        { SPOOLSS_ENUMPRINTERS, "SPOOLSS_ENUMPRINTERS", 
+        { SPOOLSS_ENUMPRINTERS, "EnumPrinters", 
 	  SpoolssEnumPrinters_q, SpoolssEnumPrinters_r },
-	{ SPOOLSS_OPENPRINTER, "SPOOLSS_OPENPRINTER", NULL, SpoolssGeneric_r },
-        { SPOOLSS_SETJOB, "SPOOLSS_SETJOB", NULL, SpoolssGeneric_r },
-        { SPOOLSS_GETJOB, "SPOOLSS_GETJOB", NULL, SpoolssGeneric_r },
-        { SPOOLSS_ENUMJOBS, "SPOOLSS_ENUMJOBS", 
+	{ SPOOLSS_OPENPRINTER, "OpenPrinter", 
+	  NULL, SpoolssGeneric_r },
+        { SPOOLSS_SETJOB, "SetJob", 
+	  NULL, SpoolssGeneric_r },
+        { SPOOLSS_GETJOB, "GetJob", 
+	  NULL, SpoolssGeneric_r },
+        { SPOOLSS_ENUMJOBS, "EnumJobs", 
 	  SpoolssEnumJobs_q, SpoolssEnumJobs_r },
-        { SPOOLSS_ADDPRINTER, "SPOOLSS_ADDPRINTER", NULL, SpoolssGeneric_r },
-        { SPOOLSS_DELETEPRINTER, "SPOOLSS_DELETEPRINTER", 
+        { SPOOLSS_ADDPRINTER, "AddPrinter", 
+	  NULL, SpoolssGeneric_r },
+        { SPOOLSS_DELETEPRINTER, "DeletePrinter", 
 	  SpoolssDeletePrinter_q, SpoolssDeletePrinter_r },
-        { SPOOLSS_SETPRINTER, "SPOOLSS_SETPRINTER", 
+        { SPOOLSS_SETPRINTER, "SetPrinter", 
 	  SpoolssSetPrinter_q, SpoolssSetPrinter_r },
-        { SPOOLSS_GETPRINTER, "SPOOLSS_GETPRINTER", 
+        { SPOOLSS_GETPRINTER, "GetPrinter", 
 	  SpoolssGetPrinter_q, SpoolssGetPrinter_r },
-        { SPOOLSS_ADDPRINTERDRIVER, "SPOOLSS_ADDPRINTERDRIVER", 
+        { SPOOLSS_ADDPRINTERDRIVER, "AddPrinterDriver", 
 	  NULL, SpoolssAddPrinterDriver_r },
-        { SPOOLSS_ENUMPRINTERDRIVERS, "SPOOLSS_ENUMPRINTERDRIVERS", NULL, 
-	  SpoolssGeneric_r },
-	{ SPOOLSS_GETPRINTERDRIVER, "SPOOLSS_GETPRINTERDRIVER", NULL, 
-	  SpoolssGeneric_r },
-        { SPOOLSS_GETPRINTERDRIVERDIRECTORY, 
-	  "SPOOLSS_GETPRINTERDRIVERDIRECTORY", NULL, SpoolssGeneric_r },
-        { SPOOLSS_DELETEPRINTERDRIVER, "SPOOLSS_DELETEPRINTERDRIVER", NULL, 
-	  SpoolssGeneric_r },
-        { SPOOLSS_ADDPRINTPROCESSOR, "SPOOLSS_ADDPRINTPROCESSOR", NULL, 
-	  SpoolssGeneric_r },
-        { SPOOLSS_ENUMPRINTPROCESSORS, "SPOOLSS_ENUMPRINTPROCESSORS", NULL, 
-	  SpoolssGeneric_r },
-	{ SPOOLSS_GETPRINTPROCESSORDIRECTORY,
-	  "SPOOLSS_GETPRINTPROCESSORDIRECTORY", NULL, SpoolssGeneric_r },
-        { SPOOLSS_STARTDOCPRINTER, "SPOOLSS_STARTDOCPRINTER", NULL, 
-	  SpoolssGeneric_r },
-        { SPOOLSS_STARTPAGEPRINTER, "SPOOLSS_STARTPAGEPRINTER", NULL, 
-	  SpoolssGeneric_r },
-        { SPOOLSS_WRITEPRINTER, "SPOOLSS_WRITEPRINTER", NULL, 
-	  SpoolssGeneric_r },
-        { SPOOLSS_ENDPAGEPRINTER, "SPOOLSS_ENDPAGEPRINTER", NULL, 
-	  SpoolssGeneric_r },
-        { SPOOLSS_ABORTPRINTER, "SPOOLSS_ABORTPRINTER", NULL, 
-	  SpoolssGeneric_r },
-	{ SPOOLSS_READPRINTER,"SPOOLSS_READPRINTER", NULL, SpoolssGeneric_r },
-        { SPOOLSS_ENDDOCPRINTER, "SPOOLSS_ENDDOCPRINTER", NULL, 
-	  SpoolssGeneric_r },
-        { SPOOLSS_ADDJOB, "SPOOLSS_ADDJOB", NULL, SpoolssGeneric_r },
-        { SPOOLSS_SCHEDULEJOB, "SPOOLSS_SCHEDULEJOB", NULL, SpoolssGeneric_r },
-        { SPOOLSS_GETPRINTERDATA, "SPOOLSS_GETPRINTERDATA", 
+        { SPOOLSS_ENUMPRINTERDRIVERS, "EnumPrinterDrivers", 
+	  NULL, SpoolssGeneric_r },
+	{ SPOOLSS_GETPRINTERDRIVER, "GetPrinterDriver", 
+	  NULL, SpoolssGeneric_r },
+        { SPOOLSS_GETPRINTERDRIVERDIRECTORY, "GetPrinterDriverDirectory", 
+	  NULL, SpoolssGeneric_r },
+        { SPOOLSS_DELETEPRINTERDRIVER, "DeletePrinterDriver", 
+	  NULL, SpoolssGeneric_r },
+        { SPOOLSS_ADDPRINTPROCESSOR, "AddPrintProcessor", 
+	  NULL, SpoolssGeneric_r },
+        { SPOOLSS_ENUMPRINTPROCESSORS, "EnumPrintProcessor", 
+	  NULL, SpoolssGeneric_r },
+	{ SPOOLSS_GETPRINTPROCESSORDIRECTORY, "GetPrintProcessorDirectory", 
+	  NULL, SpoolssGeneric_r },
+        { SPOOLSS_STARTDOCPRINTER, "StartDocPrinter", 
+	  NULL, SpoolssGeneric_r },
+        { SPOOLSS_STARTPAGEPRINTER, "StartPagePrinter", 
+	  NULL, SpoolssGeneric_r },
+        { SPOOLSS_WRITEPRINTER, "WritePrinter", 
+	  NULL, SpoolssGeneric_r },
+        { SPOOLSS_ENDPAGEPRINTER, "EndPagePrinter", 
+	  NULL, SpoolssGeneric_r },
+        { SPOOLSS_ABORTPRINTER, "AbortPrinter", 
+	  NULL, SpoolssGeneric_r },
+	{ SPOOLSS_READPRINTER, "ReadPrinter", 
+	  NULL, SpoolssGeneric_r },
+        { SPOOLSS_ENDDOCPRINTER, "EndDocPrinter", 
+	  NULL, SpoolssGeneric_r },
+        { SPOOLSS_ADDJOB, "AddJob", 
+	  NULL, SpoolssGeneric_r },
+        { SPOOLSS_SCHEDULEJOB, "ScheduleJob", 
+	  NULL, SpoolssGeneric_r },
+        { SPOOLSS_GETPRINTERDATA, "GetPrinterData", 
 	  SpoolssGetPrinterData_q, SpoolssGetPrinterData_r },	
-        { SPOOLSS_SETPRINTERDATA, "SPOOLSS_SETPRINTERDATA", 
+        { SPOOLSS_SETPRINTERDATA, "SetPrinterData", 
 	  SpoolssSetPrinterData_q, SpoolssSetPrinterData_r },
-	{ SPOOLSS_WAITFORPRINTERCHANGE,"SPOOLSS_WAITFORPRINTERCHANGE", NULL, 
-	  SpoolssGeneric_r },
-        { SPOOLSS_CLOSEPRINTER, "SPOOLSS_CLOSEPRINTER", 
+	{ SPOOLSS_WAITFORPRINTERCHANGE, "WaitForPrinterChange", 
+	  NULL, SpoolssGeneric_r },
+        { SPOOLSS_CLOSEPRINTER, "ClosePrinter", 
 	  SpoolssClosePrinter_q, SpoolssClosePrinter_r },
-        { SPOOLSS_ADDFORM, "SPOOLSS_ADDFORM", 
+        { SPOOLSS_ADDFORM, "AddForm", 
 	  SpoolssAddForm_q, SpoolssAddForm_r },
-        { SPOOLSS_DELETEFORM, "SPOOLSS_DELETEFORM", 
+        { SPOOLSS_DELETEFORM, "DeleteForm", 
 	  SpoolssDeleteForm_q, SpoolssDeleteForm_r },
-        { SPOOLSS_GETFORM, "SPOOLSS_GETFORM", 
+        { SPOOLSS_GETFORM, "GetForm", 
 	  SpoolssGetForm_q, SpoolssGetForm_r },
-        { SPOOLSS_SETFORM, "SPOOLSS_SETFORM", 
+        { SPOOLSS_SETFORM, "SetForm", 
 	  SpoolssSetForm_q, SpoolssSetForm_r },
-        { SPOOLSS_ENUMFORMS, "SPOOLSS_ENUMFORMS", 
+        { SPOOLSS_ENUMFORMS, "EnumForms", 
 	  SpoolssEnumForms_q, SpoolssEnumForms_r },
-        { SPOOLSS_ENUMPORTS, "SPOOLSS_ENUMPORTS", NULL, SpoolssGeneric_r },
-        { SPOOLSS_ENUMMONITORS, "SPOOLSS_ENUMMONITORS", NULL, 
-	  SpoolssGeneric_r },
-	{ SPOOLSS_ADDPORT,"SPOOLSS_ADDPORT", NULL, SpoolssGeneric_r },
-	{ SPOOLSS_CONFIGUREPORT,"SPOOLSS_CONFIGUREPORT", NULL, 
-	  SpoolssGeneric_r },
-	{ SPOOLSS_DELETEPORT,"SPOOLSS_DELETEPORT", NULL, SpoolssGeneric_r },
-	{ SPOOLSS_CREATEPRINTERIC,"SPOOLSS_CREATEPRINTERIC", NULL, 
-	  SpoolssGeneric_r },
-	{ SPOOLSS_PLAYGDISCRIPTONPRINTERIC, "SPOOLSS_PLAYGDISCRIPTONPRINTERIC",
+        { SPOOLSS_ENUMPORTS, "EnumPorts", 
 	  NULL, SpoolssGeneric_r },
-	{ SPOOLSS_DELETEPRINTERIC,"SPOOLSS_DELETEPRINTERIC", NULL, 
-	  SpoolssGeneric_r },
-	{ SPOOLSS_ADDPRINTERCONNECTION,"SPOOLSS_ADDPRINTERCONNECTION", NULL, 
-	  SpoolssGeneric_r },
-	{ SPOOLSS_DELETEPRINTERCONNECTION,"SPOOLSS_DELETEPRINTERCONNECTION", 
+        { SPOOLSS_ENUMMONITORS, "EnumMonitors", 
 	  NULL, SpoolssGeneric_r },
-	{ SPOOLSS_PRINTERMESSAGEBOX,"SPOOLSS_PRINTERMESSAGEBOX", NULL, 
-	  SpoolssGeneric_r },
-	{ SPOOLSS_ADDMONITOR,"SPOOLSS_ADDMONITOR", NULL, 
-	  SpoolssGeneric_r },
-	{ SPOOLSS_DELETEMONITOR,"SPOOLSS_DELETEMONITOR", NULL, 
-	  SpoolssGeneric_r },
-	{ SPOOLSS_DELETEPRINTPROCESSOR,"SPOOLSS_DELETEPRINTPROCESSOR", NULL, 
-	  SpoolssGeneric_r },
-	{ SPOOLSS_ADDPRINTPROVIDOR,"SPOOLSS_ADDPRINTPROVIDER", NULL, 
-	  SpoolssGeneric_r },
-	{ SPOOLSS_DELETEPRINTPROVIDOR,"SPOOLSS_DELETEPRINTPROVIDER", NULL, 
-	  SpoolssGeneric_r },
-        { SPOOLSS_ENUMPRINTPROCDATATYPES, "SPOOLSS_ENUMPRINTPROCDATATYPES", 
+	{ SPOOLSS_ADDPORT, "AddPort", 
 	  NULL, SpoolssGeneric_r },
-	{ SPOOLSS_RESETPRINTER,"SPOOLSS_RESETPRINTER", NULL, 
-	  SpoolssGeneric_r },
-        { SPOOLSS_GETPRINTERDRIVER2, "SPOOLSS_GETPRINTERDRIVER2", NULL, 
-	  SpoolssGeneric_r },
-	{ SPOOLSS_FINDFIRSTPRINTERCHANGENOTIFICATION,
-	  "SPOOLSS_FINDFIRSTPRINTERCHANGENOTIFICATION", NULL, 
-	  SpoolssGeneric_r },
-	{ SPOOLSS_FINDNEXTPRINTERCHANGENOTIFICATION,
-	  "SPOOLSS_FINDNEXTPRINTERCHANGENOTIFICATION", NULL, 
-	  SpoolssGeneric_r },
-        { SPOOLSS_FCPN, "SPOOLSS_FCPN", NULL, SpoolssGeneric_r },
-	{ SPOOLSS_ROUTERFINDFIRSTPRINTERNOTIFICATIONOLD,
-	  "SPOOLSS_ROUTERFINDFIRSTPRINTERNOTIFICATIONOLD", NULL, 
-	  SpoolssGeneric_r },
-        { SPOOLSS_REPLYOPENPRINTER, "SPOOLSS_REPLYOPENPRINTER",
+	{ SPOOLSS_CONFIGUREPORT, "ConfigurePort", 
+	  NULL, SpoolssGeneric_r },
+	{ SPOOLSS_DELETEPORT, "DeletePort", 
+	  NULL, SpoolssGeneric_r },
+	{ SPOOLSS_CREATEPRINTERIC, "CreatePrinterIC", 
+	  NULL, SpoolssGeneric_r },
+	{ SPOOLSS_PLAYGDISCRIPTONPRINTERIC, "PlayDiscriptOnPrinterIC", 
+	  NULL, SpoolssGeneric_r },
+	{ SPOOLSS_DELETEPRINTERIC, "DeletePrinterIC", 
+	  NULL, SpoolssGeneric_r },
+	{ SPOOLSS_ADDPRINTERCONNECTION, "AddPrinterConnection", 
+	  NULL, SpoolssGeneric_r },
+	{ SPOOLSS_DELETEPRINTERCONNECTION, "DeletePrinterConnection", 
+	  NULL, SpoolssGeneric_r },
+	{ SPOOLSS_PRINTERMESSAGEBOX, "PrinterMessageBox", 
+	  NULL, SpoolssGeneric_r },
+	{ SPOOLSS_ADDMONITOR, "AddMonitor", 
+	  NULL, SpoolssGeneric_r },
+	{ SPOOLSS_DELETEMONITOR, "DeleteMonitor", 
+	  NULL, SpoolssGeneric_r },
+	{ SPOOLSS_DELETEPRINTPROCESSOR, "DeletePrintProcessor", 
+	  NULL, SpoolssGeneric_r },
+	{ SPOOLSS_ADDPRINTPROVIDER, "AddPrintProvider", 
+	  NULL, SpoolssGeneric_r },
+	{ SPOOLSS_DELETEPRINTPROVIDER, "DeletePrintProvider", 
+	  NULL, SpoolssGeneric_r },
+        { SPOOLSS_ENUMPRINTPROCDATATYPES, "EnumPrintProcDataTypes", 
+	  NULL, SpoolssGeneric_r },
+	{ SPOOLSS_RESETPRINTER, "ResetPrinter", 
+	  NULL, SpoolssGeneric_r },
+        { SPOOLSS_GETPRINTERDRIVER2, "GetPrinterDriver2", 
+	  NULL, SpoolssGeneric_r },
+	{ SPOOLSS_FINDFIRSTPRINTERCHANGENOTIFICATION, 
+	  "FindFirstPrinterChangeNotification", 
+	  NULL, SpoolssGeneric_r },
+	{ SPOOLSS_FINDNEXTPRINTERCHANGENOTIFICATION, 
+	  "FindNextPrinterChangeNotification", 
+	  NULL, SpoolssGeneric_r },
+        { SPOOLSS_FCPN, "FCPN", 
+	  NULL, SpoolssGeneric_r },
+	{ SPOOLSS_ROUTERFINDFIRSTPRINTERNOTIFICATIONOLD, 
+	  "RouterFindFirstPrinterNotificationOld", 
+	  NULL, SpoolssGeneric_r },
+        { SPOOLSS_REPLYOPENPRINTER, "ReplyOpenPrinter", 
 	  SpoolssReplyOpenPrinter_q, SpoolssReplyOpenPrinter_r },
-	{ SPOOLSS_ROUTERREPLYPRINTER,"SPOOLSS_ROUTERREPLYPRINTER", NULL, 
-	  SpoolssGeneric_r },
-        { SPOOLSS_REPLYCLOSEPRINTER, "SPOOLSS_REPLYCLOSEPRINTER", NULL, 
-	  SpoolssGeneric_r },
-	{ SPOOLSS_ADDPORTEX,"SPOOLSS_ADDPORTEX", NULL, SpoolssGeneric_r },
-	{ SPOOLSS_REMOTEFINDFIRSTPRINTERCHANGENOTIFICATION,
-	  "SPOOLSS_REMOTEFINDFIRSTPRINTERCHANGENOTIFICATION", NULL, 
-	  SpoolssGeneric_r },
-	{ SPOOLSS_SPOOLERINIT,"SPOOLSS_SPOOLERINIT", NULL, SpoolssGeneric_r },
-	{ SPOOLSS_RESETPRINTEREX,"SPOOLSS_RESETPRINTEREX", NULL, 
-	  SpoolssGeneric_r },
-        { SPOOLSS_RFFPCNEX, "SPOOLSS_RFFPCNEX",
+	{ SPOOLSS_ROUTERREPLYPRINTER, "RouterREplyPrinter", 
+	  NULL, SpoolssGeneric_r },
+        { SPOOLSS_REPLYCLOSEPRINTER, "ReplyClosePrinter", 
+	  NULL, SpoolssGeneric_r },
+	{ SPOOLSS_ADDPORTEX, "AddPortEx", 
+	  NULL, SpoolssGeneric_r },
+	{ SPOOLSS_REMOTEFINDFIRSTPRINTERCHANGENOTIFICATION, 
+	  "RemoteFindFirstPrinterChangeNotification", 
+	  NULL, SpoolssGeneric_r },
+	{ SPOOLSS_SPOOLERINIT, "SpoolerInit", 
+	  NULL, SpoolssGeneric_r },
+	{ SPOOLSS_RESETPRINTEREX, "ResetPrinterEx", 
+	  NULL, SpoolssGeneric_r },
+        { SPOOLSS_RFFPCNEX, "RFFPCNEX", 
 	  SpoolssRFFPCNEX_q, SpoolssRFFPCNEX_r },
-        { SPOOLSS_RRPCN, "SPOOLSS_RRPCN", NULL, SpoolssGeneric_r },
-        { SPOOLSS_RFNPCNEX, "SPOOLSS_RFNPCNEX", NULL, SpoolssGeneric_r },
-        { SPOOLSS_OPENPRINTEREX, "SPOOLSS_OPENPRINTEREX", 
+        { SPOOLSS_RRPCN, "RRPCN", 
+	  NULL, SpoolssGeneric_r },
+        { SPOOLSS_RFNPCNEX, "RFNPCNEX", 
+	  NULL, SpoolssGeneric_r },
+        { SPOOLSS_OPENPRINTEREX, "OpenPrinterEx", 
 	  SpoolssOpenPrinterEx_q, SpoolssOpenPrinterEx_r },
-        { SPOOLSS_ADDPRINTEREX, "SPOOLSS_ADDPRINTEREX", 
+        { SPOOLSS_ADDPRINTEREX, "AddPrinterEx", 
 	  NULL, SpoolssAddPrinterEx_r },
-        { SPOOLSS_ENUMPRINTERDATA, "SPOOLSS_ENUMPRINTERDATA", 
+        { SPOOLSS_ENUMPRINTERDATA, "EnumPrinterData", 
 	  SpoolssEnumPrinterData_q, SpoolssEnumPrinterData_r },
-        { SPOOLSS_DELETEPRINTERDATA, "SPOOLSS_DELETEPRINTERDATA", NULL, 
-	  SpoolssGeneric_r },
-        { SPOOLSS_GETPRINTERDATAEX, "SPOOLSS_GETPRINTERDATAEX", 
+        { SPOOLSS_DELETEPRINTERDATA, "DeletePrinterData", 
+	  NULL, SpoolssGeneric_r },
+        { SPOOLSS_GETPRINTERDATAEX, "GetPrinterDataEx", 
 	  SpoolssGetPrinterDataEx_q, SpoolssGetPrinterDataEx_r },
-        { SPOOLSS_SETPRINTERDATAEX, "SPOOLSS_SETPRINTERDATAEX", 
+        { SPOOLSS_SETPRINTERDATAEX, "SetPrinterDataEx", 
 	  SpoolssSetPrinterDataEx_q, SpoolssSetPrinterDataEx_r },
-	{ SPOOLSS_ENUMPRINTERDATAEX,"SPOOLSS_ENUMPRINTERDATAEX", NULL, 
-	  SpoolssGeneric_r },
-	{ SPOOLSS_ENUMPRINTERKEY,"SPOOLSS_ENUMPRINTERKEY", NULL, 
-	  SpoolssGeneric_r },
-	{ SPOOLSS_DELETEPRINTERDATAEX,"SPOOLSS_DELETEPRINTERDATAEX", NULL, 
-	  SpoolssGeneric_r },
-	{ SPOOLSS_DELETEPRINTERDRIVEREX,"SPOOLSS_DELETEPRINTERDRIVEREX", NULL,
-	  SpoolssGeneric_r },
-	{ SPOOLSS_ADDPRINTERDRIVEREX,"SPOOLSS_ADDPRINTERDRIVEREX", NULL, 
-	  SpoolssGeneric_r },
+	{ SPOOLSS_ENUMPRINTERDATAEX, "EnumPrinterDataEx", 
+	  NULL, SpoolssGeneric_r },
+	{ SPOOLSS_ENUMPRINTERKEY, "EnumPrinterKey", 
+	  NULL, SpoolssGeneric_r },
+	{ SPOOLSS_DELETEPRINTERDATAEX, "DeletePrinterDataEx", 
+	  NULL, SpoolssGeneric_r },
+	{ SPOOLSS_DELETEPRINTERDRIVEREX, "DeletePrinterDriverEx", 
+	  NULL, SpoolssGeneric_r },
+	{ SPOOLSS_ADDPRINTERDRIVEREX, "AddPrinterDriverEx", 
+	  NULL, SpoolssGeneric_r },
 
         { 0, NULL, NULL, NULL },
 };
