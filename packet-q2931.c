@@ -2,7 +2,7 @@
  * Routines for Q.2931 frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-q2931.c,v 1.26 2002/05/28 23:25:15 guy Exp $
+ * $Id: packet-q2931.c,v 1.27 2002/05/28 23:29:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -291,6 +291,7 @@ static const value_string q9231_aal1_subtype_vals[] = {
 	{ 0x00, "Null" },
 	{ 0x01, "64 kbit/s voice-band signal transport (G.711/G.722)" },
 	{ 0x02, "Circuit transport (I.363)" },
+	{ 0x03, "Circuit emulation (asynchronous)" },
 	{ 0x04, "High-quality audio signal transport (I.363)" },
 	{ 0x05, "Video signal transport (I.363)" },
 	{ 0x00, NULL }
@@ -325,7 +326,7 @@ static const value_string q2931_aal1_src_clk_rec_meth_vals[] = {
 static const value_string q2931_aal1_err_correction_method_vals[] = {
 	{ 0x00, "Null" },
 	{ 0x01, "FEC method for less sensitive signal transport" },
-	{ 0x02, "FEC method for delay-sensigive signal transport" },
+	{ 0x02, "FEC method for delay-sensitive signal transport" },
 	{ 0x00, NULL }
 };
 
