@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.60 2002/02/18 01:08:41 guy Exp $
+ * $Id: packet.c,v 1.61 2002/02/24 06:45:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -81,6 +81,8 @@
 #include "plugins.h"
 #include "epan_dissect.h"
 
+#include "../reassemble.h"
+
 static gint proto_malformed = -1;
 static dissector_handle_t frame_handle = NULL;
 static dissector_handle_t data_handle = NULL;
@@ -135,7 +137,7 @@ register_init_routine(void (*func)(void))
 	init_routines = g_slist_append(init_routines, func);
 }
 
-/* Call all the registered "init" routines. */
+/* Initialize all data structures used for dissection. */
 static void
 call_init_routine(gpointer routine, gpointer dummy)
 {
@@ -145,11 +147,20 @@ call_init_routine(gpointer routine, gpointer dummy)
 }
 
 void
-init_all_protocols(void)
+init_dissection(void)
 {
-	g_slist_foreach(init_routines, &call_init_routine, NULL);
-}
+	/* Initialize the table of conversations. */
+	epan_conversation_init();
 
+	/* Initialize protocol-specific variables. */
+	g_slist_foreach(init_routines, &call_init_routine, NULL);
+
+	/* Initialize the common data structures for fragment reassembly.
+	   Must be done *after* calling init routines, as those routines
+	   may free up space for fragments, which they find by using the
+	   data structures that "reassemble_init()" frees. */
+	reassemble_init();
+}
 
 /* Allow protocols to register a "cleanup" routine to be
  * run after the initial sequential run through the packets.

@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.125 2002/02/24 06:01:01 guy Exp $
+ * $Id: tethereal.c,v 1.126 2002/02/24 06:45:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -102,7 +102,6 @@
 #include "pcap-util.h"
 #endif
 #include <epan/conversation.h>
-#include "reassemble.h"
 #include <epan/plugins.h>
 #include "register.h"
 #include "conditions.h"
@@ -811,17 +810,8 @@ capture(volatile int packet_count, int out_file_type)
   struct pcap_stat stats;
   gboolean    dump_ok;
 
-  /* Initialize the table of conversations. */
-  epan_conversation_init();
-
-  /* Initialize protocol-specific variables */
-  init_all_protocols();
-
-  /* Initialize the common data structures for fragment reassembly.
-     Must be done *after* "init_all_protocols()", as "init_all_protocols()"
-     may free up space for fragments, which it finds by using the
-     data structures that "reassemble_init()" frees. */
-  reassemble_init();
+  /* Initialize all data structures used for dissection. */
+  init_dissection();
 
   ld.linktype       = WTAP_ENCAP_UNKNOWN;
   ld.pdh            = NULL;
@@ -1748,17 +1738,8 @@ open_cap_file(char *fname, gboolean is_tempfile, capture_file *cf)
 
   /* The open succeeded.  Fill in the information for this file. */
 
-  /* Initialize the table of conversations. */
-  epan_conversation_init();
-
-  /* Initialize protocol-specific variables */
-  init_all_protocols();
-
-  /* Initialize the common data structures for fragment reassembly.
-     Must be done *after* "init_all_protocols()", as "init_all_protocols()"
-     may free up space for fragments, which it finds by using the
-     data structures that "reassemble_init()" frees. */
-  reassemble_init();
+  /* Initialize all data structures used for dissection. */
+  init_dissection();
 
   cf->wth = wth;
   cf->filed = fd;

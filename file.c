@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.262 2002/02/19 03:43:43 guy Exp $
+ * $Id: file.c,v 1.263 2002/02/24 06:45:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -89,7 +89,6 @@
 #include "gtk/packet_win.h"
 #include <epan/dfilter/dfilter.h>
 #include <epan/conversation.h>
-#include "reassemble.h"
 #include "globals.h"
 #include "gtk/colors.h"
 #include <epan/epan_dissect.h>
@@ -148,17 +147,8 @@ open_cap_file(char *fname, gboolean is_tempfile, capture_file *cf)
      and fill in the information for this file. */
   close_cap_file(cf);
 
-  /* Initialize the table of conversations. */
-  epan_conversation_init();
-
-  /* Initialize protocol-specific variables */
-  init_all_protocols();
-
-  /* Initialize the common data structures for fragment reassembly.
-     Must be done *after* "init_all_protocols()", as "init_all_protocols()"
-     may free up space for fragments, which it finds by using the
-     data structures that "reassemble_init()" frees. */
-  reassemble_init();
+  /* Initialize all data structures used for dissection. */
+  init_dissection();
 
   /* We're about to start reading the file. */
   cf->state = FILE_READ_IN_PROGRESS;
@@ -928,17 +918,8 @@ rescan_packets(capture_file *cf, const char *action, gboolean refilter,
        which might cause the state information to be constructed differently
        by that dissector. */
 
-    /* Initialize the table of conversations. */
-    epan_conversation_init();
-
-    /* Initialize protocol-specific variables */
-    init_all_protocols();
-
-    /* Initialize the common data structures for fragment reassembly.
-       Must be done *after* "init_all_protocols()", as "init_all_protocols()"
-       may free up space for fragments, which it finds by using the
-       data structures that "reassemble_init()" frees. */
-    reassemble_init();
+    /* Initialize all data structures used for dissection. */
+    init_dissection();
   }
 
   /* Freeze the packet list while we redo it, so we don't get any
@@ -1010,7 +991,7 @@ rescan_packets(capture_file *cf, const char *action, gboolean refilter,
       /* Since all state for the frame was destroyed, mark the frame
        * as not visited, free the GSList referring to the state
        * data (the per-frame data itself was freed by
-       * "init_all_protocols()"), and null out the GSList pointer. */
+       * "init_dissection()"), and null out the GSList pointer. */
       fdata->flags.visited = 0;
       if (fdata->pfd) {
 	g_slist_free(fdata->pfd);

@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.52 2002/02/18 01:08:42 guy Exp $
+ * $Id: packet.h,v 1.53 2002/02/24 06:45:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -216,8 +216,8 @@ extern void set_actual_length(tvbuff_t *tvb, guint specified_len);
    or "colorize packets" pass over the current capture file). */
 extern void register_init_routine(void (*func)(void));
 
-/* Call all the registered "init" routines. */
-extern void init_all_protocols(void);
+/* Initialize all data structures used for dissection. */
+extern void init_dissection(void);
 
 /* Allow protocols to register a "cleanup" routine to be
  * run after the initial sequential run through the packets.
