@@ -2,7 +2,7 @@
  * Routines for IEEE 802.2 LLC layer
  * Gilbert Ramirez <gramirez@tivoli.com>
  *
- * $Id: packet-llc.c,v 1.19 1999/08/10 20:05:40 guy Exp $
+ * $Id: packet-llc.c,v 1.20 1999/08/23 22:47:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -162,29 +162,59 @@ sap_dissect_func(u_char sap) {
 void
 capture_llc(const u_char *pd, int offset, guint32 cap_len, packet_counts *ld) {
 
-	guint16		etype;
 	int		is_snap;
+	int		control;
+	guint16		etype;
 	capture_func_t	*capture;
 
 	is_snap = (pd[offset] == 0xAA) && (pd[offset+1] == 0xAA);
+
+	/*
+	 * The low-order bit of the SSAP apparently determines whether this
+	 * is a request or a response.  (RFC 1390, "Transmission of IP and
+	 * ARP over FDDI Networks", says
+	 *
+	 *	Command frames are identified by having the low order
+	 *	bit of the SSAP address reset to zero.  Response frames
+	 *	have the low order bit of the SSAP address set to one.
+	 *
+	 * and a page I've seen seems to imply that's part of 802.2.)
+	 *
+	 * XXX - that page also implies that LLC Type 2 always uses
+	 * extended operation, so we don't need to determine whether
+	 * it's basic or extended operation; is that the case?
+	 */
+	control = get_xdlc_control(pd, offset+2, pd[offset+1] & 0x01, TRUE);
+
 	if (is_snap) {
-		etype  = (pd[offset+6] << 8) | pd[offset+7];
-		offset += 8;
-		capture_ethertype(etype, offset, pd, cap_len, ld);
+		if (control == XDLC_I || control == (XDLC_U|XDLC_UI)) {
+			/*
+			 * Unnumbered Information - analyze it based on
+			 * the Ethernet packet type.
+			 */
+			etype  = (pd[offset+6] << 8) | pd[offset+7];
+			offset += 8;
+			capture_ethertype(etype, offset, pd, cap_len, ld);
+		}
 	}		
 	else {
-		capture = sap_capture_func(pd[offset]);
+		if (control == XDLC_I || control == (XDLC_U|XDLC_UI)) {
+			/*
+			 * Unnumbered Information - analyze it based on
+			 * the DSAP.
+			 */
+			capture = sap_capture_func(pd[offset]);
 
-		/* non-SNAP */
-		offset += 3;
+			/* non-SNAP */
+			offset += 3;
 
-		if (capture) {
-			capture(pd, offset, cap_len, ld);
+			if (capture) {
+				capture(pd, offset, cap_len, ld);
+			}
+			else {
+				ld->other++;
+			}
 		}
-		else {
-			ld->other++;
-		}
-
 	}
 }
 
@@ -193,8 +223,9 @@ dissect_llc(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
 	proto_tree	*llc_tree = NULL;
 	proto_item	*ti;
-	guint16		etype;
 	int		is_snap;
+	int		control;
+	guint16		etype;
 	dissect_func_t	*dissect;
 
 	is_snap = (pd[offset] == 0xAA) && (pd[offset+1] == 0xAA);
@@ -226,17 +257,13 @@ dissect_llc(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	 * extended operation, so we don't need to determine whether
 	 * it's basic or extended operation; is that the case?
 	 */
-	dissect_xdlc_control(pd, offset+2, fd, llc_tree, hf_llc_ctrl,
+	control = dissect_xdlc_control(pd, offset+2, fd, llc_tree, hf_llc_ctrl,
 	    pd[offset+1] & 0x01, TRUE);
 
 	/*
 	 * XXX - do we want to append the SAP information to the stuff
 	 * "dissect_xdlc_control()" put in the COL_INFO column, rather
 	 * than overwriting it?
-	 *
-	 * XXX - we shouldn't, as far as I know, pass S frames to
-	 * "ethertype" or "dissect", and we may have to treat I frames
-	 * differently from U frames.
 	 */
 	if (is_snap) {
 		if (check_col(fd, COL_INFO)) {
@@ -246,10 +273,17 @@ dissect_llc(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 			proto_tree_add_item(llc_tree, hf_llc_oui, offset+3, 3,
 				pd[offset+3] << 16 | pd[offset+4] << 8 | pd[offset+5]);
 		}
-		etype = pntohs(&pd[offset+6]);
-		offset += 8;
-		/* w/o even checking, assume OUI is ethertype */
-		ethertype(etype, offset, pd, fd, tree, llc_tree, hf_llc_type);
+		if (control == (XDLC_U|XDLC_UI)) {
+			/*
+			 * Unnumbered Information - dissect it based on
+			 * the Ethernet packet type.
+			 */
+			etype = pntohs(&pd[offset+6]);
+			offset += 8;
+			/* w/o even checking, assume OUI is ethertype */
+			ethertype(etype, offset, pd, fd, tree, llc_tree,
+			    hf_llc_type);
+		}
 	}		
 	else {
 		if (check_col(fd, COL_INFO)) {
@@ -257,18 +291,23 @@ dissect_llc(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 				val_to_str(pd[offset], sap_vals, "%02x"));
 		}
 
-		dissect = sap_dissect_func(pd[offset]);
+		if (control == (XDLC_U|XDLC_UI)) {
+			/*
+			 * Unnumbered Information - dissect it based on
+			 * the DSAP.
+			 */
+			dissect = sap_dissect_func(pd[offset]);
 
-		/* non-SNAP */
-		offset += 3;
+			/* non-SNAP */
+			offset += 3;
 
-		if (dissect) {
-			dissect(pd, offset, fd, tree);
+			if (dissect) {
+				dissect(pd, offset, fd, tree);
+			}
+			else {
+				dissect_data(pd, offset, fd, tree);
+			}
 		}
-		else {
-			dissect_data(pd, offset, fd, tree);
-		}
-
 	}
 }
 

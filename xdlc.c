@@ -2,7 +2,7 @@
  * Routines for use by various SDLC-derived protocols, such as HDLC
  * and its derivatives LAPB, IEEE 802.2 LLC, etc..
  *
- * $Id: xdlc.c,v 1.3 1999/08/16 05:54:32 guy Exp $
+ * $Id: xdlc.c,v 1.4 1999/08/23 22:47:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -73,31 +73,6 @@ static const value_string stype_vals[] = {
     { XDLC_SREJ, "Selective reject" },
     { 0,         NULL }
 };
-
-/*
- * U-format modifiers.
- */
-#define XDLC_U_MODIFIER_MASK	0xEC
-#define XDLC_UI		0x00	/* Unnumbered Information */
-#define XDLC_UP		0x20	/* Unnumbered Poll */
-#define XDLC_DISC	0x40	/* Disconnect (command) */
-#define XDLC_RD		0x40	/* Request Disconnect (response) */
-#define XDLC_UA		0x60	/* Unnumbered Acknowledge */
-#define XDLC_SNRM	0x80	/* Set Normal Response Mode */
-#define XDLC_TEST	0xC0	/* Test */
-#define XDLC_SIM	0x04	/* Set Initialization Mode (command) */
-#define XDLC_RIM	0x04	/* Request Initialization Mode (response) */
-#define XDLC_FRMR	0x84	/* Frame reject */
-#define XDLC_CFGR	0xC4	/* Configure */
-#define XDLC_SARM	0x0C	/* Set Asynchronous Response Mode (command) */
-#define XDLC_DM		0x0C	/* Disconnected mode (response) */
-#define XDLC_SABM	0x2C	/* Set Asynchronous Balanced Mode */
-#define XDLC_SARME	0x4C	/* Set Asynchronous Response Mode Extended */
-#define XDLC_SABME	0x6C	/* Set Asynchronous Balanced Mode Extended */
-#define XDLC_RESET	0x8C	/* Reset */
-#define XDLC_XID	0xAC	/* Exchange identification */
-#define XDLC_SNRME	0xCC	/* Set Normal Response Mode Extended */
-#define XDLC_BCN	0xEC	/* Beacon */
 
 static const value_string modifier_short_vals_cmd[] = {
     { XDLC_UI,    "UI" },
@@ -182,6 +157,47 @@ static const value_string modifier_vals_resp[] = {
     { XDLC_BCN,   "Beacon" },
     { 0,          NULL }
 };
+
+int
+get_xdlc_control(const u_char *pd, int offset, int is_response, int is_extended)
+{
+    guint16 control;
+
+    switch (pd[offset] & 0x03) {
+
+    case XDLC_S:
+        /*
+	 * Supervisory frame.
+	 */
+	return XDLC_S;
+
+    case XDLC_U:
+	/*
+	 * Unnumbered frame.
+	 *
+	 * XXX - is this two octets, with a P/F bit, in HDLC extended
+	 * operation?  It's one octet in LLC, even though the control
+	 * field of I and S frames is a 2-byte extended-operation field
+	 * in LLC.  Given that there are no sequence numbers in the
+	 * control field of a U frame, there doesn't appear to be any
+	 * need for it to be 2 bytes in extended operation.
+	 */
+	control = pd[offset];
+
+	/*
+	 * Return the modifier as well as the XDLC_U bits, so that
+	 * our caller knows whether the packet is UI or something
+	 * else.
+	 */
+	return control & (XDLC_U_MODIFIER_MASK|0x03);
+
+    default:
+	/*
+	 * Information frame.
+	 */
+	return XDLC_I;
+    }
+}
 
 int
 dissect_xdlc_control(const u_char *pd, int offset, frame_data *fd,
@@ -331,7 +347,13 @@ dissect_xdlc_control(const u_char *pd, int offset, frame_data *fd,
 		decode_boolean_bitfield(control, 0x03, 1*8,
 		    "Unnumbered frame", NULL));
 	}
-	return XDLC_U;
+
+	/*
+	 * Return the modifier as well as the XDLC_U bits, so that
+	 * our caller knows whether the packet is UI or something
+	 * else.
+	 */
+	return control & (XDLC_U_MODIFIER_MASK|0x03);
 
     default:
 	/*
