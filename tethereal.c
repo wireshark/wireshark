@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.211 2003/12/17 21:11:25 guy Exp $
+ * $Id: tethereal.c,v 1.212 2003/12/18 02:46:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -804,7 +804,7 @@ main(int argc, char *argv[])
   GList               *lt_list, *lt_entry;
   data_link_info_t    *data_link_info;
 #endif
-#ifdef HAVE_PCAP_COMPILE_NOPCAP
+#ifdef HAVE_PCAP_OPEN_DEAD
   struct bpf_program   fcode;
 #endif
   dfilter_t           *rfcode = NULL;
@@ -1429,11 +1429,19 @@ main(int argc, char *argv[])
     if (!dfilter_compile(rfilter, &rfcode)) {
       fprintf(stderr, "tethereal: %s\n", dfilter_error_msg);
       epan_cleanup();
-#ifdef HAVE_PCAP_COMPILE_NOPCAP
-      if (pcap_compile_nopcap(DLT_EN10MB, 0, &fcode, rfilter, 0, 0) != -1) {
-        fprintf(stderr,
-          "  Note: This display filter code looks like a valid capture filter;\n"
-          "        maybe you mixed them up?\n");
+#ifdef HAVE_PCAP_OPEN_DEAD
+      {
+        pcap_t *p;
+
+        p = pcap_open_dead(DLT_EN10MB, MIN_PACKET_SIZE);
+        if (p != NULL) {
+          if (pcap_compile(p, &fcode, rfilter, 0, 0) != -1) {
+            fprintf(stderr,
+              "  Note: That display filter code looks like a valid capture filter;\n"
+              "        maybe you mixed them up?\n");
+          }
+          pcap_close(p);
+        }
       }
 #endif
       exit(2);
