@@ -2,7 +2,7 @@
  * Routines for RADIUS packet disassembly
  * Copyright 1999 Johan Feyaerts
  *
- * $Id: packet-radius.c,v 1.33 2001/08/21 18:56:13 guy Exp $
+ * $Id: packet-radius.c,v 1.34 2001/09/28 18:50:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -147,8 +147,14 @@ typedef struct _value_value_pair {
 #define RD_TP_TUNNEL_SERVER_ENDPOINT 67
 #define RD_TP_TUNNEL_PASSWORD 69
 #define RD_TP_CONNECT_INFO 77
+#define RD_TP_MESSAGE_AUTHENTICATOR 80
 #define RD_TP_TUNNEL_ASSIGNMENT_ID 82
 #define RD_TP_NAS_PORT_ID 87
+#define RD_TP_ASCEND_MODEM_PORTNO 120
+#define RD_TP_ASCEND_MODEM_SLOTNO 121
+#define RD_TP_ASCEND_MULTILINK_ID 187
+#define RD_TP_ASCEND_NUM_IN_MULTILINK 188
+#define RD_TP_ASCEND_FIRST_DEST 189
 #define RD_TP_ASCEND_PRE_INPUT_OCTETS 190
 #define RD_TP_ASCEND_PRE_OUTPUT_OCTETS 191
 #define RD_TP_ASCEND_PRE_INPUT_PACKETS 192
@@ -158,6 +164,7 @@ typedef struct _value_value_pair {
 #define RD_TP_ASCEND_CONNECT_PROGRESS 196
 #define RD_TP_ASCEND_DATA_RATE 197
 #define RD_TP_ASCEND_PRESESSION_TIME 198
+#define RD_TP_ASCEND_ASSIGN_IP_POOL 218
 #define RD_TP_ASCEND_XMIT_RATE 255
 
 
@@ -242,6 +249,8 @@ static value_string radius_framed_protocol_vals[]=
 {4, "Gandalf proprietary Singlelink/Multilink Protocol"},
 {5, "Xylogics proprietary IPX/SLIP"},
 {6, "X.75 Synchronous"},
+{256, "Ascend MPP"},
+{262, "Ascend MP"},
 {0,NULL}};
 
 static value_string radius_framed_routing_vals[]=
@@ -285,6 +294,8 @@ static value_string radius_accounting_status_type_vals[]=
 static value_string radius_accounting_authentication_vals[]=
 {{1, "Radius"},
 {2, "Local"},
+{3,"Remote"},
+/* RFC 2866 says 3 is Remote. Is 7 a mistake? */
 {7,"Remote"},
 {0,NULL}};
 
@@ -430,8 +441,14 @@ static value_value_pair radius_printinfo[] = {
 { RD_TP_TUNNEL_SERVER_ENDPOINT, RADIUS_STRING_TAGGED},
 { RD_TP_TUNNEL_PASSWORD, RADIUS_STRING_TAGGED},
 { RD_TP_CONNECT_INFO, RADIUS_STRING_TAGGED},
+{ RD_TP_MESSAGE_AUTHENTICATOR, RADIUS_BINSTRING},
 { RD_TP_TUNNEL_ASSIGNMENT_ID, RADIUS_STRING_TAGGED},
 { RD_TP_NAS_PORT_ID, RADIUS_STRING},
+{ RD_TP_ASCEND_MODEM_PORTNO, RADIUS_INTEGER4},
+{ RD_TP_ASCEND_MODEM_SLOTNO, RADIUS_INTEGER4},
+{ RD_TP_ASCEND_MULTILINK_ID, RADIUS_INTEGER4},
+{ RD_TP_ASCEND_NUM_IN_MULTILINK, RADIUS_INTEGER4},
+{ RD_TP_ASCEND_FIRST_DEST, RADIUS_IP_ADDRESS},
 { RD_TP_ASCEND_PRE_INPUT_OCTETS, RADIUS_INTEGER4},
 { RD_TP_ASCEND_PRE_OUTPUT_OCTETS, RADIUS_INTEGER4},
 { RD_TP_ASCEND_PRE_INPUT_PACKETS, RADIUS_INTEGER4},
@@ -441,6 +458,7 @@ static value_value_pair radius_printinfo[] = {
 { RD_TP_ASCEND_CONNECT_PROGRESS, RADIUS_INTEGER4},
 { RD_TP_ASCEND_DATA_RATE, RADIUS_INTEGER4},
 { RD_TP_ASCEND_PRESESSION_TIME, RADIUS_INTEGER4},
+{ RD_TP_ASCEND_ASSIGN_IP_POOL, RADIUS_INTEGER4},
 { RD_TP_ASCEND_XMIT_RATE, RADIUS_INTEGER4},
 {0,0},
 };
@@ -510,8 +528,14 @@ static value_string radius_attrib_type_vals[] = {
 { RD_TP_TUNNEL_SERVER_ENDPOINT, "Tunnel Server Endpoint"},
 { RD_TP_TUNNEL_PASSWORD, "Tunnel Password"},
 { RD_TP_CONNECT_INFO, "Connect-Info"},
+{ RD_TP_MESSAGE_AUTHENTICATOR, "Message Authenticator"},
 { RD_TP_TUNNEL_ASSIGNMENT_ID, "Tunnel Assignment ID"},
 { RD_TP_NAS_PORT_ID, "NAS Port ID"},
+{ RD_TP_ASCEND_MODEM_PORTNO, "Ascend Modem Port No"},
+{ RD_TP_ASCEND_MODEM_SLOTNO, "Ascend Modem Slot No"},
+{ RD_TP_ASCEND_MULTILINK_ID, "Ascend Multilink ID"},
+{ RD_TP_ASCEND_NUM_IN_MULTILINK, "Ascend Num In Multilink"},
+{ RD_TP_ASCEND_FIRST_DEST, "Ascend First Dest"},
 { RD_TP_ASCEND_PRE_INPUT_OCTETS, "Ascend Pre Input Octets"},
 { RD_TP_ASCEND_PRE_OUTPUT_OCTETS, "Ascend Pre Output Octets"},
 { RD_TP_ASCEND_PRE_INPUT_PACKETS, "Ascend Pre Input Packets"},
@@ -521,6 +545,7 @@ static value_string radius_attrib_type_vals[] = {
 { RD_TP_ASCEND_CONNECT_PROGRESS, "Ascend Connect Progress"},
 { RD_TP_ASCEND_DATA_RATE, "Ascend Data Rate"},
 { RD_TP_ASCEND_PRESESSION_TIME, "Ascend PreSession Time"},
+{ RD_TP_ASCEND_ASSIGN_IP_POOL, "Ascend Assign IP Pool"},
 { RD_TP_ASCEND_XMIT_RATE, "Ascend Xmit Rate"},
 {0,NULL},
 };
