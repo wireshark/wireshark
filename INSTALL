@@ -50,8 +50,8 @@ README.win32 for those instructions.
 4. Run './configure' in the Ethereal distribution directory.
     Running './configure --help' displays a list of options.
     The file 'INSTALL.configure' contains general instructions for
-    using 'configure' and 'make'. Ethereal has some
-    non-generic configure options:
+    using 'configure' and 'make'. Ethereal has some non-generic configure 
+    options:
 
     --sysconfdir=DIR
         Ethereal installs a support file (manuf) in ${PREFIX}/etc by
@@ -69,6 +69,9 @@ README.win32 for those instructions.
         By default, if 'configure' finds the GTK+ libraries, the Makefile
         build Ethereal, the GUI packet analyzer. You can disable the
         build of the GUI version of Ethereal with this switch.
+
+    --enable-gtk2
+        Build Glib2/Gtk2+-based ethereal.
 
     --disable-tethereal
         By default the line-mode packet analyzer, Tethereal, is built.
@@ -139,10 +142,21 @@ README.win32 for those instructions.
         SSL library is installed in a non-standard location,
         you can specify where your SSL library is with this switch.
 
+    --without-net-snmp
+        If 'configure' finds a supported version of the NET SNMP library
+        on your system,  the SNMP dissector will be enhanced to use
+        routines from that SNMP library. Use this switch to avoid
+        using the NET SNMP library even if you have it installed.
+
+    --with-net-snmp=PATH
+        Tell the 'configure' script where your net-snmp-config shell script 
+        that comes with the net-snmp package is located, if not in a standard 
+        location.
+
     --without-ucdsnmp
         If 'configure' finds a supported version of the UCD SNMP library
         on your system,  the SNMP dissector will be enhanced to use
-        routines from that SNMP library.   Use this switch to avoid
+        routines from that SNMP library. Use this switch to avoid
         using the UCD SNMP library even if you have it installed.
 
     --with-ucdsnmp=DIR
