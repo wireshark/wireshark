@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.30 1999/08/18 00:57:53 guy Exp $
+ * $Id: packet-tcp.c,v 1.31 1999/08/18 03:11:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -497,11 +497,11 @@ dissect_tcp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   }
  
   if( data_out_file ) {
-    reassemble_tcp( th.th_seq, /* sequence number */
-        ( pi.iplen -( pi.iphdrlen * 4 )-( hi_nibble(th.th_off_x2) * 4 ) ), /* length */
-        ( pd+offset ), /* data */
-        ( fd->cap_len - offset ), /* captured data length */
-        ( th.th_flags & 0x02 ), /* is syn set? */
+    reassemble_tcp( th.th_seq,		/* sequence number */
+        ( pi.len - offset ),		/* data length */
+        ( pd+offset ),			/* data */
+        ( pi.captured_len - offset ),	/* captured data length */
+        ( th.th_flags & TH_SYN ),	/* is syn set? */
         pi.ip_src,
 	pi.ip_dst,
 	pi.srcport,
