@@ -12,11 +12,11 @@ FOP_OPTS=-Xmx256m
 # (comment this out, if you don't want pdf or don't have fop installed)
 # for win32 (cygwin) environments (as of fop-0.20 the cygwin script does
 # not use $FOP_OPTS)
-FOP=FOP_OPTS="${FOP_OPTS}" fop-0.20.5/fop.bat
+FOP=FOP_OPTS="$(FOP_OPTS)" fop-0.20.5/fop.bat
 # for unix like environments (if you have problems with fop, try to use an absolute path here)
 #FOP="/usr/share/fop-0.20.5/fop.sh"
 # One SUSE 9.1 and 9.2 uncomment the following line (make sure you have at least fop-0.20.5-71.2)
-FOP=FOP_OPTS="${FOP_OPTS}" fop
+#FOP=FOP_OPTS="$(FOP_OPTS)" fop
 
 # html help compiler (Win32 only)
 # (comment this out, if you don't want chm or don't have hhc installed)
