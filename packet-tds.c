@@ -3,7 +3,7 @@
  * Copyright 2000-2002, Brian Bruns <camber@ais.org>
  * Copyright 2002, Steve Langasek <vorlon@netexpress.net>
  *
- * $Id: packet-tds.c,v 1.23 2004/01/05 01:18:53 guy Exp $
+ * $Id: packet-tds.c,v 1.24 2004/02/01 21:33:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -295,6 +295,7 @@ static gint ett_tds_fragments = -1;
 static gint ett_tds_fragment = -1;
 static gint ett_tds_token = -1;
 static gint ett_tds7_login = -1;
+static gint ett_tds7_query = 0;
 static gint ett_tds7_hdr = -1;
 
 /* Desegmentation of Netlib buffers crossing TCP segment boundaries. */
@@ -365,7 +366,7 @@ static const value_string token_names[] = {
 	{TDS_CLOSE_TOKEN, "Close Connection"},
 	{TDS_RET_STAT_TOKEN, "Return Status"},
 	{TDS_124_TOKEN, "Proc ID"},
-	{TDS7_RESULT_TOKEN, "Results"},
+	{TDS7_RESULT_TOKEN, "TDS7+ Results"},
 	{TDS_COL_NAME_TOKEN, "Column Names"},
 	{TDS_COL_INFO_TOKEN, "Column Info"},
 	{TDS_167_TOKEN, "Unknown (167)"},
@@ -465,6 +466,31 @@ dissect_tds_ntlmssp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 static void
+dissect_tds_query_packet(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+	guint offset, len;
+	gboolean is_unicode = TRUE;
+	char *msg;
+
+	proto_item *query_hdr;
+	proto_tree *query_tree;
+	
+	offset = 0;
+	query_hdr = proto_tree_add_text(tree, tvb, offset, -1, "TDS Query Packet");
+	query_tree = proto_item_add_subtree(query_hdr, ett_tds7_query);
+	len = tvb_reported_length_remaining(tvb, offset);
+	if((len < 2) || tvb_get_guint8(tvb, offset+1) !=0)
+		is_unicode = FALSE;
+	
+	if (is_unicode) {
+		msg = tvb_fake_unicode(tvb, offset, len/2, TRUE);
+		proto_tree_add_text(query_tree, tvb, offset, len, "Query: %s", msg);
+		g_free(msg);
+		offset += len;
+	}
+}
+
+static void
 dissect_tds7_login(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	guint offset, i, offset2, len;
@@ -552,17 +578,20 @@ dissect_tds7_login(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			val_to_str(i, login_field_names, "Unknown"),
 			len);
 		if (len != 0) {
-			if (is_unicode == TRUE) {
-				val = tvb_fake_unicode(tvb, offset2, len,
-				    TRUE);
-				len *= 2;
-			} else
-				val = tvb_get_string(tvb, offset2, len);
-			proto_tree_add_text(login_tree, tvb, offset2, len,
-				"%s: %s",
-				val_to_str(i, login_field_names, "Unknown"),
-				val);
-			g_free(val);
+			if( i != 2) {
+				if (is_unicode == TRUE) {
+					val = tvb_fake_unicode(tvb, offset2, len, TRUE);
+					len *= 2;
+				} else
+					val = tvb_get_string(tvb, offset2, len);
+				proto_tree_add_text(login_tree, tvb, offset2, len, "%s: %s", val_to_str(i, login_field_names, "Unknown"), val);
+				g_free(val);
+			}
+			else {
+				if (is_unicode)
+					len *= 2;
+				proto_tree_add_text(login_tree, tvb, offset2, len, "%s", val_to_str(i, login_field_names, "Unknown"));
+			}
 		}
 	}
 
@@ -600,6 +629,7 @@ static int tds_is_fixed_token(int token)
           case TDS_DONEPROC_TOKEN:
           case TDS_DONEINPROC_TOKEN:
           case TDS_RET_STAT_TOKEN:
+          case TDS7_RESULT_TOKEN:
                return 1;
           default:
                return 0;
@@ -950,6 +980,90 @@ dissect_tds_err_token(tvbuff_t *tvb, guint offset, guint token_sz, proto_tree *t
 }
 
 static void
+dissect_tds_login_ack_token(tvbuff_t *tvb, guint offset, guint token_sz, proto_tree *tree)
+{
+	guint8 msg_len;
+	char *msg;
+	gboolean is_unicode = FALSE;
+
+	proto_tree_add_text(tree, tvb, offset, 1, "Ack: %u", tvb_get_guint8(tvb, offset));
+	offset +=1;
+	proto_tree_add_text(tree, tvb, offset, 1, "Major version (may be incorrect): %d", tvb_get_guint8(tvb, offset));
+	offset +=1;
+	proto_tree_add_text(tree, tvb, offset, 1, "Minor version (may be incorrect): %d", tvb_get_guint8(tvb, offset));
+	offset +=1;
+	proto_tree_add_text(tree, tvb, offset, 2, "zero usually");
+	offset +=2;
+
+	msg_len = tvb_get_guint8(tvb, offset);
+	proto_tree_add_text(tree, tvb, offset, 1, "Text length: %u characters", msg_len);
+	offset +=1;
+
+	if(msg_len + 6U + 3U != token_sz - 1) /* 6 is the length of ack(1), version (4), text length (1) fields */
+		is_unicode = TRUE;
+	proto_tree_add_text(tree, tvb, offset, 0, "msg_len: %d, token_sz: %d, total: %d",msg_len, token_sz, msg_len + 6U + 3U);
+	if(is_unicode) {
+		msg = tvb_fake_unicode(tvb, offset, msg_len, TRUE);
+		msg_len *= 2;
+	} else {
+		msg = tvb_get_string(tvb, offset, msg_len);
+	}
+	proto_tree_add_text(tree, tvb, offset, msg_len, "Text: %s", format_text(msg, strlen(msg)));
+	g_free(msg);
+	offset += msg_len;
+	
+	proto_tree_add_text(tree, tvb, offset, 4, "Server Version");
+	offset += 4;
+}
+
+int 
+dissect_tds7_results_token(tvbuff_t *tvb, guint offset, guint token_sz, proto_tree *tree)
+{
+	guint16 num_columns;
+	guint8 type, msg_len;
+	int i;
+	char *msg;
+	guint16 collate_codepage, collate_flags;
+	guint8 collate_charset_id;
+
+	num_columns = tvb_get_letohs(tvb, offset);
+	proto_tree_add_text(tree, tvb, offset, 2, "Columns: %u", tvb_get_letohs(tvb, offset));
+	offset +=2;
+	for(i=0; i != num_columns; i++) {
+		proto_tree_add_text(tree, tvb, offset, 2, "usertype: %d", tvb_get_letohs(tvb, offset));
+		offset +=2;
+		proto_tree_add_text(tree, tvb, offset, 2, "flags: %d", tvb_get_letohs(tvb, offset));
+		offset +=2;
+		type  = tvb_get_guint8(tvb, offset);
+		proto_tree_add_text(tree, tvb, offset, 1, "Type: %d", type);
+		offset +=1;
+		if(type > 128) {
+			proto_tree_add_text(tree, tvb, offset, 2, "Large type size: 0x%x", tvb_get_letohs(tvb, offset));
+			offset += 2;
+			collate_codepage = tvb_get_letohs(tvb, offset);
+			proto_tree_add_text(tree, tvb, offset, 2, "Codepage: %u" , collate_codepage);
+			offset += 2;
+			collate_flags = tvb_get_letohs(tvb, offset);
+			proto_tree_add_text(tree, tvb, offset, 2, "Flags: 0x%x", collate_flags);
+			offset += 2;
+			collate_charset_id = tvb_get_guint8(tvb, offset);
+			proto_tree_add_text(tree, tvb, offset, 1, "Charset ID: %u", collate_charset_id);
+			offset +=1;
+		}
+		msg_len = tvb_get_guint8(tvb, offset);
+		proto_tree_add_text(tree, tvb, offset, 1, "message length: %d",msg_len);
+		offset += 1;
+		if(msg_len != 0) {
+			msg = tvb_fake_unicode(tvb, offset, msg_len, TRUE);
+			proto_tree_add_text(tree, tvb, offset, msg_len*2, "Text: %s", format_text(msg, strlen(msg)));
+			g_free(msg);
+			offset += msg_len*2;
+		}
+	}
+	return offset;
+}
+
+static void
 dissect_tds_done_token(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
 	proto_tree_add_text(tree, tvb, offset, 2, "bit flag");
@@ -1062,6 +1176,12 @@ dissect_tds_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			break;
 		case TDS_DONE_TOKEN:
 			dissect_tds_done_token(tvb, pos + 1, token_tree);
+			break;
+		case TDS_LOGIN_ACK_TOKEN:
+			dissect_tds_login_ack_token(tvb, pos + 3, token_sz - 3, token_tree);
+			break;
+		case TDS7_RESULT_TOKEN:
+			pos = (dissect_tds7_results_token(tvb, pos + 1, token_sz - 1, token_tree)-1);
 			break;
 		}
 
@@ -1176,7 +1296,9 @@ dissect_netlib_buffer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		case TDS_LOGIN7_PKT:
 			dissect_tds7_login(next_tvb, pinfo, tds_tree);
 			break;
-
+		case TDS_QUERY_PKT:
+			dissect_tds_query_packet(next_tvb, pinfo, tds_tree);
+			break;
 		default:
 			proto_tree_add_text(tds_tree, next_tvb, 0, -1,
 			    "TDS Packet");
