@@ -1,7 +1,7 @@
 /* capture_prefs.c
  * Dialog box for capture preferences
  *
- * $Id: capture_prefs.c,v 1.35 2004/05/31 09:23:14 ulfl Exp $
+ * $Id: capture_prefs.c,v 1.36 2004/05/31 11:22:58 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -60,7 +60,7 @@
 #define IFOPTS_IF_NOSEL -1
 
 /* interface options dialog */
-static GtkWidget *cur_clist, *if_name_lb, *if_descr_te, *if_hide_cb;
+static GtkWidget *cur_clist, *if_dev_lb, *if_name_lb, *if_descr_te, *if_hide_cb;
 static gint ifrow;						/* current interface row selected */
 
 static void ifopts_edit_cb(GtkWidget *w, gpointer data);
@@ -122,7 +122,7 @@ capture_prefs_show(void)
 	OBJECT_SET_DATA(main_vb, DEVICE_KEY, if_cb);
 
 	/* Interface properties */
-	ifopts_lb = gtk_label_new("Interface:");
+	ifopts_lb = gtk_label_new("Interfaces:");
 	gtk_table_attach_defaults(GTK_TABLE(main_tb), ifopts_lb, 0, 1, 1, 2);
 	gtk_misc_set_alignment(GTK_MISC(ifopts_lb), 1.0, 0.5);
 	gtk_widget_show(ifopts_lb);
@@ -218,11 +218,11 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 {
 	GtkWidget	*ifopts_edit_dlg, *cur_scr_win, *main_hb, *main_tb,
 				*cur_opts_fr, *ed_opts_fr, *main_vb,
-				*if_lb, *if_descr_lb, *if_hide_lb,
+				*if_descr_lb, *if_hide_lb,
 				*bbox, *ok_bt, *cancel_bt;
-	gchar *cur_titles[IFOPTS_CLIST_COLS] = { "dev-nodisp", "Interface", 
-												"Description", "Hide?" };
-	gchar *if_title[1] = { "Interface" };
+	gchar *cur_titles[] = { "Device", "Description", 
+												"Comment", "Hide?" };
+    int row = 0;
 
 	GtkWidget *caller = gtk_widget_get_toplevel(w);
 	
@@ -237,7 +237,7 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 	
 	/* create a new dialog */
 	ifopts_edit_dlg = dlg_window_new("Ethereal: Preferences: Interface Options");
-	gtk_window_set_default_size(GTK_WINDOW(ifopts_edit_dlg), 570, 300);
+    gtk_window_set_default_size(GTK_WINDOW(ifopts_edit_dlg), DEF_WIDTH, 300);
 
     main_vb = gtk_vbox_new(FALSE, 1);
 	gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
@@ -245,7 +245,7 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 	gtk_widget_show(main_vb);
 	
 	/* create current options frame */
-	cur_opts_fr = gtk_frame_new("Current options");
+	cur_opts_fr = gtk_frame_new("Interfaces");
 	gtk_container_add(GTK_CONTAINER(main_vb), cur_opts_fr);
 	gtk_widget_show(cur_opts_fr);
 	
@@ -256,12 +256,9 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 	gtk_widget_show(cur_scr_win);
 	
 	/*
-	 * Create current options CList. Column "0" is the device name only and
-	 * is not displayed. It's used when writing new preferences strings.
-	 * This avoids having to remove OS (pcap) descriptions.
+	 * Create current options CList.
 	 */
 	cur_clist = gtk_clist_new_with_titles(IFOPTS_CLIST_COLS, cur_titles);
-	gtk_clist_set_column_visibility(GTK_CLIST(cur_clist), 0, FALSE);
 	gtk_clist_set_column_width(GTK_CLIST(cur_clist), 1, 230);
 	gtk_clist_set_column_width(GTK_CLIST(cur_clist), 2, 260);
 	gtk_clist_set_column_width(GTK_CLIST(cur_clist), 3, 40);
@@ -272,13 +269,14 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 	
 	/* add interface names to cell */
 	ifopts_if_clist_add();
+    gtk_clist_columns_autosize(GTK_CLIST(cur_clist));
 	
 	/* initialize variable that saves currently selected row in "if_clist" */
 	ifrow = IFOPTS_IF_NOSEL;
 	
 	/* create edit options frame */
-	ed_opts_fr = gtk_frame_new("Edit interface options");
-	gtk_container_add(GTK_CONTAINER(main_vb),  ed_opts_fr);
+	ed_opts_fr = gtk_frame_new("Properties");
+	gtk_box_pack_start(GTK_BOX(main_vb), ed_opts_fr, FALSE, FALSE, 0);
 	gtk_widget_show(ed_opts_fr);
 	
 	main_hb = gtk_hbox_new(TRUE, 5);
@@ -287,24 +285,37 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 	gtk_widget_show(main_hb);
 		
 	/* table to hold description text entry and hide button */
-	main_tb = gtk_table_new(IFOPTS_TABLE_ROWS, 2, FALSE);
+	main_tb = gtk_table_new(IFOPTS_TABLE_ROWS, 4, FALSE);
 	gtk_box_pack_start(GTK_BOX(main_hb), main_tb, TRUE, FALSE, 10);
 	gtk_table_set_row_spacings(GTK_TABLE(main_tb), 10);
 	gtk_table_set_col_spacings(GTK_TABLE(main_tb), 10);
 	gtk_widget_show(main_tb);
 
-	if_lb = gtk_label_new("Interface:");
-	gtk_table_attach_defaults(GTK_TABLE(main_tb), if_lb, 0, 1, 0, 1);
-	gtk_misc_set_alignment(GTK_MISC(if_lb), 1.0, 0.5);
-	gtk_widget_show(if_lb);
+	if_dev_lb = gtk_label_new("Device:");
+	gtk_table_attach_defaults(GTK_TABLE(main_tb), if_dev_lb, 0, 1, row, row+1);
+	gtk_misc_set_alignment(GTK_MISC(if_dev_lb), 1.0, 0.5);
+	gtk_widget_show(if_dev_lb);
     
-	if_name_lb = gtk_label_new("");
-	gtk_table_attach_defaults(GTK_TABLE(main_tb), if_name_lb, 1, 2, 0, 1);
+	if_dev_lb = gtk_label_new("");
+	gtk_table_attach_defaults(GTK_TABLE(main_tb), if_dev_lb, 1, 2, row, row+1);
+	gtk_misc_set_alignment(GTK_MISC(if_dev_lb), 0.0, 0.5);
+	gtk_widget_show(if_dev_lb);
+    row++;
+    
+	if_name_lb = gtk_label_new("Description:");
+	gtk_table_attach_defaults(GTK_TABLE(main_tb), if_name_lb, 0, 1, row, row+1);
+	gtk_misc_set_alignment(GTK_MISC(if_name_lb), 1.0, 0.5);
 	gtk_widget_show(if_name_lb);
     
+	if_name_lb = gtk_label_new("");
+	gtk_table_attach_defaults(GTK_TABLE(main_tb), if_name_lb, 1, 2, row, row+1);
+	gtk_misc_set_alignment(GTK_MISC(if_name_lb), 0.0, 0.5);
+	gtk_widget_show(if_name_lb);
+    row++;
+    
 	/* create interface description label and text entry */
-	if_descr_lb = gtk_label_new("Description:");
-	gtk_table_attach_defaults(GTK_TABLE(main_tb), if_descr_lb, 0, 1, 1, 2);
+	if_descr_lb = gtk_label_new("Comment:");
+	gtk_table_attach_defaults(GTK_TABLE(main_tb), if_descr_lb, 0, 1, row, row+1);
 	gtk_misc_set_alignment(GTK_MISC(if_descr_lb), 1.0, 0.5);
 	gtk_widget_show(if_descr_lb);
 	
@@ -312,20 +323,22 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 	SIGNAL_CONNECT(if_descr_te, "changed", ifopts_edit_descr_changed_cb, 
 			cur_clist);
 	gtk_entry_set_max_length(GTK_ENTRY(if_descr_te), IFOPTS_MAX_DESCR_LEN);
-	gtk_table_attach_defaults(GTK_TABLE(main_tb), if_descr_te, 1, 2, 1, 2);
+	gtk_table_attach_defaults(GTK_TABLE(main_tb), if_descr_te, 1, 2, row, row+1);
 	gtk_widget_show(if_descr_te);
+    row++;
 	
 	/* create hide interface label and button */
 	if_hide_lb = gtk_label_new("Hide interface?:");
-	gtk_table_attach_defaults(GTK_TABLE(main_tb), if_hide_lb, 0, 1, 2, 3);
+	gtk_table_attach_defaults(GTK_TABLE(main_tb), if_hide_lb, 0, 1, row, row+1);
 	gtk_misc_set_alignment(GTK_MISC(if_hide_lb), 1.0, 0.5);
 	gtk_widget_show(if_hide_lb);
 	
 	if_hide_cb = gtk_check_button_new();
 	SIGNAL_CONNECT(if_hide_cb, "toggled", ifopts_edit_hide_changed_cb, 
 			cur_clist);
-	gtk_table_attach_defaults(GTK_TABLE(main_tb), if_hide_cb, 1, 2, 2, 3);
+	gtk_table_attach_defaults(GTK_TABLE(main_tb), if_hide_cb, 1, 2, row, row+1);
 	gtk_widget_show(if_hide_cb);
+    row++;
 	
 	/* button row: OK and Cancel buttons */
 	bbox = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_CANCEL, NULL);
@@ -408,6 +421,13 @@ ifopts_edit_ifsel_cb(GtkWidget		*clist _U_,
 	/* save currently selected row */
 	ifrow = row;
 	
+	/* get/display the interface device from current CList */
+	gtk_clist_get_text(GTK_CLIST(cur_clist), row, 0, &text);
+    /* is needed, as gtk_entry_set_text() will change text again (bug in GTK?) */
+    text = strdup(text);
+	gtk_label_set_text(GTK_LABEL(if_dev_lb), text);
+    g_free(text);
+	
 	/* get/display the interface name from current CList */
 	gtk_clist_get_text(GTK_CLIST(cur_clist), row, 1, &text);
     /* is needed, as gtk_entry_set_text() will change text again (bug in GTK?) */
@@ -431,7 +451,7 @@ ifopts_edit_ifsel_cb(GtkWidget		*clist _U_,
 }
 
 /*
- * Description text entry changed callback; update current CList.
+ * Comment text entry changed callback; update current CList.
  */
 static void
 ifopts_edit_descr_changed_cb(GtkEditable *ed, gpointer udata)
@@ -482,7 +502,7 @@ ifopts_options_add(GtkCList *clist, if_info_t *if_info)
 	gchar	*ifnm;
 	gchar	*desc;
 	gchar	*pr_descr;
-	gchar	*text[IFOPTS_CLIST_COLS] = { NULL, NULL, NULL, NULL };
+	gchar	*text[] = { NULL, NULL, NULL, NULL };
 	
 	/* add interface descriptions and "hidden" flag */
 	if (prefs.capture_devices_descr != NULL) {
@@ -499,9 +519,9 @@ ifopts_options_add(GtkCList *clist, if_info_t *if_info)
 					text[0] = g_strdup(if_info->name);
 					/* set OS description + device name text */
 					if (if_info->description != NULL)
-						text[1] = g_strdup_printf("%s: %s", if_info->description, if_info->name);
+						text[1] = g_strdup(if_info->description);
 					else
-						text[1] = g_strdup(if_info->name);
+						text[1] = "";
 					/* check if interface is "hidden" */
 					if (prefs.capture_devices_hide != NULL) {
 						if (strstr(prefs.capture_devices_hide, if_info->name) != NULL)
@@ -554,9 +574,9 @@ ifopts_options_add(GtkCList *clist, if_info_t *if_info)
 			text[0] = g_strdup(if_info->name);
 			/* set OS description + device name text */
 			if (if_info->description != NULL)
-				text[1] = g_strdup_printf("%s: %s", if_info->description, if_info->name);
+				text[1] = g_strdup(if_info->description);
 			else
-				text[1] = g_strdup(if_info->name);
+				text[1] = "";
 			/* set empty description */
 			text[2] = g_strdup("");
 			/* check if interface is "hidden" */
@@ -585,9 +605,9 @@ ifopts_options_add(GtkCList *clist, if_info_t *if_info)
 		text[0] = g_strdup(if_info->name);
 		/* set OS description + device name text */
 		if (if_info->description != NULL)
-			text[1] = g_strdup_printf("%s: %s", if_info->description, if_info->name);
+			text[1] = g_strdup(if_info->description);
 		else
-			text[1] = g_strdup(if_info->name);
+			text[1] = "";
 		/* set empty description */
 		text[2] = g_strdup("");
 		/* check if interface is "hidden" */
@@ -609,9 +629,9 @@ ifopts_options_add(GtkCList *clist, if_info_t *if_info)
 		text[0] = g_strdup(if_info->name);
 		/* set OS description + device name text */
 		if (if_info->description != NULL)
-			text[1] = g_strdup_printf("%s: %s", if_info->description, if_info->name);
+			text[1] = g_strdup(if_info->description);
 		else
-			text[1] = g_strdup(if_info->name);
+			text[1] = "";
 		/* set empty description */
 		text[2] = g_strdup("");
 		/* interface is not "hidden" */
@@ -729,8 +749,6 @@ ifopts_write_new_descr(void)
 		g_free(new_descr);
 		prefs.capture_devices_descr = NULL;
 	}
-
-    g_free(new_descr);
 }
 
 /*
@@ -787,8 +805,6 @@ ifopts_write_new_hide(void)
 		g_free(new_hide);
 		prefs.capture_devices_hide = NULL;
 	}
-
-    g_free(new_hide);
 }
 
 #endif /* HAVE_LIBPCAP */
