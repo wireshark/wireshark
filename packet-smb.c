@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.151 2001/11/16 07:56:27 guy Exp $
+ * $Id: packet-smb.c,v 1.152 2001/11/16 09:27:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -658,15 +658,31 @@ static const gchar *get_unicode_or_ascii_string(tvbuff_t *tvb,
    These variables and functions are used to match
    responses with calls
    XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX */
-static GMemChunk *smb_info_chunk = NULL;
-static int smb_info_init_count = 200;
+static GMemChunk *smb_saved_info_chunk = NULL;
+static int smb_saved_info_init_count = 200;
 
+/*
+ * The information we need to save about a request in order to dissect
+ * the reply, and to show the frame number of the request in the dissection
+ * of the reply.
+ *
+ * XXX - we don't need most of this unless the request is a transaction
+ * request; all we need are the frame numbers.
+ */
+typedef struct {
+	guint32 frame_req, frame_res;
+	int subcmd;
+	int trans_subcmd;
+	int info_level;
+	int info_count;
+	struct smb_request_val *request_val;
+} smb_saved_info_t;
 
-/* matched smb_info structures.
-  For matched smb_info structures we store the smb_info structure twice in the table
-  using the frame number as the key.
-  The frame number is guaranteed to be unique but if ever someone makes some change
-  that will renumber the frames in a capture we are in BIG trouble.
+/* matched smb_saved_info structures.
+  For matched smb_saved_info structures we store the smb_saved_info
+  structure twice in the table using the frame number as the key.
+  The frame number is guaranteed to be unique but if ever someone makes
+  some change that will renumber the frames in a capture we are in BIG trouble.
   This is not likely though since that would break (among other things) all the
   reassembly routines as well.
 
@@ -674,22 +690,17 @@ static int smb_info_init_count = 200;
   Ugly, yes. Not portable to DEC-20 Yes. But it saves a few bytes.
 */
 static gint
-smb_info_equal_matched(gconstpointer k1, gconstpointer k2)
+smb_saved_info_equal_matched(gconstpointer k1, gconstpointer k2)
 {
 	register int key1 = (int)k1;
 	register int key2 = (int)k2;
 	return key1==key2;
 }
 static guint
-smb_info_hash_matched(gconstpointer k)
+smb_saved_info_hash_matched(gconstpointer k)
 {
 	register int key = (int)k;
 	return key;
-}
-static gboolean
-free_all_smb_info_matched(gpointer key_arg, gpointer value, gpointer user_data)
-{
-	return TRUE;
 }
 typedef struct conv_tables {
 	GHashTable *unmatched;
@@ -7196,20 +7207,20 @@ dissect_nt_create_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 static int
 dissect_nt_cancel_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *smb_tree)
 {
-	smb_info_t	*sip;
+	smb_info_t *si;
 	guint8 wc;
 	guint16 bc;
 	conversation_t *conversation;
 	conv_tables_t *ct;
-	smb_info_t *old_si;
+	smb_saved_info_t *old_si;
 
-	sip = pinfo->private_data;
+	si = pinfo->private_data;
 	conversation = find_conversation(&pinfo->src, &pinfo->dst,
 			  pinfo->ptype,  pinfo->srcport, pinfo->destport, 0);
 	if(conversation){
 		ct=conversation_get_proto_data(conversation, proto_smb);
 		if(ct){
-			old_si=g_hash_table_lookup(ct->unmatched, (void *)sip->mid);
+			old_si=g_hash_table_lookup(ct->unmatched, (void *)si->mid);
 			if(old_si){
 				proto_tree_add_uint(tree, hf_smb_cancel_to, tvb, 0, 0, old_si->frame_req);
 			} else {
@@ -11028,14 +11039,14 @@ static char *decode_smb_name(unsigned char cmd)
 static void
 smb_init_protocol(void)
 {
-	if (smb_info_chunk)
-		g_mem_chunk_destroy(smb_info_chunk);
+	if (smb_saved_info_chunk)
+		g_mem_chunk_destroy(smb_saved_info_chunk);
 	if (conv_tables_chunk)
 		g_mem_chunk_destroy(conv_tables_chunk);
 
-	smb_info_chunk = g_mem_chunk_new("smb_info_chunk",
-	    sizeof(smb_info_t),
-	    smb_info_init_count * sizeof(smb_info_t),
+	smb_saved_info_chunk = g_mem_chunk_new("smb_saved_info_chunk",
+	    sizeof(smb_saved_info_t),
+	    smb_saved_info_init_count * sizeof(smb_saved_info_t),
 	    G_ALLOC_ONLY);
 	conv_tables_chunk = g_mem_chunk_new("conv_tables_chunk",
 	    sizeof(conv_tables_t),
@@ -12226,10 +12237,9 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	guint8          flags;
 	guint16         flags2;
 	smb_info_t 	si;
-	smb_info_t	*sip;
+	smb_saved_info_t	*sip = NULL;
 	proto_item *cmd_item = NULL;
 	proto_tree *cmd_tree = NULL;
-	int (*dissector)(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *smb_tree);
         guint32 nt_status = 0;
         guint8 errclass = 0;
         guint16 errcode = 0;
@@ -12257,26 +12267,20 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 	/* start off using the local variable, we will allocate a new one if we
 	   need to*/
-	sip = &si;
-	sip->frame_req = 0;
-	sip->frame_res = 0;
-	sip->subcmd = -1;
-	sip->trans_subcmd = -1;
-	sip->info_level = -1;
-	sip->mid = tvb_get_letohs(tvb, offset+30);
+	si.mid = tvb_get_letohs(tvb, offset+30);
 	uid = tvb_get_letohs(tvb, offset+28);
 	pid = tvb_get_letohs(tvb, offset+26);
 	tid = tvb_get_letohs(tvb, offset+24);
 	flags2 = tvb_get_letohs(tvb, offset+10);
 	if(flags2 & 0x8000){
-		sip->unicode = TRUE; /* Mark them as Unicode */
+		si.unicode = TRUE; /* Mark them as Unicode */
 	} else {
-		sip->unicode = FALSE;
+		si.unicode = FALSE;
 	}
 	flags = tvb_get_guint8(tvb, offset+9);
-	sip->request = !(flags&SMB_FLAGS_DIRN);
-	sip->cmd = tvb_get_guint8(tvb, offset+4);
-	sip->request_val=NULL;
+	si.request = !(flags&SMB_FLAGS_DIRN);
+	si.cmd = tvb_get_guint8(tvb, offset+4);
+	si.request_val=NULL;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, proto_smb, tvb, offset, 
@@ -12293,24 +12297,21 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	offset += 4;  /* Skip the marker */
 
 
-	if( (sip->request)
-	    &&  (sip->mid==0)
+	if( (si.request)
+	    &&  (si.mid==0)
 	    &&  (uid==0)
 	    &&  (pid==0)
 	    &&  (tid==0) ){
 		/* this is a broadcast SMB packet, there will not be a reply.
 		   We dont need to do anything 
 		*/
-		sip->unidir=FALSE;
+		si.unidir = TRUE;
 	} else {
 		conversation_t *conversation;
 		conv_tables_t *ct;
-		smb_info_t *old_si;
-		gboolean request;
-		
-		sip->unidir=TRUE;
-		request=sip->request;
-		
+
+		si.unidir=TRUE;
+
 		/* first we try to find which conversation this packet is 
 		   part of 
 		*/
@@ -12324,10 +12325,10 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			conversation = conversation_new(&pinfo->src, &pinfo->dst, 
 				pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
 			ct = g_mem_chunk_alloc(conv_tables_chunk);
-			ct->matched= g_hash_table_new(smb_info_hash_matched, 
-				smb_info_equal_matched);		
-			ct->unmatched= g_hash_table_new(smb_info_hash_matched, 
-				smb_info_equal_matched);		
+			ct->matched= g_hash_table_new(smb_saved_info_hash_matched, 
+				smb_saved_info_equal_matched);		
+			ct->unmatched= g_hash_table_new(smb_saved_info_hash_matched, 
+				smb_saved_info_equal_matched);		
 			conversation_add_proto_data(conversation, proto_smb, ct);
 		} else {
 			/* this is an old conversation, just get the tables */
@@ -12337,10 +12338,9 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			/* first see if we find an unmatched smb "equal" to 
 			   the current one 
 			*/
-			old_si=g_hash_table_lookup(ct->unmatched, 
-				(void *)sip->mid);
-			if(old_si!=NULL){
-				if(request){
+			sip=g_hash_table_lookup(ct->unmatched, (void *)si.mid);
+			if(sip!=NULL){
+				if(si.request){
 					/* ok, we are processing an SMB
 					   request but there was already
 					   another "identical" smb resuest
@@ -12355,23 +12355,31 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 					   request and concentrate on the 
 					   present one instead.
 
-					   XXX - not true for NT Cancel,
-					   where the Cancel request has
+					   An exception is made for NT
+					   Cancel.  A Cancel request has
 					   the same TID/PID/MID/UID as
 					   the request to be cancelled;
-					   in that case, we should leave
-					   the old request in place.
-					   I'm not sure we can set "sip"
-					   to point to "old_si", however.
+					   in that case, we leave the
+					   old request in place, that
+					   being the request being
+					   cancelled.
 					*/
-					g_hash_table_remove(ct->unmatched, (void *)sip->mid);
+					if (si.cmd != 0xa4) {
+						/*
+						 * Not NT Cancel.
+						 * Remove the old entry,
+						 * and set "sip" to null
+						 * so that we allocate
+						 * a new one.
+						 */
+						g_hash_table_remove(ct->unmatched, (void *)si.mid);
+						sip = NULL;
+					}
 				} else {
 					/* we have found a response to some request we have seen earlier.
 					   What we do now depends on whether this is the first response
 					   to that request we see (id frame_res==0) or not. 
 					*/
-					sip=old_si;
-					
 					if(sip->frame_res==0){
 						/* ok it is the first response we have seen to this packet */
 						sip->frame_res = pinfo->fd->num;
@@ -12385,43 +12393,60 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 					}
 				}
 			}
-			if(request){
-				sip = g_mem_chunk_alloc(smb_info_chunk);
-				memcpy(sip, &si, sizeof(smb_info_t));
+			if(si.request && sip == NULL){
+				sip = g_mem_chunk_alloc(smb_saved_info_chunk);
 				sip->frame_req = pinfo->fd->num;
 				sip->frame_res = 0;
-				g_hash_table_insert(ct->unmatched, (void *)sip->mid, sip);
+				sip->subcmd = -1;
+				sip->trans_subcmd = -1;
+				sip->info_level = -1;
+				sip->info_count = 0;
+				sip->request_val = NULL;
+				g_hash_table_insert(ct->unmatched, (void *)si.mid, sip);
 			}
 		} else {
-			/* we have seen this packet before, just check matching table and if that
-			   fails, just continue using si
+			/* we have seen this packet before, just check
+			   matching table
 			*/
-			old_si=g_hash_table_lookup(ct->matched, (void *)pinfo->fd->num);
-			if(old_si){
-				sip=old_si;
-			}
+			sip=g_hash_table_lookup(ct->matched, (void *)pinfo->fd->num);
 		}
-	}
-	/* need to redo these ones, might have changed if we got a new sip */
-	sip->request = !(flags&SMB_FLAGS_DIRN);
-	if(flags2 & 0x8000){
-		sip->unicode = TRUE; /* Mark them as Unicode */
-	} else {
-		sip->unicode = FALSE;
 	}
 
-	if(sip->request){
-		if(sip->frame_res){
-			proto_tree_add_uint(htree, hf_smb_response_in, tvb, 0, 0, sip->frame_res);
+	if (sip != NULL) {
+		/*
+		 * Fill in "si" with stuff from "*sip".
+		 */
+		si.frame_req = sip->frame_req;
+		si.frame_res = sip->frame_res;
+		si.subcmd = sip->subcmd;
+		si.trans_subcmd = sip->trans_subcmd;
+		si.info_level = sip->info_level;
+		si.info_count = sip->info_count;
+		si.request_val = sip->request_val;
+	} else {
+		/*
+		 * Mark that stuff as unknown.
+		 */
+		si.frame_req = 0;
+		si.frame_res = 0;
+		si.subcmd = -1;
+		si.trans_subcmd = -1;
+		si.info_level = -1;
+		si.info_count = 0;
+		si.request_val = NULL;
+	}
+	if(si.request){
+		if(si.frame_res){
+			proto_tree_add_uint(htree, hf_smb_response_in, tvb, 0, 0, si.frame_res);
 		}
 	} else {
-		if(sip->frame_req){
-			proto_tree_add_uint(htree, hf_smb_response_to, tvb, 0, 0, sip->frame_req);
+		if(si.frame_req){
+			proto_tree_add_uint(htree, hf_smb_response_to, tvb, 0, 0, si.frame_req);
 		}
 	}
 
 	/* smb command */
-	proto_tree_add_uint_format(htree, hf_smb_cmd, tvb, offset, 1, sip->cmd, "SMB Command: %s (0x%02x)", decode_smb_name(sip->cmd), sip->cmd);
+	proto_tree_add_uint_format(htree, hf_smb_cmd, tvb, offset, 1, si.cmd, "SMB Command: %s (0x%02x)", decode_smb_name(si.cmd), si.cmd);
 	offset += 1;
 
 	if(flags2 & 0x4000){
@@ -12508,15 +12533,30 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	offset += 2;
 
 	/* MID */
-	proto_tree_add_uint(htree, hf_smb_mid, tvb, offset, 2,
-		sip->mid);
+	proto_tree_add_uint(htree, hf_smb_mid, tvb, offset, 2, si.mid);
 	offset += 2;
 
-	pinfo->private_data = sip;
-        dissect_smb_command(tvb, pinfo, parent_tree, offset, tree, sip->cmd);
+	pinfo->private_data = &si;
+        dissect_smb_command(tvb, pinfo, parent_tree, offset, tree, si.cmd);
+
+	/*
+	 * If we have saved info for this SMB, fill it in from the
+	 * stuff in "si".
+	 * XXX - do this only if we freshly allocated the saved info?
+	 * If not, it already has what we need.
+	 */
+	if (sip != NULL) {
+		sip->frame_req = si.frame_req;
+		sip->frame_res = si.frame_res;
+		sip->subcmd = si.subcmd;
+		sip->trans_subcmd = si.trans_subcmd;
+		sip->info_level = si.info_level;
+		sip->info_count = si.info_count;
+		sip->request_val = si.request_val;
+	}
 
 	/* Append error info from this packet to info string. */
-	if (!sip->request && check_col(pinfo->fd, COL_INFO)) {
+	if (!si.request && check_col(pinfo->fd, COL_INFO)) {
 		if (flags2 & 0x4000) {
 			/*
 			 * The status is an NT status code; was there
@@ -12546,7 +12586,6 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		}
 	}
 
-	g_assert(si.request_val==NULL);
 	return TRUE;
 }
 
