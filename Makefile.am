@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.93 1999/10/20 22:41:11 guy Exp $
+# $Id: Makefile.am,v 1.94 1999/10/21 22:18:33 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -204,9 +204,9 @@ register.c: packet.c $(DISSECTOR_SOURCES) @SNMP_C@
 	@echo '/* It is created automatically by the Makefile.  */'>>register.c-tmp
 	@echo '#include "register.h"' >>register.c-tmp
 	@echo 'void register_all_protocols(void) {' >>register.c-tmp
-	@for f in packet.c $(DISSECTOR_SOURCES) @SNMP_C@; do grep '^proto_register_[a-z_0-9A-Z]* *(' $$f 2>/dev/null; done | \
+	@for f in packet.c $(DISSECTOR_SOURCES) @SNMP_C@; do grep '^proto_register_[a-z_0-9A-Z]* *(' $(srcdir)/$$f 2>/dev/null; done | \
 	  sed -e 's/^.*://' -e 's/^\([a-z_0-9A-Z]*\).*/  {extern void \1 (void); \1 ();}/' >>register.c-tmp
-	@for f in packet.c $(DISSECTOR_SOURCES) @SNMP_C@; do grep '^void proto_register_[a-z_0-9A-Z]* *(' $$f 2>/dev/null; done | \
+	@for f in packet.c $(DISSECTOR_SOURCES) @SNMP_C@; do grep '^void proto_register_[a-z_0-9A-Z]* *(' $(srcdir)/$$f 2>/dev/null; done | \
 	  sed -e 's/^.*://' -e 's/^void \([a-z_0-9A-Z]*\).*/  {extern void \1 (void); \1 ();}/' >>register.c-tmp
 	@echo '}' >>register.c-tmp
 	@mv register.c-tmp register.c
