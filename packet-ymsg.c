@@ -3,7 +3,7 @@
  * Copyright 2003, Wayne Parrott <wayne_p@pacific.net.au>
  * Copied from packet-yhoo.c and updated
  *
- * $Id: packet-ymsg.c,v 1.2 2003/03/01 04:12:06 guy Exp $
+ * $Id: packet-ymsg.c,v 1.3 2003/10/22 21:21:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -268,22 +268,7 @@ dissect_ymsg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int offset = 0;
 	int content_len = 0;
 
-	if ((pinfo->srcport != TCP_PORT_YMSG && pinfo->destport != TCP_PORT_YMSG) &&
-	    (pinfo->srcport != TCP_PORT_YMSG_2 && pinfo->destport != TCP_PORT_YMSG_2) &&
-	    (pinfo->srcport != TCP_PORT_YMSG_3 && pinfo->destport != TCP_PORT_YMSG_3)) {
-		/* Not the Yahoo port - not a Yahoo Messenger packet. */
-		return FALSE;
-	}
-
-	/* get at least a full packet structure */
-	if ( !tvb_bytes_exist(tvb, 0, headersize) ) {
-		/* Not enough data captured; maybe it is a Yahoo
-		   Messenger packet, but it contains too little data to
-		   tell. */
-		return FALSE;
-	}
-
-	if (memcmp(tvb_get_ptr(tvb, offset, 4), "YMSG", 4) != 0) {
+	if (tvb_memeql(tvb, offset, "YMSG", 4) == -1) {
 		/* Not a Yahoo Messenger packet. */
 		return FALSE;
 	}
@@ -310,8 +295,10 @@ dissect_ymsg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		offset += 4; /* skip the YMSG string */
 
 		proto_tree_add_item(ymsg_tree, hf_ymsg_version, tvb,
-			offset, 4, TRUE);
-		offset += 4;
+			offset, 2, FALSE);
+		offset += 2;
+
+		offset += 2;	/* XXX - padding? */
 
 		content_len = tvb_get_ntohs(tvb, offset);
 		proto_tree_add_item(ymsg_tree, hf_ymsg_len, tvb,
@@ -356,7 +343,7 @@ proto_register_ymsg(void)
 {
 	static hf_register_info hf[] = {
 			{ &hf_ymsg_version, {
-				"Version", "ymsg.version", FT_UINT32, BASE_DEC,
+				"Version", "ymsg.version", FT_UINT16, BASE_DEC,
 				NULL, 0, "Packet version identifier", HFILL }},
 			{ &hf_ymsg_len, {
 				"Packet Length", "ymsg.len", FT_UINT16, BASE_DEC,
