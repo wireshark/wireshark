@@ -1,10 +1,10 @@
 /* packet-sap.c
  * Routines for sap packet dissection
- * <draft-ietf-mmusic-sap-v2-03.txt>
+ * RFC 2974
  *
  * Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-sap.c,v 1.11 2000/08/25 13:05:32 deniel Exp $
+ * $Id: packet-sap.c,v 1.12 2000/10/17 11:03:24 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -132,7 +132,6 @@ dissect_sap(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
         int sap_version, is_ipv6, is_del, is_enc, is_comp, addr_len;
         guint8 auth_len;
         guint16 tmp1;
-        guint32 tmp2;
 
         proto_item *si, *sif;
         proto_tree *sap_tree, *sap_flags_tree;
@@ -217,16 +216,13 @@ dissect_sap(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
                   offset += auth_data_len;
           }
-
-          if (is_enc) { /* Encrypted payload implies valid timeout in the SAP header */
-                  tmp2 = pntohl(pd+offset);
-                  proto_tree_add_text(sap_tree, NullTVB, offset, 4, "Timeout: %u", tmp2);
-                  offset += sizeof(guint32);
-          }
-
           if (is_enc || is_comp) {
+                  char *mangle;
+                  if (is_enc && is_comp) mangle = "compressed and encrypted";
+                  else if (is_enc) mangle = "encrypted";
+                  else mangle = "compressed";
                   proto_tree_add_text(sap_tree, NullTVB, offset, END_OF_FRAME,
-                                      "Rest of the packet is encrypted or compressed");
+                                      "The rest of the packet is %s", mangle);
                   return;
           }
 
