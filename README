@@ -90,6 +90,17 @@ The "Follow TCP Stream" feature only supports TCP over IPv4. Support for TCP
 over IPv6 is planned.
 
 
+SNMP
+----
+Ethereal can do some basic decoding of SNMP packets, but it relies on an
+external SNMP library to do this. You can use either the UCD or the CMU
+SNMP libraries. The configure script will automatically determine which
+library you have on your system and will use it. If you have an SNMP
+library but _do not_ want to have ethereal use it, you can run configure
+with the "--disable-snmp" option. No SNMP support will be compiled into
+ethereal with this option.
+
+
 Disclaimer
 ----------
 
