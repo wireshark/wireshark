@@ -3,7 +3,7 @@
  * Copyright 2001,2003 Tim Potter <tpot@samba.org>
  *  2002 structure and command dissectors by Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-netlogon.c,v 1.100 2004/04/08 10:21:10 sahlberg Exp $
+ * $Id: packet-dcerpc-netlogon.c,v 1.101 2004/04/21 12:08:41 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -6052,23 +6052,23 @@ netlogon_dissect_dsrgetdcnameex2_rqst(tvbuff_t *tvb, int offset,
 		pinfo, tree, drep);
 
 	offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
-		NDR_POINTER_UNIQUE, "unknown string", 
-		hf_netlogon_unknown_string, 0);
+		NDR_POINTER_UNIQUE, "Client Account", 
+		hf_netlogon_acct_name, 0);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_netlogon_unknown_long, NULL);
 
 	offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
-		NDR_POINTER_UNIQUE, "unknown string", 
-		hf_netlogon_unknown_string, 0);
+		NDR_POINTER_UNIQUE, "Client Account", 
+		hf_netlogon_logon_dom, 0);
 
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 		dissect_nt_GUID, NDR_POINTER_UNIQUE,
-		"GUID pointer: unknown_GUID", -1);
+		"Domain GUID:", -1);
 
 	offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
-		NDR_POINTER_UNIQUE, "unknown string", 
-		hf_netlogon_unknown_string, 0);
+		NDR_POINTER_UNIQUE, "Client Site", 
+		hf_netlogon_site_name, 0);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_netlogon_unknown_long, NULL);
