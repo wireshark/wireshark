@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.49 1999/11/29 02:45:23 guy Exp $
+ * $Id: main.c,v 1.50 1999/11/29 03:06:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -71,6 +71,10 @@
 #  include <varargs.h>
 # endif
 # include "snprintf.h"
+#endif
+
+#ifdef HAVE_UCD_SNMP_VERSION_H
+#include <ucd-snmp/version.h>
 #endif
 
 #ifdef NEED_STRERROR_H
@@ -932,10 +936,10 @@ main(int argc, char *argv[])
   /* Assemble the compile-time options */
   snprintf(comp_info_str, 256,
 #ifdef GTK_MAJOR_VERSION
-    "GTK+ %d.%d.%d, %s%s, %s%s", GTK_MAJOR_VERSION, GTK_MINOR_VERSION,
+    "GTK+ %d.%d.%d, %s%s, %s%s, %s%s", GTK_MAJOR_VERSION, GTK_MINOR_VERSION,
     GTK_MICRO_VERSION,
 #else
-    "GTK+ (version unknown), %s%s, %s%s",
+    "GTK+ (version unknown), %s%s, %s%s, %s%s",
 #endif
 
 #ifdef HAVE_LIBPCAP
@@ -946,13 +950,25 @@ main(int argc, char *argv[])
 
 #ifdef HAVE_LIBZ
 #ifdef ZLIB_VERSION
-   "with libz ", ZLIB_VERSION
+   "with libz ", ZLIB_VERSION,
 #else /* ZLIB_VERSION */
-   "with libz ", "(version unknown)"
+   "with libz ", "(version unknown)",
 #endif /* ZLIB_VERSION */
 #else /* HAVE_LIBZ */
-   "without libz", ""
+   "without libz", "",
 #endif /* HAVE_LIBZ */
+
+#if defined(HAVE_UCD_SNMP_SNMP_H)
+#ifdef HAVE_UCD_SNMP_VERSION_H
+   "with UCD SNMP ", VersionInfo
+#else
+   "with UCD SNMP ", "(version unknown)"
+#endif
+#elif defined(HAVE_SNMP_SNMP_H)
+   "with CMU SNMP ", "(version unknown)"
+#else
+   "without SNMP", ""
+#endif
    );
 
 #ifndef WIN32
