@@ -1171,7 +1171,7 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
 			ti = proto_tree_add_string_format(tree,
 				hf_mmse_prev_sent_by,
 				tvb, offset - 1, 1 + count + length,
-				"%s (Forwarded-count=%u)",
+				strval, "%s (Forwarded-count=%u)",
 				strval, fwd_count);
 			subtree = proto_item_add_subtree(ti,
 				ett_mmse_hdr_details);
@@ -1207,7 +1207,7 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
 			ti = proto_tree_add_string_format(tree,
 				hf_mmse_prev_sent_date,
 				tvb, offset - 1, 1 + count + length,
-				"%s (Forwarded-count=%u)",
+				strval, "%s (Forwarded-count=%u)",
 				strval, fwd_count);
 			subtree = proto_item_add_subtree(ti,
 				ett_mmse_hdr_details);
@@ -1217,7 +1217,6 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
 			proto_tree_add_string(subtree,
 				hf_mmse_prev_sent_date_date,
 				tvb, offset + count + count1, count2, strval);
-			g_free(strval);
 		    }
 		    offset += length + count;
 		    break;
@@ -1622,7 +1621,7 @@ proto_register_mmse(void)
 	},
 	{   &hf_mmse_prev_sent_date_date,
 	    {   "Date", "mmse.previously_sent_date.date",
-		FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x00,
+		FT_STRING, BASE_NONE, NULL, 0x00,
 		"Time when the MM has been previously sent.",
     		HFILL
 	    }
