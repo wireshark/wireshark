@@ -6,7 +6,7 @@
  * Portions Copyright (c) 2000-2002 by Gilbert Ramirez.
  * Portions Copyright (c) Novell, Inc. 2002-2003
  *
- * $Id: packet-ipx.c,v 1.126 2003/04/09 22:33:19 guy Exp $
+ * $Id: packet-ipx.c,v 1.127 2003/04/12 05:36:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -690,9 +690,14 @@ dissect_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 		if (tree) {
 			proto_tree_add_uint_format(spx_tree, hf_spx_rexmt_frame,
-			    tvb, SPX_HEADER_LEN, -1, spx_rexmit_info->num,
+			    tvb, 0, 0, spx_rexmit_info->num,
 			    "This is a retransmission of frame %u",
 			    spx_rexmit_info->num);
+			if (tvb_length_remaining(tvb, SPX_HEADER_LEN) > 0) {
+				proto_tree_add_text(spx_tree, tvb,
+				    SPX_HEADER_LEN, -1,
+				    "Retransmitted data");
+			}
 		}
 		return;
 	}
