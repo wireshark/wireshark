@@ -1,7 +1,7 @@
 /* file.h
  * Definitions for file structures and routines
  *
- * $Id: file.h,v 1.61 1999/12/10 04:20:53 gram Exp $
+ * $Id: file.h,v 1.62 2000/01/08 23:49:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -88,7 +88,6 @@ typedef struct _capture_file {
   int          lnk_t;     /* Link-layer type with which to save capture */
   guint32      vers;      /* Version.  For tcpdump minor is appended to major */
   guint32      count;     /* Packet count */
-  gfloat       unfiltered_count; /* used for dfilter progress bar */
   guint32      drops;     /* Dropped packets */
   guint32      esec;      /* Elapsed seconds */
   guint32      eusec;     /* Elapsed microseconds */

@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.149 2000/01/06 07:33:20 guy Exp $
+ * $Id: file.c,v 1.150 2000/01/08 23:49:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -311,7 +311,6 @@ read_cap_file(capture_file *cf)
   cf->wth = NULL;
   cf->filed = open(cf->filename, O_RDONLY);
   cf->fh = filed_open(cf->filed, "r");
-  cf->unfiltered_count = cf->count;
   cf->current_frame = cf->first_displayed;
   /* Make the first row the selected row. */
   gtk_clist_select_row(GTK_CLIST(packet_list), 0, -1);
@@ -749,6 +748,7 @@ colorize_packets(capture_file *cf)
   frame_data *fd;
   guint32 progbar_quantum;
   guint32 progbar_nextstep;
+  int count;
 
   /* We need to re-initialize all the state information that protocols
      keep, because we're making a fresh pass through all the packets. */
@@ -783,8 +783,6 @@ colorize_packets(capture_file *cf)
   firstusec = 0;
   prevsec = 0;
   prevusec = 0;
-  cf->unfiltered_count = cf->count;
-  cf->count = 0;
 
   proto_tree_is_visible = FALSE;
 
@@ -792,7 +790,10 @@ colorize_packets(capture_file *cf)
   progbar_nextstep = 0;
   /* When we reach the value that triggers a progress bar update,
      bump that value by this amount. */
-  progbar_quantum = cf->unfiltered_count/N_PROGBAR_UPDATES;
+  progbar_quantum = cf->count/N_PROGBAR_UPDATES;
+  /* Count of packets at which we've looked. */
+  count = 0;
+
   gtk_progress_bar_set_orientation(GTK_PROGRESS_BAR(prog_bar), GTK_PROGRESS_LEFT_TO_RIGHT);
 
   for (fd = cf->plist; fd != NULL; fd = fd->next) {
@@ -801,21 +802,21 @@ colorize_packets(capture_file *cf)
        to repaint what's pending, and doing so may involve an "ioctl()"
        to see if there's any pending input from an X server, and doing
        that for every packet can be costly, especially on a big file. */
-    if (cf->count >= progbar_nextstep) {
+    if (count >= progbar_nextstep) {
       /* let's not divide by zero. I should never be started
-       * with unfiltered_count == 0, so let's assert that
+       * with count == 0, so let's assert that
        */
-      g_assert(cf->unfiltered_count > 0);
+      g_assert(cf->count > 0);
 
-	gtk_progress_bar_update(GTK_PROGRESS_BAR(prog_bar),
-		(gfloat) cf->count / cf->unfiltered_count);
+      gtk_progress_bar_update(GTK_PROGRESS_BAR(prog_bar),
+		(gfloat) count / cf->count);
 
       progbar_nextstep += progbar_quantum;
       while (gtk_events_pending())
         gtk_main_iteration();
     }
 
-    cf->count++;
+    count++;
 
     wtap_seek_read (cf->cd_t, cf->fh, fd->file_off, cf->pd, fd->cap_len);
 
@@ -909,9 +910,11 @@ print_packets(capture_file *cf, print_args_t *print_args)
   progbar_nextstep = 0;
   /* When we reach the value that triggers a progress bar update,
      bump that value by this amount. */
-  progbar_quantum = cf->unfiltered_count/N_PROGBAR_UPDATES;
-  /* Count of packets we've looked at. */
+  progbar_quantum = cf->count/N_PROGBAR_UPDATES;
+  /* Count of packets at which we've looked. */
   count = 0;
+
+  gtk_progress_bar_set_orientation(GTK_PROGRESS_BAR(prog_bar), GTK_PROGRESS_LEFT_TO_RIGHT);
 
   /* Iterate through the list of packets, printing the packets that
      were selected by the current display filter.  */
@@ -923,12 +926,12 @@ print_packets(capture_file *cf, print_args_t *print_args)
        that for every packet can be costly, especially on a big file. */
     if (count >= progbar_nextstep) {
       /* let's not divide by zero. I should never be started
-       * with unfiltered_count == 0, so let's assert that
+       * with count == 0, so let's assert that
        */
-      g_assert(cf->unfiltered_count > 0);
+      g_assert(cf->count > 0);
 
       gtk_progress_bar_update(GTK_PROGRESS_BAR(prog_bar),
-        (gfloat) count / cf->unfiltered_count);
+        (gfloat) count / cf->count);
       progbar_nextstep += progbar_quantum;
       while (gtk_events_pending())
         gtk_main_iteration();
@@ -1099,11 +1102,7 @@ find_packet(capture_file *cf, dfilter *sfcode)
     /* Update the progress bar when it gets to this value. */
     progbar_nextstep = 0;
     /* When we reach the value that triggers a progress bar update,
-       bump that value by this amount.
-
-       We base the progress bar on the extent to which we've gone through
-       the displayed packets, as those are the only ones for which we
-       have to do a significant amount of work. */
+       bump that value by this amount. */
     progbar_quantum = cf->count/N_PROGBAR_UPDATES;
     gtk_progress_bar_set_orientation(GTK_PROGRESS_BAR(prog_bar), GTK_PROGRESS_LEFT_TO_RIGHT);
 
@@ -1147,10 +1146,10 @@ find_packet(capture_file *cf, dfilter *sfcode)
         break;
       }
 
+      count++;
+
       /* Is this packet in the display? */
       if (fd->passed_dfilter) {
-        count++;
-
         /* Yes.  Does it match the search filter? */
         protocol_tree = proto_tree_create_root();
         wtap_seek_read(cf->cd_t, cf->fh, fd->file_off, cf->pd, fd->cap_len);
