@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.120 2001/04/19 01:08:16 guy Exp $
+# $Id: configure.in,v 1.121 2001/04/25 07:44:04 guy Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -365,6 +365,18 @@ else
 	AC_MSG_RESULT(yes)
 	AC_ETHEREAL_UCDSNMP_CHECK
 	AC_CHECK_HEADERS(ucd-snmp/snmp.h ucd-snmp/version.h snmp/snmp.h snmp/version.h)
+
+	#
+	# If we found both UCD and CMU SNMP headers, die, as both
+	# packages install the SNMP library as "libsnmp", so either
+	# only one of them is present or they're in different
+	# directories, and we run the risk of picking up the headers
+	# from one and the library from another.
+	#
+	if test "$ac_cv_header_ucd_snmp_snmp_h" = yes -a \
+	   "$ac_cv_header_snmp_snmp_h" = yes ; then
+	    AC_MSG_ERROR([Both UCD and CMU SNMP libraries found - uninstall one of them.])
+	fi
 
 	#
 	# This may require "-lkstat" on Solaris, sigh.
