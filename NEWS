@@ -1,6 +1,8 @@
-$Id: NEWS,v 1.141 2004/02/24 02:38:22 gerald Exp $
+$Id: NEWS,v 1.142 2004/02/24 02:45:44 gerald Exp $
 
 == February 23, 2004
+
+Ethereal 0.10.2 has been released.
 
 This release fixes two major bugs in 0.10.1:
   
