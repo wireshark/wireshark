@@ -443,12 +443,14 @@ either through C-like symbols, or through English-like abbreviations:
 
 Furthermore, each protocol field is typed. The types are:
 
-    Unsigned integer (either 8-bit, 16-bit, or 32-bit)
+    Unsigned integer (either 8-bit, 16-bit, 24-bit, or 32-bit)
+    Signed integer (either 8-bit, 16-bit, 24-bit, or 32-bit)
     Boolean
     Ethernet address (6 bytes)
     Byte string (n-number of bytes)
     IPv4 address
-    IPX network
+    IPv6 address
+    IPX network number
 
 An integer may be expressed in decimal, octal, or hexadecimal notation. The following
 three display filters are equivalent:
@@ -496,6 +498,21 @@ three bytes) like this:
 
     eth.src[0:3] == 00:00:83
 
+Or more simply, since the number of bytes is inherent in the byte-string you provide, you
+can provide just the offset. The previous example can be stated like this:
+
+    eth.src[0] == 00:00:83
+
+In fact, the only time you need to explicitly provide a length is when you don't provide
+a byte-string, and are comparing fields against fields:
+
+    fddi.src[0:3] == fddi.dst[0:3]
+
+If the length of your byte-string is only one byte, then it must be represented in the
+same way as an unsigned 8-bit integer:
+
+    llc[3] == 0xaa
+
 You can use the substring operator on a protocol name, too. And remember, the "frame" protocol
 encompasses the entire packet, allowing you to look at the nth byte of a packet regardless
 of its frame type (ethernet, token-ring, etc.).
@@ -504,7 +521,17 @@ of its frame type (ethernet, token-ring, etc.).
     ipx[0:2] == ff:ff
     llc[3:1] eq 0xaa
 
-The above tests can be combined together with logical expressions. These too are expressable
+Offsets for byte-strings can also be negative, in which case the negative number indicates
+the number of bytes from the end of the field or protocol that you are testing. Here's how
+to check the last 4 bytes of a frame:
+
+    frame[-4] == 0.1.2.3
+
+or
+
+    frame[-4:4] == 0.1.2.3
+
+All the above tests can be combined together with logical expressions. These too are expressable
 in C-like syntax or with English-like abbreviations:
 
     and, &&   Logical AND
