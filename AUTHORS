@@ -601,6 +601,8 @@ Ronnie Sahlberg <sahlberg[AT]optushome.com.au> {
 	NETLOGON implementation
 	LSA updates
 	NFS AUTH stub implementation
+	MAPI skeleton dissector
+	DCE/RPC fragment reassembly
 }
 
 Borosa Tomislav <tomislav.borosa[AT]SIEMENS.HR> {
