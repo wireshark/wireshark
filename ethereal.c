@@ -1,6 +1,6 @@
 /* ethereal.c
  *
- * $Id: ethereal.c,v 1.54 1999/07/13 03:08:04 gram Exp $
+ * $Id: ethereal.c,v 1.55 1999/07/13 04:38:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -542,7 +542,12 @@ filter_activate_cb(GtkWidget *w, gpointer data) {
 /* Print a packet */
 void
 file_print_cmd_cb(GtkWidget *widget, gpointer data) {
-    print_tree(cf.pd, fd, GTK_TREE(tree_view));
+    if (protocol_tree == NULL) {
+      simple_dialog(ESD_TYPE_WARN, NULL,
+        "No packet is selected, so there's no packet to print.");
+      return;
+    }
+    proto_tree_print((GNode*) protocol_tree, cf.pd, fd);
 }
 
 /* What to do when a list item is selected/unselected */

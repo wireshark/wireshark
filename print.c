@@ -1,7 +1,7 @@
 /* print.c
  * Routines for printing packet analysis trees.
  *
- * $Id: print.c,v 1.11 1999/07/07 22:51:58 gram Exp $
+ * $Id: print.c,v 1.12 1999/07/13 04:38:13 guy Exp $
  *
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
@@ -49,10 +49,12 @@ static void printer_opts_fs_cancel_cb(GtkWidget *w, gpointer data);
 static void printer_opts_fs_ok_cb(GtkWidget *w, gpointer data);
 static void printer_opts_toggle_format(GtkWidget *widget, gpointer data);
 static void printer_opts_toggle_dest(GtkWidget *widget, gpointer data);
+static void proto_tree_print_node_text(GNode *node, gpointer data);
 static void dumpit (FILE *fh, register const u_char *cp, register u_int length);
-static void dumpit_ps (FILE *fh, register const u_char *cp, register u_int length);
+static void proto_tree_print_node_ps(GNode *node, gpointer data);
 static void ps_clean_string(unsigned char *out, const unsigned char *in,
 			int outbuf_size);
+static void dumpit_ps (FILE *fh, register const u_char *cp, register u_int length);
 
 extern e_prefs prefs;
 
@@ -252,10 +254,18 @@ printer_opts_toggle_dest(GtkWidget *widget, gpointer data)
 }
 
 /* ========================================================== */
-void print_tree(const u_char *pd, frame_data *fd, GtkTree *tree)
+
+typedef struct {
+	int		level;
+	FILE		*fh;
+	const guint8	*pd;
+} print_data;
+
+void proto_tree_print(GNode *protocol_tree, const u_char *pd, frame_data *fd)
 {
 	FILE	*fh;
 	char	*out;
+	print_data data;
 
 	/* Open the file or command for output */
 	if (prefs.pr_dest == PR_DEST_CMD) {
@@ -273,12 +283,16 @@ void print_tree(const u_char *pd, frame_data *fd, GtkTree *tree)
 	}
 
 	/* Create the output */
+	data.level = 0;
+	data.fh = fh;
+	data.pd = pd;
 	if (prefs.pr_format == PR_FMT_TEXT) {
-		print_tree_text(fh, pd, fd, tree);
-	}
-	else {
+		g_node_children_foreach((GNode*) protocol_tree, G_TRAVERSE_ALL,
+			proto_tree_print_node_text, &data);
+	} else {
 		print_ps_preamble(fh);
-		print_tree_ps(fh, pd, fd, tree);
+		g_node_children_foreach((GNode*) protocol_tree, G_TRAVERSE_ALL,
+			proto_tree_print_node_ps, &data);
 		print_ps_finale(fh);
 	}
 
@@ -291,19 +305,32 @@ void print_tree(const u_char *pd, frame_data *fd, GtkTree *tree)
 	}
 }
 
-/* Print a tree's data in plain text */
-void print_tree_text(FILE *fh, const u_char *pd, frame_data *fd, GtkTree *tree)
+/* Print a tree's data, and any child nodes, in plain text */
+static
+void proto_tree_print_node_text(GNode *node, gpointer data)
 {
-	GList		*children, *child, *widgets, *label;
-	GtkWidget	*subtree;
-	int		 num_children, i;
-	char		*text;
+	field_info	*fi = (field_info*) (node->data);
+	print_data	*pdata = (print_data*) data;
+	int		i;
 	int		 num_spaces;
 	char		space[41];
-	gint		data_start, data_len;
+	gchar		label_str[ITEM_LABEL_LENGTH];
+	gchar		*label_ptr;
 
+	if (!fi->visible)
+		return;
+
+	/* was a free format label produced? */
+	if (fi->representation) {
+		label_ptr = fi->representation;
+	}
+	else { /* no, make a generic label */
+		label_ptr = label_str;
+		proto_item_fill_label(fi, label_str);
+	}
+		
 	/* Prepare the tabs for printing, depending on tree level */
-	num_spaces = tree->level * 4;
+	num_spaces = pdata->level * 4;
 	if (num_spaces > 40) {
 		num_spaces = 40;
 	}
@@ -313,34 +340,20 @@ void print_tree_text(FILE *fh, const u_char *pd, frame_data *fd, GtkTree *tree)
 	/* The string is NUL-terminated */
 	space[num_spaces] = 0;
 
-	/* Get the children of this tree */
-	children = tree->children;
-	num_children = g_list_length(children);
+	/* Print the text */
+	fprintf(pdata->fh, "%s%s\n", space, label_ptr);
 
-	for (i = 0; i < num_children; i++) {
-		/* Each child of the tree is a widget container */
-		child = g_list_nth(children, i);
-		widgets = gtk_container_children(GTK_CONTAINER(child->data));
+	/* If it's uninterpreted data, dump it.
+	   XXX - have a better way of doing this than looking for "Data (" */
+	if (strncmp("Data (", label_ptr, 6) == 0)
+		dumpit(pdata->fh, &pdata->pd[fi->start], fi->length);
 
-		/* And the container holds a label object, which holds text */
-		label = g_list_nth(widgets, 0);
-		gtk_label_get(GTK_LABEL(label->data), &text);
-
-		/* Print the text */
-		fprintf(fh, "%s%s\n", space, text);
-
-		/* Recurse into the subtree, if it exists */
-		subtree = (GTK_TREE_ITEM(child->data))->subtree;
-		if (subtree) {
-				print_tree_text(fh, pd, fd, GTK_TREE(subtree));
-		}
-		else if (strncmp("Data (", text, 6) == 0) {
-			data_start = (gint) gtk_object_get_data(GTK_OBJECT(child->data),
-      	E_TREEINFO_START_KEY);
-			data_len = (gint) gtk_object_get_data(GTK_OBJECT(child->data),
-      	E_TREEINFO_LEN_KEY);
-			dumpit(fh, &pd[data_start], data_len);
-		}
+	/* Recurse into the subtree, if it exists */
+	if (g_node_n_children(node) > 0) {
+		pdata->level++;
+		g_node_children_foreach(node, G_TRAVERSE_ALL,
+			proto_tree_print_node_text, pdata);
+		pdata->level--;
 	}
 }
 
@@ -381,6 +394,76 @@ void dumpit (FILE *fh, register const u_char *cp, register u_int length)
 
 #define MAX_LINE_LENGTH 256
 
+/* Print a node's data, and any child nodes, in PostScript */
+static
+void proto_tree_print_node_ps(GNode *node, gpointer data)
+{
+	field_info	*fi = (field_info*) (node->data);
+	print_data	*pdata = (print_data*) data;
+	gchar		label_str[ITEM_LABEL_LENGTH];
+	gchar		*label_ptr;
+	char		psbuffer[MAX_LINE_LENGTH]; /* static sized buffer! */
+
+	if (!fi->visible)
+		return;
+
+	/* was a free format label produced? */
+	if (fi->representation) {
+		label_ptr = fi->representation;
+	}
+	else { /* no, make a generic label */
+		label_ptr = label_str;
+		proto_item_fill_label(fi, label_str);
+	}
+		
+	/* Print the text */
+	ps_clean_string(psbuffer, label_ptr, MAX_LINE_LENGTH);
+	fprintf(pdata->fh, "%d (%s) putline\n", pdata->level, psbuffer);
+
+	/* If it's uninterpreted data, dump it.
+	   XXX - have a better way of doing this than looking for "Data (" */
+	if (strncmp("Data (", label_ptr, 6) == 0) {
+		print_ps_hex(pdata->fh);
+		dumpit_ps(pdata->fh, &pdata->pd[fi->start], fi->length);
+	}
+
+	/* Recurse into the subtree, if it exists */
+	if (g_node_n_children(node) > 0) {
+		pdata->level++;
+		g_node_children_foreach(node, G_TRAVERSE_ALL,
+			proto_tree_print_node_ps, pdata);
+		pdata->level--;
+	}
+}
+
+static
+void ps_clean_string(unsigned char *out, const unsigned char *in,
+			int outbuf_size)
+{
+	int rd, wr;
+	char c;
+
+	for (rd = 0, wr = 0 ; wr < outbuf_size; rd++, wr++ ) {
+		c = in[rd];
+		switch (c) {
+			case '(':
+			case ')':
+			case '\\':
+				out[wr] = '\\';
+				out[++wr] = c;
+				break;
+
+			default:
+				out[wr] = c;
+				break;
+		}
+
+		if (c == 0) {
+			break;
+		}
+	}
+}
+
 static
 void dumpit_ps (FILE *fh, register const u_char *cp, register u_int length)
 {
@@ -415,75 +498,4 @@ void dumpit_ps (FILE *fh, register const u_char *cp, register u_int length)
 		}
         return;
 
-}
-
-/* Print a tree's data in PostScript */
-void print_tree_ps(FILE *fh, const u_char *pd, frame_data *fd, GtkTree *tree)
-{
-	GList		*children, *child, *widgets, *label;
-	GtkWidget	*subtree;
-	int		num_children, i;
-	char		*text;
-	gint		data_start, data_len;
-	char		psbuffer[MAX_LINE_LENGTH]; /* static sized buffer! */
-
-	/* Get the children of this tree */
-	children = tree->children;
-	num_children = g_list_length(children);
-
-	for (i = 0; i < num_children; i++) {
-		/* Each child of the tree is a widget container */
-		child = g_list_nth(children, i);
-		widgets = gtk_container_children(GTK_CONTAINER(child->data));
-
-		/* And the container holds a label object, which holds text */
-		label = g_list_nth(widgets, 0);
-		gtk_label_get(GTK_LABEL(label->data), &text);
-
-		/* Print the text */
-		ps_clean_string(psbuffer, text, MAX_LINE_LENGTH);
-		fprintf(fh, "%d (%s) putline\n", tree->level, psbuffer);
-
-		/* Recurse into the subtree, if it exists */
-		subtree = (GTK_TREE_ITEM(child->data))->subtree;
-		if (subtree) {
-				print_tree_ps(fh, pd, fd, GTK_TREE(subtree));
-		}
-		else if (strncmp("Data (", text, 6) == 0) {
-			data_start = (gint) gtk_object_get_data(GTK_OBJECT(child->data),
-      	E_TREEINFO_START_KEY);
-			data_len = (gint) gtk_object_get_data(GTK_OBJECT(child->data),
-      	E_TREEINFO_LEN_KEY);
-			print_ps_hex(fh);
-			dumpit_ps(fh, &pd[data_start], data_len);
-		}
-	}
-}
-
-static
-void ps_clean_string(unsigned char *out, const unsigned char *in,
-			int outbuf_size)
-{
-	int rd, wr;
-	char c;
-
-	for (rd = 0, wr = 0 ; wr < outbuf_size; rd++, wr++ ) {
-		c = in[rd];
-		switch (c) {
-			case '(':
-			case ')':
-			case '\\':
-				out[wr] = '\\';
-				out[++wr] = c;
-				break;
-
-			default:
-				out[wr] = c;
-				break;
-		}
-
-		if (c == 0) {
-			break;
-		}
-	}
 }
