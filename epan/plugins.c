@@ -1,7 +1,7 @@
 /* plugins.c
  * plugin routines
  *
- * $Id: plugins.c,v 1.53 2002/05/14 10:32:12 guy Exp $
+ * $Id: plugins.c,v 1.54 2002/05/14 10:39:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -227,7 +227,7 @@ plugins_scan_dir(const char *dirname)
 		if (!g_module_symbol(handle, "plugin_init", (gpointer*)&init))
 		{
 		    g_warning("The plugin %s has a plugin_reg_handoff symbol but no plugin_init routine",
-			      name, filename);
+			      name);
 		    g_module_close(handle);
 		    continue;
 		}
