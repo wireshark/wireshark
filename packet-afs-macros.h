@@ -8,7 +8,7 @@
  * Portions based on information/specs retrieved from the OpenAFS sources at
  *   www.openafs.org, Copyright IBM. 
  *
- * $Id: packet-afs-macros.h,v 1.15 2002/02/03 18:12:04 nneul Exp $
+ * $Id: packet-afs-macros.h,v 1.16 2002/02/03 20:48:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -449,10 +449,10 @@
    4 bytes - length, then char data */
 #define OUT_STRING(field) \
 	{	int i,len; \
+		char *tmp; \
 		i = tvb_get_ntohl(tvb, offset); \
 		offset += 4; \
 		len = ((i+4-1)/4)*4; \
-		char *tmp; \
 		tmp = g_malloc(i+1); \
 		memcpy(tmp, tvb_get_ptr(tvb,offset,i), i); \
 		tmp[i] = '\0'; \
