@@ -165,6 +165,7 @@ static int hf_ldp_tlv_fec_vc_intparam_cepopt_t3 = -1;
 static int hf_ldp_tlv_fec_vc_intparam_cepopt_e3 = -1;
 static int hf_ldp_tlv_fec_vc_intparam_vlanid = -1;
 static int hf_ldp_tlv_fec_vc_intparam_dlcilen = -1;
+static int hf_ldp_tlv_fec_vc_intparam_fcslen = -1;
 static int hf_ldp_tlv_fec_vc_intparam_tdmopt_r = -1;
 static int hf_ldp_tlv_fec_vc_intparam_tdmopt_d = -1;
 static int hf_ldp_tlv_fec_vc_intparam_tdmopt_f = -1;
@@ -175,6 +176,7 @@ static int hf_ldp_tlv_fec_vc_intparam_tdmopt_freq = -1;
 static int hf_ldp_tlv_fec_vc_intparam_tdmopt_ssrc = -1;
 static int hf_ldp_tlv_fec_vc_intparam_vccv_cctype_cw = -1;
 static int hf_ldp_tlv_fec_vc_intparam_vccv_cctype_mplsra = -1;
+static int hf_ldp_tlv_fec_vc_intparam_vccv_cctype_ttl1 = -1;
 static int hf_ldp_tlv_fec_vc_intparam_vccv_cvtype_icmpping = -1;
 static int hf_ldp_tlv_fec_vc_intparam_vccv_cvtype_lspping = -1;
 static int hf_ldp_tlv_fec_vc_intparam_vccv_cvtype_bfd = -1;
@@ -980,8 +982,9 @@ dissect_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
                               proto_item_append_text(ti,": Fragmentation");      
                               break;
                             case FEC_VC_INTERFACEPARAM_FCSRETENT:
-                              /* draft-ietf-pwe3-fcs-retention-00.txt */
-                              proto_item_append_text(ti,": FCS retention");      
+                              /* draft-ietf-pwe3-fcs-retention-02.txt */
+                              proto_item_append_text(ti,": FCS retention, FCS Length %u Bytes", tvb_get_ntohs(tvb,offset+2));      
+                              proto_tree_add_item(vcintparam_tree,hf_ldp_tlv_fec_vc_intparam_fcslen, tvb, offset+2, 2, FALSE);
                               break;
                             case FEC_VC_INTERFACEPARAM_TDMOPTION:
                               /* draft-vainshtein-pwe3-tdm-control-protocol-extensions */
@@ -1000,19 +1003,20 @@ dissect_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
                               }
                               break;
                             case FEC_VC_INTERFACEPARAM_VCCV:
-                              /* draft-ietf-pwe3-vccv-02.txt */
+                              /* draft-ietf-pwe3-vccv-03.txt */
                               proto_item_append_text(ti,": VCCV");
                               ti = proto_tree_add_text(vcintparam_tree, tvb, offset + 2, 1, "CC Type");
                               vccvtype_tree = proto_item_add_subtree(ti, ett_ldp_fec_vc_interfaceparam_vccvtype);
                               if(vccvtype_tree == NULL) return;
                               proto_tree_add_item(vccvtype_tree, hf_ldp_tlv_fec_vc_intparam_vccv_cctype_cw, tvb, offset+2, 1, FALSE);
                               proto_tree_add_item(vccvtype_tree, hf_ldp_tlv_fec_vc_intparam_vccv_cctype_mplsra, tvb, offset+2, 1, FALSE);
-                              ti = proto_tree_add_text(vcintparam_tree, tvb, offset + 2, 2, "CV Type");
+                              proto_tree_add_item(vccvtype_tree, hf_ldp_tlv_fec_vc_intparam_vccv_cctype_ttl1, tvb, offset+2, 1, FALSE);
+                              ti = proto_tree_add_text(vcintparam_tree, tvb, offset + 3, 1, "CV Type");
                               vccvtype_tree = proto_item_add_subtree(ti, ett_ldp_fec_vc_interfaceparam_vccvtype);
                               if(vccvtype_tree == NULL) return;
-                              proto_tree_add_item(vccvtype_tree, hf_ldp_tlv_fec_vc_intparam_vccv_cvtype_icmpping, tvb, offset+2, 2, FALSE);
-                              proto_tree_add_item(vccvtype_tree, hf_ldp_tlv_fec_vc_intparam_vccv_cvtype_lspping, tvb, offset+2, 2, FALSE);
-                              proto_tree_add_item(vccvtype_tree, hf_ldp_tlv_fec_vc_intparam_vccv_cvtype_bfd, tvb, offset+2, 2, FALSE);
+                              proto_tree_add_item(vccvtype_tree, hf_ldp_tlv_fec_vc_intparam_vccv_cvtype_icmpping, tvb, offset+3, 1, FALSE);
+                              proto_tree_add_item(vccvtype_tree, hf_ldp_tlv_fec_vc_intparam_vccv_cvtype_lspping, tvb, offset+3, 1, FALSE);
+                              proto_tree_add_item(vccvtype_tree, hf_ldp_tlv_fec_vc_intparam_vccv_cvtype_bfd, tvb, offset+3, 1, FALSE);
                               break;
 			    default: /* unknown */
 			      proto_item_append_text(ti," unknown");
@@ -2899,6 +2903,9 @@ proto_register_ldp(void)
     {&hf_ldp_tlv_fec_vc_intparam_dlcilen,
      {"DLCI Length", "ldp.msg.tlv.fec.vc.intparam.dlcilen", FT_UINT16, BASE_DEC, NULL, 0x0, "VC FEC Interface Parameter Frame-Relay DLCI Length", HFILL }},
 
+    {&hf_ldp_tlv_fec_vc_intparam_fcslen,
+     {"FCS Length", "ldp.msg.tlv.fec.vc.intparam.fcslen", FT_UINT16, BASE_DEC, NULL, 0x0, "VC FEC Interface Paramater FCS Length", HFILL }},
+
     {&hf_ldp_tlv_fec_vc_intparam_tdmopt_r,
      {"R Bit", "ldp.msg.tlv.fec.vc.intparam.tdmopt_r", FT_BOOLEAN, 16, TFS(&fec_vc_tdmopt_r), 0x8000, "VC FEC Interface Param TDM Options RTP Header", HFILL }},
 
@@ -2924,19 +2931,22 @@ proto_register_ldp(void)
      {"SSRC", "ldp.msg.tlv.fec.vc.intparam.tdmopt_ssrc", FT_UINT32, BASE_HEX, NULL, 0x00, "VC FEC Interface Param TDM Options SSRC", HFILL }},
 
     {&hf_ldp_tlv_fec_vc_intparam_vccv_cctype_cw,
-     {"PWE3 Control Word", "ldp.msg.tlv.fec.vc.intparam.vccv.cctype_cw", FT_BOOLEAN, 8, NULL, 0x10, "VC FEC Interface Param VCCV CC Type PWE3 CW", HFILL }},
+     {"PWE3 Control Word", "ldp.msg.tlv.fec.vc.intparam.vccv.cctype_cw", FT_BOOLEAN, 8, NULL, 0x01, "VC FEC Interface Param VCCV CC Type PWE3 CW", HFILL }},
 
     {&hf_ldp_tlv_fec_vc_intparam_vccv_cctype_mplsra,
-     {"MPLS Router Alert", "ldp.msg.tlv.fec.vc.intparam.vccv.cctype_mplsra", FT_BOOLEAN, 8, NULL, 0x20, "VC FEC Interface Param VCCV CC Type MPLS Router Alert", HFILL }},
+     {"MPLS Router Alert", "ldp.msg.tlv.fec.vc.intparam.vccv.cctype_mplsra", FT_BOOLEAN, 8, NULL, 0x02, "VC FEC Interface Param VCCV CC Type MPLS Router Alert", HFILL }},
+
+    {&hf_ldp_tlv_fec_vc_intparam_vccv_cctype_ttl1,
+     {"MPLS Inner Label TTL = 1", "ldp.msg.tlv.fec.vc.intparam.vccv.cctype_ttl1", FT_BOOLEAN, 8, NULL, 0x04, "VC FEC Interface Param VCCV CC Type Inner Label TTL 1", HFILL }},
 
     {&hf_ldp_tlv_fec_vc_intparam_vccv_cvtype_icmpping,
-     {"ICMP Ping", "ldp.msg.tlv.fec.vc.intparam.vccv.cvtype_icmpping", FT_BOOLEAN, 16, NULL, 0x0001, "VC FEC Interface Param VCCV CV Type ICMP Ping", HFILL }},
+     {"ICMP Ping", "ldp.msg.tlv.fec.vc.intparam.vccv.cvtype_icmpping", FT_BOOLEAN, 8, NULL, 0x01, "VC FEC Interface Param VCCV CV Type ICMP Ping", HFILL }},
 
     {&hf_ldp_tlv_fec_vc_intparam_vccv_cvtype_lspping,
-     {"LSP Ping", "ldp.msg.tlv.fec.vc.intparam.vccv.cvtype_lspping", FT_BOOLEAN, 16, NULL, 0x0002, "VC FEC Interface Param VCCV CV Type LSP Ping", HFILL }},
+     {"LSP Ping", "ldp.msg.tlv.fec.vc.intparam.vccv.cvtype_lspping", FT_BOOLEAN, 8, NULL, 0x02, "VC FEC Interface Param VCCV CV Type LSP Ping", HFILL }},
 
     {&hf_ldp_tlv_fec_vc_intparam_vccv_cvtype_bfd,
-     {"BFD", "ldp.msg.tlv.fec.vc.intparam.vccv.cvtype_bfd", FT_BOOLEAN, 16, NULL, 0x0004, "VC FEC Interface Param VCCV CV Type BFD", HFILL }},
+     {"BFD", "ldp.msg.tlv.fec.vc.intparam.vccv.cvtype_bfd", FT_BOOLEAN, 8, NULL, 0x04, "VC FEC Interface Param VCCV CV Type BFD", HFILL }},
 
 
     { &hf_ldp_tlv_lspid_act_flg,
