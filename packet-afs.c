@@ -8,7 +8,7 @@
  * Portions based on information/specs retrieved from the OpenAFS sources at
  *   www.openafs.org, Copyright IBM.
  *
- * $Id: packet-afs.c,v 1.50 2002/09/30 02:19:38 gerald Exp $
+ * $Id: packet-afs.c,v 1.51 2002/11/28 03:57:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -119,8 +119,8 @@ static void dissect_backup_request(tvbuff_t *tvb, struct rxinfo *rxinfo,
 static gint
 afs_equal(gconstpointer v, gconstpointer w)
 {
-  struct afs_request_key *v1 = (struct afs_request_key *)v;
-  struct afs_request_key *v2 = (struct afs_request_key *)w;
+  const struct afs_request_key *v1 = (const struct afs_request_key *)v;
+  const struct afs_request_key *v2 = (const struct afs_request_key *)w;
 
   if (v1 -> conversation == v2 -> conversation &&
       v1 -> service == v2 -> service &&
@@ -135,7 +135,7 @@ afs_equal(gconstpointer v, gconstpointer w)
 static guint
 afs_hash (gconstpointer v)
 {
-	struct afs_request_key *key = (struct afs_request_key *)v;
+	const struct afs_request_key *key = (const struct afs_request_key *)v;
 	guint val;
 
 	val = key -> conversation + key -> service + key -> callnumber;
@@ -444,7 +444,7 @@ dissect_acl(tvbuff_t *tvb, struct rxinfo *rxinfo _U_, proto_tree *tree, int offs
 	OUT_UINT(hf_afs_fs_acl_datasize);
 
 
-	if (sscanf((char *) GETSTR, "%d %n", &pos, &n) != 1) {
+	if (sscanf(GETSTR, "%d %n", &pos, &n) != 1) {
 		/* does not matter what we return, if this fails,
 		 * we cant dissect anything else in the packet either.
 		 */
@@ -455,7 +455,7 @@ dissect_acl(tvbuff_t *tvb, struct rxinfo *rxinfo _U_, proto_tree *tree, int offs
 	offset += n;
 
 
-	if (sscanf((char *) GETSTR, "%d %n", &neg, &n) != 1) {
+	if (sscanf(GETSTR, "%d %n", &neg, &n) != 1) {
 		return offset;
 	}
 	proto_tree_add_uint(tree, hf_afs_fs_acl_count_negative, tvb,
@@ -466,16 +466,14 @@ dissect_acl(tvbuff_t *tvb, struct rxinfo *rxinfo _U_, proto_tree *tree, int offs
 	 * This wacky order preserves the order used by the "fs" command
 	 */
 	for (i = 0; i < pos; i++) {
-		if (sscanf((char *) GETSTR,
-				"%127s %d %n", user, &acl, &n) != 2) {
+		if (sscanf(GETSTR, "%127s %d %n", user, &acl, &n) != 2) {
 			return offset;
 		}
 		ACLOUT(user,1,acl,n);
 		offset += n;
 	}
 	for (i = 0; i < neg; i++) {
-		if (sscanf((char *) GETSTR,
-			"%127s %d %n", user, &acl, &n) != 2) {
+		if (sscanf(GETSTR, "%127s %d %n", user, &acl, &n) != 2) {
 			return offset;
 		}
 		ACLOUT(user,0,acl,n);

@@ -2,7 +2,7 @@
  * Routines for dcerpc endpoint mapper dissection
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc-epm.c,v 1.17 2002/10/25 01:16:02 guy Exp $
+ * $Id: packet-dcerpc-epm.c,v 1.18 2002/11/28 03:57:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -153,7 +153,7 @@ epm_dissect_ept_entry_t(tvbuff_t *tvb, int offset,
     guint32 len;
     gint strlen;
     dcerpc_info *di;
-    char *str;
+    const char *str;
     
     di=pinfo->private_data;
     if(di->conformant_run){
@@ -176,7 +176,7 @@ epm_dissect_ept_entry_t(tvbuff_t *tvb, int offset,
                                  hf_epm_ann_offset, NULL);
     offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
                                  hf_epm_ann_len, &len);
-    str=(char *)tvb_get_ptr(tvb, offset, -1);
+    str=(const char *)tvb_get_ptr(tvb, offset, -1);
     strlen=len;
     strlen=MIN(strlen,tvb_length_remaining(tvb, offset));
     proto_tree_add_item(tree, hf_epm_annotation, tvb, offset, len, TRUE);

@@ -2,7 +2,7 @@
  * Routines for AppleTalk packet disassembly: LLAP, DDP, NBP, ATP, ASP,
  * RTMP.
  *
- * $Id: packet-atalk.c,v 1.83 2002/10/24 06:17:28 guy Exp $
+ * $Id: packet-atalk.c,v 1.84 2002/11/28 03:57:49 guy Exp $
  *
  * Simon Wilkinson <sxw@dcs.ed.ac.uk>
  *
@@ -271,8 +271,8 @@ static GMemChunk *asp_request_vals = NULL;
 /* Hash Functions */
 static gint  asp_equal (gconstpointer v, gconstpointer v2)
 {
-	asp_request_key *val1 = (asp_request_key*)v;
-	asp_request_key *val2 = (asp_request_key*)v2;
+	const asp_request_key *val1 = (const asp_request_key*)v;
+	const asp_request_key *val2 = (const asp_request_key*)v2;
 
 	if (val1->conversation == val2->conversation &&
 			val1->seq == val2->seq &&
@@ -284,7 +284,7 @@ static gint  asp_equal (gconstpointer v, gconstpointer v2)
 
 static guint asp_hash  (gconstpointer v)
 {
-        asp_request_key *asp_key = (asp_request_key*)v;
+        const asp_request_key *asp_key = (const asp_request_key*)v;
         return asp_key->seq;
 }
 

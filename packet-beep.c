@@ -1,7 +1,7 @@
 /* packet-beep.c
  * Routines for BEEP packet disassembly
  *
- * $Id: packet-beep.c,v 1.11 2002/08/28 21:00:07 jmayer Exp $
+ * $Id: packet-beep.c,v 1.12 2002/11/28 03:57:49 guy Exp $
  *
  * Copyright (c) 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  * Modified 2001 Darren New <dnew@invisible.net> for BEEP.
@@ -147,8 +147,8 @@ static GMemChunk  *beep_packet_infos = NULL;
 static gint
 beep_equal(gconstpointer v, gconstpointer w)
 {
-  struct beep_request_key *v1 = (struct beep_request_key *)v;
-  struct beep_request_key *v2 = (struct beep_request_key *)w;
+  const struct beep_request_key *v1 = (const struct beep_request_key *)v;
+  const struct beep_request_key *v2 = (const struct beep_request_key *)w;
 
 #if defined(DEBUG_BEEP_HASH)
   printf("Comparing %08X\n      and %08X\n",
@@ -165,7 +165,7 @@ beep_equal(gconstpointer v, gconstpointer w)
 static guint
 beep_hash(gconstpointer v)
 {
-  struct beep_request_key *key = (struct beep_request_key *)v;
+  const struct beep_request_key *key = (const struct beep_request_key *)v;
   guint val;
 
   val = key->conversation;

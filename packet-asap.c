@@ -6,7 +6,7 @@
  *
  * Copyright 2002, Michael Tuexen <Michael.Tuexen@icn.siemens.de>
  *
- * $Id: packet-asap.c,v 1.5 2002/08/28 21:00:07 jmayer Exp $
+ * $Id: packet-asap.c,v 1.6 2002/11/28 03:57:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -209,13 +209,14 @@ dissect_ipv4_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, prot
 static void
 dissect_ipv6_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
-  guint8 *ip6_address_ptr;
+  const guint8 *ip6_address_ptr;
 
-  ip6_address_ptr = (guint8 *)tvb_get_ptr(parameter_tvb, IPV6_ADDRESS_OFFSET, IPV6_ADDRESS_LENGTH);
+  ip6_address_ptr = tvb_get_ptr(parameter_tvb, IPV6_ADDRESS_OFFSET, IPV6_ADDRESS_LENGTH);
   proto_tree_add_ipv6(parameter_tree, hf_parameter_ipv6_address, parameter_tvb, IPV6_ADDRESS_OFFSET, IPV6_ADDRESS_LENGTH,
-                      (const guint8 *)ip6_address_ptr);
+                      ip6_address_ptr);
 
-  proto_item_set_text(parameter_item, "IPV6 address parameter: %s", ip6_to_str((struct e_in6_addr *)ip6_address_ptr));
+  proto_item_set_text(parameter_item, "IPV6 address parameter: %s",
+                      ip6_to_str((const struct e_in6_addr *)ip6_address_ptr));
 }
 
 #define SCTP_PORT_LENGTH     2
@@ -329,12 +330,12 @@ static void
 dissect_pool_handle_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   guint16 length, handle_length;
-  char *handle_ptr;
+  const char *handle_ptr;
 
   length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
 
   handle_length = length - PARAMETER_HEADER_LENGTH;
-  handle_ptr    = (char *)tvb_get_ptr(parameter_tvb, POOL_HANDLE_OFFSET, handle_length);
+  handle_ptr    = (const char *)tvb_get_ptr(parameter_tvb, POOL_HANDLE_OFFSET, handle_length);
   proto_tree_add_bytes(parameter_tree, hf_pool_handle, parameter_tvb, POOL_HANDLE_OFFSET, handle_length, handle_ptr);
   proto_item_set_text(parameter_item, "Pool handle");
 }

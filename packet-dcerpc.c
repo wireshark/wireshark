@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.87 2002/11/10 09:38:22 guy Exp $
+ * $Id: packet-dcerpc.c,v 1.88 2002/11/28 03:57:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -452,8 +452,8 @@ GHashTable *dcerpc_uuids=NULL;
 static gint
 dcerpc_uuid_equal (gconstpointer k1, gconstpointer k2)
 {
-    dcerpc_uuid_key *key1 = (dcerpc_uuid_key *)k1;
-    dcerpc_uuid_key *key2 = (dcerpc_uuid_key *)k2;
+    const dcerpc_uuid_key *key1 = (const dcerpc_uuid_key *)k1;
+    const dcerpc_uuid_key *key2 = (const dcerpc_uuid_key *)k2;
     return ((memcmp (&key1->uuid, &key2->uuid, sizeof (e_uuid_t)) == 0)
             && (key1->ver == key2->ver));
 }
@@ -461,7 +461,7 @@ dcerpc_uuid_equal (gconstpointer k1, gconstpointer k2)
 static guint
 dcerpc_uuid_hash (gconstpointer k)
 {
-    dcerpc_uuid_key *key = (dcerpc_uuid_key *)k;
+    const dcerpc_uuid_key *key = (const dcerpc_uuid_key *)k;
     /* This isn't perfect, but the Data1 part of these is almost always
        unique. */
     return key->uuid.Data1;
@@ -547,8 +547,8 @@ static GMemChunk *dcerpc_bind_value_chunk=NULL;
 static gint
 dcerpc_bind_equal (gconstpointer k1, gconstpointer k2)
 {
-    dcerpc_bind_key *key1 = (dcerpc_bind_key *)k1;
-    dcerpc_bind_key *key2 = (dcerpc_bind_key *)k2;
+    const dcerpc_bind_key *key1 = (const dcerpc_bind_key *)k1;
+    const dcerpc_bind_key *key2 = (const dcerpc_bind_key *)k2;
     return (key1->conv == key2->conv
             && key1->ctx_id == key2->ctx_id
             && key1->smb_fid == key2->smb_fid);
@@ -557,7 +557,7 @@ dcerpc_bind_equal (gconstpointer k1, gconstpointer k2)
 static guint
 dcerpc_bind_hash (gconstpointer k)
 {
-    dcerpc_bind_key *key = (dcerpc_bind_key *)k;
+    const dcerpc_bind_key *key = (const dcerpc_bind_key *)k;
     return ((guint)key->conv) + key->ctx_id + key->smb_fid;
 }
 
@@ -580,8 +580,8 @@ static GMemChunk *dcerpc_call_value_chunk=NULL;
 static gint
 dcerpc_call_equal (gconstpointer k1, gconstpointer k2)
 {
-    dcerpc_call_key *key1 = (dcerpc_call_key *)k1;
-    dcerpc_call_key *key2 = (dcerpc_call_key *)k2;
+    const dcerpc_call_key *key1 = (const dcerpc_call_key *)k1;
+    const dcerpc_call_key *key2 = (const dcerpc_call_key *)k2;
     return (key1->conv == key2->conv
             && key1->call_id == key2->call_id
             && key1->smb_fid == key2->smb_fid);
@@ -590,7 +590,7 @@ dcerpc_call_equal (gconstpointer k1, gconstpointer k2)
 static guint
 dcerpc_call_hash (gconstpointer k)
 {
-    dcerpc_call_key *key = (dcerpc_call_key *)k;
+    const dcerpc_call_key *key = (const dcerpc_call_key *)k;
     return ((guint32)key->conv) + key->call_id + key->smb_fid;
 }
 

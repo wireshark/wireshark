@@ -2,7 +2,7 @@
  * Routines for MS Exchange MAPI
  * Copyright 2002, Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-mapi.c,v 1.13 2002/08/28 21:00:09 jmayer Exp $
+ * $Id: packet-dcerpc-mapi.c,v 1.14 2002/11/28 03:57:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -98,14 +98,14 @@ free_all_decrypted(gpointer key_arg, gpointer value _U_, gpointer user_data _U_)
 static guint
 mapi_decrypt_hash(gconstpointer k)
 {
-	mapi_decrypted_data_t *mdd=(mapi_decrypted_data_t *)k;
+	const mapi_decrypted_data_t *mdd=(const mapi_decrypted_data_t *)k;
 	return mdd->frame;
 }
 static gint
 mapi_decrypt_equal(gconstpointer k1, gconstpointer k2)
 {
-	mapi_decrypted_data_t *mdd1=(mapi_decrypted_data_t *)k1;
-	mapi_decrypted_data_t *mdd2=(mapi_decrypted_data_t *)k2;
+	const mapi_decrypted_data_t *mdd1=(const mapi_decrypted_data_t *)k1;
+	const mapi_decrypted_data_t *mdd2=(const mapi_decrypted_data_t *)k2;
 
 	return	( (mdd1->frame==mdd2->frame)
 		&&(mdd1->callid==mdd2->callid) );
@@ -142,7 +142,7 @@ mapi_decrypt_pdu(tvbuff_t *tvb, int offset,
 	dcerpc_info *di;
 	mapi_decrypted_data_t *mmd=NULL;
 	guint32 len;
-	unsigned char *ptr;
+	const unsigned char *ptr;
 	guint32 i;
 	guint16 pdu_len;
 	proto_item *it = NULL;
@@ -166,7 +166,7 @@ mapi_decrypt_pdu(tvbuff_t *tvb, int offset,
 		mmd->callid=di->call_id;
 		mmd->frame=pinfo->fd->num;
 		mmd->data=g_malloc(len);
-		ptr=(unsigned char *)tvb_get_ptr(tvb, offset, len);
+		ptr=(const unsigned char *)tvb_get_ptr(tvb, offset, len);
 		for(i=0;i<len;i++){
 			mmd->data[i]=ptr[i]^0xa5;
 		}

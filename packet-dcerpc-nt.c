@@ -2,7 +2,7 @@
  * Routines for DCERPC over SMB packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-nt.c,v 1.46 2002/08/28 21:00:10 jmayer Exp $
+ * $Id: packet-dcerpc-nt.c,v 1.47 2002/11/28 03:57:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -655,7 +655,7 @@ static GMemChunk *pol_hash_value_chunk;
 
 static guint pol_hash_fn(gconstpointer k)
 {
-	pol_hash_key *key = (pol_hash_key *)k;
+	const pol_hash_key *key = (const pol_hash_key *)k;
 
 	/* Bytes 4-7 of the policy handle are a timestamp so should make a
 	   reasonable hash value */
@@ -677,8 +677,8 @@ static gboolean is_null_pol(e_ctx_hnd *policy_hnd)
 
 static gint pol_hash_compare(gconstpointer k1, gconstpointer k2)
 {
-	pol_hash_key *key1 = (pol_hash_key *)k1;
-	pol_hash_key *key2 = (pol_hash_key *)k2;
+	const pol_hash_key *key1 = (const pol_hash_key *)k1;
+	const pol_hash_key *key2 = (const pol_hash_key *)k2;
 
 	return memcmp(key1->policy_hnd, key2->policy_hnd,
 		      sizeof(key1->policy_hnd)) == 0;
@@ -1382,11 +1382,11 @@ dissect_nt_policy_hnd(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 int
 dissect_dcerpc_uint8s(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
                       proto_tree *tree, char *drep, int hfindex,
-		      int length, guint8 **pdata)
+		      int length, const guint8 **pdata)
 {
-    guint8 *data;
+    const guint8 *data;
 
-    data = (guint8 *)tvb_get_ptr(tvb, offset, length);
+    data = (const guint8 *)tvb_get_ptr(tvb, offset, length);
 
     if (tree) {
         proto_tree_add_item (tree, hfindex, tvb, offset, length, (drep[0] & 0x10));
@@ -1401,7 +1401,7 @@ dissect_dcerpc_uint8s(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
 int
 dissect_ndr_uint8s(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                    proto_tree *tree, char *drep,
-                   int hfindex, int length, guint8 **pdata)
+                   int hfindex, int length, const guint8 **pdata)
 {
     dcerpc_info *di;
 
@@ -1419,11 +1419,11 @@ dissect_ndr_uint8s(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 int
 dissect_dcerpc_uint16s(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
                       proto_tree *tree, char *drep, int hfindex,
-		      int length, guint16 **pdata)
+		      int length, const guint16 **pdata)
 {
-    guint16 *data;
+    const guint16 *data;
 
-    data = (guint16 *)tvb_get_ptr(tvb, offset, length * 2);
+    data = (const guint16 *)tvb_get_ptr(tvb, offset, length * 2);
 
     if (tree) {
         proto_tree_add_item (tree, hfindex, tvb, offset, length * 2, (drep[0] & 0x10));
@@ -1438,7 +1438,7 @@ dissect_dcerpc_uint16s(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
 int
 dissect_ndr_uint16s(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                    proto_tree *tree, char *drep,
-                   int hfindex, int length, guint16 **pdata)
+                   int hfindex, int length, const guint16 **pdata)
 {
     dcerpc_info *di;
 

@@ -2,7 +2,7 @@
  * Routines for afp packet dissection
  * Copyright 2002, Didier Gautheron <dgautheron@magic.fr>
  *
- * $Id: packet-afp.c,v 1.25 2002/10/25 21:59:47 guy Exp $
+ * $Id: packet-afp.c,v 1.26 2002/11/28 03:57:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -772,8 +772,8 @@ static GMemChunk *afp_request_vals = NULL;
 /* Hash Functions */
 static gint  afp_equal (gconstpointer v, gconstpointer v2)
 {
-	afp_request_key *val1 = (afp_request_key*)v;
-	afp_request_key *val2 = (afp_request_key*)v2;
+	const afp_request_key *val1 = (const afp_request_key*)v;
+	const afp_request_key *val2 = (const afp_request_key*)v2;
 
 	if (val1->conversation == val2->conversation &&
 			val1->seq == val2->seq) {
@@ -784,7 +784,7 @@ static gint  afp_equal (gconstpointer v, gconstpointer v2)
 
 static guint afp_hash  (gconstpointer v)
 {
-        afp_request_key *afp_key = (afp_request_key*)v;
+        const afp_request_key *afp_key = (const afp_request_key*)v;
         return afp_key->seq;
 }
 
