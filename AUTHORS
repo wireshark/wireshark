@@ -1493,6 +1493,8 @@ Jean-Baptiste Marchand <Jean-Baptiste.Marchand [AT] hsc.fr> {
 
 Andreas Trauer <andreas.trauer [AT] siemens.com> {
 	GTP enhancements
+	Add subtrees for each link in a Router-LSA in an OSPF LS Update
+	    packet
 }
 
 Ronald Henderson <Ronald.Henderson [AT] CognicaseUSA.com> {

@@ -2,7 +2,7 @@
  * Routines for OSPF packet disassembly
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-ospf.c,v 1.71 2002/11/15 18:50:47 guy Exp $
+ * $Id: packet-ospf.c,v 1.72 2002/11/27 19:10:51 guy Exp $
  *
  * At this time, this module is able to analyze OSPF
  * packets as specified in RFC2328. MOSPF (RFC1584) and other
@@ -197,6 +197,7 @@ static gint ett_ospf_hello = -1;
 static gint ett_ospf_desc = -1;
 static gint ett_ospf_lsr = -1;
 static gint ett_ospf_lsa = -1;
+static gint ett_ospf_lsa_router_link = -1;
 static gint ett_ospf_lsa_upd = -1;
 
 /* Trees for opaque LSAs */
@@ -1187,6 +1188,7 @@ dissect_ospf_v2_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
     guint16 		 link_counter;
     guint8 		 tos_counter;
     char  		*link_type_str;
+    char  		*link_type_short_str;
     char  		*link_id;
 
     /* AS-external LSA */
@@ -1276,49 +1278,69 @@ dissect_ospf_v2_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
 	 * maybe we should put each of the links into its own subtree ???
 	 */
 	for (link_counter = 1; link_counter <= nr_links; link_counter++) {
+            proto_tree *ospf_lsa_router_link_tree;
+            proto_item *ti_local;
+
+
 	    /* check the Link Type and ID */
 	    link_type = tvb_get_guint8(tvb, offset + 8);
 	    switch (link_type) {
 
 	    case OSPF_LINK_PTP:
                 link_type_str="Point-to-point connection to another router";
+                link_type_short_str="PTP";
 		link_id="Neighboring router's Router ID";
 		break;
 
 	    case OSPF_LINK_TRANSIT:
 		link_type_str="Connection to a transit network";
+                link_type_short_str="Transit";
 		link_id="IP address of Designated Router";
 		break;
 
 	    case OSPF_LINK_STUB:
 		link_type_str="Connection to a stub network";
+                link_type_short_str="Stub";
 		link_id="IP network/subnet number";
 		break;
 
 	    case OSPF_LINK_VIRTUAL:
 		link_type_str="Virtual link";
+                link_type_short_str="Virtual";
 		link_id="Neighboring router's Router ID";
 		break;
 
 	    default:
 		link_type_str="Unknown link type";
+                link_type_short_str="Unknown";
 		link_id="Unknown link ID";
 		break;
 	    }
 
-	    proto_tree_add_text(ospf_lsa_tree, tvb, offset, 4, "%s: %s", link_id,
+	    nr_tos = tvb_get_guint8(tvb, offset + 9);
+
+            
+            ti_local = proto_tree_add_text(ospf_lsa_tree, tvb, offset, 12 + 4 * nr_tos,
+                                     "Type: %-8s ID: %-15s Data: %-15s Metric: %d",
+                                     link_type_short_str, 
+                                     ip_to_str(tvb_get_ptr(tvb, offset, 4)),
+                                     ip_to_str(tvb_get_ptr(tvb, offset + 4, 4)),
+                                     tvb_get_ntohs(tvb, offset + 10));
+
+            ospf_lsa_router_link_tree = proto_item_add_subtree(ti_local, ett_ospf_lsa_router_link);
+
+	    proto_tree_add_text(ospf_lsa_router_link_tree, tvb, offset, 4, "%s: %s", link_id,
 				ip_to_str(tvb_get_ptr(tvb, offset, 4)));
 
 	    /* link_data should be specified in detail (e.g. network mask) (depends on link type)*/
-	    proto_tree_add_text(ospf_lsa_tree, tvb, offset + 4, 4, "Link Data: %s",
+	    proto_tree_add_text(ospf_lsa_router_link_tree, tvb, offset + 4, 4, "Link Data: %s",
 				ip_to_str(tvb_get_ptr(tvb, offset + 4, 4)));
 
-	    proto_tree_add_text(ospf_lsa_tree, tvb, offset + 8, 1, "Link Type: %u - %s",
+	    proto_tree_add_text(ospf_lsa_router_link_tree, tvb, offset + 8, 1, "Link Type: %u - %s",
 				link_type, link_type_str);
-	    nr_tos = tvb_get_guint8(tvb, offset + 9);
-	    proto_tree_add_text(ospf_lsa_tree, tvb, offset + 9, 1, "Number of TOS metrics: %u",
+	    proto_tree_add_text(ospf_lsa_router_link_tree, tvb, offset + 9, 1, "Number of TOS metrics: %u",
 				nr_tos);
-	    proto_tree_add_text(ospf_lsa_tree, tvb, offset + 10, 2, "TOS 0 metric: %u",
+	    proto_tree_add_text(ospf_lsa_router_link_tree, tvb, offset + 10, 2, "TOS 0 metric: %u",
 				tvb_get_ntohs(tvb, offset + 10));
 
 	    offset += 12;
@@ -1329,7 +1351,7 @@ dissect_ospf_v2_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
 	     * please send me a mail if it is/isn't working
 	     */
 	    for (tos_counter = 1; tos_counter <= nr_tos; tos_counter++) {
-		proto_tree_add_text(ospf_lsa_tree, tvb, offset, 4, "TOS: %u, Metric: %u",
+		proto_tree_add_text(ospf_lsa_router_link_tree, tvb, offset, 4, "TOS: %u, Metric: %u",
 				    tvb_get_guint8(tvb, offset),
 				    tvb_get_ntohs(tvb, offset + 2));
 		offset += 4;
@@ -2075,6 +2097,7 @@ proto_register_ospf(void)
 	&ett_ospf_desc,
 	&ett_ospf_lsr,
 	&ett_ospf_lsa,
+        &ett_ospf_lsa_router_link,
 	&ett_ospf_lsa_upd,
 	&ett_ospf_lsa_mpls,
 	&ett_ospf_lsa_mpls_router,
