@@ -1,7 +1,7 @@
 /* packet-icmpv6.c
  * Routines for ICMPv6 packet disassembly
  *
- * $Id: packet-icmpv6.c,v 1.64 2002/01/24 09:20:48 guy Exp $
+ * $Id: packet-icmpv6.c,v 1.65 2002/01/30 22:58:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -125,12 +125,12 @@ static void
 dissect_contained_icmpv6(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
     tvbuff_t *next_tvb;
-    address save_dl_src;
-    address save_dl_dst;
-    address save_net_src;
-    address save_net_dst;
-    address save_src;
-    address save_dst;
+    volatile address save_dl_src;
+    volatile address save_dl_dst;
+    volatile address save_net_src;
+    volatile address save_net_dst;
+    volatile address save_src;
+    volatile address save_dst;
     gboolean save_in_error_pkt;
 
     next_tvb = tvb_new_subset(tvb, offset, -1, -1);

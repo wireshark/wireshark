@@ -1,7 +1,7 @@
 /* packet-clnp.c
  * Routines for ISO/OSI network and transport protocol packet disassembly
  *
- * $Id: packet-clnp.c,v 1.47 2002/01/21 07:36:32 guy Exp $
+ * $Id: packet-clnp.c,v 1.48 2002/01/30 22:58:54 guy Exp $
  * Laurent Deniel <deniel@worldnet.fr>
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
@@ -1587,12 +1587,12 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   gint        len;
   guint       next_length;
   proto_tree *discpdu_tree;
-  address     save_dl_src;
-  address     save_dl_dst;
-  address     save_net_src;
-  address     save_net_dst;
-  address     save_src;
-  address     save_dst;
+  volatile address save_dl_src;
+  volatile address save_dl_dst;
+  volatile address save_net_src;
+  volatile address save_net_dst;
+  volatile address save_src;
+  volatile address save_dst;
   gboolean    save_in_error_pkt;
   fragment_data *fd_head;
   tvbuff_t   *volatile next_tvb;

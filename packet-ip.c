@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.158 2002/01/21 07:36:35 guy Exp $
+ * $Id: packet-ip.c,v 1.159 2002/01/30 22:58:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1328,12 +1328,12 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint8     num_addrs = 0;
   guint8     addr_entry_size = 0;
   int        i;
-  address    save_dl_src;
-  address    save_dl_dst;
-  address    save_net_src;
-  address    save_net_dst;
-  address    save_src;
-  address    save_dst;
+  volatile address save_dl_src;
+  volatile address save_dl_dst;
+  volatile address save_net_src;
+  volatile address save_net_dst;
+  volatile address save_src;
+  volatile address save_dst;
   gboolean   save_in_error_pkt;
   tvbuff_t   *next_tvb;
 
