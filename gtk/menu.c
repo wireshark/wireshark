@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.121 2003/12/08 17:49:20 ulfl Exp $
+ * $Id: menu.c,v 1.122 2003/12/08 19:25:01 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -113,7 +113,9 @@ static GtkItemFactoryEntry menu_items[] =
                              0, GTK_STOCK_SAVE),
     ITEM_FACTORY_STOCK_ENTRY("/File/Save _As...", "<shift><control>S", file_save_as_cmd_cb,
                              0, GTK_STOCK_SAVE_AS),
-    ITEM_FACTORY_ENTRY("/File/Save _Highlighted...", "<control>H", savehex_cb,
+    ITEM_FACTORY_ENTRY("/File/<separator>", NULL, NULL, 0, "<Separator>", NULL),
+    ITEM_FACTORY_ENTRY("/File/_Export", NULL, NULL, 0, "<Branch>", NULL),
+    ITEM_FACTORY_ENTRY("/File/_Export/_Raw Packet Data...", "<control>H", savehex_cb,
                              0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/File/<separator>", NULL, NULL, 0, "<Separator>", NULL),
     ITEM_FACTORY_STOCK_ENTRY("/File/_Print...", "<control>P", file_print_cmd_cb,
