@@ -1,4 +1,4 @@
-$Id: README.developer,v 1.80 2003/10/09 18:57:37 guy Exp $
+$Id: README.developer,v 1.81 2003/10/09 21:18:41 guy Exp $
 
 This file is a HOWTO for Ethereal developers. It describes how to start coding
 a Ethereal protocol dissector and the use some of the important functions and
@@ -231,7 +231,7 @@ code inside
 
 is needed only if you are using the "snprintf()" function.
 
-The "$Id: README.developer,v 1.80 2003/10/09 18:57:37 guy Exp $"
+The "$Id: README.developer,v 1.81 2003/10/09 21:18:41 guy Exp $"
 in the comment will be updated by CVS when the file is
 checked in; it will allow the RCS "ident" command to report which
 version of the file is currently checked out.
@@ -241,7 +241,7 @@ version of the file is currently checked out.
  * Routines for PROTONAME dissection
  * Copyright 2000, YOUR_NAME <YOUR_EMAIL_ADDRESS>
  *
- * $Id: README.developer,v 1.80 2003/10/09 18:57:37 guy Exp $
+ * $Id: README.developer,v 1.81 2003/10/09 21:18:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2151,6 +2151,95 @@ An example from packet-beep.c -
 This will create preferences "beep.tcp.port" and
 "beep.strict_header_terminator", the first of which is an unsigned
 integer and the second of which is a Boolean.
+
+2.7 Reassembly/desegmentation for protocols running atop TCP
+
+There are two main ways of reassembling PDUs spanning across multiple
+TCP segmentss.  The first one is simpler, but assumes you are running
+atop of TCP when this occurs (but your dissector might run atop of UDP,
+too, for example), and that your PDUs consist of a fixed amount of data
+that includes enough information to determine the PDU length, possibly
+followed by additional data.  The second one is more generic but
+requires more code and is less efficient.
+
+For the first method, you register two different dissection methods, on
+for the TCP case, and one for the other cases.  It is a good idea to
+have a dissect_PROTO_common function which will parse the generic
+content that you can find in all PDUs which is called from
+dissect_PROTO_tcp when the reassembly is complete and from
+dissect_PROTO_udp (or dissect_PROTO_other).
+
+To register the distinct dissector functions, consider the following
+example, stolen from packet-dns.c:
+
+	dissector_handle_t dns_udp_handle;
+	dissector_handle_t dns_tcp_handle;
+	dissector_handle_t mdns_udp_handle;
+
+	dns_udp_handle = create_dissector_handle(dissect_dns_udp,
+	    proto_dns);
+	dns_tcp_handle = create_dissector_handle(dissect_dns_tcp,
+	    proto_dns);
+	mdns_udp_handle = create_dissector_handle(dissect_mdns_udp,
+	    proto_dns);
+
+	dissector_add("udp.port", UDP_PORT_DNS, dns_udp_handle);
+	dissector_add("tcp.port", TCP_PORT_DNS, dns_tcp_handle);
+	dissector_add("udp.port", UDP_PORT_MDNS, mdns_udp_handle);
+	dissector_add("tcp.port", TCP_PORT_MDNS, dns_tcp_handle);
+
+The dissect_dns_udp function does very little work and calls
+dissect_dns_common, while dissect_dns_tcp calls tcp_dissect_pdus with a
+reference to a callback which will be called with reassembled data:
+
+	static void
+	dissect_dns_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+	{
+		tcp_dissect_pdus(tvb, pinfo, tree, dns_desegment, 2,
+		    get_dns_pdu_len, dissect_dns_tcp_pdu);
+	}
+
+(The dissect_dns_tcp_pdu function acts similarly to dissect_dns_udp.) 
+The arguments to tcp_dissect_pdus are:
+
+	the tvbuff pointer, packet_info pointer, and proto_tree pointer
+	passed to the dissector;
+
+	a gboolean flag indicating whether desegmentation is enabled for
+	your protocol;
+
+	the number of bytes of PDU data required to determine the length
+	of the PDU;
+
+	a routine that takes as arguments a tvbuff pointer and an offset
+	value representing the offset into the tvbuff at which a PDU
+	begins and should return - *without* throwing an exception (it
+	is guaranteed that the number of bytes specified by the previous
+	argument to tcp_dissect_pdus is available, but more data might
+	not be available, so don't refer to any data past that) - the
+	total length of the PDU, in bytes;
+
+	a routine that's passed a tvbuff pointer, packet_info pointer,
+	and proto_tree pointer, with the tvbuff containing a
+	possibly-reassembled PDU, and that should dissect that PDU.
+
+The second method is to return a modified pinfo structure when
+dissect_PROTO is called.  In this case, you have to check if you have
+collected enough bytes: if you have enough, you parse the PDU, and if
+don't have enough bytes, you return from the dissector supplying
+information to the caller on how many bytes you need to proceed.  This
+is done by indicating the offset where you would like to start again and
+the number of bytes that you need in pinfo->desegment_*:
+
+	if (i_miss_five_bytes) {
+		pinfo->desegment_offset = offset;
+		pinfo->desegment_len = 5;
+	}
+
+You can repeat this procedure until you've got enough bytes; for
+example, you can request one byte more until you've got the byte you're
+searching for if the data to be dissected consists of a sequence of
+bytes ending with a particular byte value.
 
 3. Plugins
 
