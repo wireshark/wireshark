@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *   2002 Added all command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-samr.c,v 1.50 2002/07/06 17:44:47 sharpe Exp $
+ * $Id: packet-dcerpc-samr.c,v 1.51 2002/07/16 22:50:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -26,6 +26,10 @@
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
+#endif
+
+#ifdef NEED_SNPRINTF_H
+# include "snprintf.h"
 #endif
 
 #include <glib.h>

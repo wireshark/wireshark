@@ -1,7 +1,7 @@
 /* plugins.c
  * plugin routines
  *
- * $Id: plugins.c,v 1.55 2002/07/12 22:52:36 guy Exp $
+ * $Id: plugins.c,v 1.56 2002/07/16 22:50:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -24,6 +24,10 @@
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
+#endif
+
+#ifdef NEED_SNPRINTF_H
+# include "snprintf.h"
 #endif
 
 #include "plugins.h"

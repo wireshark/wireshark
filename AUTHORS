@@ -90,6 +90,7 @@ Joerg Mayer      <jmayer[AT]loplof.de> {
 	Add _U_ to unused arguments, and turn off "-Wno-unused"
 	.cvsignore fixes
 	Make a pile of stuff not used outside one source file static
+	Clean up #includes
 	Mark last packet of TFTP transfer as such in the Info column
 	Dissect both the BOOTP server and client ports as bootp/DHCP
 }

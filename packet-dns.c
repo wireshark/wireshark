@@ -1,7 +1,7 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
  *
- * $Id: packet-dns.c,v 1.88 2002/06/15 20:38:34 guy Exp $
+ * $Id: packet-dns.c,v 1.89 2002/07/16 22:50:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -28,6 +28,10 @@
 
 #ifdef HAVE_SYS_TYPES_H
 # include <sys/types.h>
+#endif
+
+#ifdef NEED_SNPRINTF_H
+# include "snprintf.h"
 #endif
 
 #include <stdio.h>
