@@ -1,7 +1,7 @@
 /* reassemble.c
  * Routines for {fragment,segment} reassembly
  *
- * $Id: reassemble.c,v 1.44 2003/12/20 03:21:19 guy Exp $
+ * $Id: reassemble.c,v 1.45 2003/12/22 02:25:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1309,14 +1309,20 @@ fragment_add_seq_check_work(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		fd_head->data=NULL;
 		fd_head->reassembled_in=0;
 
-		if (frag_802_11_hack && !more_frags) {
+		if ((no_frag_number || frag_802_11_hack) && !more_frags) {
 			/*
-			 * This is the last snooped fragment for this
-			 * packet as well, and is the only one we've
-			 * seen.  We're doing special 802.11 processing;
-			 * just add the fragment to the table of
-			 * reassembled packets, and return a pointer
-			 * to the head of the list.
+			 * This is the last fragment for this packet, and
+			 * is the only one we've seen.
+			 *
+			 * Either we don't have sequence numbers, in which
+			 * case we assume this is the first fragment for
+			 * this packet, or we're doing special 802.11
+			 * processing, in which case we assume it's one
+			 * of those reassembled packets with a non-zero
+			 * fragment number (see packet-80211.c); just
+			 * add the fragment to the table of reassembled
+			 * packets, and return a pointer to the head of
+			 * the list.
 			 */
 			fragment_reassembled(fd_head, pinfo,
 			       reassembled_table, id);
