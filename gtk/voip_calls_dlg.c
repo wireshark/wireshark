@@ -58,9 +58,6 @@
 
 #include <epan/to_str.h>
 
-#include <string.h>
-#include <ctype.h>
-
 static const gchar FWD_LABEL_TEXT[] = "Select one call.";
 
 /****************************************************************************/

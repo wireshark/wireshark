@@ -40,7 +40,6 @@
 #include "graph_analysis.h"
 #include "voip_calls.h"
 #include "voip_calls_dlg.h"
-#include "rtp_stream.h"
 
 #include "globals.h"
 
@@ -57,17 +56,6 @@
 
 #include "alert_box.h"
 #include "simple_dialog.h"
-
-#ifdef HAVE_FCNTL_H
-#include <fcntl.h>
-#endif
-
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
-#endif
-
-#include <string.h>
-
 
 char *voip_call_state_name[6]={
 	"CALL SETUP",

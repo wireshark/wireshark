@@ -35,12 +35,6 @@
 #include "graph_analysis.h"
 
 #include <epan/epan_dissect.h>
-#include <epan/filesystem.h>
-
-#include "util.h"
-#include <epan/tap.h>
-#include "register.h"
-#include <epan/dissectors/packet-rtp.h>
 
 /* in /gtk ... */
 #include <gtk/gtk.h>
@@ -48,33 +42,12 @@
 
 #include "dlg_utils.h"
 #include "ui_util.h"
-#include "alert_box.h"
-#include "simple_dialog.h"
-#include "tap_menu.h"
 #include "main.h"
-#include "progress_dlg.h"
 #include "compat_macros.h"
 #include "../color.h"
 
-#include <math.h>
-#include <fcntl.h>
-#include <string.h>
-
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
-#endif
-
-#ifdef HAVE_FCNTL_H
-#include <fcntl.h>
-#endif
-
-#ifdef HAVE_IO_H
-#include <io.h> /* open/close on win32 */
-#endif
-
-/* Win32 needs the O_BINARY flag for open() */
-#ifndef O_BINARY
-#define O_BINARY 0
 #endif
 
 /****************************************************************************/
