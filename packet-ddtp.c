@@ -3,7 +3,7 @@
  * see http://ddt.sourceforge.net/
  * Olivier Abad <oabad@cybercable.fr>
  *
- * $Id: packet-ddtp.c,v 1.6 2000/06/10 18:08:17 oabad Exp $
+ * $Id: packet-ddtp.c,v 1.7 2000/06/12 10:01:54 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -97,99 +97,79 @@ static const value_string vals_ddtp_status[] = {
     { 0, NULL}
 };
 
+#if 0
+static void
+dissect_ddtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    proto_tree *ddtp_tree;
+    proto_item *ti;
+#else
 static void
 dissect_ddtp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
+    proto_tree  *ddtp_tree;
+    proto_item  *ti;
+    tvbuff_t    *tvb;
+    packet_info *pinfo = &pi;
+    tvb = tvb_new_subset(pinfo->compat_top_tvb, offset, -1, -1);
+#endif
 
-    proto_tree	    *ddtp_tree;
-    proto_item	    *ti;
-
-    if (check_col(fd, COL_PROTOCOL)) {
+    pinfo->current_proto = "DDTP";
+    if (check_col(pinfo->fd, COL_PROTOCOL)) {
 	/* Indicate what kind of message this is. */
-    	col_add_str (fd, COL_PROTOCOL, "DDTP");
+    	col_add_str (pinfo->fd, COL_PROTOCOL, "DDTP");
     }
     if (tree) {
-	ti = proto_tree_add_item(tree, proto_ddtp, NullTVB, offset,
+	ti = proto_tree_add_item(tree, proto_ddtp, tvb, 0,
 		END_OF_FRAME - offset, FALSE);
 	ddtp_tree = proto_item_add_subtree(ti, ett_ddtp);
 
 	if (!BYTES_ARE_IN_FRAME(offset, 4)) {
-	    proto_tree_add_text(ddtp_tree, NullTVB, offset, END_OF_FRAME-offset, "Frame too short");
+	    proto_tree_add_text(ddtp_tree, NullTVB, offset, tvb_length(tvb),
+		    "Frame too short");
 	    return;
 	}
-	proto_tree_add_uint(ddtp_tree, hf_ddtp_version, NullTVB, offset, 4, pntohl(pd+offset));
-	offset += 4;
-	if (!BYTES_ARE_IN_FRAME(offset, 4)) {
-	    proto_tree_add_text(ddtp_tree, NullTVB, offset, END_OF_FRAME-offset, "Frame too short");
-	    return;
-	}
-	proto_tree_add_uint(ddtp_tree, hf_ddtp_encrypt, NullTVB, offset, 4, pntohl(pd+offset));
-	if (!BYTES_ARE_IN_FRAME(offset+4, 4)) {
-	    proto_tree_add_text(ddtp_tree, NullTVB, offset+4, END_OF_FRAME-offset-4, "Frame too short");
-	    return;
-	}
-	proto_tree_add_uint(ddtp_tree, hf_ddtp_hostid, NullTVB, offset+4, 4, pntohl(pd+offset+4));
-	if (pntohl(pd+offset) == DDTP_ENCRYPT_PLAINTEXT) {
-	    offset += 8;
-	    if (!BYTES_ARE_IN_FRAME(offset, 4)) {
-		proto_tree_add_text(ddtp_tree, NullTVB, offset, END_OF_FRAME-offset, "Frame too short");
-		return;
-	    }
-	    proto_tree_add_uint(ddtp_tree, hf_ddtp_msgtype, NullTVB, offset, 4, pntohl(pd+offset));
-	    switch (pntohl(pd+offset)) {
+	proto_tree_add_item(ddtp_tree, hf_ddtp_version, tvb, 0, 4, FALSE);
+	proto_tree_add_item(ddtp_tree, hf_ddtp_encrypt, tvb, 4, 4, FALSE);
+	proto_tree_add_item(ddtp_tree, hf_ddtp_hostid, tvb, 8, 4, FALSE);
+	if (tvb_get_ntohl(tvb, 4) == DDTP_ENCRYPT_PLAINTEXT) {
+	    proto_tree_add_item(ddtp_tree, hf_ddtp_msgtype, tvb, 12, 4, FALSE);
+	    switch (tvb_get_ntohl(tvb, 12)) {
 	    case DDTP_MESSAGE_ERROR :
-		offset += 4;
-		if (check_col(fd, COL_INFO)) col_add_str (fd, COL_INFO, "Message Error");
+		if (check_col(pinfo->fd, COL_INFO))
+		    col_add_str (pinfo->fd, COL_INFO, "Message Error");
 		break;
 	    case DDTP_UPDATE_QUERY :
-		offset += 4;
-		if (check_col(fd, COL_INFO)) col_add_str (fd, COL_INFO, "Update Query");
-		if (!BYTES_ARE_IN_FRAME(offset, 4)) {
-		    proto_tree_add_text(ddtp_tree, NullTVB, offset, END_OF_FRAME-offset, "Frame too short");
-		    return;
-		}
-		proto_tree_add_uint(ddtp_tree, hf_ddtp_opcode, NullTVB, offset, 4, pntohl(pd+offset));
-		offset += 4;
-		if (!BYTES_ARE_IN_FRAME(offset, 4)) {
-		    proto_tree_add_text(ddtp_tree, NullTVB, offset, END_OF_FRAME-offset, "Frame too short");
-		    return;
-		}
-		proto_tree_add_ipv4(ddtp_tree, hf_ddtp_ipaddr, NullTVB, offset, 4, pntohl(pd+offset));
+		if (check_col(pinfo->fd, COL_INFO))
+		    col_add_str (pinfo->fd, COL_INFO, "Update Query");
+		proto_tree_add_item(ddtp_tree, hf_ddtp_opcode, tvb, 16, 4,
+			FALSE);
+		proto_tree_add_item(ddtp_tree, hf_ddtp_ipaddr, tvb, 20, 4,
+			FALSE);
 		break;
 	    case DDTP_UPDATE_REPLY :
-		offset += 4;
-		if (check_col(fd, COL_INFO)) col_add_str (fd, COL_INFO, "Update Reply");
-		if (!BYTES_ARE_IN_FRAME(offset, 4)) {
-		    proto_tree_add_text(ddtp_tree, NullTVB, offset, END_OF_FRAME-offset, "Frame too short");
-		    return;
-		}
-		proto_tree_add_uint(ddtp_tree, hf_ddtp_status, NullTVB, offset, 4, pntohl(pd+offset));
+		if (check_col(pinfo->fd, COL_INFO))
+		    col_add_str (pinfo->fd, COL_INFO, "Update Reply");
+		proto_tree_add_item(ddtp_tree, hf_ddtp_status, tvb, 16, 4,
+			FALSE);
 		break;
 	    case DDTP_ALIVE_QUERY :
-		offset += 4;
-		if (check_col(fd, COL_INFO)) col_add_str (fd, COL_INFO, "Alive Query");
-		if (!BYTES_ARE_IN_FRAME(offset, 4)) {
-		    proto_tree_add_text(ddtp_tree, NullTVB, offset, END_OF_FRAME-offset, "Frame too short");
-		    return;
-		}
-		proto_tree_add_text(ddtp_tree, NullTVB, offset, 4, "Dummy : %u", pntohl(pd+offset));
+		if (check_col(pinfo->fd, COL_INFO))
+		    col_add_str (pinfo->fd, COL_INFO, "Alive Query");
+		proto_tree_add_text(ddtp_tree, tvb, 16, 4, "Dummy : %u",
+			tvb_get_ntohl(tvb, 16));
 		break;
 	    case DDTP_ALIVE_REPLY :
-		offset += 4;
-		if (check_col(fd, COL_INFO)) col_add_str (fd, COL_INFO, "Alive Reply");
-		if (!BYTES_ARE_IN_FRAME(offset, 4)) {
-		    proto_tree_add_text(ddtp_tree, NullTVB, offset, END_OF_FRAME-offset, "Frame too short");
-		    return;
-		}
-		proto_tree_add_text(ddtp_tree, NullTVB, offset, 4, "Dummy : %u", pntohl(pd+offset));
+		if (check_col(pinfo->fd, COL_INFO))
+		    col_add_str (pinfo->fd, COL_INFO, "Alive Reply");
+		proto_tree_add_text(ddtp_tree, tvb, 16, 4, "Dummy : %u",
+			tvb_get_ntohl(tvb, 16));
 		break;
 	    default :
-		if (check_col(fd, COL_INFO)) col_add_str (fd, COL_INFO, "Unknwon type");
-		if (!BYTES_ARE_IN_FRAME(offset, 4)) {
-		    proto_tree_add_text(ddtp_tree, NullTVB, offset, END_OF_FRAME-offset, "Frame too short");
-		    return;
-		}
-		proto_tree_add_text(ddtp_tree, NullTVB, offset, 4, "Unknown type : %u", pntohl(pd+offset));
+		if (check_col(pinfo->fd, COL_INFO))
+		    col_add_str (pinfo->fd, COL_INFO, "Unknwon type");
+		proto_tree_add_text(ddtp_tree, tvb, 12, 4, "Unknown type : %u",
+			tvb_get_ntohl(tvb, 12));
 	    }
 	}
    }
