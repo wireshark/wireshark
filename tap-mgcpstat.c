@@ -1,7 +1,7 @@
 /* tap-mgcpstat.c
  * mgcpstat   2003 Lars Roland
  *
- * $Id: tap-mgcpstat.c,v 1.1 2003/03/06 09:01:40 sahlberg Exp $
+ * $Id: tap-mgcpstat.c,v 1.2 2003/03/06 22:32:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
