@@ -7,7 +7,7 @@
  * Laurent Cazalet <laurent.cazalet@mailclub.net>
  * Thomas Parvais <thomas.parvais@advalvas.be>
  *
- * $Id: packet-l2tp.c,v 1.35 2002/08/28 21:00:19 jmayer Exp $
+ * $Id: packet-l2tp.c,v 1.36 2002/12/11 19:59:08 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -80,6 +80,7 @@ static int hf_l2tp_tie_breaker = -1;
 static gint ett_l2tp = -1;
 static gint ett_l2tp_ctrl = -1;
 static gint ett_l2tp_avp = -1;
+static gint ett_l2tp_lcp = -1;
 
 #define AVP_SCCRQ      1
 #define AVP_SCCRP      2
@@ -201,8 +202,8 @@ static const value_string authen_type_vals[] = {
 #define  SUB_ADDRESS 23
 #define  TX_CONNECT_SPEED 24
 #define  PHYSICAL_CHANNEL 25
-#define  INITIAL_RECEIVED_LCP 26
-#define  LAST_SEND_LCP_CONFREQ 27
+#define  INITIAL_RECEIVED_LCP_CONFREQ 26
+#define  LAST_SENT_LCP_CONFREQ 27
 #define  LAST_RECEIVED_LCP_CONFREQ 28
 #define  PROXY_AUTHEN_TYPE 29
 #define  PROXY_AUTHEN_NAME 30
@@ -244,8 +245,8 @@ static const value_string avp_type_vals[] = {
   { SUB_ADDRESS,               "Sub-Address" },
   { TX_CONNECT_SPEED,          "Connect Speed" },
   { PHYSICAL_CHANNEL,          "Physical Channel" },
-  { INITIAL_RECEIVED_LCP,      "Initial Received LCP" },
-  { LAST_SEND_LCP_CONFREQ,     "Last Send LCP CONFREQ" },
+  { INITIAL_RECEIVED_LCP_CONFREQ, "Initial Received LCP CONFREQ" },
+  { LAST_SENT_LCP_CONFREQ,     "Last Sent LCP CONFREQ" },
   { LAST_RECEIVED_LCP_CONFREQ, "Last Received LCP CONFREQ" },
   { PROXY_AUTHEN_TYPE,         "Proxy Authen Type" },
   { PROXY_AUTHEN_NAME,         "Proxy Authen Name" },
@@ -301,12 +302,13 @@ static const value_string avp_vendor_id_vals[] =
 static gchar textbuffer[200];
 
 static dissector_handle_t ppp_hdlc_handle;
+static dissector_handle_t ppp_lcp_options_handle;
 
 static void
 dissect_l2tp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  proto_tree *l2tp_tree=NULL, *l2tp_avp_tree, *ctrl_tree;
-  proto_item *ti, *tf;
+  proto_tree *l2tp_tree=NULL, *l2tp_avp_tree, *l2tp_lcp_avp_tree, *ctrl_tree;
+  proto_item *ti, *tf, *te;
   int rhcode;
   int index = 0;
   int tmp_index;
@@ -765,34 +767,31 @@ dissect_l2tp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			  tvb_get_ntohl(tvb, index));
 			break;
 
-		case INITIAL_RECEIVED_LCP:
-			/*
-			 * XXX - can this be dissected by stuff in the
-			 * LCP dissector?
-			 */
-			proto_tree_add_text(l2tp_avp_tree, tvb, index, avp_len,
-			  "Initial LCP CONFREQ: %s",
-			  tvb_bytes_to_str(tvb, index, avp_len));
+		case INITIAL_RECEIVED_LCP_CONFREQ:
+			te = proto_tree_add_text(l2tp_avp_tree, tvb, index, avp_len,
+			       "Initial Received LCP CONFREQ: %s",
+			       tvb_bytes_to_str(tvb, index, avp_len));
+			l2tp_lcp_avp_tree = proto_item_add_subtree(te, ett_l2tp_lcp);
+		        next_tvb = tvb_new_subset(tvb, index, avp_len, avp_len);
+		        call_dissector(ppp_lcp_options_handle, next_tvb, pinfo, l2tp_lcp_avp_tree );
 			break;
 
-		case LAST_SEND_LCP_CONFREQ:
-			/*
-			 * XXX - can this be dissected by stuff in the
-			 * LCP dissector?
-			 */
-			proto_tree_add_text(l2tp_avp_tree, tvb, index, avp_len,
-			  "Last Sent LCP CONFREQ: %s",
-			  tvb_bytes_to_str(tvb, index, avp_len));
+		case LAST_SENT_LCP_CONFREQ:
+			te = proto_tree_add_text(l2tp_avp_tree, tvb, index, avp_len,
+			        "Last Sent LCP CONFREQ: %s",
+			        tvb_bytes_to_str(tvb, index, avp_len));
+			l2tp_lcp_avp_tree = proto_item_add_subtree(te, ett_l2tp_lcp);
+		        next_tvb = tvb_new_subset(tvb, index, avp_len, avp_len);
+		        call_dissector(ppp_lcp_options_handle, next_tvb, pinfo, l2tp_lcp_avp_tree );
 			break;
 
 		case LAST_RECEIVED_LCP_CONFREQ:
-			/*
-			 * XXX - can this be dissected by stuff in the
-			 * LCP dissector?
-			 */
-			proto_tree_add_text(l2tp_avp_tree, tvb, index, avp_len,
-			  "Last Received LCP CONFREQ: %s",
-			  tvb_bytes_to_str(tvb, index, avp_len));
+			te = proto_tree_add_text(l2tp_avp_tree, tvb, index, avp_len,
+			       "Last Received LCP CONFREQ: %s",
+			       tvb_bytes_to_str(tvb, index, avp_len));
+			l2tp_lcp_avp_tree = proto_item_add_subtree(te, ett_l2tp_lcp);
+		        next_tvb = tvb_new_subset(tvb, index, avp_len, avp_len);
+		        call_dissector(ppp_lcp_options_handle, next_tvb, pinfo, l2tp_lcp_avp_tree );
 			break;
 
 		case PROXY_AUTHEN_TYPE:
@@ -1049,6 +1048,7 @@ proto_register_l2tp(void)
 		&ett_l2tp,
 		&ett_l2tp_ctrl,
 		&ett_l2tp_avp,
+		&ett_l2tp_lcp,
 	};
 
 	proto_l2tp = proto_register_protocol(
@@ -1069,4 +1069,6 @@ proto_reg_handoff_l2tp(void)
 	 * Get a handle for the PPP-in-HDLC-like-framing dissector.
 	 */
 	ppp_hdlc_handle = find_dissector("ppp_hdlc");
+	ppp_lcp_options_handle = find_dissector("ppp_lcp_options");
+
 }

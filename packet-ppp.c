@@ -1,7 +1,7 @@
 /* packet-ppp.c
  * Routines for ppp packet disassembly
  *
- * $Id: packet-ppp.c,v 1.102 2002/11/28 22:18:53 guy Exp $
+ * $Id: packet-ppp.c,v 1.103 2002/12/11 19:59:08 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2506,6 +2506,13 @@ dissect_ppp_common( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 static void
+dissect_lcp_options(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  dissect_ip_tcp_options(tvb, 0, tvb_reported_length(tvb), lcp_opts, N_LCP_OPTS, 
+            -1, pinfo, tree);
+}
+
+static void
 dissect_lcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   dissect_cp(tvb, proto_lcp, ett_lcp, lcp_vals, ett_lcp_options,
@@ -3265,6 +3272,7 @@ proto_register_ppp(void)
 	"PPP protocol", FT_UINT16, BASE_HEX);
 
   register_dissector("ppp_hdlc", dissect_ppp_hdlc, proto_ppp);
+  register_dissector("ppp_lcp_options", dissect_lcp_options, proto_ppp);
   register_dissector("ppp", dissect_ppp, proto_ppp);
 
   /* Register the preferences for the ppp protocol */

@@ -1506,6 +1506,8 @@ Andreas Trauer <andreas.trauer [AT] siemens.com> {
 	GTP enhancements
 	Add subtrees for each link in a Router-LSA in an OSPF LS Update
 	    packet
+	Dissect the L2TP AVPs Initial Received LCP CONFREQ, Last
+	    Received LCP CONFREQ, Last Sent LCP CONFREQ
 }
 
 Ronald Henderson <Ronald.Henderson [AT] CognicaseUSA.com> {
