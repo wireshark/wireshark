@@ -2,7 +2,7 @@
  * Routines for NetBIOS over IPX packet disassembly
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-nbipx.c,v 1.13 1999/09/03 00:38:50 guy Exp $
+ * $Id: packet-nbipx.c,v 1.14 1999/09/03 03:22:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -45,8 +45,8 @@ enum nbipx_protocol {
 };
 
 static void
-nbipx_ns(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
-		enum nbipx_protocol nbipx, int max_data);
+dissect_nbipx_ns(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
+		int max_data);
 static void
 dissect_nbipx_dg(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 		int max_data);
@@ -113,6 +113,9 @@ dissect_nbipx(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
 	int	max_data = pi.captured_len - offset;
 
+	if (check_col(fd, COL_PROTOCOL))
+		col_add_str(fd, COL_PROTOCOL, "NBIPX");
+
 	/*
 	 * As said above, we look at the length of the packet to decide
 	 * whether to treat it as a name-service packet or a datagram
@@ -120,176 +123,103 @@ dissect_nbipx(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	 * LOCATION* in different types of packet...).
 	 */
 	if (END_OF_FRAME == 50)
-		nbipx_ns(pd, offset, fd, tree, NETBIOS_NETWARE, max_data);
+		dissect_nbipx_ns(pd, offset, fd, tree, max_data);
 	else
 		dissect_nbipx_dg(pd, offset, fd, tree, max_data);
 }
 
-void
-dissect_nwlink_dg(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
+static void
+add_routers(proto_tree *tree, const u_char *pd, int offset)
 {
-	int	max_data = pi.captured_len - offset;
+	int		i;
+	int		rtr_offset;
+	guint32		router;
 
-	nbipx_ns(pd, offset, fd, tree, NETBIOS_NWLINK, max_data);
+	/* Eight routers are listed */
+	for (i = 0; i < 8; i++) {
+		rtr_offset = offset + (i << 2);
+		memcpy(&router, &pd[rtr_offset], 4);
+		if (router != 0) {
+			proto_tree_add_text(tree, rtr_offset, 4, "IPX Network: %s",
+					ipxnet_to_string((guint8*)&router));
+		}
+	}
 }
 
-
 static void
-nbipx_ns(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
-		enum nbipx_protocol nbipx, int max_data)
+dissect_nbipx_ns(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
+		int max_data)
 {
 	proto_tree		*nbipx_tree;
 	proto_item		*ti;
-	int			i;
 	guint8			packet_type;
 	guint8			name_type_flag;
 	proto_tree		*name_type_flag_tree;
 	proto_item		*tf;
-	int			name_offset;
 	char			name[(NETBIOS_NAME_LEN - 1)*4 + 1];
 	int			name_type;
-	char			node_name[(NETBIOS_NAME_LEN - 1)*4 + 1];
-	int			node_name_type = 0;
-	int			rtr_offset;
-	guint32			router[8];
-
-	if (nbipx == NETBIOS_NETWARE) {
-		name_offset = 34;
-	}
-	else {
-		name_offset = 36;
-	}
-
 
 	name_type_flag = pd[offset+32];
 	packet_type = pd[offset+33];
-	name_type = get_netbios_name(pd, offset+name_offset, name);
-
-	if (nbipx == NETBIOS_NWLINK)
-		node_name_type = get_netbios_name(pd, offset+52, node_name);
-
-	if (check_col(fd, COL_PROTOCOL)) {
-		if (nbipx == NETBIOS_NETWARE) {
-			col_add_str(fd, COL_PROTOCOL, "NBIPX");
-		}
-		else {
-			col_add_str(fd, COL_PROTOCOL, "NWLink");
-		}
-	}
+	name_type = get_netbios_name(pd, offset+34, name);
 
 	if (check_col(fd, COL_INFO)) {
-		if (nbipx == NETBIOS_NETWARE) {
-			switch (packet_type) {
-			case NBIPX_FIND_NAME:
-			case NBIPX_NAME_RECOGNIZED:
-			case NBIPX_CHECK_NAME:
-			case NBIPX_NAME_IN_USE:
-			case NBIPX_DEREGISTER_NAME:
-				col_add_fstr(fd, COL_INFO, "%s %s<%02x>",
-					val_to_str(packet_type, nbipx_data_stream_type_vals, "Unknown"),
-					name, name_type);
-				break;
+		switch (packet_type) {
+		case NBIPX_FIND_NAME:
+		case NBIPX_NAME_RECOGNIZED:
+		case NBIPX_CHECK_NAME:
+		case NBIPX_NAME_IN_USE:
+		case NBIPX_DEREGISTER_NAME:
+			col_add_fstr(fd, COL_INFO, "%s %s<%02x>",
+				val_to_str(packet_type, nbipx_data_stream_type_vals, "Unknown"),
+				name, name_type);
+			break;
 
-			default:
-				col_add_fstr(fd, COL_INFO, "%s",
-					val_to_str(packet_type, nbipx_data_stream_type_vals, "Unknown"));
-				break;
-			}
-		}
-		else {
-			switch (packet_type) {
-			case NWLINK_NAME_QUERY:
-				col_add_fstr(fd, COL_INFO, "Name Query for %s<%02x>",
-						name, name_type);
-				break;
-
-			case NWLINK_SMB:
-				/* Session? */
-				col_add_fstr(fd, COL_INFO, "SMB over NBIPX");
-				break;
-
-			case NWLINK_NETBIOS_DATAGRAM:
-				/* Datagram? (Where did we see this?) */
-				col_add_fstr(fd, COL_INFO, "NetBIOS datagram over NBIPX");
-				break;
-				
-			default:
-				col_add_str(fd, COL_INFO, "NetBIOS over IPX (NWLink)");
-				break;
-			}
+		default:
+			col_add_fstr(fd, COL_INFO, "%s",
+				val_to_str(packet_type, nbipx_data_stream_type_vals, "Unknown"));
+			break;
 		}
 	}
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_nbipx, offset, 68, NULL);
+		ti = proto_tree_add_item(tree, proto_nbipx, offset, 50, NULL);
 		nbipx_tree = proto_item_add_subtree(ti, ETT_NBIPX);
 
-		if (nbipx == NETBIOS_NETWARE) {
-			proto_tree_add_text(nbipx_tree, offset+33, 1,
-				"Packet Type: %s (%02X)",
-				val_to_str(packet_type, nbipx_data_stream_type_vals, "Unknown"),
-				packet_type);
-		} else {
-			proto_tree_add_text(nbipx_tree, offset+33, 1,
-				"Packet Type: %s (%02X)",
-				val_to_str(packet_type, nwlink_data_stream_type_vals, "Unknown"),
-				packet_type);
-		}
-
-		/* Eight routers are listed */
-		for (i = 0; i < 8; i++) {
-			rtr_offset = offset + (i << 2);
-			memcpy(&router[i], &pd[rtr_offset], 4);
-			if (router[i] != 0) {
-				proto_tree_add_text(nbipx_tree, rtr_offset, 4, "IPX Network: %s",
-						ipxnet_to_string((guint8*)&router[i]));
-			}
-		}
+		add_routers(nbipx_tree, pd, offset);
 
 		tf = proto_tree_add_text(nbipx_tree, offset+32, 1,
-				"Name type flag: 0x%02x",
-				name_type_flag);
+			"Name type flag: 0x%02x", name_type_flag);
 		name_type_flag_tree = proto_item_add_subtree(tf,
-					ETT_NBIPX_NAME_TYPE_FLAGS);
-		proto_tree_add_text(name_type_flag_tree, offset+32, 1, "%s",
-			decode_boolean_bitfield(name_type_flag, 0x80, 8,
-			    "Group name", "Unique name"));
-		proto_tree_add_text(name_type_flag_tree, offset+32, 1, "%s",
-			decode_boolean_bitfield(name_type_flag, 0x40, 8,
-			    "Name in use", "Name not used"));
-		proto_tree_add_text(name_type_flag_tree, offset+32, 1, "%s",
-			decode_boolean_bitfield(name_type_flag, 0x04, 8,
-			    "Name registered", "Name not registered"));
-		proto_tree_add_text(name_type_flag_tree, offset+32, 1, "%s",
-			decode_boolean_bitfield(name_type_flag, 0x02, 8,
-			    "Name duplicated", "Name not duplicated"));
-		proto_tree_add_text(name_type_flag_tree, offset+32, 1, "%s",
-			decode_boolean_bitfield(name_type_flag, 0x01, 8,
-			    "Name deregistered", "Name not deregistered"));
+				ETT_NBIPX_NAME_TYPE_FLAGS);
+		proto_tree_add_text(name_type_flag_tree, offset+32,
+		    1, "%s",
+		    decode_boolean_bitfield(name_type_flag, 0x80, 8,
+		      "Group name", "Unique name"));
+		proto_tree_add_text(name_type_flag_tree, offset+32,
+		    1, "%s",
+		    decode_boolean_bitfield(name_type_flag, 0x40, 8,
+		      "Name in use", "Name not used"));
+		proto_tree_add_text(name_type_flag_tree, offset+32,
+		    1, "%s",
+		    decode_boolean_bitfield(name_type_flag, 0x04, 8,
+		      "Name registered", "Name not registered"));
+		proto_tree_add_text(name_type_flag_tree, offset+32,
+		    1, "%s",
+		    decode_boolean_bitfield(name_type_flag, 0x02, 8,
+		      "Name duplicated", "Name not duplicated"));
+		proto_tree_add_text(name_type_flag_tree, offset+32,
+		    1, "%s",
+		    decode_boolean_bitfield(name_type_flag, 0x01, 8,
+		      "Name deregistered", "Name not deregistered"));
 
-		if (nbipx == NETBIOS_NETWARE) {
-			netbios_add_name("Name", &pd[offset], offset,
-					name_offset, nbipx_tree);
-		}
-		else {
-			netbios_add_name("Group name", &pd[offset], offset,
-					name_offset, nbipx_tree);
-			netbios_add_name("Node name", &pd[offset], offset,
-					52, nbipx_tree);
-		}
-	}
+		proto_tree_add_text(nbipx_tree, offset+33, 1,
+			"Packet Type: %s (%02X)",
+			val_to_str(packet_type, nbipx_data_stream_type_vals, "Unknown"),
+			packet_type);
 
-	if (nbipx == NETBIOS_NWLINK) {
-		switch (packet_type) {
-			case NWLINK_SMB:
-			case NWLINK_NETBIOS_DATAGRAM:
-				dissect_smb(pd, offset + 68, fd, tree, max_data - 68);
-				break;
-				
-			default:
-				dissect_data(pd, offset + 68, fd, tree);
-				break;
-		}
+		netbios_add_name("Name", &pd[offset], offset,
+				34, nbipx_tree);
 	}
 }
 
@@ -300,28 +230,167 @@ dissect_nbipx_dg(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 	proto_tree			*nbipx_tree;
 	proto_item			*ti;
 
-	if (check_col(fd, COL_PROTOCOL))
-		col_add_str(fd, COL_PROTOCOL, "NetBIOS");
-
 	if (check_col(fd, COL_INFO))
 		col_add_fstr(fd, COL_INFO, "NetBIOS datagram over NBIPX");
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_nbipx, offset, 68, NULL);
+		ti = proto_tree_add_item(tree, proto_nbipx, offset,
+		    2+16+16, NULL);
 		nbipx_tree = proto_item_add_subtree(ti, ETT_NBIPX);
 
+		proto_tree_add_text(nbipx_tree, offset, 1,
+		    "Connection control: 0x%02x", pd[offset]);
 		proto_tree_add_text(nbipx_tree, offset+1, 1,
 				"Packet Type: %s (%02X)",
 				val_to_str(pd[offset+1], nbipx_data_stream_type_vals, "Unknown"),
 				pd[offset+1]);
-		proto_tree_add_text(nbipx_tree, offset, 1,
-		    "Connection control: 0x%02x", pd[offset]);
 		netbios_add_name("Receiver's Name", &pd[offset],
 		    offset, 2, nbipx_tree);
 		netbios_add_name("Sender's Name", &pd[offset],
 		    offset, 2+16, nbipx_tree);
 
 		dissect_smb(pd, offset+2+16+16, fd, tree, max_data - 2+16+16);
+	}
+}
+
+void
+dissect_nwlink_dg(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
+{
+	int		max_data = pi.captured_len - offset;
+	proto_tree	*nbipx_tree;
+	proto_item	*ti;
+	guint8		packet_type;
+	guint8		name_type_flag;
+	proto_tree	*name_type_flag_tree;
+	proto_item	*tf;
+	char		name[(NETBIOS_NAME_LEN - 1)*4 + 1];
+	int		name_type;
+	char		node_name[(NETBIOS_NAME_LEN - 1)*4 + 1];
+	int		node_name_type = 0;
+
+	name_type_flag = pd[offset+32];
+	packet_type = pd[offset+33];
+	name_type = get_netbios_name(pd, offset+36, name);
+	node_name_type = get_netbios_name(pd, offset+52, node_name);
+
+	if (check_col(fd, COL_PROTOCOL))
+		col_add_str(fd, COL_PROTOCOL, "NWLink");
+
+	if (check_col(fd, COL_INFO)) {
+		/*
+		 * XXX - Microsoft Network Monitor thinks that the octet
+		 * at 32 is a packet type, e.g. "mailslot write" for
+		 * browser announcements, and that the octet at 33 is a
+		 * name type, in the sense of the 16th byte of a
+		 * NetBIOS name.
+		 *
+		 * A name type of 2 shows up in a "host announcement",
+		 * and a name type of 3 shows up in a "local master
+		 * annoumcement", so maybe that field really *is* a
+		 * name type - the fact that it's not associated with
+		 * any of the NetBIOS names in the packet nonwithstanding.
+		 *
+		 * I haven't seen any packets with the name type octet
+		 * being anything other than 2 or 3, so I don't know
+		 * whether those are name service operations; however,
+		 * given that NWLink, unlike socket-0x0455 NBIPX,
+		 * has separate sockets for name queries and datagrams,
+		 * it may be that this really is a name type, and that
+		 * these are all datagrams, not name queries.
+		 */
+		switch (packet_type) {
+		case NWLINK_NAME_QUERY:
+			col_add_fstr(fd, COL_INFO, "Name Query for %s<%02x>",
+					name, name_type);
+			break;
+
+		case NWLINK_SMB:
+			/* Session? */
+			col_add_fstr(fd, COL_INFO, "SMB over NBIPX");
+			break;
+
+		case NWLINK_NETBIOS_DATAGRAM:
+			/* Datagram? (Where did we see this?) */
+			col_add_fstr(fd, COL_INFO, "NetBIOS datagram over NBIPX");
+			break;
+				
+		default:
+			col_add_str(fd, COL_INFO, "NetBIOS over IPX (NWLink)");
+			break;
+		}
+	}
+
+	if (tree) {
+		ti = proto_tree_add_item(tree, proto_nbipx, offset, 68, NULL);
+		nbipx_tree = proto_item_add_subtree(ti, ETT_NBIPX);
+
+		add_routers(nbipx_tree, pd, offset);
+
+		/*
+		 * XXX - is "packet_type" really a packet type?  See
+		 * above.
+		 */
+		if (packet_type != NWLINK_SMB &&
+		      packet_type != NWLINK_NETBIOS_DATAGRAM) {
+			tf = proto_tree_add_text(nbipx_tree, offset+32, 1,
+				"Name type flag: 0x%02x",
+				name_type_flag);
+			name_type_flag_tree = proto_item_add_subtree(tf,
+					ETT_NBIPX_NAME_TYPE_FLAGS);
+			proto_tree_add_text(name_type_flag_tree, offset+32,
+			    1, "%s",
+			    decode_boolean_bitfield(name_type_flag, 0x80, 8,
+			      "Group name", "Unique name"));
+			proto_tree_add_text(name_type_flag_tree, offset+32,
+			    1, "%s",
+			    decode_boolean_bitfield(name_type_flag, 0x40, 8,
+			      "Name in use", "Name not used"));
+			proto_tree_add_text(name_type_flag_tree, offset+32,
+			    1, "%s",
+			    decode_boolean_bitfield(name_type_flag, 0x04, 8,
+			      "Name registered", "Name not registered"));
+			proto_tree_add_text(name_type_flag_tree, offset+32,
+			    1, "%s",
+			    decode_boolean_bitfield(name_type_flag, 0x02, 8,
+			      "Name duplicated", "Name not duplicated"));
+			proto_tree_add_text(name_type_flag_tree, offset+32,
+			    1, "%s",
+			    decode_boolean_bitfield(name_type_flag, 0x01, 8,
+			      "Name deregistered", "Name not deregistered"));
+
+			netbios_add_name("Group name", &pd[offset], offset,
+					36, nbipx_tree);
+			netbios_add_name("Node name", &pd[offset], offset,
+					52, nbipx_tree);
+			proto_tree_add_text(nbipx_tree, offset+33, 1,
+			    "Packet Type: %s (%02X)",
+			    val_to_str(packet_type, nwlink_data_stream_type_vals, "Unknown"),
+			    packet_type);
+		} else {
+			proto_tree_add_text(nbipx_tree, offset+32, 1,
+			    "Packet type: 0x%02x", name_type_flag);
+			proto_tree_add_text(nbipx_tree, offset+33, 1,
+			    "Name Type: %s (0x%02x)",
+			    netbios_name_type_descr(packet_type),
+			    packet_type);
+			proto_tree_add_text(nbipx_tree, offset+34, 2,
+			    "Message ID: 0x%04x", pletohs(&pd[offset+34]));
+			netbios_add_name("Requested name", &pd[offset], offset,
+					36, nbipx_tree);
+			netbios_add_name("Source name", &pd[offset], offset,
+					52, nbipx_tree);
+		}
+	}
+
+	switch (packet_type) {
+	case NWLINK_SMB:
+	case NWLINK_NETBIOS_DATAGRAM:
+		dissect_smb(pd, offset + 68, fd, tree, max_data - 68);
+		break;
+				
+	default:
+		dissect_data(pd, offset + 68, fd, tree);
+		break;
 	}
 }
 
