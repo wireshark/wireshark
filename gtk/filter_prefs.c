@@ -3,7 +3,7 @@
  * (This used to be a notebook page under "Preferences", hence the
  * "prefs" in the file name.)
  *
- * $Id: filter_prefs.c,v 1.43 2003/01/15 05:58:50 guy Exp $
+ * $Id: filter_prefs.c,v 1.44 2003/03/02 13:46:01 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -335,7 +335,8 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
                *bottom_hb,
                *filter_lb,
                *filter_te,
-               *add_expression_bt;
+	       *add_expression_bt,
+	       *filter_frame;
     GList      *fl_entry;
     filter_def *filt;
     static filter_list_type_t cfilter_list = CFILTER_LIST;
@@ -386,10 +387,18 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
        from the button. */
     SIGNAL_CONNECT(main_w, "destroy", filter_dlg_destroy, filter_list_p);
 
-    main_vb = gtk_vbox_new(FALSE, 5);
-    gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
+    main_vb = gtk_vbox_new(FALSE, 0);
+    gtk_container_border_width(GTK_CONTAINER(main_vb), 1);
     gtk_container_add(GTK_CONTAINER(main_w), main_vb);
     gtk_widget_show(main_vb);
+
+    if (list == CFILTER_LIST)
+      filter_frame = gtk_frame_new("Capture Filters");
+    else
+      filter_frame = gtk_frame_new("Display Filters");
+    gtk_box_pack_start(GTK_BOX(main_vb), filter_frame, TRUE, TRUE, 0);
+    gtk_container_border_width(GTK_CONTAINER(filter_frame), 5);
+    gtk_widget_show(filter_frame);
 
     /* Make sure everything is set up */
     if (parent_filter_te)
@@ -398,6 +407,7 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
     /* Container for each row of widgets */
     filter_pg = gtk_vbox_new(FALSE, 5);
     gtk_container_border_width(GTK_CONTAINER(filter_pg), 5);
+    gtk_container_add(GTK_CONTAINER(filter_frame), filter_pg);
     gtk_widget_show(filter_pg);
 
     /* Top row: Filter list and buttons */
@@ -590,7 +600,6 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
     }
 #endif
 
-    gtk_box_pack_start(GTK_BOX(main_vb), filter_pg, TRUE, TRUE, 0);
     OBJECT_SET_DATA(main_w, E_FILT_PARENT_FILTER_TE_KEY, parent_filter_te);
 
     bbox = gtk_hbutton_box_new();
