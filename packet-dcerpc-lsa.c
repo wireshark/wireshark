@@ -3,7 +3,7 @@
  * Copyright 2001,2003 Tim Potter <tpot@samba.org>
  *  2002  Added LSA command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-lsa.c,v 1.83 2003/05/23 05:20:58 tpot Exp $
+ * $Id: packet-dcerpc-lsa.c,v 1.84 2003/05/30 11:30:09 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -240,8 +240,8 @@ lsa_dissect_pointer_STRING(tvbuff_t *tvb, int offset,
 
 static int
 lsa_dissect_LSA_SECRET_data(tvbuff_t *tvb, int offset,
-                             packet_info *pinfo, proto_tree *tree,
-                             char *drep)
+			packet_info *pinfo, proto_tree *tree,
+			char *drep)
 {
 	guint32 len;
 	dcerpc_info *di;
@@ -252,6 +252,10 @@ lsa_dissect_LSA_SECRET_data(tvbuff_t *tvb, int offset,
 		return offset;
 	}
 
+	/* this is probably a varying and conformant array */
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_lsa_sd_size, &len);
+	offset+=4;
         offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
                                      hf_lsa_sd_size, &len);
 	proto_tree_add_item(tree, hf_lsa_secret, tvb, offset, len, FALSE);
@@ -259,6 +263,7 @@ lsa_dissect_LSA_SECRET_data(tvbuff_t *tvb, int offset,
 
 	return offset;
 }
+
 int
 lsa_dissect_LSA_SECRET(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *parent_tree,
@@ -277,9 +282,11 @@ lsa_dissect_LSA_SECRET(tvbuff_t *tvb, int offset,
 	/* XXX need to figure this one out */
         offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
                                      hf_lsa_sd_size, NULL);
-        offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			lsa_dissect_LSA_SECRET_data, NDR_POINTER_UNIQUE,
-			"LSA SECRET data:", -1);
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_lsa_sd_size, NULL);
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		lsa_dissect_LSA_SECRET_data, NDR_POINTER_UNIQUE,
+		"LSA_SECRET data: pointer", -1);
 
 	proto_item_set_len(item, offset-old_offset);
 	return offset;
@@ -2783,7 +2790,7 @@ lsa_dissect_lsaquerysecret_rqst(tvbuff_t *tvb, int offset,
 
 	/* [in, out, unique] LSA_SECRET **curr_val */
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		lsa_dissect_LSA_SECRET, NDR_POINTER_UNIQUE,
+		lsa_dissect_LSA_SECRET_pointer, NDR_POINTER_UNIQUE,
 		"LSA_SECRET pointer: curr_val", -1);
 
 	/* [in, out, unique] LARGE_INTEGER *curr_mtime */
@@ -2793,7 +2800,7 @@ lsa_dissect_lsaquerysecret_rqst(tvbuff_t *tvb, int offset,
 
 	/* [in, out, unique] LSA_SECRET **old_val */
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		lsa_dissect_LSA_SECRET, NDR_POINTER_UNIQUE,
+		lsa_dissect_LSA_SECRET_pointer, NDR_POINTER_UNIQUE,
 		"LSA_SECRET pointer: old_val", -1);
 
 	/* [in, out, unique] LARGE_INTEGER *old_mtime */
@@ -2811,7 +2818,7 @@ lsa_dissect_lsaquerysecret_reply(tvbuff_t *tvb, int offset,
 {
 	/* [in, out, unique] LSA_SECRET **curr_val */
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		lsa_dissect_LSA_SECRET, NDR_POINTER_UNIQUE,
+		lsa_dissect_LSA_SECRET_pointer, NDR_POINTER_UNIQUE,
 		"LSA_SECRET pointer: curr_val", -1);
 
 	/* [in, out, unique] LARGE_INTEGER *curr_mtime */
@@ -2821,13 +2828,16 @@ lsa_dissect_lsaquerysecret_reply(tvbuff_t *tvb, int offset,
 
 	/* [in, out, unique] LSA_SECRET **old_val */
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		lsa_dissect_LSA_SECRET, NDR_POINTER_UNIQUE,
+		lsa_dissect_LSA_SECRET_pointer, NDR_POINTER_UNIQUE,
 		"LSA_SECRET pointer: old_val", -1);
 
 	/* [in, out, unique] LARGE_INTEGER *old_mtime */
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 		lsa_dissect_pointer_NTTIME, NDR_POINTER_UNIQUE,
 		"NTIME pointer: old_mtime", hf_lsa_old_mtime);
+
+	offset = dissect_ntstatus(
+		tvb, offset, pinfo, tree, drep, hf_lsa_rc, NULL);
 
 	return offset;
 }
@@ -3802,6 +3812,9 @@ lsa_dissect_lsafunction_38_reply(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 		lsa_dissect_LSA_SECURITY_DESCRIPTOR, NDR_POINTER_UNIQUE,
 		"LSA_SECURITY_DESCRIPTOR pointer: psd)", -1);
+
+	offset = dissect_ntstatus(
+		tvb, offset, pinfo, tree, drep, hf_lsa_rc, NULL);
 
 	return offset;
 }
