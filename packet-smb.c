@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.49 1999/11/30 03:46:46 gram Exp $
+ * $Id: packet-smb.c,v 1.50 1999/12/05 08:22:22 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -2310,7 +2310,7 @@ dissect_ssetup_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree
 
 	if (tree) {
 
-	  proto_tree_add_text(tree, offset, strlen(ANSIPassword) + 1, "ANSI Password: %s", ANSIPassword);
+	  proto_tree_add_text(tree, offset, ANSIAccountPasswordLength, "ANSI Password: %s", format_text(ANSIPassword, ANSIAccountPasswordLength));
 
 	}
 
@@ -2325,11 +2325,11 @@ dissect_ssetup_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree
 
 	  if (tree) {
 
-	    proto_tree_add_text(tree, offset, strlen(UNICODEPassword) + 1, "UNICODE Password: %s", UNICODEPassword);
+	    proto_tree_add_text(tree, offset, UNICODEAccountPasswordLength, "UNICODE Password: %s", format_text(UNICODEPassword, UNICODEAccountPasswordLength));
 
 	  }
 
-	  offset += strlen(UNICODEPassword) + 1; /* Skip UNICODE Password */
+	  offset += UNICODEAccountPasswordLength; /* Skip UNICODE Password */
 
 	}
 
