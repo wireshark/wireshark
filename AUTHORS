@@ -1557,6 +1557,8 @@ Jean-Baptiste Marchand <Jean-Baptiste.Marchand [AT] hsc.fr> {
 	Make it possible to filter on UUIDs
 	Fix typo in README.developer
 	Added an MSRPC (DCERPC) atsvc dissector
+	Added descriptions of permissions for SAM_SERVER and SAM_USER
+	    objects in SAMR
 }
 
 Andreas Trauer <andreas.trauer [AT] siemens.com> {

@@ -3,7 +3,7 @@
  * Copyright 2001,2003 Tim Potter <tpot@samba.org>
  *   2002 Added all command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-samr.c,v 1.98 2003/07/15 01:37:27 tpot Exp $
+ * $Id: packet-dcerpc-samr.c,v 1.99 2003/07/24 20:33:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -208,10 +208,10 @@ static char *nt_password = NULL;
 
 /* Dissect connect specific access rights */
 
-static gint hf_access_connect_unknown_01 = -1;
+static gint hf_access_connect_connect_to_server = -1;
 static gint hf_access_connect_shutdown_server = -1;
-static gint hf_access_connect_unknown_04 = -1;
-static gint hf_access_connect_unknown_08 = -1;
+static gint hf_access_connect_initialize_server = -1;
+static gint hf_access_connect_create_domain = -1;
 static gint hf_access_connect_enum_domains = -1;
 static gint hf_access_connect_open_domain = -1;
 
@@ -228,11 +228,11 @@ specific_rights_connect(tvbuff_t *tvb, gint offset, proto_tree *tree,
 		tvb, offset, 4, access);
 
 	proto_tree_add_boolean(
-		tree, hf_access_connect_unknown_08,
+		tree, hf_access_connect_create_domain,
 		tvb, offset, 4, access);
 
 	proto_tree_add_boolean(
-		tree, hf_access_connect_unknown_04,
+		tree, hf_access_connect_initialize_server,
 		tvb, offset, 4, access);
 
 	proto_tree_add_boolean(
@@ -240,7 +240,7 @@ specific_rights_connect(tvbuff_t *tvb, gint offset, proto_tree *tree,
 		tvb, offset, 4, access);
 
 	proto_tree_add_boolean(
-		tree, hf_access_connect_unknown_01,
+		tree, hf_access_connect_connect_to_server,
 		tvb, offset, 4, access);
 }
 
@@ -327,24 +327,24 @@ static gint hf_access_user_get_name_etc = -1;
 static gint hf_access_user_get_locale = -1;
 static gint hf_access_user_get_loc_com = -1;
 static gint hf_access_user_get_logoninfo = -1;
-static gint hf_access_user_unknown_10 = -1;
+static gint hf_access_user_get_attributes = -1;
 static gint hf_access_user_set_attributes = -1;
 static gint hf_access_user_change_password = -1;
 static gint hf_access_user_set_password = -1;
 static gint hf_access_user_get_groups = -1;
-static gint hf_access_user_unknown_200 = -1;
-static gint hf_access_user_unknown_400 = -1;
+static gint hf_access_user_get_group_membership = -1;
+static gint hf_access_user_change_group_membership = -1;
 
 static void
 specific_rights_user(tvbuff_t *tvb, gint offset, proto_tree *tree,
 		     guint32 access)
 {
 	proto_tree_add_boolean(
-		tree, hf_access_user_unknown_400,
+		tree, hf_access_user_change_group_membership,
 		tvb, offset, 4, access);
 
 	proto_tree_add_boolean(
-		tree, hf_access_user_unknown_200,
+		tree, hf_access_user_get_group_membership,
 		tvb, offset, 4, access);
 
 	proto_tree_add_boolean(
@@ -364,7 +364,7 @@ specific_rights_user(tvbuff_t *tvb, gint offset, proto_tree *tree,
 		tvb, offset, 4, access);
 
 	proto_tree_add_boolean(
-		tree, hf_access_user_unknown_10,
+		tree, hf_access_user_get_attributes,
 		tvb, offset, 4, access);
 
 	proto_tree_add_boolean(
@@ -5486,10 +5486,10 @@ proto_register_dcerpc_samr(void)
 	    FT_BOOLEAN, 32, TFS(&flags_set_truth),
 	    USER_ACCESS_GET_LOGONINFO, "Get logon info", HFILL }},
 
-	{ &hf_access_user_unknown_10,
-	  { "Unknown 0x10", "samr_access_mask.user_unknown_10",
+	{ &hf_access_user_get_attributes,
+	  { "Get attributes", "samr_access_mask.user_get_attributes",
 	    FT_BOOLEAN, 32, TFS(&flags_set_truth),
-	    USER_ACCESS_UNKNOWN_10, "Unknown 0x10", HFILL }},
+	    USER_ACCESS_GET_ATTRIBUTES, "Get attributes", HFILL }},
 
 	{ &hf_access_user_set_attributes,
 	  { "Set attributes", "samr_access_mask.user_set_attributes",
@@ -5511,15 +5511,15 @@ proto_register_dcerpc_samr(void)
 	    FT_BOOLEAN, 32, TFS(&flags_set_truth),
 	    USER_ACCESS_GET_GROUPS, "Get groups", HFILL }},
 
-	{ &hf_access_user_unknown_200,
-	  { "Unknown 0x200", "samr_access_mask.user_unknown_200",
+	{ &hf_access_user_get_group_membership,
+	  { "Get group membership", "samr_access_mask.user_get_group_membership",
 	    FT_BOOLEAN, 32, TFS(&flags_set_truth),
-	    USER_ACCESS_UNKNOWN_200, "Unknown 0x200", HFILL }},
+	    USER_ACCESS_GET_GROUP_MEMBERSHIP, "Get group membership", HFILL }},
 
-	{ &hf_access_user_unknown_400,
-	  { "Unknown 0x400", "samr_access_mask.user_unknown_400",
+	{ &hf_access_user_change_group_membership,
+	  { "Change group membership", "samr_access_mask.user_change_group_membership",
 	    FT_BOOLEAN, 32, TFS(&flags_set_truth),
-	    USER_ACCESS_UNKNOWN_400, "Unknown 0x400", HFILL }},
+	    USER_ACCESS_CHANGE_GROUP_MEMBERSHIP, "Change group membership", HFILL }},
 
 	{ &hf_access_group_lookup_info,
 	  { "Lookup info", "samr_access_mask.group_lookup_info",
@@ -5571,25 +5571,25 @@ proto_register_dcerpc_samr(void)
 	    FT_BOOLEAN, 32, TFS(&flags_set_truth),
 	    ALIAS_ACCESS_SET_INFO, "Set info", HFILL }},
 
-	{ &hf_access_connect_unknown_01,
-	  { "Unknown 0x01", "samr_access_mask.connect_unknown_01",
+	{ &hf_access_connect_connect_to_server,
+	  { "Connect to server", "samr_access_mask.connect_connect_to_server",
 	    FT_BOOLEAN, 32, TFS(&flags_set_truth),
-	    SAMR_ACCESS_UNKNOWN_1, "Unknown 0x01", HFILL }},
+	    SAMR_ACCESS_CONNECT_TO_SERVER, "Connect to server", HFILL }},
 
 	{ &hf_access_connect_shutdown_server,
 	  { "Shutdown server", "samr_access_mask.connect_shutdown_server",
 	    FT_BOOLEAN, 32, TFS(&flags_set_truth),
 	    SAMR_ACCESS_SHUTDOWN_SERVER, "Shutdown server", HFILL }},
 
-	{ &hf_access_connect_unknown_04,
-	  { "Unknown 0x04", "samr_access_mask.connect_unknown_04",
+	{ &hf_access_connect_initialize_server,
+	  { "Initialize server", "samr_access_mask.connect_initialize_server",
 	    FT_BOOLEAN, 32, TFS(&flags_set_truth),
-	    SAMR_ACCESS_UNKNOWN_4, "Unknown 0x04", HFILL }},
+	    SAMR_ACCESS_INITIALIZE_SERVER, "Initialize server", HFILL }},
 
-	{ &hf_access_connect_unknown_08,
-	  { "Unknown 0x08", "samr_access_mask.connect_unknown_08",
+	{ &hf_access_connect_create_domain,
+	  { "Create domain", "samr_access_mask.connect_create_domain",
 	    FT_BOOLEAN, 32, TFS(&flags_set_truth),
-	    SAMR_ACCESS_UNKNOWN_8, "Unknown 0x08", HFILL }},
+	    SAMR_ACCESS_CREATE_DOMAIN, "Create domain", HFILL }},
 
 	{ &hf_access_connect_enum_domains,
 	  { "Enum domains", "samr_access_mask.connect_enum_domains",
