@@ -1,7 +1,7 @@
 /* proto.h
  * Definitions for protocol display
  *
- * $Id: proto.h,v 1.64 2004/05/10 08:29:18 ulfl Exp $
+ * $Id: proto.h,v 1.65 2004/05/10 14:02:17 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -174,10 +174,10 @@ extern void proto_tree_children_foreach(proto_tree *tree,
     proto_tree_foreach_func func, gpointer data);
 
 /* Retrieve the field_info from a proto_item */
-#define PITEM_FINFO(t)  ((t)->finfo)
+#define PITEM_FINFO(proto_item)  ((proto_item)->finfo)
 
 /* Retrieve the tree_data_t from a proto_tree */
-#define PTREE_DATA(t)   ((t)->tree_data)
+#define PTREE_DATA(proto_tree)   ((proto_tree)->tree_data)
 
 /* Sets up memory used by proto routines. Called at program startup */
 extern void proto_init(const char *plugin_dir,
@@ -251,7 +251,9 @@ proto_tree_prime_hfid(proto_tree *tree, int hfid);
 extern proto_item* proto_tree_get_parent(proto_tree *tree);
 
 
-
+/* GNUC has the ability to check format strings that follow the syntax used in printf and others. */
+/* Hide the differences between different compilers in this GNUC_FORMAT_CHECK macro. */
+/* XXX - as this check is also done at some other places too, move this macro to a more central place? */
 #if __GNUC__ >= 2
 	#define GNUC_FORMAT_CHECK(archetype, string_index, first_to_check) __attribute__((format (archetype, string_index, first_to_check)))
 #else
@@ -275,16 +277,9 @@ proto_tree_add_none_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint st
 	gint length, const char *format, ...) GNUC_FORMAT_CHECK(printf,6,7);
 
 /* Add a FT_PROTOCOL to a proto_tree */
-#if __GNUC__ >= 2
 extern proto_item *
 proto_tree_add_protocol_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
-	gint length, const char *format, ...)
-	__attribute__((format (printf, 6, 7)));
-#else
-extern proto_item *
-proto_tree_add_protocol_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
-	gint length, const char *format, ...);
-#endif
+	gint length, const char *format, ...) GNUC_FORMAT_CHECK(printf,6,7);
 
 /* Add a FT_BYTES to a proto_tree */
 extern proto_item *
@@ -295,16 +290,9 @@ extern proto_item *
 proto_tree_add_bytes_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, const guint8* start_ptr);
 
-#if __GNUC__ >= 2
 extern proto_item *
 proto_tree_add_bytes_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
-	gint length, const guint8* start_ptr, const char *format, ...)
-	__attribute__((format (printf, 7, 8)));
-#else
-extern proto_item *
-proto_tree_add_bytes_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
-	gint length, const guint8* start_ptr, const char *format, ...);
-#endif
+	gint length, const guint8* start_ptr, const char *format, ...) GNUC_FORMAT_CHECK(printf,7,8);
 
 /* Add a FT_*TIME to a proto_tree */
 extern proto_item *
@@ -315,16 +303,9 @@ extern proto_item *
 proto_tree_add_time_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, nstime_t* value_ptr);
 
-#if __GNUC__ >= 2
 extern proto_item *
 proto_tree_add_time_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
-	gint length, nstime_t* value_ptr, const char *format, ...)
-	__attribute__((format (printf, 7, 8)));
-#else
-extern proto_item *
-proto_tree_add_time_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
-	gint length, nstime_t* value_ptr, const char *format, ...);
-#endif
+	gint length, nstime_t* value_ptr, const char *format, ...) GNUC_FORMAT_CHECK(printf,7,8);
 
 /* Add a FT_IPXNET to a proto_tree */
 extern proto_item *
@@ -335,16 +316,9 @@ extern proto_item *
 proto_tree_add_ipxnet_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, guint32 value);
 
-#if __GNUC__ >= 2
 extern proto_item *
 proto_tree_add_ipxnet_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
-	gint length, guint32 value, const char *format, ...)
-	__attribute__((format (printf, 7, 8)));
-#else
-extern proto_item *
-proto_tree_add_ipxnet_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
-	gint length, guint32 value, const char *format, ...);
-#endif
+	gint length, guint32 value, const char *format, ...) GNUC_FORMAT_CHECK(printf,7,8);
 
 /* Add a FT_IPv4 to a proto_tree */
 extern proto_item *
@@ -355,16 +329,9 @@ extern proto_item *
 proto_tree_add_ipv4_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, guint32 value);
 
-#if __GNUC__ >= 2
 extern proto_item *
 proto_tree_add_ipv4_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
-	gint length, guint32 value, const char *format, ...)
-	__attribute__((format (printf, 7, 8)));
-#else
-extern proto_item *
-proto_tree_add_ipv4_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
-	gint length, guint32 value, const char *format, ...);
-#endif
+	gint length, guint32 value, const char *format, ...) GNUC_FORMAT_CHECK(printf,7,8);
 
 /* Add a FT_IPv6 to a proto_tree */
 extern proto_item *
@@ -375,16 +342,9 @@ extern proto_item *
 proto_tree_add_ipv6_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, const guint8* value_ptr);
 
-#if __GNUC__ >= 2
 extern proto_item *
 proto_tree_add_ipv6_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
-	gint length, const guint8* value_ptr, const char *format, ...)
-	__attribute__((format (printf, 7, 8)));
-#else
-extern proto_item *
-proto_tree_add_ipv6_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
-	gint length, const guint8* value_ptr, const char *format, ...);
-#endif
+	gint length, const guint8* value_ptr, const char *format, ...) GNUC_FORMAT_CHECK(printf,7,8);
 
 /* Add a FT_ETHER to a proto_tree */
 extern proto_item *
@@ -395,16 +355,9 @@ extern proto_item *
 proto_tree_add_ether_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, const guint8* value);
 
-#if __GNUC__ >= 2
 extern proto_item *
 proto_tree_add_ether_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
-	gint length, const guint8* value, const char *format, ...)
-	__attribute__((format (printf, 7, 8)));
-#else
-extern proto_item *
-proto_tree_add_ether_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
-	gint length, const guint8* value, const char *format, ...);
-#endif
+	gint length, const guint8* value, const char *format, ...) GNUC_FORMAT_CHECK(printf,7,8);
 
 /* Add a FT_STRING to a proto_tree */
 extern proto_item *
@@ -415,16 +368,9 @@ extern proto_item *
 proto_tree_add_string_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, const char* value);
 
-#if __GNUC__ >= 2
 extern proto_item *
 proto_tree_add_string_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
-	gint length, const char* value, const char *format, ...)
-	__attribute__((format (printf, 7, 8)));
-#else
-extern proto_item *
-proto_tree_add_string_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
-	gint length, const char* value, const char *format, ...);
-#endif
+	gint length, const char* value, const char *format, ...) GNUC_FORMAT_CHECK(printf,7,8);
 
 extern void
 proto_item_append_string(proto_item *pi, const char *str);
@@ -438,16 +384,9 @@ extern proto_item *
 proto_tree_add_boolean_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, guint32 value);
 
-#if __GNUC__ >= 2
 extern proto_item *
 proto_tree_add_boolean_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
-	gint length, guint32 value, const char *format, ...)
-	__attribute__((format (printf, 7, 8)));
-#else
-extern proto_item *
-proto_tree_add_boolean_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
-	gint length, guint32 value, const char *format, ...);
-#endif
+	gint length, guint32 value, const char *format, ...) GNUC_FORMAT_CHECK(printf,7,8);
 
 /* Add a FT_FLOAT to a proto_tree */
 extern proto_item *
@@ -458,16 +397,9 @@ extern proto_item *
 proto_tree_add_float_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, float value);
 
-#if __GNUC__ >= 2
 extern proto_item *
 proto_tree_add_float_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
-	gint length, float value, const char *format, ...)
-	__attribute__((format (printf, 7, 8)));
-#else
-extern proto_item *
-proto_tree_add_float_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
-	gint length, float value, const char *format, ...);
-#endif
+	gint length, float value, const char *format, ...) GNUC_FORMAT_CHECK(printf,7,8);
 
 /* Add a FT_DOUBLE to a proto_tree */
 extern proto_item *
@@ -478,16 +410,9 @@ extern proto_item *
 proto_tree_add_double_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, double value);
 
-#if __GNUC__ >= 2
 extern proto_item *
 proto_tree_add_double_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
-	gint length, double value, const char *format, ...)
-	__attribute__((format (printf, 7, 8)));
-#else
-extern proto_item *
-proto_tree_add_double_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
-	gint length, double value, const char *format, ...);
-#endif
+	gint length, double value, const char *format, ...) GNUC_FORMAT_CHECK(printf,7,8);
 
 /* Add any FT_UINT* to a proto_tree */
 extern proto_item *
@@ -498,16 +423,9 @@ extern proto_item *
 proto_tree_add_uint_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, guint32 value);
 
-#if __GNUC__ >= 2
 extern proto_item *
 proto_tree_add_uint_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
-	gint length, guint32 value, const char *format, ...)
-	__attribute__((format (printf, 7, 8)));
-#else
-extern proto_item *
-proto_tree_add_uint_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
-	gint length, guint32 value, const char *format, ...);
-#endif
+	gint length, guint32 value, const char *format, ...) GNUC_FORMAT_CHECK(printf,7,8);
 
 /* Add any FT_INT* to a proto_tree */
 extern proto_item *
@@ -518,28 +436,14 @@ extern proto_item *
 proto_tree_add_int_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, gint32 value);
 
-#if __GNUC__ >= 2
 extern proto_item *
 proto_tree_add_int_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
-	gint length, gint32 value, const char *format, ...)
-	__attribute__((format (printf, 7, 8)));
-#else
-extern proto_item *
-proto_tree_add_int_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
-	gint length, gint32 value, const char *format, ...);
-#endif
-
+	gint length, gint32 value, const char *format, ...) GNUC_FORMAT_CHECK(printf,7,8);
 
 /* Add a text-only node to the proto_tree */
-#if __GNUC__ >= 2
 extern proto_item *
-proto_tree_add_text(proto_tree *tree, tvbuff_t *tvb, gint start, gint length, const char *,
-	...) __attribute__((format (printf, 5, 6)));
-#else
-extern proto_item *
-proto_tree_add_text(proto_tree *tree, tvbuff_t *tvb, gint start, gint length, const char *,
-	...);
-#endif
+proto_tree_add_text(proto_tree *tree, tvbuff_t *tvb, gint start, gint length, const char *format,
+	...) GNUC_FORMAT_CHECK(printf,5,6);
 
 extern proto_item *
 proto_tree_add_text_valist(proto_tree *tree, tvbuff_t *tvb, gint start,
@@ -548,14 +452,9 @@ proto_tree_add_text_valist(proto_tree *tree, tvbuff_t *tvb, gint start,
 
 /* Useful for quick debugging. Also sends string to STDOUT, so don't
  * leave call to this function in production code. */
-#if __GNUC__ >= 2
 extern proto_item *
-proto_tree_add_debug_text(proto_tree *tree, const char *format, ...)
-	__attribute__((format (printf, 2, 3)));
-#else
-extern proto_item *
-proto_tree_add_debug_text(proto_tree *tree, const char *format, ...);
-#endif
+proto_tree_add_debug_text(proto_tree *tree, const char *format, 
+	...) GNUC_FORMAT_CHECK(printf,2,3);
 
 
 extern void
