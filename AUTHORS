@@ -1849,6 +1849,10 @@ Emanuele Caratti <wiz [AT] libero.it> {
 	Full TACACS+ dissection
 }
 
+Graeme Reid <graeme.reid [AT] norwoodsystems.com> {
+	H.450 support
+}
+
 And assorted fixes and enhancements by the people listed above and by:
 
 	Pavel Roskin <proski [AT] gnu.org>

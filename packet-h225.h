@@ -1,8 +1,8 @@
 /* packet-h225.h
- * Routines for H.245 packet dissection
+ * Routines for H.225 packet dissection
  * 2003  Tomas Kukosa
  *
- * $Id: packet-h225.h,v 1.1 2003/08/23 08:23:24 guy Exp $
+ * $Id: packet-h225.h,v 1.2 2003/09/23 18:40:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -24,3 +24,5 @@
  */
 
 extern int dissect_h225_TransportAddress(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
+
+extern int dissect_h225_AliasAddress(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);

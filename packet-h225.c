@@ -4,7 +4,7 @@
  *
  * Maintained by Andreas Sikkema (andreas.sikkema@philips.com)
  *
- * $Id: packet-h225.c,v 1.12 2003/09/02 21:37:44 guy Exp $
+ * $Id: packet-h225.c,v 1.13 2003/09/23 18:40:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -472,7 +472,6 @@ static int hf_h225_tunnelledSignallingMessage = -1;
 static int hf_h225_messageContent_item = -1;
 static int hf_h225_messageContent = -1;
 static int hf_h225_H323_UU_PDU = -1;
-static int hf_h225_h4501SupplementaryService_item = -1;
 static int hf_h225_h4501SupplementaryService = -1;
 static int hf_h225_h245Tunneling = -1;
 static int hf_h225_h245Control = -1;
@@ -767,6 +766,7 @@ static gint ett_h225_user_data = -1;
 
 static dissector_handle_t h245_handle=NULL;
 static dissector_handle_t h245dg_handle=NULL;
+static dissector_handle_t h4501_handle=NULL;
 
 static guint32  ipv4_address;
 static guint32  ipv4_port;
@@ -3639,7 +3639,7 @@ static per_choice_t AliasAddress_choice[] = {
 		dissect_h225_MobileUIM },
 	{ 0, NULL, 0, NULL }
 };
-static int
+int
 dissect_h225_AliasAddress(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
 	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h225_AliasAddress, ett_h225_AliasAddress, AliasAddress_choice, "AliasAddress", NULL);
@@ -7603,6 +7603,30 @@ dissect_h225_messageContent(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 }
 
 
+static int
+dissect_h225_h4501SupplementaryService_item(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+	tvbuff_t *h4501_tvb;
+	guint32 h4501_offset=0;
+	guint32 h4501_len=0;
+
+	offset=dissect_per_octet_string(tvb, offset, pinfo, tree, -1, -1, -1, &h4501_offset, &h4501_len);
+
+	if(h4501_len){
+		h4501_tvb = tvb_new_subset(tvb, h4501_offset, h4501_len, h4501_len);
+		call_dissector(h4501_handle, h4501_tvb, pinfo, tree);
+	}
+	return offset;
+}
+
+static int
+dissect_h225_h4501SupplementaryService(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+	offset=dissect_per_sequence_of(tvb, offset, pinfo, tree, hf_h225_h4501SupplementaryService, ett_h225_h4501SupplementaryService, dissect_h225_h4501SupplementaryService_item);
+	return offset;
+}
+
+
 static per_sequence_t tunnelledSignallingMessage_sequence[] = {
 	{ "tunnelledProtocolID", EXTENSION_ROOT, NOT_OPTIONAL,
 		dissect_h225_TunnelledProtocol },
@@ -7618,22 +7642,6 @@ static int
 dissect_h225_tunnelledSignallingMessage(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
 	offset=dissect_per_sequence(tvb, offset, pinfo, tree, hf_h225_tunnelledSignallingMessage, ett_h225_tunnelledSignallingMessage, tunnelledSignallingMessage_sequence);
-	return offset;
-}
-
-
-
-static int
-dissect_h225_h4501SupplementaryService_item(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
-{
-	offset=dissect_per_octet_string(tvb, offset, pinfo, tree, hf_h225_h4501SupplementaryService_item, -1, -1, NULL, NULL);
-	return offset;
-}
-
-static int
-dissect_h225_h4501SupplementaryService(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
-{
-	offset=dissect_per_sequence_of(tvb, offset, pinfo, tree, hf_h225_h4501SupplementaryService, ett_h225_h4501SupplementaryService, dissect_h225_h4501SupplementaryService_item);
 	return offset;
 }
 
@@ -9485,9 +9493,6 @@ proto_register_h225(void)
 	{ &hf_h225_H323_UU_PDU,
 		{ "H323_UU_PDU", "h225.H323_UU_PDU", FT_NONE, BASE_NONE,
 		NULL, 0, "H323_UU_PDU sequence", HFILL }},
-	{ &hf_h225_h4501SupplementaryService_item,
-		{ "h4501SupplementaryService_item", "h225.h4501SupplementaryService_item", FT_BYTES, BASE_HEX,
-		NULL, 0, "h4501SupplementaryService_item octet string", HFILL }},
 	{ &hf_h225_h4501SupplementaryService,
 		{ "h4501SupplementaryService", "h225.h4501SupplementaryService", FT_NONE, BASE_NONE,
 		NULL, 0, "h4501SupplementaryService sequence of", HFILL }},
@@ -9860,6 +9865,7 @@ proto_reg_handoff_h225(void)
 
 	h245_handle = find_dissector("h245");
 	h245dg_handle = find_dissector("h245dg");
+	h4501_handle = find_dissector("h4501");
 
 	dissector_add("udp.port", UDP_PORT_RAS1, h225ras_handle);
 	dissector_add("udp.port", UDP_PORT_RAS2, h225ras_handle);
