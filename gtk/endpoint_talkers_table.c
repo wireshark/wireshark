@@ -4,7 +4,7 @@
  * endpoint_talkers_table   2003 Ronnie Sahlberg
  * Helper routines common to all endpoint talkers tap.
  *
- * $Id: endpoint_talkers_table.c,v 1.35 2004/05/01 19:24:44 ulfl Exp $
+ * $Id: endpoint_talkers_table.c,v 1.36 2004/05/02 17:25:10 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -213,8 +213,16 @@ reset_ett_table_data(endpoints_table *et)
 	guint32 i;
 	char title[256];
 
-	g_snprintf(title, 255, "%s Conversations: %s", et->name, cf_get_display_name(&cfile));
-	gtk_window_set_title(GTK_WINDOW(et->win), title);
+    if(et->page_lb) {
+	    g_snprintf(title, 255, "Conversations: %s", cf_get_display_name(&cfile));
+		gtk_window_set_title(GTK_WINDOW(et->win), title);
+	    g_snprintf(title, 255, "%s", et->name);
+		gtk_label_set_text(GTK_LABEL(et->page_lb), title);
+        gtk_widget_set_sensitive(et->page_lb, FALSE);
+    } else {
+	    g_snprintf(title, 255, "%s Conversations: %s", et->name, cf_get_display_name(&cfile));
+		gtk_window_set_title(GTK_WINDOW(et->win), title);
+    }
 
 	/* remove all entries from the clist */
 	for(i=0;i<et->num_endpoints;i++){
@@ -913,6 +921,17 @@ draw_ett_table_data(endpoints_table *et)
 {
 	guint32 i;
 	int j;
+	char title[256];
+
+    if (et->page_lb) {
+        if(et->num_endpoints) {
+	        g_snprintf(title, 255, "%s: %u", et->name, et->num_endpoints);
+        } else {
+	        g_snprintf(title, 255, "%s", et->name);
+        }
+		gtk_label_set_text(GTK_LABEL(et->page_lb), title);
+        gtk_widget_set_sensitive(et->page_lb, et->num_endpoints);
+    }
 
 	for(i=0;i<et->num_endpoints;i++){
 		char str[16];
@@ -941,44 +960,22 @@ draw_ett_table_data(endpoints_table *et)
 }
 
 
-void
-init_ett_table(gboolean hide_ports, char *table_name, char *tap_name, char *filter, void *packet_func)
+gboolean
+init_ett_table_page(endpoints_table *talkers, GtkWidget *vbox, gboolean hide_ports, char *table_name, char *tap_name, char *filter, void *packet_func)
 {
 	int i;
 	column_arrows *col_arrows;
-	GdkBitmap *ascend_bm, *descend_bm;
-	GdkPixmap *ascend_pm, *descend_pm;
 	GtkStyle *win_style;
 	GtkWidget *column_lb;
 	GString *error_string;
-	endpoints_table *talkers;
-	GtkWidget *vbox;
 	GtkWidget *label;
-    GtkWidget *bbox;
-    GtkWidget *close_bt;
 	char title[256];
 	char *default_titles[] = { "EP1 Address", "Port", "EP2 Address", "Port", "Frames", "Bytes", "-> Frames", "-> Bytes", "<- Frames", "<- Bytes" };
 
 
-	talkers=g_malloc(sizeof(endpoints_table));
-
-	talkers->name=table_name;
-	g_snprintf(title, 255, "%s Conversations: %s", table_name, cf_get_display_name(&cfile));
-	talkers->win=dlg_window_new(title);
-	gtk_window_set_default_size(GTK_WINDOW(talkers->win), 750, 400);
-
-	SIGNAL_CONNECT(talkers->win, "destroy", ett_win_destroy_cb, talkers);
-
-	vbox=gtk_vbox_new(FALSE, 3);
-	gtk_container_add(GTK_CONTAINER(talkers->win), vbox);
-	gtk_container_set_border_width(GTK_CONTAINER(vbox), 12);
-
 	g_snprintf(title, 255, "%s Conversations", table_name);
 	label=gtk_label_new(title);
 	gtk_box_pack_start(GTK_BOX(vbox), label, FALSE, FALSE, 0);
-
-	/* We must display TOP LEVEL Widget before calling init_ett_table() */
-	gtk_widget_show_all(talkers->win);
 
 
 	talkers->scrolled_window=scrolled_window_new(NULL, NULL);
@@ -988,14 +985,6 @@ init_ett_table(gboolean hide_ports, char *table_name, char *tap_name, char *filt
 
 	col_arrows = (column_arrows *) g_malloc(sizeof(column_arrows) * NUM_COLS);
 	win_style = gtk_widget_get_style(talkers->scrolled_window);
-	ascend_pm = gdk_pixmap_create_from_xpm_d(talkers->scrolled_window->window,
-			&ascend_bm,
-			&win_style->bg[GTK_STATE_NORMAL],
-			(gchar **)clist_ascend_xpm);
-	descend_pm = gdk_pixmap_create_from_xpm_d(talkers->scrolled_window->window,
-			&descend_bm,
-			&win_style->bg[GTK_STATE_NORMAL],
-			(gchar **)clist_descend_xpm);
 	for (i = 0; i < NUM_COLS; i++) {
 		col_arrows[i].table = gtk_table_new(2, 2, FALSE);
 		gtk_table_set_col_spacings(GTK_TABLE(col_arrows[i].table), 5);
@@ -1003,9 +992,9 @@ init_ett_table(gboolean hide_ports, char *table_name, char *tap_name, char *filt
 		gtk_table_attach(GTK_TABLE(col_arrows[i].table), column_lb, 0, 1, 0, 2, GTK_SHRINK, GTK_SHRINK, 0, 0);
 		gtk_widget_show(column_lb);
 
-		col_arrows[i].ascend_pm = gtk_pixmap_new(ascend_pm, ascend_bm);
+        col_arrows[i].ascend_pm = xpm_to_widget((const char **) clist_ascend_xpm);
 		gtk_table_attach(GTK_TABLE(col_arrows[i].table), col_arrows[i].ascend_pm, 1, 2, 1, 2, GTK_SHRINK, GTK_SHRINK, 0, 0);
-		col_arrows[i].descend_pm = gtk_pixmap_new(descend_pm, descend_bm);
+		col_arrows[i].descend_pm = xpm_to_widget((const char **) clist_descend_xpm);
 		gtk_table_attach(GTK_TABLE(col_arrows[i].table), col_arrows[i].descend_pm, 1, 2, 0, 1, GTK_SHRINK, GTK_SHRINK, 0, 0);
 		/* make total frames be the default sort order */
 		if (i == 4) {
@@ -1059,9 +1048,43 @@ init_ett_table(gboolean hide_ports, char *table_name, char *tap_name, char *filt
 	if(error_string){
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, error_string->str);
 		g_string_free(error_string, TRUE);
-		g_free(talkers);
-		return;
+		return FALSE;
 	}
+
+    return TRUE;
+}
+
+
+void
+init_ett_table(gboolean hide_ports, char *table_name, char *tap_name, char *filter, void *packet_func)
+{
+	endpoints_table *talkers;
+	char title[256];
+    GtkWidget *vbox;
+    GtkWidget *bbox;
+    GtkWidget *close_bt;
+    gboolean ret;
+
+    
+    talkers=g_malloc(sizeof(endpoints_table));
+
+	talkers->name=table_name;
+	g_snprintf(title, 255, "%s Conversations: %s", table_name, cf_get_display_name(&cfile));
+	talkers->win=dlg_window_new(title);
+	talkers->page_lb=NULL;
+	gtk_window_set_default_size(GTK_WINDOW(talkers->win), 750, 400);
+
+	SIGNAL_CONNECT(talkers->win, "destroy", ett_win_destroy_cb, talkers);
+
+	vbox=gtk_vbox_new(FALSE, 3);
+	gtk_container_add(GTK_CONTAINER(talkers->win), vbox);
+	gtk_container_set_border_width(GTK_CONTAINER(vbox), 12);
+
+    ret = init_ett_table_page(talkers, vbox, hide_ports, table_name, tap_name, filter, packet_func);
+    if(ret == FALSE) {
+		g_free(talkers);
+        return;
+    }
 
 	/* Button row. */
 	bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
@@ -1079,6 +1102,149 @@ init_ett_table(gboolean hide_ports, char *table_name, char *tap_name, char *filt
 	gtk_widget_show_all(talkers->win);
 	retap_packets(&cfile);
 
+    /* after retapping, redraw table */
+    draw_ett_table_data(talkers);
+}
+
+
+
+static void
+ett_win_destroy_notebook_cb(GtkWindow *win _U_, gpointer data)
+{
+    void ** pages = data;
+    int page;
+
+    /* first "page" contains the number of pages */
+    for (page=1; page<=GPOINTER_TO_INT(pages[0]); page++) {
+        ett_win_destroy_cb(NULL, pages[page]);
+    }
+}
+
+
+
+
+endpoints_table *
+init_ett_notebook_page_cb(gboolean hide_ports, char *table_name, char *tap_name, char *filter, void *packet_func)
+{
+    gboolean ret;
+    GtkWidget *page_vbox;
+	endpoints_table *talkers;
+
+    talkers=g_malloc(sizeof(endpoints_table));
+	talkers->name=table_name;
+
+    page_vbox=gtk_vbox_new(FALSE, 6);
+    talkers->win = page_vbox;
+	gtk_container_set_border_width(GTK_CONTAINER(page_vbox), 6);
+
+    ret = init_ett_table_page(talkers, page_vbox, hide_ports, table_name, tap_name, filter, packet_func);
+    if(ret == FALSE) {
+		g_free(talkers);
+        return NULL;
+    }
+
+    return talkers;
+}
+
+
+typedef struct {
+    gboolean hide_ports;    /* hide TCP / UDP port columns */
+    char *table_name;       /* GUI output name */
+    char *tap_name;         /* internal name */
+    char *filter;           /* display filter string (unused) */
+    void *packet_func;      /* function to be called for new incoming packets */
+} register_ett_t;
+
+
+GSList *registered_tables = NULL;
+
+void
+register_ett_table(gboolean hide_ports, char *table_name, char *tap_name, char *filter, void *packet_func)
+{
+    register_ett_t *table;
+
+    table = g_malloc(sizeof(register_ett_t));
+
+    table->hide_ports   = hide_ports;
+    table->table_name   = table_name;
+    table->tap_name     = tap_name;
+    table->filter       = filter;
+    table->packet_func  = packet_func;
+
+    registered_tables = g_slist_append(registered_tables, table);
+}
+
+
+void
+init_ett_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
+{
+	endpoints_table *talkers;
+	char title[256];
+    GtkWidget *vbox;
+    GtkWidget *bbox;
+    GtkWidget *close_bt;
+    GtkWidget *win;
+    int page;
+    void ** pages;
+    GtkWidget *nb;
+    GtkWidget *page_lb;
+    GSList  *current_table;
+    register_ett_t *registered;
+
+
+    pages = g_malloc(sizeof(void *) * (g_slist_length(registered_tables) + 1));
+
+	g_snprintf(title, 255, "Conversations: %s", cf_get_display_name(&cfile));
+	win=dlg_window_new(title);
+	gtk_window_set_default_size(GTK_WINDOW(win), 750, 400);
+
+	SIGNAL_CONNECT(win, "destroy", ett_win_destroy_notebook_cb, pages);
+
+    vbox=gtk_vbox_new(FALSE, 6);
+	gtk_container_add(GTK_CONTAINER(win), vbox);
+	gtk_container_set_border_width(GTK_CONTAINER(vbox), 12);
+
+    nb = gtk_notebook_new();
+	gtk_container_add(GTK_CONTAINER(vbox), nb);
+
+    page = 0;
+
+    current_table = registered_tables;
+    while(current_table) {
+        registered = current_table->data;
+        page_lb = gtk_label_new("");
+        talkers = init_ett_notebook_page_cb(registered->hide_ports, registered->table_name, registered->tap_name, 
+            registered->filter, registered->packet_func);
+        gtk_notebook_append_page(GTK_NOTEBOOK(nb), talkers->win, page_lb);
+        talkers->win = win;
+	    talkers->page_lb = page_lb;
+        pages[++page] = talkers;
+
+        current_table = g_slist_next(current_table);
+    }
+
+    pages[0] = GINT_TO_POINTER(page);
+
+	/* Button row. */
+	bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
+	gtk_box_pack_end(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
+
+	close_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
+	SIGNAL_CONNECT_OBJECT(close_bt, "clicked", gtk_widget_destroy, win);
+	gtk_widget_grab_default(close_bt);
+
+	/* Catch the "key_press_event" signal in the window, so that we can 
+	   catch the ESC key being pressed and act as if the "Close" button had
+	   been selected. */
+	dlg_set_cancel(win, close_bt);
+
+	gtk_widget_show_all(win);
+	retap_packets(&cfile);
+
+    /* after retapping, redraw table */
+    for (page=1; page<=GPOINTER_TO_INT(pages[0]); page++) {
+        draw_ett_table_data(pages[page]);
+    }
 }
 
 

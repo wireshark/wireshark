@@ -1,7 +1,7 @@
 /* endpoint_talkers_tcpip.c
  * endpoint_talkers_tcpip   2003 Ronnie Sahlberg
  *
- * $Id: endpoint_talkers_tcpip.c,v 1.26 2004/02/23 19:19:36 ulfl Exp $
+ * $Id: endpoint_talkers_tcpip.c,v 1.27 2004/05/02 17:25:10 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -83,5 +83,7 @@ register_tap_listener_tcpip_talkers(void)
 
 	register_tap_menu_item("TCP (IPv4 & IPv6)", REGISTER_TAP_GROUP_CONVERSATION_LIST,
 	    gtk_tcpip_endpoints_cb, NULL, NULL, NULL);
+
+	register_ett_table(FALSE, "TCP", "tcp", NULL /*filter*/, (void *)tcpip_talkers_packet);
 }
 

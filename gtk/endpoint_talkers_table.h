@@ -2,7 +2,7 @@
  * endpoint_talkers_table   2003 Ronnie Sahlberg
  * Helper routines common to all endpoint talkers taps.
  *
- * $Id: endpoint_talkers_table.h,v 1.8 2003/09/04 23:11:03 sahlberg Exp $
+ * $Id: endpoint_talkers_table.h,v 1.9 2004/05/02 17:25:10 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -40,6 +40,7 @@ typedef struct _endpoint_talker_t {
 typedef struct _endpoints_table {
 	char *name;
 	GtkWidget *win;
+	GtkWidget *page_lb;
 	GtkWidget *scrolled_window;
 	GtkCList *table;
 	GtkItemFactory *item_factory;
@@ -50,8 +51,9 @@ typedef struct _endpoints_table {
 } endpoints_table;
 
 
+extern void register_ett_table(gboolean hide_ports, char *table_name, char *tap_name, char *filter, void *packet_func);
 
-void init_ett_table(gboolean hide_ports, char *table_name, char *tap_name, char *filter, void *packet_func);
+extern void init_ett_table(gboolean hide_ports, char *table_name, char *tap_name, char *filter, void *packet_func);
 
 
 #define SAT_NONE		0
