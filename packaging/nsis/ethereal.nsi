@@ -536,6 +536,11 @@ pop $R0
 !insertmacro UpdateIcons
 SectionEnd
 
+Section "Load Winpcap NPF service at startup" SecNPFservice
+;-------------------------------------------
+	WriteRegDWORD HKEY_LOCAL_MACHINE "SYSTEM\CurrentControlSet\Services\NPF" "Start" 1
+SectionEnd
+
 Section "Uninstall"
 ;-------------------------------------------
 
@@ -696,7 +701,8 @@ SectionEnd
   !insertmacro MUI_DESCRIPTION_TEXT ${SecMIBs} "SNMP MIBs for better SNMP dissection."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecShortcuts} "Start menu shortcuts."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecDesktopIcon} "Ethereal desktop icon."
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecFileExtensions} "Associate standard network trace files to ${PROGRAM_NAME}"  
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecFileExtensions} "Associate standard network trace files to ${PROGRAM_NAME}"
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecNPFservice} "Start WinPcap's NPF service at startup, so even users with restricted privilegies can capture. Requires a reboot."
 !insertmacro MUI_FUNCTION_DESCRIPTION_END
 !endif ; MAKENSIS_MODERN_UI
 
@@ -762,15 +768,16 @@ FunctionEnd
 
 !include "GetWindowsVersion.nsh"
 
+Var NPF_START ;declare variable for holding the value of a registry key
 
 Function myShowCallback
+	; Get the Windows version
+	Call GetWindowsVersion
+	Pop $R0 ; Windows Version
 !ifdef GTK2_DIR
 	; Enable GTK-Wimp only for Windows 2000/XP/2003
 	; ...as Win9x/ME/NT known to have problems with it!
 	
-	; Get the Windows version
-	Call GetWindowsVersion
-	Pop $R0 ; Windows Version
 	;DetailPrint 'Windows Version: $R0'
 	StrCmp $R0 '2000' lbl_select_wimp
 	StrCmp $R0 'XP' lbl_select_wimp
@@ -783,4 +790,16 @@ lbl_select_wimp:
 
 lbl_ignore_wimp:
 !endif
+	;Disable Section SecNPFservice for Win OT and if Winpcap is not installed
+	StrCmp $R0 '95' lbl_npf_disable
+	StrCmp $R0 '98' lbl_npf_disable
+	StrCmp $R0 'ME' lbl_npf_disable
+	ReadRegDWORD $NPF_START HKEY_LOCAL_MACHINE "SYSTEM\CurrentControlSet\Services\NPF" "Start"
+	IfErrors lbl_npf_disable ;RegKey not available, so do not set it
+	IntCmp $NPF_START 3 lbl_done
+	;disable
+lbl_npf_disable:
+	!insertmacro DisableSection ${SecNPFservice}
+	
+lbl_done:
 FunctionEnd
