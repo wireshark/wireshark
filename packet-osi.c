@@ -2,7 +2,7 @@
  * Routines for ISO/OSI network and transport protocol packet disassembly
  * Main entrance point and common functions
  *
- * $Id: packet-osi.c,v 1.48 2001/11/29 23:07:49 guy Exp $
+ * $Id: packet-osi.c,v 1.49 2001/12/02 00:07:46 guy Exp $
  * Laurent Deniel <deniel@worldnet.fr>
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
@@ -103,9 +103,17 @@ calc_checksum( tvbuff_t *tvb, int offset, u_int len, u_int checksum) {
 
 /* main entry point */
 
+/*
+ * These assume the NLPID is a secondary protocol identifier, not an
+ * initial protocol identifier.
+ *
+ * This is an issue only if, in any packet where an NLPID appears, it's
+ * an initial protocol identifier *AND* it can have the value 1, which
+ * means T.70 for an IPI and X.29 for an SPI.
+ */
 const value_string nlpid_vals[] = {
 	{ NLPID_NULL,            "NULL" },
-	{ NLPID_T_70,            "T.70" },
+	{ NLPID_SPI_X_29,        "X.29" },
 	{ NLPID_X_633,           "X.633" },
 	{ NLPID_Q_931,           "Q.931" },
 	{ NLPID_Q_2931,          "Q.2931" },

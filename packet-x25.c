@@ -2,12 +2,11 @@
  * Routines for x25 packet disassembly
  * Olivier Abad <oabad@cybercable.fr>
  *
- * $Id: packet-x25.c,v 1.55 2001/11/25 22:19:25 hagbard Exp $
+ * $Id: packet-x25.c,v 1.56 2001/12/02 00:07:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -126,6 +125,7 @@ static gint ett_x25_fac_ete_transit_delay = -1;
 static gint ett_x25_fac_calling_addr_ext = -1;
 static gint ett_x25_fac_call_deflect = -1;
 static gint ett_x25_fac_priority = -1;
+static gint ett_x25_user_data = -1;
 
 static const value_string vals_modulo[] = {
 	{ 1, "8" },
@@ -154,7 +154,6 @@ static const value_string vals_x25_type[] = {
 	{ 0,   NULL}
 };
 
-static dissector_handle_t ip_handle;
 static dissector_handle_t ositp_handle;
 static dissector_handle_t sna_handle;
 static dissector_handle_t qllc_handle;
@@ -163,11 +162,13 @@ static dissector_handle_t data_handle;
 /* Preferences */
 static gboolean non_q_bit_is_sna = FALSE;
 
+static dissector_table_t x25_subdissector_table;
+
 /*
  * each vc_info node contains :
  *   the time of the first frame using this dissector (secs and usecs)
  *   the time of the last frame using this dissector (0 if it is unknown)
- *   a pointer to the dissector
+ *   the protocol used over the VC
  *
  * the "time of first frame" is initialized when a Call Req. is received
  * the "time of last frame" is initialized when a Clear, Reset, or Restart
@@ -176,9 +177,21 @@ static gboolean non_q_bit_is_sna = FALSE;
 typedef struct _vc_info {
 	guint32 first_frame_secs, first_frame_usecs;
 	guint32 last_frame_secs, last_frame_usecs;
-	dissector_handle_t dissect;
+	int proto;
 	struct _vc_info *next;
 } vc_info;
+
+/*
+ * Protocol unknown for connection.
+ */
+#define PROTO_UNKNOWN	-1
+
+/*
+ * Special protocol values, for protocols not indicated by an NLPID as a
+ * secondary protocol identifier.
+ */
+#define PROTO_SNA	-2
+#define PROTO_ISO_8073	-3
 
 /*
  * the hash table will contain linked lists of global_vc_info
@@ -230,7 +243,7 @@ reinit_x25_hashtable(void)
 
 static void
 x25_hash_add_proto_start(guint16 vc, guint32 frame_secs, guint32 frame_usecs,
-		         dissector_handle_t dissect)
+		         int proto)
 {
   int idx = vc % 64;
   global_vc_info *hash_ent;
@@ -254,7 +267,7 @@ x25_hash_add_proto_start(guint16 vc, guint32 frame_secs, guint32 frame_usecs,
     hash_ent->info->first_frame_usecs = frame_usecs;
     hash_ent->info->last_frame_secs = 0;
     hash_ent->info->last_frame_usecs = 0;
-    hash_ent->info->dissect = dissect;
+    hash_ent->info->proto = proto;
     hash_ent->info->next = 0;
     hash_table[idx] = hash_ent;
   }
@@ -270,7 +283,7 @@ x25_hash_add_proto_start(guint16 vc, guint32 frame_secs, guint32 frame_usecs,
     {
       vc_info *vci = hash_ent->info;
       while (vci->next) vci = vci->next; /* last element */
-      if (vci->dissect == dissect) {
+      if (vci->proto == proto) {
 	vci->last_frame_secs = 0;
 	vci->last_frame_usecs = 0;
       }
@@ -284,7 +297,7 @@ x25_hash_add_proto_start(guint16 vc, guint32 frame_secs, guint32 frame_usecs,
 	vci->next->first_frame_usecs = frame_usecs;
 	vci->next->last_frame_secs = 0;
 	vci->next->last_frame_usecs = 0;
-	vci->next->dissect = dissect;
+	vci->next->proto = proto;
 	vci->next->next = 0;
       }
     }
@@ -304,7 +317,7 @@ x25_hash_add_proto_start(guint16 vc, guint32 frame_secs, guint32 frame_usecs,
       hash_ent2->next->info->first_frame_usecs = frame_usecs;
       hash_ent2->next->info->last_frame_secs = 0;
       hash_ent2->next->info->last_frame_usecs = 0;
-      hash_ent2->next->info->dissect = dissect;
+      hash_ent2->next->info->proto = proto;
       hash_ent2->next->info->next = 0;
     }
   }
@@ -326,17 +339,20 @@ x25_hash_add_proto_end(guint16 vc, guint32 frame_secs, guint32 frame_usecs)
   vci->last_frame_usecs = frame_usecs;
 }
 
-static dissector_handle_t
-x25_hash_get_dissect(guint32 frame_secs, guint32 frame_usecs, guint16 vc)
+static int
+x25_hash_get_proto(guint32 frame_secs, guint32 frame_usecs, guint16 vc)
 {
   global_vc_info *hash_ent = hash_table[vc%64];
   vc_info *vci;
   vc_info *vci2;
 
-  if (!hash_ent) return 0;
+  if (!hash_ent)
+    return PROTO_UNKNOWN;
 
-  while(hash_ent && hash_ent->vc_num != vc) hash_ent = hash_ent->next;
-  if (!hash_ent) return 0;
+  while (hash_ent && hash_ent->vc_num != vc)
+    hash_ent = hash_ent->next;
+  if (!hash_ent)
+    return PROTO_UNKNOWN;
 
   /* a hash_ent was found for this VC number */
   vci2 = vci = hash_ent->info;
@@ -349,29 +365,30 @@ x25_hash_get_dissect(guint32 frame_secs, guint32 frame_usecs, guint16 vc)
     vci = vci->next;
   }
   /* we reached last record, and previous record has a non zero
-   * last frame time ==> no dissector */
-  if (!vci && (vci2->last_frame_secs || vci2->last_frame_usecs)) return 0;
+   * last frame time ==> no protocol known */
+  if (!vci && (vci2->last_frame_secs || vci2->last_frame_usecs))
+    return PROTO_UNKNOWN;
 
   /* we reached last record, and previous record has a zero last frame time
    * ==> dissector for previous frame has not been "stopped" by a Clear, etc */
   if (!vci) {
     /* if the start time for vci2 is greater than our frame time
-     * ==> no dissector */
+     * ==> no protocol known */
     if (frame_secs < vci2->first_frame_secs ||
         (frame_secs == vci2->first_frame_secs &&
          frame_usecs < vci2->first_frame_usecs))
-      return 0;
+      return PROTO_UNKNOWN;
     else
-      return vci2->dissect;
+      return vci2->proto;
   }
 
-  /* our frame time is before vci's end. Check if it is adter vci's start */
+  /* our frame time is before vci's end. Check if it is after vci's start */
   if (frame_secs < vci->first_frame_secs ||
       (frame_secs == vci->first_frame_secs &&
        frame_usecs < vci->first_frame_usecs))
     return 0;
   else
-    return vci->dissect;
+    return vci->proto;
 }
 
 static char *clear_code(unsigned char code)
@@ -1478,13 +1495,13 @@ static const value_string sharing_strategy_vals[] = {
 static void
 dissect_x25(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    proto_tree *x25_tree=0, *gfi_tree=0;
+    proto_tree *x25_tree=0, *gfi_tree=0, *userdata_tree=0;
     proto_item *ti;
     guint localoffset=0;
     guint x25_pkt_len;
     int modulo;
     guint16 vc;
-    dissector_handle_t dissect;
+    int proto;
     gboolean toa;         /* TOA/NPI address format */
     guint16 bytes0_1;
     guint8 pkt_type;
@@ -1569,94 +1586,206 @@ dissect_x25(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (localoffset < tvb_reported_length(tvb)) /* user data */
 	{
 	    guint8 spi;
+	    int is_x_264;
 	    guint8 prt_id;
 
-	    /* Compare the first octet of the CALL REQUEST packet with
-	       various ISO 9577 NLPIDs, as per Annex A of ISO 9577. */
+	    if (x25_tree) {
+		ti = proto_tree_add_text(x25_tree, tvb, localoffset,
+			tvb_length_remaining(tvb, localoffset),
+			"User data");
+		userdata_tree = proto_item_add_subtree(ti, ett_x25_user_data);
+	    }
+
+	    /* X.263/ISO 9577 says that:
+
+		    When CLNP or ESIS are run over X.25, the SPI
+		    is 0x81 or 0x82, respectively; those are the
+		    NLPIDs for those protocol.
+
+		    When X.224/ISO 8073 COTP is run over X.25, and
+		    when ISO 11570 explicit identification is being
+		    used, the first octet of the user data field is
+		    a TPDU length field, and the rest is "as defined
+		    in ITU-T Rec. X.225 | ISO/IEC 8073, Annex B,
+		    or ITU-T Rec. X.264 and ISO/IEC 11570".
+
+		    When X.264/ISO 11570 default identification is
+		    being used, there is no user data field in the
+		    CALL REQUEST packet.  This is for X.225/ISO 8073
+		    COTP.
+
+	       It also says that SPI values from 0x03 through 0x3f are
+	       reserved and are in use by X.224/ISO 8073 Annex B and
+	       X.264/ISO 11570.  The note says that those values are
+	       not NLPIDs, they're "used by the respective higher layer
+	       protocol" and "not used for higher layer protocol
+	       identification".  I infer from this and from what
+	       X.264/ISO 11570 says that this means that values in those
+	       range are valid values for the first octet of an
+	       X.224/ISO 8073 packet or for X.264/ISO 11570.
+
+	       Annex B of X.225/ISO 8073 mentions some additional TPDU
+	       types that can be put in what I presume is the user
+	       data of connect requests.  It says that:
+
+		    The sending transport entity shall:
+
+			a) either not transmit any TPDU in the NS-user data
+			   parameter of the N-CONNECT request primitive; or
+
+			b) transmit the UN-TPDU (see ITU-T Rec. X.264 and
+			   ISO/IEC 11570) followed by the NCM-TPDU in the
+			   NS-user data parameter of the N-CONNECT request
+			   primitive.
+
+	       I don't know if this means that the user data field
+	       will contain a UN TPDU followed by an NCM TPDU or not.
+
+	       X.264/ISO 11570 says that:
+
+		    When default identification is being used,
+		    X.225/ISO 8073 COTP is identified.  No user data
+		    is sent in the network-layer connection request.
+
+		    When explicit identification is being used,
+		    the user data is a UN TPDU ("Use of network
+		    connection TPDU"), which specifies the transport
+		    protocol to use over this network connection.
+		    It also says that the length of a UN TPDU shall
+		    not exceed 32 octets, i.e. shall not exceed 0x20;
+		    it says this is "due to the desire not to conflict
+		    with the protocol identifier field carried by X.25
+		    CALL REQUEST/INCOMING CALL packets", and says that
+		    field has values specified in X.244.  X.244 has been
+		    superseded by X.263/ISO 9577, so that presumably
+		    means the goal is to allow a UN TPDU's length
+		    field to be distinguished from an NLPID, allowing
+		    you to tell whether X.264/ISO 11570 explicit
+		    identification is being used or an NLPID is
+		    being used as the SPI.
+
+	       I read this as meaning that, if the ISO mechanisms are
+	       used to identify the protocol being carried over X.25:
+
+		    if there's no user data in the CALL REQUEST/
+		    INCOMING CALL packet, it's COTP;
+
+		    if there is user data, then:
+
+			if the first octet is less than or equal to
+			32, it might be a UN TPDU, and that identifies
+			the transport protocol being used, and
+			it may be followed by more data, such
+			as a COTP NCM TPDU if it's COTP;
+
+			if the first octet is greater than 32, it's
+			an NLPID, *not* a TPDU length, and the
+			stuff following it is *not* a TPDU.
+
+	       Figure A.2 of X.263/ISO 9577 seems to say that the
+	       first octet of the user data is a TPDU length field,
+	       in the range 0x03 through 0x82, and says they are
+	       for X.225/ISO 8073 Annex B or X.264/ISO 11570.
+
+	       However, X.264/ISO 11570 seems to imply that the length
+	       field would be that of a UN TPDU, which must be less
+	       than or equal to 0x20, and X.225/ISO 8073 Annex B seems
+	       to indicate that the user data must begin with
+	       an X.264/ISO 11570 UN TPDU, so I'd say that A.2 should
+	       have said "in the range 0x03 through 0x20", instead
+	       (the length value doesn't include the length field,
+	       and the minimum UN TPDU has length, type, PRT-ID,
+	       and SHARE, so that's 3 bytes without the length). */
 	    spi = tvb_get_guint8(tvb, localoffset);
-	    switch (spi) {
-
-	    /*
-	     * XXX - handle other NLPIDs, e.g. PPP?
-	     * See RFC 1356 for information on at least some other
-	     * ways of running other protocols atop X.25.
-	     */
-	    case NLPID_IP:
-		x25_hash_add_proto_start(vc, pinfo->fd->abs_secs,
-					 pinfo->fd->abs_usecs, ip_handle);
-		if (x25_tree)
-		    proto_tree_add_text(x25_tree, tvb, localoffset, 1,
-					"X.224 secondary protocol ID: IP");
-		localoffset++;
-		break;
-
-	    default:
-		if ((spi >= 0x03 && spi <= 0x82)
-		    && tvb_get_guint8(tvb, localoffset+1) == 0x01) {
-		    /* ISO 9577 claims that a SPI in that range is a
-		       length field for X.224/ISO 8073 or X.264/ISO 11570;
-		       however, some of them collide with NLPIDs such
-		       as 0x81 for ISO 8473 CLNP or ISO 8542 ESIS, so
-		       I don't know how you run those over X.25, assuming
-		       you do.
-
-		       I'm also not sure what the "or" means there; it
-		       looks as if X.264 specifies the layout of a
-		       "UN TPDU" ("Use of network connection TPDU"),
-		       which specifies the transport protocol to use
-		       over this network connection, and 0x03 0x01 0x01
-		       0x00 is such a TPDU, with a length of 3, a UN
-		       field of 1 (as is required), a PRT-ID ("protocol
-		       identifier") field of 1 (X.224/ISO 8073, a/k/a
-		       COTP service), and a SHARE ("sharing strategy")
-		       field of 0 ("no sharing", which is the only one
-		       allowed).
-
-		       So we'll assume that's what it is, as the SPI
-		       is in the right range for a length, and the UN
-		       field is 0x01. */
-		    prt_id = tvb_get_guint8(tvb, localoffset+2);
-		    if (x25_tree) {
-		        proto_tree_add_text(x25_tree, tvb, localoffset, 1,
-					"X.264 length indicator: %u",
-					spi);
-		        proto_tree_add_text(x25_tree, tvb, localoffset+1, 1,
-		        		"X.264 UN TPDU identifier: 0x%02X",
-		        		tvb_get_guint8(tvb, localoffset+1));
-		        proto_tree_add_text(x25_tree, tvb, localoffset+2, 1,
-		        		"X.264 protocol identifier: %s",
-					val_to_str(prt_id, prt_id_vals,
-					    "Unknown (0x%02X)"));
-		        proto_tree_add_text(x25_tree, tvb, localoffset+3, 1,
-		        		"X.264 sharing strategy: %s",
-					val_to_str(tvb_get_guint8(tvb, localoffset+3),
-					    sharing_strategy_vals, "Unknown (0x%02X)"));
-		    }
-
-		    /* XXX - dissect the variable part? */
-
-		    /* The length doesn't include the length octet itself. */
-		    localoffset += spi + 1;
-
-		    switch (prt_id) {
-
-		    case PRT_ID_ISO_8073:
-			/* ISO 8073 COTP */
-			x25_hash_add_proto_start(vc, pinfo->fd->abs_secs,
-					 pinfo->fd->abs_usecs, ositp_handle);
-			break;
-
-		    default:
-			goto unknown;
+	    if (spi > 32 || spi < 3) {
+		/* First octet is > 32, or < 3, so the user data isn't an
+		   X.264/ISO 11570 UN TPDU */
+		is_x_264 = FALSE;
+	    } else {
+		/* First octet is >= 3 and <= 32, so the user data *might*
+		   be an X.264/ISO 11570 UN TPDU.  Check whether we have
+		   enough data to see if it is. */
+		if (tvb_bytes_exist(tvb, localoffset+1, 1)) {
+		    /* We do; check whether the second octet is 1. */
+		    if (tvb_get_guint8(tvb, localoffset+1) == 0x01) {
+			/* Yes, the second byte is 1, so it looks like
+			   a UN TPDU. */
+			is_x_264 = TRUE;
+		    } else {
+			/* No, the second byte is not 1, so it's not a
+			   UN TPDU. */
+			is_x_264 = FALSE;
 		    }
 		} else {
-		unknown:
-		    if (x25_tree) {
-			proto_tree_add_text(x25_tree, tvb, localoffset,
-				tvb_reported_length(tvb)-localoffset, "Data");
-		    }
-		    localoffset = tvb_reported_length(tvb);
+		    /* We can't see the second byte of the putative UN
+		       TPDU, so we don't know if that's what it is. */
+		    is_x_264 = -1;
 		}
+	    }
+	    if (is_x_264 == -1) {
+		/*
+		 * We don't know what it is; just skip it.
+		 */
+		localoffset = tvb_length(tvb);
+	    } else if (is_x_264) {
+		/* It looks like an X.264 UN TPDU, so show it as such. */
+		if (userdata_tree) {
+		    proto_tree_add_text(userdata_tree, tvb, localoffset, 1,
+					"X.264 length indicator: %u",
+					spi);
+		    proto_tree_add_text(userdata_tree, tvb, localoffset+1, 1,
+					"X.264 UN TPDU identifier: 0x%02X",
+					tvb_get_guint8(tvb, localoffset+1));
+		}
+		prt_id = tvb_get_guint8(tvb, localoffset+2);
+		if (userdata_tree) {
+		    proto_tree_add_text(x25_tree, tvb, localoffset+2, 1,
+					"X.264 protocol identifier: %s",
+					val_to_str(prt_id, prt_id_vals,
+					       "Unknown (0x%02X)"));
+		    proto_tree_add_text(x25_tree, tvb, localoffset+3, 1,
+					"X.264 sharing strategy: %s",
+					val_to_str(tvb_get_guint8(tvb, localoffset+3),
+					sharing_strategy_vals, "Unknown (0x%02X)"));
+		}
+
+		/* XXX - dissect the variable part? */
+
+		/* The length doesn't include the length octet itself. */
+		localoffset += spi + 1;
+
+		switch (prt_id) {
+
+		case PRT_ID_ISO_8073:
+		    /* ISO 8073 COTP */
+		    x25_hash_add_proto_start(vc, pinfo->fd->abs_secs,
+					     pinfo->fd->abs_usecs,
+					     PROTO_ISO_8073);
+		    /* XXX - disssect the rest of the user data as COTP?
+		       That needs support for NCM TPDUs, etc. */
+		    break;
+		}
+	    } else if (is_x_264 == 0) {
+		/* It doesn't look like a UN TPDU, so compare the first
+		   octet of the CALL REQUEST packet with various X.263/
+		   ISO 9577 NLPIDs, as per Annex A of X.263/ISO 9577. */ 
+
+		if (userdata_tree) {
+		    proto_tree_add_text(userdata_tree, tvb, localoffset, 1,
+					"X.263 secondary protocol ID: %s",
+					val_to_str(spi, nlpid_vals, "Unknown (0x%02x)"));
+		}
+		localoffset++;
+		
+		x25_hash_add_proto_start(vc, pinfo->fd->abs_secs,
+					 pinfo->fd->abs_usecs, spi);
+	    }
+	    if (localoffset < tvb_length(tvb)) {
+		if (userdata_tree) {
+		    proto_tree_add_text(userdata_tree, tvb, localoffset,
+				tvb_length(tvb)-localoffset, "Data");
+		}
+		localoffset = tvb_length(tvb);
 	    }
 	}
 	break;
@@ -2012,27 +2141,45 @@ dissect_x25(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         return;
     }
 
-    /* search the dissector in the hash table */
-    if ((dissect = x25_hash_get_dissect(pinfo->fd->abs_secs, pinfo->fd->abs_usecs, vc))) {
-        call_dissector(dissect, next_tvb, pinfo, tree);
+    /* search the protocol in the hash table */
+    proto = x25_hash_get_proto(pinfo->fd->abs_secs, pinfo->fd->abs_usecs, vc);
+    switch (proto) {
+
+    case PROTO_UNKNOWN:
+	/* Did the user suggest SNA-over-X.25? */
+	if (non_q_bit_is_sna) {
+	    x25_hash_add_proto_start(vc, pinfo->fd->abs_secs,
+				     pinfo->fd->abs_usecs, PROTO_SNA);
+	    call_dissector(sna_handle, next_tvb, pinfo, tree);
+	    return;
+	}
+	/* If the Call Req. has not been captured, and the payload begins
+	   with what appears to be an IP header, assume these packets carry
+	   IP */
+	if (tvb_get_guint8(tvb, localoffset) == 0x45) {
+	    x25_hash_add_proto_start(vc, pinfo->fd->abs_secs,
+				     pinfo->fd->abs_usecs, NLPID_IP);
+	    if (dissector_try_port(x25_subdissector_table, NLPID_IP,
+				   next_tvb, pinfo, tree))
+		return;
+	}
+	break;
+
+    case PROTO_SNA:
+	call_dissector(sna_handle, next_tvb, pinfo, tree);
+	return;
+
+    case PROTO_ISO_8073:
+	call_dissector(ositp_handle, next_tvb, pinfo, tree);
+	return;
+
+    default:
+	if (dissector_try_port(x25_subdissector_table, proto,
+			       next_tvb, pinfo, tree))
+	    return;
+	break;
     }
-    else {
-        /* Did the user suggest SNA-over-X.25? */
-        if (non_q_bit_is_sna) {
-            x25_hash_add_proto_start(vc, pinfo->fd->abs_secs,
-                                     pinfo->fd->abs_usecs, sna_handle);
-            call_dissector(sna_handle, next_tvb, pinfo, tree);
-        }
-        /* If the Call Req. has not been captured, assume these packets carry IP */
-        else if (tvb_get_guint8(tvb, localoffset) == 0x45) {
-            x25_hash_add_proto_start(vc, pinfo->fd->abs_secs,
-                pinfo->fd->abs_usecs, ip_handle);
-            call_dissector(ip_handle, next_tvb, pinfo, tree);
-        }
-        else {
-            call_dissector(data_handle,next_tvb, pinfo, tree);
-        }
-    }
+    call_dissector(data_handle, next_tvb, pinfo, tree);
 }
 
 void
@@ -2102,7 +2249,8 @@ proto_register_x25(void)
 	&ett_x25_fac_ete_transit_delay,
 	&ett_x25_fac_calling_addr_ext,
 	&ett_x25_fac_call_deflect,
-	&ett_x25_fac_priority
+	&ett_x25_fac_priority,
+	&ett_x25_user_data
     };
     module_t *x25_module;
 
@@ -2110,6 +2258,8 @@ proto_register_x25(void)
     proto_register_field_array (proto_x25, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
     register_init_routine(&reinit_x25_hashtable);
+
+    x25_subdissector_table = register_dissector_table("x.25.spi");
 
     register_dissector("x.25", dissect_x25, proto_x25);
 
@@ -2124,9 +2274,8 @@ void
 proto_reg_handoff_x25(void)
 {
     /*
-     * Get handles for the IP and OSI TP (COTP/CLTP) dissectors.
+     * Get handles for various dissectors.
      */
-    ip_handle = find_dissector("ip");
     ositp_handle = find_dissector("ositp");
     sna_handle = find_dissector("sna");
     qllc_handle = find_dissector("qllc");

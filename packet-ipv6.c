@@ -1,7 +1,7 @@
 /* packet-ipv6.c
  * Routines for IPv6 packet disassembly
  *
- * $Id: packet-ipv6.c,v 1.68 2001/11/26 04:52:50 hagbard Exp $
+ * $Id: packet-ipv6.c,v 1.69 2001/12/02 00:07:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -54,6 +54,7 @@
 #include "etypes.h"
 #include "ppptypes.h"
 #include "aftypes.h"
+#include "nlpid.h"
 
 /*
  * NOTE: ipv6.nxt is not very useful as we will have chained header.
@@ -1155,8 +1156,13 @@ proto_reg_handoff_ipv6(void)
   data_handle = find_dissector("data");
   dissector_add("ethertype", ETHERTYPE_IPv6, dissect_ipv6, proto_ipv6);
   dissector_add("ppp.protocol", PPP_IPV6, dissect_ipv6, proto_ipv6);
+  dissector_add("ppp.protocol", ETHERTYPE_IPv6, dissect_ipv6, proto_ipv6);
+  dissector_add("gre.proto", ETHERTYPE_IPv6, dissect_ipv6, proto_ipv6);
   dissector_add("ip.proto", IP_PROTO_IPV6, dissect_ipv6, proto_ipv6);
+  dissector_add("ip.proto", IP_PROTO_NONE, dissect_ipv6_none, proto_ipv6);
   dissector_add("null.type", BSD_AF_INET6_BSD, dissect_ipv6, proto_ipv6);
   dissector_add("null.type", BSD_AF_INET6_FREEBSD, dissect_ipv6, proto_ipv6);
-  dissector_add("ip.proto", IP_PROTO_NONE, dissect_ipv6_none, proto_ipv6);
+  dissector_add("chdlctype", ETHERTYPE_IPv6, dissect_ipv6, proto_ipv6);
+  dissector_add("fr.ietf", NLPID_IP6, dissect_ipv6, proto_ipv6);
+  dissector_add("x.25.spi", NLPID_IP6, dissect_ipv6, proto_ipv6);
 }

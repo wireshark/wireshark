@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.148 2001/11/26 04:52:50 hagbard Exp $
+ * $Id: packet-ip.c,v 1.149 2001/12/02 00:07:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1809,6 +1809,7 @@ proto_reg_handoff_ip(void)
 	dissector_add("null.type", BSD_AF_INET, dissect_ip, proto_ip);
 	dissector_add("chdlctype", ETHERTYPE_IP, dissect_ip, proto_ip);
 	dissector_add("fr.ietf", NLPID_IP, dissect_ip, proto_ip);
+	dissector_add("x.25.spi", NLPID_IP, dissect_ip, proto_ip);
 }
 
 void

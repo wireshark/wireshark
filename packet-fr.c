@@ -3,7 +3,7 @@
  *
  * Copyright 2001, Paul Ionescu	<paul@acorp.ro>
  *
- * $Id: packet-fr.c,v 1.23 2001/11/30 04:39:45 guy Exp $
+ * $Id: packet-fr.c,v 1.24 2001/12/02 00:07:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -105,11 +105,12 @@ static const true_false_string ea_string = {
 
 /*
  * This isn't the same as "nlpid_vals[]"; 0x08 is Q.933, not Q.931,
- * and 0x09 is LMI, not Q.2931.
+ * and 0x09 is LMI, not Q.2931, and we assume that it's an initial
+ * protocol identifier, so 0x01 is T.70, not X.29.
  */
 static const value_string fr_nlpid_vals[] = {
 	{ NLPID_NULL,            "NULL" },
-	{ NLPID_T_70,            "T.70" },
+	{ NLPID_IPI_T_70,        "T.70" },	/* XXX - IPI, or SPI? */
 	{ NLPID_X_633,           "X.633" },
 	{ NLPID_Q_931,           "Q.933" },
 	{ NLPID_LMI,             "LMI" },
@@ -124,6 +125,7 @@ static const value_string fr_nlpid_vals[] = {
 	{ NLPID_ISO11577,        "ISO 11577" },
 	{ NLPID_COMPRESSED,      "Data compression protocol" },
 	{ NLPID_IP,              "IP" },
+	{ NLPID_IP6,             "IPv6" },
 	{ NLPID_PPP,             "PPP" },
 	{ 0,                     NULL },
 };
