@@ -10649,9 +10649,13 @@ static const per_choice_t VideoMode_choice[] = {
 
 static int
 dissect_h245_VideoMode(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  guint32 value;
+
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
                               ett_h245_VideoMode, VideoMode_choice, "VideoMode",
-                              NULL);
+                              &value);
+  codec_type = val_to_str(value, h245_VideoMode_vals, "<unknown>");
+		if (h245_pi != NULL) g_snprintf(h245_pi->frame_label, 50, "%s %s", h245_pi->frame_label, val_to_str(value, h245_VideoMode_vals, "ukn"));
 
   return offset;
 }
@@ -11001,9 +11005,13 @@ static const per_choice_t AudioMode_choice[] = {
 
 static int
 dissect_h245_AudioMode(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  guint32 value;
+
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
                               ett_h245_AudioMode, AudioMode_choice, "AudioMode",
-                              NULL);
+                              &value);
+  codec_type = val_to_str(value, h245_AudioMode_vals, "<unknown>");
+		if (h245_pi != NULL) g_snprintf(h245_pi->frame_label, 50, "%s %s", h245_pi->frame_label, val_to_str(value, h245_AudioMode_vals, "ukn"));
 
   return offset;
 }
@@ -11064,9 +11072,13 @@ static const per_choice_t DataModeApplication_choice[] = {
 
 static int
 dissect_h245_DataModeApplication(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  guint32 value;
+
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
                               ett_h245_DataModeApplication, DataModeApplication_choice, "DataModeApplication",
-                              NULL);
+                              &value);
+  codec_type = val_to_str(value, h245_DataModeApplication_vals, "<unknown>");
+		if (h245_pi != NULL) g_snprintf(h245_pi->frame_label, 50, "%s %s", h245_pi->frame_label, val_to_str(value, h245_DataModeApplication_vals, "ukn"));
 
   return offset;
 }
