@@ -2,7 +2,7 @@
  * Routines for SMB Browser packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb-browse.c,v 1.14 2001/07/30 05:20:43 guy Exp $
+ * $Id: packet-smb-browse.c,v 1.15 2001/08/01 03:47:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -178,8 +178,8 @@ static const true_false_string tfs_server = {
 	"This is NOT a Server"
 };
 static const true_false_string tfs_sql = {
-	"This is an SQL server ",
-	"This is NOT an SQL server "
+	"This is an SQL server",
+	"This is NOT an SQL server"
 };
 static const true_false_string tfs_domain = {
 	"This is a Domain Controller",
@@ -218,8 +218,8 @@ static const true_false_string tfs_xenix = {
 	"This is NOT a Xenix server"
 };
 static const true_false_string tfs_ntw = {
-	"This is an NT Workstation ",
-	"This is NOT an NT Workstation "
+	"This is an NT Workstation",
+	"This is NOT an NT Workstation"
 };
 static const true_false_string tfs_wfw = {
 	"This is a WfW host",
@@ -266,7 +266,6 @@ static const true_false_string tfs_domainenum = {
 	"This is NOT a Domain Enum request"
 };
 
-
 #define DESIRE_BACKUP			0
 #define DESIRE_STANDBY			1
 #define DESIRE_MASTER			2
@@ -281,35 +280,33 @@ static const value_string desire_flags[] = {
 	{DESIRE_DOMAIN_MASTER,	"Domain Master Browse Server"},
 	{DESIRE_WINS,		"WINS Client"},
 	{DESIRE_NT,		"Windows NT Advanced Server"},
-	{0,	NULL}
+	{0,			NULL}
 };
-
 
 static const true_false_string tfs_desire_backup = {
-"Backup Browse Server", 
-"NOT Backup Browse Server"
+	"Backup Browse Server", 
+	"NOT Backup Browse Server"
  };
 static const true_false_string tfs_desire_standby = {
-"Standby Browse Server",
-"NOT Standby Browse Server"
+	"Standby Browse Server",
+	"NOT Standby Browse Server"
 };
 static const true_false_string tfs_desire_master = {
-"Master Browser",
-"NOT Master Browser"
+	"Master Browser",
+	"NOT Master Browser"
 };
 static const true_false_string tfs_desire_domain_master = {
-"Domain Master Browse Server",
-"NOT Domain Master Browse Server"
+	"Domain Master Browse Server",
+	"NOT Domain Master Browse Server"
 };
 static const true_false_string tfs_desire_wins = {
-"WINS Client",
-"NOT WINS Client"
+	"WINS Client",
+	"NOT WINS Client"
 };
 static const true_false_string tfs_desire_nt = {
-"Windows NT Advanced Server",
-"NOT Windows NT Advanced Server"
+	"Windows NT Advanced Server",
+	"NOT Windows NT Advanced Server"
 };
-
 
 #define BROWSE_HOST_ANNOUNCE			1
 #define BROWSE_REQUEST_ANNOUNCE			2
@@ -331,9 +328,8 @@ static const value_string commands[] = {
 	{BROWSE_DOMAIN_ANNOUNCEMENT,	"Domain/Workgroup Announcement"},
 	{BROWSE_MASTER_ANNOUNCEMENT,	"Master Announcement"},
 	{BROWSE_LOCAL_MASTER_ANNOUNCEMENT,"Local Master Announcement"},
-	{0,	NULL}
+	{0,				NULL}
 };
-
 
 #define OS_WFW				0
 #define OS_NTW				4
@@ -343,22 +339,21 @@ static const value_string os_flags[] = {
 	{OS_WFW,		"Windows for Workgroups"},
 	{OS_NTW,		"Windows NT Workstation"},
 	{OS_NTS,		"Windows NT Server"},
-	{0,	NULL}
+	{0,			NULL}
 };
 
 static const true_false_string tfs_os_wfw = {
-"Windows for Workgroups",
-"Not Windows for Workgroups"
- };
+	"Windows for Workgroups",
+	"Not Windows for Workgroups"
+};
 static const true_false_string tfs_os_ntw = {
-"Windows NT Workstation",
-"Not Windows NT Workstation"
+	"Windows NT Workstation",
+	"Not Windows NT Workstation"
 };
 static const true_false_string tfs_os_nts = {
-"Windows NT Server",
-"Not Windows NT Server"
+	"Windows NT Server",
+	"Not Windows NT Server"
 };
-
 
 static void
 dissect_election_criterion_os(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset)
@@ -382,7 +377,6 @@ dissect_election_criterion_os(tvbuff_t *tvb, packet_info *pinfo, proto_tree *par
 		tvb, offset, 1, os);
 
 }
-
 
 static void
 dissect_election_criterion_desire(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset)
@@ -412,9 +406,6 @@ dissect_election_criterion_desire(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 		tvb, offset, 1, desire);
 
 }
-
-
-
 
 static void
 dissect_election_criterion(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset)
@@ -447,7 +438,6 @@ dissect_election_criterion(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent
 	offset += 1;
 
 }
-
 
 static void
 dissect_server_type_flags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset)
@@ -525,8 +515,6 @@ dissect_server_type_flags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_
 		tvb, offset, 4, flags);
 
 }
-
-
 
 gboolean
 dissect_mailslot_browse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
@@ -741,11 +729,119 @@ dissect_mailslot_browse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 	return TRUE;
 }
 
+/*
+ * It appears that browser announcements sent to \MAILSLOT\LANMAN aren't
+ * the same as browser announcements sent to \MAILSLOT\BROWSE.
+ * Was that an older version of the protocol?
+ *
+ * The document at
+ *
+ *	http://www.samba.org/samba/ftp/specs/smbpub.txt
+ *
+ * gives both formats of host announcement packets, saying that
+ * "[The first] format seems wrong", that one being what appears to
+ * show up in \MAILSLOT\LANMAN packets, and that "[The second one]
+ * may be better", that one being what appears to show up in
+ * \MAILSLOT\BROWSE packets.
+ *
+ * XXX - what other browser packets go out to that mailslot?
+ */
+gboolean
+dissect_mailslot_lanman(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
+{
+	int offset = 0;
+	guint8 cmd;
+	proto_tree *tree = NULL;
+	proto_item *item = NULL;
+	guint32 periodicity;
+	const char *host_name;
+	guint namelen;
 
+	if (!proto_is_protocol_enabled(proto_smb_browse)) {
+		return FALSE;
+	}
+
+	pinfo->current_proto = "BROWSER";
+
+	if (check_col(pinfo->fd, COL_PROTOCOL)) {
+		col_set_str(pinfo->fd, COL_PROTOCOL, "BROWSER");
+	}
+	if (check_col(pinfo->fd, COL_INFO)) {
+		col_clear(pinfo->fd, COL_INFO);
+	}
+
+	cmd = tvb_get_guint8(tvb, offset);
+
+	if (check_col(pinfo->fd, COL_INFO)) {
+		/* Put in something, and replace it later */
+		col_set_str(pinfo->fd, COL_INFO, val_to_str(cmd, commands, "Unknown command:0x%02x"));
+	}
+
+
+	if (parent_tree) {
+		item = proto_tree_add_item(parent_tree, proto_smb_browse, tvb, offset, tvb_length_remaining(tvb, offset), TRUE);
+
+		tree = proto_item_add_subtree(item, ett_browse);
+	}
+
+	/* command */
+	proto_tree_add_uint(tree, hf_command, tvb, offset, 1, cmd);
+	offset += 1;
+
+	switch (cmd) {
+	case BROWSE_DOMAIN_ANNOUNCEMENT:
+	case BROWSE_LOCAL_MASTER_ANNOUNCEMENT:
+	case BROWSE_HOST_ANNOUNCE:
+		/* update count */
+		proto_tree_add_item(tree, hf_update_count, tvb, offset, 1, TRUE);
+		offset += 1;
+
+		/* server type flags */
+		dissect_server_type_flags(tvb, pinfo, tree, offset);
+		offset += 4;
+
+		/* OS major version */
+		proto_tree_add_item(tree, hf_os_major, tvb, offset, 1, TRUE);
+		offset += 1;
+
+		/* OS minor version */
+		proto_tree_add_item(tree, hf_os_minor, tvb, offset, 1, TRUE);
+		offset += 1;
+
+		/* periodicity */
+		periodicity = tvb_get_letohs(tvb, offset);
+		proto_tree_add_uint_format(tree, hf_periodicity, tvb, offset, 2,
+		    periodicity,
+		    "Update Periodicity: %s",
+		    time_msecs_to_str(periodicity));
+		offset += 2;
+
+		/* server name */
+		namelen = tvb_strsize(tvb, offset);
+		host_name = tvb_get_ptr(tvb, offset, namelen);
+		if (check_col(pinfo->fd, COL_INFO)) {
+			col_append_fstr(pinfo->fd, COL_INFO, " %s", host_name);
+		}
+		proto_tree_add_item(tree, hf_server_name,
+			tvb, offset, namelen, TRUE);
+		offset += namelen;
+
+		/* master browser server name or server comment */
+		namelen = tvb_strsize(tvb, offset);
+		proto_tree_add_item(tree,
+			(cmd==BROWSE_DOMAIN_ANNOUNCEMENT)?
+			    hf_mb_server_name : hf_server_comment,
+			tvb, offset, namelen, TRUE);
+		offset += namelen;
+		break;
+	}
+
+	return TRUE;
+}
 
 void
-register_proto_smb_browse( void){
-
+register_proto_smb_browse(void)
+{
 	static hf_register_info hf[] = {
 		{ &hf_command,
 			{ "Command", "browser.command", FT_UINT8, BASE_HEX,
