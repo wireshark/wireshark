@@ -2,7 +2,7 @@
  * Routines for pop packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-pop.c,v 1.33 2002/08/28 21:00:25 jmayer Exp $
+ * $Id: packet-pop.c,v 1.34 2003/06/11 20:03:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -41,6 +41,7 @@ static int hf_pop_response = -1;
 static int hf_pop_request = -1;
 
 static gint ett_pop = -1;
+static gint ett_pop_reqresp = -1;
 
 static dissector_handle_t data_handle;
 
@@ -53,7 +54,7 @@ dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
         gboolean        is_request;
         gboolean	is_continuation;
-        proto_tree      *pop_tree;
+        proto_tree      *pop_tree, *reqresp_tree;
 	proto_item	*ti;
 	gint		offset = 0;
 	const guchar	*line;
@@ -120,17 +121,25 @@ dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 
 		/*
+		 * Put the line into the protocol tree.
+		 */
+		ti = proto_tree_add_text(pop_tree, tvb, offset,
+		    next_offset - offset, "%s",
+		    tvb_format_text(tvb, offset, next_offset - offset));
+		reqresp_tree = proto_item_add_subtree(ti, ett_pop_reqresp);
+
+		/*
 		 * Extract the first token, and, if there is a first
 		 * token, add it as the request or reply code.
 		 */
 		tokenlen = get_token_len(line, line + linelen, &next_token);
 		if (tokenlen != 0) {
 			if (is_request) {
-				proto_tree_add_text(pop_tree, tvb, offset,
+				proto_tree_add_text(reqresp_tree, tvb, offset,
 				    tokenlen, "Request: %s",
 				    format_text(line, tokenlen));
 			} else {
-				proto_tree_add_text(pop_tree, tvb, offset,
+				proto_tree_add_text(reqresp_tree, tvb, offset,
 				    tokenlen, "Response: %s",
 				    format_text(line, tokenlen));
 			}
@@ -145,11 +154,11 @@ dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 */
 		if (linelen != 0) {
 			if (is_request) {
-				proto_tree_add_text(pop_tree, tvb, offset,
+				proto_tree_add_text(reqresp_tree, tvb, offset,
 				    linelen, "Request Arg: %s",
 				    format_text(line, linelen));
 			} else {
-				proto_tree_add_text(pop_tree, tvb, offset,
+				proto_tree_add_text(reqresp_tree, tvb, offset,
 				    linelen, "Response Arg: %s",
 				    format_text(line, linelen));
 			}
@@ -206,6 +215,7 @@ proto_register_pop(void)
   };
   static gint *ett[] = {
     &ett_pop,
+    &ett_pop_reqresp,
   };
 
   proto_pop = proto_register_protocol("Post Office Protocol", "POP", "pop");
