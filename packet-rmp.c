@@ -2,7 +2,7 @@
  * Routines for HP remote management protocol
  * Gilbert Ramirez <jochen@scram.de>
  *
- * $Id: packet-rmp.c,v 1.1 2003/03/02 21:52:19 guy Exp $
+ * $Id: packet-rmp.c,v 1.2 2003/03/03 14:08:39 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -233,7 +233,7 @@ proto_register_rmp(void)
 		{ "Version", "rmp.version", FT_UINT16, BASE_DEC,
 			NULL, 0x0, "", HFILL }},
 		{ &hf_rmp_machtype,
-		{ "Machine Type", "rmp.machtype", FT_BYTES, BASE_HEX,
+		{ "Machine Type", "rmp.machtype", FT_STRING, BASE_DEC,
 			NULL, 0x0, "", HFILL }},
 		{ &hf_rmp_filename,
 		{ "Filename", "rmp.filename", FT_UINT_STRING, BASE_DEC,
@@ -250,7 +250,7 @@ proto_register_rmp(void)
 	};
 
 	proto_rmp = proto_register_protocol(
-	    "HP Remote Management Protocol", "RMP", "rmp");
+	    "HP Remote Maintenance Protocol", "RMP", "rmp");
 	proto_register_field_array(proto_rmp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
