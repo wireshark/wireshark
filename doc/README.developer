@@ -1,4 +1,4 @@
-$Id: README.developer,v 1.23 2001/01/03 08:00:01 guy Exp $
+$Id: README.developer,v 1.24 2001/02/23 07:24:21 guy Exp $
 
 This file is a HOWTO for Ethereal developers. It describes how to start coding
 a Ethereal protocol dissector and the use some of the important functions and
@@ -62,7 +62,7 @@ code inside
 
 is needed only if you are using the "snprintf()" function.
 
-The "$Id: README.developer,v 1.23 2001/01/03 08:00:01 guy Exp $"
+The "$Id: README.developer,v 1.24 2001/02/23 07:24:21 guy Exp $"
 in the comment will be updated by CVS when the file is
 checked in; it will allow the RCS "ident" command to report which
 version of the file is currently checked out.
@@ -72,7 +72,7 @@ version of the file is currently checked out.
  * Routines for PROTONAME dissection
  * Copyright 2000, YOUR_NAME <YOUR_EMAIL_ADDRESS>
  *
- * $Id: README.developer,v 1.23 2001/01/03 08:00:01 guy Exp $
+ * $Id: README.developer,v 1.24 2001/02/23 07:24:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -251,10 +251,10 @@ PROTOABBREV	An abbreviated name for the protocol. (NO SPACES) (rec.
 FIELDNAME	The displayed name for the header field.
 FIELDABBREV	The abbreviated name for the header field. (NO SPACES)
 FIELDTYPE	FT_NONE, FT_BOOLEAN, FT_UINT8, FT_UINT16, FT_UINT24,
-		FT_UINT32, FT_INT_8, FT_INT_16, FT_INT_24, FT_INT_32, 
+		FT_UINT32, FT_INT8, FT_INT16, FT_INT24, FT_INT32,
 		FT_DOUBLE, FT_ABSOLUTE_TIME, FT_RELATIVE_TIME, FT_STRING,
-		FT_ETHER, FT_BYTES, FT_IPv4, FT_IPv6, FT_IPXNET,
-		FT_TEXT_ONLY
+		FT_STRINGZ, FT_UINT_STRING, FT_ETHER, FT_BYTES, FT_IPv4,
+		FT_IPv6, FT_IPXNET
 FIELDBASE	BASE_NONE, BASE_DEC, BASE_HEX, BASE_OCT, BASE_BIN
 FIELDCONVERT	VALS(x), TFS(x), NULL
 BITMASK		Usually 0x0 unless using the TFS(x) field conversion.
@@ -561,6 +561,11 @@ The type of value this field holds. The current field types are:
 				of time displayed as seconds and 6 digits
 				after the decimal point.
 	FT_STRING		A string of characters.
+	FT_STRINGZ		A NUL-terminated string of characters.
+	FT_UINT_STRING		A counted string of characters, consisting
+				of a count (represented as an integral
+				value) followed immediately by the
+				specified number of characters.
 	FT_ETHER		A six octet string displayed in
 				Ethernet-address format.
 	FT_BYTES		A string of bytes.
