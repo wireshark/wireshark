@@ -3,7 +3,7 @@
  * By Pavel Mores <pvl@uh.cz>
  * Win32 port:  rwh@unifiedtech.com
  *
- * $Id: tcp_graph.c,v 1.8 2001/12/10 23:27:25 guy Exp $
+ * $Id: tcp_graph.c,v 1.9 2001/12/12 01:19:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1818,7 +1818,7 @@ static int get_headers (frame_data *fd, char *pd, struct segment *hdrs)
 		/* printf ("transport protocol not TCP: %#1x\n", ip->protocol); */
 		return FALSE;
 	}
-	tcp = (struct tcphdr * )(ip + 4*IHL((struct iphdr *)ip));
+	tcp = (struct tcphdr *)((guint8 *)ip + 4*IHL((struct iphdr *)ip));
 
 	memcpy(&hdrs->iphdr, ip, sizeof (struct iphdr));
 	memcpy(&hdrs->tcphdr, tcp, sizeof (struct tcphdr));
