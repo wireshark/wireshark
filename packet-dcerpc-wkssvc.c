@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  * Copyright 2003, Richard Sharpe <rsharpe@richardsharpe.com>
  *
- * $Id: packet-dcerpc-wkssvc.c,v 1.11 2003/04/29 21:06:27 sharpe Exp $
+ * $Id: packet-dcerpc-wkssvc.c,v 1.12 2003/04/29 23:14:46 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -45,6 +45,8 @@ static int hf_wkssvc_ver_minor = -1;
 static int hf_wkssvc_lan_root = -1;
 static int hf_wkssvc_rc = -1;
 static int hf_wkssvc_logged_on_users = -1;
+static int hf_wkssvc_pref_max = -1;
+static int hf_wkssvc_enum_handle = -1;
 static gint ett_dcerpc_wkssvc = -1;
 
 extern const value_string platform_id_vals[];
@@ -53,6 +55,18 @@ static e_uuid_t uuid_dcerpc_wkssvc = {
         0x6bffd098, 0xa112, 0x3610,
         { 0x98, 0x33, 0x46, 0xc3, 0xf8, 0x7e, 0x34, 0x5a }
 };
+
+static int
+wkssvc_dissect_ENUM_HANDLE(tvbuff_t *tvb, int offset,
+			   packet_info *pinfo, proto_tree *tree,
+			   char *drep)
+{
+
+  offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+			      hf_wkssvc_enum_handle, 0);
+  return offset;
+
+}
 
 static guint16 ver_dcerpc_wkssvc = 1;
 
@@ -172,9 +186,9 @@ wkssvc_dissect_WKS_INFO_102(tvbuff_t *tvb, int offset,
  * IDL );
  */
 static int
-wkssvc_dissect_netrqueryinfo_rqst(tvbuff_t *tvb, int offset, 
-				  packet_info *pinfo, proto_tree *tree,
-				  char *drep)
+wkssvc_dissect_netwkstagetinfo_rqst(tvbuff_t *tvb, int offset, 
+				    packet_info *pinfo, proto_tree *tree,
+				    char *drep)
 {
         offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
 					      NDR_POINTER_UNIQUE, "Server", 
@@ -195,9 +209,9 @@ wkssvc_dissect_netrqueryinfo_rqst(tvbuff_t *tvb, int offset,
  * IDL } WKS_INFO_UNION;
  */
 static int
-wkssvc_dissect_WKS_INFO_UNION(tvbuff_t *tvb, int offset,
-			      packet_info *pinfo, proto_tree *tree,
-			      char *drep)
+wkssvc_dissect_WKS_GETINFO_UNION(tvbuff_t *tvb, int offset,
+				 packet_info *pinfo, proto_tree *tree,
+				 char *drep)
 {
 	guint32 level;
 
@@ -230,12 +244,13 @@ wkssvc_dissect_WKS_INFO_UNION(tvbuff_t *tvb, int offset,
 
 }
 
-static int wkssvc_dissect_netrqueryinfo_reply(tvbuff_t *tvb, int offset,
-				      packet_info *pinfo, proto_tree *tree,
-				      char *drep)
+static int wkssvc_dissect_netwkstagetinfo_reply(tvbuff_t *tvb, int offset,
+						packet_info *pinfo, 
+						proto_tree *tree,
+						char *drep)
 {
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			wkssvc_dissect_WKS_INFO_UNION,
+			wkssvc_dissect_WKS_GETINFO_UNION,
 			NDR_POINTER_REF, "Server Info", -1);
 
 	offset = dissect_doserror(tvb, offset, pinfo, tree, drep,
@@ -244,13 +259,58 @@ static int wkssvc_dissect_netrqueryinfo_reply(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
+/*
+ * IDL long NetWkstaGetInfo(
+ * IDL      [in] [string] [unique] wchar_t *ServerName,
+ * IDL      [in] long level,
+ * IDL      [out] [ref] WKS_INFO_UNION *wks
+ * IDL );
+ */
+static int
+wkssvc_dissect_netwkstaenumusers_rqst(tvbuff_t *tvb, int offset, 
+				      packet_info *pinfo, proto_tree *tree,
+				      char *drep)
+{
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+					      NDR_POINTER_UNIQUE, "Server", 
+					      hf_wkssvc_server, 0);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+				    hf_wkssvc_info_level, 0);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+				    hf_wkssvc_pref_max, 0);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
+				     wkssvc_dissect_ENUM_HANDLE,
+				     NDR_POINTER_UNIQUE, "Enum Handle", -1);
+
+	return offset;
+
+}
+
+static int wkssvc_dissect_netwkstaenumusers_reply(tvbuff_t *tvb, int offset,
+						  packet_info *pinfo, 
+						  proto_tree *tree,
+						  char *drep)
+{
+  /*	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+			wkssvc_dissect_WKS_GETINFO_UNION,
+			NDR_POINTER_REF, "Server Info", -1);
+
+	offset = dissect_doserror(tvb, offset, pinfo, tree, drep,
+	hf_wkssvc_rc, NULL);*/
+
+	return offset;
+}
+
 static dcerpc_sub_dissector dcerpc_wkssvc_dissectors[] = {
         { WKS_NetWkstaGetInfo, "NetWkstaGetInfo", 
-	  wkssvc_dissect_netrqueryinfo_rqst, 
-	  wkssvc_dissect_netrqueryinfo_reply},
+	  wkssvc_dissect_netwkstagetinfo_rqst, 
+	  wkssvc_dissect_netwkstagetinfo_reply},
         { WKS_NetWkstaEnumUsers, "NetWkstaEnumUsers",
-	  NULL,
- 	  NULL},
+	  wkssvc_dissect_netwkstaenumusers_rqst,
+ 	  wkssvc_dissect_netwkstaenumusers_reply},
         {0, NULL, NULL,  NULL }
 };
 
@@ -282,6 +342,12 @@ proto_register_dcerpc_wkssvc(void)
 	  { &hf_wkssvc_logged_on_users,
 	    { "Logged On Users", "wkssvc.logged.on.users", FT_UINT32,
 	      BASE_DEC, NULL, 0x0, "Logged On Users", HFILL}},
+	  { &hf_wkssvc_pref_max, 
+	    { "Preferred Max Len", "wkssvc.pref.max.len", FT_UINT32,
+	      BASE_DEC, NULL, 0x0, "Preferred Max Len", HFILL}},
+	  { &hf_wkssvc_enum_handle,
+	    { "Enumeration handle", "wkssvc.enum_hnd", FT_BYTES,
+	      BASE_HEX, NULL, 0x0, "Enumeration Handle", HFILL}},
 	  { &hf_wkssvc_rc,
 	    { "Return code", "srvsvc.rc", FT_UINT32,
 	      BASE_HEX, VALS(DOS_errors), 0x0, "Return Code", HFILL}},
