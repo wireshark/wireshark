@@ -1,7 +1,7 @@
 /* capture.h
  * Definitions for packet capture windows
  *
- * $Id: capture.h,v 1.17 1999/09/30 06:49:54 guy Exp $
+ * $Id: capture.h,v 1.18 1999/10/02 06:00:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -60,7 +60,7 @@ void   do_capture(void);
 void   run_capture(void);
 
 /* Do the low-level work of a capture. */
-void   capture(void);
+int    capture(void);
 
 #endif /* HAVE_LIBPCAP */
 #endif /* capture.h */

@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.13 1999/10/01 21:52:03 guy Exp $
+ * $Id: main.c,v 1.14 1999/10/02 05:59:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -658,16 +658,17 @@ main(int argc, char *argv[])
       fprintf(stderr, "ethereal: \"-k\" flag was specified without \"-w\" flag\n");
       exit(1);
     }
-#ifdef HAVE_LIBPCAP
-    if (capture_child && (sync_mode || fork_mode)) {
-      if (cf.save_file_fd == -1) {
-        fprintf(stderr, "ethereal: \"-k\" flag was specified with \"-%c\" flag but without \"-W\" flag\n",
-            (sync_mode ? 'S' : 'F'));
-        exit(1);
-      }
-    }
-#endif
   }
+#ifdef HAVE_LIBPCAP
+  if (capture_child) {
+    if (cf.save_file_fd == -1) {
+      /* XXX - send this to the standard output as something our parent
+         should put in an error message box? */
+      fprintf(stderr, "%s: \"-W\" flag not specified\n", CHILD_NAME);
+      exit(1);
+    }
+  }
+#endif
 
   /* Build the column format array */  
   for (i = 0; i < cf.cinfo.num_cols; i++) {
@@ -914,6 +915,9 @@ main(int argc, char *argv[])
        fork off *another* child process (so don't call "run_capture()"). */
 
        capture();
+
+       /* The capture is done; there's nothing more for us to do. */
+       gtk_exit(0);
   } else {
     if (start_capture) {
       /* "-k" was specified; start a capture. */

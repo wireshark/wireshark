@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.75 1999/10/01 21:51:55 guy Exp $
+ * $Id: capture.c,v 1.76 1999/10/02 06:00:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -140,13 +140,14 @@ run_capture(void)
   int i;
   guint byte_count;
   char *msg;
+  int err;
+  int capture_succeeded;
 
   if (sync_mode || fork_mode) {	/*  use fork() for capture */
     int  fork_child;
     char ssnap[24];
     char scount[24];	/* need a constant for len of numbers */
     char save_file_fd[24];
-    int err;
 
     sprintf(ssnap,"%d",cf.snap); /* in lieu of itoa */
     sprintf(scount,"%d",cf.count);
@@ -155,12 +156,10 @@ run_capture(void)
     if (sync_mode)
       pipe(sync_pipe);
     if ((fork_child = fork()) == 0) {
-      /* args: -k -- capture
-       * -i interface specification
+      /* args: -i interface specification
        * -w file to write
        * -W file descriptor to write
        * -c count to capture
-       * -Q quit after capture (forces -k)
        * -s snaplen
        * -S sync mode
        * -m / -b fonts
@@ -170,7 +169,7 @@ run_capture(void)
 	 close(1);
 	 dup(sync_pipe[1]);
 	 close(sync_pipe[0]);
-	 execlp(ethereal_path, CHILD_NAME, "-k", "-Q", "-i", cf.iface,
+	 execlp(ethereal_path, CHILD_NAME, "-i", cf.iface,
 		"-w", cf.save_file, "-W", save_file_fd,
 		"-c", scount, "-s", ssnap, "-S", 
 		"-m", medium_font, "-b", bold_font,
@@ -179,7 +178,7 @@ run_capture(void)
 		(const char *)NULL);	
        }
        else {
-	 execlp(ethereal_path, CHILD_NAME, "-k", "-Q", "-i", cf.iface,
+	 execlp(ethereal_path, CHILD_NAME, "-i", cf.iface,
 		"-w", cf.save_file, "-W", save_file_fd,
 		"-c", scount, "-s", ssnap,
 		"-m", medium_font, "-b", bold_font,
@@ -247,12 +246,28 @@ run_capture(void)
        }
     }
   }
-  else
-    capture();
+  else {
+    capture_succeeded = capture();
+    if (quit_after_cap) {
+      /* DON'T unlink the save file.  Presumably someone wants it. */
+      gtk_exit(0);
+    }
+    if (capture_succeeded) {
+      /* Capture succeeded; read in the capture file. */
+      if ((err = open_cap_file(cf.save_file, &cf)) == 0) {
+        /* Set the read filter to NULL. */
+        cf.rfcode = NULL;
+        err = read_cap_file(&cf);
+        set_menu_sensitivity("/File/Save", TRUE);
+        set_menu_sensitivity("/File/Save As...", FALSE);
+      }
+    }
+  }
 }
 
-/* Do the low-level work of a capture. */
-void
+/* Do the low-level work of a capture.
+   Returns TRUE if it succeeds, FALSE otherwise. */
+int
 capture(void)
 {
   GtkWidget  *cap_w, *main_vb, *count_lb, *tcp_lb, *udp_lb, *icmp_lb,
@@ -520,19 +535,7 @@ capture(void)
   gtk_grab_remove(GTK_WIDGET(cap_w));
   gtk_widget_destroy(GTK_WIDGET(cap_w));
 
-  if (quit_after_cap) {
-    /* DON'T unlink the save file.  Presumably someone wants it. */
-    gtk_exit(0);
-  }
-
-  if ((err = open_cap_file(cf.save_file, &cf)) == 0) {
-    /* Set the read filter to NULL. */
-    cf.rfcode = NULL;
-    err = read_cap_file(&cf);
-    set_menu_sensitivity("/File/Save", TRUE);
-    set_menu_sensitivity("/File/Save As...", FALSE);
-  }
-  return;
+  return TRUE;
 
 error:
   /* We couldn't even start the capture, so get rid of the capture
@@ -554,8 +557,7 @@ error:
   if (pch != NULL)
     pcap_close(pch);
 
-  if (quit_after_cap)
-    gtk_exit(0);
+  return FALSE;
 }
 
 static float
