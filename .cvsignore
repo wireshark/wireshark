@@ -21,6 +21,7 @@ ethereal
 ethereal_static
 ethereal.1
 ethereal.spec
+idl2eth.1
 install-sh
 libtool
 ltconfig
