@@ -2,7 +2,7 @@
  * Routines for RADIUS packet disassembly
  * Copyright 1999 Johan Feyaerts
  *
- * $Id: packet-radius.c,v 1.42 2002/02/22 09:57:04 guy Exp $
+ * $Id: packet-radius.c,v 1.43 2002/02/22 21:31:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -51,6 +51,8 @@ static int hf_radius_id =-1;
 
 static gint ett_radius = -1;
 static gint ett_radius_avp = -1;
+
+static dissector_handle_t eap_handle;
 
 #define UDP_PORT_RADIUS		1645
 #define UDP_PORT_RADIUS_NEW	1812
@@ -870,9 +872,8 @@ gchar *rd_value_to_str(e_avphdr *avph, tvbuff_t *tvb, int offset)
 }
 
 
-void dissect_attribute_value_pairs(tvbuff_t *tvb, int offset, proto_tree *tree,
-				   int avplength)
-{
+void dissect_attribute_value_pairs(tvbuff_t *tvb, int offset,proto_tree *tree,
+				   int avplength,packet_info *pinfo) {
 /* adds the attribute value pairs to the tree */
   e_avphdr avph;
   gchar *avptpstrval;
@@ -899,10 +900,20 @@ void dissect_attribute_value_pairs(tvbuff_t *tvb, int offset, proto_tree *tree,
 	   avptpstrval,avph.avp_type,avph.avp_length);
 	break;
      }
+
      valstr=rd_value_to_str(&avph, tvb, offset);
-     proto_tree_add_text(tree, tvb,offset,avph.avp_length,
-        "t:%s(%u) l:%u, %s",
-        avptpstrval,avph.avp_type,avph.avp_length,valstr);
+
+     if (avph.avp_type == RD_TP_EAP_MESSAGE) {
+       tvbuff_t   *next_tvb;
+       proto_tree_add_text(tree, tvb,offset,2,"t:%s(%u) l:%u",
+			   avptpstrval,avph.avp_type,avph.avp_length);
+       next_tvb = tvb_new_subset(tvb, offset+2,avph.avp_length, -1);
+       call_dissector(eap_handle, next_tvb, pinfo, tree);
+     } else 
+       proto_tree_add_text(tree, tvb,offset,avph.avp_length,
+			   "t:%s(%u) l:%u, %s",
+			   avptpstrval,avph.avp_type,avph.avp_length,valstr);
+
      offset=offset+avph.avp_length;
      avplength=avplength-avph.avp_length;
   }
@@ -973,7 +984,7 @@ static void dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 if (avptree !=NULL)
                 {
                         dissect_attribute_value_pairs(tvb, hdrlength,
-                                avptree,avplength);
+                                avptree,avplength,pinfo);
                 }
         }
   }
@@ -1010,6 +1021,11 @@ void
 proto_reg_handoff_radius(void)
 {
 	dissector_handle_t radius_handle;
+
+	/*
+	 * Get a handle for the EAP dissector.
+	 */
+	eap_handle = find_dissector("eap");
 
 	radius_handle = create_dissector_handle(dissect_radius, proto_radius);
 	dissector_add("udp.port", UDP_PORT_RADIUS, radius_handle);

@@ -1049,6 +1049,7 @@ Adam Sulmicki <adam[AT]cfar.umd.edu> {
 	Fix off-by-one bug when displaying Code of EAP message.
 	Additional AVPs for RADIUS, and making RD_TP_CONNECT_INFO a
 	    RADIUS_STRING rather than a RADIUS_STRING_TAGGED
+	Dissect EAP messages inside RADIUS
 }
 
 Kari Tiirikainen <ktiirika[AT]stybba.ntc.nokia.com> {

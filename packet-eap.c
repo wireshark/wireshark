@@ -2,7 +2,7 @@
  * Routines for EAP Extensible Authentication Protocol header disassembly,
  * RFC 2284
  *
- * $Id: packet-eap.c,v 1.8 2002/02/22 09:52:00 guy Exp $
+ * $Id: packet-eap.c,v 1.9 2002/02/22 21:31:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -152,6 +152,8 @@ proto_register_eap(void)
 				      "EAP", "eap");
   proto_register_field_array(proto_eap, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+
+  register_dissector("eap", dissect_eap, proto_eap);
 }
 
 void
@@ -159,6 +161,6 @@ proto_reg_handoff_eap(void)
 {
   dissector_handle_t eap_handle;
 
-  eap_handle = create_dissector_handle(dissect_eap, proto_eap);
+  eap_handle = find_dissector("eap");
   dissector_add("ppp.protocol", PPP_EAP, eap_handle);
 }
