@@ -10,7 +10,7 @@
  *
  * See RFCs 2570-2576 for SNMPv3
  *
- * $Id: packet-snmp.c,v 1.126 2004/01/23 10:25:08 guy Exp $
+ * $Id: packet-snmp.c,v 1.127 2004/05/29 01:00:59 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -677,13 +677,15 @@ format_var(struct variable_list *variable, subid_t *variable_oid,
 			return buf;	/* it's not 4 bytes */
 		break;
 
+#ifdef REMOVED
+	/* not all counters are encoded as a full 64bit integer */
 	case SNMP_COUNTER64:
 		/* Length has to be 8 bytes. */
 		buf = check_var_length(val_len, 8);
 		if (buf != NULL)
 			return buf;	/* it's not 8 bytes */
 		break;
-
+#endif
 	default:
 		break;
 	}
