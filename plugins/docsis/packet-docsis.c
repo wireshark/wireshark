@@ -2,7 +2,7 @@
  * Routines for docsis dissection
  * Copyright 2002, Anand V. Narwani <anarwani@cisco.com>
  *
- * $Id: packet-docsis.c,v 1.6 2002/08/02 22:04:13 jmayer Exp $
+ * $Id: packet-docsis.c,v 1.7 2002/08/20 22:44:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -486,6 +486,15 @@ dissect_docsis (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	  concatlen = concatlen - framelen;
 	  concatpos += framelen;
 	}
+    }
+
+  if ((fctype == FCTYPE_PACKET) && (pdulen == 0)) 
+    {
+      if (concatlen > 0)
+        {
+          concatlen = concatlen - framelen;
+          concatpos += framelen;
+        }
     }
   if (fctype == FCTYPE_MACSPC)
     {
