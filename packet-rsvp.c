@@ -3,7 +3,7 @@
  *
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-rsvp.c,v 1.42 2001/05/01 18:33:06 ashokn Exp $
+ * $Id: packet-rsvp.c,v 1.43 2001/06/14 18:26:04 ashokn Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1214,10 +1214,10 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					    "Peak data rate: %ld", 
 					    tvb_ieee_to_long(tvb, offset2+12));
 			proto_tree_add_text(rsvp_object_tree, tvb, offset2+16, 4,
-					    "Minimum policed unit: %u", 
+					    "Minimum policed unit [m]: %u", 
 					    tvb_get_ntohl(tvb, offset2+16));
 			proto_tree_add_text(rsvp_object_tree, tvb, offset2+20, 4,
-					    "Maximum policed unit: %u", 
+					    "Maximum packet size [M]: %u", 
 					    tvb_get_ntohl(tvb, offset2+20));
                         proto_item_set_text(ti, "SENDER TSPEC: IntServ, %lu bytes/sec", 
                                             tvb_ieee_to_long(tvb, offset2+4));
@@ -1240,7 +1240,7 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					    param_id,
 					    tvb_get_ntohs(tvb, offset2+2));
 			proto_tree_add_text(rsvp_object_tree, tvb, offset2+4, 4,
-					    "Maximum policed unit: %u", 
+					    "Maximum packet size [M]: %u", 
 					    tvb_get_ntohl(tvb, offset2+4));
                         proto_item_set_text(ti, "SENDER TSPEC: Qualitative");
 			break;
@@ -1319,10 +1319,10 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					    "Peak data rate: %ld", 
 					    tvb_ieee_to_long(tvb, offset2+12));
 			proto_tree_add_text(rsvp_object_tree, tvb, offset2+16, 4,
-					    "Minimum policed unit: %u", 
+					    "Minimum policed unit [m]: %u", 
 					    tvb_get_ntohl(tvb, offset2+16));
 			proto_tree_add_text(rsvp_object_tree, tvb, offset2+20, 4,
-					    "Maximum policed unit: %u", 
+					    "Maximum packet size [M]: %u", 
 					    tvb_get_ntohl(tvb, offset2+20));
 
 			if (service_num != QOS_GUARANTEED) {
@@ -1373,7 +1373,7 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					    param_id,
 					    tvb_get_ntohs(tvb, offset2+2));
 			proto_tree_add_text(rsvp_object_tree, tvb, offset2+4, 4,
-					    "Maximum policed unit: %u", 
+					    "Maximum packet size [M]: %u", 
 					    tvb_get_ntohl(tvb, offset2+4));
 			
                         proto_item_set_text(ti, "FLOWSPEC: Qualitative");
