@@ -3,7 +3,7 @@
  * Copyright 2001,2003 Tim Potter <tpot@samba.org>
  *   2002 Added all command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-samr.c,v 1.80 2003/02/21 02:04:31 tpot Exp $
+ * $Id: packet-dcerpc-samr.c,v 1.81 2003/02/25 02:03:11 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -80,7 +80,6 @@ static int hf_samr_domain = -1;
 static int hf_samr_controller = -1;
 static int hf_samr_access = -1;
 static int hf_samr_access_granted = -1;
-static int hf_samr_mask = -1;
 static int hf_samr_crypt_password = -1;
 static int hf_samr_crypt_hash = -1;
 static int hf_samr_lm_change = -1;
@@ -2943,7 +2942,7 @@ samr_dissect_enum_domains_rqst(tvbuff_t *tvb, int offset,
 
         offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			samr_dissect_pointer_long, NDR_POINTER_REF,
-			"Resume Handle:", hf_samr_resume_hnd);
+			"Resume Handle", hf_samr_resume_hnd);
 
         offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 			hf_samr_pref_maxsize, NULL);
@@ -2986,8 +2985,8 @@ samr_dissect_enum_dom_groups_rqst(tvbuff_t *tvb, int offset,
 			samr_dissect_pointer_long, NDR_POINTER_REF,
 			"Resume Handle:", hf_samr_resume_hnd);
 
-        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_samr_mask, NULL);
+	offset = dissect_ndr_nt_acct_ctrl(
+		tvb, offset, pinfo, tree, drep);
 
         offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 			hf_samr_pref_maxsize, NULL);
@@ -3030,8 +3029,8 @@ samr_dissect_enum_dom_aliases_rqst(tvbuff_t *tvb, int offset,
 			samr_dissect_pointer_long, NDR_POINTER_REF,
 			"Resume Handle:", hf_samr_resume_hnd);
 
-        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_samr_mask, NULL);
+	offset = dissect_ndr_nt_acct_ctrl(
+		tvb, offset, pinfo, tree, drep);
 
         offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 			hf_samr_pref_maxsize, NULL);
@@ -5190,10 +5189,6 @@ proto_register_dcerpc_samr(void)
 		{ "Access Granted", "samr.access_granted", FT_UINT32, BASE_HEX,
 		NULL, 0x0, "Access Granted", HFILL }},
 
-	{ &hf_samr_mask,
-		{ "Mask", "samr.mask", FT_UINT32, BASE_HEX,
-		NULL, 0x0, "Mask", HFILL }},
-
 	{ &hf_samr_crypt_password, {
 		"Password", "samr.crypt_password", FT_BYTES, BASE_HEX,
 		NULL, 0, "Encrypted Password", HFILL }},
@@ -5598,7 +5593,7 @@ proto_register_dcerpc_samr(void)
                 &ett_samr_rids,
                 &ett_samr_sid_and_attributes_array,
                 &ett_samr_sid_and_attributes,
-                &ett_nt_acct_ctrl
+                &ett_nt_acct_ctrl,
         };
 	module_t *dcerpc_samr_module;
 
