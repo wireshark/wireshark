@@ -514,6 +514,9 @@ main_filter_packets(capture_file *cf, const gchar *dftext, gboolean force)
   char      *s;
   cf_status_t cf_status;
 
+  /* we'll crash later on if dftext is NULL */
+  g_assert(dftext != NULL);
+  
   s = g_strdup(dftext);
 
   /* GtkCombos don't let us get at their list contents easily, so we maintain
