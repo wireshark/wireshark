@@ -1,6 +1,6 @@
 /* netmon.c
  *
- * $Id: netmon.c,v 1.28 2000/03/22 23:47:28 guy Exp $
+ * $Id: netmon.c,v 1.29 2000/05/10 22:16:29 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -458,12 +458,12 @@ gboolean netmon_dump_open(wtap_dumper *wdh, int *err)
 	   skip over the header for now. */
 	fseek(wdh->fh, CAPTUREFILE_HEADER_SIZE, SEEK_SET);
 
-	wdh->private.netmon = g_malloc(sizeof(netmon_dump_t));
-	wdh->private.netmon->frame_table_offset = CAPTUREFILE_HEADER_SIZE;
-	wdh->private.netmon->got_first_record_time = FALSE;
-	wdh->private.netmon->frame_table = NULL;
-	wdh->private.netmon->frame_table_index = 0;
-	wdh->private.netmon->frame_table_size = 0;
+	wdh->dump.netmon = g_malloc(sizeof(netmon_dump_t));
+	wdh->dump.netmon->frame_table_offset = CAPTUREFILE_HEADER_SIZE;
+	wdh->dump.netmon->got_first_record_time = FALSE;
+	wdh->dump.netmon->frame_table = NULL;
+	wdh->dump.netmon->frame_table_index = 0;
+	wdh->dump.netmon->frame_table_size = 0;
 
 	return TRUE;
 }
@@ -473,7 +473,7 @@ gboolean netmon_dump_open(wtap_dumper *wdh, int *err)
 static gboolean netmon_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     const u_char *pd, int *err)
 {
-	netmon_dump_t *priv = wdh->private.netmon;
+	netmon_dump_t *netmon = wdh->dump.netmon;
 	struct netmonrec_1_x_hdr rec_1_x_hdr;
 	struct netmonrec_2_x_hdr rec_2_x_hdr;
 	char *hdrp;
@@ -484,17 +484,17 @@ static gboolean netmon_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 	   and have times relative to that in the packet headers;
 	   pick the time of the first packet as the capture start
 	   time. */
-	if (!priv->got_first_record_time) {
-		priv->first_record_time = phdr->ts;
-		priv->got_first_record_time = TRUE;
+	if (!netmon->got_first_record_time) {
+		netmon->first_record_time = phdr->ts;
+		netmon->got_first_record_time = TRUE;
 	}
 	
 	switch (wdh->file_type) {
 
 	case WTAP_FILE_NETMON_1_x:
 		rec_1_x_hdr.ts_delta = htolel(
-		    (phdr->ts.tv_sec - priv->first_record_time.tv_sec)*1000
-		  + (phdr->ts.tv_usec - priv->first_record_time.tv_usec + 500)/1000);
+		    (phdr->ts.tv_sec - netmon->first_record_time.tv_sec)*1000
+		  + (phdr->ts.tv_usec - netmon->first_record_time.tv_usec + 500)/1000);
 		rec_1_x_hdr.orig_len = htoles(phdr->len);
 		rec_1_x_hdr.incl_len = htoles(phdr->caplen);
 		hdrp = (char *)&rec_1_x_hdr;
@@ -536,29 +536,29 @@ static gboolean netmon_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 	/*
 	 * Stash the file offset of this frame.
 	 */
-	if (priv->frame_table_size == 0) {
+	if (netmon->frame_table_size == 0) {
 		/*
 		 * Haven't yet allocated the buffer for the frame table.
 		 */
-		priv->frame_table = g_malloc(1024 * sizeof *priv->frame_table);
-		priv->frame_table_size = 1024;
+		netmon->frame_table = g_malloc(1024 * sizeof *netmon->frame_table);
+		netmon->frame_table_size = 1024;
 	} else {
 		/*
 		 * We've allocated it; are we at the end?
 		 */
-		if (priv->frame_table_index >= priv->frame_table_size) {
+		if (netmon->frame_table_index >= netmon->frame_table_size) {
 			/*
 			 * Yes - double the size of the frame table.
 			 */
-			priv->frame_table_size *= 2;
-			priv->frame_table = g_realloc(priv->frame_table,
-			    priv->frame_table_size * sizeof *priv->frame_table);
+			netmon->frame_table_size *= 2;
+			netmon->frame_table = g_realloc(netmon->frame_table,
+			    netmon->frame_table_size * sizeof *netmon->frame_table);
 		}
 	}
-	priv->frame_table[priv->frame_table_index] =
-	    htolel(priv->frame_table_offset);
-	priv->frame_table_index++;
-	priv->frame_table_offset += hdr_size + phdr->caplen;
+	netmon->frame_table[netmon->frame_table_index] =
+	    htolel(netmon->frame_table_offset);
+	netmon->frame_table_index++;
+	netmon->frame_table_offset += hdr_size + phdr->caplen;
 
 	return TRUE;
 }
@@ -567,7 +567,7 @@ static gboolean netmon_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
    Returns TRUE on success, FALSE on failure. */
 static gboolean netmon_dump_close(wtap_dumper *wdh, int *err)
 {
-	netmon_dump_t *priv = wdh->private.netmon;
+	netmon_dump_t *netmon = wdh->dump.netmon;
 	int n_to_write;
 	int nwritten;
 	struct netmon_hdr file_hdr;
@@ -575,10 +575,10 @@ static gboolean netmon_dump_close(wtap_dumper *wdh, int *err)
 	int magic_size;
 	struct tm *tm;
 
-	/* Write out the frame table.  "priv->frame_table_index" is
+	/* Write out the frame table.  "netmon->frame_table_index" is
 	   the number of entries we've put into it. */
-	n_to_write = priv->frame_table_index * sizeof *priv->frame_table;
-	nwritten = fwrite(priv->frame_table, 1, n_to_write, wdh->fh);
+	n_to_write = netmon->frame_table_index * sizeof *netmon->frame_table;
+	nwritten = fwrite(netmon->frame_table, 1, n_to_write, wdh->fh);
 	if (nwritten != n_to_write) {
 		if (nwritten < 0)
 			*err = errno;
@@ -622,7 +622,7 @@ static gboolean netmon_dump_close(wtap_dumper *wdh, int *err)
 	}
 
 	file_hdr.network = htoles(wtap_encap[wdh->encap]);
-	tm = localtime(&priv->first_record_time.tv_sec);
+	tm = localtime(&netmon->first_record_time.tv_sec);
 	file_hdr.ts_year = htoles(1900 + tm->tm_year);
 	file_hdr.ts_month = htoles(tm->tm_mon + 1);
 	file_hdr.ts_dow = htoles(tm->tm_wday);
@@ -630,11 +630,11 @@ static gboolean netmon_dump_close(wtap_dumper *wdh, int *err)
 	file_hdr.ts_hour = htoles(tm->tm_hour);
 	file_hdr.ts_min = htoles(tm->tm_min);
 	file_hdr.ts_sec = htoles(tm->tm_sec);
-	file_hdr.ts_msec = htoles(priv->first_record_time.tv_usec/1000);
+	file_hdr.ts_msec = htoles(netmon->first_record_time.tv_usec/1000);
 		/* XXX - what about rounding? */
-	file_hdr.frametableoffset = htolel(priv->frame_table_offset);
+	file_hdr.frametableoffset = htolel(netmon->frame_table_offset);
 	file_hdr.frametablelength =
-	    htolel(priv->frame_table_index * sizeof *priv->frame_table);
+	    htolel(netmon->frame_table_index * sizeof *netmon->frame_table);
 	nwritten = fwrite(&file_hdr, 1, sizeof file_hdr, wdh->fh);
 	if (nwritten != sizeof file_hdr) {
 		if (nwritten < 0)

@@ -1,6 +1,6 @@
 /* wtap.h
  *
- * $Id: wtap.h,v 1.67 2000/04/15 21:12:36 guy Exp $
+ * $Id: wtap.h,v 1.68 2000/05/10 22:16:31 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -380,7 +380,7 @@ typedef struct wtap_dumper {
 		ngsniffer_dump_t	*ngsniffer;
 		netmon_dump_t		*netmon;
 		netxray_dump_t		*netxray;
-	} private;
+	} dump;
 
 	subtype_write_func	subtype_write;
 	subtype_close_func	subtype_close;

@@ -1,6 +1,6 @@
 /* ngsniffer.c
  *
- * $Id: ngsniffer.c,v 1.37 2000/03/22 07:06:57 guy Exp $
+ * $Id: ngsniffer.c,v 1.38 2000/05/10 22:16:30 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -689,9 +689,9 @@ gboolean ngsniffer_dump_open(wtap_dumper *wdh, int *err)
     wdh->subtype_write = ngsniffer_dump;
     wdh->subtype_close = ngsniffer_dump_close;
 
-    wdh->private.ngsniffer = g_malloc(sizeof(ngsniffer_dump_t));
-    wdh->private.ngsniffer->first_frame = TRUE;
-    wdh->private.ngsniffer->start = 0;
+    wdh->dump.ngsniffer = g_malloc(sizeof(ngsniffer_dump_t));
+    wdh->dump.ngsniffer->first_frame = TRUE;
+    wdh->dump.ngsniffer->start = 0;
 
     /* Write the file header. */
     nwritten = fwrite(ngsniffer_magic, 1, sizeof ngsniffer_magic, wdh->fh);
@@ -719,7 +719,7 @@ gboolean ngsniffer_dump_open(wtap_dumper *wdh, int *err)
 static gboolean ngsniffer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     const u_char *pd, int *err)
 {
-    ngsniffer_dump_t *priv = wdh->private.ngsniffer;
+    ngsniffer_dump_t *priv = wdh->dump.ngsniffer;
     struct frame2_rec rec_hdr;
     int nwritten;
     char buf[6];
