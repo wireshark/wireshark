@@ -7,7 +7,7 @@
  * Copyright 2000, Jeffrey C. Foster<jfoste@woodward.com> and
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: dfilter_expr_dlg.c,v 1.20 2001/03/03 00:45:14 guy Exp $
+ * $Id: dfilter_expr_dlg.c,v 1.21 2001/03/26 10:28:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -979,8 +979,7 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
 	gtk_ctree_set_line_style(GTK_CTREE(tree), GTK_CTREE_LINES_NONE);
 	gtk_signal_connect(GTK_OBJECT(tree), "tree-select-row",
 			     GTK_SIGNAL_FUNC(field_select_row_cb), tree);
-	gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(tree_scrolled_win),
-						tree);
+	gtk_container_add(GTK_CONTAINER(tree_scrolled_win), tree);
 
 	/*
 	 * GTK's annoying CTree widget will deliver a selection event

@@ -1,6 +1,6 @@
 /* decode_as_dlg.c
  *
- * $Id: decode_as_dlg.c,v 1.4 2001/02/14 07:15:39 guy Exp $
+ * $Id: decode_as_dlg.c,v 1.5 2001/03/26 10:28:34 guy Exp $
  *
  * Routines to modify dissector tables on the fly.
  *
@@ -416,7 +416,7 @@ decode_show_cb (GtkWidget * w, gpointer data)
 	scrolled_window = gtk_scrolled_window_new(NULL, NULL);
 	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window),
 				       GTK_POLICY_NEVER, GTK_POLICY_ALWAYS);
-	gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),
+	gtk_container_add(GTK_CONTAINER(scrolled_window),
 					      GTK_WIDGET(clist));
 	gtk_box_pack_start(GTK_BOX(main_vb), scrolled_window, TRUE, TRUE, 0);
 	/* Provide a minimum of a couple of rows worth of data */
