@@ -1,6 +1,6 @@
 /* libpcap.c
  *
- * $Id: libpcap.c,v 1.80 2002/07/29 06:09:59 guy Exp $
+ * $Id: libpcap.c,v 1.81 2002/08/07 06:59:49 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -29,6 +29,7 @@
 #include "wtap-int.h"
 #include "file_wrappers.h"
 #include "buffer.h"
+#include "atm.h"
 #include "libpcap.h"
 
 #ifdef HAVE_PCAP_H
@@ -897,6 +898,16 @@ static gboolean libpcap_read(wtap *wth, int *err, long *data_offset)
 	wth->phdr.len = orig_size;
 	wth->phdr.pkt_encap = wth->file_encap;
 
+	/*
+	 * If this is ATM LANE traffic, try to guess what type of LANE
+	 * traffic it is based on the packet contents.
+	 */
+	if (wth->file_encap == WTAP_ENCAP_ATM_SNIFFER &&
+	    wth->pseudo_header.atm.type == TRAF_LANE) {
+		atm_guess_lane_type(buffer_start_ptr(wth->frame_buffer),
+		    wth->phdr.caplen, &wth->pseudo_header);
+	}
+
 	return TRUE;
 }
 
@@ -918,7 +929,17 @@ libpcap_seek_read(wtap *wth, long seek_off,
 	/*
 	 * Read the packet data.
 	 */
-	return libpcap_read_rec_data(wth->random_fh, pd, length, err);
+	if (!libpcap_read_rec_data(wth->random_fh, pd, length, err))
+		return FALSE;	/* failed */
+
+	/*
+	 * If this is ATM LANE traffic, try to guess what type of LANE
+	 * traffic it is based on the packet contents.
+	 */
+	if (wth->file_encap == WTAP_ENCAP_ATM_SNIFFER &&
+	    pseudo_header->atm.type == TRAF_LANE)
+		atm_guess_lane_type(pd, length, pseudo_header);
+	return TRUE;
 }
 
 /* Read the header of the next packet; if "silent" is TRUE, don't complain
@@ -1232,6 +1253,13 @@ wtap_process_pcap_packet(gint linktype, const struct pcap_pkthdr *phdr,
 		whdr->len -= sizeof (struct sunatm_hdr);
 		whdr->caplen -= sizeof (struct sunatm_hdr);
 		pd += sizeof (struct sunatm_hdr);
+
+		/*
+		 * If this is ATM LANE traffic, try to guess what type of
+		 * LANE traffic it is based on the packet contents.
+		 */
+		if (pseudo_header->atm.type == TRAF_LANE)
+			atm_guess_lane_type(pd, whdr->caplen, pseudo_header);
 	}
 	return pd;
 }
