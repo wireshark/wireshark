@@ -2,7 +2,7 @@
  * Routines for ssl dissection
  * Copyright (c) 2000-2001, Scott Renfro <scott@renfro.org>
  *
- * $Id: packet-ssl.c,v 1.15 2002/01/24 09:20:51 guy Exp $
+ * $Id: packet-ssl.c,v 1.16 2002/02/02 04:02:28 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -151,6 +151,9 @@ static gint ett_ssl_dnames            = -1;
 
 /* The TCP port to associate with by default */
 #define TCP_PORT_SSL                    443
+#define TCP_PORT_SSL_LDAP               636
+#define TCP_PORT_SSL_IMAP               993
+#define TCP_PORT_SSL_POP                995
 
 /* version state tables */
 #define SSL_VER_UNKNOWN                   0
@@ -2604,4 +2607,7 @@ proto_reg_handoff_ssl(void)
 
     ssl_handle = create_dissector_handle(dissect_ssl, proto_ssl);
     dissector_add("tcp.port", TCP_PORT_SSL, ssl_handle);
+    dissector_add("tcp.port", TCP_PORT_SSL_LDAP, ssl_handle);
+    dissector_add("tcp.port", TCP_PORT_SSL_IMAP, ssl_handle);
+    dissector_add("tcp.port", TCP_PORT_SSL_POP, ssl_handle);
 }
