@@ -3,7 +3,7 @@
  *
  * Duncan Laurie <duncan@sun.com>
  *
- * $Id: packet-ipmi.c,v 1.2 2003/06/04 08:51:36 guy Exp $
+ * $Id: packet-ipmi.c,v 1.3 2003/10/30 00:39:51 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -469,9 +469,12 @@ dissect_ipmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* netfn/lun */
 	if (tree) {
+		guint8 lun;
+
 		tf = proto_tree_add_text(ipmi_tree, tvb, offset, 1,
-			 "NetFn/LUN: %s", val_to_str(netfn,
-			 ipmi_netfn_vals, "Unknown (0x%02x)"));
+			 "NetFn/LUN: %s (0x%02x)", val_to_str(netfn,
+			 ipmi_netfn_vals, "Unknown (0x%02x)"),
+			 netfn);
 
 		field_tree = proto_item_add_subtree(tf, ett_ipmi_msg_nlfield);
 
@@ -480,6 +483,8 @@ dissect_ipmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_item(field_tree,
 				    response ? hf_ipmi_msg_rqlun : hf_ipmi_msg_rslun,
 				    tvb, offset, 1, TRUE);
+		lun = tvb_get_guint8(tvb, offset);
+		proto_item_append_text(tf, ", LUN 0x%02x", lun);
 		offset += 1;
 	}
 
@@ -498,6 +503,8 @@ dissect_ipmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* seq/lun */
 	if (tree) {
+		guint8 lun;
+
 		tf = proto_tree_add_item(ipmi_tree, hf_ipmi_msg_slfield,
 					 tvb, offset, 1, TRUE);
 		field_tree = proto_item_add_subtree(tf, ett_ipmi_msg_slfield);
@@ -507,6 +514,8 @@ dissect_ipmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_item(field_tree,
 				    response ? hf_ipmi_msg_rslun : hf_ipmi_msg_rqlun,
 				    tvb, offset, 1, TRUE);
+		lun = tvb_get_guint8(tvb, offset);
+		proto_item_append_text(tf, ", LUN 0x%02x", lun);
 		offset += 1;
 	}
 
