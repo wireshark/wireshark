@@ -1,5 +1,5 @@
 /*
- * $Id: network_instruments.c,v 1.2 2003/10/31 08:06:24 guy Exp $
+ * $Id: network_instruments.c,v 1.3 2003/11/01 03:38:09 guy Exp $
  */
 
 /***************************************************************************
@@ -36,11 +36,26 @@ static const int true_magic_length = 17;
 
 static const guint32 observer_packet_magic = 0x88888888;
 
-	static const int observer_encap[] = {
-		WTAP_ENCAP_ETHERNET,
-		WTAP_ENCAP_TOKEN_RING
-	};
+static const int observer_encap[] = {
+	WTAP_ENCAP_ETHERNET,
+	WTAP_ENCAP_TOKEN_RING
+};
 #define NUM_OBSERVER_ENCAPS (sizeof observer_encap / sizeof observer_encap[0])
+
+/*
+ * The time in Observer files is in nanoseconds since midnight, January 1,
+ * 2000, 00:00:00 local time.
+ *
+ * We want the seconds portion to be seconds since midnight, January 1,
+ * 1970, 00:00:00 GMT.
+ *
+ * To do that, we add the number of seconds between midnight, January 1,
+ * 2000, 00:00:00 local time and midnight, January 1, 1970, 00:00:00 GMT.
+ * (That gets the wrong answer if the time zone is being read in a different
+ * time zone, but there's not much we can do about that.)
+ */
+static gboolean have_time_offset;
+static time_t seconds1970to2000;
 
 static gboolean fill_time_struct(guint64 ns_since2000, observer_time* time_conversion);
 static gboolean observer_read(wtap *wth, int *err, long *data_offset);
@@ -54,6 +69,31 @@ int network_instruments_open(wtap *wth, int *err)
 
 	capture_file_header file_header;
 	packet_entry_header packet_header;
+
+	/*
+	 * We need the offset between midnight, January 1, 2000 UTC
+	 * and midnight, January 1, 2000 local time, as the time stamps
+	 * are in the form of nanoseconds since midnight, January 1,
+	 * 2000 local time.
+	 */
+	if (!have_time_offset) {
+		struct tm midnight_2000_01_01;
+
+		/*
+		 * Get the number of seconds between midnight, January 1,
+		 * 2000, 00:00:00 local time - that's just the UNIX
+		 * time stamp for 2000-01-01 00:00:00 local time.
+		 */
+		midnight_2000_01_01.tm_year = 2000 - 1900;
+		midnight_2000_01_01.tm_mon = 0;
+		midnight_2000_01_01.tm_mday = 1;
+		midnight_2000_01_01.tm_hour = 0;
+		midnight_2000_01_01.tm_min = 0;
+		midnight_2000_01_01.tm_sec = 0;
+		midnight_2000_01_01.tm_isdst = -1;
+		seconds1970to2000 = mktime(&midnight_2000_01_01);
+		have_time_offset = TRUE;
+	}
 
 	errno = WTAP_ERR_CANT_READ;
 
@@ -172,11 +212,7 @@ static gboolean observer_read(wtap *wth, int *err, long *data_offset)
 	    GUINT64_FROM_LE(packet_header.nano_seconds_since_2000);
 	fill_time_struct(packet_header.nano_seconds_since_2000, &packet_time);
 	useconds = (long)(packet_time.useconds_from_1970 - ((guint64)packet_time.seconds_from_1970)*1000000);
-#if 0
-	seconds = (long)packet_time.seconds_from_1970 - packet_time.time_stamp.tm_gmtoff;
-#else
 	seconds = (long)packet_time.seconds_from_1970;
-#endif
 
 	/* set-up the packet header */
 	packet_header.network_size =
@@ -275,7 +311,6 @@ static gboolean observer_seek_read(wtap *wth, long seek_off,
 	return TRUE;
 }
 
-static guint32 seconds1970to2000 = (((30*365)+7)*24*60*60); /* 7 leap years */
 gboolean fill_time_struct(guint64 ns_since2000, observer_time* time_conversion)
 {
 	time_conversion->ns_since2000 = ns_since2000;
@@ -284,10 +319,6 @@ gboolean fill_time_struct(guint64 ns_since2000, observer_time* time_conversion)
 
 	time_conversion->seconds_from_1970 = seconds1970to2000 + time_conversion->sec_since2000;
 	time_conversion->useconds_from_1970 = ((guint64)seconds1970to2000*1000000)+time_conversion->us_since2000;
-
-#if 0
-	time_conversion->time_stamp = *localtime(&time_conversion->seconds_from_1970);
-#endif
 
 	return TRUE;
 }

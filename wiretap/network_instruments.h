@@ -1,5 +1,5 @@
 /*
- * $Id: network_instruments.h,v 1.2 2003/10/31 08:06:25 guy Exp $
+ * $Id: network_instruments.h,v 1.3 2003/11/01 03:38:10 guy Exp $
  */
 
 /***************************************************************************
@@ -72,9 +72,6 @@ typedef struct tlv_user_commnent
 typedef struct observer_time
 {
 	guint64 ns_since2000;		/* given in packet_entry_header */
-#if 0
-	struct tm time_stamp;
-#endif
 
 	guint64 us_since2000;		/* Micro-Seconds since 1-1-2000 */
 	guint64 sec_since2000;		/* Seconds since 1-1-2000 */
