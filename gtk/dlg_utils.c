@@ -1,7 +1,7 @@
 /* dlg_utils.c
  * Utilities to use when constructing dialogs
  *
- * $Id: dlg_utils.c,v 1.13 2003/12/12 02:50:04 gerald Exp $
+ * $Id: dlg_utils.c,v 1.14 2003/12/13 03:36:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -51,6 +51,20 @@ dlg_window_new(const gchar *title)
   win = gtk_window_new(GTK_WINDOW_TOPLEVEL);
   gtk_window_set_position(GTK_WINDOW(win), GTK_WIN_POS_CENTER_ON_PARENT);
 #endif
+  /*
+   * XXX - if we're running in the capture child process, we can't easily
+   * make this window transient for the main process's window.  We just
+   * punt here.
+   *
+   * Perhaps the child process should only capture packets, write them to
+   * a file, and somehow notify the parent process and let *it* do all
+   * the GUI work.  If we can do that efficiently (so that we don't drop
+   * more packets), perhaps we can also do so even when we're *not* doing
+   * an "Update list of packets in real time" capture.  That'd let the
+   * child process run set-UID on platforms where you need that in order
+   * to capture, and might also simplify the job of having the GUI main
+   * loop wait both for user input and packet arrival.
+   */
   if (top_level) {
     gtk_window_set_transient_for(GTK_WINDOW(win), GTK_WINDOW(top_level));
   }
