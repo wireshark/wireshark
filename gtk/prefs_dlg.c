@@ -1,7 +1,7 @@
 /* prefs_dlg.c
  * Routines for handling preferences
  *
- * $Id: prefs_dlg.c,v 1.9 2000/01/10 01:44:00 guy Exp $
+ * $Id: prefs_dlg.c,v 1.10 2000/05/08 07:54:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -55,32 +55,48 @@
 #include "stream_prefs.h"
 #include "gui_prefs.h"
 #include "util.h"
+#include "ui_util.h"
 #include "simple_dialog.h"
 
 static void     prefs_main_ok_cb(GtkWidget *, gpointer);
 static void     prefs_main_save_cb(GtkWidget *, gpointer);
 static void     prefs_main_cancel_cb(GtkWidget *, gpointer);
 static gboolean prefs_main_delete_cb(GtkWidget *, gpointer);
-
+static void     prefs_main_destroy_cb(GtkWidget *, gpointer);
 
 #define E_PRINT_PAGE_KEY  "printer_options_page"
 #define E_COLUMN_PAGE_KEY "column_options_page"
 #define E_STREAM_PAGE_KEY "tcp_stream_options_page"
 #define E_GUI_PAGE_KEY	  "gui_options_page"
 
+/*
+ * Keep a static pointer to the current "Preferences" window, if any, so that
+ * if somebody tries to do "Edit:Preferences" while there's already a
+ * "Preferences" window up, we just pop up the existing one, rather than
+ * creating a new one.
+ */
+static GtkWidget *prefs_w;
+
 void
 prefs_cb(GtkWidget *w, gpointer sp) {
-  GtkWidget *prefs_w, *main_vb, *top_hb, *bbox, *prefs_nb,
+  GtkWidget *main_vb, *top_hb, *bbox, *prefs_nb,
             *ok_bt, *save_bt, *cancel_bt;
   GtkWidget *print_pg, *column_pg, *stream_pg, *gui_pg, *label;
 
   gint       start_page = (gint) sp;
 
+  if (prefs_w != NULL) {
+    /* There's already a "Preferences" dialog box; reactivate it. */
+    reactivate_window(prefs_w);
+    return;
+  }
 
   prefs_w = gtk_window_new(GTK_WINDOW_TOPLEVEL);
   gtk_window_set_title(GTK_WINDOW(prefs_w), "Ethereal: Preferences");
   gtk_signal_connect(GTK_OBJECT(prefs_w), "delete-event",
     GTK_SIGNAL_FUNC(prefs_main_delete_cb), NULL);
+  gtk_signal_connect(GTK_OBJECT(prefs_w), "destroy",
+	GTK_SIGNAL_FUNC(prefs_main_destroy_cb), NULL);
   
   /* Container for each row of widgets */
   main_vb = gtk_vbox_new(FALSE, 5);
@@ -203,4 +219,14 @@ prefs_main_delete_cb(GtkWidget *prefs_w, gpointer dummy)
   stream_prefs_delete(gtk_object_get_data(GTK_OBJECT(prefs_w), E_STREAM_PAGE_KEY));
   gui_prefs_delete(gtk_object_get_data(GTK_OBJECT(prefs_w), E_GUI_PAGE_KEY));
   return FALSE;
+}
+
+static void
+prefs_main_destroy_cb(GtkWidget *win, gpointer user_data)
+{
+  /* XXX - call the delete callback?  Or move its stuff here and
+     get rid of it? */
+
+  /* Note that we no longer have a "Preferences" dialog box. */
+  prefs_w = NULL;
 }
