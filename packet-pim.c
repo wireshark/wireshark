@@ -2,7 +2,7 @@
  * Routines for PIM disassembly
  * (c) Copyright Jun-ichiro itojun Hagino <itojun@itojun.org>
  *
- * $Id: packet-pim.c,v 1.43 2002/12/02 23:43:28 guy Exp $
+ * $Id: packet-pim.c,v 1.44 2002/12/27 22:55:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -412,6 +412,7 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			"IP address: %s", s);
 		    off += 6;
 		}
+		offset = off;
 	    }
 	    break;
 	  }
@@ -982,6 +983,7 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 			"IP address: %s", s);
 		    off += advance;
 		}
+		offset = off;
 	    }
     breakbreak3:
 	    break;
