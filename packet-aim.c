@@ -2,7 +2,7 @@
  * Routines for AIM Instant Messenger (OSCAR) dissection
  * Copyright 2000, Ralf Hoelzer <ralf@well.com>
  *
- * $Id: packet-aim.c,v 1.22 2003/02/20 04:42:08 guy Exp $
+ * $Id: packet-aim.c,v 1.23 2003/02/21 04:38:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -433,6 +433,41 @@ static const aim_tlv aim_signon_signon_tlv[] = {
   { SIGNON_CLIENTCOUNTRY, "Client Country", FT_STRING },
   { SIGNON_CLIENTLANGUAGE, "Client Language", FT_STRING },
   { SIGNON_CLIENTUSESSI, "Use SSI", FT_UINT8 },
+  { 0, "Unknown", 0 }
+};
+
+#define SIGNON_LOGON_REPLY_SCREENNAME          0x0001
+#define SIGNON_LOGON_REPLY_ERRORURL            0x0004
+#define SIGNON_LOGON_REPLY_BOSADDR             0x0005
+#define SIGNON_LOGON_REPLY_AUTHCOOKIE          0x0006
+#define SIGNON_LOGON_REPLY_ERRORCODE           0x0008
+#define SIGNON_LOGON_REPLY_EMAILADDR           0x0011
+#define SIGNON_LOGON_REPLY_REGSTATUS           0x0013
+#define SIGNON_LOGON_REPLY_LATESTBETABUILD     0x0040
+#define SIGNON_LOGON_REPLY_LATESTBETAURL       0x0041
+#define SIGNON_LOGON_REPLY_LATESTBETAINFO      0x0042
+#define SIGNON_LOGON_REPLY_LATESTBETANAME      0x0043
+#define SIGNON_LOGON_REPLY_LATESTRELEASEBUILD  0x0044
+#define SIGNON_LOGON_REPLY_LATESTRELEASEURL    0x0045
+#define SIGNON_LOGON_REPLY_LATESTRELEASEINFO   0x0046
+#define SIGNON_LOGON_REPLY_LATESTRELEASENAME   0x0047
+
+static const aim_tlv aim_signon_logon_reply_tlv[] = {
+  { SIGNON_LOGON_REPLY_SCREENNAME, "Screen Name", FT_STRING },
+  { SIGNON_LOGON_REPLY_ERRORURL, "Error URL", FT_STRING },
+  { SIGNON_LOGON_REPLY_BOSADDR, "BOS Server Address", FT_STRING },
+  { SIGNON_LOGON_REPLY_AUTHCOOKIE, "Authorization Cookie", FT_BYTES },
+  { SIGNON_LOGON_REPLY_ERRORCODE, "Error Code", FT_UINT16 },
+  { SIGNON_LOGON_REPLY_EMAILADDR, "Account Email Address", FT_STRING },
+  { SIGNON_LOGON_REPLY_REGSTATUS, "Registration Status", FT_UINT16 },
+  { SIGNON_LOGON_REPLY_LATESTBETABUILD, "Latest Beta Build", FT_UINT32 },
+  { SIGNON_LOGON_REPLY_LATESTBETAURL, "Latest Beta URL", FT_STRING },
+  { SIGNON_LOGON_REPLY_LATESTBETAINFO, "Latest Beta Info", FT_STRING },
+  { SIGNON_LOGON_REPLY_LATESTBETANAME, "Latest Beta Name", FT_STRING },
+  { SIGNON_LOGON_REPLY_LATESTRELEASEBUILD, "Latest Release Build", FT_UINT32 },
+  { SIGNON_LOGON_REPLY_LATESTRELEASEURL, "Latest Release URL", FT_STRING },
+  { SIGNON_LOGON_REPLY_LATESTRELEASEINFO, "Latest Release Info", FT_STRING },
+  { SIGNON_LOGON_REPLY_LATESTRELEASENAME, "Latest Release Name", FT_STRING },
   { 0, "Unknown", 0 }
 };
 
@@ -878,9 +913,10 @@ static void dissect_aim_snac_signon_logon_reply(tvbuff_t *tvb,
     if (check_col(pinfo->cinfo, COL_INFO)) 
       col_append_fstr(pinfo->cinfo, COL_INFO, ", Login information reply");
 
-    /* Show the undissected payload */
-    if (tvb_length_remaining(tvb, offset) > 0)
-      proto_tree_add_item(tree, hf_aim_data, tvb, offset, -1, FALSE);
+    while (tvb_length_remaining(tvb, offset) > 0) {
+      offset = dissect_aim_tlv(tvb, pinfo, offset, tree, 
+			       aim_signon_logon_reply_tlv);
+    }
 }
 
 static void dissect_aim_snac_signon_signon(tvbuff_t *tvb, packet_info *pinfo, 
