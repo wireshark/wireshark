@@ -5,7 +5,7 @@
  * Copyright 2003 Niklas Ögren <niklas.ogren@7l.se>
  * Seven Levels Consultants AB
  *
- * $Id: packet-h263.c,v 1.2 2003/08/23 06:36:46 guy Exp $
+ * $Id: packet-h263.c,v 1.3 2003/08/24 01:25:19 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -236,25 +236,25 @@ proto_register_h263(void)
 		{
 			&hf_h263_ftype,
 			{
-				"MODE B or C",
+				"F",
 				"h263.sbit",
 				FT_BOOLEAN,
 				BASE_NONE,
 				NULL,
 				0x0,
-				"", HFILL
+				"Indicates the mode of the payload header (MODE A or B/C)", HFILL
 			}
 		},
 		{
 			&hf_h263_pbframes,
 			{
-				"p/b frame flag (MODE C)",
+				"p/b frame",
 				"h263.pbframes",
 				FT_BOOLEAN,
 				BASE_NONE,
 				NULL,
 				0x0,
-				"", HFILL
+				"Optional PB-frames mode as defined by H.263 (MODE C)", HFILL
 			}
 		},
 		{
@@ -266,7 +266,7 @@ proto_register_h263(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				"Start bit position specifies number of most significant bits that shall be ignored in the first data byte.", HFILL
 			}
 		},
 		{
@@ -278,43 +278,43 @@ proto_register_h263(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				"End bit position specifies number of least significant bits that shall be ignored in the last data byte.", HFILL
 			}
 		},
 		{
 			&hf_h263_srcformat,
 			{
-				"Video Format",
+				"SRC format",
 				"h263.srcformat",
 				FT_UINT8,
 				BASE_DEC,
 				VALS(srcformat_vals),
 				0x0,
-				"", HFILL
+				"Source format specifies the resolution of the current picture.", HFILL
 			}
 		},
 		{
 			&hf_h263_picture_coding_type,
 			{
-				"Intra frame encoded data flag",
+				"Inter-coded frame",
 				"h263.picture_coding_type",
 				FT_BOOLEAN,
 				BASE_NONE,
 				NULL,
 				0x0,
-				"", HFILL
+				"Picture coding type, intra-coded (false) or inter-coded (true)", HFILL
 			}
 		},
 		{
 			&hf_h263_unrestricted_motion_vector,
 			{
-				"Motion vector flag",
+				"Motion vector",
 				"h263.unrestricted_motion_vector",
 				FT_BOOLEAN,
 				BASE_NONE,
 				NULL,
 				0x0,
-				"", HFILL
+				"Unrestricted Motion Vector option for current picture", HFILL
 			}
 		},
 		{
@@ -326,7 +326,7 @@ proto_register_h263(void)
 				BASE_NONE,
 				NULL,
 				0x0,
-				"", HFILL
+				"Syntax-based Arithmetic Coding option for current picture", HFILL
 			}
 		},
 		{
@@ -338,7 +338,7 @@ proto_register_h263(void)
 				BASE_NONE,
 				NULL,
 				0x0,
-				"", HFILL
+				"Advanced Prediction option for current picture", HFILL
 			}
 		},
 		{
@@ -350,7 +350,7 @@ proto_register_h263(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				"Differential quantization parameter used to calculate quantizer for the B frame based on quantizer for the P frame, when PB-frames option is used.", HFILL
 			}
 		},
 		{
@@ -362,19 +362,19 @@ proto_register_h263(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				"Temporal Reference for the B frame as defined by H.263", HFILL
 			}
 		},
 		{
 			&hf_h263_tr,
 			{
-				"Temporal reference for P frames",
+				"Temporal Reference for P frames",
 				"h263.tr",
 				FT_UINT8,
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				"Temporal Reference for the P frame as defined by H.263", HFILL
 			}
 		},
 		{
@@ -386,7 +386,7 @@ proto_register_h263(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				"Quantization value for the first MB coded at the starting of the packet.", HFILL
 			}
 		},
 		{
@@ -398,7 +398,7 @@ proto_register_h263(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				"GOB number in effect at the start of the packet.", HFILL
 			}
 		},
 		{
@@ -410,55 +410,55 @@ proto_register_h263(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				"The address within the GOB of the first MB in the packet, counting from zero in scan order.", HFILL
 			}
 		},
 		{
 			&hf_h263_hmv1,
 			{
-				"Horizontal motion vector data 1",
+				"Horizontal motion vector 1",
 				"h263.hmv1",
 				FT_UINT8,
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				"Horizontal motion vector predictor for the first MB in this packet ", HFILL
 			}
 		},
 		{
 			&hf_h263_vmv1,
 			{
-				"Vertical motion vector data 1",
+				"Vertical motion vector 1",
 				"h263.vmv1",
 				FT_UINT8,
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				"Vertical motion vector predictor for the first MB in this packet ", HFILL
 			}
 		},
 		{
 			&hf_h263_hmv2,
 			{
-				"Horizontal motion vector data 2",
+				"Horizontal motion vector 2",
 				"h263.hmv2",
 				FT_UINT8,
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				"Horizontal motion vector predictor for block number 3 in the first MB in this packet when four motion vectors are used with the advanced prediction option.", HFILL
 			}
 		},
 		{
 			&hf_h263_vmv2,
 			{
-				"Vertical motion vector data 2",
+				"Vertical motion vector 2",
 				"h263.vmv2",
 				FT_UINT8,
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				"Vertical motion vector predictor for block number 3 in the first MB in this packet when four motion vectors are used with the advanced prediction option.", HFILL
 			}
 		},
 		{
@@ -470,7 +470,7 @@ proto_register_h263(void)
 				BASE_NONE,
 				NULL,
 				0x0,
-				"", HFILL
+				"The H.263 stream including its Picture, GOB or Macro block start code.", HFILL
 			}
 		},
 };
