@@ -17,7 +17,7 @@
  * Copyright 2000, Heikki Vatiainen <hessu@cs.tut.fi>
  * Copyright 2001, Jean-Francois Mule <jfm@cablelabs.com>
  *
- * $Id: packet-sip.c,v 1.37 2003/06/09 01:50:08 guy Exp $
+ * $Id: packet-sip.c,v 1.38 2003/06/11 21:17:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -63,6 +63,7 @@ static gint hf_Status_Code = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_sip = -1;
+static gint ett_sip_reqresp = -1;
 static gint ett_sip_hdr = -1;
 
 static const char *sip_methods[] = {
@@ -368,23 +369,24 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         if (tree) {
                 proto_item *ti, *th;
-                proto_tree *sip_tree, *hdr_tree;
+                proto_tree *sip_tree, *reqresp_tree, *hdr_tree;
 
                 ti = proto_tree_add_item(tree, proto_sip, tvb, 0, -1, FALSE);
                 sip_tree = proto_item_add_subtree(ti, ett_sip);
 
-                proto_tree_add_text(sip_tree, tvb, 0, next_offset, "%s line: %s",
-                                    descr,
-                                    tvb_format_text(tvb, 0, eol));
+                ti = proto_tree_add_text(sip_tree, tvb, 0, next_offset,
+                                         "%s line: %s", descr,
+                                         tvb_format_text(tvb, 0, eol));
+                reqresp_tree = proto_item_add_subtree(ti, ett_sip_reqresp);
 
 		switch (line_type) {
 
                 case REQUEST_LINE:
-                        dfilter_sip_request_line(tvb, sip_tree, token_1_len);
+                        dfilter_sip_request_line(tvb, reqresp_tree, token_1_len);
                         break;
 
                 case STATUS_LINE:
-                        dfilter_sip_status_line(tvb, sip_tree);
+                        dfilter_sip_status_line(tvb, reqresp_tree);
                         break;
 
 		case OTHER_LINE:
@@ -491,6 +493,7 @@ void dfilter_sip_request_line(tvbuff_t *tvb, proto_tree *tree, guint meth_len)
         tvb_memcpy(tvb, (guint8 *)string, 0, meth_len);
         string[meth_len] = '\0';
         proto_tree_add_string(tree, hf_Method, tvb, 0, meth_len, string);
+        g_free(string);
 }
 
 /* Display filter for SIP Status-Line */
@@ -944,6 +947,7 @@ void proto_register_sip(void)
         /* Setup protocol subtree array */
         static gint *ett[] = {
                 &ett_sip,
+                &ett_sip_reqresp,
                 &ett_sip_hdr,
         };
 
