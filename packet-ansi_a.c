@@ -10,7 +10,7 @@
  *   2000 Access Network Interfaces
  *			3GPP2 A.S0001-1		TIA/EIA-2001
  *
- * $Id: packet-ansi_a.c,v 1.10 2003/11/16 23:17:16 guy Exp $
+ * $Id: packet-ansi_a.c,v 1.11 2003/12/01 23:05:08 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -41,8 +41,11 @@
 
 #include "epan/packet.h"
 #include "prefs.h"
+#include "tap.h"
 
 #include "packet-bssap.h"
+#include "packet-ansi_a.h"
+
 
 /* PROTOTYPES/FORWARDS */
 
@@ -314,6 +317,8 @@ static gchar *cell_disc_str[] = {
 /* Initialize the protocol and registered fields */
 static int proto_a_bsmap = -1;
 static int proto_a_dtap = -1;
+
+static int ansi_a_tap = -1;
 
 static int hf_ansi_a_none = -1;
 static int hf_ansi_a_bsmap_msgtype = -1;
@@ -7971,13 +7976,17 @@ static void (*dtap_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, g
 static void
 dissect_bsmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    guint8	oct;
-    guint32	offset, saved_offset;
-    guint32	len;
-    gint	idx;
-    proto_item	*bsmap_item = NULL;
-    proto_tree	*bsmap_tree = NULL;
-    gchar	*str;
+    static ansi_a_tap_rec_t	tap_rec[4];
+    static ansi_a_tap_rec_t	*tap_p;
+    static int			tap_current=0;
+    guint8			oct;
+    guint32			offset, saved_offset;
+    guint32			len;
+    gint			idx;
+    proto_item			*bsmap_item = NULL;
+    proto_tree			*bsmap_tree = NULL;
+    gchar			*msg_str;
+
 
     if (check_col(pinfo->cinfo, COL_INFO))
     {
@@ -7985,13 +7994,15 @@ dissect_bsmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     /*
-     * In the interest of speed, if "tree" is NULL, don't do any work
-     * not necessary to generate protocol tree items.
+     * set tap record pointer
      */
-    if (!tree)
+    tap_current++;
+    if (tap_current == 4)
     {
-	return;
+	tap_current = 0;
     }
+    tap_p = &tap_rec[tap_current];
+
 
     offset = 0;
     saved_offset = offset;
@@ -8006,12 +8017,12 @@ dissect_bsmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      */
     oct = tvb_get_guint8(tvb, offset++);
 
-    str = my_match_strval((guint32) oct, ansi_bsmap_strings, &idx);
+    msg_str = my_match_strval((guint32) oct, ansi_bsmap_strings, &idx);
 
     /*
      * create the a protocol tree
      */
-    if (str == NULL)
+    if (msg_str == NULL)
     {
 	bsmap_item =
 	    proto_tree_add_protocol_format(tree, proto_a_bsmap, tvb, 0, len,
@@ -8025,13 +8036,13 @@ dissect_bsmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	bsmap_item =
 	    proto_tree_add_protocol_format(tree, proto_a_bsmap, tvb, 0, -1,
 		"ANSI A-I/F BSMAP - %s",
-		str);
+		msg_str);
 
 	bsmap_tree = proto_item_add_subtree(bsmap_item, ett_bsmap_msg[idx]);
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 	{
-	    col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", str);
+	    col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", msg_str);
 	}
     }
 
@@ -8041,7 +8052,12 @@ dissect_bsmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_uint_format(bsmap_tree, hf_ansi_a_bsmap_msgtype,
 	tvb, saved_offset, 1, oct, "Message Type");
 
-    if (str == NULL) return;
+    tap_p->pdu_type = BSSAP_PDU_TYPE_BSMAP;
+    tap_p->message_type = oct;
+
+    tap_queue_packet(ansi_a_tap, pinfo, tap_p);
+
+    if (msg_str == NULL) return;
 
     if ((len - offset) <= 0) return;
 
@@ -8063,16 +8079,21 @@ dissect_bsmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    guint8	oct;
-    guint32	offset, saved_offset;
-    guint32	len;
-    guint32	oct_1, oct_2;
-    gint	idx;
-    proto_item	*dtap_item = NULL;
-    proto_tree	*dtap_tree = NULL;
-    proto_item	*oct_1_item = NULL;
-    proto_tree	*oct_1_tree = NULL;
-    gchar	*str;
+    static ansi_a_tap_rec_t	tap_rec[4];
+    static ansi_a_tap_rec_t	*tap_p;
+    static int			tap_current=0;
+    guint8			oct;
+    guint32			offset, saved_offset;
+    guint32			len;
+    guint32			oct_1, oct_2;
+    gint			idx;
+    proto_item			*dtap_item = NULL;
+    proto_tree			*dtap_tree = NULL;
+    proto_item			*oct_1_item = NULL;
+    proto_tree			*oct_1_tree = NULL;
+    gchar			*msg_str;
+    gchar			*str;
+
 
     len = tvb_length(tvb);
 
@@ -8091,13 +8112,15 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     /*
-     * In the interest of speed, if "tree" is NULL, don't do any work
-     * not necessary to generate protocol tree items.
+     * set tap record pointer
      */
-    if (!tree)
+    tap_current++;
+    if (tap_current == 4)
     {
-	return;
+	tap_current = 0;
     }
+    tap_p = &tap_rec[tap_current];
+
 
     offset = 0;
     saved_offset = offset;
@@ -8117,12 +8140,12 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     saved_offset = offset;
     oct = tvb_get_guint8(tvb, offset++);
 
-    str = my_match_strval((guint32) oct, ansi_dtap_strings, &idx);
+    msg_str = my_match_strval((guint32) oct, ansi_dtap_strings, &idx);
 
     /*
      * create the a protocol tree
      */
-    if (str == NULL)
+    if (msg_str == NULL)
     {
 	dtap_item =
 	    proto_tree_add_protocol_format(tree, proto_a_dtap, tvb, 0, len,
@@ -8136,13 +8159,13 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	dtap_item =
 	    proto_tree_add_protocol_format(tree, proto_a_dtap, tvb, 0, -1,
 		"ANSI A-I/F DTAP - %s",
-		str);
+		msg_str);
 
 	dtap_tree = proto_item_add_subtree(dtap_item, ett_dtap_msg[idx]);
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 	{
-	    col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", str);
+	    col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", msg_str);
 	}
     }
 
@@ -8224,7 +8247,12 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	tvb, saved_offset, 1, oct,
 	"Message Type");
 
-    if (str == NULL) return;
+    tap_p->pdu_type = BSSAP_PDU_TYPE_DTAP;
+    tap_p->message_type = oct;
+
+    tap_queue_packet(ansi_a_tap, pinfo, tap_p);
+
+    if (msg_str == NULL) return;
 
     if ((len - offset) <= 0) return;
 
@@ -8420,6 +8448,8 @@ proto_register_ansi_a(void)
 	FT_UINT8, BASE_DEC);
 
     proto_register_subtree_array(ett, ett_len / sizeof(gint *));
+
+    ansi_a_tap = register_tap("ansi_a");
 
     /*
      * setup for preferences

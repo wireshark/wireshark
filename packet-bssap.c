@@ -7,7 +7,7 @@
  * Copyright 2003, Michael Lum <mlum [AT] telostech.com>
  * In association with Telos Technology Inc.
  *
- * $Id: packet-bssap.c,v 1.3 2003/10/28 18:08:52 guy Exp $
+ * $Id: packet-bssap.c,v 1.4 2003/12/01 23:05:08 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -356,15 +356,12 @@ dissect_bssap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, ((bssap_or_bsap_global == BSSAP) ? "BSSAP" : "BSAP"));
     }
 
-    if (tree)
-    {
-	/*
-	 * create the bssap protocol tree
-	 */
-	proto_tree_add_item_hidden(tree, proto_bssap, tvb, 0, -1, FALSE);
-	bssap_item = proto_tree_add_text(tree, tvb, 0, -1, (bssap_or_bsap_global == BSSAP) ? "BSSAP" : "BSAP");
-	bssap_tree = proto_item_add_subtree(bssap_item, ett_bssap);
-    }
+    /*
+     * create the bssap protocol tree
+     */
+    proto_tree_add_item_hidden(tree, proto_bssap, tvb, 0, -1, FALSE);
+    bssap_item = proto_tree_add_text(tree, tvb, 0, -1, (bssap_or_bsap_global == BSSAP) ? "BSSAP" : "BSAP");
+    bssap_tree = proto_item_add_subtree(bssap_item, ett_bssap);
 
     /* dissect the message */
 

@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.660 2003/11/25 08:10:55 guy Exp $
+# $Id: Makefile.am,v 1.661 2003/12/01 23:05:08 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -606,6 +606,7 @@ noinst_HEADERS = \
 	packet-afs-macros.h \
 	packet-afs-register-info.h \
 	packet-afs.h   \
+	packet-ansi_a.h \
 	packet-arcnet.h \
 	packet-arp.h   \
 	packet-atalk.h \
@@ -931,6 +932,7 @@ ethereal_LDADD = \
 	@PCAP_LIBS@ @GTK_LIBS@ @ADNS_LIBS@
 
 TETHEREAL_TAP_SRC = \
+	tap-ansi_astat.c	\
 	tap-bootpstat.c		\
 	tap-dcerpcstat.c	\
 	tap-h225counter.c	\
