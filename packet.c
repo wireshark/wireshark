@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.69 2000/03/27 17:53:20 gram Exp $
+ * $Id: packet.c,v 1.70 2000/04/03 09:24:08 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1243,3 +1243,67 @@ proto_register_frame(void)
 	proto_register_field_array(proto_frame, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }
+
+/*********************** code added for sub-dissector lookup *********************/
+
+dissector_t dissector_lookup( dissector_table_t table, guint32 pattern) {
+
+/* lookup a dissector based upon pattern. */
+
+	return g_hash_table_lookup( table, GUINT_TO_POINTER( pattern));
+}
+
+
+void dissector_add( char *name, guint32 pattern, dissector_t dissector) {
+
+/* add an entry, lookup the dissector table for the specified field name,  */
+/* if a valid table found, add the subdissector */
+
+	dissector_table_t sub_dissectors = find_dissector_table( name);
+
+/* sanity check */
+	g_assert( sub_dissectors);
+
+/* do the table insertion */
+    	g_hash_table_insert( sub_dissectors, GUINT_TO_POINTER( pattern),
+    	 (gpointer)dissector);
+}
+
+
+void dissector_delete( char *name, guint32 pattern, dissector_t dissector) {
+
+/* delete the entry for this dissector at this pattern */
+
+/* NOTE: this doesn't use the dissector call variable. It is included to */
+/*	be consistant with the dissector_add and more importantly to be used */
+/*	if the technique of adding a temporary dissector is implimented.  */
+/*	If temporary dissectors are deleted, then the original dissector must	*/
+/*	be available. */
+
+	dissector_table_t sub_dissectors = find_dissector_table( name);
+
+/* sanity check */
+	g_assert( sub_dissectors);
+
+/* remove the hash table entry */
+	g_hash_table_remove( sub_dissectors, GUINT_TO_POINTER( pattern));
+}
+
+
+dissector_table_t register_dissector_table( int id){
+
+/* Create and register the dissector array for this field; returns */
+/* a pointer to the dissector table. */
+
+/* NOTE: currently use the g_direct_XXX functions so all the hashing is done  */
+/* 	by glib and we don't have to create hashing or comparison funtcions. */
+	
+
+	header_field_info *hfinfo = find_hfinfo_record(id);
+
+	g_assert( hfinfo);	
+		
+	hfinfo->sub_dissectors = g_hash_table_new( g_direct_hash, g_direct_equal);
+	return hfinfo->sub_dissectors;
+}
+

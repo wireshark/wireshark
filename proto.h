@@ -1,7 +1,7 @@
 /* proto.h
  * Definitions for protocol display
  *
- * $Id: proto.h,v 1.25 2000/03/14 06:03:26 guy Exp $
+ * $Id: proto.h,v 1.26 2000/04/03 09:24:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -89,6 +89,10 @@ enum {
 	BASE_BIN
 };
 
+
+/* types for sub-dissector lookup */
+typedef GHashTable* dissector_table_t;
+
 /* information describing a header field */
 typedef struct header_field_info {
 	char				*name;
@@ -102,7 +106,10 @@ typedef struct header_field_info {
 	int				id;		/* assigned by registration function, not programmer */
 	int				parent;		/* parent protocol */
 	int				bitshift;	/* bits to shift */
+	dissector_table_t 		sub_dissectors; /* sub-dissector table pointer */
 } header_field_info;
+
+
 
 /* Used when registering many fields at once */
 typedef struct hf_register_info {
@@ -331,6 +338,12 @@ char* proto_registrar_get_name(int n);
 
 /* Returns char* to abbrev for item # n (0-indexed) */
 char* proto_registrar_get_abbrev(int n);
+
+/* get the header field information based upon a field or protocol id */
+struct header_field_info* find_hfinfo_record(int hfindex);
+
+/* get the dissector table based upon a field or protocol name */
+dissector_table_t find_dissector_table(const char *name);
 
 /* Returns enum ftenum for item # n */
 int proto_registrar_get_ftype(int n);

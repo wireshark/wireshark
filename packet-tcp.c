@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.60 2000/03/12 04:47:50 gram Exp $
+ * $Id: packet-tcp.c,v 1.61 2000/04/03 09:24:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -103,6 +103,8 @@ static gint ett_tcp = -1;
 static gint ett_tcp_flags = -1;
 static gint ett_tcp_options = -1;
 static gint ett_tcp_option_sack = -1;
+
+static dissector_table_t subdissector_table;
 
 /* TCP Ports */
 
@@ -404,6 +406,7 @@ dissect_tcp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   guint      hlen;
   guint      optlen;
   guint      packet_max = pi.len;
+  dissector_t subdissector;
 
   /* To do: Check for {cap len,pkt len} < struct len */
   /* Avoids alignment problems on many architectures. */
@@ -506,6 +509,12 @@ dissect_tcp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
      (it could be an ACK-only packet) */
   if (packet_max > offset) {
 
+    /* ONC RPC.  We can't base this on anything in the TCP header; we have
+       to look at the payload.  If "dissect_rpc()" returns TRUE, it was
+       an RPC packet, otherwise it's some other type of packet. */
+    if (dissect_rpc(pd, offset, fd, tree))
+      goto reas;
+
     /* try to apply the plugins */
 #ifdef HAVE_PLUGINS
     plugin *pt_plug = plugin_list;
@@ -522,89 +531,39 @@ dissect_tcp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     }
 #endif
 
-    /* ONC RPC.  We can't base this on anything in the TCP header; we have
-       to look at the payload.  If "dissect_rpc()" returns TRUE, it was
-       an RPC packet, otherwise it's some other type of packet. */
-    if (dissect_rpc(pd, offset, fd, tree))
-      goto reas;
+    /* do lookup with the subdissector table */
 
-    /* XXX - this should be handled the way UDP handles this, with a table
-       of port numbers to which stuff can be added */
-#define PORT_IS(port)	(th.th_sport == port || th.th_dport == port)
-    if (PORT_IS(TCP_PORT_PRINTER))
-      dissect_lpd(pd, offset, fd, tree);
-    else if (PORT_IS(TCP_PORT_TELNET)) {
-      pi.match_port = TCP_PORT_TELNET;
-      dissect_telnet(pd, offset, fd, tree);
-    } else if (PORT_IS(TCP_PORT_FTPDATA)) {
-      pi.match_port = TCP_PORT_FTPDATA;
-      dissect_ftpdata(pd, offset, fd, tree);
-    } else if (PORT_IS(TCP_PORT_FTP)) {
-      pi.match_port = TCP_PORT_FTP;
-      dissect_ftp(pd, offset, fd, tree);
-    } else if (PORT_IS(TCP_PORT_POP)) {
-      pi.match_port = TCP_PORT_POP;
-      dissect_pop(pd, offset, fd, tree);
-    } else if (PORT_IS(TCP_PORT_IMAP)) {
-      pi.match_port = TCP_PORT_IMAP;
-      dissect_imap(pd, offset, fd, tree);
-    } else if (PORT_IS(TCP_PORT_NNTP)) {
-      pi.match_port = TCP_PORT_NNTP;
-      dissect_nntp(pd, offset, fd, tree);
-    } else if (PORT_IS(TCP_PORT_NTP)) {
-      pi.match_port = TCP_PORT_NTP;
-      dissect_ntp(pd, offset, fd, tree);
-    } else if (PORT_IS(TCP_PORT_PPTP)) {
-      pi.match_port = TCP_PORT_PPTP;
-      dissect_pptp(pd, offset, fd, tree);
-    } else if (PORT_IS(TCP_PORT_HTTP) || PORT_IS(TCP_ALT_PORT_HTTP)
-            || PORT_IS(631) || PORT_IS(TCP_PORT_PROXY_HTTP)
-            || PORT_IS(TCP_PORT_PROXY_ADMIN_HTTP))
-      dissect_http(pd, offset, fd, tree);
-    else if (PORT_IS(TCP_PORT_NBSS)) {
-      pi.match_port = TCP_PORT_NBSS;
-      dissect_nbss(pd, offset, fd, tree);
-    } else if (PORT_IS(TCP_PORT_RTSP))
-      dissect_rtsp(pd, offset, fd, tree);
-    else if (PORT_IS(TCP_PORT_BGP)) {
-      pi.match_port = TCP_PORT_BGP;
-      dissect_bgp(pd, offset, fd, tree);
-    } else if (PORT_IS(TCP_PORT_TACACS)) {
-      pi.match_port = TCP_PORT_TACACS;
-      dissect_tacplus(pd, offset, fd, tree);
-    } else if (PORT_IS(TCP_PORT_MAPI)) {
-      pi.match_port = TCP_PORT_MAPI;
-      dissect_mapi(pd, offset, fd, tree);
-    } else if (PORT_IS(TCP_PORT_TNS)) {
-      pi.match_port = TCP_PORT_TNS;
-      dissect_tns(pd, offset, fd, tree);
-    } else if (PORT_IS(TCP_PORT_IRC)) {
-      pi.match_port = TCP_PORT_IRC;
-      dissect_irc(pd, offset, fd, tree);
-    } else if (PORT_IS(TCP_PORT_LDAP)) {
-      pi.match_port = TCP_PORT_LDAP;
-      dissect_ldap(pd, offset, fd, tree);
-    } else if (PORT_IS(TCP_PORT_SRVLOC)) {
-      pi.match_port = TCP_PORT_SRVLOC;
-      dissect_srvloc(pd, offset, fd, tree);
-    } else if (PORT_IS(TCP_PORT_NCP)) {
-      pi.match_port = TCP_PORT_NCP;
-      dissect_ncp(pd, offset, fd, tree); /* XXX -- need to handle nw_server_address */
-    } else {
-        /* check existence of high level protocols */
-
-        if (memcmp(&pd[offset], "GIOP",  4) == 0) {
-          dissect_giop(pd, offset, fd, tree);
-        }
-	else if ( PORT_IS(TCP_PORT_YHOO) && 
-		(memcmp(&pd[offset], "YPNS",  4) == 0 ||
-			memcmp(&pd[offset], "YHOO",  4) == 0 )) {
-	  dissect_yhoo(pd, offset, fd, tree);
-	}
-        else {
-          dissect_data(pd, offset, fd, tree);
-        }
+    subdissector = dissector_lookup( subdissector_table, th.th_sport);
+    if ( subdissector){
+	pi.match_port = th.th_sport;
+	(subdissector)( pd, offset, fd, tree);
+	goto reas;
     }
+
+    subdissector = dissector_lookup( subdissector_table, th.th_dport);
+    if ( subdissector){
+	pi.match_port = th.th_dport;
+	(subdissector)( pd, offset, fd, tree);             
+	goto reas;
+    }		
+
+    /* check existence of high level protocols */
+
+#define PORT_IS(port)   (th.th_sport == port || th.th_dport == port)    
+
+    if (memcmp(&pd[offset], "GIOP",  4) == 0) {
+	dissect_giop(pd, offset, fd, tree);
+	goto reas;
+    }
+
+    if ( PORT_IS(TCP_PORT_YHOO) && 
+		(memcmp(&pd[offset], "YPNS",  4) == 0 ||
+		memcmp(&pd[offset], "YHOO",  4) == 0 )) {
+	dissect_yhoo(pd, offset, fd, tree);
+	goto reas;
+    }
+
+    dissect_data(pd, offset, fd, tree);
   }
 
 reas:
@@ -701,4 +660,34 @@ proto_register_tcp(void)
 	proto_tcp = proto_register_protocol ("Transmission Control Protocol", "tcp");
 	proto_register_field_array(proto_tcp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+/* subdissector code */
+	subdissector_table = register_dissector_table(hf_tcp_port);
+
+	dissector_add( "tcp.port", TCP_PORT_PRINTER, &dissect_lpd);
+	dissector_add( "tcp.port", TCP_PORT_TELNET, &dissect_telnet);
+	dissector_add( "tcp.port", TCP_PORT_FTPDATA, &dissect_ftpdata);
+	dissector_add( "tcp.port", TCP_PORT_FTP, &dissect_ftp);
+	dissector_add( "tcp.port", TCP_PORT_POP, &dissect_pop);
+	dissector_add( "tcp.port", TCP_PORT_IMAP, &dissect_imap);
+	dissector_add( "tcp.port", TCP_PORT_NNTP, &dissect_nntp);
+	dissector_add( "tcp.port", TCP_PORT_NTP, &dissect_ntp);
+	dissector_add( "tcp.port", TCP_PORT_PPTP, &dissect_pptp);
+	dissector_add( "tcp.port", TCP_PORT_PPTP, &dissect_pptp);
+	dissector_add( "tcp.port", TCP_PORT_HTTP, &dissect_http);
+	dissector_add( "tcp.port", TCP_ALT_PORT_HTTP, &dissect_http);
+	dissector_add( "tcp.port", 631, &dissect_http);	/* IPP */
+	dissector_add( "tcp.port", TCP_PORT_PROXY_HTTP, &dissect_http);
+	dissector_add( "tcp.port", TCP_PORT_PROXY_ADMIN_HTTP, &dissect_http);
+	dissector_add( "tcp.port", TCP_PORT_NBSS, &dissect_nbss);
+	dissector_add( "tcp.port", TCP_PORT_RTSP, &dissect_rtsp);
+	dissector_add( "tcp.port", TCP_PORT_BGP, &dissect_bgp);
+	dissector_add( "tcp.port", TCP_PORT_TACACS, &dissect_tacplus);
+	dissector_add( "tcp.port", TCP_PORT_MAPI, &dissect_mapi);
+	dissector_add( "tcp.port", TCP_PORT_TNS, &dissect_tns);
+	dissector_add( "tcp.port", TCP_PORT_IRC, &dissect_irc);
+	dissector_add( "tcp.port", TCP_PORT_LDAP, &dissect_ldap);
+	dissector_add( "tcp.port", TCP_PORT_SRVLOC, &dissect_srvloc);
+	dissector_add( "tcp.port", TCP_PORT_NCP, &dissect_ncp);
 }
+

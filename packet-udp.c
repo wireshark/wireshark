@@ -1,7 +1,7 @@
 /* packet-udp.c
  * Routines for UDP packet disassembly
  *
- * $Id: packet-udp.c,v 1.52 2000/03/12 04:47:50 gram Exp $
+ * $Id: packet-udp.c,v 1.53 2000/04/03 09:24:08 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -129,104 +129,29 @@ typedef struct _e_udphdr {
 #define UDP_PORT_DHIS1	58800
 #define UDP_PORT_DHIS2	58801
 
-struct hash_struct {
-  guint16 proto;
-  void (*dissect)(const u_char *, int, frame_data *, proto_tree *);
-  struct hash_struct *next;
-};
-
-static struct hash_struct *hash_table[256];
-
-/*
- * These routines are for UDP, will be generalized soon: RJS
- *
- * XXX - note that they should probably check the IP address as well as
- * the port number, so that we don't mistakenly identify packets as, say,
- * TFTP, merely because they have a source or destination port number
- * equal to the port being used by a TFTP daemon on some machine other
- * than the one they're going to or from.
- */
-
-struct hash_struct *udp_find_hash_ent(guint16 proto) {
-
-  int idx = proto % 256;
-  struct hash_struct *hash_ent = hash_table[idx];
-
-  while (hash_ent != NULL) {
-
-    if (hash_ent -> proto == proto)
-      return hash_ent;
-  
-    hash_ent = hash_ent -> next;
-
-  }
-
-  return NULL;
-
-}
-
-void udp_hash_add(guint16 proto,
-	void (*dissect)(const u_char *, int, frame_data *, proto_tree *)) {
-
-  int idx = proto % 256;   /* Simply take the remainder, hope for no collisions */
-  struct hash_struct *hash_ent = (struct hash_struct *)malloc(sizeof(struct hash_struct));
-  struct hash_struct *hash_ent2;
-  
-  hash_ent -> proto = proto;
-  hash_ent -> dissect = dissect;
-  hash_ent -> next = NULL;
-
-  if (hash_ent == NULL) {
-
-    fprintf(stderr, "Could not allocate space for hash structure in dissect_udp\n");
-    exit(1);
-  }
-
-  if (hash_table[idx]) {  /* Something, add on end */
-
-    hash_ent2 = hash_table[idx];
-
-    while (hash_ent2 -> next != NULL)
-      hash_ent2 = hash_ent2 -> next;
-
-    hash_ent2 -> next = hash_ent;     /* Bad in pathalogical cases */
-
-  }
-  else {
-
-    hash_table[idx] = hash_ent;
-
-  }
-
-}
+static dissector_table_t udp_dissector_table;
 
 void init_dissect_udp(void) {
 
-  int i;
-
-  for (i = 0; i < 256; i++) {
-
-    hash_table[i] = NULL;
-
-  }
+  udp_dissector_table = register_dissector_table(hf_udp_port);
 
   /* Now add the protocols we know about */
 
-  udp_hash_add(UDP_PORT_BOOTPS, dissect_bootp);
-  udp_hash_add(UDP_PORT_TFTP, dissect_tftp);
-  udp_hash_add(UDP_PORT_SAP, dissect_sap);
-  udp_hash_add(UDP_PORT_HSRP, dissect_hsrp);
-  udp_hash_add(UDP_PORT_PIM_RP_DISC, dissect_auto_rp);
-  udp_hash_add(UDP_PORT_TACACS, dissect_tacacs);
-  udp_hash_add(UDP_PORT_DHIS1, dissect_dhis);
-  udp_hash_add(UDP_PORT_DHIS2, dissect_dhis);
+  dissector_add("udp.port", UDP_PORT_BOOTPS, dissect_bootp);
+  dissector_add("udp.port", UDP_PORT_TFTP, dissect_tftp);
+  dissector_add("udp.port", UDP_PORT_SAP, dissect_sap);
+  dissector_add("udp.port", UDP_PORT_HSRP, dissect_hsrp);
+  dissector_add("udp.port", UDP_PORT_PIM_RP_DISC, dissect_auto_rp);
+  dissector_add("udp.port", UDP_PORT_TACACS, dissect_tacacs);
+  dissector_add("udp.port", UDP_PORT_DHIS1, dissect_dhis);
+  dissector_add("udp.port", UDP_PORT_DHIS2, dissect_dhis);
 }
 
 void
 dissect_udp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   e_udphdr  uh;
   guint16    uh_sport, uh_dport, uh_ulen, uh_sum;
-  struct hash_struct *dissect_routine = NULL;
+  dissector_t dissect_routine;
   proto_tree *udp_tree;
   proto_item *ti;
 
@@ -334,7 +259,7 @@ dissect_udp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
       dissect_vines_frp(pd, offset, fd, tree);
   } else if (PORT_IS(UDP_PORT_TFTP)) {
       /* This is the first point of call, but it adds a dynamic call */
-      udp_hash_add(MAX(uh_sport, uh_dport), dissect_tftp);  /* Add to table */
+      dissector_add("udp.port", MAX(uh_sport, uh_dport), dissect_tftp);  /* Add to table */
       dissect_tftp(pd, offset, fd, tree);
   } else if (PORT_IS(UDP_PORT_TIME)) {
       dissect_time(pd, offset, fd, tree);
@@ -354,21 +279,21 @@ dissect_udp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
  } else {
       /* OK, find a routine in the table, else use the default */
 
-      if ((dissect_routine = udp_find_hash_ent(uh_sport))) {
+      if ((dissect_routine = dissector_lookup(udp_dissector_table, uh_sport))) {
 
-	struct hash_struct *dr2 = udp_find_hash_ent(uh_dport);
+	dissector_t dr2 = dissector_lookup(udp_dissector_table, uh_dport);
 
 	if (dr2 == NULL) {  /* Not in the table, add */
 
-	  udp_hash_add(uh_dport, dissect_tftp);
+	  dissector_add("udp.port", uh_dport, dissect_tftp);
 
 	}
 
-	dissect_routine -> dissect(pd, offset, fd, tree);
+	(*dissect_routine)(pd, offset, fd, tree);
       }
-      else if ((dissect_routine = udp_find_hash_ent(uh_dport))) {
+      else if ((dissect_routine = dissector_lookup(udp_dissector_table, uh_dport))) {
 
-	dissect_routine -> dissect(pd, offset, fd, tree);
+	(*dissect_routine)(pd, offset, fd, tree);
 
       }
       else {

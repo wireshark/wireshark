@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.175 2000/03/26 06:57:41 sharpe Exp $
+ * $Id: packet.h,v 1.176 2000/04/03 09:24:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -211,6 +211,24 @@ typedef struct true_false_string {
 } true_false_string;
 
 
+/* types for sub-dissector lookup */
+typedef void (*dissector_t)(const u_char *, int, frame_data *, proto_tree *);
+
+/* a protocol uses the function to register its sub-dissector table */
+dissector_table_t register_dissector_table( int proto_id);
+
+/* dissector lookup routine.  called by protocol dissector to find a sub-dissector */
+dissector_t dissector_lookup( dissector_table_t table, guint32 pattern);
+
+/* Add a sub-dissector to a dissector table.  Called by the protocol routine */
+/* that wants to register a sub-dissector.  */
+void dissector_add( char *abbrev, guint32 pattern, dissector_t dissector);
+
+/* Add a sub-dissector to a dissector table.  Called by the protocol routine */
+/* that wants to de-register a sub-dissector.  */
+void dissector_delete( char *abbrev, guint32 pattern, dissector_t dissector);
+
+
 /* Many of the structs and definitions below and in packet-*.c files
  * were taken from include files in the Linux distribution. */
 
@@ -276,8 +294,6 @@ void init_all_protocols(void);
 
 void init_dissect_rpc(void);
 void init_dissect_udp(void);
-
-typedef void	(*DissectFunc)	(const u_char*, int, frame_data*, proto_tree*);
 
 /*
  * Routines should take four args: packet data *, offset, frame_data *,

@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.56 2000/03/14 06:03:25 guy Exp $
+ * $Id: proto.c,v 1.57 2000/04/03 09:24:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -71,10 +71,6 @@
 
 static gboolean
 proto_tree_free_node(GNode *node, gpointer data);
-
-static struct header_field_info*
-find_hfinfo_record(int hfindex);
-
 
 static void fill_label_boolean(field_info *fi, gchar *label_str);
 static void fill_label_uint(field_info *fi, gchar *label_str);
@@ -250,14 +246,29 @@ proto_tree_free_node(GNode *node, gpointer data)
 	return FALSE; /* FALSE = do not end traversal of GNode tree */
 }	
 
-/* Finds a record in the hf_info_records array. */
-static struct header_field_info*
+/* Finds a record in the hf_info_records array by id. */
+struct header_field_info*
 find_hfinfo_record(int hfindex)
 {
 	g_assert(hfindex >= 0 && hfindex < gpa_hfinfo->len);
 	return g_ptr_array_index(gpa_hfinfo, hfindex);
 }
 
+/* Finds a dissector table by field name. */
+dissector_table_t
+find_dissector_table(const char *name)
+{
+	header_field_info	*hfinfo;
+	int			i, len;
+
+	len = gpa_hfinfo->len;
+	for (i = 0; i < len ; i++) {
+		hfinfo = find_hfinfo_record(i);
+		if (strcmp(name, hfinfo->abbrev) == 0)
+			return hfinfo->sub_dissectors;
+	}
+	return NULL;
+}
 
 /* Add a node with no text */
 proto_item *
@@ -929,6 +940,8 @@ proto_register_protocol(char *name, char *abbrev)
 	hfinfo->bitshift = 0;
 	hfinfo->blurb = "";
 	hfinfo->parent = -1; /* this field differentiates protos and fields */
+
+	hfinfo->sub_dissectors = NULL;	/* clear sub-dissector table pointer */
 
 	return proto_register_field_init(hfinfo, hfinfo->parent);
 }
