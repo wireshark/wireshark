@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.182 2003/05/04 18:50:51 gerald Exp $
+ * $Id: tethereal.c,v 1.183 2003/05/14 10:31:15 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1432,6 +1432,7 @@ report_counts(void)
 static void
 report_counts_siginfo(int signum _U_)
 {
+  int sav_errno = errno;
   /* If we've been told to delay printing, just set a flag asking
      that we print counts (if we're supposed to), otherwise print
      the count of packets captured (if we're supposed to). */
@@ -1439,6 +1440,7 @@ report_counts_siginfo(int signum _U_)
     infoprint = TRUE;
   else
     report_counts();
+  errno = sav_errno;
 }
 #endif /* SIGINFO */
 #endif /* HAVE_LIBPCAP */
