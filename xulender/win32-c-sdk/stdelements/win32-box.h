@@ -37,7 +37,7 @@ win32_element_t * win32_box_add_hwnd(win32_element_t *box, HWND h_wnd, int pos);
 
 /* Add a splitter to a box */
 /* Changes the box element size values */
-win32_element_t * win32_box_add_splitter(win32_element_t *box, int pos);
+win32_element_t * win32_box_add_splitter(win32_element_t *box, int pos, win32_box_orient_t orientation);
 
 /*
  * Resize the contents of the given box to fit inside the given window.

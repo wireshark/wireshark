@@ -822,9 +822,67 @@ def win32_gen_spacer(node):
 def win32_gen_splitter(node):
     cur_cf.write_body('''
     /* Begin <splitter> */
-    win32_box_add_splitter(cur_box, -1);
+    win32_box_add_splitter(cur_box, -1, cur_box->orient);
     /* End <splitter> */
 ''')
+
+
+#
+# <statusbar>
+# Which is really an <hbox>.
+# XXX - Do we need to force the contents to a particular set of elements,
+#       e.g. <statusbarpanel>s and <splitter>s?
+#
+
+def win32_gen_statusbar(node):
+
+    cur_cf.write_body('''
+    /* Begin <statusbar> */
+    cur_el = win32_hbox_new(NULL, cur_box->h_wnd);
+    win32_box_add(cur_box, cur_el, -1);
+''')
+
+    get_element_attributes(node)
+
+    cur_cf.write_body('''
+    box_stack = g_list_prepend(box_stack, cur_box);
+    cur_box = cur_el;
+''')
+
+def win32_gen_hbox_end(node):
+    cur_cf.write_body('''
+    box_stack = g_list_first(box_stack);
+    cur_box = (win32_element_t *) box_stack->data;
+    box_stack = g_list_remove(box_stack, cur_box);
+    /* End <statusbar> */
+''')
+
+#
+# <statusbarpanel>
+#
+def win32_gen_statusbarpanel(node):
+    text = ""
+    lines = []
+    for child in node.childNodes:
+	if child.nodeType == node.TEXT_NODE:
+	    lines.append(child.data.strip())
+	text = string.join(lines, '')
+	text = text.replace('\n', '')
+	print 'text: ' + text
+
+    cur_cf.write_body('''
+    /* Begin <statusbarpanel> */
+    cur_el = win32_statusbarpanel_new(cur_box->h_wnd, "%(text)s");
+    win32_box_add(cur_box, cur_el, -1);
+''' % {'text': text})
+
+    get_element_attributes(node)
+
+    cur_cf.write_body('''
+    win32_statusbarpanel_apply_styles(cur_el);
+    /* End <statusbarpanel> */
+''')
+
 
 #
 # <textbox>

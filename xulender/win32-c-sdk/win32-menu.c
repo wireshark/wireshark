@@ -18,6 +18,7 @@
 #include "win32-c-sdk.h"
 #include "win32-globals.h"
 #include "win32-menu.h"
+#include "win32-statusbar.h"
 
 #include "generated/ethereal-main.h"
 
@@ -181,7 +182,7 @@ void set_menus_for_capture_file(gboolean have_capture_file) {
     EnableMenuItem(file_menu, IDM_ETHEREAL_MAIN_EXPORT_FILE, enable | MF_BYCOMMAND);
     EnableMenuItem(file_menu, IDM_ETHEREAL_MAIN_VIEW_RELOAD, enable | MF_BYCOMMAND);
 
-//    packets_bar_update();
+    packets_bar_update();
 }
 
 /* Enable or disable menu items based on whether you have an unsaved
@@ -252,7 +253,7 @@ void set_menus_for_captured_packets(gboolean have_captured_packets) {
 //    walk_menu_tree_for_captured_packets(tap_menu_tree_root,
 //	have_captured_packets);
 //    set_toolbar_for_captured_packets(have_captured_packets);
-//    packets_bar_update();
+    packets_bar_update();
 }
 
 /*
@@ -303,7 +304,7 @@ void set_menus_for_selected_packet(capture_file *cf) {
 
 //    walk_menu_tree_for_selected_packet(tap_menu_tree_root, cf->current_frame,
 //	cf->edt);
-//    packets_bar_update();
+    packets_bar_update();
 
 }
 

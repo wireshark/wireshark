@@ -473,21 +473,8 @@
 
   </menubar>
 
-  <vbox
-    flex="1"
-  >
+  <vbox flex="1">
 
-    <ethereal:packetlist flex="1" />
-
-    <splitter />
-
-    <ethereal:treeview id="main-treeview" flex="1" />
-
-    <splitter />
-
-    <ethereal:byteview id="main-byteview" flex="1" />
-
-    <!-- Should we use a statusbar instead? -->
     <hbox>
       <button label="Filter:" />
       <ethereal:combobox id="dfilter-entry" flex="1"/>
@@ -499,10 +486,23 @@
         label="Apply"
         oncommand="filter_apply_cb"
       />
-<!--
-      <textbox readonly="True" id="statusbar" />
--->
     </hbox>
+
+    <ethereal:packetlist flex="1" />
+
+    <splitter />
+
+    <ethereal:treeview id="main-treeview" flex="1" />
+
+    <splitter />
+
+    <ethereal:byteview id="main-byteview" flex="1" />
+
+    <statusbar>
+      <statusbarpanel id="main-info-bar" flex="1" />
+      <splitter />
+      <statusbarpanel id="main-packets-bar" flex="1" />
+    </statusbar>
 
   </vbox>
 

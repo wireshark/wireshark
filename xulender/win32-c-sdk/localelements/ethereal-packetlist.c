@@ -125,8 +125,9 @@ static LRESULT CALLBACK
 ethereal_packetlist_wnd_proc(HWND hw_packetlist_pane, UINT msg,
 	WPARAM w_param, LPARAM l_param) {
     LV_COLUMN col;
-    int i;
-    LRESULT ret;
+    int       i;
+    LRESULT   ret;
+    SIZE      sz;
 
     switch (msg) {
 	case WM_CREATE:
@@ -179,8 +180,10 @@ ethereal_packetlist_wnd_proc(HWND hw_packetlist_pane, UINT msg,
 	    /* XXX - Set width and justification */
 	    col.mask = LVCF_FMT | LVCF_SUBITEM | LVCF_TEXT | LVCF_WIDTH;
 	    col.fmt = LVCFMT_LEFT;
-	    col.cx = 120;
 	    for (i = 0; i < cfile.cinfo.num_cols; i++) {
+		win32_get_text_size(g_hw_packetlist,
+			get_column_longest_string(get_column_format(i)), &sz);
+		col.cx = sz.cx + 20; // Arbitrary padding value
 		col.pszText = cfile.cinfo.col_title[i];
 		ListView_InsertColumn(g_hw_packetlist, i, &col);
 	    }

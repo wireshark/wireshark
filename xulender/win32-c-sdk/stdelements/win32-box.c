@@ -20,9 +20,7 @@
  * Box and splitter WndProcs
  */
 static LRESULT CALLBACK win32_box_wnd_proc(HWND, UINT, WPARAM, LPARAM);
-static LRESULT CALLBACK win32_splitter_wnd_proc(HWND, UINT, WPARAM, LPARAM, win32_box_orient_t);
-static LRESULT CALLBACK win32_splitter_wnd_proc_h(HWND, UINT, WPARAM, LPARAM);
-static LRESULT CALLBACK win32_splitter_wnd_proc_v(HWND, UINT, WPARAM, LPARAM);
+static LRESULT CALLBACK win32_splitter_wnd_proc(HWND, UINT, WPARAM, LPARAM);
 
 /*
  * Given a box, return its contents' cumulative "flex" value.
@@ -47,11 +45,11 @@ static LRESULT win32_splitter_mouse_move(HWND, UINT, WPARAM, LPARAM);
 #define EWC_BOX_PANE "BoxPane"
 #define EWC_SPLITTER_H "SplitterHorizontal"
 #define EWC_SPLITTER_V "SplitterVertical"
-#define BOX_SPLITTER_GAP 3	/* Splitter size in pixels */
+#define BOX_SPLITTER_GAP 4	/* Splitter size in pixels */
 
 /* Globals */
 /* XXX - These could probably be moved to win32_element_t */
-static int  y_old = -4, y_orig;
+static int  y_old = -4, y_orig, x_old = -4, x_orig;
 static BOOL splitter_drag_mode = FALSE;
 static win32_element_t *cur_splitter = NULL;
 
@@ -195,8 +193,8 @@ win32_box_add_hwnd(win32_element_t *box, HWND h_wnd, int pos) {
 }
 
 win32_element_t *
-win32_box_add_splitter(win32_element_t *box, int pos) {
-    win32_element_t *box_el;
+win32_box_add_splitter(win32_element_t *box, int pos, win32_box_orient_t orientation) {
+    win32_element_t *splitter;
     HINSTANCE        h_instance;
     WNDCLASS         wc;
     LPCSTR           name;
@@ -210,23 +208,23 @@ win32_box_add_splitter(win32_element_t *box, int pos) {
 	horizontal = TRUE;
     }
 
-    box_el = win32_element_new(NULL);
-    box_el->type = BOX_SPLITTER;
+    splitter = win32_element_new(NULL);
+    splitter->type = BOX_SPLITTER;
+    splitter->orient = box->orient;
 
     h_instance = (HINSTANCE) GetWindowLong(box->h_wnd, GWL_HINSTANCE);
 
     if (horizontal) {
 	name = EWC_SPLITTER_H;
 	wc.hCursor = LoadCursor(NULL, IDC_SIZEWE);
-	wc.lpfnWndProc = win32_splitter_wnd_proc_h;
     } else {
 	name = EWC_SPLITTER_V;
 	wc.hCursor = LoadCursor(NULL, IDC_SIZENS);
-	wc.lpfnWndProc = win32_splitter_wnd_proc_v;
     }
     if (! GetClassInfo(h_instance, name, &wc)) {
 	wc.lpszClassName = name;
 	wc.style = CS_HREDRAW | CS_VREDRAW | CS_PARENTDC;
+	wc.lpfnWndProc = win32_splitter_wnd_proc;
 	wc.cbClsExtra = 0;
 	wc.cbWndExtra = 0;
 	wc.hInstance = h_instance;
@@ -237,7 +235,7 @@ win32_box_add_splitter(win32_element_t *box, int pos) {
 	RegisterClass(&wc);
     }
 
-    box_el->h_wnd = CreateWindow(
+    splitter->h_wnd = CreateWindow(
 	name,
 	name,
 	WS_CHILD | WS_VISIBLE,
@@ -247,32 +245,32 @@ win32_box_add_splitter(win32_element_t *box, int pos) {
 	h_instance,
 	(LPSTR) NULL);
 
-    ShowWindow(box_el->h_wnd, SW_SHOW);
-    UpdateWindow(box_el->h_wnd);
+    ShowWindow(splitter->h_wnd, SW_SHOW);
+    UpdateWindow(splitter->h_wnd);
 
     /* Attach the box address to our HWND. */
-    SetWindowLong(box_el->h_wnd, GWL_USERDATA, (LONG) box_el);
+    SetWindowLong(splitter->h_wnd, GWL_USERDATA, (LONG) splitter);
 
-    win32_box_add(box, box_el, pos);
+    win32_box_add(box, splitter, pos);
 
     /* Sizes must be specified _after_ win32_box_add(). */
     /* XXX - Do splitters care about direction and cropping? */
-    box_el->dir = BOX_DIR_LTR;
-    box_el->crop = BOX_CROP_NONE;
-    box_el->flex = 0.0;
-    box_el->flexgroup = 0;
+    splitter->dir = BOX_DIR_LTR;
+    splitter->crop = BOX_CROP_NONE;
+    splitter->flex = 0.0;
+    splitter->flexgroup = 0;
 
     if (horizontal) {
-	box_el->minwidth = BOX_SPLITTER_GAP;
-	box_el->maxwidth = BOX_SPLITTER_GAP;
-	box_el->minheight = 0;
+	splitter->minwidth  = BOX_SPLITTER_GAP - 1;
+	splitter->maxwidth  = BOX_SPLITTER_GAP - 1;
+	splitter->minheight = 0;
     } else {
-	box_el->minheight = BOX_SPLITTER_GAP;
-	box_el->maxheight = BOX_SPLITTER_GAP;
-	box_el->minwidth = 0;
+	splitter->minheight = BOX_SPLITTER_GAP - 1;
+	splitter->maxheight = BOX_SPLITTER_GAP - 1;
+	splitter->minwidth  = 0;
     }
 
-    return box_el;
+    return splitter;
 }
 
 /*
@@ -304,10 +302,8 @@ win32_element_resize (win32_element_t *el, int set_width, int set_height) {
     GetWindowRect(el->h_wnd, &wr);
     GetClientRect(el->h_wnd, &cr);
     if (GetParent(el->h_wnd) != NULL) { /* We're a client window. */
-	pt.x = wr.left;
-	pt.y = wr.top;
-	ScreenToClient(el->h_wnd, &pt);
-	MoveWindow(el->h_wnd, pt.x, pt.y, set_width, set_height, TRUE);
+	SetWindowPos(el->h_wnd, HWND_TOP, 0, 0, set_width, set_height,
+		SWP_NOACTIVATE | SWP_NOZORDER | SWP_NOMOVE);
     } else if (force_top) {
 	MoveWindow(el->h_wnd, wr.left, wr.top,
 	    set_width + (wr.right - wr.left) - (cr.right - cr.left),
@@ -327,6 +323,8 @@ win32_element_resize (win32_element_t *el, int set_width, int set_height) {
 	return;
 
     /* Otherwise, we have a box.  Proceed through its contents. */
+
+    /* Shave off the groupbox frame */
     if (el->type == BOX_GROUPBOX) {
 	set_width -= win32_groupbox_extra_width(el);
 	set_height -= win32_groupbox_extra_height(el);
@@ -431,8 +429,7 @@ win32_box_wnd_proc(HWND hw_box, UINT msg, WPARAM w_param, LPARAM l_param) {
 }
 
 static LRESULT CALLBACK
-win32_splitter_wnd_proc(HWND hw_splitter, UINT msg,
-	WPARAM w_param, LPARAM l_param, win32_box_orient_t orientation) {
+win32_splitter_wnd_proc(HWND hw_splitter, UINT msg, WPARAM w_param, LPARAM l_param) {
 
     switch (msg) {
 	case WM_LBUTTONDOWN:
@@ -444,19 +441,6 @@ win32_splitter_wnd_proc(HWND hw_splitter, UINT msg,
     return 0;
 }
 
-static LRESULT CALLBACK
-win32_splitter_wnd_proc_h(HWND hw_splitter, UINT msg, WPARAM w_param, LPARAM l_param) {
-
-    return(win32_splitter_wnd_proc(hw_splitter, msg, w_param, l_param,
-	BOX_ORIENT_HORIZONTAL));
-}
-
-static LRESULT CALLBACK
-win32_splitter_wnd_proc_v(HWND hw_splitter, UINT msg, WPARAM w_param, LPARAM l_param) {
-
-    return(win32_splitter_wnd_proc(hw_splitter, msg, w_param, l_param,
-	BOX_ORIENT_VERTICAL));
-}
 
 /*
  * Given a box, return its contents' cumulative "flex" value.
@@ -592,6 +576,24 @@ win32_splitter_lbutton_down(HWND hwnd, UINT i_msg, WPARAM w_param, LPARAM l_para
     GList *contents;
     int dim = 0;
 
+    /* Find the box we're attached to */
+    box = (win32_element_t *) GetWindowLong(hw_parent, GWL_USERDATA);
+    win32_element_assert (box);
+
+    /* Find our splitter's box element */
+    cur_splitter = NULL;
+    contents = g_list_first(box->contents);
+    while (contents != NULL) {
+	cur_el = (win32_element_t *) contents->data;
+	if (cur_el->type == BOX_SPLITTER && cur_el->h_wnd == hwnd) {
+	    cur_splitter = cur_el;
+	    break;
+	}
+	dim += win32_element_get_height(cur_el);
+	contents = g_list_next(contents);
+    }
+    win32_element_assert(cur_splitter);
+
     pt.x = (short)LOWORD(l_param);  // horizontal position of cursor
     pt.y = (short)HIWORD(l_param);
 
@@ -618,27 +620,16 @@ win32_splitter_lbutton_down(HWND hwnd, UINT i_msg, WPARAM w_param, LPARAM l_para
     SetCapture(hw_parent);
 
     hdc = GetWindowDC(hw_parent);
-    win32_splitter_xor_bar(hdc, 1,pt.y - 2, rect.right-2,4);
+    if (cur_splitter->orient == BOX_ORIENT_HORIZONTAL) {
+	win32_splitter_xor_bar(hdc, pt.x - 2, 1, BOX_SPLITTER_GAP, rect.bottom - 2);
+    } else {
+	win32_splitter_xor_bar(hdc, 1, pt.y - 2, rect.right - 2, BOX_SPLITTER_GAP);
+    }
     ReleaseDC(hw_parent, hdc);
 
     y_old = y_orig = pt.y;
+    x_old = x_orig = pt.x;
 
-    /* Find the box we're attached to */
-    box = (win32_element_t *) GetWindowLong(hw_parent, GWL_USERDATA);
-    win32_element_assert (box);
-
-    /* Find our splitter's box element */
-    cur_splitter = NULL;
-    contents = g_list_first(box->contents);
-    while (contents != NULL) {
-	cur_el = (win32_element_t *) contents->data;
-	if (cur_el->type == BOX_SPLITTER && cur_el->h_wnd == hwnd) {
-	    cur_splitter = cur_el;
-	    return 0;
-	}
-	dim += win32_element_get_height(cur_el);
-	contents = g_list_next(contents);
-    }
     return 0;
 }
 
@@ -654,12 +645,19 @@ win32_splitter_lbutton_up(HWND hwnd, UINT i_msg, WPARAM w_param, LPARAM l_param)
     GList *contents, *tmp_item;
     gint tot_dynamic = 0;
     int dim = 0;
+    gboolean horizontal = FALSE;
 
     pt.x = (short)LOWORD(l_param);  // horizontal position of cursor
     pt.y = (short)HIWORD(l_param);
 
     if(splitter_drag_mode == FALSE)
 	return 0;
+
+    if (cur_splitter == NULL)
+	return 0;
+
+    if (cur_splitter->orient == BOX_ORIENT_HORIZONTAL)
+	horizontal = TRUE;
 
     GetWindowRect(hwnd, &rect);
 
@@ -669,17 +667,27 @@ win32_splitter_lbutton_up(HWND hwnd, UINT i_msg, WPARAM w_param, LPARAM l_param)
 
     OffsetRect(&rect, -rect.left, -rect.top);
 
-    if(pt.y < 0) pt.y = 0;
-    if(pt.y > rect.bottom-4)
-    {
-	pt.y = rect.bottom-4;
-    }
+    if(pt.y < 0)
+	pt.y = 0;
+    if(pt.y > rect.bottom - BOX_SPLITTER_GAP)
+	pt.y = rect.bottom - BOX_SPLITTER_GAP;
+
+    if(pt.x < 0)
+	pt.x = 0;
+    if(pt.x > rect.right - BOX_SPLITTER_GAP)
+	pt.x = rect.right - BOX_SPLITTER_GAP;
 
     hdc = GetWindowDC(hwnd);
-    win32_splitter_xor_bar(hdc, 1, y_old - 2, rect.right-2,4);
+    if (horizontal) {
+	win32_splitter_xor_bar(hdc, pt.x - 2, 1, BOX_SPLITTER_GAP, rect.bottom - 2);
+    } else {
+	win32_splitter_xor_bar(hdc, 1, pt.y - 2, rect.right - 2, BOX_SPLITTER_GAP);
+    }
+
     ReleaseDC(hwnd, hdc);
 
     y_old = pt.y;
+    x_old = pt.x;
 
     splitter_drag_mode = FALSE;
 
@@ -708,15 +716,31 @@ win32_splitter_lbutton_up(HWND hwnd, UINT i_msg, WPARAM w_param, LPARAM l_param)
 		 * of cur_splitter. */
 
 		/* Stay within the bounds of the previous and next items */
-		if (y_old <= dim - win32_element_get_height(prev_el))
-		    y_old = dim - win32_element_get_height(prev_el) + 1;
-		if (y_old >= dim + win32_element_get_height(next_el) - win32_element_get_height(cur_el))
-		    y_old = dim + win32_element_get_height(next_el) - 1;
+		if (horizontal) {
+		    if (x_old <= dim - win32_element_get_width(prev_el))
+			x_old = dim - win32_element_get_width(prev_el) + 1;
+		    if (x_old >= dim + win32_element_get_width(next_el) - win32_element_get_width(cur_el))
+			x_old = dim + win32_element_get_width(next_el) - 1;
 
-		win32_element_set_height(prev_el, win32_element_get_height(prev_el) + y_old - dim);
-		win32_element_set_height(next_el, win32_element_get_height(next_el) + dim - y_old);
+		    win32_element_set_width(prev_el, win32_element_get_width(prev_el) + x_old - dim);
+		    win32_element_set_width(next_el, win32_element_get_width(next_el) + dim - x_old);
+		} else {
+		    if (y_old <= dim - win32_element_get_height(prev_el))
+			y_old = dim - win32_element_get_height(prev_el) + 1;
+		    if (y_old >= dim + win32_element_get_height(next_el) - win32_element_get_height(cur_el))
+			y_old = dim + win32_element_get_height(next_el) - 1;
+
+		    win32_element_set_height(prev_el, win32_element_get_height(prev_el) + y_old - dim);
+		    win32_element_set_height(next_el, win32_element_get_height(next_el) + dim - y_old);
+		}
+
 	    }
-	    dim += win32_element_get_height(cur_el);
+
+	    if (horizontal) {
+		dim += win32_element_get_width(cur_el);
+	    } else {
+		dim += win32_element_get_height(cur_el);
+	    }
 	    contents = g_list_next(contents);
 	}
 
@@ -726,7 +750,11 @@ win32_splitter_lbutton_up(HWND hwnd, UINT i_msg, WPARAM w_param, LPARAM l_param)
 	while (contents != NULL) {
 	    cur_el = (win32_element_t *) contents->data;
 	    if (cur_el->flex > 0.0) {
-		cur_el->flex = (float) (win32_element_get_height(cur_el) * 100.0 / tot_dynamic);
+		if (horizontal) {
+		    cur_el->flex = (float) (win32_element_get_width(cur_el) * 100.0 / tot_dynamic);
+		} else {
+		    cur_el->flex = (float) (win32_element_get_height(cur_el) * 100.0 / tot_dynamic);
+		}
 	    }
 	    contents = g_list_next(contents);
 	}
@@ -744,13 +772,19 @@ win32_splitter_lbutton_up(HWND hwnd, UINT i_msg, WPARAM w_param, LPARAM l_param)
 static LRESULT
 win32_splitter_mouse_move(HWND hwnd, UINT i_msg, WPARAM w_param, LPARAM l_param)
 {
-//	HWND hw_parent = GetParent(hwnd);
-    HDC hdc;
-    RECT rect;
+    HDC      hdc;
+    RECT     rect;
+    POINT    pt;
+    gboolean horizontal = FALSE;
 
-    POINT pt;
+    if (splitter_drag_mode == FALSE)
+	return 0;
 
-    if(splitter_drag_mode == FALSE) return 0;
+    if (cur_splitter == NULL)
+	return 0;
+
+    if (cur_splitter->orient == BOX_ORIENT_HORIZONTAL)
+	horizontal = TRUE;
 
     pt.x = (short)LOWORD(l_param);  // horizontal position of cursor
     pt.y = (short)HIWORD(l_param);
@@ -763,16 +797,28 @@ win32_splitter_mouse_move(HWND hwnd, UINT i_msg, WPARAM w_param, LPARAM l_param)
 
     OffsetRect(&rect, -rect.left, -rect.top);
 
-    if(pt.y < 0) pt.y = 0;
-    if(pt.y > rect.bottom-4)
-    {
-	pt.y = rect.bottom-4;
-    }
-    if(pt.y != y_old && w_param & MK_LBUTTON)
-    {
+    if(pt.y < 0)
+	pt.y = 0;
+    if(pt.y > rect.bottom - BOX_SPLITTER_GAP)
+	pt.y = rect.bottom - BOX_SPLITTER_GAP;
+
+    if(pt.x < 0)
+	pt.x = 0;
+    if(pt.x > rect.right - BOX_SPLITTER_GAP)
+	pt.x = rect.right - BOX_SPLITTER_GAP;
+
+    if (horizontal && pt.x != x_old && w_param & MK_LBUTTON) {
 	hdc = GetWindowDC(hwnd);
-	win32_splitter_xor_bar(hdc, 1, y_old - 2, rect.right-2,4);
-	win32_splitter_xor_bar(hdc, 1,pt.y - 2, rect.right-2,4);
+	win32_splitter_xor_bar(hdc, x_old - 2, 1, BOX_SPLITTER_GAP, rect.bottom - 2);
+	win32_splitter_xor_bar(hdc, pt.x - 2, 1, BOX_SPLITTER_GAP, rect.bottom - 2);
+
+	ReleaseDC(hwnd, hdc);
+
+	x_old = pt.x;
+    } else if (!horizontal && pt.y != y_old && w_param & MK_LBUTTON) {
+	hdc = GetWindowDC(hwnd);
+	win32_splitter_xor_bar(hdc, 1, y_old - 2, rect.right - 2, BOX_SPLITTER_GAP);
+	win32_splitter_xor_bar(hdc, 1, pt.y - 2, rect.right - 2, BOX_SPLITTER_GAP);
 
 	ReleaseDC(hwnd, hdc);
 

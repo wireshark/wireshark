@@ -25,6 +25,7 @@
 #include <epan/filesystem.h>
 #include <epan/epan_dissect.h>
 #include "menu.h"
+#include "statusbar.h"
 
 /* Structures */
 
@@ -288,7 +289,11 @@ ethereal_treeview_notify(HWND hw_treeview, LPARAM l_param, capture_file *cfile) 
     LPNMTREEVIEW     tv_sel;
     field_info      *finfo = NULL;
     const guint8    *byte_data = NULL;
-    guint            byte_len;
+    gchar           *help_str = NULL;
+    gchar            len_str[2+10+1+5+1]; /* ", {N} bytes\0",
+                                             N < 4294967296 */
+    gboolean         has_blurb = FALSE;
+    guint            length = 0, byte_len;
 
     win32_element_assert(treeview);
     td = (treeview_data_t *) win32_element_get_data(treeview, ETHEREAL_TREEVIEW_DATA);
@@ -323,6 +328,53 @@ ethereal_treeview_notify(HWND hw_treeview, LPARAM l_param, capture_file *cfile) 
 
 	    packet_hex_print(td->byteview, byte_data, cfile->current_frame,
 		    finfo, byte_len);
+
+	    /* Copied directly from gtk/main.c:tree_view_selection_changed_cb() */
+	    if (finfo->hfinfo) {
+		if (finfo->hfinfo->blurb != NULL &&
+		    finfo->hfinfo->blurb[0] != '\0') {
+		    has_blurb = TRUE;
+		    length = strlen(finfo->hfinfo->blurb);
+		} else {
+		    length = strlen(finfo->hfinfo->name);
+		}
+		if (finfo->length == 0) {
+		    len_str[0] = '\0';
+		} else if (finfo->length == 1) {
+		    strcpy (len_str, ", 1 byte");
+		} else {
+		    g_snprintf (len_str, sizeof len_str, ", %d bytes", finfo->length);
+		}
+		statusbar_pop_field_msg();      /* get rid of current help msg */
+		if (length) {
+		    help_str = g_strdup_printf("%s (%s)%s",
+			    (has_blurb) ? finfo->hfinfo->blurb : finfo->hfinfo->name,
+			    finfo->hfinfo->abbrev, len_str);
+		    statusbar_push_field_msg(help_str);
+		    g_free(help_str);
+		} else {
+		    /*
+		     * Don't show anything if the field name is zero-length;
+		     * the pseudo-field for "proto_tree_add_text()" is such
+		     * a field, and we don't want "Text (text)" showing up
+		     * on the status line if you've selected such a field.
+		     *
+		     * XXX - there are zero-length fields for which we *do*
+		     * want to show the field name.
+		     *
+		     * XXX - perhaps the name and abbrev field should be null
+		     * pointers rather than null strings for that pseudo-field,
+		     * but we'd have to add checks for null pointers in some
+		     * places if we did that.
+		     *
+		     * Or perhaps protocol tree items added with
+		     * "proto_tree_add_text()" should have -1 as the field index,
+		     * with no pseudo-field being used, but that might also
+		     * require special checks for -1 to be added.
+		     */
+		    statusbar_push_field_msg("");
+		}
+	    }
 
 	    // XXX - Push data to the statusbar
 	    // XXX - Get our bv HWND and data ptr info

@@ -77,11 +77,13 @@
 #include "prefs-dlg.h"
 #include "about-dlg.h"
 #include "find-util.h"
+#include "statusbar.h"
 
 #include "win32-c-sdk.h"
 
 #include "win32-globals.h"
 #include "win32-menu.h"
+#include "win32-statusbar.h"
 #include "capture-util.h"
 #include "color-util.h"
 #include "packet-win-util.h"
@@ -110,6 +112,12 @@ typedef enum {
  * XXX - A single, global cfile keeps us from having multiple files open
  * at the same time.
  */
+
+#ifdef HAVE_LIBPCAP
+#define DEF_READY_MESSAGE " Ready to load or capture"
+#else
+#define DEF_READY_MESSAGE " Ready to load file"
+#endif
 
 capture_file cfile;
 ts_type timestamp_type = RELATIVE;
@@ -1182,6 +1190,10 @@ WinMain( HINSTANCE h_instance, HINSTANCE h_prev_instance, LPSTR lpsz_cmd_line, i
 #endif
 	/* Create and show the main window */
 	g_hw_mainwin = ethereal_main_window_create(h_instance);
+
+
+	statusbar_push_file_msg(DEF_READY_MESSAGE);
+	packets_bar_update();
 
 	/* Read the recent file, as we have the gui now ready for it. */
 	read_recent(&rf_path, &rf_open_errno);

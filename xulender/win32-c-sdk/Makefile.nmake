@@ -64,6 +64,7 @@ STD_OBJECTS = \
 	win32-progressmeter.obj \
 	win32-radio.obj \
 	win32-spacer.obj \
+	win32-statusbarpanel.obj \
 	win32-textbox.obj \
 	win32-tree.obj
 

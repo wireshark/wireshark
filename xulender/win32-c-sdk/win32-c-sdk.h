@@ -17,6 +17,7 @@
 #include "win32-progressmeter.h"
 #include "win32-radio.h"
 #include "win32-spacer.h"
+#include "win32-statusbarpanel.h"
 #include "win32-textbox.h"
 #include "win32-tree.h"
 
