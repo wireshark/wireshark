@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.246 2002/04/22 06:26:08 guy Exp $
+ * $Id: packet-smb.c,v 1.247 2002/04/23 19:19:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -16659,11 +16659,11 @@ proto_register_smb(void)
 	smb_module = prefs_register_protocol(proto_smb, NULL);
 	prefs_register_bool_preference(smb_module, "trans_reassembly",
 		"Reassemble SMB Transaction payload",
-		"Whether the dissector should do reassembly the payload of SMB Transaction commands spanning multiple SMB PDUs",
+		"Whether the dissector should reassemble the payload of SMB Transaction commands spanning multiple SMB PDUs",
 		&smb_trans_reassembly);
 	prefs_register_bool_preference(smb_module, "dcerpc_reassembly",
 		"Reassemble DCERPC over SMB",
-		"Whether the dissector should do reassembly of DCERPC over SMB commands",
+		"Whether the dissector should reassemble DCERPC over SMB commands",
 		&smb_dcerpc_reassembly);
 	register_init_routine(smb_trans_reassembly_init);
 	register_init_routine(smb_dcerpc_reassembly_init);
