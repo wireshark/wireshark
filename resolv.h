@@ -1,7 +1,7 @@
 /* resolv.h
  * Definitions for network object lookup
  *
- * $Id: resolv.h,v 1.7 1999/10/11 03:03:12 guy Exp $
+ * $Id: resolv.h,v 1.8 1999/10/15 03:11:52 itojun Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
@@ -75,5 +75,12 @@ extern void add_host_name(u_int addr, u_char *name);
  * into a numeric IP address value, returning TRUE if it succeeds and
  * FALSE if it fails. */
 gboolean get_host_ipaddr(const char *host, guint32 *addrp);
+
+/*
+ * Translate IPv6 numeric address or FQDN hostname, into binary IPv6 address.
+ * Return TRUE if we succeed and set "*addrp" to that numeric IP address;
+ * return FALSE if we fail.
+ */
+gboolean get_host_ipaddr6(const char *host, struct e_in6_addr *addrp);
 
 #endif /* __RESOLV_H__ */
