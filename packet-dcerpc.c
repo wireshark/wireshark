@@ -3,7 +3,7 @@
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  * Copyright 2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc.c,v 1.140 2003/09/19 05:30:01 tpot Exp $
+ * $Id: packet-dcerpc.c,v 1.141 2003/09/26 04:43:05 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1943,11 +1943,12 @@ dissect_dcerpc_cn_auth (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
     int offset;
 
     /*
-     * Initially set auth_level to -1 to indicate that we haven't
-     * yet seen any authentication level information.
+     * Initially set auth_level and auth_type to zero to indicate that we 
+     * haven't yet seen any authentication level information.
      */
-    auth_info->auth_level = -1;
-
+    auth_info->auth_level = 0;
+    auth_info->auth_type = 0;
+    
     /*
      * The authentication information is at the *end* of the PDU; in
      * request and response PDUs, the request and response stub data
@@ -2696,7 +2697,7 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		proto_tree_add_uint(dcerpc_tree, hf_dcerpc_response_in,
 				    tvb, 0, 0, value->rep_frame);
 	    }
-/*qqq request, broken*/
+
 	    dissect_dcerpc_cn_stub (tvb, offset, pinfo, dcerpc_tree, tree,
 				    hdr, di, &auth_info, alloc_hint,
 				    value->req_frame);
@@ -2799,7 +2800,6 @@ dissect_dcerpc_cn_resp (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		proto_tree_add_time(dcerpc_tree, hf_dcerpc_time, tvb, offset, 0, &ns);
 	    }
 
-/*qqq response ok*/
 	    dissect_dcerpc_cn_stub (tvb, offset, pinfo, dcerpc_tree, tree,
 				    hdr, di, &auth_info, alloc_hint,
 				    value->rep_frame);
