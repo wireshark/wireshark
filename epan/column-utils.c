@@ -58,7 +58,7 @@ col_setup(column_info *col_info, gint num_cols)
   col_info->col_first	= (int *) g_malloc(sizeof(int) * (NUM_COL_FMTS));
   col_info->col_last 	= (int *) g_malloc(sizeof(int) * (NUM_COL_FMTS));
   col_info->col_title	= (gchar **) g_malloc(sizeof(gchar *) * num_cols);
-  col_info->col_data	= (gchar **) g_malloc(sizeof(gchar *) * num_cols);
+  col_info->col_data	= (const gchar **) g_malloc(sizeof(gchar *) * num_cols);
   col_info->col_buf	= (gchar **) g_malloc(sizeof(gchar *) * num_cols);
   col_info->col_fence	= (int *) g_malloc(sizeof(int) * num_cols);
   col_info->col_expr	= (gchar **) g_malloc(sizeof(gchar *) * num_cols);
