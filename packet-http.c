@@ -6,7 +6,7 @@
  * Copyright 2002, Tim Potter <tpot@samba.org>
  * Copyright 1999, Andrew Tridgell <tridge@samba.org>
  *
- * $Id: packet-http.c,v 1.92 2004/01/17 12:51:00 ulfl Exp $
+ * $Id: packet-http.c,v 1.93 2004/01/19 23:57:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -758,6 +758,10 @@ is_http_request_or_reply(const gchar *data, int linelen, http_type_t *type,
 			if (strncmp(data, "GET", index) == 0 ||
 			    strncmp(data, "PUT", index) == 0) {
 				*type = HTTP_REQUEST;
+				isHttpRequestOrReply = TRUE;
+			}
+			else if (strncmp(data, "ICY", index) == 0) {
+				*type = HTTP_RESPONSE;
 				isHttpRequestOrReply = TRUE;
 			}
 			break;
