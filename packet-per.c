@@ -7,7 +7,7 @@ proper helper routines
  * Routines for dissection of ASN.1 Aligned PER
  * 2003  Ronnie Sahlberg
  *
- * $Id: packet-per.c,v 1.15 2003/08/31 00:49:37 guy Exp $
+ * $Id: packet-per.c,v 1.16 2003/09/01 23:47:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -232,6 +232,7 @@ dissect_per_sequence_of(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto
 	proto_tree *tree;
 	guint32 old_offset=offset;
 	guint32 length;
+	proto_tree *etr = NULL;
 
 DEBUG_ENTRY("dissect_per_sequence_of");
 
@@ -240,7 +241,6 @@ DEBUG_ENTRY("dissect_per_sequence_of");
 
 	/* semi-constrained whole number for number of elements */
 	/* each element encoded as 10.9 */
-	proto_tree *etr = NULL;
 
 	if(display_internal_per_fields){
 		etr=tree;
