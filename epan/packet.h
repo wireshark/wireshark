@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.50 2002/02/06 22:19:04 guy Exp $
+ * $Id: packet.h,v 1.51 2002/02/17 00:51:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -205,13 +205,10 @@ extern void dissect_init(void);
 extern void dissect_cleanup(void);
 
 /*
- * Given a tvbuff, a packet_info *, and a length from a packet header,
- * adjust the length of the tvbuff, and the "len" and "captured_len"
- * members of the "packet_info" structure, to reflect the specified
- * length.
+ * Given a tvbuff, and a length from a packet header, adjust the length
+ * of the tvbuff to reflect the specified length.
  */
-extern void set_actual_length(tvbuff_t *tvb, packet_info *pinfo,
-    guint specified_len);
+extern void set_actual_length(tvbuff_t *tvb, guint specified_len);
 
 /* Allow protocols to register "init" routines, which are called before
    we make a pass through a capture file and dissect all its packets

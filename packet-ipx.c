@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-ipx.c,v 1.101 2002/01/24 09:20:48 guy Exp $
+ * $Id: packet-ipx.c,v 1.102 2002/02/17 00:51:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -224,7 +224,7 @@ dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	ipx_length	= tvb_get_ntohs(tvb, 2);
 
 	/* Adjust the tvbuff length to include only the IPX datagram. */
-	set_actual_length(tvb, pinfo, ipx_length);
+	set_actual_length(tvb, ipx_length);
 
 	src_net_node = tvb_get_ptr(tvb, 18, 10);
 	dst_net_node = tvb_get_ptr(tvb, 6,  10);

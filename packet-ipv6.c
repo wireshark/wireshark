@@ -1,7 +1,7 @@
 /* packet-ipv6.c
  * Routines for IPv6 packet disassembly
  *
- * $Id: packet-ipv6.c,v 1.75 2002/01/21 07:36:35 guy Exp $
+ * $Id: packet-ipv6.c,v 1.76 2002/02/17 00:51:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -675,7 +675,7 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   plen = ntohs(ipv6.ip6_plen);
 
   /* Adjust the length of this tvbuff to include only the IPv6 datagram. */
-  set_actual_length(tvb, pinfo, plen + sizeof (struct ip6_hdr));
+  set_actual_length(tvb, plen + sizeof (struct ip6_hdr));
 
   SET_ADDRESS(&pinfo->net_src, AT_IPv6, 16, tvb_get_ptr(tvb, offset + IP6H_SRC, 16));
   SET_ADDRESS(&pinfo->src, AT_IPv6, 16, tvb_get_ptr(tvb, offset + IP6H_SRC, 16));

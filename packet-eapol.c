@@ -1,7 +1,7 @@
 /* packet-eapol.c
  * Routines for EAPOL 802.1X authentication header disassembly
  *
- * $Id: packet-eapol.c,v 1.5 2002/01/21 07:36:34 guy Exp $
+ * $Id: packet-eapol.c,v 1.6 2002/02/17 00:51:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -87,7 +87,7 @@ dissect_eapol(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   len = sizeof(eapolh) + eapolh.eapol_len;
 
-  set_actual_length(tvb, pinfo, len);
+  set_actual_length(tvb, len);
 
   eapol_tree = NULL;
 

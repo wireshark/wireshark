@@ -1,7 +1,7 @@
 /* packet-snaeth.c
  * Routines for SNA-over-Ethernet (Ethernet type 80d5)
  *
- * $Id: packet-snaeth.c,v 1.1 2002/02/17 00:16:19 guy Exp $
+ * $Id: packet-snaeth.c,v 1.2 2002/02/17 00:51:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -75,7 +75,7 @@ dissect_snaeth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * Adjust the length of this tvbuff to include only the SNA-over-
 	 * Ethernet header and data.
 	 */
-	set_actual_length(tvb, pinfo, 3 + len);
+	set_actual_length(tvb, 3 + len);
 
 	/*
 	 * Rest of packet starts with an 802.2 LLC header.

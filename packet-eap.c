@@ -1,7 +1,7 @@
 /* packet-eap.c
  * Routines for EAP Extensible Authentication Protocol header disassembly
  *
- * $Id: packet-eap.c,v 1.6 2002/02/06 22:45:43 guy Exp $
+ * $Id: packet-eap.c,v 1.7 2002/02/17 00:51:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -94,7 +94,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   len = eaph.eap_len;
 
-  set_actual_length(tvb, pinfo, len);
+  set_actual_length(tvb, len);
 
   eap_tree = NULL;
 

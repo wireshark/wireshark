@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.160 2002/02/01 12:04:54 guy Exp $
+ * $Id: packet-ip.c,v 1.161 2002/02/17 00:51:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -846,7 +846,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   len = iph.ip_len;
 
   /* Adjust the length of this tvbuff to include only the IP datagram. */
-  set_actual_length(tvb, pinfo, len);
+  set_actual_length(tvb, len);
 
   hlen = lo_nibble(iph.ip_v_hl) * 4;	/* IP header length, in bytes */
  
