@@ -67,13 +67,14 @@ static gboolean destroy_mate_items(gpointer k _U_, gpointer v, gpointer p _U_) {
 	
 	if (mi->gop_key) g_free(mi->gop_key);
 	if (mi->gog_keys) g_ptr_array_free (mi->gog_keys,TRUE);
-	delete_avpl(mi->avpl,TRUE);
-	
+	if (mi->avpl) delete_avpl(mi->avpl,TRUE);
 	return TRUE;
 }
 
 static gboolean destroy_items_in_cfg(gpointer k _U_, gpointer v, gpointer p _U_) {
 	g_hash_table_foreach_remove(((mate_cfg_item*)v)->items,destroy_mate_items,NULL);
+	((mate_cfg_item*)v)->last_id = 0;
+	return TRUE;
 }
 
 static void delete_mate_runtime_data(mate_runtime_data*  rdat) {	
@@ -113,11 +114,10 @@ extern void initialize_mate_runtime(void) {
 		/* this will be called when the mate's dissector is initialized */
 		dbg_print (dbg,5,dbg_facility,"initialize_mate: entering");
 
-
 		dbg_pdu = &(mc->dbg_pdu_lvl);
 		dbg_gop = &(mc->dbg_gop_lvl);
 		dbg_gog = &(mc->dbg_gog_lvl);
-
+		
 	} else {
 		rd = NULL;
 	}
@@ -131,8 +131,6 @@ static mate_item* new_mate_item(mate_cfg_item* cfg) {
 	
 	it->id = cfg->last_id;
 	it->avpl  = NULL ;
-	it->start  = 0 ;
-	it->end  = 0 ;
 	it->frame  = 0 ;
 	it->next  = NULL ;
 	it->released  = FALSE ;
@@ -150,22 +148,22 @@ static mate_gop* new_gop(mate_cfg_gop* cfg, mate_pdu* pdu, guint8* key) {
 
 	dbg_print (dbg_gop,1,dbg_facility,"new_gop: %s: ``%s:%d''",gop->cfg->name,gop->id,key);
 	
-	gop->avpl = new_avpl("attributes");
+	gop->avpl = new_avpl(cfg->name);
 	
 	gop->gog = NULL;
 	gop->pdus = pdu;
 	gop->last_pdu = pdu;
 	gop->gop_key = key;
 	gop->next = NULL;
-	gop->start_time = pdu->rel_time;
+	gop->start_time = rd->now;
 	gop->release_time = 0.0;
 	gop->last_time = 0.0;
 	
 	pdu->gop = gop;
 	pdu->next = NULL;
 	pdu->is_start = TRUE;
-	pdu->rel_time = 0.0;
-		
+	pdu->time_in_gop = 0.0;
+	
 	return gop;
 }
 
@@ -394,14 +392,11 @@ static void analize_pdu(mate_pdu* pdu) {
 	
 	if (!cfg) return;
 	
-
-	
 	candidate_gop_key_match = cfg->key;
 	
 	if (! candidate_gop_key_match) return;
-	avpl_str = avpl_to_str(candidate_gop_key_match);
-	dbg_print (dbg_gop,1,dbg_facility,"analize_pdu: got candidate key: %s\n",avpl_str);
-	g_free(avpl_str);
+	
+	dbg_print (dbg_gop,3,dbg_facility,"analize_pdu: got candidate key\n");
 	
 	gopkey_match = new_avpl_exact_match("",pdu->avpl,candidate_gop_key_match, TRUE);
 	
@@ -411,16 +406,12 @@ static void analize_pdu(mate_pdu* pdu) {
 		candidate_start = cfg->start;
 		
 		if (candidate_start) {
-			avpl_str = avpl_to_str(candidate_start);
-			dbg_print (dbg_gop,1,dbg_facility,"analize_pdu: got candidate start: %s\n",avpl_str);
-			g_free(avpl_str);
+			dbg_print (dbg_gop,2,dbg_facility,"analize_pdu: got candidate start\n");
 			is_start = new_avpl_exact_match("",pdu->avpl, candidate_start, FALSE);
 		}
 		
 		if (is_start) {
-			avpl_str = avpl_to_str(is_start);
-			dbg_print (dbg_gop,1,dbg_facility,"analize_pdu: got start match: %s\n",avpl_str);
-			g_free(avpl_str);
+			dbg_print (dbg_gop,2,dbg_facility,"analize_pdu: got start match\n");
 			delete_avpl(is_start,FALSE);	
 		}
 		
@@ -431,13 +422,10 @@ static void analize_pdu(mate_pdu* pdu) {
 			
 			gop_key = orig_gop_key;
 			
-			dbg_print (dbg_gop,1,dbg_facility,"analize_pdu: got gop: %s\n",gop_key);
+			dbg_print (dbg_gop,2,dbg_facility,"analize_pdu: got gop: %s\n",gop_key);
 			
 			if (is_start) {
 				if ( gop->released ) {
-					
-					dbg_print (dbg_gop,1,dbg_facility,"analize_pdu: new gop on released key before key expiration\n");
-
 					g_hash_table_remove(rd->gops,gop_key);
 					gop = new_gop(cfg,pdu,gop_key);
 					g_hash_table_insert(rd->gops,gop_key,gop);
@@ -452,7 +440,8 @@ static void analize_pdu(mate_pdu* pdu) {
 			if (gop->last_pdu) gop->last_pdu->next = pdu;
 			gop->last_pdu = pdu;
 			pdu->next = NULL;
-			pdu->rel_time -= gop->start_time;
+			pdu->time_in_gop = rd->now - gop->start_time;
+			
 			if (gop->released) pdu->after_release = TRUE;
 			
 		} else {
@@ -599,7 +588,6 @@ static mate_pdu* new_pdu(mate_cfg_pdu* cfg, guint32 framenum, field_info* proto,
 	dbg_print (dbg_pdu,2,dbg_facility,"new_pdu: type=%s framenum=%i\n",cfg->name,framenum);
 		
 	pdu->avpl = new_avpl(cfg->name);
-	pdu->cfg = cfg;
 	pdu->gop = NULL;
 	pdu->next_in_frame = NULL;
 	pdu->next = NULL;
@@ -607,10 +595,9 @@ static mate_pdu* new_pdu(mate_cfg_pdu* cfg, guint32 framenum, field_info* proto,
 	pdu->is_start = FALSE;
 	pdu->is_stop = FALSE;
 	pdu->after_release = FALSE;
-	pdu->start = proto->start;
-	pdu->end = pdu->start + proto->length;
 	pdu->frame = framenum;
 	pdu->rel_time = rd->now;
+	pdu->time_in_gop = -1.0;
 	
 	data.ranges = g_ptr_array_new();
 	data.pdu  = pdu;
@@ -618,8 +605,8 @@ static mate_pdu* new_pdu(mate_cfg_pdu* cfg, guint32 framenum, field_info* proto,
 	
 	/* first we create the proto range */
 	proto_range = g_malloc(sizeof(mate_range));
-	proto_range->start = pdu->start;
-	proto_range->end = pdu->end;
+	proto_range->start = proto->start;
+	proto_range->end = proto->start + proto->length;
 	g_ptr_array_add(data.ranges,proto_range);
 	
 	dbg_print(dbg_pdu,3,dbg_facility,"new_pdu: proto range %u-%u\n",proto_range->start,proto_range->end);
@@ -651,8 +638,8 @@ static mate_pdu* new_pdu(mate_cfg_pdu* cfg, guint32 framenum, field_info* proto,
 				
 				dbg_print(dbg_pdu,3,dbg_facility,"new_pdu: transport(%i) range %i-%i\n",hfid,range->start,range->end);
 			} else {
-				
-				/* what do I do if I miss a range? */
+				/* what to do if we miss a range? */
+				g_warning("mate: missed a range");
 			}
 			
 		}
@@ -667,6 +654,12 @@ static mate_pdu* new_pdu(mate_cfg_pdu* cfg, guint32 framenum, field_info* proto,
 
 extern int mate_packet(void *prs _U_, proto_tree* tree _U_, epan_dissect_t *edt _U_, void *dummy _U_) {
 	/* nothing to do yet */
+	return 1;
+}
+
+static void delete_mate_pdu(mate_pdu* pdu) {
+	if (pdu->avpl) delete_avpl(pdu->avpl,TRUE);
+	g_mem_chunk_free(rd->mate_items,pdu);	
 }
 
 extern void analyze_frame(packet_info *pinfo, proto_tree* tree) {
@@ -706,9 +699,9 @@ extern void analyze_frame(packet_info *pinfo, proto_tree* tree) {
 							delete_avpl(criterium_match,FALSE);
 						}
 						
-						if ( (criterium_match && cfg->criterium->name == mc->reject ) || ( ! criterium_match && cfg->criterium->name == mc->accept )) {
-							delete_avpl(pdu->avpl,TRUE);
-							g_mem_chunk_free(rd->mate_items,pdu);
+						if ( (criterium_match && cfg->criterium->name == mc->reject ) 
+							 || ( ! criterium_match && cfg->criterium->name == mc->accept )) {
+							delete_mate_pdu(pdu);
 							pdu = NULL;
 							continue;
 						}

@@ -122,12 +122,10 @@ void mate_gop_tree(proto_tree* tree, tvbuff_t *tvb, mate_gop* gop) {
 		proto_tree_add_float(gop_time_tree, gop->cfg->hfid_gop_start_time, tvb, 0, 0, gop->start_time);
 		
 		if (gop->released) { 
-			proto_tree_add_float(gop_time_tree, gop->cfg->hfid_gop_stop_time, tvb, 0, 0, gop->release_time);
-			if (gop->release_time != gop->last_time) {
-				proto_tree_add_float(gop_time_tree, gop->cfg->hfid_gop_last_time, tvb, 0, 0, gop->last_time); 
-			}
+			proto_tree_add_float(gop_time_tree, gop->cfg->hfid_gop_stop_time, tvb, 0, 0, gop->release_time - gop->start_time);
+			proto_tree_add_float(gop_time_tree, gop->cfg->hfid_gop_last_time, tvb, 0, 0, gop->last_time - gop->start_time); 
 		} else {
-			proto_tree_add_float(gop_time_tree, gop->cfg->hfid_gop_last_time, tvb, 0, 0, gop->last_time); 
+			proto_tree_add_float(gop_time_tree, gop->cfg->hfid_gop_last_time, tvb, 0, 0, gop->last_time - gop->start_time); 
 		}
 	}
 
@@ -148,26 +146,26 @@ void mate_gop_tree(proto_tree* tree, tvbuff_t *tvb, mate_gop* gop) {
 										   tvb,0,0,gop_pdus->frame,
 										   "Stop PDU: in frame %i (%f : %f)",
 										   gop_pdus->frame,
-										   gop_pdus->rel_time,
-										   gop_pdus->rel_time-rel_time);
+										   gop_pdus->time_in_gop,
+										   gop_pdus->time_in_gop-rel_time);
 				
 			} else if (gop_pdus->after_release) {
 				proto_tree_add_uint_format(gop_pdu_tree,gop->cfg->hfid_gop_pdu,
 										   tvb,0,0,gop_pdus->frame,
 										   "After stop PDU: in frame %i (%f : %f)",
 										   gop_pdus->frame,
-										   gop_pdus->rel_time,
-										   gop_pdus->rel_time-rel_time);
+										   gop_pdus->time_in_gop,
+										   gop_pdus->time_in_gop-rel_time);
 			} else {
 				proto_tree_add_uint_format(gop_pdu_tree,gop->cfg->hfid_gop_pdu,
 										   tvb,0,0,gop_pdus->frame,
 										   "PDU: in frame %i (%f : %f)",
 										   gop_pdus->frame,
-										   gop_pdus->rel_time,
-										   gop_pdus->rel_time-rel_time);
+										   gop_pdus->time_in_gop,
+										   gop_pdus->time_in_gop-rel_time);
 			}
 			
-			rel_time = gop_pdus->rel_time;
+			rel_time = gop_pdus->time_in_gop;
 			
 		}
 	}
@@ -177,7 +175,6 @@ void mate_gop_tree(proto_tree* tree, tvbuff_t *tvb, mate_gop* gop) {
 void mate_pdu_tree(mate_pdu *pdu, tvbuff_t *tvb, proto_tree* tree) {
 	proto_item *pdu_item;
 	proto_tree *pdu_tree;
-	guint32 len;
 	
 	if ( ! pdu ) return;
 	
@@ -194,12 +191,12 @@ void mate_pdu_tree(mate_pdu *pdu, tvbuff_t *tvb, proto_tree* tree) {
 		proto_item_append_text(mate_i," %s:%d",pdu->cfg->name,pdu->id);
 	}
 	
-	len = pdu->end - pdu->start;
-	pdu_item = proto_tree_add_uint(tree,pdu->cfg->hfid,tvb,pdu->start,len,pdu->id);
+	pdu_item = proto_tree_add_uint(tree,pdu->cfg->hfid,tvb,0,0,pdu->id);
 	pdu_tree = proto_item_add_subtree(pdu_item, pdu->cfg->ett);
 	proto_tree_add_float(pdu_tree,pdu->cfg->hfid_pdu_rel_time, tvb, 0, 0, pdu->rel_time);		
 
 	if (pdu->gop) {
+		proto_tree_add_float(pdu_tree,pdu->cfg->hfid_pdu_time_in_gop, tvb, 0, 0, pdu->time_in_gop);		
 		mate_gop_tree(pdu_tree,tvb,pdu->gop);
 
 		if (pdu->gop->gog)
@@ -220,13 +217,10 @@ extern void mate_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	analyze_frame(pinfo,tree);
 
 	if (( pdus = mate_get_pdus(pinfo->fd->num) )) {
-		
-		mate_i = proto_tree_add_text(tree,tvb,0,0,"mate");
-		
-		mate_t = proto_item_add_subtree(mate_i, mc->ett_root);
-		
 		for ( ; pdus; pdus = pdus->next_in_frame) {
-			mate_pdu_tree(pdus,tvb,mate_t);			
+			mate_i = proto_tree_add_text(tree,tvb,0,0,"mate");
+			mate_t = proto_item_add_subtree(mate_i, mc->ett_root);			
+			mate_pdu_tree(pdus,tvb,mate_t);
 		}
 	}
 }

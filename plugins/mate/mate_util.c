@@ -95,15 +95,51 @@ void dbg_print(const guint* which, guint how, FILE* where, guint8* fmt, ... ) {
  *
  *  Initializes the scs hash.
  **/
+ 
+/* Don't call variables "small" or "huge". They are keywords for the MSVC compiler. Rename them to "mate_small" and "mate_huge"*/
+struct _scs_collection {
+	GHashTable* hash;	/* key: a string value: guint number of subscribers */
+	GMemChunk* ctrs;
+	GMemChunk* mate_small;	
+	GMemChunk* medium;
+	GMemChunk* large;
+	GMemChunk* mate_huge;
+	guint8* buf;
+};
 
-void scs_init(GHashTable** hash) {
-	/* key: a string
-	 value: guint number of subscribers */
+extern void destroy_scs_collection(SCS_collection* c) {
+	if ( c->ctrs ) g_mem_chunk_destroy(c->ctrs);
+	if ( c->mate_small ) g_mem_chunk_destroy(c->mate_small);
+	if ( c->medium ) g_mem_chunk_destroy(c->medium);
+	if ( c->large ) g_mem_chunk_destroy(c->large);
+	if ( c->mate_huge ) g_mem_chunk_destroy(c->mate_huge);
+	
+	if (c->hash) g_hash_table_destroy(c->hash);
+}
 
-	if (*hash) g_hash_table_destroy(*hash);
+extern SCS_collection* scs_init(void) {
+	SCS_collection* c = g_malloc(sizeof(SCS_collection));
 
-	*hash =  g_hash_table_new_full(g_str_hash,g_str_equal,g_free,g_free);
-
+	c->hash =  g_hash_table_new(g_str_hash,g_str_equal);
+	
+	c->ctrs = g_mem_chunk_new("ints_scs_chunk", sizeof(guint),
+							   sizeof(guint) * SCS_SMALL_CHUNK_SIZE, G_ALLOC_AND_FREE);
+	
+	c->mate_small = g_mem_chunk_new("small_scs_chunk", SCS_SMALL_SIZE,
+							   SCS_SMALL_SIZE * SCS_SMALL_CHUNK_SIZE, G_ALLOC_AND_FREE);
+	
+	c->medium = g_mem_chunk_new("medium_scs_chunk", SCS_MEDIUM_SIZE,
+							   SCS_MEDIUM_SIZE * SCS_MEDIUM_CHUNK_SIZE, G_ALLOC_AND_FREE);
+	
+	c->large = g_mem_chunk_new("large_scs_chunk", SCS_LARGE_SIZE,
+							   SCS_LARGE_SIZE * SCS_LARGE_CHUNK_SIZE, G_ALLOC_AND_FREE);
+	
+	c->mate_huge = g_mem_chunk_new("huge_scs_chunk", SCS_HUGE_SIZE,
+							   SCS_HUGE_SIZE * SCS_HUGE_CHUNK_SIZE, G_ALLOC_AND_FREE);
+	
+	c->buf =  g_mem_chunk_alloc0(c->mate_huge);
+	
+	return c;
 }
 
 
@@ -119,23 +155,45 @@ void scs_init(GHashTable** hash) {
  *
  * Return value: a pointer to the subscribed string.
  **/
-guint8* scs_subscribe(GHashTable* collection, guint8* s) {
-	guint8* ok = NULL;
+guint8* scs_subscribe(SCS_collection* c, guint8* s) {
+	guint8* orig = NULL;
 	guint* ip = NULL;
-
-	g_hash_table_lookup_extended(collection,s,(gpointer*)&ok,(gpointer*)&ip);
+	size_t len = 0;
+	guint8* new = NULL;
+	GMemChunk* chunk = NULL;
+	
+	g_hash_table_lookup_extended(c->hash,s,(gpointer*)&orig,(gpointer*)&ip);
 
 	if (ip) {
 		(*ip)++;
-		s = ok;
+		new = orig;
 	} else {
-		ip = g_malloc(sizeof(int));
+		ip = g_mem_chunk_alloc(c->ctrs);
 		*ip = 0;
-		s = g_strdup(s);
-		g_hash_table_insert(collection,s,ip);
+		
+		len = strlen(s) + 1;
+		if (len <= SCS_SMALL_SIZE) {
+			chunk = c->mate_small;
+		} else if (len <= SCS_MEDIUM_SIZE) {
+			chunk = c->medium;
+		} else if (len <= SCS_LARGE_SIZE) {
+			chunk = c->large;
+		} else if (len < SCS_HUGE_SIZE) {
+			chunk = c->mate_huge;
+		} else {
+			chunk = c->mate_huge;
+			len = SCS_HUGE_SIZE;
+			g_warning("mate SCS: string truncated to huge size");
+		}
+		
+		--len;
+		new = g_mem_chunk_alloc(chunk);
+		strncpy(new,s,len);
+		
+		g_hash_table_insert(c->hash,new,ip);
 	}
 
-	return s;
+	return new;
 }
 
 /**
@@ -146,14 +204,33 @@ guint8* scs_subscribe(GHashTable* collection, guint8* s) {
  * decreases the count of subscribers, if zero frees the internal copy of
  * the string.
  **/
-void scs_unsubscribe(GHashTable* collection, guint8* s) {
-	guint8* ok = NULL;
+void scs_unsubscribe(SCS_collection* c, guint8* s) {
+	guint8* orig = NULL;
 	guint* ip = NULL;
-
-	g_hash_table_lookup_extended(collection,s,(gpointer*)&ok,(gpointer*)&ip);
+	size_t len = 0xffff;
+	GMemChunk* chunk = NULL;
+	
+	g_hash_table_lookup_extended(c->hash,s,(gpointer*)&orig,(gpointer*)&ip);
 
 	if (ip) {
-		if (*ip == 0) g_hash_table_remove(collection,ok);
+		if (*ip == 0) {
+			g_hash_table_remove(c->hash,orig);
+			
+			len = strlen(orig);
+			
+			if (len < SCS_SMALL_SIZE) {
+				chunk = c->mate_small;
+			} else if (len < SCS_MEDIUM_SIZE) {
+				chunk = c->medium;
+			} else if (len < SCS_LARGE_SIZE) {
+				chunk = c->large;
+			} else {
+				chunk = c->mate_huge;
+			} 
+			
+			g_mem_chunk_free(chunk,orig);
+			g_mem_chunk_free(c->ctrs,ip);
+		}
 		else (*ip)--;
 	} else {
 		g_warning("unsusbcribe: already deleted: '%s'?",s);
@@ -169,29 +246,14 @@ void scs_unsubscribe(GHashTable* collection, guint8* s) {
  * Return value: the stored copy of the formated string.
  *
  **/
-extern guint8* scs_subscribe_printf(GHashTable* collection, guint8* fmt, ...) {
+extern guint8* scs_subscribe_printf(SCS_collection* c, guint8* fmt, ...) {
 	va_list list;
-	guint8* ok = NULL;
-	guint8* s = NULL;
-	guint* ip = NULL;
 
 	va_start( list, fmt );
-	s = g_strdup_vprintf(fmt, list);
+	g_vsnprintf(c->buf, SCS_HUGE_SIZE-1 ,fmt, list);
 	va_end( list );
 
-	g_hash_table_lookup_extended(collection,s,(gpointer*)&ok,(gpointer*)&ip);
-
-	if (ip) {
-		(*ip)++;
-		g_free(s);
-		s = ok;
-	} else {
-		ip = g_malloc0(sizeof(int));
-		*ip = 0;
-		g_hash_table_insert(collection,s,ip);
-	}
-
-	return s;
+	return scs_subscribe(c,c->buf);
 }
 
 
@@ -217,7 +279,7 @@ typedef union _any_avp_type {
 
 
 static GMemChunk* avp_chunk = NULL;
-static GHashTable* avp_strings = NULL;
+static SCS_collection* avp_strings = NULL;
 
 #ifdef _AVP_DEBUGGING
 static FILE* dbg_fp = NULL;
@@ -269,7 +331,7 @@ extern void setup_avp_debug(FILE* fp, int* general, int* avp, int* avp_op, int* 
  **/
 extern void avp_init(void) {
 
-	scs_init(&avp_strings);
+	avp_strings = scs_init();
 
 
 	if ( avp_chunk ) {
@@ -893,6 +955,7 @@ extern AVPL* new_avpl_from_avpl(guint8* name, AVPL* avpl, gboolean copy_avps) {
 
 /* BROKEN, makes no sense right now */
 /* FIXME: Use subscribe/unsubscribe */
+#if 0
 static AVP* avp_transform(AVP* src, AVP* op) {
 	unsigned int i;
 	guint8 c;
@@ -985,7 +1048,7 @@ static AVP* avp_transform(AVP* src, AVP* op) {
 	return src;
 }
 
-
+#endif
 
 /**
 * match_avp:

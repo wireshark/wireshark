@@ -168,6 +168,7 @@ typedef struct _mate_cfg_item {
 	avpl_match_mode criterium_match_mode;
 	AVPL* criterium; /* must match to be created */
 	int hfid_pdu_rel_time;
+	int hfid_pdu_time_in_gop;
 	
 	/* gop */
 	AVPL* start; /* start candidate avpl */
@@ -252,11 +253,7 @@ struct _mate_item {
 	mate_cfg_item* cfg; /* the type of this item */
 
 	AVPL* avpl; /* the attributes of the pdu/gop/gog */
-	
-	/* these two have different uses in pdu and gop/gog */
-	gint start; /* start of the pdu in the tvb / framenum of the start of a gop */
-	gint end;  /* end of the pdu in the tvb / framenum of the stop of a gop */
-	
+		
 	mate_item* next; /* in pdu: next in gop; in gop: next in gog; in gog this doesn't make any sense yet */
 	
 	/* union _payload { */
@@ -267,14 +264,14 @@ struct _mate_item {
 			gboolean is_start; /* this is the start pdu for this gop */
 			gboolean is_stop; /* this is the stop pdu for this gop */
 			gboolean after_release; /* this pdu comes after the stop */
-			float rel_time; /* time since gop start if in gop or start of capture if unassigned */
+			float rel_time; /* time since start of capture  */
+			float time_in_gop; /* time since gop start */
 			mate_pdu* next_in_frame; /* points to the next pdu in this frame */
 		/* } pdu; */
 		
 		/* struct _gop { */
 			mate_gog* gog; /* the gog of a gop */
 			mate_pdu* pdus; /* pdus that belong to a gop (NULL in gog) */
-			float expiration; /* when will it expire once released? */
 			gboolean released; /* has this gop been released? */
 			int num_of_pdus; /* how many gops a gog has? */
 			int num_of_after_release_pdus;  /* how many pdus have arrived since it's been released */
@@ -287,6 +284,7 @@ struct _mate_item {
 		
 		/* struct _gog { */
 			mate_gop* gops; /* gops that belong to a gog (NULL in gop) */
+			float expiration; /* when will it expire once released? */
 			int num_of_gops; /* how many gops a gog has? */
 			int num_of_released_gops;  /* how many of them have already been released */
 			guint last_n; /* the number of attributes the avpl had the last time we checked */

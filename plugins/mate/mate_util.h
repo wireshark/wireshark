@@ -42,11 +42,23 @@ extern void dbg_print(const guint* which, guint how, FILE* where, guint8* fmt, .
 
 
 /******* single copy strings *********/
+typedef struct _scs_collection SCS_collection;
 
-extern void scs_init(GHashTable** hash);
-extern guint8* scs_subscribe(GHashTable* collection, guint8* s);
-extern void scs_unsubscribe(GHashTable* collection, guint8* s);
-extern guint8* scs_subscribe_printf(GHashTable* collection, guint8* fmt, ...);
+#define SCS_SMALL_SIZE 16
+#define SCS_MEDIUM_SIZE 256
+#define SCS_LARGE_SIZE 4096
+#define SCS_HUGE_SIZE 65536
+
+#define SCS_SMALL_CHUNK_SIZE 4096
+#define SCS_MEDIUM_CHUNK_SIZE 1024
+#define SCS_LARGE_CHUNK_SIZE 256
+#define SCS_HUGE_CHUNK_SIZE 128
+
+extern void destroy_scs_collection(SCS_collection* c);
+extern SCS_collection* scs_init(void);
+extern guint8* scs_subscribe(SCS_collection* collection, guint8* s);
+extern void scs_unsubscribe(SCS_collection* collection, guint8* s);
+extern guint8* scs_subscribe_printf(SCS_collection* collection, guint8* fmt, ...);
 
 /******* AVPs & Co. *********/
 #define AVP_CHUNK_SIZE 4096

@@ -126,6 +126,7 @@ static mate_cfg_item* new_mate_cfg_item(guint8* name) {
 
 	new->hfid = -1;
 	new->hfid_pdu_rel_time = -1;
+	new->hfid_pdu_time_in_gop = -1;
 	new->my_hfids = g_hash_table_new(g_str_hash,g_str_equal);
 	new->items = g_hash_table_new(g_direct_hash,g_direct_equal);
 
@@ -1188,16 +1189,25 @@ static void analyze_pdu_config(mate_cfg_pdu* cfg) {
 	hfri.hfinfo.display = BASE_DEC;
 
 	g_array_append_val(matecfg->hfrs,hfri);
-
+	
 	hfri.p_id = &(cfg->hfid_pdu_rel_time);
 	hfri.hfinfo.name = g_strdup_printf("%s time",cfg->name);
 	hfri.hfinfo.abbrev = g_strdup_printf("mate.%s.RelativeTime",cfg->name);
 	hfri.hfinfo.type = FT_FLOAT;
 	hfri.hfinfo.display = BASE_DEC;
-	hfri.hfinfo.blurb = "Seconds passed since the start of the GOP or capture if the PDU is unnassigned";
-
+	hfri.hfinfo.blurb = "Seconds passed since the start of capture";
+	
 	g_array_append_val(matecfg->hfrs,hfri);
-
+	
+	hfri.p_id = &(cfg->hfid_pdu_time_in_gop);
+	hfri.hfinfo.name = g_strdup_printf("%s time since begining of Gop",cfg->name);
+	hfri.hfinfo.abbrev = g_strdup_printf("mate.%s.TimeInGop",cfg->name);
+	hfri.hfinfo.type = FT_FLOAT;
+	hfri.hfinfo.display = BASE_DEC;
+	hfri.hfinfo.blurb = "Seconds passed since the start of the GOP";
+	
+	g_array_append_val(matecfg->hfrs,hfri);
+	
 	g_hash_table_foreach(cfg->hfids_attr,analyze_pdu_hfids,cfg);
 
 	ett = &cfg->ett;
@@ -1242,7 +1252,7 @@ static void analyze_gop_config(gpointer k _U_, gpointer v, gpointer p _U_) {
 	g_array_append_val(matecfg->hfrs,hfri);
 
 	hfri.p_id = &(cfg->hfid_gop_last_time);
-	hfri.hfinfo.name = g_strdup_printf("%s current time",cfg->name);
+	hfri.hfinfo.name = g_strdup_printf("%s duration",cfg->name);
 	hfri.hfinfo.abbrev = g_strdup_printf("mate.%s.Duration",cfg->name);
 	hfri.hfinfo.blurb = g_strdup_printf("Time passed between the start of this %s and the last pdu assigned to it",cfg->name);
 
