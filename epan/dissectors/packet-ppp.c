@@ -2384,7 +2384,8 @@ dissect_cbcp_callback_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
   offset += 3;
   length -= 3;
 
-  while (length > 0) {
+  /* XXX - Should we check for a maximum length instead of using a cast? */
+  while ((gint) length > 0) {
     ta = proto_tree_add_text(field_tree, tvb, offset, length,
 			     "Callback Address");
     addr_type = tvb_get_guint8(tvb, offset);
