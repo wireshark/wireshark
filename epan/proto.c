@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.57 2002/03/06 19:17:05 gram Exp $
+ * $Id: proto.c,v 1.58 2002/03/19 08:42:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1730,12 +1730,16 @@ proto_item_append_text(proto_item *pi, const char *format, ...)
 
 	if (fi->visible) {
 		va_start(ap, format);
+
 		/*
-		 * XXX - this will blow up if we haven't already set
-		 * "fi->representation"; that seems OK to me - you
-		 * can't append to something that doesn't exist - but
-		 * there might be cases where that's not convenient.
+		 * If we don't already have a representation,
+		 * generate the default representation.
 		 */
+		if (fi->representation == NULL) {
+			fi->representation = g_mem_chunk_alloc(gmc_item_labels);
+			proto_item_fill_label(fi, fi->representation);
+		}
+
 		curlen = strlen(fi->representation);
 		if (ITEM_LABEL_LENGTH > curlen)
 			vsnprintf(fi->representation + curlen,
