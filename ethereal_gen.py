@@ -1,6 +1,6 @@
 # -*- python -*-
 #
-# $Id: ethereal_gen.py,v 1.3 2001/06/27 20:41:16 guy Exp $
+# $Id: ethereal_gen.py,v 1.4 2001/06/29 20:49:29 guy Exp $
 #
 #                           
 # ethereal_gen.py (part of idl2eth)           
@@ -88,6 +88,8 @@ import tempfile
 # 9. wchar and wstring handling  
 # 10. Support Fixed [started]
 # 11. Support attributes (get/set)
+# 12. Implement IDL "union" code
+#
 
 
 
@@ -997,7 +999,7 @@ static void decode_@sname@(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     template_proto_reg_handoff_start = """
 /* register me as handler for these interfaces */
 
-void proto_register_handoff_@dissector_name@(void) {
+void proto_register_handoff_giop_@dissector_name@(void) {
 
 """
 
@@ -1006,7 +1008,7 @@ void proto_register_handoff_@dissector_name@(void) {
 
 /* Register for Explicit Dissection */
 
-register_giop_user_module(dissect_@dissector_name@, \"@protocol_name@\", \"@interface@\" );     /* explicit dissector */
+register_giop_user_module(dissect_@dissector_name@, \"@protocol_name@\", \"@interface@\", proto_@dissector_name@ );     /* explicit dissector */
 
 #endif
 
@@ -1016,7 +1018,7 @@ register_giop_user_module(dissect_@dissector_name@, \"@protocol_name@\", \"@inte
 
 /* Register for Heuristic Dissection */
 
-register_giop_user(dissect_@dissector_name@, \"@protocol_name@\" );     /* heuristic dissector */ 
+register_giop_user(dissect_@dissector_name@, \"@protocol_name@\" ,proto_@dissector_name@);     /* heuristic dissector */ 
 
 """
 
@@ -1079,7 +1081,7 @@ static guint32  boundary = GIOP_HEADER_SIZE;  /* initial value */
 
 /* Register the protocol with Ethereal */
 
-void proto_register_@dissector_name@(void) {
+void proto_register_giop_@dissector_name@(void) {
 
    /* setup list of header fields */
 
@@ -1097,7 +1099,7 @@ void proto_register_@dissector_name@(void) {
 
    /* Register the protocol name and description */
    
-   proto_@dissector_name@ = proto_register_protocol(\"@description@\" , \"@protocol_name@\", \"@dissector_name@\" );
+   proto_@dissector_name@ = proto_register_protocol(\"@description@\" , \"@protocol_name@\", \"giop-@dissector_name@\" );
 
    proto_register_field_array(proto_@dissector_name@, hf, array_length(hf));
    proto_register_subtree_array(ett,array_length(ett));
@@ -1528,7 +1530,7 @@ for (i_@aname@=0; i_@aname@ < @aval@; i_@aname@++) {
 #
 
     template_main_dissector_start = """\
-gboolean dissect_@dissname@(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset, MessageHeader *header, gchar *operation, gchar *idlname) {
+static gboolean dissect_@dissname@(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset, MessageHeader *header, gchar *operation, gchar *idlname) {
 
     proto_item *ti = NULL;
     proto_tree *tree = NULL;            /* init later, inside if(tree) */

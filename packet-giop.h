@@ -4,7 +4,7 @@
  *
  * Based on CORBAv2.4.2  Chapter 15 GIOP Description.
  *
- * $Id: packet-giop.h,v 1.4 2001/06/27 20:38:56 guy Exp $
+ * $Id: packet-giop.h,v 1.5 2001/06/29 20:49:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -106,7 +106,7 @@ typedef gboolean (giop_sub_dissector_t)(tvbuff_t *, packet_info *, proto_tree *,
 typedef struct giop_sub_handle {
   giop_sub_dissector_t *sub_fn;  /* ptr to sub dissector function */
   gchar *sub_name;	         /* subdissector string name */
-
+  int sub_proto;		/* proto_XXX value from proto_register_protocol() */
 } giop_sub_handle_t;
 
 /* Main GIOP entry point */
@@ -118,7 +118,7 @@ gboolean dissect_giop(tvbuff_t *, packet_info *, proto_tree *); /* new interface
  * This is for heuristic dissection
  */
 
-void register_giop_user(giop_sub_dissector_t *sub, gchar *name);
+void register_giop_user(giop_sub_dissector_t *sub, gchar *name, int sub_proto);
 
 /*
  * GIOP Users remove interest via this function.
@@ -133,7 +133,7 @@ void delete_giop_user(giop_sub_dissector_t *sub, gchar *name);
  * This is for explicit dissection.
  */
 
-void register_giop_user_module(giop_sub_dissector_t *sub, gchar *name, gchar *module);
+void register_giop_user_module(giop_sub_dissector_t *sub, gchar *name, gchar *module, int sub_proto);
 
 /*
  * GIOP Users remove their module and interface names via this function.

@@ -9,7 +9,7 @@
  * Frank Singleton <frank.singleton@ericsson.com>
  * Trevor Shepherd <eustrsd@am1.ericsson.se>
  *
- * $Id: packet-giop.c,v 1.38 2001/06/27 20:38:56 guy Exp $
+ * $Id: packet-giop.c,v 1.39 2001/06/29 20:49:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -674,7 +674,6 @@ struct giop_module_key {
 
 struct giop_module_val {
   giop_sub_handle_t *subh;      /* handle to sub dissector */
-  /* gchar *idlname; */		/* idl dissector name */
 };
 
 GHashTable *giop_module_hash = NULL; /* hash */
@@ -1031,14 +1030,16 @@ static guint32 giop_hash_module_hash(gconstpointer v) {
 
 /*
  * Routine to  allow giop users to register their sub dissector function, name, and
- * IDL module/interface name. Store in giop_module_hash.
+ * IDL module/interface name. Store in giop_module_hash. Also pass along their proto_XXX
+ * value returned from their proto_register_protocol(), so we can enable/disbale it
+ * through the GUI (edit protocols).
  *
  * This is used by try_explicit_giop_dissector() to find the
  * correct sub-dissector.
  *
  */
 
-void register_giop_user_module(giop_sub_dissector_t *sub, gchar *name, gchar *module) {
+void register_giop_user_module(giop_sub_dissector_t *sub, gchar *name, gchar *module, int sub_proto) {
 
   struct giop_module_key module_key, *new_module_key;
   struct giop_module_val *module_val = NULL;
@@ -1067,6 +1068,7 @@ void register_giop_user_module(giop_sub_dissector_t *sub, gchar *name, gchar *mo
 
   module_val->subh->sub_name = name;	/* save dissector name */
   module_val->subh->sub_fn = sub;	/* save subdissector*/
+  module_val->subh->sub_proto = sub_proto;	/* save subdissector's proto_XXX value */
   
   g_hash_table_insert(giop_module_hash, new_module_key, module_val);
 
@@ -1231,9 +1233,12 @@ static guint32 string_to_IOR(guchar *in, guint32 in_len, guint8 **out){
     if ( isxdigit(in[i]) && isxdigit(in[i+1]) ) { /* hex ? */
       
       if ( (tmpval_msb = hex_char_to_val(in[i])) < 0 ) {
+	g_warning("giop: Invalid value in IOR %i \n", tmpval_msb);
+
       }
       
       if ( (tmpval_lsb = hex_char_to_val(in[i+1])) < 0 ) {
+	g_warning("giop: Invalid value in IOR %i \n", tmpval_lsb);
       }
       
       tmpval = tmpval_msb << 4;
@@ -1408,13 +1413,13 @@ static void giop_init(void) {
 
 
 /* 
- * Insert an entry in the GIOP User table.
+ * Insert an entry in the GIOP Heuristic User table.
  * Uses a GList.
  * Uses giop_sub_handle_t to wrap giop user info.
  *
  */
     
-void register_giop_user(giop_sub_dissector_t *sub, gchar *name) {
+void register_giop_user(giop_sub_dissector_t *sub, gchar *name, int sub_proto) {
 
   giop_sub_handle_t *subh;
   
@@ -1422,6 +1427,7 @@ void register_giop_user(giop_sub_dissector_t *sub, gchar *name) {
 
   subh->sub_name = name;
   subh->sub_fn = sub;
+  subh->sub_proto = sub_proto;	/* proto_XXX from sub dissectors's proto_register_protocol() */
 
   giop_sub_list = g_slist_append (giop_sub_list, subh);
  
@@ -1721,6 +1727,8 @@ static void giop_dump_collection(collection_data_t collection_type) {
  * Loop through all  subdissectors, and call them until someone
  * answers (returns TRUE). This function then returns TRUE, otherwise
  * it return FALSE
+ *
+ * But skip a subdissector if it has been disabled in GUI "edit protocols".
  */
 
 static gboolean try_heuristic_giop_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset,
@@ -1737,11 +1745,15 @@ static gboolean try_heuristic_giop_dissector(tvbuff_t *tvb, packet_info *pinfo, 
 
   for (i=0; i<len; i++) {
     subh = (giop_sub_handle_t *) g_slist_nth_data(giop_sub_list,i); /* grab dissector handle */
-    res = (subh->sub_fn)(tvb,pinfo,tree,offset,header,operation,NULL); /* callit TODO - replace NULL */
-    if (res) {
-      return TRUE;		/* found one, lets return */
-    }  
-  }
+
+    if (proto_is_protocol_enabled(subh->sub_proto)) {
+      res = (subh->sub_fn)(tvb,pinfo,tree,offset,header,operation,NULL); /* callit TODO - replace NULL */
+      if (res) {
+	return TRUE;		/* found one, lets return */
+      }  
+    } /* protocol_is_enabled */
+  } /* loop */
+
   return res;			/* result */
 
 }
@@ -1796,13 +1808,18 @@ static gboolean try_explicit_giop_dissector(tvbuff_t *tvb, packet_info *pinfo, p
       add_sub_handle_repoid_to_comp_req_list(pinfo->fd->num,subdiss,repoid);
 
 
-    /* Call subdissector if current offset exists */
+    /* Call subdissector if current offset exists , and dissector is enabled in GUI "edit protocols" */
 
     if (tvb_offset_exists(tvb, *offset)) {   
 #if DEBUG  
       printf("giop:try_explicit_dissector calling sub = %s with module = (%s) \n", subdiss->sub_name  , modname);
 #endif
-      res = (subdiss->sub_fn)(tvb,pinfo,tree,offset,header,operation, modname); /* callit, TODO replace NULL with idlname */
+
+      if (proto_is_protocol_enabled(subdiss->sub_proto)) {
+
+	res = (subdiss->sub_fn)(tvb,pinfo,tree,offset,header,operation, modname); /* callit, TODO replace NULL with idlname */
+
+      }	/* protocol_is_enabled */
     } /* offset exists */
   } /* subdiss */
   
