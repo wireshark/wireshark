@@ -1,7 +1,7 @@
 /* packet-clip.c
  * Routines for clip packet disassembly
  *
- * $Id: packet-clip.c,v 1.8 2000/05/25 14:55:22 gram Exp $
+ * $Id: packet-clip.c,v 1.9 2000/05/25 15:11:11 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -53,6 +53,8 @@ dissect_clip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_item	*ti;
   const guint8	*this_pd;
   int		this_offset;
+
+  pinfo->current = "CLIP";
 
   /* load the top pane info. This should be overwritten by
      the next protocol in the stack */
