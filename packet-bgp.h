@@ -1,7 +1,7 @@
 /* packet-bgp.c
  * Definitions for BGP packet disassembly structures and routine
  *
- * $Id: packet-bgp.h,v 1.22 2002/10/15 17:19:06 guy Exp $
+ * $Id: packet-bgp.h,v 1.23 2003/01/28 05:25:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -41,6 +41,7 @@
 #define BGP_NOTIFICATION	3
 #define BGP_KEEPALIVE		4
 #define BGP_ROUTE_REFRESH       5
+#define BGP_CAPABILITY		6
 #define BGP_ROUTE_REFRESH_CISCO 0x80
 
 /* BGP OPEN message */
@@ -104,6 +105,8 @@ struct bgp_attr {
 #define BGP_CAPABILITY_ROUTE_REFRESH	           2   /* RFC2918 */
 #define BGP_CAPABILITY_COOPERATIVE_ROUTE_FILTERING 3   /* draft-ietf-idr-route-filter-04.txt */
 #define BGP_CAPABILITY_GRACEFUL_RESTART         0x40   /* draft-ietf-idr-restart-05  */
+#define BGP_CAPABILITY_4_OCTET_AS_NUMBER	0x41   /* draft-ietf-idr-as4bytes-06 */
+#define BGP_CAPABILITY_DYNAMIC_CAPABILITY	0x42   /* draft-ietf-idr-dynamic-cap-03 */
 #define BGP_CAPABILITY_ORF_CISCO	        0x82   /* Cisco */
 #define BGP_CAPABILITY_ROUTE_REFRESH_CISCO      0x80   /* Cisco */
 
@@ -131,22 +134,24 @@ struct bgp_attr {
 #define FOURHEXF                     0xFFFF0000
 
 /* attribute types */
-#define BGPTYPE_ORIGIN            1   /* RFC1771          */
-#define BGPTYPE_AS_PATH           2   /* RFC1771          */
-#define BGPTYPE_NEXT_HOP          3   /* RFC1771          */
-#define BGPTYPE_MULTI_EXIT_DISC   4   /* RFC1771          */
-#define BGPTYPE_LOCAL_PREF        5   /* RFC1771          */
-#define BGPTYPE_ATOMIC_AGGREGATE  6   /* RFC1771          */
-#define BGPTYPE_AGGREGATOR        7   /* RFC1771          */
-#define BGPTYPE_COMMUNITIES       8   /* RFC1997          */
-#define BGPTYPE_ORIGINATOR_ID     9   /* RFC2796          */
-#define BGPTYPE_CLUSTER_LIST     10   /* RFC2796          */
-#define BGPTYPE_DPA              11   /* work in progress */
-#define BGPTYPE_ADVERTISER       12   /* RFC1863          */
-#define BGPTYPE_RCID_PATH        13   /* RFC1863          */
-#define BGPTYPE_MP_REACH_NLRI    14   /* RFC2858          */
-#define BGPTYPE_MP_UNREACH_NLRI  15   /* RFC2858          */
+#define BGPTYPE_ORIGIN              1 /* RFC1771           */
+#define BGPTYPE_AS_PATH             2 /* RFC1771           */
+#define BGPTYPE_NEXT_HOP            3 /* RFC1771           */
+#define BGPTYPE_MULTI_EXIT_DISC     4 /* RFC1771           */
+#define BGPTYPE_LOCAL_PREF          5 /* RFC1771           */
+#define BGPTYPE_ATOMIC_AGGREGATE    6 /* RFC1771           */
+#define BGPTYPE_AGGREGATOR          7 /* RFC1771           */
+#define BGPTYPE_COMMUNITIES         8 /* RFC1997           */
+#define BGPTYPE_ORIGINATOR_ID       9 /* RFC2796           */
+#define BGPTYPE_CLUSTER_LIST       10 /* RFC2796           */
+#define BGPTYPE_DPA                11 /* work in progress  */
+#define BGPTYPE_ADVERTISER         12 /* RFC1863           */
+#define BGPTYPE_RCID_PATH          13 /* RFC1863           */
+#define BGPTYPE_MP_REACH_NLRI      14 /* RFC2858           */
+#define BGPTYPE_MP_UNREACH_NLRI    15 /* RFC2858           */
 #define BGPTYPE_EXTENDED_COMMUNITY 16 /* Draft Ramachandra */
+#define BGPTYPE_NEW_AS_PATH        17 /* draft-ietf-idr-as4bytes */
+#define BGPTYPE_NEW_AGGREGATOR     18 /* draft-ietf-idr-as4bytes */
 
 /* Extended community type */
                                         /* draft-ramachandra-bgp-ext-communities */
@@ -175,7 +180,7 @@ struct bgp_attr {
 /* Extended community & Route dinstinguisher formats */
 #define FORMAT_AS2_LOC      0x00    /* Format AS(2bytes):AN(4bytes) */
 #define FORMAT_IP_LOC       0x01    /* Format IP address:AN(2bytes) */
-#define FORMAT_AS4_LOC      0x02    /* FOrmat AS(4bytes):AN(2bytes) */
+#define FORMAT_AS4_LOC      0x02    /* Format AS(4bytes):AN(2bytes) */
 
 /* RFC 2858 subsequent address family numbers */
 #define SAFNUM_UNICAST  1

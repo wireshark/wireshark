@@ -925,10 +925,12 @@ Tom Uijldert <Tom.Uijldert[AT]cmg.nl> {
 	WTP TPI dissection
 }
 
-Endoh Akira <endoh[AT]netmarks.co.jp> {
+Akira Endoh <endoh[AT]netmarks.co.jp> {
 	Support for dissecting multiple BGP capabilities
 	Sync PPP protocol names with the IANA database
 	MPLSCP, CDPCP, and CDP over PPP support
+	BGP support for draft-ietf-idr-as4bytes-06.txt and
+	    draft-ietf-idr-dynamic-cap-03.txt
 }
 
 Graeme Hewson <graeme.hewson[AT]oracle.com> {

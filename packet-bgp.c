@@ -2,7 +2,7 @@
  * Routines for BGP packet dissection.
  * Copyright 1999, Jun-ichiro itojun Hagino <itojun@itojun.org>
  *
- * $Id: packet-bgp.c,v 1.72 2002/11/04 22:00:14 guy Exp $
+ * $Id: packet-bgp.c,v 1.73 2003/01/28 05:25:16 guy Exp $
  *
  * Supports:
  * RFC1771 A Border Gateway Protocol 4 (BGP-4)
@@ -15,6 +15,8 @@
  * RFC2918 Route Refresh Capability for BGP-4
  * RFC3107 Carrying Label Information in BGP-4
  * Draft Ramahandra on Extended Communities Extentions
+ * draft-ietf-idr-as4bytes-06
+ * draft-ietf-idr-dynamic-cap-03
  *
  * TODO:
  * Destination Preference Attribute for BGP (work in progress)
@@ -65,6 +67,7 @@ static const value_string bgptypevals[] = {
     { BGP_NOTIFICATION, "NOTIFICATION Message" },
     { BGP_KEEPALIVE, "KEEPALIVE Message" },
     { BGP_ROUTE_REFRESH, "ROUTE-REFRESH Message" },
+    { BGP_CAPABILITY, "CAPABILITY Message" },
     { BGP_ROUTE_REFRESH_CISCO, "Cisco ROUTE-REFRESH Message" },
     { 0, NULL },
 };
@@ -76,6 +79,7 @@ static const value_string bgpnotify_major[] = {
     { 4, "Hold Timer Expired" },
     { 5, "Finite State Machine Error" },
     { 6, "Cease" },
+    { 7, "CAPABILITY Message Error" },
     { 0, NULL },
 };
 
@@ -109,6 +113,14 @@ static const value_string bgpnotify_minor_3[] = {
     { 9, "Optional Attribute Error" },
     { 10, "Invalid Network Field" },
     { 11, "Malformed AS_PATH" },
+    { 0, NULL },
+};
+
+static const value_string bgpnotify_minor_7[] = {
+    { 1, "Invalid Action Value" },
+    { 2, "Invalid Capability Length" },
+    { 3, "Malformed Capability Value" },
+    { 4, "Unsopported Capability Code" },
     { 0, NULL },
 };
 
@@ -147,6 +159,8 @@ static const value_string bgpattr_type[] = {
     { BGPTYPE_MP_REACH_NLRI, "MP_REACH_NLRI" },
     { BGPTYPE_MP_UNREACH_NLRI, "MP_UNREACH_NLRI" },
     { BGPTYPE_EXTENDED_COMMUNITY, "EXTENDED_COMMUNITIES" },
+    { BGPTYPE_NEW_AS_PATH, "NEW_AS_PATH" },
+    { BGPTYPE_NEW_AGGREGATOR, "NEW_AGGREGATOR" },
     { 0, NULL },
 };
 
@@ -247,6 +261,27 @@ static const value_string orf_entry_match_vals[] = {
     { 0x20,	"Deny" },
     { 0,	NULL },
 };
+
+static const value_string capability_vals[] = {
+    { BGP_CAPABILITY_RESERVED, "Reserved capability" },
+    { BGP_CAPABILITY_MULTIPROTOCOL, "Multiprotocol extensions capability" },
+    { BGP_CAPABILITY_ROUTE_REFRESH, "Route refresh capability" },
+    { BGP_CAPABILITY_COOPERATIVE_ROUTE_FILTERING, "Cooperative route filtering capability" },
+    { BGP_CAPABILITY_GRACEFUL_RESTART, "Graceful Restart capability" },
+    { BGP_CAPABILITY_4_OCTET_AS_NUMBER, "Support for 4-octet AS number capability" },
+    { BGP_CAPABILITY_DYNAMIC_CAPABILITY, "Support for Dynamic capability" },
+    { BGP_CAPABILITY_ROUTE_REFRESH_CISCO, "Route refresh capability" },
+    { BGP_CAPABILITY_ORF_CISCO, "Cooperative route filtering capability" },
+};
+
+/* Capability Message action code */
+static const value_string bgpcap_action[] = {
+    { 0, "advertising a capability" },
+    { 1, "removing a capability" },
+    { 0, NULL },
+};
+
+
 /* Maximal size of an IP address string */
 #define MAX_SIZE_OF_IP_ADDR_STRING      16
 
@@ -267,6 +302,7 @@ static gint ett_bgp_open = -1;
 static gint ett_bgp_update = -1;
 static gint ett_bgp_notification = -1;
 static gint ett_bgp_route_refresh = -1; /* ROUTE-REFRESH message tree */
+static gint ett_bgp_capability = -1;
 static gint ett_bgp_as_paths = -1;
 static gint ett_bgp_communities = -1;
 static gint ett_bgp_cluster_list = -1;  /* cluster list tree          */
@@ -278,6 +314,8 @@ static gint ett_bgp_orf_entry = -1; 		/* orf entry tree */
 
 /* desegmentation */
 static gboolean bgp_desegment = TRUE;
+
+static gint bgp_asn_len = 0;
 
 /*
  * Decode an IPv4 prefix.
@@ -750,6 +788,239 @@ decode_prefix_MP(guint16 afi, guint8 safi, tvbuff_t *tvb, gint offset, char *buf
 }
 
 /*
+ * Dissect a BGP capability.
+ */
+static void
+dissect_bgp_capability_item(tvbuff_t *tvb, int *p, proto_tree *tree, int ctype, int clen)
+{
+    proto_tree *subtree;
+    proto_item *ti;
+    guint8 orfnum;       /* number of ORFs */
+    guint8 orftype;      /* ORF Type */
+    guint8 orfsendrecv;  /* ORF Send/Receive */
+    int    tclen;        /* capability length */
+    int    i;
+
+    /* check the capability type */
+    switch (ctype) {
+    case BGP_CAPABILITY_RESERVED:
+	proto_tree_add_text(tree, tvb, *p - 2, 1,
+	     "Capability code: %s (%d)", val_to_str(ctype,
+	     capability_vals, "Unknown capability"), ctype);
+	proto_tree_add_text(tree, tvb, *p - 1,
+             1, "Capability length: %u %s", clen,
+             (clen == 1) ? "byte" : "bytes");
+	if (clen != 0) {
+	    proto_tree_add_text(tree, tvb, *p,
+                 clen, "Capability value: Unknown");
+	}
+	*p += clen;
+	break;
+    case BGP_CAPABILITY_MULTIPROTOCOL:
+	proto_tree_add_text(tree, tvb, *p - 2, 1,
+	     "Capability code: %s (%d)", val_to_str(ctype,
+	     capability_vals, "Unknown capability"), ctype);
+	if (clen != 4) {
+	    proto_tree_add_text(tree, tvb, *p - 1,
+                 1, "Capability length: Invalid");
+	    proto_tree_add_text(tree, tvb, *p,
+                 clen, "Capability value: Unknown");
+	}
+	else {
+	    proto_tree_add_text(tree, tvb, *p - 1,
+                 1, "Capability length: %u %s", clen,
+                 (clen == 1) ? "byte" : "bytes");
+	    ti = proto_tree_add_text(tree, tvb, *p, clen, "Capability value");
+	    subtree = proto_item_add_subtree(ti, ett_bgp_option);
+	    /* AFI */
+	    i = tvb_get_ntohs(tvb, *p);
+	    proto_tree_add_text(subtree, tvb, *p,
+                 2, "Address family identifier: %s (%u)",
+                 val_to_str(i, afn_vals, "Unknown"), i);
+	    *p += 2;
+	    /* Reserved */
+	    proto_tree_add_text(subtree, tvb, *p, 1, "Reserved: 1 byte");
+	    (*p)++;
+	    /* SAFI */
+	    i = tvb_get_guint8(tvb, *p);
+	    proto_tree_add_text(subtree, tvb, *p,
+                 1, "Subsequent address family identifier: %s (%u)",
+                 val_to_str(i, bgpattr_nlri_safi,
+                 i >= 128 ? "Vendor specific" : "Unknown"), i);
+	    (*p)++;
+	}
+	break;
+    case BGP_CAPABILITY_GRACEFUL_RESTART:
+	proto_tree_add_text(tree, tvb, *p - 2, 1,
+	     "Capability code: %s (%d)", val_to_str(ctype,
+	     capability_vals, "Unknown capability"), ctype);
+	if (clen < 6) {
+	    proto_tree_add_text(tree, tvb, *p,
+                 clen, "Capability value: Invalid");
+	}
+	else {
+	    proto_tree_add_text(tree, tvb, *p - 1,
+                 1, "Capability length: %u %s", clen,
+		 (clen == 1) ? "byte" : "bytes");
+	    ti = proto_tree_add_text(tree, tvb, *p, clen, "Capability value");
+	    subtree = proto_item_add_subtree(ti, ett_bgp_option);
+	    /* Timers */
+	    i = tvb_get_ntohs(tvb, *p);
+	    proto_tree_add_text(subtree, tvb, *p,
+                 2, "Restart Flags: [%s], Restart Time %us",
+                 (i&0x8000) ? "R" : "none", i&0xfff);
+	    *p += 2;
+	    tclen = clen - 2;
+	    /*
+	     * what follows is alist of AFI/SAFI/flag triplets
+	     * read it until the TLV ends
+	     */
+	    while (tclen >=4) {
+		/* AFI */
+		i = tvb_get_ntohs(tvb, *p);
+		proto_tree_add_text(subtree, tvb, *p,
+                     2, "Address family identifier: %s (%u)",
+                     val_to_str(i, afn_vals, "Unknown"), i);
+		*p += 2;
+		/* SAFI */
+		i = tvb_get_guint8(tvb, *p);
+		proto_tree_add_text(subtree, tvb, *p,
+                     1, "Subsequent address family identifier: %s (%u)",
+                     val_to_str(i, bgpattr_nlri_safi,
+                     i >= 128 ? "Vendor specific" : "Unknown"), i);
+		(*p)++;
+		/* flags */
+		i = tvb_get_guint8(tvb, *p);
+		proto_tree_add_text(subtree, tvb, *p, 1,
+		     "Preserve forwarding state: %s",
+                     (i&0x80) ? "yes" : "no");
+		(*p)++;
+		tclen-=4;
+	    }
+	}
+	*p += clen;
+	break;
+    case BGP_CAPABILITY_4_OCTET_AS_NUMBER:
+	proto_tree_add_text(tree, tvb, *p - 2, 1,
+	     "Capability code: %s (%d)", val_to_str(ctype,
+	     capability_vals, "Unknown capability"), ctype);
+	if (clen != 4) {
+	    proto_tree_add_text(tree, tvb, *p,
+                 clen, "Capability value: Invalid");
+	}
+	else {
+	    proto_tree_add_text(tree, tvb, *p - 1,
+                 1, "Capability length: %u %s", clen,
+                 (clen == 1) ? "byte" : "bytes");
+	    ti = proto_tree_add_text(tree, tvb, *p, clen, "Capability value");
+	    subtree = proto_item_add_subtree(ti, ett_bgp_option);
+	    proto_tree_add_text(subtree, tvb, *p, 4,
+		 "AS number: %d", tvb_get_ntohl(tvb, *p));
+	}
+	*p += clen;
+	break;
+    case BGP_CAPABILITY_DYNAMIC_CAPABILITY:
+	proto_tree_add_text(tree, tvb, *p - 2, 1,
+	     "Capability code: %s (%d)", val_to_str(ctype,
+	     capability_vals, "Unknown capability"), ctype);
+	proto_tree_add_text(tree, tvb, *p - 1, 1,
+             "Capability length: %u %s", clen,
+             (clen == 1) ? "byte" : "bytes");
+	if (clen > 0) {
+	    ti = proto_tree_add_text(tree, tvb, *p, clen, "Capability value");
+	    subtree = proto_item_add_subtree(ti, ett_bgp_option);
+	    for (i = 0; (int)i <= clen; i++) {
+		proto_tree_add_text(subtree, tvb, *p, 1,
+		     "Capability code: %s (%d)", val_to_str(ctype,
+		     capability_vals, "Unknown capability"),
+		     tvb_get_guint8(tvb, *p));
+		(*p)++;
+	    }
+	}
+	break;
+    case BGP_CAPABILITY_ROUTE_REFRESH_CISCO:
+    case BGP_CAPABILITY_ROUTE_REFRESH:
+	proto_tree_add_text(tree, tvb, *p - 2, 1,
+	     "Capability code: %s (%d)", val_to_str(ctype,
+	     capability_vals, "Unknown capability"), ctype);
+	if (clen != 0) {
+	    proto_tree_add_text(tree, tvb, *p,
+                 clen, "Capability value: Invalid");
+	}
+	else {
+	    proto_tree_add_text(tree, tvb, *p - 1,
+                 1, "Capability length: %u %s", clen,
+                 (clen == 1) ? "byte" : "bytes");
+	}
+	*p += clen;
+	break;
+    case BGP_CAPABILITY_ORF_CISCO:
+    case BGP_CAPABILITY_COOPERATIVE_ROUTE_FILTERING:
+	proto_tree_add_text(tree, tvb, *p - 2, 1,
+	     "Capability code: %s (%d)", val_to_str(ctype,
+	     capability_vals, "Unknown capability"), ctype);
+	proto_tree_add_text(tree, tvb, *p - 1,
+	     1, "Capability length: %u %s", clen,
+	     (clen == 1) ? "byte" : "bytes");
+	ti = proto_tree_add_text(tree, tvb, *p, clen, "Capability value");
+	subtree = proto_item_add_subtree(ti, ett_bgp_option);
+	/* AFI */
+	i = tvb_get_ntohs(tvb, *p);
+	proto_tree_add_text(subtree, tvb, *p,
+	     2, "Address family identifier: %s (%u)",
+             val_to_str(i, afn_vals, "Unknown"), i);
+	*p += 2;
+	/* Reserved */
+	proto_tree_add_text(subtree, tvb, *p, 1, "Reserved: 1 byte");
+	(*p)++;
+	/* SAFI */
+	i = tvb_get_guint8(tvb, *p);
+	proto_tree_add_text(subtree, tvb, *p,
+	     1, "Subsequent address family identifier: %s (%u)",
+	     val_to_str(i, bgpattr_nlri_safi,
+	     i >= 128 ? "Vendor specific" : "Unknown"), i);
+	(*p)++;
+	/* Number of ORFs */
+	orfnum = tvb_get_guint8(tvb, *p);
+	proto_tree_add_text(subtree, tvb, *p, 1, "Number of ORFs: %u", orfnum);
+	(*p)++;
+	for (i=0; i<orfnum; i++) {
+	    /* ORF Type */
+	    orftype = tvb_get_guint8(tvb, *p);
+	    proto_tree_add_text(subtree, tvb, *p, 1, "ORF Type: %s (%u)",
+		 val_to_str(orftype, orf_type_vals,"Unknown"), orftype);
+	    (*p)++;
+	    /* Send/Receive */
+	    orfsendrecv = tvb_get_guint8(tvb, *p);
+	    proto_tree_add_text(subtree, tvb, *p,
+		 1, "Send/Receive: %s (%u)",
+		 val_to_str(orfsendrecv, orf_send_recv_vals,
+		 "Uknown"), orfsendrecv);
+	    (*p)++;
+	}
+	break;
+	/* unknown capability */
+    default:
+	proto_tree_add_text(tree, tvb, *p - 2, 1,
+	     "Capability code: %s (%d)", val_to_str(ctype,
+	     capability_vals, "Unknown capability"), ctype);
+	proto_tree_add_text(tree, tvb, *p - 2,
+	     1, "Capability code: %s (%d)",
+             ctype >= 128 ? "Private use" : "Unknown", ctype);
+	proto_tree_add_text(tree, tvb, *p - 1,
+             1, "Capability length: %u %s", clen,
+             (clen == 1) ? "byte" : "bytes");
+	if (clen != 0) {
+	    proto_tree_add_text(tree, tvb, *p,
+                 clen, "Capability value: Unknown");
+	}
+	*p += clen;
+	break;
+    }
+}
+
+
+/*
  * Dissect a BGP OPEN message.
  */
 static const value_string community_vals[] = {
@@ -764,11 +1035,10 @@ dissect_bgp_open(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
     struct bgp_open bgpo;      /* BGP OPEN message      */
     int             hlen;      /* message length        */
-    guint           i;         /* tmp                   */
     int             ptype;     /* parameter type        */
     int             plen;      /* parameter length      */
     int             ctype;     /* capability type       */
-    int             clen,tclen;/* capability length     */
+    int             clen;      /* capability length     */
     int             cend;      /* capabilities end      */
     int             ostart;    /* options start         */
     int             oend;      /* options end           */
@@ -777,10 +1047,6 @@ dissect_bgp_open(tvbuff_t *tvb, int offset, proto_tree *tree)
     proto_tree      *subtree;  /* subtree for options   */
     proto_tree      *subtree1; /* subtree for an option */
     proto_tree      *subtree2; /* subtree for an option */
-    proto_tree      *subtree3; /* subtree for an option */
-    guint8          orfnum;    /* number of ORFs */
-    guint8          orftype;        /* ORF Type */
-    guint8          orfsendrecv;    /* ORF Send/Receive */
 
     /* snarf OPEN message */
     tvb_memcpy(tvb, bgpo.bgpo_marker, offset, BGP_MIN_OPEN_MSG_SIZE);
@@ -848,215 +1114,13 @@ dissect_bgp_open(tvbuff_t *tvb, int offset, proto_tree *tree)
 		    ctype = tvb_get_guint8(tvb, p++);
 		    clen = tvb_get_guint8(tvb, p++);
 
-		    /* check the capability type */
-		    switch (ctype) {
-		    case BGP_CAPABILITY_RESERVED:
-			ti = proto_tree_add_text(subtree1, tvb, p - 2,
-                             2 + clen, "Reserved capability (%u %s)", 2 + clen,
-                             (clen == 1) ? "byte" : "bytes");
-			subtree2 = proto_item_add_subtree(ti, ett_bgp_option);
-			proto_tree_add_text(subtree2, tvb, p - 2,
-                             1, "Capability code: Reserved (0)");
-			proto_tree_add_text(subtree2, tvb, p - 1,
-                             1, "Capability length: %u %s", clen,
-                             (clen == 1) ? "byte" : "bytes");
-			if (clen != 0) {
-			    proto_tree_add_text(subtree2, tvb, p,
-                                 clen, "Capability value: Unknown");
-			}
-			p += clen;
-			break;
-		    case BGP_CAPABILITY_MULTIPROTOCOL:
-			ti = proto_tree_add_text(subtree1, tvb, p - 2,
-                             2 + clen,
-                             "Multiprotocol extensions capability (%u %s)",
-                             2 + clen, (clen == 1) ? "byte" : "bytes");
-			subtree2 = proto_item_add_subtree(ti, ett_bgp_option);
-			proto_tree_add_text(subtree2, tvb, p - 2,
-                             1, "Capability code: Multiprotocol extensions (%d)",
-                             ctype);
-			if (clen != 4) {
-			    proto_tree_add_text(subtree2, tvb, p - 1,
-                                 1, "Capability length: Invalid");
-			    proto_tree_add_text(subtree2, tvb, p,
-                                 clen, "Capability value: Unknown");
-			}
-			else {
-			    proto_tree_add_text(subtree2, tvb, p - 1,
-                                 1, "Capability length: %u %s", clen,
-                                 (clen == 1) ? "byte" : "bytes");
-			    ti = proto_tree_add_text(subtree2, tvb, p,
-                                 clen, "Capability value");
-			    subtree3 = proto_item_add_subtree(ti,
-                                       ett_bgp_option);
-			    /* AFI */
-			    i = tvb_get_ntohs(tvb, p);
-			    proto_tree_add_text(subtree3, tvb, p,
-                                 2, "Address family identifier: %s (%u)",
-                                 val_to_str(i, afn_vals, "Unknown"), i);
-			    p += 2;
-			    /* Reserved */
-			    proto_tree_add_text(subtree3, tvb, p,
-                                 1, "Reserved: 1 byte");
-			    p++;
-			    /* SAFI */
-			    i = tvb_get_guint8(tvb, p);
-			    proto_tree_add_text(subtree3, tvb, p,
-                                 1, "Subsequent address family identifier: %s (%u)",
-                                 val_to_str(i, bgpattr_nlri_safi,
-                                    i >= 128 ? "Vendor specific" : "Unknown"), i);
-			    p++;
-			}
-			break;
-		    case BGP_CAPABILITY_GRACEFUL_RESTART:
-			ti = proto_tree_add_text(subtree1, tvb, p - 2,
-                             2 + clen, "Graceful Restart capability (%u %s)", 2 + clen,
-                             (clen == 1) ? "byte" : "bytes");
-			subtree2 = proto_item_add_subtree(ti, ett_bgp_option);
-			proto_tree_add_text(subtree2, tvb, p - 2,
-                             1, "Capability code: Graceful Restart (%d)", ctype);
-			if (clen < 6) {
-			    proto_tree_add_text(subtree2, tvb, p,
-                                 clen, "Capability value: Invalid");
-			}
-			else {
-			    proto_tree_add_text(subtree2, tvb, p - 1,
-                                 1, "Capability length: %u %s", clen,
-                                 (clen == 1) ? "byte" : "bytes");
-			    ti = proto_tree_add_text(subtree2, tvb, p,
-                                 clen, "Capability value");
-			    subtree3 = proto_item_add_subtree(ti,
-                                       ett_bgp_option);
-                            /* Timers */
-                            i = tvb_get_ntohs(tvb, p);
-                            proto_tree_add_text(subtree3, tvb, p,
-                                 2, "Restart Flags: [%s], Restart Time %us",
-                                                (i&0x8000) ? "R" : "none",
-                                                i&0xfff);
-                            p += 2;
-                            tclen=clen-2;
-                            /*
-                             * what follows is alist of AFI/SAFI/flag triplets
-                             * read it until the TLV ends
-                             */
-                            while(tclen >=4) {
-                                /* AFI */
-                                i = tvb_get_ntohs(tvb, p);
-                                proto_tree_add_text(subtree3, tvb, p,
-                                    2, "Address family identifier: %s (%u)",
-                                    val_to_str(i, afn_vals, "Unknown"), i);
-                                p += 2;
-                                /* SAFI */
-                                i = tvb_get_guint8(tvb, p);
-                                proto_tree_add_text(subtree3, tvb, p,
-                                    1, "Subsequent address family identifier: %s (%u)",
-                                    val_to_str(i, bgpattr_nlri_safi,
-                                        i >= 128 ? "Vendor specific" : "Unknown"), i);
-                                p++;
-                                /* flags */
-                                i = tvb_get_guint8(tvb, p);
-                                proto_tree_add_text(subtree3, tvb, p,
-                                    1, "Preserve forwarding state: %s",
-                                        (i&0x80) ? "yes" : "no");
-                                p++;
-                                tclen-=4;
-                            }
-                        }
-			p += clen;
-			break;
-		    case BGP_CAPABILITY_ROUTE_REFRESH_CISCO:
-		    case BGP_CAPABILITY_ROUTE_REFRESH:
-			ti = proto_tree_add_text(subtree1, tvb, p - 2,
-                             2 + clen, "Route refresh capability (%u %s)", 2 + clen,
-                             (clen == 1) ? "byte" : "bytes");
-			subtree2 = proto_item_add_subtree(ti, ett_bgp_option);
-			proto_tree_add_text(subtree2, tvb, p - 2,
-                             1, "Capability code: Route refresh (%d)", ctype);
-			if (clen != 0) {
-			    proto_tree_add_text(subtree2, tvb, p,
-                                 clen, "Capability value: Invalid");
-			}
-			else {
-			    proto_tree_add_text(subtree2, tvb, p - 1,
-                                 1, "Capability length: %u %s", clen,
-                                 (clen == 1) ? "byte" : "bytes");
-			}
-			p += clen;
-			break;
-		    case BGP_CAPABILITY_ORF_CISCO:
-		    case BGP_CAPABILITY_COOPERATIVE_ROUTE_FILTERING:
-			ti = proto_tree_add_text(subtree1, tvb, p - 2,
-                             2 + clen,
-                             "Cooperative route filtering capability (%u %s)",
-                             2 + clen, (clen == 1) ? "byte" : "bytes");
-			subtree2 = proto_item_add_subtree(ti, ett_bgp_option);
-			proto_tree_add_text(subtree2, tvb, p - 2,
-                             1, "Capability code: Cooperative route filtering (%d)",
-                             ctype);
-			proto_tree_add_text(subtree2, tvb, p - 1,
-			     1, "Capability length: %u %s", clen,
-			     (clen == 1) ? "byte" : "bytes");
-			ti = proto_tree_add_text(subtree2, tvb, p,
-                             clen, "Capability value");
-			subtree3 = proto_item_add_subtree(ti, ett_bgp_option);
-			/* AFI */
-			i = tvb_get_ntohs(tvb, p);
-			proto_tree_add_text(subtree3, tvb, p,
-			     2, "Address family identifier: %s (%u)",
-                             val_to_str(i, afn_vals, "Unknown"), i);
-			p += 2;
-			/* Reserved */
-			proto_tree_add_text(subtree3, tvb, p,
-			     1, "Reserved: 1 byte");
-			p++;
-			/* SAFI */
-			i = tvb_get_guint8(tvb, p);
-			proto_tree_add_text(subtree3, tvb, p,
-			     1, "Subsequent address family identifier: %s (%u)",
-			     val_to_str(i, bgpattr_nlri_safi,
-			     i >= 128 ? "Vendor specific" : "Unknown"), i);
-			p++;
-			/* Number of ORFs */
-			orfnum = tvb_get_guint8(tvb, p);
-			proto_tree_add_text(subtree3, tvb, p,
-					    1, "Number of ORFs: %u", orfnum);
-			p++;
-			for (i=0; i<orfnum; i++) {
-			    /* ORF Type */
-			    orftype = tvb_get_guint8(tvb, p);
-			    proto_tree_add_text(subtree3, tvb, p,
-				1, "ORF Type: %s (%u)",
-				val_to_str(orftype, orf_type_vals,"Unknown"),
-				orftype);
-			    p++;
-			    /* Send/Receive */
-			    orfsendrecv = tvb_get_guint8(tvb, p);
-			    proto_tree_add_text(subtree3, tvb, p,
-				1, "Send/Receive: %s (%u)",
-				val_to_str(orfsendrecv, orf_send_recv_vals,
-				"Uknown"), orfsendrecv);
-			    p++;
-			}
-			break;
-		    /* unknown capability */
-		    default:
-			ti = proto_tree_add_text(subtree1, tvb, p - 2,
-                             2 + clen, "Unknown capability (%u %s)", 2 + clen,
-                             (clen == 1) ? "byte" : "bytes");
-			subtree2 = proto_item_add_subtree(ti, ett_bgp_option);
-			proto_tree_add_text(subtree2, tvb, p - 2,
-                             1, "Capability code: %s (%d)",
-                             ctype >= 128 ? "Private use" : "Unknown", ctype);
-			proto_tree_add_text(subtree2, tvb, p - 1,
-                             1, "Capability length: %u %s", clen,
-                             (clen == 1) ? "byte" : "bytes");
-			if (clen != 0) {
-			    proto_tree_add_text(subtree2, tvb, p,
-                                 clen, "Capability value: Unknown");
-			}
-			p += clen;
-			break;
-		    }
+		    ti = proto_tree_add_text(subtree1, tvb, p - 2,
+                         2 + clen, "%s (%u %s)", val_to_str(ctype,
+			 capability_vals, "Unknown capability"),
+			 2 + clen, (clen == 1) ? "byte" : "bytes");
+		    subtree2 = proto_item_add_subtree(ti, ett_bgp_option);
+		    dissect_bgp_capability_item(tvb, &p,
+			   subtree2, ctype, clen);
 		}
                 break;
             default:
@@ -1073,7 +1137,7 @@ dissect_bgp_open(tvbuff_t *tvb, int offset, proto_tree *tree)
  */
 static void
 dissect_bgp_update(tvbuff_t *tvb, int offset, proto_tree *tree)
- {
+{
     struct bgp_attr bgpa;                       /* path attributes          */
     guint16         hlen;                       /* message length           */
     gint            o;                          /* packet offset            */
@@ -1143,12 +1207,14 @@ dissect_bgp_update(tvbuff_t *tvb, int offset, proto_tree *tree)
 	subtree = proto_item_add_subtree(ti, ett_bgp_attrs);
 	i = 2;
 	while (i < len) {
+	    char    *msg;
+	    int     off;
+	    gint    k;
 	    guint16 alen, tlen, aoff; 
-	    char *msg;
 	    guint16 af;
-            guint8 saf, snpa;
-	    int off;
-	    guint8 nexthop_len;
+            guint8  saf, snpa;
+	    guint8  nexthop_len;
+	    guint8  asn_len = 0;
 
 	    tvb_memcpy(tvb, (guint8 *)&bgpa, o + i, sizeof(bgpa));
             /* check for the Extended Length bit */
@@ -1176,46 +1242,75 @@ dissect_bgp_update(tvbuff_t *tvb, int offset, proto_tree *tree)
                         "bytes");
 		break;
 	    case BGPTYPE_AS_PATH:
+	    case BGPTYPE_NEW_AS_PATH:
                 /* (o + i + aoff) =
                    (o + current attribute + aoff bytes to first tuple) */
                 q = o + i + aoff;
                 end = q + tlen;
                 /* must be freed by second switch!                         */
-                /* "tlen * 6" (5 digits + space) should be a good estimate
+                /* "tlen * 11" (10 digits + space) should be a good estimate
                    of how long the AS path string could be                 */
-                as_path_str = malloc((tlen + 1) * 6);
+                as_path_str = malloc((tlen + 1) * 11);
                 if (as_path_str == NULL) break;
                 as_path_str[0] = '\0';
 
+		/* estimate the length of the AS number */
+		if (bgpa.bgpa_type == BGPTYPE_NEW_AS_PATH) 
+		    asn_len = 4;
+		else {
+		    if (bgp_asn_len == 0) {
+			k = q;
+			while (k < end) {
+			    k++;
+			    length = tvb_get_guint8(tvb, k++);
+			    k += length * 2;
+			}
+			asn_len = (k == end) ? 2 : 4;
+		    }
+		    else {
+			asn_len = bgp_asn_len;
+		    }
+		}
+
                 /* snarf each AS path */
                 while (q < end) {
-                    type = tvb_get_guint8(tvb, q++);
+		    type = tvb_get_guint8(tvb, q++);
+		    if (strlen(as_path_str) != 0 &&
+			as_path_str[strlen(as_path_str) - 1] != ' ')
+			strncat(as_path_str, "  ", 2);
                     if (type == AS_SET) {
-                        snprintf(as_path_str, 2, "{");
+                        as_path_str[strlen(as_path_str) - 1] = '{';
                     }
                     else if (type == AS_CONFED_SET) {
-                        snprintf(as_path_str, 2, "[");
+			as_path_str[strlen(as_path_str) - 1] = '[';
                     }
                     else if (type == AS_CONFED_SEQUENCE) {
-                        snprintf(as_path_str, 2, "(");
-                    }
-                    length = tvb_get_guint8(tvb, q++);
+			as_path_str[strlen(as_path_str) - 1] = '(';
+		    }
+		    else {
+			as_path_str[strlen(as_path_str) - 1] = '\0';
+		    }
+		    length = tvb_get_guint8(tvb, q++);
 
                     /* snarf each value in path */
                     for (j = 0; j < length; j++) {
-                        snprintf(junk_buf, sizeof(junk_buf), "%u%s", tvb_get_ntohs(tvb, q),
-                                (type == AS_SET || type == AS_CONFED_SET)
-                                ? ", " : " ");
+			snprintf(junk_buf, sizeof(junk_buf), "%u%s",
+				(asn_len == 2) ?
+				tvb_get_ntohs(tvb, q) : tvb_get_ntohl(tvb, q),
+				(type == AS_SET || type == AS_CONFED_SET) ?
+				", " : " ");
                         strncat(as_path_str, junk_buf, sizeof(junk_buf));
-                        q += 2;
+                        q += asn_len;
                     }
 
                     /* cleanup end of string */
                     if (type == AS_SET) {
                         as_path_str[strlen(as_path_str) - 2] = '}';
+			as_path_str[strlen(as_path_str) - 1] = '\0';
                     }
                     else if (type == AS_CONFED_SET) {
                         as_path_str[strlen(as_path_str) - 2] = ']';
+			as_path_str[strlen(as_path_str) - 1] = '\0';
                     }
                     else if (type == AS_CONFED_SEQUENCE) {
                         as_path_str[strlen(as_path_str) - 1] = ')';
@@ -1272,13 +1367,18 @@ dissect_bgp_update(tvbuff_t *tvb, int offset, proto_tree *tree)
 			tlen + aoff, (tlen + aoff == 1) ? "byte" : "bytes");
 		break;
 	    case BGPTYPE_AGGREGATOR:
-                if (tlen != 6)
+		if (tlen != 6 && tlen != 8)
 		    goto default_attribute_top;
-		tvb_memcpy(tvb, ipaddr, o + i + aoff + 2, 4);
+	    case BGPTYPE_NEW_AGGREGATOR:
+                if (bgpa.bgpa_type == BGPTYPE_NEW_AGGREGATOR && tlen != 8)
+		    goto default_attribute_top;
+		asn_len = tlen - 4;
+		tvb_memcpy(tvb, ipaddr, o + i + aoff + asn_len, 4);
 		ti = proto_tree_add_text(subtree, tvb, o + i, tlen + aoff,
 			"%s: AS: %u origin: %s (%u %s)",
 			val_to_str(bgpa.bgpa_type, bgpattr_type, "Unknown"),
-			tvb_get_ntohs(tvb, o + i + aoff),
+			(asn_len == 2) ? tvb_get_ntohs(tvb, o + i + aoff) :
+			tvb_get_ntohl(tvb, o + i + aoff),
 			ip_to_str(ipaddr), tlen + aoff,
                         (tlen + aoff == 1) ? "byte" : "bytes");
 		break;
@@ -1464,6 +1564,7 @@ dissect_bgp_update(tvbuff_t *tvb, int offset, proto_tree *tree)
 		}
 		break;
 	    case BGPTYPE_AS_PATH:
+	    case BGPTYPE_NEW_AS_PATH:
                 /* check for empty AS_PATH */
                 if (tlen == 0) {
                     free(as_path_str);
@@ -1499,11 +1600,12 @@ dissect_bgp_update(tvbuff_t *tvb, int offset, proto_tree *tree)
                     /* snarf each value in path, we're just going to reuse
                        as_path_str since we already have it malloced       */
                     for (j = 0; j < length; j++) {
-                        snprintf(junk_buf, sizeof(junk_buf), "%u%s", tvb_get_ntohs(tvb, q),
-                                (type == AS_SET || type == AS_CONFED_SET)
-                                ? ", " : " ");
+			snprintf(junk_buf, sizeof(junk_buf), "%u%s",
+				(asn_len == 2) ? 
+				tvb_get_ntohs(tvb, q) : tvb_get_ntohl(tvb, q),
+                                (type == AS_SET || type == AS_CONFED_SET) ? ", " : " ");
                         strncat(as_path_str, junk_buf, sizeof(junk_buf));
-                        q += 2;
+                        q += asn_len;
                     }
 
                     /* cleanup end of string */
@@ -1522,28 +1624,30 @@ dissect_bgp_update(tvbuff_t *tvb, int offset, proto_tree *tree)
 
                     /* length here means number of ASs, ie length * 2 bytes */
 	            ti = proto_tree_add_text(as_paths_tree, tvb,
-                            q - length * 2 - 2,
-                            length * 2 + 2, "AS path segment: %s", as_path_str);
+                            q - length * asn_len - 2,
+                            length * asn_len + 2, "AS path segment: %s", as_path_str);
 	            as_path_tree = proto_item_add_subtree(ti, ett_bgp_as_paths);
-	            proto_tree_add_text(as_path_tree, tvb, q - length * 2 - 2,
+	            proto_tree_add_text(as_path_tree, tvb, q - length * asn_len - 2,
                             1, "Path segment type: %s (%u)",
                             val_to_str(type, as_segment_type, "Unknown"), type);
-	            proto_tree_add_text(as_path_tree, tvb, q - length * 2 - 1,
+	            proto_tree_add_text(as_path_tree, tvb, q - length * asn_len - 1,
                             1, "Path segment length: %u %s", length,
                             (length == 1) ? "AS" : "ASs");
 
                     /* backup and reprint path segment value(s) only */
-                    q -= 2 * length;
+                    q -= asn_len * length;
                     as_path_str[0] = '\0';
                     for (j = 0; j < length; j++) {
-                        snprintf(junk_buf, sizeof(junk_buf), "%u ", tvb_get_ntohs(tvb, q));
+			snprintf(junk_buf, sizeof(junk_buf), "%u ",
+				(asn_len == 2) ? 
+				tvb_get_ntohs(tvb, q) : tvb_get_ntohl(tvb, q));
                         strncat(as_path_str, junk_buf, sizeof(junk_buf));
-                        q += 2;
+                        q += asn_len;
                     }
                     as_path_str[strlen(as_path_str) - 1] = '\0';
 
-                    proto_tree_add_text(as_path_tree, tvb, q - length * 2,
-                            length * 2, "Path segment value: %s", as_path_str);
+                    proto_tree_add_text(as_path_tree, tvb, q - length * asn_len,
+                            length * asn_len, "Path segment value: %s", as_path_str);
                 }
 
                 free(as_path_str);
@@ -1588,17 +1692,26 @@ dissect_bgp_update(tvbuff_t *tvb, int offset, proto_tree *tree)
                 }
 		break;
 	    case BGPTYPE_AGGREGATOR:
-		if (tlen != 6) {
+		if (tlen != 6 && tlen != 8) {
 		    proto_tree_add_text(subtree2, tvb, o + i + aoff, tlen,
 			    "Aggregator (invalid): %u %s", tlen,
                             (tlen == 1) ? "byte" : "bytes");
-		} else {
+		    break;
+		}
+	    case BGPTYPE_NEW_AGGREGATOR:
+                if (bgpa.bgpa_type == BGPTYPE_NEW_AGGREGATOR && tlen != 8)
+		    proto_tree_add_text(subtree2, tvb, o + i + aoff, tlen,
+			    "Aggregator (invalid): %u %s", tlen,
+                            (tlen == 1) ? "byte" : "bytes");
+		else {
+		    asn_len = tlen - 4;
 		    proto_tree_add_text(subtree2, tvb, o + i + aoff, 2,
-			    "Aggregator AS: %u", tvb_get_ntohs(tvb, o + i + aoff));
-		    tvb_memcpy(tvb, ipaddr, o + i + aoff + 2, 4);
-		    proto_tree_add_text(subtree2, tvb, o + i + aoff + 2, 4,
-			    "Aggregator origin: %s",
-			    ip_to_str(ipaddr));
+			    "Aggregator AS: %u", asn_len == 2 ?
+			    tvb_get_ntohs(tvb, o + i + aoff) :
+			    tvb_get_ntohl(tvb, o + i + aoff));
+		    tvb_memcpy(tvb, ipaddr, o + i + aoff + asn_len, 4);
+		    proto_tree_add_text(subtree2, tvb, o + i + aoff + asn_len,
+			    4, "Aggregator origin: %s", ip_to_str(ipaddr));
 		}
 		break;
             case BGPTYPE_COMMUNITIES:
@@ -2103,6 +2216,38 @@ example 2
 }
 
 /*
+ * Dissect a BGP CAPABILITY message.
+ */
+static void
+dissect_bgp_capability(tvbuff_t *tvb, int offset, proto_tree *tree)
+{
+    proto_item *ti;
+    proto_tree *subtree;
+    guint8  action;
+    int ctype;
+    int clen;
+    int mend;
+
+    mend = offset + tvb_get_ntohs(tvb, offset + BGP_MARKER_SIZE);
+    offset += BGP_HEADER_SIZE;
+    /* step through all of the capabilities */
+    while (offset < mend) {
+	action = tvb_get_guint8(tvb, offset++);
+	ctype  = tvb_get_guint8(tvb, offset++);
+	clen   = tvb_get_guint8(tvb, offset++);
+
+	ti = proto_tree_add_text(tree, tvb, offset - 2, 2 + clen, 
+             "%s (%u %s)", val_to_str(ctype, capability_vals,
+             "Unknown capability"), 2 + clen, (clen == 1) ? "byte" : "bytes");
+	subtree = proto_item_add_subtree(ti, ett_bgp_option);
+	proto_tree_add_text(subtree, tvb, offset-2, 1, "Action: %d (%s)",
+	    action, val_to_str(action, bgpcap_action, "Invalid action value"));
+	dissect_bgp_capability_item(tvb, &offset, subtree, ctype, clen);
+    }
+}
+
+
+/*
  * Dissect a BGP packet.
  */
 static void
@@ -2198,6 +2343,9 @@ dissect_bgp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    case BGP_ROUTE_REFRESH:
 	        bgp1_tree = proto_item_add_subtree(ti, ett_bgp_route_refresh);
 		break;
+	    case BGP_CAPABILITY:
+		bgp1_tree = proto_item_add_subtree(ti, ett_bgp_capability);
+		break;
 	    default:
 	        bgp1_tree = proto_item_add_subtree(ti, ett_bgp);
 		break;
@@ -2241,6 +2389,9 @@ dissect_bgp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    case BGP_ROUTE_REFRESH:
 		dissect_bgp_route_refresh(tvb, i, bgp1_tree);
 		break;
+	    case BGP_CAPABILITY:
+		dissect_bgp_capability(tvb, i, bgp1_tree);
+		break;
 	    default:
 		break;
 	    }
@@ -2278,6 +2429,7 @@ proto_register_bgp(void)
       &ett_bgp_update,
       &ett_bgp_notification,
       &ett_bgp_route_refresh,
+      &ett_bgp_capability,
       &ett_bgp_as_paths,
       &ett_bgp_communities,
       &ett_bgp_cluster_list,
@@ -2288,6 +2440,12 @@ proto_register_bgp(void)
       &ett_bgp_orf_entry
     };
     module_t *bgp_module;
+    static enum_val_t asn_len[] = {
+	{"Auto-detect", 0},
+	{"2 octet", 2},
+	{"4 octet", 4},
+	{NULL, -1}
+    };
 
     proto_bgp = proto_register_protocol("Border Gateway Protocol",
 					"BGP", "bgp");
@@ -2299,6 +2457,10 @@ proto_register_bgp(void)
       "Desegment all BGP messages spanning multiple TCP segments",
       "Whether the BGP dissector should desegment all messages spanning multiple TCP segments",
       &bgp_desegment);
+    prefs_register_enum_preference(bgp_module, "asn_len",
+      "Length of the AS number",
+      "BGP dissector detect the length of the AS number in AS_PATH attributes automatically or manually (NOTE: Automatic detection is not 100% accurate)",
+      &bgp_asn_len, asn_len, FALSE);
 }
 
 void
