@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.96 2003/08/28 04:19:28 guy Exp $
+ * $Id: packet-ieee80211.c,v 1.97 2003/09/15 18:40:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -32,6 +32,12 @@
  * Marco Molteni
  * Lena-Marie Nilsson
  * Magnus Hultman-Persson
+ */
+
+/*
+ * 09/12/2003 - Added dissection of country information tag
+ *
+ * Ritchie<at>tipsybottle.com
  */
 
 #ifdef HAVE_CONFIG_H
@@ -212,18 +218,21 @@ static char *wep_keystr[] = {NULL, NULL, NULL, NULL};
 /* ************************************************************************* */
 /*        Logical field codes (IEEE 802.11 encoding of tags)                 */
 /* ************************************************************************* */
-#define TAG_SSID           0x00
-#define TAG_SUPP_RATES     0x01
-#define TAG_FH_PARAMETER   0x02
-#define TAG_DS_PARAMETER   0x03
-#define TAG_CF_PARAMETER   0x04
-#define TAG_TIM            0x05
-#define TAG_IBSS_PARAMETER 0x06
-#define TAG_CHALLENGE_TEXT 0x10
-#define TAG_ERP_INFO       0x2A
-#define TAG_ERP_INFO_OLD   0x2F	/* IEEE Std 802.11g/D4.0 */
-#define TAG_EXT_SUPP_RATES 0x32
-#define TAG_VENDOR_SPECIFIC_IE	   0xDD
+#define TAG_SSID                 0x00
+#define TAG_SUPP_RATES           0x01
+#define TAG_FH_PARAMETER         0x02
+#define TAG_DS_PARAMETER         0x03
+#define TAG_CF_PARAMETER         0x04
+#define TAG_TIM                  0x05
+#define TAG_IBSS_PARAMETER       0x06
+#define TAG_COUNTRY_INFO         0x07
+#define TAG_FH_HOPPING_PARAMETER 0x08
+#define TAG_FH_HOPPING_TABLE     0x09
+#define TAG_CHALLENGE_TEXT       0x10
+#define TAG_ERP_INFO             0x2A
+#define TAG_ERP_INFO_OLD         0x2F	/* IEEE Std 802.11g/D4.0 */
+#define TAG_EXT_SUPP_RATES       0x32
+#define TAG_VENDOR_SPECIFIC_IE	 0xDD
 
 #define WPA_OUI	"\x00\x50\xF2"
 
@@ -791,6 +800,14 @@ dissect_vendor_specific_ie(proto_tree * tree, tvbuff_t * tvb, int offset,
 /* ************************************************************************* */
 /*           Dissect and add tagged (optional) fields to proto tree          */
 /* ************************************************************************* */
+
+static const value_string environment_vals[] = {
+	{ 0x20, "Any" },
+	{ 0x4f, "Outdoor" },
+	{ 0x49, "Indoor" },
+	{ 0,    NULL }
+};
+
 static int
 add_tagged_field (proto_tree * tree, tvbuff_t * tvb, int offset)
 {
@@ -820,7 +837,7 @@ add_tagged_field (proto_tree * tree, tvbuff_t * tvb, int offset)
     }
 
   /* Next See if tag is reserved - if true, skip it! */
-  if (((tag_no >= 7) && (tag_no <= 15))
+  if (((tag_no >= 8) && (tag_no <= 15))
       || ((tag_no >= 32) && (tag_no <= 255) && (tag_no != TAG_ERP_INFO) &&
 	  (tag_no != TAG_EXT_SUPP_RATES) &&
 	  (tag_no != TAG_ERP_INFO_OLD) && (tag_no != TAG_VENDOR_SPECIFIC_IE)))
@@ -977,6 +994,24 @@ add_tagged_field (proto_tree * tree, tvbuff_t * tvb, int offset)
 			     tag_len, out_buff);
       break;
 
+
+    case TAG_COUNTRY_INFO:
+      proto_tree_add_uint_format (tree, tag_number, tvb, offset, 1, tag_no,
+				  "Tag Number: %u (Country Information)",
+				  tag_no);
+
+      proto_tree_add_uint (tree, tag_length, tvb, offset + 1, 1, tag_len);
+      memset (out_buff, 0, SHORT_STR);
+      snprintf (out_buff, SHORT_STR,
+                                 "Country Code: %c%c, %s Environment, Start Channel: "
+                                 "%u, Number of Channels: %u, Max TX Power: %u dbi",
+                                 tag_data_ptr[0], tag_data_ptr[1],
+                                 val_to_str(tag_data_ptr[2], environment_vals,
+                                            "Unknown (0x%02x)"),
+                                 tag_data_ptr[3], tag_data_ptr[4],tag_data_ptr[5]);
+
+      proto_tree_add_string (tree, tag_interpretation, tvb, offset + 2,tag_len, out_buff);
+      break;
 
 
     case TAG_CHALLENGE_TEXT:
