@@ -188,6 +188,9 @@ Nathan Neulinger <nneul@umr.edu> {
 	IRC dissector
 	AppleTalk NBP dissector
 	AppleTalk RTMP response dissector
+	Automake updates to handle the current CVS version of automake
+	    (which will probably eventually become the next release of
+	    automake)
 }
 
 Tomislav Vujec <tvujec@carnet.hr> {

@@ -1,7 +1,7 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.104 2001/05/07 20:49:48 guy Exp $
+# $Id: Makefile.nmake,v 1.105 2001/05/11 00:39:57 guy Exp $
 
 include config.nmake
 include <win32.mak>
@@ -22,7 +22,7 @@ CVARSDLL=-DWIN32 -DNULL=0 -D_MT -D_DLL
 {$S}.c{$O}.obj::
    $(CC) $(CVARSDLL) $(CFLAGS) -Fd$O\ -c $<
 
-DISSECTOR_SOURCES = \
+DISSECTOR_SRC = \
 	packet-aarp.c  \
 	packet-afs.c   \
 	packet-aim.c   \
@@ -200,7 +200,7 @@ DISSECTOR_SOURCES = \
 	packet-ypxfr.c \
 	packet-zebra.c
 
-DISSECTOR_OBJECTS = $(DISSECTOR_SOURCES:.c=.obj)
+DISSECTOR_OBJECTS = $(DISSECTOR_SRC:.c=.obj)
 
 ETHEREAL_COMMON_OBJECTS = \
 	asn1.obj         \
@@ -321,12 +321,12 @@ packet-ncp2222.c : ncp2222.py
 	@echo Making packet-ncp2222.c
 	$(PYTHON) ncp2222.py > packet-ncp2222.c
 
-register.c: $(DISSECTOR_SOURCES)
+register.c: $(DISSECTOR_SRC)
 	@echo Making register.c
-	@$(PYTHON) make-reg-dotc.py . $(DISSECTOR_SOURCES)
+	@$(PYTHON) make-reg-dotc.py . $(DISSECTOR_SRC)
 #	How are ifdef's done in NMAKE? It would be nice
 #	to use python if PYTHON is defined, otherwise try to use shell.
-#	@sh make-reg-dotc . $(DISSECTOR_SOURCES)
+#	@sh make-reg-dotc . $(DISSECTOR_SRC)
 
 clean:
 	rm -f $(ethereal_OBJECTS) $(EXTRA_OBJECTS) $(EXECUTABLES) \

@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.316 2001/05/07 20:49:48 guy Exp $
+# $Id: Makefile.am,v 1.317 2001/05/11 00:39:57 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -69,7 +69,7 @@ EXTRA_PROGRAMS = ethereal ethereal_static tethereal tethereal_static editcap dft
 
 sysconf_DATA = manuf
 
-DISSECTOR_SOURCES = \
+DISSECTOR_SRC = \
 	packet-aarp.c  \
 	packet-afs.c   \
 	packet-aim.c   \
@@ -340,7 +340,7 @@ noinst_HEADERS = \
 	packet-ypserv.h \
 	packet-ypxfr.h 
 
-ETHEREAL_COMMON_SOURCES = \
+ETHEREAL_COMMON_SRC = \
 	aftypes.h      \
 	alignment.h    \
 	asn1.c         \
@@ -385,8 +385,8 @@ BUILT_SOURCES = \
 	x11-register-info.h
 
 ethereal_SOURCES = \
-	$(DISSECTOR_SOURCES) \
-	$(ETHEREAL_COMMON_SOURCES) \
+	$(DISSECTOR_SRC) \
+	$(ETHEREAL_COMMON_SRC) \
 	capture.c      \
 	capture.h      \
 	file.c         \
@@ -473,8 +473,8 @@ ethereal_LDFLAGS = -export-dynamic
 ethereal_static_LDFLAGS = -Wl,-static
 
 tethereal_SOURCES = \
-	$(DISSECTOR_SOURCES) \
-	$(ETHEREAL_COMMON_SOURCES) \
+	$(DISSECTOR_SRC) \
+	$(ETHEREAL_COMMON_SRC) \
 	tethereal.c
 
 tethereal_static_SOURCES = \
@@ -557,9 +557,9 @@ x11-declarations.h x11-register-info.h: x11-fields process-x11-fields.pl
 # The first argument is the directory in which the source files live.
 # All subsequent arguments are the files to scan.
 #
-register.c: $(DISSECTOR_SOURCES) $(srcdir)/make-reg-dotc
+register.c: $(DISSECTOR_SRC) $(srcdir)/make-reg-dotc
 	@echo Making register.c
-	@$(srcdir)/make-reg-dotc $(srcdir) $(DISSECTOR_SOURCES)
+	@$(srcdir)/make-reg-dotc $(srcdir) $(DISSECTOR_SRC)
 
 ps.c: print.ps rdps
 	./rdps $(srcdir)/print.ps ps.c
@@ -575,8 +575,8 @@ randpkt: randpkt.o wiretap/libwiretap.a
 
 
 dftest_SOURCES = \
-	$(DISSECTOR_SOURCES) \
-	$(ETHEREAL_COMMON_SOURCES) \
+	$(DISSECTOR_SRC) \
+	$(ETHEREAL_COMMON_SRC) \
 	dftest.c
 
 dftest_additional_libs =		\
