@@ -1,7 +1,7 @@
 /* packet-pflog.c
  * Routines for pflog (OpenBSD Firewall Logging) packet disassembly
  *
- * $Id: packet-pflog.c,v 1.3 2002/02/05 00:43:59 guy Exp $
+ * $Id: packet-pflog.c,v 1.4 2002/04/08 02:02:27 guy Exp $
  *
  * Copyright 2001 Mike Frantzen
  * All rights reserved.
@@ -50,7 +50,7 @@
 # define offsetof(type, member) ((size_t)(&((type *)0)->member))
 #endif
 
-static dissector_handle_t  data_handle, ip_handle, ipv6_handle, pflog_handle;
+static dissector_handle_t  data_handle, ip_handle, ipv6_handle;
 
 /* header fields */
 static int proto_pflog = -1;
@@ -232,8 +232,6 @@ proto_register_pflog(void)
 					"PFLOG", "pflog");
   proto_register_field_array(proto_pflog, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
-
-  register_dissector("pflog", dissect_pflog, proto_pflog);
 }
 
 void
@@ -241,9 +239,10 @@ proto_reg_handoff_pflog(void)
 {
   dissector_handle_t pflog_handle;
 
-  pflog_handle = find_dissector("pflog");
   ip_handle = find_dissector("ip");
   ipv6_handle = find_dissector("ipv6");
   data_handle = find_dissector("data");
+
+  pflog_handle = create_dissector_handle(dissect_pflog, proto_pflog);
   dissector_add("wtap_encap", WTAP_ENCAP_PFLOG, pflog_handle);
 }
