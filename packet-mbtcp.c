@@ -10,7 +10,7 @@
  *
  * for information on Modbus/TCP.
  *
- * $Id: packet-mbtcp.c,v 1.12 2003/04/16 06:57:36 guy Exp $
+ * $Id: packet-mbtcp.c,v 1.13 2003/04/18 04:45:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -29,13 +29,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
- */
-
-/*	TODO:
- *	Analysis of the payload of the Modbus packet.
- *		--	Based on the function code in the header, and the fact that the packet is
- *			either a query or a response, the different fields in the payload can be
- *			interpreted and displayed.
  */
 
 #ifdef HAVE_CONFIG_H
