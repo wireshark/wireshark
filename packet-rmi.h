@@ -2,7 +2,7 @@
  * header file for java rmiregistry dissection
  * Copyright 2002, Michael Stiller <ms@2scale.net>
  *
- * $Id: packet-rmi.h,v 1.4 2003/02/05 06:16:32 guy Exp $
+ * $Id: packet-rmi.h,v 1.5 2003/12/21 03:58:29 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -63,7 +63,7 @@ typedef enum {
     RMI_OUTPUTSTREAM    = 2,
     RMI_OUTPUTMESSAGE   = 3,
     RMI_INPUTSTREAM     = 16,
-    SERIALIZATION_DATA  = 128,
+    SERIALIZATION_DATA  = 128
 } rmi_type;
 
 #endif
