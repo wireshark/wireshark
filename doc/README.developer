@@ -251,6 +251,20 @@ cause a trap, which will, at best, result in the OS slowly performing an
 unaligned access for you, and will, on at least some platforms, cause
 the program to be terminated.
 
+Ethereal supports both platforms with GLib 1.2[.x]/GTK+ 1.2[.x] and GLib
+2.x/GTK+ 1.3[.x] and 2.x.  If at all possible, either use only
+mechanisms that are present in GLib 1.2[.x] and GTK+ 1.2[.x], use #if's
+to conditionally use older or newer mechanisms depending on the platform
+on which Ethereal is being built, or, if the code in GLib or GTK+ that
+implements that mechanism will build with GLib 1.2[.x]/GTK+ 1.2[.x],
+conditionally include that code as part of the Ethereal source and use
+the included version with GLib 1.2[.x] or GTK+ 1.2[.x].  In particular,
+if the GLib 2.x or GTK+ 2.x mechanism indicates that a routine is
+deprecated and shouldn't be used in new code, and that it was renamed in
+GLib 2.x or GTK+ 2.x and the new name should be used, disregard that and
+use the old name - it'll still work with GLib 2.x or GTK+ 2.x, but will
+also work with GLib 1.2[.x] and GTK+ 1.2[.x].
+
 1.1.2 Robustness.
 
 Ethereal is not guaranteed to read only network traces that contain
