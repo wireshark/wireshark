@@ -1,7 +1,7 @@
 /* packet-ppp.c
  * Routines for ppp packet disassembly
  *
- * $Id: packet-ppp.c,v 1.81 2001/12/10 00:25:32 guy Exp $
+ * $Id: packet-ppp.c,v 1.82 2001/12/19 21:14:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -139,6 +139,7 @@ static gint ppp_fcs_decode = 0; /* 0 = No FCS, 1 = 16 bit FCS, 2 = 32 bit FCS */
 #define NO_FCS 0
 #define FCS_16 1
 #define FCS_32 2
+gboolean ppp_vj_decomp = TRUE; /* Default to VJ header decompression */
 
 /* PPP definitions */
 
@@ -2589,10 +2590,15 @@ proto_register_ppp(void)
 
 	prefs_register_enum_preference(ppp_module,
 	    "ppp_fcs",
-	    "PPP Frame Checksum",
-	    "PPP Frame Checksum",
+	    "PPP Frame Checksum Type",
+	    "The type of PPP frame checksum (none, 16-bit, 32-bit)",
 	    &ppp_fcs_decode,
 	    ppp_options, FALSE);
+	prefs_register_bool_preference(ppp_module,
+	    "ppp_vj",
+	    "PPP Van Jacobson Compression",
+	    "Whether Van Jacobson-compressed PPP frames should be decompressed",
+	    &ppp_vj_decomp);
 }
 
 void

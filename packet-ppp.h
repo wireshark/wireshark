@@ -1,6 +1,6 @@
 /* packet-ppp.h
  *
- * $Id: packet-ppp.h,v 1.8 2001/11/20 21:59:13 guy Exp $
+ * $Id: packet-ppp.h,v 1.9 2001/12/19 21:14:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -24,6 +24,9 @@
 #ifndef __PACKET_PPP_H__
 #define __PACKET_PPP_H__
 
+/* PPP options */
+extern gboolean ppp_vj_decomp;/* FALSE = No VJ header decompression,
+                                 TRUE  = Decompress VJ */
 void capture_ppp_hdlc(const u_char *, int, int, packet_counts *);
 
 #endif

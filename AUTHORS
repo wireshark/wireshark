@@ -965,6 +965,7 @@ Heinz Prantner <Heinz.Prantner[AT]radisys.com> {
 
 Irfan Khan <ikhan[AT]qualcomm.com> {
 	pppdump reader fixes
+	Van Jacobson decompression support for PPP
 }
 
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to
