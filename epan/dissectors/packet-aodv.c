@@ -44,11 +44,15 @@
 /*
  * See
  *
- *	http://www.ietf.org/internet-drafts/draft-ietf-manet-aodv-13.txt
+ *	RFC 3561 (which indicates that, for IPv6, the only change is that
+ *	the address fields are enlarged)
  *
  *	http://www.cs.ucsb.edu/~ebelding/txt/aodv6.txt
  *
  *	http://www.tcs.hut.fi/~anttit/manet/drafts/draft-perkins-aodv6-01.txt
+ *
+ *	(both of the above two are draft-perkins-manet-aodv6-01.txt, which
+ *	is from November 2000)
  */
 
 #define INET6_ADDRLEN	16
@@ -70,8 +74,9 @@
 #define AODV_EXT_NTP	3
 
 /* Flag bits: */
-#define RREQ_DEST	0x10
-#define RREQ_GRAT	0x20
+#define RREQ_UNKNSEQ	0x08
+#define RREQ_DESTONLY	0x10
+#define RREQ_GRATRREP	0x20
 #define RREQ_REP	0x40
 #define RREQ_JOIN	0x80
 
@@ -85,10 +90,10 @@ static const value_string type_vals[] = {
     { RREP,                 "Route Reply" },
     { RERR,                 "Route Error" },
     { RREP_ACK,             "Route Reply Acknowledgment"},
-    { DRAFT_01_V6_RREQ,     "draft-perkins-aodv6-01 Route Request"},
-    { DRAFT_01_V6_RREP,     "draft-perkins-aodv6-01 Route Reply"},
-    { DRAFT_01_V6_RERR,     "draft-perkins-aodv6-01 Route Error"},
-    { DRAFT_01_V6_RREP_ACK, "draft-perkins-aodv6-01 Route Reply Acknowledgment"},
+    { DRAFT_01_V6_RREQ,     "draft-perkins-manet-aodv6-01 IPv6 Route Request"},
+    { DRAFT_01_V6_RREP,     "draft-perkins-manet-aodv6-01 IPv6 Route Reply"},
+    { DRAFT_01_V6_RERR,     "draft-perkins-manet-aodv6-01 IPv6 Route Error"},
+    { DRAFT_01_V6_RREP_ACK, "draft-perkins-manet-aodv6-01 IPv6 Route Reply Acknowledgment"},
     { 0,                    NULL }
 };
 
@@ -126,6 +131,7 @@ static int hf_aodv_flags_rreq_join = -1;
 static int hf_aodv_flags_rreq_repair = -1;
 static int hf_aodv_flags_rreq_gratuitous = -1;
 static int hf_aodv_flags_rreq_destinationonly = -1;
+static int hf_aodv_flags_rreq_unknown = -1;
 static int hf_aodv_flags_rrep_repair = -1;
 static int hf_aodv_flags_rrep_ack = -1;
 static int hf_aodv_flags_rerr_nodelete = -1;
@@ -231,14 +237,18 @@ dissect_aodv_rreq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *aodv_tree,
 			       tvb, offset, 1, flags);
 	proto_tree_add_boolean(aodv_flags_tree, hf_aodv_flags_rreq_destinationonly,
 			       tvb, offset, 1, flags);
+	proto_tree_add_boolean(aodv_flags_tree, hf_aodv_flags_rreq_unknown,
+			       tvb, offset, 1, flags);
 	if (flags & RREQ_JOIN)
 	    proto_item_append_text(tj, " J");
 	if (flags & RREQ_REP)
 	    proto_item_append_text(tj, " R");
-	if (flags & RREQ_GRAT)
+	if (flags & RREQ_GRATRREP)
 	    proto_item_append_text(tj, " G");
-	if (flags & RREQ_DEST)
+	if (flags & RREQ_DESTONLY)
 	    proto_item_append_text(tj, " D");
+	if (flags & RREQ_UNKNSEQ)
+	    proto_item_append_text(tj, " U");
     }
     offset += 2;	/* skip reserved byte */
 
@@ -413,11 +423,11 @@ dissect_aodv_rrep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *aodv_tree,
 	if (aodv_tree) {
 	    proto_tree_add_ipv6(aodv_tree, hf_aodv_orig_ipv6, tvb, offset,
 				INET6_ADDRLEN, (guint8 *)&orig_addr_v6);
-	    proto_item_append_text(ti, ", Dest IP: %s",
+	    proto_item_append_text(ti, ", Orig IP: %s",
 				   ip6_to_str(&orig_addr_v6));
 	}
 	if (check_col(pinfo->cinfo, COL_INFO))
-	    col_append_fstr(pinfo->cinfo, COL_INFO, ", D: %s",
+	    col_append_fstr(pinfo->cinfo, COL_INFO, ", O: %s",
 			    ip6_to_str(&orig_addr_v6));
 	offset += INET6_ADDRLEN;
     } else {
@@ -495,9 +505,10 @@ dissect_aodv_rerr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *aodv_tree,
 	    proto_tree_add_item(aodv_unreach_dest_tree,
 				hf_aodv_unreach_dest_ipv6,
 				tvb, offset, INET6_ADDRLEN, FALSE);
+	    offset += INET6_ADDRLEN;
 	    proto_tree_add_item(aodv_unreach_dest_tree, hf_aodv_dest_seqno,
 				tvb, offset, 4, FALSE);
-	    offset += INET6_ADDRLEN + 4;
+	    offset += 4;
 	}
     } else {
 	tj = proto_tree_add_text(aodv_tree, tvb, offset, (4 + 4)*dest_count,
@@ -506,9 +517,10 @@ dissect_aodv_rerr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *aodv_tree,
 	for (i = 0; i < dest_count; i++) {
 	    proto_tree_add_item(aodv_unreach_dest_tree, hf_aodv_unreach_dest_ip,
 				tvb, offset, 4, FALSE);
+	    offset += 4;
 	    proto_tree_add_item(aodv_unreach_dest_tree, hf_aodv_dest_seqno,
 				tvb, offset, 4, FALSE);
-	    offset += 4 + 4;
+	    offset += 4;
 	}
     }
 }
@@ -541,14 +553,18 @@ dissect_aodv_draft_01_v6_rreq(tvbuff_t *tvb, packet_info *pinfo,
 			       tvb, offset, 1, flags);
 	proto_tree_add_boolean(aodv_flags_tree, hf_aodv_flags_rreq_destinationonly,
 			       tvb, offset, 1, flags);
+	proto_tree_add_boolean(aodv_flags_tree, hf_aodv_flags_rreq_unknown,
+			       tvb, offset, 1, flags);
 	if (flags & RREQ_JOIN)
 	    proto_item_append_text(tj, " J");
 	if (flags & RREQ_REP)
 	    proto_item_append_text(tj, " R");
-	if (flags & RREQ_GRAT)
+	if (flags & RREQ_GRATRREP)
 	    proto_item_append_text(tj, " G");
-	if (flags & RREQ_DEST)
+	if (flags & RREQ_DESTONLY)
 	    proto_item_append_text(tj, " D");
+	if (flags & RREQ_UNKNSEQ)
+	    proto_item_append_text(tj, " U");
     }
     offset += 2;	/* skip reserved byte */
 
@@ -643,7 +659,7 @@ dissect_aodv_draft_01_v6_rrep(tvbuff_t *tvb, packet_info *pinfo,
     }
     offset += 1;
 
-    prefix_sz = tvb_get_guint8(tvb, offset) & 0x1F;
+    prefix_sz = tvb_get_guint8(tvb, offset) & 0x7F;
     if (aodv_tree)
 	proto_tree_add_uint(aodv_tree, hf_aodv_prefix_sz, tvb, offset, 1,
 			    prefix_sz);
@@ -677,11 +693,11 @@ dissect_aodv_draft_01_v6_rrep(tvbuff_t *tvb, packet_info *pinfo,
     if (aodv_tree) {
 	proto_tree_add_ipv6(aodv_tree, hf_aodv_orig_ipv6, tvb, offset,
 			    INET6_ADDRLEN, (guint8 *)&orig_addr_v6);
-	proto_item_append_text(ti, ", Dest IP: %s",
+	proto_item_append_text(ti, ", Orig IP: %s",
 			       ip6_to_str(&orig_addr_v6));
     }
     if (check_col(pinfo->cinfo, COL_INFO))
-	col_append_fstr(pinfo->cinfo, COL_INFO, ", D: %s",
+	col_append_fstr(pinfo->cinfo, COL_INFO, ", O: %s",
 			ip6_to_str(&orig_addr_v6));
     offset += INET6_ADDRLEN;
 
@@ -744,10 +760,11 @@ dissect_aodv_draft_01_v6_rerr(tvbuff_t *tvb, packet_info *pinfo,
     for (i = 0; i < dest_count; i++) {
 	proto_tree_add_item(aodv_unreach_dest_tree, hf_aodv_dest_seqno,
 			    tvb, offset, 4, FALSE);
+	offset += 4;
 	proto_tree_add_item(aodv_unreach_dest_tree,
 			    hf_aodv_unreach_dest_ipv6,
 			    tvb, offset, INET6_ADDRLEN, FALSE);
-	offset += 4 + INET6_ADDRLEN;
+	offset += INET6_ADDRLEN;
     }
 }
 
@@ -793,24 +810,24 @@ dissect_aodv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     switch (type) {
     case RREQ:
-	dissect_aodv_rreq(tvb, pinfo, tree, ti, is_ipv6);
+	dissect_aodv_rreq(tvb, pinfo, aodv_tree, ti, is_ipv6);
 	break;
     case RREP:
-	dissect_aodv_rrep(tvb, pinfo, tree, ti, is_ipv6);
+	dissect_aodv_rrep(tvb, pinfo, aodv_tree, ti, is_ipv6);
 	break;
     case RERR:
-	dissect_aodv_rerr(tvb, pinfo, tree, is_ipv6);
+	dissect_aodv_rerr(tvb, pinfo, aodv_tree, is_ipv6);
 	break;
     case RREP_ACK:
 	break;
     case DRAFT_01_V6_RREQ:
-	dissect_aodv_draft_01_v6_rreq(tvb, pinfo, tree, ti);
+	dissect_aodv_draft_01_v6_rreq(tvb, pinfo, aodv_tree, ti);
 	break;
     case DRAFT_01_V6_RREP:
-	dissect_aodv_draft_01_v6_rrep(tvb, pinfo, tree, ti);
+	dissect_aodv_draft_01_v6_rrep(tvb, pinfo, aodv_tree, ti);
 	break;
     case DRAFT_01_V6_RERR:
-	dissect_aodv_draft_01_v6_rerr(tvb, pinfo, tree);
+	dissect_aodv_draft_01_v6_rerr(tvb, pinfo, aodv_tree);
 	break;
     case DRAFT_01_V6_RREP_ACK:
 	break;
@@ -849,13 +866,18 @@ proto_register_aodv(void)
 	    "", HFILL }
 	},
 	{ &hf_aodv_flags_rreq_gratuitous,
-	  { "RREQ Gratuitous", "aodv.flags.rreq_gratuitous",
-	    FT_BOOLEAN, 8, TFS(&flags_set_truth), RREQ_GRAT,
+	  { "RREQ Gratuitous RREP", "aodv.flags.rreq_gratuitous",
+	    FT_BOOLEAN, 8, TFS(&flags_set_truth), RREQ_GRATRREP,
 	    "", HFILL }
 	},
 	{ &hf_aodv_flags_rreq_destinationonly,
 	  { "RREQ Destination only", "aodv.flags.rreq_destinationonly",
-	    FT_BOOLEAN, 8, TFS(&flags_set_truth), RREQ_DEST,
+	    FT_BOOLEAN, 8, TFS(&flags_set_truth), RREQ_DESTONLY,
+	    "", HFILL }
+	},
+	{ &hf_aodv_flags_rreq_unknown,
+	  { "RREQ Unknown Sequence Number", "aodv.flags.rreq_unknown",
+	    FT_BOOLEAN, 8, TFS(&flags_set_truth), RREQ_UNKNSEQ,
 	    "", HFILL }
 	},
 	{ &hf_aodv_flags_rrep_repair,
