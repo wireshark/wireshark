@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.245 2004/07/08 07:47:29 guy Exp $
+ * $Id: tethereal.c,v 1.246 2004/07/08 10:36:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -116,11 +116,22 @@
  * various functions that output the usage for this parameter.
  */
 static const gchar decode_as_arg_template[] = "<layer_type>==<selector>,<decode_as_protocol>";
+
 static guint32 firstsec, firstusec;
 static guint32 prevsec, prevusec;
 static GString *comp_info_str, *runtime_info_str;
 static gboolean quiet;
+
 static gboolean print_packet_info;	/* TRUE if we're to print packet information */
+/*
+ * The way the packet decode is to be written.
+ */
+typedef enum {
+	WRITE_TEXT,	/* summary or detail text */
+	WRITE_XML	/* PDML or PSML */
+	/* Add CSV and the like here */
+} output_action_e;
+static output_action_e output_action;
 static gboolean do_dissection;	/* TRUE if we have to dissect each packet */
 static gboolean verbose;
 static gboolean print_hex;
@@ -173,7 +184,9 @@ static gboolean process_packet(capture_file *cf, wtap_dumper *pdh, long offset,
     const guchar *pd, int *err);
 static void show_capture_file_io_error(const char *, int, gboolean);
 static void show_print_file_io_error(int err);
+static void write_preamble(capture_file *cf);
 static void print_packet(capture_file *cf, epan_dissect_t *edt);
+static void write_finale(void);
 static char *cf_open_error_message(int err, gchar *err_info,
     gboolean for_writing, int file_type);
 #ifdef HAVE_LIBPCAP
@@ -1118,7 +1131,7 @@ main(int argc, char *argv[])
 	   is probably actually better for "-V", as it does fewer
 	   writes).
 
-	   See the comment in "print_packet()" for an explanation of
+	   See the comment in "process_packet()" for an explanation of
 	   why we do that, and why we don't just use "setvbuf()" to
 	   make the standard output line-buffered (short version: in
 	   Windows, "line-buffered" is the same as "fully-buffered",
@@ -1209,15 +1222,22 @@ main(int argc, char *argv[])
         }
         break;
       case 'T':        /* printing Type */
-        if (strcmp(optarg, "text") == 0)
+        if (strcmp(optarg, "text") == 0) {
+		output_action = WRITE_TEXT;
 		print_format = PR_FMT_TEXT;
-	else if (strcmp(optarg, "pdml") == 0)
-		print_format = PR_FMT_PDML;
-	else if (strcmp(optarg, "ps") == 0)
+	} else if (strcmp(optarg, "ps") == 0) {
+		output_action = WRITE_TEXT;
 		print_format = PR_FMT_PS;
-	else {
+		verbose = TRUE;
+	} else if (strcmp(optarg, "pdml") == 0) {
+		output_action = WRITE_XML;
+		verbose = TRUE;
+	} else if (strcmp(optarg, "psml") == 0) {
+		output_action = WRITE_XML;
+		verbose = FALSE;
+	} else {
 		fprintf(stderr, "tethereal: Invalid -T parameter.\n");
-		fprintf(stderr, "It must be \"ps\", \"text\" or \"pdml\".\n");
+		fprintf(stderr, "It must be \"ps\", \"text\", \"pdml\", or \"psml\".\n");
 		exit(1);
 	}
 	break;
@@ -1279,10 +1299,6 @@ main(int argc, char *argv[])
         break;
     }
   }
-
-  /* If printing PDML or PS, force -V */
-  if (print_format == PR_FMT_PDML || print_format == PR_FMT_PS)
-	  verbose = TRUE;
 
   /* If no capture filter or read filter has been specified, and there are
      still command-line arguments, treat them as the tokens of a capture
@@ -1363,6 +1379,11 @@ main(int argc, char *argv[])
 #endif
   if (arg_error) {
     print_usage(FALSE);
+    exit(1);
+  }
+
+  if (output_action != WRITE_TEXT) {
+    fprintf(stderr, "tethereal: Raw packet hex data can only be printed as text or PostScript\n");
     exit(1);
   }
 
@@ -2322,7 +2343,7 @@ load_cap_file(capture_file *cf, int out_file_type)
       goto out;
     }
   } else {
-    print_preamble(stdout, print_format, cf->filename);
+    write_preamble(cf);
     if (ferror(stdout)) {
       err = errno;
       show_print_file_io_error(err);
@@ -2385,7 +2406,7 @@ load_cap_file(capture_file *cf, int out_file_type)
       if (!wtap_dump_close(pdh, &err))
         show_capture_file_io_error(cfile.save_file, err, TRUE);
     } else {
-      print_finale(stdout, print_format);
+      write_finale();
       if (ferror(stdout)) {
         err = errno;
         show_print_file_io_error(err);
@@ -2561,6 +2582,34 @@ process_packet(capture_file *cf, wtap_dumper *pdh, long offset,
       /* We're printing packet information; print the information for
          this packet. */
       print_packet(cf, edt);
+
+      /* The ANSI C standard does not appear to *require* that a line-buffered
+         stream be flushed to the host environment whenever a newline is
+         written, it just says that, on such a stream, characters "are
+         intended to be transmitted to or from the host environment as a
+         block when a new-line character is encountered".
+
+         The Visual C++ 6.0 C implementation doesn't do what is intended;
+         even if you set a stream to be line-buffered, it still doesn't
+         flush the buffer at the end of every line.
+
+         So, if the "-l" flag was specified, we flush the standard output
+         at the end of a packet.  This will do the right thing if we're
+         printing packet summary lines, and, as we print the entire protocol
+         tree for a single packet without waiting for anything to happen,
+         it should be as good as line-buffered mode if we're printing
+         protocol trees.  (The whole reason for the "-l" flag in either
+         tcpdump or Tethereal is to allow the output of a live capture to
+         be piped to a program or script and to have that script see the
+         information for the packet as soon as it's printed, rather than
+         having to wait until a standard I/O buffer fills up. */
+      if (line_buffered)
+        fflush(stdout);
+
+      if (ferror(stdout)) {
+        show_print_file_io_error(errno);
+        exit(2);
+      }
     }
   }
 
@@ -2622,24 +2671,234 @@ show_capture_file_io_error(const char *fname, int err, gboolean is_close)
 }
 
 static void
+write_preamble(capture_file *cf)
+{
+  switch (output_action) {
+
+  case WRITE_TEXT:
+    print_preamble(stdout, print_format, cf->filename);
+    break;
+
+  case WRITE_XML:
+    if (verbose)
+      write_pdml_preamble(stdout);
+    else
+      write_psml_preamble(stdout);
+    break;
+  }
+}
+
+static void
+print_columns(capture_file *cf)
+{
+  int i;
+
+  for (i = 0; i < cf->cinfo.num_cols; i++) {
+    switch (cf->cinfo.col_fmt[i]) {
+    case COL_NUMBER:
+      /*
+       * Don't print this if we're doing a live capture from a network
+       * interface - if we're doing a live capture, you won't be
+       * able to look at the capture in the future (it's not being
+       * saved anywhere), so the frame numbers are unlikely to be
+       * useful.
+       *
+       * (XXX - it might be nice to be able to save and print at
+       * the same time, sort of like an "Update list of packets
+       * in real time" capture in Ethereal.)
+       */
+      if (cf->iface != NULL)
+        continue;
+      printf("%3s", cf->cinfo.col_data[i]);
+      break;
+
+    case COL_CLS_TIME:
+    case COL_REL_TIME:
+    case COL_ABS_TIME:
+    case COL_ABS_DATE_TIME:	/* XXX - wider */
+      printf("%10s", cf->cinfo.col_data[i]);
+      break;
+
+    case COL_DEF_SRC:
+    case COL_RES_SRC:
+    case COL_UNRES_SRC:
+    case COL_DEF_DL_SRC:
+    case COL_RES_DL_SRC:
+    case COL_UNRES_DL_SRC:
+    case COL_DEF_NET_SRC:
+    case COL_RES_NET_SRC:
+    case COL_UNRES_NET_SRC:
+      printf("%12s", cf->cinfo.col_data[i]);
+      break;
+
+    case COL_DEF_DST:
+    case COL_RES_DST:
+    case COL_UNRES_DST:
+    case COL_DEF_DL_DST:
+    case COL_RES_DL_DST:
+    case COL_UNRES_DL_DST:
+    case COL_DEF_NET_DST:
+    case COL_RES_NET_DST:
+    case COL_UNRES_NET_DST:
+      printf("%-12s", cf->cinfo.col_data[i]);
+      break;
+
+    default:
+      printf("%s", cf->cinfo.col_data[i]);
+      break;
+    }
+    if (i != cf->cinfo.num_cols - 1) {
+      /*
+       * This isn't the last column, so we need to print a
+       * separator between this column and the next.
+       *
+       * If we printed a network source and are printing a
+       * network destination of the same type next, separate
+       * them with "->"; if we printed a network destination
+       * and are printing a network source of the same type
+       * next, separate them with "<-"; otherwise separate them
+       * with a space.
+       */
+      switch (cf->cinfo.col_fmt[i]) {
+
+      case COL_DEF_SRC:
+      case COL_RES_SRC:
+      case COL_UNRES_SRC:
+        switch (cf->cinfo.col_fmt[i + 1]) {
+
+        case COL_DEF_DST:
+        case COL_RES_DST:
+        case COL_UNRES_DST:
+          printf(" -> ");
+          break;
+
+        default:
+          putchar(' ');
+          break;
+        }
+        break;
+
+      case COL_DEF_DL_SRC:
+      case COL_RES_DL_SRC:
+      case COL_UNRES_DL_SRC:
+        switch (cf->cinfo.col_fmt[i + 1]) {
+
+        case COL_DEF_DL_DST:
+        case COL_RES_DL_DST:
+        case COL_UNRES_DL_DST:
+          printf(" -> ");
+          break;
+
+        default:
+          putchar(' ');
+          break;
+        }
+        break;
+
+      case COL_DEF_NET_SRC:
+      case COL_RES_NET_SRC:
+      case COL_UNRES_NET_SRC:
+        switch (cf->cinfo.col_fmt[i + 1]) {
+
+        case COL_DEF_NET_DST:
+        case COL_RES_NET_DST:
+        case COL_UNRES_NET_DST:
+          printf(" -> ");
+          break;
+
+        default:
+          putchar(' ');
+          break;
+        }
+        break;
+
+      case COL_DEF_DST:
+      case COL_RES_DST:
+      case COL_UNRES_DST:
+        switch (cf->cinfo.col_fmt[i + 1]) {
+
+        case COL_DEF_SRC:
+        case COL_RES_SRC:
+        case COL_UNRES_SRC:
+          printf(" <- ");
+          break;
+
+        default:
+          putchar(' ');
+          break;
+        }
+        break;
+
+      case COL_DEF_DL_DST:
+      case COL_RES_DL_DST:
+      case COL_UNRES_DL_DST:
+        switch (cf->cinfo.col_fmt[i + 1]) {
+
+        case COL_DEF_DL_SRC:
+        case COL_RES_DL_SRC:
+        case COL_UNRES_DL_SRC:
+          printf(" <- ");
+          break;
+
+        default:
+          putchar(' ');
+          break;
+        }
+        break;
+
+      case COL_DEF_NET_DST:
+      case COL_RES_NET_DST:
+      case COL_UNRES_NET_DST:
+        switch (cf->cinfo.col_fmt[i + 1]) {
+
+        case COL_DEF_NET_SRC:
+        case COL_RES_NET_SRC:
+        case COL_UNRES_NET_SRC:
+          printf(" <- ");
+          break;
+
+        default:
+          putchar(' ');
+          break;
+        }
+        break;
+
+      default:
+        putchar(' ');
+        break;
+      }
+    }
+  }
+  putchar('\n');
+}
+
+static void
 print_packet(capture_file *cf, epan_dissect_t *edt)
 {
   print_args_t  print_args;
-  int           i;
-
-  print_args.to_file = TRUE;
-  print_args.format = print_format;
-  print_args.print_summary = !verbose;
-  print_args.print_hex = verbose && print_hex;
-  print_args.print_formfeed = FALSE;
-  print_args.print_dissections = verbose ? print_dissections_expanded : print_dissections_none;
-
-  /* init the packet range */
-  packet_range_init(&print_args.range);
 
   if (verbose) {
     /* Print the information in the protocol tree. */
-    proto_tree_print(&print_args, edt, stdout);
+    switch (output_action) {
+
+    case WRITE_TEXT:
+      print_args.to_file = TRUE;
+      print_args.format = print_format;
+      print_args.print_summary = !verbose;
+      print_args.print_hex = verbose && print_hex;
+      print_args.print_formfeed = FALSE;
+      print_args.print_dissections = verbose ? print_dissections_expanded : print_dissections_none;
+
+      /* init the packet range */
+      packet_range_init(&print_args.range);
+
+      proto_tree_print(&print_args, edt, stdout);
+      break;
+
+    case WRITE_XML:
+      proto_tree_write_pdml(edt, stdout);
+      break;
+    }
     if (!print_hex) {
       /* "print_hex_data()" will put out a leading blank line, as well
        as a trailing one; print one here, to separate the packets,
@@ -2651,215 +2910,38 @@ print_packet(capture_file *cf, epan_dissect_t *edt)
     epan_dissect_fill_in_columns(edt);
 
     /* Now print them. */
-    for (i = 0; i < cf->cinfo.num_cols; i++) {
-      switch (cf->cinfo.col_fmt[i]) {
-      case COL_NUMBER:
-	/*
-	 * Don't print this if we're doing a live capture from a network
-	 * interface - if we're doing a live capture, you won't be
-	 * able to look at the capture in the future (it's not being
-	 * saved anywhere), so the frame numbers are unlikely to be
-	 * useful.
-	 *
-	 * (XXX - it might be nice to be able to save and print at
-	 * the same time, sort of like an "Update list of packets
-	 * in real time" capture in Ethereal.)
-	 */
-        if (cf->iface != NULL)
-          continue;
-        printf("%3s", cf->cinfo.col_data[i]);
+    switch (output_action) {
+
+    case WRITE_TEXT:
+        print_columns(cf);
         break;
 
-      case COL_CLS_TIME:
-      case COL_REL_TIME:
-      case COL_ABS_TIME:
-      case COL_ABS_DATE_TIME:	/* XXX - wider */
-        printf("%10s", cf->cinfo.col_data[i]);
+    case WRITE_XML:
+        proto_tree_write_psml(edt, stdout);
         break;
-
-      case COL_DEF_SRC:
-      case COL_RES_SRC:
-      case COL_UNRES_SRC:
-      case COL_DEF_DL_SRC:
-      case COL_RES_DL_SRC:
-      case COL_UNRES_DL_SRC:
-      case COL_DEF_NET_SRC:
-      case COL_RES_NET_SRC:
-      case COL_UNRES_NET_SRC:
-        printf("%12s", cf->cinfo.col_data[i]);
-        break;
-
-      case COL_DEF_DST:
-      case COL_RES_DST:
-      case COL_UNRES_DST:
-      case COL_DEF_DL_DST:
-      case COL_RES_DL_DST:
-      case COL_UNRES_DL_DST:
-      case COL_DEF_NET_DST:
-      case COL_RES_NET_DST:
-      case COL_UNRES_NET_DST:
-        printf("%-12s", cf->cinfo.col_data[i]);
-        break;
-
-      default:
-        printf("%s", cf->cinfo.col_data[i]);
-        break;
-      }
-      if (i != cf->cinfo.num_cols - 1) {
-        /*
-	 * This isn't the last column, so we need to print a
-	 * separator between this column and the next.
-	 *
-	 * If we printed a network source and are printing a
-	 * network destination of the same type next, separate
-	 * them with "->"; if we printed a network destination
-	 * and are printing a network source of the same type
-	 * next, separate them with "<-"; otherwise separate them
-	 * with a space.
-	 */
-	switch (cf->cinfo.col_fmt[i]) {
-
-	case COL_DEF_SRC:
-	case COL_RES_SRC:
-	case COL_UNRES_SRC:
-	  switch (cf->cinfo.col_fmt[i + 1]) {
-
-	  case COL_DEF_DST:
-	  case COL_RES_DST:
-	  case COL_UNRES_DST:
-	    printf(" -> ");
-	    break;
-
-	  default:
-	    putchar(' ');
-	    break;
-	  }
-	  break;
-
-	case COL_DEF_DL_SRC:
-	case COL_RES_DL_SRC:
-	case COL_UNRES_DL_SRC:
-	  switch (cf->cinfo.col_fmt[i + 1]) {
-
-	  case COL_DEF_DL_DST:
-	  case COL_RES_DL_DST:
-	  case COL_UNRES_DL_DST:
-	    printf(" -> ");
-	    break;
-
-	  default:
-	    putchar(' ');
-	    break;
-	  }
-	  break;
-
-	case COL_DEF_NET_SRC:
-	case COL_RES_NET_SRC:
-	case COL_UNRES_NET_SRC:
-	  switch (cf->cinfo.col_fmt[i + 1]) {
-
-	  case COL_DEF_NET_DST:
-	  case COL_RES_NET_DST:
-	  case COL_UNRES_NET_DST:
-	    printf(" -> ");
-	    break;
-
-	  default:
-	    putchar(' ');
-	    break;
-	  }
-	  break;
-
-	case COL_DEF_DST:
-	case COL_RES_DST:
-	case COL_UNRES_DST:
-	  switch (cf->cinfo.col_fmt[i + 1]) {
-
-	  case COL_DEF_SRC:
-	  case COL_RES_SRC:
-	  case COL_UNRES_SRC:
-	    printf(" <- ");
-	    break;
-
-	  default:
-	    putchar(' ');
-	    break;
-	  }
-	  break;
-
-	case COL_DEF_DL_DST:
-	case COL_RES_DL_DST:
-	case COL_UNRES_DL_DST:
-	  switch (cf->cinfo.col_fmt[i + 1]) {
-
-	  case COL_DEF_DL_SRC:
-	  case COL_RES_DL_SRC:
-	  case COL_UNRES_DL_SRC:
-	    printf(" <- ");
-	    break;
-
-	  default:
-	    putchar(' ');
-	    break;
-	  }
-	  break;
-
-	case COL_DEF_NET_DST:
-	case COL_RES_NET_DST:
-	case COL_UNRES_NET_DST:
-	  switch (cf->cinfo.col_fmt[i + 1]) {
-
-	  case COL_DEF_NET_SRC:
-	  case COL_RES_NET_SRC:
-	  case COL_UNRES_NET_SRC:
-	    printf(" <- ");
-	    break;
-
-	  default:
-	    putchar(' ');
-	    break;
-	  }
-	  break;
-
-	default:
-	  putchar(' ');
-	  break;
-	}
-      }
     }
-    putchar('\n');
   }
   if (print_hex) {
-    print_hex_data(stdout, print_args.format, edt);
+    print_hex_data(stdout, print_format, edt);
     putchar('\n');
   }
+}
 
-  /* The ANSI C standard does not appear to *require* that a line-buffered
-     stream be flushed to the host environment whenever a newline is
-     written, it just says that, on such a stream, characters "are
-     intended to be transmitted to or from the host environment as a
-     block when a new-line character is encountered".
+static void
+write_finale(void)
+{
+  switch (output_action) {
 
-     The Visual C++ 6.0 C implementation doesn't do what is intended;
-     even if you set a stream to be line-buffered, it still doesn't
-     flush the buffer at the end of every line.
+  case WRITE_TEXT:
+    print_finale(stdout, print_format);
+    break;
 
-     So, if the "-l" flag was specified, we flush the standard output
-     at the end of a packet.  This will do the right thing if we're
-     printing packet summary lines, and, as we print the entire protocol
-     tree for a single packet without waiting for anything to happen,
-     it should be as good as line-buffered mode if we're printing
-     protocol trees.  (The whole reason for the "-l" flag in either
-     tcpdump or Tethereal is to allow the output of a live capture to
-     be piped to a program or script and to have that script see the
-     information for the packet as soon as it's printed, rather than
-     having to wait until a standard I/O buffer fills up. */
-  if (line_buffered)
-    fflush(stdout);
-
-  if (ferror(stdout)) {
-    show_print_file_io_error(errno);
-    exit(2);
+  case WRITE_XML:
+    if (verbose)
+      write_pdml_finale(stdout);
+    else
+      write_psml_finale(stdout);
+    break;
   }
 }
 

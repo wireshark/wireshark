@@ -1,7 +1,7 @@
 /* file.h
  * Definitions for file structures and routines
  *
- * $Id: file.h,v 1.118 2004/03/08 23:45:25 guy Exp $
+ * $Id: file.h,v 1.119 2004/07/08 10:36:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -63,6 +63,9 @@ typedef enum {
 	PP_WRITE_ERROR
 } pp_return_t;
 pp_return_t print_packets(capture_file *cf, print_args_t *print_args);
+pp_return_t write_pdml_packets(capture_file *cf, print_args_t *print_args);
+pp_return_t write_psml_packets(capture_file *cf, print_args_t *print_args);
+
 void change_time_formats(capture_file *);
 
 gboolean find_packet_protocol_tree(capture_file *cf, const char *string);

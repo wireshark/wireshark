@@ -1,7 +1,7 @@
 /* print_dlg.c
- * Dialog boxes for printing
+ * Dialog boxes for printing and exporting to text files
  *
- * $Id: print_dlg.c,v 1.80 2004/06/29 03:27:52 jmayer Exp $
+ * $Id: print_dlg.c,v 1.81 2004/07/08 10:36:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -256,7 +256,7 @@ export_psml_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   /* get settings from preferences (and other initial values) only once */
   if(export_psml_prefs_init == FALSE) {
       export_psml_prefs_init    = TRUE;
-      args->format              = PR_FMT_PSML;
+      args->format              = PR_FMT_TEXT;	/* XXX */
       args->to_file             = TRUE;
       args->file                = g_strdup("");
       args->cmd                 = g_strdup("");
@@ -300,7 +300,7 @@ export_pdml_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   /* get settings from preferences (and other initial values) only once */
   if(export_pdml_prefs_init == FALSE) {
       export_pdml_prefs_init    = TRUE;
-      args->format              = PR_FMT_PDML;
+      args->format              = PR_FMT_TEXT;	/* XXX */
       args->to_file             = TRUE;
       args->file                = g_strdup("");
       args->cmd                 = g_strdup("");
@@ -412,7 +412,7 @@ open_print_dialog(char *title, output_action_e action, print_args_t *args)
     gtk_widget_show(ps_rb);
 
   pdml_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(text_rb, "PDM_L (XML: Packet Details Markup Language)", accel_group);
-  if (args->format == PR_FMT_PDML)
+  if (action == output_action_export_pdml)
     gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(pdml_rb), TRUE);
   gtk_tooltips_set_tip (tooltips, pdml_rb,
       "Print output in \"PDML\" (Packet Details Markup Language), "
@@ -422,7 +422,7 @@ open_print_dialog(char *title, output_action_e action, print_args_t *args)
   /* gtk_widget_show(pdml_rb); */
 
   psml_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(text_rb, "PSML (XML: Packet Summary Markup Language)", accel_group);
-  if (args->format == PR_FMT_PSML)
+  if (action == output_action_export_psml)
     gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(psml_rb), TRUE);
   gtk_tooltips_set_tip (tooltips, psml_rb,
       "Print output in \"PSML\" (Packet Summary Markup Language), "
@@ -739,9 +739,11 @@ print_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
   const gchar   *g_dest;
   gchar         *f_name;
   gchar         *dirname;
+  gboolean      export_as_pdml = FALSE, export_as_psml = FALSE;
 #ifdef _WIN32
   gboolean win_printer = FALSE;
 #endif
+  pp_return_t   status;
 
   args = (print_args_t *)OBJECT_GET_DATA(ok_bt, PRINT_ARGS_KEY);
 
@@ -783,10 +785,10 @@ print_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
     args->format = PR_FMT_PS;
   button = (GtkWidget *)OBJECT_GET_DATA(ok_bt, PRINT_PDML_RB_KEY);
   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (button)))
-    args->format = PR_FMT_PDML;
+    export_as_pdml = TRUE;
   button = (GtkWidget *)OBJECT_GET_DATA(ok_bt, PRINT_PSML_RB_KEY);
   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (button)))
-    args->format = PR_FMT_PSML;
+    export_as_psml = TRUE;
 
   button = (GtkWidget *)OBJECT_GET_DATA(ok_bt, PRINT_SUMMARY_CB_KEY);
   args->print_summary = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (button));
@@ -819,8 +821,14 @@ print_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
 
   window_destroy(GTK_WIDGET(parent_w));
 
-  /* Now print the packets */
-  switch (print_packets(&cfile, args)) {
+  /* Now print/export the packets */
+  if (export_as_pdml)
+    status = write_pdml_packets(&cfile, args);
+  else if (export_as_psml)
+    status = write_psml_packets(&cfile, args);
+  else
+    status = print_packets(&cfile, args);
+  switch (status) {
 
   case PP_OK:
     break;
@@ -869,7 +877,3 @@ print_destroy_cb(GtkWidget *win, gpointer user_data)
   /* Note that we no longer have a "Print" dialog box. */
   *((gpointer *) user_data) = NULL;
 }
-
-
-
-

@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.387 2004/07/08 07:45:46 guy Exp $
+ * $Id: file.c,v 1.388 2004/07/08 10:36:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1519,11 +1519,13 @@ print_packet(capture_file *cf, frame_data *fdata,
   int             cp_off;
   gboolean        proto_tree_needed;
 
+  /* Create the protocol tree if we're printing the dissection or the hex
+     data. */
   proto_tree_needed = 
       args->print_args->print_dissections != print_dissections_none || args->print_args->print_hex;
 
-  /* Fill in the column information, but don't bother creating
-     the logical protocol tree. */
+  /* Fill in the column information.
+     XXX - do we need to do so if we're not printing it? */
   edt = epan_dissect_new(proto_tree_needed, proto_tree_needed);
   epan_dissect_run(edt, pseudo_header, pd, fdata, &cf->cinfo);
   epan_dissect_fill_in_columns(edt);
@@ -1751,7 +1753,148 @@ print_packets(capture_file *cf, print_args_t *print_args)
     return PP_WRITE_ERROR;
   }
 
+  /* XXX - check for an error */
   close_print_dest(print_args->to_file, callback_args.print_fh);
+
+  return PP_OK;
+}
+
+static gboolean
+write_pdml_packet(capture_file *cf _U_, frame_data *fdata,
+                  union wtap_pseudo_header *pseudo_header, const guint8 *pd,
+		  void *argsp)
+{
+  FILE *fh = argsp;
+  epan_dissect_t *edt;
+
+  /* Create the protocol tree, but don't fill in the column information. */
+  edt = epan_dissect_new(TRUE, TRUE);
+  epan_dissect_run(edt, pseudo_header, pd, fdata, NULL);
+
+  /* Write out the information in that tree. */
+  proto_tree_write_pdml(edt, fh);
+
+  epan_dissect_free(edt);
+
+  return !ferror(fh);
+}
+
+pp_return_t
+write_pdml_packets(capture_file *cf, print_args_t *print_args)
+{
+  FILE        *fh;
+  psp_return_t ret;
+
+  fh = fopen(print_args->file, "w");
+  if (fh == NULL)
+    return PP_OPEN_ERROR;	/* attempt to open destination failed */
+
+  write_pdml_preamble(fh);
+  if (ferror(fh)) {
+    fclose(fh);
+    return PP_WRITE_ERROR;
+  }
+
+  /* Iterate through the list of packets, printing the packets we were
+     told to print. */
+  ret = process_specified_packets(cf, &print_args->range, "Writing PDML",
+                                  "selected packets", write_pdml_packet,
+                                  fh);
+
+  switch (ret) {
+
+  case PSP_FINISHED:
+    /* Completed successfully. */
+    break;
+
+  case PSP_STOPPED:
+    /* Well, the user decided to abort the printing. */
+    break;
+
+  case PSP_FAILED:
+    /* Error while printing. */
+    fclose(fh);
+    return PP_WRITE_ERROR;
+  }
+
+  write_pdml_finale(fh);
+  if (ferror(fh)) {
+    fclose(fh);
+    return PP_WRITE_ERROR;
+  }
+
+  /* XXX - check for an error */
+  fclose(fh);
+
+  return PP_OK;
+}
+
+static gboolean
+write_psml_packet(capture_file *cf, frame_data *fdata,
+                  union wtap_pseudo_header *pseudo_header, const guint8 *pd,
+		  void *argsp)
+{
+  FILE *fh = argsp;
+  epan_dissect_t *edt;
+
+  /* Fill in the column information, but don't create the protocol tree. */
+  edt = epan_dissect_new(FALSE, FALSE);
+  epan_dissect_run(edt, pseudo_header, pd, fdata, &cf->cinfo);
+
+  /* Write out the information in that tree. */
+  proto_tree_write_psml(edt, fh);
+
+  epan_dissect_free(edt);
+
+  return !ferror(fh);
+}
+
+pp_return_t
+write_psml_packets(capture_file *cf, print_args_t *print_args)
+{
+  FILE        *fh;
+  psp_return_t ret;
+
+  fh = fopen(print_args->file, "w");
+  if (fh == NULL)
+    return PP_OPEN_ERROR;	/* attempt to open destination failed */
+
+  write_psml_preamble(fh);
+  if (ferror(fh)) {
+    fclose(fh);
+    return PP_WRITE_ERROR;
+  }
+
+  /* Iterate through the list of packets, printing the packets we were
+     told to print. */
+  ret = process_specified_packets(cf, &print_args->range, "Writing PSML",
+                                  "selected packets", write_psml_packet,
+                                  fh);
+
+  switch (ret) {
+
+  case PSP_FINISHED:
+    /* Completed successfully. */
+    break;
+
+  case PSP_STOPPED:
+    /* Well, the user decided to abort the printing. */
+    break;
+
+  case PSP_FAILED:
+    /* Error while printing. */
+    fclose(fh);
+    return PP_WRITE_ERROR;
+  }
+
+  write_psml_finale(fh);
+  if (ferror(fh)) {
+    fclose(fh);
+    return PP_WRITE_ERROR;
+  }
+
+  /* XXX - check for an error */
+  fclose(fh);
 
   return PP_OK;
 }

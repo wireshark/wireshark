@@ -1,7 +1,7 @@
 /* print.h
  * Definitions for printing packet analysis trees.
  *
- * $Id: print.h,v 1.44 2004/05/09 10:03:37 guy Exp $
+ * $Id: print.h,v 1.45 2004/07/08 10:36:27 guy Exp $
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -29,13 +29,10 @@
 
 #include <epan/packet.h>
 
-
 /* print output format */
 typedef enum {
   PR_FMT_TEXT,    /* plain text */
   PR_FMT_PS,      /* postscript */
-  PR_FMT_PSML,    /* packet summary markup language */
-  PR_FMT_PDML     /* packet data markup language */
 } print_format_e;
 
 /* print_range, enum which frames should be printed */
@@ -80,6 +77,12 @@ extern void print_formfeed(FILE *fh, print_format_e format);
 extern void print_finale(FILE *fh, print_format_e format);
 extern void proto_tree_print(print_args_t *print_args, epan_dissect_t *edt,
      FILE *fh);
+extern void write_pdml_preamble(FILE *fh);
+extern void proto_tree_write_pdml(epan_dissect_t *edt, FILE *fh);
+extern void write_pdml_finale(FILE *fh);
+extern void write_psml_preamble(FILE *fh);
+extern void proto_tree_write_psml(epan_dissect_t *edt, FILE *fh);
+extern void write_psml_finale(FILE *fh);
 extern void print_hex_data(FILE *fh, print_format_e format, epan_dissect_t *edt);
 extern void print_line(FILE *fh, int indent, print_format_e format, char *line);
 
