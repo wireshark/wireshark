@@ -75,12 +75,37 @@ in the packet.
 When writing packets to a file, B<Tethereal>, by default, writes the
 file in B<libpcap> format, and writes all of the packets it sees to the
 output file.  The B<-F> flag can be used to specify the format in which
-to write the file; it can write the file in B<libpcap> format (standard
-B<libpcap> format, a modified format used by some patched versions of
-B<libpcap>, or the format used by Red Hat Linux 6.1), B<snoop> format,
-uncompressed B<Sniffer> format, Microsoft B<Network Monitor> 1.x format,
-the format used by Windows-based versions of the B<Sniffer>
-software, and the format used by Visual Networks' software.
+to write the file.  The following formats are supported:
+
+=over 8
+
+=item B<libpcap> - libpcap (tcpdump, Ethereal, etc.)
+
+=item B<rh6_1libpcap> - Red Hat Linux 6.1 libpcap (tcpdump)
+
+=item B<suse6_3libpcap> - SuSE Linux 6.3 libpcap (tcpdump)
+
+=item B<modlibpcap> - modified libpcap (tcpdump)
+
+=item B<nokialibpcap> - Nokia libpcap (tcpdump)
+
+=item B<lanalyzer> - Novell LANalyzer
+
+=item B<ngsniffer> - Network Associates Sniffer (DOS-based)
+
+=item B<snoop> - Sun snoop
+
+=item B<netmon1> - Microsoft Network Monitor 1.x
+
+=item B<netmon2> - Microsoft Network Monitor 2.x
+
+=item B<ngwsniffer_1_1> - Network Associates Sniffer (Windows-based) 1.1
+
+=item B<ngwsniffer_2_0> - Network Associates Sniffer (Windows-based) 2.00x
+
+=item B<visual> - Visual Networks traffic capture
+
+=back
 
 Read filters in B<Tethereal>, which allow you to select which packets
 are to be decoded or written to a file, are very powerful; more fields
