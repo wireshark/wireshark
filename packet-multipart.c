@@ -3,7 +3,7 @@
  * Copyright 2004, Anders Broman <anders.broman[at]ericsson.com>
  * Copyright 2004, Olivier Biot <olivier.biot[at]siemens.com>
  *
- * $Id: packet-multipart.c,v 1.1 2004/01/16 01:32:19 obiot Exp $
+ * $Id: packet-multipart.c,v 1.2 2004/01/16 01:49:37 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -531,7 +531,7 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb, const guint8 *boundary,
 
 	if (tree) {
 		ti = proto_tree_add_text(tree, tvb, start, 0,
-				"Encapsulated multipedia part");
+				"Encapsulated multipart part");
 		subtree = proto_item_add_subtree(ti, ett_multipart_body);
 	}
 	/*
