@@ -2,7 +2,7 @@
  * Routines for Sinec H1 packet disassembly
  * Gerrit Gehnen <G.Gehnen@atrie.de>
  *
- * $Id: packet-h1.c,v 1.9 2000/05/31 05:07:05 guy Exp $
+ * $Id: packet-h1.c,v 1.10 2000/07/21 07:51:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -99,11 +99,19 @@ static gint ett_org = -1;
 static gint ett_response = -1;
 static gint ett_empty = -1;
 
-
-static gboolean
-dissect_h1 (const u_char * pd, int offset, frame_data * fd, proto_tree * tree)
+#if 0
+static gboolean dissect_h1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
+#else
+static gboolean dissect_h1(const u_char *pd, int o, frame_data *fd, proto_tree *tree)
+{
+	packet_info	*pinfo = &pi;
+	tvbuff_t	*tvb = tvb_create_from_top(o);
+#endif
+  tvbuff_t *next_tvb; 
+  
   proto_tree *h1_tree = NULL;
+  
   proto_item *ti;
   proto_tree *opcode_tree = NULL;
   proto_tree *org_tree = NULL;
@@ -111,8 +119,9 @@ dissect_h1 (const u_char * pd, int offset, frame_data * fd, proto_tree * tree)
   proto_tree *empty_tree = NULL;
 
   unsigned int position = 3;
+  unsigned int offset=0;
 
-  if (!(pd[offset] == 'S' && pd[offset + 1] == '5')) {
+  if (!(tvb_get_guint8(tvb,offset) == 'S' && tvb_get_guint8(tvb,offset+1) == '5')) {
     return FALSE;
     }
 
@@ -122,114 +131,110 @@ dissect_h1 (const u_char * pd, int offset, frame_data * fd, proto_tree * tree)
 	col_add_str (fd, COL_INFO, "S5: ");
       if (tree)
 	{
-	  ti = proto_tree_add_item (tree, proto_h1, NullTVB, offset, 16, FALSE);
+	  ti = proto_tree_add_item (tree, proto_h1, tvb, offset, 16, FALSE);
 	  h1_tree = proto_item_add_subtree (ti, ett_h1);
-	  proto_tree_add_uint (h1_tree, hf_h1_header, NullTVB, offset, 2,
-			       pd[offset] * 0x100 + pd[offset + 1]);
-	  proto_tree_add_uint (h1_tree, hf_h1_len, NullTVB, offset + 2, 1,
-			       pd[offset + 2]);
+	  proto_tree_add_uint (h1_tree, hf_h1_header, tvb, offset, 2,
+			       tvb_get_ntohs(tvb,offset));
+	  proto_tree_add_uint (h1_tree, hf_h1_len, tvb, offset + 2, 1,
+			       tvb_get_guint8(tvb,offset+2));
 	}
 
-      while (position < pd[offset + 2])
+      while (position < tvb_get_guint8(tvb,offset+2))
 	{
-	  switch (pd[offset + position])
+	  switch (tvb_get_guint8(tvb,offset + position))
 	    {
 	    case OPCODE_BLOCK:
 	      if (h1_tree)
 		{
-		  ti = proto_tree_add_uint (h1_tree, hf_h1_opfield, NullTVB,
+		  ti = proto_tree_add_uint (h1_tree, hf_h1_opfield, tvb,
 					    offset + position,
-					    pd[offset + position + 1],
-					    pd[offset + position]);
+					    tvb_get_guint8(tvb,offset+position+1),
+					    tvb_get_guint8(tvb,offset+position));
 		  opcode_tree = proto_item_add_subtree (ti, ett_opcode);
-		  proto_tree_add_uint (opcode_tree, hf_h1_oplen, NullTVB,
+		  proto_tree_add_uint (opcode_tree, hf_h1_oplen, tvb,
 				       offset + position + 1, 1,
-				       pd[offset + position + 1]);
-		  proto_tree_add_uint (opcode_tree, hf_h1_opcode, NullTVB,
+				       tvb_get_guint8(tvb,offset + position + 1));
+		  proto_tree_add_uint (opcode_tree, hf_h1_opcode, tvb,
 				       offset + position + 2, 1,
-				       pd[offset + position + 2]);
+				       tvb_get_guint8(tvb,offset + position + 2));
 		}
 	      if (check_col (fd, COL_INFO))
 		{
 		  col_append_str (fd, COL_INFO,
-				  val_to_str (pd[offset + position + 2],
+				  val_to_str (tvb_get_guint8(tvb,offset + position + 2),
 						opcode_vals,"Unknown Opcode (0x%2.2x)"));
 		}
 	      break;
 	    case REQUEST_BLOCK:
 	      if (h1_tree)
 		{
-		  ti = proto_tree_add_uint (h1_tree, hf_h1_requestblock, NullTVB,
+		  ti = proto_tree_add_uint (h1_tree, hf_h1_requestblock, tvb,
 					    offset + position,
-					    pd[offset + position + 1],
-					    pd[offset + position]);
+					    tvb_get_guint8(tvb,offset + position + 1),
+					    tvb_get_guint8(tvb,offset + position));
 		  org_tree = proto_item_add_subtree (ti, ett_org);
-		  proto_tree_add_uint (org_tree, hf_h1_requestlen, NullTVB,
+		  proto_tree_add_uint (org_tree, hf_h1_requestlen, tvb,
 				       offset + position + 1, 1,
-				       pd[offset + position + 1]);
-		  proto_tree_add_uint (org_tree, hf_h1_org, NullTVB,
+				       tvb_get_guint8(tvb,offset + position+1));
+		  proto_tree_add_uint (org_tree, hf_h1_org, tvb,
 				       offset + position + 2, 1,
-				       pd[offset + position + 2]);
-		  proto_tree_add_uint (org_tree, hf_h1_dbnr, NullTVB,
+				       tvb_get_guint8(tvb,offset + position+2));
+		  proto_tree_add_uint (org_tree, hf_h1_dbnr, tvb,
 				       offset + position + 3, 1,
-				       pd[offset + position + 3]);
-		  proto_tree_add_uint (org_tree, hf_h1_dwnr, NullTVB,
+				       tvb_get_guint8(tvb,offset + position+3));
+		  proto_tree_add_uint (org_tree, hf_h1_dwnr, tvb,
 				       offset + position + 4, 2,
-				       pd[offset + position + 4] * 0x100 +
-				       pd[offset + position + 5]);
-		  proto_tree_add_int (org_tree, hf_h1_dlen, NullTVB,
+				       tvb_get_ntohs(tvb,offset+position+4));
+		  proto_tree_add_int (org_tree, hf_h1_dlen, tvb,
 				       offset + position + 6, 2,
-				       pd[offset + position + 6] * 0x100 +
-				       pd[offset + position + 7]);
+				       tvb_get_ntohs(tvb,offset+position+6));
 		}
 	      if (check_col (fd, COL_INFO))
 		{
 		  col_append_fstr (fd, COL_INFO, " %s %d",
-				   val_to_str (pd[offset + position + 2],
+				  val_to_str (tvb_get_guint8(tvb,offset + position + 2),
 						 org_vals,"Unknown Type (0x%2.2x)"),
-				   pd[offset + position + 3]);
+				   tvb_get_guint8(tvb,offset + position + 3));
 		  col_append_fstr (fd, COL_INFO, " DW %d",
-				   pd[offset + position + 4] * 0x100 +
-				   pd[offset + position + 5]);
+				       tvb_get_ntohs(tvb,offset+position+4));
 		  col_append_fstr (fd, COL_INFO, " Count %d",
-				   pd[offset + position + 6] * 0x100 +
-				   pd[offset + position + 7]);
+				       tvb_get_ntohs(tvb,offset+position+6));
 		}
 	      break;
 	    case RESPONSE_BLOCK:
 	      if (h1_tree)
 		{
-		  ti = proto_tree_add_uint (h1_tree, hf_h1_response, NullTVB,
+		  ti = proto_tree_add_uint (h1_tree, hf_h1_response, tvb,
 					    offset + position,
-					    pd[offset + position + 1],
-					    pd[offset + position]);
+					    tvb_get_guint8(tvb,offset + position + 1),
+					    tvb_get_guint8(tvb,offset + position));
 		  response_tree = proto_item_add_subtree (ti, ett_response);
-		  proto_tree_add_uint (response_tree, hf_h1_response_len, NullTVB,
+		  proto_tree_add_uint (response_tree, hf_h1_response_len, tvb,
 				       offset + position + 1, 1,
-				       pd[offset + position + 1]);
-		  proto_tree_add_uint (response_tree, hf_h1_response_value, NullTVB,
+				       tvb_get_guint8(tvb,offset + position+1));
+		  proto_tree_add_uint (response_tree, hf_h1_response_value, tvb,
 				       offset + position + 2, 1,
-				       pd[offset + position + 2]);
+				       tvb_get_guint8(tvb,offset + position+2));
 		}
 	      if (check_col (fd, COL_INFO))
 		{
 		  col_append_fstr (fd, COL_INFO, " %s",
-				   val_to_str (pd[offset + position + 2],
+				  val_to_str (tvb_get_guint8(tvb,offset + position + 2),
 						 returncode_vals,"Unknown Returcode (0x%2.2x"));
 		}
 	      break;
 	    case EMPTY_BLOCK:
 	      if (h1_tree)
 		{
-		  ti = proto_tree_add_uint (h1_tree, hf_h1_empty, NullTVB,
+		  ti = proto_tree_add_uint (h1_tree, hf_h1_empty, tvb,
 					    offset + position,
-					    pd[offset + position + 1],
-					    pd[offset + position]);
+					    tvb_get_guint8(tvb,offset + position + 1),
+					    tvb_get_guint8(tvb,offset + position));
 		  empty_tree = proto_item_add_subtree (ti, ett_empty);
 
-		  proto_tree_add_uint (empty_tree, hf_h1_empty_len, NullTVB,
+		  proto_tree_add_uint (empty_tree, hf_h1_empty_len, tvb,
 				       offset + position + 1, 1,
-				       pd[offset + position + 1]);
+				       tvb_get_guint8(tvb,offset + position+1));
 		}
 	      break;
 	    default:
@@ -238,11 +243,12 @@ dissect_h1 (const u_char * pd, int offset, frame_data * fd, proto_tree * tree)
                 return FALSE; 
 		break;
 	    }
-	  position += pd[offset + position + 1];	/* Goto next section */
+	  position += tvb_get_guint8(tvb,offset + position + 1);	/* Goto next section */
 	}			/* ..while */
+    next_tvb = tvb_new_subset(tvb, offset+tvb_get_guint8(tvb,offset+2), -1, -1);
+    dissect_data_tvb(next_tvb, pinfo, tree);
 
-      dissect_data (pd, offset + pd[offset + 2], fd, tree);
-      return TRUE;
+    return TRUE;
 }
 
 
@@ -281,7 +287,7 @@ proto_register_h1 (void)
     {&hf_h1_dlen,
      {"Length in words", "h1.dlen", FT_INT16, BASE_DEC, NULL, 0x0, ""}},
     {&hf_h1_response,
-     {"Response identifier", "h1.response", FT_UINT8, BASE_DEC, NULL, 0x0, ""}},
+     {"Response identifier", "h1.response", FT_UINT8, BASE_HEX, NULL, 0x0, ""}},
     {&hf_h1_response_len,
      {"Response length", "h1.reslen", FT_UINT8, BASE_DEC, NULL, 0x0,
       ""}},
