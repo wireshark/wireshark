@@ -2,18 +2,12 @@
  * Routines for AODV dissection
  * Copyright 2000, Erik Nordström <erik.nordstrom@it.uu.se>
  *
- * $Id: packet-aodv.c,v 1.1 2002/04/25 23:35:51 guy Exp $
+ * $Id: packet-aodv.c,v 1.2 2002/04/28 20:49:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
- * Copied from WHATEVER_FILE_YOU_USED (where "WHATEVER_FILE_YOU_USED"
- * is a dissector file; if you just copied this from README.developer,
- * don't bother with the "Copied from" - you don't even need to put
- * in a "Copied from" if you copied an existing dissector, especially
- * if the bulk of the code in the new dissector is your code)
- * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
@@ -141,7 +135,7 @@ static gint ett_aodv_flags = -1;
 static gint ett_aodv_unreach_dest = -1;
 
 /* Code to actually dissect the packets */
-static void
+static int
 dissect_aodv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_item *ti = NULL, *tj = NULL, *tk = NULL;
@@ -149,6 +143,7 @@ dissect_aodv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	*aodv_unreach_dest_tree = NULL;
     guint8 type;
     int i;
+
 /* Make entries in Protocol column and Info column on summary display */
     if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "AODV");
@@ -156,19 +151,22 @@ dissect_aodv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (check_col(pinfo->cinfo, COL_INFO)) 
 	col_clear(pinfo->cinfo, COL_INFO);
 	
-    type = tvb_get_guint8(tvb, 0);
-	
-    if (type < 1 || type > 3) {
-	if (check_col(pinfo->cinfo, COL_INFO))
-	    col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown AODV Packet Type (%u)", type);
-	return;
-    }
     /* Check the type of AODV packet. */
-    if (tree) {
-	ti = proto_tree_add_protocol_format(tree, proto_aodv, tvb, 0, -1, "Ad hoc On-demand Distance Vector Routing Protocol, %s", val_to_str(type, type_vals, "Unknown AODV Packet Type (%u)"));
-	aodv_tree = proto_item_add_subtree(ti, ett_aodv);
-	proto_tree_add_uint(aodv_tree, hf_aodv_type, tvb, 0, 1, tvb_get_guint8(tvb, 0));
+    type = tvb_get_guint8(tvb, 0);
+    if (type < 1 || type > 3) {
+	/*
+	 * We assume this is not an AODV packet.
+	 */
+	return 0;
+    }
 	    
+    if (tree) {
+	ti = proto_tree_add_protocol_format(tree, proto_aodv, tvb, 0, -1,
+	    "Ad hoc On-demand Distance Vector Routing Protocol, %s",
+	    val_to_str(type, type_vals, "Unknown AODV Packet Type (%u)"));
+	aodv_tree = proto_item_add_subtree(ti, ett_aodv);
+
+	proto_tree_add_uint(aodv_tree, hf_aodv_type, tvb, 0, 1, type);
 	tj = proto_tree_add_text(aodv_tree, tvb, 1, 1, "Flags:");
 	aodv_flags_tree = proto_item_add_subtree(tj, ett_aodv_flags);
     }
@@ -282,6 +280,8 @@ dissect_aodv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			    1, "Unknown AODV Packet Type (%u)",
 			    type);
     }
+
+    return tvb_length(tvb);
 }
 
 
@@ -403,7 +403,7 @@ proto_reg_handoff_aodv(void)
 {
     dissector_handle_t aodv_handle;
 
-    aodv_handle = create_dissector_handle(dissect_aodv,
-					  proto_aodv);
+    aodv_handle = new_create_dissector_handle(dissect_aodv,
+					      proto_aodv);
     dissector_add("udp.port", UDP_PORT_AODV, aodv_handle);
 }
