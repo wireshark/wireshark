@@ -5,7 +5,7 @@
  *
  * RFC 2865, RFC 2866, RFC 2867, RFC 2868, RFC 2869
  *
- * $Id: packet-radius.c,v 1.79 2003/07/01 03:59:11 guy Exp $
+ * $Id: packet-radius.c,v 1.80 2003/07/15 22:16:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -945,6 +945,11 @@ static value_value_string radius_vendor_cisco_attrib[] =
   {242,	RADIUS_INTEGER4,	"Cisco Data Filter"},
   {243,	RADIUS_INTEGER4,	"Cisco Call Filter"},
   {244,	RADIUS_INTEGER4,	"Cisco Idle Limit"},
+  /* Cisco SSG Service Selection Gateway Attributes */
+  {250, RADIUS_STRING,		"Cisco Account Info"},
+  {251, RADIUS_STRING,		"Cisco Service Info"},
+  {252, RADIUS_BINSTRING,	"Cisco Command Info"},
+  {253, RADIUS_STRING,		"Cisco Control Info"},
   {255,	RADIUS_INTEGER4,	"Cisco Xmit Rate"},
   {0, 0, NULL}
 };

@@ -1846,6 +1846,7 @@ B<http://www.ethereal.com>.
   Gregory Stark            <gsstark [AT] mit.edu>
   Darren Steele            <steeley [AT] steeley.co.uk>
                            <smhuang [AT] pcs.csie.nctu.edu.tw>
+  Michael Kopp             <michael.kopp [AT] isarnet.de>
 
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to give his
 permission to use his version of snprintf.c.
