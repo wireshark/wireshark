@@ -3,7 +3,7 @@
  * Wes Hardaker (c) 2000
  * wjhardaker@ucdavis.edu
  *
- * $Id: packet-kerberos.c,v 1.15 2001/04/15 07:30:02 guy Exp $
+ * $Id: packet-kerberos.c,v 1.16 2001/04/15 08:50:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -578,7 +578,7 @@ dissect_kerberos_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                    item_len, FALSE);
         kerberos_tree = proto_item_add_subtree(item, ett_kerberos);
     }
-    message_end = start + item_len;
+    message_end = asn1p->offset + item_len;
     
     /* second header */
     KRB_HEAD_DECODE_OR_DIE("top2");
@@ -690,7 +690,7 @@ dissect_kerberos_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                        item_len, "Request");
             request_tree = proto_item_add_subtree(item, ett_request);
         }
-        sequence_end = start + item_len;
+        sequence_end = asn1p->offset + item_len;
 
         /* kdc options */
         KRB_HEAD_DECODE_OR_DIE("kdc options");
@@ -700,11 +700,11 @@ dissect_kerberos_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         if (request_tree) {
                 proto_tree_add_text(request_tree, tvb, offset, item_len,
                                     "Options: %s",
-                                    tvb_bytes_to_str(asn1.tvb, asn1.offset,
+                                    tvb_bytes_to_str(asn1p->tvb, asn1p->offset,
                                                      item_len));
         }
         offset += item_len;
-        asn1.offset += item_len;
+        asn1p->offset += item_len;
 
         KRB_HEAD_DECODE_OR_DIE("Client Name or Realm");
 
