@@ -1,7 +1,7 @@
 /* packet-isup.c
  * Routines for ISUP dissection
  * Copyright 2001, Martina Obermeier <martina.obermeier@icn.siemens.de>
- * Copyright 2004, Anders Broman <anders.broman@ericsson.com>
+ * Copyright 2004-2005, Anders Broman <anders.broman@ericsson.com>
  * Modified 2003-09-10 by Anders Broman
  *		<anders.broman@ericsson.com>
  * Inserted routines for BICC dissection according to Q.765.5 Q.1902 Q.1970 Q.1990,
@@ -1598,7 +1598,7 @@ dissect_isup_backward_call_indicators_parameter(tvbuff_t *parameter_tvb,proto_tr
  * dissector, as that has some values not specified by the standard but
  * that appear to be used for purposes other than the ones in Q.850.
  */
-static const value_string q850_cause_code_vals[] = {
+const value_string q850_cause_code_vals[] = {
 	{ 0x00,	"Valid cause code not yet received" },
 	{ 0x01,	"Unallocated (unassigned) number" },
 	{ 0x02,	"No route to specified transit network" },

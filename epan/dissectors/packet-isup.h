@@ -42,7 +42,7 @@ typedef struct _isup_tap_rec_t {
  */
 ETH_VAR_IMPORT const value_string isup_message_type_value[];
 ETH_VAR_IMPORT const value_string isup_message_type_value_acro[];
-
+ETH_VAR_IMPORT const value_string q850_cause_code_vals[];
 /*
  * Export some definitions and value_string tables for other dissectors
  */
