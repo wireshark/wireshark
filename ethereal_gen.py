@@ -1,6 +1,6 @@
 # -*- python -*-
 #
-# $Id: ethereal_gen.py,v 1.4 2001/06/29 20:49:29 guy Exp $
+# $Id: ethereal_gen.py,v 1.5 2001/07/12 19:51:42 oabad Exp $
 #
 #                           
 # ethereal_gen.py (part of idl2eth)           
@@ -79,16 +79,20 @@ import tempfile
 # 1. generate hf[] data for searchable fields (but what is searchable?)
 # 2. add item instead of add_text()
 # 3. sequence handling [done]
-# 4. Exceptions
-# 5. Fix arrays, and structs containing arrays [started]
+# 4. User Exceptions [done]
+# 5. Fix arrays, and structs containing arrays [done]
 # 6. Handle pragmas.
 # 7. Exception can be common to many operations, so handle them outside the
-#    operation helper functions.
+#    operation helper functions [done]
 # 8. Automatic variable declaration [done, improve]
-# 9. wchar and wstring handling  
-# 10. Support Fixed [started]
+# 9. wchar and wstring handling [giop API needs improving]
+# 10. Support Fixed [done]
 # 11. Support attributes (get/set)
 # 12. Implement IDL "union" code
+# 13. Implement support for plugins
+#
+#
+# Also test, Test, TEST
 #
 
 
@@ -142,11 +146,11 @@ class ethereal_gen_C:
         self.dissname = dissector_name  # Dissector name (eg: echo)
         self.description = description  # Detailed Protocol description (eg: Echo IDL Example)
         self.exlist = []                # list of exceptions used in operations.
-        #self.curr_sname                # scoped name of current opnode I am visiting, used for generating "C" var declares
-        self.fn_hash = {}               # top level hash to contain function and a key = list of variable declarations
+        #self.curr_sname                # scoped name of current opnode or exnode I am visiting, used for generating "C" var declares
+        self.fn_hash = {}               # top level hash to contain key = function/exception and val = list of variable declarations
                                         # ie a hash of lists
-        self.fn_hash_built = 0          # flag to indicate the ist pass is complete, and the fn_hash is correctly
-                                        # populated.
+        self.fn_hash_built = 0          # flag to indicate the 1st pass is complete, and the fn_hash is correctly
+                                        # populated with operations/vars and exceptions/vars
 
                                         
     #
@@ -160,20 +164,29 @@ class ethereal_gen_C:
     def genCode(self,oplist):
 
         self.genHelpers(oplist)         # sneaky .. call it now, to populate the fn_hash
-                                        # so when I come to that function later, I have the variables to
+                                        # so when I come to that operation later, I have the variables to
                                         # declare already.
+                                        
+        self.genExceptionHelpers(oplist) # sneaky .. call it now, to populate the fn_hash
+                                        # so when I come to that exception later, I have the variables to
+                                        # declare already.
+                                                                                
         self.fn_hash_built = 1          # DONE, so now I know , see genOperation()
 
         self.st = self.st_save
         self.genHeader()                # initial dissector comments
+        self.genEthCopyright()          # Ethereal Copyright comments.
         self.genGPL()                   # GPL license
         self.genIncludes()
         self.genDeclares(oplist)
         self.genProtocol()
         self.genRegisteredFields()
-        self.genOpList(oplist)
-
-        self.genExceptionHelpers(oplist)
+        self.genOpList(oplist)          # string constant declares for operation names
+        self.genExList(oplist)          # string constant declares for user exceptions
+        
+        
+        self.genExceptionHelpers(oplist)   # helper function to decode user exceptions that have members
+        self.genExceptionDelegator(oplist) # finds the helper function to decode a user exception
         self.genHelpers(oplist)
 
         self.genMainEntryStart(oplist)
@@ -198,6 +211,22 @@ class ethereal_gen_C:
         self.st.out(self.template_Header,dissector_name=self.dissname)        
         if self.DEBUG:
             print "XXX genHeader"
+
+
+
+
+    #
+    # genEthCopyright
+    #
+    # Ethereal Copyright Info
+    #
+    #
+
+    def genEthCopyright(self):        
+        if self.DEBUG:
+            print "XXX genEthCopyright"            
+        self.st.out(self.template_ethereal_copyright)
+
 
     #
     # genGPL
@@ -304,6 +333,70 @@ class ethereal_gen_C:
     
         self.st.out(self.template_comment_operations_end)
 
+    #
+    # genExList
+    #
+    # in: oplist
+    #
+    # out: C code for IDL User Exceptions that contain members
+    #
+    # eg:
+    #
+    # static const char user_exception_tux_bad_value[] = "IDL:tux/bad_value:1.0" ;
+    #
+
+    def genExList(self,oplist):
+        
+        self.st.out(self.template_comment_user_exceptions_string_declare_start)
+        
+        exlist = self.get_exceptionList(oplist) # grab list of ALL UNIQUE exception nodes
+
+        for ex in exlist:
+            if self.DEBUG:
+                print "XXX Exception " , ex.repoId()
+                print "XXX Exception Identifier" , ex.identifier()
+                print "XXX Exception Scoped Name" , ex.scopedName()
+            
+            if (ex.members()):          # only if has members
+                sname = self.namespace(ex, "_")   
+                exname = ex.repoId()
+                self.st.out(self.template_user_exceptions_declare,  sname=sname, exname=ex.repoId())
+    
+        self.st.out(self.template_comment_user_exceptions_string_declare_end)
+
+
+
+    #
+    # genExceptionDelegator
+    #
+    # in: oplist
+    #
+    # out: C code for User exception delegator
+    #
+    # eg:
+    #
+    #
+
+    def genExceptionDelegator(self,oplist):
+        
+        self.st.out(self.template_main_exception_delegator_start)
+        self.st.inc_indent()
+
+        exlist = self.get_exceptionList(oplist) # grab list of ALL UNIQUE exception nodes
+
+        for ex in exlist:
+            if self.DEBUG:
+                print "XXX Exception " , ex.repoId()
+                print "XXX Exception Identifier" , ex.identifier()
+                print "XXX Exception Scoped Name" , ex.scopedName()
+            
+            if (ex.members()):          # only if has members
+                sname = self.namespace(ex, "_")   
+                exname = ex.repoId()
+                self.st.out(self.template_ex_delegate_code,  sname=sname, exname=ex.repoId())
+
+        self.st.dec_indent()    
+        self.st.out(self.template_main_exception_delegator_end)
 
 
     #
@@ -316,30 +409,73 @@ class ethereal_gen_C:
     #
     
         
-    def genExceptionHelpers(self,oplist):
+    def genExceptionHelpers(self,oplist):        
         exlist = self.get_exceptionList(oplist) # grab list of exception nodes
+        if self.DEBUG:
+            print "XXX genExceptionHelpers: exlist = ", exlist
 
         self.st.out(self.template_exception_helpers_start)
-        
-        for ex in self.exlist:
-            #print "Exception = " + ex.identifier()
-            self.genExHelper()
+        for ex in exlist:
+            if (ex.members()):          # only if has members
+                #print "XXX Exception = " + ex.identifier()
+                self.genExHelper(ex)
         
         self.st.out(self.template_exception_helpers_end)
 
 
     #
-    # genExhelper()  -- TODO not complete yet
+    # genExhelper() 
     #
-    # Generate private helper functions to decode used exceptions
+    # Generate private helper functions to decode User Exceptions
     #
     # in: exnode ( an exception node)
     #
     
-    def genExHelper(self,exnode):
-        t = 0
+    def genExHelper(self,ex):
+        if self.DEBUG:
+            print "XXX genExHelper"
+            
+        sname = self.namespace(ex, "_")
+        self.curr_sname = sname         # update current opnode/exnode scoped name
+        if not self.fn_hash_built:
+            self.fn_hash[sname] = []        # init empty list as val for this sname key
+                                            # but only if the fn_hash is not already built
 
+        self.st.out(self.template_exception_helper_function_start, sname=sname, exname=ex.repoId())
+        self.st.inc_indent()
 
+        self.st.out(self.template_helper_function_vars_start)
+        self.dumpCvars(sname)
+        self.st.out(self.template_helper_function_vars_end )
+        
+        self.st.out(self.template_exception_helper_function_get_endianess)
+
+        
+        for m in ex.members():
+            #print "XXX genExhelper, member = ", m, "member type = ", m.memberType()
+            
+
+            for decl in m.declarators():
+                #print "XXX genExhelper, d = ", decl
+                if decl.sizes():        # an array
+                    indices = self.get_indices_from_sizes(decl.sizes())
+                    string_indices = '%i ' % indices # convert int to string
+                    self.st.out(self.template_get_CDR_array_comment, aname=decl.identifier(), asize=string_indices)     
+                    self.st.out(self.template_get_CDR_array_start, aname=decl.identifier(), aval=string_indices)
+                    self.addvar(self.c_i + decl.identifier() + ";")
+                    
+                    self.st.inc_indent()       
+                    self.getCDR3(m.memberType(), ex.identifier() + "_" + decl.identifier() )
+                    
+                    self.st.dec_indent()
+                    self.st.out(self.template_get_CDR_array_end)
+                    
+                    
+                else:    
+                    self.getCDR3(m.memberType(), ex.identifier() + "_" + decl.identifier() )
+
+        self.st.dec_indent()
+        self.st.out(self.template_exception_helper_function_end)
 
 
     #
@@ -365,11 +501,13 @@ class ethereal_gen_C:
     #
     
     def genOperation(self,opnode):
-        ##print "visitOperation called"
+        if self.DEBUG:
+            print "XXX genOperation called"
+            
         sname = self.namespace(opnode, "_")
         if not self.fn_hash_built:
             self.fn_hash[sname] = []        # init empty list as val for this sname key
-                                            # but on if the fn_hash is not already built
+                                            # but only if the fn_hash is not already built
         
         self.curr_sname = sname         # update current opnode's scoped name
         opname = opnode.identifier()
@@ -833,6 +971,7 @@ class ethereal_gen_C:
    
     def namespace(self,node,sep):    
         sname = string.replace(idlutil.ccolonName(node.scopedName()), '::', sep)
+        #print "XXX namespace: sname = " + sname
         return sname
 
 
@@ -907,9 +1046,11 @@ class ethereal_gen_C:
         ex_hash = {}                   # holds a hash of unique exceptions.
         for op in oplist:
             for ex in op.raises():
-                if not ex_hash.has_key(ex.identifier()):
-                    ex_hash[ex.identifier()] = 0; # dummy val, but at least key is unique
-                    #print "Exception = " + ex.identifier()
+                if not ex_hash.has_key(ex):
+                    ex_hash[ex] = 0; # dummy val, but at least key is unique
+                    if self.DEBUG:
+                        print "XXX Exception = " + ex.identifier()
+
         return ex_hash.keys()
 
 
@@ -1456,11 +1597,22 @@ for (i_@aname@=0; i_@aname@ < @aval@; i_@aname@++) {
  * packet-@dissector_name@-idl.c
  * Routines for IDL dissection
  *
- * Autogenerated from ethereal_be.py
+ * Autogenerated from idl2eth
  * Copyright 2001 Frank Singleton <frank.singleton@@ericsson.com>
  */
 
 """
+
+    template_ethereal_copyright = """\
+/*
+ * Ethereal - Network traffic analyzer
+ * By Gerald Combs
+ * Copyright 1999 Gerald Combs
+ */
+ 
+"""
+    
+
 
 #
 # GPL Template
@@ -1551,6 +1703,14 @@ static gboolean dissect_@dissname@(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
     be = is_big_endian(header);         /* get endianess - TODO use passed in stream_is_big_endian instead ? */
 
+    /* If we have a USER Exception, then decode it and return */
+
+    if ((header->message_type == Reply) && (header->rep_status == USER_EXCEPTION)) {
+
+       return decode_user_exception(tvb, pinfo, tree, offset, header, operation);
+
+    }
+
     
 """
 
@@ -1626,6 +1786,19 @@ default:
 
     
 
+
+
+
+#-------------------------------------------------------------#
+#             Exception handling templates                    #
+#-------------------------------------------------------------#
+
+
+
+
+
+
+
     template_exception_helpers_start = """\
 /*  Begin Exception Helper Functions  */
 
@@ -1636,8 +1809,107 @@ default:
 /*  End Exception Helper Functions  */
 
 """
+
+
+
+#
+# Templates for declaration of string constants for user exceptions.
+#
+    
+    template_comment_user_exceptions_string_declare_start = """\
+/*  Begin Exception (containing members) String  Declare  */
+
+"""
+    
+    template_user_exceptions_declare = """static const char user_exception_@sname@[] = \"@exname@\" ; """
+
+    
+    template_comment_user_exceptions_string_declare_end = """\
+    
+/*  End Exception (containing members) String Declare  */
+
+"""
+
+
     
 
+#
+# template for Main delegator for exception handling
+#
+
+    template_main_exception_delegator_start = """\
+
+/*
+ * Main delegator for exception handling
+ *
+ */
+ 
+static gboolean decode_user_exception(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset, MessageHeader *header, gchar *operation ) {
+    
+    gboolean be;                        /* big endianess */
+
+    
+"""
+
+
+#
+# template for exception delegation code body
+#
+    template_ex_delegate_code = """\
+if (!strcmp(header->exception_id, user_exception_@sname@ )) {
+   decode_ex_@sname@(tvb, pinfo, tree, offset, header, operation);   /*  @exname@  */
+   return TRUE;
+}
+
+"""
+
+
+#
+# End of Main delegator for exception handling
+#
+
+    template_main_exception_delegator_end = """\
+
+
+    return FALSE;    /* user exception not found */
+
+}
+    
+"""
+    
+#
+# template for exception helper code
+#
+
+
+    template_exception_helper_function_start = """\
+
+/* Exception = @exname@ */
+
+static void decode_ex_@sname@(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset, MessageHeader *header, gchar *operation) {
+
+    gboolean stream_is_big_endian;          /* big endianess */
+"""
 
 
 
+    #
+    # Template for the helper function
+    # to get stream endianess from header
+    #
+
+    template_exception_helper_function_get_endianess = """\
+
+stream_is_big_endian = is_big_endian(header);  /* get stream endianess */
+
+"""
+
+    
+    template_exception_helper_function_end = """\
+}
+"""
+
+
+
+
+    
