@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.101 2003/05/15 07:44:53 guy Exp $
+ * $Id: prefs.c,v 1.102 2003/07/22 03:14:28 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -978,11 +978,12 @@ read_prefs(int *gpf_errno_return, char **gpf_path_return,
     prefs.gui_geometry_main_height   =        -1;
 
 /* set the default values for the capture dialog box */
-    prefs.capture_device      = NULL;
-    prefs.capture_prom_mode   = TRUE;
-    prefs.capture_real_time   = FALSE;
-    prefs.capture_auto_scroll = FALSE;
-    prefs.name_resolve        = RESOLV_ALL ^ RESOLV_NETWORK;
+    prefs.capture_device           = NULL;
+    prefs.capture_prom_mode        = TRUE;
+    prefs.capture_real_time        = FALSE;
+    prefs.capture_auto_scroll      = FALSE;
+    prefs.name_resolve             = RESOLV_ALL ^ RESOLV_NETWORK;
+    prefs.name_resolve_concurrency = 500;
   }
 
   /* Construct the pathname of the global preferences file. */
@@ -1247,6 +1248,7 @@ prefs_set_pref(char *prefarg)
  * over the place, so its name doesn't have two components.
  */
 #define PRS_NAME_RESOLVE "name_resolve"
+#define PRS_NAME_RESOLVE_CONCURRENCY "name_resolve_concurrency"
 #define PRS_CAP_NAME_RESOLVE "capture.name_resolve"
 
 /*  values for the capture dialog box */
@@ -1271,6 +1273,7 @@ static name_resolve_opt_t name_resolve_opt[] = {
   { 'm', RESOLV_MAC },
   { 'n', RESOLV_NETWORK },
   { 't', RESOLV_TRANSPORT },
+  { 'C', RESOLV_CONCURRENT },
 };
 
 #define N_NAME_RESOLVE_OPT	(sizeof name_resolve_opt / sizeof name_resolve_opt[0])
@@ -1536,6 +1539,8 @@ set_pref(gchar *pref_name, gchar *value)
       if (string_to_name_resolve(value, &prefs.name_resolve) != '\0')
         return PREFS_SET_SYNTAX_ERR;
     }
+  } else if (strcmp(pref_name, PRS_NAME_RESOLVE_CONCURRENCY) == 0) {
+    prefs.name_resolve_concurrency = strtol(value, NULL, 10);
   } else {
     /* To which module does this preference belong? */
     module = NULL;
@@ -2032,6 +2037,9 @@ write_prefs(char **pf_path_return)
   fprintf(pf, "\n# Resolve addresses to names? TRUE/FALSE/{list of address types to resolve}\n");
   fprintf(pf, PRS_NAME_RESOLVE ": %s\n",
 		  name_resolve_to_string(prefs.name_resolve));
+  fprintf(pf, "\n# Name resolution concurrency Decimal integer.\n");
+  fprintf(pf, PRS_NAME_RESOLVE_CONCURRENCY ": %d\n",
+		  prefs.name_resolve_concurrency);
 
 /* write the capture options */
   if (prefs.capture_device != NULL) {
@@ -2108,6 +2116,7 @@ copy_prefs(e_prefs *dest, e_prefs *src)
   dest->capture_real_time = src->capture_real_time;
   dest->capture_auto_scroll = src->capture_auto_scroll;
   dest->name_resolve = src->name_resolve;
+  dest->name_resolve_concurrency = src->name_resolve_concurrency;
 
 }
 

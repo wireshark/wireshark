@@ -1,7 +1,7 @@
 /* nameres_prefs.c
  * Dialog box for name resolution preferences
  *
- * $Id: nameres_prefs.c,v 1.7 2002/11/11 18:57:00 oabad Exp $
+ * $Id: nameres_prefs.c,v 1.8 2003/07/22 03:14:31 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -41,13 +41,25 @@
 #define M_RESOLVE_KEY	"m_resolve"
 #define N_RESOLVE_KEY	"n_resolve"
 #define T_RESOLVE_KEY	"t_resolve"
+#ifdef HAVE_GNU_ADNS
+# define C_RESOLVE_KEY	"c_resolve"
+# define RESOLVE_CONCURRENCY_KEY "resolve_concurrency"
+#endif /* HAVE_GNU_ADNS */
 
-#define RESOLV_TABLE_ROWS 3
+#ifdef HAVE_GNU_ADNS
+# define RESOLV_TABLE_ROWS 5
+#else
+# define RESOLV_TABLE_ROWS 3
+#endif /* HAVE_GNU_ADNS */
 GtkWidget*
 nameres_prefs_show(void)
 {
 	GtkWidget	*main_tb, *main_vb;
 	GtkWidget	*m_resolv_cb, *n_resolv_cb, *t_resolv_cb;
+#ifdef HAVE_GNU_ADNS
+	GtkWidget	*c_resolv_cb, *resolv_concurrency_te;
+	char		concur_str[10+1];
+#endif /* HAVE_GNU_ADNS */
 
 	/*
 	 * XXX - it would be nice if the current setting of the resolver
@@ -88,6 +100,21 @@ nameres_prefs_show(void)
 	    prefs.name_resolve & RESOLV_TRANSPORT);
 	OBJECT_SET_DATA(main_vb, T_RESOLVE_KEY, t_resolv_cb);
 
+#ifdef HAVE_GNU_ADNS
+	/* Enable concurrent (asynchronous) DNS lookups */
+	c_resolv_cb = create_preference_check_button(main_tb, 3,
+	    "Enable concurrent DNS name resolution:", NULL,
+	    prefs.name_resolve & RESOLV_CONCURRENT);
+	OBJECT_SET_DATA(main_vb, C_RESOLVE_KEY, c_resolv_cb);
+
+	/* Max concurrent requests */
+	sprintf(concur_str, "%d", prefs.name_resolve_concurrency);
+	resolv_concurrency_te = create_preference_entry(main_tb, 4, 
+	    "Maximum concurrent requests:", NULL, concur_str);
+	OBJECT_SET_DATA(main_vb, RESOLVE_CONCURRENCY_KEY, resolv_concurrency_te);
+
+#endif /* HAVE_GNU_ADNS */
+
 	/* Show 'em what we got */
 	gtk_widget_show_all(main_vb);
 
@@ -98,15 +125,29 @@ void
 nameres_prefs_fetch(GtkWidget *w)
 {
 	GtkWidget *m_resolv_cb, *n_resolv_cb, *t_resolv_cb;
+#ifdef HAVE_GNU_ADNS
+	GtkWidget *c_resolv_cb, *resolv_concurrency_te;
+#endif /* HAVE_GNU_ADNS */
 
 	m_resolv_cb = (GtkWidget *)OBJECT_GET_DATA(w, M_RESOLVE_KEY);
 	n_resolv_cb = (GtkWidget *)OBJECT_GET_DATA(w, N_RESOLVE_KEY);
 	t_resolv_cb = (GtkWidget *)OBJECT_GET_DATA(w, T_RESOLVE_KEY);
+#ifdef HAVE_GNU_ADNS
+	c_resolv_cb = (GtkWidget *)OBJECT_GET_DATA(w, C_RESOLVE_KEY);
+	
+	resolv_concurrency_te = (GtkWidget *)OBJECT_GET_DATA(w, RESOLVE_CONCURRENCY_KEY);
+#endif /* HAVE_GNU_ADNS */
 
 	prefs.name_resolve = RESOLV_NONE;
 	prefs.name_resolve |= (GTK_TOGGLE_BUTTON (m_resolv_cb)->active ? RESOLV_MAC : RESOLV_NONE);
 	prefs.name_resolve |= (GTK_TOGGLE_BUTTON (n_resolv_cb)->active ? RESOLV_NETWORK : RESOLV_NONE);
 	prefs.name_resolve |= (GTK_TOGGLE_BUTTON (t_resolv_cb)->active ? RESOLV_TRANSPORT : RESOLV_NONE);
+#ifdef HAVE_GNU_ADNS
+	prefs.name_resolve |= (GTK_TOGGLE_BUTTON (c_resolv_cb)->active ? RESOLV_CONCURRENT : RESOLV_NONE);
+
+	prefs.name_resolve_concurrency = strtol (gtk_entry_get_text(
+		GTK_ENTRY(resolv_concurrency_te)), NULL, 10);
+#endif /* HAVE_GNU_ADNS */
 }
 
 void

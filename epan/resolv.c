@@ -1,7 +1,7 @@
 /* resolv.c
  * Routines for network object lookup
  *
- * $Id: resolv.c,v 1.33 2003/05/15 07:44:54 guy Exp $
+ * $Id: resolv.c,v 1.34 2003/07/22 03:14:30 gerald Exp $
  *
  * Laurent Deniel <laurent.deniel@free.fr>
  *
@@ -86,6 +86,7 @@
 #include "ipv6-utils.h"
 #include "resolv.h"
 #include "filesystem.h"
+#include "prefs.h"
 
 #define ENAME_ETHERS 		"ethers"
 #define ENAME_IPXNETS 		"ipxnets"
@@ -193,8 +194,6 @@ gchar *g_pipxnets_path = NULL;		/* personal ipxnets file */
 
 adns_state ads;
 
-/* XXX - Create a preference for this */
-#define ADNS_MAX_CONCURRENCY 500
 int adns_currently_queued = 0;
 
 typedef struct _adns_queue_msg
@@ -329,15 +328,18 @@ static guchar *host_name_lookup(guint addr, gboolean *found)
   tp->next = NULL;
 
 #ifdef HAVE_GNU_ADNS
-  qmsg = g_malloc(sizeof(adns_queue_msg_t));
-  qmsg->type = AF_INET;
-  qmsg->ip4_addr = addr;
-  qmsg->submitted = FALSE;
-  adns_queue_head = g_list_append(adns_queue_head, (gpointer) qmsg);
+  if (g_resolv_flags & RESOLV_CONCURRENT != 0 && 
+      prefs.name_resolve_concurrency > 0) {
+    qmsg = g_malloc(sizeof(adns_queue_msg_t));
+    qmsg->type = AF_INET;
+    qmsg->ip4_addr = addr;
+    qmsg->submitted = FALSE;
+    adns_queue_head = g_list_append(adns_queue_head, (gpointer) qmsg);
 
-  tp->is_dummy_entry = TRUE;
-  ip_to_str_buf((guint8 *)&addr, tp->name);
-  return tp->name;
+    tp->is_dummy_entry = TRUE;
+    ip_to_str_buf((guint8 *)&addr, tp->name);
+    return tp->name;
+  }
 #else
 
   /*
@@ -1445,8 +1447,8 @@ host_name_lookup_process(gpointer data _U_) {
   adns_queue_head = g_list_first(adns_queue_head);
 
   cur = adns_queue_head;
-  while (cur && adns_currently_queued < ADNS_MAX_CONCURRENCY) {
-    almsg = (adns_queue_msg_t *) adns_queue_head->data;
+  while (cur && adns_currently_queued <= prefs.name_resolve_concurrency) {
+    almsg = (adns_queue_msg_t *) cur->data;
     if (! almsg->submitted && almsg->type == AF_INET) {
       addr_bytes = (guint8 *) &almsg->ip4_addr;
       sprintf(addr_str, "%u.%u.%u.%u.in-addr.arpa.", addr_bytes[3],

@@ -198,6 +198,7 @@ numbers turned off; the argument is a string that may contain the
 letters B<m> to enable MAC address resolution, B<n> to enable network
 address resolution, and B<t> to enable transport-layer port number
 resolution.  This overrides B<-n> if both B<-N> and B<-n> are present.
+The letter B<C> enables concurrent (asynchronous) DNS lookups.
 
 =item -o
 

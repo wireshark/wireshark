@@ -1,7 +1,7 @@
 /* file_dlg.c
  * Dialog boxes for handling files
  *
- * $Id: file_dlg.c,v 1.56 2003/07/18 20:55:11 oabad Exp $
+ * $Id: file_dlg.c,v 1.57 2003/07/22 03:14:30 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -42,6 +42,7 @@
 #include "dlg_utils.h"
 #include "main.h"
 #include "compat_macros.h"
+#include "prefs.h"
 
 static void file_open_ok_cb(GtkWidget *w, GtkFileSelection *fs);
 static void file_open_destroy_cb(GtkWidget *win, gpointer user_data);
@@ -234,7 +235,7 @@ file_open_ok_cb(GtkWidget *w, GtkFileSelection *fs) {
   cfile.rfcode = rfcode;
 
   /* Set the global resolving variable */
-  g_resolv_flags = 0;
+  g_resolv_flags = prefs.name_resolve & RESOLV_CONCURRENT;
   m_resolv_cb = OBJECT_GET_DATA(w, E_FILE_M_RESOLVE_KEY);
   g_resolv_flags |= GTK_TOGGLE_BUTTON (m_resolv_cb)->active ? RESOLV_MAC : RESOLV_NONE;
   n_resolv_cb = OBJECT_GET_DATA(w, E_FILE_N_RESOLVE_KEY);
