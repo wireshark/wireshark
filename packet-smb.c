@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.119 2001/09/29 01:19:00 guy Exp $
+ * $Id: packet-smb.c,v 1.120 2001/09/29 01:44:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -12453,27 +12453,21 @@ static const value_string NT_errors[] = {
 static gboolean
 dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	const u_char	*pd;
-	int		offset;
+	int		offset = 0;
+	struct          smb_info si;
+	static const char smb_signature[4] = { 0xFF, 'S', 'M', 'B' };
 	proto_tree      *smb_tree = tree, *smb_hdr_tree = NULL, *flags_tree, *flags2_tree;
 	proto_item      *ti, *tf, *th;
 	guint8          cmd, errcls, errcode1, flags;
 	guint16         flags2, errcode, tid, pid, uid, mid;
 	guint32         status;
+	const u_char	*pd;
 	int             SMB_offset;
-	struct          smb_info si;
-	static const char smb_signature[4] = { 0xFF, 'S', 'M', 'B' };
-
-	/*
-	 * Get old-style information from the tvbuff we've been handed.
-	 */
-	tvb_compat(tvb, &pd, &offset);
-	SMB_offset = offset;
 
 	/* OK, is this an SMB message? */
-	if (!BYTES_ARE_IN_FRAME(SMB_offset, 4))
+	if (!tvb_bytes_exist(tvb, 0, 4))
 	  return FALSE;
-	if (memcmp(&pd[SMB_offset], smb_signature, 4) != 0) {
+	if (memcmp(tvb_get_ptr(tvb, 0, 4), smb_signature, 4) != 0) {
 	  /* No. */
 	  return FALSE;
 	}
@@ -12482,11 +12476,12 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	si.unicode = FALSE;
     	si.ddisp = 0;
 
-	cmd = pd[offset + SMB_hdr_com_offset];
-
 	if (check_col(pinfo->fd, COL_PROTOCOL))
 		col_set_str(pinfo->fd, COL_PROTOCOL, "SMB");
+	if (check_col(pinfo->fd, COL_INFO))
+		col_clear(pinfo->fd, COL_INFO);
 
+	cmd = tvb_get_guint8(tvb, SMB_hdr_com_offset);
 	if (check_col(pinfo->fd, COL_INFO)) {
 
 	  col_add_fstr(pinfo->fd, COL_INFO, "%s", decode_smb_name(cmd));
@@ -12495,7 +12490,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (tree) {
 
-	  ti = proto_tree_add_item(tree, proto_smb, NullTVB, offset, END_OF_FRAME, FALSE);
+	  ti = proto_tree_add_item(tree, proto_smb, tvb, offset, tvb_length(tvb), FALSE);
 	  smb_tree = proto_item_add_subtree(ti, ett_smb);
 
 	  th = proto_tree_add_text(smb_tree, NullTVB, offset, 32, "SMB Header");
@@ -12506,8 +12501,8 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	   * component ... SMB is only one used
 	   */
 
-	  proto_tree_add_text(smb_hdr_tree, NullTVB, offset, 1, "Message Type: 0xFF");
-	  proto_tree_add_text(smb_hdr_tree, NullTVB, offset+1, 3, "Server Component: SMB");
+	  proto_tree_add_text(smb_hdr_tree, tvb, offset, 1, "Message Type: 0xFF");
+	  proto_tree_add_text(smb_hdr_tree, tvb, offset+1, 3, "Server Component: SMB");
 
 	}
 
@@ -12515,7 +12510,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (tree) {
 
-	  proto_tree_add_uint(smb_hdr_tree, hf_smb_cmd, NullTVB, offset, 1, cmd);
+	  proto_tree_add_uint(smb_hdr_tree, hf_smb_cmd, tvb, offset, 1, cmd);
 
 	}
 
@@ -12524,17 +12519,14 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* Get flags2; we need it to know whether the error code is
 	   an NT error code or a DOS error code. */
 
-	if (!BYTES_ARE_IN_FRAME(SMB_offset + 10, 2))
-	  return TRUE;
-
-	flags2 = GSHORT(pd, SMB_offset + 10);
+	flags2 = tvb_get_letohs(tvb, 10);
 
 	/* Handle error code */
 
 	if (flags2 & 0x4000) {
 
 	    /* handle NT 32 bit error code */
-	    status = GWORD(pd, offset); 
+	    status = tvb_get_letohl(tvb, offset); 
 
 	    if (tree) {
 
@@ -12542,7 +12534,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 * XXX - break the value down into severity code,
 		 * customer code, facility, and error?
 		 */
-		proto_tree_add_text(smb_hdr_tree, NullTVB, offset, 4,
+		proto_tree_add_text(smb_hdr_tree, tvb, offset, 4,
 				    "Status: %s (0x%08X)",
 				    val_to_str(status, NT_errors, "Unknown"),
 				    status);
@@ -12557,33 +12549,33 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	    /* Next, look at the error class, SMB_RETCLASS */
 
-	    errcls = pd[offset];
+	    errcls = tvb_get_guint8(tvb, offset);
 
 	    if (tree) {
 
-		proto_tree_add_text(smb_hdr_tree, NullTVB, offset, 1, "Error Class: %s", 
-				    val_to_str((guint8)pd[offset], errcls_types, "Unknown Error Class (%x)"));
+		proto_tree_add_text(smb_hdr_tree, tvb, offset, 1, "Error Class: %s", 
+				    val_to_str(errcls, errcls_types, "Unknown Error Class (%x)"));
 	    }
 
 	    offset += 1;
 
 	    /* Error code, SMB_HEINFO ... */
 
-	    errcode1 = pd[offset];
+	    errcode1 = tvb_get_guint8(tvb, offset);
 
 	    if (tree) {
 
-		proto_tree_add_text(smb_hdr_tree, NullTVB, offset, 1, "Reserved: %i", errcode1); 
+		proto_tree_add_text(smb_hdr_tree, tvb, offset, 1, "Reserved: %i", errcode1); 
 
 	    }
 
 	    offset += 1;
 
-	    errcode = GSHORT(pd, offset); 
+	    errcode = tvb_get_letohs(tvb, offset); 
 
 	    if (tree) {
 
-		proto_tree_add_text(smb_hdr_tree, NullTVB, offset, 2, "Error Code: %s",
+		proto_tree_add_text(smb_hdr_tree, tvb, offset, 2, "Error Code: %s",
 				    decode_smb_error(errcls, errcode));
 
 	    }
@@ -12593,7 +12585,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* Now for the flags: Bit 0 = 0 means cmd, 0 = 1 means resp */
 
-	flags = pd[offset];
+	flags = tvb_get_guint8(tvb, offset);
 	si.request = !(flags&SMB_FLAGS_DIRN);
 
 	if (check_col(pinfo->fd, COL_INFO)) {
@@ -12604,35 +12596,35 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (tree) {
 
-	  tf = proto_tree_add_text(smb_hdr_tree, NullTVB, offset, 1, "Flags: 0x%02x", flags);
+	  tf = proto_tree_add_text(smb_hdr_tree, tvb, offset, 1, "Flags: 0x%02x", flags);
 
 	  flags_tree = proto_item_add_subtree(tf, ett_smb_flags);
-	  proto_tree_add_text(flags_tree, NullTVB, offset, 1, "%s",
+	  proto_tree_add_text(flags_tree, tvb, offset, 1, "%s",
 			      decode_boolean_bitfield(flags, 0x01, 8,
 						      "Lock&Read, Write&Unlock supported",
 						      "Lock&Read, Write&Unlock not supported"));
-	  proto_tree_add_text(flags_tree, NullTVB, offset, 1, "%s",
+	  proto_tree_add_text(flags_tree, tvb, offset, 1, "%s",
 			      decode_boolean_bitfield(flags, 0x02, 8,
 						      "Receive buffer posted",
 						      "Receive buffer not posted"));
-	  proto_tree_add_text(flags_tree, NullTVB, offset, 1, "%s",
+	  proto_tree_add_text(flags_tree, tvb, offset, 1, "%s",
 			      decode_boolean_bitfield(flags, 0x08, 8, 
 						      "Path names caseless",
 						      "Path names case sensitive"));
-	  proto_tree_add_text(flags_tree, NullTVB, offset, 1, "%s",
+	  proto_tree_add_text(flags_tree, tvb, offset, 1, "%s",
 			      decode_boolean_bitfield(flags, 0x10, 8,
 						      "Pathnames canonicalized",
 						      "Pathnames not canonicalized"));
-	  proto_tree_add_text(flags_tree, NullTVB, offset, 1, "%s",
+	  proto_tree_add_text(flags_tree, tvb, offset, 1, "%s",
 			      decode_boolean_bitfield(flags, 0x20, 8,
 						      "OpLocks requested/granted",
 						      "OpLocks not requested/granted"));
-	  proto_tree_add_text(flags_tree, NullTVB, offset, 1, "%s",
+	  proto_tree_add_text(flags_tree, tvb, offset, 1, "%s",
 			      decode_boolean_bitfield(flags, 0x40, 8, 
 						      "Notify all",
 						      "Notify open only"));
 
-	  proto_tree_add_text(flags_tree, NullTVB, offset, 1, "%s",
+	  proto_tree_add_text(flags_tree, tvb, offset, 1, "%s",
 			      decode_boolean_bitfield(flags, SMB_FLAGS_DIRN,
 						      8, "Response to client/redirector", "Request to server"));
 
@@ -12644,38 +12636,38 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (tree) {
 
-	  tf = proto_tree_add_text(smb_hdr_tree, NullTVB, offset, 2, "Flags2: 0x%04x", flags2);
+	  tf = proto_tree_add_text(smb_hdr_tree, tvb, offset, 2, "Flags2: 0x%04x", flags2);
 
 	  flags2_tree = proto_item_add_subtree(tf, ett_smb_flags2);
-	  proto_tree_add_text(flags2_tree, NullTVB, offset, 2, "%s",
+	  proto_tree_add_text(flags2_tree, tvb, offset, 2, "%s",
 			      decode_boolean_bitfield(flags2, 0x0001, 16,
 						      "Long file names supported",
 						      "Long file names not supported"));
-	  proto_tree_add_text(flags2_tree, NullTVB, offset, 2, "%s",
+	  proto_tree_add_text(flags2_tree, tvb, offset, 2, "%s",
 			      decode_boolean_bitfield(flags2, 0x0002, 16,
 						      "Extended attributes supported",
 						      "Extended attributes not supported"));
-	  proto_tree_add_text(flags2_tree, NullTVB, offset, 1, "%s",
+	  proto_tree_add_text(flags2_tree, tvb, offset, 1, "%s",
 			      decode_boolean_bitfield(flags2, 0x0004, 16,
 						      "Security signatures supported",
 						      "Security signatures not supported"));
-	  proto_tree_add_text(flags2_tree, NullTVB, offset, 2, "%s",
+	  proto_tree_add_text(flags2_tree, tvb, offset, 2, "%s",
 			      decode_boolean_bitfield(flags2, 0x0800, 16,
 						      "Extended security negotiation supported",
 						      "Extended security negotiation not supported"));
-	  proto_tree_add_text(flags2_tree, NullTVB, offset, 2, "%s",
+	  proto_tree_add_text(flags2_tree, tvb, offset, 2, "%s",
 			      decode_boolean_bitfield(flags2, 0x1000, 16, 
 						      "Resolve pathnames with DFS",
 						      "Don't resolve pathnames with DFS"));
-	  proto_tree_add_text(flags2_tree, NullTVB, offset, 2, "%s",
+	  proto_tree_add_text(flags2_tree, tvb, offset, 2, "%s",
 			      decode_boolean_bitfield(flags2, 0x2000, 16,
 						      "Permit reads if execute-only",
 						      "Don't permit reads if execute-only"));
-	  proto_tree_add_text(flags2_tree, NullTVB, offset, 2, "%s",
+	  proto_tree_add_text(flags2_tree, tvb, offset, 2, "%s",
 			      decode_boolean_bitfield(flags2, 0x4000, 16,
 						      "Error codes are NT error codes",
 						      "Error codes are DOS error codes"));
-	  proto_tree_add_text(flags2_tree, NullTVB, offset, 2, "%s",
+	  proto_tree_add_text(flags2_tree, tvb, offset, 2, "%s",
 			      decode_boolean_bitfield(flags2, 0x8000, 16, 
 						      "Strings are Unicode",
 						      "Strings are ASCII"));
@@ -12716,7 +12708,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	   * IPX_SOCKET_NWLINK_SMB_SERVER or IPX_SOCKET_NWLINK_SMB_REDIR
 	   * or, if it also uses 0x0554, IPX_SOCKET_NWLINK_SMB_MESSENGER).
 	   */
-	  proto_tree_add_text(smb_hdr_tree, NullTVB, offset, 12, "Reserved: 6 WORDS");
+	  proto_tree_add_text(smb_hdr_tree, tvb, offset, 12, "Reserved: 6 WORDS");
 
 	}
 
@@ -12724,15 +12716,12 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* Now the TID, tree ID */
 
-	if (!BYTES_ARE_IN_FRAME(offset, 2))
-	  return TRUE;
-
-	tid = GSHORT(pd, offset);
+	tid = tvb_get_letohs(tvb, offset);
 	si.tid = tid;
 
 	if (tree) {
 
-	  proto_tree_add_text(smb_hdr_tree, NullTVB, offset, 2, "Network Path/Tree ID (TID): %i (%04x)", tid, tid); 
+	  proto_tree_add_text(smb_hdr_tree, tvb, offset, 2, "Network Path/Tree ID (TID): %i (%04x)", tid, tid); 
 
 	}
 
@@ -12740,15 +12729,12 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* Now the PID, Process ID */
 
-	if (!BYTES_ARE_IN_FRAME(offset, 2))
-	  return TRUE;
-
-	pid = GSHORT(pd, offset);
+	pid = tvb_get_letohs(tvb, offset);
 	si.pid = pid;
 
 	if (tree) {
 
-	  proto_tree_add_text(smb_hdr_tree, NullTVB, offset, 2, "Process ID (PID): %i (%04x)", pid, pid); 
+	  proto_tree_add_text(smb_hdr_tree, tvb, offset, 2, "Process ID (PID): %i (%04x)", pid, pid); 
 
 	}
 
@@ -12756,12 +12742,12 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* Now the UID, User ID */
 
-	uid = GSHORT(pd, offset);
+	uid = tvb_get_letohs(tvb, offset);
 	si.uid = uid;
 
 	if (tree) {
 
-	  proto_tree_add_text(smb_hdr_tree, NullTVB, offset, 2, "User ID (UID): %i (%04x)", uid, uid); 
+	  proto_tree_add_text(smb_hdr_tree, tvb, offset, 2, "User ID (UID): %i (%04x)", uid, uid); 
 
 	}
 	
@@ -12769,16 +12755,22 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* Now the MID, Multiplex ID */
 
-	mid = GSHORT(pd, offset);
+	mid = tvb_get_letohs(tvb, offset);
 	si.mid = mid;
 
 	if (tree) {
 
-	  proto_tree_add_text(smb_hdr_tree, NullTVB, offset, 2, "Multiplex ID (MID): %i (%04x)", mid, mid); 
+	  proto_tree_add_text(smb_hdr_tree, tvb, offset, 2, "Multiplex ID (MID): %i (%04x)", mid, mid); 
 
 	}
 
 	offset += 2;
+
+	/*
+	 * Get old-style information from the tvbuff we've been handed.
+	 */
+	tvb_compat(tvb, &pd, &SMB_offset);
+	offset += SMB_offset;
 
 	/* Now vector through the table to dissect them */
 
