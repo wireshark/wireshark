@@ -3,7 +3,7 @@
  * Helper routines common to all service response time statistics
  * tap.
  *
- * $Id: service_response_time_table.c,v 1.5 2003/06/22 04:00:21 gerald Exp $
+ * $Id: service_response_time_table.c,v 1.6 2003/09/03 10:10:18 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -250,14 +250,12 @@ add_srt_table_data(srt_stat_table *rst, int index, nstime_t *req_time, packet_in
 		delta.secs--;
 	}
 
-	if((rp->max.secs==0)
-	&& (rp->max.nsecs==0) ){
+	if(rp->num==0){
 		rp->max.secs=delta.secs;
 		rp->max.nsecs=delta.nsecs;
 	}
 
-	if((rp->min.secs==0)
-	&& (rp->min.nsecs==0) ){
+	if(rp->num==0){
 		rp->min.secs=delta.secs;
 		rp->min.nsecs=delta.nsecs;
 	}
@@ -282,6 +280,7 @@ add_srt_table_data(srt_stat_table *rst, int index, nstime_t *req_time, packet_in
 		rp->tot.nsecs-=1000000000;
 		rp->tot.secs++;
 	}
+
 	rp->num++;
 }
 

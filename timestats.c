@@ -2,7 +2,7 @@
  * routines for time statistics
  * Copyrigth 2003 Lars Roland
  *
- * $Id: timestats.c,v 1.1 2003/04/16 07:24:04 guy Exp $
+ * $Id: timestats.c,v 1.2 2003/09/03 10:10:17 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -70,15 +70,13 @@ gdouble nstime_to_msec(nstime_t *time)
 void
 time_stat_update(timestat_t *stats, nstime_t *delta, packet_info *pinfo)
 {
-	if((stats->max.secs==0)
-	&& (stats->max.nsecs==0) ){
+	if(stats->num==0){
 		stats->max.secs=delta->secs;
 		stats->max.nsecs=delta->nsecs;
 		stats->max_num=pinfo->fd->num;
 	}
 
-	if((stats->min.secs==0)
-	&& (stats->min.nsecs==0) ){
+	if(stats->num==0){
 		stats->min.secs=delta->secs;
 		stats->min.nsecs=delta->nsecs;
 		stats->min_num=pinfo->fd->num;

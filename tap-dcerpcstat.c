@@ -1,7 +1,7 @@
 /* tap-dcerpcstat.c
  * dcerpcstat   2002 Ronnie Sahlberg
  *
- * $Id: tap-dcerpcstat.c,v 1.5 2003/04/23 08:20:01 guy Exp $
+ * $Id: tap-dcerpcstat.c,v 1.6 2003/09/03 10:10:17 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -110,14 +110,12 @@ dcerpcstat_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt _U_, void *
 		delta.secs--;
 	}
 
-	if((rp->max.secs==0)
-	&& (rp->max.nsecs==0) ){
+	if(rp->num==0){
 		rp->max.secs=delta.secs;
 		rp->max.nsecs=delta.nsecs;
 	}
 
-	if((rp->min.secs==0)
-	&& (rp->min.nsecs==0) ){
+	if(rp->num==0){
 		rp->min.secs=delta.secs;
 		rp->min.nsecs=delta.nsecs;
 	}
@@ -142,6 +140,7 @@ dcerpcstat_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt _U_, void *
 		rp->tot.nsecs-=1000000000;
 		rp->tot.secs++;
 	}
+
 	rp->num++;
 
 	return 1;

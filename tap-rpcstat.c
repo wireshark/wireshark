@@ -1,7 +1,7 @@
 /* tap-rpcstat.c
  * rpcstat   2002 Ronnie Sahlberg
  *
- * $Id: tap-rpcstat.c,v 1.8 2003/04/23 08:20:02 guy Exp $
+ * $Id: tap-rpcstat.c,v 1.9 2003/09/03 10:10:17 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -154,14 +154,12 @@ rpcstat_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt _U_, void *pri
 		delta.secs--;
 	}
 
-	if((rp->max.secs==0)
-	&& (rp->max.nsecs==0) ){
+	if(rp->num==0){
 		rp->max.secs=delta.secs;
 		rp->max.nsecs=delta.nsecs;
 	}
 
-	if((rp->min.secs==0)
-	&& (rp->min.nsecs==0) ){
+	if(rp->num==0){
 		rp->min.secs=delta.secs;
 		rp->min.nsecs=delta.nsecs;
 	}
@@ -186,6 +184,7 @@ rpcstat_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt _U_, void *pri
 		rp->tot.nsecs-=1000000000;
 		rp->tot.secs++;
 	}
+
 	rp->num++;
 
 	return 1;
