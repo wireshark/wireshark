@@ -1,7 +1,7 @@
 /* dlg_utils.c
  * Utilities to use when constructing dialogs
  *
- * $Id: dlg_utils.c,v 1.29 2004/05/21 00:18:46 guy Exp $
+ * $Id: dlg_utils.c,v 1.30 2004/05/21 00:25:04 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -329,6 +329,7 @@ dlg_window_new(const gchar *title)
   gtk_window_set_position(GTK_WINDOW(win), GTK_WIN_POS_CENTER_ON_PARENT);
   if(top_level)
     SIGNAL_CONNECT(win, "destroy", on_dialog_destroyed, top_level);
+  gtk_window_present(GTK_WINDOW(win));
 #endif
   return win;
 }
