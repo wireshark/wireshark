@@ -201,7 +201,8 @@ Christophe Tronche <ch.tronche[AT]computer.org> {
 }
 
 Nathan Neulinger <nneul[AT]umr.edu> {
-	Yahoo messenger and pager protocol support
+	Yahoo Messenger YHOO protocol, and Yahoo Pager (YPNS?) protocol
+	    support
 	NTP (Network Time Protocol) support
 	RX protocol support
 	Andrew File System protocol support
@@ -1621,6 +1622,10 @@ Teemu Rinta-aho <teemu.rinta-aho [AT] nomadiclab.com> {
 
 Martijn Schipper <martijn.schipper [AT] intersil.com> {
 	Fix for tag for 802.11g ERP Information field
+}
+
+Wayne Parrott <wayne_p [AT] pacific.net.au> {
+	Yahoo Messenger YMSG protocol support
 }
 
 And assorted fixes and enhancements by the people listed above and by:

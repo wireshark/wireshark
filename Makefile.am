@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.559 2003/02/27 02:45:42 guy Exp $
+# $Id: Makefile.am,v 1.560 2003/03/01 00:09:00 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -399,6 +399,7 @@ DISSECTOR_SRC = \
 	packet-xot.c   \
 	packet-xyplex.c   \
 	packet-yhoo.c  \
+	packet-ymsg.c  \
 	packet-ypbind.c \
 	packet-yppasswd.c \
 	packet-ypserv.c \
@@ -629,7 +630,6 @@ noinst_HEADERS = \
 	packet-wtls.h \
 	packet-wtp.h \
 	packet-x11-keysym.h	\
-	packet-yhoo.h  \
 	packet-ypbind.h \
 	packet-yppasswd.h \
 	packet-ypserv.h \

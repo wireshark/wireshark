@@ -2,7 +2,7 @@
  * Routines for yahoo messenger packet dissection
  * Copyright 1999, Nathan Neulinger <nneul@umr.edu>
  *
- * $Id: packet-yhoo.c,v 1.25 2002/08/28 21:00:40 jmayer Exp $
+ * $Id: packet-yhoo.c,v 1.26 2003/03/01 00:09:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -34,7 +34,6 @@
 #include <string.h>
 #include <glib.h>
 #include <epan/packet.h>
-#include "packet-yhoo.h"
 
 static int proto_yhoo = -1;
 static int hf_yhoo_version = -1;
@@ -51,6 +50,62 @@ static int hf_yhoo_content = -1;
 static gint ett_yhoo = -1;
 
 #define TCP_PORT_YHOO	5050
+
+/* This is from yahoolib.h from gtkyahoo */
+
+/* Service constants */
+#define YAHOO_SERVICE_LOGON		1
+#define YAHOO_SERVICE_LOGOFF		2
+#define YAHOO_SERVICE_ISAWAY		3
+#define YAHOO_SERVICE_ISBACK		4
+#define YAHOO_SERVICE_IDLE		5
+#define YAHOO_SERVICE_MESSAGE		6
+#define YAHOO_SERVICE_IDACT		7
+#define YAHOO_SERVICE_IDDEACT		8
+#define YAHOO_SERVICE_MAILSTAT		9
+#define YAHOO_SERVICE_USERSTAT		10
+#define YAHOO_SERVICE_NEWMAIL		11
+#define YAHOO_SERVICE_CHATINVITE	12
+#define YAHOO_SERVICE_CALENDAR		13
+#define YAHOO_SERVICE_NEWPERSONALMAIL	14
+#define YAHOO_SERVICE_NEWCONTACT	15
+#define YAHOO_SERVICE_ADDIDENT		16
+#define YAHOO_SERVICE_ADDIGNORE		17
+#define YAHOO_SERVICE_PING		18
+#define YAHOO_SERVICE_GROUPRENAME	19
+#define YAHOO_SERVICE_SYSMESSAGE	20
+#define YAHOO_SERVICE_PASSTHROUGH2	22
+#define YAHOO_SERVICE_CONFINVITE	24
+#define YAHOO_SERVICE_CONFLOGON		25
+#define YAHOO_SERVICE_CONFDECLINE	26
+#define YAHOO_SERVICE_CONFLOGOFF	27
+#define YAHOO_SERVICE_CONFADDINVITE	28
+#define YAHOO_SERVICE_CONFMSG		29
+#define YAHOO_SERVICE_CHATLOGON		30
+#define YAHOO_SERVICE_CHATLOGOFF	31
+#define YAHOO_SERVICE_CHATMSG		32
+#define YAHOO_SERVICE_FILETRANSFER	70
+
+/* Message flags */
+#define YAHOO_MSGTYPE_NONE	0
+#define YAHOO_MSGTYPE_NORMAL	1
+#define YAHOO_MSGTYPE_BOUNCE	2
+#define YAHOO_MSGTYPE_STATUS	4
+#define YAHOO_MSGTYPE_OFFLINE	1515563606	/* yuck! */
+
+struct yahoo_rawpacket
+{
+	char version[8];		/* 7 chars and trailing null */
+	unsigned char len[4];		/* length - little endian */
+	unsigned char service[4];	/* service - little endian */
+	unsigned char connection_id[4];	/* connection number - little endian */
+	unsigned char magic_id[4];	/* magic number used for http session */
+	unsigned char unknown1[4];
+	unsigned char msgtype[4];
+	char nick1[36];
+	char nick2[36];
+	char content[1];		/* was zero, had problems with aix xlc */
+};
 
 static const value_string yhoo_service_vals[] = {
 	{YAHOO_SERVICE_LOGON, "Pager Logon"},
@@ -232,5 +287,12 @@ proto_register_yhoo(void)
 void
 proto_reg_handoff_yhoo(void)
 {
+	/*
+	 * DO NOT register for port 5050, as that's used by the
+	 * old and new Yahoo messenger protocols.
+	 *
+	 * Just register as a heuristic TCP dissector, and reject stuff
+	 * not to or from that port.
+	 */
 	heur_dissector_add("tcp", dissect_yhoo, proto_yhoo);
 }
