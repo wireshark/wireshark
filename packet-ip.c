@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.191 2003/04/29 17:24:35 guy Exp $
+ * $Id: packet-ip.c,v 1.192 2003/06/05 22:23:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1075,7 +1075,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
     if( ipfd_head && ipfd_head->reassembled_in != pinfo->fd->num ){
       if (check_col(pinfo->cinfo, COL_INFO)) {
-        col_append_fstr(pinfo->cinfo, COL_INFO, " [Reassembled in #%d]",
+        col_append_fstr(pinfo->cinfo, COL_INFO, " [Reassembled in #%u]",
           ipfd_head->reassembled_in);
       }
     }
