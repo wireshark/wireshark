@@ -1,11 +1,12 @@
-$Id: README,v 1.18 1999/11/11 08:45:34 guy Exp $
+$Id: README,v 1.19 1999/11/26 20:49:28 gram Exp $
 
 Wiretap is a library that is being developed as a future replacement for
-libpcap, the current standard Unix library for packet capturing. Libpcap is
-great in that it is very platform independent and has a wonderful BPF
-optimizing engine. But it has some shortcomings as well. These shortcomings
-came to a head during the development of Ethereal (http://ethereal.zing.org),
-a packet analyzer. As such, I began developing wiretap so that:
+libpcap, the current standard Unix library for packet capturing. Libpcap
+is great in that it is very platform independent and has a wonderful
+BPF optimizing engine. But it has some shortcomings as well. These
+shortcomings came to a head during the development of Ethereal
+(http://ethereal.zing.org), a packet analyzer. As such, I began developing
+wiretap so that:
 
 1. The library can easily be amended with new packet filtering objects.
 Libpcap is very TCP/IP-oriented. I want to filter on IPX objects, SNA objects,
@@ -59,14 +60,14 @@ addresses).
 
 LANalyzer
 ---------
-The LANalyzer format is available from http://www.novell.com. Search their
-knowledge base for "Trace File Format". 
+The LANalyzer format is available from http://www.novell.com. Search
+their knowledge base for "Trace File Format".
 
 Network Monitor
 ---------------
-Microsoft's Network Monitor file format is supported, at least under Ethernet
-and token-ring. If you have capture files of other datalink types, please send
-them to Guy.
+Microsoft's Network Monitor file format is supported, at least under
+Ethernet and token-ring. If you have capture files of other datalink
+types, please send them to Guy.
 
 "snoop"
 -------
@@ -74,15 +75,11 @@ The Solaris 2.x "snoop" program's format is documented in RFC 1761.
 
 "iptrace"
 ---------
-This is the capture program that comes with AIX 3.x and 4.x.  Right now
-wiretap only supports iptrace 2.0 (AIX4) because I don't have access to
-an AIX3 machine.  iptrace has an undocumented, yet very simple, file
-format.  The interesting thing about iptrace is that it will record
-packets coming in from all network interfaces; a single iptrace file can
-contain multiple datalink types.  I have tested iptrace on ethernet and
-token-ring; if you can provide an iptrace file with any other datalink
-type, I would appreciate a copy.  (with the output from 'ipreport' too,
-if possible).
+This is the capture program that comes with AIX 3.x and 4.x.  AIX 3 uses
+the iptrace 1.0 file format, while AIX4 uses iptrace 2.0.  iptrace has
+an undocumented, yet very simple, file format.  The interesting thing
+about iptrace is that it will record packets coming in from all network
+interfaces; a single iptrace file can contain multiple datalink types.
 
 Sniffer Basic (NetXRay)/Windows Sniffer Pro
 -------------------------------------------
@@ -106,12 +103,13 @@ Olivier
 
 Toshiba ISDN Router
 -------------------
-An under-documented command that the router supports in a telnet session is "snoop".
-If you give it the "dump" option, you'll get a hex dump of all packets across the
-router (except of your own telnet session -- good thinking Toshiba!). You can
-select a certain channel to sniff (LAN, B1, B2, D), but the default is all channels.
-You save this hex dump to disk with 'script' or by 'telnet | tee'. Wiretap will
-read the ASCII hex dump and convert it to binary data.
+An under-documented command that the router supports in a telnet session
+is "snoop" (not related to the Solaris "snoop" command). If you give it
+the "dump" option, you'll get a hex dump of all packets across the router
+(except of your own telnet session -- good thinking Toshiba!). You can
+select a certain channel to sniff (LAN, B1, B2, D), but the default is all
+channels.  You save this hex dump to disk with 'script' or by 'telnet |
+tee'. Wiretap will read the ASCII hex dump and convert it to binary data.
 
 Gilbert Ramirez <gram@xiexie.org>
 Guy Harris <guy@alum.mit.edu>
