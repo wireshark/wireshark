@@ -7,12 +7,11 @@ refered to as type 0x2222; the 0x3333 replies are understood to be
 part of the 0x2222 "family")
 
 The data-munging code was written by Gilbert Ramirez.
-Most of the NCP data, and all of the testing, comes from
-Greg Morris <GMORRIS@novell.com>. Many thanks to Novell for letting
-him work on this.
+The NCP data comes from Greg Morris <GMORRIS@novell.com>.
+Many thanks to Novell for letting him work on this.
 
-Additional data comes from "Programmer's Guide to the NetWare Core Protocol"
-by Steve Conner and Dianne Conner.
+Additional data sources:
+"Programmer's Guide to the NetWare Core Protocol" by Steve Conner and Dianne Conner.
 
 Novell provides info at:
 
@@ -25,7 +24,7 @@ http://developer.novell.com/ndk/doc/docui/index.htm#../ncp/ncp__enu/data/
 for a badly-formatted HTML version of the same PDF.
 
 
-$Id: ncp2222.py,v 1.14.2.7 2002/02/22 18:18:28 gram Exp $
+$Id: ncp2222.py,v 1.14.2.8 2002/02/24 20:42:40 gram Exp $
 
 Copyright (c) 2000-2002 by Gilbert Ramirez <gram@alumni.rice.edu>
 and Greg Morris <GMORRIS@novell.com>.
@@ -488,7 +487,7 @@ class NCP:
 		upper = min_hdr_length
 
 		for record in records:
-			rec_size = record[1]
+			rec_size = record[REC_LENGTH]
 			rec_lower = rec_size
 			rec_upper = rec_size
 			if type(rec_size) == type(()):
@@ -533,7 +532,7 @@ class NCP:
 		variables = {}
 		if self.request_records:
 			for record in self.request_records:
-				var = record[2]
+				var = record[REC_FIELD]
 				variables[repr(var)] = var
 
 				sub_vars = var.SubVariables()
@@ -542,7 +541,7 @@ class NCP:
 
 		if self.reply_records:
 			for record in self.reply_records:
-				var = record[2]
+				var = record[REC_FIELD]
 				variables[repr(var)] = var
 
 				sub_vars = var.SubVariables()
@@ -550,6 +549,32 @@ class NCP:
 					variables[repr(sv)] = sv
 
 		return variables.values()
+
+	def CalculateReqConds(self):
+		"""Returns a list of request conditions (dfilter text) used
+		in the reply records. A request condition is listed only once,
+		even it it used twice. """
+		texts = {}
+		if self.reply_records:
+			for record in self.reply_records:
+				text = record[REC_REQ_COND]
+				if text != NO_REQ_COND:
+					texts[text] = None
+
+		if len(texts) == 0:
+			self.req_conds = None
+			return None
+
+		dfilter_texts = texts.keys()
+		dfilter_texts.sort()
+		name = "%s_req_cond_indexes" % (self.CName(),)
+		return NamedList(name, dfilter_texts)
+
+	def GetReqConds(self):
+		return self.req_conds
+
+	def SetReqConds(self, new_val):
+		self.req_conds = new_val
 
 
 	def CompletionCodes(self, codes=None):
@@ -575,7 +600,7 @@ class NCP:
 
 		# Create CompletionCode (NamedList) object and possible add it to
 		# the global list of completion code lists.
-		name = "%s_errors" % (self.CName())
+		name = "%s_errors" % (self.CName(),)
 		codes.sort()
 		codes_list = NamedList(name, codes)
 		self.codes = compcode_lists.Add(codes_list)
@@ -692,6 +717,9 @@ class Type:
 
 	def PTVCName(self):
 		return "NULL"
+
+	def __cmp__(self, other):
+		return cmp(self.HFName(), other.HFName())
 
 class struct(PTVC, Type):
 	def __init__(self, name, vars):
@@ -3959,6 +3987,10 @@ def produce_code():
 #include "ptvcursor.h"
 #include "packet-ncp-int.h"
 
+/* Function declarations for functions used in proto_register_ncp2222() */
+static void ncp_init_protocol(void);
+static void ncp_postseq_cleanup(void);
+
 /* Endianness macros */
 #define BE		FALSE
 #define LE		TRUE
@@ -4027,7 +4059,9 @@ static int hf_ncp_connection_status = -1;
 
 
 	# Print the hf variable declarations
-	for var in variables_used_hash.values():
+	vars = variables_used_hash.values()
+	vars.sort()
+	for var in vars:
 		print "static int " + var.HFName() + " = -1;"
 
 
@@ -4098,12 +4132,15 @@ static int hf_ncp_connection_status = -1;
 	num = 0
 	print "/* Request-Condition dfilter records. The NULL pointer"
 	print "   is replaced by a pointer to the created dfilter_t. */"
-	print "static conditional_record req_conds[] = {"
-	for req_cond in global_req_cond.keys():
-		print "\t{ \"%s\", NULL }," % (req_cond,)
-		global_req_cond[req_cond] = num
-		num = num + 1
-	print "};"
+	if len(global_req_cond) == 0:
+		print "static conditional_record req_conds = NULL;"
+	else:
+		print "static conditional_record req_conds[] = {"
+		for req_cond in global_req_cond.keys():
+			print "\t{ \"%s\", NULL }," % (req_cond,)
+			global_req_cond[req_cond] = num
+			num = num + 1
+		print "};"
 	print "#define NUM_REQ_CONDS %d\n\n" % (num,)
 
 
@@ -4116,6 +4153,7 @@ static int hf_ncp_connection_status = -1;
 			print "/* %s */" % (sub_vars_ptvc.Name())
 			print sub_vars_ptvc.Code()
 			ett_list.append(sub_vars_ptvc.ETTName())
+	ett_list.sort()
 
 	# Print the PTVC's for structures
 	print "/* PTVC records for structs. */"
@@ -4140,6 +4178,38 @@ static int hf_ncp_connection_status = -1;
 			print "\t{ 0x%02x, %d }, /* 0x%04x */" % (error_in_packet,
 				ncp_error_index, error)
 		print "\t{ 0x00, -1 }\n};\n"
+
+
+
+	# Print integer arrays for all ncp_records that need
+	# a list of req_cond_indexes. Do it "uniquely" to save space;
+	# if multiple packets share the same set of req_cond's,
+	# then they'll share the same integer array
+	print "/* Request Condition Indexes */"
+	# First, make them unique
+	req_cond_collection = UniqueCollection("req_cond_collection")
+	for pkt in packets.Members():
+		req_conds = pkt.CalculateReqConds()
+		if req_conds:
+			unique_list = req_cond_collection.Add(req_conds)
+			pkt.SetReqConds(unique_list)
+		else:
+			pkt.SetReqConds(None)
+
+	# Print them
+	for req_cond in req_cond_collection.Members():
+		print "static const int %s[] = {" % (req_cond.Name(),)
+		print "\t",
+		vals = []
+		for text in req_cond.Records():
+			vals.append(global_req_cond[text])
+		vals.sort()
+		for val in vals:
+			print "%s, " % (val,),
+
+		print "-1 };"
+		print ""
+
 
 
 	# Functions without length parameter
@@ -4185,9 +4255,17 @@ static int hf_ncp_connection_status = -1;
 			ptvc_reply = 'NULL'
 
 		errors = pkt.CompletionCodes()
-		print '\t\t%s, %s, %s },\n' % (ptvc_request, ptvc_reply, errors.Name())
 
-	print '\t{ 0, 0, 0, NULL, 0, NULL, NULL, NULL }'
+		req_conds_obj = pkt.GetReqConds()
+		if req_conds_obj:
+			req_conds = req_conds_obj.Name()
+		else:
+			req_conds = "NULL"
+
+		print '\t\t%s, %s, %s, %s },\n' % \
+			(ptvc_request, ptvc_reply, errors.Name(), req_conds)
+
+	print '\t{ 0, 0, 0, NULL, 0, NULL, NULL, NULL, NULL }'
 	print "};\n"
 
 	print "/* ncp funcs that require a subfunc */"
@@ -4211,6 +4289,27 @@ static int hf_ncp_connection_status = -1;
 		print "\t0x%02x," % (func,)
 	print "\t0"
 	print "};\n"
+
+	# final_registration_ncp2222()
+	print """
+void
+final_registration_ncp2222(void)
+{
+	int i;
+	"""
+
+	# Create dfilter_t's for conditional_record's
+	print """
+	for (i = 0; i < NUM_REQ_CONDS; i++) {
+		if (!dfilter_compile((gchar*)req_conds[i].dfilter_text,
+			&req_conds[i].dfilter)) {
+			g_message("NCP dissector failed to compiler dfilter: %s\n",
+			req_conds[i].dfilter_text);
+			g_assert_not_reached();
+		}
+	}
+}
+	"""
 
 	# proto_register_ncp2222()
 	print """
@@ -4236,7 +4335,9 @@ proto_register_ncp2222(void)
 	"""
 
 	# Print the registration code for the hf variables
-	for var in variables_used_hash.values():
+	vars = variables_used_hash.values()
+	vars.sort()
+	for var in vars:
 		print "\t{ &%s," % (var.HFName())
 		print "\t{ \"%s\", \"%s\", %s, %s, %s, 0x%x, \"\", HFILL }},\n" % \
 			(var.Description(), var.DFilter(),
@@ -4262,6 +4363,14 @@ proto_register_ncp2222(void)
 	proto_register_subtree_array(ett, array_length(ett));
 		"""
 
+	print """
+	register_init_routine(&ncp_init_protocol);
+	register_postseq_cleanup_routine(&ncp_postseq_cleanup);
+	register_final_registration_routine(final_registration_ncp2222);
+	"""
+
+	
+	# End of proto_register_ncp2222()
 	print "}"
 	print ""
 	print '#include "packet-ncp2222.inc"'

@@ -1,7 +1,7 @@
 /* proto.h
  * Definitions for protocol display
  *
- * $Id: proto.h,v 1.27.2.1 2002/02/20 22:27:23 gram Exp $
+ * $Id: proto.h,v 1.27.2.2 2002/02/24 20:42:45 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -178,9 +178,10 @@ extern int proto_item_get_len(proto_item *ti);
 /* Creates new proto_tree root */
 extern proto_tree* proto_tree_create_root(void);
 
-/* Mark a field/protocol ID as "interesting". */    
+/* Mark fields/protocol IDs as "interesting".
+ * data = hfid as pointer, user_data = proto_tree* */    
 void
-proto_tree_prime_hfid(proto_tree *tree, int hfid);
+proto_tree_prime_hfid(gpointer data, gpointer user_data);
 
 /* Clear memory for entry proto_tree. Clears proto_tree struct also. */
 extern void proto_tree_free(proto_tree *tree);

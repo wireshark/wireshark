@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.51.2.1 2002/02/20 22:27:23 gram Exp $
+ * $Id: proto.c,v 1.51.2.2 2002/02/24 20:42:44 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1774,12 +1774,19 @@ proto_tree_create_root(void)
 	return (proto_tree*) g_node_new(pnode);
 }
 
+	
+/* "prime" a proto_tree with a single hfid that a dfilter
+ * is interested in. */
 void
-proto_tree_prime_hfid(proto_tree *tree, int hfid)
+proto_tree_prime_hfid(gpointer data, gpointer user_data)
 {
-    g_hash_table_insert(PTREE_DATA(tree)->interesting_hfids,
-            GINT_TO_POINTER(hfid), g_ptr_array_new());
+	int hfid = GPOINTER_TO_INT(data);
+	proto_tree *tree = user_data;
+
+	g_hash_table_insert(PTREE_DATA(tree)->interesting_hfids,
+		GINT_TO_POINTER(hfid), g_ptr_array_new());
 }
+
 
 proto_tree*
 proto_item_add_subtree(proto_item *pi,  gint idx) {

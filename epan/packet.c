@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.58 2002/02/11 19:02:56 gram Exp $
+ * $Id: packet.c,v 1.58.2.1 2002/02/24 20:42:44 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -178,6 +178,39 @@ postseq_cleanup_all_protocols(void)
 {
 	g_slist_foreach(postseq_cleanup_routines,
 			&call_postseq_cleanup_routine, NULL);
+}
+
+
+/* Allow dissectors to register a "final_registration" routine
+ * that is run like the proto_register_XXX() routine, but the end
+ * end of the epan_init() function; that is, *after* all other
+ * subsystems, liked dfilters, have finished initializing. This is
+ * useful for dissector registration routines which need to compile
+ * display filters. dfilters can't initialize itself until all protocols
+ * have registereed themselvs. */
+static GSList *final_registration_routines;
+
+void
+register_final_registration_routine(void (*func)(void))
+{
+	final_registration_routines = g_slist_append(final_registration_routines,
+			func);
+}
+
+/* Call all the registered "final_registration" routines. */
+static void
+call_final_registration_routine(gpointer routine, gpointer dummy)
+{
+	void (*func)(void) = routine;
+
+	(*func)();
+}
+
+void
+final_registration_all_protocols(void)
+{
+	g_slist_foreach(final_registration_routines,
+			&call_final_registration_routine, NULL);
 }
 
 
