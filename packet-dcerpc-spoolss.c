@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\spoolss packet disassembly
  * Copyright 2001-2002, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-spoolss.c,v 1.26 2002/05/04 09:05:44 guy Exp $
+ * $Id: packet-dcerpc-spoolss.c,v 1.27 2002/05/10 02:41:48 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -37,6 +37,114 @@
 #include "packet-dcerpc-reg.h"
 #include "smb.h"
 #include "packet-smb-common.h"
+
+/* Global objects */
+
+static int hf_spoolss_hnd = -1;
+static int hf_spoolss_rc = -1;
+static int hf_spoolss_offered = -1;
+static int hf_spoolss_needed = -1;
+static int hf_spoolss_returned = -1;
+static int hf_spoolss_buffer_size = -1;
+static int hf_spoolss_buffer_data = -1;
+static int hf_spoolss_relstr_offset = -1;
+static int hf_spoolss_printername = -1;
+static int hf_spoolss_servername = -1;
+static int hf_spoolss_username = -1;
+static int hf_spoolss_documentname = -1;
+static int hf_spoolss_datatype = -1;
+static int hf_spoolss_textstatus = -1;
+static int hf_spoolss_level = -1;
+
+/* Print job */
+
+static int hf_spoolss_jobid = -1;
+static int hf_spoolss_jobstatus = -1;
+static int hf_spoolss_jobpriority = -1;
+static int hf_spoolss_jobposition = -1;
+static int hf_spoolss_jobtotalpages = -1;
+static int hf_spoolss_jobpagesprinted = -1;
+static int hf_spoolss_enumjobs_firstjob = -1;
+static int hf_spoolss_enumjobs_numjobs = -1;
+
+/* SYSTEM_TIME */
+
+static int hf_spoolss_time_year = -1;
+static int hf_spoolss_time_month = -1;
+static int hf_spoolss_time_dow = -1;
+static int hf_spoolss_time_day = -1;
+static int hf_spoolss_time_hour = -1;
+static int hf_spoolss_time_minute = -1;
+static int hf_spoolss_time_second = -1;
+static int hf_spoolss_time_msec = -1;
+
+/* Printer data */
+
+static int hf_spoolss_printerdata_name = -1;
+static int hf_spoolss_printerdata_size = -1;
+
+/* SetJob */
+
+static int hf_spoolss_setjob_cmd = -1;
+
+/* 
+ * Routines to dissect a spoolss BUFFER 
+ */
+
+typedef struct {
+	guint32 size;		/* Size of buffer */
+	guint8 *data;		/* Contents of buffer */
+	int offset;		/* Offset to start of buffer */
+	proto_item *tree;	/* Proto tree buffer located in */
+} BUFFER;
+
+static int
+dissect_spoolss_buffer_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
+			    proto_tree *tree, char *drep)
+{
+	dcerpc_info *di = pinfo->private_data;
+	BUFFER *b = (BUFFER *)di->private_data;
+	guint32 size;
+	guint8 *data;
+
+	/* Dissect size and data */
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+				    hf_spoolss_buffer_size, &size);
+
+	offset = dissect_ndr_uint8s(tvb, offset, pinfo, tree, drep,
+				    hf_spoolss_buffer_data, size, &data);
+
+	/* Return buffer info */
+
+	if (b) {
+		b->size = size;
+		b->data = data;
+		b->offset = offset - size;
+		b->tree = tree;
+	}
+
+	return offset;
+}
+
+static int
+dissect_spoolss_buffer(tvbuff_t *tvb, gint offset, packet_info *pinfo,
+		       proto_tree *tree, char *drep, BUFFER *b)
+{
+	dcerpc_info *di = pinfo->private_data;
+
+	if (b)
+		memset(b, 0, sizeof(BUFFER));
+
+	di->private_data = b;
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+				     dissect_spoolss_buffer_data,
+				     NDR_POINTER_UNIQUE, "Buffer",
+				     -1, 0);
+
+	return offset;
+}
 
 /* 
  * New system for handling pointers and buffers.  We act more like the NDR
@@ -243,7 +351,7 @@ static int SpoolssClosePrinter_q(tvbuff_t *tvb, int offset,
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
-	const guint8 *policy_hnd;
+	e_ctx_hnd policy_hnd;
 	char *pol_name;
 
 	if (dcv->rep_frame != 0)
@@ -251,17 +359,16 @@ static int SpoolssClosePrinter_q(tvbuff_t *tvb, int offset,
 				    "Reply in frame %u", dcv->rep_frame);
 	/* Parse packet */
 
-	offset = prs_policy_hnd(tvb, offset, pinfo, NULL, &policy_hnd);
+	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
+				       hf_spoolss_hnd, &policy_hnd);
 
-	dcerpc_smb_fetch_pol(policy_hnd, &pol_name, 0, 0);
+	dcerpc_smb_fetch_pol((const guint8 *)&policy_hnd, &pol_name, 0, 0);
 
 	if (check_col(pinfo->cinfo, COL_INFO) && pol_name)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
 				pol_name);
 
-	dcerpc_smb_store_pol(policy_hnd, NULL, 0, pinfo->fd->num);
-
-	display_pol(tree, tvb, offset - 20, policy_hnd);
+	dcerpc_smb_store_pol((const guint8 *)&policy_hnd, NULL, 0, pinfo->fd->num);
 
 	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
@@ -274,7 +381,6 @@ static int SpoolssClosePrinter_r(tvbuff_t *tvb, int offset,
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
-	const guint8 *policy_hnd;
 
 	if (dcv->req_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
@@ -282,11 +388,12 @@ static int SpoolssClosePrinter_r(tvbuff_t *tvb, int offset,
 
 	/* Parse packet */
 
-	offset = prs_policy_hnd(tvb, offset, pinfo, NULL, &policy_hnd);
+	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
+				       hf_spoolss_hnd, NULL);
+	
 
-	display_pol(tree, tvb, offset - 20, policy_hnd);
-
-	offset = prs_werror(tvb, offset, pinfo, tree, NULL);
+	offset = dissect_doserror(tvb, offset, pinfo, tree, drep,
+				  hf_spoolss_rc, NULL);
 
 	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
@@ -356,7 +463,7 @@ static int SpoolssGetPrinterData_q(tvbuff_t *tvb, int offset,
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	char *value_name = NULL;
-	const guint8 *policy_hnd;
+	e_ctx_hnd policy_hnd;
 
 	if (dcv->rep_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
@@ -364,20 +471,20 @@ static int SpoolssGetPrinterData_q(tvbuff_t *tvb, int offset,
 
 	/* Parse packet */
 
-	offset = prs_policy_hnd(tvb, offset, pinfo, NULL, &policy_hnd);
+	offset = dissect_nt_policy_hnd(
+		tvb, offset, pinfo, tree, drep, hf_spoolss_hnd, &policy_hnd);
 
-	display_pol(tree, tvb, offset - 20, policy_hnd);
-
-	offset = prs_struct_and_referents(tvb, offset, pinfo, tree,
-					  prs_UNISTR2_dp, (void **)&value_name,
-					  NULL);
+ 	offset = prs_struct_and_referents(tvb, offset, pinfo, tree,
+ 					  prs_UNISTR2_dp, (void **)&value_name,
+ 					  NULL);
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", value_name);
 
 	g_free(value_name);
 
-	offset = prs_uint32(tvb, offset, pinfo, tree, NULL, "Size");
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+				    hf_spoolss_printerdata_size, NULL);
 
 	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
@@ -653,7 +760,37 @@ static int SpoolssSetPrinterDataEx_r(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
-/* Yet another way to represent a unicode string - sheesh. */
+/* Yet another way to represent a unicode string - sheesh. This function
+   dissects a NULL terminate unicode string at the current offset and
+   returns the (char *) equivalent.  This really should return UTF8 or
+   something but we use fake_unicode() instead. */
+
+static int
+dissect_spoolss_uint16uni(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
+			  proto_tree *tree, char *drep, char **data)
+{
+	gint len, remaining;
+	char *text;
+
+	if (offset % 2)
+		offset += 2 - (offset % 2);
+
+	/* Get remaining data in buffer as a string */
+
+	remaining = tvb_length_remaining(tvb, offset) / 2;
+	text = fake_unicode(tvb, offset, remaining);
+	len = strlen(text);
+
+	proto_tree_add_text(tree, tvb, offset, len * 2, "%s: %s",
+			    "UINT16UNI", tvb_bytes_to_str(tvb, offset, len * 2));
+
+	if (data)
+		*data = text;
+	else
+		g_free(text);
+
+	return offset + (len + 1) * 2;
+}
 
 static int prs_uint16uni(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 			 proto_tree *tree, void **data, char *name)
@@ -760,6 +897,48 @@ static int prs_DEVMODE(tvbuff_t *tvb, int offset, packet_info *pinfo,
  */
 
 static gint ett_RELSTR = -1;
+
+static int
+dissect_spoolss_relstr(tvbuff_t *tvb, int offset, packet_info *pinfo,
+		       proto_tree *tree, char *drep, int hf_index,
+		       int struct_start, char **data)
+{
+	proto_item *item;
+	proto_tree *subtree;
+	guint32 relstr_offset, relstr_start, relstr_end, relstr_len;
+	char *text;
+
+	item = proto_tree_add_string(tree, hf_index, tvb, offset, 4, "");
+
+	subtree = proto_item_add_subtree(item, ett_RELSTR);	
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, subtree, drep,
+				    hf_spoolss_relstr_offset,
+				    &relstr_offset);
+	
+	/* A relative offset of zero is a NULL string */
+
+	relstr_start = relstr_offset + struct_start;
+               
+	if (relstr_offset)
+		relstr_end = dissect_spoolss_uint16uni(
+			tvb, relstr_start, pinfo, subtree, drep, &text);
+	else {
+		text = g_strdup("NULL");
+		relstr_end = offset;
+	}
+
+	relstr_len = relstr_end - relstr_start;
+
+	proto_item_append_text(item, text);
+
+	if (data)
+		*data = text;
+	else
+		g_free(text);
+					       
+	return offset;
+}
 
 static int prs_relstr(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		      proto_tree *tree, GList **dp_list, int struct_start,
@@ -2703,43 +2882,207 @@ static int SpoolssGeneric_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 /*
+ * SYSTEM_TIME
+ */
+
+static gint ett_SYSTEM_TIME;
+
+static int
+dissect_spoolss_SYSTEM_TIME(tvbuff_t *tvb, int offset, packet_info *pinfo, 
+			    proto_tree *tree, char *drep)
+{
+	proto_item *item;
+	proto_tree *subtree;
+	guint16 year, month, day, hour, minute, second;
+
+	item = proto_tree_add_text(tree, tvb, offset, 16, "SYSTEM_TIME: ");
+
+	subtree = proto_item_add_subtree(item, ett_SYSTEM_TIME);
+
+	offset = dissect_ndr_uint16 (tvb, offset, pinfo, subtree, drep,
+				     hf_spoolss_time_year, &year);
+
+	offset = dissect_ndr_uint16 (tvb, offset, pinfo, subtree, drep,
+				     hf_spoolss_time_month, &month);
+
+	offset = dissect_ndr_uint16 (tvb, offset, pinfo, subtree, drep,
+				     hf_spoolss_time_dow, NULL);
+
+	offset = dissect_ndr_uint16 (tvb, offset, pinfo, subtree, drep,
+				     hf_spoolss_time_day, &day);
+
+	offset = dissect_ndr_uint16 (tvb, offset, pinfo, subtree, drep,
+				     hf_spoolss_time_hour, &hour);
+
+	offset = dissect_ndr_uint16 (tvb, offset, pinfo, subtree, drep,
+				     hf_spoolss_time_minute, &minute);
+
+	offset = dissect_ndr_uint16 (tvb, offset, pinfo, subtree, drep,
+				     hf_spoolss_time_second, &second);
+
+	offset = dissect_ndr_uint16 (tvb, offset, pinfo, subtree, drep,
+				     hf_spoolss_time_msec, NULL);
+
+	proto_item_append_text(item, "%d/%02d/%02d %02d:%02d:%02d", year,
+			       month, day, hour, minute, second);
+
+	return offset;
+}
+
+/*
  * JOB_INFO_1
  */
 
 static gint ett_JOB_INFO_1;
-#if 0
-static int prs_JOB_INFO_1(tvbuff_t *tvb, int offset, packet_info *pinfo,
-			  proto_tree *tree, GList **dp_list, void **data)
+
+static int
+dissect_spoolss_JOB_INFO_1(tvbuff_t *tvb, int offset, packet_info *pinfo, 
+			   proto_tree *tree, char *drep)
 {
 	proto_item *item;
 	proto_tree *subtree;
+	int struct_start = offset;
+	char *document_name;
 
 	item = proto_tree_add_text(tree, tvb, offset, 0, "JOB_INFO_1");
 
-	subtree = proto_item_add_subtree(item, ett_FORM_CTR);
+	subtree = proto_item_add_subtree(item, ett_JOB_INFO_1);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, subtree, drep,
+				    hf_spoolss_jobid, NULL);
+
+	offset = dissect_spoolss_relstr(
+		tvb, offset, pinfo, subtree, drep, hf_spoolss_printername,
+		struct_start, NULL);
+
+	offset = dissect_spoolss_relstr(
+		tvb, offset, pinfo, subtree, drep, hf_spoolss_servername,
+		struct_start, NULL);
+
+	offset = dissect_spoolss_relstr(
+		tvb, offset, pinfo, subtree, drep, hf_spoolss_username,
+		struct_start, NULL);
+
+	offset = dissect_spoolss_relstr(
+		tvb, offset, pinfo, subtree, drep, hf_spoolss_documentname,
+		struct_start, &document_name);
+
+	proto_item_append_text(item, ": %s", document_name);
+	g_free(document_name);
+
+	offset = dissect_spoolss_relstr(
+		tvb, offset, pinfo, subtree, drep, hf_spoolss_datatype,
+		struct_start, NULL);
+
+	offset = dissect_spoolss_relstr(
+		tvb, offset, pinfo, subtree, drep, hf_spoolss_textstatus,
+		struct_start, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, subtree, drep,
+				    hf_spoolss_jobstatus, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, subtree, drep,
+				    hf_spoolss_jobpriority, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, subtree, drep,
+				    hf_spoolss_jobposition, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, subtree, drep,
+				    hf_spoolss_jobtotalpages, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, subtree, drep,
+				    hf_spoolss_jobpagesprinted, NULL);
+
+	offset = dissect_spoolss_SYSTEM_TIME(tvb, offset, pinfo, subtree, 
+					     drep); 
+
+	proto_item_set_len(item, offset - struct_start);
 
 	return offset;
 }
-#endif
 
 /*
  * JOB_INFO_2
  */
 
 static gint ett_JOB_INFO_2;
+
 #if 0
+
 static int prs_JOB_INFO_2(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			  proto_tree *tree, GList **dp_list, void **data)
 {
 	proto_item *item;
 	proto_tree *subtree;
+	int struct_start = offset;
+	guint32 rel_offset;
 
 	item = proto_tree_add_text(tree, tvb, offset, 0, "JOB_INFO_2");
 
 	subtree = proto_item_add_subtree(item, ett_FORM_CTR);
 
+	offset = prs_uint32(tvb, offset, pinfo, subtree, NULL, "Job ID");
+
+	offset = prs_relstr(tvb, offset, pinfo, subtree, dp_list, struct_start,
+			    NULL, "Printer name");
+
+	offset = prs_relstr(tvb, offset, pinfo, subtree, dp_list, struct_start,
+			    NULL, "Machine name");
+
+	offset = prs_relstr(tvb, offset, pinfo, subtree, dp_list, struct_start,
+			    NULL, "User name");
+
+	offset = prs_relstr(tvb, offset, pinfo, subtree, dp_list, struct_start,
+			    NULL, "Document");
+
+	offset = prs_relstr(tvb, offset, pinfo, subtree, dp_list, struct_start,
+			    NULL, "Notify name");
+
+	offset = prs_relstr(tvb, offset, pinfo, subtree, dp_list, struct_start,
+			    NULL, "Data type");
+
+	offset = prs_relstr(tvb, offset, pinfo, subtree, dp_list, struct_start,
+			    NULL, "Print processor");
+
+	offset = prs_relstr(tvb, offset, pinfo, subtree, dp_list, struct_start,
+			    NULL, "Parameters");
+
+	offset = prs_relstr(tvb, offset, pinfo, subtree, dp_list, struct_start,
+			    NULL, "Driver name");
+
+	offset = prs_uint32(tvb, offset, pinfo, tree, &rel_offset, NULL);
+
+	prs_DEVMODE(tvb, struct_start + rel_offset - 4, pinfo, tree, 
+		    dp_list, NULL);	
+
+	/* XXX security descriptor */
+
+	offset = prs_uint32(tvb, offset, pinfo, subtree, NULL, "Security descriptor");
+
+	offset = prs_uint32(tvb, offset, pinfo, subtree, NULL, "Status");
+
+	offset = prs_uint32(tvb, offset, pinfo, subtree, NULL, "Priority");
+
+	offset = prs_uint32(tvb, offset, pinfo, subtree, NULL, "Position");
+
+	offset = prs_uint32(tvb, offset, pinfo, subtree, NULL, "Start time");
+
+	offset = prs_uint32(tvb, offset, pinfo, subtree, NULL, "Until time");
+
+	offset = prs_uint32(tvb, offset, pinfo, subtree, NULL, "Total pages");
+
+	offset = prs_uint32(tvb, offset, pinfo, subtree, NULL, "Size");
+
+	offset = prs_struct_and_referents(tvb, offset, pinfo, subtree,
+					  prs_SYSTEM_TIME, NULL, NULL);
+
+	offset = prs_uint32(tvb, offset, pinfo, subtree, NULL, "Time elapsed");
+
+	offset = prs_uint32(tvb, offset, pinfo, subtree, NULL, "Pages printed");
+
 	return offset;
 }
+
 #endif
 
 /*
@@ -2760,25 +3103,27 @@ static int SpoolssEnumJobs_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	/* Parse packet */
 
-	offset = prs_policy_hnd(tvb, offset, pinfo, NULL, &policy_hnd);
+	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
+				       hf_spoolss_hnd, NULL);
 
-	display_pol(tree, tvb, offset - 20, policy_hnd);
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+				    hf_spoolss_enumjobs_firstjob, NULL);
 
-	offset = prs_uint32(tvb, offset, pinfo, tree, NULL, "First job");
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+				    hf_spoolss_enumjobs_numjobs, NULL);
 
-	offset = prs_uint32(tvb, offset, pinfo, tree, NULL, "Num jobs");
-
-	offset = prs_uint32(tvb, offset, pinfo, tree, &level, "Level");
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+				    hf_spoolss_level, &level);
 
 	dcv->private_data = (void *)level;
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", level %d", level);
 
-	offset = prs_struct_and_referents(tvb, offset, pinfo, tree,
-					  prs_BUFFER, NULL, NULL);
+	offset = dissect_spoolss_buffer(tvb, offset, pinfo, tree, drep, NULL);
 
-	offset = prs_uint32(tvb, offset, pinfo, tree, NULL, "Offered");
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+				    hf_spoolss_offered, NULL);
 
 	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
@@ -2790,9 +3135,10 @@ static int SpoolssEnumJobs_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
-	void **data_list;
-	struct BUFFER_DATA *bd = NULL;
 	gint16 level = (guint32)dcv->private_data;
+	BUFFER buffer;
+	guint32 num_jobs, i;
+	int buffer_offset;
 
 	if (dcv->req_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
@@ -2800,29 +3146,311 @@ static int SpoolssEnumJobs_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	/* Parse packet */
 
-	offset = prs_struct_and_referents(tvb, offset, pinfo, tree, 
-					   prs_BUFFER, NULL, &data_list);
+	offset = dissect_spoolss_buffer(tvb, offset, pinfo, tree, drep,
+					&buffer); 
 
-	if (data_list)
-		bd = (struct BUFFER_DATA *)data_list[0];
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+				    hf_spoolss_needed, NULL);
 
-	if (bd && bd->tree) {
-		proto_item_append_text(bd->item, ", JOB_INFO_%d", level);
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+				    hf_spoolss_enumjobs_numjobs, &num_jobs);
 
-		switch (level) {
+	buffer_offset = buffer.offset;
+
+	for (i = 0; i < num_jobs; i++) {
+		switch(level) {
+		case 1:
+			buffer_offset = dissect_spoolss_JOB_INFO_1(
+				tvb, buffer_offset, pinfo, buffer.tree, drep);
+			break;
+		case 2:
 		default:
 			proto_tree_add_text(
-				bd->tree, tvb, offset, 0,
+				buffer.tree, tvb, buffer_offset, buffer.size, 
 				"[Unknown info level %d]", level);
-			break;
+			goto done;
 		}
+
 	}
 
-	offset = prs_uint32(tvb, offset, pinfo, tree, NULL, "Needed");
+done:
+	offset = dissect_doserror(tvb, offset, pinfo, tree, drep,
+				  hf_spoolss_rc, NULL);
 
-	offset = prs_uint32(tvb, offset, pinfo, tree, NULL, "Returned");
+	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
-	offset = prs_werror(tvb, offset, pinfo, tree, NULL);
+	return offset;
+}	
+
+/*
+ * SetJob
+ */
+
+/* Set job command values */
+
+#define JOB_CONTROL_PAUSE              1
+#define JOB_CONTROL_RESUME             2
+#define JOB_CONTROL_CANCEL             3
+#define JOB_CONTROL_RESTART            4
+#define JOB_CONTROL_DELETE             5
+
+const value_string setjob_commands[] = {
+	{ JOB_CONTROL_PAUSE, "Pause" },
+	{ JOB_CONTROL_RESUME, "Resume" },
+	{ JOB_CONTROL_CANCEL, "Cancel" },
+	{ JOB_CONTROL_RESTART, "Restart" },
+	{ JOB_CONTROL_DELETE, "Delete" },
+	{ 0, NULL }
+};
+
+static int SpoolssSetJob_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
+			   proto_tree *tree, char *drep)
+{
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
+	guint32 jobid, cmd;
+
+	if (dcv->rep_frame != 0)
+		proto_tree_add_text(tree, tvb, offset, 0, 
+				    "Reply in frame %u", dcv->rep_frame);
+
+	/* Parse packet */
+
+	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
+				       hf_spoolss_hnd, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+				    hf_spoolss_jobid, &jobid);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+				    hf_spoolss_level, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+				    hf_spoolss_setjob_cmd, &cmd);
+
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(
+			pinfo->cinfo, COL_INFO, ", %s jobid %d",
+			val_to_str(cmd, setjob_commands, "Unknown command"),
+			jobid);
+
+	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
+
+	return offset;
+}	
+
+static int SpoolssSetJob_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
+			   proto_tree *tree, char *drep)
+{
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
+
+	if (dcv->req_frame != 0)
+		proto_tree_add_text(tree, tvb, offset, 0, 
+				    "Request in frame %u", dcv->req_frame);
+
+	/* Parse packet */
+
+	offset = dissect_doserror(tvb, offset, pinfo, tree, drep,
+				  hf_spoolss_rc, NULL);
+
+	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
+
+	return offset;
+}	
+
+/*
+ * GetJob
+ */
+
+static int SpoolssGetJob_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
+			   proto_tree *tree, char *drep)
+{
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
+	guint32 level, jobid;
+
+	if (dcv->rep_frame != 0)
+		proto_tree_add_text(tree, tvb, offset, 0, 
+				    "Reply in frame %u", dcv->rep_frame);
+
+	/* Parse packet */
+
+	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
+				       hf_spoolss_hnd, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+				    hf_spoolss_jobid, &jobid);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+				    hf_spoolss_level, &level);
+
+	dcv->private_data = (void *)level;
+
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", level %d, jobid %d",
+				level, jobid);
+
+	offset = dissect_spoolss_buffer(tvb, offset, pinfo, tree, drep, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+				    hf_spoolss_offered, NULL);	
+
+	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
+
+	return offset;
+}	
+
+static int SpoolssGetJob_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
+			proto_tree *tree, char *drep)
+{
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
+	gint32 level = (guint32)dcv->private_data;
+	BUFFER buffer;
+	int buffer_offset;
+
+	if (dcv->req_frame != 0)
+		proto_tree_add_text(tree, tvb, offset, 0, 
+				    "Request in frame %u", dcv->req_frame);
+
+	/* Parse packet */
+
+	offset = dissect_spoolss_buffer(tvb, offset, pinfo, tree, drep, 
+					&buffer);
+
+	if (!buffer.size)
+		goto done;
+
+	buffer_offset = buffer.offset;
+
+	switch(level) {
+	case 1:
+		buffer_offset = dissect_spoolss_JOB_INFO_1(
+			tvb, buffer_offset, pinfo, buffer.tree, drep);
+		break;
+	case 2:
+	default:
+		proto_tree_add_text(
+			buffer.tree, tvb, buffer_offset, buffer.size, 
+			"[Unknown info level %d]", level);
+		goto done;
+	}
+
+done:
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+				    hf_spoolss_needed, NULL);
+
+	offset = dissect_doserror(tvb, offset, pinfo, tree, drep,
+				  hf_spoolss_rc, NULL);
+
+	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
+
+	return offset;
+}	
+
+/*
+ * StartPagePrinter
+ */
+
+static int SpoolssStartPagePrinter_q(tvbuff_t *tvb, int offset, 
+				     packet_info *pinfo, proto_tree *tree, 
+				     char *drep)
+{
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
+	e_ctx_hnd policy_hnd;
+	char *pol_name;
+
+	if (dcv->rep_frame != 0)
+		proto_tree_add_text(tree, tvb, offset, 0, 
+				    "Reply in frame %u", dcv->rep_frame);
+
+	/* Parse packet */
+
+	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
+				       hf_spoolss_hnd, &policy_hnd);
+
+	dcerpc_smb_fetch_pol((const guint8 *)&policy_hnd, &pol_name, 0, 0);
+
+	if (check_col(pinfo->cinfo, COL_INFO) && pol_name)
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
+				pol_name);
+
+	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
+
+	return offset;
+}	
+
+static int SpoolssStartPagePrinter_r(tvbuff_t *tvb, int offset, 
+				     packet_info *pinfo, proto_tree *tree, 
+				     char *drep)
+{
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
+
+	if (dcv->req_frame != 0)
+		proto_tree_add_text(tree, tvb, offset, 0, 
+				    "Request in frame %u", dcv->req_frame);
+
+	/* Parse packet */
+
+	offset = dissect_doserror(tvb, offset, pinfo, tree, drep,
+				  hf_spoolss_rc, NULL);
+
+	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
+
+	return offset;
+}	
+
+/*
+ * EndPagePrinter
+ */
+
+static int SpoolssEndPagePrinter_q(tvbuff_t *tvb, int offset, 
+				   packet_info *pinfo, proto_tree *tree, 
+				   char *drep)
+{
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
+	e_ctx_hnd policy_hnd;
+	char *pol_name;
+
+	if (dcv->rep_frame != 0)
+		proto_tree_add_text(tree, tvb, offset, 0, 
+				    "Reply in frame %u", dcv->rep_frame);
+
+	/* Parse packet */
+
+	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
+				       hf_spoolss_hnd, &policy_hnd);
+
+	dcerpc_smb_fetch_pol((const guint8 *)&policy_hnd, &pol_name, 0, 0);
+
+	if (check_col(pinfo->cinfo, COL_INFO) && pol_name)
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
+				pol_name);
+
+	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
+
+	return offset;
+}	
+
+static int SpoolssEndPagePrinter_r(tvbuff_t *tvb, int offset, 
+				   packet_info *pinfo, proto_tree *tree, 
+				   char *drep)
+{
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
+
+	if (dcv->req_frame != 0)
+		proto_tree_add_text(tree, tvb, offset, 0, 
+				    "Request in frame %u", dcv->req_frame);
+
+	/* Parse packet */
+
+	offset = dissect_doserror(tvb, offset, pinfo, tree, drep,
+				  hf_spoolss_rc, NULL);
 
 	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
@@ -2883,9 +3511,9 @@ static dcerpc_sub_dissector dcerpc_spoolss_dissectors[] = {
 	{ SPOOLSS_OPENPRINTER, "OpenPrinter", 
 	  NULL, SpoolssGeneric_r },
         { SPOOLSS_SETJOB, "SetJob", 
-	  NULL, SpoolssGeneric_r },
+	  SpoolssSetJob_q, SpoolssSetJob_r },
         { SPOOLSS_GETJOB, "GetJob", 
-	  NULL, SpoolssGeneric_r },
+	  SpoolssGetJob_q, SpoolssGetJob_r },
         { SPOOLSS_ENUMJOBS, "EnumJobs", 
 	  SpoolssEnumJobs_q, SpoolssEnumJobs_r },
         { SPOOLSS_ADDPRINTER, "AddPrinter", 
@@ -2915,11 +3543,11 @@ static dcerpc_sub_dissector dcerpc_spoolss_dissectors[] = {
         { SPOOLSS_STARTDOCPRINTER, "StartDocPrinter", 
 	  NULL, SpoolssGeneric_r },
         { SPOOLSS_STARTPAGEPRINTER, "StartPagePrinter", 
-	  NULL, SpoolssGeneric_r },
+	  SpoolssStartPagePrinter_q, SpoolssStartPagePrinter_r },
         { SPOOLSS_WRITEPRINTER, "WritePrinter", 
 	  NULL, SpoolssGeneric_r },
         { SPOOLSS_ENDPAGEPRINTER, "EndPagePrinter", 
-	  NULL, SpoolssGeneric_r },
+	  SpoolssEndPagePrinter_q, SpoolssEndPagePrinter_r },
         { SPOOLSS_ABORTPRINTER, "AbortPrinter", 
 	  NULL, SpoolssGeneric_r },
 	{ SPOOLSS_READPRINTER, "ReadPrinter", 
@@ -3056,6 +3684,121 @@ static gint ett_dcerpc_spoolss = -1;
 void 
 proto_register_dcerpc_spoolss(void)
 {
+        static hf_register_info hf[] = {
+		{ &hf_spoolss_hnd,
+		  { "Context handle", "spoolss.hnd", FT_BYTES, BASE_NONE, 
+		    NULL, 0x0, "SPOOLSS policy handle", HFILL }},
+		{ &hf_spoolss_rc,
+		  { "Return code", "spoolss.rc", FT_UINT32, BASE_HEX, 
+		    NULL, 0x0, "SPOOLSS return code", HFILL }},
+		{ &hf_spoolss_offered,
+		  { "Offered", "spoolss.offered", FT_UINT32, BASE_DEC, 
+		    NULL, 0x0, "Size of buffer offered in this request", HFILL }},
+		{ &hf_spoolss_needed,
+		  { "Needed", "spoolss.needed", FT_UINT32, BASE_DEC, 
+		    NULL, 0x0, "Size of buffer required for request", HFILL }},
+		{ &hf_spoolss_relstr_offset,
+		  { "Relative string offset", "spoolss.relstr.offset", FT_UINT32, BASE_DEC, 
+		    NULL, 0x0, "Offset of relative string data", HFILL }},
+		{ &hf_spoolss_printername,
+		  { "Printer name", "spoolss.printername", FT_STRING, BASE_NONE,
+		    NULL, 0, "Printer name", HFILL }},
+		{ &hf_spoolss_servername,
+		  { "Server name", "spoolss.servername", FT_STRING, BASE_NONE,
+		    NULL, 0, "Server name", HFILL }},
+		{ &hf_spoolss_username,
+		  { "User name", "spoolss.username", FT_STRING, BASE_NONE,
+		    NULL, 0, "User name", HFILL }},
+		{ &hf_spoolss_documentname,
+		  { "Document name", "spoolss.document", FT_STRING, BASE_NONE,
+		    NULL, 0, "Document name", HFILL }},
+		{ &hf_spoolss_datatype,
+		  { "Datatype", "spoolss.Datatype", FT_STRING, BASE_NONE,
+		    NULL, 0, "Datatype", HFILL }},
+		{ &hf_spoolss_textstatus,
+		  { "Text status", "spoolss.textstatus", FT_STRING, BASE_NONE,
+		    NULL, 0, "Text status", HFILL }},
+		{ &hf_spoolss_buffer_size,
+		  { "Buffer size", "spoolss.buffer.size", FT_UINT32, BASE_DEC, 
+		    NULL, 0x0, "Size of buffer", HFILL }},
+		{ &hf_spoolss_buffer_data,
+		  { "Buffer data", "spoolss.buffer.data", FT_BYTES, BASE_HEX, 
+		    NULL, 0x0, "Contents of buffer", HFILL }},
+		{ &hf_spoolss_enumjobs_firstjob,
+		  { "First job", "spoolss.enumjobs.firstjob", FT_UINT32, BASE_DEC, 
+		    NULL, 0x0, "Index of first job to return", HFILL }},
+		{ &hf_spoolss_enumjobs_numjobs,
+		  { "Num jobs", "spoolss.enumjobs.numjobs", FT_UINT32, BASE_DEC, 
+		    NULL, 0x0, "Number of jobs to return", HFILL }},
+		{ &hf_spoolss_level,
+		  { "Info level", "spoolss.enumjobs.level", FT_UINT32, BASE_DEC, 
+		    NULL, 0x0, "Info level", HFILL }},
+
+
+		/* Print jobs */
+
+		{ &hf_spoolss_jobid,
+		  { "Job ID", "spoolss.job.id", FT_UINT32, BASE_DEC, 
+		    NULL, 0x0, "Job identification number", HFILL }},
+		{ &hf_spoolss_jobstatus,
+		  { "Job status", "spoolss.job.status", FT_UINT32, BASE_DEC, 
+		    NULL, 0x0, "Job status", HFILL }},
+		{ &hf_spoolss_jobpriority,
+		  { "Job priority", "spoolss.job.priority", FT_UINT32, BASE_DEC, 
+		    NULL, 0x0, "Job priority", HFILL }},
+		{ &hf_spoolss_jobposition,
+		  { "Job position", "spoolss.job.position", FT_UINT32, BASE_DEC, 
+		    NULL, 0x0, "Job position", HFILL }},
+		{ &hf_spoolss_jobtotalpages,
+		  { "Job total pages", "spoolss.job.totalpages", FT_UINT32, BASE_DEC, 
+		    NULL, 0x0, "Job total pages", HFILL }},
+		{ &hf_spoolss_jobpagesprinted,
+		  { "Job pages printed", "spoolss.job.pagesprinted", FT_UINT32, BASE_DEC, 
+		    NULL, 0x0, "Job identification number", HFILL }},
+
+		/* SYSTEM_TIME */
+
+		{ &hf_spoolss_time_year,
+		  { "Year", "spoolss.time.year", FT_UINT32, BASE_DEC, 
+		    NULL, 0x0, "Year", HFILL }},
+		{ &hf_spoolss_time_month,
+		  { "Month", "spoolss.time.month", FT_UINT32, BASE_DEC, 
+		    NULL, 0x0, "Month", HFILL }},
+		{ &hf_spoolss_time_dow,
+		  { "Day of week", "spoolss.time.dow", FT_UINT32, BASE_DEC, 
+		    NULL, 0x0, "Day of week", HFILL }},
+		{ &hf_spoolss_time_day,
+		  { "Day", "spoolss.time.day", FT_UINT32, BASE_DEC, 
+		    NULL, 0x0, "Day", HFILL }},
+		{ &hf_spoolss_time_hour,
+		  { "Hour", "spoolss.time.hour", FT_UINT32, BASE_DEC, 
+		    NULL, 0x0, "Hour", HFILL }},
+		{ &hf_spoolss_time_minute,
+		  { "Minute", "spoolss.time.minute", FT_UINT32, BASE_DEC, 
+		    NULL, 0x0, "Minute", HFILL }},
+		{ &hf_spoolss_time_second,
+		  { "Second", "spoolss.time.second", FT_UINT32, BASE_DEC, 
+		    NULL, 0x0, "Second", HFILL }},
+		{ &hf_spoolss_time_msec,
+		  { "Millisecond", "spoolss.time.msec", FT_UINT32, BASE_DEC, 
+		    NULL, 0x0, "Millisecond", HFILL }},
+
+		/* Printer data */
+
+		{ &hf_spoolss_printerdata_size,
+		  { "Printer data size", "spoolss.printerdata.size", FT_UINT32, BASE_DEC, 
+		    NULL, 0x0, "Printer data name", HFILL }},
+		{ &hf_spoolss_printerdata_name,
+		  { "Printer data name", "spoolss.printerdata.name", FT_STRING, BASE_NONE,
+		    NULL, 0, "Printer data name", HFILL }},
+
+		/* SetJob RPC */
+
+		{ &hf_spoolss_setjob_cmd,
+		  { "Set job command", "spoolss.setjob.cmd", FT_UINT32, BASE_DEC, 
+		    &setjob_commands, 0x0, "Printer data name", HFILL }},
+	};
+
         static gint *ett[] = {
                 &ett_dcerpc_spoolss,
 		&ett_NOTIFY_OPTION_ARRAY,
@@ -3084,10 +3827,13 @@ proto_register_dcerpc_spoolss(void)
 		&ett_JOB_INFO_1,
 		&ett_JOB_INFO_2,
 		&ett_SEC_DESC_BUF,
+		&ett_SYSTEM_TIME,
         };
 
         proto_dcerpc_spoolss = proto_register_protocol(
                 "Microsoft Spool Subsystem", "SPOOLSS", "spoolss");
+
+	proto_register_field_array(proto_dcerpc_spoolss, hf, array_length(hf));
 
         proto_register_subtree_array(ett, array_length(ett));
 }
