@@ -257,6 +257,9 @@ static const struct encap_type_info {
 
 	/* WTAP_ENCAP_RAW_ICMPV6 */
 	{ "Raw ICMPv6", "raw-icmpv6" },
+
+	/* WTAP_ENCAP_GPRS_LLC */
+	{ "GPRS LLC", "gprs-llc" },
 };
 
 /* Name that should be somewhat descriptive. */

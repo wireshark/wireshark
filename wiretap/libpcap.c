@@ -336,6 +336,18 @@ static const struct {
 	{ 165,		WTAP_ENCAP_BACNET_MS_TP },
 
 	/*
+	 * 166 is reserved for a PPP variant in which the first byte
+	 * of the 0xff03 header, the 0xff, is replaced by a direction
+	 * byte.  I don't know whether any captures look like that,
+	 * but it is used for some Linux IP filtering (ipfilter?).
+	 *
+	 * 167 and 168 are reserved for more Juniper private-chassis-
+	 * internal meta-information.
+	 */
+
+	{ 169,		WTAP_ENCAP_GPRS_LLC },
+
+	/*
 	 * To repeat:
 	 *
 	 * If you need a new encapsulation type for libpcap files, do
