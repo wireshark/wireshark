@@ -2,7 +2,7 @@
  * Routines for Cisco NetFlow packet disassembly
  * Matthew Smart <smart@monkey.org>
  *
- * $Id: packet-netflow.c,v 1.3 2002/09/07 00:08:02 jmayer Exp $
+ * $Id: packet-netflow.c,v 1.4 2002/09/09 20:22:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -41,12 +41,146 @@ static int hf_netflow_count = -1;
 static int hf_netflow_sys_uptime = -1;
 static int hf_netflow_unix_sec = -1;
 static int hf_netflow_unix_nsec = -1;
-static int hf_netflow_sample_rate = -1; 
-static int hf_netflow_flow_sequence = -1;
+static int hf_netflow_sequence = -1;
+static int hf_netflow_engine_type = -1;
+static int hf_netflow_engine_id = -1;
+static int hf_netflow_aggregation = -1;
+static int hf_netflow_agg_version = -1;
+static int hf_netflow_sample_rate = -1;
 static int hf_netflow_record = -1;
+
+static int hf_netflow_src_addr = -1;
+static int hf_netflow_dst_addr = -1;
+static int hf_netflow_next_hop = -1;
+static int hf_netflow_input_iface = -1;
+static int hf_netflow_output_iface = -1;
+static int hf_netflow_packets = -1;
+static int hf_netflow_bytes = -1;
+static int hf_netflow_start_time = -1;
+static int hf_netflow_end_time = -1;
+static int hf_netflow_src_port = -1;
+static int hf_netflow_dst_port = -1;
+static int hf_netflow_v7_flags = -1;
+static int hf_netflow_tcp_flags = -1;
+static int hf_netflow_ip_prot = -1;
+static int hf_netflow_tos = -1;
+static int hf_netflow_src_as = -1;
+static int hf_netflow_dst_as = -1;
+static int hf_netflow_src_mask = -1;
+static int hf_netflow_dst_mask = -1;
+static int hf_netflow_router_sc = -1;
 
 static gint ett_netflow = -1;
 static gint ett_netflow_rec = -1;
+
+static void
+dissect_netflow_157(tvbuff_t *tvb, proto_tree *tree, guint16 version,
+    guint offset)
+{
+	guint32 addr;
+
+	tvb_memcpy(tvb, (guint8 *)&addr, offset, 4);
+	proto_tree_add_ipv4(tree, hf_netflow_src_addr, tvb, offset, 4, addr);
+	offset += 4;
+
+	tvb_memcpy(tvb, (guint8 *)&addr, offset, 4);
+	proto_tree_add_ipv4(tree, hf_netflow_dst_addr, tvb, offset, 4, addr);
+	offset += 4;
+
+	tvb_memcpy(tvb, (guint8 *)&addr, offset, 4);
+	proto_tree_add_ipv4(tree, hf_netflow_next_hop, tvb, offset, 4, addr);
+	offset += 4;
+
+	proto_tree_add_item(tree, hf_netflow_input_iface,
+	    tvb, offset, 2, FALSE);
+	offset += 2;
+
+	proto_tree_add_item(tree, hf_netflow_output_iface,
+	    tvb, offset, 2, FALSE);
+	offset += 2;
+
+	proto_tree_add_item(tree, hf_netflow_packets,
+	    tvb, offset, 4, FALSE);
+	offset += 4;
+
+	proto_tree_add_item(tree, hf_netflow_bytes,
+	    tvb, offset, 4, FALSE);
+	offset += 4;
+
+	proto_tree_add_item(tree, hf_netflow_start_time,
+	    tvb, offset, 4, FALSE);
+	offset += 4;
+
+	proto_tree_add_item(tree, hf_netflow_end_time,
+	    tvb, offset, 4, FALSE);
+	offset += 4;
+
+	proto_tree_add_item(tree, hf_netflow_src_port,
+	    tvb, offset, 2, FALSE);
+	offset += 2;
+
+	proto_tree_add_item(tree, hf_netflow_dst_port,
+	    tvb, offset, 2, FALSE);
+	offset += 2;
+
+	if (version == 1) {
+		offset += 2;	/* Skip pad bytes */
+
+		proto_tree_add_item(tree, hf_netflow_ip_prot,
+		    tvb, offset, 1, FALSE);
+		offset += 1;
+
+		proto_tree_add_item(tree, hf_netflow_tos,
+		    tvb, offset, 1, FALSE);
+		offset += 1;
+
+		proto_tree_add_item(tree, hf_netflow_tcp_flags,
+		    tvb, offset, 1, FALSE);
+		offset += 1;
+	} else {
+		if (version == 7) {
+			proto_tree_add_item(tree, hf_netflow_v7_flags,
+			    tvb, offset, 1, FALSE);
+		}
+		offset += 1;	/* v5 pad byte, v7 flags */
+
+		proto_tree_add_item(tree, hf_netflow_tcp_flags,
+		    tvb, offset, 1, FALSE);
+		offset += 1;
+
+		proto_tree_add_item(tree, hf_netflow_ip_prot,
+		    tvb, offset, 1, FALSE);
+		offset += 1;
+
+		proto_tree_add_item(tree, hf_netflow_tos,
+		    tvb, offset, 1, FALSE);
+		offset += 1;
+
+		proto_tree_add_item(tree, hf_netflow_src_as,
+		    tvb, offset, 2, FALSE);
+		offset += 2;
+
+		proto_tree_add_item(tree, hf_netflow_dst_as,
+		    tvb, offset, 2, FALSE);
+		offset += 2;
+
+		proto_tree_add_item(tree, hf_netflow_src_mask,
+		    tvb, offset, 1, FALSE);
+		offset += 1;
+
+		proto_tree_add_item(tree, hf_netflow_dst_mask,
+		    tvb, offset, 1, FALSE);
+		offset += 1;
+
+		offset += 2;	/* Skip pad bytes */
+
+		if (version == 7) {
+			proto_tree_add_item(tree, hf_netflow_router_sc,
+			    tvb, offset, 4, FALSE);
+			offset += 4;
+		}
+	}
+}
 
 static void 
 dissect_netflow(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -55,11 +189,9 @@ dissect_netflow(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree *netflow_rec_tree = NULL;
 	proto_item *ti = NULL, *tf = NULL; 
 	gint offset = 0;
-	struct netflow5_hdr nfh;
-	struct netflow5_rec nfr;
-	guint16 nfh_version, nfh_count, nfh_sample_rate;
-	guint32 nfh_sys_uptime, nfh_unix_sec, nfh_unix_nsec;
-	guint32 nfh_sequence;
+	guint16 nf_version, nf_count, nf_sample_rate;
+	guint32 nf_sequence;
+	gint header_size, record_size;
 	int i;
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
@@ -68,126 +200,159 @@ dissect_netflow(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		col_clear(pinfo->cinfo, COL_INFO);
 
 	/* Determine NetFlow version and number of records */
-	tvb_memcpy(tvb, (guint8 *)&nfh, offset, sizeof(nfh));
-	nfh_version = g_ntohs(nfh.version);
-	nfh_count = g_ntohs(nfh.count);
-	nfh_sys_uptime = g_ntohl(nfh.sys_uptime);
-	nfh_unix_sec = g_ntohl(nfh.unix_sec);
-	nfh_unix_nsec = g_ntohl(nfh.unix_nsec);
-	nfh_sample_rate = g_ntohs(nfh.sample_rate);
-	nfh_sequence = g_ntohl(nfh.flow_sequence);
+	nf_version = tvb_get_ntohs(tvb, offset);
+	offset += sizeof(nf_version);
+
+	nf_count = tvb_get_ntohs(tvb, offset);
+	offset += sizeof(nf_count);
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_add_fstr(pinfo->cinfo, COL_INFO,
-		    "Netflow v%u, %u records, sequence number %u",
-		    nfh_version, nfh_count, nfh_sequence);
+		    "v%u, %u records", nf_version, nf_count);
 
+	/* Handle version-specific issues */
+	switch (nf_version) {
+	case 1:
+		header_size = NETFLOW_V1_HDR;
+		record_size = NETFLOW_V1_REC;
+		break;
+	case 5:
+		header_size = NETFLOW_V5_HDR;
+		record_size = NETFLOW_V5_REC;
+		break;
+	case 7:
+		header_size = NETFLOW_V7_HDR;
+		record_size = NETFLOW_V7_REC;
+		break;
+	case 8:
+		header_size = NETFLOW_V8_HDR;
+		record_size = NETFLOW_V8_REC;
+	case 9:
+	default:
+		return;
+	}
+
+	/* Add NetFlow to the tree */
 	if (tree != NULL) {
-		/* Add NetFlow to to the tree */
 		ti = proto_tree_add_protocol_format(tree, proto_netflow, tvb,
-		    offset, sizeof(nfh.version) + sizeof(nfh.count)*sizeof(nfr),
-		    "Netflow v%u, %u records, sequence number %u",
-		    nfh_version, nfh_count, nfh_sequence);
+		    0, header_size, "NetFlow, v%u, %u records",
+		    nf_version, nf_count);
 		netflow_tree = proto_item_add_subtree(ti, ett_netflow);
+	} else {
+		return;
+	}
 
-		/* Version */
-		proto_tree_add_uint(netflow_tree, hf_netflow_version,
-		    tvb, offset, sizeof(nfh.version), nfh_version);
+	/* Start adding header information */
+	offset = 0;
 
-		/* Number of records */
-		proto_tree_add_uint(netflow_tree, hf_netflow_count,
-		    tvb, offset + 2, sizeof(nfh.count), nfh_count);
+	proto_tree_add_uint(netflow_tree, hf_netflow_version,
+	    tvb, offset, sizeof(nf_version), nf_version);
+	offset += sizeof(nf_version);
 
-		/* XXX only support version 5 right now */
-		if (nfh_version != 5)
-			return;
+	proto_tree_add_uint(netflow_tree, hf_netflow_count,
+	    tvb, offset, sizeof(nf_count), nf_count);
+	offset += sizeof(nf_count);
 
-		/* System (router) uptime */
-		proto_tree_add_uint_format(netflow_tree, hf_netflow_sys_uptime,
-		    tvb, offset + 4, sizeof(nfh.sys_uptime), nfh_sys_uptime,
-		    "System uptime: %u msec", nfh_sys_uptime);
+	proto_tree_add_item(netflow_tree, hf_netflow_sys_uptime,
+	    tvb, offset, 4, FALSE);
+	offset += 4;
 
-		/* Unix time in seconds */
-		proto_tree_add_uint_format(netflow_tree, hf_netflow_unix_sec,
-		    tvb, offset + 8, sizeof(nfh.unix_sec), nfh_unix_sec,
-		    "Unix time: %u seconds", nfh_unix_sec);
+	proto_tree_add_item(netflow_tree, hf_netflow_unix_sec,
+	    tvb, offset, 4, FALSE);
+	offset += 4;
 
-		/* Unix time in seconds */
-		proto_tree_add_uint_format(netflow_tree, hf_netflow_unix_nsec,
-		    tvb, offset + 12, sizeof(nfh.unix_nsec), nfh_unix_nsec,
-		    "Residual: %u nanoseconds", nfh_unix_nsec);
+	proto_tree_add_item(netflow_tree, hf_netflow_unix_nsec,
+	    tvb, offset, 4, FALSE);
+	offset += 4;
 
-		/* On high-speed interfaces often just statistical sample records are produced */
-		proto_tree_add_uint_format(netflow_tree, hf_netflow_sample_rate,
-		    tvb, offset + 22, sizeof(nfh.sample_rate), nfh_sample_rate,
-		    "Sample Rate: 1/%u", nfh_sample_rate);
+	/* No more version 1 header */
 
-		for (i = 0; i < nfh_count; i++) {
-			guint rec_offset = sizeof(nfh) + i * sizeof(nfr);
+	if (nf_version != 1) {
+		nf_sequence = tvb_get_ntohl(tvb, offset);
+		proto_tree_add_uint(netflow_tree, hf_netflow_sequence,
+		    tvb, offset, sizeof(nf_sequence), nf_sequence);
+		offset += sizeof(nf_sequence);
 
-			tf = proto_tree_add_uint_format(netflow_tree,
-			    hf_netflow_record, tvb, rec_offset, sizeof(nfr),
-			    i, "Record %d: %u packets, %u bytes", i+1,
-			    tvb_get_ntohl(tvb, rec_offset + 16),
-			    tvb_get_ntohl(tvb, rec_offset + 20));
-			netflow_rec_tree = proto_item_add_subtree(tf,
-			    ett_netflow_rec);
-
-			proto_tree_add_text(netflow_rec_tree, tvb,
-			    rec_offset + 0, 4, "Src Addr: %s",
-			    ip_to_str(tvb_get_ptr(tvb, rec_offset + 0, 4)));
-			proto_tree_add_text(netflow_rec_tree, tvb,
-			    rec_offset + 4, 4, "Dst Addr: %s",
-			    ip_to_str(tvb_get_ptr(tvb, rec_offset + 4, 4)));
-			proto_tree_add_text(netflow_rec_tree, tvb,
-			    rec_offset + 8, 4, "Next Hop: %s",
-			    ip_to_str(tvb_get_ptr(tvb, rec_offset + 8, 4)));
-			proto_tree_add_text(netflow_rec_tree, tvb,
-			    rec_offset + 12, 2, "Input Interface: %u",
-			    tvb_get_ntohs(tvb, rec_offset + 12));
-			proto_tree_add_text(netflow_rec_tree, tvb,
-			    rec_offset + 14, 2, "Output Interface: %u",
-			    tvb_get_ntohs(tvb, rec_offset + 14));
-			proto_tree_add_text(netflow_rec_tree, tvb,
-			    rec_offset + 16, 4, "Packets: %u",
-			    tvb_get_ntohl(tvb, rec_offset + 16));
-			proto_tree_add_text(netflow_rec_tree, tvb,
-			    rec_offset + 20, 4, "Bytes: %u",
-			    tvb_get_ntohl(tvb, rec_offset + 20));
-			proto_tree_add_text(netflow_rec_tree, tvb,
-			    rec_offset + 24, 4, "Start Time: %u",
-			    tvb_get_ntohl(tvb, rec_offset + 24));
-			proto_tree_add_text(netflow_rec_tree, tvb,
-			    rec_offset + 28, 4, "End Time: %u",
-			    tvb_get_ntohl(tvb, rec_offset + 28));
-			proto_tree_add_text(netflow_rec_tree, tvb,
-			    rec_offset + 32, 2, "Source Port: %u",
-			    tvb_get_ntohs(tvb, rec_offset + 32));
-			proto_tree_add_text(netflow_rec_tree, tvb,
-			    rec_offset + 34, 2, "Dest Port: %u",
-			    tvb_get_ntohs(tvb, rec_offset + 34));
-			proto_tree_add_text(netflow_rec_tree, tvb,
-			    rec_offset + 37, 1, "TCP Flags: 0x%0x",
-			    tvb_get_guint8(tvb, rec_offset + 37));
-			proto_tree_add_text(netflow_rec_tree, tvb,
-			    rec_offset + 38, 1, "IP Protocol: %u",
-			    tvb_get_guint8(tvb, rec_offset + 38));
-			proto_tree_add_text(netflow_rec_tree, tvb,
-			    rec_offset + 39, 1, "Type of service: 0x%02x",
-			    tvb_get_guint8(tvb, rec_offset + 39));
-			proto_tree_add_text(netflow_rec_tree, tvb,
-			    rec_offset + 40, 2, "Source AS: %u",
-			    tvb_get_ntohs(tvb, rec_offset + 40));
-			proto_tree_add_text(netflow_rec_tree, tvb,
-			    rec_offset + 42, 2, "Dest AS: %u",
-			    tvb_get_ntohs(tvb, rec_offset + 42));
-			proto_tree_add_text(netflow_rec_tree, tvb,
-			    rec_offset + 44, 1, "Source Mask: %u",
-			    tvb_get_guint8(tvb, rec_offset + 44));
-			proto_tree_add_text(netflow_rec_tree, tvb,
-			    rec_offset + 45, 1, "Dest Mask: %u",
-			    tvb_get_guint8(tvb, rec_offset + 45));
+		/* Add the sequence number */
+		if (check_col(pinfo->cinfo, COL_INFO)) {
+			col_clear(pinfo->cinfo, COL_INFO);
+			col_add_fstr(pinfo->cinfo, COL_INFO,
+			    "v%u, %u records, sequence # %u",
+			    nf_version, nf_count, nf_sequence);
 		}
+
+		/* No more version 7 header */
+
+		if (nf_version != 7) {
+			/* Engine type and ID */
+			proto_tree_add_item(netflow_tree,
+			    hf_netflow_engine_type, tvb, offset,
+			    1, FALSE);
+			offset += 1;
+
+			proto_tree_add_item(netflow_tree,
+			    hf_netflow_engine_id, tvb, offset,
+			    1, FALSE);
+			offset += 1;
+
+			if (nf_version == 8) {
+				/* Engine type and ID */
+				proto_tree_add_item(netflow_tree,
+				    hf_netflow_aggregation, tvb, offset,
+				    1, FALSE);
+				offset += 1;
+
+				proto_tree_add_item(netflow_tree,
+				    hf_netflow_agg_version, tvb, offset,
+				    1, FALSE);
+				offset += 1;
+			}
+
+			/*
+			 * On high-speed interfaces often just
+			 * statistical sample records are produced.
+			 */
+			nf_sample_rate = tvb_get_ntohs(tvb, offset);
+			if (nf_version == 5) {
+				/*
+				 * Sample rate.  Junipers and some Ciscos
+				 * include sampling rate in the reserved
+				 * header field.  Not all the bits are used,
+				 * however.
+				 */
+				if ((nf_sample_rate & 0xc000) == 0x4000) {
+					nf_sample_rate &= 0x3fff;
+					if (nf_sample_rate == 0)
+						nf_sample_rate = 1;
+				} else
+					nf_sample_rate = 1;
+			}
+			proto_tree_add_uint_format(netflow_tree,
+			    hf_netflow_sample_rate, tvb, offset,
+			    sizeof(nf_sample_rate), nf_sample_rate,
+			    "Sample_rate: 1/%u", nf_sample_rate);
+			offset += sizeof(nf_sample_rate);
+		}
+	}
+
+	/* XXX Doesn't support v8 records, yet */
+	if (nf_version == 8)
+		return;
+
+	/* Handle the flow records */
+	for (i = 0; i < nf_count; i++) {
+		guint rec_offset = header_size + i * record_size;
+
+		tf = proto_tree_add_uint_format(netflow_tree,
+		    hf_netflow_record, tvb, rec_offset, record_size,
+		    i, "Record %d: %u packets, %u bytes", i + 1,
+		    tvb_get_ntohl(tvb, rec_offset + 16),
+		    tvb_get_ntohl(tvb, rec_offset + 20));
+		netflow_rec_tree = proto_item_add_subtree(tf,
+		    ett_netflow_rec);
+
+		dissect_netflow_157(tvb, netflow_rec_tree,
+		    nf_version, rec_offset);
 	}
 }
 
@@ -195,6 +360,7 @@ void
 proto_register_netflow(void)
 {
 	static hf_register_info hf[] = {
+		/* Header */
 		{ &hf_netflow_version,
 		{ "Version", "netflow.version", FT_UINT16,
 		  BASE_DEC, NULL, 0x0, "", HFILL }},
@@ -210,15 +376,88 @@ proto_register_netflow(void)
 		{ &hf_netflow_unix_nsec,
 		{ "Unix nanonseconds", "netflow.unix_nsec", FT_UINT32,
 		  BASE_DEC, NULL, 0x0, "", HFILL }},
-		{ &hf_netflow_sample_rate,
-		{ "Sample Rate", "netflow.sample_rate", FT_UINT16,
+		{ &hf_netflow_sequence,
+		{ "Sequence number", "netflow.sequence", FT_UINT32,
 		  BASE_DEC, NULL, 0x0, "", HFILL }},
-		{ &hf_netflow_flow_sequence,
-		{ "Sequence number", "netflow.flow_sequence", FT_UINT32,
+		{ &hf_netflow_engine_type,
+		{ "Engine type", "netflow.engine_type", FT_UINT8,
+		  BASE_DEC, NULL, 0x0, "", HFILL }},
+		{ &hf_netflow_engine_id,
+		{ "Engine ID", "netflow.engine_id", FT_UINT8,
+		  BASE_DEC, NULL, 0x0, "", HFILL }},
+		{ &hf_netflow_aggregation,
+		{ "Aggregation method", "netflow.aggregation", FT_UINT8,
+		  BASE_DEC, NULL, 0x0, "", HFILL }},
+		{ &hf_netflow_agg_version,
+		{ "Aggregation version", "netflow.agg_version", FT_UINT8,
+		  BASE_DEC, NULL, 0x0, "", HFILL }},
+		{ &hf_netflow_sample_rate,
+		{ "Sample rate", "netflow.sample_rate", FT_UINT16,
 		  BASE_DEC, NULL, 0x0, "", HFILL }},
 		{ &hf_netflow_record,
 		{ "Record", "netflow.record", FT_UINT32,
 		  BASE_DEC, NULL, 0x0, "", HFILL }},
+		/* Record */
+		{ &hf_netflow_src_addr,
+		{ "Source address", "netflow.src_addr", FT_IPv4,
+		  BASE_NONE, NULL, 0x0, "", HFILL }},
+		{ &hf_netflow_dst_addr,
+		{ "Destination address", "netflow.dst_addr", FT_IPv4,
+		  BASE_NONE, NULL, 0x0, "", HFILL }},
+		{ &hf_netflow_next_hop,
+		{ "Next hop", "netflow.next_hop", FT_IPv4,
+		  BASE_NONE, NULL, 0x0, "", HFILL }},
+		{ &hf_netflow_input_iface,
+		{ "Input interface", "netflow.input_iface", FT_UINT16,
+		  BASE_DEC, NULL, 0x0, "", HFILL }},
+		{ &hf_netflow_output_iface,
+		{ "Output interface", "netflow.output_iface", FT_UINT16,
+		  BASE_DEC, NULL, 0x0, "", HFILL }},
+		{ &hf_netflow_packets,
+		{ "Packets sent", "netflow.packets", FT_UINT32,
+		  BASE_DEC, NULL, 0x0, "", HFILL }},
+		{ &hf_netflow_bytes,
+		{ "Bytes sent", "netflow.bytes", FT_UINT32,
+		  BASE_DEC, NULL, 0x0, "", HFILL }},
+		{ &hf_netflow_start_time,
+		{ "Start time", "netflow.start_time", FT_UINT32,
+		  BASE_DEC, NULL, 0x0, "", HFILL }},
+		{ &hf_netflow_end_time,
+		{ "End time", "netflow.end_time", FT_UINT32,
+		  BASE_DEC, NULL, 0x0, "", HFILL }},
+		{ &hf_netflow_src_port,
+		{ "Source port", "netflow.src_port", FT_UINT16,
+		  BASE_DEC, NULL, 0x0, "", HFILL }},
+		{ &hf_netflow_dst_port,
+		{ "Destination port", "netflow.dst_port", FT_UINT16,
+		  BASE_DEC, NULL, 0x0, "", HFILL }},
+		{ &hf_netflow_v7_flags,
+		{ "Valid flags", "netflow.flags", FT_UINT8,
+		  BASE_HEX, NULL, 0x0, "", HFILL }},
+		{ &hf_netflow_tcp_flags,
+		{ "TCP flags", "netflow.tcp_flags", FT_UINT8,
+		  BASE_HEX, NULL, 0x0, "", HFILL }},
+		{ &hf_netflow_ip_prot,
+		{ "IP protocol", "netflow.ip_prot", FT_UINT8,
+		  BASE_DEC, NULL, 0x0, "", HFILL }},
+		{ &hf_netflow_tos,
+		{ "Type of service", "netflow.tos", FT_UINT8,
+		  BASE_HEX, NULL, 0x0, "", HFILL }},
+		{ &hf_netflow_src_as,
+		{ "Source AS", "netflow.src_as", FT_UINT16,
+		  BASE_DEC, NULL, 0x0, "", HFILL }},
+		{ &hf_netflow_dst_as,
+		{ "Destination AS", "netflow.dst_as", FT_UINT16,
+		  BASE_DEC, NULL, 0x0, "", HFILL }},
+		{ &hf_netflow_src_mask,
+		{ "Source mask", "netflow.src_mask", FT_UINT8,
+		  BASE_DEC, NULL, 0x0, "", HFILL }},
+		{ &hf_netflow_dst_mask,
+		{ "Destination mask", "netflow.dst_mask", FT_UINT8,
+		  BASE_DEC, NULL, 0x0, "", HFILL }},
+		{ &hf_netflow_router_sc,
+		{ "Router bypass", "netflow.router_sc", FT_IPv4,
+		  BASE_NONE, NULL, 0x0, "", HFILL }},
 	};
 
 	static gint *ett[] = {
@@ -226,7 +465,7 @@ proto_register_netflow(void)
 		&ett_netflow_rec
 	};
 
-	proto_netflow = proto_register_protocol("Cisco NetFlow",
+	proto_netflow = proto_register_protocol("NetFlow",
 	    "NetFlow", "netflow");
 	proto_register_field_array(proto_netflow, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));

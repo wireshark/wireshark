@@ -2,7 +2,16 @@
  * Routines for Cisco NetFlow packet disassembly
  * Matthew Smart <smart@monkey.org>
  *
- * $Id: packet-netflow.h,v 1.2 2002/09/06 21:22:37 guy Exp $
+ * Cisco links:
+ * http://www.cisco.com/warp/public/cc/pd/iosw/ioft/neflct/tech/napps_wp.htm
+ * http://www.cisco.com/univercd/cc/td/doc/product/rtrmgmt/nfc/nfc_3_0/nfc_ug/nfcform.htm#18955
+ *
+ * ICMP type is stored in the top byte of the destination port and the ICMP
+ * code is stored in the bottom byte.
+ *	icmp_type = ntohs(dst_port) >> 8;
+ *	icmp_code = ntohs(dst_port) & 0xff;
+ *
+ * $Id: packet-netflow.h,v 1.3 2002/09/09 20:22:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -30,39 +39,13 @@
 
 #define UDP_PORT_NETFLOW	5000	/* XXX */
 
-struct netflow5_hdr {
-	guint16	version;
-	guint16	count;		/* Number of records */
-	guint32	sys_uptime;	/* Time in msec since router booted */
-	guint32	unix_sec;	/* Seconds since 0000 UTC 1970 */
-	guint32	unix_nsec;	/* Residual nsec since 0000 UTC 1970 */
-	guint32	flow_sequence;	/* Sequence num of flows seen */
-	guint8	engine_type;	/* Type of flow switching engine */
-	guint8	engine_id;	/* Slot number of switching engine */
-	guint16	sample_rate;    /* sample 1/sample_rate packets */
-};
-
-struct netflow5_rec {
-	guint32	src_addr;
-	guint32	dst_addr;
-	guint32	next_hop;
-	guint16	input_iface;
-	guint16	output_iface;
-	guint32	pkts_sent;	/* Between start_time and end_time */
-	guint32	bytes_sent;	/* Between start_time and end_time */
-	guint32	start_time;	/* Milliseconds since sys_uptime */
-	guint32	end_time;	/* Milliseconds since sys_uptime */
-	guint16	src_port;
-	guint16	dst_port;
-	guint8	pad1;
-	guint8	tcp_flags;
-	guint8	ip_prot;
-	guint8	tos;
-	guint16	src_as;
-	guint16	dst_as;
-	guint8	src_mask;
-	guint8	dst_mask;
-	guint16	pad2;
-};
+#define NETFLOW_V1_HDR	(4 * 4)
+#define NETFLOW_V1_REC	(4 * 13)
+#define NETFLOW_V5_HDR	(4 * 6)
+#define NETFLOW_V5_REC	(4 * 12)
+#define NETFLOW_V7_HDR	(4 * 6)
+#define NETFLOW_V7_REC	(4 * 13)
+#define NETFLOW_V8_HDR	(4 * 7)
+#define NETFLOW_V8_REC	(-1)	/* There are many record sizes for v8 */
 
 #endif
