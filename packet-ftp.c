@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * Copyright 2001, Juan Toledo <toledo@users.sourceforge.net> (Passive FTP)
  * 
- * $Id: packet-ftp.c,v 1.32 2001/09/03 02:41:31 guy Exp $
+ * $Id: packet-ftp.c,v 1.33 2001/09/03 03:12:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -75,7 +75,9 @@ handle_pasv_response(const u_char *line, int linelen, packet_info *pinfo)
 	int i;
 	u_long byte;
 	guint32 address_val;
+	address server_addr;
 	guint16 server_port;
+	conversation_t 	*conversation;
 
 	/*
 	 * Copy the rest of the line into a null-terminated buffer.
@@ -153,21 +155,29 @@ handle_pasv_response(const u_char *line, int linelen, packet_info *pinfo)
 	server_port |= byte;
 
 	/*
-	 * Set up a conversation.
+	 * Set up a conversation, to be dissected as FTP data.
 	 */
-	if (!find_conversation(&pinfo->src, &pinfo->dst, PT_TCP, server_port, 0,
-	    NO_PORT_B)) {
-		conversation_t 	*conversation;
-		address server_addr;
-
-		server_addr.type = AT_IPv4;
-		server_addr.len = 4;
-		address_val = ntohl(address_val);
-		server_addr.data = (guint8 *)&address_val;
-
+	server_addr.type = AT_IPv4;
+	server_addr.len = 4;
+	address_val = ntohl(address_val);
+	server_addr.data = (guint8 *)&address_val;
+	/*
+	 * XXX - should this call to "find_conversation()" just use
+	 * "server_addr" and "server_port", and wildcard everything else?
+	 */
+	if (find_conversation(&server_addr, &pinfo->dst, PT_TCP, server_port, 0,
+	    NO_PORT_B) == NULL) {
 		/*
-		 * XXX - should this just use "server_addr" and "server_port",
-		 * and wildcard everything else?
+		 * XXX - should this call to "conversation_new()" just use
+		 * "server_addr" and "server_port", and wildcard everything
+		 * else?
+		 *
+		 * XXX - what if we did find a conversation?  As we create
+		 * it only on the first pass through the packets, if we
+		 * find one, it's presumably an unrelated conversation.
+		 * Should we remove the old one from the hash table and
+		 * put this one in its place?  Can the conversaton code
+		 * handle conversations not in the hash table?
 		 */
 		conversation = conversation_new(&server_addr, &pinfo->dst,
 		    PT_TCP, server_port, 0, NULL, NO_PORT2);
@@ -256,7 +266,8 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			 * This is a response; see if it's a passive-mode
 			 * response.
 			 */
-			if (strncmp("227", line, tokenlen) == 0)
+			if (tokenlen == 3 &&
+			    strncmp("227", line, tokenlen) == 0)
 				is_pasv_response = TRUE;
 			if (tree) {
 				proto_tree_add_uint_format(ftp_tree,
@@ -270,17 +281,14 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		line = next_token;
 
 		/*
-		 * If this is a passive response, handle it.
-		 * Such a response is in the form 227 some_text
-		 * (a,b,c,d,p1,p2) , where a.b.c.d is the IP address
-		 * of the server, and p1, p2 are the hi and low bytes
-		 * of the TCP port the server will open for the client
-		 * to connect to.
+		 * If this is a PASV response, handle it if we haven't
+		 * already processed this frame.
 		 */
-		if (is_pasv_response) {
+		if (!pinfo->fd->flags.visited && is_pasv_response) {
 			/*
-			 * This is a 227 response; set up a conversation
-			 * for the data.
+			 * We haven't processed this frame, and it contains
+			 * a PASV response; set up a conversation for the
+			 * data.
 			 */
 			handle_pasv_response(line, linelen, pinfo);
 		}
