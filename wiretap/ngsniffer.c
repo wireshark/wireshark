@@ -1,6 +1,6 @@
 /* ngsniffer.c
  *
- * $Id: ngsniffer.c,v 1.26 1999/11/27 20:46:46 guy Exp $
+ * $Id: ngsniffer.c,v 1.27 1999/11/28 02:08:48 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -475,6 +475,21 @@ static int ngsniffer_read(wtap *wth, int *err)
 			t = (double)time_low+(double)(time_med)*65536.0 +
 			    (double)time_high*4294967296.0;
 
+			/*
+			 * In one PPP "Internetwork analyzer" capture,
+			 * the only bit seen in "fs" is the 0x80 bit,
+			 * which probably indicates the packet's
+			 * direction; all other bits were zero.
+			 * All bits in "frame2.flags" were zero.
+			 *
+			 * In one Ethernet capture, "fs" was always 0,
+			 * and "flags" was either 0 or 0x18, with no
+			 * obvious correlation with anything.
+			 *
+			 * In one Token Ring capture, "fs" was either 0
+			 * or 0xcc, and "flags" was either 0 or 0x18,
+			 * with no obvious correlation with anything.
+			 */
 			wth->phdr.pseudo_header.x25.flags = frame2.fs & 0x80;
 
 			goto found;
