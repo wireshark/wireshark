@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.201 2003/08/23 09:09:33 sahlberg Exp $
+ * $Id: packet-tcp.c,v 1.202 2003/08/28 03:35:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -100,6 +100,7 @@ static int hf_tcp_analysis_duplicate_ack_frame = -1;
 static int hf_tcp_analysis_zero_window = -1;
 static int hf_tcp_analysis_zero_window_probe = -1;
 static int hf_tcp_analysis_zero_window_violation = -1;
+static int hf_tcp_reassembled_in = -1;
 static int hf_tcp_segments = -1;
 static int hf_tcp_segment = -1;
 static int hf_tcp_segment_overlap = -1;
@@ -146,7 +147,7 @@ static const fragment_items tcp_segment_items = {
 	&hf_tcp_segment_multiple_tails,
 	&hf_tcp_segment_too_long_fragment,
 	&hf_tcp_segment_error,
-	NULL,
+	&hf_tcp_reassembled_in,
 	"Segments"
 };
 
@@ -1566,6 +1567,15 @@ desegment_tcp(tvbuff_t *tvb, packet_info *pinfo, int offset,
 	}
 
 	if (!called_dissector || pinfo->desegment_len != 0) {
+		if (ipfd_head != NULL && ipfd_head->reassembled_in != 0) {
+			/*
+			 * We know what frame this PDU is reassembled in;
+			 * let the user know.
+			 */
+			proto_tree_add_uint(tcp_tree, hf_tcp_reassembled_in,
+			    tvb, 0, 0, ipfd_head->reassembled_in);
+		}
+
 		/*
 		 * Either we didn't call the subdissector at all (i.e.,
 		 * this is a segment that contains the middle of a
@@ -2646,53 +2656,72 @@ proto_register_tcp(void)
 		{ &hf_tcp_segments,
 		{ "TCP Segments", "tcp.segments", FT_NONE, BASE_NONE, NULL, 0x0,
 			"TCP Segments", HFILL }},
+
+		{ &hf_tcp_reassembled_in,
+		{ "Reassembled PDU in frame", "tcp.reassembled_in", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+			"The PDU that starts but doesn't end in this segment is reassembled in this frame", HFILL }},
+
 		{ &hf_tcp_option_mss,
 		  { "TCP MSS Option", "tcp.options.mss", FT_BOOLEAN, 
 		    BASE_NONE, NULL, 0x0, "TCP MSS Option", HFILL }},
+
 		{ &hf_tcp_option_mss_val,
 		  { "TCP MSS Option Value", "tcp.options.mss_val", FT_UINT16,
 		    BASE_DEC, NULL, 0x0, "TCP MSS Option Value", HFILL}},
+
 		{ &hf_tcp_option_wscale,
 		  { "TCP Window Scale Option", "tcp.options.wscale", 
 		    FT_BOOLEAN, 
 		    BASE_NONE, NULL, 0x0, "TCP Window Option", HFILL}},
+
 		{ &hf_tcp_option_wscale_val,
 		  { "TCP Windows Scale Option Value", "tcp.options.wscale_val",
 		    FT_UINT8, BASE_DEC, NULL, 0x0, "TCP Window Scale Value",
 		    HFILL}},
+
 		{ &hf_tcp_option_sack_perm, 
 		  { "TCP Sack Perm Option", "tcp.options.sack_perm", 
 		    FT_BOOLEAN,
 		    BASE_NONE, NULL, 0x0, "TCP Sack Perm Option", HFILL}},
+
 		{ &hf_tcp_option_sack,
 		  { "TCP Sack Option", "tcp.options.sack", FT_BOOLEAN, 
 		    BASE_NONE, NULL, 0x0, "TCP Sack Option", HFILL}},
+
 		{ &hf_tcp_option_sack_sle,
 		  {"TCP Sack Left Edge", "tcp.options.sack_le", FT_UINT32,
 		   BASE_DEC, NULL, 0x0, "TCP Sack Left Edge", HFILL}},
+
 		{ &hf_tcp_option_sack_sre,
 		  {"TCP Sack Right Edge", "tcp.options.sack_re", FT_UINT32,
 		   BASE_DEC, NULL, 0x0, "TCP Sack Right Edge", HFILL}},
+
 		{ &hf_tcp_option_echo,
 		  { "TCP Echo Option", "tcp.options.echo", FT_BOOLEAN, 
 		    BASE_NONE, NULL, 0x0, "TCP Sack Echo", HFILL}},
+
 		{ &hf_tcp_option_echo_reply,
 		  { "TCP Echo Reply Option", "tcp.options.echo_reply", 
 		    FT_BOOLEAN,
 		    BASE_NONE, NULL, 0x0, "TCP Echo Reply Option", HFILL}},
+
 		{ &hf_tcp_option_time_stamp,
 		  { "TCP Time Stamp Option", "tcp.options.time_stamp", 
 		    FT_BOOLEAN,
 		    BASE_NONE, NULL, 0x0, "TCP Time Stamp Option", HFILL}},
+
 		{ &hf_tcp_option_cc,
 		  { "TCP CC Option", "tcp.options.cc", FT_BOOLEAN, BASE_NONE,
 		    NULL, 0x0, "TCP CC Option", HFILL}},
+
 		{ &hf_tcp_option_ccnew,
 		  { "TCP CC New Option", "tcp.options.ccnew", FT_BOOLEAN, 
 		    BASE_NONE, NULL, 0x0, "TCP CC New Option", HFILL}},
+
 		{ &hf_tcp_option_ccecho,
 		  { "TCP CC Echo Option", "tcp.options.ccecho", FT_BOOLEAN,
 		    BASE_NONE, NULL, 0x0, "TCP CC Echo Option", HFILL}},
+
 		{ &hf_tcp_option_md5,
 		  { "TCP MD5 Option", "tcp.options.md5", FT_BOOLEAN, BASE_NONE,
 		    NULL, 0x0, "TCP MD5 Option", HFILL}},
