@@ -4,7 +4,7 @@
  * Copyright 2001, Michal Melerowicz <michal.melerowicz@nokia.com>
  *                 Nicolas Balkota <balkota@mac.com>
  *
- * $Id: packet-gtp.c,v 1.12 2001/10/30 10:18:47 guy Exp $
+ * $Id: packet-gtp.c,v 1.13 2001/10/30 21:31:15 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3553,7 +3553,7 @@ decode_gtp_pdp_cntxt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 	if (pdp_addr_len > 0) {
 		switch (pdp_type_num) {
 			case 0x21:
-				addr_ipv4 = tvb_get_letohl(tvb, offset+3);
+				tvb_memcpy(tvb, (guint8 *)&addr_ipv4, offset+3, sizeof addr_ipv4);
 				proto_tree_add_text(ext_tree_pdp, tvb, offset+3, 4, "PDP address: %s", ip_to_str((guint8 *)&addr_ipv4));
 				break;
 			case 0x57:
@@ -3572,7 +3572,7 @@ decode_gtp_pdp_cntxt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 	
 	switch (ggsn_addr_len) {
 		case 4: 
-			addr_ipv4 = tvb_get_letohl(tvb, offset+1);
+			tvb_memcpy(tvb, (guint8 *)&addr_ipv4, offset+1, sizeof addr_ipv4);
 			proto_tree_add_text(ext_tree_pdp, tvb, offset+1, 4, "GGSN 1 address: %s", ip_to_str((guint8 *)&addr_ipv4));
 			break;
 		case 16: 
@@ -3590,7 +3590,7 @@ decode_gtp_pdp_cntxt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 	
 	switch (ggsn_addr_len) {
 		case 4: 
-			addr_ipv4 = tvb_get_letohl(tvb, offset+1);
+			tvb_memcpy(tvb, (guint8 *)&addr_ipv4, offset+1, sizeof addr_ipv4);
 			proto_tree_add_text(ext_tree_pdp, tvb, offset+1, 4, "GGSN 2 address: %s", ip_to_str((guint8 *)&addr_ipv4));
 			break;
 		case 16: 
@@ -3865,9 +3865,9 @@ decode_gtp_tft(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) 
 					/* address IPv4 and mask = 8 bytes*/
 					case 0x10: 
 						proto_tree_add_text(ext_tree_tft_pf, tvb, offset + pf_offset, 1, "Address IPv4 and mask (0x10)");
-						addr_ipv4 = tvb_get_letohl(tvb, offset + pf_offset + 1);
+						tvb_memcpy(tvb, (guint8 *)&addr_ipv4, offset + pf_offset + 1, sizeof addr_ipv4);
 						proto_tree_add_text(ext_tree_tft_pf, tvb, offset + pf_offset + 1, 4, "\tAddress: %s", ip_to_str((guint8 *)&addr_ipv4));
-						addr_ipv4 = tvb_get_letohl(tvb, offset + pf_offset + 5); 
+						tvb_memcpy(tvb, (guint8 *)&addr_ipv4, offset + pf_offset + 5, sizeof addr_ipv4);
 						proto_tree_add_text(ext_tree_tft_pf, tvb, offset + pf_offset + 5, 4, "\tNetmask: %s", ip_to_str((guint8 *)&addr_ipv4));
 						pf_offset = pf_offset + 9;
 						break;
@@ -4222,13 +4222,13 @@ decode_gtp_data_req(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 				}
 				
 				tvb_memcpy(tvb, gcdr.imsi, offset+3, 8);	
-				gcdr.ggsnaddr = tvb_get_letohl(tvb, offset+11);
+				tvb_memcpy(tvb, (guint8 *)&gcdr.ggsnaddr, offset+11, sizeof gcdr.ggsnaddr);
 				gcdr.chrgid = tvb_get_ntohl(tvb, offset+15);
-				gcdr.sgsnaddr = tvb_get_letohl(tvb, offset+19);
+				tvb_memcpy(tvb, (guint8 *)&gcdr.sgsnaddr, offset+19, sizeof gcdr.sgsnaddr);
 				tvb_memcpy(tvb, gcdr.apn, offset+23, 63);
 				gcdr.pdporg = tvb_get_guint8(tvb, offset+86);
 				gcdr.pdptype = tvb_get_guint8(tvb, offset+87);
-				gcdr.pdpaddr = tvb_get_letohl(tvb, offset+88);
+				tvb_memcpy(tvb, (guint8 *)&gcdr.pdpaddr, offset+88, sizeof gcdr.pdpaddr);
 				gcdr.addrflag = tvb_get_guint8(tvb, offset+92);
 				gcdr.uplink = tvb_get_ntohl(tvb, offset+96);
 				gcdr.downlink = tvb_get_ntohl(tvb, offset+100);
@@ -4280,7 +4280,7 @@ decode_gtp_data_req(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 				tvb_memcpy(tvb, scdr.imei, offset+16, 8);
 				scdr.msisdnlen = tvb_get_guint8(tvb, offset+24);
 				tvb_memcpy(tvb, scdr.msisdn, offset+25, 10);
-				scdr.sgsnaddr = tvb_get_letohl(tvb, offset+35);
+				tvb_memcpy(tvb, (guint8 *)&scdr.sgsnaddr, offset+35, sizeof scdr.sgsnaddr);
 				tvb_memcpy(tvb, scdr.msclass_notused, offset+39, 12);
 				scdr.msclass_caplen = tvb_get_guint8(tvb, offset+51);
 				scdr.msclass_cap = tvb_get_guint8(tvb, offset+52);
@@ -4289,11 +4289,11 @@ decode_gtp_data_req(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 				scdr.rac = tvb_get_guint8(tvb, offset+57);
 				scdr.cid = tvb_get_ntohs(tvb, offset+58);
 				scdr.chrgid = tvb_get_ntohl(tvb, offset+60);
-				scdr.ggsnaddr = tvb_get_letohl(tvb, offset+64);
+				tvb_memcpy(tvb, (guint8 *)&scdr.ggsnaddr, offset+64, sizeof scdr.ggsnaddr);
 				tvb_memcpy(tvb, scdr.apn, offset+68, 64);
 				scdr.pdporg = tvb_get_guint8(tvb, offset+132);
 				scdr.pdptype = tvb_get_guint8(tvb, offset+133);
-				scdr.pdpaddr = tvb_get_letohl(tvb, offset+134);
+				tvb_memcpy(tvb, (guint8 *)&scdr.pdpaddr, offset+134, sizeof scdr.pdpaddr);
 				scdr.listind = tvb_get_guint8(tvb, offset+138);
 				for (j=0;j<4;j++) {
 					scdr.change[j].change = tvb_get_guint8(tvb, offset+139+23*j);
@@ -4387,7 +4387,7 @@ decode_gtp_data_req(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 				tvb_memcpy(tvb, mcdr.imei, offset+14, 8);
 				mcdr.msisdnlen = tvb_get_guint8(tvb, offset+22);
 				tvb_memcpy(tvb, mcdr.msisdn, offset+23, 10);
-				mcdr.sgsnaddr = tvb_get_letohl(tvb, offset+33);
+				tvb_memcpy(tvb, (guint8 *)&mcdr.sgsnaddr, offset+33, sizeof mcdr.sgsnaddr);
 				tvb_memcpy(tvb, mcdr.msclass_notused, offset+37, 12);
 				mcdr.msclass_caplen = tvb_get_guint8(tvb, offset+49);
 				mcdr.msclass_cap = tvb_get_guint8(tvb, offset+50);

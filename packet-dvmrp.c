@@ -1,7 +1,7 @@
 /* packet-dvmrp.c   2001 Ronnie Sahlberg <rsahlber@bigpond.net.au>
  * Routines for IGMP/DVMRP packet disassembly
  *
- * $Id: packet-dvmrp.c,v 1.2 2001/06/18 02:17:46 guy Exp $
+ * $Id: packet-dvmrp.c,v 1.3 2001/10/30 21:31:15 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -245,7 +245,7 @@ dissect_v3_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, in
 	guint8 metric;
 	guint32 ip;
 
-	while (tvb_length_remaining(tvb, offset)) {
+	while (tvb_reported_length_remaining(tvb, offset) > 0) {
 		proto_tree *tree;
 		proto_item *item;
 		int old_offset = offset;
@@ -371,23 +371,22 @@ dissect_dvmrp_v3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int
 	offset += 1;
 
 	/* minor version */
-	proto_tree_add_uint(parent_tree, hf_min_ver, tvb, offset, 1, tvb_get_guint8(tvb, offset));
+	proto_tree_add_item(parent_tree, hf_min_ver, tvb, offset, 1, FALSE);
 	offset += 1;
 
 	/* major version */
-	proto_tree_add_uint(parent_tree, hf_maj_ver, tvb, offset, 1, tvb_get_guint8(tvb, offset));
+	proto_tree_add_item(parent_tree, hf_maj_ver, tvb, offset, 1, FALSE);
 	offset += 1;
 
 	switch (code) {
 	case DVMRP_V3_PROBE:
 		/* generation id */
-		proto_tree_add_uint(parent_tree, hf_genid, tvb, 
-			offset, 4, tvb_get_ntohl(tvb, offset));
+		proto_tree_add_item(parent_tree, hf_genid, tvb, 
+			offset, 4, FALSE);
 		offset += 4;
-		while (tvb_length_remaining(tvb, offset)) {
-			proto_tree_add_ipv4(parent_tree, hf_neighbor, 
-				tvb, offset, 4, 
-				tvb_get_letohl(tvb, offset));
+		while (tvb_reported_length_remaining(tvb, offset) > 0) {
+			proto_tree_add_item(parent_tree, hf_neighbor, 
+				tvb, offset, 4, FALSE);
 			offset += 4;
 		}
 		break;
@@ -396,63 +395,53 @@ dissect_dvmrp_v3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int
 		break;
 	case DVMRP_V3_PRUNE:
 		/* source address */
-		proto_tree_add_ipv4(parent_tree, hf_saddr, 
-			tvb, offset, 4, 
-			tvb_get_letohl(tvb, offset));
+		proto_tree_add_item(parent_tree, hf_saddr, 
+			tvb, offset, 4, FALSE);
 		offset += 4;
 		/* group address */
-		proto_tree_add_ipv4(parent_tree, hf_maddr, 
-			tvb, offset, 4, 
-			tvb_get_letohl(tvb, offset));
+		proto_tree_add_item(parent_tree, hf_maddr, 
+			tvb, offset, 4, FALSE);
 		offset += 4;
 		/* prune lifetime */
-		proto_tree_add_uint(parent_tree, hf_life, 
-			tvb, offset, 4, 
-			tvb_get_ntohl(tvb, offset));
+		proto_tree_add_item(parent_tree, hf_life, 
+			tvb, offset, 4, FALSE);
 		offset += 4;
 		/* source netmask */
-		if (tvb_length_remaining(tvb, offset)>=4) {
-			proto_tree_add_ipv4(parent_tree, hf_netmask, 
-				tvb, offset, 4, 
-				tvb_get_letohl(tvb, offset));
+		if (tvb_reported_length_remaining(tvb, offset)>=4) {
+			proto_tree_add_item(parent_tree, hf_netmask,
+				tvb, offset, 4, FALSE);
 			offset += 4;
 		}
 		break;
 	case DVMRP_V3_GRAFT:
 		/* source address */
-		proto_tree_add_ipv4(parent_tree, hf_saddr, 
-			tvb, offset, 4, 
-			tvb_get_letohl(tvb, offset));
+		proto_tree_add_item(parent_tree, hf_saddr, 
+			tvb, offset, 4, FALSE);
 		offset += 4;
 		/* group address */
-		proto_tree_add_ipv4(parent_tree, hf_maddr, 
-			tvb, offset, 4, 
-			tvb_get_letohl(tvb, offset));
+		proto_tree_add_item(parent_tree, hf_maddr, 
+			tvb, offset, 4, FALSE);
 		offset += 4;
 		/* source netmask */
-		if (tvb_length_remaining(tvb, offset)>=4) {
-			proto_tree_add_ipv4(parent_tree, hf_netmask, 
-				tvb, offset, 4, 
-				tvb_get_letohl(tvb, offset));
+		if (tvb_reported_length_remaining(tvb, offset)>=4) {
+			proto_tree_add_item(parent_tree, hf_netmask, 
+				tvb, offset, 4, FALSE);
 			offset += 4;
 		}
 		break;
 	case DVMRP_V3_GRAFT_ACK:
 		/* source address */
-		proto_tree_add_ipv4(parent_tree, hf_saddr, 
-			tvb, offset, 4, 
-			tvb_get_letohl(tvb, offset));
+		proto_tree_add_item(parent_tree, hf_saddr, 
+			tvb, offset, 4, FALSE);
 		offset += 4;
 		/* group address */
-		proto_tree_add_ipv4(parent_tree, hf_maddr, 
-			tvb, offset, 4, 
-			tvb_get_letohl(tvb, offset));
+		proto_tree_add_item(parent_tree, hf_maddr, 
+			tvb, offset, 4, FALSE);
 		offset += 4;
 		/* source netmask */
-		if (tvb_length_remaining(tvb, offset)>=4) {
-			proto_tree_add_ipv4(parent_tree, hf_netmask, 
-				tvb, offset, 4, 
-				tvb_get_letohl(tvb, offset));
+		if (tvb_reported_length_remaining(tvb, offset)>=4) {
+			proto_tree_add_item(parent_tree, hf_netmask, 
+				tvb, offset, 4, FALSE);
 			offset += 4;
 		}
 		break;
@@ -530,9 +519,8 @@ dissect_dvmrp_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int
 				offset, 1, count);
 			offset += 1;
 			if (count) { /* must be 0 or 1 */
-				proto_tree_add_ipv4(tree, hf_netmask, 
-					tvb, offset, 4, 
-					tvb_get_letohl(tvb, offset));
+				proto_tree_add_item(tree, hf_netmask, 
+					tvb, offset, 4, FALSE);
 				if (item) {
 					proto_item_set_text(item, "%s: %d.%d.%d.%d",
 						val_to_str(cmd, command, "Unknown Command:0x%02x"), 
@@ -550,8 +538,8 @@ dissect_dvmrp_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int
 			}
 			break;	
 		case V1_COMMAND_METRIC:
-			proto_tree_add_uint(tree, hf_metric, tvb,
-				offset, 1, tvb_get_guint8(tvb, offset));
+			proto_tree_add_item(tree, hf_metric, tvb,
+				offset, 1, FALSE);
 			if (item) {
 				proto_item_set_text(item, "%s: %d",
 					val_to_str(cmd, command, "Unknown Command:0x%02x"), 
@@ -570,8 +558,8 @@ dissect_dvmrp_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int
 			offset += 1;
 			break;
 		case V1_COMMAND_INFINITY:
-			proto_tree_add_uint(tree, hf_infinity, tvb,
-				offset, 1, tvb_get_guint8(tvb, offset));
+			proto_tree_add_item(tree, hf_infinity, tvb,
+				offset, 1, FALSE);
 			if (item) {
 				proto_item_set_text(item, "%s: %d",
 					val_to_str(cmd, command, "Unknown Command:0x%02x"), tvb_get_guint8(tvb, offset));
@@ -585,9 +573,8 @@ dissect_dvmrp_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int
 				offset, 1, count);
 			offset += 1;
 			while (count--) {
-				proto_tree_add_ipv4(tree, hf_daddr, 
-					tvb, offset, 4, 
-					tvb_get_letohl(tvb, offset));
+				proto_tree_add_item(tree, hf_daddr, 
+					tvb, offset, 4, FALSE);
 				offset += 4;
 			}
 			if (item) {
@@ -601,12 +588,11 @@ dissect_dvmrp_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int
 				offset, 1, count);
 			offset += 1;
 			while (count--) {
-				proto_tree_add_ipv4(tree, hf_maddr, 
-					tvb, offset, 4, 
-					tvb_get_letohl(tvb, offset));
+				proto_tree_add_item(tree, hf_maddr, 
+					tvb, offset, 4, FALSE);
 				offset += 4;
-				proto_tree_add_uint(tree, hf_hold, tvb,
-					offset, 4, tvb_get_ntohl(tvb, offset));
+				proto_tree_add_item(tree, hf_hold, tvb,
+					offset, 4, FALSE);
 				offset += 4;
 			}
 			if (item) {
@@ -620,9 +606,8 @@ dissect_dvmrp_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int
 				offset, 1, count);
 			offset += 1;
 			while (count--) {
-				proto_tree_add_ipv4(tree, hf_maddr, 
-					tvb, offset, 4, 
-					tvb_get_letohl(tvb, offset));
+				proto_tree_add_item(tree, hf_maddr, 
+					tvb, offset, 4, FALSE);
 				offset += 4;
 			}
 			if (item) {
