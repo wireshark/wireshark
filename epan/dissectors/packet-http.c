@@ -155,7 +155,8 @@ typedef enum {
 	PROTO_DAAP		/* Digital Audio Access Protocol */
 } http_proto_t;
 
-typedef void (*RequestDissector)(tvbuff_t*, proto_tree*, int);
+typedef void (*ReqRespDissector)(tvbuff_t*, proto_tree*, int, const guchar*,
+    const guchar*);
 
 /*
  * Structure holding information from headers needed by main
@@ -170,8 +171,8 @@ typedef struct {
 	char	*transfer_encoding;
 } headers_t;
 
-static int is_http_request_or_reply(const gchar *data, int linelen, http_type_t *type,
-		RequestDissector *req_dissector, int *req_strlen);
+static int is_http_request_or_reply(const gchar *data, int linelen,
+    http_type_t *type, ReqRespDissector *reqresp_dissector);
 static int chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
 		proto_tree *tree, int offset);
 static void process_header(tvbuff_t *tvb, int offset, int next_offset,
@@ -248,7 +249,7 @@ cleanup_headers(void *arg)
 
 /*
  * TODO: remove this ugly global variable.
- * XXX: do we realy want to have to pass this from one function to another?
+ * XXX: do we really want to have to pass this from one function to another?
  */
 static http_info_value_t	*stat_info;
 
@@ -279,8 +280,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	guchar		c;
 	http_type_t     http_type;
 	proto_item	*hdr_item;
-	RequestDissector req_dissector;
-	int		req_strlen;
+	ReqRespDissector reqresp_dissector;
 	proto_tree	*req_tree;
 	int		colon_offset;
 	headers_t	headers;
@@ -288,10 +288,10 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	int		reported_datalen = -1;
 	dissector_handle_t handle;
 	gboolean	dissected;
-	guint i;
+	guint		i;
 	guint32 framenum = pinfo->fd->num;
-	http_info_value_t* si;
-	
+	http_info_value_t *si;
+
 	/*
 	 * Is this a request or response?
 	 *
@@ -308,7 +308,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	line = tvb_get_ptr(tvb, offset, first_linelen);
 	http_type = HTTP_OTHERS;	/* type not known yet */
 	is_request_or_reply = is_http_request_or_reply((const gchar *)line,
-			first_linelen, &http_type, NULL, NULL);
+	    first_linelen, &http_type, NULL);
 	if (is_request_or_reply) {
 		/*
 		 * Yes, it's a request or response.
@@ -351,8 +351,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	
 	/* then we'll add the current stat_info to the array */
 	g_ptr_array_add(stat_infos,stat_info);
-	
-	
+
 	switch (pinfo->match_port) {
 
 	case TCP_PORT_SSDP:	/* TCP_PORT_SSDP = UDP_PORT_SSDP */
@@ -413,6 +412,10 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	while (tvb_reported_length_remaining(tvb, offset) != 0) {
 		/*
 		 * Find the end of the line.
+		 * XXX - what if we don't find it because the packet
+		 * is cut short by a snapshot length or the header is
+		 * split across TCP segments?  How much dissection should
+		 * we do on it?
 		 */
 		linelen = tvb_find_line_end(tvb, offset,
 		    tvb_ensure_length_remaining(tvb, offset), &next_offset,
@@ -430,9 +433,10 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		/*
 		 * OK, does it look like an HTTP request or response?
 		 */
-		req_dissector = NULL;
-		is_request_or_reply = is_http_request_or_reply((const gchar *)line,
-				linelen, &http_type, &req_dissector, &req_strlen);
+		reqresp_dissector = NULL;
+		is_request_or_reply =
+		    is_http_request_or_reply((const gchar *)line,
+		    linelen, &http_type, &reqresp_dissector);
 		if (is_request_or_reply)
 			goto is_http;
 
@@ -577,9 +581,10 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				    offset, next_offset - offset, "%s",
 				    tvb_format_text(tvb, offset,
 				      next_offset - offset));
-				if (req_dissector) {
+				if (reqresp_dissector) {
 					req_tree = proto_item_add_subtree(hdr_item, ett_http_request);
-					req_dissector(tvb, req_tree, offset);
+					reqresp_dissector(tvb, req_tree, offset,
+					    line, lineend);
 				}
 			}
 		} else {
@@ -949,52 +954,71 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 /* This can be used to dissect an HTTP request until such time
  * that a more complete dissector is written for that HTTP request.
- * This simple dissectory only puts http.request_method into a sub-tree.
+ * This simple dissector only puts the request method, URI, and
+ * protocol version into a sub-tree.
  */
 static void
-basic_request_dissector(tvbuff_t *tvb, proto_tree *tree, int start)
+basic_request_dissector(tvbuff_t *tvb, proto_tree *tree, int offset,
+    const guchar *line, const guchar *lineend)
 {
-	gint end;
+	const guchar *next_token;
+	int tokenlen;
 	
-	/* find the first space to determine the end of the method */
-	end = tvb_find_guint8(tvb,start,-1,' ');
-		
-	proto_tree_add_item(tree, hf_http_request_method, tvb, start, end - start , FALSE);
+	/* The first token is the method. */
+	tokenlen = get_token_len(line, lineend, &next_token);
+	if (tokenlen == 0)
+		return;
+	proto_tree_add_item(tree, hf_http_request_method, tvb, offset, tokenlen,
+	    FALSE);
+	offset += next_token - line;
+	line = next_token;
 
-	/* find the second space to determine the end of the uri */
-	start = end + 1;
-	end = tvb_find_guint8(tvb,start,-1,' ');
+	/* The next token is the URI. */
+	tokenlen = get_token_len(line, lineend, &next_token);
+	if (tokenlen == 0)
+		return;
+	stat_info->request_uri = tvb_get_string(tvb, offset, tokenlen);
+	proto_tree_add_string(tree, hf_http_request_uri, tvb, offset, tokenlen,
+	    stat_info->request_uri);
+	offset += next_token - line;
+	line = next_token;
 
-	proto_tree_add_item(tree, hf_http_request_uri, tvb, start, end - start, FALSE);
-    stat_info->request_uri = tvb_get_string(tvb, start, end - start);
-
-	/* find the line end to determine the end of the protocol */
-	start = end + 1;
-	end = tvb_find_guint8(tvb,start,-1,'\r');
-
-	proto_tree_add_item(tree, hf_http_version, tvb, start, end - start , FALSE);
+	/* Everything to the end of the line is the version. */
+	tokenlen = lineend - line;
+	if (tokenlen == 0)
+		return;
+	proto_tree_add_item(tree, hf_http_version, tvb, offset, tokenlen,
+	    FALSE);
 }
 
 static void
-basic_response_dissector(tvbuff_t *tvb, proto_tree *tree, int start)
+basic_response_dissector(tvbuff_t *tvb, proto_tree *tree, int offset,
+    const guchar *line, const guchar *lineend)
 {
+	const guchar *next_token;
+	int tokenlen;
 	gchar response_chars[4];
-	gint end;
 	
-	/* find the first space to determine the end of the version */
-	end = tvb_find_guint8(tvb,start,-1,' ');
-	
-	proto_tree_add_item(tree, hf_http_version, tvb, start, end - start, FALSE);
-	
-	start = end + 1;
-	
-	tvb_memcpy(tvb,response_chars,start,3);
+	/* The first token is the version. */
+	tokenlen = get_token_len(line, lineend, &next_token);
+	if (tokenlen == 0)
+		return;
+	proto_tree_add_item(tree, hf_http_version, tvb, offset, tokenlen,
+	    FALSE);
+	offset += next_token - line;
+	line = next_token;
+
+	/* The next token is the status code. */
+	tokenlen = get_token_len(line, lineend, &next_token);
+	if (tokenlen < 3)
+		return;
+	memcpy(response_chars, line, 3);
 	response_chars[3] = '\0';
 	
 	stat_info->response_code = strtoul(response_chars,NULL,10);
 	
-	proto_tree_add_uint(tree,hf_http_response_code,tvb,start,3,stat_info->response_code);
-	
+	proto_tree_add_uint(tree, hf_http_response_code, tvb, offset, 3,
+	    stat_info->response_code);
 }
 
 /*
@@ -1187,7 +1211,7 @@ chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
  */
 static int
 is_http_request_or_reply(const gchar *data, int linelen, http_type_t *type,
-		RequestDissector *req_dissector, int *req_strlen)
+		ReqRespDissector *reqresp_dissector)
 {
 	int isHttpRequestOrReply = FALSE;
 	int prefix_len = 0;
@@ -1214,10 +1238,8 @@ is_http_request_or_reply(const gchar *data, int linelen, http_type_t *type,
 	if (linelen >= 5 && strncmp(data, "HTTP/", 5) == 0) {
 		*type = HTTP_RESPONSE;
 		isHttpRequestOrReply = TRUE;	/* response */
-		if (req_dissector) {
-			*req_dissector = basic_response_dissector;
-			*req_strlen = linelen - 5;
-		}
+		if (reqresp_dissector)
+			*reqresp_dissector = basic_response_dissector;
 	} else {
 		const guchar * ptr = (const guchar *)data;
 		int		 index = 0;
@@ -1356,11 +1378,8 @@ is_http_request_or_reply(const gchar *data, int linelen, http_type_t *type,
 			break;
 		}
 
-		if (isHttpRequestOrReply && req_dissector) {
-			*req_dissector = basic_request_dissector;
-			*req_strlen = index + prefix_len;
-		}
-		if (isHttpRequestOrReply && req_dissector) {
+		if (isHttpRequestOrReply && reqresp_dissector) {
+			*reqresp_dissector = basic_request_dissector;
 			if (!stat_info->request_method)
 				stat_info->request_method = g_malloc( index+1 );
 				strncpy( stat_info->request_method, data, index);
