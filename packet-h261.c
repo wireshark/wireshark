@@ -26,7 +26,7 @@
  */
 
 /*
- * This dissector tries to dissect the H261 protocol according to Annex C
+ * This dissector tries to dissect the H.261 protocol according to Annex C
  * of ITU-T Recommendation H.225.0 (02/98)
  *
  * This dissector is called by the RTP dissector
@@ -53,7 +53,7 @@
 
 #include "packet-h261.h"
 
-/* H261 header fields             */
+/* H.261 header fields             */
 static int proto_h261          = -1;
 static int hf_h261_sbit        = -1;
 static int hf_h261_ebit        = -1;
@@ -66,7 +66,7 @@ static int hf_h261_hmvd        = -1; /* Mislabeled in a figure in section C.3.1 
 static int hf_h261_vmvd        = -1;
 static int hf_h261_data        = -1;
 
-/* H261 fields defining a sub tree */
+/* H.261 fields defining a sub tree */
 static gint ett_h261           = -1;
 
 void
@@ -77,7 +77,7 @@ dissect_h261( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	unsigned int offset       = 0;
 
 	if ( check_col( pinfo->fd, COL_PROTOCOL ) )   {
-		col_add_str( pinfo->fd, COL_PROTOCOL, "H261" );
+		col_add_str( pinfo->fd, COL_PROTOCOL, "H.261" );
 	}
 	
 	if ( check_col( pinfo->fd, COL_INFO) ) {
