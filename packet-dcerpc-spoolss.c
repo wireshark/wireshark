@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\spoolss packet disassembly
  * Copyright 2001-2002, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-spoolss.c,v 1.50 2002/08/22 07:05:31 guy Exp $
+ * $Id: packet-dcerpc-spoolss.c,v 1.51 2002/08/27 07:38:36 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3362,12 +3362,24 @@ static int SpoolssEnumPrinterData_r(tvbuff_t *tvb, int offset,
  * SpoolssEnumPrinters
  */
 
+static gint ett_enumprinters_flags = -1;
+
+static int hf_enumprinters_flags_local = -1;
+static int hf_enumprinters_flags_name = -1;
+static int hf_enumprinters_flags_shared = -1;
+static int hf_enumprinters_flags_default = -1;
+static int hf_enumprinters_flags_connections = -1;
+static int hf_enumprinters_flags_network = -1;
+static int hf_enumprinters_flags_remote = -1;
+
 static int SpoolssEnumPrinters_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				 proto_tree *tree, char *drep _U_)
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
-	guint32 ptr, level;
+	guint32 ptr, level, flags;
+	proto_tree *flags_subtree;
+	proto_item *flags_item;
 
 	if (dcv->rep_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
@@ -3375,9 +3387,43 @@ static int SpoolssEnumPrinters_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	/* Parse packet */
 
-	offset = prs_uint32(tvb, offset, pinfo, tree, NULL, "Flags");
+	offset = prs_uint32(tvb, offset, pinfo, NULL, &flags, "Flags");
 
-	offset = prs_ptr(tvb, offset, pinfo, tree, &ptr, "Devicemode");
+	flags_item = proto_tree_add_text(tree, tvb, offset - 4, 4,
+					 "Flags: 0x%08x", flags);
+
+	flags_subtree = proto_item_add_subtree(
+		flags_item, ett_enumprinters_flags);
+
+	proto_tree_add_boolean(
+		flags_subtree, hf_enumprinters_flags_network, tvb,
+		offset - 4, 4, flags);
+
+	proto_tree_add_boolean(
+		flags_subtree, hf_enumprinters_flags_shared, tvb,
+		offset - 4, 4, flags);
+
+	proto_tree_add_boolean(
+		flags_subtree, hf_enumprinters_flags_remote, tvb,
+		offset - 4, 4, flags);
+
+	proto_tree_add_boolean(
+		flags_subtree, hf_enumprinters_flags_name, tvb,
+		offset - 4, 4, flags);
+
+	proto_tree_add_boolean(
+		flags_subtree, hf_enumprinters_flags_connections, tvb,
+		offset - 4, 4, flags);
+
+	proto_tree_add_boolean(
+		flags_subtree, hf_enumprinters_flags_local, tvb,
+		offset - 4, 4, flags);
+
+	proto_tree_add_boolean(
+		flags_subtree, hf_enumprinters_flags_default, tvb,
+		offset - 4, 4, flags);
+
+	offset = prs_ptr(tvb, offset, pinfo, tree, &ptr, "Name");
 
 	if (ptr)
 		offset = prs_struct_and_referents(tvb, offset, pinfo, tree,
@@ -6620,7 +6666,44 @@ proto_register_dcerpc_spoolss(void)
 		{ &hf_job_access_admin,
 		  { "Job admin", "spoolss.access_mask.job_admin",
 		    FT_BOOLEAN, 32, TFS(&flags_set_truth), 
-		    JOB_ACCESS_ADMINISTER, "Job admin", HFILL }}
+		    JOB_ACCESS_ADMINISTER, "Job admin", HFILL }},
+
+		/* Enumprinters */
+
+		{ &hf_enumprinters_flags_local,
+		  { "Enum local", "spoolss.enumprinters.flags.enum_local",
+		    FT_BOOLEAN, 32, TFS(&flags_set_truth), 
+		    PRINTER_ENUM_LOCAL, "Enum local", HFILL }},
+
+		{ &hf_enumprinters_flags_name,
+		  { "Enum name", "spoolss.enumprinters.flags.enum_name",
+		    FT_BOOLEAN, 32, TFS(&flags_set_truth), 
+		    PRINTER_ENUM_NAME, "Enum name", HFILL }},
+
+		{ &hf_enumprinters_flags_shared,
+		  { "Enum shared", "spoolss.enumprinters.flags.enum_shared",
+		    FT_BOOLEAN, 32, TFS(&flags_set_truth), 
+		    PRINTER_ENUM_SHARED, "Enum shared", HFILL }},
+
+		{ &hf_enumprinters_flags_default,
+		  { "Enum default", "spoolss.enumprinters.flags.enum_default",
+		    FT_BOOLEAN, 32, TFS(&flags_set_truth), 
+		    PRINTER_ENUM_DEFAULT, "Enum default", HFILL }},
+
+		{ &hf_enumprinters_flags_connections,
+		  { "Enum connections", "spoolss.enumprinters.flags.enum_connections",
+		    FT_BOOLEAN, 32, TFS(&flags_set_truth), 
+		    PRINTER_ENUM_CONNECTIONS, "Enum connections", HFILL }},
+
+		{ &hf_enumprinters_flags_network,
+		  { "Enum network", "spoolss.enumprinters.flags.enum_network",
+		    FT_BOOLEAN, 32, TFS(&flags_set_truth), 
+		    PRINTER_ENUM_NETWORK, "Enum network", HFILL }},
+
+		{ &hf_enumprinters_flags_remote,
+		  { "Enum remote", "spoolss.enumprinters.flags.enum_remote",
+		    FT_BOOLEAN, 32, TFS(&flags_set_truth), 
+		    PRINTER_ENUM_REMOTE, "Enum remote", HFILL }}
 	};
 
         static gint *ett[] = {
@@ -6662,6 +6745,7 @@ proto_register_dcerpc_spoolss(void)
 		&ett_NOTIFY_OPTION,
 		&ett_printer_attributes,
 		&ett_job_status,
+		&ett_enumprinters_flags,
         };
 
         proto_dcerpc_spoolss = proto_register_protocol(

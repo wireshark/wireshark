@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\spoolss packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-spoolss.h,v 1.11 2002/08/21 21:31:14 tpot Exp $
+ * $Id: packet-dcerpc-spoolss.h,v 1.12 2002/08/27 07:38:36 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -306,5 +306,16 @@
 #define PRINTER_ACCESS_ADMINISTER	0x00000004
 #define PRINTER_ACCESS_USE		0x00000008
 #define JOB_ACCESS_ADMINISTER		0x00000010
+
+/* Enumprinters flags */
+
+#define PRINTER_ENUM_DEFAULT		0x00000001
+#define PRINTER_ENUM_LOCAL		0x00000002
+#define PRINTER_ENUM_CONNECTIONS	0x00000004
+#define PRINTER_ENUM_FAVORITE		0x00000004
+#define PRINTER_ENUM_NAME		0x00000008
+#define PRINTER_ENUM_REMOTE		0x00000010
+#define PRINTER_ENUM_SHARED		0x00000020
+#define PRINTER_ENUM_NETWORK		0x00000040
 
 #endif /* packet-dcerpc-spoolss.h */
