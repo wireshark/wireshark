@@ -18,7 +18,7 @@
  * Copyright 2000, Heikki Vatiainen <hessu@cs.tut.fi>
  * Copyright 2001, Jean-Francois Mule <jfm@cablelabs.com>
  *
- * $Id: packet-sip.c,v 1.66 2004/05/01 14:19:21 etxrab Exp $
+ * $Id: packet-sip.c,v 1.67 2004/05/04 21:12:24 etxrab Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1466,12 +1466,12 @@ void proto_register_sip(void)
                        "SIP Status-Line", HFILL }
                 },
                 { &hf_sip_to_addr,
-		       { "SIP to address", 		"sip.from_addr",
+		       { "SIP to address", 		"sip.to_addr",
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"RFC 3261: from addr", HFILL }
 		},
                 { &hf_sip_from_addr,
-		       { "SIP from address", 		"sip.to_addr",
+		       { "SIP from address", 		"sip.from_addr",
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"RFC 3261: to addr", HFILL }
 		},
