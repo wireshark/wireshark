@@ -1,7 +1,7 @@
 /* cfile.h
  * capture_file definition & GUI-independent manipulation
  *
- * $Id: cfile.h,v 1.7 2004/01/09 21:38:21 guy Exp $
+ * $Id: cfile.h,v 1.8 2004/01/25 00:58:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -88,7 +88,6 @@ typedef struct _capture_file {
   frame_data  *current_frame;  /* Frame data for current frame */
   epan_dissect_t *edt; /* Protocol dissection for currently selected packet */
   field_info  *finfo_selected;	/* Field info for currently selected field */
-  FILE        *print_fh;  /* File we're printing to */
   struct ph_stats_s* pstats; /* accumulated stats (reset on redisplay in GUI)*/
 } capture_file;
 

@@ -1,6 +1,6 @@
 /* follow_dlg.c
  *
- * $Id: follow_dlg.c,v 1.36 2004/01/24 10:53:25 guy Exp $
+ * $Id: follow_dlg.c,v 1.37 2004/01/25 00:58:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -774,7 +774,8 @@ follow_print_stream(GtkWidget * w _U_, gpointer data)
 	return;
     }
 
-    if (!print_preamble(fh, PR_FMT_TEXT)) {
+    print_preamble(fh, PR_FMT_TEXT);
+    if (ferror(fh)) {
 	if (to_file) {
 	    simple_dialog(ESD_TYPE_WARN, NULL,
 			  file_write_error_message(errno), prefs.pr_file);
@@ -791,7 +792,8 @@ follow_print_stream(GtkWidget * w _U_, gpointer data)
     args.filename = prefs.pr_file;
     args.fh = fh;
     follow_read_stream(follow_info, follow_print_text, &args);
-    if (!print_finale(fh, PR_FMT_TEXT)) {
+    print_finale(fh, PR_FMT_TEXT);
+    if (ferror(fh)) {
 	if (to_file) {
 	    simple_dialog(ESD_TYPE_WARN, NULL,
 			  file_write_error_message(errno), prefs.pr_file);

@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.347 2004/01/24 10:53:24 guy Exp $
+ * $Id: file.c,v 1.348 2004/01/25 00:58:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1431,6 +1431,7 @@ retap_packets(capture_file *cf)
 
 typedef struct {
   print_args_t *print_args;
+  FILE         *print_fh;
   gboolean      print_separator;
   char         *line_buf;
   int           line_buf_len;
@@ -1484,10 +1485,10 @@ print_packet(capture_file *cf, frame_data *fdata,
         *cp++ = ' ';
     }
     *cp = '\0';
-    print_line(cf->print_fh, 0, args->print_args->format, args->line_buf);
+    print_line(args->print_fh, 0, args->print_args->format, args->line_buf);
   } else {
     if (args->print_separator)
-      print_line(cf->print_fh, 0, args->print_args->format, "");
+      print_line(args->print_fh, 0, args->print_args->format, "");
 
     /* Create the logical protocol tree, complete with the display
        representation of the items; we don't need the columns here,
@@ -1496,11 +1497,11 @@ print_packet(capture_file *cf, frame_data *fdata,
     epan_dissect_run(edt, pseudo_header, pd, fdata, NULL);
 
     /* Print the information in that tree. */
-    proto_tree_print(args->print_args, edt, cf->print_fh);
+    proto_tree_print(args->print_args, edt, args->print_fh);
 
     if (args->print_args->print_hex) {
       /* Print the full packet data as hex. */
-      print_hex_data(cf->print_fh, args->print_args->format, edt);
+      print_hex_data(args->print_fh, args->print_args->format, edt);
     }
 
     /* Print a blank line if we print anything after this. */
@@ -1508,10 +1509,10 @@ print_packet(capture_file *cf, frame_data *fdata,
   } /* if (print_summary) */
   epan_dissect_free(edt);
 
-  return TRUE;
+  return !ferror(args->print_fh);
 }
 
-int
+pp_return_t
 print_packets(capture_file *cf, print_args_t *print_args)
 {
   int         i;
@@ -1521,12 +1522,18 @@ print_packets(capture_file *cf, print_args_t *print_args)
   int         cp_off;
   int         column_len;
   int         line_len;
+  psp_return_t ret;
 
-  cf->print_fh = open_print_dest(print_args->to_file, print_args->dest);
-  if (cf->print_fh == NULL)
-    return FALSE;	/* attempt to open destination failed */
+  callback_args.print_fh = open_print_dest(print_args->to_file,
+                                           print_args->dest);
+  if (callback_args.print_fh == NULL)
+    return PP_OPEN_ERROR;	/* attempt to open destination failed */
 
-  print_preamble(cf->print_fh, print_args->format);
+  print_preamble(callback_args.print_fh, print_args->format);
+  if (ferror(callback_args.print_fh)) {
+    close_print_dest(print_args->to_file, callback_args.print_fh);
+    return PP_WRITE_ERROR;
+  }
 
   callback_args.print_args = print_args;
   callback_args.print_separator = FALSE;
@@ -1581,14 +1588,23 @@ print_packets(capture_file *cf, print_args_t *print_args)
         *cp++ = ' ';
     }
     *cp = '\0';
-    print_line(cf->print_fh, 0, print_args->format, callback_args.line_buf);
+    print_line(callback_args.print_fh, 0, print_args->format,
+               callback_args.line_buf);
   } /* if (print_summary) */
 
   /* Iterate through the list of packets, printing the packets we were
      told to print. */
-  switch (process_specified_packets(cf, &print_args->range, "Printing",
-                                    "selected packets", print_packet,
-                                    &callback_args)) {
+  ret = process_specified_packets(cf, &print_args->range, "Printing",
+                                  "selected packets", print_packet,
+                                  &callback_args);
+
+  if (callback_args.col_widths != NULL)
+    g_free(callback_args.col_widths);
+  if (callback_args.line_buf != NULL)
+    g_free(callback_args.line_buf);
+
+  switch (ret) {
+
   case PSP_FINISHED:
     /* Completed successfully. */
     break;
@@ -1597,28 +1613,31 @@ print_packets(capture_file *cf, print_args_t *print_args)
     /* Well, the user decided to abort the printing.
 
        XXX - note that what got generated before they did that
-       will get printed, as we're piping to a print program; we'd
+       will get printed if we're piping to a print program; we'd
        have to write to a file and then hand that to the print
        program to make it actually not print anything. */
     break;
 
   case PSP_FAILED:
-    /* Error while saving. */
-    break;
+    /* Error while printing.
+
+       XXX - note that what got generated before they did that
+       will get printed if we're piping to a print program; we'd
+       have to write to a file and then hand that to the print
+       program to make it actually not print anything. */
+    close_print_dest(print_args->to_file, callback_args.print_fh);
+    return PP_WRITE_ERROR;
   }
 
-  if (callback_args.col_widths != NULL)
-    g_free(callback_args.col_widths);
-  if (callback_args.line_buf != NULL)
-    g_free(callback_args.line_buf);
+  print_finale(callback_args.print_fh, print_args->format);
+  if (ferror(callback_args.print_fh)) {
+    close_print_dest(print_args->to_file, callback_args.print_fh);
+    return PP_WRITE_ERROR;
+  }
 
-  print_finale(cf->print_fh, print_args->format);
+  close_print_dest(print_args->to_file, callback_args.print_fh);
 
-  close_print_dest(print_args->to_file, cf->print_fh);
-
-  cf->print_fh = NULL;
-
-  return TRUE;
+  return PP_OK;
 }
 
 /* Scan through the packet list and change all columns that use the

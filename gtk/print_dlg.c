@@ -1,7 +1,7 @@
 /* print_dlg.c
  * Dialog boxes for printing
  *
- * $Id: print_dlg.c,v 1.56 2004/01/21 21:19:33 ulfl Exp $
+ * $Id: print_dlg.c,v 1.57 2004/01/25 00:58:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -25,6 +25,8 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
+
+#include <string.h>
 
 #include <gtk/gtk.h>
 
@@ -833,13 +835,28 @@ print_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
   gtk_widget_destroy(GTK_WIDGET(parent_w));
 
   /* Now print the packets */
-  if (!print_packets(&cfile, &print_args)) {
+  switch (print_packets(&cfile, &print_args)) {
+
+  case PP_OK:
+    break;
+
+  case PP_OPEN_ERROR:
     if (print_args.to_file)
-      simple_dialog(ESD_TYPE_WARN, NULL,
+      simple_dialog(ESD_TYPE_CRIT, NULL,
+        file_open_error_message(errno, TRUE), print_args.dest);
+    else
+      simple_dialog(ESD_TYPE_CRIT, NULL, "Couldn't run print command %s.",
+        print_args.dest);
+    break;
+
+  case PP_WRITE_ERROR:
+    if (print_args.to_file)
+      simple_dialog(ESD_TYPE_CRIT, NULL,
         file_write_error_message(errno), print_args.dest);
     else
-      simple_dialog(ESD_TYPE_WARN, NULL, "Couldn't run print command %s.",
-        print_args.dest);
+      simple_dialog(ESD_TYPE_CRIT, NULL,
+	"Error writing to print command: %s", strerror(errno));
+    break;
   }
 
 #ifdef _WIN32

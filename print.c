@@ -1,7 +1,7 @@
 /* print.c
  * Routines for printing packet analysis trees.
  *
- * $Id: print.c,v 1.70 2004/01/24 10:53:24 guy Exp $
+ * $Id: print.c,v 1.71 2004/01/25 00:58:12 guy Exp $
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -650,31 +650,27 @@ void ps_clean_string(unsigned char *out, const unsigned char *in,
 }
 
 /* Some formats need stuff at the beginning of the output */
-gboolean
+void
 print_preamble(FILE *fh, gint format)
 {
 	if (format == PR_FMT_PS)
-		return !print_ps_preamble(fh);
+		print_ps_preamble(fh);
 	else if (format == PR_FMT_PDML) {
 		fputs("<?xml version=\"1.0\"?>\n", fh);
 		fputs("<pdml version=\"" PDML_VERSION "\" ", fh);
 		fprintf(fh, "creator=\"%s/%s\">\n", PACKAGE, VERSION);
-		return !ferror(fh);
-	} else
-		return TRUE;
+	}
 }
 
 /* Some formats need stuff at the end of the output */
-gboolean
+void
 print_finale(FILE *fh, gint format)
 {
 	if (format == PR_FMT_PS)
-		return !print_ps_finale(fh);
+		print_ps_finale(fh);
 	else if (format == PR_FMT_PDML) {
 		fputs("</pdml>\n", fh);
-		return !ferror(fh);
-	} else
-		return TRUE;
+	}
 }
 
 void

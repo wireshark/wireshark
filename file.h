@@ -1,7 +1,7 @@
 /* file.h
  * Definitions for file structures and routines
  *
- * $Id: file.h,v 1.113 2004/01/24 02:01:42 guy Exp $
+ * $Id: file.h,v 1.114 2004/01/25 00:58:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -57,7 +57,12 @@ void reftime_packets(capture_file *);
 void colorize_packets(capture_file *);
 void redissect_packets(capture_file *cf);
 int retap_packets(capture_file *cf);
-int print_packets(capture_file *cf, print_args_t *print_args);
+typedef enum {
+	PP_OK,
+	PP_OPEN_ERROR,
+	PP_WRITE_ERROR
+} pp_return_t;
+pp_return_t print_packets(capture_file *cf, print_args_t *print_args);
 void change_time_formats(capture_file *);
 
 gboolean find_packet_protocol_tree(capture_file *cf, const char *string);

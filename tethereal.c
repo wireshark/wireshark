@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.224 2004/01/24 01:44:28 guy Exp $
+ * $Id: tethereal.c,v 1.225 2004/01/25 00:58:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -172,6 +172,7 @@ static void wtap_dispatch_cb_write(guchar *, const struct wtap_pkthdr *, long,
 static void show_capture_file_io_error(const char *, int, gboolean);
 static void wtap_dispatch_cb_print(guchar *, const struct wtap_pkthdr *, long,
     union wtap_pseudo_header *, const guchar *);
+static void show_print_file_io_error(int err);
 static char *cf_open_error_message(int err, gboolean for_writing,
     int file_type);
 #ifdef HAVE_LIBPCAP
@@ -2269,11 +2270,23 @@ load_cap_file(capture_file *cf, int out_file_type)
     args.cf = cf;
     args.pdh = NULL;
     print_preamble(stdout, print_format);
+    if (ferror(stdout)) {
+      err = errno;
+      show_print_file_io_error(err);
+      goto out;
+    }
     success = wtap_loop(cf->wth, 0, wtap_dispatch_cb_print, (guchar *) &args,
  			&err);
-    print_finale(stdout, print_format);
   }
-  if (!success) {
+  if (success) {
+    if (cf->save_file == NULL) {
+      print_finale(stdout, print_format);
+      if (ferror(stdout)) {
+        err = errno;
+        show_print_file_io_error(err);
+      }
+    }
+  } else {
     /* Print up a message box noting that the read failed somewhere along
        the line. */
     switch (err) {
@@ -2814,6 +2827,33 @@ wtap_dispatch_cb_print(guchar *user, const struct wtap_pkthdr *phdr,
   epan_dissect_free(edt);
 
   clear_fdata(&fdata);
+}
+
+static void
+show_print_file_io_error(int err)
+{
+  switch (err) {
+
+  case ENOSPC:
+    fprintf(stderr,
+"tethereal: Not all the packets could be printed because there is "
+"no space left on the file system.\n");
+    break;
+
+#ifdef EDQUOT
+  case EDQUOT:
+    fprintf(stderr,
+"tethereal: Not all the packets could be printed because you are "
+"too close to, or over your disk quota.\n");
+  break;
+#endif
+
+  default:
+    fprintf(stderr,
+"tethereal: An error occurred while printing packets: %s.\n",
+      strerror(err));
+    break;
+  }
 }
 
 static char *
