@@ -1,7 +1,7 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
  *
- * $Id: packet-dns.c,v 1.95 2002/12/01 20:50:52 guy Exp $
+ * $Id: packet-dns.c,v 1.96 2002/12/02 20:03:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1312,13 +1312,13 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
       addr6 = tvb_get_ptr(tvb, cur_offset, 16);
       if (cinfo != NULL) {
 	col_append_fstr(cinfo, COL_INFO, " %s",
-			ip6_to_str((struct e_in6_addr *)addr6));
+			ip6_to_str((const struct e_in6_addr *)addr6));
       }
       if (dns_tree != NULL) {
 	proto_item_append_text(trr, ", addr %s",
-		     ip6_to_str((struct e_in6_addr *)addr6));
+		     ip6_to_str((const struct e_in6_addr *)addr6));
 	proto_tree_add_text(rr_tree, tvb, cur_offset, 16, "Addr: %s",
-		     ip6_to_str((struct e_in6_addr *)addr6));
+		     ip6_to_str((const struct e_in6_addr *)addr6));
       }
     }
     break;
