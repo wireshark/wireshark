@@ -2,7 +2,7 @@
  * Defines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: smb.h,v 1.19 2001/11/16 07:56:28 guy Exp $
+ * $Id: smb.h,v 1.20 2001/11/18 01:46:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -628,36 +628,36 @@
 #define SMB_LMapi_UserPasswordSet 0x0073
 
 /*
- * One of these data structures is allocated for a transaction or
- * transaction2 request; it keeps track of all information that's
- * available in the request but not the reply and that's needed in
- * order to dissect the reply, as well as the frame number of the
- * request.
+ * The information we need to save about a Transaction request in order
+ * to dissect the reply; this includes information for use by the
+ * Remote API and Mailslot dissectors.
+ * XXX - have an additional data structure hung off of this by the
+ * subdissectors?
  */
-struct smb_request_val {
-  guint16 last_lanman_cmd;
-  guchar *last_param_descrip;  /* Keep these descriptors around */
-  guchar *last_data_descrip;
-  guchar *last_aux_data_descrip;
-  int last_level;
-};
+typedef struct {
+	int subcmd;
+	int trans_subcmd;
+	guint16 lanman_cmd;
+	guchar *param_descrip;  /* Keep these descriptors around */
+	guchar *data_descrip;
+	guchar *aux_data_descrip;
+	int info_level;
+} smb_transact_info_t;
 
-#define TRANSACTION_PIPE	0x01
-#define TRANSACTION_MAILSLOT	0x02
-
+/*
+ * Subcommand type.
+ */
+#define TRANSACTION_PIPE	0
+#define TRANSACTION_MAILSLOT	1
 
 typedef struct smb_info {
   int cmd, mid;
-  guint32 frame_req, frame_res;
-  gboolean unidir;
-  int subcmd;
-  int trans_subcmd;
-  int info_level;
-  int info_count;
-
-  struct smb_request_val *request_val;
   gboolean unicode;		/* Are strings in this SMB Unicode? */
   gboolean request;		/* Is this a request? */
+  guint32 frame_req, frame_res;
+  gboolean unidir;
+  int info_count;
+  void *extra_info;		/* extra info for transactions */
 } smb_info_t;
 
 #endif

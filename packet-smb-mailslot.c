@@ -2,7 +2,7 @@
  * Routines for SMB mailslot packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-smb-mailslot.c,v 1.20 2001/11/15 10:41:51 guy Exp $
+ * $Id: packet-smb-mailslot.c,v 1.21 2001/11/18 01:46:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -73,6 +73,7 @@ dissect_mailslot_smb(tvbuff_t *total_tvb, tvbuff_t *setup_tvb,
 		     packet_info *pinfo, proto_tree *parent_tree)
 {
 	smb_info_t *smb_info = pinfo->private_data;
+	smb_transact_info_t *tri = smb_info->extra_info;
 	proto_tree      *tree = 0;
 	proto_item      *item;
 	guint16         opcode;
@@ -96,17 +97,17 @@ dissect_mailslot_smb(tvbuff_t *total_tvb, tvbuff_t *setup_tvb,
 
 	/* check which mailslot this is about */
 	if(smb_info->request){
-		smb_info->trans_subcmd=MAILSLOT_UNKNOWN;
-		if(!strncmp(mailslot,"BROWSE",6)){
-	  		smb_info->trans_subcmd=MAILSLOT_BROWSE;
-		} else if(!strncmp(mailslot,"LANMAN",6)){
-	  		smb_info->trans_subcmd=MAILSLOT_LANMAN;
-		} else if(!strncmp(mailslot,"NET",3)){
-	  		smb_info->trans_subcmd=MAILSLOT_NET;
-		} else if(!strncmp(mailslot,"TEMP\\NETLOGON",13)){
-	  		smb_info->trans_subcmd=MAILSLOT_TEMP_NETLOGON;
-		} else if(!strncmp(mailslot,"MSSP",4)){
-	  		smb_info->trans_subcmd=MAILSLOT_MSSP;
+		tri->trans_subcmd=MAILSLOT_UNKNOWN;
+		if(strncmp(mailslot,"BROWSE",6) == 0){
+	  		tri->trans_subcmd=MAILSLOT_BROWSE;
+		} else if(strncmp(mailslot,"LANMAN",6) == 0){
+	  		tri->trans_subcmd=MAILSLOT_LANMAN;
+		} else if(strncmp(mailslot,"NET",3) == 0){
+	  		tri->trans_subcmd=MAILSLOT_NET;
+		} else if(strncmp(mailslot,"TEMP\\NETLOGON",13) == 0){
+	  		tri->trans_subcmd=MAILSLOT_TEMP_NETLOGON;
+		} else if(strncmp(mailslot,"MSSP",4) == 0){
+			tri->trans_subcmd=MAILSLOT_MSSP;
 		}
 	}		
 
@@ -115,7 +116,7 @@ dissect_mailslot_smb(tvbuff_t *total_tvb, tvbuff_t *setup_tvb,
 
 	if (check_col(pinfo->fd, COL_INFO)) {
 		  col_add_str(pinfo->fd, COL_INFO,
-		      val_to_str(opcode, opcode_vals, "Unknown opcode:0x%04x"));
+		      val_to_str(opcode, opcode_vals, "Unknown opcode: 0x%04x"));
 	}
 
 	if (parent_tree) {
@@ -148,36 +149,21 @@ dissect_mailslot_smb(tvbuff_t *total_tvb, tvbuff_t *setup_tvb,
 		offset += len;
 	}
 
-	/* Quit if we don't have the transaction command name (mailslot path) */
-	if (smb_info->trans_subcmd == MAILSLOT_UNKNOWN) {
-		/* Dump it as data */
-		dissect_data(tvb, 0, pinfo, parent_tree);
-		return TRUE;
-	}
-
-	switch(smb_info->trans_subcmd){
+	switch(tri->trans_subcmd){
 	case MAILSLOT_BROWSE:
-		if (dissect_mailslot_browse(tvb, pinfo, parent_tree)){
-			return TRUE;
-		}
+		return dissect_mailslot_browse(tvb, pinfo, parent_tree);
 		break;
 	case MAILSLOT_LANMAN:
-		if (dissect_mailslot_lanman(tvb, pinfo, parent_tree)){
-			return TRUE;
-		}
+		return dissect_mailslot_lanman(tvb, pinfo, parent_tree);
 		break;
 	case MAILSLOT_NET:
 	case MAILSLOT_TEMP_NETLOGON:
 	case MAILSLOT_MSSP:
-		if (dissect_smb_logon(tvb, pinfo, parent_tree)){
-			return TRUE;
-		}
+		return dissect_smb_logon(tvb, pinfo, parent_tree);
 		break;
+	default:
+		return FALSE;
 	}
-
-	/* Dump it as data */
-	dissect_data(tvb, 0, pinfo, parent_tree);
-	return TRUE;
 }
 
 void

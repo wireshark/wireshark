@@ -8,7 +8,7 @@ XXX  Fixme : shouldnt show [malformed frame] for long packets
  * significant rewrite to tvbuffify the dissector, Ronnie Sahlberg and
  * Guy Harris 2001
  *
- * $Id: packet-smb-pipe.c,v 1.41 2001/11/16 07:56:27 guy Exp $
+ * $Id: packet-smb-pipe.c,v 1.42 2001/11/18 01:46:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -147,21 +147,6 @@ static gint ett_lanman_server = -1;
  *
  * among other documents.
  */
-
-static GMemChunk *lanman_request_val_chunk = NULL;
-static gint lanman_request_val_init_count = 50;
-
-static void
-lanman_init_protocol(void)
-{
-	if(lanman_request_val_chunk)
-		g_mem_chunk_destroy(lanman_request_val_chunk);
-
-	lanman_request_val_chunk = g_mem_chunk_new("lanman_request_val_chunk", sizeof(struct smb_request_val),
-						  lanman_request_val_init_count*sizeof(struct smb_request_val),
-						  G_ALLOC_ONLY);
-}
-
 
 static const value_string status_vals[] = {
 	{0,	"Success"},
@@ -380,12 +365,12 @@ add_detail_level(tvbuff_t *tvb, int offset, int count, packet_info *pinfo,
     proto_tree *tree, int convert, int hf_index)
 {
 	struct smb_info *smb_info = pinfo->private_data;
-	struct smb_request_val *request_val = smb_info->request_val;
+	smb_transact_info_t *trp = smb_info->extra_info;
 	guint16 level;
 
 	level = tvb_get_letohs(tvb, offset);
 	if (!pinfo->fd->flags.visited)
-		request_val->last_level = level;	/* remember this for the response */
+		trp->info_level = level;	/* remember this for the response */
 	proto_tree_add_uint(tree, hf_index, tvb, offset, 2, level);
 	offset += 2;
 	return offset;
@@ -1836,7 +1821,7 @@ dissect_response_data(tvbuff_t *tvb, packet_info *pinfo, int convert,
     const struct lanman_desc *lanman, gboolean has_ent_count,
     guint16 ent_count)
 {
-	struct smb_request_val *request_val = smb_info->request_val;
+	smb_transact_info_t *trp = smb_info->extra_info;
 	const item_list_t *resp_data_list;
 	int offset, start_offset;
 	const item_t *resp_data;
@@ -1852,7 +1837,7 @@ dissect_response_data(tvbuff_t *tvb, packet_info *pinfo, int convert,
 	 */
 	for (resp_data_list = lanman->resp_data_list;
 	    resp_data_list->level != -1; resp_data_list++) {
-		if (resp_data_list->level == request_val->last_level)
+		if (resp_data_list->level == trp->info_level)
 			break;
 	}
 	resp_data = resp_data_list->item_list;
@@ -1874,7 +1859,7 @@ dissect_response_data(tvbuff_t *tvb, packet_info *pinfo, int convert,
 		data_tree = tree;
 	}
 
-	if (request_val->last_data_descrip == NULL) {
+	if (trp->data_descrip == NULL) {
 		/*
 		 * This could happen if we only dissected
 		 * part of the request to which this is a
@@ -1924,16 +1909,15 @@ dissect_response_data(tvbuff_t *tvb, packet_info *pinfo, int convert,
 
 			offset = dissect_transact_data(tvb, offset,
 			    convert, pinfo, entry_tree,
-			    request_val->last_data_descrip,
-			    resp_data, &aux_count);
+			    trp->data_descrip, resp_data, &aux_count);
 
 			/* auxiliary data */
-			if (request_val->last_aux_data_descrip != NULL) {
+			if (trp->aux_data_descrip != NULL) {
 				for (j = 0; j < aux_count; j++) {
 					offset = dissect_transact_data(
 					    tvb, offset, convert,
 					    pinfo, entry_tree,
-					    request_val->last_data_descrip,
+					    trp->data_descrip,
 					    lanman->resp_aux_data, NULL);
 				}
 			}
@@ -1963,7 +1947,7 @@ dissect_pipe_lanman(tvbuff_t *t_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
 		    packet_info *pinfo, proto_tree *parent_tree)
 {
 	smb_info_t *smb_info = pinfo->private_data;
-	struct smb_request_val *request_val = smb_info->request_val;
+	smb_transact_info_t *trp = smb_info->extra_info;
 	int offset = 0, start_offset;
 	guint16 cmd;
 	guint16 status;
@@ -1992,11 +1976,6 @@ dissect_pipe_lanman(tvbuff_t *t_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
 		tree = proto_item_add_subtree(item, ett_lanman);
 	}
 
-	if(request_val==NULL){
-		request_val = g_mem_chunk_alloc(lanman_request_val_chunk);
-		smb_info->request_val=request_val;
-	}
-
 	if (smb_info->request) { /* this is a request */
 		/* function code */
 		cmd = tvb_get_letohs(p_tvb, offset);
@@ -2014,11 +1993,11 @@ dissect_pipe_lanman(tvbuff_t *t_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
 		 * level to -1, meaning "unknown".
 		 */
 		if (!pinfo->fd->flags.visited) {
-			request_val->last_lanman_cmd = cmd;
-			request_val->last_level = -1;
-			request_val->last_param_descrip=NULL;
-			request_val->last_data_descrip=NULL;
-			request_val->last_aux_data_descrip=NULL;
+			trp->lanman_cmd = cmd;
+			trp->info_level = -1;
+			trp->param_descrip=NULL;
+			trp->data_descrip=NULL;
+			trp->aux_data_descrip=NULL;
 		}
 
 		/* parameter descriptor */
@@ -2030,8 +2009,8 @@ dissect_pipe_lanman(tvbuff_t *t_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
 			/*
 			 * Save the parameter descriptor for future use.
 			 */
-			g_assert(request_val->last_param_descrip == NULL);
-			request_val->last_param_descrip = g_strdup(param_descrip);
+			g_assert(trp->param_descrip == NULL);
+			trp->param_descrip = g_strdup(param_descrip);
 		}
 		offset += descriptor_len;
 
@@ -2044,8 +2023,8 @@ dissect_pipe_lanman(tvbuff_t *t_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
 			/*
 			 * Save the return descriptor for future use.
 			 */
-			g_assert(request_val->last_data_descrip == NULL);
-			request_val->last_data_descrip = g_strdup(data_descrip);
+			g_assert(trp->data_descrip == NULL);
+			trp->data_descrip = g_strdup(data_descrip);
 		}
 		offset += descriptor_len;
 
@@ -2071,8 +2050,8 @@ dissect_pipe_lanman(tvbuff_t *t_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
 				 * Save the auxiliary data descriptor for
 				 * future use.
 				 */
-				g_assert(request_val->last_aux_data_descrip == NULL);
-				request_val->last_aux_data_descrip =
+				g_assert(trp->aux_data_descrip == NULL);
+				trp->aux_data_descrip =
 				    g_strdup(aux_data_descrip);
 			}
 			offset += descriptor_len;
@@ -2131,7 +2110,7 @@ dissect_pipe_lanman(tvbuff_t *t_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
 		 * This is a response.
 		 * Have we seen the request to which it's a response?
 		 */
-		if (request_val == NULL)
+		if (trp == NULL)
 			return FALSE;	/* no - can't dissect it */
 
 		/* ok we have seen this one before */
@@ -2142,21 +2121,21 @@ dissect_pipe_lanman(tvbuff_t *t_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
 			/* command */
 			if (check_col(pinfo->fd, COL_INFO)) {
 				col_add_fstr(pinfo->fd, COL_INFO, "%s Interim Response",
-					     val_to_str(request_val->last_lanman_cmd, commands, "Unknown Command (0x%02x)"));
+					     val_to_str(trp->lanman_cmd, commands, "Unknown Command (0x%02x)"));
 			}
-			proto_tree_add_uint(tree, hf_function_code, p_tvb, 0, 0, request_val->last_lanman_cmd);
+			proto_tree_add_uint(tree, hf_function_code, p_tvb, 0, 0, trp->lanman_cmd);
 			return TRUE;
 		}
 
 		/* command */
 		if (check_col(pinfo->fd, COL_INFO)) {
 			col_add_fstr(pinfo->fd, COL_INFO, "%s Response",
-				     val_to_str(request_val->last_lanman_cmd, commands, "Unknown Command (0x%02x)"));
+				     val_to_str(trp->lanman_cmd, commands, "Unknown Command (0x%02x)"));
 		}
 		proto_tree_add_uint(tree, hf_function_code, p_tvb, 0, 0,
-		    request_val->last_lanman_cmd);
+		    trp->lanman_cmd);
 
-		lanman = find_lanman(request_val->last_lanman_cmd);
+		lanman = find_lanman(trp->lanman_cmd);
 
 		/* response parameters */
 
@@ -2172,7 +2151,7 @@ dissect_pipe_lanman(tvbuff_t *t_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
 
 		/* rest of the parameters */
 		offset = dissect_response_parameters(p_tvb, offset, pinfo, tree,
-		    request_val->last_param_descrip, lanman->resp, &has_data,
+		    trp->param_descrip, lanman->resp, &has_data,
 		    &has_ent_count, &ent_count);
 
 
@@ -2215,31 +2194,32 @@ dissect_pipe_msrpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 /* decode the SMB pipe protocol
    for requests
     pipe is the name of the pipe, e.g. LANMAN
-    si->trans_subcmd is set to the symbolic constatn matching the mailslot name
+    smb_info->trans_subcmd is set to the symbolic constatn matching the mailslot name
   for responses
     pipe is NULL
-    si->trans_subcmd gives us which pipe this response is for
+    smb_info->trans_subcmd gives us which pipe this response is for
 */
 gboolean
 dissect_pipe_smb(tvbuff_t *t_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
 		 const char *pipe, packet_info *pinfo, proto_tree *tree)
 {
 	smb_info_t *smb_info = pinfo->private_data;
+	smb_transact_info_t *tri = smb_info->extra_info;
 
 	if (!proto_is_protocol_enabled(proto_smb_lanman))
 		return FALSE;
 	pinfo->current_proto = "LANMAN";
 
 	if(smb_info->request){
-		if(!strncmp(pipe,"LANMAN",6)){
-			smb_info->trans_subcmd=PIPE_LANMAN;
+		if(strncmp(pipe,"LANMAN",6) == 0){
+			tri->trans_subcmd=PIPE_LANMAN;
 		} else {
 			/* assume it is MSRPC*/
-			smb_info->trans_subcmd=PIPE_MSRPC;
+			tri->trans_subcmd=PIPE_MSRPC;
 		}
 	}
 
-	switch(smb_info->trans_subcmd){
+	switch(tri->trans_subcmd){
 	case PIPE_LANMAN:
 		return dissect_pipe_lanman(t_tvb, p_tvb, d_tvb, pinfo, tree);
 		break;
@@ -2580,5 +2560,4 @@ register_proto_smb_pipe(void)
 	proto_register_subtree_array(ett, array_length(ett));
 
         register_heur_dissector_list("msrpc", &msrpc_heur_subdissector_list);
-	register_init_routine(&lanman_init_protocol);
 }
