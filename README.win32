@@ -1,4 +1,4 @@
-$Id: README.win32,v 1.15 2000/10/08 17:16:29 gerald Exp $
+$Id: README.win32,v 1.16 2000/11/06 09:49:43 guy Exp $
 
 Running Ethereal, Tethereal, and Editcap on Win32
 =================================================
@@ -137,5 +137,5 @@ Python for Win32 is available from
 Instructions for Cygwin
 -----------------------
 No one has ever compiled Ethereal entirely with Cygwin.  It should not
-be difficult, however.  This spot is reserverd for your instructions on
+be difficult, however.  This spot is reserved for your instructions on
 how to compile Ethereal with Cygwin.
