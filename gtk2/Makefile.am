@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for the GTK2 interface routines for Ethereal
 #
-# $Id: Makefile.am,v 1.3 2002/09/06 10:13:17 sahlberg Exp $
+# $Id: Makefile.am,v 1.4 2002/09/07 09:28:05 sahlberg Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -59,10 +59,6 @@ libui_a_SOURCES = \
 	goto_dlg.c	\
 	goto_dlg.h	\
 	gtkglobals.h	\
-	gtk2-rpcstat.c	\
-	gtk2-rpcstat.h	\
-	gtk2-rpcprogs.c	\
-	gtk2-rpcprogs.h	\
 	gui_prefs.c	\
 	gui_prefs.h	\
 	help_dlg.c	\
@@ -89,6 +85,10 @@ libui_a_SOURCES = \
 	proto_draw.h	\
 	proto_hier_stats_dlg.h	\
 	proto_hier_stats_dlg.c	\
+	rpc_stat.c	\
+	rpc_stat.h	\
+	rpc_progs.c	\
+	rpc_progs.h	\
 	simple_dialog.c	\
 	stream_prefs.c	\
 	stream_prefs.h	\

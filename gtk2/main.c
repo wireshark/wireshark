@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.9 2002/09/06 22:53:19 sahlberg Exp $
+ * $Id: main.c,v 1.10 2002/09/07 09:28:05 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -117,8 +117,8 @@
 #include "image/clist_ascend.xpm"
 #include "image/clist_descend.xpm"
 #include "../tap.h"
-#include "gtk2-rpcstat.h"
-#include "gtk2-rpcprogs.h"
+#include "rpc_stat.h"
+#include "rpc_progs.h"
 
 #ifdef WIN32
 #include "capture-wpcap.h"
@@ -1704,13 +1704,13 @@ main(int argc, char *argv[])
               if(!strncmp(optarg,"rpc,rtt,",8)){
                 int rpcprogram, rpcversion;
                 if(sscanf(optarg,"rpc,rtt,%d,%d",&rpcprogram,&rpcversion)==2){
-                  gtk2_rpcstat_init(rpcprogram,rpcversion);
+                  gtk_rpcstat_init(rpcprogram,rpcversion);
                 } else {
                   fprintf(stderr, "ethereal: invalid \"-z rpc,rtt,<program>,<version>\" argument\n");
                   exit(1);
                 }
               } else if(!strncmp(optarg,"rpc,programs",12)){
-                gtk2_rpcprogs_init();
+                gtk_rpcprogs_init();
               } else {
                 fprintf(stderr, "ethereal: invalid -z argument. Argument must be one of:\n");
                 fprintf(stderr, "   \"-z rpc,rtt,<program>,<version>\"\n");

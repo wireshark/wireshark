@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.4 2002/09/06 10:13:17 sahlberg Exp $
+ * $Id: menu.c,v 1.5 2002/09/07 09:28:05 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -57,8 +57,8 @@
 #include <epan/plugins.h>
 #include "tcp_graph.h"
 #include <epan/epan_dissect.h>
-#include "gtk2-rpcstat.h"
-#include "gtk2-rpcprogs.h"
+#include "rpc_stat.h"
+#include "rpc_progs.h"
 
 GtkWidget *popup_menu_object;
 
@@ -174,8 +174,8 @@ static GtkItemFactoryEntry menu_items[] =
   {"/Tools/Protocol Hierarchy Statistics", NULL, GTK_MENU_FUNC(proto_hier_stats_cb), 0, NULL, NULL },
   {"/Tools/Statistics", NULL, NULL, 0, "<Branch>", NULL },
   {"/Tools/Statistics/ONC-RPC", NULL, NULL, 0, "<Branch>", NULL },
-  {"/Tools/Statistics/ONC-RPC/RTT", NULL, GTK_MENU_FUNC(gtk2_rpcstat_cb), 0, NULL, NULL },
-  {"/Tools/Statistics/ONC-RPC/Programs", NULL, GTK_MENU_FUNC(gtk2_rpcprogs_init), 0, NULL, NULL },
+  {"/Tools/Statistics/ONC-RPC/RTT", NULL, GTK_MENU_FUNC(gtk_rpcstat_cb), 0, NULL, NULL },
+  {"/Tools/Statistics/ONC-RPC/Programs", NULL, GTK_MENU_FUNC(gtk_rpcprogs_init), 0, NULL, NULL },
   {"/_Help", NULL, NULL, 0, "<LastBranch>", NULL  },
   {"/Help/_Help", NULL, GTK_MENU_FUNC(help_cb), 0, "<StockItem>", GTK_STOCK_HELP },
   {"/Help/<separator>", NULL, NULL, 0, "<Separator>", NULL },
