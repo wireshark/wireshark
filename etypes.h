@@ -244,6 +244,10 @@
 #define ETHERTYPE_BRDWALK       0x88AE
 #endif
 
+#ifndef ETHERTYPE_IEEE802_OUI_EXTENDED
+#define ETHERTYPE_IEEE802_OUI_EXTENDED 0x88B7	/* IEEE 802a OUI Extended Ethertype */
+#endif
+
 #ifndef ETHERTYPE_RSN_PREAUTH
 #define ETHERTYPE_RSN_PREAUTH	0x88c7  /* 802.11i Pre-Authentication */
 #endif
