@@ -1,6 +1,6 @@
 /* follow_dlg.c
  *
- * $Id: follow_dlg.c,v 1.68 2004/06/29 03:27:51 jmayer Exp $
+ * $Id: follow_dlg.c,v 1.69 2004/07/09 23:02:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -39,6 +39,8 @@
 #endif
 
 #include <ctype.h>
+
+#include "isprint.h"
 
 #include "color.h"
 #include "color_utils.h"

@@ -1,7 +1,8 @@
-/* gtkglobals.h
- * GTK-related Global defines, etc.
+/* isprint.h
+ * Temporary redefinition of "isprint()" to cope with GTK+ 1.3 and
+ * later using UTF-8 strings
  *
- * $Id: gtkglobals.h,v 1.31 2004/07/09 23:02:38 guy Exp $
+ * $Id: isprint.h,v 1.1 2004/07/09 23:02:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -22,36 +23,20 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef __GTKGLOBALS_H__
-#define __GTKGLOBALS_H__
+#ifndef __ISPRINT_H__
+#define __ISPRINT_H__
 
-/** @mainpage GTK subsystem
- *
- * @section intro Introduction
- *
- * Ethereal uses GTK (the Gimp ToolKit) as it's user interface toolkit.
- *
- * See Modules for a list of submodules.
- *
+#if GTK_MAJOR_VERSION >= 2 || GTK_MINOR_VERSION >= 3
+/**
+ * XXX - "isprint()" can return "true" for non-ASCII characters, but
+ * those don't work with GTK+ 1.3 or later, as they take UTF-8 strings
+ * as input.  Until we fix up Ethereal to properly handle non-ASCII
+ * characters in all output (both GUI displays and text printouts)
+ * in those versions of GTK+, we work around the problem by escaping
+ * all characters that aren't printable ASCII.
  */
-
-/** @file
- *  GTK global definitions. For example a pointer to the main application window.
- */
-
-/** Application window. */
-extern GtkWidget *top_level;
-
-/** Packet list pane. */
-extern GtkWidget *packet_list;
-
-/** Tree view (packet details) pane. */
-extern GtkWidget *tree_view;
-
-/** Byte notebook (packet bytes) pane. */
-extern GtkWidget *byte_nb_ptr;
-
-/** The filter text entry in the filter toolbar. */
-extern GtkWidget   *main_display_filter_widget;
+#undef isprint
+#define isprint(c) (c >= 0x20 && c < 0x7f)
+#endif
 
 #endif
