@@ -1,7 +1,7 @@
 /* packet-ddp.c
  * Routines for DDP packet disassembly.
  *
- * $Id: packet-atalk.c,v 1.13 1999/09/23 05:22:12 guy Exp $
+ * $Id: packet-atalk.c,v 1.14 1999/10/07 17:11:11 deniel Exp $
  *
  * Simon Wilkinson <sxw@dcs.ed.ac.uk>
  *
@@ -37,6 +37,16 @@
 #endif
 
 static int proto_ddp = -1;
+static int hf_ddp_hopcount = -1;
+static int hf_ddp_len = -1;
+static int hf_ddp_checksum = -1;
+static int hf_ddp_dst_net = -1;
+static int hf_ddp_src_net = -1;
+static int hf_ddp_dst_node = -1;
+static int hf_ddp_src_node = -1;
+static int hf_ddp_dst_socket = -1;
+static int hf_ddp_src_socket = -1;
+static int hf_ddp_type = -1;
 
 /* P = Padding, H = Hops, L = Len */
 #if BYTE_ORDER == BIG_ENDIAN
@@ -63,6 +73,7 @@ typedef struct _e_ddp {
 #define DDP_RTMPREQ	0x05
 #define DDP_ZIP		0x06
 #define DDP_ADSP	0x07
+#define DDP_HEADER_SIZE 13
 
 void
 dissect_ddp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
@@ -77,6 +88,11 @@ dissect_ddp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   			     {DDP_ZIP, "AppleTalk Zone Information Protocol packet"},
   			     {DDP_ADSP, "AppleTalk Data Stream Protocol"},
                              {0, NULL} };
+
+  if (!BYTES_ARE_IN_FRAME(offset, DDP_HEADER_SIZE)) {
+    dissect_data(pd, offset, fd, tree);
+    return;
+  }
 
   memcpy(&ddp, &pd[offset], sizeof(e_ddp));
   ddp.dnet=ntohs(ddp.dnet);
@@ -94,32 +110,52 @@ dissect_ddp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
       val_to_str(ddp.type, op_vals, "Unknown DDP protocol (%02x)"));
   
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_ddp, offset, 13, NULL);
+    ti = proto_tree_add_item(tree, proto_ddp, offset, DDP_HEADER_SIZE, NULL);
     ddp_tree = proto_item_add_subtree(ti, ETT_IP);
-    proto_tree_add_text(ddp_tree, offset,      1, "Hop count: %d", ddp_hops(ddp.hops_len));
-    proto_tree_add_text(ddp_tree, offset,	    2, "Datagram length: %d", ddp_len(ddp.hops_len));
-    proto_tree_add_text(ddp_tree, offset + 2,  2, "Checksum: %d",ddp.sum);
-    proto_tree_add_text(ddp_tree, offset + 4,  2, "Destination Net: %d",ddp.dnet);
-    proto_tree_add_text(ddp_tree, offset + 6,  2, "Source Net: %d",ddp.snet);
-    proto_tree_add_text(ddp_tree, offset + 8,  1, "Destination Node: %d",ddp.dnode);
-    proto_tree_add_text(ddp_tree, offset + 9,  1, "Source Node: %d",ddp.snode);
-    proto_tree_add_text(ddp_tree, offset + 10, 1, "Destination Socket: %d",ddp.dport);
-    proto_tree_add_text(ddp_tree, offset + 11, 1, "Source Socket: %d",ddp.sport);
-    proto_tree_add_text(ddp_tree, offset + 12, 1, "Type: %d",ddp.type);  
+    proto_tree_add_item(ddp_tree, hf_ddp_hopcount, offset,      1, 
+			ddp_hops(ddp.hops_len));
+    proto_tree_add_item(ddp_tree, hf_ddp_len, offset,	    2, 
+			ddp_len(ddp.hops_len));
+    proto_tree_add_item(ddp_tree, hf_ddp_checksum, offset + 2,  2, ddp.sum);
+    proto_tree_add_item(ddp_tree, hf_ddp_dst_net, offset + 4,  2, ddp.dnet);
+    proto_tree_add_item(ddp_tree, hf_ddp_src_net,  offset + 6,  2, ddp.snet);
+    proto_tree_add_item(ddp_tree, hf_ddp_dst_node, offset + 8,  1, ddp.dnode);
+    proto_tree_add_item(ddp_tree, hf_ddp_src_node, offset + 9,  1, ddp.snode);
+    proto_tree_add_item(ddp_tree, hf_ddp_dst_socket, offset + 10, 1, ddp.dport);
+    proto_tree_add_item(ddp_tree, hf_ddp_src_socket, offset + 11, 1, ddp.sport);
+    proto_tree_add_item(ddp_tree, hf_ddp_type, offset + 12, 1, ddp.type);  
   }
 
-  offset += 13;
+  offset += DDP_HEADER_SIZE;
 
 }
 
 void
 proto_register_atalk(void)
 {
-/*        static hf_register_info hf[] = {
-                { &variable,
-                { "Name",           "ddp.abbreviation", TYPE, VALS_POINTER }},
-        };*/
+  static hf_register_info hf[] = {
+    { &hf_ddp_hopcount,
+      { "Hop count",		"ddp.hopcount",	FT_UINT8,  NULL }},
+    { &hf_ddp_len,
+      { "Datagram length",	"ddp.len",	FT_UINT16, NULL }},
+    { &hf_ddp_checksum,
+      { "Checksum",		"ddp.checksum",	FT_UINT16, NULL }},
+    { &hf_ddp_dst_net,
+      { "Destination Net",	"ddp.dst.net",	FT_UINT16, NULL }},
+    { &hf_ddp_src_net,
+      { "Source Net",		"ddp.src.net",	FT_UINT16, NULL }},
+    { &hf_ddp_dst_node,
+      { "Destination Node",	"ddp.dst.node",	FT_UINT8,  NULL }},
+    { &hf_ddp_src_node,
+      { "Source Node",		"ddp.src.node",	FT_UINT8,  NULL }},
+    { &hf_ddp_dst_socket,
+      { "Destination Socket",	"ddp.dst.socket", FT_UINT8,  NULL }},
+    { &hf_ddp_src_socket,
+      { "Source Socket",       	"ddp.src.socket", FT_UINT8,  NULL }},
+    { &hf_ddp_type,
+      { "Protocol type",       	"ddp.type",	FT_UINT8,  NULL }}
+  };
 
-        proto_ddp = proto_register_protocol("Datagram Delivery Protocol", "ddp");
- /*       proto_register_field_array(proto_ddp, hf, array_length(hf));*/
+  proto_ddp = proto_register_protocol("Datagram Delivery Protocol", "ddp");
+  proto_register_field_array(proto_ddp, hf, array_length(hf));
 }
