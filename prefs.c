@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.114 2003/12/13 17:24:47 ulfl Exp $
+ * $Id: prefs.c,v 1.115 2003/12/23 21:29:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1659,7 +1659,8 @@ set_pref(gchar *pref_name, gchar *value)
          * look for "beep" instead.
          *
          * Also, the preferences for GTP v0 and v1 were combined under
-         * a single "gtp" heading.
+         * a single "gtp" heading, and the preferences for SMPP were
+         * moved to "smpp-gsm-sms".
          */
         if (module == NULL) {
           if (strcmp(pref_name, "Diameter") == 0)
@@ -1669,6 +1670,8 @@ set_pref(gchar *pref_name, gchar *value)
           else if (strcmp(pref_name, "gtpv0") == 0 ||
                    strcmp(pref_name, "gtpv1") == 0)
             module = find_module("gtp");
+          else if (strcmp(pref_name, "smpp") == 0)
+            module = find_module("smpp-gsm-sms");
         }
         *dotp = '.';		/* put the preference string back */
         dotp++;			/* skip past separator to preference name */
