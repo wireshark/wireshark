@@ -24,7 +24,7 @@ http://developer.novell.com/ndk/doc/docui/index.htm#../ncp/ncp__enu/data/
 for a badly-formatted HTML version of the same PDF.
 
 
-$Id: ncp2222.py,v 1.29 2002/06/24 15:47:10 gram Exp $
+$Id: ncp2222.py,v 1.30 2002/06/26 07:29:41 guy Exp $
 
 
 Copyright (c) 2000-2002 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -3090,6 +3090,15 @@ ObjectSecurity			= val_string8("object_security", "Object Security", [
 	[ 0x43, "Object Read (Supervisor) / Object Write (Operating System Only)" ],
 	[ 0x44, "Object Read (Operating System Only) / Object Write (Operating System Only)" ],
 ])
+#
+# XXX - should this use the "server_vals[]" value_string array from
+# "packet-ipx.c"?
+#
+# XXX - should this list be merged with that list?  There are some
+# oddities, e.g. this list has 0x03f5 for "Microsoft SQL Server", but
+# the list from "packet-ipx.c" has 0xf503 for that - is that just
+# byte-order confusion?
+#
 ObjectType			= val_string16("object_type", "Object Type", [
 	[ 0x0000,	"Unknown" ],
 	[ 0x0001,	"User" ],
