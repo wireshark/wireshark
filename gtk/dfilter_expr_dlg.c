@@ -7,7 +7,7 @@
  * Copyright 2000, Jeffrey C. Foster<jfoste@woodward.com> and
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: dfilter_expr_dlg.c,v 1.14 2001/02/20 09:28:28 guy Exp $
+ * $Id: dfilter_expr_dlg.c,v 1.15 2001/02/20 09:53:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -971,17 +971,6 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
 	gtk_signal_connect(GTK_OBJECT(relation_list), "select-child",
 	    GTK_SIGNAL_FUNC(relation_list_sel_cb), NULL);
 
-	list_bb = gtk_hbutton_box_new();
-	gtk_box_pack_start(GTK_BOX(main_vb), list_bb, FALSE, FALSE, 0);
-	gtk_widget_show(list_bb);
-
-	accept_bt = gtk_button_new_with_label("Accept");
-	gtk_widget_set_sensitive(accept_bt, FALSE);
-	gtk_signal_connect(GTK_OBJECT(accept_bt), "clicked",
-	    GTK_SIGNAL_FUNC(dfilter_expr_dlg_accept_cb), filter_te);
-	gtk_box_pack_start(GTK_BOX(list_bb), accept_bt, FALSE, FALSE, 0);
-	gtk_widget_show(accept_bt);
-
 	/*
 	 * Put the items in the CTree; we don't want to do that until
 	 * we've constructed the value list and set the tree's
@@ -1054,11 +1043,33 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
 
 	gtk_widget_show_all(tree);
 
+	list_bb = gtk_hbutton_box_new();
+	gtk_button_box_set_layout(GTK_BUTTON_BOX(list_bb), GTK_BUTTONBOX_START);
+	gtk_button_box_set_spacing(GTK_BUTTON_BOX(list_bb), 5);
+	gtk_container_add(GTK_CONTAINER(main_vb), list_bb);
+	gtk_widget_show(list_bb);
+
+	accept_bt = gtk_button_new_with_label("Accept");
+	gtk_widget_set_sensitive(accept_bt, FALSE);
+	gtk_signal_connect(GTK_OBJECT(accept_bt), "clicked",
+	    GTK_SIGNAL_FUNC(dfilter_expr_dlg_accept_cb), filter_te);
+	GTK_WIDGET_SET_FLAGS(accept_bt, GTK_CAN_DEFAULT);
+	gtk_box_pack_start(GTK_BOX(list_bb), accept_bt, TRUE, TRUE, 0);
+	gtk_widget_grab_default(accept_bt);
+	gtk_widget_show(accept_bt);
+
 	close_bt = gtk_button_new_with_label("Close");
 	gtk_signal_connect(GTK_OBJECT(close_bt), "clicked",
 	    GTK_SIGNAL_FUNC(dfilter_expr_dlg_cancel_cb), window);
-	gtk_box_pack_start(GTK_BOX(list_bb), close_bt, FALSE, FALSE, 0);
+	gtk_box_pack_start(GTK_BOX(list_bb), close_bt, TRUE, TRUE, 0);
 	gtk_widget_show(close_bt);
+
+	/* Catch the "activate" signal on the range and value text entries,
+	   so that if the user types Return there, we act as if the "Accept"
+	   button had been selected, as happens if Return is typed if some
+	   widget that *doesn't* handle the Return key has the input focus. */
+	dlg_set_activate(range_entry, accept_bt);
+	dlg_set_activate(value_entry, accept_bt);
 
 	/*
 	 * Catch the "key_press_event" signal in the window, so that we can
