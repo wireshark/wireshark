@@ -76,9 +76,7 @@ static int (*p_pcap_datalink_name_to_val) (const char *);
 #ifdef HAVE_PCAP_DATALINK_VAL_TO_NAME
 static const char *(*p_pcap_datalink_val_to_name) (int);
 #endif
-#ifdef HAVE_PCAP_LIB_VERSION
 static const char *(*p_pcap_lib_version) (void);
-#endif
 static int     (*p_pcap_setbuff) (pcap_t *, int dim);
 
 typedef struct {
@@ -118,9 +116,7 @@ load_wpcap(void)
 #ifdef HAVE_PCAP_DATALINK_VAL_TO_NAME
 		SYM(pcap_datalink_val_to_name, TRUE),
 #endif
-#ifdef HAVE_PCAP_LIB_VERSION
 		SYM(pcap_lib_version, TRUE),
-#endif
 		SYM(pcap_setbuff, TRUE),
 		{ NULL, NULL, FALSE }
 	};
@@ -632,12 +628,9 @@ get_runtime_pcap_version(GString *str)
 		}
 
 		g_string_sprintfa(str, "with ");
-#ifdef HAVE_PCAP_LIB_VERSION
 		if (p_pcap_lib_version != NULL)
 			g_string_sprintfa(str, p_pcap_lib_version());
-		else
-#endif
-		if (packetVer != NULL)
+		else if (packetVer != NULL)
 			g_string_sprintfa(str, "WinPcap (%s)", packetVer);
 		else
 			g_string_append(str, "WinPcap (version unknown)");
