@@ -1,7 +1,7 @@
 /* prefs_dlg.c
  * Routines for handling preferences
  *
- * $Id: prefs_dlg.c,v 1.44 2002/03/05 12:03:27 guy Exp $
+ * $Id: prefs_dlg.c,v 1.45 2002/04/19 20:49:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -364,6 +364,10 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
   cts.page++;
 
 #ifdef HAVE_LIBPCAP
+#ifdef _WIN32
+  /* Is WPcap loaded? */
+  if (has_wpcap) {
+#endif /* _WIN32 */
   /* capture prefs */
   frame = gtk_frame_new("Capture");
   gtk_widget_show(GTK_WIDGET(frame));
@@ -377,7 +381,10 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
   gtk_ctree_node_set_row_data(GTK_CTREE(cts.ctree), ct_node,
   		GINT_TO_POINTER(cts.page));
   cts.page++;
-#endif
+#ifdef _WIN32
+  }
+#endif /* _WIN32 */
+#endif /* HAVE_LIBPCAP */
 
   /* Name resolution prefs */
   frame = gtk_frame_new("Name resolution");
