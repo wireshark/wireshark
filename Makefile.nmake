@@ -1,7 +1,7 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.394 2004/01/18 03:55:02 guy Exp $
+# $Id: Makefile.nmake,v 1.395 2004/01/19 21:00:13 guy Exp $
 
 include config.nmake
 include <win32.mak>
@@ -790,7 +790,7 @@ wiretap::
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
 	cd ..
 
-gtk:: help config.h
+gtk:: help config.h cvsversion.h
 	cd gtk
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
 	cd ..
