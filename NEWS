@@ -40,7 +40,7 @@ Overview of changes in Ethereal 0.8.4:
 * Support for Dynamic Host Information Services (Olivier)
 * Add TCP segment length to TCP packet summary (Fred Reimer)
 * Pop up single packet's proto tree in new window (Jeff Foster, Guy)
-* Developer's README, finally! (James Coe, Guy, Jeff Foster)
+* Developer's README, finally! (James Coe, Guy, Jeff Foster, Gilbert)
 * Support for HP-UX 11 nettl files (Olivier)
 * Make scrollbar placement option ubiquitous (Guy)
 * Support for Sinec H1 protocol (Gerrit Gehnen)
