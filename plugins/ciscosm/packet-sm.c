@@ -2,7 +2,7 @@
  * Routines for Cisco Session Management Protocol dissection
  * Copyright 2004, Duncan Sargeant <dunc-ethereal@rcpt.to>
  *
- * $Id: packet-sm.c,v 1.4 2004/04/25 11:13:59 jmayer Exp $
+ * $Id: packet-sm.c,v 1.5 2004/04/25 15:16:38 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -160,9 +160,6 @@ proto_register_sm(void)
 	static gint *ett[] = {
 		&ett_sm,
 	};
-
-/* Initialize the table of pointers needed in Win32 DLLs */
-	plugin_address_table_init(pat);
 
 /* Register the protocol name and description */
 	proto_sm = proto_register_protocol("Cisco Session Management",

@@ -2,7 +2,7 @@
  * Routines for RLM dissection
  * Copyright 2004, Duncan Sargeant <dunc-ethereal@rcpt.to>
  *
- * $Id: packet-rlm.c,v 1.4 2004/04/25 11:14:00 jmayer Exp $
+ * $Id: packet-rlm.c,v 1.5 2004/04/25 15:16:38 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -231,9 +231,6 @@ proto_register_rlm(void)
 	static gint *ett[] = {
 		&ett_rlm,
 	};
-
-/* Initialize the table of pointers needed in Win32 DLLs */
-	plugin_address_table_init(pat);
 
 /* Register the protocol name and description */
 	proto_rlm = proto_register_protocol("Redundant Link Management Protocol",

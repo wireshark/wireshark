@@ -2,7 +2,7 @@
  * Routines for Reliable UDP Protocol.
  * Copyright 2004, Duncan Sargeant <dunc-ethereal@rcpt.to>
  *
- * $Id: packet-rudp.c,v 1.7 2004/04/25 11:20:43 jmayer Exp $
+ * $Id: packet-rudp.c,v 1.8 2004/04/25 15:16:39 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -209,8 +209,6 @@ proto_register_rudp(void)
 		&ett_rudp_flags,
 	};
 
-
-	plugin_address_table_init(pat);
 
 	if (proto_rudp == -1) {
 	    proto_rudp = proto_register_protocol (
