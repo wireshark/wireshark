@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.19 1999/03/28 18:31:58 gram Exp $
+ * $Id: packet-ip.c,v 1.20 1999/03/30 20:40:12 hannes Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -605,8 +605,7 @@ dissect_ip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   if (check_col(fd, COL_UNRES_NET_DST))
     col_add_str(fd, COL_UNRES_NET_DST, ip_to_str((guint8 *) &iph.ip_dst));
   
-  iph.ip_tos = IPTOS_TOS(iph.ip_tos);
-  switch (iph.ip_tos) {
+  switch (IPTOS_TOS(iph.ip_tos)) {
     case IPTOS_NONE:
       strcpy(tos_str, "None");
       break;
