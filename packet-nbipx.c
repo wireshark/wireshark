@@ -2,7 +2,7 @@
  * Routines for NetBIOS over IPX packet disassembly
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-nbipx.c,v 1.34 2001/01/09 06:31:38 guy Exp $
+ * $Id: packet-nbipx.c,v 1.35 2001/01/10 10:36:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -319,11 +319,18 @@ dissect_nwlink_dg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	const guint8	*next_pd;
 	int		next_offset;
 
+	/*
+	 * XXX - we don't use "node_name" or "node_name_type".
+	 */
 	name_type_flag = tvb_get_guint8(tvb, offset+32);
 	packet_type = tvb_get_guint8(tvb, offset+33);
 	name_type = get_netbios_name(tvb, offset+36, name);
 	node_name_type = get_netbios_name(tvb, offset+52, node_name);
 
+	/*
+	 * XXX - if this is labeled as "NWLink", rather than "NBIPX",
+	 * should it be a separate protocol?
+	 */
 	if (check_col(pinfo->fd, COL_PROTOCOL))
 		col_set_str(pinfo->fd, COL_PROTOCOL, "NWLink");
 
