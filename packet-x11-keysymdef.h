@@ -3,7 +3,7 @@
  * Copyright holders: Digital, The Open Group
  * (see below for their copyright statement)
  *
- * $Id: packet-x11-keysymdef.h,v 1.1 2004/01/02 12:52:45 obiot Exp $
+ * $Id: packet-x11-keysymdef.h,v 1.2 2004/01/03 13:03:02 tuexen Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2062,7 +2062,7 @@ SOFTWARE.
 #define XK_EuroSign					0x20ac
 #endif
 
-void
+static void
 XConvertCase(sym, lower, upper)
     register int sym;
     int *lower;
