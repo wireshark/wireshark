@@ -246,7 +246,8 @@
 	  </listitem>
 	  <listitem>
 	    <para>
-	      Use "Browse for other folders" to browse files and folders in your file system.
+	      Use "Browse for other folders" to browse files and folders in your 
+		  file system.
 	    </para>
 	  </listitem>
 	  <listitem>
@@ -371,19 +372,36 @@
 	</para>
 	</note>
     <para>
-	  XXX - add detailed descriptions of the dialog box controls and sample output.
+	  XXX - add detailed descriptions of the output formats and some sample 
+	  output, too.
     </para>
-	<section id="ChIOExportPlainDialog"><title>The "Export as Plain Text File" dialog box</title>
+	<section id="ChIOExportPlainDialog">
+	<title>The "Export as Plain Text File" dialog box</title>
 	  <para id="ChIOExportPlain">
-	    Export packet data into a plain ASCII text file, much like the format used 
-		to print packets.
+	    Export packet data into a plain ASCII text file, much like the format 
+		used to print packets.
     <figure>
       <title>The "Export as Plain Text File" dialog box</title>
       <graphic entityref="EtherealExportPlainDialog" format="PNG"/>
     </figure>
+	<itemizedlist>
+		<listitem><para>
+	  	<command>Export to file:</command> frame chooses the file to export 
+		the packet data to.
+		</para></listitem>
+		<listitem><para>
+	  	The <command>Packet Range</command> frame is described in <xref 
+		linkend="ChIOPacketRangeSection"/>.
+		</para></listitem>
+		<listitem><para>
+	  	The <command>Packet Details</command> frame is described in <xref 
+		linkend="ChIOPacketFormatSection"/>.
+		</para></listitem>
+	</itemizedlist>	
 	  </para>
     </section>
-	<section id="ChIOExportPSDialog"><title>The "Export as Postscript File" dialog box</title>
+	<section id="ChIOExportPSDialog">
+	<title>The "Export as Postscript File" dialog box</title>
 	  <para>
 	    Export packet data into postscript, much like the format used 
 		to print packets.
@@ -391,9 +409,24 @@
       <title>The "Export as Postscript File" dialog box</title>
       <graphic entityref="EtherealExportPSDialog" format="PNG"/>
     </figure>
+	<itemizedlist>
+		<listitem><para>
+	  	<command>Export to file:</command> frame chooses the file to export 
+		the packet data to.
+		</para></listitem>
+		<listitem><para>
+	  	The <command>Packet Range</command> frame is described in <xref 
+		linkend="ChIOPacketRangeSection"/>.
+		</para></listitem>
+		<listitem><para>
+	  	The <command>Packet Details</command> frame is described in <xref 
+		linkend="ChIOPacketFormatSection"/>.
+		</para></listitem>
+	</itemizedlist>	
 	  </para>
     </section>
-	<section id="ChIOExportPSMLDialog"><title>The "Export as PSML File" dialog box</title>
+	<section id="ChIOExportPSMLDialog">
+	<title>The "Export as PSML File" dialog box</title>
 	  <para>
 	    Export packet data into PSML. This is an XML based format including 
 		only the packet summary.
@@ -401,9 +434,22 @@
       <title>The "Export as PSML File" dialog box</title>
       <graphic entityref="EtherealExportPSMLDialog" format="PNG"/>
     </figure>
+	<itemizedlist>
+		<listitem><para>
+	  	<command>Export to file:</command> frame chooses the file to export 
+		the packet data to.
+		</para></listitem>
+		<listitem><para>
+	  	The <command>Packet Range</command> frame is described in <xref 
+		linkend="ChIOPacketRangeSection"/>.
+		</para></listitem>
+	</itemizedlist>	
+	There's no such thing as a packet details frame for PSML export, as the 
+	packet format is defined by the PSML specification.
 	  </para>
     </section>
-	<section id="ChIOExportPDMLDialog"><title>The "Export as PDML File" dialog box</title>
+	<section id="ChIOExportPDMLDialog">
+	<title>The "Export as PDML File" dialog box</title>
 	  <para>
 	    Export packet data into PDML. This is an XML based format including 
 		the packet details. The PDML file specification is available at: 
@@ -420,9 +466,22 @@
       <title>The "Export as PDML File" dialog box</title>
       <graphic entityref="EtherealExportPDMLDialog" format="PNG"/>
     </figure>
+	<itemizedlist>
+		<listitem><para>
+	  	<command>Export to file:</command> frame chooses the file to export 
+		the packet data to.
+		</para></listitem>
+		<listitem><para>
+	  	The <command>Packet Range</command> frame is described in <xref 
+		linkend="ChIOPacketRangeSection"/>.
+		</para></listitem>
+	</itemizedlist>	
+	There's no such thing as a packet details frame for PDML export, as the 
+	packet format is defined by the PDML specification.
 	  </para>
   </section>
-	<section id="ChIOExportSelectedDialog"><title>The "Export selected packet bytes" dialog box</title>
+	<section id="ChIOExportSelectedDialog">
+	<title>The "Export selected packet bytes" dialog box</title>
 	  <para>
 	    Export the bytes selected in the "Packet Bytes" pane into a raw 
 		binary file.
@@ -430,14 +489,27 @@
       <title>The "Export Selected Packet Bytes" dialog box</title>
       <graphic entityref="EtherealExportSelectedDialog" format="PNG"/>
     </figure>
+	<itemizedlist>
+		<listitem><para>
+	  	<command>Name:</command> the filename to export the packet data to.
+		</para></listitem>
+		<listitem><para>
+	  	The <command>Save in folder:</command> let's you select the folder to 
+		save to (from some predefined folders).
+		</para></listitem>
+		<listitem><para>
+	  	<command>Browse for other folders</command> will provide a flexible 
+		way to choose a folder.
+		</para></listitem>
+	</itemizedlist>	
 	  </para>
   </section>
   </section>
 
   <section id="ChIOPrintSection"><title>Printing packets</title>
     <para>
-	    To print packets, select the "Print..." menu item from the File menu. When you 
-	    do this, Ethereal pops up the Print dialog box as shown in 
+	    To print packets, select the "Print..." menu item from the File menu. 
+		When you do this, Ethereal pops up the Print dialog box as shown in 
 	    <xref linkend="ChIOPrintDialogBox"/>.
     </para>
 	<section><title>The "Print" dialog box</title>
