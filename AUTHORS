@@ -2138,6 +2138,7 @@ Carlos Pignataro        <cpignata [AT] cisco.com> {
 	MPLS PW Control Channel Header
 	Multiprotocol Label Switching Echo [draft-ietf-mpls-lsp-ping-05]
 	MPLS in Generic Routing Encapsulation (GRE)
+	OSPF Traffic Engineering enhancements
 }
 
 Thomas Anders           <thomas.anders [AT] blue-cable.de> {
