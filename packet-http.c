@@ -7,7 +7,7 @@
  * Copyright 2002, Tim Potter <tpot@samba.org>
  * Copyright 1999, Andrew Tridgell <tridge@samba.org>
  *
- * $Id: packet-http.c,v 1.98 2004/04/29 20:26:54 obiot Exp $
+ * $Id: packet-http.c,v 1.99 2004/04/30 15:26:39 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -772,16 +772,22 @@ basic_request_dissector(tvbuff_t *tvb, proto_tree *tree, int req_strlen)
 }
 
 static void
-basic_response_dissector(tvbuff_t *tvb, proto_tree *tree, int req_strlen _U_)
+basic_response_dissector(tvbuff_t *tvb, proto_tree *tree, int resp_strlen)
 {
-	const guchar *data;
+	gchar *data;
 	int minor, major, status_code;
 
-	data = tvb_get_ptr(tvb, 5, 12);
+	/* BEWARE - sscanf() only operates on C strings.
+	 * The pointer returned by tvb_get_ptr points into the real data,
+	 * which is not necessarily NULL terminated. For this reason,
+	 * the sscanf() call is only applied to a buffer guaranteed to
+	 * only contain a NULL terminated string. */
+	data = g_strndup((const gchar *)tvb_get_ptr(tvb, 5, resp_strlen), resp_strlen);
 	if (sscanf((const gchar *)data, "%d.%d %d", &minor, &major, &status_code) == 3) {
 		proto_tree_add_uint(tree, hf_http_response_code, tvb, 9, 3, status_code);
 		stat_info->response_code = status_code;
 	}
+	g_free(data);
 }
 
 /*
