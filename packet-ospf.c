@@ -2,7 +2,7 @@
  * Routines for OSPF packet disassembly
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-ospf.c,v 1.73 2002/12/02 23:43:28 guy Exp $
+ * $Id: packet-ospf.c,v 1.74 2003/01/21 20:29:42 jmayer Exp $
  *
  * At this time, this module is able to analyze OSPF
  * packets as specified in RFC2328. MOSPF (RFC1584) and other
@@ -77,13 +77,13 @@ static const value_string auth_vals[] = {
 	{0,                NULL              }
 };
 
+#define OSPF_V2_OPTIONS_DN		0x01
 #define OSPF_V2_OPTIONS_E		0x02
 #define OSPF_V2_OPTIONS_MC		0x04
 #define OSPF_V2_OPTIONS_NP		0x08
 #define OSPF_V2_OPTIONS_EA		0x10
 #define OSPF_V2_OPTIONS_DC		0x20
 #define OSPF_V2_OPTIONS_O		0x40
-#define OSPF_V2_OPTIONS_DN		0x01
 #define OSPF_V3_OPTIONS_V6              0x01
 #define OSPF_V3_OPTIONS_E		0x02
 #define OSPF_V3_OPTIONS_MC		0x04
