@@ -69,23 +69,37 @@ struct netxray_hdr {
 
 /*
  * Capture type, in xxc[4].
+ *
  * XXX - S6040-model Sniffers with gigabit blades store 6 here for
- * Etherneet captures, so perhaps the interpretation of the capture
- * type depends on the network type.
+ * Etherneet captures, and some other Ethernet captures had a capture
+ * type of 3, so presumably the interpretation of the capture type
+ * depends on the network type.  We prefix all the capture types
+ * for WAN captures with WAN_.
  */
 #define CAPTYPE_NDIS	0	/* Capture on network interface using NDIS */
-#define CAPTYPE_BROUTER	1	/* Bridge/router captured with pod */
-#define CAPTYPE_GIGPOD	2	/* gigabit Ethernet captured with pod */
-#define CAPTYPE_PPP	3	/* PPP captured with pod */
-#define CAPTYPE_FRELAY	4	/* Frame Relay captured with pod */
-#define CAPTYPE_BROUTER2 5	/* Bridge/router captured with pod */
-#define CAPTYPE_HDLC	6	/* HDLC (X.25, ISDN) captured with pod */
-#define CAPTYPE_SDLC	7	/* SDLC captured with pod */
-#define CAPTYPE_HDLC2	8	/* HDLC captured with pod */
-#define CAPTYPE_BROUTER3 9	/* Bridge/router captured with pod */
-#define CAPTYPE_SMDS	10	/* SMDS DXI */
-#define CAPTYPE_BROUTER4 11	/* Bridge/router captured with pod */
-#define CAPTYPE_BROUTER5 12	/* Bridge/router captured with pod */
+
+/*
+ * Ethernet capture types.
+ */
+#define ETH_CAPTYPE_GIGPOD	2	/* gigabit Ethernet captured with pod */
+#define ETH_CAPTYPE_OTHERPOD	3	/* non-gigabit Ethernet captured with pod */
+#define ETH_CAPTYPE_GIGPOD2	6	/* gigabit Ethernet captured with pod */
+
+/*
+ * WAN capture types.
+ */
+#define WAN_CAPTYPE_BROUTER	1	/* Bridge/router captured with pod */
+#define WAN_CAPTYPE_PPP		3	/* PPP captured with pod */
+#define WAN_CAPTYPE_FRELAY	4	/* Frame Relay captured with pod */
+#define WAN_CAPTYPE_BROUTER2	5	/* Bridge/router captured with pod */
+#define WAN_CAPTYPE_HDLC	6	/* HDLC (X.25, ISDN) captured with pod */
+#define WAN_CAPTYPE_SDLC	7	/* SDLC captured with pod */
+#define WAN_CAPTYPE_HDLC2	8	/* HDLC captured with pod */
+#define WAN_CAPTYPE_BROUTER3	9	/* Bridge/router captured with pod */
+#define WAN_CAPTYPE_SMDS	10	/* SMDS DXI */
+#define WAN_CAPTYPE_BROUTER4	11	/* Bridge/router captured with pod */
+#define WAN_CAPTYPE_BROUTER5	12	/* Bridge/router captured with pod */
+
 #define CAPTYPE_ATM	15	/* ATM captured with pod */
 
 /*
@@ -373,7 +387,7 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 		 */
 		timeunit = pletohl(&hdr.realtick);
 		if (timeunit == 0) {
-			if (hdr.timeunit > NUM_NETXRAY_TIMEUNITS) {
+			if (hdr.timeunit >= NUM_NETXRAY_TIMEUNITS) {
 				*err = WTAP_ERR_UNSUPPORTED;
 				*err_info = g_strdup_printf("netxray: Unknown timeunit %u",
 				    hdr.timeunit);
@@ -391,7 +405,7 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 		 * for other pod captures?  Is it true for *all* pod
 		 * captures?
 		 */
-		if (network_type == 1 && hdr.xxc[4] == CAPTYPE_GIGPOD &&
+		if (network_type == 1 && hdr.xxc[4] == ETH_CAPTYPE_GIGPOD &&
 		    version_minor == 2)
 			start_timestamp = 0.0;
 		break;
@@ -416,22 +430,22 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 		if (version_major == 2) {
 			switch (hdr.xxc[4]) {
 
-			case CAPTYPE_PPP:
+			case WAN_CAPTYPE_PPP:
 				/*
 				 * PPP.
 				 */
 				file_encap = WTAP_ENCAP_PPP_WITH_PHDR;
 				break;
 
-			case CAPTYPE_FRELAY:
+			case WAN_CAPTYPE_FRELAY:
 				/*
 				 * Frame Relay.
 				 */
 				file_encap = WTAP_ENCAP_FRELAY_WITH_PHDR;
 				break;
 
-			case CAPTYPE_HDLC:
-			case CAPTYPE_HDLC2:
+			case WAN_CAPTYPE_HDLC:
+			case WAN_CAPTYPE_HDLC2:
 				/*
 				 * Various HDLC flavors?
 				 */
@@ -456,7 +470,7 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 				}
 				break;
 
-			case CAPTYPE_SDLC:
+			case WAN_CAPTYPE_SDLC:
 				/*
 				 * SDLC.
 				 */
@@ -1429,20 +1443,20 @@ static gboolean netxray_dump_close_2_0(wtap_dumper *wdh, int *err)
     switch (wdh->encap) {
 
     case WTAP_ENCAP_PPP_WITH_PHDR:
-	file_hdr.xxc[4] = CAPTYPE_PPP;
+	file_hdr.xxc[4] = WAN_CAPTYPE_PPP;
 	break;
 
     case WTAP_ENCAP_FRELAY_WITH_PHDR:
-	file_hdr.xxc[4] = CAPTYPE_FRELAY;
+	file_hdr.xxc[4] = WAN_CAPTYPE_FRELAY;
 	break;
 
     case WTAP_ENCAP_LAPB:
-	file_hdr.xxc[4] = CAPTYPE_HDLC;
+	file_hdr.xxc[4] = WAN_CAPTYPE_HDLC;
 	file_hdr.xxc[12] = 0;
 	break;
 
     case WTAP_ENCAP_SDLC:
-	file_hdr.xxc[4] = CAPTYPE_SDLC;
+	file_hdr.xxc[4] = WAN_CAPTYPE_SDLC;
 	break;
 
     default:
