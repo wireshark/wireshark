@@ -7,7 +7,7 @@
  * Changed to run on new version of TCAP, many changes for
  * EOC matching, and parameter separation.  (2003)
  *
- * $Id: packet-gsm_map.c,v 1.1 2003/12/03 23:54:50 guy Exp $
+ * $Id: packet-gsm_map.c,v 1.2 2003/12/08 23:40:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -376,54 +376,6 @@ my_dgt_tbcd_unpack(
     return(cnt);
 }
 
-/* Generate, into "buf", a string showing the bits of a bitfield.
- * Return a pointer to the character after that string.
- */
-static char *
-my_decode_bitfield_value(char *buf, guint32 val, guint32 mask, int width)
-{
-    int		i;
-    guint32	bit;
-    char	*p;
-
-    i = 0;
-    p = buf;
-    bit = 1 << (width - 1);
-
-    for (;;)
-    {
-	if (mask & bit)
-	{
-	    /* This bit is part of the field.  Show its value. */
-	    if (val & bit)
-	    {
-		*p++ = '1';
-	    }
-	    else
-	    {
-		*p++ = '0';
-	    }
-	}
-	else
-	{
-	    /* This bit is not part of the field. */
-	    *p++ = '.';
-	}
-
-	bit >>= 1;
-	i++;
-
-	if (i >= width) break;
-
-	if (i % 4 == 0) *p++ = ' ';
-    }
-
-    *p = '\0';
-
-    return(p);
-}
-
-
 static gchar *
 my_match_strval(guint32 val, const value_string *vs, gint *idx)
 {
@@ -491,7 +443,7 @@ param_AddressString(ASN1_SCK *asn1, proto_tree *tree, guint len)
     saved_offset = asn1->offset;
     asn1_int32_value_decode(asn1, 1, &value);
 
-    my_decode_bitfield_value(bigbuf, value, 0x80, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x80, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, 1,
 	"%s :  %sxtension",
@@ -509,7 +461,7 @@ param_AddressString(ASN1_SCK *asn1, proto_tree *tree, guint len)
     case 0x07: str = "Reserved for extension"; break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x70, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x70, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  %s",
@@ -533,7 +485,7 @@ param_AddressString(ASN1_SCK *asn1, proto_tree *tree, guint len)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x0f, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x0f, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  %s",

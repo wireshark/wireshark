@@ -1,7 +1,7 @@
 /* to_str.c
  * Routines for utilities to convert various other types to strings.
  *
- * $Id: to_str.c,v 1.40 2003/12/08 21:36:53 guy Exp $
+ * $Id: to_str.c,v 1.41 2003/12/08 23:40:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -707,7 +707,7 @@ fcwwn_to_str (const guint8 *ad)
 /* Generate, into "buf", a string showing the bits of a bitfield.
    Return a pointer to the character after that string. */
 char *
-decode_bitfield_value(char *buf, guint32 val, guint32 mask, int width)
+other_decode_bitfield_value(char *buf, guint32 val, guint32 mask, int width)
 {
   int i;
   guint32 bit;
@@ -734,6 +734,16 @@ decode_bitfield_value(char *buf, guint32 val, guint32 mask, int width)
     if (i % 4 == 0)
       *p++ = ' ';
   }
+  *p = '\0';
+  return p;
+}
+
+char *
+decode_bitfield_value(char *buf, guint32 val, guint32 mask, int width)
+{
+  char *p;
+
+  p = other_decode_bitfield_value(buf, val, mask, width);
   strcpy(p, " = ");
   p += 3;
   return p;

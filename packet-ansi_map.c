@@ -79,7 +79,7 @@
  *   UIM
  *			3GPP2 N.S0003
  *
- * $Id: packet-ansi_map.c,v 1.11 2003/11/19 01:39:50 guy Exp $
+ * $Id: packet-ansi_map.c,v 1.12 2003/12/08 23:40:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -824,53 +824,6 @@ my_dgt_tbcd_unpack(
     return(cnt);
 }
 
-/* Generate, into "buf", a string showing the bits of a bitfield.
- * Return a pointer to the character after that string.
- */
-static char *
-my_decode_bitfield_value(char *buf, guint32 val, guint32 mask, int width)
-{
-    int		i;
-    guint32	bit;
-    char	*p;
-
-    i = 0;
-    p = buf;
-    bit = 1 << (width - 1);
-
-    for (;;)
-    {
-	if (mask & bit)
-	{
-	    /* This bit is part of the field.  Show its value. */
-	    if (val & bit)
-	    {
-		*p++ = '1';
-	    }
-	    else
-	    {
-		*p++ = '0';
-	    }
-	}
-	else
-	{
-	    /* This bit is not part of the field. */
-	    *p++ = '.';
-	}
-
-	bit >>= 1;
-	i++;
-
-	if (i >= width) break;
-
-	if (i % 4 == 0) *p++ = ' ';
-    }
-
-    *p = '\0';
-
-    return(p);
-}
-
 static gchar *
 my_match_strval(guint32 val, const value_string *vs, gint *idx)
 {
@@ -1061,7 +1014,7 @@ param_alert_code(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
     case 3: str = "Reserved"; break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0xc0, 8);
+    other_decode_bitfield_value(bigbuf, value, 0xc0, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Pitch, %s",
@@ -1088,7 +1041,7 @@ param_alert_code(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x3f, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x3f, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Cadence, %s",
@@ -1100,7 +1053,7 @@ param_alert_code(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 
     asn1_int32_value_decode(asn1, 1, &value);
 
-    my_decode_bitfield_value(bigbuf, value, 0xf8, 8);
+    other_decode_bitfield_value(bigbuf, value, 0xf8, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Reserved",
@@ -1115,7 +1068,7 @@ param_alert_code(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x07, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x07, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Alert Action, %s",
@@ -1212,7 +1165,7 @@ param_term_trig(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
     case 3: str = "Reserved"; break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0xc0, 8);
+    other_decode_bitfield_value(bigbuf, value, 0xc0, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  No Answer (NA), %s",
@@ -1227,7 +1180,7 @@ param_term_trig(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
     case 3: str = "Reserved"; break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x30, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x30, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  No Page Response (NPR), %s",
@@ -1242,7 +1195,7 @@ param_term_trig(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
     case 3: str = "Reserved"; break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x0c, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x0c, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Routing Failure (RF), %s",
@@ -1257,7 +1210,7 @@ param_term_trig(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
     case 3: str = "Reserved"; break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x03, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x03, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Busy, %s",
@@ -1269,13 +1222,13 @@ param_term_trig(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 
     asn1_int32_value_decode(asn1, 1, &value);
 
-    my_decode_bitfield_value(bigbuf, value, 0xfe, 8);
+    other_decode_bitfield_value(bigbuf, value, 0xfe, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Reserved",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x01, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x01, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  None Reachable (NR), %s",
@@ -1351,7 +1304,7 @@ param_ann_code(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0xff, 8);
+    other_decode_bitfield_value(bigbuf, value, 0xff, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Tone %u, %s",
@@ -1363,7 +1316,7 @@ param_ann_code(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 
     asn1_int32_value_decode(asn1, 1, &value);
 
-    my_decode_bitfield_value(bigbuf, value, 0xf0, 8);
+    other_decode_bitfield_value(bigbuf, value, 0xf0, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Reserved",
@@ -1379,7 +1332,7 @@ param_ann_code(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x0f, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x0f, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Class %s",
@@ -1476,7 +1429,7 @@ param_ann_code(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0xff, 8);
+    other_decode_bitfield_value(bigbuf, value, 0xff, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Standard Announcement, %s",
@@ -1489,7 +1442,7 @@ param_ann_code(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 
     asn1_int32_value_decode(asn1, 1, &value);
 
-    my_decode_bitfield_value(bigbuf, value, 0xff, 8);
+    other_decode_bitfield_value(bigbuf, value, 0xff, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Custom Announcement %u",
@@ -1713,13 +1666,13 @@ param_ho_state(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 
     asn1_int32_value_decode(asn1, 1, &value);
 
-    my_decode_bitfield_value(bigbuf, value, 0xfe, 8);
+    other_decode_bitfield_value(bigbuf, value, 0xfe, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Reserved",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x01, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x01, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Party Involved (PI), %s",
@@ -1775,7 +1728,7 @@ param_mw_noti_type(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_strin
 
     asn1_int32_value_decode(asn1, 1, &value);
 
-    my_decode_bitfield_value(bigbuf, value, 0xf0, 8);
+    other_decode_bitfield_value(bigbuf, value, 0xf0, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Reserved",
@@ -1789,21 +1742,21 @@ param_mw_noti_type(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_strin
     case 3: str = "MWI Off. Notification is required. No messages waiting"; break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x0c, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x0c, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Message Waiting Indication (MWI), %s",
 	bigbuf,
 	str);
 
-    my_decode_bitfield_value(bigbuf, value, 0x02, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x02, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Alert Pip Tone (APT), %s",
 	bigbuf,
 	(value & 0x02) ? "notification is required" : "notification is not authorized or notification is not required");
 
-    my_decode_bitfield_value(bigbuf, value, 0x01, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x01, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Pip Tone (PT), %s",
@@ -1825,7 +1778,7 @@ param_paca_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 
     asn1_int32_value_decode(asn1, 1, &value);
 
-    my_decode_bitfield_value(bigbuf, value, 0xe0, 8);
+    other_decode_bitfield_value(bigbuf, value, 0xe0, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Reserved",
@@ -1851,14 +1804,14 @@ param_paca_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
     case 15: str = "Priority Level 15"; break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x1e, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x1e, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  PACA Level, %s",
 	bigbuf,
 	str);
 
-    my_decode_bitfield_value(bigbuf, value, 0x01, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x01, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  PACA is %spermanently activated",
@@ -1881,27 +1834,27 @@ param_digit_collect_ctrl(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add
 
     asn1_int32_value_decode(asn1, 1, &value);
 
-    my_decode_bitfield_value(bigbuf, value, 0x80, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x80, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Break (BRK), %s",
 	bigbuf,
 	(value & 0x80) ? "Break In (default)" : "No Break");
 
-    my_decode_bitfield_value(bigbuf, value, 0x40, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x40, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Type Ahead (TA), %s",
 	bigbuf,
 	(value & 0x40) ? "Buffer (default)" : "No Type Ahead");
 
-    my_decode_bitfield_value(bigbuf, value, 0x20, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x20, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Reserved",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x1f, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x1f, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Maximum Collect (%u)",
@@ -1914,13 +1867,13 @@ param_digit_collect_ctrl(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add
 
     asn1_int32_value_decode(asn1, 1, &value);
 
-    my_decode_bitfield_value(bigbuf, value, 0xe0, 8);
+    other_decode_bitfield_value(bigbuf, value, 0xe0, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Reserved",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x1f, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x1f, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Minimum Collect (%u)",
@@ -1944,13 +1897,13 @@ param_digit_collect_ctrl(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add
 
     asn1_int32_value_decode(asn1, 1, &value);
 
-    my_decode_bitfield_value(bigbuf, value, 0xe0, 8);
+    other_decode_bitfield_value(bigbuf, value, 0xe0, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Reserved",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x1f, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x1f, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Initial Interdigit Time (%u) seconds",
@@ -1963,13 +1916,13 @@ param_digit_collect_ctrl(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add
 
     asn1_int32_value_decode(asn1, 1, &value);
 
-    my_decode_bitfield_value(bigbuf, value, 0xe0, 8);
+    other_decode_bitfield_value(bigbuf, value, 0xe0, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Reserved",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x1f, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x1f, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Normal Interdigit Time (%u) seconds",
@@ -1989,49 +1942,49 @@ param_digit_collect_ctrl(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add
 
     asn1_int32_value_decode(asn1, 1, &value);
 
-    my_decode_bitfield_value(bigbuf, value, 0x80, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x80, 8);
     proto_tree_add_text(subtree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  7 Digit",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x40, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x40, 8);
     proto_tree_add_text(subtree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  6 Digit",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x20, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x20, 8);
     proto_tree_add_text(subtree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  5 Digit",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x10, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x10, 8);
     proto_tree_add_text(subtree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  4 Digit",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x08, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x08, 8);
     proto_tree_add_text(subtree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  3 Digit",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x04, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x04, 8);
     proto_tree_add_text(subtree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  2 Digit",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x02, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x02, 8);
     proto_tree_add_text(subtree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  1 Digit",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x01, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x01, 8);
     proto_tree_add_text(subtree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  0 Digit",
@@ -2043,37 +1996,37 @@ param_digit_collect_ctrl(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add
 
     asn1_int32_value_decode(asn1, 1, &value);
 
-    my_decode_bitfield_value(bigbuf, value, 0xe0, 8);
+    other_decode_bitfield_value(bigbuf, value, 0xe0, 8);
     proto_tree_add_text(subtree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Reserved",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x10, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x10, 8);
     proto_tree_add_text(subtree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  # Digit",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x08, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x08, 8);
     proto_tree_add_text(subtree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  * Digit",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x04, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x04, 8);
     proto_tree_add_text(subtree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Reserved",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x02, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x02, 8);
     proto_tree_add_text(subtree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  9 Digit",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x01, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x01, 8);
     proto_tree_add_text(subtree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  8 Digit",
@@ -2092,49 +2045,49 @@ param_digit_collect_ctrl(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add
 
     asn1_int32_value_decode(asn1, 1, &value);
 
-    my_decode_bitfield_value(bigbuf, value, 0x80, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x80, 8);
     proto_tree_add_text(subtree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  7 Digit",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x40, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x40, 8);
     proto_tree_add_text(subtree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  6 Digit",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x20, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x20, 8);
     proto_tree_add_text(subtree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  5 Digit",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x10, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x10, 8);
     proto_tree_add_text(subtree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  4 Digit",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x08, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x08, 8);
     proto_tree_add_text(subtree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  3 Digit",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x04, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x04, 8);
     proto_tree_add_text(subtree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  2 Digit",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x02, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x02, 8);
     proto_tree_add_text(subtree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  1 Digit",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x01, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x01, 8);
     proto_tree_add_text(subtree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  0 Digit",
@@ -2146,37 +2099,37 @@ param_digit_collect_ctrl(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add
 
     asn1_int32_value_decode(asn1, 1, &value);
 
-    my_decode_bitfield_value(bigbuf, value, 0xe0, 8);
+    other_decode_bitfield_value(bigbuf, value, 0xe0, 8);
     proto_tree_add_text(subtree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Reserved",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x10, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x10, 8);
     proto_tree_add_text(subtree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  # Digit",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x08, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x08, 8);
     proto_tree_add_text(subtree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  * Digit",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x04, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x04, 8);
     proto_tree_add_text(subtree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Reserved",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x02, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x02, 8);
     proto_tree_add_text(subtree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  9 Digit",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x01, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x01, 8);
     proto_tree_add_text(subtree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  8 Digit",
@@ -2195,49 +2148,49 @@ param_digit_collect_ctrl(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add
 
     asn1_int32_value_decode(asn1, 1, &value);
 
-    my_decode_bitfield_value(bigbuf, value, 0x80, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x80, 8);
     proto_tree_add_text(subtree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  7 Digit",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x40, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x40, 8);
     proto_tree_add_text(subtree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  6 Digit",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x20, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x20, 8);
     proto_tree_add_text(subtree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  5 Digit",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x10, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x10, 8);
     proto_tree_add_text(subtree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  4 Digit",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x08, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x08, 8);
     proto_tree_add_text(subtree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  3 Digit",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x04, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x04, 8);
     proto_tree_add_text(subtree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  2 Digit",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x02, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x02, 8);
     proto_tree_add_text(subtree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  1 Digit",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x01, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x01, 8);
     proto_tree_add_text(subtree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  0 Digit",
@@ -2249,37 +2202,37 @@ param_digit_collect_ctrl(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add
 
     asn1_int32_value_decode(asn1, 1, &value);
 
-    my_decode_bitfield_value(bigbuf, value, 0xe0, 8);
+    other_decode_bitfield_value(bigbuf, value, 0xe0, 8);
     proto_tree_add_text(subtree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Reserved",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x10, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x10, 8);
     proto_tree_add_text(subtree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  # Digit",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x08, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x08, 8);
     proto_tree_add_text(subtree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  * Digit",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x04, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x04, 8);
     proto_tree_add_text(subtree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Reserved",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x02, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x02, 8);
     proto_tree_add_text(subtree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  9 Digit",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x01, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x01, 8);
     proto_tree_add_text(subtree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  8 Digit",
@@ -2291,13 +2244,13 @@ param_digit_collect_ctrl(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add
 
     asn1_int32_value_decode(asn1, 1, &value);
 
-    my_decode_bitfield_value(bigbuf, value, 0xe0, 8);
+    other_decode_bitfield_value(bigbuf, value, 0xe0, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Reserved",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x1f, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x1f, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Special Interdigit Time (%u)",
@@ -2310,49 +2263,49 @@ param_digit_collect_ctrl(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add
 
     asn1_int32_value_decode(asn1, 1, &value);
 
-    my_decode_bitfield_value(bigbuf, value, 0x80, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x80, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  SIT 8",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x40, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x40, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  SIT 7",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x20, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x20, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  SIT 6",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x10, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x10, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  SIT 5",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x08, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x08, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  SIT 4",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x04, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x04, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  SIT 3",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x02, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x02, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  SIT 2",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x01, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x01, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  SIT 1",
@@ -2364,49 +2317,49 @@ param_digit_collect_ctrl(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add
 
     asn1_int32_value_decode(asn1, 1, &value);
 
-    my_decode_bitfield_value(bigbuf, value, 0x80, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x80, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  SIT 16",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x40, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x40, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  SIT 15",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x20, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x20, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  SIT 14",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x10, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x10, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  SIT 13",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x08, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x08, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  SIT 12",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x04, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x04, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  SIT 11",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x02, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x02, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  SIT 10",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x01, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x01, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  SIT 9",
@@ -2418,49 +2371,49 @@ param_digit_collect_ctrl(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add
 
     asn1_int32_value_decode(asn1, 1, &value);
 
-    my_decode_bitfield_value(bigbuf, value, 0x80, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x80, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  SIT 24",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x40, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x40, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  SIT 23",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x20, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x20, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  SIT 22",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x10, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x10, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  SIT 21",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x08, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x08, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  SIT 20",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x04, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x04, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  SIT 19",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x02, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x02, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  SIT 18",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x01, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x01, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  SIT 17",
@@ -2472,49 +2425,49 @@ param_digit_collect_ctrl(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add
 
     asn1_int32_value_decode(asn1, 1, &value);
 
-    my_decode_bitfield_value(bigbuf, value, 0x80, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x80, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Reserved",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x40, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x40, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  SIT 31",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x20, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x20, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  SIT 30",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x10, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x10, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  SIT 29",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x08, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x08, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  SIT 28",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x04, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x04, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  SIT 27",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x02, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x02, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  SIT 26",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x01, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x01, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  SIT 25",
@@ -2621,7 +2574,7 @@ param_otfi(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
     case 3: str = "Reserved"; break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0xc0, 8);
+    other_decode_bitfield_value(bigbuf, value, 0xc0, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Calling Number ID Restriction, %s",
@@ -2636,7 +2589,7 @@ param_otfi(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
     case 3: str = "Reserved"; break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x30, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x30, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Message Waiting Notification, %s",
@@ -2651,7 +2604,7 @@ param_otfi(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
     case 3: str = "Priority CW"; break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x0c, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x0c, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Call Waiting for Incoming Call (CWIC), %s",
@@ -2666,7 +2619,7 @@ param_otfi(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
     case 3: str = "Priority CW"; break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x03, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x03, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Call Waiting for Future Incoming Call (CWFI), %s",
@@ -2679,7 +2632,7 @@ param_otfi(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 
     asn1_int32_value_decode(asn1, 1, &value);
 
-    my_decode_bitfield_value(bigbuf, value, 0xc0, 8);
+    other_decode_bitfield_value(bigbuf, value, 0xc0, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Reserved",
@@ -2693,7 +2646,7 @@ param_otfi(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
     case 3: str = "Blocking Toggle"; break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x30, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x30, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Calling Name Restriction (CNAR), %s",
@@ -2708,7 +2661,7 @@ param_otfi(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
     case 3: str = "Reserved"; break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x0c, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x0c, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Flash Privileges (Flash), %s",
@@ -2723,7 +2676,7 @@ param_otfi(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
     case 3: str = "Reserved"; break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x03, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x03, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Priority Access and Channel Assignment (PACA), %s",
@@ -2752,13 +2705,13 @@ param_auth_resp_all(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_stri
 
     asn1_int32_value_decode(asn1, 1, &value);
 
-    my_decode_bitfield_value(bigbuf, value, 0xfc, 8);
+    other_decode_bitfield_value(bigbuf, value, 0xfc, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Reserved",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x03, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x03, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Response (MSB)",
@@ -2768,7 +2721,7 @@ param_auth_resp_all(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_stri
 
     asn1_int32_value_decode(asn1, 1, &value);
 
-    my_decode_bitfield_value(bigbuf, value, 0xff, 8);
+    other_decode_bitfield_value(bigbuf, value, 0xff, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Response",
@@ -2778,7 +2731,7 @@ param_auth_resp_all(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_stri
 
     asn1_int32_value_decode(asn1, 1, &value);
 
-    my_decode_bitfield_value(bigbuf, value, 0xff, 8);
+    other_decode_bitfield_value(bigbuf, value, 0xff, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Response (LSB)",
@@ -3153,28 +3106,28 @@ param_calling_feat_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_s
 
     asn1_int32_value_decode(asn1, 1, &value);
 
-    my_decode_bitfield_value(bigbuf, value, 0xc0, 8);
+    other_decode_bitfield_value(bigbuf, value, 0xc0, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Call Waiting Feature Activity (CW-FA), %s",
 	bigbuf,
 	calling_feat_ind_str[(value & 0xc0) >> 6]);
 
-    my_decode_bitfield_value(bigbuf, value, 0x30, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x30, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Call Forwarding No Answer Feature Activity (CFNA-FA), %s",
 	bigbuf,
 	calling_feat_ind_str[(value & 0x30) >> 4]);
 
-    my_decode_bitfield_value(bigbuf, value, 0x0c, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x0c, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Call Forwarding Busy Feature Activity (CFB-FA), %s",
 	bigbuf,
 	calling_feat_ind_str[(value & 0x0c) >> 2]);
 
-    my_decode_bitfield_value(bigbuf, value, 0x03, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x03, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Call Forwarding Unconditional Feature Activity (CFU-FA), %s",
@@ -3185,28 +3138,28 @@ param_calling_feat_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_s
 
     asn1_int32_value_decode(asn1, 1, &value);
 
-    my_decode_bitfield_value(bigbuf, value, 0xc0, 8);
+    other_decode_bitfield_value(bigbuf, value, 0xc0, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Call Transfer Feature Activity (CT-FA), %s",
 	bigbuf,
 	calling_feat_ind_str[(value & 0xc0) >> 6]);
 
-    my_decode_bitfield_value(bigbuf, value, 0x30, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x30, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Voice Privacy Feature Activity (VP-FA), %s",
 	bigbuf,
 	calling_feat_ind_str[(value & 0x30) >> 4]);
 
-    my_decode_bitfield_value(bigbuf, value, 0x0c, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x0c, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Call Delivery Feature Activity (CD-FA), %s",
 	bigbuf,
 	calling_feat_ind_str[(value & 0x0c) >> 2]);
 
-    my_decode_bitfield_value(bigbuf, value, 0x03, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x03, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Three-Way Calling Feature Activity (3WC-FA), %s",
@@ -3219,28 +3172,28 @@ param_calling_feat_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_s
 
     asn1_int32_value_decode(asn1, 1, &value);
 
-    my_decode_bitfield_value(bigbuf, value, 0xc0, 8);
+    other_decode_bitfield_value(bigbuf, value, 0xc0, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Calling Number ID Restriction Override Feature Activity (CNIROver-FA), %s",
 	bigbuf,
 	calling_feat_ind_str[(value & 0xc0) >> 6]);
 
-    my_decode_bitfield_value(bigbuf, value, 0x30, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x30, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Calling Number ID Restriction Feature Activity (CNIR-FA), %s",
 	bigbuf,
 	calling_feat_ind_str[(value & 0x30) >> 4]);
 
-    my_decode_bitfield_value(bigbuf, value, 0x0c, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x0c, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Two number Calling Number ID Presentation Feature Activity (CNIP2-FA), %s",
 	bigbuf,
 	calling_feat_ind_str[(value & 0x0c) >> 2]);
 
-    my_decode_bitfield_value(bigbuf, value, 0x03, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x03, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  One number Calling Number ID Presentation Feature Activity (CNIP1-FA), %s",
@@ -3253,28 +3206,28 @@ param_calling_feat_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_s
 
     asn1_int32_value_decode(asn1, 1, &value);
 
-    my_decode_bitfield_value(bigbuf, value, 0xc0, 8);
+    other_decode_bitfield_value(bigbuf, value, 0xc0, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  USCF divert to voice mail Feature Activity (USCFvm-FA), %s",
 	bigbuf,
 	calling_feat_ind_str[(value & 0xc0) >> 6]);
 
-    my_decode_bitfield_value(bigbuf, value, 0x30, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x30, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Answer Hold Feature Activity (AH-FA), %s",
 	bigbuf,
 	calling_feat_ind_str[(value & 0x30) >> 4]);
 
-    my_decode_bitfield_value(bigbuf, value, 0x0c, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x0c, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Data Privacy Feature Activity (DP-FA), %s",
 	bigbuf,
 	calling_feat_ind_str[(value & 0x0c) >> 2]);
 
-    my_decode_bitfield_value(bigbuf, value, 0x03, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x03, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Priority Call Waiting Feature Activity (PCW-FA), %s",
@@ -3287,28 +3240,28 @@ param_calling_feat_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_s
 
     asn1_int32_value_decode(asn1, 1, &value);
 
-    my_decode_bitfield_value(bigbuf, value, 0xc0, 8);
+    other_decode_bitfield_value(bigbuf, value, 0xc0, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  CDMA-Concurrent Service Feature Activity (CCS-FA), %s",
 	bigbuf,
 	calling_feat_ind_str[(value & 0xc0) >> 6]);
 
-    my_decode_bitfield_value(bigbuf, value, 0x30, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x30, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  CDMA-Packet Data Service Feature Activity (CPDS-FA), %s",
 	bigbuf,
 	calling_feat_ind_str[(value & 0x30) >> 4]);
 
-    my_decode_bitfield_value(bigbuf, value, 0x0c, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x0c, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  USCF divert to network registered DN Feature Activity (USCFnr-FA), %s",
 	bigbuf,
 	calling_feat_ind_str[(value & 0x0c) >> 2]);
 
-    my_decode_bitfield_value(bigbuf, value, 0x03, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x03, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  USCF divert to mobile station provided DN Feature Activity (USCFms-FA), %s",
@@ -3321,13 +3274,13 @@ param_calling_feat_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_s
 
     asn1_int32_value_decode(asn1, 1, &value);
 
-    my_decode_bitfield_value(bigbuf, value, 0xfc, 8);
+    other_decode_bitfield_value(bigbuf, value, 0xfc, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Reserved",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x03, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x03, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  TDMA Enhanced Privacy and Encryption Feature Activity (TDMA EPE-FA), %s",
@@ -3388,27 +3341,27 @@ param_tdma_data_feat_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add
 
     asn1_int32_value_decode(asn1, 1, &value);
 
-    my_decode_bitfield_value(bigbuf, value, 0xc0, 8);
+    other_decode_bitfield_value(bigbuf, value, 0xc0, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Reserved",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x30, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x30, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  STU-III Feature Activity (STUIII-FA), %s",
 	bigbuf,
 	tdma_data_feat_ind_str[(value & 0x30) >> 4]);
 
-    my_decode_bitfield_value(bigbuf, value, 0x0c, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x0c, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  G3 Fax Feature Activity (G3FAX-FA), %s",
 	bigbuf,
 	tdma_data_feat_ind_str[(value & 0x0c) >> 2]);
 
-    my_decode_bitfield_value(bigbuf, value, 0x03, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x03, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  ADS Feature Activity (ADS-FA), %s",
@@ -3419,28 +3372,28 @@ param_tdma_data_feat_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add
 
     asn1_int32_value_decode(asn1, 1, &value);
 
-    my_decode_bitfield_value(bigbuf, value, 0xc0, 8);
+    other_decode_bitfield_value(bigbuf, value, 0xc0, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Triple Rate data Feature Activity (3RATE-FA), %s",
 	bigbuf,
 	tdma_data_feat_ind_str[(value & 0xc0) >> 6]);
 
-    my_decode_bitfield_value(bigbuf, value, 0x30, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x30, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Double Rate data Feature Activity (2RATE-FA), %s",
 	bigbuf,
 	tdma_data_feat_ind_str[(value & 0x30) >> 4]);
 
-    my_decode_bitfield_value(bigbuf, value, 0x0c, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x0c, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Full Rate data Feature Activity (FRATE-FA), %s",
 	bigbuf,
 	tdma_data_feat_ind_str[(value & 0x0c) >> 2]);
 
-    my_decode_bitfield_value(bigbuf, value, 0x03, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x03, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Half Rate data Feature Activity (HRATE-FA), %s",
@@ -3637,13 +3590,13 @@ param_cdma_sea_win(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_strin
 
     asn1_int32_value_decode(asn1, 1, &value);
 
-    my_decode_bitfield_value(bigbuf, value, 0xf0, 8);
+    other_decode_bitfield_value(bigbuf, value, 0xf0, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Reserved",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x0f, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x0f, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Value %u",
@@ -3664,13 +3617,13 @@ param_cdma_sea_param(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_str
 
     asn1_int32_value_decode(asn1, 1, &value);
 
-    my_decode_bitfield_value(bigbuf, value, 0xf0, 8);
+    other_decode_bitfield_value(bigbuf, value, 0xf0, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Reserved",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x0f, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x0f, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  CDMA Search Window, %u",
@@ -3681,13 +3634,13 @@ param_cdma_sea_param(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_str
 
     asn1_int32_value_decode(asn1, 1, &value);
 
-    my_decode_bitfield_value(bigbuf, value, 0xc0, 8);
+    other_decode_bitfield_value(bigbuf, value, 0xc0, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Reserved",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x3f, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x3f, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  T_ADD, %u",
@@ -3698,13 +3651,13 @@ param_cdma_sea_param(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_str
 
     asn1_int32_value_decode(asn1, 1, &value);
 
-    my_decode_bitfield_value(bigbuf, value, 0xc0, 8);
+    other_decode_bitfield_value(bigbuf, value, 0xc0, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Reserved",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x3f, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x3f, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  T_DROP, %u",
@@ -3715,14 +3668,14 @@ param_cdma_sea_param(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_str
 
     asn1_int32_value_decode(asn1, 1, &value);
 
-    my_decode_bitfield_value(bigbuf, value, 0xf0, 8);
+    other_decode_bitfield_value(bigbuf, value, 0xf0, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  T_TDROP, %u",
 	bigbuf,
 	value & 0xf0);
 
-    my_decode_bitfield_value(bigbuf, value, 0x0f, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x0f, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  T_COMP, %u",
@@ -3743,13 +3696,13 @@ param_cdma_code_chan(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_str
 
     asn1_int32_value_decode(asn1, 1, &value);
 
-    my_decode_bitfield_value(bigbuf, value, 0xc0, 8);
+    other_decode_bitfield_value(bigbuf, value, 0xc0, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Reserved",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x3f, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x3f, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  CDMA Code Channel %u",
@@ -3773,14 +3726,14 @@ param_chan_data(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 
     asn1_int32_value_decode(asn1, 1, &value);
 
-    my_decode_bitfield_value(bigbuf, value, 0xc0, 8);
+    other_decode_bitfield_value(bigbuf, value, 0xc0, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  SAT Color Code %u",
 	bigbuf,
 	(value & 0xc0 >> 6));
 
-    my_decode_bitfield_value(bigbuf, value, 0x20, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x20, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  %s",
@@ -3795,14 +3748,14 @@ param_chan_data(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
     case 3: str = "DTX mode active or acceptable"; break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x18, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x18, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  %s",
 	bigbuf,
 	str);
 
-    my_decode_bitfield_value(bigbuf, value, 0x07, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x07, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Voice Mobile Attenuation Code (VMAC) %u",
@@ -3834,13 +3787,13 @@ param_cdma_plcm(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 
     asn1_int32_value_decode(asn1, 1, &value);
 
-    my_decode_bitfield_value(bigbuf, value, 0xfc, 8);
+    other_decode_bitfield_value(bigbuf, value, 0xfc, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Reserved",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x03, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x03, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  CDMA Private Long Code Mask (PLCM) (MSB)",
@@ -3868,19 +3821,19 @@ param_ctrl_chan_data(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_str
 
     asn1_int32_value_decode(asn1, 1, &value);
 
-    my_decode_bitfield_value(bigbuf, value, 0xc0, 8);
+    other_decode_bitfield_value(bigbuf, value, 0xc0, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Digital Color Code (DCC)",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x38, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x38, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Reserved",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x07, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x07, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Control Mobile Attenuation Code (CMAC)",
@@ -3899,19 +3852,19 @@ param_ctrl_chan_data(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_str
 
     asn1_int32_value_decode(asn1, 1, &value);
 
-    my_decode_bitfield_value(bigbuf, value, 0xf0, 8);
+    other_decode_bitfield_value(bigbuf, value, 0xf0, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Reserved",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x0c, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x0c, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Supplementary Digital Color Codes (SDCC1)",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x03, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x03, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Supplementary Digital Color Codes (SDCC2)",
@@ -3932,13 +3885,13 @@ param_cdma_chan_data(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_str
 
     asn1_int32_value_decode(asn1, 2, &value);
 
-    my_decode_bitfield_value(bigbuf, value >> 8, 0x80, 8);
+    other_decode_bitfield_value(bigbuf, value >> 8, 0x80, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, 1,
 	"%s :  Reserved",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value >> 8, 0x78, 8);
+    other_decode_bitfield_value(bigbuf, value >> 8, 0x78, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, 1,
 	"%s :  Frame Offset (%u), %.2f ms",
@@ -3946,14 +3899,14 @@ param_cdma_chan_data(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_str
 	(value & 0x7800) >> 11,
 	((value & 0x7800) >> 11) * 1.25);
 
-    my_decode_bitfield_value(bigbuf, value >> 8, 0x07, 8);
+    other_decode_bitfield_value(bigbuf, value >> 8, 0x07, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, 1,
 	"%s :  CDMA Channel Number (MSB), %u",
 	bigbuf,
 	value & 0x07ff);
 
-    my_decode_bitfield_value(bigbuf, value & 0x00ff, 0xff, 8);
+    other_decode_bitfield_value(bigbuf, value & 0x00ff, 0xff, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset+1, 1,
 	"%s :  CDMA Channel Number (LSB)",
@@ -3963,7 +3916,7 @@ param_cdma_chan_data(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_str
 
     asn1_int32_value_decode(asn1, 1, &value);
 
-    my_decode_bitfield_value(bigbuf, value, 0x80, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x80, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Reserved",
@@ -3979,14 +3932,14 @@ param_cdma_chan_data(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_str
 	str = band_class_str[temp_int];
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x7c, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x7c, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Band Class, %s",
 	bigbuf,
 	str);
 
-    my_decode_bitfield_value(bigbuf, value, 0x03, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x03, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Long Code Mask (MSB)",
@@ -3994,7 +3947,7 @@ param_cdma_chan_data(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_str
 
     asn1_int32_value_decode(asn1, 1, &value);
 
-    my_decode_bitfield_value(bigbuf, value, 0xff, 8);
+    other_decode_bitfield_value(bigbuf, value, 0xff, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset + 1, 1,
 	"%s :  Long Code Mask",
@@ -4002,7 +3955,7 @@ param_cdma_chan_data(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_str
 
     asn1_int32_value_decode(asn1, 1, &value);
 
-    my_decode_bitfield_value(bigbuf, value, 0xff, 8);
+    other_decode_bitfield_value(bigbuf, value, 0xff, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset + 2, 1,
 	"%s :  Long Code Mask",
@@ -4010,7 +3963,7 @@ param_cdma_chan_data(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_str
 
     asn1_int32_value_decode(asn1, 1, &value);
 
-    my_decode_bitfield_value(bigbuf, value, 0xff, 8);
+    other_decode_bitfield_value(bigbuf, value, 0xff, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset + 3, 1,
 	"%s :  Long Code Mask",
@@ -4018,7 +3971,7 @@ param_cdma_chan_data(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_str
 
     asn1_int32_value_decode(asn1, 1, &value);
 
-    my_decode_bitfield_value(bigbuf, value, 0xff, 8);
+    other_decode_bitfield_value(bigbuf, value, 0xff, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset + 4, 1,
 	"%s :  Long Code Mask",
@@ -4026,7 +3979,7 @@ param_cdma_chan_data(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_str
 
     asn1_int32_value_decode(asn1, 1, &value);
 
-    my_decode_bitfield_value(bigbuf, value, 0xff, 8);
+    other_decode_bitfield_value(bigbuf, value, 0xff, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset + 5, 1,
 	"%s :  Long Code Mask (LSB)",
@@ -4038,20 +3991,20 @@ param_cdma_chan_data(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_str
 
     asn1_int32_value_decode(asn1, 1, &value);
 
-    my_decode_bitfield_value(bigbuf, value, 0x80, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x80, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  NP Extension",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x78, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x78, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Nominal Power, %u",
 	bigbuf,
 	(value & 0x78) >> 3);
 
-    my_decode_bitfield_value(bigbuf, value, 0x07, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x07, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Number Preamble, %u",
@@ -4084,7 +4037,7 @@ param_namps_chan_data(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_st
 
     asn1_int32_value_decode(asn1, 1, &value);
 
-    my_decode_bitfield_value(bigbuf, value, 0xe0, 8);
+    other_decode_bitfield_value(bigbuf, value, 0xe0, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Reserved",
@@ -4102,7 +4055,7 @@ param_namps_chan_data(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_st
     case 7: str = "Digital SAT Color Code 7 (ignore SCC field)"; break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x1c, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x1c, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Color Code Indicator (CCIndicator), %s",
@@ -4117,7 +4070,7 @@ param_namps_chan_data(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_st
     case 3: str = "Lower. 10 kHz NAMPS voice channel"; break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x03, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x03, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Narrow Analog Voice Channel Assignment (NAVCA), %s",
@@ -4151,21 +4104,21 @@ param_cdma_ms_meas_chan_id(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *a
 	str = band_class_str[temp_int];
     }
 
-    my_decode_bitfield_value(bigbuf, value >> 8, 0xf8, 8);
+    other_decode_bitfield_value(bigbuf, value >> 8, 0xf8, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, 1,
 	"%s :  Band Class, %s",
 	bigbuf,
 	str);
 
-    my_decode_bitfield_value(bigbuf, value >> 8, 0x07, 8);
+    other_decode_bitfield_value(bigbuf, value >> 8, 0x07, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, 1,
 	"%s :  CDMA Channel Number (MSB), %u",
 	bigbuf,
 	value & 0x07ff);
 
-    my_decode_bitfield_value(bigbuf, value & 0x00ff, 0xff, 8);
+    other_decode_bitfield_value(bigbuf, value & 0x00ff, 0xff, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset+1, 1,
 	"%s :  CDMA Channel Number (LSB)",
@@ -4188,7 +4141,7 @@ param_tdma_chan_data(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_str
 
     asn1_int32_value_decode(asn1, 1, &value);
 
-    my_decode_bitfield_value(bigbuf, value, 0xe0, 8);
+    other_decode_bitfield_value(bigbuf, value, 0xe0, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Reserved",
@@ -4215,7 +4168,7 @@ param_tdma_chan_data(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_str
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x1f, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x1f, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Time Slot and Rate indicator (TSR), %s",
@@ -4244,14 +4197,14 @@ param_tdma_chan_data(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_str
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0xf0, 8);
+    other_decode_bitfield_value(bigbuf, value, 0xf0, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Hyper Band, %s",
 	bigbuf,
 	str);
 
-    my_decode_bitfield_value(bigbuf, value, 0x0f, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x0f, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Digital Mobile Attenuation Code (DMAC) %u",
@@ -4262,14 +4215,14 @@ param_tdma_chan_data(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_str
 
     asn1_int32_value_decode(asn1, 2, &value);
 
-    my_decode_bitfield_value(bigbuf, value >> 8, 0xff, 8);
+    other_decode_bitfield_value(bigbuf, value >> 8, 0xff, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, 1,
 	"%s :  Channel Number (MSB), %u",
 	bigbuf,
 	value);
 
-    my_decode_bitfield_value(bigbuf, value & 0x00ff, 0xff, 8);
+    other_decode_bitfield_value(bigbuf, value & 0x00ff, 0xff, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset + 1, 1,
 	"%s :  Channel Number (LSB)",
@@ -4289,48 +4242,48 @@ param_tdma_call_mode(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_str
 
     asn1_int32_value_decode(asn1, 1, &value);
 
-    my_decode_bitfield_value(bigbuf, value, 0xc0, 8);
+    other_decode_bitfield_value(bigbuf, value, 0xc0, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Reserved",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x20, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x20, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  %sxtended modulation and framing",
 	bigbuf,
 	(value & 0x20) ? "E" : "No e");
 
-    my_decode_bitfield_value(bigbuf, value, 0x10, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x10, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Other voice coding %sacceptable",
 	bigbuf,
 	(value & 0x10) ? "" : "not ");
 
-    my_decode_bitfield_value(bigbuf, value, 0x08, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x08, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Other DQPSK channel %sacceptable",
 	bigbuf,
 	(value & 0x08) ? "" : "not ");
 
-    my_decode_bitfield_value(bigbuf, value, 0x04, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x04, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Half rate digital traffic channel %sacceptable",
 	bigbuf,
 	(value & 0x04) ? "" : "not ");
 
-    my_decode_bitfield_value(bigbuf, value, 0x02, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x02, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Full rate digital traffic channel %sacceptable",
 	bigbuf,
 	(value & 0x02) ? "" : "not ");
 
-    my_decode_bitfield_value(bigbuf, value, 0x01, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x01, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  AMPS channel %sacceptable",
@@ -4355,7 +4308,7 @@ param_cdma_call_mode(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_str
     {
 	/* assuming older spec. no IS-880 */
 
-	my_decode_bitfield_value(bigbuf, value, 0xf0, 8);
+	other_decode_bitfield_value(bigbuf, value, 0xf0, 8);
 	proto_tree_add_text(tree, asn1->tvb,
 	    saved_offset, asn1->offset - saved_offset,
 	    "%s :  Reserved",
@@ -4363,28 +4316,28 @@ param_cdma_call_mode(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_str
     }
     else
     {
-	my_decode_bitfield_value(bigbuf, value, 0x80, 8);
+	other_decode_bitfield_value(bigbuf, value, 0x80, 8);
 	proto_tree_add_text(tree, asn1->tvb,
 	    saved_offset, asn1->offset - saved_offset,
 	    "%s :  450 MHz channel (Band Class 5) %sacceptable",
 	    bigbuf,
 	    (value & 0x80) ? "" : "not ");
 
-	my_decode_bitfield_value(bigbuf, value, 0x40, 8);
+	other_decode_bitfield_value(bigbuf, value, 0x40, 8);
 	proto_tree_add_text(tree, asn1->tvb,
 	    saved_offset, asn1->offset - saved_offset,
 	    "%s :  Korean PCS channel (Band Class 4) %sacceptable",
 	    bigbuf,
 	    (value & 0x40) ? "" : "not ");
 
-	my_decode_bitfield_value(bigbuf, value, 0x20, 8);
+	other_decode_bitfield_value(bigbuf, value, 0x20, 8);
 	proto_tree_add_text(tree, asn1->tvb,
 	    saved_offset, asn1->offset - saved_offset,
 	    "%s :  JTACS channel (Band Class 3) %sacceptable",
 	    bigbuf,
 	    (value & 0x20) ? "" : "not ");
 
-	my_decode_bitfield_value(bigbuf, value, 0x10, 8);
+	other_decode_bitfield_value(bigbuf, value, 0x10, 8);
 	proto_tree_add_text(tree, asn1->tvb,
 	    saved_offset, asn1->offset - saved_offset,
 	    "%s :  TACS channel (Band Class 2) %sacceptable",
@@ -4392,28 +4345,28 @@ param_cdma_call_mode(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_str
 	    (value & 0x10) ? "" : "not ");
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x08, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x08, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  CDMA 1900 MHz channel (Band Class 1) %sacceptable",
 	bigbuf,
 	(value & 0x08) ? "" : "not ");
 
-    my_decode_bitfield_value(bigbuf, value, 0x04, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x04, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  NAMPS 800 MHz channel %sacceptable",
 	bigbuf,
 	(value & 0x04) ? "" : "not ");
 
-    my_decode_bitfield_value(bigbuf, value, 0x02, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x02, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  AMPS 800 MHz channel %sacceptable",
 	bigbuf,
 	(value & 0x02) ? "" : "not ");
 
-    my_decode_bitfield_value(bigbuf, value, 0x01, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x01, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  CDMA 800 MHz channel (Band Class 0) %sacceptable",
@@ -4426,41 +4379,41 @@ param_cdma_call_mode(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_str
 
     asn1_int32_value_decode(asn1, 1, &value);
 
-    my_decode_bitfield_value(bigbuf, value, 0xe0, 8);
+    other_decode_bitfield_value(bigbuf, value, 0xe0, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Reserved",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x10, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x10, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Secondary 800 MHz channel (Band Class 10) %sacceptable",
 	bigbuf,
 	(value & 0x10) ? "" : "not ");
 
-    my_decode_bitfield_value(bigbuf, value, 0x08, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x08, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  900 MHz channel (Band Class 9) %sacceptable",
 	bigbuf,
 	(value & 0x08) ? "" : "not ");
 
-    my_decode_bitfield_value(bigbuf, value, 0x04, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x04, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  1800 MHz channel (Band Class 8) %sacceptable",
 	bigbuf,
 	(value & 0x04) ? "" : "not ");
 
-    my_decode_bitfield_value(bigbuf, value, 0x02, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x02, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  700 MHz channel (Band Class 7) %sacceptable",
 	bigbuf,
 	(value & 0x02) ? "" : "not ");
 
-    my_decode_bitfield_value(bigbuf, value, 0x01, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x01, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  2 GHz channel (Band Class 6) %sacceptable",
@@ -4481,7 +4434,7 @@ param_namps_call_mode(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_st
 
     asn1_int32_value_decode(asn1, 1, &value);
 
-    my_decode_bitfield_value(bigbuf, value, 0xf0, 8);
+    other_decode_bitfield_value(bigbuf, value, 0xf0, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Reserved",
@@ -4541,7 +4494,7 @@ param_cdma_band_class(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_st
 
     asn1_int32_value_decode(asn1, 1, &value);
 
-    my_decode_bitfield_value(bigbuf, value, 0xe0, 8);
+    other_decode_bitfield_value(bigbuf, value, 0xe0, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Reserved",
@@ -4557,7 +4510,7 @@ param_cdma_band_class(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_st
 	str = band_class_str[temp_int];
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x1f, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x1f, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Band Class %s",
@@ -4581,20 +4534,20 @@ param_calling_party_name(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add
 
     asn1_int32_value_decode(asn1, 1, &value);
 
-    my_decode_bitfield_value(bigbuf, value, 0xe0, 8);
+    other_decode_bitfield_value(bigbuf, value, 0xe0, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Spec. has hardcoded as 0 0 1",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x10, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x10, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Availability, %s",
 	bigbuf,
 	(value & 0x10) ?  "Name not available" : "Name available/unknown");
 
-    my_decode_bitfield_value(bigbuf, value, 0x0c, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x0c, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Reserved",
@@ -4608,7 +4561,7 @@ param_calling_party_name(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add
     case 3: str = "No indication"; break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x03, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x03, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Presentation Status, %s",
@@ -4640,20 +4593,20 @@ param_red_party_name(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_str
 
     asn1_int32_value_decode(asn1, 1, &value);
 
-    my_decode_bitfield_value(bigbuf, value, 0xe0, 8);
+    other_decode_bitfield_value(bigbuf, value, 0xe0, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Spec. has hardcoded as 0 1 1",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x10, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x10, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Availability, %s",
 	bigbuf,
 	(value & 0x10) ?  "Name not available" : "Name available/unknown");
 
-    my_decode_bitfield_value(bigbuf, value, 0x0c, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x0c, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Reserved",
@@ -4667,7 +4620,7 @@ param_red_party_name(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_str
     case 3: str = "No indication"; break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x03, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x03, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Presentation Status, %s",
@@ -4977,7 +4930,7 @@ param_network_tmsi(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_strin
 
     first_dig = Dgt_tbcd.out[(value & 0xf0) >> 4];
 
-    my_decode_bitfield_value(bigbuf, value, 0xf0, 8);
+    other_decode_bitfield_value(bigbuf, value, 0xf0, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  First digit of TMSI Zone, %c",
@@ -4996,7 +4949,7 @@ param_network_tmsi(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_strin
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x0f, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x0f, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Type of addressing, %s",
@@ -5031,41 +4984,41 @@ param_reqd_param_mask(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_st
 
     asn1_int32_value_decode(asn1, 1, &value);
 
-    my_decode_bitfield_value(bigbuf, value, 0xe0, 8);
+    other_decode_bitfield_value(bigbuf, value, 0xe0, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Reserved",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x10, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x10, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Location Area ID (LOCID) %srequired",
 	bigbuf,
 	(value & 0x10) ? "" : "not ");
 
-    my_decode_bitfield_value(bigbuf, value, 0x08, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x08, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  TMSI %srequired",
 	bigbuf,
 	(value & 0x08) ? "" : "not ");
 
-    my_decode_bitfield_value(bigbuf, value, 0x04, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x04, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  ESN %srequired",
 	bigbuf,
 	(value & 0x04) ? "" : "not ");
 
-    my_decode_bitfield_value(bigbuf, value, 0x02, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x02, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  MIN %srequired",
 	bigbuf,
 	(value & 0x02) ? "" : "not ");
 
-    my_decode_bitfield_value(bigbuf, value, 0x01, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x01, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  IMSI %srequired",
@@ -5120,20 +5073,20 @@ param_srvc_red_info(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_stri
 
     asn1_int32_value_decode(asn1, 1, &value);
 
-    my_decode_bitfield_value(bigbuf, value, 0xfc, 8);
+    other_decode_bitfield_value(bigbuf, value, 0xfc, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Reserved",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x02, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x02, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  NDSS Status (NDS), %ssuppressed",
 	bigbuf,
 	(value & 0x02) ? "" : "not ");
 
-    my_decode_bitfield_value(bigbuf, value, 0x01, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x01, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Return If Fail (RIF), If MS fails to access the redirected system, MS shall %sreturn to the serving system",
@@ -5197,13 +5150,13 @@ param_cdma_pci(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 
     asn1_int32_value_decode(asn1, 1, &value);
 
-    my_decode_bitfield_value(bigbuf, value, 0xfe, 8);
+    other_decode_bitfield_value(bigbuf, value, 0xfe, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Reserved",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x01, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x01, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  CDMA PWR_COMB_IND",
@@ -5223,20 +5176,20 @@ param_cdma_chan_num(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_stri
 
     asn1_int32_value_decode(asn1, 2, &value);
 
-    my_decode_bitfield_value(bigbuf, value >> 8, 0xf8, 8);
+    other_decode_bitfield_value(bigbuf, value >> 8, 0xf8, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, 1,
 	"%s :  Reserved",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value >> 8, 0x07, 8);
+    other_decode_bitfield_value(bigbuf, value >> 8, 0x07, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, 1,
 	"%s :  CDMA Channel Number (MSB) %u",
 	bigbuf,
 	value & 0x07ff);
 
-    my_decode_bitfield_value(bigbuf, value & 0x00ff, 0xff, 8);
+    other_decode_bitfield_value(bigbuf, value & 0x00ff, 0xff, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset+1, 1,
 	"%s :  CDMA Channel Number (LSB)",
@@ -5258,13 +5211,13 @@ param_cdma_sci(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 
     asn1_int32_value_decode(asn1, 1, &value);
 
-    my_decode_bitfield_value(bigbuf, value, 0xf8, 8);
+    other_decode_bitfield_value(bigbuf, value, 0xf8, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Reserved",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x07, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x07, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Slot Cycle Index, %u",
@@ -5318,33 +5271,33 @@ param_cdma_scm(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 
     asn1_int32_value_decode(asn1, 1, &value);
 
-    my_decode_bitfield_value(bigbuf, value, 0x80, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x80, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Reserved",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x40, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x40, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Dual-mode Indicator, %s",
 	bigbuf,
 	(value & 0x40) ? "Dual mode CDMA" : "CDMA only");
 
-    my_decode_bitfield_value(bigbuf, value, 0x20, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x20, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Slotted mode Indicator, %s",
 	bigbuf,
 	(value & 0x20) ? "slotted capable" : "slotted incapable");
 
-    my_decode_bitfield_value(bigbuf, value, 0x18, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x18, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Reserved",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x04, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x04, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Analog Transmission, %s",
@@ -5359,7 +5312,7 @@ param_cdma_scm(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
     case 3: str = "Reserved"; break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x03, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x03, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  %s",
@@ -5438,55 +5391,55 @@ param_tdma_term_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_stri
 
     asn1_int32_value_decode(asn1, 1, &value);
 
-    my_decode_bitfield_value(bigbuf, value, 0x80, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x80, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Reserved",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x40, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x40, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  1800 MHz F channel %sacceptable",
 	bigbuf,
 	(value & 0x40) ? "" : "not ");
 
-    my_decode_bitfield_value(bigbuf, value, 0x20, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x20, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  1800 MHz E channel %sacceptable",
 	bigbuf,
 	(value & 0x20) ? "" : "not ");
 
-    my_decode_bitfield_value(bigbuf, value, 0x10, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x10, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  1800 MHz D channel %sacceptable",
 	bigbuf,
 	(value & 0x10) ? "" : "not ");
 
-    my_decode_bitfield_value(bigbuf, value, 0x08, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x08, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  1800 MHz C channel %sacceptable",
 	bigbuf,
 	(value & 0x08) ? "" : "not ");
 
-    my_decode_bitfield_value(bigbuf, value, 0x04, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x04, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  1800 MHz B channel %sacceptable",
 	bigbuf,
 	(value & 0x04) ? "" : "not ");
 
-    my_decode_bitfield_value(bigbuf, value, 0x02, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x02, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  %s acceptable",
 	bigbuf,
 	(value & 0x02) ? "1800 MHz A channel" : "1800 MHz A&B Digital channel not");
 
-    my_decode_bitfield_value(bigbuf, value, 0x01, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x01, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  800 MHz A&B channel %sacceptable",
@@ -5497,20 +5450,20 @@ param_tdma_term_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_stri
 
     asn1_int32_value_decode(asn1, 1, &value);
 
-    my_decode_bitfield_value(bigbuf, value, 0xfc, 8);
+    other_decode_bitfield_value(bigbuf, value, 0xfc, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Reserved",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x02, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x02, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  IS-641 Voice Coder %sacceptable",
 	bigbuf,
 	(value & 0x02) ? "" : "not ");
 
-    my_decode_bitfield_value(bigbuf, value, 0x01, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x01, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  VSELP Voice Coder %sacceptable",
@@ -5545,56 +5498,56 @@ param_tdma_term_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_stri
 
     asn1_int32_value_decode(asn1, 1, &value);
 
-    my_decode_bitfield_value(bigbuf, value, 0x80, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x80, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Triple Rate (3RATE) %ssupported",
 	bigbuf,
 	(value & 0x80) ? "" : "not ");
 
-    my_decode_bitfield_value(bigbuf, value, 0x40, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x40, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Double Rate (2RATE) %ssupported",
 	bigbuf,
 	(value & 0x40) ? "" : "not ");
 
-    my_decode_bitfield_value(bigbuf, value, 0x20, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x20, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Full Rate (FRATE) %ssupported",
 	bigbuf,
 	(value & 0x20) ? "" : "not ");
 
-    my_decode_bitfield_value(bigbuf, value, 0x10, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x10, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Half Rate (HRATE) %ssupported",
 	bigbuf,
 	(value & 0x10) ? "" : "not ");
 
-    my_decode_bitfield_value(bigbuf, value, 0x08, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x08, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Analog Voice (AVOX) %ssupported",
 	bigbuf,
 	(value & 0x08) ? "" : "not ");
 
-    my_decode_bitfield_value(bigbuf, value, 0x04, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x04, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Secure Telephone Unit III (STU3) %ssupported",
 	bigbuf,
 	(value & 0x04) ? "" : "not ");
 
-    my_decode_bitfield_value(bigbuf, value, 0x02, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x02, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Group 3 Fax (G3FAX) %ssupported",
 	bigbuf,
 	(value & 0x02) ? "" : "not ");
 
-    my_decode_bitfield_value(bigbuf, value, 0x01, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x01, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Asynchronous Data (ADS) %ssupported",
@@ -5621,7 +5574,7 @@ param_tdma_voice_coder(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_s
     {
 	asn1_int32_value_decode(asn1, 1, &value);
 
-	my_decode_bitfield_value(bigbuf, value, 0xf0, 8);
+	other_decode_bitfield_value(bigbuf, value, 0xf0, 8);
 	proto_tree_add_text(tree, asn1->tvb,
 	    saved_offset, asn1->offset - saved_offset,
 	    "%s :  Reserved",
@@ -5641,7 +5594,7 @@ param_tdma_voice_coder(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_s
 	    break;
 	}
 
-	my_decode_bitfield_value(bigbuf, value, 0x0f, 8);
+	other_decode_bitfield_value(bigbuf, value, 0x0f, 8);
 	proto_tree_add_text(tree, asn1->tvb,
 	    saved_offset, asn1->offset - saved_offset,
 	    "%s :  Voice Coder, %s",
@@ -5666,19 +5619,19 @@ param_cdma_pilot_pn(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_stri
 
     asn1_int32_value_decode(asn1, 2, &value);
 
-    my_decode_bitfield_value(bigbuf, value >> 8, 0xfe, 8);
+    other_decode_bitfield_value(bigbuf, value >> 8, 0xfe, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, 1,
 	"%s :  Reserved",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value >> 8, 0x01, 8);
+    other_decode_bitfield_value(bigbuf, value >> 8, 0x01, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, 1,
 	"%s :  Pilot PN (MSB), %u",
 	bigbuf, value & 0x01ff);
 
-    my_decode_bitfield_value(bigbuf, value & 0x00ff, 0xff, 8);
+    other_decode_bitfield_value(bigbuf, value & 0x00ff, 0xff, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset + 1, 1,
 	"%s :  Pilot PN (LSB)",
@@ -5700,13 +5653,13 @@ param_cdma_pilot_strength(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *ad
 
     asn1_int32_value_decode(asn1, 1, &value);
 
-    my_decode_bitfield_value(bigbuf, value, 0xc0, 8);
+    other_decode_bitfield_value(bigbuf, value, 0xc0, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Reserved",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x3f, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x3f, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Value %u",
@@ -5820,13 +5773,13 @@ param_tdma_burst_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_str
 
     asn1_int32_value_decode(asn1, 1, &value);
 
-    my_decode_bitfield_value(bigbuf, value, 0x80, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x80, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Reserved",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x7c, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x7c, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Time Alignment Offset (TA), %u",
@@ -5841,7 +5794,7 @@ param_tdma_burst_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_str
     case 3: str = "Reserved, treat with RETURN ERROR"; break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x03, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x03, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Burst Code, %s",
@@ -5987,13 +5940,13 @@ param_vpmask(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 
     asn1_int32_value_decode(asn1, 1, &value);
 
-    my_decode_bitfield_value(bigbuf, value, 0xf0, 8);
+    other_decode_bitfield_value(bigbuf, value, 0xf0, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Reserved",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x0f, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x0f, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Voice Privacy Mask-A (VPMASK-A) (MSB)",
@@ -6011,13 +5964,13 @@ param_vpmask(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 
     asn1_int32_value_decode(asn1, 1, &value);
 
-    my_decode_bitfield_value(bigbuf, value, 0xf0, 8);
+    other_decode_bitfield_value(bigbuf, value, 0xf0, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Reserved",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x0f, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x0f, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Voice Privacy Mask-B (VPMASK-B) (MSB)",
@@ -6214,7 +6167,7 @@ param_sub_addr(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
     saved_offset = asn1->offset;
     asn1_int32_value_decode(asn1, 1, &value);
 
-    my_decode_bitfield_value(bigbuf, value, 0x80, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x80, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Should be 1",
@@ -6229,7 +6182,7 @@ param_sub_addr(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x70, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x70, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Type of Subaddress %s",
@@ -6241,7 +6194,7 @@ param_sub_addr(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
     case 0x01: str = "Odd number of subaddress signals follow"; break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x08, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x08, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  %s",
@@ -6302,7 +6255,7 @@ param_digits(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 
     subtree = proto_item_add_subtree(item, ett_natnum);
 
-    my_decode_bitfield_value(bigbuf, value, 0xc0, 8);
+    other_decode_bitfield_value(bigbuf, value, 0xc0, 8);
     proto_tree_add_text(subtree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Reserved",
@@ -6316,7 +6269,7 @@ param_digits(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
     case 0x03: str = "Network provided"; break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x30, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x30, 8);
     proto_tree_add_text(subtree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  %s",
@@ -6364,7 +6317,7 @@ param_digits(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0xf0, 8);
+    other_decode_bitfield_value(bigbuf, value, 0xf0, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Numbering Plan: %s",
@@ -6382,7 +6335,7 @@ param_digits(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x0f, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x0f, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Encoding: %s",
@@ -6513,7 +6466,7 @@ param_sms_orig_restric(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_s
 
     asn1_int32_value_decode(asn1, 1, &value);
 
-    my_decode_bitfield_value(bigbuf, value, 0xf0, 8);
+    other_decode_bitfield_value(bigbuf, value, 0xf0, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Reserved",
@@ -6527,7 +6480,7 @@ param_sms_orig_restric(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_s
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x08, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x08, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Force Message Center, %s",
@@ -6541,7 +6494,7 @@ param_sms_orig_restric(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_s
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x04, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x04, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  DIRECT, %s",
@@ -6557,7 +6510,7 @@ param_sms_orig_restric(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_s
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x03, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x03, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  DEFAULT, %s",
@@ -6652,7 +6605,7 @@ param_sms_term_restric(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_s
 
     asn1_int32_value_decode(asn1, 1, &value);
 
-    my_decode_bitfield_value(bigbuf, value, 0xf8, 8);
+    other_decode_bitfield_value(bigbuf, value, 0xf8, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Reserved",
@@ -6666,7 +6619,7 @@ param_sms_term_restric(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_s
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x04, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x04, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Reverse Charges, %s",
@@ -6682,7 +6635,7 @@ param_sms_term_restric(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_s
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x03, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x03, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  DEFAULT, %s",
@@ -6741,7 +6694,7 @@ param_qos_pri(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	str = qos_pri_str[temp_int];
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0xf0, 8);
+    other_decode_bitfield_value(bigbuf, value, 0xf0, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Assured Priority, %s",
@@ -6758,7 +6711,7 @@ param_qos_pri(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	str = qos_pri_str[temp_int];
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x0f, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x0f, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Non-Assured Priority, %s",
@@ -6870,7 +6823,7 @@ param_msid_usage(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 
     asn1_int32_value_decode(asn1, 1, &value);
 
-    my_decode_bitfield_value(bigbuf, value, 0xfc, 8);
+    other_decode_bitfield_value(bigbuf, value, 0xfc, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Reserved",
@@ -6884,7 +6837,7 @@ param_msid_usage(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
     case 3: str = "Reserved"; break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x03, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x03, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  %s",
@@ -6908,25 +6861,25 @@ param_new_min_ext(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string
 
     asn1_int32_value_decode(asn1, 1, &value);
 
-    my_decode_bitfield_value(bigbuf, value, 0xf0, 8);
+    other_decode_bitfield_value(bigbuf, value, 0xf0, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  MCC_M (MSB), see CDMA",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x0e, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x0e, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  IMSI_M_ADDR_NUM, see CDMA",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x01, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x01, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  IMSI_M_CLASS, see CDMA",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x03, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x03, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  %s",
@@ -6974,7 +6927,7 @@ param_dtx_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 
     asn1_int32_value_decode(asn1, 1, &value);
 
-    my_decode_bitfield_value(bigbuf, value, 0xfe, 8);
+    other_decode_bitfield_value(bigbuf, value, 0xfe, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Reserved",
@@ -6986,7 +6939,7 @@ param_dtx_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
     case 1: str = "Discontinuous Transmission mode is active"; break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x01, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x01, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  %s",
@@ -7008,7 +6961,7 @@ param_cdma_mob_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_strin
 
     asn1_int32_value_decode(asn1, 1, &value);
 
-    my_decode_bitfield_value(bigbuf, value, 0xfe, 8);
+    other_decode_bitfield_value(bigbuf, value, 0xfe, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Reserved",
@@ -7020,7 +6973,7 @@ param_cdma_mob_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_strin
     case 1: str = "MS-initiated position determination"; break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x01, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x01, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  %s",
@@ -7130,7 +7083,7 @@ param_mob_call_status(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_st
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0xf0, 8);
+    other_decode_bitfield_value(bigbuf, value, 0xf0, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Authorization, %s",
@@ -7148,7 +7101,7 @@ param_mob_call_status(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_st
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x0f, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x0f, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Authentication, %s",
@@ -7304,7 +7257,7 @@ param_acg_encounter(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_stri
     case 3: str = "Reserved, treat as Not used"; break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0xc0, 8);
+    other_decode_bitfield_value(bigbuf, value, 0xc0, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Control Type, %s",
@@ -7334,7 +7287,7 @@ param_acg_encounter(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_stri
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x3f, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x3f, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  %s",
@@ -7364,7 +7317,7 @@ param_ctrl_type(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
     case 3: str = "Reserved, treat as Not used"; break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0xc0, 8);
+    other_decode_bitfield_value(bigbuf, value, 0xc0, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Control Type, %s",
@@ -7394,7 +7347,7 @@ param_ctrl_type(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x3f, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x3f, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  %s",
@@ -7501,14 +7454,14 @@ param_tdma_time_align(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_st
 
     asn1_int32_value_decode(asn1, 1, &value);
 
-    my_decode_bitfield_value(bigbuf, value, 0xe0, 8);
+    other_decode_bitfield_value(bigbuf, value, 0xe0, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Reserved",
 	bigbuf);
 
 
-    my_decode_bitfield_value(bigbuf, value, 0x1f, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x1f, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Time Alignment Offset (TA), %u",
@@ -7538,7 +7491,7 @@ dump_rssi(ASN1_SCK *asn1, proto_tree *tree, gchar *leader)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0xc0, 8);
+    other_decode_bitfield_value(bigbuf, value, 0xc0, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  %sHyper, %s",
@@ -7546,13 +7499,13 @@ dump_rssi(ASN1_SCK *asn1, proto_tree *tree, gchar *leader)
 	leader,
 	str);
 
-    my_decode_bitfield_value(bigbuf, value, 0x20, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x20, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Reserved",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x1f, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x1f, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  %sRSSI, %u",
@@ -7707,14 +7660,14 @@ param_tdma_maho_chan(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_str
 
 	asn1_int32_value_decode(asn1, 2, &value);
 
-	my_decode_bitfield_value(bigbuf, value >> 8, 0xff, 8);
+	other_decode_bitfield_value(bigbuf, value >> 8, 0xff, 8);
 	proto_tree_add_text(tree, asn1->tvb,
 	    saved_offset, 1,
 	    "%s :  Measured Channel (MSB), %u",
 	    bigbuf,
 	    (value & 0xffe0) >> 5);
 
-	my_decode_bitfield_value(bigbuf, value & 0xff, 0xe0, 8);
+	other_decode_bitfield_value(bigbuf, value & 0xff, 0xe0, 8);
 	proto_tree_add_text(tree, asn1->tvb,
 	    saved_offset+1, 1,
 	    "%s :  Measured Channel (LSB)",
@@ -7771,14 +7724,14 @@ param_tdma_maho_chan(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_str
 
 	    asn1_int32_value_decode(asn1, 2, &value);
 
-	    my_decode_bitfield_value(bigbuf, value >> 8, 0xff, 8);
+	    other_decode_bitfield_value(bigbuf, value >> 8, 0xff, 8);
 	    proto_tree_add_text(tree, asn1->tvb,
 		saved_offset, 1,
 		"%s :  Measured Channel (MSB), %u",
 		bigbuf,
 		(value & 0xffe0) >> 5);
 
-	    my_decode_bitfield_value(bigbuf, value & 0xff, 0xe0, 8);
+	    other_decode_bitfield_value(bigbuf, value & 0xff, 0xe0, 8);
 	    proto_tree_add_text(tree, asn1->tvb,
 		saved_offset+1, 1,
 		"%s :  Measured Channel (LSB)",
@@ -7947,7 +7900,7 @@ param_cdma_sowd2(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 
     asn1_int32_value_decode(asn1, 1, &value);
 
-    my_decode_bitfield_value(bigbuf, value, 0xfc, 8);
+    other_decode_bitfield_value(bigbuf, value, 0xfc, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Reserved",
@@ -7961,7 +7914,7 @@ param_cdma_sowd2(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
     case 3: str = "Reserved"; break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x03, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x03, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Resolution, %s",
@@ -8112,21 +8065,21 @@ param_tdma_data_mode(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_str
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0xe0, 8);
+    other_decode_bitfield_value(bigbuf, value, 0xe0, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Data Part, %s",
 	bigbuf,
 	str);
 
-    my_decode_bitfield_value(bigbuf, value, 0x10, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x10, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  AD, %s",
 	bigbuf,
 	(value & 0x10) ? "unacknowledged data only" : "unacked data or both");
 
-    my_decode_bitfield_value(bigbuf, value, 0x08, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x08, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  %s",
@@ -8142,14 +8095,14 @@ param_tdma_data_mode(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_str
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x07, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x07, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Data Privacy Mode, %s",
 	bigbuf,
 	str);
 
-    my_decode_bitfield_value(bigbuf, value, 0xf0, 8);
+    other_decode_bitfield_value(bigbuf, value, 0xf0, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Reserved",
@@ -8164,7 +8117,7 @@ param_tdma_data_mode(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_str
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x0c, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x0c, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  %s",
@@ -8181,7 +8134,7 @@ param_tdma_data_mode(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_str
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x03, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x03, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  %s",
@@ -8215,7 +8168,7 @@ param_tdma_voice_mode(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_st
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0xf0, 8);
+    other_decode_bitfield_value(bigbuf, value, 0xf0, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Voice Privacy Mode, %s",
@@ -8233,7 +8186,7 @@ param_tdma_voice_mode(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_st
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x0f, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x0f, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Voice Coder, %s",
@@ -8255,7 +8208,7 @@ param_tdma_bandwidth(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_str
 
     asn1_int32_value_decode(asn1, 1, &value);
 
-    my_decode_bitfield_value(bigbuf, value, 0xf0, 8);
+    other_decode_bitfield_value(bigbuf, value, 0xf0, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Reserved",
@@ -8274,7 +8227,7 @@ param_tdma_bandwidth(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_str
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x0f, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x0f, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Bandwidth, %s",
@@ -8296,7 +8249,7 @@ param_change_srvc_attr(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_s
 
     asn1_int32_value_decode(asn1, 1, &value);
 
-    my_decode_bitfield_value(bigbuf, value, 0xf0, 8);
+    other_decode_bitfield_value(bigbuf, value, 0xf0, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Reserved",
@@ -8310,7 +8263,7 @@ param_change_srvc_attr(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_s
     case 3: str = "Service Negotiation Not Required"; break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x0c, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x0c, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Service Negotiate Flag (SRVNEG), %s",
@@ -8325,7 +8278,7 @@ param_change_srvc_attr(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_s
     case 3 : str = "Change Facilities Operation Not Used"; break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x03, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x03, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Change Facilities Flag (CHGFAC), %s",
@@ -8349,7 +8302,7 @@ param_dp_params(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 
     asn1_int32_value_decode(asn1, 1, &value);
 
-    my_decode_bitfield_value(bigbuf, value, 0xfc, 8);
+    other_decode_bitfield_value(bigbuf, value, 0xfc, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Reserved",
@@ -8364,7 +8317,7 @@ param_dp_params(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x03, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x03, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Privacy Mode, %s",
@@ -8460,13 +8413,13 @@ param_ana_red_info(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_strin
 
     asn1_int32_value_decode(asn1, 1, &value);
 
-    my_decode_bitfield_value(bigbuf, value, 0xc0, 8);
+    other_decode_bitfield_value(bigbuf, value, 0xc0, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Reserved",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x20, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x20, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Ignore CDMA, %s",
@@ -8488,7 +8441,7 @@ param_ana_red_info(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_strin
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x1f, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x1f, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Sys Ordering, %s",
@@ -8667,13 +8620,13 @@ param_dis_text(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 
     asn1_int32_value_decode(asn1, 1, &value);
 
-    my_decode_bitfield_value(bigbuf, value, 0x80, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x80, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Spec. has hardcoded 1",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x7f, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x7f, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Display type, see ANSI T1.610 for encoding",
@@ -9062,27 +9015,27 @@ param_ms_status(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 
     extended = (value & 0x80) >> 7;
 
-    my_decode_bitfield_value(bigbuf, value, 0x80, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x80, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Extension (EXT), %s",
 	bigbuf,
 	extended ? "No Extension, last octet of sequence" : "Extension indicator, the octet continues through the next octet");
 
-    my_decode_bitfield_value(bigbuf, value, 0x60, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x60, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Reserved",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x10, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x10, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Location Information (LOC), %s",
 	bigbuf,
 	(value & 0x10) ? "MS location information available" : "No MS location information available");
 
-    my_decode_bitfield_value(bigbuf, value, 0x08, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x08, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Contact, %s",
@@ -9091,21 +9044,21 @@ param_ms_status(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 
     has_chan = (value & 0x04) >> 2;
 
-    my_decode_bitfield_value(bigbuf, value, 0x04, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x04, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Channel, %s",
 	bigbuf,
 	has_chan ? "Traffic Channel Assigned" : "No Traffic Channel");
 
-    my_decode_bitfield_value(bigbuf, value, 0x02, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x02, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Handoff, %s",
 	bigbuf,
 	(value & 0x02) ? "Intersystem Handoff" : "No Intersystem Handoff");
 
-    my_decode_bitfield_value(bigbuf, value, 0x01, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x01, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Inactive, %s",
@@ -9174,41 +9127,41 @@ param_pos_info_code(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_stri
 
     asn1_int32_value_decode(asn1, 1, &value);
 
-    my_decode_bitfield_value(bigbuf, value, 0xe0, 8);
+    other_decode_bitfield_value(bigbuf, value, 0xe0, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Reserved",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x10, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x10, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  MS Identity (MSID), %s",
 	bigbuf,
 	(value & 0x10) ? "MS Identity Requested" : "No MS Identity Requested");
 
-    my_decode_bitfield_value(bigbuf, value, 0x08, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x08, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Routing Address (ROUTE), %s",
 	bigbuf,
 	(value & 0x08) ? "Routing Address Requested" : "No Routing Address Requested");
 
-    my_decode_bitfield_value(bigbuf, value, 0x04, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x04, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Serving Cell ID (CELLID), %s",
 	bigbuf,
 	(value & 0x04) ? "Serving Cell ID Requested" : "No Serving Cell ID Requested");
 
-    my_decode_bitfield_value(bigbuf, value, 0x02, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x02, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Location Area ID (LOCID), %s",
 	bigbuf,
 	(value & 0x02) ?  "Location Area ID Requested" : "No Location Area ID Requested");
 
-    my_decode_bitfield_value(bigbuf, value, 0x01, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x01, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Current, %s",
@@ -9344,27 +9297,27 @@ param_confid_mode(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string
 
     asn1_int32_value_decode(asn1, 1, &value);
 
-    my_decode_bitfield_value(bigbuf, value, 0xf8, 8);
+    other_decode_bitfield_value(bigbuf, value, 0xf8, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Reserved",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x04, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x04, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Data Privacy (DP), %s",
 	bigbuf,
 	(value & 0x04) ? "ON" : "OFF");
 
-    my_decode_bitfield_value(bigbuf, value, 0x02, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x02, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Signaling Message Encryption (SE), %s",
 	bigbuf,
 	(value & 0x02) ? "ON" : "OFF");
 
-    my_decode_bitfield_value(bigbuf, value, 0x01, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x01, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Voice Privacy (VP), %s",
@@ -9423,7 +9376,7 @@ param_scm(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 
     asn1_int32_value_decode(asn1, 1, &value);
 
-    my_decode_bitfield_value(bigbuf, value, 0xe0, 8);
+    other_decode_bitfield_value(bigbuf, value, 0xe0, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Reserved",
@@ -9442,21 +9395,21 @@ param_scm(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
     case 7: str = "Class VIII"; break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x13, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x13, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Power %s",
 	bigbuf,
 	str);
 
-    my_decode_bitfield_value(bigbuf, value, 0x08, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x08, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Bandwidth %s",
 	bigbuf,
 	(value & 0x08) ? "25 MHz" : "20 MHz");
 
-    my_decode_bitfield_value(bigbuf, value, 0x04, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x04, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Transmission, %s",
@@ -9515,13 +9468,13 @@ param_cdma_sig_qual(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_stri
 
     asn1_int32_value_decode(asn1, 1, &value);
 
-    my_decode_bitfield_value(bigbuf, value, 0xc0, 8);
+    other_decode_bitfield_value(bigbuf, value, 0xc0, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Reserved",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x3f, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x3f, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Value %u",
@@ -9936,7 +9889,7 @@ param_win_op_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 
     asn1_int32_value_decode(asn1, 1, &value);
 
-    my_decode_bitfield_value(bigbuf, value, 0xf8, 8);
+    other_decode_bitfield_value(bigbuf, value, 0xf8, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Reserved",
@@ -9950,7 +9903,7 @@ param_win_op_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x04, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x04, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  %s",
@@ -9964,7 +9917,7 @@ param_win_op_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x02, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x02, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  %s",
@@ -9978,7 +9931,7 @@ param_win_op_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x01, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x01, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  %s",
@@ -10075,7 +10028,7 @@ param_trans_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x80, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x80, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  %s",
@@ -10089,7 +10042,7 @@ param_trans_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x40, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x40, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  %s",
@@ -10103,7 +10056,7 @@ param_trans_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x20, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x20, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  %s",
@@ -10117,7 +10070,7 @@ param_trans_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x10, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x10, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  %s",
@@ -10131,7 +10084,7 @@ param_trans_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x08, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x08, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  %s",
@@ -10145,7 +10098,7 @@ param_trans_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x04, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x04, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  %s",
@@ -10159,7 +10112,7 @@ param_trans_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x02, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x02, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  %s",
@@ -10173,7 +10126,7 @@ param_trans_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x01, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x01, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  %s",
@@ -10193,7 +10146,7 @@ param_trans_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x80, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x80, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  %s",
@@ -10207,7 +10160,7 @@ param_trans_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x40, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x40, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  %s",
@@ -10221,7 +10174,7 @@ param_trans_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x20, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x20, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  %s",
@@ -10235,13 +10188,13 @@ param_trans_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x10, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x10, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  %s",
 	bigbuf, str);
 
-    p = my_decode_bitfield_value(bigbuf, value, 0x0f, 8);
+    p = other_decode_bitfield_value(bigbuf, value, 0x0f, 8);
     switch (value & 0x0f)
     {
     case 0x00: strcat(p, " :  System cannot accept a termination at this time"); break;
@@ -10261,7 +10214,7 @@ param_trans_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 
     asn1_int32_value_decode(asn1, 1, &value);
 
-    my_decode_bitfield_value(bigbuf, value, 0xf8, 8);
+    other_decode_bitfield_value(bigbuf, value, 0xf8, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Reserved",
@@ -10275,13 +10228,13 @@ param_trans_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x04, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x04, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  %s",
 	bigbuf, str);
 
-    my_decode_bitfield_value(bigbuf, value, 0x03, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x03, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Reserved",
@@ -10312,7 +10265,7 @@ param_spini_trig(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x80, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x80, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Revertive Call (RvtC), %s",
@@ -10326,7 +10279,7 @@ param_spini_trig(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x40, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x40, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Unrecognized Number (Unrec), %s",
@@ -10340,7 +10293,7 @@ param_spini_trig(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x20, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x20, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  World Zone (WZ), %s",
@@ -10354,7 +10307,7 @@ param_spini_trig(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x10, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x10, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  International (Intl), %s",
@@ -10368,7 +10321,7 @@ param_spini_trig(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x08, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x08, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Non-Local (Inter-LATA) Toll (NLTOLL/OLATA), %s",
@@ -10382,7 +10335,7 @@ param_spini_trig(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x04, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x04, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Local (Intra-LATA) Toll (LTOLL/ILATA), %s",
@@ -10396,7 +10349,7 @@ param_spini_trig(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x02, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x02, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Local, %s",
@@ -10410,7 +10363,7 @@ param_spini_trig(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x01, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x01, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  All Origination (All), %s",
@@ -10420,7 +10373,7 @@ param_spini_trig(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 
     asn1_int32_value_decode(asn1, 1, &value);
 
-    my_decode_bitfield_value(bigbuf, value, 0xe0, 8);
+    other_decode_bitfield_value(bigbuf, value, 0xe0, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Reserved",
@@ -10434,7 +10387,7 @@ param_spini_trig(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x10, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x10, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Prior Agreement (PA), %s",
@@ -10448,7 +10401,7 @@ param_spini_trig(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x08, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x08, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Double Pound (DP), %s",
@@ -10462,7 +10415,7 @@ param_spini_trig(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x04, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x04, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Pound, %s",
@@ -10476,7 +10429,7 @@ param_spini_trig(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x02, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x02, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Double Star (DS), %s",
@@ -10490,7 +10443,7 @@ param_spini_trig(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x01, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x01, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Star, %s",
@@ -10508,7 +10461,7 @@ param_spini_trig(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x80, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x80, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  7 digits, %s",
@@ -10522,7 +10475,7 @@ param_spini_trig(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x40, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x40, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  6 digits, %s",
@@ -10536,7 +10489,7 @@ param_spini_trig(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x20, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x20, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  5 digits, %s",
@@ -10550,7 +10503,7 @@ param_spini_trig(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x10, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x10, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  4 digits, %s",
@@ -10564,7 +10517,7 @@ param_spini_trig(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x08, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x08, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  3 digits, %s",
@@ -10578,7 +10531,7 @@ param_spini_trig(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x04, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x04, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  2 digits, %s",
@@ -10592,7 +10545,7 @@ param_spini_trig(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x02, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x02, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  1 digits, %s",
@@ -10606,7 +10559,7 @@ param_spini_trig(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x01, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x01, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  No digits, %s",
@@ -10624,7 +10577,7 @@ param_spini_trig(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x80, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x80, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  15 digits, %s",
@@ -10638,7 +10591,7 @@ param_spini_trig(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x40, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x40, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  14 digits, %s",
@@ -10652,7 +10605,7 @@ param_spini_trig(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x20, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x20, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  13 digits, %s",
@@ -10666,7 +10619,7 @@ param_spini_trig(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x10, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x10, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  12 digits, %s",
@@ -10680,7 +10633,7 @@ param_spini_trig(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x08, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x08, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  11 digits, %s",
@@ -10694,7 +10647,7 @@ param_spini_trig(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x04, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x04, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  10 digits, %s",
@@ -10708,7 +10661,7 @@ param_spini_trig(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x02, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x02, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  9 digits, %s",
@@ -10722,7 +10675,7 @@ param_spini_trig(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x01, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x01, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  8 digits, %s",
@@ -10753,7 +10706,7 @@ param_orig_trig(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x80, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x80, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Revertive Call (RvtC), %s",
@@ -10767,7 +10720,7 @@ param_orig_trig(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x40, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x40, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Unrecognized Number (Unrec), %s",
@@ -10781,7 +10734,7 @@ param_orig_trig(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x20, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x20, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  World Zone (WZ), %s",
@@ -10795,7 +10748,7 @@ param_orig_trig(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x10, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x10, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  International (Intl), %s",
@@ -10809,7 +10762,7 @@ param_orig_trig(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x08, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x08, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Non-Local (Inter-LATA) Toll (NLTOLL/OLATA), %s",
@@ -10823,7 +10776,7 @@ param_orig_trig(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x04, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x04, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Local (Intra-LATA) Toll (LTOLL/ILATA), %s",
@@ -10837,7 +10790,7 @@ param_orig_trig(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x02, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x02, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Local, %s",
@@ -10851,7 +10804,7 @@ param_orig_trig(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x01, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x01, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  All Origination (All), %s",
@@ -10861,7 +10814,7 @@ param_orig_trig(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 
     asn1_int32_value_decode(asn1, 1, &value);
 
-    my_decode_bitfield_value(bigbuf, value, 0xe0, 8);
+    other_decode_bitfield_value(bigbuf, value, 0xe0, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Reserved",
@@ -10875,7 +10828,7 @@ param_orig_trig(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x10, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x10, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Prior Agreement (PA), %s",
@@ -10889,7 +10842,7 @@ param_orig_trig(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x08, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x08, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Double Pound (DP), %s",
@@ -10903,7 +10856,7 @@ param_orig_trig(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x04, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x04, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Pound, %s",
@@ -10917,7 +10870,7 @@ param_orig_trig(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x02, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x02, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Double Star (DS), %s",
@@ -10931,7 +10884,7 @@ param_orig_trig(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x01, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x01, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Star, %s",
@@ -10949,7 +10902,7 @@ param_orig_trig(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x80, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x80, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  7 digits, %s",
@@ -10963,7 +10916,7 @@ param_orig_trig(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x40, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x40, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  6 digits, %s",
@@ -10977,7 +10930,7 @@ param_orig_trig(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x20, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x20, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  5 digits, %s",
@@ -10991,7 +10944,7 @@ param_orig_trig(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x10, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x10, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  4 digits, %s",
@@ -11005,7 +10958,7 @@ param_orig_trig(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x08, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x08, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  3 digits, %s",
@@ -11019,7 +10972,7 @@ param_orig_trig(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x04, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x04, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  2 digits, %s",
@@ -11033,7 +10986,7 @@ param_orig_trig(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x02, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x02, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  1 digits, %s",
@@ -11047,7 +11000,7 @@ param_orig_trig(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x01, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x01, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  No digits, %s",
@@ -11065,7 +11018,7 @@ param_orig_trig(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x80, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x80, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  15 digits, %s",
@@ -11079,7 +11032,7 @@ param_orig_trig(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x40, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x40, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  14 digits, %s",
@@ -11093,7 +11046,7 @@ param_orig_trig(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x20, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x20, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  13 digits, %s",
@@ -11107,7 +11060,7 @@ param_orig_trig(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x10, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x10, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  12 digits, %s",
@@ -11121,7 +11074,7 @@ param_orig_trig(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x08, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x08, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  11 digits, %s",
@@ -11135,7 +11088,7 @@ param_orig_trig(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x04, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x04, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  10 digits, %s",
@@ -11149,7 +11102,7 @@ param_orig_trig(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x02, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x02, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  9 digits, %s",
@@ -11163,7 +11116,7 @@ param_orig_trig(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x01, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x01, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  8 digits, %s",
@@ -11192,7 +11145,7 @@ param_trig_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x80, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x80, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  %s",
@@ -11206,7 +11159,7 @@ param_trig_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x40, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x40, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  %s",
@@ -11220,7 +11173,7 @@ param_trig_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x20, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x20, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  %s",
@@ -11234,7 +11187,7 @@ param_trig_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x10, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x10, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  %s",
@@ -11248,7 +11201,7 @@ param_trig_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x08, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x08, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  %s",
@@ -11262,7 +11215,7 @@ param_trig_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x04, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x04, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  %s",
@@ -11276,7 +11229,7 @@ param_trig_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x02, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x02, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  %s",
@@ -11290,7 +11243,7 @@ param_trig_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x01, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x01, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  %s",
@@ -11310,7 +11263,7 @@ param_trig_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x80, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x80, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  %s",
@@ -11324,7 +11277,7 @@ param_trig_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x40, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x40, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  %s",
@@ -11338,7 +11291,7 @@ param_trig_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x20, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x20, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  %s",
@@ -11352,7 +11305,7 @@ param_trig_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x10, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x10, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  %s",
@@ -11366,7 +11319,7 @@ param_trig_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x08, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x08, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  %s",
@@ -11380,7 +11333,7 @@ param_trig_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x04, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x04, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  %s",
@@ -11394,7 +11347,7 @@ param_trig_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x02, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x02, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  %s",
@@ -11408,7 +11361,7 @@ param_trig_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x01, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x01, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  %s",
@@ -11420,7 +11373,7 @@ param_trig_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 
     asn1_int32_value_decode(asn1, 1, &value);
 
-    my_decode_bitfield_value(bigbuf, value, 0xe0, 8);
+    other_decode_bitfield_value(bigbuf, value, 0xe0, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Reserved",
@@ -11434,7 +11387,7 @@ param_trig_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x10, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x10, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  %s",
@@ -11448,7 +11401,7 @@ param_trig_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x08, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x08, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  %s",
@@ -11462,7 +11415,7 @@ param_trig_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x04, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x04, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  %s",
@@ -11476,7 +11429,7 @@ param_trig_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x02, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x02, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  %s",
@@ -11490,7 +11443,7 @@ param_trig_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x01, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x01, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  %s",
@@ -11513,7 +11466,7 @@ param_sys_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 
     asn1_int32_value_decode(asn1, 1, &value);
 
-    my_decode_bitfield_value(bigbuf, value, 0xc0, 8);
+    other_decode_bitfield_value(bigbuf, value, 0xc0, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Reserved",
@@ -11527,7 +11480,7 @@ param_sys_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x20, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x20, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  %s",
@@ -11541,7 +11494,7 @@ param_sys_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x10, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x10, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  %s",
@@ -11555,7 +11508,7 @@ param_sys_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x08, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x08, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  %s",
@@ -11569,7 +11522,7 @@ param_sys_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x04, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x04, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  %s",
@@ -11583,7 +11536,7 @@ param_sys_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x02, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x02, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  %s",
@@ -11597,7 +11550,7 @@ param_sys_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, value, 0x01, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x01, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  %s",

@@ -4,7 +4,7 @@
  * Copyright 2003, Michael Lum <mlum [AT] telostech.com>
  * In association with Telos Technology Inc.
  *
- * $Id: packet-ansi_683.c,v 1.3 2003/11/16 23:17:16 guy Exp $
+ * $Id: packet-ansi_683.c,v 1.4 2003/12/08 23:40:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -79,53 +79,6 @@ static proto_tree *g_tree;
 
 
 /* FUNCTIONS */
-
-/* Generate, into "buf", a string showing the bits of a bitfield.
- * Return a pointer to the character after that string.
- */
-static char *
-my_decode_bitfield_value(char *buf, guint32 val, guint32 mask, int width)
-{
-    int		i;
-    guint32	bit;
-    char	*p;
-
-    i = 0;
-    p = buf;
-    bit = 1 << (width - 1);
-
-    for (;;)
-    {
-	if (mask & bit)
-	{
-	    /* This bit is part of the field.  Show its value. */
-	    if (val & bit)
-	    {
-		*p++ = '1';
-	    }
-	    else
-	    {
-		*p++ = '0';
-	    }
-	}
-	else
-	{
-	    /* This bit is not part of the field. */
-	    *p++ = '.';
-	}
-
-	bit >>= 1;
-	i++;
-
-	if (i >= width) break;
-
-	if (i % 4 == 0) *p++ = ' ';
-    }
-
-    *p = '\0';
-
-    return(p);
-}
 
 static gchar *
 my_match_strval(guint32 val, const value_string *vs, gint *idx)
@@ -358,7 +311,7 @@ param_cdma_analog_nam_block(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 
 
     value = tvb_get_ntohs(tvb, offset);
 
-    my_decode_bitfield_value(bigbuf, value, 0xffe0, 16);
+    other_decode_bitfield_value(bigbuf, value, 0xffe0, 16);
     proto_tree_add_none_format(tree, hf_ansi_683_none,
 	tvb, offset, 2,
 	"%s :  First paging channel (FIRSTCHP) used in the home system (%d)",
@@ -369,14 +322,14 @@ param_cdma_analog_nam_block(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 
 
     value = tvb_get_ntoh24(tvb, offset);
 
-    my_decode_bitfield_value(bigbuf, value, 0x1fffc0, 24);
+    other_decode_bitfield_value(bigbuf, value, 0x1fffc0, 24);
     proto_tree_add_none_format(tree, hf_ansi_683_none,
 	tvb, offset, 3,
 	"%s :  Home system identification (HOME_SID) (%d)",
 	bigbuf,
 	(value & 0x1fffc0) >> 6);
 
-    my_decode_bitfield_value(bigbuf, value, 0x20, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x20, 8);
     proto_tree_add_none_format(tree, hf_ansi_683_none,
 	tvb, offset + 2, 1,
 	"%s :  Extended address indicator (EX)",
@@ -386,7 +339,7 @@ param_cdma_analog_nam_block(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 
 
     value = tvb_get_ntohs(tvb, offset);
 
-    my_decode_bitfield_value(bigbuf, value, 0x1fe0, 16);
+    other_decode_bitfield_value(bigbuf, value, 0x1fe0, 16);
     proto_tree_add_none_format(tree, hf_ansi_683_none,
 	tvb, offset, 2,
 	"%s :  Station class mark (SCM) (%d)",
@@ -397,21 +350,21 @@ param_cdma_analog_nam_block(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 
 
     value = tvb_get_ntohs(tvb, offset);
 
-    my_decode_bitfield_value(bigbuf, value, 0x1fe0, 16);
+    other_decode_bitfield_value(bigbuf, value, 0x1fe0, 16);
     proto_tree_add_none_format(tree, hf_ansi_683_none,
 	tvb, offset, 2,
 	"%s :  Mobile station protocol revision number (MOB_P_REV) (%d)",
 	bigbuf,
 	(value & 0x1fe0) >> 5);
 
-    my_decode_bitfield_value(bigbuf, value, 0x10, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x10, 8);
     proto_tree_add_none_format(tree, hf_ansi_683_none,
 	tvb, offset + 1, 1,
 	"%s :  IMSI_M Class assignment of the mobile station (IMSI_M_CLASS), Class %d",
 	bigbuf,
 	(value & 0x10) >> 4);
 
-    my_decode_bitfield_value(bigbuf, value, 0x0e, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x0e, 8);
     proto_tree_add_none_format(tree, hf_ansi_683_none,
 	tvb, offset + 1, 1,
 	"%s :  Number of IMSI_M address digits (IMSI_M_ADDR_NUM) (%d), %d digits in NMSI",
@@ -423,13 +376,13 @@ param_cdma_analog_nam_block(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 
 
     value = tvb_get_ntoh24(tvb, offset);
 
-    my_decode_bitfield_value(bigbuf, value, 0x01ff80, 24);
+    other_decode_bitfield_value(bigbuf, value, 0x01ff80, 24);
     proto_tree_add_none_format(tree, hf_ansi_683_none,
 	tvb, offset, 3,
 	"%s :  Mobile country code (MCC_M)",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x7f, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x7f, 8);
     proto_tree_add_none_format(tree, hf_ansi_683_none,
 	tvb, offset + 2, 1,
 	"%s :  11th and 12th digits of the IMSI_M (IMSI__M_11_12)",
@@ -445,20 +398,20 @@ param_cdma_analog_nam_block(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 
 
     value = tvb_get_guint8(tvb, offset);
 
-    my_decode_bitfield_value(bigbuf, value, 0x3c, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x3c, 8);
     proto_tree_add_none_format(tree, hf_ansi_683_none,
 	tvb, offset, 1,
 	"%s :  Access overload class (ACCOLC) (%d)",
 	bigbuf,
 	(value & 0x3c) >> 2);
 
-    my_decode_bitfield_value(bigbuf, value, 0x02, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x02, 8);
     proto_tree_add_none_format(tree, hf_ansi_683_none,
 	tvb, offset, 1,
 	"%s :  Local control status (LOCAL_CONTROL)",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x01, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x01, 8);
     proto_tree_add_none_format(tree, hf_ansi_683_none,
 	tvb, offset, 1,
 	"%s :  Termination indicator for the home system (MOB_TERM_HOME)",
@@ -468,13 +421,13 @@ param_cdma_analog_nam_block(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 
 
     value = tvb_get_guint8(tvb, offset);
 
-    my_decode_bitfield_value(bigbuf, value, 0x80, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x80, 8);
     proto_tree_add_none_format(tree, hf_ansi_683_none,
 	tvb, offset, 1,
 	"%s :  Termination indicator for SID roaming (MOB_TERM_FOR_SID)",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x40, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x40, 8);
     proto_tree_add_none_format(tree, hf_ansi_683_none,
 	tvb, offset, 1,
 	"%s :  Termination indicator for NID roaming (MOB_TERM_FOR_NID)",
@@ -482,7 +435,7 @@ param_cdma_analog_nam_block(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 
 
     value = tvb_get_ntohs(tvb, offset);
 
-    my_decode_bitfield_value(bigbuf, value, 0x3fc0, 16);
+    other_decode_bitfield_value(bigbuf, value, 0x3fc0, 16);
     proto_tree_add_none_format(tree, hf_ansi_683_none,
 	tvb, offset, 2,
 	"%s :  Maximum stored SID/NID pairs (MAX_SID_NID) (%d)",
@@ -495,14 +448,14 @@ param_cdma_analog_nam_block(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 
 
     count = (value & 0x3fc0) >> 6;
 
-    my_decode_bitfield_value(bigbuf, value, 0x3fc0, 16);
+    other_decode_bitfield_value(bigbuf, value, 0x3fc0, 16);
     proto_tree_add_none_format(tree, hf_ansi_683_none,
 	tvb, offset, 2,
 	"%s :  Number of stored SID/NID pairs (STORED_SID_NID) (%d)",
 	bigbuf,
 	count);
 
-    my_decode_bitfield_value(bigbuf, value, 0x003f, 16);
+    other_decode_bitfield_value(bigbuf, value, 0x003f, 16);
     proto_tree_add_none_format(tree, hf_ansi_683_none,
 	tvb, offset, 2,
 	"%s :  SID/NID pairs (MSB)",
@@ -529,7 +482,7 @@ param_mdn_nam_block(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 
     count = (value & 0xf0) >> 4;
 
-    my_decode_bitfield_value(bigbuf, value, 0xf0, 8);
+    other_decode_bitfield_value(bigbuf, value, 0xf0, 8);
     proto_tree_add_none_format(tree, hf_ansi_683_none,
 	tvb, offset, 1,
 	"%s :  Number of digits (N_DIGITS) (%d)",
@@ -556,7 +509,7 @@ param_mdn_nam_block(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 
     if (!(count & 0x01))
     {
-	my_decode_bitfield_value(bigbuf, value, 0x0f, 8);
+	other_decode_bitfield_value(bigbuf, value, 0x0f, 8);
 	proto_tree_add_none_format(tree, hf_ansi_683_none,
 	    tvb, offset, 1,
 	    "%s :  Reserved",
@@ -575,19 +528,19 @@ param_cdma_nam_block(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 
     value = tvb_get_guint8(tvb, offset);
 
-    my_decode_bitfield_value(bigbuf, value, 0xc0, 8);
+    other_decode_bitfield_value(bigbuf, value, 0xc0, 8);
     proto_tree_add_none_format(tree, hf_ansi_683_none,
 	tvb, offset, 1,
 	"%s :  Reserved",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x20, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x20, 8);
     proto_tree_add_none_format(tree, hf_ansi_683_none,
 	tvb, offset, 1,
 	"%s :  Slotted Mode",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x1f, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x1f, 8);
     proto_tree_add_none_format(tree, hf_ansi_683_none,
 	tvb, offset, 1,
 	"%s :  Reserved",
@@ -597,7 +550,7 @@ param_cdma_nam_block(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 
     value = tvb_get_guint8(tvb, offset);
 
-    my_decode_bitfield_value(bigbuf, value, 0xff, 8);
+    other_decode_bitfield_value(bigbuf, value, 0xff, 8);
     proto_tree_add_none_format(tree, hf_ansi_683_none,
 	tvb, offset, 1,
 	"%s :  Mobile station protocol revision number (MOB_P_REV) (%d)",
@@ -608,14 +561,14 @@ param_cdma_nam_block(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 
     value = tvb_get_ntohs(tvb, offset);
 
-    my_decode_bitfield_value(bigbuf, value, 0x8000, 16);
+    other_decode_bitfield_value(bigbuf, value, 0x8000, 16);
     proto_tree_add_none_format(tree, hf_ansi_683_none,
 	tvb, offset, 2,
 	"%s :  IMSI_M Class assignment of the mobile station (IMSI_M_CLASS), Class %d",
 	bigbuf,
 	(value & 0x8000) >> 15);
 
-    my_decode_bitfield_value(bigbuf, value, 0x7000, 16);
+    other_decode_bitfield_value(bigbuf, value, 0x7000, 16);
     proto_tree_add_none_format(tree, hf_ansi_683_none,
 	tvb, offset, 2,
 	"%s :  Number of IMSI_M address digits (IMSI_M_ADDR_NUM) (%d), %d digits in NMSI",
@@ -623,7 +576,7 @@ param_cdma_nam_block(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 	(value & 0x7000) >> 12,
 	(value & 0x8000) ? ((value & 0x7000) >> 12) + 4 : 0);
 
-    my_decode_bitfield_value(bigbuf, value, 0x0ffc, 16);
+    other_decode_bitfield_value(bigbuf, value, 0x0ffc, 16);
     proto_tree_add_none_format(tree, hf_ansi_683_none,
 	tvb, offset, 2,
 	"%s :  Mobile country code (MCC_M)",
@@ -633,7 +586,7 @@ param_cdma_nam_block(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 
     value = tvb_get_ntohs(tvb, offset);
 
-    my_decode_bitfield_value(bigbuf, value, 0x3f80, 16);
+    other_decode_bitfield_value(bigbuf, value, 0x3f80, 16);
     proto_tree_add_none_format(tree, hf_ansi_683_none,
 	tvb, offset, 2,
 	"%s :  11th and 12th digits of the IMSI_M (IMSI__M_11_12)",
@@ -649,32 +602,32 @@ param_cdma_nam_block(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 
     value = tvb_get_ntohs(tvb, offset);
 
-    my_decode_bitfield_value(bigbuf, value, 0x01e0, 16);
+    other_decode_bitfield_value(bigbuf, value, 0x01e0, 16);
     proto_tree_add_none_format(tree, hf_ansi_683_none,
 	tvb, offset, 2,
 	"%s :  Access overload class (ACCOLC) (%d)",
 	bigbuf,
 	(value & 0x01e0) >> 5);
 
-    my_decode_bitfield_value(bigbuf, value, 0x10, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x10, 8);
     proto_tree_add_none_format(tree, hf_ansi_683_none,
 	tvb, offset+1, 1,
 	"%s :  Local control status (LOCAL_CONTROL)",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x08, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x08, 8);
     proto_tree_add_none_format(tree, hf_ansi_683_none,
 	tvb, offset+1, 1,
 	"%s :  Termination indicator for the home system (MOB_TERM_HOME)",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x04, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x04, 8);
     proto_tree_add_none_format(tree, hf_ansi_683_none,
 	tvb, offset+1, 1,
 	"%s :  Termination indicator for SID roaming (MOB_TERM_FOR_SID)",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, value, 0x02, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x02, 8);
     proto_tree_add_none_format(tree, hf_ansi_683_none,
 	tvb, offset+1, 1,
 	"%s :  Termination indicator for NID roaming (MOB_TERM_FOR_NID)",
@@ -684,7 +637,7 @@ param_cdma_nam_block(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 
     value = tvb_get_ntohs(tvb, offset);
 
-    my_decode_bitfield_value(bigbuf, value, 0x01fe, 16);
+    other_decode_bitfield_value(bigbuf, value, 0x01fe, 16);
     proto_tree_add_none_format(tree, hf_ansi_683_none,
 	tvb, offset, 2,
 	"%s :  Maximum stored SID/NID pairs (MAX_SID_NID) (%d)",
@@ -697,14 +650,14 @@ param_cdma_nam_block(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 
     count = (value & 0x01fe) >> 1;
 
-    my_decode_bitfield_value(bigbuf, value, 0x01fe, 16);
+    other_decode_bitfield_value(bigbuf, value, 0x01fe, 16);
     proto_tree_add_none_format(tree, hf_ansi_683_none,
 	tvb, offset, 2,
 	"%s :  Number of stored SID/NID pairs (STORED_SID_NID) (%d)",
 	bigbuf,
 	count);
 
-    my_decode_bitfield_value(bigbuf, value, 0x01, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x01, 8);
     proto_tree_add_none_format(tree, hf_ansi_683_none,
 	tvb, offset+1, 1,
 	"%s :  SID/NID pairs (MSB)",
@@ -733,14 +686,14 @@ param_imsi_t_nam_block(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offse
 
     value = tvb_get_guint8(tvb, offset);
 
-    my_decode_bitfield_value(bigbuf, value, 0x80, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x80, 8);
     proto_tree_add_none_format(tree, hf_ansi_683_none,
 	tvb, offset, 1,
 	"%s :  IMSI_T Class assignment of the mobile station (IMSI_T_CLASS), Class %d",
 	bigbuf,
 	(value & 0x80) >> 7);
 
-    my_decode_bitfield_value(bigbuf, value, 0x70, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x70, 8);
     proto_tree_add_none_format(tree, hf_ansi_683_none,
 	tvb, offset, 1,
 	"%s :  Number of IMSI_T address digits (IMSI_T_ADDR_NUM ) (%d), %d digits in NMSI",
@@ -750,7 +703,7 @@ param_imsi_t_nam_block(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offse
 
     value = tvb_get_ntohs(tvb, offset);
 
-    my_decode_bitfield_value(bigbuf, value, 0x0ffc, 16);
+    other_decode_bitfield_value(bigbuf, value, 0x0ffc, 16);
     proto_tree_add_none_format(tree, hf_ansi_683_none,
 	tvb, offset, 2,
 	"%s :  Mobile country code (MCC_T)",
@@ -760,7 +713,7 @@ param_imsi_t_nam_block(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offse
 
     value = tvb_get_ntohs(tvb, offset);
 
-    my_decode_bitfield_value(bigbuf, value, 0x03f8, 16);
+    other_decode_bitfield_value(bigbuf, value, 0x03f8, 16);
     proto_tree_add_none_format(tree, hf_ansi_683_none,
 	tvb, offset, 2,
 	"%s :  11th and 12th digits of the IMSI_T (IMSI__T_11_12)",
@@ -776,7 +729,7 @@ param_imsi_t_nam_block(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offse
 
     value = tvb_get_guint8(tvb, offset);
 
-    my_decode_bitfield_value(bigbuf, value, 0x01, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x01, 8);
     proto_tree_add_none_format(tree, hf_ansi_683_none,
 	tvb, offset, 1,
 	"%s :  Reserved",
@@ -1229,14 +1182,14 @@ msg_otapa_req(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 
     oct = tvb_get_guint8(tvb, offset);
 
-    my_decode_bitfield_value(bigbuf, oct, 0x80, 8);
+    other_decode_bitfield_value(bigbuf, oct, 0x80, 8);
     proto_tree_add_none_format(tree, hf_ansi_683_none,
 	tvb, offset, 1,
 	"%s :  %s OTAPA session",
 	bigbuf,
 	(oct & 0x80) ? "Start" : "Stop");
 
-    my_decode_bitfield_value(bigbuf, oct, 0x7f, 8);
+    other_decode_bitfield_value(bigbuf, oct, 0x7f, 8);
     proto_tree_add_none_format(tree, hf_ansi_683_none,
 	tvb, offset, 1,
 	"%s :  Reserved",
@@ -1479,7 +1432,7 @@ msg_reauth_rsp(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 
     value = tvb_get_ntoh24(tvb, offset);
 
-    my_decode_bitfield_value(bigbuf, value, 0xffffc0, 24);
+    other_decode_bitfield_value(bigbuf, value, 0xffffc0, 24);
     proto_tree_add_none_format(tree, hf_ansi_683_none,
 	tvb, offset, 3,
 	"%s :  Authentication signature data (AUTHR) (%d)",
@@ -1490,14 +1443,14 @@ msg_reauth_rsp(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 
     value = tvb_get_ntohs(tvb, offset);
 
-    my_decode_bitfield_value(bigbuf, value, 0x3fc0, 16);
+    other_decode_bitfield_value(bigbuf, value, 0x3fc0, 16);
     proto_tree_add_none_format(tree, hf_ansi_683_none,
 	tvb, offset, 2,
 	"%s :  Random challenge value (RANDC) (%d)",
 	bigbuf,
 	(value & 0x3fc0) >> 6);
 
-    my_decode_bitfield_value(bigbuf, value, 0x3f, 8);
+    other_decode_bitfield_value(bigbuf, value, 0x3f, 8);
     proto_tree_add_none_format(tree, hf_ansi_683_none,
 	tvb, offset + 1, 1,
 	"%s :  Call history parameter (COUNT) (%d)",
@@ -1508,7 +1461,7 @@ msg_reauth_rsp(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 
     value = tvb_get_ntoh24(tvb, offset);
 
-    my_decode_bitfield_value(bigbuf, value, 0xffffff, 24);
+    other_decode_bitfield_value(bigbuf, value, 0xffffff, 24);
     proto_tree_add_none_format(tree, hf_ansi_683_none,
 	tvb, offset, 3,
 	"%s :  Authentication Data input parameter (AUTH_DATA) (%d)",
@@ -1638,25 +1591,25 @@ msg_protocap_rsp(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 
 	subtree = proto_item_add_subtree(item, ett_band_cap);
 
-	my_decode_bitfield_value(bigbuf, oct, 0x80, 8);
+	other_decode_bitfield_value(bigbuf, oct, 0x80, 8);
 	proto_tree_add_none_format(subtree, hf_ansi_683_none,
 	    tvb, offset, 1,
 	    "%s :  Band Class 0 Analog",
 	    bigbuf);
 
-	my_decode_bitfield_value(bigbuf, oct, 0x40, 8);
+	other_decode_bitfield_value(bigbuf, oct, 0x40, 8);
 	proto_tree_add_none_format(subtree, hf_ansi_683_none,
 	    tvb, offset, 1,
 	    "%s :  Band Class 0 CDMA",
 	    bigbuf);
 
-	my_decode_bitfield_value(bigbuf, oct, 0x20, 8);
+	other_decode_bitfield_value(bigbuf, oct, 0x20, 8);
 	proto_tree_add_none_format(subtree, hf_ansi_683_none,
 	    tvb, offset, 1,
 	    "%s :  Band Class 1 CDMA",
 	    bigbuf);
 
-	my_decode_bitfield_value(bigbuf, oct, 0x1f, 8);
+	other_decode_bitfield_value(bigbuf, oct, 0x1f, 8);
 	proto_tree_add_none_format(subtree, hf_ansi_683_none,
 	    tvb, offset, 1,
 	    "%s :  Reserved",
@@ -1873,13 +1826,13 @@ msg_otapa_rsp(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 
     oct = tvb_get_guint8(tvb, offset);
 
-    my_decode_bitfield_value(bigbuf, oct, 0xfe, 8);
+    other_decode_bitfield_value(bigbuf, oct, 0xfe, 8);
     proto_tree_add_none_format(tree, hf_ansi_683_none,
 	tvb, offset, 1,
 	"%s :  Reserved",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, oct, 0x01, 8);
+    other_decode_bitfield_value(bigbuf, oct, 0x01, 8);
     proto_tree_add_none_format(tree, hf_ansi_683_none,
 	tvb, offset, 1,
 	"%s :  NAM_LOCK indicator",

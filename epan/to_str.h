@@ -1,7 +1,7 @@
 /* to_str.h
  * Definitions for utilities to convert various other types to strings.
  *
- * $Id: to_str.h,v 1.19 2003/08/26 01:00:30 guy Exp $
+ * $Id: to_str.h,v 1.20 2003/12/08 23:40:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -68,6 +68,8 @@ extern gchar*	rel_time_to_str(nstime_t*);
 extern gchar*	rel_time_to_secs_str(nstime_t*);
 
 
+extern char	*other_decode_bitfield_value(char *buf, guint32 val, guint32 mask,
+    int width);
 extern char	*decode_bitfield_value(char *buf, guint32 val, guint32 mask,
     int width);
 extern const char *decode_boolean_bitfield(guint32 val, guint32 mask, int width,

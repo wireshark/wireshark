@@ -11,7 +11,7 @@
  *   Technical realization of Short Message Service (SMS)
  *   (3GPP TS 23.040 version 5.4.0 Release 5)
  *
- * $Id: packet-gsm_sms.c,v 1.4 2003/11/16 23:17:19 guy Exp $
+ * $Id: packet-gsm_sms.c,v 1.5 2003/12/08 23:40:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -133,47 +133,6 @@ static gint ett_udh_ieis[NUM_UDH_IEIS];
 
 /* FUNCTIONS */
 
-/* Generate, into "buf", a string showing the bits of a bitfield.
- * Return a pointer to the character after that string.
- */
-static char *
-my_decode_bitfield_value(char *buf, guint32 val, guint32 mask, int width)
-{
-    int		i;
-    guint32	bit;
-    char	*p;
-
-    i = 0;
-    p = buf;
-    bit = 1 << (width - 1);
-
-    for (;;)
-    {
-	if (mask & bit)
-	{
-	    /* This bit is part of the field.  Show its value. */
-	    if (val & bit)
-	    *p++ = '1';
-	    else
-	    *p++ = '0';
-	}
-	else
-	{
-	    /* This bit is not part of the field. */
-	    *p++ = '.';
-	}
-
-	bit >>= 1;
-	i++;
-	if (i >= width) break;
-	if (i % 4 == 0) *p++ = ' ';
-    }
-
-    *p = '\0';
-
-    return(p);
-}
-
 gchar *
 my_match_strval(guint32 val, const value_string *vs, gint *idx)
 {
@@ -196,7 +155,7 @@ my_match_strval(guint32 val, const value_string *vs, gint *idx)
 /* 9.2.3.1 */
 #define DIS_FIELD_MTI(m_tree, m_offset) \
 { \
-    my_decode_bitfield_value(bigbuf, oct, 0x03, 8); \
+    other_decode_bitfield_value(bigbuf, oct, 0x03, 8); \
     proto_tree_add_text(m_tree, tvb, \
 	m_offset, 1, \
 	"%s :  TP-Message-Type-Indicator", \
@@ -206,7 +165,7 @@ my_match_strval(guint32 val, const value_string *vs, gint *idx)
 /* 9.2.3.2 */
 #define DIS_FIELD_MMS(m_tree, m_offset) \
 { \
-    my_decode_bitfield_value(bigbuf, oct, 0x04, 8); \
+    other_decode_bitfield_value(bigbuf, oct, 0x04, 8); \
     proto_tree_add_text(m_tree, tvb, \
 	m_offset, 1, \
 	"%s :  TP-More-Messages-to-Send: %s messages are waiting for the MS in this SC", \
@@ -225,7 +184,7 @@ my_match_strval(guint32 val, const value_string *vs, gint *idx)
     case 2: str = "TP-VP field present - relative format"; break; \
     case 3: str = "TP-VP field present - absolute format"; break; \
     } \
-    my_decode_bitfield_value(bigbuf, oct, 0x18, 8); \
+    other_decode_bitfield_value(bigbuf, oct, 0x18, 8); \
     proto_tree_add_text(m_tree, tvb, \
 	m_offset, 1, \
 	"%s :  TP-Validity-Period-Format: %s", \
@@ -236,7 +195,7 @@ my_match_strval(guint32 val, const value_string *vs, gint *idx)
 /* 9.2.3.4 */
 #define DIS_FIELD_SRI(m_tree, m_offset) \
 { \
-    my_decode_bitfield_value(bigbuf, oct, 0x20, 8); \
+    other_decode_bitfield_value(bigbuf, oct, 0x20, 8); \
     proto_tree_add_text(m_tree, tvb, \
 	m_offset, 1, \
 	"%s :  TP-Status-Report-Indication: A status report shall %sbe returned to the SME", \
@@ -247,7 +206,7 @@ my_match_strval(guint32 val, const value_string *vs, gint *idx)
 /* 9.2.3.5 */
 #define DIS_FIELD_SRR(m_tree, m_offset) \
 { \
-    my_decode_bitfield_value(bigbuf, oct, 0x20, 8); \
+    other_decode_bitfield_value(bigbuf, oct, 0x20, 8); \
     proto_tree_add_text(m_tree, tvb, \
 	m_offset, 1, \
 	"%s :  TP-Status-Report-Request: A status report is %srequested", \
@@ -311,7 +270,7 @@ dis_field_addr(tvbuff_t *tvb, proto_tree *tree, guint32 *offset_p, gchar *title)
     offset++;
     oct = tvb_get_guint8(tvb, offset);
 
-    my_decode_bitfield_value(bigbuf, oct, 0x80, 8);
+    other_decode_bitfield_value(bigbuf, oct, 0x80, 8);
     proto_tree_add_text(subtree, tvb,
 	offset, 1,
 	"%s :  %s",
@@ -327,7 +286,7 @@ dis_field_addr(tvbuff_t *tvb, proto_tree *tree, guint32 *offset_p, gchar *title)
     default: str = "Unknown, reserved (?)"; break;
     }
 
-    my_decode_bitfield_value(bigbuf, oct, 0x70, 8);
+    other_decode_bitfield_value(bigbuf, oct, 0x70, 8);
     proto_tree_add_text(subtree,
 	tvb, offset, 1,
 	"%s :  Type of number: (%d) %s",
@@ -343,7 +302,7 @@ dis_field_addr(tvbuff_t *tvb, proto_tree *tree, guint32 *offset_p, gchar *title)
     default: str = "Unknown, reserved (?)"; break;
     }
 
-    my_decode_bitfield_value(bigbuf, oct, 0x0f, 8);
+    other_decode_bitfield_value(bigbuf, oct, 0x0f, 8);
     proto_tree_add_text(subtree,
 	tvb, offset, 1,
 	"%s :  Numbering plan: (%d) %s",
@@ -403,13 +362,13 @@ dis_field_pid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 oct)
     switch (form)
     {
     case 0:
-	my_decode_bitfield_value(bigbuf, oct, 0xc0, 8);
+	other_decode_bitfield_value(bigbuf, oct, 0xc0, 8);
 	proto_tree_add_text(subtree, tvb,
 	    offset, 1,
 	    "%s :  defines formatting for subsequent bits",
 	    bigbuf);
 
-	my_decode_bitfield_value(bigbuf, oct, 0x20, 8);
+	other_decode_bitfield_value(bigbuf, oct, 0x20, 8);
 	proto_tree_add_text(subtree, tvb,
 	    offset, 1,
 	    "%s :  %s",
@@ -455,7 +414,7 @@ dis_field_pid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 oct)
 		break;
 	    }
 
-	    my_decode_bitfield_value(bigbuf, oct, 0x1f, 8);
+	    other_decode_bitfield_value(bigbuf, oct, 0x1f, 8);
 	    proto_tree_add_text(subtree, tvb,
 		offset, 1,
 		"%s :  device type: (%d) %s",
@@ -465,7 +424,7 @@ dis_field_pid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 oct)
 	}
 	else
 	{
-	    my_decode_bitfield_value(bigbuf, oct, 0x1f, 8);
+	    other_decode_bitfield_value(bigbuf, oct, 0x1f, 8);
 	    proto_tree_add_text(subtree, tvb,
 		offset, 1,
 		"%s :  the SM-AL protocol being used between the SME and the MS (%d)",
@@ -475,7 +434,7 @@ dis_field_pid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 oct)
 	break;
 
     case 1:
-	my_decode_bitfield_value(bigbuf, oct, 0xc0, 8);
+	other_decode_bitfield_value(bigbuf, oct, 0xc0, 8);
 	proto_tree_add_text(subtree, tvb,
 	    offset, 1,
 	    "%s :  defines formatting for subsequent bits",
@@ -501,7 +460,7 @@ dis_field_pid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 oct)
 	    str = "Reserved"; break;
 	}
 
-	my_decode_bitfield_value(bigbuf, oct, 0x3f, 8);
+	other_decode_bitfield_value(bigbuf, oct, 0x3f, 8);
 	proto_tree_add_text(subtree, tvb,
 	    offset, 1,
 	    "%s :  (%d) %s",
@@ -511,13 +470,13 @@ dis_field_pid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 oct)
 	break;
 
     case 2:
-	my_decode_bitfield_value(bigbuf, oct, 0xc0, 8);
+	other_decode_bitfield_value(bigbuf, oct, 0xc0, 8);
 	proto_tree_add_text(subtree, tvb,
 	    offset, 1,
 	    "%s :  Reserved",
 	    bigbuf);
 
-	my_decode_bitfield_value(bigbuf, oct, 0x3f, 8);
+	other_decode_bitfield_value(bigbuf, oct, 0x3f, 8);
 	proto_tree_add_text(subtree, tvb,
 	    offset, 1,
 	    "%s :  undefined",
@@ -525,13 +484,13 @@ dis_field_pid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 oct)
 	break;
 
     case 3:
-	my_decode_bitfield_value(bigbuf, oct, 0xc0, 8);
+	other_decode_bitfield_value(bigbuf, oct, 0xc0, 8);
 	proto_tree_add_text(subtree, tvb,
 	    offset, 1,
 	    "%s :  bits 0-5 for SC specific use",
 	    bigbuf);
 
-	my_decode_bitfield_value(bigbuf, oct, 0x3f, 8);
+	other_decode_bitfield_value(bigbuf, oct, 0x3f, 8);
 	proto_tree_add_text(subtree, tvb,
 	    offset, 1,
 	    "%s :  SC specific",
@@ -585,7 +544,7 @@ dis_field_dcs(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 oct,
     switch (form)
     {
     case 0:
-	my_decode_bitfield_value(bigbuf, oct, 0xc0, 8);
+	other_decode_bitfield_value(bigbuf, oct, 0xc0, 8);
 	proto_tree_add_text(subtree, tvb,
 	    offset, 1,
 	    "%s :  General Data Coding indication",
@@ -595,7 +554,7 @@ dis_field_dcs(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 oct,
 	break;
 
     case 1:
-	my_decode_bitfield_value(bigbuf, oct, 0xc0, 8);
+	other_decode_bitfield_value(bigbuf, oct, 0xc0, 8);
 	proto_tree_add_text(subtree, tvb,
 	    offset, 1,
 	    "%s :  Message Marked for Automatic Deletion Group",
@@ -606,7 +565,7 @@ dis_field_dcs(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 oct,
 
     case 2:
 	/* use top four bits */
-	my_decode_bitfield_value(bigbuf, oct, 0xf0, 8);
+	other_decode_bitfield_value(bigbuf, oct, 0xf0, 8);
 	proto_tree_add_text(subtree, tvb,
 	    offset, 1,
 	    "%s :  Reserved coding groups",
@@ -633,7 +592,7 @@ dis_field_dcs(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 oct,
 	}
 
 	/* use top four bits */
-	my_decode_bitfield_value(bigbuf, oct, 0xf0, 8);
+	other_decode_bitfield_value(bigbuf, oct, 0xf0, 8);
 	proto_tree_add_text(subtree, tvb,
 	    offset, 1,
 	    "%s :  %s",
@@ -644,7 +603,7 @@ dis_field_dcs(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 oct,
 
     if (default_5_bits)
     {
-	my_decode_bitfield_value(bigbuf, oct, 0x20, 8);
+	other_decode_bitfield_value(bigbuf, oct, 0x20, 8);
 	proto_tree_add_text(subtree, tvb,
 	    offset, 1,
 	    "%s :  Text is %scompressed",
@@ -653,7 +612,7 @@ dis_field_dcs(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 oct,
 
 	*compressed = (oct & 0x20) >> 5;
 
-	my_decode_bitfield_value(bigbuf, oct, 0x10, 8);
+	other_decode_bitfield_value(bigbuf, oct, 0x10, 8);
 	proto_tree_add_text(subtree, tvb,
 	    offset, 1,
 	    "%s :  %s",
@@ -673,7 +632,7 @@ dis_field_dcs(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 oct,
 	case 0x03: str = "Reserved"; break;
 	}
 
-	my_decode_bitfield_value(bigbuf, oct, 0x0c, 8);
+	other_decode_bitfield_value(bigbuf, oct, 0x0c, 8);
 	proto_tree_add_text(subtree, tvb,
 	    offset, 1,
 	    "%s :  Character set: %s",
@@ -688,7 +647,7 @@ dis_field_dcs(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 oct,
 	case 0x03: str = "Class 3 Default meaning: TE-specific"; break;
 	}
 
-	my_decode_bitfield_value(bigbuf, oct, 0x03, 8);
+	other_decode_bitfield_value(bigbuf, oct, 0x03, 8);
 	proto_tree_add_text(subtree, tvb,
 	    offset, 1,
 	    "%s :  Message Class: %s%s",
@@ -698,14 +657,14 @@ dis_field_dcs(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 oct,
     }
     else if (default_3_bits)
     {
-	my_decode_bitfield_value(bigbuf, oct, 0x08, 8);
+	other_decode_bitfield_value(bigbuf, oct, 0x08, 8);
 	proto_tree_add_text(subtree, tvb,
 	    offset, 1,
 	    "%s :  Indication Sense: %s",
 	    bigbuf,
 	    (oct & 0x08) ?  "Set Indication Active" : "Set Indication Inactive");
 
-	my_decode_bitfield_value(bigbuf, oct, 0x04, 8);
+	other_decode_bitfield_value(bigbuf, oct, 0x04, 8);
 	proto_tree_add_text(subtree, tvb,
 	    offset, 1,
 	    "%s :  Reserved",
@@ -719,7 +678,7 @@ dis_field_dcs(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 oct,
 	case 0x03: str = "Other Message Waiting"; break;
 	}
 
-	my_decode_bitfield_value(bigbuf, oct, 0x03, 8);
+	other_decode_bitfield_value(bigbuf, oct, 0x03, 8);
 	proto_tree_add_text(subtree, tvb,
 	    offset, 1,
 	    "%s :  %s",
@@ -728,7 +687,7 @@ dis_field_dcs(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 oct,
     }
     else if (default_data)
     {
-	my_decode_bitfield_value(bigbuf, oct, 0x08, 8);
+	other_decode_bitfield_value(bigbuf, oct, 0x08, 8);
 	proto_tree_add_text(subtree, tvb,
 	    offset, 1,
 	    "%s :  Reserved",
@@ -736,7 +695,7 @@ dis_field_dcs(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 oct,
 
 	*seven_bit = !(*eight_bit = (oct & 0x04) ? TRUE : FALSE);
 
-	my_decode_bitfield_value(bigbuf, oct, 0x04, 8);
+	other_decode_bitfield_value(bigbuf, oct, 0x04, 8);
 	proto_tree_add_text(subtree, tvb,
 	    offset, 1,
 	    "%s :  Message coding: %s",
@@ -751,7 +710,7 @@ dis_field_dcs(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 oct,
 	case 0x03: str = "Class 3 Default meaning: TE-specific"; break;
 	}
 
-	my_decode_bitfield_value(bigbuf, oct, 0x03, 8);
+	other_decode_bitfield_value(bigbuf, oct, 0x03, 8);
 	proto_tree_add_text(subtree, tvb,
 	    offset, 1,
 	    "%s :  Message Class: %s",
@@ -888,7 +847,7 @@ dis_field_vp(tvbuff_t *tvb, proto_tree *tree, guint32 *offset_p, guint8 vp_form)
 
 	    oct = tvb_get_guint8(tvb, offset);
 
-	    my_decode_bitfield_value(bigbuf, oct, 0x80, 8);
+	    other_decode_bitfield_value(bigbuf, oct, 0x80, 8);
 	    proto_tree_add_text(subtree, tvb,
 		offset, 1,
 		"%s :  %s",
@@ -905,14 +864,14 @@ dis_field_vp(tvbuff_t *tvb, proto_tree *tree, guint32 *offset_p, guint8 vp_form)
 		return;
 	    }
 
-	    my_decode_bitfield_value(bigbuf, oct, 0x40, 8);
+	    other_decode_bitfield_value(bigbuf, oct, 0x40, 8);
 	    proto_tree_add_text(subtree, tvb,
 		offset, 1,
 		"%s :  %s",
 		bigbuf,
 		(oct & 0x40) ? "Single shot SM" : "Not single shot SM");
 
-	    my_decode_bitfield_value(bigbuf, oct, 0x38, 8);
+	    other_decode_bitfield_value(bigbuf, oct, 0x38, 8);
 	    proto_tree_add_text(subtree, tvb,
 		offset, 1,
 		"%s :  Reserved",
@@ -923,7 +882,7 @@ dis_field_vp(tvbuff_t *tvb, proto_tree *tree, guint32 *offset_p, guint8 vp_form)
 	    switch (loc_form)
 	    {
 	    case 0x00:
-		my_decode_bitfield_value(bigbuf, oct, 0x07, 8);
+		other_decode_bitfield_value(bigbuf, oct, 0x07, 8);
 		proto_tree_add_text(subtree, tvb,
 		    offset, 1,
 		    "%s :  No Validity Period specified",
@@ -933,7 +892,7 @@ dis_field_vp(tvbuff_t *tvb, proto_tree *tree, guint32 *offset_p, guint8 vp_form)
 		break;
 
 	    case 0x01:
-		my_decode_bitfield_value(bigbuf, oct, 0x07, 8);
+		other_decode_bitfield_value(bigbuf, oct, 0x07, 8);
 		proto_tree_add_text(subtree, tvb,
 		    offset, 1,
 		    "%s :  Validity Period Format: relative",
@@ -944,7 +903,7 @@ dis_field_vp(tvbuff_t *tvb, proto_tree *tree, guint32 *offset_p, guint8 vp_form)
 		break;
 
 	    case 0x02:
-		my_decode_bitfield_value(bigbuf, oct, 0x07, 8);
+		other_decode_bitfield_value(bigbuf, oct, 0x07, 8);
 		proto_tree_add_text(subtree, tvb,
 		    offset, 1,
 		    "%s :  Validity Period Format: relative",
@@ -962,7 +921,7 @@ dis_field_vp(tvbuff_t *tvb, proto_tree *tree, guint32 *offset_p, guint8 vp_form)
 		break;
 
 	    case 0x03:
-		my_decode_bitfield_value(bigbuf, oct, 0x07, 8);
+		other_decode_bitfield_value(bigbuf, oct, 0x07, 8);
 		proto_tree_add_text(subtree, tvb,
 		    offset, 1,
 		    "%s :  Validity Period Format: relative",
@@ -987,7 +946,7 @@ dis_field_vp(tvbuff_t *tvb, proto_tree *tree, guint32 *offset_p, guint8 vp_form)
 		break;
 
 	    default:
-		my_decode_bitfield_value(bigbuf, oct, 0x07, 8);
+		other_decode_bitfield_value(bigbuf, oct, 0x07, 8);
 		proto_tree_add_text(subtree, tvb,
 		    offset, 1,
 		    "%s :  Validity Period Format: Reserved",
@@ -1154,7 +1113,7 @@ dis_field_st(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 oct)
 
     subtree = proto_item_add_subtree(item, ett_st);
 
-    my_decode_bitfield_value(bigbuf, oct, 0x80, 8);
+    other_decode_bitfield_value(bigbuf, oct, 0x80, 8);
     proto_tree_add_text(subtree, tvb,
 	offset, 1,
 	"%s :  Definition of bits 0-6: %s",
@@ -1246,7 +1205,7 @@ dis_field_st(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 oct)
 	break;
     }
 
-    my_decode_bitfield_value(bigbuf, oct, 0x7f, 8);
+    other_decode_bitfield_value(bigbuf, oct, 0x7f, 8);
     proto_tree_add_text(subtree, tvb,
 	offset, 1,
 	"%s :  (%d) %s, %s",
@@ -1269,7 +1228,7 @@ dis_field_st(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 oct)
 /* 9.2.3.17 */
 #define DIS_FIELD_RP(m_tree, m_offset) \
 { \
-    my_decode_bitfield_value(bigbuf, oct, 0x80, 8); \
+    other_decode_bitfield_value(bigbuf, oct, 0x80, 8); \
     proto_tree_add_text(m_tree, tvb, \
 	m_offset, 1, \
 	"%s :  TP-Reply-Path: parameter is %sset in this SMS-SUBMIT/DELIVER", \
@@ -1411,7 +1370,7 @@ dis_field_fcs(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 oct)
 #define DIS_FIELD_UDHI(m_tree, m_offset, m_udhi) \
 { \
     m_udhi = (oct & 0x40) >> 6; \
-    my_decode_bitfield_value(bigbuf, oct, 0x40, 8); \
+    other_decode_bitfield_value(bigbuf, oct, 0x40, 8); \
     proto_tree_add_text(m_tree, tvb, \
 	m_offset, 1, \
 	"%s :  TP-User-Data-Header-Indicator: %s short message", \
@@ -1870,7 +1829,7 @@ dis_field_ud(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 length, gb
 	    {
 		oct = tvb_get_guint8(tvb, offset);
 
-		my_decode_bitfield_value(bigbuf, oct, fill_bits_mask[fill_bits], 8);
+		other_decode_bitfield_value(bigbuf, oct, fill_bits_mask[fill_bits], 8);
 		proto_tree_add_text(udh_subtree,
 		    tvb, offset, 1,
 		    "%s :  Fill bits",
@@ -1924,7 +1883,7 @@ dis_field_ud(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 length, gb
 /* 9.2.3.25 */
 #define DIS_FIELD_RD(m_tree, m_offset) \
 { \
-    my_decode_bitfield_value(bigbuf, oct, 0x04, 8); \
+    other_decode_bitfield_value(bigbuf, oct, 0x04, 8); \
     proto_tree_add_text(m_tree, tvb, \
 	m_offset, 1, \
 	"%s :  TP-Reject-Duplicates: Instruct SC to %s duplicates", \
@@ -1937,7 +1896,7 @@ dis_field_ud(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 length, gb
 /* 9.2.3.26 */
 #define DIS_FIELD_SRQ(m_tree, m_offset) \
 { \
-    my_decode_bitfield_value(bigbuf, oct, 0x20, 8); \
+    other_decode_bitfield_value(bigbuf, oct, 0x20, 8); \
     proto_tree_add_text(m_tree, tvb, \
 	m_offset, 1, \
 	"%s :  TP-Status-Report-Qualifier: The SMS-STATUS-REPORT is the result of %s", \
@@ -1962,34 +1921,34 @@ dis_field_pi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 oct)
 
     subtree = proto_item_add_subtree(item, ett_pi);
 
-    my_decode_bitfield_value(bigbuf, oct, 0x80, 8);
+    other_decode_bitfield_value(bigbuf, oct, 0x80, 8);
     proto_tree_add_text(subtree, tvb,
 	offset, 1,
 	"%s :  %s",
 	bigbuf,
 	(oct & 0x80) ? "Extended" : "No extension");
 
-    my_decode_bitfield_value(bigbuf, oct, 0x78, 8);
+    other_decode_bitfield_value(bigbuf, oct, 0x78, 8);
     proto_tree_add_text(subtree, tvb,
 	offset, 1,
 	"%s :  Reserved",
 	bigbuf);
 
-    my_decode_bitfield_value(bigbuf, oct, 0x04, 8);
+    other_decode_bitfield_value(bigbuf, oct, 0x04, 8);
     proto_tree_add_text(subtree, tvb,
 	offset, 1,
 	"%s :  TP-UDL %spresent",
 	bigbuf,
 	(oct & 0x04) ? "" : "not ");
 
-    my_decode_bitfield_value(bigbuf, oct, 0x02, 8);
+    other_decode_bitfield_value(bigbuf, oct, 0x02, 8);
     proto_tree_add_text(subtree, tvb,
 	offset, 1,
 	"%s :  TP-DCS %spresent",
 	bigbuf,
 	(oct & 0x02) ? "" : "not ");
 
-    my_decode_bitfield_value(bigbuf, oct, 0x01, 8);
+    other_decode_bitfield_value(bigbuf, oct, 0x01, 8);
     proto_tree_add_text(subtree, tvb,
 	offset, 1,
 	"%s :  TP-PID %spresent",
