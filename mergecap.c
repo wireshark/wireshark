@@ -178,6 +178,10 @@ main(int argc, char *argv[])
     fprintf(stderr, "          run with -h for help\n");
     exit(1);
   }
+  if (in_file_count < 1) {
+    fprintf(stderr, "mergecap: No input files were specified\n");
+    exit(1);
+  }
 
   /* open the input files */
   in_file_count = merge_open_in_files(in_file_count, &argv[optind], &in_files, &err);
