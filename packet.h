@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.94 1999/09/03 07:20:14 guy Exp $
+ * $Id: packet.h,v 1.95 1999/09/10 07:19:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -61,17 +61,6 @@
 
 #define hi_nibble(b) ((b & 0xf0) >> 4)
 #define lo_nibble(b) (b & 0x0f)
-
-/* Byte ordering */
-#ifndef BYTE_ORDER
-  #define LITTLE_ENDIAN 4321
-  #define BIG_ENDIAN 1234
-  #ifdef WORDS_BIGENDIAN
-    #define BYTE_ORDER BIG_ENDIAN
-  #else
-    #define BYTE_ORDER LITTLE_ENDIAN
-  #endif
-#endif
 
 /* Useful when you have an array whose size you can tell at compile-time */
 #define array_length(x)	(sizeof x / sizeof x[0])

@@ -27,6 +27,7 @@
 #endif
 
 #include <glib.h>
+#include "globals.h"
 #include "packet.h"
 
 #ifdef HAVE_NETINET_IN_H

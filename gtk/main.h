@@ -1,7 +1,7 @@
 /* ethereal.h
  * Global defines, etc.
  *
- * $Id: main.h,v 1.2 1999/09/09 03:32:02 gram Exp $
+ * $Id: main.h,v 1.3 1999/09/10 07:19:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -45,29 +45,6 @@
 #define DEF_READY_MESSAGE " Ready to load file"
 #endif
 
-#define MIN_PACKET_SIZE 68	/* minimum amount of packet data we can read */
-
-/* Byte swapping routines */
-#define SWAP16(x) \
-  ( (((x) & 0x00ff) << 8) | \
-    (((x) & 0xff00) >> 8) )
-#define SWAP32(x) \
-  ( (((x) & 0x000000ff) << 24) | \
-    (((x) & 0x0000ff00) <<  8) | \
-    (((x) & 0x00ff0000) >>  8) | \
-    (((x) & 0xff000000) >> 24) )
-
-/* Byte ordering */
-#ifndef BYTE_ORDER
-  #define LITTLE_ENDIAN 4321
-  #define BIG_ENDIAN 1234
-  #ifdef WORDS_BIGENDIAN
-    #define BYTE_ORDER BIG_ENDIAN
-  #else
-    #define BYTE_ORDER LITTLE_ENDIAN
-  #endif
-#endif
-    
 typedef struct _selection_info {
   GtkWidget *tree;
   GtkWidget *text;
