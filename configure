@@ -1694,20 +1694,54 @@ done
 
 # AC_C_CONST
 
-# We need libpcap's AC_LBL_SOCKADDR_SA_LEN test for get_interface_list().
+# We need to know whether "struct sockaddr" has an "sa_len" member
+# for get_interface_list().
 
-AC_LBL_SOCKADDR_SA_LEN
+echo $ac_n "checking for sa_len in struct sockaddr""... $ac_c" 1>&6
+echo "configure:1702: checking for sa_len in struct sockaddr" >&5
+if eval "test \"`echo '$''{'ac_cv_ethereal_struct_sa_len'+set}'`\" = set"; then
+  echo $ac_n "(cached) $ac_c" 1>&6
+else
+  cat > conftest.$ac_ext <<EOF
+#line 1707 "configure"
+#include "confdefs.h"
+#include <sys/types.h>
+#include <sys/socket.h>
+int main() {
+struct sockaddr s; s.sa_len;
+; return 0; }
+EOF
+if { (eval echo configure:1715: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>&5; }; then
+  rm -rf conftest*
+  ac_cv_ethereal_struct_sa_len=yes
+else
+  echo "configure: failed program was:" >&5
+  cat conftest.$ac_ext >&5
+  rm -rf conftest*
+  ac_cv_ethereal_struct_sa_len=no
+fi
+rm -f conftest*
+fi
+
+echo "$ac_t""$ac_cv_ethereal_struct_sa_len" 1>&6
+if test $ac_cv_ethereal_struct_sa_len = yes; then
+  cat >> confdefs.h <<\EOF
+#define HAVE_SA_LEN 1
+EOF
+
+fi
+
 
 # We must know our byte order
 echo $ac_n "checking whether byte ordering is bigendian""... $ac_c" 1>&6
-echo "configure:1704: checking whether byte ordering is bigendian" >&5
+echo "configure:1738: checking whether byte ordering is bigendian" >&5
 if eval "test \"`echo '$''{'ac_cv_c_bigendian'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   ac_cv_c_bigendian=unknown
 # See if sys/param.h defines the BYTE_ORDER macro.
 cat > conftest.$ac_ext <<EOF
-#line 1711 "configure"
+#line 1745 "configure"
 #include "confdefs.h"
 #include <sys/types.h>
 #include <sys/param.h>
@@ -1718,11 +1752,11 @@ int main() {
 #endif
 ; return 0; }
 EOF
-if { (eval echo configure:1722: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>&5; }; then
+if { (eval echo configure:1756: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>&5; }; then
   rm -rf conftest*
   # It does; now see whether it defined to BIG_ENDIAN or not.
 cat > conftest.$ac_ext <<EOF
-#line 1726 "configure"
+#line 1760 "configure"
 #include "confdefs.h"
 #include <sys/types.h>
 #include <sys/param.h>
@@ -1733,7 +1767,7 @@ int main() {
 #endif
 ; return 0; }
 EOF
-if { (eval echo configure:1737: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>&5; }; then
+if { (eval echo configure:1771: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>&5; }; then
   rm -rf conftest*
   ac_cv_c_bigendian=yes
 else
@@ -1753,7 +1787,7 @@ if test "$cross_compiling" = yes; then
     { echo "configure: error: can not run test program while cross compiling" 1>&2; exit 1; }
 else
   cat > conftest.$ac_ext <<EOF
-#line 1757 "configure"
+#line 1791 "configure"
 #include "confdefs.h"
 main () {
   /* Are we little or big endian?  From Harbison&Steele.  */
@@ -1766,7 +1800,7 @@ main () {
   exit (u.c[sizeof (long) - 1] == 1);
 }
 EOF
-if { (eval echo configure:1770: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest && (./conftest; exit) 2>/dev/null
+if { (eval echo configure:1804: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest && (./conftest; exit) 2>/dev/null
 then
   ac_cv_c_bigendian=no
 else
@@ -1792,13 +1826,13 @@ fi
 
 if test $ac_cv_prog_gcc = yes; then
     echo $ac_n "checking whether ${CC-cc} needs -traditional""... $ac_c" 1>&6
-echo "configure:1796: checking whether ${CC-cc} needs -traditional" >&5
+echo "configure:1830: checking whether ${CC-cc} needs -traditional" >&5
 if eval "test \"`echo '$''{'ac_cv_prog_gcc_traditional'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
     ac_pattern="Autoconf.*'x'"
   cat > conftest.$ac_ext <<EOF
-#line 1802 "configure"
+#line 1836 "configure"
 #include "confdefs.h"
 #include <sgtty.h>
 Autoconf TIOCGETP
@@ -1816,7 +1850,7 @@ rm -f conftest*
 
   if test $ac_cv_prog_gcc_traditional = no; then
     cat > conftest.$ac_ext <<EOF
-#line 1820 "configure"
+#line 1854 "configure"
 #include "confdefs.h"
 #include <termio.h>
 Autoconf TCGETA
@@ -1838,12 +1872,12 @@ echo "$ac_t""$ac_cv_prog_gcc_traditional" 1>&6
 fi
 
 echo $ac_n "checking for socket""... $ac_c" 1>&6
-echo "configure:1842: checking for socket" >&5
+echo "configure:1876: checking for socket" >&5
 if eval "test \"`echo '$''{'ac_cv_func_socket'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   cat > conftest.$ac_ext <<EOF
-#line 1847 "configure"
+#line 1881 "configure"
 #include "confdefs.h"
 /* System header to define __stub macros and hopefully few prototypes,
     which can conflict with char socket(); below.  */
@@ -1866,7 +1900,7 @@ socket();
 
 ; return 0; }
 EOF
-if { (eval echo configure:1870: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest; then
+if { (eval echo configure:1904: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest; then
   rm -rf conftest*
   eval "ac_cv_func_socket=yes"
 else
@@ -1892,12 +1926,12 @@ fi
 SNPRINTF_C=""
 SNPRINTF_O=""
 echo $ac_n "checking for snprintf""... $ac_c" 1>&6
-echo "configure:1896: checking for snprintf" >&5
+echo "configure:1930: checking for snprintf" >&5
 if eval "test \"`echo '$''{'ac_cv_func_snprintf'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   cat > conftest.$ac_ext <<EOF
-#line 1901 "configure"
+#line 1935 "configure"
 #include "confdefs.h"
 /* System header to define __stub macros and hopefully few prototypes,
     which can conflict with char snprintf(); below.  */
@@ -1920,7 +1954,7 @@ snprintf();
 
 ; return 0; }
 EOF
-if { (eval echo configure:1924: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest; then
+if { (eval echo configure:1958: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest; then
   rm -rf conftest*
   eval "ac_cv_func_snprintf=yes"
 else
@@ -1953,7 +1987,8 @@ fi
 
 
 
-#AC_CONFIG_SUBDIRS(wiretap)
+subdirs="wiretap"
+
 trap '' 1 2 15
 cat > confcache <<\EOF
 # This file is a shell script that caches the results of configure
@@ -2055,7 +2090,7 @@ done
 ac_given_srcdir=$srcdir
 ac_given_INSTALL="$INSTALL"
 
-trap 'rm -fr `echo "Makefile wiretap/Makefile config.h" | sed "s/:[^ ]*//g"` conftest*; exit 1' 1 2 15
+trap 'rm -fr `echo "Makefile config.h" | sed "s/:[^ ]*//g"` conftest*; exit 1' 1 2 15
 EOF
 cat >> $CONFIG_STATUS <<EOF
 
@@ -2111,6 +2146,7 @@ s%@CPP@%$CPP%g
 s%@LIBWIRETAP_A@%$LIBWIRETAP_A%g
 s%@SNPRINTF_C@%$SNPRINTF_C%g
 s%@SNPRINTF_O@%$SNPRINTF_O%g
+s%@subdirs@%$subdirs%g
 
 CEOF
 EOF
@@ -2152,7 +2188,7 @@ EOF
 
 cat >> $CONFIG_STATUS <<EOF
 
-CONFIG_FILES=\${CONFIG_FILES-"Makefile wiretap/Makefile"}
+CONFIG_FILES=\${CONFIG_FILES-"Makefile"}
 EOF
 cat >> $CONFIG_STATUS <<\EOF
 for ac_file in .. $CONFIG_FILES; do if test "x$ac_file" != x..; then
@@ -2331,4 +2367,101 @@ EOF
 chmod +x $CONFIG_STATUS
 rm -fr confdefs* $ac_clean_files
 test "$no_create" = yes || ${CONFIG_SHELL-/bin/sh} $CONFIG_STATUS || exit 1
+
+if test "$no_recursion" != yes; then
+
+  # Remove --cache-file and --srcdir arguments so they do not pile up.
+  ac_sub_configure_args=
+  ac_prev=
+  for ac_arg in $ac_configure_args; do
+    if test -n "$ac_prev"; then
+      ac_prev=
+      continue
+    fi
+    case "$ac_arg" in
+    -cache-file | --cache-file | --cache-fil | --cache-fi \
+    | --cache-f | --cache- | --cache | --cach | --cac | --ca | --c)
+      ac_prev=cache_file ;;
+    -cache-file=* | --cache-file=* | --cache-fil=* | --cache-fi=* \
+    | --cache-f=* | --cache-=* | --cache=* | --cach=* | --cac=* | --ca=* | --c=*)
+      ;;
+    -srcdir | --srcdir | --srcdi | --srcd | --src | --sr)
+      ac_prev=srcdir ;;
+    -srcdir=* | --srcdir=* | --srcdi=* | --srcd=* | --src=* | --sr=*)
+      ;;
+    *) ac_sub_configure_args="$ac_sub_configure_args $ac_arg" ;;
+    esac
+  done
+
+  for ac_config_dir in wiretap; do
+
+    # Do not complain, so a configure script can configure whichever
+    # parts of a large source tree are present.
+    if test ! -d $srcdir/$ac_config_dir; then
+      continue
+    fi
+
+    echo configuring in $ac_config_dir
+
+    case "$srcdir" in
+    .) ;;
+    *)
+      if test -d ./$ac_config_dir || mkdir ./$ac_config_dir; then :;
+      else
+        { echo "configure: error: can not create `pwd`/$ac_config_dir" 1>&2; exit 1; }
+      fi
+      ;;
+    esac
+
+    ac_popdir=`pwd`
+    cd $ac_config_dir
+
+      # A "../" for each directory in /$ac_config_dir.
+      ac_dots=`echo $ac_config_dir|sed -e 's%^\./%%' -e 's%[^/]$%&/%' -e 's%[^/]*/%../%g'`
+
+    case "$srcdir" in
+    .) # No --srcdir option.  We are building in place.
+      ac_sub_srcdir=$srcdir ;;
+    /*) # Absolute path.
+      ac_sub_srcdir=$srcdir/$ac_config_dir ;;
+    *) # Relative path.
+      ac_sub_srcdir=$ac_dots$srcdir/$ac_config_dir ;;
+    esac
+
+    # Check for guested configure; otherwise get Cygnus style configure.
+    if test -f $ac_sub_srcdir/configure; then
+      ac_sub_configure=$ac_sub_srcdir/configure
+    elif test -f $ac_sub_srcdir/configure.in; then
+      ac_sub_configure=$ac_configure
+    else
+      echo "configure: warning: no configuration information is in $ac_config_dir" 1>&2
+      ac_sub_configure=
+    fi
+
+    # The recursion is here.
+    if test -n "$ac_sub_configure"; then
+
+      # Make the cache file name correct relative to the subdirectory.
+      case "$cache_file" in
+      /*) ac_sub_cache_file=$cache_file ;;
+      *) # Relative path.
+        ac_sub_cache_file="$ac_dots$cache_file" ;;
+      esac
+  case "$ac_given_INSTALL" in
+        [/$]*) INSTALL="$ac_given_INSTALL" ;;
+        *) INSTALL="$ac_dots$ac_given_INSTALL" ;;
+        esac
+
+      echo "running ${CONFIG_SHELL-/bin/sh} $ac_sub_configure $ac_sub_configure_args --cache-file=$ac_sub_cache_file --srcdir=$ac_sub_srcdir"
+      # The eval makes quoting arguments work.
+      if eval ${CONFIG_SHELL-/bin/sh} $ac_sub_configure $ac_sub_configure_args --cache-file=$ac_sub_cache_file --srcdir=$ac_sub_srcdir
+      then :
+      else
+        { echo "configure: error: $ac_sub_configure failed for $ac_config_dir" 1>&2; exit 1; }
+      fi
+    fi
+
+    cd $ac_popdir
+  done
+fi
 

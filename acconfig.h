@@ -2,7 +2,7 @@
 
 #undef VERSION
 
-#undef HAVE_SOCKADDR_SA_LEN
+#undef HAVE_SA_LEN
 
 #undef DATAFILE_DIR
 
