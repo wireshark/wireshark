@@ -1,7 +1,7 @@
 /* packet-ldp.c
  * Routines for LDP (RFC 3036) packet disassembly
  *
- * $Id: packet-ldp.c,v 1.45 2003/10/10 21:16:24 guy Exp $
+ * $Id: packet-ldp.c,v 1.46 2003/11/13 23:38:33 guy Exp $
  *
  * Copyright (c) November 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  *
@@ -2319,7 +2319,7 @@ proto_register_ldp(void)
       { "Targeted Hello", "ldp.msg.tlv.hello.targeted", FT_BOOLEAN, 16, TFS(&hello_targeted_vals), 0x8000, "Hello Common Parameters Targeted Bit", HFILL }},
 
     { &hf_ldp_tlv_val_request,
-      { "Hello Requested", "ldp,msg.tlv.hello.requested", FT_BOOLEAN, 16, TFS(&hello_requested_vals), 0x4000, "Hello Common Parameters Hello Requested Bit", HFILL }},
+      { "Hello Requested", "ldp.msg.tlv.hello.requested", FT_BOOLEAN, 16, TFS(&hello_requested_vals), 0x4000, "Hello Common Parameters Hello Requested Bit", HFILL }},
 
     { &hf_ldp_tlv_val_res,
       { "Reserved", "ldp.msg.tlv.hello.res", FT_UINT16, BASE_HEX, NULL, 0x3FFF, "Hello Common Parameters Reserved Field", HFILL }},

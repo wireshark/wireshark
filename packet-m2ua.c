@@ -6,7 +6,7 @@
  *
  * Copyright 2002, Michael Tuexen <tuexen [AT] fh-muenster.de>
  *
- * $Id: packet-m2ua.c,v 1.12 2003/09/04 14:32:01 tuexen Exp $
+ * $Id: packet-m2ua.c,v 1.13 2003/11/13 23:38:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1067,7 +1067,7 @@ proto_register_m2ua(void)
     { &hf_status_type,            { "Status type",                    "m2ua.status_type",                FT_UINT16, BASE_DEC,  VALS(status_type_values),           0x0, "", HFILL } },
     { &hf_status_ident,           { "Status info",                    "m2ua.status_info",                FT_UINT16, BASE_DEC,  NULL,                               0x0, "", HFILL } },
     { &hf_asp_id,                 { "ASP identifier",                 "m2ua.asp_identifier",             FT_UINT32, BASE_DEC,  NULL,                               0x0, "", HFILL } },
-    { &hf_correlation_id,         { "Correlation identifier",         "m2ua.correlation identifier",     FT_UINT32, BASE_DEC,  NULL,                               0x0, "", HFILL } },
+    { &hf_correlation_id,         { "Correlation identifier",         "m2ua.correlation_identifier",     FT_UINT32, BASE_DEC,  NULL,                               0x0, "", HFILL } },
     { &hf_data_2_li,              { "Length indicator",               "m2ua.data_2_li",                  FT_UINT8,  BASE_DEC,  NULL,                               0x0, "", HFILL } },
     { &hf_state,                  { "State",                          "m2ua.state",                      FT_UINT32, BASE_DEC,  VALS(state_values),                 0x0, "", HFILL } },
     { &hf_event,                  { "Event",                          "m2ua.event",                      FT_UINT32, BASE_DEC,  VALS(event_values),                 0x0, "", HFILL } },

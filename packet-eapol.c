@@ -3,7 +3,7 @@
  * (From IEEE Draft P802.1X/D11; is there a later draft, or a
  * final standard?  If so, check it.)
  *
- * $Id: packet-eapol.c,v 1.15 2003/10/14 09:11:53 guy Exp $
+ * $Id: packet-eapol.c,v 1.16 2003/11/13 23:38:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -371,7 +371,7 @@ proto_register_eapol(void)
 		"WPA Key RSC", "eapol.keydes.rsc", FT_BYTES, BASE_NONE, NULL,
 		0x0, "WPA Key Receive Sequence Counter", HFILL }},
 	{ &hf_eapol_wpa_keydes_id, {
-		"WPA Key ID", "eapol,keydes.id", FT_BYTES, BASE_NONE, NULL,
+		"WPA Key ID", "eapol.keydes.id", FT_BYTES, BASE_NONE, NULL,
 		0x0, "WPA Key ID", HFILL }},
 	{ &hf_eapol_wpa_keydes_mic, {
 		"WPA Key MIC", "eapol.keydes.mic", FT_BYTES, BASE_NONE, NULL,

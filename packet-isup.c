@@ -5,7 +5,7 @@
  *		<anders.broman@ericsson.com>
  * Inserted routines for BICC dissection according to Q.765.5 Q.1902 Q.1970 Q.1990,
  * calling SDP dissector for RFC2327 decoding.
- * $Id: packet-isup.c,v 1.35 2003/10/20 19:13:17 guy Exp $
+ * $Id: packet-isup.c,v 1.36 2003/11/13 23:38:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -6060,7 +6060,7 @@ proto_register_isup(void)
 			"", HFILL }},
 
 		{ &hf_isup_app_Release_call_ind, 
-			{ "Release call indicator (RCI)",  "isup.app_Release_call_ indicator",
+			{ "Release call indicator (RCI)",  "isup.app_Release_call_indicator",
 			FT_BOOLEAN, 8, TFS(&isup_Release_call_indicator_value), A_8BIT_MASK,
 			"", HFILL }},
 

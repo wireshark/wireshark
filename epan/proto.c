@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.101 2003/10/29 23:48:13 guy Exp $
+ * $Id: proto.c,v 1.102 2003/11/13 23:38:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -28,6 +28,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <ctype.h>
 #include <glib.h>
 #include <float.h>
 
@@ -2394,6 +2395,14 @@ proto_register_field_init(header_field_info *hfinfo, int parent)
 	if ((hfinfo->name[0] != 0) && (hfinfo->abbrev[0] != 0 )) {
 
 		header_field_info *same_name_hfinfo, *same_name_next_hfinfo;
+		char *p;
+		guchar c;
+
+		/* Check that the filter name (abbreviation) is legal;
+		 * it must contain only alphanumerics, '-', "_", and ".". */
+		for (p = hfinfo->abbrev; (c = *p) != '\0'; p++)
+			g_assert(isalnum(c) || c == '-' || c == '_' ||
+			    c == '.');
 
 		/* We allow multiple hfinfo's to be registered under the same
 		 * abbreviation. This was done for X.25, as, depending
