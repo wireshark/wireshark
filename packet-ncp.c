@@ -3,7 +3,7 @@
  * Gilbert Ramirez <gram@alumni.rice.edu>
  * Modified to allow NCP over TCP/IP decodes by James Coe <jammer@cin.net>
  *
- * $Id: packet-ncp.c,v 1.61 2002/05/16 09:59:52 guy Exp $
+ * $Id: packet-ncp.c,v 1.62 2002/05/24 03:03:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -49,6 +49,7 @@ static int hf_ncp_ip_ver = -1;
 static int hf_ncp_ip_length = -1;
 static int hf_ncp_ip_rplybufsize = -1;
 static int hf_ncp_ip_sig = -1;
+static int hf_ncp_ip_packetsig = -1;
 static int hf_ncp_type = -1;
 static int hf_ncp_seq = -1;
 static int hf_ncp_connection = -1;
@@ -167,6 +168,7 @@ dissect_ncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item			*ti;
 	struct ncp_ip_header		ncpiph;
 	struct ncp_ip_rqhdr		ncpiphrq;
+	gboolean			is_signed = FALSE;
 	struct ncp_common_header	header;
 	guint16				nw_connection;
 	guint16				flags = 0;
@@ -195,8 +197,26 @@ dissect_ncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			hdr_offset += 4;
 			ncpiphrq.rplybufsize	= tvb_get_ntohl(tvb, hdr_offset);
 			hdr_offset += 4;
-		};
-	};
+		}
+		if (ncpiph.length & 0x80000000) {
+			/*
+			 * This appears to indicate that this packet
+			 * is signed; the signature is 8 bytes long.
+			 *
+			 * XXX - that bit does *not* appear to be set
+			 * in signed replies, and we can't dissect the
+			 * reply enough to find the matching request
+			 * without knowing whether the reply is
+			 * signed.
+			 *
+			 * XXX - what about NCP-over-IPX signed
+			 * messages?
+			 */
+			is_signed = TRUE;
+			hdr_offset += 8;
+			ncpiph.length &= 0x7fffffff;
+		}
+	}
 
 	/* Record the offset where the NCP common header starts */
 	commhdr = hdr_offset;
@@ -225,6 +245,8 @@ dissect_ncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				proto_tree_add_uint(ncp_tree, hf_ncp_ip_ver, tvb, 8, 4, ncpiphrq.version);
 				proto_tree_add_uint(ncp_tree, hf_ncp_ip_rplybufsize, tvb, 12, 4, ncpiphrq.rplybufsize);
 			}
+			if (is_signed)
+				proto_tree_add_item(ncp_tree, hf_ncp_ip_packetsig, tvb, 16, 8, FALSE);
 		}
 		proto_tree_add_uint(ncp_tree, hf_ncp_type,	tvb, commhdr + 0, 2, header.type);
 	}
@@ -441,12 +463,12 @@ proto_register_ncp(void)
 
   static hf_register_info hf[] = {
     { &hf_ncp_ip_sig,
-      { "NCP over IP signature",		"ncp.ip.signature",
+      { "NCP over IP signature",	"ncp.ip.signature",
         FT_UINT32, BASE_HEX, VALS(ncp_ip_signature), 0x0,
         "", HFILL }},
     { &hf_ncp_ip_length,
       { "NCP over IP length",		"ncp.ip.length",
-        FT_UINT32, BASE_HEX, NULL, 0x0,
+        FT_UINT32, BASE_DEC, NULL, 0x0,
         "", HFILL }},
     { &hf_ncp_ip_ver,
       { "NCP over IP Version",		"ncp.ip.version",
@@ -455,6 +477,10 @@ proto_register_ncp(void)
     { &hf_ncp_ip_rplybufsize,
       { "NCP over IP Reply Buffer Size",	"ncp.ip.replybufsize",
         FT_UINT32, BASE_DEC, NULL, 0x0,
+        "", HFILL }},
+    { &hf_ncp_ip_packetsig,
+      { "NCP over IP Packet Signature",	"ncp.ip.packetsig",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
         "", HFILL }},
     { &hf_ncp_type,
       { "Type",			"ncp.type",
