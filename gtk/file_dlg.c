@@ -1,7 +1,7 @@
 /* file_dlg.c
  * Dialog boxes for handling files
  *
- * $Id: file_dlg.c,v 1.126 2004/06/30 05:49:29 ulfl Exp $
+ * $Id: file_dlg.c,v 1.127 2004/06/30 07:12:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -59,11 +59,13 @@
 #include "merge.h"
 #include "util.h"
 
+#ifdef HAVE_UNISTD_H
+#include <unistd.h>
+#endif
+
 #ifdef HAVE_IO_H
 #include <io.h> /* open/close on win32 */
 #endif
-
-
 
 static void file_open_ok_cb(GtkWidget *w, gpointer fs);
 static void file_open_destroy_cb(GtkWidget *win, gpointer user_data);
