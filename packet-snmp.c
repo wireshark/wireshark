@@ -10,7 +10,7 @@
  *
  * See RFCs 2570-2576 for SNMPv3
  *
- * $Id: packet-snmp.c,v 1.108 2003/04/27 20:57:58 deniel Exp $
+ * $Id: packet-snmp.c,v 1.109 2003/05/03 15:23:15 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -51,6 +51,7 @@
 #include <epan/strutil.h>
 #include <epan/conversation.h>
 #include "etypes.h"
+#include "prefs.h"
 #include "packet-ipx.h"
 #include "packet-hpext.h"
 
@@ -114,6 +115,8 @@
 
 static int proto_snmp = -1;
 
+static gboolean display_oid = TRUE;
+
 static gint ett_snmp = -1;
 static gint ett_parameters = -1;
 static gint ett_parameters_qos = -1;
@@ -126,6 +129,8 @@ static int hf_snmp_community = -1;
 static int hf_snmp_pdutype = -1;
 static int hf_snmp_agent = -1;
 static int hf_snmp_enterprise = -1;
+static int hf_snmp_error_status = -1;
+static int hf_snmp_oid = -1;
 static int hf_snmp_traptype = -1;
 static int hf_snmp_spectraptype = -1;
 static int hf_snmp_timestamp = -1;
@@ -565,10 +570,51 @@ format_oid(subid_t *oid, guint oid_length)
 	 * Append the decoded form of the OID.
 	 */
 	sprintf(buf, " (%s)", oid_string);
-	free(oid_string);
+	g_free(oid_string);
 #endif
 
 	return result;
+}
+
+/* returns the decoded (can be NULL) and non_decoded OID strings,
+   returned pointers shall be freed by the caller */
+void 
+new_format_oid(subid_t *oid, guint oid_length, 
+	       gchar **non_decoded, gchar **decoded)
+{
+	int len;
+	unsigned int i;
+	char *buf;
+
+#ifdef HAVE_SOME_SNMP
+	guchar *oid_string;
+	size_t oid_string_len;
+	size_t oid_out_len;
+
+	/*
+	 * Get the decoded form of the OID, and add its length to the
+	 * length of the result string.
+	 */
+
+	oid_string_len = 256;
+	oid_string = g_malloc(oid_string_len);
+	*oid_string = '\0';
+	oid_out_len = 0;
+	sprint_realloc_objid(&oid_string, &oid_string_len, &oid_out_len, 1,
+			     oid, oid_length);
+	*decoded = oid_string;
+#else
+	*decoded = NULL;
+#endif
+
+	*non_decoded = g_malloc(oid_length * 22 + 1);
+	buf = *non_decoded;
+	len = sprintf(buf, "%lu", (unsigned long)oid[0]);
+	buf += len;
+	for (i = 1; i < oid_length; i++) {
+	  len = sprintf(buf, ".%lu", (unsigned long)oid[i]);
+	  buf += len;
+	}
 }
 
 #ifdef HAVE_SOME_SNMP
@@ -761,7 +807,7 @@ snmp_variable_decode(proto_tree *snmp_tree,
 			proto_tree_add_text(snmp_tree, asn1->tvb, offset,
 			    length,
 			    "Value: %s", vb_display_string);
-			free(vb_display_string);
+			g_free(vb_display_string);
 #else /* HAVE_SOME_SNMP */
 			proto_tree_add_text(snmp_tree, asn1->tvb, offset,
 			    length,
@@ -789,7 +835,7 @@ snmp_variable_decode(proto_tree *snmp_tree,
 			proto_tree_add_text(snmp_tree, asn1->tvb, offset,
 			    length,
 			    "Value: %s", vb_display_string);
-			free(vb_display_string);
+			g_free(vb_display_string);
 #else /* HAVE_SOME_SNMP */
 			proto_tree_add_text(snmp_tree, asn1->tvb, offset,
 			    length,
@@ -819,7 +865,7 @@ snmp_variable_decode(proto_tree *snmp_tree,
 			proto_tree_add_text(snmp_tree, asn1->tvb, offset,
 			    length,
 			    "Value: %s", vb_display_string);
-			free(vb_display_string);
+			g_free(vb_display_string);
 #else /* HAVE_SOME_SNMP */
 			/*
 			 * If some characters are not printable, display
@@ -887,7 +933,7 @@ snmp_variable_decode(proto_tree *snmp_tree,
 			proto_tree_add_text(snmp_tree, asn1->tvb, offset,
 			    length,
 			    "Value: %s", vb_display_string);
-			free(vb_display_string);
+			g_free(vb_display_string);
 #else /* HAVE_SOME_SNMP */
 			vb_display_string = format_oid(vb_oid, vb_oid_length);
 			proto_tree_add_text(snmp_tree, asn1->tvb, offset,
@@ -1023,10 +1069,10 @@ dissect_common_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				proto_tree_add_text(tree, tvb, offset,
 				    length, "Non-repeaters: %u", error_status);
 			} else {
-				proto_tree_add_text(tree, tvb, offset,
-				    length, "Error Status: %s",
-				    val_to_str(error_status, error_statuses,
-				      "Unknown (%d)"));
+				proto_tree_add_uint(tree, 
+						    hf_snmp_error_status,
+						    tvb, offset,
+						    length, error_status);
 			}
 		}
 		offset += length;
@@ -1208,13 +1254,52 @@ dissect_common_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		}
 		sequence_length += length;
 
-		if (tree) {
-			oid_string = format_oid(variable_oid,
-			    variable_oid_length);
-			proto_tree_add_text(tree, tvb, offset, sequence_length,
-			    "Object identifier %d: %s", vb_index, oid_string);
-			g_free(oid_string);
+		if (display_oid || tree) {
+
+		  gchar *decoded_oid;
+		  gchar *non_decoded_oid;
+
+		  new_format_oid(variable_oid, variable_oid_length,
+				 &non_decoded_oid, &decoded_oid);
+		  
+		  if (display_oid && check_col(pinfo->cinfo, COL_INFO)) {
+		    col_append_fstr(pinfo->cinfo, COL_INFO, 
+				    " %s", 
+				    (decoded_oid == NULL) ? non_decoded_oid :
+				    decoded_oid);
+		  }
+		  
+		  if (tree) {
+		    if (decoded_oid) {
+		      proto_tree_add_string_format(tree, hf_snmp_oid,
+						   tvb, offset, 
+						   sequence_length, 
+						   decoded_oid,
+						   "Object identifier %d: %s (%s)", 
+						   vb_index, 
+						   non_decoded_oid,
+						   decoded_oid);
+		      /* add also the non decoded oid string */
+		      proto_tree_add_string_hidden(tree, hf_snmp_oid,
+						   tvb, offset, 
+						   sequence_length,
+						   non_decoded_oid);
+		    } else {
+		      proto_tree_add_string_format(tree, hf_snmp_oid,
+						   tvb, offset, 
+						   sequence_length, 
+						   non_decoded_oid,
+						   "Object identifier %d: %s", 
+						   vb_index, 
+						   non_decoded_oid);
+		    }
+		  }
+		  
+		  if (decoded_oid) g_free(decoded_oid);
+		  g_free(non_decoded_oid);
+
 		}
+
 		offset += sequence_length;
 		variable_bindings_length -= sequence_length;
 
@@ -1265,8 +1350,7 @@ dissect_snmp2u_parameters(proto_tree *tree, tvbuff_t *tvb, int offset, int lengt
 	parameters_length -= 1;
 	if (model != 1) {
 		/* Unknown model. */
-		proto_tree_add_text(parameters_tree, tvb, offset,
-		    parameters_length, "parameters: %s",
+		proto_tree_add_text(parameters_tree, tvb, offset,		    parameters_length, "parameters: %s",
 		    bytes_to_str(parameters, parameters_length));
 		return;
 	}
@@ -2098,6 +2182,12 @@ proto_register_snmp(void)
 		{ &hf_snmp_enterprise,
 		{ "Enterprise", "snmp.enterprise", FT_STRING, BASE_NONE, NULL,
 		    0x0, "", HFILL }},
+		{ &hf_snmp_error_status,
+		{ "Error Status", "snmp.error", FT_UINT8, BASE_DEC, VALS(error_statuses),
+		    0x0, "", HFILL }},
+		{ &hf_snmp_oid,
+		{ "Object identifier", "snmp.oid", FT_STRING, BASE_NONE, NULL,
+		    0x0, "", HFILL }},
 		{ &hf_snmp_traptype,
 		{ "Trap type", "snmp.traptype", FT_UINT8, BASE_DEC, VALS(trap_types),
 		    0x0, "", HFILL }},
@@ -2128,6 +2218,7 @@ proto_register_snmp(void)
 		&ett_flags,
 		&ett_secur,
 	};
+	module_t *snmp_module;
 
 #ifdef HAVE_SOME_SNMP
 
@@ -2166,6 +2257,13 @@ proto_register_snmp(void)
 	proto_register_field_array(proto_snmp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 	snmp_handle = create_dissector_handle(dissect_snmp, proto_snmp);
+
+	/* Register configuration preferences */
+	snmp_module = prefs_register_protocol(proto_snmp, NULL);
+	prefs_register_bool_preference(snmp_module, "display_oid",
+		"Show SNMP OID in info column",
+		"Whether the SNMP OID should be shown in the info column",
+		&display_oid);
 }
 
 void
