@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.140 2002/06/07 21:11:22 guy Exp $
+ * $Id: tethereal.c,v 1.141 2002/06/23 20:30:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -111,6 +111,26 @@
 #include "capture-wpcap.h"
 #endif
 
+/* XXX this code is duplicated in epan/filesystem.c and wiretap/file.c */
+/*
+ * Visual C++ on Win32 systems doesn't define these.  (Old UNIX systems don't
+ * define them either.)
+ *
+ * Visual C++ on Win32 systems doesn't define S_IFIFO, it defines _S_IFIFO.
+ */
+#ifndef S_ISREG
+#define S_ISREG(mode)   (((mode) & S_IFMT) == S_IFREG)
+#endif
+#ifndef S_IFIFO
+#define S_IFIFO _S_IFIFO
+#endif
+#ifndef S_ISFIFO
+#define S_ISFIFO(mode)  (((mode) & S_IFMT) == S_IFIFO)
+#endif
+#ifndef S_ISDIR
+#define S_ISDIR(mode)   (((mode) & S_IFMT) == S_IFDIR)
+#endif
+
 static guint32 firstsec, firstusec;
 static guint32 prevsec, prevusec;
 static GString *comp_info_str;
@@ -126,6 +146,7 @@ typedef struct _loop_data {
   pcap_t        *pch;
   wtap_dumper   *pdh;
   jmp_buf        stopenv;
+  gboolean       output_to_pipe;
 } loop_data;
 
 static loop_data ld;
@@ -325,6 +346,7 @@ main(int argc, char *argv[])
   dfilter_t           *rfcode = NULL;
   e_prefs             *prefs;
   char                 badopt;
+  struct stat          sstat;
 
   /* Register all dissectors; we must do this before checking for the
      "-G" flag, as the "-G" flag dumps information registered by the
@@ -670,6 +692,21 @@ main(int argc, char *argv[])
     }
   }
 
+  /* See if capture file is a pipe */
+  ld.output_to_pipe = FALSE;
+  if (cfile.save_file != NULL) {
+    if (stat(cfile.save_file, &sstat) < 0) {
+      if (errno != ENOENT && errno != ENOTDIR) {
+        fprintf(stderr, "tethereal: error on output capture file: %s\n",
+                  strerror(errno));
+        exit(2);
+      }
+    } else {
+      if (S_ISFIFO(sstat.st_mode))
+        ld.output_to_pipe = TRUE;
+    }
+  }
+
 #ifdef HAVE_LIBPCAP
   /* If they didn't specify a "-w" flag, but specified a maximum capture
      file size, tell them that this doesn't work, and exit. */
@@ -684,17 +721,26 @@ main(int argc, char *argv[])
           a file;
        b) ring buffer only works if you're saving in libpcap format;
        c) it makes no sense to enable the ring buffer if the maximum
-          file size is set to "infinite". */
+          file size is set to "infinite";
+       d) file must not be a pipe. */
     if (cfile.save_file == NULL) {
-      fprintf(stderr, "tethereal: Ring buffer requested, but capture isn't being saved to a file.\n");
+      fprintf(stderr, "tethereal: Ring buffer requested, but "
+        "capture isn't being saved to a file.\n");
       exit(2);
     }
     if (out_file_type != WTAP_FILE_PCAP) {
-      fprintf(stderr, "tethereal: Ring buffer requested, but capture isn't being saved in libpcap format.\n");
+      fprintf(stderr, "tethereal: Ring buffer requested, but "
+        "capture isn't being saved in libpcap format.\n");
       exit(2);
     }
     if (!capture_opts.has_autostop_filesize) {
-      fprintf(stderr, "tethereal: Ring buffer requested, but no maximum capture file size was specified.\n");
+      fprintf(stderr, "tethereal: Ring buffer requested, but "
+        "no maximum capture file size was specified.\n");
+      exit(2);
+    }
+    if (ld.output_to_pipe) {
+      fprintf(stderr, "tethereal: Ring buffer requested, but "
+        "capture file is a pipe.\n");
       exit(2);
     }
   }
@@ -836,7 +882,7 @@ capture(volatile int packet_count, int out_file_type)
   bpf_u_int32 netnum, netmask;
   struct bpf_program fcode;
   void        (*oldhandler)(int);
-  int         err;
+  int         err = 0;
   volatile int inpkts = 0;
   char        errmsg[1024+1];
   condition  *volatile cnd_stop_capturesize = NULL;
@@ -846,6 +892,7 @@ capture(volatile int packet_count, int out_file_type)
   char       *libpcap_warn;
 #endif
   struct pcap_stat stats;
+  gboolean    volatile write_err = FALSE;
   gboolean    dump_ok;
 
   /* Initialize all data structures used for dissection. */
@@ -977,7 +1024,6 @@ capture(volatile int packet_count, int out_file_type)
 
   /* Let the user know what interface was chosen. */
   fprintf(stderr, "Capturing on %s\n", cfile.iface);
-  fflush(stderr);
 
   /* initialize capture stop conditions */ 
   init_capture_stop_conditions();
@@ -1011,8 +1057,8 @@ capture(volatile int packet_count, int out_file_type)
          its maximum size. */
       if (capture_opts.ringbuffer_on) {
         /* Switch to the next ringbuffer file */
-        if (ringbuf_switch_file(&cfile, &ld.pdh, &err) == TRUE) {
-          /* File switch failed: reset the condition */
+        if (ringbuf_switch_file(&cfile, &ld.pdh, &err)) {
+          /* File switch succeeded: reset the condition */
           cnd_reset(cnd_stop_capturesize);
         } else {
           /* File switch failed: stop here */
@@ -1045,6 +1091,22 @@ capture(volatile int packet_count, int out_file_type)
 	pcap_geterr(ld.pch));
   }
 
+  if (err != 0) {
+    show_capture_file_io_error(cfile.save_file, err, FALSE);
+    write_err = TRUE;
+  }
+
+  if (cfile.save_file != NULL) {
+    /* We're saving to a file or files; close all files. */
+    if (capture_opts.ringbuffer_on) {
+      dump_ok = ringbuf_wtap_dump_close(&cfile, &err);
+    } else {
+      dump_ok = wtap_dump_close(ld.pdh, &err);
+    }
+    if (!dump_ok && ! write_err)
+      show_capture_file_io_error(cfile.save_file, err, TRUE);
+  }
+
   /* Get the capture statistics, and, if any packets were dropped, report
      that. */
   if (pcap_stats(ld.pch, &stats) >= 0) {
@@ -1056,23 +1118,12 @@ capture(volatile int packet_count, int out_file_type)
 	pcap_geterr(ld.pch));
   }
 /* Report the number of captured packets if not reported during capture and
-   we are not saving to a file. */
+   we are saving to a file. */
   if (quiet && (cfile.save_file != NULL)) {
-    fprintf(stderr, "\r%u packets captured\n", cfile.count);
+    fprintf(stderr, "%u packets captured\n", cfile.count);
   }
 
   pcap_close(ld.pch);
-
-  if (cfile.save_file != NULL) {
-    /* We're saving to a file or files; close all files. */
-    if (capture_opts.ringbuffer_on) {
-      dump_ok = ringbuf_wtap_dump_close(&cfile, &err);
-    } else {
-      dump_ok = wtap_dump_close(ld.pdh, &err);
-    }
-    if (!dump_ok)
-      show_capture_file_io_error(cfile.save_file, err, TRUE);
-  }
 
   return TRUE;
 
@@ -1115,7 +1166,8 @@ capture_pcap_cb(u_char *user, const struct pcap_pkthdr *phdr,
 /* Report packet capture count if not quiet */
     if (!quiet) {
       fprintf(stderr, "\r%u ", cfile.count);
-      fflush(stdout);
+      /* stderr could be line buffered */
+      fflush(stderr);
     }
   } else {
     wtap_dispatch_cb_print((u_char *)&args, &whdr, 0, &pseudo_header, pd);
@@ -1327,6 +1379,7 @@ wtap_dispatch_cb_write(u_char *user, const struct wtap_pkthdr *phdr,
   wtap_dumper  *pdh = args->pdh;
   frame_data    fdata;
   int           err;
+  gboolean      io_ok;
   gboolean      passed;
   epan_dissect_t *edt;
 
@@ -1342,11 +1395,17 @@ wtap_dispatch_cb_write(u_char *user, const struct wtap_pkthdr *phdr,
     edt = NULL;
   }
   if (passed) {
-    if (!wtap_dump(pdh, phdr, pseudo_header, buf, &err)) {
+    io_ok = wtap_dump(pdh, phdr, pseudo_header, buf, &err);
+    if (io_ok && ld.output_to_pipe) {
+      io_ok = ! fflush(wtap_dump_file(ld.pdh));
+      if (!io_ok)
+        err = errno;
+    }
+    if (!io_ok) {
 #ifdef HAVE_LIBPCAP
-      if (ld.pch != NULL) {
-      	/* We're capturing packets, so we're printing a count of packets
-	   captured; move to the line after the count. */
+      if (ld.pch != NULL && !quiet) {
+      	/* We're capturing packets, so (if -q not specified) we're printing
+           a count of packets captured; move to the line after the count. */
         fprintf(stderr, "\n");
       }
 #endif

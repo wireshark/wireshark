@@ -1,7 +1,7 @@
 /* ringbuffer.c
  * Routines for packet capture windows
  *
- * $Id: ringbuffer.c,v 1.2 2002/05/04 10:10:42 guy Exp $
+ * $Id: ringbuffer.c,v 1.3 2002/06/23 20:30:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -219,7 +219,12 @@ ringbuf_init_wtap_dump_fdopen(int filetype, int linktype,
         }
         return NULL;
       }
-      rb_data.files[i].start_pos = ftell(fh);
+      if ((rb_data.files[i].start_pos = ftell(fh)) < 0) {
+        if (err != NULL) {
+          *err = errno;
+        }
+        return NULL;
+      }
       clearerr(fh);
     }
   }
@@ -236,6 +241,7 @@ ringbuf_switch_file(capture_file *cf, wtap_dumper **pdh, int *err)
 {
   int   next_file_num;
   FILE *fh;
+  gboolean err_on_next = FALSE;
 
   /* flush the current file */
   fh = wtap_dump_file(rb_data.files[rb_data.curr_file_num].pdh);
@@ -254,7 +260,11 @@ ringbuf_switch_file(capture_file *cf, wtap_dumper **pdh, int *err)
   if (!rb_data.files[next_file_num].is_new) {
     /* rewind to the position after the file header */
     fh = wtap_dump_file(rb_data.files[next_file_num].pdh);
-    fseek(fh, rb_data.files[next_file_num].start_pos, SEEK_SET);
+    if (fseek(fh, rb_data.files[next_file_num].start_pos, SEEK_SET) < 0) {
+      *err = errno;
+      /* Don't return straight away: have caller report correct save_file */
+      err_on_next = TRUE;
+    }
     wtap_set_bytes_dumped(rb_data.files[next_file_num].pdh,
       rb_data.files[next_file_num].start_pos);
     /* set the absolute file number */
@@ -272,6 +282,9 @@ ringbuf_switch_file(capture_file *cf, wtap_dumper **pdh, int *err)
   rb_data.files[next_file_num].is_new = FALSE;
   /* finally set the current file number */
   rb_data.curr_file_num = next_file_num;
+
+  if (err_on_next)
+    return FALSE;
 
   return TRUE;
 }
