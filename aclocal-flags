@@ -21,7 +21,7 @@
 # "aclocal" will look in that directory twice, and get well and truly
 # confused, reporting a ton of duplicate macro definitions.)
 #
-# $Id: aclocal-flags,v 1.5 2003/01/22 00:19:00 jmayer Exp $
+# $Id: aclocal-flags,v 1.6 2003/01/22 02:14:26 guy Exp $
 #
 
 #
@@ -42,7 +42,7 @@ else
 fi
 
 ac_missing_dir=`dirname $0`
-echo -n "-I $ac_missing_dir/aclocal-missing"
+echo "-I $ac_missing_dir/aclocal-missing" | tr -d '\012' | tr -d '\015'
 
 #
 # If there's no "aclocal", the former will be empty; if there's no
@@ -54,7 +54,7 @@ echo -n "-I $ac_missing_dir/aclocal-missing"
 if [ ! -z "$aclocal_dir" -a ! -z "$gtk_aclocal_dir" \
     -a "$aclocal_dir" != "$gtk_aclocal_dir" ]
 then
-	echo -n " $gtk_aclocal_dir"
+	echo " $gtk_aclocal_dir" | tr -d '\012' | tr -d '\015'
 fi
 echo
 exit 0
