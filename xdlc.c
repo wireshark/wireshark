@@ -2,7 +2,7 @@
  * Routines for use by various SDLC-derived protocols, such as HDLC
  * and its derivatives LAPB, IEEE 802.2 LLC, etc..
  *
- * $Id: xdlc.c,v 1.20 2002/08/28 21:00:41 jmayer Exp $
+ * $Id: xdlc.c,v 1.21 2003/09/02 19:18:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -192,7 +192,7 @@ get_xdlc_control(const guchar *pd, int offset, int is_extended)
 int
 dissect_xdlc_control(tvbuff_t *tvb, int offset, packet_info *pinfo,
   proto_tree *xdlc_tree, int hf_xdlc_control, gint ett_xdlc_control,
-  int is_response, int is_extended)
+  int is_response, int is_extended, int append_info)
 {
     guint16 control;
     char info[80];
@@ -240,8 +240,13 @@ dissect_xdlc_control(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		 	    ""),
 			(control & XDLC_N_R_MASK) >> XDLC_N_R_SHIFT);
 	}
-	if (check_col(pinfo->cinfo, COL_INFO))
-	    col_add_str(pinfo->cinfo, COL_INFO, info);
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+	    if (append_info) {
+	    	col_append_str(pinfo->cinfo, COL_INFO, ", ");
+		col_append_str(pinfo->cinfo, COL_INFO, info);
+	    } else
+		col_add_str(pinfo->cinfo, COL_INFO, info);
+	}
 	if (xdlc_tree) {
 	    if (is_extended) {
 		tc = proto_tree_add_uint_format(xdlc_tree, hf_xdlc_control, tvb,
@@ -315,8 +320,13 @@ dissect_xdlc_control(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		    (is_response ? " F" : " P") :
 		    ""),
 		modifier);
-	if (check_col(pinfo->cinfo, COL_INFO))
-	    col_add_str(pinfo->cinfo, COL_INFO, info);
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+	    if (append_info) {
+	    	col_append_str(pinfo->cinfo, COL_INFO, ", ");
+		col_append_str(pinfo->cinfo, COL_INFO, info);
+	    } else
+		col_add_str(pinfo->cinfo, COL_INFO, info);
+	}
 	if (xdlc_tree) {
 	    tc = proto_tree_add_uint_format(xdlc_tree, hf_xdlc_control, tvb,
 			offset, 1,
@@ -358,8 +368,13 @@ dissect_xdlc_control(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			(control & XDLC_N_R_MASK) >> XDLC_N_R_SHIFT,
 			(control & XDLC_N_S_MASK) >> XDLC_N_S_SHIFT);
 	}
-	if (check_col(pinfo->cinfo, COL_INFO))
-	    col_add_str(pinfo->cinfo, COL_INFO, info);
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+	    if (append_info) {
+	    	col_append_str(pinfo->cinfo, COL_INFO, ", ");
+		col_append_str(pinfo->cinfo, COL_INFO, info);
+	    } else
+		col_add_str(pinfo->cinfo, COL_INFO, info);
+	}
 	if (xdlc_tree) {
 	    tc = proto_tree_add_uint_format(xdlc_tree, hf_xdlc_control, tvb,
 			offset, (is_extended) ? 2 : 1,

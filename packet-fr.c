@@ -3,7 +3,7 @@
  *
  * Copyright 2001, Paul Ionescu	<paul@acorp.ro>
  *
- * $Id: packet-fr.c,v 1.36 2003/09/02 18:45:06 guy Exp $
+ * $Id: packet-fr.c,v 1.37 2003/09/02 19:18:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -77,6 +77,7 @@
 static gint proto_fr    = -1;
 static gint ett_fr      = -1;
 static gint ett_fr_address = -1;
+static gint ett_fr_control = -1;
 static gint hf_fr_ea    = -1;
 static gint hf_fr_upper_dlci = -1;
 static gint hf_fr_cr	= -1;
@@ -89,6 +90,7 @@ static gint hf_fr_dlcore_control = -1;
 static gint hf_fr_lower_dlci = -1;
 static gint hf_fr_dc    = -1;
 static gint hf_fr_dlci  = -1;
+static gint hf_fr_control = -1;
 static gint hf_fr_nlpid = -1;
 static gint hf_fr_oui   = -1;
 static gint hf_fr_pid   = -1;
@@ -157,6 +159,7 @@ dissect_fr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   proto_item *octet_item = NULL;
   proto_tree *octet_tree = NULL;
   guint8 fr_octet;
+  int is_response = FALSE;
   guint32 address;
   guint8  fr_ctrl;
   guint16 fr_type;
@@ -203,7 +206,8 @@ dissect_fr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
      * The first octet contains the upper 6 bits of the DLCI, as well
      * as the C/R bit.
      */
-    address = (fr_octet & 0xFC) >> 2;
+    address = (fr_octet & FRELAY_UPPER_DLCI) >> 2;
+    is_response = (fr_octet & FRELAY_CR);
     if (tree) {
       octet_item = proto_tree_add_text(fr_tree, tvb, offset, 1,
 				       "First address octet: 0x%02x", fr_octet);
@@ -219,7 +223,7 @@ dissect_fr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
      * BECN, and DE.
      */
     fr_octet = tvb_get_guint8(tvb, offset);
-    address = (address << 4) | ((fr_octet & 0xF0) >> 4);
+    address = (address << 4) | ((fr_octet & FRELAY_SECOND_DLCI) >> 4);
     if (tree) {
       octet_item = proto_tree_add_text(fr_tree, tvb, offset, 1,
 				       "Second address octet: 0x%02x",
@@ -246,7 +250,7 @@ dissect_fr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	/*
 	 * 7 more bits of DLCI.
 	 */
-	address = (address << 7) | ((fr_octet & 0xFE) >> 1);
+	address = (address << 7) | ((fr_octet & FRELAY_THIRD_DLCI) >> 1);
 	if (tree) {
 	  octet_item = proto_tree_add_text(fr_tree, tvb, offset, 1,
 					   "Third address octet: 0x%02x",
@@ -289,7 +293,7 @@ dissect_fr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       	/*
       	 * Last 6 bits of DLCI.
       	 */
-      	address = (address << 6) | ((fr_octet & 0xFC) >> 2);
+      	address = (address << 6) | ((fr_octet & FRELAY_LOWER_DLCI) >> 2);
 	proto_tree_add_uint(octet_tree, hf_fr_lower_dlci, tvb, offset, 1, fr_octet);
       }
       proto_tree_add_boolean(octet_tree, hf_fr_dc, tvb, offset, 1, fr_octet);
@@ -309,15 +313,10 @@ dissect_fr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
   fr_ctrl = tvb_get_guint8(tvb, offset);
   if (fr_ctrl == XDLC_U) {
-      if (tree) {
+      if (tree)
 		proto_tree_add_text(fr_tree, tvb, offset, 0, "------- Q.922 Encapsulation -------");
-		/*
-		 * XXX - if we're going to show this as Unnumbered
-		 * Information, should we just hand it to
-		 * "dissect_xdlc_control()"?
-		 */
-		proto_tree_add_text(fr_tree, tvb, offset, 1, "Unnumbered Information");
-      }
+      dissect_xdlc_control(tvb, offset, pinfo, fr_tree, hf_fr_control,
+ 			   ett_fr_control, is_response, FALSE, TRUE);
       offset++;
 
       dissect_fr_nlpid(tvb, offset, pinfo, tree, ti, fr_tree, fr_ctrl);
@@ -327,10 +326,16 @@ dissect_fr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		/* because DLCI 0 is rezerved for LMI and  SVC signaling encaplulated in lapf */
 		/* and LMI is transmitted in unnumbered information (03) */
 		/* so this must be lapf (guessing) */
+		dissect_xdlc_control(tvb, offset, pinfo, fr_tree,
+				     hf_fr_control, ett_fr_control,
+				     is_response, FALSE, TRUE);
 		dissect_lapf(tvb_new_subset(tvb,offset,-1,-1),pinfo,tree);
 		return;
       }
       if (fr_ctrl == (XDLC_U|XDLC_XID)) {
+		dissect_xdlc_control(tvb, offset, pinfo, fr_tree,
+				     hf_fr_control, ett_fr_control,
+				     is_response, FALSE, TRUE);
 		dissect_fr_xid(tvb_new_subset(tvb,offset,-1,-1),pinfo,tree);
 		return;
       }
@@ -539,9 +544,12 @@ void proto_register_fr(void)
         { &hf_fr_dlci, {
            "DLCI", "fr.dlci", FT_UINT32, BASE_DEC,
             NULL, 0x0, "Data-Link Connection Identifier", HFILL }},
+	{ &hf_fr_control, {
+          "Control Field", "fr.control", FT_UINT8, BASE_HEX,
+          NULL, 0x0, "Control field", HFILL }},
         { &hf_fr_nlpid, {
            "NLPID", "fr.nlpid", FT_UINT8, BASE_HEX,
-            VALS(fr_nlpid_vals), 0x0, "FrameRelay Encapsulated Protocol NLPID", HFILL }},
+            VALS(fr_nlpid_vals), 0x0, "Frame Relay Encapsulated Protocol NLPID", HFILL }},
 	{ &hf_fr_oui, {
 	   "Organization Code",	"fr.snap.oui", FT_UINT24, BASE_HEX,
 	   VALS(oui_vals), 0x0, "", HFILL }},
@@ -550,10 +558,10 @@ void proto_register_fr(void)
 	   NULL, 0x0, "", HFILL }},
         { &hf_fr_snaptype, {
            "Type", "fr.snaptype", FT_UINT16, BASE_HEX,
-            VALS(etype_vals), 0x0, "FrameRelay SNAP Encapsulated Protocol", HFILL }},
+            VALS(etype_vals), 0x0, "Frame Relay SNAP Encapsulated Protocol", HFILL }},
         { &hf_fr_chdlctype, {
            "Type", "fr.chdlctype", FT_UINT16, BASE_HEX,
-            VALS(chdlc_vals), 0x0, "FrameRelay Cisco HDLC Encapsulated Protocol", HFILL }},
+            VALS(chdlc_vals), 0x0, "Frame Relay Cisco HDLC Encapsulated Protocol", HFILL }},
   };
 
 
@@ -561,6 +569,7 @@ void proto_register_fr(void)
   static gint *ett[] = {
     &ett_fr,
     &ett_fr_address,
+    &ett_fr_control,
   };
 
   proto_fr = proto_register_protocol("Frame Relay", "FR", "fr");

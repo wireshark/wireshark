@@ -2,7 +2,7 @@
  * Routines for LAPD frame disassembly
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-lapd.c,v 1.34 2003/01/07 01:08:27 guy Exp $
+ * $Id: packet-lapd.c,v 1.35 2003/09/02 19:18:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -137,7 +137,7 @@ dissect_lapd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	control = dissect_xdlc_control(tvb, 2, pinfo, lapd_tree, hf_lapd_control,
-	    ett_lapd_control, is_response, TRUE);
+	    ett_lapd_control, is_response, TRUE, FALSE);
 	lapd_header_len += XDLC_CONTROL_LEN(control, TRUE);
 
 	if (tree)
