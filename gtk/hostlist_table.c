@@ -2,7 +2,7 @@
  * modified from endpoint_talkers_table.c   2003 Ronnie Sahlberg
  * Helper routines common to all host list taps.
  *
- * $Id: hostlist_table.c,v 1.7 2004/05/01 19:24:44 ulfl Exp $
+ * $Id: hostlist_table.c,v 1.8 2004/05/02 15:23:42 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -592,6 +592,8 @@ init_hostlist_table(gboolean hide_ports, char *table_name, char *tap_name, char 
 	gtk_widget_show_all(hosttable->win);
 	retap_packets(&cfile);
 
+    /* after retapping, immediately redraw table */
+    draw_hostlist_table_data(hosttable);
 }
 
 void 
