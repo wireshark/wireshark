@@ -1,7 +1,7 @@
 /* capture_info_dlg.c
  * Routines for packet capture info dialog
  *
- * $Id: capture_info_dlg.c,v 1.14 2004/04/13 18:01:40 tuexen Exp $
+ * $Id: capture_info_dlg.c,v 1.15 2004/04/14 05:46:34 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -122,6 +122,7 @@ gchar           *iface)
   cap_w_title = g_strdup_printf("Ethereal: Capture - Interface %s", iface);
 
   info->cap_w = dlg_window_new(cap_w_title);
+  g_free(cap_w_title);
   gtk_window_set_modal(GTK_WINDOW(info->cap_w), TRUE);
 
   /* Container for capture display widgets */

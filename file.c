@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.371 2004/04/13 18:01:39 tuexen Exp $
+ * $Id: file.c,v 1.372 2004/04/14 05:46:34 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -544,6 +544,8 @@ cf_start_tail(char *fname, gboolean is_tempfile, capture_file *cf)
     capture_msg = g_strdup_printf(" %s: <live capture in progress>", cf->iface);
 
     statusbar_push_file_msg(capture_msg);
+
+    g_free(capture_msg);
   }
   return err;
 }
