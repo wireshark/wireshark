@@ -1,7 +1,7 @@
 /* airopeek9.c
  * Routines for opening AiroPeek V9 files
  *
- * $Id: airopeek9.c,v 1.2 2003/12/02 20:27:14 guy Exp $
+ * $Id: airopeek9.c,v 1.3 2003/12/03 19:47:36 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -144,7 +144,7 @@ static int wtap_file_read_number (wtap *wth, guint32 *num, int *err)
 {
     int ret;
     char str_num[12];
-    unsigned long long value;
+    unsigned long value;
     char *p;
 
     ret = wtap_file_read_till_separator (wth, str_num, sizeof (str_num)-1, "<",
