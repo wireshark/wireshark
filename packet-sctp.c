@@ -12,7 +12,7 @@
  * - support for reassembly
  * - error checking mode 
  *
- * $Id: packet-sctp.c,v 1.61 2003/08/26 07:03:14 guy Exp $
+ * $Id: packet-sctp.c,v 1.62 2003/09/02 11:03:59 tuexen Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1416,8 +1416,8 @@ dissect_init_chunk(tvbuff_t *chunk_tvb,  packet_info *pinfo, proto_tree *chunk_t
     dissect_parameters(parameters_tvb, pinfo, chunk_tree, NULL);
 
     proto_item_append_text(chunk_item, " (Outbound streams: %u, inbound streams: %u)",
-                           tvb_get_ntohs(chunk_tvb, INIT_CHUNK_NUMBER_OF_INBOUND_STREAMS_OFFSET),
-                           tvb_get_ntohs(chunk_tvb, INIT_CHUNK_NUMBER_OF_OUTBOUND_STREAMS_OFFSET));
+                           tvb_get_ntohs(chunk_tvb, INIT_CHUNK_NUMBER_OF_OUTBOUND_STREAMS_OFFSET),
+                           tvb_get_ntohs(chunk_tvb, INIT_CHUNK_NUMBER_OF_INBOUND_STREAMS_OFFSET));
   }
 }
 
@@ -1441,8 +1441,8 @@ dissect_init_ack_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *chun
     dissect_parameters(parameters_tvb, pinfo, chunk_tree, NULL);
 
     proto_item_append_text(chunk_item, " (Outbound streams: %u, inbound streams: %u)",
-                           tvb_get_ntohs(chunk_tvb, INIT_CHUNK_NUMBER_OF_INBOUND_STREAMS_OFFSET),
-                           tvb_get_ntohs(chunk_tvb, INIT_CHUNK_NUMBER_OF_OUTBOUND_STREAMS_OFFSET));
+                           tvb_get_ntohs(chunk_tvb, INIT_CHUNK_NUMBER_OF_OUTBOUND_STREAMS_OFFSET),
+                           tvb_get_ntohs(chunk_tvb, INIT_CHUNK_NUMBER_OF_INBOUND_STREAMS_OFFSET));
   }
 }
 
