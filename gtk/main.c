@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.324 2003/10/16 00:45:12 guy Exp $
+ * $Id: main.c,v 1.325 2003/10/16 20:56:07 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2942,6 +2942,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
                          filter_te);
     set_menu_object_data("/Display/Prepare/Or Not Selected", E_DFILTER_TE_KEY,
                          filter_te);
+    set_toolbar_object_data(E_DFILTER_TE_KEY, filter_te);
     OBJECT_SET_DATA(popup_menu_object, E_DFILTER_TE_KEY, filter_te);
     OBJECT_SET_DATA(popup_menu_object, E_MPACKET_LIST_KEY, packet_list);
 
