@@ -1,3 +1,9 @@
+Overview of changes in Ethereal 0.6.2:
+* Almost-real-time capture and display (John, Laurent)
+* Initial support for SMB (Richard)
+* Initial support for SNMP (Didier, Gilbert)
+* Wiretap now reads NetMon 2.0 file formats (Guy)
+
 Overview of changes in Ethereal 0.6.1:
 * Released because of packaging problem in 0.6.0
 * Information about building on Tru64

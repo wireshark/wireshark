@@ -116,7 +116,8 @@ EXTRA_DIST =                \
 	print.ps                \
 	README.tru64		\
 	rdps.c			\
-	ylwrap
+	ylwrap			\
+	VERSION
 
 SUBDIRS = @SUBDIRS@
 
