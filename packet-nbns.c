@@ -3,7 +3,7 @@
  * to when it had only NBNS)
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-nbns.c,v 1.73 2002/02/18 23:51:55 guy Exp $
+ * $Id: packet-nbns.c,v 1.74 2002/02/28 23:09:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1359,6 +1359,7 @@ dissect_nbss_packet(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	guint8		msg_type;
 	guint8		flags;
 	volatile int	length;
+	int		length_remaining;
 	int		len;
 	char		name[(NETBIOS_NAME_LEN - 1)*4 + MAXDNAME];
 	int		name_type;
@@ -1366,8 +1367,28 @@ dissect_nbss_packet(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	tvbuff_t	*next_tvb;
 	const char	*saved_proto;
 
-	msg_type = tvb_get_guint8(tvb, offset);
+	/* Desegmentation */
+	length_remaining = tvb_length_remaining(tvb, offset);
 
+	/*
+	 * Can we do reassembly?
+	 */
+	if (nbss_desegment && pinfo->can_desegment) {
+		/*
+		 * Yes - is the NBSS header split across segment boundaries?
+		 */
+		if (length_remaining < 4) {
+			/*
+			 * Yes.  Tell our caller how many more bytes
+			 * we need.
+			 */
+			return -(4 - length_remaining);
+		}
+	}
+
+	/*
+	 * Get the length of the NBSS message.
+	 */
 	if (is_cifs) {
 		flags = 0;
 		length = tvb_get_ntoh24(tvb, offset + 1);
@@ -1378,24 +1399,23 @@ dissect_nbss_packet(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			length += 65536;
 	}
 
-	/*Desegmentation */
-	if (nbss_desegment) {
-		if (pinfo->can_desegment
-		    && length > tvb_length_remaining(tvb, offset+4)) {
+	/*
+	 * Can we do reassembly?
+	 */
+	if (nbss_desegment && pinfo->can_desegment) {
+		/*
+		 * Yes - is the NBSS message split across segment boundaries?
+		 */
+		if (length_remaining < length + 4) {
 			/*
-			 * This frame doesn't have all of the data for
-			 * this message, but we can do reassembly on it.
-			 *
-			 * Tell the TCP dissector where the data for this
-			 * message starts in the data it handed us, and
-			 * how many more bytes we need, and return.
+			 * Yes.  Tell our caller how many more bytes
+			 * we need.
 			 */
-			pinfo->desegment_offset = offset;
-			pinfo->desegment_len =
-			    length - tvb_length_remaining(tvb, offset+4);
-			return max_data;
+			return -((length + 4) - length_remaining);
 		}
 	}
+
+	msg_type = tvb_get_guint8(tvb, offset);
 
 	if (tree) {
 	  ti = proto_tree_add_item(tree, proto_nbss, tvb, offset, length + 4, FALSE);
@@ -1687,6 +1707,20 @@ dissect_nbss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	while (max_data > 0) {
 		len = dissect_nbss_packet(tvb, offset, pinfo, tree, max_data,
 		    is_cifs);
+		if (len < 0) {
+			/*
+			 * We need more data to dissect this, and
+			 * desegmentation is enabled.  "-len" is the
+			 * number of additional bytes of data we need.
+			 *
+			 * Tell the TCP dissector where the data for this
+			 * message starts in the data it handed us, and
+			 * how many more bytes we need, and return.
+			 */
+			pinfo->desegment_offset = offset;
+			pinfo->desegment_len = -len;
+			return;
+		}
 		offset += len;
 		max_data -= len;
 	}
