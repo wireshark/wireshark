@@ -2,7 +2,7 @@
  * Routines for XDMCP message dissection
  * Copyright 2002, Pasi Eronen <pasi.eronen@nixu.com>
  *
- * $Id: packet-xdmcp.c,v 1.4 2003/12/21 05:51:34 jmayer Exp $
+ * $Id: packet-xdmcp.c,v 1.5 2004/02/25 09:31:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -111,12 +111,14 @@ static void stringCopy(char *dest, const char *source, int length)
 static gint xdmcp_add_string(proto_tree *tree, gint hf,
 			     tvbuff_t *tvb, gint offset)
 {
+  const guint8 *p;
   char *str;
   guint len;
 
   len = tvb_get_ntohs(tvb, offset);
+  p = tvb_get_ptr(tvb, offset+2, len);
   str = g_malloc(len+1);
-  stringCopy(str, tvb_get_ptr(tvb, offset+2, len), len);
+  stringCopy(str, p, len);
   proto_tree_add_string(tree, hf, tvb, offset, len+2, str);
   g_free(str);
 
@@ -126,12 +128,14 @@ static gint xdmcp_add_string(proto_tree *tree, gint hf,
 static gint xdmcp_add_text(proto_tree *tree, const char *text,
 		     tvbuff_t *tvb, gint offset)
 {
+  const guint8 *p;
   char *str;
   guint len;
 
   len = tvb_get_ntohs(tvb, offset);
+  p = tvb_get_ptr(tvb, offset+2, len);
   str = g_malloc(len+1);
-  stringCopy(str, tvb_get_ptr(tvb, offset+2, len), len);
+  stringCopy(str, p, len);
   proto_tree_add_text(tree, tvb, offset, len+2, "%s: %s", text, str);
   g_free(str);
 

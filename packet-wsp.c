@@ -2,7 +2,7 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  *
- * $Id: packet-wsp.c,v 1.108 2004/02/04 20:19:25 obiot Exp $
+ * $Id: packet-wsp.c,v 1.109 2004/02/25 09:31:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -5645,10 +5645,7 @@ add_post_variable (proto_tree *tree, tvbuff_t *tvb, guint variableStart, guint v
 	char *variableBuffer;
 	char *valueBuffer;
 
-	variableBuffer = g_malloc (variableLength+1);
-	strncpy (variableBuffer, (const char *)tvb_get_ptr (tvb,
-				variableStart, variableLength), variableLength);
-	variableBuffer[variableLength] = 0;
+	variableBuffer = tvb_get_string(tvb, variableStart, variableLength);
 
 	if (valueEnd < valueStart)
 	{
@@ -5659,10 +5656,9 @@ add_post_variable (proto_tree *tree, tvbuff_t *tvb, guint variableStart, guint v
 	else
 	{
 		valueLength = valueEnd-valueStart;
-		valueBuffer = g_malloc (valueLength+1);
-		strncpy (valueBuffer, (const char *)tvb_get_ptr (tvb,
-					valueStart, valueLength), valueLength);
-		valueBuffer[valueLength] = 0;
+		/* XXX - if this throws an exception, "variableBuffer"
+		   is leaked */
+		valueBuffer = tvb_get_string(tvb, valueStart, valueLength);
 	}
 
 	/* Check for variables with no value */

@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  *
- * $Id: packet-rpc.c,v 1.140 2003/12/28 12:43:38 ulfl Exp $
+ * $Id: packet-rpc.c,v 1.141 2004/02/25 09:31:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -526,6 +526,7 @@ dissect_rpc_opaque_data(tvbuff_t *tvb, int offset,
     gboolean string_data, char **string_buffer_ret,
     dissect_function_t *dissect_it)
 {
+	int data_offset;
 	proto_item *string_item = NULL;
 	proto_tree *string_tree = NULL;
 
@@ -548,14 +549,14 @@ dissect_rpc_opaque_data(tvbuff_t *tvb, int offset,
 
 	if (fixed_length) {
 		string_length = length;
-		string_length_captured = tvb_length_remaining(tvb, offset);
-		string_length_packet = tvb_reported_length_remaining(tvb, offset);
+		data_offset = offset;
 	}
 	else {
 		string_length = tvb_get_ntohl(tvb,offset+0);
-		string_length_captured = tvb_length_remaining(tvb, offset + 4);
-		string_length_packet = tvb_reported_length_remaining(tvb, offset + 4);
+		data_offset = offset + 4;
 	}
+	string_length_captured = tvb_length_remaining(tvb, data_offset);
+	string_length_packet = tvb_reported_length_remaining(tvb, data_offset);
 	string_length_full = rpc_roundup(string_length);
 	if (string_length_captured < string_length) {
 		/* truncated string */
@@ -572,18 +573,10 @@ dissect_rpc_opaque_data(tvbuff_t *tvb, int offset,
 		/* full string data */
 		string_length_copy = string_length;
 		fill_length = string_length_full - string_length;
-		if (fixed_length) {
-			fill_length_captured = tvb_length_remaining(tvb,
-			    offset + string_length);
-			fill_length_packet = tvb_reported_length_remaining(tvb,
-			    offset + string_length);
-		}
-		else {
-			fill_length_captured = tvb_length_remaining(tvb,
-			    offset + 4 + string_length);
-			fill_length_packet = tvb_reported_length_remaining(tvb,
-			    offset + 4 + string_length);
-		}
+		fill_length_captured = tvb_length_remaining(tvb,
+		    data_offset + string_length);
+		fill_length_packet = tvb_reported_length_remaining(tvb,
+		    data_offset + string_length);
 		if (fill_length_captured < fill_length) {
 			/* truncated fill bytes */
 			fill_length_copy = fill_length_packet;
@@ -608,22 +601,20 @@ dissect_rpc_opaque_data(tvbuff_t *tvb, int offset,
         if (dissect_it) {
           tvbuff_t *opaque_tvb;
 
-          opaque_tvb = tvb_new_subset(tvb, offset, 
-              (fixed_length?offset:(offset + 4)), string_length_copy);
+          opaque_tvb = tvb_new_subset(tvb, data_offset, string_length_copy,
+                                      string_length);
 
           return (*dissect_it)(opaque_tvb, offset, pinfo, tree);
 
         }
 
-	string_buffer = (char*)g_malloc(string_length_copy +
-			(string_data ? 1 : 0));
-	if (fixed_length)
-		tvb_memcpy(tvb,string_buffer, offset, string_length_copy);
-	else
-		tvb_memcpy(tvb,string_buffer,offset+4,string_length_copy);
-	if (string_data)
-		string_buffer[string_length_copy] = '\0';
-
+	if (string_data) {
+		string_buffer = tvb_get_string(tvb, data_offset,
+		    string_length_copy);
+	} else {
+		string_buffer = tvb_memdup(tvb, data_offset,
+		    string_length_copy);
+	}
 	/* calculate a nice printable string */
 	if (string_length) {
 		if (string_length != string_length_copy) {

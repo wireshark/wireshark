@@ -1,6 +1,6 @@
 /* packet-rtcp.c
  *
- * $Id: packet-rtcp.c,v 1.39 2004/02/14 22:48:52 guy Exp $
+ * $Id: packet-rtcp.c,v 1.40 2004/02/25 09:31:06 guy Exp $
  *
  * Routines for RTCP dissection
  * RTCP = Real-time Transport Control Protocol
@@ -369,7 +369,6 @@ dissect_rtcp_bye( tvbuff_t *tvb, int offset, proto_tree *tree,
 {
 	unsigned int chunk          = 1;
 	unsigned int reason_length  = 0;
-	unsigned int counter = 0;
 	char* reason_text = NULL;
 
 	while ( chunk <= count ) {
@@ -385,10 +384,7 @@ dissect_rtcp_bye( tvbuff_t *tvb, int offset, proto_tree *tree,
 		proto_tree_add_item( tree, hf_rtcp_ssrc_length, tvb, offset, 1, FALSE );
 		offset++;
 
-		reason_text = g_malloc( reason_length + 1 );
-		for ( counter = 0; counter < reason_length; counter++ ) reason_text[ counter ] = tvb_get_guint8( tvb, offset + counter );
-		/* strncpy( reason_text, pd + offset, reason_length ); */
-		reason_text[ reason_length ] = '\0';
+		reason_text = tvb_get_string(tvb, offset, reason_length);
 		proto_tree_add_string( tree, hf_rtcp_ssrc_text, tvb, offset, reason_length, reason_text );
 		g_free( reason_text );
 		offset += reason_length;

@@ -4,7 +4,7 @@
  * Copyright 2001, Michal Melerowicz <michal.melerowicz@nokia.com>
  *                 Nicolas Balkota <balkota@mac.com>
  *
- * $Id: packet-gtp.c,v 1.71 2004/01/06 02:38:03 guy Exp $
+ * $Id: packet-gtp.c,v 1.72 2004/02/25 09:31:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3303,10 +3303,10 @@ decode_apn(tvbuff_t *tvb, int offset, guint16 length, proto_tree *tree) {
 	guint8	name_len, tmp;
 
 	if (length > 0) {
-		apn = g_malloc (length + 1);
 		name_len = tvb_get_guint8 (tvb, offset);
 
 		if (name_len < 0x20) {
+			apn = tvb_get_string(tvb, offset + 1, length);
 			tvb_memcpy (tvb, apn, offset + 1, length);
 			for (;;) {
 				if (name_len >= length - 1) break;
@@ -3314,11 +3314,9 @@ decode_apn(tvbuff_t *tvb, int offset, guint16 length, proto_tree *tree) {
 				name_len = name_len + apn[tmp] + 1;
 				apn[tmp] = '.';
 			}
-		} else {
-			tvb_memcpy (tvb, apn, offset, length);
-		}
+		} else
+			apn = tvb_get_string(tvb, offset, length);
 
-		apn[length-1] = '\0';
 		proto_tree_add_string (tree, hf_gtp_apn, tvb, offset, length, apn);
 		g_free(apn);
 	}

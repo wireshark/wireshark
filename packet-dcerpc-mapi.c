@@ -2,7 +2,7 @@
  * Routines for MS Exchange MAPI
  * Copyright 2002, Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-mapi.c,v 1.26 2004/01/19 20:10:33 jmayer Exp $
+ * $Id: packet-dcerpc-mapi.c,v 1.27 2004/02/25 09:31:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -164,11 +164,11 @@ mapi_decrypt_pdu(tvbuff_t *tvb, int offset,
 	}
 
 	if(!pinfo->fd->flags.visited){
+		ptr=(const unsigned char *)tvb_get_ptr(tvb, offset, len);
 		mmd=g_mem_chunk_alloc(mapi_decrypted_data_chunk);
 		mmd->callid=di->call_id;
 		mmd->frame=pinfo->fd->num;
 		mmd->data=g_malloc(len);
-		ptr=(const unsigned char *)tvb_get_ptr(tvb, offset, len);
 		for(i=0;i<len;i++){
 			mmd->data[i]=ptr[i]^0xa5;
 		}

@@ -2,7 +2,7 @@
  * Routines for nfs dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * Copyright 2000-2002, Mike Frisch <frisch@hummingbird.com> (NFSv4 decoding)
- * $Id: packet-nfs.c,v 1.95 2004/02/11 04:34:38 guy Exp $
+ * $Id: packet-nfs.c,v 1.96 2004/02/25 09:31:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -678,8 +678,7 @@ nfs_name_snoop_add_name(int xid, tvbuff_t *tvb, int name_offset, int name_len, i
 
 	if(parent_len){
 		nns->parent_len=parent_len;
-		nns->parent=g_malloc(parent_len);
-		memcpy(nns->parent, tvb_get_ptr(tvb, parent_offset, parent_len), parent_len);
+		nns->parent=tvb_memdup(tvb, parent_offset, parent_len);
 	} else {
 		nns->parent_len=0;
 		nns->parent=NULL;
@@ -739,8 +738,7 @@ nfs_name_snoop_add_fh(int xid, tvbuff_t *tvb, int fh_offset, int fh_length)
 	}
 
 	/* oki, we have a new entry */
-	fh=g_malloc(fh_length);
-	memcpy(fh, tvb_get_ptr(tvb, fh_offset, fh_length), fh_length);
+	fh=tvb_memdup(tvb, fh_offset, fh_length);
 	nns->fh=fh;
 	nns->fh_length=fh_length;
 
@@ -6022,6 +6020,7 @@ dissect_nfs_attributes(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	int attr_vals_offset;
 
 	bitmap_len = tvb_get_ntohl(tvb, offset);
+        tvb_ensure_bytes_exist(tvb, offset, 4 + bitmap_len * 4);
 	fitem = proto_tree_add_text(tree, tvb, offset, 4 + bitmap_len * 4,
 		"%s", "attrmask");
 	offset += 4;
@@ -6039,12 +6038,6 @@ dissect_nfs_attributes(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	for (i = 0; i < bitmap_len; i++)
 	{
-		if (!tvb_bytes_exist(tvb, offset,  4))
-		{
-			g_free(bitmap);
-			return offset;
-		}
-
 		bitmap[i] = tvb_get_ntohl(tvb, offset);
 
 		sl = 0x00000001;

@@ -1,7 +1,7 @@
 /* packet-icmpv6.c
  * Routines for ICMPv6 packet disassembly
  *
- * $Id: packet-icmpv6.c,v 1.76 2004/01/29 03:59:03 guy Exp $
+ * $Id: packet-icmpv6.c,v 1.77 2004/02/25 09:31:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -217,16 +217,19 @@ again:
     case ND_OPT_SOURCE_LINKADDR:
     case ND_OPT_TARGET_LINKADDR:
       {
-	char *t;
 	int len, i, p;
+	const guint8 *a;
+	char *t;
+
+	p = offset + sizeof(*opt);
 	len = (opt->nd_opt_len << 3) - sizeof(*opt);
+	a = tvb_get_ptr(tvb, p, len);
 	t = g_malloc(len * 3);
 	memset(t, 0, len * 3);
-	p = offset + sizeof(*opt);
 	for (i = 0; i < len; i++) {
 	    if (i)
 		t[i * 3 - 1] = ':';
-	    sprintf(&t[i * 3], "%02x", tvb_get_guint8(tvb, p + i) & 0xff);
+	    sprintf(&t[i * 3], "%02x", a[i]);
 	}
 	proto_tree_add_text(icmp6opt_tree, tvb,
 	    offset + sizeof(*opt), len, "Link-layer address: %s", t);

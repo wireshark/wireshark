@@ -6,7 +6,7 @@
  * Magnus Hansson <mah@hms.se>
  * Joakim Wiberg <jow@hms.se>
  *
- * $Id: packet-enip.c,v 1.9 2004/02/04 20:34:53 guy Exp $
+ * $Id: packet-enip.c,v 1.10 2004/02/25 09:31:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -661,10 +661,11 @@ static const value_string enip_class_names_vals[] = {
 static proto_item*
 add_byte_array_text_to_proto_tree( proto_tree *tree, tvbuff_t *tvb, gint start, gint length, const char* str )
 {
-  char   *tmp, *tmp2, *tmp2start;
-  proto_item* pi;
-  int          i,tmp_length;
-  guint32      octet;
+  const char *tmp;
+  char       *tmp2, *tmp2start;
+  proto_item *pi;
+  int         i,tmp_length,tmp2_length;
+  guint32     octet;
   /* At least one version of Apple's C compiler/linker is buggy, causing
      a complaint from the linker about the "literal C string section"
      not ending with '\0' if we initialize a 16-element "char" array with
@@ -676,22 +677,21 @@ add_byte_array_text_to_proto_tree( proto_tree *tree, tvbuff_t *tvb, gint start, 
         '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
 
 
-
    if( ( length * 2 ) > 32 )
    {
-      tmp2 = (char*)g_malloc( 36 );
       tmp_length = 16;
+      tmp2_length = 36;
    }
    else
    {
-      tmp2 = (char*)g_malloc( ( length * 2 ) + 1 );
       tmp_length = length;
+      tmp2_length = ( length * 2 ) + 1;
    }
 
-   tmp2start = tmp2;
+   tmp = tvb_get_ptr( tvb, start, tmp_length );
+   tmp2 = (char*)g_malloc( tmp2_length );
 
-   tmp = (char*)g_malloc( tmp_length );
-   tvb_memcpy( tvb, tmp, start, tmp_length );
+   tmp2start = tmp2;
 
    for( i = 0; i < tmp_length; i++ )
    {
@@ -713,7 +713,6 @@ add_byte_array_text_to_proto_tree( proto_tree *tree, tvbuff_t *tvb, gint start, 
 
    pi = proto_tree_add_text( tree, tvb, start, length, "%s%s", str, tmp2start );
 
-   g_free( tmp );
    g_free( tmp2start );
 
    return( pi );

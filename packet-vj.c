@@ -1,7 +1,7 @@
 /* packet-vj.c
  * Routines for Van Jacobson header decompression.
  *
- * $Id: packet-vj.c,v 1.17 2003/08/26 05:52:53 guy Exp $
+ * $Id: packet-vj.c,v 1.18 2004/02/25 09:31:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -309,8 +309,7 @@ dissect_vjuc(tvbuff_t *tvb, packet_info *pinfo, proto_tree * tree)
    * Copy packet data to a buffer, and replace the connection index with
    * the protocol type (which is always TCP), to give the actual IP header.
    */
-  buffer = g_malloc(isize);
-  tvb_memcpy(tvb, buffer, 0, isize);
+  buffer = tvb_memdup(tvb, 0, isize);
   buffer[IP_FIELD_PROTOCOL] = IP_PROTO_TCP;
 
   /* Check IP checksum */

@@ -2,7 +2,7 @@
  * Routines for AppleTalk packet disassembly: LLAP, DDP, NBP, ATP, ASP,
  * RTMP.
  *
- * $Id: packet-atalk.c,v 1.95 2004/02/19 07:12:26 guy Exp $
+ * $Id: packet-atalk.c,v 1.96 2004/02/25 09:31:05 guy Exp $
  *
  * Simon Wilkinson <sxw@dcs.ed.ac.uk>
  *
@@ -518,9 +518,7 @@ static int dissect_pascal_string(tvbuff_t *tvb, int offset, proto_tree *tree,
 		 * code, we could perhaps avoid allocating and freeing
 		 * this string buffer.
 		 */
-		tmp = g_malloc( len+1 );
-		tvb_memcpy(tvb, tmp, offset, len);
-		tmp[len] = 0;
+		tmp = tvb_get_string(tvb, offset, len);
 		item = proto_tree_add_string(tree, hf_index, tvb, offset-1, len+1, tmp);
 
 		subtree = proto_item_add_subtree(item, ett_pstring);
@@ -1055,9 +1053,7 @@ dissect_asp_reply_get_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 				break;
 			case 4: /* DNS */
 				if (len > 2) {
-					tmp = g_malloc( len -1);
-					tvb_memcpy(tvb, tmp, ofs +2, len -2);
-					tmp[len -2] = 0;
+					tmp = tvb_get_string(tvb, ofs +2, len -2);
 					ti = proto_tree_add_text(adr_tree, tvb, ofs, len, "dns %s", tmp);
 					g_free(tmp);
 					break;

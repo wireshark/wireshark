@@ -3,7 +3,7 @@
  * Devin Heitmueller <dheitmueller@netilla.com>
  * Copyright 2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-ntlmssp.c,v 1.46 2004/01/19 20:10:36 jmayer Exp $
+ * $Id: packet-ntlmssp.c,v 1.47 2004/02/25 09:31:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1268,11 +1268,10 @@ dissect_ntlmssp_encrypted_payload(tvbuff_t *tvb, int offset,
 
     /* Store the decrypted contents in the packet state struct
        (of course at this point, they aren't decrypted yet) */
-    packet_ntlmssp_info->decrypted_payload = g_malloc (encrypted_block_length);
+    packet_ntlmssp_info->decrypted_payload = tvb_memdup(tvb, offset,
+                                                        encrypted_block_length);
     decrypted_payloads = g_slist_prepend(decrypted_payloads,
                                          packet_ntlmssp_info->decrypted_payload);
-    tvb_memcpy(tvb, packet_ntlmssp_info->decrypted_payload, 
-	       offset, encrypted_block_length);
     
     /* Do the decryption of the payload */
     crypt_rc4(rc4_state, packet_ntlmssp_info->decrypted_payload, 

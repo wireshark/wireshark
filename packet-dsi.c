@@ -2,7 +2,7 @@
  * Routines for dsi packet dissection
  * Copyright 2001, Randy McEoin <rmceoin@pe.com>
  *
- * $Id: packet-dsi.c,v 1.29 2004/01/13 21:49:52 guy Exp $
+ * $Id: packet-dsi.c,v 1.30 2004/02/25 09:31:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -406,9 +406,7 @@ dissect_dsi_reply_get_status(tvbuff_t *tvb, proto_tree *tree, gint offset)
 			case 4: /* DNS */
 			case 5: /* SSH tunnel */
 				if (len > 2) {
-					tmp = g_malloc( len -1);
-					tvb_memcpy(tvb, tmp, ofs +2, len -2);
-					tmp[len -2] = 0;
+					tmp = tvb_get_string(tvb, ofs +2, len -2);
 					ti = proto_tree_add_text(adr_tree, tvb, ofs, len, "%s: %s", 
 								(type==4)?"dns":"ssh tunnel", tmp);
 					g_free(tmp);

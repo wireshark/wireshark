@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.105 2004/02/18 07:56:42 guy Exp $
+ * $Id: packet-ieee80211.c,v 1.106 2004/02/25 09:31:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2626,12 +2626,15 @@ proto_reg_handoff_ieee80211(void)
 }
 
 static tvbuff_t *try_decrypt_wep(tvbuff_t *tvb, guint32 offset, guint32 len) {
+  const guint8 *enc_data;
   guint8 *tmp = NULL;
   int i;
   tvbuff_t *decr_tvb = NULL;
 
   if (num_wepkeys < 1)
     return NULL;
+
+  enc_data = tvb_get_ptr(tvb, offset, len);
 
   if ((tmp = g_malloc(len)) == NULL)
     return NULL;  /* krap! */
@@ -2642,7 +2645,7 @@ static tvbuff_t *try_decrypt_wep(tvbuff_t *tvb, guint32 offset, guint32 len) {
 #if 0
     printf("trying %d\n", i);
 #endif
-    tvb_memcpy(tvb, tmp, offset, len);
+    memcpy(tmp, enc_data, len);
     if (wep_decrypt(tmp, len, i) == 0) {
 
       /* decrypt successful, let's set up a new data tvb. */

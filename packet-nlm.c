@@ -1,7 +1,7 @@
 /* packet-nlm.c
  * Routines for nlm dissection
  *
- * $Id: packet-nlm.c,v 1.35 2003/08/17 21:34:22 sahlberg Exp $
+ * $Id: packet-nlm.c,v 1.36 2004/02/25 09:31:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -296,7 +296,6 @@ nlm_register_unmatched_msg(packet_info *pinfo, tvbuff_t *tvb, int offset)
 {
 	nlm_msg_res_unmatched_data *umd;
 	nlm_msg_res_unmatched_data *old_umd;
-	char *cookie;
 
 	/* allocate and build the unmatched structure for this request */
 	umd=g_malloc(sizeof(nlm_msg_res_unmatched_data));
@@ -304,9 +303,7 @@ nlm_register_unmatched_msg(packet_info *pinfo, tvbuff_t *tvb, int offset)
 	umd->ns.secs=pinfo->fd->abs_secs;
 	umd->ns.nsecs=pinfo->fd->abs_usecs*1000;
 	umd->cookie_len=tvb_get_ntohl(tvb, offset);
-	cookie=g_malloc(umd->cookie_len);
-	tvb_memcpy(tvb, (guint8 *)cookie, offset+4, umd->cookie_len);
-	umd->cookie=cookie;
+	umd->cookie=tvb_memdup(tvb, offset+4, umd->cookie_len);
 
 	/* remove any old duplicates */
 	old_umd=g_hash_table_lookup(nlm_msg_res_unmatched, (gconstpointer)umd);

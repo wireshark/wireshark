@@ -3,7 +3,7 @@
  * Copyright 2000, Christophe Tronche <ch.tronche@computer.org>
  * Copyright 2003, Michael Shuldman
  *
- * $Id: packet-x11.c,v 1.53 2004/01/18 16:18:30 jmayer Exp $
+ * $Id: packet-x11.c,v 1.54 2004/02/25 09:31:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1702,13 +1702,15 @@ static void listOfKeycode(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
 
       for (m = 0; m < array_length(modifiers);
       ++m, *offsetp += keycodes_per_modifier) {
+	    const guint8 *p;
 	    char *bp = buffer;
 	    int i;
 
+	    p = tvb_get_ptr(tvb, *offsetp, keycodes_per_modifier);
             modifiermap[m] = g_malloc(keycodes_per_modifier);
 
 	    for(i = 0; i < keycodes_per_modifier; ++i) {
-		guchar c = tvb_get_guint8(tvb, *offsetp + i);
+		guchar c = p[i];
 
 		if (c)
 		    bp += sprintf(bp, " %s=%d", modifiers[m], c);
@@ -1717,9 +1719,8 @@ static void listOfKeycode(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
 	    }
 
 	    proto_tree_add_bytes_format(tt, hf_x11_keycodes_item, tvb,
-	    *offsetp, keycodes_per_modifier,
-	    tvb_get_ptr(tvb, *offsetp, keycodes_per_modifier),
-	    "item: %s", buffer);
+	        *offsetp, keycodes_per_modifier, p,
+	        "item: %s", buffer);
       }
 }
 
@@ -2317,22 +2318,14 @@ static void setOfPointerEvent(tvbuff_t *tvb, int *offsetp, proto_tree *t,
 static void string8(tvbuff_t *tvb, int *offsetp, proto_tree *t,
     int hf, unsigned length)
 {
-      char *s = g_malloc(length + 1);
+      const guint8 *p;
+      char *s;
 
-      /*
-       * In case we throw an exception, clean up whatever stuff we've
-       * allocated (if any).
-       */
-      CLEANUP_PUSH(g_free, s);
-
-      stringCopy(s, tvb_get_ptr(tvb, *offsetp, length), length);
+      p = tvb_get_ptr(tvb, *offsetp, length);
+      s = g_malloc(length + 1);
+      stringCopy(s, p, length);
       proto_tree_add_string(t, hf, tvb, *offsetp, length, s);
-
-      /*
-       * Call the cleanup handler to free the string and pop the handler.
-       */
-      CLEANUP_CALL_AND_POP;
-
+      g_free(s);
       *offsetp += length;
 }
 

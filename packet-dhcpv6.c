@@ -5,7 +5,7 @@
  * SHIRASAKI Yasuhiro <yasuhiro@gnome.gr.jp>
  * Tony Lindstrom <tony.lindstrom@ericsson.com>
  *
- * $Id: packet-dhcpv6.c,v 1.10 2004/01/29 03:46:36 guy Exp $
+ * $Id: packet-dhcpv6.c,v 1.11 2004/02/25 09:31:05 guy Exp $
  *
  * The information used comes from:
  * RFC3315.txt
@@ -450,12 +450,8 @@ dhcpv6_option(tvbuff_t *tvb, proto_tree *bp_tree, int off, int eoff,
 					       "Unknown"),
 				    status_code);
 
-		if (optlen - 2 > 0)
-		    status_message = g_malloc(optlen - 2 + 1);
-		if (status_message != 0){
-		    memset(status_message, 0, optlen - 2 + 1);
-		    status_message = tvb_memcpy(tvb, status_message, off + 2,
-						optlen - 2);
+		if (optlen - 2 > 0) {
+		    status_message = tvb_get_string(tvb, off + 2, optlen - 2);
 		    proto_tree_add_text(subtree, tvb, off + 2, optlen - 2,
 					"Status Message: %s",
 					status_message);
