@@ -1,6 +1,8 @@
 /* h323_conversations_dlg.h
  * H323 conversations addition for ethereal
  *
+ * $Id$
+ *
  * Copyright 2004, Iskratel, Ltd, Kranj
  * By Miha Jemec <m.jemec@iskratel.si>
  *
