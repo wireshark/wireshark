@@ -1,12 +1,11 @@
 /* packet_info.c
  * Routines for handling packet information
  *
- * $Id: packet_info.c,v 1.1 2001/04/01 04:50:42 hagbard Exp $
+ * $Id: packet_info.c,v 1.2 2001/08/04 04:04:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -29,7 +28,6 @@
 
 #include <glib.h>
 
-
 #include "packet_info.h"
 
 void blank_packetinfo(void)
@@ -47,6 +45,7 @@ void blank_packetinfo(void)
   pi.destport = 0;
   pi.current_proto = "<Missing Protocol Name>";
   pi.p2p_dir = P2P_DIR_UNKNOWN;
+  pi.private = NULL;
 }
 
 

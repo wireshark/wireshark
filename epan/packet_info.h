@@ -1,7 +1,7 @@
 /* packet_info.h
  * Definitions for packet info structures and routines
  *
- * $Id: packet_info.h,v 1.4 2001/06/04 07:27:50 guy Exp $
+ * $Id: packet_info.h,v 1.5 2001/08/04 04:04:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -111,15 +111,7 @@ typedef struct _packet_info {
   int     iplen;
   int     iphdrlen;
   int	  p2p_dir;
-  union {
-    struct {
-      guint8	type;
-      guint8	flags;
-      guint16	serviceid;
-      guint32	callnumber;
-      guint32	seq;
-    } rx;			/* fields specific for RX protocol */
-  } ps;				/* protocol specific data */
+  void    *private;		/* pointer to data passed from one dissector to another */
 } packet_info;
 
 void blank_packetinfo(void);

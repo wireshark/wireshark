@@ -4,7 +4,7 @@
  * Based on routines from tcpdump patches by
  *   Ken Hornstein <kenh@cmf.nrl.navy.mil>
  *
- * $Id: packet-rx.c,v 1.23 2001/07/03 00:46:52 guy Exp $
+ * $Id: packet-rx.c,v 1.24 2001/08/04 04:04:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -408,14 +408,14 @@ dissect_rx_acks(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int 
 
 
 static int
-dissect_rx_flags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset)
+dissect_rx_flags(tvbuff_t *tvb, struct rxinfo *rxinfo, proto_tree *parent_tree, int offset)
 {
 	proto_tree *tree;
 	proto_item *item;
 	guint8 flags;
 
 	flags = tvb_get_guint8(tvb, offset);
-	pinfo->ps.rx.flags = flags;
+	rxinfo->flags = flags;
 
 	item = proto_tree_add_uint(parent_tree, hf_rx_flags, tvb,
 		offset, 1, flags);
@@ -442,6 +442,7 @@ dissect_rx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	proto_tree *tree;
 	proto_item *item;
 	int offset = 0;
+	struct rxinfo rxinfo;
 	guint8 type;
 	guint32 seq, callnumber;
 	guint16 serviceid;
@@ -476,14 +477,14 @@ dissect_rx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	proto_tree_add_uint(tree, hf_rx_callnumber, tvb,
 		offset, 4, callnumber);
 	offset += 4;
-	pinfo->ps.rx.callnumber = callnumber;
+	rxinfo.callnumber = callnumber;
 
 	/* seq : 4 bytes */
 	seq = tvb_get_ntohl(tvb, offset);
 	proto_tree_add_uint(tree, hf_rx_seq, tvb,
 		offset, 4, seq);
 	offset += 4;
-	pinfo->ps.rx.seq = seq;
+	rxinfo.seq = seq;
 
 	/* serial : 4 bytes */
 	proto_tree_add_uint(tree, hf_rx_serial, tvb,
@@ -495,10 +496,10 @@ dissect_rx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	proto_tree_add_uint(tree, hf_rx_type, tvb,
 		offset, 1, type);
 	offset += 1;
-	pinfo->ps.rx.type = type;
+	rxinfo.type = type;
 
 	/* flags : 1 byte */
-	offset = dissect_rx_flags(tvb, pinfo, tree, offset);
+	offset = dissect_rx_flags(tvb, &rxinfo, tree, offset);
 
 	/* userstatus : 1 byte */
 	proto_tree_add_uint(tree, hf_rx_userstatus, tvb,
@@ -520,7 +521,7 @@ dissect_rx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	proto_tree_add_uint(tree, hf_rx_serviceid, tvb,
 		offset, 2, serviceid);
 	offset += 2;
-	pinfo->ps.rx.serviceid = serviceid;
+	rxinfo.serviceid = serviceid;
 
 	switch (type) {
 	case RX_PACKET_TYPE_ACK:
@@ -554,6 +555,7 @@ dissect_rx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		break;
 	case RX_PACKET_TYPE_DATA: {
 		tvbuff_t *next_tvb;
+		pinfo->private = &rxinfo;
 		next_tvb = tvb_new_subset(tvb, offset, -1, -1);
 		call_dissector(afs_handle, next_tvb, pinfo, parent_tree);
 		};

@@ -1,12 +1,11 @@
 /* packet-rx.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet-rx.h,v 1.5 2001/05/27 01:48:24 guy Exp $
+ * $Id: packet-rx.h,v 1.6 2001/08/04 04:04:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -26,6 +25,20 @@
 #ifndef PACKET_RX_H
 #define PACKET_RX_H
 
+/*
+ * Private data passed from the RX dissector to the AFS dissector.
+ */
+struct rxinfo {
+	guint8	type;
+	guint8	flags;
+	guint16	serviceid;
+	guint32	callnumber;
+	guint32	seq;
+};
+
+/*
+ * RX protocol definitions.
+ */
 struct rx_header {
 	guint32 epoch;
 	guint32 cid;
@@ -107,4 +120,3 @@ struct rxkad_response {
 
 
 #endif
-
