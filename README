@@ -79,6 +79,14 @@ snoop, Shomiti, LANalyzer, Network Monitor, AIX's iptrace,
 RADCOM's WAN/LAN Analyzer, Lucent/Ascend access products, HP-UX's nettl,
 and Toshiba's ISDN routers.
 
+In addition, it can read gzipped versions of any of these files,
+automatically, if you have the zlib library available when compiling
+Ethereal. Ethereal needs a modern version of zlib to work; version
+1.1.3 is known to work.  Earlier versions are missing some functions
+that Ethereal needs and won't work. "./configure" should detect if you
+have the proper zlib version available. You can alwasy use
+"./configure --disable-zlib" to explicitly disable zlib support.
+
 Although Ethereal can read AIX iptrace files, the documentation on
 AIX's iptrace packet-trace command is sparse.  The 'iptrace' command
 starts a daemon which you must kill in order to stop the trace. Through
