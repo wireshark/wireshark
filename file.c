@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.125 1999/11/29 01:54:00 guy Exp $
+ * $Id: file.c,v 1.126 1999/11/30 05:32:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -735,7 +735,7 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf, const u_char *buf
   }
 
   /* Apply the filters */
-  if (cf->dfcode != NULL || CFILTERS_CONTAINS_FILTER(cf)) {
+  if (cf->dfcode != NULL || CFILTERS_CONTAINS_FILTER(cf->colors)) {
 	protocol_tree = proto_tree_create_root();
 	dissect_packet(buf, fdata, protocol_tree);
 	if (cf->dfcode != NULL)
@@ -747,10 +747,10 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf, const u_char *buf
         for(crow = 0; cf->colors->num_of_filters && 
 	      crow < cf->colors->num_of_filters; crow++) {
 
-            if(color_filter(cf,crow)->c_colorfilter == NULL) {
+            if(color_filter(cf->colors,crow)->c_colorfilter == NULL) {
 		continue;
 	    }
-            if(dfilter_apply(color_filter(cf,crow)->c_colorfilter, protocol_tree,
+            if(dfilter_apply(color_filter(cf->colors,crow)->c_colorfilter, protocol_tree,
 		 cf->pd)){
                 color = crow;
 		break;
@@ -797,9 +797,9 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf, const u_char *buf
 
     if (cf->colors->color_filters && (color != -1)){
         gtk_clist_set_background(GTK_CLIST(packet_list), row,
-                   &(color_filter(cf,color)->bg_color));
+                   &(color_filter(cf->colors,color)->bg_color));
         gtk_clist_set_foreground(GTK_CLIST(packet_list), row,
-                   &(color_filter(cf,color)->fg_color));
+                   &(color_filter(cf->colors,color)->fg_color));
     } else {
         gtk_clist_set_background(GTK_CLIST(packet_list), row, &WHITE);
         gtk_clist_set_foreground(GTK_CLIST(packet_list), row, &BLACK);

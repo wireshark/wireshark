@@ -1,7 +1,7 @@
 /* colors.c
  * Definitions for color structures and routines
  *
- * $Id: colors.c,v 1.16 1999/11/30 04:23:05 guy Exp $
+ * $Id: colors.c,v 1.17 1999/11/30 05:32:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -47,12 +47,12 @@ extern capture_file cf;
 
 static void new_color_filter(colfilter *filters, gchar *name,
 				 gchar *filter_string);
-static gboolean read_filters(capture_file *cf);
-static GtkWidget* create_color_win (cap_file *cf);
-static GtkWidget* create_colorize_win (cap_file *cf,
+static gboolean read_filters(colfilter *filter);
+static GtkWidget* create_color_win(colfilter *filter);
+static GtkWidget* create_colorize_win(colfilter *filter,
 				 GtkWidget **colorize_filter_name,
 				 GtkWidget **colorize_filter_text);
-static GtkWidget* create_color_sel_win(cap_file  *cf, GdkColor *);
+static GtkWidget* create_color_sel_win(colfilter *filter, GdkColor *);
 static gboolean get_color(GdkColor *new_color);
 
 static GdkColormap*	sys_cmap;
@@ -78,20 +78,21 @@ struct _default_colors {
 };
 #endif
 
-void
-colors_init(capture_file *cf)
+colfilter *
+colfilter_new(void)
 {
+  colfilter *filter;
   gboolean got_white, got_black;
 #ifdef READ_DEFAULT_COLOR_LIST
   gint i;
   GdkColor color;
 #endif
 
-  cf->colors = (colfilter *)g_malloc(sizeof(colfilter));
-  cf->colors->num_of_filters = 0;
-  cf->colors->color_filters = gtk_clist_new_with_titles(2, titles);
+  filter = (colfilter *)g_malloc(sizeof(colfilter));
+  filter->num_of_filters = 0;
+  filter->color_filters = gtk_clist_new_with_titles(2, titles);
 
-  gtk_widget_ref(cf->colors->color_filters); /* so it doesn't go away */
+  gtk_widget_ref(filter->color_filters); /* so it doesn't go away */
   /* color_filters will ALWAYS be a GtkCList */
   sys_cmap = gdk_colormap_get_system();
 
@@ -121,59 +122,60 @@ colors_init(capture_file *cf)
 		    default_colors[i].color);
 	}
 
-	new_color_filter(cf->colors, default_colors[i].proto, default_colors[i].proto);
-	color_filter(cf,i)->bg_color = color;
+	new_color_filter(filter, default_colors[i].proto, default_colors[i].proto);
+	color_filter(filter,i)->bg_color = color;
 
 	if (dfilter_compile(default_colors[i].proto,
-	    &color_filter(cf,i)->c_colorfilter) != 0) {
+	    &color_filter(filter,i)->c_colorfilter) != 0) {
 		simple_dialog(ESD_TYPE_WARN, NULL,
 		  "Cannot compile default color filter %s.\n%s",
 		  default_colors[i].proto, dfilter_error_msg);
 		/* should reject this filter */
 	}
-	cf->colors->num_of_filters++;
+	filter->num_of_filters++;
   }
 #endif
-  read_filters(cf);
+  read_filters(filter);
+  return filter;
 }
 
 static void
-set_color_filter_name(capture_file *cf, gint n, gchar *str)
+set_color_filter_name(colfilter *filter, gint n, gchar *str)
 {
-	
 	/* gtk_clist_set_text frees old text (if any) and allocates new space */
-	gtk_clist_set_text(GTK_CLIST(cf->colors->color_filters),n,0,str);
+	gtk_clist_set_text(GTK_CLIST(filter->color_filters),n,0,str);
 }
 
 static gchar *
-get_color_filter_name(capture_file *cf, gint n)
+get_color_filter_name(colfilter *filter, gint n)
 {
 	gchar *filter_name;
-	gtk_clist_get_text(GTK_CLIST(cf->colors->color_filters),n,0,
+
+	gtk_clist_get_text(GTK_CLIST(filter->color_filters),n,0,
 		(gchar **)&filter_name);
 	return filter_name;
 }
 
 static void
-set_color_filter_string(capture_file *cf, gint n, gchar *str)
+set_color_filter_string(colfilter *filter, gint n, gchar *str)
 {
-
-	gtk_clist_set_text(GTK_CLIST(cf->colors->color_filters),n,1,str);
+	gtk_clist_set_text(GTK_CLIST(filter->color_filters),n,1,str);
 }
 
 static gchar *
-get_color_filter_string(capture_file *cf, gint n)
+get_color_filter_string(colfilter *filter, gint n)
 {
 	gchar *filter_string;
-	gtk_clist_get_text(GTK_CLIST(cf->colors->color_filters),n,1,
+
+	gtk_clist_get_text(GTK_CLIST(filter->color_filters),n,1,
 		(gchar **)&filter_string);
 	return filter_string;
 }
 
 color_filter_t *
-color_filter(capture_file *cf, gint n)
+color_filter(colfilter *filter, gint n)
 {
-	return gtk_clist_get_row_data(GTK_CLIST(cf->colors->color_filters),n);
+	return gtk_clist_get_row_data(GTK_CLIST(filter->color_filters),n);
 }
 
 static void
@@ -196,12 +198,12 @@ new_color_filter(colfilter *filters, gchar *name, gchar *filter_string)
 }
 
 static gboolean
-read_filters(capture_file *cf)
+read_filters(colfilter *filter)
 {
 	/* TODO: Lots more syntax checking on the file */
 	/* I hate these fixed length names! TODO: make more dynamic */
 	/* XXX - buffer overflow possibility here */
-	gchar name[256],filter[256], buf[1024];
+	gchar name[256],filter_exp[256], buf[1024];
 	guint16 fg_r, fg_g, fg_b, bg_r, bg_g, bg_b;
 	GdkColor fg_color, bg_color;
 
@@ -214,9 +216,9 @@ read_filters(capture_file *cf)
 	/* decide what file to open (from dfilter code) */
 
 	/* should only be called by colors_init.
-	 * cf->colors->color_filters must exist
+	 * filter->color_filters must exist
 	 */
-	if(cf == NULL || cf->colors == NULL || cf->colors->color_filters == NULL)
+	if(filter == NULL || filter->color_filters == NULL)
 		return FALSE;
 	/* we have a clist */
 
@@ -247,18 +249,18 @@ read_filters(capture_file *cf)
 
 	  /* we get the @ delimiter.  It is not in any strings */
 	  if(sscanf(buf," @%[^@]@%[^@]@[%hu,%hu,%hu][%hu,%hu,%hu]",
-		name, filter, &bg_r, &bg_g, &bg_b, &fg_r, &fg_g, &fg_b) == 8){
+		name, filter_exp, &bg_r, &bg_g, &bg_b, &fg_r, &fg_g, &fg_b) == 8){
 		/* we got a filter */
 
-	    if(dfilter_compile(filter, &temp_dfilter) != 0){
+	    if(dfilter_compile(filter_exp, &temp_dfilter) != 0){
 		simple_dialog(ESD_TYPE_WARN, NULL,
 		 "Could not compile color filter %s from saved filters.\n%s",
 		 name, dfilter_error_msg);
 		continue;
 	    }
-            new_color_filter(cf->colors, name, filter);
-	    color_filter(cf,i)->c_colorfilter = temp_dfilter;
-	    cf->colors->num_of_filters++;
+            new_color_filter(filter, name, filter_exp);
+	    color_filter(filter,i)->c_colorfilter = temp_dfilter;
+	    filter->num_of_filters++;
 	    fg_color.red = fg_r;
 	    fg_color.green = fg_g;
 	    fg_color.blue = fg_b;
@@ -281,11 +283,11 @@ read_filters(capture_file *cf)
 		continue;
 	    }
 
-            color_filter(cf,i)->bg_color = bg_color;
-            color_filter(cf,i)->fg_color = fg_color;
-            gtk_clist_set_foreground(GTK_CLIST(cf->colors->color_filters),
+            color_filter(filter,i)->bg_color = bg_color;
+            color_filter(filter,i)->fg_color = fg_color;
+            gtk_clist_set_foreground(GTK_CLIST(filter->color_filters),
 			i,&fg_color);
-            gtk_clist_set_background(GTK_CLIST(cf->colors->color_filters),
+            gtk_clist_set_background(GTK_CLIST(filter->color_filters),
 			i,&bg_color);
 
 	    i++;
@@ -295,7 +297,7 @@ read_filters(capture_file *cf)
 }
 
 static gboolean
-write_filters(capture_file *cf)
+write_filters(colfilter *filter)
 {
 	int i;
 	FILE *f;
@@ -313,16 +315,16 @@ write_filters(capture_file *cf)
 	  return FALSE;
 	}
         fprintf(f,"# DO NOT EDIT THIS FILE!  It was created by Ethereal\n");
-	for(i = 0; i < cf->colors->num_of_filters; i++){
+	for(i = 0; i < filter->num_of_filters; i++){
 	  fprintf(f,"@%s@%s@[%d,%d,%d][%d,%d,%d]\n",
-		get_color_filter_name(cf,i),
-		get_color_filter_string(cf,i),
-		color_filter(cf,i)->bg_color.red,
-		color_filter(cf,i)->bg_color.green,
-		color_filter(cf,i)->bg_color.blue,
-		color_filter(cf,i)->fg_color.red,
-		color_filter(cf,i)->fg_color.green,
-		color_filter(cf,i)->fg_color.blue);
+		get_color_filter_name(filter,i),
+		get_color_filter_string(filter,i),
+		color_filter(filter,i)->bg_color.red,
+		color_filter(filter,i)->bg_color.green,
+		color_filter(filter,i)->bg_color.blue,
+		color_filter(filter,i)->fg_color.red,
+		color_filter(filter,i)->fg_color.green,
+		color_filter(filter,i)->fg_color.blue);
 	}
 	fclose(f);
 	g_free(path);
@@ -336,7 +338,7 @@ color_display_cb(GtkWidget *w, gpointer d)
 {
   /* cf already exists as a global */
   /* create the color dialog */
-  create_color_win(&cf);
+  create_color_win(cf.colors);
 }
 
 static void
@@ -434,9 +436,9 @@ remember_selected_row                 (GtkCList        *clist,
                                         GdkEvent        *event,
                                         gpointer         user_data)
 {
-  colfilter *colors = (colfilter *)user_data;
+  colfilter *filter = (colfilter *)user_data;
 
-  colors->row_selected = row;
+  filter->row_selected = row;
 }
 
 static GtkWidget *filt_name_entry;
@@ -463,8 +465,7 @@ color_new_cb                          (GtkButton       *button,
   filter->num_of_filters++;
   gtk_clist_select_row(GTK_CLIST(filter->color_filters),
   			filter->row_selected,-1);
-  /* this is the global cf! */
-  create_colorize_win(&cf, &filt_name_entry, &filt_text_entry);
+  create_colorize_win(filter, &filt_name_entry, &filt_text_entry);
 }
 
 /* Change a filter */
@@ -481,9 +482,7 @@ color_edit_cb                        (GtkButton       *button,
 	  gtk_clist_select_row(GTK_CLIST(filter->color_filters),
 	      filter->row_selected,-1);
   }
-  /* this is the global cf! */
-  /*Default colors are in cf in the e entry itself.*/
-  create_colorize_win(&cf, &filt_name_entry, &filt_text_entry);
+  create_colorize_win(filter, &filt_name_entry, &filt_text_entry);
 }
 
 
@@ -492,9 +491,9 @@ static void
 color_save_cb                          (GtkButton       *button,
                                         gpointer         user_data)
 {
-  capture_file *cf;
-  cf = (capture_file *)user_data;
-  if(!write_filters(cf))
+  colfilter *filter = (colfilter *)user_data;
+
+  if (!write_filters(filter))
 	simple_dialog(ESD_TYPE_WARN, NULL, "Could not open filter file: %s",
 	    strerror(errno));
 
@@ -522,9 +521,7 @@ static void
 color_apply_cb                         (GtkButton       *button,
                                         gpointer         user_data)
 {
-  capture_file *cf;
-  cf = (capture_file *)user_data;
-  colorize_packets(cf);
+  colorize_packets(&cf);
 }
 
 /* Exit dialog and do not process list */
@@ -548,11 +545,10 @@ colorize_fg_cb                         (GtkButton       *button,
   colfilter *filter;
   color_filter_t * cof;
 
-  filter = (colfilter *)user_data; /* UNUSED */
-  cof = color_filter(&cf, filter->row_selected);
-  create_color_sel_win(&cf, &cof->fg_color);
+  filter = (colfilter *)user_data;
+  cof = color_filter(filter, filter->row_selected);
+  create_color_sel_win(filter, &cof->fg_color);
   bg_set_flag = 0;
-
 }
 
 /* Change the background color */
@@ -563,11 +559,10 @@ colorize_bg_cb                         (GtkButton       *button,
   colfilter *filter;
   color_filter_t * cof;
 
-  filter = (colfilter *)user_data; /* UNUSED */
-  cof = color_filter(&cf, filter->row_selected);
-  create_color_sel_win(&cf, &cof->bg_color);
+  filter = (colfilter *)user_data;
+  cof = color_filter(filter, filter->row_selected);
+  create_color_sel_win(filter, &cof->bg_color);
   bg_set_flag = 1;
-
 }
 
 /* accept color (and potential content) change */
@@ -601,8 +596,8 @@ colorize_ok_cb                         (GtkButton       *button,
   }
 	
 
-  color_filter(&cf,cf.colors->row_selected)->fg_color = new_fg_color;
-  color_filter(&cf,cf.colors->row_selected)->bg_color = new_bg_color;
+  color_filter(cf.colors, cf.colors->row_selected)->fg_color = new_fg_color;
+  color_filter(cf.colors, cf.colors->row_selected)->bg_color = new_bg_color;
   gtk_clist_set_foreground(GTK_CLIST(cf.colors->color_filters),
 	cf.colors->row_selected, &new_fg_color);
   gtk_clist_set_background(GTK_CLIST(cf.colors->color_filters),
@@ -615,11 +610,11 @@ colorize_ok_cb                         (GtkButton       *button,
 		" Please try again. Filter unchanged.\n%s\n", filter_name,dfilter_error_msg);
   } else {
 
-	if( color_filter(&cf, cf.colors->row_selected)->c_colorfilter != NULL)
-	    dfilter_destroy(color_filter(&cf,cf.colors->row_selected)->c_colorfilter);
-	color_filter(&cf,cf.colors->row_selected)->c_colorfilter = compiled_filter;
-	set_color_filter_string(&cf,cf.colors->row_selected,filter_text);
-	set_color_filter_name(&cf,cf.colors->row_selected,filter_name);
+	if( color_filter(cf.colors, cf.colors->row_selected)->c_colorfilter != NULL)
+	    dfilter_destroy(color_filter(cf.colors,cf.colors->row_selected)->c_colorfilter);
+	color_filter(cf.colors,cf.colors->row_selected)->c_colorfilter = compiled_filter;
+	set_color_filter_string(cf.colors,cf.colors->row_selected,filter_text);
+	set_color_filter_name(cf.colors,cf.colors->row_selected,filter_name);
         gtk_widget_destroy(dialog);
   }
   g_free(filter_name);
@@ -677,7 +672,7 @@ color_sel_ok_cb                        (GtkButton       *button,
 }
 
 static GtkWidget*
-create_color_win (capture_file *cf)
+create_color_win (colfilter *filter)
 {
   GtkWidget *color_win;
   GtkWidget *vbox1;
@@ -699,7 +694,7 @@ create_color_win (capture_file *cf)
   GtkWidget *color_cancel;
   GtkTooltips *tooltips;
 
-  cf->colors->row_selected = -1; /* no row selected */
+  filter->row_selected = -1; /* no row selected */
   tooltips = gtk_tooltips_new ();
 
   color_win = gtk_window_new (GTK_WINDOW_DIALOG);
@@ -761,7 +756,7 @@ create_color_win (capture_file *cf)
 
 
   /* Do we have a list of filters, yet? */
-  if( cf->colors->color_filters == NULL) {
+  if( filter->color_filters == NULL) {
 	/* no color filters as of now.
 	 * This should probably be an assert...
 	 */
@@ -769,7 +764,7 @@ create_color_win (capture_file *cf)
 		fflush(stderr);
   }
 
-  clist1 = cf->colors->color_filters;
+  clist1 = filter->color_filters;
   gtk_widget_ref (clist1);
 
 #if 0
@@ -811,7 +806,7 @@ create_color_win (capture_file *cf)
   gtk_box_pack_start (GTK_BOX (hbox2), color_change_colors, TRUE, FALSE, 5);
   gtk_tooltips_set_tip (tooltips, color_change_colors, ("Change color of selected filter"), NULL);
   gtk_widget_set_sensitive (color_change_colors,
-      (cf->colors->num_of_filters != 0));
+      (filter->num_of_filters != 0));
 
   color_delete = gtk_button_new_with_label (("Delete"));
   gtk_widget_ref (color_delete);
@@ -868,35 +863,35 @@ create_color_win (capture_file *cf)
 
   gtk_signal_connect (GTK_OBJECT (color_filt_up), "clicked",
                       GTK_SIGNAL_FUNC (color_filt_up_cb),
-                      cf->colors);
+                      filter);
   gtk_signal_connect (GTK_OBJECT (color_filter_down), "clicked",
                       GTK_SIGNAL_FUNC (color_filter_down_cb),
-                      cf->colors);
+                      filter);
   gtk_signal_connect (GTK_OBJECT (clist1), "select_row",
                       GTK_SIGNAL_FUNC (remember_selected_row),
-                      cf->colors);
+                      filter);
   gtk_object_set_data(GTK_OBJECT (color_new), COLOR_CHANGE_COLORS_LB,
                       color_change_colors);
   gtk_signal_connect (GTK_OBJECT (color_new), "clicked",
                       GTK_SIGNAL_FUNC (color_new_cb),
-                      cf->colors);
+                      filter);
   gtk_signal_connect (GTK_OBJECT (color_change_colors), "clicked",
                       GTK_SIGNAL_FUNC (color_edit_cb),
-                      cf->colors);
+                      filter);
   gtk_object_set_data(GTK_OBJECT (color_delete), COLOR_CHANGE_COLORS_LB,
                       color_change_colors);
   gtk_signal_connect (GTK_OBJECT (color_delete), "clicked",
                       GTK_SIGNAL_FUNC (color_delete_cb),
-                      cf->colors);
+                      filter);
   gtk_signal_connect (GTK_OBJECT (color_save), "clicked",
                       GTK_SIGNAL_FUNC (color_save_cb),
-                      cf);
+                      filter);
   gtk_signal_connect (GTK_OBJECT (color_ok), "clicked",
                       GTK_SIGNAL_FUNC (color_ok_cb),
                       color_win);
   gtk_signal_connect (GTK_OBJECT (color_apply), "clicked",
                       GTK_SIGNAL_FUNC (color_apply_cb),
-                      cf);
+                      filter);
   gtk_signal_connect (GTK_OBJECT (color_cancel), "clicked",
                       GTK_SIGNAL_FUNC (color_cancel_cb),
                       color_win);
@@ -909,7 +904,7 @@ create_color_win (capture_file *cf)
 }
 
 static GtkWidget*
-create_colorize_win (capture_file *cf,
+create_colorize_win (colfilter *filter,
 	GtkWidget **colorize_filter_name,
 	GtkWidget **colorize_filter_text)
 	
@@ -961,11 +956,11 @@ create_colorize_win (capture_file *cf,
   gtk_object_set_data_full (GTK_OBJECT (colorize_win), "*colorize_filter_name", *colorize_filter_name,
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_entry_set_text(GTK_ENTRY(*colorize_filter_name),
-	get_color_filter_name(cf, cf->colors->row_selected));
+	get_color_filter_name(filter, filter->row_selected));
 
   style = gtk_style_copy(gtk_widget_get_style(*colorize_filter_name));
-  style->base[GTK_STATE_NORMAL] = color_filter(cf,cf->colors->row_selected)->bg_color;
-  style->fg[GTK_STATE_NORMAL]   = color_filter(cf,cf->colors->row_selected)->fg_color;
+  style->base[GTK_STATE_NORMAL] = color_filter(filter,filter->row_selected)->bg_color;
+  style->fg[GTK_STATE_NORMAL]   = color_filter(filter,filter->row_selected)->fg_color;
   gtk_widget_set_style(*colorize_filter_name, style);
 
   gtk_widget_show (*colorize_filter_name);
@@ -991,11 +986,11 @@ create_colorize_win (capture_file *cf,
   gtk_object_set_data_full (GTK_OBJECT (colorize_win), "*colorize_filter_text", *colorize_filter_text,
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_entry_set_text(GTK_ENTRY(*colorize_filter_text),
-	get_color_filter_string(cf, cf->colors->row_selected));
+	get_color_filter_string(filter, filter->row_selected));
 #if 0
   style = gtk_style_copy(gtk_widget_get_style(*colorize_filter_text));
-  style->base[GTK_STATE_NORMAL] = color_filter(cf,cf->colors->row_selected)->bg_color;
-  style->fg[GTK_STATE_NORMAL]   = color_filter(cf,cf->colors->row_selected)->fg_color;
+  style->base[GTK_STATE_NORMAL] = color_filter(filter,filter->row_selected)->bg_color;
+  style->fg[GTK_STATE_NORMAL]   = color_filter(filter,filter->row_selected)->fg_color;
 #endif
   gtk_widget_set_style(*colorize_filter_text, style);
   gtk_widget_show (*colorize_filter_text);
@@ -1058,10 +1053,10 @@ create_colorize_win (capture_file *cf,
 #endif
   gtk_signal_connect (GTK_OBJECT (colorize_filter_fg), "clicked",
                       GTK_SIGNAL_FUNC (colorize_fg_cb),
-                      cf->colors);
+                      filter);
   gtk_signal_connect (GTK_OBJECT (colorize_protocol_bg), "clicked",
                       GTK_SIGNAL_FUNC (colorize_bg_cb),
-                      cf->colors);
+                      filter);
   gtk_signal_connect (GTK_OBJECT (colorize_proto_ok), "clicked",
                       GTK_SIGNAL_FUNC (colorize_ok_cb),
                       colorize_win);
@@ -1075,7 +1070,7 @@ create_colorize_win (capture_file *cf,
 }
 
 static GtkWidget*
-create_color_sel_win (capture_file *cf, GdkColor * color)
+create_color_sel_win (colfilter *filter, GdkColor * color)
 {
   GtkWidget *color_sel_win;
   GtkWidget *color_sel_ok;

@@ -1,7 +1,7 @@
 /* colors.h
  * Definitions for color structures and routines
  *
- * $Id: colors.h,v 1.6 1999/11/30 04:23:06 guy Exp $
+ * $Id: colors.h,v 1.7 1999/11/30 05:32:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -38,8 +38,8 @@
 #define MAX_COLOR_FILTER_NAME_LEN 33
 #define MAX_COLOR_FILTER_STRING_LEN 256
 
-#define CFILTERS_CONTAINS_FILTER(cf) \
-	((cf)->colors->num_of_filters != 0)
+#define CFILTERS_CONTAINS_FILTER(filter) \
+	((filter)->num_of_filters != 0)
 
 extern GdkColor WHITE;
 extern GdkColor BLACK;
@@ -60,12 +60,9 @@ typedef struct _colfilter  {
 	gint	  row_selected;	   /* row in color_filters that is selected */
 } colfilter;
 
+colfilter *colfilter_new(void);
 
-typedef struct _capture_file cap_file;
-
-void colors_init(cap_file *cf);
-
-color_filter_t *color_filter(cap_file *cf, gint n);
+color_filter_t *color_filter(colfilter *filter, gint n);
 
 /* ===================== USER INTERFACE ====================== */
 

@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.55 1999/11/29 22:45:12 gram Exp $
+ * $Id: main.c,v 1.56 1999/11/30 05:33:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1310,7 +1310,7 @@ main(int argc, char *argv[])
 
     gtk_widget_show(window);
 
-    colors_init(&cf);
+    cf.colors = colfilter_new();
 
     /* If we were given the name of a capture file, read it in now;
        we defer it until now, so that, if we can't open it, and pop
