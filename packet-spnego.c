@@ -4,7 +4,7 @@
  * Copyright 2002, Tim Potter <tpot@samba.org>
  * Copyright 2002, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-spnego.c,v 1.40 2002/12/25 20:58:06 sharpe Exp $
+ * $Id: packet-spnego.c,v 1.41 2003/01/10 23:47:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1026,13 +1026,19 @@ dissect_spnego_negTokenTarg(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	  case SPNEGO_responseToken:
 
 	    offset = dissect_spnego_responseToken(tvb, offset, pinfo, subtree,
-						  hnd, (*next_level_value_p)->handle);
+						  hnd,
+						  (*next_level_value_p != NULL) ?
+						      (*next_level_value_p)->handle :
+						      NULL);
 	    break;
 
 	  case SPNEGO_mechListMIC:
 
 	    offset = dissect_spnego_mechListMIC(tvb, offset, pinfo, subtree, 
-						hnd, (*next_level_value_p)->handle);
+						hnd,
+						(*next_level_value_p != NULL) ?
+						    (*next_level_value_p)->handle :
+						    NULL);
 	    break;
 
 	  default:
