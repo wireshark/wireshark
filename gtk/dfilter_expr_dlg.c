@@ -7,7 +7,7 @@
  * Copyright 2000, Jeffrey C. Foster<jfoste@woodward.com> and
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: dfilter_expr_dlg.c,v 1.19 2001/02/23 07:09:39 guy Exp $
+ * $Id: dfilter_expr_dlg.c,v 1.20 2001/03/03 00:45:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -651,6 +651,20 @@ value_list_sel_cb(GtkList *value_list, GtkWidget *child,
 }
 
 static void
+dfilter_report_bad_value(char *format, ...)
+{
+	char error_msg_buf[1024];
+	va_list args;
+
+	va_start(args, format);
+	vsnprintf(error_msg_buf, sizeof error_msg_buf, format, args);
+	va_end(args);
+
+	simple_dialog(ESD_TYPE_CRIT | ESD_TYPE_MODAL, NULL,
+	    "%s", error_msg_buf);
+}
+
+static void
 dfilter_expr_dlg_accept_cb(GtkWidget *w, gpointer filter_te_arg)
 {
 	GtkWidget *filter_te = filter_te_arg;
@@ -669,6 +683,9 @@ dfilter_expr_dlg_accept_cb(GtkWidget *w, gpointer filter_te_arg)
 	gchar *value_str, *stripped_value_str;
 	int pos;
 	gchar *chars;
+	ftenum_t ftype;
+	gboolean can_compare;
+	fvalue_t *fvalue;
 
 	/*
 	 * Get the variable to be tested.
@@ -715,6 +732,50 @@ dfilter_expr_dlg_accept_cb(GtkWidget *w, gpointer filter_te_arg)
 	}
 
 	/*
+	 * If a range was specified, the type of the LHS of the
+	 * comparison is FT_BYTES; otherwise, it's the type of the field.
+	 */
+	if (range_str == NULL)
+		ftype = hfinfo->type;
+	else
+		ftype = FT_BYTES;
+
+	/*
+	 * Make sure the relation is valid for the type in question.
+	 * We may be offering relations that the type of the field
+	 * can't support, because the field's type supports slicing,
+	 * and the relation *is* supported on byte strings.
+	 */
+	if (strcmp(item_str, "==") == 0)
+		can_compare = ftype_can_eq(ftype);
+	else if (strcmp(item_str, "!=") == 0)
+		can_compare = ftype_can_ne(ftype);
+	else if (strcmp(item_str, ">") == 0)
+		can_compare = ftype_can_gt(ftype);
+	else if (strcmp(item_str, "<") == 0)
+		can_compare = ftype_can_lt(ftype);
+	else if (strcmp(item_str, ">=") == 0)
+		can_compare = ftype_can_ge(ftype);
+	else if (strcmp(item_str, "<=") == 0)
+		can_compare = ftype_can_le(ftype);
+	else
+		can_compare = TRUE;	/* not a comparison */
+	if (!can_compare) {
+		if (range_str == NULL) {
+			simple_dialog(ESD_TYPE_CRIT | ESD_TYPE_MODAL, NULL,
+			    "That field cannot be tested with \"%s\".",
+			    item_str);
+		} else {
+			simple_dialog(ESD_TYPE_CRIT | ESD_TYPE_MODAL, NULL,
+			    "Ranges of that field cannot be tested with \"%s\".",
+			    item_str);
+		}
+		if (range_str != NULL)
+			g_free(range_str);
+		return;
+	}
+
+	/*
 	 * Get the value to use, if any.
 	 */
 	if (GTK_WIDGET_VISIBLE(value_entry)) {
@@ -729,14 +790,39 @@ dfilter_expr_dlg_accept_cb(GtkWidget *w, gpointer filter_te_arg)
 			    "That field must be compared with a value, "
 			    "but you didn't specify a value with which to "
 			    "compare it.");
+			if (range_str != NULL)
+				g_free(range_str);
 			g_free(value_str);
 			return;
 		}
+	
+		/*
+		 * Make sure the value is valid.
+		 *
+		 * If no range string was specified, it must be valid
+		 * for the type of the field; if a range string was
+		 * specified, must be valid for FT_BYTES.
+		 */
+		fvalue = fvalue_from_string(ftype, stripped_value_str,
+		    dfilter_report_bad_value);
+		if (fvalue == NULL) {
+			/*
+			 * It's not valid.
+			 *
+			 * The dialog box was already popped up by
+			 * "dfilter_report_bad_value()".
+			 */
+			if (range_str != NULL)
+				g_free(range_str);
+			g_free(value_str);
+			return;
+		}
+		fvalue_free(fvalue);
 	} else {
 		value_str = NULL;
 		stripped_value_str = NULL;
 	}
-	
+
 	/*
 	 * Insert the expression at the current cursor position.
 	 * If there's a non-whitespace character to the left of it,
