@@ -1,7 +1,7 @@
 /* reassemble.h
  * Declarations of outines for {fragment,segment} reassembly
  *
- * $Id: reassemble.h,v 1.14 2003/04/09 09:04:08 sahlberg Exp $
+ * $Id: reassemble.h,v 1.15 2003/04/20 00:11:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -94,6 +94,11 @@ extern fragment_data *fragment_add(tvbuff_t *tvb, int offset, packet_info *pinfo
     guint32 id, GHashTable *fragment_table, guint32 frag_offset,
     guint32 frag_data_len, gboolean more_frags);
 
+extern fragment_data *fragment_add_check(tvbuff_t *tvb, int offset,
+    packet_info *pinfo, guint32 id, GHashTable *fragment_table,
+    GHashTable *reassembled_table, guint32 frag_offset,
+    guint32 frag_data_len, gboolean more_frags);
+
 /* same as fragment_add() but this one assumes frag_number is a block
    sequence number. note that frag_number is 0 for the first fragment. */
 extern fragment_data *fragment_add_seq(tvbuff_t *tvb, int offset, packet_info *pinfo,
@@ -184,6 +189,13 @@ fragment_get(packet_info *pinfo, guint32 id, GHashTable *fragment_table);
 extern unsigned char *
 fragment_delete(packet_info *pinfo, guint32 id, GHashTable *fragment_table);
 
+/*
+ * This function adds fragment_data structure to a reassembled-packet
+ * hash table, using the frame data structure as the key.
+ */
+extern void
+fragment_reassembled(fragment_data *fd_head, packet_info *pinfo,
+	     GHashTable *reassembled_table);
 
 /* hf_fragment and hf_fragment_error should be FT_FRAMENUM,
    the others should be FT_BOOLEAN

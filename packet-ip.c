@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.187 2003/04/18 05:11:44 sahlberg Exp $
+ * $Id: packet-ip.c,v 1.188 2003/04/20 00:11:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -322,11 +322,13 @@ static gint ett_icmp_mip_flags = -1;
  * defragmentation of IPv4
  */
 static GHashTable *ip_fragment_table = NULL;
+static GHashTable *ip_reassembled_table = NULL;
 
 static void
 ip_defragment_init(void)
 {
   fragment_table_init(&ip_fragment_table);
+  reassembled_table_init(&ip_reassembled_table);
 }
 
 void
@@ -1025,14 +1027,47 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (ip_defragment && (iph->ip_off & (IP_MF|IP_OFFSET)) &&
       tvb_bytes_exist(tvb, offset, pinfo->iplen - pinfo->iphdrlen) &&
       ipsum == 0) {
-    ipfd_head = fragment_add(tvb, offset, pinfo, iph->ip_id,
+    ipfd_head = fragment_add_check(tvb, offset, pinfo, iph->ip_id,
 			     ip_fragment_table,
+			     ip_reassembled_table,
 			     (iph->ip_off & IP_OFFSET)*8,
 			     pinfo->iplen - pinfo->iphdrlen,
 			     iph->ip_off & IP_MF);
 
     if (ipfd_head != NULL) {
-      if(pinfo->fd->num==ipfd_head->reassembled_in){
+      /*
+       * XXX - Now that we're using "fragment_add_check()", so that we don't
+       * get confused by reused IP IDs, reassembled fragments are
+       * hashed by the number of the frame in whch they're reassembled, so
+       * the only one of the frames for which we'll get the frame info
+       * is the one in which it's reassembled.
+       *
+       * That means we can't put the "reassembled in" information into the
+       * protocol tree or Info column for packets other than the last
+       * fragment.  In order to do that, we'd need to hash the entry into
+       * the hash table multiple times - or retroactively attach the
+       * entry to all the other frames with, say, "p_add_proto_data()"
+       * and use that.  (That could only be done by the reassembly code
+       * in "reassemble.c" if we either guaranteed that no protocol
+       * doing reassembly attached its own per-protocol data or if
+       * we added another list of reassembly data to all frames, growing
+       * the per-frame overhead by one pointer.)
+       *
+       * Note that putting it into the Info column doesn't work when
+       * the file is read in or reprocessed; it works only when the
+       * capture is filtered.  If we switch to a scheme in which the
+       * column text is generated on the fly, by having the column
+       * list widget get the text to draw by calling back to a routine
+       * that would read and re-dissect the packet, that problem would
+       * go away, although doing so without running the risk of dragging
+       * the scroll bar causing stalls requires fast random access even
+       * to gzipped files and fast generation of protocol trees.  The
+       * former can probably be done by saving the string dictionary at
+       * "checkpoint" locations; the latter may require that we build
+       * protocol trees using our own code, as "g_node_append()" is
+       * linear in the length of the list to which it's appending.)
+       */
+      if (pinfo->fd->num == ipfd_head->reassembled_in) {
         /* OK, we have the complete reassembled payload.
            Allocate a new tvbuff, referring to the reassembled payload. */
         next_tvb = tvb_new_real_data(ipfd_head->data, ipfd_head->datalen,
@@ -1049,11 +1084,11 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         /* show all fragments */
         update_col_info = !show_fragment_tree(ipfd_head, &ip_frag_items,
           ip_tree, pinfo, next_tvb);
-        } else {
-          /* We don't have the complete reassembled payload. */
-          next_tvb = NULL;
-	  proto_tree_add_uint(ip_tree, hf_ip_reassembled_in, tvb, 0, 0, ipfd_head->reassembled_in);
-	}
+      } else {
+        /* We don't have the complete reassembled payload. */
+        next_tvb = NULL;
+        proto_tree_add_uint(ip_tree, hf_ip_reassembled_in, tvb, 0, 0, ipfd_head->reassembled_in);
+      }
     } else {
       /* We don't have the complete reassembled payload. */
       next_tvb = NULL;
