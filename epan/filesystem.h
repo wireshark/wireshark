@@ -74,7 +74,7 @@ int test_for_fifo(const char *);
  * Get the directory in which global configuration and data files are
  * stored.
  */
-const char *get_datafile_dir(void);
+extern const char *get_datafile_dir(void);
 
 /*
  * Construct the path name of a global configuration file, given the

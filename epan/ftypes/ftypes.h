@@ -281,7 +281,7 @@ fvalue_string_repr_len(fvalue_t *fv, ftrepr_t rtype);
  * returned. If 'buf' was NULL, this points to the newly-allocated
  * memory. if 'buf' was non-NULL, then the return value will be
  * 'buf'. */
-char *
+extern char *
 fvalue_to_string_repr(fvalue_t *fv, ftrepr_t rtype, char *buf);
 
 const char*
@@ -302,13 +302,13 @@ fvalue_set_floating(fvalue_t *fv, gdouble value);
 gpointer
 fvalue_get(fvalue_t *fv);
 
-guint32
+extern guint32
 fvalue_get_integer(fvalue_t *fv);
 
 guint64
 fvalue_get_integer64(fvalue_t *fv);
 
-double
+extern double
 fvalue_get_floating(fvalue_t *fv);
 
 gboolean

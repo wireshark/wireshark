@@ -355,7 +355,7 @@ dissector_table_t find_dissector_table(const char *);
 dissector_handle_t dissector_get_port_handle(dissector_table_t, guint32);
 char *dissector_handle_get_short_name(dissector_handle_t);
 int dissector_handle_get_protocol_index(dissector_handle_t);
-void new_register_dissector(const char *, new_dissector_t, int); 
+void new_register_dissector(const char *, new_dissector_t, int);
 dissector_handle_t new_create_dissector_handle(new_dissector_t, int);
 
 void register_giop_user_module(giop_sub_dissector_t *sub, gchar *name, gchar *module, int sub_proto);
@@ -499,3 +499,12 @@ proto_item *proto_tree_add_debug_text(proto_tree *tree, const char *format, ...)
 
 void rtp_add_address(packet_info *pinfo, address *addr, int port, int other_port, gchar *setup_method, guint32 setup_frame_number);
 void rtcp_add_address(packet_info *pinfo, address *addr, int port, int other_port, gchar *setup_method, guint32 setup_frame_number);
+
+GString *register_tap_listener(char *, void *, char *, tap_reset_cb, tap_packet_cb, tap_draw_cb);
+const char *get_datafile_dir(void);
+char* proto_registrar_get_abbrev(int n);
+header_field_info* proto_registrar_get_byname(char *field_name);
+double fvalue_get_floating(fvalue_t *fv);
+char *fvalue_to_string_repr(fvalue_t *fv, ftrepr_t rtype, char *buf);
+guint32 fvalue_get_integer(fvalue_t *fv);
+

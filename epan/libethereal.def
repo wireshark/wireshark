@@ -221,7 +221,9 @@ ftype_pretty_name
 fvalue_t_free_list              DATA
 fvalue_from_unparsed
 fvalue_get
+fvalue_get_floating
 fvalue_get_integer
+fvalue_to_string_repr
 GatekeeperRejectReason_vals     DATA
 get_basename
 get_ber_identifier
