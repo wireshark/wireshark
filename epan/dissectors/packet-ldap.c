@@ -2572,6 +2572,7 @@ dissect_ldap_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean i
 
 	  /* Attempt decryption of the GSSAPI wrapped data if possible */
 	  pinfo->decrypt_gssapi_tvb=DECRYPT_GSSAPI_NORMAL;
+	  pinfo->gssapi_wrap_tvb=NULL;
 	  pinfo->gssapi_encrypted_tvb=NULL;
 	  pinfo->gssapi_decrypted_tvb=NULL;
           len = call_dissector(gssapi_wrap_handle, next_tvb, pinfo, gtree);
@@ -2583,6 +2584,7 @@ dissect_ldap_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean i
 	  }
 	  /* tidy up */
 	  pinfo->decrypt_gssapi_tvb=0;
+	  pinfo->gssapi_wrap_tvb=NULL;
 	  pinfo->gssapi_encrypted_tvb=NULL;
 	  pinfo->gssapi_decrypted_tvb=NULL;
 

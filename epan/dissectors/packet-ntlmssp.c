@@ -37,13 +37,13 @@
 #include "packet-windows-common.h"
 #include "packet-smb-common.h"
 #include <epan/asn1.h>		/* XXX - needed for subid_t */
-#include "packet-gssapi.h"
 #include "packet-frame.h"
 #include <epan/prefs.h>
 #include <epan/crypt-rc4.h>
 #include <epan/crypt-md4.h>
 #include <epan/crypt-des.h>
 #include "packet-dcerpc.h"
+#include "packet-gssapi.h"
 
 #include "packet-ntlmssp.h"
 

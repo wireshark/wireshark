@@ -202,6 +202,7 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			goto done;
 		}
 
+
 		if (!(cls == ASN1_APL && con == ASN1_CON && tag == 0)) {
 		  /* 
 		   * If we do not recognise an Application class,
@@ -456,6 +457,37 @@ int wrap_dissect_gssapi_verf(tvbuff_t *tvb, int offset,
 	auth_tvb = tvb_new_subset(tvb, offset, -1, -1);
 
 	return dissect_gssapi_verf(auth_tvb, pinfo, tree);
+}
+
+tvbuff_t *
+wrap_dissect_gssapi_payload(tvbuff_t *data_tvb, 
+			tvbuff_t *auth_tvb,
+			int offset,
+			packet_info *pinfo, 
+			dcerpc_auth_info *auth_info)
+{
+	tvbuff_t *result;
+
+	/* we need a full auth and a full data tvb or else we cant
+	   decrypt anything 
+	*/
+	if((!auth_tvb)||(!data_tvb)){
+		return NULL;
+	}
+
+	pinfo->decrypt_gssapi_tvb=DECRYPT_GSSAPI_DCE;
+	pinfo->gssapi_wrap_tvb=NULL;
+	pinfo->gssapi_encrypted_tvb=data_tvb;
+	pinfo->gssapi_decrypted_tvb=NULL;
+	dissect_gssapi_verf(auth_tvb, pinfo, NULL);
+	result=pinfo->gssapi_decrypted_tvb;
+
+	pinfo->decrypt_gssapi_tvb=0;
+	pinfo->gssapi_wrap_tvb=NULL;
+	pinfo->gssapi_encrypted_tvb=NULL;
+	pinfo->gssapi_decrypted_tvb=NULL;
+
+	return result;
 }
 
 static dcerpc_auth_subdissector_fns gssapi_auth_fns = {

@@ -42,6 +42,7 @@
 
 #include <epan/asn1.h>
 #include "format-oid.h"
+#include "packet-dcerpc.h"
 #include "packet-gssapi.h"
 #include "packet-kerberos.h"
 #include <epan/crypt-rc4.h>
@@ -532,7 +533,6 @@ gssapi_verify_pad(unsigned char *wrapped_data, int wrapped_length,
     return 0;
 }
 
-#ifdef HAVE_HEIMDAL_KERBEROS
 static int
 decrypt_arcfour(packet_info *pinfo,
 	 char *input_message_buffer,
@@ -625,34 +625,45 @@ decrypt_arcfour(packet_info *pinfo,
     }
     memset(k6_data, 0, sizeof(k6_data));
 
-    ret = gssapi_verify_pad(output_message_buffer,datalen,datalen, &padlen);
-    if (ret) {
-	return 9;
+    /* only normal (i.e. non DCE style  wrapping use padding ? */
+    if(pinfo->decrypt_gssapi_tvb==DECRYPT_GSSAPI_NORMAL){
+	ret = gssapi_verify_pad(output_message_buffer,datalen,datalen, &padlen);
+    	if (ret) {
+	    return 9;
+	}
+    } else {
+	padlen=0;
     }
 
     datalen -= padlen;
 
-    ret = arcfour_mic_cksum(key_value, key_size,
+    /* dont know what the checksum looks like for dce style gssapi */
+    if(pinfo->decrypt_gssapi_tvb==DECRYPT_GSSAPI_NORMAL){
+	ret = arcfour_mic_cksum(key_value, key_size,
 			    KRB5_KU_USAGE_SEAL,
 			    cksum_data, 
 			    tvb_get_ptr(pinfo->gssapi_wrap_tvb, 0, 8), 8,
 			    Confounder, sizeof(Confounder),
 			    output_message_buffer, 
 			    datalen + padlen);
-    if (ret) {
-	return 10;
-    }
+	if (ret) {
+	    return 10;
+	}
 
-    cmp = memcmp(cksum_data, 
-	tvb_get_ptr(pinfo->gssapi_wrap_tvb, 16, 8),
-	8); /* SGN_CKSUM */
-    if (cmp) {
-	return 11;
+	cmp = memcmp(cksum_data, 
+	    tvb_get_ptr(pinfo->gssapi_wrap_tvb, 16, 8),
+	    8); /* SGN_CKSUM */
+	if (cmp) {
+	    return 11;
+	}
     }
 
     return 0;
 }
 
+
+
+#ifdef HAVE_HEIMDAL_KERBEROS
 #include <krb5.h>
 
 static void

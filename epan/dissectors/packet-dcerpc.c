@@ -2854,7 +2854,7 @@ dissect_dcerpc_cn_stub (tvbuff_t *tvb, int offset, packet_info *pinfo,
     gboolean save_fragmented;
     fragment_data *fd_head=NULL;
     guint32 tot_len;
-    tvbuff_t *payload_tvb, *decrypted_tvb;
+    tvbuff_t *auth_tvb, *payload_tvb, *decrypted_tvb;
     proto_item *pi;
 
     save_fragmented = pinfo->fragmented;
@@ -2871,6 +2871,17 @@ dissect_dcerpc_cn_stub (tvbuff_t *tvb, int offset, packet_info *pinfo,
     if (length > reported_length)
 	length = reported_length;
     payload_tvb = tvb_new_subset(tvb, offset, length, reported_length);
+
+    auth_tvb=NULL;
+    /*dont bother if we dont have the entire tvb */
+    /*XXX we should really make sure we calculate auth_info->auth_data
+	and use that one instead of this auth_tvb hack
+    */
+    if(tvb_length(tvb)==tvb_reported_length(tvb)){
+	if(tvb_length_remaining(tvb, offset+length)>8){
+	    auth_tvb = tvb_new_subset(tvb, offset+length+8, -1, -1);
+	}
+    }
 
     /* Decrypt the PDU if it is encrypted */
 
@@ -2889,9 +2900,9 @@ dissect_dcerpc_cn_stub (tvbuff_t *tvb, int offset, packet_info *pinfo,
 	    if ((auth_fns = get_auth_subdissector_fns(
 			 auth_info->auth_level, auth_info->auth_type))) {
 		    tvbuff_t *result;
-		    
+
 		    result = decode_encrypted_data(
-			    payload_tvb, NULL, pinfo, auth_fns,
+			    payload_tvb, auth_tvb, pinfo, auth_fns,
 			    hdr->ptype == PDU_REQ, auth_info);	    
 		    
 		    if (result) {
