@@ -675,6 +675,7 @@ Albert Chin <china[AT]thewrittenword.com> {
 	Fix to TCP graph code to eliminate a GCCism
 	Simplify some autoconf code
 	Assorted cleanups
+	Autoconf/automake cleanups
 }
 
 Charles Levert <charles[AT]comm.polymtl.ca> {

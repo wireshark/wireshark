@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.220 2003/09/08 03:13:14 gerald Exp $
+# $Id: configure.in,v 1.221 2003/09/10 07:17:21 jmayer Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -137,9 +137,6 @@ else
 		;;
 	esac
 fi
-
-CFLAGS="$CFLAGS -I\$(top_srcdir) -I\$(top_srcdir)/wiretap"
-CPPFLAGS="$CPPFLAGS -I\$(top_srcdir) -I\$(top_srcdir)/wiretap"
 
 dnl Look in /usr/local for header files and libraries ?
 dnl XXX FIXME don't include /usr/local if it is already in the system
@@ -774,7 +771,6 @@ fi
 AC_SUBST(plugindir)
 
 dnl libtool defs
-AM_PROG_LIBTOOL
 AC_SUBST(LIBTOOL_DEPS)
 
 AM_CONDITIONAL(ENABLE_STATIC, test x$enable_static = xyes)

@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.623 2003/09/06 06:55:56 guy Exp $
+# $Id: Makefile.am,v 1.624 2003/09/10 07:17:20 jmayer Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -940,6 +940,9 @@ editcap_DEPENDENCIES = wiretap/libwiretap.a
 # This automake variable adds to the link-line for the executable
 editcap_LDADD = wiretap/libwiretap.a @GLIB_LIBS@
 mergecap_LDADD = wiretap/libwiretap.a @GLIB_LIBS@
+
+# Common headers
+AM_CPPFLAGS = -I$(top_srcdir) -I$(top_srcdir)/wiretap
 
 #
 # Build various header files for the X11 dissector.

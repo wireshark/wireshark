@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for the GTK interface routines for Ethereal
 #
-# $Id: Makefile.am,v 1.67 2003/09/10 05:35:25 guy Exp $
+# $Id: Makefile.am,v 1.68 2003/09/10 07:17:21 jmayer Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -224,3 +224,6 @@ EXTRA_DIST = \
 	compat_macros.h \
 	print_mswin.c  \
 	print_mswin.h
+
+# Common headers
+AM_CPPFLAGS = -I$(top_srcdir) -I$(top_srcdir)/wiretap
