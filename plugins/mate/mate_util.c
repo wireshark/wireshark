@@ -387,7 +387,7 @@ extern AVP* new_avp_from_finfo(guint8* name, field_info* finfo) {
 		dbg_print (dbg_avp,2,dbg_fp,"new_avp_from_finfo: from string: %s",value);
 #endif
 	} else if (finfo->value.ftype->get_value_floating) {
-		value = scs_subscribe_float(avp_strings, fvalue_get_floating(&finfo->value));
+		value = scs_subscribe_float(avp_strings, (float) fvalue_get_floating(&finfo->value));
 #ifdef _AVP_DEBUGGING
 		dbg_print (dbg_avp,2,dbg_fp,"new_avp_from_finfo: from float: %s",value);
 #endif

@@ -568,7 +568,7 @@ static gboolean config_settings(AVPL*avpl) {
 #endif
 
 
-	matecfg->gog_expiration = extract_named_bool(avpl, KEYWORD_GOGEXPIRE,matecfg->gog_expiration);
+	matecfg->gog_expiration = extract_named_float(avpl, KEYWORD_GOGEXPIRE,matecfg->gog_expiration);
 	matecfg->discard_pdu_attributes = extract_named_bool(avpl, KEYWORD_DISCARDPDU,matecfg->discard_pdu_attributes);
 	matecfg->drop_pdu = extract_named_bool(avpl, KEYWORD_DROPPDU,matecfg->drop_pdu);
 	matecfg->drop_gop = extract_named_bool(avpl, KEYWORD_DROPGOP,matecfg->drop_gop);
@@ -1428,7 +1428,7 @@ static void analyze_gog_config(gpointer k _U_, gpointer v, gpointer p _U_) {
 	
 }
 
-static size_t analyze_config() {
+static void analyze_config() {
 	guint i;
 
 	for (i=0; i<matecfg->pducfglist->len; i++) {
@@ -1569,7 +1569,6 @@ extern mate_config* mate_make_config(guint8* filename) {
 	matecfg->discard_pdu_attributes = FALSE;
 	matecfg->drop_pdu = FALSE;
 	matecfg->drop_gop = FALSE;
-	matecfg->show_pdu_tree = TRUE;
 	matecfg->show_times = TRUE;
 	matecfg->last_to_be_created = FALSE;
 	matecfg->match_mode = AVPL_STRICT;
@@ -1602,6 +1601,8 @@ extern mate_config* mate_make_config(guint8* filename) {
 	dbg = &matecfg->dbg_lvl;
 
 	init_actions();
+
+	matecfg->show_pdu_tree = matecfg->frame_tree;
 
 	if ( mate_load_config(filename) ) {
 		analyze_config();

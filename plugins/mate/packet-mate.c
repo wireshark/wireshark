@@ -239,9 +239,9 @@ static void init_mate(void) {
 
 	tap_error = register_tap_listener("frame", &mate_tap_data,
 									  mc->tap_filter,
-									  NULL,
+									  (tap_reset_cb) NULL,
 									  mate_packet,
-									  NULL);
+									  (tap_draw_cb) NULL);
 	
 	if ( tap_error ) {
 		g_warning("mate: couldn't (re)register tap: %s",tap_error->str);

@@ -730,7 +730,7 @@ static mate_pdu* new_pdu(mate_cfg_pdu* cfg, guint32 framenum, field_info* proto,
 	return pdu;
 }	
 
-extern int mate_packet(void *prs _U_, proto_tree* tree _U_, epan_dissect_t *edt _U_, void *dummy _U_) {
+extern int mate_packet(void *prs _U_,  packet_info* tree _U_, epan_dissect_t *edt _U_, const void *dummy _U_) {
 	/* nothing to do yet */
 	return 0;
 }

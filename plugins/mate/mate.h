@@ -318,7 +318,7 @@ struct _mate_item {
 extern void initialize_mate_runtime(void);
 extern mate_pdu* mate_get_pdus(guint32 framenum);
 extern void analyze_frame(packet_info *pinfo, proto_tree* tree);
-extern int mate_packet(void* _U_, proto_tree* _U_, epan_dissect_t* _U_, void* _U_);
+extern int mate_packet(void* _U_, packet_info* _U_, epan_dissect_t* _U_,const void* _U_);
 
 /* from mate_setup.c */
 extern mate_config* mate_make_config(guint8* filename);
