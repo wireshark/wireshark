@@ -1,7 +1,7 @@
 /* strutil.c
  * String utility routines
  *
- * $Id: strutil.c,v 1.1 2000/09/27 04:54:52 gram Exp $
+ * $Id: strutil.c,v 1.2 2000/09/29 19:02:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -127,7 +127,7 @@ get_token_len(const u_char *linep, const u_char *lineend,
 }
 
 
-#define	MAX_COLUMNS_LINE_DETAIL	62
+#define	INITIAL_FMTBUF_SIZE	128
 
 /*
  * Given a string, generate a string from it that shows non-printable
@@ -136,87 +136,100 @@ get_token_len(const u_char *linep, const u_char *lineend,
 gchar *
 format_text(const u_char *string, int len)
 {
-  static gchar fmtbuf[MAX_COLUMNS_LINE_DETAIL + 3 + 4 + 1];
-  gchar *fmtbufp;
+  static gchar *fmtbuf;
+  static int fmtbuf_len;
   int column;
   const u_char *stringend = string + len;
   u_char c;
   int i;
 
+  /*
+   * Allocate the buffer if it's not already allocated.
+   */
+  if (fmtbuf == NULL) {
+    fmtbuf = g_malloc(INITIAL_FMTBUF_SIZE);
+    fmtbuf_len = INITIAL_FMTBUF_SIZE;
+  }
   column = 0;
-  fmtbufp = &fmtbuf[0];
   while (string < stringend) {
-    if (column >= MAX_COLUMNS_LINE_DETAIL) {
+    /*
+     * Is there enough room for this character, if it expands to
+     * a backslash plus 3 octal digits (which is the most it can
+     * expand to), and also enough room for a terminating '\0'?
+     */
+    if (column+3+1 >= fmtbuf_len) {
       /*
-       * Put "..." and quit.
+       * Double the buffer's size if it's not big enough.
+       * The size of the buffer starts at 128, so doubling its size
+       * adds at least another 128 bytes, which is more than enough
+       * for one more character plus a terminating '\0'.
        */
-      strcpy(fmtbufp, " ...");
-      fmtbufp += 4;
-      break;
+      fmtbuf_len = fmtbuf_len * 2;
+      fmtbuf = g_realloc(fmtbuf, fmtbuf_len);
     }
     c = *string++;
     if (isprint(c)) {
-      *fmtbufp++ = c;
+      fmtbuf[column] = c;
       column++;
     } else {
-      *fmtbufp++ =  '\\';
+      fmtbuf[column] =  '\\';
       column++;
       switch (c) {
 
       case '\\':
-	*fmtbufp++ = '\\';
+	fmtbuf[column] = '\\';
 	column++;
 	break;
 
       case '\a':
-	*fmtbufp++ = 'a';
+	fmtbuf[column] = 'a';
 	column++;
 	break;
 
       case '\b':
-	*fmtbufp++ = 'b';
+	fmtbuf[column] = 'b';
 	column++;
 	break;
 
       case '\f':
-	*fmtbufp++ = 'f';
+	fmtbuf[column] = 'f';
 	column++;
 	break;
 
       case '\n':
-	*fmtbufp++ = 'n';
+	fmtbuf[column] = 'n';
 	column++;
 	break;
 
       case '\r':
-	*fmtbufp++ = 'r';
+	fmtbuf[column] = 'r';
 	column++;
 	break;
 
       case '\t':
-	*fmtbufp++ = 't';
+	fmtbuf[column] = 't';
 	column++;
 	break;
 
       case '\v':
-	*fmtbufp++ = 'v';
+	fmtbuf[column] = 'v';
 	column++;
 	break;
 
       default:
 	i = (c>>6)&03;
-	*fmtbufp++ = i + '0';
+	fmtbuf[column] = i + '0';
 	column++;
 	i = (c>>3)&07;
-	*fmtbufp++ = i + '0';
+	fmtbuf[column] = i + '0';
 	column++;
 	i = (c>>0)&07;
-	*fmtbufp++ = i + '0';
+	fmtbuf[column] = i + '0';
 	column++;
 	break;
       }
     }
   }
-  *fmtbufp = '\0';
+  fmtbuf[column] = '\0';
   return fmtbuf;
 }
