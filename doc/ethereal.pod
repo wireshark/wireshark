@@ -2100,6 +2100,7 @@ B<http://www.ethereal.com>.
   Emanuele Caratti         <wiz [AT] libero.it>
   Graeme Reid              <graeme.reid [AT] norwoodsystems.com>
   Lars Ruoff               <lars.ruoff [AT] sxb.bsf.alcatel.fr>
+  Samuel Qu                <samuel.qu [AT] utstar.com>
   Pavel Roskin             <proski [AT] gnu.org>
   Georgi Guninski          <guninski [AT] guninski.com>
   Jason Copenhaver         <jcopenha [AT] typedef.org>

@@ -1,7 +1,7 @@
 /* asn1.c
  * Routines for ASN.1 BER dissection
  *
- * $Id: asn1.c,v 1.21 2003/08/29 19:13:28 guy Exp $
+ * $Id: asn1.c,v 1.22 2003/10/02 06:13:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -138,22 +138,21 @@ asn1_octet_decode(ASN1_SCK *asn1, guchar *ch)
 }
 
 /*
- * NAME:        asn1_tag_decode
- * SYNOPSIS:    int asn1_tag_decode
+ * NAME:        asn1_tag_get
+ * SYNOPSIS:    int asn1_tag_get
  *                  (
  *                      ASN1_SCK *asn1,
  *                      guint    *tag
  *                  )
- * DESCRIPTION: Decodes a tag.
+ * DESCRIPTION: Decodes a tag number, combining it with existing tag bits.
  * RETURNS:     ASN1_ERR value (ASN1_ERR_NOERROR on success)
  */
-int
-asn1_tag_decode(ASN1_SCK *asn1, guint *tag)
+static int
+asn1_tag_get(ASN1_SCK *asn1, guint *tag)
 {
     int    ret;
     guchar ch;
 
-    *tag = 0;
     do {
 	ret = asn1_octet_decode (asn1, &ch);
 	if (ret != ASN1_ERR_NOERROR)
@@ -162,6 +161,23 @@ asn1_tag_decode(ASN1_SCK *asn1, guint *tag)
         *tag |= ch & 0x7F;
     } while ((ch & 0x80) == 0x80);
     return ASN1_ERR_NOERROR;
+}
+
+/*
+ * NAME:        asn1_tag_decode
+ * SYNOPSIS:    int asn1_tag_decode
+ *                  (
+ *                      ASN1_SCK *asn1,
+ *                      guint    *tag
+ *                  )
+ * DESCRIPTION: Decodes a tag number.
+ * RETURNS:     ASN1_ERR value (ASN1_ERR_NOERROR on success)
+ */
+int
+asn1_tag_decode(ASN1_SCK *asn1, guint *tag)
+{
+    *tag = 0;
+    return asn1_tag_get(asn1, tag);
 }
 
 /*
@@ -182,6 +198,7 @@ asn1_id_decode(ASN1_SCK *asn1, guint *cls, guint *con, guint *tag)
     int    ret;
     guchar ch;
 
+    *tag = 0;
     ret = asn1_octet_decode (asn1, &ch);
     if (ret != ASN1_ERR_NOERROR)
         return ret;
@@ -190,6 +207,39 @@ asn1_id_decode(ASN1_SCK *asn1, guint *cls, guint *con, guint *tag)
     *tag = (ch & 0x1F);
     if (*tag == 0x1F) {
         ret = asn1_tag_decode (asn1, tag);
+        if (ret != ASN1_ERR_NOERROR)
+            return ret;
+    }
+    return ASN1_ERR_NOERROR;
+}
+
+/*
+ * NAME:        asn1_id_decode1
+ * SYNOPSIS:    int asn1_id_decode1
+ *                  (
+ *                      ASN1_SCK *asn1,
+ *                      guint    *tag
+ *                  )
+ * DESCRIPTION: Decodes an identifier.
+ *		Like asn1_id_decode() except that the Class and Constructor
+ *		bits are returned in the tag.
+ * RETURNS:     ASN1_ERR value (ASN1_ERR_NOERROR on success)
+ */
+int
+asn1_id_decode1(ASN1_SCK *asn1, guint *tag)
+{
+    int    ret;
+    guchar ch;
+
+    *tag = 0;
+    ret = asn1_octet_decode (asn1, &ch);
+    if (ret != ASN1_ERR_NOERROR)
+        return ret;
+
+    *tag = ch;
+    if ((*tag & 0x1F) == 0x1F) { /* high-tag-number format */
+	*tag = ch >> 5;	/* leave just the Class and Constructor bits */
+        ret = asn1_tag_get (asn1, tag);
         if (ret != ASN1_ERR_NOERROR)
             return ret;
     }

@@ -1787,6 +1787,7 @@ Oleg Terletsky <oleg.terletsky [AT] comverse.com> {
 
 Michael Lum <mlum [AT] telostech.com> {
 	Support for saving list of disabled protocols
+	ANSI TCAP support
 }
 
 Shiang-Ming Huang <smhuang [AT] pcs.csie.nctu.edu.tw> {
@@ -1857,6 +1858,10 @@ Graeme Reid <graeme.reid [AT] norwoodsystems.com> {
 
 Lars Ruoff <lars.ruoff [AT] sxb.bsf.alcatel.fr> {
 	Rewritten RTP analysis tap
+}
+
+Samuel Qu <samuel.qu [AT] utstar.com> {
+	ITU TCAP support
 }
 
 And assorted fixes and enhancements by the people listed above and by:

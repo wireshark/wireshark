@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.632 2003/10/01 15:09:32 jmayer Exp $
+# $Id: Makefile.am,v 1.633 2003/10/02 06:13:27 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -405,6 +405,7 @@ DISSECTOR_SRC = \
 	packet-syslog.c \
 	packet-t38.c	\
 	packet-tacacs.c \
+	packet-tcap.c   \
 	packet-tcp.c   \
 	packet-tds.c   \
 	packet-telnet.c\
@@ -687,6 +688,7 @@ noinst_HEADERS = \
 	packet-stat-notify.h \
 	packet-stat.h   \
 	packet-tacacs.h \
+	packet-tcap.h  \
 	packet-tcp.h   \
 	packet-tns.h \
 	packet-tpkt.h  \

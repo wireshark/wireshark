@@ -1,7 +1,7 @@
 /* asn1.h
  * Definitions for ASN.1 BER dissection
  *
- * $Id: asn1.h,v 1.13 2003/04/28 00:31:26 guy Exp $
+ * $Id: asn1.h,v 1.14 2003/10/02 06:13:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -116,6 +116,7 @@ extern void asn1_close (ASN1_SCK *asn1, int *offset);
 extern int asn1_octet_decode (ASN1_SCK *asn1, guchar *ch);
 extern int asn1_tag_decode (ASN1_SCK *asn1, guint *tag);
 extern int asn1_id_decode (ASN1_SCK *asn1, guint *cls, guint *con, guint *tag);
+extern int asn1_id_decode1 (ASN1_SCK *asn1, guint *tag);
 extern int asn1_length_decode (ASN1_SCK *asn1, gboolean *def, guint *len);
 extern int asn1_header_decode(ASN1_SCK *asn1, guint *cls, guint *con,
 			      guint *tag, gboolean *defp, guint *lenp);
