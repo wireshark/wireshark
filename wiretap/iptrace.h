@@ -1,6 +1,6 @@
 /* iptrace.h
  *
- * $Id: iptrace.h,v 1.2 1999/08/19 05:31:38 guy Exp $
+ * $Id: iptrace.h,v 1.3 1999/11/18 08:50:37 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -20,20 +20,5 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  *
  */
- 
-/* the iptrace 2.0 packet header, as guessed */
-#if 0
-struct iptrace_pkt_hdr {
-	guint16		unknown;
-	guint16		pkt_length; /* packet length + 32 */
-	guint32		tv_sec;
-	char		if_name[4]; /* not null-terminated */
-	guint16		if_num;
-	char		if_desc[12]; /* interface description. why? */
-	guint32		tv_sec;
-	guint32		tv_usec;
-};
-#endif
-
 
 int iptrace_open(wtap *wth, int *err);

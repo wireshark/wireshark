@@ -1,7 +1,7 @@
 /* packet-atm.c
  * Routines for ATM packet disassembly
  *
- * $Id: packet-atm.c,v 1.4 1999/11/18 08:28:30 guy Exp $
+ * $Id: packet-atm.c,v 1.5 1999/11/18 08:50:18 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -424,7 +424,7 @@ dissect_atm(const u_char *pd, frame_data *fd, proto_tree *tree)
   guint       hl_type;
 
   aal_type = fd->pseudo_header.ngsniffer_atm.AppTrafType & ATT_AALTYPE;
-  hl_type = fd->pseudo_header.ngsniffer_atm.AppTrafType & ATT_HLTYPE;
+  hl_type = fd->pseudo_header.ngsniffer_atm.AppHLType & ATT_HLTYPE;
 
   if (check_col(fd, COL_PROTOCOL))
     col_add_str(fd, COL_PROTOCOL, "ATM");
@@ -472,6 +472,10 @@ dissect_atm(const u_char *pd, frame_data *fd, proto_tree *tree)
     }
     if (aal_type == ATT_AAL5) {
       switch (hl_type) {
+
+      case ATT_HL_LLCMX:
+        proto_tree_add_text(atm_tree, 0, 0, "LLC multiplexed traffic");
+        break;
 
       case ATT_HL_VCMX:
         proto_tree_add_text(atm_tree, 0, 0, "VC multiplexed traffic type: %s",
@@ -529,11 +533,12 @@ dissect_atm(const u_char *pd, frame_data *fd, proto_tree *tree)
   if (aal_type == ATT_AAL5) {
     switch (hl_type) {
 
-#if 0
     case ATT_HL_LLCMX:
       /* Dissect as WTAP_ENCAP_ATM_RFC1483 */
+      /* The ATM iptrace capture that we have hows LLC at this point,
+       * so that's what I'm calling */
+      dissect_llc(pd, offset, fd, tree);
       break;
-#endif
 
     case ATT_HL_LANE:
       dissect_lane(pd, offset, fd, tree);
