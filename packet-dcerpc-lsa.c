@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *  2002  Added LSA command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-lsa.c,v 1.12 2002/04/17 10:41:05 sahlberg Exp $
+ * $Id: packet-dcerpc-lsa.c,v 1.13 2002/04/17 11:01:38 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -89,6 +89,7 @@ static int hf_lsa_secret = -1;
 static int hf_nt_luid_high = -1;
 static int hf_nt_luid_low = -1;
 static int hf_lsa_privilege_name = -1;
+static int hf_lsa_attr = -1;
 
 static int hf_lsa_unknown_hyper = -1;
 static int hf_lsa_unknown_long = -1;
@@ -120,6 +121,8 @@ static gint ett_lsa_trust_information = -1;
 static gint ett_LUID = -1;
 static gint ett_LSA_PRIVILEGES = -1;
 static gint ett_LSA_PRIVILEGE = -1;
+static gint ett_LSA_LUID_AND_ATTRIBUTES_ARRAY = -1;
+static gint ett_LSA_LUID_AND_ATTRIBUTES = -1;
 
 
 static int
@@ -1570,6 +1573,152 @@ lsa_dissect_lsalookupprivilegename_reply(tvbuff_t *tvb, int offset,
 }
 
 
+static int
+lsa_dissect_lsaenumerateprivilegesaccount_rqst(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	/* [in] LSA_HANDLE hnd */
+	offset = lsa_dissect_LSA_HANDLE(tvb, offset,
+		pinfo, tree, drep);
+
+	return offset;
+}
+
+
+static int
+lsa_dissect_LUID_AND_ATTRIBUTES(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *parent_tree, char *drep)
+{
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
+ 	int old_offset=offset;
+
+	if(parent_tree){
+		item = proto_tree_add_text(parent_tree, tvb, offset, 0,
+			"LUID_AND_ATTRIBUTES:");
+		tree = proto_item_add_subtree(item, ett_LSA_LUID_AND_ATTRIBUTES);
+	}
+
+	/* LUID */
+	offset = dissect_nt_LUID(tvb, offset, pinfo, tree, drep);
+
+	/* attr */
+        offset = dissect_ndr_uint64 (tvb, offset, pinfo, tree, drep,
+                                     hf_lsa_attr, NULL);
+
+	proto_item_set_len(item, offset-old_offset);
+	return offset;
+}
+
+static int
+lsa_dissect_LUID_AND_ATTRIBUTES_array(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, drep,
+		lsa_dissect_LUID_AND_ATTRIBUTES);
+
+	return offset;
+}
+
+static int
+lsa_dissect_LUID_AND_ATTRIBUTES_ARRAY(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *parent_tree, char *drep)
+{
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
+ 	int old_offset=offset;
+
+	if(parent_tree){
+		item = proto_tree_add_text(parent_tree, tvb, offset, 0,
+			"LUID_AND_ATTRIBUTES_ARRAY:");
+		tree = proto_item_add_subtree(item, ett_LSA_LUID_AND_ATTRIBUTES_ARRAY);
+	}
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_lsa_count, NULL);
+
+	/* luid and attributes */
+        offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		lsa_dissect_LUID_AND_ATTRIBUTES_array, NDR_POINTER_UNIQUE,
+		"LUID_AND_ATTRIBUTES array:", -1, 0);
+
+	proto_item_set_len(item, offset-old_offset);
+	return offset;
+}
+
+static int
+lsa_dissect_lsaenumerateprivilegesaccount_reply(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	/* [out, ref] LUID_AND_ATTRIBUTES_ARRAY * *privs */
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		lsa_dissect_LUID_AND_ATTRIBUTES_ARRAY, NDR_POINTER_UNIQUE,
+		"LUID_AND_ATTRIBUTES_ARRAY pointer: privs", -1, 0);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_lsa_rc, NULL);
+
+	return offset;
+}
+
+static int
+lsa_dissect_lsaaddprivilegestoaccount_rqst(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	/* [in] LSA_HANDLE hnd */
+	offset = lsa_dissect_LSA_HANDLE(tvb, offset,
+		pinfo, tree, drep);
+
+	/* [in, ref] LUID_AND_ATTRIBUTES_ARRAY *privs */
+	offset = lsa_dissect_LUID_AND_ATTRIBUTES_ARRAY(tvb, offset,
+		pinfo, tree, drep);
+
+	return offset;
+}
+
+
+static int
+lsa_dissect_lsaaddprivilegestoaccount_reply(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_lsa_rc, NULL);
+
+	return offset;
+}
+
+static int
+lsa_dissect_lsaremoveprivilegesfromaccount_rqst(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	/* [in] LSA_HANDLE hnd */
+	offset = lsa_dissect_LSA_HANDLE(tvb, offset,
+		pinfo, tree, drep);
+
+	/* [in] char unknown */
+	offset = dissect_ndr_uint8 (tvb, offset, pinfo, tree, drep,
+			hf_lsa_unknown_char, NULL);
+
+	/* [in, unique] LUID_AND_ATTRIBUTES_ARRAY *privs */
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		lsa_dissect_LUID_AND_ATTRIBUTES_ARRAY, NDR_POINTER_UNIQUE,
+		"LUID_AND_ATTRIBUTES_ARRAY pointer: privs", -1, 0);
+
+	return offset;
+}
+
+
+static int
+lsa_dissect_lsaremoveprivilegesfromaccount_reply(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_lsa_rc, NULL);
+
+	return offset;
+}
+
+
 
 static dcerpc_sub_dissector dcerpc_lsa_dissectors[] = {
 	{ LSA_LSACLOSE, "LSACLOSE",
@@ -1648,23 +1797,14 @@ static dcerpc_sub_dissector dcerpc_lsa_dissectors[] = {
 		lsa_dissect_lsaopenaccount_reply },
 #endif
 	{ LSA_LSAENUMERATEPRIVILEGESACCOUNT, "LSAENUMERATEPRIVILEGESACCOUNT",
-		NULL, NULL },
-#ifdef REMOVED
 		lsa_dissect_lsaenumerateprivilegesaccount_rqst,
 		lsa_dissect_lsaenumerateprivilegesaccount_reply },
-#endif
 	{ LSA_LSAADDPRIVILEGESTOACCOUNT, "LSAADDPRIVILEGESTOACCOUNT",
-		NULL, NULL },
-#ifdef REMOVED
 		lsa_dissect_lsaaddprivilegestoaccount_rqst,
 		lsa_dissect_lsaaddprivilegestoaccount_reply },
-#endif
 	{ LSA_LSAREMOVEPRIVILEGESFROMACCOUNT, "LSAREMOVEPRIVILEGESFROMACCOUNT",
-		NULL, NULL },
-#ifdef REMOVED
 		lsa_dissect_lsaremoveprivilegesfromaccount_rqst,
 		lsa_dissect_lsaremoveprivilegesfromaccount_reply },
-#endif
 	{ LSA_LSAGETQUOTASFORACCOUNT, "LSAGETQUOTASFORACCOUNT",
 		lsa_dissect_lsagetquotasforaccount_rqst,
 		lsa_dissect_lsagetquotasforaccount_reply },
@@ -2095,6 +2235,10 @@ proto_register_dcerpc_lsa(void)
 		{ "Name", "lsa.privilege.name", FT_STRING, BASE_NONE, 
 		NULL, 0x0, "LSA Privilege Name", HFILL }},
 
+	{ &hf_lsa_attr,
+		{ "Attr", "lsa.attr", FT_UINT64, BASE_HEX, 
+		NULL, 0x0, "LSA Attributes", HFILL }},
+
 	
 	};
 
@@ -2121,6 +2265,8 @@ proto_register_dcerpc_lsa(void)
 		&ett_LUID,
 		&ett_LSA_PRIVILEGES,
 		&ett_LSA_PRIVILEGE,
+		&ett_LSA_LUID_AND_ATTRIBUTES_ARRAY,
+		&ett_LSA_LUID_AND_ATTRIBUTES,
         };
 
         proto_dcerpc_lsa = proto_register_protocol(
