@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.3 2000/01/14 19:05:30 gerald Exp $
+ * $Id: tethereal.c,v 1.4 2000/01/14 23:26:18 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -130,9 +130,10 @@ print_usage(void) {
 
   fprintf(stderr, "This is GNU %s %s, compiled with %s\n", PACKAGE,
 	  VERSION, comp_info_str);
-  fprintf(stderr, "t%s [-v] [-h] [-n]\n",
-	  PACKAGE);
-  fprintf(stderr, "         [-r infile] [-t <time stamp format>] -i iface\n");
+
+  fprintf(stderr, "t%s -i iface [ -vVh ] [ -c count ] [ -f <filter expression> ]\n", PACKAGE);
+  fprintf(stderr, "\t[ -r infile ] [ -R <filter expression> ] [ -s snaplen ]\n");
+  fprintf(stderr, "\t[ -t <time stamp format> ] [ -w savefile ]\n");
 }
 
 int
