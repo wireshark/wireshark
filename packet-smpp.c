@@ -2,7 +2,7 @@
  * Routines for Short Message Peer to Peer dissection
  * Copyright 2001, Tom Uijldert <tom.uijldert@cmg.nl>
  *
- * $Id: packet-smpp.c,v 1.10 2003/03/08 14:21:15 deniel Exp $
+ * $Id: packet-smpp.c,v 1.11 2003/06/06 01:56:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -616,13 +616,13 @@ smpp_mktime(char *datestr, time_t *secs, int *nsecs)
 static void
 smpp_handle_string(proto_tree *tree, tvbuff_t *tvb, int field, int *offset)
 {
-    char	 strval[BUFSIZ];
     gint	 len;
 
-    len = tvb_get_nstringz(tvb, *offset, BUFSIZ, strval);
-    len++;
-    if (*strval)
-	proto_tree_add_string(tree, field, tvb, *offset, len, strval);
+    len = tvb_strsize(tvb, *offset);
+    if (len > 1) {
+      proto_tree_add_string(tree, field, tvb, *offset, len,
+          tvb_get_ptr(tvb, *offset, len));
+    }
     (*offset) += len;
 }
 
