@@ -22,10 +22,10 @@ BEGIN
             VALUE "CompanyName", "The Ethereal developer community\0"
             VALUE "FileDescription", "Text2pcap\0"
             VALUE "FileVersion", "@VERSION@\0"
-            VALUE "InternalName", "Editcap @VERSION@\0"
+            VALUE "InternalName", "Text2pcap @VERSION@\0"
             VALUE "LegalCopyright", "Copyright © 2001 Ashok Narayanan <ashokn@cisco.com>\0"
             VALUE "OriginalFilename", "Text2pcap.exe\0"
-            VALUE "ProductName", "Text2pcapp\0"
+            VALUE "ProductName", "Text2pcap\0"
             VALUE "ProductVersion", "@VERSION@\0"
         END
     END
