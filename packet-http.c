@@ -3,7 +3,7 @@
  *
  * Guy Harris <guy@netapp.com>
  *
- * $Id: packet-http.c,v 1.7 1999/07/30 00:57:15 guy Exp $
+ * $Id: packet-http.c,v 1.8 1999/09/12 18:46:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -168,10 +168,8 @@ void dissect_http(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 			data = lineend;
 		}
 
-		if (data < dataend) {
-			proto_tree_add_text(http_tree, offset, END_OF_FRAME,
-			    "Data (%d bytes)", END_OF_FRAME);
-		}
+		if (data < dataend)
+			dissect_data(&pd[offset], offset, fd, http_tree);
 	}
 }
 
