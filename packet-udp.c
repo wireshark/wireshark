@@ -1,7 +1,7 @@
 /* packet-udp.c
  * Routines for UDP packet disassembly
  *
- * $Id: packet-udp.c,v 1.111 2003/09/03 09:52:07 sahlberg Exp $
+ * $Id: packet-udp.c,v 1.112 2004/01/22 20:43:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -73,12 +73,24 @@ static gboolean try_heuristic_first = FALSE;
 
 void
 decode_udp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
-	proto_tree *tree, int uh_sport, int uh_dport)
+	proto_tree *tree, int uh_sport, int uh_dport, int uh_ulen)
 {
   tvbuff_t *next_tvb;
   int low_port, high_port;
+  gint len, reported_len;
 
-  next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+  len = tvb_length_remaining(tvb, offset);
+  reported_len = tvb_reported_length_remaining(tvb, offset);
+  if (uh_ulen != -1) {
+    /* This is the length from the UDP header; the payload should be cut
+       off at that length.
+       XXX - what if it's *greater* than the reported length? */
+    if (uh_ulen < len)
+      len = uh_ulen;
+    if (uh_ulen < reported_len)
+      reported_len = uh_ulen;
+  }
+  next_tvb = tvb_new_subset(tvb, offset, len, reported_len);
 
 /* determine if this packet is part of a conversation and call dissector */
 /* for the conversation if available */
@@ -188,6 +200,12 @@ dissect_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_uint_hidden(udp_tree, hf_udp_port, tvb, offset, 2, udph->uh_sport);
     proto_tree_add_uint_hidden(udp_tree, hf_udp_port, tvb, offset+2, 2, udph->uh_dport);
 
+    if (udph->uh_ulen < 8) {
+      /* Bogus length - it includes the header, so it must be >= 8. */
+      proto_tree_add_uint_format(udp_tree, hf_udp_length, tvb, offset + 4, 2,
+	udph->uh_ulen, "Length: %u (bogus, must be >= 8)", udph->uh_ulen);
+      return;
+    }
     proto_tree_add_uint(udp_tree, hf_udp_length, tvb, offset + 4, 2, udph->uh_ulen);
     reported_len = tvb_reported_length(tvb);
     len = tvb_length(tvb);
@@ -195,7 +213,8 @@ dissect_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       /* No checksum supplied in the packet. */
       proto_tree_add_uint_format(udp_tree, hf_udp_checksum, tvb,
         offset + 6, 2, udph->uh_sum, "Checksum: 0x%04x (none)", udph->uh_sum);
-    } else if (!pinfo->fragmented && len >= reported_len && len >= udph->uh_ulen) {
+    } else if (!pinfo->fragmented && len >= reported_len &&
+               len >= udph->uh_ulen && reported_len >= udph->uh_ulen) {
       /* The packet isn't part of a fragmented datagram and isn't
          truncated, so we can checksum it.
 	 XXX - make a bigger scatter-gather list once we do fragment
@@ -210,12 +229,12 @@ dissect_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       switch (pinfo->src.type) {
 
       case AT_IPv4:
-	phdr[0] = g_htonl((IP_PROTO_UDP<<16) + reported_len);
+	phdr[0] = g_htonl((IP_PROTO_UDP<<16) + udph->uh_ulen);
 	cksum_vec[2].len = 4;
 	break;
 
       case AT_IPv6:
-        phdr[0] = g_htonl(reported_len);
+        phdr[0] = g_htonl(udph->uh_ulen);
         phdr[1] = g_htonl(IP_PROTO_UDP);
         cksum_vec[2].len = 8;
         break;
@@ -225,8 +244,8 @@ dissect_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         g_assert_not_reached();
         break;
       }
-      cksum_vec[3].ptr = tvb_get_ptr(tvb, offset, len);
-      cksum_vec[3].len = reported_len;
+      cksum_vec[3].ptr = tvb_get_ptr(tvb, offset, udph->uh_ulen);
+      cksum_vec[3].len = udph->uh_ulen;
       computed_cksum = in_cksum(&cksum_vec[0], 4);
       if (computed_cksum == 0) {
         proto_tree_add_uint_format(udp_tree, hf_udp_checksum, tvb,
@@ -266,7 +285,8 @@ dissect_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    * nothing left in the packet.
    */
   if (!pinfo->in_error_pkt || tvb_length_remaining(tvb, offset) > 0)
-    decode_udp_ports(tvb, offset, pinfo, tree, udph->uh_sport, udph->uh_dport);
+    decode_udp_ports(tvb, offset, pinfo, tree, udph->uh_sport, udph->uh_dport,
+                     udph->uh_ulen);
 }
 
 void

@@ -1,6 +1,6 @@
 /* packet-udp.h
  *
- * $Id: packet-udp.h,v 1.8 2003/08/23 09:09:33 sahlberg Exp $
+ * $Id: packet-udp.h,v 1.9 2004/01/22 20:43:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -37,6 +37,6 @@ typedef struct _e_udphdr {
 
 
 extern void decode_udp_ports(tvbuff_t *, int, packet_info *,
-	proto_tree *, int, int);
+	proto_tree *, int, int, int);
 
 #endif
