@@ -1,19 +1,25 @@
 #
-# $Id: Makefile.nmake,v 1.4 2003/11/06 09:05:11 guy Exp $
+# $Id: Makefile.nmake,v 1.5 2004/01/24 20:01:36 ulfl Exp $
 #
 
 include ..\..\config.nmake
 
 ############### no need to modify below this line #########
 
-CFLAGS=/DHAVE_CONFIG_H /I../.. /I../../wiretap $(GTK_CFLAGS) \
+# XXX: that's odd here, no GTK stuff should be in the plugins dir,
+# so move all GTK specific stuff into gtk dir.
+# As GTK1_CFLAGS isn't correct here, we don't have GTK_CFLAGS
+# any longer, so no better choice here. If the move of GTK code 
+# finished, replace this with GLIB_CFLAGS.
+# The same applies to GTK1_LIBS -> GLIB_LIBS.
+CFLAGS=/DHAVE_CONFIG_H /I../.. /I../../wiretap $(GTK1_CFLAGS) \
 	/I$(PCAP_DIR)\include -D_U_="" $(LOCAL_CFLAGS)
 
 OBJECTS=packet-asn1.obj 
 
 asn1.dll asn1.exp asn1.lib : $(OBJECTS) ..\plugin_api.obj
 	link -dll /out:asn1.dll $(OBJECTS) ..\plugin_api.obj \
-	$(GTK_LIBS)
+	$(GTK1_LIBS)
 
 clean:
 	rm -f $(OBJECTS) asn1.dll asn1.exp asn1.lib $(PDB_FILE)

@@ -1,7 +1,7 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.396 2004/01/21 21:46:59 jmayer Exp $
+# $Id: Makefile.nmake,v 1.397 2004/01/24 20:01:35 ulfl Exp $
 
 include config.nmake
 include <win32.mak>
@@ -13,7 +13,7 @@ LINK= link
 
 LDFLAGS = /NOLOGO /INCREMENTAL:no /MACHINE:I386 $(LOCAL_LDFLAGS)
 
-CFLAGS=-DHAVE_CONFIG_H $(LOCAL_CFLAGS) $(GTK_CFLAGS) /I. /Iwiretap \
+CFLAGS=-DHAVE_CONFIG_H $(LOCAL_CFLAGS) $(GLIB_CFLAGS) /I. /Iwiretap \
 	$(ZLIB_CFLAGS) /I$(PCAP_DIR)\include \
 	/I$(NET_SNMP_DIR)\include /I$(NET_SNMP_DIR)\win32 \
 	$(ADNS_CFLAGS) $(PCRE_CFLAGS) -D_U_=""
@@ -127,10 +127,9 @@ EXTRA_OBJECTS = \
 	strptime.obj
 
 ethereal_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
-	gtk\libui.lib epan\ethereal.lib \
+	epan\ethereal.lib \
 	epan\dfilter\dfilter.lib epan\ftypes\ftypes.lib \
 	wsock32.lib user32.lib \
-	$(GTK_LIBS) \
 	$(ADNS_LIBS) \
 	$(PCRE_LIBS) \
 	$(NET_SNMP_DIR)\win32\lib\netsnmp.lib
@@ -164,21 +163,35 @@ randpkt_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 	$(GLIB_LIBS) \
 	$(NET_SNMP_DIR)\win32\lib\netsnmp.lib
 
-EXECUTABLES=ethereal.exe tethereal.exe editcap.exe mergecap.exe text2pcap.exe
+EXECUTABLES=ethereal.exe ethereal2.exe tethereal.exe editcap.exe mergecap.exe text2pcap.exe
 
 RESOURCES=image\ethereal.res image\tethereal.res image\editcap.res image\mergecap.res image\text2pcap.res
 
-all: tools wiretap gtk epan image $(EXECUTABLES) $(RESOURCES) doc
+all: tools wiretap epan image $(EXECUTABLES) $(RESOURCES) doc
 
 $(RESOURCES): image
 
 wiretap\wiretap-$(WTAP_VERSION).lib: wiretap
 
+!IFNDEF GTK1_DIR
+ethereal.exe	: 
+!ELSE
 ethereal.exe	: config.h cvsversion.h $(ethereal_OBJECTS) $(EXTRA_OBJECTS) epan gtk image\ethereal.res wiretap\wiretap-$(WTAP_VERSION).lib gtk\libui.lib plugins
 	@echo Linking $@
 	$(LINK) @<<
-		/OUT:ethereal.exe $(guiflags) $(guilibsdll) $(LDFLAGS) /SUBSYSTEM:windows $(ethereal_LIBS) $(ethereal_OBJECTS) $(EXTRA_OBJECTS) image\ethereal.res
+		/OUT:ethereal.exe $(guiflags) $(guilibsdll) $(LDFLAGS) /SUBSYSTEM:windows $(ethereal_LIBS) $(GTK1_LIBS) gtk\libui.lib $(ethereal_OBJECTS) $(EXTRA_OBJECTS) image\ethereal.res
 <<
+!ENDIF
+
+!IFNDEF GTK2_DIR
+ethereal2.exe	: 
+!ELSE
+ethereal2.exe	: config.h cvsversion.h $(ethereal_OBJECTS) $(EXTRA_OBJECTS) epan gtk2 image\ethereal.res wiretap\wiretap-$(WTAP_VERSION).lib gtk2.tmp\libui.lib plugins
+	@echo Linking $@
+	$(LINK) @<<
+		/OUT:ethereal2.exe $(guiflags) $(guilibsdll) $(LDFLAGS) /SUBSYSTEM:windows $(ethereal_LIBS) $(GTK2_LIBS) gtk2.tmp\libui.lib $(ethereal_OBJECTS) $(EXTRA_OBJECTS) image\ethereal.res
+<<
+!ENDIF
 
 tethereal.exe	: config.h cvsversion.h $(tethereal_OBJECTS) $(EXTRA_OBJECTS) epan image\tethereal.res wiretap\wiretap-$(WTAP_VERSION).lib plugins
 	@echo Linking $@
@@ -321,7 +334,11 @@ tethereal-tap-register.c: $(TETHEREAL_TAP_SRC) make-tapreg-dotc
 text2pcap-scanner.c : text2pcap-scanner.l
 	$(LEX) -otext2pcap-scanner.c text2pcap-scanner.l
 
-clean:
+gtk2_distclean:
+	rm -f gtk2.tmp/*.*
+	if exist gtk2.tmp rmdir gtk2.tmp
+
+clean: gtk2_distclean
 	rm -f $(ethereal_OBJECTS) $(tethereal_OBJECTS) $(EXTRA_OBJECTS) \
 		$(EXECUTABLES) $(PDB_FILE) \
 		editcap.obj mergecap.obj text2pcap.obj \
@@ -351,7 +368,7 @@ clean:
 
 # Call distclean only, if you would like to remove ALL generated files.
 # Be sure to have python and perl installed to regenerate them.
-distclean: clean
+distclean: clean gtk2_distclean
 	rm -f $(BUILT_SOURCES) \
 		packet-ncp2222.c register.c tethereal-tap-register.c 
 	cd wiretap
@@ -391,7 +408,16 @@ wiretap::
 
 gtk:: help config.h cvsversion.h
 	cd gtk
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
+	$(MAKE) /$(MAKEFLAGS) /f Makefile.nmake GTK_CFLAGS="$(GTK1_CFLAGS)" GTK_LIBS="$(GTK1_LIBS)" libui.lib
+	cd ..
+
+# copy all required files to gtk2.tmp (but only when newer than existing) and compile in that dir
+gtk2::
+	if not exist gtk2.tmp mkdir gtk2.tmp
+	cd gtk
+	cp --update --preserve Makefile.* *.c *.h ..\gtk2.tmp
+	cd ..\gtk2.tmp
+	$(MAKE) /$(MAKEFLAGS) /f Makefile.nmake GTK_CFLAGS="$(GTK2_CFLAGS)" GTK_LIBS="$(GTK2_LIBS)" libui.lib
 	cd ..
 
 epan::
