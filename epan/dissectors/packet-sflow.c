@@ -812,7 +812,7 @@ dissect_sflow(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						offset, 4, FALSE);
 	offset += 4;
 	proto_tree_add_item(sflow_tree, hf_sflow_sysuptime, tvb,
-						offset+4, 4, FALSE);
+						offset, 4, FALSE);
 	offset += 4;
 	numsamples = tvb_get_ntohl(tvb,offset);
 	if (check_col(pinfo->cinfo, COL_INFO)) 
