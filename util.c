@@ -1,7 +1,7 @@
 /* util.c
  * Utility routines
  *
- * $Id: util.c,v 1.33 2000/01/29 19:08:12 guy Exp $
+ * $Id: util.c,v 1.34 2000/01/29 20:04:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -586,7 +586,6 @@ get_home_dir(void)
 	char *env_value;
 	static const char *home = NULL;
 #ifndef WIN32
-	uid_t uid;
 	struct passwd *pwd;
 #endif
 
@@ -606,8 +605,7 @@ get_home_dir(void)
 		   What about Windows 9x? */
 		home = "C:"
 #else
-		uid = getuid();
-		pwd = getpwuid(uid);
+		pwd = getpwuid(getuid());
 		if (pwd != NULL) {
 			/* This is cached, so we don't need to worry
 			   about allocating multiple ones of them. */
