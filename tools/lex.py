@@ -8,7 +8,7 @@
 #
 # Copyright (C) 2001, David M. Beazley
 #
-# $Header: /svn/cvsroot/ethereal/tools/lex.py,v 1.1 2004/05/24 08:33:09 sahlberg Exp $
+# $Header: /cvs/projects/PLY/lex.py,v 1.1.1.1 2004/05/21 15:34:10 beazley Exp $
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -190,7 +190,7 @@ scanner you have defined.
 # -----------------------------------------------------------------------------
 
 
-__version__ = "1.3"
+__version__ = "1.4"
 
 import re, types, sys, copy
 
@@ -423,10 +423,16 @@ def lex(module=None,debug=0,optimize=0,lextab="lextab"):
     global token,input
     
     if module:
-        if not isinstance(module, types.ModuleType):
-            raise ValueError,"Expected a module"
-        
-        ldict = module.__dict__
+        # User supplied a module object.
+        if isinstance(module, types.ModuleType):
+            ldict = module.__dict__
+        elif isinstance(module, types.InstanceType):
+            _items = [(k,getattr(module,k)) for k in dir(module)]
+            ldict = { }
+            for (i,v) in _items:
+                ldict[i] = v
+        else:
+            raise ValueError,"Expected a module or instance"
         
     else:
         # No module given.  We might be able to get information from the caller.
@@ -450,7 +456,14 @@ def lex(module=None,debug=0,optimize=0,lextab="lextab"):
             pass
         
     # Get the tokens map
-    tokens = ldict.get("tokens",None)
+    if (module and isinstance(module,types.InstanceType)):
+        tokens = getattr(module,"tokens",None)
+    else:
+        try:
+            tokens = ldict["tokens"]
+        except KeyError:
+            tokens = None
+        
     if not tokens:
         raise SyntaxError,"lex: module does not define 'tokens'"
     if not (isinstance(tokens,types.ListType) or isinstance(tokens,types.TupleType)):
@@ -482,14 +495,14 @@ def lex(module=None,debug=0,optimize=0,lextab="lextab"):
 
     # Get a list of symbols with the t_ prefix
     tsymbols = [f for f in ldict.keys() if f[:2] == 't_']
-
+    
     # Now build up a list of functions and a list of strings
     fsymbols = [ ]
     ssymbols = [ ]
     for f in tsymbols:
-        if isinstance(ldict[f],types.FunctionType):
+        if callable(ldict[f]):
             fsymbols.append(ldict[f])
-        elif isinstance(ldict[f],types.StringType):
+        elif isinstance(ldict[f], types.StringType):
             ssymbols.append((f,ldict[f]))
         else:
             print "lex: %s not defined as a function or string" % f
@@ -512,13 +525,20 @@ def lex(module=None,debug=0,optimize=0,lextab="lextab"):
         file = f.func_code.co_filename
         files[file] = None
 
+        ismethod = isinstance(f, types.MethodType)
+
         if not optimize:
-            if f.func_code.co_argcount > 1:
+            nargs = f.func_code.co_argcount
+            if ismethod:
+                reqargs = 2
+            else:
+                reqargs = 1
+            if nargs > reqargs:
                 print "%s:%d: Rule '%s' has too many arguments." % (file,line,f.__name__)
                 error = 1
                 continue
 
-            if f.func_code.co_argcount < 1:
+            if nargs < reqargs:
                 print "%s:%d: Rule '%s' requires an argument." % (file,line,f.__name__)
                 error = 1
                 continue
@@ -594,7 +614,7 @@ def lex(module=None,debug=0,optimize=0,lextab="lextab"):
         lexer.lexindexfunc = [ None ] * (max(lexer.lexre.groupindex.values())+1)
         for f,i in lexer.lexre.groupindex.items():
             handle = ldict[f]
-            if isinstance(handle,types.FunctionType):
+            if type(handle) in (types.FunctionType, types.MethodType):
                 lexer.lexindexfunc[i] = (handle,handle.__name__[2:])
             else:
                 # If rule was specified as a string, we build an anonymous
