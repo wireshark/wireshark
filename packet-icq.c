@@ -1,7 +1,7 @@
 /* packet-icq.c
  * Routines for ICQ packet disassembly
  *
- * $Id: packet-icq.c,v 1.3 1999/10/25 20:32:52 guy Exp $
+ * $Id: packet-icq.c,v 1.4 1999/11/03 06:21:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Johan Feyaerts
@@ -52,6 +52,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <ctype.h>
+#include <time.h>
 #include <string.h>
 #include <glib.h>
 
