@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.201 2004/06/03 21:46:27 guy Exp $
+ * $Id: menu.c,v 1.202 2004/06/17 21:53:26 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -150,6 +150,7 @@ static GtkItemFactoryEntry menu_items[] =
     ITEM_FACTORY_STOCK_ENTRY("/File/_Open...", "<control>O", file_open_cmd_cb,
                              0, GTK_STOCK_OPEN),
     ITEM_FACTORY_ENTRY("/File/Open _Recent", NULL, NULL, 0, "<Branch>", NULL),
+    ITEM_FACTORY_ENTRY("/File/_Merge...", NULL, file_merge_cmd_cb, 0, NULL, NULL),
     ITEM_FACTORY_STOCK_ENTRY("/File/_Close", "<control>W", file_close_cmd_cb,
                              0, GTK_STOCK_CLOSE),
     ITEM_FACTORY_ENTRY("/File/<separator>", NULL, NULL, 0, "<Separator>", NULL),
@@ -1437,6 +1438,7 @@ set_menus_for_capture_file(gboolean have_capture_file)
 {
   set_menu_sensitivity(main_menu_factory, "/File/Open...", have_capture_file);
   set_menu_sensitivity(main_menu_factory, "/File/Open Recent", have_capture_file);
+  set_menu_sensitivity(main_menu_factory, "/File/Merge...", have_capture_file);
   set_menu_sensitivity(main_menu_factory, "/File/Close", have_capture_file);
   set_menu_sensitivity(main_menu_factory, "/File/Save As...",
       have_capture_file);

@@ -1,7 +1,7 @@
 /* file_dlg.h
  * Definitions for dialog boxes for handling files
  *
- * $Id: file_dlg.h,v 1.12 2004/06/04 20:05:30 ulfl Exp $
+ * $Id: file_dlg.h,v 1.13 2004/06/17 21:53:25 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -37,6 +37,7 @@ typedef enum {
     after_save_open_dialog,         /**< open the file open dialog */
     after_save_open_recent_file,    /**< open the specified recent file */
     after_save_open_dnd_file,       /**< open the specified file from drag and drop */
+    after_save_merge_dialog,        /**< open the file merge dialog */
     after_save_capture_dialog,      /**< open the capture dialog */
     after_save_exit                 /**< exit program */
 } action_after_save_e;
@@ -54,6 +55,13 @@ void file_save_as_cmd(action_after_save_e action_after_save, gpointer action_aft
  * @param data unused
  */
 void file_open_cmd_cb(GtkWidget *widget, gpointer data);
+
+/** User requested the "Merge" dialog box.
+ *
+ * @param widget parent widget
+ * @param data unused
+ */
+void file_merge_cmd_cb(GtkWidget *widget, gpointer data);
 
 /** User requested the "Save" dialog box.
  *

@@ -1,7 +1,7 @@
 /* file_dlg.c
  * Dialog boxes for handling files
  *
- * $Id: file_dlg.c,v 1.108 2004/06/01 17:33:36 ulfl Exp $
+ * $Id: file_dlg.c,v 1.109 2004/06/17 21:53:25 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -58,6 +58,8 @@
 
 static void file_open_ok_cb(GtkWidget *w, gpointer fs);
 static void file_open_destroy_cb(GtkWidget *win, gpointer user_data);
+static void file_merge_ok_cb(GtkWidget *w, gpointer fs);
+static void file_merge_destroy_cb(GtkWidget *win, gpointer user_data);
 static void select_file_type_cb(GtkWidget *w, gpointer data);
 static void file_save_as_ok_cb(GtkWidget *w, gpointer fs);
 static void file_save_as_destroy_cb(GtkWidget *win, gpointer user_data);
@@ -69,6 +71,10 @@ static void file_color_export_destroy_cb(GtkWidget *win, gpointer user_data);
 #define E_FILE_M_RESOLVE_KEY	  "file_dlg_mac_resolve_key"
 #define E_FILE_N_RESOLVE_KEY	  "file_dlg_network_resolve_key"
 #define E_FILE_T_RESOLVE_KEY	  "file_dlg_transport_resolve_key"
+
+#define E_MERGE_PREPEND_KEY 	  "merge_dlg_prepend_key"
+#define E_MERGE_CHRONO_KEY 	      "merge_dlg_chrono_key"
+#define E_MERGE_APPEND_KEY 	      "merge_dlg_append_key"
 
 #define ARGUMENT_CL "argument_cl"
 
@@ -244,7 +250,7 @@ file_open_cmd(GtkWidget *w)
 #endif
 }
 
-void file_open_answered_cb(gpointer dialog _U_, gint btn, gpointer data _U_)
+static void file_open_answered_cb(gpointer dialog _U_, gint btn, gpointer data _U_)
 {
     switch(btn) {
     case(ESD_BTN_YES):
@@ -372,6 +378,320 @@ file_open_destroy_cb(GtkWidget *win _U_, gpointer user_data _U_)
   /* Note that we no longer have a "Open Capture File" dialog box. */
   file_open_w = NULL;
 }
+
+/*
+ * Keep a static pointer to the current "Marge Capture File" window, if
+ * any, so that if somebody tries to do "File:Merge" while there's already
+ * an "Merge Capture File" window up, we just pop up the existing one,
+ * rather than creating a new one.
+ */
+static GtkWidget *file_merge_w;
+
+/* Merge existing with another file */
+void
+file_merge_cmd(GtkWidget *w)
+{
+  GtkWidget	*main_vb, *filter_hbox, *filter_bt, *filter_te,
+  		*prepend_rb, *chrono_rb, *append_rb;
+#if GTK_MAJOR_VERSION < 2
+  GtkAccelGroup *accel_group;
+#endif
+  /* No Apply button, and "OK" just sets our text widget, it doesn't
+     activate it (i.e., it doesn't cause us to try to open the file). */
+  static construct_args_t args = {
+  	"Ethereal: Read Filter",
+  	FALSE,
+  	FALSE
+  };
+
+  if (file_merge_w != NULL) {
+    /* There's already an "Merge Capture File" dialog box; reactivate it. */
+    reactivate_window(file_merge_w);
+    return;
+  }
+
+  file_merge_w = file_selection_new("Ethereal: Merge with Capture File",
+                                   FILE_SELECTION_OPEN);
+  /* window is already shown here, gtk_window_set_default_size() will not work */
+  WIDGET_SET_SIZE(file_merge_w, DEF_WIDTH, DEF_HEIGHT);
+
+#if GTK_MAJOR_VERSION < 2
+  /* Accelerator group for the accelerators (or, as they're called in
+     Windows and, I think, in Motif, "mnemonics"; Alt+<key> is a mnemonic,
+     Ctrl+<key> is an accelerator). */
+  accel_group = gtk_accel_group_new();
+  gtk_window_add_accel_group(GTK_WINDOW(file_merge_w), accel_group);
+#endif
+
+  switch (prefs.gui_fileopen_style) {
+
+  case FO_STYLE_LAST_OPENED:
+    /* The user has specified that we should start out in the last directory
+       we looked in.  If we've already opened a file, use its containing
+       directory, if we could determine it, as the directory, otherwise
+       use the "last opened" directory saved in the preferences file if
+       there was one. */
+    /* This is now the default behaviour in file_selection_new() */
+    break;
+
+  case FO_STYLE_SPECIFIED:
+    /* The user has specified that we should always start out in a
+       specified directory; if they've specified that directory,
+       start out by showing the files in that dir. */
+    if (prefs.gui_fileopen_dir[0] != '\0')
+      file_selection_set_current_folder(file_merge_w, prefs.gui_fileopen_dir);
+    break;
+  }
+    
+  /* Container for each row of widgets */
+  main_vb = gtk_vbox_new(FALSE, 3);
+  gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
+  file_selection_set_extra_widget(file_merge_w, main_vb);
+  gtk_widget_show(main_vb);
+
+  filter_hbox = gtk_hbox_new(FALSE, 1);
+  gtk_container_border_width(GTK_CONTAINER(filter_hbox), 0);
+  gtk_box_pack_start(GTK_BOX(main_vb), filter_hbox, FALSE, FALSE, 0);
+  gtk_widget_show(filter_hbox);
+
+  filter_bt = BUTTON_NEW_FROM_STOCK(ETHEREAL_STOCK_DISPLAY_FILTER_ENTRY);
+  SIGNAL_CONNECT(filter_bt, "clicked", display_filter_construct_cb, &args);
+  SIGNAL_CONNECT(filter_bt, "destroy", filter_button_destroy_cb, NULL);
+  gtk_box_pack_start(GTK_BOX(filter_hbox), filter_bt, FALSE, TRUE, 0);
+  gtk_widget_show(filter_bt);
+
+  filter_te = gtk_entry_new();
+  OBJECT_SET_DATA(filter_bt, E_FILT_TE_PTR_KEY, filter_te);
+  gtk_box_pack_start(GTK_BOX(filter_hbox), filter_te, TRUE, TRUE, 3);
+  SIGNAL_CONNECT(filter_te, "changed", filter_te_syntax_check_cb, NULL);
+  gtk_widget_show(filter_te);
+
+#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+  OBJECT_SET_DATA(file_merge_w, E_RFILTER_TE_KEY, filter_te);
+#else
+  OBJECT_SET_DATA(GTK_FILE_SELECTION(file_merge_w)->ok_button,
+                  E_RFILTER_TE_KEY, filter_te);
+#endif
+
+  prepend_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(NULL, "Prepend packets to existing file", accel_group);
+  gtk_box_pack_start(GTK_BOX(main_vb), prepend_rb, FALSE, FALSE, 0);
+#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+  OBJECT_SET_DATA(file_merge_w,
+                  E_MERGE_PREPEND_KEY, prepend_rb);
+#else
+  OBJECT_SET_DATA(GTK_FILE_SELECTION(file_merge_w)->ok_button,
+                  E_MERGE_PREPEND_KEY, prepend_rb);
+#endif
+  gtk_widget_show(prepend_rb);
+
+  chrono_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(prepend_rb, "Sort packets chronological", accel_group);
+  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(chrono_rb), TRUE);
+  gtk_box_pack_start(GTK_BOX(main_vb), chrono_rb, FALSE, FALSE, 0);
+  gtk_widget_show(chrono_rb);
+#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+  OBJECT_SET_DATA(file_merge_w, E_MERGE_CHRONO_KEY, chrono_rb);
+#else
+  OBJECT_SET_DATA(GTK_FILE_SELECTION(file_merge_w)->ok_button,
+		  E_MERGE_CHRONO_KEY, chrono_rb);
+#endif
+
+  append_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(prepend_rb, "Append packets to existing file", accel_group);
+  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(append_rb),
+	g_resolv_flags & RESOLV_TRANSPORT);
+  gtk_box_pack_start(GTK_BOX(main_vb), append_rb, FALSE, FALSE, 0);
+  gtk_widget_show(append_rb);
+#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+  OBJECT_SET_DATA(file_merge_w, E_MERGE_APPEND_KEY, append_rb);
+#else
+  OBJECT_SET_DATA(GTK_FILE_SELECTION(file_merge_w)->ok_button,
+		  E_MERGE_APPEND_KEY, append_rb);
+#endif
+
+
+  SIGNAL_CONNECT(file_merge_w, "destroy", file_merge_destroy_cb, NULL);
+
+#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+  OBJECT_SET_DATA(file_merge_w, E_DFILTER_TE_KEY,
+                  OBJECT_GET_DATA(w, E_DFILTER_TE_KEY));
+  if (gtk_dialog_run(GTK_DIALOG(file_merge_w)) == GTK_RESPONSE_ACCEPT)
+  {
+    file_merge_ok_cb(file_merge_w, file_merge_w);
+  }
+  else window_destroy(file_merge_w);
+#else
+  /* Connect the ok_button to file_merge_ok_cb function and pass along a
+     pointer to the file selection box widget */
+  SIGNAL_CONNECT(GTK_FILE_SELECTION(file_merge_w)->ok_button, "clicked",
+                 file_merge_ok_cb, file_merge_w);
+
+  OBJECT_SET_DATA(GTK_FILE_SELECTION(file_merge_w)->ok_button,
+                  E_DFILTER_TE_KEY, OBJECT_GET_DATA(w, E_DFILTER_TE_KEY));
+
+  /* Connect the cancel_button to destroy the widget */
+  window_set_cancel_button(file_merge_w, 
+      GTK_FILE_SELECTION(file_merge_w)->cancel_button, window_cancel_button_cb);
+
+  SIGNAL_CONNECT(file_merge_w, "delete_event", window_delete_event_cb, NULL);
+
+  gtk_widget_show(file_merge_w);
+  window_present(file_merge_w);
+#endif
+}
+
+static void file_merge_answered_cb(gpointer dialog _U_, gint btn, gpointer data _U_)
+{
+    switch(btn) {
+    case(ESD_BTN_YES):
+        /* save file first */
+        file_save_as_cmd(after_save_merge_dialog, data);
+        break;
+    case(ESD_BTN_NO):
+        break;
+    default:
+        g_assert_not_reached();
+    }
+}
+
+void
+file_merge_cmd_cb(GtkWidget *widget, gpointer data _U_) {
+  gpointer  dialog;
+
+  if((cfile.state != FILE_CLOSED) && !cfile.user_saved) {
+    /* user didn't saved his current file, ask him */
+    dialog = simple_dialog(ESD_TYPE_CONFIRMATION, ESD_BTNS_YES_NO,
+                PRIMARY_TEXT_START "Save the capture file before merging to another one?" PRIMARY_TEXT_END "\n\n"
+                "A temporary capture file cannot be merged.");
+    simple_dialog_set_cb(dialog, file_merge_answered_cb, widget);
+  } else {
+    /* unchanged file, just start to merge */
+    file_merge_cmd(widget);
+  }
+}
+
+
+extern gboolean
+merge_two_files(char *out_filename, char *in_file0, char *in_file1, gboolean append);
+
+static void
+file_merge_ok_cb(GtkWidget *w, gpointer fs) {
+  gchar     *cf_name, *rfilter, *s;
+  gchar     *cf_current_name, *cf_merged_name;
+  GtkWidget *filter_te, *rb;
+  dfilter_t *rfcode = NULL;
+  int        err;
+  gboolean   merge_ok;
+
+#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+  cf_name = g_strdup(gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fs)));
+#else
+  cf_name = g_strdup(gtk_file_selection_get_filename(GTK_FILE_SELECTION(fs)));
+#endif
+  filter_te = OBJECT_GET_DATA(w, E_RFILTER_TE_KEY);
+  rfilter = (gchar *)gtk_entry_get_text(GTK_ENTRY(filter_te));
+  if (!dfilter_compile(rfilter, &rfcode)) {
+    bad_dfilter_alert_box(rfilter);
+    g_free(cf_name);
+    return;
+  }
+
+  /* Perhaps the user specified a directory instead of a file.
+     Check whether they did. */
+  if (test_for_directory(cf_name) == EISDIR) {
+	/* It's a directory - set the file selection box to display that
+	   directory, don't try to open the directory as a capture file. */
+        set_last_open_dir(cf_name);
+        g_free(cf_name);
+        file_selection_set_current_folder(fs, get_last_open_dir());
+    	return;
+  }
+
+  cf_current_name = strdup(cfile.filename);
+  /*XXX should use temp file stuff in util routines */
+  cf_merged_name = tmpnam(NULL);
+
+  /* merge or append the files */
+  rb = OBJECT_GET_DATA(w, E_MERGE_CHRONO_KEY);
+  if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (rb))) {
+      /* chonological order */
+      merge_ok = merge_two_files(cf_merged_name, cf_current_name, cf_name, FALSE);
+  } else {
+      rb = OBJECT_GET_DATA(w, E_MERGE_PREPEND_KEY);
+      if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (rb))) {
+          /* prepend file */
+          merge_ok = merge_two_files(cf_merged_name, cf_current_name, cf_name, TRUE);
+      } else {
+          /* append file */
+          merge_ok = merge_two_files(cf_merged_name, cf_name, cf_current_name, TRUE);
+      }
+  }
+
+  cf_close(&cfile);
+  g_free(cf_current_name);
+  cf_name = cf_merged_name;
+  
+  if(!merge_ok) {
+    if (rfcode != NULL)
+      dfilter_free(rfcode);
+    g_free(cf_name);
+    return;
+  }
+
+  /* Try to open the capture file. */
+  if ((err = cf_open(cf_name, FALSE, &cfile)) != 0) {
+    /* We couldn't open it; don't dismiss the open dialog box,
+       just leave it around so that the user can, after they
+       dismiss the alert box popped up for the open error,
+       try again. */
+    if (rfcode != NULL)
+      dfilter_free(rfcode);
+    g_free(cf_name);
+    return;
+  }
+
+  /* Attach the new read filter to "cf" ("cf_open()" succeeded, so
+     it closed the previous capture file, and thus destroyed any
+     previous read filter attached to "cf"). */
+  cfile.rfcode = rfcode;
+  cfile.is_tempfile = TRUE;
+
+  /* We've crossed the Rubicon; get rid of the file selection box. */
+  window_destroy(GTK_WIDGET (fs));
+
+  switch (cf_read(&cfile)) {
+
+  case READ_SUCCESS:
+  case READ_ERROR:
+    /* Just because we got an error, that doesn't mean we were unable
+       to read any of the file; we handle what we could get from the
+       file. */
+    break;
+
+  case READ_ABORTED:
+    /* The user bailed out of re-reading the capture file; the
+       capture file has been closed - just free the capture file name
+       string and return (without changing the last containing
+       directory). */
+    g_free(cf_name);
+    return;
+  }
+
+  /* Save the name of the containing directory specified in the path name,
+     if any; we can write over cf_name, which is a good thing, given that
+     "get_dirname()" does write over its argument. */
+  s = get_dirname(cf_name);
+  set_last_open_dir(s);
+  gtk_widget_grab_focus(packet_list);
+
+  g_free(cf_name);
+}
+
+static void
+file_merge_destroy_cb(GtkWidget *win _U_, gpointer user_data _U_)
+{
+  /* Note that we no longer have a "Merge Capture File" dialog box. */
+  file_merge_w = NULL;
+}
+
 
 void file_close_answered_cb(gpointer dialog _U_, gint btn, gpointer data _U_)
 {
@@ -716,6 +1036,9 @@ file_save_as_ok_cb(GtkWidget *w _U_, gpointer fs) {
       break;
   case(after_save_open_dnd_file):
       dnd_open_file_cmd(action_after_save_data_g);
+      break;
+  case(after_save_merge_dialog):
+      file_merge_cmd(action_after_save_data_g);
       break;
 #ifdef HAVE_LIBPCAP
   case(after_save_capture_dialog):
