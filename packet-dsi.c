@@ -2,7 +2,7 @@
  * Routines for dsi packet dissection
  * Copyright 2001, Randy McEoin <rmceoin@pe.com>
  *
- * $Id: packet-dsi.c,v 1.17 2002/05/01 07:07:09 guy Exp $
+ * $Id: packet-dsi.c,v 1.18 2002/05/03 21:25:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -84,6 +84,7 @@ static int hf_dsi_server_type = -1;
 static int hf_dsi_server_vers = -1;
 static int hf_dsi_server_uams = -1;
 static int hf_dsi_server_icon = -1;
+static int hf_dsi_server_directory = -1;
 
 static int hf_dsi_server_flag = -1;
 static int hf_dsi_server_flag_copyfile = -1;
@@ -93,6 +94,8 @@ static int hf_dsi_server_flag_srv_msg	= -1;
 static int hf_dsi_server_flag_srv_sig	= -1;
 static int hf_dsi_server_flag_tcpip	= -1;
 static int hf_dsi_server_flag_notify	= -1;
+static int hf_dsi_server_flag_reconnect	= -1;
+static int hf_dsi_server_flag_directory	= -1;
 static int hf_dsi_server_flag_fast_copy = -1;
 static int hf_dsi_server_signature	= -1;
 
@@ -104,6 +107,7 @@ static gint ett_dsi_status = -1;
 static gint ett_dsi_uams   = -1;
 static gint ett_dsi_vers   = -1;
 static gint ett_dsi_addr   = -1;
+static gint ett_dsi_directory = -1;
 static gint ett_dsi_status_server_flag = -1;
 
 const value_string afp_server_addr_type_vals[] = {
@@ -168,9 +172,13 @@ dissect_dsi_reply_get_status(tvbuff_t *tvb, proto_tree *tree, gint offset)
 	guint16 flag;
 	guint16 sign_ofs = 0;
 	guint16 adr_ofs = 0;
+	guint16 dir_ofs = 0;
 	guint8	nbe;
 	guint8  len;
 	guint8  i;
+		
+	if (!tree)
+		return offset;
 		
 	ti = proto_tree_add_text(tree, tvb, offset, -1, "Get Status");
 	tree = proto_item_add_subtree(ti, ett_dsi_status);
@@ -197,11 +205,12 @@ dissect_dsi_reply_get_status(tvbuff_t *tvb, proto_tree *tree, gint offset)
 	proto_tree_add_item(sub_tree, hf_dsi_server_flag_srv_sig       , tvb, ofs, 2, FALSE);
 	proto_tree_add_item(sub_tree, hf_dsi_server_flag_tcpip         , tvb, ofs, 2, FALSE);
 	proto_tree_add_item(sub_tree, hf_dsi_server_flag_notify        , tvb, ofs, 2, FALSE);
+	proto_tree_add_item(sub_tree, hf_dsi_server_flag_reconnect     , tvb, ofs, 2, FALSE);
+	proto_tree_add_item(sub_tree, hf_dsi_server_flag_directory     , tvb, ofs, 2, FALSE);
 	proto_tree_add_item(sub_tree, hf_dsi_server_flag_fast_copy     , tvb, ofs, 2, FALSE);
 
 	proto_tree_add_item(tree, hf_dsi_server_name, tvb, offset +AFPSTATUS_PRELEN, 1, FALSE);
 
-	/* FIXME wild guess */
 	flag = tvb_get_ntohs(tvb, ofs);
 	if ((flag & AFPSRVRINFO_SRVSIGNATURE)) {
 		ofs = offset +AFPSTATUS_PRELEN +tvb_get_guint8(tvb, offset +AFPSTATUS_PRELEN);
@@ -217,6 +226,13 @@ dissect_dsi_reply_get_status(tvbuff_t *tvb, proto_tree *tree, gint offset)
 			adr_ofs =  tvb_get_ntohs(tvb, ofs);
 			proto_tree_add_text(tree, tvb, ofs, 2, "Network address offset: %d", adr_ofs);
 			adr_ofs += offset;
+		}
+
+		if ((flag & AFPSRVRINFO_SRVDIRECTORY)) {
+			ofs += 2;
+			dir_ofs =  tvb_get_ntohs(tvb, ofs);
+			proto_tree_add_text(tree, tvb, ofs, 2, "Directory services offset: %d", dir_ofs);
+			dir_ofs += offset;
 		}
 	}
 		
@@ -274,6 +290,20 @@ dissect_dsi_reply_get_status(tvbuff_t *tvb, proto_tree *tree, gint offset)
 			ofs += len;
 		}
 	}
+	
+	if (dir_ofs) {
+		ofs = dir_ofs;
+		nbe = tvb_get_guint8(tvb, ofs);
+		ti = proto_tree_add_text(tree, tvb, ofs, 1, "Directory services list: %d", nbe);
+		ofs++;
+		sub_tree = proto_item_add_subtree(ti, ett_dsi_directory);
+		for (i = 0; i < nbe; i++) {
+			len = tvb_get_guint8(tvb, ofs) +1;
+			proto_tree_add_item(sub_tree, hf_dsi_server_directory, tvb, ofs, 1, FALSE);
+			ofs += len;
+		}
+	}
+
 	return offset;
 }
 
@@ -449,6 +479,10 @@ dissect_dsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 * with that exception getting the "Unreassembled Packet"
 		 * error.
 		 */
+		if (plen > 0x7fffffff) {
+			show_reported_bounds_error(tvb, pinfo, tree);
+			return;
+		}					
 		length = length_remaining;
 		if ((guint32)length > plen + 16)
 			length = plen + 16;
@@ -523,7 +557,7 @@ proto_register_dsi(void)
       { "Reserved",         "dsi.reserved",
 	FT_UINT32, BASE_HEX, NULL, 0x0,
       	"Reserved for future use.  Should be set to zero.", HFILL }},
-
+	/* asp , afp */
     { &hf_dsi_server_name,
       { "Server name",         "dsi.server_name",
 	FT_UINT_STRING, BASE_NONE, NULL, 0x0,
@@ -548,6 +582,11 @@ proto_register_dsi(void)
       { "Icon bitmap",         "dsi.server_icon",
 	FT_BYTES, BASE_HEX, NULL, 0x0,
       	"Server icon bitmap", HFILL }},
+
+    { &hf_dsi_server_directory,
+      { "Directory service",         "dsi.server_directory",
+	FT_UINT_STRING, BASE_NONE, NULL, 0x0,
+      	"Server directory service", HFILL }},
 
     { &hf_dsi_server_signature,
       { "Server signature",         "dsi.server_signature",
@@ -586,6 +625,14 @@ proto_register_dsi(void)
       { "Support server notifications",      "dsi.server_flag.notify",
 		FT_BOOLEAN, 16, NULL, AFPSRVRINFO_SRVNOTIFY,
       	"Server support notifications", HFILL }},
+    { &hf_dsi_server_flag_reconnect,
+      { "Support server reconnect",      "dsi.server_flag.reconnect",
+		FT_BOOLEAN, 16, NULL, AFPSRVRINFO_SRVRECONNECT,
+      	"Server support reconnect", HFILL }},
+    { &hf_dsi_server_flag_directory,
+      { "Support directory services",      "dsi.server_flag.directory",
+		FT_BOOLEAN, 16, NULL, AFPSRVRINFO_SRVDIRECTORY,
+      	"Server support directory services", HFILL }},
     { &hf_dsi_server_flag_fast_copy,
       { "Support fast copy",      "dsi.server_flag.fast_copy",
 		FT_BOOLEAN, 16, NULL, AFPSRVRINFO_FASTBOZO,
@@ -610,11 +657,13 @@ proto_register_dsi(void)
   };
   static gint *ett[] = {
     &ett_dsi,
+    /* asp afp */
     &ett_dsi_status,
     &ett_dsi_status_server_flag,
     &ett_dsi_vers,
     &ett_dsi_uams,
     &ett_dsi_addr,
+    &ett_dsi_directory,
   };
   module_t *dsi_module;
 

@@ -1,7 +1,7 @@
 /* packet-afp.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet-afp.h,v 1.3 2002/04/30 22:05:33 guy Exp $
+ * $Id: packet-afp.h,v 1.4 2002/05/03 21:25:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -79,9 +79,6 @@
 extern const value_string asp_error_vals[];
 extern const value_string afp_server_addr_type_vals[];
 
-extern gint 
-dissect_asp_reply_get_status(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset);
-
 /* server flags */
 #define AFPSRVRINFO_COPY         (1<<0)  /* supports copyfile */
 #define AFPSRVRINFO_PASSWD       (1<<1)  /* supports change password */
@@ -90,6 +87,8 @@ dissect_asp_reply_get_status(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 #define AFPSRVRINFO_SRVSIGNATURE (1<<4)  /* supports server signature */
 #define AFPSRVRINFO_TCPIP        (1<<5)  /* supports tcpip */
 #define AFPSRVRINFO_SRVNOTIFY    (1<<6)  /* supports server notifications */
+#define AFPSRVRINFO_SRVRECONNECT (1<<7)  /* supports reconnect */
+#define AFPSRVRINFO_SRVDIRECTORY (1<<8)  /* supports directory services */
 #define AFPSRVRINFO_FASTBOZO     (1<<15) /* fast copying */
 
 #define AFPSTATUS_MACHOFF     0

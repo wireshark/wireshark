@@ -2,7 +2,7 @@
  * Routines for afp packet dissection
  * Copyright 2002, Didier Gautheron <dgautheron@magic.fr>
  *
- * $Id: packet-afp.c,v 1.13 2002/05/01 10:01:42 guy Exp $
+ * $Id: packet-afp.c,v 1.14 2002/05/03 21:25:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -273,9 +273,11 @@ static gint ett_afp_dir_ar = -1;
 
 static gint ett_afp_server_vol		= -1;
 static gint ett_afp_vol_list		= -1;
+static gint ett_afp_vol_flag		= -1;
 static gint ett_afp_cat_search 		= -1;
 static gint ett_afp_cat_r_bitmap	= -1;
 static gint ett_afp_cat_spec		= -1;
+static gint ett_afp_vol_did	= -1;
 
 static dissector_handle_t data_handle;
 
@@ -1371,8 +1373,10 @@ dissect_reply_afp_get_server_param(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 	guint8 flag;
 	guint8 i;
   	proto_tree *sub_tree = NULL;
+  	proto_tree *flag_tree;
   	proto_item *item;
-
+  	proto_item *ti;
+	
 	if (!tree)
 		return offset;
 
@@ -1391,11 +1395,11 @@ dissect_reply_afp_get_server_param(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 		tree = proto_item_add_subtree(item, ett_afp_vol_list);
 
 		flag = tvb_get_guint8(tvb, offset);
-		proto_tree_add_text(tree, tvb, offset , 1,"Flags : 0x%02x", flag);
-#if 0
-		/* FIXME */
-		hf_afp_vol_flag_passwd hf_afp_vol_flag_unix_priv 
-#endif		
+
+		ti = proto_tree_add_text(tree, tvb, offset , 1,"Flags : 0x%02x", flag);
+		flag_tree = proto_item_add_subtree(ti, ett_afp_vol_flag);
+		proto_tree_add_item(flag_tree, hf_afp_vol_flag_passwd, tvb, offset, 1,FALSE);
+		proto_tree_add_item(flag_tree, hf_afp_vol_flag_unix_priv ,tvb, offset, 1,FALSE);
 		offset++;
 
 		len  = tvb_get_guint8(tvb, offset) +1;
@@ -2096,6 +2100,33 @@ dissect_query_afp_move(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint
 
 /* ************************** */
 static gint
+dissect_query_afp_copy_file(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+{
+  	proto_tree *sub_tree = NULL;
+  	proto_item *item;
+		
+	PAD(1);
+	if (tree) {
+		item = proto_tree_add_text(tree, tvb, offset, 6,"Source volume");
+		sub_tree = proto_item_add_subtree(item, ett_afp_vol_did);
+	}
+	offset = decode_vol_did(sub_tree, tvb, offset);
+
+	if (tree) {
+		item = proto_tree_add_text(tree, tvb, offset, 6,"Dest volume");
+		sub_tree = proto_item_add_subtree(item, ett_afp_vol_did);
+	}
+	offset = decode_vol_did(sub_tree, tvb, offset);
+
+	offset = decode_name_label(tree, pinfo, tvb, offset, "Source path: %s");
+	offset = decode_name_label(tree, NULL, tvb, offset,  "Dest dir:    %s");
+	offset = decode_name_label(tree, NULL, tvb, offset,  "New name:    %s");
+
+	return offset;
+}
+
+/* ************************** */
+static gint
 dissect_query_afp_rename(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
 {
 		
@@ -2223,15 +2254,6 @@ dissect_query_afp_get_icon(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 	proto_tree_add_item(tree, hf_afp_icon_length, tvb, offset, 2,FALSE);
 	offset += 2;
 
-	return offset;
-}
-
-/* -------------------------- 
-	fallback to data in afp dissector
-*/
-static gint
-dissect_reply_afp_get_icon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
-{
 	return offset;
 }
 
@@ -2440,6 +2462,8 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	if (!request_val) {	/* missing request */
+		if (check_col(pinfo->cinfo, COL_INFO)) 
+			col_add_fstr(pinfo->cinfo, COL_INFO, "[Reply without query?]");
 		return;
 	}
 
@@ -2475,7 +2499,7 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		case AFP_CLOSEFORK:
 			offset = dissect_query_afp_with_fork(tvb, pinfo, afp_tree, offset);break;
 		case AFP_COPYFILE:
-			/* offset = dissect_query_afp_copy_file(tvb, pinfo, afp_tree, offset);break; */
+			offset = dissect_query_afp_copy_file(tvb, pinfo, afp_tree, offset);break; 
 		case AFP_CREATEFILE:
 			offset = dissect_query_afp_create_file(tvb, pinfo, afp_tree, offset);break; 
 		case AFP_ENUMERATE:
@@ -2536,7 +2560,7 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			break;
 		case AFP_CATSEARCH:
 			offset = dissect_query_afp_cat_search(tvb, pinfo, afp_tree, offset);break; 
-		case AFP_GETICON:
+		case AFP_GETICON:	
 			offset = dissect_query_afp_get_icon(tvb, pinfo, afp_tree, offset);break; 
 		case AFP_GTICNINFO:
 			offset = dissect_query_afp_get_icon_info(tvb, pinfo, afp_tree, offset);break; 
@@ -2590,8 +2614,6 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			offset = dissect_reply_afp_open_dt(tvb, pinfo, afp_tree, offset);break;
 		case AFP_CATSEARCH:
 			offset = dissect_reply_afp_cat_search(tvb, pinfo, afp_tree, offset);break; 
-		case AFP_GETICON:
-			offset = dissect_reply_afp_get_icon(tvb, pinfo, afp_tree, offset);break; 
 		case AFP_GTICNINFO:
 			offset = dissect_reply_afp_get_icon_info(tvb, pinfo, afp_tree, offset);break; 
 		case AFP_GETAPPL:
@@ -3031,6 +3053,16 @@ proto_register_afp(void)
 	FT_UINT_STRING, BASE_NONE, NULL, 0x0,
       	"Volume name", HFILL }},
 
+    { &hf_afp_vol_flag_passwd,
+      { "Password",         "afp.vol_flag_passwd",
+	    FT_BOOLEAN, 8, NULL,  1,
+      	"Volume is password-protected", HFILL }},
+
+    { &hf_afp_vol_flag_unix_priv,
+      { "Unix privs",         "afp.vol_flag_unix_priv",
+	    FT_BOOLEAN, 8, NULL,  2,
+      	"Volume has unix privileges", HFILL }},
+
     { &hf_afp_vol_id,
       { "Volume id",         "afp.vol_id",
 		FT_UINT16, BASE_DEC, NULL, 0x0,
@@ -3212,7 +3244,7 @@ proto_register_afp(void)
       	"First structure returned", HFILL }},
 
     { &hf_afp_file_flag,
-      { "Dir",         "afp.flag",
+      { "Dir",         "afp.file_flag",
 		FT_BOOLEAN, 8, NULL, 0x80,
       	"Is a dir", HFILL }},
 
@@ -3497,6 +3529,7 @@ proto_register_afp(void)
 	&ett_afp,
 	&ett_afp_server_vol,
 	&ett_afp_vol_list,
+	&ett_afp_vol_flag,
 	&ett_afp_vol_bitmap,
 	&ett_afp_vol_attribute,
 	&ett_afp_dir_bitmap,
@@ -3513,6 +3546,7 @@ proto_register_afp(void)
 	&ett_afp_cat_search,
 	&ett_afp_cat_r_bitmap,
 	&ett_afp_cat_spec,
+	&ett_afp_vol_did,
   };
 
   proto_afp = proto_register_protocol("AppleTalk Filing Protocol", "AFP", "afp");
