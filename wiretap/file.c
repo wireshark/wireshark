@@ -1,6 +1,6 @@
 /* file.c
  *
- * $Id: file.c,v 1.46 2000/01/22 06:22:36 guy Exp $
+ * $Id: file.c,v 1.47 2000/01/24 19:16:39 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -130,9 +130,14 @@ wtap* wtap_open_offline(const char *filename, int *err)
 		return NULL;
 	}
 
+/* Win32 needs the O_BINARY flag for open() */
+#ifndef O_BINARY
+#define O_BINARY	0
+#endif
+
 	/* Open the file */
 	errno = WTAP_ERR_CANT_OPEN;
-	if (!(wth->fd = open(filename, O_RDONLY))) {
+	if (!(wth->fd = open(filename, O_RDONLY|O_BINARY))) {
 		*err = errno;
 		g_free(wth);
 		return NULL;
