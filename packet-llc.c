@@ -2,7 +2,7 @@
  * Routines for IEEE 802.2 LLC layer
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-llc.c,v 1.82 2001/01/21 22:51:46 guy Exp $
+ * $Id: packet-llc.c,v 1.83 2001/03/22 16:24:14 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -43,7 +43,7 @@
 #include "packet-ipx.h"
 #include "packet-netbios.h"
 #include "packet-osi.h"
-#include "packet-sna.h"
+#include "sna-utils.h"
 
 #include "packet-llc.h"
 

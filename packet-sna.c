@@ -2,7 +2,7 @@
  * Routines for SNA
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-sna.c,v 1.26 2001/03/13 21:34:24 gram Exp $
+ * $Id: packet-sna.c,v 1.27 2001/03/22 16:24:14 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -35,7 +35,7 @@
 #include <glib.h>
 #include "packet.h"
 #include "llcsaps.h"
-#include "packet-sna.h"
+#include "sna-utils.h"
 
 /*
  * http://www.wanresources.com/snacell.html
@@ -550,25 +550,6 @@ dissect_fid3(tvbuff_t *tvb, proto_tree *tree)
 	return bytes_in_header;
 }
 
-/* FID Type 4 */
-
-gchar *
-sna_fid_type_4_addr_to_str(const struct sna_fid_type_4_addr *addrp)
-{
-  static gchar	str[3][14];
-  static gchar	*cur;
-
-  if (cur == &str[0][0]) {
-    cur = &str[1][0];
-  } else if (cur == &str[1][0]) {
-    cur = &str[2][0];
-  } else {
-    cur = &str[0][0];
-  }
-
-  sprintf(cur, "%08X.%04X", addrp->saf, addrp->ef);
-  return cur;
-}
 
 static int
 dissect_fid4(tvbuff_t *tvb, proto_tree *tree)

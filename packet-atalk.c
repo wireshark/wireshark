@@ -1,7 +1,7 @@
 /* packet-atalk.c
  * Routines for Appletalk packet disassembly (DDP, currently).
  *
- * $Id: packet-atalk.c,v 1.51 2001/03/15 09:11:00 guy Exp $
+ * $Id: packet-atalk.c,v 1.52 2001/03/22 16:24:14 gram Exp $
  *
  * Simon Wilkinson <sxw@dcs.ed.ac.uk>
  *
@@ -34,10 +34,10 @@
 
 #include <glib.h>
 #include "packet.h"
-#include "packet-atalk.h"
 #include "etypes.h"
 #include "ppptypes.h"
 #include "aftypes.h"
+#include "atalk-utils.h"
 
 static int proto_ddp = -1;
 static int hf_ddp_hopcount = -1;
@@ -104,23 +104,6 @@ typedef struct _e_ddp {
 
 #define DDP_HEADER_SIZE 13
 
-gchar *
-atalk_addr_to_str(const struct atalk_ddp_addr *addrp)
-{
-  static gchar	str[3][14];
-  static gchar	*cur;
-
-  if (cur == &str[0][0]) {
-    cur = &str[1][0];
-  } else if (cur == &str[1][0]) {
-    cur = &str[2][0];
-  } else {
-    cur = &str[0][0];
-  }
-
-  sprintf(cur, "%u.%u:%u", addrp->net, addrp->node, addrp->port);
-  return cur;
-}
 
 static const value_string op_vals[] = {
   {DDP_RTMPDATA, "AppleTalk Routing Table response or data" },

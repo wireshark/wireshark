@@ -1,7 +1,7 @@
 /* packet-ppp.c
  * Routines for ppp packet disassembly
  *
- * $Id: packet-ppp.c,v 1.56 2001/03/15 09:11:01 guy Exp $
+ * $Id: packet-ppp.c,v 1.57 2001/03/22 16:24:14 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -38,7 +38,7 @@
 #include "packet-ppp.h"
 #include "ppptypes.h"
 #include "etypes.h"
-#include "packet-atalk.h"
+#include "atalk-utils.h"
 #include "packet-chdlc.h"
 #include "packet-ip.h"
 #include "packet-ipv6.h"
