@@ -1,7 +1,7 @@
 /* resolv.c
  * Routines for network object lookup
  *
- * $Id: resolv.c,v 1.10 1999/09/10 07:19:41 guy Exp $
+ * $Id: resolv.c,v 1.11 1999/09/18 16:01:52 deniel Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
@@ -195,7 +195,7 @@ static u_char *serv_name_lookup(u_int port, u_int proto)
 
 #ifdef AVOID_DNS_TIMEOUT
 
-#define DNS_TIMEOUT 	5 	/* max sec per call */
+#define DNS_TIMEOUT 	2 	/* max sec per call */
 
 jmp_buf hostname_env;
 
