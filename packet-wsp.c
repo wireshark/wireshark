@@ -2,7 +2,7 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  *
- * $Id: packet-wsp.c,v 1.113 2004/04/20 19:27:33 obiot Exp $
+ * $Id: packet-wsp.c,v 1.114 2004/04/25 20:42:15 obiot Exp $
  *
  * Refer to the AUTHORS file or the AUTHORS section in the man page
  * for contacting the author(s) of this file.
@@ -281,6 +281,7 @@ static int hf_wsp_parameter_sec			= HF_EMPTY;
 static int hf_wsp_parameter_mac			= HF_EMPTY;
 static int hf_wsp_parameter_upart_type			= HF_EMPTY;
 static int hf_wsp_parameter_level			= HF_EMPTY;
+static int hf_wsp_parameter_size			= HF_EMPTY;
 static int hf_wsp_reply_data				= HF_EMPTY;
 static int hf_wsp_post_data				= HF_EMPTY;
 static int hf_wsp_push_data				= HF_EMPTY;
@@ -4202,17 +4203,71 @@ parameter (proto_tree *tree, proto_item *ti, tvbuff_t *tvb, int start, int len)
 			offset = parameter_value_q(tree, ti, tvb, offset);
 			break;
 
-		case 0x07:	/* WSP 1.1 encoding - Differences: Field-name */
-		case 0x08:	/* WSP 1.1 encoding - Padding: Short-integer */
-		case 0x0E:	/* WSP 1.3 encoding - Max-Age: Delta-seconds-value */
-		case 0x10:	/* WSP 1.3 encoding - Secure: No-value */
-		case 0x13:	/* WSP 1.4 encoding - Creation-date: Date-value */
-		case 0x14:	/* WSP 1.4 encoding - Modification-date: Date-value */
-		case 0x15:	/* WSP 1.4 encoding - Read-date: Date-value */
 		case 0x16:	/* WSP 1.4 encoding - Size: Integer-value */
+			get_integer_value (val,tvb,offset,val_len,ok);
+			if (ok) {
+				proto_tree_add_uint (tree, hf_wsp_parameter_size,
+						tvb, start, type_len + val_len, val);
+				s = g_strdup_printf("; Size=%u", val);
+				proto_item_append_string (ti, s);
+				g_free(s);
+				offset += val_len;
+			} else {
+				proto_tree_add_text (tree, tvb, start, offset,
+						InvalidParameterValue("Size", "Integer-value"));
+				offset = start + len; /* Skip to end of buffer */
+			}
+			break;
+
+			/*
+			 * TODO
+			 */
+
+		case 0x07:	/* WSP 1.1 encoding - Differences: Field-name */
+			DebugLog(("Skipping remaining parameters from here\n"));
+			proto_tree_add_text(tree, tvb, start, offset - start, 
+					"Undecoded parameter Differences - decoding stopped");
+			break;
+
+		case 0x08:	/* WSP 1.1 encoding - Padding: Short-integer */
+			DebugLog(("Skipping remaining parameters from here\n"));
+			proto_tree_add_text(tree, tvb, start, offset - start, 
+					"Undecoded parameter Padding - decoding stopped");
+			break;
+
+		case 0x0E:	/* WSP 1.3 encoding - Max-Age: Delta-seconds-value */
+			DebugLog(("Skipping remaining parameters from here\n"));
+			proto_tree_add_text(tree, tvb, start, offset - start, 
+					"Undecoded parameter Max-Age - decoding stopped");
+			break;
+
+		case 0x10:	/* WSP 1.3 encoding - Secure: No-value */
+			DebugLog(("Skipping remaining parameters from here\n"));
+			proto_tree_add_text(tree, tvb, start, offset - start, 
+					"Undecoded parameter Secure - decoding stopped");
+			break;
+
+		case 0x13:	/* WSP 1.4 encoding - Creation-date: Date-value */
+			DebugLog(("Skipping remaining parameters from here\n"));
+			proto_tree_add_text(tree, tvb, start, offset - start, 
+					"Undecoded parameter Creation-Date - decoding stopped");
+			break;
+
+		case 0x14:	/* WSP 1.4 encoding - Modification-date: Date-value */
+			DebugLog(("Skipping remaining parameters from here\n"));
+			proto_tree_add_text(tree, tvb, start, offset - start, 
+					"Undecoded parameter Modification-Date - decoding stopped");
+			break;
+
+		case 0x15:	/* WSP 1.4 encoding - Read-date: Date-value */
+			DebugLog(("Skipping remaining parameters from here\n"));
+			proto_tree_add_text(tree, tvb, start, offset - start, 
+					"Undecoded parameter Read-Date - decoding stopped");
+			break;
+
 		default:
 			DebugLog(("Skipping remaining parameters from here\n"));
-			proto_tree_add_text(tree, tvb, start, len - start, 
+			proto_tree_add_text(tree, tvb, start, offset - start, 
 					"Undecoded parameter type 0x%02x - decoding stopped",
 					type);
 			offset = start + len; /* Skip the parameters */
@@ -5881,56 +5936,56 @@ proto_register_wsp(void)
 			{ 	"Type",
 				"wsp.parameter.type",
 				 FT_UINT32, BASE_DEC, NULL, 0x00,
-				"Type", HFILL
+				"Type parameter", HFILL
 			}
 		},
 		{ &hf_wsp_parameter_name,
 			{ 	"Name",
 				"wsp.parameter.name",
 				 FT_STRING, BASE_NONE, NULL, 0x00,
-				"Name", HFILL
+				"Name parameter", HFILL
 			}
 		},
 		{ &hf_wsp_parameter_filename,
 			{ 	"Filename",
 				"wsp.parameter.filename",
 				 FT_STRING, BASE_NONE, NULL, 0x00,
-				"Filename", HFILL
+				"Filename parameter", HFILL
 			}
 		},
 		{ &hf_wsp_parameter_start,
 			{ 	"Start",
 				"wsp.parameter.start",
 				 FT_STRING, BASE_NONE, NULL, 0x00,
-				"Start", HFILL
+				"Start parameter", HFILL
 			}
 		},
 		{ &hf_wsp_parameter_start_info,
 			{ 	"Start-info",
 				"wsp.parameter.start_info",
 				 FT_STRING, BASE_NONE, NULL, 0x00,
-				"Start-info", HFILL
+				"Start-info parameter", HFILL
 			}
 		},
 		{ &hf_wsp_parameter_comment,
 			{ 	"Comment",
 				"wsp.parameter.comment",
 				 FT_STRING, BASE_NONE, NULL, 0x00,
-				"Comment", HFILL
+				"Comment parameter", HFILL
 			}
 		},
 		{ &hf_wsp_parameter_domain,
 			{ 	"Domain",
 				"wsp.parameter.domain",
 				 FT_STRING, BASE_NONE, NULL, 0x00,
-				"Domain", HFILL
+				"Domain parameter", HFILL
 			}
 		},
 		{ &hf_wsp_parameter_path,
 			{ 	"Path",
 				"wsp.parameter.path",
 				 FT_STRING, BASE_NONE, NULL, 0x00,
-				"Path", HFILL
+				"Path parameter", HFILL
 			}
 		},
 		{ &hf_wsp_parameter_sec,
@@ -5951,7 +6006,7 @@ proto_register_wsp(void)
 			{ 	"Type",
 				"wsp.parameter.upart.type",
 				 FT_STRING, BASE_NONE, NULL, 0x00,
-				"Multipart type", HFILL
+				"Multipart type parameter", HFILL
 			}
 		},
 		{ &hf_wsp_parameter_level,
@@ -5959,6 +6014,13 @@ proto_register_wsp(void)
 				"wsp.parameter.level",
 				 FT_STRING, BASE_NONE, NULL, 0x00,
 				"Level parameter", HFILL
+			}
+		},
+		{ &hf_wsp_parameter_size,
+			{ 	"Size",
+				"wsp.parameter.size",
+				 FT_UINT32, BASE_DEC, NULL, 0x00,
+				"Size parameter", HFILL
 			}
 		},
 		{ &hf_wsp_reply_data,
