@@ -848,7 +848,8 @@ static gboolean capture_loop_close_output(capture_options *capture_opts, loop_da
 
 /* dispatch incoming packets (pcap or capture pipe) */
 static int
-capture_loop_dispatch(loop_data *ld, char *errmsg, int errmsg_len) {
+capture_loop_dispatch(capture_options *capture_opts, loop_data *ld,
+		      char *errmsg, int errmsg_len) {
   int       inpkts;
 #ifndef _WIN32
   fd_set    set1;
@@ -857,7 +858,6 @@ capture_loop_dispatch(loop_data *ld, char *errmsg, int errmsg_len) {
   struct pcaprec_modified_hdr rechdr;
   guchar pcap_data[WTAP_MAX_PACKET_SIZE];
 #endif
-
 
 #ifndef _WIN32
     /* dispatch from capture pipe */
@@ -1089,7 +1089,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
     main_window_update();
 
     /* dispatch incoming packets */
-    inpkts = capture_loop_dispatch(&ld, errmsg, sizeof(errmsg));
+    inpkts = capture_loop_dispatch(capture_opts, &ld, errmsg, sizeof(errmsg));
 
     if (inpkts > 0) {
       ld.packets_sync_pipe += inpkts;
