@@ -98,7 +98,7 @@
   </section>
   
   <section id="ChBuildInstallBeforeBuild">
-    <title>Before you build <application>Ethereal</application></title>
+    <title>Before you build <application>Ethereal</application> under UNIX</title>
     <para>
       Before you build Ethereal from sources, or install a binary package, 
       you must ensure that you have the following other packages installed:
@@ -454,7 +454,8 @@ apt-get install ethereal
       <orderedlist>
 	<listitem>
 	  <para>
-	    Install WinPcap. You will find a single installer exe called something 
+	    <command>Install WinPcap</command>. 
+		You will find a single installer exe called something 
 		like "auto-installer", which can be installed under various Windows 
 		systems, including 9x/Me/NT4.0/2000/XP. This installer is located at: 
 	    <ulink url="&WinPcapDownloadWebsite;">&WinPcapDownloadWebsite;</ulink>.
@@ -464,8 +465,8 @@ apt-get install ethereal
 	</listitem>
 	<listitem>
 	  <para>
-	    Install Ethereal. You may acquire a binary installable of 
-	    Ethereal at 
+	    <command>Install Ethereal</command>. 
+		You may acquire a binary installable of Ethereal at 
 	    <ulink url="&EtherealBinariesPage;">&EtherealBinariesPage;</ulink>.  
 	    Download the installer and execute it.
 	  </para>
@@ -524,7 +525,8 @@ apt-get install ethereal
 	<command>Plugins</command> - Plugins with some extended dissections.
 	</para></listitem>
 	<listitem><para>
-	<command>SNMP MIBs</command> - SNMP MIBs for better SNMP dissection.
+	<command>SNMP MIBs</command> - SNMP MIBs for a more detailed SNMP 
+	dissection.
 	</para></listitem>
 	</itemizedlist>
 	The environment related things:
