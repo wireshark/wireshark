@@ -2,7 +2,7 @@
  * Routines for PIM disassembly
  * (c) Copyright Jun-ichiro itojun Hagino <itojun@itojun.org>
  *
- * $Id: packet-pim.c,v 1.38 2002/01/24 09:20:50 guy Exp $
+ * $Id: packet-pim.c,v 1.39 2002/02/01 07:06:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -227,8 +227,8 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     if (tree) {
 	if (tvb_reported_length_remaining(tvb, offset) > 0) {
-	    tiopt = proto_tree_add_text(pim_tree, tvb, offset,
-		    tvb_length_remaining(tvb, offset), "PIM parameters");
+	    tiopt = proto_tree_add_text(pim_tree, tvb, offset, -1,
+		    "PIM parameters");
 	    pimopt_tree = proto_item_add_subtree(tiopt, ett_pim);
 	} else
 	    goto done;
@@ -290,7 +290,7 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		    } else if (pinfo->src.type == AT_IPv6) {
 			    struct ip6_hdr ip6_hdr;
 			    tvb_memcpy(tvb, (guint8 *)&ip6_hdr, offset,
-				       tvb_length_remaining(tvb, offset));
+				       sizeof ip6_hdr);
 			    proto_tree_add_text(pimopt_tree, tvb, offset, -1,
 						"IPv6 dummy header");
 			    proto_tree_add_text(pimopt_tree, tvb,
@@ -810,7 +810,7 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 		    } else if (pinfo->src.type == AT_IPv6) {
 			    struct ip6_hdr ip6_hdr;
 			    tvb_memcpy(tvb, (guint8 *)&ip6_hdr, offset,
-				       tvb_length_remaining(tvb, offset));
+				       sizeof ip6_hdr);
 			    proto_tree_add_text(pimopt_tree, tvb, offset, -1,
 						"IPv6 dummy header");
 			    proto_tree_add_text(pimopt_tree, tvb,
