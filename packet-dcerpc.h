@@ -2,7 +2,7 @@
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  * Copyright 2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc.h,v 1.39 2004/01/19 20:10:36 jmayer Exp $
+ * $Id: packet-dcerpc.h,v 1.40 2004/03/05 23:09:32 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -330,5 +330,8 @@ void register_dcerpc_auth_subdissector(guint8 auth_level, guint8 auth_type,
 #define DCE_C_AUTHN_LEVEL_PKT		4
 #define DCE_C_AUTHN_LEVEL_PKT_INTEGRITY	5
 #define DCE_C_AUTHN_LEVEL_PKT_PRIVACY	6
+
+void
+init_ndr_pointer_list(packet_info *pinfo);
 
 #endif /* packet-dcerpc.h */

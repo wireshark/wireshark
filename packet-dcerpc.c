@@ -3,7 +3,7 @@
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  * Copyright 2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc.c,v 1.163 2004/03/03 22:47:17 jmayer Exp $
+ * $Id: packet-dcerpc.c,v 1.164 2004/03/05 23:09:32 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1336,7 +1336,7 @@ typedef struct ndr_pointer_data {
 	void *callback_args;
 } ndr_pointer_data_t;
 
-static void
+void
 init_ndr_pointer_list(packet_info *pinfo)
 {
 	dcerpc_info *di;
