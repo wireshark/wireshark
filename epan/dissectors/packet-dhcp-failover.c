@@ -806,7 +806,6 @@ dissect_dhcpfo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						tvb_get_ntohl(tvb,helpliste->actualpoffset+4);
 					proto_item_append_text(oi,", %d", max_unacked_bndupd);
 
-					printf("länge: %d", helpliste->length);
 					proto_tree_add_item(option_tree,
 						hf_dhcpfo_max_unacked_bndupd, tvb,
 						helpliste->actualpoffset + 4, 
@@ -911,7 +910,7 @@ dissect_dhcpfo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
 	}
-	free(liste);
+	g_free(liste);
 
 }
 
@@ -1166,6 +1165,6 @@ proto_register_dhcpfo(void)
 
 	dhcpfo_module = prefs_register_protocol(proto_dhcpfo, proto_reg_handoff_dhcpfo);
 	prefs_register_uint_preference(dhcpfo_module, "tcp_port",
-		"DHCPFO TCP Port", "Set the port for DHCP failover communications if other than default of TCP_PORT_DHCPFO",
+		"DHCP failover TCP Port", "Set the port for DHCP failover communications",
 		10, &tcp_port_pref);
 }
