@@ -268,6 +268,11 @@ Collapses the protocol tree branches.
 
 Expands all branches of the protocol tree.
 
+=item Tools:Plugins
+
+Allows you to use and configure dynamically loadable modules (see
+L<"Plugins"> below).
+
 =item Tools:Follow TCP Stream
 
 If you have a TCP packet selected, it will display the contents of the
@@ -466,6 +471,23 @@ in the packet list.  You can select "Time of day" for absolute time stamps,
 specify whether, when the display is updated as packets are captured,
 the list should automatically scroll to show the most recently captured
 packets or not.
+
+=item Plugins
+
+The I<Plugins> dialog lets you view and configure the plugins available
+on your system.
+
+The I<Plugins List> shows the name, description, version and state
+(enabled or not) of each plugin found on your system. The plugins are
+searched in the following directories : B</usr/share/ethereal/plugins>,
+B</usr/local/share/ethereal/plugins> and B<~/.ethereal/plugins>
+
+A plugin must be activated using the I<Enable> button in order to use it
+to dissect packets. It can also be deactivated with the I<Disable> button.
+
+The I<Filter> button shows the filter used to select packets which should
+be dissected by a plugin (see L<"DISPLAY FILTER SYNTAX"> below). This
+filter can be modified.
 
 =back
 
