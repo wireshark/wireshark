@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *  2002  Added LSA command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-lsa.c,v 1.23 2002/04/27 03:54:17 sahlberg Exp $
+ * $Id: packet-dcerpc-lsa.c,v 1.24 2002/04/28 07:00:06 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2113,6 +2113,40 @@ lsa_dissect_lsalookupnames_reply(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
+static int
+lsa_dissect_lsacreatesecret_rqst(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	/* [in] LSA_HANDLE hnd_pol */
+	offset = lsa_dissect_LSA_HANDLE(tvb, offset,
+		pinfo, tree, drep);
+
+	/* [in, ref] LSA_UNICODE_STRING *name */
+	offset = dissect_ndr_nt_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
+		hf_lsa_name, 0);
+
+	/* [in] ACCESS_MASK access */
+	offset = lsa_dissect_ACCESS_MASK(tvb, offset,
+		pinfo, tree, drep);
+
+	return offset;
+}
+
+static int
+lsa_dissect_lsacreatesecret_reply(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+
+	/* [out] LSA_HANDLE *hnd */
+	offset = lsa_dissect_LSA_HANDLE(tvb, offset,
+		pinfo, tree, drep);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_lsa_rc, NULL);
+
+	return offset;
+}
+
 
 
 static dcerpc_sub_dissector dcerpc_lsa_dissectors[] = {
@@ -2167,12 +2201,9 @@ static dcerpc_sub_dissector dcerpc_lsa_dissectors[] = {
 	{ LSA_LSALOOKUPSIDS, "LSALOOKUPSIDS",
 		lsa_dissect_lsalookupsids_rqst,
 		lsa_dissect_lsalookupsids_reply },
-	{ LSA_LSACREATESECRET, "LSACREATESECRET",
-		NULL, NULL },
-#ifdef REMOVED
+	{ LSA_LSACREATESECRET, "LSACREATESECRET",  /*0x10*/
 		lsa_dissect_lsacreatesecret_rqst,
 		lsa_dissect_lsacreatesecret_reply },
-#endif
 	{ LSA_LSAOPENACCOUNT, "LSAOPENACCOUNT",
 		NULL, NULL },
 #ifdef REMOVED
