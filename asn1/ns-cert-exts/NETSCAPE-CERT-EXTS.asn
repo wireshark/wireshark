@@ -1,0 +1,28 @@
+-- NetScape Certificate Extensions
+-- based on information from http://wp.netscape.com/eng/security/cert-exts.html
+
+NS-CERT-EXTS { 2 16 840 1 113730 1 } DEFINITIONS EXPLICIT TAGS ::=
+BEGIN
+
+BaseUrl ::= IA5String
+
+RevocationUrl ::= IA5String
+
+CaRevocationUrl ::= IA5String
+
+CaPolicyUrl ::= IA5String
+
+Comment ::= IA5String
+
+SslServerName ::= IA5String
+
+CertRenewalUrl ::= IA5String
+
+CertType ::= BIT STRING {
+	client(0),
+	server(1),
+	ca(5)
+}
+
+END -- of NS-CERT-EXTS
+
