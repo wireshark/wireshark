@@ -343,8 +343,12 @@ Dug Song <dugsong@monkey.org> {
 	RPCSEC_GSS credential/verifier dissection for ONC RPC
 }
 
-Tuexen Michael <Michael.Tuexen@icn.siemens.de> {
+Michael Tuexen <Michael.Tuexen@icn.siemens.de> {
 	SCTP
+}
+
+Bruce Korb <bkorb@sco.com> {
+	Improved autogen.sh script
 }
 
 Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to

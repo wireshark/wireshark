@@ -904,7 +904,8 @@ B<http://ethereal.zing.org>.
   Mark Clayton             <clayton@shore.net>
   Michael Rozhavsky        <mike@tochna.technion.ac.il>
   Dug Song                 <dugsong@monkey.org>
-  Tuexen Michael           <Michael.Tuexen@icn.siemens.de>
+  Michael Tuexen           <Michael.Tuexen@icn.siemens.de>
+  Bruce Korb               <bkorb@sco.com>
 
 Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to give his
 permission to use his version of snprintf.c.
