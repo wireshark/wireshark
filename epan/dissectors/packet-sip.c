@@ -471,6 +471,7 @@ typedef struct
 {
 	guint32 cseq;
 	transaction_state_t transaction_state;
+	guint32 response_code;
 	gint frame_number;
 } sip_hash_value;
 
@@ -1611,10 +1612,11 @@ guint sip_is_packet_resend(packet_info *pinfo,
 	/******************************************/
 	/* Is it a resend???                      */
 
-	/* Does this look like a resent request ? */
+	/* Does this look like a resent request (discount ACK, CANCEL) ? */
 	if ((line_type == REQUEST_LINE) && (cseq_number == cseq_to_compare) &&
 		(p_val->transaction_state == request_seen) &&
-		(strcmp(cseq_method, "ACK") != 0))
+		(strcmp(cseq_method, "ACK") != 0) &&
+		(strcmp(cseq_method, "CANCEL") != 0))
 	{
 		result = p_val->frame_number;
 	}
@@ -1622,7 +1624,8 @@ guint sip_is_packet_resend(packet_info *pinfo,
 	/* Does this look like a resent final response ? */
 	if ((line_type == STATUS_LINE) && (cseq_number == cseq_to_compare) &&
 		(p_val->transaction_state == final_response_seen) &&
-		(stat_info->response_code >= 200))
+		(stat_info->response_code >= 200) &&
+		(stat_info->response_code == p_val->response_code))
 	{
 		result = p_val->frame_number;
 	}
@@ -1642,6 +1645,7 @@ guint sip_is_packet_resend(packet_info *pinfo,
 		case STATUS_LINE:
 			if (stat_info->response_code >= 200)
 			{
+				p_val->response_code = stat_info->response_code;
 				p_val->transaction_state = final_response_seen;
 				if (!result)
 				{
