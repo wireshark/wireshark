@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.179 2000/04/04 07:02:57 guy Exp $
+ * $Id: packet.h,v 1.180 2000/04/13 18:18:54 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -210,12 +210,13 @@ typedef struct true_false_string {
 	char	*false_string;
 } true_false_string;
 
+typedef GHashTable* dissector_table_t;
 
 /* types for sub-dissector lookup */
 typedef void (*dissector_t)(const u_char *, int, frame_data *, proto_tree *);
 
 /* a protocol uses the function to register its sub-dissector table */
-dissector_table_t register_dissector_table( int proto_id);
+dissector_table_t register_dissector_table(const char *name);
 
 /* dissector lookup routine.  called by protocol dissector to find a sub-dissector */
 dissector_t dissector_lookup( dissector_table_t table, guint32 pattern);

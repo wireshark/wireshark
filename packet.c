@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.74 2000/04/04 16:33:57 gram Exp $
+ * $Id: packet.c,v 1.75 2000/04/13 18:18:54 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1266,15 +1266,27 @@ proto_register_frame(void)
 
 /*********************** code added for sub-dissector lookup *********************/
 
-dissector_t dissector_lookup( dissector_table_t table, guint32 pattern) {
+static GHashTable *dissector_tables = NULL;
 
-/* lookup a dissector based upon pattern. */
+/* Finds a dissector table by field name. */
+static dissector_table_t
+find_dissector_table(const char *name)
+{
+	g_assert(dissector_tables);
+	return g_hash_table_lookup( dissector_tables, name );
+}
 
+dissector_t
+dissector_lookup( dissector_table_t table, guint32 pattern)
+{
+	/* lookup a dissector based upon pattern. */
 	return g_hash_table_lookup( table, GUINT_TO_POINTER( pattern));
 }
 
 
-void dissector_add( char *name, guint32 pattern, dissector_t dissector) {
+void
+dissector_add( char *name, guint32 pattern, dissector_t dissector)
+{
 
 /* add an entry, lookup the dissector table for the specified field name,  */
 /* if a valid table found, add the subdissector */
@@ -1290,7 +1302,9 @@ void dissector_add( char *name, guint32 pattern, dissector_t dissector) {
 }
 
 
-void dissector_delete( char *name, guint32 pattern, dissector_t dissector) {
+void
+dissector_delete( char *name, guint32 pattern, dissector_t dissector)
+{
 
 /* delete the entry for this dissector at this pattern */
 
@@ -1327,20 +1341,23 @@ dissector_try_port(dissector_table_t sub_dissectors, guint32 port,
 		return FALSE;
 }
 
-dissector_table_t register_dissector_table( int id){
+dissector_table_t
+register_dissector_table(const char *name)
+{
+	dissector_table_t	sub_dissectors;
 
-/* Create and register the dissector array for this field; returns */
-/* a pointer to the dissector table. */
+	/* Create our hash-of-hashes if it doesn't already exist */
+	if (!dissector_tables) {
+		dissector_tables = g_hash_table_new( g_str_hash, g_str_equal );
+		g_assert(dissector_tables);
+	}
 
-/* NOTE: currently use the g_direct_XXX functions so all the hashing is done  */
-/* 	by glib and we don't have to create hashing or comparison funtcions. */
-	
+	/* Make sure the registration is unique */
+	g_assert(!g_hash_table_lookup( dissector_tables, name ));
 
-	header_field_info *hfinfo = proto_registrar_get_nth(id);
-
-	g_assert( hfinfo);	
-		
-	hfinfo->sub_dissectors = g_hash_table_new( g_direct_hash, g_direct_equal);
-	return hfinfo->sub_dissectors;
+	/* Create and register the dissector array for this field; returns */
+	/* a pointer to the dissector table. */
+	sub_dissectors = g_hash_table_new( g_direct_hash, g_direct_equal );
+	g_hash_table_insert( dissector_tables, (gpointer)name, (gpointer) sub_dissectors );
+	return sub_dissectors;
 }
-

@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-ipx.c,v 1.52 2000/04/08 07:07:21 guy Exp $
+ * $Id: packet-ipx.c,v 1.53 2000/04/13 18:18:47 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -34,6 +34,7 @@
 
 #include <stdio.h>
 #include <glib.h>
+#include "etypes.h"
 #include "packet.h"
 #include "packet-ipx.h"
 #include "packet-nbipx.h"
@@ -973,4 +974,5 @@ void
 proto_reg_handoff_ipx(void)
 {
 	dissector_add("udp.port", UDP_PORT_IPX, dissect_ipx);
+	dissector_add("ethertype", ETHERTYPE_IPX, dissect_ipx);
 }

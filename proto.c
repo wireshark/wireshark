@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.61 2000/04/11 16:07:40 gram Exp $
+ * $Id: proto.c,v 1.62 2000/04/13 18:18:55 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -260,21 +260,6 @@ proto_registrar_get_nth(int hfindex)
 	return g_ptr_array_index(gpa_hfinfo, hfindex);
 }
 
-/* Finds a dissector table by field name. */
-dissector_table_t
-find_dissector_table(const char *name)
-{
-	header_field_info	*hfinfo;
-	int			i, len;
-
-	len = gpa_hfinfo->len;
-	for (i = 0; i < len ; i++) {
-		hfinfo = proto_registrar_get_nth(i);
-		if (strcmp(name, hfinfo->abbrev) == 0)
-			return hfinfo->sub_dissectors;
-	}
-	return NULL;
-}
 
 /* Add a node with no text */
 proto_item *
@@ -948,8 +933,6 @@ proto_register_protocol(char *name, char *abbrev)
 	hfinfo->bitshift = 0;
 	hfinfo->blurb = "";
 	hfinfo->parent = -1; /* this field differentiates protos and fields */
-
-	hfinfo->sub_dissectors = NULL;	/* clear sub-dissector table pointer */
 
 	return proto_register_field_init(hfinfo, hfinfo->parent);
 }

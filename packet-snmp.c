@@ -2,7 +2,7 @@
  * Routines for SNMP (simple network management protocol)
  * D.Jorand (c) 1998
  *
- * $Id: packet-snmp.c,v 1.27 2000/04/08 07:07:36 guy Exp $
+ * $Id: packet-snmp.c,v 1.28 2000/04/13 18:18:48 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -50,6 +50,7 @@
 #include <glib.h>
 
 #include "packet.h"
+#include "etypes.h"
 
 #if defined(HAVE_UCD_SNMP_SNMP_H) || defined(HAVE_SNMP_SNMP_H)
  /*
@@ -1185,4 +1186,5 @@ proto_reg_handoff_snmp(void)
 {
 	dissector_add("udp.port", UDP_PORT_SNMP, dissect_snmp);
 	dissector_add("udp.port", UDP_PORT_SNMP_TRAP, dissect_snmp);
+	dissector_add("ethertype", ETHERTYPE_SNMP, dissect_snmp);
 }

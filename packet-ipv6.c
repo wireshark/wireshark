@@ -1,7 +1,7 @@
 /* packet-ipv6.c
  * Routines for IPv6 packet disassembly 
  *
- * $Id: packet-ipv6.c,v 1.31 2000/03/21 04:15:04 guy Exp $
+ * $Id: packet-ipv6.c,v 1.32 2000/04/13 18:18:46 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -42,6 +42,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <glib.h>
+#include "etypes.h"
 #include "packet.h"
 #include "packet-icmpv6.h"
 #include "packet-ip.h"
@@ -469,4 +470,10 @@ proto_register_ipv6(void)
   proto_ipv6 = proto_register_protocol("Internet Protocol Version 6", "ipv6");
   proto_register_field_array(proto_ipv6, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+}
+
+void
+proto_reg_handoff_ipv6(void)
+{
+	dissector_add("ethertype", ETHERTYPE_IPv6, dissect_ipv6);
 }

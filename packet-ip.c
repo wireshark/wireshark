@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.78 2000/03/21 05:15:12 guy Exp $
+ * $Id: packet-ip.c,v 1.79 2000/04/13 18:18:45 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -50,6 +50,7 @@
 # include "snprintf.h"
 #endif
 
+#include "etypes.h"
 #include "packet-gre.h"
 #include "packet-ip.h"
 #include "packet-ipsec.h"
@@ -1514,6 +1515,12 @@ proto_register_ip(void)
 	proto_ip = proto_register_protocol ("Internet Protocol", "ip");
 	proto_register_field_array(proto_ip, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+}
+
+void
+proto_reg_handoff_ip(void)
+{
+	dissector_add("ethertype", ETHERTYPE_IP, dissect_ip);
 }
 
 void

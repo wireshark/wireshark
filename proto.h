@@ -1,7 +1,7 @@
 /* proto.h
  * Definitions for protocol display
  *
- * $Id: proto.h,v 1.27 2000/04/04 02:34:40 gram Exp $
+ * $Id: proto.h,v 1.28 2000/04/13 18:18:56 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -90,9 +90,6 @@ enum {
 };
 
 
-/* types for sub-dissector lookup */
-typedef GHashTable* dissector_table_t;
-
 /* information describing a header field */
 typedef struct header_field_info {
 	char				*name;
@@ -106,7 +103,6 @@ typedef struct header_field_info {
 	int				id;		/* assigned by registration function, not programmer */
 	int				parent;		/* parent protocol */
 	int				bitshift;	/* bits to shift */
-	dissector_table_t 		sub_dissectors; /* sub-dissector table pointer */
 } header_field_info;
 
 
@@ -341,9 +337,6 @@ char* proto_registrar_get_abbrev(int n);
 
 /* get the header field information based upon a field or protocol id */
 struct header_field_info* proto_registrar_get_nth(int hfindex);
-
-/* get the dissector table based upon a field or protocol name */
-dissector_table_t find_dissector_table(const char *name);
 
 /* Returns enum ftenum for item # n */
 int proto_registrar_get_ftype(int n);

@@ -2,7 +2,7 @@
  * Routines for x25 packet disassembly
  * Olivier Abad <abad@daba.dhis.net>
  *
- * $Id: packet-x25.c,v 1.22 2000/03/12 04:47:51 gram Exp $
+ * $Id: packet-x25.c,v 1.23 2000/04/13 18:18:53 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -36,6 +36,7 @@
 #include <glib.h>
 #include <stdlib.h>
 #include <string.h>
+#include "etypes.h"
 #include "packet.h"
 #include "packet-ip.h"
 #include "packet-osi.h"
@@ -1977,4 +1978,10 @@ proto_register_x25(void)
     proto_register_field_array (proto_ex25, hf128, array_length(hf128));
     proto_register_subtree_array(ett, array_length(ett));
     register_init_routine(&reinit_x25_hashtable);
+}
+
+void
+proto_reg_handoff_x25(void)
+{
+	dissector_add("ethertype", ETHERTYPE_X25L3, dissect_x25);
 }

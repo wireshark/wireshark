@@ -1,7 +1,7 @@
 /* packet-arp.c
  * Routines for ARP packet disassembly
  *
- * $Id: packet-arp.c,v 1.26 2000/03/12 04:47:34 gram Exp $
+ * $Id: packet-arp.c,v 1.27 2000/04/13 18:18:43 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -791,4 +791,11 @@ proto_register_arp(void)
   proto_arp = proto_register_protocol("Address Resolution Protocol", "arp");
   proto_register_field_array(proto_arp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+}
+
+void
+proto_reg_handoff_arp(void)
+{
+	dissector_add("ethertype", ETHERTYPE_ARP, dissect_arp);
+	dissector_add("ethertype", ETHERTYPE_REVARP, dissect_arp);
 }

@@ -1,8 +1,7 @@
 /* ethertype.c
  * Routines for calling the right protocol for the ethertype.
- * This is called by both packet-eth.c (Ethernet II) and packet-llc.c (SNAP)
  *
- * $Id: ethertype.c,v 1.28 2000/03/09 18:31:50 ashokn Exp $
+ * $Id: packet-ethertype.c,v 1.1 2000/04/13 18:18:45 gram Exp $
  *
  * Gilbert Ramirez <gram@xiexie.org>
  *
@@ -37,18 +36,8 @@
 #include <glib.h>
 #include "packet.h"
 #include "etypes.h"
-#include "packet-aarp.h"
-#include "packet-arp.h"
-#include "packet-atalk.h"
-#include "packet-ip.h"
-#include "packet-ipv6.h"
-#include "packet-ipx.h"
-#include "packet-pppoe.h"
-#include "packet-snmp.h"
-#include "packet-vines.h"
-#include "packet-vlan.h"
-#include "packet-x25.h"
-#include "packet-mpls.h"
+
+static dissector_table_t ethertype_dissector_table;
 
 const value_string etype_vals[] = {
     {ETHERTYPE_IP,     "IP"             },
@@ -97,62 +86,51 @@ ethertype(guint16 etype, int offset,
 		const u_char *pd, frame_data *fd, proto_tree *tree, proto_tree
 		*fh_tree, int item_id)
 {
-  if (tree) {
-	proto_tree_add_item(fh_tree, item_id, offset - 2, 2, etype);
-  }
-  switch (etype) {
-    case ETHERTYPE_IP:
-      dissect_ip(pd, offset, fd, tree);
-      break;
-    case ETHERTYPE_IPv6:
-      dissect_ipv6(pd, offset, fd, tree);
-      break;
-    case ETHERTYPE_X25L3:
-      dissect_x25(pd, offset, fd, tree);
-      break;
-    case ETHERTYPE_ARP:
-      dissect_arp(pd, offset, fd, tree);
-      break;
-    case ETHERTYPE_REVARP:
-      dissect_arp(pd, offset, fd, tree);
-      break;
-    case ETHERTYPE_ATALK:
-      dissect_ddp(pd, offset, fd, tree);
-      break;
-    case ETHERTYPE_AARP:
-      dissect_aarp(pd, offset, fd, tree);
-      break;
-    case ETHERTYPE_IPX:
-      dissect_ipx(pd, offset, fd, tree);
-      break;
-    case ETHERTYPE_VINES:
-      dissect_vines(pd, offset, fd, tree);
-      break;
-    case ETHERTYPE_LOOP:
-      dissect_data(pd, offset, fd, tree);
-      if (check_col(fd, COL_PROTOCOL)) { col_add_fstr(fd, COL_PROTOCOL, "LOOP"); }
-      break;
-    case ETHERTYPE_PPPOED:
-      dissect_pppoed(pd, offset, fd, tree);
-      break;
-    case ETHERTYPE_PPPOES:
-      dissect_pppoes(pd, offset, fd, tree);
-      break;
-    case ETHERTYPE_VLAN:
-      dissect_vlan(pd, offset, fd, tree);
-      break;
-    case ETHERTYPE_SNMP:
-      dissect_snmp(pd, offset, fd, tree);
-      break;
-    case ETHERTYPE_MPLS:
-      dissect_mpls(pd, offset, fd, tree);
-      break;
-    default:
-      dissect_data(pd, offset, fd, tree);
-      if (check_col(fd, COL_PROTOCOL)) { col_add_fstr(fd, COL_PROTOCOL, "0x%04x", etype); }
-      break;
-  }
+	dissector_t	sub_dissector;
+	char		*description;
+	
+	/* Add to proto_tree */
+	if (tree) {
+		proto_tree_add_item(fh_tree, item_id, offset - 2, 2, etype);
+	}
+
+	/* Look for sub-dissector */
+	sub_dissector = dissector_lookup( ethertype_dissector_table, etype );
+
+	if (sub_dissector) {
+		/* Call sub-dissector */
+		sub_dissector(pd, offset, fd, tree);
+	}
+	else {
+		/* Label rest of packet as "Data" */
+		dissect_data(pd, offset, fd, tree);
+
+		/* Label protocol */
+		switch(etype) {
+			case ETHERTYPE_LOOP:
+				if (check_col(fd, COL_PROTOCOL)) {
+					col_add_fstr(fd, COL_PROTOCOL, "LOOP");
+				}
+				break;
+			    default:
+				if (check_col(fd, COL_PROTOCOL)) {
+					col_add_fstr(fd, COL_PROTOCOL, "0x%04x", etype);
+				}
+				break;
+		}
+		if (check_col(fd, COL_INFO)) {
+			description = match_strval(etype, etype_vals);
+			if (description) {
+				col_add_fstr(fd, COL_INFO, "%s", description);
+			}
+		}
+	}
 }
 
 
-
+void
+proto_register_ethertype(void)
+{
+	/* subdissector code */
+	ethertype_dissector_table = register_dissector_table("ethertype");
+}

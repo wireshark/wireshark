@@ -1,7 +1,7 @@
 /* packet-arp.c
  * Routines for ARP packet disassembly
  *
- * $Id: packet-pppoe.c,v 1.5 2000/02/15 21:02:54 gram Exp $
+ * $Id: packet-pppoe.c,v 1.6 2000/04/13 18:18:48 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -32,6 +32,7 @@
 #endif
 
 #include <glib.h>
+#include "etypes.h"
 #include "packet.h"
 #include "packet-ppp.h"
 
@@ -247,3 +248,9 @@ proto_register_pppoed(void)
 	proto_register_subtree_array(ett, array_length(ett));
 }
 
+void
+proto_reg_handoff_pppoe(void)
+{
+	dissector_add("ethertype", ETHERTYPE_PPPOED, dissect_pppoed);
+	dissector_add("ethertype", ETHERTYPE_PPPOES, dissect_pppoes);
+}

@@ -1,7 +1,7 @@
 /* packet-vines.c
  * Routines for Banyan VINES protocol packet disassembly
  *
- * $Id: packet-vines.c,v 1.12 2000/01/23 08:55:37 guy Exp $
+ * $Id: packet-vines.c,v 1.13 2000/04/13 18:18:52 gram Exp $
  *
  * Don Lafontaine <lafont02@cn.ca>
  *
@@ -37,6 +37,7 @@
 #endif
 
 #include <glib.h>
+#include "etypes.h"
 #include "packet.h"
 #include "packet-vines.h"
 
@@ -338,4 +339,10 @@ proto_register_vines(void)
 	};
 
 	proto_register_subtree_array(ett, array_length(ett));
+}
+
+void
+proto_reg_handoff_vines(void)
+{
+	dissector_add("ethertype", ETHERTYPE_VINES, dissect_vines);
 }
