@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.20 2003/08/05 05:03:29 guy Exp $
+# $Id: Makefile.am,v 1.21 2003/08/18 20:17:55 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -26,7 +26,7 @@ SUBDIRS = artnet docsis giop gryphon lwres megaco mgcp pcli rtnet
 plugindir = @plugindir@
 
 ADDRESS_EXPORT_FILES = \
-	Xepan_plugins.c	\
+	Xass-list	\
 	Xplugin_api.c	\
 	Xplugin_api.h	\
 	Xplugin_api_decls.h	\
@@ -47,7 +47,7 @@ EXTRA_DIST = \
 	plugin_gen.py	\
 	plugin_table.h	\
 	Makefile.nmake	\
-	Xepan_plugins.c	\
+	Xass-list	\
 	Xplugin_api.c	\
 	Xplugin_api.h	\
 	Xplugin_api_decls.h	\
@@ -55,7 +55,6 @@ EXTRA_DIST = \
 
 CLEANFILES = \
 	Xass-list	\
-	Xepan_plugins.c	\
 	Xplugin_api.c	\
 	Xplugin_api.h	\
 	Xplugin_api_decls.h	\

@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.nmake,v 1.22 2003/08/05 05:03:29 guy Exp $
+# $Id: Makefile.nmake,v 1.23 2003/08/18 20:17:55 guy Exp $
 #
 
 include ..\config.nmake
@@ -13,13 +13,16 @@ OBJECTS=plugin_api.obj
 
 all: $(OBJECTS) artnet docsis giop gryphon lwres megaco mgcp pcli rtnet
 
-Xplugin_api.c: xyzzy plugin_gen.py plugin_api.c
-	$(PYTHON) plugin_gen.py xyzzy
+Xplugin_api.c: plugin_gen.py plugin_api_list.c
+	@echo **** Plugin api may be out of date, please generate new files:
+	@echo **** nmake -f Makefile.nmake xyzzy
+	@echo.
 
 plugin_api.obj: plugin_api.c Xplugin_api.c
 
-xyzzy: plugin_api_list.c
+xyzzy: plugin_gen.py plugin_api_list.c
 	gcc -aux-info xyzzy -DHAVE_CONFIG_H -I$(GLIB_DIR) -I.. -c plugin_api_list.c
+	$(PYTHON) plugin_gen.py xyzzy
 
 artnet:: 
 	cd artnet
