@@ -2,7 +2,7 @@
  * Routines for NetWare Core Protocol
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-ncp.c,v 1.13 1999/05/14 21:30:13 gram Exp $
+ * $Id: packet-ncp.c,v 1.14 1999/05/16 05:12:11 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -57,9 +57,6 @@ ncp2222_find(guint8 func, guint8 subfunc);
 static void
 parse_ncp_svc_fields(const u_char *pd, proto_tree *ncp_tree, int offset,
 	struct svc_record *svc);
-
-static char*
-ncp_completion_code(guint8 ccode);
 
 
 /* Hash functions */
@@ -142,6 +139,22 @@ enum ntype {
 	nasciiz		/* null-terminated string of ASCII characters */
 };
 
+/* These are the broad families that the different NCP request types belong
+ * to.
+ */
+enum nfamily {
+		NCP_UNKNOWN_SERVICE,	/* unknown or n/a */
+		NCP_QUEUE_SERVICES,		/* print queues */
+		NCP_FILE_SERVICES,		/* file serving */
+		NCP_BINDERY_SERVICES,	/* bindery database */
+		NCP_CONNECTION_SERVICES, /* communication */
+};
+
+/* I had to put this function prototype after the enum nfamily declaration */
+static char*
+ncp_completion_code(guint8 ccode, enum nfamily family);
+
+
 /* Information on the NCP field */
 typedef struct svc_record {
 	enum ntype	type;
@@ -158,7 +171,7 @@ typedef struct ncp2222_record {
 
 	svc_record	*req;
 	svc_record	*rep;
-	void*		special_handler;	/* not used yet */
+	enum nfamily	family;
 
 } ncp2222_record;
 
@@ -250,35 +263,35 @@ static svc_record ncp_48_00_R[] = {
 static ncp2222_record ncp2222[] = {
 
 { 0x17, 0x35, SUBFUNC, "Get Bindery Object ID",
-	ncp_17_35_C, NULL, NULL
+	ncp_17_35_C, NULL, NCP_BINDERY_SERVICES
 },
 
 { 0x17, 0x7C, SUBFUNC, "Service Queue Job",
-	ncp_17_7C_C, ncp_17_7C_R, NULL
+	ncp_17_7C_C, ncp_17_7C_R, NCP_QUEUE_SERVICES
 },
 
 { 0x18, 0x00, NOSUB, "End of Job",
-	NULL, NULL, NULL
+	NULL, NULL, NCP_CONNECTION_SERVICES
 },
 
 { 0x19, 0x00, NOSUB, "Logout",
-	NULL, NULL, NULL
+	NULL, NULL, NCP_CONNECTION_SERVICES
 },
 
 { 0x21, 0x00, NOSUB, "Negotiate Buffer Size",
-	ncp_21_00_C, ncp_21_00_R, NULL
+	ncp_21_00_C, ncp_21_00_R, NCP_CONNECTION_SERVICES
 },
 
 { 0x42, 0x00, NOSUB, "Close File",
-	ncp_42_00_C, ncp_42_00_R, NULL
+	ncp_42_00_C, ncp_42_00_R, NCP_FILE_SERVICES
 },
 
 { 0x48, 0x00, NOSUB, "Read from a file",
-	ncp_48_00_C, ncp_48_00_R, NULL
+	ncp_48_00_C, ncp_48_00_R, NCP_FILE_SERVICES
 },
 
 { 0x00, 0x00, NOSUB, NULL,
-	NULL, NULL, NULL
+	NULL, NULL, NCP_UNKNOWN_SERVICE
 }
 
 };
@@ -584,7 +597,7 @@ dissect_ncp_reply(const u_char *pd, int offset, frame_data *fd,
 		 * meanings */
 		proto_tree_add_item(ncp_tree, offset+6,    1,
 			"Completion Code: 0x%02x (%s)", reply.completion_code,
-			ncp_completion_code(reply.completion_code));
+			ncp_completion_code(reply.completion_code, ncp_request->family));
 
 		proto_tree_add_item(ncp_tree, offset+7,    1,
 			"Connection Status: %d", reply.connection_state);
@@ -643,8 +656,9 @@ parse_ncp_svc_fields(const u_char *pd, proto_tree *ncp_tree, int offset,
 }
 
 static char*
-ncp_completion_code(guint8 ccode)
+ncp_completion_code(guint8 ccode, enum nfamily family)
 {
+		char	*text;
 
 #define NCP_CCODE_MIN 0x7e
 #define NCP_CCODE_MAX 0xff
@@ -777,7 +791,7 @@ ncp_completion_code(guint8 ccode)
 		/* f9 */ "Unauthorized to read this property",
 		/* fa */ "Temporary remap error",
 		/* fb */ "",
-		/* fc */ "Gilbert's test",
+		/* fc */ "",
 		/* fd */ "",
 		/* fe */ "",
 		/* ff */ ""
@@ -794,8 +808,36 @@ ncp_completion_code(guint8 ccode)
 	}
 
 	if (ccode >= NCP_CCODE_MIN && ccode <= NCP_CCODE_MAX) {
-		return ccode_text[ccode - NCP_CCODE_MIN];
+		text = ccode_text[ccode - NCP_CCODE_MIN];
+		/* If there really is text, return it */
+		if (text[0] != 0)
+			return text;
+	}
+	else {
+		return "Unknown";
 	}
 
-	return "Unknown";
+	/* We have a completion code with multiple translations. We'll use the
+	 * nfamily that this request type belongs to to give the right
+	 * translation.
+	 */
+	switch (ccode) {
+
+		case 0xfc:
+			switch(family) {
+				case NCP_QUEUE_SERVICES:
+					return "The message queue cannot accept another message";
+					break;
+				case NCP_BINDERY_SERVICES:
+					return "The specified bindery object does not exist";
+					break;
+				default:
+					return "Unknown";
+					break;
+			}
+			break;
+
+		default:
+			return "I don't know how to parse this completion code. Please send this packet trace to Gilbert Ramirez <gram@xiexie.org> for analysis";
+	}
 }
