@@ -1,7 +1,7 @@
 /* plugins.c
  * plugin routines
  *
- * $Id: plugins.c,v 1.81 2004/05/20 13:48:25 ulfl Exp $
+ * $Id: plugins.c,v 1.82 2004/05/20 22:37:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -314,11 +314,8 @@ plugins_scan_dir(const char *dirname)
 const char *get_plugins_global_dir(const char *plugin_dir)
 {
 #ifdef WIN32
-    char *install_plugin_dir;
-#endif
+	char *install_plugin_dir;
 
-
-#ifdef WIN32
 	/*
 	 * On Windows, the data file directory is the installation
 	 * directory; the plugins are stored under it.
@@ -349,12 +346,12 @@ const char *get_plugins_global_dir(const char *plugin_dir)
 		 * source directory, and copy the plugin DLLs there,
 		 * so that you use the plugins from the build tree?
 		 */
-        g_free(install_plugin_dir);
+		g_free(install_plugin_dir);
 		install_plugin_dir =
 		    g_strdup("C:\\Program Files\\Ethereal\\plugins\\" VERSION);
 	}
 
-	return(install_plugin_dir);
+	return install_plugin_dir;
 #else
 	/*
 	 * Scan the plugin directory.
@@ -377,25 +374,23 @@ const char *get_plugins_pers_dir(void)
 void
 init_plugins(const char *plugin_dir)
 {
-#ifdef WIN32
     const char *datafile_dir;
-#endif
 
     if (plugin_list == NULL)      /* ensure init_plugins is only run once */
     {
 	/*
 	 * Scan the global plugin directory.
 	 */
-    datafile_dir = get_plugins_global_dir(plugin_dir);
+	datafile_dir = get_plugins_global_dir(plugin_dir);
 	plugins_scan_dir(datafile_dir);
-    g_free((char *) datafile_dir);
+	g_free((char *) datafile_dir);
 
 	/*
 	 * Scan the users plugin directory.
 	 */
-    datafile_dir = get_plugins_pers_dir();
+	datafile_dir = get_plugins_pers_dir();
 	plugins_scan_dir(datafile_dir);
-    g_free((char *) datafile_dir);
+	g_free((char *) datafile_dir);
     }
 }
 
