@@ -1,6 +1,6 @@
 /* ethereal.c
  *
- * $Id: ethereal.c,v 1.88 1999/08/15 06:59:02 guy Exp $
+ * $Id: ethereal.c,v 1.89 1999/08/15 07:28:22 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -818,7 +818,6 @@ print_fs_ok_cb(GtkWidget *w, gpointer data)
 static void
 print_fs_cancel_cb(GtkWidget *w, gpointer data)
 {
-	  
   gtk_widget_destroy(GTK_WIDGET(data));
 }
 
@@ -934,7 +933,7 @@ packet_list_unselect_cb(GtkWidget *w, gint row, gint col, gpointer evt) {
 }
 
 void
-tree_view_cb(GtkWidget *w) {
+tree_view_cb(GtkWidget *w, gpointer data) {
 
   tree_selected_start = -1;
   tree_selected_len = -1;
@@ -1327,8 +1326,11 @@ main(int argc, char *argv[])
   gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(tv_scrollw),
 		  tree_view);
   gtk_tree_set_selection_mode(GTK_TREE(tree_view), GTK_SELECTION_SINGLE);
+
+  /* XXX - what's the difference between the next two lines? */
   gtk_tree_set_view_lines(GTK_TREE(tree_view), FALSE);
-  gtk_tree_set_view_mode(GTK_TREE(tree_view), TRUE);
+  gtk_tree_set_view_mode(GTK_TREE(tree_view), GTK_TREE_VIEW_ITEM);
+
   gtk_signal_connect(GTK_OBJECT(tree_view), "selection_changed",
     GTK_SIGNAL_FUNC(tree_view_cb), NULL);
   gtk_widget_show(tree_view);

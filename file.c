@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.71 1999/08/15 06:59:03 guy Exp $
+ * $Id: file.c,v 1.72 1999/08/15 07:28:23 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -768,6 +768,9 @@ change_time_formats(capture_file *cf)
 static void
 clear_tree_and_hex_views(void)
 {
+  GList *selection;
+  GtkWidget *tmp_item;
+
   /* Clear the hex dump. */
   gtk_text_freeze(GTK_TEXT(byte_view));
   gtk_text_set_point(GTK_TEXT(byte_view), 0);
@@ -775,10 +778,25 @@ clear_tree_and_hex_views(void)
     gtk_text_get_length(GTK_TEXT(byte_view)));
   gtk_text_thaw(GTK_TEXT(byte_view));
 
-  /* Clear the protocol tree view. */
-  gtk_tree_clear_items(GTK_TREE(tree_view), 0,
-    g_list_length(GTK_TREE(tree_view)->children));
+  /* Deselect any selected tree item. gtktree.c should
+   * do this when we clear_items, but it doesn't. I copied
+   * this while() loop from gtktree.c, gtk_real_tree_select_child()
+   */
+  selection = GTK_TREE(tree_view)->root_tree->selection;
+  while (selection) {
+	  tmp_item = selection->data;
+	  gtk_tree_item_deselect(GTK_TREE_ITEM(tmp_item));
+	  gtk_widget_unref(tmp_item);
+	  selection = selection->next;
+  }
+  g_list_free(GTK_TREE(tree_view)->root_tree->selection);
+  GTK_TREE(tree_view)->root_tree->selection = NULL;
+
+  /* Clear the protocol tree view. The length arg of -1
+   * means to clear all items up to the end. */
+  gtk_tree_clear_items(GTK_TREE(tree_view), 0, -1);
 }
+
 
 /* Select the packet on a given row. */
 void
