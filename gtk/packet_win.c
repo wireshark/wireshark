@@ -3,7 +3,7 @@
  *
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet_win.c,v 1.10 2000/08/03 12:44:40 gram Exp $
+ * $Id: packet_win.c,v 1.11 2000/08/17 07:56:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -206,8 +206,6 @@ destroy_new_window(GtkObject *object, gpointer user_data)
   struct PacketWinData *DataPtr = user_data;
 
   detail_windows = g_list_remove(detail_windows, DataPtr);
-  forget_scrolled_window(DataPtr->tv_scrollw);
-  forget_scrolled_window(DataPtr->bv_scrollw);
   proto_tree_free(DataPtr->protocol_tree);
   g_free(DataPtr->pd);
   g_free(DataPtr);

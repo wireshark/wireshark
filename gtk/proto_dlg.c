@@ -1,6 +1,6 @@
 /* proto_dlg.c
  *
- * $Id: proto_dlg.c,v 1.3 2000/08/16 21:08:47 deniel Exp $
+ * $Id: proto_dlg.c,v 1.4 2000/08/17 07:56:44 guy Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
@@ -57,8 +57,6 @@
 #include "dlg_utils.h"
 #include "proto_dlg.h"
 
-#define MAX_SCROLLED_WINDOWS	1
-
 static void proto_ok_cb(GtkWidget *, gpointer);
 static void proto_apply_cb(GtkWidget *, gpointer);
 static void proto_close_cb(GtkWidget *, gpointer);
@@ -66,7 +64,6 @@ static void proto_close_cb(GtkWidget *, gpointer);
 static void show_proto_selection(GtkWidget *main, GtkWidget *container);
 static gboolean set_proto_selection(GtkWidget *);
 
-static GtkWidget *scrolled_w[MAX_SCROLLED_WINDOWS];
 static GtkWidget *proto_w = NULL;
 
 /* list of protocols */
@@ -79,20 +76,14 @@ typedef struct protocol_data {
 
 void proto_cb(GtkWidget *w, gpointer data)
 {
-  int nb_scroll = 0;
+
   GtkWidget *main_vb, *bbox, *proto_nb, *apply_bt, *cancel_bt, *ok_bt, 
-    *label, *selection_vb;
+    *label, *scrolled_w, *selection_vb;
   
   if (proto_w != NULL) {
     reactivate_window(proto_w);
     return;
   }
-
-  for(nb_scroll = 0; nb_scroll < MAX_SCROLLED_WINDOWS; nb_scroll++) {
-    scrolled_w[nb_scroll] = NULL;
-  }
-
-  nb_scroll = 0;
 
   proto_w = dlg_window_new();
   gtk_window_set_title(GTK_WINDOW(proto_w), "Ethereal: Protocol");
@@ -122,18 +113,16 @@ void proto_cb(GtkWidget *w, gpointer data)
   label = gtk_label_new("Button pressed: protocol decoding is enabled");
   gtk_widget_show(label);
   gtk_box_pack_start(GTK_BOX(selection_vb), label, FALSE, FALSE, 0);
-  scrolled_w[nb_scroll] = gtk_scrolled_window_new(NULL, NULL);         
-  gtk_container_set_border_width(GTK_CONTAINER(scrolled_w[nb_scroll]), 1);
-  gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_w[nb_scroll]),
+  scrolled_w = gtk_scrolled_window_new(NULL, NULL);         
+  gtk_container_set_border_width(GTK_CONTAINER(scrolled_w), 1);           
+  gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_w),
 				 GTK_POLICY_AUTOMATIC,
 				 GTK_POLICY_ALWAYS);
-  set_scrollbar_placement_scrollw(scrolled_w[nb_scroll],
-				  prefs.gui_scrollbar_on_right);
-  remember_scrolled_window(scrolled_w[nb_scroll]);
-  gtk_box_pack_start(GTK_BOX(selection_vb), scrolled_w[nb_scroll],
-		     TRUE, TRUE, 0);
-  show_proto_selection(proto_w, scrolled_w[nb_scroll]);
-  gtk_widget_show(scrolled_w[nb_scroll]);
+  set_scrollbar_placement_scrollw(scrolled_w, prefs.gui_scrollbar_on_right);
+  remember_scrolled_window(scrolled_w);
+  gtk_box_pack_start(GTK_BOX(selection_vb), scrolled_w, TRUE, TRUE, 0);
+  show_proto_selection(proto_w, scrolled_w);
+  gtk_widget_show(scrolled_w);
   gtk_widget_show(selection_vb);
   label = gtk_label_new("Decoding");
   gtk_notebook_append_page(GTK_NOTEBOOK(proto_nb), selection_vb, label);
@@ -186,14 +175,6 @@ void proto_cb(GtkWidget *w, gpointer data)
 static void proto_close_cb(GtkWidget *w, gpointer data)
 {
   GSList *entry;
-  int nb_scroll;
-
-  for(nb_scroll = 0; nb_scroll < MAX_SCROLLED_WINDOWS; nb_scroll++) {
-    if (scrolled_w[nb_scroll]) {
-      forget_scrolled_window(scrolled_w[nb_scroll]);
-      scrolled_w[nb_scroll] = NULL;
-    }
-  }
 
   if (proto_w)
     gtk_widget_destroy(proto_w);

@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.135 2000/08/15 22:22:35 guy Exp $
+ * $Id: main.c,v 1.136 2000/08/17 07:56:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -537,15 +537,22 @@ set_scrollbar_placement_scrollw(GtkWidget *scrollw, int pos) /* 0=left, 1=right 
 static GList *scrolled_windows;
 
 /* Add a scrolled window to the list of scrolled windows. */
+static void forget_scrolled_window(GtkWidget *scrollw, gpointer data);
+
 void
 remember_scrolled_window(GtkWidget *scrollw)
 {
   scrolled_windows = g_list_append(scrolled_windows, scrollw);
+
+  /* Catch the "destroy" event on the widget, so that we remove it from
+     the list when it's destroyed. */
+  gtk_signal_connect(GTK_OBJECT(scrollw), "destroy",
+		     GTK_SIGNAL_FUNC(forget_scrolled_window), NULL);
 }
 
 /* Remove a scrolled window from the list of scrolled windows. */
-void
-forget_scrolled_window(GtkWidget *scrollw)
+static void
+forget_scrolled_window(GtkWidget *scrollw, gpointer data)
 {
   scrolled_windows = g_list_remove(scrolled_windows, scrollw);
 }

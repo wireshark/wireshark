@@ -1,6 +1,6 @@
 /* follow_dlg.c
  *
- * $Id: follow_dlg.c,v 1.6 2000/08/16 21:08:48 deniel Exp $
+ * $Id: follow_dlg.c,v 1.7 2000/08/17 07:56:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -105,9 +105,6 @@ static void follow_stream_om_server(GtkWidget * w, gpointer data);
 
 FILE *data_out_file = NULL;
 
-/* keep a static to the scrolled window to be able to remove it from
- * the scrolled windows list */
-static GtkWidget *txt_scrollw = NULL;
 
 #define E_FOLLOW_INFO_KEY "follow_info_key"
 
@@ -117,7 +114,7 @@ static GtkWidget *txt_scrollw = NULL;
 void
 follow_stream_cb(GtkWidget * w, gpointer data)
 {
-	GtkWidget	*streamwindow, *vbox, *text, *filter_te;
+	GtkWidget	*streamwindow, *vbox, *txt_scrollw, *text, *filter_te;
 	GtkWidget	*hbox, *button, *radio_bt;
 	GtkWidget	*stream_om, *stream_menu, *stream_mi;
 	int		tmp_fd;
@@ -366,11 +363,6 @@ static void
 follow_destroy_cb(GtkWidget *w, gpointer data)
 {
 	follow_info_t	*follow_info;
-
-	if (txt_scrollw) {
-	  forget_scrolled_window(txt_scrollw);
-	  txt_scrollw = NULL;
-	}
 
 	follow_info = gtk_object_get_data(GTK_OBJECT(w), E_FOLLOW_INFO_KEY);
 	unlink(follow_info->data_out_filename);
