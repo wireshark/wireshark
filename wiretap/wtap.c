@@ -1,6 +1,6 @@
 /* wtap.c
  *
- * $Id: wtap.c,v 1.47 2000/09/07 05:34:22 gram Exp $
+ * $Id: wtap.c,v 1.48 2000/09/28 04:19:09 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -115,6 +115,10 @@ const static struct encap_type_info {
 
 	/* WTAP_ENCAP_V120 */
 	{ "V.120", "v120" },
+
+	/* WTAP_ENCAP_PPP_WITH_PHDR */
+	{ "PPP with Directional Info", "ppp-with-direction" },
+
 };
 
 /* Name that should be somewhat descriptive. */
