@@ -1,7 +1,7 @@
 /* packet-ip.h
  * Definitions for IP packet disassembly structures and routines
  *
- * $Id: packet-ip.h,v 1.16 2000/12/04 06:37:44 guy Exp $
+ * $Id: packet-ip.h,v 1.17 2001/01/22 03:33:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -28,7 +28,6 @@
 #define __PACKET_IP_H__
 
 void capture_ip(const u_char *, int, packet_counts *);
-void dissect_ip(tvbuff_t *, packet_info *, proto_tree *);
 
 #define IP_PROTO_IP		0		/* dummy for IP */
 #define IP_PROTO_HOPOPTS	0		/* IP6 hop-by-hop options */

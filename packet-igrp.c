@@ -2,7 +2,7 @@
  * Routines for IGRP dissection
  * Copyright 2000, Paul Ionescu <paul@acorp.ro>
  * 
- * $Id: packet-igrp.c,v 1.4 2001/01/09 06:31:36 guy Exp $
+ * $Id: packet-igrp.c,v 1.5 2001/01/22 03:33:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -60,18 +60,16 @@ static void dissect_igrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree *igrp_tree, *igrp_vektor_tree;
   tvbuff_t   *next_tvb; 
   
-  CHECK_DISPLAY_AS_DATA(proto_igrp, tvb, pinfo, tree);
-
-  pinfo->current_proto = "IGRP";
-  
+  if (check_col(pinfo->fd, COL_PROTOCOL)) 
+    col_set_str(pinfo->fd, COL_PROTOCOL, "IGRP");
+  if (check_col(pinfo->fd, COL_INFO))
+    col_clear(pinfo->fd, COL_INFO);
+    
   ver_and_opcode = tvb_get_guint8(tvb,0);
   update 	 = tvb_get_guint8(tvb,1);
   as		 = tvb_get_ntohs(tvb,2);
   
   
-  if (check_col(pinfo->fd, COL_PROTOCOL)) 
-    col_set_str(pinfo->fd, COL_PROTOCOL, "IGRP");
-    
   if (check_col(pinfo->fd, COL_INFO)) {
     switch (ver_and_opcode) {
     case 0x11:
@@ -207,7 +205,7 @@ void proto_register_igrp(void)
 void
 proto_reg_handoff_igrp(void)
 {
-  dissector_add("ip.proto", IP_PROTO_IGRP , dissect_igrp, proto_igrp);
+  dissector_add("ip.proto", IP_PROTO_IGRP, dissect_igrp, proto_igrp);
 }
 
 /*	IGRP Packet structure:

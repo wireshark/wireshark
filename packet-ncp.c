@@ -3,7 +3,7 @@
  * Gilbert Ramirez <gram@xiexie.org>
  * Modified to allow NCP over TCP/IP decodes by James Coe <jammer@cin.net>
  *
- * $Id: packet-ncp.c,v 1.46 2001/01/09 06:31:39 guy Exp $
+ * $Id: packet-ncp.c,v 1.47 2001/01/22 03:33:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -260,15 +260,12 @@ dissect_ncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int				hdr_offset = 0;
 	int				commhdr;
 
-	CHECK_DISPLAY_AS_DATA(proto_ncp, tvb, pinfo, tree);
-
-	pinfo->current_proto = "NCP";
 	if (check_col(pinfo->fd, COL_PROTOCOL))
 		col_set_str(pinfo->fd, COL_PROTOCOL, "NCP");
 	if (check_col(pinfo->fd, COL_INFO))
 		col_clear(pinfo->fd, COL_INFO);
 
-	if ( pi.ptype == PT_TCP || pi.ptype == PT_UDP ) {
+	if ( pinfo->ptype == PT_TCP || pinfo->ptype == PT_UDP ) {
 		ncpiph.signature	= tvb_get_ntohl(tvb, 0);
 		ncpiph.length		= tvb_get_ntohl(tvb, 4);
 		hdr_offset += 8;
@@ -294,7 +291,7 @@ dissect_ncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		ti = proto_tree_add_item(tree, proto_ncp, tvb, 0, tvb_length(tvb), FALSE);
 		ncp_tree = proto_item_add_subtree(ti, ett_ncp);
 
-		if ( pi.ptype == PT_TCP || pi.ptype == PT_UDP ) {
+		if ( pinfo->ptype == PT_TCP || pinfo->ptype == PT_UDP ) {
 			proto_tree_add_uint(ncp_tree, hf_ncp_ip_sig, tvb, 0, 4, ncpiph.signature);
 			proto_tree_add_uint(ncp_tree, hf_ncp_ip_length, tvb, 4, 4, ncpiph.length);
 			if ( ncpiph.signature == NCPIP_RQST ) {

@@ -2,7 +2,7 @@
  * Routines for OSPF packet disassembly
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-ospf.c,v 1.35 2001/01/09 06:31:40 guy Exp $
+ * $Id: packet-ospf.c,v 1.36 2001/01/22 03:33:45 guy Exp $
  *
  * At this time, this module is able to analyze OSPF
  * packets as specified in RFC2328. MOSPF (RFC1584) and other
@@ -171,14 +171,13 @@ dissect_ospf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     char auth_data[8];
     int crypto_len;
  
-    CHECK_DISPLAY_AS_DATA(proto_ospf, tvb, pinfo, tree);
-
-    pinfo->current_proto = "OSPF";
+    if (check_col(pinfo->fd, COL_PROTOCOL))
+	col_set_str(pinfo->fd, COL_PROTOCOL, "OSPF");
+    if (check_col(pinfo->fd, COL_INFO))
+	col_clear(pinfo->fd, COL_INFO);
 
     version = tvb_get_guint8(tvb, 0);
     packet_type = tvb_get_guint8(tvb, 1);
-    if (check_col(pinfo->fd, COL_PROTOCOL))
-	col_set_str(pinfo->fd, COL_PROTOCOL, "OSPF");
     if (check_col(pinfo->fd, COL_INFO)) {
 	col_add_str(pinfo->fd, COL_INFO,
 		    val_to_str(packet_type, pt_vals, "Unknown (%u)"));

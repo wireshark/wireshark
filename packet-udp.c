@@ -1,7 +1,7 @@
 /* packet-udp.c
  * Routines for UDP packet disassembly
  *
- * $Id: packet-udp.c,v 1.85 2001/01/11 16:27:23 gram Exp $
+ * $Id: packet-udp.c,v 1.86 2001/01/22 03:33:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -144,9 +144,10 @@ dissect_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint16    computed_cksum;
   int        offset = 0;
 
-  CHECK_DISPLAY_AS_DATA(proto_udp, tvb, pinfo, tree);
-
-  pinfo->current_proto = "UDP";
+  if (check_col(pinfo->fd, COL_PROTOCOL))
+    col_set_str(pinfo->fd, COL_PROTOCOL, "UDP");
+  if (check_col(pinfo->fd, COL_INFO))
+    col_clear(pinfo->fd, COL_INFO);
 
   /* Avoids alignment problems on many architectures. */
   tvb_memcpy(tvb, (guint8 *)&uh, offset, sizeof(e_udphdr));
@@ -155,8 +156,6 @@ dissect_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   uh_ulen  = ntohs(uh.uh_ulen);
   uh_sum   = ntohs(uh.uh_sum);
   
-  if (check_col(pinfo->fd, COL_PROTOCOL))
-    col_set_str(pinfo->fd, COL_PROTOCOL, "UDP");
   if (check_col(pinfo->fd, COL_INFO))
     col_add_fstr(pinfo->fd, COL_INFO, "Source port: %s  Destination port: %s",
 	    get_udp_port(uh_sport), get_udp_port(uh_dport));

@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.121 2001/01/13 07:47:48 guy Exp $
+ * $Id: packet-ip.c,v 1.122 2001/01/22 03:33:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -60,7 +60,7 @@ static void dissect_icmp(tvbuff_t *, packet_info *, proto_tree *);
 static void dissect_igmp(tvbuff_t *, packet_info *, proto_tree *);
 
 /* Decode the old IPv4 TOS field as the DiffServ DS Field */
-gboolean g_ip_dscp_actif = TRUE;
+static gboolean g_ip_dscp_actif = TRUE;
 
 static int proto_ip = -1;
 static int hf_ip_version = -1;
@@ -784,7 +784,7 @@ static guint16 ip_checksum(const guint8 *ptr, int len)
 	return in_cksum(&cksum_vec[0], 1);
 }
 
-void
+static void
 dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   e_ip       iph;
@@ -796,10 +796,6 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint8     nxt;
   guint16    ipsum;
   tvbuff_t   *next_tvb;
-
-  CHECK_DISPLAY_AS_DATA(proto_ip, tvb, pinfo, tree);
-
-  pinfo->current_proto = "IP";
 
   if (check_col(pinfo->fd, COL_PROTOCOL))
     col_set_str(pinfo->fd, COL_PROTOCOL, "IP");
@@ -1012,10 +1008,6 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint8     num_addrs = 0;
   guint8     addr_entry_size = 0;
   int        i;
-
-  CHECK_DISPLAY_AS_DATA(proto_icmp, tvb, pinfo, tree);
-
-  pinfo->current_proto = "ICMP";
 
   if (check_col(pinfo->fd, COL_PROTOCOL))
     col_set_str(pinfo->fd, COL_PROTOCOL, "ICMP");
@@ -1240,10 +1232,6 @@ dissect_igmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree *igmp_tree;
   proto_item *ti;
   gchar      *type_str;
-
-  CHECK_DISPLAY_AS_DATA(proto_igmp, tvb, pinfo, tree);
-
-  pinfo->current_proto = "IGMP";
 
   if (check_col(pinfo->fd, COL_PROTOCOL))
     col_set_str(pinfo->fd, COL_PROTOCOL, "IGMP");

@@ -4,7 +4,7 @@
  *
  * Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-vrrp.c,v 1.13 2001/01/09 06:31:44 guy Exp $
+ * $Id: packet-vrrp.c,v 1.14 2001/01/22 03:33:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -91,10 +91,6 @@ dissect_vrrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         gint vrrp_len;
         guint8  ver_type;
 	vec_t cksum_vec[1];
-
-        CHECK_DISPLAY_AS_DATA(proto_vrrp, tvb, pinfo, tree);
-
-        pinfo->current_proto = "VRRP";
 
         if (check_col(pinfo->fd, COL_PROTOCOL))
                 col_set_str(pinfo->fd, COL_PROTOCOL, "VRRP");

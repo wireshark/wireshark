@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.97 2001/01/09 06:31:44 guy Exp $
+ * $Id: packet-tcp.c,v 1.98 2001/01/22 03:33:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -452,10 +452,6 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint32    phdr[2];
   guint16    computed_cksum;
   guint      length_remaining;
-
-  CHECK_DISPLAY_AS_DATA(proto_tcp, tvb, pinfo, tree);
-
-  pinfo->current_proto = "TCP";
 
   if (check_col(pinfo->fd, COL_PROTOCOL))
     col_set_str(pinfo->fd, COL_PROTOCOL, "TCP");

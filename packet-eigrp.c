@@ -2,7 +2,7 @@
  * Routines for EIGRP dissection
  * Copyright 2000, Paul Ionescu <paul@acorp.ro>
  *
- * $Id: packet-eigrp.c,v 1.11 2001/01/09 06:31:35 guy Exp $
+ * $Id: packet-eigrp.c,v 1.12 2001/01/22 03:33:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -145,16 +145,15 @@ dissect_eigrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   guint16 tlv,size, offset = EIGRP_HEADER_LENGTH;
   guint32 ack;
       
-  CHECK_DISPLAY_AS_DATA(proto_eigrp, tvb, pinfo, tree);
-  
-  pinfo->current_proto = "EIGRP";
-  
+  if (check_col(pinfo->fd, COL_PROTOCOL))
+    col_set_str(pinfo->fd, COL_PROTOCOL, "EIGRP");
+  if (check_col(pinfo->fd, COL_INFO))
+    col_clear(pinfo->fd, COL_INFO);
+
   opcode_tmp=opcode=tvb_get_guint8(tvb,1);
   ack = tvb_get_ntohl(tvb,12);
   if (opcode==EIGRP_HELLO) { if (ack == 0) opcode_tmp=EIGRP_HI; else opcode_tmp=EIGRP_ACK; }
   
-  if (check_col(pinfo->fd, COL_PROTOCOL))
-    col_set_str(pinfo->fd, COL_PROTOCOL, "EIGRP");
   if (check_col(pinfo->fd, COL_INFO))
     col_add_str(pinfo->fd, COL_INFO,
 	val_to_str(opcode_tmp , eigrp_opcode_vals, "Unknown (0x%04x)"));
@@ -453,15 +452,15 @@ proto_register_eigrp(void)
     },
    };
                                                        
-      static gint *ett[] = {
-        &ett_eigrp,
-	&ett_tlv,
-      };
+   static gint *ett[] = {
+     &ett_eigrp,
+     &ett_tlv,
+   };
    proto_eigrp = proto_register_protocol("Enhanced Interior Gateway Routing Protocol",
 					 "EIGRP", "eigrp");
    proto_register_field_array(proto_eigrp, hf, array_length(hf));
    proto_register_subtree_array(ett, array_length(ett));
-   }
+}
 
 void
 proto_reg_handoff_eigrp(void)

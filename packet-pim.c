@@ -2,7 +2,7 @@
  * Routines for PIM disassembly
  * (c) Copyright Jun-ichiro itojun Hagino <itojun@itojun.org>
  *
- * $Id: packet-pim.c,v 1.22 2001/01/13 06:34:32 guy Exp $
+ * $Id: packet-pim.c,v 1.23 2001/01/22 03:33:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -218,10 +218,6 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     proto_item *ti; 
     proto_tree *pimopt_tree = NULL;
     proto_item *tiopt; 
-
-    CHECK_DISPLAY_AS_DATA(proto_pim, tvb, pinfo, tree);
-
-    pinfo->current_proto = "PIM";
 
     if (check_col(pinfo->fd, COL_PROTOCOL))
         col_set_str(pinfo->fd, COL_PROTOCOL, "PIM");
