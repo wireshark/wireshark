@@ -1,7 +1,7 @@
 /* packet-artnet.c
- * Routines for ArtNET packet disassembly
+ * Routines for Art-Net packet disassembly
  *
- * $Id: packet-artnet.c,v 1.2 2003/08/17 01:05:21 guy Exp $
+ * $Id: packet-artnet.c,v 1.3 2003/08/24 01:44:00 sahlberg Exp $
  *
  * Copyright (c) 2003 by Erwin Rol <erwin@erwinrol.com>
  *
@@ -85,45 +85,117 @@ G_MODULE_EXPORT const gchar version[] = VERSION;
 #define ARTNET_VIDEO_DATA_LENGTH             8
 
 
-#define ARTNET_OP_POLL            0x2000
-#define ARTNET_OP_POLL_REPLY      0x2100
-#define ARTNET_OP_OUTPUT          0x5000
-#define ARTNET_OP_ADDRESS         0x6000
-#define ARTNET_OP_INPUT           0x7000
-#define ARTNET_OP_VIDEO_SETUP     0xa010
-#define ARTNET_OP_VIDEO_PALETTE   0xa020
-#define ARTNET_OP_VIDEO_DATA      0xa040
+#define ARTNET_OP_POLL               0x2000
+#define ARTNET_OP_POLL_REPLY         0x2100
+#define ARTNET_OP_POLL_SERVER_REPLY  0x2200
+#define ARTNET_OP_OUTPUT             0x5000
+#define ARTNET_OP_ADDRESS            0x6000
+#define ARTNET_OP_INPUT              0x7000
+#define ARTNET_OP_VIDEO_SETUP        0xa010
+#define ARTNET_OP_VIDEO_PALETTE      0xa020
+#define ARTNET_OP_VIDEO_DATA         0xa040
 
-#define ARTNET_OP_UNKNOWN_0x8000  0x8000
-#define ARTNET_OP_UNKNOWN_0x8100  0x8100
-#define ARTNET_OP_UNKNOWN_0x8200  0x8200
-#define ARTNET_OP_UNKNOWN_0x8300  0x8300
+#define ARTNET_OP_TOD_REQUEST        0x8000
+#define ARTNET_OP_TOD_DATA           0x8100
+#define ARTNET_OP_TOD_CONTROL        0x8200
+#define ARTNET_OP_RDM                0x8300
 
-#define ARTNET_OP_MAC_MASTER      0xf000
-#define ARTNET_OP_MAC_SLAVE       0xf100
-#define ARTNET_OP_FIRMWARE_MASTER 0xf200
-#define ARTNET_OP_FIRMWARE_REPLY  0xf300
+#define ARTNET_OP_MAC_MASTER         0xf000
+#define ARTNET_OP_MAC_SLAVE          0xf100
+#define ARTNET_OP_FIRMWARE_MASTER    0xf200
+#define ARTNET_OP_FIRMWARE_REPLY     0xf300
+
+#define ARTNET_OP_IP_PROG            0xf800
+#define ARTNET_OP_IP_PROG_REPLY      0xf900
 
 static const value_string artnet_opcode_vals[] = {
-  { ARTNET_OP_POLL,            "ArtPoll packet" },
-  { ARTNET_OP_POLL_REPLY,      "ArtPollReply packet" },
-  { ARTNET_OP_OUTPUT,          "ArtDMX data packet" },
-  { ARTNET_OP_ADDRESS,         "ArtAddress packet" },
-  { ARTNET_OP_INPUT,           "ArtInput packet" },
-  { ARTNET_OP_VIDEO_SETUP,     "ArtVideoSetup packet" },
-  { ARTNET_OP_VIDEO_PALETTE,   "ArtVideoPalette packet" },
-  { ARTNET_OP_VIDEO_DATA,      "ArtVideoData packet" },
+  { ARTNET_OP_POLL,              "ArtPoll packet" },
+  { ARTNET_OP_POLL_REPLY,        "ArtPollReply packet" },
+  { ARTNET_OP_POLL_SERVER_REPLY, "ArtPollServerReply packet" },
+  { ARTNET_OP_OUTPUT,            "ArtDMX data packet" },
+  { ARTNET_OP_ADDRESS,           "ArtAddress packet" },
+  { ARTNET_OP_INPUT,             "ArtInput packet" },
+  { ARTNET_OP_VIDEO_SETUP,       "ArtVideoSetup packet" },
+  { ARTNET_OP_VIDEO_PALETTE,     "ArtVideoPalette packet" },
+  { ARTNET_OP_VIDEO_DATA,        "ArtVideoData packet" },
+  { ARTNET_OP_TOD_REQUEST,       "ArtTodRequest packet" },
+  { ARTNET_OP_TOD_DATA,          "ArtTodData packet" },
+  { ARTNET_OP_TOD_CONTROL,       "ArtTodControl packet" },
+  { ARTNET_OP_RDM,               "ArtRdm packet" },
+  { ARTNET_OP_MAC_MASTER,        "ArtMacMaster packet" },
+  { ARTNET_OP_MAC_SLAVE,         "ArtMacSlave packet" },
+  { ARTNET_OP_FIRMWARE_MASTER,   "ArtFirmwareMaster packet" },
+  { ARTNET_OP_FIRMWARE_REPLY,    "ArtFirmwareReply packet" },
+  { ARTNET_OP_IP_PROG,           "ArtIpProg packet" },
+  { ARTNET_OP_IP_PROG_REPLY,     "ArtIpProgReply packet" },
+  { 0,                           NULL }
+};
 
-  { ARTNET_OP_UNKNOWN_0x8000,  "Undocument opcode 0x8000" },
-  { ARTNET_OP_UNKNOWN_0x8100,  "Undocument opcode 0x8100" },
-  { ARTNET_OP_UNKNOWN_0x8200,  "Undocument opcode 0x8200" },
-  { ARTNET_OP_UNKNOWN_0x8300,  "Undocument opcode 0x8300" },
-  
-  { ARTNET_OP_MAC_MASTER,      "ArtMacMaster packet" },
-  { ARTNET_OP_MAC_SLAVE,       "ArtMacSlave packet" },
-  { ARTNET_OP_FIRMWARE_MASTER, "ArtFirmwareMaster packet" },
-  { ARTNET_OP_FIRMWARE_REPLY,  "ArtFirmwareReply packet" },
-  { 0,                       NULL }
+static const value_string artnet_oem_code_vals[] = {
+  { 0x0000, "Artistic Licence:DMX-Hub:4x DMX in,4x DMX out" },
+  { 0x0001, "ADB:Netgate:4x DMX in,4x DMX out" },
+  { 0x0002, "MA Lighting:TBA:4x DMX in,4x DMX out" },
+  { 0x0003, "Artistic Licence:Ether-Lynx:2x DMX in,4x DMX out" },
+  { 0x0004, "LewLight:Capture v2:TBA" },
+  { 0x0005, "High End:TBA:TBA" },
+  { 0x0006, "Avolites:TBA:TBA" },
+  { 0x0010, "Artistic Licence:Down-Lynx:2x DMX out. Wall Panel." },
+  { 0x0011, "Artistic Licence:Up-Lynx:2x DMX in. Wall Panel" },
+  { 0x0014, "Artistic Licence:Net-Lynx O/P:2x DMX out. Boxed Product" },
+  { 0x0015, "Artistic Licence:Net-Lynx I/P:2x DMX in. Boxed Product" },
+  { 0x0030, "Doug Fleenor Design:TBA:2x DMX out" },
+  { 0x0031, "Doug Fleenor Design:TBA:2x DMX in" },
+  { 0x0050, "Goddard Design:DMX-Link (tm) O/P:2x DMX out" },
+  { 0x0051, "Goddard Design:DMX-Link (tm) I/P:2x DMX in" },
+  { 0x0070, "ADB:Net-Port O/P:2x DMX out" },
+  { 0x0071, "ADB:Net-Port I/P:2x DMX in" },
+  { 0x0072, "ADB:Reserved:" },
+  { 0x0073, "ADB:Reserved:" },
+  { 0x0074, "ADB:Reserved:" },
+  { 0x0075, "ADB:Reserved:" },
+  { 0x0076, "ADB:Reserved:" },
+  { 0x0077, "ADB:Reserved:" },
+  { 0x0078, "ADB:Reserved:" },
+  { 0x0079, "ADB:Reserved:" },
+  { 0x007A, "ADB:Reserved:" },
+  { 0x007B, "ADB:Reserved:" },
+  { 0x007C, "ADB:Reserved:" },
+  { 0x007D, "ADB:Reserved:" },
+  { 0x007E, "ADB:Reserved:" },
+  { 0x007F, "ADB:Reserved:" },
+  { 0x008C, "Zero 88:TBA:2x DMX out" },
+  { 0x008D, "Zero 88:TBA:2x DMX in" },
+  { 0x008E, "Flying Pig:TBA:2x DMX out" },
+  { 0x008F, "Flying Pig:TBA:2x DMX in" },
+  { 0x0090, "ELC:ELC 2:2x DMX out" },
+  { 0x0091, "ELC:ELC 4:4x DMX in. 4x DMX out" },
+  { 0x0180, "Martin:Maxxyz:4x DMX in. 4x DMX out" },
+  { 0x0190, "Enttec:Reserved:" },
+  { 0x0191, "Enttec:Reserved:" },
+  { 0x0192, "Enttec:Reserved:" },
+  { 0x0193, "Enttec:Reserved:" },
+  { 0x0194, "Enttec:Reserved:" },
+  { 0x0195, "Enttec:Reserved:" },
+  { 0x0196, "Enttec:Reserved:" },
+  { 0x0197, "Enttec:Reserved:" },
+  { 0x0198, "Enttec:Reserved:" },
+  { 0x0199, "Enttec:Reserved:" },
+  { 0x019A, "Enttec:Reserved:" },
+  { 0x019B, "Enttec:Reserved:" },
+  { 0x019C, "Enttec:Reserved:" },
+  { 0x019D, "Enttec:Reserved:" },
+  { 0x019E, "Enttec:Reserved:" },
+  { 0x019F, "Enttec:Reserved:" },
+  { 0x8000, "ADB:Netgate XT:Video output and trigger inputs" },
+  { 0x8001, "Artistic Licence:Net-Patch:TBA" },
+  { 0x8002, "Artistic Licence:DMX-Hub XT:Video output and trigger inputs" },
+  { 0x8003, "Artistic Licence:No-Worries XT:Real time data record - playback" },
+  { 0,      NULL }
+};
+
+static const value_string artnet_esta_man_vals[] = {
+  { 0x414C, "Artistic Licence" },
+  { 0,      NULL }
 };
 
 #define ARTNET_AC_NONE           0x00
@@ -195,21 +267,67 @@ static const value_string artnet_firmware_reply_type_vals[] = {
   { 0,                          NULL }
 };
 
+
+#define ARTNET_TRC_TOD_FULL 0x00
+
+static const value_string artnet_tod_request_command_vals[] = {
+  { ARTNET_TRC_TOD_FULL, "TodFull" },
+  { 0,                   NULL }
+};
+
+#define ARTNET_TDC_TOD_FULL    0x00
+#define ARTNET_TDC_TOD_INVALID 0x01
+#define ARTNET_TDC_TOD_ADD     0x02
+#define ARTNET_TDC_TOD_SUB     0x03
+#define ARTNET_TDC_TOD_NAK     0xFF
+
+static const value_string artnet_tod_data_command_vals[] = {
+  { ARTNET_TDC_TOD_FULL,    "TodFull" },
+  { ARTNET_TDC_TOD_INVALID, "Invalid" },
+  { ARTNET_TDC_TOD_ADD,     "TodAdd" },
+  { ARTNET_TDC_TOD_SUB,     "TodSubtract" },
+  { ARTNET_TDC_TOD_NAK,     "TodNak" },
+  { 0,                      NULL }
+};
+
+#define ARTNET_TCC_ATC_NONE  0x00
+#define ARTNET_TCC_ATC_FLUSH 0x01
+
+static const value_string artnet_tod_control_command_vals[] = {
+  { ARTNET_TCC_ATC_NONE,  "AtcNone" },
+  { ARTNET_TCC_ATC_FLUSH, "AtcFlush" },
+  { 0,                    NULL }
+};
+
+#define ARTNET_RC_AR_PROCESS  0x00
+
+static const value_string artnet_rdm_command_vals[] = {
+  { ARTNET_RC_AR_PROCESS,  "ArProcess" },
+  { 0,                     NULL }
+};
+
 void proto_reg_handoff_artnet(void);
 
 /* Define the artnet proto */
 static int proto_artnet = -1;
 
+
+/* general */
+static int hf_artnet_filler = -1;
+static int hf_artnet_spare = -1;
+
 /* Header */
 static int hf_artnet_header = -1;
 static int hf_artnet_header_id = -1;
 static int hf_artnet_header_opcode = -1;
+static int hf_artnet_header_protver = -1;
 
 /* ArtPoll */
 static int hf_artnet_poll = -1;
-static int hf_artnet_poll_protver = -1;
 static int hf_artnet_poll_talktome = -1;
-static int hf_artnet_poll_pad = -1;
+static int hf_artnet_poll_talktome_reply_dest = -1;
+static int hf_artnet_poll_talktome_reply_type = -1;
+static int hf_artnet_poll_talktome_unused = -1;
 
 /* ArtPollReply */
 static int hf_artnet_poll_reply = -1;
@@ -254,12 +372,10 @@ static int hf_artnet_poll_reply_swout_4 = -1;
 static int hf_artnet_poll_reply_swvideo = -1;
 static int hf_artnet_poll_reply_swmacro = -1;
 static int hf_artnet_poll_reply_swremote = -1;
-static int hf_artnet_poll_reply_spare = -1;
 static int hf_artnet_poll_reply_mac = -1;
 
 /* ArtOutput */
 static int hf_artnet_output = -1;
-static int hf_artnet_output_protver = -1;
 static int hf_artnet_output_sequence = -1;
 static int hf_artnet_output_physical = -1;
 static int hf_artnet_output_universe = -1;
@@ -268,8 +384,6 @@ static int hf_artnet_output_data = -1;
 
 /* ArtAddress */
 static int hf_artnet_address = -1;
-static int hf_artnet_address_protver = -1;
-static int hf_artnet_address_filler = -1;
 static int hf_artnet_address_short_name = -1;
 static int hf_artnet_address_long_name = -1;
 static int hf_artnet_address_swin = -1;
@@ -288,8 +402,6 @@ static int hf_artnet_address_command = -1;
 
 /* ArtInput */
 static int hf_artnet_input = -1;
-static int hf_artnet_input_protver = -1;
-static int hf_artnet_input_filler = -1;
 static int hf_artnet_input_num_ports = -1;
 static int hf_artnet_input_input = -1;
 static int hf_artnet_input_input_1 = -1;
@@ -299,25 +411,17 @@ static int hf_artnet_input_input_4 = -1;
 
 /* ArtFirmwareMaster */
 static int hf_artnet_firmware_master = -1;
-static int hf_artnet_firmware_master_protver = -1;
-static int hf_artnet_firmware_master_filler = -1;
 static int hf_artnet_firmware_master_type = -1;
 static int hf_artnet_firmware_master_block_id = -1;
 static int hf_artnet_firmware_master_length = -1;
-static int hf_artnet_firmware_master_spare = -1;
 static int hf_artnet_firmware_master_data = -1;
 
 /* ArtFirmwareReply */
 static int hf_artnet_firmware_reply = -1;
-static int hf_artnet_firmware_reply_protver = -1;
-static int hf_artnet_firmware_reply_filler = -1;
 static int hf_artnet_firmware_reply_type = -1;
-static int hf_artnet_firmware_reply_spare = -1;
 
 /* ArtVideoSetup */
 static int hf_artnet_video_setup = -1;
-static int hf_artnet_video_setup_protver = -1;
-static int hf_artnet_video_setup_filler = -1;
 static int hf_artnet_video_setup_control = -1;
 static int hf_artnet_video_setup_font_height = -1;
 static int hf_artnet_video_setup_first_font = -1;
@@ -327,28 +431,69 @@ static int hf_artnet_video_setup_font_data = -1;
 
 /* ArtVideoPalette */
 static int hf_artnet_video_palette = -1;
-static int hf_artnet_video_palette_protver = -1;
-static int hf_artnet_video_palette_filler = -1;
 static int hf_artnet_video_palette_colour_red = -1;
 static int hf_artnet_video_palette_colour_green = -1;
 static int hf_artnet_video_palette_colour_blue = -1;
 
 /* ArtVideoData */
 static int hf_artnet_video_data = -1;
-static int hf_artnet_video_data_protver = -1;
-static int hf_artnet_video_data_filler = -1;
 static int hf_artnet_video_data_pos_x = -1;
 static int hf_artnet_video_data_pos_y = -1;
 static int hf_artnet_video_data_len_x = -1;
 static int hf_artnet_video_data_len_y = -1;
 static int hf_artnet_video_data_data = -1;
 
+/* ArtPollServerReply */
+static int hf_artnet_poll_server_reply = -1;
 
+/* ArtTodRequest */
+static int hf_artnet_tod_request = -1;
+static int hf_artnet_tod_request_command = -1;
+static int hf_artnet_tod_request_ad_count = -1;
+static int hf_artnet_tod_request_address = -1;
+
+/* ArtTodData */
+static int hf_artnet_tod_data = -1;
+static int hf_artnet_tod_data_command_response = -1;
+static int hf_artnet_tod_data_address = -1;
+static int hf_artnet_tod_data_uid_total = -1;
+static int hf_artnet_tod_data_block_count = -1;
+static int hf_artnet_tod_data_uid_count = -1;
+static int hf_artnet_tod_data_tod = -1;
+
+/* ArtTodControl */
+static int hf_artnet_tod_control = -1;
+static int hf_artnet_tod_control_command = -1;
+static int hf_artnet_tod_control_address = -1;
+
+/* ArtRdm */
+static int hf_artnet_rdm = -1;
+static int hf_artnet_rdm_command = -1;
+static int hf_artnet_rdm_address = -1;
+
+/* ArtIpProg */
+static int hf_artnet_ip_prog = -1;
+static int hf_artnet_ip_prog_command = -1;
+static int hf_artnet_ip_prog_command_prog_port = -1;
+static int hf_artnet_ip_prog_command_prog_sm = -1;
+static int hf_artnet_ip_prog_command_prog_ip = -1;
+static int hf_artnet_ip_prog_command_reset = -1;
+static int hf_artnet_ip_prog_command_unused = -1;
+static int hf_artnet_ip_prog_command_prog_enable = -1;
+static int hf_artnet_ip_prog_ip = -1;
+static int hf_artnet_ip_prog_sm = -1;
+static int hf_artnet_ip_prog_port = -1;
+
+/* ArtIpProgReply */
+static int hf_artnet_ip_prog_reply = -1;
+static int hf_artnet_ip_prog_reply_ip = -1;
+static int hf_artnet_ip_prog_reply_sm = -1;
+static int hf_artnet_ip_prog_reply_port = -1;
 
 /* Define the tree for artnet */
 static int ett_artnet = -1;
 
-/* 
+/*
  * Here are the global variables associated with the preferences
  * for artnet
  */
@@ -360,81 +505,73 @@ static guint udp_port_artnet = UDP_PORT_ARTNET;
 static dissector_handle_t ip_handle;
 
 static guint
-dissect_artnet_poll(tvbuff_t *tvb, guint offset, proto_tree *tree) {
+dissect_artnet_poll(tvbuff_t *tvb, guint offset, proto_tree *tree)
+{
   guint8 talktome;
-  guint16 protver;
-
-  protver = tvb_get_ntohs(tvb, offset);
-  proto_tree_add_uint(tree, hf_artnet_poll_protver, tvb,
-                      offset, 2, protver);
-  offset += 2;
+  proto_tree *flags_tree, *flags_item;
 
   talktome = tvb_get_guint8(tvb, offset);
-  proto_tree_add_uint(tree, hf_artnet_poll_talktome, tvb,
-                      offset, 1, talktome);
+  flags_item = proto_tree_add_uint(tree, hf_artnet_poll_talktome, tvb,
+	                           offset, 1, talktome);
+
+  flags_tree=proto_item_add_subtree(flags_item, ett_artnet);
+  proto_tree_add_item(flags_tree, hf_artnet_poll_talktome_reply_dest, tvb, offset, 1, FALSE);
+  proto_tree_add_item(flags_tree, hf_artnet_poll_talktome_reply_type, tvb, offset, 1, FALSE);
+  proto_tree_add_item(flags_tree, hf_artnet_poll_talktome_unused, tvb, offset, 1, FALSE);
+
   offset += 1;
-        
-  proto_tree_add_item(tree, hf_artnet_poll_pad, tvb,
+
+  proto_tree_add_item(tree, hf_artnet_filler, tvb,
                       offset, 1, FALSE);
   offset += 1;
-  
+
   return offset;
 }
 
-static guint 
-dissect_artnet_poll_reply(tvbuff_t *tvb, guint offset, proto_tree *tree) {
+static guint
+dissect_artnet_poll_reply(tvbuff_t *tvb, guint offset, proto_tree *tree)
+{
   proto_tree *hi,*si,*ti;
-  guint32 ip_address;
-  guint16 port_nr, versinfo,subswitch,oem;
-  guint8 ubea_version,swin,swout,swvideo,swmacro,swremote;
-  guint8 status,port_types,good_input,good_output;
-  guint16 esta_man;
+  guint8 swin,swout,swvideo,swmacro,swremote;
+  guint8 port_types,good_input,good_output;
   guint16 num_ports;
-        
-  ip_address = tvb_get_letohl(tvb, offset);
-  proto_tree_add_ipv4(tree, hf_artnet_poll_reply_ip_address, tvb,
-                      offset, 4, ip_address);
+
+  proto_tree_add_item(tree, hf_artnet_poll_reply_ip_address, tvb,
+                      offset, 4, FALSE);
   offset += 4;
-      
-  port_nr = tvb_get_letohs(tvb, offset);
-  proto_tree_add_uint(tree, hf_artnet_poll_reply_port_nr, tvb,
-                      offset, 2, port_nr);
+
+  proto_tree_add_item(tree, hf_artnet_poll_reply_port_nr, tvb,
+                      offset, 2, TRUE);
   offset += 2;
 
-  versinfo = tvb_get_ntohs(tvb, offset);
-  proto_tree_add_uint(tree, hf_artnet_poll_reply_versinfo, tvb,
-                      offset, 2, versinfo);
-  offset += 2;
-      
-  subswitch = tvb_get_ntohs(tvb, offset);
-  proto_tree_add_uint(tree, hf_artnet_poll_reply_subswitch, tvb,
-                      offset, 2, subswitch);
-  offset += 2;
-        
-  oem = tvb_get_ntohs(tvb, offset);
-  proto_tree_add_uint(tree, hf_artnet_poll_reply_oem, tvb,
-                      offset, 2, oem);
+  proto_tree_add_item(tree, hf_artnet_poll_reply_versinfo, tvb,
+                      offset, 2, FALSE);
   offset += 2;
 
-  ubea_version = tvb_get_guint8(tvb, offset);
-  proto_tree_add_uint(tree, hf_artnet_poll_reply_ubea_version, tvb,
-                      offset, 1, ubea_version);
-  offset += 1;
-   
-  status = tvb_get_guint8(tvb, offset);
-  proto_tree_add_uint(tree, hf_artnet_poll_reply_status, tvb,
-                      offset, 1, status);
+  proto_tree_add_item(tree, hf_artnet_poll_reply_subswitch, tvb,
+                      offset, 2, FALSE);
+  offset += 2;
+
+  proto_tree_add_item(tree, hf_artnet_poll_reply_oem, tvb,
+                      offset, 2, FALSE);
+  offset += 2;
+
+  proto_tree_add_item(tree, hf_artnet_poll_reply_ubea_version, tvb,
+                      offset, 1, FALSE);
   offset += 1;
 
-  esta_man = tvb_get_ntohs(tvb, offset);
-  proto_tree_add_uint(tree, hf_artnet_poll_reply_esta_man, tvb,
-                      offset, 2, esta_man);
+  proto_tree_add_item(tree, hf_artnet_poll_reply_status, tvb,
+                      offset, 1, FALSE);
+  offset += 1;
+
+  proto_tree_add_item(tree, hf_artnet_poll_reply_esta_man, tvb,
+                      offset, 2, TRUE);
   offset += 2;
 
   proto_tree_add_item(tree, hf_artnet_poll_reply_short_name,
                       tvb, offset, 18, FALSE);
   offset += 18;
-        
+
   proto_tree_add_item(tree, hf_artnet_poll_reply_long_name,
                       tvb, offset, 64, FALSE);
   offset += 64;
@@ -443,7 +580,7 @@ dissect_artnet_poll_reply(tvbuff_t *tvb, guint offset, proto_tree *tree) {
                       tvb, offset, 64, FALSE);
   offset += 64;
 
-  
+
   hi = proto_tree_add_item(tree,
                            hf_artnet_poll_reply_port_info,
                            tvb,
@@ -486,7 +623,7 @@ dissect_artnet_poll_reply(tvbuff_t *tvb, guint offset, proto_tree *tree) {
   proto_tree_add_uint(ti, hf_artnet_poll_reply_port_types_4, tvb,
                       offset, 1, port_types);
   offset += 1;
-  
+
   hi = proto_tree_add_item(si,
                            hf_artnet_poll_reply_good_input,
                            tvb,
@@ -618,7 +755,7 @@ dissect_artnet_poll_reply(tvbuff_t *tvb, guint offset, proto_tree *tree) {
                       offset, 1, swremote);
   offset += 1;
 
-  proto_tree_add_item(tree, hf_artnet_poll_reply_spare, tvb,
+  proto_tree_add_item(tree, hf_artnet_spare, tvb,
                       offset, 4, FALSE);
   offset += 4;
 
@@ -626,66 +763,51 @@ dissect_artnet_poll_reply(tvbuff_t *tvb, guint offset, proto_tree *tree) {
                         tvb, offset, 6, FALSE);
 
   offset += 6;
-  
+
   return offset;
 }
 
-static guint 
-dissect_artnet_output(tvbuff_t *tvb, guint offset, proto_tree *tree) {
-  guint16 protver,universe,length;
-  guint8 sequence,physical;
-        
-  protver = tvb_get_letohs(tvb, offset);
-  proto_tree_add_uint(tree, hf_artnet_output_protver, tvb,
-                      offset, 2, protver);
+static guint
+dissect_artnet_output(tvbuff_t *tvb, guint offset, proto_tree *tree)
+{
+  guint16 length;
+  proto_tree_add_item(tree, hf_artnet_output_sequence, tvb,
+                      offset, 1, FALSE);
+  offset += 1;
+
+  proto_tree_add_item(tree, hf_artnet_output_physical, tvb,
+                      offset, 1, FALSE);
+  offset += 1;
+
+  proto_tree_add_item(tree, hf_artnet_output_universe, tvb,
+                      offset, 2, TRUE);
   offset += 2;
 
-  sequence = tvb_get_guint8(tvb, offset);
-  proto_tree_add_uint(tree, hf_artnet_output_sequence, tvb,
-                      offset, 1, sequence);
-  offset += 1;
-  
-  physical = tvb_get_guint8(tvb, offset);
-  proto_tree_add_uint(tree, hf_artnet_output_physical, tvb,
-                      offset, 1, physical);
-  offset += 1;
-  
-  universe = tvb_get_ntohs(tvb, offset);
-  proto_tree_add_uint(tree, hf_artnet_output_universe, tvb,
-                      offset, 2, universe);
-  offset += 2;
-  
   length = tvb_get_ntohs(tvb, offset);
   proto_tree_add_uint(tree, hf_artnet_output_length, tvb,
                       offset, 2, length);
   offset += 2;
-  
+
   proto_tree_add_item(tree, hf_artnet_output_data, tvb,
                       offset, length, FALSE );
   offset += length;
 
-  return offset;   
+  return offset;
 }
 
 static guint
 dissect_artnet_address(tvbuff_t *tvb, guint offset, proto_tree *tree) {
   proto_tree *hi,*si,*ti;
-  guint16 protver;
   guint8 swin,swout,swvideo,command;
-        
-  protver = tvb_get_letohs(tvb, offset);
-  proto_tree_add_uint(tree, hf_artnet_address_protver, tvb,
-                      offset, 2, protver);
-  offset += 2;
 
-  proto_tree_add_item(tree, hf_artnet_address_filler, tvb,
+  proto_tree_add_item(tree, hf_artnet_filler, tvb,
                       offset, 2, FALSE);
   offset += 2;
 
   proto_tree_add_item(tree, hf_artnet_address_short_name,
                       tvb, offset, 18, FALSE);
   offset += 18;
-        
+
   proto_tree_add_item(tree, hf_artnet_address_long_name,
                       tvb, offset, 64, FALSE);
   offset += 64;
@@ -758,22 +880,17 @@ dissect_artnet_address(tvbuff_t *tvb, guint offset, proto_tree *tree) {
                       offset, 1, command);
 
   offset += 1;
-  
+
   return offset;
 }
 
-static guint 
+static guint
 dissect_artnet_input(tvbuff_t *tvb, guint offset, proto_tree *tree) {
   proto_tree *hi,*si;
-  guint16 protver, num_ports;
+  guint16 num_ports;
   guint8 input;
-        
-  protver = tvb_get_letohs(tvb, offset);
-  proto_tree_add_uint(tree, hf_artnet_input_protver, tvb,
-                      offset, 2, protver);
-  offset += 2;
 
-  proto_tree_add_item(tree, hf_artnet_input_filler, tvb,
+  proto_tree_add_item(tree, hf_artnet_filler, tvb,
                       offset, 2, FALSE);
   offset += 2;
 
@@ -810,22 +927,16 @@ dissect_artnet_input(tvbuff_t *tvb, guint offset, proto_tree *tree) {
   proto_tree_add_uint(si, hf_artnet_input_input_4, tvb,
                       offset, 1, input);
   offset += 1;
-  
+
   return offset;
 }
 
 static guint
 dissect_artnet_video_setup(tvbuff_t *tvb, guint offset, proto_tree *tree ) {
-  guint16 protver;
   guint32 size;
   guint8 control,font_height, last_font,first_font;
-        
-  protver = tvb_get_ntohs(tvb, offset);
-  proto_tree_add_uint(tree, hf_artnet_video_setup_protver, tvb,
-                      offset, 2, protver);
-  offset += 2;
 
-  proto_tree_add_item(tree, hf_artnet_video_setup_filler, tvb,
+  proto_tree_add_item(tree, hf_artnet_filler, tvb,
                       offset, 4, FALSE);
   offset += 4;
 
@@ -857,37 +968,29 @@ dissect_artnet_video_setup(tvbuff_t *tvb, guint offset, proto_tree *tree ) {
 
   proto_tree_add_item(tree, hf_artnet_video_setup_font_data, tvb,
                       offset, size, FALSE );
-  
+
   offset += size;
 
   return offset;
 }
 
-static guint 
-dissect_artnet_video_palette(tvbuff_t *tvb, guint offset, proto_tree *tree) {
-  guint16 protver;
-        
-  protver = tvb_get_ntohs(tvb, offset);
-  proto_tree_add_uint(tree, hf_artnet_video_palette_protver, tvb,
-                      offset, 2, protver);
-  offset += 2;
-
-  proto_tree_add_item(tree, hf_artnet_video_palette_filler, tvb,
+static guint
+dissect_artnet_video_palette(tvbuff_t *tvb, guint offset, proto_tree *tree)
+{
+  proto_tree_add_item(tree, hf_artnet_filler, tvb,
                       offset, 2, FALSE);
   offset += 2;
 
   proto_tree_add_item(tree, hf_artnet_video_palette_colour_red, tvb,
                       offset, 17, FALSE );
-  
   offset += 17;
 
   proto_tree_add_item(tree, hf_artnet_video_palette_colour_green, tvb,
                       offset, 17, FALSE );
-  
   offset += 17;
+
   proto_tree_add_item(tree, hf_artnet_video_palette_colour_blue, tvb,
                       offset, 17, FALSE );
-  
   offset += 17;
 
   return offset;
@@ -895,16 +998,10 @@ dissect_artnet_video_palette(tvbuff_t *tvb, guint offset, proto_tree *tree) {
 
 static guint
 dissect_artnet_video_data(tvbuff_t *tvb, guint offset, proto_tree *tree) {
-  guint16 protver;
   guint8 pos_x, pos_y, len_x, len_y;
   guint32 size;
-        
-  protver = tvb_get_ntohs(tvb, offset);
-  proto_tree_add_uint(tree, hf_artnet_video_data_protver, tvb,
-                      offset, 2, protver);
-  offset += 2;
 
-  proto_tree_add_item(tree, hf_artnet_video_data_filler, tvb,
+  proto_tree_add_item(tree, hf_artnet_filler, tvb,
                       offset, 2, FALSE);
   offset += 2;
 
@@ -932,83 +1029,272 @@ dissect_artnet_video_data(tvbuff_t *tvb, guint offset, proto_tree *tree) {
 
   proto_tree_add_item(tree, hf_artnet_video_data_data, tvb,
                       offset, size, FALSE );
-  
+
   offset += size;
 
   return offset;
 }
 
-static guint 
+static guint
 dissect_artnet_firmware_master(tvbuff_t *tvb, guint offset, proto_tree *tree ) {
-  guint16 protver;
   guint8 type,block_id;
   guint32 length;
-        
-  protver = tvb_get_ntohs(tvb, offset);
-  proto_tree_add_uint(tree, hf_artnet_firmware_master_protver, tvb,
-                      offset, 2, protver);
-  offset += 2;
 
-  proto_tree_add_item(tree, hf_artnet_firmware_master_filler, tvb,
+  proto_tree_add_item(tree, hf_artnet_filler, tvb,
                       offset, 2, FALSE);
   offset += 2;
-  
+
   type = tvb_get_guint8(tvb, offset);
   proto_tree_add_uint(tree, hf_artnet_firmware_master_type, tvb,
                       offset, 1, type);
   offset += 1;
-  
+
   block_id = tvb_get_guint8(tvb, offset);
   proto_tree_add_uint(tree, hf_artnet_firmware_master_block_id, tvb,
                       offset, 1, block_id);
   offset += 1;
-  
+
   length = tvb_get_ntohl(tvb, offset);
   proto_tree_add_uint(tree, hf_artnet_firmware_master_length, tvb,
                       offset, 4, length);
   offset += 4;
-  
-  proto_tree_add_item(tree, hf_artnet_firmware_master_spare, tvb,
+
+  proto_tree_add_item(tree, hf_artnet_spare, tvb,
                       offset, 20, FALSE );
-  
+
   offset += 20;
-  
+
   proto_tree_add_item(tree, hf_artnet_firmware_master_data, tvb,
                       offset, 1024, FALSE );
-  
+
   offset += 1024;
-  
-  return offset;  
+
+  return offset;
 }
 
-static guint 
+static guint
 dissect_artnet_firmware_reply(tvbuff_t *tvb, guint offset, proto_tree *tree) {
-  guint16 protver;
   guint8 type;
-        
-  protver = tvb_get_ntohs(tvb, offset);
-  proto_tree_add_uint(tree, hf_artnet_firmware_reply_protver, tvb,
-                      offset, 2, protver);
-  offset += 2;
 
-  proto_tree_add_item(tree, hf_artnet_firmware_reply_filler, tvb,
+  proto_tree_add_item(tree, hf_artnet_filler, tvb,
                       offset, 2, FALSE);
   offset += 2;
-  
+
   type = tvb_get_guint8(tvb, offset);
   proto_tree_add_uint(tree, hf_artnet_firmware_reply_type, tvb,
                       offset, 1, type);
   offset += 1;
-  
-  proto_tree_add_item(tree, hf_artnet_firmware_reply_spare, tvb,
+
+  proto_tree_add_item(tree, hf_artnet_spare, tvb,
                       offset, 21, FALSE );
-  
+
   offset += 21;
 
   return offset;
 }
 
-static void 
+static guint
+dissect_artnet_tod_request(tvbuff_t *tvb, guint offset, proto_tree *tree)
+{
+  guint8 ad_count;
+
+  proto_tree_add_item(tree, hf_artnet_filler, tvb,
+		      offset, 2, FALSE);
+  offset += 2;
+
+  proto_tree_add_item(tree, hf_artnet_spare, tvb,
+		      offset, 8, FALSE);
+  offset += 8;
+
+  proto_tree_add_item(tree, hf_artnet_tod_request_command, tvb,
+		      offset, 1, FALSE);
+  offset += 1;
+
+  ad_count = tvb_get_guint8(tvb, offset);
+  proto_tree_add_uint(tree, hf_artnet_tod_request_ad_count, tvb,
+                      offset, 1, ad_count);
+  offset += 1;
+
+  proto_tree_add_item(tree, hf_artnet_tod_request_address, tvb,
+		      offset, ad_count, FALSE);
+  offset += ad_count;
+
+  return offset;
+}
+
+static guint
+dissect_artnet_tod_data(tvbuff_t *tvb, guint offset, proto_tree *tree)
+{
+  guint8 i,uid_count;
+
+  proto_tree_add_item(tree, hf_artnet_filler, tvb,
+		      offset, 2, FALSE);
+  offset += 2;
+
+  proto_tree_add_item(tree, hf_artnet_spare, tvb,
+		      offset, 8, FALSE);
+  offset += 8;
+
+  proto_tree_add_item(tree, hf_artnet_tod_data_command_response, tvb,
+		      offset, 1, FALSE);
+  offset += 1;
+
+  proto_tree_add_item(tree, hf_artnet_tod_data_address, tvb,
+		      offset, 1, FALSE);
+  offset += 1;
+
+  proto_tree_add_item(tree, hf_artnet_tod_data_uid_total, tvb,
+		      offset, 2, FALSE);
+  offset += 2;
+
+  proto_tree_add_item(tree, hf_artnet_tod_data_block_count, tvb,
+		      offset, 1, FALSE);
+  offset += 1;
+
+  uid_count = tvb_get_guint8(tvb, offset);
+  proto_tree_add_uint(tree, hf_artnet_tod_data_uid_count, tvb,
+                      offset, 1, uid_count);
+  offset += 1;
+
+  for( i = 0; i < uid_count; i++)
+  {
+    proto_tree_add_item(tree, hf_artnet_tod_data_tod, tvb,
+                        offset, 6, FALSE);
+    offset += 6;
+  }
+
+  return offset;
+}
+
+static guint
+dissect_artnet_tod_control(tvbuff_t *tvb, guint offset, proto_tree *tree)
+{
+  proto_tree_add_item(tree, hf_artnet_filler, tvb,
+		      offset, 2, FALSE);
+  offset += 2;
+
+  proto_tree_add_item(tree, hf_artnet_spare, tvb,
+		      offset, 8, FALSE);
+  offset += 8;
+
+  proto_tree_add_item(tree, hf_artnet_tod_control_command, tvb,
+		      offset, 1, FALSE);
+  offset += 1;
+
+  proto_tree_add_item(tree, hf_artnet_tod_control_address, tvb,
+		      offset, 1, FALSE);
+  offset += 1;
+
+  return offset;
+}
+
+static guint
+dissect_artnet_rdm(tvbuff_t *tvb, guint offset, proto_tree *tree)
+{
+  proto_tree_add_item(tree, hf_artnet_filler, tvb,
+		      offset, 2, FALSE);
+  offset += 2;
+
+  proto_tree_add_item(tree, hf_artnet_spare, tvb,
+		      offset, 8, FALSE);
+  offset += 8;
+
+  proto_tree_add_item(tree, hf_artnet_rdm_command, tvb,
+		      offset, 1, FALSE);
+  offset += 1;
+
+  proto_tree_add_item(tree, hf_artnet_rdm_address, tvb,
+		      offset, 1, FALSE);
+  offset += 1;
+
+  return offset;
+}
+
+static guint
+dissect_artnet_ip_prog(tvbuff_t *tvb, guint offset, proto_tree *tree) {
+  guint8 command;
+  proto_tree *flags_tree,*flags_item;
+
+  proto_tree_add_item(tree, hf_artnet_filler, tvb,
+		      offset, 2, FALSE);
+  offset += 2;
+
+  command = tvb_get_guint8(tvb, offset);
+  flags_item = proto_tree_add_uint(tree, hf_artnet_ip_prog_command, tvb,
+	                           offset, 1, command);
+
+  flags_tree=proto_item_add_subtree(flags_item, ett_artnet);
+  proto_tree_add_item(flags_tree, hf_artnet_ip_prog_command_prog_port, tvb, offset, 1, FALSE);
+  proto_tree_add_item(flags_tree, hf_artnet_ip_prog_command_prog_sm, tvb, offset, 1, FALSE);
+  proto_tree_add_item(flags_tree, hf_artnet_ip_prog_command_prog_ip, tvb, offset, 1, FALSE);
+  proto_tree_add_item(flags_tree, hf_artnet_ip_prog_command_reset, tvb, offset, 1, FALSE);
+  proto_tree_add_item(flags_tree, hf_artnet_ip_prog_command_unused, tvb, offset, 1, FALSE);
+  proto_tree_add_item(flags_tree, hf_artnet_ip_prog_command_prog_enable, tvb, offset, 1, FALSE);
+
+  offset += 1;
+
+  proto_tree_add_item(tree, hf_artnet_filler, tvb,
+		      offset, 1, FALSE);
+  offset += 1;
+
+  proto_tree_add_item(tree, hf_artnet_ip_prog_ip, tvb,
+		      offset, 4, FALSE);
+  offset += 4;
+
+  proto_tree_add_item(tree, hf_artnet_ip_prog_sm, tvb,
+		      offset, 4, FALSE);
+  offset += 4;
+
+  proto_tree_add_item(tree, hf_artnet_ip_prog_port, tvb,
+		      offset, 2, FALSE);
+  offset += 2;
+
+  proto_tree_add_item(tree, hf_artnet_spare, tvb,
+		      offset, 8, FALSE);
+  offset += 8;
+
+  return offset;
+}
+
+static guint
+dissect_artnet_ip_prog_reply(tvbuff_t *tvb, guint offset, proto_tree *tree)
+{
+  proto_tree_add_item(tree, hf_artnet_filler, tvb,
+                      offset, 4, FALSE);
+  offset += 4;
+
+  proto_tree_add_item(tree, hf_artnet_ip_prog_reply_ip, tvb,
+                      offset, 4, FALSE);
+  offset += 4;
+
+  proto_tree_add_item(tree, hf_artnet_ip_prog_reply_sm, tvb,
+		      offset, 4, FALSE);
+  offset += 4;
+
+  proto_tree_add_item(tree, hf_artnet_ip_prog_reply_port, tvb,
+		      offset, 2, FALSE);
+  offset += 2;
+
+  proto_tree_add_item(tree, hf_artnet_spare, tvb,
+		      offset, 8, FALSE);
+  offset += 8;
+
+  return offset;
+}
+
+static guint
+dissect_artnet_poll_server_reply(tvbuff_t *tvb, guint offset, proto_tree *tree)
+{
+  /* no spec released for this packet at the moment */
+  proto_tree_add_item(tree, hf_artnet_filler, tvb,
+                      offset, 182, FALSE);
+  offset += 182;
+
+  return offset;
+}
+
+
+static void
 dissect_artnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   gint offset = 0;
   guint size;
@@ -1026,7 +1312,7 @@ dissect_artnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   }
 
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_artnet, tvb, offset, -1, FALSE); 
+    ti = proto_tree_add_item(tree, proto_artnet, tvb, offset, -1, FALSE);
     artnet_tree = proto_item_add_subtree(ti, ett_artnet);
 
     hi = proto_tree_add_item(artnet_tree,
@@ -1055,12 +1341,22 @@ dissect_artnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     col_add_fstr(pinfo->cinfo, COL_INFO, "%s",
       val_to_str(opcode, artnet_opcode_vals, "Unknown (0x%04x)"));
   }
-  
+
   if( tree ){
     proto_tree_add_uint(artnet_header_tree, hf_artnet_header_opcode, tvb,
                         offset, 2, opcode);
   }
   offset += 2;
+
+  if( opcode != ARTNET_OP_POLL_REPLY && opcode != ARTNET_OP_POLL_SERVER_REPLY ) {
+    if( tree ){
+      proto_tree_add_item(artnet_header_tree, hf_artnet_header_protver, tvb,
+                          offset, 2, FALSE);
+
+      proto_item_set_len(artnet_header_tree, ARTNET_HEADER_LENGTH+2 );
+    }
+    offset += 2;
+  }
 
   switch( opcode ) {
     case ARTNET_OP_POLL:
@@ -1073,12 +1369,12 @@ dissect_artnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
                                  FALSE);
 
         si = proto_item_add_subtree(hi, ett_artnet);
-        
+
         size = dissect_artnet_poll( tvb, offset, si );
         size -= offset;
-        
-        proto_item_set_len(si, size); 
-      }	
+
+        proto_item_set_len(si, size);
+      }
       break;
 
     case ARTNET_OP_POLL_REPLY:
@@ -1091,12 +1387,12 @@ dissect_artnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
                                  FALSE);
 
         si = proto_item_add_subtree(hi, ett_artnet);
-        
+
         size = dissect_artnet_poll_reply( tvb, offset, si);
         size -= offset;
 
-        proto_item_set_len(si, size); 
-      }	
+        proto_item_set_len(si, size);
+      }
       break;
 
     case ARTNET_OP_OUTPUT:
@@ -1109,11 +1405,11 @@ dissect_artnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
                                  FALSE);
 
         si = proto_item_add_subtree(hi, ett_artnet);
-        
+
         size = dissect_artnet_output( tvb, offset, si );
         size -= offset;
 
-        proto_item_set_len(si, size); 
+        proto_item_set_len(si, size);
       }
       break;
 
@@ -1127,7 +1423,7 @@ dissect_artnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
                                  FALSE);
 
         si = proto_item_add_subtree(hi, ett_artnet);
-        
+
         size = dissect_artnet_address( tvb, offset, si );
         size -= offset;
 
@@ -1149,8 +1445,8 @@ dissect_artnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
         size = dissect_artnet_input( tvb, offset, si );
         size -= offset;
 
-        proto_item_set_len(si, size); 
-      }      
+        proto_item_set_len(si, size);
+      }
       break;
 
     case ARTNET_OP_VIDEO_SETUP:
@@ -1168,7 +1464,7 @@ dissect_artnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
         size -= offset;
 
         proto_item_set_len(si, size); 
-      }      
+      }
       break;
 
     case ARTNET_OP_VIDEO_PALETTE:
@@ -1181,14 +1477,14 @@ dissect_artnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
                                  FALSE);
 
         si = proto_item_add_subtree(hi, ett_artnet);
-        
+
         size = dissect_artnet_video_palette( tvb, offset, si );
         size -= offset;
 
-        proto_item_set_len(si, size); 
-      }      
+        proto_item_set_len(si, size);
+      }
       break;
-    
+
     case ARTNET_OP_VIDEO_DATA:
       if (tree) {
         hi = proto_tree_add_item(artnet_tree,
@@ -1199,12 +1495,12 @@ dissect_artnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
                                  FALSE);
 
         si = proto_item_add_subtree(hi, ett_artnet);
-        
+
         size = dissect_artnet_video_data( tvb, offset, si );
         size -= offset;
 
-        proto_item_set_len(si, size); 
-      }      
+        proto_item_set_len(si, size);
+      }
       break;
 
     case ARTNET_OP_FIRMWARE_MASTER:
@@ -1217,32 +1513,153 @@ dissect_artnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
                                  FALSE);
 
         si = proto_item_add_subtree(hi, ett_artnet);
-        
+
         size = dissect_artnet_firmware_master( tvb, offset, si );
         size -= offset;
 
-        proto_item_set_len(si, size); 
-      }      
+        proto_item_set_len(si, size);
+      }
       break;
 
     case ARTNET_OP_FIRMWARE_REPLY:
       if (tree) {
         hi = proto_tree_add_item(artnet_tree,
-                                 hf_artnet_firmware_master,
+                                 hf_artnet_firmware_reply,
                                  tvb,
                                  offset,
                                  ARTNET_FIRMWARE_REPLY_LENGTH,
                                  FALSE);
 
         si = proto_item_add_subtree(hi, ett_artnet);
-        
+
         size = dissect_artnet_firmware_reply( tvb, offset, si );
         size -= offset;
 
-        proto_item_set_len(si, size); 
-      }      
+        proto_item_set_len(si, size);
+      }
       break;
-      
+    
+    case ARTNET_OP_TOD_REQUEST:
+      if (tree) {
+        hi = proto_tree_add_item(artnet_tree,
+                                 hf_artnet_tod_request,
+				 tvb,
+				 offset,
+				 0,
+				 FALSE);
+
+	si = proto_item_add_subtree(hi, ett_artnet);
+
+	size = dissect_artnet_tod_request( tvb, offset, si );
+	size -= offset;
+
+	proto_item_set_len(si, size);
+      }
+      break;
+
+    case ARTNET_OP_TOD_DATA:
+      if (tree) {
+        hi = proto_tree_add_item(artnet_tree,
+			         hf_artnet_tod_data,
+				 tvb,
+				 offset,
+				 0,
+				 FALSE);
+
+	si = proto_item_add_subtree(hi, ett_artnet );
+
+	size = dissect_artnet_tod_data( tvb, offset, si );
+	size -= offset;
+
+	proto_item_set_len(si, size );
+      }
+      break;
+
+    case ARTNET_OP_TOD_CONTROL:
+      if (tree){
+	hi = proto_tree_add_item(artnet_tree,
+			         hf_artnet_tod_control,
+				 tvb,
+				 offset,
+				 0,
+				 FALSE );
+	si = proto_item_add_subtree(hi, ett_artnet );
+
+	size = dissect_artnet_tod_control( tvb, offset, si );
+	size -= offset;
+
+	proto_item_set_len(si, size );
+      }
+      break;
+
+    case ARTNET_OP_RDM:
+      if (tree) {
+	hi = proto_tree_add_item(artnet_tree,
+			         hf_artnet_rdm,
+				 tvb,
+				 offset,
+				 0,
+				 FALSE);
+	si = proto_item_add_subtree(hi,ett_artnet);
+
+	size = dissect_artnet_rdm( tvb, offset, si );
+	size -= offset;
+
+	proto_item_set_len( si, size );
+      }
+      break;
+
+    case ARTNET_OP_IP_PROG:
+      if (tree) {
+        hi = proto_tree_add_item(artnet_tree,
+			         hf_artnet_ip_prog,
+				 tvb,
+				 offset,
+				 0,
+				 FALSE);
+	si = proto_item_add_subtree(hi, ett_artnet );
+
+	size = dissect_artnet_ip_prog( tvb, offset, si);
+	size -= offset;
+
+	proto_item_set_len(si, size );
+      }
+      break;
+
+    case ARTNET_OP_IP_PROG_REPLY:
+      if (tree) {
+        hi = proto_tree_add_item(artnet_tree,
+			         hf_artnet_ip_prog_reply,
+				 tvb,
+				 offset,
+				 0,
+				 FALSE);
+	si = proto_item_add_subtree(hi, ett_artnet );
+
+	size = dissect_artnet_ip_prog_reply( tvb, offset, si );
+	size -= offset;
+
+	proto_item_set_len(si, size );
+      }
+      break;
+
+    case ARTNET_OP_POLL_SERVER_REPLY:
+      if (tree) {
+	hi = proto_tree_add_item(artnet_tree,
+			         hf_artnet_poll_server_reply,
+				 tvb,
+				 offset,
+				 0,
+				 FALSE );
+	si = proto_item_add_subtree(hi, ett_artnet );
+
+	size = dissect_artnet_poll_server_reply( tvb, offset, si );
+	size -= offset;
+
+	proto_item_set_len(si, size );
+      }
+      break;
+
     default:
       if (tree) {
         proto_tree_add_text(artnet_tree, tvb, offset, -1,
@@ -1252,472 +1669,474 @@ dissect_artnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   }
 }
 
-void 
+void
 proto_register_artnet(void) {
   static hf_register_info hf[] = {
 
+    /* General */
+
+    { &hf_artnet_filler,
+      { "filler",
+        "artnet.filler",
+        FT_BYTES, BASE_HEX, NULL, 0x0,
+        "filler", HFILL }},
+
+    { &hf_artnet_spare,
+      { "spare",
+        "artnet.spare",
+        FT_BYTES, BASE_HEX, NULL, 0x0,
+        "spare", HFILL }},
+
     /* header */
-    
+
     { &hf_artnet_header,
-      { "Descriptor Header", 
+      { "Descriptor Header",
         "artnet.header",
         FT_NONE, BASE_NONE, NULL, 0,
-        "ArtNET Descriptor Header", HFILL }},
+        "Art-Net Descriptor Header", HFILL }},
 
     { &hf_artnet_header_id,
-      { "ID",             
+      { "ID",
         "artnet.header.id",
         FT_STRING, BASE_DEC, NULL, 0x0,
         "ArtNET ID", HFILL }},
 
     { &hf_artnet_header_opcode,
-      { "Opcode",             
+      { "Opcode",
         "artnet.header.opcode",
         FT_UINT16, BASE_HEX, VALS(artnet_opcode_vals), 0x0,
-        "ArtNET message type", HFILL }},
-   
-    /* ArtPoll */
+        "Art-Net message type", HFILL }},
 
-    { &hf_artnet_poll,
-      { "ArtPoll packet", 
-        "artnet.poll",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "ArtNET ArtPoll packet", HFILL }},
-
-    { &hf_artnet_poll_protver,
-      { "ProVer",             
-        "artnet.poll.protver",
+    { &hf_artnet_header_protver,
+      { "ProVer",
+        "artnet.header.protver",
         FT_UINT16, BASE_DEC, NULL, 0x0,
         "Protcol revision number", HFILL }},
 
+    /* ArtPoll */
+
+    { &hf_artnet_poll,
+      { "ArtPoll packet",
+        "artnet.poll",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "Art-Net ArtPoll packet", HFILL }},
+
     { &hf_artnet_poll_talktome,
-      { "TalkToMe",             
+      { "TalkToMe",
         "artnet.poll.talktome",
         FT_UINT8, BASE_HEX, NULL, 0x0,
         "TalkToMe", HFILL }},
 
-    { &hf_artnet_poll_pad,
-      { "Pad",             
-        "artnet.poll.pad",
-        FT_BYTES, BASE_HEX, NULL, 0x0,
-        "Filler byte", HFILL }},
+    { &hf_artnet_poll_talktome_reply_dest,
+      { "Reply destination",
+        "artnet.poll.talktome_reply_dest",
+        FT_UINT8, BASE_HEX, NULL, 0x01,
+        "Reply destination", HFILL }},
+
+    { &hf_artnet_poll_talktome_reply_type,
+      { "Reply type",
+        "artnet.poll.talktome_reply_type",
+        FT_UINT8, BASE_HEX, NULL, 0x02,
+        "Reply type", HFILL }},
+
+    { &hf_artnet_poll_talktome_unused,
+      { "unused",
+        "artnet.poll.talktome_unused",
+        FT_UINT8, BASE_HEX, NULL, 0xfc,
+        "unused", HFILL }},
 
     /* ArtPollReply */
 
     { &hf_artnet_poll_reply,
-      { "ArtPollReply packet", 
+      { "ArtPollReply packet",
         "artnet.poll_reply",
         FT_NONE, BASE_NONE, NULL, 0,
-        "ArtNET ArtPollReply packet", HFILL }},
+        "Art-Net ArtPollReply packet", HFILL }},
 
     { &hf_artnet_poll_reply_ip_address,
-      { "IP Address",             
+      { "IP Address",
         "artnet.poll_reply.ip_address",
         FT_IPv4, BASE_DEC, NULL, 0x0,
         "IP Address", HFILL }},
 
     { &hf_artnet_poll_reply_port_nr,
-      { "Port number",             
+      { "Port number",
         "artnet.poll_reply.port_nr",
         FT_UINT16, BASE_DEC, NULL, 0x0,
         "Port Number", HFILL }},
 
     { &hf_artnet_poll_reply_versinfo,
-      { "Version Info",             
+      { "Version Info",
         "artnet.poll_reply.versinfo",
         FT_UINT16, BASE_HEX, NULL, 0x0,
         "Version info", HFILL }},
 
     { &hf_artnet_poll_reply_subswitch,
-      { "SubSwitch",             
+      { "SubSwitch",
         "artnet.poll_reply.subswitch",
         FT_UINT16, BASE_HEX, NULL, 0x0,
         "Subswitch version", HFILL }},
 
     { &hf_artnet_poll_reply_oem,
-      { "Oem",             
+      { "Oem",
         "artnet.poll_reply.oem",
-        FT_UINT16, BASE_HEX, NULL, 0x0,
+        FT_UINT16, BASE_HEX, VALS(artnet_oem_code_vals), 0x0,
         "OEM", HFILL }},
 
     { &hf_artnet_poll_reply_ubea_version,
-      { "UBEA Version",             
+      { "UBEA Version",
         "artnet.poll_reply.ubea_version",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         "UBEA version number", HFILL }},
-        
+
     { &hf_artnet_poll_reply_status,
-      { "Status",             
+      { "Status",
         "artnet.poll_reply.status",
         FT_UINT8, BASE_HEX, NULL, 0x0,
         "Status", HFILL }},
 
     { &hf_artnet_poll_reply_esta_man,
-      { "ESTA Code",             
+      { "ESTA Code",
         "artnet.poll_reply.esta_man",
-        FT_UINT16, BASE_HEX, NULL, 0x0,
+        FT_UINT16, BASE_HEX, VALS(artnet_esta_man_vals), 0x0,
         "ESTA Code", HFILL }},
 
     { &hf_artnet_poll_reply_short_name,
-      { "Short Name",             
+      { "Short Name",
         "artnet.poll_reply.short_name",
         FT_STRING, BASE_DEC, NULL, 0x0,
         "Short Name", HFILL }},
 
     { &hf_artnet_poll_reply_long_name,
-      { "Long Name",             
+      { "Long Name",
         "artnet.poll_reply.long_name",
         FT_STRING, BASE_DEC, NULL, 0x0,
         "Long Name", HFILL }},
 
     { &hf_artnet_poll_reply_node_report,
-      { "Node Report",             
+      { "Node Report",
         "artnet.poll_reply.node_report",
         FT_STRING, BASE_DEC, NULL, 0x0,
         "Node Report", HFILL }},
 
     { &hf_artnet_poll_reply_port_info,
-      { "Port Info", 
+      { "Port Info",
         "artnet.poll_reply.port_info",
         FT_NONE, BASE_NONE, NULL, 0,
         "Port Info", HFILL }},
 
     { &hf_artnet_poll_reply_num_ports,
-      { "Number of Ports",             
+      { "Number of Ports",
         "artnet.poll_reply.num_ports",
         FT_UINT16, BASE_DEC, NULL, 0x0,
         "Number of Ports", HFILL }},
 
     { &hf_artnet_poll_reply_port_types,
-      { "Port Types", 
+      { "Port Types",
         "artnet.poll_reply.port_types",
         FT_NONE, BASE_NONE, NULL, 0,
         "Port Types", HFILL }},
 
     { &hf_artnet_poll_reply_port_types_1,
-      { "Type of Port 1",             
+      { "Type of Port 1",
         "artnet.poll_reply.port_types_1",
         FT_UINT8, BASE_HEX, NULL, 0x0,
         "Type of Port 1", HFILL }},
 
     { &hf_artnet_poll_reply_port_types_2,
-      { "Type of Port 2",             
+      { "Type of Port 2",
         "artnet.poll_reply.port_types_2",
         FT_UINT8, BASE_HEX, NULL, 0x0,
         "Type of Port 2", HFILL }},
 
     { &hf_artnet_poll_reply_port_types_3,
-      { "Type of Port 3",             
+      { "Type of Port 3",
         "artnet.poll_reply.port_types_3",
         FT_UINT8, BASE_HEX, NULL, 0x0,
         "Type of Port 3", HFILL }},
 
     { &hf_artnet_poll_reply_port_types_4,
-      { "Type of Port 4",             
+      { "Type of Port 4",
         "artnet.poll_reply.port_types_4",
         FT_UINT8, BASE_HEX, NULL, 0x0,
         "Type of Port 4", HFILL }},
 
     { &hf_artnet_poll_reply_good_input,
-      { "Input Status", 
+      { "Input Status",
         "artnet.poll_reply.good_input",
         FT_NONE, BASE_NONE, NULL, 0,
         "Input Status", HFILL }},
 
     { &hf_artnet_poll_reply_good_input_1,
-      { "Input status of Port 1",             
+      { "Input status of Port 1",
         "artnet.poll_reply.good_input_1",
         FT_UINT8, BASE_HEX, NULL, 0x0,
         "Input status of Port 1", HFILL }},
 
     { &hf_artnet_poll_reply_good_input_2,
-      { "Input status of Port 2",             
+      { "Input status of Port 2",
         "artnet.poll_reply.good_input_2",
         FT_UINT8, BASE_HEX, NULL, 0x0,
         "Input status of Port 2", HFILL }},
 
     { &hf_artnet_poll_reply_good_input_3,
-      { "Input status of Port 3",             
+      { "Input status of Port 3",
         "artnet.poll_reply.good_input_3",
         FT_UINT8, BASE_HEX, NULL, 0x0,
         "Input status of Port 3", HFILL }},
 
     { &hf_artnet_poll_reply_good_input_4,
-      { "Input status of Port 4",             
+      { "Input status of Port 4",
         "artnet.poll_reply.good_input_4",
         FT_UINT8, BASE_HEX, NULL, 0x0,
         "Input status of Port 4", HFILL }},
 
     { &hf_artnet_poll_reply_good_output,
-      { "Output Status", 
+      { "Output Status",
         "artnet.poll_reply.good_output",
         FT_NONE, BASE_NONE, NULL, 0,
         "Port output status", HFILL }},
 
     { &hf_artnet_poll_reply_good_output_1,
-      { "Output status of Port 1",             
+      { "Output status of Port 1",
         "artnet.poll_reply.good_output_1",
         FT_UINT8, BASE_HEX, NULL, 0x0,
         "Output status of Port 1", HFILL }},
 
     { &hf_artnet_poll_reply_good_output_2,
-      { "Output status of Port 2",             
+      { "Output status of Port 2",
         "artnet.poll_reply.good_output_2",
         FT_UINT8, BASE_HEX, NULL, 0x0,
         "Output status of Port 2", HFILL }},
 
     { &hf_artnet_poll_reply_good_output_3,
-      { "Output status of Port 3",             
+      { "Output status of Port 3",
         "artnet.poll_reply.good_output_3",
         FT_UINT8, BASE_HEX, NULL, 0x0,
         "Output status of Port 3", HFILL }},
 
     { &hf_artnet_poll_reply_good_output_4,
-      { "Output status of Port 4",             
+      { "Output status of Port 4",
         "artnet.poll_reply.good_output_4",
         FT_UINT8, BASE_HEX, NULL, 0x0,
         "Outpus status of Port 4", HFILL }},
 
     { &hf_artnet_poll_reply_swin,
-      { "Input Subswitch", 
+      { "Input Subswitch",
         "artnet.poll_reply.swin",
         FT_NONE, BASE_NONE, NULL, 0,
         "Input Subswitch", HFILL }},
 
     { &hf_artnet_poll_reply_swin_1,
-      { "Input Subswitch of Port 1",             
+      { "Input Subswitch of Port 1",
         "artnet.poll_reply.swin_1",
         FT_UINT8, BASE_HEX, NULL, 0x0,
         "Input Subswitch of Port 1", HFILL }},
 
     { &hf_artnet_poll_reply_swin_2,
-      { "Input Subswitch of Port 2",             
+      { "Input Subswitch of Port 2",
         "artnet.poll_reply.swin_2",
         FT_UINT8, BASE_HEX, NULL, 0x0,
         "Input Subswitch of Port 2", HFILL }},
 
     { &hf_artnet_poll_reply_swin_3,
-      { "Input Subswitch of Port 3",             
+      { "Input Subswitch of Port 3",
         "artnet.poll_reply.swin_3",
         FT_UINT8, BASE_HEX, NULL, 0x0,
         "Input Subswitch of Port 3", HFILL }},
 
     { &hf_artnet_poll_reply_swin_4,
-      { "Input Subswitch of Port 4",             
+      { "Input Subswitch of Port 4",
         "artnet.poll_reply.swin_4",
         FT_UINT8, BASE_HEX, NULL, 0x0,
         "Input Subswitch of Port 4", HFILL }},
 
     { &hf_artnet_poll_reply_swout,
-      { "Output Subswitch", 
+      { "Output Subswitch",
         "artnet.poll_reply.swout",
         FT_NONE, BASE_NONE, NULL, 0,
         "Output Subswitch", HFILL }},
 
     { &hf_artnet_poll_reply_swout_1,
-      { "Output Subswitch of Port 1",             
+      { "Output Subswitch of Port 1",
         "artnet.poll_reply.swout_1",
         FT_UINT8, BASE_HEX, NULL, 0x0,
         "Output Subswitch of Port 1", HFILL }},
 
     { &hf_artnet_poll_reply_swout_2,
-      { "Output Subswitch of Port 2",             
+      { "Output Subswitch of Port 2",
         "artnet.poll_reply.swout_2",
         FT_UINT8, BASE_HEX, NULL, 0x0,
         "Output Subswitch of Port 2", HFILL }},
 
     { &hf_artnet_poll_reply_swout_3,
-      { "Output Subswitch of Port 3",             
+      { "Output Subswitch of Port 3",
         "artnet.poll_reply.swout_3",
         FT_UINT8, BASE_HEX, NULL, 0x0,
         "Output Subswitch of Port 3", HFILL }},
 
     { &hf_artnet_poll_reply_swout_4,
-      { "Output Subswitch of Port 4",             
+      { "Output Subswitch of Port 4",
         "artnet.poll_reply.swout_4",
         FT_UINT8, BASE_HEX, NULL, 0x0,
         "Ouput Subswitch of Port 4", HFILL }},
 
     { &hf_artnet_poll_reply_swvideo,
-      { "SwVideo",             
+      { "SwVideo",
         "artnet.poll_reply.swvideo",
         FT_UINT8, BASE_HEX, NULL, 0x0,
         "SwVideo", HFILL }},
 
     { &hf_artnet_poll_reply_swmacro,
-      { "SwMacro",             
+      { "SwMacro",
         "artnet.poll_reply.swmacro",
         FT_UINT8, BASE_HEX, NULL, 0x0,
         "SwMacro", HFILL }},
 
     { &hf_artnet_poll_reply_swremote,
-      { "SwRemote",             
+      { "SwRemote",
         "artnet.poll_reply.swremote",
         FT_UINT8, BASE_HEX, NULL, 0x0,
         "SwRemote", HFILL }},
 
-    { &hf_artnet_poll_reply_spare,
-      { "spare",             
-        "artnet.poll_reply.spare",
-        FT_BYTES, BASE_HEX, NULL, 0x0,
-        "spare", HFILL }},
-        
     { &hf_artnet_poll_reply_mac,
-      { "MAC",             
+      { "MAC",
         "artnet.poll_reply.mac",
         FT_ETHER, BASE_HEX, NULL, 0x0,
         "MAC", HFILL }},
-        
+
     /* ArtOutput */
 
     { &hf_artnet_output,
-      { "ArtDMX packet", 
+      { "ArtDMX packet",
         "artnet.output",
         FT_NONE, BASE_NONE, NULL, 0,
-        "ArtNET ArtDMX packet", HFILL }},
+        "Art-Net ArtDMX packet", HFILL }},
 
-    { &hf_artnet_output_protver,
-      { "ProVers",             
-        "artnet.output.protver",
-        FT_UINT16, BASE_DEC, NULL, 0x0,
-        "ProtVers", HFILL }},
-        
     { &hf_artnet_output_sequence,
-      { "Sequence",             
+      { "Sequence",
         "artnet.output.sequence",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         "Sequence", HFILL }},
-        
+
     { &hf_artnet_output_physical,
-      { "Physical",             
+      { "Physical",
         "artnet.output.physical",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         "Physical", HFILL }},
-        
+
     { &hf_artnet_output_universe,
-      { "Universe",             
+      { "Universe",
         "artnet.output.universe",
         FT_UINT16, BASE_DEC, NULL, 0x0,
         "Universe", HFILL }},
-        
+
     { &hf_artnet_output_length,
-      { "Length",             
+      { "Length",
         "artnet.output.length",
         FT_UINT16, BASE_DEC, NULL, 0x0,
         "Length", HFILL }},
-        
+
     { &hf_artnet_output_data,
-      { "DMX data",             
+      { "DMX data",
         "artnet.output.data",
         FT_BYTES, BASE_DEC, NULL, 0x0,
         "DMX Data", HFILL }},
-                
+
     /* ArtAddress */
 
     { &hf_artnet_address,
-      { "ArtAddress packet", 
+      { "ArtAddress packet",
         "artnet.address",
         FT_NONE, BASE_NONE, NULL, 0,
-        "ArtNET ArtAddress packet", HFILL }},
-
-    { &hf_artnet_address_protver,
-      { "ProVers",             
-        "artnet.address.protver",
-        FT_UINT16, BASE_DEC, NULL, 0x0,
-        "ProtVers", HFILL }},
-
-    { &hf_artnet_address_filler,
-      { "filler",             
-        "artnet.address.filler",
-        FT_BYTES, BASE_HEX, NULL, 0x0,
-        "filler", HFILL }},
+        "Art-Net ArtAddress packet", HFILL }},
 
     { &hf_artnet_address_short_name,
-      { "Short Name",             
+      { "Short Name",
         "artnet.address.short_name",
         FT_STRING, BASE_DEC, NULL, 0x0,
         "Short Name", HFILL }},
 
     { &hf_artnet_address_long_name,
-      { "Long Name",             
+      { "Long Name",
         "artnet.address.long_name",
         FT_STRING, BASE_DEC, NULL, 0x0,
         "Long Name", HFILL }},
-        
+
     { &hf_artnet_address_swin,
-      { "Input Subswitch", 
+      { "Input Subswitch",
         "artnet.address.swin",
         FT_NONE, BASE_NONE, NULL, 0,
         "Input Subswitch", HFILL }},
 
     { &hf_artnet_address_swin_1,
-      { "Input Subswitch of Port 1", 
+      { "Input Subswitch of Port 1",
         "artnet.address.swin_1",
         FT_UINT8, BASE_HEX, NULL, 0x0,
         "Input Subswitch of Port 1", HFILL }},
 
     { &hf_artnet_address_swin_2,
-      { "Input Subswitch of Port 2", 
+      { "Input Subswitch of Port 2",
         "artnet.address.swin_2",
         FT_UINT8, BASE_HEX, NULL, 0x0,
         "Input Subswitch of Port 2", HFILL }},
 
     { &hf_artnet_address_swin_3,
-      { "Input Subswitch of Port 3",             
+      { "Input Subswitch of Port 3",
         "artnet.address.swin_3",
         FT_UINT8, BASE_HEX, NULL, 0x0,
         "Input Subswitch of Port 3", HFILL }},
 
     { &hf_artnet_address_swin_4,
-      { "Input Subswitch of Port 4",             
+      { "Input Subswitch of Port 4",
         "artnet.address.swin_4",
         FT_UINT8, BASE_HEX, NULL, 0x0,
         "Input Subswitch of Port 4", HFILL }},
 
     { &hf_artnet_address_swout,
-      { "Output Subswitch", 
+      { "Output Subswitch",
         "artnet.address.swout",
         FT_NONE, BASE_NONE, NULL, 0,
         "Output Subswitch", HFILL }},
 
     { &hf_artnet_address_swout_1,
-      { "Output Subswitch of Port 1", 
+      { "Output Subswitch of Port 1",
         "artnet.address.swout_1",
         FT_UINT8, BASE_HEX, NULL, 0x0,
         "Output Subswitch of Port 1", HFILL }},
 
     { &hf_artnet_address_swout_2,
-      { "Output Subswitch of Port 2",             
+      { "Output Subswitch of Port 2",
         "artnet.address.swout_2",
         FT_UINT8, BASE_HEX, NULL, 0x0,
         "Output Subswitch of Port 2", HFILL }},
 
     { &hf_artnet_address_swout_3,
-      { "Output Subswitch of Port 3",             
+      { "Output Subswitch of Port 3",
         "artnet.address.swout_3",
         FT_UINT8, BASE_HEX, NULL, 0x0,
         "Output Subswitch of Port 3", HFILL }},
 
     { &hf_artnet_address_swout_4,
-      { "Output Subswitch of Port 4",             
+      { "Output Subswitch of Port 4",
         "artnet.address.swout_4",
         FT_UINT8, BASE_HEX, NULL, 0x0,
         "Ouput Subswitch of Port 4", HFILL }},
 
     { &hf_artnet_address_subswitch,
-      { "Subswitch",             
+      { "Subswitch",
         "artnet.address.subswitch",
         FT_UINT8, BASE_HEX, NULL, 0x0,
         "Subswitch", HFILL }},
 
     { &hf_artnet_address_swvideo,
-      { "SwVideo",             
+      { "SwVideo",
         "artnet.address.swvideo",
         FT_UINT8, BASE_HEX, NULL, 0x0,
         "SwVideo", HFILL }},
 
     { &hf_artnet_address_command,
-      { "Command",             
+      { "Command",
         "artnet.address.command",
         FT_UINT8, BASE_HEX, VALS(artnet_address_command_vals), 0x0,
         "Command", HFILL }},
@@ -1725,31 +2144,19 @@ proto_register_artnet(void) {
     /* ArtInput */
 
     { &hf_artnet_input,
-      { "ArtInput packet", 
+      { "ArtInput packet",
         "artnet.input",
         FT_NONE, BASE_NONE, NULL, 0,
-        "ArtNET ArtInput packet", HFILL }},
+        "Art-Net ArtInput packet", HFILL }},
 
-    { &hf_artnet_input_protver,
-      { "ProVers",             
-        "artnet.input.protver",
-        FT_UINT16, BASE_DEC, NULL, 0x0,
-        "ProtVers", HFILL }},
-
-    { &hf_artnet_input_filler,
-      { "filler",             
-        "artnet.input.filler",
-        FT_BYTES, BASE_HEX, NULL, 0x0,
-        "filler", HFILL }},
-        
     { &hf_artnet_input_num_ports,
-      { "Number of Ports",             
+      { "Number of Ports",
         "artnet.input.num_ports",
         FT_UINT16, BASE_DEC, NULL, 0x0,
         "Number of Ports", HFILL }},
 
     { &hf_artnet_input_input,
-      { "Port Status", 
+      { "Port Status",
         "artnet.input.input",
         FT_NONE, BASE_NONE, NULL, 0,
         "Port Status", HFILL }},
@@ -1777,141 +2184,93 @@ proto_register_artnet(void) {
         "artnet.input.input_4",
         FT_UINT8, BASE_HEX, NULL, 0x0,
         "Status of Port 4", HFILL }},
-        
+
     /* ArtFirmwareMaster */
 
     { &hf_artnet_firmware_master,
-      { "ArtFirmwareMaster packet", 
+      { "ArtFirmwareMaster packet",
         "artnet.firmware_master",
         FT_NONE, BASE_NONE, NULL, 0,
-        "ArtNET ArtFirmwareMaster packet", HFILL }},
+        "Art-Net ArtFirmwareMaster packet", HFILL }},
 
-    { &hf_artnet_firmware_master_protver,
-      { "ProVers",             
-        "artnet.firmware_master.protver",
-        FT_UINT16, BASE_DEC, NULL, 0x0,
-        "ProtVers", HFILL }},
-
-    { &hf_artnet_firmware_master_filler,
-      { "filler",             
-        "artnet.firmware_master.filler",
-        FT_BYTES, BASE_HEX, NULL, 0x0,
-        "filler", HFILL }},
-        
     { &hf_artnet_firmware_master_type,
-      { "Type",             
+      { "Type",
         "artnet.firmware_master.type",
         FT_UINT8, BASE_HEX, VALS(artnet_firmware_master_type_vals), 0x0,
         "Number of Ports", HFILL }},
-        
+
     { &hf_artnet_firmware_master_block_id,
-      { "Block ID",             
+      { "Block ID",
         "artnet.firmware_master.block_id",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         "Block ID", HFILL }},
-        
+
     { &hf_artnet_firmware_master_length,
-      { "Lentgh",             
+      { "Lentgh",
         "artnet.firmware_master.length",
         FT_UINT32, BASE_DEC, NULL, 0x0,
         "Length", HFILL }},
-        
-    { &hf_artnet_firmware_master_spare,
-      { "spare",             
-        "artnet.firmware_master.spare",
-        FT_BYTES, BASE_HEX, NULL, 0x0,
-        "spare", HFILL }},
-        
+
     { &hf_artnet_firmware_master_data,
-      { "data",             
+      { "data",
         "artnet.firmware_master.data",
         FT_BYTES, BASE_HEX, NULL, 0x0,
         "data", HFILL }},
-        
+
     /* ArtFirmwareReply */
 
     { &hf_artnet_firmware_reply,
-      { "ArtFirmwareReply packet", 
+      { "ArtFirmwareReply packet",
         "artnet.firmware_reply",
         FT_NONE, BASE_NONE, NULL, 0,
-        "ArtNET ArtFirmwareReply packet", HFILL }},
+        "Art-Net ArtFirmwareReply packet", HFILL }},
 
-    { &hf_artnet_firmware_reply_protver,
-      { "ProVers",             
-        "artnet.firmware_reply.protver",
-        FT_UINT16, BASE_DEC, NULL, 0x0,
-        "ProtVers", HFILL }},
-
-    { &hf_artnet_firmware_reply_filler,
-      { "filler",             
-        "artnet.firmware_reply.filler",
-        FT_BYTES, BASE_HEX, NULL, 0x0,
-        "filler", HFILL }},
-        
     { &hf_artnet_firmware_reply_type,
-      { "Type",             
+      { "Type",
         "artnet.firmware_reply.type",
         FT_UINT8, BASE_HEX, VALS(artnet_firmware_reply_type_vals), 0x0,
         "Number of Ports", HFILL }},
 
-    { &hf_artnet_firmware_reply_spare,
-      { "spare",             
-        "artnet.firmware_reply.spare",
-        FT_BYTES, BASE_HEX, NULL, 0x0,
-        "spare", HFILL }},
-             
     /* ArtVideoSetup */
 
     { &hf_artnet_video_setup,
-      { "ArtVideoSetup packet", 
+      { "ArtVideoSetup packet",
         "artnet.video_setup",
         FT_NONE, BASE_NONE, NULL, 0,
         "ArtNET ArtVideoSetup packet", HFILL }},
 
-    { &hf_artnet_video_setup_protver,
-      { "ProVers",             
-        "artnet.video_setup.protver",
-        FT_UINT16, BASE_DEC, NULL, 0x0,
-        "ProtVers", HFILL }},
-
-    { &hf_artnet_video_setup_filler,
-      { "filler",             
-        "artnet.video_setup.filler",
-        FT_BYTES, BASE_HEX, NULL, 0x0,
-        "filler", HFILL }},
-
     { &hf_artnet_video_setup_control,
-      { "control",             
+      { "control",
         "artnet.video_setup.control",
         FT_UINT8, BASE_HEX, NULL, 0x0,
         "control", HFILL }},
 
     { &hf_artnet_video_setup_font_height,
-      { "Font Height",             
+      { "Font Height",
         "artnet.video_setup.font_height",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         "Font Height", HFILL }},
 
     { &hf_artnet_video_setup_first_font,
-      { "First Font",             
+      { "First Font",
         "artnet.video_setup.first_font",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         "First Font", HFILL }},
 
     { &hf_artnet_video_setup_last_font,
-      { "Last Font",             
+      { "Last Font",
         "artnet.video_setup.last_font",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         "Last Font", HFILL }},
 
     { &hf_artnet_video_setup_win_font_name,
-      { "Windows Font Name",             
+      { "Windows Font Name",
         "artnet.video_setup.win_font_name",
         FT_STRING, BASE_DEC, NULL, 0x0,
         "Windows Font Name", HFILL }},
 
     { &hf_artnet_video_setup_font_data,
-      { "Font data",             
+      { "Font data",
         "artnet.video_setup.font_data",
         FT_BYTES, BASE_HEX, NULL, 0x0,
         "Font Date", HFILL }},
@@ -1919,37 +2278,25 @@ proto_register_artnet(void) {
     /* ArtVideoPalette */
 
     { &hf_artnet_video_palette,
-      { "ArtVideoPalette packet", 
+      { "ArtVideoPalette packet",
         "artnet.video_palette",
         FT_NONE, BASE_NONE, NULL, 0,
-        "ArtNET ArtVideoPalette packet", HFILL }},
-
-    { &hf_artnet_video_palette_protver,
-      { "ProVers",             
-        "artnet.video_palette.protver",
-        FT_UINT16, BASE_DEC, NULL, 0x0,
-        "ProtVers", HFILL }},
-
-    { &hf_artnet_video_palette_filler,
-      { "filler",             
-        "artnet.video_palette.filler",
-        FT_BYTES, BASE_HEX, NULL, 0x0,
-        "filler", HFILL }},
+        "Art-Net ArtVideoPalette packet", HFILL }},
 
     { &hf_artnet_video_palette_colour_red,
-      { "Colour Red",             
+      { "Colour Red",
         "artnet.video_palette.colour_red",
         FT_BYTES, BASE_HEX, NULL, 0x0,
         "Colour Red", HFILL }},
 
     { &hf_artnet_video_palette_colour_green,
-      { "Colour Green",             
+      { "Colour Green",
         "artnet.video_palette.colour_green",
         FT_BYTES, BASE_HEX, NULL, 0x0,
         "Colour Green", HFILL }},
 
     { &hf_artnet_video_palette_colour_blue,
-      { "Colour Blue",             
+      { "Colour Blue",
         "artnet.video_palette.colour_blue",
         FT_BYTES, BASE_HEX, NULL, 0x0,
         "Colour Blue", HFILL }},
@@ -1957,52 +2304,246 @@ proto_register_artnet(void) {
     /* ArtVideoData */
 
     { &hf_artnet_video_data,
-      { "ArtVideoData packet", 
+      { "ArtVideoData packet",
         "artnet.video_data",
         FT_NONE, BASE_NONE, NULL, 0,
-        "ArtNET ArtVideoData packet", HFILL }},
-
-    { &hf_artnet_video_data_protver,
-      { "ProVers",             
-        "artnet.video_data.protver",
-        FT_UINT16, BASE_DEC, NULL, 0x0,
-        "ProtVers", HFILL }},
-
-    { &hf_artnet_video_data_filler,
-      { "filler",             
-        "artnet.video_data.filler",
-        FT_BYTES, BASE_HEX, NULL, 0x0,
-        "filler", HFILL }},
+        "Art-Net ArtVideoData packet", HFILL }},
 
     { &hf_artnet_video_data_pos_x,
-      { "PosX",             
+      { "PosX",
         "artnet.video_data.pos_x",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         "PosX", HFILL }},
-        
+
     { &hf_artnet_video_data_pos_y,
-      { "PosY",             
+      { "PosY",
         "artnet.video_data.pos_y",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         "PosY", HFILL }},
 
     { &hf_artnet_video_data_len_x,
-      { "LenX",             
+      { "LenX",
         "artnet.video_data.len_x",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         "LenX", HFILL }},
 
     { &hf_artnet_video_data_len_y,
-      { "LenY",             
+      { "LenY",
         "artnet.video_data.len_y",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         "LenY", HFILL }},
 
     { &hf_artnet_video_data_data,
-      { "Video Data",             
+      { "Video Data",
         "artnet.video_data.data",
         FT_BYTES, BASE_HEX, NULL, 0x0,
-        "Video Data", HFILL }}
+        "Video Data", HFILL }},
+
+    /* ArtTodRequest */
+    { &hf_artnet_tod_request,
+      { "ArtTodRequest packet",
+        "artnet.tod_request",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "Art-Net ArtTodRequest packet", HFILL }},
+
+    { &hf_artnet_tod_request_command,
+      { "Command",
+        "artnet.tod_request.command",
+        FT_UINT8, BASE_HEX, VALS(artnet_tod_request_command_vals), 0x0,
+        "Command", HFILL }},
+
+    { &hf_artnet_tod_request_ad_count,
+      { "Address Count",
+        "artnet.tod_request.ad_count",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        "Address Count", HFILL }},
+
+    { &hf_artnet_tod_request_address,
+      { "Address",
+        "artnet.tod_request.address",
+        FT_BYTES, BASE_HEX, NULL, 0x0,
+        "Address", HFILL }},
+
+    /* ArtTodData */
+    { &hf_artnet_tod_data,
+      { "ArtTodData packet",
+        "artnet.tod_data",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "Art-Net ArtTodData packet", HFILL }},
+
+    { &hf_artnet_tod_data_command_response,
+      { "Command Response",
+        "artnet.tod_data.command_response",
+        FT_UINT8, BASE_HEX, VALS(artnet_tod_data_command_vals), 0x0,
+        "Command Response", HFILL }},
+
+    { &hf_artnet_tod_data_address,
+      { "Address",
+        "artnet.tod_data.address",
+        FT_UINT8, BASE_HEX, NULL, 0x0,
+        "Address", HFILL }},
+
+    { &hf_artnet_tod_data_uid_total,
+      { "UID Total",
+        "artnet.tod_data.uid_total",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        "UID Total", HFILL }},
+
+    { &hf_artnet_tod_data_block_count,
+      { "Block Count",
+        "artnet.tod_data.block_count",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        "Block Count", HFILL }},
+
+    { &hf_artnet_tod_data_uid_count,
+      { "UID Count",
+        "artnet.tod_data.uid_count",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        "UID Count", HFILL }},
+
+    { &hf_artnet_tod_data_tod,
+      { "TOD",
+        "artnet.tod_data.tod",
+        FT_BYTES, BASE_HEX, NULL, 0x0,
+        "TOD", HFILL }},
+
+    /* ArtTodControl */
+    { &hf_artnet_tod_control,
+      { "ArtTodControl packet",
+        "artner.tod_control",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "Art-Net ArtTodControl packet", HFILL }},
+
+    { &hf_artnet_tod_control_command,
+      { "Command",
+        "artnet.tod_control.command",
+        FT_UINT8, BASE_HEX, VALS(artnet_tod_control_command_vals), 0x0,
+        "Command", HFILL }},
+
+    { &hf_artnet_tod_control_address,
+      { "Address",
+        "artnet.tod_request.address",
+        FT_UINT8, BASE_HEX, NULL, 0x0,
+        "Address", HFILL }},
+
+    /* ArtRdm */
+    { &hf_artnet_rdm,
+      { "ArtRdm packet",
+        "artnet.rdm",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "Art-Net ArtRdm packet", HFILL }},
+
+    { &hf_artnet_rdm_command,
+      { "Command",
+        "artnet.rdm.command",
+        FT_UINT8, BASE_HEX, VALS(artnet_rdm_command_vals), 0x0,
+        "Command", HFILL }},
+
+    { &hf_artnet_rdm_address,
+      { "Address",
+        "artnet.rdm.address",
+        FT_UINT8, BASE_HEX, NULL, 0x0,
+        "Address", HFILL }},
+
+    /* ArtIpProg */
+    { &hf_artnet_ip_prog,
+      { "ArtIpProg packet",
+        "artnet.ip_prog",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ArtNET ArtIpProg packet", HFILL }},
+
+    { &hf_artnet_ip_prog_command,
+      { "Command",
+        "artnet.ip_prog.command",
+        FT_UINT8, BASE_HEX, NULL, 0x0,
+        "Command", HFILL }},
+
+    { &hf_artnet_ip_prog_command_prog_port,
+      { "Program Port",
+        "artnet.ip_prog.command_prog_port",
+        FT_UINT8, BASE_HEX, NULL, 0x01,
+        "Program Port", HFILL }},
+
+    { &hf_artnet_ip_prog_command_prog_sm,
+      { "Program Subnet Mask",
+        "artnet.ip_prog.command_prog_sm",
+        FT_UINT8, BASE_HEX, NULL, 0x02,
+        "Program Subnet Mask", HFILL }},
+
+    { &hf_artnet_ip_prog_command_prog_ip,
+      { "Program IP",
+        "artnet.ip_prog.command_prog_ip",
+        FT_UINT8, BASE_HEX, NULL, 0x04,
+        "Program IP", HFILL }},
+
+    { &hf_artnet_ip_prog_command_reset,
+      { "Reset parameters",
+        "artnet.ip_prog.command_reset",
+        FT_UINT8, BASE_HEX, NULL, 0x08,
+        "Reset parameters", HFILL }},
+
+    { &hf_artnet_ip_prog_command_unused,
+      { "Unused",
+        "artnet.ip_prog.command_unused",
+        FT_UINT8, BASE_HEX, NULL, 0x70,
+        "Unused", HFILL }},
+
+    { &hf_artnet_ip_prog_command_prog_enable,
+      { "Enable Programming",
+        "artnet.ip_prog.command_prog_enable",
+        FT_UINT8, BASE_HEX, NULL, 0x80,
+        "Enable Programming", HFILL }},
+
+    { &hf_artnet_ip_prog_ip,
+      { "IP Address",
+        "artnet.ip_prog.ip",
+        FT_IPv4, BASE_DEC, NULL, 0x0,
+        "IP Address", HFILL }},
+
+    { &hf_artnet_ip_prog_sm,
+      { "Subnet mask",
+        "artnet.ip_prog.sm",
+        FT_IPv4, BASE_DEC, NULL, 0x0,
+        "IP Subnet mask", HFILL }},
+
+    { &hf_artnet_ip_prog_port,
+      { "Port",
+        "artnet.ip_prog.port",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        "Port", HFILL }},
+
+    /* ArtIpProgReply */
+    { &hf_artnet_ip_prog_reply,
+      { "ArtIpProgReplay packet",
+        "artnet.ip_prog_reply",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "Art-Net ArtIpProgReply packet", HFILL }},
+
+    { &hf_artnet_ip_prog_reply_ip,
+      { "IP Address",
+        "artnet.ip_prog_reply.ip",
+        FT_IPv4, BASE_DEC, NULL, 0x0,
+        "IP Address", HFILL }},
+
+    { &hf_artnet_ip_prog_reply_sm,
+      { "Subnet mask",
+        "artnet.ip_prog_reply.sm",
+        FT_IPv4, BASE_DEC, NULL, 0x0,
+        "IP Subnet mask", HFILL }},
+
+    { &hf_artnet_ip_prog_reply_port,
+      { "Port",
+        "artnet.ip_prog_reply.port",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        "Port", HFILL }},
+
+    /* ArtPollServerReply */
+    { &hf_artnet_poll_server_reply,
+      { "ArtPollServerReply packet",
+	"artnet.poll_server_reply",
+	FT_NONE, BASE_NONE, NULL, 0,
+	"Art-Net ArtPollServerReply packet", HFILL }}
+
   };
 
   static gint *ett[] = {
@@ -2011,7 +2552,7 @@ proto_register_artnet(void) {
 
   module_t *artnet_module;
 
-  proto_artnet = proto_register_protocol("ArtNET",
+  proto_artnet = proto_register_protocol("Art-Net",
 				       "ARTNET","artnet");
   proto_register_field_array(proto_artnet,hf,array_length(hf));
   proto_register_subtree_array(ett,array_length(ett));
@@ -2021,7 +2562,7 @@ proto_register_artnet(void) {
   prefs_register_uint_preference(artnet_module, "udp_port",
 				 "ARTNET UDP Port",
 				 "The UDP port on which "
-				 "ArtNET "
+				 "Art-Net "
 				 "packets will be sent",
 				 10,&global_udp_port_artnet);
 

@@ -1,0 +1,16 @@
+$Id: ChangeLog,v 1.2 2003/08/24 01:43:59 sahlberg Exp $
+ 
+Overview of changes in Ethereal 0.0.2:
+ 
+* Number of new packets
+* Added strings for several fields
+* Use "Art-Net" instead of "ArtNET"
+* Number of (endian) bugs fixed
+$Id: ChangeLog,v 1.2 2003/08/24 01:43:59 sahlberg Exp $
+ 
+Overview of changes in Ethereal 0.0.2:
+ 
+* Number of new packets
+* Added strings for several fields
+* Use "Art-Net" instead of "ArtNET"
+* Number of (endian) bugs fixed
