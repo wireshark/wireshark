@@ -12,7 +12,7 @@
  * - support for reassembly
  * - error checking mode 
  *
- * $Id: packet-sctp.c,v 1.55 2003/06/07 15:36:21 tuexen Exp $
+ * $Id: packet-sctp.c,v 1.56 2003/06/07 17:33:30 tuexen Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1317,7 +1317,7 @@ dissect_data_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tree, pr
 		proto_item_append_text(chunk_item, "(%s, ", (u_bit) ? "unordered" : "ordered");
 		if (b_bit) {
 			if (e_bit)
-				proto_item_append_text(chunk_item, "complete ");
+				proto_item_append_text(chunk_item, "complete");
 			else
 				proto_item_append_text(chunk_item, "first");
 		} else {
@@ -1327,7 +1327,7 @@ dissect_data_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tree, pr
 				proto_item_append_text(chunk_item, "middle");
 		}
 				
-    proto_item_append_text(chunk_item, "segment, TSN: %u, SID: %u, SSN: %u, PPID: %u, payload length: %u byte%s)",
+    proto_item_append_text(chunk_item, " segment, TSN: %u, SID: %u, SSN: %u, PPID: %u, payload length: %u byte%s)",
                            tvb_get_ntohl(chunk_tvb, DATA_CHUNK_TSN_OFFSET), 
                            tvb_get_ntohs(chunk_tvb, DATA_CHUNK_STREAM_ID_OFFSET),
                            tvb_get_ntohs(chunk_tvb, DATA_CHUNK_STREAM_SEQ_NUMBER_OFFSET),
@@ -1470,7 +1470,7 @@ dissect_sack_chunk(tvbuff_t *chunk_tvb, proto_tree *chunk_tree, proto_item *chun
       dup_tsn_offset += SACK_CHUNK_DUP_TSN_LENGTH;
     }
 
-    proto_item_append_text(chunk_item, " (Cummulative TSN: %u, a_rwnd: %u, gaps: %u, duplicate TSNs: %u)",
+    proto_item_append_text(chunk_item, " (Cumulative TSN: %u, a_rwnd: %u, gaps: %u, duplicate TSNs: %u)",
                      tvb_get_ntohl(chunk_tvb, SACK_CHUNK_CUMULATIVE_TSN_ACK_OFFSET),
                      tvb_get_ntohl(chunk_tvb, SACK_CHUNK_ADV_REC_WINDOW_CREDIT_OFFSET),
                      number_of_gap_blocks, number_of_dup_tsns);
@@ -1535,7 +1535,7 @@ dissect_shutdown_chunk(tvbuff_t *chunk_tvb, proto_tree *chunk_tree, proto_item *
 {
   if (chunk_tree) {
     proto_tree_add_item(chunk_tree, hf_shutdown_chunk_cumulative_tsn_ack, chunk_tvb, SHUTDOWN_CHUNK_CUMULATIVE_TSN_ACK_OFFSET, SHUTDOWN_CHUNK_CUMULATIVE_TSN_ACK_LENGTH, NETWORK_BYTE_ORDER);
-    proto_item_append_text(chunk_item, " (Cummulative TSN ack: %u)", tvb_get_ntohl(chunk_tvb, SHUTDOWN_CHUNK_CUMULATIVE_TSN_ACK_OFFSET));
+    proto_item_append_text(chunk_item, " (Cumulative TSN ack: %u)", tvb_get_ntohl(chunk_tvb, SHUTDOWN_CHUNK_CUMULATIVE_TSN_ACK_OFFSET));
   }
 }
 
