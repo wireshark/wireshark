@@ -1,7 +1,7 @@
 /* print.c
  * Routines for printing packet analysis trees.
  *
- * $Id: print.c,v 1.66 2003/12/09 22:27:28 ulfl Exp $
+ * $Id: print.c,v 1.67 2003/12/10 22:52:08 gram Exp $
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -438,27 +438,27 @@ print_pdml_geninfo(proto_tree *tree, print_data *pdata)
 
 	/* Print geninfo start */
 	fprintf(pdata->fh,
-"  <proto name=\"geninfo\" pos=\"1\" showname=\"General information\" size=\"%u\">\n",
+"  <proto name=\"geninfo\" pos=\"0\" showname=\"General information\" size=\"%u\">\n",
 		frame_finfo->length);
 
 	/* Print geninfo.num */
 	fprintf(pdata->fh,
-"    <field name=\"num\" pos=\"1\" show=\"%u\" showname=\"Number\" value=\"%x\" size=\"%u\"/>\n",
+"    <field name=\"num\" pos=\"0\" show=\"%u\" showname=\"Number\" value=\"%x\" size=\"%u\"/>\n",
 		num, num, frame_finfo->length);
 
 	/* Print geninfo.len */
 	fprintf(pdata->fh,
-"    <field name=\"len\" pos=\"1\" show=\"%u\" showname=\"Packet Length\" value=\"%x\" size=\"%u\"/>\n",
+"    <field name=\"len\" pos=\"0\" show=\"%u\" showname=\"Packet Length\" value=\"%x\" size=\"%u\"/>\n",
 		len, len, frame_finfo->length);
 
 	/* Print geninfo.caplen */
 	fprintf(pdata->fh,
-"    <field name=\"caplen\" pos=\"1\" show=\"%u\" showname=\"Captured Length\" value=\"%x\" size=\"%u\"/>\n",
+"    <field name=\"caplen\" pos=\"0\" show=\"%u\" showname=\"Captured Length\" value=\"%x\" size=\"%u\"/>\n",
 		caplen, caplen, frame_finfo->length);
 
 	/* Print geninfo.timestamp */
 	fprintf(pdata->fh,
-"    <field name=\"timestamp\" pos=\"1\" show=\"%s\" showname=\"Captured Time\" value=\"%d.%09d\" size=\"%u\"/>\n",
+"    <field name=\"timestamp\" pos=\"0\" show=\"%s\" showname=\"Captured Time\" value=\"%d.%09d\" size=\"%u\"/>\n",
 		abs_time_to_str(timestamp), (int) timestamp->secs, timestamp->nsecs, frame_finfo->length);
 
 	/* Print geninfo end */
