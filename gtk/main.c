@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.74 1999/12/15 07:03:06 gram Exp $
+ * $Id: main.c,v 1.75 1999/12/16 04:11:33 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -135,50 +135,14 @@ static char* hfinfo_numeric_format(header_field_info *hfinfo);
 void
 about_ethereal( GtkWidget *w, gpointer data ) {
   simple_dialog(ESD_TYPE_INFO, NULL,
-		"GNU Ethereal - network protocol analyzer\n"
-		"Version %s (C) 1998-1999 Gerald Combs <gerald@zing.org>\n"
+		"Ethereal - Network Protocol Analyzer\n"
+		"Version %s (C) 1998-2000 Gerald Combs <gerald@zing.org>\n"
                 "Compiled with %s\n\n"
-		"Contributors:\n"
 
-		"Gilbert Ramirez          <gramirez@tivoli.com>\n"
-		"Hannes R. Boehm          <hannes@boehm.org>\n"
-		"Mike Hall                <mlh@io.com>\n"
-		"Bobo Rajec               <bobo@bsp-consulting.sk>\n"
-		"Laurent Deniel           <deniel@worldnet.fr>\n"
-		"Don Lafontaine           <lafont02@cn.ca>\n"
-		"Guy Harris               <guy@alum.mit.edu>\n"
-		"Simon Wilkinson          <sxw@dcs.ed.ac.uk>\n"
-		"Joerg Mayer              <jmayer@telemation.de>\n"
-		"Martin Maciaszek         <fastjack@i-s-o.net>\n"
-		"Didier Jorand            <Didier.Jorand@alcatel.fr>\n"
-		"Jun-ichiro itojun Hagino <itojun@iijlab.net>\n"
-		"Richard Sharpe           <sharpe@ns.aus.com>\n"
-		"John McDermott           <jjm@jkintl.com>\n"
-		"Jeff Jahr                <jjahr@shastanets.com>\n"
-		"Brad Robel-Forrest       <bradr@watchguard.com>\n"
-		"Ashok Narayanan          <ashokn@cisco.com>\n"
-		"Aaron Hillegass          <aaron@classmax.com>\n"
-		"Jason Lango              <jal@netapp.com>\n"
-		"Johan Feyaerts           <Johan.Feyaerts@siemens.atea.be>\n"
-		"Olivier Abad             <abad@daba.dhis.net>\n"
-		"Thierry Andry            <Thierry.Andry@advalvas.be>\n"
-		"Jeff Foster              <jfoste@woodward.com>\n"
-		"Peter Torvals            <petertv@xoommail.com>\n"
-		"Christophe Tronche       <ch.tronche@computer.org>\n"
-		"Nathan Neulinger         <nneul@umr.edu>\n"
-		"Tomislav Vujec           <tvujec@carnet.hr>\n"
-		"Kojak                    <kojak@bigwig.net>\n"
-		"Uwe Girlich              <Uwe.Girlich@philosys.de>\n"
-		"Warren Young             <tangent@mail.com>\n"
-		"Heikki Vatiainen         <hessu@cs.tut.fi>\n"
-		"Greg Hankins             <gregh@twoguys.org>\n"
-		"Jerry Talkington         <jerryt@netapp.com>\n"
-		"Dave Chapeskie           <dchapes@ddm.on.ca>\n"
-		"James Coe                <jammer@cin.net>\n"
-		"Bert Driehuis            <driehuis@playbeing.org>\n"
-		"Stuart Stanley           <stuarts@mxmail.net>\n"
+		"Check the man page for complete documentation and\n"
+		"for the list of contributors.\n"
 
-		"\nSee http://ethereal.zing.org for more information",
+		"\nSee http://ethereal.zing.org/ for more information.",
                 VERSION, comp_info_str);
 }
 
