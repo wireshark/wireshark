@@ -1,7 +1,7 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.274 2003/01/22 06:26:33 guy Exp $
+# $Id: Makefile.nmake,v 1.275 2003/01/24 05:41:33 tpot Exp $
 
 include config.nmake
 include <win32.mak>
@@ -84,7 +84,6 @@ DISSECTOR_SRC = \
 	packet-dcerpc-ndr.c  \
 	packet-dcerpc-netlogon.c \
 	packet-dcerpc-nspi.c \
-	packet-dcerpc-nt.c \
 	packet-dcerpc-oxid.c  \
 	packet-dcerpc-reg.c \
 	packet-dcerpc-remact.c  \
@@ -373,6 +372,7 @@ ETHEREAL_COMMON_OBJECTS = \
 	getopt.obj	 \
 	in_cksum.obj	 \
 	ipproto.obj      \
+	packet-dcerpc-nt.obj \
 	pcap-util.obj    \
 	prefs.obj        \
 	print.obj        \

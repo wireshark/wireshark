@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.546 2003/01/23 06:57:31 guy Exp $
+# $Id: Makefile.am,v 1.547 2003/01/24 05:41:33 tpot Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -141,7 +141,6 @@ DISSECTOR_SRC = \
 	packet-dcerpc-ndr.c  \
 	packet-dcerpc-netlogon.c \
 	packet-dcerpc-nspi.c \
-	packet-dcerpc-nt.c \
 	packet-dcerpc-oxid.c  \
 	packet-dcerpc-reg.c \
 	packet-dcerpc-remact.c  \
@@ -656,6 +655,7 @@ ETHEREAL_COMMON_SRC = \
 	crypt-md5.h    \
 	crypt-rc4.c    \
 	crypt-rc4.h    \
+	packet-dcerpc-nt.c \
 	etypes.h       \
 	file.h         \
 	follow.c       \
