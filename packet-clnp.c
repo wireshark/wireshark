@@ -1,7 +1,7 @@
 /* packet-clnp.c
  * Routines for ISO/OSI network and transport protocol packet disassembly
  *
- * $Id: packet-clnp.c,v 1.3 2000/04/17 01:36:29 guy Exp $
+ * $Id: packet-clnp.c,v 1.4 2000/04/18 18:01:50 deniel Exp $
  * Laurent Deniel <deniel@worldnet.fr>
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
@@ -791,11 +791,11 @@ static int osi_decode_CC(const u_char *pd, int offset,
 	    if (c1 & 0x2)
 	      proto_tree_add_text(cotp_tree, 
 				  offset +  P_VAR_PART_CC + i + 2, 1,
-				  "Use 16 bit checksum ");
+				  "Non-use 16 bit checksum in class 4");
 	    else
 	      proto_tree_add_text(cotp_tree, 
 				  offset +  P_VAR_PART_CC + i + 2, 1,
-				  "Non-use 16 bit checksum in class 4");
+				  "Use 16 bit checksum ");
 	  }
 	  if (c1 & 0x1)
 	    proto_tree_add_text(cotp_tree, 
