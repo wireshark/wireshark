@@ -33,6 +33,7 @@
  *
  * for a list.
  */
+#define VENDOR_IETF			0	/* reserved - used by the IETF in L2TP? */
 #define VENDOR_ACC			5
 #define VENDOR_CISCO			9
 #define VENDOR_HEWLETT_PACKARD		11
@@ -40,7 +41,7 @@
 #define VENDOR_MERIT			61
 #define VENDOR_SHIVA			166
 #define VENDOR_ERICSSON			193
-#define VENDOR_CISCO_VPN5000	255
+#define VENDOR_CISCO_VPN5000		255
 #define VENDOR_LIVINGSTON		307
 #define VENDOR_MICROSOFT		311
 #define VENDOR_3COM			429

@@ -40,14 +40,14 @@
  *	VENDOR          Cisco           9
  */
 const value_string sminmpec_values[] = {
-  {0,				"None"},
+  {VENDOR_IETF,			"IETF (reserved)"},
   {VENDOR_ACC,			"ACC"},
   {VENDOR_CISCO,		"Cisco"},
   {VENDOR_HEWLETT_PACKARD,	"Hewlett Packard"},
   {VENDOR_SUN_MICROSYSTEMS,	"Sun Microsystems"},
-  {VENDOR_MERIT,			"Merit"},
-  {VENDOR_SHIVA,			"Shiva"},
-  {VENDOR_ERICSSON,			"Ericsson AB"},
+  {VENDOR_MERIT,		"Merit"},
+  {VENDOR_SHIVA,		"Shiva"},
+  {VENDOR_ERICSSON,		"Ericsson AB"},
   {VENDOR_CISCO_VPN5000,	"Cisco VPN 5000"},
   {VENDOR_LIVINGSTON,		"Livingston"},
   {VENDOR_MICROSOFT,		"Microsoft"},
