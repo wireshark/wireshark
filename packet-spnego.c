@@ -3,7 +3,7 @@
  * as described in rfc2478.
  * Copyright 2002, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-spnego.c,v 1.1 2002/08/27 15:46:17 sharpe Exp $
+ * $Id: packet-spnego.c,v 1.2 2002/08/27 23:21:53 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -40,52 +40,250 @@
 
 #include "packet-gssapi.h"
 
-static int proto_snego = -1;
+static int proto_spnego = -1;
 
-static int hf_snego = -1;
+static int hf_spnego = -1;
 
-static gint ett_snego = -1;
+static gint ett_spnego = -1;
+
+/*
+ * XXX: Fixme. This thould be made global ...
+ */
+
+/* Display an ASN1 parse error.  Taken from packet-snmp.c */
+
+static dissector_handle_t data_handle;
 
 static void
-dissect_snego(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+dissect_parse_error(tvbuff_t *tvb, int offset, packet_info *pinfo,
+		    proto_tree *tree, const char *field_name, int ret)
+{
+	char *errstr;
+
+	errstr = asn1_err_to_str(ret);
+
+	if (tree != NULL) {
+		proto_tree_add_text(tree, tvb, offset, 0,
+		    "ERROR: Couldn't parse %s: %s", field_name, errstr);
+		call_dissector(data_handle,
+		    tvb_new_subset(tvb, offset, -1, -1), pinfo, tree);
+	}
+}
+
+static void
+dissect_spnego(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_item *item;
 	proto_tree *subtree;
 	int length = tvb_length_remaining(tvb, 0);
-	int offset = 0;
+	int ret, offset = 0;
+	ASN1_SCK hnd;
+	gboolean def;
+	guint len1, len, cls, con, tag, nbytes;
+	subid_t *oid;
+	gssapi_oid_value *value;
+	dissector_handle_t handle;
+	gchar *oid_string;
+	proto_item *sub_item;
+	proto_tree *oid_subtree;
 
 	item = proto_tree_add_item(
-		tree, hf_snego, tvb, offset, length, FALSE);
+		tree, hf_spnego, tvb, offset, length, FALSE);
 
-	subtree = proto_item_add_subtree(item, ett_snego);
+	subtree = proto_item_add_subtree(item, ett_spnego);
+
+	/*
+	 * The TVB contains a [0] header and a sequence that consists of an 
+	 * object ID and a blob containing the data ...
+	 * Actually, it contains, according to RFC2478:
+         * NegotiationToken ::= CHOICE { 
+	 *          negTokenInit [0] NegTokenInit, 
+	 *          negTokenTarg [1] NegTokenTarg } 
+	 * NegTokenInit ::= SEQUENCE { 
+	 *          mechTypes [0] MechTypeList OPTIONAL, 
+	 *          reqFlags [1] ContextFlags OPTIONAL, 
+	 *          mechToken [2] OCTET STRING OPTIONAL, 
+	 *          mechListMIC [3] OCTET STRING OPTIONAL } 
+         * NegTokenTarg ::= SEQUENCE { 
+	 *          negResult [0] ENUMERATED { 
+	 *              accept_completed (0), 
+	 *              accept_incomplete (1), 
+	 *              reject (2) } OPTIONAL, 
+         *          supportedMech [1] MechType OPTIONAL, 
+         *          responseToken [2] OCTET STRING OPTIONAL, 
+         *          mechListMIC [3] OCTET STRING OPTIONAL }
+         * 
+	 * Windows typically includes mechTypes and mechListMic ('NONE' 
+	 * in the case of NTLMSSP only).
+         * It seems to duplicate the responseToken into the mechListMic field
+         * as well. Naughty, naughty.
+         *
+         * FIXME, the following code is broken so far.
+	 */
+	asn1_open(&hnd, tvb, offset);
+
+	/*
+	 * Get the first header ... 
+	 */
+
+	ret = asn1_header_decode(&hnd, &cls, &con, &tag, &def, &len1);
+
+	if (ret != ASN1_ERR_NOERROR) {
+		dissect_parse_error(tvb, offset, pinfo, subtree,
+				    "SPNEGO context header", ret);
+		goto done;
+	}
+
+	if (!(cls == ASN1_CTX && con == ASN1_CON && tag == 0)) {
+		proto_tree_add_text(
+			subtree, tvb, offset, 0,
+			"Unknown header (cls=%d, con=%d, tag=%d)",
+			cls, con, tag);
+		goto done;
+	}
+
+	/*
+	 * Get the sequence next ...
+	 */
+
+	ret = asn1_header_decode(&hnd, &cls, &con, &tag, &def, &len1);
+
+	if (ret != ASN1_ERR_NOERROR) {
+		dissect_parse_error(tvb, offset, pinfo, subtree,
+				    "SPNEGO sequence header", ret);
+		goto done;
+	}
+
+	if (!(cls == ASN1_UNI && con == ASN1_CON && tag == ASN1_SEQ)) {
+		proto_tree_add_text(
+			subtree, tvb, offset, 0,
+			"Unknown header (cls=%d, con=%d, tag=%d)",
+			cls, con, tag);
+		goto done;
+	}
+
+	/*
+	 * Another context header ... this is but ugly
+	 */
+
+	ret = asn1_header_decode(&hnd, &cls, &con, &tag, &def, &len1);
+
+	if (ret != ASN1_ERR_NOERROR) {
+		dissect_parse_error(tvb, offset, pinfo, subtree,
+				    "SPNEGO context header", ret);
+		goto done;
+	}
+
+	if (!(cls == ASN1_CTX && con == ASN1_CON && tag == 0)) {
+		proto_tree_add_text(
+			subtree, tvb, offset, 0,
+			"Unknown header (cls=%d, con=%d, tag=%d)",
+			cls, con, tag);
+		goto done;
+	}
+
+	/* 
+	 * Last sequence header and then the ObjID.
+	 */
+
+	ret = asn1_header_decode(&hnd, &cls, &con, &tag, &def, &len1);
+
+	if (ret != ASN1_ERR_NOERROR) {
+		dissect_parse_error(tvb, offset, pinfo, subtree,
+				    "SPNEGO last sequence header", ret);
+		goto done;
+	}
+
+	if (!(cls == ASN1_UNI && con == ASN1_CON && tag == ASN1_SEQ)) {
+		proto_tree_add_text(
+			subtree, tvb, offset, 0,
+			"Unknown header (cls=%d, con=%d, tag=%d)",
+			cls, con, tag);
+		goto done;
+	}
+
+	offset = hnd.offset;
+
+	/*
+	 * Now, the object ID ... 
+	 */
+
+	ret = asn1_oid_decode(&hnd, &oid, &len, &nbytes);
+
+	if (ret != ASN1_ERR_NOERROR) {
+		dissect_parse_error(tvb, offset, pinfo, subtree,
+				    "GSS-API token", ret);
+		goto done;
+	}
+
+	oid_string = format_oid(oid, len);
+
+	proto_tree_add_text(subtree, tvb, offset, nbytes, "OID: %s", 
+			    oid_string);
+
+	offset += nbytes;
+
+	/* Now get the offset. Assume 4 btyes to go ... */
+
+	/* Hand off to subdissector */
+
+	if (((value = g_hash_table_lookup(gssapi_oids, oid_string)) == NULL) ||
+	    !proto_is_protocol_enabled(value->proto)) {
+
+		/* No dissector for this oid */
+
+		proto_tree_add_text(
+			subtree, tvb, offset, 
+			tvb_length_remaining(tvb, offset), "Token object");
+
+		goto done;
+	}
+
+	sub_item = proto_tree_add_item(subtree, value->proto, tvb, offset,
+				       -1, FALSE);
+
+	oid_subtree = proto_item_add_subtree(sub_item, value->ett);
+
+	handle = find_dissector(value->name);
+
+	if (handle) {
+		tvbuff_t *oid_tvb;
+
+		oid_tvb = tvb_new_subset(tvb, offset + 4, -1, -1);
+		call_dissector(handle, oid_tvb, pinfo, oid_subtree);
+	}
+
+ done:
+	asn1_close(&hnd, &offset);
+
 }
 
 void
 proto_register_snego(void)
 {
 	static hf_register_info hf[] = {
-		{ &hf_snego,
-		  { "SNEGO", "Snego", FT_NONE, BASE_NONE, NULL, 0x0, 
-		    "SNEGO", HFILL }},
+		{ &hf_spnego,
+		  { "SPNEGO", "Spnego", FT_NONE, BASE_NONE, NULL, 0x0, 
+		    "SPNEGO", HFILL }},
 	};
   
 	static gint *ett[] = {
-		&ett_snego,
+		&ett_spnego,
 	};
 	
-	proto_snego = proto_register_protocol(
-		"Snego", "Snego", "snego");
+	proto_spnego = proto_register_protocol(
+		"Spnego", "Spnego", "spnego");
 
-	proto_register_field_array(proto_snego, hf, array_length(hf));
+	proto_register_field_array(proto_spnego, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
   
-	register_dissector("snego", dissect_snego, proto_snego);
+	register_dissector("spnego", dissect_spnego, proto_spnego);
 }
 
 void
-proto_reg_handoff_snego(void)
+proto_reg_handoff_spnego(void)
 {
 	/* Register protocol with GSS-API module */
 
-	gssapi_init_oid("1.3.6.1.5.5.2", proto_snego, ett_snego, "snego");
+	gssapi_init_oid("1.3.6.1.5.5.2", proto_spnego, ett_spnego, "spnego");
 }
