@@ -8,7 +8,7 @@
  *
  * See RFCs 1905, 1906, 1909, and 1910 for SNMPv2u.
  *
- * $Id: packet-snmp.c,v 1.62 2001/04/07 00:52:07 guy Exp $
+ * $Id: packet-snmp.c,v 1.63 2001/04/07 08:23:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -834,7 +834,7 @@ snmp_variable_decode(proto_tree *snmp_tree, subid_t *variable_oid,
 		if (snmp_tree) {
 #ifdef HAVE_SPRINT_VALUE
 			if (!unsafe) {
-				variable.val.string = SAFE_STRING(vb_octet_string);
+				variable.val.string = vb_octet_string;
 				vb_display_string = format_var(&variable,
 				    variable_oid, variable_oid_length, vb_type,
 				    vb_length);
