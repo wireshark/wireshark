@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * 
- * $Id: packet-rpc.c,v 1.40 2000/08/24 22:58:55 guy Exp $
+ * $Id: packet-rpc.c,v 1.41 2000/08/24 23:09:37 guy Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -41,6 +41,22 @@
 #include "conversation.h"
 #include "packet-rpc.h"
 
+/*
+ * See:
+ *
+ *	RFC 1831, "RPC: Remote Procedure Call Protocol Specification
+ *	Version 2";
+ *
+ *	RFC 1832, "XDR: External Data Representation Standard";
+ *
+ *	RFC 2203, "RPCSEC_GSS Protocol Specification".
+ *
+ * See also
+ *
+ *	RFC 2695, "Authentication Mechanisms for ONC RPC"
+ *
+ *	although we don't currently dissec AUTH_DES or AUTH_KERB.
+ */
 
 #define RPC_RM_FRAGLEN  0x7fffffffL
 
