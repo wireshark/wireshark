@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.205 2002/02/13 04:11:37 guy Exp $
+ * $Id: packet-smb.c,v 1.206 2002/02/14 05:53:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3105,6 +3105,7 @@ dissect_lock_and_read_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 static int
 dissect_write_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *smb_tree)
 {
+	guint32 ofs=0;
 	guint16 cnt=0, bc, fid;
 	guint8 wc;
 
@@ -3121,8 +3122,14 @@ dissect_write_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	offset += 2;
 
 	/* offset */
+	ofs = tvb_get_letohl(tvb, offset);
 	proto_tree_add_item(tree, hf_smb_offset, tvb, offset, 4, TRUE);
 	offset += 4;
+
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(pinfo->cinfo, COL_INFO, 
+				", %d byte%s at offset %d", cnt, 
+				(cnt == 1) ? "" : "s", ofs);
 
 	/* remaining */
 	proto_tree_add_item(tree, hf_smb_remaining, tvb, offset, 2, TRUE);
@@ -3140,6 +3147,11 @@ dissect_write_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	proto_tree_add_item(tree, hf_smb_data_len, tvb, offset, 2, TRUE);
 	COUNT_BYTES(2);
 
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(pinfo->cinfo, COL_INFO, 
+				", %d byte%s at offset %d", cnt, 
+				(cnt == 1) ? "" : "s", ofs);
+
 	if (bc != 0) {
 		/* file data */
 		offset = dissect_file_data(tvb, pinfo, tree, offset, bc, bc);
@@ -3155,13 +3167,18 @@ static int
 dissect_write_file_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *smb_tree)
 {
 	guint8 wc;
-	guint16 bc;
+	guint16 bc, cnt;
 
 	WORD_COUNT;
 
 	/* write count */
+	cnt = tvb_get_letohs(tvb, offset);
 	proto_tree_add_item(tree, hf_smb_count, tvb, offset, 2, TRUE);
 	offset += 2;
+
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(pinfo->cinfo, COL_INFO, 
+				", %d byte%s", cnt, (cnt == 1) ? "" : "s");
 
 	BYTE_COUNT;
 
@@ -4671,7 +4688,8 @@ static int
 dissect_read_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *smb_tree)
 {
 	guint8	wc, cmd=0xff;
-	guint16 andxoffset=0, bc;
+	guint16 andxoffset=0, bc, maxcnt = 0;
+	guint32 ofs = 0;
 	smb_info_t *si;
 	unsigned int fid;
 
@@ -4706,12 +4724,19 @@ dissect_read_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	}
 
 	/* offset */
+	ofs = tvb_get_letohl(tvb, offset);
 	proto_tree_add_item(tree, hf_smb_offset, tvb, offset, 4, TRUE);
 	offset += 4;
 
 	/* max count */
+	maxcnt = tvb_get_letohs(tvb, offset);
 	proto_tree_add_item(tree, hf_smb_max_count, tvb, offset, 2, TRUE);
 	offset += 2;
+
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(pinfo->cinfo, COL_INFO, 
+				", %d byte%s at offset %d", maxcnt, 
+				(maxcnt == 1) ? "" : "s", ofs);
 
 	/* min count */
 	proto_tree_add_item(tree, hf_smb_min_count, tvb, offset, 2, TRUE);
@@ -4790,6 +4815,11 @@ dissect_read_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	datalen = tvb_get_letohs(tvb, offset);
 	proto_tree_add_uint(tree, hf_smb_data_len, tvb, offset, 2, datalen);
 	offset += 2;
+
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(pinfo->cinfo, COL_INFO, 
+				", %d byte%s", datalen, 
+				(datalen == 1) ? "" : "s");
 
 	/* data offset */
 	dataoffset=tvb_get_letohs(tvb, offset);
@@ -4920,6 +4950,8 @@ dissect_write_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	dataoffset=tvb_get_letohs(tvb, offset);
 	proto_tree_add_uint(tree, hf_smb_data_offset, tvb, offset, 2, dataoffset);
 	offset += 2;
+
+	/* FIXME: add byte/offset to COL_INFO */
 
 	if(wc==14){
 		/* high offset */
@@ -6403,6 +6435,14 @@ dissect_security_information_mask(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	return offset;
 }
 
+static void
+free_g_string(void *arg)
+{
+	GString *gstring = arg;
+
+	g_string_free(arg, TRUE);
+}
+
 int
 dissect_nt_sid(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree, char *name)
 {
@@ -6412,7 +6452,7 @@ dissect_nt_sid(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent
 	guint8 revision;
 	guint8 num_auth;
 	int i;
-	char str[256], *strp;
+	GString *gstr;
 
 	if(parent_tree){
 		item = proto_tree_add_text(parent_tree, tvb, offset, -1,
@@ -6435,8 +6475,11 @@ dissect_nt_sid(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent
 	  /* XXX perhaps we should have these thing searchable?
 	     a new FT_xxx thingie? SMB is quite common!*/
 	  /* identifier authorities */
-	  strp=str;
-	  strcpy(strp, "S-1-");
+	  gstr = g_string_new(NULL);
+
+	  CLEANUP_PUSH(free_g_string, gstr);
+	  
+	  g_string_sprintf(gstr, "S-1");
 
 	  proto_tree_add_text(tree, tvb, offset, 6, "Authorities");
 
@@ -6444,7 +6487,7 @@ dissect_nt_sid(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent
 	    guint8 auth = tvb_get_guint8(tvb, offset);
 
 	    if (auth > 0)
-	      sprintf(strp,"%s%d-",strp, auth);
+	      g_string_sprintfa(gstr,"-%u", auth);
 	    offset++;
 	  }
 
@@ -6456,13 +6499,13 @@ dissect_nt_sid(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent
 	       samba header files. considering that all non-x86 NT ports
 	       are dead we can (?) assume that non le byte encodings
 	       will be "uncommon"?*/
-	    sprintf(strp,"%s%d-",strp,tvb_get_letohl(tvb, offset));
+	    g_string_sprintfa(gstr, "-%u",tvb_get_letohl(tvb, offset));
 	    offset+=4;
 	  }
-	  /* strip trailing '-'*/
-	  str[strlen(str)-1]=0;
 
-	  proto_item_append_text(item, ": %s", str);  
+	  proto_item_append_text(item, ": %s", gstr->str);  
+
+	  CLEANUP_CALL_AND_POP;
 	}
 
 	proto_item_set_len(item, offset-old_offset);
@@ -6618,6 +6661,7 @@ dissect_nt_acl(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent
 
 	switch(revision){
 	case 2:  /* only version we will ever see of this structure?*/
+	case 3:
 	  /* size */
 	  proto_tree_add_item(tree, hf_smb_acl_size, tvb, offset, 2, TRUE);
 	  offset += 2;
