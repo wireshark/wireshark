@@ -1,7 +1,7 @@
 /* packet-icmpv6.c
  * Routines for ICMPv6 packet disassembly 
  *
- * $Id: packet-icmpv6.c,v 1.22 2000/08/18 15:52:02 itojun Exp $
+ * $Id: packet-icmpv6.c,v 1.23 2000/08/22 08:30:00 itojun Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -53,6 +53,7 @@
 #include "packet.h"
 #include "packet-ipv6.h"
 #include "packet-ip.h"
+#include "packet-dns.h"
 #include "resolv.h"
 
 #ifndef offsetof
@@ -72,6 +73,8 @@ static gint ett_nodeinfo_subject4 = -1;
 static gint ett_nodeinfo_subject6 = -1;
 static gint ett_nodeinfo_node4 = -1;
 static gint ett_nodeinfo_node6 = -1;
+static gint ett_nodeinfo_nodebitmap = -1;
+static gint ett_nodeinfo_nodedns = -1;
 
 static const value_string names_nodeinfo_qtype[] = {
     { NI_QTYPE_NOOP,		"NOOP" },
@@ -213,6 +216,88 @@ again:
  * draft-ietf-ipngwg-icmp-name-lookups-06.txt
  * Note that the packet format was changed several times in the past.
  */
+
+static const char *
+bitrange0(v, s, buf, buflen)
+	u_int32_t v;
+	int s;
+	char *buf;
+	int buflen;
+{
+	u_int32_t v0;
+	char *p, *ep;
+	int off;
+	int i, l;
+
+	if (buflen < 1)
+		return NULL;
+	if (buflen == 1) {
+		buf[0] = '\0';
+		return NULL;
+	}
+
+	v0 = v;
+	p = buf;
+	ep = buf + buflen - 1;
+	memset(buf, 0, buflen);
+	off = 0;
+	while (off < 32) {
+		/* shift till we have 0x01 */
+		if ((v & 0x01) == 0) {
+			switch (v & 0x0f) {
+			case 0x00:
+				v >>= 4; off += 4; continue;
+			case 0x08:
+				v >>= 3; off += 3; continue;
+			case 0x04: case 0x0c:
+				v >>= 2; off += 2; continue;
+			default:
+				v >>= 1; off += 1; continue;
+			}
+		}
+
+		/* we have 0x01 with us */
+		for (i = 0; i < 32 - off; i++) {
+			if ((v & (0x01 << i)) == 0)
+				break;
+		}
+		if (i == 1)
+			l = snprintf(p, ep - p, ",%d", s + off);
+		else {
+			l = snprintf(p, ep - p, ",%d-%d", s + off,
+			    s + off + i - 1);
+		}
+		if (l > ep - p) {
+			buf[0] = '\0';
+			return NULL;
+		}
+		v >>= i; off += i;
+	}
+
+	return buf;
+}
+
+static const char *
+bitrange(u_char *p, int l, int s)
+{
+    static char buf[1024];
+    char *q, *eq;
+    int i;
+
+    memset(buf, 0, sizeof(buf));
+    q = buf;
+    eq = buf + sizeof(buf) - 1;
+    for (i = 0; i < l; i++) {
+	if (bitrange0(pntohl(p + i * 4), s + i * 4, q, eq - q) == NULL) {
+	    if (q != buf && q + 5 < buf + sizeof(buf))
+		strncpy(q, ",...", 5);
+	    return buf;
+	}
+    }
+
+    return buf + 1;
+}
+
 static void
 dissect_nodeinfo(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
@@ -220,9 +305,10 @@ dissect_nodeinfo(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	proto_item *tf;
     struct icmp6_nodeinfo *ni;
     int off;
-    int i, n;
+    int i, n, l;
     guint16 flags;
     u_char *p;
+    char dname[MAXDNAME];
 
     ni = (struct icmp6_nodeinfo *)&pd[offset];
 
@@ -308,6 +394,9 @@ dissect_nodeinfo(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
     /* offset for "the rest of data" */
     off = sizeof(*ni);
 
+    /* rest of data */
+    if (!IS_DATA_IN_FRAME(offset + sizeof(*ni)))
+	goto nodata;
     if (ni->ni_type == ICMP6_NI_QUERY) {
 	switch (ni->ni_code) {
 	case ICMP6_NI_SUBJ_IPV6:
@@ -326,10 +415,18 @@ dissect_nodeinfo(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	    off = pi.captured_len - offset;
 	    break;
 	case ICMP6_NI_SUBJ_FQDN:
-	    tf = proto_tree_add_text(tree, NullTVB,
-		offset + sizeof(*ni), sizeof(gint32),
-		"TTL: %d", (gint32)pntohl(ni + 1));
-	    /* XXX TBD */
+	    l = get_dns_name(pd, offset + sizeof(*ni), offset + sizeof(*ni),
+		dname, sizeof(dname));
+	    if (IS_DATA_IN_FRAME(offset + sizeof(*ni) + l) &&
+	        pd[offset + sizeof(*ni) + l] == 0) {
+		l++;
+		proto_tree_add_text(tree, NullTVB, offset + sizeof(*ni), l,
+		    "DNS label: %s (truncated)", dname);
+	    } else {
+		proto_tree_add_text(tree, NullTVB, offset + sizeof(*ni), l,
+		    "DNS label: %s", dname);
+	    }
+	    off = offset + sizeof(*ni) + l;
 	    break;
 	case ICMP6_NI_SUBJ_IPV4:
 	    n = pi.captured_len - (offset + sizeof(*ni));
@@ -349,10 +446,69 @@ dissect_nodeinfo(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
     } else {
 	switch (pntohs(&ni->ni_qtype)) {
 	case NI_QTYPE_NOOP:
+	    break;
 	case NI_QTYPE_SUPTYPES:
-	    /* XXX TBD */
+	    p = (u_char *)(ni + 1);
+	    tf = proto_tree_add_text(tree, NullTVB,
+		offset + sizeof(*ni), END_OF_FRAME,
+		"Supported type bitmap%s",
+		(flags & 0x0001) ? ", compressed" : "");
+	    field_tree = proto_item_add_subtree(tf,
+		ett_nodeinfo_nodebitmap);
+	    n = 0;
+	    while (IS_DATA_IN_FRAME(p - pd)) {
+		if ((flags & 0x0001) == 0) {
+		    l = pi.captured_len - (offset + sizeof(*ni));
+		    l /= sizeof(guint32);
+		    i = 0;
+		} else {
+		    if (!IS_DATA_IN_FRAME(p + sizeof(guint32) - 1 - pd))
+			break;
+		    l = pntohs(p);
+		    i = pntohs(p + sizeof(guint16));	/*skip*/
+		}
+		if (n + l * 32 > (1 << 16))
+		    break;
+		if (n + (l + i) * 32 > (1 << 16))
+		    break;
+		if ((flags & 0x0001) == 0) {
+		    proto_tree_add_text(field_tree, NullTVB, p - pd,
+			l * 4, "Bitmap (%d to %d): %s", n, n + l * 32 - 1,
+			bitrange(p, l, n));
+		    p += l * 4;
+		} else {
+		    proto_tree_add_text(field_tree, NullTVB, p - pd,
+			4 + l * 4, "Bitmap (%d to %d): %s", n, n + l * 32 - 1,
+			bitrange(p + 4, l, n));
+		    p += (4 + l * 4);
+		}
+		n += l * 32 + i * 32;
+	    }
+	    off = pi.captured_len - offset;
+	    break;
 	case NI_QTYPE_DNSNAME:
-	    /* XXX TBD */
+	    proto_tree_add_text(tree, NullTVB, offset + sizeof(*ni),
+		sizeof(gint32), "TTL: %d", (gint32)pntohl(ni + 1));
+	    tf = proto_tree_add_text(tree, NullTVB,
+		offset + sizeof(*ni) + sizeof(guint32), END_OF_FRAME,
+		"DNS labels");
+	    field_tree = proto_item_add_subtree(tf, ett_nodeinfo_nodedns);
+	    n = pi.captured_len;
+	    i = offset + sizeof(*ni) + sizeof(guint32);
+	    while (i < pi.captured_len) {
+		l = get_dns_name(pd, i, offset + sizeof(*ni), dname,
+		    sizeof(dname));
+		if (IS_DATA_IN_FRAME(i + l) && pd[i + l] == 0) {
+		    l++;
+		    proto_tree_add_text(field_tree, NullTVB, i, l,
+			"DNS label: %s (truncated)", dname);
+		} else {
+		    proto_tree_add_text(field_tree, NullTVB, i, l,
+			"DNS label: %s", dname);
+		}
+		i += l;
+	    }
+	    off = pi.captured_len - offset;
 	    break;
 	case NI_QTYPE_NODEADDR:
 	    n = pi.captured_len - (offset + sizeof(*ni));
@@ -385,6 +541,7 @@ dissect_nodeinfo(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	    break;
 	}
     }
+nodata:;
 
     /* the rest of data */
     old_dissect_data(pd, offset + off, fd, tree);
@@ -846,6 +1003,8 @@ proto_register_icmpv6(void)
     &ett_nodeinfo_subject6,
     &ett_nodeinfo_node4,
     &ett_nodeinfo_node6,
+    &ett_nodeinfo_nodebitmap,
+    &ett_nodeinfo_nodedns,
   };
 
   proto_icmpv6 = proto_register_protocol("Internet Control Message Protocol v6",
