@@ -56,7 +56,7 @@ extern proto_item* proto_tree_add_xml_item(proto_tree* tree, tvbuff_t* tvb,
 	txt = tvb_get_string(tvb,offset,len);
 
 	if ( hfid ) {
-		pi = proto_tree_add_string_format(tree,hfid,tvb,offset,len,txt,format_text(txt, len));
+		pi = proto_tree_add_string_format(tree,hfid,tvb,offset,len,txt,"%s",format_text(txt, len));
 	} else {
 		pi = proto_tree_add_text(tree,tvb,offset,len,"%s",format_text(txt, len));
 	}
