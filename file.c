@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.91 1999/09/12 20:23:31 guy Exp $
+ * $Id: file.c,v 1.92 1999/09/13 23:45:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -227,6 +227,7 @@ read_cap_file(capture_file *cf) {
   wtap_close(cf->wth);
   cf->wth = NULL;
   cf->fh = fopen(cf->filename, "r");
+  cf->unfiltered_count = cf->count;
   thaw_clist(cf);
   
   gtk_progress_bar_update(GTK_PROGRESS_BAR(prog_bar), 0);
@@ -737,6 +738,9 @@ print_packets(capture_file *cf, print_args_t *print_args)
 {
   int         i;
   frame_data *fd;
+  guint32     progbar_quantum;
+  guint32     progbar_nextstep;
+  guint32     count;
   proto_tree *protocol_tree;
   gint       *col_widths = NULL;
   gint        data_width;
@@ -788,9 +792,36 @@ print_packets(capture_file *cf, print_args_t *print_args)
   print_separator = FALSE;
   proto_tree_is_visible = TRUE;
 
+  /* Update the progress bar when it gets to this value. */
+  progbar_nextstep = 0;
+  /* When we reach the value that triggers a progress bar update,
+     bump that value by this amount. */
+  progbar_quantum = cf->unfiltered_count/N_PROGBAR_UPDATES;
+  /* Count of packets we've looked at. */
+  count = 0;
+
   /* Iterate through the list of packets, printing the packets that
      were selected by the current display filter.  */
   for (fd = cf->plist; fd != NULL; fd = fd->next) {
+    /* Update the progress bar, but do it only N_PROGBAR_UPDATES times;
+       when we update it, we have to run the GTK+ main loop to get it
+       to repaint what's pending, and doing so may involve an "ioctl()"
+       to see if there's any pending input from an X server, and doing
+       that for every packet can be costly, especially on a big file. */
+    if (count >= progbar_nextstep) {
+      /* let's not divide by zero. I should never be started
+       * with unfiltered_count == 0, so let's assert that
+       */
+      g_assert(cf->unfiltered_count > 0);
+
+      gtk_progress_bar_update(GTK_PROGRESS_BAR(prog_bar),
+        (gfloat) count / cf->unfiltered_count);
+      progbar_nextstep += progbar_quantum;
+      while (gtk_events_pending())
+        gtk_main_iteration();
+    }
+    count++;
+
     if (fd->passed_dfilter) {
       wtap_seek_read (cf->cd_t, cf->fh, fd->file_off, cf->pd, fd->cap_len);
       if (print_args->print_summary) {
@@ -841,6 +872,9 @@ print_packets(capture_file *cf, print_args_t *print_args)
 #endif
 
   close_print_dest(print_args->to_file, cf->print_fh);
+ 
+  gtk_progress_bar_update(GTK_PROGRESS_BAR(prog_bar), 0);
+
   cf->print_fh = NULL;
   return TRUE;
 }
