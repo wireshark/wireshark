@@ -3,7 +3,7 @@
  * see http://dhis.sourceforge.net/
  * Olivier Abad <abad@daba.dhis.net>
  *
- * $Id:
+ * $Id: packet-dhis.h,v 1.2 2000/02/23 22:41:15 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
