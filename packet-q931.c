@@ -2,7 +2,7 @@
  * Routines for Q.931 frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-q931.c,v 1.57 2003/08/05 17:39:23 guy Exp $
+ * $Id: packet-q931.c,v 1.58 2003/08/05 17:45:52 guy Exp $
  *
  * Modified by Andreas Sikkema for possible use with H.323
  *
@@ -2364,7 +2364,7 @@ dissect_q931_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 		 /* Check for the codeset shift */
 		if ((info_element & Q931_IE_SO_MASK) &&
-            ((info_element & Q931_IE_SO_IDENTIFIER_MASK) == Q931_IE_SHIFT)) {
+		    ((info_element & Q931_IE_SO_IDENTIFIER_MASK) == Q931_IE_SHIFT)) {
 			non_locking_shift = info_element & Q931_IE_SHIFT_NON_LOCKING;
 			codeset = info_element & Q931_IE_SHIFT_CODESET;
 			if (!non_locking_shift)
@@ -2374,29 +2374,31 @@ dissect_q931_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				    "%s shift to codeset %u: %s",
 				    (non_locking_shift ? "Non-locking" : "Locking"),
 				    codeset,
-			    	val_to_str(codeset, q931_codeset_vals,
+				    val_to_str(codeset, q931_codeset_vals,
 				      "Unknown (0x%02X)"));
 			}
 			offset += 1;
 			continue;
-        }
+		}
 
 		/*
 		 * Check for the single-octet IEs.
 		 */
 		if (info_element & Q931_IE_SO_MASK) {
-
-			/* check for subdissectors */
+			/*
+			 * Check for subdissectors for this IE or
+			 * for all IEs in this codeset.
+			 */
 			if (dissector_get_port_handle(codeset_dissector_table, codeset) ||
-                dissector_get_port_handle(ie_dissector_table, (codeset << 8) | (info_element & Q931_IE_SO_IDENTIFIER_MASK))) {
+			    dissector_get_port_handle(ie_dissector_table, (codeset << 8) | (info_element & Q931_IE_SO_IDENTIFIER_MASK))) {
 				next_tvb = tvb_new_subset (tvb, offset, 1, 1);
 				if (dissector_try_port(ie_dissector_table, (codeset << 8) | (info_element & Q931_IE_SO_IDENTIFIER_MASK), next_tvb, pinfo, q931_tree) ||
 				    dissector_try_port(codeset_dissector_table, codeset, next_tvb, pinfo, q931_tree)) {
 					offset += 1;
 					codeset = locked_codeset;
 					continue;
-                }
-            }
+				}
+			}
 
 			switch ((codeset << 8) | (info_element & Q931_IE_SO_IDENTIFIER_MASK)) {
 
@@ -2529,17 +2531,20 @@ dissect_q931_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		} else {
 			info_element_len = tvb_get_guint8(tvb, offset + 1);
 
-			/* check for subdissectors */
+			/*
+			 * Check for subdissectors for this IE or
+			 * for all IEs in this codeset.
+			 */
 			if (dissector_get_port_handle(codeset_dissector_table, codeset) ||
-                dissector_get_port_handle(ie_dissector_table, (codeset << 8) | info_element)) {
+			    dissector_get_port_handle(ie_dissector_table, (codeset << 8) | info_element)) {
 				next_tvb = tvb_new_subset (tvb, offset, info_element_len + 2, info_element_len + 2);
 				if (dissector_try_port(ie_dissector_table, (codeset << 8) | info_element, next_tvb, pinfo, q931_tree) ||
 				    dissector_try_port(codeset_dissector_table, codeset, next_tvb, pinfo, q931_tree)) {
 					offset += 2 + info_element_len;;
 					codeset = locked_codeset;
 					continue;
-                }
-            }
+				}
+			}
 
 			if (q931_tree != NULL) {
 				ti = proto_tree_add_text(q931_tree, tvb, offset,
