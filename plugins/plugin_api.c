@@ -1,7 +1,7 @@
 /* plugin_api.c
  * Routines for Ethereal plugins.
  *
- * $Id: plugin_api.c,v 1.19 2001/04/25 08:41:22 guy Exp $
+ * $Id: plugin_api.c,v 1.20 2001/07/22 10:12:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@xiexie.org>
@@ -137,4 +137,12 @@ plugin_address_table_init(plugin_address_table_t *pat)
 	p_prefs_register_uint_preference	= pat->p_prefs_register_uint_preference;
 	p_prefs_register_bool_preference	= pat->p_prefs_register_bool_preference;
 	p_prefs_register_enum_preference	= pat->p_prefs_register_enum_preference;
+	p_register_giop_user			= pat->p_register_giop_user;
+	p_is_big_endian				= pat->p_is_big_endian;
+	p_get_CDR_string			= pat->p_get_CDR_string;
+	p_get_CDR_ulong				= pat->p_get_CDR_ulong;
+	p_get_CDR_enum				= pat->p_get_CDR_enum;
+	p_get_CDR_object			= pat->p_get_CDR_object;
+	p_get_CDR_boolean			= pat->p_get_CDR_boolean;
+
 }

@@ -1,7 +1,7 @@
 /* plugins.c
  * plugin routines
  *
- * $Id: plugins.c,v 1.24 2001/04/25 08:41:21 guy Exp $
+ * $Id: plugins.c,v 1.25 2001/07/22 10:12:08 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -63,6 +63,7 @@
 #include "prefs.h"
 
 #ifdef PLUGINS_NEED_ADDRESS_TABLE
+#include "packet-giop.h"
 #include "plugins/plugin_table.h"
 static plugin_address_table_t	patable;
 #endif
@@ -404,6 +405,14 @@ init_plugins(const char *plugin_dir)
 	patable.p_prefs_register_uint_preference = prefs_register_uint_preference;
 	patable.p_prefs_register_bool_preference = prefs_register_bool_preference;
 	patable.p_prefs_register_enum_preference = prefs_register_enum_preference;
+
+	patable.p_register_giop_user		= register_giop_user;
+	patable.p_is_big_endian			= is_big_endian;
+	patable.p_get_CDR_string		= get_CDR_string;
+	patable.p_get_CDR_ulong			= get_CDR_ulong;
+	patable.p_get_CDR_enum			= get_CDR_enum;
+	patable.p_get_CDR_object		= get_CDR_object;
+	patable.p_get_CDR_boolean		= get_CDR_boolean;
 #endif
 
 	plugins_scan_dir(std_plug_dir);

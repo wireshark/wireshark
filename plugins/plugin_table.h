@@ -1,7 +1,7 @@
 /* plugin_table.h
  * Table of exported addresses for Ethereal plugins.
  *
- * $Id: plugin_table.h,v 1.20 2001/04/25 08:41:22 guy Exp $
+ * $Id: plugin_table.h,v 1.21 2001/07/22 10:12:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@xiexie.org>
@@ -114,11 +114,11 @@ typedef proto_item* (*addr_proto_tree_add_notext)(proto_tree*, tvbuff_t*, gint, 
 typedef tvbuff_t* (*addr_tvb_new_subset)(tvbuff_t*, gint, gint, gint);
 
 typedef guint (*addr_tvb_length)(tvbuff_t*);
-typedef guint (*addr_tvb_length_remaining)(tvbuff_t*, gint);
+typedef gint (*addr_tvb_length_remaining)(tvbuff_t*, gint);
 typedef gboolean (*addr_tvb_bytes_exist)(tvbuff_t*, gint, gint);
 typedef gboolean (*addr_tvb_offset_exists)(tvbuff_t*, gint);
 typedef guint (*addr_tvb_reported_length)(tvbuff_t*);
-typedef guint (*addr_tvb_reported_length_remaining)(tvbuff_t*, gint);
+typedef gint (*addr_tvb_reported_length_remaining)(tvbuff_t*, gint);
 
 typedef guint8 (*addr_tvb_get_guint8)(tvbuff_t*, gint);
 
@@ -168,6 +168,16 @@ typedef void (*addr_prefs_register_bool_preference)(struct pref_module *,
 typedef void (*addr_prefs_register_enum_preference)(struct pref_module *,
     const char *, const char *, const char *, gint *, const enum_val_t *,
     gboolean);
+
+typedef void (*addr_register_giop_user)(giop_sub_dissector_t *, gchar *, int);
+typedef gboolean (*addr_is_big_endian)(MessageHeader *);
+typedef guint32 (*addr_get_CDR_string)(tvbuff_t *, gchar **, int *, gboolean,
+    int);
+typedef guint32 (*addr_get_CDR_ulong)(tvbuff_t *, int *, gboolean, int);
+typedef guint32 (*addr_get_CDR_enum)(tvbuff_t *, int *, gboolean, int);
+typedef void (*addr_get_CDR_object)(tvbuff_t *, packet_info *, proto_tree *,
+    int *, gboolean, int);
+typedef gboolean (*addr_get_CDR_boolean)(tvbuff_t *, int *);
 
 typedef struct  {
 	addr_check_col				p_check_col;
@@ -292,6 +302,14 @@ typedef struct  {
 	addr_prefs_register_uint_preference	p_prefs_register_uint_preference;
 	addr_prefs_register_bool_preference	p_prefs_register_bool_preference;
 	addr_prefs_register_enum_preference	p_prefs_register_enum_preference;
+
+	addr_register_giop_user			p_register_giop_user;
+	addr_is_big_endian			p_is_big_endian;
+	addr_get_CDR_string			p_get_CDR_string;
+	addr_get_CDR_ulong			p_get_CDR_ulong;
+	addr_get_CDR_enum			p_get_CDR_enum;
+	addr_get_CDR_object			p_get_CDR_object;
+	addr_get_CDR_boolean			p_get_CDR_boolean;
 } plugin_address_table_t;
 
 #else /* ! PLUGINS_NEED_ACCESS_TABLE */

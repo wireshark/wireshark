@@ -1,7 +1,7 @@
 /* plugin_api.h
  * Routines for Ethereal plugins.
  *
- * $Id: plugin_api.h,v 1.19 2001/04/25 08:41:22 guy Exp $
+ * $Id: plugin_api.h,v 1.20 2001/07/22 10:12:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@xiexie.org>
@@ -155,12 +155,21 @@
 #define prefs_register_bool_preference	(*p_prefs_register_bool_preference)
 #define prefs_register_enum_preference	(*p_prefs_register_enum_preference)
 
-#define pi	(*p_pi)
+#define register_giop_user		(*p_register_giop_user)
+#define is_big_endian			(*p_is_big_endian)
+#define get_CDR_string			(*p_get_CDR_string)
+#define get_CDR_ulong			(*p_get_CDR_ulong)
+#define get_CDR_enum			(*p_get_CDR_enum)
+#define get_CDR_object			(*p_get_CDR_object)
+#define get_CDR_boolean			(*p_get_CDR_boolean)
+
+#define pi				(*p_pi)
 
 #endif
 
 #include "packet.h"
 #include "prefs.h"
+#include "packet-giop.h"
 
 #include "plugin_table.h"
 
