@@ -1,7 +1,7 @@
 /* packet-udp.c
  * Routines for UDP packet disassembly
  *
- * $Id: packet-udp.c,v 1.67 2000/04/17 02:47:43 guy Exp $
+ * $Id: packet-udp.c,v 1.68 2000/04/18 04:46:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -74,7 +74,6 @@ typedef struct _e_udphdr {
 /* UDP Ports -> should go in packet-udp.h */
 
 #define UDP_PORT_TFTP    69
-#define UDP_PORT_NCP    524
 #define UDP_PORT_VINES	573
 
 static dissector_table_t udp_dissector_table;
@@ -129,9 +128,7 @@ decode_udp_ports( const u_char *pd, int offset, frame_data *fd,
 
   /* XXX - we should do these with the subdissector table as well. */
 #define PORT_IS(port)	(uh_sport == port || uh_dport == port)
-  if (PORT_IS(UDP_PORT_NCP))
-    dissect_ncp(pd, offset, fd, tree); /* XXX -- need to handle nw_server_address */
-  else if (PORT_IS(UDP_PORT_VINES)) {
+  if (PORT_IS(UDP_PORT_VINES)) {
     /* FIXME: AFAIK, src and dst port must be the same */
     dissect_vines_frp(pd, offset, fd, tree);
   } else if (PORT_IS(UDP_PORT_TFTP)) {

@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.181 2000/04/13 20:39:17 gram Exp $
+ * $Id: packet.h,v 1.182 2000/04/18 04:46:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -177,7 +177,8 @@ typedef struct _address {
 typedef enum {
   PT_NONE,		/* no port number */
   PT_TCP,		/* TCP */
-  PT_UDP		/* UDP */
+  PT_UDP,		/* UDP */
+  PT_NCP		/* NCP connection */
 } port_type;
 
 typedef struct _packet_info {

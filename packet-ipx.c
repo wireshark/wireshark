@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-ipx.c,v 1.55 2000/04/17 00:32:39 guy Exp $
+ * $Id: packet-ipx.c,v 1.56 2000/04/18 04:46:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -426,16 +426,6 @@ dissect_ipx(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 			break;
 
 		case IPX_PACKET_TYPE_NCP:
-			/* Is the destination node 00:00:00:00:00:01 ? */
-			if (pntohl(ipx_dnode) == 0 && pntohs(ipx_dnode + 4) == 1)
-				nw_server_address = pntohl(ipx_dnet);
-
-			/* Is the source node 00:00:00:00:00:01 ? */
-			else if (pntohl(ipx_snode) == 0 && pntohs(ipx_snode + 4) == 1)
-				nw_server_address = pntohl(ipx_snet);
-			else
-				nw_server_address = 0;
-
 			dissect_ncp(pd, offset, fd, tree);
 			break;
 

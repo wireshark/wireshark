@@ -3,7 +3,7 @@
  * Gilbert Ramirez <gram@xiexie.org>
  * Modified to allow NCP over TCP/IP decodes by James Coe <jammer@cin.net>
  *
- * $Id: packet-ncp.c,v 1.33 2000/04/17 04:00:36 guy Exp $
+ * $Id: packet-ncp.c,v 1.34 2000/04/18 04:46:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -41,6 +41,7 @@
 
 #include <glib.h>
 #include "packet.h"
+#include "conversation.h"
 #include "packet-ipx.h"
 #include "packet-ncp.h"
 
@@ -56,15 +57,20 @@ static gint ett_ncp = -1;
 static gint ett_ncp_request_fields = -1;
 static gint ett_ncp_reply_fields = -1;
 
-#define TCP_PORT_NCP			524
+#define TCP_PORT_NCP		524
+#define UDP_PORT_NCP		524
 
 struct svc_record;
 
 static void
-dissect_ncp_request(const u_char *pd, int offset, frame_data *fd, proto_tree *ncp_tree, proto_tree *tree);
+dissect_ncp_request(const u_char *pd, int offset, frame_data *fd,
+	guint16 nw_connection, guint8 nw_sequence, guint16 nw_ncp_type,
+	proto_tree *ncp_tree, proto_tree *tree);
 
 static void
-dissect_ncp_reply(const u_char *pd, int offset, frame_data *fd, proto_tree *ncp_tree, proto_tree *tree);
+dissect_ncp_reply(const u_char *pd, int offset, frame_data *fd,
+	guint16 nw_connection, guint8 nw_sequence,
+	proto_tree *ncp_tree, proto_tree *tree);
 
 static struct ncp2222_record *
 ncp2222_find(guint8 func, guint8 subfunc);
@@ -425,42 +431,32 @@ static ncp2222_record ncp2222[] = {
  * (NFS also requires it), so for now the NCP section will keep its own hash
  * table keeping track of NCP packet types.
  *
- * The key representing the unique NCP request is composed of 3 variables:
- *
- * ServerIPXNetwork.Connection.SequenceNumber
- *     4 bytes        2 bytes      1 byte
- *     guint32        guint16      guint8     (all are host order)
- *
- * This assumes that all NCP connection is between a client and server.
- * Servers can be identified by having a 00:00:00:00:00:01 IPX Node address.
- * We have to let the IPX layer pass us the ServerIPXNetwork via a global
- * variable (nw_server_address). In the future, if we decode NCP over TCP/UDP,
- * then nw_server_address will represent the IP address of the server, which
- * conveniently, is also 4 bytes long.
+ * We construct a conversation specified by the client and server
+ * addresses and the connection number; the key representing the unique
+ * NCP request then is composed of the pointer to the conversation
+ * structure, cast to a "guint" (which may throw away the upper 32
+ * bits of the pointer on a P64 platform, but the low-order 32 bits
+ * are more likely to differ between conversations than the upper 32 bits),
+ * and the sequence number.
  *
  * The value stored in the hash table is the ncp_request_val pointer. This
  * struct tells us the NCP type and gives the ncp2222_record pointer, if
  * ncp_type == 0x2222.
  */
-guint32 nw_server_address = 0; /* set by IPX layer */
-guint16 nw_connection = 0; /* set by dissect_ncp */
-guint8  nw_sequence = 0; /* set by dissect_ncp */
-guint16 nw_ncp_type = 0; /* set by dissect_ncp */
 
 struct ncp_request_key {
-	guint32	nw_server_address;
-	guint16	nw_connection;
-	guint8	nw_sequence;
+	conversation_t	*conversation;
+	guint8		nw_sequence;
 };
 
 struct ncp_request_val {
-	guint32					ncp_type;
+	guint32			ncp_type;
 	struct ncp2222_record*	ncp_record;
 };
 
-GHashTable *ncp_request_hash = NULL;
-GMemChunk *ncp_request_keys = NULL;
-GMemChunk *ncp_request_records = NULL;
+static GHashTable *ncp_request_hash = NULL;
+static GMemChunk *ncp_request_keys = NULL;
+static GMemChunk *ncp_request_records = NULL;
 
 /* Hash Functions */
 gint  ncp_equal (gconstpointer v, gconstpointer v2)
@@ -469,14 +465,13 @@ gint  ncp_equal (gconstpointer v, gconstpointer v2)
 	struct ncp_request_key	*val2 = (struct ncp_request_key*)v2;
 
 	#if defined(DEBUG_NCP_HASH)
-	printf("Comparing %08X:%d:%d and %08X:%d:%d\n",
-		val1->nw_server_address, val1->nw_connection, val1->nw_sequence,
-		val2->nw_server_address, val2->nw_connection, val2->nw_sequence);
+	printf("Comparing %p:%d and %p:%d\n",
+		val1->conversation, val1->nw_sequence,
+		val2->conversation, val2->nw_sequence);
 	#endif
 
-	if (val1->nw_server_address == val2->nw_server_address &&
-		val1->nw_connection == val2->nw_connection &&
-		val1->nw_sequence   == val2->nw_sequence ) {
+	if (val1->conversation == val2->conversation &&
+	    val1->nw_sequence  == val2->nw_sequence ) {
 		return 1;
 	}
 	return 0;
@@ -486,13 +481,10 @@ guint ncp_hash  (gconstpointer v)
 {
 	struct ncp_request_key	*ncp_key = (struct ncp_request_key*)v;
 #if defined(DEBUG_NCP_HASH)
-	printf("hash calculated as %d\n", ncp_key->nw_server_address +
-			((guint32) ncp_key->nw_connection << 16) +
-			ncp_key->nw_sequence);
+	printf("hash calculated as %u\n",
+		GPOINTER_TO_UINT(ncp_key->conversation) + ncp_key->nw_sequence);
 #endif
-	return ncp_key->nw_server_address +
-			((guint32) ncp_key->nw_connection << 16) +
-			ncp_key->nw_sequence;
+	return GPOINTER_TO_UINT(ncp_key->conversation) + ncp_key->nw_sequence;
 }
 
 /* Initializes the hash table and the mem_chunk area each time a new
@@ -548,6 +540,9 @@ dissect_ncp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	struct ncp_ip_header		ncpiph;
 	struct ncp_ip_rqhdr		ncpiphrq;
 	struct ncp_common_header	header;
+	guint16		nw_connection;
+	guint8		nw_sequence;
+	guint16		nw_ncp_type;
 
 	if ( pi.ptype == PT_TCP || pi.ptype == PT_UDP ) {
 		ncpiph.signature = pntohl(&pd[offset]);
@@ -612,20 +607,24 @@ dissect_ncp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
 	/* Note how I use ncp_tree *and* tree in my args for ncp request/reply */
 	if (ncp_hdr_length == 7)
-		dissect_ncp_request(pd, offset, fd, ncp_tree, tree);
+		dissect_ncp_request(pd, offset, fd, nw_connection,
+				nw_sequence, nw_ncp_type, ncp_tree, tree);
 	else if (ncp_hdr_length == 8)
-		dissect_ncp_reply(pd, offset, fd, ncp_tree, tree);
+		dissect_ncp_reply(pd, offset, fd, nw_connection,
+				nw_sequence, ncp_tree, tree);
 	else
 		dissect_data(pd, offset, fd, tree);
 }
 
-void
+static void
 dissect_ncp_request(const u_char *pd, int offset, frame_data *fd,
+	guint16 nw_connection, guint8 nw_sequence, guint16 nw_ncp_type,
 	proto_tree *ncp_tree, proto_tree *tree) {
 
 	struct ncp_request_header	request;
 	struct ncp2222_record		*ncp_request;
 	gchar				*description = "";
+	conversation_t			*conversation;
 	struct ncp_request_val		*request_val;
 	struct ncp_request_key		*request_key;
 	proto_tree			*field_tree = NULL;
@@ -656,11 +655,25 @@ dissect_ncp_request(const u_char *pd, int offset, frame_data *fd,
 
 	if (!fd->flags.visited) {
 		/* This is the first time we've looked at this packet.
-		   Remember the request, so we can find it if we later
+		   Keep track of the address and connection whence the request
+		   came, and the address and connection to which the request
+		   is being sent, so that we can match up calls with replies.
+		   (We don't include the sequence number, as we may want
+		   to have all packets over the same connection treated
+		   as being part of a single conversation so that we can
+		   let the user select that conversation to be displayed.) */
+		conversation = find_conversation(&pi.src, &pi.dst,
+		    PT_NCP, nw_connection, nw_connection);
+		if (conversation == NULL) {
+			/* It's not part of any conversation - create a new one. */
+			conversation = conversation_new(&pi.src, &pi.dst,
+			    PT_NCP, nw_connection, nw_connection, NULL);
+		}
+
+		/* Now remember the request, so we can find it if we later
 		   a reply to it. */
 		request_key = g_mem_chunk_alloc(ncp_request_keys);
-		request_key->nw_server_address = nw_server_address;
-		request_key->nw_connection = nw_connection;
+		request_key->conversation = conversation;
 		request_key->nw_sequence = nw_sequence;
 
 		request_val = g_mem_chunk_alloc(ncp_request_records);
@@ -669,8 +682,8 @@ dissect_ncp_request(const u_char *pd, int offset, frame_data *fd,
 
 		g_hash_table_insert(ncp_request_hash, request_key, request_val);
 		#if defined(DEBUG_NCP_HASH)
-		printf("Inserted server %08X connection %d sequence %d (val=%08X)\n",
-			nw_server_address, nw_connection, nw_sequence, request_val);
+		printf("Inserted conversation %p sequence %d (val=%p)\n",
+			conversation, nw_sequence, request_val);
 		#endif
 	}
 
@@ -703,11 +716,13 @@ dissect_ncp_request(const u_char *pd, int offset, frame_data *fd,
 	}
 }
 
-void
+static void
 dissect_ncp_reply(const u_char *pd, int offset, frame_data *fd,
+	guint16 nw_connection, guint8 nw_sequence,
 	proto_tree *ncp_tree, proto_tree *tree) {
 
 	struct ncp_reply_header		reply;
+	conversation_t			*conversation;
 	struct ncp2222_record		*ncp_request = NULL;
 	struct ncp_request_val		*request_val;
 	struct ncp_request_key		request_key;
@@ -716,18 +731,28 @@ dissect_ncp_reply(const u_char *pd, int offset, frame_data *fd,
 
 	memcpy(&reply, &pd[offset], sizeof(reply));
 
-	/* find the record telling us the request made that caused this reply */
-	request_key.nw_server_address = nw_server_address;
-	request_key.nw_connection = nw_connection;
-	request_key.nw_sequence = nw_sequence;
+	/* Find the conversation whence the request would have come. */
 
-	request_val = (struct ncp_request_val*)
-		g_hash_table_lookup(ncp_request_hash, &request_key);
+	conversation = find_conversation(&pi.src, &pi.dst,
+		    PT_NCP, nw_connection, nw_connection);
+	if (conversation != NULL) {
+		/* find the record telling us the request made that caused
+		   this reply */
+		request_key.conversation = conversation;
+		request_key.nw_sequence = nw_sequence;
 
-	#if defined(DEBUG_NCP_HASH)
-	printf("Looking for server %08X connection %d sequence %d (retval=%08X)\n",
-		nw_server_address, nw_connection, nw_sequence, request_val);
-	#endif
+		#if defined(DEBUG_NCP_HASH)
+		printf("Looking for conversation %p sequence %u (retval=%p)\n",
+			conversation, nw_sequence, request_val);
+		#endif
+
+		request_val = (struct ncp_request_val*)
+			g_hash_table_lookup(ncp_request_hash, &request_key);
+	} else {
+		/* We haven't seen an RPC call for that conversation,
+		   so we can't check for a reply to that call. */
+		request_val = NULL;
+	}
 
 	if (request_val)
 		ncp_request = request_val->ncp_record;
@@ -1044,4 +1069,5 @@ void
 proto_reg_handoff_ncp(void)
 {
   dissector_add("tcp.port", TCP_PORT_NCP, dissect_ncp);
+  dissector_add("udp.port", UDP_PORT_NCP, dissect_ncp);
 }
