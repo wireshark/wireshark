@@ -48,7 +48,7 @@ All in all a lot of work.
  *       with great support with testing and providing capturefiles
  *       from Martin Regner
  *
- * $Id: packet-h245.c,v 1.24 2003/07/19 10:25:44 sahlberg Exp $
+ * $Id: packet-h245.c,v 1.25 2003/07/26 04:51:07 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -86,7 +86,7 @@ All in all a lot of work.
 static dissector_handle_t h245_handle;
 static dissector_handle_t MultimediaSystemControlMessage_handle;
 
-static int proto_h245 = -1;
+static int proto_h245 = -1;		/* h245 over tpkt */
 static int hf_h245_rfc_number = -1;
 static int hf_h245_pdu_type = -1;
 static int hf_h245_DialingInformationNumber_networkAddress = -1;
@@ -22229,6 +22229,7 @@ proto_register_h245(void)
 		"Reassemble H.245 over TCP",
 		"Whether the dissector should reassemble H.245 PDUs spanning multiple TCP segments",
 		&h245_reassembly);
+	register_dissector("h245dg", dissect_h245_MultimediaSystemControlMessage, proto_h245);
 }
 
 void
