@@ -3,7 +3,7 @@
  * (ISAKMP) (RFC 2408)
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-isakmp.c,v 1.26 2000/08/13 14:08:18 deniel Exp $
+ * $Id: packet-isakmp.c,v 1.27 2000/10/02 18:38:50 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -617,6 +617,11 @@ dissect_transform(const u_char *pd, int offset, frame_data *fd,
 			  num2str(pd + offset + 4, val_len));
       offset += pack_len;
       length -= pack_len;
+    }
+    if (!IS_DATA_IN_FRAME(offset)) {
+	    proto_tree_add_text(ntree, NullTVB, 0, 0,
+			    "Bad Offset: %u", offset);
+	    return;
     }
   }
 
