@@ -1,6 +1,6 @@
 /* wtap.h
  *
- * $Id: wtap.h,v 1.2 1998/11/12 06:01:27 gram Exp $
+ * $Id: wtap.h,v 1.3 1998/11/13 05:57:39 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -29,6 +29,7 @@
 #define WTAP_ENCAP_PPP				4
 #define WTAP_ENCAP_FDDI				5
 #define WTAP_ENCAP_RAW_IP			6
+#define WTAP_ENCAP_ARCNET			7
 
 /* File types that can be read by wiretap */
 #define WTAP_FILE_UNKNOWN			0
@@ -44,6 +45,10 @@
 #include <glib.h>
 #include <pcap.h>
 #include <buffer.h>
+
+typedef struct {
+	guint16	pkt_len;
+} ngsniffer_t;
 
 typedef struct {
 	guint16	pkt_len;
@@ -72,6 +77,7 @@ typedef struct wtap {
 	union {
 		pcap_t			*pcap;
 		lanalyzer_t		*lanalyzer;
+		ngsniffer_t		*ngsniffer;
 	} capture;
 
 	subtype_func	subtype_read;	

@@ -88,17 +88,17 @@ LIBS = -lpcap  -L/usr/local/lib -L/usr/X11R6/lib -lgtk -lgdk -lglib -lXext -lX11
 libwiretap_a_LIBADD = 
 libwiretap_a_OBJECTS =  buffer.o file.o lanalyzer.o ngsniffer.o wtap.o
 AR = ar
-CFLAGS = -g -O2 -I/usr/local/lib/glib/include -I/usr/local/include
+CFLAGS = -g -O2 -I/usr/local/lib/glib/include -I/usr/local/include -Iwiretap
 COMPILE = $(CC) $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CFLAGS)
 LINK = $(CC) $(CFLAGS) $(LDFLAGS) -o $@
 DIST_COMMON =  README AUTHORS COPYING ChangeLog INSTALL Makefile.am \
-Makefile.in NEWS aclocal.m4 config.h.in configure configure.in \
-stamp-h.in
+Makefile.in NEWS acconfig.h aclocal.m4 config.h.in configure \
+configure.in stamp-h.in
 
 
 DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 
-TAR = gtar
+TAR = tar
 GZIP = --best
 DEP_FILES =  .deps/buffer.P .deps/file.P .deps/lanalyzer.P \
 .deps/ngsniffer.P .deps/wtap.P
@@ -132,7 +132,7 @@ stamp-h: $(srcdir)/config.h.in $(top_builddir)/config.status
 	     $(SHELL) ./config.status
 	@echo timestamp > stamp-h
 $(srcdir)/config.h.in: $(srcdir)/stamp-h.in
-$(srcdir)/stamp-h.in: $(top_srcdir)/configure.in $(ACLOCAL_M4) 
+$(srcdir)/stamp-h.in: $(top_srcdir)/configure.in $(ACLOCAL_M4) acconfig.h
 	cd $(top_srcdir) && $(AUTOHEADER)
 	@echo timestamp > $(srcdir)/stamp-h.in
 
