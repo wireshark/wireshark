@@ -31,6 +31,7 @@ DISSECTOR_OBJECTS = \
 	packet-cgmp.obj  \
 	packet-clip.obj  \
 	packet-data.obj  \
+	packet-dhis.obj  \
 	packet-dns.obj   \
 	packet-eth.obj   \
 	packet-fddi.obj  \
