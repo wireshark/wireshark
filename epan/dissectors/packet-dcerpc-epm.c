@@ -36,7 +36,8 @@
 #include "packet-dcerpc-nt.h"
 
 
-static int proto_epm = -1;
+static int proto_epm3 = -1;
+static int proto_epm4 = -1;
 
 static int hf_epm_opnum = -1;
 static int hf_epm_inquiry_type = -1;
@@ -73,8 +74,10 @@ static gint ett_epm = -1;
 static gint ett_epm_tower_floor = -1;
 static gint ett_epm_entry = -1;
 
+/* the UUID is identical for interface versions 3 and 4 */
 static e_uuid_t uuid_epm = { 0xe1af8308, 0x5d1f, 0x11c9, { 0x91, 0xa4, 0x08, 0x00, 0x2b, 0x14, 0xa0, 0xfa } };
-static guint16  ver_epm = 3;
+static guint16  ver_epm3 = 3;
+static guint16  ver_epm4 = 4;
 
 static const value_string ep_service[] = {
 	{ 0, "rpc_c_ep_all_elts" },
@@ -730,14 +733,20 @@ proto_register_epm (void)
         &ett_epm_tower_floor,
         &ett_epm_entry
     };
-    proto_epm = proto_register_protocol ("DCE/RPC Endpoint Mapper", "EPM", "epm");
-    proto_register_field_array (proto_epm, hf, array_length (hf));
+    
+    /* interface version 3 */
+    proto_epm3 = proto_register_protocol ("DCE/RPC Endpoint Mapper", "EPM", "epm");
+    proto_register_field_array (proto_epm3, hf, array_length (hf));
     proto_register_subtree_array (ett, array_length (ett));
+
+    /* interface version 4 */
+	proto_epm4 = proto_register_protocol ("DCE/RPC Endpoint Mapper v4", "EPMv4", "epm4");
 }
 
 void
 proto_reg_handoff_epm (void)
 {
     /* Register the protocol as dcerpc */
-    dcerpc_init_uuid (proto_epm, ett_epm, &uuid_epm, ver_epm, epm_dissectors, hf_epm_opnum);
+    dcerpc_init_uuid (proto_epm3, ett_epm, &uuid_epm, ver_epm3, epm_dissectors, hf_epm_opnum);
+    dcerpc_init_uuid (proto_epm4, ett_epm, &uuid_epm, ver_epm4, epm_dissectors, hf_epm_opnum);
 }

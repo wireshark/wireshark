@@ -134,7 +134,6 @@ DISSECTOR_SRC =	\
 	packet-dcerpc-dtsstime_req.c	\
 	packet-dcerpc-efs.c	\
 	packet-dcerpc-epm.c	\
-	packet-dcerpc-epm4.c	\
 	packet-dcerpc-eventlog.c	\
 	packet-dcerpc-fldb.c	\
 	packet-dcerpc-frsapi.c	\
