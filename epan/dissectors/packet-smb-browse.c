@@ -476,13 +476,16 @@ dissect_smb_server_type_flags(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		 * Called from a DCE RPC protocol dissector, for a
 		 * protocol where a 32-bit NDR integer contains
 		 * an server type mask; extract the server type mask
-		 * with an NDR call.
+		 * with an NDR call (but don't put it into the
+		 * protocol tree, as we can't get a pointer to the
+		 * item it puts in, and thus can't put a tree below
+		 * it with the values of the individual bits).
 		 */
 		offset = dissect_ndr_uint32(
-			tvb, offset, pinfo, tree, drep, hf_server_type, &flags);
+			tvb, offset, pinfo, NULL, drep, hf_server_type, &flags);
 	} else {
 		/*
-		 * Called from SMB browser or RAS, where the server type
+		 * Called from SMB browser or RAP, where the server type
 		 * mask is just a 4-byte little-endian quantity with no
 		 * special NDR alignment requirement; extract it with
 		 * "tvb_get_letohl()".
@@ -492,7 +495,7 @@ dissect_smb_server_type_flags(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	}
 
 	if (parent_tree) {
-		item = proto_tree_add_uint(parent_tree, hf_server_type, tvb, offset, 4, flags);
+		item = proto_tree_add_uint(parent_tree, hf_server_type, tvb, offset-4, 4, flags);
 	      	tree = proto_item_add_subtree(item, ett_browse_flags);
 	}
 
@@ -510,53 +513,53 @@ dissect_smb_server_type_flags(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	}
 
 	proto_tree_add_boolean(tree, hf_server_type_workstation,
-		tvb, offset, 4, flags);
+		tvb, offset-4, 4, flags);
 	proto_tree_add_boolean(tree, hf_server_type_server,
-		tvb, offset, 4, flags);
+		tvb, offset-4, 4, flags);
 	proto_tree_add_boolean(tree, hf_server_type_sql,
-		tvb, offset, 4, flags);
+		tvb, offset-4, 4, flags);
 	proto_tree_add_boolean(tree, hf_server_type_domain,
-		tvb, offset, 4, flags);
+		tvb, offset-4, 4, flags);
 	proto_tree_add_boolean(tree, hf_server_type_backup,
-		tvb, offset, 4, flags);
+		tvb, offset-4, 4, flags);
 	proto_tree_add_boolean(tree, hf_server_type_time,
-		tvb, offset, 4, flags);
+		tvb, offset-4, 4, flags);
 	proto_tree_add_boolean(tree, hf_server_type_apple,
-		tvb, offset, 4, flags);
+		tvb, offset-4, 4, flags);
 	proto_tree_add_boolean(tree, hf_server_type_novell,
-		tvb, offset, 4, flags);
+		tvb, offset-4, 4, flags);
 	proto_tree_add_boolean(tree, hf_server_type_member,
-		tvb, offset, 4, flags);
+		tvb, offset-4, 4, flags);
 	proto_tree_add_boolean(tree, hf_server_type_print,
-		tvb, offset, 4, flags);
+		tvb, offset-4, 4, flags);
 	proto_tree_add_boolean(tree, hf_server_type_dialin,
-		tvb, offset, 4, flags);
+		tvb, offset-4, 4, flags);
 	proto_tree_add_boolean(tree, hf_server_type_xenix,
-		tvb, offset, 4, flags);
+		tvb, offset-4, 4, flags);
 	proto_tree_add_boolean(tree, hf_server_type_ntw,
-		tvb, offset, 4, flags);
+		tvb, offset-4, 4, flags);
 	proto_tree_add_boolean(tree, hf_server_type_wfw,
-		tvb, offset, 4, flags);
+		tvb, offset-4, 4, flags);
 	proto_tree_add_boolean(tree, hf_server_type_nts,
-		tvb, offset, 4, flags);
+		tvb, offset-4, 4, flags);
 	proto_tree_add_boolean(tree, hf_server_type_potentialb,
-		tvb, offset, 4, flags);
+		tvb, offset-4, 4, flags);
 	proto_tree_add_boolean(tree, hf_server_type_backupb,
-		tvb, offset, 4, flags);
+		tvb, offset-4, 4, flags);
 	proto_tree_add_boolean(tree, hf_server_type_masterb,
-		tvb, offset, 4, flags);
+		tvb, offset-4, 4, flags);
 	proto_tree_add_boolean(tree, hf_server_type_domainmasterb,
-		tvb, offset, 4, flags);
+		tvb, offset-4, 4, flags);
 	proto_tree_add_boolean(tree, hf_server_type_osf,
-		tvb, offset, 4, flags);
+		tvb, offset-4, 4, flags);
 	proto_tree_add_boolean(tree, hf_server_type_vms,
-		tvb, offset, 4, flags);
+		tvb, offset-4, 4, flags);
 	proto_tree_add_boolean(tree, hf_server_type_w95,
-		tvb, offset, 4, flags);
+		tvb, offset-4, 4, flags);
 	proto_tree_add_boolean(tree, hf_server_type_local,
-		tvb, offset, 4, flags);
+		tvb, offset-4, 4, flags);
 	proto_tree_add_boolean(tree, hf_server_type_domainenum,
-		tvb, offset, 4, flags);
+		tvb, offset-4, 4, flags);
 
 	return offset;
 }
