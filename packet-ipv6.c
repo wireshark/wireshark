@@ -1,7 +1,7 @@
 /* packet-ipv6.c
  * Routines for IPv6 packet disassembly 
  *
- * $Id: packet-ipv6.c,v 1.51 2001/01/23 02:49:55 gerald Exp $
+ * $Id: packet-ipv6.c,v 1.52 2001/04/17 06:29:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -54,6 +54,7 @@
 #include "packet-tcp.h"
 #include "packet-udp.h"
 #include "resolv.h"
+#include "ipproto.h"
 
 /*
  * NOTE: ipv6.nxt is not very useful as we will have chained header.

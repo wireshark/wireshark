@@ -1,7 +1,7 @@
 /* packet-portmap.c
  * Routines for portmap dissection
  *
- * $Id: packet-portmap.c,v 1.28 2001/02/09 07:59:00 guy Exp $
+ * $Id: packet-portmap.c,v 1.29 2001/04/17 06:29:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -36,6 +36,7 @@
 
 #include "packet-rpc.h"
 #include "packet-portmap.h"
+#include "ipproto.h"
 
 /*
  * See:

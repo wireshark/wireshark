@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.129 2001/03/28 21:33:31 guy Exp $
+ * $Id: packet-ip.c,v 1.130 2001/04/17 06:29:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -45,6 +45,7 @@
 
 #include "packet.h"
 #include "resolv.h"
+#include "ipproto.h"
 #include "prefs.h"
 #include "etypes.h"
 #include "greproto.h"

@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.30 2001/04/01 07:32:35 hagbard Exp $
+ * $Id: packet.h,v 1.31 2001/04/17 06:29:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -242,8 +242,5 @@ void ethertype(guint16 etype, tvbuff_t *tvb, int offset_after_ethertype,
 		packet_info *pinfo, proto_tree *tree, proto_tree *fh_tree,
 		int etype_id, int trailer_id);
 extern const value_string etype_vals[];
-
-/* ipproto.c */
-extern const char *ipprotostr(int proto);
 
 #endif /* packet.h */

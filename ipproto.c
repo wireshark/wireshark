@@ -1,7 +1,7 @@
 /* ipproto.c
  * Routines for converting IPv4 protocol/v6 nxthdr field into string
  *
- * $Id: ipproto.c,v 1.12 2001/04/15 03:37:13 guy Exp $
+ * $Id: ipproto.c,v 1.13 2001/04/17 06:29:12 guy Exp $
  *
  * Gilbert Ramirez <gram@xiexie.org>
  *
@@ -43,12 +43,10 @@
 # include "snprintf.h"
 #endif
 
-#include "globals.h"
+#include "ipproto.h"
 #include "packet.h"
 #include "prefs.h"
-#include "resolv.h"
 #include "packet-ip.h"
-#include "packet-ipv6.h"
 
 static const value_string ipproto_val[] = {
     { IP_PROTO_ICMP,	"ICMP" },
