@@ -1,6 +1,6 @@
 /* pppdump.c
  *
- * $Id: pppdump.c,v 1.6 2000/11/19 20:56:17 gerald Exp $
+ * $Id: pppdump.c,v 1.7 2000/12/09 03:02:43 gram Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@xiexie.org>
  * 
@@ -83,6 +83,11 @@ Daniel Thompson (STMicroelectronics) <daniel.thompson@st.com>
 
 #define PPPD_NULL		0x00	/* For my own use */
 
+/* this buffer must be at least (2*PPPD_MTU) + sizeof(ppp_header) + sizeof(lcp_header) + 
+ * sizeof(ipcp_header). PPPD_MTU is *very* rarely larger than 1500 so this value is fine
+ */
+#define PPPD_BUF_SIZE		8192
+
 typedef enum {
 	DIRECTION_SENT,
 	DIRECTION_RECV
@@ -102,7 +107,7 @@ typedef struct {
 	direction_enum	dir;
 	int		cnt;
 	gboolean	esc;
-	guint8		buf[8192];
+	guint8		buf[PPPD_BUF_SIZE];
 	long		id_offset;
 } pkt_t;
 
@@ -202,7 +207,7 @@ pppdump_open(wtap *wth, int *err)
 	wth->file_encap = WTAP_ENCAP_PPP_WITH_PHDR; 
 	wth->file_type = WTAP_FILE_PPPDUMP; 
 
-	wth->snapshot_length = 8192; /* just guessing */ 
+	wth->snapshot_length = PPPD_BUF_SIZE; /* just guessing */ 
 	wth->subtype_read = pppdump_read; 
 	wth->subtype_seek_read = pppdump_seek_read; 
 	wth->subtype_close = pppdump_close;
@@ -227,7 +232,7 @@ pppdump_read(wtap *wth, int *err, int *data_offset)
 	pppdump_t	*state;
 	pkt_id		*pid;
 
-	buffer_assure_space(wth->frame_buffer, 8192);
+	buffer_assure_space(wth->frame_buffer, PPPD_BUF_SIZE);
 	buf = buffer_start_ptr(wth->frame_buffer);
 
 	state = wth->capture.generic;
@@ -334,7 +339,7 @@ process_data(pppdump_t *state, FILE_T fh, pkt_t *pkt, int n, guint8 *pd, int *er
 						return 0;
 					}
 
-					if (num_written > sizeof(pd)) {
+					if (num_written > PPPD_BUF_SIZE) {
 						*err = WTAP_ERR_UNC_OVERFLOW;
 						return -1;
 					}
@@ -367,6 +372,10 @@ process_data(pppdump_t *state, FILE_T fh, pkt_t *pkt, int n, guint8 *pd, int *er
 				}
 		
 				pkt->buf[pkt->cnt++] = c;
+				if (pkt->cnt > PPPD_BUF_SIZE) {
+					*err = WTAP_ERR_UNC_OVERFLOW;
+					return -1;
+				}
 				break;
 		}
 	}
