@@ -2,7 +2,7 @@
  * Routines for NetWare's NDPS
  * Greg Morris <gmorris@novell.com>
  *
- * $Id: packet-ndps.c,v 1.4 2002/10/10 02:18:41 jmayer Exp $
+ * $Id: packet-ndps.c,v 1.5 2002/10/15 04:30:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -27,21 +27,11 @@
 # include "config.h"
 #endif
 
-#include <stdio.h>
 #include <string.h>
 #include <glib.h>
 #include <epan/packet.h>
 #include "packet-ipx.h"
-#include <epan/resolv.h>
-#include "etypes.h"
-#include "ppptypes.h"
-#include "llcsaps.h"
-#include "aftypes.h"
-#include "packet-tcp.h"
 #include "packet-ndps.h"
-
-
-#define SPX_HEADER_LEN	12
 
 static int proto_ndps = -1;
 static int hf_ndps_record_mark = -1;
@@ -60,20 +50,8 @@ static int hf_spx_ndps_func_resman = -1;
 static int hf_spx_ndps_func_delivery = -1;
 static int hf_spx_ndps_func_broker = -1;
 
-static gint ett_spx = -1;
-
-static int proto_spx = -1;
-static int hf_spx_connection_control = -1;
-static int hf_spx_datastream_type = -1;
-static int hf_spx_src_id = -1;
-static int hf_spx_dst_id = -1;
-static int hf_spx_seq_nr = -1;
-static int hf_spx_ack_nr = -1;
-static int hf_spx_all_nr = -1;
-
 static gint ett_ndps = -1;
 static dissector_handle_t ndps_data_handle;
-
 
 static const value_string spx_ndps_program_vals[] = {
     { 0x00060976, "Print Program " },
@@ -526,78 +504,33 @@ static const value_string ndps_error_types[] = {
 };
 
 /* ================================================================= */
-/* SPX                                                               */
-/* ================================================================= */
-static const char*
-spx_conn_ctrl(guint8 ctrl)
-{
-	const char *p;
-
-	static const value_string conn_vals[] = {
-		{ 0x10, "End-of-Message" },
-		{ 0x20, "Attention" },
-		{ 0x40, "Acknowledgment Required"},
-        { 0x50, "Send Ack: End Message"},
-        { 0x80, "System Packet"},
-        { 0xc0, "System Packet: Send Ack"},
-		{ 0x00, NULL }
-	};
-
-	p = match_strval((ctrl & 0xf0), conn_vals);
-
-	if (p) {
-		return p;
-	}
-	else {
-		return "Unknown";
-	}
-}
-
-static const char*
-spx_datastream(guint8 type)
-{
-	switch (type) {
-		case 0xfe:
-			return "End-of-Connection";
-		case 0xff:
-			return "End-of-Connection Acknowledgment";
-		default:
-			return "Client-Defined";
-	}
-}
-
-/* ================================================================= */
 /* NDPS                                                               */
 /* ================================================================= */
 
+/*
+ * XXX - we probably need separate SPX-based and TCP-based dissectors,
+ * with the former dissecting one PDU per frame and the latter
+ * dissecting multiple PDUs per segment, if necessary, and doing TCP
+ * reassembly.
+ */
 static void
-dissect_ndps_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_spx)
+dissect_ndps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    proto_tree	*ndps_tree;
+    proto_tree	*ndps_tree = NULL;
     proto_item	*ti;
-    proto_tree	*spx_tree;
-    proto_item	*spxti;
     tvbuff_t	*next_tvb;
 	
-    guint8	conn_ctrl;
-    guint8	datastream_type;
-
-    guint16     record_mark;
-    guint16     ndps_length;
-    guint32     ndps_xid;
     guint32     ndps_prog;
-    guint32     ndps_version;
     guint32     ndps_packet_type;
-    guint32     ndps_rpc_version;
     guint32     foffset;
     guint32     ndps_hfname;
     guint32     ndps_func;
+    gint        reported_length, length;
     guint32     ndps_err;
     guint32     ndps_err_dec;
-    const char  *ndps_program_string='\0';
-    const char  *ndps_func_string='\0';
-    char        *ndps_err_string='\0';
-    const char  *ndps_error_val = '\0';
+    const char  *ndps_program_string;
+    const char  *ndps_func_string;
+    const char  *ndps_error_val;
 
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "NDPS");
@@ -605,172 +538,149 @@ dissect_ndps_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
     if (check_col(pinfo->cinfo, COL_INFO))
 	col_set_str(pinfo->cinfo, COL_INFO, "NDPS ");
 	
+    foffset = 0;
     if (tree) {
-        foffset = 0;
-        if(is_spx)
-        {
-            spxti = proto_tree_add_item(tree, proto_spx, tvb, 0, SPX_HEADER_LEN, FALSE);
-            spx_tree = proto_item_add_subtree(spxti, ett_spx);
-
-            conn_ctrl = tvb_get_guint8(tvb, 0);
-            
-            proto_tree_add_uint_format(spx_tree, hf_spx_connection_control, tvb,
-                           0, 1, conn_ctrl,
-                           "Connection Control: %s (0x%02X)",
-                           spx_conn_ctrl(conn_ctrl), conn_ctrl);
-
-            datastream_type = tvb_get_guint8(tvb, 1);
-            proto_tree_add_uint_format(spx_tree, hf_spx_datastream_type, tvb,
-                           1, 1, datastream_type,
-                           "Datastream Type: %s (0x%02X)",
-                           spx_datastream(datastream_type), datastream_type);
-
-            proto_tree_add_item(spx_tree, hf_spx_src_id, tvb,  2, 2, FALSE);
-            proto_tree_add_item(spx_tree, hf_spx_dst_id, tvb,  4, 2, FALSE);
-            proto_tree_add_item(spx_tree, hf_spx_seq_nr, tvb,  6, 2, FALSE);
-            proto_tree_add_item(spx_tree, hf_spx_ack_nr, tvb,  8, 2, FALSE);
-            proto_tree_add_item(spx_tree, hf_spx_all_nr, tvb, 10, 2, FALSE);
-            foffset = 12;
-            ti = proto_tree_add_item(tree, proto_ndps, tvb, foffset, -1, FALSE);
-            ndps_tree = proto_item_add_subtree(ti, ett_ndps);
-        }
-        else
-        {
-	    ti = proto_tree_add_item(tree, proto_ndps, tvb, foffset, -1, FALSE);
-	    ndps_tree = proto_item_add_subtree(ti, ett_ndps);
-        }
-        if (tvb_length_remaining(tvb, foffset) > 28)
-        {
-            record_mark = tvb_get_ntohs(tvb, foffset);
-    	    proto_tree_add_item(ndps_tree, hf_ndps_record_mark, tvb,
-    					   foffset, 2, record_mark);
-            foffset += 2;
-    	    ndps_length = tvb_get_ntohs(tvb, foffset);
-    	    proto_tree_add_uint_format(ndps_tree, hf_ndps_length, tvb,
-    				       foffset, 2, ndps_length,
-    				       "Length of NDPS Packet: %d", ndps_length);
-            foffset += 2;
- 	    ndps_xid = tvb_get_ntohl(tvb, foffset);
-    	    proto_tree_add_uint(ndps_tree, hf_ndps_xid, tvb, foffset, 4, ndps_xid);
-    	    foffset += 4;
-    	    ndps_packet_type = tvb_get_ntohl(tvb, foffset);
-    	    proto_tree_add_item(ndps_tree, hf_ndps_packet_type, tvb, foffset, 4, FALSE);
-            if(ndps_packet_type == 0x00000001)
-            {
-                ndps_err_string = "NDPS Reply - Ok";
-                ndps_err = tvb_get_ntohl(tvb, (tvb_length_remaining(tvb, foffset)+foffset) -4 );
-                if((ndps_err & 0xffff0000) == 0xffff0000)
-                {
-                        ndps_error_val = match_strval(ndps_err, ndps_error_types);
-                        if(ndps_error_val == NULL)
-                            ndps_error_val = "No Error Message Found";
-                        ndps_err_dec = -ndps_err;
-                        ndps_err_string = "NDPS Error - (0x%08x), (-%d), %s";
-                        if (check_col(pinfo->cinfo, COL_INFO))
-                            col_add_fstr(pinfo->cinfo, COL_INFO, ndps_err_string, ndps_err, ndps_err_dec, ndps_error_val);
-                        proto_tree_add_uint_format(ndps_tree, hf_ndps_error, tvb, (tvb_length_remaining(tvb, foffset)+foffset) -4, 4, ndps_err,
-                                                   ndps_err_string, ndps_err, ndps_err_dec, ndps_error_val );
-                }
-                else
-                {
-                    if (check_col(pinfo->cinfo, COL_INFO))
-                        col_add_fstr(pinfo->cinfo, COL_INFO, ndps_err_string);
-                }
-            }
-            foffset += 4;
-    	    ndps_rpc_version = tvb_get_ntohl(tvb, foffset);
-    	    proto_tree_add_uint(ndps_tree, hf_ndps_rpc_version, tvb, foffset, 4, ndps_rpc_version);
-    
-            foffset += 4;
-            ndps_prog = tvb_get_ntohl(tvb, foffset);
-            ndps_program_string = match_strval(ndps_prog, spx_ndps_program_vals);
-            if( ndps_program_string != NULL)
-            {
-                proto_tree_add_item(ndps_tree, hf_spx_ndps_program, tvb, foffset, 4, FALSE);
-                foffset += 4;
-                if (check_col(pinfo->cinfo, COL_INFO))
-                {
-                    col_append_str(pinfo->cinfo, COL_INFO, (gchar*) ndps_program_string);
-                    col_append_str(pinfo->cinfo, COL_INFO, ", ");
-                }
-                ndps_version = tvb_get_ntohl(tvb, foffset);
-                proto_tree_add_item(ndps_tree, hf_spx_ndps_version, tvb, foffset, 4, FALSE);
-                foffset += 4;
-                ndps_func = tvb_get_ntohl(tvb, foffset);
-                switch(ndps_prog)
-                    {
-                    case 0x060976:
-                        ndps_hfname = hf_spx_ndps_func_print;
-                        ndps_func_string = match_strval(ndps_func, spx_ndps_print_func_vals);
-                        break;
-                    case 0x060977:
-                        ndps_hfname = hf_spx_ndps_func_broker;
-                        ndps_func_string = match_strval(ndps_func, spx_ndps_broker_func_vals);
-                        break;
-                    case 0x060978:
-                        ndps_hfname = hf_spx_ndps_func_registry;
-                        ndps_func_string = match_strval(ndps_func, spx_ndps_registry_func_vals);
-                        break;
-                    case 0x060979:
-                        ndps_hfname = hf_spx_ndps_func_notify;
-                        ndps_func_string = match_strval(ndps_func, spx_ndps_notify_func_vals);
-                        break;
-                    case 0x06097a:
-                        ndps_hfname = hf_spx_ndps_func_resman;
-                        ndps_func_string = match_strval(ndps_func, spx_ndps_resman_func_vals);
-                        break;
-                    case 0x06097b:
-                        ndps_hfname = hf_spx_ndps_func_delivery;
-                        ndps_func_string = match_strval(ndps_func, spx_ndps_deliver_func_vals);
-                        break;
-                    default:
-                        ndps_hfname = 0;
-                        break;
-                }
-                if(ndps_hfname != 0)
-                {
-                    proto_tree_add_item(ndps_tree, ndps_hfname, tvb, foffset, 4, FALSE);
-                    if (ndps_func_string != NULL) 
-                    {
-                        if (check_col(pinfo->cinfo, COL_INFO))
-                            col_append_str(pinfo->cinfo, COL_INFO, (gchar*) ndps_func_string);
-                    }
-                }
-            }
-            next_tvb = tvb_new_subset(tvb, foffset, -1, -1);
-            call_dissector(ndps_data_handle,next_tvb, pinfo, tree);
-    	}
-        else
-        {
-            if (is_spx)
-            {
-                if (check_col(pinfo->cinfo, COL_INFO))
-                    col_append_str(pinfo->cinfo, COL_INFO, (gchar*) spx_conn_ctrl(conn_ctrl));
-            }
-        }
+        ti = proto_tree_add_item(tree, proto_ndps, tvb, foffset, -1, FALSE);
+        ndps_tree = proto_item_add_subtree(ti, ett_ndps);
     }
-}
+    if (tvb_reported_length_remaining(tvb, foffset) > 28) {
+    	if (tree) {
+    	    proto_tree_add_item(ndps_tree, hf_ndps_record_mark, tvb,
+    				foffset, 2, FALSE);
+    	}
+        foffset += 2;
+        if (tree) {
+    	    proto_tree_add_item(ndps_tree, hf_ndps_length, tvb,
+    			        foffset, 2, FALSE);
+    	}
+        foffset += 2;
+ 	if (tree)
+    	    proto_tree_add_item(ndps_tree, hf_ndps_xid, tvb, foffset, 4, FALSE);
+        foffset += 4;
+    	ndps_packet_type = tvb_get_ntohl(tvb, foffset);
+    	if (tree) {
+    	    proto_tree_add_uint(ndps_tree, hf_ndps_packet_type, tvb,
+    	                        foffset, 4, ndps_packet_type);
+    	}
+        if (ndps_packet_type == 0x00000001) {
+            reported_length = tvb_reported_length(tvb);
+            length = tvb_length(tvb);
+            if (length >= reported_length && reported_length >= 32) {
+                ndps_err = tvb_get_ntohl(tvb, reported_length - 4);
+                if ((ndps_err & 0xffff0000) == 0xffff0000) {
+                    ndps_error_val = match_strval(ndps_err, ndps_error_types);
+                    if (ndps_error_val == NULL)
+                        ndps_error_val = "No Error Message Found";
+                    ndps_err_dec = -ndps_err;
+                    if (check_col(pinfo->cinfo, COL_INFO)) {
+                        col_add_fstr(pinfo->cinfo, COL_INFO,
+                                     "NDPS Error - (0x%08x), (-%d), %s",
+                                     ndps_err, ndps_err_dec, ndps_error_val);
+                    }
+                    if (tree) {
+                        proto_tree_add_uint_format(ndps_tree, hf_ndps_error,
+                                                   tvb, reported_length - 4, 4,
+                                                   ndps_err,
+                                                   "NDPS Error - (0x%08x), (-%d), %s",
+                                                   ndps_err, ndps_err_dec,
+                                                   ndps_error_val);
+                    }
+                } else {
+                    if (check_col(pinfo->cinfo, COL_INFO))
+                        col_set_str(pinfo->cinfo, COL_INFO, "NDPS Reply - Ok");
+                }
+            }
+        }
+        foffset += 4;
+        if (tree) {
+    	    proto_tree_add_item(ndps_tree, hf_ndps_rpc_version, tvb,
+    	                        foffset, 4, FALSE);
+    	}
+        foffset += 4;
+        ndps_prog = tvb_get_ntohl(tvb, foffset);
+        if (tree) {
+            proto_tree_add_uint(ndps_tree, hf_spx_ndps_program, tvb,
+                                foffset, 4, ndps_prog);
+        }
+        ndps_program_string = match_strval(ndps_prog, spx_ndps_program_vals);
+        if (ndps_program_string != NULL) {
+            if (check_col(pinfo->cinfo, COL_INFO)) {
+                col_append_str(pinfo->cinfo, COL_INFO, (gchar*) ndps_program_string);
+                col_append_str(pinfo->cinfo, COL_INFO, ", ");
+            }
+        }
+        foffset += 4;
+        if (tree) {
+            proto_tree_add_item(ndps_tree, hf_spx_ndps_version, tvb,
+                                foffset, 4, FALSE);
+        }
+        foffset += 4;
+        ndps_func = tvb_get_ntohl(tvb, foffset);
+        switch (ndps_prog) {
 
+        case 0x060976:
+            ndps_hfname = hf_spx_ndps_func_print;
+            ndps_func_string = match_strval(ndps_func, spx_ndps_print_func_vals);
+            break;
 
-static void
-dissect_ndps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-  dissect_ndps_common(tvb, pinfo, tree, TRUE);
-}
+        case 0x060977:
+            ndps_hfname = hf_spx_ndps_func_broker;
+            ndps_func_string = match_strval(ndps_func, spx_ndps_broker_func_vals);
+            break;
 
-static void
-dissect_ndps_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-  dissect_ndps_common(tvb, pinfo, tree, FALSE);
+        case 0x060978:
+            ndps_hfname = hf_spx_ndps_func_registry;
+            ndps_func_string = match_strval(ndps_func, spx_ndps_registry_func_vals);
+            break;
+
+        case 0x060979:
+            ndps_hfname = hf_spx_ndps_func_notify;
+            ndps_func_string = match_strval(ndps_func, spx_ndps_notify_func_vals);
+            break;
+
+        case 0x06097a:
+            ndps_hfname = hf_spx_ndps_func_resman;
+            ndps_func_string = match_strval(ndps_func, spx_ndps_resman_func_vals);
+            break;
+
+        case 0x06097b:
+            ndps_hfname = hf_spx_ndps_func_delivery;
+            ndps_func_string = match_strval(ndps_func, spx_ndps_deliver_func_vals);
+            break;
+
+        default:
+            ndps_hfname = 0;
+            ndps_func_string = NULL;
+            break;
+        }
+        if (ndps_hfname != 0) {
+            if (tree) {
+                proto_tree_add_uint(ndps_tree, ndps_hfname, tvb,
+                                    foffset, 4, ndps_func);
+            }
+            if (ndps_func_string != NULL) {
+                if (check_col(pinfo->cinfo, COL_INFO))
+                    col_append_str(pinfo->cinfo, COL_INFO, (gchar*) ndps_func_string);
+	    }
+	} else {
+	    if (tree) {
+	    	proto_tree_add_text(ndps_tree, tvb, foffset, 4,
+	    	    "NDPS Function: 0x%08x", ndps_func);
+            }
+        }
+        next_tvb = tvb_new_subset(tvb, foffset, -1, -1);
+        call_dissector(ndps_data_handle,next_tvb, pinfo, tree);
+    }
 }
 
 void
 proto_register_ndps(void)
 {
 	static hf_register_info hf_ndps[] = {
-		{ &hf_ndps_record_mark,
-		{ "Record Mark",		"ndps.record_mark", FT_BOOLEAN, BASE_HEX, NULL, 0x80,
-			"", HFILL }},
+        { &hf_ndps_record_mark,
+        { "Record Mark",    "ndps.record_mark",
+          FT_BOOLEAN, BASE_HEX, NULL, 0x80,
+          "", HFILL }},
 
         { &hf_ndps_packet_type,
         { "Packet Type",    "ndps.packet_type",
@@ -779,7 +689,7 @@ proto_register_ndps(void)
 
         { &hf_ndps_length,
         { "Record Length",    "ndps.record_length",
-           FT_UINT16,    BASE_HEX,   NULL,   0x0,
+           FT_UINT16,    BASE_DEC,   NULL,   0x0,
            "Record Length", HFILL }},
         
         { &hf_ndps_xid,
@@ -838,79 +748,35 @@ proto_register_ndps(void)
           "Broker Program", HFILL }}
     };
 
-	static hf_register_info hf_spx[] = {
-		{ &hf_spx_connection_control,
-		{ "Connection Control",		"spx.ctl",
-		  FT_UINT8,	BASE_HEX,	NULL,	0x0,
-		  "", HFILL }},
-
-		{ &hf_spx_datastream_type,
-		{ "Datastream type",	       	"spx.type",
-		  FT_UINT8,	BASE_HEX,	NULL,	0x0,
-		  "", HFILL }},
-
-		{ &hf_spx_src_id,
-		{ "Source Connection ID",	"spx.src",
-		  FT_UINT16,	BASE_DEC,	NULL,	0x0,
-		  "", HFILL }},
-
-		{ &hf_spx_dst_id,
-		{ "Destination Connection ID",	"spx.dst",
-		  FT_UINT16,	BASE_DEC,	NULL,	0x0,
-		  "", HFILL }},
-
-		{ &hf_spx_seq_nr,
-		{ "Sequence Number",		"spx.seq",
-		  FT_UINT16,	BASE_DEC,	NULL,	0x0,
-		  "", HFILL }},
-
-		{ &hf_spx_ack_nr,
-		{ "Acknowledgment Number",	"spx.ack",
-		  FT_UINT16,	BASE_DEC,	NULL,	0x0,
-		  "", HFILL }},
-
-		{ &hf_spx_all_nr,
-		{ "Allocation Number",		"spx.alloc",
-		  FT_UINT16,	BASE_DEC,	NULL,	0x0,
-		  "", HFILL }}    };
-
-	static gint *ett[] = {
-		&ett_ndps,
-		&ett_spx,
-	};
+    static gint *ett[] = {
+	&ett_ndps,
+    };
 	
-    proto_spx = proto_register_protocol("Sequenced Packet eXchange",
-	    "SPX", "spx");
-	proto_register_field_array(proto_spx, hf_spx, array_length(hf_spx));
-
-	proto_ndps = proto_register_protocol("Novell Distributed Print System",
+    proto_ndps = proto_register_protocol("Novell Distributed Print System",
 	    "NDPS", "ndps");
-	proto_register_field_array(proto_ndps, hf_ndps, array_length(hf_ndps));
+    proto_register_field_array(proto_ndps, hf_ndps, array_length(hf_ndps));
 
-	proto_register_subtree_array(ett, array_length(ett));
+    proto_register_subtree_array(ett, array_length(ett));
 }
 
 void
 proto_reg_handoff_ndps(void)
 {
-	dissector_handle_t ndps_handle, ndps_tcp_handle, spx_handle;
+	dissector_handle_t ndps_handle;
 
 	ndps_handle = create_dissector_handle(dissect_ndps, proto_ndps);
-	ndps_tcp_handle = create_dissector_handle(dissect_ndps_tcp, proto_ndps);
 	
-	/*spx_handle = create_dissector_handle(dissect_ndps, proto_spx);
-	dissector_add("ipx.packet_type", IPX_PACKET_TYPE_SPX, spx_handle);*/
-	dissector_add("ipx.socket", SPX_SOCKET_PA, ndps_handle);
-	dissector_add("ipx.socket", SPX_SOCKET_BROKER, ndps_handle);
-	dissector_add("ipx.socket", SPX_SOCKET_SRS, ndps_handle);
-	dissector_add("ipx.socket", SPX_SOCKET_ENS, ndps_handle);
-	dissector_add("ipx.socket", SPX_SOCKET_RMS, ndps_handle);
-	dissector_add("ipx.socket", SPX_SOCKET_NOTIFY_LISTENER, ndps_handle);
-	dissector_add("tcp.port", TCP_PORT_PA, ndps_tcp_handle);
-	dissector_add("tcp.port", TCP_PORT_BROKER, ndps_tcp_handle);
-	dissector_add("tcp.port", TCP_PORT_SRS, ndps_tcp_handle);
-	dissector_add("tcp.port", TCP_PORT_ENS, ndps_tcp_handle);
-	dissector_add("tcp.port", TCP_PORT_RMS, ndps_tcp_handle);
-	dissector_add("tcp.port", TCP_PORT_NOTIFY_LISTENER, ndps_tcp_handle);
+	dissector_add("spx.socket", SPX_SOCKET_PA, ndps_handle);
+	dissector_add("spx.socket", SPX_SOCKET_BROKER, ndps_handle);
+	dissector_add("spx.socket", SPX_SOCKET_SRS, ndps_handle);
+	dissector_add("spx.socket", SPX_SOCKET_ENS, ndps_handle);
+	dissector_add("spx.socket", SPX_SOCKET_RMS, ndps_handle);
+	dissector_add("spx.socket", SPX_SOCKET_NOTIFY_LISTENER, ndps_handle);
+	dissector_add("tcp.port", TCP_PORT_PA, ndps_handle);
+	dissector_add("tcp.port", TCP_PORT_BROKER, ndps_handle);
+	dissector_add("tcp.port", TCP_PORT_SRS, ndps_handle);
+	dissector_add("tcp.port", TCP_PORT_ENS, ndps_handle);
+	dissector_add("tcp.port", TCP_PORT_RMS, ndps_handle);
+	dissector_add("tcp.port", TCP_PORT_NOTIFY_LISTENER, ndps_handle);
 	ndps_data_handle = find_dissector("data");
 }

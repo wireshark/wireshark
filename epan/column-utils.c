@@ -1,7 +1,7 @@
 /* column-utils.c
  * Routines for column utilities.
  *
- * $Id: column-utils.c,v 1.18 2002/08/28 20:40:44 jmayer Exp $
+ * $Id: column-utils.c,v 1.19 2002/10/15 04:31:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -530,6 +530,17 @@ col_set_port(packet_info *pinfo, int col, port_type ptype, guint32 port,
       strcpy(pinfo->cinfo->col_expr[col], "ddp.dst_socket");
     snprintf(pinfo->cinfo->col_buf[col], COL_MAX_LEN, "%u", port);
     snprintf(pinfo->cinfo->col_expr_val[col], COL_MAX_LEN, "%u", port);
+    pinfo->cinfo->col_expr_val[col][COL_MAX_LEN - 1] = '\0';
+    break;
+
+  case PT_IPX:
+    /* XXX - resolve IPX socket numbers */
+    snprintf(pinfo->cinfo->col_buf[col], COL_MAX_LEN, "0x%04x", port);
+    if (is_src)
+      strcpy(pinfo->cinfo->col_expr[col], "ipx.src.socket");
+    else
+      strcpy(pinfo->cinfo->col_expr[col], "ipx.dst.socket");
+    snprintf(pinfo->cinfo->col_expr_val[col], COL_MAX_LEN, "0x%04x", port);
     pinfo->cinfo->col_expr_val[col][COL_MAX_LEN - 1] = '\0';
     break;
 

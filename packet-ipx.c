@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-ipx.c,v 1.113 2002/10/10 21:05:05 guy Exp $
+ * $Id: packet-ipx.c,v 1.114 2002/10/15 04:30:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -65,6 +65,7 @@ static gint ett_ipx = -1;
 
 static dissector_table_t ipx_type_dissector_table;
 static dissector_table_t ipx_socket_dissector_table;
+static dissector_table_t spx_socket_dissector_table;
 
 static int proto_spx = -1;
 static int hf_spx_connection_control = -1;
@@ -230,6 +231,10 @@ dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	ipx_type	= tvb_get_guint8(tvb, 5);
 	ipx_length	= tvb_get_ntohs(tvb, 2);
 
+	pinfo->ptype = PT_IPX;
+	pinfo->srcport = ipx_ssocket;
+	pinfo->destport = ipx_dsocket;
+
 	/* Adjust the tvbuff length to include only the IPX datagram. */
 	set_actual_length(tvb, ipx_length);
 
@@ -374,6 +379,7 @@ dissect_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint8		conn_ctrl;
 	guint8		datastream_type;
 	const char	*spx_msg_string;
+	guint16		low_socket, high_socket;
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "SPX");
@@ -406,10 +412,39 @@ dissect_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_item(spx_tree, hf_spx_seq_nr, tvb,  6, 2, FALSE);
 		proto_tree_add_item(spx_tree, hf_spx_ack_nr, tvb,  8, 2, FALSE);
 		proto_tree_add_item(spx_tree, hf_spx_all_nr, tvb, 10, 2, FALSE);
-
-		next_tvb = tvb_new_subset(tvb, SPX_HEADER_LEN, -1, -1);
-		call_dissector(data_handle,next_tvb, pinfo, tree);
 	}
+
+	/*
+	 * Call subdissectors based on the IPX socket numbers; a
+	 * subdissector might have registered with our IPX socket
+	 * dissector table rather than the IPX dissector's socket
+	 * dissector table.
+	 *
+	 * Assume the lower-numbered socket number is more likely
+	 * to be the right one, along the lines of what we do for
+	 * TCP and UDP.  We've seen NCP packets with a type of NCP,
+	 * a source socket of IPX_SOCKET_NCP, and a destination
+	 * socket of IPX_SOCKET_IPX_MESSAGE, and we've seen NCP
+	 * packets with a type of NCP, a source socket of
+	 * IPX_SOCKET_IPX_MESSAGE, and a destination socket of
+	 * IPX_SOCKET_NCP.
+	 */
+	if (pinfo->srcport > pinfo->destport) {
+		low_socket = pinfo->destport;
+		high_socket = pinfo->srcport;
+	} else {
+		low_socket = pinfo->srcport;
+		high_socket = pinfo->destport;
+	}
+
+	next_tvb = tvb_new_subset(tvb, SPX_HEADER_LEN, -1, -1);
+	if (dissector_try_port(spx_socket_dissector_table, low_socket,
+	    next_tvb, pinfo, tree))
+		return;
+	if (dissector_try_port(spx_socket_dissector_table, high_socket,
+	    next_tvb, pinfo, tree))
+		return;
+	call_dissector(data_handle, next_tvb, pinfo, tree);
 }
 
 /* ================================================================= */
@@ -1024,6 +1059,8 @@ proto_register_ipx(void)
 	    "IPX packet type", FT_UINT8, BASE_HEX);
 	ipx_socket_dissector_table = register_dissector_table("ipx.socket",
 	    "IPX socket", FT_UINT16, BASE_HEX);
+	spx_socket_dissector_table = register_dissector_table("spx.socket",
+	    "SPX socket", FT_UINT16, BASE_HEX);
 }
 
 void
@@ -1049,7 +1086,6 @@ proto_reg_handoff_ipx(void)
 	dissector_add("ipx.socket", IPX_SOCKET_IPXRIP, ipxrip_handle);
 	ipxmsg_handle = create_dissector_handle(dissect_ipxmsg, proto_ipxmsg);
 	dissector_add("ipx.socket", IPX_SOCKET_IPX_MESSAGE, ipxmsg_handle);
-	ipxmsg_handle = create_dissector_handle(dissect_ipxmsg, proto_ipxmsg);
 	dissector_add("ipx.socket", IPX_SOCKET_IPX_MESSAGE1, ipxmsg_handle);
 	data_handle = find_dissector("data");
 }

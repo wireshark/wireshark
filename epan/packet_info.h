@@ -1,7 +1,7 @@
 /* packet_info.h
  * Definitions for packet info structures and routines
  *
- * $Id: packet_info.h,v 1.19 2002/08/28 20:40:44 jmayer Exp $
+ * $Id: packet_info.h,v 1.20 2002/10/15 04:31:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -91,9 +91,10 @@ typedef struct _address {
 /* Types of port numbers Ethereal knows about. */
 typedef enum {
   PT_NONE,		/* no port number */
-  PT_SCTP,              /* SCTP */
+  PT_SCTP,		/* SCTP */
   PT_TCP,		/* TCP */
   PT_UDP,		/* UDP */
+  PT_IPX,		/* IPX sockets */
   PT_NCP,		/* NCP connection */
   PT_DDP		/* DDP AppleTalk connection */
 } port_type;
