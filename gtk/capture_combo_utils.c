@@ -1,7 +1,7 @@
 /* capture_combo_utils.c
  * Utilities for combo box of interface names
  *
- * $Id: capture_combo_utils.c,v 1.2 2003/09/26 23:11:17 guy Exp $
+ * $Id: capture_combo_utils.c,v 1.3 2003/11/03 10:36:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -108,8 +108,8 @@ build_capture_combo_list(GList *if_list, gboolean do_hide)
   combo_list = NULL;
   if (if_list != NULL) {
     /* Scan through the list and build a list of strings to display. */
-    for (if_entry = g_list_first(if_list); if_entry != NULL;
-	if_entry = g_list_next(if_entry)) {
+    for (if_entry = if_list; if_entry != NULL;
+	 if_entry = g_list_next(if_entry)) {
       if_info = if_entry->data;
 
       /* Is this interface hidden and, if so, should we include it
