@@ -3,7 +3,7 @@
  * Devin Heitmueller <dheitmueller@netilla.com>
  * Copyright 2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-ntlmssp.c,v 1.41 2003/07/16 04:20:32 tpot Exp $
+ * $Id: packet-ntlmssp.c,v 1.42 2003/07/18 05:51:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1577,6 +1577,18 @@ proto_reg_handoff_ntlmssp(void)
 		  "NTLMSSP - Microsoft NTLM Security Support Provider");
 
   /* Register authenticated pipe dissector */
+
+  /*
+   * XXX - the verifiers here seem to have a version of 1 and a body of all
+   * zeroes.
+   *
+   * XXX - DCE_C_AUTHN_LEVEL_CONNECT is, according to the DCE RPC 1.1
+   * spec, upgraded to DCE_C_AUTHN_LEVEL_PKT.  Should we register
+   * any other levels here?
+   */
+  register_dcerpc_auth_subdissector(DCE_C_AUTHN_LEVEL_CONNECT,
+				    DCE_C_RPC_AUTHN_PROTOCOL_NTLMSSP,
+				    &ntlmssp_sign_fns);
 
   register_dcerpc_auth_subdissector(DCE_C_AUTHN_LEVEL_PKT_INTEGRITY,
 				    DCE_C_RPC_AUTHN_PROTOCOL_NTLMSSP,
