@@ -4,7 +4,7 @@
  * Copyright 2002, Tim Potter <tpot@samba.org>
  * Copyright 2002, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-spnego.c,v 1.30 2002/09/07 00:29:29 jmayer Exp $
+ * $Id: packet-spnego.c,v 1.31 2002/09/07 03:32:49 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -136,6 +136,7 @@ dissect_spnego_krb5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	subid_t *oid;
 	gchar *oid_string;
 	gssapi_oid_value *value;
+	tvbuff_t *krb5_tvb;
 
 	item = proto_tree_add_item(tree, hf_spnego_krb5, tvb, offset, 
 				   length, FALSE);
@@ -208,7 +209,9 @@ dissect_spnego_krb5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 
 	offset += 2;
 
-	offset = dissect_Ticket(&hnd, pinfo, subtree, offset);
+	krb5_tvb = tvb_new_subset(tvb, offset, -1, -1); 
+
+	offset = dissect_kerberos_main(krb5_tvb, pinfo, subtree, FALSE);
 
  done:
 	return;

@@ -3,7 +3,7 @@
  * Wes Hardaker (c) 2000
  * wjhardaker@ucdavis.edu
  *
- * $Id: packet-kerberos.c,v 1.31 2002/09/05 03:49:03 sharpe Exp $
+ * $Id: packet-kerberos.c,v 1.32 2002/09/07 03:32:49 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -342,7 +342,7 @@ static const value_string krb5_msg_types[] = {
 static int dissect_PrincipalName(char *title, ASN1_SCK *asn1p,
                                  packet_info *pinfo, proto_tree *tree,
                                  int start_offset);
-int dissect_Ticket(ASN1_SCK *asn1p, packet_info *pinfo,
+static int dissect_Ticket(ASN1_SCK *asn1p, packet_info *pinfo,
                           proto_tree *tree, int start_offset);
 static int dissect_EncryptedData(char *title, ASN1_SCK *asn1p,
 				 packet_info *pinfo, proto_tree *tree,
@@ -536,8 +536,8 @@ dissect_type_value_pair(ASN1_SCK *asn1p, int *inoff,
     *inoff = offset + *val_len;
 }
 
-static gboolean
-dissect_kerberos_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+gboolean
+dissect_kerberos_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int do_col_info)
 {
     int offset = 0;
     proto_tree *kerberos_tree = NULL;
@@ -607,7 +607,7 @@ dissect_kerberos_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
     offset += length;
 
-    if (check_col(pinfo->cinfo, COL_INFO))
+    if (do_col_info & check_col(pinfo->cinfo, COL_INFO))
         col_add_str(pinfo->cinfo, COL_INFO, val_to_str(msg_type, krb5_msg_types,
                                              "Unknown msg type %#x"));
 
@@ -1028,7 +1028,7 @@ dissect_kerberos(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "KRB5");
 
-    dissect_kerberos_main(tvb, pinfo, tree);
+    dissect_kerberos_main(tvb, pinfo, tree, TRUE);
 }
 
 static int
@@ -1267,7 +1267,7 @@ dissect_EncryptedData(char *title, ASN1_SCK *asn1p, packet_info *pinfo,
     return offset - start_offset;
 }
 
-int
+static int
 dissect_Ticket(ASN1_SCK *asn1p, packet_info *pinfo,
 	       proto_tree *tree, int start_offset)
 {

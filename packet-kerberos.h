@@ -1,6 +1,6 @@
 /* packet-gssapi.h
  *
- * $Id: packet-kerberos.h,v 1.4 2002/09/07 00:29:28 jmayer Exp $
+ * $Id: packet-kerberos.h,v 1.5 2002/09/07 03:32:49 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -26,7 +26,7 @@
 
 /* Function prototypes */
 
-int dissect_Ticket(ASN1_SCK *asn1p, packet_info *pinfo,
-                          proto_tree *tree, int start_offset);
+gboolean
+dissect_kerberos_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int do_col_info);
 
 #endif /* __PACKET_KERBEROS_H */
