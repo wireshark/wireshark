@@ -504,6 +504,8 @@ dissect_nmas_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, guin
         foffset += 4;
         break;
     case 2:
+        proto_tree_add_text(atree, tvb, foffset, -1, "Verb: %s",
+                            val_to_str(subverb, nmas_subverb_enum, "Unknown (%u)"));
         proto_tree_add_item(atree, hf_length, tvb, foffset, 4, TRUE);
         msg_length = tvb_get_letohl(tvb, foffset);
         foffset +=4;
@@ -513,9 +515,7 @@ dissect_nmas_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, guin
         roffset = foffset;
         foffset += 4;
         msg_length -= 8;
-        proto_tree_add_text(atree, tvb, foffset, -1, "Verb: %s",
-                            val_to_str(subverb, nmas_subverb_enum, "Unknown (%u)"));
-        if (return_code == 0)
+        if (return_code == 0 && msg_length > 0)
         {
             switch (subverb) {
             case 0:             /* Fragmented Ping */
