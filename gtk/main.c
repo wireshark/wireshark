@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.100 2000/01/25 17:57:31 gram Exp $
+ * $Id: main.c,v 1.101 2000/01/29 13:30:08 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -465,6 +465,7 @@ follow_read_stream(char *filename, guint8 show_type,
         "Error reading temporary file %s: %s", filename, strerror(errno));
     }
     fclose( data_out_file );
+    data_out_file = NULL;
   } else {
     simple_dialog(ESD_TYPE_WARN, NULL,
       "Could not open temporary file %s: %s", filename, strerror(errno));
