@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.195 2003/08/23 09:09:32 sahlberg Exp $
+ * $Id: packet-ip.c,v 1.196 2003/08/26 19:41:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -984,7 +984,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (tree) {
     if (ip_summary_in_tree) {
       proto_item_append_text(ti, ", Dst Addr: %s (%s)",
-		get_hostname((guint)(*((guint *)iph->ip_dst.data))), ip_to_str((guint8 *) &iph->ip_dst.data));
+		get_hostname((guint)(*((guint *)iph->ip_dst.data))), ip_to_str((guint8 *) iph->ip_dst.data));
     }
     proto_tree_add_ipv4(ip_tree, hf_ip_dst, tvb, offset + 16, 4, (guint)(*((guint *)iph->ip_dst.data)));
     proto_tree_add_ipv4_hidden(ip_tree, hf_ip_addr, tvb, offset + 16, 4, (guint)(*((guint *)iph->ip_dst.data)));
