@@ -2,7 +2,7 @@
  * The main toolbar
  * Copyright 2003, Ulf Lamping <ulf.lamping@web.de>
  *
- * $Id: toolbar.c,v 1.1 2003/10/15 19:40:40 guy Exp $
+ * $Id: toolbar.c,v 1.2 2003/10/15 22:34:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -24,15 +24,17 @@
  */
 
 /*
- * This file implements a "main" toolbar for Ethereal (suitable for gtk1 and gtk2).
+ * This file implements a "main" toolbar for Ethereal (suitable for gtk1 and
+ * gtk2).
  *
  * As it is desirable to have the same toolbar implementation for gtk1 and gtk2 
  * in Ethereal, only those library calls available in the gtk1 libraries 
  * are used inside this file.
  *
- * Hint: gtk2 in comparison to gtk1 has a better way to handle with "common" icons,
- * gtk2 calls this kind of icons "stock-icons"
+ * Hint: gtk2 in comparison to gtk1 has a better way to handle with "common"
+ * icons; gtk2 calls this kind of icons "stock-icons"
  * (stock-icons including: icons for "open", "save", "print", ...)
+ * Perhaps we should use the stock icons mechanism when using gtk2.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -340,7 +342,7 @@ void get_main_toolbar(GtkWidget *window, GtkWidget **toolbar) {
 
 	print_button = gtk_toolbar_append_item(GTK_TOOLBAR(*toolbar),
 								"Print", "Print frame(s)", "Private",
-								iconw, GTK_SIGNAL_FUNC (file_reload_cmd_cb), NULL);
+								iconw, GTK_SIGNAL_FUNC (file_print_cmd_cb), NULL);
 	gtk_toolbar_append_space (GTK_TOOLBAR(*toolbar));
 	
 	/* find frame button */
