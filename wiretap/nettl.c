@@ -164,7 +164,8 @@ static gboolean nettl_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 int nettl_open(wtap *wth, int *err, gchar **err_info _U_)
 {
     char magic[12], os_vers[2];
-    guint8 dummy[4];
+    guint16 dummy[2];
+    int subsys;
     int bytes_read;
 
     /* Read in the string that should be at the start of a HP file */
@@ -221,7 +222,8 @@ int nettl_open(wtap *wth, int *err, gchar **err_info _U_)
         return 0;
     }
 
-    switch (dummy[3]) {
+    subsys = g_ntohs(dummy[1]);
+    switch (subsys) {
         case NETTL_SUBSYS_HPPB_FDDI :
         case NETTL_SUBSYS_EISA_FDDI :
         case NETTL_SUBSYS_PCI_FDDI :
@@ -335,9 +337,9 @@ nettl_read_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
     struct nettlrec_ns_ls_drv_eth_hdr drv_eth_hdr;
     guint16 length;
     int offset = 0;
-    int encap;
+    int subsys;
     int padlen;
-    guint8 dummy[4];
+    guint16 dummy[2];
     guchar dummyc[12];
 
     errno = WTAP_ERR_CANT_READ;
@@ -353,9 +355,9 @@ nettl_read_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 	return 0;
     }
     offset += 4;
-    encap=dummy[3];
 
-    switch (encap) {
+    subsys = g_ntohs(dummy[1]);
+    switch (subsys) {
 	case NETTL_SUBSYS_LAN100 :
 	case NETTL_SUBSYS_EISA100BT :
 	case NETTL_SUBSYS_BASE100 :
@@ -368,6 +370,7 @@ nettl_read_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 	case NETTL_SUBSYS_INTL100 :
 	case NETTL_SUBSYS_IGELAN :
 	case NETTL_SUBSYS_IETHER :
+	case NETTL_SUBSYS_IXGBE :
 	case NETTL_SUBSYS_HPPB_FDDI :
 	case NETTL_SUBSYS_EISA_FDDI :
         case NETTL_SUBSYS_PCI_FDDI :
@@ -383,23 +386,23 @@ nettl_read_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 	case NETTL_SUBSYS_NS_LS_IPV6 :
 	case NETTL_SUBSYS_NS_LS_ICMPV6 :
 	case NETTL_SUBSYS_NS_LS_ICMP :
-	    if( (encap == NETTL_SUBSYS_NS_LS_IP)
-	     || (encap == NETTL_SUBSYS_NS_LS_LOOPBACK)
-	     || (encap == NETTL_SUBSYS_NS_LS_UDP)
-	     || (encap == NETTL_SUBSYS_NS_LS_TCP)
-	     || (encap == NETTL_SUBSYS_NS_LS_IPV6)) {
+	    if( (subsys == NETTL_SUBSYS_NS_LS_IP)
+	     || (subsys == NETTL_SUBSYS_NS_LS_LOOPBACK)
+	     || (subsys == NETTL_SUBSYS_NS_LS_UDP)
+	     || (subsys == NETTL_SUBSYS_NS_LS_TCP)
+	     || (subsys == NETTL_SUBSYS_NS_LS_IPV6)) {
 		phdr->pkt_encap = WTAP_ENCAP_RAW_IP;
-	    } else if (encap == NETTL_SUBSYS_NS_LS_ICMP) {
+	    } else if (subsys == NETTL_SUBSYS_NS_LS_ICMP) {
 		phdr->pkt_encap = WTAP_ENCAP_RAW_ICMP;
-	    } else if (encap == NETTL_SUBSYS_NS_LS_ICMPV6) {
+	    } else if (subsys == NETTL_SUBSYS_NS_LS_ICMPV6) {
 		phdr->pkt_encap = WTAP_ENCAP_RAW_ICMPV6;
-	    } else if( (encap == NETTL_SUBSYS_HPPB_FDDI)
-		    || (encap == NETTL_SUBSYS_EISA_FDDI)
-		    || (encap == NETTL_SUBSYS_PCI_FDDI)
-		    || (encap == NETTL_SUBSYS_HSC_FDDI) ) {
+	    } else if( (subsys == NETTL_SUBSYS_HPPB_FDDI)
+		    || (subsys == NETTL_SUBSYS_EISA_FDDI)
+		    || (subsys == NETTL_SUBSYS_PCI_FDDI)
+		    || (subsys == NETTL_SUBSYS_HSC_FDDI) ) {
 		phdr->pkt_encap = WTAP_ENCAP_FDDI_BITSWAPPED;
-	    } else if( (encap == NETTL_SUBSYS_PCI_TR)
-		    || (encap == NETTL_SUBSYS_TOKEN) ) {
+	    } else if( (subsys == NETTL_SUBSYS_PCI_TR)
+		    || (subsys == NETTL_SUBSYS_TOKEN) ) {
 		phdr->pkt_encap = WTAP_ENCAP_TOKEN_RING;
 	    } else {
 		phdr->pkt_encap = WTAP_ENCAP_ETHERNET;
@@ -438,7 +441,7 @@ nettl_read_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 	    }
 
 	    /* HPPB FDDI has different inbound vs outbound trace records */
-	    if (encap == NETTL_SUBSYS_HPPB_FDDI) {
+	    if (subsys == NETTL_SUBSYS_HPPB_FDDI) {
                 if (ip_hdr.rectype == NETTL_HDR_PDUIN) {
                    /* inbound is very strange...
                       there are an extra 3 bytes after the DSAP and SSAP
@@ -486,9 +489,9 @@ nettl_read_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 		   length = pntohl(&ip_hdr.caplen);
 		   phdr->caplen = length - padlen;
                }
-	    } else if ( (encap == NETTL_SUBSYS_PCI_FDDI)
-	             || (encap == NETTL_SUBSYS_EISA_FDDI)
-	             || (encap == NETTL_SUBSYS_HSC_FDDI) ) {
+	    } else if ( (subsys == NETTL_SUBSYS_PCI_FDDI)
+	             || (subsys == NETTL_SUBSYS_EISA_FDDI)
+	             || (subsys == NETTL_SUBSYS_HSC_FDDI) ) {
 	        /* other flavor FDDI cards have an extra 3 bytes of padding */
 		bytes_read = file_read(dummy, 1, 3, fh);
 		if (bytes_read != 3) {
@@ -508,7 +511,7 @@ nettl_read_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 		phdr->len = length - 3;
 		length = pntohl(&ip_hdr.caplen);
 		phdr->caplen = length - 3;
-	    } else if (encap == NETTL_SUBSYS_NS_LS_LOOPBACK) {
+	    } else if (subsys == NETTL_SUBSYS_NS_LS_LOOPBACK) {
 	        /* LOOPBACK has an extra 26 bytes of padding */
 		bytes_read = file_read(dummy, 1, 26, fh);
 		if (bytes_read != 26) {
@@ -642,7 +645,7 @@ nettl_read_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 	default:
 	    *err = WTAP_ERR_UNSUPPORTED_ENCAP;
 	    *err_info = g_strdup_printf("nettl: subsystem %u unknown or unsupported",
-		    encap);
+		    subsys);
 	    return -1;
     }
     return offset;
