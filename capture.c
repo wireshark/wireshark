@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.249 2004/04/13 18:01:39 tuexen Exp $
+ * $Id: capture.c,v 1.250 2004/04/17 01:07:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -573,7 +573,7 @@ sync_pipe_do_capture(gboolean is_tempfile) {
 	unlink(cfile.save_file);
 	g_free(cfile.save_file);
 	cfile.save_file = NULL;
-	simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
+	simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			"Capture child process sent us a bad message");
 	return FALSE;
       }
@@ -584,22 +584,22 @@ sync_pipe_do_capture(gboolean is_tempfile) {
 	 what the problem was. */
       if (byte_count == 0) {
 	/* Zero-length message? */
-	simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
+	simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 		"Capture child process failed, but its error message was empty.");
       } else {
 	msg = g_malloc(byte_count + 1);
 	if (msg == NULL) {
-	  simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
+	  simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 		"Capture child process failed, but its error message was too big.");
 	} else {
 	  i = read(sync_pipe[READ], msg, byte_count);
 	  msg[byte_count] = '\0';
 	  if (i < 0) {
-	    simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
+	    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 		  "Capture child process failed: Error %s reading its error message.",
 		  strerror(errno));
 	  } else if (i == 0) {
-	    simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
+	    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 		  "Capture child process failed: EOF reading its error message.");
 	    sync_pipe_wait_for_child(FALSE);
 	  } else
@@ -787,7 +787,7 @@ sync_pipe_wait_for_child(gboolean always_report)
      in the dialog box?
      XXX - set "fork_child" to -1 if we find it exited? */
   if (_cwait(&wstatus, fork_child, _WAIT_CHILD) == -1) {
-    simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
+    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 		"Child capture process stopped unexpectedly");
   }
 #else
@@ -796,25 +796,25 @@ sync_pipe_wait_for_child(gboolean always_report)
       /* The child exited; display its exit status, if it's not zero,
          and even if it's zero if "always_report" is true. */
       if (always_report || WEXITSTATUS(wstatus) != 0) {
-        simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 		      "Child capture process exited: exit status %d",
 		      WEXITSTATUS(wstatus));
       }
     } else if (WIFSTOPPED(wstatus)) {
       /* It stopped, rather than exiting.  "Should not happen." */
-      simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
+      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 		    "Child capture process stopped: %s",
 		    sync_pipe_signame(WSTOPSIG(wstatus)));
     } else if (WIFSIGNALED(wstatus)) {
       /* It died with a signal. */
-      simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
+      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 		    "Child capture process died: %s%s",
 		    sync_pipe_signame(WTERMSIG(wstatus)),
 		    WCOREDUMP(wstatus) ? " - core dumped" : "");
     } else {
       /* What?  It had to either have exited, or stopped, or died with
          a signal; what happened here? */
-      simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
+      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 		    "Child capture process died: wait status %#o", wstatus);
     }
   }
