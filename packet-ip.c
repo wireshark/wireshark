@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.185 2003/03/04 06:47:10 guy Exp $
+ * $Id: packet-ip.c,v 1.186 2003/04/16 12:17:55 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -919,7 +919,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   iph->ip_id  = tvb_get_ntohs(tvb, offset + 4);
   if (tree)
-    proto_tree_add_uint(ip_tree, hf_ip_id, tvb, offset + 4, 2, iph->ip_id);
+    proto_tree_add_uint_format(ip_tree, hf_ip_id, tvb, offset + 4, 2, iph->ip_id, "Identification: 0x%04x (%d)", iph->ip_id, iph->ip_id);
 
   iph->ip_off = tvb_get_ntohs(tvb, offset + 6);
   if (tree) {
