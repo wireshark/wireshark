@@ -3,7 +3,7 @@
  * (ISAKMP) (RFC 2408)
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-isakmp.c,v 1.27 2000/10/02 18:38:50 gram Exp $
+ * $Id: packet-isakmp.c,v 1.28 2000/10/03 22:49:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -91,7 +91,7 @@ static const char *p1_atttypestr[NUM_P1_ATT_TYPES] = {
   "Group-Order"
 };
 
-#define NUM_ATT_TYPES	10
+#define NUM_ATT_TYPES	11
 #define atttype2str(t)	\
   ((t < NUM_ATT_TYPES) ? atttypestr[t] : "UNKNOWN-ATTRIBUTE-TYPE")
 
@@ -105,7 +105,8 @@ static const char *atttypestr[NUM_ATT_TYPES] = {
   "Key-Length",
   "Key-Rounds",
   "Compress-Dictinary-Size",
-  "Compress-Private-Algorithm"
+  "Compress-Private-Algorithm",
+  "ECN Tunnel"
 };
 
 #define NUM_TRANS_TYPES	2
@@ -117,7 +118,7 @@ static const char *transtypestr[NUM_TRANS_TYPES] = {
   "KEY_IKE"
 };
 
-#define NUM_AH_TRANS_TYPES	5
+#define NUM_AH_TRANS_TYPES	8
 #define ah_trans2str(t)		\
   ((t < NUM_AH_TRANS_TYPES) ? ah_transtypestr[t] : "UNKNOWN-AH-TRANS-TYPE")
 
@@ -126,10 +127,13 @@ static const char *ah_transtypestr[NUM_AH_TRANS_TYPES] = {
   "RESERVED",
   "MD5",
   "SHA",
-  "DES"
+  "DES",
+  "SHA2-256",
+  "SHA2-384",
+  "SHA2-512"
 };
 
-#define NUM_ESP_TRANS_TYPES	12
+#define NUM_ESP_TRANS_TYPES	13
 #define esp_trans2str(t)	\
   ((t < NUM_ESP_TRANS_TYPES) ? esp_transtypestr[t] : "UNKNOWN-ESP-TRANS-TYPE")
 
@@ -145,7 +149,8 @@ static const char *esp_transtypestr[NUM_ESP_TRANS_TYPES] = {
   "3IDEA",
   "DES-IV32",
   "RC4",
-  "NULL"
+  "NULL",
+  "AES"
 };
 
 #define NUM_ID_TYPES	12
@@ -1252,6 +1257,9 @@ value2str(int ike_p1, guint16 att_type, guint16 value) {
         case 2:  return "HMAC-SHA";
         case 3:  return "DES-MAC";
         case 4:  return "KPDK";
+	case 5:  return "HMAC-SHA2-256";
+	case 6:  return "HMAC-SHA2-384";
+	case 7:  return "HMAC-SHA2-512";
         default: return "UNKNOWN-AUTHENTICATION-VALUE";
       }
     case 6:
@@ -1273,6 +1281,7 @@ value2str(int ike_p1, guint16 att_type, guint16 value) {
           case 4:  return "RC5-R16-B64-CBC";
           case 5:  return "3DES-CBC";
           case 6:  return "CAST-CBC";
+	  case 7:  return "AES-CBC";
           default: return "UNKNOWN-ENCRYPTION-ALG";
         }
       case 2:
@@ -1280,6 +1289,9 @@ value2str(int ike_p1, guint16 att_type, guint16 value) {
           case 1:  return "MD5";
           case 2:  return "SHA";
           case 3:  return "TIGER";
+	  case 4:  return "SHA2-256";
+	  case 5:  return "SHA2-384";
+	  case 6:  return "SHA2-512";
           default: return "UNKNOWN-HASH-ALG";
         }
       case 3:

@@ -316,10 +316,8 @@ Ralf Schneider <ralf.schneider@alcatel.se> {
 	OSI ESIS support
 }
 
-Yaniv Kaul <ykaul@checkpoint.com> {
-	ISAKMP Configuration Method support
-	Support for ISAKMP Hybrid mode authentication draft
-	Support for ISAKMP XAUTH authentication
+Yaniv Kaul <ykaul@netvision.net.il> {
+	Enhancements to ISAKMP
 }
 
 Paul Ionescu <ipaul@romsys.ro> {
