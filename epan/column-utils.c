@@ -1,7 +1,7 @@
 /* column-utils.c
  * Routines for column utilities.
  *
- * $Id: column-utils.c,v 1.5 2001/09/14 07:10:10 guy Exp $
+ * $Id: column-utils.c,v 1.6 2001/09/14 07:23:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -29,10 +29,6 @@
 
 #include <string.h>
 #include <time.h>
-
-#ifdef HAVE_SYS_TIME_H
-# include <sys/time.h>
-#endif
 
 #ifdef HAVE_SYS_TYPES_H
 # include <sys/types.h>
