@@ -1,5 +1,5 @@
 /*
- * $Id: ftypes.c,v 1.23 2004/06/03 07:34:49 guy Exp $
+ * $Id: ftypes.c,v 1.24 2004/06/28 06:01:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -350,38 +350,38 @@ slice_func(gpointer data, gpointer user_data)
 		}
 	}
 
-	/* Check the end type, and set both end_offset and length */
+	/* Check the end type and set the length */
 
 	if (ending == TO_THE_END) {
-		end_offset = field_length - 1;
-		length = end_offset - start_offset + 1;
+		length = field_length - start_offset;
+		if (length <= 0) {
+			slice_data->slice_failure = TRUE;
+			return;
+		}
 	}
 	else if (ending == LENGTH) {
 		length = drange_node_get_length(drnode);
-		end_offset = start_offset + length - 1;
+		if (start_offset + length > (int) field_length) {
+			slice_data->slice_failure = TRUE;
+			return;
+		}
 	}
 	else if (ending == OFFSET) {
 		end_offset = drange_node_get_end_offset(drnode);
 		if (end_offset < 0) {
 			end_offset = field_length + end_offset;
-			if (end_offset < 0) {
-				slice_data->slice_failure = TRUE;
-				return;
-			}
 			if (end_offset < start_offset) {
 				slice_data->slice_failure = TRUE;
 				return;
 			}
+		} else if (end_offset >= (int) field_length) {
+			slice_data->slice_failure = TRUE;
+			return;
 		}
 		length = end_offset - start_offset + 1;
 	}
 	else {
 		g_assert_not_reached();
-	}
-
-	if (end_offset >= (int) field_length) {
-		slice_data->slice_failure = TRUE;
-		return;
 	}
 
 	g_assert(start_offset >=0 && length > 0);
