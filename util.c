@@ -1,7 +1,7 @@
 /* util.c
  * Utility routines
  *
- * $Id: util.c,v 1.65 2003/06/13 20:40:31 guy Exp $
+ * $Id: util.c,v 1.66 2003/06/13 22:22:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -37,10 +37,6 @@
 #include <unistd.h>
 #endif
 
-#ifdef HAVE_WINDOWS_H
-#include <windows.h>
-#endif
-
 #ifdef HAVE_SYS_STAT_H
 #include <sys/stat.h>
 #endif
@@ -64,8 +60,10 @@ typedef int mode_t;	/* for win32 */
 
 #ifdef HAVE_LIBPCAP
 #include <pcap.h>
-#include "pcap-util.h"
-#endif
+#ifdef WIN32
+#include "capture-wpcap.h"
+#endif /* WIN32 */
+#endif /* HAVE_LIBPCAP */
 
 #ifdef HAVE_SOME_SNMP
 
@@ -132,7 +130,7 @@ get_compiled_version_info(GString *str)
 	g_string_append(str, " ");
 	break_point = str->len - 1;
 #ifdef WIN32
-	g_string_append("with WinPcap (version unknown)");
+	g_string_append(str, "with WinPcap (version unknown)");
 #else /* WIN32 */
 #ifdef HAVE_PCAP_VERSION
 	g_string_sprintfa(str, "with libpcap %s,", pcap_version);
