@@ -1412,7 +1412,7 @@ Matthew Smart <smart[AT]monkey.org> {
 Jamie Fournier <jafour1[AT]yahoo.com>
 	DCE/RPC dissectors for RSEC_LOGIN, RS_ACCT, RS_ATTR, RS_MISC, RS_PGO, 
 		RS_REPLIST, RS_UNIX, RPRIV, ROVERRIDE, RS_REPADM,
-		DTSSTIME_REQ
+		DTSSTIME_REQ, CDS_SOLICIT
 
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
