@@ -1,7 +1,4 @@
-$Id: README.developer,v 1.20 2000/11/05 09:40:18 oabad Exp $
-
-
-	
+$Id: README.developer,v 1.21 2000/11/06 09:56:10 guy Exp $
 
 This file is a HOWTO for Ethereal developers. It describes how to start coding
 a Ethereal protocol dissector and the use some of the important functions and
@@ -65,7 +62,7 @@ code inside
 
 is needed only if you are using the "snprintf()" function.
 
-The "$Id: README.developer,v 1.20 2000/11/05 09:40:18 oabad Exp $"
+The "$Id: README.developer,v 1.21 2000/11/06 09:56:10 guy Exp $"
 in the comment will be updated by CVS when the file is
 checked in; it will allow the RCS "ident" command to report which
 version of the file is currently checked out.
@@ -75,7 +72,7 @@ version of the file is currently checked out.
  * Routines for PROTONAME dissection
  * Copyright 2000, YOUR_NAME <YOUR_EMAIL_ADDRESS>
  *
- * $Id: README.developer,v 1.20 2000/11/05 09:40:18 oabad Exp $
+ * $Id: README.developer,v 1.21 2000/11/06 09:56:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -1611,52 +1608,37 @@ Plugins need to provide the following exported constants (the DLLEXPORT macro is
 defined in plugin_api.h) :
 
 DLLEXPORT const gchar version[] = VERSION;
-DLLEXPORT const gchar desc[] = "DG Gryphon Protocol";
-DLLEXPORT const gchar protocol[] = "tcp";
-DLLEXPORT const gchar filter_string[] = "tcp.port == 7000";
 
 version       : a version number associated with the plugin.
-desc          : description of the dissector (displayed in the plugin selection
-                window).
-protocol      : name of the underlying protocol (e.g. if protocol == "xxx", the
-		plugin will be called from dissect_xxx).  Only "tcp" and "udp"
-		are supported for now. If you want to specify both tcp and udp,
-		use the following definition : "tcp udp".
-filter_string : display filter which is applied to a frame to determine if it
-                should be dissected by this plugin.
-
-The above definitions, taken from the gryphon plugin, show that the gryphon
-plugin will be called in dissect_tcp() if the TCP source or destination port is
-7000.
 
 3.3 Exported functions
 
-The following two functions need to be exported by the plugin :
-
-DLLEXPORT void dissector(const u_char *pd, int offset, frame_data *fd,
-	                 proto_tree *tree)
-
-This function should be similar to any other dissect_xxx() function, except for
-its name.
+The following two functions need to be exported by the plugin:
 
 DLLEXPORT void plugin_init(plugin_address_table_t *pat)
 
-This function is called by ethereal when the plugin is initialized. Here is a
-sample code for the function :
+This function is called by Ethereal when the plugin is initialized; it's
+similar to the "proto_register_XXX()" routine for a non-plugin
+dissector, except for the name and the call to
+"plugin_address_table_init()".
 
-/* initialise the table of pointers needed in Win32 DLLs */
-plugin_address_table_init(pat);
-/* destroy the dfilter tree */
-dfilter_cleanup();
-/* register the new protocol, protocol fields, and subtrees */
-if (proto_xxx == -1) { /* execute protocol initialization only once */
-  proto_xxx = proto_register_protocol("XXX Protocol", "xxx");
-  proto_register_field_array(proto_xxx, hf, array_length(hf));
-  proto_register_subtree_array(ett, array_length(ett));
-}
-/* initialize the dfilter tree with all the header field and protocol
- * abbrevs defined, including xxx */
-dfilter_init();
+Here is a sample code for the function:
+
+	/* initialise the table of pointers needed in Win32 DLLs */
+	plugin_address_table_init(pat);
+
+	/* register the new protocol, protocol fields, and subtrees */
+	if (proto_xxx == -1) { /* execute protocol initialization only once */
+	  proto_xxx = proto_register_protocol("XXX Protocol", "xxx");
+	  proto_register_field_array(proto_xxx, hf, array_length(hf));
+	  proto_register_subtree_array(ett, array_length(ett));
+	}
+
+DLLEXPORT void plugin_reg_handoff(void)
+
+This function is called by Ethereal after all dissectors, including all
+plugins, are initialized; it's similar to the "proto_reg_handoff_XXX()"
+routine for a non-plugin dissector, except for the name. 
 
 4.0 Extending Wiretap.
 
