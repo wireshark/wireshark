@@ -2,7 +2,7 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  * 
- * $Id: packet-wsp.c,v 1.58 2002/07/17 00:42:42 guy Exp $
+ * $Id: packet-wsp.c,v 1.59 2002/07/30 07:36:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -205,6 +205,7 @@ static gint ett_redirect_flags				= ETT_EMPTY;
 static gint ett_redirect_afl				= ETT_EMPTY;
 static gint ett_multiparts				= ETT_EMPTY;
 static gint ett_mpartlist				= ETT_EMPTY;
+static gint ett_post_data				= ETT_EMPTY;
 
 /* Handle for WSP-over-UDP dissector */
 static dissector_handle_t wsp_fromudp_handle;
@@ -3804,9 +3805,11 @@ add_post_data (proto_tree *tree, tvbuff_t *tvb, guint contentType,
 	guint valueEnd = 0;
 	guint8 peek = 0;
 	proto_item *ti;
+	proto_tree *subtree;
 	
 	/* VERIFY ti = proto_tree_add_item (tree, hf_wsp_post_data,tvb,offset,-1,bo_little_endian); */
 	ti = proto_tree_add_item (tree, hf_wsp_post_data,tvb,offset,-1,bo_little_endian);
+	subtree = proto_item_add_subtree(ti, ett_post_data);
 
 	if (contentTypeStr == NULL && contentType == 0x12)
 	{
@@ -3826,7 +3829,7 @@ add_post_data (proto_tree *tree, tvbuff_t *tvb, guint contentType,
 			{
 				if (variableEnd > 0)
 				{
-					add_post_variable (ti, tvb, variableStart, variableEnd, valueStart, offset);
+					add_post_variable (subtree, tvb, variableStart, variableEnd, valueStart, offset);
 				}
 				variableStart = offset+1;
 				variableEnd = 0;
@@ -3838,13 +3841,13 @@ add_post_data (proto_tree *tree, tvbuff_t *tvb, guint contentType,
 		/* See if there's outstanding data */
 		if (variableEnd > 0)
 		{
-			add_post_variable (ti, tvb, variableStart, variableEnd, valueStart, offset);
+			add_post_variable (subtree, tvb, variableStart, variableEnd, valueStart, offset);
 		}
 	}
 	else if ((contentType == 0x22) || (contentType == 0x23) || (contentType == 0x23) || (contentType == 0x24) ||
 		 (contentType == 0x25) || (contentType == 0x26) || (contentType == 0x33))
 	{
-		add_multipart_data(ti, tvb);
+		add_multipart_data(subtree, tvb);
 	}
 }
 
@@ -4894,7 +4897,8 @@ proto_register_wsp(void)
 		&ett_redirect_flags,
 		&ett_redirect_afl,
 		&ett_multiparts,
-		&ett_mpartlist
+		&ett_mpartlist,
+		&ett_post_data
 	};
 
 /* Register the protocol name and description */
