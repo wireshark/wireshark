@@ -1,7 +1,7 @@
 /* resolv.c
  * Routines for network object lookup
  *
- * $Id: resolv.c,v 1.36 2003/08/26 20:21:08 gerald Exp $
+ * $Id: resolv.c,v 1.37 2003/10/14 00:40:14 guy Exp $
  *
  * Laurent Deniel <laurent.deniel@free.fr>
  *
@@ -332,7 +332,7 @@ static guchar *host_name_lookup(guint addr, gboolean *found)
   tp->next = NULL;
 
 #ifdef HAVE_GNU_ADNS
-  if (g_resolv_flags & RESOLV_CONCURRENT != 0 && 
+  if ((g_resolv_flags & RESOLV_CONCURRENT) && 
       prefs.name_resolve_concurrency > 0) {
     qmsg = g_malloc(sizeof(adns_queue_msg_t));
     qmsg->type = AF_INET;
