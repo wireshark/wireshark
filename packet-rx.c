@@ -4,10 +4,10 @@
  * Based on routines from tcpdump patches by
  *   Ken Hornstein <kenh@cmf.nrl.navy.mil>
  *
- * $Id: packet-rx.c,v 1.5 1999/12/08 18:12:06 nneul Exp $
+ * $Id: packet-rx.c,v 1.6 2000/01/07 22:05:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@unicom.net>
+ * By Gerald Combs <gerald@zing.org>
  * Copyright 1998 Gerald Combs
  *
  * Copied from packet-tftp.c

@@ -1,10 +1,10 @@
 /* packet-bootparams.c
  * Routines for bootparams dissection
  *
- * $Id: packet-bootparams.c,v 1.6 1999/11/16 11:42:27 guy Exp $
+ * $Id: packet-bootparams.c,v 1.7 2000/01/07 22:05:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@unicom.net>
+ * By Gerald Combs <gerald@zing.org>
  * Copyright 1998 Gerald Combs
  *
  * Copied from packet-smb.c

@@ -4,10 +4,10 @@
  *
  * Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-hsrp.c,v 1.1 1999/11/21 20:02:30 gram Exp $
+ * $Id: packet-hsrp.c,v 1.2 2000/01/07 22:05:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@unicom.net>
+ * By Gerald Combs <gerald@zing.org>
  * Copyright 1998 Gerald Combs
  *
  * Copied from packet-vrrp.c

@@ -4,10 +4,10 @@
  *
  * Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-sap.c,v 1.3 1999/11/22 21:41:30 gram Exp $
+ * $Id: packet-sap.c,v 1.4 2000/01/07 22:05:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@unicom.net>
+ * By Gerald Combs <gerald@zing.org>
  * Copyright 1998 Gerald Combs
  *
  * Copied from packet-tftp.c

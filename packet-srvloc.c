@@ -6,10 +6,10 @@
  *       In particular I have not had an opportunity to see how it 
  *       responds to SRVLOC over TCP.
  *
- * $Id: packet-srvloc.c,v 1.4 2000/01/01 21:11:02 guy Exp $
+ * $Id: packet-srvloc.c,v 1.5 2000/01/07 22:05:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@unicom.net>
+ * By Gerald Combs <gerald@zing.org>
  * Copyright 1998 Gerald Combs
  *
  * Service Location Protocol is RFC 2165

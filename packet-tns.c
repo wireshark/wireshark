@@ -1,10 +1,10 @@
 /* packet-tns.c
  * Routines for MSX tns packet dissection
  *
- * $Id: packet-tns.c,v 1.3 1999/11/30 17:58:32 nneul Exp $
+ * $Id: packet-tns.c,v 1.4 2000/01/07 22:05:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@unicom.net>
+ * By Gerald Combs <gerald@zing.org>
  * Copyright 1998 Gerald Combs
  *
  * Copied from packet-tftp.c

@@ -2,10 +2,10 @@
  * Defines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: smb.h,v 1.3 1999/07/13 02:52:58 gram Exp $
+ * $Id: smb.h,v 1.4 2000/01/07 22:05:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@unicom.net>
+ * By Gerald Combs <gerald@zing.org>
  * Copyright 1998, 1999 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or

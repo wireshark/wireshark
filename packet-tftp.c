@@ -3,10 +3,10 @@
  *
  * Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-tftp.c,v 1.7 1999/11/16 11:43:00 guy Exp $
+ * $Id: packet-tftp.c,v 1.8 2000/01/07 22:05:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@unicom.net>
+ * By Gerald Combs <gerald@zing.org>
  * Copyright 1998 Gerald Combs
  *
  * Copied from packet-bootp.c

@@ -3,10 +3,10 @@
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  * Modified to allow NCP over TCP/IP decodes by James Coe <jammer@cin.net>
  *
- * $Id: packet-ncp.c,v 1.28 2000/01/01 21:05:02 guy Exp $
+ * $Id: packet-ncp.c,v 1.29 2000/01/07 22:05:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@unicom.net>
+ * By Gerald Combs <gerald@zing.org>
  * Copyright 1998 Gerald Combs
  *
  * 

@@ -1,10 +1,10 @@
 /* packet-nlm.c
  * Routines for nlm dissection
  *
- * $Id: packet-nlm.c,v 1.3 1999/11/16 11:42:42 guy Exp $
+ * $Id: packet-nlm.c,v 1.4 2000/01/07 22:05:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@unicom.net>
+ * By Gerald Combs <gerald@zing.org>
  * Copyright 1998 Gerald Combs
  *
  * Copied from packet-mount.c

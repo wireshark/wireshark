@@ -16,7 +16,7 @@
  * Destination Preference Attribute for BGP (work in progress)
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@unicom.net>
+ * By Gerald Combs <gerald@zing.org>
  * Copyright 1998 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or

@@ -2,10 +2,10 @@
  * Definitions of OUIs
  * Gilbert Ramirez <gramirez@tivoli.com>
  *
- * $Id: oui.h,v 1.1 1999/12/29 05:19:58 guy Exp $
+ * $Id: oui.h,v 1.2 2000/01/07 22:05:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@unicom.net>
+ * By Gerald Combs <gerald@zing.org>
  * Copyright 1998 Gerald Combs
  *
  * 

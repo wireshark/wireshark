@@ -1,10 +1,10 @@
 /* packet-ypserv.c
  * Routines for ypserv dissection
  *
- * $Id: packet-ypserv.c,v 1.6 1999/11/16 11:43:04 guy Exp $
+ * $Id: packet-ypserv.c,v 1.7 2000/01/07 22:05:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@unicom.net>
+ * By Gerald Combs <gerald@zing.org>
  * Copyright 1998 Gerald Combs
  *
  * Copied from packet-smb.c

@@ -1,10 +1,10 @@
 /* packet-stat.c
  * Routines for stat dissection
  *
- * $Id: packet-stat.c,v 1.3 1999/11/18 19:59:11 guy Exp $
+ * $Id: packet-stat.c,v 1.4 2000/01/07 22:05:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@unicom.net>
+ * By Gerald Combs <gerald@zing.org>
  * Copyright 1998 Gerald Combs
  *
  * Copied from packet-smb.c

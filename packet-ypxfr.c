@@ -1,10 +1,10 @@
 /* packet-ypxfr.c
  * Routines for ypxfr dissection
  *
- * $Id: packet-ypxfr.c,v 1.2 1999/11/16 11:43:04 guy Exp $
+ * $Id: packet-ypxfr.c,v 1.3 2000/01/07 22:05:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@unicom.net>
+ * By Gerald Combs <gerald@zing.org>
  * Copyright 1998 Gerald Combs
  *
  * Copied from packet-smb.c

@@ -1,10 +1,10 @@
 /* packet-bgp.c
  * Definitions for BGP packet disassembly structures and routine
  *
- * $Id: packet-bgp.h,v 1.5 1999/11/22 07:05:21 itojun Exp $
+ * $Id: packet-bgp.h,v 1.6 2000/01/07 22:05:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@unicom.net>
+ * By Gerald Combs <gerald@zing.org>
  * Copyright 1998 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or

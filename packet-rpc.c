@@ -2,10 +2,10 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * 
- * $Id: packet-rpc.c,v 1.24 1999/12/14 11:43:59 girlich Exp $
+ * $Id: packet-rpc.c,v 1.25 2000/01/07 22:05:36 guy Exp $
  * 
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@unicom.net>
+ * By Gerald Combs <gerald@zing.org>
  * Copyright 1998 Gerald Combs
  * 
  * Copied from packet-smb.c

@@ -5,10 +5,10 @@
  *
  * Gilbert Ramirez <gramirez@tivoli.cm>
  *
- * $Id: ipv4.h,v 1.3 1999/11/19 23:01:13 gram Exp $
+ * $Id: ipv4.h,v 1.4 2000/01/07 22:05:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@unicom.net>
+ * By Gerald Combs <gerald@zing.org>
  * Copyright 1998 Gerald Combs
  *
  * 

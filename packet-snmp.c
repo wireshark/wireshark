@@ -2,10 +2,10 @@
  * Routines for SNMP (simple network management protocol)
  * D.Jorand (c) 1998
  *
- * $Id: packet-snmp.c,v 1.22 1999/12/14 10:16:11 guy Exp $
+ * $Id: packet-snmp.c,v 1.23 2000/01/07 22:05:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@unicom.net>
+ * By Gerald Combs <gerald@zing.org>
  * Copyright 1998 Didier Jorand
  *
  * Some stuff from:

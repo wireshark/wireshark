@@ -2,10 +2,10 @@
  * Routines for NetWare Core Protocol
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-ncp.h,v 1.6 1999/11/17 21:58:33 guy Exp $
+ * $Id: packet-ncp.h,v 1.7 2000/01/07 22:05:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@unicom.net>
+ * By Gerald Combs <gerald@zing.org>
  * Copyright 1998 Gerald Combs
  *
  * 
