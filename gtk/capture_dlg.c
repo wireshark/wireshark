@@ -736,7 +736,8 @@ capture_prep(void)
   OBJECT_SET_DATA(top_level, E_CFILTER_CM_KEY, filter_cm);
   filter_te = GTK_COMBO(filter_cm)->entry;
 
-  gtk_combo_set_popdown_strings(GTK_COMBO(filter_cm), filter_list);
+  if (filter_list != NULL)
+    gtk_combo_set_popdown_strings(GTK_COMBO(filter_cm), filter_list);
   if (cfile.cfilter)
     gtk_entry_set_text(GTK_ENTRY(filter_te), cfile.cfilter);
   gtk_tooltips_set_tip(tooltips, filter_te,
