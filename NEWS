@@ -1,4 +1,4 @@
-$Id: NEWS,v 1.135 2003/09/09 03:34:26 gerald Exp $
+$Id: NEWS,v 1.136 2003/09/09 23:17:08 gerald Exp $
 
 == September 9, 2003
 
@@ -6,11 +6,11 @@ Ethereal 0.9.15 has been released.
 
 New and updated features
 
-  Many major features have been added with this release.  If you're
-  running an older version of Ethereal, you may want to have a look.
+  Many often-requested features have been added with this release.  If
+  you're running an older version of Ethereal you may want to have a look.
 
   Conversation List (aka "top talker") support has been added to Ethereal
-  and Tethereal.  Protocol  statistics in general have been updated.
+  and Tethereal.  Protocol statistics in general have been updated.
 
   Searching capture files has been improved even more -- a new "contains"
   display filter operator that searches for strings in PDUs has been
@@ -29,61 +29,21 @@ New and updated features
 
 New protocols
 
-GPRS BSSGP,
-GPRS NS,
-H.225,
-H.263,
-Laplink,
-LWAPP,
-Q.933,
-STUN,
+  GPRS BSSGP, GPRS NS, H.225, H.263, LWAPP, Laplink, Q.933, STUN
 
 
 Updated protocols
 
-ArtNet,
-BOOTP/DHCP,
-DCE/RPC,
-DCERPCSTAT,
-DHCPv6,
-ENIP,
-Ethernet,
-FCIP,
-Frame Relay,
-H.245,
-HTTP,
-IPsec,
-LDAP,
-LWRES,
-M2UA,
-M3UA,
-MEGACO,
-MTP3,
-NCP,
-NDPS,
-NFS,
-NTLMSSP,
-PPTP,
-Q.931,
-RPC,
-SAMR,
-SCCP,
-SCTP,
-SMB,
-SMPP,
-SNA,
-SNMP,
-SRVLOC,
-SIP,
-SUA,
-TCP,
-TDS,
-UDP,
-WSP,
+  ArtNet, BOOTP/DHCP, DCE/RPC, DCERPCSTAT, DHCPv6, DOCSIS, ENIP, Ethernet,
+  FCIP, Frame Relay, H.245, HTTP, IPsec, iSCSI, LDAP, LWRES, M2UA, M3UA,
+  MEGACO, MTP3, NCP, NDPS, NFS, NTLMSSP, PPTP, Q.931, RPC, SAMR, SCCP,
+  SCTP, SIP, SMB, SMPP, SNA, SNMP, SRVLOC, SUA, TCP, TDS, UCD, UDP, WSP,
+
 
 Updated capture file support
 
-  Accellent 5Views, CheckPoint FW-1, Endace ERF, LANalyzer, 
+  Support for Accellent 5Views and Endace ERF capture files was added.
+  CheckPoint FW-1 and Novell LANalyzer support has been enhanced.
 
 
 == July 23, 2003

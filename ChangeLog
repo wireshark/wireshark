@@ -1,4 +1,4 @@
-$Id: ChangeLog,v 1.29 2003/09/09 03:34:26 gerald Exp $
+$Id: ChangeLog,v 1.30 2003/09/09 23:17:08 gerald Exp $
  
 Overview of changes in Ethereal 0.9.15:
 
@@ -347,22 +347,22 @@ Overview of changes in Ethereal 0.9.15:
 * Add support for user-supplied interface descriptions and interface hiding
  (Nathan Jennings, Guy)
 * Have Find support periods and dashes as hex separators (Gerald)
-* 
-
-
-
-
-
-
-Left off at http://www.ethereal.com/lists/ethereal-cvs/200309/msg00124.html
-
-
-
- 
-* Number of new packets
-* Added strings for several fields
-* Use "Art-Net" instead of "ArtNET"
-* Number of (endian) bugs fixed
+* Polish the interface list pref window (Nathan)
+* Update some strings in FCIP (Guy)
+* Use Booleans, not uint8's in DOCSIS (Guy)
+* Put each UCD TLV in a tree of its own (Guy)
+* Show the DOCSIS BPKM-ATTR crypto suite attribute symbolically (Guy)
+* Fix the DOCSIS PDU length (Guy)
+* Process GPRS-NS TLVs as such (Guy)
+* Fix GPRS-NS string handling (Guy)
+* Update BSSGP IMSI odd/even indicator and identity display (Guy)
+* Fix GPRS-NS length octet handling (Guy)
+* Update NFSv3 Read Reply and Write Call handling (Ronnie)
+* Update iSCSI NSG bit handling (Ronnie)
+* Add a "dissector_get_string_handle()" function (Guy)
+* Fix an empty capture description problem (Nathan)
+* Use the right value_string table for the filter mode in Gryphon 
+  CMD_CARD_SET_FILTER_MODE and CMD_CARD_GET_FILTER_MODE (Guy)
 
 
 Overview of changes in Ethereal 0.9.14:
