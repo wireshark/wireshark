@@ -659,7 +659,6 @@ dissect_swils_efp (tvbuff_t *tvb, proto_tree *efp_tree, guint8 isreq _U_)
         offset = 0;
     fcswils_efp efp;
     guint8 rec_type;
-    guint8 sname[8];
     
     offset += 1;
     efp.reclen = tvb_get_guint8 (tvb, offset);
@@ -709,9 +708,8 @@ dissect_swils_efp (tvbuff_t *tvb, proto_tree *efp_tree, guint8 isreq _U_)
 
             case FC_SWILS_LRECTYPE_DOMAIN:
                 proto_tree_add_item (lrec_tree, hf_swils_efp_dom_id, tvb, offset+1, 1, 0); 
-                tvb_memcpy (tvb, sname, offset+8, 8);
                 proto_tree_add_string (lrec_tree, hf_swils_efp_switch_name, tvb, offset+8, 8,
-                                       fcwwn_to_str (sname));
+                                       fcwwn_to_str (tvb_get_ptr(tvb, offset+8, 8)));
                 break;
 
             case FC_SWILS_LRECTYPE_MCAST:
