@@ -4,7 +4,7 @@
  *
  * (C) Olivier Biot, 2004
  *
- * $Id: packet-media.c,v 1.1 2004/04/30 17:07:20 obiot Exp $
+ * $Id: packet-media.c,v 1.2 2004/04/30 21:33:15 guy Exp $
  *
  * Refer to the AUTHORS file or the AUTHORS section in the man page
  * for contacting the author(s) of this file.
@@ -57,7 +57,7 @@ dissect_media(tvbuff_t *tvb, packet_info *pinfo , proto_tree *tree)
 		/* The media type has parameters */
 		proto_tree_add_protocol_format(tree, proto_media, tvb, 0, bytes,
 		    "Media Type: %s; %s (%d byte%s)",
-		    pinfo->match_string, pinfo->private_data,
+		    pinfo->match_string, (char *)pinfo->private_data,
 		    bytes, plurality(bytes, "", "s"));
 	    } else {
 		/* The media type has no parameters */
