@@ -2,7 +2,7 @@
  * Routines for x25 packet disassembly
  * Olivier Abad <abad@daba.dhis.net>
  *
- * $Id: packet-x25.c,v 1.28 2000/05/25 21:34:57 oabad Exp $
+ * $Id: packet-x25.c,v 1.29 2000/05/28 06:26:10 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1939,7 +1939,7 @@ proto_register_x25(void)
 	{ &hf_x25_qbit,
 	  { "Q Bit", "x25.q", FT_BOOLEAN, 2, NULL, 0x8000,
 	  	"Qualifier Bit" } },
-	{ &hf_x25_qbit,
+	{ &hf_x25_dbit,
 	  { "D Bit", "x25.d", FT_BOOLEAN, 2, NULL, 0x4000,
 	  	"Delivery Confirmation Bit" } },
 	{ &hf_x25_mod,
@@ -1966,7 +1966,7 @@ proto_register_x25(void)
 	{ &hf_ex25_qbit,
 	  { "Q Bit", "ex25.q", FT_BOOLEAN, 2, NULL, 0x8000,
 	  	"Qualifier Bit" } },
-	{ &hf_ex25_qbit,
+	{ &hf_ex25_dbit,
 	  { "D Bit", "ex25.d", FT_BOOLEAN, 2, NULL, 0x4000,
 	  	"Delivery Confirmation Bit" } },
 	{ &hf_ex25_mod,
