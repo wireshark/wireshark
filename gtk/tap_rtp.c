@@ -1,7 +1,7 @@
 /*
  * tap_rtp.c
  *
- * $Id: tap_rtp.c,v 1.12 2003/05/27 01:40:30 gerald Exp $
+ * $Id: tap_rtp.c,v 1.13 2003/05/28 01:09:57 gerald Exp $
  *
  * RTP analysing addition for ethereal
  *
@@ -73,14 +73,6 @@
  * - some more testing (other OS)
  *
  * XXX Problems: 
- *
- * - instead of tmpnam() use of mkstemp(). 
- *   I tried to do it with mkstemp() but didn't now how to solve following  problem: 
- *   I call mkstemp() and then write in this temp file and it works fine . But if the user 
- *   then hits the refresh button, this temp file should be deleted and opened again. I tried
- *   to call close() and unlink(), but when I call mkstemp() for the second time I always get
- *   an error ( -1) as return value. What is the correct order? Is it possible to call 
- *   mkstemp() twice with the same template?    
  *
  * - problem with statistics for lost (late, duplicated) packets. How to make the statistic 
  *   more resistant to special (bizarre) arrival of sequence numbers
@@ -237,15 +229,10 @@ rtp_reset(void *prs)
   rs->forward.count = 0;
   rs->reversed.count = 0;
   /* XXX check for error at fclose? */
-  /* XXX - Should we just use freopen instead? */
-  if (rs->forward.fp != NULL)
-	fclose(rs->forward.fp); 
-  if (rs->reversed.fp != NULL)
-	fclose(rs->reversed.fp); 
-  rs->forward.fp = fopen(f_tempname, "wb"); 
+  rs->forward.fp = freopen(f_tempname, "wb", rs->forward.fp); 
   if (rs->forward.fp == NULL)
 	rs->forward.error_type = TAP_RTP_FILE_OPEN_ERROR;
-  rs->reversed.fp = fopen(r_tempname, "wb");
+  rs->reversed.fp = freopen(r_tempname, "wb", rs->reversed.fp);
   if (rs->reversed.fp == NULL)
 	rs->reversed.error_type = TAP_RTP_FILE_OPEN_ERROR;
   return;
