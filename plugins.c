@@ -1,7 +1,7 @@
 /* plugins.c
  * plugin routines
  *
- * $Id: plugins.c,v 1.6 2000/01/29 16:41:14 gram Exp $
+ * $Id: plugins.c,v 1.7 2000/01/31 19:50:58 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -426,6 +426,8 @@ plugins_scan_dir(const char *dirname)
 void
 init_plugins()
 {
+    struct stat std_dir_stat, local_dir_stat, plugin_dir_stat;
+
     if (plugin_list == NULL)      /* ensure init_plugins is only run once */
     {
 	plugins_scan_dir(std_plug_dir);
@@ -433,7 +435,17 @@ init_plugins()
         if ((strcmp(std_plug_dir, PLUGIN_DIR) != 0) &&
             (strcmp(local_plug_dir, PLUGIN_DIR) != 0))
         {
-          plugins_scan_dir(PLUGIN_DIR);
+	    if (stat(std_plug_dir, &std_dir_stat) == 0 &&
+		stat(local_plug_dir, &local_dir_stat) == 0 &&
+		stat(PLUGIN_DIR, &plugin_dir_stat) == 0)
+	    {
+		/* check if PLUGIN_DIR is really different from std_dir and local_dir */
+		if ((plugin_dir_stat.st_dev != std_dir_stat.st_dev ||
+		     plugin_dir_stat.st_ino != std_dir_stat.st_ino) &&
+		    (plugin_dir_stat.st_dev != local_dir_stat.st_dev ||
+		     plugin_dir_stat.st_ino != local_dir_stat.st_ino))
+		    plugins_scan_dir(PLUGIN_DIR);
+	    }
         }
 	if (!user_plug_dir)
 	{
