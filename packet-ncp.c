@@ -2,7 +2,7 @@
  * Routines for NetWare Core Protocol
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-ncp.c,v 1.14 1999/05/16 05:12:11 gram Exp $
+ * $Id: packet-ncp.c,v 1.15 1999/05/26 21:46:07 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -595,9 +595,16 @@ dissect_ncp_reply(const u_char *pd, int offset, frame_data *fd,
 	if (ncp_tree) {
 		/* A completion code of 0 always means OK. Other values have different
 		 * meanings */
-		proto_tree_add_item(ncp_tree, offset+6,    1,
-			"Completion Code: 0x%02x (%s)", reply.completion_code,
-			ncp_completion_code(reply.completion_code, ncp_request->family));
+		if (ncp_request) {
+			proto_tree_add_item(ncp_tree, offset+6,    1,
+				"Completion Code: 0x%02x (%s)", reply.completion_code,
+				ncp_completion_code(reply.completion_code, ncp_request->family));
+		}
+		else {
+			proto_tree_add_item(ncp_tree, offset+6,    1,
+				"Completion Code: 0x%02x (%s)", reply.completion_code,
+				reply.completion_code == 0 ? "OK" : "Unknown");
+		}
 
 		proto_tree_add_item(ncp_tree, offset+7,    1,
 			"Connection Status: %d", reply.connection_state);
