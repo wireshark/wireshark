@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.29 2000/01/03 06:29:32 guy Exp $
+ * $Id: prefs.c,v 1.30 2000/01/29 16:41:14 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -51,6 +51,7 @@
 #include "prefs.h"
 #include "column.h"
 #include "print.h"
+#include "util.h"
 
 /* Internal functions */
 static int    set_pref(gchar*, gchar*);
@@ -220,9 +221,9 @@ read_prefs(char **pf_path_return) {
   }
 
   if (! pf_path) {
-    pf_path = (gchar *) g_malloc(strlen(getenv("HOME")) + strlen(PF_DIR) +
+    pf_path = (gchar *) g_malloc(strlen(get_home_dir()) + strlen(PF_DIR) +
       strlen(PF_NAME) + 4);
-    sprintf(pf_path, "%s/%s/%s", getenv("HOME"), PF_DIR, PF_NAME);
+    sprintf(pf_path, "%s/%s/%s", get_home_dir(), PF_DIR, PF_NAME);
   }
     
   *pf_path_return = NULL;
@@ -465,11 +466,11 @@ write_prefs(char **pf_path_return) {
    */
 
   if (! pf_path) {
-    pf_path = (gchar *) g_malloc(strlen(getenv("HOME")) + strlen(PF_DIR) +
+    pf_path = (gchar *) g_malloc(strlen(get_home_dir()) + strlen(PF_DIR) +
       strlen(PF_NAME) + 4);
   }
 
-  sprintf(pf_path, "%s/%s", getenv("HOME"), PF_DIR);
+  sprintf(pf_path, "%s/%s", get_home_dir(), PF_DIR);
   if (stat(pf_path, &s_buf) != 0)
 #ifdef WIN32
     mkdir(pf_path);
@@ -477,7 +478,7 @@ write_prefs(char **pf_path_return) {
     mkdir(pf_path, 0755);
 #endif
 
-  sprintf(pf_path, "%s/%s/%s", getenv("HOME"), PF_DIR, PF_NAME);
+  sprintf(pf_path, "%s/%s/%s", get_home_dir(), PF_DIR, PF_NAME);
   if ((pf = fopen(pf_path, "w")) == NULL) {
     *pf_path_return = pf_path;
     return errno;

@@ -1,7 +1,7 @@
 /* util.c
  * Utility routines
  *
- * $Id: util.c,v 1.30 2000/01/26 04:56:14 guy Exp $
+ * $Id: util.c,v 1.31 2000/01/29 16:41:15 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -573,5 +573,34 @@ free_interface_list(GList *if_list)
 		if_list = g_list_remove_link(if_list, if_list);
 	}
 }
+
+const char*
+get_home_dir(void)
+{
+	char *env_value;
+	static const char *home = NULL;
+#ifdef WIN32
+	static const char *default_home = "C:";
+#else
+	static const char *default_home = "/tmp";
+#endif
+
+	/* Return the cached value, if available */
+	if (home)
+		return home;
+
+	env_value = getenv("HOME");
+
+	if (env_value) {
+		home = env_value;
+	}
+	else {
+		home = default_home;
+	}
+
+	return home;
+}
+
+
 
 #endif /* HAVE_LIBPCAP */

@@ -1,7 +1,7 @@
 /* colors.c
  * Definitions for color structures and routines
  *
- * $Id: colors.c,v 1.28 2000/01/03 06:59:07 guy Exp $
+ * $Id: colors.c,v 1.29 2000/01/29 16:41:13 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -43,6 +43,7 @@
 #include "dfilter.h"
 #include "simple_dialog.h"
 #include "ui_util.h"
+#include "util.h"
 
 extern capture_file cf;
 
@@ -228,8 +229,8 @@ read_filters(colfilter *filter)
 		return FALSE;
 	/* we have a clist */
 
-	path = (gchar *) g_malloc(strlen(getenv("HOME")) + strlen(fname) +  4);
-	sprintf(path, "%s/%s", getenv("HOME"), fname);
+	path = (gchar *) g_malloc(strlen(get_home_dir()) + strlen(fname) +  4);
+	sprintf(path, "%s/%s", get_home_dir(), fname);
 
 	if ((f = fopen(path, "r")) == NULL) {
 	  if (errno != ENOENT) {
@@ -321,8 +322,8 @@ write_filters(colfilter *filter)
 	gchar *path;
 	gchar *name = PF_DIR "/colorfilters";
 	/* decide what file to open (from dfilter code) */
-	path = (gchar *) g_malloc(strlen(getenv("HOME")) + strlen(name) +  4);
-	sprintf(path, "%s/%s", getenv("HOME"), name);
+	path = (gchar *) g_malloc(strlen(get_home_dir()) + strlen(name) +  4);
+	sprintf(path, "%s/%s", get_home_dir(), name);
 
 	if ((f = fopen(path, "w+")) == NULL) {
 	  simple_dialog(ESD_TYPE_WARN, NULL,

@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.101 2000/01/29 13:30:08 gram Exp $
+ * $Id: main.c,v 1.102 2000/01/29 16:41:28 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1355,8 +1355,8 @@ main(int argc, char *argv[])
   else if (cf.snap < MIN_PACKET_SIZE)
     cf.snap = MIN_PACKET_SIZE;
   
-  rc_file = (gchar *) g_malloc(strlen(getenv("HOME")) + strlen(RC_FILE) + 4);
-  sprintf(rc_file, "%s/%s", getenv("HOME"), RC_FILE);
+  rc_file = (gchar *) g_malloc(strlen(get_home_dir()) + strlen(RC_FILE) + 4);
+  sprintf(rc_file, "%s/%s", get_home_dir(), RC_FILE);
   gtk_rc_parse(rc_file);
 
   if ((m_r_font = gdk_font_load(medium_font)) == NULL) {

@@ -3,7 +3,7 @@
  * (This used to be a notebook page under "Preferences", hence the
  * "prefs" in the file name.)
  *
- * $Id: filter_prefs.c,v 1.7 1999/12/10 07:20:57 guy Exp $
+ * $Id: filter_prefs.c,v 1.8 2000/01/29 16:41:27 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -46,6 +46,7 @@
 #include "filter_prefs.h"
 #include "packet.h"
 #include "file.h"
+#include "util.h"
 #include "prefs_dlg.h"
 
 #define E_FILT_NAME_KEY "filter_name"
@@ -84,8 +85,8 @@ get_filter_list() {
   if (fl) return;
   
   /* To do: generalize this */
-  ff_path = (gchar *) g_malloc(strlen(getenv("HOME")) + strlen(ff_name) +  4);
-  sprintf(ff_path, "%s/%s", getenv("HOME"), ff_name);
+  ff_path = (gchar *) g_malloc(strlen(get_home_dir()) + strlen(ff_name) +  4);
+  sprintf(ff_path, "%s/%s", get_home_dir(), ff_name);
 
   if ((ff = fopen(ff_path, "r")) == NULL) {
     g_free(ff_path);
@@ -548,9 +549,9 @@ filter_prefs_save(GtkWidget *w) {
   FILE        *ff;
   struct stat  s_buf;
   
-  ff_path = (gchar *) g_malloc(strlen(getenv("HOME")) + strlen(ff_dir) +  
+  ff_path = (gchar *) g_malloc(strlen(get_home_dir()) + strlen(ff_dir) +  
     strlen(ff_name) + 4);
-  sprintf(ff_path, "%s/%s", getenv("HOME"), ff_dir);
+  sprintf(ff_path, "%s/%s", get_home_dir(), ff_dir);
 
   if (stat(ff_path, &s_buf) != 0)
 #ifdef WIN32
@@ -559,7 +560,7 @@ filter_prefs_save(GtkWidget *w) {
     mkdir(ff_path, 0755);
 #endif
     
-  sprintf(ff_path, "%s/%s/%s", getenv("HOME"), ff_dir, ff_name);
+  sprintf(ff_path, "%s/%s/%s", get_home_dir(), ff_dir, ff_name);
 
   if ((ff = fopen(ff_path, "w")) != NULL) {
     flp = g_list_first(fl);

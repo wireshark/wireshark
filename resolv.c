@@ -1,7 +1,7 @@
 /* resolv.c
  * Routines for network object lookup
  *
- * $Id: resolv.c,v 1.22 2000/01/10 17:32:52 gram Exp $
+ * $Id: resolv.c,v 1.23 2000/01/29 16:41:14 gram Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
@@ -78,6 +78,7 @@
 #include "packet-ipx.h"
 #include "globals.h"
 #include "resolv.h"
+#include "util.h"
 
 #define MAXMANUFLEN	9	/* max vendor name length with ending '\0' */
 #define HASHETHSIZE	1024
@@ -592,10 +593,10 @@ static void initialize_ethers(void)
    * with it. It's used in get_ethbyname() and get_ethbyaddr()
    */
   if (g_pethers_path == NULL) {
-    g_pethers_path = g_malloc(strlen(getenv("HOME")) + 
+    g_pethers_path = g_malloc(strlen(get_home_dir()) + 
 			      strlen(EPATH_PERSONAL_ETHERS) + 2);
     sprintf(g_pethers_path, "%s/%s", 
-	    (char *)getenv("HOME"), EPATH_PERSONAL_ETHERS);
+	    get_home_dir(), EPATH_PERSONAL_ETHERS);
   }
 
   /* manuf hash table initialization */
@@ -880,10 +881,10 @@ static void initialize_ipxnets(void)
    * with it. It's used in get_ipxnetbyname() and get_ipxnetbyaddr()
    */
   if (g_pipxnets_path == NULL) {
-    g_pipxnets_path = g_malloc(strlen(getenv("HOME")) + 
+    g_pipxnets_path = g_malloc(strlen(get_home_dir()) + 
 			      strlen(EPATH_PERSONAL_IPXNETS) + 2);
     sprintf(g_pipxnets_path, "%s/%s", 
-	    (char *)getenv("HOME"), EPATH_PERSONAL_IPXNETS);
+	    get_home_dir(), EPATH_PERSONAL_IPXNETS);
   }
 
 } /* initialize_ipxnets */

@@ -1,7 +1,7 @@
 /* plugins.c
  * plugin routines
  *
- * $Id: plugins.c,v 1.5 2000/01/15 00:22:34 gram Exp $
+ * $Id: plugins.c,v 1.6 2000/01/29 16:41:14 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -55,6 +55,7 @@
 #endif
 
 #include "globals.h"
+#include "util.h"
 
 
 /* linked list of all plugins */
@@ -249,13 +250,13 @@ save_plugin_status()
     plugin *pt_plug;
 
     if (!plugin_status_file) {
-	plugin_status_file = (gchar *)g_malloc(strlen(getenv("HOME")) + 26);
-	sprintf(plugin_status_file, "%s/%s/plugins.status", getenv("HOME"), PF_DIR);
+	plugin_status_file = (gchar *)g_malloc(strlen(get_home_dir()) + 26);
+	sprintf(plugin_status_file, "%s/%s/plugins.status", get_home_dir(), PF_DIR);
     }
     statusfile=fopen(plugin_status_file, "w");
     if (!statusfile) {
-	pf_path = g_malloc(strlen(getenv("HOME")) + strlen(PF_DIR) + 2);
-	sprintf(pf_path, "%s/%s", getenv("HOME"), PF_DIR);
+	pf_path = g_malloc(strlen(get_home_dir()) + strlen(PF_DIR) + 2);
+	sprintf(pf_path, "%s/%s", get_home_dir(), PF_DIR);
 	#ifdef WIN32
 	mkdir(pf_path);
 	#else
@@ -346,8 +347,8 @@ plugins_scan_dir(const char *dirname)
 
     if (!plugin_status_file)
     {
-	plugin_status_file = (gchar *)g_malloc(strlen(getenv("HOME")) + 26);
-	sprintf(plugin_status_file, "%s/%s/plugins.status", getenv("HOME"), PF_DIR);
+	plugin_status_file = (gchar *)g_malloc(strlen(get_home_dir()) + 26);
+	sprintf(plugin_status_file, "%s/%s/plugins.status", get_home_dir(), PF_DIR);
     }
     statusfile = fopen(plugin_status_file, "r");
 
@@ -436,8 +437,8 @@ init_plugins()
         }
 	if (!user_plug_dir)
 	{
-	    user_plug_dir = (gchar *)g_malloc(strlen(getenv("HOME")) + 19);
-	    sprintf(user_plug_dir, "%s/%s/plugins", getenv("HOME"), PF_DIR);
+	    user_plug_dir = (gchar *)g_malloc(strlen(get_home_dir()) + 19);
+	    sprintf(user_plug_dir, "%s/%s/plugins", get_home_dir(), PF_DIR);
 	}
 	plugins_scan_dir(user_plug_dir);
     }

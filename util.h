@@ -1,7 +1,7 @@
 /* util.h
  * Utility definitions
  *
- * $Id: util.h,v 1.17 2000/01/25 05:48:39 guy Exp $
+ * $Id: util.h,v 1.18 2000/01/29 16:41:15 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -43,6 +43,10 @@ char *get_basename(char *);
 char *get_dirname(char *);
 
 int create_tempfile(char *, int, const char *);
+
+/* Returns the user's home directory, via the HOME environment
+ * variable, or a default directory if HOME is not set */
+const char* get_home_dir(void);
 
 void ASCII_to_EBCDIC(guint8 *buf, guint bytes);
 guint8 ASCII_to_EBCDIC1(guint8 c);
