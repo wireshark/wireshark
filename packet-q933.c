@@ -2,7 +2,7 @@
  * Routines for Q.933 frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-q933.c,v 1.6 2004/03/06 10:29:51 guy Exp $
+ * $Id: packet-q933.c,v 1.7 2004/03/06 10:46:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -122,7 +122,7 @@ static const true_false_string tfs_call_ref_flag = {
 
 #define	Q933_IE_SHIFT			0x90
 #define	Q933_IE_SHIFT_NON_LOCKING	0x08	/* non-locking shift */
-#define	Q933_IE_SHIFT_CODESET		0x0F	/* codeset */
+#define	Q933_IE_SHIFT_CODESET		0x07	/* codeset */
 
 #define	Q933_IE_REPEAT_INDICATOR	0xD0
 
@@ -237,7 +237,8 @@ static const value_string q933_info_element_vals7[] = {
 };
 
 /* Codeset array */
-static const value_string *q933_info_element_vals[] = {
+#define NUM_INFO_ELEMENT_VALS	(Q933_IE_SHIFT_CODESET+1)
+static const value_string *q933_info_element_vals[NUM_INFO_ELEMENT_VALS] = {
   q933_info_element_vals0,
   q933_info_element_vals1,
   q933_info_element_vals2,
