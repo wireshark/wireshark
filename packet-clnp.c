@@ -1,7 +1,7 @@
 /* packet-clnp.c
  * Routines for ISO/OSI network and transport protocol packet disassembly
  *
- * $Id: packet-clnp.c,v 1.69 2003/04/15 10:25:55 guy Exp $
+ * $Id: packet-clnp.c,v 1.70 2003/04/15 21:33:26 guy Exp $
  * Laurent Deniel <laurent.deniel@free.fr>
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
@@ -49,10 +49,6 @@ static gint ett_clnp_type      = -1;
 static gint ett_clnp_segments  = -1;
 static gint ett_clnp_segment   = -1;
 static gint ett_clnp_disc_pdu  = -1;
-static int  proto_cotp         = -1;
-static gint ett_cotp           = -1;
-static int  proto_cltp         = -1;
-static gint ett_cltp           = -1;
 
 static int hf_clnp_id          = -1;
 static int hf_clnp_length      = -1;
@@ -73,9 +69,17 @@ static int hf_clnp_segment_multiple_tails = -1;
 static int hf_clnp_segment_too_long_segment = -1;
 static int hf_clnp_segment_error = -1;
 
+static int  proto_cotp         = -1;
+static gint ett_cotp           = -1;
+
 static int hf_cotp_srcref = -1;
 static int hf_cotp_destref = -1;
 static int hf_cotp_type = -1;
+
+static int  proto_cltp         = -1;
+static gint ett_cltp           = -1;
+
+static int hf_cltp_type = -1;
 
 static const fragment_items clnp_frag_items = {
 	&ett_clnp_segment,
@@ -187,10 +191,9 @@ struct clnp_segment {
 #define CR_TPDU        		0xE	/* COTP */
 #define DT_TPDU        		0xF	/* COTP */
 
-static const value_string tpdu_type_abbrev_vals[] = {
+static const value_string cotp_tpdu_type_abbrev_vals[] = {
   { ED_TPDU,	"ED" },
   { EA_TPDU,	"EA" },
-  { UD_TPDU,	"UD" },
   { RJ_TPDU,	"RJ" },
   { AK_TPDU,	"AK" },
   { ER_TPDU,	"ER" },
@@ -199,6 +202,11 @@ static const value_string tpdu_type_abbrev_vals[] = {
   { CC_TPDU,	"CC" },
   { CR_TPDU,	"CR" },
   { DT_TPDU,	"DT" },
+  { 0,		NULL }
+};
+
+static const value_string cltp_tpdu_type_abbrev_vals[] = {
+  { UD_TPDU,	"UD" },
   { 0,		NULL }
 };
 
@@ -738,10 +746,8 @@ static int ositp_decode_DR(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 			"Length indicator: %u", li);
     proto_tree_add_uint_format(cotp_tree, hf_cotp_type, tvb, offset +  1, 1, tpdu,
 			       "TPDU code: 0x%x (DR)", tpdu);
-    proto_tree_add_uint_format(cotp_tree, hf_cotp_destref, tvb, offset +  2, 2, dst_ref,
-			"Destination reference: 0x%04x", dst_ref);
-    proto_tree_add_uint_format(cotp_tree, hf_cotp_srcref, tvb, offset +  4, 2, src_ref,
-			"Source reference: 0x%04x", src_ref);
+    proto_tree_add_uint(cotp_tree, hf_cotp_destref, tvb, offset +  2, 2, dst_ref);
+    proto_tree_add_uint(cotp_tree, hf_cotp_srcref, tvb, offset +  4, 2, src_ref);
     proto_tree_add_text(cotp_tree, tvb, offset +  6, 1,
 			"Cause: %s", str);
   }
@@ -854,10 +860,8 @@ static int ositp_decode_DT(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
   li -= 1;
 
   if (is_class_234) {
-    if (tree) {
-      proto_tree_add_uint_format(cotp_tree, hf_cotp_destref, tvb, offset, 2, dst_ref, 
-			  "Destination reference: 0x%04x", dst_ref);
-    }
+    if (tree)
+      proto_tree_add_uint(cotp_tree, hf_cotp_destref, tvb, offset, 2, dst_ref);
     offset += 2;
     li -= 2;
   }
@@ -981,10 +985,8 @@ static int ositp_decode_ED(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
   offset += 1;
   li -= 1;
 
-  if (tree) {
-    proto_tree_add_uint_format(cotp_tree, hf_cotp_destref, tvb, offset, 2, dst_ref,
-			"Destination reference: 0x%04x", dst_ref);
-  }
+  if (tree)
+    proto_tree_add_uint(cotp_tree, hf_cotp_destref, tvb, offset, 2, dst_ref);
   offset += 2;
   li -= 2;
 
@@ -1056,8 +1058,7 @@ static int ositp_decode_RJ(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
     if (li == LI_NORMAL_RJ)
       proto_tree_add_text(cotp_tree, tvb, offset +  1, 1,
 			  "Credit: %u", cdt);
-    proto_tree_add_uint_format(cotp_tree, hf_cotp_destref, tvb, offset +  2, 2, dst_ref,
-			"Destination reference: 0x%04x", dst_ref);
+    proto_tree_add_uint(cotp_tree, hf_cotp_destref, tvb, offset +  2, 2, dst_ref);
     if (li == LI_NORMAL_RJ)
       proto_tree_add_text(cotp_tree, tvb, offset +  4, 1,
 			  "Your TPDU number: 0x%02x", tpdu_nr);
@@ -1119,17 +1120,13 @@ static int ositp_decode_CC(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
   offset += 1;
   li -= 1;
 
-  if (tree) {
-    proto_tree_add_uint_format(cotp_tree, hf_cotp_destref, tvb, offset, 2, dst_ref, 
-			"Destination reference: 0x%04x", dst_ref);
-  }
+  if (tree)
+    proto_tree_add_uint(cotp_tree, hf_cotp_destref, tvb, offset, 2, dst_ref);
   offset += 2;
   li -= 2;
 
-  if (tree) {
-    proto_tree_add_uint_format(cotp_tree, hf_cotp_srcref, tvb, offset, 2, src_ref, 
-			"Source reference: 0x%04x", src_ref);
-  }
+  if (tree)
+    proto_tree_add_uint(cotp_tree, hf_cotp_srcref, tvb, offset, 2, src_ref);
   offset += 2;
   li -= 2;
 
@@ -1196,17 +1193,13 @@ static int ositp_decode_DC(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
   offset += 1;
   li -= 1;
 
-  if (tree) {
-    proto_tree_add_uint_format(cotp_tree, hf_cotp_destref, tvb, offset, 2, dst_ref,
-			"Destination reference: 0x%04x", dst_ref);
-  }
+  if (tree)
+    proto_tree_add_uint(cotp_tree, hf_cotp_destref, tvb, offset, 2, dst_ref);
   offset += 2;
   li -= 2;
 
-  if (tree) {
-    proto_tree_add_uint_format(cotp_tree, hf_cotp_srcref, tvb, offset, 2, src_ref,
-			"Source reference: 0x%04x", src_ref);
-  }
+  if (tree)
+    proto_tree_add_uint(cotp_tree, hf_cotp_srcref, tvb, offset, 2, src_ref);
   offset += 2;
   li -= 2;
 
@@ -1256,10 +1249,8 @@ static int ositp_decode_AK(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
     offset += 1;
     li -= 1;
 
-    if (tree) {
-      proto_tree_add_uint_format(cotp_tree, hf_cotp_destref, tvb, offset, 2, dst_ref,
-			  "Destination reference: 0x%04x", dst_ref);
-    }
+    if (tree)
+      proto_tree_add_uint(cotp_tree, hf_cotp_destref, tvb, offset, 2, dst_ref);
     offset += 2;
     li -= 2;
 
@@ -1299,10 +1290,8 @@ static int ositp_decode_AK(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
     offset += 1;
     li -= 1;
 
-    if (tree) {
-      proto_tree_add_uint_format(cotp_tree, hf_cotp_destref, tvb, offset, 2, dst_ref,
-			  "Destination reference: 0x%04x", dst_ref);
-    }
+    if (tree)
+      proto_tree_add_uint(cotp_tree, hf_cotp_destref, tvb, offset, 2, dst_ref);
     offset += 2;
     li -= 2;
 
@@ -1395,10 +1384,8 @@ static int ositp_decode_EA(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
   offset += 1;
   li -= 1;
 
-  if (tree) {
-    proto_tree_add_uint_format(cotp_tree, hf_cotp_destref, tvb, offset, 2, dst_ref,
-			"Destination reference: 0x%04x", dst_ref);
-  }
+  if (tree)
+    proto_tree_add_uint(cotp_tree, hf_cotp_destref, tvb, offset, 2, dst_ref);
   offset += 2;
   li -= 2;
 
@@ -1467,8 +1454,7 @@ static int ositp_decode_ER(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 			"Length indicator: %u", li);
     proto_tree_add_uint_format(cotp_tree, hf_cotp_type, tvb, offset +  1, 1, tpdu,
 			"TPDU code: 0x%x (ER)", tpdu);
-    proto_tree_add_uint_format(cotp_tree, hf_cotp_destref, tvb, offset +  2, 2, dst_ref,
-			"Destination reference: 0x%04x", dst_ref);
+    proto_tree_add_uint(cotp_tree, hf_cotp_destref, tvb, offset +  2, 2, dst_ref);
     proto_tree_add_text(cotp_tree, tvb, offset +  4, 1,
 			"Reject cause: %s", str);
   }
@@ -1498,7 +1484,7 @@ static int ositp_decode_UD(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
   offset += 1;
 
   if (tree) {
-    proto_tree_add_uint_format(cltp_tree, hf_cotp_type, tvb, offset, 1, tpdu, 
+    proto_tree_add_uint_format(cltp_tree, hf_cltp_type, tvb, offset, 1, tpdu, 
 			"TPDU code: 0x%x (UD)", tpdu);
   }
   offset += 1;
@@ -2108,6 +2094,7 @@ void proto_register_clnp(void)
   proto_register_subtree_array(ett, array_length(ett));
   register_dissector("clnp", dissect_clnp, proto_clnp);
   register_heur_dissector_list("clnp", &clnp_heur_subdissector_list);  
+  register_init_routine(clnp_reassemble_init);
 
   clnp_module = prefs_register_protocol(proto_clnp, NULL);
   prefs_register_uint_preference(clnp_module, "tp_nsap_selector",
@@ -2124,17 +2111,28 @@ void proto_register_clnp(void)
 	&clnp_reassemble);
 }
 
+void
+proto_reg_handoff_clnp(void)
+{
+  data_handle = find_dissector("data");
+
+  clnp_handle = create_dissector_handle(dissect_clnp, proto_clnp);
+  dissector_add("osinl", NLPID_ISO8473_CLNP, clnp_handle);
+  dissector_add("osinl", NLPID_NULL, clnp_handle); /* Inactive subset */
+  dissector_add("x.25.spi", NLPID_ISO8473_CLNP, clnp_handle);
+}
+
 void proto_register_cotp(void)
 {
   static hf_register_info hf[] = {
     { &hf_cotp_srcref,
-      { "Source address reference", "cotp.srcref", FT_UINT16, BASE_HEX, NULL, 0x0,
+      { "Source reference", "cotp.srcref", FT_UINT16, BASE_HEX, NULL, 0x0,
         "Source address reference", HFILL}},
     { &hf_cotp_destref,
-      { "Destination address reference", "cotp.destref", FT_UINT16, BASE_HEX, NULL, 0x0,
+      { "Destination reference", "cotp.destref", FT_UINT16, BASE_HEX, NULL, 0x0,
         "Destination address reference", HFILL}}, 
     { &hf_cotp_type,
-      { "COTP PDU Type", "cotp.type", FT_UINT8, BASE_HEX, VALS(tpdu_type_abbrev_vals), 0x0,
+      { "COTP PDU Type", "cotp.type", FT_UINT8, BASE_HEX, VALS(cotp_tpdu_type_abbrev_vals), 0x0,
         "COTP PDU Type", HFILL}},
   };
   static gint *ett[] = {
@@ -2157,27 +2155,22 @@ void proto_register_cotp(void)
 
 void proto_register_cltp(void)
 {
-  /*        static hf_register_info hf[] = {
-                { &variable,
-                { "Name",           "cltp.abbreviation", TYPE, VALS_POINTER }},
-        };*/
-	static gint *ett[] = {
-		&ett_cltp,
-	};
+  static hf_register_info hf[] = {
+    { &hf_cotp_srcref,
+      { "Source reference", "cotp.srcref", FT_UINT16, BASE_HEX, NULL, 0x0,
+        "Source address reference", HFILL}},
+    { &hf_cotp_destref,
+      { "Destination reference", "cotp.destref", FT_UINT16, BASE_HEX, NULL, 0x0,
+        "Destination address reference", HFILL}}, 
+    { &hf_cltp_type,
+      { "CLTP PDU Type", "cltp.type", FT_UINT8, BASE_HEX, VALS(cltp_tpdu_type_abbrev_vals), 0x0,
+        "CLTP PDU Type", HFILL}},
+  };
+  static gint *ett[] = {
+	&ett_cltp,
+  };
 
-        proto_cltp = proto_register_protocol(PROTO_STRING_CLTP, "CLTP", "cltp");
- /*       proto_register_field_array(proto_cotp, hf, array_length(hf));*/
-	proto_register_subtree_array(ett, array_length(ett));
-	register_init_routine(clnp_reassemble_init);
-}
-
-void
-proto_reg_handoff_clnp(void)
-{
-  data_handle = find_dissector("data");
-
-  clnp_handle = create_dissector_handle(dissect_clnp, proto_clnp);
-  dissector_add("osinl", NLPID_ISO8473_CLNP, clnp_handle);
-  dissector_add("osinl", NLPID_NULL, clnp_handle); /* Inactive subset */
-  dissector_add("x.25.spi", NLPID_ISO8473_CLNP, clnp_handle);
+  proto_cltp = proto_register_protocol(PROTO_STRING_CLTP, "CLTP", "cltp");
+  proto_register_field_array(proto_cltp, hf, array_length(hf));
+  proto_register_subtree_array(ett, array_length(ett));
 }
