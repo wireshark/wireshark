@@ -1902,7 +1902,7 @@ desegment_tcp(tvbuff_t *tvb, packet_info *pinfo, int offset,
 				col_set_str(pinfo->cinfo, COL_PROTOCOL, "TCP");
 			}
 			if (check_col(pinfo->cinfo, COL_INFO)){
-				col_set_str(pinfo->cinfo, COL_INFO, "[Reassembled TCP]");
+				col_set_str(pinfo->cinfo, COL_INFO, "[TCP segment of a reassembled PDU]");
 			}
 		}
 
@@ -3112,7 +3112,7 @@ proto_register_tcp(void)
 
 		{ &hf_tcp_reassembled_in,
 		{ "Reassembled PDU in frame", "tcp.reassembled_in", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
-			"The PDU that starts but doesn't end in this segment is reassembled in this frame", HFILL }},
+			"The PDU that doesn't end in this segment is reassembled in this frame", HFILL }},
 
 		{ &hf_tcp_option_mss,
 		  { "TCP MSS Option", "tcp.options.mss", FT_BOOLEAN, 
