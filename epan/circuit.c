@@ -1,7 +1,7 @@
 /* circuit.c
  * Routines for building lists of packets that are part of a "circuit"
  *
- * $Id: circuit.c,v 1.6 2002/11/28 08:12:07 guy Exp $
+ * $Id: circuit.c,v 1.7 2002/11/28 08:25:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -144,6 +144,7 @@ circuit_new(circuit_type ctype, guint32 circuit_id, guint32 first_frame)
 
 	circuit = g_mem_chunk_alloc(circuit_chunk);
 	circuit->next = NULL;
+	circuit->first_frame = first_frame;
 	circuit->last_frame = 0;	/* not known yet */
 	circuit->index = new_index;
 	circuit->data_list = NULL;
@@ -192,7 +193,7 @@ circuit_t *
 find_circuit(circuit_type ctype, guint32 circuit_id, guint32 frame)
 {
 	circuit_key key;
-	circuit_t *circuit, *prev_circuit;
+	circuit_t *circuit;
 
 	key.ctype = ctype;
 	key.circuit_id = circuit_id;
@@ -201,22 +202,20 @@ find_circuit(circuit_type ctype, guint32 circuit_id, guint32 frame)
 	 * OK, search the list of circuits with that type and ID for
 	 * a circuit whose range of frames includes that frame number.
 	 */
-	for (circuit = g_hash_table_lookup(circuit_hashtable, &key), prev_circuit = NULL;
-	    circuit != NULL; prev_circuit = circuit, circuit = circuit->next) {
+	for (circuit = g_hash_table_lookup(circuit_hashtable, &key);
+	    circuit != NULL; circuit = circuit->next) {
 		/*
-		 * This circuit includes that frame number if:
+		 * The frame includes that frame number if:
 		 *
-		 *	there is no previous circuit or the previous
-		 *	circuit's last frame is before that frame
-		 *	(so that the previous circuit doesn't include
-		 *	that frame)
+		 *	the circuit's first frame is unknown or is at or
+		 *	before that frame
 		 *
 		 * and
 		 *
 		 *	the circuit's last frame is unknown or is at or
 		 *	after that frame.
 		 */
-		if ((prev_circuit == NULL || prev_circuit->last_frame < frame)
+		if ((circuit->first_frame == 0 || circuit->first_frame <= frame)
 		    && (circuit->last_frame == 0 || circuit->last_frame >= frame))
 			break;
 	}
