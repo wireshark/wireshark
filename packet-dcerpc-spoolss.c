@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\spoolss packet disassembly
  * Copyright 2001-2002, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-spoolss.c,v 1.63 2002/11/28 21:03:36 guy Exp $
+ * $Id: packet-dcerpc-spoolss.c,v 1.64 2002/12/04 05:41:47 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -517,6 +517,19 @@ static int hf_spoolss_keybuffer_data = -1;
 
 /* GetPrinter */
 
+static const value_string getprinter_action_vals[] = {
+	{ DS_PUBLISH, "Publish" },
+	{ DS_UNPUBLISH, "Unpublish" },
+	{ DS_UPDATE, "Update" },
+
+	/* Not sure what the constant values are here */
+
+/*	{ DS_PENDING, "Pending" }, */
+/*	{ DS_REPUBLISH, "Republish" }, */
+
+	{ 0, NULL }
+};
+
 static int hf_spoolss_getprinter_level = -1;
 static int hf_spoolss_getprinter_cjobs = -1;
 static int hf_spoolss_getprinter_total_jobs = -1;
@@ -555,6 +568,8 @@ static int hf_spoolss_getprinter_start_time = -1;
 static int hf_spoolss_getprinter_end_time = -1;
 static int hf_spoolss_getprinter_jobs = -1;
 static int hf_spoolss_getprinter_averageppm = -1;
+static int hf_spoolss_getprinter_guid = -1;
+static int hf_spoolss_getprinter_action = -1;
 
 /* Devicemode */
 
@@ -2430,6 +2445,27 @@ static int dissect_PRINTER_INFO_3(tvbuff_t *tvb, int offset,
 }
 
 /*
+ * PRINTER_INFO_7
+ */
+
+static gint ett_PRINTER_INFO_7 = -1;
+
+static int dissect_PRINTER_INFO_7(tvbuff_t *tvb, int offset, 
+				  packet_info *pinfo, proto_tree *tree, 
+				  char *drep)
+{
+	offset = dissect_spoolss_relstr(
+		tvb, offset, pinfo, tree, drep, hf_spoolss_getprinter_guid,
+		0, NULL);
+
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, tree, drep,
+		hf_spoolss_getprinter_action, NULL);
+	
+	return offset;
+}
+
+/*
  * DEVMODE_CTR
  */
 
@@ -3431,6 +3467,7 @@ static int SpoolssGetPrinter_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	case 1:
 	case 2:
 	case 3:
+	case 7:
 		item = proto_tree_add_text(
 			buffer.tree, buffer.tvb, 0, 
 			tvb_length(buffer.tvb), "PRINTER_INFO_%d", level);
@@ -3456,6 +3493,10 @@ static int SpoolssGetPrinter_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		break;
 	case 3:
 		dissect_PRINTER_INFO_3(
+			buffer.tvb, 0, pinfo, subtree, drep);
+		break;
+	case 7:
+		dissect_PRINTER_INFO_7(
 			buffer.tvb, 0, pinfo, subtree, drep);
 		break;
 	default:
@@ -7719,6 +7760,14 @@ proto_register_dcerpc_spoolss(void)
 		  { "Flags", "spoolss.getprinter.flags", 
 		    FT_UINT32, BASE_HEX, NULL, 0, "Flags", HFILL }},
 
+                { &hf_spoolss_getprinter_guid,
+                  { "GUID", "spoolss.guid", FT_STRING, 
+                    BASE_NONE, NULL, 0, "GUID", HFILL }},
+
+		{ &hf_spoolss_getprinter_action,
+		  { "Action", "spoolss.getprinter.action", FT_UINT32, BASE_DEC,
+		   VALS(getprinter_action_vals), 0, "Action", HFILL }},
+
 		/* Devicemode */
 
 		{ &hf_spoolss_devmode_size,
@@ -8082,6 +8131,7 @@ proto_register_dcerpc_spoolss(void)
 		&ett_PRINTER_INFO_1,
 		&ett_PRINTER_INFO_2,
 		&ett_PRINTER_INFO_3,
+		&ett_PRINTER_INFO_7,
 		&ett_RELSTR,
 		&ett_RELSTR_ARRAY,
 		&ett_FORM_REL,
