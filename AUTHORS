@@ -397,6 +397,7 @@ Ralf Schneider <ralf.schneider[AT]alcatel.se> {
 Yaniv Kaul <ykaul[AT]netvision.net.il> {
 	Enhancements to ISAKMP
 	CPHA support
+	DCERPC OXID operation #5 dissection
 }
 
 Paul Ionescu <paul[AT]acorp.ro> {
