@@ -3,7 +3,7 @@
  * time, so that we only need one Ethereal binary and one Tethereal binary
  * for Windows, regardless of whether WinPcap is installed or not.
  *
- * $Id: capture-wpcap.c,v 1.5 2003/10/10 06:05:48 guy Exp $
+ * $Id: capture-wpcap.c,v 1.6 2003/10/10 09:48:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -55,11 +55,20 @@ static int     (*p_pcap_setfilter) (pcap_t *, struct bpf_program *);
 static char*   (*p_pcap_geterr) (pcap_t *);
 static int     (*p_pcap_compile) (pcap_t *, struct bpf_program *, char *, int,
 			bpf_u_int32);
+#ifdef WPCAP_CONSTIFIED
+static int     (*p_pcap_lookupnet) (const char *, bpf_u_int32 *, bpf_u_int32 *,
+			char *);
+static pcap_t* (*p_pcap_open_live) (const char *, int, int, int, char *);
+#else
 static int     (*p_pcap_lookupnet) (char *, bpf_u_int32 *, bpf_u_int32 *,
 			char *);
 static pcap_t* (*p_pcap_open_live) (char *, int, int, int, char *);
+#endif
 static int     (*p_pcap_loop) (pcap_t *, int, pcap_handler, guchar *);
+#ifdef HAVE_PCAP_FINDALLDEVS
 static int     (*p_pcap_findalldevs) (pcap_if_t **, char *);
+static void    (*p_pcap_freealldevs) (pcap_if_t *);
+#endif
 static const char *(*p_pcap_lib_version) (void);
 
 typedef struct {
@@ -88,13 +97,16 @@ load_wpcap(void)
 		SYM(pcap_lookupnet, FALSE),
 		SYM(pcap_open_live, FALSE),
 		SYM(pcap_loop, FALSE),
+#ifdef HAVE_PCAP_FINDALLDEVS
 		SYM(pcap_findalldevs, TRUE),
+		SYM(pcap_freealldevs, TRUE),
+#endif
 		SYM(pcap_lib_version, TRUE),
 		{ NULL, NULL, FALSE }
 	};
 
 	GModule		*wh; /* wpcap handle */
-	symbol_table_t	*sym;
+	const symbol_table_t	*sym;
 
 	wh = g_module_open("wpcap", 0);
 
@@ -192,14 +204,22 @@ pcap_compile(pcap_t *a, struct bpf_program *b, char *c, int d,
 }
 
 int
+#ifdef WPCAP_CONSTIFIED
+pcap_lookupnet(const char *a, bpf_u_int32 *b, bpf_u_int32 *c, char *d)
+#else
 pcap_lookupnet(char *a, bpf_u_int32 *b, bpf_u_int32 *c, char *d)
+#endif
 {
 	g_assert(has_wpcap);
 	return p_pcap_lookupnet(a, b, c, d);
 }
 
 pcap_t*
+#ifdef WPCAP_CONSTIFIED
+pcap_open_live(const char *a, int b, int c, int d, char *e)
+#else
 pcap_open_live(char *a, int b, int c, int d, char *e)
+#endif
 {
 	g_assert(has_wpcap);
 	return p_pcap_open_live(a, b, c, d, e);
@@ -216,8 +236,15 @@ pcap_loop(pcap_t *a, int b, pcap_handler c, guchar *d)
 int
 pcap_findalldevs(pcap_if_t **a, char *b)
 {
-	g_assert(has_wpcap && p_pcap_findalldevs != NULL)
+	g_assert(has_wpcap && p_pcap_findalldevs != NULL);
 	return p_pcap_findalldevs(a, b);
+}
+
+void
+pcap_freealldevs(pcap_if_t *a)
+{
+	g_assert(has_wpcap && p_pcap_freealldevs != NULL);
+	p_pcap_freealldevs(a);
 }
 #endif
 
@@ -237,7 +264,7 @@ get_interface_list(int *err, char *err_str)
 
 #ifdef HAVE_PCAP_FINDALLDEVS
 	if (p_pcap_findalldevs != NULL)
-		return get_interface_list_findalldevs(err, errstr);
+		return get_interface_list_findalldevs(err, err_str);
 #endif
 
 	/*

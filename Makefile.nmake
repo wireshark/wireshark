@@ -1,7 +1,7 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.344 2003/10/06 19:25:20 guy Exp $
+# $Id: Makefile.nmake,v 1.345 2003/10/10 09:48:54 guy Exp $
 
 include config.nmake
 include <win32.mak>
@@ -566,7 +566,12 @@ randpkt.exe	: $(randpkt_OBJECTS) $(EXTRA_OBJECTS)
 <<
 
 config.h	: config.h.win32 config.nmake
-	sed -e s/@VERSION@/$(VERSION)/ -e "s/@HAVE_GNU_ADNS@/$(ADNS_CONFIG)/" < config.h.win32 > $@
+	sed -e s/@VERSION@/$(VERSION)/ \
+	    -e "s/@HAVE_GNU_ADNS@/$(ADNS_CONFIG)/" \
+	    -e "s/@HAVE_LIBPCAP@/$(WINPCAP_CONFIG)/" \
+	    -e "s/@HAVE_PCAP_FINDALLDEVS@/$(PCAP_FINDALLDEVS_CONFIG)/" \
+	    -e "s/@WPCAP_CONSTIFIED@/$(WPCAP_CONSTIFIED_CONFIG)/" \
+	    < config.h.win32 > $@
 
 ps.c	: rdps.exe print.ps
 	rdps print.ps ps.c
