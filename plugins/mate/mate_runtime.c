@@ -730,6 +730,8 @@ static mate_pdu* new_pdu(mate_cfg_pdu* cfg, guint32 framenum, field_info* proto,
 	gint min_dist;
 	field_info* range_fi;
 	gint32 last_start;
+	gint32 first_end;
+	gint32 curr_end;
 	int hfid;
 
 	dbg_print (dbg_pdu,2,dbg_facility,"new_pdu: type=%s framenum=%i",cfg->name,framenum);
@@ -760,8 +762,9 @@ static mate_pdu* new_pdu(mate_cfg_pdu* cfg, guint32 framenum, field_info* proto,
 	
 	last_start = proto_range->start;
 	
-	for (i = 0; i < cfg->hfid_ranges->len; i++) {
-		hfid = *((int*)g_ptr_array_index(cfg->hfid_ranges,i));
+	/* first we move forward in the tranport */
+	for (i = 0; i < cfg->transport_ranges->len; i++) {
+		hfid = *((int*)g_ptr_array_index(cfg->transport_ranges,i));
 		ptrs = (GPtrArray*) g_hash_table_lookup(interesting,GINT_TO_POINTER(hfid));
 		min_dist = 99999;
 		range_fi = NULL;
@@ -792,6 +795,44 @@ static mate_pdu* new_pdu(mate_cfg_pdu* cfg, guint32 framenum, field_info* proto,
 		}
 	}
 	
+	if (cfg->payload_ranges) {
+
+		first_end = proto_range->end;
+		
+		for (i = cfg->payload_ranges->len - 1 ; i+1; i--) {
+			hfid = *((int*)g_ptr_array_index(cfg->payload_ranges,i));
+			ptrs = (GPtrArray*) g_hash_table_lookup(interesting,GINT_TO_POINTER(hfid));
+			min_dist = 99999;
+			range_fi = NULL;
+			
+			if (ptrs) {
+				for (j=0; j < ptrs->len; j++) {
+					cfi = (field_info*) g_ptr_array_index(ptrs,j);
+					curr_end = cfi->start + cfi->length;
+					if (curr_end > first_end && min_dist >= (curr_end - first_end) ) {
+						range_fi = cfi;
+						min_dist = curr_end - first_end;
+					}
+				}
+				
+				if ( range_fi ) {
+					range = g_malloc(sizeof(range));
+					range->start = range_fi->start;
+					range->end = range_fi->start + range_fi->length;
+					g_ptr_array_add(data.ranges,range);
+					
+					last_start = range_fi->start;
+					
+					dbg_print(dbg_pdu,3,dbg_facility,"new_pdu: payload(%i) range %i-%i",hfid,range->start,range->end);
+				} else {
+					/* we missed a range  */
+					dbg_print(dbg_pdu,6,dbg_facility,"new_pdu: payload(%i) missed",hfid);
+				}
+				
+			}
+		}
+	}
+
 	g_hash_table_foreach(cfg->hfids_attr,get_pdu_fields,&data);
 	
 	g_ptr_array_free(data.ranges,TRUE);

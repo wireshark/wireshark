@@ -100,6 +100,7 @@
 #define KEYWORD_PROTO "Proto"
 #define KEYWORD_METHOD "Method"
 #define KEYWORD_TRANSPORT "Transport"
+#define KEYWORD_PAYLOAD "Payload"
 #define KEYWORD_STRICT "Strict"
 #define KEYWORD_LOOSE "Loose"
 #define KEYWORD_EVERY "Every"
@@ -128,7 +129,7 @@
 #define KEYWORD_DEBUGFILENAME "Debug_File"
 #define KEYWORD_DBG_GENERAL "Debug_General"
 #define KEYWORD_DBG_CFG "Debug_Cfg"
-#define KEYWORD_DBG_PDU "Debug_PDU"
+#define KEYWORD_DBG_PDU "Debug_Pdu"
 #define KEYWORD_DBG_GOP "Debug_Gop"
 #define KEYWORD_DBG_GOG "Debug_Gog"
 #ifdef _AVP_DEBUGGING
@@ -175,7 +176,8 @@ typedef struct _mate_cfg_item {
 	gboolean discard_pdu_attributes;
 	gboolean last_to_be_created;
 	int hfid_proto;
-	GPtrArray* hfid_ranges; /* hfids of candidate ranges from which to extract attributes */
+	GPtrArray* transport_ranges; /* hfids of candidate transport ranges from which to extract attributes */
+	GPtrArray* payload_ranges; /* hfids of candidate payload ranges from which to extract attributes */
 	GHashTable* hfids_attr; /* k=hfid v=avp_name */
 	gboolean drop_pdu;
 	avpl_match_mode criterium_match_mode;

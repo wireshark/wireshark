@@ -136,7 +136,8 @@ static mate_cfg_item* new_mate_cfg_item(guint8* name) {
 	new->discard_pdu_attributes = matecfg->discard_pdu_attributes;
 	new->last_to_be_created = matecfg->last_to_be_created;
 	new->hfid_proto = -1;
-	new->hfid_ranges = NULL;
+	new->transport_ranges = NULL;
+	new->payload_ranges = NULL;
 	new->hfids_attr = NULL;
 	new->drop_pdu = matecfg->drop_pdu;
 	new->criterium_match_mode = AVPL_NO_MATCH;
@@ -195,8 +196,11 @@ static void delete_mate_cfg_item(mate_cfg_item* cfg, gboolean avp_items_too) {
 
 	if (cfg->transforms) g_ptr_array_free(cfg->transforms,TRUE);
 
-	if (cfg->hfid_ranges)
-		g_ptr_array_free(cfg->hfid_ranges,TRUE);
+	if (cfg->transport_ranges)
+		g_ptr_array_free(cfg->transport_ranges,TRUE);
+	
+	if (cfg->payload_ranges)
+		g_ptr_array_free(cfg->payload_ranges,TRUE);
 
 	if (cfg->hfids_attr)
 		g_hash_table_foreach_remove(cfg->hfids_attr,free_both, VALUE_TOO );
@@ -207,7 +211,8 @@ static mate_cfg_pdu* new_pducfg(guint8* name) {
 	mate_cfg_pdu* new = new_mate_cfg_item(name);
 
 	new->type = MATE_PDU_TYPE;
-	new->hfid_ranges = g_ptr_array_new();
+	new->transport_ranges = g_ptr_array_new();
+	
 	new->hfids_attr = g_hash_table_new(g_int_hash,g_int_equal);
 
 	g_ptr_array_add(matecfg->pducfglist,(gpointer) new);
@@ -368,15 +373,43 @@ static gboolean add_hfid(guint8* what, guint8* how, GHashTable* where) {
 	return exists;
 }
 
+static guint8* add_ranges(guint8* range,GPtrArray* range_ptr_arr) {
+	gchar**  ranges;
+	guint i;
+	header_field_info* hfi;
+	int* hfidp;
+
+	ranges = g_strsplit(range,"/",0);
+	
+	if (ranges) {
+		for (i=0; ranges[i]; i++) {
+			hfi = proto_registrar_get_byname(ranges[i]);
+			if (hfi) {
+				hfidp = g_malloc(sizeof(int));
+				*hfidp = hfi->id;
+				g_ptr_array_add(range_ptr_arr,(gpointer)hfidp);
+				g_string_sprintfa(matecfg->mate_attrs_filter, "||%s",ranges[i]);
+			} else {
+				g_strfreev(ranges);
+				return g_strdup_printf("no such proto: '%s'",ranges[i]);;
+			}
+		}
+		
+		g_strfreev(ranges);
+	}
+	
+	return NULL;
+}
+
+
 static gboolean config_pdu(AVPL* avpl) {
 	guint8* name = NULL;
 	guint8* transport = extract_named_str(avpl,KEYWORD_TRANSPORT,NULL);
+	guint8* payload = extract_named_str(avpl,KEYWORD_PAYLOAD,NULL);
 	guint8* proto = extract_named_str(avpl,KEYWORD_PROTO,"no_protocol");
 	mate_cfg_pdu* cfg = lookup_using_index_avp(avpl,KEYWORD_NAME,matecfg->pducfgs,&name);
 	header_field_info* hfi;
-	int* hfidp;
-	gchar**  transports;
-	guint i;
+	guint8* range_err;
 	AVP* attr_avp;
 
 	if (! name ) {
@@ -407,31 +440,25 @@ static gboolean config_pdu(AVPL* avpl) {
 	g_string_sprintfa(matecfg->mate_protos_filter,"||%s",proto);
 
 	if ( transport ) {
-
-		transports = g_strsplit(transport,"/",0);
-
-		if (transports) {
-			for (i=0; transports[i]; i++) {
-				hfi = proto_registrar_get_byname(transports[i]);
-				if (hfi) {
-					hfidp = g_malloc(sizeof(int));
-					*hfidp = hfi->id;
-					g_ptr_array_add(cfg->hfid_ranges,(gpointer)hfidp);
-					g_string_sprintfa(matecfg->mate_attrs_filter, "||%s",transports[i]);
-				} else {
-					report_error("MATE: PduDef: no such proto: '%s' for Transport in: %s",proto,avpl->name);
-					g_strfreev(transports);
-					return FALSE;
-				}
-			}
-
-			g_strfreev(transports);
+		if (( range_err = add_ranges(transport,cfg->transport_ranges) )) {
+			report_error("MATE: PduDef: %s in Transport for '%s' in: %s",range_err, cfg->name,avpl->name);
+			g_free(range_err);
+			return FALSE;			
 		}
 	} else {
 		report_error("MATE: PduDef: no Transport for '%s' in: %s",cfg->name,avpl->name);
 		return FALSE;
 	}
 
+	if ( payload ) {
+		cfg->payload_ranges = g_ptr_array_new();
+		if (( range_err = add_ranges(payload,cfg->payload_ranges) )) {
+			report_error("MATE: PduDef: %s in Payload for '%s' in: %s",range_err, cfg->name,avpl->name);
+			g_free(range_err);
+			return FALSE;			
+		}
+	}
+	
 	while (( attr_avp = extract_first_avp(avpl) )) {
 		if ( ! add_hfid(attr_avp->v,attr_avp->n,cfg->hfids_attr) ) {
 			report_error("MATE: PduDef: failed to set PDU attribute '%s' in: %s",attr_avp->n,avpl->name);
@@ -598,7 +625,7 @@ static gboolean config_settings(AVPL*avpl) {
 
 	matecfg->dbg_lvl = extract_named_int(avpl, KEYWORD_DBG_GENERAL,0);
 	matecfg->dbg_cfg_lvl = extract_named_int(avpl, KEYWORD_DBG_CFG,0);
-	matecfg->dbg_gop_lvl = extract_named_int(avpl, KEYWORD_DBG_PDU,0);
+	matecfg->dbg_pdu_lvl = extract_named_int(avpl, KEYWORD_DBG_PDU,0);
 	matecfg->dbg_gop_lvl = extract_named_int(avpl, KEYWORD_DBG_GOP,0);
 	matecfg->dbg_gog_lvl = extract_named_int(avpl, KEYWORD_DBG_GOG,0);
 
@@ -1094,13 +1121,25 @@ static void print_pdu_config(mate_cfg_pdu* cfg) {
 	g_string_sprintfa(s, "Name=%s; Proto=%s; DiscartAttribs=%s; Stop=%s;  Transport=",
 					  cfg->name,my_protoname(cfg->hfid_proto),discard,stop);
 
-	for (i = 0; i < cfg->hfid_ranges->len; i++) {
-		hfid = *((int*) g_ptr_array_index(cfg->hfid_ranges,i));
+	for (i = 0; i < cfg->transport_ranges->len; i++) {
+		hfid = *((int*) g_ptr_array_index(cfg->transport_ranges,i));
 		g_string_sprintfa(s,"%s/",my_protoname(hfid));
 	}
 
 	*(s->str + s->len - 1) = ';';
 
+	if (cfg->payload_ranges->len) {
+		g_string_sprintfa(s, " Payload=");
+		
+		for (i = 0; i < cfg->payload_ranges->len; i++) {
+			hfid = *((int*) g_ptr_array_index(cfg->payload_ranges,i));
+			g_string_sprintfa(s,"%s/",my_protoname(hfid));
+		}
+		
+		*(s->str + s->len - 1) = ';';
+
+	}
+	
 	g_hash_table_foreach(cfg->hfids_attr,print_hfid_hash,s);
 
 	dbg_print(dbg_cfg,0,dbg_facility,"%s",s->str);
