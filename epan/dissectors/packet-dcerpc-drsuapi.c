@@ -3829,11 +3829,21 @@ drsuapi_dissect_union_DsWriteAccountSpnRequest(tvbuff_t *tvb, int offset, packet
 
    return offset;
 }
+
+static int
+drsuapi_dissect_WERROR(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 param _U_)
+{
+    
+    offset=dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_index, NULL);
+
+    return offset;
+}
+
 static int
 drsuapi_dissect_DsWriteAccountSpnResult1_status(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
     guint32 param=0;
-    offset=drsuapi_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_drsuapi_DsWriteAccountSpnResult1_status, param);
+    offset=drsuapi_dissect_WERROR(tvb, offset, pinfo, tree, drep, hf_drsuapi_DsWriteAccountSpnResult1_status, param);
     return offset;
 }
 
@@ -5279,7 +5289,7 @@ static int
 drsuapi_dissect_DsReplicaNeighbour_result_last_attempt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
     guint32 param=0;
-    offset=drsuapi_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_drsuapi_DsReplicaNeighbour_result_last_attempt, param);
+    offset=drsuapi_dissect_WERROR(tvb, offset, pinfo, tree, drep, hf_drsuapi_DsReplicaNeighbour_result_last_attempt, param);
     return offset;
 }
 
@@ -5644,7 +5654,7 @@ static int
 drsuapi_dissect_DsReplicaKccDsaFailure_last_result(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
     guint32 param=0;
-    offset=drsuapi_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_drsuapi_DsReplicaKccDsaFailure_last_result, param);
+    offset=drsuapi_dissect_WERROR(tvb, offset, pinfo, tree, drep, hf_drsuapi_DsReplicaKccDsaFailure_last_result, param);
     return offset;
 }
 
@@ -8461,7 +8471,7 @@ proto_register_drsuapi(void)
 
         { &hf_drsuapi_DsWriteAccountSpnResult1_status,
           { "status", "drsuapi.DsWriteAccountSpnResult1.status", FT_UINT32, BASE_DEC,
-          NULL, 0,
+          VALS(NT_errors), 0,
          "", HFILL }},
 
         { &hf_drsuapi_DsWriteAccountSpnResult_1_res1,
@@ -8841,7 +8851,7 @@ proto_register_drsuapi(void)
 
         { &hf_drsuapi_DsReplicaNeighbour_result_last_attempt,
           { "result_last_attempt", "drsuapi.DsReplicaNeighbour.result_last_attempt", FT_UINT32, BASE_DEC,
-          NULL, 0,
+          VALS(NT_errors), 0,
          "", HFILL }},
 
         { &hf_drsuapi_DsReplicaNeighbour_consecutive_sync_failures,
@@ -8946,7 +8956,7 @@ proto_register_drsuapi(void)
 
         { &hf_drsuapi_DsReplicaKccDsaFailure_last_result,
           { "last_result", "drsuapi.DsReplicaKccDsaFailure.last_result", FT_UINT32, BASE_DEC,
-          NULL, 0,
+          VALS(NT_errors), 0,
          "", HFILL }},
 
         { &hf_drsuapi_DsReplicaKccDsaFailuresCtr_count,

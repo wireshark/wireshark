@@ -451,8 +451,7 @@ interface drsuapi
 	} drsuapi_DsWriteAccountSpnRequest;
 
 	typedef struct {
-#		WERROR status;
-		uint32 status;
+		WERROR status;
 	} drsuapi_DsWriteAccountSpnResult1;
 
 	typedef [switch_type(int32)] union {
@@ -625,8 +624,7 @@ interface drsuapi
 		hyper highest_usn;
 		NTTIME last_success;
 		NTTIME last_attempt;
-#		WERROR result_last_attempt;
-		uint32 result_last_attempt;
+		WERROR result_last_attempt;
 		uint32 consecutive_sync_failures;
 	} drsuapi_DsReplicaNeighbour;
 
@@ -662,8 +660,7 @@ interface drsuapi
 		GUID dsa_obj_guid;
 		NTTIME first_failure;
 		uint32 num_failures;
-#		WERROR last_result;
-		uint32 last_result;
+		WERROR last_result;
 	} drsuapi_DsReplicaKccDsaFailure;
 
 	typedef struct {
