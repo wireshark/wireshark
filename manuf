@@ -1,7 +1,7 @@
 # 
 # /etc/manuf - Ethernet vendor codes 
 #
-# $Id: manuf,v 1.14 2001/12/23 21:18:56 gerald Exp $
+# $Id: manuf,v 1.15 2002/01/08 20:58:14 guy Exp $
 #
 # Laurent Deniel <deniel@worldnet.fr>
 #
@@ -4601,7 +4601,7 @@
 00:B0:C2	Cisco Systems, Inc.
 00:B0:C7	Tellabs Operations, Inc.
 00:B0:CE	TECHNOLOGY RESCUE
-00:B0:D0	Computer Products International
+00:B0:D0	Dell Computer Corp.
 00:B0:DB	Nextcell, Inc.
 00:B0:DF	Reliable Data Technology, Inc.
 00:B0:E7	British Federal Ltd.
