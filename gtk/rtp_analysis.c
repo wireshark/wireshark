@@ -117,6 +117,57 @@ typedef struct _dialog_data_t {
 #define OK_TEXT "[ Ok ]"
 #define PT_UNDEFINED -1
 
+
+typedef struct _key_value {
+  guint32  key;
+  guint32  value;
+} key_value;
+
+
+/* RTP sampling clock rates for fixed payload types as defined in
+ http://www.iana.org/assignments/rtp-parameters */
+static const key_value clock_map[] = {
+	{PT_PCMU,       8000},
+	{PT_1016,       8000},
+	{PT_G721,       8000},
+	{PT_GSM,        8000},
+	{PT_G723,       8000},
+	{PT_DVI4_8000,  8000},
+	{PT_DVI4_16000, 16000},
+	{PT_LPC,        8000},
+	{PT_PCMA,       8000},
+	{PT_G722,       8000},
+	{PT_L16_STEREO, 44100},
+	{PT_L16_MONO,   44100},
+	{PT_QCELP,      8000},
+	{PT_CN,         8000},
+	{PT_MPA,        90000},
+	{PT_G728,       8000},
+	{PT_G728,       8000},
+	{PT_DVI4_11025, 11025},
+	{PT_DVI4_22050, 22050},
+	{PT_G729,       8000},
+	{PT_CN_OLD,     8000},
+	{PT_CELB,       90000},
+	{PT_JPEG,       90000},
+	{PT_NV,         90000},
+	{PT_H261,       90000},
+	{PT_MPV,        90000},
+	{PT_MP2T,       90000},
+	{PT_H263,       90000},
+	{-1, 1} /* leave this as the last entry to find the end of the map when searching */
+};
+
+
+static guint32
+get_clock_rate(guint32 key)
+{
+	guint32 i=0;
+	while (clock_map[i].key!=key && clock_map[i].key!=-1) i++;
+	return clock_map[i].value;
+}
+
+
 /* type of error when saving voice in a file didn't succeed */
 typedef enum {
 	TAP_RTP_WRONG_CODEC,
@@ -371,6 +422,7 @@ static int rtp_packet_analyse(tap_rtp_stat_t *statinfo,
 {
 	double current_time;
 	double current_jitter;
+	guint32 clock_rate;
 
 	statinfo->flags = 0;
 
@@ -385,11 +437,12 @@ static int rtp_packet_analyse(tap_rtp_stat_t *statinfo,
 		statinfo->flags |= STAT_FLAG_PT_CHANGE;
 
 	statinfo->pt = rtpinfo->info_payload_type;
+	clock_rate = get_clock_rate(statinfo->pt);
 
 	/* store the current time and calculate the current jitter */
 	current_time = (double)pinfo->fd->rel_secs + (double) pinfo->fd->rel_usecs/1000000;
 	current_jitter = statinfo->jitter + ( fabs (current_time - (statinfo->time) -
-		((double)(rtpinfo->info_timestamp)-(double)(statinfo->timestamp))/8000)- statinfo->jitter)/16;
+		((double)(rtpinfo->info_timestamp)-(double)(statinfo->timestamp))/clock_rate)- statinfo->jitter)/16;
 	statinfo->delay = current_time-(statinfo->time);
 	statinfo->jitter = current_jitter;
 
