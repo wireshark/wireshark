@@ -3,7 +3,7 @@
  *
  * Jochen Friedrich <jochen@scram.de>
  *
- * $Id: packet-zebra.c,v 1.6 2001/01/03 06:55:34 guy Exp $
+ * $Id: packet-zebra.c,v 1.7 2001/01/03 08:26:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -191,7 +191,7 @@ static const value_string safis[] = {
 
 #define PSIZE(a) (((a) + 7) / (8))
 
-void
+static void
 dissect_zebra_request(proto_tree *tree, gboolean request, tvbuff_t *tvb,
 	int offset, guint16 len, guint8 command)
 {
@@ -468,7 +468,7 @@ dissect_zebra_request(proto_tree *tree, gboolean request, tvbuff_t *tvb,
 	}
 }
 		
-void
+static void
 dissect_zebra(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_item	*ti;
