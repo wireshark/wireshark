@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.671 2003/12/16 22:21:00 guy Exp $
+# $Id: Makefile.am,v 1.672 2003/12/17 05:16:19 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -494,7 +494,8 @@ plugin_libs = \
 	plugins/mgcp/mgcp.la \
 	plugins/pcli/pcli.la \
 	plugins/rdm/rdm.la \
-	plugins/rtnet/rtnet.la 
+	plugins/rtnet/rtnet.la \
+	plugins/v5ua/v5ua.la
 
 if ENABLE_STATIC
 plugin_ldadd = \
@@ -533,7 +534,8 @@ plugin_ldadd = \
 	plugins/mgcp/packet-mgcp.o \
 	plugins/pcli/packet-pcli.o \
 	plugins/rdm/packet-rdm.o \
-	plugins/rtnet/packet-rtnet.o 
+	plugins/rtnet/packet-rtnet.o \
+	plugins/v5ua/packet-v5ua.o
 
 plugin_src = \
 	plugins/acn/packet-acn.c \
@@ -571,7 +573,8 @@ plugin_src = \
 	plugins/mgcp/packet-mgcp.c \
 	plugins/pcli/packet-pcli.c \
 	plugins/rdm/packet-rdm.c \
-	plugins/rtnet/packet-rtnet.c 
+	plugins/rtnet/packet-rtnet.c \
+	plugins/v5ua/packet-v5ua.c
 
 else		# ENABLE_STATIC
 plugin_ldadd = \
@@ -589,7 +592,8 @@ plugin_ldadd = \
 	"-dlopen" plugins/mgcp/mgcp.la \
 	"-dlopen" plugins/pcli/pcli.la \
 	"-dlopen" plugins/rdm/rdm.la \
-	"-dlopen" plugins/rtnet/rtnet.la 
+	"-dlopen" plugins/rtnet/rtnet.la \
+	"-dlopen" plugins/v5ua/v5ua.la
 
 plugin_src =
 

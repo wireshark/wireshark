@@ -1,0 +1,21 @@
+#
+# $Id: Makefile.nmake,v 1.1 2003/12/17 05:16:21 guy Exp $
+#
+
+include ..\..\config.nmake
+
+############### no need to modify below this line #########
+
+CFLAGS=/DHAVE_CONFIG_H /I../.. /I../../wiretap \
+	/I$(GLIB_DIR) /I$(GTK_DIR) /I$(GLIB_DIR)/gmodule \
+	/I$(GTK_DIR)\gdk /I$(GTK_DIR)\gdk\win32 \
+	/I$(PCAP_DIR)\include -D_U_="" $(LOCAL_CFLAGS)
+
+OBJECTS=packet-v5ua_n.obj 
+
+v5ua_n.dll v5ua.exp v5ua.lib : packet-v5ua.obj ..\plugin_api.obj
+	link -dll /out:v5ua.dll packet-v5ua.obj ..\plugin_api.obj \
+	$(GLIB_DIR)\glib-$(GLIB_VERSION).lib
+
+clean:
+	rm -f $(OBJECTS) v5ua.dll v5ua.exp v5ua.lib $(PDB_FILE)
