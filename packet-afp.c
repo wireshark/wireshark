@@ -2,7 +2,7 @@
  * Routines for afp packet dissection
  * Copyright 2002, Didier Gautheron <dgautheron@magic.fr>
  *
- * $Id: packet-afp.c,v 1.5 2002/04/28 21:22:20 guy Exp $
+ * $Id: packet-afp.c,v 1.6 2002/04/28 21:53:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -269,26 +269,26 @@ static const value_string vol_signature_vals[] = {
 
 static const value_string CommandCode_vals[] = {
   {AFP_BYTELOCK,	"FPByteRangeLock" },
-  {AFP_CLOSEVOL,	"FPVolClose" },
-  {AFP_CLOSEDIR,	"FPDirClose" },
-  {AFP_CLOSEFORK,	"FPForkClose" },
+  {AFP_CLOSEVOL,	"FPCloseVol" },
+  {AFP_CLOSEDIR,	"FPCloseDir" },
+  {AFP_CLOSEFORK,	"FPCloseFork" },
   {AFP_COPYFILE,	"FPCopyFile" },
-  {AFP_CREATEDIR,	"FPDirCreate" },
-  {AFP_CREATEFILE,	"FPFileCreate" },
+  {AFP_CREATEDIR,	"FPCreateDir" },
+  {AFP_CREATEFILE,	"FPCreateFile" },
   {AFP_DELETE,		"FPDelete" },
   {AFP_ENUMERATE,	"FPEnumerate" },
   {AFP_FLUSH,		"FPFlush" },
-  {AFP_FLUSHFORK,	"FPForkFlush" },
+  {AFP_FLUSHFORK,	"FPFlushFork" },
   {AFP_GETFORKPARAM,	"FPGetForkParms" },
-  {AFP_GETSRVINFO,	"FPGetSInfo" },
-  {AFP_GETSRVPARAM,	"FPGetSParms" },
+  {AFP_GETSRVINFO,	"FPGetSrvrInfo" },
+  {AFP_GETSRVPARAM,	"FPGetSrvrParms" },
   {AFP_GETVOLPARAM,	"FPGetVolParms" },
   {AFP_LOGIN,		"FPLogin" },
-  {AFP_LOGINCONT,	"FPContLogin" },
+  {AFP_LOGINCONT,	"FPLoginCont" },
   {AFP_LOGOUT,		"FPLogout" },
   {AFP_MAPID,		"FPMapID" },
   {AFP_MAPNAME,		"FPMapName" },
-  {AFP_MOVE,		"FPMove" },
+  {AFP_MOVE,		"FPMoveAndRename" },
   {AFP_OPENVOL,		"FPOpenVol" },
   {AFP_OPENDIR,		"FPOpenDir" },
   {AFP_OPENFORK,	"FPOpenFork" },
@@ -299,25 +299,25 @@ static const value_string CommandCode_vals[] = {
   {AFP_SETFORKPARAM,	"FPSetForkParms" },
   {AFP_SETVOLPARAM,	"FPSetVolParms" },
   {AFP_WRITE,		"FPWrite" },
-  {AFP_GETFLDRPARAM,	"FPGetFlDrParms" },
-  {AFP_SETFLDRPARAM,	"FPSetFlDrParms" },
-  {AFP_CHANGEPW,	"FPChangePw" },
+  {AFP_GETFLDRPARAM,	"FPGetFileDirParms" },
+  {AFP_SETFLDRPARAM,	"FPSetFileDirParms" },
+  {AFP_CHANGEPW,	"FPChangePassword" },
   {AFP_GETSRVRMSG,	"FPGetSrvrMsg" },
   {AFP_CREATEID,	"FPCreateID" },
   {AFP_DELETEID,	"FPDeleteID" },
   {AFP_RESOLVEID,	"FPResolveID" },
   {AFP_EXCHANGEFILE,	"FPExchangeFiles" },
   {AFP_CATSEARCH,	"FPCatSearch" },
-  {AFP_OPENDT,		"FPDTOpen" },
-  {AFP_CLOSEDT,		"FPDTClose" },
+  {AFP_OPENDT,		"FPOpenDT" },
+  {AFP_CLOSEDT,		"FPCloseDT" },
   {AFP_GETICON,		"FPGetIcon" },
-  {AFP_GTICNINFO,	"FPGtIcnInfo" },
+  {AFP_GTICNINFO,	"FPGetIconInfo" },
   {AFP_ADDAPPL,		"FPAddAPPL" },
-  {AFP_RMVAPPL,		"FPRmvAPPL" },
+  {AFP_RMVAPPL,		"FPRemoveAPPL" },
   {AFP_GETAPPL,		"FPGetAPPL" },
-  {AFP_ADDCMT,		"FPAddCmt" },
-  {AFP_RMVCMT,		"FPRmvCmt" },
-  {AFP_GETCMT,		"FPGetCmt" },
+  {AFP_ADDCMT,		"FPAddComment" },
+  {AFP_RMVCMT,		"FPRemoveComment" },
+  {AFP_GETCMT,		"FPGetComment" },
   {AFP_ADDICON,		"FPAddIcon" },
   {0,			 NULL }
 };
@@ -553,14 +553,14 @@ kFPUTF8NameBit 			(bit 13)
 #define kFPRAlreadyOpenBit 			(1 << 4)
 #define kFPWriteInhibitBit 			(1 << 5)
 #define kFPBackUpNeededBit 			(1 << 6)
-#define kFPRenameInhibitBit 		(1 << 7)
-#define kFPDeleteInhibitBit 		(1 << 8)
+#define kFPRenameInhibitBit 			(1 << 7)
+#define kFPDeleteInhibitBit 			(1 << 8)
 #define kFPCopyProtectBit 			(1 << 10)
 #define kFPSetClearBit 				(1 << 15)
 
 /* dir attribute */
 #define kIsExpFolder 	(1 << 1)
-#define kMounted 		(1 << 3)
+#define kMounted 	(1 << 3)
 #define kInExpFolder 	(1 << 4)
 
 #define hash_init_count 20
@@ -1521,7 +1521,7 @@ static gint
 dissect_query_afp_login(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
 {
 	int len;
-    const char *uam;
+	const char *uam;
     
 	len = tvb_get_guint8(tvb, offset);
 	proto_tree_add_item(tree, hf_afp_AFPVersion, tvb, offset, 1,FALSE);
@@ -2251,12 +2251,10 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	afp_command = request_val->command;
 	if (check_col(pinfo->cinfo, COL_INFO)) {
-		gchar	*func_str;
-
-		if ((func_str = match_strval(afp_command, CommandCode_vals)))
-		{
-			col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s", func_str, aspinfo->reply?"reply":"");
-		}
+		col_add_fstr(pinfo->cinfo, COL_INFO, "%s%s",
+			     val_to_str(afp_command, CommandCode_vals,
+					"Unknown command (0x%02x)"),
+			     aspinfo->reply ? " reply" : "");
 	}
 
 	if (tree)
@@ -2364,6 +2362,7 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  		}
 	}
  	else {
+		proto_tree_add_uint(afp_tree, hf_afp_command, tvb, 0, 0, afp_command);
  		switch(afp_command) {
 		case AFP_BYTELOCK:
 			offset = dissect_reply_afp_byte_lock(tvb, pinfo, afp_tree, offset);break; 
