@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.80 2001/04/18 05:45:57 guy Exp $
+ * $Id: tethereal.c,v 1.81 2001/04/20 19:41:42 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -615,6 +615,7 @@ main(int argc, char *argv[])
   epan_cleanup();
 
   exit(0);
+  return 0;  /* Silence compiler warnings */
 }
 
 #ifdef HAVE_LIBPCAP
