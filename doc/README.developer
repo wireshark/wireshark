@@ -1,4 +1,4 @@
-$Id: README.developer,v 1.63 2002/11/01 09:41:36 guy Exp $
+$Id: README.developer,v 1.64 2002/11/03 20:24:12 guy Exp $
 
 This file is a HOWTO for Ethereal developers. It describes how to start coding
 a Ethereal protocol dissector and the use some of the important functions and
@@ -149,7 +149,7 @@ code inside
 
 is needed only if you are using the "snprintf()" function.
 
-The "$Id: README.developer,v 1.63 2002/11/01 09:41:36 guy Exp $"
+The "$Id: README.developer,v 1.64 2002/11/03 20:24:12 guy Exp $"
 in the comment will be updated by CVS when the file is
 checked in; it will allow the RCS "ident" command to report which
 version of the file is currently checked out.
@@ -159,7 +159,7 @@ version of the file is currently checked out.
  * Routines for PROTONAME dissection
  * Copyright 2000, YOUR_NAME <YOUR_EMAIL_ADDRESS>
  *
- * $Id: README.developer,v 1.63 2002/11/01 09:41:36 guy Exp $
+ * $Id: README.developer,v 1.64 2002/11/03 20:24:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -479,7 +479,7 @@ packet for that protocol, is COL_INFO.
 
 A value for a column should only be added if the user specified that it
 be displayed; to check whether a given column is to be displayed, call
-'col_info' with the COL_ value for that field as an argument - it will
+'check_col' with the COL_ value for that field as an argument - it will
 return TRUE if the column is to be displayed and FALSE if it is not to
 be displayed.
 

@@ -1480,6 +1480,7 @@ Fritz Budiyanto <fritzb88 [AT] yahoo.com> {
 
 Jean-Baptiste Marchand <Jean-Baptiste.Marchand [AT] hsc.fr> {
 	Make it possible to filter on UUIDs
+	Fix typo in README.developer
 }
 
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to
