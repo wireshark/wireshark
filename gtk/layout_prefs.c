@@ -1,7 +1,7 @@
 /* layout_prefs.c
  * Dialog box for layout preferences
  *
- * $Id: layout_prefs.c,v 1.4 2004/04/30 05:25:52 ulfl Exp $
+ * $Id: layout_prefs.c,v 1.5 2004/04/30 06:30:13 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -37,7 +37,7 @@
 /*#include "ui_util.h"*/
 #include "main.h"
 #include "compat_macros.h"
-/*#include "dlg_utils.h"*/
+#include "dlg_utils.h"
 
 #include "../image/icon_layout_1.xpm"
 #include "../image/icon_layout_2.xpm"
