@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.72 2002/08/18 19:08:30 guy Exp $
+ * $Id: proto.c,v 1.73 2002/08/24 19:45:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -107,6 +107,8 @@ static void
 proto_tree_set_ipv6_tvb(field_info *fi, tvbuff_t *tvb, gint start);
 static void
 proto_tree_set_boolean(field_info *fi, guint32 value);
+static void
+proto_tree_set_float(field_info *fi, float value);
 static void
 proto_tree_set_double(field_info *fi, double value);
 static void
@@ -1408,6 +1410,69 @@ proto_tree_set_boolean(field_info *fi, guint32 value)
 	proto_tree_set_uint(fi, value);
 }
 
+/* Add a FT_FLOAT to a proto_tree */
+proto_item *
+proto_tree_add_float(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gint length,
+		float value)
+{
+	proto_item		*pi;
+	field_info		*new_fi;
+	header_field_info	*hfinfo;
+
+	if (!tree)
+		return (NULL);
+
+	hfinfo = proto_registrar_get_nth(hfindex);
+	g_assert(hfinfo->type == FT_FLOAT);
+
+	pi = proto_tree_add_pi(tree, hfindex, tvb, start, &length, &new_fi);
+	proto_tree_set_float(new_fi, value);
+
+	return pi;
+}
+
+proto_item *
+proto_tree_add_float_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gint length,
+		float value)
+{
+	proto_item		*pi;
+	field_info 		*fi;
+
+	pi = proto_tree_add_float(tree, hfindex, tvb, start, length, value);
+	if (pi == NULL)
+		return (NULL);
+
+	fi = PITEM_FINFO(pi);
+	fi->visible = FALSE;
+
+	return pi;
+}
+
+proto_item *
+proto_tree_add_float_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gint length,
+		float value, const char *format, ...)
+{
+	proto_item		*pi;
+	va_list			ap;
+
+	pi = proto_tree_add_float(tree, hfindex, tvb, start, length, value);
+	if (pi == NULL)
+		return (NULL);
+
+	va_start(ap, format);
+	proto_tree_set_representation(pi, format, ap);
+	va_end(ap);
+
+	return pi;
+}
+
+/* Set the FT_FLOAT value */
+static void
+proto_tree_set_float(field_info *fi, float value)
+{
+	fvalue_set_floating(fi->value, value);
+}
+
 /* Add a FT_DOUBLE to a proto_tree */
 proto_item *
 proto_tree_add_double(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gint length,
@@ -2297,9 +2362,14 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 			fill_label_int64(fi, label_str);
 			break;
 
+		case FT_FLOAT:
+			snprintf(label_str, ITEM_LABEL_LENGTH,
+				"%s: %.9g", hfinfo->name, fvalue_get_floating(fi->value));
+			break;
+
 		case FT_DOUBLE:
 			snprintf(label_str, ITEM_LABEL_LENGTH,
-				"%s: %g", hfinfo->name, fvalue_get_floating(fi->value));
+				"%s: %.14g", hfinfo->name, fvalue_get_floating(fi->value));
 			break;
 
 		case FT_ABSOLUTE_TIME:
@@ -3132,6 +3202,7 @@ proto_can_match_selected(field_info *finfo)
 		case FT_IPv4:
 		case FT_IPXNET:
 		case FT_IPv6:
+		case FT_FLOAT:
 		case FT_DOUBLE:
 		case FT_ETHER:
 		case FT_ABSOLUTE_TIME:
@@ -3173,7 +3244,12 @@ proto_alloc_dfilter_string(field_info *finfo, guint8 *pd)
 	switch(hfinfo->type) {
 
 		case FT_BOOLEAN:
-			dfilter_len = abbrev_len + 6;
+			/*
+			 * 4 bytes for " == ".
+			 * 1 byte for 1 or 0.
+			 * 1 byte for the trailing '\0'.
+			 */
+			dfilter_len = abbrev_len + 4 + 1 + 1;
 			buf = g_malloc0(dfilter_len);
 			snprintf(buf, dfilter_len, "%s == %s",
 					hfinfo->abbrev,
@@ -3188,13 +3264,34 @@ proto_alloc_dfilter_string(field_info *finfo, guint8 *pd)
 		case FT_INT16:
 		case FT_INT24:
 		case FT_INT32:
-			dfilter_len = abbrev_len + 20;
+			/*
+			 * 4 bytes for " == ".
+			 * 11 bytes for:
+			 *
+			 *	a sign + up to 10 digits of 32-bit integer,
+			 *	in decimal;
+			 *
+			 *	"0x" + 8 digits of 32-bit integer, in hex;
+			 *
+			 *	11 digits of 32-bit integer, in octal.
+			 *	(No, we don't do octal, but this way,
+			 *	we know that if we do, this will still
+			 *	work.)
+			 *
+			 * 1 byte for the trailing '\0'.
+			 */
+			dfilter_len = abbrev_len + 4 + 11 + 1;
 			buf = g_malloc0(dfilter_len);
 			format = hfinfo_numeric_format(hfinfo);
 			snprintf(buf, dfilter_len, format, hfinfo->abbrev, fvalue_get_integer(finfo->value));
 			break;
 
 		case FT_UINT64:
+			/*
+			 * 4 bytes for " == ".
+			 * N bytes for the string for the number.
+			 * 1 byte for the trailing '\0'.
+			 */
 			stringified = u64toa(fvalue_get(finfo->value));
 			dfilter_len = abbrev_len + 4 + strlen(stringified) +1;
 			buf = g_malloc0(dfilter_len);
@@ -3203,6 +3300,11 @@ proto_alloc_dfilter_string(field_info *finfo, guint8 *pd)
 			break;
 
 		case FT_INT64:
+			/*
+			 * 4 bytes for " == ".
+			 * N bytes for the string for the number.
+			 * 1 byte for the trailing '\0'.
+			 */
 			stringified = i64toa(fvalue_get(finfo->value));
 			dfilter_len = abbrev_len + 4 + strlen(stringified) +1;
 			buf = g_malloc0(dfilter_len);
@@ -3211,6 +3313,11 @@ proto_alloc_dfilter_string(field_info *finfo, guint8 *pd)
 			break;
 
 		case FT_IPv4:
+			/*
+			 * 4 bytes for " == ".
+			 * 14 bytes for "XXX.XXX.XXX.XXX".
+			 * 1 byte for the trailing '\0'.
+			 */
 			dfilter_len = abbrev_len + 4 + 15 + 1;
 			buf = g_malloc0(dfilter_len);
 			snprintf(buf, dfilter_len, "%s == %s", hfinfo->abbrev,
@@ -3218,13 +3325,24 @@ proto_alloc_dfilter_string(field_info *finfo, guint8 *pd)
 			break;
 
 		case FT_IPXNET:
-			dfilter_len = abbrev_len + 15;
+			/*
+			 * 4 bytes for " == ".
+			 * 2 bytes for "0x".
+			 * 8 bytes for 8 digits of 32-bit hex number.
+			 * 1 byte for the trailing '\0'.
+			 */
+			dfilter_len = abbrev_len + 4 + 2 + 8 + 1;
 			buf = g_malloc0(dfilter_len);
 			snprintf(buf, dfilter_len, "%s == 0x%08x", hfinfo->abbrev,
 					fvalue_get_integer(finfo->value));
 			break;
 
 		case FT_IPv6:
+			/*
+			 * 4 bytes for " == ".
+			 * N bytes for the string for the address.
+			 * 1 byte for the trailing '\0'.
+			 */
 			stringified = ip6_to_str((struct e_in6_addr*) fvalue_get(finfo->value));
 			dfilter_len = abbrev_len + 4 + strlen(stringified) + 1;
 			buf = g_malloc0(dfilter_len);
@@ -3232,15 +3350,45 @@ proto_alloc_dfilter_string(field_info *finfo, guint8 *pd)
 					stringified);
 			break;
 
+		case FT_FLOAT:
+			/*
+			 * 4 bytes for " == ".
+			 * 1 byte for a sign.
+			 * 26 bytes for a Really Big number.
+			 * (XXX - is that platform-dependent?)
+			 * (XXX - Really Small numbers just show up as 0;
+			 * should we use "%.9g" instead?)
+			 * 1 byte for the trailing '\0'.
+			 */
+			dfilter_len = abbrev_len + 4 + 1 + 26 + 1;
+			buf = g_malloc0(dfilter_len);
+			snprintf(buf, dfilter_len, "%s == %f", hfinfo->abbrev,
+					fvalue_get_floating(finfo->value));
+			break;
+
 		case FT_DOUBLE:
-			dfilter_len = abbrev_len + 30;
+			/*
+			 * 4 bytes for " == ".
+			 * 1 byte for a sign.
+			 * 26 bytes for a Really Big number.
+			 * (XXX - is that platform-dependent?)
+			 * (XXX - Really Small numbers just show up as 0;
+			 * should we use "%.9g" instead?)
+			 * 1 byte for the trailing '\0'.
+			 */
+			dfilter_len = abbrev_len + 4 + 1 + 26 + 1;
 			buf = g_malloc0(dfilter_len);
 			snprintf(buf, dfilter_len, "%s == %f", hfinfo->abbrev,
 					fvalue_get_floating(finfo->value));
 			break;
 
 		case FT_ETHER:
-			dfilter_len = abbrev_len + 22;
+			/*
+			 * 4 bytes for " == ".
+			 * 17 bytes for "NN:NN:NN:NN:NN:NN".
+			 * 1 byte for the trailing '\0'.
+			 */
+			dfilter_len = abbrev_len + 4 + 17 + 1;
 			buf = g_malloc0(dfilter_len);
 			snprintf(buf, dfilter_len, "%s == %s",
 					hfinfo->abbrev,
@@ -3248,27 +3396,43 @@ proto_alloc_dfilter_string(field_info *finfo, guint8 *pd)
 			break;
 
 		case FT_ABSOLUTE_TIME:
+			/*
+			 * 4 bytes for " == ".
+			 * N bytes for the string for the time.
+			 * 2 bytes for the opening and closing quotes.
+			 * 1 byte for the trailing '\0'.
+			 */
 			value_str =
 			    abs_time_to_str((nstime_t *)fvalue_get(finfo->value));
-			dfilter_len = abbrev_len + strlen(value_str) + 7;
+			dfilter_len = abbrev_len + strlen(value_str) + 4 + 2 + 1;
 			buf = g_malloc0(dfilter_len);
 			snprintf(buf, dfilter_len, "%s == \"%s\"",
 					hfinfo->abbrev, value_str);
 			break;
 
 		case FT_RELATIVE_TIME:
+			/*
+			 * 4 bytes for " == ".
+			 * N bytes for the string for the time.
+			 * 1 byte for the trailing '\0'.
+			 */
 			value_str =
 			    rel_time_to_secs_str((nstime_t *)fvalue_get(finfo->value));
-			dfilter_len = abbrev_len + strlen(value_str) + 4;
+			dfilter_len = abbrev_len + strlen(value_str) + 4 + 1;
 			buf = g_malloc0(dfilter_len);
 			snprintf(buf, dfilter_len, "%s == %s",
 					hfinfo->abbrev, value_str);
 			break;
 
-
 		case FT_STRING:
+			/*
+			 * 4 bytes for " == ".
+			 * N bytes for the string.
+			 * 2 bytes for the opening and closing quotes.
+			 * 1 byte for the trailing '\0'.
+			 */
 			value_str = fvalue_get(finfo->value);
-			dfilter_len = abbrev_len + strlen(value_str) + 7;
+			dfilter_len = abbrev_len + strlen(value_str) + 4 + 2 + 1;
 			buf = g_malloc0(dfilter_len);
 			snprintf(buf, dfilter_len, "%s == \"%s\"",
 				 hfinfo->abbrev, value_str);
@@ -3276,8 +3440,16 @@ proto_alloc_dfilter_string(field_info *finfo, guint8 *pd)
 
 		case FT_BYTES:
 		case FT_UINT_BYTES:
+			/*
+			 * 4 bytes for " == ".
+			 * 3 bytes for each byte of the byte string, as
+			 * "NN:", minus 1 byte as there's no trailing ":".
+			 * 1 byte for the trailing '\0'.
+			 *
+			 * XXX - what are the other 2 bytes for?
+			 */
 			dfilter_len = fvalue_length(finfo->value)*3 - 1;
-			dfilter_len += abbrev_len + 7;
+			dfilter_len += abbrev_len + 4 + 2 + 1;
 			buf = g_malloc0(dfilter_len);
 			snprintf(buf, dfilter_len, "%s == %s",
 				 hfinfo->abbrev,

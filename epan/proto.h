@@ -1,7 +1,7 @@
 /* proto.h
  * Definitions for protocol display
  *
- * $Id: proto.h,v 1.34 2002/08/02 21:29:39 jmayer Exp $
+ * $Id: proto.h,v 1.35 2002/08/24 19:45:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -386,6 +386,26 @@ proto_tree_add_boolean_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint
 extern proto_item *
 proto_tree_add_boolean_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, guint32 value, const char *format, ...);
+#endif
+
+/* Add a FT_FLOAT to a proto_tree */
+extern proto_item *
+proto_tree_add_float(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
+	gint length, float value);
+
+extern proto_item *
+proto_tree_add_float_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
+	gint length, float value);
+
+#if __GNUC__ >= 2
+extern proto_item *
+proto_tree_add_float_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
+	gint length, float value, const char *format, ...)
+	__attribute__((format (printf, 7, 8)));
+#else
+extern proto_item *
+proto_tree_add_float_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
+	gint length, float value, const char *format, ...);
 #endif
 
 /* Add a FT_DOUBLE to a proto_tree */

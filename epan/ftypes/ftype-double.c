@@ -1,5 +1,5 @@
 /*
- * $Id: ftype-double.c,v 1.5 2002/02/05 22:50:17 guy Exp $
+ * $Id: ftype-double.c,v 1.6 2002/08/24 19:45:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -117,9 +117,9 @@ void
 ftype_register_double(void)
 {
 
-	static ftype_t double_type = {
-		"FT_DOUBLE",
-		"floating point",
+	static ftype_t float_type = {
+		"FT_FLOAT",
+		"floating point (single-precision)",
 		0,
 		double_fvalue_new,
 		NULL,
@@ -144,5 +144,33 @@ ftype_register_double(void)
 		NULL,
 	};
 
+	static ftype_t double_type = {
+		"FT_DOUBLE",
+		"floating point (double-precision)",
+		0,
+		double_fvalue_new,
+		NULL,
+		val_from_string,
+
+		NULL,
+		NULL,
+		double_fvalue_set_floating,
+
+		NULL,
+		NULL,
+		value_get_floating,
+
+		cmp_eq,
+		cmp_ne,
+		cmp_gt,
+		cmp_ge,
+		cmp_lt,
+		cmp_le,
+
+		NULL,
+		NULL,
+	};
+
+	ftype_register(FT_FLOAT, &float_type);
 	ftype_register(FT_DOUBLE, &double_type);
 }
