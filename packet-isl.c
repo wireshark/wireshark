@@ -1,7 +1,7 @@
 /* packet-isl.c
  * Routines for Cisco ISL Ethernet header disassembly
  *
- * $Id: packet-isl.c,v 1.3 2000/01/24 21:49:39 guy Exp $
+ * $Id: packet-isl.c,v 1.4 2000/01/24 21:56:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -194,8 +194,8 @@ dissect_isl(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	pntohs(&pd[offset+22]));
 
     /* Now for the CRC, which is at the *end* of the packet. */
-    if (BYTES_ARE_IN_FRAME(END_OF_FRAME - 4, 4)) {
-      proto_tree_add_item(fh_tree, hf_isl_crc, END_OF_FRAME - 4, 4,
+    if (BYTES_ARE_IN_FRAME(pi.len - 4, 4)) {
+      proto_tree_add_item(fh_tree, hf_isl_crc, pi.len - 4, 4,
 	pntohl(&pd[END_OF_FRAME - 4]));
     }
   }
