@@ -1,7 +1,7 @@
 /* pcap-util.c
  * Utility routines for packet capture
  *
- * $Id: pcap-util.c,v 1.21 2003/11/21 08:33:49 guy Exp $
+ * $Id: pcap-util.c,v 1.22 2003/11/26 02:54:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -120,7 +120,7 @@ get_pcap_linktype(pcap_t *pch, char *devname
 	 */
 	ifacename = strchr(devname, '/');
 	if (ifacename == NULL)
-		ifacename = devnames;
+		ifacename = devname;
 
 	/* See if it matches any of the LAN device names. */
 	if (strncmp(ifacename, "en", 2) == 0) {
