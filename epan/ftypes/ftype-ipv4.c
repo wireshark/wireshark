@@ -1,5 +1,5 @@
 /*
- * $Id: ftype-ipv4.c,v 1.2 2001/02/01 20:31:21 gram Exp $
+ * $Id: ftype-ipv4.c,v 1.3 2001/03/02 17:17:56 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -28,15 +28,6 @@
 #include <ftypes-int.h>
 #include "ipv4.h"
 #include "resolv.h"
-
-static void
-ftype_from_tvbuff(field_info *fi, tvbuff_t *tvb, int start, int length,
-	gboolean little_endian)
-{
-	/* XXX */
-	g_assert_not_reached();
-}
-
 
 
 static void
@@ -113,7 +104,6 @@ ftype_register_ipv4(void)
 		4,
 		NULL,
 		NULL,
-		ftype_from_tvbuff,
 		val_from_string,
 
 		NULL,

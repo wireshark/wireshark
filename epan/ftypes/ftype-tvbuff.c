@@ -1,5 +1,5 @@
 /*
- * $Id: ftype-tvbuff.c,v 1.3 2001/02/01 23:39:18 gram Exp $
+ * $Id: ftype-tvbuff.c,v 1.4 2001/03/02 17:17:56 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -84,7 +84,6 @@ ftype_register_tvbuff(void)
 		"protocol",
 		0,
 		value_new,
-		NULL,
 		NULL,
 		NULL,
 

@@ -1,5 +1,5 @@
 /*
- * $Id: ftypes-int.h,v 1.3 2001/02/27 19:23:30 gram Exp $
+ * $Id: ftypes-int.h,v 1.4 2001/03/02 17:17:56 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -27,7 +27,6 @@
 #include "packet.h"
 #include "ftypes.h"
 
-typedef void (*FtypeFromTvbuffFunc)(field_info*, tvbuff_t*, int, int, gboolean);
 typedef void (*FvalueNewFunc)(fvalue_t*);
 typedef void (*FvalueFreeFunc)(fvalue_t*);
 
@@ -52,7 +51,6 @@ struct _ftype_t {
 	int			wire_size;
 	FvalueNewFunc		new_value;
 	FvalueFreeFunc		free_value;
-	FtypeFromTvbuffFunc	from_tvbuff;
 	FvalueFromString	val_from_string;
 
 	/* could be union */

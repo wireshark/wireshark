@@ -1,5 +1,5 @@
 /* 
- * $Id: ftype-bytes.c,v 1.3 2001/02/01 21:52:16 guy Exp $
+ * $Id: ftype-bytes.c,v 1.4 2001/03/02 17:17:56 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -32,14 +32,6 @@
 
 #define ETHER_LEN	6
 #define IPv6_LEN	16
-
-static void
-ftype_from_tvbuff(field_info *fi, tvbuff_t *tvb, int start, int length,
-	gboolean little_endian)
-{
-	/* XXX */
-	g_assert_not_reached();
-}
 
 
 static void
@@ -324,7 +316,6 @@ ftype_register_bytes(void)
 		0,
 		bytes_fvalue_new,
 		bytes_fvalue_free,
-		ftype_from_tvbuff,
 		val_from_string,
 
 		bytes_fvalue_set,
@@ -352,7 +343,6 @@ ftype_register_bytes(void)
 		ETHER_LEN,
 		bytes_fvalue_new,
 		bytes_fvalue_free,
-		ftype_from_tvbuff,
 		ether_from_string,
 
 		ether_fvalue_set,
@@ -380,7 +370,6 @@ ftype_register_bytes(void)
 		IPv6_LEN,
 		bytes_fvalue_new,
 		bytes_fvalue_free,
-		ftype_from_tvbuff,
 		ipv6_from_string,
 
 		ipv6_fvalue_set,
