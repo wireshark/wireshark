@@ -1,6 +1,6 @@
 /* buffer.c
  *
- * $Id: buffer.c,v 1.10 2000/08/11 13:32:37 deniel Exp $
+ * $Id: buffer.c,v 1.11 2001/04/16 21:59:38 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -38,7 +38,7 @@
 /* Initializes a buffer with a certain amount of allocated space */
 void buffer_init(Buffer* buffer, unsigned int space)
 {
-	buffer->data = (char*)g_malloc(space);
+	buffer->data = (u_char*)g_malloc(space);
 	buffer->allocated = space;
 	buffer->start = 0;
 	buffer->first_free = 0;
@@ -88,7 +88,7 @@ void buffer_assure_space(Buffer* buffer, unsigned int space)
 
 	/* We'll allocate more space */
 	buffer->allocated += space + 1024;
-	buffer->data = (char*)g_realloc(buffer->data, buffer->allocated);
+	buffer->data = (u_char*)g_realloc(buffer->data, buffer->allocated);
 }
 
 void buffer_append(Buffer* buffer, u_char *from, unsigned int bytes)
