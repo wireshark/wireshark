@@ -88,8 +88,9 @@ Daniel Thompson (STMicroelectronics) <daniel.thompson@st.com>
 #define PPPD_TIME_STEP_SHORT	0x06
 #define PPPD_RESET_TIME		0x07
 
-/* this buffer must be at least (2*PPPD_MTU) + sizeof(ppp_header) + sizeof(lcp_header) +
- * sizeof(ipcp_header). PPPD_MTU is *very* rarely larger than 1500 so this value is fine
+/* this buffer must be at least (2*PPPD_MTU) + sizeof(ppp_header) +
+ * sizeof(lcp_header) + sizeof(ipcp_header).  PPPD_MTU is *very* rarely
+ * larger than 1500 so this value is fine.
  */
 #define PPPD_BUF_SIZE		8192
 
@@ -365,8 +366,8 @@ pppdump_read(wtap *wth, int *err, gchar **err_info, long *data_offset)
 
 /* Returns number of bytes copied for record, -1 if failure.
  *
- * This is modeled after pppdump.c, the utility to parse pppd log files; it comes with the ppp
- * distribution.
+ * This is modeled after pppdump.c, the utility to parse pppd log files; it
+ * comes with the ppp distribution.
  */
 static int
 process_data(pppdump_t *state, FILE_T fh, pkt_t *pkt, int n, guint8 *pd,
@@ -378,16 +379,15 @@ process_data(pppdump_t *state, FILE_T fh, pkt_t *pkt, int n, guint8 *pd,
 
 	for (; num_bytes > 0; --num_bytes) {
 		c = file_getc(fh);
+		if (c == EOF) {
+			*err = file_error(fh);
+			if (*err == 0) {
+				*err = WTAP_ERR_SHORT_READ;
+			}
+			return -1;
+		}
 		state->offset++;
 		switch (c) {
-			case EOF:
-				*err = file_error(fh);
-				if (*err == 0) {
-					*err = WTAP_ERR_SHORT_READ;
-				}
-				return -1;
-				break;
-
 			case 0x7e:
 				/*
 				 * Flag Sequence for RFC 1662 HDLC-like
@@ -534,6 +534,7 @@ collate(pppdump_t* state, FILE_T fh, int *err, gchar **err_info, guint8 *pd,
 	pkt_t		*pkt = NULL;
 	int		byte0, byte1;
 	int		n, num_written = 0;
+	long		start_offset;
 	guint32		time_long;
 	guint8		time_short;
 
@@ -569,6 +570,7 @@ collate(pppdump_t* state, FILE_T fh, int *err, gchar **err_info, guint8 *pd,
 	 * That didn't get all the data for this packet, so process
 	 * subsequent records.
 	 */
+	start_offset = state->offset;
 	while ((id = file_getc(fh)) != EOF) {
 		state->offset++;
 		switch (id) {
@@ -586,21 +588,14 @@ collate(pppdump_t* state, FILE_T fh, int *err, gchar **err_info, guint8 *pd,
 				 * Get the length of the record.
 				 */
 				byte0 = file_getc(fh);
-				if (byte0 == EOF) {
-					*err = file_error(fh);
-					if (*err == 0)
-						*err = WTAP_ERR_SHORT_READ;
-					return FALSE;
-				}
+				if (byte0 == EOF)
+					goto done;
+				state->offset++;
 				byte1 = file_getc(fh);
-				if (byte1 == EOF) {
-					*err = file_error(fh);
-					if (*err == 0)
-						*err = WTAP_ERR_SHORT_READ;
-					return FALSE;
-				}
+				if (byte1 == EOF)
+					goto done;
+				state->offset++;
 				n = (byte0 << 8) | byte1;
-				state->offset += 2;
 
 				if (pkt->id_offset == 0) {
 					/*
@@ -621,12 +616,8 @@ collate(pppdump_t* state, FILE_T fh, int *err, gchar **err_info, guint8 *pd,
 
 				g_assert(num_bytes_to_skip < n);
 				while (num_bytes_to_skip) {
-					if (file_getc(fh) == EOF) {
-						*err = file_error(fh);
-						if (*err == 0)
-							*err = WTAP_ERR_SHORT_READ;
-						return FALSE;
-					}
+					if (file_getc(fh) == EOF)
+						goto done;
 					state->offset++;
 					num_bytes_to_skip--;
 					n--;
@@ -643,7 +634,6 @@ collate(pppdump_t* state, FILE_T fh, int *err, gchar **err_info, guint8 *pd,
 					return TRUE;
 				}
 				/* if 0 bytes written, keep looping */
-
 				break;
 
 			case PPPD_SEND_DELIM:
@@ -691,9 +681,18 @@ collate(pppdump_t* state, FILE_T fh, int *err, gchar **err_info, guint8 *pd,
 
 	}
 
+done:
 	*err = file_error(fh);
-	if (*err == 0)
-		*err = WTAP_ERR_SHORT_READ;
+	if (*err == 0) {
+		if (state->offset != start_offset) {
+			/*
+			 * We read at least one byte, so we were working
+			 * on a record; an EOF means that record was
+			 * cut short.
+			 */
+			*err = WTAP_ERR_SHORT_READ;
+		}
+	}
 	return FALSE;
 }
 
