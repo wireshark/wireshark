@@ -15,23 +15,32 @@ char *bpf_image(struct bpf_instruction *p, int n);
 int main(int argc, char **argv)
 {
 	wtap	*wth;
-	char	*fsyntax = "";
+	char	*fsyntax;
 	int	i;
 
 	if (argc <= 1) {
 		fprintf(stderr, "usage: wiretap filter\n");
 		exit(-1);
 	}
+	
+	fsyntax = g_strdup(argv[1]);
 
-	for (i = 1; i < argc; i++) {
+	for (i = 2; i < argc; i++) {
 		fsyntax = g_strjoin(" ", fsyntax, argv[i], NULL);
 	}
+	wth = (wtap*)g_malloc(sizeof(wtap));
 
-	wth = wtap_open_offline("/home/gram/prj/sniff/test.trace");
+	/* initialization */
+	wth->file_encap = WTAP_ENCAP_NONE;
+	wth->filter.offline = NULL;
+	wth->filter_type = WTAP_FILTER_NONE;
+	wth->filter_length = 0;
+	wth->offline_filter_lengths = NULL;
+
 	wtap_offline_filter(wth, fsyntax);
-/*	wtap_offline_filter_compile(wth, WTAP_ENCAP_ETHERNET);*/
 	bpf_dump(wth);
 
+	g_free(wth);
 	return 0;
 }
 
