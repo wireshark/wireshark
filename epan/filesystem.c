@@ -1,7 +1,7 @@
 /* filesystem.c
  * Filesystem utility routines
  *
- * $Id: filesystem.c,v 1.11 2001/10/23 05:00:59 guy Exp $
+ * $Id: filesystem.c,v 1.12 2001/10/23 08:15:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -47,6 +47,10 @@
 
 #ifdef HAVE_WINDOWS_H
 #include <windows.h>
+#endif
+
+#ifdef HAVE_DIRECT_H
+#include <direct.h>		/* to declare "mkdir()" on Windows */
 #endif
 
 #ifndef WIN32
@@ -302,11 +306,7 @@ get_systemfile_dir(void)
 const char *
 get_persconffile_dir(void)
 {
-#ifdef WIN32
-	char *homedrive, *homepath;
-	char *homestring = NULL;
-	char *lastsep;
-#else
+#ifndef WIN32
 	struct passwd *pwd;
 #endif
 	char *homedir;
@@ -318,40 +318,17 @@ get_persconffile_dir(void)
 
 #ifdef WIN32
 	/*
-	 * XXX - should we use USERPROFILE anywhere in this process?
-	 * Is there a chance that it might be set but one or more of
-	 * HOMEDRIVE or HOMEPATH isn't set?
+	 * Use %USERPROFILE%, so that configuration files are stored
+	 * in the user profile, rather than in the home directory.
+	 * The Windows convention is to store configuration information
+	 * in the user profile, and doing so means you can use
+	 * Ethereal even if the home directory is an inaccessible
+	 * network drive.
 	 */
-	homedrive = getenv("HOMEDRIVE");
-	if (homedrive != NULL) {
-		homepath = getenv("HOMEPATH");
-		if (homepath != NULL) {
-			/*
-			 * This is cached, so we don't need to worry about
-			 * allocating multiple ones of them.
-			 */
-			homestring =
-			    g_malloc(strlen(homedrive) + strlen(homepath) + 1);
-			strcpy(homestring, homedrive);
-			strcat(homestring, homepath);
-
-			/*
-			 * Trim off any trailing slash or backslash.
-			 */
-			lastsep = find_last_pathname_separator(homestring);
-			if (lastsep != NULL && *(lastsep + 1) == '\0') {
-				/*
-				 * Last separator is the last character
-				 * in the string.  Nuke it.
-				 */
-				*lastsep = '\0';
-			}
-			homedir = homestring;
-		} else
-			homedir = homedrive;
-	} else {
+	homedir = getenv("USERPROFILE");
+	if (homedir == NULL) {
 		/*
-		 * Try using "windir?
+		 * Give up and use "C:".
 		 */
 		homedir = "C:";
 	}
@@ -380,10 +357,6 @@ get_persconffile_dir(void)
 
 	pf_dir = g_malloc(strlen(homedir) + strlen(PF_DIR) + 2);
 	sprintf(pf_dir, "%s" G_DIR_SEPARATOR_S "%s", homedir, PF_DIR);
-#ifdef WIN32
-	if (homestring != NULL)
-		g_free(homestring);
-#endif
 	return pf_dir;
 }
 

@@ -84,7 +84,7 @@ Packet capturing is performed with the pcap library.  The capture filter
 syntax follows the rules of the pcap library.  This syntax is different
 from the read filter syntax.  A read filter can also be specified when
 capturing, and only packets that pass the read filter will be displayed
-or saved to the output file; note, however, that capture filers are much
+or saved to the output file; note, however, that capture filters are much
 more efficient than read filters, and it may be more difficult for
 B<Tethereal> to keep up with a busy network if a read filter is
 specified for a live capture.
@@ -440,16 +440,18 @@ type of the field is also given.
 The F<ethereal.conf> file, which is installed in the F<etc> directory
 under the main installation directory (for example, F</usr/local/etc>)
 on UNIX-compatible systems, and in the main installation directory (for
-example, F<C:\Program Files\Ethereal>) on Windows systems, and
-F<$HOME/.ethereal/preferences>, contain system-wide and personal
-preference settings, respectively.  The file contains preference
-settings of the form I<prefname>B<:>I<value>, one per line, where
-I<prefname> is the name of the preference (which is the same name that
-would appear in the preference file), and I<value> is the value to which
-it should be set; white space is allowed between B<:> and I<value>.  A
-preference setting can be continued on subsequent lines by indenting the
-continuation lines with white space.  A B<#> character starts a comment
-that runs to the end of the line.
+example, F<C:\Program Files\Ethereal>) on Windows systems, and the
+personal preferences file, which is F<$HOME/.ethereal/preferences> on
+UNIX-compatible systems and F<%USERPROFILE%\.ethereal\preferences> on
+Windows systems, contain system-wide and personal preference settings,
+respectively.  The file contains preference settings of the form
+I<prefname>B<:>I<value>, one per line, where I<prefname> is the name of
+the preference (which is the same name that would appear in the
+preference file), and I<value> is the value to which it should be set;
+white space is allowed between B<:> and I<value>.  A preference setting
+can be continued on subsequent lines by indenting the continuation lines
+with white space.  A B<#> character starts a comment that runs to the
+end of the line.
 
 The system-wide preference file is read first, if it exists, overriding
 B<Tethereal>'s default values; the personal preferences file is then
@@ -460,11 +462,12 @@ The F<ethers> file, which is found in the F</etc> directory on
 UNIX-compatible systems, and in the main installation directory (for
 example, F<C:\Program Files\Ethereal>) on Windows systems, is consulted
 to correlate 6-byte hardware addresses to names.  If an address is not
-found in the F<ethers> file, the F<$HOME/.ethereal/ethers> file is
-consulted next.  Each line contains one hardware address and name,
-separated by whitespace.  The digits of the hardware address are
-separated by either a colon (:), a dash (-), or a period (.).  The
-following three lines are valid lines of an ethers file:
+found in the F<ethers> file, the F<$HOME/.ethereal/ethers> file on
+UNIX-compatible systems, and the F<%USERPROFILE%\.ethereal\ethers> file
+on Windows systems is consulted next.  Each line contains one hardware
+address and name, separated by whitespace.  The digits of the hardware
+address are separated by either a colon (:), a dash (-), or a period
+(.).  The following three lines are valid lines of an ethers file:
 
   ff:ff:ff:ff:ff:ff          Broadcast
   c0-00-ff-ff-ff-ff          TR_broadcast
@@ -482,12 +485,13 @@ The F<ipxnets> file, which is found in the F</etc> directory on
 UNIX-compatible systems, and in the main installation directory (for
 example, F<C:\Program Files\Ethereal>) on Windows systems, correlates
 4-byte IPX network numbers to names.  If a network number is not found
-in the F<ipxnets> file, the F<$HOME/.ethereal/ipxnets> file is consulted
-next.  The format is the same as the F<ethers> file, except that each
-address if four bytes instead of six.  Additionally, the address can be
-represented a single hexadecimal number, as is more common in the IPX
-world, rather than four hex octets.  For example, these four lines are
-valid lines of an ipxnets file.
+in the F<ipxnets> file, the F<$HOME/.ethereal/ipxnets> file on
+UNIX-compatible systems, and the F<%USERPROFILE%\.ethereal\ipxnets> file
+on Windows systems, is consulted next.  The format is the same as the
+F<ethers> file, except that each address if four bytes instead of six. 
+Additionally, the address can be represented a single hexadecimal
+number, as is more common in the IPX world, rather than four hex octets. 
+For example, these four lines are valid lines of an ipxnets file.
 
   C0.A8.2C.00              HR
   c0-a8-1c-00              CEO

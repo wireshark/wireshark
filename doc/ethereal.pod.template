@@ -692,10 +692,12 @@ filter, and applies it to the current capture.
 
 =item Save
 
-Saves the current filter list in F<$HOME/.ethereal/cfilters> if the list
-of filters being edited is the list of capture filters or in
-F<$HOME/.ethereal/dfilters> if the list of filters being edited is the
-list of display filters.
+Saves the current filter list in F<$HOME/.ethereal/cfilters> on
+UNIX-compatible systems, and F<%USERPROFILE%\.ethereal\cfilters> on
+Windows systems, if the list of filters being edited is the list of
+capture filters, or in F<$HOME/.ethereal/dfilters> on UNIX-compatible
+systems, and F<%USERPROFILE%\.ethereal\dfilters> on Windows systems, if
+the list of filters being edited is the list of display filters.
 
 =item Close
 
@@ -748,12 +750,21 @@ available on your system.
 
 The I<Plugins List> shows the name and version of each dissector plugin
 module found on your system.  The plugins are searched in the following
-directories: F</usr/share/ethereal/plugins>,
-F</usr/local/share/ethereal/plugins> and F<~/.ethereal/plugins>.  Note
-that a dissector plugin module may support more than one protocol; there
-is not necessarily a one-to-one correspondence between dissector plugin
-modules and protocols.  Protocols supported by a dissector plugin module
-are enabled and disabled using the I<Edit:Protocols> dialog box, just as
+directories: the F<lib/ethereal/plugins/$VERSION> directory under the
+main installation directory (for example,
+F</usr/local/lib/ethereal/plugins/$VERSION>),
+F</usr/lib/ethereal/plugins/$VERSION>,
+F</usr/local/lib/ethereal/plugins/$VERSION>, and
+F<$HOME/.ethereal/plugins> on UNIX-compatible systems, and in the
+F<plugins\$VERSION> directory under the main installation directory (for
+example, F<C:\Program Files\Ethereal\plugins\$VERSION>) and
+F<%USERPROFILE%\.ethereal\plugins\$VERSION> on Windows
+systems; $VERSION is the version number of the plugin interface, which
+is typically the version number of Ethereal.  Note that a dissector
+plugin module may support more than one protocol; there is not
+necessarily a one-to-one correspondence between dissector plugin modules
+and protocols.  Protocols supported by a dissector plugin module are
+enabled and disabled using the I<Edit:Protocols> dialog box, just as
 protocols built into Ethereal are.
 
 =head1 CAPTURE FILTER SYNTAX
@@ -956,16 +967,18 @@ type of the field is also given.
 The F<ethereal.conf> file, which is installed in the F<etc> directory
 under the main installation directory (for example, F</usr/local/etc>)
 on UNIX-compatible systems, and in the main installation directory (for
-example, F<C:\Program Files\Ethereal>) on Windows systems, and
-F<$HOME/.ethereal/preferences>, contain system-wide and personal
-preference settings, respectively.  The file contains preference
-settings of the form I<prefname>B<:>I<value>, one per line, where
-I<prefname> is the name of the preference (which is the same name that
-would appear in the preference file), and I<value> is the value to which
-it should be set; white space is allowed between B<:> and I<value>.  A
-preference setting can be continued on subsequent lines by indenting the
-continuation lines with white space.  A B<#> character starts a comment
-that runs to the end of the line. 
+example, F<C:\Program Files\Ethereal>) on Windows systems, and the
+personal preferences file, which is F<$HOME/.ethereal/preferences> on
+UNIX-compatible systems and F<%USERPROFILE%\.ethereal\preferences> on
+Windows systems, contain system-wide and personal preference settings,
+respectively.  The file contains preference settings of the form
+I<prefname>B<:>I<value>, one per line, where I<prefname> is the name of
+the preference (which is the same name that would appear in the
+preference file), and I<value> is the value to which it should be set;
+white space is allowed between B<:> and I<value>.  A preference setting
+can be continued on subsequent lines by indenting the continuation lines
+with white space.  A B<#> character starts a comment that runs to the
+end of the line.
 
 The system-wide preference file is read first, if it exists, overriding
 B<Ethereal>'s default values; the personal preferences file is then
@@ -973,7 +986,7 @@ read, if it exists, overriding default values and values read from the
 system-wide preference file.
 
 Note that whenever the preferences are saved by using the I<Save> button
-in the I<Edit:Preferences> dialog box, F<$HOME/.ethereal/preferences>
+in the I<Edit:Preferences> dialog box, your personal preferences file
 will be overwritten with the new settings, destroying any comments that
 were in the file.
 
@@ -981,11 +994,12 @@ The F<ethers> file, which is found in the F</etc> directory on
 UNIX-compatible systems, and in the main installation directory (for
 example, F<C:\Program Files\Ethereal>) on Windows systems, is consulted
 to correlate 6-byte hardware addresses to names.  If an address is not
-found in the F<ethers> file, the F<$HOME/.ethereal/ethers> file is
-consulted next.  Each line contains one hardware address and name,
-separated by whitespace.  The digits of the hardware address are
-separated by either a colon (:), a dash (-), or a period (.).  The
-following three lines are valid lines of an ethers file:
+found in the F<ethers> file, the F<$HOME/.ethereal/ethers> file on
+UNIX-compatible systems, and the F<%USERPROFILE%\.ethereal\ethers> file
+on Windows systems is consulted next.  Each line contains one hardware
+address and name, separated by whitespace.  The digits of the hardware
+address are separated by either a colon (:), a dash (-), or a period
+(.).  The following three lines are valid lines of an ethers file:
 
   ff:ff:ff:ff:ff:ff          Broadcast
   c0-00-ff-ff-ff-ff          TR_broadcast
@@ -1003,12 +1017,13 @@ The F<ipxnets> file, which is found in the F</etc> directory on
 UNIX-compatible systems, and in the main installation directory (for
 example, F<C:\Program Files\Ethereal>) on Windows systems, correlates
 4-byte IPX network numbers to names.  If a network number is not found
-in the F<ipxnets> file, the F<$HOME/.ethereal/ipxnets> file is consulted
-next.  The format is the same as the F<ethers> file, except that each
-address if four bytes instead of six.  Additionally, the address can be
-represented a single hexadecimal number, as is more common in the IPX
-world, rather than four hex octets.  For example, these four lines are
-valid lines of an ipxnets file.
+in the F<ipxnets> file, the F<$HOME/.ethereal/ipxnets> file on
+UNIX-compatible systems, and the F<%USERPROFILE%\.ethereal\ipxnets> file
+on Windows systems, is consulted next.  The format is the same as the
+F<ethers> file, except that each address if four bytes instead of six. 
+Additionally, the address can be represented a single hexadecimal
+number, as is more common in the IPX world, rather than four hex octets. 
+For example, these four lines are valid lines of an ipxnets file.
 
   C0.A8.2C.00              HR
   c0-a8-1c-00              CEO
