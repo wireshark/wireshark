@@ -2,7 +2,7 @@
  * Routines for AppleTalk packet disassembly: LLAP, DDP, NBP, ATP, ASP,
  * RTMP.
  *
- * $Id: packet-atalk.c,v 1.76 2002/06/25 02:56:59 tpot Exp $
+ * $Id: packet-atalk.c,v 1.77 2002/06/28 20:13:01 guy Exp $
  *
  * Simon Wilkinson <sxw@dcs.ed.ac.uk>
  *
@@ -70,7 +70,9 @@ static int proto_ddp = -1;
 static int hf_ddp_hopcount = -1;
 static int hf_ddp_len = -1;
 static int hf_ddp_checksum = -1;
+static int hf_ddp_dst = -1;
 static int hf_ddp_dst_net = -1;
+static int hf_ddp_src = -1;
 static int hf_ddp_src_net = -1;
 static int hf_ddp_dst_node = -1;
 static int hf_ddp_src_node = -1;
@@ -1248,22 +1250,29 @@ dissect_ddp_short(tvbuff_t *tvb, packet_info *pinfo, guint8 dnode,
   
   src.net = 0;
   src.node = snode;
-  src.port = sport;
   dst.net = 0;
   dst.node = dnode;
-  dst.port = dport;
   SET_ADDRESS(&pinfo->net_src, AT_ATALK, sizeof src, (guint8 *)&src);
   SET_ADDRESS(&pinfo->src, AT_ATALK, sizeof src, (guint8 *)&src);
   SET_ADDRESS(&pinfo->net_dst, AT_ATALK, sizeof dst, (guint8 *)&dst);
   SET_ADDRESS(&pinfo->dst, AT_ATALK, sizeof dst, (guint8 *)&dst);
 
+  pinfo->ptype = PT_DDP;
+  pinfo->destport = dport;
+  pinfo->srcport = sport;
+  
   if (check_col(pinfo->cinfo, COL_INFO)) {
     col_add_str(pinfo->cinfo, COL_INFO,
       val_to_str(type, op_vals, "Unknown DDP protocol (%02x)"));
   }
-  if (tree)
+  if (tree) {
+    proto_tree_add_string_hidden(ddp_tree, hf_ddp_src, tvb, 
+				 4, 3, atalk_addr_to_str(&src));
+    proto_tree_add_string_hidden(ddp_tree, hf_ddp_dst, tvb, 
+				 6, 3, atalk_addr_to_str(&dst));
+
     proto_tree_add_uint(ddp_tree, hf_ddp_type, tvb, 4, 1, type);
-  
+  }  
   new_tvb = tvb_new_subset(tvb, DDP_SHORT_HEADER_SIZE, -1, -1);
 
   if (!dissector_try_port(ddp_dissector_table, type, new_tvb, pinfo, tree))
@@ -1292,14 +1301,16 @@ dissect_ddp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   
   src.net = ddp.snet;
   src.node = ddp.snode;
-  src.port = ddp.sport;
   dst.net = ddp.dnet;
   dst.node = ddp.dnode;
-  dst.port = ddp.dport;
   SET_ADDRESS(&pinfo->net_src, AT_ATALK, sizeof src, (guint8 *)&src);
   SET_ADDRESS(&pinfo->src, AT_ATALK, sizeof src, (guint8 *)&src);
   SET_ADDRESS(&pinfo->net_dst, AT_ATALK, sizeof dst, (guint8 *)&dst);
   SET_ADDRESS(&pinfo->dst, AT_ATALK, sizeof dst, (guint8 *)&dst);
+
+  pinfo->ptype = PT_DDP;
+  pinfo->destport = ddp.dport;
+  pinfo->srcport = ddp.sport;
 
   if (check_col(pinfo->cinfo, COL_INFO))
     col_add_str(pinfo->cinfo, COL_INFO,
@@ -1309,6 +1320,12 @@ dissect_ddp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     ti = proto_tree_add_item(tree, proto_ddp, tvb, 0, DDP_HEADER_SIZE,
 			     FALSE);
     ddp_tree = proto_item_add_subtree(ti, ett_ddp);
+
+    proto_tree_add_string_hidden(ddp_tree, hf_ddp_src, tvb, 
+				 4, 3, atalk_addr_to_str(&src));
+    proto_tree_add_string_hidden(ddp_tree, hf_ddp_dst, tvb, 
+				 6, 3, atalk_addr_to_str(&dst));
+
     proto_tree_add_uint(ddp_tree, hf_ddp_hopcount,   tvb, 0, 1,
 			ddp_hops(ddp.hops_len));
     proto_tree_add_uint(ddp_tree, hf_ddp_len,        tvb, 0, 2, 
@@ -1485,8 +1502,16 @@ proto_register_atalk(void)
       { "Checksum",		"ddp.checksum",	FT_UINT16, BASE_DEC, NULL, 0x0,
       	"", HFILL }},
 
+    { &hf_ddp_dst,
+      { "Destination address",	"ddp.dst",	FT_STRING, BASE_NONE, NULL, 0x0,
+      	"", HFILL }},
+
     { &hf_ddp_dst_net,
       { "Destination Net",	"ddp.dst.net",	FT_UINT16, BASE_DEC, NULL, 0x0,
+      	"", HFILL }},
+
+    { &hf_ddp_src,
+      { "Source address",	"ddp.src",	FT_STRING, BASE_NONE, NULL, 0x0,
       	"", HFILL }},
 
     { &hf_ddp_src_net,

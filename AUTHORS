@@ -1172,6 +1172,9 @@ Didier Gautheron <dgautheron[AT]magic.fr> {
 	"frame.marked" field set on marked frames
 	Don't show progress bar for quick "Find Frame" searches
 	Add "Find Next" and "Find Previous" to repeat searches
+	Move port number from AppleTalk addresses to separate column
+	Put in hidden fields for AppleTalk source and destination
+	    addresses
 }
 
 Phil Williams <csypbw[AT]comp.leeds.ac.uk> {

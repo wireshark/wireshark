@@ -1,7 +1,7 @@
 /* column-utils.c
  * Routines for column utilities.
  *
- * $Id: column-utils.c,v 1.13 2002/01/31 08:03:39 guy Exp $
+ * $Id: column-utils.c,v 1.14 2002/06/28 20:13:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -464,7 +464,12 @@ col_set_addr(packet_info *pinfo, int col, address *addr, gboolean is_res,
     strncpy(pinfo->cinfo->col_buf[col], atalk_addr_to_str(&ddp_addr),
       COL_MAX_LEN);
     pinfo->cinfo->col_buf[col][COL_MAX_LEN - 1] = '\0';
+    if (is_src)
+      strcpy(pinfo->cinfo->col_expr[col], "ddp.src");
+    else
+      strcpy(pinfo->cinfo->col_expr[col], "ddp.dst");
     pinfo->cinfo->col_data[col] = pinfo->cinfo->col_buf[col];
+    strcpy(pinfo->cinfo->col_expr_val[col],pinfo->cinfo->col_buf[col]);
     break;
 
   case AT_VINES:
@@ -523,6 +528,16 @@ col_set_port(packet_info *pinfo, int col, port_type ptype, guint32 port,
       strcpy(pinfo->cinfo->col_expr[col], "udp.srcport");
     else
       strcpy(pinfo->cinfo->col_expr[col], "udp.dstport");
+    snprintf(pinfo->cinfo->col_expr_val[col], COL_MAX_LEN, "%u", port);
+    pinfo->cinfo->col_expr_val[col][COL_MAX_LEN - 1] = '\0';
+    break;
+
+  case PT_DDP:
+    if (is_src)
+      strcpy(pinfo->cinfo->col_expr[col], "ddp.src.socket");
+    else
+      strcpy(pinfo->cinfo->col_expr[col], "ddp.dst.socket");
+    snprintf(pinfo->cinfo->col_buf[col], COL_MAX_LEN, "%u", port);
     snprintf(pinfo->cinfo->col_expr_val[col], COL_MAX_LEN, "%u", port);
     pinfo->cinfo->col_expr_val[col][COL_MAX_LEN - 1] = '\0';
     break;

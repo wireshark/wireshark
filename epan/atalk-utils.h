@@ -1,7 +1,7 @@
 /* atalk-utils.h
  * Definitions for Appletalk utilities (DDP, currently).
  *
- * $Id: atalk-utils.h,v 1.1 2001/03/22 16:24:16 gram Exp $
+ * $Id: atalk-utils.h,v 1.2 2002/06/28 20:13:03 guy Exp $
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -30,7 +30,6 @@
 struct atalk_ddp_addr {
 	guint16	net;
 	guint8	node;
-	guint8	port;
 };
 
 /*

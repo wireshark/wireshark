@@ -1,7 +1,7 @@
 /* packet_info.h
  * Definitions for packet info structures and routines
  *
- * $Id: packet_info.h,v 1.14 2002/06/04 07:03:55 guy Exp $
+ * $Id: packet_info.h,v 1.15 2002/06/28 20:13:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -80,7 +80,8 @@ typedef enum {
   PT_SCTP,              /* SCTP */
   PT_TCP,		/* TCP */
   PT_UDP,		/* UDP */
-  PT_NCP		/* NCP connection */
+  PT_NCP,		/* NCP connection */
+  PT_DDP		/* DDP AppleTalk connection */
 } port_type;
 
 #define P2P_DIR_UNKNOWN	-1
