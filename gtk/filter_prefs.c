@@ -3,7 +3,7 @@
  * (This used to be a notebook page under "Preferences", hence the
  * "prefs" in the file name.)
  *
- * $Id: filter_prefs.c,v 1.9 2000/02/12 06:46:52 guy Exp $
+ * $Id: filter_prefs.c,v 1.10 2000/03/28 06:20:08 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -85,12 +85,14 @@ static void       filter_prefs_save(GtkWidget *);
 static void       filter_prefs_cancel(GtkWidget *);
 static void       filter_prefs_delete(GtkWidget *);
 
+#define	FILTER_LINE_SIZE	2048
+
 static void
 get_filter_list(void)
 {
   filter_def *filt;
   FILE       *ff;
-  gchar      *ff_path, *ff_name = PF_DIR "/filters", f_buf[256];
+  gchar      *ff_path, *ff_name = PF_DIR "/filters", f_buf[FILTER_LINE_SIZE];
   gchar      *name_begin, *name_end, *filt_begin;
   int         len, line = 0;
 
@@ -105,7 +107,7 @@ get_filter_list(void)
     return;
   }
 
-  while (fgets(f_buf, 256, ff)) {
+  while (fgets(f_buf, FILTER_LINE_SIZE, ff)) {
     line++;
     len = strlen(f_buf);
     if (f_buf[len - 1] == '\n') {
