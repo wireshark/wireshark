@@ -38,11 +38,15 @@
 #include "packet-gnutella.h"
 #include "packet-tcp.h"
 
+/*
+ * See
+ *
+ *	http://rfc-gnutella.sourceforge.net/developer/index.html
+ */
+
 static int proto_gnutella = -1;
 
 static int hf_gnutella_stream = -1;
-
-static int hf_gnutella_truncated = -1;
 
 static int hf_gnutella_header = -1;
 static int hf_gnutella_header_id = -1;
@@ -83,17 +87,7 @@ static int hf_gnutella_push_port = -1;
 
 static gint ett_gnutella = -1;
 
-static void dissect_gnutella_pong(tvbuff_t *tvb, guint offset, proto_tree *tree, guint size) {
-
-	if(offset + size > tvb_length(tvb)) {
-		proto_tree_add_item(tree,
-			hf_gnutella_truncated,
-			tvb,
-			offset,
-			size,
-			FALSE);
-		return;
-	}
+static void dissect_gnutella_pong(tvbuff_t *tvb, guint offset, proto_tree *tree) {
 
 	proto_tree_add_item(tree,
 		hf_gnutella_pong_port,
@@ -107,7 +101,7 @@ static void dissect_gnutella_pong(tvbuff_t *tvb, guint offset, proto_tree *tree,
 		tvb,
 		offset + GNUTELLA_PONG_IP_OFFSET,
 		GNUTELLA_IP_LENGTH,
-        FALSE);
+		FALSE);
 
 	proto_tree_add_item(tree,
 		hf_gnutella_pong_files,
@@ -127,38 +121,28 @@ static void dissect_gnutella_pong(tvbuff_t *tvb, guint offset, proto_tree *tree,
 
 static void dissect_gnutella_query(tvbuff_t *tvb, guint offset, proto_tree *tree, guint size) {
 
-	if(offset + size > tvb_length(tvb)) {
-		proto_tree_add_item(tree,
-			hf_gnutella_truncated,
-			tvb,
-			offset,
-			size,
-			FALSE);
-		return;
-	}
-
 	proto_tree_add_item(tree,
 		hf_gnutella_query_min_speed,
 		tvb,
 		offset + GNUTELLA_QUERY_SPEED_OFFSET,
 		GNUTELLA_SHORT_LENGTH,
-        TRUE);
+		TRUE);
 
-    if (size > GNUTELLA_SHORT_LENGTH) {
-        proto_tree_add_item(tree,
-            hf_gnutella_query_search,
-            tvb,
-            offset + GNUTELLA_QUERY_SEARCH_OFFSET,
-            size - GNUTELLA_SHORT_LENGTH,
-            FALSE);
-    }
-    else {
-        proto_tree_add_text(tree,
-            tvb,
-            offset + GNUTELLA_QUERY_SEARCH_OFFSET,
-            0,
-            "Missing data for Query Search.");
-    }
+	if (size > GNUTELLA_SHORT_LENGTH) {
+		proto_tree_add_item(tree,
+			hf_gnutella_query_search,
+			tvb,
+			offset + GNUTELLA_QUERY_SEARCH_OFFSET,
+			size - GNUTELLA_SHORT_LENGTH,
+			FALSE);
+	}
+	else {
+		proto_tree_add_text(tree,
+			tvb,
+			offset + GNUTELLA_QUERY_SEARCH_OFFSET,
+			0,
+			"Missing data for Query Search.");
+	}
 }
 
 static void dissect_gnutella_queryhit(tvbuff_t *tvb, guint offset, proto_tree *tree, guint size) {
@@ -171,16 +155,6 @@ static void dissect_gnutella_queryhit(tvbuff_t *tvb, guint offset, proto_tree *t
 	int servent_id_at_offset;
 	int name_at_offset, extra_at_offset;
 	int cur_char, remaining, used;
-
-	if(offset + size > tvb_length(tvb)) {
-		proto_tree_add_item(tree,
-			hf_gnutella_truncated,
-			tvb,
-			offset,
-			size,
-			FALSE);
-		return;
-	}
 
 	hit_count = tvb_get_guint8(tvb, offset + GNUTELLA_QUERYHIT_COUNT_OFFSET);
 
@@ -317,17 +291,7 @@ static void dissect_gnutella_queryhit(tvbuff_t *tvb, guint offset, proto_tree *t
 
 }
 
-static void dissect_gnutella_push(tvbuff_t *tvb, guint offset, proto_tree *tree, guint size) {
-
-	if(offset + size > tvb_length(tvb)) {
-		proto_tree_add_item(tree,
-			hf_gnutella_truncated,
-			tvb,
-			offset,
-			size,
-			FALSE);
-		return;
-	}
+static void dissect_gnutella_push(tvbuff_t *tvb, guint offset, proto_tree *tree) {
 
 	proto_tree_add_item(tree,
 		hf_gnutella_push_servent_id,
@@ -366,12 +330,12 @@ get_gnutella_pdu_len(tvbuff_t *tvb, int offset) {
 	size = tvb_get_letohl(
 		tvb,
 		offset + GNUTELLA_HEADER_SIZE_OFFSET);
-	if (size > 0x00FFFFFF) {
+	if (size > GNUTELLA_MAX_SNAP_SIZE) {
 		/*
 		 * XXX - arbitrary limit, preventing overflows and
 		 * attempts to reassemble 4GB of data.
 		 */
-		size = 0x00FFFFFF;
+		size = GNUTELLA_MAX_SNAP_SIZE;
 	}
 
 	/* The size doesn't include the header */
@@ -495,8 +459,7 @@ static void dissect_gnutella_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 				dissect_gnutella_pong(
 					tvb,
 					GNUTELLA_HEADER_LENGTH,
-					gnutella_pong_tree,
-					size);
+					gnutella_pong_tree);
 				break;
 			case GNUTELLA_PUSH:
 				pi = proto_tree_add_item(
@@ -512,8 +475,7 @@ static void dissect_gnutella_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 				dissect_gnutella_push(
 					tvb,
 					GNUTELLA_HEADER_LENGTH,
-					gnutella_push_tree,
-					size);
+					gnutella_push_tree);
 				break;
 			case GNUTELLA_QUERY:
 				pi = proto_tree_add_item(
@@ -558,14 +520,55 @@ static void dissect_gnutella_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
 static void dissect_gnutella(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
+	proto_item *ti;
+	proto_tree *gnutella_tree = NULL;
+	guint32 size;
+
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "Gnutella");
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_clear(pinfo->cinfo, COL_INFO);
 
-	tcp_dissect_pdus(tvb, pinfo, tree, TRUE, 2, get_gnutella_pdu_len,
-	    dissect_gnutella_pdu);
+	/*
+	 * OK, do we have enough data to determine whether this
+	 * is Gnutella messages or just a transfer stream?
+	 */
+	if (tvb_bytes_exist(tvb, GNUTELLA_HEADER_SIZE_OFFSET, 4)) {
+		/*
+		 * Yes - fetch the length and see if it's bigger
+		 * than GNUTELLA_MAX_SNAP_SIZE; if it is, we assume
+		 * it's a transfer stream.
+		 *
+		 * Should we also check the payload descriptor?
+		 */
+		size = tvb_get_letohl(
+			tvb,
+			GNUTELLA_HEADER_SIZE_OFFSET);
+		if (size > GNUTELLA_MAX_SNAP_SIZE) {
+			if (tree) {
+				ti = proto_tree_add_item(tree,
+					proto_gnutella,
+					tvb,
+					0,
+					-1,
+					FALSE);
+				gnutella_tree = proto_item_add_subtree(ti,
+					ett_gnutella);
+
+				proto_tree_add_item(gnutella_tree,
+					hf_gnutella_stream,
+					tvb,
+					0,
+					-1,
+					FALSE);
+			}
+			return;
+		}
+	}
+
+	tcp_dissect_pdus(tvb, pinfo, tree, TRUE, GNUTELLA_HEADER_SIZE_OFFSET+4,
+	    get_gnutella_pdu_len, dissect_gnutella_pdu);
 }
 
 void proto_register_gnutella(void) {
@@ -595,11 +598,6 @@ void proto_register_gnutella(void) {
 			{ "QueryHit", "gnutella.queryhit.payload",
 			FT_NONE, BASE_NONE, NULL, 0,
 			"Gnutella QueryHit Payload", HFILL }
-		},
-		{ &hf_gnutella_truncated,
-			{ "Truncated Frame", "gnutella.truncated",
-			FT_NONE, BASE_NONE, NULL, 0,
-			"The Gnutella Frame Was Truncated", HFILL }
 		},
 		{ &hf_gnutella_stream,
 			{ "Gnutella Upload / Download Stream", "gnutella.stream",

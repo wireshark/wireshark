@@ -27,7 +27,15 @@ void proto_register_gnutella(void);
 
 #define GNUTELLA_TCP_PORT	6346
 
-#define GNUTELLA_MAX_SNAP_SIZE	1500
+/*
+ * Used to determine whether a chunk of data looks like a Gnutella packet
+ * or not - it might be a transfer stream, or it might be part of a
+ * Gnutella packet that starts in an earlier missing TCP segment.
+ *
+ * One Gnutella spec says packets SHOULD be no bigger than 4K, although
+ * that's SHOULD, not MUST.
+ */
+#define GNUTELLA_MAX_SNAP_SIZE	4096
 
 #define GNUTELLA_UNKNOWN_NAME	"Unknown"
 #define GNUTELLA_PING		0x00
