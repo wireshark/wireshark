@@ -2,7 +2,7 @@
  * Routines for DCERPC over SMB packet disassembly
  * Copyright 2001-2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-nt.c,v 1.66 2003/02/07 22:44:53 guy Exp $
+ * $Id: packet-dcerpc-nt.c,v 1.67 2003/02/08 09:41:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -51,7 +51,7 @@ static int hf_nt_cs_size = -1;
 int
 dissect_ndr_counted_string_cb(tvbuff_t *tvb, int offset,
 			      packet_info *pinfo, proto_tree *tree,
-			      char *drep, int hf_index, 
+			      char *drep, int hf_index,
 			      dcerpc_callback_fnct_t *callback,
 			      void *callback_args)
 {
@@ -107,9 +107,14 @@ dissect_ndr_counted_string_helper(tvbuff_t *tvb, int offset,
 		subtree = proto_item_add_subtree(item, ett_nt_counted_string);
 	}
 
+	/*
+	 * Add 2 levels, so that the string gets attached to the
+	 * "Character Array" top-level item and to the top-level item
+	 * added above.
+	 */
 	return dissect_ndr_counted_string_cb(
 		tvb, offset, pinfo, subtree, drep, hf_index,
-		cb_str_postprocess, GINT_TO_POINTER(1 + levels));
+		cb_str_postprocess, GINT_TO_POINTER(2 + levels));
 }
 
 /* Dissect a counted string in-line. */
@@ -135,7 +140,57 @@ dissect_ndr_counted_string_ptr(tvbuff_t *tvb, int offset,
 	dcerpc_info *di = pinfo->private_data;
 
 	return dissect_ndr_counted_string_helper(
-		tvb, offset, pinfo, tree, drep, di->hf_index, 1, FALSE);
+		tvb, offset, pinfo, tree, drep, di->hf_index, 0, FALSE);
+}
+
+/* Dissect a counted byte_array as a callback to dissect_ndr_pointer_cb() */
+
+static gint ett_nt_counted_byte_array = -1;
+
+/* Dissect a counted byte array in-line. */
+
+int
+dissect_ndr_counted_byte_array(tvbuff_t *tvb, int offset,
+			       packet_info *pinfo, proto_tree *tree,
+			       char *drep, int hf_index)
+{
+	dcerpc_info *di = pinfo->private_data;
+	proto_item *item;
+	proto_tree *subtree;
+	guint16 len, size;
+
+        /* Structure starts with short, but is aligned for longs */
+
+	ALIGN_TO_4_BYTES;
+
+	if (di->conformant_run)
+		return offset;
+
+	item = proto_tree_add_text(tree, tvb, offset, 0, 
+		proto_registrar_get_name(hf_index));
+
+	subtree = proto_item_add_subtree(item, ett_nt_counted_byte_array);
+	
+	/* 
+           struct {
+               short len;
+               short size;
+               [size_is(size), length_is(len), ptr] unsigned char *string;
+           } WHATEVER_THIS_IS_CALLED;
+
+         */
+
+	offset = dissect_ndr_uint16(tvb, offset, pinfo, subtree, drep,
+			hf_nt_cs_len, &len);
+
+	offset = dissect_ndr_uint16(tvb, offset, pinfo, subtree, drep,
+			hf_nt_cs_size, &size);	
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, subtree, drep,
+			dissect_ndr_char_cvstring, NDR_POINTER_UNIQUE,
+			"Byte Array", hf_index);
+
+	return offset;
 }
 
 /* This function is used to dissect a DCERPC encoded 64 bit time value.
@@ -716,6 +771,7 @@ void dcerpc_smb_init(int proto_dcerpc)
 	static gint *ett[] = {
 		&ett_nt_unicode_string,
 		&ett_nt_counted_string,
+		&ett_nt_counted_byte_array,
 		&ett_nt_policy_hnd,
 	};
 

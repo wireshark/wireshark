@@ -3,7 +3,7 @@
  * Copyright 2001,2003 Tim Potter <tpot@samba.org>
  *   2002 Added all command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-samr.c,v 1.75 2003/02/07 22:44:53 guy Exp $
+ * $Id: packet-dcerpc-samr.c,v 1.76 2003/02/08 09:41:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -649,7 +649,7 @@ samr_dissect_pointer_STRING(tvbuff_t *tvb, int offset,
 	}
 
 	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
-			di->hf_index, 1);
+			di->hf_index, 0);
 	return offset;
 }
 
@@ -924,9 +924,9 @@ samr_dissect_ASCII_DISPINFO(tvbuff_t *tvb, int offset,
 			hf_samr_rid, NULL);
 	offset = dissect_ndr_nt_acct_ctrl(tvb, offset, pinfo, tree, drep);
 	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
-			hf_samr_acct_name, 1);
+			hf_samr_acct_name, 0);
 	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
-			hf_samr_acct_desc, 1);
+			hf_samr_acct_desc, 0);
 
 	proto_item_set_len(item, offset-old_offset);
 	return offset;
@@ -1053,7 +1053,7 @@ samr_dissect_get_display_enumeration_index_rqst(tvbuff_t *tvb, int offset,
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", level %d", level);
 
 	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
-			hf_samr_acct_name, 1);
+			hf_samr_acct_name, 0);
 
 	return offset;
 }
@@ -1936,7 +1936,7 @@ samr_dissect_unicode_change_password_user2_rqst(tvbuff_t *tvb, int offset,
 
         offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			dissect_ndr_counted_string_ptr, NDR_POINTER_REF,
-			"Account Name:", hf_samr_acct_name);
+			"Account Name", hf_samr_acct_name);
 
         offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			samr_dissect_NT_PASSCHANGE_BLOCK, NDR_POINTER_UNIQUE,
@@ -2599,7 +2599,7 @@ samr_dissect_lookup_domain_rqst(tvbuff_t *tvb, int offset,
 
         offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			dissect_ndr_counted_string_ptr, NDR_POINTER_REF,
-			"Domain:", hf_samr_domain);
+			"Domain", hf_samr_domain);
 
 	return offset;
 }
@@ -3169,7 +3169,7 @@ samr_dissect_USER_INFO_1(tvbuff_t *tvb, int offset,
 	}
 
 	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
-				hf_samr_acct_name, 1);
+				hf_samr_acct_name, 0);
 	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
 				hf_samr_full_name, 0);
 	offset = dissect_ndr_nt_acct_ctrl(tvb, offset, pinfo, tree, drep);
@@ -3488,25 +3488,25 @@ samr_dissect_USER_INFO_21(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_nt_NTTIME(tvb, offset, pinfo, tree, drep,
 				hf_samr_pwd_must_change_time);
 	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
-				hf_samr_acct_name, 3);
+				hf_samr_acct_name, 2);
 	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
-				hf_samr_full_name, 1);
+				hf_samr_full_name, 0);
 	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
-				hf_samr_home, 1);
+				hf_samr_home, 0);
 	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
-				hf_samr_home_drive, 1);
+				hf_samr_home_drive, 0);
 	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
-				hf_samr_script, 1);
+				hf_samr_script, 0);
 	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
-				hf_samr_profile, 1);
+				hf_samr_profile, 0);
 	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
-				hf_samr_acct_desc, 1);
+				hf_samr_acct_desc, 0);
 	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
-				hf_samr_workstations, 1);
+				hf_samr_workstations, 0);
 	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
-				hf_samr_comment, 1);
+				hf_samr_comment, 0);
 	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
-				hf_samr_parameters, 1);
+				hf_samr_parameters, 0);
 	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
 				hf_samr_unknown_string, 0);
 	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
@@ -4021,7 +4021,7 @@ samr_dissect_LOOKUP_NAMES_name(tvbuff_t *tvb, int offset,
 			char *drep)
 {
 	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
-				hf_samr_acct_name, 2);
+				hf_samr_acct_name, 1);
 	return offset;
 }
 

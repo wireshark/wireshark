@@ -3,7 +3,7 @@
  * Copyright 2001,2003 Tim Potter <tpot@samba.org>
  *  2002 structure and command dissectors by Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-netlogon.c,v 1.73 2003/02/07 22:44:52 guy Exp $
+ * $Id: packet-dcerpc-netlogon.c,v 1.74 2003/02/08 09:41:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -654,11 +654,11 @@ netlogon_dissect_NETWORK_INFO(tvbuff_t *tvb, int offset,
 	offset = netlogon_dissect_CHALLENGE(tvb, offset,
 		pinfo, tree, drep);
 
-	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_nt_chal_resp, 0);
+	offset = dissect_ndr_counted_byte_array(tvb, offset, pinfo, tree, drep,
+		hf_netlogon_nt_chal_resp);
 
-	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_lm_chal_resp, 0);
+	offset = dissect_ndr_counted_byte_array(tvb, offset, pinfo, tree, drep,
+		hf_netlogon_lm_chal_resp);
 
 	return offset;
 }
@@ -2490,7 +2490,7 @@ netlogon_dissect_PRIV_NAME(tvbuff_t *tvb, int offset,
 			char *drep)
 {
 	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_privilege_name, 1);
+		hf_netlogon_privilege_name, 0);
 
 	return offset;
 }
