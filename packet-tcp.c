@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.153 2002/08/21 21:25:23 tpot Exp $
+ * $Id: packet-tcp.c,v 1.154 2002/08/21 23:57:38 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -82,6 +82,7 @@ static int hf_tcp_checksum = -1;
 static int hf_tcp_checksum_bad = -1;
 static int hf_tcp_len = -1;
 static int hf_tcp_urgent_pointer = -1;
+static int hf_tcp_analysis_flags = -1;
 static int hf_tcp_analysis_acks_frame = -1;
 static int hf_tcp_analysis_ack_rtt = -1;
 static int hf_tcp_analysis_retransmission = -1;
@@ -95,6 +96,7 @@ static gint ett_tcp_options = -1;
 static gint ett_tcp_option_sack = -1;
 static gint ett_tcp_segments = -1;
 static gint ett_tcp_analysis = -1;
+static gint ett_tcp_analysis_faults = -1;
 
 static dissector_table_t subdissector_table;
 static heur_dissector_list_t heur_subdissector_list;
@@ -521,28 +523,36 @@ tcp_print_sequence_number_analysis(packet_info *pinfo, tvbuff_t *tvb, proto_tree
 		proto_tree_add_time(tree, hf_tcp_analysis_ack_rtt, 
 		tvb, 0, 0, &ta->ts);
 	}
-	if( ta->flags&TCP_A_RETRANSMISSION ){
-		proto_tree_add_boolean_format(tree, hf_tcp_analysis_retransmission, tvb, 0, 0, TRUE, "This frame is a (suspected) retransmission");
-		if(check_col(pinfo->cinfo, COL_INFO)){
-			col_prepend_fstr(pinfo->cinfo, COL_INFO, "[TCP Retransmission] ");
+
+	if(ta->flags){
+		proto_item *flags_item=NULL;
+		proto_tree *flags_tree=NULL;
+
+		flags_item = proto_tree_add_item(tree, hf_tcp_analysis_flags, tvb, 0, -1, FALSE);
+		flags_tree=proto_item_add_subtree(flags_item, ett_tcp_analysis);
+		if( ta->flags&TCP_A_RETRANSMISSION ){
+			proto_tree_add_boolean_format(flags_tree, hf_tcp_analysis_retransmission, tvb, 0, 0, TRUE, "This frame is a (suspected) retransmission");
+			if(check_col(pinfo->cinfo, COL_INFO)){
+				col_prepend_fstr(pinfo->cinfo, COL_INFO, "[TCP Retransmission] ");
+			}
 		}
-	}
-	if( ta->flags&TCP_A_LOST_PACKET ){
-		proto_tree_add_boolean_format(tree, hf_tcp_analysis_lost_packet, tvb, 0, 0, TRUE, "A segment before this frame was lost");
-		if(check_col(pinfo->cinfo, COL_INFO)){
-			col_prepend_fstr(pinfo->cinfo, COL_INFO, "[TCP Previous segment lost] ");
+		if( ta->flags&TCP_A_LOST_PACKET ){
+			proto_tree_add_boolean_format(flags_tree, hf_tcp_analysis_lost_packet, tvb, 0, 0, TRUE, "A segment before this frame was lost");
+			if(check_col(pinfo->cinfo, COL_INFO)){
+				col_prepend_fstr(pinfo->cinfo, COL_INFO, "[TCP Previous segment lost] ");
+			}
 		}
-	}
-	if( ta->flags&TCP_A_ACK_LOST_PACKET ){
-		proto_tree_add_boolean_format(tree, hf_tcp_analysis_ack_lost_packet, tvb, 0, 0, TRUE, "This frame ACKs a segment we have not seen (lost?)");
-		if(check_col(pinfo->cinfo, COL_INFO)){
-			col_prepend_fstr(pinfo->cinfo, COL_INFO, "[TCP ACKed lost segment] ");
+		if( ta->flags&TCP_A_ACK_LOST_PACKET ){
+			proto_tree_add_boolean_format(flags_tree, hf_tcp_analysis_ack_lost_packet, tvb, 0, 0, TRUE, "This frame ACKs a segment we have not seen (lost?)");
+			if(check_col(pinfo->cinfo, COL_INFO)){
+				col_prepend_fstr(pinfo->cinfo, COL_INFO, "[TCP ACKed lost segment] ");
+			}
 		}
-	}
-	if( ta->flags&TCP_A_KEEP_ALIVE ){
-		proto_tree_add_boolean_format(tree, hf_tcp_analysis_keep_alive, tvb, 0, 0, TRUE, "This is a TCP keep-alive segment");
-		if(check_col(pinfo->cinfo, COL_INFO)){
-			col_prepend_fstr(pinfo->cinfo, COL_INFO, "[TCP Keep-Alive] ");
+		if( ta->flags&TCP_A_KEEP_ALIVE ){
+			proto_tree_add_boolean_format(flags_tree, hf_tcp_analysis_keep_alive, tvb, 0, 0, TRUE, "This is a TCP keep-alive segment");
+			if(check_col(pinfo->cinfo, COL_INFO)){
+				col_prepend_fstr(pinfo->cinfo, COL_INFO, "[TCP Keep-Alive] ");
+			}
 		}
 	}
 
@@ -2036,6 +2046,10 @@ proto_register_tcp(void)
 		{ "Bad Checksum",		"tcp.checksum_bad", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 			"", HFILL }},
 
+		{ &hf_tcp_analysis_flags,
+		{ "TCP Analysis Flags",		"tcp.analysis.flags", FT_NONE, BASE_NONE, NULL, 0x0,
+			"This frame has some of the TCP analysis flags set", HFILL }},
+
 		{ &hf_tcp_analysis_retransmission,
 		{ "",		"tcp.analysis.retransmission", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 			"This frame is a suspected TCP retransmission", HFILL }},
@@ -2074,6 +2088,7 @@ proto_register_tcp(void)
 		&ett_tcp_options,
 		&ett_tcp_option_sack,
 		&ett_tcp_segments,
+		&ett_tcp_analysis_faults,
 		&ett_tcp_analysis
 	};
 	module_t *tcp_module;
