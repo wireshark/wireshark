@@ -36,6 +36,8 @@
 
 #include "packet-ber.h"
 #include "packet-h248.h"
+#include "packet-isup.h"
+#include "packet-q931.h"
 
 #define PNAME  "H.248 MEGACO"
 #define PSNAME "H248"
@@ -45,10 +47,16 @@
 #define GATEWAY_CONTROL_PROTOCOL_USER_ID 14
 
 /* Initialize the protocol and registered fields */
-static int proto_h248 = -1;
-static int hf_h248_mtpaddress_ni = -1;
-static int hf_h248_mtpaddress_pc = -1;
-static int hf_h248_package_name = -1;
+static int proto_h248				= -1;
+static int proto_h248_annex_C		= -1;
+static int hf_h248_mtpaddress_ni	= -1;
+static int hf_h248_mtpaddress_pc	= -1;
+static int hf_h248_package_name		= -1;
+static int hf_h248_package_bcp_BNCChar_PDU = -1;
+static int hf_h248_package_annex_C_TMR = -1;
+static int hf_h248_package_annex_C_USI = -1;
+static int hf_h248_package_annex_C_NSAP = -1;
+static int hf_h248_package_annex_C_BIR = -1;
 #include "packet-h248-hf.c"
 
 /* Initialize the subtree pointers */
@@ -218,6 +226,63 @@ static const value_string package_name_vals[] = {
 	{0,     NULL}
 };
 
+static void 
+dissect_h248_annex_C_PDU(gboolean implicit_tag, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 name_minor) {
+	int offset = 0;
+	tvbuff_t *new_tvb;
+
+	switch ( name_minor ){
+		case 0x1001: /* Media */
+			proto_tree_add_text(tree, tvb, offset, -1,"Media");
+			break;
+		case 0x3002: /* BIR */
+			offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_h248_package_annex_C_BIR, &new_tvb);
+			break;
+		case 0x3003: /* NSAP */
+			offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_h248_package_annex_C_NSAP, &new_tvb);
+			dissect_nsap(new_tvb, 0,tvb_length_remaining(new_tvb, 0), tree);
+			break;
+		case 0x9001: /* TMR */
+			offset = dissect_ber_integer(pinfo, tree, tvb, offset, hf_h248_package_annex_C_TMR, NULL);
+			break;
+		case 0x9023: /* User Service Information */
+			offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_h248_package_annex_C_USI, &new_tvb);
+			dissect_q931_bearer_capability_ie(new_tvb, 0, 3, tree);
+			break;
+		default:
+			proto_tree_add_text(tree, tvb, offset, -1,"PropertyID not decoded(yet) 0x%x",name_minor);
+			break;
+	}
+}
+static const value_string BNCChar_vals[] = {
+  {   1, "aal1" },
+  {   2, "aal2" },
+  {   3, "aal1struct" },
+  {   4, "ipRtp" },
+  {   5, "tdm" },
+  { 0, NULL }
+};
+static void
+dissect_h248_package_data(gboolean implicit_tag, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,guint16 name_major, guint16 name_minor){
+
+guint offset=0;
+
+	switch ( name_major ){
+		case 0x0000: /* Media stream properties H.248.1 Annex C */
+			dissect_h248_annex_C_PDU(implicit_tag, tvb, pinfo, tree, name_minor);
+			break;
+		case 0x0001: /* g H.248.1 Annex E */
+			proto_tree_add_text(tree, tvb, 0, tvb_length_remaining(tvb, offset), "H.248: Dissector for Package/ID:0x%04x not implemented (yet).", name_major);
+			break;
+		case 0x001e: /* g H.248.1 Annex E */
+			offset = dissect_ber_integer(pinfo, tree, tvb, offset, hf_h248_package_bcp_BNCChar_PDU, NULL);
+			break;
+		default:
+			proto_tree_add_text(tree, tvb, 0, tvb_length_remaining(tvb, offset), "H.248: Dissector for Package/ID:0x%04x not implemented (yet).", name_major);
+			break;
+	}
+
+}
 static guint32 packageandid;
 
 static int 
@@ -249,10 +314,13 @@ dissect_h248_PkgdName(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_i
 
 static int
 dissect_h248_PropertyID(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index) {
+
 	guint8 class;
 	gboolean pc, ind;
 	guint32 tag;
 	guint32 len;
+	guint16 name_major;
+	guint16 name_minor;
 	int old_offset, end_offset;
 	tvbuff_t *next_tvb;
 
@@ -268,14 +336,17 @@ dissect_h248_PropertyID(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet
 	}
 
 
-	next_tvb = tvb_new_subset(tvb, offset, len, len);
-
-	if(!dissector_try_port(h248_package_bin_dissector_table, packageandid, next_tvb, pinfo, tree)){
+	next_tvb = tvb_new_subset(tvb, offset , len , len );
+	name_major = packageandid >> 16;
+	name_minor = packageandid & 0xffff;
+/*
+	if(!dissector_try_port(h248_package_bin_dissector_table, name_major, next_tvb, pinfo, tree)){
 		proto_tree_add_text(tree, next_tvb, 0, tvb_length_remaining(tvb, offset), "H.248: Dissector for Package/ID:0x%08x not implemented (yet).", packageandid);
 
 		offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, old_offset, hf_index, NULL);
 	}
-
+*/
+	dissect_h248_package_data(implicit_tag, next_tvb, pinfo, tree, name_major, name_minor);
 	return end_offset;
 }
 
@@ -334,6 +405,8 @@ dissect_h248(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   
 }
 
+
+
 /*--- proto_register_h248 ----------------------------------------------*/
 void proto_register_h248(void) {
 
@@ -348,6 +421,27 @@ void proto_register_h248(void) {
     { &hf_h248_package_name, {
       "Package", "h248.package_name", FT_UINT32, BASE_HEX,
       VALS(package_name_vals), 0, "Package", HFILL }},
+	{ &hf_h248_package_bcp_BNCChar_PDU,
+      { "BNCChar", "h248.package_bcp.BNCChar",
+        FT_UINT32, BASE_DEC, VALS(BNCChar_vals), 0,
+        "BNCChar", HFILL }},
+	{ &hf_h248_package_annex_C_TMR,
+      { "TMR", "h248.package_annex_C.TMR",
+        FT_UINT32, BASE_DEC, VALS(isup_transmission_medium_requirement_value), 0,
+        "BNCChar", HFILL }},
+	{ &hf_h248_package_annex_C_USI,
+      { "USI", "h248.package_annex_C.USI",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "User Service Information", HFILL }},
+	{ &hf_h248_package_annex_C_BIR,
+      { "BIR", "h248.package_annex_C.BIR",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "BIR", HFILL }},
+	{ &hf_h248_package_annex_C_NSAP,
+      { "NSAP", "h248.package_annex_C.NSAP",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "NSAP", HFILL }},
+
 #include "packet-h248-hfarr.c"
   };
 
@@ -361,7 +455,6 @@ void proto_register_h248(void) {
 
   /* Register protocol */
   proto_h248 = proto_register_protocol(PNAME, PSNAME, PFNAME);
-
   register_dissector("h248", dissect_h248, proto_h248);
 
   /* Register fields and subtrees */
@@ -369,7 +462,7 @@ void proto_register_h248(void) {
   proto_register_subtree_array(ett, array_length(ett));
 
   /* register a dissector table packages can attach to */
-  h248_package_bin_dissector_table = register_dissector_table("h248.package.bin", "Binary H.248 Package Dissectors", FT_UINT32, BASE_HEX);
+  h248_package_bin_dissector_table = register_dissector_table("h248.package.bin", "Binary H.248 Package Dissectors", FT_UINT16,BASE_HEX);
 
 }
 
