@@ -2384,9 +2384,12 @@ dissect_control_05hpr(tvbuff_t *tvb, proto_tree *tree, int hpr,
 		if (len) {
 			dissect_control(tvb, offset, len, tree, hpr, parse);
 			pad = (len+3) & 0xfffc;
-			if (pad > len)
+            if (pad > len) {
+                /* XXX - fix this, ensure tvb is large enough for pad */
+                tvb_ensure_bytes_exist(tvb, offset+len, pad-len);
 				proto_tree_add_text(tree, tvb, offset+len,
 				    pad-len, "Padding");
+            }
 			offset += pad;
 		} else {
 			return;
