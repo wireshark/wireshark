@@ -2,7 +2,7 @@
  * Routines for snooping SID to name mappings
  * Copyright 2003, Ronnie Sahlberg
  *
- * $Id: packet-smb-sidsnooping.c,v 1.4 2003/05/21 10:39:19 sahlberg Exp $
+ * $Id: packet-smb-sidsnooping.c,v 1.5 2003/05/22 11:03:15 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -39,6 +39,7 @@
 #include "packet-smb-sidsnooping.h"
 
 static int hf_lsa = -1;
+static int hf_lsa_info_level = -1;
 static int hf_lsa_opnum = -1;
 static int hf_lsa_domain = -1;
 static int hf_lsa_domain_sid = -1;
@@ -53,7 +54,7 @@ typedef struct _sid_name {
 static GMemChunk *sid_name_chunk = NULL;
 static int sid_name_init_count = 200;
 
-static void *lsa_QueryInfoPolicy_l3_reply_flag = NULL;
+static void *lsa_policy_information_flag = NULL;
 
 
 char *
@@ -89,34 +90,46 @@ add_sid_name_mapping(char *sid, char *name)
 }
 
 /*
- * QueryInfoPolicy level 3 contains both a domain name and a sid
- * which we can use to map a sid into a name.
+ * PolicyInformation :
+ * level  3 : PRIMARY_DOMAIN_INFO lsa.domain_sid -> lsa.domain
+ * level 12 : DNS_DOMAIN_INFO     lsa.domain_sid -> lsa.domain
  */
 static int
-lsa_QueryInfoPolicy_l3_reply(void *dummy _U_, packet_info *pinfo _U_, epan_dissect_t *edt, void *pri _U_)
+lsa_policy_information(void *dummy _U_, packet_info *pinfo _U_, epan_dissect_t *edt, void *pri _U_)
 {
-/*	dcerpc_info *ri=pri;*/
-	GPtrArray *gp_sid;
-	GPtrArray *gp_domain;
+	GPtrArray *gp;
 	field_info *fi;
 	char *domain;
 	char *sid;
+	int info_level;
 
-	gp_domain=proto_get_finfo_ptr_array(edt->tree, hf_lsa_domain);
-	if(!gp_domain || gp_domain->len!=1){
+	gp=proto_get_finfo_ptr_array(edt->tree, hf_lsa_info_level);
+	if(!gp || gp->len!=1){
 		return 0;
 	}
-	fi=gp_domain->pdata[0];
-	domain=fi->value->value.string;
+	fi=gp->pdata[0];
+	info_level=fi->value->value.integer;
 
-	gp_sid=proto_get_finfo_ptr_array(edt->tree, hf_lsa_domain_sid);
-	if(!gp_sid || gp_sid->len!=1){
-		return 0;
+	switch(info_level){
+	case 3:
+	case 12:
+		gp=proto_get_finfo_ptr_array(edt->tree, hf_lsa_domain);
+		if(!gp || gp->len!=1){
+			return 0;
+		}
+		fi=gp->pdata[0];
+		domain=fi->value->value.string;
+
+		gp=proto_get_finfo_ptr_array(edt->tree, hf_lsa_domain_sid);
+		if(!gp || gp->len!=1){
+			return 0;
+		}
+		fi=gp->pdata[0];
+		sid=fi->value->value.string;
+
+		add_sid_name_mapping(sid, domain);
+		break;
 	}
-	fi=gp_sid->pdata[0];
-	sid=fi->value->value.string;
-
-	add_sid_name_mapping(sid, domain);
 	return 0;
 }
 
@@ -164,9 +177,9 @@ sid_snooping_init(void)
 	header_field_info *hfi;
 	GString *error_string;
 
-	if(lsa_QueryInfoPolicy_l3_reply_flag){
-		remove_tap_listener(lsa_QueryInfoPolicy_l3_reply_flag);
-		lsa_QueryInfoPolicy_l3_reply_flag=NULL;
+	if(lsa_policy_information_flag){
+		remove_tap_listener(lsa_policy_information_flag);
+		lsa_policy_information_flag=NULL;
 	}
 
 	if(sid_name_table){
@@ -208,18 +221,23 @@ sid_snooping_init(void)
 		hf_lsa_domain=hfi->id;
 	}
 
+	hfi=proto_registrar_get_byname("lsa.info.level");
+	if(hfi){
+		hf_lsa_info_level=hfi->id;
+	}
 
 
-	error_string=register_tap_listener("dcerpc", lsa_QueryInfoPolicy_l3_reply, "dcerpc.pkt_type==2 and lsa.opnum==7 and lsa.info.level==3 and lsa.domain and lsa.domain_sid", NULL, lsa_QueryInfoPolicy_l3_reply, NULL);
+
+	error_string=register_tap_listener("dcerpc", lsa_policy_information, "lsa.policy_information and ( lsa.info.level or lsa.domain or lsa.domain_sid )", NULL, lsa_policy_information, NULL);
 	if(error_string){
 		/* error, we failed to attach to the tap. clean up */
 
-		fprintf(stderr, "tethereal: Couldn't register proto_reg_handoff_smb_sidsnooping()/lsa_QueryInfoPolicy_l3_reply tap: %s\n",
+		fprintf(stderr, "tethereal: Couldn't register proto_reg_handoff_smb_sidsnooping()/lsa_policy_information tap: %s\n",
 		    error_string->str);
 		g_string_free(error_string, TRUE);
 		exit(1);
 	}
-	lsa_QueryInfoPolicy_l3_reply_flag=lsa_QueryInfoPolicy_l3_reply;
+	lsa_policy_information_flag=lsa_policy_information;
 }
 
 void

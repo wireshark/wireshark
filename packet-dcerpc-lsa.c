@@ -3,7 +3,7 @@
  * Copyright 2001,2003 Tim Potter <tpot@samba.org>
  *  2002  Added LSA command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-lsa.c,v 1.80 2003/05/21 10:39:19 sahlberg Exp $
+ * $Id: packet-dcerpc-lsa.c,v 1.81 2003/05/22 11:03:15 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -43,6 +43,7 @@ static int proto_dcerpc_lsa = -1;
 static int hf_lsa_opnum = -1;
 static int hf_lsa_rc = -1;
 static int hf_lsa_hnd = -1;
+static int hf_lsa_policy_information = -1;
 static int hf_lsa_server = -1;
 static int hf_lsa_controller = -1;
 static int hf_lsa_obj_attr = -1;
@@ -70,6 +71,7 @@ static int hf_lsa_size16 = -1;
 static int hf_lsa_size_needed = -1;
 static int hf_lsa_max_count = -1;
 static int hf_lsa_index = -1;
+static int hf_lsa_fqdomain = -1;
 static int hf_lsa_domain = -1;
 static int hf_lsa_domain_sid = -1;
 static int hf_lsa_acct = -1;
@@ -1011,11 +1013,11 @@ lsa_dissect_POLICY_DNS_DOMAIN_INFO(tvbuff_t *tvb, int offset,
 
 	/* name */
 	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
-		hf_lsa_name, 0);
+		hf_lsa_domain, 0);
 
 	/* domain */
 	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
-		hf_lsa_domain, 0);
+		hf_lsa_fqdomain, 0);
 
 	/* forest */
 	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
@@ -1026,7 +1028,7 @@ lsa_dissect_POLICY_DNS_DOMAIN_INFO(tvbuff_t *tvb, int offset,
 		pinfo, tree, drep);
 
 	/* SID pointer */
-	offset = dissect_ndr_nt_PSID(tvb, offset, pinfo, tree, drep, -1);
+	offset = dissect_ndr_nt_PSID(tvb, offset, pinfo, tree, drep, hf_lsa_domain_sid);
 
 	proto_item_set_len(item, offset-old_offset);
 	return offset;
@@ -1042,8 +1044,8 @@ lsa_dissect_POLICY_INFORMATION(tvbuff_t *tvb, int offset,
 	guint16 level;
 
 	if(parent_tree){
-		item = proto_tree_add_text(parent_tree, tvb, offset, -1,
-			"POLICY_INFO:");
+		item = proto_tree_add_item(parent_tree, hf_lsa_policy_information, tvb, offset, 0, FALSE);
+
 		tree = proto_item_add_subtree(item, ett_lsa_policy_info);
 	}
 
@@ -4244,6 +4246,10 @@ proto_register_dcerpc_lsa(void)
 		{ "Max Count", "lsa.max_count", FT_UINT32, BASE_DEC,
 		NULL, 0x0, "", HFILL }},
 
+	{ &hf_lsa_fqdomain,
+		{ "FQDN", "lsa.fqdn_domain", FT_STRING, BASE_NONE,
+		NULL, 0x0, "Fully Qualified Domain Name", HFILL }},
+
 	{ &hf_lsa_domain,
 		{ "Domain", "lsa.domain", FT_STRING, BASE_NONE,
 		NULL, 0x0, "Domain", HFILL }},
@@ -4387,6 +4393,10 @@ proto_register_dcerpc_lsa(void)
 	{ &hf_lsa_rights,
 		{ "Rights", "lsa.rights", FT_STRING, BASE_NONE,
 		NULL, 0x0, "Account Rights", HFILL }},
+
+	{ &hf_lsa_policy_information,
+		{ "POLICY INFO", "lsa.policy_information", FT_NONE, BASE_NONE,
+		NULL, 0x0, "Policy Information union", HFILL }},
 
 	{ &hf_lsa_attr,
 		{ "Attr", "lsa.attr", FT_UINT64, BASE_HEX,
