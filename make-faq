@@ -1,9 +1,9 @@
 #!/bin/sh
 #
-# $Id: make-faq,v 1.7 2004/02/01 02:10:34 jmayer Exp $
+# $Id: make-faq,v 1.8 2004/02/18 00:31:22 jmayer Exp $
 #
 # Make-faq - Creates a plain text version of the Ethereal FAQ
-#	from http://www.ethereal.com/faq
+#	from http://www.ethereal.com/faq.html
 
 rm -f FAQ
 cat >FAQ <<EOF
@@ -11,18 +11,19 @@ cat >FAQ <<EOF
    The Ethereal FAQ
 
    Note: This is just an ASCII snapshot of the faq and may not be up to
-         date. Please go to http://www.ethereal.com/faq for the up to
-         date version. The version of this snapshot can be found at the
-         end of this document.
+         date. Please go to http://www.ethereal.com/faq.html for the up
+         to date version. The version of this snapshot can be found at
+         the end of this document.
 
    INDEX
 
 EOF
 
-lynx -dump -nolist "http://www.ethereal.com/faq" | sed -e '1,/INDEX/d' >>FAQ
+lynx -dump -nolist "http://www.ethereal.com/faq.html" | sed -e '1,/^Index/d' >>FAQ
 
 echo
 echo "Now verfiy everything is OK and copy FAQ to help/faq.txt"
+echo "To verify run: diff -u help/faq.txt FAQ"
 echo
 
 exit 0

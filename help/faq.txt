@@ -2,13 +2,14 @@
    The Ethereal FAQ
 
    Note: This is just an ASCII snapshot of the faq and may not be up to
-         date. Please go to http://www.ethereal.com/faq for the up to
-         date version. The version of this snapshot can be found at the
-         end of this document.
+         date. Please go to http://www.ethereal.com/faq.html for the up
+         to date version. The version of this snapshot can be found at
+         the end of this document.
 
    INDEX
 
-   General Questions:
+
+General Questions:
 
    1.1 Where can I get help?
 
@@ -23,7 +24,7 @@
 
    1.6 How do you pronounce Ethereal? Where did the name come from?
 
-   Downloading Ethereal:
+Downloading Ethereal:
 
    2.1 I downloaded the Win32 installer, but when I try to run it, I get
    an error.
@@ -31,12 +32,12 @@
    2.2 When I try to download the WinPcap driver and library, I can't get
    to the WinPcap Web site.
 
-   Installing Ethereal:
+Installing Ethereal:
 
    3.1 I installed an Ethereal RPM, but Ethereal doesn't seem to be
    installed; only Tethereal is installed.
 
-   Building Ethereal:
+Building Ethereal:
 
    4.1 The configure script can't find pcap.h or bpf.h, but I have
    libpcap installed.
@@ -59,7 +60,7 @@
    4.6 I'm trying to build Ethereal 0.10.0a on Windows; why is the the
    build failing with an error saying it can't find "Makefile.nmake"?
 
-   Using Ethereal:
+Using Ethereal:
 
    5.1 When I use Ethereal to capture packets, I see only packets to and
    from my machine, or I'm not seeing all the traffic I'm expecting to
@@ -204,7 +205,8 @@
    5.42 How can I search for, or filter, packets that have a particular
    string anywhere in them? 
 
-   GENERAL QUESTIONS 
+General Questions
+
    Q 1.1: Where can I get help?
 
    A: Support is available on the ethereal-users mailing list.
@@ -703,7 +705,7 @@
    whether it can capture on them"; we expect that it will be able to
    capture on many of them, but we haven't tried it ourselves - if you
    try one of those types and it works, please send an update to
-   ethereal-web[AT]ethereal.com).
+   _EWEB_MAILTO).
 
    It can also read a variety of capture file formats, including:
      * libpcap/tcpdump
@@ -743,7 +745,8 @@
    consideration, Ethereal seemed like an appropriate name for an
    Ethernet analyzer.
 
-   DOWNLOADING ETHEREAL 
+Downloading Ethereal
+
    Q 2.1: I downloaded the Win32 installer, but when I try to run it, I
    get an error.
 
@@ -770,7 +773,8 @@
    the server. You should try again later, or try the local mirror or the
    Wiretapped.net mirror.
 
-   INSTALLING ETHEREAL 
+Installing Ethereal
+
    Q 3.1: I installed an Ethereal RPM, but Ethereal doesn't seem to be
    installed; only Tethereal is installed.
 
@@ -786,7 +790,8 @@
 
    Find the ethereal-gnome or ethereal-gtk+ RPM, and install that also.
 
-   BUILDING ETHEREAL 
+Building Ethereal
+
    Q 4.1: The configure script can't find pcap.h or bpf.h, but I have
    libpcap installed.
 
@@ -800,7 +805,7 @@
    strange location. If this is the case, you may have to tweak
    aclocal.m4.
 
-   Q 4.2: Why do I get the error 
+   Q 4.2: Why do I get the error
 
      dftest_DEPENDENCIES was already defined in condition TRUE, which
      implies condition HAVE_PLUGINS_TRUE
@@ -813,7 +818,7 @@
    problem; upgrade to a later version of automake (1.6 or later).
 
    Q 4.3: The link fails with a number of "Output line too long."
-   messages followed by linker errors. 
+   messages followed by linker errors.
 
    A: The version of the sed command on your system is incapable of
    handling very long lines. On Solaris, for example, /usr/bin/sed has a
@@ -827,7 +832,7 @@
    searching the directory with the version of sed that came with the OS
    should make the problem go away.
 
-   Q 4.4: The link fails on Solaris because plugin_list is undefined. 
+   Q 4.4: The link fails on Solaris because plugin_list is undefined.
 
    A: This appears to be due to a problem with some versions of the GTK+
    and GLib packages from www.sunfreeware.org; un-install those packages,
@@ -841,7 +846,7 @@
    mentioned.)
 
    Q 4.5: The build fails on Windows because of conflicts between
-   winsock.h and winsock2.h. 
+   winsock.h and winsock2.h.
 
    A: As of Ethereal 0.9.5, you must install WinPcap 2.3 or later, and
    the corresponding version of the developer's pack, in order to be able
@@ -866,7 +871,8 @@
    Makefile.nmake?rev=1.5. Put it into "tools\Makefile.nmake" and try the
    build again.
 
-   USING ETHEREAL 
+Using Ethereal
+
    Q 5.1: When I use Ethereal to capture packets, I see only packets to
    and from my machine, or I'm not seeing all the traffic I'm expecting
    to see from or to the machine I'm trying to monitor.
@@ -1016,7 +1022,7 @@
    interface on my machine not show up in the list of interfaces in the
    "Interface:" field in the dialog box popped up by "Capture->Start",
    and/or why does Ethereal give me an error if I try to capture on that
-   interface? 
+   interface?
 
    A: If you are running Ethereal on Windows NT 4.0, Windows 2000,
    Windows XP, or Windows Server, and this is the first time you have run
@@ -1112,16 +1118,26 @@
    there. If not, then see the WinPcap support page (or the local mirror
    of that page) - check the "Submitting bugs" section.
 
+   You may also want to ask the ethereal-users@ethereal.com and the
+   winpcap-users@winpcap.polito.it mailing lists to see if anybody
+   happens to know about the problem and know a workaround or fix for the
+   problem. (Note that you will have to subscribe to that list in order
+   to be allowed to mail to it; see the WinPcap support page, or the
+   local mirror of that page, for information on the mailing list.) In
+   your mail, please give full details of the problem, as described
+   above, and also indicate that the problem occurs with WinDump, not
+   just with Ethereal.
+
    Q 5.5: I'm running Ethereal on Windows; why do no network interfaces
    show up in the list of interfaces in the "Interface:" field in the
-   dialog box popped up by "Capture->Start"? 
+   dialog box popped up by "Capture->Start"?
 
    A: This is really the same question as the previous one; see the
    response to that question.
 
    Q 5.6: I'm running Ethereal on Windows; why doesn't my serial
    port/ADSL modem/ISDN modem/show up in the list of interfaces in the
-   "Interface:" field in the dialog box popped up by "Capture->Start"? 
+   "Interface:" field in the dialog box popped up by "Capture->Start"?
 
    A: All of those devices support Internet access using the
    Point-to-Point (PPP) protocol; WinPcap 3.0 doesn't support PPP
@@ -1135,7 +1151,7 @@
    network interface on my machine not show up in the list of interfaces
    in the "Interface:" field in the dialog box popped up by
    "Capture->Start", and/or why does Ethereal give me an error if I try
-   to capture on that interface? 
+   to capture on that interface?
 
    A: You may need to run Ethereal from an account with sufficient
    privileges to capture packets, such as the super-user account. Only
@@ -1217,12 +1233,12 @@
 
    Q 5.8: I'm running Ethereal on a UNIX-flavored OS; why do no network
    interfaces show up in the list of interfaces in the "Interface:" field
-   in the dialog box popped up by "Capture->Start"? 
+   in the dialog box popped up by "Capture->Start"?
 
    A: This is really the same question as the previous one; see the
    response to that question.
 
-   Q 5.9: Can Ethereal capture on (my T1/E1 line, SS7 links, etc.)? 
+   Q 5.9: Can Ethereal capture on (my T1/E1 line, SS7 links, etc.)?
 
    A: Ethereal can only capture on devices supported by libpcap/WinPcap.
    On most OSes, only devices that can act as network interfaces of the
@@ -1456,7 +1472,7 @@
    high-resolution time stamps.
 
    Q 5.21: I'm capturing packets on {Windows 95, Windows 98, Windows Me};
-   why are the time stamps on packets wrong? 
+   why are the time stamps on packets wrong?
 
    A: This is due to a bug in WinPcap. The bug should be fixed in WinPcap
    3.0.
@@ -1537,7 +1553,7 @@
    UNIX-flavored OS, see the response to this question.
 
    Q 5.27: I have an XXX network card on my machine; if I try to capture
-   on it, my machine crashes or resets itself. 
+   on it, my machine crashes or resets itself.
 
    A: This is almost certainly a problem with one or more of:
      * the operating system you're using;
@@ -1555,7 +1571,7 @@
        distribution).
 
    Q 5.28: My machine crashes or resets itself when I select "Start" from
-   the "Capture" menu or select "Preferences" from the "Edit" menu. 
+   the "Capture" menu or select "Preferences" from the "Edit" menu.
 
    A: Both of those operations cause Ethereal to try to build a list of
    the interfaces that it can open; it does so by getting a list of
@@ -1563,14 +1579,14 @@
    or, for Windows, WinPcap bug that causes the system to crash when this
    happens; see the previous question.
 
-   Q 5.29: Does Ethereal work on Windows Me? 
+   Q 5.29: Does Ethereal work on Windows Me?
 
    A: Yes, but if you want to capture packets, you will need to install
    the latest version of WinPcap, as 2.02 and earlier versions of WinPcap
    didn't support Windows Me. You should also install the latest version
    of Ethereal as well.
 
-   Q 5.30: Does Ethereal work on Windows XP? 
+   Q 5.30: Does Ethereal work on Windows XP?
 
    A: Yes, but if you want to capture packets, you will need to install
    the latest version of WinPcap, as 2.2 and earlier versions of WinPcap
@@ -1619,7 +1635,7 @@
    Messenger packets (even if the TCP segment also contains the beginning
    of another Yahoo Messenger packet).
 
-   Q 5.33: Why do I get the error 
+   Q 5.33: Why do I get the error
 
      Gdk-ERROR **: Palettized display (256-colour) mode not supported on
      Windows.
@@ -1642,14 +1658,14 @@
    packets other than those sent to or from my machine; however, those
    packets show up with a "Short Frame" indication, unlike packets to or
    from my machine. What should I do to arrange that I see those packets
-   in their entirety? 
+   in their entirety?
 
    A: In at least some cases, this appears to be the result of PGPnet
    running on the network interface on which you're capturing; turn it
    off on that interface.
 
    Q 5.35: I'm capturing packets on a machine on a VLAN; why don't the
-   packets I'm capturing have VLAN tags? 
+   packets I'm capturing have VLAN tags?
 
    A: You might be capturing on what might be called a "VLAN interface" -
    the way a particular OS makes VLANs plug into the networking stack
@@ -1665,7 +1681,7 @@
    device, if possible.
 
    Q 5.36: How can I capture raw 802.11 packets, including non-data
-   (management, beacon) packets? 
+   (management, beacon) packets?
 
    A: That would require that your 802.11 interface run in the mode
    called "monitor mode" or "RFMON mode". Not all operating systems
@@ -1711,16 +1727,16 @@ ancontrol -i anN -M flag
    On Linux with the driver in the 2.4.6 through 2.4.19 kernel, you will
    need to do
 
-echo "Mode: rfmon" >/proc/driver/aironet/ethN/Config
+echo "Mode: rfmon">/proc/driver/aironet/ethN/Config
 
    if your Aironet card is ethN. To capture traffic from any BSS rather
    than just the BSS with which the card is associated, do
 
-echo "Mode: y" >/proc/driver/aironet/ethN/Config
+echo "Mode: y">/proc/driver/aironet/ethN/Config
 
    and to return to the normal mode, do
 
-echo "Mode: ess" >/proc/driver/aironet/ethN/Config
+echo "Mode: ess">/proc/driver/aironet/ethN/Config
 
    On Linux with the driver in the 2.4.20 or later kernel, or with the
    CVS drivers from the airo-linux SourceForge site, you will have to
@@ -1833,7 +1849,7 @@ echo "Mode: ess" >/proc/driver/aironet/ethN/Config
    the 802.11 network will appear like an Ethernet to Ethereal.
 
    Q 5.37: I'm trying to capture 802.11 traffic on Windows; why am I not
-   seeing any packets? 
+   seeing any packets?
 
    A: At least some 802.11 card drivers on Windows appear not to see any
    packets if they're running in promiscuous mode. Try turning
@@ -1844,12 +1860,12 @@ echo "Mode: ess" >/proc/driver/aironet/ethN/Config
 
    Q 5.38: I'm trying to capture 802.11 traffic on Windows; why am I
    seeing packets received by the machine on which I'm capturing traffic,
-   but not packets sent by that machine? 
+   but not packets sent by that machine?
 
    A: This appears to be another problem with promiscuous mode; try
    turning it off.
 
-   Q 5.39: How can I capture packets with CRC errors? 
+   Q 5.39: How can I capture packets with CRC errors?
 
    A: Ethereal can capture only the packets that the packet capture
    library - libpcap on UNIX-flavored OSes, and the WinPcap port to
@@ -1883,7 +1899,7 @@ echo "Mode: ess" >/proc/driver/aironet/ethN/Config
    question) and you're using Ethereal 0.9.15 and later, in which case
    Ethereal will check the CRC and indicate whether it's correct or not.
 
-   Q 5.40: How can I capture entire frames, including the FCS? 
+   Q 5.40: How can I capture entire frames, including the FCS?
 
    A: Ethereal can't capture any data that the packet capture library -
    libpcap on UNIX-flavored OSes, and the WinPcap port to Windows of
@@ -1915,7 +1931,7 @@ echo "Mode: ess" >/proc/driver/aironet/ethN/Config
    thinks there is, will display it as such, and will check whether it's
    the correct CRC-32 value or not.
 
-   Q 5.41: Ethereal hangs after I stop a capture. 
+   Q 5.41: Ethereal hangs after I stop a capture.
 
    A: The most likely reason for this is that Ethereal is trying to look
    up an IP address in the capture to convert it to a name (so that, for
@@ -1986,7 +2002,7 @@ echo "Mode: ess" >/proc/driver/aironet/ethN/Config
    send it.
 
    Q 5.42: How can I search for, or filter, packets that have a
-   particular string anywhere in them? 
+   particular string anywhere in them?
 
    A: If you want to do this when capturing, you can't. That's a feature
    that would be hard to implement in capture filters without changes to
@@ -2007,9 +2023,9 @@ echo "Mode: ess" >/proc/driver/aironet/ethN/Config
    string or byte string fields in the packet; the "contains" operator
    can also be used in expressions used to filter the display.
 
-
-   Support can be found on the ethereal-users[AT]ethereal.com mailing
-   list. 
-   For corrections/additions/suggestions for this page, please send email
-   to: ethereal-web[AT]ethereal.com
-   Last modified: Tue, January 27 2004.
+   Please send support questions about Ethereal to the
+   ethereal-users[AT]ethereal.com mailing list.
+   For corrections/additions/suggestions for this web page page (and not
+   Ethereal support questions), please send email to
+   ethereal-web[AT]ethereal.com .
+   Last modified: Mon, February 16 2004.
