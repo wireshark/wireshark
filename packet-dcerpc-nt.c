@@ -2,7 +2,7 @@
  * Routines for DCERPC over SMB packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-nt.c,v 1.36 2002/05/23 12:23:29 sahlberg Exp $
+ * $Id: packet-dcerpc-nt.c,v 1.37 2002/06/05 04:17:47 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1054,5 +1054,44 @@ dissect_ndr_uint8s(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
     /* no alignment needed */
     return dissect_dcerpc_uint8s(tvb, offset, pinfo, 
+                                 tree, drep, hfindex, length, pdata);
+}
+
+int
+dissect_dcerpc_uint16s(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
+                      proto_tree *tree, char *drep, int hfindex, 
+		      int length, guint16 **pdata)
+{
+    guint16 *data;
+
+    data = (guint16 *)tvb_get_ptr(tvb, offset, length * 2);
+
+    if (tree) {
+        proto_tree_add_item (tree, hfindex, tvb, offset, length * 2, (drep[0] & 0x10));
+    }
+
+    if (pdata)
+        *pdata = data;
+
+    return offset + length * 2;
+}
+
+int
+dissect_ndr_uint16s(tvbuff_t *tvb, gint offset, packet_info *pinfo,
+                   proto_tree *tree, char *drep, 
+                   int hfindex, int length, guint16 **pdata)
+{
+    dcerpc_info *di;
+
+    di=pinfo->private_data;
+    if(di->conformant_run){
+      /* just a run to handle conformant arrays, no scalars to dissect */
+      return offset;
+    }
+
+    if (offset % 2)
+        offset++;
+
+    return dissect_dcerpc_uint16s(tvb, offset, pinfo, 
                                  tree, drep, hfindex, length, pdata);
 }
