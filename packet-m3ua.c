@@ -9,7 +9,7 @@
  *
  * Copyright 2000, 2001, 2002, Michael Tuexen <Michael.Tuexen@icn.siemens.de>
  *
- * $Id: packet-m3ua.c,v 1.15 2002/02/26 10:18:22 guy Exp $
+ * $Id: packet-m3ua.c,v 1.16 2002/03/02 07:23:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -623,7 +623,7 @@ static const value_string m3ua_v10_error_code_values[] = {
   { V10_PARAMETER_FIELD_ERROR_CODE,                   "Parameter field error" },
   { V10_UNEXPECTED_PARAMETER_ERROR_CODE,              "Unexpected parameter" },
   { V10_DESTINATION_STATUS_UNKNOWN_ERROR_CODE,        "Destination status unknown" },
-  { V10_INVALID_NETWORK_APPEARANCE_ERROR_CODE,        "Invalid network sppearance" },
+  { V10_INVALID_NETWORK_APPEARANCE_ERROR_CODE,        "Invalid network appearance" },
   { V10_NO_CONFIGURED_AS_FOR_ASP_ERROR_CODE,          "No configured AS for ASP" },
   { 0,                                            NULL } };
 
