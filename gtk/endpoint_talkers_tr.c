@@ -1,7 +1,7 @@
 /* endpoint_talkers_tr.c
  * endpoint_talkers_tr   2003 Ronnie Sahlberg
  *
- * $Id: endpoint_talkers_tr.c,v 1.7 2003/08/27 12:10:21 sahlberg Exp $
+ * $Id: endpoint_talkers_tr.c,v 1.8 2003/08/30 00:47:43 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -45,56 +45,50 @@
 #include "endpoint_talkers_table.h"
 #include "packet-tr.h"
 
-/* used to keep track of the statistics for one instance of the stats */
-typedef struct _tr_talkers_t {
-	GtkWidget *win;
-	endpoints_table talkers;
-} tr_talkers_t;
-
 
 void protect_thread_critical_region(void);
 void unprotect_thread_critical_region(void);
 static void
 win_destroy_cb(GtkWindow *win _U_, gpointer data)
 {
-	tr_talkers_t *tr_talkers=(tr_talkers_t *)data;
+	endpoints_table *talkers=(endpoints_table *)data;
 
 	protect_thread_critical_region();
-	remove_tap_listener(tr_talkers);
+	remove_tap_listener(talkers);
 	unprotect_thread_critical_region();
 
-	reset_ett_table_data(&tr_talkers->talkers);
-	g_free(tr_talkers);
+	reset_ett_table_data(talkers);
+	g_free(talkers);
 }
 
 static void
 tr_talkers_reset(void *pit)
 {
-	tr_talkers_t *tr_talkers=(tr_talkers_t *)pit;
+	endpoints_table *talkers=(endpoints_table *)pit;
 	char title[256];
 
-	reset_ett_table_data(&tr_talkers->talkers);
+	reset_ett_table_data(talkers);
 	snprintf(title, 255, "Token Ring Talkers: %s", cfile.filename);
-	gtk_window_set_title(GTK_WINDOW(tr_talkers->win), title);
+	gtk_window_set_title(GTK_WINDOW(talkers->win), title);
 }
 
 
 static void
 tr_talkers_draw(void *pit)
 {
-	tr_talkers_t *tr_talkers=(tr_talkers_t *)pit;
+	endpoints_table *talkers=(endpoints_table *)pit;
 
-	draw_ett_table_data(&tr_talkers->talkers);
+	draw_ett_table_data(talkers);
 }
 
 
 static int
 tr_talkers_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, void *vip)
 {
-	tr_talkers_t *tr_talkers=(tr_talkers_t *)pit;
+	endpoints_table *talkers=(endpoints_table *)pit;
 	tr_hdr *trhdr=vip;
 
-	add_ett_table_data(&tr_talkers->talkers, &trhdr->src, &trhdr->dst, 0, 0, 1, pinfo->fd->pkt_len);
+	add_ett_table_data(talkers, &trhdr->src, &trhdr->dst, 0, 0, 1, pinfo->fd->pkt_len);
 
 	return 1;
 }
@@ -105,7 +99,7 @@ static void
 gtk_tr_talkers_init(char *optarg)
 {
 	char *filter=NULL;
-	tr_talkers_t *tr_talkers;
+	endpoints_table *talkers;
 	GtkWidget *vbox;
 	GtkWidget *label;
 	GString *error_string;
@@ -125,17 +119,17 @@ gtk_tr_talkers_init(char *optarg)
 		filter=NULL;
 	}
 
-	tr_talkers=g_malloc(sizeof(tr_talkers_t));
+	talkers=g_malloc(sizeof(endpoints_table));
 
-	tr_talkers->win=gtk_window_new(GTK_WINDOW_TOPLEVEL);
-	gtk_window_set_default_size(GTK_WINDOW(tr_talkers->win), 750, 400);
+	talkers->win=gtk_window_new(GTK_WINDOW_TOPLEVEL);
+	gtk_window_set_default_size(GTK_WINDOW(talkers->win), 750, 400);
 	snprintf(title, 255, "Token Ring Talkers: %s", cfile.filename);
-	gtk_window_set_title(GTK_WINDOW(tr_talkers->win), title);
+	gtk_window_set_title(GTK_WINDOW(talkers->win), title);
 
-	SIGNAL_CONNECT(tr_talkers->win, "destroy", win_destroy_cb, tr_talkers);
+	SIGNAL_CONNECT(talkers->win, "destroy", win_destroy_cb, talkers);
 
 	vbox=gtk_vbox_new(FALSE, 0);
-	gtk_container_add(GTK_CONTAINER(tr_talkers->win), vbox);
+	gtk_container_add(GTK_CONTAINER(talkers->win), vbox);
 	gtk_container_set_border_width(GTK_CONTAINER(vbox), 10);
 	gtk_widget_show(vbox);
 
@@ -144,19 +138,19 @@ gtk_tr_talkers_init(char *optarg)
 	gtk_widget_show(label);
 
 	/* We must display TOP LEVEL Widget before calling init_ett_table() */
-	gtk_widget_show(tr_talkers->win);
+	gtk_widget_show(talkers->win);
 
-	init_ett_table(&tr_talkers->talkers, vbox, NULL, filter_names);
+	init_ett_table(talkers, vbox, NULL, filter_names);
 
-	error_string=register_tap_listener("tr", tr_talkers, filter, tr_talkers_reset, tr_talkers_packet, tr_talkers_draw);
+	error_string=register_tap_listener("tr", talkers, filter, tr_talkers_reset, tr_talkers_packet, tr_talkers_draw);
 	if(error_string){
 		simple_dialog(ESD_TYPE_WARN, NULL, error_string->str);
 		g_string_free(error_string, TRUE);
-		g_free(tr_talkers);
+		g_free(talkers);
 		return;
 	}
 
-	gtk_widget_show_all(tr_talkers->win);
+	gtk_widget_show_all(talkers->win);
 	redissect_packets(&cfile);
 }
 

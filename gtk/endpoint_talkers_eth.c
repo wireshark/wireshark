@@ -1,7 +1,7 @@
 /* endpoint_talkers_eth.c
  * endpoint_talkers_eth   2003 Ronnie Sahlberg
  *
- * $Id: endpoint_talkers_eth.c,v 1.6 2003/08/27 12:10:21 sahlberg Exp $
+ * $Id: endpoint_talkers_eth.c,v 1.7 2003/08/30 00:47:42 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -45,57 +45,51 @@
 #include "endpoint_talkers_table.h"
 #include "packet-eth.h"
 
-/* used to keep track of the statistics for one instance of the stats */
-typedef struct _eth_talkers_t {
-	GtkWidget *win;
-	endpoints_table talkers;
-} eth_talkers_t;
-
 
 void protect_thread_critical_region(void);
 void unprotect_thread_critical_region(void);
 static void
 win_destroy_cb(GtkWindow *win _U_, gpointer data)
 {
-	eth_talkers_t *eth_talkers=(eth_talkers_t *)data;
+	endpoints_table *talkers=(endpoints_table *)data;
 
 	protect_thread_critical_region();
-	remove_tap_listener(eth_talkers);
+	remove_tap_listener(talkers);
 	unprotect_thread_critical_region();
 
-	reset_ett_table_data(&eth_talkers->talkers);
-	g_free(eth_talkers);
+	reset_ett_table_data(talkers);
+	g_free(talkers);
 }
 
 static void
 eth_talkers_reset(void *pit)
 {
 	char title[256];
-	eth_talkers_t *eth_talkers=(eth_talkers_t *)pit;
+	endpoints_table *talkers=(endpoints_table *)pit;
 
-	reset_ett_table_data(&eth_talkers->talkers);
+	reset_ett_table_data(talkers);
 
 	snprintf(title, 255, "Ethernet Talkers: %s", cfile.filename);
-	gtk_window_set_title(GTK_WINDOW(eth_talkers->win), title);
+	gtk_window_set_title(GTK_WINDOW(talkers->win), title);
 }
 
 
 static void
 eth_talkers_draw(void *pit)
 {
-	eth_talkers_t *eth_talkers=(eth_talkers_t *)pit;
+	endpoints_table *talkers=(endpoints_table *)pit;
 
-	draw_ett_table_data(&eth_talkers->talkers);
+	draw_ett_table_data(talkers);
 }
 
 
 static int
 eth_talkers_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, void *vip)
 {
-	eth_talkers_t *eth_talkers=(eth_talkers_t *)pit;
+	endpoints_table *talkers=(endpoints_table *)pit;
 	eth_hdr *ehdr=vip;
 
-	add_ett_table_data(&eth_talkers->talkers, &ehdr->src, &ehdr->dst, 0, 0, 1, pinfo->fd->pkt_len);
+	add_ett_table_data(talkers, &ehdr->src, &ehdr->dst, 0, 0, 1, pinfo->fd->pkt_len);
 
 	return 1;
 }
@@ -106,7 +100,7 @@ static void
 gtk_eth_talkers_init(char *optarg)
 {
 	char *filter=NULL;
-	eth_talkers_t *eth_talkers;
+	endpoints_table *talkers;
 	GtkWidget *vbox;
 	GtkWidget *label;
 	GString *error_string;
@@ -126,17 +120,17 @@ gtk_eth_talkers_init(char *optarg)
 		filter=NULL;
 	}
 
-	eth_talkers=g_malloc(sizeof(eth_talkers_t));
+	talkers=g_malloc(sizeof(endpoints_table));
 
-	eth_talkers->win=gtk_window_new(GTK_WINDOW_TOPLEVEL);
-	gtk_window_set_default_size(GTK_WINDOW(eth_talkers->win), 750, 400);
+	talkers->win=gtk_window_new(GTK_WINDOW_TOPLEVEL);
+	gtk_window_set_default_size(GTK_WINDOW(talkers->win), 750, 400);
 	snprintf(title, 255, "Ethernet Talkers: %s", cfile.filename);
-	gtk_window_set_title(GTK_WINDOW(eth_talkers->win), title);
+	gtk_window_set_title(GTK_WINDOW(talkers->win), title);
 
-	SIGNAL_CONNECT(eth_talkers->win, "destroy", win_destroy_cb, eth_talkers);
+	SIGNAL_CONNECT(talkers->win, "destroy", win_destroy_cb, talkers);
 
 	vbox=gtk_vbox_new(FALSE, 0);
-	gtk_container_add(GTK_CONTAINER(eth_talkers->win), vbox);
+	gtk_container_add(GTK_CONTAINER(talkers->win), vbox);
 	gtk_container_set_border_width(GTK_CONTAINER(vbox), 10);
 	gtk_widget_show(vbox);
 
@@ -145,19 +139,19 @@ gtk_eth_talkers_init(char *optarg)
 	gtk_widget_show(label);
 
 	/* We must display TOP LEVEL Widget before calling init_ett_table() */
-	gtk_widget_show(eth_talkers->win);
+	gtk_widget_show(talkers->win);
 
-	init_ett_table(&eth_talkers->talkers, vbox, NULL, filter_names);
+	init_ett_table(talkers, vbox, NULL, filter_names);
 
-	error_string=register_tap_listener("eth", eth_talkers, filter, eth_talkers_reset, eth_talkers_packet, eth_talkers_draw);
+	error_string=register_tap_listener("eth", talkers, filter, eth_talkers_reset, eth_talkers_packet, eth_talkers_draw);
 	if(error_string){
 		simple_dialog(ESD_TYPE_WARN, NULL, error_string->str);
 		g_string_free(error_string, TRUE);
-		g_free(eth_talkers);
+		g_free(talkers);
 		return;
 	}
 
-	gtk_widget_show_all(eth_talkers->win);
+	gtk_widget_show_all(talkers->win);
 	redissect_packets(&cfile);
 }
 

@@ -1,7 +1,7 @@
 /* endpoint_talkers_udpip.c
  * endpoint_talkers_udpip   2003 Ronnie Sahlberg
  *
- * $Id: endpoint_talkers_udpip.c,v 1.8 2003/08/27 12:10:21 sahlberg Exp $
+ * $Id: endpoint_talkers_udpip.c,v 1.9 2003/08/30 00:47:43 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -45,26 +45,20 @@
 #include "endpoint_talkers_table.h"
 #include "packet-udp.h"
 
-/* used to keep track of the statistics for one instance of the stats */
-typedef struct _udpip_talkers_t {
-	GtkWidget *win;
-	endpoints_table talkers;
-} udpip_talkers_t;
-
 
 void protect_thread_critical_region(void);
 void unprotect_thread_critical_region(void);
 static void
 win_destroy_cb(GtkWindow *win _U_, gpointer data)
 {
-	udpip_talkers_t *udpip_talkers=(udpip_talkers_t *)data;
+	endpoints_table *talkers=(endpoints_table *)data;
 
 	protect_thread_critical_region();
-	remove_tap_listener(udpip_talkers);
+	remove_tap_listener(talkers);
 	unprotect_thread_critical_region();
 
-	reset_ett_table_data(&udpip_talkers->talkers);
-	g_free(udpip_talkers);
+	reset_ett_table_data(talkers);
+	g_free(talkers);
 }
 
 static char *
@@ -87,31 +81,31 @@ udpip_port_to_str(guint32 port)
 static void
 udpip_talkers_reset(void *pit)
 {
-	udpip_talkers_t *udpip_talkers=(udpip_talkers_t *)pit;
+	endpoints_table *talkers=(endpoints_table *)pit;
 	char title[256];
 
-	reset_ett_table_data(&udpip_talkers->talkers);
+	reset_ett_table_data(talkers);
 	snprintf(title, 255, "UDP Talkers: %s", cfile.filename);
-	gtk_window_set_title(GTK_WINDOW(udpip_talkers->win), title);
+	gtk_window_set_title(GTK_WINDOW(talkers->win), title);
 }
 
 
 static void
 udpip_talkers_draw(void *pit)
 {
-	udpip_talkers_t *udpip_talkers=(udpip_talkers_t *)pit;
+	endpoints_table *talkers=(endpoints_table *)pit;
 
-	draw_ett_table_data(&udpip_talkers->talkers);
+	draw_ett_table_data(talkers);
 }
 
 
 static int
 udpip_talkers_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, void *vip)
 {
-	udpip_talkers_t *udpip_talkers=(udpip_talkers_t *)pit;
+	endpoints_table *talkers=(endpoints_table *)pit;
 	e_udphdr *udphdr=vip;
 
-	add_ett_table_data(&udpip_talkers->talkers, &udphdr->ip_src, &udphdr->ip_dst, udphdr->uh_sport, udphdr->uh_dport, 1, pinfo->fd->pkt_len);
+	add_ett_table_data(talkers, &udphdr->ip_src, &udphdr->ip_dst, udphdr->uh_sport, udphdr->uh_dport, 1, pinfo->fd->pkt_len);
 
 	return 1;
 }
@@ -122,7 +116,7 @@ static void
 gtk_udpip_talkers_init(char *optarg)
 {
 	char *filter=NULL;
-	udpip_talkers_t *udpip_talkers;
+	endpoints_table *talkers;
 	GtkWidget *vbox;
 	GtkWidget *label;
 	GString *error_string;
@@ -144,17 +138,17 @@ gtk_udpip_talkers_init(char *optarg)
 		filter=NULL;
 	}
 
-	udpip_talkers=g_malloc(sizeof(udpip_talkers_t));
+	talkers=g_malloc(sizeof(endpoints_table));
 
-	udpip_talkers->win=gtk_window_new(GTK_WINDOW_TOPLEVEL);
-	gtk_window_set_default_size(GTK_WINDOW(udpip_talkers->win), 750, 400);
+	talkers->win=gtk_window_new(GTK_WINDOW_TOPLEVEL);
+	gtk_window_set_default_size(GTK_WINDOW(talkers->win), 750, 400);
 	snprintf(title, 255, "UDP Talkers: %s", cfile.filename);
-	gtk_window_set_title(GTK_WINDOW(udpip_talkers->win), title);
+	gtk_window_set_title(GTK_WINDOW(talkers->win), title);
 
-	SIGNAL_CONNECT(udpip_talkers->win, "destroy", win_destroy_cb, udpip_talkers);
+	SIGNAL_CONNECT(talkers->win, "destroy", win_destroy_cb, talkers);
 
 	vbox=gtk_vbox_new(FALSE, 0);
-	gtk_container_add(GTK_CONTAINER(udpip_talkers->win), vbox);
+	gtk_container_add(GTK_CONTAINER(talkers->win), vbox);
 	gtk_container_set_border_width(GTK_CONTAINER(vbox), 10);
 	gtk_widget_show(vbox);
 
@@ -163,19 +157,19 @@ gtk_udpip_talkers_init(char *optarg)
 	gtk_widget_show(label);
 
 	/* We must display TOP LEVEL Widget before calling init_ett_table() */
-	gtk_widget_show(udpip_talkers->win);
+	gtk_widget_show(talkers->win);
 
-	init_ett_table(&udpip_talkers->talkers, vbox, udpip_port_to_str, filter_names);
+	init_ett_table(talkers, vbox, udpip_port_to_str, filter_names);
 
-	error_string=register_tap_listener("udp", udpip_talkers, filter, udpip_talkers_reset, udpip_talkers_packet, udpip_talkers_draw);
+	error_string=register_tap_listener("udp", talkers, filter, udpip_talkers_reset, udpip_talkers_packet, udpip_talkers_draw);
 	if(error_string){
 		simple_dialog(ESD_TYPE_WARN, NULL, error_string->str);
 		g_string_free(error_string, TRUE);
-		g_free(udpip_talkers);
+		g_free(talkers);
 		return;
 	}
 
-	gtk_widget_show_all(udpip_talkers->win);
+	gtk_widget_show_all(talkers->win);
 	redissect_packets(&cfile);
 }
 
