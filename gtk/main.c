@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.45 1999/11/25 18:02:25 gerald Exp $
+ * $Id: main.c,v 1.46 1999/11/26 05:23:40 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -172,7 +172,8 @@ about_ethereal( GtkWidget *w, gpointer data ) {
 void
 follow_stream_cb( GtkWidget *w, gpointer data ) {
   char      filename1[128+1];
-  GtkWidget *streamwindow, *box, *text, *vscrollbar, *table;
+  GtkWidget *streamwindow, *box, *text, *vscrollbar, *table,
+  		*filter_te;
   GtkWidget *hbox, *close_bt, *print_bt, *button;
   int        tmp_fd;
   gchar     *follow_filter;
@@ -206,6 +207,10 @@ follow_stream_cb( GtkWidget *w, gpointer data ) {
        and set the display filter entry accordingly */
     reset_tcp_reassembly();
     follow_filter = build_follow_filter( &pi );
+
+    /* set the display filter entry accordingly */
+    filter_te = gtk_object_get_data(GTK_OBJECT(w), E_DFILTER_TE_KEY);
+    gtk_entry_set_text(GTK_ENTRY(filter_te), follow_filter);
 
     /* Run the display filter so it goes in effect. */
     filter_packets(&cf, follow_filter);
@@ -471,7 +476,7 @@ void
 match_selected_cb(GtkWidget *w, gpointer data)
 {
     char		*buf;
-    GtkWidget		*filter_te = NULL;
+    GtkWidget		*filter_te;
     char		*ptr, *format, *stringified;
     int			i, dfilter_len, abbrev_len;
     guint8		*c;
@@ -546,14 +551,9 @@ match_selected_cb(GtkWidget *w, gpointer data)
 		case FT_ETHER:
 			dfilter_len = abbrev_len + 22;
 			buf = g_malloc0(dfilter_len);
-			snprintf(buf, dfilter_len, "%s == %02x:%02x:%02x:%02x:%02x:%02x",
+			snprintf(buf, dfilter_len, "%s == %s",
 					hfinfo->abbrev,
-					finfo_selected->value.ether[0],
-					finfo_selected->value.ether[1],
-					finfo_selected->value.ether[2],
-					finfo_selected->value.ether[3],
-					finfo_selected->value.ether[4],
-					finfo_selected->value.ether[5]);
+					ether_to_str(finfo_selected->value.ether));
 			break;
 #if 0
 
@@ -577,7 +577,7 @@ match_selected_cb(GtkWidget *w, gpointer data)
 		    buf = g_malloc0(32 + finfo_selected->length * 3);
 		    ptr = buf;
 
-		    sprintf(ptr, "frame[%d : %d] == ", finfo_selected->start, finfo_selected->length);
+		    sprintf(ptr, "frame[%d] == ", finfo_selected->start);
 		    ptr = buf+strlen(buf);
 
 		    if (finfo_selected->length == 1) {
@@ -598,9 +598,8 @@ match_selected_cb(GtkWidget *w, gpointer data)
 	}
 
     /* create a new one and set the display filter entry accordingly */
-    if (filter_te) {
-	gtk_entry_set_text(GTK_ENTRY(filter_te), buf);
-    }
+    gtk_entry_set_text(GTK_ENTRY(filter_te), buf);
+
     /* Run the display filter so it goes in effect. */
     filter_packets(&cf, buf);
 
@@ -1232,8 +1231,8 @@ main(int argc, char *argv[])
    * that text entry pointer */
   set_menu_object_data("/File/Open...", E_DFILTER_TE_KEY, filter_te);
   set_menu_object_data("/File/Reload", E_DFILTER_TE_KEY, filter_te);
-  set_menu_object_data("/Display/Match Selected", E_DFILTER_TE_KEY,
-    filter_te);
+  set_menu_object_data("/Display/Match Selected", E_DFILTER_TE_KEY, filter_te);
+  set_menu_object_data("/Tools/Follow TCP Stream", E_DFILTER_TE_KEY, filter_te);
 
   info_bar = gtk_statusbar_new();
   main_ctx = gtk_statusbar_get_context_id(GTK_STATUSBAR(info_bar), "main");
