@@ -3,7 +3,7 @@
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
- * $Id: packet-fddi.c,v 1.19 1999/08/24 06:01:45 guy Exp $
+ * $Id: packet-fddi.c,v 1.20 1999/09/10 03:16:08 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -242,7 +242,7 @@ fddifc_to_str(int fc)
       break;
 
     default:
-      return NULL;
+      return "";
     }
   }
 }
