@@ -1541,6 +1541,10 @@ Marco Molteni <mmolteni [AT] cisco.com> {
 	Fix a comment to reflect reality
 }
 
+James Harris <jharris [AT] fourhorsemen.org> {
+	RADIUS user password decryption
+}
+
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 

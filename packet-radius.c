@@ -1,10 +1,11 @@
 /* packet-radius.c
+ *
  * Routines for RADIUS packet disassembly
  * Copyright 1999 Johan Feyaerts
  *
  * RFC 2865, RFC 2866, RFC 2867, RFC 2868, RFC 2869
  *
- * $Id: packet-radius.c,v 1.69 2002/12/02 23:43:28 guy Exp $
+ * $Id: packet-radius.c,v 1.70 2002/12/17 04:05:21 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -40,11 +41,15 @@
 
 #include "packet-q931.h"
 #include "packet-gtp.h"
+#include "prefs.h"
+#include "md5.h"
 
 static int proto_radius = -1;
 static int hf_radius_length = -1;
 static int hf_radius_code = -1;
 static int hf_radius_id =-1;
+static char *shared_secret = NULL;
+static gpointer authenticator = NULL;
 
 static gint ett_radius = -1;
 static gint ett_radius_avp = -1;
@@ -2360,6 +2365,52 @@ rdconvertbufftostr(gchar *dest, tvbuff_t *tvb, int offset, int length)
 }
 
 static void
+rddecryptpass(gchar *dest,tvbuff_t *tvb,int offset,int length)
+{
+    md5_state_t md_ctx;
+    md5_byte_t digest[16];
+    guint32 i;
+    guint32 totlen = 0;
+    const guint8 *pd = tvb_get_ptr(tvb,offset,length);
+
+    if (!shared_secret || !authenticator ) {
+	rdconvertbufftostr(dest,tvb,offset,length);
+	return;
+    }
+
+    dest[0] = '"';
+    dest[1] = 0;
+    totlen = 1;
+
+    md5_init(&md_ctx);
+    md5_append(&md_ctx,shared_secret,strlen(shared_secret));
+    md5_append(&md_ctx,authenticator,16);
+    md5_finish(&md_ctx,digest);
+
+    for( i = 0 ; i < 16 && i < (guint32)length ; i++ ) {
+	dest[totlen] = pd[i] ^ digest[i];
+	if ( !isprint(dest[totlen])) {
+	    sprintf(&(dest[totlen]),"\\%03o",pd[i] ^ digest[i]);
+	    totlen += strlen(&(dest[totlen]));
+	} else {
+	    totlen++;
+	}
+    }
+    while(i<(guint32)length) {
+	if ( isprint((int)pd[i]) ) {
+	    dest[totlen] = (gchar)pd[i];
+	    totlen++;
+	} else {
+		sprintf(&(dest[totlen]), "\\%03o", pd[i]);
+		totlen=totlen+strlen(&(dest[totlen]));
+	}
+	i++;
+    }
+    dest[totlen]='"';
+    dest[totlen+1] = 0;
+
+}
+static void
 rdconvertbufftobinstr(gchar *dest, tvbuff_t *tvb, int offset, int length)
 {
 /*converts the raw buffer into printable text */
@@ -2463,7 +2514,11 @@ static gchar *rd_value_to_str_2(gchar *dest, const e_avphdr *avph, tvbuff_t *tvb
   switch(print_type)
   {
         case( RADIUS_STRING ):
-		rdconvertbufftostr(cont,tvb,offset+2,avph->avp_length-2);
+		if ( avph->avp_type == 2 )  { /* User Password */
+		    rddecryptpass(cont,tvb,offset+2,avph->avp_length-2);
+		} else {
+		    rdconvertbufftostr(cont,tvb,offset+2,avph->avp_length-2);
+		}
                 break;
         case( RADIUS_BINSTRING ):
 		rdconvertbufftobinstr(cont,tvb,offset+2,avph->avp_length-2);
@@ -2920,6 +2975,13 @@ static void dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	proto_tree_add_uint(radius_tree, hf_radius_length, tvb,
 			2, 2, rhlength);
+	if ( authenticator ) {
+	    g_free(authenticator);
+	}
+	authenticator = g_malloc(AUTHENTICATOR_LENGTH);
+	if ( authenticator ) {
+	    memcpy(authenticator,tvb_get_ptr(tvb,4,AUTHENTICATOR_LENGTH),AUTHENTICATOR_LENGTH);
+	}
 	proto_tree_add_text(radius_tree, tvb, 4,
 			AUTHENTICATOR_LENGTH,
                          "Authenticator");
@@ -2966,10 +3028,17 @@ proto_register_radius(void)
 		&ett_radius_vsa,
 	};
 
+	module_t *radius_module;
+
 	proto_radius = proto_register_protocol("Radius Protocol", "RADIUS",
 	    "radius");
 	proto_register_field_array(proto_radius, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	
+	radius_module = prefs_register_protocol(proto_radius,NULL);
+	prefs_register_string_preference(radius_module,"shared_secret","Shared Secret",
+					"Shared secret used to decode User Passwords",
+					&shared_secret);
 }
 
 void

@@ -1666,6 +1666,7 @@ B<http://www.ethereal.com>.
   Martin Regner            <martin.regner [AT] chello.se>
   Jason Greene             <jason [AT] inetgurus.net>
   Marco Molteni            <mmolteni [AT] cisco.com>
+  James Harris             <jharris [AT] fourhorsemen.org>
 
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to give his
 permission to use his version of snprintf.c.
