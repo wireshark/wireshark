@@ -2,7 +2,7 @@
  * Routines for NTLM Secure Service Provider
  * Devin Heitmueller <dheitmueller@netilla.com>
  *
- * $Id: packet-ntlmssp.c,v 1.29 2002/11/08 04:25:00 guy Exp $
+ * $Id: packet-ntlmssp.c,v 1.30 2002/11/08 06:02:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -384,39 +384,17 @@ dissect_ntlmssp_negotiate_flags (tvbuff_t *tvb, int offset,
 
 
 static int
-dissect_ntlmssp_negotiate (tvbuff_t *tvb, packet_info *pinfo, int offset,
-			   proto_tree *ntlmssp_tree)
+dissect_ntlmssp_negotiate (tvbuff_t *tvb, int offset, proto_tree *ntlmssp_tree)
 {
   guint32 negotiate_flags;
   int start;
   int workstation_end;
   int domain_end;
-  conversation_t *conversation;
-  guint32 *flag_info;
 
   /* NTLMSSP Negotiate Flags */
   negotiate_flags = tvb_get_letohl (tvb, offset);
   offset = dissect_ntlmssp_negotiate_flags (tvb, offset, ntlmssp_tree,
 					    negotiate_flags);
-
-  /*
-   * Store the flags with the conversation, as they're needed in order
-   * to dissect subsequent messages.
-   */
-  conversation = find_conversation(&pinfo->src, &pinfo->dst,
-				   pinfo->ptype, pinfo->srcport,
-				   pinfo->destport, 0);
-  if (!conversation) { /* Create one */
-    conversation = conversation_new(&pinfo->src, &pinfo->dst, pinfo->ptype, 
-				    pinfo->srcport, pinfo->destport, 0);
-  }
-
-  if (!conversation_get_proto_data(conversation, proto_ntlmssp)) {
-    flag_info = g_mem_chunk_alloc(flag_info_chunk);
-    *flag_info = negotiate_flags;
-
-    conversation_add_proto_data(conversation, proto_ntlmssp, flag_info);
-  }
 
   offset = dissect_ntlmssp_string(tvb, offset, ntlmssp_tree, FALSE, 
 				  hf_ntlmssp_negotiate_domain,
@@ -534,9 +512,8 @@ dissect_ntlmssp_challenge (tvbuff_t *tvb, packet_info *pinfo, int offset,
     unicode_strings = TRUE;
 
   /*
-   * Get flag info from the original negotiate message, if any.
-   * Then update the NTLMSSP_NEGOTIATE_UNICODE flag to match the
-   * value in this message.
+   * Store the flags with the conversation, as they're needed in order
+   * to dissect subsequent messages.
    */
   conversation = find_conversation(&pinfo->src, &pinfo->dst,
 				   pinfo->ptype, pinfo->srcport,
@@ -546,11 +523,7 @@ dissect_ntlmssp_challenge (tvbuff_t *tvb, packet_info *pinfo, int offset,
 				    pinfo->srcport, pinfo->destport, 0);
   }
 
-  flag_info = conversation_get_proto_data(conversation, proto_ntlmssp);
-  if (flag_info) {
-    *flag_info &= ~NTLMSSP_NEGOTIATE_UNICODE;
-    *flag_info |= (negotiate_flags & NTLMSSP_NEGOTIATE_UNICODE);
-  } else {
+  if (!conversation_get_proto_data(conversation, proto_ntlmssp)) {
     flag_info = g_mem_chunk_alloc(flag_info_chunk);
     *flag_info = negotiate_flags;
 
@@ -603,15 +576,17 @@ dissect_ntlmssp_auth (tvbuff_t *tvb, packet_info *pinfo, int offset,
 		      proto_tree *ntlmssp_tree)
 {
   int item_start, item_end;
-  int data_end = 0;
+  int data_start, data_end = 0;
   guint32 negotiate_flags;
   gboolean unicode_strings = FALSE;
   guint32 *flag_info;
   conversation_t *conversation;
-  gboolean no_sess_key = FALSE;
 
   /*
    * Get flag info from the original negotiate message, if any.
+   * This is because the flag information is sometimes missing from
+   * the AUTHENTICATE message, so we can't figure out whether
+   * strings are Unicode or not by looking at *our* flags.
    */
   flag_info = p_get_proto_data(pinfo->fd, proto_ntlmssp);
   if (flag_info == NULL) {
@@ -636,56 +611,75 @@ dissect_ntlmssp_auth (tvbuff_t *tvb, packet_info *pinfo, int offset,
   if (flag_info != NULL) {
     if (*flag_info & NTLMSSP_NEGOTIATE_UNICODE)
       unicode_strings = TRUE;
-    if (!(*flag_info & NTLMSSP_NEGOTIATE_KEY_EXCH))
-      no_sess_key = TRUE;
   }
 
+  /*
+   * Sometimes the session key and flags are missing.
+   * Sometimes the session key is present but the flags are missing.
+   * Sometimes they're both present.
+   *
+   * This does not correlate with any flags in the previous CHALLENGE
+   * message, and only correlates with "Negotiate Unicode", "Workstation
+   * Supplied", and "Domain Supplied" in the NEGOTIATE message - but
+   * those don't make sense as flags to use to determine this.
+   *
+   * So we check all of the descriptors to figure out where the data
+   * area begins, and if the session key or the flags would be in the
+   * middle of the data area, we assume the field in question is
+   * missing.
+   */
+
   /* Lan Manager response */
+  data_start = tvb_get_letohl(tvb, offset+4);
   offset = dissect_ntlmssp_blob(tvb, offset, ntlmssp_tree,
 				hf_ntlmssp_auth_lmresponse,
 				&item_end);
   data_end = MAX(data_end, item_end);
 
   /* NTLM response */
+  item_start = tvb_get_letohl(tvb, offset+4);
   offset = dissect_ntlmssp_blob(tvb, offset, ntlmssp_tree,
 				hf_ntlmssp_auth_ntresponse,
 				&item_end);
+  data_start = MIN(data_start, item_start);
   data_end = MAX(data_end, item_end);
 
   /* domain name */
+  item_start = tvb_get_letohl(tvb, offset+4);
   offset = dissect_ntlmssp_string(tvb, offset, ntlmssp_tree, 
 				  unicode_strings, 
 				  hf_ntlmssp_auth_domain,
 				  &item_start, &item_end);
+  data_start = MIN(data_start, item_start);
   data_end = MAX(data_end, item_end);
 
   /* user name */
+  item_start = tvb_get_letohl(tvb, offset+4);
   offset = dissect_ntlmssp_string(tvb, offset, ntlmssp_tree, 
 				  unicode_strings, 
 				  hf_ntlmssp_auth_username,
 				  &item_start, &item_end);
+  data_start = MIN(data_start, item_start);
   data_end = MAX(data_end, item_end);
 
   /* hostname */
+  item_start = tvb_get_letohl(tvb, offset+4);
   offset = dissect_ntlmssp_string(tvb, offset, ntlmssp_tree, 
 				  unicode_strings, 
 				  hf_ntlmssp_auth_hostname,
 				  &item_start, &item_end);
+  data_start = MIN(data_start, item_start);
   data_end = MAX(data_end, item_end);
 
-  /*
-   * Sometimes the session key and flags are missing.
-   *
-   * It appears to be missing if the Negotiate Key Exchange flag
-   * isn't set in the initial NEGOTIATE message.
-   */
-  if (!no_sess_key) {
+  if (offset < data_start) {
     /* Session Key */
     offset = dissect_ntlmssp_blob(tvb, offset, ntlmssp_tree,
 				  hf_ntlmssp_auth_sesskey,
 				  &item_end);
     data_end = MAX(data_end, item_end);
+  }
 
+  if (offset < data_start) {
     /* NTLMSSP Negotiate Flags */
     negotiate_flags = tvb_get_letohl (tvb, offset);
     offset = dissect_ntlmssp_negotiate_flags (tvb, offset, ntlmssp_tree,
@@ -747,7 +741,7 @@ dissect_ntlmssp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     switch (ntlmssp_message_type) {
 
     case NTLMSSP_NEGOTIATE:
-      offset = dissect_ntlmssp_negotiate (tvb, pinfo, offset, ntlmssp_tree);
+      offset = dissect_ntlmssp_negotiate (tvb, offset, ntlmssp_tree);
       break;
 
     case NTLMSSP_CHALLENGE:
