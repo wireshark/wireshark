@@ -1,6 +1,6 @@
 /* libpcap.c
  *
- * $Id: libpcap.c,v 1.113 2004/02/11 20:47:00 guy Exp $
+ * $Id: libpcap.c,v 1.114 2004/02/12 19:49:08 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -275,7 +275,7 @@ static const struct {
 	{ 129,		WTAP_ENCAP_ARCNET_LINUX },
 
 	/*
-	 * Values 130 thorugh 137 are reserved for use in Juniper
+	 * Values 130 through 137 are reserved for use in Juniper
 	 * hardware.
 	 *
 	 * 138 is reserved for Apple IP-over-IEEE 1394.
@@ -305,6 +305,11 @@ static const struct {
 	{ 162,		WTAP_ENCAP_USER15 },
 
 	{ 163,		WTAP_ENCAP_IEEE_802_11_WLAN_AVS },  /* 802.11 plus AVS WLAN header */
+
+	/*
+	 * 164 is reserved for Juniper-private chassis-internal
+	 * meta-information such as QoS profiles, etc..
+	 */
 
 	/*
 	 * To repeat:
