@@ -294,3 +294,10 @@ typedef int (*addr_dissect_rpc_indir_reply) (tvbuff_t *, packet_info *, proto_tr
 typedef guint16 (*addr_crc16_ccitt_tvb) (tvbuff_t *, unsigned int);
 typedef guint64 (*addr_tvb_get_letoh64) (tvbuff_t *, gint);
 typedef guint64 (*addr_tvb_get_ntoh64) (tvbuff_t *, gint);
+typedef proto_item *(*addr_proto_tree_add_float) (proto_tree *, int, tvbuff_t *, gint, gint, float);
+typedef proto_item *(*addr_proto_tree_add_float_hidden) (proto_tree *, int, tvbuff_t *, gint, gint, float);
+typedef proto_item *(*addr_proto_tree_add_float_format) (proto_tree *, int, tvbuff_t *, gint, gint, float, const char *, ...);
+typedef gfloat (*addr_tvb_get_ntohieee_float) (tvbuff_t *, gint);
+typedef gdouble (*addr_tvb_get_ntohieee_double) (tvbuff_t *, gint);
+typedef gfloat (*addr_tvb_get_letohieee_float) (tvbuff_t *, gint);
+typedef gdouble (*addr_tvb_get_letohieee_double) (tvbuff_t *, gint);
