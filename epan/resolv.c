@@ -1,7 +1,7 @@
 /* resolv.c
  * Routines for network object lookup
  *
- * $Id: resolv.c,v 1.35 2003/08/18 18:40:10 guy Exp $
+ * $Id: resolv.c,v 1.36 2003/08/26 20:21:08 gerald Exp $
  *
  * Laurent Deniel <laurent.deniel@free.fr>
  *
@@ -344,7 +344,7 @@ static guchar *host_name_lookup(guint addr, gboolean *found)
     ip_to_str_buf((guint8 *)&addr, tp->name);
     return tp->name;
   }
-#else
+#endif /* HAVE_GNU_ADNS */
 
   /*
    * The Windows "gethostbyaddr()" insists on translating 0.0.0.0 to
@@ -384,7 +384,6 @@ static guchar *host_name_lookup(guint addr, gboolean *found)
 # endif /* AVOID_DNS_TIMEOUT */
 
   }
-#endif /* HAVE_GNU_ADNS */
 
   /* unknown host or DNS timeout */
 
