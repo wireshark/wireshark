@@ -1,7 +1,7 @@
 /* packet-udp.c
  * Routines for UDP packet disassembly
  *
- * $Id: packet-udp.c,v 1.79 2000/11/19 08:54:10 guy Exp $
+ * $Id: packet-udp.c,v 1.80 2000/12/13 02:24:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -44,6 +44,7 @@
 #include <glib.h>
 #include "globals.h"
 #include "resolv.h"
+#include "in_cksum.h"
 
 #include "plugins.h"
 #include "packet-udp.h"
@@ -144,6 +145,11 @@ dissect_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint16    uh_sport, uh_dport, uh_ulen, uh_sum;
   proto_tree *udp_tree;
   proto_item *ti;
+  guint      len;
+  guint      reported_len;
+  vec_t      cksum_vec[4];
+  guint32    phdr[2];
+  guint16    computed_cksum;
   int        offset = 0;
 
   CHECK_DISPLAY_AS_DATA(proto_udp, tvb, pinfo, tree);
@@ -176,8 +182,58 @@ dissect_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_uint_hidden(udp_tree, hf_udp_port, tvb, offset+2, 2, uh_dport);
 
     proto_tree_add_uint(udp_tree, hf_udp_length, tvb, offset + 4, 2,  uh_ulen);
-    proto_tree_add_uint_format(udp_tree, hf_udp_checksum, tvb, offset + 6, 2, uh_sum,
-	"Checksum: 0x%04x", uh_sum);
+    reported_len = tvb_reported_length(tvb);
+    len = tvb_length(tvb);
+    if (uh_sum == 0) {
+      /* No checksum supplied in the packet. */
+      proto_tree_add_uint_format(udp_tree, hf_udp_checksum, tvb,
+        offset + 6, 2, uh_sum, "Checksum: 0x%04x (none)", uh_sum);
+    } else if (!pinfo->fragmented && len >= reported_len) {
+      /* The packet isn't part of a fragmented datagram and isn't
+         truncated, so we can checksum it.
+	 XXX - make a bigger scatter-gather list once we do fragment
+	 reassembly? */
+
+      /* Set up the fields of the pseudo-header. */
+      cksum_vec[0].ptr = pinfo->src.data;
+      cksum_vec[0].len = pinfo->src.len;
+      cksum_vec[1].ptr = pinfo->dst.data;
+      cksum_vec[1].len = pinfo->dst.len;
+      cksum_vec[2].ptr = (const guint8 *)&phdr;
+      switch (pinfo->src.type) {
+
+      case AT_IPv4:
+	phdr[0] = htonl((IP_PROTO_UDP<<16) + reported_len);
+	cksum_vec[2].len = 4;
+	break;
+
+      case AT_IPv6:
+        phdr[0] = htonl(reported_len);
+        phdr[1] = htonl(IP_PROTO_UDP);
+        cksum_vec[2].len = 8;
+        break;
+
+      default:
+        /* TCP runs only atop IPv4 and IPv6.... */
+        g_assert_not_reached();
+        break;
+      }
+      cksum_vec[3].ptr = tvb_get_ptr(tvb, offset, len);
+      cksum_vec[3].len = reported_len;
+      computed_cksum = in_cksum(&cksum_vec[0], 4);
+      if (computed_cksum == 0) {
+        proto_tree_add_uint_format(udp_tree, hf_udp_checksum, tvb,
+          offset + 6, 2, uh_sum, "Checksum: 0x%04x (correct)", uh_sum);
+      } else {
+        proto_tree_add_uint_format(udp_tree, hf_udp_checksum, tvb,
+          offset + 6, 2, uh_sum,
+	  "Checksum: 0x%04x (incorrect, should be 0x%04x)", uh_sum,
+	   in_cksum_shouldbe(uh_sum, computed_cksum));
+      }
+    } else {
+      proto_tree_add_uint_format(udp_tree, hf_udp_checksum, tvb,
+        offset + 6, 2, uh_sum, "Checksum: 0x%04x", uh_sum);
+    }
   }
 
   /* Skip over header */

@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.109 2000/12/08 22:53:08 guy Exp $
+ * $Id: packet-ip.c,v 1.110 2000/12/13 02:24:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -52,6 +52,7 @@
 #include "aftypes.h"
 #include "packet-ip.h"
 #include "packet-ipsec.h"
+#include "in_cksum.h"
 
 static void dissect_icmp(tvbuff_t *, packet_info *, proto_tree *);
 static void dissect_igmp(tvbuff_t *, packet_info *, proto_tree *);
@@ -749,49 +750,11 @@ static const true_false_string flags_set_truth = {
 
 static guint16 ip_checksum(const guint8 *ptr, int len)
 {
-	unsigned long Sum;
-	const unsigned char *Ptr, *PtrEnd;
+	vec_t cksum_vec[1];
 
-	Sum    = 0;
-	PtrEnd = ptr + len;
-	for (Ptr = ptr; Ptr < PtrEnd; Ptr += 2) {
-		Sum += pntohs(Ptr);
-	}
-	Sum = (Sum & 0xFFFF) + (Sum >> 16);
-	Sum = (Sum & 0xFFFF) + (Sum >> 16);
-
-	return (guint16)~Sum;
-}
-
-static guint16 ip_checksum_shouldbe(guint16 sum, guint16 computed_sum)
-{
-	guint32 shouldbe;
-
-	/*
-	 * The value that should have gone into the checksum field
-	 * is the negative of the value gotten by summing up everything
-	 * *but* the checksum field.
-	 *
-	 * We can compute that by subtracting the value of the checksum
-	 * field from the sum of all the data in the packet, and then
-	 * computing the negative of that value.
-	 *
-	 * "sum" is the value of the checksum field, and "computed_sum"
-	 * is the negative of the sum of all the data in the packets,
-	 * so that's -(-computed_sum - sum), or (sum + computed_sum).
-	 *
-	 * All the arithmetic in question is one's complement, so the
-	 * addition must include an end-around carry; we do this by
-	 * doing the arithmetic in 32 bits (with no sign-extension),
-	 * and then adding the upper 16 bits of the sum, which contain
-	 * the carry, to the lower 16 bits of the sum, and then do it
-	 * again in case *that* sum produced a carry.
-	 */
-	shouldbe = sum;
-	shouldbe += computed_sum;
-	shouldbe = (shouldbe & 0xFFFF) + (shouldbe >> 16);
-	shouldbe = (shouldbe & 0xFFFF) + (shouldbe >> 16);
-	return shouldbe;
+	cksum_vec[0].ptr = ptr;
+	cksum_vec[0].len = len;
+	return in_cksum(&cksum_vec[0], 1);
 }
 
 void
@@ -902,7 +865,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     else {
 	proto_tree_add_uint_format(ip_tree, hf_ip_checksum, tvb, offset + 10, 2, iph.ip_sum,
             "Header checksum: 0x%04x (incorrect, should be 0x%04x)", iph.ip_sum,
-	    ip_checksum_shouldbe(iph.ip_sum, ipsum));
+	    in_cksum_shouldbe(iph.ip_sum, ipsum));
     }
 
     proto_tree_add_ipv4(ip_tree, hf_ip_src, tvb, offset + 12, 4, iph.ip_src);
@@ -944,6 +907,15 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     dissect_data(tvb, offset, pinfo, tree);
     return;
   }
+
+  /*
+   * If this is the first fragment, but not the only fragment,
+   * tell the next protocol that.
+   */
+  if (iph.ip_off & IP_MF)
+    pinfo->fragmented = TRUE;
+  else
+    pinfo->fragmented = FALSE;
 
   /* Hand off to the next protocol.
 
@@ -1126,7 +1098,7 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_uint_format(icmp_tree, hf_icmp_checksum, tvb, 2, 2,
 			cksum,
 			"Checksum: 0x%04x (incorrect, should be 0x%04x)",
-			cksum, ip_checksum_shouldbe(cksum, computed_cksum));
+			cksum, in_cksum_shouldbe(cksum, computed_cksum));
       }
     } else {
       proto_tree_add_uint(icmp_tree, hf_icmp_checksum, tvb, 2, 2, cksum);

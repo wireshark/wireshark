@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.91 2000/12/04 06:37:44 guy Exp $
+ * $Id: packet-tcp.c,v 1.92 2000/12/13 02:24:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -38,6 +38,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <glib.h>
+#include "in_cksum.h"
 
 #ifdef NEED_SNPRINTF_H
 # include "snprintf.h"
@@ -54,7 +55,7 @@
 #include "strutil.h"
 
 /* Place TCP summary in proto tree */
-gboolean g_tcp_summary_in_tree = TRUE;
+static gboolean tcp_summary_in_tree = TRUE;
 
 extern FILE* data_out_file;
 
@@ -434,6 +435,11 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint      optlen;
   guint32    seglen;
   guint32    nxtseq;
+  guint      len;
+  guint      reported_len;
+  vec_t      cksum_vec[4];
+  guint32    phdr[2];
+  guint16    computed_cksum;
   guint      length_remaining;
 
   CHECK_DISPLAY_AS_DATA(proto_tcp, tvb, pinfo, tree);
@@ -478,8 +484,11 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   
   hlen = hi_nibble(th.th_off_x2) * 4;  /* TCP header length, in bytes */
 
+  reported_len = tvb_reported_length(tvb);
+  len = tvb_length(tvb);
+
   /* Compute the length of data in this segment. */
-  seglen = tvb_reported_length(tvb) - hlen;
+  seglen = reported_len - hlen;
 
   /* Compute the sequence number of next octet after this segment. */
   nxtseq = th.th_seq + seglen;
@@ -496,7 +505,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
   
   if (tree) {
-    if (g_tcp_summary_in_tree) {
+    if (tcp_summary_in_tree) {
 	    ti = proto_tree_add_protocol_format(tree, proto_tcp, tvb, offset, hlen, "Transmission Control Protocol, Src Port: %s (%u), Dst Port: %s (%u), Seq: %u, Ack: %u", get_tcp_port(th.th_sport), th.th_sport, get_tcp_port(th.th_dport), th.th_dport, th.th_seq, th.th_ack);
     }
     else {
@@ -528,7 +537,52 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_boolean(field_tree, hf_tcp_flags_syn, tvb, offset + 13, 1, th.th_flags);
     proto_tree_add_boolean(field_tree, hf_tcp_flags_fin, tvb, offset + 13, 1, th.th_flags);
     proto_tree_add_uint(tcp_tree, hf_tcp_window_size, tvb, offset + 14, 2, th.th_win);
-    proto_tree_add_uint(tcp_tree, hf_tcp_checksum, tvb, offset + 16, 2, th.th_sum);
+    if (!pinfo->fragmented && len >= reported_len) {
+      /* The packet isn't part of a fragmented datagram and isn't
+         truncated, so we can checksum it.
+	 XXX - make a bigger scatter-gather list once we do fragment
+	 reassembly? */
+
+      /* Set up the fields of the pseudo-header. */
+      cksum_vec[0].ptr = pinfo->src.data;
+      cksum_vec[0].len = pinfo->src.len;
+      cksum_vec[1].ptr = pinfo->dst.data;
+      cksum_vec[1].len = pinfo->dst.len;
+      cksum_vec[2].ptr = (const guint8 *)&phdr;
+      switch (pinfo->src.type) {
+
+      case AT_IPv4:
+	phdr[0] = htonl((IP_PROTO_TCP<<16) + reported_len);
+	cksum_vec[2].len = 4;
+	break;
+
+      case AT_IPv6:
+        phdr[0] = htonl(reported_len);
+        phdr[1] = htonl(IP_PROTO_TCP);
+        cksum_vec[2].len = 8;
+        break;
+
+      default:
+        /* TCP runs only atop IPv4 and IPv6.... */
+        g_assert_not_reached();
+        break;
+      }
+      cksum_vec[3].ptr = tvb_get_ptr(tvb, offset, len);
+      cksum_vec[3].len = reported_len;
+      computed_cksum = in_cksum(&cksum_vec[0], 4);
+      if (computed_cksum == 0) {
+        proto_tree_add_uint_format(tcp_tree, hf_tcp_checksum, tvb,
+           offset + 16, 2, th.th_sum, "Checksum: 0x%04x (correct)", th.th_sum);
+      } else {
+        proto_tree_add_uint_format(tcp_tree, hf_tcp_checksum, tvb,
+           offset + 16, 2, th.th_sum,
+	   "Checksum: 0x%04x (incorrect, should be 0x%04x)", th.th_sum,
+	   in_cksum_shouldbe(th.th_sum, computed_cksum));
+      }
+    } else {
+      proto_tree_add_uint_format(tcp_tree, hf_tcp_checksum, tvb,
+       offset + 16, 2, th.th_sum, "Checksum: 0x%04x", th.th_sum);
+    }
     if (th.th_flags & TH_URG)
       proto_tree_add_uint(tcp_tree, hf_tcp_urgent_pointer, tvb, offset + 18, 2, th.th_urp);
   }
@@ -689,12 +743,12 @@ proto_register_tcp(void)
 	subdissector_table = register_dissector_table("tcp.port");
 	register_heur_dissector_list("tcp", &heur_subdissector_list);
 
-	/* Register a configuration preferences */
+	/* Register configuration preferences */
 	tcp_module = prefs_register_module("tcp", "TCP", NULL);
 	prefs_register_bool_preference(tcp_module, "tcp_summary_in_tree",
 	    "Show TCP summary in protocol tree",
 "Whether the TCP summary line should be shown in the protocol tree",
-	    &g_tcp_summary_in_tree);
+	    &tcp_summary_in_tree);
 }
 
 void
