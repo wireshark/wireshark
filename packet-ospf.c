@@ -2,7 +2,7 @@
  * Routines for OSPF packet disassembly
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-ospf.c,v 1.11 1999/07/07 22:51:50 gram Exp $
+ * $Id: packet-ospf.c,v 1.12 1999/07/29 05:47:01 gram Exp $
  *
  * At this time, this module is able to analyze OSPF
  * packets as specified in RFC2328. MOSPF (RFC1584) and other
@@ -50,6 +50,7 @@
 #include "packet.h"
 #include "packet-ospf.h"
 
+static int proto_ospf = -1;
 
 void 
 dissect_ospf(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
@@ -80,7 +81,7 @@ dissect_ospf(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     }  
 
     if (tree) {
-	ti = proto_tree_add_text(tree, offset, ntohs(ospfh.length), "Open Shortest Path First"); 
+	ti = proto_tree_add_item(tree, proto_ospf, offset, ntohs(ospfh.length), NULL);
 	ospf_tree = proto_item_add_subtree(ti, ETT_OSPF);
 
 	ti = proto_tree_add_text(ospf_tree, offset, OSPF_HEADER_LENGTH, "OSPF Header"); 
@@ -571,4 +572,16 @@ dissect_ospf_lsa(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
     }
     /* return the length of this LSA */
     return ntohs(lsa_hdr.length);
+}
+
+void
+proto_register_ospf(void)
+{
+/*        static hf_register_info hf[] = {
+                { &variable,
+                { "Name",           "ospf.abbreviation", TYPE, VALS_POINTER }},
+        };*/
+
+        proto_ospf = proto_register_protocol("Open Shortest Path First", "ospf");
+ /*       proto_register_field_array(proto_ospf, hf, array_length(hf));*/
 }

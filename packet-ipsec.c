@@ -1,7 +1,7 @@
 /* packet-ipsec.c
  * Routines for IPsec packet disassembly 
  *
- * $Id: packet-ipsec.c,v 1.2 1999/07/07 22:51:45 gram Exp $
+ * $Id: packet-ipsec.c,v 1.3 1999/07/29 05:46:56 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -40,6 +40,9 @@
 #include <glib.h>
 #include "packet.h"
 #include "resolv.h"
+
+static int proto_ah = -1;
+static int proto_esp = -1;
 
 struct newah {
 	guint8	ah_nxt;		/* Next Header */
@@ -85,7 +88,7 @@ dissect_ah(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
     if (tree) {
 	/* !!! specify length */
-	ti = proto_tree_add_text(tree, offset, advance, "Authentication Header");
+	ti = proto_tree_add_item(tree, proto_ah, offset, advance, NULL);
 	ah_tree = proto_item_add_subtree(ti, ETT_AH);
 
 	proto_tree_add_text(ah_tree, offset + offsetof(struct newah, ah_nxt), 1,
@@ -129,11 +132,24 @@ dissect_esp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
      * (ie none)
      */
     if(tree) {
-	ti = proto_tree_add_text(tree, 0, 0, "Encapsulated Security Payload");
+	ti = proto_tree_add_item(tree, proto_esp, 0, 0, NULL);
 	esp_tree = proto_item_add_subtree(ti, ETT_ESP);
 	proto_tree_add_text(esp_tree, offset + offsetof(struct newesp, esp_spi), 4,
 	    "SPI: %08x", (guint32)ntohl(esp.esp_spi));
 	proto_tree_add_text(esp_tree, offset + offsetof(struct newesp, esp_seq), 4,
 	    "Sequence?: %08x", (guint32)ntohl(esp.esp_seq));
     }
+}
+
+void
+proto_register_ipsec(void)
+{
+/*        static hf_register_info hf[] = {
+                { &variable,
+                { "Name",           "ah.abbreviation", TYPE, VALS_POINTER }},
+        };*/
+
+        proto_ah = proto_register_protocol("Authentication Header", "ah");
+        proto_esp = proto_register_protocol("Encapsulated Security Payload", "esp");
+ /*       proto_register_field_array(proto_ah, hf, array_length(hf));*/
 }

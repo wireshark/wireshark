@@ -2,7 +2,7 @@
  * Routines for NetWare Core Protocol
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-ncp.c,v 1.17 1999/07/13 02:52:52 gram Exp $
+ * $Id: packet-ncp.c,v 1.18 1999/07/29 05:46:59 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -42,6 +42,8 @@
 #include "packet.h"
 #include "packet-ipx.h"
 #include "packet-ncp.h"
+
+static int proto_ncp = -1;
 
 struct svc_record;
 
@@ -449,8 +451,7 @@ dissect_ncp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 	nw_ncp_type = header.type;
 
 	if (tree) {
-		ti = proto_tree_add_text(tree, offset, END_OF_FRAME,
-			"NetWare Core Protocol");
+		ti = proto_tree_add_item(tree, proto_ncp, offset, END_OF_FRAME, NULL);
 		ncp_tree = proto_item_add_subtree(ti, ETT_NCP);
 
 		proto_tree_add_text(ncp_tree, offset,      2,
@@ -846,4 +847,16 @@ ncp_completion_code(guint8 ccode, enum nfamily family)
 		default:
 			return "I don't know how to parse this completion code. Please send this packet trace to Gilbert Ramirez <gram@xiexie.org> for analysis";
 	}
+}
+
+void
+proto_register_ncp(void)
+{
+/*        static hf_register_info hf[] = {
+                { &variable,
+                { "Name",           "ncp.abbreviation", TYPE, VALS_POINTER }},
+        };*/
+
+        proto_ncp = proto_register_protocol("NetWare Core Protocol", "ncp");
+ /*       proto_register_field_array(proto_ncp, hf, array_length(hf));*/
 }

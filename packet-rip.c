@@ -2,7 +2,7 @@
  * Routines for RIPv1 and RIPv2 packet disassembly
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-rip.c,v 1.9 1999/07/07 22:51:52 gram Exp $
+ * $Id: packet-rip.c,v 1.10 1999/07/29 05:47:02 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -37,6 +37,8 @@
 #include <glib.h>
 #include "packet.h"
 #include "packet-rip.h"
+
+static int proto_rip = -1;
 
 static void dissect_ip_rip_vektor(guint8 version,
     const e_rip_vektor *rip_vektor, int offset, proto_tree *tree);
@@ -90,7 +92,7 @@ dissect_rip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
         col_add_str(fd, COL_INFO, packet_type[rip_header.command]); 
 
     if (tree) {
-	ti = proto_tree_add_text(tree, offset, (fd->cap_len - offset), "Routing Information Protocol"); 
+	ti = proto_tree_add_item(tree, proto_rip, offset, (fd->cap_len - offset), NULL);
 	rip_tree = proto_item_add_subtree(ti, ETT_RIP);
 
 	proto_tree_add_text(rip_tree, offset, 1, "Command: %d (%s)", rip_header.command, packet_type[rip_header.command]); 
@@ -175,3 +177,14 @@ dissect_rip_authentication(const e_rip_authentication *rip_authentication,
 				rip_authentication->authentication);
 }
 
+void
+proto_register_rip(void)
+{
+/*        static hf_register_info hf[] = {
+                { &variable,
+                { "Name",           "rip.abbreviation", TYPE, VALS_POINTER }},
+        };*/
+
+        proto_rip = proto_register_protocol("Routing Information Protocol", "rip");
+ /*       proto_register_field_array(proto_rip, hf, array_length(hf));*/
+}

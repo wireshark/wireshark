@@ -1,7 +1,7 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
  *
- * $Id: packet-dns.c,v 1.19 1999/07/07 22:51:41 gram Exp $
+ * $Id: packet-dns.c,v 1.20 1999/07/29 05:46:53 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -40,6 +40,7 @@
 #include "packet-dns.h"
 #include "util.h"
 
+static int proto_dns = -1;
 
 /* DNS structs and definitions */
 
@@ -706,7 +707,7 @@ dissect_dns(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   }
   
   if (tree) {
-    ti = proto_tree_add_text(tree, offset, 4,
+    ti = proto_tree_add_item_format(tree, proto_dns, offset, 4, NULL,
 			  (flags & F_RESPONSE) ? "DNS response" : "DNS query");
     
     dns_tree = proto_item_add_subtree(ti, ETT_DNS);
@@ -780,4 +781,16 @@ dissect_dns(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
       cur_off += dissect_answer_records(dns_data_ptr, add, pd, cur_off,
           dns_tree, "Additional records");
   }
+}
+
+void
+proto_register_dns(void)
+{
+/*        static hf_register_info hf[] = {
+                { &variable,
+                { "Name",           "dns.abbreviation", TYPE, VALS_POINTER }},
+        };*/
+
+        proto_dns = proto_register_protocol("Domain Name Service", "dns");
+ /*       proto_register_field_array(proto_dns, hf, array_length(hf));*/
 }

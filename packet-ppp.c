@@ -1,7 +1,7 @@
 /* packet-ppp.c
  * Routines for ppp packet disassembly
  *
- * $Id: packet-ppp.c,v 1.12 1999/07/07 22:51:50 gram Exp $
+ * $Id: packet-ppp.c,v 1.13 1999/07/29 05:47:01 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -34,6 +34,8 @@
 
 #include <glib.h>
 #include "packet.h"
+
+static int proto_ppp = -1;
 
 /* PPP structs and definitions */
 
@@ -274,7 +276,7 @@ dissect_payload_ppp( const u_char *pd, int offset, frame_data *fd, proto_tree *t
   /* populate a tree in the second pane with the status of the link
      layer (ie none) */
   if(tree) {
-    ti = proto_tree_add_text(tree, 0+offset, 2, "Point-to-Point Protocol" );
+    ti = proto_tree_add_item(tree, proto_ppp, 0+offset, 2, NULL);
     fh_tree = proto_item_add_subtree(ti, ETT_PPP);
     proto_tree_add_text(fh_tree, 0+offset, 2, "Protocol: %s (0x%04x)",
       val_to_str(ph.ppp_prot, ppp_vals, "Unknown"), ph.ppp_prot);
@@ -344,7 +346,7 @@ dissect_ppp( const u_char *pd, frame_data *fd, proto_tree *tree ) {
   /* populate a tree in the second pane with the status of the link
      layer (ie none) */
   if(tree) {
-    ti = proto_tree_add_text(tree, 0, 4, "Point-to-Point Protocol" );
+    ti = proto_tree_add_item(tree, proto_ppp, 0, 4, NULL);
     fh_tree = proto_item_add_subtree(ti, ETT_PPP);
     proto_tree_add_text(fh_tree, 0, 1, "Address: %02x", ph.ppp_addr);
     proto_tree_add_text(fh_tree, 1, 1, "Control: %02x", ph.ppp_ctl);
@@ -374,4 +376,16 @@ dissect_ppp( const u_char *pd, frame_data *fd, proto_tree *tree ) {
         col_add_fstr(fd, COL_PROTOCOL, "0x%04x", ph.ppp_prot);
       break;
   }
+}
+
+void
+proto_register_ppp(void)
+{
+/*        static hf_register_info hf[] = {
+                { &variable,
+                { "Name",           "ppp.abbreviation", TYPE, VALS_POINTER }},
+        };*/
+
+        proto_ppp = proto_register_protocol("Point-to-Point Protocol", "ppp");
+ /*       proto_register_field_array(proto_ppp, hf, array_length(hf));*/
 }

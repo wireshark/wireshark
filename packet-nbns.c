@@ -4,7 +4,7 @@
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  * Much stuff added by Guy Harris <guy@netapp.com>
  *
- * $Id: packet-nbns.c,v 1.22 1999/07/07 22:51:47 gram Exp $
+ * $Id: packet-nbns.c,v 1.23 1999/07/29 05:46:58 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -40,6 +40,10 @@
 #include "packet.h"
 #include "packet-dns.h"
 #include "util.h"
+
+static int proto_nbns = -1;
+static int proto_nbdgm = -1;
+static int proto_nbss = -1;
 
 /* Packet structure taken from RFC 1002. See also RFC 1001.
  * Opcode, flags, and rcode treated as "flags", similarly to DNS,
@@ -906,8 +910,7 @@ dissect_nbns(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	}
 
 	if (tree) {
-		ti = proto_tree_add_text(tree, offset, END_OF_FRAME,
-				"NetBIOS Name Service");
+		ti = proto_tree_add_item(tree, proto_nbns, offset, END_OF_FRAME, NULL);
 		nbns_tree = proto_item_add_subtree(ti, ETT_NBNS);
 
 		proto_tree_add_text(nbns_tree, offset + NBNS_ID, 2,
@@ -1045,8 +1048,7 @@ dissect_nbdgm(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 	}
 
 	if (tree) {
-		ti = proto_tree_add_text(tree, offset, header.dgm_length,
-				"NetBIOS Datagram Service");
+		ti = proto_tree_add_item(tree, proto_nbdgm, offset, header.dgm_length, NULL);
 		nbdgm_tree = proto_item_add_subtree(ti, ETT_NBDGM);
 
 		proto_tree_add_text(nbdgm_tree, offset, 1, "Message Type: %s",
@@ -1184,8 +1186,7 @@ dissect_nbss_packet(const u_char *pd, int offset, frame_data *fd, proto_tree *tr
 		length += 65536;
 
 	if (tree) {
-	  ti = proto_tree_add_text(tree, offset, length + 4,
-				   "NetBIOS Session Service");
+	  ti = proto_tree_add_item(tree, proto_nbss, offset, length + 4, NULL);
 	  nbss_tree = proto_item_add_subtree(ti, ETT_NBSS);
 	  
 	  proto_tree_add_text(nbss_tree, offset, 1, "Message Type: %s",
@@ -1288,4 +1289,18 @@ dissect_nbss(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int
 	  max_data -= len;
 	}
 
+}
+
+void
+proto_register_nbt(void)
+{
+/*        static hf_register_info hf[] = {
+                { &variable,
+                { "Name",           "nbipx.abbreviation", TYPE, VALS_POINTER }},
+        };*/
+
+        proto_nbns = proto_register_protocol("NetBIOS Name Service", "nbns");
+        proto_nbdgm = proto_register_protocol("NetBIOS Datagram Service", "nbdgm");
+        proto_nbss = proto_register_protocol("NetBIOS Session Service", "nbss");
+ /*       proto_register_field_array(proto_nbipx, hf, array_length(hf));*/
 }

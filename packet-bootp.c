@@ -2,7 +2,7 @@
  * Routines for BOOTP/DHCP packet disassembly
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-bootp.c,v 1.17 1999/07/07 22:51:40 gram Exp $
+ * $Id: packet-bootp.c,v 1.18 1999/07/29 05:46:52 gram Exp $
  *
  * The information used comes from:
  * RFC 2132: DHCP Options and BOOTP Vendor Extensions
@@ -39,6 +39,8 @@
 
 #include <glib.h>
 #include "packet.h"
+
+static int proto_bootp = -1;
 
 enum field_type { none, ipv4, string, toggle, yes_no, special, opaque,
 	time_in_secs,
@@ -452,8 +454,7 @@ dissect_bootp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	}
 
 	if (tree) {
-		ti = proto_tree_add_text(tree, offset, END_OF_FRAME,
-		  "Bootstrap Protocol");
+		ti = proto_tree_add_item(tree, proto_bootp, offset, END_OF_FRAME, NULL);
 		bp_tree = proto_item_add_subtree(ti, ETT_BOOTP);
 
 		proto_tree_add_text(bp_tree, offset, 1, pd[offset] == 1 ?
@@ -524,3 +525,14 @@ dissect_bootp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	}
 }
 
+void
+proto_register_bootp(void)
+{
+/*        static hf_register_info hf[] = {
+                { &variable,
+                { "Name",           "bootp.abbreviation", TYPE, VALS_POINTER }},
+        };*/
+
+        proto_bootp = proto_register_protocol("Bootstrap Protocol", "bootp");
+ /*       proto_register_field_array(proto_bootp, hf, array_length(hf));*/
+}

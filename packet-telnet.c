@@ -2,7 +2,7 @@
  * Routines for telnet packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-telnet.c,v 1.3 1999/07/07 22:51:55 gram Exp $
+ * $Id: packet-telnet.c,v 1.4 1999/07/29 05:47:05 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -43,6 +43,8 @@
 #include <glib.h>
 #include "packet.h"
 #include "etypes.h"
+
+static int proto_telnet = -1;
 
 /* Some defines for Telnet */
 
@@ -331,8 +333,7 @@ dissect_telnet(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, i
 
 	  memcpy(rr, pd + offset, max_data);
 
-	  ti = proto_tree_add_text(tree, offset, END_OF_FRAME,
-				"Telnet Protocol");
+	  ti = proto_tree_add_item(tree, proto_telnet, offset, END_OF_FRAME, NULL);
 	  telnet_tree = proto_item_add_subtree(ti, ETT_TELNET);
 
 	  i1 = i2 = i3 = 0;
@@ -374,8 +375,14 @@ dissect_telnet(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, i
 
 }
 
+void
+proto_register_telnet(void)
+{
+/*        static hf_register_info hf[] = {
+                { &variable,
+                { "Name",           "telnet.abbreviation", TYPE, VALS_POINTER }},
+        };*/
 
-
-
-
-
+        proto_telnet = proto_register_protocol("Telnet", "telnet");
+ /*       proto_register_field_array(proto_telnet, hf, array_length(hf));*/
+}

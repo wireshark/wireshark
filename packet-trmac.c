@@ -2,7 +2,7 @@
  * Routines for Token-Ring Media Access Control
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-trmac.c,v 1.12 1999/07/07 22:51:56 gram Exp $
+ * $Id: packet-trmac.c,v 1.13 1999/07/29 05:47:06 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -34,6 +34,8 @@
 
 #include <glib.h>
 #include "packet.h"
+
+static int proto_trmac = -1;
 
 /* Major Vector */
 static value_string major_vectors[] = {
@@ -252,12 +254,6 @@ dissect_trmac(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
 	mv_length = pntohs(&pd[offset]);
 
-	if (tree) {
-		ti = proto_tree_add_text(tree, offset, mv_length,
-			"Media Access Control");
-		mac_tree = proto_item_add_subtree(ti, ETT_TR_MAC);
-	}
-
 	/* Interpret the major vector */
 	mv_text = val_to_str(pd[offset+3], major_vectors, "Unknown Major Vector: %d\n");
 
@@ -268,6 +264,10 @@ dissect_trmac(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 		col_add_str(fd, COL_INFO, mv_text);
 
 	if (tree) {
+
+		ti = proto_tree_add_item(tree, proto_trmac, offset, mv_length, NULL);
+		mac_tree = proto_item_add_subtree(ti, ETT_TR_MAC);
+
 		if (mv_text)
 			proto_tree_add_text(mac_tree, offset+3, 1, "Major Vector Command: %s",
 							mv_text);
@@ -297,4 +297,16 @@ dissect_trmac(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 				break;
 		}
 	}
+}
+
+void
+proto_register_trmac(void)
+{
+/*        static hf_register_info hf[] = {
+                { &variable,
+                { "Name",           "trmac.abbreviation", TYPE, VALS_POINTER }},
+        };*/
+
+        proto_trmac = proto_register_protocol("Token-Ring Media Access Control", "trmac");
+ /*       proto_register_field_array(proto_trmac, hf, array_length(hf));*/
 }

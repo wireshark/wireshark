@@ -3,7 +3,7 @@
  *
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-rsvp.c,v 1.3 1999/07/13 02:52:55 gram Exp $
+ * $Id: packet-rsvp.c,v 1.4 1999/07/29 05:47:02 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -71,6 +71,8 @@
 #include "packet.h"
 #include "packet-ipv6.h"
 #include "packet-rsvp.h"
+
+static int proto_rsvp = -1;
 
 /* Stuff for IEEE float handling */
 
@@ -164,8 +166,7 @@ dissect_rsvp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
     if (tree) {
 	msg_length = pntohs(pd+offset+6);
-	ti = proto_tree_add_text(tree, offset, msg_length, 
-			      "Resource ReserVation Protocol (RSVP)"); 
+	ti = proto_tree_add_item(tree, proto_rsvp, offset, msg_length, NULL);
 	rsvp_tree = proto_item_add_subtree(ti, ETT_RSVP);
 
 	ti = proto_tree_add_text(rsvp_tree, offset, 
@@ -843,4 +844,16 @@ dissect_rsvp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	    len += obj_length;
 	}
     }
+}
+
+void
+proto_register_rsvp(void)
+{
+/*        static hf_register_info hf[] = {
+                { &variable,
+                { "Name",           "rsvp.abbreviation", TYPE, VALS_POINTER }},
+        };*/
+
+        proto_rsvp = proto_register_protocol("Resource ReserVation Protocol (RSVP)", "rsvp");
+ /*       proto_register_field_array(proto_rsvp, hf, array_length(hf));*/
 }

@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.4 1999/07/22 16:41:22 gram Exp $
+ * $Id: proto.c,v 1.5 1999/07/29 05:47:07 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -80,17 +80,51 @@ static int proto_register_field_init(header_field_info *hfinfo, int parent);
 void dfilter_yacc_init(void);
 
 /* centralization of registration functions */
+void proto_register_aarp(void);
+void proto_register_arp(void);
+void proto_register_atalk(void);
+void proto_register_bootp(void);
+void proto_register_cdp(void);
 void proto_register_data(void);
+void proto_register_dns(void);
 void proto_register_eth(void);
 void proto_register_fddi(void);
 void proto_register_frame(void);
+void proto_register_ftp(void);
+void proto_register_giop(void);
+void proto_register_gre(void);
+void proto_register_http(void);
+void proto_register_icmp(void);
+void proto_register_icmpv6(void);
 void proto_register_igmp(void);
 void proto_register_ip(void);
+void proto_register_ipsec(void);
+void proto_register_ipv6(void);
 void proto_register_ipx(void);
+void proto_register_isakmp(void);
 void proto_register_llc(void);
+void proto_register_nbipx(void);
+void proto_register_nbt(void);
+void proto_register_ncp(void);
+void proto_register_nntp(void);
 void proto_register_null(void);
+void proto_register_osi(void);
+void proto_register_ospf(void);
+void proto_register_pop(void);
+void proto_register_ppp(void);
+void proto_register_rip(void);
+void proto_register_rsvp(void);
+void proto_register_rtsp(void);
+void proto_register_sdp(void);
+void proto_register_smb(void);
+#if defined(WITH_SNMP_CMU) || defined(WITH_SNMP_UCD)
+void proto_register_snmp(void);
+#endif
+void proto_register_telnet(void);
+void proto_register_tftp(void);
 void proto_register_tcp(void);
 void proto_register_tr(void);
+void proto_register_trmac(void);
 void proto_register_udp(void);
 
 /* special-case header field used within proto.c */
@@ -138,17 +172,51 @@ proto_init(void)
 	/* Have each dissector register its protocols and fields. The
 	 * order doesn't matter. Put the calls in alphabetical order
 	 * just to make it easy. */
+	proto_register_aarp();
+	proto_register_arp();
+	proto_register_atalk();
+	proto_register_bootp();
+	proto_register_cdp();
 	proto_register_data();
+	proto_register_dns();
 	proto_register_eth();
 	proto_register_fddi();
 	proto_register_frame();
+	proto_register_ftp();
+	proto_register_giop();
+	proto_register_gre();
+	proto_register_http();
+	proto_register_icmp();
+	proto_register_icmpv6();
 	proto_register_igmp();
 	proto_register_ip();
+	proto_register_ipsec();
+	proto_register_ipv6();
 	proto_register_ipx();
+	proto_register_isakmp();
 	proto_register_llc();
+	proto_register_nbipx();
+	proto_register_nbt();
+	proto_register_ncp();
+	proto_register_nntp();
 	proto_register_null();
-	proto_register_tr();
+	proto_register_osi();
+	proto_register_ospf();
+	proto_register_pop();
+	proto_register_ppp();
+	proto_register_rip();
+	proto_register_rsvp();
+	proto_register_rtsp();
+	proto_register_sdp();
+	proto_register_smb();
+#if defined(WITH_SNMP_CMU) || defined(WITH_SNMP_UCD)
+	proto_register_snmp();
+#endif
+	proto_register_telnet();
+	proto_register_tftp();
 	proto_register_tcp();
+	proto_register_tr();
+	proto_register_trmac();
 	proto_register_udp();
 
 	/* Register one special-case FT_TEXT_ONLY field for use when

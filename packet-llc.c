@@ -2,7 +2,7 @@
  * Routines for IEEE 802.2 LLC layer
  * Gilbert Ramirez <gramirez@tivoli.com>
  *
- * $Id: packet-llc.c,v 1.16 1999/07/15 15:32:42 gram Exp $
+ * $Id: packet-llc.c,v 1.17 1999/07/29 05:46:58 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -35,12 +35,12 @@
 #include <glib.h>
 #include "packet.h"
 	
-int proto_llc = -1;
-int hf_llc_dsap = -1;
-int hf_llc_ssap = -1;
-int hf_llc_ctrl = -1;
-int hf_llc_type = -1;
-int hf_llc_oui = -1;
+static int proto_llc = -1;
+static int hf_llc_dsap = -1;
+static int hf_llc_ssap = -1;
+static int hf_llc_ctrl = -1;
+static int hf_llc_type = -1;
+static int hf_llc_oui = -1;
 
 typedef void (capture_func_t)(const u_char *, int, guint32, packet_counts *);
 typedef void (dissect_func_t)(const u_char *, int, frame_data *, proto_tree *);

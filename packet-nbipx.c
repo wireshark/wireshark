@@ -2,7 +2,7 @@
  * Routines for NetBIOS over IPX packet disassembly
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-nbipx.c,v 1.8 1999/07/07 22:51:47 gram Exp $
+ * $Id: packet-nbipx.c,v 1.9 1999/07/29 05:46:58 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -32,10 +32,11 @@
 # include <sys/types.h>
 #endif
 
-/*#include <memory.h>*/
 #include <glib.h>
 #include "packet.h"
 #include "packet-ipx.h" /* for ipxnet_to_string() */
+
+static int proto_nbipx = -1;
 
 enum nbipx_protocol {
 	NETBIOS_NETWARE,
@@ -141,8 +142,7 @@ nbipx_ns(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 	}
 
 	if (tree) {
-		ti = proto_tree_add_text(tree, offset, 68,
-				"NetBIOS over IPX");
+		ti = proto_tree_add_item(tree, proto_nbipx, offset, 68, NULL);
 		nbipx_tree = proto_item_add_subtree(ti, ETT_NBIPX);
 
 		if (header.packet_type <= 1) {
@@ -194,6 +194,14 @@ nbipx_ns(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 	}
 }
 
+void
+proto_register_nbipx(void)
+{
+/*        static hf_register_info hf[] = {
+                { &variable,
+                { "Name",           "nbipx.abbreviation", TYPE, VALS_POINTER }},
+        };*/
 
-
-
+        proto_nbipx = proto_register_protocol("NetBIOS over IPX", "nbipx");
+ /*       proto_register_field_array(proto_nbipx, hf, array_length(hf));*/
+}

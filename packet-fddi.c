@@ -3,7 +3,7 @@
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
- * $Id: packet-fddi.c,v 1.14 1999/07/15 15:32:41 gram Exp $
+ * $Id: packet-fddi.c,v 1.15 1999/07/29 05:46:54 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -37,12 +37,12 @@
 #include "packet.h"
 #include "resolv.h"
 
-int proto_fddi = -1;
-int hf_fddi_fc = -1;
-int hf_fddi_dst = -1;
-int hf_fddi_dst_vendor = -1;
-int hf_fddi_src = -1;
-int hf_fddi_src_vendor = -1;
+static int proto_fddi = -1;
+static int hf_fddi_fc = -1;
+static int hf_fddi_dst = -1;
+static int hf_fddi_dst_vendor = -1;
+static int hf_fddi_src = -1;
+static int hf_fddi_src_vendor = -1;
 
 /* FDDI Frame Control values */
 

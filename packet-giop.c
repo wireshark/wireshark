@@ -3,7 +3,7 @@
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
- * $Id: packet-giop.c,v 1.3 1999/07/07 22:51:43 gram Exp $
+ * $Id: packet-giop.c,v 1.4 1999/07/29 05:46:54 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -39,6 +39,8 @@
 #include <ctype.h>
 #include <glib.h>
 #include "packet.h"
+
+static int proto_giop = -1;
 
 /*
  * GIOP / IIOP types definition - OMG CORBA 2.x / GIOP 1.[01]
@@ -258,9 +260,8 @@ void dissect_giop(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
   }
 
   if (tree) {
-    ti = proto_tree_add_text(tree, offset, 
-			  GIOP_HEADER_SIZE + message_size,
-			  "General Inter-ORB Protocol");
+    ti = proto_tree_add_item(tree, proto_giop, offset, 
+			  GIOP_HEADER_SIZE + message_size, NULL);
     clnp_tree = proto_item_add_subtree(ti, ETT_GIOP);
     proto_tree_add_text(clnp_tree, offset,      4,
 		     "Magic number: %s", GIOP_MAGIC);
@@ -696,3 +697,14 @@ void dissect_giop(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 
 } /* dissect_giop */
 
+void
+proto_register_giop(void)
+{
+/*        static hf_register_info hf[] = {
+                { &variable,
+                { "Name",           "giop.abbreviation", TYPE, VALS_POINTER }},
+        };*/
+
+        proto_giop = proto_register_protocol("General Inter-ORB Protocol", "giop");
+ /*       proto_register_field_array(proto_giop, hf, array_length(hf));*/
+}

@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.20 1999/07/23 15:08:25 gram Exp $
+ * $Id: packet-smb.c,v 1.21 1999/07/29 05:47:04 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -47,6 +47,8 @@
 #include "alignment.h"
 
 extern packet_info pi;
+
+static int proto_smb = -1;
 
 char *decode_smb_name(unsigned char);
 void (*dissect[256])(const u_char *, int, frame_data *, proto_tree *, int, int);
@@ -3197,8 +3199,7 @@ dissect_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int 
 
 	if (tree) {
 
-	  ti = proto_tree_add_text(tree, offset, END_OF_FRAME,
-				"Server Message Block Protocol");
+	  ti = proto_tree_add_item(tree, proto_smb, offset, END_OF_FRAME, NULL);
 	  smb_tree = proto_item_add_subtree(ti, ETT_SMB);
 
 	  /* 0xFFSMB is actually a 1 byte msg type and 3 byte server
@@ -3403,4 +3404,16 @@ dissect_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int 
 		       ((flags & 0x80) == 0));
 
 
+}
+
+void
+proto_register_smb(void)
+{
+/*        static hf_register_info hf[] = {
+                { &variable,
+                { "Name",           "smb.abbreviation", TYPE, VALS_POINTER }},
+        };*/
+
+        proto_smb = proto_register_protocol("Server Message Block Protocol", "smb");
+ /*       proto_register_field_array(proto_smb, hf, array_length(hf));*/
 }

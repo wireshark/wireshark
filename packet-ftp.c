@@ -2,7 +2,7 @@
  * Routines for ftp packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-ftp.c,v 1.4 1999/07/07 22:51:43 gram Exp $
+ * $Id: packet-ftp.c,v 1.5 1999/07/29 05:46:54 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -45,6 +45,8 @@
 #include "etypes.h"
 
 extern packet_info pi;
+
+static int proto_ftp = -1;
 
 void
 dissect_ftp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data)
@@ -92,8 +94,7 @@ dissect_ftp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int 
 
 	if (tree) {
 
-	  ti = proto_tree_add_text(tree, offset, END_OF_FRAME,
-				"File Transfer Protocol");
+	  ti = proto_tree_add_item(tree, proto_ftp, offset, END_OF_FRAME, NULL);
 	  ftp_tree = proto_item_add_subtree(ti, ETT_FTP);
 
 	  if (pi.match_port == pi.destport) { /* Request */
@@ -135,8 +136,14 @@ dissect_ftpdata(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, 
 	}
 }
 
+void
+proto_register_ftp(void)
+{
+/*        static hf_register_info hf[] = {
+                { &variable,
+                { "Name",           "ftp.abbreviation", TYPE, VALS_POINTER }},
+        };*/
 
-
-
-
-
+        proto_ftp = proto_register_protocol("File Transfer Protocol", "ftp");
+ /*       proto_register_field_array(proto_ftp, hf, array_length(hf));*/
+}

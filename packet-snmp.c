@@ -2,7 +2,7 @@
  * Routines for SNMP (simple network management protocol)
  * D.Jorand (c) 1998
  *
- * $Id: packet-snmp.c,v 1.4 1999/07/07 22:51:54 gram Exp $
+ * $Id: packet-snmp.c,v 1.5 1999/07/29 05:47:05 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -62,6 +62,8 @@
 #include <ucd-snmp/snmp_api.h>
 #include <ucd-snmp/snmp_impl.h>
 #include <ucd-snmp/mib.h>
+
+static int proto_snmp = -1;
 
 typedef long SNMP_INT;
 typedef unsigned  long SNMP_UINT;
@@ -449,10 +451,10 @@ dissect_snmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		    "Unknown PDU type %#x");
 		if (check_col(fd, COL_INFO))
 			col_add_str(fd, COL_INFO, pdu_type_string);
-		if(tree) {
+		if (tree) {
 			/* all_length=header_length+pdu_type_length+request_id_length+error_status_length+error_index_length; */
 			all_length=fd->pkt_len-offset;
-			item = proto_tree_add_text(tree, offset, all_length, "Simple Network Management Protocol");
+			item = proto_tree_add_item(tree, proto_snmp, offset, all_length, NULL);
 			snmp_tree = proto_item_add_subtree(item, ETT_SNMP);
 			proto_tree_add_text(snmp_tree, offset, header_length, "Community: \"%s\", Version: %s", community, val_to_str(version, versions, "Unknown version %#x"));
 			offset+=header_length;
@@ -480,7 +482,7 @@ dissect_snmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 			col_add_str(fd, COL_INFO, pdu_type_string);
 		if(tree) {
 			all_length=fd->pkt_len-offset;
-			item = proto_tree_add_text(tree, offset, all_length, "Simple Network Management Protocol");
+			item = proto_tree_add_item(tree, proto_snmp, offset, all_length, NULL);
 			snmp_tree = proto_item_add_subtree(item, ETT_SNMP);
 			proto_tree_add_text(snmp_tree, offset, header_length, "Community: \"%s\", Version: %s", community, val_to_str(version, versions, "Unknown version %#x"));
 			offset+=header_length;
@@ -854,6 +856,18 @@ dissect_snmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 			return;
 		}			
 	}
+}
+
+void
+proto_register_snmp(void)
+{
+/*        static hf_register_info hf[] = {
+                { &variable,
+                { "Name",           "snmp.abbreviation", TYPE, VALS_POINTER }},
+        };*/
+
+        proto_snmp = proto_register_protocol("Simple Network Management Protocol", "snmp");
+ /*       proto_register_field_array(proto_snmp, hf, array_length(hf));*/
 }
 
 #endif /* WITH_SNMP: CMU or UCD */

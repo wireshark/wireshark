@@ -2,7 +2,7 @@
  * Routines for nntp packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-nntp.c,v 1.2 1999/07/07 22:51:49 gram Exp $
+ * $Id: packet-nntp.c,v 1.3 1999/07/29 05:47:00 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -43,6 +43,8 @@
 
 extern packet_info pi;
 
+static int proto_nntp = -1;
+
 void
 dissect_nntp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data)
 {
@@ -77,8 +79,7 @@ dissect_nntp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int
 
 	if (tree) {
 
-	  ti = proto_tree_add_text(tree, offset, END_OF_FRAME,
-				"Network News Transfer Protocol");
+	  ti = proto_tree_add_item(tree, proto_nntp, offset, END_OF_FRAME, NULL);
 	  nntp_tree = proto_item_add_subtree(ti, ETT_NNTP);
 
 	  /*
@@ -105,4 +106,16 @@ dissect_nntp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int
 		data = lineend;
 	  }
 	}
+}
+
+void
+proto_register_nntp(void)
+{
+/*        static hf_register_info hf[] = {
+                { &variable,
+                { "Name",           "nntp.abbreviation", TYPE, VALS_POINTER }},
+        };*/
+
+        proto_nntp = proto_register_protocol("Network News Transfer Protocol", "nntp");
+ /*       proto_register_field_array(proto_nntp, hf, array_length(hf));*/
 }

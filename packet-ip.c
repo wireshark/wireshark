@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.30 1999/07/17 04:19:03 gram Exp $
+ * $Id: packet-ip.c,v 1.31 1999/07/29 05:46:55 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -48,23 +48,26 @@
 
 extern packet_info pi;
 	
-int proto_ip = -1;
-int hf_ip_version = -1;
-int hf_ip_hdr_len = -1;
-int hf_ip_tos = -1;
-int hf_ip_tos_precedence = -1;
-int hf_ip_len = -1;
-int hf_ip_id = -1;
-int hf_ip_dst = -1;
-int hf_ip_src = -1;
-int hf_ip_addr = -1;
-		
-int proto_igmp = -1;
-int hf_igmp_version = -1;
-int hf_igmp_type = -1;
-int hf_igmp_unused = -1;
-int hf_igmp_checksum = -1;
-int hf_igmp_group = -1;
+static int proto_ip = -1;
+static int hf_ip_version = -1;
+static int hf_ip_hdr_len = -1;
+static int hf_ip_tos = -1;
+static int hf_ip_tos_precedence = -1;
+static int hf_ip_len = -1;
+static int hf_ip_id = -1;
+static int hf_ip_dst = -1;
+static int hf_ip_src = -1;
+static int hf_ip_addr = -1;
+
+static int proto_igmp = -1;
+static int hf_igmp_version = -1;
+static int hf_igmp_type = -1;
+static int hf_igmp_unused = -1;
+static int hf_igmp_checksum = -1;
+static int hf_igmp_group = -1;
+
+static int proto_icmp = -1;
+
 
 /* ICMP structs and definitions */
 typedef struct _e_icmp {
@@ -911,8 +914,7 @@ dissect_icmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     col_add_str(fd, COL_INFO, type_str);
 
   if (tree) {
-    ti = proto_tree_add_text(tree, offset, 4,
-      "Internet Control Message Protocol");
+    ti = proto_tree_add_item(tree, proto_icmp, offset, 4, NULL);
     icmp_tree = proto_item_add_subtree(ti, ETT_ICMP);
     proto_tree_add_text(icmp_tree, offset,      1, "Type: %d (%s)",
       ih.icmp_type, type_str);
@@ -1135,4 +1137,10 @@ proto_register_ip(void)
 
 	proto_ip = proto_register_protocol ("Internet Protocol", "ip");
 	proto_register_field_array(proto_ip, hf, array_length(hf));
+}
+
+void
+proto_register_icmp(void)
+{
+	proto_icmp = proto_register_protocol ("Internet Control Message Protocol", "icmp");
 }

@@ -4,7 +4,7 @@
  * Jason Lango <jal@netapp.com>
  * Liberally copied from packet-http.c, by Guy Harris <guy@netapp.com>
  *
- * $Id: packet-sdp.c,v 1.2 1999/07/07 22:51:53 gram Exp $
+ * $Id: packet-sdp.c,v 1.3 1999/07/29 05:47:03 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -40,6 +40,8 @@
 #include <glib.h>
 #include "packet.h"
 
+static int proto_sdp = -1;
+
 void dissect_sdp(const u_char *pd, int offset, frame_data *fd,
 	proto_tree *tree)
 {
@@ -68,8 +70,7 @@ void dissect_sdp(const u_char *pd, int offset, frame_data *fd,
 	if (!tree)
 		return;
 
-	ti = proto_tree_add_text(tree, offset, END_OF_FRAME,
-		"Session Description Protocol");
+	ti = proto_tree_add_item(tree, proto_sdp, offset, END_OF_FRAME, NULL);
 	sdp_tree = proto_item_add_subtree(ti, ETT_SDP);
 
 	section = 0;
@@ -172,4 +173,16 @@ void dissect_sdp(const u_char *pd, int offset, frame_data *fd,
 		proto_tree_add_text(sdp_tree, offset, END_OF_FRAME,
 		    "Data (%d bytes)", END_OF_FRAME);
 	}
+}
+
+void
+proto_register_sdp(void)
+{
+/*        static hf_register_info hf[] = {
+                { &variable,
+                { "Name",           "sdp.abbreviation", TYPE, VALS_POINTER }},
+        };*/
+
+        proto_sdp = proto_register_protocol("Session Description Protocol", "sdp");
+ /*       proto_register_field_array(proto_sdp, hf, array_length(hf));*/
 }

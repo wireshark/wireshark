@@ -2,7 +2,7 @@
  * Routines for Token-Ring packet disassembly
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-tr.c,v 1.16 1999/07/15 15:32:42 gram Exp $
+ * $Id: packet-tr.c,v 1.17 1999/07/29 05:47:06 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -37,27 +37,27 @@
 #include "packet.h"
 #include "etypes.h"
 	
-int proto_tr = -1;
-int hf_tr_dst = -1;
-int hf_tr_src = -1;
-int hf_tr_dst_vendor = -1;
-int hf_tr_src_vendor = -1;
-int hf_tr_sr = -1;
-int hf_tr_ac = -1;
-int hf_tr_priority = -1;
-int hf_tr_frame = -1;
-int hf_tr_monitor_cnt = -1;
-int hf_tr_priority_reservation = -1;
-int hf_tr_fc = -1;
-int hf_tr_fc_type = -1;
-int hf_tr_fc_pcf = -1;
-int hf_tr_rif_bytes = -1;
-int hf_tr_broadcast = -1;
-int hf_tr_max_frame_size = -1;
-int hf_tr_direction = -1;
-int hf_tr_rif = -1;
-int hf_tr_rif_ring = -1;
-int hf_tr_rif_bridge = -1;
+static int proto_tr = -1;
+static int hf_tr_dst = -1;
+static int hf_tr_src = -1;
+static int hf_tr_dst_vendor = -1;
+static int hf_tr_src_vendor = -1;
+static int hf_tr_sr = -1;
+static int hf_tr_ac = -1;
+static int hf_tr_priority = -1;
+static int hf_tr_frame = -1;
+static int hf_tr_monitor_cnt = -1;
+static int hf_tr_priority_reservation = -1;
+static int hf_tr_fc = -1;
+static int hf_tr_fc_type = -1;
+static int hf_tr_fc_pcf = -1;
+static int hf_tr_rif_bytes = -1;
+static int hf_tr_broadcast = -1;
+static int hf_tr_max_frame_size = -1;
+static int hf_tr_direction = -1;
+static int hf_tr_rif = -1;
+static int hf_tr_rif_ring = -1;
+static int hf_tr_rif_bridge = -1;
 	
 static const value_string ac_vals[] = {
 	{ 0,	"Token" },

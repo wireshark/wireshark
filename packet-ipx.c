@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-ipx.c,v 1.23 1999/07/20 02:56:44 gram Exp $
+ * $Id: packet-ipx.c,v 1.24 1999/07/29 05:46:57 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -49,16 +49,16 @@
 
 */
 	
-int proto_ipx = -1;
-int hf_ipx_checksum = -1;
-int hf_ipx_len = -1;
-int hf_ipx_hops = -1;
-int hf_ipx_dnode = -1;
-int hf_ipx_snode = -1;
+static int proto_ipx = -1;
+static int hf_ipx_checksum = -1;
+static int hf_ipx_len = -1;
+static int hf_ipx_hops = -1;
+static int hf_ipx_dnode = -1;
+static int hf_ipx_snode = -1;
 
-int proto_spx = -1;
-int proto_ipxrip = -1;
-int proto_sap = -1;
+static int proto_spx = -1;
+static int proto_ipxrip = -1;
+static int proto_sap = -1;
 
 static void
 dissect_spx(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data);

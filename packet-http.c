@@ -3,7 +3,7 @@
  *
  * Guy Harris <guy@netapp.com>
  *
- * $Id: packet-http.c,v 1.5 1999/07/13 02:52:51 gram Exp $
+ * $Id: packet-http.c,v 1.6 1999/07/29 05:46:55 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -41,6 +41,8 @@
 #include <glib.h>
 #include "packet.h"
 
+static int proto_http = -1;
+
 static int is_http_request_or_reply(const u_char *data, int linelen);
 
 void dissect_http(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
@@ -72,8 +74,7 @@ void dissect_http(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 	}
 
 	if (tree) {
-		ti = proto_tree_add_text(tree, offset, END_OF_FRAME,
-		  "Hypertext Transfer Protocol");
+		ti = proto_tree_add_item(tree, proto_http, offset, END_OF_FRAME, NULL);
 		http_tree = proto_item_add_subtree(ti, ETT_HTTP);
 
 		while (data < dataend) {
@@ -206,4 +207,16 @@ is_http_request_or_reply(const u_char *data, int linelen)
 			return TRUE;
 	}
 	return FALSE;
+}
+
+void
+proto_register_http(void)
+{
+/*        static hf_register_info hf[] = {
+                { &variable,
+                { "Name",           "http.abbreviation", TYPE, VALS_POINTER }},
+        };*/
+
+        proto_http = proto_register_protocol("Hyptertext Transfer Protocol", "http");
+ /*       proto_register_field_array(proto_http, hf, array_length(hf));*/
 }

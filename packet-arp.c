@@ -1,7 +1,7 @@
 /* packet-arp.c
  * Routines for ARP packet disassembly
  *
- * $Id: packet-arp.c,v 1.14 1999/07/07 22:51:40 gram Exp $
+ * $Id: packet-arp.c,v 1.15 1999/07/29 05:46:52 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -34,6 +34,8 @@
 #include <glib.h>
 #include "packet.h"
 #include "etypes.h"
+
+static int proto_arp = -1;
 
 /* Definitions taken from Linux "linux/if_arp.h" header file, and from
 
@@ -216,10 +218,10 @@ dissect_arp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
   if (tree) {
     if ((op_str = match_strval(ar_op, op_vals)))
-      ti = proto_tree_add_text(tree, offset, 8 + 2*ar_hln + 2*ar_pln,
+      ti = proto_tree_add_item_format(tree, proto_arp, offset, 8 + 2*ar_hln + 2*ar_pln,
         op_str);
     else
-      ti = proto_tree_add_text(tree, offset, 8 + 2*ar_hln + 2*ar_pln,
+      ti = proto_tree_add_item_format(tree, proto_arp, offset, 8 + 2*ar_hln + 2*ar_pln,
         "Unknown ARP (opcode 0x%04x)", ar_op);
     arp_tree = proto_item_add_subtree(ti, ETT_ARP);
     proto_tree_add_text(arp_tree, offset + AR_HRD, 2,
@@ -241,4 +243,16 @@ dissect_arp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     proto_tree_add_text(arp_tree, tpa_offset, ar_pln,
       "Target protocol address: %s", tpa_str);
   }
+}
+
+void
+proto_register_arp(void)
+{
+/*        static hf_register_info hf[] = {
+                { &variable,
+                { "Name",           "arp.abbreviation", TYPE, VALS_POINTER }},
+        };*/
+
+        proto_arp = proto_register_protocol("Address Resolution Protocol", "arp");
+ /*       proto_register_field_array(proto_arp, hf, array_length(hf));*/
 }

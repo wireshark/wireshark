@@ -2,7 +2,7 @@
  * Routines for the Generic Routing Encapsulation (GRE) protocol
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-gre.c,v 1.3 1999/07/13 02:52:51 gram Exp $
+ * $Id: packet-gre.c,v 1.4 1999/07/29 05:46:55 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -37,6 +37,8 @@
 #endif
 #include <glib.h>
 #include "packet.h"
+
+static int proto_gre = -1;
 
 /* bit positions for flags in header */
 #define GH_B_C		0x8000
@@ -82,15 +84,14 @@ dissect_gre(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
     if (type == GRE_PPP) {
       is_ppp = 1;
-      ti = proto_tree_add_text(tree, offset, calc_len(flags_and_ver, 1),
-	"Generic Routing Encapsulation (PPP)");
+      ti = proto_tree_add_item_format(tree, proto_gre, offset, calc_len(flags_and_ver, 1),
+	NULL, "Generic Routing Encapsulation (PPP)");
       gre_tree = proto_item_add_subtree(ti, ETT_GRE);
       add_flags_and_ver(gre_tree, flags_and_ver, offset, 1);
     }
     else {
       is_ppp = 0;
-      ti = proto_tree_add_text(tree, offset, calc_len(flags_and_ver, 1),
-	"Generic Routing Encapsulation");
+      ti = proto_tree_add_item(tree, proto_gre, offset, calc_len(flags_and_ver, 1), NULL);
       gre_tree = proto_item_add_subtree(ti, ETT_GRE);
       add_flags_and_ver(gre_tree, flags_and_ver, offset, 0);
     }
@@ -234,3 +235,14 @@ add_flags_and_ver(proto_tree *tree, guint16 flags_and_ver, int offset, int is_pp
 					      "Version: %u"));
  }
  
+void
+proto_register_gre(void)
+{
+/*        static hf_register_info hf[] = {
+                { &variable,
+                { "Name",           "gre.abbreviation", TYPE, VALS_POINTER }},
+        };*/
+
+        proto_gre = proto_register_protocol("Generic Routing Encapsulation", "gre");
+ /*       proto_register_field_array(proto_gre, hf, array_length(hf));*/
+}

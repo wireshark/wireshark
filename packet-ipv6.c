@@ -1,7 +1,7 @@
 /* packet-ipv6.c
  * Routines for IPv6 packet disassembly 
  *
- * $Id: packet-ipv6.c,v 1.10 1999/07/13 02:52:52 gram Exp $
+ * $Id: packet-ipv6.c,v 1.11 1999/07/29 05:46:56 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -47,6 +47,8 @@
 #include "packet-ipv6.h"
 #include "etypes.h"
 #include "resolv.h"
+
+static int proto_ipv6 = -1;
 
 #ifndef offsetof
 #define	offsetof(type, member)	((size_t)(&((type *)0)->member))
@@ -127,7 +129,7 @@ dissect_ipv6(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
   if (tree) {
     /* !!! specify length */
-    ti = proto_tree_add_text(tree, offset, 40, "Internet Protocol Version 6");
+    ti = proto_tree_add_item(tree, proto_ipv6, offset, 40, NULL);
     ipv6_tree = proto_item_add_subtree(ti, ETT_IPv6);
 
     /* !!! warning: version also contains 4 Bit priority */
@@ -402,3 +404,14 @@ inet_ntop6(src, dst, size)
 	return (dst);
 }
 
+void
+proto_register_ipv6(void)
+{
+/*        static hf_register_info hf[] = {
+                { &variable,
+                { "Name",           "ipv6.abbreviation", TYPE, VALS_POINTER }},
+        };*/
+
+        proto_ipv6 = proto_register_protocol("Internet Protocol Version 6", "ipv6");
+ /*       proto_register_field_array(proto_ipv6, hf, array_length(hf));*/
+}

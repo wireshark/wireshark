@@ -2,7 +2,7 @@
  * Routines for the disassembly of the "Cisco Discovery Protocol"
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-cdp.c,v 1.9 1999/07/07 22:51:41 gram Exp $
+ * $Id: packet-cdp.c,v 1.10 1999/07/29 05:46:52 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -40,6 +40,8 @@
 #define	TLV_TYPE	0
 #define	TLV_LENGTH	2
 
+static int proto_cdp = -1;
+
 static void
 add_multi_line_string_to_tree(proto_tree *tree, gint start, gint len,
   const gchar *prefix, const gchar *string);
@@ -66,8 +68,7 @@ dissect_cdp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
         col_add_str(fd, COL_INFO, "Cisco Discovery Protocol"); 
 
     if(tree){
-        ti = proto_tree_add_text(tree, offset, (fd->cap_len - offset), 
-                                                          "Cisco Discovery Protocol");
+        ti = proto_tree_add_item(tree, proto_cdp, offset, (fd->cap_len - offset), NULL);
 	cdp_tree = proto_item_add_subtree(ti, ETT_CDP);
 	
 	/* CDP header */
@@ -186,4 +187,16 @@ add_multi_line_string_to_tree(proto_tree *tree, gint start, gint len,
 	start += data_len;
 	prefix = blanks;
     }
+}
+
+void
+proto_register_cdp(void)
+{
+/*        static hf_register_info hf[] = {
+                { &variable,
+                { "Name",           "cdp.abbreviation", TYPE, VALS_POINTER }},
+        };*/
+
+        proto_cdp = proto_register_protocol("Cisco Discovery Protocol", "cdp");
+ /*       proto_register_field_array(proto_cdp, hf, array_length(hf));*/
 }

@@ -35,6 +35,8 @@
 
 extern packet_info pi;
 
+static int proto_ddp = -1;
+
 /* P = Padding, H = Hops, L = Len */
 #if BYTE_ORDER == BIG_ENDIAN
  /* PPHHHHLL LLLLLLLL */
@@ -91,7 +93,7 @@ dissect_ddp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
       val_to_str(ddp.type, op_vals, "Unknown DDP protocol (%02x)"));
   
   if (tree) {
-    ti = proto_tree_add_text(tree, offset, 13, "Datagram Delivery Protocol");
+    ti = proto_tree_add_item(tree, proto_ddp, offset, 13, NULL);
     ddp_tree = proto_item_add_subtree(ti, ETT_IP);
     proto_tree_add_text(ddp_tree, offset,      1, "Hop count: %d", ddp_hops(ddp.hops_len));
     proto_tree_add_text(ddp_tree, offset,	    2, "Datagram length: %d", ddp_len(ddp.hops_len));
@@ -107,4 +109,16 @@ dissect_ddp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
   offset += 13;
 
+}
+
+void
+proto_register_atalk(void)
+{
+/*        static hf_register_info hf[] = {
+                { &variable,
+                { "Name",           "ddp.abbreviation", TYPE, VALS_POINTER }},
+        };*/
+
+        proto_ddp = proto_register_protocol("Datagram Delivery Protocol", "ddp");
+ /*       proto_register_field_array(proto_ddp, hf, array_length(hf));*/
 }

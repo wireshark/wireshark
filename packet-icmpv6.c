@@ -1,7 +1,7 @@
 /* packet-icmpv6.c
  * Routines for ICMPv6 packet disassembly 
  *
- * $Id: packet-icmpv6.c,v 1.6 1999/07/28 02:32:25 gerald Exp $
+ * $Id: packet-icmpv6.c,v 1.7 1999/07/29 05:46:55 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -62,6 +62,8 @@
 #ifndef offsetof
 #define	offsetof(type, member)	((size_t)(&((type *)0)->member))
 #endif
+
+static int proto_icmpv6 = -1;
 
 static void
 dissect_icmpv6opt(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
@@ -336,8 +338,7 @@ dissect_icmpv6(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
     if (tree) {
 	/* !!! specify length */
-	ti = proto_tree_add_text(tree, offset, len,
-	    "ICMPv6");
+	ti = proto_tree_add_item(tree, proto_icmpv6, offset, len, NULL);
 	icmp6_tree = proto_item_add_subtree(ti, ETT_ICMPv6);
 
 	proto_tree_add_text(icmp6_tree,
@@ -564,4 +565,16 @@ dissect_icmpv6(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	    break;
 	}
     }
+}
+
+void
+proto_register_icmpv6(void)
+{
+/*        static hf_register_info hf[] = {
+                { &variable,
+                { "Name",           "icmpv6.abbreviation", TYPE, VALS_POINTER }},
+        };*/
+
+        proto_icmpv6 = proto_register_protocol("ICMPv6", "icmpv6");
+ /*       proto_register_field_array(proto_icmpv6, hf, array_length(hf));*/
 }

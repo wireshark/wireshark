@@ -2,7 +2,7 @@
  * Routines for pop packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-pop.c,v 1.4 1999/07/07 22:51:50 gram Exp $
+ * $Id: packet-pop.c,v 1.5 1999/07/29 05:47:01 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -46,6 +46,8 @@
 
 extern packet_info pi;
 
+static int proto_pop = -1;
+
 void
 dissect_pop(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data)
 {
@@ -81,8 +83,7 @@ dissect_pop(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int 
 
 	if (tree) {
 
-	  ti = proto_tree_add_text(tree, offset, END_OF_FRAME,
-				"Post Office Protocol");
+	  ti = proto_tree_add_item(tree, proto_pop, offset, END_OF_FRAME, NULL);
 	  pop_tree = proto_item_add_subtree(ti, ETT_POP);
 
 	  if (pi.match_port == pi.destport) { /* Request */
@@ -102,8 +103,14 @@ dissect_pop(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int 
 	}
 }
 
+void
+proto_register_pop(void)
+{
+/*        static hf_register_info hf[] = {
+                { &variable,
+                { "Name",           "pop.abbreviation", TYPE, VALS_POINTER }},
+        };*/
 
-
-
-
-
+        proto_pop = proto_register_protocol("Post Office Protocol", "pop");
+ /*       proto_register_field_array(proto_pop, hf, array_length(hf));*/
+}

@@ -31,6 +31,8 @@
 #include "packet.h"
 #include "etypes.h"
 
+static int proto_aarp = -1;
+
 typedef struct _e_ether_aarp {
         guint16 htype, ptype;
         guint8  halen, palen;
@@ -96,9 +98,9 @@ dissect_aarp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   
   if (tree) {
     if ((op_str = match_strval(ea.op, op_vals)))
-      ti = proto_tree_add_text(tree, offset, 28, op_str);
+      ti = proto_tree_add_item_format(tree, proto_aarp, offset, 28, NULL, op_str);
     else
-      ti = proto_tree_add_text(tree, offset, 28,
+      ti = proto_tree_add_item_format(tree, proto_aarp, offset, 28, NULL,
         "Unknown AARP (opcode 0x%04x)", ea.op);
     aarp_tree = proto_item_add_subtree(ti, ETT_AARP);
     proto_tree_add_text(aarp_tree, offset,      2,
@@ -144,4 +146,16 @@ dissect_aarp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
         break;
     }
   }
+}
+
+void
+proto_register_aarp(void)
+{
+/*        static hf_register_info hf[] = {
+                { &variable,
+                { "Name",           "aarp.abbreviation", TYPE, VALS_POINTER }},
+        };*/
+
+        proto_aarp = proto_register_protocol("Appletalk Address Resolution Protocol", "aarp");
+ /*       proto_register_field_array(proto_aarp, hf, array_length(hf));*/
 }

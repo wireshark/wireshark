@@ -2,7 +2,7 @@
  * Routines for the Internet Security Association and Key Management Protocol (ISAKMP)
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-isakmp.c,v 1.6 1999/07/13 02:52:52 gram Exp $
+ * $Id: packet-isakmp.c,v 1.7 1999/07/29 05:46:57 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -49,6 +49,8 @@
 # endif
 # include "snprintf.h"
 #endif
+
+static int proto_isakmp = -1;
 
 #define NUM_PROTO_TYPES	5
 #define proto2str(t)	\
@@ -291,8 +293,7 @@ void dissect_isakmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tr
     proto_item *	ti;
     proto_tree *	isakmp_tree;
     
-    ti = proto_tree_add_text(tree, offset, len,
-			     "Internet Security Association and Key Management Protocol");
+    ti = proto_tree_add_item(tree, proto_isakmp, offset, len, NULL);
     isakmp_tree = proto_item_add_subtree(ti, ETT_ISAKMP);
     
     proto_tree_add_text(isakmp_tree, offset, sizeof(hdr->icookie),
@@ -1049,3 +1050,14 @@ num2str(const guint8 *pd, guint16 len) {
   return numstr;
 }
 
+void
+proto_register_isakmp(void)
+{
+/*        static hf_register_info hf[] = {
+                { &variable,
+                { "Name",           "isakmp.abbreviation", TYPE, VALS_POINTER }},
+        };*/
+
+        proto_isakmp = proto_register_protocol("Internet Security Association and Key Management Protocol", "isakmp");
+ /*       proto_register_field_array(proto_isakmp, hf, array_length(hf));*/
+}

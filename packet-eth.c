@@ -1,7 +1,7 @@
 /* packet-eth.c
  * Routines for ethernet packet disassembly
  *
- * $Id: packet-eth.c,v 1.12 1999/07/15 15:32:40 gram Exp $
+ * $Id: packet-eth.c,v 1.13 1999/07/29 05:46:54 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -39,13 +39,13 @@
 extern const value_string etype_vals[];
 
 /* protocols and header fields */
-int proto_eth = -1;
-int hf_eth_dst = -1;
-int hf_eth_dst_vendor = -1;
-int hf_eth_src = -1;
-int hf_eth_src_vendor = -1;
-int hf_eth_len = -1;
-int hf_eth_type = -1;
+static int proto_eth = -1;
+static int hf_eth_dst = -1;
+static int hf_eth_dst_vendor = -1;
+static int hf_eth_src = -1;
+static int hf_eth_src_vendor = -1;
+static int hf_eth_len = -1;
+static int hf_eth_type = -1;
 
 #define IEEE_802_3_MAX_LEN 1500
 

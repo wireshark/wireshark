@@ -1,7 +1,7 @@
 /* packet-null.c
  * Routines for null packet disassembly
  *
- * $Id: packet-null.c,v 1.9 1999/07/13 02:52:53 gram Exp $
+ * $Id: packet-null.c,v 1.10 1999/07/29 05:47:00 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -40,10 +40,10 @@
 
 #include "packet.h"
 	
-int proto_null = -1;
-int hf_null_next = -1;
-int hf_null_len = -1;
-int hf_null_family = -1;
+static int proto_null = -1;
+static int hf_null_next = -1;
+static int hf_null_len = -1;
+static int hf_null_family = -1;
 
 /* Null/loopback structs and definitions */
 
