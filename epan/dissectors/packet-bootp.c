@@ -21,11 +21,13 @@
  * draft-ietf-dhc-fqdn-option-07.txt
  * BOOTP and DHCP Parameters
  *     http://www.iana.org/assignments/bootp-dhcp-parameters
+ * DOCSIS(TM) 2.0 Radio Frequency Interface Specification
+ *     http://www.cablemodem.com/downloads/specs/CM-SP-RFIv2.0-I06-040804.pdf
  * PacketCable(TM) MTA Device Provisioning Specification
- *     http://www.packetcable.com/downloads/specs/PKT-SP-PROV-I05-021127.pdf
- *     http://www.packetcable.com/downloads/specs/PKT-SP-PROV-I09-040402.pdf
+ *     http://www.packetcable.com/downloads/specs/PKT-SP-PROV-I10-040730.pdf
+ *     http://www.cablelabs.com/specifications/archives/PKT-SP-PROV-I05-021127.pdf (superseded by above)
  * CableHome(TM) 1.1 Specification
- *     http://www.cablelabs.com/projects/cablehome/downloads/specs/CH-SP-CH1.1-I04-040409.pdf *
+ *     http://www.cablelabs.com/projects/cablehome/downloads/specs/CH-SP-CH1.1-I05-040806.pdf
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1335,7 +1337,7 @@ dissect_vendor_cablelabs_suboption(proto_tree *v_tree, tvbuff_t *tvb, int optp)
 		/* 9 */ {"Model Number", string},
 		/* 10 */ {"Vendor Name", string},
 		/* *** 11-30: CableHome *** */
-		/* 11 */ {"PS WAN-Man", special},
+		/* 11 */ {"Address Realm", special},
 		/* 12 */ {"CM/PS System Description", string},
 		/* 13 */ {"CM/PS Firmware Revision", string},
 		/* 14 */ {"Firewall Policy File Version", string},
@@ -1366,7 +1368,7 @@ dissect_vendor_cablelabs_suboption(proto_tree *v_tree, tvbuff_t *tvb, int optp)
 		/* 255 {"end options", special} */
 	};
 
-	static const value_string packetcable_subopt11_vals[] = {
+	static const value_string cablehome_subopt11_vals[] = {
 		{ 1, "PS WAN-Man" },
 		{ 2, "PS WAN-Data" },
 		{ 0, NULL }
@@ -1414,13 +1416,14 @@ dissect_vendor_cablelabs_suboption(proto_tree *v_tree, tvbuff_t *tvb, int optp)
 			} else if ( subopt == 11 ) { /* Address Realm */
 				byte_val = tvb_get_guint8(tvb, optp + 2);
 				proto_tree_add_text(v_tree, tvb, optp, subopt_len+2,
-					"Suboption %d: Address Realm = 0x%02x (%s)" ,
-					subopt, byte_val,
-					val_to_str(byte_val, packetcable_subopt11_vals, "Unknown"));
+					"Suboption %d: %s = %s (0x%02x)",
+					subopt, o43cablelabs_opt[subopt].text,
+					val_to_str(byte_val, cablehome_subopt11_vals, "Unknown"), byte_val);
 			} else if ( subopt == 31 ) { /* MTA MAC address */
 				proto_tree_add_text(v_tree, tvb, optp, subopt_len+2,
-					"Suboption %d: MTA MAC address = %s" ,
-					subopt, bytes_to_str_punct(tvb_get_ptr(tvb, optp+2, 6), 6, ':'));
+					"Suboption %d: %s = %s",
+					subopt,  o43cablelabs_opt[subopt].text,
+					bytes_to_str_punct(tvb_get_ptr(tvb, optp+2, 6), 6, ':'));
 			} else {
 				proto_tree_add_text(v_tree, tvb, optp, subopt_len+2,
 					"Suboption %d: %s (%d byte%s)" ,
@@ -2006,15 +2009,15 @@ static const value_string pkt_i05_ccc_opt_vals[] = {
 };
 
 static const value_string pkt_draft5_ccc_opt_vals[] = {
-	{ PKT_CCC_PRI_DHCP,		"Primary DHCP Server" },
-	{ PKT_CCC_SEC_DHCP,		"Secondary DHCP Server" },
-	{ PKT_CCC_IETF_PROV_SRV,	"Provisioning Server" },
-	{ PKT_CCC_IETF_AS_KRB,		"AS-REQ/AS-REP Backoff and Retry" },
-	{ PKT_CCC_IETF_AP_KRB,		"AP-REQ/AP-REP Backoff and Retry" },
-	{ PKT_CCC_KRB_REALM,		"Kerberos Realm" },
-	{ PKT_CCC_TGT_FLAG,		"MTA should fetch TGT?" },
-	{ PKT_CCC_PROV_TIMER,		"Provisioning Timer" },
-	{ PKT_CCC_IETF_SEC_TKT,		"Security Ticket Control" },
+	{ PKT_CCC_PRI_DHCP,		"TSP's Primary DHCP Server" },
+	{ PKT_CCC_SEC_DHCP,		"TSP's Secondary DHCP Server" },
+	{ PKT_CCC_IETF_PROV_SRV,	"TSP's Provisioning Server" },
+	{ PKT_CCC_IETF_AS_KRB,		"TSP's AS-REQ/AS-REP Backoff and Retry" },
+	{ PKT_CCC_IETF_AP_KRB,		"TSP's AP-REQ/AP-REP Backoff and Retry" },
+	{ PKT_CCC_KRB_REALM,		"TSP's Kerberos Realm Name" },
+	{ PKT_CCC_TGT_FLAG,		"TSP's Ticket Granting Server Utilization" },
+	{ PKT_CCC_PROV_TIMER,		"TSP's Provisioning Timer Value" },
+	{ PKT_CCC_IETF_SEC_TKT,		"PacketCable Security Ticket Control" },
 	{ 0, NULL },
 };
 
@@ -2141,7 +2144,7 @@ dissect_packetcable_i05_ccc(proto_tree *v_tree, tvbuff_t *tvb, int optp)
 
 static const value_string sec_tcm_vals[] = {
 	{ 1 << 0, "PacketCable Provisioning Server" },
-	{ 1 << 1, "All PacketCable Call Managers" },
+	{ 1 << 1, "All PacketCable Call Management Servers" },
 	{ 0, NULL }
 };
 
