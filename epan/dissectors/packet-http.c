@@ -140,6 +140,12 @@ static gboolean http_decompress_body = FALSE;
 #define TCP_PORT_SSDP			1900
 #define UDP_PORT_SSDP			1900
 
+/* 
+ * tcp alternate port
+ */
+static guint http_alternate_tcp_port = 0;
+static guint alternate_tcp_port = 0;
+
 /*
  * Protocols implemented atop HTTP.
  */
@@ -1691,6 +1697,19 @@ dissect_http_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	dissect_http_message(tvb, 0, pinfo, tree);
 }
 
+void reinit_http(void) {
+	if ( http_alternate_tcp_port != alternate_tcp_port ) {
+		
+		if (alternate_tcp_port)
+			dissector_delete("tcp.port", alternate_tcp_port, http_handle );
+		
+		if (http_alternate_tcp_port)
+			dissector_add("tcp.port", http_alternate_tcp_port, http_handle);
+		
+		alternate_tcp_port = http_alternate_tcp_port;
+	}	
+}
+
 void
 proto_register_http(void)
 {
@@ -1829,7 +1848,7 @@ proto_register_http(void)
 	    "HTTP", "http");
 	proto_register_field_array(proto_http, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
-	http_module = prefs_register_protocol(proto_http, NULL);
+	http_module = prefs_register_protocol(proto_http, reinit_http);
 	prefs_register_bool_preference(http_module, "desegment_headers",
 	    "Reassemble HTTP headers spanning multiple TCP segments",
 	    "Whether the HTTP dissector should reassemble headers "
@@ -1858,7 +1877,11 @@ proto_register_http(void)
 	    "using \"Content-Encoding: \"",
 	    &http_decompress_body);
 #endif
-
+	prefs_register_uint_preference(http_module, "tcp_alternate_port",
+								   "Alternate TCP port",
+								   "Decode packets on this TCP port as HTTP",
+								   10,&http_alternate_tcp_port);
+	
 	http_handle = create_dissector_handle(dissect_http, proto_http);
 
 	/*
@@ -1924,8 +1947,8 @@ proto_reg_handoff_http(void)
 	media_handle = find_dissector("media");
 
 	dissector_add("tcp.port", TCP_PORT_HTTP, http_handle);
-	dissector_add("tcp.port", TCP_ALT_PORT_HTTP, http_handle);
 	dissector_add("tcp.port", TCP_PORT_PROXY_HTTP, http_handle);
+	dissector_add("tcp.port", TCP_ALT_PORT_HTTP, http_handle);
 	dissector_add("tcp.port", TCP_PORT_PROXY_ADMIN_HTTP, http_handle);
 	dissector_add("tcp.port", TCP_PORT_HKP, http_handle);
 
