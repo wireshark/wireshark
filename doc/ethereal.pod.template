@@ -39,21 +39,23 @@ interactively browse packet data from a live network or from a
 previously saved capture file.  B<Ethereal>'s native capture file format
 is B<libpcap> format, which is also the format used by B<tcpdump> and
 various other tools.  In addition, B<Ethereal> can read capture files
-from B<snoop> (including B<Shomiti>) and B<atmsnoop>, B<LanAlyzer>,
-B<Sniffer> (compressed or uncompressed), Microsoft B<Network Monitor>,
-AIX's B<iptrace>, B<NetXray>, B<Sniffer Pro>, B<EtherPeek> versions 5,
-6, and 7 for Macintosh, B<RADCOM>'s WAN/LAN analyzer, B<Lucent/Ascend>
-router debug output, HP-UX's B<nettl>, the dump output from B<Toshiba's>
-ISDN routers, the output from B<i4btrace> from the ISDN4BSD project, the
-output in B<IPLog> format from the Cisco Secure Intrusion Detection
-System, B<pppd logs> (pppdump format), the output from VMS's
-B<TCPIPtrace> utility, the text output from the B<DBS Etherwatch> VMS
-utility, and traffic capture files from Visual Networks' Visual Uptime.
-There is no need to tell B<Ethereal> what type of file you are reading;
-it will determine the file type by itself.  B<Ethereal> is also capable
-of reading any of these file formats if they are compressed using gzip. 
-B<Ethereal> recognizes this directly from the file; the '.gz' extension
-is not required for this purpose.
+from B<snoop> and B<atmsnoop>, Shomiti/Finisar B<Surveyor>, Novell
+B<LANalyzer>, Network General/Network Associates DOS-based B<Sniffer>
+(compressed or uncompressed), Microsoft B<Network Monitor>, AIX's
+B<iptrace>, Cinco Networks B<NetXRay>, Network Associates Windows-based
+B<Sniffer>, AG Group/WildPackets B<EtherPeek> and B<TokenPeek>,
+B<RADCOM>'s WAN/LAN analyzer, B<Lucent/Ascend> router debug output,
+HP-UX's B<nettl>, the dump output from B<Toshiba's> ISDN routers, the
+output from B<i4btrace> from the ISDN4BSD project, the output in
+B<IPLog> format from the Cisco Secure Intrusion Detection System, B<pppd
+logs> (pppdump format), the output from VMS's B<TCPIPtrace> utility, the
+text output from the B<DBS Etherwatch> VMS utility, and traffic capture
+files from Visual Networks' Visual UpTime.  There is no need to tell
+B<Ethereal> what type of file you are reading; it will determine the
+file type by itself.  B<Ethereal> is also capable of reading any of
+these file formats if they are compressed using gzip.  B<Ethereal>
+recognizes this directly from the file; the '.gz' extension is not
+required for this purpose.
 
 Like other protocol analyzers, B<Ethereal>'s main window shows 3 views
 of a packet.  It shows a summary line, briefly describing what the

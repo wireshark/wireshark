@@ -24,21 +24,22 @@ or all of the packets in that capture file to another capture file.
 B<Editcap> knows how to read B<libpcap> capture files, including those
 of B<tcpdump>, B<Ethereal>, and other tools that write captures in that
 format.  In addition, B<Editcap> can read capture files from B<snoop>
-(including B<Shomiti>) and B<atmsnoop>, B<LanAlyzer>, B<Sniffer>
-(compressed or uncompressed), Microsoft B<Network Monitor>, AIX's
-B<iptrace>, B<NetXray>, B<Sniffer Pro>, B<EtherPeek> versions 5, 6, and
-7 for Macintosh, B<RADCOM>'s WAN/LAN analyzer, B<Lucent/Ascend> router
-debug output, HP-UX's B<nettl>, the dump output from B<Toshiba's> ISDN
-routers, the output from B<i4btrace> from the ISDN4BSD project, the
-output in B<IPLog> format from the Cisco Secure Intrusion Detection
-System, B<pppd logs> (pppdump format), the output from VMS's
-B<TCPIPtrace> utility, the text output from the B<DBS Etherwatch> VMS
-utility, and traffic capture files from Visual Networks' Visual UpTime.
-There is no need to tell B<Editcap> what type of file you are reading;
-it will determine the file type by itself.  B<Editcap> is also capable
-of reading any of these file formats if they are compressed using gzip. 
-B<Editcap> recognizes this directly from the file; the '.gz' extension
-is not required for this purpose.
+and B<atmsnoop>, Shomiti/Finisar B<Surveyor>, Novell B<LANalyzer>,
+Network General/Network Associates DOS-based B<Sniffer> (compressed or
+uncompressed), Microsoft B<Network Monitor>, AIX's B<iptrace>, Cinco
+Networks B<NetXRay>, Network Associates Windows-based B<Sniffer>, AG
+Group/WildPackets B<EtherPeek> and B<TokenPeek>, B<RADCOM>'s WAN/LAN
+analyzer, B<Lucent/Ascend> router debug output, HP-UX's B<nettl>, the
+dump output from B<Toshiba's> ISDN routers, the output from B<i4btrace>
+from the ISDN4BSD project, the output in B<IPLog> format from the Cisco
+Secure Intrusion Detection System, B<pppd logs> (pppdump format), the
+output from VMS's B<TCPIPtrace> utility, the text output from the B<DBS
+Etherwatch> VMS utility, and traffic capture files from Visual Networks'
+Visual UpTime.  There is no need to tell B<Editcap> what type of file
+you are reading; it will determine the file type by itself.  B<Editcap>
+is also capable of reading any of these file formats if they are
+compressed using gzip.  B<Editcap> recognizes this directly from the
+file; the '.gz' extension is not required for this purpose.
 
 By default, it writes the capture file in B<libpcap> format, and writes
 all of the packets in the capture file to the output file.  The B<-F>

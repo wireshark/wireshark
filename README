@@ -1,4 +1,4 @@
-$Id: README,v 1.52 2001/12/05 21:42:05 guy Exp $
+$Id: README,v 1.53 2002/01/22 22:38:02 guy Exp $
 
 General Information
 ------- -----------
@@ -87,16 +87,16 @@ to read multiple file types. You can read the following file
 formats:
 
 libpcap (tcpdump -w, etc.) - this is Ethereal's native format
-snoop
-atmsnoop
-Shomiti
-LANalyzer
-Sniffer (compressed and uncompressed)
+snoop and atmsnoop
+Shomiti/Finisar Surveyor
+Novell LANalyzer
+Network General/Network Associates DOS-based Sniffer (compressed and
+    uncompressed)
 Microsoft Network Monitor
 AIX's iptrace
-NetXray
-Sniffer Pro
-Etherpeek versions 5, 6, and 7 for Macintosh
+Cinco Networks NetXRray
+Network Associates Windows-based Sniffer
+AG Group/WildPackets EtherPeek/TokenPeek
 RADCOM's WAN/LAN Analyzer
 Lucent/Ascend access products
 HP-UX's nettl
