@@ -2,7 +2,7 @@
  * Routines for decoding SCSI CDBs and responses
  * Author: Dinesh G Dutt (ddutt@cisco.com)
  *
- * $Id: packet-scsi.c,v 1.5 2002/02/13 01:17:58 guy Exp $
+ * $Id: packet-scsi.c,v 1.6 2002/03/12 11:30:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -156,6 +156,8 @@ static int hf_scsi_inq_normaca           = -1;
 static int hf_scsi_persresv_key          = -1;
 static int hf_scsi_persresv_scopeaddr    = -1;
 static int hf_scsi_sscopcode             = -1;
+static int hf_scsi_add_cdblen = -1;
+static int hf_scsi_svcaction = -1;
 
 
 static gint ett_scsi         = -1;
@@ -196,6 +198,7 @@ typedef guint32 scsi_device_type;
 #define SCSI_SPC2_SETDEVICEID            0xA4
 #define SCSI_SPC2_TESTUNITRDY            0x00
 #define SCSI_SPC2_WRITEBUFFER            0x3B
+#define SCSI_SPC2_VARLENCDB              0x7F
 
 static const value_string scsi_spc2_val[] = {
     {SCSI_SPC2_EXTCOPY           , "Extended Copy"},
@@ -221,6 +224,7 @@ static const value_string scsi_spc2_val[] = {
     {SCSI_SPC2_RESERVE10         , "Reserve (10)"},
     {SCSI_SPC2_TESTUNITRDY       , "Test Unit Ready"},
     {SCSI_SPC2_WRITEBUFFER       , "Write Buffer"},
+    {SCSI_SPC2_VARLENCDB         , "Variable Length CDB"},
     {0, NULL},
 };
 
@@ -2620,6 +2624,22 @@ dissect_scsi_reassignblks (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
 }
 
+static void
+dissect_scsi_varlencdb (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                        guint offset, gboolean isreq, gboolean iscdb)
+{
+    guint8 flags;
+
+    if (!tree)
+        return;
+    
+    if (isreq && iscdb) {
+        proto_tree_add_item (tree, hf_scsi_control, tvb, offset, 1, 0);
+        proto_tree_add_item (tree, hf_scsi_add_cdblen, tvb, offset+6, 1, 0);
+        proto_tree_add_item (tree, hf_scsi_svcaction, tvb, offset+7, 2, 0);
+    }
+}
+
 void
 dissect_scsi_rsp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -2864,6 +2884,11 @@ dissect_scsi_cdb (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         case SCSI_SPC2_TESTUNITRDY:
             dissect_scsi_testunitrdy (tvb, pinfo, scsi_tree, offset+1,
                                       TRUE, TRUE);
+            break;
+
+        case SCSI_SPC2_VARLENCDB:
+            dissect_scsi_varlencdb (tvb, pinfo, scsi_tree, offset+1,
+                                    TRUE, TRUE);
             break;
 
         default:
@@ -3384,6 +3409,12 @@ proto_register_scsi (void)
            0x0, "", HFILL}},
         { &hf_scsi_persresv_scopeaddr,
           {"Scope Address", "scsi.spc2.resv.scopeaddr", FT_BYTES, BASE_HEX, NULL,
+           0x0, "", HFILL}},
+        { &hf_scsi_add_cdblen,
+          {"Additional CDB Length", "scsi.spc2.addcdblen", FT_UINT8, BASE_DEC,
+           NULL, 0x0, "", HFILL}},
+        { &hf_scsi_svcaction,
+          {"Service Action", "scsi.spc2.svcaction", FT_UINT16, BASE_HEX, NULL,
            0x0, "", HFILL}},
     };
 
