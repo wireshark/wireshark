@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.93 2000/01/30 17:10:29 nneul Exp $
+ * $Id: capture.c,v 1.94 2000/02/02 18:38:52 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -234,7 +234,7 @@ do_capture(char *capfile_name)
 	     to read from the sync pipe, so that it's called when
 	     the child process wants to tell us something. */
 	  cap_input_id = gtk_input_add_full(sync_pipe[0],
-				       GDK_INPUT_READ,
+				       GDK_INPUT_READ|GDK_INPUT_EXCEPTION,
 				       cap_file_input_cb,
 				       NULL,
 				       (gpointer) &cf,
@@ -468,7 +468,7 @@ cap_file_input_cb(gpointer data, gint source, GdkInputCondition condition)
 
   /* restore pipe handler */
   cap_input_id = gtk_input_add_full (sync_pipe[0],
-				     GDK_INPUT_READ,
+				     GDK_INPUT_READ|GDK_INPUT_EXCEPTION,
 				     cap_file_input_cb,
 				     NULL,
 				     (gpointer) cf,
