@@ -44,6 +44,7 @@
 #include "format-oid.h"
 #include "packet-gssapi.h"
 #include "packet-kerberos.h"
+#include <epan/crypt-rc4.h>
 #include <epan/conversation.h>
 
 #define SPNEGO_negTokenInit 0
@@ -406,7 +407,6 @@ dissect_spnego_krb5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 #ifdef HAVE_HEIMDAL_KERBEROS
 #include <krb5.h>
-#include <rc4.h>
 #define GSS_ARCFOUR_WRAP_TOKEN_SIZE 32
 krb5_context gssapi_krb5_context;
 
@@ -553,7 +553,6 @@ gss_release_buffer
 
 static int
 heimdal_decrypt_arcfour(packet_info *pinfo,
-	 guint32 *minor_status,
 	 const krb5_data *input_message_buffer,
 	 krb5_data *output_message_buffer,
 	 krb5_keyblock *key)
@@ -597,13 +596,12 @@ heimdal_decrypt_arcfour(packet_info *pinfo,
     }
 
     {
-	RC4_KEY rc4_key;
+	rc4_state_struct rc4_state;
 	
-	RC4_set_key (&rc4_key, sizeof(k6_data), k6_data);
-	RC4 (&rc4_key, 8, 
-		(void *)tvb_get_ptr(pinfo->gssapi_wrap_tvb, 8, 8), 
-		SND_SEQ); /* SND_SEQ */
-	memset(&rc4_key, 0, sizeof(rc4_key));
+	crypt_rc4_init(&rc4_state, k6_data, sizeof(k6_data));
+	memcpy(SND_SEQ, (unsigned char *)tvb_get_ptr(pinfo->gssapi_wrap_tvb, 8, 8), 8);
+	crypt_rc4(&rc4_state, SND_SEQ, 8);
+
 	memset(k6_data, 0, sizeof(k6_data));
     }
 
@@ -643,16 +641,13 @@ heimdal_decrypt_arcfour(packet_info *pinfo,
     output_message_buffer->length = datalen;
 
     if(conf_flag) {
-	RC4_KEY rc4_key;
+	rc4_state_struct rc4_state;
 
-	RC4_set_key (&rc4_key, sizeof(k6_data), k6_data);
-	RC4 (&rc4_key, 8, 
-		(void *)tvb_get_ptr(pinfo->gssapi_wrap_tvb, 24, 8), 
-		Confounder); /* Confounder */
-	RC4 (&rc4_key, datalen, 
-	     input_message_buffer->data, 
-	     output_message_buffer->data);
-	memset(&rc4_key, 0, sizeof(rc4_key));
+	crypt_rc4_init(&rc4_state, k6_data, sizeof(k6_data));
+	memcpy(Confounder, (unsigned char *)tvb_get_ptr(pinfo->gssapi_wrap_tvb, 24, 8), 8);
+	crypt_rc4(&rc4_state, Confounder, 8);
+	memcpy(output_message_buffer->data, input_message_buffer->data, datalen);
+	crypt_rc4(&rc4_state, output_message_buffer->data, datalen);
     } else {
 	memcpy(Confounder, 
 		tvb_get_ptr(pinfo->gssapi_wrap_tvb, 24, 8), 
@@ -701,7 +696,6 @@ decrypt_heimdal_gssapi_krb_arcfour_wrap(proto_tree *tree, packet_info *pinfo, tv
 	enc_key_t *ek;
 	int length;
 	const guint8 *original_data;
-	guint32 minor_status;
 
 	krb5_data *output_message_buffer;
 	static int omb_index=0;
@@ -770,7 +764,6 @@ decrypt_heimdal_gssapi_krb_arcfour_wrap(proto_tree *tree, packet_info *pinfo, tv
 		input_message_buffer.length=length;
 		input_message_buffer.data=cryptocopy;
 		ret=heimdal_decrypt_arcfour(pinfo,
-				 &minor_status,
 				 &input_message_buffer,
 				  output_message_buffer,
 				 &(ek->key.keyblock));
