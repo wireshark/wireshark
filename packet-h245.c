@@ -48,7 +48,7 @@ All in all a lot of work.
  *       with great support with testing and providing capturefiles
  *       from Martin Regner
  *
- * $Id: packet-h245.c,v 1.22 2003/07/16 09:23:56 sahlberg Exp $
+ * $Id: packet-h245.c,v 1.23 2003/07/16 19:05:37 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -363,7 +363,7 @@ static int hf_h245_MasterSlaveDeterminationRelease = -1;
 static int hf_h245_MasterSlaveDeterminationReject = -1;
 static int hf_h245_MasterSlaveDeterminationAck = -1;
 static int hf_h245_MasterSlaveDetermination = -1;
-static int hf_h245_NonStandardIdentifier_h221NonStandard = -1;
+static int hf_h245_h221NonStandard = -1;
 static int hf_h245_NonStandardParameter = -1;
 static int hf_h245_NonStandardMessage = -1;
 static int hf_h245_FlowControlIndication_restriction = -1;
@@ -1283,7 +1283,7 @@ static gint ett_h245_MasterSlaveDeterminationRelease = -1;
 static gint ett_h245_MasterSlaveDeterminationReject = -1;
 static gint ett_h245_MasterSlaveDeterminationAck = -1;
 static gint ett_h245_MasterSlaveDetermination = -1;
-static gint ett_h245_NonStandardIdentifier_h221NonStandard = -1;
+static gint ett_h245_h221NonStandard = -1;
 static gint ett_h245_NonStandardParameter = -1;
 static gint ett_h245_NonStandardMessage = -1;
 static gint ett_h245_FlowControlIndication_restriction = -1;
@@ -7589,7 +7589,7 @@ dissect_h245_manufacturerCode(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
 
 
 
-static per_sequence_t NonStandardIdentifier_h221NonStandard_sequence[] = {
+static per_sequence_t h221NonStandard_sequence[] = {
 	{ "t35CountryCode", NO_EXTENSIONS, NOT_OPTIONAL,
 		dissect_h245_t35CountryCode },
 	{ "t35Extension", NO_EXTENSIONS, NOT_OPTIONAL, 
@@ -7598,10 +7598,10 @@ static per_sequence_t NonStandardIdentifier_h221NonStandard_sequence[] = {
 		dissect_h245_manufacturerCode },
 	{ NULL, 0, 0, NULL }
 };
-static int
-dissect_h245_NonStandardIdentifier_h221NonStandard(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+int
+dissect_h245_h221NonStandard(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_sequence(tvb, offset, pinfo, tree, hf_h245_NonStandardIdentifier_h221NonStandard, ett_h245_NonStandardIdentifier_h221NonStandard, NonStandardIdentifier_h221NonStandard_sequence);
+	offset=dissect_per_sequence(tvb, offset, pinfo, tree, hf_h245_h221NonStandard, ett_h245_h221NonStandard, h221NonStandard_sequence);
 
 	return offset;
 }
@@ -12464,7 +12464,7 @@ static per_choice_t NonStandardIdentifier_choice[] = {
 	{ 0,	"object", NO_EXTENSIONS,
 		dissect_h245_object },
 	{ 1,	"h221NonStandard", NO_EXTENSIONS, 
-		dissect_h245_NonStandardIdentifier_h221NonStandard },
+		dissect_h245_h221NonStandard },
 	{ 0, NULL, 0, NULL }
 };
 static int
@@ -13110,7 +13110,7 @@ static per_sequence_t NonStandardParameter_sequence[] = {
 		dissect_h245_NonStandardParameterData },
 	{ NULL, 0, 0, NULL }
 };
-static int
+int
 dissect_h245_NonStandardParameter(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
 	offset=dissect_per_sequence(tvb, offset, pinfo, tree, hf_h245_NonStandardParameter, ett_h245_NonStandardParameter, NonStandardParameter_sequence);
@@ -19751,9 +19751,9 @@ proto_register_h245(void)
 	{ &hf_h245_MasterSlaveDetermination,
 		{ "MasterSlaveDetermination", "h245.MasterSlaveDetermination", FT_NONE, BASE_NONE,
 		NULL, 0, "MasterSlaveDetermination sequence", HFILL }},
-	{ &hf_h245_NonStandardIdentifier_h221NonStandard,
-		{ "NonStandardIdentifier_h221NonStandard", "h245.NonStandardIdentifier_h221NonStandard", FT_NONE, BASE_NONE,
-		NULL, 0, "NonStandardIdentifier_h221NonStandard sequence", HFILL }},
+	{ &hf_h245_h221NonStandard,
+		{ "h221NonStandard", "h245.h221NonStandard", FT_NONE, BASE_NONE,
+		NULL, 0, "h221NonStandard sequence", HFILL }},
 	{ &hf_h245_NonStandardParameter,
 		{ "NonStandardParameter", "h245.NonStandardParameter", FT_NONE, BASE_NONE,
 		NULL, 0, "NonStandardParameter sequence", HFILL }},
@@ -22002,7 +22002,7 @@ proto_register_h245(void)
 		&ett_h245_MasterSlaveDeterminationReject,
 		&ett_h245_MasterSlaveDeterminationAck,
 		&ett_h245_MasterSlaveDetermination,
-		&ett_h245_NonStandardIdentifier_h221NonStandard,
+		&ett_h245_h221NonStandard,
 		&ett_h245_NonStandardParameter,
 		&ett_h245_NonStandardMessage,
 		&ett_h245_FlowControlIndication_restriction,
