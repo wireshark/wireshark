@@ -14,7 +14,7 @@
  *
  *	http://www.ietf.org/internet-drafts/draft-ietf-krb-wg-kerberos-clarifications-03.txt
  *
- * $Id: packet-kerberos.c,v 1.44 2004/01/20 20:32:25 guy Exp $
+ * $Id: packet-kerberos.c,v 1.45 2004/01/21 01:10:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -998,7 +998,7 @@ dissect_kerberos_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
             length = dissect_Addresses(asn1p, pinfo, kerberos_tree,
                                        offset);
-            if (offset == KRB_ERR_RETURN)
+            if (length == KRB_ERR_RETURN)
                 return KRB_ERR_RETURN;
             offset += length;
             if (asn1p->offset >= sequence_end)
