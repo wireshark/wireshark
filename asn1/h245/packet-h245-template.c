@@ -67,6 +67,7 @@ static dissector_handle_t MultimediaSystemControlMessage_handle;
 
 static void reset_h245_packet_info(h245_packet_info *pi);
 static int hf_h245_pdu_type = -1;
+static int hf_h245Manufacturer = -1;
 static int h245_tap = -1;
 static int ett_h245 = -1;
 static h245_packet_info h245_pi;
@@ -175,6 +176,10 @@ static guint32 rtcp_ipv4_address;
 static guint32 rtcp_ipv4_port;
 static gboolean media_channel;
 static gboolean media_control_channel;
+static guint32 t35CountryCode;
+static guint32 t35Extension;
+static guint32 manufacturerCode;
+static guint32 h221NonStandard;
 
 static const value_string h245_RFC_number_vals[] = {
 	{  2190,	"RFC 2190 - H.263 Video Streams" },
@@ -228,6 +233,9 @@ void proto_register_h245(void) {
     { &hf_h245_pdu_type,
  { "PDU Type", "h245.pdu_type", FT_UINT32, BASE_DEC,
 		VALS(h245_MultimediaSystemControlMessage_vals), 0, "Type of H.245 PDU", HFILL }},
+	{ &hf_h245Manufacturer,
+		{ "H.245 Manufacturer", "h245.Manufacturer", FT_UINT32, BASE_HEX,
+		VALS(H221ManufacturerCode_vals), 0, "h245.H.221 Manufacturer", HFILL }},
 #include "packet-h245-hfarr.c"
   };
 

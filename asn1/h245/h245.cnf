@@ -256,7 +256,19 @@ guint32 tsapIdentifier;
 	media_channel = TRUE;
 #.END
 #----------------------------------------------------------------------------------------
+#.FN_HDR H2250LogicalChannelParameters/mediaChannel
+
+
+	media_channel = TRUE;
+#.END
+#----------------------------------------------------------------------------------------
 #.FN_HDR H2250LogicalChannelAckParameters/mediaControlChannel
+
+
+	media_control_channel = TRUE;
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_HDR H2250LogicalChannelParameters/mediaControlChannel
 
 
 	media_control_channel = TRUE;
@@ -269,6 +281,18 @@ guint32 tsapIdentifier;
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_FTR H2250LogicalChannelAckParameters/mediaControlChannel
+
+
+	media_control_channel = FALSE;
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_FTR H2250LogicalChannelParameters/mediaChannel
+
+
+	media_channel = FALSE;
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_FTR H2250LogicalChannelParameters/mediaControlChannel
 
 
 	media_control_channel = FALSE;
@@ -305,8 +329,55 @@ guint32 tsapIdentifier;
 
 #.END
 #----------------------------------------------------------------------------------------
-#.TYPE_RENAME
+#.FN_HDR OpenLogicalChannel/reverseLogicalChannelParameters/multiplexParameters
+
+
+	media_channel = FALSE;
+	media_control_channel = FALSE;
+
+#.END
 #----------------------------------------------------------------------------------------
+#.FN_FTR OpenLogicalChannel/reverseLogicalChannelParameters/multiplexParameters
+	if((!pinfo->fd->flags.visited) && ipv4_address!=0 && ipv4_port!=0 && rtp_handle){
+		address src_addr;
+
+		src_addr.type=AT_IPv4;
+		src_addr.len=4;
+		src_addr.data=(char *)&ipv4_address;
+
+		rtp_add_address(pinfo, &src_addr, ipv4_port, 0, "H245", pinfo->fd->num);
+	}
+	if((!pinfo->fd->flags.visited) && rtcp_ipv4_address!=0 && rtcp_ipv4_port!=0 && rtcp_handle){
+		address src_addr;
+
+		src_addr.type=AT_IPv4;
+		src_addr.len=4;
+		src_addr.data=(char *)&rtcp_ipv4_address;
+
+		rtcp_add_address(pinfo, &src_addr, rtcp_ipv4_port, 0, "H245", pinfo->fd->num);
+	}
+
+#.END
+#.FN_HDR NonStandardIdentifier/h221NonStandard
+  t35CountryCode = 0;
+  t35Extension = 0;
+  manufacturerCode = 0;
+#.FN_FTR NonStandardIdentifier/h221NonStandard
+  h221NonStandard = ((t35CountryCode * 256) + t35Extension) * 65536 + manufacturerCode;
+  proto_tree_add_uint(tree, hf_h245Manufacturer, tvb, (offset>>3)-4, 4, h221NonStandard);
+
+#.FN_BODY NonStandardIdentifier/h221NonStandard/t35CountryCode
+  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
+                                           0U, 255U, &t35CountryCode, NULL, FALSE);
+#.FN_BODY NonStandardIdentifier/h221NonStandard/t35Extension
+  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
+                                           0U, 255U, &t35Extension, NULL, FALSE);
+#.FN_BODY NonStandardIdentifier/h221NonStandard/manufacturerCode
+  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
+                                           0U, 65535U, &manufacturerCode, NULL, FALSE);
+#.END
+#----------------------------------------------------------------------------------------
+#.TYPE_RENAME
 
 NewATMVCCommand/aal Cmd_aal
 NewATMVCCommand/aal/aal1 Cmd_aal1
@@ -394,6 +465,9 @@ FECCapability/rfc2733 FECC_rfc2733
 RequestModeAck/response Req_mode_ack_response
 UserInputIndication/signalUpdate/rtp Si_rtp
 UnicastAddress/iPAddress/tsapIdentifier TsapIdentifier
+H2250LogicalChannelAckParameters/mediaChannel Ack_mediaChannel
+H2250LogicalChannelAckParameters/mediaControlChannel Ack_mediaControlChannel
+CommunicationModeTableEntry/mediaChannel Cm_mediaChannel
 #----------------------------------------------------------------------------------------
 #.FIELD_RENAME
 #----------------------------------------------------------------------------------------
@@ -639,6 +713,8 @@ UnicastAddress/iP6Address/tsapIdentifier ipv6_tsapIdentifier
 UnicastAddress/iPSourceRouteAddress/tsapIdentifier iPSrcRoute_tsapIdentifier 
 MulticastAddress/iPAddress/tsapIdentifier multicast_tsapIdentifier
 MulticastAddress/iP6Address/tsapIdentifier multicast_IPv6_tsapIdentifier
+CommunicationModeTableEntry/mediaChannel cm_mediaChannel
+CommunicationModeTableEntry/mediaControlChannel cm_mediaControlChannel
 #----------------------------------------------------------------------------------------
 #.TYPE_ATTR
 UnicastAddress/iPAddress/network  TYPE = FT_IPv4  DISPLAY = BASE_NONE  STRINGS = NULL
@@ -646,4 +722,5 @@ UnicastAddress/iP6Address/network  TYPE = FT_IPv6  DISPLAY = BASE_NONE  STRINGS 
 MulticastAddress/iPAddress/network  TYPE = FT_IPv4  DISPLAY = BASE_NONE  STRINGS = NULL
 MulticastAddress/iP6Address/network  TYPE = FT_IPv6  DISPLAY = BASE_NONE  STRINGS = NULL
 RTPPayloadType/payloadDescriptor/rfc-number TYPE = FT_UINT32  DISPLAY = BASE_DEC  STRINGS = VALS(h245_RFC_number_vals)
+NonStandardIdentifier/h221NonStandard/t35CountryCode TYPE = FT_UINT32  DISPLAY = BASE_DEC  STRINGS = VALS(T35CountryCode_vals)
 #----------------------------------------------------------------------------------------
