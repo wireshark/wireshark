@@ -2,7 +2,7 @@
  * Routines for nfs dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  *
- * $Id: packet-nfs.c,v 1.11 1999/12/02 10:24:02 girlich Exp $
+ * $Id: packet-nfs.c,v 1.12 1999/12/06 09:57:34 girlich Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -43,6 +43,7 @@ static int proto_nfs = -1;
 
 
 static int hf_nfs_name = -1;
+static int hf_nfs_readlink_data = -1;
 static int hf_nfs_read_offset = -1;
 static int hf_nfs_read_count = -1;
 static int hf_nfs_read_totalcount = -1;
@@ -50,6 +51,15 @@ static int hf_nfs_data = -1;
 static int hf_nfs_write_beginoffset = -1;
 static int hf_nfs_write_offset = -1;
 static int hf_nfs_write_totalcount = -1;
+static int hf_nfs_symlink_to = -1;
+static int hf_nfs_readdir_cookie = -1;
+static int hf_nfs_readdir_count = -1;
+static int hf_nfs_readdir_value_follows = -1;
+static int hf_nfs_readdir_entry = -1;
+static int hf_nfs_readdir_entry_fileid = -1;
+static int hf_nfs_readdir_entry_name = -1;
+static int hf_nfs_readdir_entry_cookie = -1;
+static int hf_nfs_readdir_eof = -1;
 static int hf_nfs_statfs_tsize = -1;
 static int hf_nfs_statfs_bsize = -1;
 static int hf_nfs_statfs_blocks = -1;
@@ -64,6 +74,7 @@ static gint ett_nfs_mode = -1;
 static gint ett_nfs_fattr = -1;
 static gint ett_nfs_sattr = -1;
 static gint ett_nfs_diropargs = -1;
+static gint ett_nfs_readdir_entry = -1;
 static gint ett_nfs_mode3 = -1;
 static gint ett_nfs_specdata3 = -1;
 static gint ett_nfs_fh3 = -1;
@@ -441,6 +452,15 @@ dissect_filename(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 }
 
 
+/* RFC 1094, Page 17 */
+int
+dissect_path(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int hf)
+{
+	offset = dissect_rpc_string(pd,offset,fd,tree,hf);
+	return offset;
+}
+
+
 /* RFC 1094, Page 17,18 */
 int
 dissect_attrstat(const u_char *pd, int offset, frame_data *fd, proto_tree *tree){
@@ -560,6 +580,26 @@ dissect_nfs2_setattr_call(const u_char *pd, int offset, frame_data *fd, proto_tr
 }
 
 
+/* RFC 1094, Page 6 */
+int
+dissect_nfs2_readlink_reply(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
+{
+	guint32	status;
+
+	offset = dissect_stat(pd, offset, fd, tree, "status", &status);
+	switch (status) {
+		case 0:
+			offset = dissect_path(pd, offset, fd, tree, hf_nfs_readlink_data);
+		break;
+		default:
+			/* do nothing */
+		break;
+	}
+
+	return offset;
+}
+
+
 /* RFC 1094, Page 7 */
 int
 dissect_nfs2_read_call(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
@@ -641,8 +681,146 @@ dissect_nfs2_write_call(const u_char *pd, int offset, frame_data *fd, proto_tree
 int
 dissect_nfs2_createargs_call(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
-	offset = dissect_diropargs(pd, offset, fd, tree, "where");
+	offset = dissect_diropargs(pd, offset, fd, tree, "where"     );
 	offset = dissect_sattr    (pd, offset, fd, tree, "attributes");
+
+	return offset;
+}
+
+
+/* RFC 1094, Page 9 */
+int
+dissect_nfs2_rename_call(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
+{
+	offset = dissect_diropargs(pd, offset, fd, tree, "from");
+	offset = dissect_diropargs(pd, offset, fd, tree, "to"  );
+
+	return offset;
+}
+
+
+/* RFC 1094, Page 9 */
+int
+dissect_nfs2_link_call(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
+{
+	offset = dissect_fhandle  (pd, offset, fd, tree, "from");
+	offset = dissect_diropargs(pd, offset, fd, tree, "to"  );
+
+	return offset;
+}
+
+
+/* RFC 1094, Page 10 */
+int
+dissect_nfs2_symlink_call(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
+{
+	offset = dissect_diropargs(pd, offset, fd, tree, "from"           );
+	offset = dissect_path     (pd, offset, fd, tree, hf_nfs_symlink_to);
+	offset = dissect_sattr    (pd, offset, fd, tree, "attributes"     );
+
+	return offset;
+}
+
+
+/* RFC 1094, Page 11 */
+int
+dissect_nfs2_readdir_call(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
+{
+	guint32	cookie;
+	guint32	count;
+
+	offset = dissect_fhandle (pd, offset, fd, tree, "dir");
+	if (!BYTES_ARE_IN_FRAME(offset,8)) return offset;
+	cookie  = EXTRACT_UINT(pd, offset+ 0);
+	count = EXTRACT_UINT(pd, offset+ 4);
+	if (tree) {
+		proto_tree_add_item(tree, hf_nfs_readdir_cookie,
+			offset+ 0, 4, cookie);
+		proto_tree_add_item(tree, hf_nfs_readdir_count,
+			offset+ 4, 4, count);
+	}
+	offset += 8;
+
+	return offset;
+}
+
+
+/* RFC 1094, Page 11 */
+int
+dissect_readdir_entry(const u_char* pd, int offset, frame_data* fd, proto_tree* tree)
+{
+	proto_item* entry_item = NULL;
+	proto_tree* entry_tree = NULL;
+	int old_offset = offset;
+	guint32 fileid;
+	guint32 cookie;
+
+	if (tree) {
+		entry_item = proto_tree_add_item(tree, hf_nfs_readdir_entry,
+			offset+0, END_OF_FRAME, NULL);
+		if (entry_item)
+			entry_tree = proto_item_add_subtree(entry_item, ett_nfs_readdir_entry);
+	}
+
+	if (!BYTES_ARE_IN_FRAME(offset, 4)) return offset;
+	fileid = EXTRACT_UINT(pd, offset + 0);
+	if (entry_tree)
+		proto_tree_add_item(entry_tree, hf_nfs_readdir_entry_fileid,
+			offset+0, 4, fileid);
+	offset += 4;
+
+	offset = dissect_filename(pd, offset, fd, entry_tree, hf_nfs_readdir_entry_name);
+	
+	if (!BYTES_ARE_IN_FRAME(offset, 4)) return offset;
+	cookie = EXTRACT_UINT(pd, offset + 0);
+	if (entry_tree)
+		proto_tree_add_item(entry_tree, hf_nfs_readdir_entry_cookie,
+			offset+0, 4, cookie);
+	offset += 4;
+
+	/* now we know, that a readdir entry is shorter */
+	if (entry_item) {
+		proto_item_set_len(entry_item, offset - old_offset);
+	}
+
+	return offset;
+}
+
+/* RFC 1094, Page 11 */
+int
+dissect_nfs2_readdir_reply(const u_char* pd, int offset, frame_data* fd, proto_tree* tree)
+{
+	guint32 status;
+	guint32 value_follows;
+	guint32 eof_value;
+
+	offset = dissect_stat(pd, offset, fd, tree, "status", &status);
+	switch (status) {
+		case 0:
+			while (1) {
+				if (!BYTES_ARE_IN_FRAME(offset,4)) break;
+				value_follows = EXTRACT_UINT(pd, offset+0);
+				proto_tree_add_item(tree,hf_nfs_readdir_value_follows,
+					offset+0, 4, value_follows);
+				offset += 4;
+				if (value_follows == 1) {
+					offset = dissect_readdir_entry(pd, offset, fd, tree);
+				}
+				else {
+					break;
+				}
+			}
+			if (!BYTES_ARE_IN_FRAME(offset,4)) return offset;
+			eof_value = EXTRACT_UINT(pd, offset+0);
+			if (tree)
+				proto_tree_add_item(tree, hf_nfs_readdir_eof,
+					offset+ 0, 4, eof_value);
+			offset += 4;
+		break;
+		default:
+			/* do nothing */
+		break;
+	}
 
 	return offset;
 }
@@ -706,8 +884,8 @@ const vsff nfs2_proc[] = {
 	NULL,				NULL },
 	{ 4,	"LOOKUP",	/* OK */
 	dissect_nfs2_diropargs_call,	dissect_nfs2_diropres_reply },
-	{ 5,	"READLINK",	/* todo: call, reply */
-	dissect_nfs2_fhandle_call,	dissect_nfs2_stat_reply },
+	{ 5,	"READLINK",	/* OK */
+	dissect_nfs2_fhandle_call,	dissect_nfs2_readlink_reply },
 	{ 6,	"READ",		/* OK */
 	dissect_nfs2_read_call,		dissect_nfs2_read_reply },
 	{ 7,	"WRITECACHE",	/* OK */
@@ -718,18 +896,18 @@ const vsff nfs2_proc[] = {
 	dissect_nfs2_createargs_call,	dissect_nfs2_diropres_reply },
 	{ 10,	"REMOVE",	/* OK */
 	dissect_nfs2_diropargs_call,	dissect_nfs2_stat_reply },
-	{ 11,	"RENAME",	/* todo: call */
-	dissect_nfs2_fhandle_call,	dissect_nfs2_stat_reply },
-	{ 12,	"LINK",		/* todo: call */
-	dissect_nfs2_fhandle_call,	dissect_nfs2_stat_reply },
-	{ 13,	"SYMLINK",	/* todo: call */
-	dissect_nfs2_fhandle_call,	dissect_nfs2_stat_reply },
+	{ 11,	"RENAME",	/* OK */
+	dissect_nfs2_rename_call,	dissect_nfs2_stat_reply },
+	{ 12,	"LINK",		/* OK */
+	dissect_nfs2_link_call,		dissect_nfs2_stat_reply },
+	{ 13,	"SYMLINK",	/* OK */
+	dissect_nfs2_symlink_call,	dissect_nfs2_stat_reply },
 	{ 14,	"MKDIR",	/* OK */
 	dissect_nfs2_createargs_call,	dissect_nfs2_diropres_reply },
 	{ 15,	"RMDIR",	/* OK */
 	dissect_nfs2_diropargs_call,	dissect_nfs2_stat_reply },
-	{ 16,	"READDIR",	/* todo: call, reply */
-	dissect_nfs2_fhandle_call,	dissect_nfs2_stat_reply },
+	{ 16,	"READDIR",	/* OK */
+	dissect_nfs2_readdir_call,	dissect_nfs2_readdir_reply },
 	{ 17,	"STATFS",	/* OK */
 	dissect_nfs2_fhandle_call,	dissect_nfs2_statfs_reply },
 	{ 0,NULL,NULL,NULL }
@@ -1863,6 +2041,9 @@ const vsff nfs3_proc[] = {
 /* end of NFS Version 3 */
 
 
+static struct true_false_string yesno = { "Yes", "No" };
+
+
 void
 proto_register_nfs(void)
 {
@@ -1870,6 +2051,9 @@ proto_register_nfs(void)
 		{ &hf_nfs_name, {
 			"Name", "nfs.name", FT_STRING, BASE_DEC,
 			NULL, 0, "Name" }},
+		{ &hf_nfs_readlink_data, {
+			"Data", "nfs.readlink.data", FT_STRING, BASE_DEC,
+			NULL, 0, "Symbolic Link Data" }},
 		{ &hf_nfs_read_offset, {
 			"Offset", "nfs.read.offset", FT_UINT32, BASE_DEC,
 			NULL, 0, "Read Offset" }},
@@ -1884,13 +2068,40 @@ proto_register_nfs(void)
 			NULL, 0, "Data" }},
 		{ &hf_nfs_write_beginoffset, {
 			"Begin Offset", "nfs.write.beginoffset", FT_UINT32, BASE_DEC,
-			NULL, 0, "Begin offset (obsolet)" }},
+			NULL, 0, "Begin offset (obsolete)" }},
 		{ &hf_nfs_write_offset, {
 			"Offset", "nfs.write.offset", FT_UINT32, BASE_DEC,
 			NULL, 0, "Offset" }},
 		{ &hf_nfs_write_totalcount, {
 			"Total Count", "nfs.write.totalcount", FT_UINT32, BASE_DEC,
 			NULL, 0, "Total Count (obsolete)" }},
+		{ &hf_nfs_symlink_to, {
+			"To", "nfs.symlink.to", FT_STRING, BASE_DEC,
+			NULL, 0, "Symbolic link destination name" }},
+		{ &hf_nfs_readdir_cookie, {
+			"Cookie", "nfs.readdir.cookie", FT_UINT32, BASE_DEC,
+			NULL, 0, "Directory Cookie" }},
+		{ &hf_nfs_readdir_count, {
+			"Count", "nfs.readdir.count", FT_UINT32, BASE_DEC,
+			NULL, 0, "Directory Count" }},
+		{ &hf_nfs_readdir_value_follows, {
+			"Value Follows", "nfs.readdir.value_follows", FT_BOOLEAN, BASE_NONE,
+			&yesno, 0, "Value Follows" }},
+		{ &hf_nfs_readdir_entry, {
+			"Entry", "nfs.readdir.entry", FT_NONE, 0,
+			NULL, 0, "Directory Entry" }},
+		{ &hf_nfs_readdir_entry_fileid, {
+			"File ID", "nfs.readdir.entry.fileid", FT_UINT32, BASE_DEC,
+			NULL, 0, "File ID" }},
+		{ &hf_nfs_readdir_entry_name, {
+			"Name", "nfs.readdir.entry.name", FT_STRING, BASE_DEC,
+			NULL, 0, "Name" }},
+		{ &hf_nfs_readdir_entry_cookie, {
+			"Cookie", "nfs.readdir.entry.cookie", FT_UINT32, BASE_DEC,
+			NULL, 0, "Directory Cookie" }},
+		{ &hf_nfs_readdir_eof, {
+			"EOF", "nfs.readdir.eof", FT_UINT32, BASE_DEC,
+			NULL, 0, "EOF" }},
 		{ &hf_nfs_statfs_tsize, {
 			"Transfer Size", "nfs.statfs.tsize", FT_UINT32, BASE_DEC,
 			NULL, 0, "Transfer Size" }},
@@ -1916,6 +2127,7 @@ proto_register_nfs(void)
 		&ett_nfs_fattr,
 		&ett_nfs_sattr,
 		&ett_nfs_diropargs,
+		&ett_nfs_readdir_entry,
 		&ett_nfs_mode3,
 		&ett_nfs_specdata3,
 		&ett_nfs_fh3,
