@@ -751,24 +751,31 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 		break;
 
 	case 61:	/* Client Identifier */
+		if (vlen > 0)
+			byte = tvb_get_guint8(tvb, voff+2);
+
 		/* We *MAY* use hwtype/hwaddr. If we have 7 bytes, I'll
 		   guess that the first is the hwtype, and the last 6
 		   are the hw addr */
-		if (vlen == 7) {
-			guint8 htype;
+		/* See http://www.iana.org/assignments/arp-parameters */
+		/* RFC2132 9.14 Client-identifier has the following to say:
+		   A hardware type of 0 (zero) should be used when the value
+		   field contains an identifier other than a hardware address
+		   (e.g. a fully qualified domain name). */
+
+		if (vlen == 7 && byte > 0 && byte < 48) {
 
 			vti = proto_tree_add_text(bp_tree, tvb, voff,
 				consumed, "Option %d: %s", code, text);
 			v_tree = proto_item_add_subtree(vti, ett_bootp_option);
-			htype = tvb_get_guint8(tvb, voff+2);
 			proto_tree_add_text(v_tree, tvb, voff+2, 1,
 				"Hardware type: %s",
-				arphrdtype_to_str(htype,
+				arphrdtype_to_str(byte,
 					"Unknown (0x%02x)"));
 			proto_tree_add_text(v_tree, tvb, voff+3, 6,
 				"Client hardware address: %s",
 				arphrdaddr_to_str(tvb_get_ptr(tvb, voff+3, 6),
-					6, htype));
+					6, byte));
 		} else {
 			/* otherwise, it's opaque data */
 			proto_tree_add_text(bp_tree, tvb, voff, consumed,
