@@ -9,7 +9,7 @@
  *
  * Copyright 2000, 2001, 2002, Michael Tuexen <Michael.Tuexen@icn.siemens.de>
  *
- * $Id: packet-m3ua.c,v 1.13 2002/01/31 00:47:40 guy Exp $
+ * $Id: packet-m3ua.c,v 1.14 2002/02/25 23:41:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -207,6 +207,7 @@ static const value_string m3ua_protocol_version_values[] = {
 #define MESSAGE_CLASS_SSNM_MESSAGE        2
 #define MESSAGE_CLASS_ASPSM_MESSAGE       3
 #define MESSAGE_CLASS_ASPTM_MESSAGE       4
+#define MESSAGE_CLASS_RKM_MESSAGE         9
 
 static const value_string m3ua_message_class_values[] = {
   { MESSAGE_CLASS_MGMT_MESSAGE,   "Management messages" },
@@ -214,6 +215,7 @@ static const value_string m3ua_message_class_values[] = {
   { MESSAGE_CLASS_SSNM_MESSAGE,   "SS7 signalling network management messages" },
   { MESSAGE_CLASS_ASPSM_MESSAGE,  "ASP state maintenance messages" },
   { MESSAGE_CLASS_ASPTM_MESSAGE,  "ASP traffic maintenance messages" },
+  { MESSAGE_CLASS_RKM_MESSAGE,    "Routing key management messages" },
   { 0,                           NULL } };
 
 #define MESSAGE_TYPE_ERR                  0
@@ -239,6 +241,12 @@ static const value_string m3ua_message_class_values[] = {
 #define MESSAGE_TYPE_ACTIVE_ACK           3
 #define MESSAGE_TYPE_INACTIVE_ACK         4
 
+#define MESSAGE_TYPE_REG_REQ              1
+#define MESSAGE_TYPE_REG_RSP              2
+#define MESSAGE_TYPE_DEREG_REQ            3
+#define MESSAGE_TYPE_DEREG_RSP            4
+
+
 static const value_string m3ua_message_class_type_values[] = {
   { MESSAGE_CLASS_MGMT_MESSAGE  * 256 + MESSAGE_TYPE_ERR,           "Error (ERR)" },
   { MESSAGE_CLASS_MGMT_MESSAGE  * 256 + MESSAGE_TYPE_NTFY,          "Notify (NTFY)" },
@@ -258,6 +266,10 @@ static const value_string m3ua_message_class_type_values[] = {
   { MESSAGE_CLASS_ASPTM_MESSAGE * 256 + MESSAGE_TYPE_INACTIVE ,     "ASP inactive (INACTIVE)" },
   { MESSAGE_CLASS_ASPTM_MESSAGE * 256 + MESSAGE_TYPE_ACTIVE_ACK ,   "ASP active ack (ACTIVE ACK)" },
   { MESSAGE_CLASS_ASPTM_MESSAGE * 256 + MESSAGE_TYPE_INACTIVE_ACK , "ASP inactive ack (INACTIVE ACK)" },
+  { MESSAGE_CLASS_RKM_MESSAGE   * 256 + MESSAGE_TYPE_REG_REQ ,      "Registration request (REG_REQ)" },
+  { MESSAGE_CLASS_RKM_MESSAGE   * 256 + MESSAGE_TYPE_REG_RSP ,      "Registration response (REG_RSP)" },
+  { MESSAGE_CLASS_RKM_MESSAGE   * 256 + MESSAGE_TYPE_DEREG_REQ ,    "Deregistration request (DEREG_REQ)" },
+  { MESSAGE_CLASS_RKM_MESSAGE   * 256 + MESSAGE_TYPE_DEREG_RSP ,    "Deregistration response (DEREG_RSP)" },
   { 0,                           NULL } };
 
 static const value_string m3ua_message_class_type_acro_values[] = {
@@ -279,6 +291,10 @@ static const value_string m3ua_message_class_type_acro_values[] = {
   { MESSAGE_CLASS_ASPTM_MESSAGE * 256 + MESSAGE_TYPE_INACTIVE ,     "ASP_INACTIVE" },
   { MESSAGE_CLASS_ASPTM_MESSAGE * 256 + MESSAGE_TYPE_ACTIVE_ACK ,   "ASP_ACTIVE_ACK" },
   { MESSAGE_CLASS_ASPTM_MESSAGE * 256 + MESSAGE_TYPE_INACTIVE_ACK , "ASP_INACTIVE_ACK" },
+  { MESSAGE_CLASS_RKM_MESSAGE   * 256 + MESSAGE_TYPE_REG_REQ ,      "REG_REQ" },
+  { MESSAGE_CLASS_RKM_MESSAGE   * 256 + MESSAGE_TYPE_REG_RSP ,      "REG_RSP" },
+  { MESSAGE_CLASS_RKM_MESSAGE   * 256 + MESSAGE_TYPE_DEREG_REQ ,    "DEREG_REQ" },
+  { MESSAGE_CLASS_RKM_MESSAGE   * 256 + MESSAGE_TYPE_DEREG_RSP ,    "DEREG_RSP" },
   { 0,                           NULL } };
 
 
@@ -1620,7 +1636,7 @@ proto_register_m3ua(void)
     }, 
     { &hf_m3ua_routing_context,
       { "Routing context", "m3ua.routing_context",
-	      FT_UINT32, BASE_HEX, NULL, 0x0,          
+	      FT_UINT32, BASE_DEC, NULL, 0x0,          
         "", HFILL }
     }, 
     { &hf_m3ua_diagnostic_information,
@@ -1650,7 +1666,7 @@ proto_register_m3ua(void)
     }, 
     { &hf_m3ua_asp_identifier,
       { "ASP identifier", "m3ua.asp_identifier",
-	      FT_UINT32, BASE_HEX, NULL, 0x0,          
+	      FT_UINT32, BASE_DEC, NULL, 0x0,          
 	      "", HFILL }
     },    
     { &hf_m3ua_affected_point_code_mask,
@@ -1700,7 +1716,7 @@ proto_register_m3ua(void)
     }, 
     { &hf_m3ua_dpc_mask,
       { "Mask", "m3ua.dpc_mask",
-	      FT_UINT8, BASE_HEX, NULL, 0x0,          
+	      FT_UINT8, BASE_DEC, NULL, 0x0,          
 	      "", HFILL }
     },    
     { &hf_m3ua_dpc_pc,
@@ -1720,7 +1736,7 @@ proto_register_m3ua(void)
     }, 
     { &hf_m3ua_opc_list_mask,
       { "Mask", "m3ua.opc_list_mask",
-	      FT_UINT8, BASE_HEX, NULL, 0x0,          
+	      FT_UINT8, BASE_DEC, NULL, 0x0,          
 	      "", HFILL }
     },    
     { &hf_m3ua_opc_list_pc,
@@ -1730,7 +1746,7 @@ proto_register_m3ua(void)
     }, 
     { &hf_m3ua_cic_range_mask,
       { "Mask", "m3ua.cic_range_mask",
-	      FT_UINT8, BASE_HEX, NULL, 0x0,          
+	      FT_UINT8, BASE_DEC, NULL, 0x0,          
 	      "", HFILL }
     },    
     { &hf_m3ua_cic_range_pc,
@@ -1755,7 +1771,7 @@ proto_register_m3ua(void)
     }, 
     { &hf_m3ua_li,
       { "Length indicator", "m3ua.protocol_data_2_li",
-	      FT_UINT8, BASE_HEX, NULL, 0x0,          
+	      FT_UINT8, BASE_DEC, NULL, 0x0,          
 	      "", HFILL }
     }, 
     { &hf_m3ua_protocol_data_opc,
@@ -1790,17 +1806,17 @@ proto_register_m3ua(void)
     }, 
     { &hf_m3ua_correlation_identifier,
       { "Correlation Identifier", "m3ua.correlation_identifier",
-	      FT_UINT32, BASE_HEX, NULL, 0x0,          
+	      FT_UINT32, BASE_DEC, NULL, 0x0,          
 	      "", HFILL }
     },
     { &hf_m3ua_registration_status,
       { "Registration status", "m3ua.registration_status",
-	      FT_UINT32, BASE_HEX, VALS(m3ua_registration_status_values), 0x0,          
+	      FT_UINT32, BASE_DEC, VALS(m3ua_registration_status_values), 0x0,          
 	      "", HFILL }
     },
     { &hf_m3ua_deregistration_status,
       { "Deregistration status", "m3ua.deregistration_status",
-	      FT_UINT32, BASE_HEX, VALS(m3ua_deregistration_status_values), 0x0,          
+	      FT_UINT32, BASE_DEC, VALS(m3ua_deregistration_status_values), 0x0,          
 	      "", HFILL }
     },
     { &hf_m3ua_reason,
