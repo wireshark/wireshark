@@ -246,6 +246,7 @@ range_process_e packet_range_process_packet(packet_range_t *range, frame_data *f
 
 void packet_range_convert_str(packet_range_t *range, const gchar *es)
 {
+    /* XXX - check for errors */
     range_convert_str(&range->user_range, es, cfile.count);
 
     /* calculate new user specified packet range counts */

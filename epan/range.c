@@ -54,14 +54,14 @@ void range_init(range_t *range) {
  * The parameter 'max_value' specifies the maximum value in a
  * range.
  *
- * This function fills the array ranges containing low and high values indexed 
- * by a global variable nranges. After having called this function, the
- * function value_is_in_range() determines whether a given number is within 
- * the range or not. 
+ * This function fills the array range->ranges containing low and high values
+ * with the number of ranges being range->nranges. After having called this
+ * function, the function value_is_in_range() determines whether a given
+ * number is within the range or not. 
  *
  * In case of a single number, we make a range where low is equal to high. 
- * We strip any characters other than commas, digits, or hyphens. We take care 
- * on wrongly entered ranges; opposite order will be taken care of.
+ * We take care on wrongly entered ranges; opposite order will be taken
+ * care of.
  * 
  * The following syntax is accepted :
  *
@@ -72,147 +72,112 @@ void range_init(range_t *range) {
  *   -              All values
  */
 
-void range_convert_str(range_t *range, const gchar *es, guint32 max_value)
+convert_ret_t
+range_convert_str(range_t *range, const gchar *es, guint32 max_value)
 {
-    gchar     EntryStr[MAXRANGESTRING], OrgStr[MAXRANGESTRING];
-    gchar     value[MAXRANGESTRING], p;
-    guint     i, j=0;
-    guint32   tmp, val;
-    gboolean  hyphenseen;
+    const gchar   *p;
+    char          *endp;
+    gchar         c;
+    guint         i;
+    guint32       tmp;
+    unsigned long val;
 
     /* Reset the number of ranges we are going to find */
     range->nranges = 0;
     range->ranges[range->nranges].low  = 0L;
     range->ranges[range->nranges].high = 0L;
 
-    /* Make a copy of the string, and check the validity of the input */
-    strcpy(OrgStr,es);
-    if (strlen(OrgStr) == 0 ) {
-        return;
-    }
-
-    /* Only keep digits, commas, and hyphens. */
-    for (i=0; i<=strlen(OrgStr); i++) {
-      if ( isdigit((guchar)OrgStr[i]) || OrgStr[i] == '-' || OrgStr[i] == ',' ) {
-         EntryStr[j++] = OrgStr[i];
-      }
-    }
-    EntryStr[j] = '\0';
-
-    /* Remove any starting commas */
-    strcpy(OrgStr,EntryStr);
-    i = 0;
-    while (OrgStr[i] == ',') {
-       i++;
-    }
-    strcpy(EntryStr,OrgStr+i);
-
-    /* Remove any double commas */
-    strcpy(OrgStr,EntryStr);
-    p = ',';
-    j = 0;
-    for (i=0; i<=strlen(OrgStr); i++) {
-      if ( OrgStr[i] != ',' || p != ',') {
-         EntryStr[j++] = OrgStr[i];
-      }
-      p = OrgStr[i];
-    }
-    EntryStr[j] = '\0';
-
-    /* Remove any double hyphens */
-    strcpy(OrgStr,EntryStr);
-    p = '-';
-    j = 0;
-    for (i=0; i<=strlen(OrgStr); i++) {
-      if (OrgStr[i] != '-' || p != '-' || i == 0) {
-         EntryStr[j++] = OrgStr[i];
-      }
-      p = OrgStr[i];
-    }
-    EntryStr[j] = '\0';
-
-    /* Remove any trailing commas */
-    i = strlen(EntryStr) - 1;
-    while (EntryStr[i] == ',') {
-       EntryStr[i] = '\0';
-       i--;
-    }
-
-    /* The entry string is now filtered, and ready for further parsing */
-    /* printf("Function : range_convert_str EntryStr = %s\n",EntryStr); */
-
-    /* Now we are going to process the ranges separately until we get a comma,
-     * or end of string.
+    /* Process the ranges separately until we get a comma or end of string.
      *
      * We build a structure array called ranges of high and low values. After the
      * following loop, we have the nranges variable which tells how many ranges
      * were found. The number of individual ranges is limited to 'MaxRanges'
      */
 
-    j = 0;
-    hyphenseen = FALSE;
-    for (i=0; i<=strlen(EntryStr);i++) {
+    p = es;
+    for (;;) {
+       /* Skip white space. */
+       while ((c = *p) == ' ' || c == '\t')
+       	   p++;
+       if (c == '\0')
+           break;
 
-       /* Copy the digit string until a no-digit character is seen */
-       if (isdigit((guchar)EntryStr[i])) {
-          value[j++] = EntryStr[i];
-          continue;
+       /* This must be a subrange. */
+       if (range->nranges == MaxRange) {
+       	   /* We've filled up the structure; no room for any more. */
+           return CVT_TOO_MANY_SUBRANGES;
        }
 
-       /* Terminate the digit string, and convert it */
-       value[j] = '\0';
-       val=atol(value);
-       j=0;
+       if (c == '-') {
+           /* Subrange starts with 1. */
+           range->ranges[range->nranges].low = 1;
+       } else {
+           /* Subrange starts with the specified number */
+           val = strtol(p, &endp, 10);
+           if (p == endp) {
+               /* That wasn't a valid number. */
+               return CVT_SYNTAX_ERROR;
+           }
+           p = endp;
+           range->ranges[range->nranges].low = val;
 
-       /* In case we see a hyphen, store the value we read in the low part 
-        * of ranges. In case it is a trailer hyphen, store the low value, and
-        * set the high value to the maximum of packets captured.
-        */
-       if (EntryStr[i] == '-') {
-          /* If this is a trailer hyphen, then treat it in a different
-           * way, then the high value is the maximum value and we are ready 
-           */
-          if (i == strlen(EntryStr)-1) {
-             range->ranges[range->nranges].low  = val;
-             range->ranges[range->nranges].high = max_value;
-             range->nranges++;
-             break;
-          } else {
-             /* Store the low value of the range */
-             range->ranges[range->nranges].low  = val;
-          }
-          hyphenseen=TRUE;
-          continue;
+           /* Skip white space. */
+           while ((c = *p) == ' ' || c == '\t')
+               p++;
        }
 
-       /* In case we see a comma, or end of string */
-       if (EntryStr[i] == ',' || i == strlen(EntryStr)) {
-          if (hyphenseen) {
-             /* Normal treatment: store the high value range in ranges */
-             range->ranges[range->nranges].high = val;
-          } else {
-             /* We did not see a hyphen and we get a comma, then this must
-              * be a single number */
-             range->ranges[range->nranges].low  = val;
-             range->ranges[range->nranges].high = val;
-          }
-          hyphenseen=FALSE;
-       }
+       if (c == '-') {
+           /* There's a hyphen in the range.  Skip past it. */
+           p++;
 
-       /* Increase the index for the number of ranges we found, and protect
-        * against wildly outside array bound jumps */
+           /* Skip white space. */
+           while ((c = *p) == ' ' || c == '\t')
+               p++;
+
+           if (c == ',' || c == '\0') {
+               /*
+                * End of subrange string; that means the subrange ends
+                * with max_value.
+                */
+               range->ranges[range->nranges].high = max_value;
+           } else {
+               /* Subrange ends with the specified number. */
+               val = strtol(p, &endp, 10);
+               if (p == endp) {
+                   /* That wasn't a valid number. */
+                   return CVT_SYNTAX_ERROR;
+               }
+               p = endp;
+               range->ranges[range->nranges].high = val;
+
+               /* Skip white space. */
+               while ((c = *p) == ' ' || c == '\t')
+                   p++;
+           }
+       } else if (c == ',' || c == '\0') {
+           /*
+            * End of subrange string; that means there's no hyphen
+            * in the subrange, so the start and the end are the same.
+            */
+           range->ranges[range->nranges].high =
+               range->ranges[range->nranges].low;
+       } else {
+          /* Invalid character. */ 
+          return CVT_SYNTAX_ERROR;
+       }
        range->nranges++;
-       if (range->nranges > MaxRange) {
-           range->nranges--;
+
+       if (c == ',') {
+       	   /* Subrange is followed by a comma; skip it. */
+           p++;
        }
     }
-    range->nranges--;
 
     /*  Now we are going through the low and high values, and check
      *  whether they are in a proper order. Low should be equal or lower
      *  than high. So, go through the loop and swap if needed.
      */
-    for (i=0; i <= range->nranges; i++) {
+    for (i=0; i < range->nranges; i++) {
        if (range->ranges[i].low > range->ranges[i].high) {
           tmp = range->ranges[i].low;
           range->ranges[i].low  = range->ranges[i].high;
@@ -222,11 +187,12 @@ void range_convert_str(range_t *range, const gchar *es, guint32 max_value)
 
     /* In case we want to know what the result ranges are :
      *
-     * for (i=0; i <= nranges; i++) {
-     *  printf("Function : range_convert_str L=%u \t H=%u\n",ranges[i].low,ranges[i].high);
+     * for (i=0; i < range->nranges; i++) {
+     *  printf("Function : range_convert_str L=%u \t H=%u\n",range->ranges[i].low,range->ranges[i].high);
      * }
      *
      */
+     return CVT_NO_ERROR;
 } /* range_convert_str */
 
 /* This function returns TRUE if a given value is within one of the ranges
@@ -236,7 +202,7 @@ gboolean value_is_in_range(range_t *range, guint32 val)
 {
    guint i;
 
-   for (i=0; i <= range->nranges; i++) {
+   for (i=0; i < range->nranges; i++) {
       if (val >= range->ranges[i].low && val <= range->ranges[i].high)
          return TRUE;
    }
@@ -252,7 +218,7 @@ gboolean ranges_are_equal(range_t *a, range_t *b)
    if (a->nranges != b->nranges)
       return FALSE;
 
-   for (i=0; i <= a->nranges; i++) {
+   for (i=0; i < a->nranges; i++) {
       if (a->ranges[i].low != b->ranges[i].low)
 	 return FALSE;
 
@@ -272,7 +238,7 @@ range_foreach(range_t *range, void (*callback)(guint32 val))
 {
    guint32 i, j;
 
-   for (i=0; i <= range->nranges; i++) {
+   for (i=0; i < range->nranges; i++) {
       for (j = range->ranges[i].low; j <= range->ranges[i].high; j++)
          callback(j);
    }
@@ -287,7 +253,7 @@ range_convert_range(range_t *range, char *string)
    k = 0;
    string[k] = '\0';
 
-   for (i=0; i <= range->nranges; i++) {
+   for (i=0; i < range->nranges; i++) {
       if (i != 0)
 	 string[k++] = ',';
 

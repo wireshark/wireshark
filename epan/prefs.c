@@ -2014,7 +2014,12 @@ set_pref(gchar *pref_name, gchar *value)
     {
       range_t newrange;
 
-      range_convert_str(&newrange, value, pref->info.max_value);
+      if (range_convert_str(&newrange, value, pref->info.max_value) !=
+          CVT_NO_ERROR) {
+        /* XXX - distinguish between CVT_SYNTAX_ERROR and
+           CVT_TOO_MANY_SUBRANGES */
+        return PREFS_SET_SYNTAX_ERR;	/* number was bad */
+      }
 
       if (!ranges_are_equal(pref->varp.rangep, &newrange)) {
 	module->prefs_changed = TRUE;

@@ -48,9 +48,18 @@ typedef struct range {
     range_admin_t   ranges[MaxRange];
 } range_t;
 
+/*
+ * Return value from range_convert_str().
+ */
+typedef enum {
+    CVT_NO_ERROR,
+    CVT_SYNTAX_ERROR,
+    CVT_TOO_MANY_SUBRANGES
+} convert_ret_t;	
+
 extern void range_init(range_t *range);
 
-extern void range_convert_str(range_t *range, const gchar *es,
+extern convert_ret_t range_convert_str(range_t *range, const gchar *es,
     guint32 max_value);
 
 extern gboolean value_is_in_range(range_t *range, guint32 val);

@@ -904,12 +904,8 @@ pref_check(pref_t *pref, gpointer user_data)
     if (strlen(str_val)) {
 	range_t newrange;
 
-	range_convert_str(&newrange, str_val, pref->info.max_value);
-	if (newrange.nranges == 0) {
-	    /* If the user specified a string of non-zero length but
-	     * range_convert_str() couldn't find a single range in it,
-	     * it must be bad.
-	     */
+	if (range_convert_str(&newrange, str_val, pref->info.max_value) !=
+	    CVT_NO_ERROR) {
 	    *badpref = pref;
 	    return PREFS_SET_SYNTAX_ERR;	/* range was bad */
 	}
@@ -993,9 +989,14 @@ pref_fetch(pref_t *pref, gpointer user_data)
   case PREF_RANGE:
   {
     range_t newrange;
+    convert_ret_t ret;
 
     str_val = gtk_entry_get_text(GTK_ENTRY(pref->control));
-    range_convert_str(&newrange, str_val, pref->info.max_value);
+    ret = range_convert_str(&newrange, str_val, pref->info.max_value);
+#if 0
+    if (ret != CVT_NO_ERROR)
+      return PREFS_SET_SYNTAX_ERR;	/* range was bad */
+#endif
 
     if (!ranges_are_equal(pref->varp.rangep, &newrange))
     {
