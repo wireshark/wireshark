@@ -69,7 +69,7 @@
 		<entry><command>disabled_protos</command></entry>
 		<entry>Disabled protocols.</entry>
 		<entry>$HOME/.ethereal/disabled_protos</entry>
-		<entry>%APPDATA%\Ethereal\disabled_protos</entry>
+		<entry>%ETHEREAL%\disabled_protos, %APPDATA%\Ethereal\disabled_protos</entry>
 	      </row>
 	      <row>
 		<entry><command>ethers</command></entry>
