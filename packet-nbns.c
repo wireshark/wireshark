@@ -3,7 +3,7 @@
  * to when it had only NBNS)
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-nbns.c,v 1.68 2002/01/07 00:16:32 guy Exp $
+ * $Id: packet-nbns.c,v 1.69 2002/01/07 00:57:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1497,6 +1497,8 @@ dissect_nbss_packet(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	  if (reported_len > length)
 	    reported_len = length;
 
+	  next_tvb = tvb_new_subset(tvb, offset, len, reported_len);
+
 	  /*
 	   * Catch the ReportedBoundsError exception; if this
 	   * particular message happens to get a ReportedBoundsError
@@ -1507,22 +1509,21 @@ dissect_nbss_packet(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	   * If it gets a BoundsError, we can stop, as there's nothing
 	   * more to see, so we just re-throw it.
 	   */
-	  next_tvb = tvb_new_subset(tvb, offset, len, reported_len);
-          saved_proto = pinfo->current_proto;
-          TRY {
+	  saved_proto = pinfo->current_proto;
+	  TRY {
 	    dissect_netbios_payload(next_tvb, pinfo, tree);
-          }
-          CATCH(BoundsError) {
-            RETHROW;
-          }
-          CATCH(ReportedBoundsError) {
+	  }
+	  CATCH(BoundsError) {
+	    RETHROW;
+	  }
+	  CATCH(ReportedBoundsError) {
 	    if (check_col(pinfo->cinfo, COL_INFO))
 	      col_append_str(pinfo->cinfo, COL_INFO, "[Malformed Packet]");
 	    proto_tree_add_protocol_format(tree, proto_malformed, tvb, 0, 0,
 				"[Malformed Packet: %s]", pinfo->current_proto );
 	    pinfo->current_proto = saved_proto;
-          }
-          ENDTRY;
+	  }
+	  ENDTRY;
 	  break;
 
 	}
