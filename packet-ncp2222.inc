@@ -8,7 +8,7 @@
  * Gilbert Ramirez <gram@alumni.rice.edu>
  * Modified to decode NDS packets by Greg Morris <gmorris@novell.com>
  *
- * $Id: packet-ncp2222.inc,v 1.16 2002/08/23 22:15:51 guy Exp $
+ * $Id: packet-ncp2222.inc,v 1.17 2002/08/23 22:44:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1072,7 +1072,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
 {
 	guint8			func, subfunc = 0;
 	ncp_req_hash_value	*request_value = NULL;
-	const ncp_record	*ncp_rec = NULL;          
+	const ncp_record	*ncp_rec = NULL;
 	conversation_t		*conversation;
 	ptvcursor_t		*ptvc = NULL;
 	proto_tree		*temp_tree = NULL;
@@ -1081,298 +1081,66 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
         guint16                 nds_frag = 0;
 
 	func = tvb_get_guint8(tvb, 6);
-        subfunc = tvb_get_guint8(tvb, 7);
-        
+	subfunc = tvb_get_guint8(tvb, 7);
+	
 	ncp_rec = ncp_record_find(func, subfunc);
 
-        /* Check to see if this is a fragment packet */
-        nds_frag = tvb_get_ntohl(tvb, 8);
+	/* Check to see if this is a fragment packet */
+	nds_frag = tvb_get_ntohl(tvb, 8);
 
-        /* Get NDS Verb */
-        if (nds_frag == 0xffff) {
-                nds_verb = tvb_get_guint8(tvb, 24);
-                if (nds_verb == 0xfe) {
-                        nds_verb = tvb_get_guint8(tvb, 32);
-                }
-                switch(nds_verb) {
-        
-                case 0x01:    
-                        verb_string = "Resolve Name";
-                        break;
-                case 0x02:    
-                        verb_string = "Read Entry Information";
-                        break;
-                case 0x03:    
-                        verb_string = "Read";
-                        break;
-                case 0x04:    
-                        verb_string = "Compare";
-                        break;
-                case 0x05:    
-                        verb_string = "List";
-                        break;
-                case 0x06:    
-                        verb_string = "Search Entries";
-                        break;
-                case 0x07:    
-                        verb_string = "Add Entry";
-                        break;
-                case 0x08:    
-                        verb_string = "Remove Entry";
-                        break;
-                case 0x09:    
-                        verb_string = "Modify Entry";
-                        break;
-                case 0x0a:    
-                        verb_string = "Modify RDN";
-                        break;
-                case 0x0b:    
-                        verb_string = "Create Attribute";
-                        break;
-                case 0x0c:    
-                        verb_string = "Read Attribute Definition";
-                        break;
-                case 0x0d:    
-                        verb_string = "Remove Attribute Definition";
-                        break;
-                case 0x0e:    
-                        verb_string = "Define Class";
-                        break;
-                case 0x0f:    
-                        verb_string = "Read Class Definition";
-                        break;
-                case 0x10:    
-                        verb_string = "Modify Class Definition";
-                        break;
-                case 0x11:    
-                        verb_string = "Remove Class Definition";
-                        break;
-                case 0x12:    
-                        verb_string = "List Containable Classes";
-                        break;
-                case 0x13:    
-                        verb_string = "Get Effective Rights";
-                        break;
-                case 0x14:    
-                        verb_string = "Add Partition";
-                        break;
-                case 0x15:    
-                        verb_string = "Remove Partition";
-                        break;
-                case 0x16:    
-                        verb_string = "List Partitions";
-                        break;
-                case 0x17:    
-                        verb_string = "Split Partition";
-                        break;
-                case 0x18:    
-                        verb_string = "Join Partitions";
-                        break;
-                case 0x19:    
-                        verb_string = "Add Replica";
-                        break;
-                case 0x1a:    
-                        verb_string = "Remove Replica";
-                        break;
-                case 0x1b:    
-                        verb_string = "Open Stream";
-                        break;
-                case 0x1c:    
-                        verb_string = "Search Filter";
-                        break;
-                case 0x1d:    
-                        verb_string = "Create Subordinate Reference";
-                        break;
-                case 0x1e:    
-                        verb_string = "Link Replica";
-                        break;
-                case 0x1f:    
-                        verb_string = "Change Replica Type";
-                        break;
-                case 0x20:    
-                        verb_string = "Start Update Schema";
-                        break;
-                case 0x21:    
-                        verb_string = "End Update Schema";
-                        break;
-                case 0x22:    
-                        verb_string = "Update Schema";
-                        break;
-                case 0x23:    
-                        verb_string = "Start Update Replica";
-                        break;
-                case 0x24:    
-                        verb_string = "End Update Replica";
-                        break;
-                case 0x25:    
-                        verb_string = "Update Replica";
-                        break;
-                case 0x26:    
-                        verb_string = "Synchronize Partition";
-                        break;
-                case 0x27:    
-                        verb_string = "Synchronize Schema";
-                        break;
-                case 0x28:    
-                        verb_string = "Read Syntaxes";
-                        break;
-                case 0x29:    
-                        verb_string = "Get Replica Root ID";
-                        break;
-                case 0x2a:    
-                        verb_string = "Begin Move Entry";
-                        break;
-                case 0x2b:    
-                        verb_string = "Finish Move Entry";
-                        break;
-                case 0x2c:    
-                        verb_string = "Release Moved Entry";
-                        break;
-                case 0x2d:    
-                        verb_string = "Backup Entry";
-                        break;
-                case 0x2e:    
-                        verb_string = "Restore Entry";
-                        break;
-                case 0x2f:    
-                        verb_string = "Save DIB";
-                        break;
-                case 0x30:
-                        verb_string = "Control";
-                        break;
-                case 0x31:
-                        verb_string = "Remove Backlink";
-                        break;
-                case 0x32:    
-                        verb_string = "Close Iteration";
-                        break;
-                case 0x33:    
-                        verb_string = "Mutate Entry";
-                        break;
-                case 0x34:    
-                        verb_string = "Audit Skulking";
-                        break;
-                case 0x35:    
-                        verb_string = "Get Server Address";
-                        break;
-                case 0x36:    
-                        verb_string = "Set Keys";
-                        break;
-                case 0x37:    
-                        verb_string = "Change Password";
-                        break;
-                case 0x38:    
-                        verb_string = "Verify Password";
-                        break;
-                case 0x39:    
-                        verb_string = "Begin Login";
-                        break;
-                case 0x3a:    
-                        verb_string = "Finish Login";
-                        break;
-                case 0x3b:    
-                        verb_string = "Begin Authentication";
-                        break;
-                case 0x3c:    
-                        verb_string = "Finish Authentication";
-                        break;
-                case 0x3d:    
-                        verb_string = "Logout";
-                        break;
-                case 0x3e:    
-                        verb_string = "Repair Ring";
-                        break;
-                case 0x3f:    
-                        verb_string = "Repair Timestamps";
-                        break;
-                case 0x40:    
-                        verb_string = "Create Back Link";
-                        break;
-                case 0x41:    
-                        verb_string = "Delete External Reference";
-                        break;
-                case 0x42:    
-                        verb_string = "Rename External Reference";
-                        break;
-                case 0x43:    
-                        verb_string = "Create Directory Entry";
-                        break;
-                case 0x44:    
-                        verb_string = "Remove Directory Entry";
-                        break;
-                case 0x45:    
-                        verb_string = "Designate New Master";
-                        break;
-                case 0x46:    
-                        verb_string = "Change Tree Name";
-                        break;
-                case 0x47:    
-                        verb_string = "Partition Entry Count";
-                        break;
-                case 0x48:    
-                        verb_string = "Check Login Restrictions";
-                        break;
-                case 0x49:    
-                        verb_string = "Start Join";
-                        break;
-                case 0x4a:    
-                        verb_string = "Low Level Split";
-                        break;
-                case 0x4b:    
-                        verb_string = "Low Level Join";
-                        break;
-                case 0x4c:    
-                        verb_string = "Abort Low Level Join";
-                        break;
-                case 0x4d:    
-                        verb_string = "Get All Servers";
-                        break;
-       		default:
+	/* Get NDS Verb */
+	if (nds_frag == 0xffff) {
+		nds_verb = tvb_get_guint8(tvb, 24);
+		if (nds_verb == 0xfe) {
+			nds_verb = tvb_get_guint8(tvb, 32);
+		}
+		verb_string = match_strval(nds_verb, ncp_nds_verb_vals);
+		if (verb_string == NULL) {
        			verb_string = "NDS Continuation Fragment";
-       	        }
-        }
+       		}
+	}
        	/* Fill in the INFO column. */
        	if (check_col(pinfo->cinfo, COL_INFO)) {
        		if (ncp_rec) {
-                        
-        		col_set_str(pinfo->cinfo, COL_PROTOCOL, "NDS");
-                        if (nds_frag != 0xffff) {
-                                col_add_fstr(pinfo->cinfo, COL_INFO, "Continuation Fragment");
-                        }
-                        else {
-                       		col_add_fstr(pinfo->cinfo, COL_INFO, "C NDS %s", verb_string);
-               	        }
-                }
-               	else {
+			
+			col_set_str(pinfo->cinfo, COL_PROTOCOL, "NDS");
+			if (nds_frag != 0xffff) {
+				col_add_fstr(pinfo->cinfo, COL_INFO, "Continuation Fragment");
+			}
+			else {
+		       		col_add_fstr(pinfo->cinfo, COL_INFO, "C NDS %s", verb_string);
+	       		}
+		}
+	       	else {
        			col_add_fstr(pinfo->cinfo, COL_INFO,
        				"C Unknown Function %d (0x%02x)",
        				func, func);
-               	}
-                
-        }
+	       	}
+		
+	}
        	if (!pinfo->fd->flags.visited) {
-        
-        	/* This is the first time we've looked at this packet.
-        	Keep track of the address and connection whence the request
-        	came, and the address and connection to which the request
-        	is being sent, so that we can match up calls with replies.
-        	(We don't include the sequence number, as we may want
-        	to have all packets over the same connection treated
+	
+		/* This is the first time we've looked at this packet.
+		Keep track of the address and connection whence the request
+		came, and the address and connection to which the request
+		is being sent, so that we can match up calls with replies.
+		(We don't include the sequence number, as we may want
+		to have all packets over the same connection treated
    		as being part of a single conversation so that we can
-   	        let the user select that conversation to be displayed.) */
-                
+   		let the user select that conversation to be displayed.) */
+		
        		conversation = find_conversation(&pinfo->src, &pinfo->dst,
        		    PT_NCP, nw_connection, nw_connection, 0);
-        
+	
        		if (conversation == NULL) {
        			/* It's not part of any conversation - create a new one. */
        			conversation = conversation_new(&pinfo->src, &pinfo->dst,
        			    PT_NCP, nw_connection, nw_connection, 0);
        		}
-                
+		
        		request_value = ncp_hash_insert(conversation, sequence, ncp_rec);
        		request_value->req_frame_num = pinfo->fd->num;
-        
+	
        		/* If this is the first time we're examining the packet,
        		 * check to see if this NCP type uses a "request condition".
        		 * If so, we have to build a proto_tree because request conditions
@@ -1381,15 +1149,15 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
        		 * a proto_tree, then wonderful. If we don't, we need to build
        		 * one. */
        		if (ncp_rec && ncp_tree == NULL) {
-         		proto_item *ti;
-                               
-         		temp_tree = proto_tree_create_root();
-         		proto_tree_set_visible(temp_tree, FALSE);
-         		ti = proto_tree_add_item(temp_tree, proto_ncp, tvb, 0, -1, FALSE);
-         		ncp_tree = proto_item_add_subtree(ti, ett_ncp);
+	 		proto_item *ti;
+			       
+	 		temp_tree = proto_tree_create_root();
+	 		proto_tree_set_visible(temp_tree, FALSE);
+	 		ti = proto_tree_add_item(temp_tree, proto_ncp, tvb, 0, -1, FALSE);
+	 		ncp_tree = proto_item_add_subtree(ti, ett_ncp);
        		}
        	}
-        
+	
        	if (ncp_tree) {
        		/* If the dissection throws an exception, be sure to free
        		 * the temporary proto_tree that was created. Because of the
@@ -1398,43 +1166,39 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
        		 * CLEANUP_POP or CLEANUP_POP_AND_ALLOC. So, we always
        		 * call CLEANUP_POP and friends, but the value of temp_tree is
        		 * NULL if no cleanup is needed, and non-null if cleanup is needed. 
-                 */
-                 
+		 */
+		 
        		CLEANUP_PUSH(free_proto_tree, temp_tree);
-        
+	
        		conversation = find_conversation(&pinfo->src, &pinfo->dst,
        		    PT_NCP, nw_connection, nw_connection, 0);
-        
+	
        		switch (type) {
-                        case NCP_BROADCAST_SLOT:
+			case NCP_BROADCAST_SLOT:
        				; /* nothing */
        				break;
-        
+	
        			case NCP_SERVICE_REQUEST:
        				proto_tree_add_uint_format(ncp_tree, hf_ncp_func, tvb, 6, 1,
        					func, "Function: %d (0x%02X), %s",
        					func, func, ncp_rec ? ncp_rec->name : "Unknown");
-                                        
+					
 				proto_tree_add_uint_format(ncp_tree, hf_ncp_subfunc, tvb, 7, 1,
 					subfunc, "SubFunction: %d (0x%02x)",
 					subfunc, subfunc);
-                                        
+					
 				proto_tree_add_uint_format(ncp_tree, hf_ncp_fragment_handle, tvb, 8, 4,
 					nds_frag, "Fragment Handle: (0x%x)",
 					nds_frag);
-                                        
-                                if (nds_frag == 0xffff) {
-                                
-				proto_tree_add_item(ncp_tree, hf_ncp_fragment_size, tvb, 12, 4, TRUE);
-                                        
-				proto_tree_add_item(ncp_tree, hf_ncp_message_size, tvb, 16, 4, TRUE);
-                                
-				proto_tree_add_item(ncp_tree, hf_ncp_nds_flag, tvb, 20, 4, FALSE);
-                                
-				proto_tree_add_uint_format(ncp_tree, hf_ncp_nds_verb, tvb, 24, 1,
-					nds_verb, "NDS Verb: %d, (0x%02x), %s",
-					nds_verb, nds_verb, verb_string);
-                                }
+					
+				if (nds_frag == 0xffff) {
+					proto_tree_add_item(ncp_tree, hf_ncp_fragment_size, tvb, 12, 4, TRUE);
+					proto_tree_add_item(ncp_tree, hf_ncp_message_size, tvb, 16, 4, TRUE);
+					proto_tree_add_item(ncp_tree, hf_ncp_nds_flag, tvb, 20, 4, FALSE);
+					proto_tree_add_uint_format(ncp_tree, hf_ncp_nds_verb, tvb, 24, 1,
+						nds_verb, "NDS Verb: %u, (0x%02x), %s",
+						nds_verb, nds_verb, verb_string);
+				}
        				break;
        
        			default:
@@ -1451,5 +1215,4 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
        		/* Free the temporary proto_tree */
        		CLEANUP_CALL_AND_POP;
        	}
-        
 }

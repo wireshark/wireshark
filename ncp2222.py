@@ -24,7 +24,7 @@ http://developer.novell.com/ndk/doc/docui/index.htm#../ncp/ncp__enu/data/
 for a badly-formatted HTML version of the same PDF.
 
 
-$Id: ncp2222.py,v 1.31 2002/08/23 17:47:30 gram Exp $
+$Id: ncp2222.py,v 1.32 2002/08/23 22:44:57 guy Exp $
 
 
 Copyright (c) 2000-2002 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -2872,7 +2872,7 @@ NDSVerb				= val_string16("nds_verb", "NDS Verb", [
 	[ 75, "Low Level Join" ],
 	[ 76, "Abort Low Level Join" ],
 	[ 77, "Get All Servers" ],
-        [ 255, "EDirectory Call" ],
+	[ 255, "EDirectory Call" ],
 ])
 NDSNewVerb			= val_string16("nds_new_verb", "NDS Verb", [
 ])
@@ -5961,6 +5961,86 @@ final_registration_ncp2222(void)
 
 	# proto_register_ncp2222()
 	print """
+static const value_string ncp_nds_verb_vals[] = {
+	{ 1, "Resolve Name" },
+	{ 2, "Read Entry Information" },
+	{ 3, "Read" },
+	{ 4, "Compare" },
+	{ 5, "List" },
+	{ 6, "Search Entries" },
+	{ 7, "Add Entry" },
+	{ 8, "Remove Entry" },
+	{ 9, "Modify Entry" },
+	{ 10, "Modify RDN" },
+	{ 11, "Create Attribute" },
+	{ 12, "Read Attribute Definition" },
+	{ 13, "Remove Attribute Definition" },
+	{ 14, "Define Class" },
+	{ 15, "Read Class Definition" },
+	{ 16, "Modify Class Definition" },
+	{ 17, "Remove Class Definition" },
+	{ 18, "List Containable Classes" },
+	{ 19, "Get Effective Rights" },
+	{ 20, "Add Partition" },
+	{ 21, "Remove Partition" },
+	{ 22, "List Partitions" },
+	{ 23, "Split Partition" },
+	{ 24, "Join Partitions" },
+	{ 25, "Add Replica" },
+	{ 26, "Remove Replica" },
+	{ 27, "Open Stream" },
+	{ 28, "Search Filter" },
+	{ 29, "Create Subordinate Reference" },
+	{ 30, "Link Replica" },
+	{ 31, "Change Replica Type" },
+	{ 32, "Start Update Schema" },
+	{ 33, "End Update Schema" },
+	{ 34, "Update Schema" },
+	{ 35, "Start Update Replica" },
+	{ 36, "End Update Replica" },
+	{ 37, "Update Replica" },
+	{ 38, "Synchronize Partition" },
+	{ 39, "Synchronize Schema" },
+	{ 40, "Read Syntaxes" },
+	{ 41, "Get Replica Root ID" },
+	{ 42, "Begin Move Entry" },
+	{ 43, "Finish Move Entry" },
+	{ 44, "Release Moved Entry" },
+	{ 45, "Backup Entry" },
+	{ 46, "Restore Entry" },
+	{ 47, "Save DIB" },
+	{ 50, "Close Iteration" },
+	{ 51, "Unused" },
+	{ 52, "Audit Skulking" },
+	{ 53, "Get Server Address" },
+	{ 54, "Set Keys" },
+	{ 55, "Change Password" },
+	{ 56, "Verify Password" },
+	{ 57, "Begin Login" },
+	{ 58, "Finish Login" },
+	{ 59, "Begin Authentication" },
+	{ 60, "Finish Authentication" },
+	{ 61, "Logout" },
+	{ 62, "Repair Ring" },
+	{ 63, "Repair Timestamps" },
+	{ 64, "Create Back Link" },
+	{ 65, "Delete External Reference" },
+	{ 66, "Rename External Reference" },
+	{ 67, "Create Directory Entry" },
+	{ 68, "Remove Directory Entry" },
+	{ 69, "Designate New Master" },
+	{ 70, "Change Tree Name" },
+	{ 71, "Partition Entry Count" },
+	{ 72, "Check Login Restrictions" },
+	{ 73, "Start Join" },
+	{ 74, "Low Level Split" },
+	{ 75, "Low Level Join" },
+	{ 76, "Abort Low Level Join" },
+	{ 77, "Get All Servers" },
+	{ 255, "EDirectory Call" },
+	{ 0,  NULL }
+};
+
 void
 proto_register_ncp2222(void)
 {
@@ -5991,7 +6071,7 @@ proto_register_ncp2222(void)
 	{ "Flags", "ncp.ndsflag", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
         
 	{ &hf_ncp_nds_verb,
-	{ "NDS Verb", "ncp.ndsverb", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL }},
+	{ "NDS Verb", "ncp.ndsverb", FT_UINT8, BASE_HEX, VALS(ncp_nds_verb_vals), 0x0, "", HFILL }},
         
         /*
 	 * XXX - the page at
