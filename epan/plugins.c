@@ -1,7 +1,7 @@
 /* plugins.c
  * plugin routines
  *
- * $Id: plugins.c,v 1.32 2001/08/29 00:51:08 guy Exp $
+ * $Id: plugins.c,v 1.33 2001/09/04 01:05:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -406,6 +406,7 @@ init_plugins(const char *plugin_dir)
 	patable.p_prefs_register_uint_preference = prefs_register_uint_preference;
 	patable.p_prefs_register_bool_preference = prefs_register_bool_preference;
 	patable.p_prefs_register_enum_preference = prefs_register_enum_preference;
+	patable.p_prefs_register_string_preference = prefs_register_string_preference;
 
 	patable.p_register_giop_user		= register_giop_user;
 	patable.p_is_big_endian			= is_big_endian;
