@@ -1203,7 +1203,7 @@ v2_ipcomptype2str(guint8 type)
 
   if (type >= 5 && type <= 240)
     return "RESERVED TO IANA";
-  if (type >= 241 && type <= 255)
+  if (type >= 241)
     return "PRIVATE USE";
   return val_to_str(type, vs_v2_ipcomptype, "UNKNOWN-IPCOMP-TYPE");
 }
@@ -1907,7 +1907,7 @@ msgtype2str(guint16 type)
       return "RESERVED TO IANA - STATUS TYPES";
     if (type >= 8192 && type <= 16383)
       return "Private Use - Errors";
-    if (type >= 40960 && type <= 65535)
+    if (type >= 40960)
       return "Private Use - STATUS TYPES";
     return val_to_str(type, vs_v2_notifmsg, "UNKNOWN-NOTIFY-MESSAGE-TYPE");
   } 
@@ -2192,13 +2192,13 @@ cfgtype2str(guint8 type)
   if (isakmp_version == 1) {
     if (type >= 5 && type <= 127)
       return "Future use";
-    if (type >= 128 && type <= 255)
+    if (type >= 128)
       return "Private Use";
     return val_to_str(type, vs_v1_cfgtype, "UNKNOWN-CFG-TYPE");
   } else if (isakmp_version == 2) {
     if (type >= 5 && type <= 127)
       return "RESERVED TO IANA";
-    if (type >= 128 && type <= 255)
+    if (type >= 128)
       return "PRIVATE USE";
     return val_to_str(type, vs_v1_cfgtype, "UNKNOWN-CFG-TYPE");
   }
@@ -2241,7 +2241,7 @@ id2str(guint8 type)
   else if (isakmp_version == 2) {
     if ((type >= 6 && type <=8) || (type >= 12 && type <= 200))
       return "Reserved to IANA";
-    if (type >= 201 && type <= 255)
+    if (type >= 201)
       return "Reserved for private use";
     return val_to_str(type, vs_v2_ident, "UNKNOWN-ID-TYPE");
   }
@@ -2261,7 +2261,7 @@ v2_tstype2str(guint8 type)
     return "RESERVED";
   if (type >= 9 && type <= 240)
     return "RESERVED TO IANA";
-  if (type >= 241 && type <= 255)
+  if (type >= 241)
     return "PRIVATE USE";
   return val_to_str(type, vs_v2_tstype, "UNKNOWN-TS-TYPE");
 }
@@ -2279,7 +2279,7 @@ v2_auth2str(guint8 type)
 
   if (type >= 4 && type <= 200)
     return "RESERVED TO IANA";
-  if (type >= 201 && type <= 255)
+  if (type >= 201)
     return "PRIVATE USE";
   return val_to_str(type, vs_v2_authmeth, "UNKNOWN-AUTHMETHOD-TYPE");
 }
@@ -2395,7 +2395,7 @@ certtype2str(guint8 type)
   else if (isakmp_version == 2) {
     if (type >= 14 && type <= 200)
       return "RESERVED to IANA";
-    if (type >= 201 && type <= 255)
+    if (type >= 201)
       return "PRIVATE USE";
     return val_to_str(type, vs_v2_certtype, "RESERVED");
   }
