@@ -2,7 +2,7 @@
  * Routines for Web Cache Coordination Protocol dissection
  * Jerry Talkington <jerryt@netapp.com>
  *
- * $Id: packet-wccp.c,v 1.27 2002/01/24 09:20:52 guy Exp $
+ * $Id: packet-wccp.c,v 1.28 2002/01/30 23:08:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -40,6 +40,10 @@
 #include <epan/packet.h>
 #include <epan/strutil.h>
 #include "packet-wccp.h"
+
+#ifdef NEED_SNPRINTF_H
+# include "snprintf.h"
+#endif
 
 static int proto_wccp = -1;
 static int hf_wccp_message_type = -1;	/* the message type */

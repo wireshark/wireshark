@@ -1,7 +1,7 @@
 /* packet-pflog.c
  * Routines for pflog (OpenBSD Firewall Logging) packet disassembly
  *
- * $Id: packet-pflog.c,v 1.1 2002/01/29 08:44:46 guy Exp $
+ * $Id: packet-pflog.c,v 1.2 2002/01/30 23:08:26 guy Exp $
  *
  * Copyright 2001 Mike Frantzen
  * All rights reserved.
@@ -36,6 +36,7 @@
 # include <sys/types.h>
 #endif
 
+#include <string.h>
 #include <glib.h>
 #include <epan/packet.h>
 #include "etypes.h"

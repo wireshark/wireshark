@@ -1,7 +1,7 @@
 /* packet-diameter.c
  * Routines for Diameter packet disassembly
  *
- * $Id: packet-diameter.c,v 1.42 2002/01/21 23:35:31 guy Exp $
+ * $Id: packet-diameter.c,v 1.43 2002/01/30 23:08:26 guy Exp $
  *
  * Copyright (c) 2001 by David Frascone <dave@frascone.com>
  *
@@ -47,6 +47,10 @@
 #include <epan/packet.h>
 #include <epan/resolv.h>
 #include "prefs.h"
+
+#ifdef NEED_SNPRINTF_H
+# include "snprintf.h"
+#endif
 
 /* This must be defined before we include packet-diameter-defs.h */
 
@@ -1005,7 +1009,7 @@ diameter_time_to_string(gchar *timeValue)
   int intval;
   struct tm lt;
 
-  intval=pntohl(*((guint32*)timeValue));
+  intval=pntohl(timeValue);
   intval -= NTP_TIME_DIFF;
   lt=*localtime((time_t *)&intval);
   strftime(buffer, 1024, 
@@ -1113,8 +1117,8 @@ static guint32 dissect_diameter_common(tvbuff_t *tvb, size_t start, packet_info 
 
   /* Short packet.  Should have at LEAST one avp */
   if (pktLength < MIN_DIAMETER_SIZE) {
-	g_warning("Diameter: Packet too short: %d bytes less than min size (%d bytes))",
-			  pktLength, MIN_DIAMETER_SIZE);
+	g_warning("Diameter: Packet too short: %u bytes less than min size (%lu bytes))",
+			  pktLength, (unsigned long)MIN_DIAMETER_SIZE);
 	BadPacket = TRUE;
   }
 
@@ -1387,8 +1391,8 @@ static void dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree
 
 	/* Check for short packet */
 	if (packetLength < (long)MIN_AVP_SIZE) {
-	  g_warning("Diameter: AVP Payload too short: %d bytes less than min size (%d bytes))",
-				packetLength, MIN_AVP_SIZE);
+	  g_warning("Diameter: AVP Payload too short: %d bytes less than min size (%ld bytes))",
+				packetLength, (long)MIN_AVP_SIZE);
 	  BadPacket = TRUE;
 	  /* Don't even bother trying to parse a short packet. */
 	  return;
@@ -1443,9 +1447,10 @@ static void dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree
 	/* Check for bad length */
 	if (avpLength < MIN_AVP_SIZE || 
 		((long)avpLength > packetLength)) {
-	  g_warning("Diameter: AVP payload size invalid: avp_length: %d bytes,  "
-				"min: %d bytes,    packetLen: %d",
-				avpLength, MIN_AVP_SIZE, packetLength);
+	  g_warning("Diameter: AVP payload size invalid: avp_length: %ld bytes,  "
+				"min: %ld bytes,    packetLen: %d",
+				(long)avpLength, (long)MIN_AVP_SIZE,
+				packetLength);
 	  BadPacket = TRUE;
 	}
 

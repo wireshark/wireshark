@@ -3,7 +3,7 @@
  * By Pavel Mores <pvl@uh.cz>
  * Win32 port:  rwh@unifiedtech.com
  *
- * $Id: tcp_graph.c,v 1.13 2002/01/21 07:37:42 guy Exp $
+ * $Id: tcp_graph.c,v 1.14 2002/01/30 23:08:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -31,9 +31,14 @@
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>
 #include <stdio.h>
+#include <string.h>
 #include <math.h>		/* rint() */
 
 #include <sys/types.h>		/* freebsd requires this */
+
+#ifdef NEED_SNPRINTF_H
+# include "snprintf.h"
+#endif
 
 #ifndef WIN32
 # include <netinet/in.h>	/* ntohs(), IPPROTO_TCP */

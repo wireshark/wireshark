@@ -1,7 +1,7 @@
 /* packet-pcnfsd.c
  * Routines for PCNFSD dissection
  *
- * $Id: packet-pcnfsd.c,v 1.4 2002/01/20 22:12:27 guy Exp $
+ * $Id: packet-pcnfsd.c,v 1.5 2002/01/30 23:08:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -35,11 +35,11 @@ Protocol information comes from the book
 #include "config.h"
 #endif
 
-
 #ifdef HAVE_SYS_TYPES_H
 #include <sys/types.h>
 #endif
 
+#include <string.h>
 
 #include "packet-rpc.h"
 #include "packet-pcnfsd.h"
