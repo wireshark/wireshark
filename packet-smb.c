@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.197 2002/01/21 07:36:42 guy Exp $
+ * $Id: packet-smb.c,v 1.198 2002/01/25 08:02:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -6318,7 +6318,7 @@ dissect_security_information_mask(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	return offset;
 }
 
-static int
+int
 dissect_nt_sid(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree, char *name)
 {
 	proto_item *item = NULL;
@@ -6351,11 +6351,20 @@ dissect_nt_sid(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent
 	     a new FT_xxx thingie? SMB is quite common!*/
 	  /* identifier authorities */
 	  strp=str;
-	  *strp=0;
+	  strcpy(strp, "S-1-");
+
+	  proto_tree_add_text(tree, tvb, offset, 6, "Authorities");
+
 	  for(i=0;i<6;i++){
-	    sprintf(strp,"%s%d-",strp,tvb_get_guint8(tvb, offset));
+	    guint8 auth = tvb_get_guint8(tvb, offset);
+
+	    if (auth > 0)
+	      sprintf(strp,"%s%d-",strp, auth);
 	    offset++;
 	  }
+
+	  proto_tree_add_text(tree, tvb, offset, num_auth * 4, "Sub-authorities");
+
 	  /* sub authorities */
 	  for(i=0;i<num_auth;i++){
 	    /* XXX should not be letohl but native byteorder according to
@@ -6368,9 +6377,7 @@ dissect_nt_sid(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent
 	  /* strip trailing '-'*/
 	  str[strlen(str)-1]=0;
 
-	  proto_tree_add_text(tree, tvb, offset-6-num_auth*4, 6+num_auth*4, "SID: %s", str);
-	  proto_item_append_text(item, ": %s", str);
-  
+	  proto_item_append_text(item, ": %s", str);  
 	}
 
 	proto_item_set_len(item, offset-old_offset);
@@ -6497,7 +6504,7 @@ dissect_nt_v2_ace(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *par
 	offset = dissect_nt_access_mask(tvb, pinfo, tree, offset);
 
 	/* SID */
-	offset = dissect_nt_sid(tvb, pinfo, offset, tree, "SID");
+	offset = dissect_nt_sid(tvb, pinfo, offset, tree, "ACE");
 
 	proto_item_set_len(item, offset-old_offset);
 	return offset;

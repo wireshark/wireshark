@@ -2,7 +2,7 @@
  * Routines for SMB net logon packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-smb-logon.c,v 1.22 2002/01/24 09:20:51 guy Exp $
+ * $Id: packet-smb-logon.c,v 1.23 2002/01/25 08:02:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -60,7 +60,6 @@ static int hf_flags_password_required = -1;
 static int hf_flags_homedir_required = -1;
 static int hf_flags_enabled = -1;
 static int hf_domain_sid_size = -1;
-static int hf_domain_sid = -1;
 static int hf_low_serial = -1;
 static int hf_pulse = -1;
 static int hf_random = -1;
@@ -483,10 +482,11 @@ dissect_announce_change(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 	offset += 4;
 
 	if (domain_sid_size != 0) {
+		/* Align to four-byte boundary */
+		offset = ((offset + 3)/4)*4;
+
 		/* Domain SID */
-		proto_tree_add_item(tree, hf_domain_sid, tvb, offset,
-		    domain_sid_size, TRUE);
-		offset += domain_sid_size;
+		offset = dissect_nt_sid(tvb, pinfo, offset, tree, "Domain");
 	}
 
 	/* NT version */
@@ -534,23 +534,11 @@ dissect_smb_sam_logon_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	offset += 4;
 
 	if (domain_sid_size != 0) {
-		/* Domain SID */
-		proto_tree_add_item(tree, hf_domain_sid, tvb, offset,
-		    domain_sid_size, TRUE);
-		offset += domain_sid_size;
-
-		/* XXX - at least one packet appears to put the NT version on
-		   a 4-byte boundary, with padding after the domain SID, at
-		   least according to Network Monitor.
-
-		   However, another frame, with a zero-length domain SID,
-		   doesn't do any padding, and other packets don't appear
-		   to put the NT version of a 4-byte boundary, so maybe
-		   the padding comes *before* the domain SID, and NetMon
-		   is just confused?  (NetMon has been known to misdissect
-		   SMB packets, even though, err, umm, NetMon comes from
-		   the people who are adding all this stuff to SMB....) */
+		/* Align to four-byte boundary */
 		offset = ((offset + 3)/4)*4;
+
+		/* Domain SID */
+		offset = dissect_nt_sid(tvb, pinfo, offset, tree, "Domain");
 	}
  	
 	/* NT version */
@@ -970,10 +958,6 @@ proto_register_smb_logon( void)
 		{ &hf_domain_sid_size,
 			{ "Domain SID Size", "netlogon.domain_sid_size", FT_UINT32, BASE_DEC,
 			  NULL, 0, "NETLOGON Domain SID Size", HFILL }},
-
-		{ &hf_domain_sid,
-			{ "Domain SID", "netlogon.domain_sid", FT_BYTES, BASE_NONE,
-			  NULL, 0, "NETLOGON Domain SID", HFILL }},
 
 		{ &hf_low_serial,
 			{ "Low Serial Number", "netlogon.low_serial", FT_UINT32, BASE_DEC,

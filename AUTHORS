@@ -938,6 +938,7 @@ Tim Potter <tpot[AT]samba.org> {
 	Use the FID, for DCE RPC-over-SMB, as part of the conversation
 	   matching
 	Assorted SMB fixes
+	NT SID dissection
 }
 
 Raghu Angadi <rangadi[AT]inktomi.com> {
