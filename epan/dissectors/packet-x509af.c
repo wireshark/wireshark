@@ -58,6 +58,11 @@ static int hf_x509af_extension_id = -1;
 static int hf_x509af_critical = -1;               /* BOOLEAN */
 static int hf_x509af_id_at_userCertificate = -1;
 static int hf_x509af_id_at_cAcertificate = -1;
+static int hf_x509af_id_at_crossCertificatePair = -1;
+static int hf_x509af_id_at_authorityRevocationList = -1;
+static int hf_x509af_id_at_certificateRevocationList = -1;
+static int hf_x509af_id_at_attributeCertificate = -1;
+static int hf_x509af_id_at_attributeCertificateRevocationList = -1;
 
 /*--- Included file: packet-x509af-hf.c ---*/
 
@@ -574,7 +579,7 @@ static ber_sequence Certificates_sequence[] = {
   { 0, 0, 0, NULL }
 };
 
-static int
+int
 dissect_x509af_Certificates(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                 Certificates_sequence, hf_index, ett_x509af_Certificates);
@@ -932,11 +937,61 @@ dissect_x509af_cAcertificate_callback(tvbuff_t *tvb, packet_info *pinfo, proto_t
 	dissect_x509af_Certificate(FALSE, tvb, 0, pinfo, tree, hf_x509af_id_at_cAcertificate);
 }
 
+static void
+dissect_x509af_crossCertificatePair_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	dissect_x509af_CertificatePair(FALSE, tvb, 0, pinfo, tree, hf_x509af_id_at_crossCertificatePair);
+}
+
+static void
+dissect_x509af_authorityRevocationList_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	dissect_x509af_CertificateList(FALSE, tvb, 0, pinfo, tree, hf_x509af_id_at_authorityRevocationList);
+}
+
+static void
+dissect_x509af_certificateRevocationList_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	dissect_x509af_CertificateList(FALSE, tvb, 0, pinfo, tree, hf_x509af_id_at_certificateRevocationList);
+}
+
+static void
+dissect_x509af_attributeCertificate_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	dissect_x509af_AttributeCertificate(FALSE, tvb, 0, pinfo, tree, hf_x509af_id_at_attributeCertificate);
+}
+
+static void
+dissect_x509af_attributeCertificateRevocationList_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	dissect_x509af_CertificateList(FALSE, tvb, 0, pinfo, tree, hf_x509af_id_at_attributeCertificateRevocationList);
+}
+
 /*--- proto_register_x509af ----------------------------------------------*/
 void proto_register_x509af(void) {
 
   /* List of fields */
   static hf_register_info hf[] = {
+    { &hf_x509af_id_at_attributeCertificateRevocationList,
+      { "attributeCertificateRevocationList", "x509af.id_at_attributeCertificateRevocationList",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "id-at-attributeCertificateRevocationList", HFILL }},
+    { &hf_x509af_id_at_attributeCertificate,
+      { "attributeCertificate", "x509af.id_at_attributeCertificate",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "id-at-attributeCertificate", HFILL }},
+    { &hf_x509af_id_at_authorityRevocationList,
+      { "authorityRevocationList", "x509af.id_at_authorityRevocationList",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "id-at-authorityRevocationList", HFILL }},
+    { &hf_x509af_id_at_certificateRevocationList,
+      { "certificateRevocationList", "x509af.id_at_certificateRevocationList",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "id-at-certificateRevocationList", HFILL }},
+    { &hf_x509af_id_at_crossCertificatePair,
+      { "crossCertificatePair", "x509af.id_at_crossCertificatePair",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "id-at-crossCertificatePair", HFILL }},
     { &hf_x509af_id_at_userCertificate,
       { "userCertificate", "x509af.id_at_userCertificate",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -1269,5 +1324,10 @@ void proto_register_x509af(void) {
 void proto_reg_handoff_x509af(void) {
 	register_ber_oid_dissector("2.5.4.36", dissect_x509af_userCertificate_callback, proto_x509af, "id-at-userCertificate");
 	register_ber_oid_dissector("2.5.4.37", dissect_x509af_cAcertificate_callback, proto_x509af, "id-at-cAcertificate");
+	register_ber_oid_dissector("2.5.4.38", dissect_x509af_authorityRevocationList_callback, proto_x509af, "id-at-authorityRevocationList");
+	register_ber_oid_dissector("2.5.4.39", dissect_x509af_certificateRevocationList_callback, proto_x509af, "id-at-certificateRevocationList");
+	register_ber_oid_dissector("2.5.4.40", dissect_x509af_crossCertificatePair_callback, proto_x509af, "id-at-crossCertificatePair");
+	register_ber_oid_dissector("2.5.4.58", dissect_x509af_attributeCertificate_callback, proto_x509af, "id-at-attributeCertificate");
+	register_ber_oid_dissector("2.5.4.59", dissect_x509af_attributeCertificateRevocationList_callback, proto_x509af, "id-at-attributeCertificateRevocationList");
 }
 

@@ -252,17 +252,17 @@ AttributeCertificateAssertion ::= SEQUENCE {
 
 id-at-userCertificate OBJECT IDENTIFIER ::= {id-at 36}
 
---id-at-cAcertificate OBJECT IDENTIFIER ::= {id-at 37}
+id-at-cAcertificate OBJECT IDENTIFIER ::= {id-at 37}
 
---id-at-authorityRevocationList OBJECT IDENTIFIER ::= {id-at 38}
+id-at-authorityRevocationList OBJECT IDENTIFIER ::= {id-at 38}
 
---id-at-certificateRevocationList OBJECT IDENTIFIER ::= {id-at 39}
+id-at-certificateRevocationList OBJECT IDENTIFIER ::= {id-at 39}
 
---id-at-crossCertificatePair OBJECT IDENTIFIER ::= {id-at 40}
+id-at-crossCertificatePair OBJECT IDENTIFIER ::= {id-at 40}
 
---id-at-attributeCertificate OBJECT IDENTIFIER ::= {id-at 58}
+id-at-attributeCertificate OBJECT IDENTIFIER ::= {id-at 58}
 
---id-at-attributeCertificateRevocationList OBJECT IDENTIFIER ::= {id-at 59}
+id-at-attributeCertificateRevocationList OBJECT IDENTIFIER ::= {id-at 59}
 
 --id-mr-attributeCertificateMatch OBJECT IDENTIFIER ::= {id-mr 42}
 
