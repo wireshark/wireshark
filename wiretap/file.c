@@ -1,6 +1,6 @@
 /* file.c
  *
- * $Id: file.c,v 1.27 1999/10/31 17:46:06 gram Exp $
+ * $Id: file.c,v 1.28 1999/10/31 19:30:53 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -145,9 +145,6 @@ wtap* wtap_open_offline(const char *filename, int *err)
 
 		case -1:
 			/* I/O error - give up */
-			/* XXX - why pass err to open_routines[i]() if err is
-			 * overwritten here? */
-			*err = errno;
 			file_close(wth->fh);
 			free(wth);
 			return NULL;
