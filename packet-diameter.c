@@ -1,7 +1,7 @@
 /* packet-diameter.c
  * Routines for Diameter packet disassembly
  *
- * $Id: packet-diameter.c,v 1.66 2004/04/16 23:16:28 guy Exp $
+ * $Id: packet-diameter.c,v 1.67 2004/04/17 03:02:01 guy Exp $
  *
  * Copyright (c) 2001 by David Frascone <dave@frascone.com>
  *
@@ -962,8 +962,6 @@ diameter_avp_get_name(guint32 avpCode, guint32 vendorId)
 static gchar *
 diameter_avp_get_value(guint32 avpCode, guint32 vendorId, guint32 avpValue)
 {
-  static gchar buffer[64];
-
   avpInfo *probe;
   gchar *vendorName=NULL;
 
@@ -984,8 +982,7 @@ diameter_avp_get_value(guint32 avpCode, guint32 vendorId, guint32 avpValue)
 			  return vprobe->name;
 			}
 		  }
-		  sprintf(buffer, "Unknown Value: 0x%08x", avpValue);
-		  return buffer;
+		  return "(Unknown value)";
 		}
 	  } else {
 		if (!probe->vendorName) {
@@ -995,15 +992,13 @@ diameter_avp_get_value(guint32 avpCode, guint32 vendorId, guint32 avpValue)
 			  return vprobe->name;
 			}
 		  }
-		  sprintf(buffer, "Unknown Value: 0x%08x", avpValue);
-		  return buffer;
+		  return "(Unknown value)";
 		}
 	  }
 	}
   }
-  /* If we don't find the avp, build a value string */
-  sprintf(buffer, "Unknown AVP! Value: 0x%08x", avpValue);
-  return buffer;
+  /* We didn't find the avp */
+  return "(Unknown AVP)";
 } /* diameter_avp_get_value */
 
 
