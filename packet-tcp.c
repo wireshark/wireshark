@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.179 2003/03/01 08:28:59 sharpe Exp $
+ * $Id: packet-tcp.c,v 1.180 2003/03/01 08:51:12 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -105,7 +105,8 @@ static int hf_tcp_segment_too_long_fragment = -1;
 static int hf_tcp_segment_error = -1;
 static int hf_tcp_option_mss = -1;
 static int hf_tcp_option_mss_val = -1;
-static int hf_tcp_option_window_scale = -1;
+static int hf_tcp_option_wscale = -1;
+static int hf_tcp_option_wscale_val = -1;
 static int hf_tcp_option_sack_perm = -1;
 static int hf_tcp_option_sack = -1;
 static int hf_tcp_option_echo = -1;
@@ -1549,7 +1550,7 @@ dissect_tcpopt_wscale(const ip_tcp_opt *optp, tvbuff_t *tvb,
   guint8 ws;
 
   ws = tvb_get_guint8(tvb, offset + 2);
-  proto_tree_add_boolean_hidden(opt_tree, hf_tcp_option_window_scale, tvb, 
+  proto_tree_add_boolean_hidden(opt_tree, hf_tcp_option_wscale, tvb, 
 				offset, optlen, TRUE);
   proto_tree_add_text(opt_tree, tvb, offset,      optlen,
 			"%s: %u (multiply by %u)", optp->name, ws, 1 << ws);
@@ -2335,10 +2336,14 @@ proto_register_tcp(void)
 		{ &hf_tcp_option_mss_val,
 		  { "TCP MSS Option Value", "tcp.options.mss_val", FT_UINT16,
 		    BASE_DEC, NULL, 0x0, "TCP MSS Option Value", HFILL}},
-		{ &hf_tcp_option_window_scale,
+		{ &hf_tcp_option_wscale,
 		  { "TCP Window Scale Option", "tcp.options.wscale", 
 		    FT_BOOLEAN, 
 		    BASE_NONE, NULL, 0x0, "TCP Window Option", HFILL}},
+		{ &hf_tcp_option_wscale_val,
+		  { "TCP Windows Scale Option Value", "tcp.options.wscale_val",
+		    FT_UINT8, BASE_DEC, NULL, 0x0, "TCP Window Scale Value",
+		    HFILL}},
 		{ &hf_tcp_option_sack_perm, 
 		  { "TCP Sack Perm Option", "tcp.options.sack_perm", 
 		    FT_BOOLEAN,
