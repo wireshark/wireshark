@@ -2,7 +2,7 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  *
- * $Id: packet-wsp.c,v 1.63 2002/09/25 00:01:18 jmayer Exp $
+ * $Id: packet-wsp.c,v 1.64 2003/02/06 01:23:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -205,8 +205,8 @@ static dissector_handle_t wsp_fromudp_handle;
 /* Handle for WTP-over-UDP dissector */
 static dissector_handle_t wtp_fromudp_handle;
 
-/* Handle for WMLC dissector */
-static dissector_handle_t wmlc_handle;
+/* Handle for WBXML dissector */
+static dissector_handle_t wbxml_handle;
 
 static const value_string vals_pdu_type[] = {
 	{ 0x00, "Reserved" },
@@ -1380,7 +1380,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				}
 				offset += count+headersLength+1;
 
-				/* TODO: Data - decode WMLC */
+				/* TODO: Data - decode WBXML */
 				/* Runs from offset+1+count+headerLength+1 to end of frame */
 				if (tvb_reported_length_remaining (tvb, offset) > 0)
 				{
@@ -4919,9 +4919,9 @@ void
 proto_reg_handoff_wsp(void)
 {
 	/*
-	 * Get a handle for the WMLC dissector.
+	 * Get a handle for the WBXML dissector.
 	 */
-	wmlc_handle = find_dissector("wmlc");	/* Coming soon :) */
+	wbxml_handle = find_dissector("wbxml");
 
 	/*
 	 * And get a handle for the WTP-over-UDP dissector.

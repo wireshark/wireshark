@@ -710,6 +710,7 @@ Inoue <inoue[AT]ainet.or.jp> {
 
 Olivier Biot <Olivier.Biot[AT]siemens.atea.be> {
 	Various WTP fixes and enhancements
+	WBXML/WMLC support
 }
 
 Patrick Wolfe <pjw[AT]zocalo.cellular.ameritech.com> {
