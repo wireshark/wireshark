@@ -2,7 +2,7 @@
  * Routines for IEEE 802.2 LLC layer
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-llc.c,v 1.11 1999/02/09 00:35:37 guy Exp $
+ * $Id: packet-llc.c,v 1.12 1999/03/22 03:44:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -41,10 +41,13 @@
 #include "packet.h"
 #include "etypes.h"
 
+typedef void (capture_func_t)(const u_char *, int, guint32, packet_counts *);
+typedef void (dissect_func_t)(const u_char *, int, frame_data *, GtkTree *);
+
 struct sap_info {
 	guint8	sap;
-	void	(*capture_func) (const u_char *, int, guint32, packet_counts *);
-	void	(*dissect_func) (const u_char *, int, frame_data *, GtkTree *);
+	capture_func_t *capture_func;
+	dissect_func_t *dissect_func;
 	char	*text;
 };
 
@@ -90,7 +93,7 @@ sap_text(u_char sap) {
 	return "Unknown";
 }
 
-static void*
+static capture_func_t *
 sap_capture_func(u_char sap) {
 	int i=0;
 
@@ -100,10 +103,10 @@ sap_capture_func(u_char sap) {
 		}
 		i++;
 	}
-	return dissect_data;
+	return capture_data;
 }
 
-static void*
+static dissect_func_t *
 sap_dissect_func(u_char sap) {
 	int i=0;
 
@@ -136,7 +139,7 @@ capture_llc(const u_char *pd, int offset, guint32 cap_len, packet_counts *ld) {
 
 	guint16		etype;
 	int		is_snap;
-	void		(*capture) (const u_char *, int, guint32, packet_counts *);
+	capture_func_t	*capture;
 
 	is_snap = (pd[offset] == 0xAA) && (pd[offset+1] == 0xAA);
 	if (is_snap) {
@@ -166,7 +169,7 @@ dissect_llc(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
 	GtkWidget	*llc_tree = NULL, *ti;
 	guint16		etype;
 	int		is_snap;
-	void		(*dissect) (const u_char *, int, frame_data *, GtkTree *);
+	dissect_func_t	*dissect;
 
 	/* LLC Strings */
 	char *llc_ctrl[4] = {

@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.38 1999/02/15 06:36:57 guy Exp $
+ * $Id: packet.h,v 1.39 1999/03/22 03:44:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -545,6 +545,7 @@ void capture_tr(const u_char *, guint32, packet_counts *);
  * packet_counts *
  * They should never modify the packet data.
  */
+void capture_data(const u_char *, int, guint32, packet_counts *);
 void capture_llc(const u_char *, int, guint32, packet_counts *);
 void capture_ip(const u_char *, int, guint32, packet_counts *);
 
