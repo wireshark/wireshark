@@ -1,7 +1,7 @@
 /* plugin_api_list.c
  * Used to generate various included files for plugin API
  *
- * $Id: plugin_api_list.c,v 1.32 2004/03/25 09:17:11 guy Exp $
+ * $Id: plugin_api_list.c,v 1.33 2004/03/25 23:55:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -431,3 +431,6 @@ int get_ber_identifier(tvbuff_t *tvb, int offset, guint8 *class, gboolean *pc, g
 int get_ber_length(tvbuff_t *tvb, int offset, guint32 *length, gboolean *ind);
 proto_tree* proto_item_get_subtree(proto_item *ti);
 proto_item* proto_tree_get_parent(proto_tree *tree);
+proto_item* proto_item_get_parent(proto_item *ti);
+proto_item* proto_item_get_parent_nth(proto_item *ti, int gen);
+proto_item *get_ber_last_created_item(void);
