@@ -1,4 +1,4 @@
-$Id: README.plugins,v 1.2 2001/07/10 13:18:41 hagbard Exp $
+$Id: README.plugins,v 1.3 2001/07/20 02:40:42 hagbard Exp $
 
 Plugins
 
@@ -219,80 +219,29 @@ clean:
 Unfortunately there are quite some several places in the top level
 Makefile.am that need to be altered for adding a plugin.
 
-Add your plugin to the PLUGIN_SRC
+Add your plugin to the plugin_src, plugin_static_ldadd, plugin_libs,
+and plugin_ldadd:
 
-PLUGIN_SRC = \
+plugin_src = \
 	plugins/mgcp/packet-mgcp.c	\
 	plugins/gryphon/packet-gryphon.c \
 	plugins/xxx/packet-xxx.c
 
+plugin_static_ldadd = \
+        plugins/mgcp/packet-mgcp-static.o               \
+        plugins/gryphon/packet-gryphon-static.o         \
+        plugins/xxx/packet-xxx-static.o          
 
-Add your plugin library to the ethereal_DEPENDENCIES
-
-ethereal_DEPENDENCIES = \
-	$(ethereal_optional_objects)	\
-	$(ethereal_additional_libs)	\
-	plugins/gryphon/gryphon.la \
-	plugins/mgcp/mgcp.la		\
+plugin_libs = \
+        plugins/gryphon/gryphon.la \
+        plugins/mgcp/mgcp.la    \
 	plugins/xxx/xxx.la
 
-Add your plugin library to the ethereal_LDADD and ethereal_static_LDADD
-
-ethereal_LDADD = \
-	$(ethereal_optional_objects)	\
-	$(ethereal_additional_libs)	\
-	@SNMP_LIBS@ @SSL_LIBS@ 		\
-	"-dlopen" self	\
-	"-dlopen" plugins/gryphon/gryphon.la \
-	"-dlopen" plugins/mgcp/mgcp.la \
-	"-dlopen" plugins/xxx/xxx.la \
-	@PCAP_LIBS@ @GTK_LIBS@
-
-ethereal_static_LDADD = \
-	"-all-static" 			\
-	plugins/mgcp/packet-mgcp-static.o		\
-	plugins/gryphon/packet-gryphon-static.o		\
-	plugins/xxx/packet-xxx-static.o		\
-	$(ethereal_optional_objects)	\
-	$(ethereal_additional_libs)	\
-	@SNMP_LIBS@ @SSL_LIBS@		\
-	@PCAP_LIBS@ @GTK_LIBS@		
-
-Add your plugin library to the tethereal_DEPENDENCIES 
-
-tethereal_DEPENDENCIES = \
-	$(ethereal_optional_objects)	\
-	$(tethereal_additional_libs)	\
-	plugins/gryphon/gryphon.la	\
-	plugins/mgcp/mgcp.la		\
-	plugins/xxx/xxx.la
-
-And to tethereal_LDADD and tethereal_static_LDADD
-
-tethereal_LDADD = wiretap/libwiretap.a	\
-	$(ethereal_optional_objects)	\
-	$(tethereal_additional_libs)	\
-	@SNMP_LIBS@ @SSL_LIBS@		\
-	"-dlopen" self	\
-	"-dlopen" plugins/gryphon/gryphon.la \
-	"-dlopen" plugins/mgcp/mgcp.la \
-	"-dlopen" plugins/xxx/xxx.la \
-	@GLIB_LIBS@ -lm \
-	@PCAP_LIBS@ @SOCKET_LIBS@ @NSL_LIBS@
-
-tethereal_static_LDADD = \
-	"-all-static"		\
-	plugins/mgcp/packet-mgcp-static.o		\
-	plugins/gryphon/packet-gryphon-static.o		\
-	plugins/xxx/packet-xxx-static.o		\
-	wiretap/libwiretap.a	\
-	$(ethereal_optional_objects)	\
-	$(tethereal_additional_libs)	\
-	@SNMP_LIBS@ @SSL_LIBS@		\
-	@GLIB_LIBS@ -lm \
-	@PCAP_LIBS@ @SOCKET_LIBS@ @NSL_LIBS@
-
-
+plugin_ldadd = \
+        "-dlopen" self  \
+        "-dlopen" plugins/gryphon/gryphon.la \
+        "-dlopen" plugins/mgcp/mgcp.la \
+        "-dlopen" plugins/xxx/xxx.la 
 
 4.7  Changes to top level configure.in
 
