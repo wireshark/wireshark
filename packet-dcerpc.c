@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.121 2003/05/14 22:09:52 sharpe Exp $
+ * $Id: packet-dcerpc.c,v 1.122 2003/05/15 01:59:23 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -40,6 +40,7 @@
 #include "packet-frame.h"
 #include "packet-ntlmssp.h"
 #include "packet-dcerpc-nt.h"
+#include "packet-dcerpc-netlogon.h"
 
 static int dcerpc_tap = -1;
 
@@ -1891,12 +1892,28 @@ dissect_dcerpc_cn_auth (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
 	    }
 
 	    case DCE_C_RPC_AUTHN_PROTOCOL_SEC_CHAN: {
+		    tvbuff_t *secchan_tvb;
 
-		/* TODO: Fill me in when we know what goes here */
+		    secchan_tvb = tvb_new_subset(
+			    tvb, offset, hdr->auth_len, hdr->auth_len);
 
-		proto_tree_add_text (dcerpc_tree, tvb, offset, hdr->auth_len,
-				     "Secure Channel Auth Credentials");
-		break;
+		    switch(hdr->ptype) {
+		    case PDU_BIND:
+			    netlogon_dissect_secchan_bind_creds(
+				    secchan_tvb, 0, pinfo, dcerpc_tree, 
+				    hdr->drep);
+			    break;
+		    case PDU_BIND_ACK:
+			    netlogon_dissect_secchan_bind_ack_creds(
+				    secchan_tvb, 0, pinfo, dcerpc_tree, 
+				    hdr->drep);
+			    break;
+		    default:
+			    proto_tree_add_text(
+				    dcerpc_tree, secchan_tvb, 0, hdr->auth_len,
+				    "Secure Channel Credentials");
+		    }
+		    break;
 	    }
 
 	    default:
@@ -2238,6 +2255,31 @@ dissect_dcerpc_cn_bind_nak (tvbuff_t *tvb, gint offset, packet_info *pinfo,
     }
 }
 
+/* Return a string describing a DCE/RPC fragment as first, middle, or end
+   fragment. */
+
+#define PFC_FRAG_MASK  0x03
+
+static char *
+fragment_type(guint8 flags)
+{
+	flags = flags & PFC_FRAG_MASK;
+
+	if (flags == PFC_FIRST_FRAG)
+		return "first";
+
+	if (flags == 0)
+		return "middle";
+
+	if (flags == PFC_LAST_FRAG)
+		return "last";
+
+	if (flags == (PFC_FIRST_FRAG | PFC_LAST_FRAG))
+		return "whole";
+
+	return "unknown";
+}
+
 static void
 dissect_dcerpc_cn_stub (tvbuff_t *tvb, int offset, packet_info *pinfo,
                         proto_tree *dcerpc_tree, proto_tree *tree,
@@ -2389,7 +2431,7 @@ end_cn_stub:
 	    proto_tree_add_uint(dcerpc_tree, hf_dcerpc_reassembled_in, tvb, 0, 0, fd_head->reassembled_in);
 	    if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_append_fstr(pinfo->cinfo, COL_INFO,
-			" [DCE/RPC fragment]");
+			" [DCE/RPC %s fragment]", fragment_type(hdr->flags));
 	    }
 	}
     } else {
@@ -2397,7 +2439,7 @@ end_cn_stub:
 	   are missing */
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 	    col_append_fstr(pinfo->cinfo, COL_INFO,
-			" [DCE/RPC fragment]");
+			" [DCE/RPC %s fragment]", fragment_type(hdr->flags));
 	}
     }
 
