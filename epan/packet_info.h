@@ -123,11 +123,25 @@ typedef struct _packet_info {
   guint16 src_idx;              /* Source port index (Cisco MDS-specific) */
   guint16 dst_idx;              /* Dest port index (Cisco MDS-specific) */
   guint16 vsan;                 /* Fibre channel/Cisco MDS-specific */
+
+  /* Extra data for DCERPC handling and tracking of context ids */
   guint16 dcectxid;             /* Context ID (DCERPC-specific) */
   int     dcetransporttype;     /* Transport type
                                  * Value -1 means "not a DCERPC packet"
                                  */
   guint16 dcetransportsalt;	/* fid: if transporttype==DCE_CN_TRANSPORT_SMBPIPE */
+
+  /* Extra data for handling of decryption of GSSAPI wrapped tvbuffs.
+     Caller sets gssapi_decrypt_tvb if this service is requested.
+     If gssapi_encrypted_tvb is NULL, then the rest of the tvb data following
+     the gssapi blob it self is decrypted othervise the gssapi_encrypted_tvb
+     tvb will be decrypted (DCERPC has the data before the gssapi blob)
+  */
+  gboolean decrypt_gssapi_tvb;
+  tvbuff_t *gssapi_wrap_tvb;
+  tvbuff_t *gssapi_encrypted_tvb;
+  tvbuff_t *gssapi_decrypted_tvb;
+ 
   guint32 ppid[MAX_NUMBER_OF_PPIDS]; /* The first NUMBER_OF_PPIDS PPIDS which are present
                                       * in the SCTP packet
                                       */

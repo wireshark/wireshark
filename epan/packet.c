@@ -299,6 +299,10 @@ dissect_packet(epan_dissect_t *edt, union wtap_pseudo_header *pseudo_header,
         edt->pi.vsan = 0;
         edt->pi.dcectxid = 0;
         edt->pi.dcetransporttype = -1;
+	edt->pi.decrypt_gssapi_tvb = 0;
+	edt->pi.gssapi_wrap_tvb = NULL;
+	edt->pi.gssapi_encrypted_tvb = NULL;
+	edt->pi.gssapi_decrypted_tvb = NULL;
         edt->pi.layer_names = NULL;
 
 	TRY {
