@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * 
- * $Id: packet-rpc.c,v 1.63 2001/07/02 10:45:25 guy Exp $
+ * $Id: packet-rpc.c,v 1.64 2001/07/03 02:05:47 guy Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1489,20 +1489,16 @@ dissect_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			col_set_str(pinfo->fd, COL_PROTOCOL, progname);
 		}
 
-		if (!tvb_bytes_exist(tvb, offset+8,4))
-			return TRUE;
 		vers = tvb_get_ntohl(tvb, offset+8);
 		if (rpc_tree) {
 			proto_tree_add_uint(rpc_tree,
 				hf_rpc_programversion, tvb, offset+8, 4, vers);
 		}
 
-		if (!tvb_bytes_exist(tvb, offset+12,4))
-			return TRUE;
 		proc = tvb_get_ntohl(tvb, offset+12);
 
 		/* Check for RPCSEC_GSS */
-		if (proc == 0 && tvb_bytes_exist(tvb, offset+16,28)) {
+		if (proc == 0) {
 			flavor = tvb_get_ntohl(tvb, offset+16);
 			if (flavor == RPCSEC_GSS) {
 				gss_proc = tvb_get_ntohl(tvb, offset+28);
@@ -1709,8 +1705,6 @@ dissect_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			}
 		}
 
-		if (!tvb_bytes_exist(tvb, offset,4))
-			return TRUE;
 		reply_state = tvb_get_ntohl(tvb,offset+0);
 		if (rpc_tree) {
 			proto_tree_add_uint(rpc_tree, hf_rpc_state_reply, tvb,
@@ -1720,8 +1714,6 @@ dissect_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		if (reply_state == MSG_ACCEPTED) {
 			offset = dissect_rpc_verf(tvb, pinfo, rpc_tree, offset, msg_type);
-			if (!tvb_bytes_exist(tvb, offset,4))
-				return TRUE;
 			accept_state = tvb_get_ntohl(tvb,offset+0);
 			if (rpc_tree) {
 				proto_tree_add_uint(rpc_tree, hf_rpc_state_accept, tvb,
@@ -1729,31 +1721,30 @@ dissect_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			}
 			offset += 4;
 			switch (accept_state) {
-				case SUCCESS:
-					/* go to the next dissector */
+
+			case SUCCESS:
+				/* go to the next dissector */
 				break;
-				case PROG_MISMATCH:
-					if (!tvb_bytes_exist(tvb,offset,8))
-						return TRUE;
-					vers_low = tvb_get_ntohl(tvb,offset+0);
-					vers_high = tvb_get_ntohl(tvb,offset+4);
-					if (rpc_tree) {
-						proto_tree_add_uint(rpc_tree,
-							hf_rpc_programversion_min,
-							tvb, offset+0, 4, vers_low);
-						proto_tree_add_uint(rpc_tree,
-							hf_rpc_programversion_max,
-							tvb, offset+4, 4, vers_high);
-					}
-					offset += 8;
+
+			case PROG_MISMATCH:
+				vers_low = tvb_get_ntohl(tvb,offset+0);
+				vers_high = tvb_get_ntohl(tvb,offset+4);
+				if (rpc_tree) {
+					proto_tree_add_uint(rpc_tree,
+						hf_rpc_programversion_min,
+						tvb, offset+0, 4, vers_low);
+					proto_tree_add_uint(rpc_tree,
+						hf_rpc_programversion_max,
+						tvb, offset+4, 4, vers_high);
+				}
+				offset += 8;
 				break;
-				default:
-					/* void */
+
+			default:
+				/* void */
 				break;
 			}
 		} else if (reply_state == MSG_DENIED) {
-			if (!tvb_bytes_exist(tvb,offset,4))
-				return TRUE;
 			reject_state = tvb_get_ntohl(tvb,offset+0);
 			if (rpc_tree) {
 				proto_tree_add_uint(rpc_tree,
@@ -1763,8 +1754,6 @@ dissect_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			offset += 4;
 
 			if (reject_state==RPC_MISMATCH) {
-				if (!tvb_bytes_exist(tvb,offset,8))
-					return TRUE;
 				vers_low = tvb_get_ntohl(tvb,offset+0);
 				vers_high = tvb_get_ntohl(tvb,offset+4);
 				if (rpc_tree) {
@@ -1777,8 +1766,6 @@ dissect_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				}
 				offset += 8;
 			} else if (reject_state==AUTH_ERROR) {
-				if (!tvb_bytes_exist(tvb,offset,4))
-					return TRUE;
 				auth_state = tvb_get_ntohl(tvb,offset+0);
 				if (rpc_tree) {
 					proto_tree_add_uint(rpc_tree,
@@ -1826,6 +1813,7 @@ dissect_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* RPCSEC_GSS processing. */
 	if (flavor == RPCSEC_GSS) {
 		switch (gss_proc) {
+
 		case RPCSEC_GSS_INIT:
 		case RPCSEC_GSS_CONTINUE_INIT:
 			if (msg_type == RPC_CALL) {
@@ -1837,6 +1825,7 @@ dissect_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					pinfo, ptree, offset);
 			}
 			break;
+
 		case RPCSEC_GSS_DATA:
 			if (gss_svc == RPCSEC_GSS_SVC_NONE) {
 				offset = call_dissect_function(tvb, 
@@ -1855,6 +1844,7 @@ dissect_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						pinfo, ptree, offset);
 			}
 			break;
+
 		default:
 			break;
 		}
