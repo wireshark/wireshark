@@ -30,14 +30,34 @@
   </section>
 	
   <section id="ChSrcSVNServer">
-	<title>The Ethereal subversion (SVN) repository</title>
+	<title>The Ethereal Subversion repository</title>
 	<para>
-	The Ethereal source code is stored inside Ethereal project's Subversion 
-	(SVN) repository located at the ethereal.com domain. SVN is used to keep 
-	track of the changes made to the source code.
+	Subversion is used to keep track of the changes made to the Ethereal 
+	source code. The Ethereal source code is stored inside Ethereal project's 
+	Subversion repository located at a server at the ethereal.com domain.
 	</para>
 	<para>
-	Using the SVN repository you can:
+	To qoute the Subversion book about "What is Subversion?": 
+	</para>
+	<para>
+	<quote>Subversion is a free/open-source version control system. That is, 
+	Subversion manages files and directories over time. A tree of files is 
+	placed into a central repository. The repository is much like an ordinary 
+	file server, except that it remembers every change ever made to your files 
+	and directories. This allows you to recover older versions of your data, 
+	or examine the history of how your data changed. In this regard, many 
+	people think of a version control system as a sort of "time machine".
+	</quote>
+	</para>
+	<tip><title>Tip!</title>
+	<para>
+	Subversion is often abbreviated as SVN, as the command-line tools are 
+	abbreviated that way. You will find both terms with the same meaning in 
+	this book, in mailing list discussions and elsewhere.
+	</para>
+	</tip>
+	<para>
+	Using Ethereal's Subversion repository you can:
 	<itemizedlist>
 	<listitem><para>
 	keep your private sources uptodate with very little effort
@@ -61,26 +81,35 @@
 	</itemizedlist>
 	</para>
 	<para>
-	For further reference about subversion, have a look at the homepage of the 
-	subversion project: <ulink url="http://subversion.tigris.org/"/>. There 
-	is a book about it available at: <ulink url="http://svnbook.red-bean.com/"/>.
+	The way Ethereal uses Subversion, it can be parted into a client and a 
+	server part. Thanks to Gerald Combs (the maintainer of the Subversion 
+	server), no user usually has to deal with the
+	Subversion server. You will only need a Subversion client, which is 
+	available as a command-line tool for many different platforms. GUI based 
+	tools also becoming more and more available these days.
 	</para>
 	<para>
-	Please note that the anonymous SVN repository is separate from 
+	For further reference about Subversion, have a look at the homepage of the 
+	Subversion project: <ulink url="http://subversion.tigris.org/"/>. There 
+	is a good and free book about it available at: <ulink 
+	url="http://svnbook.red-bean.com/"/>.
+	</para>
+	<para>
+	Please note that the anonymous Subversion repository is separate from 
 	the main repository. It may take several minutes for committed changes to 
 	appear in the anonymous repository. XXX - be more specific here.
 	</para>
 	<tip><title>Tip!</title>
 	<para>
-	The Ethereal project has switched from CVS (Concurrent versioning system) 
-	to SVN (subversion) some time ago. You may still find old references to 
+	As the Ethereal project has switched from CVS (Concurrent versioning 
+	system) to Subversion some time ago, you may still find old references to 
 	CVS in the Ethereal documentation and source files.
 	</para>
 	</tip>
   </section>
 	
-  <section id="ChSrcQuickLook">
-	<title>A quick look at the Ethereal sources</title>
+  <section id="ChSrcWebInterface">
+	<title>The web interface to the Subversion repository</title>
 	<para>
 	If you need a quick look at the Ethereal source code, 
 	you will only need a Web browser.
@@ -116,7 +145,7 @@
   <section id="ChSrcObtaining">
 	<title>Obtaining the Ethereal sources</title>
 	<para>
-	There are several ways to obtain the sources from the SVN server.
+	There are several ways to obtain the sources from the Subversion server.
 	</para>
 	<note><title>Note!</title>
 	<para>
@@ -132,7 +161,7 @@
 	</para>
 	
 	<section id="ChSrcAnon">
-	<title>Anonymous subversion (SVN) access</title>
+	<title>Anonymous Subversion access</title>
 	<para>
 	Recommended for development purposes.
 	</para>
@@ -141,20 +170,22 @@
 	</para>
 	<para>
 	You can use a Subversion client to download the source code from 
-	Ethereal's anonymous SVN repository. The URL for the repository trunk is:
+	Ethereal's anonymous Subversion repository. The URL for the repository 
+	trunk is:
 	<ulink url="http://anonsvn.ethereal.com/ethereal/trunk"/>.
 	</para>
 	<tip><title>Tip!</title>
 	<para>
-	Anonymous SVN access can make your life much easier, compared to
-	update your source tree by using any of the zip files mentioned below.
-	SVN handles merging of changes into your personal source tree in a very 
-	comfortable and quick way. So you can update your source tree several times 
-	a day without much effort.
+	Anonymous Subversion access can make your life much easier, compared to
+	update your source tree by using any of the zip file methods mentioned 
+	below.
+	Subversion handles merging of changes into your personal source tree in a 
+	very comfortable and quick way. So you can update your source tree several 
+	times a day without much effort.
 	</para>
 	</tip>
 	<para>
-	See <xref linkend="ChToolsSubversion"/> how to install a subversion client.
+	See <xref linkend="ChToolsSubversion"/> how to install a Subversion client.
 	</para>
 	<para>
 	For example, to check out using the command-line Subversion client, you 
@@ -180,7 +211,7 @@
 	<para>
 	This will only take a few seconds, even on a slow internet line. It will 
 	replace old file versions by new ones. If you and someone else have 
-	changed the same file, svn will try to merge the changes into 
+	changed the same file, Subversion will try to merge the changes into 
 	your private file (this is working remarkably well).
 	</para>
 	</section>
@@ -188,7 +219,7 @@
 	<section id="ChSrcSVNWeb">
 	<title>Subversion web interface</title>
 	<para>
-	Age: a few minutes (same as anonymous subversion access).
+	Age: a few minutes (same as anonymous Subversion access).
 	</para>
 	<para>
 	 The entire source tree is available via a web interface at:
@@ -453,9 +484,9 @@ diff -ur ../ethereal-0.10.6/epan/dissectors/packet-dcerpc.c ./epan/dissectors/pa
 	</section>
 
 	<section id="ChSrcSVNGUIDiff">
-	<title>Using the diff feature of the GUI subversion clients</title>
+	<title>Using the diff feature of the GUI Subversion clients</title>
 	<para>
-	Most (if not all) of the GUI subversion clients (RapidSVN, TortoiseSVN, ...) 
+	Most (if not all) of the GUI Subversion clients (RapidSVN, TortoiseSVN, ...) 
 	have a built-in "diff" feature.
 	</para>
 	<para>
@@ -659,9 +690,10 @@ diff -ur ../ethereal-0.10.6/epan/dissectors/packet-dcerpc.c ./epan/dissectors/pa
 	</itemizedlist>
 	</para>
 	</section>
+  </section>
 	
-	<section id="ChSrcPatchApply">
-	<title>Apply a patch</title>
+  <section id="ChSrcPatchApply">
+	<title>Apply a patch from someone else</title>
 	<para>
 	Sometimes you need to apply a patch to your private source tree. Maybe 
 	because you want to try a patch from someone on the developer mailing 
@@ -760,8 +792,6 @@ diff -c -r1.5 dlnames.c
 	<para>
 	XXX - add some more details and do some cleanup.
 	</para>
-	</section>
-
   </section>
 
   <section id="ChSrcBinary">
@@ -775,14 +805,14 @@ diff -c -r1.5 dlnames.c
 	<section id="ChSrcDeb">
 	<title>Debian: .deb packages</title>
 	<para>
-	XXX
+	XXX - don't know how to do
 	</para>
 	</section>
 
 	<section id="ChSrcRpm">
 	<title>Red Hat: .rpm packages</title>
 	<para>
-	XXX
+	XXX - don't know how to do
 	</para>
 	</section>
 	
@@ -790,8 +820,10 @@ diff -c -r1.5 dlnames.c
 	<title>Win32: NSIS .exe installer</title>
 	<para>
 	The "Nullsoft Install System" is a free installer generator for win32
-	based systems. It is script based, you will find the Ethereal installer
-	generation script at <filename>packaging/nsis/ethereal.nsi</filename>.
+	based systems, instructions how to install it can be found in <xref 
+	linkend="ChToolsNSIS"/>. 
+	NSIS is script based, you will find the Ethereal installer
+	generation script at: <filename>packaging/nsis/ethereal.nsi</filename>.
 	</para>
 	<para>
 	You will probably have to modify the <filename>config.nmake</filename> 
@@ -805,11 +837,16 @@ diff -c -r1.5 dlnames.c
 	<prompt>&gt;</prompt> <userinput>nmake -f makefile.nmake packaging</userinput>
 	</para>
 	<para>
-	to build the installer. Please be patient while the compression is
+	to build the installer. 
+	</para>
+	<tip><title>Tip!</title>
+	<para>
+	Please be patient while the compression is
 	done, it will take some time (a few minutes!) even on fast machines.
 	</para>
+	</tip>
 	<para>
-	You will hopefully now see something like:
+	If everything went well, you will now find something like:
 	<filename>ethereal-setup-&EtherealCurrentVersion;.exe</filename> in
 	the <filename>packaging/nsis</filename> directory.
 	</para>
