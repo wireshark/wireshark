@@ -2,7 +2,7 @@
  * Routines for OSPF packet disassembly
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-ospf.c,v 1.17 1999/11/17 19:07:10 guy Exp $
+ * $Id: packet-ospf.c,v 1.18 2000/02/11 22:35:49 guy Exp $
  *
  * At this time, this module is able to analyze OSPF
  * packets as specified in RFC2328. MOSPF (RFC1584) and other
@@ -467,7 +467,7 @@ dissect_ospf_lsa(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
         proto_tree_add_text(ospf_lsa_tree, offset + 2, 1, "Options: %d ", lsa_hdr.options);
         proto_tree_add_text(ospf_lsa_tree, offset + 3, 1, "LSA Type: %d (%s)", lsa_hdr.ls_type, lsa_type);
 
-        proto_tree_add_text(ospf_lsa_tree, offset + 4, 4, "Linke State ID: %s ", 
+        proto_tree_add_text(ospf_lsa_tree, offset + 4, 4, "Link State ID: %s ", 
 	                                             ip_to_str((guint8 *) &(lsa_hdr.ls_id)));
 
         proto_tree_add_text(ospf_lsa_tree, offset + 8, 4, "Advertising Router: %s ", 
