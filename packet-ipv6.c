@@ -1,7 +1,7 @@
 /* packet-ipv6.c
  * Routines for IPv6 packet disassembly
  *
- * $Id: packet-ipv6.c,v 1.88 2002/10/22 22:04:21 jmayer Exp $
+ * $Id: packet-ipv6.c,v 1.89 2002/10/24 06:17:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -94,7 +94,7 @@ static gint ett_ipv6 = -1;
 static gint ett_ipv6_fragments = -1;
 static gint ett_ipv6_fragment  = -1;
 
-fragment_items ipv6_frag_items = {
+static const fragment_items ipv6_frag_items = {
 	&ett_ipv6_fragment,
 	&ett_ipv6_fragments,
 	&hf_ipv6_fragments,

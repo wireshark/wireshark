@@ -1,7 +1,7 @@
 /* reassemble.h
  * Declarations of outines for {fragment,segment} reassembly
  *
- * $Id: reassemble.h,v 1.10 2002/08/28 21:00:41 jmayer Exp $
+ * $Id: reassemble.h,v 1.11 2002/10/24 06:17:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -98,7 +98,7 @@ fragment_data *fragment_add_seq(tvbuff_t *tvb, int offset, packet_info *pinfo,
     guint32 frag_data_len, gboolean more_frags);
 
 /*
- * This function adds a new fragment to the fragment hash table.
+ * These functions add a new fragment to the fragment hash table.
  * If this is the first fragment seen for this datagram, a new
  * "fragment_data" structure is allocated to refer to the reassembled,
  * packet, and:
@@ -114,19 +114,28 @@ fragment_data *fragment_add_seq(tvbuff_t *tvb, int offset, packet_info *pinfo,
  * Otherwise, this fragment is just added to the linked list of fragments
  * for this packet.
  *
- * Returns a pointer to the head of the fragment data list, and removes
+ * They return a pointer to the head of the fragment data list, and removes
  * that from the fragment hash table if necessary and adds it to the
  * table of reassembled fragments, if we have all the fragments or if
  * this is the only fragment and "more_frags" is false, returns NULL
  * otherwise.
  *
- * This function assumes frag_number being a block sequence number.
+ * They assumes frag_number is a block sequence number.
  * The bsn for the first block is 0.
+ *
+ * "fragment_add_seq_check()" takes the sequence number as an argument;
+ * "fragment_add_seq_next()" is for protocols with no sequence number,
+ * and assumes fragments always appear in sequence.
  */
 fragment_data *
 fragment_add_seq_check(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	     guint32 id, GHashTable *fragment_table,
 	     GHashTable *reassembled_table, guint32 frag_number,
+	     guint32 frag_data_len, gboolean more_frags);
+
+fragment_data *
+fragment_add_seq_next(tvbuff_t *tvb, int offset, packet_info *pinfo, guint32 id,
+	     GHashTable *fragment_table, GHashTable *reassembled_table,
 	     guint32 frag_data_len, gboolean more_frags);
 
 /* to specify how much to reassemble, for fragmentation where last fragment can not be
@@ -189,9 +198,9 @@ typedef struct _fragment_items {
 } fragment_items;
 
 extern gboolean
-show_fragment_tree(fragment_data *ipfd_head, fragment_items *fit,
+show_fragment_tree(fragment_data *ipfd_head, const fragment_items *fit,
     proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb);
 
 extern gboolean
-show_fragment_seq_tree(fragment_data *ipfd_head, fragment_items *fit,
+show_fragment_seq_tree(fragment_data *ipfd_head, const fragment_items *fit,
     proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb);

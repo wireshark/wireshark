@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.81 2002/10/23 03:49:10 guy Exp $
+ * $Id: packet-dcerpc.c,v 1.82 2002/10/24 06:17:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -406,7 +406,7 @@ static gint ett_decrpc_krb5_auth_verf = -1;
 
 static dissector_handle_t ntlmssp_handle, gssapi_handle;
 
-fragment_items dcerpc_frag_items = {
+static const fragment_items dcerpc_frag_items = {
 	&ett_dcerpc_fragments,
 	&ett_dcerpc_fragment,
 

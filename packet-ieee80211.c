@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.75 2002/10/21 19:05:21 guy Exp $
+ * $Id: packet-ieee80211.c,v 1.76 2002/10/24 06:17:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -385,7 +385,7 @@ static gint ett_fixed_parameters = -1;
 static gint ett_tagged_parameters = -1;
 static gint ett_wep_parameters = -1;
 
-fragment_items frag_items = {
+static const fragment_items frag_items = {
 	&ett_fragment,
 	&ett_fragments,
 	&hf_fragments,

@@ -2,7 +2,7 @@
  * Routines for AppleTalk packet disassembly: LLAP, DDP, NBP, ATP, ASP,
  * RTMP.
  *
- * $Id: packet-atalk.c,v 1.82 2002/10/17 22:38:19 guy Exp $
+ * $Id: packet-atalk.c,v 1.83 2002/10/24 06:17:28 guy Exp $
  *
  * Simon Wilkinson <sxw@dcs.ed.ac.uk>
  *
@@ -335,7 +335,7 @@ static gint ett_ddp = -1;
 static gint ett_llap = -1;
 static gint ett_pstring = -1;
 
-fragment_items atp_frag_items = {
+static const fragment_items atp_frag_items = {
 	&ett_atp_segment,
 	&ett_atp_segments,
 	&hf_atp_segments,
@@ -1940,7 +1940,7 @@ proto_register_atalk(void)
 		NULL, 0x0, "Segment overlaps with other segments", HFILL }},
 
     { &hf_atp_segment_overlap_conflict,
-      { "Conflicting data in seagment overlap", "atp.segment.overlap.conflict",
+      { "Conflicting data in segment overlap", "atp.segment.overlap.conflict",
 	FT_BOOLEAN, BASE_NONE,
 		NULL, 0x0, "Overlapping segments contained conflicting data", HFILL }},
 
@@ -1954,7 +1954,7 @@ proto_register_atalk(void)
 		NULL, 0x0, "Segment contained data past end of packet", HFILL }},
 
     { &hf_atp_segment_error,
-      {" Desegmentation error",	"atp.segment.error", FT_NONE, BASE_NONE,
+      {"Desegmentation error",	"atp.segment.error", FT_NONE, BASE_NONE,
 		NULL, 0x0, "Desegmentation error due to illegal segments", HFILL }},
 
     { &hf_atp_segment,

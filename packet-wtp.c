@@ -2,7 +2,7 @@
  *
  * Routines to dissect WTP component of WAP traffic.
  *
- * $Id: packet-wtp.c,v 1.39 2002/08/28 21:00:39 jmayer Exp $
+ * $Id: packet-wtp.c,v 1.40 2002/10/24 06:17:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -203,7 +203,7 @@ static gint ett_tpilist 			= ETT_EMPTY;
 static gint ett_wsp_fragments			= ETT_EMPTY;
 static gint ett_wtp_fragment			= ETT_EMPTY;
 
-fragment_items wtp_frag_items = {
+static const fragment_items wtp_frag_items = {
     &ett_wtp_fragment,
     &ett_wsp_fragments,
     &hf_wtp_fragments,

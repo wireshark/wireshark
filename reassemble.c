@@ -1,7 +1,7 @@
 /* reassemble.c
  * Routines for {fragment,segment} reassembly
  *
- * $Id: reassemble.c,v 1.25 2002/10/17 21:14:17 guy Exp $
+ * $Id: reassemble.c,v 1.26 2002/10/24 06:17:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -957,7 +957,19 @@ fragment_reassembled(fragment_data *fd_head, packet_info *pinfo,
 }
 
 /*
- * This function adds a new fragment to the fragment hash table.
+ * This does the work for "fragment_add_seq_check()" and
+ * "fragment_add_seq_next()".
+ *
+ * This function assumes frag_number being a block sequence number.
+ * The bsn for the first block is 0.
+ *
+ * If "no_frag_number" is TRUE, it uses the next expected fragment number
+ * as the fragment number if there is a reassembly in progress, otherwise
+ * it uses 0.
+ *
+ * If "no_frag_number" is FALSE, it uses the "frag_number" argument as
+ * the fragment number.
+ *
  * If this is the first fragment seen for this datagram, a new
  * "fragment_data" structure is allocated to refer to the reassembled,
  * packet, and:
@@ -978,19 +990,17 @@ fragment_reassembled(fragment_data *fd_head, packet_info *pinfo,
  * table of reassembled fragments, if we have all the fragments or if
  * this is the only fragment and "more_frags" is false, returns NULL
  * otherwise.
- *
- * This function assumes frag_number being a block sequence number.
- * The bsn for the first block is 0.
  */
 fragment_data *
-fragment_add_seq_check(tvbuff_t *tvb, int offset, packet_info *pinfo,
+fragment_add_seq_check_work(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	     guint32 id, GHashTable *fragment_table,
 	     GHashTable *reassembled_table, guint32 frag_number,
-	     guint32 frag_data_len, gboolean more_frags)
+	     guint32 frag_data_len, gboolean more_frags,
+	     gboolean no_frag_number)
 {
 	fragment_key key, *new_key, *old_key;
 	gpointer orig_key, value;
-	fragment_data *fd_head;
+	fragment_data *fd_head, *fd;
 
 	/*
 	 * Have we already seen this frame?
@@ -1047,20 +1057,38 @@ fragment_add_seq_check(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		g_hash_table_insert(fragment_table, new_key, fd_head);
 
 		orig_key = new_key;	/* for unhashing it later */
+
+		/*
+		 * If we weren't given an initial fragment number,
+		 * make it 0.
+		 */
+		if (no_frag_number)
+			frag_number = 0;
 	} else {
 		/*
 		 * We found it.
 		 */
 		fd_head = value;
+
+		/*
+		 * If we weren't given an initial fragment number,
+		 * use the next expected fragment number as the fragment
+		 * number for this fragment.
+		 */
+		if (no_frag_number) {
+			for (fd = fd_head; fd != NULL; fd = fd->next) {
+				if (fd->next == NULL)
+					frag_number = fd->offset + 1;
+			}
+		}
 	}
 
 	/*
 	 * If this is a short frame, then we can't, and don't, do
 	 * reassembly on it.
 	 *
-	 * If it's the first frame (fragment number is 0), handle it
-	 * as an unfragmented packet.  Otherwise, just handle it
-	 * as a fragment.
+	 * If it's the first frame, handle it as an unfragmented packet.
+	 * Otherwise, just handle it as a fragment.
 	 *
 	 * If "more_frags" isn't set, we get rid of the entry in the
 	 * hash table for this reassembly, as we don't need it any more.
@@ -1107,12 +1135,33 @@ fragment_add_seq_check(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	}
 }
 
+fragment_data *
+fragment_add_seq_check(tvbuff_t *tvb, int offset, packet_info *pinfo,
+	     guint32 id, GHashTable *fragment_table,
+	     GHashTable *reassembled_table, guint32 frag_number,
+	     guint32 frag_data_len, gboolean more_frags)
+{
+	return fragment_add_seq_check_work(tvb, offset, pinfo, id,
+	    fragment_table, reassembled_table, frag_number, frag_data_len,
+	    more_frags, FALSE);
+}
+
+fragment_data *
+fragment_add_seq_next(tvbuff_t *tvb, int offset, packet_info *pinfo,
+	     guint32 id, GHashTable *fragment_table,
+	     GHashTable *reassembled_table, guint32 frag_data_len,
+	     gboolean more_frags)
+{
+	return fragment_add_seq_check_work(tvb, offset, pinfo, id,
+	    fragment_table, reassembled_table, 0, frag_data_len,
+	    more_frags, TRUE);
+}
 
 /*
  * Show a single fragment in a fragment subtree.
  */
 static void
-show_fragment(fragment_data *fd, int offset, fragment_items *fit,
+show_fragment(fragment_data *fd, int offset, const fragment_items *fit,
     proto_tree *ft, tvbuff_t *tvb)
 {
 	if (fd->flags & (FD_OVERLAP|FD_OVERLAPCONFLICT
@@ -1174,7 +1223,7 @@ show_fragment(fragment_data *fd, int offset, fragment_items *fit,
 }
 
 static gboolean
-show_fragment_errs_in_col(fragment_data *fd_head, fragment_items *fit,
+show_fragment_errs_in_col(fragment_data *fd_head, const fragment_items *fit,
     packet_info *pinfo)
 {
 	if (fd_head->flags & (FD_OVERLAPCONFLICT
@@ -1196,7 +1245,7 @@ show_fragment_errs_in_col(fragment_data *fd_head, fragment_items *fit,
    or FALSE if fragmentation was ok.
 */
 gboolean
-show_fragment_tree(fragment_data *fd_head, fragment_items *fit,
+show_fragment_tree(fragment_data *fd_head, const fragment_items *fit,
     proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb)
 {
 	fragment_data *fd;
@@ -1222,7 +1271,7 @@ show_fragment_tree(fragment_data *fd_head, fragment_items *fit,
    or FALSE if fragmentation was ok.
 */
 gboolean
-show_fragment_seq_tree(fragment_data *fd_head, fragment_items *fit,
+show_fragment_seq_tree(fragment_data *fd_head, const fragment_items *fit,
     proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb)
 {
 	guint32 offset, next_offset;

@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.174 2002/10/18 20:59:57 guy Exp $
+ * $Id: packet-ip.c,v 1.175 2002/10/24 06:17:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -106,7 +106,7 @@ static gint ett_ip_option_timestamp = -1;
 static gint ett_ip_fragments = -1;
 static gint ett_ip_fragment  = -1;
 
-fragment_items ip_frag_items = {
+static const fragment_items ip_frag_items = {
 	&ett_ip_fragment,
 	&ett_ip_fragments,
 	&hf_ip_fragments,

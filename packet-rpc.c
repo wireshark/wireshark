@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  *
- * $Id: packet-rpc.c,v 1.106 2002/10/24 03:54:11 guy Exp $
+ * $Id: packet-rpc.c,v 1.107 2002/10/24 06:17:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -214,7 +214,7 @@ static dissector_handle_t rpc_handle;
 static dissector_handle_t gssapi_handle;
 static dissector_handle_t data_handle;
 
-fragment_items rpc_frag_items = {
+static const fragment_items rpc_frag_items = {
 	&ett_rpc_fragment,
 	&ett_rpc_fragments,
 	&hf_rpc_fragments,

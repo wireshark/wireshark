@@ -1,7 +1,7 @@
 /* packet-clnp.c
  * Routines for ISO/OSI network and transport protocol packet disassembly
  *
- * $Id: packet-clnp.c,v 1.59 2002/08/28 21:00:08 jmayer Exp $
+ * $Id: packet-clnp.c,v 1.60 2002/10/24 06:17:34 guy Exp $
  * Laurent Deniel <deniel@worldnet.fr>
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
@@ -73,7 +73,7 @@ static int hf_clnp_segment_multiple_tails = -1;
 static int hf_clnp_segment_too_long_segment = -1;
 static int hf_clnp_segment_error = -1;
 
-fragment_items clnp_frag_items = {
+static const fragment_items clnp_frag_items = {
 	&ett_clnp_segment,
 	&ett_clnp_segments,
 	&hf_clnp_segments,

@@ -2,7 +2,7 @@
  * Routines for EAP Extensible Authentication Protocol dissection
  * RFC 2284
  *
- * $Id: packet-eap.c,v 1.30 2002/09/08 00:07:40 guy Exp $
+ * $Id: packet-eap.c,v 1.31 2002/10/24 06:17:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -194,7 +194,7 @@ static int   hf_eaptls_fragment_error = -1;
 static gint ett_eaptls_fragment  = -1;
 static gint ett_eaptls_fragments = -1;
 
-fragment_items eaptls_frag_items = {
+static const fragment_items eaptls_frag_items = {
 	&ett_eaptls_fragment,
 	&ett_eaptls_fragments,
 	&hf_eaptls_fragments,

@@ -5,7 +5,7 @@
  *
  * derived from the packet-nbns.c
  *
- * $Id: packet-netbios.c,v 1.51 2002/08/28 21:00:23 jmayer Exp $
+ * $Id: packet-netbios.c,v 1.52 2002/10/24 06:17:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -36,7 +36,8 @@
 
 #include <epan/packet.h>
 #include "llcsaps.h"
-#include "packet-tr.h"
+#include "reassemble.h"
+#include "prefs.h"
 #include "packet-netbios.h"
 
 /* Netbios command numbers */
@@ -105,11 +106,33 @@ static int hf_netb_local_ses_no = -1;
 static int hf_netb_remote_ses_no = -1;
 static int hf_netb_data1 = -1;
 static int hf_netb_data2 = -1;
+static int hf_netb_fragments = -1;
+static int hf_netb_fragment = -1;
+static int hf_netb_fragment_overlap = -1;
+static int hf_netb_fragment_overlap_conflict = -1;
+static int hf_netb_fragment_multiple_tails = -1;
+static int hf_netb_fragment_too_long_segment = -1;
+static int hf_netb_fragment_error = -1;
 
 static gint ett_netb = -1;
 static gint ett_netb_name = -1;
 static gint ett_netb_flags = -1;
 static gint ett_netb_status = -1;
+static gint ett_netb_fragments = -1;
+static gint ett_netb_fragment = -1;
+
+fragment_items netbios_frag_items = {
+	&ett_netb_fragment,
+	&ett_netb_fragments,
+	&hf_netb_fragments,
+	&hf_netb_fragment,
+	&hf_netb_fragment_overlap,
+	&hf_netb_fragment_overlap_conflict,
+	&hf_netb_fragment_multiple_tails,
+	&hf_netb_fragment_too_long_segment,
+	&hf_netb_fragment_error,
+	"fragments"
+};
 
 static dissector_handle_t data_handle;
 
@@ -154,6 +177,13 @@ static const value_string nb_name_type_vals[] = {
 	{0xbf,	"Network Monitor Analyzer"},
 	{0x00,	NULL}
 };
+
+/* Tables for reassembly of fragments. */
+static GHashTable *netbios_fragment_table = NULL;
+static GHashTable *netbios_reassembled_table = NULL;
+
+/* desegmentation of NetBIOS Frame */
+static gboolean netbios_defragment = TRUE;
 
 /* See
 
@@ -206,7 +236,7 @@ static const true_false_string flags_set = {
 };
 static const true_false_string flags_allowed = {
 	"Allowed",
-	"Not allowrd"
+	"Not allowed"
 };
 static const true_false_string flags_yes_no = {
 	"Yes",
@@ -469,23 +499,29 @@ static void nb_call_name_type( tvbuff_t *tvb, int offset, proto_tree *tree)
 }
 
 
-static void nb_local_session( tvbuff_t *tvb, int offset, proto_tree *tree)
+static guint8 nb_local_session( tvbuff_t *tvb, int offset, proto_tree *tree)
 
-{/* add the local session to tree */
+{/* add the local session to tree, and return its value */
+
+	guint8 local_session = tvb_get_guint8( tvb, offset + NB_LOCAL_SES);
 
 	proto_tree_add_uint( tree, hf_netb_local_ses_no, tvb, offset + NB_LOCAL_SES, 1,
-		tvb_get_guint8( tvb, offset + NB_LOCAL_SES));
+		local_session);
 
+	return local_session;
 }
 
 
-static void nb_remote_session( tvbuff_t *tvb, int offset, proto_tree *tree)
+static guint8 nb_remote_session( tvbuff_t *tvb, int offset, proto_tree *tree)
 
-{/* add the remote session to tree */
+{/* add the remote session to tree, and return its value */
+
+	guint8 remote_session = tvb_get_guint8( tvb, offset + NB_RMT_SES);
 
 	proto_tree_add_uint( tree, hf_netb_remote_ses_no, tvb, offset + NB_RMT_SES, 1,
-		tvb_get_guint8( tvb, offset + NB_RMT_SES));
+		remote_session);
 
+	return remote_session;
 }
 
 
@@ -537,17 +573,20 @@ static void nb_resync_indicator( tvbuff_t *tvb, int offset, proto_tree *tree, ch
 /*									*/
 /************************************************************************/
 
-static void dissect_netb_unknown( tvbuff_t *tvb, int offset, proto_tree *tree)
+static guint32
+dissect_netb_unknown( tvbuff_t *tvb, int offset, proto_tree *tree)
 
 {/* Handle any unknown commands, do nothing */
 
 	proto_tree_add_text(tree, tvb, offset + NB_COMMAND + 1, -1,
 	    "Unknown NetBIOS command data");
+
+	return 0;
 }
 
 
-static void  dissect_netb_add_group_name( tvbuff_t *tvb, int offset,
-    proto_tree *tree)
+static guint32
+dissect_netb_add_group_name( tvbuff_t *tvb, int offset, proto_tree *tree)
 
 {/* Handle the ADD GROUP NAME QUERY command */
 
@@ -555,32 +594,39 @@ static void  dissect_netb_add_group_name( tvbuff_t *tvb, int offset,
 
 	netbios_add_name("Group name to add", tvb, offset + NB_SENDER_NAME,
 	    tree);
+
+	return 0;
 }
 
 
-static void  dissect_netb_add_name( tvbuff_t *tvb, int offset,
-    proto_tree *tree)
+static guint32
+dissect_netb_add_name( tvbuff_t *tvb, int offset, proto_tree *tree)
 
 {/* Handle the ADD NAME QUERY command */
 
 	nb_resp_corrl( tvb, offset, tree);
 
 	netbios_add_name("Name to add", tvb, offset + NB_SENDER_NAME, tree);
+
+	return 0;
 }
 
 
-static void  dissect_netb_name_in_conflict( tvbuff_t *tvb, int offset,
-     proto_tree *tree)
+static guint32
+dissect_netb_name_in_conflict( tvbuff_t *tvb, int offset, proto_tree *tree)
 
 {/* Handle the NAME IN CONFLICT command */
 
 	netbios_add_name("Name In Conflict", tvb, offset + NB_RECVER_NAME,
 	    tree);
 	netbios_add_name("Sender's Name", tvb, offset + NB_SENDER_NAME, tree);
+
+	return 0;
 }
 
 
-static void  dissect_netb_status_query( tvbuff_t *tvb, int offset, proto_tree *tree)
+static guint32
+dissect_netb_status_query( tvbuff_t *tvb, int offset, proto_tree *tree)
 
 {/* Handle the STATUS QUERY command */
 
@@ -608,11 +654,13 @@ static void  dissect_netb_status_query( tvbuff_t *tvb, int offset, proto_tree *t
 	nb_resp_corrl( tvb, offset, tree);
 	netbios_add_name("Receiver's Name", tvb, offset + NB_RECVER_NAME, tree);
 	netbios_add_name("Sender's Name", tvb, offset + NB_SENDER_NAME, tree);
+
+	return 0;
 }
 
 
-static void  dissect_netb_terminate_trace( tvbuff_t *tvb _U_, int offset _U_,
-    proto_tree *tree _U_)
+static guint32
+dissect_netb_terminate_trace( tvbuff_t *tvb _U_, int offset _U_, proto_tree *tree _U_)
 
 {/* Handle the TERMINATE TRACE command */
 
@@ -620,12 +668,15 @@ static void  dissect_netb_terminate_trace( tvbuff_t *tvb _U_, int offset _U_,
 	 * XXX - are any of the fields in this message significant?
 	 * The IBM NetBIOS document shows them as "Reserved".
 	 */
+
+	return 0;
 }
 
 
 static guchar zeroes[10];
 
-static void  dissect_netb_datagram( tvbuff_t *tvb, int offset, proto_tree *tree)
+static guint32
+dissect_netb_datagram( tvbuff_t *tvb, int offset, proto_tree *tree)
 
 {/* Handle the DATAGRAM command */
 
@@ -641,11 +692,13 @@ static void  dissect_netb_datagram( tvbuff_t *tvb, int offset, proto_tree *tree)
 		netbios_add_name("Sender's Name", tvb, offset + NB_SENDER_NAME,
 		    tree);
 	}
+
+	return 0;
 }
 
 
-static void  dissect_netb_datagram_bcast( tvbuff_t *tvb, int offset,
-    proto_tree *tree)
+static guint32
+dissect_netb_datagram_bcast( tvbuff_t *tvb, int offset, proto_tree *tree)
 
 {/* Handle the DATAGRAM BROADCAST command */
 
@@ -658,10 +711,13 @@ static void  dissect_netb_datagram_bcast( tvbuff_t *tvb, int offset,
 		netbios_add_name("Sender's Name", tvb, offset + NB_SENDER_NAME,
 		    tree);
 	}
+
+	return 0;
 }
 
 
-static void  dissect_netb_name_query( tvbuff_t *tvb, int offset, proto_tree *tree)
+static guint32
+dissect_netb_name_query( tvbuff_t *tvb, int offset, proto_tree *tree)
 
 {/* Handle the NAME QUERY command */
 	guint8 local_session_number = tvb_get_guint8( tvb, offset + NB_DATA2);
@@ -680,11 +736,13 @@ static void  dissect_netb_name_query( tvbuff_t *tvb, int offset, proto_tree *tre
 		netbios_add_name("Sender's Name", tvb, offset + NB_SENDER_NAME,
 		    tree);
 	}
+
+	return 0;
 }
 
 
-static void  dissect_netb_add_name_resp( tvbuff_t *tvb, int offset,
-    proto_tree *tree)
+static guint32
+dissect_netb_add_name_resp( tvbuff_t *tvb, int offset, proto_tree *tree)
 
 {/* Handle the ADD NAME RESPONSE command */
 
@@ -695,11 +753,13 @@ static void  dissect_netb_add_name_resp( tvbuff_t *tvb, int offset,
 	    tree);
 	netbios_add_name("Name to be added", tvb, offset + NB_SENDER_NAME,
 	    tree);
+
+	return 0;
 }
 
 
-static void  dissect_netb_name_resp( tvbuff_t *tvb, int offset,
-    proto_tree *tree)
+static guint32
+dissect_netb_name_resp( tvbuff_t *tvb, int offset, proto_tree *tree)
 
 {/* Handle the NAME RECOGNIZED command */
 	guint8 local_session_number = tvb_get_guint8( tvb, offset + NB_DATA2);
@@ -730,10 +790,13 @@ static void  dissect_netb_name_resp( tvbuff_t *tvb, int offset,
 		netbios_add_name("Sender's Name", tvb, offset + NB_SENDER_NAME,
 		    tree);
 	}
+
+	return 0;
 }
 
 
-static void  dissect_netb_status_resp( tvbuff_t *tvb, int offset, proto_tree *tree)
+static guint32
+dissect_netb_status_resp( tvbuff_t *tvb, int offset, proto_tree *tree)
 
 {/* Handle the STATUS RESPONSE command */
 	guint8 status_response = tvb_get_guint8( tvb, offset + NB_DATA1);
@@ -772,27 +835,41 @@ static void  dissect_netb_status_resp( tvbuff_t *tvb, int offset, proto_tree *tr
 	netbios_add_name("Receiver's Name", tvb, offset + NB_RECVER_NAME, tree);
 	netbios_add_name("Sender's Name", tvb, offset + NB_SENDER_NAME,
 	    tree);
+
+	return 0;
 }
 
 
-static void  dissect_netb_data_ack( tvbuff_t* tvb, int offset, proto_tree *tree)
+static guint32
+dissect_netb_data_ack( tvbuff_t* tvb, int offset, proto_tree *tree)
 
 {/* Handle the DATA ACK command */
 
 	nb_xmit_corrl( tvb, offset, tree);
 	nb_remote_session( tvb, offset, tree);
 	nb_local_session( tvb, offset, tree);
+
+	return 0;
 }
 
 
-static void  dissect_netb_data_first_middle( tvbuff_t *tvb, int offset,
-    proto_tree *tree)
+static guint32
+dissect_netb_data_first_middle( tvbuff_t *tvb, int offset, proto_tree *tree)
 
 {/* Handle the DATA FIRST MIDDLE command */
 
+	guint8 remote_session, local_session;
+
 	/*
-	 * This could be thought of as a packet with the "more fragments"
-	 * flag set, were we to do reassembly.
+	 * This is the first frame, or the middle frame, of a fragmented
+	 * packet.
+	 *
+	 * XXX - there are no sequence numbers, so we have to assume
+	 * that fragments arrive in order with no duplicates.
+	 * In fact, 802.2 LLC is supposed to handle that, so we
+	 * might have to have the LLC dissector do so (but the TCP
+	 * dissector doesn't currently handle out-of-order or duplicate
+	 * data, either).
 	 */
 
 	netbios_data_first_middle_flags( tvb, tree, offset + NB_FLAGS);
@@ -800,19 +877,27 @@ static void  dissect_netb_data_first_middle( tvbuff_t *tvb, int offset,
 	nb_resync_indicator( tvb, offset, tree, "DATA FIRST MIDDLE");
 	nb_xmit_corrl( tvb, offset, tree);
 	nb_resp_corrl( tvb, offset, tree);
-	nb_remote_session( tvb, offset, tree);
-	nb_local_session( tvb, offset, tree);
+	remote_session = nb_remote_session( tvb, offset, tree);
+	local_session = nb_local_session( tvb, offset, tree);
+
+	/*
+	 * Return a combination of the remote and local session numbers,
+	 * for use when reassembling.
+	 */
+	return (remote_session << 8) + local_session;
 }
 
 
-static void  dissect_netb_data_only_last( tvbuff_t *tvb, int offset,
-    proto_tree *tree)
+static guint32
+dissect_netb_data_only_last( tvbuff_t *tvb, int offset, proto_tree *tree)
 
 {/* Handle the DATA ONLY LAST command */
 
+	guint8 remote_session, local_session;
+
 	/*
-	 * This could be thought of as a packet with the "more fragments"
-	 * flag not set, were we to do reassembly.
+	 * This is a complete packet, or the last frame of a fragmented
+	 * packet.
 	 */
 
 	netbios_data_only_flags( tvb, tree, offset + NB_FLAGS);
@@ -820,13 +905,19 @@ static void  dissect_netb_data_only_last( tvbuff_t *tvb, int offset,
 	nb_resync_indicator( tvb, offset, tree, "DATA ONLY LAST");
 	nb_xmit_corrl( tvb, offset, tree);
 	nb_resp_corrl( tvb, offset, tree);
-	nb_remote_session( tvb, offset, tree);
-	nb_local_session( tvb, offset, tree);
+	remote_session = nb_remote_session( tvb, offset, tree);
+	local_session = nb_local_session( tvb, offset, tree);
+
+	/*
+	 * Return a combination of the remote and local session numbers,
+	 * for use when reassembling.
+	 */
+	return (remote_session << 8) + local_session;
 }
 
 
-static void  dissect_netb_session_confirm( tvbuff_t *tvb, int offset,
-    proto_tree *tree)
+static guint32
+dissect_netb_session_confirm( tvbuff_t *tvb, int offset, proto_tree *tree)
 
 {/* Handle the SESSION CONFIRM command */
 
@@ -837,22 +928,26 @@ static void  dissect_netb_session_confirm( tvbuff_t *tvb, int offset,
 	nb_resp_corrl( tvb, offset, tree);
 	nb_remote_session( tvb, offset, tree);
 	nb_local_session( tvb, offset, tree);
+
+	return 0;
 }
 
 
-static void  dissect_netb_session_end( tvbuff_t *tvb, int offset,
-    proto_tree *tree)
+static guint32
+dissect_netb_session_end( tvbuff_t *tvb, int offset, proto_tree *tree)
 
 {/* Handle the SESSION END command */
 
 	nb_data2( hf_netb_termination_indicator, tvb, offset, tree);
 	nb_remote_session( tvb, offset, tree);
 	nb_local_session( tvb, offset, tree);
+
+	return 0;
 }
 
 
-static void  dissect_netb_session_init( tvbuff_t *tvb, int offset,
-    proto_tree *tree)
+static guint32
+dissect_netb_session_init( tvbuff_t *tvb, int offset, proto_tree *tree)
 
 {/* Handle the SESSION INITIALIZE command */
 
@@ -863,10 +958,12 @@ static void  dissect_netb_session_init( tvbuff_t *tvb, int offset,
 	nb_xmit_corrl( tvb, offset, tree);
 	nb_remote_session( tvb, offset, tree);
 	nb_local_session( tvb, offset, tree);
+
+	return 0;
 }
 
-static void  dissect_netb_no_receive( tvbuff_t *tvb, int offset,
-    proto_tree *tree)
+static guint32
+dissect_netb_no_receive( tvbuff_t *tvb, int offset, proto_tree *tree)
 
 {/* Handle the NO RECEIVE command */
 
@@ -875,33 +972,39 @@ static void  dissect_netb_no_receive( tvbuff_t *tvb, int offset,
 	nb_data2( hf_netb_num_data_bytes_accepted, tvb, offset, tree);
 	nb_remote_session( tvb, offset, tree);
 	nb_local_session( tvb, offset, tree);
+
+	return 0;
 }
 
 
-static void  dissect_netb_receive_outstanding( tvbuff_t *tvb, int offset,
-    proto_tree *tree)
+static guint32
+dissect_netb_receive_outstanding( tvbuff_t *tvb, int offset, proto_tree *tree)
 
 {/* Handle the RECEIVE OUTSTANDING command */
 
 	nb_data2( hf_netb_num_data_bytes_accepted, tvb, offset, tree);
 	nb_remote_session( tvb, offset, tree);
 	nb_local_session( tvb, offset, tree);
+
+	return 0;
 }
 
 
-static void  dissect_netb_receive_continue( tvbuff_t *tvb, int offset,
-    proto_tree *tree)
+static guint32
+dissect_netb_receive_continue( tvbuff_t *tvb, int offset, proto_tree *tree)
 
 {/* Handle the RECEIVE CONTINUE command */
 
 	nb_xmit_corrl( tvb, offset, tree);
 	nb_remote_session( tvb, offset, tree);
 	nb_local_session( tvb, offset, tree);
+
+	return 0;
 }
 
 
-static void  dissect_netb_session_alive( tvbuff_t *tvb, int offset,
-    proto_tree *tree)
+static guint32
+dissect_netb_session_alive( tvbuff_t *tvb, int offset, proto_tree *tree)
 
 {/* Handle the SESSION ALIVE command */
 
@@ -916,6 +1019,8 @@ static void  dissect_netb_session_alive( tvbuff_t *tvb, int offset,
 	 */
 	nb_remote_session( tvb, offset, tree);
 	nb_local_session( tvb, offset, tree);
+
+	return 0;
 }
 
 
@@ -926,7 +1031,7 @@ static void  dissect_netb_session_alive( tvbuff_t *tvb, int offset,
 /************************************************************************/
 
 
-void (*dissect_netb[])(tvbuff_t *, int, proto_tree *) = {
+static guint32 (*dissect_netb[])(tvbuff_t *, int, proto_tree *) = {
 
   dissect_netb_add_group_name,	/* Add Group Name	0x00 */
   dissect_netb_add_name,      	/* Add Name		0x01 */
@@ -981,12 +1086,16 @@ static void
 dissect_netbios(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 {
-	proto_tree		*netb_tree;
+	proto_tree		*netb_tree = NULL;
 	proto_item		*ti;
 	guint16			hdr_len, command;
 	char			*command_name;
 	char 			name[(NETBIOS_NAME_LEN - 1)*4 + 1];
 	int			name_type;
+	guint16			session_id;
+	gboolean		save_fragmented;
+	int			len;
+	fragment_data		*fd_head;
 	tvbuff_t		*next_tvb;
 
 	int offset = 0;
@@ -1051,31 +1160,111 @@ dissect_netbios(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			"Delimiter: EFFF (NetBIOS)");
 
 		proto_tree_add_uint(netb_tree, hf_netb_cmd, tvb, offset + NB_COMMAND, 1, command);
-
-						/* if command in table range */
-		if ( command < sizeof( dissect_netb)/ sizeof(void *))
-
-						/* branch to handle commands */
-			(dissect_netb[ command])( tvb, offset, netb_tree);
 	}
 
-	offset += hdr_len;			/* move past header */
+					/* if command in table range */
+	if ( command < sizeof( dissect_netb)/ sizeof(void *)) {
 
-	switch (command) {
+					/* branch to handle commands */
+		session_id = (dissect_netb[ command])( tvb, offset, netb_tree);
 
-	case NB_DATAGRAM:
-	case NB_DATAGRAM_BCAST:
-	case NB_DATA_FIRST_MIDDLE:
-	case NB_DATA_ONLY_LAST:
+		offset += hdr_len;			/* move past header */
+
+		save_fragmented = pinfo->fragmented;
+
 		/*
-		 * These are the frames with user data.
+		 * Process user data in frames that have it.
 		 */
-		next_tvb = tvb_new_subset(tvb, offset, -1, -1);
-		dissect_netbios_payload(next_tvb, pinfo, tree);
-		break;
+		switch (command) {
+
+		case NB_DATAGRAM:
+		case NB_DATAGRAM_BCAST:
+			/*
+			 * No fragmentation here.
+			 */
+			next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+			dissect_netbios_payload(next_tvb, pinfo, tree);
+			break;
+
+		case NB_DATA_FIRST_MIDDLE:
+		case NB_DATA_ONLY_LAST:
+			/*
+			 * Possibly fragmented.
+			 */
+			if (netbios_defragment) {
+				len = tvb_length_remaining(tvb, offset);
+				fd_head = fragment_add_seq_next(tvb, offset,
+				    pinfo, session_id,
+				    netbios_fragment_table,
+				    netbios_reassembled_table,
+				    len, command == NB_DATA_FIRST_MIDDLE);
+				if (fd_head != NULL) {
+					if (fd_head->next != NULL) {
+						next_tvb = tvb_new_real_data(fd_head->data,
+						    fd_head->len, fd_head->len);
+						tvb_set_child_real_data_tvbuff(tvb,
+						    next_tvb);
+						add_new_data_source(pinfo,
+						    next_tvb,
+						    "Reassembled NetBIOS");
+						/* Show all fragments. */
+						if (tree) {
+							show_fragment_seq_tree(fd_head,
+							    &netbios_frag_items,
+							    netb_tree, pinfo,
+							    next_tvb);
+						}
+					} else {
+						next_tvb = tvb_new_subset(tvb,
+						    offset, -1, -1);
+					}
+				} else {
+					next_tvb = NULL;
+				}
+			} else {
+				/*
+				 * If this is NB_DATA_FIRST_MIDDLE,
+				 * just show it as a fragment.
+				 * (XXX - it'd be nice to dissect it
+				 * if it's the first fragment, but we'd
+				 * need to do reassembly in order to
+				 * discover that.)
+				 *
+				 * If this is NB_DATA_ONLY_LAST, dissect
+				 * it.  (XXX - it'd be nice to show it
+				 * as a fragment if it's part of a
+				 * fragmented datagram, but we'd need
+				 * to do reassembly in order to discover
+				 * that.)
+				 */
+				if (command == NB_DATA_FIRST_MIDDLE)
+					next_tvb = NULL;
+				else {
+					next_tvb = tvb_new_subset(tvb, offset,
+					    -1, -1);
+				}
+			}
+			if (next_tvb != NULL)
+				dissect_netbios_payload(next_tvb, pinfo, tree);
+			else {
+				next_tvb = tvb_new_subset (tvb, offset, -1, -1);
+				call_dissector(data_handle, next_tvb, pinfo,
+				    tree);
+			}
+			break;
+		}
 	}
 }
 
+static void
+netbios_init(void)
+{
+	/*
+	 * Initialize the fragment and reassembly tables.
+	 */
+	fragment_table_init(&netbios_fragment_table);
+	reassembled_table_init(&netbios_reassembled_table);
+}
 
 void proto_register_netbios(void)
 {
@@ -1084,6 +1273,8 @@ void proto_register_netbios(void)
 		&ett_netb_name,
 		&ett_netb_flags,
 		&ett_netb_status,
+		&ett_netb_fragments,
+		&ett_netb_fragment,
 	};
 
 	static hf_register_info hf_netb[] = {
@@ -1182,13 +1373,52 @@ void proto_register_netbios(void)
 		{ &hf_netb_data2,
 		{ "DATA2 value", "netbios.data2", FT_UINT16, BASE_HEX, NULL, 0x0,
 			"", HFILL }},
-		};
+
+		{ &hf_netb_fragment_overlap,
+		{ "Segment overlap",	"netbios.segment.overlap", FT_BOOLEAN, BASE_NONE,
+			NULL, 0x0, "Segment overlaps with other segments", HFILL }},
+
+		{ &hf_netb_fragment_overlap_conflict,
+		{ "Conflicting data in segment overlap", "netbios.segment.overlap.conflict",
+			FT_BOOLEAN, BASE_NONE,
+			NULL, 0x0, "Overlapping segments contained conflicting data", HFILL }},
+
+		{ &hf_netb_fragment_multiple_tails,
+		{ "Multiple tail segments found", "netbios.segment.multipletails",
+			FT_BOOLEAN, BASE_NONE,
+			NULL, 0x0, "Several tails were found when desegmenting the packet", HFILL }},
+
+		{ &hf_netb_fragment_too_long_segment,
+		{ "Segment too long",	"netbios.segment.toolongsegment", FT_BOOLEAN, BASE_NONE,
+			NULL, 0x0, "Segment contained data past end of packet", HFILL }},
+
+		{ &hf_netb_fragment_error,
+		{"Desegmentation error",	"netbios.segment.error", FT_NONE, BASE_NONE,
+			NULL, 0x0, "Desegmentation error due to illegal segments", HFILL }},
+
+		{ &hf_netb_fragment,
+		{ "NetBIOS Fragment",		"netbios.fragment", FT_NONE, BASE_NONE,
+			NULL, 0x0, "NetBIOS Fragment", HFILL }},
+
+		{ &hf_netb_fragments,
+		{ "NetBIOS Fragments",	"netbios.fragments", FT_NONE, BASE_NONE,
+			NULL, 0x0, "NetBIOS Fragments", HFILL }},
+	};
+	module_t *netbios_module;
 
 	proto_netbios = proto_register_protocol("NetBIOS", "NetBIOS", "netbios");
 	proto_register_subtree_array(ett, array_length(ett));
 	proto_register_field_array(proto_netbios, hf_netb, array_length(hf_netb));
 
 	register_heur_dissector_list("netbios", &netbios_heur_subdissector_list);
+
+	netbios_module = prefs_register_protocol(proto_netbios, NULL);
+	prefs_register_bool_preference(netbios_module, "defragment",
+	    "Defragment all NetBIOS messages spanning multiple frames",
+	    "Whether the NetBIOS dissector should defragment all messages spanning multiple framess",
+	    &netbios_defragment);
+
+	register_init_routine(netbios_init);
 }
 
 void
