@@ -1,7 +1,7 @@
 /* packet-null.c
  * Routines for null packet disassembly
  *
- * $Id: packet-null.c,v 1.13 1999/08/22 01:48:24 guy Exp $
+ * $Id: packet-null.c,v 1.14 1999/08/22 19:05:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -62,7 +62,7 @@ static int hf_null_family = -1;
 #define BSD_AF_ISO		7
 #define BSD_AF_APPLETALK	16
 #define BSD_AF_IPX		23
-#define BSD_AF_INET6_OPENBSD	24
+#define BSD_AF_INET6_BSD	24	/* OpenBSD (and probably NetBSD), BSD/OS */
 #define BSD_AF_INET6_FREEBSD	28
 
 /* Family values. */
@@ -71,7 +71,7 @@ static const value_string family_vals[] = {
     {BSD_AF_ISO,           "OSI"            },
     {BSD_AF_APPLETALK,     "Appletalk"      },
     {BSD_AF_IPX,           "Netware IPX/SPX"},
-    {BSD_AF_INET6_OPENBSD, "IPv6"           },
+    {BSD_AF_INET6_BSD,     "IPv6"           },
     {BSD_AF_INET6_FREEBSD, "IPv6"           },
     {0,                    NULL             }
 };
@@ -291,7 +291,7 @@ dissect_null( const u_char *pd, frame_data *fd, proto_tree *tree )
         dissect_osi(pd, 4, fd, tree);
         break;
 
-      case BSD_AF_INET6_OPENBSD:
+      case BSD_AF_INET6_BSD:
       case BSD_AF_INET6_FREEBSD:
         dissect_ipv6(pd, 4, fd, tree);
         break;
