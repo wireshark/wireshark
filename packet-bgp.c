@@ -2,7 +2,7 @@
  * Routines for BGP packet dissection.
  * Copyright 1999, Jun-ichiro itojun Hagino <itojun@itojun.org>
  *
- * $Id: packet-bgp.c,v 1.26 2000/08/13 14:08:02 deniel Exp $
+ * $Id: packet-bgp.c,v 1.27 2000/08/20 18:10:12 deniel Exp $
  * 
  * Supports:
  * RFC1771 A Border Gateway Protocol 4 (BGP-4)
@@ -184,6 +184,7 @@ static const value_string afnumber[] = {
 };
 
 static int proto_bgp = -1;
+static int hf_bgp_type = -1;
 
 static gint ett_bgp = -1;
 static gint ett_bgp_unfeas = -1;
@@ -1177,8 +1178,8 @@ dissect_bgp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
     }
 
     if (tree) {
-	ti = proto_tree_add_text(tree, NullTVB, offset, END_OF_FRAME,
-		    "Border Gateway Protocol");
+        ti = proto_tree_add_item(tree, proto_bgp, NullTVB, offset, 
+				 END_OF_FRAME, FALSE);
 	bgp_tree = proto_item_add_subtree(ti, ett_bgp);
 
 	p = &pd[offset];
@@ -1242,9 +1243,11 @@ dissect_bgp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		    (hlen == 1) ? "byte" : "bytes");
 	    }
 
-	    proto_tree_add_text(bgp1_tree, NullTVB,
-		offset + i + offsetof(struct bgp, bgp_type), 1,
-		"Type: %s (%u)", typ, bgp.bgp_type);
+	    proto_tree_add_uint_format(bgp1_tree, hf_bgp_type, NullTVB, 
+				       offset + i + 
+				       offsetof(struct bgp, bgp_type), 1,
+				       bgp.bgp_type,
+				       "Type: %s (%u)", typ, bgp.bgp_type);
 
 	    CHECK_SIZE(i, hlen, l);
 
@@ -1277,6 +1280,13 @@ dissect_bgp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 void
 proto_register_bgp(void)
 {
+
+    static hf_register_info hf[] = {
+      { &hf_bgp_type,
+	{ "BGP message type", "bgp.type", FT_UINT8, BASE_HEX, 
+	  VALS(bgptypevals), 0x0, "BGP message type" }},
+    };
+
     static gint *ett[] = {
       &ett_bgp,
       &ett_bgp_unfeas,
@@ -1295,6 +1305,7 @@ proto_register_bgp(void)
     };
 
     proto_bgp = proto_register_protocol("Border Gateway Protocol", "bgp");
+    proto_register_field_array(proto_bgp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 }
 
