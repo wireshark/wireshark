@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.460 2002/08/27 23:05:11 jmayer Exp $
+# $Id: Makefile.am,v 1.461 2002/08/28 08:24:24 jmayer Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -114,7 +114,6 @@ DISSECTOR_SRC = \
 	packet-cups.c  \
 	packet-data.c  \
 	packet-dccp.c \
-	packet-dcerpc.c  \
 	packet-dcerpc-browser.c  \
 	packet-dcerpc-conv.c  \
 	packet-dcerpc-dfs.c \
@@ -134,6 +133,7 @@ DISSECTOR_SRC = \
 	packet-dcerpc-srvsvc.c \
 	packet-dcerpc-tapi.c \
 	packet-dcerpc-wkssvc.c \
+	packet-dcerpc.c  \
 	packet-ddtp.c  \
 	packet-dec-bpdu.c \
 	packet-dhcpv6.c \
@@ -183,11 +183,11 @@ DISSECTOR_SRC = \
 	packet-irc.c   \
 	packet-isakmp.c\
 	packet-iscsi.c \
-	packet-isis.c  \
 	packet-isis-clv.c \
 	packet-isis-hello.c \
 	packet-isis-lsp.c \
 	packet-isis-snp.c \
+	packet-isis.c  \
 	packet-isl.c   \
 	packet-isup.c  \
 	packet-iua.c   \
@@ -234,8 +234,8 @@ DISSECTOR_SRC = \
 	packet-ntlmssp.c  \
 	packet-ntp.c  \
 	packet-null.c  \
-	packet-osi.c   \
 	packet-osi-options.c \
+	packet-osi.c   \
 	packet-ospf.c  \
 	packet-pcnfsd.c \
 	packet-pflog.c \
@@ -251,9 +251,9 @@ DISSECTOR_SRC = \
 	packet-q931.c  \
 	packet-qllc.c  \
 	packet-quake.c \
-	packet-quakeworld.c \
 	packet-quake2.c \
 	packet-quake3.c \
+	packet-quakeworld.c \
 	packet-radius.c\
 	packet-ranap.c \
 	packet-raw.c   \
@@ -282,25 +282,25 @@ DISSECTOR_SRC = \
 	packet-slimp3.c   \
 	packet-sll.c   \
 	packet-slowprotocols.c \
-	packet-smb.c   \
 	packet-smb-browse.c \
 	packet-smb-common.c \
 	packet-smb-logon.c \
 	packet-smb-mailslot.c \
 	packet-smb-pipe.c \
+	packet-smb.c   \
 	packet-smpp.c \
 	packet-smtp.c \
 	packet-sna.c   \
 	packet-snaeth.c \
-	packet-spnego.c \
 	packet-snmp.c	\
 	packet-socks.c \
+	packet-spnego.c \
 	packet-spray.c \
 	packet-srvloc.c \
 	packet-sscop.c \
 	packet-ssl.c   \
-	packet-stat.c   \
 	packet-stat-notify.c \
+	packet-stat.c   \
 	packet-sua.c   \
 	packet-syslog.c \
 	packet-tacacs.c \
@@ -322,12 +322,12 @@ DISSECTOR_SRC = \
 	packet-vlan.c \
 	packet-vrrp.c \
 	packet-vtp.c  \
+	packet-wap.c \
 	packet-wccp.c \
 	packet-wcp.c \
 	packet-who.c  \
-	packet-wap.c \
-	packet-wtls.c \
 	packet-wsp.c \
+	packet-wtls.c \
 	packet-wtp.c \
 	packet-x11.c   \
 	packet-x25.c   \
@@ -427,10 +427,10 @@ endif
 
 noinst_HEADERS = \
 	packet-afp.h   \
-	packet-afs.h   \
+	packet-afs-defs.h \
 	packet-afs-macros.h \
 	packet-afs-register-info.h \
-	packet-afs-defs.h \
+	packet-afs.h   \
 	packet-arp.h   \
 	packet-atalk.h \
 	packet-atm.h   \
@@ -440,7 +440,6 @@ noinst_HEADERS = \
 	packet-clip.h  \
 	packet-data.h \
 	packet-dccp.h \
-	packet-dcerpc.h \
 	packet-dcerpc-browser.h \
 	packet-dcerpc-dfs.h \
 	packet-dcerpc-lsa.h \
@@ -453,6 +452,7 @@ noinst_HEADERS = \
 	packet-dcerpc-srvsvc.h \
 	packet-dcerpc-tapi.h \
 	packet-dcerpc-wkssvc.h \
+	packet-dcerpc.h \
 	packet-ddtp.h  \
 	packet-diameter-defs.h \
 	packet-dns.h   \
@@ -474,11 +474,11 @@ noinst_HEADERS = \
 	packet-ipsec.h \
 	packet-ipv6.h  \
 	packet-ipx.h   \
-	packet-isis.h  \
 	packet-isis-clv.h \
 	packet-isis-hello.h \
 	packet-isis-lsp.h \
 	packet-isis-snp.h \
+	packet-isis.h  \
 	packet-isl.h   \
 	packet-klm.h   \
 	packet-ldap.h  \
@@ -494,8 +494,8 @@ noinst_HEADERS = \
 	packet-nlm.h   \
 	packet-ntp.h  \
 	packet-null.h  \
-	packet-osi.h   \
 	packet-osi-options.h \
+	packet-osi.h   \
 	packet-pcnfsd.h \
 	packet-pflog.h \
 	packet-pim.h   \
@@ -523,8 +523,8 @@ noinst_HEADERS = \
 	packet-sna.h   \
 	packet-snmp.h	\
 	packet-spray.h \
-	packet-stat.h   \
 	packet-stat-notify.h \
+	packet-stat.h   \
 	packet-tcp.h   \
 	packet-tns.h \
 	packet-tpkt.h  \
@@ -532,11 +532,11 @@ noinst_HEADERS = \
 	packet-udp.h   \
 	packet-vines.h \
 	packet-vlan.h \
-	packet-wccp.h \
 	packet-wap.h \
+	packet-wccp.h \
+	packet-wsp.h \
 	packet-wtls.h \
 	packet-wtp.h \
-	packet-wsp.h \
 	packet-x11-keysym.h	\
 	packet-yhoo.h  \
 	packet-ypbind.h \
@@ -545,20 +545,20 @@ noinst_HEADERS = \
 	packet-ypxfr.h 
 
 ETHEREAL_COMMON_SRC = \
-	aftypes.h      \
-	alignment.h    \
 	afn.c          \
 	afn.h          \
+	aftypes.h      \
+	alignment.h    \
 	asn1.c         \
 	asn1.h         \
 	bridged_pids.h \
+	capture_stop_conditions.c   \
+	capture_stop_conditions.h   \
+	color.h        \
 	column.c       \
 	column.h       \
-	color.h        \
 	conditions.c   \
 	conditions.h   \
-	capture_stop_conditions.h   \
-	capture_stop_conditions.c   \
 	etypes.h       \
 	follow.c       \
 	follow.h       \
@@ -574,9 +574,9 @@ ETHEREAL_COMMON_SRC = \
 	pcap-util.c    \
 	pcap-util.h    \
 	ppptypes.h     \
+	prefs-int.h    \
 	prefs.c        \
 	prefs.h        \
-	prefs-int.h    \
 	print.c        \
 	print.h        \
 	ps.c           \
@@ -891,7 +891,20 @@ DISTCLEANFILES =	\
 
 EXTRA_DIST = \
 	Ethereal.desktop	\
+	FAQ			\
+	INSTALL.configure       \
+	Makefile.nmake		\
+	README.aix		\
+	README.bsd		\
+	README.hpux		\
+	README.irix		\
+	README.linux		\
+	README.tru64		\
+	README.vmware		\
+	README.win32		\
+	TODO			\
 	aclocal-flags		\
+	autogen.sh		\
 	capture-wpcap.c		\
 	capture-wpcap.h		\
 	cleanbld.bat		\
@@ -907,6 +920,8 @@ EXTRA_DIST = \
 	debian/postinst		\
 	debian/prerm		\
 	debian/rules		\
+	dictionary.dtd		\
+	dictionary.xml		\
 	doc/Makefile.am         \
 	doc/Makefile.nmake      \
 	doc/README.design       \
@@ -926,10 +941,6 @@ EXTRA_DIST = \
 	editcap.c		\
 	ethereal_be.py		\
 	ethereal_gen.py		\
-	mergecap.c		\
-	text2pcap.c             \
-	text2pcap.h             \
-	text2pcap-scanner.l     \
 	getopt.c		\
 	getopt.h		\
 	idl2eth.sh		\
@@ -963,34 +974,24 @@ EXTRA_DIST = \
 	image/tethereal.rc.in	\
 	image/text2pcap.rc.in	\
 	image/up_arrow.xpm	\
-	INSTALL.configure       \
-	Makefile.nmake		\
 	make-manuf		\
 	make-reg-dotc		\
 	make-reg-dotc.py	\
 	manuf                   \
 	manuf.tmpl		\
+	mergecap.c		\
+	mobileipv4.xml		\
+	nasreq.xml		\
 	ncp2222.py              \
 	packet-ncp2222.inc	\
 	print.ps                \
 	process-x11-fields.pl	\
-	README.aix		\
-	README.bsd		\
-	README.hpux		\
-	README.irix		\
-	README.linux		\
-	README.tru64		\
-	README.vmware		\
-	README.win32		\
-	FAQ			\
 	randpkt.c		\
 	rdps.c			\
-	TODO			\
-	dictionary.dtd		\
-	dictionary.xml		\
-	mobileipv4.xml		\
-	nasreq.xml		\
 	sunping.xml		\
+	text2pcap-scanner.l     \
+	text2pcap.c             \
+	text2pcap.h             \
 	x11-fields
 
 if SETUID_INSTALL
