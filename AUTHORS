@@ -313,6 +313,10 @@ Paul Ionescu <ipaul@romsys.ro> {
 	EIGRP over Appletalk and EIGRP over IPX support
 }
 
+Mark Burton <markb@ordern.com> {
+	Assorted SMB fixes
+}
+
 Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 

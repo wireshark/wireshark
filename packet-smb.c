@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.65 2000/05/11 08:15:46 gram Exp $
+ * $Id: packet-smb.c,v 1.66 2000/05/25 08:31:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -8233,8 +8233,6 @@ dissect_transact2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
   guint8        SetupCount;
   guint8        Reserved3;
   guint8        Reserved1;
-  guint8        Pad2;
-  guint8        Pad1;
   guint8        MaxSetupCount;
   guint8        Data;
   guint32       Timeout;
@@ -8561,19 +8559,18 @@ dissect_transact2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 
     }
 
-    if (offset % 2) {
+    if (offset < (SMB_offset + ParameterOffset)) {
+
+      int pad1Count = SMB_offset + ParameterOffset - offset;
 
       /* Build display for: Pad1 */
 
-      Pad1 = GBYTE(pd, offset);
-
       if (tree) {
 
-	proto_tree_add_text(tree, NullTVB, offset, 1, "Pad1: %u", Pad1);
-
+	proto_tree_add_text(tree, NullTVB, offset, pad1Count, "Pad1: %s", format_text(pd + offset, pad1Count));
       }
-    
-      offset += 1; /* Skip Pad1 */
+
+      offset += pad1Count; /* Skip Pad1 */
 
     }
 
@@ -8591,19 +8588,19 @@ dissect_transact2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 
     }
 
-    if (offset % 2) {
+    if (DataCount > 0 && offset < (SMB_offset + DataOffset)) {
+
+      int pad2Count = SMB_offset + DataOffset - offset;
 	
       /* Build display for: Pad2 */
 
-      Pad2 = GBYTE(pd, offset);
-
       if (tree) {
 
-	proto_tree_add_text(tree, NullTVB, offset, 1, "Pad2: %u", Pad2);
+	proto_tree_add_text(tree, NullTVB, offset, pad2Count, "Pad2: %s", format_text(pd + offset, pad2Count));
 
       }
 
-      offset += 1; /* Skip Pad2 */
+      offset += pad2Count; /* Skip Pad2 */
 
     }
 
@@ -8778,17 +8775,26 @@ dissect_transact2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 
     offset += 1; /* Skip Reserved3 */
 
-    /* Build display for: Setup */
+    if (SetupCount > 0) {
 
-    Setup = GSHORT(pd, offset);
+      int i = SetupCount;
 
-    if (tree) {
+      Setup = GSHORT(pd, offset);
 
-      proto_tree_add_text(tree, NullTVB, offset, 2, "Setup: %u", Setup);
+      for (i = 1; i <= SetupCount; i++) {
+	
+	Setup = GSHORT(pd, offset);
 
+	if (tree) {
+
+	  proto_tree_add_text(tree, NullTVB, offset, 2, "Setup%i: %u", i, Setup);
+
+	}
+
+	offset += 2; /* Skip Setup */
+
+      }
     }
-
-    offset += 2; /* Skip Setup */
 
     /* Build display for: Byte Count (BCC) */
 
@@ -8802,17 +8808,20 @@ dissect_transact2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 
     offset += 2; /* Skip Byte Count (BCC) */
 
-    /* Build display for: Pad1 */
+    if (offset < (SMB_offset + ParameterOffset)) {
 
-    Pad1 = GBYTE(pd, offset);
+      int pad1Count = SMB_offset + ParameterOffset - offset;
 
-    if (tree) {
+      /* Build display for: Pad1 */
 
-      proto_tree_add_text(tree, NullTVB, offset, 1, "Pad1: %u", Pad1);
+      if (tree) {
+
+	proto_tree_add_text(tree, NullTVB, offset, pad1Count, "Pad1: %s", format_text(pd + offset, pad1Count));
+      }
+
+      offset += pad1Count; /* Skip Pad1 */
 
     }
-
-    offset += 1; /* Skip Pad1 */
 
     /* Build display for: Parameter */
 
@@ -8828,17 +8837,21 @@ dissect_transact2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 
     }
 
-    /* Build display for: Pad2 */
+    if (DataCount > 0 && offset < (SMB_offset + DataOffset)) {
 
-    Pad2 = GBYTE(pd, offset);
+      int pad2Count = SMB_offset + DataOffset - offset;
+	
+      /* Build display for: Pad2 */
 
-    if (tree) {
+      if (tree) {
 
-      proto_tree_add_text(tree, NullTVB, offset, 1, "Pad2: %u", Pad2);
+	proto_tree_add_text(tree, NullTVB, offset, pad2Count, "Pad2: %s", format_text(pd + offset, pad2Count));
+
+      }
+
+      offset += pad2Count; /* Skip Pad2 */
 
     }
-
-    offset += 1; /* Skip Pad2 */
 
     /* Build display for: Data */
 
@@ -8865,7 +8878,6 @@ dissect_transact_params(const u_char *pd, int offset, frame_data *fd, proto_tree
   char             *TransactNameCopy;
   char             *trans_type = NULL, *trans_cmd, *loc_of_slash = NULL;
   int              index;
-  guint8           Pad2;
   const gchar      *Data;
 
   if (!TransactName)
@@ -8909,19 +8921,19 @@ dissect_transact_params(const u_char *pd, int offset, frame_data *fd, proto_tree
 
     }
 
-    if (offset % 2) {
+    if (DataCount > 0 && offset < (SMB_offset + DataOffset)) {
+
+      int pad2Count = SMB_offset + DataOffset - offset;
 	
       /* Build display for: Pad2 */
 
-      Pad2 = GBYTE(pd, offset);
-
       if (tree) {
 
-	proto_tree_add_text(tree, NullTVB, offset, 1, "Pad2: %u: %u", Pad2, offset);
+	proto_tree_add_text(tree, NullTVB, offset, pad2Count, "Pad2: %s", format_text(pd + offset, pad2Count));
 
       }
 
-      offset += 1; /* Skip Pad2 */
+      offset += pad2Count; /* Skip Pad2 */
 
     }
 
@@ -8954,7 +8966,6 @@ dissect_transact_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *p
   guint8        SetupCount;
   guint8        Reserved3;
   guint8        Reserved1;
-  guint8        Pad1;
   guint8        MaxSetupCount;
   guint32       Timeout;
   guint16       TotalParameterCount;
@@ -9297,19 +9308,18 @@ dissect_transact_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *p
     offset += TNlen; /* Skip Transact Name */
     if (si.unicode) offset += 2;   /* There are two more extraneous bytes there*/
 
-    if (offset % 2) {
+    if (offset < (SMB_offset + ParameterOffset)) {
+
+      int pad1Count = SMB_offset + ParameterOffset - offset;
 
       /* Build display for: Pad1 */
 
-      Pad1 = GBYTE(pd, offset);
-
       if (tree) {
 
-	proto_tree_add_text(tree, NullTVB, offset, 1, "Pad1: %u", Pad1);
-
+	proto_tree_add_text(tree, NullTVB, offset, pad1Count, "Pad1: %s", format_text(pd + offset, pad1Count));
       }
-    
-      offset += 1; /* Skip Pad1 */
+
+      offset += pad1Count; /* Skip Pad1 */
 
     }
 
@@ -9480,17 +9490,23 @@ dissect_transact_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *p
 
     if (SetupCount > 0) {
 
-      /* Hmmm, should code for all setup words ... */
+      int i = SetupCount;
 
       Setup = GSHORT(pd, offset);
 
-      if (tree) {
+      for (i = 1; i <= SetupCount; i++) {
+	
+	Setup = GSHORT(pd, offset);
 
-	proto_tree_add_text(tree, NullTVB, offset, 2, "Setup: %u", Setup);
+	if (tree) {
+
+	  proto_tree_add_text(tree, NullTVB, offset, 2, "Setup%i: %u", i, Setup);
+
+	}
+
+	offset += 2; /* Skip Setup */
 
       }
-
-    offset += 2; /* Skip Setup */
 
     }
 
@@ -9508,17 +9524,18 @@ dissect_transact_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *p
 
     /* Build display for: Pad1 */
 
-    if (offset % 2) {
+    if (offset < (SMB_offset + ParameterOffset)) {
 
-      Pad1 = GBYTE(pd, offset);
+      int pad1Count = SMB_offset + ParameterOffset - offset;
+
+      /* Build display for: Pad1 */
 
       if (tree) {
 
-	proto_tree_add_text(tree, NullTVB, offset, 1, "Pad1: %u", Pad1);
-
+	proto_tree_add_text(tree, NullTVB, offset, pad1Count, "Pad1: %s", format_text(pd + offset, pad1Count));
       }
 
-      offset += 1; /* Skip Pad1 */
+      offset += pad1Count; /* Skip Pad1 */
 
     }
 
