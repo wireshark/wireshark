@@ -128,7 +128,7 @@ ansi_a_stat_draw(
     int			i, j;
     char		*strp;
 
-    if (dlg_bsmap.win != NULL)
+    if (dlg_bsmap.win && tapdata)
     {
 	i = 0;
 
@@ -147,7 +147,7 @@ ansi_a_stat_draw(
 	gtk_clist_sort(GTK_CLIST(dlg_bsmap.table));
     }
 
-    if (dlg_dtap.win != NULL)
+    if (dlg_dtap.win && tapdata)
     {
 	i = 0;
 

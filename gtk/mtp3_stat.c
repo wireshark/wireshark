@@ -174,7 +174,7 @@ mtp3_stat_draw(
     int			i, j, row_offset;
     char		str[256];
 
-    if (dlg.win == NULL)
+    if (!dlg.win || !tapdata)
     {
 	return;
     }

@@ -217,13 +217,13 @@ mtp3_sum_draw(
 
 	entries[1] = g_strdup_printf("%u", num_msus);
 
-	entries[2] = g_strdup_printf("%.2f", num_msus/seconds);
-
+	entries[2] = (seconds) ? g_strdup_printf("%.2f", num_msus/seconds) : "N/A";
+	
 	entries[3] = g_strdup_printf("%.0f", num_bytes);
 
-	entries[4] = g_strdup_printf("%.2f", num_bytes/num_msus);
+	entries[4] = (num_msus) ? g_strdup_printf("%.2f", num_bytes/num_msus) : "N/A";
 
-	entries[5] = g_strdup_printf("%.2f", num_bytes/seconds);
+	entries[5] = (seconds) ? g_strdup_printf("%.2f", num_bytes/seconds) : "N/A";
 
 	gtk_clist_insert(GTK_CLIST(table), i, entries);
     }
@@ -243,11 +243,12 @@ mtp3_sum_gtk_sum_cb(GtkWidget *w _U_, gpointer d _U_)
 		*table, *column_lb, *table_fr;
   column_arrows	*col_arrows;
 
-  gchar         string_buff[SUM_STR_MAX];
-  double        seconds;
-  int		tot_num_msus;
-  double        tot_num_bytes;
-  int		i;
+  gchar			string_buff[SUM_STR_MAX];
+  const char *  file_type;
+  double		seconds;
+  int			tot_num_msus;
+  double		tot_num_bytes;
+  int			i;
 
   /* initialize the tally */
   summary_fill_in(&summary);
@@ -273,7 +274,7 @@ mtp3_sum_gtk_sum_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_widget_show(file_box);
 
   /* filename */
-  g_snprintf(string_buff, SUM_STR_MAX, "Name: %s", summary.filename);
+  g_snprintf(string_buff, SUM_STR_MAX, "Name: %s", ((summary.filename) ? summary.filename : "None"));
   add_string_to_box(string_buff, file_box);
 
   /* length */
@@ -281,7 +282,8 @@ mtp3_sum_gtk_sum_cb(GtkWidget *w _U_, gpointer d _U_)
   add_string_to_box(string_buff, file_box);
 
   /* format */
-  g_snprintf(string_buff, SUM_STR_MAX, "Format: %s", wtap_file_type_string(summary.encap_type));
+  file_type = wtap_file_type_string(summary.encap_type);
+  g_snprintf(string_buff, SUM_STR_MAX, "Format: %s", (file_type ? file_type : "N/A"));
   add_string_to_box(string_buff, file_box);
 
   if (summary.has_snap) {
@@ -386,16 +388,31 @@ mtp3_sum_gtk_sum_cb(GtkWidget *w _U_, gpointer d _U_)
   g_snprintf(string_buff, SUM_STR_MAX, "Total MSUs: %u", tot_num_msus);
   add_string_to_box(string_buff, tot_box);
 
-  g_snprintf(string_buff, SUM_STR_MAX, "MSUs/second: %.2f", tot_num_msus/seconds);
+  if (seconds) {
+		g_snprintf(string_buff, SUM_STR_MAX, "MSUs/second: %.2f", tot_num_msus/seconds);
+  }
+  else {
+		g_snprintf(string_buff, SUM_STR_MAX, "MSUs/second: N/A");
+  }
   add_string_to_box(string_buff, tot_box);
 
   g_snprintf(string_buff, SUM_STR_MAX, "Total Bytes: %.0f", tot_num_bytes);
   add_string_to_box(string_buff, tot_box);
 
-  g_snprintf(string_buff, SUM_STR_MAX, "Average Bytes/MSU: %.2f", tot_num_bytes/tot_num_msus);
+  if (tot_num_msus) {
+		g_snprintf(string_buff, SUM_STR_MAX, "Average Bytes/MSU: %.2f", tot_num_bytes/tot_num_msus);
+  }
+  else {
+	    g_snprintf(string_buff, SUM_STR_MAX, "Average Bytes/MSU: N/A");
+  }
   add_string_to_box(string_buff, tot_box);
 
-  g_snprintf(string_buff, SUM_STR_MAX, "Bytes/second: %.2f", tot_num_bytes/seconds);
+  if (seconds) {
+	  g_snprintf(string_buff, SUM_STR_MAX, "Bytes/second: %.2f", tot_num_bytes/seconds);
+  }
+  else {
+	  g_snprintf(string_buff, SUM_STR_MAX, "Bytes/second: N/A");
+  }
   add_string_to_box(string_buff, tot_box);
 
   /* Button row. */

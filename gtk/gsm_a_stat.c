@@ -195,6 +195,8 @@ gsm_a_stat_draw(
 {
     gsm_a_stat_t	*stat_p = tapdata;
 
+	if (!tapdata) return;
+
     if (dlg_bssmap.win != NULL)
     {
 	gsm_a_stat_draw_aux(&dlg_bssmap,

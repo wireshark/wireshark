@@ -137,7 +137,7 @@ ansi_map_stat_draw(
     int			i, j;
     char		*strp;
 
-    if (dlg.win != NULL)
+    if (dlg.win && tapdata)
     {
 	i = 0;
 
