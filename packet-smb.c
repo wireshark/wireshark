@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.185 2001/12/10 00:25:34 guy Exp $
+ * $Id: packet-smb.c,v 1.186 2001/12/15 04:35:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -403,8 +403,11 @@ static int hf_smb_file_eattr_sequential_scan = -1;
 static int hf_smb_file_eattr_delete_on_close = -1;
 static int hf_smb_file_eattr_backup_semantics = -1;
 static int hf_smb_file_eattr_posix_semantics = -1;
-static int hf_smb_security_descriptor_len = -1;
-static int hf_smb_security_descriptor = -1;
+static int hf_smb_sec_desc_len = -1;
+static int hf_smb_sec_desc_revision = -1;
+static int hf_smb_sec_desc_flags = -1;
+static int hf_smb_sid_revision = -1;
+static int hf_smb_sid_num_auth = -1;
 static int hf_smb_nt_qsd_owner = -1;
 static int hf_smb_nt_qsd_group = -1;
 static int hf_smb_nt_qsd_dacl = -1;
@@ -572,6 +575,8 @@ static gint ett_smb_ff2_data = -1;
 static gint ett_smb_device_characteristics = -1;
 static gint ett_smb_fs_attributes = -1;
 static gint ett_smb_segments = -1;
+static gint ett_smb_sec_desc = -1;
+static gint ett_smb_sid = -1;
 
 proto_tree *top_tree=NULL;     /* ugly */
 
@@ -6276,6 +6281,133 @@ dissect_security_information_mask(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	return offset;
 }
 
+static int
+dissect_nt_sid(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree, char *name)
+{
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
+	int old_offset = offset;
+	guint8 revision;
+	guint8 num_auth;
+	int i;
+	char str[256], *strp;
+
+	if(parent_tree){
+		item = proto_tree_add_text(parent_tree, tvb, offset, 0,
+					   "NT %s SID", name);
+		tree = proto_item_add_subtree(item, ett_smb_sid);
+	}
+
+	/* revision of sid */
+	revision = tvb_get_guint8(tvb, offset);
+	proto_tree_add_item(tree, hf_smb_sid_revision, tvb, offset, 1, TRUE);
+	offset += 1;
+
+	switch(revision){
+	case 1:  /*only revision of SOD we will se ?*/
+	  /* number of authorities*/
+	  num_auth = tvb_get_guint8(tvb, offset);
+	  proto_tree_add_item(tree, hf_smb_sid_num_auth, tvb, offset, 1, TRUE);
+	  offset += 1;
+
+	  /* XXX perhaps we should have these thing searchable?
+	     a new FT_xxx thingie? SMB is quite common!*/
+	  /* identifier authorities */
+	  strp=str;
+	  *strp=0;
+	  for(i=0;i<6;i++){
+	    sprintf(strp,"%s%d-",strp,tvb_get_guint8(tvb, offset));
+	    offset++;
+	  }
+	  /* sub authorities */
+	  for(i=0;i<num_auth;i++){
+	    /* XXX should not be letohl but native byteorder according to
+	       samba header files. considering that all non-x86 NT ports
+	       are dead we can (?) assume that non le byte encodings
+	       will be "uncommon"?*/
+	    sprintf(strp,"%s%d-",strp,tvb_get_letohl(tvb, offset));
+	    offset+=4;
+	  }
+	  /* strip trailing '-'*/
+	  str[strlen(str)-1]=0;
+
+	  proto_tree_add_text(tree, tvb, offset-6-num_auth*4, 6+num_auth*4, "SID: %s", str);
+	  proto_item_append_text(item, ": %s", str);
+  
+	}
+
+/*qqq*/
+
+	proto_item_set_len(item, offset-old_offset);
+	return offset;
+}
+
+static int
+dissect_nt_sec_desc(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree, int len)
+{
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
+	guint16 revision;
+	int old_offset = offset;
+	guint32 owner_sid_offset;
+	guint32 group_sid_offset;
+	guint32 sacl_offset;
+	guint32 dacl_offset;
+
+	if(parent_tree){
+		item = proto_tree_add_text(parent_tree, tvb, offset, len,
+					   "NT Security Descriptor");
+		tree = proto_item_add_subtree(item, ett_smb_sec_desc);
+	}
+
+	/* revision */
+	revision = tvb_get_letohs(tvb, offset);
+	proto_tree_add_uint(tree, hf_smb_sec_desc_revision,
+		tvb, offset, 2, revision);
+	offset += 2;
+
+	switch(revision){
+	case 1:  /* only version we will ever see of this structure?*/
+	  /* flags XXX should be decoded better */
+	  proto_tree_add_item(tree, hf_smb_sec_desc_flags, tvb, offset, 2, TRUE);
+	  offset += 2;
+
+	  /* offset to owner sid */
+	  owner_sid_offset = tvb_get_letohl(tvb, offset);
+	  proto_tree_add_text(tree, tvb, offset, 4, "Offset to owner SID : %d", owner_sid_offset);
+	  offset += 4;
+
+	  /* offset to group sid */
+	  group_sid_offset = tvb_get_letohl(tvb, offset);
+	  proto_tree_add_text(tree, tvb, offset, 4, "Offset to group SID : %d", group_sid_offset);
+	  offset += 4;
+
+	  /* offset to sacl */
+	  sacl_offset = tvb_get_letohl(tvb, offset);
+	  proto_tree_add_text(tree, tvb, offset, 4, "Offset to SACL : %d", sacl_offset);
+	  offset += 4;
+
+	  /* offset to dacl */
+	  dacl_offset = tvb_get_letohl(tvb, offset);
+	  proto_tree_add_text(tree, tvb, offset, 4, "Offset to DACL : %d", dacl_offset);
+	  offset += 4;
+
+	  /*owner SID*/
+	  if(owner_sid_offset){
+	    dissect_nt_sid(tvb, pinfo, old_offset+owner_sid_offset, tree, "Owner");
+	  }
+
+	  /*group SID*/
+	  if(group_sid_offset){
+	    dissect_nt_sid(tvb, pinfo, old_offset+group_sid_offset, tree, "Group");
+	  }
+
+	  /*qqq*/
+	}
+
+	/*qqq*/
+	return offset+len;
+}
 
 static int
 dissect_nt_trans_data_request(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree, int len, nt_trans_data *ntd)
@@ -6297,8 +6429,7 @@ dissect_nt_trans_data_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pro
 	case NT_TRANS_CREATE:
 		/* security descriptor */
 		if(ntd->sd_len){
-			proto_tree_add_item(tree, hf_smb_security_descriptor, tvb, offset, ntd->sd_len, TRUE);
-			offset += ntd->sd_len;
+		        offset = dissect_nt_sec_desc(tvb, pinfo, offset, tree, ntd->sd_len);
 		}
 
 		/* extended attributes */
@@ -6315,8 +6446,7 @@ dissect_nt_trans_data_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pro
 
 		break;
 	case NT_TRANS_SSD:
-		proto_tree_add_item(tree, hf_smb_security_descriptor, tvb, offset, len, TRUE);
-		offset += len;
+		offset = dissect_nt_sec_desc(tvb, pinfo, offset, tree, len);
 		break;
 	case NT_TRANS_NOTIFY:
 		break;
@@ -6763,8 +6893,7 @@ dissect_nt_trans_data_response(tvbuff_t *tvb, packet_info *pinfo, int offset, pr
 		 * which may be documented in the Win32 documentation
 		 * somewhere.
 		 */
-		proto_tree_add_item(tree, hf_smb_security_descriptor, tvb, offset, len, TRUE);
-		offset += len;
+		offset = dissect_nt_sec_desc(tvb, pinfo, offset, tree, len);
 		break;
 	}
 
@@ -6923,7 +7052,7 @@ dissect_nt_trans_param_response(tvbuff_t *tvb, packet_info *pinfo, int offset, p
 		 * was smaller; this lets the client know how
 		 * big a buffer it needs to provide.
 		 */
-		proto_tree_add_item(tree, hf_smb_security_descriptor_len, tvb, offset, 4, TRUE);
+		proto_tree_add_item(tree, hf_smb_sec_desc_len, tvb, offset, 4, TRUE);
 		offset += 4;
 		break;
 	}
@@ -14675,13 +14804,9 @@ proto_register_smb(void)
 		{ "Posix", "smb.file.attribute.posix_semantics", FT_BOOLEAN, 32,
 		TFS(&tfs_file_attribute_posix_semantics), FILE_ATTRIBUTE_POSIX_SEMANTICS, "Does this object need/support POSIX semantics?", HFILL }},
 
-	{ &hf_smb_security_descriptor_len,
-		{ "Security Descriptor Length", "smb.sec_desc_len", FT_UINT32, BASE_DEC,
+	{ &hf_smb_sec_desc_len,
+		{ "NT Security Descriptor Length", "smb.sec_desc_len", FT_UINT32, BASE_DEC,
 		NULL, 0, "Security Descriptor Length", HFILL }},
-
-	{ &hf_smb_security_descriptor,
-		{ "Security Descriptor", "smb.sec_desc", FT_BYTES, BASE_HEX,
-		NULL, 0, "Security Descriptor", HFILL }},
 
 	{ &hf_smb_nt_qsd_owner,
 		{ "Owner", "smb.nt_qsd.owner", FT_BOOLEAN, 32,
@@ -15102,6 +15227,24 @@ proto_register_smb(void)
 	{ &hf_smb_fs_attr_vic,
 		{ "Compressed", "smb.fs.attr.vic", FT_BOOLEAN, 32,
 		TFS(&tfs_fs_attr_vic), 0x00008000, "Is this FS Compressed?", HFILL }},
+
+	{ &hf_smb_sec_desc_revision,
+		{ "Revision", "smb.sec_desc.revision", FT_UINT16, BASE_DEC,
+		NULL, 0, "Version of NT Security Descriptor structure", HFILL }},
+
+	{ &hf_smb_sec_desc_flags,
+		{ "Flags", "smb.sec_desc.flags", FT_UINT16, BASE_HEX,
+		NULL, 0, "Flags NT Security Descriptor structure", HFILL }},
+
+	{ &hf_smb_sid_revision,
+		{ "Revision", "smb.sid.revision", FT_UINT8, BASE_DEC,
+		NULL, 0, "Version of SID structure", HFILL }},
+
+	{ &hf_smb_sid_num_auth,
+		{ "Num Auth", "smb.sid.num_auth", FT_UINT8, BASE_DEC,
+		NULL, 0, "Number of authorities for this SID", HFILL }},
+
+
 	};
 	static gint *ett[] = {
 		&ett_smb,
@@ -15165,6 +15308,8 @@ proto_register_smb(void)
 		&ett_smb_device_characteristics,
 		&ett_smb_fs_attributes,
 		&ett_smb_segments,
+		&ett_smb_sec_desc,
+		&ett_smb_sid,
 	};
 	module_t *smb_module;
 
