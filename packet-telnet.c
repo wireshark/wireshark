@@ -2,7 +2,7 @@
  * Routines for telnet packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-telnet.c,v 1.33 2002/10/25 21:09:36 guy Exp $
+ * $Id: packet-telnet.c,v 1.34 2002/10/25 21:13:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -138,7 +138,7 @@ telnet_sub_option(proto_tree *telnet_tree, tvbuff_t *tvb, int start_offset)
   /* Search for an IAC. */
   len = tvb_length_remaining(tvb, offset);
   iac_offset = tvb_find_guint8(tvb, offset, len, TN_IAC);
-  if (offset == -1) {
+  if (iac_offset == -1) {
     /* None found - run to the end of the packet. */
     offset += len;
   } else
