@@ -2,7 +2,7 @@
  * Routines for NTLM Secure Service Provider
  * Devin Heitmueller <dheitmueller@netilla.com>
  *
- * $Id: packet-ntlmssp.c,v 1.2 2002/07/10 02:59:38 tpot Exp $
+ * $Id: packet-ntlmssp.c,v 1.3 2002/07/10 06:17:55 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -388,15 +388,28 @@ dissect_ntlmssp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
   offset += 4;
 
   /* Call the appropriate dissector based on the Message Type */
-  if (ntlmssp_message_type == NTLMSSP_NEGOTIATE)
+  switch (ntlmssp_message_type) {
+
+  case NTLMSSP_NEGOTIATE:
     offset = dissect_ntlmssp_negotiate (tvb, offset, ntlmssp_tree);
-  else if (ntlmssp_message_type == NTLMSSP_CHALLENGE)
+    break;
+
+  case NTLMSSP_CHALLENGE:
     offset = dissect_ntlmssp_challenge (tvb, offset, ntlmssp_tree);
-  else {
+    break;
+
+  case NTLMSSP_AUTH:
+    proto_tree_add_text (ntlmssp_tree, tvb, offset, 
+			 (payloadsize - 12), 
+			 "Unknown contents");
+    break;
+
+  default:
     /* Unrecognized message type */
     proto_tree_add_text (ntlmssp_tree, tvb, offset, 
 			 (payloadsize - 12), 
 			 "Unrecognized NTLMSSP Message");
+    break;
   }
 }
 
@@ -482,17 +495,17 @@ proto_register_ntlmssp(void)
     { &hf_ntlmssp_negotiate_flags_80000000,
       { "Negotiate 0x80000000", "ntlmssp.negotiatent80000000", FT_BOOLEAN, 32, TFS (&flags_set_truth), NTLMSSP_NEGOTIATE_80000000, "", HFILL }},
     { &hf_ntlmssp_negotiate_workstation_strlen,
-      { "Calling workstation name length", "ntlmssp.negotiate.callingworkstation.strlen", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }},
+      { "Calling workstation name length", "ntlmssp.negotiate.callingworkstation.strlen", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
     { &hf_ntlmssp_negotiate_workstation_maxlen,
-      { "Calling workstation name max length", "ntlmssp.negotiate.callingworkstation.maxlen", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }},
+      { "Calling workstation name max length", "ntlmssp.negotiate.callingworkstation.maxlen", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
     { &hf_ntlmssp_negotiate_workstation_buffer,
       { "Calling workstation name buffer", "ntlmssp.negotiate.callingworkstation.buffer", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
     { &hf_ntlmssp_negotiate_workstation,
       { "Calling workstation name", "ntlmssp.negotiate.callingworkstation", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
     { &hf_ntlmssp_negotiate_domain_strlen,
-      { "Calling workstation domain length", "ntlmssp.negotiate.domain.strlen", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }},
+      { "Calling workstation domain length", "ntlmssp.negotiate.domain.strlen", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
     { &hf_ntlmssp_negotiate_domain_maxlen,
-      { "Calling workstation domain max length", "ntlmssp.negotiate.domain.maxlen", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }},
+      { "Calling workstation domain max length", "ntlmssp.negotiate.domain.maxlen", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
     { &hf_ntlmssp_negotiate_domain_buffer,
       { "Calling workstation domain buffer", "ntlmssp.negotiate.domain.buffer", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
     { &hf_ntlmssp_negotiate_domain,
