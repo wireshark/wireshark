@@ -3,7 +3,7 @@
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
- * $Id: packet-fddi.c,v 1.28 2000/03/12 04:47:37 gram Exp $
+ * $Id: packet-fddi.c,v 1.29 2000/03/20 22:22:45 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -43,6 +43,7 @@ static int proto_fddi = -1;
 static int hf_fddi_fc = -1;
 static int hf_fddi_dst = -1;
 static int hf_fddi_src = -1;
+static int hf_fddi_addr = -1;
 
 static gint ett_fddi = -1;
 
@@ -304,10 +305,14 @@ void dissect_fddi(const u_char *pd, frame_data *fd, proto_tree *tree,
       proto_tree_add_item(fh_tree, hf_fddi_fc, FDDI_P_FC, 1, fc);
       proto_tree_add_item(fh_tree, hf_fddi_dst, FDDI_P_DHOST, 6, dst);
       proto_tree_add_item(fh_tree, hf_fddi_src, FDDI_P_SHOST, 6, src);
+      proto_tree_add_item_hidden(fh_tree, hf_fddi_addr, FDDI_P_DHOST, 6, dst);
+      proto_tree_add_item_hidden(fh_tree, hf_fddi_addr, FDDI_P_SHOST, 6, src);
 
       /* hide some bit-swapped mac address fields in the proto_tree, just in case */
       proto_tree_add_item_hidden(fh_tree, hf_fddi_dst, FDDI_P_DHOST, 6, dst_swapped);
       proto_tree_add_item_hidden(fh_tree, hf_fddi_src, FDDI_P_SHOST, 6, src_swapped);
+      proto_tree_add_item_hidden(fh_tree, hf_fddi_addr, FDDI_P_DHOST, 6, dst_swapped);
+      proto_tree_add_item_hidden(fh_tree, hf_fddi_addr, FDDI_P_SHOST, 6, src_swapped);
 
   }
   switch (fc) {
@@ -361,6 +366,11 @@ proto_register_fddi(void)
 		{ &hf_fddi_src,
 		{ "Source",		"fddi.src", FT_ETHER, BASE_NONE, NULL, 0x0,
 			"" }},
+
+		{ &hf_fddi_addr,
+		{ "Source or Destination Address", "fddi.addr", FT_ETHER, BASE_NONE, NULL, 0x0,
+			"Source or Destination Hardware Address" }},
+
 	};
 	static gint *ett[] = {
 		&ett_fddi,

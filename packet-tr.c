@@ -2,7 +2,7 @@
  * Routines for Token-Ring packet disassembly
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-tr.c,v 1.35 2000/02/15 21:03:19 gram Exp $
+ * $Id: packet-tr.c,v 1.36 2000/03/20 22:22:45 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -41,6 +41,7 @@
 static int proto_tr = -1;
 static int hf_tr_dst = -1;
 static int hf_tr_src = -1;
+static int hf_tr_addr = -1;
 static int hf_tr_sr = -1;
 static int hf_tr_ac = -1;
 static int hf_tr_priority = -1;
@@ -437,6 +438,8 @@ dissect_tr(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 		proto_tree_add_item(bf_tree, hf_tr_fc_pcf,  offset + 1, 1, trn_fc);
 		proto_tree_add_item(tr_tree, hf_tr_dst, offset + 2, 6, trn_dhost);
 		proto_tree_add_item(tr_tree, hf_tr_src, offset + 8, 6, trn_shost);
+		proto_tree_add_item_hidden(tr_tree, hf_tr_addr, offset + 2, 6, trn_dhost);
+		proto_tree_add_item_hidden(tr_tree, hf_tr_addr, offset + 8, 6, trn_shost);
 
 		proto_tree_add_item_hidden(tr_tree, hf_tr_sr, offset + 8, 1, source_routed);
 
@@ -584,6 +587,10 @@ proto_register_tr(void)
 		{ &hf_tr_src,
 		{ "Source",		"tr.src", FT_ETHER, BASE_NONE, NULL, 0x0,
 			"Source Hardware Address" }},
+
+		{ &hf_tr_addr,
+		{ "Source or Destination Address", "tr.addr", FT_ETHER, BASE_NONE, NULL, 0x0,
+			"Source or Destination Hardware Address" }},
 
 		{ &hf_tr_sr,
 		{ "Source Routed",	"tr.sr", FT_BOOLEAN, BASE_NONE, NULL, 0x0,

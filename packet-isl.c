@@ -1,7 +1,7 @@
 /* packet-isl.c
  * Routines for Cisco ISL Ethernet header disassembly
  *
- * $Id: packet-isl.c,v 1.6 2000/03/12 04:47:41 gram Exp $
+ * $Id: packet-isl.c,v 1.7 2000/03/20 22:22:45 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -58,6 +58,7 @@ static int hf_isl_type = -1;
 static int hf_isl_user_eth = -1;
 static int hf_isl_user = -1;
 static int hf_isl_src = -1;
+static int hf_isl_addr = -1;
 static int hf_isl_len = -1;
 static int hf_isl_hsa = -1;
 static int hf_isl_vlan_id = -1;
@@ -161,6 +162,7 @@ dissect_isl(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		"ISL");
     fh_tree = proto_item_add_subtree(ti, ett_isl);
     proto_tree_add_item(fh_tree, hf_isl_dst, offset+0, 6, &pd[offset+0]);
+    proto_tree_add_item_hidden(fh_tree, hf_isl_addr, offset+0, 6, &pd[offset+0]);
     proto_tree_add_item(fh_tree, hf_isl_type, offset+5, 1, pd[offset+5]);
     switch (type) {
 
@@ -176,6 +178,7 @@ dissect_isl(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
       break;
     }
     proto_tree_add_item(fh_tree, hf_isl_src, offset+6, 6, &pd[offset+6]);
+    proto_tree_add_item_hidden(fh_tree, hf_isl_addr, offset+6, 6, &pd[offset+6]);
     length = pntohs(&pd[offset+12]);
     proto_tree_add_item(fh_tree, hf_isl_len, offset+12, 2, length);
 
@@ -249,6 +252,9 @@ proto_register_isl(void)
 	{ &hf_isl_src,
 	{ "Source",		"isl.src", FT_ETHER, BASE_NONE, NULL, 0x0,
 		"Source Hardware Address" }},
+	{ &hf_isl_addr,
+	{ "Source or Destination Address", "isl.addr", FT_ETHER, BASE_NONE, NULL, 0x0,
+		"Source or Destination Hardware Address" }},
 	{ &hf_isl_len,
 	{ "Length",		"isl.len", FT_UINT16, BASE_DEC, NULL, 0x0,
 		"" }},
