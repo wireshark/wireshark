@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal documentation
 #
-# $Id: Makefile.am,v 1.23 2004/05/22 22:29:28 guy Exp $
+# $Id: Makefile.am,v 1.24 2004/06/23 08:39:07 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -33,17 +33,35 @@ ethereal-tmp.pod: ethereal.pod ../AUTHORS-SHORT
 	--release=$(VERSION)			 \
 	$(srcdir)/ethereal-tmp.pod > ../ethereal.1
 
+../ethereal.html: ethereal-tmp.pod ../config.h
+	$(POD2HTML)                    \
+	--title="The Ethereal Network Analyzer $(VERSION)" \
+	--noindex                                 \
+	ethereal-tmp.pod > ../ethereal.html
+
 ../tethereal.1: tethereal.pod ../config.h
 	$(POD2MAN)                     \
 	--center="The Ethereal Network Analyzer" \
 	--release=$(VERSION)			 \
 	$(srcdir)/tethereal.pod > ../tethereal.1
 
+../tethereal.html: tethereal.pod ../config.h
+	$(POD2HTML)                    \
+	--title="tethereal - The Ethereal Network Analyzer $(VERSION)" \
+	--noindex                                 \
+	tethereal.pod > ../tethereal.html
+
 ../ethereal-filter.4: ethereal-filter.pod ../config.h
 	$(POD2MAN)                     \
 	--center="The Ethereal Network Analyzer" \
 	--release=$(VERSION)			 \
 	ethereal-filter.pod > ../ethereal-filter.4
+
+../ethereal-filter.html: ethereal-filter.pod ../config.h
+	$(POD2HTML)                    \
+	--title="ethereal-filter - The Ethereal Network Analyzer $(VERSION)" \
+	--noindex                                 \
+	ethereal-filter.pod > ../ethereal-filter.html
 
 ethereal-filter.pod: ethereal-filter.pod.template  ../tethereal
 	../tethereal -G fields | $(PERL) $(srcdir)/dfilter2pod.pl $(srcdir)/ethereal-filter.pod.template > ethereal-filter.pod
@@ -54,11 +72,23 @@ ethereal-filter.pod: ethereal-filter.pod.template  ../tethereal
 	--release=$(VERSION)			 \
 	$(srcdir)/editcap.pod > ../editcap.1
 
+../editcap.html: editcap.pod ../config.h
+	$(POD2HTML)                     \
+	--title="editcap - The Ethereal Network Analyzer $(VERSION)" \
+	--noindex                                 \
+	editcap.pod > ../editcap.html
+
 ../idl2eth.1: idl2eth.pod ../config.h
 	$(POD2MAN)                      \
 	--center="The Ethereal Network Analyzer" \
 	--release=$(VERSION)			 \
 	$(srcdir)/idl2eth.pod > ../idl2eth.1
+
+../idl2eth.html: idl2eth.pod ../config.h
+	$(POD2HTML)                     \
+	--title="idl2eth - The Ethereal Network Analyzer $(VERSION)" \
+	--noindex                                 \
+	idl2eth.pod > ../idl2eth.html
 
 ../mergecap.1: mergecap.pod ../config.h
 	$(POD2MAN)                      \
@@ -66,19 +96,38 @@ ethereal-filter.pod: ethereal-filter.pod.template  ../tethereal
 	--release=$(VERSION)			 \
 	$(srcdir)/mergecap.pod > ../mergecap.1
 
+../mergecap.html: mergecap.pod ../config.h
+	$(POD2HTML)                     \
+	--title="mergecap - The Ethereal Network Analyzer $(VERSION)" \
+	--noindex                                 \
+	mergecap.pod > ../mergecap.html
+
 ../text2pcap.1: text2pcap.pod ../config.h
 	$(POD2MAN)                      \
 	--center="The Ethereal Network Analyzer" \
 	--release=$(VERSION)			 \
 	$(srcdir)/text2pcap.pod > ../text2pcap.1
 
+../text2pcap.html: text2pcap.pod ../config.h
+	$(POD2HTML)                     \
+	--title="text2pcap - The Ethereal Network Analyzer $(VERSION)" \
+	--noindex                                 \
+	text2pcap.pod > ../text2pcap.html
+
 CLEANFILES =		\
 	ethereal-filter.pod \
 	ethereal-tmp.pod \
 	../ethereal-filter.4 \
+	../ethereal-filter.html \
 	../ethereal.1	\
+	../ethereal.html	\
 	../editcap.1	\
+	../editcap.html	\
 	../mergecap.1	\
+	../mergecap.html	\
 	../tethereal.1	\
+	../tethereal.html	\
 	../text2pcap.1	\
-	../idl2eth.1
+	../text2pcap.html	\
+	../idl2eth.1	\
+	../idl2eth.html

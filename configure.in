@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.271 2004/06/22 21:15:41 guy Exp $
+# $Id: configure.in,v 1.272 2004/06/23 08:39:06 guy Exp $
 #
 AC_INIT(etypes.h)
 
@@ -30,11 +30,20 @@ then
 	#
 	AC_MSG_ERROR(I couldn't find pod2man; make sure it's installed and in your path)
 fi
+AC_PATH_PROG(POD2HTML, pod2html)
+if test "x$POD2HTML" = x
+then
+	#
+	# The alternative is not to build the HTML man pages....
+	#
+	AC_MSG_ERROR(I couldn't find pod2html; make sure it's installed and in your path)
+fi
 AC_PATH_PROG(LEX, flex)
 AC_PATH_PROG(PYTHON, python)
 
 AC_SUBST(PERL)
 AC_SUBST(POD2MAN)
+AC_SUBST(POD2HTML)
 AC_SUBST(LEX)
 AC_SUBST(FLEX_PATH)
 AC_SUBST(PYTHON)

@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.735 2004/06/22 00:40:02 guy Exp $
+# $Id: Makefile.am,v 1.736 2004/06/23 08:39:06 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -73,7 +73,9 @@ EXTRA_SCRIPTS = idl2eth
 # Ethereal configuration files are put in $(pkgdatadir).  It currently
 # contains the "AUTHORS-SHORT" and "manuf" files and a "diameter" directory.
 #
-pkgdata_DATA = AUTHORS-SHORT manuf
+pkgdata_DATA = AUTHORS-SHORT manuf ethereal.html tethereal.html \
+	ethereal-filter.html editcap.html idl2eth.html mergecap.html \
+	text2pcap.html
 
 #
 # Install the Diameter DTD and XML files in the "diameter" subdirectory
@@ -574,6 +576,34 @@ mergecap.1: doc/mergecap.pod
 text2pcap.1: doc/text2pcap.pod
 	(cd doc ; \
 	$(MAKE) ../text2pcap.1 )
+
+ethereal.html: ethereal doc/ethereal.pod AUTHORS-SHORT
+	(cd doc ; \
+	$(MAKE) ../ethereal.html )
+
+tethereal.html: tethereal doc/tethereal.pod
+	(cd doc ; \
+	$(MAKE) ../tethereal.html )
+
+ethereal-filter.html: tethereal doc/ethereal-filter.pod.template
+	(cd doc ; \
+	$(MAKE) ../ethereal-filter.html )
+
+editcap.html: doc/editcap.pod
+	(cd doc ; \
+	$(MAKE) ../editcap.html )
+
+idl2eth.html: doc/idl2eth.pod
+	(cd doc ; \
+	$(MAKE) ../idl2eth.html )
+
+mergecap.html: doc/mergecap.pod
+	(cd doc ; \
+	$(MAKE) ../mergecap.html )
+
+text2pcap.html: doc/text2pcap.pod
+	(cd doc ; \
+	$(MAKE) ../text2pcap.html )
 
 libtool: $(LIBTOOL_DEPS)
 	$(SHELL) ./config.status --recheck
