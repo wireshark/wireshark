@@ -2,7 +2,7 @@
  * Routines for NTLM Secure Service Provider
  * Devin Heitmueller <dheitmueller@netilla.com>
  *
- * $Id: packet-ntlmssp.c,v 1.9 2002/08/28 21:00:24 jmayer Exp $
+ * $Id: packet-ntlmssp.c,v 1.10 2002/08/30 00:32:11 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -788,4 +788,13 @@ proto_register_ntlmssp(void)
   proto_register_subtree_array (ett, array_length (ett));
 
   register_dissector("ntlmssp", dissect_ntlmssp, proto_ntlmssp);
+}
+
+void
+proto_reg_handoff_ntlmssp(void)
+{     
+        /* Register protocol with the GSS-API module */
+
+        gssapi_init_oid("1.3.6.1.4.1.311.2.2.10", proto_ntlmssp, ett_ntlmssp, 
+			"ntlmssp");
 }

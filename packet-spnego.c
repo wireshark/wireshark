@@ -110,7 +110,7 @@ dissect_spnego_mechTypes(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	gchar *oid_string;
 	proto_item *sub_item;
 	proto_tree *oid_subtree;
-	int ret, offset = 0;
+	int ret;
 	int length = tvb_length_remaining(tvb, offset);
 
 	/*
@@ -198,7 +198,7 @@ dissect_spnego_mechListMIC(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	proto_tree *subtree = NULL;
 
 	/*
-	 * Add the mechListMIC [3] Octet STring ...
+	 * Add the mechListMIC [3] Octet String or General String ...
 	 */
  	ret = asn1_header_decode(hnd, &cls, &con, &tag, &def, &len1);
 
@@ -220,6 +220,12 @@ dissect_spnego_mechListMIC(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 	/* XXX: FIXME, we should dissect this as well */
 
+	/*
+	 * There seems to be two different forms this can take
+	 * One as an Octet string, and one as a general string in a 
+	 * sequence ... We will have to dissect this later
+	 */
+	 
 	proto_tree_add_text(tree, tvb, offset + 4, len1 - 4,
 			    "mechListMIC: %s\n",
 			    tvb_format_text(tvb, offset + 4, len1 - 4));
@@ -425,18 +431,105 @@ dissect_spnego_supportedMech(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 			     proto_tree *tree, ASN1_SCK *hnd,
 			     dissector_handle_t *handle)
 {
+	gboolean def;
+	int ret;
+	guint oid_len, len1, len, cls, con, tag, nbytes;
+	subid_t *oid;
+	gchar *p, *oid_string;
+	unsigned int i;
+	gssapi_oid_value *value;
 
+	/*
+	 * Now, get the OID, and find the handle, if any
+	 */
 
-  return offset;
+	offset = hnd->offset;
+
+	ret = asn1_oid_decode(hnd, &oid, &oid_len, &nbytes);
+
+	if (ret != ASN1_ERR_NOERROR) {
+		dissect_parse_error(tvb, offset, pinfo, tree,
+				    "SPNEGO supportedMech token", ret);
+		goto done;
+	}
+
+	oid_string = format_oid(oid, oid_len);
+
+	proto_tree_add_text(tree, tvb, offset, nbytes, "supportedMech: %s",
+			    oid_string);
+
+	offset += nbytes;
+
+	g_free(oid_string);
+
+	oid_string = g_malloc(oid_len * 22 + 1);
+	p = oid_string;
+	len = sprintf(p, "%lu", (unsigned long)oid[0]);
+	p += len;
+	for (i = 1; i < oid_len;i++) {
+		len = sprintf(p, ".%lu", (unsigned long)oid[i]);
+		p += len;
+	}
+
+	value = g_hash_table_lookup(gssapi_oids, oid_string);
+
+	/* Should check for an unrecognized OID ... */
+
+	*handle = -1;
+
+	if (value) *handle = find_dissector(value->name);
+
+	printf("Handle: %0X\n", handle);
+
+ done:
+	return offset;
 }
 
 static int
 dissect_spnego_responseToken(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
-			     proto_tree *tree, ASN1_SCK *hnd)
+			     proto_tree *tree, ASN1_SCK *hnd, 
+			     dissector_handle_t dissector)
 {
+	gboolean def;
+	int ret;
+	guint oid_len, len, cls, con, tag, nbytes;
+	tvbuff_t *token_tvb;
 
+ 	ret = asn1_header_decode(hnd, &cls, &con, &tag, &def, &nbytes);
 
-  return offset;
+	if (ret != ASN1_ERR_NOERROR) {
+		dissect_parse_error(tvb, offset, pinfo, tree,
+				    "SPNEGO sequence header", ret);
+		goto done;
+	}
+
+	if (!(cls == ASN1_UNI && con == ASN1_PRI && tag == ASN1_OTS)) {
+		proto_tree_add_text(
+			tree, tvb, offset, 0,
+			"Unknown header (cls=%d, con=%d, tag=%d)",
+			cls, con, tag);
+		goto done;
+	}
+
+	offset = hnd->offset;
+
+	proto_tree_add_text(tree, tvb, offset, nbytes, "responseToken: %s",
+			    tvb_format_text(tvb, offset, nbytes)); 
+
+	/*
+	 * Now, we should be able to dispatch after creating a new TVB.
+	 */
+
+	fprintf(stderr, "dissector: %0X\n", dissector);
+
+	token_tvb = tvb_new_subset(tvb, offset, nbytes, -1);
+	if (dissector)
+	  call_dissector(dissector, token_tvb, pinfo, tree);
+
+	hnd->offset += nbytes; /* Update this ... */
+
+ done:
+	return offset;
 }
 
 
@@ -450,7 +543,7 @@ dissect_spnego_negTokenTarg(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	gboolean def;
 	int ret;
 	guint len1, len, cls, con, tag, nbytes;
-	dissector_handle_t *handle = NULL;
+	dissector_handle_t handle = NULL;
 
 	int length = tvb_length_remaining(tvb, offset);
 
@@ -528,7 +621,7 @@ dissect_spnego_negTokenTarg(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	  case SPNEGO_responseToken:
 
 	    offset = dissect_spnego_responseToken(tvb, offset, pinfo, subtree,
-						  hnd);
+						  hnd, handle);
 	    break;
 
 	  case SPNEGO_mechListMIC:
