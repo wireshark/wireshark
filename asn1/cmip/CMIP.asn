@@ -9,6 +9,223 @@ IMPORTS
   DistinguishedName, RDNSequence
     FROM InformationFramework;
 
+ModificationItem ::= SEQUENCE {
+  modifyOperator   [2] IMPLICIT ModifyOperator OPTIONAL,
+  attributeId      OBJECT IDENTIFIER,
+  attributeValue   ANY OPTIONAL
+}
+
+GetListError ::= SEQUENCE {
+  managedObjectClass     ObjectClass OPTIONAL,
+  managedObjectInstance  ObjectInstance OPTIONAL,
+  currentTime            [5] IMPLICIT GeneralizedTime OPTIONAL,
+  getInfoList            [6] IMPLICIT SET OF GetInfoStatus,
+  ...
+}
+
+ModifyOperator ::= INTEGER {
+  replace(0), addValues(1), removeValues(2), setToDefault(3)}
+
+GetInfoStatus ::= CHOICE {
+  attributeIdError  [0] IMPLICIT AttributeIdError,
+  attribute         [1] IMPLICIT Attribute
+}
+
+AttributeIdError ::= SEQUENCE {
+  errorStatus  ENUMERATED {accessDenied(2), noSuchAttribute(5), ...
+                           },
+  attributeId  AttributeId,
+  ...
+}
+
+SetListError ::= SEQUENCE {
+  managedObjectClass     ObjectClass OPTIONAL,
+  managedObjectInstance  ObjectInstance OPTIONAL,
+  currentTime            [5] IMPLICIT GeneralizedTime OPTIONAL,
+  setInfoList            [6] IMPLICIT SET OF SetInfoStatus,
+  ...
+}
+
+ActionError ::= SEQUENCE {
+  managedObjectClass     ObjectClass OPTIONAL,
+  managedObjectInstance  ObjectInstance OPTIONAL,
+  currentTime            [5] IMPLICIT GeneralizedTime OPTIONAL,
+  actionErrorInfo        [6]  ActionErrorInfo,
+  ...
+}
+
+ProcessingFailure ::= SEQUENCE {
+  managedObjectClass     ObjectClass,
+  managedObjectInstance  ObjectInstance OPTIONAL,
+  specificErrorInfo      [5]  SpecificErrorInfo,
+  ...
+}
+
+DeleteError ::= SEQUENCE {
+  managedObjectClass     ObjectClass OPTIONAL,
+  managedObjectInstance  ObjectInstance OPTIONAL,
+  currentTime            [5] IMPLICIT GeneralizedTime OPTIONAL,
+  deleteErrorInfo        [6]  ENUMERATED {accessDenied(2), ...
+                                          },
+  ...
+}
+
+SetInfoStatus ::= CHOICE {
+  attributeError  [0] IMPLICIT AttributeError,
+  attribute       [1] IMPLICIT Attribute
+}
+
+SpecificErrorInfo ::= SEQUENCE {
+  errorId    OBJECT IDENTIFIER,
+  errorInfo  ANY
+}
+
+NoSuchArgumentAction ::= SEQUENCE {
+  managedObjectClass  ObjectClass OPTIONAL,
+  actionType          OBJECT IDENTIFIER
+}
+
+NoSuchArgumentEvent ::= SEQUENCE {
+  managedObjectClass  ObjectClass OPTIONAL,
+  eventType           OBJECT IDENTIFIER
+}
+
+NoSuchArgument ::= CHOICE {
+  actionId
+    [0] IMPLICIT NoSuchArgumentAction,
+  eventId
+    [1] IMPLICIT NoSuchArgumentEvent
+}
+
+InvalidArgumentValueEventValue ::= SEQUENCE {
+  eventType  OBJECT IDENTIFIER,
+  eventInfo  [8]  ANY OPTIONAL
+}
+
+InvalidArgumentValue ::= CHOICE {
+  actionValue  [0] IMPLICIT ActionInfo,
+  eventValue
+    [1] IMPLICIT InvalidArgumentValueEventValue
+}
+
+ErrorInfo ::= CHOICE {
+  actionType      OBJECT IDENTIFIER,
+  actionArgument  [0]  NoSuchArgument,
+  argumentValue   [1]  InvalidArgumentValue
+}
+
+ActionErrorInfo ::= SEQUENCE {
+  errorStatus
+    ENUMERATED {accessDenied(2), noSuchAction(9), noSuchArgument(14),
+                invalidArgumentValue(15), ...
+                },
+  errorInfo    
+    ErrorInfo,
+  ...
+}
+
+AttributeError ::= SEQUENCE {
+  errorStatus
+    ENUMERATED {accessDenied(2), noSuchAttribute(5), invalidAttributeValue(6),
+                invalidOperation(24), invalidOperator(25), ...
+                },
+  modifyOperator  [2] IMPLICIT ModifyOperator OPTIONAL, -- present for invalidOperator
+  
+  -- and invalidOperation
+  attributeId     OBJECT IDENTIFIER,
+  attributeValue  ANY OPTIONAL
+  -- value is absent for setToDefault
+}
+
+SetResult ::= SEQUENCE {
+  managedObjectClass     ObjectClass OPTIONAL,
+  managedObjectInstance  ObjectInstance OPTIONAL,
+  currentTime            [5] IMPLICIT GeneralizedTime OPTIONAL,
+  attributeList          [6] IMPLICIT SET OF Attribute OPTIONAL,
+  ...
+}
+
+SetArgument ::= SEQUENCE {
+  baseManagedObjectClass     ObjectClass,
+  baseManagedObjectInstance  ObjectInstance,
+  accessControl     [5]  AccessControl OPTIONAL,
+  synchronization   [6] IMPLICIT CMISSync OPTIONAL,
+  scope             [7]  Scope OPTIONAL,
+  filter            CMISFilter OPTIONAL,
+  modificationList  [12] IMPLICIT SET OF ModificationItem,
+  -- value is absent for setToDefault
+  ...
+}
+
+LinkedReplyArgument ::= CHOICE {
+  getResult          [0] IMPLICIT GetResult,
+  getListError       [1] IMPLICIT GetListError,
+  setResult          [2] IMPLICIT SetResult,
+  setListError       [3] IMPLICIT SetListError,
+  actionResult       [4] IMPLICIT ActionResult,
+  processingFailure  [5] IMPLICIT ProcessingFailure,
+  deleteResult       [6] IMPLICIT DeleteResult,
+  actionError        [7] IMPLICIT ActionError,
+  deleteError        [8] IMPLICIT DeleteError
+}
+
+EventReply ::= SEQUENCE {
+  eventType       OBJECT IDENTIFIER,
+  eventReplyInfo  [8] ANY OPTIONAL
+}
+
+EventReportResult ::= SEQUENCE {
+  managedObjectClass     ObjectClass OPTIONAL,
+  managedObjectInstance  ObjectInstance OPTIONAL,
+  currentTime            [5] IMPLICIT GeneralizedTime OPTIONAL,
+  eventReply             EventReply OPTIONAL,
+  ...
+}
+
+EventReportArgument ::= SEQUENCE {
+  managedObjectClass     ObjectClass,
+  managedObjectInstance  ObjectInstance,
+  eventTime              [5] IMPLICIT GeneralizedTime OPTIONAL,
+  eventType              OBJECT IDENTIFIER,
+  eventInfo              [8] ANY OPTIONAL,
+  ...
+}
+
+DeleteArgument ::= SEQUENCE {
+  baseManagedObjectClass     ObjectClass,
+  baseManagedObjectInstance  ObjectInstance,
+  accessControl    [5]  AccessControl OPTIONAL,
+  synchronization  [6] IMPLICIT CMISSync OPTIONAL,
+  scope            [7]  Scope OPTIONAL,
+  filter           CMISFilter OPTIONAL,
+  ...
+}
+
+DeleteResult ::= SEQUENCE {
+  managedObjectClass     ObjectClass OPTIONAL,
+  managedObjectInstance  ObjectInstance OPTIONAL,
+  currentTime            [5] IMPLICIT GeneralizedTime OPTIONAL,
+  ...
+}
+
+CreateArgument ::= SEQUENCE {
+  managedObjectClass               ObjectClass,
+  managedOrSuperiorObjectInstance
+    CHOICE {managedObjectInstance   ObjectInstance,
+            superiorObjectInstance  [8]  ObjectInstance} OPTIONAL,
+  accessControl                    [5]  AccessControl OPTIONAL,
+  referenceObjectInstance          [6]  ObjectInstance OPTIONAL,
+  attributeList                    [7] IMPLICIT SET OF Attribute OPTIONAL,
+  ...
+}
+
+CreateResult ::= SEQUENCE {
+  managedObjectClass     ObjectClass OPTIONAL,
+  managedObjectInstance  ObjectInstance OPTIONAL, -- shall be returned if omitted from CreateArgument
+  currentTime            [5] IMPLICIT GeneralizedTime OPTIONAL,
+  attributeList          [6] IMPLICIT SET OF Attribute OPTIONAL,
+  ...
+}
 
 ActionReply ::= SEQUENCE {
   actionType       OBJECT IDENTIFIER,
@@ -139,6 +356,8 @@ InvokeLinkedId ::= CHOICE {
   present [0] IMPLICIT InvokeId,
   absent  [1] IMPLICIT NULL
 }
+
+InvokeIDType ::= InvokeId
 
 InvokeId ::= CHOICE {
   present InvokeID,

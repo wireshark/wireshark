@@ -55,23 +55,81 @@
 /* Initialize the protocol and registered fields */
 int proto_cmip = -1;
 static int hf_cmip_actionType_OID = -1;
+static int hf_cmip_eventType_OID = -1;
+static int hf_cmip_attributeId_OID = -1;
+static int hf_cmip_errorId_OID = -1;
 
 /*--- Included file: packet-cmip-hf.c ---*/
 
-static int hf_cmip_actionType = -1;               /* T_actionType */
-static int hf_cmip_actionReplyInfo = -1;          /* T_actionReplyInfo */
+static int hf_cmip_modifyOperator = -1;           /* ModifyOperator */
+static int hf_cmip_attributeId = -1;              /* T_attributeId */
+static int hf_cmip_attributeValue = -1;           /* T_attributeValue */
 static int hf_cmip_managedObjectClass = -1;       /* ObjectClass */
 static int hf_cmip_managedObjectInstance = -1;    /* ObjectInstance */
 static int hf_cmip_currentTime = -1;              /* GeneralizedTime */
-static int hf_cmip_actionReply = -1;              /* ActionReply */
+static int hf_cmip_getInfoList = -1;              /* SET_OF_GetInfoStatus */
+static int hf_cmip_getInfoList_item = -1;         /* GetInfoStatus */
+static int hf_cmip_attributeIdError = -1;         /* AttributeIdError */
+static int hf_cmip_attribute = -1;                /* Attribute */
+static int hf_cmip_errorStatus = -1;              /* T_errorStatus */
+static int hf_cmip_attributeId1 = -1;             /* AttributeId */
+static int hf_cmip_setInfoList = -1;              /* SET_OF_SetInfoStatus */
+static int hf_cmip_setInfoList_item = -1;         /* SetInfoStatus */
+static int hf_cmip_actionErrorInfo = -1;          /* ActionErrorInfo */
+static int hf_cmip_specificErrorInfo = -1;        /* SpecificErrorInfo */
+static int hf_cmip_deleteErrorInfo = -1;          /* T_deleteErrorInfo */
+static int hf_cmip_attributeError = -1;           /* AttributeError */
+static int hf_cmip_errorId = -1;                  /* T_errorId */
+static int hf_cmip_errorInfo = -1;                /* T_errorInfo */
+static int hf_cmip_actionType = -1;               /* T_actionType */
+static int hf_cmip_eventType = -1;                /* T_eventType */
+static int hf_cmip_actionId = -1;                 /* NoSuchArgumentAction */
+static int hf_cmip_eventId = -1;                  /* NoSuchArgumentEvent */
+static int hf_cmip_eventType1 = -1;               /* T_eventType1 */
+static int hf_cmip_eventInfo = -1;                /* T_eventInfo */
+static int hf_cmip_actionValue = -1;              /* ActionInfo */
+static int hf_cmip_eventValue = -1;               /* InvalidArgumentValueEventValue */
+static int hf_cmip_actionType1 = -1;              /* T_actionType1 */
+static int hf_cmip_actionArgument = -1;           /* NoSuchArgument */
+static int hf_cmip_argumentValue = -1;            /* InvalidArgumentValue */
+static int hf_cmip_errorStatus1 = -1;             /* T_errorStatus1 */
+static int hf_cmip_errorInfo1 = -1;               /* ErrorInfo */
+static int hf_cmip_errorStatus2 = -1;             /* T_errorStatus2 */
+static int hf_cmip_attributeId2 = -1;             /* T_attributeId1 */
+static int hf_cmip_attributeValue1 = -1;          /* T_attributeValue1 */
+static int hf_cmip_attributeList = -1;            /* SET_OF_Attribute */
+static int hf_cmip_attributeList_item = -1;       /* Attribute */
 static int hf_cmip_baseManagedObjectClass = -1;   /* ObjectClass */
 static int hf_cmip_baseManagedObjectInstance = -1;  /* ObjectInstance */
 static int hf_cmip_accessControl = -1;            /* AccessControl */
 static int hf_cmip_synchronization = -1;          /* CMISSync */
 static int hf_cmip_scope = -1;                    /* Scope */
 static int hf_cmip_filter = -1;                   /* CMISFilter */
+static int hf_cmip_modificationList = -1;         /* SET_OF_ModificationItem */
+static int hf_cmip_modificationList_item = -1;    /* ModificationItem */
+static int hf_cmip_getResult = -1;                /* GetResult */
+static int hf_cmip_getListError = -1;             /* GetListError */
+static int hf_cmip_setResult = -1;                /* SetResult */
+static int hf_cmip_setListError = -1;             /* SetListError */
+static int hf_cmip_actionResult = -1;             /* ActionResult */
+static int hf_cmip_processingFailure = -1;        /* ProcessingFailure */
+static int hf_cmip_deleteResult = -1;             /* DeleteResult */
+static int hf_cmip_actionError = -1;              /* ActionError */
+static int hf_cmip_deleteError = -1;              /* DeleteError */
+static int hf_cmip_eventType2 = -1;               /* T_eventType2 */
+static int hf_cmip_eventReplyInfo = -1;           /* T_eventReplyInfo */
+static int hf_cmip_eventReply = -1;               /* EventReply */
+static int hf_cmip_eventTime = -1;                /* GeneralizedTime */
+static int hf_cmip_eventType3 = -1;               /* T_eventType3 */
+static int hf_cmip_eventInfo1 = -1;               /* T_eventInfo1 */
+static int hf_cmip_managedOrSuperiorObjectInstance = -1;  /* T_managedOrSuperiorObjectInstance */
+static int hf_cmip_superiorObjectInstance = -1;   /* ObjectInstance */
+static int hf_cmip_referenceObjectInstance = -1;  /* ObjectInstance */
+static int hf_cmip_actionType2 = -1;              /* T_actionType2 */
+static int hf_cmip_actionReplyInfo = -1;          /* T_actionReplyInfo */
+static int hf_cmip_actionReply = -1;              /* ActionReply */
 static int hf_cmip_actionInfo = -1;               /* ActionInfo */
-static int hf_cmip_actionType1 = -1;              /* T_actionType1 */
+static int hf_cmip_actionType3 = -1;              /* T_actionType3 */
 static int hf_cmip_actionInfoArg = -1;            /* T_actionInfoArg */
 static int hf_cmip_ocglobalForm = -1;             /* T_ocglobalForm */
 static int hf_cmip_oclocalForm = -1;              /* T_oclocalForm */
@@ -105,8 +163,6 @@ static int hf_cmip_individualLevels = -1;         /* INTEGER */
 static int hf_cmip_baseToNthLevel = -1;           /* INTEGER */
 static int hf_cmip_attributeIdList = -1;          /* SET_OF_AttributeId */
 static int hf_cmip_attributeIdList_item = -1;     /* AttributeId */
-static int hf_cmip_attributeList = -1;            /* SET_OF_Attribute */
-static int hf_cmip_attributeList_item = -1;       /* Attribute */
 static int hf_cmip_opcode = -1;                   /* Opcode */
 static int hf_cmip_argument = -1;                 /* Argument */
 static int hf_cmip_present1 = -1;                 /* InvokeId */
@@ -144,6 +200,39 @@ static gint ett_cmip = -1;
 
 /*--- Included file: packet-cmip-ett.c ---*/
 
+static gint ett_cmip_ModificationItem = -1;
+static gint ett_cmip_GetListError = -1;
+static gint ett_cmip_SET_OF_GetInfoStatus = -1;
+static gint ett_cmip_GetInfoStatus = -1;
+static gint ett_cmip_AttributeIdError = -1;
+static gint ett_cmip_SetListError = -1;
+static gint ett_cmip_SET_OF_SetInfoStatus = -1;
+static gint ett_cmip_ActionError = -1;
+static gint ett_cmip_ProcessingFailure = -1;
+static gint ett_cmip_DeleteError = -1;
+static gint ett_cmip_SetInfoStatus = -1;
+static gint ett_cmip_SpecificErrorInfo = -1;
+static gint ett_cmip_NoSuchArgumentAction = -1;
+static gint ett_cmip_NoSuchArgumentEvent = -1;
+static gint ett_cmip_NoSuchArgument = -1;
+static gint ett_cmip_InvalidArgumentValueEventValue = -1;
+static gint ett_cmip_InvalidArgumentValue = -1;
+static gint ett_cmip_ErrorInfo = -1;
+static gint ett_cmip_ActionErrorInfo = -1;
+static gint ett_cmip_AttributeError = -1;
+static gint ett_cmip_SetResult = -1;
+static gint ett_cmip_SET_OF_Attribute = -1;
+static gint ett_cmip_SetArgument = -1;
+static gint ett_cmip_SET_OF_ModificationItem = -1;
+static gint ett_cmip_LinkedReplyArgument = -1;
+static gint ett_cmip_EventReply = -1;
+static gint ett_cmip_EventReportResult = -1;
+static gint ett_cmip_EventReportArgument = -1;
+static gint ett_cmip_DeleteArgument = -1;
+static gint ett_cmip_DeleteResult = -1;
+static gint ett_cmip_CreateArgument = -1;
+static gint ett_cmip_T_managedOrSuperiorObjectInstance = -1;
+static gint ett_cmip_CreateResult = -1;
 static gint ett_cmip_ActionReply = -1;
 static gint ett_cmip_ActionResult = -1;
 static gint ett_cmip_ActionArgument = -1;
@@ -162,7 +251,6 @@ static gint ett_cmip_Scope = -1;
 static gint ett_cmip_GetArgument = -1;
 static gint ett_cmip_SET_OF_AttributeId = -1;
 static gint ett_cmip_GetResult = -1;
-static gint ett_cmip_SET_OF_Attribute = -1;
 static gint ett_cmip_ReturnResultBody = -1;
 static gint ett_cmip_InvokeLinkedId = -1;
 static gint ett_cmip_InvokeId = -1;
@@ -233,47 +321,68 @@ static int dissect_localDistinguishedName_impl(packet_info *pinfo, proto_tree *t
 }
 
 
+static const value_string ModifyOperator_vals[] = {
+  {   0, "replace" },
+  {   1, "addValues" },
+  {   2, "removeValues" },
+  {   3, "setToDefault" },
+  { 0, NULL }
+};
+
+
 static int
-dissect_cmip_T_actionType(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_cmip_ModifyOperator(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_integer_new(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+
+  return offset;
+}
+static int dissect_modifyOperator_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cmip_ModifyOperator(TRUE, tvb, offset, pinfo, tree, hf_cmip_modifyOperator);
+}
+
+
+static int
+dissect_cmip_T_attributeId(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
-                                         hf_cmip_actionType_OID, object_identifier_id);
+                                         hf_cmip_attributeId_OID, object_identifier_id);
 
 
   return offset;
 }
-static int dissect_actionType(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_cmip_T_actionType(FALSE, tvb, offset, pinfo, tree, hf_cmip_actionType);
+static int dissect_attributeId(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cmip_T_attributeId(FALSE, tvb, offset, pinfo, tree, hf_cmip_attributeId);
 }
 
 
 
 static int
-dissect_cmip_T_actionReplyInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_cmip_T_attributeValue(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
 
 
 
   return offset;
 }
-static int dissect_actionReplyInfo(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_cmip_T_actionReplyInfo(FALSE, tvb, offset, pinfo, tree, hf_cmip_actionReplyInfo);
+static int dissect_attributeValue(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cmip_T_attributeValue(FALSE, tvb, offset, pinfo, tree, hf_cmip_attributeValue);
 }
 
-static const ber_sequence ActionReply_sequence[] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_actionType },
-  { BER_CLASS_CON, 4, 0, dissect_actionReplyInfo },
+static const ber_sequence ModificationItem_sequence[] = {
+  { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_modifyOperator_impl },
+  { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_attributeId },
+  { BER_CLASS_ANY, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_attributeValue },
   { 0, 0, 0, NULL }
 };
 
 static int
-dissect_cmip_ActionReply(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_cmip_ModificationItem(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                ActionReply_sequence, hf_index, ett_cmip_ActionReply);
+                                ModificationItem_sequence, hf_index, ett_cmip_ModificationItem);
 
   return offset;
 }
-static int dissect_actionReply_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_cmip_ActionReply(TRUE, tvb, offset, pinfo, tree, hf_cmip_actionReply);
+static int dissect_modificationList_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cmip_ModificationItem(FALSE, tvb, offset, pinfo, tree, hf_cmip_modificationList_item);
 }
 
 
@@ -371,6 +480,12 @@ static int dissect_managedObjectInstance(packet_info *pinfo, proto_tree *tree, t
 static int dissect_baseManagedObjectInstance(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_cmip_ObjectInstance(FALSE, tvb, offset, pinfo, tree, hf_cmip_baseManagedObjectInstance);
 }
+static int dissect_superiorObjectInstance(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cmip_ObjectInstance(FALSE, tvb, offset, pinfo, tree, hf_cmip_superiorObjectInstance);
+}
+static int dissect_referenceObjectInstance(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cmip_ObjectInstance(FALSE, tvb, offset, pinfo, tree, hf_cmip_referenceObjectInstance);
+}
 
 
 static int
@@ -382,21 +497,774 @@ dissect_cmip_GeneralizedTime(gboolean implicit_tag _U_, tvbuff_t *tvb, int offse
 static int dissect_currentTime_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_cmip_GeneralizedTime(TRUE, tvb, offset, pinfo, tree, hf_cmip_currentTime);
 }
+static int dissect_eventTime_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cmip_GeneralizedTime(TRUE, tvb, offset, pinfo, tree, hf_cmip_eventTime);
+}
 
-static const ber_sequence ActionResult_sequence[] = {
-  { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_managedObjectClass },
-  { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_managedObjectInstance },
-  { BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_currentTime_impl },
-  { BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_actionReply_impl },
+
+static const value_string T_errorStatus_vals[] = {
+  {   2, "accessDenied" },
+  {   5, "noSuchAttribute" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_cmip_T_errorStatus(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_integer_new(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+
+  return offset;
+}
+static int dissect_errorStatus(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cmip_T_errorStatus(FALSE, tvb, offset, pinfo, tree, hf_cmip_errorStatus);
+}
+
+
+static int
+dissect_cmip_T_globalForm(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  attributeform = ATTRIBUTE_GLOBAL_FORM;
+  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset,
+                                         hf_cmip_globalForm, attribute_identifier_id);
+
+
+  return offset;
+}
+static int dissect_globalForm_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cmip_T_globalForm(TRUE, tvb, offset, pinfo, tree, hf_cmip_globalForm);
+}
+
+
+
+static int
+dissect_cmip_T_localForm(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  attributeform = ATTRIBUTE_LOCAL_FORM;
+  offset = dissect_ber_integer_new(implicit_tag, pinfo, tree, tvb, offset, hf_cmip_localForm, NULL);
+
+
+  return offset;
+}
+static int dissect_localForm_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cmip_T_localForm(TRUE, tvb, offset, pinfo, tree, hf_cmip_localForm);
+}
+
+
+static const value_string AttributeId_vals[] = {
+  {   0, "globalForm" },
+  {   1, "localForm" },
+  { 0, NULL }
+};
+
+static const ber_choice AttributeId_choice[] = {
+  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_globalForm_impl },
+  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_localForm_impl },
+  { 0, 0, 0, 0, NULL }
+};
+
+static int
+dissect_cmip_AttributeId(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+                              AttributeId_choice, hf_index, ett_cmip_AttributeId);
+
+  return offset;
+}
+static int dissect_attributeId1(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cmip_AttributeId(FALSE, tvb, offset, pinfo, tree, hf_cmip_attributeId1);
+}
+static int dissect_id(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cmip_AttributeId(FALSE, tvb, offset, pinfo, tree, hf_cmip_id);
+}
+static int dissect_present(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cmip_AttributeId(FALSE, tvb, offset, pinfo, tree, hf_cmip_present);
+}
+static int dissect_attributeIdList_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cmip_AttributeId(FALSE, tvb, offset, pinfo, tree, hf_cmip_attributeIdList_item);
+}
+
+static const ber_sequence AttributeIdError_sequence[] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_errorStatus },
+  { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_attributeId1 },
   { 0, 0, 0, NULL }
 };
 
 static int
-dissect_cmip_ActionResult(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_cmip_AttributeIdError(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                ActionResult_sequence, hf_index, ett_cmip_ActionResult);
+                                AttributeIdError_sequence, hf_index, ett_cmip_AttributeIdError);
 
   return offset;
+}
+static int dissect_attributeIdError_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cmip_AttributeIdError(TRUE, tvb, offset, pinfo, tree, hf_cmip_attributeIdError);
+}
+
+
+
+static int
+dissect_cmip_T_value(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  /*XXX handle local form here */
+  if(attributeform==ATTRIBUTE_GLOBAL_FORM){
+    offset=call_ber_oid_callback(attribute_identifier_id, tvb, offset, pinfo, tree);
+  }
+
+
+  return offset;
+}
+static int dissect_value(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cmip_T_value(FALSE, tvb, offset, pinfo, tree, hf_cmip_value);
+}
+
+static const ber_sequence Attribute_sequence[] = {
+  { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_id },
+  { BER_CLASS_ANY, 0, BER_FLAGS_NOOWNTAG, dissect_value },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_cmip_Attribute(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                Attribute_sequence, hf_index, ett_cmip_Attribute);
+
+  return offset;
+}
+static int dissect_attribute_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cmip_Attribute(TRUE, tvb, offset, pinfo, tree, hf_cmip_attribute);
+}
+static int dissect_attributeList_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cmip_Attribute(FALSE, tvb, offset, pinfo, tree, hf_cmip_attributeList_item);
+}
+static int dissect_equality_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cmip_Attribute(TRUE, tvb, offset, pinfo, tree, hf_cmip_equality);
+}
+static int dissect_initialString_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cmip_Attribute(TRUE, tvb, offset, pinfo, tree, hf_cmip_initialString);
+}
+static int dissect_anyString_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cmip_Attribute(TRUE, tvb, offset, pinfo, tree, hf_cmip_anyString);
+}
+static int dissect_finalString_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cmip_Attribute(TRUE, tvb, offset, pinfo, tree, hf_cmip_finalString);
+}
+static int dissect_greaterOrEqual_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cmip_Attribute(TRUE, tvb, offset, pinfo, tree, hf_cmip_greaterOrEqual);
+}
+static int dissect_lessOrEqual_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cmip_Attribute(TRUE, tvb, offset, pinfo, tree, hf_cmip_lessOrEqual);
+}
+static int dissect_subsetOf_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cmip_Attribute(TRUE, tvb, offset, pinfo, tree, hf_cmip_subsetOf);
+}
+static int dissect_supersetOf_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cmip_Attribute(TRUE, tvb, offset, pinfo, tree, hf_cmip_supersetOf);
+}
+static int dissect_nonNullSetIntersection_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cmip_Attribute(TRUE, tvb, offset, pinfo, tree, hf_cmip_nonNullSetIntersection);
+}
+
+
+static const value_string GetInfoStatus_vals[] = {
+  {   0, "attributeIdError" },
+  {   1, "attribute" },
+  { 0, NULL }
+};
+
+static const ber_choice GetInfoStatus_choice[] = {
+  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_attributeIdError_impl },
+  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_attribute_impl },
+  { 0, 0, 0, 0, NULL }
+};
+
+static int
+dissect_cmip_GetInfoStatus(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+                              GetInfoStatus_choice, hf_index, ett_cmip_GetInfoStatus);
+
+  return offset;
+}
+static int dissect_getInfoList_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cmip_GetInfoStatus(FALSE, tvb, offset, pinfo, tree, hf_cmip_getInfoList_item);
+}
+
+static const ber_sequence SET_OF_GetInfoStatus_set_of[1] = {
+  { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_getInfoList_item },
+};
+
+static int
+dissect_cmip_SET_OF_GetInfoStatus(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_set_of(implicit_tag, pinfo, tree, tvb, offset,
+                              SET_OF_GetInfoStatus_set_of, hf_index, ett_cmip_SET_OF_GetInfoStatus);
+
+  return offset;
+}
+static int dissect_getInfoList_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cmip_SET_OF_GetInfoStatus(TRUE, tvb, offset, pinfo, tree, hf_cmip_getInfoList);
+}
+
+static const ber_sequence GetListError_sequence[] = {
+  { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_managedObjectClass },
+  { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_managedObjectInstance },
+  { BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_currentTime_impl },
+  { BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_getInfoList_impl },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_cmip_GetListError(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                GetListError_sequence, hf_index, ett_cmip_GetListError);
+
+  return offset;
+}
+static int dissect_getListError_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cmip_GetListError(TRUE, tvb, offset, pinfo, tree, hf_cmip_getListError);
+}
+
+
+static const value_string T_errorStatus2_vals[] = {
+  {   2, "accessDenied" },
+  {   5, "noSuchAttribute" },
+  {   6, "invalidAttributeValue" },
+  {  24, "invalidOperation" },
+  {  25, "invalidOperator" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_cmip_T_errorStatus2(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_integer_new(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+
+  return offset;
+}
+static int dissect_errorStatus2(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cmip_T_errorStatus2(FALSE, tvb, offset, pinfo, tree, hf_cmip_errorStatus2);
+}
+
+
+static int
+dissect_cmip_T_attributeId1(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
+                                         hf_cmip_attributeId_OID, object_identifier_id);
+
+
+  return offset;
+}
+static int dissect_attributeId2(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cmip_T_attributeId1(FALSE, tvb, offset, pinfo, tree, hf_cmip_attributeId2);
+}
+
+
+
+static int
+dissect_cmip_T_attributeValue1(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
+
+
+
+  return offset;
+}
+static int dissect_attributeValue1(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cmip_T_attributeValue1(FALSE, tvb, offset, pinfo, tree, hf_cmip_attributeValue1);
+}
+
+static const ber_sequence AttributeError_sequence[] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_errorStatus2 },
+  { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_modifyOperator_impl },
+  { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_attributeId2 },
+  { BER_CLASS_ANY, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_attributeValue1 },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_cmip_AttributeError(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                AttributeError_sequence, hf_index, ett_cmip_AttributeError);
+
+  return offset;
+}
+static int dissect_attributeError_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cmip_AttributeError(TRUE, tvb, offset, pinfo, tree, hf_cmip_attributeError);
+}
+
+
+static const value_string SetInfoStatus_vals[] = {
+  {   0, "attributeError" },
+  {   1, "attribute" },
+  { 0, NULL }
+};
+
+static const ber_choice SetInfoStatus_choice[] = {
+  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_attributeError_impl },
+  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_attribute_impl },
+  { 0, 0, 0, 0, NULL }
+};
+
+static int
+dissect_cmip_SetInfoStatus(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+                              SetInfoStatus_choice, hf_index, ett_cmip_SetInfoStatus);
+
+  return offset;
+}
+static int dissect_setInfoList_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cmip_SetInfoStatus(FALSE, tvb, offset, pinfo, tree, hf_cmip_setInfoList_item);
+}
+
+static const ber_sequence SET_OF_SetInfoStatus_set_of[1] = {
+  { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_setInfoList_item },
+};
+
+static int
+dissect_cmip_SET_OF_SetInfoStatus(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_set_of(implicit_tag, pinfo, tree, tvb, offset,
+                              SET_OF_SetInfoStatus_set_of, hf_index, ett_cmip_SET_OF_SetInfoStatus);
+
+  return offset;
+}
+static int dissect_setInfoList_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cmip_SET_OF_SetInfoStatus(TRUE, tvb, offset, pinfo, tree, hf_cmip_setInfoList);
+}
+
+static const ber_sequence SetListError_sequence[] = {
+  { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_managedObjectClass },
+  { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_managedObjectInstance },
+  { BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_currentTime_impl },
+  { BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_setInfoList_impl },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_cmip_SetListError(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                SetListError_sequence, hf_index, ett_cmip_SetListError);
+
+  return offset;
+}
+static int dissect_setListError_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cmip_SetListError(TRUE, tvb, offset, pinfo, tree, hf_cmip_setListError);
+}
+
+
+static const value_string T_errorStatus1_vals[] = {
+  {   2, "accessDenied" },
+  {   9, "noSuchAction" },
+  {  14, "noSuchArgument" },
+  {  15, "invalidArgumentValue" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_cmip_T_errorStatus1(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_integer_new(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+
+  return offset;
+}
+static int dissect_errorStatus1(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cmip_T_errorStatus1(FALSE, tvb, offset, pinfo, tree, hf_cmip_errorStatus1);
+}
+
+
+static int
+dissect_cmip_T_actionType1(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
+                                         hf_cmip_actionType_OID, object_identifier_id);
+
+
+  return offset;
+}
+static int dissect_actionType1(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cmip_T_actionType1(FALSE, tvb, offset, pinfo, tree, hf_cmip_actionType1);
+}
+
+
+static int
+dissect_cmip_T_actionType(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
+                                         hf_cmip_actionType_OID, object_identifier_id);
+
+
+  return offset;
+}
+static int dissect_actionType(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cmip_T_actionType(FALSE, tvb, offset, pinfo, tree, hf_cmip_actionType);
+}
+
+static const ber_sequence NoSuchArgumentAction_sequence[] = {
+  { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_managedObjectClass },
+  { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_actionType },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_cmip_NoSuchArgumentAction(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                NoSuchArgumentAction_sequence, hf_index, ett_cmip_NoSuchArgumentAction);
+
+  return offset;
+}
+static int dissect_actionId_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cmip_NoSuchArgumentAction(TRUE, tvb, offset, pinfo, tree, hf_cmip_actionId);
+}
+
+
+static int
+dissect_cmip_T_eventType(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
+                                         hf_cmip_eventType_OID, object_identifier_id);
+
+
+  return offset;
+}
+static int dissect_eventType(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cmip_T_eventType(FALSE, tvb, offset, pinfo, tree, hf_cmip_eventType);
+}
+
+static const ber_sequence NoSuchArgumentEvent_sequence[] = {
+  { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_managedObjectClass },
+  { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_eventType },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_cmip_NoSuchArgumentEvent(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                NoSuchArgumentEvent_sequence, hf_index, ett_cmip_NoSuchArgumentEvent);
+
+  return offset;
+}
+static int dissect_eventId_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cmip_NoSuchArgumentEvent(TRUE, tvb, offset, pinfo, tree, hf_cmip_eventId);
+}
+
+
+static const value_string NoSuchArgument_vals[] = {
+  {   0, "actionId" },
+  {   1, "eventId" },
+  { 0, NULL }
+};
+
+static const ber_choice NoSuchArgument_choice[] = {
+  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_actionId_impl },
+  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_eventId_impl },
+  { 0, 0, 0, 0, NULL }
+};
+
+static int
+dissect_cmip_NoSuchArgument(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+                              NoSuchArgument_choice, hf_index, ett_cmip_NoSuchArgument);
+
+  return offset;
+}
+static int dissect_actionArgument(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cmip_NoSuchArgument(FALSE, tvb, offset, pinfo, tree, hf_cmip_actionArgument);
+}
+
+
+static int
+dissect_cmip_T_actionType3(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
+                                         hf_cmip_actionType_OID, object_identifier_id);
+
+
+  return offset;
+}
+static int dissect_actionType3(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cmip_T_actionType3(FALSE, tvb, offset, pinfo, tree, hf_cmip_actionType3);
+}
+
+
+
+static int
+dissect_cmip_T_actionInfoArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
+
+
+  return offset;
+}
+static int dissect_actionInfoArg(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cmip_T_actionInfoArg(FALSE, tvb, offset, pinfo, tree, hf_cmip_actionInfoArg);
+}
+
+static const ber_sequence ActionInfo_sequence[] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_actionType3 },
+  { BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL, dissect_actionInfoArg },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_cmip_ActionInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                ActionInfo_sequence, hf_index, ett_cmip_ActionInfo);
+
+  return offset;
+}
+static int dissect_actionValue_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cmip_ActionInfo(TRUE, tvb, offset, pinfo, tree, hf_cmip_actionValue);
+}
+static int dissect_actionInfo_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cmip_ActionInfo(TRUE, tvb, offset, pinfo, tree, hf_cmip_actionInfo);
+}
+
+
+static int
+dissect_cmip_T_eventType1(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
+                                         hf_cmip_eventType_OID, object_identifier_id);
+
+
+  return offset;
+}
+static int dissect_eventType1(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cmip_T_eventType1(FALSE, tvb, offset, pinfo, tree, hf_cmip_eventType1);
+}
+
+
+
+static int
+dissect_cmip_T_eventInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
+
+
+
+  return offset;
+}
+static int dissect_eventInfo(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cmip_T_eventInfo(FALSE, tvb, offset, pinfo, tree, hf_cmip_eventInfo);
+}
+
+static const ber_sequence InvalidArgumentValueEventValue_sequence[] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_eventType1 },
+  { BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL, dissect_eventInfo },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_cmip_InvalidArgumentValueEventValue(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                InvalidArgumentValueEventValue_sequence, hf_index, ett_cmip_InvalidArgumentValueEventValue);
+
+  return offset;
+}
+static int dissect_eventValue_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cmip_InvalidArgumentValueEventValue(TRUE, tvb, offset, pinfo, tree, hf_cmip_eventValue);
+}
+
+
+static const value_string InvalidArgumentValue_vals[] = {
+  {   0, "actionValue" },
+  {   1, "eventValue" },
+  { 0, NULL }
+};
+
+static const ber_choice InvalidArgumentValue_choice[] = {
+  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_actionValue_impl },
+  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_eventValue_impl },
+  { 0, 0, 0, 0, NULL }
+};
+
+static int
+dissect_cmip_InvalidArgumentValue(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+                              InvalidArgumentValue_choice, hf_index, ett_cmip_InvalidArgumentValue);
+
+  return offset;
+}
+static int dissect_argumentValue(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cmip_InvalidArgumentValue(FALSE, tvb, offset, pinfo, tree, hf_cmip_argumentValue);
+}
+
+
+static const value_string ErrorInfo_vals[] = {
+  {   0, "actionType" },
+  {   1, "actionArgument" },
+  {   2, "argumentValue" },
+  { 0, NULL }
+};
+
+static const ber_choice ErrorInfo_choice[] = {
+  {   0, BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_actionType1 },
+  {   1, BER_CLASS_CON, 0, 0, dissect_actionArgument },
+  {   2, BER_CLASS_CON, 1, 0, dissect_argumentValue },
+  { 0, 0, 0, 0, NULL }
+};
+
+static int
+dissect_cmip_ErrorInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+                              ErrorInfo_choice, hf_index, ett_cmip_ErrorInfo);
+
+  return offset;
+}
+static int dissect_errorInfo1(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cmip_ErrorInfo(FALSE, tvb, offset, pinfo, tree, hf_cmip_errorInfo1);
+}
+
+static const ber_sequence ActionErrorInfo_sequence[] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_errorStatus1 },
+  { -1/*choice*/ , -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_errorInfo1 },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_cmip_ActionErrorInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                ActionErrorInfo_sequence, hf_index, ett_cmip_ActionErrorInfo);
+
+  return offset;
+}
+static int dissect_actionErrorInfo(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cmip_ActionErrorInfo(FALSE, tvb, offset, pinfo, tree, hf_cmip_actionErrorInfo);
+}
+
+static const ber_sequence ActionError_sequence[] = {
+  { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_managedObjectClass },
+  { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_managedObjectInstance },
+  { BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_currentTime_impl },
+  { BER_CLASS_CON, 6, 0, dissect_actionErrorInfo },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_cmip_ActionError(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                ActionError_sequence, hf_index, ett_cmip_ActionError);
+
+  return offset;
+}
+static int dissect_actionError_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cmip_ActionError(TRUE, tvb, offset, pinfo, tree, hf_cmip_actionError);
+}
+
+
+static int
+dissect_cmip_T_errorId(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
+                                         hf_cmip_errorId_OID, object_identifier_id);
+
+
+  return offset;
+}
+static int dissect_errorId(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cmip_T_errorId(FALSE, tvb, offset, pinfo, tree, hf_cmip_errorId);
+}
+
+
+
+static int
+dissect_cmip_T_errorInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
+
+
+  return offset;
+}
+static int dissect_errorInfo(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cmip_T_errorInfo(FALSE, tvb, offset, pinfo, tree, hf_cmip_errorInfo);
+}
+
+static const ber_sequence SpecificErrorInfo_sequence[] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_errorId },
+  { BER_CLASS_ANY, 0, BER_FLAGS_NOOWNTAG, dissect_errorInfo },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_cmip_SpecificErrorInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                SpecificErrorInfo_sequence, hf_index, ett_cmip_SpecificErrorInfo);
+
+  return offset;
+}
+static int dissect_specificErrorInfo(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cmip_SpecificErrorInfo(FALSE, tvb, offset, pinfo, tree, hf_cmip_specificErrorInfo);
+}
+
+static const ber_sequence ProcessingFailure_sequence[] = {
+  { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_managedObjectClass },
+  { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_managedObjectInstance },
+  { BER_CLASS_CON, 5, 0, dissect_specificErrorInfo },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_cmip_ProcessingFailure(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                ProcessingFailure_sequence, hf_index, ett_cmip_ProcessingFailure);
+
+  return offset;
+}
+static int dissect_processingFailure_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cmip_ProcessingFailure(TRUE, tvb, offset, pinfo, tree, hf_cmip_processingFailure);
+}
+
+
+static const value_string T_deleteErrorInfo_vals[] = {
+  {   2, "accessDenied" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_cmip_T_deleteErrorInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_integer_new(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+
+  return offset;
+}
+static int dissect_deleteErrorInfo(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cmip_T_deleteErrorInfo(FALSE, tvb, offset, pinfo, tree, hf_cmip_deleteErrorInfo);
+}
+
+static const ber_sequence DeleteError_sequence[] = {
+  { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_managedObjectClass },
+  { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_managedObjectInstance },
+  { BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_currentTime_impl },
+  { BER_CLASS_CON, 6, 0, dissect_deleteErrorInfo },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_cmip_DeleteError(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                DeleteError_sequence, hf_index, ett_cmip_DeleteError);
+
+  return offset;
+}
+static int dissect_deleteError_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cmip_DeleteError(TRUE, tvb, offset, pinfo, tree, hf_cmip_deleteError);
+}
+
+static const ber_sequence SET_OF_Attribute_set_of[1] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_attributeList_item },
+};
+
+static int
+dissect_cmip_SET_OF_Attribute(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_set_of(implicit_tag, pinfo, tree, tvb, offset,
+                              SET_OF_Attribute_set_of, hf_index, ett_cmip_SET_OF_Attribute);
+
+  return offset;
+}
+static int dissect_attributeList_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cmip_SET_OF_Attribute(TRUE, tvb, offset, pinfo, tree, hf_cmip_attributeList);
+}
+
+static const ber_sequence SetResult_sequence[] = {
+  { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_managedObjectClass },
+  { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_managedObjectInstance },
+  { BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_currentTime_impl },
+  { BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_attributeList_impl },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_cmip_SetResult(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                SetResult_sequence, hf_index, ett_cmip_SetResult);
+
+  return offset;
+}
+static int dissect_setResult_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cmip_SetResult(TRUE, tvb, offset, pinfo, tree, hf_cmip_setResult);
 }
 
 
@@ -487,124 +1355,6 @@ dissect_cmip_Scope(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_
 }
 static int dissect_scope(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_cmip_Scope(FALSE, tvb, offset, pinfo, tree, hf_cmip_scope);
-}
-
-
-static int
-dissect_cmip_T_globalForm(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  attributeform = ATTRIBUTE_GLOBAL_FORM;
-  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset,
-                                         hf_cmip_globalForm, attribute_identifier_id);
-
-
-  return offset;
-}
-static int dissect_globalForm_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_cmip_T_globalForm(TRUE, tvb, offset, pinfo, tree, hf_cmip_globalForm);
-}
-
-
-
-static int
-dissect_cmip_T_localForm(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  attributeform = ATTRIBUTE_LOCAL_FORM;
-  offset = dissect_ber_integer_new(implicit_tag, pinfo, tree, tvb, offset, hf_cmip_localForm, NULL);
-
-
-  return offset;
-}
-static int dissect_localForm_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_cmip_T_localForm(TRUE, tvb, offset, pinfo, tree, hf_cmip_localForm);
-}
-
-
-static const value_string AttributeId_vals[] = {
-  {   0, "globalForm" },
-  {   1, "localForm" },
-  { 0, NULL }
-};
-
-static const ber_choice AttributeId_choice[] = {
-  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_globalForm_impl },
-  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_localForm_impl },
-  { 0, 0, 0, 0, NULL }
-};
-
-static int
-dissect_cmip_AttributeId(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              AttributeId_choice, hf_index, ett_cmip_AttributeId);
-
-  return offset;
-}
-static int dissect_id(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_cmip_AttributeId(FALSE, tvb, offset, pinfo, tree, hf_cmip_id);
-}
-static int dissect_present(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_cmip_AttributeId(FALSE, tvb, offset, pinfo, tree, hf_cmip_present);
-}
-static int dissect_attributeIdList_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_cmip_AttributeId(FALSE, tvb, offset, pinfo, tree, hf_cmip_attributeIdList_item);
-}
-
-
-
-static int
-dissect_cmip_T_value(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  /*XXX handle local form here */
-  if(attributeform==ATTRIBUTE_GLOBAL_FORM){
-    offset=call_ber_oid_callback(attribute_identifier_id, tvb, offset, pinfo, tree);
-  }
-
-
-  return offset;
-}
-static int dissect_value(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_cmip_T_value(FALSE, tvb, offset, pinfo, tree, hf_cmip_value);
-}
-
-static const ber_sequence Attribute_sequence[] = {
-  { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_id },
-  { BER_CLASS_ANY, 0, BER_FLAGS_NOOWNTAG, dissect_value },
-  { 0, 0, 0, NULL }
-};
-
-static int
-dissect_cmip_Attribute(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                Attribute_sequence, hf_index, ett_cmip_Attribute);
-
-  return offset;
-}
-static int dissect_equality_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_cmip_Attribute(TRUE, tvb, offset, pinfo, tree, hf_cmip_equality);
-}
-static int dissect_initialString_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_cmip_Attribute(TRUE, tvb, offset, pinfo, tree, hf_cmip_initialString);
-}
-static int dissect_anyString_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_cmip_Attribute(TRUE, tvb, offset, pinfo, tree, hf_cmip_anyString);
-}
-static int dissect_finalString_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_cmip_Attribute(TRUE, tvb, offset, pinfo, tree, hf_cmip_finalString);
-}
-static int dissect_greaterOrEqual_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_cmip_Attribute(TRUE, tvb, offset, pinfo, tree, hf_cmip_greaterOrEqual);
-}
-static int dissect_lessOrEqual_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_cmip_Attribute(TRUE, tvb, offset, pinfo, tree, hf_cmip_lessOrEqual);
-}
-static int dissect_subsetOf_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_cmip_Attribute(TRUE, tvb, offset, pinfo, tree, hf_cmip_subsetOf);
-}
-static int dissect_supersetOf_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_cmip_Attribute(TRUE, tvb, offset, pinfo, tree, hf_cmip_supersetOf);
-}
-static int dissect_nonNullSetIntersection_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_cmip_Attribute(TRUE, tvb, offset, pinfo, tree, hf_cmip_nonNullSetIntersection);
-}
-static int dissect_attributeList_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_cmip_Attribute(FALSE, tvb, offset, pinfo, tree, hf_cmip_attributeList_item);
 }
 
 
@@ -727,47 +1477,350 @@ dissect_cmip_CMISFilter(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pa
   return offset;
 }
 
+static const ber_sequence SET_OF_ModificationItem_set_of[1] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_modificationList_item },
+};
 
 static int
-dissect_cmip_T_actionType1(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_cmip_SET_OF_ModificationItem(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_set_of(implicit_tag, pinfo, tree, tvb, offset,
+                              SET_OF_ModificationItem_set_of, hf_index, ett_cmip_SET_OF_ModificationItem);
+
+  return offset;
+}
+static int dissect_modificationList_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cmip_SET_OF_ModificationItem(TRUE, tvb, offset, pinfo, tree, hf_cmip_modificationList);
+}
+
+static const ber_sequence SetArgument_sequence[] = {
+  { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_baseManagedObjectClass },
+  { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_baseManagedObjectInstance },
+  { BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL, dissect_accessControl },
+  { BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_synchronization_impl },
+  { BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_scope },
+  { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_filter },
+  { BER_CLASS_CON, 12, BER_FLAGS_IMPLTAG, dissect_modificationList_impl },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_cmip_SetArgument(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                SetArgument_sequence, hf_index, ett_cmip_SetArgument);
+
+  return offset;
+}
+
+static const ber_sequence GetResult_sequence[] = {
+  { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_managedObjectClass },
+  { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_managedObjectInstance },
+  { BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_currentTime_impl },
+  { BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_attributeList_impl },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_cmip_GetResult(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                GetResult_sequence, hf_index, ett_cmip_GetResult);
+
+  return offset;
+}
+static int dissect_getResult_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cmip_GetResult(TRUE, tvb, offset, pinfo, tree, hf_cmip_getResult);
+}
+
+
+static int
+dissect_cmip_T_actionType2(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
                                          hf_cmip_actionType_OID, object_identifier_id);
 
 
   return offset;
 }
-static int dissect_actionType1(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_cmip_T_actionType1(FALSE, tvb, offset, pinfo, tree, hf_cmip_actionType1);
+static int dissect_actionType2(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cmip_T_actionType2(FALSE, tvb, offset, pinfo, tree, hf_cmip_actionType2);
 }
 
 
 
 static int
-dissect_cmip_T_actionInfoArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_cmip_T_actionReplyInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
 
 
   return offset;
 }
-static int dissect_actionInfoArg(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_cmip_T_actionInfoArg(FALSE, tvb, offset, pinfo, tree, hf_cmip_actionInfoArg);
+static int dissect_actionReplyInfo(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cmip_T_actionReplyInfo(FALSE, tvb, offset, pinfo, tree, hf_cmip_actionReplyInfo);
 }
 
-static const ber_sequence ActionInfo_sequence[] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_actionType1 },
-  { BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL, dissect_actionInfoArg },
+static const ber_sequence ActionReply_sequence[] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_actionType2 },
+  { BER_CLASS_CON, 4, 0, dissect_actionReplyInfo },
   { 0, 0, 0, NULL }
 };
 
 static int
-dissect_cmip_ActionInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_cmip_ActionReply(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                ActionInfo_sequence, hf_index, ett_cmip_ActionInfo);
+                                ActionReply_sequence, hf_index, ett_cmip_ActionReply);
 
   return offset;
 }
-static int dissect_actionInfo_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_cmip_ActionInfo(TRUE, tvb, offset, pinfo, tree, hf_cmip_actionInfo);
+static int dissect_actionReply_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cmip_ActionReply(TRUE, tvb, offset, pinfo, tree, hf_cmip_actionReply);
+}
+
+static const ber_sequence ActionResult_sequence[] = {
+  { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_managedObjectClass },
+  { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_managedObjectInstance },
+  { BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_currentTime_impl },
+  { BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_actionReply_impl },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_cmip_ActionResult(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                ActionResult_sequence, hf_index, ett_cmip_ActionResult);
+
+  return offset;
+}
+static int dissect_actionResult_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cmip_ActionResult(TRUE, tvb, offset, pinfo, tree, hf_cmip_actionResult);
+}
+
+static const ber_sequence DeleteResult_sequence[] = {
+  { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_managedObjectClass },
+  { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_managedObjectInstance },
+  { BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_currentTime_impl },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_cmip_DeleteResult(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                DeleteResult_sequence, hf_index, ett_cmip_DeleteResult);
+
+  return offset;
+}
+static int dissect_deleteResult_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cmip_DeleteResult(TRUE, tvb, offset, pinfo, tree, hf_cmip_deleteResult);
+}
+
+
+static const value_string LinkedReplyArgument_vals[] = {
+  {   0, "getResult" },
+  {   1, "getListError" },
+  {   2, "setResult" },
+  {   3, "setListError" },
+  {   4, "actionResult" },
+  {   5, "processingFailure" },
+  {   6, "deleteResult" },
+  {   7, "actionError" },
+  {   8, "deleteError" },
+  { 0, NULL }
+};
+
+static const ber_choice LinkedReplyArgument_choice[] = {
+  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_getResult_impl },
+  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_getListError_impl },
+  {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_setResult_impl },
+  {   3, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_setListError_impl },
+  {   4, BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_actionResult_impl },
+  {   5, BER_CLASS_CON, 5, BER_FLAGS_IMPLTAG, dissect_processingFailure_impl },
+  {   6, BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_deleteResult_impl },
+  {   7, BER_CLASS_CON, 7, BER_FLAGS_IMPLTAG, dissect_actionError_impl },
+  {   8, BER_CLASS_CON, 8, BER_FLAGS_IMPLTAG, dissect_deleteError_impl },
+  { 0, 0, 0, 0, NULL }
+};
+
+static int
+dissect_cmip_LinkedReplyArgument(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+                              LinkedReplyArgument_choice, hf_index, ett_cmip_LinkedReplyArgument);
+
+  return offset;
+}
+
+
+static int
+dissect_cmip_T_eventType2(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
+                                         hf_cmip_eventType_OID, object_identifier_id);
+
+
+  return offset;
+}
+static int dissect_eventType2(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cmip_T_eventType2(FALSE, tvb, offset, pinfo, tree, hf_cmip_eventType2);
+}
+
+
+
+static int
+dissect_cmip_T_eventReplyInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
+
+
+  return offset;
+}
+static int dissect_eventReplyInfo(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cmip_T_eventReplyInfo(FALSE, tvb, offset, pinfo, tree, hf_cmip_eventReplyInfo);
+}
+
+static const ber_sequence EventReply_sequence[] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_eventType2 },
+  { BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL, dissect_eventReplyInfo },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_cmip_EventReply(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                EventReply_sequence, hf_index, ett_cmip_EventReply);
+
+  return offset;
+}
+static int dissect_eventReply(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cmip_EventReply(FALSE, tvb, offset, pinfo, tree, hf_cmip_eventReply);
+}
+
+static const ber_sequence EventReportResult_sequence[] = {
+  { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_managedObjectClass },
+  { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_managedObjectInstance },
+  { BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_currentTime_impl },
+  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_eventReply },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_cmip_EventReportResult(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                EventReportResult_sequence, hf_index, ett_cmip_EventReportResult);
+
+  return offset;
+}
+
+
+static int
+dissect_cmip_T_eventType3(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
+                                         hf_cmip_eventType_OID, object_identifier_id);
+
+
+  return offset;
+}
+static int dissect_eventType3(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cmip_T_eventType3(FALSE, tvb, offset, pinfo, tree, hf_cmip_eventType3);
+}
+
+
+
+static int
+dissect_cmip_T_eventInfo1(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
+
+
+
+  return offset;
+}
+static int dissect_eventInfo1(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cmip_T_eventInfo1(FALSE, tvb, offset, pinfo, tree, hf_cmip_eventInfo1);
+}
+
+static const ber_sequence EventReportArgument_sequence[] = {
+  { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_managedObjectClass },
+  { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_managedObjectInstance },
+  { BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_eventTime_impl },
+  { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_eventType3 },
+  { BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL, dissect_eventInfo1 },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_cmip_EventReportArgument(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                EventReportArgument_sequence, hf_index, ett_cmip_EventReportArgument);
+
+  return offset;
+}
+
+static const ber_sequence DeleteArgument_sequence[] = {
+  { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_baseManagedObjectClass },
+  { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_baseManagedObjectInstance },
+  { BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL, dissect_accessControl },
+  { BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_synchronization_impl },
+  { BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_scope },
+  { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_filter },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_cmip_DeleteArgument(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                DeleteArgument_sequence, hf_index, ett_cmip_DeleteArgument);
+
+  return offset;
+}
+
+
+static const value_string T_managedOrSuperiorObjectInstance_vals[] = {
+  { -1/*choice*/, "managedObjectInstance" },
+  {   8, "superiorObjectInstance" },
+  { 0, NULL }
+};
+
+static const ber_choice T_managedOrSuperiorObjectInstance_choice[] = {
+  { -1/*choice*/, BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_managedObjectInstance },
+  {   8, BER_CLASS_CON, 8, 0, dissect_superiorObjectInstance },
+  { 0, 0, 0, 0, NULL }
+};
+
+static int
+dissect_cmip_T_managedOrSuperiorObjectInstance(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+                              T_managedOrSuperiorObjectInstance_choice, hf_index, ett_cmip_T_managedOrSuperiorObjectInstance);
+
+  return offset;
+}
+static int dissect_managedOrSuperiorObjectInstance(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cmip_T_managedOrSuperiorObjectInstance(FALSE, tvb, offset, pinfo, tree, hf_cmip_managedOrSuperiorObjectInstance);
+}
+
+static const ber_sequence CreateArgument_sequence[] = {
+  { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_managedObjectClass },
+  { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_managedOrSuperiorObjectInstance },
+  { BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL, dissect_accessControl },
+  { BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_referenceObjectInstance },
+  { BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_attributeList_impl },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_cmip_CreateArgument(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                CreateArgument_sequence, hf_index, ett_cmip_CreateArgument);
+
+  return offset;
+}
+
+static const ber_sequence CreateResult_sequence[] = {
+  { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_managedObjectClass },
+  { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_managedObjectInstance },
+  { BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_currentTime_impl },
+  { BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_attributeList_impl },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_cmip_CreateResult(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                CreateResult_sequence, hf_index, ett_cmip_CreateResult);
+
+  return offset;
 }
 
 static const ber_sequence ActionArgument_sequence[] = {
@@ -837,37 +1890,6 @@ dissect_cmip_GetArgument(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, p
   return offset;
 }
 
-static const ber_sequence SET_OF_Attribute_set_of[1] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_attributeList_item },
-};
-
-static int
-dissect_cmip_SET_OF_Attribute(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_set_of(implicit_tag, pinfo, tree, tvb, offset,
-                              SET_OF_Attribute_set_of, hf_index, ett_cmip_SET_OF_Attribute);
-
-  return offset;
-}
-static int dissect_attributeList_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_cmip_SET_OF_Attribute(TRUE, tvb, offset, pinfo, tree, hf_cmip_attributeList);
-}
-
-static const ber_sequence GetResult_sequence[] = {
-  { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_managedObjectClass },
-  { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_managedObjectInstance },
-  { BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_currentTime_impl },
-  { BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_attributeList_impl },
-  { 0, 0, 0, NULL }
-};
-
-static int
-dissect_cmip_GetResult(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                GetResult_sequence, hf_index, ett_cmip_GetResult);
-
-  return offset;
-}
-
 
 
 static int
@@ -875,8 +1897,23 @@ dissect_cmip_Argument(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pack
   switch(opcode_type){
   case OPCODE_INVOKE:
     switch(opcode){
+    case 0: /* M-eventreport */
+      offset = dissect_cmip_EventReportArgument(FALSE, tvb, offset, pinfo, tree, -1);
+      break;
+    case 1: /* M-eventreport-confirmed */
+      offset = dissect_cmip_EventReportArgument(FALSE, tvb, offset, pinfo, tree, -1);
+      break;
+    case 2: /* M-linkedreply */
+      offset = dissect_cmip_LinkedReplyArgument(FALSE, tvb, offset, pinfo, tree, -1);
+      break;
     case 3: /* M-get */
       offset = dissect_cmip_GetArgument(FALSE, tvb, offset, pinfo, tree, -1);
+      break;
+    case 4: /* M-set */
+      offset = dissect_cmip_SetArgument(FALSE, tvb, offset, pinfo, tree, -1);
+      break;
+    case 5: /* M-set-confirmed */
+      offset = dissect_cmip_SetArgument(FALSE, tvb, offset, pinfo, tree, -1);
       break;
     case 6: /* M-action*/
       offset = dissect_cmip_ActionInfo(FALSE, tvb,  offset, pinfo, tree, -1);
@@ -884,18 +1921,47 @@ dissect_cmip_Argument(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pack
     case 7: /* M-action-confirmed*/
       offset = dissect_cmip_ActionInfo(FALSE, tvb,  offset, pinfo, tree, -1);
       break;
+    case 8: /* M-create*/
+      offset = dissect_cmip_CreateArgument(FALSE, tvb,  offset, pinfo, tree, -1);
+      break;
+    case 9: /* M-delete*/
+      offset = dissect_cmip_DeleteArgument(FALSE, tvb,  offset, pinfo, tree, -1);
+      break;
+    case 10: /* M-cancelget */
+      offset = dissect_cmip_InvokeIDType(FALSE, tvb,  offset, pinfo, tree, -1);
+      break;
     }
     break;
   case OPCODE_RETURN_RESULT:
     switch(opcode){
+    case 0: /* M-eventreport*/
+      break;  /* No return data */
+    case 1: /* M-eventreport-confirmed */
+      offset = dissect_cmip_EventReportResult(FALSE, tvb, offset, pinfo, tree, -1);
+      break;
+    case 2: /* M-linkedreply*/
+      break;  /* No return data */
     case 3: /* M-get */
       offset = dissect_cmip_GetResult(FALSE, tvb, offset, pinfo, tree, -1);
+      break;
+    case 4: /* M-set */
+      break;  /* No return data */
+    case 5: /* M-set-confirmed*/
+      offset = dissect_cmip_SetResult(FALSE, tvb, offset, pinfo, tree, -1);
       break;
     case 6: /* M-action*/
       break;  /* No return data */
     case 7: /* M-action-confirmed*/
       offset = dissect_cmip_ActionResult(FALSE, tvb, offset, pinfo, tree, -1);
       break;
+    case 8: /* M-create*/
+      offset = dissect_cmip_CreateResult(FALSE, tvb,  offset, pinfo, tree, -1);
+      break;
+    case 9: /* M-delete*/
+      offset = dissect_cmip_DeleteResult(FALSE, tvb,  offset, pinfo, tree, -1);
+      break;
+    case 10: /* M-cancelget */
+      break; /* doe this one return any data? */
     }
     break;
   /*XXX add more types here */
@@ -1033,6 +2099,14 @@ dissect_cmip_InvokeLinkedId(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset
 }
 static int dissect_linkedId(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_cmip_InvokeLinkedId(FALSE, tvb, offset, pinfo, tree, hf_cmip_linkedId);
+}
+
+
+static int
+dissect_cmip_InvokeIDType(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_cmip_InvokeId(implicit_tag, tvb, offset, pinfo, tree, hf_index);
+
+  return offset;
 }
 
 static const ber_sequence Invoke_sequence[] = {
@@ -1450,17 +2524,33 @@ void proto_register_cmip(void) {
       { "actionType", "cmip.actionType_OID",
         FT_STRING, BASE_NONE, NULL, 0,
         "actionType", HFILL }},
+    { &hf_cmip_eventType_OID,
+      { "eventType", "cmip.eventType_OID",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "eventType", HFILL }},
+    { &hf_cmip_attributeId_OID,
+      { "attributeId", "cmip.attributeId_OID",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "attributeId", HFILL }},
+    { &hf_cmip_errorId_OID,
+      { "errorId", "cmip.errorId_OID",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "errorId", HFILL }},
 
 /*--- Included file: packet-cmip-hfarr.c ---*/
 
-    { &hf_cmip_actionType,
-      { "actionType", "cmip.actionType",
+    { &hf_cmip_modifyOperator,
+      { "modifyOperator", "cmip.modifyOperator",
+        FT_INT32, BASE_DEC, VALS(ModifyOperator_vals), 0,
+        "", HFILL }},
+    { &hf_cmip_attributeId,
+      { "attributeId", "cmip.attributeId",
         FT_STRING, BASE_NONE, NULL, 0,
-        "ActionReply/actionType", HFILL }},
-    { &hf_cmip_actionReplyInfo,
-      { "actionReplyInfo", "cmip.actionReplyInfo",
+        "ModificationItem/attributeId", HFILL }},
+    { &hf_cmip_attributeValue,
+      { "attributeValue", "cmip.attributeValue",
         FT_NONE, BASE_NONE, NULL, 0,
-        "ActionReply/actionReplyInfo", HFILL }},
+        "ModificationItem/attributeValue", HFILL }},
     { &hf_cmip_managedObjectClass,
       { "managedObjectClass", "cmip.managedObjectClass",
         FT_UINT32, BASE_DEC, VALS(ObjectClass_vals), 0,
@@ -1473,10 +2563,134 @@ void proto_register_cmip(void) {
       { "currentTime", "cmip.currentTime",
         FT_STRING, BASE_NONE, NULL, 0,
         "", HFILL }},
-    { &hf_cmip_actionReply,
-      { "actionReply", "cmip.actionReply",
+    { &hf_cmip_getInfoList,
+      { "getInfoList", "cmip.getInfoList",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "GetListError/getInfoList", HFILL }},
+    { &hf_cmip_getInfoList_item,
+      { "Item", "cmip.getInfoList_item",
+        FT_UINT32, BASE_DEC, VALS(GetInfoStatus_vals), 0,
+        "GetListError/getInfoList/_item", HFILL }},
+    { &hf_cmip_attributeIdError,
+      { "attributeIdError", "cmip.attributeIdError",
         FT_NONE, BASE_NONE, NULL, 0,
-        "ActionResult/actionReply", HFILL }},
+        "GetInfoStatus/attributeIdError", HFILL }},
+    { &hf_cmip_attribute,
+      { "attribute", "cmip.attribute",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "", HFILL }},
+    { &hf_cmip_errorStatus,
+      { "errorStatus", "cmip.errorStatus",
+        FT_UINT32, BASE_DEC, VALS(T_errorStatus_vals), 0,
+        "AttributeIdError/errorStatus", HFILL }},
+    { &hf_cmip_attributeId1,
+      { "attributeId", "cmip.attributeId",
+        FT_UINT32, BASE_DEC, VALS(AttributeId_vals), 0,
+        "AttributeIdError/attributeId", HFILL }},
+    { &hf_cmip_setInfoList,
+      { "setInfoList", "cmip.setInfoList",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "SetListError/setInfoList", HFILL }},
+    { &hf_cmip_setInfoList_item,
+      { "Item", "cmip.setInfoList_item",
+        FT_UINT32, BASE_DEC, VALS(SetInfoStatus_vals), 0,
+        "SetListError/setInfoList/_item", HFILL }},
+    { &hf_cmip_actionErrorInfo,
+      { "actionErrorInfo", "cmip.actionErrorInfo",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ActionError/actionErrorInfo", HFILL }},
+    { &hf_cmip_specificErrorInfo,
+      { "specificErrorInfo", "cmip.specificErrorInfo",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ProcessingFailure/specificErrorInfo", HFILL }},
+    { &hf_cmip_deleteErrorInfo,
+      { "deleteErrorInfo", "cmip.deleteErrorInfo",
+        FT_UINT32, BASE_DEC, VALS(T_deleteErrorInfo_vals), 0,
+        "DeleteError/deleteErrorInfo", HFILL }},
+    { &hf_cmip_attributeError,
+      { "attributeError", "cmip.attributeError",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "SetInfoStatus/attributeError", HFILL }},
+    { &hf_cmip_errorId,
+      { "errorId", "cmip.errorId",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "SpecificErrorInfo/errorId", HFILL }},
+    { &hf_cmip_errorInfo,
+      { "errorInfo", "cmip.errorInfo",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "SpecificErrorInfo/errorInfo", HFILL }},
+    { &hf_cmip_actionType,
+      { "actionType", "cmip.actionType",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "NoSuchArgumentAction/actionType", HFILL }},
+    { &hf_cmip_eventType,
+      { "eventType", "cmip.eventType",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "NoSuchArgumentEvent/eventType", HFILL }},
+    { &hf_cmip_actionId,
+      { "actionId", "cmip.actionId",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "NoSuchArgument/actionId", HFILL }},
+    { &hf_cmip_eventId,
+      { "eventId", "cmip.eventId",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "NoSuchArgument/eventId", HFILL }},
+    { &hf_cmip_eventType1,
+      { "eventType", "cmip.eventType",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "InvalidArgumentValueEventValue/eventType", HFILL }},
+    { &hf_cmip_eventInfo,
+      { "eventInfo", "cmip.eventInfo",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "InvalidArgumentValueEventValue/eventInfo", HFILL }},
+    { &hf_cmip_actionValue,
+      { "actionValue", "cmip.actionValue",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "InvalidArgumentValue/actionValue", HFILL }},
+    { &hf_cmip_eventValue,
+      { "eventValue", "cmip.eventValue",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "InvalidArgumentValue/eventValue", HFILL }},
+    { &hf_cmip_actionType1,
+      { "actionType", "cmip.actionType",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "ErrorInfo/actionType", HFILL }},
+    { &hf_cmip_actionArgument,
+      { "actionArgument", "cmip.actionArgument",
+        FT_UINT32, BASE_DEC, VALS(NoSuchArgument_vals), 0,
+        "ErrorInfo/actionArgument", HFILL }},
+    { &hf_cmip_argumentValue,
+      { "argumentValue", "cmip.argumentValue",
+        FT_UINT32, BASE_DEC, VALS(InvalidArgumentValue_vals), 0,
+        "ErrorInfo/argumentValue", HFILL }},
+    { &hf_cmip_errorStatus1,
+      { "errorStatus", "cmip.errorStatus",
+        FT_UINT32, BASE_DEC, VALS(T_errorStatus1_vals), 0,
+        "ActionErrorInfo/errorStatus", HFILL }},
+    { &hf_cmip_errorInfo1,
+      { "errorInfo", "cmip.errorInfo",
+        FT_UINT32, BASE_DEC, VALS(ErrorInfo_vals), 0,
+        "ActionErrorInfo/errorInfo", HFILL }},
+    { &hf_cmip_errorStatus2,
+      { "errorStatus", "cmip.errorStatus",
+        FT_UINT32, BASE_DEC, VALS(T_errorStatus2_vals), 0,
+        "AttributeError/errorStatus", HFILL }},
+    { &hf_cmip_attributeId2,
+      { "attributeId", "cmip.attributeId",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "AttributeError/attributeId", HFILL }},
+    { &hf_cmip_attributeValue1,
+      { "attributeValue", "cmip.attributeValue",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "AttributeError/attributeValue", HFILL }},
+    { &hf_cmip_attributeList,
+      { "attributeList", "cmip.attributeList",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "", HFILL }},
+    { &hf_cmip_attributeList_item,
+      { "Item", "cmip.attributeList_item",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "", HFILL }},
     { &hf_cmip_baseManagedObjectClass,
       { "baseManagedObjectClass", "cmip.baseManagedObjectClass",
         FT_UINT32, BASE_DEC, VALS(ObjectClass_vals), 0,
@@ -1501,11 +2715,103 @@ void proto_register_cmip(void) {
       { "filter", "cmip.filter",
         FT_UINT32, BASE_DEC, VALS(CMISFilter_vals), 0,
         "", HFILL }},
+    { &hf_cmip_modificationList,
+      { "modificationList", "cmip.modificationList",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "SetArgument/modificationList", HFILL }},
+    { &hf_cmip_modificationList_item,
+      { "Item", "cmip.modificationList_item",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "SetArgument/modificationList/_item", HFILL }},
+    { &hf_cmip_getResult,
+      { "getResult", "cmip.getResult",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "LinkedReplyArgument/getResult", HFILL }},
+    { &hf_cmip_getListError,
+      { "getListError", "cmip.getListError",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "LinkedReplyArgument/getListError", HFILL }},
+    { &hf_cmip_setResult,
+      { "setResult", "cmip.setResult",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "LinkedReplyArgument/setResult", HFILL }},
+    { &hf_cmip_setListError,
+      { "setListError", "cmip.setListError",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "LinkedReplyArgument/setListError", HFILL }},
+    { &hf_cmip_actionResult,
+      { "actionResult", "cmip.actionResult",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "LinkedReplyArgument/actionResult", HFILL }},
+    { &hf_cmip_processingFailure,
+      { "processingFailure", "cmip.processingFailure",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "LinkedReplyArgument/processingFailure", HFILL }},
+    { &hf_cmip_deleteResult,
+      { "deleteResult", "cmip.deleteResult",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "LinkedReplyArgument/deleteResult", HFILL }},
+    { &hf_cmip_actionError,
+      { "actionError", "cmip.actionError",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "LinkedReplyArgument/actionError", HFILL }},
+    { &hf_cmip_deleteError,
+      { "deleteError", "cmip.deleteError",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "LinkedReplyArgument/deleteError", HFILL }},
+    { &hf_cmip_eventType2,
+      { "eventType", "cmip.eventType",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "EventReply/eventType", HFILL }},
+    { &hf_cmip_eventReplyInfo,
+      { "eventReplyInfo", "cmip.eventReplyInfo",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "EventReply/eventReplyInfo", HFILL }},
+    { &hf_cmip_eventReply,
+      { "eventReply", "cmip.eventReply",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "EventReportResult/eventReply", HFILL }},
+    { &hf_cmip_eventTime,
+      { "eventTime", "cmip.eventTime",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "EventReportArgument/eventTime", HFILL }},
+    { &hf_cmip_eventType3,
+      { "eventType", "cmip.eventType",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "EventReportArgument/eventType", HFILL }},
+    { &hf_cmip_eventInfo1,
+      { "eventInfo", "cmip.eventInfo",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "EventReportArgument/eventInfo", HFILL }},
+    { &hf_cmip_managedOrSuperiorObjectInstance,
+      { "managedOrSuperiorObjectInstance", "cmip.managedOrSuperiorObjectInstance",
+        FT_UINT32, BASE_DEC, VALS(T_managedOrSuperiorObjectInstance_vals), 0,
+        "CreateArgument/managedOrSuperiorObjectInstance", HFILL }},
+    { &hf_cmip_superiorObjectInstance,
+      { "superiorObjectInstance", "cmip.superiorObjectInstance",
+        FT_UINT32, BASE_DEC, VALS(ObjectInstance_vals), 0,
+        "CreateArgument/managedOrSuperiorObjectInstance/superiorObjectInstance", HFILL }},
+    { &hf_cmip_referenceObjectInstance,
+      { "referenceObjectInstance", "cmip.referenceObjectInstance",
+        FT_UINT32, BASE_DEC, VALS(ObjectInstance_vals), 0,
+        "CreateArgument/referenceObjectInstance", HFILL }},
+    { &hf_cmip_actionType2,
+      { "actionType", "cmip.actionType",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "ActionReply/actionType", HFILL }},
+    { &hf_cmip_actionReplyInfo,
+      { "actionReplyInfo", "cmip.actionReplyInfo",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ActionReply/actionReplyInfo", HFILL }},
+    { &hf_cmip_actionReply,
+      { "actionReply", "cmip.actionReply",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ActionResult/actionReply", HFILL }},
     { &hf_cmip_actionInfo,
       { "actionInfo", "cmip.actionInfo",
         FT_NONE, BASE_NONE, NULL, 0,
         "ActionArgument/actionInfo", HFILL }},
-    { &hf_cmip_actionType1,
+    { &hf_cmip_actionType3,
       { "actionType", "cmip.actionType",
         FT_STRING, BASE_NONE, NULL, 0,
         "ActionInfo/actionType", HFILL }},
@@ -1641,14 +2947,6 @@ void proto_register_cmip(void) {
       { "Item", "cmip.attributeIdList_item",
         FT_UINT32, BASE_DEC, VALS(AttributeId_vals), 0,
         "GetArgument/attributeIdList/_item", HFILL }},
-    { &hf_cmip_attributeList,
-      { "attributeList", "cmip.attributeList",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "GetResult/attributeList", HFILL }},
-    { &hf_cmip_attributeList_item,
-      { "Item", "cmip.attributeList_item",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "GetResult/attributeList/_item", HFILL }},
     { &hf_cmip_opcode,
       { "opcode", "cmip.opcode",
         FT_INT32, BASE_DEC, VALS(Opcode_vals), 0,
@@ -1768,6 +3066,39 @@ void proto_register_cmip(void) {
 
 /*--- Included file: packet-cmip-ettarr.c ---*/
 
+    &ett_cmip_ModificationItem,
+    &ett_cmip_GetListError,
+    &ett_cmip_SET_OF_GetInfoStatus,
+    &ett_cmip_GetInfoStatus,
+    &ett_cmip_AttributeIdError,
+    &ett_cmip_SetListError,
+    &ett_cmip_SET_OF_SetInfoStatus,
+    &ett_cmip_ActionError,
+    &ett_cmip_ProcessingFailure,
+    &ett_cmip_DeleteError,
+    &ett_cmip_SetInfoStatus,
+    &ett_cmip_SpecificErrorInfo,
+    &ett_cmip_NoSuchArgumentAction,
+    &ett_cmip_NoSuchArgumentEvent,
+    &ett_cmip_NoSuchArgument,
+    &ett_cmip_InvalidArgumentValueEventValue,
+    &ett_cmip_InvalidArgumentValue,
+    &ett_cmip_ErrorInfo,
+    &ett_cmip_ActionErrorInfo,
+    &ett_cmip_AttributeError,
+    &ett_cmip_SetResult,
+    &ett_cmip_SET_OF_Attribute,
+    &ett_cmip_SetArgument,
+    &ett_cmip_SET_OF_ModificationItem,
+    &ett_cmip_LinkedReplyArgument,
+    &ett_cmip_EventReply,
+    &ett_cmip_EventReportResult,
+    &ett_cmip_EventReportArgument,
+    &ett_cmip_DeleteArgument,
+    &ett_cmip_DeleteResult,
+    &ett_cmip_CreateArgument,
+    &ett_cmip_T_managedOrSuperiorObjectInstance,
+    &ett_cmip_CreateResult,
     &ett_cmip_ActionReply,
     &ett_cmip_ActionResult,
     &ett_cmip_ActionArgument,
@@ -1786,7 +3117,6 @@ void proto_register_cmip(void) {
     &ett_cmip_GetArgument,
     &ett_cmip_SET_OF_AttributeId,
     &ett_cmip_GetResult,
-    &ett_cmip_SET_OF_Attribute,
     &ett_cmip_ReturnResultBody,
     &ett_cmip_InvokeLinkedId,
     &ett_cmip_InvokeId,

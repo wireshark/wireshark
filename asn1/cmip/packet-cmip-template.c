@@ -48,6 +48,9 @@
 /* Initialize the protocol and registered fields */
 int proto_cmip = -1;
 static int hf_cmip_actionType_OID = -1;
+static int hf_cmip_eventType_OID = -1;
+static int hf_cmip_attributeId_OID = -1;
+static int hf_cmip_errorId_OID = -1;
 #include "packet-cmip-hf.c"
 
 /* Initialize the subtree pointers */
@@ -140,6 +143,18 @@ void proto_register_cmip(void) {
       { "actionType", "cmip.actionType_OID",
         FT_STRING, BASE_NONE, NULL, 0,
         "actionType", HFILL }},
+    { &hf_cmip_eventType_OID,
+      { "eventType", "cmip.eventType_OID",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "eventType", HFILL }},
+    { &hf_cmip_attributeId_OID,
+      { "attributeId", "cmip.attributeId_OID",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "attributeId", HFILL }},
+    { &hf_cmip_errorId_OID,
+      { "errorId", "cmip.errorId_OID",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "errorId", HFILL }},
 #include "packet-cmip-hfarr.c"
   };
 

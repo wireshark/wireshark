@@ -95,8 +95,23 @@ ROS
   switch(opcode_type){
   case OPCODE_INVOKE:
     switch(opcode){
+    case 0: /* M-eventreport */
+      offset = dissect_cmip_EventReportArgument(FALSE, tvb, offset, pinfo, tree, -1);
+      break;
+    case 1: /* M-eventreport-confirmed */
+      offset = dissect_cmip_EventReportArgument(FALSE, tvb, offset, pinfo, tree, -1);
+      break;
+    case 2: /* M-linkedreply */
+      offset = dissect_cmip_LinkedReplyArgument(FALSE, tvb, offset, pinfo, tree, -1);
+      break;
     case 3: /* M-get */
       offset = dissect_cmip_GetArgument(FALSE, tvb, offset, pinfo, tree, -1);
+      break;
+    case 4: /* M-set */
+      offset = dissect_cmip_SetArgument(FALSE, tvb, offset, pinfo, tree, -1);
+      break;
+    case 5: /* M-set-confirmed */
+      offset = dissect_cmip_SetArgument(FALSE, tvb, offset, pinfo, tree, -1);
       break;
     case 6: /* M-action*/
       offset = dissect_cmip_ActionInfo(FALSE, tvb,  offset, pinfo, tree, -1);
@@ -104,18 +119,47 @@ ROS
     case 7: /* M-action-confirmed*/
       offset = dissect_cmip_ActionInfo(FALSE, tvb,  offset, pinfo, tree, -1);
       break;
+    case 8: /* M-create*/
+      offset = dissect_cmip_CreateArgument(FALSE, tvb,  offset, pinfo, tree, -1);
+      break;
+    case 9: /* M-delete*/
+      offset = dissect_cmip_DeleteArgument(FALSE, tvb,  offset, pinfo, tree, -1);
+      break;
+    case 10: /* M-cancelget */
+      offset = dissect_cmip_InvokeIDType(FALSE, tvb,  offset, pinfo, tree, -1);
+      break;
     }
     break;
   case OPCODE_RETURN_RESULT:
     switch(opcode){
+    case 0: /* M-eventreport*/
+      break;  /* No return data */
+    case 1: /* M-eventreport-confirmed */
+      offset = dissect_cmip_EventReportResult(FALSE, tvb, offset, pinfo, tree, -1);
+      break;
+    case 2: /* M-linkedreply*/
+      break;  /* No return data */
     case 3: /* M-get */
       offset = dissect_cmip_GetResult(FALSE, tvb, offset, pinfo, tree, -1);
+      break;
+    case 4: /* M-set */
+      break;  /* No return data */
+    case 5: /* M-set-confirmed*/
+      offset = dissect_cmip_SetResult(FALSE, tvb, offset, pinfo, tree, -1);
       break;
     case 6: /* M-action*/
       break;  /* No return data */
     case 7: /* M-action-confirmed*/
       offset = dissect_cmip_ActionResult(FALSE, tvb, offset, pinfo, tree, -1);
       break;
+    case 8: /* M-create*/
+      offset = dissect_cmip_CreateResult(FALSE, tvb,  offset, pinfo, tree, -1);
+      break;
+    case 9: /* M-delete*/
+      offset = dissect_cmip_DeleteResult(FALSE, tvb,  offset, pinfo, tree, -1);
+      break;
+    case 10: /* M-cancelget */
+      break; /* doe this one return any data? */
     }
     break;
   /*XXX add more types here */
@@ -142,6 +186,63 @@ ROS
                                          hf_cmip_actionType_OID, object_identifier_id);
 
 #.FN_BODY ActionReply/actionReplyInfo
+  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
+
+#.FN_BODY EventReportArgument/eventType
+  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
+                                         hf_cmip_eventType_OID, object_identifier_id);
+
+#.FN_BODY EventReportArgument/eventInfo
+  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
+
+
+#.FN_BODY EventReply/eventType
+  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
+                                         hf_cmip_eventType_OID, object_identifier_id);
+
+#.FN_BODY EventReply/eventReplyInfo
+  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
+
+#.FN_BODY ModificationItem/attributeId
+  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
+                                         hf_cmip_attributeId_OID, object_identifier_id);
+
+#.FN_BODY ModificationItem/attributeValue
+  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
+
+
+#.FN_BODY SpecificErrorInfo/errorId
+  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
+                                         hf_cmip_errorId_OID, object_identifier_id);
+
+#.FN_BODY SpecificErrorInfo/errorInfo
+  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
+
+#.FN_BODY AttributeError/attributeId
+  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
+                                         hf_cmip_attributeId_OID, object_identifier_id);
+
+#.FN_BODY AttributeError/attributeValue
+  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
+
+
+#.FN_BODY ErrorInfo/actionType
+  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
+                                         hf_cmip_actionType_OID, object_identifier_id);
+
+#.FN_BODY NoSuchArgumentAction/actionType
+  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
+                                         hf_cmip_actionType_OID, object_identifier_id);
+
+#.FN_BODY NoSuchArgumentEvent/eventType
+  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
+                                         hf_cmip_eventType_OID, object_identifier_id);
+
+#.FN_BODY InvalidArgumentValueEventValue/eventType
+  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
+                                         hf_cmip_eventType_OID, object_identifier_id);
+
+#.FN_BODY InvalidArgumentValueEventValue/eventInfo
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
 
 
