@@ -3,7 +3,7 @@
  * (This used to be a notebook page under "Preferences", hence the
  * "prefs" in the file name.)
  *
- * $Id: filter_prefs.c,v 1.25 2001/01/28 04:52:29 guy Exp $
+ * $Id: filter_prefs.c,v 1.26 2001/01/28 09:13:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -29,6 +29,8 @@
 # include "config.h"
 #endif
 
+#include <string.h>
+
 #include <gtk/gtk.h>
 
 #include <epan.h>
@@ -38,6 +40,7 @@
 #include "filter_prefs.h"
 #include "dlg_utils.h"
 #include "ui_util.h"
+#include "simple_dialog.h"
 #include "prefs_dlg.h"
 #include "dfilter_expr_dlg.h"
 
@@ -60,7 +63,7 @@ typedef struct _filter_cb_data {
 } filter_cb_data;
 
 static GtkWidget *filter_dialog_new(GtkWidget *caller, GtkWidget *filter_te,
-    construct_args_t *construct_args, gboolean wants_add_expression_button);
+    filter_list_type_t list, construct_args_t *construct_args);
 static void filter_dlg_dclick(GtkWidget *dummy, gpointer main_w_arg);
 static void filter_dlg_ok_cb(GtkWidget *ok_bt, gpointer dummy);
 static void filter_dlg_apply_cb(GtkWidget *apply_bt, gpointer dummy);
@@ -133,8 +136,8 @@ capture_filter_construct_cb(GtkWidget *w, gpointer user_data)
 	parent_filter_te = gtk_object_get_data(GTK_OBJECT(w), E_FILT_TE_PTR_KEY);
 
 	/* Now create a new dialog, without an "Add Expression..." button. */
-	filter_browse_w = filter_dialog_new(caller, parent_filter_te, &args,
-	    FALSE);
+	filter_browse_w = filter_dialog_new(caller, parent_filter_te,
+	    CFILTER_LIST, &args);
 
 	/* Set the E_FILT_CALLER_PTR_KEY for the new dialog to point to
 	   our caller. */
@@ -187,7 +190,7 @@ display_filter_construct_cb(GtkWidget *w, gpointer construct_args_ptr)
 	/* Now create a new dialog, possibly with an "Apply" button, and
 	   definitely with an "Add Expression..." button. */
 	filter_browse_w = filter_dialog_new(caller, parent_filter_te,
-	    construct_args, TRUE);
+	    DFILTER_LIST, construct_args);
 
 	/* Set the E_FILT_CALLER_PTR_KEY for the new dialog to point to
 	   our caller. */
@@ -199,25 +202,26 @@ display_filter_construct_cb(GtkWidget *w, gpointer construct_args_ptr)
 	    filter_browse_w);
 }
 
-static GtkWidget *global_filter_w;
+static GtkWidget *global_cfilter_w;
 
-/* Create a filter dialog for editing; this is to be used as a callback
-   for menu items, toolbars, etc.. */
+/* Create a filter dialog for editing capture filters; this is to be used
+   as a callback for menu items, toolbars, etc.. */
 void
-filter_dialog_cb(GtkWidget *w)
+cfilter_dialog_cb(GtkWidget *w)
 {
 	/* No Apply button, and there's no text widget to set, much less
 	   activate, on "OK". */
 	static construct_args_t args = {
-		"Ethereal: Edit Filter List",
+		"Ethereal: Edit Capture Filter List",
 		FALSE,
 		FALSE
 	};
 
-	/* Has a filter dialog box already been opened for editing? */
-	if (global_filter_w != NULL) {
+	/* Has a filter dialog box already been opened for editing
+	   capture filters? */
+	if (global_cfilter_w != NULL) {
 		/* Yes.  Just reactivate it. */
-		reactivate_window(global_filter_w);
+		reactivate_window(global_cfilter_w);
 		return;
 	}
 
@@ -226,30 +230,97 @@ filter_dialog_cb(GtkWidget *w)
 	 * a button next to some text entry field, so don't associate it
 	 * with a text entry field.
 	 */
-	global_filter_w = filter_dialog_new(NULL, NULL, &args, TRUE);
+	global_cfilter_w = filter_dialog_new(NULL, NULL, CFILTER_LIST, &args);
 }
 
-/* List of filter dialogs, so that if the list of filters changes (the
-   model, if you will), we can update all of their lists displaying
+static GtkWidget *global_dfilter_w;
+
+/* Create a filter dialog for editing display filters; this is to be used
+   as a callback for menu items, toolbars, etc.. */
+void
+dfilter_dialog_cb(GtkWidget *w)
+{
+	/* No Apply button, and there's no text widget to set, much less
+	   activate, on "OK". */
+	static construct_args_t args = {
+		"Ethereal: Edit Display Filter List",
+		FALSE,
+		FALSE
+	};
+
+	/* Has a filter dialog box already been opened for editing
+	   display filters? */
+	if (global_dfilter_w != NULL) {
+		/* Yes.  Just reactivate it. */
+		reactivate_window(global_dfilter_w);
+		return;
+	}
+
+	/*
+	 * No.  Create one; we didn't pop this up as a result of pressing
+	 * a button next to some text entry field, so don't associate it
+	 * with a text entry field.
+	 */
+	global_dfilter_w = filter_dialog_new(NULL, NULL, DFILTER_LIST, &args);
+}
+
+/* List of capture filter dialogs, so that if the list of filters changes
+  (the model, if you will), we can update all of their lists displaying
    the filters (the views). */
-static GList *filter_dialogs;
+static GList *cfilter_dialogs;
+
+/* List of display filter dialogs, so that if the list of filters changes
+  (the model, if you will), we can update all of their lists displaying
+   the filters (the views). */
+static GList *dfilter_dialogs;
 
 static void
-remember_filter_dialog(GtkWidget *main_w)
+remember_filter_dialog(GtkWidget *main_w, GList **filter_dialogs)
 {
-  filter_dialogs = g_list_append(filter_dialogs, main_w);
+	*filter_dialogs = g_list_append(*filter_dialogs, main_w);
 }
 
-/* Remove a filter dialog from the list of filter_dialogss. */
+/* Remove a filter dialog from the specified list of filter_dialogs. */
 static void
-forget_filter_dialog(GtkWidget *main_w)
+forget_filter_dialog(GtkWidget *main_w, filter_list_type_t list)
 {
-	filter_dialogs = g_list_remove(filter_dialogs, main_w);
+	switch (list) {
+
+	case CFILTER_LIST:
+		cfilter_dialogs = g_list_remove(cfilter_dialogs, main_w);
+		break;
+
+	case DFILTER_LIST:
+		dfilter_dialogs = g_list_remove(dfilter_dialogs, main_w);
+		break;
+
+	default:
+		g_assert_not_reached();
+		break;
+	}
+}
+
+/* Get the dialog list corresponding to a particular filter list. */
+static GList *
+get_filter_dialog_list(filter_list_type_t list)
+{
+	switch (list) {
+
+	case CFILTER_LIST:
+		return cfilter_dialogs;
+
+	case DFILTER_LIST:
+		return dfilter_dialogs;
+
+	default:
+		g_assert_not_reached();
+		return NULL;
+	}
 }
 
 static GtkWidget *
 filter_dialog_new(GtkWidget *caller, GtkWidget *parent_filter_te,
-    construct_args_t *construct_args, gboolean wants_add_expression_button)
+    filter_list_type_t list, construct_args_t *construct_args)
 {
 	GtkWidget	*main_w,		/* main window */
 			*main_vb,		/* main container */
@@ -277,9 +348,35 @@ filter_dialog_new(GtkWidget *caller, GtkWidget *parent_filter_te,
 			*filter_te,
 			*add_expression_bt;
 	GtkWidget	*l_select = NULL;
-	GList		*flp = NULL;
+	GList		*fl_entry;
 	filter_def	*filt;
 	gchar		*filter_te_str = NULL;
+	GList		**filter_dialogs;
+	static filter_list_type_t cfilter_list = CFILTER_LIST;
+	static filter_list_type_t dfilter_list = DFILTER_LIST;
+	filter_list_type_t *filter_list_p;
+
+	/* Get a pointer to a static variable holding the type of filter on
+	   which we're working, so we can pass that pointer to callback
+	   routines. */
+	switch (list) {
+
+	case CFILTER_LIST:
+		filter_dialogs = &cfilter_dialogs;
+		filter_list_p = &cfilter_list;
+		break;
+
+	case DFILTER_LIST:
+		filter_dialogs = &dfilter_dialogs;
+		filter_list_p = &dfilter_list;
+		break;
+
+	default:
+		g_assert_not_reached();
+		filter_dialogs = NULL;
+		filter_list_p = NULL;
+		break;
+	}
 
 	main_w = dlg_window_new(construct_args->title);
 	gtk_object_set_data(GTK_OBJECT(main_w), E_FILT_CONSTRUCT_ARGS_KEY,
@@ -288,7 +385,7 @@ filter_dialog_new(GtkWidget *caller, GtkWidget *parent_filter_te,
 	/* Call a handler when we're destroyed, so we can inform
 	   our caller, if any, that we've been destroyed. */
 	gtk_signal_connect(GTK_OBJECT(main_w), "destroy",
-	    GTK_SIGNAL_FUNC(filter_dlg_destroy), NULL);
+	    GTK_SIGNAL_FUNC(filter_dlg_destroy), filter_list_p);
 
 	main_vb = gtk_vbox_new(FALSE, 5);
 	gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
@@ -316,14 +413,14 @@ filter_dialog_new(GtkWidget *caller, GtkWidget *parent_filter_te,
 
 	new_bt = gtk_button_new_with_label ("New");
 	gtk_signal_connect(GTK_OBJECT(new_bt), "clicked",
-	    GTK_SIGNAL_FUNC(filter_new_bt_clicked_cb), NULL);
+	    GTK_SIGNAL_FUNC(filter_new_bt_clicked_cb), filter_list_p);
 	gtk_container_add(GTK_CONTAINER(list_bb), new_bt);
 	gtk_widget_show(new_bt);
 
 	chg_bt = gtk_button_new_with_label ("Change");
 	gtk_widget_set_sensitive(chg_bt, FALSE);
 	gtk_signal_connect(GTK_OBJECT(chg_bt), "clicked",
-	    GTK_SIGNAL_FUNC(filter_chg_bt_clicked_cb), NULL);
+	    GTK_SIGNAL_FUNC(filter_chg_bt_clicked_cb), filter_list_p);
 	gtk_object_set_data(GTK_OBJECT(main_w), E_FILT_CHG_BT_KEY, chg_bt);
 	gtk_signal_connect(GTK_OBJECT(chg_bt), "destroy",
 	    GTK_SIGNAL_FUNC(filter_chg_bt_destroy_cb), NULL);
@@ -333,7 +430,7 @@ filter_dialog_new(GtkWidget *caller, GtkWidget *parent_filter_te,
 	copy_bt = gtk_button_new_with_label ("Copy");
 	gtk_widget_set_sensitive(copy_bt, FALSE);
 	gtk_signal_connect(GTK_OBJECT(copy_bt), "clicked",
-	    GTK_SIGNAL_FUNC(filter_copy_bt_clicked_cb), NULL);
+	    GTK_SIGNAL_FUNC(filter_copy_bt_clicked_cb), filter_list_p);
 	gtk_object_set_data(GTK_OBJECT(main_w), E_FILT_COPY_BT_KEY, copy_bt);
 	gtk_signal_connect(GTK_OBJECT(copy_bt), "destroy",
 	    GTK_SIGNAL_FUNC(filter_copy_bt_destroy_cb), NULL);
@@ -343,14 +440,14 @@ filter_dialog_new(GtkWidget *caller, GtkWidget *parent_filter_te,
 	del_bt = gtk_button_new_with_label ("Delete");
 	gtk_widget_set_sensitive(del_bt, FALSE);
 	gtk_signal_connect(GTK_OBJECT(del_bt), "clicked",
-	    GTK_SIGNAL_FUNC(filter_del_bt_clicked_cb), NULL);
+	    GTK_SIGNAL_FUNC(filter_del_bt_clicked_cb), filter_list_p);
 	gtk_object_set_data(GTK_OBJECT(main_w), E_FILT_DEL_BT_KEY, del_bt);
 	gtk_signal_connect(GTK_OBJECT(del_bt), "destroy",
 	    GTK_SIGNAL_FUNC(filter_del_bt_destroy_cb), NULL);
 	gtk_container_add(GTK_CONTAINER(list_bb), del_bt);
 	gtk_widget_show(del_bt);
 
-	if (wants_add_expression_button) {
+	if (list == DFILTER_LIST) {
 		/* Create the "Add Expression..." button, to pop up a dialog
 		   for constructing filter comparison expressions. */
 		add_expression_bt = gtk_button_new_with_label("Add Expression...");
@@ -381,9 +478,9 @@ filter_dialog_new(GtkWidget *caller, GtkWidget *parent_filter_te,
 	gtk_object_set_data(GTK_OBJECT(filter_l), E_FILT_DBLFUNC_KEY, filter_dlg_dclick);
 	gtk_object_set_data(GTK_OBJECT(filter_l), E_FILT_DBLARG_KEY, main_w);
 
-	flp = g_list_first(fl);
-	while (flp) {
-		filt    = (filter_def *) flp->data;
+	fl_entry = get_filter_list_first(list);
+	while (fl_entry != NULL) {
+		filt    = (filter_def *) fl_entry->data;
 		nl_lb   = gtk_label_new(filt->name);
 		nl_item = gtk_list_item_new();
 
@@ -396,14 +493,15 @@ filter_dialog_new(GtkWidget *caller, GtkWidget *parent_filter_te,
 		gtk_container_add(GTK_CONTAINER(filter_l), nl_item);
 		gtk_widget_show(nl_item);
 		gtk_object_set_data(GTK_OBJECT(nl_item), E_FILT_LBL_KEY, nl_lb);
-		gtk_object_set_data(GTK_OBJECT(nl_item), E_FILT_LIST_ITEM_MODEL_KEY, flp);
+		gtk_object_set_data(GTK_OBJECT(nl_item), E_FILT_LIST_ITEM_MODEL_KEY,
+		    fl_entry);
 
 		if (filter_te_str && filt->strval) {
 			if (strcmp(filter_te_str, filt->strval) == 0)
 				l_select = nl_item;
 		}
 
-		flp = flp->next;
+		fl_entry = fl_entry->next;
 	}
 
 	/* Middle row: Filter name entry */
@@ -475,7 +573,7 @@ filter_dialog_new(GtkWidget *caller, GtkWidget *parent_filter_te,
 
 	save_bt = gtk_button_new_with_label ("Save");
 	gtk_signal_connect(GTK_OBJECT(save_bt), "clicked",
-		GTK_SIGNAL_FUNC(filter_dlg_save_cb), GTK_OBJECT(main_w));
+		GTK_SIGNAL_FUNC(filter_dlg_save_cb), filter_list_p);
 	GTK_WIDGET_SET_FLAGS(save_bt, GTK_CAN_DEFAULT);
 	gtk_box_pack_start(GTK_BOX(bbox), save_bt, TRUE, TRUE, 0);
 	gtk_widget_show(save_bt);
@@ -489,7 +587,7 @@ filter_dialog_new(GtkWidget *caller, GtkWidget *parent_filter_te,
 
 	dlg_set_cancel(main_w, cancel_bt);
 
-	remember_filter_dialog(main_w);
+	remember_filter_dialog(main_w, filter_dialogs);
 
 	gtk_widget_show(main_w);
 
@@ -585,9 +683,36 @@ filter_apply(GtkWidget *main_w)
 }
 
 static void
-filter_dlg_save_cb(GtkWidget *save_bt, gpointer parent_w)
+filter_dlg_save_cb(GtkWidget *save_bt, gpointer data)
 {
-	save_filter_list();
+	filter_list_type_t list = *(filter_list_type_t *)data;
+	char *f_path;
+	int f_save_errno;
+	char *filter_type;
+
+	save_filter_list(list, &f_path, &f_save_errno);
+	if (f_path != NULL) {
+		/* We had an error saving the filter. */
+		switch (list) {
+
+		case CFILTER_LIST:
+			filter_type = "capture";
+			break;
+
+		case DFILTER_LIST:
+			filter_type = "display";
+			break;
+
+		default:
+			g_assert_not_reached();
+			filter_type = NULL;
+			break;
+		}
+		simple_dialog(ESD_TYPE_CRIT, NULL,
+		    "Could not save to your %s filter file\n\"%s\": %s.",
+		    filter_type, f_path, strerror(f_save_errno));
+		g_free(f_path);
+	}
 }
 
 static void
@@ -599,6 +724,7 @@ filter_dlg_cancel_cb(GtkWidget *cancel_bt, gpointer parent_w)
 static void
 filter_dlg_destroy(GtkWidget *win, gpointer data)
 {
+	filter_list_type_t list = *(filter_list_type_t *)data;
 	GtkWidget *caller;
 
 	/* Get the widget that requested that we be popped up, if any.
@@ -613,12 +739,26 @@ filter_dlg_destroy(GtkWidget *win, gpointer data)
 	} else {
 		/* This is an editing dialog popped up from, for example,
 		   a menu item; note that we no longer have one. */
-		g_assert(win == global_filter_w);
-		global_filter_w = NULL;
+		switch (list) {
+
+		case CFILTER_LIST:
+			g_assert(win == global_cfilter_w);
+			global_cfilter_w = NULL;
+			break;
+
+		case DFILTER_LIST:
+			g_assert(win == global_dfilter_w);
+			global_dfilter_w = NULL;
+			break;
+
+		default:
+			g_assert_not_reached();
+			break;
+		}
 	}
 
 	/* Remove this from the list of filter dialog windows. */
-	forget_filter_dialog(win);
+	forget_filter_dialog(win, list);
 
 	/* Now nuke this window. */
 	gtk_grab_remove(GTK_WIDGET(win));
@@ -760,7 +900,8 @@ filter_new_bt_clicked_cb(GtkWidget *w, gpointer data)
   GtkWidget  *name_te = gtk_object_get_data(GTK_OBJECT(main_w), E_FILT_NAME_TE_KEY);
   GtkWidget  *filter_te = gtk_object_get_data(GTK_OBJECT(main_w), E_FILT_FILTER_TE_KEY);
   GtkWidget  *filter_l = gtk_object_get_data(GTK_OBJECT(main_w), E_FILT_FILTER_L_KEY);
-  filter_def *filt;
+  filter_list_type_t list = *(filter_list_type_t *)data;
+  GList      *fl_entry;
   gchar      *name, *strval;
   new_filter_cb_args_t args;
   
@@ -768,16 +909,14 @@ filter_new_bt_clicked_cb(GtkWidget *w, gpointer data)
   strval = gtk_entry_get_text(GTK_ENTRY(filter_te));
   
   if (strlen(name) > 0 && strlen(strval) > 0) {
-    filt         = (filter_def *) g_malloc(sizeof(filter_def));
-    filt->name   = g_strdup(name);
-    filt->strval = g_strdup(strval);
-    fl           = g_list_append(fl, filt);
+    /* Add a new entry to the filter list. */
+    fl_entry = add_to_filter_list(list, name, strval);
 
     /* Update all the filter list widgets, not just the one in
        the dialog box in which we clicked on "Copy". */
     args.active_filter_l = filter_l;
-    args.nflp = g_list_last(fl);
-    g_list_foreach(filter_dialogs, new_filter_cb, &args);
+    args.nflp = fl_entry;
+    g_list_foreach(get_filter_dialog_list(list), new_filter_cb, &args);
   }
 }
 
@@ -817,9 +956,10 @@ filter_chg_bt_clicked_cb(GtkWidget *w, gpointer data)
   GtkWidget  *filter_l = gtk_object_get_data(GTK_OBJECT(main_w), E_FILT_FILTER_L_KEY);
   filter_def *filt;
   gchar      *name = "", *strval = "";
-  GList      *sl, *flp;
+  GList      *sl, *fl_entry;
   GtkObject  *l_item;
   GtkLabel   *nl_lb;
+  filter_list_type_t list = *(filter_list_type_t *)data;
 
   sl     = GTK_LIST(filter_l)->selection;
   name   = gtk_entry_get_text(GTK_ENTRY(name_te));
@@ -827,10 +967,10 @@ filter_chg_bt_clicked_cb(GtkWidget *w, gpointer data)
 
   if (sl) {  /* Something was selected */
     l_item = GTK_OBJECT(sl->data);
-    flp    = (GList *) gtk_object_get_data(l_item, E_FILT_LIST_ITEM_MODEL_KEY);
-    nl_lb  = (GtkLabel *) gtk_object_get_data(l_item, E_FILT_LBL_KEY);
-    if (flp && nl_lb) {
-      filt = (filter_def *) flp->data;
+    fl_entry = (GList *) gtk_object_get_data(l_item, E_FILT_LIST_ITEM_MODEL_KEY);
+    nl_lb = (GtkLabel *) gtk_object_get_data(l_item, E_FILT_LBL_KEY);
+    if (fl_entry != NULL && nl_lb != NULL) {
+      filt = (filter_def *) fl_entry->data;
       
       if (strlen(name) > 0 && strlen(strval) > 0 && filt) {
         g_free(filt->name);
@@ -840,7 +980,7 @@ filter_chg_bt_clicked_cb(GtkWidget *w, gpointer data)
 
         /* Update all the filter list widgets, not just the one in
            the dialog box in which we clicked on "Copy". */
-        g_list_foreach(filter_dialogs, chg_filter_cb, flp);
+        g_list_foreach(get_filter_dialog_list(list), chg_filter_cb, fl_entry);
       }
     }
   }
@@ -859,29 +999,30 @@ filter_copy_bt_clicked_cb(GtkWidget *w, gpointer data)
 {
   GtkWidget  *main_w = gtk_widget_get_toplevel(w);
   GtkWidget  *filter_l = gtk_object_get_data(GTK_OBJECT(main_w), E_FILT_FILTER_L_KEY);
-  GList      *sl, *flp;
-  filter_def *filt, *nfilt;
-  gchar      *prefix = "Copy of ";
+  GList      *sl, *fl_entry, *nfl_entry;
+  gchar      *prefix = "Copy of ", *name;
   GtkObject  *l_item;
+  filter_def *filt;
+  filter_list_type_t list = *(filter_list_type_t *)data;
   new_filter_cb_args_t args;
 
   sl     = GTK_LIST(filter_l)->selection;
   if (sl) {  /* Something was selected */
     l_item = GTK_OBJECT(sl->data);
-    flp    = (GList *) gtk_object_get_data(l_item, E_FILT_LIST_ITEM_MODEL_KEY);
-    if (flp) {
-      filt          = (filter_def *) flp->data;
-      nfilt         = (filter_def *) g_malloc(sizeof(filter_def));
-      nfilt->name   = g_malloc(strlen(prefix) + strlen(filt->name) + 1);
-      sprintf(nfilt->name, "%s%s", prefix, filt->name);
-      nfilt->strval = g_strdup(filt->strval);
-      fl            = g_list_append(fl, nfilt);
+    fl_entry = (GList *) gtk_object_get_data(l_item, E_FILT_LIST_ITEM_MODEL_KEY);
+    if (fl_entry != NULL) {
+      /* Add a new entry, copying the existing entry, to the filter list. */
+      filt = (filter_def *) fl_entry->data;
+      name = g_malloc(strlen(prefix) + strlen(filt->name) + 1);
+      sprintf(name, "%s%s", prefix, filt->name);
+      nfl_entry = add_to_filter_list(list, name, filt->strval);
+      g_free(name);
 
       /* Update all the filter list widgets, not just the one in
          the dialog box in which we clicked on "Copy". */
       args.active_filter_l = filter_l;
-      args.nflp = g_list_last(fl);
-      g_list_foreach(filter_dialogs, new_filter_cb, &args);
+      args.nflp = nfl_entry;
+      g_list_foreach(get_filter_dialog_list(list), new_filter_cb, &args);
     }
   }
 }
@@ -909,27 +1050,24 @@ filter_del_bt_clicked_cb(GtkWidget *w, gpointer data)
 {
   GtkWidget  *main_w = gtk_widget_get_toplevel(w);
   GtkWidget  *filter_l = gtk_object_get_data(GTK_OBJECT(main_w), E_FILT_FILTER_L_KEY);
-  GList      *sl, *flp;
-  filter_def *filt;
+  filter_list_type_t list = *(filter_list_type_t *)data;
+  GList      *sl, *fl_entry;
   GtkObject  *l_item;
   gint        pos;
-  
+
   sl = GTK_LIST(filter_l)->selection;
   if (sl) {  /* Something was selected */
     l_item = GTK_OBJECT(sl->data);
     pos    = gtk_list_child_position(GTK_LIST(filter_l),
       GTK_WIDGET(l_item));
-    flp    = (GList *) gtk_object_get_data(l_item, E_FILT_LIST_ITEM_MODEL_KEY);
-    if (flp) {
-      filt = (filter_def *) flp->data;
-      g_free(filt->name);
-      g_free(filt->strval);
-      g_free(filt);
-      fl = g_list_remove_link(fl, flp);
+    fl_entry = (GList *) gtk_object_get_data(l_item, E_FILT_LIST_ITEM_MODEL_KEY);
+    if (fl_entry != NULL) {
+      /* Remove the entry from the filter list. */
+      remove_from_filter_list(list, fl_entry);
 
       /* Update all the filter list widgets, not just the one in
          the dialog box in which we clicked on "Delete". */
-      g_list_foreach(filter_dialogs, delete_filter_cb, &pos);
+      g_list_foreach(get_filter_dialog_list(list), delete_filter_cb, &pos);
     } 
   }
 }

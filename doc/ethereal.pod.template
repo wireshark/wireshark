@@ -264,11 +264,15 @@ Allows you to unmark all packets that are currently displayed.
 Sets the packet printing, column display, TCP stream coloring, and GUI
 options (see L<"Preferences"> below).
 
-=item Edit:Filters
+=item Edit:Capture Filters
 
-Edits the saved list of filters, allowing filters to be added, changed,
-or deleted, and lets a selected filter be applied to the current
-capture, if any.
+Edits the saved list of capture filters, allowing filters to be added,
+changed, or deleted.
+
+=item Edit:Display Filters
+
+Edits the saved list of display filters, allowing filters to be added,
+changed, or deleted.
 
 =item Edit:Protocols
 
@@ -468,8 +472,8 @@ of each column in the packet list.
 
 The I<Column title> entry is used to specify the title of the column
 displayed at the top of the packet list.  The type of data that the column
-displays can be specified using the I<Column format> option menu.  The row
-of buttons on the left perform the following actions:
+displays can be specified using the I<Column format> option menu.
+The row of buttons on the left perform the following actions:
 
 =over 6
 
@@ -553,21 +557,49 @@ controlling the way Ethereal handles those protocols.
 
 =back
 
-=item Filters
+=item Edit Capture Filter List
 
-The I<Filters> dialog lets you create and modify filters, and set the
-default filter to use when capturing data or opening a capture file.
+=item Edit Display Filter List
 
-The I<Filter name> entry specifies a descriptive name for a filter, e.g.
-B<Web and DNS traffic>.  The I<Filter string> entry is the text that
-actually describes the filtering action to take, as described above.The
-dialog buttons perform the following actions:
+=item Capture Filter
+
+=item Display Filter
+
+=item Read Filter
+
+=item Search Filter
+
+The I<Edit Capture Filter List> dialog lets you create, modify, and
+delete capture filters, and the I<Edit Display Filter List> dialog lets
+you create, modify, and delete display filters.
+
+The I<Capture Filter> dialog lets you do all of the editing operations
+listed, and also lets you choose or construct a filter to be used when
+capturing packets.
+
+The I<Display Filter> dialog lets you do all of the editing operations
+listed, and also lets you choose or construct a filter to be used to
+filter the current capture being viewed.
+
+The I<Read Filter> dialog lets you do all of the editing operations
+listed, and also lets you choose or construct a filter to be used to
+as a read filter for a capture file you open.
+
+The I<Search Filter> dialog lets you do all of the editing operations
+listed, and also lets you choose or construct a filter expression to be
+used in a find operation.
+
+In all of those dialogs, the I<Filter name> entry specifies a
+descriptive name for a filter, e.g.  B<Web and DNS traffic>.  The
+I<Filter string> entry is the text that actually describes the filtering
+action to take, as described above.The dialog buttons perform the
+following actions:
 
 =over 6
 
 =item New
 
-If there is text in the two entry boxes, it creates a new associated list
+If there is text in the two entry boxes, creates a new associated list
 item.
 
 =item Change
@@ -585,26 +617,39 @@ Deletes the currently selected list item.
 
 =item Add Expression...
 
-Pops up a dialog box to allow you to construct a filter expression to
-test a particular field; it offers lists of field names, and, when
-appropriate, lists from which to select tests to perform on the field
-and values with which to compare it.
+For display filter expressions, pops up a dialog box to allow you to
+construct a filter expression to test a particular field; it offers
+lists of field names, and, when appropriate, lists from which to select
+tests to perform on the field and values with which to compare it.  In
+that dialog box, the OK button will cause the filter expression you
+constructed to be entered into the I<Filter string> entry at the current
+cursor position.
 
 =item OK
 
-Sets the filter in the I<Filter string> entry as the active filter.  If
-nothing is selected, turns filtering off.
+In the I<Edit Capture Filter List> and I<Edit Display Filter List>
+dialogs, closes the dialog box.  In the I<Capture Filter> dialog, closes
+the dialog box and makes the filter in the I<Filter string> entry the
+filter in the I<Capture Preferences> dialog.  In the I<Display Filter>
+dialog, closes the dialog box and makes the filter in the I<Filter
+string> entry the current display filter, and applies it to the current
+capture.  In the I<Read Filter> dialog, closes the dialog box and makes
+the filter in the I<Filter string> entry the filter in the I<Open
+Capture File> dialog.  In the I<Search Filter> dialog, closes the dialog
+box and makes the filter in the I<Filter string> entry the filter in the
+I<Find Frame> dialog.
 
 =item Apply
 
-Sets the filter in the I<Filter string> entry as the active filter, and
-applies it to the current capture, if any.  (The currently selected list
-item must be a display filter, not a capture filter.) If nothing is
-selected, turns filtering off.
+Makes the filter in the I<Filter string> entry the current display
+filter, and applies it to the current capture.
 
 =item Save
 
-Saves the current filter list in F<$HOME/.ethereal/filters>.
+Saves the current filter list in F<$HOME/.ethereal/cfilters> if the list
+of filters being edited is the list of capture filters or in
+F<$HOME/.ethereal/dfilters> if the list of filters being edited is the
+list of display filters.
 
 =item Cancel
 

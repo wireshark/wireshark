@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.174 2001/01/28 04:52:29 guy Exp $
+ * $Id: main.c,v 1.175 2001/01/28 09:13:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -855,8 +855,8 @@ main(int argc, char *argv[])
   WSADATA 	       wsaData; 
 #endif
 
-  char                *gpf_path, *pf_path;
-  int                  gpf_open_errno, pf_open_errno;
+  char                *gpf_path, *pf_path, *cf_path, *df_path;
+  int                  gpf_open_errno, pf_open_errno, cf_open_errno, df_open_errno;
   int                  err;
 #ifdef HAVE_LIBPCAP
   gboolean             start_capture = FALSE;
@@ -928,8 +928,11 @@ main(int argc, char *argv[])
   /* Read the preference files. */
   prefs = read_prefs(&gpf_open_errno, &gpf_path, &pf_open_errno, &pf_path);
 
-  /* Read the filter file. */
-  get_filter_list();
+  /* Read the capture filter file. */
+  read_filter_list(CFILTER_LIST, &cf_path, &cf_open_errno);
+
+  /* Read the display filter file. */
+  read_filter_list(DFILTER_LIST, &df_path, &df_open_errno);
 
   /* Initialize the capture file struct */
   cfile.plist		= NULL;
@@ -1363,6 +1366,26 @@ main(int argc, char *argv[])
       simple_dialog(ESD_TYPE_WARN, NULL,
         "Could not open your preferences file\n\"%s\": %s.", pf_path,
         strerror(pf_open_errno));
+  }
+
+  /* If the user's capture filter file exists but we failed to open it,
+     pop up an alert box; we defer that until now, so that the alert
+     box is more likely to come up on top of the main window. */
+  if (cf_path != NULL) {
+      simple_dialog(ESD_TYPE_WARN, NULL,
+        "Could not open your capture filter file\n\"%s\": %s.", cf_path,
+        strerror(cf_open_errno));
+      g_free(cf_path);
+  }
+
+  /* If the user's display filter file exists but we failed to open it,
+     pop up an alert box; we defer that until now, so that the alert
+     box is more likely to come up on top of the main window. */
+  if (df_path != NULL) {
+      simple_dialog(ESD_TYPE_WARN, NULL,
+        "Could not open your display filter file\n\"%s\": %s.", df_path,
+        strerror(df_open_errno));
+      g_free(df_path);
   }
 
 #ifdef HAVE_LIBPCAP

@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.46 2000/10/19 22:59:24 guy Exp $
+ * $Id: menu.c,v 1.47 2001/01/28 09:13:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -120,7 +120,8 @@ static GtkItemFactoryEntry menu_items[] =
   {"/Edit/_Unmark All Frames", NULL, GTK_MENU_FUNC(unmark_all_frames_cb), 0, NULL},
   {"/Edit/<separator>", NULL, NULL, 0, "<Separator>"},
   {"/Edit/_Preferences...", NULL, GTK_MENU_FUNC(prefs_cb), 0, NULL},
-  {"/Edit/_Filters...", NULL, GTK_MENU_FUNC(filter_dialog_cb), 0, NULL},
+  {"/Edit/_Capture Filters...", NULL, GTK_MENU_FUNC(cfilter_dialog_cb), 0, NULL},
+  {"/Edit/_Display Filters...", NULL, GTK_MENU_FUNC(dfilter_dialog_cb), 0, NULL},
   {"/Edit/P_rotocols...", NULL, GTK_MENU_FUNC(proto_cb), 0, NULL},
 #ifdef HAVE_LIBPCAP
   {"/_Capture", NULL, NULL, 0, "<Branch>" },
@@ -159,7 +160,7 @@ static int nmenu_items = sizeof(menu_items) / sizeof(menu_items[0]);
 static GtkItemFactoryEntry packet_list_menu_items[] =
 {
 	{"/Follow TCP Stream", NULL, GTK_MENU_FUNC(follow_stream_cb), 0, NULL},
-	{"/Filters...", NULL, GTK_MENU_FUNC(filter_dialog_cb), 0, NULL},
+	{"/Display Filters...", NULL, GTK_MENU_FUNC(dfilter_dialog_cb), 0, NULL},
 	{"/<separator>", NULL, NULL, 0, "<Separator>"},
 	{"/Colorize Display...", NULL, GTK_MENU_FUNC(color_display_cb), 0, NULL},
 	{"/Print...", NULL, GTK_MENU_FUNC(file_print_cmd_cb), 0, NULL},
@@ -170,7 +171,7 @@ static GtkItemFactoryEntry packet_list_menu_items[] =
 static GtkItemFactoryEntry tree_view_menu_items[] =
 {
 	{"/Follow TCP Stream", NULL, GTK_MENU_FUNC(follow_stream_cb), 0, NULL},
-	{"/Filters...", NULL, GTK_MENU_FUNC(filter_dialog_cb), 0, NULL},
+	{"/Display Filters...", NULL, GTK_MENU_FUNC(dfilter_dialog_cb), 0, NULL},
 	{"/<separator>", NULL, NULL, 0, "<Separator>"},
 	{"/Resolve Name", NULL, GTK_MENU_FUNC(resolve_name_cb), 0, NULL},
 	{"/Protocol Properties...", NULL, GTK_MENU_FUNC(properties_cb), 0, NULL},
@@ -183,7 +184,7 @@ static GtkItemFactoryEntry tree_view_menu_items[] =
 static GtkItemFactoryEntry hexdump_menu_items[] =
 {
 	{"/Follow TCP Stream", NULL, GTK_MENU_FUNC(follow_stream_cb), 0, NULL},
-	{"/Filters...", NULL, GTK_MENU_FUNC(filter_dialog_cb), 0, NULL}
+	{"/Display Filters...", NULL, GTK_MENU_FUNC(dfilter_dialog_cb), 0, NULL}
 };
 
 static int initialize = TRUE;

@@ -1,7 +1,7 @@
 /* filters.c
  * Declarations of routines for reading and writing the filters file.
  *
- * $Id: filters.h,v 1.1 2001/01/28 04:43:24 guy Exp $
+ * $Id: filters.h,v 1.2 2001/01/28 09:13:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -24,9 +24,12 @@
  */
 
 /*
- * List of filters.
+ * Filter lists.
  */
-extern GList       *fl;
+typedef enum {
+	CFILTER_LIST,	/* capture filter list */
+	DFILTER_LIST	/* display filter list */
+} filter_list_type_t;
 
 /*
  * Item in a list of filters.
@@ -36,6 +39,41 @@ typedef struct {
   char *strval;		/* filter expression */
 } filter_def;
 
-void get_filter_list(void);
+/*
+ * Read in a list of filters.
+ *
+ * On success, "*pref_path_return" is set to NULL.
+ * On error, "*pref_path_return" is set to point to the pathname of
+ * the file we tried to read - it should be freed by our caller -
+ * and "*errno_return" is set to the error.
+ */
+void read_filter_list(filter_list_type_t list, char **pref_path_return,
+    int *errno_return);
 
-void save_filter_list(void);
+/*
+ * Get a pointer to the first entry in a filter list.
+ */
+GList *get_filter_list_first(filter_list_type_t list);
+
+/*
+ * Add a new filter to the end of a list.
+ * Returns a pointer to the newly-added entry.
+ */
+GList *add_to_filter_list(filter_list_type_t list, char *name,
+    char *expression);
+
+/*
+ * Remove a filter from a list.
+ */
+void remove_from_filter_list(filter_list_type_t list, GList *fl_entry);
+
+/*
+ * Write out a list of filters.
+ *
+ * On success, "*pref_path_return" is set to NULL.
+ * On error, "*pref_path_return" is set to point to the pathname of
+ * the file we tried to read - it should be freed by our caller -
+ * and "*errno_return" is set to the error.
+ */
+void save_filter_list(filter_list_type_t list, char **pref_path_return,
+    int *errno_return);
