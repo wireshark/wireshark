@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.420 2004/03/23 21:19:56 guy Exp $
+ * $Id: main.c,v 1.421 2004/04/06 16:08:56 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2187,7 +2187,6 @@ main(int argc, char *argv[])
       case 'L':        /* Print list of link-layer types and exit */
 #ifdef HAVE_LIBPCAP
         list_link_layer_types = TRUE;
-        break;
 #else
         capture_option_specified = TRUE;
         arg_error = TRUE;
