@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.78 2002/01/15 10:01:21 guy Exp $
+ * $Id: prefs.c,v 1.79 2002/01/15 20:09:55 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -42,8 +42,8 @@
 #include <glib.h>
 
 #include <filesystem.h>
-#include <resolv.h>
 #include "globals.h"
+#include <resolv.h>
 #include "packet.h"
 #include "file.h"
 #include "prefs.h"
