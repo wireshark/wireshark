@@ -12,7 +12,7 @@
  * - support for reassembly
  * - error checking mode 
  *
- * $Id: packet-sctp.c,v 1.60 2003/08/06 07:17:58 guy Exp $
+ * $Id: packet-sctp.c,v 1.61 2003/08/26 07:03:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -339,6 +339,14 @@ sctp_adler32(const unsigned char* buf, unsigned int len)
 
 /* The CRC32C code is taken from draft-ietf-tsvwg-sctpcsum-01.txt.
  * That code is copyrighted by D. Otis and has been modified.
+ *
+ * Polynomial is
+ *
+ *	x^32 + x^28 + x^27 + x^26 + x^25 + x^23 + x^22 + x^20 + x^19 +
+ *	    x^18 + x^14 + x^13 + x^11 + x^10 + x^9 + x^8 + x^6 + 1
+ *
+ * Note that this is not the AUTODIN/HDLC/802.x CRC - it uses a different
+ * polynomial.
  */
 
 #define CRC32C(c,d) (c=(c>>8)^crc_c[(c^(d))&0xFF])
