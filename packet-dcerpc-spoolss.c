@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\spoolss packet disassembly
  * Copyright 2001-2002, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-spoolss.c,v 1.70 2003/01/11 00:42:12 tpot Exp $
+ * $Id: packet-dcerpc-spoolss.c,v 1.71 2003/01/11 04:40:21 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -665,6 +665,23 @@ static int hf_spoolss_userlevel_major = -1;
 static int hf_spoolss_userlevel_minor = -1;
 static int hf_spoolss_userlevel_processor = -1;
 
+/* Setprinterdataex */
+
+static int hf_spoolss_setprinterdataex_max_len = -1;
+static int hf_spoolss_setprinterdataex_real_len = -1;
+static int hf_spoolss_setprinterdataex_data = -1;
+
+/* spool printer info */
+
+static int hf_spoolss_spool_printer_info_devmode_ptr = -1;
+static int hf_spoolss_spool_printer_info_secdesc_ptr = -1;
+
+/* Security descriptor buffer */
+
+static int hf_spoolss_secdescbuf_maxlen = -1;
+static int hf_spoolss_secdescbuf_undoc = -1;
+static int hf_spoolss_secdescbuf_len = -1;
+
 static void
 spoolss_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree,
 			guint32 access)
@@ -820,141 +837,6 @@ dissect_SYSTEM_TIME(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 /*
- * New system for handling pointers and buffers.  We act more like the NDR
- * specification and have a list of deferred pointers which are processed
- * after a structure has been parsed.
- *
- * Each structure has a parse function which takes as an argument a GList.
- * As pointers are processed, they are appended onto this list.  When the
- * structure is complete, the pointers (referents) are processed by calling
- * prs_referents().  In the case of function arguments, the
- * prs_struct_and_referents() function is called as pointers are always
- * processed immediately after the argument.
- */
-
-typedef int prs_fn(tvbuff_t *tvb, int offset, packet_info *pinfo,
-		   proto_tree *tree, GList **dp_list, void **data);
-
-/* Deferred referent */
-
-struct deferred_ptr {
-	prs_fn *fn;		/* Parse function to call */
-	proto_tree *tree;	/* Tree context */
-};
-
-/* A structure to hold needed ethereal state to pass to GList foreach
-   iterator. */
-
-struct deferred_ptr_state {
-	tvbuff_t *tvb;
-	int *poffset;
-	packet_info *pinfo;
-	GList **dp_list;
-	void **ptr_data;
-};
-
-static void defer_ptr(GList **list, prs_fn *fn, proto_tree *tree)
-{
-	struct deferred_ptr *dr;
-
-	dr = g_malloc(sizeof(struct deferred_ptr));
-
-	dr->fn = fn;
-	dr->tree = tree;
-
-	*list = g_list_append(*list, dr);
-}
-
-/* Parse a pointer */
-
-static int prs_ptr(tvbuff_t *tvb, int offset, packet_info *pinfo,
-		   proto_tree *tree, guint32 *data, char *name)
-{
-	guint32 ptr;
-
-	offset = prs_uint32(tvb, offset, pinfo, tree, &ptr, NULL);
-
-	if (tree && name)
-		proto_tree_add_text(tree, tvb, offset - 4, 4,
-				    "%s pointer: 0x%08x", name, ptr);
-
-	if (data)
-		*data = ptr;
-
-	return offset;
-}
-
-/* Iterator function for prs_referents */
-
-static void dr_iterator(gpointer data, gpointer user_data)
-{
-	struct deferred_ptr *dp = (struct deferred_ptr *)data;
-	struct deferred_ptr_state *s = (struct deferred_ptr_state *)user_data;
-
-	/* Parse pointer */
-
-	*s->poffset = dp->fn(s->tvb, *s->poffset, s->pinfo, dp->tree,
-			     s->dp_list, s->ptr_data);
-
-	if (s->ptr_data)
-		s->ptr_data++;		/* Ready for next parse fn */
-}
-
-/* Call the parse function for each element in the deferred pointers list.
-   If there are any additional pointers in these structures they are pushed
-   onto parent_dp_list. */
-
-static int prs_referents(tvbuff_t *tvb, int offset, packet_info *pinfo,
-		  proto_tree *tree _U_, GList **dp_list, GList **list,
-		  void ***ptr_data)
-{
-	struct deferred_ptr_state s;
-	int new_offset = offset;
-
-	/* Create a list of void pointers to store return data */
-
-	if (ptr_data) {
-		int len = g_list_length(*dp_list) * sizeof(void *);
-
-		if (len > 0) {
-			*ptr_data = malloc(len);
-			memset(*ptr_data, 0, len);
-		} else
-			*ptr_data = NULL;
-	}
-
-	/* Set up iterator data */
-
-	s.tvb = tvb;
-	s.poffset = &new_offset;
-	s.pinfo = pinfo;
-	s.dp_list = dp_list;
-	s.ptr_data = ptr_data ? *ptr_data : NULL;
-
-	g_list_foreach(*list, dr_iterator, &s);
-
-	*list = NULL;		/* XXX: free list */
-
-	return new_offset;
-}
-
-/* Parse a structure then clean up any deferred referants it creates. */
-
-static int prs_struct_and_referents(tvbuff_t *tvb, int offset,
-				    packet_info *pinfo, proto_tree *tree,
-				    prs_fn *fn, void **data, void ***ptr_data)
-{
-	GList *dp_list = NULL;
-
-	offset = fn(tvb, offset, pinfo, tree, &dp_list, data);
-
-	offset = prs_referents(tvb, offset, pinfo, tree, &dp_list,
-			       &dp_list, ptr_data);
-
-	return offset;
-}
-
-/*
  * SpoolssClosePrinter
  */
 
@@ -1070,56 +952,6 @@ dissect_unistr2(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	return offset;
 }
 
-/* Parse a UNISTR2 structure */
-
-static int prs_UNISTR2_dp(tvbuff_t *tvb, int offset, packet_info *pinfo,
-			  proto_tree *tree, GList **dp_list _U_, void **data)
-{
-	proto_item *item;
-	proto_tree *subtree;
-	guint32 length, the_offset, max_len;
-	int old_offset = offset;
-	int data16_offset;
-	char *text;
-
-	offset = prs_uint32(tvb, offset, pinfo, tree, &length, NULL);
-	offset = prs_uint32(tvb, offset, pinfo, tree, &the_offset, NULL);
-	offset = prs_uint32(tvb, offset, pinfo, tree, &max_len, NULL);
-
-	offset = prs_uint16s(tvb, offset, pinfo, tree, max_len, &data16_offset,
-			     NULL);
-
-	text = fake_unicode(tvb, data16_offset, max_len);
-
-	item = proto_tree_add_text(tree, tvb, old_offset, offset - old_offset,
-				   "UNISTR2: %s", text);
-
-	subtree = proto_item_add_subtree(item, ett_UNISTR2);
-
-	if (data)
-		*data = text;
-	else
-		g_free(text);
-
-	proto_tree_add_text(subtree, tvb, old_offset, 4, "Length: %u", length);
-
-	old_offset += 4;
-
-	proto_tree_add_text(subtree, tvb, old_offset, 4, "Offset: %u",
-			    the_offset);
-
-	old_offset += 4;
-
-	proto_tree_add_text(subtree, tvb, old_offset, 4, "Max length: %u",
-			    max_len);
-
-	old_offset += 4;
-
-	proto_tree_add_text(subtree, tvb, old_offset, max_len * 2, "Data");
-
-	return offset;
-}
-
 /* Dissect some printer data.  The get/set/enum printerdata routines all
    store value/data in a uint8 array.  We could use the ndr routines for
    this but that would result in one item for each byte in the printer
@@ -1209,7 +1041,8 @@ static int SpoolssGetPrinterData_r(tvbuff_t *tvb, int offset,
 
 	offset = dissect_printerdata_data(tvb, offset, pinfo, tree, drep);
 
-	offset = prs_uint32(tvb, offset, pinfo, tree, NULL, "Needed");
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, tree, drep, hf_spoolss_needed, NULL);
 
 	offset = dissect_doserror(tvb, offset, pinfo, tree, drep,
 				  hf_spoolss_rc, NULL);
@@ -1295,11 +1128,15 @@ static int SpoolssGetPrinterDataEx_r(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 				    hf_spoolss_printerdata_type, NULL);
 
-	offset = prs_uint32(tvb, offset, pinfo, tree, &size, "Size");
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+				    hf_spoolss_printerdata_size, &size);
 
-	offset = prs_uint8s(tvb, offset, pinfo, tree, size, NULL, "Data");
+	offset = dissect_ndr_uint8s(
+		tvb, offset, pinfo, NULL, drep,
+		hf_spoolss_printerdata_data, size, NULL);
 
-	offset = prs_uint32(tvb, offset, pinfo, tree, NULL, "Needed");
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, tree, drep, hf_spoolss_needed, NULL);
 
 	offset = dissect_doserror(tvb, offset, pinfo, tree, drep,
 				  hf_spoolss_rc, NULL);
@@ -1417,12 +1254,17 @@ static int SpoolssSetPrinterDataEx_q(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 				    hf_spoolss_printerdata_type, NULL);
 
-	offset = prs_uint32(tvb, offset, pinfo, tree, &max_len, "Max length");
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, tree, drep,
+		hf_spoolss_setprinterdataex_max_len, &max_len);
 
-	offset = prs_uint8s(tvb, offset, pinfo, tree, max_len, NULL,
-			    "Data");
+	offset = dissect_ndr_uint8s(
+		tvb, offset, pinfo, tree, drep,
+		hf_spoolss_setprinterdataex_data, max_len, NULL);
 
-	offset = prs_uint32(tvb, offset, pinfo, tree, NULL, "Real length");
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, tree, drep,
+		hf_spoolss_setprinterdataex_real_len, NULL);
 
 	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
@@ -1475,33 +1317,6 @@ dissect_spoolss_uint16uni(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 	proto_tree_add_text(tree, tvb, offset, len * 2, "%s: %s",
 			    name ? name : "UINT16UNI", text);
-
-	if (data)
-		*data = text;
-	else
-		g_free(text);
-
-	return offset + (len + 1) * 2;
-}
-
-static int prs_uint16uni(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
-			 proto_tree *tree, void **data, char *name)
-{
-	gint len = 0, remaining;
-	char *text;
-
-	offset = prs_align(offset, 2);
-
-	/* Get remaining data in buffer as a string */
-
-	remaining = tvb_length_remaining(tvb, offset)/2;
-	text = fake_unicode(tvb, offset, remaining);
-	len = strlen(text);
-
-	if (name)
-		proto_tree_add_text(tree, tvb, offset, (len + 1) * 2,
-				    "%s: %s", name ? name : "UINT16UNI",
-				    text);
 
 	if (data)
 		*data = text;
@@ -1846,71 +1661,6 @@ static int dissect_DEVMODE_CTR(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	return offset;
 }
 	
-static int prs_DEVMODE(tvbuff_t *tvb, int offset, packet_info *pinfo,
-		       proto_tree *tree, GList **dp_list _U_, void **data _U_)
-{
-	proto_item *item;
-	proto_tree *subtree;
-	guint16 extra;
-
-	item = proto_tree_add_text(tree, tvb, offset, 0, "DEVMODE");
-
-	subtree = proto_item_add_subtree(item, ett_DEVMODE);
-
- 	offset = prs_uint32(tvb, offset, pinfo, subtree, NULL, "Size");
-
-	/* The device name is stored in a 32-wchar buffer */
-
-	prs_uint16uni(tvb, offset, pinfo, subtree, NULL, "Devicename");
-	offset += 64;
-
-	offset = prs_uint16(tvb, offset, pinfo, subtree, NULL, "Spec version");
-	offset = prs_uint16(tvb, offset, pinfo, subtree, NULL, "Driver version");
-	offset = prs_uint16(tvb, offset, pinfo, subtree, NULL, "Size");
-	offset = prs_uint16(tvb, offset, pinfo, subtree, &extra, "Driver extra");
-
-	offset = prs_uint32(tvb, offset, pinfo, subtree, NULL, "Fields");
-
-	offset = prs_uint16(tvb, offset, pinfo, subtree, NULL, "Orientation");
-	offset = prs_uint16(tvb, offset, pinfo, subtree, NULL, "Paper size");
-	offset = prs_uint16(tvb, offset, pinfo, subtree, NULL, "Paper length");
-	offset = prs_uint16(tvb, offset, pinfo, subtree, NULL, "Paper width");
-	offset = prs_uint16(tvb, offset, pinfo, subtree, NULL, "Scale");
-	offset = prs_uint16(tvb, offset, pinfo, subtree, NULL, "Copies");
-	offset = prs_uint16(tvb, offset, pinfo, subtree, NULL, "Default source");
-	offset = prs_uint16(tvb, offset, pinfo, subtree, NULL, "Print quality");
-	offset = prs_uint16(tvb, offset, pinfo, subtree, NULL, "Color");
-	offset = prs_uint16(tvb, offset, pinfo, subtree, NULL, "Duplex");
-	offset = prs_uint16(tvb, offset, pinfo, subtree, NULL, "Y resolution");
-	offset = prs_uint16(tvb, offset, pinfo, subtree, NULL, "TT option");
-	offset = prs_uint16(tvb, offset, pinfo, subtree, NULL, "Collate");
-
-	prs_uint16uni(tvb, offset, pinfo, subtree, NULL, "Form name");
-	offset += 64;
-
-	offset = prs_uint16(tvb, offset, pinfo, subtree, NULL, "Log pixels");
-
-	offset = prs_uint32(tvb, offset, pinfo, subtree, NULL, "Bits per pel");
-	offset = prs_uint32(tvb, offset, pinfo, subtree, NULL, "Pels width");
-	offset = prs_uint32(tvb, offset, pinfo, subtree, NULL, "Pels height");
-	offset = prs_uint32(tvb, offset, pinfo, subtree, NULL, "Display flags");
-	offset = prs_uint32(tvb, offset, pinfo, subtree, NULL, "Display frequency");
-	offset = prs_uint32(tvb, offset, pinfo, subtree, NULL, "ICM method");
-	offset = prs_uint32(tvb, offset, pinfo, subtree, NULL, "ICM intent");
-	offset = prs_uint32(tvb, offset, pinfo, subtree, NULL, "Media type");
-	offset = prs_uint32(tvb, offset, pinfo, subtree, NULL, "Dither type");
-	offset = prs_uint32(tvb, offset, pinfo, subtree, NULL, "Reserved");
-	offset = prs_uint32(tvb, offset, pinfo, subtree, NULL, "Reserved");
-	offset = prs_uint32(tvb, offset, pinfo, subtree, NULL, "Panning width");
-	offset = prs_uint32(tvb, offset, pinfo, subtree, NULL, "Panning height");
-
-	if (extra != 0)
-		offset = prs_uint8s(tvb, offset, pinfo, subtree, extra, NULL,
-				    "Private");
-
-	return offset;
-}
-
 /*
  * Relative string given by offset into the current buffer.  Note that
  * the offset for subsequent relstrs are against the structure start, not
@@ -2480,32 +2230,6 @@ static int dissect_PRINTER_INFO_7(tvbuff_t *tvb, int offset,
 		tvb, offset, pinfo, tree, drep,
 		hf_spoolss_getprinter_action, NULL);
 	
-	return offset;
-}
-
-/*
- * DEVMODE_CTR
- */
-
-static int prs_DEVMODE_CTR(tvbuff_t *tvb, int offset, packet_info *pinfo,
-			   proto_tree *tree, GList **dp_list, void **data)
-{
-	proto_item *item;
-	proto_tree *subtree;
-	guint32 ptr = 0;
-
-	item = proto_tree_add_text(tree, tvb, offset, 0, "DEVMODE_CTR");
-
-	subtree = proto_item_add_subtree(item, ett_DEVMODE_CTR);
-
-	offset = prs_uint32(tvb, offset, pinfo, subtree, NULL, "Size");
-
-	offset = prs_ptr(tvb, offset, pinfo, subtree, &ptr, "Devicemode");
-
-	if (ptr)
-		offset = prs_DEVMODE(tvb, offset, pinfo, subtree, dp_list,
-				     data);
-
 	return offset;
 }
 
@@ -3290,8 +3014,8 @@ static int SpoolssReplyOpenPrinter_q(tvbuff_t *tvb, int offset,
 
 	/* Parse packet */
 
- 	offset = prs_struct_and_referents(tvb, offset, pinfo, tree,
- 					  prs_UNISTR2_dp, NULL, NULL);
+	offset = dissect_unistr2(
+		tvb, offset, pinfo, tree, drep, hf_spoolss_servername, NULL);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 				    hf_spoolss_printerlocal, &printerlocal);
@@ -3468,25 +3192,36 @@ static int SpoolssGetPrinter_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 static gint ett_SEC_DESC_BUF = -1;
 
-static int prs_SEC_DESC_BUF(tvbuff_t *tvb, int offset, packet_info *pinfo,
-			    proto_tree *tree, GList **dp_list _U_,
-			    void **Data _U_)
+static int
+dissect_SEC_DESC_BUF(tvbuff_t *tvb, int offset, packet_info *pinfo,
+		     proto_tree *tree, char *drep)
 {
 	proto_item *item;
 	proto_tree *subtree;
 	guint32 len;
 
-	item = proto_tree_add_text(tree, tvb, offset, 0, "SEC_DESC_BUF");
+	/* I think this is really a array of bytes */
+
+	item = proto_tree_add_text(tree, tvb, offset, 0,
+				   "SEC_DESC_BUF");
 
 	subtree = proto_item_add_subtree(item, ett_SEC_DESC_BUF);
 
-	offset = prs_uint32(tvb, offset, pinfo, subtree, &len, "Max length");
-	offset = prs_uint32(tvb, offset, pinfo, subtree, NULL, "Undocumented");
-	offset = prs_uint32(tvb, offset, pinfo, subtree, NULL, "Length");
+        offset = dissect_ndr_uint32(
+                tvb, offset, pinfo, subtree, drep,
+                hf_spoolss_secdescbuf_maxlen, NULL);
 
+        offset = dissect_ndr_uint32(
+                tvb, offset, pinfo, subtree, drep,
+                hf_spoolss_secdescbuf_undoc, NULL);
+
+        offset = dissect_ndr_uint32(
+                tvb, offset, pinfo, subtree, drep,
+                hf_spoolss_secdescbuf_len, &len);
+	
 	dissect_nt_sec_desc(tvb, offset, subtree, len);
 
-	offset += len;
+	offset += len;	
 
 	return offset;
 }
@@ -3497,9 +3232,9 @@ static int prs_SEC_DESC_BUF(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 static gint ett_SPOOL_PRINTER_INFO_LEVEL = -1;
 
-static int prs_SPOOL_PRINTER_INFO_LEVEL(tvbuff_t *tvb, int offset,
-					packet_info *pinfo, proto_tree *tree,
-					GList **dp_list, void **data _U_)
+static int
+dissect_SPOOL_PRINTER_INFO(tvbuff_t *tvb, int offset, packet_info *pinfo,
+			   proto_tree *tree, char *drep)
 {
 	proto_item *item;
 	proto_tree *subtree;
@@ -3510,43 +3245,39 @@ static int prs_SPOOL_PRINTER_INFO_LEVEL(tvbuff_t *tvb, int offset,
 
 	subtree = proto_item_add_subtree(item, ett_SPOOL_PRINTER_INFO_LEVEL);
 
-	offset = prs_uint32(tvb, offset, pinfo, subtree, &level, "Level");
+        offset = dissect_ndr_uint32(
+                tvb, offset, pinfo, subtree, drep,
+                hf_spoolss_level, &level);
 
 	switch(level) {
 	case 3: {
-		guint32 ptr;
+		guint32 devmode_ptr, secdesc_ptr;
 
-		offset = prs_ptr(tvb, offset, pinfo, subtree, &ptr,
-				 "Devicemode container");
+		/* I can't seem to get this working with the correct
+		   dissect_ndr_pointer() function so let's cheat and
+		   dissect the pointers by hand. )-: */
 
-		if (ptr)
-			defer_ptr(dp_list, prs_DEVMODE_CTR, subtree);
+		offset = dissect_ndr_uint32(
+			tvb, offset, pinfo, subtree, drep,
+			hf_spoolss_spool_printer_info_devmode_ptr, 
+			&devmode_ptr);
 
-		offset = prs_ptr(tvb, offset, pinfo, subtree, &ptr,
-				 "Security descriptor");
+		offset = dissect_ndr_uint32(
+			tvb, offset, pinfo, subtree, drep,
+			hf_spoolss_spool_printer_info_secdesc_ptr, 
+			&secdesc_ptr);
 
-		if (ptr)
-			defer_ptr(dp_list, prs_SEC_DESC_BUF, subtree);
+		if (devmode_ptr)
+			offset = dissect_DEVMODE_CTR(
+				tvb, offset, pinfo, subtree, drep);
 
-		break;
-	}
-	case 2: {
-		guint32 ptr;
+		if (secdesc_ptr)
+			offset = dissect_SEC_DESC_BUF(
+				tvb, offset, pinfo, subtree, drep);
 
-		offset = prs_ptr(tvb, offset, pinfo, subtree, &ptr, "Info");
-
-		/* Sigh - dissecting a PRINTER_INFO_2 is currently
-		   broken.  Hopefully this will be fixed when these
-		   routines are converted to the NDR parsing functions
-		   used by all the other DCERPC dissectors. */
-
-#if 0
-		if (ptr)
-			defer_ptr(dp_list, prs_PRINTER_INFO_2, subtree);
-#endif
-
-		break;
-	}
+	break;
+	}		
+	case 2:
 	default:
 		proto_tree_add_text(subtree, tvb, offset, 0,
 				    "[Unknown info level %d]", level);
@@ -3584,10 +3315,9 @@ static int SpoolssSetPrinter_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", level %d", level);
 
-	offset = prs_struct_and_referents(tvb, offset, pinfo, tree,
-					  prs_SPOOL_PRINTER_INFO_LEVEL,
-					  NULL, NULL);
-
+	offset = dissect_SPOOL_PRINTER_INFO(
+		tvb, offset, pinfo, tree, drep);
+	
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, tree, drep,
 		hf_spoolss_setprinter_cmd, NULL);
@@ -8064,7 +7794,44 @@ proto_register_dcerpc_spoolss(void)
 		{ &hf_unistr2_buffer,
 		  { "Buffer", "unistr2.buffer",
 		    FT_BYTES, BASE_HEX, NULL, 0, "Buffer", HFILL }},
-		
+
+		/* Setprinterdataex */
+
+		{ &hf_spoolss_setprinterdataex_max_len,
+		  { "Max len", "setprinterdataex.max_len",
+		    FT_UINT32, BASE_DEC, NULL, 0, "Max len", HFILL }},
+
+		{ &hf_spoolss_setprinterdataex_real_len,
+		  { "Real len", "setprinterdataex.real_len",
+		    FT_UINT32, BASE_DEC, NULL, 0, "Real len", HFILL }},
+
+		{ &hf_spoolss_setprinterdataex_data,
+		  { "Data", "setprinterdataex.data",
+		    FT_BYTES, BASE_HEX, NULL, 0, "Data", HFILL }},
+
+		/* Spool printer info */
+
+		{ &hf_spoolss_spool_printer_info_devmode_ptr,
+		  { "Devmode pointer", "spoolprinterinfo.devmode_ptr",
+		    FT_UINT32, BASE_HEX, NULL, 0, "Devmode pointer", HFILL }},
+
+		{ &hf_spoolss_spool_printer_info_secdesc_ptr,
+		  { "Secdesc pointer", "spoolprinterinfo.secdesc_ptr",
+		    FT_UINT32, BASE_HEX, NULL, 0, "Secdesc pointer", HFILL }},
+
+		/* Security descriptor buffer */
+
+		{ &hf_spoolss_secdescbuf_maxlen,
+		  { "Max len", "secdescbuf.max_len",
+		    FT_UINT32, BASE_DEC, NULL, 0, "Max len", HFILL }},
+
+		{ &hf_spoolss_secdescbuf_undoc,
+		  { "Undocumented", "secdescbuf.undoc",
+		    FT_UINT32, BASE_DEC, NULL, 0, "Undocumented", HFILL }},
+
+		{ &hf_spoolss_secdescbuf_len,
+		  { "Length", "secdescbuf.len",
+		    FT_UINT32, BASE_DEC, NULL, 0, "Length", HFILL }},
 	};
 
         static gint *ett[] = {
