@@ -260,6 +260,12 @@ static const struct encap_type_info {
 
 	/* WTAP_ENCAP_GPRS_LLC */
 	{ "GPRS LLC", "gprs-llc" },
+
+	/* WTAP_ENCAP_JUNIPER_ATM1 */
+	{ "Juniper ATM1", "juniper-atm1" },
+
+	/* WTAP_ENCAP_JUNIPER_ATM2 */
+	{ "Juniper ATM2", "juniper-atm2" },
 };
 
 /* Name that should be somewhat descriptive. */

@@ -953,6 +953,7 @@ proto_reg_handoff_ipv6(void)
   dissector_add("null.type", BSD_AF_INET6_DARWIN, ipv6_handle);
   dissector_add("chdlctype", ETHERTYPE_IPv6, ipv6_handle);
   dissector_add("fr.ietf", NLPID_IP6, ipv6_handle);
+  dissector_add("osinl.excl", NLPID_IP6, ipv6_handle);
   dissector_add("x.25.spi", NLPID_IP6, ipv6_handle);
   dissector_add("arcnet.protocol_id", ARCNET_PROTO_IPv6, ipv6_handle);
 

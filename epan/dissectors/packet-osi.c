@@ -224,6 +224,7 @@ const value_string nlpid_vals[] = {
 };
 
 static dissector_table_t osinl_subdissector_table;
+static dissector_table_t osinl_excl_subdissector_table;
 static dissector_handle_t data_handle, ppp_handle;
 
 static void dissect_osi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -235,8 +236,13 @@ static void dissect_osi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   nlpid = tvb_get_guint8(tvb, 0);
 
-  /* do lookup with the subdissector table */
+  /* try lookup with the subdissector tables that includes the nlpid */
   if (dissector_try_port(osinl_subdissector_table, nlpid, tvb, pinfo, tree))
+      return;
+
+  /* try lookup with the subdissector tables that excludes the nlpid */
+  new_tvb = tvb_new_subset(tvb, 1, -1, -1);
+  if (dissector_try_port(osinl_excl_subdissector_table, nlpid, new_tvb, pinfo, tree))
       return;
 
   switch (nlpid) {
@@ -255,14 +261,6 @@ static void dissect_osi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       }
       call_dissector(data_handle,tvb, pinfo, tree);
       break;
-    case NLPID_PPP:
-      /* XXX - we should put the NLPID into the protocol tree.
-         We should also probably have a subdissector table for
-         those protocols whose PDUs *aren't* defined to begin
-         with an NLPID. */
-      new_tvb = tvb_new_subset(tvb, 1, -1, -1);
-      call_dissector(ppp_handle, new_tvb, pinfo, tree);
-      break;
     default:
       if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "ISO");
@@ -280,9 +278,17 @@ proto_register_osi(void)
 {
 	/* There's no "OSI" protocol *per se*, but we do register a
 	   dissector table so various protocols running at the
-	   network layer can register themselves. */
+	   network layer can register themselves.
+           all protocols that require inclusion of the NLPID
+           should register here */
 	osinl_subdissector_table = register_dissector_table("osinl",
-	    "OSI NLPID", FT_UINT8, BASE_HEX);
+	    "OSI incl NLPID", FT_UINT8, BASE_HEX);
+
+        /* This dissector table is for those protocols whose PDUs
+         * aren't* defined to begin with an NLPID.
+         * (typically non OSI protocols like IP,IPv6,PPP */
+	osinl_excl_subdissector_table = register_dissector_table("osinl.excl",
+	    "OSI excl NLPID", FT_UINT8, BASE_HEX);
 }
 
 void

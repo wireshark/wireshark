@@ -3690,6 +3690,7 @@ proto_reg_handoff_ppp(void)
   ppp_hdlc_handle = find_dissector("ppp_hdlc");
   dissector_add("wtap_encap", WTAP_ENCAP_PPP, ppp_hdlc_handle);
   dissector_add("wtap_encap", WTAP_ENCAP_PPP_WITH_PHDR, ppp_hdlc_handle);
+  dissector_add("osinl.excl", NLPID_PPP, ppp_handle);
   dissector_add("gre.proto", ETHERTYPE_PPP, ppp_hdlc_handle);
 }
 

@@ -1762,6 +1762,7 @@ proto_reg_handoff_ip(void)
 	dissector_add("ip.proto", IP_PROTO_IPIP, ip_handle);
 	dissector_add("null.type", BSD_AF_INET, ip_handle);
 	dissector_add("chdlctype", ETHERTYPE_IP, ip_handle);
+	dissector_add("osinl.excl", NLPID_IP, ip_handle);
 	dissector_add("fr.ietf", NLPID_IP, ip_handle);
 	dissector_add("x.25.spi", NLPID_IP, ip_handle);
         dissector_add("arcnet.protocol_id", ARCNET_PROTO_IP_1051, ip_handle);

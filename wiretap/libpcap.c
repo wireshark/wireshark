@@ -294,9 +294,11 @@ static const struct {
 	{ 129,		WTAP_ENCAP_ARCNET_LINUX },
 
 	/*
-	 * Values 130 through 137 are reserved for use in Juniper
-	 * hardware.
+	 * Values 130 through 137 not listed here are reserved for use
+	 * in Juniper hardware.
 	 */
+	{ 135,		WTAP_ENCAP_JUNIPER_ATM2 }, /* various encapsulations captured on the ATM2 PIC */
+	{ 137,		WTAP_ENCAP_JUNIPER_ATM1 }, /* various encapsulations captured on the ATM1 PIC */
 
 	{ 138,		WTAP_ENCAP_APPLE_IP_OVER_IEEE1394 },
 						/* Apple IP-over-IEEE 1394 */
