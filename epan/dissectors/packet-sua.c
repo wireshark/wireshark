@@ -1026,7 +1026,7 @@ static const true_false_string return_on_error_bit_value = {
 };
 
 static void
-dissect_protocol_class_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree)
+dissect_protocol_class_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   proto_item *protocol_class_item;
   proto_tree *protocol_class_tree;
@@ -1038,6 +1038,7 @@ dissect_protocol_class_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_
 
   proto_tree_add_item(protocol_class_tree, hf_return_on_error_bit, parameter_tvb, PROTOCOL_CLASS_OFFSET, PROTOCOL_CLASS_LENGTH, NETWORK_BYTE_ORDER);
   proto_tree_add_item(protocol_class_tree, hf_protocol_class,      parameter_tvb, PROTOCOL_CLASS_OFFSET, PROTOCOL_CLASS_LENGTH, NETWORK_BYTE_ORDER);
+  proto_item_append_text(parameter_item, " (%d)", tvb_get_guint8(parameter_tvb, PROTOCOL_CLASS_OFFSET) & PROTOCOL_CLASS_MASK);
 }
 
 #define SEQUENCE_CONTROL_LENGTH 4
@@ -1437,7 +1438,7 @@ dissect_v8_parameter(tvbuff_t *parameter_tvb, proto_tree *tree, tvbuff_t **data_
     dissect_message_priority_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
   case V8_PROTOCOL_CLASS_PARAMETER_TAG:
-    dissect_protocol_class_parameter(parameter_tvb, parameter_tree);
+    dissect_protocol_class_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
   case V8_SEQUENCE_CONTROL_PARAMETER_TAG:
     dissect_sequence_control_parameter(parameter_tvb, parameter_tree, parameter_item);
@@ -1722,7 +1723,7 @@ dissect_parameter(tvbuff_t *parameter_tvb, proto_tree *tree, tvbuff_t **data_tvb
     dissect_message_priority_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
   case PROTOCOL_CLASS_PARAMETER_TAG:
-    dissect_protocol_class_parameter(parameter_tvb, parameter_tree);
+    dissect_protocol_class_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
   case SEQUENCE_CONTROL_PARAMETER_TAG:
     dissect_sequence_control_parameter(parameter_tvb, parameter_tree, parameter_item);
