@@ -7,7 +7,7 @@
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-ncp2222.inc,v 1.11 2002/05/11 23:04:53 guy Exp $
+ * $Id: packet-ncp2222.inc,v 1.12 2002/05/16 03:31:34 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -64,6 +64,7 @@ typedef struct {
 typedef struct {
 	const ncp_record	*ncp_rec;
 	gboolean		*req_cond_results;
+	guint32			req_frame_num;
 } ncp_req_hash_value;
 
 static GHashTable *ncp_req_hash = NULL;
@@ -683,6 +684,7 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
 			    PT_NCP, nw_connection, nw_connection, 0);
 		}
 		request_value = ncp_hash_insert(conversation, sequence, ncp_rec);
+		request_value->req_frame_num = pinfo->fd->num;
 
 		/* If this is the first time we're examining the packet,
 		 * check to see if this NCP type uses a "request condition".
@@ -911,6 +913,12 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
 	}
 
 	if (ncp_tree) {
+
+		if (request_value) {
+			proto_tree_add_uint(ncp_tree, hf_ncp_req_frame_num, tvb, 0, 0,
+				request_value->req_frame_num);
+		}
+
 
 		/* Put the func (and maybe subfunc) from the request packet
 		 * in the proto tree, but hidden. That way filters on ncp.func

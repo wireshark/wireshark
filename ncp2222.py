@@ -24,7 +24,7 @@ http://developer.novell.com/ndk/doc/docui/index.htm#../ncp/ncp__enu/data/
 for a badly-formatted HTML version of the same PDF.
 
 
-$Id: ncp2222.py,v 1.18 2002/05/15 03:33:40 guy Exp $
+$Id: ncp2222.py,v 1.19 2002/05/16 03:31:33 gram Exp $
 
 
 Copyright (c) 2000-2002 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -5266,6 +5266,7 @@ static int hf_ncp_length = -1;
 static int hf_ncp_subfunc = -1;
 static int hf_ncp_completion_code = -1;
 static int hf_ncp_connection_status = -1;
+static int hf_ncp_req_frame_num = -1;
 	"""
 
 	# Look at all packet types in the packets collection, and cull information
@@ -5612,6 +5613,10 @@ proto_register_ncp2222(void)
 
 	{ &hf_ncp_connection_status,
 	{ "Connection Status", "ncp.connection_status", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},
+
+	{ &hf_ncp_req_frame_num,
+	{ "Response to Request in Frame Number", "ncp.req_frame_num", FT_UINT32, BASE_DEC,
+		NULL, 0x0, "", HFILL }},
 	"""
 
 	# Print the registration code for the hf variables
