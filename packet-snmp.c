@@ -2,7 +2,7 @@
  * Routines for SNMP (simple network management protocol)
  * D.Jorand (c) 1998
  *
- * $Id: packet-snmp.c,v 1.40 2000/06/28 05:15:13 guy Exp $
+ * $Id: packet-snmp.c,v 1.41 2000/06/29 09:37:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1603,7 +1603,7 @@ dissect_snmp_pdu(const u_char *pd, int offset, frame_data *fd,
 		}
 		if (snmp_tree) {
 			proto_tree_add_text(snmp_tree, NullTVB, offset, length,
-			    "Context Name: %s", cname);
+			    "Context Name: %.*s", cname_length, cname);
 		}
 		g_free(cname);
 		offset += length;
