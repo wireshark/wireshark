@@ -1,6 +1,6 @@
 /* ethereal.c
  *
- * $Id: ethereal.c,v 1.63 1999/07/27 01:58:42 guy Exp $
+ * $Id: ethereal.c,v 1.64 1999/07/27 02:04:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -508,6 +508,24 @@ file_save_as_ok_cb(GtkWidget *w, GtkFileSelection *fs) {
 
 	set_menu_sensitivity("/File/Save", FALSE);
 	set_menu_sensitivity("/File/Save As...", TRUE);
+}
+
+/* Reload a file using the current display filter */
+void
+file_reload_cmd_cb(GtkWidget *w, gpointer data) {
+  /*GtkWidget *filter_te = gtk_object_get_data(GTK_OBJECT(w), E_DFILTER_TE_KEY);*/
+  GtkWidget *filter_te;
+  int err;
+
+  filter_te = gtk_object_get_data(GTK_OBJECT(w), E_DFILTER_TE_KEY);
+
+  if (cf.dfilter) g_free(cf.dfilter);
+  cf.dfilter = g_strdup(gtk_entry_get_text(GTK_ENTRY(filter_te)));
+  err = load_cap_file(cf.filename, &cf);
+  if (err != 0) {
+    simple_dialog(ESD_TYPE_WARN, NULL, file_open_error_message(err, FALSE),
+		cf.filename);
+  }
 }
 
 /* Run the current display filter on the current packet set, and
@@ -1288,6 +1306,7 @@ main(int argc, char *argv[])
   gtk_widget_show(filter_te);
 
   set_menu_object_data("/File/Open...", E_DFILTER_TE_KEY, filter_te);
+  set_menu_object_data("/File/Reload", E_DFILTER_TE_KEY, filter_te);
   set_menu_object_data("/Tools/Follow TCP Stream", E_DFILTER_TE_KEY,
     filter_te);
   info_bar = gtk_statusbar_new();

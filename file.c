@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.45 1999/07/27 01:58:42 guy Exp $
+ * $Id: file.c,v 1.46 1999/07/27 02:04:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -178,6 +178,7 @@ close_cap_file(capture_file *cf, void *w, guint context) {
   set_menu_sensitivity("/File/Save", FALSE);
   set_menu_sensitivity("/File/Save As...", FALSE);
   set_menu_sensitivity("/File/Close", FALSE);
+  set_menu_sensitivity("/File/Reload", FALSE);
   set_menu_sensitivity("/File/Print...", FALSE);
   set_menu_sensitivity("/Display/Options...", FALSE);
   set_menu_sensitivity("/Tools/Summary", FALSE);
@@ -238,6 +239,7 @@ load_cap_file(char *fname, capture_file *cf) {
 
     /* Enable menu items that make sense if you have a capture. */
     set_menu_sensitivity("/File/Close", TRUE);
+    set_menu_sensitivity("/File/Reload", TRUE);
     set_menu_sensitivity("/File/Print...", TRUE);
     set_menu_sensitivity("/Display/Options...", TRUE);
     set_menu_sensitivity("/Tools/Summary", TRUE);
@@ -295,6 +297,7 @@ cap_file_input_cb (gpointer data, gint source, GdkInputCondition condition) {
     set_menu_sensitivity("/File/Close", TRUE);
     set_menu_sensitivity("/File/Save As...", TRUE);
     set_menu_sensitivity("/File/Print...", TRUE);
+    set_menu_sensitivity("/File/Reload", TRUE);
     set_menu_sensitivity("/Capture/Start...", TRUE);
     set_menu_sensitivity("/Tools/Capture...", TRUE);
     set_menu_sensitivity("/Tools/Summary", TRUE);
