@@ -2,7 +2,7 @@
  * Routines for the Point-to-Point Tunnelling Protocol (PPTP) (RFC 2637)
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-pptp.c,v 1.14 2000/12/29 00:35:51 guy Exp $
+ * $Id: packet-pptp.c,v 1.15 2000/12/29 04:41:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -417,7 +417,7 @@ dissect_stop_req(tvbuff_t *tvb, int offset, packet_info *pinfo,
   guint8		reason;
 
   reason = tvb_get_guint8(tvb, offset);
-  proto_tree_add_text(tree, NullTVB, offset, 1,
+  proto_tree_add_text(tree, tvb, offset, 1,
 		      "Reason: %s (%u)", reasontype2str(reason), reason);
   offset += 1;
   
@@ -470,12 +470,12 @@ dissect_echo_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
   offset += 4;
   
   result = tvb_get_guint8(tvb, offset);
-  proto_tree_add_text(tree, NullTVB, offset, 1,
+  proto_tree_add_text(tree, tvb, offset, 1,
 		      "Result: %s (%u)", echoresulttype2str(result), result);
   offset += 1;
   
   error = tvb_get_guint8(tvb, offset);
-  proto_tree_add_text(tree, NullTVB, offset, sizeof(error),
+  proto_tree_add_text(tree, tvb, offset, sizeof(error),
 		      "Error: %s (%u)", errortype2str(error), error);
   offset += 1;
   
@@ -540,7 +540,7 @@ dissect_out_req(tvbuff_t *tvb, int offset, packet_info *pinfo,
   offset += PHONELEN;
 
   tvb_get_nstringz0(tvb, offset, SUBADDRLEN, subaddr);
-  proto_tree_add_text(tree, NullTVB, offset, SUBADDRLEN,
+  proto_tree_add_text(tree, tvb, offset, SUBADDRLEN,
 		      "Subaddress: %s", subaddr);
 }
 
@@ -565,7 +565,7 @@ dissect_out_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
   offset += 1;
   
   error = tvb_get_guint8(tvb, offset);
-  proto_tree_add_text(tree, NullTVB, offset, 1,
+  proto_tree_add_text(tree, tvb, offset, 1,
 		      "Error: %s (%u)", errortype2str(error), error);
   offset += 1;
 
