@@ -2,10 +2,10 @@
  * Routines for Endpoint Name Resolution Protocol (ENRP)
  * It is hopefully (needs testing) compilant to
  * http://www.ietf.org/internet-drafts/draft-ietf-rserpool-common-param-06.txt
- * http://www.ietf.org/internet-drafts/draft-ietf-rserpool-enrp-08.txt
+ * http://www.ietf.org/internet-drafts/draft-ietf-rserpool-enrp-09.txt
  *
  * The code is not as simple as possible for the current protocol
- * but allows to be adopted to furture versions of the protocol.
+ * but allows to be easily adopted to future versions of the protocol.
  * I will reconsider this after the protocol is an RFC.
  *
  * TODO:
@@ -13,7 +13,7 @@
  *
  * Copyright 2004, Michael Tuexen <tuexen [AT] fh-muenster.de>
  *
- * $Id: packet-enrp.c,v 1.1 2004/07/04 20:46:05 tuexen Exp $
+ * $Id: packet-enrp.c,v 1.2 2004/07/09 19:50:00 tuexen Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -85,7 +85,6 @@ static int hf_reply_required_bit = -1;
 static int hf_own_children_only_bit = -1;
 static int hf_more_to_send_bit = -1;
 static int hf_reject_bit = -1;
-static int hf_plr_reject_bit = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_enrp = -1;
@@ -594,8 +593,8 @@ dissect_peer_name_table_request_message(tvbuff_t *message_tvb, proto_tree *messa
   proto_tree_add_item(message_tree, hf_receiver_servers_id,    message_tvb, RECEIVER_SERVERS_ID_OFFSET, RECEIVER_SERVERS_ID_LENGTH, NETWORK_BYTE_ORDER);
 }
 
-#define MORE_TO_SEND_BIT_MASK 0x01
-#define REJECT_BIT_MASK       0x02
+#define REJECT_BIT_MASK       0x01
+#define MORE_TO_SEND_BIT_MASK 0x02
 
 static const true_false_string reject_bit_value = {
   "Rejected",
@@ -623,29 +622,24 @@ dissect_peer_name_table_response_message(tvbuff_t *message_tvb, proto_tree *mess
 #define UPDATE_ACTION_LENGTH 2
 #define PNU_RESERVED_LENGTH  2
 
-#define PNU_UPDATE_ACTION_OFFSET       MESSAGE_VALUE_OFFSET
-#define PNU_RESERVED_OFFSET            (PNU_UPDATE_ACTION_OFFSET + UPDATE_ACTION_LENGTH)
-#define PNU_SENDER_SERVERS_ID_OFFSET   (PNU_RESERVED_OFFSET + PNU_RESERVED_LENGTH)
-#define PNU_RECEIVER_SERVERS_ID_OFFSET (PNU_SENDER_SERVERS_ID_OFFSET + SENDER_SERVERS_ID_LENGTH)
-#define PNU_MESSAGE_PARAMETERS_OFFSET  (PNU_RECEIVER_SERVERS_ID_OFFSET + RECEIVER_SERVERS_ID_LENGTH)
-
-#define ADD_PE 0
-#define DEL_PE 1
+#define UPDATE_ACTION_OFFSET           (MESSAGE_VALUE_OFFSET + SENDER_SERVERS_ID_LENGTH + RECEIVER_SERVERS_ID_LENGTH)
+#define PNU_RESERVED_OFFSET            (UPDATE_ACTION_OFFSET + UPDATE_ACTION_LENGTH)
+#define PNU_MESSAGE_PARAMETERS_OFFSET  (PNU_RESERVED_OFFSET + PNU_RESERVED_LENGTH)
 
 static const value_string update_action_values[] = {
-  { ADD_PE, "Add pool element"    },
-  { DEL_PE, "Delete pool element" },
-  { 0,      NULL                  } };
+  { 0, "Add pool element"    },
+  { 1, "Delete pool element" },
+  { 0, NULL                  } };
 
 static void
 dissect_peer_name_update_message(tvbuff_t *message_tvb, proto_tree *message_tree, proto_tree *flags_tree _U_)
 {  
   tvbuff_t *parameters_tvb;
   
-  proto_tree_add_item(message_tree, hf_update_action,       message_tvb, PNU_UPDATE_ACTION_OFFSET,       UPDATE_ACTION_LENGTH,       NETWORK_BYTE_ORDER);
-  proto_tree_add_item(message_tree, hf_pmu_reserved,        message_tvb, PNU_RESERVED_OFFSET,            PNU_RESERVED_LENGTH,        NETWORK_BYTE_ORDER);
-  proto_tree_add_item(message_tree, hf_sender_servers_id,   message_tvb, PNU_SENDER_SERVERS_ID_OFFSET,   SENDER_SERVERS_ID_LENGTH,   NETWORK_BYTE_ORDER);
-  proto_tree_add_item(message_tree, hf_receiver_servers_id, message_tvb, PNU_RECEIVER_SERVERS_ID_OFFSET, RECEIVER_SERVERS_ID_LENGTH, NETWORK_BYTE_ORDER);
+  proto_tree_add_item(message_tree, hf_sender_servers_id,   message_tvb, SENDER_SERVERS_ID_OFFSET,   SENDER_SERVERS_ID_LENGTH,   NETWORK_BYTE_ORDER);
+  proto_tree_add_item(message_tree, hf_receiver_servers_id, message_tvb, RECEIVER_SERVERS_ID_OFFSET, RECEIVER_SERVERS_ID_LENGTH, NETWORK_BYTE_ORDER);
+  proto_tree_add_item(message_tree, hf_update_action,       message_tvb, UPDATE_ACTION_OFFSET,       UPDATE_ACTION_LENGTH,       NETWORK_BYTE_ORDER);
+  proto_tree_add_item(message_tree, hf_pmu_reserved,        message_tvb, PNU_RESERVED_OFFSET,        PNU_RESERVED_LENGTH,        NETWORK_BYTE_ORDER);
   parameters_tvb = tvb_new_subset(message_tvb, PNU_MESSAGE_PARAMETERS_OFFSET, -1, -1);
   dissect_parameters(parameters_tvb, message_tree);
 }
@@ -658,14 +652,12 @@ dissect_peer_list_request_message(tvbuff_t *message_tvb, proto_tree *message_tre
   proto_tree_add_item(message_tree, hf_receiver_servers_id, message_tvb, RECEIVER_SERVERS_ID_OFFSET, RECEIVER_SERVERS_ID_LENGTH, NETWORK_BYTE_ORDER);
 }
 
-#define PLR_REJECT_BIT_MASK       0x01
-
 static void
 dissect_peer_list_response_message(tvbuff_t *message_tvb, proto_tree *message_tree, proto_tree *flags_tree)
 {
   tvbuff_t *parameters_tvb;
   
-  proto_tree_add_item(flags_tree,   hf_plr_reject_bit,      message_tvb, MESSAGE_FLAGS_OFFSET,       MESSAGE_FLAGS_LENGTH,       NETWORK_BYTE_ORDER);
+  proto_tree_add_item(flags_tree,   hf_reject_bit,          message_tvb, MESSAGE_FLAGS_OFFSET,       MESSAGE_FLAGS_LENGTH,       NETWORK_BYTE_ORDER);
   proto_tree_add_item(message_tree, hf_sender_servers_id,   message_tvb, SENDER_SERVERS_ID_OFFSET,   SENDER_SERVERS_ID_LENGTH,   NETWORK_BYTE_ORDER);
   proto_tree_add_item(message_tree, hf_receiver_servers_id, message_tvb, RECEIVER_SERVERS_ID_OFFSET, RECEIVER_SERVERS_ID_LENGTH, NETWORK_BYTE_ORDER);
   parameters_tvb = tvb_new_subset(message_tvb, MESSAGE_PARAMETERS_OFFSET, -1, -1);
@@ -883,7 +875,6 @@ proto_register_enrp(void)
     { &hf_own_children_only_bit,  { "W bit",                       "enrp.w_bit",                                    FT_BOOLEAN, 8,         TFS(&own_children_only_bit_value), OWN_CHILDREN_ONLY_BIT_MASK, "", HFILL } },
     { &hf_more_to_send_bit,       { "M bit",                       "enrp.m_bit",                                    FT_BOOLEAN, 8,         TFS(&more_to_send_bit_value),      MORE_TO_SEND_BIT_MASK,      "", HFILL } },
     { &hf_reject_bit,             { "R bit",                       "enrp.r_bit",                                    FT_BOOLEAN, 8,         TFS(&reject_bit_value),            REJECT_BIT_MASK,            "", HFILL } },
-    { &hf_plr_reject_bit,         { "R bit",                       "enrp.r_bit",                                    FT_BOOLEAN, 8,         TFS(&reject_bit_value),            PLR_REJECT_BIT_MASK,        "", HFILL } },
   };
 
   /* Setup protocol subtree array */
