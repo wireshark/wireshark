@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.361 2004/01/19 23:03:20 guy Exp $
+ * $Id: main.c,v 1.362 2004/01/20 02:26:00 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2894,13 +2894,13 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
 #endif /* GTK_MAJOR_VERSION */
     gtk_widget_show(filter_tb);
 
-    filter_bt = gtk_button_new_with_label("Filter:");
+    filter_bt = BUTTON_NEW_FROM_STOCK(ETHEREAL_STOCK_DISPLAY_FILTER_ENTRY);
     SIGNAL_CONNECT(filter_bt, "clicked", display_filter_construct_cb, &args);
     gtk_widget_show(filter_bt);
     OBJECT_SET_DATA(top_level, E_FILT_BT_PTR_KEY, filter_bt);
 
     gtk_toolbar_append_widget(GTK_TOOLBAR(filter_tb), filter_bt, 
-        "Open display filter dialog", "Private");
+        "Edit/Apply display filter...", "Private");
 
     filter_cm = gtk_combo_new();
     filter_list = g_list_append (filter_list, "");
@@ -2924,14 +2924,14 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     SIGNAL_CONNECT(filter_reset, "clicked", filter_reset_cb, NULL);
     gtk_widget_show(filter_reset);
     gtk_toolbar_append_widget(GTK_TOOLBAR(filter_tb), filter_reset, 
-        "Clear the display filter", "Private");
+        "Clear the current display filter", "Private");
 
     filter_apply = BUTTON_NEW_FROM_STOCK(GTK_STOCK_APPLY);
     OBJECT_SET_DATA(filter_apply, E_DFILTER_CM_KEY, filter_cm);
     SIGNAL_CONNECT(filter_apply, "clicked", filter_activate_cb, filter_te);
     gtk_widget_show(filter_apply);
     gtk_toolbar_append_widget(GTK_TOOLBAR(filter_tb), filter_apply, 
-        "Apply the display filter", "Private");
+        "Apply this display filter", "Private");
 
     /* Sets the text entry widget pointer as the E_DILTER_TE_KEY data
      * of any widget that ends up calling a callback which needs
