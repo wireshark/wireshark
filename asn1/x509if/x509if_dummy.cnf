@@ -1,5 +1,0 @@
-# this dummy is to handle Any type
-# until when we can handle ANY properly
-
-#.IMPORT_TAG
-Any	BER_CLASS_ANY 0

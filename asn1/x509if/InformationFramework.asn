@@ -21,13 +21,11 @@ IMPORTS
     HierarchySelections, FamilyGrouping, FamilyReturn
     FROM DirectoryAbstractService directoryAbstractService
   ub-search
-    FROM UpperBounds upperBounds
-  Any
-    FROM X509ifDummy;
+    FROM UpperBounds upperBounds;
 
 AttributeId ::= OBJECT IDENTIFIER
 
---AttributeValue ::= Any
+--AttributeValue ::= ANY
 --
 -- attribute data types 
 Attribute ::= SEQUENCE {
@@ -36,7 +34,7 @@ Attribute ::= SEQUENCE {
 --     SET SIZE (0..MAX) OF AttributeValue
 --   valuesWithContext
 --     SET SIZE (1..MAX) OF
---       SEQUENCE {value        Any,
+--       SEQUENCE {value        ANY,
 --                 contextList  SET SIZE (1..MAX) OF Context} OPTIONAL
 }
 
@@ -46,7 +44,7 @@ AttributeType ::= AttributeId
 -- Context ::= SEQUENCE {
 --   contextType    AttributeId,
 --   contextValues
---     SET SIZE (1..MAX) OF Any,
+--     SET SIZE (1..MAX) OF ANY,
 --   fallback       BOOLEAN DEFAULT FALSE
 -- }
 -- 
@@ -98,12 +96,12 @@ RelativeDistinguishedName ::=
 
 AttributeTypeAndDistinguishedValue ::= SEQUENCE {
   type                  AttributeId,
-  value                 Any,
+  value                 ANY,
   primaryDistinguished  BOOLEAN OPTIONAL
 --   valuesWithContext
 --     SET SIZE (1..MAX) OF
 --       SEQUENCE {distingAttrValue
---                   [0]  Any OPTIONAL,
+--                   [0]  ANY OPTIONAL,
 --                 contextList       SET SIZE (1..MAX) OF Context} OPTIONAL
 }
  
@@ -594,13 +592,13 @@ ImposedSubset ::= ENUMERATED {baseObject(0), oneLevel(1), wholeSubtree(2)}
 --   includeSubtypes     [0]  BOOLEAN DEFAULT FALSE,
 --   selectedValues
 --     [1]  SEQUENCE SIZE (0..MAX) OF
---            Any OPTIONAL,
+--            ANY OPTIONAL,
 --   defaultValues
 --     [2]  SEQUENCE SIZE (0..MAX) OF
 --            SEQUENCE {entryType  OBJECT-CLASS.&id OPTIONAL,
 --                      values
 --                        SEQUENCE OF
---                          Any
+--                          ANY
 --            } OPTIONAL,
 --   contexts            [3]  SEQUENCE SIZE (0..MAX) OF ContextProfile OPTIONAL,
 --   contextCombination  [4]  ContextCombination DEFAULT and:{},
@@ -646,14 +644,14 @@ ImposedSubset ::= ENUMERATED {baseObject(0), oneLevel(1), wholeSubtree(2)}
 --   outputValues
 --     CHOICE {selectedValues
 --               SEQUENCE SIZE (1..MAX) OF
---                 Any,
+--                 ANY,
 --             matchedValuesOnly  NULL} OPTIONAL,
 --   contexts       [0]  SEQUENCE SIZE (1..MAX) OF ContextProfile OPTIONAL
 -- }
 -- 
 -- OutputValues ::= CHOICE {
 --   selectedValues
---     SEQUENCE SIZE (1..MAX) OF Any,
+--     SEQUENCE SIZE (1..MAX) OF ANY,
 --   matchedValuesOnly  NULL
 -- }
 -- 
@@ -737,9 +735,9 @@ ImposedSubset ::= ENUMERATED {baseObject(0), oneLevel(1), wholeSubtree(2)}
 -- 
 -- REQUEST-ATTRIBUTE ::= CLASS {
 --   &attributeType       AttributeId,
---   &SelectedValues      Any OPTIONAL,
+--   &SelectedValues      ANY OPTIONAL,
 --   &DefaultValues       SEQUENCE {entryType  OBJECT-CLASS.&id OPTIONAL,
---                                  values     SEQUENCE OF Any
+--                                  values     SEQUENCE OF ANY
 --   } OPTIONAL,
 --   &contexts            SEQUENCE OF ContextProfile OPTIONAL,
 --   &contextCombination  ContextCombination OPTIONAL,

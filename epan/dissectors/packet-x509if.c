@@ -8,7 +8,7 @@
 /* packet-x509if.c
  * Routines for X.509 Information Framework packet dissection
  *
- * $Id: packet-x509if-template.c 12431 2004-10-29 11:10:31Z sahlberg $
+ * $Id: packet-x509if-template.c 12433 2004-10-29 11:39:58Z sahlberg $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -122,6 +122,7 @@ dissect_x509if_AttributeType(gboolean implicit_tag _U_, tvbuff_t *tvb, int offse
 
   return offset;
 }
+
 
 
 static int

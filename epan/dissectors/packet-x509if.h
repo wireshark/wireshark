@@ -8,7 +8,7 @@
 /* packet-x509if.h
  * Routines for X.509 Information Framework packet dissection
  *
- * $Id: packet-x509if-template.h 12203 2004-10-05 09:18:55Z guy $
+ * $Id: packet-x509if-template.h 12433 2004-10-29 11:39:58Z sahlberg $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
