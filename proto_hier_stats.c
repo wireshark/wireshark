@@ -1,7 +1,7 @@
 /* proto_hier_stats.c
  * Routines for calculating statistics based on protocol.
  *
- * $Id: proto_hier_stats.c,v 1.1 2001/03/22 23:54:44 gram Exp $
+ * $Id: proto_hier_stats.c,v 1.2 2001/03/23 21:55:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -186,6 +186,7 @@ stat_node_free(GNode *node, gpointer data)
 	if (stats) {
 		g_free(stats);
 	}
+	return FALSE;
 }
 
 void
