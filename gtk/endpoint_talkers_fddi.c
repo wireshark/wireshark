@@ -1,7 +1,7 @@
 /* endpoint_talkers_fddi.c
  * endpoint_talkers_fddi   2003 Ronnie Sahlberg
  *
- * $Id: endpoint_talkers_fddi.c,v 1.2 2003/08/30 00:47:42 sahlberg Exp $
+ * $Id: endpoint_talkers_fddi.c,v 1.3 2003/08/30 00:53:15 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -46,20 +46,6 @@
 #include "packet-fddi.h"
 
 
-void protect_thread_critical_region(void);
-void unprotect_thread_critical_region(void);
-static void
-win_destroy_cb(GtkWindow *win _U_, gpointer data)
-{
-	endpoints_table *talkers=(endpoints_table *)data;
-
-	protect_thread_critical_region();
-	remove_tap_listener(talkers);
-	unprotect_thread_critical_region();
-
-	reset_ett_table_data(talkers);
-	g_free(talkers);
-}
 
 static void
 fddi_talkers_reset(void *pit)
@@ -127,7 +113,7 @@ gtk_fddi_talkers_init(char *optarg)
 	snprintf(title, 255, "FDDI Talkers: %s", cfile.filename);
 	gtk_window_set_title(GTK_WINDOW(talkers->win), title);
 
-	SIGNAL_CONNECT(talkers->win, "destroy", win_destroy_cb, talkers);
+	SIGNAL_CONNECT(talkers->win, "destroy", ett_win_destroy_cb, talkers);
 
 	vbox=gtk_vbox_new(FALSE, 0);
 	gtk_container_add(GTK_CONTAINER(talkers->win), vbox);

@@ -2,7 +2,7 @@
  * endpoint_talkers_table   2003 Ronnie Sahlberg
  * Helper routines common to all endpoint talkers taps.
  *
- * $Id: endpoint_talkers_table.h,v 1.4 2003/08/30 00:47:43 sahlberg Exp $
+ * $Id: endpoint_talkers_table.h,v 1.5 2003/08/30 00:53:15 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -59,3 +59,4 @@ void add_ett_table_data(endpoints_table *et, address *src, address *dst, guint32
 
 void draw_ett_table_data(endpoints_table *et);
 
+void ett_win_destroy_cb(GtkWindow *win _U_, gpointer data);

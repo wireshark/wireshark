@@ -1,7 +1,7 @@
 /* endpoint_talkers_tr.c
  * endpoint_talkers_tr   2003 Ronnie Sahlberg
  *
- * $Id: endpoint_talkers_tr.c,v 1.8 2003/08/30 00:47:43 sahlberg Exp $
+ * $Id: endpoint_talkers_tr.c,v 1.9 2003/08/30 00:53:15 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -45,21 +45,6 @@
 #include "endpoint_talkers_table.h"
 #include "packet-tr.h"
 
-
-void protect_thread_critical_region(void);
-void unprotect_thread_critical_region(void);
-static void
-win_destroy_cb(GtkWindow *win _U_, gpointer data)
-{
-	endpoints_table *talkers=(endpoints_table *)data;
-
-	protect_thread_critical_region();
-	remove_tap_listener(talkers);
-	unprotect_thread_critical_region();
-
-	reset_ett_table_data(talkers);
-	g_free(talkers);
-}
 
 static void
 tr_talkers_reset(void *pit)
@@ -126,7 +111,7 @@ gtk_tr_talkers_init(char *optarg)
 	snprintf(title, 255, "Token Ring Talkers: %s", cfile.filename);
 	gtk_window_set_title(GTK_WINDOW(talkers->win), title);
 
-	SIGNAL_CONNECT(talkers->win, "destroy", win_destroy_cb, talkers);
+	SIGNAL_CONNECT(talkers->win, "destroy", ett_win_destroy_cb, talkers);
 
 	vbox=gtk_vbox_new(FALSE, 0);
 	gtk_container_add(GTK_CONTAINER(talkers->win), vbox);

@@ -4,7 +4,7 @@
  * endpoint_talkers_table   2003 Ronnie Sahlberg
  * Helper routines common to all endpoint talkers tap.
  *
- * $Id: endpoint_talkers_table.c,v 1.6 2003/08/27 23:01:10 guy Exp $
+ * $Id: endpoint_talkers_table.c,v 1.7 2003/08/30 00:53:15 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -54,6 +54,23 @@ typedef struct column_arrows {
 	GtkWidget *ascend_pm;
 	GtkWidget *descend_pm;
 } column_arrows;
+
+
+void protect_thread_critical_region(void);
+void unprotect_thread_critical_region(void);
+void
+ett_win_destroy_cb(GtkWindow *win _U_, gpointer data)
+{
+	endpoints_table *talkers=(endpoints_table *)data;
+
+	protect_thread_critical_region();
+	remove_tap_listener(talkers);
+	unprotect_thread_critical_region();
+
+	reset_ett_table_data(talkers);
+	g_free(talkers);
+}
+
 
 
 void
