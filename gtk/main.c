@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.385 2004/02/01 10:01:19 ulfl Exp $
+ * $Id: main.c,v 1.386 2004/02/01 20:28:11 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -147,8 +147,6 @@ static GString *comp_info_str, *runtime_info_str;
 gchar       *ethereal_path = NULL;
 gchar       *last_open_dir = NULL;
 static gboolean updated_last_open_dir = FALSE;
-static gint root_x = G_MAXINT, root_y = G_MAXINT, top_width, top_height;
-static gboolean updated_geometry = FALSE;
 
 /* init with an invalid value, so that "recent" can detect this and */
 /* distinguish it from a command line value */
@@ -173,6 +171,7 @@ static gboolean list_link_layer_types;
 
 static void create_main_window(gint, gint, gint, e_prefs*);
 static void file_quit_answered_cb(gpointer dialog _U_, gint btn, gpointer data _U_);
+static void main_save_window_geometry(GtkWidget *widget);
 #ifdef WIN32
 #if GTK_MAJOR_VERSION >= 2
 static void try_to_get_windows_font_gtk2 (void);
@@ -1103,6 +1102,9 @@ main_do_quit(void)
 	gchar *rec_path;
 
 
+    /* get the current geometry, before writing it to disk */
+    main_save_window_geometry(top_level);
+
 	/* write user's recent file to disk
 	 * It is no problem to write this file, even if we do not quit */
 	write_recent(&rec_path);
@@ -1193,10 +1195,40 @@ main_window_delete_event_cb(GtkWidget *widget _U_, GdkEvent *event _U_, gpointer
   }
 }
 
-static gboolean
-main_window_configure_event_cb(GtkWidget *widget, GdkEvent *event _U_, gpointer data _U_)
+static void
+main_load_window_geometry(GtkWidget *widget)
+{
+    /* as we now have the geometry from the recent file, set it */
+    if (prefs.gui_geometry_save_position) {
+        gtk_widget_set_uposition(GTK_WIDGET(top_level),
+                                 recent.gui_geometry_main_x,
+                                 recent.gui_geometry_main_y);
+    }
+    if (prefs.gui_geometry_save_size) {
+        WIDGET_SET_SIZE(top_level, 
+                                recent.gui_geometry_main_width,
+                                recent.gui_geometry_main_height);
+    } else {
+        WIDGET_SET_SIZE(top_level, DEF_WIDTH, -1);
+    }
+#if GTK_MAJOR_VERSION >= 2
+    if(prefs.gui_geometry_save_maximized) {
+        if (recent.gui_geometry_main_maximized) {
+            gdk_window_maximize(widget->window);
+        } else {
+            gdk_window_unmaximize(widget->window);
+        }
+    }
+#endif
+}
+
+static void
+main_save_window_geometry(GtkWidget *widget)
 {
 	gint desk_x, desk_y;
+#if GTK_MAJOR_VERSION >= 2
+    GdkWindowState state;
+#endif
 
 	/* Try to grab our geometry.
 
@@ -1212,24 +1244,36 @@ main_window_configure_event_cb(GtkWidget *widget, GdkEvent *event _U_, gpointer 
 
 	http://mail.gnome.org/archives/gtk-devel-list/2001-March/msg00289.html
 	http://www.gtk.org/faq/#AEN606
+    */
 
-	   XXX - should we get this from the event itself? */
+    if (prefs.gui_geometry_save_position) {
+	    gdk_window_get_root_origin(widget->window, 
+            &recent.gui_geometry_main_x, 
+            &recent.gui_geometry_main_y);
+	    if (gdk_window_get_deskrelative_origin(widget->window,
+				    &desk_x, &desk_y)) {
+		    if (desk_x <= recent.gui_geometry_main_x && 
+                desk_y <= recent.gui_geometry_main_y)
+            {
+			    recent.gui_geometry_main_x = desk_x;
+			    recent.gui_geometry_main_y = desk_y;
+		    }
+	    }
+    }
 
-	gdk_window_get_root_origin(widget->window, &root_x, &root_y);
-	if (gdk_window_get_deskrelative_origin(widget->window,
-				&desk_x, &desk_y)) {
-		if (desk_x <= root_x && desk_y <= root_y) {
-			root_x = desk_x;
-			root_y = desk_y;
-		}
-	}
+    if (prefs.gui_geometry_save_size) {
+	    /* XXX - Is this the "approved" method? */
+	    gdk_window_get_size(widget->window, 
+            &recent.gui_geometry_main_width, 
+            &recent.gui_geometry_main_height);
+    }
 
-	/* XXX - Is this the "approved" method? */
-	gdk_window_get_size(widget->window, &top_width, &top_height);
-
-	updated_geometry = TRUE;
-
-	return FALSE;
+#if GTK_MAJOR_VERSION >= 2
+    if(prefs.gui_geometry_save_maximized) {
+        state = gdk_window_get_state(widget->window);
+        recent.gui_geometry_main_maximized = (state == GDK_WINDOW_STATE_MAXIMIZED);
+    }
+#endif
 }
 
 static void file_quit_answered_cb(gpointer dialog _U_, gint btn, gpointer data _U_)
@@ -1770,7 +1814,6 @@ main(int argc, char *argv[])
 #if GTK_MAJOR_VERSION < 2
   char                *bold_font_name;
 #endif
-  gboolean             prefs_write_needed = FALSE;
   ethereal_tap_list   *tli = NULL;
   gchar               *tap_opt = NULL;
 
@@ -2568,13 +2611,52 @@ main(int argc, char *argv[])
        we were told to. */
     create_main_window(pl_size, tv_size, bv_size, prefs);
 
-    dnd_init(top_level);
-
     /* Read the recent file, as we have the gui now ready for it. */
     read_recent(&rf_path, &rf_open_errno);
 
+    /* rearrange all the widgets */
+    main_widgets_rearrange();
+
+    /* Fill in column titles.  This must be done after the top level window
+       is displayed.
+
+       XXX - is that still true, with fixed-width columns? */
+    packet_list_set_column_titles();
+
+    menu_recent_read_finished();
+
+    switch (font_apply()) {
+    case FA_SUCCESS:
+        break;
+    case FA_FONT_NOT_RESIZEABLE:
+        /* "font_apply()" popped up an alert box. */
+        /* turn off zooming - font can't be resized */
+    case FA_FONT_NOT_AVAILABLE:
+        /* XXX - did we successfully load the un-zoomed version earlier?
+        If so, this *probably* means the font is available, but not at
+        this particular zoom level, but perhaps some other failure
+        occurred; I'm not sure you can determine which is the case,
+        however. */
+        /* turn off zooming - zoom level is unavailable */
+    default:
+        /* in any other case than FA_SUCCESS, turn off zooming */
+        recent.gui_zoom_level = 0;	
+        /* XXX: would it be a good idea to disable zooming (insensitive GUI)? */
+    }
+
+    dnd_init(top_level);
+
     colors_init();
     colfilter_init();
+
+    /*** we have finished all init things, show the main window ***/
+    gtk_widget_show(top_level);
+
+    /* the window can be maximized only, if it's visible, so do it after show! */
+    main_load_window_geometry(top_level);
+
+    /* process all pending GUI events before continue */
+    while (gtk_events_pending()) gtk_main_iteration();
 
     /* If we were given the name of a capture file, read it in now;
        we defer it until now, so that, if we can't open it, and pop
@@ -2778,87 +2860,6 @@ main(int argc, char *argv[])
 #endif
 
   gtk_main();
-
-  /* If the last opened directory, or our geometry, has changed, save
-     whatever we're supposed to save. */
-  if (updated_last_open_dir || updated_geometry) {
-    /* Re-read our saved preferences. */
-    prefs = read_prefs(&gpf_open_errno, &gpf_read_errno, &gpf_path,
-		       &pf_open_errno, &pf_read_errno, &pf_path);
-    if (pf_path == NULL) {
-      /* We succeeded in reading the preferences. */
-
-      if (updated_last_open_dir) {
-	/* The pathname of the last directory in which we've opened
-	   a file has changed.  If it changed from what's in the
-	   preferences file, and we're supposed to save it, update
-	   the preference value and note that we will have to write
-	   the preferences out. */
-	if (prefs->gui_fileopen_style == FO_STYLE_LAST_OPENED) {
-	  /* Yes, we're supposed to save it.
-	     Has a file been opened since Ethereal was started? */
-	  if (last_open_dir != NULL) {
-	    /* Yes.  Is the most recently navigated-to directory
-	       different from the saved directory? */
-	    if (prefs->gui_fileopen_remembered_dir == NULL ||
-	        strcmp(prefs->gui_fileopen_remembered_dir, last_open_dir) != 0) {
-	      /* Yes. */
-	      prefs->gui_fileopen_remembered_dir = last_open_dir;
-	      prefs_write_needed = TRUE;
-	    }
-	  }
-	}
-      }
-
-      if (updated_geometry) {
-        /* We got a geometry update, in the form of a configure_notify
-           event, so the geometry has changed.  If it changed from
-           what's in the preferences file, and we're supposed to save
-	   the current values of the changed geometry item (position or
-	   size), update the preference value and note that we will have
-	   to write the preferences out.
-
-	   XXX - should GUI stuff such as this be in a separate file? */
-	if (prefs->gui_geometry_save_position) {
-	  if (prefs->gui_geometry_main_x != root_x) {
-	    prefs->gui_geometry_main_x = root_x;
-	    prefs_write_needed = TRUE;
-	  }
-	  if (prefs->gui_geometry_main_y != root_y) {
-	    prefs->gui_geometry_main_y = root_y;
-	    prefs_write_needed = TRUE;
-	  }
-	}
-
-	if (prefs->gui_geometry_save_size) {
-	  if (prefs->gui_geometry_main_width != top_width) {
-	    prefs->gui_geometry_main_width = top_width;
-	    prefs_write_needed = TRUE;
-	  }
-	  if (prefs->gui_geometry_main_height != top_height) {
-	    prefs->gui_geometry_main_height = top_height;
-	    prefs_write_needed = TRUE;
-	  }
-	}
-      }
-    
-      /* Save the preferences if we need to do so.
-
-         XXX - this doesn't save the preferences if you don't have a
-         preferences file.  Forcibly writing a preferences file would
-         save the current settings even if you haven't changed them,
-         meaning that if the defaults change it won't affect you.
-         Perhaps we need to keep track of what the *user* has changed,
-         and only write out *those* preferences. */
-      if (prefs_write_needed) {
-	write_prefs(&pf_path);
-      }
-    } else {
-      /* We failed to read the preferences - silently ignore the
-         error. */
-      g_free(pf_path);
-    }
-  }
 
   epan_cleanup();
   g_free(rc_file);
@@ -3561,20 +3562,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
                    NULL);
     SIGNAL_CONNECT(top_level, "realize", window_icon_realize_cb, NULL);
     gtk_window_set_title(GTK_WINDOW(top_level), "The Ethereal Network Analyzer");
-    if (prefs->gui_geometry_save_position) {
-        gtk_widget_set_uposition(GTK_WIDGET(top_level),
-                                 prefs->gui_geometry_main_x,
-                                 prefs->gui_geometry_main_y);
-    }
-    if (prefs->gui_geometry_save_size) {
-        WIDGET_SET_SIZE(top_level, prefs->gui_geometry_main_width,
-                        prefs->gui_geometry_main_height);
-    } else {
-        WIDGET_SET_SIZE(top_level, DEF_WIDTH, -1);
-    }
     gtk_window_set_policy(GTK_WINDOW(top_level), TRUE, TRUE, FALSE);
-    SIGNAL_CONNECT(top_level, "configure_event", main_window_configure_event_cb,
-                   NULL);
 
     /* Container for menu bar, toolbar(s), paned windows and progress/info box */
     main_vbox = gtk_vbox_new(FALSE, 1);
@@ -3748,17 +3736,6 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     stat_hbox = gtk_hbox_new(FALSE, 1);
     gtk_container_border_width(GTK_CONTAINER(stat_hbox), 0);
     gtk_widget_show(stat_hbox);
-
-    /* rearrange all the widgets */
-    main_widgets_rearrange();
-
-    gtk_widget_show(top_level);
-
-    /* Fill in column titles.  This must be done after the top level window
-       is displayed.
-
-       XXX - is that still true, with fixed-width columns? */
-    packet_list_set_column_titles();
 }
 
 

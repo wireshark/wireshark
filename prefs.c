@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.123 2004/01/27 04:11:48 guy Exp $
+ * $Id: prefs.c,v 1.124 2004/02/01 20:28:10 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -985,14 +985,10 @@ read_prefs(int *gpf_errno_return, int *gpf_read_errno_return,
     prefs.gui_marked_bg.blue         =         0;
     prefs.gui_geometry_save_position =         0;
     prefs.gui_geometry_save_size     =         1;
-    prefs.gui_geometry_main_x        =        20;
-    prefs.gui_geometry_main_y        =        20;
-    prefs.gui_geometry_main_width    = DEF_WIDTH;
-    prefs.gui_geometry_main_height   =        -1;
+    prefs.gui_geometry_save_maximized=         1;
     prefs.gui_fileopen_style         = FO_STYLE_LAST_OPENED;
     prefs.gui_recent_files_count_max = 10;
     prefs.gui_fileopen_dir           = g_strdup("");
-    prefs.gui_fileopen_remembered_dir = NULL;
 
 /* set the default values for the capture dialog box */
     prefs.capture_device           = NULL;
@@ -1288,6 +1284,7 @@ prefs_set_pref(char *prefarg)
 #define PRS_GUI_FILEOPEN_REMEMBERED_DIR  "gui.fileopen.remembered_dir"
 #define PRS_GUI_GEOMETRY_SAVE_POSITION   "gui.geometry.save.position"
 #define PRS_GUI_GEOMETRY_SAVE_SIZE       "gui.geometry.save.size"
+#define PRS_GUI_GEOMETRY_SAVE_MAXIMIZED  "gui.geometry.save.maximized"
 #define PRS_GUI_GEOMETRY_MAIN_X          "gui.geometry.main.x"
 #define PRS_GUI_GEOMETRY_MAIN_Y          "gui.geometry.main.y"
 #define PRS_GUI_GEOMETRY_MAIN_WIDTH      "gui.geometry.main.width"
@@ -1568,14 +1565,17 @@ set_pref(gchar *pref_name, gchar *value)
     else {
 	    prefs.gui_geometry_save_size = FALSE;
     }
-  } else if (strcmp(pref_name, PRS_GUI_GEOMETRY_MAIN_X) == 0) {
-    prefs.gui_geometry_main_x = strtol(value, NULL, 10);
-  } else if (strcmp(pref_name, PRS_GUI_GEOMETRY_MAIN_Y) == 0) {
-    prefs.gui_geometry_main_y = strtol(value, NULL, 10);
-  } else if (strcmp(pref_name, PRS_GUI_GEOMETRY_MAIN_WIDTH) == 0) {
-    prefs.gui_geometry_main_width = strtol(value, NULL, 10);
-  } else if (strcmp(pref_name, PRS_GUI_GEOMETRY_MAIN_HEIGHT) == 0) {
-    prefs.gui_geometry_main_height = strtol(value, NULL, 10);
+  } else if (strcmp(pref_name, PRS_GUI_GEOMETRY_SAVE_MAXIMIZED) == 0) {
+    if (strcasecmp(value, "true") == 0) {
+	    prefs.gui_geometry_save_maximized = TRUE;
+    }
+    else {
+	    prefs.gui_geometry_save_maximized = FALSE;
+    }
+  } else if (strcmp(pref_name, PRS_GUI_GEOMETRY_MAIN_X) == 0) {         /* deprecated */
+  } else if (strcmp(pref_name, PRS_GUI_GEOMETRY_MAIN_Y) == 0) {         /* deprecated */
+  } else if (strcmp(pref_name, PRS_GUI_GEOMETRY_MAIN_WIDTH) == 0) {     /* deprecated */
+  } else if (strcmp(pref_name, PRS_GUI_GEOMETRY_MAIN_HEIGHT) == 0) {    /* deprecated */
   } else if (strcmp(pref_name, PRS_GUI_FILEOPEN_STYLE) == 0) {
     prefs.gui_fileopen_style =
 	find_index_from_string_array(value, gui_fileopen_style_text,
@@ -1590,10 +1590,7 @@ set_pref(gchar *pref_name, gchar *value)
     if (prefs.gui_fileopen_dir != NULL)
       g_free(prefs.gui_fileopen_dir);
     prefs.gui_fileopen_dir = g_strdup(value);
-  } else if (strcmp(pref_name, PRS_GUI_FILEOPEN_REMEMBERED_DIR) == 0) {
-    if (prefs.gui_fileopen_remembered_dir != NULL)
-      g_free(prefs.gui_fileopen_remembered_dir);
-    prefs.gui_fileopen_remembered_dir = g_strdup(value);
+  } else if (strcmp(pref_name, PRS_GUI_FILEOPEN_REMEMBERED_DIR) == 0) { /* deprecated */
 
 /* handle the capture options */
   } else if (strcmp(pref_name, PRS_CAP_DEVICE) == 0) {
@@ -2160,6 +2157,11 @@ write_prefs(char **pf_path_return)
   fprintf(pf, PRS_GUI_GEOMETRY_SAVE_SIZE ": %s\n",
 		  prefs.gui_geometry_save_size == TRUE ? "TRUE" : "FALSE");
                   
+  fprintf(pf, "\n# Save window maximized state at exit (GKT2 only)?\n");
+  fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
+  fprintf(pf, PRS_GUI_GEOMETRY_SAVE_MAXIMIZED ": %s\n",
+		  prefs.gui_geometry_save_maximized == TRUE ? "TRUE" : "FALSE");
+                  
   fprintf(pf, "\n# Where to start the File Open dialog box.\n");
   fprintf(pf, "# One of: LAST_OPENED, SPECIFIED\n");
   fprintf(pf, PRS_GUI_FILEOPEN_STYLE ": %s\n",
@@ -2174,21 +2176,6 @@ write_prefs(char **pf_path_return)
                   prefs.gui_fileopen_dir);
   }
                   
-  if (prefs.gui_fileopen_remembered_dir != NULL) {
-    fprintf(pf, "\n# Last directory navigated to in File Open dialog.\n");
-    fprintf(pf, PRS_GUI_FILEOPEN_REMEMBERED_DIR ": %s\n",
-                  prefs.gui_fileopen_remembered_dir);
-  }
-
-  fprintf(pf, "\n# Main window geometry.\n");
-  fprintf(pf, "# Decimal integers.\n");
-  fprintf(pf, PRS_GUI_GEOMETRY_MAIN_X ": %d\n", prefs.gui_geometry_main_x);
-  fprintf(pf, PRS_GUI_GEOMETRY_MAIN_Y ": %d\n", prefs.gui_geometry_main_y);
-  fprintf(pf, PRS_GUI_GEOMETRY_MAIN_WIDTH ": %d\n",
-  		  prefs.gui_geometry_main_width);
-  fprintf(pf, PRS_GUI_GEOMETRY_MAIN_HEIGHT ": %d\n",
-  		  prefs.gui_geometry_main_height);
-
   fprintf(pf, "\n####### Name Resolution ########\n");
   
   fprintf(pf, "\n# Resolve addresses to names?\n");
@@ -2280,7 +2267,6 @@ copy_prefs(e_prefs *dest, e_prefs *src)
   dest->gui_hex_dump_highlight_style = src->gui_hex_dump_highlight_style;
   dest->gui_toolbar_main_style = src->gui_toolbar_main_style;
   dest->gui_fileopen_dir = g_strdup(src->gui_fileopen_dir);
-  dest->gui_fileopen_remembered_dir = g_strdup(src->gui_fileopen_remembered_dir);
   dest->gui_fileopen_style = src->gui_fileopen_style;
   dest->gui_font_name1 = g_strdup(src->gui_font_name1);
   dest->gui_font_name2 = g_strdup(src->gui_font_name2);
@@ -2288,10 +2274,7 @@ copy_prefs(e_prefs *dest, e_prefs *src)
   dest->gui_marked_bg = src->gui_marked_bg;
   dest->gui_geometry_save_position = src->gui_geometry_save_position;
   dest->gui_geometry_save_size = src->gui_geometry_save_size;
-  dest->gui_geometry_main_x = src->gui_geometry_main_x;
-  dest->gui_geometry_main_y = src->gui_geometry_main_y;
-  dest->gui_geometry_main_width = src->gui_geometry_main_width;
-  dest->gui_geometry_main_height = src->gui_geometry_main_height;
+  dest->gui_geometry_save_maximized = src->gui_geometry_save_maximized;
 /*  values for the capture dialog box */
   dest->capture_device = g_strdup(src->capture_device);
   dest->capture_devices_descr = g_strdup(src->capture_devices_descr);
@@ -2328,10 +2311,6 @@ free_prefs(e_prefs *pr)
   if (pr->gui_fileopen_dir != NULL) {
     g_free(pr->gui_fileopen_dir);
     pr->gui_fileopen_dir = NULL;
-  }
-  if (pr->gui_fileopen_remembered_dir != NULL) {
-    g_free(pr->gui_fileopen_remembered_dir);
-    pr->gui_fileopen_remembered_dir = NULL;
   }
   if (pr->capture_device != NULL) {
     g_free(pr->capture_device);

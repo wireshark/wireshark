@@ -2,7 +2,7 @@
  * Recent "preference" handling routines
  * Copyright 2004, Ulf Lamping <ulf.lamping@web.de>
  *
- * $Id: recent.c,v 1.7 2004/01/25 18:51:25 ulfl Exp $
+ * $Id: recent.c,v 1.8 2004/02/01 20:28:11 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -39,11 +39,27 @@
 #include "prefs.h"
 #include "prefs-int.h"
 
+
+#define RECENT_KEY_MAIN_TOOLBAR_SHOW        "gui.toolbar_main_show"
+#define RECENT_KEY_FILTER_TOOLBAR_SHOW      "gui.filter_toolbar_show"
+#define RECENT_KEY_PACKET_LIST_SHOW         "gui.packet_list_show"
+#define RECENT_KEY_TREE_VIEW_SHOW           "gui.tree_view_show"
+#define RECENT_KEY_BYTE_VIEW_SHOW           "gui.byte_view_show"
+#define RECENT_KEY_STATUSBAR_SHOW           "gui.statusbar_show"
+#define RECENT_GUI_TIME_FORMAT              "gui.time_format"
+#define RECENT_GUI_ZOOM_LEVEL               "gui.zoom_level"
+#define RECENT_GUI_GEOMETRY_MAIN_X          "gui.geometry_main_x"
+#define RECENT_GUI_GEOMETRY_MAIN_Y          "gui.geometry_main_y"
+#define RECENT_GUI_GEOMETRY_MAIN_WIDTH      "gui.geometry_main_width"
+#define RECENT_GUI_GEOMETRY_MAIN_HEIGHT     "gui.geometry_main_height"
+#define RECENT_GUI_GEOMETRY_MAIN_MAXIMIZED  "gui.geometry_main_maximized"
+#define RECENT_GUI_FILEOPEN_REMEMBERED_DIR  "gui.fileopen_remembered_dir"
+
+
 #define RECENT_FILE_NAME "recent"
 
 /* #include "../menu.h" */
 extern void add_menu_recent_capture_file(gchar *file);
-extern void menu_recent_read_finished(void);
 
 recent_settings_t recent;
 
@@ -146,6 +162,26 @@ write_recent(char **rf_path_return)
   fprintf(rf, RECENT_GUI_ZOOM_LEVEL ": %d\n",
 		  recent.gui_zoom_level);
 
+  fprintf(rf, "\n# Main window geometry.\n");
+  fprintf(rf, "# Decimal integers.\n");
+  fprintf(rf, RECENT_GUI_GEOMETRY_MAIN_X ": %d\n", recent.gui_geometry_main_x);
+  fprintf(rf, RECENT_GUI_GEOMETRY_MAIN_Y ": %d\n", recent.gui_geometry_main_y);
+  fprintf(rf, RECENT_GUI_GEOMETRY_MAIN_WIDTH ": %d\n",
+  		  recent.gui_geometry_main_width);
+  fprintf(rf, RECENT_GUI_GEOMETRY_MAIN_HEIGHT ": %d\n",
+  		  recent.gui_geometry_main_height);
+  
+  fprintf(rf, "\n# Main window maximized (GTK2 only).\n");
+  fprintf(rf, "# TRUE or FALSE (case-insensitive).\n");
+  fprintf(rf, RECENT_GUI_GEOMETRY_MAIN_MAXIMIZED ": %s\n",
+		  recent.gui_geometry_main_maximized == TRUE ? "TRUE" : "FALSE");
+
+  if (recent.gui_fileopen_remembered_dir != NULL) {
+    fprintf(rf, "\n# Last directory navigated to in File Open dialog.\n");
+    fprintf(rf, RECENT_GUI_FILEOPEN_REMEMBERED_DIR ": %s\n",
+                  recent.gui_fileopen_remembered_dir);
+  }
+
   fclose(rf);
 
   /* XXX - catch I/O errors (e.g. "ran out of disk space") and return
@@ -212,6 +248,28 @@ read_set_recent_pair(gchar *key, gchar *value)
 	find_index_from_string_array(value, ts_type_text, TS_RELATIVE);
   } else if (strcmp(key, RECENT_GUI_ZOOM_LEVEL) == 0) {
     recent.gui_zoom_level = strtol(value, NULL, 0);
+
+  } else if (strcmp(key, RECENT_GUI_GEOMETRY_MAIN_MAXIMIZED) == 0) {
+    if (strcasecmp(value, "true") == 0) {
+        recent.gui_geometry_main_maximized = TRUE;
+    }
+    else {
+        recent.gui_geometry_main_maximized = FALSE;
+    }
+
+  } else if (strcmp(key, RECENT_GUI_GEOMETRY_MAIN_X) == 0) {
+    recent.gui_geometry_main_x = strtol(value, NULL, 10);
+  } else if (strcmp(key, RECENT_GUI_GEOMETRY_MAIN_Y) == 0) {
+    recent.gui_geometry_main_y = strtol(value, NULL, 10);
+  } else if (strcmp(key, RECENT_GUI_GEOMETRY_MAIN_WIDTH) == 0) {
+    recent.gui_geometry_main_width = strtol(value, NULL, 10);
+  } else if (strcmp(key, RECENT_GUI_GEOMETRY_MAIN_HEIGHT) == 0) {
+    recent.gui_geometry_main_height = strtol(value, NULL, 10);
+
+  } else if (strcmp(key, RECENT_GUI_FILEOPEN_REMEMBERED_DIR) == 0) {
+    if (recent.gui_fileopen_remembered_dir != NULL)
+      g_free(recent.gui_fileopen_remembered_dir);
+    recent.gui_fileopen_remembered_dir = g_strdup(value);
   }
 
   return PREFS_SET_OK;
@@ -236,6 +294,13 @@ read_recent(char **rf_path_return, int *rf_errno_return)
   recent.gui_time_format        = TS_RELATIVE;
   recent.gui_zoom_level         = 0;
 
+  recent.gui_geometry_main_x        =        20;
+  recent.gui_geometry_main_y        =        20;
+  recent.gui_geometry_main_width    = DEF_WIDTH;
+  recent.gui_geometry_main_height   =        -1;
+  recent.gui_fileopen_remembered_dir=      NULL;
+  recent.gui_geometry_main_maximized=     FALSE;
+
   /* Construct the pathname of the user's recent file. */
   rf_path = get_persconffile_path(RECENT_FILE_NAME, FALSE);
 
@@ -257,28 +322,6 @@ read_recent(char **rf_path_return, int *rf_errno_return)
       *rf_errno_return = errno;
       *rf_path_return = rf_path;
     }
-  }
-
-  menu_recent_read_finished();
-
-  switch (font_apply()) {
-
-  case FA_SUCCESS:
-    break;
-
-  case FA_FONT_NOT_RESIZEABLE:
-    /* "font_apply()" popped up an alert box. */
-    recent.gui_zoom_level = 0;	/* turn off zooming - font can't be resized */
-    break;
-
-  case FA_FONT_NOT_AVAILABLE:
-    /* XXX - did we successfully load the un-zoomed version earlier?
-       If so, this *probably* means the font is available, but not at
-       this particular zoom level, but perhaps some other failure
-       occurred; I'm not sure you can determine which is the case,
-       however. */
-    recent.gui_zoom_level = 0;	/* turn off zooming - zoom level is unavailable */
-    break;
   }
 }
 

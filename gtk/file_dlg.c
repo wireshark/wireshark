@@ -1,7 +1,7 @@
 /* file_dlg.c
  * Dialog boxes for handling files
  *
- * $Id: file_dlg.c,v 1.90 2004/01/31 18:32:36 ulfl Exp $
+ * $Id: file_dlg.c,v 1.91 2004/02/01 20:28:11 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -44,6 +44,7 @@
 #include "main.h"
 #include "compat_macros.h"
 #include "prefs.h"
+#include "recent.h"
 #include "color.h"
 #include "../ui_util.h"
 #include "gtk/color_filters.h"
@@ -249,9 +250,9 @@ file_open_cmd(GtkWidget *w)
 				      last_open_dir);
     }
     else {
-      if (prefs.gui_fileopen_remembered_dir != NULL) {
+      if (recent.gui_fileopen_remembered_dir != NULL) {
 	gtk_file_selection_set_filename(GTK_FILE_SELECTION(file_open_w),
-					prefs.gui_fileopen_remembered_dir);
+					recent.gui_fileopen_remembered_dir);
       }
     }
     break;

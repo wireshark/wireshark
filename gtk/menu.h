@@ -1,7 +1,7 @@
 /* menu.h
  * Menu definitions
  *
- * $Id: menu.h,v 1.15 2004/01/29 23:11:38 ulfl Exp $
+ * $Id: menu.h,v 1.16 2004/02/01 20:28:11 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -32,6 +32,7 @@ extern "C" {
 /* Write all recent capture filenames to the user's recent file */
 void menu_recent_file_write_all(FILE *rf);
 void menu_open_recent_file_cmd(GtkWidget *w);
+extern void menu_recent_read_finished(void);
 
 GtkWidget *main_menu_new(GtkAccelGroup **);
 void set_menu_object_data (gchar *path, gchar *key, gpointer data);

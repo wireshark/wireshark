@@ -1,7 +1,7 @@
 /* gui_prefs.c
  * Dialog box for GUI preferences
  *
- * $Id: gui_prefs.c,v 1.62 2004/01/31 03:22:40 guy Exp $
+ * $Id: gui_prefs.c,v 1.63 2004/02/01 20:28:11 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -65,6 +65,7 @@ static gint recent_files_count_changed_cb(GtkWidget *recent_files_entry _U_,
 #define HEX_DUMP_HIGHLIGHT_STYLE_KEY	"hex_dump_highlight_style"
 #define GEOMETRY_POSITION_KEY		"geometry_position"
 #define GEOMETRY_SIZE_KEY		"geometry_size"
+#define GEOMETRY_MAXIMIZED_KEY		"geometry_maximized"
 
 #define GUI_FILEOPEN_KEY	"fileopen_behavior"
 #define GUI_RECENT_FILES_COUNT_KEY "recent_files_count"
@@ -156,7 +157,7 @@ gui_prefs_show(void)
 	GtkWidget *ptree_browse_om, *highlight_style_om;
 	GtkWidget *fileopen_rb, *fileopen_dir_te, *toolbar_style_om;
 	GtkWidget *recent_files_count_max_te;
-	GtkWidget *save_position_cb, *save_size_cb;
+	GtkWidget *save_position_cb, *save_size_cb, *save_maximized_cb;
 #if GTK_MAJOR_VERSION < 2
 	GtkWidget *expander_style_om, *line_style_om;
 #else
@@ -244,6 +245,10 @@ gui_prefs_show(void)
 	save_size_cb = create_preference_check_button(main_tb, pos++,
 	    "Save window size:", NULL, prefs.gui_geometry_save_size);
 	OBJECT_SET_DATA(main_vb, GEOMETRY_SIZE_KEY, save_size_cb);
+
+	save_maximized_cb = create_preference_check_button(main_tb, pos++,
+	    "Save maximized state:", NULL, prefs.gui_geometry_save_maximized);
+	OBJECT_SET_DATA(main_vb, GEOMETRY_MAXIMIZED_KEY, save_maximized_cb);
 
 	/* Allow user to select where they want the File Open dialog to open to
 	 * by default */
@@ -428,6 +433,8 @@ gui_prefs_fetch(GtkWidget *w)
 	    	GEOMETRY_POSITION_KEY));
 	prefs.gui_geometry_save_size =
 	    gtk_toggle_button_get_active(OBJECT_GET_DATA(w, GEOMETRY_SIZE_KEY));
+	prefs.gui_geometry_save_maximized =
+	    gtk_toggle_button_get_active(OBJECT_GET_DATA(w, GEOMETRY_MAXIMIZED_KEY));
 	prefs.gui_fileopen_style = fetch_preference_radio_buttons_val(
 	    OBJECT_GET_DATA(w, GUI_FILEOPEN_KEY), gui_fileopen_vals);
 	    
