@@ -2,7 +2,7 @@
  * T.35 and H.221 tables
  * 2003  Tomas Kukosa
  *
- * $Id: t35.c,v 1.4 2003/10/10 10:02:31 guy Exp $
+ * $Id: t35.c,v 1.5 2004/06/15 09:43:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -251,6 +251,22 @@ const value_string H221ManufacturerCode_vals[] = {
 	{  0x04000082, "SITK Institut für Telekommunikation GmbH & Co KG" },/* From Ref. 3 */
 	{  0x0900003D, "Equivalence (OpenH323)" },                          /* From captures */
 	{  0x20000081, "Mediatrix Telecom" },                               /* From Ref. 1 */
+	{  0x3d000310, "Swissvoice" },
+	{  0x3d000311, "Swissvoice" },
+	{  0x3d000312, "Swissvoice" },
+	{  0x3d000313, "Swissvoice" },
+	{  0x3d000314, "Swissvoice" },
+	{  0x3d000315, "Swissvoice" },
+	{  0x3d000316, "Swissvoice" },
+	{  0x3d000317, "Swissvoice" },
+	{  0x3d000318, "Swissvoice" },
+	{  0x3d000319, "Swissvoice" },
+	{  0x3d00031a, "Swissvoice" },
+	{  0x3d00031b, "Swissvoice" },
+	{  0x3d00031c, "Swissvoice" },
+	{  0x3d00031d, "Swissvoice" },
+	{  0x3d00031e, "Swissvoice" },
+	{  0x3d00031f, "Swissvoice" },
 	{  0x82000002, "Ericsson" },                                        /* From captures */
 	{  0xa5000001, "Ericsson" },                                        /* From captures */
 	{  0xb4000000, "British Telecommunications" },                      /* From Ref. 2 */
