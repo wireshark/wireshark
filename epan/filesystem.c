@@ -1,7 +1,7 @@
 /* filesystem.c
  * Filesystem utility routines
  *
- * $Id: filesystem.c,v 1.5 2001/08/21 06:39:16 guy Exp $
+ * $Id: filesystem.c,v 1.6 2001/08/21 08:16:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -42,6 +42,10 @@
 
 #ifdef HAVE_SYS_STAT_H
 #include <sys/stat.h>
+#endif
+
+#ifdef HAVE_WINDOWS_H
+#include <windows.h>
 #endif
 
 #ifndef WIN32
@@ -255,6 +259,7 @@ get_datafile_dir(void)
 			datafile_dir[datafile_dir_len] = '\0';
 		}
 	}
+	return datafile_dir;
 #else
 	/*
 	 * Just use DATAFILE_DIR, as that's what the configure script

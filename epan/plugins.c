@@ -1,7 +1,7 @@
 /* plugins.c
  * plugin routines
  *
- * $Id: plugins.c,v 1.28 2001/08/21 06:39:16 guy Exp $
+ * $Id: plugins.c,v 1.29 2001/08/21 08:16:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -275,10 +275,10 @@ init_plugins(const char *plugin_dir)
 {
 #ifdef WIN32
     const char *datafile_dir;
+    char *install_plugin_dir;
 #else
-    struct stat std_dir_stat, local_dir_stat;
+    struct stat std_dir_stat, local_dir_stat, plugin_dir_stat;
 #endif
-    struct stat plugin_dir_stat;
 
     if (plugin_list == NULL)      /* ensure init_plugins is only run once */
     {
@@ -426,14 +426,14 @@ init_plugins(const char *plugin_dir)
 	 * in which the Ethereal binary resides.
 	 */
 	datafile_dir = get_datafile_dir();
-	plugin_dir = g_malloc(strlen(datafile_dir) + strlen("plugins") +
+	install_plugin_dir = g_malloc(strlen(datafile_dir) + strlen("plugins") +
 	    strlen(VERSION) + 3);
-	sprintf(plugin_dir, "%s\\plugins\\%s", datafile_dir, VERSION);
+	sprintf(install_plugin_dir, "%s\\plugins\\%s", datafile_dir, VERSION);
 
 	/*
 	 * Make sure that pathname refers to a directory.
 	 */
-	if (test_for_directory(plugin_dir) != 0) {
+	if (test_for_directory(install_plugin_dir) != 0) {
 		/*
 		 * Either it doesn't refer to a directory or it
 		 * refers to something that doesn't exist.
@@ -450,14 +450,14 @@ init_plugins(const char *plugin_dir)
 		 * source directory, and copy the plugin DLLs there,
 		 * so that you use the plugins from the build tree?
 		 */
-		plugin_dir =
+		install_plugin_dir =
 		    "C:\\Program Files\\Ethereal\\plugins\\" VERSION;
 	}
 
 	/*
 	 * Scan that directory.
 	 */
-	plugins_scan_dir(plugin_dir);
+	plugins_scan_dir(install_plugin_dir);
 #else
 	/*
 	 * XXX - why not just scan "plugin_dir"?  That's where we
