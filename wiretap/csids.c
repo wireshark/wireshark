@@ -1,6 +1,6 @@
 /* csids.c
  *
- * $Id: csids.c,v 1.2 2000/08/15 18:19:06 mhall Exp $
+ * $Id: csids.c,v 1.3 2000/08/31 16:44:47 gram Exp $
  *
  * Copyright (c) 2000 by Mike Hall <mlh@io.com>
  * Copyright (c) 2000 by Cisco Systems
@@ -74,7 +74,7 @@ int csids_open(wtap *wth, int *err)
   file_seek(wth->fh, 0, SEEK_SET); 
  
   /* check the file to make sure it is a csids file. */ 
-  bytesRead = file_read( &hdr, sizeof( struct csids_header) , 1, wth->fh );
+  bytesRead = file_read( &hdr, 1, sizeof( struct csids_header), wth->fh );
   if( bytesRead != sizeof( struct csids_header) ) {
     *err = file_error( wth->fh );
     if( *err != 0 ) {
@@ -88,7 +88,7 @@ int csids_open(wtap *wth, int *err)
   }
   hdr.seconds = pntohl( &hdr.seconds );
   hdr.caplen = pntohs( &hdr.caplen );
-  bytesRead = file_read( &tmp, 2, 1, wth->fh );
+  bytesRead = file_read( &tmp, 1, 2, wth->fh );
   if( bytesRead != 2 ) {
     *err = file_error( wth->fh );
     if( *err != 0 ) {
@@ -97,7 +97,7 @@ int csids_open(wtap *wth, int *err)
       return 0;
     }
   }
-  bytesRead = file_read( &iplen, 2, 1, wth->fh );
+  bytesRead = file_read( &iplen, 1, 2, wth->fh );
   if( bytesRead != 2 ) {
     *err = file_error( wth->fh );
     if( *err != 0 ) {
@@ -147,7 +147,7 @@ static int csids_read(wtap *wth, int *err)
   struct csids_header hdr;
   int packet_offset = wth->data_offset;
 
-  bytesRead = file_read( &hdr, sizeof( struct csids_header) , 1, wth->fh );
+  bytesRead = file_read( &hdr, 1, sizeof( struct csids_header) , wth->fh );
   if( bytesRead != sizeof( struct csids_header) ) {
     *err = file_error( wth->fh );
     if( *err != 0 ) {
@@ -165,7 +165,7 @@ static int csids_read(wtap *wth, int *err)
   buffer_assure_space(wth->frame_buffer, hdr.caplen);
   buf = buffer_start_ptr(wth->frame_buffer);
   
-  bytesRead = file_read( buf, hdr.caplen, 1, wth->fh );
+  bytesRead = file_read( buf, 1, hdr.caplen, wth->fh );
   if( bytesRead != hdr.caplen ) {
     *err = file_error( wth->fh );
     if( *err != 0 ) {
@@ -221,7 +221,7 @@ csids_seek_read (wtap *wth,
 
   file_seek(wth->random_fh, real_seek_off , SEEK_SET);
 
-  bytesRead = file_read( &hdr, sizeof( struct csids_header) , 1, wth->random_fh );
+  bytesRead = file_read( &hdr, 1, sizeof( struct csids_header) , wth->random_fh );
   if( bytesRead != sizeof( struct csids_header) ) {
     err = file_error( wth->fh );
     if( err != 0 ) {
@@ -237,7 +237,7 @@ csids_seek_read (wtap *wth,
     return -1;
   }
 
-  bytesRead = file_read( pd, hdr.caplen, 1, wth->random_fh );
+  bytesRead = file_read( pd, 1, hdr.caplen, wth->random_fh );
   if( bytesRead != hdr.caplen ) {
     err = file_error( wth->fh );
     if( err != 0 ) {
