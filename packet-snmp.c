@@ -10,7 +10,7 @@
  *
  * See RFCs 2570-2576 for SNMPv3
  *
- * $Id: packet-snmp.c,v 1.109 2003/05/03 15:23:15 deniel Exp $
+ * $Id: packet-snmp.c,v 1.110 2003/06/19 10:25:10 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -126,6 +126,7 @@ static gint ett_secur = -1;
 
 static int hf_snmp_version = -1;
 static int hf_snmp_community = -1;
+static int hf_snmp_request_id = -1;
 static int hf_snmp_pdutype = -1;
 static int hf_snmp_agent = -1;
 static int hf_snmp_enterprise = -1;
@@ -1050,8 +1051,8 @@ dissect_common_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			return;
 		}
 		if (tree) {
-			proto_tree_add_text(tree, tvb, offset, length,
-			    "Request Id: %#x", request_id);
+			proto_tree_add_uint(tree, hf_snmp_request_id,
+				tvb, offset, length, request_id);
 		}
 		offset += length;
 
@@ -2173,6 +2174,9 @@ proto_register_snmp(void)
 		{ &hf_snmp_community,
 		{ "Community", "snmp.community", FT_STRING, BASE_NONE, NULL,
 		    0x0, "", HFILL }},
+		{ &hf_snmp_request_id,
+		{ "Request Id", "snmp.id", FT_UINT32, BASE_HEX, NULL,
+		    0x0, "Id for this transaction", HFILL }},
 		{ &hf_snmp_pdutype,
 		{ "PDU type", "snmp.pdutype", FT_UINT8, BASE_DEC, VALS(pdu_types),
 		    0x0, "", HFILL }},
