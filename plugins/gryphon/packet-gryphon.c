@@ -3,7 +3,7 @@
  * By Steve Limkemann <stevelim@dgtech.com>
  * Copyright 1998 Steve Limkemann
  *
- * $Id: packet-gryphon.c,v 1.27 2002/01/21 07:37:48 guy Exp $
+ * $Id: packet-gryphon.c,v 1.28 2002/04/30 10:36:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1885,7 +1885,11 @@ plugin_reg_handoff(void){
 }
 
 G_MODULE_EXPORT void
-plugin_init(plugin_address_table_t *pat){
+plugin_init(plugin_address_table_t *pat
+#ifndef PLUGINS_NEED_ADDRESS_TABLE
+_U_
+#endif
+){
   /* initialise the table of pointers needed in Win32 DLLs */
   plugin_address_table_init(pat);
   /* register the new protocol, protocol fields, and subtrees */
