@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.239 2004/02/21 12:58:41 ulfl Exp $
+ * $Id: capture.c,v 1.240 2004/02/21 13:40:06 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -171,12 +171,12 @@
  * Capture options.
  */
 capture_options capture_opts;
-int quit_after_cap;         /* Makes a "capture only mode". Implies -k */
-gboolean capture_child;	    /* if this is the child for "-S" */
+gboolean quit_after_cap = FALSE;/* Makes a "capture only mode". Implies -k */
+gboolean capture_child;	        /* if this is the child for "-S" */
 
-static int sync_pipe[2];    /* used to sync father */
-enum PIPES { READ, WRITE }; /* Constants 0 and 1 for READ and WRITE */
-static int fork_child = -1;	/* If not -1, in parent, process ID of child */
+static int sync_pipe[2];        /* used to sync father */
+enum PIPES { READ, WRITE };     /* Constants 0 and 1 for READ and WRITE */
+static int fork_child = -1;	    /* If not -1, in parent, process ID of child */
 
 /* Size of buffer to hold decimal representation of
    signed/unsigned 64-bit int */

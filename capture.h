@@ -1,7 +1,7 @@
 /* capture.h
  * Definitions for packet capture windows
  *
- * $Id: capture.h,v 1.39 2004/02/21 12:58:41 ulfl Exp $
+ * $Id: capture.h,v 1.40 2004/02/21 13:40:06 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -56,7 +56,7 @@ typedef struct {
 
 extern capture_options capture_opts;
 
-extern int quit_after_cap; /* Makes a "capture only mode". Implies -k */
+extern gboolean quit_after_cap; /* Makes a "capture only mode". Implies -k */
 extern gboolean capture_child;	/* if this is the child for "-S" */
 
 /* Open a specified file, or create a temporary file, and start a capture

@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.402 2004/02/20 20:36:14 gerald Exp $
+ * $Id: main.c,v 1.403 2004/02/21 13:40:06 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2221,8 +2221,8 @@ main(int argc, char *argv[])
         break;
       case 'Q':        /* Quit after capture (just capture to file) */
 #ifdef HAVE_LIBPCAP
-        quit_after_cap = 1;
-        start_capture = TRUE;  /*** -Q implies -k !! ***/
+        quit_after_cap  = TRUE;
+        start_capture   = TRUE;  /*** -Q implies -k !! ***/
 #else
         capture_option_specified = TRUE;
         arg_error = TRUE;
