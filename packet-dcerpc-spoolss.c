@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\spoolss packet disassembly
  * Copyright 2001-2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-spoolss.c,v 1.94 2003/04/10 05:38:43 tpot Exp $
+ * $Id: packet-dcerpc-spoolss.c,v 1.95 2003/04/15 08:11:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -436,7 +436,7 @@ dissect_SYSTEM_TIME(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
 	proto_item *item = NULL;
 	proto_tree *subtree = tree;
-	guint16 year, month, day, hour, minute, second;
+	guint16 year, month, day, hour, minute, second, millisecond;
 	char *str;
 
 	if (add_subtree) {
@@ -466,10 +466,11 @@ dissect_SYSTEM_TIME(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		tvb, offset, pinfo, subtree, drep, hf_time_second, &second);
 
 	offset = dissect_ndr_uint16(
-		tvb, offset, pinfo, subtree, drep, hf_time_msec, NULL);
+		tvb, offset, pinfo, subtree, drep, hf_time_msec, &millisecond);
 
-	str = g_strdup_printf("%d/%02d/%02d %02d:%02d:%02d", 
-			      year, month, day, hour, minute, second);
+	str = g_strdup_printf("%d/%02d/%02d %02d:%02d:%02d.%03d", 
+			      year, month, day, hour, minute, second,
+			      millisecond);
 
 	if (add_subtree) 
 		proto_item_append_text(item, ": %s", str);
