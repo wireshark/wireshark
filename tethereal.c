@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.5 2000/01/15 06:04:59 guy Exp $
+ * $Id: tethereal.c,v 1.6 2000/01/15 10:23:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -82,7 +82,6 @@ static guint32 firstsec, firstusec;
 static guint32 prevsec, prevusec;
 static gchar   comp_info_str[256];
 static gboolean verbose;
-static int     packet_count;
 
 #ifdef HAVE_LIBPCAP
 typedef struct _loop_data {
@@ -93,7 +92,7 @@ typedef struct _loop_data {
 
 static loop_data ld;
 
-static int capture(void);
+static int capture(int);
 static void capture_pcap_cb(u_char *, const struct pcap_pkthdr *,
   const u_char *);
 static void capture_cleanup(int);
@@ -148,6 +147,7 @@ main(int argc, char *argv[])
   char                *pf_path;
   int                  err;
 #ifdef HAVE_LIBPCAP
+  int                  packet_count = 0;
   gchar                err_str[PCAP_ERRBUF_SIZE];
 #else
   gboolean             capture_option_specified = FALSE;
@@ -383,11 +383,8 @@ main(int argc, char *argv[])
             fprintf(stderr, "tethereal: %s\n", err_str);
             exit(2);
         }
-
-        /* Let the user know what interface was chosen. */
-        printf("Capturing on %s\n", cf.iface);
     }
-    capture();
+    capture(packet_count);
 #else
     /* No - complain. */
     fprintf(stderr, "This version of Tethereal was not built with support for capturing packets.\n");
@@ -404,7 +401,7 @@ main(int argc, char *argv[])
 /* Do the low-level work of a capture.
    Returns TRUE if it succeeds, FALSE otherwise. */
 static int
-capture(void)
+capture(int packet_count)
 {
   gchar       err_str[PCAP_ERRBUF_SIZE];
   bpf_u_int32 netnum, netmask;
@@ -499,6 +496,10 @@ capture(void)
   signal(SIGINT, capture_cleanup);
   if ((oldhandler = signal(SIGHUP, capture_cleanup)) != SIG_DFL)
     signal(SIGHUP, oldhandler);
+
+  /* Let the user know what interface was chosen. */
+  printf("Capturing on %s\n", cf.iface);
+
   inpkts = pcap_loop(ld.pch, packet_count, capture_pcap_cb, (u_char *) &ld);
   pcap_close(ld.pch);
 
