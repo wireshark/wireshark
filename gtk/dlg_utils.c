@@ -1,12 +1,11 @@
 /* dlg_utils.c
  * Utilities to use when constructing dialogs
  *
- * $Id: dlg_utils.c,v 1.10 2002/11/10 11:00:29 oabad Exp $
+ * $Id: dlg_utils.c,v 1.11 2003/09/20 04:59:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -50,6 +49,7 @@ dlg_window_new(const gchar *title)
 	win = gtk_window_new(GTK_WINDOW_DIALOG);
 #else
 	win = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+	gtk_window_set_position(GTK_WINDOW(win), GTK_WIN_POS_CENTER_ON_PARENT);
 #endif
 	gtk_window_set_transient_for(GTK_WINDOW(win), GTK_WINDOW(top_level));
 	gtk_window_set_title(GTK_WINDOW(win), title);
