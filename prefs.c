@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.138 2004/06/29 05:47:20 guy Exp $
+ * $Id: prefs.c,v 1.139 2004/06/29 17:10:52 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1012,6 +1012,7 @@ read_prefs(int *gpf_errno_return, int *gpf_read_errno_return,
     prefs.gui_recent_files_count_max = 10;
     prefs.gui_fileopen_dir           = g_strdup("");
     prefs.gui_ask_unsaved            = TRUE;
+    prefs.gui_webbrowser             = g_strdup("mozilla %s");
     prefs.gui_layout_type            = layout_type_5;
     prefs.gui_layout_content_1       = layout_pane_content_plist;
     prefs.gui_layout_content_2       = layout_pane_content_pdetails;
@@ -1323,6 +1324,7 @@ prefs_set_pref(char *prefarg)
 #define PRS_GUI_GEOMETRY_MAIN_HEIGHT     "gui.geometry.main.height"
 #define PRS_GUI_TOOLBAR_MAIN_SHOW        "gui.toolbar_main_show"
 #define PRS_GUI_TOOLBAR_MAIN_STYLE       "gui.toolbar_main_style"
+#define PRS_GUI_WEBBROWSER               "gui.webbrowser"
 #define PRS_GUI_LAYOUT_TYPE              "gui.layout_type"
 #define PRS_GUI_LAYOUT_CONTENT_1         "gui.layout_content_1"
 #define PRS_GUI_LAYOUT_CONTENT_2         "gui.layout_content_2"
@@ -1647,6 +1649,9 @@ set_pref(gchar *pref_name, gchar *value)
     else {
 	    prefs.gui_ask_unsaved = FALSE;
     }
+  } else if (strcmp(pref_name, PRS_GUI_WEBBROWSER) == 0) {
+    g_free(prefs.gui_webbrowser);
+    prefs.gui_webbrowser = g_strdup(value);
   } else if (strcmp(pref_name, PRS_GUI_LAYOUT_TYPE) == 0) {
     prefs.gui_layout_type = strtoul(value, NULL, 10);
     if (prefs.gui_layout_type == layout_unused ||
@@ -2199,8 +2204,12 @@ write_prefs(char **pf_path_return)
   fprintf(pf, "\n# Ask to save unsaved capture files?\n");
   fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
   fprintf(pf, PRS_GUI_ASK_UNSAVED ": %s\n",
-		  prefs.gui_ask_unsaved == TRUE ? "TRUE" : "FALSE");
-                  
+		  prefs.gui_ask_unsaved == TRUE ? "TRUE" : "FALSE");                  
+
+  fprintf(pf, "\n# The path to the webbrowser.\n");
+  fprintf(pf, "# Ex: mozilla %%s\n");
+  fprintf(pf, PRS_GUI_WEBBROWSER ": %s\n", prefs.gui_webbrowser);
+
   fprintf (pf, "\n######## User Interface: Layout ########\n");
 
   fprintf(pf, "\n# Layout type (1-6).\n");
@@ -2402,6 +2411,7 @@ copy_prefs(e_prefs *dest, e_prefs *src)
   dest->gui_geometry_save_position = src->gui_geometry_save_position;
   dest->gui_geometry_save_size = src->gui_geometry_save_size;
   dest->gui_geometry_save_maximized = src->gui_geometry_save_maximized;
+  dest->gui_webbrowser = g_strdup(src->gui_webbrowser);
 /*  values for the capture dialog box */
   dest->capture_device = g_strdup(src->capture_device);
   dest->capture_devices_descr = g_strdup(src->capture_devices_descr);
@@ -2440,6 +2450,8 @@ free_prefs(e_prefs *pr)
     g_free(pr->gui_fileopen_dir);
     pr->gui_fileopen_dir = NULL;
   }
+  g_free(pr->gui_webbrowser);
+  pr->gui_webbrowser = NULL;
   if (pr->capture_device != NULL) {
     g_free(pr->capture_device);
     pr->capture_device = NULL;

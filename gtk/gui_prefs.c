@@ -1,7 +1,7 @@
 /* gui_prefs.c
  * Dialog box for GUI preferences
  *
- * $Id: gui_prefs.c,v 1.74 2004/06/20 15:57:10 ulfl Exp $
+ * $Id: gui_prefs.c,v 1.75 2004/06/29 17:10:53 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -47,6 +47,8 @@
 #include "packet_list.h"
 #include "toolbar.h"
 #include "recent.h"
+#include "webbrowser.h"
+
 
 static gint fetch_enum_value(gpointer control, const enum_val_t *enumvals);
 static gint fileopen_dir_changed_cb(GtkWidget *myentry _U_, GdkEvent *event, gpointer parent_w);
@@ -74,6 +76,7 @@ static gint recent_files_count_changed_cb(GtkWidget *recent_files_entry _U_,
 #define GUI_RECENT_FILES_COUNT_KEY "recent_files_count"
 #define GUI_FILEOPEN_DIR_KEY	"fileopen_directory"
 #define GUI_ASK_UNSAVED_KEY     "ask_unsaved"
+#define GUI_WEBBROWSER_KEY	    "webbrowser"
 
 #define GUI_TOOLBAR_STYLE_KEY	"toolbar_style"
 
@@ -180,6 +183,7 @@ gui_prefs_show(void)
 	GtkWidget *fileopen_rb, *fileopen_dir_te, *toolbar_style_om;
     GtkWidget *filter_toolbar_placement_om;
 	GtkWidget *recent_files_count_max_te, *ask_unsaved_cb;
+    GtkWidget *webbrowser_te;
 	GtkWidget *save_position_cb, *save_size_cb, *save_maximized_cb;
 #if GTK_MAJOR_VERSION < 2
 	GtkWidget *expander_style_om, *line_style_om;
@@ -312,9 +316,18 @@ gui_prefs_show(void)
 
 	fileopen_selected_cb(NULL, main_vb);        
 
+    /* ask for unsaved capture files? */
 	ask_unsaved_cb = create_preference_check_button(main_tb, pos++,
 	    "Ask for unsaved capture files:", NULL, prefs.gui_ask_unsaved);
 	OBJECT_SET_DATA(main_vb, GUI_ASK_UNSAVED_KEY, ask_unsaved_cb);
+
+	/* Webbrowser */
+    if(browser_needs_pref()) {
+	    webbrowser_te = create_preference_entry(main_tb, pos++, 
+            "Web browser command:", NULL, prefs.gui_webbrowser);
+	    gtk_entry_set_text(GTK_ENTRY(webbrowser_te), prefs.gui_webbrowser);
+	    OBJECT_SET_DATA(main_vb, GUI_WEBBROWSER_KEY, webbrowser_te);
+    }
 
 
 	/* Show 'em what we got */
@@ -416,6 +429,13 @@ gui_prefs_fetch(GtkWidget *w)
 
     prefs.gui_ask_unsaved = 
 	    gtk_toggle_button_get_active(OBJECT_GET_DATA(w, GUI_ASK_UNSAVED_KEY));
+
+    if(browser_needs_pref()) {
+		g_free(prefs.gui_webbrowser);
+	    prefs.gui_webbrowser = g_strdup(gtk_entry_get_text(
+		    GTK_ENTRY(OBJECT_GET_DATA(w, GUI_WEBBROWSER_KEY))));
+    }
+
 
 	/*
 	 * XXX - we need to have a way to fetch the preferences into

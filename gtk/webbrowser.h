@@ -1,7 +1,7 @@
 /* webbrowser.h
  * Web browser activation functions
  *
- * $Id: webbrowser.h,v 1.1 2004/06/23 01:38:39 guy Exp $
+ * $Id: webbrowser.h,v 1.2 2004/06/29 17:10:53 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -24,6 +24,8 @@
 
 #ifndef __WEBBROWSER_H__
 #define __WEBBROWSER_H__
+
+extern gboolean browser_needs_pref();
 
 extern gboolean browser_open_url (const gchar *url);
 

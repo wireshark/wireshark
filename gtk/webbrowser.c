@@ -30,11 +30,14 @@
 
 #include <string.h> /* strlen, strstr */
 
-#include <glib.h>
+#include <gtk/gtk.h>
 
 #include <epan/filesystem.h>
 
+#include "prefs.h"
 #include "webbrowser.h"
+#include "compat_macros.h"
+#include "simple_dialog.h"
 
 #if defined(G_OS_WIN32)
 /* Win32 - use Windows shell services to start a browser */
@@ -55,6 +58,16 @@ static gchar*   strreplace       (const gchar      *string,
                                   const gchar      *delimiter,
                                   const gchar      *replacement);
 #endif
+
+gboolean
+browser_needs_pref()
+{
+#ifdef MUST_LAUNCH_BROWSER_OURSELVES
+    return TRUE;
+#else
+    return FALSE;
+#endif
+}
 
 
 gboolean
@@ -100,14 +113,14 @@ browser_open_url (const gchar *url)
 
   g_return_val_if_fail (url != NULL, FALSE);
 
-/*  browser = gimp_gimprc_query ("web-browser");*/
-  /* XXX - use Preference setting for this */
-  browser = g_strdup("mozilla %s");
+  /*  browser = gimp_gimprc_query ("web-browser");*/
+  browser = g_strdup(prefs.gui_webbrowser);
 
   if (browser == NULL || ! strlen (browser))
     {
-      g_message (("Web browser not specified.\n"
-                   "Please specify a web browser using the Preferences Dialog."));
+      simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK, 
+          "Web browser not specified.\n"
+          "Please correct the web browser setting in the Preferences dialog.");
       g_free (browser);
       return FALSE;
     }
@@ -126,8 +139,11 @@ browser_open_url (const gchar *url)
   /* parse the cmd line */
   if (! g_shell_parse_argv (cmd, NULL, &argv, &error))
     {
-      g_message (("Could not parse specified web browser command:\n%s"),
-                 error->message);
+      simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK, 
+          PRIMARY_TEXT_START "Could not parse web browser command: \"%s\"" PRIMARY_TEXT_END
+          "\n\n\"%s\"\n\n%s", 
+          browser, error->message,
+          "Please correct the web browser setting in the Preferences dialog.");
       g_error_free (error);
       return FALSE;
     }
@@ -139,8 +155,11 @@ browser_open_url (const gchar *url)
 
   if (! retval)
     {
-      g_message (("Could not execute specified web browser:\n%s"),
-                 error->message);
+      simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK, 
+          PRIMARY_TEXT_START "Could not execute web browser: \"%s\"" PRIMARY_TEXT_END
+          "\n\n\"%s\"\n\n%s", 
+          browser, error->message,
+          "Please correct the web browser setting in the Preferences dialog.");
       g_error_free (error);
     }
 
