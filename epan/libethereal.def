@@ -380,6 +380,9 @@ proto_tree_add_double_hidden
 proto_tree_add_ether
 proto_tree_add_ether_format
 proto_tree_add_ether_hidden
+proto_tree_add_float
+proto_tree_add_float_format
+proto_tree_add_float_hidden
 proto_tree_add_int
 proto_tree_add_int_format
 proto_tree_add_int_hidden
@@ -473,10 +476,14 @@ tvb_get_letoh24
 tvb_get_letoh64
 tvb_get_letohl
 tvb_get_letohs
+tvb_get_letohieee_double
+tvb_get_letohieee_float
 tvb_get_nstringz
 tvb_get_nstringz0
 tvb_get_ntoh24
 tvb_get_ntoh64
+tvb_get_ntohieee_double
+tvb_get_ntohieee_float
 tvb_get_ntohl
 tvb_get_ntohs
 tvb_get_ptr

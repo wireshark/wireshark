@@ -483,3 +483,12 @@ guint16 crc16_ccitt_tvb(tvbuff_t *tvb, unsigned int len);
 
 guint64 tvb_get_letoh64(tvbuff_t *tvb, gint offset);
 guint64 tvb_get_ntoh64(tvbuff_t *tvb, gint offset);
+
+proto_item* proto_tree_add_float(proto_tree*, int, tvbuff_t*, gint, gint, float);
+proto_item* proto_tree_add_float_hidden(proto_tree*, int, tvbuff_t*, gint, gint, float);
+proto_item* proto_tree_add_float_format(proto_tree*, int, tvbuff_t*, gint, gint, float, const char*, ...);
+
+gfloat tvb_get_ntohieee_float(tvbuff_t*, gint offset);
+gdouble tvb_get_ntohieee_double(tvbuff_t*, gint offset);
+gfloat tvb_get_letohieee_float(tvbuff_t*, gint offset);
+gdouble tvb_get_letohieee_double(tvbuff_t*, gint offset);
