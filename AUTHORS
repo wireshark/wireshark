@@ -518,6 +518,7 @@ Ronnie Sahlberg <rsahlber@bigpond.net.au> {
 	NIS+ support
 	Rewritten IGMP dissector
 	Tvbuffified and bug-fixed RX and AFS dissectors
+	Support for filtering on absolute and relative time fields
 }
 
 Borosa Tomislav <tomislav.borosa@SIEMENS.HR> {

@@ -1,5 +1,5 @@
 /*
- * $Id: ftype-time.c,v 1.3 2001/03/02 17:17:56 gram Exp $
+ * $Id: ftype-time.c,v 1.4 2001/05/31 05:01:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -25,8 +25,99 @@
 #include "config.h"
 #endif
 
+#include <time.h>
+
 #include <ftypes-int.h>
 
+static gboolean
+cmp_eq(fvalue_t *a, fvalue_t *b)
+{
+	return ((a->value.time.tv_sec) ==(b->value.time.tv_sec))
+	     &&((a->value.time.tv_usec)==(b->value.time.tv_usec));
+}
+static gboolean
+cmp_ne(fvalue_t *a, fvalue_t *b)
+{
+	return (a->value.time.tv_sec !=b->value.time.tv_sec)
+	     ||(a->value.time.tv_usec!=b->value.time.tv_usec);
+}
+static gboolean
+cmp_gt(fvalue_t *a, fvalue_t *b)
+{
+	if (a->value.time.tv_sec > b->value.time.tv_sec) {
+		return TRUE;
+	}
+	if (a->value.time.tv_sec < b->value.time.tv_sec) {
+		return FALSE;
+	}
+
+	return a->value.time.tv_usec > b->value.time.tv_usec;
+}
+static gboolean
+cmp_ge(fvalue_t *a, fvalue_t *b)
+{
+	if (a->value.time.tv_sec > b->value.time.tv_sec) {
+		return TRUE;
+	}
+	if (a->value.time.tv_sec < b->value.time.tv_sec) {
+		return FALSE;
+	}
+
+	return a->value.time.tv_usec >= b->value.time.tv_usec;
+}
+static gboolean
+cmp_lt(fvalue_t *a, fvalue_t *b)
+{
+	if (a->value.time.tv_sec < b->value.time.tv_sec) {
+		return TRUE;
+	}
+	if (a->value.time.tv_sec > b->value.time.tv_sec) {
+		return FALSE;
+	}
+
+	return a->value.time.tv_usec < b->value.time.tv_usec;
+}
+static gboolean
+cmp_le(fvalue_t *a, fvalue_t *b)
+{
+	if (a->value.time.tv_sec < b->value.time.tv_sec) {
+		return TRUE;
+	}
+	if (a->value.time.tv_sec > b->value.time.tv_sec) {
+		return FALSE;
+	}
+
+	return a->value.time.tv_usec <= b->value.time.tv_usec;
+}
+
+
+static gboolean
+relative_val_from_string(fvalue_t *fv, char *s, LogFunc log)
+{
+
+	if (sscanf(s,"%lu.%lu",&fv->value.time.tv_sec,&fv->value.time.tv_usec)!=2) {
+		log("\"%s\" is not a valid relative time. Use \"<seconds>.<useconds>\"",s);
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
+
+static gboolean
+absolute_val_from_string(fvalue_t *fv, char *s, LogFunc log)
+{
+	struct tm tm;
+	char *str;
+	str=strptime(s,"%b %d, %Y %H:%M:%S.",&tm);
+	if (!str) {
+		log("\"%s\" is not a valid absolute time. Example: \"Nov 12, 1999 08:55:44.123\"",s);
+		return FALSE;
+	}
+	fv->value.time.tv_sec = mktime(&tm);
+	sscanf(str,"%lu",&fv->value.time.tv_usec);
+	return TRUE;
+}
 
 static void
 time_fvalue_new(fvalue_t *fv)
@@ -58,7 +149,7 @@ ftype_register_time(void)
 		0,
 		time_fvalue_new,
 		NULL,
-		NULL,
+		absolute_val_from_string,
 
 		time_fvalue_set,
 		NULL,
@@ -66,7 +157,14 @@ ftype_register_time(void)
 
 		value_get,
 		NULL,
-		NULL
+		NULL,
+
+		cmp_eq,
+		cmp_ne,
+		cmp_gt,
+		cmp_ge,
+		cmp_lt,
+		cmp_le,
 	};
 	static ftype_t reltime_type = {
 		"FT_RELATIVE_TIME",
@@ -74,7 +172,7 @@ ftype_register_time(void)
 		0,
 		time_fvalue_new,
 		NULL,
-		NULL,
+		relative_val_from_string,
 
 		time_fvalue_set,
 		NULL,
@@ -82,7 +180,14 @@ ftype_register_time(void)
 
 		value_get,
 		NULL,
-		NULL
+		NULL,
+
+		cmp_eq,
+		cmp_ne,
+		cmp_gt,
+		cmp_ge,
+		cmp_lt,
+		cmp_le,
 	};
 
 	ftype_register(FT_ABSOLUTE_TIME, &abstime_type);
