@@ -3,7 +3,7 @@
  *
  * See RFC 1777 (LDAP v2), RFC 2251 (LDAP v3), and RFC 2222 (SASL).
  *
- * $Id: packet-ldap.c,v 1.58 2003/07/03 01:52:11 tpot Exp $
+ * $Id: packet-ldap.c,v 1.59 2003/07/14 23:47:32 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -171,6 +171,49 @@ static value_string msgTypes [] = {
   {LDAP_RES_COMPARE, "Compare Result"},
   {LDAP_RES_EXTENDED, "Extended Response"},
   {0, NULL},
+};
+
+static value_string result_codes[] = {
+    {0, "Success"},
+    {1, "Operations error"},
+    {2, "Protocol error"},
+    {3, "Time limit exceeded"},
+    {4, "Size limit exceeded"},
+    {5, "Compare false"},
+    {6, "Compare true"},
+    {7, "Authentication method not supported"},
+    {8, "Strong authentication required"},
+    {10, "Referral"},
+    {11, "Administrative limit exceeded"},
+    {12, "Unavailable critical extension"},
+    {13, "Confidentiality required"},
+    {14, "SASL bind in progress"},
+    {16, "No such attribute"},
+    {17, "Undefined attribute type"},
+    {18, "Inappropriate matching"},
+    {19, "Constraint violation"},
+    {20, "Attribute or value exists"},
+    {21, "Invalid attribute syntax"},
+    {32, "No such object"},
+    {33, "Alias problem"},
+    {34, "Invalid DN syntax"},
+    {36, "Alias derefetencing problem"},
+    {48, "Inappropriate authentication"},
+    {49, "Invalid credentials"},
+    {50, "Insufficient access rights"},
+    {51, "Busy"},
+    {52, "Unavailable"},
+    {53, "Unwilling to perform"},
+    {54, "Loop detected"},
+    {64, "Naming violation"},
+    {65, "Objectclass violation"},
+    {66, "Not allowed on non-leaf"},
+    {67, "Not allowed on RDN"},
+    {68, "Entry already exists"},
+    {69, "Objectclass modification prohibited"},
+    {71, "Affects multiple DSAs"},
+    {80, "Other"},
+    {0,  NULL},
 };
 
 static int read_length(ASN1_SCK *a, proto_tree *tree, int hf_id, guint *len)
@@ -786,13 +829,20 @@ static gboolean read_filter(ASN1_SCK *a, proto_tree *tree, int hf_id)
 
 /********************************************************************************************/
 
-static void dissect_ldap_result(ASN1_SCK *a, proto_tree *tree)
+static void dissect_ldap_result(ASN1_SCK *a, proto_tree *tree, packet_info *pinfo)
 {
   guint resultCode = 0;
   int ret;
-
   if (read_integer(a, tree, hf_ldap_message_result, 0, &resultCode, ASN1_ENUM) != ASN1_ERR_NOERROR)
     return;
+
+  if (resultCode != 0) {
+	  if (check_col(pinfo->cinfo, COL_INFO))
+		  col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", 
+				  val_to_str(resultCode, result_codes,
+					     "Unknown (%u)"));
+  }
+
   if (read_string(a, tree, hf_ldap_message_result_matcheddn, 0, 0, ASN1_UNI, ASN1_OTS) != ASN1_ERR_NOERROR)
     return;
   if (read_string(a, tree, hf_ldap_message_result_errormsg, 0, 0, ASN1_UNI, ASN1_OTS) != ASN1_ERR_NOERROR)
@@ -837,7 +887,7 @@ static void dissect_ldap_request_bind(ASN1_SCK *a, proto_tree *tree,
   int ret;
   conversation_t *conversation;
   ldap_auth_info_t *auth_info;
-  char *mechanism;
+  char *mechanism, *s = NULL;
   int token_offset;
   gint available_length, reported_length;
   tvbuff_t *new_tvb;
@@ -846,8 +896,12 @@ static void dissect_ldap_request_bind(ASN1_SCK *a, proto_tree *tree,
 
   if (read_integer(a, tree, hf_ldap_message_bind_version, 0, 0, ASN1_INT) != ASN1_ERR_NOERROR)
     return;
-  if (read_string(a, tree, hf_ldap_message_bind_dn, 0, 0, ASN1_UNI, ASN1_OTS) != ASN1_ERR_NOERROR)
+  if (read_string(a, tree, hf_ldap_message_bind_dn, 0, &s, ASN1_UNI, ASN1_OTS) != ASN1_ERR_NOERROR)
     return;
+
+  if (check_col(pinfo->cinfo, COL_INFO))
+	  col_append_fstr(pinfo->cinfo, COL_INFO, ", DN=%s", s);
+  g_free(s);
 
   start = a->offset;
   ret = asn1_header_decode(a, &cls, &con, &tag, &def, &length);
@@ -993,7 +1047,7 @@ static void dissect_ldap_response_bind(ASN1_SCK *a, proto_tree *tree,
   proto_tree *gtree = NULL;
 
   end = start + length;
-  dissect_ldap_result(a, tree);
+  dissect_ldap_result(a, tree, pinfo);
   if (a->offset < end) {
     conversation = find_conversation(&pinfo->src, &pinfo->dst,
                                      pinfo->ptype, pinfo->srcport,
@@ -1094,14 +1148,20 @@ static void dissect_ldap_response_bind(ASN1_SCK *a, proto_tree *tree,
   }
 }
 
-static void dissect_ldap_request_search(ASN1_SCK *a, proto_tree *tree)
+static void dissect_ldap_request_search(ASN1_SCK *a, proto_tree *tree, packet_info *pinfo)
 {
   guint seq_length;
   int end;
   int ret;
+  char *s = NULL;
 
-  if (read_string(a, tree, hf_ldap_message_search_base, 0, 0, ASN1_UNI, ASN1_OTS) != ASN1_ERR_NOERROR)
+  if (read_string(a, tree, hf_ldap_message_search_base, 0, &s, ASN1_UNI, ASN1_OTS) != ASN1_ERR_NOERROR)
     return;
+
+  if (check_col(pinfo->cinfo, COL_INFO))
+	  col_append_fstr(pinfo->cinfo, COL_INFO, ", Base DN=%s", s);
+  g_free(s);
+
   if (read_integer(a, tree, hf_ldap_message_search_scope, 0, 0, ASN1_ENUM) != ASN1_ERR_NOERROR)
     return;
   if (read_integer(a, tree, hf_ldap_message_search_deref, 0, 0, ASN1_ENUM) != ASN1_ERR_NOERROR)
@@ -1193,14 +1253,19 @@ static void dissect_ldap_response_search_ref(ASN1_SCK *a, proto_tree *tree)
   read_string(a, tree, hf_ldap_message_search_reference, 0, 0, ASN1_UNI, ASN1_OTS);
 }
 
-static void dissect_ldap_request_add(ASN1_SCK *a, proto_tree *tree)
+static void dissect_ldap_request_add(ASN1_SCK *a, proto_tree *tree, packet_info *pinfo)
 {
   guint seq_length;
   int end_of_sequence;
   int ret;
+  char *s = NULL;
 
-  if (read_string(a, tree, hf_ldap_message_dn, 0, 0, ASN1_UNI, ASN1_OTS) != ASN1_ERR_NOERROR)
+  if (read_string(a, tree, hf_ldap_message_dn, 0, &s, ASN1_UNI, ASN1_OTS) != ASN1_ERR_NOERROR)
     return;
+
+  if (check_col(pinfo->cinfo, COL_INFO))
+	  col_append_fstr(pinfo->cinfo, COL_INFO, ", DN=%s", s);
+  g_free(s);  
 
   ret = read_sequence(a, &seq_length);
   if (ret != ASN1_ERR_NOERROR) {
@@ -1440,7 +1505,7 @@ static void dissect_ldap_request_abandon(ASN1_SCK *a, proto_tree *tree,
 
 static void
 dissect_ldap_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
-                     proto_tree *ldap_tree, gboolean first_time)
+                     proto_tree *ldap_tree, proto_item *ldap_item, gboolean first_time)
 {
   int message_id_start;
   int message_id_length;
@@ -1502,9 +1567,14 @@ dissect_ldap_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
   if (first_time)
   {
     if (check_col(pinfo->cinfo, COL_INFO))
-      col_add_fstr(pinfo->cinfo, COL_INFO, "MsgId=%u MsgType=%s",
+      col_add_fstr(pinfo->cinfo, COL_INFO, "MsgId=%u %s",
 		   messageId, typestr);
   }
+
+  if (ldap_item)
+	  proto_item_append_text(ldap_item, ", %s", 
+				 val_to_str(protocolOpTag, msgTypes,
+					    "Unknown message type (%u)"));
 
   if (ldap_tree)
   {
@@ -1535,52 +1605,69 @@ dissect_ldap_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
       /* Nothing to dissect */
       break;
      case LDAP_REQ_SEARCH:
-      if (ldap_tree)
-        dissect_ldap_request_search(&a, ldap_tree);
+      dissect_ldap_request_search(&a, ldap_tree, pinfo);
       break;
      case LDAP_REQ_MODIFY:
-      if (ldap_tree)
-        dissect_ldap_request_modify(&a, ldap_tree);
+      dissect_ldap_request_modify(&a, ldap_tree);
       break;
      case LDAP_REQ_ADD:
-      if (ldap_tree)
-        dissect_ldap_request_add(&a, ldap_tree);
+      dissect_ldap_request_add(&a, ldap_tree, pinfo);
       break;
      case LDAP_REQ_DELETE:
-      if (ldap_tree)
-        dissect_ldap_request_delete(&a, ldap_tree, start, opLen);
+      dissect_ldap_request_delete(&a, ldap_tree, start, opLen);
       break;
      case LDAP_REQ_MODRDN:
-      if (ldap_tree)
-        dissect_ldap_request_modifyrdn(&a, ldap_tree, opLen);
+      dissect_ldap_request_modifyrdn(&a, ldap_tree, opLen);
       break;
      case LDAP_REQ_COMPARE:
-      if (ldap_tree)
-        dissect_ldap_request_compare(&a, ldap_tree);
+      dissect_ldap_request_compare(&a, ldap_tree);
       break;
      case LDAP_REQ_ABANDON:
-      if (ldap_tree)
-        dissect_ldap_request_abandon(&a, ldap_tree, start, opLen);
+      dissect_ldap_request_abandon(&a, ldap_tree, start, opLen);
       break;
      case LDAP_RES_BIND:
       dissect_ldap_response_bind(&a, ldap_tree, start, opLen, tvb, pinfo);
       break;
-     case LDAP_RES_SEARCH_ENTRY:
-      if (ldap_tree)
-        dissect_ldap_response_search_entry(&a, ldap_tree);
-      break;
+     case LDAP_RES_SEARCH_ENTRY: {
+	    guint32 *num_results = p_get_proto_data(pinfo->fd, proto_ldap);
+
+	    if (!num_results) {
+		    num_results = g_malloc(sizeof(guint32));
+		    *num_results = 0;
+		    p_add_proto_data(pinfo->fd, proto_ldap, num_results);
+	    }
+
+	    *num_results += 1;
+	    dissect_ldap_response_search_entry(&a, ldap_tree);
+
+	    break;
+     }
      case LDAP_RES_SEARCH_REF:
-      if (ldap_tree)
-	      dissect_ldap_response_search_ref(&a, ldap_tree);
+      dissect_ldap_response_search_ref(&a, ldap_tree);
       break;
-     case LDAP_RES_SEARCH_RESULT:
+
+     case LDAP_RES_SEARCH_RESULT: {
+	     guint32 *num_results = p_get_proto_data(pinfo->fd, proto_ldap);
+
+	     if (num_results) {
+		     if (check_col(pinfo->cinfo, COL_INFO))
+			     col_append_fstr(pinfo->cinfo, COL_INFO, ", %d result%s", 
+					     *num_results, *num_results == 1 ? "" : "s");
+		     g_free(num_results);
+		     p_rem_proto_data(pinfo->fd, proto_ldap);
+	     }
+
+	     dissect_ldap_result(&a, ldap_tree, pinfo);
+
+	     break;
+     }
+
      case LDAP_RES_MODIFY:
      case LDAP_RES_ADD:
      case LDAP_RES_DELETE:
      case LDAP_RES_MODRDN:
      case LDAP_RES_COMPARE:
-      if (ldap_tree)
-        dissect_ldap_result(&a, ldap_tree);
+        dissect_ldap_result(&a, ldap_tree, pinfo);
       break;
      default:
       if (ldap_tree)
@@ -1610,7 +1697,7 @@ dissect_ldap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint length_remaining;
   guint32 sasl_length;
   guint32 message_data_len;
-  proto_item *ti;
+  proto_item *ti = NULL;
   proto_tree *ldap_tree = NULL;
   ASN1_SCK a;
   int ret;
@@ -1814,7 +1901,7 @@ dissect_ldap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           /*
            * Now dissect the LDAP message.
            */
-          dissect_ldap_message(tvb, 4 + len, pinfo, ldap_tree, first_time);
+          dissect_ldap_message(tvb, 4 + len, pinfo, ldap_tree, ti, first_time);
       } else {
         /*
          * We don't know how to handle other authentication mechanisms
@@ -1934,7 +2021,7 @@ dissect_ldap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         ldap_tree = proto_item_add_subtree(ti, ett_ldap);
       } else
         ldap_tree = NULL;
-      dissect_ldap_message(next_tvb, 0, pinfo, ldap_tree, first_time);
+      dissect_ldap_message(next_tvb, 0, pinfo, ldap_tree, ti, first_time);
 
       offset += messageLength;
     }
@@ -1969,49 +2056,6 @@ ldap_reinit(void)
 void
 proto_register_ldap(void)
 {
-  static value_string result_codes[] = {
-    {0, "Success"},
-    {1, "Operations error"},
-    {2, "Protocol error"},
-    {3, "Time limit exceeded"},
-    {4, "Size limit exceeded"},
-    {5, "Compare false"},
-    {6, "Compare true"},
-    {7, "Authentication method not supported"},
-    {8, "Strong authentication required"},
-    {10, "Referral"},
-    {11, "Administrative limit exceeded"},
-    {12, "Unavailable critical extension"},
-    {13, "Confidentiality required"},
-    {14, "SASL bind in progress"},
-    {16, "No such attribute"},
-    {17, "Undefined attribute type"},
-    {18, "Inappropriate matching"},
-    {19, "Constraint violation"},
-    {20, "Attribute or value exists"},
-    {21, "Invalid attribute syntax"},
-    {32, "No such object"},
-    {33, "Alias problem"},
-    {34, "Invalid DN syntax"},
-    {36, "Alias derefetencing problem"},
-    {48, "Inappropriate authentication"},
-    {49, "Invalid credentials"},
-    {50, "Insufficient access rights"},
-    {51, "Busy"},
-    {52, "Unavailable"},
-    {53, "Unwilling to perform"},
-    {54, "Loop detected"},
-    {64, "Naming violation"},
-    {65, "Objectclass violation"},
-    {66, "Not allowed on non-leaf"},
-    {67, "Not allowed on RDN"},
-    {68, "Entry already exists"},
-    {69, "Objectclass modification prohibited"},
-    {71, "Affects multiple DSAs"},
-    {80, "Other"},
-    {0,  NULL},
-  };
-
   static value_string auth_types[] = {
     {LDAP_AUTH_SIMPLE,    "Simple"},
     {LDAP_AUTH_KRBV4LDAP, "Kerberos V4 to the LDAP server"},
