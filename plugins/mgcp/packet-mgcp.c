@@ -2,7 +2,7 @@
  * Routines for mgcp packet disassembly
  * RFC 2705
  *
- * $Id: packet-mgcp.c,v 1.22 2001/06/18 02:18:27 guy Exp $
+ * $Id: packet-mgcp.c,v 1.23 2001/07/04 22:01:22 hagbard Exp $
  * 
  * Copyright (c) 2000 by Ed Warnicke <hagbard@physics.rutgers.edu>
  *
@@ -58,7 +58,7 @@ G_MODULE_EXPORT const gchar version[] = VERSION;
 #define TCP_PORT_MGCP_CALLAGENT 2727
 #define UDP_PORT_MGCP_CALLAGENT 2727
 
-static void proto_reg_handoff_mgcp(void);
+void proto_reg_handoff_mgcp(void);
 
 
 /* Define the mgcp proto */
@@ -557,10 +557,15 @@ proto_register_mgcp(void)
 }
 
 /* The registration hand-off routine */
-static void
+void
 proto_reg_handoff_mgcp(void)
 {
   static int mgcp_prefs_initialized = FALSE;
+
+  /*
+   * Get a handle for the SDP dissector.
+   */
+  sdp_handle = find_dissector("sdp");
 
   if (mgcp_prefs_initialized) {
     dissector_delete("tcp.port", gateway_tcp_port, dissect_mgcp);
@@ -1245,11 +1250,6 @@ static gint tvb_find_dot_line(tvbuff_t* tvb, gint offset,
 G_MODULE_EXPORT void
 plugin_reg_handoff(void){
   proto_reg_handoff_mgcp();
-
-  /*
-   * Get a handle for the SDP dissector.
-   */
-  sdp_handle = find_dissector("sdp");
 }
 
 G_MODULE_EXPORT void
