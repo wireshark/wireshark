@@ -891,11 +891,11 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 		if (fqdn_flags & F_FQDN_E) {
 			/* XXX: use code from packet-dns for binary encoded name */
 			proto_tree_add_item(v_tree, hf_bootp_fqdn_name, tvb, voff+5,
-				vlen-5, FALSE);
+				vlen-3, FALSE);
 
 		} else {
 			proto_tree_add_item(v_tree, hf_bootp_fqdn_asciiname, tvb, voff+5,
-				vlen-5, FALSE);
+				vlen-3, FALSE);
 		}
 		break;
 
