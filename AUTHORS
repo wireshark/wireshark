@@ -1021,6 +1021,7 @@ Pavel Novotny <Pavel.Novotny[AT]icn.siemens.de> {
 
 Shinsuke Suzuki <suz[AT]kame.net> {
 	DHCPv6 and PIM enhancements
+	IPv6 payload for GRE
 }
 
 Andrew C. Feren <aferen[AT]cetacean.com> {

@@ -2,7 +2,7 @@
  * Routines for the Generic Routing Encapsulation (GRE) protocol
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-gre.c,v 1.54 2003/06/10 05:38:52 guy Exp $
+ * $Id: packet-gre.c,v 1.55 2004/01/29 03:51:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -77,6 +77,7 @@ static const value_string typevals[] = {
 	{ ETHERTYPE_IPX,       "IPX"},
 	{ ETHERTYPE_ETHBRIDGE, "Transparent Ethernet bridging" },
 	{ GRE_FR,              "Frame Relay"},
+	{ ETHERTYPE_IPv6,      "IPv6" },
 	{ 0,                   NULL }
 };
 
