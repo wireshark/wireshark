@@ -1,9 +1,11 @@
 /* plugins.h
  * definitions for plugins structures
  *
+ * $Id: plugins.h,v 1.2 1999/12/09 20:55:36 oabad Exp $
+ *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
- * Copyright 1998 Gerald Combs
+ * Copyright 1999 Gerald Combs
  *
  * 
  * This program is free software; you can redistribute it and/or
