@@ -1,7 +1,7 @@
 /* tap.c
  * packet tap interface   2002 Ronnie Sahlberg
  *
- * $Id: tap.c,v 1.7 2002/10/31 22:16:01 guy Exp $
+ * $Id: tap.c,v 1.8 2002/11/28 20:28:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -149,7 +149,7 @@ register_tap(char *name)
 /* Everytime the dissector has finished dissecting a packet (and all
    subdissectors have returned) and if the dissector has been made "tappable"
    it will push some data to everyone tapping this layer by a call
-   to tap_packet().
+   to tap_queue_packet().
    The first parameter is the tap_id returned by the register_tap()
    call for this dissector (so the tap system can keep track of who it came
    from and who is listening to it)

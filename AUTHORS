@@ -1521,6 +1521,10 @@ Jason Greene <jason [AT] inetgurus.net> {
 	Fix for LDAPv3 modrdn requests
 }
 
+Marco Molteni <mmolteni [AT] cisco.com> {
+	Fix a comment to reflect reality
+}
+
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 
