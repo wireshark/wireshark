@@ -1,4 +1,4 @@
-$Id: README.developer,v 1.15 2000/08/13 14:20:31 deniel Exp $
+$Id: README.developer,v 1.16 2000/08/18 13:47:42 deniel Exp $
 
 This file is a HOWTO for Ethereal developers. It describes how to start coding
 a protocol dissector and the use some of the important functions and variables 
@@ -57,7 +57,7 @@ code inside
 
 is needed only if you are using the "snprintf()" function.
 
-The "$Id: README.developer,v 1.15 2000/08/13 14:20:31 deniel Exp $" in the comment will be updated by CVS when the file is
+The "$Id: README.developer,v 1.16 2000/08/18 13:47:42 deniel Exp $" in the comment will be updated by CVS when the file is
 checked in; it will allow the RCS "ident" command to report which
 version of the file is currently checked out.
 
@@ -66,7 +66,7 @@ version of the file is currently checked out.
  * Routines for PROTONAME dissection
  * Copyright 2000, YOUR_NAME <YOUR_EMAIL_ADDRESS>
  *
- * $Id: README.developer,v 1.15 2000/08/13 14:20:31 deniel Exp $
+ * $Id: README.developer,v 1.16 2000/08/18 13:47:42 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -1229,9 +1229,11 @@ plugin_address_table_init(pat);
 /* destroy the dfilter tree */
 dfilter_cleanup();
 /* register the new protocol, protocol fields, and subtrees */
-proto_xxx = proto_register_protocol("XXX Protocol", "xxx");
-proto_register_field_array(proto_xxx, hf, array_length(hf));
-proto_register_subtree_array(ett, array_length(ett));
+if (proto_xxx == -1) { /* execute protocol initialization only once */
+  proto_xxx = proto_register_protocol("XXX Protocol", "xxx");
+  proto_register_field_array(proto_xxx, hf, array_length(hf));
+  proto_register_subtree_array(ett, array_length(ett));
+}
 /* initialize the dfilter tree with all the header field and protocol
  * abbrevs defined, including xxx */
 dfilter_init();
