@@ -279,7 +279,7 @@ match_selected_ptree_cb(GtkWidget *w, gpointer data, MATCH_SELECTED_E action)
 
 
 void 
-selected_ptree_info_cb(GtkWidget *widget, gpointer data)
+selected_ptree_info_cb(GtkWidget *widget _U_, gpointer data _U_)
 {
     int field_id;
     gchar *selected_proto_url;
