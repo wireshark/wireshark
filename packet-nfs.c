@@ -2,7 +2,7 @@
  * Routines for nfs dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * Copyright 2000-2002, Mike Frisch <frisch@hummingbird.com> (NFSv4 decoding)
- * $Id: packet-nfs.c,v 1.86 2003/04/01 04:38:04 guy Exp $
+ * $Id: packet-nfs.c,v 1.87 2003/04/22 18:48:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1643,6 +1643,15 @@ static const value_string names_nfs_stat4[] = {
 	{	10037,	"NFS4ERR_LOCKS_HELD"				},
 	{	10038,	"NFS4ERR_OPENMODE"	},
 	{	10039,	"NFS4ERR_BADOWNER"	},
+	{	10040,	"NFS4ERR_BADCHAR"		},
+	{	10041,	"NFS4ERR_BADNAME"    },
+	{	10042,	"NFS4ERR_BAD_RANGE"	},
+	{	10043,	"NFS4ERR_LOCK_NOTSUPP"	},
+	{	10044,	"NFS4ERR_OP_ILLEGAL"	},
+	{	10045,	"NFS4ERR_DEADLOCK"	},
+	{	10046,	"NFS4ERR_FILE_OPEN"	},
+	{	10047,	"NFS4ERR_ADMIN_REVOKED"	},
+	{	10048,	"NFS4ERR_CB_PATH_DOWN"	},
 	{ 0, NULL }
 };
 
