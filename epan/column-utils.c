@@ -1,7 +1,7 @@
 /* column-utils.c
  * Routines for column utilities.
  *
- * $Id: column-utils.c,v 1.24 2002/10/23 04:23:03 guy Exp $
+ * $Id: column-utils.c,v 1.25 2002/11/11 19:23:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -60,16 +60,11 @@ col_init(column_info *col_info, gint num_cols)
   col_info->col_expr_val = (gchar **) g_malloc(sizeof(gchar *) * num_cols);
 }
 
-#if 0
-/*
- * This function does not appear to be used anywhere...
- */
 gboolean
 col_get_writable(column_info *cinfo)
 {
 	return (cinfo ? cinfo->writable : FALSE);
 }
-#endif
 
 void
 col_set_writable(column_info *cinfo, gboolean writable)

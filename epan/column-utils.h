@@ -1,7 +1,7 @@
 /* column-utils.h
  * Definitions for column utility structures and routines
  *
- * $Id: column-utils.h,v 1.7 2002/08/28 20:40:44 jmayer Exp $
+ * $Id: column-utils.h,v 1.8 2002/11/11 19:23:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -39,6 +39,7 @@ extern void	col_init(column_info *, gint);
 
 /* Utility routines used by packet*.c */
 
+extern gboolean	col_get_writable(column_info *);
 extern void	col_set_writable(column_info *, gboolean);
 extern gint	check_col(column_info *, gint);
 extern void	col_clear(column_info *, gint);

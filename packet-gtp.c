@@ -4,7 +4,7 @@
  * Copyright 2001, Michal Melerowicz <michal.melerowicz@nokia.com>
  *                 Nicolas Balkota <balkota@mac.com>
  *
- * $Id: packet-gtp.c,v 1.45 2002/11/11 17:41:37 guy Exp $
+ * $Id: packet-gtp.c,v 1.46 2002/11/11 19:23:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -38,7 +38,7 @@
 #include <epan/packet.h>
 #include "packet-gtp.h"
 #include "packet-ipv6.h"
-#include "ppptypes.h"
+#include "packet-ppp.h"
 #include "prefs.h"
 
 /*
@@ -347,7 +347,6 @@ static gboolean	gtpv1_etsi_order	= FALSE;
 static int	gtpv0_port		= 0;
 static int	gtpv1c_port		= 0;
 static int	gtpv1u_port		= 0;
-static gboolean ppp_reorder		= TRUE;
 
 /* Definition of flags masks */
 #define GTP_VER_MASK 0xE0
@@ -1332,6 +1331,7 @@ static const value_string cdr_close_type[] = {
 static dissector_handle_t ip_handle;
 static dissector_handle_t ipv6_handle;
 static dissector_handle_t ppp_handle;
+static dissector_handle_t data_handle;
 
 static int decode_gtp_cause		(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
 static int decode_gtp_imsi		(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
@@ -3751,10 +3751,12 @@ int
 decode_gtp_proto_conf(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
 
 	guint16         length, proto_offset;
-	guint8          *ptr, conf, proto_len, tmp, msg, cnt = 1;
+	guint16		proto_id;
+	guint8          conf, proto_len, cnt = 1;
 	tvbuff_t        *next_tvb;
 	proto_tree      *ext_tree_proto;
 	proto_item      *te;
+	gboolean	save_writable;
 
 	length = tvb_get_ntohs(tvb, offset + 1);
 
@@ -3773,36 +3775,39 @@ decode_gtp_proto_conf(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 
 	for (;;) {
 		if (proto_offset >= length) break;
+		proto_id = tvb_get_ntohs (tvb, offset);
 		proto_len = tvb_get_guint8 (tvb, offset + 2);
 		proto_offset += proto_len + 3;		/* 3 = proto id + length byte */
 
-		if ((proto_len > 0) && ppp_reorder) {
+		if (proto_len > 0) {
 
-			/* this part changes layout of GTP payload:
-			 * it swaps "length field" with "protocol header"  */
+			proto_tree_add_text (ext_tree_proto, tvb, offset, 2, "Protocol %u ID: %s (0x%04x)",
+			    cnt, val_to_str(proto_id, ppp_vals, "Unknown"),
+			    proto_id);
+			proto_tree_add_text (ext_tree_proto, tvb, offset+2, 1, "Protocol %u length: %u", cnt, proto_len);
 
-			ptr = (guint8 *)tvb_get_ptr(tvb, offset, 3);
+			/*
+			 * Don't allow the dissector for the configuration
+			 * protocol in question to update the columns - this
+			 * is GTP, not PPP.
+			 */
+			save_writable = col_get_writable(pinfo->cinfo);
+			col_set_writable(pinfo->cinfo, FALSE);
 
-			tmp = ptr[2];
-			ptr[2] = ptr[1];
-			ptr[1] = ptr[0];
-			ptr[0] = tmp;
-
-			proto_tree_add_text (ext_tree_proto, tvb, offset, 3, "[WARNING] Next 3 bytes were swapped to allow processing PPP section");
-			proto_tree_add_text (ext_tree_proto, tvb, offset, 1, "Protocol %u length: %u", cnt, proto_len);
-
-			next_tvb = tvb_new_subset (tvb, offset + 1, proto_len + 2, proto_len + 2);
-			call_dissector(ppp_handle, next_tvb, pinfo, ext_tree_proto);
-
-			if (check_col(pinfo->cinfo, COL_PROTOCOL))
-				col_set_str(pinfo->cinfo, COL_PROTOCOL, "GTP");
-
-			if (check_col(pinfo->cinfo, COL_INFO)) {
-
-				msg = tvb_get_guint8(tvb, 1);
-
-				col_set_str(pinfo->cinfo, COL_INFO, val_to_str(msg, message_type, "Unknown"));
+			/*
+			 * XXX - should we have our own dissector table,
+			 * solely for configuration protocols, so that bogus
+			 * values don't cause us to dissect the protocol
+			 * data as, for example, IP?
+			 */
+			next_tvb = tvb_new_subset (tvb, offset + 3, proto_len, proto_len);
+			if (!dissector_try_port(ppp_subdissector_table,
+			    proto_id, next_tvb, pinfo, ext_tree_proto)) {
+				call_dissector(data_handle, next_tvb, pinfo,
+				    ext_tree_proto);
 			}
+
+			col_set_writable(pinfo->cinfo, save_writable);
 		}
 
 		offset += proto_len + 3;
@@ -4923,7 +4928,7 @@ dissect_gtpv0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         /* this might be an address field, even it shouldn't be here */
                         guint8 control_field = tvb_get_guint8(tvb,GTPv0_HDR_LENGTH + 1);
                         if (control_field == 0x03) {
-                            /* now we are pretty sure that adress and control field are mistakenly inserted -> ignore it for PPP dissection */
+                            /* now we are pretty sure that address and control field are mistakenly inserted -> ignore it for PPP dissection */
                             acfield_len = 2;
                         }
                     }
@@ -5075,7 +5080,7 @@ dissect_gtpv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
                         control_field = tvb_get_guint8(tvb,GTPv1_HDR_LENGTH - hdr_offset + 1);
                         if (control_field == 0x03)
                         {
-                            /* now we are pretty sure that adress and control field are mistakenly inserted -> ignore it for PPP dissection */
+                            /* now we are pretty sure that address and control field are mistakenly inserted -> ignore it for PPP dissection */
                             acfield_len = 2;
                         }
                     }
@@ -5325,11 +5330,10 @@ proto_register_gtp(void)
 	prefs_register_enum_preference(gtp_module, "gtpv0_dissect_cdr_as", "Dissect GTP'v0 CDRs as ", "Dissect GTP'v0 CDRs as", &gtpv0_cdr_as, gtpv0_cdr_options, FALSE);
 	prefs_register_bool_preference(gtp_module, "gtpv0_check_etsi", "Compare GTPv0 order with ETSI ", "GTPv0 ETSI order", &gtpv0_etsi_order);
 	prefs_register_bool_preference(gtp_module, "gtpv1_check_etsi", "Compare GTPv1 order with ETSI ", "GTPv1 ETSI order", &gtpv1_etsi_order);
-	prefs_register_bool_preference(gtp_module, "ppp_reorder", "Reorder & dissect PPP in Protocol conf. options", "Reorder & dissect PPP inside of Protocol Configuration Options, 3 bytes will be swapped to allow processing PPP section: 1 byte of length with 2 bytes of protocol id (refer to ETSI 29.060, 7.7.21 & 24.008 10.5.6.3)", &ppp_reorder);
+	prefs_register_obsolete_preference(gtp_module, "ppp_reorder");
 
 	register_dissector("gtpv0", dissect_gtpv0, proto_gtpv0);
 	register_dissector("gtpv1", dissect_gtpv1, proto_gtpv1);
-
 }
 
 void
@@ -5373,9 +5377,9 @@ proto_reg_handoff_gtp(void)
 	dissector_add("tcp.port", g_gtpv1c_port, gtpv1_handle);
 	dissector_add("udp.port", g_gtpv1u_port, gtpv1_handle);
 	dissector_add("tcp.port", g_gtpv1u_port, gtpv1_handle);
-	dissector_add("ppp.protocol", PPP_IP, ip_handle);
 
 	ip_handle = find_dissector("ip");
         ipv6_handle = find_dissector("ipv6");
 	ppp_handle = find_dissector("ppp");
+	data_handle = find_dissector("data");
 }

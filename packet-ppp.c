@@ -1,7 +1,7 @@
 /* packet-ppp.c
  * Routines for ppp packet disassembly
  *
- * $Id: packet-ppp.c,v 1.99 2002/11/04 03:57:34 gerald Exp $
+ * $Id: packet-ppp.c,v 1.100 2002/11/11 19:23:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -157,7 +157,10 @@ static gint ett_ipv6cp_options = -1;
 static gint ett_ipv6cp_if_token_opt = -1;
 static gint ett_ipv6cp_compressprot_opt = -1;  
 
-static dissector_table_t subdissector_table;
+/*
+ * Used by the GTP dissector as well.
+ */
+dissector_table_t ppp_subdissector_table;
 static dissector_handle_t chdlc_handle;
 static dissector_handle_t data_handle;
 
@@ -178,7 +181,10 @@ static guint pppmux_def_prot_id = 0;
 
 /* PPP definitions */
 
-static const value_string ppp_vals[] = {
+/*
+ * Used by the GTP dissector as well.
+ */
+const value_string ppp_vals[] = {
 	{PPP_PADDING,	"Padding Protocol" },
 	{PPP_ROHC_SCID,	"ROHC small-CID" },
 	{PPP_ROHC_LCID,	"ROHC large-CID" },
@@ -294,7 +300,7 @@ static const value_string ppp_vals[] = {
 	{PPP_BACP,	"Bandwidth Allocation Control Protocol" },
 	{PPP_BAP,	"Bandwitdh Allocation Protocol" },
 	{PPP_CONTCP,	"Container Control Protocol" },
-	{PPP_CHAP,	"Cryptographic Handshake Auth. Protocol" },
+	{PPP_CHAP,	"Challenge Handshake Authentication Protocol" },
 	{PPP_RSAAP,	"RSA Authentication Protocol" },
 	{PPP_EAP,	"Extensible Authentication Protocol" },
 	{PPP_SIEP,	"Mitsubishi Security Information Exchange Protocol"},
@@ -2422,7 +2428,7 @@ dissect_ppp_common( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   next_tvb = tvb_new_subset(tvb, proto_len, -1, -1);
 
   /* do lookup with the subdissector table */
-  if (!dissector_try_port(subdissector_table, ppp_prot, next_tvb, pinfo, tree)) {
+  if (!dissector_try_port(ppp_subdissector_table, ppp_prot, next_tvb, pinfo, tree)) {
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
       col_add_fstr(pinfo->cinfo, COL_PROTOCOL, "0x%04x", ppp_prot);
     if (check_col(pinfo->cinfo, COL_INFO))
@@ -2645,7 +2651,7 @@ dissect_pppmux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       next_tvb = tvb_new_subset(tvb,offset,length,-1);
 
-      if (!dissector_try_port(subdissector_table, pid, next_tvb, pinfo, info_tree)) {
+      if (!dissector_try_port(ppp_subdissector_table, pid, next_tvb, pinfo, info_tree)) {
 	call_dissector(data_handle, next_tvb, pinfo, info_tree);
       }
       offset += length;
@@ -3188,7 +3194,7 @@ proto_register_ppp(void)
   proto_register_subtree_array(ett, array_length(ett));
 
 /* subdissector code */
-  subdissector_table = register_dissector_table("ppp.protocol",
+  ppp_subdissector_table = register_dissector_table("ppp.protocol",
 	"PPP protocol", FT_UINT16, BASE_HEX);
 
   register_dissector("ppp_hdlc", dissect_ppp_hdlc, proto_ppp);
