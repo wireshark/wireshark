@@ -4,7 +4,7 @@
  *
  * Copied from packet-h225.c and packet-h245.c
  *
- * $Id: packet-h450.c,v 1.7 2003/11/16 22:33:19 sahlberg Exp $
+ * $Id: packet-h450.c,v 1.8 2004/02/16 18:23:25 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1124,8 +1124,8 @@ proto_register_h4501(void)
       { "nonStandardData", "h4502.nonStandardData", FT_NONE, BASE_NONE,
 	  NULL, 0, "NonStandardParameter SEQUENCE", HFILL }},
    { &hf_h4502_DummyArg,
-      { "DummyArg", "h4502.DummyArg", FT_NONE, BASE_NONE,
-      NULL, 0, "DummyArg sequence of", HFILL }},
+      { "DummyArg", "h4502.DummyArg", FT_UINT32, BASE_DEC,
+      VALS(Extension_vals), 0, "DummyArg choice", HFILL }},
    { &hf_h4502_CTInitiateArg,
       { "CTInitiateArg", "h4502.CTInitiateArg", FT_NONE, BASE_NONE,
       NULL, 0, "CTInitiateArg sequence of", HFILL }},
@@ -1172,8 +1172,8 @@ proto_register_h4501(void)
       { "CTActiveArg", "h4502.CTActiveArg", FT_NONE, BASE_NONE,
       NULL, 0, "CTActiveArg sequence of", HFILL }},
    { &hf_h4501_argumentExtension,
-      { "argumentExtension", "h4501.argumentExtension", FT_BYTES, BASE_HEX,
-      NULL, 0, "argumentExtension", HFILL }},
+      { "argumentExtension", "h4501.argumentExtension", FT_UINT32, BASE_DEC,
+      VALS(Extension_vals), 0, "argumentExtension choice", HFILL }},
    { &hf_h4501_argument,
       { "argument", "h4501.argument", FT_BYTES, BASE_HEX,
       NULL, 0, "argument", HFILL }},
@@ -1184,11 +1184,11 @@ proto_register_h4501(void)
       { "CTIdentifyRes", "h4502.CTIdentifyRes", FT_NONE, BASE_NONE,
       NULL, 0, "CTIdentifyRes sequence of", HFILL }},
    { &hf_h4502_DummyRes,
-      { "DummyRes", "h4502.DummyRes", FT_NONE, BASE_NONE,
-      NULL, 0, "DummyRes sequence of", HFILL }},
+      { "DummyRes", "h4502.DummyRes", FT_UINT32, BASE_DEC,
+      VALS(Extension_vals), 0, "DummyRes Choice", HFILL }},
    { &hf_h4501_resultExtension,
-      { "resultExtension", "h4501.resultExtension", FT_BYTES, BASE_HEX,
-      NULL, 0, "resultExtension", HFILL }},
+      { "resultExtension", "h4501.resultExtension", FT_UINT32, BASE_DEC,
+      VALS(Extension_vals), 0, "resultExtension choice", HFILL }},
    { &hf_h4501_ReturnResult_result,
       { "result", "h4501.ReturnResult.result", FT_BYTES, BASE_HEX,
       NULL, 0, "result", HFILL }},
