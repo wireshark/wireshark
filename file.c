@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.135 1999/12/09 07:19:03 guy Exp $
+ * $Id: file.c,v 1.136 1999/12/09 20:41:24 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -82,6 +82,10 @@
 #include "timestamp.h"
 #include "conversation.h"
 #include "globals.h"
+
+#ifdef HAVE_DLFCN_H
+#include "plugins.h"
+#endif
 
 #ifndef __RESOLV_H__
 #include "resolv.h"
@@ -777,7 +781,7 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf, const u_char *buf
   gint          i, row;
   gint		crow;
   gint 		color;
-  proto_tree   *protocol_tree;
+  proto_tree   *protocol_tree = NULL;
 
   fdata->num = cf->count;
 
@@ -829,9 +833,17 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf, const u_char *buf
 	proto_tree_free(protocol_tree);
   }
   else {
-	dissect_packet(buf, fdata, NULL);
+#ifdef HAVE_DLFCN_H
+	if (plugin_list)
+	    protocol_tree = proto_tree_create_root();
+#endif
+	dissect_packet(buf, fdata, protocol_tree);
 	fdata->passed_dfilter = TRUE;
 	color = -1;
+#ifdef HAVE_DLFCN_H
+	if (protocol_tree)
+	    proto_tree_free(protocol_tree);
+#endif
   }
   if (fdata->passed_dfilter) {
     /* If we don't have the time stamp of the previous displayed packet,

@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.52 1999/12/09 04:06:53 nneul Exp $
+ * $Id: packet-tcp.c,v 1.53 1999/12/09 20:41:25 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -37,7 +37,7 @@
 
 #include <stdio.h>
 #include <glib.h>
-#include "packet.h"
+#include "globals.h"
 #include "resolv.h"
 #include "follow.h"
 #include "util.h"
@@ -49,6 +49,10 @@
 #  include <varargs.h>
 # endif
 # include "snprintf.h"
+#endif
+
+#ifdef HAVE_DLFCN_H
+#include "plugins.h"
 #endif
 
 #ifndef __PACKET_IP_H__
@@ -481,6 +485,22 @@ dissect_tcp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   /* Check the packet length to see if there's more data
      (it could be an ACK-only packet) */
   if (packet_max > offset) {
+
+    /* try to apply the plugins */
+#ifdef HAVE_DLFCN_H
+    plugin *pt_plug = plugin_list;
+
+    if (pt_plug) {
+      while (pt_plug) {
+	if (pt_plug->enabled && !strcmp(pt_plug->protocol, "tcp") &&
+	    tree && dfilter_apply(pt_plug->filter, tree, pd)) {
+	  pt_plug->dissector(pd, offset, fd, tree);
+	  goto reas;
+	}
+	pt_plug = pt_plug->next;
+      }
+    }
+#endif
 
     /* ONC RPC.  We can't base this on anything in the TCP header; we have
        to look at the payload.  If "dissect_rpc()" returns TRUE, it was

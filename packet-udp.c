@@ -1,7 +1,7 @@
 /* packet-udp.c
  * Routines for UDP packet disassembly
  *
- * $Id: packet-udp.c,v 1.41 1999/12/07 06:10:00 guy Exp $
+ * $Id: packet-udp.c,v 1.42 1999/12/09 20:41:26 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -41,8 +41,12 @@
 #include <stdlib.h>
 
 #include <glib.h>
-#include "packet.h"
+#include "globals.h"
 #include "resolv.h"
+
+#ifdef HAVE_DLFCN_H
+#include "plugins.h"
+#endif
 
 static int proto_udp = -1;		
 static int hf_udp_srcport = -1;
@@ -238,6 +242,24 @@ dissect_udp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
      an RPC packet, otherwise it's some other type of packet. */
   if (dissect_rpc(pd, offset, fd, tree))
     return;
+
+  /* try to apply the plugins */
+#ifdef HAVE_DLFCN_H
+  {
+      plugin *pt_plug = plugin_list;
+
+      if (pt_plug) {
+	  while (pt_plug) {
+	      if (pt_plug->enabled && !strcmp(pt_plug->protocol, "udp") &&
+		  tree && dfilter_apply(pt_plug->filter, tree, pd)) {
+		  pt_plug->dissector(pd, offset, fd, tree);
+		  return;
+	      }
+	      pt_plug = pt_plug->next;
+	  }
+      }
+  }
+#endif
 
   /* XXX - we should do all of this through the table of ports. */
 #define PORT_IS(port)	(uh_sport == port || uh_dport == port)

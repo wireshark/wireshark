@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.8 1999/12/05 23:44:24 guy Exp $
+ * $Id: menu.c,v 1.9 1999/12/09 20:41:41 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -108,6 +108,9 @@ static GtkItemFactoryEntry menu_items[] =
   {"/Display/Collapse _All", NULL, GTK_MENU_FUNC(collapse_all_cb), 0, NULL},
   {"/Display/_Expand All", NULL, GTK_MENU_FUNC(expand_all_cb), 0, NULL},
   {"/_Tools", NULL, NULL, 0, "<Branch>" },
+#ifdef HAVE_DLFCN_H
+  {"/Tools/_Plugins...", NULL, GTK_MENU_FUNC(tools_plugins_cmd_cb), 0, NULL},
+#endif
   {"/Tools/_Follow TCP Stream", NULL, GTK_MENU_FUNC(follow_stream_cb), 0, NULL},
 /*  {"/Tools/Graph", NULL, NULL, 0, NULL}, future use */
   {"/Tools/_Summary", NULL, GTK_MENU_FUNC(summary_prep_cb), 0, NULL},
