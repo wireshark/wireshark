@@ -1,7 +1,7 @@
 /* packet-pgm.c
  * Routines for pgm packet disassembly
  *
- * $Id: packet-pgm.c,v 1.3 2001/07/13 11:42:44 girlich Exp $
+ * $Id: packet-pgm.c,v 1.4 2001/07/20 23:21:33 guy Exp $
  * 
  * Copyright (c) 2000 by Talarian Corp
  *
@@ -70,7 +70,6 @@
 void proto_reg_handoff_pgm(void);
 extern void decode_tcp_ports(tvbuff_t *, int , packet_info *,
     proto_tree *, int, int);
-
 
 static int proto_pgm = -1;
 static int ett_pgm = -1;
@@ -150,7 +149,14 @@ static int hf_pgm_opt_nak_opx = -1;
 static int hf_pgm_opt_nak_res = -1;
 static int hf_pgm_opt_nak_list = -1;
 
-inline char *
+/*
+ * As of the time this comment was typed
+ *
+ *	http://search.ietf.org/internet-drafts/draft-speakman-pgm-spec-06.txt
+ *
+ * was the URL for the PGM draft.
+ */
+G_INLINE_FUNC char *
 gsistr(char *gsi, int len)
 {
 	 static char msg[256];
@@ -163,7 +169,8 @@ gsistr(char *gsi, int len)
 	}
 	return(msg);
 }
-inline char *
+
+G_INLINE_FUNC char *
 optsstr(nchar_t opts)
 {
 	 static char msg[256];
@@ -205,7 +212,8 @@ optsstr(nchar_t opts)
 	}
 	return(msg);
 }
-inline char *
+
+G_INLINE_FUNC char *
 opttypes(nchar_t opt)
 {
 	 static char msg[128];
@@ -238,7 +246,8 @@ opttypes(nchar_t opt)
 	sprintf(msg, "0x%x", opt);
 	return(msg);
 }
-inline char *
+
+G_INLINE_FUNC char *
 opxbits(nchar_t opt)
 {
 	 static char msg[128];
