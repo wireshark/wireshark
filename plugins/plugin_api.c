@@ -1,7 +1,7 @@
 /* plugin_api.c
  * Routines for Ethereal plugins.
  *
- * $Id: plugin_api.c,v 1.9 2000/11/12 11:08:45 guy Exp $
+ * $Id: plugin_api.c,v 1.10 2000/11/13 08:00:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@xiexie.org>
@@ -91,4 +91,37 @@ plugin_address_table_init(plugin_address_table_t *pat)
 	p_proto_tree_add_int_format		= pat->p_proto_tree_add_int_format;
 	p_proto_tree_add_text			= pat->p_proto_tree_add_text;
 	p_proto_tree_add_notext			= pat->p_proto_tree_add_notext;
+	p_tvb_new_subset			= pat->p_tvb_new_subset;
+	p_tvb_length				= pat->p_tvb_length;
+	p_tvb_length_remaining			= pat->p_tvb_length_remaining;
+	p_tvb_bytes_exist			= pat->p_tvb_bytes_exist;
+	p_tvb_offset_exists			= pat->p_tvb_offset_exists;
+	p_tvb_reported_length			= pat->p_tvb_reported_length;
+	p_tvb_get_guint8			= pat->p_tvb_get_guint8;
+	p_tvb_get_ntohs				= pat->p_tvb_get_ntohs;
+	p_tvb_get_ntoh24			= pat->p_tvb_get_ntoh24;
+	p_tvb_get_ntohl				= pat->p_tvb_get_ntohl;
+#ifdef G_HAVE_GINT64
+	p_tvb_get_ntohll			= pat->p_tvb_get_ntohll;
+#endif
+	p_tvb_get_letohs			= pat->p_tvb_get_letohs;
+	p_tvb_get_letoh24			= pat->p_tvb_get_letoh24;
+	p_tvb_get_letohl			= pat->p_tvb_get_letohl;
+#ifdef G_HAVE_GINT64
+	p_tvb_get_letohll			= pat->p_tvb_get_letohll;
+#endif
+	p_tvb_memcpy				= pat->p_tvb_memcpy;
+	p_tvb_memdup				= pat->p_tvb_memdup;
+	p_tvb_get_ptr				= pat->p_tvb_get_ptr;
+	p_tvb_find_guint8			= pat->p_tvb_find_guint8;
+	p_tvb_pbrk_guint8			= pat->p_tvb_pbrk_guint8;
+	p_tvb_strnlen				= pat->p_tvb_strnlen;
+	p_tvb_format_text			= pat->p_tvb_format_text;
+	p_tvb_get_nstringz			= pat->p_tvb_get_nstringz;
+	p_tvb_get_nstringz0			= pat->p_tvb_get_nstringz0;
+	p_tvb_find_line_end			= pat->p_tvb_find_line_end;
+	p_tvb_find_line_end_unquoted		= pat->p_tvb_find_line_end_unquoted;
+	p_tvb_strneql				= pat->p_tvb_strneql;
+	p_tvb_strncaseeql			= pat->p_tvb_strncaseeql;
+	p_tvb_bytes_to_str			= pat->p_tvb_bytes_to_str;
 }

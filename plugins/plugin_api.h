@@ -1,7 +1,7 @@
 /* plugin_api.h
  * Routines for Ethereal plugins.
  *
- * $Id: plugin_api.h,v 1.8 2000/11/12 11:08:46 guy Exp $
+ * $Id: plugin_api.h,v 1.9 2000/11/13 08:00:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@xiexie.org>
@@ -99,6 +99,53 @@
 #define	proto_tree_add_int_format	(*p_proto_tree_add_int_format)
 #define	proto_tree_add_text		(*p_proto_tree_add_text)
 #define	proto_tree_add_notext		(*p_proto_tree_add_notext)
+
+#define tvb_new_subset			(*p_tvb_new_subset)
+
+#define tvb_length			(*p_tvb_length)
+#define tvb_length_remaining		(*p_tvb_length_remaining)
+#define tvb_bytes_exist			(*p_tvb_bytes_exist)
+#define tvb_offset_exists		(*p_tvb_offset_exists)
+#define tvb_reported_length		(*p_tvb_reported_length)
+
+#define tvb_get_guint8			(*p_tvb_get_guint8)
+
+#define tvb_get_ntohs			(*p_tvb_get_ntohs)
+#define tvb_get_ntoh24			(*p_tvb_get_ntoh24)
+#define tvb_get_ntohl			(*p_tvb_get_ntohl)
+#ifdef G_HAVE_GINT64
+#define tvb_get_ntohll			(*p_tvb_get_ntohll)
+#endif
+
+#define tvb_get_letohs			(*p_tvb_get_letohs)
+#define tvb_get_letoh24			(*p_tvb_get_letoh24)
+#define tvb_get_letohl			(*p_tvb_get_letohl)
+#ifdef G_HAVE_GINT64
+#define tvb_get_letohll			(*p_tvb_get_letohll)
+#endif
+
+#define tvb_memcpy			(*p_tvb_memcpy)
+#define tvb_memdup			(*p_tvb_memdup)
+
+#define tvb_get_ptr			(*p_tvb_get_ptr)
+
+#define tvb_find_guint8			(*p_tvb_find_guint8)
+#define tvb_pbrk_guint8			(*p_tvb_pbrk_guint8)
+
+#define tvb_strnlen			(*p_tvb_strnlen)
+
+#define tvb_format_text			(*p_tvb_format_text)
+
+#define tvb_get_nstringz		(*p_tvb_get_nstringz)
+#define tvb_get_nstringz0		(*p_tvb_get_nstringz0)
+
+#define tvb_find_line_end		(*p_tvb_find_line_end)
+#define tvb_find_line_end_unquoted	(*p_tvb_find_line_end_unquoted)
+
+#define tvb_strneql			(*p_tvb_strneql)
+#define tvb_strncaseeql			(*p_tvb_strncaseeql)
+
+#define tvb_bytes_to_str		(*p_tvb_bytes_to_str)
 
 #define pi	(*p_pi)
 

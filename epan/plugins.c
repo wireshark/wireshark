@@ -1,7 +1,7 @@
 /* plugins.c
  * plugin routines
  *
- * $Id: plugins.c,v 1.6 2000/11/12 21:20:50 guy Exp $
+ * $Id: plugins.c,v 1.7 2000/11/13 08:00:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -662,6 +662,53 @@ init_plugins(const char *plugin_dir)
 	patable.p_proto_tree_add_int_format	= proto_tree_add_int_format;
 	patable.p_proto_tree_add_text		= proto_tree_add_text;
 	patable.p_proto_tree_add_notext		= proto_tree_add_notext;
+
+	patable.p_tvb_new_subset		= tvb_new_subset;
+
+	patable.p_tvb_length			= tvb_length;
+	patable.p_tvb_length_remaining		= tvb_length_remaining;
+	patable.p_tvb_bytes_exist		= tvb_bytes_exist;
+	patable.p_tvb_offset_exists		= tvb_offset_exists;
+	patable.p_tvb_reported_length		= tvb_reported_length;
+
+	patable.p_tvb_get_guint8		= tvb_get_guint8;
+
+	patable.p_tvb_get_ntohs			= tvb_get_ntohs;
+	patable.p_tvb_get_ntoh24		= tvb_get_ntoh24;
+	patable.p_tvb_get_ntohl			= tvb_get_ntohl;
+#ifdef G_HAVE_GINT64
+	patable.p_tvb_get_ntohll		= tvb_get_ntohll;
+#endif
+
+	patable.p_tvb_get_letohs		= tvb_get_letohs;
+	patable.p_tvb_get_letoh24		= tvb_get_letoh24;
+	patable.p_tvb_get_letohl		= tvb_get_letohl;
+#ifdef G_HAVE_GINT64
+	patable.p_tvb_get_letohll		= tvb_get_letohll;
+#endif
+
+	patable.p_tvb_memcpy			= tvb_memcpy;
+	patable.p_tvb_memdup			= tvb_memdup;
+
+	patable.p_tvb_get_ptr			= tvb_get_ptr;
+
+	patable.p_tvb_find_guint8		= tvb_find_guint8;
+	patable.p_tvb_pbrk_guint8		= tvb_pbrk_guint8;
+
+	patable.p_tvb_strnlen			= tvb_strnlen;
+
+	patable.p_tvb_format_text		= tvb_format_text;
+
+	patable.p_tvb_get_nstringz		= tvb_get_nstringz;
+	patable.p_tvb_get_nstringz0		= tvb_get_nstringz0;
+
+	patable.p_tvb_find_line_end		= tvb_find_line_end;
+	patable.p_tvb_find_line_end_unquoted	= tvb_find_line_end_unquoted;
+
+	patable.p_tvb_strneql			= tvb_strneql;
+	patable.p_tvb_strncaseeql		= tvb_strncaseeql;
+
+	patable.p_tvb_bytes_to_str		= tvb_bytes_to_str;
 #endif
 
 	plugins_scan_dir(std_plug_dir);

@@ -1,7 +1,7 @@
 /* plugin_table.h
  * Table of exported addresses for Ethereal plugins.
  *
- * $Id: plugin_table.h,v 1.5 2000/11/12 11:08:46 guy Exp $
+ * $Id: plugin_table.h,v 1.6 2000/11/13 08:00:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@xiexie.org>
@@ -104,6 +104,53 @@ typedef proto_item* (*addr_proto_tree_add_int_format)(proto_tree*, int, tvbuff_t
 typedef proto_item* (*addr_proto_tree_add_text)(proto_tree*, tvbuff_t*, gint, gint, const char*, ...);
 typedef proto_item* (*addr_proto_tree_add_notext)(proto_tree*, tvbuff_t*, gint, gint);
 
+typedef tvbuff_t* (*addr_tvb_new_subset)(tvbuff_t*, gint, gint, gint);
+
+typedef guint (*addr_tvb_length)(tvbuff_t*);
+typedef guint (*addr_tvb_length_remaining)(tvbuff_t*, gint);
+typedef gboolean (*addr_tvb_bytes_exist)(tvbuff_t*, gint, gint);
+typedef gboolean (*addr_tvb_offset_exists)(tvbuff_t*, gint);
+typedef guint (*addr_tvb_reported_length)(tvbuff_t*);
+
+typedef guint8 (*addr_tvb_get_guint8)(tvbuff_t*, gint);
+
+typedef guint16 (*addr_tvb_get_ntohs)(tvbuff_t*, gint);
+typedef guint32 (*addr_tvb_get_ntoh24)(tvbuff_t*, gint);
+typedef guint32 (*addr_tvb_get_ntohl)(tvbuff_t*, gint);
+#ifdef G_HAVE_GINT64
+typedef guint64 (*addr_tvb_get_ntohll)(tvbuff_t*, gint);
+#endif
+
+typedef guint16 (*addr_tvb_get_letohs)(tvbuff_t*, gint);
+typedef guint32 (*addr_tvb_get_letoh24)(tvbuff_t*, gint);
+typedef guint32 (*addr_tvb_get_letohl)(tvbuff_t*, gint);
+#ifdef G_HAVE_GINT64
+typedef guint64 (*addr_tvb_get_letohll)(tvbuff_t*, gint);
+#endif
+
+typedef guint8* (*addr_tvb_memcpy)(tvbuff_t*, guint8* target, gint, gint);
+typedef guint8* (*addr_tvb_memdup)(tvbuff_t*, gint, gint);
+
+typedef guint8* (*addr_tvb_get_ptr)(tvbuff_t*, gint, gint);
+
+typedef gint (*addr_tvb_find_guint8)(tvbuff_t*, gint, guint, guint8);
+typedef gint (*addr_tvb_pbrk_guint8)(tvbuff_t *, gint, guint, guint8 *);
+
+typedef gint (*addr_tvb_strnlen)(tvbuff_t*, gint, guint);
+
+typedef guint8 * (*addr_tvb_format_text)(tvbuff_t *tvb, gint, gint);
+
+typedef gint (*addr_tvb_get_nstringz)(tvbuff_t *tvb, gint, guint, guint8*);
+typedef gint (*addr_tvb_get_nstringz0)(tvbuff_t *tvb, gint, guint, guint8*);
+
+typedef gint (*addr_tvb_find_line_end)(tvbuff_t *tvb, gint, int, gint *);
+typedef gint (*addr_tvb_find_line_end_unquoted)(tvbuff_t *tvb, gint, int, gint *);
+
+typedef gint (*addr_tvb_strneql)(tvbuff_t *tvb, gint, const guint8 *str, gint);
+typedef gint (*addr_tvb_strncaseeql)(tvbuff_t *tvb, gint, const guint8 *str, gint);
+
+typedef gchar *(*addr_tvb_bytes_to_str)(tvbuff_t *tvb, gint, gint len);
+
 typedef struct  {
 	addr_check_col				p_check_col;
 	addr_col_add_fstr			p_col_add_fstr;
@@ -167,6 +214,53 @@ typedef struct  {
 	addr_proto_tree_add_int_format		p_proto_tree_add_int_format;
 	addr_proto_tree_add_text		p_proto_tree_add_text;
 	addr_proto_tree_add_notext		p_proto_tree_add_notext;
+
+	addr_tvb_new_subset			p_tvb_new_subset;
+
+	addr_tvb_length				p_tvb_length;
+	addr_tvb_length_remaining		p_tvb_length_remaining;
+	addr_tvb_bytes_exist			p_tvb_bytes_exist;
+	addr_tvb_offset_exists			p_tvb_offset_exists;
+	addr_tvb_reported_length		p_tvb_reported_length;
+
+	addr_tvb_get_guint8			p_tvb_get_guint8;
+
+	addr_tvb_get_ntohs			p_tvb_get_ntohs;
+	addr_tvb_get_ntoh24			p_tvb_get_ntoh24;
+	addr_tvb_get_ntohl			p_tvb_get_ntohl;
+#ifdef G_HAVE_GINT64
+	addr_tvb_get_ntohll			p_tvb_get_ntohll;
+#endif
+
+	addr_tvb_get_letohs			p_tvb_get_letohs;
+	addr_tvb_get_letoh24			p_tvb_get_letoh24;
+	addr_tvb_get_letohl			p_tvb_get_letohl;
+#ifdef G_HAVE_GINT64
+	addr_tvb_get_letohll			p_tvb_get_letohll;
+#endif
+
+	addr_tvb_memcpy				p_tvb_memcpy;
+	addr_tvb_memdup				p_tvb_memdup;
+
+	addr_tvb_get_ptr			p_tvb_get_ptr;
+
+	addr_tvb_find_guint8			p_tvb_find_guint8;
+	addr_tvb_pbrk_guint8			p_tvb_pbrk_guint8;
+
+	addr_tvb_strnlen			p_tvb_strnlen;
+
+	addr_tvb_format_text			p_tvb_format_text;
+
+	addr_tvb_get_nstringz			p_tvb_get_nstringz;
+	addr_tvb_get_nstringz0			p_tvb_get_nstringz0;
+
+	addr_tvb_find_line_end			p_tvb_find_line_end;
+	addr_tvb_find_line_end_unquoted	p_tvb_find_line_end_unquoted;
+
+	addr_tvb_strneql			p_tvb_strneql;
+	addr_tvb_strncaseeql			p_tvb_strncaseeql;
+
+	addr_tvb_bytes_to_str			p_tvb_bytes_to_str;
 } plugin_address_table_t;
 
 #else /* ! PLUGINS_NEED_ACCESS_TABLE */
