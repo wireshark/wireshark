@@ -1,7 +1,7 @@
 /* main.h
  * Global defines, etc.
  *
- * $Id: main.h,v 1.37 2004/01/20 18:47:24 ulfl Exp $
+ * $Id: main.h,v 1.38 2004/01/24 01:02:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -106,7 +106,12 @@ extern void dfilter_recent_combo_write_all(FILE *rf);
 
 extern void main_widgets_rearrange(void);
 
-extern void font_apply(void);
+typedef enum {
+	FA_SUCCESS,
+	FA_FONT_NOT_RESIZEABLE,
+	FA_FONT_NOT_AVAILABLE
+} fa_ret_t;
+extern fa_ret_t font_apply(void);
 #if GTK_MAJOR_VERSION < 2
 char *font_boldify(const char *);
 void set_fonts(GdkFont *regular, GdkFont *bold);

@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.371 2004/01/23 21:22:18 guy Exp $
+ * $Id: main.c,v 1.372 2004/01/24 01:02:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -314,25 +314,80 @@ goto_bottom_frame_cb(GtkWidget *w _U_, gpointer d _U_)
 void
 view_zoom_in_cb(GtkWidget *w _U_, gpointer d _U_)
 {
+    gint save_gui_zoom_level;
 
+    save_gui_zoom_level = recent.gui_zoom_level;
     recent.gui_zoom_level++;
-    font_apply();
+    switch (font_apply()) {
+
+    case FA_SUCCESS:
+        break;
+
+    case FA_FONT_NOT_RESIZEABLE:
+        /* "font_apply()" popped up an alert box. */
+        recent.gui_zoom_level = save_gui_zoom_level;	/* undo zoom */
+        break;
+
+    case FA_FONT_NOT_AVAILABLE:
+        /* We assume this means that the specified size isn't available. */
+        simple_dialog(ESD_TYPE_CRIT, NULL,
+            "Your current font isn't available in the next larger size.\n");
+        recent.gui_zoom_level = save_gui_zoom_level;	/* undo zoom */
+        break;
+    }
 }
 
 void
 view_zoom_out_cb(GtkWidget *w _U_, gpointer d _U_)
 {
+    gint save_gui_zoom_level;
 
+    save_gui_zoom_level = recent.gui_zoom_level;
     recent.gui_zoom_level--;
-    font_apply();
+    switch (font_apply()) {
+
+    case FA_SUCCESS:
+        break;
+
+    case FA_FONT_NOT_RESIZEABLE:
+        /* "font_apply()" popped up an alert box. */
+        recent.gui_zoom_level = save_gui_zoom_level;	/* undo zoom */
+        break;
+
+    case FA_FONT_NOT_AVAILABLE:
+        /* We assume this means that the specified size isn't available. */
+        simple_dialog(ESD_TYPE_CRIT, NULL,
+            "Your current font isn't available in the next smaller size.\n");
+        recent.gui_zoom_level = save_gui_zoom_level;	/* undo zoom */
+        break;
+    }
 }
 
 void
 view_zoom_100_cb(GtkWidget *w _U_, gpointer d _U_)
 {
+    gint save_gui_zoom_level;
 
+    save_gui_zoom_level = recent.gui_zoom_level;
     recent.gui_zoom_level = 0;
-    font_apply();
+    switch (font_apply()) {
+
+    case FA_SUCCESS:
+        break;
+
+    case FA_FONT_NOT_RESIZEABLE:
+        /* "font_apply()" popped up an alert box. */
+        recent.gui_zoom_level = save_gui_zoom_level;	/* undo zoom */
+        break;
+
+    case FA_FONT_NOT_AVAILABLE:
+        /* We assume this means that the specified size isn't available.
+           XXX - this "shouldn't happen". */
+        simple_dialog(ESD_TYPE_CRIT, NULL,
+            "Your current font couldn't be reloaded at the size you selected.\n");
+        recent.gui_zoom_level = save_gui_zoom_level;	/* undo zoom */
+        break;
+    }
 }
 
 
@@ -2887,7 +2942,7 @@ font_zoom(char *gui_font_name)
     return g_strdup(new_font_name);
 }
 
-void
+fa_ret_t
 font_apply(void) {
     char *gui_font_name;
 #if GTK_MAJOR_VERSION < 2
@@ -2907,10 +2962,9 @@ font_apply(void) {
     	 * We just report that for now as a font not available in
     	 * multiple sizes.
     	 */
-        simple_dialog(ESD_TYPE_WARN, NULL,
-            "Your current font isn't available in any other sizes.\n"
-            "Please update your font setting in Edit->Preferences!");
-        return;
+        simple_dialog(ESD_TYPE_CRIT, NULL,
+            "Your current font isn't available in any other sizes.\n");
+        return FA_FONT_NOT_RESIZEABLE;
     }
 
 #if GTK_MAJOR_VERSION < 2
@@ -2923,9 +2977,6 @@ font_apply(void) {
     pango_font_description_set_weight(new_b_font, PANGO_WEIGHT_BOLD);
 #endif
     if (new_r_font == NULL || new_b_font == NULL) {
-        simple_dialog(ESD_TYPE_WARN, NULL,
-            "Font name: \"%s\" invalid, cannot load font!", 
-            gui_font_name);
         /* We're no longer using the new fonts; unreference them. */
 #if GTK_MAJOR_VERSION < 2
         if (new_r_font != NULL)
@@ -2939,7 +2990,11 @@ font_apply(void) {
             pango_font_description_free(new_b_font);
 #endif
         g_free(gui_font_name);
-        return;
+
+        /* We let our caller pop up a dialog box, as the error message
+           depends on the context (did they zoom in or out, or did they
+           do something else? */
+        return FA_FONT_NOT_AVAILABLE;
     }
 
     /* the font(s) seem to be ok */
@@ -2971,6 +3026,7 @@ font_apply(void) {
         pango_font_description_free(old_b_font);
 #endif
     g_free(gui_font_name);
+    return FA_SUCCESS;
 }
 
 

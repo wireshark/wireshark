@@ -1,7 +1,7 @@
 /* gui_prefs.c
  * Dialog box for GUI preferences
  *
- * $Id: gui_prefs.c,v 1.59 2004/01/23 20:13:23 guy Exp $
+ * $Id: gui_prefs.c,v 1.60 2004/01/24 01:02:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -45,6 +45,7 @@
 #include "packet_list.h"
 #include "compat_macros.h"
 #include "toolbar.h"
+#include "recent.h"
 
 static gint fetch_enum_value(gpointer control, const enum_val_t *enumvals);
 static gint fileopen_dir_changed_cb(GtkWidget *myentry _U_, GdkEvent *event, gpointer parent_w);
@@ -459,7 +460,26 @@ gui_prefs_apply(GtkWidget *w _U_)
 
 	if (font_changed) {
 		/* This redraws the hex dump windows. */
-		font_apply();
+		switch (font_apply()) {
+
+		case FA_SUCCESS:
+			break;
+
+		case FA_FONT_NOT_RESIZEABLE:
+			/* "font_apply()" popped up an alert box. */
+			/* turn off zooming - font can't be resized */
+			recent.gui_zoom_level = 0;
+			break;
+
+		case FA_FONT_NOT_AVAILABLE:
+			/* We assume this means that the specified size
+			   isn't available. */
+			simple_dialog(ESD_TYPE_CRIT, NULL,
+			    "That font font isn't available at the specified zoom level;\n"
+			    "turning zooming off.");
+			recent.gui_zoom_level = 0;
+			break;
+		}
 	} else {
 		/* Redraw the hex dump windows, in case the
 		   highlight style changed.

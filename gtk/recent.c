@@ -2,7 +2,7 @@
  * Recent "preference" handling routines
  * Copyright 2004, Ulf Lamping <ulf.lamping@web.de>
  *
- * $Id: recent.c,v 1.5 2004/01/20 18:47:25 ulfl Exp $
+ * $Id: recent.c,v 1.6 2004/01/24 01:02:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -260,7 +260,26 @@ read_recent(char **rf_path_return, int *rf_errno_return)
   }
 
   menu_recent_read_finished();
-  font_apply();
+
+  switch (font_apply()) {
+
+  case FA_SUCCESS:
+    break;
+
+  case FA_FONT_NOT_RESIZEABLE:
+    /* "font_apply()" popped up an alert box. */
+    recent.gui_zoom_level = 0;	/* turn off zooming - font can't be resized */
+    break;
+
+  case FA_FONT_NOT_AVAILABLE:
+    /* XXX - did we successfully load the un-zoomed version earlier?
+       If so, this *probably* means the font is available, but not at
+       this particular zoom level, but perhaps some other failure
+       occurred; I'm not sure you can determine which is the case,
+       however. */
+    recent.gui_zoom_level = 0;	/* turn off zooming - zoom level is unavailable */
+    break;
+  }
 }
 
 
