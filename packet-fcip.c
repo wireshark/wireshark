@@ -2,7 +2,7 @@
  * Routines for FCIP dissection
  * Copyright 2001, Dinesh G Dutt (ddutt@cisco.com)
  *
- * $Id: packet-fcip.c,v 1.6 2003/09/03 20:58:08 guy Exp $
+ * $Id: packet-fcip.c,v 1.7 2003/09/09 05:02:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -35,6 +35,14 @@
 
 #include <epan/packet.h>
 #include "prefs.h"
+
+/*
+ * See:
+ *
+ *	draft-ietf-ips-fcovertcpip-12
+ *
+ *	draft-ietf-ips-fcencapsulation-08
+ */
 
 #define FCIP_ENCAP_HEADER_LEN                    28
 #define FCIP_MIN_HEADER_LEN                      16 /* upto frame len field */ 
@@ -96,10 +104,6 @@ static const value_string fcip_sof_vals[] = {
 static const value_string fcencap_proto_vals[] = {
     {FCENCAP_PROTO_FCIP, "FCIP"},
     {FCENCAP_PROTO_iFCP, "iFCP"},
-};
-
-static const value_string fsf_conn_flag_vals[] = {
-    {0, NULL},
 };
 
 static guint fcip_header_2_bytes[2] = {FCIP_ENCAP_PROTO_VER,
@@ -340,12 +344,14 @@ dissect_fcencap_header (tvbuff_t *tvb, proto_tree *tree, gint offset)
             proto_tree_add_item (tree, hf_fcip_pflags_c, tvb, offset+10, 1, 0);
         }
 
+        /* XXX - break out CRCV flag. */
         proto_tree_add_item (tree, hf_fcip_flags, tvb, offset+12, 1, 0);
         proto_tree_add_item (tree, hf_fcip_framelen, tvb, offset+12, 2, 0);
         proto_tree_add_item (tree, hf_fcip_flags_c, tvb, offset+14, 1, 0);
         proto_tree_add_item (tree, hf_fcip_framelen_c, tvb, offset+14, 2, 0);
         proto_tree_add_item (tree, hf_fcip_tsec, tvb, offset+16, 4, 0);
         proto_tree_add_item (tree, hf_fcip_tusec, tvb, offset+20, 4, 0);
+        /* XXX - check CRC if CRCV is set? */
         proto_tree_add_item (tree, hf_fcip_encap_crc, tvb, offset+24, 4, 0);
     }
 }
@@ -360,6 +366,7 @@ dissect_fcip_sf (tvbuff_t *tvb, proto_tree *tree, gint offset)
                               tvb_get_ptr (tvb, offset+8, 8));
         proto_tree_add_bytes (tree, hf_fcip_conn_nonce, tvb, offset+16, 8,
                               tvb_get_ptr (tvb, offset+16, 8));
+        /* XXX - break out these flags */
         proto_tree_add_item (tree, hf_fcip_conn_flags, tvb, offset+24, 1, 0);
         proto_tree_add_item (tree, hf_fcip_conn_code, tvb, offset+26, 2, 0);
         proto_tree_add_string (tree, hf_fcip_dst_wwn, tvb, offset+30, 8,
