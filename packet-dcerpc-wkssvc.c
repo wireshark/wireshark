@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  * Copyright 2003, Richard Sharpe <rsharpe@richardsharpe.com>
  *
- * $Id: packet-dcerpc-wkssvc.c,v 1.12 2003/04/29 23:14:46 sharpe Exp $
+ * $Id: packet-dcerpc-wkssvc.c,v 1.13 2003/04/29 23:28:36 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -47,6 +47,7 @@ static int hf_wkssvc_rc = -1;
 static int hf_wkssvc_logged_on_users = -1;
 static int hf_wkssvc_pref_max = -1;
 static int hf_wkssvc_enum_handle = -1;
+static int hf_wkssvc_junk = -1;
 static gint ett_dcerpc_wkssvc = -1;
 
 extern const value_string platform_id_vals[];
@@ -278,6 +279,17 @@ wkssvc_dissect_netwkstaenumusers_rqst(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 				    hf_wkssvc_info_level, 0);
 
+	/* Seems to be junk here ... */
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, 
+				    hf_wkssvc_junk, 0);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
+				     wkssvc_dissect_ENUM_HANDLE,
+				     NDR_POINTER_UNIQUE, "Junk Handle", -1);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, 
+				    hf_wkssvc_junk, 0);
+
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 				    hf_wkssvc_pref_max, 0);
 
@@ -343,8 +355,11 @@ proto_register_dcerpc_wkssvc(void)
 	    { "Logged On Users", "wkssvc.logged.on.users", FT_UINT32,
 	      BASE_DEC, NULL, 0x0, "Logged On Users", HFILL}},
 	  { &hf_wkssvc_pref_max, 
-	    { "Preferred Max Len", "wkssvc.pref.max.len", FT_UINT32,
+	    { "Preferred Max Len", "wkssvc.pref.max.len", FT_INT32,
 	      BASE_DEC, NULL, 0x0, "Preferred Max Len", HFILL}},
+	  { &hf_wkssvc_junk, 
+	    { "Junk", "wkssvc.junk", FT_UINT32,
+	      BASE_DEC, NULL, 0x0, "Junk", HFILL}},
 	  { &hf_wkssvc_enum_handle,
 	    { "Enumeration handle", "wkssvc.enum_hnd", FT_BYTES,
 	      BASE_HEX, NULL, 0x0, "Enumeration Handle", HFILL}},
