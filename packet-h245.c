@@ -1,32 +1,13 @@
 /*
 Alternative H245 dissector.
-This is an alternative dissector for the H.245 protocol.  The aim
-is to evolve this dissector and test and verify it until it becomes reasonably
-complete and can then be a realistic alternative/replacement for
-the H245 dissector that is part of the H.323 decoder that can be found
-at www.voice2sniff.org
-The are three reasons for developing this dissector:
-1,  The H323 disscotor at voice2sniff is not compatible with GPL and can thus
-not be distributed together with main ethereal.
-2,  The dissector at voice2sniff is mainly machinegenerated so it is difficult
- to add non-protocol extensions to it,  such as snooping of data structures,
-knowing what to populate COL_INFO with etc etc
-3,  At the same time helper routines do decode (ALIGNED) PER protocols
-will be developed which might be interesting for people wanting to
-develop dissectors for other protocols encoded using PER
-
-
-This dissector is NOT enabled or compiled into ethereal by default.
-In order to activate this decoder you will have to add packet-h245.c
-at the relevant places in Makefile.[am|nmake] and recompile.
 
 Ethereal can not determine automatically what is H245 and what is not
-without the other support protocols such as I guess H225 and H235
+without the other support protocols such as H225
 so you will have to select packets you know are H245 and   specify H245
 with DecodeAs.
 
 
-There are several places in the dissector where it is known the functionality
+There are a few places in the dissector where it is known the functionality
 is not implemented yet.  These are indicated by the presence of the 
 NOT_DECODED_YET() macro which both prints information on stdout and puts
 "something unknown here"  in the tree pane.
@@ -67,7 +48,7 @@ All in all a lot of work.
  *       with great support with testing and providing capturefiles
  *       from Martin Regner
  *
- * $Id: packet-h245.c,v 1.21 2003/07/16 08:53:08 sahlberg Exp $
+ * $Id: packet-h245.c,v 1.22 2003/07/16 09:23:56 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -106,6 +87,7 @@ static dissector_handle_t h245_handle;
 static dissector_handle_t MultimediaSystemControlMessage_handle;
 
 static int proto_h245 = -1;
+static int hf_h245_rfc_number = -1;
 static int hf_h245_pdu_type = -1;
 static int hf_h245_DialingInformationNumber_networkAddress = -1;
 static int hf_h245_signalType = -1;
@@ -3247,7 +3229,7 @@ dissect_h245_LogicalChannelNumber(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_LogicalChannelNumber, 1, 65535, 
-		NULL, NULL);
+		NULL, NULL, FALSE);
 	return offset;
 }
 
@@ -3257,7 +3239,7 @@ dissect_h245_SequenceNumber(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_SequenceNumber, 0, 255, 
-		NULL, NULL);
+		NULL, NULL, FALSE);
 	return offset;
 }
 
@@ -7363,7 +7345,7 @@ dissect_h245_IS11172_BitRate(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_IS11172_BitRate, 1, 448, 
-		NULL, NULL);
+		NULL, NULL, FALSE);
 	
 	return offset;
 }
@@ -7376,7 +7358,7 @@ dissect_h245_IS13818_BitRate(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_IS13818_BitRate, 1, 1130, 
-		NULL, NULL);
+		NULL, NULL, FALSE);
 	
 	return offset;
 }
@@ -7522,7 +7504,7 @@ dissect_h245_ATM_BitRate(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_ATM_BitRate, 1, 65535, 
-		NULL, NULL);
+		NULL, NULL, FALSE);
 	
 	return offset;
 }
@@ -7576,7 +7558,7 @@ dissect_h245_t35CountryCode(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_t35CountryCode, 0, 255,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -7587,7 +7569,7 @@ dissect_h245_t35Extension(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_t35Extension, 0, 255,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -7599,7 +7581,7 @@ dissect_h245_manufacturerCode(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_manufacturerCode, 0, 65535,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -7631,7 +7613,7 @@ dissect_h245_terminalType(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_terminalType, 0, 255,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -7644,7 +7626,7 @@ dissect_h245_statusDeterminationNumber(tvbuff_t *tvb, int offset, packet_info *p
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_statusDeterminationNumber, 0, 16777215,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -7674,7 +7656,7 @@ dissect_h245_CapabilityTableEntryNumber(tvbuff_t *tvb, int offset, packet_info *
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_CapabilityTableEntryNumber, 1, 65535,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -7757,7 +7739,7 @@ dissect_h245_CapabilityDescriptorNumber(tvbuff_t *tvb, int offset, packet_info *
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_CapabilityDescriptorNumber, 0, 255,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -7770,7 +7752,7 @@ dissect_h245_h233IVResponseTime(tvbuff_t *tvb, int offset, packet_info *pinfo, p
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_h233IVResponseTime, 0, 255,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -7800,7 +7782,7 @@ dissect_h245_maxPendingReplacementFor(tvbuff_t *tvb, int offset, packet_info *pi
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_maxPendingReplacementFor, 0, 255,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -7813,7 +7795,7 @@ dissect_h245_numberOfVCs(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_numberOfVCs, 1, 256,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -7827,7 +7809,7 @@ dissect_h245_forwardMaximumSDUSize(tvbuff_t *tvb, int offset, packet_info *pinfo
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_forwardMaximumSDUSize, 0, 65535,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -7840,7 +7822,7 @@ dissect_h245_backwardMaximumSDUSize(tvbuff_t *tvb, int offset, packet_info *pinf
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_backwardMaximumSDUSize, 0, 65535,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -7954,7 +7936,7 @@ dissect_h245_singleBitRate(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_singleBitRate, 1, 65535,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -7967,7 +7949,7 @@ dissect_h245_lowerBitRate(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_lowerBitRate, 1, 65535,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -7979,7 +7961,7 @@ dissect_h245_higherBitRate(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_higherBitRate, 1, 65535,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -8033,7 +8015,7 @@ dissect_h245_maximumAl2SDUSize(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_maximumAl2SDUSize, 0, 65535,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -8046,7 +8028,7 @@ dissect_h245_maximumAl3SDUSize(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_maximumAl3SDUSize, 0, 65535,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -8059,7 +8041,7 @@ dissect_h245_maximumDelayJitter(tvbuff_t *tvb, int offset, packet_info *pinfo, p
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_maximumDelayJitter, 0, 1023,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -8071,7 +8053,7 @@ dissect_h245_maximumNestingDepth(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_maximumNestingDepth, 1, 15,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -8083,7 +8065,7 @@ dissect_h245_maximumElementListSize(tvbuff_t *tvb, int offset, packet_info *pinf
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_maximumElementListSize, 2, 255,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -8095,7 +8077,7 @@ dissect_h245_maximumSubElementListSize(tvbuff_t *tvb, int offset, packet_info *p
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_maximumSubElementListSize, 2, 255,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -8150,7 +8132,7 @@ dissect_h245_h223bitRate(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_h223bitRate, 1, 19200,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -8163,7 +8145,7 @@ dissect_h245_maximumSampleSize(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_maximumSampleSize, 1, 255,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -8176,7 +8158,7 @@ dissect_h245_maximumPayloadLength(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_maximumPayloadLength, 1, 65025,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -8207,7 +8189,7 @@ dissect_h245_maximumAL1MPDUSize(tvbuff_t *tvb, int offset, packet_info *pinfo, p
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_maximumAL1MPDUSize, 0, 65535,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -8220,7 +8202,7 @@ dissect_h245_maximumAL2MSDUSize(tvbuff_t *tvb, int offset, packet_info *pinfo, p
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_maximumAL2MSDUSize, 0, 65535,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -8233,7 +8215,7 @@ dissect_h245_maximumAL3MSDUSize(tvbuff_t *tvb, int offset, packet_info *pinfo, p
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_maximumAL3MSDUSize, 0, 65535,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -8355,7 +8337,7 @@ dissect_h245_numOfDLCS(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_numOfDLCS, 2, 8191,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -8368,7 +8350,7 @@ dissect_h245_n401Capability(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_n401Capability, 1, 4095,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -8381,7 +8363,7 @@ dissect_h245_maxWindowSizeCapability(tvbuff_t *tvb, int offset, packet_info *pin
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_maxWindowSizeCapability, 1, 127,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -8438,7 +8420,7 @@ dissect_h245_maximumAudioDelayJitter(tvbuff_t *tvb, int offset, packet_info *pin
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_maximumAudioDelayJitter, 0, 1023,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -8451,7 +8433,7 @@ dissect_h245_tokenRate(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_tokenRate, 1, 4294967295UL,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -8464,7 +8446,7 @@ dissect_h245_bucketSize(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_bucketSize, 1, 4294967295UL,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -8477,7 +8459,7 @@ dissect_h245_peakRate(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_peakRate, 1, 4294967295UL,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -8489,7 +8471,7 @@ dissect_h245_minPoliced(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_minPoliced, 1, 4294967295UL,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -8502,7 +8484,7 @@ dissect_h245_maxPktSize(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_maxPktSize, 1, 4294967295UL,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -8540,7 +8522,7 @@ dissect_h245_maxNTUSize(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_maxNTUSize, 0, 65535,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -8578,7 +8560,7 @@ dissect_h245_numberOfThreads(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_numberOfThreads, 1, 16,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -8590,7 +8572,7 @@ dissect_h245_framesBetweenSyncPoints(tvbuff_t *tvb, int offset, packet_info *pin
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_framesBetweenSyncPoints, 1, 256,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -8602,7 +8584,7 @@ dissect_h245_threadNumber(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_threadNumber, 0, 15,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -8615,7 +8597,7 @@ dissect_h245_qcifMPI_1_4(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_qcifMPI_1_4, 1, 4,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -8628,7 +8610,7 @@ dissect_h245_qcifMPI_1_32(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_qcifMPI_1_32, 1, 32,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -8643,7 +8625,7 @@ dissect_h245_qcifMPI_1_2048(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_qcifMPI_1_2048, 1, 2048,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -8656,7 +8638,7 @@ dissect_h245_cifMPI_1_4(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_cifMPI_1_4, 1, 4,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -8668,7 +8650,7 @@ dissect_h245_cifMPI_1_32(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_cifMPI_1_32, 1, 32,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -8680,7 +8662,7 @@ dissect_h245_cifMPI_1_2048(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_cifMPI_1_2048, 1, 2048,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -8720,7 +8702,7 @@ dissect_h245_videoBitRate(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_videoBitRate, 0, 1073741823,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -8733,7 +8715,7 @@ dissect_h245_vbvBufferSize(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_vbvBufferSize, 0, 262143,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -8747,7 +8729,7 @@ dissect_h245_samplesPerLine(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_samplesPerLine, 0, 16383,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -8761,7 +8743,7 @@ dissect_h245_linesPerFrame(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_linesPerFrame, 0, 16383,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -8775,7 +8757,7 @@ dissect_h245_framesPerSecond(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_framesPerSecond, 0, 15,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -8788,7 +8770,7 @@ dissect_h245_luminanceSampleRate(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_luminanceSampleRate, 0, 4294967295UL,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -8880,7 +8862,7 @@ dissect_h245_sqcifMPI_1_32(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_sqcifMPI_1_32, 1, 32,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -8892,7 +8874,7 @@ dissect_h245_sqcifMPI_1_2048(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_sqcifMPI_1_2048, 1, 2048,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -8905,7 +8887,7 @@ dissect_h245_cif4MPI_1_32(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_cif4MPI_1_32, 1, 32,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -8918,7 +8900,7 @@ dissect_h245_cif4MPI_1_2048(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_cif4MPI_1_2048, 1, 2048,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -8931,7 +8913,7 @@ dissect_h245_cif16MPI_1_32(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_cif16MPI_1_32, 1, 32,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -8944,7 +8926,7 @@ dissect_h245_cif16MPI_1_2048(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_cif16MPI_1_2048, 1, 2048,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -8956,7 +8938,7 @@ dissect_h245_maxBitRate_192400(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_maxBitRate_192400, 1, 192400,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -8970,7 +8952,7 @@ dissect_h245_hrd_B(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_hrd_B, 0, 524287,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -8983,7 +8965,7 @@ dissect_h245_bppMaxKb(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_bppMaxKb, 0, 65535,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -8996,7 +8978,7 @@ dissect_h245_slowSqcifMPI(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_slowSqcifMPI, 1, 3600,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -9009,7 +8991,7 @@ dissect_h245_slowQcifMPI(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_slowQcifMPI, 1, 3600,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -9021,7 +9003,7 @@ dissect_h245_slowCifMPI(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_slowCifMPI, 1, 3600,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -9034,7 +9016,7 @@ dissect_h245_slowCif4MPI(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_slowCif4MPI, 1, 3600,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -9047,7 +9029,7 @@ dissect_h245_slowCif16MPI(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_slowCif16MPI, 1, 3600,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -9061,7 +9043,7 @@ dissect_h245_numberOfBPictures(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_numberOfBPictures, 1, 64,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -9074,7 +9056,7 @@ dissect_h245_presentationOrder(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_presentationOrder, 1, 256,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -9087,7 +9069,7 @@ dissect_h245_offset_x(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_offset_x, -262144, 262143,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -9101,7 +9083,7 @@ dissect_h245_offset_y(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_offset_y, -262144, 262143,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -9115,7 +9097,7 @@ dissect_h245_scale_x(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_scale_x, 1, 255,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -9127,7 +9109,7 @@ dissect_h245_scale_y(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_scale_y, 1, 255,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -9164,7 +9146,7 @@ dissect_h245_sqcifAdditionalPictureMemory(tvbuff_t *tvb, int offset, packet_info
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_sqcifAdditionalPictureMemory, 1, 256,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -9177,7 +9159,7 @@ dissect_h245_qcifAdditionalPictureMemory(tvbuff_t *tvb, int offset, packet_info 
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_qcifAdditionalPictureMemory, 1, 256,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -9190,7 +9172,7 @@ dissect_h245_cifAdditionalPictureMemory(tvbuff_t *tvb, int offset, packet_info *
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_cifAdditionalPictureMemory, 1, 256,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -9203,7 +9185,7 @@ dissect_h245_cif4AdditionalPictureMemory(tvbuff_t *tvb, int offset, packet_info 
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_cif4AdditionalPictureMemory, 1, 256,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -9215,7 +9197,7 @@ dissect_h245_cif16AdditionalPictureMemory(tvbuff_t *tvb, int offset, packet_info
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_cif16AdditionalPictureMemory, 1, 256,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -9227,7 +9209,7 @@ dissect_h245_bigCpfAdditionalPictureMemory(tvbuff_t *tvb, int offset, packet_inf
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_bigCpfAdditionalPictureMemory, 1, 256,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -9266,7 +9248,7 @@ dissect_h245_mpuHorizMBs(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_mpuHorizMBs, 1, 128,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -9279,7 +9261,7 @@ dissect_h245_mpuVertMBs(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_mpuVertMBs, 1, 72,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -9292,7 +9274,7 @@ dissect_h245_mpuTotalNumber(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_mpuTotalNumber, 1, 65536,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -9364,7 +9346,7 @@ dissect_h245_clockConversionCode(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_clockConversionCode, 1000, 1001,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -9377,7 +9359,7 @@ dissect_h245_clockDivisor(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_clockDivisor, 1, 127,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -9418,7 +9400,7 @@ dissect_h245_maxCustomPictureWidth(tvbuff_t *tvb, int offset, packet_info *pinfo
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_maxCustomPictureWidth, 1, 2048,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -9429,7 +9411,7 @@ dissect_h245_minCustomPictureWidth(tvbuff_t *tvb, int offset, packet_info *pinfo
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_minCustomPictureWidth, 1, 2048,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -9442,7 +9424,7 @@ dissect_h245_minCustomPictureHeight(tvbuff_t *tvb, int offset, packet_info *pinf
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_minCustomPictureHeight, 1, 2048,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -9453,7 +9435,7 @@ dissect_h245_maxCustomPictureHeight(tvbuff_t *tvb, int offset, packet_info *pinf
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_maxCustomPictureHeight, 1, 2048,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -9467,7 +9449,7 @@ dissect_h245_standardMPI(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_standardMPI, 1, 31,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -9480,7 +9462,7 @@ dissect_h245_customMPI(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_customMPI, 1, 2048,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -9532,7 +9514,7 @@ dissect_h245_width(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_width, 1, 255,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -9544,7 +9526,7 @@ dissect_h245_height(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_height, 1, 255,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -9575,7 +9557,7 @@ dissect_h245_pictureRate(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_pictureRate, 0, 15,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -9645,7 +9627,7 @@ dissect_h245_g711Alaw64k(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_g711Alaw64k, 1, 256,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -9657,7 +9639,7 @@ dissect_h245_g711Alaw56k(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_g711Alaw56k, 1, 256,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -9669,7 +9651,7 @@ dissect_h245_g711Ulaw64k(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_g711Ulaw64k, 1, 256,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -9681,7 +9663,7 @@ dissect_h245_g711Ulaw56k(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_g711Ulaw56k, 1, 256,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -9694,7 +9676,7 @@ dissect_h245_g722_64k(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_g722_64k, 1, 256,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -9706,7 +9688,7 @@ dissect_h245_g722_56k(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_g722_56k, 1, 256,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -9719,7 +9701,7 @@ dissect_h245_g722_48k(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_g722_48k, 1, 256,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -9733,7 +9715,7 @@ dissect_h245_maxAl_sduAudioFrames(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_maxAl_sduAudioFrames, 1, 256,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -9763,7 +9745,7 @@ dissect_h245_g728(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tre
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_g728, 1, 256,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -9775,7 +9757,7 @@ dissect_h245_g729(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tre
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_g729, 1, 256,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -9787,7 +9769,7 @@ dissect_h245_g729AnnexA(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_g729AnnexA, 1, 256,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -9800,7 +9782,7 @@ dissect_h245_g729wAnnexB(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_g729wAnnexB, 1, 256,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -9813,7 +9795,7 @@ dissect_h245_g729AnnexAwAnnexB(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_g729AnnexAwAnnexB, 1, 256,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -9826,7 +9808,7 @@ dissect_h245_audioUnit(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_audioUnit, 1, 256,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -9869,7 +9851,7 @@ dissect_h245_highRateMode0(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_highRateMode0, 27, 78,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -9880,7 +9862,7 @@ dissect_h245_highRateMode1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_highRateMode1, 27, 78,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -9894,7 +9876,7 @@ dissect_h245_lowRateMode0(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_lowRateMode0, 23, 66,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -9905,7 +9887,7 @@ dissect_h245_lowRateMode1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_lowRateMode1, 23, 66,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -9918,7 +9900,7 @@ dissect_h245_sidMode0(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_sidMode0, 6, 17,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -9929,7 +9911,7 @@ dissect_h245_sidMode1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_sidMode1, 6, 17,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -10033,7 +10015,7 @@ dissect_h245_audioUnitSize(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_audioUnitSize, 1, 256,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -10069,7 +10051,7 @@ dissect_h245_maxBitRate_4294967295UL(tvbuff_t *tvb, int offset, packet_info *pin
 	/* XXX unit is 100bit/s */
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_maxBitRate_4294967295UL, 0, 4294967295UL,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -10083,7 +10065,7 @@ dissect_h245_numberOfCodewords(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_numberOfCodewords, 1, 65536,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -10096,7 +10078,7 @@ dissect_h245_maximumStringLength(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_maximumStringLength, 1, 256,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -10175,7 +10157,7 @@ dissect_h245_version(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_version, 0, 255,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -10216,7 +10198,7 @@ dissect_h245_standard_0_127(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_standard_0_127, 0, 127,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -10229,7 +10211,7 @@ dissect_h245_booleanArray(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_booleanArray, 0, 255,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -10242,7 +10224,7 @@ dissect_h245_unsignedMin(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_unsignedMin, 0, 65535,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -10253,7 +10235,7 @@ dissect_h245_unsignedMax(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_unsignedMax, 0, 65535,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -10266,7 +10248,7 @@ dissect_h245_unsigned32Min(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_unsigned32Min, 0, 4294967295UL,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -10277,7 +10259,7 @@ dissect_h245_unsigned32Max(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_unsigned32Max, 0, 4294967295UL,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -10290,7 +10272,7 @@ dissect_h245_dynamicRTPPayloadType(tvbuff_t *tvb, int offset, packet_info *pinfo
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_dynamicRTPPayloadType, 96, 127,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -10334,7 +10316,7 @@ dissect_h245_portNumber(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_portNumber, 0, 65535,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -10347,7 +10329,7 @@ dissect_h245_resourceID(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_resourceID, 0, 65535,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -10469,7 +10451,7 @@ dissect_h245_subChannelID(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_subChannelID, 0, 8191,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -10482,7 +10464,7 @@ dissect_h245_pcr_pid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_pcr_pid, 0, 8191,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -10495,7 +10477,7 @@ dissect_h245_controlFieldOctets(tvbuff_t *tvb, int offset, packet_info *pinfo, p
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_controlFieldOctets, 0, 2,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -10508,7 +10490,7 @@ dissect_h245_sendBufferSize(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_sendBufferSize, 0, 16777215,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -10556,7 +10538,7 @@ dissect_h245_rcpcCodeRate(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_rcpcCodeRate, 8, 32,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -10569,7 +10551,7 @@ dissect_h245_rsCodeCorrection(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_rsCodeCorrection, 0, 127,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -10582,7 +10564,7 @@ dissect_h245_finite_0_16(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_finite_0_16, 0, 16,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -10748,7 +10730,7 @@ dissect_h245_windowSize(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_windowSize, 1, 127,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -10801,7 +10783,7 @@ dissect_h245_n401(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tre
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_n401, 1, 4095,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -10858,7 +10840,7 @@ dissect_h245_sessionID_0_255(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_sessionID_0_255, 0, 255,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -10870,7 +10852,7 @@ dissect_h245_sessionID_1_255(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_sessionID_1_255, 1, 255,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -10883,7 +10865,7 @@ dissect_h245_associatedSessionID(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_associatedSessionID, 1, 255,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -10896,7 +10878,7 @@ dissect_h245_payloadType(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, tree,
 		hf_h245_payloadType,  0,  127,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -10909,7 +10891,7 @@ dissect_h245_protectedSessionID(tvbuff_t *tvb, int offset, packet_info *pinfo, p
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, tree,
 		hf_h245_protectedSessionID,  1,  255,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -10921,7 +10903,7 @@ dissect_h245_protectedPayloadType(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, tree,
 		hf_h245_protectedPayloadType,  0,  127,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -11067,7 +11049,7 @@ dissect_h245_tsapIdentifier(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, tree,
 		hf_h245_tsapIdentifier,  0,  65535,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -11079,7 +11061,7 @@ dissect_h245_synchFlag(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, tree,
 		hf_h245_synchFlag,  0,  255,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -11092,7 +11074,7 @@ dissect_h245_finite_1_65535(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, tree,
 		hf_h245_finite_1_65535,  1,  65535,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -11128,7 +11110,7 @@ dissect_h245_MultiplexTableEntryNumber(tvbuff_t *tvb, int offset, packet_info *p
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, tree,
 		hf_h245_MultiplexTableEntryNumber,  1,  15,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -11177,7 +11159,7 @@ dissect_h245_dataModeBitRate(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, tree,
 		hf_h245_dataModeBitRate,  0,  4294967295UL,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -11189,7 +11171,7 @@ dissect_h245_sessionDependency(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, tree,
 		hf_h245_sessionDependency,  1,  255,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -11201,7 +11183,7 @@ dissect_h245_sRandom(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, tree,
 		hf_h245_sRandom,  1,  4294967295UL,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -11213,7 +11195,7 @@ dissect_h245_McuNumber(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, tree,
 		hf_h245_McuNumber,  0,  192,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -11226,7 +11208,7 @@ dissect_h245_TerminalNumber(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, tree,
 		hf_h245_TerminalNumber,  0,  192,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -11258,7 +11240,7 @@ dissect_h245_maxNumberOfAdditionalConnections(tvbuff_t *tvb, int offset, packet_
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, tree,
 		hf_h245_maxNumberOfAdditionalConnections,  1,  65535,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -11288,7 +11270,7 @@ dissect_h245_requestedInterval(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, tree,
 		hf_h245_requestedInterval,  0,  65535,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -11340,7 +11322,7 @@ dissect_h245_callAssociationNumber(tvbuff_t *tvb, int offset, packet_info *pinfo
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, tree,
 		hf_h245_callAssociationNumber,  0,  4294967295UL,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -11353,7 +11335,7 @@ dissect_h245_currentInterval(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, tree,
 		hf_h245_currentInterval,  0,  65535,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -11381,7 +11363,7 @@ dissect_h245_infoNotAvailable(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, tree,
 		hf_h245_infoNotAvailable,  1,  65535,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -11394,7 +11376,7 @@ dissect_h245_channelTag(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, tree,
 		hf_h245_channelTag,  0,  4294967295UL,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -11407,7 +11389,7 @@ dissect_h245_ConnectionIDsequenceNumber(tvbuff_t *tvb, int offset, packet_info *
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, tree,
 		hf_h245_ConnectionIDsequenceNumber,  0,  4294967295UL,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -11487,7 +11469,7 @@ dissect_h245_MaximumBitRate(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, tree,
 		hf_h245_MaximumBitRate,  0,  4294967295UL,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -11575,7 +11557,7 @@ dissect_h245_maximumBitRate_0_16777215(tvbuff_t *tvb, int offset, packet_info *p
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, tree,
 		hf_h245_maximumBitRate_0_16777215,  0,  16777215,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -11668,7 +11650,7 @@ dissect_h245_firstGOB_0_17(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, tree,
 		hf_h245_firstGOB_0_17,  0,  17,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -11680,7 +11662,7 @@ dissect_h245_numberOfGOBs(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, tree,
 		hf_h245_numberOfGOBs,  1,  18,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -11711,7 +11693,7 @@ dissect_h245_videoTemporalSpatialTradeOff(tvbuff_t *tvb, int offset, packet_info
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, tree,
 		hf_h245_videoTemporalSpatialTradeOff,  0,  31,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -11723,7 +11705,7 @@ dissect_h245_firstGOB_0_255(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, tree,
 		hf_h245_firstGOB_0_255,  0,  255,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -11735,7 +11717,7 @@ dissect_h245_firstMB_1_8192(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, tree,
 		hf_h245_firstMB_1_8192,  1,  8192,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -11747,7 +11729,7 @@ dissect_h245_firstMB_1_9216(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, tree,
 		hf_h245_firstMB_1_9216,  1,  9216,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -11760,7 +11742,7 @@ dissect_h245_numberOfMBs_1_8192(tvbuff_t *tvb, int offset, packet_info *pinfo, p
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, tree,
 		hf_h245_numberOfMBs_1_8192,  1,  8192,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -11773,7 +11755,7 @@ dissect_h245_numberOfMBs_1_9216(tvbuff_t *tvb, int offset, packet_info *pinfo, p
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, tree,
 		hf_h245_numberOfMBs_1_9216,  1,  9216,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -11806,7 +11788,7 @@ dissect_h245_maxH223MUXPDUsize(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, tree,
 		hf_h245_maxH223MUXPDUsize,  1,  65535,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -11819,7 +11801,7 @@ dissect_h245_temporalReference_0_1023(tvbuff_t *tvb, int offset, packet_info *pi
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, tree,
 		hf_h245_temporalReference_0_1023,  0,  1023,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -11834,7 +11816,7 @@ dissect_h245_temporalReference_0_255(tvbuff_t *tvb, int offset, packet_info *pin
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, tree,
 		hf_h245_temporalReference_0_255,  0,  255,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -11888,7 +11870,7 @@ dissect_h245_pictureNumber(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, tree,
 		hf_h245_pictureNumber,  0,  1023,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -11901,7 +11883,7 @@ dissect_h245_longTermPictureIndex(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, tree,
 		hf_h245_longTermPictureIndex,  0,  255,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -11957,7 +11939,7 @@ dissect_h245_sampleSize(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, tree,
 		hf_h245_sampleSize,  1,  255,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -11969,7 +11951,7 @@ dissect_h245_samplesPerFrame(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, tree,
 		hf_h245_samplesPerFrame,  1,  255,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -12019,7 +12001,7 @@ dissect_h245_sbeNumber(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, tree,
 		hf_h245_sbeNumber,  0,  9,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -12035,7 +12017,7 @@ dissect_h245_subPictureNumber(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, tree,
 		hf_h245_subPictureNumber,  0,  255,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -12065,7 +12047,7 @@ dissect_h245_compositionNumber(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, tree,
 		hf_h245_compositionNumber,  0,  255,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -12153,7 +12135,7 @@ dissect_h245_estimatedReceivedJitterMantissa(tvbuff_t *tvb, int offset, packet_i
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, tree,
 		hf_h245_estimatedReceivedJitterMantissa,  0,  3,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -12166,7 +12148,7 @@ dissect_h245_estimatedReceivedJitterExponent(tvbuff_t *tvb, int offset, packet_i
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, tree,
 		hf_h245_estimatedReceivedJitterExponent,  0,  7,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -12178,7 +12160,7 @@ dissect_h245_skippedFrameCount(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, tree,
 		hf_h245_skippedFrameCount,  0,  15,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -12191,7 +12173,7 @@ dissect_h245_additionalDecoderBuffer(tvbuff_t *tvb, int offset, packet_info *pin
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, tree,
 		hf_h245_additionalDecoderBuffer,  0,  262143,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -12228,7 +12210,7 @@ dissect_h245_skew(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tre
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, tree,
 		hf_h245_skew,  0,  4095,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -12260,7 +12242,7 @@ dissect_h245_maximumSkew(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, tree,
 		hf_h245_maximumSkew,  0,  4095,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -12293,7 +12275,7 @@ dissect_h245_duration(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, tree,
 		hf_h245_duration,  1,  65535,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -12323,7 +12305,7 @@ dissect_h245_timestamp(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, tree,
 		hf_h245_timestamp,  0,  4294967295UL,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -12335,7 +12317,7 @@ dissect_h245_expirationTime(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, tree,
 		hf_h245_expirationTime,  0,  4294967295UL,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -14636,7 +14618,7 @@ dissect_h245_containedThread(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, tree,
 		hf_h245_containedThread,  0,  15,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -14737,7 +14719,7 @@ dissect_h245_frame(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, tree,
 		hf_h245_frame,  0,  255,
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -15661,7 +15643,7 @@ dissect_h245_PixelAspectCode(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_h245_PixelAspectCode, 1, 14, 
-		NULL, NULL);
+		NULL, NULL, FALSE);
 
 	return offset;
 }
@@ -16559,7 +16541,9 @@ dissect_h245_UserInputIndication_extendedAlphanumeric(tvbuff_t *tvb, int offset,
 static int
 dissect_h245_rfcnumber(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-NOT_DECODED_YET("rfcnumber");
+	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
+		tree, hf_h245_rfc_number, 1, 32768, 
+		NULL, NULL, TRUE);
 	return offset;
 }
 
@@ -21441,6 +21425,9 @@ proto_register_h245(void)
 	{ &hf_h245_expirationTime,
 		{ "expirationTime", "h245.expirationTime", FT_UINT32, BASE_DEC,
 		NULL, 0, "expirationTime value", HFILL }},
+	{ &hf_h245_rfc_number,
+		{ "RFC", "h245.rfc_number", FT_UINT32, BASE_DEC,
+		NULL, 0, "Number of the RFC where this can be found", HFILL }},
 	{ &hf_h245_object,
 		{ "Object", "h245.object", FT_STRING, BASE_NONE,
 		NULL, 0, "Object Identifier", HFILL }},

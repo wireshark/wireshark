@@ -2,7 +2,7 @@
  * Routines for dissection of ASN.1 Aligned PER
  * 2003  Ronnie Sahlberg
  *
- * $Id: packet-per.h,v 1.3 2003/07/16 08:17:14 sahlberg Exp $
+ * $Id: packet-per.h,v 1.4 2003/07/16 09:23:56 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -79,7 +79,7 @@ guint32 dissect_per_boolean(tvbuff_t *tvb, guint32 offset, packet_info *pinfo _U
 
 guint32 dissect_per_integer(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index, gint32 *value, proto_item **item);
 
-guint32 dissect_per_constrained_integer(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index, guint32 min, guint32 max, guint32 *value, proto_item **item);
+guint32 dissect_per_constrained_integer(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index, guint32 min, guint32 max, guint32 *value, proto_item **item, gboolean has_extension);
 
 guint32 dissect_per_choice(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index, gint ett_index, per_choice_t *choice, char *name, guint32 *value);
 

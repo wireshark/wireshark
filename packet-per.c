@@ -7,7 +7,7 @@ proper helper routines
  * Routines for dissection of ASN.1 Aligned PER
  * 2003  Ronnie Sahlberg
  *
- * $Id: packet-per.c,v 1.3 2003/07/16 08:17:14 sahlberg Exp $
+ * $Id: packet-per.c,v 1.4 2003/07/16 09:23:56 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -289,7 +289,7 @@ DEBUG_ENTRY("dissect_per_restricted_character_string");
 	if(min_len!=max_len){
 		offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 			tree, hf_per_octet_string_length, min_len, max_len, 
-			&length, NULL);
+			&length, NULL, FALSE);
 	} 
 
 
@@ -408,7 +408,7 @@ DEBUG_ENTRY("dissect_per_constrained_sequence_of");
 	/* constrained whole number for number of elements */
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 		tree, hf_per_sequence_of_length, min_len, max_len, 
-		&length, NULL);
+		&length, NULL, FALSE);
 
 
 	
@@ -606,7 +606,14 @@ NOT_DECODED_YET("too long integer");
 }
 
 
-/* this function reads a constrained integer
+/* this function reads a constrained integer  with or without a
+   PER visible extension marker present
+
+   has_extension==TRUE  would map to asn constructs such as:
+		rfc-number	INTEGER (1..32768, ...)
+   while has_extension==FALSE would map to:
+		t35CountryCode	INTEGER (0..255)
+
    it only handles integers that fit inside a 32 bit integer
 10.5.1 info only
 10.5.2 info only
@@ -621,7 +628,7 @@ NOT_DECODED_YET("too long integer");
 	10.5.7.4
 */
 guint32
-dissect_per_constrained_integer(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index, guint32 min, guint32 max, guint32 *value, proto_item **item)
+dissect_per_constrained_integer(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index, guint32 min, guint32 max, guint32 *value, proto_item **item, gboolean has_extension)
 {
 	proto_item *it=NULL;
 	guint32 range, val;
@@ -631,6 +638,17 @@ dissect_per_constrained_integer(tvbuff_t *tvb, guint32 offset, packet_info *pinf
 	guint32 tmp;
 
 DEBUG_ENTRY("dissect_per_constrained_integer");
+	if(has_extension){
+		gboolean extension_present;
+		offset=dissect_per_boolean(tvb, offset, pinfo, tree, -1, &extension_present, NULL);
+		if(extension_present){
+			offset=dissect_per_integer(tvb, offset, pinfo, tree,
+				hf_index,
+				NULL, NULL);
+			return offset;
+		}
+	}
+
 	hfi = proto_registrar_get_nth(hf_index);
 
 	/* 10.5.3 */
@@ -871,7 +889,7 @@ DEBUG_ENTRY("dissect_per_choice");
 /*qqq  make it similar to the section below instead */
 		offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 			tr, hf_index, 0, extension_root_entries-1, 
-			&choice_index, &choiceitem);
+			&choice_index, &choiceitem, FALSE);
 		if(value){
 			*value=choice_index;
 		}
@@ -1252,7 +1270,7 @@ DEBUG_ENTRY("dissect_per_octet_string");
 	if(max_len>0){
 		offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 			tree, hf_per_octet_string_length, min_len, max_len, 
-			&length, NULL);
+			&length, NULL, FALSE);
 	} else {
 		offset=dissect_per_length_determinant(tvb, offset, pinfo, tree, hf_per_octet_string_length, &length);
 	}
