@@ -305,7 +305,7 @@ static int read_length(ASN1_SCK *a, proto_tree *tree, int hf_id, guint *len)
   if (len)
     *len = length;
 
-  if (tree && hf_id)
+  if (hf_id)
     proto_tree_add_uint(tree, hf_id, a->tvb, start, a->offset-start,
 length);
 
@@ -333,7 +333,7 @@ static int read_integer_value(ASN1_SCK *a, proto_tree *tree, int hf_id,
   if (i)
     *i = integer;
 
-  if (tree && hf_id)
+  if (hf_id)
     temp_item = proto_tree_add_uint(tree, hf_id, a->tvb, start,
 a->offset-start, integer);
 
@@ -1506,7 +1506,6 @@ dissect_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 				}
 			return FALSE;
 			}
-			if(tree)
 			{
 				if(session->spdu_type == SES_CONNECTION_REQUEST)
 				{
