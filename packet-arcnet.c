@@ -2,7 +2,7 @@
  * Routines for arcnet dissection
  * Copyright 2001-2002, Peter Fales <ethereal@fales-lorenz.net>
  *
- * $Id: packet-arcnet.c,v 1.5 2003/01/23 06:57:37 guy Exp $
+ * $Id: packet-arcnet.c,v 1.6 2003/01/23 07:55:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -44,6 +44,7 @@ static int hf_arcnet_src = -1;
 static int hf_arcnet_dst = -1;
 static int hf_arcnet_offset = -1;
 static int hf_arcnet_protID = -1;
+static int hf_arcnet_exception_flag = -1;
 static int hf_arcnet_split_flag = -1;
 static int hf_arcnet_sequence = -1;
 
@@ -73,7 +74,19 @@ capture_arcnet (const guchar *pd, int len, packet_counts *ld,
 
   case ARCNET_PROTO_IP_1201:
     /* There's fragmentation stuff in the header */
-    capture_ip(pd, offset + 4, len, ld);
+    offset++;
+    if (!BYTES_ARE_IN_FRAME(offset, len, 1)) {
+      ld->other++;
+      return;
+    }
+    if (pd[offset] == 0xff) {
+      /* This is an exception packet.  The flag value there is the
+         "this is an exception flag" packet; the next two bytes
+         after it are padding, and another copy of the packet
+         type appears after the padding. */
+      offset += 4;
+    }
+    capture_ip(pd, offset + 3, len, ld);
     break;
 
   case ARCNET_PROTO_ARP_1051:
@@ -92,7 +105,7 @@ dissect_arcnet_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 		       gboolean has_offset)
 {
   int offset = 0;
-  guint8 dst, src, protID;
+  guint8 dst, src, protID, split_flag;
   tvbuff_t *next_tvb;
   proto_item *ti = NULL;
   proto_tree *arcnet_tree = NULL;
@@ -146,11 +159,39 @@ dissect_arcnet_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 
   default:
     /* Show the fragmentation stuff - flag and sequence ID */
+    split_flag = tvb_get_guint8 (tvb, offset);
+    if (split_flag == 0xff) {
+      /* This is an exception packet.  The flag value there is the
+         "this is an exception flag" packet; the next two bytes
+         after it are padding. */
+      if (tree) {
+	proto_tree_add_uint (tree, hf_arcnet_exception_flag, tvb, offset, 1,
+			     split_flag);
+      }
+      offset++;  
+
+      if (tree)
+	proto_tree_add_text (tree, tvb, offset, 2, "Padding");
+      offset += 2;
+
+      /* Another copy of the packet type appears after the padding. */
+      if (tree)
+	proto_tree_add_item (tree, hf_arcnet_protID, tvb, offset, 1, FALSE);
+      offset++;
+
+      /* And after that comes the real split flag. */
+      split_flag = tvb_get_guint8 (tvb, offset);
+    } 
     if (tree) {
-      proto_tree_add_item (tree, hf_arcnet_split_flag, tvb, offset, 1, FALSE);
-      proto_tree_add_item (tree, hf_arcnet_sequence, tvb, offset, 2, FALSE);
+      proto_tree_add_uint (tree, hf_arcnet_split_flag, tvb, offset, 1,
+			   split_flag);
     }
-    offset += 3;
+    offset++;
+			  
+    if (tree)
+      proto_tree_add_item (tree, hf_arcnet_sequence, tvb, offset, 2, FALSE);
+    offset += 2;
+
     break;
   }
 
@@ -242,6 +283,11 @@ proto_register_arcnet (void)
      {"Split Flag", "arcnet.split_flag",
       FT_UINT8, BASE_DEC, NULL, 0,
       "Split flag", HFILL}
+     },
+    {&hf_arcnet_exception_flag,
+     {"Exception Flag", "arcnet.exception_flag",
+      FT_UINT8, BASE_HEX, NULL, 0,
+      "Exception flag", HFILL}
      },
     {&hf_arcnet_sequence,
      {"Sequence", "arcnet.sequence",
