@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.46 2001/12/03 01:26:30 guy Exp $
+ * $Id: packet.c,v 1.47 2001/12/03 01:35:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -767,7 +767,7 @@ dissector_conv_foreach (char *name,
 }
 
 static void
-dissector_all_conv_foreach_func1 (gpointer key, gpointer value, gpointer user_data)
+dissector_all_conv_foreach_func (gpointer key, gpointer value, gpointer user_data)
 {
 	conv_dissector_list_t *sub_dissectors;
 	GSList *tmp;
@@ -791,7 +791,7 @@ dissector_all_conv_foreach (DATFunc func,
 
 	info.caller_data = user_data;
 	info.caller_func = func;
-	g_hash_table_foreach(conv_dissector_lists, dissector_all_conv_foreach_func1, &info);
+	g_hash_table_foreach(conv_dissector_lists, dissector_all_conv_foreach_func, &info);
 }
 
 /*
