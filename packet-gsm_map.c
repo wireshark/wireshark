@@ -7,7 +7,7 @@
  * Changed to run on new version of TCAP, many changes for
  * EOC matching, and parameter separation.  (2003)
  *
- * $Id: packet-gsm_map.c,v 1.8 2004/03/17 08:46:56 guy Exp $
+ * $Id: packet-gsm_map.c,v 1.9 2004/03/19 07:54:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -46,6 +46,8 @@
 #include "tap.h"
 #include "asn1.h"
 
+#include "packet-tcap.h"
+#include "packet-gsm_ss.h"
 #include "packet-gsm_map.h"
 
 
@@ -154,9 +156,6 @@
 
 
 #define MAP_OPR_CODE_TAG	0x02
-#define MAP_INVOKE_ID_TAG	0x02
-#define MAP_LINK_ID_TAG		0x80
-#define MAP_SEQ_TAG		0x30
 #define MAP_GE_PROBLEM_TAG	0x80
 #define MAP_IN_PROBLEM_TAG	0x81
 #define MAP_RR_PROBLEM_TAG	0x82
@@ -272,24 +271,6 @@ const value_string gsm_map_opr_code_strings[] = {
     { 0,				NULL}
 };
 
-/* TCAP component type */
-#define MAP_TC_INVOKE		0xa1
-#define MAP_TC_RRL		0xa2
-#define MAP_TC_RE		0xa3
-#define MAP_TC_REJECT		0xa4
-#define MAP_TC_RRN		0xa7
-
-static const value_string tag_strings[] = {
-    { MAP_TC_INVOKE,		"Invoke" },
-    { MAP_TC_RRL,		"RetRes(Last)" },
-    { MAP_TC_RE,		"RetErr" },
-    { MAP_TC_REJECT,		"Reject" },
-    { MAP_TC_RRN,		"RetRes(Not Last)" },
-    { 0,			NULL }
-};
-
-#define MAP_EOC_LEN		2 /* 0x00 0x00 */
-
 /*
  * Initialize the protocol and registered fields
  */
@@ -303,6 +284,8 @@ static int			gsm_map_app_context = 1;	/* XXX should be set from Dialogue */
 
 static packet_info		*g_pinfo;
 static proto_tree		*g_tree;
+static guint			g_opr_code;
+static guint			g_comp_type_tag;
 
 static int hf_map_length = -1;
 static int hf_map_opr_code = -1;
@@ -359,38 +342,6 @@ static dgt_set_t Dgt_msid = {
 static int dissect_map_eoc(ASN1_SCK *asn1, proto_tree *tree);
 
 /* FUNCTIONS */
-
-static int
-find_eoc(ASN1_SCK *asn1)
-{
-    guint	saved_offset;
-    guint	tag;
-    guint	len;
-    gboolean	def_len;
-
-    saved_offset = asn1->offset;
-
-    while (!asn1_eoc(asn1, -1))
-    {
-	asn1_id_decode1(asn1, &tag);
-	asn1_length_decode(asn1, &def_len, &len);
-
-	if (def_len)
-	{
-	    asn1->offset += len;
-	}
-	else
-	{
-	    asn1->offset += find_eoc(asn1);
-	    asn1_eoc_decode(asn1, -1);
-	}
-    }
-
-    len = asn1->offset - saved_offset;
-    asn1->offset = saved_offset;
-
-    return(len);
-}
 
 /*
  * Unpack BCD input pattern into output ASCII pattern
@@ -499,11 +450,11 @@ check_map_tag(ASN1_SCK *asn1, guint tag)
 	    proto_tree_add_text(_Gsubtree_p, asn1->tvb, \
 		_len_offset, asn1->offset - _len_offset, "Length: Indefinite"); \
  \
-	    *_Glen_p = find_eoc(asn1); \
+	    *_Glen_p = tcap_find_eoc(asn1); \
 	} \
  \
 	proto_item_set_len(_item, (asn1->offset - _Gsaved_offset) + *_Glen_p + \
-	    (*_Gdef_len_p ? 0 : MAP_EOC_LEN)); \
+	    (*_Gdef_len_p ? 0 : TCAP_EOC_LEN)); \
     }
 
 static int
@@ -529,7 +480,7 @@ dissect_map_params(ASN1_SCK *asn1, proto_tree *tree, guint exp_len)
 	saved_offset = asn1->offset;
 	asn1_id_decode1(asn1, &tag);
 
-	if (tag == MAP_SEQ_TAG)
+	if (TCAP_CONSTRUCTOR(tag))
 	{
 	    GSM_MAP_START_SUBTREE(tree, saved_offset, tag, "Sequence",
 		ett_sequence,
@@ -556,7 +507,7 @@ dissect_map_params(ASN1_SCK *asn1, proto_tree *tree, guint exp_len)
 	    proto_tree_add_text(tree, asn1->tvb,
 		len_offset, asn1->offset - len_offset, "Length: Indefinite");
 
-	    len = find_eoc(asn1);
+	    len = tcap_find_eoc(asn1);
 
 	    dissect_map_params(asn1, tree, len);
 
@@ -692,310 +643,6 @@ param_alertReason(ASN1_SCK *asn1, proto_tree *tree, guint len, int hf_field)
 }
 
 static void
-param_ssCode(ASN1_SCK *asn1, proto_tree *tree, guint len, int hf_field)
-{
-    guint	saved_offset;
-    gint32	value;
-    gchar	*str = NULL;
-
-    hf_field = hf_field;
-
-    saved_offset = asn1->offset;
-    asn1_int32_value_decode(asn1, len, &value);
-
-    switch (value)
-    {
-    case 0x00:
-	str = "allSS - all SS";
-	break;
-
-    case 0x10:
-	str = "allLineIdentificationSS - all line identification SS";
-	break;
-
-    case 0x11:
-	str = "clip - calling line identification presentation";
-	break;
-
-    case 0x12:
-	str = "clir - calling line identification restriction";
-	break;
-
-    case 0x13:
-	str = "colp - connected line identification presentation";
-	break;
-
-    case 0x14:
-	str = "colr - connected line identification restriction";
-	break;
-
-    case 0x15:
-	str = "mci - malicious call identification";
-	break;
-
-    case 0x18:
-	str = "allNameIdentificationSS - all name indentification SS";
-	break;
-
-    case 0x19:
-	str = "cnap - calling name presentation";
-	break;
-
-    case 0x20:
-	str = "allForwardingSS - all forwarding SS";
-	break;
-
-    case 0x21:
-	str = "cfu - call forwarding unconditional";
-	break;
-
-    case 0x28:
-	str = "allCondForwardingSS - all conditional forwarding SS";
-	break;
-
-    case 0x29:
-	str = "cfb - call forwarding busy";
-	break;
-
-    case 0x2a:
-	str = "cfnry - call forwarding on no reply";
-	break;
-
-    case 0x2b:
-	str = "cfnrc - call forwarding on mobile subscriber not reachable";
-	break;
-
-    case 0x24:
-	str = "cd - call deflection";
-	break;
-
-    case 0x30:
-	str = "allCallOfferingSS - all call offering SS includes also all forwarding SS";
-	break;
-
-    case 0x31:
-	str = "ect - explicit call transfer";
-	break;
-
-    case 0x32:
-	str = "mah - mobile access hunting";
-	break;
-
-    case 0x40:
-	str = "allCallCompletionSS - all Call completion SS";
-	break;
-
-    case 0x41:
-	str = "cw - call waiting";
-	break;
-
-    case 0x42:
-	str = "hold - call hold";
-	break;
-
-    case 0x43:
-	str = "ccbs-A - completion of call to busy subscribers, originating side";
-	break;
-
-    case 0x44:
-	str = "ccbs-B - completion of call to busy subscribers, destination side";
-	break;
-
-    case 0x45:
-	str = "mc - multicall";
-	break;
-
-    case 0x50:
-	str = "allMultiPartySS - all multiparty SS";
-	break;
-
-    case 0x51:
-	str = "multiPTY - multiparty";
-	break;
-
-    case 0x60:
-	str = "allCommunityOfInterestSS - all community of interest SS";
-	break;
-
-    case 0x61:
-	str = "cug - closed user group";
-	break;
-
-    case 0x70:
-	str = "allChargingSS - all charging SS";
-	break;
-
-    case 0x71:
-	str = "aoci - advice of charge information";
-	break;
-
-    case 0x72:
-	str = "aocc - advice of charge charging";
-	break;
-
-    case 0x80:
-	str = "allAdditionalInfoTransferSS - all additional information transfer SS";
-	break;
-
-    case 0x81:
-	str = "uus1 - UUS1 user-to-user signalling";
-	break;
-
-    case 0x82:
-	str = "uus2 - UUS2 user-to-user signalling";
-	break;
-
-    case 0x83:
-	str = "uus3 - UUS3 user-to-user signalling";
-	break;
-
-    case 0x90:
-	str = "allBarringSS - all barring SS";
-	break;
-
-    case 0x91:
-	str = "barringOfOutgoingCalls";
-	break;
-
-    case 0x92:
-	str = "baoc - barring of all outgoing calls";
-	break;
-
-    case 0x93:
-	str = "boic - barring of outgoing international calls";
-	break;
-
-    case 0x94:
-	str = "boicExHC - barring of outgoing international calls except those directed to the home PLMN";
-	break;
-
-    case 0x99:
-	str = "barringOfIncomingCalls";
-	break;
-
-    case 0x9a:
-	str = "baic - barring of all incoming calls";
-	break;
-
-    case 0x9b:
-	str = "bicRoam - barring of incoming calls when roaming outside home PLMN Country";
-	break;
-
-    case 0xf0:
-	str = "allPLMN-specificSS";
-	break;
-
-    case 0xa0:
-	str = "allCallPrioritySS - all call priority SS";
-	break;
-
-    case 0xa1:
-	str = "emlpp - enhanced Multilevel Precedence Pre-emption (EMLPP) service";
-	break;
-
-    case 0xb0:
-	str = "allLCSPrivacyException - all LCS Privacy Exception Classes";
-	break;
-
-    case 0xb1:
-	str = "universal - allow location by any LCS client";
-	break;
-
-    case 0xb2:
-	str = "callrelated - allow location by any value added LCS client to which a call is established from the target MS";
-	break;
-
-    case 0xb3:
-	str = "callunrelated - allow location by designated external value added LCS clients";
-	break;
-
-    case 0xb4:
-	str = "plmnoperator - allow location by designated PLMN operator LCS clients";
-	break;
-
-    case 0xc0:
-	str = "allMOLR-SS - all Mobile Originating Location Request Classes";
-	break;
-
-    case 0xc1:
-	str = "basicSelfLocation - allow an MS to request its own location";
-	break;
-
-    case 0xc2:
-	str = "autonomousSelfLocation - allow an MS to perform self location without interaction with the PLMN for a predetermined period of time";
-	break;
-
-    case 0xc3:
-	str = "transferToThirdParty - allow an MS to request transfer of its location to another LCS client";
-	break;
-
-    default:
-	/*
-	 * XXX
-	 */
-	str = "reserved for future use";
-	break;
-    }
-
-    proto_tree_add_text(tree, asn1->tvb,
-	saved_offset, len, str);
-}
-
-/*
- * See GSM 03.11
- */
-static void
-param_ssStatus(ASN1_SCK *asn1, proto_tree *tree, guint len, int hf_field)
-{
-    guint	saved_offset;
-    gint32	value;
-    char	bigbuf[1024];
-
-    hf_field = hf_field;
-
-    saved_offset = asn1->offset;
-    asn1_int32_value_decode(asn1, len, &value);
-
-    other_decode_bitfield_value(bigbuf, value, 0xf0, 8);
-    proto_tree_add_text(tree, asn1->tvb,
-	saved_offset, 1,
-	"%s :  Unused",
-	bigbuf);
-
-    /*
-     * Q bit is valid only if A bit is "Active"
-     */
-    other_decode_bitfield_value(bigbuf, value, 0x08, 8);
-    proto_tree_add_text(tree, asn1->tvb,
-	saved_offset, 1,
-	"%s :  Q bit: %s",
-	bigbuf,
-	(value & 0x01) ?
-	    ((value & 0x08) ? "Quiescent" : "Operative") : "N/A");
-
-    other_decode_bitfield_value(bigbuf, value, 0x04, 8);
-    proto_tree_add_text(tree, asn1->tvb,
-	saved_offset, 1,
-	"%s :  P bit: %sProvisioned",
-	bigbuf,
-	(value & 0x04) ? "" : "Not ");
-
-    other_decode_bitfield_value(bigbuf, value, 0x02, 8);
-    proto_tree_add_text(tree, asn1->tvb,
-	saved_offset, 1,
-	"%s :  R bit: %sRegistered",
-	bigbuf,
-	(value & 0x02) ? "" : "Not ");
-
-    other_decode_bitfield_value(bigbuf, value, 0x01, 8);
-    proto_tree_add_text(tree, asn1->tvb,
-	saved_offset, 1,
-	"%s :  A bit: %sActive",
-	bigbuf,
-	(value & 0x01) ? "" : "Not ");
-}
-
-static void
 param_AddressString(ASN1_SCK *asn1, proto_tree *tree, guint len, int hf_field)
 {
     guint	saved_offset;
@@ -1091,8 +738,6 @@ typedef enum
     GSM_MAP_P_NETNODE_NUM,		/* Network Node Number */
     GSM_MAP_P_ROAMING_NUM,		/* Roaming Number */
     GSM_MAP_P_ALERT_REASON,		/* Alert Reason */
-    GSM_MAP_P_SS_CODE,			/* SS-Code */
-    GSM_MAP_P_SS_STATUS,		/* SS-Status */
     GSM_MAP_P_GMSC_ADDR,		/* GMSC Address */
     GSM_MAP_P_RAND,			/* Rand */
     GSM_MAP_P_SRES,			/* Signed Result */
@@ -1123,8 +768,6 @@ static void (*param_1_fcn[])(ASN1_SCK *asn1, proto_tree *tree, guint len, int hf
     param_AddressString,		/* Network Node Number */
     param_AddressString,		/* Roaming Number */
     param_alertReason,			/* Alert Reason */
-    param_ssCode,			/* SS-Code */
-    param_ssStatus,			/* SS-Status */
     param_AddressString,		/* GMSC Address */
     param_bytes,			/* Rand */
     param_bytes,			/* Signed Result */
@@ -1152,8 +795,6 @@ static int *param_1_hf[] = {
     &hf_map_addrstring,			/* Network Node Number */
     &hf_map_addrstring,			/* Roaming Number */
     HF_NULL,				/* Alert Reason */
-    HF_NULL,				/* SS-Code */
-    HF_NULL,				/* SS-Status */
     &hf_map_addrstring,			/* GMSC Address */
     &hf_map_rand,			/* Rand */
     &hf_map_sres,			/* Signed Result */
@@ -1508,19 +1149,21 @@ param_LWI_LMSI(ASN1_SCK *asn1, proto_tree *tree)
 /* MESSAGES */
 
 static void
-op_update_loc(ASN1_SCK *asn1, proto_tree *tree)
+op_update_loc(ASN1_SCK *asn1, proto_tree *tree, guint exp_len)
 {
     guint	saved_offset, start_offset;
     guint	tag, len;
     gboolean	def_len = FALSE;
     proto_tree	*subtree;
 
+    exp_len = exp_len;
+
     if (tvb_length_remaining(asn1->tvb, asn1->offset) <= 0) return;
 
     saved_offset = asn1->offset;
     asn1_id_decode1(asn1, &tag);
 
-    if (tag != MAP_SEQ_TAG)
+    if (TCAP_CONSTRUCTOR(tag) == FALSE)
     {
 	GSM_MAP_PARAM_DISPLAY(tree, saved_offset, tag, GSM_MAP_P_IMSI, "IMSI");
 
@@ -1557,19 +1200,21 @@ op_update_loc(ASN1_SCK *asn1, proto_tree *tree)
 }
 
 static void
-op_update_loc_rr(ASN1_SCK *asn1, proto_tree *tree)
+op_update_loc_rr(ASN1_SCK *asn1, proto_tree *tree, guint exp_len)
 {
     guint	saved_offset, start_offset;
     guint	tag, len;
     gboolean	def_len = FALSE;
     proto_tree	*subtree;
 
+    exp_len = exp_len;
+
     if (tvb_length_remaining(asn1->tvb, asn1->offset) <= 0) return;
 
     saved_offset = asn1->offset;
     asn1_id_decode1(asn1, &tag);
 
-    if (tag != MAP_SEQ_TAG)
+    if (TCAP_CONSTRUCTOR(tag) == FALSE)
     {
 	GSM_MAP_PARAM_DISPLAY(tree, saved_offset, tag, GSM_MAP_P_HLR_NUMBER, "HLR Number");
 
@@ -1596,12 +1241,14 @@ op_update_loc_rr(ASN1_SCK *asn1, proto_tree *tree)
 }
 
 static void
-op_cancel_loc(ASN1_SCK *asn1, proto_tree *tree)
+op_cancel_loc(ASN1_SCK *asn1, proto_tree *tree, guint exp_len)
 {
     guint	saved_offset, start_offset;
     guint	tag, len;
     gboolean	def_len = FALSE;
     proto_tree	*subtree;
+
+    exp_len = exp_len;
 
     if (tvb_length_remaining(asn1->tvb, asn1->offset) <= 0) return;
 
@@ -1633,19 +1280,21 @@ op_cancel_loc(ASN1_SCK *asn1, proto_tree *tree)
 }
 
 static void
-op_send_auth_info(ASN1_SCK *asn1, proto_tree *tree)
+op_send_auth_info(ASN1_SCK *asn1, proto_tree *tree, guint exp_len)
 {
     guint	saved_offset, start_offset;
     guint	tag, len;
     gboolean	def_len = FALSE;
     proto_tree	*subtree;
 
+    exp_len = exp_len;
+
     if (tvb_length_remaining(asn1->tvb, asn1->offset) <= 0) return;
 
     saved_offset = asn1->offset;
     asn1_id_decode1(asn1, &tag);
 
-    if (tag != MAP_SEQ_TAG)
+    if (TCAP_CONSTRUCTOR(tag) == FALSE)
     {
 	GSM_MAP_PARAM_DISPLAY(tree, saved_offset, tag, GSM_MAP_P_IMSI, "IMSI");
 
@@ -1677,12 +1326,14 @@ op_send_auth_info(ASN1_SCK *asn1, proto_tree *tree)
 }
 
 static void
-op_send_auth_info_rr(ASN1_SCK *asn1, proto_tree *tree)
+op_send_auth_info_rr(ASN1_SCK *asn1, proto_tree *tree, guint exp_len)
 {
     guint	saved_offset, start_offset;
     guint	tag, len;
     gboolean	def_len = FALSE;
     proto_tree	*subtree;
+
+    exp_len = exp_len;
 
     if (tvb_length_remaining(asn1->tvb, asn1->offset) <= 0) return;
 
@@ -1723,19 +1374,21 @@ op_send_auth_info_rr(ASN1_SCK *asn1, proto_tree *tree)
 }
 
 static void
-op_restore_data(ASN1_SCK *asn1, proto_tree *tree)
+op_restore_data(ASN1_SCK *asn1, proto_tree *tree, guint exp_len)
 {
     guint	saved_offset, start_offset;
     guint	tag, len;
     gboolean	def_len = FALSE;
     proto_tree	*subtree;
 
+    exp_len = exp_len;
+
     if (tvb_length_remaining(asn1->tvb, asn1->offset) <= 0) return;
 
     saved_offset = asn1->offset;
     asn1_id_decode1(asn1, &tag);
 
-    if (tag != MAP_SEQ_TAG)
+    if (TCAP_CONSTRUCTOR(tag) == FALSE)
     {
 	GSM_MAP_PARAM_DISPLAY(tree, saved_offset, tag, GSM_MAP_P_IMSI, "IMSI");
 
@@ -1762,19 +1415,21 @@ op_restore_data(ASN1_SCK *asn1, proto_tree *tree)
 }
 
 static void
-op_restore_data_rr(ASN1_SCK *asn1, proto_tree *tree)
+op_restore_data_rr(ASN1_SCK *asn1, proto_tree *tree, guint exp_len)
 {
     guint	saved_offset, start_offset;
     guint	tag, len;
     gboolean	def_len = FALSE;
     proto_tree	*subtree;
 
+    exp_len = exp_len;
+
     if (tvb_length_remaining(asn1->tvb, asn1->offset) <= 0) return;
 
     saved_offset = asn1->offset;
     asn1_id_decode1(asn1, &tag);
 
-    if (tag != MAP_SEQ_TAG)
+    if (TCAP_CONSTRUCTOR(tag) == FALSE)
     {
 	GSM_MAP_PARAM_DISPLAY(tree, saved_offset, tag, GSM_MAP_P_HLR_NUMBER, "HLR Number");
 
@@ -1801,19 +1456,21 @@ op_restore_data_rr(ASN1_SCK *asn1, proto_tree *tree)
 }
 
 static void
-op_send_rti(ASN1_SCK *asn1, proto_tree *tree)
+op_send_rti(ASN1_SCK *asn1, proto_tree *tree, guint exp_len)
 {
     guint	saved_offset, start_offset;
     guint	tag, len;
     gboolean	def_len = FALSE;
     proto_tree	*subtree;
 
+    exp_len = exp_len;
+
     if (tvb_length_remaining(asn1->tvb, asn1->offset) <= 0) return;
 
     saved_offset = asn1->offset;
     asn1_id_decode1(asn1, &tag);
 
-    if (tag != MAP_SEQ_TAG)
+    if (TCAP_CONSTRUCTOR(tag) == FALSE)
     {
 	/*
 	 * Hmmm, unexpected
@@ -1841,19 +1498,21 @@ op_send_rti(ASN1_SCK *asn1, proto_tree *tree)
 }
 
 static void
-op_send_rti_rr(ASN1_SCK *asn1, proto_tree *tree)
+op_send_rti_rr(ASN1_SCK *asn1, proto_tree *tree, guint exp_len)
 {
     guint	saved_offset, start_offset;
     guint	tag, len;
     gboolean	def_len = FALSE;
     proto_tree	*subtree;
 
+    exp_len = exp_len;
+
     if (tvb_length_remaining(asn1->tvb, asn1->offset) <= 0) return;
 
     saved_offset = asn1->offset;
     asn1_id_decode1(asn1, &tag);
 
-    if (tag != MAP_SEQ_TAG)
+    if (TCAP_CONSTRUCTOR(tag) == FALSE)
     {
 	/*
 	 * Hmmm, unexpected
@@ -1884,19 +1543,21 @@ op_send_rti_rr(ASN1_SCK *asn1, proto_tree *tree)
 }
 
 static void
-op_provide_rn(ASN1_SCK *asn1, proto_tree *tree)
+op_provide_rn(ASN1_SCK *asn1, proto_tree *tree, guint exp_len)
 {
     guint	saved_offset, start_offset;
     guint	tag, len;
     gboolean	def_len = FALSE;
     proto_tree	*subtree;
 
+    exp_len = exp_len;
+
     if (tvb_length_remaining(asn1->tvb, asn1->offset) <= 0) return;
 
     saved_offset = asn1->offset;
     asn1_id_decode1(asn1, &tag);
 
-    if (tag != MAP_SEQ_TAG)
+    if (TCAP_CONSTRUCTOR(tag) == FALSE)
     {
 	/*
 	 * Hmmm, unexpected
@@ -2057,19 +1718,21 @@ op_provide_rn(ASN1_SCK *asn1, proto_tree *tree)
 }
 
 static void
-op_provide_rn_rr(ASN1_SCK *asn1, proto_tree *tree)
+op_provide_rn_rr(ASN1_SCK *asn1, proto_tree *tree, guint exp_len)
 {
     guint	saved_offset, start_offset;
     guint	tag, len;
     gboolean	def_len = FALSE;
     proto_tree	*subtree;
 
+    exp_len = exp_len;
+
     if (tvb_length_remaining(asn1->tvb, asn1->offset) <= 0) return;
 
     saved_offset = asn1->offset;
     asn1_id_decode1(asn1, &tag);
 
-    if (tag != MAP_SEQ_TAG)
+    if (TCAP_CONSTRUCTOR(tag) == FALSE)
     {
 	GSM_MAP_PARAM_DISPLAY(tree, saved_offset, tag, GSM_MAP_P_ROAMING_NUM, "Roaming Number");
 
@@ -2095,97 +1758,35 @@ op_provide_rn_rr(ASN1_SCK *asn1, proto_tree *tree)
     }
 }
 
+/*
+ * Description:
+ *	Generic dissector for Supplementary Services
+ */
 static void
-op_interrogate_ss(ASN1_SCK *asn1, proto_tree *tree)
+op_ss_generic(ASN1_SCK *asn1, proto_tree *tree, guint exp_len)
+{
+
+    if (tvb_length_remaining(asn1->tvb, asn1->offset) <= 0) return;
+
+    gsm_ss_dissect(asn1, tree, exp_len, g_opr_code, g_comp_type_tag);
+}
+
+static void
+op_mo_forward_sm(ASN1_SCK *asn1, proto_tree *tree, guint exp_len)
 {
     guint	saved_offset, start_offset;
     guint	tag, len;
     gboolean	def_len = FALSE;
     proto_tree	*subtree;
 
-    if (tvb_length_remaining(asn1->tvb, asn1->offset) <= 0) return;
-
-    saved_offset = asn1->offset;
-    asn1_id_decode1(asn1, &tag);
-
-    if (tag != MAP_SEQ_TAG)
-    {
-	/*
-	 * Hmmm, unexpected
-	 */
-	return;
-    }
-
-    GSM_MAP_START_SUBTREE(tree, saved_offset, tag, "Sequence",
-	ett_sequence,
-	&def_len, &len, subtree);
-
-    start_offset = asn1->offset;
-
-    saved_offset = asn1->offset;
-    asn1_id_decode1(asn1, &tag);
-
-    GSM_MAP_PARAM_DISPLAY(subtree, saved_offset, tag, GSM_MAP_P_SS_CODE, "SS-Code");
-
-    dissect_map_params(asn1, subtree, len - (asn1->offset - start_offset));
-
-    if (!def_len)
-    {
-	dissect_map_eoc(asn1, subtree);
-    }
-}
-
-static void
-op_interrogate_ss_rr(ASN1_SCK *asn1, proto_tree *tree)
-{
-    guint	saved_offset;
-    guint	tag;
+    exp_len = exp_len;
 
     if (tvb_length_remaining(asn1->tvb, asn1->offset) <= 0) return;
 
     saved_offset = asn1->offset;
     asn1_id_decode1(asn1, &tag);
 
-    switch (tag)
-    {
-    case 0x80:	/* SS-Status */
-	GSM_MAP_PARAM_DISPLAY(tree, saved_offset, tag, GSM_MAP_P_SS_STATUS, "SS-Status");
-	return;
-
-    case 0x82:	/* BasicServiceGroupList */
-	/* FALLTHRU */
-    case 0x83:	/* ForwardingFeatureList */
-	/* FALLTHRU */
-
-    case 0x84:	/* GenericServiceInfo */
-	/*
-	 * XXX
-	 * needs implementing, let "generic" parameter dissector handle it for now
-	 */
-	break;
-
-    default:
-	/* do nothing - unexpected tag */
-	break;
-    }
-
-    dissect_map_params(asn1, tree, 0);
-}
-
-static void
-op_mo_forward_sm(ASN1_SCK *asn1, proto_tree *tree)
-{
-    guint	saved_offset, start_offset;
-    guint	tag, len;
-    gboolean	def_len = FALSE;
-    proto_tree	*subtree;
-
-    if (tvb_length_remaining(asn1->tvb, asn1->offset) <= 0) return;
-
-    saved_offset = asn1->offset;
-    asn1_id_decode1(asn1, &tag);
-
-    if (tag != MAP_SEQ_TAG)
+    if (TCAP_CONSTRUCTOR(tag) == FALSE)
     {
 	/*
 	 * Hmmm, unexpected
@@ -2208,8 +1809,9 @@ op_mo_forward_sm(ASN1_SCK *asn1, proto_tree *tree)
     /*
      * older versions of GSM MAP had only one ForwardSM message
      */
-    if ((tvb_length_remaining(asn1->tvb, asn1->offset) > 0) &&
-	(gsm_map_app_context < 3))
+    if ((tvb_length_remaining(asn1->tvb, asn1->offset) > (def_len ? 0 : TCAP_EOC_LEN)) &&
+	(gsm_map_app_context < 3) &&
+	(g_pinfo->p2p_dir == P2P_DIR_SENT))
     {
 	/*
 	 * 'more messages' for V1 context
@@ -2229,19 +1831,21 @@ op_mo_forward_sm(ASN1_SCK *asn1, proto_tree *tree)
 }
 
 static void
-op_mt_forward_sm(ASN1_SCK *asn1, proto_tree *tree)
+op_mt_forward_sm(ASN1_SCK *asn1, proto_tree *tree, guint exp_len)
 {
     guint	saved_offset, start_offset;
     guint	tag, len;
     gboolean	def_len = FALSE;
     proto_tree	*subtree;
 
+    exp_len = exp_len;
+
     if (tvb_length_remaining(asn1->tvb, asn1->offset) <= 0) return;
 
     saved_offset = asn1->offset;
     asn1_id_decode1(asn1, &tag);
 
-    if (tag != MAP_SEQ_TAG)
+    if (TCAP_CONSTRUCTOR(tag) == FALSE)
     {
 	/*
 	 * Hmmm, unexpected
@@ -2281,19 +1885,21 @@ op_mt_forward_sm(ASN1_SCK *asn1, proto_tree *tree)
 }
 
 static void
-op_forward_sm_rr(ASN1_SCK *asn1, proto_tree *tree)
+op_forward_sm_rr(ASN1_SCK *asn1, proto_tree *tree, guint exp_len)
 {
     guint	saved_offset, start_offset;
     guint	tag, len;
     gboolean	def_len = FALSE;
     proto_tree	*subtree;
 
+    exp_len = exp_len;
+
     if (tvb_length_remaining(asn1->tvb, asn1->offset) <= 0) return;
 
     saved_offset = asn1->offset;
     asn1_id_decode1(asn1, &tag);
 
-    if (tag != MAP_SEQ_TAG)
+    if (TCAP_CONSTRUCTOR(tag) == FALSE)
     {
 	/*
 	 * Hmmm, unexpected
@@ -2318,19 +1924,21 @@ op_forward_sm_rr(ASN1_SCK *asn1, proto_tree *tree)
 }
 
 static void
-op_send_rti_sm(ASN1_SCK *asn1, proto_tree *tree)
+op_send_rti_sm(ASN1_SCK *asn1, proto_tree *tree, guint exp_len)
 {
     guint	saved_offset, start_offset;
     guint	tag, len;
     gboolean	def_len = FALSE;
     proto_tree	*subtree;
 
+    exp_len = exp_len;
+
     if (tvb_length_remaining(asn1->tvb, asn1->offset) <= 0) return;
 
     saved_offset = asn1->offset;
     asn1_id_decode1(asn1, &tag);
 
-    if (tag != MAP_SEQ_TAG)
+    if (TCAP_CONSTRUCTOR(tag) == FALSE)
     {
 	/*
 	 * Hmmm, unexpected
@@ -2368,19 +1976,21 @@ op_send_rti_sm(ASN1_SCK *asn1, proto_tree *tree)
 }
 
 static void
-op_send_rti_sm_rr(ASN1_SCK *asn1, proto_tree *tree)
+op_send_rti_sm_rr(ASN1_SCK *asn1, proto_tree *tree, guint exp_len)
 {
     guint	saved_offset, start_offset;
     guint	tag, len;
     gboolean	def_len = FALSE;
     proto_tree	*subtree;
 
+    exp_len = exp_len;
+
     if (tvb_length_remaining(asn1->tvb, asn1->offset) <= 0) return;
 
     saved_offset = asn1->offset;
     asn1_id_decode1(asn1, &tag);
 
-    if (tag != MAP_SEQ_TAG)
+    if (TCAP_CONSTRUCTOR(tag) == FALSE)
     {
 	/*
 	 * Hmmm, unexpected
@@ -2410,19 +2020,21 @@ op_send_rti_sm_rr(ASN1_SCK *asn1, proto_tree *tree)
 }
 
 static void
-op_alert_sc(ASN1_SCK *asn1, proto_tree *tree)
+op_alert_sc(ASN1_SCK *asn1, proto_tree *tree, guint exp_len)
 {
     guint	saved_offset, start_offset;
     guint	tag, len;
     gboolean	def_len = FALSE;
     proto_tree	*subtree;
 
+    exp_len = exp_len;
+
     if (tvb_length_remaining(asn1->tvb, asn1->offset) <= 0) return;
 
     saved_offset = asn1->offset;
     asn1_id_decode1(asn1, &tag);
 
-    if (tag != MAP_SEQ_TAG)
+    if (TCAP_CONSTRUCTOR(tag) == FALSE)
     {
 	/*
 	 * Hmmm, unexpected
@@ -2455,19 +2067,21 @@ op_alert_sc(ASN1_SCK *asn1, proto_tree *tree)
 }
 
 static void
-op_ready_sm(ASN1_SCK *asn1, proto_tree *tree)
+op_ready_sm(ASN1_SCK *asn1, proto_tree *tree, guint exp_len)
 {
     guint	saved_offset, start_offset;
     guint	tag, len;
     gboolean	def_len = FALSE;
     proto_tree	*subtree;
 
+    exp_len = exp_len;
+
     if (tvb_length_remaining(asn1->tvb, asn1->offset) <= 0) return;
 
     saved_offset = asn1->offset;
     asn1_id_decode1(asn1, &tag);
 
-    if (tag != MAP_SEQ_TAG)
+    if (TCAP_CONSTRUCTOR(tag) == FALSE)
     {
 	/*
 	 * Hmmm, unexpected
@@ -2500,19 +2114,21 @@ op_ready_sm(ASN1_SCK *asn1, proto_tree *tree)
 }
 
 static void
-op_alert_sc_wr(ASN1_SCK *asn1, proto_tree *tree)
+op_alert_sc_wr(ASN1_SCK *asn1, proto_tree *tree, guint exp_len)
 {
     guint	saved_offset, start_offset;
     guint	tag, len;
     gboolean	def_len = FALSE;
     proto_tree	*subtree;
 
+    exp_len = exp_len;
+
     if (tvb_length_remaining(asn1->tvb, asn1->offset) <= 0) return;
 
     saved_offset = asn1->offset;
     asn1_id_decode1(asn1, &tag);
 
-    if (tag != MAP_SEQ_TAG)
+    if (TCAP_CONSTRUCTOR(tag) == FALSE)
     {
 	/*
 	 * Hmmm, unexpected
@@ -2546,7 +2162,7 @@ op_alert_sc_wr(ASN1_SCK *asn1, proto_tree *tree)
 
 #define	GSM_MAP_NUM_OP (sizeof(gsm_map_opr_code_strings)/sizeof(value_string))
 static gint ett_op[GSM_MAP_NUM_OP];
-static void (*op_fcn[])(ASN1_SCK *asn1, proto_tree *tree) = {
+static void (*op_fcn[])(ASN1_SCK *asn1, proto_tree *tree, guint exp_len) = {
     op_update_loc,	/* Update Location */
     op_cancel_loc,	/* Cancel Location */
     NULL,	/* Purge MS */
@@ -2586,21 +2202,21 @@ static void (*op_fcn[])(ASN1_SCK *asn1, proto_tree *tree) = {
     NULL,	/* Forward Group Call Signalling */
     NULL,	/* IST Alert */
     NULL,	/* IST Command */
-    NULL,	/* Register SS */
-    NULL,	/* Erase SS */
-    NULL,	/* Activate SS */
-    NULL,	/* Deactivate SS */
-    op_interrogate_ss,	/* Interrogate SS */
-    NULL,	/* Process Unstructured SS Request */
-    NULL,	/* Unstructured SS Request */
-    NULL,	/* Unstructured SS Notify */
-    NULL,	/* Register Password */
-    NULL,	/* Get Password */
-    NULL,	/* Register CC Entry */
-    NULL,	/* Erase CC Entry */
+    op_ss_generic,	/* Register SS */
+    op_ss_generic,	/* Erase SS */
+    op_ss_generic,	/* Activate SS */
+    op_ss_generic,	/* Deactivate SS */
+    op_ss_generic,	/* Interrogate SS */
+    op_ss_generic,	/* Process Unstructured SS Request */
+    op_ss_generic,	/* Unstructured SS Request */
+    op_ss_generic,	/* Unstructured SS Notify */
+    op_ss_generic,	/* Register Password */
+    op_ss_generic,	/* Get Password */
+    op_ss_generic,	/* Register CC Entry */
+    op_ss_generic,	/* Erase CC Entry */
     NULL,	/* Begin Subscriber Activity */
-    NULL,	/* Process Unstructured SS Data */
-    NULL,	/* SS Invocation Notification */
+    op_ss_generic,	/* Process Unstructured SS Data */
+    op_ss_generic,	/* SS Invocation Notification */
     op_mo_forward_sm,	/* MO Forward SM */
     op_mt_forward_sm,	/* MT Forward SM */
     op_send_rti_sm,	/* Send Routing Info For SM */
@@ -2629,7 +2245,7 @@ static void (*op_fcn[])(ASN1_SCK *asn1, proto_tree *tree) = {
 };
 
 static gint ett_op_rr[GSM_MAP_NUM_OP];
-static void (*op_fcn_rr[])(ASN1_SCK *asn1, proto_tree *tree) = {
+static void (*op_fcn_rr[])(ASN1_SCK *asn1, proto_tree *tree, guint exp_len) = {
     op_update_loc_rr,	/* Update Location */
     NULL,	/* Cancel Location */
     NULL,	/* Purge MS */
@@ -2669,21 +2285,21 @@ static void (*op_fcn_rr[])(ASN1_SCK *asn1, proto_tree *tree) = {
     NULL,	/* Forward Group Call Signalling */
     NULL,	/* IST Alert */
     NULL,	/* IST Command */
-    NULL,	/* Register SS */
-    NULL,	/* Erase SS */
-    NULL,	/* Activate SS */
-    NULL,	/* Deactivate SS */
-    op_interrogate_ss_rr,	/* Interrogate SS */
-    NULL,	/* Process Unstructured SS Request */
-    NULL,	/* Unstructured SS Request */
-    NULL,	/* Unstructured SS Notify */
-    NULL,	/* Register Password */
-    NULL,	/* Get Password */
-    NULL,	/* Register CC Entry */
-    NULL,	/* Erase CC Entry */
+    op_ss_generic,	/* Register SS */
+    op_ss_generic,	/* Erase SS */
+    op_ss_generic,	/* Activate SS */
+    op_ss_generic,	/* Deactivate SS */
+    op_ss_generic,	/* Interrogate SS */
+    op_ss_generic,	/* Process Unstructured SS Request */
+    op_ss_generic,	/* Unstructured SS Request */
+    op_ss_generic,	/* Unstructured SS Notify */
+    op_ss_generic,	/* Register Password */
+    op_ss_generic,	/* Get Password */
+    op_ss_generic,	/* Register CC Entry */
+    op_ss_generic,	/* Erase CC Entry */
     NULL,	/* Begin Subscriber Activity */
-    NULL,	/* Process Unstructured SS Data */
-    NULL,	/* SS Invocation Notification */
+    op_ss_generic,	/* Process Unstructured SS Data */
+    op_ss_generic,	/* SS Invocation Notification */
     op_forward_sm_rr,	/* MO Forward SM */
     op_forward_sm_rr,	/* MT Forward SM */
     op_send_rti_sm_rr,	/* Send Routing Info For SM */
@@ -2790,7 +2406,7 @@ dissect_map_invokeId(ASN1_SCK *asn1, proto_tree *tree)
     proto_tree	*subtree;
     gboolean	def_len;
 
-    if (check_map_tag(asn1, MAP_INVOKE_ID_TAG))
+    if (check_map_tag(asn1, TCAP_INVOKE_ID_TAG))
     {
 	saved_offset = asn1->offset;
 	item =
@@ -2838,11 +2454,11 @@ dissect_map_problem(ASN1_SCK *asn1, proto_tree *tree)
 
     if (!def_len)
     {
-	len = find_eoc(asn1);
+	len = tcap_find_eoc(asn1);
     }
 
     proto_item_set_len(item, (asn1->offset - saved_offset) + len +
-	(def_len ? 0 : MAP_EOC_LEN));
+	(def_len ? 0 : TCAP_EOC_LEN));
 
     if (len != 1)
     {
@@ -2958,7 +2574,7 @@ dissect_map_lnkId(ASN1_SCK *asn1, proto_tree *tree)
     proto_tree	*subtree;
     gboolean	def_len;
 
-    if (check_map_tag(asn1, MAP_LINK_ID_TAG))
+    if (check_map_tag(asn1, TCAP_LINKED_ID_TAG))
     {
 	saved_offset = asn1->offset;
 
@@ -2981,7 +2597,7 @@ dissect_map_lnkId(ASN1_SCK *asn1, proto_tree *tree)
 
 
 static int
-dissect_map_opr_code(ASN1_SCK *asn1, packet_info *pinfo, proto_tree *tree, gint *op_idx_p)
+dissect_map_opr_code(ASN1_SCK *asn1, packet_info *pinfo, proto_tree *tree, gint *op_idx_p, guint *opr_code_p)
 {
     guint			opr_offset = 0, saved_offset = 0;
     guint			len;
@@ -3039,6 +2655,8 @@ dissect_map_opr_code(ASN1_SCK *asn1, packet_info *pinfo, proto_tree *tree, gint 
 	{
 	    col_append_fstr(pinfo->cinfo, COL_INFO,  "%s ", str);
 	}
+
+	*opr_code_p = val;
 
 	tap_p->opr_code_idx = *op_idx_p;
 
@@ -3109,7 +2727,7 @@ dissect_map_invoke(ASN1_SCK *asn1, packet_info *pinfo, proto_tree *tree)
 
     dissect_map_lnkId(asn1, subtree);
 
-    if (dissect_map_opr_code(asn1, pinfo, subtree, &op_idx) == MAP_OK)
+    if (dissect_map_opr_code(asn1, pinfo, subtree, &op_idx, &g_opr_code) == MAP_OK)
     {
 	if (def_len)
 	{
@@ -3117,7 +2735,7 @@ dissect_map_invoke(ASN1_SCK *asn1, packet_info *pinfo, proto_tree *tree)
 	}
 	else
 	{
-	    len = find_eoc(asn1);
+	    len = tcap_find_eoc(asn1);
 	}
 
 	/*
@@ -3129,7 +2747,7 @@ dissect_map_invoke(ASN1_SCK *asn1, packet_info *pinfo, proto_tree *tree)
 	}
 	else
 	{
-	    (*op_fcn[op_idx])(asn1, subtree);
+	    (*op_fcn[op_idx])(asn1, subtree, len);
 	}
     }
 
@@ -3186,7 +2804,7 @@ dissect_map_rr(ASN1_SCK *asn1, packet_info *pinfo, proto_tree *tree, gchar *str)
     tag = -1;
     asn1_id_decode1(asn1, &tag);
 
-    if (tag == MAP_SEQ_TAG)
+    if (TCAP_CONSTRUCTOR(tag))
     {
 	GSM_MAP_START_SUBTREE(subtree, saved_offset, tag, "Sequence",
 	    ett_sequence,
@@ -3194,7 +2812,7 @@ dissect_map_rr(ASN1_SCK *asn1, packet_info *pinfo, proto_tree *tree, gchar *str)
 
 	saved_offset = asn1->offset;
 
-	if (dissect_map_opr_code(asn1, pinfo, seq_subtree, &op_idx) == MAP_OK)
+	if (dissect_map_opr_code(asn1, pinfo, seq_subtree, &op_idx, &g_opr_code) == MAP_OK)
 	{
 	    len -= asn1->offset - saved_offset;
 
@@ -3207,7 +2825,7 @@ dissect_map_rr(ASN1_SCK *asn1, packet_info *pinfo, proto_tree *tree, gchar *str)
 	    }
 	    else
 	    {
-		(*op_fcn_rr[op_idx])(asn1, seq_subtree);
+		(*op_fcn_rr[op_idx])(asn1, seq_subtree, len);
 	    }
 	}
 
@@ -3252,7 +2870,7 @@ dissect_map_re(ASN1_SCK *asn1, proto_tree *tree)
 
     if (!comp_def_len)
     {
-	comp_len = find_eoc(asn1);
+	comp_len = tcap_find_eoc(asn1);
     }
 
     saved_offset = asn1->offset;
@@ -3343,16 +2961,15 @@ dissect_map_reject(ASN1_SCK *asn1, proto_tree *tree)
 static void
 dissect_map_message(packet_info *pinfo, proto_tree *map_tree, ASN1_SCK *asn1)
 {
-    guint	tag;
     guint	saved_offset;
     gchar	*str = NULL;
     static int	i = 0;
 
     saved_offset = asn1->offset;
-    asn1_id_decode1(asn1, &tag);
+    asn1_id_decode1(asn1, &g_comp_type_tag);
     asn1->offset = saved_offset;
 
-    str = match_strval(tag, tag_strings);
+    str = match_strval(g_comp_type_tag, tcap_component_type_str);
 
     if (NULL == str) return;
 
@@ -3368,25 +2985,25 @@ dissect_map_message(packet_info *pinfo, proto_tree *map_tree, ASN1_SCK *asn1)
         }
     }
 
-    switch(tag)
+    switch(g_comp_type_tag)
     {
-    case MAP_TC_INVOKE :
+    case TCAP_COMP_INVOKE :
 	dissect_map_invoke(asn1, pinfo, map_tree);
 	break;
 
-    case MAP_TC_RRL :
+    case TCAP_COMP_RRL :
 	dissect_map_rr(asn1, pinfo, map_tree, "Return Result(Last) Type Tag");
 	break;
 
-    case MAP_TC_RE :
+    case TCAP_COMP_RE :
 	dissect_map_re(asn1, map_tree);
 	break;
 
-    case MAP_TC_REJECT :
+    case TCAP_COMP_REJECT :
 	dissect_map_reject(asn1, map_tree);
 	break;
 
-    case MAP_TC_RRN :
+    case TCAP_COMP_RRN :
 	dissect_map_rr(asn1, pinfo, map_tree, "Return Result(Not Last) Type Tag");
 	break;
 

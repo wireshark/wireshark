@@ -38,7 +38,7 @@
  *   Formats and coding
  *   (3GPP TS 24.080 version 4.3.0 Release 4)
  *
- * $Id: packet-gsm_a.c,v 1.11 2004/02/20 10:50:13 guy Exp $
+ * $Id: packet-gsm_a.c,v 1.12 2004/03/19 07:54:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -71,8 +71,11 @@
 #include "epan/packet.h"
 #include "prefs.h"
 #include "tap.h"
+#include "asn1.h"
 
+#include "packet-tcap.h"
 #include "packet-bssap.h"
+#include "packet-gsm_ss.h"
 #include "packet-gsm_a.h"
 
 /* PROTOTYPES/FORWARDS */
@@ -684,6 +687,8 @@ static int hf_gsm_a_cell_lac = -1;
 static int hf_gsm_a_dlci_cc = -1;
 static int hf_gsm_a_dlci_spare = -1;
 static int hf_gsm_a_dlci_sapi = -1;
+static int hf_gsm_a_bssmap_cause = -1;
+static int hf_gsm_a_dtap_cause = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_bssmap_msg = -1;
@@ -710,6 +715,14 @@ static gint ett_bc_oct_6e = -1;
 static gint ett_bc_oct_6f = -1;
 static gint ett_bc_oct_6g = -1;
 static gint ett_bc_oct_7 = -1;
+
+static gint ett_tc_component = -1;
+static gint ett_tc_invoke_id = -1;
+static gint ett_tc_linked_id = -1;
+static gint ett_tc_opr_code = -1;
+static gint ett_tc_err_code = -1;
+static gint ett_tc_prob_code = -1;
+static gint ett_tc_sequence = -1;
 
 static char a_bigbuf[1024];
 static gchar a_add_string[1024];
@@ -1214,8 +1227,8 @@ be_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_
 	}
 
 	other_decode_bitfield_value(a_bigbuf, oct, 0x7f, 8);
-	proto_tree_add_text(tree,
-	    tvb, curr_offset, 1,
+	proto_tree_add_uint_format(tree, hf_gsm_a_bssmap_cause,
+	    tvb, curr_offset, 1, oct & 0x7f,
 	    "%s :  Cause: (%u) %s",
 	    a_bigbuf,
 	    oct & 0x7f,
@@ -5907,8 +5920,8 @@ de_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_
     }
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x7f, 8);
-    proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
+    proto_tree_add_uint_format(tree, hf_gsm_a_dtap_cause,
+	tvb, curr_offset, 1, cause,
 	"%s :  Cause: (%u) %s",
 	a_bigbuf,
 	cause,
@@ -5931,6 +5944,332 @@ de_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_
     return(curr_offset - offset);
 }
 
+
+#define	GSM_A_TC_START_SUBTREE(_Gtree, _Gsaved_offset, _Gtag, _Gstr1, _Gett, _Gdef_len_p, _Glen_p, _Gsubtree_p) \
+    { \
+	guint		_len_offset; \
+	proto_item	*_item; \
+ \
+	_len_offset = asn1->offset; \
+	asn1_length_decode(asn1, _Gdef_len_p, _Glen_p); \
+ \
+	_item = \
+	    proto_tree_add_text(_Gtree, asn1->tvb, _Gsaved_offset, -1, _Gstr1); \
+ \
+	_Gsubtree_p = proto_item_add_subtree(_item, _Gett); \
+ \
+	proto_tree_add_text(_Gsubtree_p, asn1->tvb, \
+	    _Gsaved_offset, _len_offset - _Gsaved_offset, "Tag: 0x%02x", _Gtag); \
+ \
+	if (*_Gdef_len_p) \
+	{ \
+	    proto_tree_add_text(_Gsubtree_p, asn1->tvb, \
+		_len_offset, asn1->offset - _len_offset, "Length: %d", *_Glen_p); \
+	} \
+	else \
+	{ \
+	    proto_tree_add_text(_Gsubtree_p, asn1->tvb, \
+		_len_offset, asn1->offset - _len_offset, "Length: Indefinite"); \
+ \
+	    *_Glen_p = tcap_find_eoc(asn1); \
+	} \
+ \
+	proto_item_set_len(_item, (asn1->offset - _Gsaved_offset) + *_Glen_p + \
+	    (*_Gdef_len_p ? 0 : TCAP_EOC_LEN)); \
+    }
+
+/*
+ * [6] 3.6
+ */
+static guint8
+de_facility(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+{
+    ASN1_SCK	asn1_real, *asn1;
+    proto_item	*item;
+    proto_tree	*subtree, *temp_subtree, *seq_subtree;
+    guint	saved_offset, comp_saved_offset, comp_len_offset, comp_data_offset;
+    guint	comp_len, temp_len;
+    gboolean	def_len[3];
+    guint	comp_tag, tag;
+    gchar	*str;
+    gint32	int_val;
+
+    add_string = add_string;
+
+    asn1 = &asn1_real;
+    asn1_open(asn1, tvb, offset);
+
+    /* call next dissector for EACH component */
+
+    while ((len - (asn1->offset - offset)) > 0)
+    {
+	comp_saved_offset = asn1->offset;
+	saved_offset = asn1->offset;
+	asn1_id_decode1(asn1, &comp_tag);
+
+	comp_len_offset = asn1->offset;
+	comp_len = 0;
+	def_len[0] = FALSE;
+	asn1_length_decode(asn1, &def_len[0], &comp_len);
+	comp_data_offset = asn1->offset;
+
+	if (def_len[0])
+	{
+	    temp_len = comp_len + (asn1->offset - saved_offset);
+	}
+	else
+	{
+	    comp_len = tcap_find_eoc(asn1);
+	    temp_len = comp_len + (asn1->offset - saved_offset) + TCAP_EOC_LEN;
+	}
+
+	item =
+	    proto_tree_add_text(tree, asn1->tvb, comp_saved_offset, temp_len, "Component");
+
+	subtree = proto_item_add_subtree(item, ett_tc_component);
+
+	str = match_strval((guint32) comp_tag, tcap_component_type_str);
+
+	if (str == NULL)
+	{
+	    proto_tree_add_text(subtree, asn1->tvb, comp_saved_offset, temp_len,
+		"Unknown component type tag, ignoring component");
+
+	    asn1->offset = comp_saved_offset + temp_len;
+	    continue;
+	}
+
+	proto_tree_add_text(subtree, asn1->tvb, comp_saved_offset,
+	    comp_len_offset - comp_saved_offset,
+	    "%s Type Tag: 0x%02x", str, comp_tag);
+
+	if (def_len[0])
+	{
+	    proto_tree_add_text(subtree, asn1->tvb,
+		comp_len_offset, asn1->offset - comp_len_offset, "Length: %d", comp_len);
+	}
+	else
+	{
+	    proto_tree_add_text(subtree, asn1->tvb,
+		comp_len_offset, asn1->offset - comp_len_offset, "Length: Indefinite");
+	}
+
+	saved_offset = asn1->offset;
+	asn1_id_decode1(asn1, &tag);
+
+	GSM_A_TC_START_SUBTREE(subtree, saved_offset, tag, "Invoke ID",
+	    ett_tc_invoke_id, &def_len[1], &temp_len, temp_subtree);
+
+	if (temp_len > 0)
+	{
+	    saved_offset = asn1->offset;
+	    asn1_int32_value_decode(asn1, temp_len, &int_val);
+
+	    proto_tree_add_text(temp_subtree, asn1->tvb,
+		saved_offset, temp_len, "Invoke ID: %d", int_val);
+	}
+
+	if (!def_len[1])
+	{
+	    saved_offset = asn1->offset;
+	    asn1_eoc_decode(asn1, -1);
+
+	    proto_tree_add_text(subtree, asn1->tvb,
+		saved_offset, asn1->offset - saved_offset, "End of Contents");
+	}
+
+	switch (comp_tag)
+	{
+	case TCAP_COMP_INVOKE:
+	    saved_offset = asn1->offset;
+	    asn1_id_decode1(asn1, &tag);
+
+	    if (tag == TCAP_LINKED_ID_TAG)
+	    {
+		GSM_A_TC_START_SUBTREE(subtree, saved_offset, tag, "Linked ID",
+		    ett_tc_linked_id, &def_len[1], &temp_len, temp_subtree);
+
+		if (temp_len > 0)
+		{
+		    saved_offset = asn1->offset;
+		    asn1_int32_value_decode(asn1, temp_len, &int_val);
+
+		    proto_tree_add_text(temp_subtree, asn1->tvb,
+			saved_offset, temp_len, "Linked ID: %d", int_val);
+		}
+
+		if (!def_len[1])
+		{
+		    saved_offset = asn1->offset;
+		    asn1_eoc_decode(asn1, -1);
+
+		    proto_tree_add_text(subtree, asn1->tvb,
+			saved_offset, asn1->offset - saved_offset, "End of Contents");
+		}
+
+		saved_offset = asn1->offset;
+		asn1_id_decode1(asn1, &tag);
+	    }
+
+	    GSM_A_TC_START_SUBTREE(subtree, saved_offset, tag, "Operation Code",
+		ett_tc_opr_code, &def_len[1], &temp_len, temp_subtree);
+
+	    if (temp_len > 0)
+	    {
+		saved_offset = asn1->offset;
+		asn1_int32_value_decode(asn1, temp_len, &int_val);
+
+		str = match_strval(int_val, gsm_ss_opr_code_strings);
+
+		proto_tree_add_text(temp_subtree, asn1->tvb,
+		    saved_offset, temp_len, "Operation Code: %s (%d)",
+		    (str == NULL) ? "Unknown Operation Code" : str,
+		    int_val);
+	    }
+
+	    if (!def_len[1])
+	    {
+		saved_offset = asn1->offset;
+		asn1_eoc_decode(asn1, -1);
+
+		proto_tree_add_text(subtree, asn1->tvb,
+		    saved_offset, asn1->offset - saved_offset, "End of Contents");
+	    }
+
+	    if ((comp_len - (asn1->offset - comp_data_offset)) > 0)
+	    {
+		gsm_ss_dissect(asn1, subtree,
+		    comp_len - (asn1->offset - comp_data_offset), int_val, comp_tag);
+	    }
+	    break;
+
+	case TCAP_COMP_RRL:
+	    if ((len - (asn1->offset - offset)) > 0)
+	    {
+		saved_offset = asn1->offset;
+		asn1_id_decode1(asn1, &tag);
+
+		GSM_A_TC_START_SUBTREE(subtree, saved_offset, tag, "Sequence",
+		    ett_tc_sequence, &def_len[1], &temp_len, seq_subtree);
+
+		saved_offset = asn1->offset;
+		asn1_id_decode1(asn1, &tag);
+
+		GSM_A_TC_START_SUBTREE(seq_subtree, saved_offset, tag, "Operation Code",
+		    ett_tc_opr_code, &def_len[2], &temp_len, temp_subtree);
+
+		if (temp_len > 0)
+		{
+		    saved_offset = asn1->offset;
+		    asn1_int32_value_decode(asn1, temp_len, &int_val);
+
+		    str = match_strval(int_val, gsm_ss_opr_code_strings);
+
+		    proto_tree_add_text(temp_subtree, asn1->tvb,
+			saved_offset, temp_len, "Operation Code: %s (%d)",
+			(str == NULL) ? "Unknown Operation Code" : str,
+			int_val);
+		}
+
+		if (!def_len[2])
+		{
+		    saved_offset = asn1->offset;
+		    asn1_eoc_decode(asn1, -1);
+
+		    proto_tree_add_text(subtree, asn1->tvb,
+			saved_offset, asn1->offset - saved_offset, "End of Contents");
+		}
+
+		if ((comp_len - (asn1->offset - comp_data_offset)) > 0)
+		{
+		    gsm_ss_dissect(asn1, seq_subtree,
+			comp_len - (asn1->offset - comp_data_offset), int_val, comp_tag);
+		}
+
+		if (!def_len[1])
+		{
+		    saved_offset = asn1->offset;
+		    asn1_eoc_decode(asn1, -1);
+
+		    proto_tree_add_text(subtree, asn1->tvb,
+			saved_offset, asn1->offset - saved_offset, "End of Contents");
+		}
+	    }
+	    break;
+
+	case TCAP_COMP_RE:
+	    saved_offset = asn1->offset;
+	    asn1_id_decode1(asn1, &tag);
+
+	    GSM_A_TC_START_SUBTREE(subtree, saved_offset, tag, "Error Code",
+		ett_tc_err_code, &def_len[1], &temp_len, temp_subtree);
+
+	    if (temp_len > 0)
+	    {
+		proto_tree_add_text(temp_subtree, asn1->tvb,
+		    asn1->offset, temp_len, "Error Code");
+
+		asn1->offset += temp_len;
+	    }
+
+	    if (!def_len[1])
+	    {
+		saved_offset = asn1->offset;
+		asn1_eoc_decode(asn1, -1);
+
+		proto_tree_add_text(subtree, asn1->tvb,
+		    saved_offset, asn1->offset - saved_offset, "End of Contents");
+	    }
+
+	    if ((comp_len - (asn1->offset - comp_data_offset)) > 0)
+	    {
+		/*
+		 * XXX need conversations to determine 'opr_code'
+		 */
+		gsm_ss_dissect(asn1, subtree,
+		    comp_len - (asn1->offset - comp_data_offset), 0, comp_tag);
+	    }
+	    break;
+
+	case TCAP_COMP_REJECT:
+	    saved_offset = asn1->offset;
+	    asn1_id_decode1(asn1, &tag);
+
+	    GSM_A_TC_START_SUBTREE(subtree, saved_offset, tag, "Problem Code",
+		ett_tc_prob_code, &def_len[1], &temp_len, temp_subtree);
+
+	    if (temp_len > 0)
+	    {
+		proto_tree_add_text(temp_subtree, asn1->tvb,
+		    asn1->offset, temp_len, "Problem Code");
+
+		asn1->offset += temp_len;
+	    }
+
+	    if (!def_len[1])
+	    {
+		saved_offset = asn1->offset;
+		asn1_eoc_decode(asn1, -1);
+
+		proto_tree_add_text(subtree, asn1->tvb,
+		    saved_offset, asn1->offset - saved_offset, "End of Contents");
+	    }
+	    break;
+	}
+
+	if (!def_len[0])
+	{
+	    saved_offset = asn1->offset;
+	    asn1_eoc_decode(asn1, -1);
+
+	    proto_tree_add_text(subtree, asn1->tvb,
+		saved_offset, asn1->offset - saved_offset, "End of Contents");
+	}
+    }
+
+    return(len);
+}
+
 /*
  * [3] 10.5.4.17
  */
@@ -5939,7 +6278,6 @@ de_keypad_facility(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, g
 {
     guint8	oct;
     guint32	curr_offset;
-    gchar	*str;
 
     len = len;
     curr_offset = offset;
@@ -5951,16 +6289,6 @@ de_keypad_facility(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, g
 	tvb, curr_offset, 1,
 	"%s :  Spare",
 	a_bigbuf);
-
-    switch ((oct & 0x60) >> 5)
-    {
-    case 0: str = "Coding as specified in ITU-T Rec. Q.931"; break;
-    case 1: str = "Reserved for other international standards"; break;
-    case 2: str = "National standard"; break;
-    default:
-	str = "Standard defined for the GSM PLMNS";
-	break;
-    }
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x7f, 8);
     proto_tree_add_text(tree,
@@ -5974,6 +6302,113 @@ de_keypad_facility(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, g
     sprintf(add_string, " - %c", oct & 0x7f);
 
     /* no length check possible */
+
+    return(curr_offset - offset);
+}
+
+/*
+ * [3] 10.5.4.21
+ */
+static guint8
+de_prog_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+{
+    guint8	oct;
+    guint32	curr_offset;
+    gchar	*str;
+
+    len = len;
+    curr_offset = offset;
+
+    oct = tvb_get_guint8(tvb, curr_offset);
+
+    other_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
+    proto_tree_add_text(tree,
+	tvb, curr_offset, 1,
+	"%s :  Extension: %s",
+	a_bigbuf,
+	(oct & 0x80) ? "extended" : "not extended");
+
+    switch ((oct & 0x60) >> 5)
+    {
+    case 0: str = "Coding as specified in ITU-T Rec. Q.931"; break;
+    case 1: str = "Reserved for other international standards"; break;
+    case 2: str = "National standard"; break;
+    default:
+	str = "Standard defined for the GSM PLMNS";
+	break;
+    }
+
+    other_decode_bitfield_value(a_bigbuf, oct, 0x60, 8);
+    proto_tree_add_text(tree,
+	tvb, curr_offset, 1,
+	"%s :  Coding standard: %s",
+	a_bigbuf,
+	str);
+
+    other_decode_bitfield_value(a_bigbuf, oct, 0x10, 8);
+    proto_tree_add_text(tree,
+	tvb, curr_offset, 1,
+	"%s :  Spare",
+	a_bigbuf);
+
+    switch (oct & 0x0f)
+    {
+    case 0: str = "User"; break;
+    case 1: str = "Private network serving the local user"; break;
+    case 2: str = "Public network serving the local user"; break;
+    case 4: str = "Public network serving the remote user"; break;
+    case 5: str = "Private network serving the remote user"; break;
+    case 10: str = "Network beyond interworking point"; break;
+    default:
+	str = "Reserved";
+	break;
+    }
+
+    other_decode_bitfield_value(a_bigbuf, oct, 0x0f, 8);
+    proto_tree_add_text(tree,
+	tvb, curr_offset, 1,
+	"%s :  Location: %s",
+	a_bigbuf,
+	str);
+
+    curr_offset++;
+
+    oct = tvb_get_guint8(tvb, curr_offset);
+
+    other_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
+    proto_tree_add_text(tree,
+	tvb, curr_offset, 1,
+	"%s :  Extension: %s",
+	a_bigbuf,
+	(oct & 0x80) ? "extended" : "not extended");
+
+    switch (oct & 0x7f)
+    {
+    case 1: str = "Call is not end-to-end PLMN/ISDN, further call progress information may be available in-band"; break;
+    case 2: str = "Destination address in non-PLMN/ISDN"; break;
+    case 3: str = "Origination address in non-PLMN/ISDN"; break;
+    case 4: str = "Call has returned to the PLMN/ISDN"; break;
+    case 8: str = "In-band information or appropriate pattern now available"; break;
+    case 32: str = "Call is end-to-end PLMN/ISDN"; break;
+    case 64: str = "Queueing"; break;
+    default:
+	str = "Unspecific";
+	break;
+    }
+
+    other_decode_bitfield_value(a_bigbuf, oct, 0x7f, 8);
+    proto_tree_add_text(tree,
+	tvb, curr_offset, 1,
+	"%s :  Progress Description: %s (%d)",
+	a_bigbuf,
+	str,
+	oct & 0x7f);
+
+    sprintf(add_string, " - %d", oct & 0x7f);
+
+    curr_offset++;
+
+    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
     return(curr_offset - offset);
 }
@@ -6409,13 +6844,13 @@ static guint8 (*dtap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset
     NULL /* handled inline */,	/* Congestion Level */
     NULL,	/* Connected Number */
     NULL,	/* Connected Subaddress */
-    NULL,	/* Facility */
+    de_facility,	/* Facility */
     NULL,	/* High Layer Compatibility */
     de_keypad_facility,	/* Keypad Facility */
     NULL,	/* Low Layer Compatibility */
     NULL,	/* More Data */
     NULL,	/* Notification Indicator */
-    NULL,	/* Progress Indicator */
+    de_prog_ind,	/* Progress Indicator */
     NULL,	/* Recall type $(CCBS)$ */
     NULL,	/* Redirecting Party BCD Number */
     NULL,	/* Redirecting Party Subaddress */
@@ -10723,19 +11158,32 @@ proto_register_gsm_a(void)
 	{ &hf_gsm_a_dlci_cc,
 	    { "Control Channel", "bssap.dlci.cc",
 	    FT_UINT8, BASE_HEX, VALS(bssap_cc_values), 0xc0,
-	    "", HFILL}},
+	    "", HFILL}
+	},
 	{ &hf_gsm_a_dlci_spare,
 	    { "Spare", "bssap.dlci.spare",
 	    FT_UINT8, BASE_HEX, NULL, 0x38,
-	    "", HFILL}},
+	    "", HFILL}
+	},
 	{ &hf_gsm_a_dlci_sapi,
 	    { "SAPI", "bssap.dlci.sapi",
 	    FT_UINT8, BASE_HEX, VALS(bssap_sapi_values), 0x07,
-	    "", HFILL}},
+	    "", HFILL}
+	},
+	{ &hf_gsm_a_bssmap_cause,
+	    { "BSSMAP Cause",	"gsm_a_bssmap.cause",
+	    FT_UINT8, BASE_HEX, 0, 0x0,
+	    "", HFILL }
+	},
+	{ &hf_gsm_a_dtap_cause,
+	    { "DTAP Cause",	"gsm_a_dtap.cause",
+	    FT_UINT8, BASE_HEX, 0, 0x0,
+	    "", HFILL }
+	},
     };
 
     /* Setup protocol subtree array */
-#define	NUM_INDIVIDUAL_ELEMS	24
+#define	NUM_INDIVIDUAL_ELEMS	33
     static gint *ett[NUM_INDIVIDUAL_ELEMS + NUM_GSM_BSSMAP_MSG +
 			NUM_GSM_DTAP_MSG_MM + NUM_GSM_DTAP_MSG_RR + NUM_GSM_DTAP_MSG_CC +
 			NUM_GSM_DTAP_MSG_GMM + NUM_GSM_DTAP_MSG_SMS +
@@ -10768,6 +11216,16 @@ proto_register_gsm_a(void)
     ett[21] = &ett_bc_oct_6f;
     ett[22] = &ett_bc_oct_6g;
     ett[23] = &ett_bc_oct_7;
+
+    ett[24] = &ett_tc_component;
+    ett[25] = &ett_tc_invoke_id;
+    ett[26] = &ett_tc_linked_id;
+    ett[27] = &ett_tc_opr_code;
+    ett[28] = &ett_tc_err_code;
+    ett[29] = &ett_tc_prob_code;
+    ett[30] = &ett_tc_sequence;
+    ett[31] = &gsm_ss_ett_sequence;
+    ett[32] = &gsm_ss_ett_param;
 
     last_offset = NUM_INDIVIDUAL_ELEMS;
 

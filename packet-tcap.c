@@ -9,7 +9,7 @@
  *
  * (append your name here for newer version)
  *
- * $Id: packet-tcap.c,v 1.8 2004/03/05 10:05:03 guy Exp $
+ * $Id: packet-tcap.c,v 1.9 2004/03/19 07:54:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -61,8 +61,8 @@
 
 #include <epan/packet.h>
 #include "prefs.h"
-#include "packet-tcap.h"
 #include "asn1.h"
+#include "packet-tcap.h"
 
 Tcap_Standard_Type tcap_standard = ITU_TCAP_STANDARD;
 
@@ -106,11 +106,6 @@ static dissector_handle_t data_handle;
 static dissector_table_t tcap_itu_ssn_dissector_table; /* map use ssn in sccp */
 static dissector_table_t tcap_ansi_ssn_dissector_table; /* map use ssn in sccp */
 static gboolean lock_info_col = TRUE;
-
-#define TC_SEQ_TAG 0x30
-#define TC_SET_TAG 0x31
-
-#define TC_EOC_LEN	2 /* 0x00 0x00 */
 
 /* TCAP transaction message type definition - Samuel */
 #define ST_MSG_TYP_UNI 0x61 /*0b01100001*/
@@ -176,27 +171,20 @@ static const value_string dlg_type_strings[] = {
 	{ 0, NULL },
 };
 
-/* TCAP component type */
-#define TC_INVOKE 0xa1
-#define TC_RRL 0xa2
-#define TC_RE 0xa3
-#define TC_REJECT 0xa4
-#define TC_RRN 0xa7
-
-/* ANSI TCAP component type */
-#define ANSI_TC_INVOKE_L 0xe9
-#define ANSI_TC_RRL 0xea
-#define ANSI_TC_RE 0xeb
-#define ANSI_TC_REJECT 0xec
-#define ANSI_TC_INVOKE_N 0xed
-#define ANSI_TC_RRN 0xee
+const value_string tcap_component_type_str[] = {
+    { TCAP_COMP_INVOKE,		"Invoke" },
+    { TCAP_COMP_RRL,		"Return Result(L)" },
+    { TCAP_COMP_RE,		"Return Error" },
+    { TCAP_COMP_REJECT,		"Reject" },
+    { TCAP_COMP_RRN,		"Return Result(NL)" },
+    { 0,			NULL } };
 
 #define TC_DS_OK 1
 #define TC_DS_FAIL 0
 
 
-static int
-find_eoc(ASN1_SCK *asn1)
+int
+tcap_find_eoc(ASN1_SCK *asn1)
 {
     guint	saved_offset;
     guint	tag;
@@ -216,7 +204,7 @@ find_eoc(ASN1_SCK *asn1)
 	}
 	else
 	{
-	    asn1->offset += find_eoc(asn1);
+	    asn1->offset += tcap_find_eoc(asn1);
 	    asn1_eoc_decode(asn1, -1);
 	}
     }
@@ -227,7 +215,23 @@ find_eoc(ASN1_SCK *asn1)
     return(len);
 }
 
-/* dissect length */
+gboolean
+tcap_check_tag(ASN1_SCK *asn1, guint tag)
+{
+    guint saved_offset, real_tag;
+
+    if (tvb_length_remaining(asn1->tvb, asn1->offset) <= 0)
+    {
+	return (FALSE);
+    }
+
+    saved_offset = asn1->offset;
+    asn1_id_decode1(asn1, &real_tag);
+    asn1->offset = saved_offset;
+    return (tag == real_tag);
+}
+
+
 static int
 dissect_tcap_len(ASN1_SCK *asn1, proto_tree *tree, gboolean *def_len, guint *len)
 {
@@ -320,22 +324,6 @@ dissect_tcap_integer(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar * str)
     return TC_DS_OK;
 }
 
-static gboolean
-check_tcap_tag(ASN1_SCK *asn1, guint tag)
-{
-    guint saved_offset, real_tag;
-
-    if (tvb_length_remaining(asn1->tvb, asn1->offset) <= 0)
-    {
-	return (FALSE);
-    }
-
-    saved_offset = asn1->offset;
-    asn1_id_decode1(asn1, &real_tag);
-    asn1->offset = saved_offset;
-    return (tag == real_tag);
-}
-
 /* dissect tid */
 static int
 dissect_tcap_tid(ASN1_SCK *asn1, proto_tree *tcap_tree, proto_item *ti, int type)
@@ -424,7 +412,7 @@ dissect_tcap_invokeId(ASN1_SCK *asn1, proto_tree *tree)
     gboolean def_len;
 
 #define INVOKE_ID_TAG 0x2
-    if (check_tcap_tag(asn1, INVOKE_ID_TAG))
+    if (tcap_check_tag(asn1, INVOKE_ID_TAG))
     {
 	tag = -1;
 	dissect_tcap_tag(asn1, tree, &tag, "Invoke ID Tag");
@@ -442,8 +430,7 @@ dissect_tcap_lnkId(ASN1_SCK *asn1, proto_tree *tree)
     guint tag;
     gboolean def_len;
 
-#define LINK_ID_TAG 0x80
-    if (check_tcap_tag(asn1, LINK_ID_TAG))
+    if (tcap_check_tag(asn1, TCAP_LINKED_ID_TAG))
     {
 	tag = -1;
 	dissect_tcap_tag(asn1, tree, &tag, "Linked ID Tag");
@@ -463,14 +450,14 @@ dissect_tcap_opr_code(ASN1_SCK *asn1, proto_tree *tree)
     gboolean def_len;
 
 #define TCAP_LOC_OPR_CODE_TAG 0x02
-    if (check_tcap_tag(asn1, TCAP_LOC_OPR_CODE_TAG))
+    if (tcap_check_tag(asn1, TCAP_LOC_OPR_CODE_TAG))
     {
 	tag = -1;
 	dissect_tcap_tag(asn1, tree, &tag, "Local Operation Code Tag");
 	got_it = TRUE;
     }
 #define TCAP_GLB_OPR_CODE_TAG 0x06
-    else if (check_tcap_tag(asn1, TCAP_GLB_OPR_CODE_TAG))
+    else if (tcap_check_tag(asn1, TCAP_GLB_OPR_CODE_TAG))
     {
 	tag = -1;
 	dissect_tcap_tag(asn1, tree, &tag, "Global Operation Code Tag");
@@ -500,7 +487,7 @@ dissect_tcap_param(ASN1_SCK *asn1, proto_tree *tree, guint exp_len)
 
 #define TC_INVALID_TAG 0
     while ((tvb_length_remaining(asn1->tvb, asn1->offset) > 0) &&
-	(!check_tcap_tag(asn1, 0)))
+	(!tcap_check_tag(asn1, 0)))
     {
 	if ((exp_len != 0) &&
 	    ((asn1->offset - orig_offset) >= exp_len))
@@ -513,7 +500,7 @@ dissect_tcap_param(ASN1_SCK *asn1, proto_tree *tree, guint exp_len)
 	len_offset = asn1->offset;
 	asn1_length_decode(asn1, &def_len, &len);
 
-	if (tag == TC_SEQ_TAG)
+	if (TCAP_CONSTRUCTOR(tag))
 	{
 	    item =
 		proto_tree_add_text(tree, asn1->tvb, saved_offset, -1, "Sequence");
@@ -533,12 +520,12 @@ dissect_tcap_param(ASN1_SCK *asn1, proto_tree *tree, guint exp_len)
 		proto_tree_add_text(subtree, asn1->tvb,
 		    len_offset, asn1->offset - len_offset, "Length: Indefinite");
 
-		len = find_eoc(asn1);
+		len = tcap_find_eoc(asn1);
 	    }
 
 	    proto_item_set_len(item,
 		(asn1->offset - saved_offset) + len +
-		(def_len ? 0 : TC_EOC_LEN));
+		(def_len ? 0 : TCAP_EOC_LEN));
 
 	    dissect_tcap_param(asn1, subtree, len);
 
@@ -557,7 +544,7 @@ dissect_tcap_param(ASN1_SCK *asn1, proto_tree *tree, guint exp_len)
 	    proto_tree_add_text(tree, asn1->tvb,
 		len_offset, asn1->offset - len_offset, "Length: Indefinite");
 
-	    len = find_eoc(asn1);
+	    len = tcap_find_eoc(asn1);
 
 	    dissect_tcap_param(asn1, tree, len);
 
@@ -643,11 +630,11 @@ dissect_tcap_problem(ASN1_SCK *asn1, proto_tree *tree)
 
     if (!def_len)
     {
-	len = find_eoc(asn1);
+	len = tcap_find_eoc(asn1);
     }
 
     proto_item_set_len(item, (asn1->offset - saved_offset) + len +
-	(def_len ? 0 : TC_EOC_LEN));
+	(def_len ? 0 : TCAP_EOC_LEN));
 
     if (len != 1)
     {
@@ -761,14 +748,14 @@ dissect_ansi_opr_code(ASN1_SCK *asn1, proto_tree *tree)
     gboolean def_len;
 
 #define TCAP_NAT_OPR_CODE_TAG 0xd0
-    if (check_tcap_tag(asn1, TCAP_NAT_OPR_CODE_TAG))
+    if (tcap_check_tag(asn1, TCAP_NAT_OPR_CODE_TAG))
     {
 	tag = -1;
 	dissect_tcap_tag(asn1, tree, &tag, "National TCAP Operation Code Identifier");
 	got_it = TRUE;
     }
 #define TCAP_PRIV_OPR_CODE_TAG 0xd1
-    else if (check_tcap_tag(asn1, TCAP_PRIV_OPR_CODE_TAG))
+    else if (tcap_check_tag(asn1, TCAP_PRIV_OPR_CODE_TAG))
     {
 	tag = -1;
 	dissect_tcap_tag(asn1, tree, &tag, "Private TCAP Operation Code Identifier");
@@ -800,7 +787,7 @@ dissect_ansi_problem(ASN1_SCK *asn1, proto_tree *tree)
 
 
 #define TCAP_PROB_CODE_TAG 0xd5
-    if (check_tcap_tag(asn1, TCAP_PROB_CODE_TAG))
+    if (tcap_check_tag(asn1, TCAP_PROB_CODE_TAG))
     {
 	str = "Problem Code Identifier";
     }
@@ -941,12 +928,12 @@ dissect_ansi_error(ASN1_SCK *asn1, proto_tree *tree)
 
 
 #define TCAP_NAT_ERR_CODE_TAG 0xd3
-    if (check_tcap_tag(asn1, TCAP_NAT_ERR_CODE_TAG))
+    if (tcap_check_tag(asn1, TCAP_NAT_ERR_CODE_TAG))
     {
 	str = "National TCAP Error Code Identifier";
     }
 #define TCAP_PRIV_ERR_CODE_TAG 0xd4
-    else if (check_tcap_tag(asn1, TCAP_PRIV_ERR_CODE_TAG))
+    else if (tcap_check_tag(asn1, TCAP_PRIV_ERR_CODE_TAG))
     {
 	str = "Private TCAP Error Code Identifier";
     }
@@ -986,14 +973,14 @@ dissect_ansi_param(ASN1_SCK *asn1, proto_tree *tree)
     gboolean def_len;
 
 #define TCAP_PARAM_SET_TAG 0xf2
-    if (check_tcap_tag(asn1, TCAP_PARAM_SET_TAG))
+    if (tcap_check_tag(asn1, TCAP_PARAM_SET_TAG))
     {
 	tag = -1;
 	dissect_tcap_tag(asn1, tree, &tag, "Parameter Set Identifier");
 	got_it = TRUE;
     }
 #define TCAP_PARAM_SEQ_TAG 0x30
-    else if (check_tcap_tag(asn1, TCAP_PARAM_SEQ_TAG))
+    else if (tcap_check_tag(asn1, TCAP_PARAM_SEQ_TAG))
     {
 	tag = -1;
 	dissect_tcap_tag(asn1, tree, &tag, "Parameter Sequence Identifier");
@@ -1017,7 +1004,7 @@ dissect_ansi_tcap_reject(ASN1_SCK *asn1, proto_tree *tree)
     proto_tree *subtree;
 
 #define COMPONENT_ID_TAG 0xcf
-    if (check_tcap_tag(asn1, COMPONENT_ID_TAG))
+    if (tcap_check_tag(asn1, COMPONENT_ID_TAG))
     {
 	subtree = dissect_tcap_component(asn1, tree, &len);
 
@@ -1041,7 +1028,7 @@ dissect_ansi_tcap_re(ASN1_SCK *asn1, proto_tree *tree)
     proto_tree *subtree;
 
 #define COMPONENT_ID_TAG 0xcf
-    if (check_tcap_tag(asn1, COMPONENT_ID_TAG))
+    if (tcap_check_tag(asn1, COMPONENT_ID_TAG))
     {
 	subtree = dissect_tcap_component(asn1, tree, &len);
 
@@ -1065,7 +1052,7 @@ dissect_ansi_tcap_rr(ASN1_SCK *asn1, proto_tree *tree)
     proto_tree *subtree;
 
 #define COMPONENT_ID_TAG 0xcf
-    if (check_tcap_tag(asn1, COMPONENT_ID_TAG))
+    if (tcap_check_tag(asn1, COMPONENT_ID_TAG))
     {
 	subtree = dissect_tcap_component(asn1, tree, &len);
 
@@ -1087,7 +1074,7 @@ dissect_ansi_tcap_invoke(ASN1_SCK *asn1, proto_tree *tree)
     proto_tree *subtree;
 
 #define COMPONENT_ID_TAG 0xcf
-    if (check_tcap_tag(asn1, COMPONENT_ID_TAG))
+    if (tcap_check_tag(asn1, COMPONENT_ID_TAG))
     {
 	subtree = dissect_tcap_component(asn1, tree, &len);
 
@@ -1148,7 +1135,7 @@ dissect_tcap_invoke(ASN1_SCK *asn1, proto_tree *tree)
     }
     else
     {
-	len = find_eoc(asn1);
+	len = tcap_find_eoc(asn1);
     }
 
     dissect_tcap_param(asn1, subtree, len);
@@ -1202,7 +1189,7 @@ dissect_tcap_rr(ASN1_SCK *asn1, proto_tree *tree, gchar *str)
     tag = -1;
     asn1_id_decode1(asn1, &tag);
 
-    if (tag == TC_SEQ_TAG)
+    if (TCAP_CONSTRUCTOR(tag))
     {
 	len_offset = asn1->offset;
 	asn1_length_decode(asn1, &def_len, &len);
@@ -1225,12 +1212,12 @@ dissect_tcap_rr(ASN1_SCK *asn1, proto_tree *tree, gchar *str)
 	    proto_tree_add_text(seq_subtree, asn1->tvb,
 		len_offset, asn1->offset - len_offset, "Length: Indefinite");
 
-	    len = find_eoc(asn1);
+	    len = tcap_find_eoc(asn1);
 	}
 
 	proto_item_set_len(seq_item,
 	    (asn1->offset - saved_offset) + len +
-	    (def_len ? 0 : TC_EOC_LEN));
+	    (def_len ? 0 : TCAP_EOC_LEN));
 
 	saved_offset = asn1->offset;
 
@@ -1281,7 +1268,7 @@ dissect_tcap_re(ASN1_SCK *asn1, proto_tree *tree)
 
     if (!comp_def_len)
     {
-	comp_len = find_eoc(asn1);
+	comp_len = tcap_find_eoc(asn1);
     }
 
     saved_offset = asn1->offset;
@@ -1290,12 +1277,12 @@ dissect_tcap_re(ASN1_SCK *asn1, proto_tree *tree)
 
 #define TC_LOCAL_ERR_CODE_TAG 0x2
 #define TC_GBL_ERR_CODE_TAG 0x6
-    if (check_tcap_tag(asn1, TC_LOCAL_ERR_CODE_TAG))
+    if (tcap_check_tag(asn1, TC_LOCAL_ERR_CODE_TAG))
     {
 	tag = -1;
 	dissect_tcap_tag(asn1, subtree, &tag, "Local Error Code Tag");
     }
-    else if (check_tcap_tag(asn1, TC_GBL_ERR_CODE_TAG))
+    else if (tcap_check_tag(asn1, TC_GBL_ERR_CODE_TAG))
     {
 	tag = -1;
 	dissect_tcap_tag(asn1, subtree, &tag, "Global Error Code Tag");
@@ -1529,8 +1516,8 @@ dissect_tcap_components(ASN1_SCK *asn1, proto_tree *tcap_tree)
     /* call next dissector for EACH component */
 
     keep_len =
-	(comps_def_len ? 0 : TC_EOC_LEN) +
-	(g_tcap_ends_def_len ? 0 : TC_EOC_LEN);
+	(comps_def_len ? 0 : TCAP_EOC_LEN) +
+	(g_tcap_ends_def_len ? 0 : TCAP_EOC_LEN);
 
     while (tvb_length_remaining(asn1->tvb, asn1->offset) > keep_len)
     {
@@ -1548,7 +1535,7 @@ dissect_tcap_components(ASN1_SCK *asn1, proto_tree *tcap_tree)
 	}
 	else
 	{
-	    comp_len = (asn1->offset - saved_offset) + find_eoc(asn1) + TC_EOC_LEN;
+	    comp_len = (asn1->offset - saved_offset) + tcap_find_eoc(asn1) + TCAP_EOC_LEN;
 	}
 
 	next_tvb = tvb_new_subset(asn1->tvb, saved_offset, comp_len, comp_len);
@@ -1565,19 +1552,19 @@ dissect_tcap_components(ASN1_SCK *asn1, proto_tree *tcap_tree)
 	{
 	    switch (tag)
 	    {
-	    case TC_INVOKE :
+	    case TCAP_COMP_INVOKE :
 		dissect_tcap_invoke(asn1, subtree);
 		break;
-	    case TC_RRL :
+	    case TCAP_COMP_RRL :
 		dissect_tcap_rr(asn1, subtree, "Return Result(Last) Type Tag");
 		break;
-	    case TC_RE :
+	    case TCAP_COMP_RE :
 		dissect_tcap_re(asn1, subtree);
 		break;
-	    case TC_REJECT :
+	    case TCAP_COMP_REJECT :
 		dissect_tcap_reject(asn1, subtree);
 		break;
-	    case TC_RRN :
+	    case TCAP_COMP_RRN :
 		/* same definition as RRL */
 		dissect_tcap_rr(asn1, subtree, "Return Result(Not Last) Type Tag");
 		break;
@@ -1610,7 +1597,7 @@ dissect_tcap_dlg_protocol_version(ASN1_SCK *asn1, proto_tree *tcap_tree, proto_i
     gboolean def_len;
 
 #define TC_DLG_PROTO_VER_TAG 0x80
-    if (check_tcap_tag(asn1, TC_DLG_PROTO_VER_TAG))
+    if (tcap_check_tag(asn1, TC_DLG_PROTO_VER_TAG))
     {
 	saved_offset = asn1->offset;
 	ret = asn1_id_decode1(asn1, &tag);
@@ -1721,13 +1708,13 @@ dissect_tcap_dlg_result_src_diag(ASN1_SCK *asn1, proto_tree *tree)
 
 #define TC_DIAG_SERV_USER_TAG 0xa1
 #define TC_DIAG_SERV_PROV_TAG 0xa2
-    if (check_tcap_tag(asn1, TC_DIAG_SERV_USER_TAG))
+    if (tcap_check_tag(asn1, TC_DIAG_SERV_USER_TAG))
     {
 	tag = -1;
 	dissect_tcap_tag(asn1, tree, &tag, "Dialogue Service User Tag");
 	user = TRUE;
     }
-    else if (check_tcap_tag(asn1, TC_DIAG_SERV_PROV_TAG))
+    else if (tcap_check_tag(asn1, TC_DIAG_SERV_PROV_TAG))
     {
 	tag = -1;
 	dissect_tcap_tag(asn1, tree, &tag, "Dialogue Service Provider Tag");
@@ -1800,14 +1787,14 @@ dissect_tcap_dlg_user_info(ASN1_SCK *asn1, proto_tree *tree)
     gboolean user_info_def_len;
 
 #define TC_USR_INFO_TAG 0xbe
-    if (check_tcap_tag(asn1, TC_USR_INFO_TAG))
+    if (tcap_check_tag(asn1, TC_USR_INFO_TAG))
     {
 	tag = -1;
 	dissect_tcap_tag(asn1, tree, &tag, "User Info Tag");
 	dissect_tcap_len(asn1, tree, &user_info_def_len, &len);
 
 #define TC_EXT_TAG 0x28
-	if (check_tcap_tag(asn1, TC_EXT_TAG))
+	if (tcap_check_tag(asn1, TC_EXT_TAG))
 	{
 	    saved_offset = asn1->offset;
 	    asn1_id_decode1(asn1, &tag);
@@ -2114,7 +2101,7 @@ dissect_tcap_abort_reason(ASN1_SCK *asn1, proto_tree *tcap_tree)
 
 #define TC_PABRT_REASON_TAG 0x4a
     tag = TC_PABRT_REASON_TAG;
-    if (check_tcap_tag(asn1, tag))
+    if (tcap_check_tag(asn1, tag))
     {
 	saved_offset = asn1->offset;
 	item =

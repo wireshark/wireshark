@@ -1836,6 +1836,7 @@ Michael Lum <mlum [AT] telostech.com> {
 	GSM SMS (3GPP TS 24.011) support
 	GSM SS (3GPP TS 24.080) support
 	GSM SMS TPDU (3GPP TS 23.040) support
+	GSM Supplementary Services support
 	GSM MAP fixes and parameter separation
 	Taps for ANSI A-interface statistics
 	Support for SS7 point codes as address types

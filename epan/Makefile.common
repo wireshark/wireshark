@@ -3,7 +3,7 @@
 #     a) common to both files and
 #     b) portable between both files
 #
-# $Id: Makefile.common,v 1.8 2004/03/18 08:25:09 guy Exp $
+# $Id: Makefile.common,v 1.9 2004/03/19 07:54:58 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -198,6 +198,7 @@ DISSECTOR_SRC =	\
 	../packet-gsm_map.c	\
 	../packet-gsm_sms.c	\
 	../packet-gsm_sms_ud.c	\
+	../packet-gsm_ss.c	\
 	../packet-gssapi.c	\
 	../packet-gtp.c	\
 	../packet-gvrp.c	\

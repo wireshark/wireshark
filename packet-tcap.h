@@ -1,6 +1,6 @@
 /* packet-tcap.h
  *
- * $Id: packet-tcap.h,v 1.2 2003/12/21 04:31:57 jmayer Exp $
+ * $Id: packet-tcap.h,v 1.3 2004/03/19 07:54:58 guy Exp $
  *
  * Copyright 2003, Michael Lum <mlum [AT] telostech.com>,
  * In association with Telos Technology Inc.
@@ -27,8 +27,38 @@
  */
 
 typedef enum {
-  ITU_TCAP_STANDARD  = 1,
-  ANSI_TCAP_STANDARD = 2
+    ITU_TCAP_STANDARD  = 1,
+    ANSI_TCAP_STANDARD = 2
 } Tcap_Standard_Type;
 
 extern Tcap_Standard_Type tcap_standard;
+
+extern const value_string tcap_component_type_str[];
+
+/* TCAP component type */
+#define TCAP_COMP_INVOKE	0xa1
+#define TCAP_COMP_RRL		0xa2
+#define TCAP_COMP_RE		0xa3
+#define TCAP_COMP_REJECT	0xa4
+#define TCAP_COMP_RRN		0xa7
+
+/* ANSI TCAP component type */
+#define ANSI_TC_INVOKE_L	0xe9
+#define ANSI_TC_RRL		0xea
+#define ANSI_TC_RE		0xeb
+#define ANSI_TC_REJECT		0xec
+#define ANSI_TC_INVOKE_N	0xed
+#define ANSI_TC_RRN		0xee
+
+#define	TCAP_SEQ_TAG		0x30
+#define	TCAP_SET_TAG		0x31
+
+#define TCAP_INVOKE_ID_TAG	0x02
+#define TCAP_LINKED_ID_TAG	0x80
+
+#define	TCAP_EOC_LEN		2		/* 0x00 0x00 */
+
+#define	TCAP_CONSTRUCTOR(TCtag)	(TCtag & 0x20)
+
+extern int tcap_find_eoc(ASN1_SCK *asn1);
+extern gboolean tcap_check_tag(ASN1_SCK *asn1, guint tag);
