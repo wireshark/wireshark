@@ -2715,19 +2715,37 @@ write_preamble(capture_file *cf)
   }
 }
 
+static char *
+get_line_buf(size_t len)
+{
+  static char *line_bufp = NULL;
+  static size_t line_buf_len = 256;
+  size_t new_line_buf_len;
+
+  for (new_line_buf_len = line_buf_len; len > new_line_buf_len;
+       new_line_buf_len *= 2)
+    ;
+  if (line_bufp == NULL) {
+    line_buf_len = new_line_buf_len;
+    line_bufp = g_malloc(line_buf_len + 1);
+  } else {
+    if (new_line_buf_len > line_buf_len) {
+      line_buf_len = new_line_buf_len;
+      line_bufp = g_realloc(line_bufp, line_buf_len + 1);
+    }
+  }
+  return line_bufp;
+}
+
 static gboolean
 print_columns(capture_file *cf)
 {
-  static char *line_bufp = NULL;
-  static size_t line_buf_len = 0;
+  char *line_bufp;
   int i;
   size_t buf_offset;
   size_t column_len;
 
-  if (line_bufp == NULL) {
-    line_buf_len = 256;
-    line_bufp = g_malloc(line_buf_len + 1);
-  }
+  line_bufp = get_line_buf(256);
   buf_offset = 0;
   *line_bufp = '\0';
   for (i = 0; i < cf->cinfo.num_cols; i++) {
@@ -2749,11 +2767,8 @@ print_columns(capture_file *cf)
       column_len = strlen(cf->cinfo.col_data[i]);
       if (column_len < 3)
         column_len = 3;
-      if (buf_offset + column_len > line_buf_len) {
-        line_buf_len *= 2;
-        line_bufp = g_realloc(line_bufp, line_buf_len + 1);
-      }
-      snprintf(line_bufp + buf_offset, COL_MAX_LEN+1, "%3s", cf->cinfo.col_data[i]);
+      line_bufp = get_line_buf(buf_offset + column_len);
+      sprintf(line_bufp + buf_offset, "%3s", cf->cinfo.col_data[i]);
       break;
 
     case COL_CLS_TIME:
@@ -2763,11 +2778,8 @@ print_columns(capture_file *cf)
       column_len = strlen(cf->cinfo.col_data[i]);
       if (column_len < 10)
         column_len = 10;
-      if (buf_offset + column_len > line_buf_len) {
-        line_buf_len *= 2;
-        line_bufp = g_realloc(line_bufp, line_buf_len + 1);
-      }
-      snprintf(line_bufp + buf_offset, COL_MAX_LEN+1, "%10s", cf->cinfo.col_data[i]);
+      line_bufp = get_line_buf(buf_offset + column_len);
+      sprintf(line_bufp + buf_offset, "%10s", cf->cinfo.col_data[i]);
       break;
 
     case COL_DEF_SRC:
@@ -2782,11 +2794,8 @@ print_columns(capture_file *cf)
       column_len = strlen(cf->cinfo.col_data[i]);
       if (column_len < 12)
         column_len = 12;
-      if (buf_offset + column_len > line_buf_len) {
-        line_buf_len *= 2;
-        line_bufp = g_realloc(line_bufp, line_buf_len + 1);
-      }
-      snprintf(line_bufp + buf_offset, COL_MAX_LEN+1, "%12s", cf->cinfo.col_data[i]);
+      line_bufp = get_line_buf(buf_offset + column_len);
+      sprintf(line_bufp + buf_offset, "%12s", cf->cinfo.col_data[i]);
       break;
 
     case COL_DEF_DST:
@@ -2801,19 +2810,13 @@ print_columns(capture_file *cf)
       column_len = strlen(cf->cinfo.col_data[i]);
       if (column_len < 12)
         column_len = 12;
-      if (buf_offset + column_len > line_buf_len) {
-        line_buf_len *= 2;
-        line_bufp = g_realloc(line_bufp, line_buf_len + 1);
-      }
-      snprintf(line_bufp + buf_offset, COL_MAX_LEN+1, "%-12s", cf->cinfo.col_data[i]);
+      line_bufp = get_line_buf(buf_offset + column_len);
+      sprintf(line_bufp + buf_offset, "%-12s", cf->cinfo.col_data[i]);
       break;
 
     default:
       column_len = strlen(cf->cinfo.col_data[i]);
-      if (buf_offset + column_len > line_buf_len) {
-        line_buf_len *= 2;
-        line_bufp = g_realloc(line_bufp, line_buf_len + 1);
-      }
+      line_bufp = get_line_buf(buf_offset + column_len);
       strcat(line_bufp + buf_offset, cf->cinfo.col_data[i]);
       break;
     }
@@ -2833,10 +2836,7 @@ print_columns(capture_file *cf)
        * We add enough space to the buffer for " <- " or " -> ",
        * even if we're only adding " ".
        */
-      if (buf_offset + 4 > line_buf_len) {
-        line_buf_len *= 2;
-        line_bufp = g_realloc(line_bufp, line_buf_len + 1);
-      }
+      line_bufp = get_line_buf(buf_offset + 4);
       switch (cf->cinfo.col_fmt[i]) {
 
       case COL_DEF_SRC:
