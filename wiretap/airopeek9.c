@@ -1,7 +1,7 @@
 /* airopeek9.c
  * Routines for opening EtherPeek and AiroPeek V9 files
  *
- * $Id: airopeek9.c,v 1.10 2004/02/06 05:23:46 guy Exp $
+ * $Id: airopeek9.c,v 1.11 2004/02/06 20:50:44 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -52,6 +52,12 @@ typedef struct airopeek_section_header {
 	guint32 section_const;
 } airopeek_section_header_t;
 
+/* network subtype values */
+#define AIROPEEK_V9_NST_ETHERNET		0
+#define AIROPEEK_V9_NST_802_11			1	/* 802.11 with 0's at the end */
+#define AIROPEEK_V9_NST_802_11_WITH_FCS		3	/* 802.11 with FCS at the end */
+
+/* tags for fields in packet header */
 #define TAG_AIROPEEK_V9_LENGTH			0x0000
 #define TAG_AIROPEEK_V9_TIMESTAMP_LOWER		0x0001
 #define TAG_AIROPEEK_V9_TIMESTAMP_UPPER		0x0002
@@ -76,6 +82,7 @@ static gboolean airopeekv9_read(wtap *wth, int *err, gchar **err_info,
 static gboolean airopeekv9_seek_read(wtap *wth, long seek_off,
     union wtap_pseudo_header *pseudo_header, guchar *pd, int length,
     int *err, gchar **err_info);
+static void airopeekv9_close(wtap *wth);
 
 static int wtap_file_read_pattern (wtap *wth, char *pattern, int *err)
 {
@@ -285,7 +292,6 @@ int airopeek9_open(wtap *wth, int *err, gchar **err_info)
     /*
      * This is an EtherPeek or AiroPeek V9 file.
      */
-
     wth->data_offset = file_tell (wth->fh);
 
     file_encap = airopeek9_encap[mediaSubType];
@@ -294,6 +300,20 @@ int airopeek9_open(wtap *wth, int *err, gchar **err_info)
     wth->file_encap = file_encap;
     wth->subtype_read = airopeekv9_read;
     wth->subtype_seek_read = airopeekv9_seek_read;
+    wth->subtype_close = airopeekv9_close;
+
+    wth->capture.airopeek9 = g_malloc(sizeof(airopeek9_t));
+    switch (mediaSubType) {
+
+    case AIROPEEK_V9_NST_ETHERNET:
+    case AIROPEEK_V9_NST_802_11:
+	wth->capture.airopeek9->has_fcs = FALSE;
+	break;
+
+    case AIROPEEK_V9_NST_802_11_WITH_FCS:
+	wth->capture.airopeek9->has_fcs = TRUE;
+	break;
+    }
 
     wth->snapshot_length   = 0; /* not available in header */
 
@@ -327,8 +347,6 @@ airopeekv9_process_header(FILE_T fh, hdr_info_t *hdr_info, int *err,
     gboolean saw_length = FALSE;
     gboolean saw_timestamp_lower = FALSE;
     gboolean saw_timestamp_upper = FALSE;
-
-    hdr_info->ieee_802_11.fcs_len = 0;		/* assume no FCS for 802.11 */
 
     /* Extract the fields from the packet header */
     do {
@@ -479,17 +497,6 @@ static gboolean airopeekv9_read(wtap *wth, int *err, gchar **err_info,
     wth->phdr.len    = hdr_info.length;
     wth->phdr.caplen = hdr_info.sliceLength;
 
-    switch (wth->file_encap) {
-
-    case WTAP_ENCAP_IEEE_802_11_WITH_RADIO:
-	wth->pseudo_header.ieee_802_11 = hdr_info.ieee_802_11;
-	break;
-
-    case WTAP_ENCAP_ETHERNET:
-	wth->pseudo_header.eth.fcs_len = 0;	/* XXX - always? */
-	break;
-    }
-
     /* read the frame data */
     buffer_assure_space(wth->frame_buffer, hdr_info.sliceLength);
     wtap_file_read_expected_bytes(buffer_start_ptr(wth->frame_buffer),
@@ -517,8 +524,14 @@ static gboolean airopeekv9_read(wtap *wth, int *err, gchar **err_info,
 	 * whether it's an FCS or not, we should use that to determine
 	 * whether to supply it as an FCS or discard it.
 	 */
-	wth->phdr.len -= 4;
-	wth->phdr.caplen -= 4;
+	wth->pseudo_header.ieee_802_11 = hdr_info.ieee_802_11;
+	if (wth->capture.airopeek9->has_fcs)
+	    wth->pseudo_header.ieee_802_11.fcs_len = 4;
+	else {
+	    wth->pseudo_header.ieee_802_11.fcs_len = 0;
+	    wth->phdr.len -= 4;
+	    wth->phdr.caplen -= 4;
+	}
 	break;
 
     case WTAP_ENCAP_ETHERNET:
@@ -526,6 +539,7 @@ static gboolean airopeekv9_read(wtap *wth, int *err, gchar **err_info,
 	 * The last 4 bytes appear to be 0 in the captures I've seen;
 	 * are there any captures where it's an FCS?
 	 */
+	wth->pseudo_header.eth.fcs_len = 0;
 	wth->phdr.len -= 4;
 	wth->phdr.caplen -= 4;
 	break;
@@ -554,10 +568,14 @@ airopeekv9_seek_read(wtap *wth, long seek_off,
 
     case WTAP_ENCAP_IEEE_802_11_WITH_RADIO:
 	pseudo_header->ieee_802_11 = hdr_info.ieee_802_11;
+	if (wth->capture.airopeek9->has_fcs)
+	    pseudo_header->ieee_802_11.fcs_len = 4;
+	else
+	    pseudo_header->ieee_802_11.fcs_len = 0;
 	break;
 
     case WTAP_ENCAP_ETHERNET:
-	pseudo_header->eth.fcs_len = 0;	/* XXX - always? */
+	pseudo_header->eth.fcs_len = 0;
 	break;
     }
 
@@ -567,4 +585,10 @@ airopeekv9_seek_read(wtap *wth, long seek_off,
     errno = WTAP_ERR_CANT_READ;
     wtap_file_read_expected_bytes(pd, length, wth->random_fh, err);
     return TRUE;
+}
+
+static void
+airopeekv9_close(wtap *wth)
+{
+    g_free(wth->capture.airopeek9);
 }

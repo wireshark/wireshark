@@ -1,6 +1,6 @@
 /* wtap-int.h
  *
- * $Id: wtap-int.h,v 1.44 2004/01/25 21:55:17 guy Exp $
+ * $Id: wtap-int.h,v 1.45 2004/02/06 20:50:44 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -125,6 +125,10 @@ typedef struct {
 } etherpeek_t;
 
 typedef struct {
+	gboolean	has_fcs;
+} airopeek9_t;
+
+typedef struct {
 	guint32		atm_encap;
 	gboolean	is_rawatm;
 	gboolean	is_ppp;
@@ -156,6 +160,7 @@ struct wtap {
 		ascend_t		*ascend;
 		csids_t			*csids;
 		etherpeek_t		*etherpeek;
+		airopeek9_t		*airopeek9;
 		erf_t			*erf;
 		void			*generic;
 	} capture;
