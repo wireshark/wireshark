@@ -4,7 +4,7 @@
  * Copyright 2001, Michal Melerowicz <michal.melerowicz@nokia.com>
  *                 Nicolas Balkota <balkota@mac.com>
  *
- * $Id: packet-gtp.c,v 1.19 2001/12/10 00:25:28 guy Exp $
+ * $Id: packet-gtp.c,v 1.20 2002/01/21 07:36:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -47,7 +47,7 @@
 # include "snprintf.h"
 #endif
 
-#include "packet.h"
+#include <epan/packet.h>
 #include "packet-ipv6.h"
 #include "prefs.h"
 

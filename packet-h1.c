@@ -2,7 +2,7 @@
  * Routines for Sinec H1 packet disassembly
  * Gerrit Gehnen <G.Gehnen@atrie.de>
  *
- * $Id: packet-h1.c,v 1.22 2001/12/10 00:25:28 guy Exp $
+ * $Id: packet-h1.c,v 1.23 2002/01/21 07:36:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -34,7 +34,7 @@
 #include <string.h>
 
 #include <glib.h>
-#include "packet.h"
+#include <epan/packet.h>
 
 static int proto_h1 = -1;
 static int hf_h1_header = -1;

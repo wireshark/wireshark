@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.230 2002/01/18 07:29:40 guy Exp $
+ * $Id: main.c,v 1.231 2002/01/21 07:37:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -111,13 +111,13 @@
 #include <conio.h>
 #endif
 
-#include <epan.h>
+#include <epan/epan.h>
 #include <epan/filesystem.h>
-#include <epan_dissect.h>
+#include <epan/epan_dissect.h>
 
 #include "main.h"
-#include "timestamp.h"
-#include "packet.h"
+#include <epan/timestamp.h>
+#include <epan/packet.h>
 #include "capture.h"
 #include "summary.h"
 #include "file.h"
@@ -131,20 +131,20 @@
 #include "file_dlg.h"
 #include "column.h"
 #include "print.h"
-#include "resolv.h"
+#include <epan/resolv.h>
 #ifdef HAVE_LIBPCAP
 #include "pcap-util.h"
 #endif
 #include "statusbar.h"
 #include "simple_dialog.h"
 #include "proto_draw.h"
-#include "dfilter/dfilter.h"
+#include <epan/dfilter/dfilter.h>
 #include "keys.h"
 #include "packet_win.h"
 #include "gtkglobals.h"
-#include "plugins.h"
+#include <epan/plugins.h>
 #include "colors.h"
-#include "strutil.h"
+#include <epan/strutil.h>
 #include "register.h"
 #include "ringbuffer.h"
 #include "ui_util.h"

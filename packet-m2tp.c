@@ -5,7 +5,7 @@
  *
  * Copyright 2001, Heinz Prantner <heinz.prantner[AT]radisys.com>
  *
- * $Id: packet-m2tp.c,v 1.1 2001/12/16 22:30:09 guy Exp $
+ * $Id: packet-m2tp.c,v 1.2 2002/01/21 07:36:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -35,7 +35,7 @@
 
 #include <glib.h>
 
-#include "packet.h"
+#include <epan/packet.h>
 
 #define SCTP_PORT_M2TP        9908  /* unassigned port number (not assigned by IANA) */
 #define M2TP_PAYLOAD_PROTO_ID 99    /* s-link */

@@ -2,7 +2,7 @@
  * Routines for pop packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-pop.c,v 1.28 2001/12/10 00:25:32 guy Exp $
+ * $Id: packet-pop.c,v 1.29 2002/01/21 07:36:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -41,8 +41,8 @@
 
 #include <string.h>
 #include <glib.h>
-#include "packet.h"
-#include "strutil.h"
+#include <epan/packet.h>
+#include <epan/strutil.h>
 
 static int proto_pop = -1;
 static int hf_pop_response = -1;

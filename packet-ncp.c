@@ -3,7 +3,7 @@
  * Gilbert Ramirez <gram@alumni.rice.edu>
  * Modified to allow NCP over TCP/IP decodes by James Coe <jammer@cin.net>
  *
- * $Id: packet-ncp.c,v 1.53 2002/01/05 04:12:14 gram Exp $
+ * $Id: packet-ncp.c,v 1.54 2002/01/21 07:36:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -37,8 +37,8 @@
 #endif
 
 #include <glib.h>
-#include "packet.h"
-#include "conversation.h"
+#include <epan/packet.h>
+#include <epan/conversation.h>
 #include "prefs.h"
 #include "packet-ipx.h"
 #include "packet-ncp-int.h"

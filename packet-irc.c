@@ -1,7 +1,7 @@
 /* packet-irc.c
  * Routines for IRC packet dissection
  *
- * $Id: packet-irc.c,v 1.16 2001/12/10 00:25:29 guy Exp $
+ * $Id: packet-irc.c,v 1.17 2002/01/21 07:36:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -40,7 +40,7 @@
 
 #include <string.h>
 #include <glib.h>
-#include "packet.h"
+#include <epan/packet.h>
 
 static int proto_irc = -1;
 static int hf_irc_request = -1;

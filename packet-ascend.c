@@ -1,7 +1,7 @@
 /* packet-ascend.c
  * Routines for decoding Lucent/Ascend packet traces
  *
- * $Id: packet-ascend.c,v 1.29 2001/12/20 05:34:50 guy Exp $
+ * $Id: packet-ascend.c,v 1.30 2002/01/21 07:36:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -31,7 +31,7 @@
 
 #include <glib.h>
 #include <string.h>
-#include "packet.h"
+#include <epan/packet.h>
 
 static int proto_ascend  = -1;
 static int hf_link_type  = -1;

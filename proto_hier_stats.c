@@ -1,7 +1,7 @@
 /* proto_hier_stats.c
  * Routines for calculating statistics based on protocol.
  *
- * $Id: proto_hier_stats.c,v 1.10 2002/01/02 20:23:46 gram Exp $
+ * $Id: proto_hier_stats.c,v 1.11 2002/01/21 07:36:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -30,7 +30,7 @@
 #include "globals.h"
 #include "proto_hier_stats.h"
 #include "progress_dlg.h"
-#include "epan_dissect.h"
+#include <epan/epan_dissect.h>
 #include <wtap.h>
 
 #include <stdio.h>

@@ -4,7 +4,7 @@
  *
  * Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-vrrp.c,v 1.19 2001/12/10 00:25:41 guy Exp $
+ * $Id: packet-vrrp.c,v 1.20 2002/01/21 07:36:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -39,7 +39,7 @@
 
 #include <string.h>
 #include <glib.h>
-#include "packet.h"
+#include <epan/packet.h>
 #include "ipproto.h"
 #include "in_cksum.h"
 

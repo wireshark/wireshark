@@ -8,7 +8,7 @@
  * Portions based on information/specs retrieved from the OpenAFS sources at
  *   www.openafs.org, Copyright IBM. 
  *
- * $Id: packet-afs.c,v 1.38 2002/01/18 21:46:51 nneul Exp $
+ * $Id: packet-afs.c,v 1.39 2002/01/21 07:36:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -47,9 +47,9 @@
 
 #include <string.h>
 #include <glib.h>
-#include "packet.h"
-#include "conversation.h"
-#include "resolv.h"
+#include <epan/packet.h>
+#include <epan/conversation.h>
+#include <epan/resolv.h>
 
 #include "packet-rx.h"
 #include "packet-afs.h"

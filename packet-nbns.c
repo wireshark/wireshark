@@ -3,7 +3,7 @@
  * to when it had only NBNS)
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-nbns.c,v 1.71 2002/01/20 22:12:26 guy Exp $
+ * $Id: packet-nbns.c,v 1.72 2002/01/21 07:36:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -36,7 +36,7 @@
 #include <string.h>
 #include <glib.h>
 
-#include "packet.h"
+#include <epan/packet.h>
 #include "packet-dns.h"
 #include "packet-netbios.h"
 #include "packet-tcp.h"

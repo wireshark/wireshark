@@ -6,7 +6,7 @@
  *
  * Copyright 2000, Michael Tüxen <Michael.Tuexen@icn.siemens.de>
  *
- * $Id: packet-sua.c,v 1.4 2001/12/10 00:25:36 guy Exp $
+ * $Id: packet-sua.c,v 1.5 2002/01/21 07:36:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -52,7 +52,7 @@
 # include "snprintf.h"
 #endif
 
-#include "packet.h"
+#include <epan/packet.h>
 #include "prefs.h"
 
 #define SCTP_PORT_SUA          14001

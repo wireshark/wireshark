@@ -1,6 +1,6 @@
 /* packet-osi.h
  *
- * $Id: packet-osi.h,v 1.8 2001/06/05 09:06:19 guy Exp $
+ * $Id: packet-osi.h,v 1.9 2002/01/21 07:36:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -24,7 +24,7 @@
 #ifndef _PACKET_OSI_H
 #define _PACKET_OSI_H
 
-#include "osi-utils.h"
+#include <epan/osi-utils.h>
 
 #define PDU_TYPE_ESIS_ESH       100
 #define PDU_TYPE_ESIS_ISH       101

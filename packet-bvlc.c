@@ -2,7 +2,7 @@
  * Routines for BACnet/IP (BVLL, BVLC) dissection
  * Copyright 2001, Hartmut Mueller <hartmut@abmlinux.org>, FH Dortmund
  *
- * $Id: packet-bvlc.c,v 1.8 2001/12/10 00:25:26 guy Exp $
+ * $Id: packet-bvlc.c,v 1.9 2002/01/21 07:36:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -33,7 +33,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "prefs.h"
-#include "strutil.h"
+#include <epan/strutil.h>
 
 #ifdef HAVE_SYS_TYPES_H
 # include <sys/types.h>
@@ -49,7 +49,7 @@
 # include "snprintf.h"
 #endif
 
-#include "packet.h"
+#include <epan/packet.h>
 
 static int proto_bvlc = -1;
 static int hf_bvlc_type = -1;

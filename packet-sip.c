@@ -15,7 +15,7 @@
  * Copyright 2000, Heikki Vatiainen <hessu@cs.tut.fi>
  * Copyright 2001, Jean-Francois Mule <jfm@clarent.com>
  *
- * $Id: packet-sip.c,v 1.20 2001/12/10 00:25:34 guy Exp $
+ * $Id: packet-sip.c,v 1.21 2002/01/21 07:36:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -47,7 +47,7 @@
 #include <string.h>
 
 #include <glib.h>
-#include "packet.h"
+#include <epan/packet.h>
 
 #define TCP_PORT_SIP 5060
 #define UDP_PORT_SIP 5060

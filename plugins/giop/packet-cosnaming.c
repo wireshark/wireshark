@@ -61,8 +61,8 @@
 
 #include <string.h>
 #include <glib.h>
-#include "packet.h"
-#include "proto.h"
+#include <epan/packet.h>
+#include <epan/proto.h>
 #include "packet-giop.h"
 
 #include "plugins/plugin_api_defs.h"

@@ -2,7 +2,7 @@
  * Routines for Mobile IP dissection
  * Copyright 2000, Stefan Raab <sraab@cisco.com>
  *
- * $Id: packet-mip.c,v 1.25 2002/01/05 22:09:17 guy Exp $
+ * $Id: packet-mip.c,v 1.26 2002/01/21 07:36:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -46,7 +46,7 @@
 # include "snprintf.h"
 #endif
 
-#include "packet.h"
+#include <epan/packet.h>
 
 /* Initialize the protocol and registered fields */
 static int proto_mip = -1;

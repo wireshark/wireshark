@@ -1,13 +1,12 @@
 /* follow.h
  *
- * $Id: follow.h,v 1.10 2000/08/11 22:18:13 deniel Exp $
+ * $Id: follow.h,v 1.11 2002/01/21 07:36:31 guy Exp $
  *
  * Copyright 1998 Mike Hall <mlh@io.com>
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -28,7 +27,7 @@
 #ifndef __FOLLOW_H__
 #define __FOLLOW_H__
 
-#include "packet.h"
+#include <epan/packet.h>
 
 #define MAX_IPADDR_LEN	16
 

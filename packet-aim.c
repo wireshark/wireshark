@@ -2,7 +2,7 @@
  * Routines for AIM Instant Messenger (OSCAR) dissection
  * Copyright 2000, Ralf Hoelzer <ralf@well.com>
  *
- * $Id: packet-aim.c,v 1.12 2002/01/20 23:42:51 guy Exp $
+ * $Id: packet-aim.c,v 1.13 2002/01/21 07:36:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -46,8 +46,8 @@
 # include "snprintf.h"
 #endif
 
-#include "packet.h"
-#include "strutil.h"
+#include <epan/packet.h>
+#include <epan/strutil.h>
 
 #define TCP_PORT_AIM 5190
 #define MAX_BUDDYNAME_LENGTH 30

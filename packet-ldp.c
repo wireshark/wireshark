@@ -1,7 +1,7 @@
 /* packet-ldp.c
  * Routines for LDP (RFC 3036) packet disassembly
  *
- * $Id: packet-ldp.c,v 1.25 2002/01/20 23:25:54 guy Exp $
+ * $Id: packet-ldp.c,v 1.26 2002/01/21 07:36:36 guy Exp $
  * 
  * Copyright (c) November 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  *
@@ -42,8 +42,8 @@
 #include <time.h>
 #include <glib.h>
 #include <string.h>
-#include "packet.h"
-#include "resolv.h"
+#include <epan/packet.h>
+#include <epan/resolv.h>
 #include "prefs.h"
 #include "afn.h"
 

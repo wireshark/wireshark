@@ -5,7 +5,7 @@
 * Charles Levert <charles@comm.polymtl.ca>
 * Copyright 2001 Charles Levert
 *
-* $Id: packet-cups.c,v 1.8 2001/12/10 00:25:27 guy Exp $
+* $Id: packet-cups.c,v 1.9 2002/01/21 07:36:33 guy Exp $
 * 
 * This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License
@@ -35,8 +35,8 @@
 #include <ctype.h>
 
 #include <glib.h>
-#include "packet.h"
-#include "strutil.h"
+#include <epan/packet.h>
+#include <epan/strutil.h>
 
 /**********************************************************************/
 

@@ -4,7 +4,7 @@
  * Uwe Girlich <uwe@planetquake.com>
  *	http://www.idsoftware.com/q1source/q1source.zip
  *
- * $Id: packet-quakeworld.c,v 1.9 2001/12/10 00:25:33 guy Exp $
+ * $Id: packet-quakeworld.c,v 1.10 2002/01/21 07:36:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -37,7 +37,7 @@
 
 #include <glib.h>
 #include <string.h>
-#include "packet.h"
+#include <epan/packet.h>
 #include "prefs.h"
 
 static int proto_quakeworld = -1;

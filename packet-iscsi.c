@@ -4,7 +4,7 @@
  *
  * Conforms to the protocol described in: draft-ietf-ips-iscsi-08.txt
  *
- * $Id: packet-iscsi.c,v 1.21 2002/01/20 22:12:26 guy Exp $
+ * $Id: packet-iscsi.c,v 1.22 2002/01/21 07:36:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -53,9 +53,9 @@
 # include "snprintf.h"
 #endif
 
-#include "packet.h"
+#include <epan/packet.h>
 #include "prefs.h"
-#include "conversation.h"
+#include <epan/conversation.h>
 #include "packet-scsi.h"
 
 static gboolean iscsi_desegment = TRUE;

@@ -1,7 +1,7 @@
 /* packet-clnp.c
  * Routines for ISO/OSI network and transport protocol packet disassembly
  *
- * $Id: packet-clnp.c,v 1.46 2002/01/20 01:04:18 guy Exp $
+ * $Id: packet-clnp.c,v 1.47 2002/01/21 07:36:32 guy Exp $
  * Laurent Deniel <deniel@worldnet.fr>
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
@@ -37,7 +37,7 @@
 #include <ctype.h>
 #include <glib.h>
 #include "prefs.h"
-#include "packet.h"
+#include <epan/packet.h>
 #include "reassemble.h"
 #include "packet-osi.h"
 #include "packet-osi-options.h"

@@ -2,7 +2,7 @@
  * Routines for LAPD frame disassembly
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-lapd.c,v 1.27 2001/12/10 00:25:30 guy Exp $
+ * $Id: packet-lapd.c,v 1.28 2002/01/21 07:36:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -34,7 +34,7 @@
 #include <stdio.h>
 #include <glib.h>
 #include <string.h>
-#include "packet.h"
+#include <epan/packet.h>
 #include "xdlc.h"
 
 /* ISDN/LAPD references:

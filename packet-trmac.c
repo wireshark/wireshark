@@ -2,7 +2,7 @@
  * Routines for Token-Ring Media Access Control
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-trmac.c,v 1.34 2001/12/10 00:25:40 guy Exp $
+ * $Id: packet-trmac.c,v 1.35 2002/01/21 07:36:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -33,7 +33,7 @@
 
 #include <string.h>
 #include <glib.h>
-#include "packet.h"
+#include <epan/packet.h>
 
 static int proto_trmac = -1;
 static int hf_trmac_mv = -1;

@@ -1,7 +1,7 @@
 /* packet-msnip.c   2001 Ronnie Sahlberg <See AUTHORS for email>
  * Routines for IGMP/MSNIP packet disassembly
  *
- * $Id: packet-msnip.c,v 1.4 2002/01/20 22:12:26 guy Exp $
+ * $Id: packet-msnip.c,v 1.5 2002/01/21 07:36:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -47,7 +47,7 @@
 #include <string.h>
 #include <glib.h>
 
-#include "packet.h"
+#include <epan/packet.h>
 #include "in_cksum.h"
 #include "packet-msnip.h"
 

@@ -2,7 +2,7 @@
  * Routines for DHCPv6 packet disassembly
  * Jun-ichiro itojun Hagino <itojun@iijlab.net>
  *
- * $Id: packet-dhcpv6.c,v 1.2 2002/01/11 11:07:21 guy Exp $
+ * $Id: packet-dhcpv6.c,v 1.3 2002/01/21 07:36:33 guy Exp $
  *
  * The information used comes from:
  * draft-ietf-dhc-dhcpv6-22.txt
@@ -38,9 +38,9 @@
 
 #include <string.h>
 #include <glib.h>
-#include "int-64bit.h"
-#include "packet.h"
-#include "ipv6-utils.h"
+#include <epan/int-64bit.h>
+#include <epan/packet.h>
+#include <epan/ipv6-utils.h>
 
 static int proto_dhcpv6 = -1;
 static int hf_dhcpv6_msgtype = -1;

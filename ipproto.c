@@ -1,7 +1,7 @@
 /* ipproto.c
  * Routines for converting IPv4 protocol/v6 nxthdr field into string
  *
- * $Id: ipproto.c,v 1.16 2002/01/13 20:35:08 guy Exp $
+ * $Id: ipproto.c,v 1.17 2002/01/21 07:36:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -41,8 +41,8 @@
 #endif
 
 #include "ipproto.h"
-#include "packet.h"
-#include "resolv.h"
+#include <epan/packet.h>
+#include <epan/resolv.h>
 #include "packet-ip.h"
 
 static const value_string ipproto_val[] = {

@@ -2,7 +2,7 @@
  * Routines for ssl dissection
  * Copyright (c) 2000-2001, Scott Renfro <scott@renfro.org>
  *
- * $Id: packet-ssl.c,v 1.13 2002/01/17 09:24:05 guy Exp $
+ * $Id: packet-ssl.c,v 1.14 2002/01/21 07:36:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -66,7 +66,7 @@
 # include "snprintf.h"
 #endif
 
-#include "conversation.h"
+#include <epan/conversation.h>
 #include "prefs.h"
 
 static gboolean ssl_desegment = TRUE;

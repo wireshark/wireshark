@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.61 2002/01/13 20:35:12 guy Exp $
+ * $Id: menu.c,v 1.62 2002/01/21 07:37:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -40,8 +40,8 @@
 
 #include "main.h"
 #include "menu.h"
-#include "packet.h"
-#include "resolv.h"
+#include <epan/packet.h>
+#include <epan/resolv.h>
 #include "prefs.h"
 #include "capture_dlg.h"
 #include "color_dlg.h"
@@ -60,9 +60,9 @@
 #include "proto_dlg.h"
 #include "proto_hier_stats_dlg.h"
 #include "keys.h"
-#include "plugins.h"
+#include <epan/plugins.h>
 #include "tcp_graph.h"
-#include "epan_dissect.h"
+#include <epan/epan_dissect.h>
 
 GtkWidget *popup_menu_object;
 

@@ -1,9 +1,9 @@
 /* dftest.c.c
  *
- * $Id: dftest.c,v 1.2 2001/04/02 00:38:33 hagbard Exp $
+ * $Id: dftest.c,v 1.3 2002/01/21 07:36:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
  * Shows display filter byte-code, for debugging dfilter routines.
@@ -65,19 +65,19 @@
 #endif
 
 #include <glib.h>
-#include <epan.h>
+#include <epan/epan.h>
 
 #if 0
 #include "globals.h"
-#include "packet.h"
+#include <epan/packet.h>
 #include "file.h"
 #include "column.h"
 #include "print.h"
-#include "resolv.h"
-#include "conversation.h"
+#include <epan/resolv.h>
+#include <epan/conversation.h>
 #endif
-#include "timestamp.h"
-#include "plugins.h"
+#include <epan/timestamp.h>
+#include <epan/plugins.h>
 #include "prefs.h"
 #include "util.h"
 #include "epan/dfilter/dfilter.h"

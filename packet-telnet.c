@@ -2,7 +2,7 @@
  * Routines for telnet packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-telnet.c,v 1.27 2001/12/10 00:25:40 guy Exp $
+ * $Id: packet-telnet.c,v 1.28 2002/01/21 07:36:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -41,8 +41,8 @@
 
 #include <string.h>
 #include <glib.h>
-#include "packet.h"
-#include "strutil.h"
+#include <epan/packet.h>
+#include <epan/strutil.h>
 
 static int proto_telnet = -1;
 

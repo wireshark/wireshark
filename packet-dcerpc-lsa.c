@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\lsarpc packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-lsa.c,v 1.6 2002/01/03 20:42:40 guy Exp $
+ * $Id: packet-dcerpc-lsa.c,v 1.7 2002/01/21 07:36:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -30,7 +30,7 @@
 #include <glib.h>
 #include <string.h>
 
-#include "packet.h"
+#include <epan/packet.h>
 #include "packet-dcerpc.h"
 #include "packet-dcerpc-nt.h"
 #include "packet-dcerpc-lsa.h"

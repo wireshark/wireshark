@@ -1,7 +1,7 @@
 /* packet-dcerpc.h
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.h,v 1.6 2002/01/03 20:42:40 guy Exp $
+ * $Id: packet-dcerpc.h,v 1.7 2002/01/21 07:36:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -25,7 +25,7 @@
 #ifndef __PACKET_DCERPC_H__
 #define __PACKET_DCERPC_H__
 
-#include "conversation.h"
+#include <epan/conversation.h>
 
 typedef struct _e_uuid_t {
     guint32 Data1;

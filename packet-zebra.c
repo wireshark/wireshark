@@ -3,7 +3,7 @@
  *
  * Jochen Friedrich <jochen@scram.de>
  *
- * $Id: packet-zebra.c,v 1.17 2001/12/10 00:25:41 guy Exp $
+ * $Id: packet-zebra.c,v 1.18 2002/01/21 07:36:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -36,7 +36,7 @@
 #include <ctype.h>
 
 #include <glib.h>
-#include "packet.h"
+#include <epan/packet.h>
 
 static int proto_zebra = -1;
 static int hf_zebra_len = -1;

@@ -10,12 +10,11 @@
  * definition for them; when this file is empty, get rid of all includes
  * of it, and get rid of it.
  *
- * $Id: greproto.h,v 1.1 2001/01/13 07:47:48 guy Exp $
+ * $Id: greproto.h,v 1.2 2002/01/21 07:36:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License

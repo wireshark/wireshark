@@ -4,7 +4,7 @@
  * Jason Lango <jal@netapp.com>
  * Liberally copied from packet-http.c, by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-sdp.c,v 1.24 2001/12/15 20:22:47 hagbard Exp $
+ * $Id: packet-sdp.c,v 1.25 2002/01/21 07:36:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -35,8 +35,8 @@
 #include <ctype.h>
 
 #include <glib.h>
-#include "packet.h"
-#include "strutil.h"
+#include <epan/packet.h>
+#include <epan/strutil.h>
 
 static int proto_sdp = -1;
 

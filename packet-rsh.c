@@ -4,7 +4,7 @@
  * Robert Tsai <rtsai@netapp.com>
  * Liberally copied from packet-http.c, by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-rsh.c,v 1.14 2001/12/10 00:25:33 guy Exp $
+ * $Id: packet-rsh.c,v 1.15 2002/01/21 07:36:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -34,8 +34,8 @@
 #endif
 
 #include <glib.h>
-#include "packet.h"
-#include "strutil.h"
+#include <epan/packet.h>
+#include <epan/strutil.h>
 
 static int proto_rsh = -1;
 static int hf_rsh_response = -1;

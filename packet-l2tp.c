@@ -7,7 +7,7 @@
  * Laurent Cazalet <laurent.cazalet@mailclub.net>
  * Thomas Parvais <thomas.parvais@advalvas.be>
  *
- * $Id: packet-l2tp.c,v 1.29 2001/12/10 00:25:30 guy Exp $
+ * $Id: packet-l2tp.c,v 1.30 2002/01/21 07:36:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -66,8 +66,8 @@ static int hf_l2tp_tie_breaker = -1;
 #include <string.h>
 #include <ctype.h>
 #include <glib.h>
-#include "packet.h"
-#include "resolv.h"
+#include <epan/packet.h>
+#include <epan/resolv.h>
 
 #define UDP_PORT_L2TP   1701
 

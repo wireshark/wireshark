@@ -3,7 +3,7 @@
  * By Pavel Mores <pvl@uh.cz>
  * Win32 port:  rwh@unifiedtech.com
  *
- * $Id: tcp_graph.c,v 1.12 2002/01/11 07:40:32 guy Exp $
+ * $Id: tcp_graph.c,v 1.13 2002/01/21 07:37:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -43,7 +43,7 @@
 #endif /* WIN32 */
 
 #include "globals.h" 		/* cfile */
-#include "packet.h"		/* frame_data */
+#include <epan/packet.h>		/* frame_data */
 #include "gtkglobals.h"		/* packet_list */
 #include "simple_dialog.h"
 #include "ui_util.h"

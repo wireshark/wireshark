@@ -3,7 +3,7 @@
  *
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-rsvp.c,v 1.51 2001/12/29 00:43:55 ashokn Exp $
+ * $Id: packet-rsvp.c,v 1.52 2002/01/21 07:36:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -66,8 +66,8 @@
 # include "snprintf.h"
 #endif
 
-#include "tvbuff.h"
-#include "packet.h"
+#include <epan/tvbuff.h>
+#include <epan/packet.h>
 #include "in_cksum.h"
 #include "ieee-float.h"
 #include "etypes.h"

@@ -2,7 +2,7 @@
  * Routines for imap packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-imap.c,v 1.17 2001/12/10 00:25:28 guy Exp $
+ * $Id: packet-imap.c,v 1.18 2002/01/21 07:36:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -41,8 +41,8 @@
 
 #include <string.h>
 #include <glib.h>
-#include "packet.h"
-#include "strutil.h"
+#include <epan/packet.h>
+#include <epan/strutil.h>
 
 static int proto_imap = -1;
 static int hf_imap_response = -1;

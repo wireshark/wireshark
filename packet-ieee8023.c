@@ -1,12 +1,11 @@
 /* packet-ieee8023.c
  * Routine for dissecting 802.3 (as opposed to D/I/X Ethernet) packets.
  *
- * $Id: packet-ieee8023.c,v 1.1 2001/02/08 07:08:05 guy Exp $
+ * $Id: packet-ieee8023.c,v 1.2 2002/01/21 07:36:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -32,7 +31,7 @@
 #endif
 
 #include <glib.h>
-#include "packet.h"
+#include <epan/packet.h>
 #include "packet-ieee8023.h"
 
 static dissector_handle_t ipx_handle;

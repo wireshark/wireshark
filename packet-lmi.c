@@ -2,7 +2,7 @@
  * Routines for Frame Relay Local Management Interface (LMI) disassembly
  * Copyright 2001, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-lmi.c,v 1.8 2001/12/10 00:25:30 guy Exp $
+ * $Id: packet-lmi.c,v 1.9 2002/01/21 07:36:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -45,7 +45,7 @@
 #include <stdio.h>
 #include <glib.h>
 #include <string.h>
-#include "packet.h"
+#include <epan/packet.h>
 #include "nlpid.h"
 
 static int proto_lmi = -1;

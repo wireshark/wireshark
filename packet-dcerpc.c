@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.23 2002/01/03 20:42:40 guy Exp $
+ * $Id: packet-dcerpc.c,v 1.24 2002/01/21 07:36:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -35,9 +35,9 @@
 #include <ctype.h>
 
 #include <glib.h>
-#include "packet.h"
+#include <epan/packet.h>
 #include "packet-dcerpc.h"
-#include "conversation.h"
+#include <epan/conversation.h>
 #include "prefs.h"
 
 static const value_string pckt_vals[] = {

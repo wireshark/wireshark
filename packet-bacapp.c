@@ -2,7 +2,7 @@
  * Routines for BACnet (APDU) dissection
  * Copyright 2001, Hartmut Mueller <hartmut@abmlinux.org>, FH Dortmund
  *
- * $Id: packet-bacapp.c,v 1.8 2001/12/10 00:25:26 guy Exp $
+ * $Id: packet-bacapp.c,v 1.9 2002/01/21 07:36:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -47,7 +47,7 @@
 # include "snprintf.h"
 #endif
 
-#include "packet.h"
+#include <epan/packet.h>
 
 static const char*
 bacapp_type_name (guint8 bacapp_type){

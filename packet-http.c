@@ -3,7 +3,7 @@
  *
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-http.c,v 1.44 2001/12/10 00:25:28 guy Exp $
+ * $Id: packet-http.c,v 1.45 2002/01/21 07:36:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -36,8 +36,8 @@
 #include <ctype.h>
 
 #include <glib.h>
-#include "packet.h"
-#include "strutil.h"
+#include <epan/packet.h>
+#include <epan/strutil.h>
 
 #include "packet-http.h"
 

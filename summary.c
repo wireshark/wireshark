@@ -1,12 +1,11 @@
 /* summary.c
  * Routines for capture file summary info
  *
- * $Id: summary.c,v 1.20 2001/02/11 09:28:15 guy Exp $
+ * $Id: summary.c,v 1.21 2002/01/21 07:36:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -23,12 +22,11 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
 
-#include "packet.h"
+#include <epan/packet.h>
 #include "globals.h"
 #include "summary.h"
 

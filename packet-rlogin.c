@@ -2,7 +2,7 @@
  * Routines for unix rlogin packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-rlogin.c,v 1.24 2001/12/10 00:25:33 guy Exp $
+ * $Id: packet-rlogin.c,v 1.25 2002/01/21 07:36:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -41,8 +41,8 @@
 #include <string.h>
 #include <glib.h>
 
-#include "packet.h"
-#include "conversation.h"
+#include <epan/packet.h>
+#include <epan/conversation.h>
 
 #include "packet-tcp.h"
 

@@ -12,7 +12,7 @@
  * Routines for NDMP dissection
  * 2001 Ronnie Sahlberg (see AUTHORS for email)
  *
- * $Id: packet-ndmp.c,v 1.9 2002/01/20 22:12:26 guy Exp $
+ * $Id: packet-ndmp.c,v 1.10 2002/01/21 07:36:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -49,7 +49,7 @@
 #include <string.h>
 #include <glib.h>
 
-#include "packet.h"
+#include <epan/packet.h>
 #include "packet-rpc.h"
 #include "prefs.h"
 

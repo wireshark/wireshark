@@ -2,7 +2,7 @@
  * Routines for DLSw packet dissection (Data Link Switching)
  * Copyright 2001, Paul Ionescu <paul@acorp.ro>
  *
- * $Id: packet-dlsw.c,v 1.2 2001/12/26 21:21:00 guy Exp $
+ * $Id: packet-dlsw.c,v 1.3 2002/01/21 07:36:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -41,7 +41,7 @@
 
 #include <string.h>
 #include <glib.h>
-#include "packet.h"
+#include <epan/packet.h>
 
 static int proto_dlsw = -1;
 

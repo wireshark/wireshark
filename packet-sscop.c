@@ -2,7 +2,7 @@
  * Routines for SSCOP (Q.2110, Q.SAAL) frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-sscop.c,v 1.17 2001/12/10 00:25:36 guy Exp $
+ * $Id: packet-sscop.c,v 1.18 2002/01/21 07:36:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -35,7 +35,7 @@
 #include <stdio.h>
 #include <glib.h>
 #include <string.h>
-#include "packet.h"
+#include <epan/packet.h>
 
 static int proto_sscop = -1;
 

@@ -2,7 +2,7 @@
  * Routines for gnutella dissection
  * Copyright 2001, B. Johannessen <bob@havoq.com>
  *
- * $Id: packet-gnutella.c,v 1.10 2001/12/10 00:25:28 guy Exp $
+ * $Id: packet-gnutella.c,v 1.11 2002/01/21 07:36:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -46,7 +46,7 @@
 #endif
 
 
-#include "packet.h"
+#include <epan/packet.h>
 #include "packet-gnutella.h"
 
 static int proto_gnutella = -1;

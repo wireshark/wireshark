@@ -4,7 +4,7 @@
  *
  * Copyright 2001, Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-msdp.c,v 1.4 2001/12/10 00:25:30 guy Exp $
+ * $Id: packet-msdp.c,v 1.5 2002/01/21 07:36:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -42,7 +42,7 @@
 #endif
 #include <glib.h>
 
-#include "packet.h"
+#include <epan/packet.h>
 
 /* MSDP message types. The messages are TLV (Type-Length-Value) encoded */
 enum { MSDP_SA     = 1,

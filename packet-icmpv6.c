@@ -1,7 +1,7 @@
 /* packet-icmpv6.c
  * Routines for ICMPv6 packet disassembly
  *
- * $Id: packet-icmpv6.c,v 1.62 2002/01/15 20:11:10 guy Exp $
+ * $Id: packet-icmpv6.c,v 1.63 2002/01/21 07:36:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -53,11 +53,11 @@
 # include "snprintf.h"
 #endif
 
-#include "packet.h"
+#include <epan/packet.h>
 #include "packet-ipv6.h"
 #include "packet-dns.h"
 #include "in_cksum.h"
-#include "resolv.h"
+#include <epan/resolv.h>
 #include "ipproto.h"
 
 #ifndef offsetof

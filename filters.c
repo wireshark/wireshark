@@ -1,7 +1,7 @@
 /* filters.c
  * Code for reading and writing the filters file.
  *
- * $Id: filters.c,v 1.13 2001/10/24 07:18:36 guy Exp $
+ * $Id: filters.c,v 1.14 2002/01/21 07:36:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -37,7 +37,7 @@
 
 #include <glib.h>
 
-#include <filesystem.h>
+#include <epan/filesystem.h>
 
 #include "filters.h"
 

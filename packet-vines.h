@@ -1,7 +1,7 @@
 /* packet-vines.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet-vines.h,v 1.10 2001/11/20 21:59:13 guy Exp $
+ * $Id: packet-vines.h,v 1.11 2002/01/21 07:36:44 guy Exp $
  *
  * Don Lafontaine <lafont02@cn.ca>
  *
@@ -37,7 +37,7 @@
 #ifndef __PACKETVINES_H__
 #define __PACKETVINES_H__
 
-#include "to_str.h"
+#include <epan/to_str.h>
 
 #define VINES_ADDR_LEN	6
 

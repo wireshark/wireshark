@@ -46,7 +46,7 @@
 # include "snprintf.h"
 #endif
 
-#include "packet.h"
+#include <epan/packet.h>
 #include "llcsaps.h"
 
 /* Initialize the protocol and registered fields */

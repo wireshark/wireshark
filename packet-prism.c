@@ -9,7 +9,7 @@
  *
  * By Tim Newsham
  *
- * $Id: packet-prism.c,v 1.5 2001/12/10 00:25:32 guy Exp $
+ * $Id: packet-prism.c,v 1.6 2002/01/21 07:36:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -42,7 +42,7 @@
 
 #include <glib.h>
 
-#include "packet.h"
+#include <epan/packet.h>
 #include "packet-ieee80211.h"
 #include "packet-prism.h"
 

@@ -1,7 +1,7 @@
 /* packet-chdlc.c
  * Routines for Cisco HDLC packet disassembly
  *
- * $Id: packet-chdlc.c,v 1.9 2001/12/10 00:25:26 guy Exp $
+ * $Id: packet-chdlc.c,v 1.10 2002/01/21 07:36:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -31,9 +31,9 @@
 #endif
 
 #include <glib.h>
-#include "packet.h"
+#include <epan/packet.h>
 #include "etypes.h"
-#include "resolv.h"
+#include <epan/resolv.h>
 #include "packet-chdlc.h"
 #include "packet-ip.h"
 

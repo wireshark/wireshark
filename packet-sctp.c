@@ -10,7 +10,7 @@
  * - support for reassembly
  * - code cleanup
  *
- * $Id: packet-sctp.c,v 1.29 2002/01/20 22:28:50 guy Exp $
+ * $Id: packet-sctp.c,v 1.30 2002/01/21 07:36:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -57,7 +57,7 @@
 #endif
 
 #include "prefs.h"
-#include "packet.h"
+#include <epan/packet.h>
 #include "ipproto.h"
 
 /* Initialize the protocol and registered fields */

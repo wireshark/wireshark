@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * 
- * $Id: packet-rpc.c,v 1.84 2002/01/20 22:12:27 guy Exp $
+ * $Id: packet-rpc.c,v 1.85 2002/01/21 07:36:41 guy Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -37,8 +37,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
-#include "packet.h"
-#include "conversation.h"
+#include <epan/packet.h>
+#include <epan/conversation.h>
 #include "packet-rpc.h"
 #include "packet-frame.h"
 #include "prefs.h"

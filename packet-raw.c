@@ -1,7 +1,7 @@
 /* packet-raw.c
  * Routines for raw packet disassembly
  *
- * $Id: packet-raw.c,v 1.31 2002/01/03 02:10:01 guy Exp $
+ * $Id: packet-raw.c,v 1.32 2002/01/21 07:36:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -34,7 +34,7 @@
 
 #include <string.h>
 #include <glib.h>
-#include "packet.h"
+#include <epan/packet.h>
 #include "packet-raw.h"
 #include "packet-ip.h"
 #include "packet-ppp.h"

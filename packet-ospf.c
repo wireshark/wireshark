@@ -2,7 +2,7 @@
  * Routines for OSPF packet disassembly
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-ospf.c,v 1.53 2001/12/10 00:25:31 guy Exp $
+ * $Id: packet-ospf.c,v 1.54 2002/01/21 07:36:38 guy Exp $
  *
  * At this time, this module is able to analyze OSPF
  * packets as specified in RFC2328. MOSPF (RFC1584) and other
@@ -48,7 +48,7 @@
 #include <string.h>
 
 #include <glib.h>
-#include "packet.h"
+#include <epan/packet.h>
 #include "ipproto.h"
 #include "in_cksum.h"
 #include "ieee-float.h"

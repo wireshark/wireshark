@@ -2,7 +2,7 @@
  * Routines for RADIUS packet disassembly
  * Copyright 1999 Johan Feyaerts
  *
- * $Id: packet-radius.c,v 1.40 2001/12/10 00:25:33 guy Exp $
+ * $Id: packet-radius.c,v 1.41 2002/01/21 07:36:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -41,8 +41,8 @@
 #include <ctype.h>
 #include <glib.h>
 #include <time.h>
-#include "packet.h"
-#include "resolv.h"
+#include <epan/packet.h>
+#include <epan/resolv.h>
 
 static int proto_radius = -1;
 static int hf_radius_length = -1;

@@ -1,7 +1,7 @@
 /* print_dlg.c
  * Dialog boxes for printing
  *
- * $Id: print_dlg.c,v 1.28 2002/01/11 07:40:31 guy Exp $
+ * $Id: print_dlg.c,v 1.29 2002/01/21 07:37:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -37,7 +37,7 @@
 #include "simple_dialog.h"
 #include "ui_util.h"
 #include "dlg_utils.h"
-#include "epan_dissect.h"
+#include <epan/epan_dissect.h>
 
 /* On Win32, a GUI application apparently can't use "popen()" (it
   "returns an invalid file handle, if used in a Windows program,

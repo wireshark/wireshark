@@ -1,7 +1,7 @@
 /* packet-diameter.c
  * Routines for Diameter packet disassembly
  *
- * $Id: packet-diameter.c,v 1.40 2002/01/15 10:01:19 guy Exp $
+ * $Id: packet-diameter.c,v 1.41 2002/01/21 07:36:33 guy Exp $
  *
  * Copyright (c) 2001 by David Frascone <dave@frascone.com>
  *
@@ -42,10 +42,10 @@
 #include <ctype.h>
 #include <time.h>
 #include <glib.h>
-#include <filesystem.h>
+#include <epan/filesystem.h>
 #include "xmlstub.h"
-#include "packet.h"
-#include "resolv.h"
+#include <epan/packet.h>
+#include <epan/resolv.h>
 #include "prefs.h"
 
 /* This must be defined before we include packet-diameter-defs.h */

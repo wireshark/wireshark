@@ -8,7 +8,7 @@
  *
  * See RFCs 1905, 1906, 1909, and 1910 for SNMPv2u.
  *
- * $Id: packet-snmp.c,v 1.77 2001/12/12 05:26:53 gerald Exp $
+ * $Id: packet-snmp.c,v 1.78 2002/01/21 07:36:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -59,9 +59,9 @@
 
 #include <glib.h>
 
-#include "packet.h"
-#include "strutil.h"
-#include "conversation.h"
+#include <epan/packet.h>
+#include <epan/strutil.h>
+#include <epan/conversation.h>
 #include "etypes.h"
 #include "packet-ipx.h"
 

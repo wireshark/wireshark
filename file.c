@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.258 2002/01/10 11:05:48 guy Exp $
+ * $Id: file.c,v 1.259 2002/01/21 07:36:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -68,14 +68,14 @@
 # include <netinet/in.h>
 #endif
 
-#include <epan.h>
-#include <filesystem.h>
+#include <epan/epan.h>
+#include <epan/filesystem.h>
 
 #include "gtk/main.h"
 #include "color.h"
 #include "gtk/color_utils.h"
 #include "column.h"
-#include "packet.h"
+#include <epan/packet.h>
 #include "print.h"
 #include "file.h"
 #include "menu.h"
@@ -87,12 +87,12 @@
 #include "prefs.h"
 #include "gtk/proto_draw.h"
 #include "gtk/packet_win.h"
-#include "dfilter/dfilter.h"
-#include "conversation.h"
+#include <epan/dfilter/dfilter.h>
+#include <epan/conversation.h>
 #include "reassemble.h"
 #include "globals.h"
 #include "gtk/colors.h"
-#include "epan_dissect.h"
+#include <epan/epan_dissect.h>
 
 extern GtkWidget *packet_list, *byte_nb_ptr, *tree_view;
 

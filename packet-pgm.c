@@ -1,7 +1,7 @@
 /* packet-pgm.c
  * Routines for pgm packet disassembly
  *
- * $Id: packet-pgm.c,v 1.13 2002/01/20 23:25:54 guy Exp $
+ * $Id: packet-pgm.c,v 1.14 2002/01/21 07:36:38 guy Exp $
  * 
  * Copyright (c) 2000 by Talarian Corp
  *
@@ -45,16 +45,16 @@
 #include <ctype.h>
 #include <time.h>
 #include <string.h>
-#include "packet.h"
+#include <epan/packet.h>
 #include "packet-pgm.h"
 #include "afn.h"
 #include "ipproto.h"
-#include "resolv.h"
-#include "strutil.h"
-#include "conversation.h"
+#include <epan/resolv.h>
+#include <epan/strutil.h>
+#include <epan/conversation.h>
 #include "prefs.h"
 
-#include "proto.h"
+#include <epan/proto.h>
 
 void proto_reg_handoff_pgm(void);
 static void proto_rereg_pgm(void);

@@ -1,7 +1,7 @@
 /* reassemble.c
  * Routines for {fragment,segment} reassembly
  *
- * $Id: reassemble.c,v 1.7 2002/01/04 20:20:08 guy Exp $
+ * $Id: reassemble.c,v 1.8 2002/01/21 07:36:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -28,7 +28,7 @@
 
 #include <string.h>
 
-#include "packet.h"
+#include <epan/packet.h>
 
 #include "reassemble.h"
 

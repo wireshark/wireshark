@@ -3,7 +3,7 @@
  * Richard Sharpe <rsharpe@ns.aus.com> based on the lapb module by
  * Olivier Abad <oabad@cybercable.fr>
  *
- * $Id: packet-lapbether.c,v 1.8 2001/12/10 00:25:30 guy Exp $
+ * $Id: packet-lapbether.c,v 1.9 2002/01/21 07:36:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -35,7 +35,7 @@
 #include <stdio.h>
 #include <glib.h>
 #include <string.h>
-#include "packet.h"
+#include <epan/packet.h>
 #include "etypes.h"
 
 static int proto_lapbether = -1;

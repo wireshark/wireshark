@@ -1,10 +1,9 @@
 /*
- * $Id: dfilter.c,v 1.6 2001/12/18 19:09:06 gram Exp $
+ * $Id: dfilter.c,v 1.7 2002/01/21 07:37:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 2001 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -37,7 +36,7 @@
 #include "gencode.h"
 #include "semcheck.h"
 #include "dfvm.h"
-#include "epan_dissect.h"
+#include <epan/epan_dissect.h>
 
 
 /* Balanced tree of abbreviations and IDs */

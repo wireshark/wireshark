@@ -1,12 +1,11 @@
 /* plugins_dlg.c
  * Dialog boxes for plugins
  *
- * $Id: plugins_dlg.c,v 1.22 2001/01/28 21:17:29 guy Exp $
+ * $Id: plugins_dlg.c,v 1.23 2002/01/21 07:37:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1999 Gerald Combs
- *
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -38,7 +37,7 @@
 #include <gtk/gtk.h>
 
 #include "globals.h"
-#include "plugins.h"
+#include <epan/plugins.h>
 #include "dlg_utils.h"
 
 #ifdef HAVE_PLUGINS

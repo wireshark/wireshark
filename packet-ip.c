@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.157 2002/01/20 01:04:18 guy Exp $
+ * $Id: packet-ip.c,v 1.158 2002/01/21 07:36:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -42,8 +42,8 @@
 # include "snprintf.h"
 #endif
 
-#include "packet.h"
-#include "resolv.h"
+#include <epan/packet.h>
+#include <epan/resolv.h>
 #include "ipproto.h"
 #include "prefs.h"
 #include "reassemble.h"

@@ -3,7 +3,7 @@
  *
  * Uwe Girlich <uwe@planetquake.com>
  *
- * $Id: packet-quake3.c,v 1.8 2001/12/10 00:25:33 guy Exp $
+ * $Id: packet-quake3.c,v 1.9 2002/01/21 07:36:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -47,9 +47,9 @@
 
 #include <string.h>
 #include <glib.h>
-#include "packet.h"
+#include <epan/packet.h>
 #include "prefs.h"
-#include "resolv.h"
+#include <epan/resolv.h>
 
 static int proto_quake3 = -1;
 

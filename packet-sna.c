@@ -2,7 +2,7 @@
  * Routines for SNA
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-sna.c,v 1.37 2002/01/20 22:12:29 guy Exp $
+ * $Id: packet-sna.c,v 1.38 2002/01/21 07:36:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -32,9 +32,9 @@
 #endif
 
 #include <glib.h>
-#include "packet.h"
+#include <epan/packet.h>
 #include "llcsaps.h"
-#include "sna-utils.h"
+#include <epan/sna-utils.h>
 
 /*
  * http://www.wanresources.com/snacell.html

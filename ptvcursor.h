@@ -3,10 +3,10 @@
  * Proto Tree TVBuff cursor
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: ptvcursor.h,v 1.4 2002/01/10 04:44:34 gram Exp $
+ * $Id: ptvcursor.h,v 1.5 2002/01/21 07:36:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 2000 Gerald Combs
  * 
  * This program is free software; you can redistribute it and/or
@@ -32,7 +32,7 @@
 #endif
 
 #include <glib.h>
-#include "packet.h"
+#include <epan/packet.h>
 
 typedef struct ptvcursor ptvcursor_t;
 

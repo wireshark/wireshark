@@ -4,7 +4,7 @@
  * By Peter Torvals
  * Copyright 1999 Peter Torvals
  *
- * $Id: packet-icp.c,v 1.20 2001/12/10 00:25:28 guy Exp $
+ * $Id: packet-icp.c,v 1.21 2002/01/21 07:36:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -42,8 +42,8 @@
 #include <stdlib.h> 
 #include <string.h>
 #include <glib.h>
-#include "packet.h"
-#include "resolv.h"
+#include <epan/packet.h>
+#include <epan/resolv.h>
 
 static int proto_icp=-1;
 static int hf_icp_length=-1;

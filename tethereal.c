@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.118 2002/01/15 23:11:02 gram Exp $
+ * $Id: tethereal.c,v 1.119 2002/01/21 07:36:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -87,28 +87,28 @@
 #endif
 
 #include <glib.h>
-#include <epan.h>
+#include <epan/epan.h>
 
 #include "globals.h"
-#include "timestamp.h"
-#include "packet.h"
+#include <epan/timestamp.h>
+#include <epan/packet.h>
 #include "file.h"
 #include "prefs.h"
 #include "column.h"
 #include "print.h"
-#include "resolv.h"
+#include <epan/resolv.h>
 #include "util.h"
 #ifdef HAVE_LIBPCAP
 #include "pcap-util.h"
 #endif
-#include "conversation.h"
+#include <epan/conversation.h>
 #include "reassemble.h"
-#include "plugins.h"
+#include <epan/plugins.h>
 #include "register.h"
 #include "conditions.h"
 #include "capture_stop_conditions.h"
 #include "ringbuffer.h"
-#include "epan_dissect.h"
+#include <epan/epan_dissect.h>
 
 #ifdef WIN32
 #include "capture-wpcap.h"

@@ -1,7 +1,7 @@
 /* packet-smtp.c
  * Routines for SMTP packet disassembly
  *
- * $Id: packet-smtp.c,v 1.23 2001/12/10 00:25:36 guy Exp $
+ * $Id: packet-smtp.c,v 1.24 2002/01/21 07:36:43 guy Exp $
  *
  * Copyright (c) 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  *
@@ -42,11 +42,11 @@
 #include <time.h>
 #include <glib.h>
 #include <string.h>
-#include "packet.h"
-#include "conversation.h"
-#include "resolv.h"
+#include <epan/packet.h>
+#include <epan/conversation.h>
+#include <epan/resolv.h>
 #include "prefs.h"
-#include "strutil.h"
+#include <epan/strutil.h>
 
 #define TCP_PORT_SMTP 25
 

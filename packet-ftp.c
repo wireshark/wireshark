@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * Copyright 2001, Juan Toledo <toledo@users.sourceforge.net> (Passive FTP)
  * 
- * $Id: packet-ftp.c,v 1.39 2001/12/10 00:25:27 guy Exp $
+ * $Id: packet-ftp.c,v 1.40 2002/01/21 07:36:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -44,9 +44,9 @@
 
 #include <string.h>
 #include <glib.h>
-#include "packet.h"
-#include "strutil.h"
-#include "conversation.h"
+#include <epan/packet.h>
+#include <epan/strutil.h>
+#include <epan/conversation.h>
 
 static int proto_ftp = -1;
 static int proto_ftp_data = -1;

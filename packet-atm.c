@@ -1,7 +1,7 @@
 /* packet-atm.c
  * Routines for ATM packet disassembly
  *
- * $Id: packet-atm.c,v 1.39 2001/12/10 00:25:26 guy Exp $
+ * $Id: packet-atm.c,v 1.40 2002/01/21 07:36:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -32,9 +32,9 @@
 
 #include <stdio.h>
 #include <glib.h>
-#include "packet.h"
+#include <epan/packet.h>
 #include "oui.h"
-#include "resolv.h"
+#include <epan/resolv.h>
 
 #include "packet-snmp.h"
 

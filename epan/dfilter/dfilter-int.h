@@ -1,10 +1,9 @@
 /*
- * $Id: dfilter-int.h,v 1.4 2001/12/18 19:09:06 gram Exp $
+ * $Id: dfilter-int.h,v 1.5 2002/01/21 07:37:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 2001 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -27,7 +26,7 @@
 #include "dfilter.h"
 #include "syntax-tree.h"
 
-#include "proto.h"
+#include <epan/proto.h>
 
 /* Passed back to user */
 struct _dfilter_t {

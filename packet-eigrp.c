@@ -2,7 +2,7 @@
  * Routines for EIGRP dissection
  * Copyright 2000, Paul Ionescu <paul@acorp.ro>
  *
- * $Id: packet-eigrp.c,v 1.19 2001/12/10 00:25:27 guy Exp $
+ * $Id: packet-eigrp.c,v 1.20 2002/01/21 07:36:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -36,10 +36,10 @@
 #endif
 
 #include <glib.h>
-#include "packet.h"
-#include "resolv.h"
+#include <epan/packet.h>
+#include <epan/resolv.h>
 
-#include "atalk-utils.h"
+#include <epan/atalk-utils.h>
 #include "ipproto.h"
 #include "packet-ipx.h"
 

@@ -1,7 +1,7 @@
 /* ethertype.c
  * Routines for calling the right protocol for the ethertype.
  *
- * $Id: packet-ethertype.c,v 1.24 2001/12/10 00:25:27 guy Exp $
+ * $Id: packet-ethertype.c,v 1.25 2002/01/21 07:36:34 guy Exp $
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -33,7 +33,7 @@
 #endif
 
 #include <glib.h>
-#include "packet.h"
+#include <epan/packet.h>
 #include "packet-ip.h"
 #include "packet-ipx.h"
 #include "packet-vlan.h"

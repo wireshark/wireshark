@@ -2,7 +2,7 @@
  * Routines for SMB Browser packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb-browse.c,v 1.19 2001/12/10 00:25:34 guy Exp $
+ * $Id: packet-smb-browse.c,v 1.20 2002/01/21 07:36:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -43,8 +43,8 @@
 #include <string.h>
 #include <glib.h>
 #include <ctype.h>
-#include "packet.h"
-#include "conversation.h"
+#include <epan/packet.h>
+#include <epan/conversation.h>
 #include "smb.h"
 #include "alignment.h"
 

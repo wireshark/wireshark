@@ -2,7 +2,7 @@
  *
  * Routines for RFC 2250 MPEG-1 dissection
  *
- * $Id: packet-mpeg1.c,v 1.4 2001/12/10 00:25:30 guy Exp $
+ * $Id: packet-mpeg1.c,v 1.5 2002/01/21 07:36:37 guy Exp $
  * 
  * Copyright 2001, 
  * Francisco Javier Cabello Torres, <fjcabello@vtools.es>
@@ -38,7 +38,7 @@
 #endif
 
 #include <glib.h>
-#include "packet.h"
+#include <epan/packet.h>
 
 #ifdef HAVE_SYS_TYPES_H
 #  include <sys/types.h>

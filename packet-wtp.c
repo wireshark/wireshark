@@ -2,7 +2,7 @@
  *
  * Routines to dissect WTP component of WAP traffic.
  * 
- * $Id: packet-wtp.c,v 1.25 2002/01/17 06:29:17 guy Exp $
+ * $Id: packet-wtp.c,v 1.26 2002/01/21 07:36:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -53,7 +53,7 @@
 
 #include <string.h>
 #include <glib.h>
-#include "packet.h"
+#include <epan/packet.h>
 #include "reassemble.h"
 #include "packet-wap.h"
 #include "packet-wtp.h"

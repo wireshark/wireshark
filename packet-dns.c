@@ -1,7 +1,7 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
  *
- * $Id: packet-dns.c,v 1.79 2002/01/20 22:12:25 guy Exp $
+ * $Id: packet-dns.c,v 1.80 2002/01/21 07:36:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -35,9 +35,9 @@
 #include <memory.h>
 
 #include <glib.h>
-#include "packet.h"
+#include <epan/packet.h>
 #include "ipproto.h"
-#include "resolv.h"
+#include <epan/resolv.h>
 #include "packet-dns.h"
 #include "prefs.h"
 

@@ -1,7 +1,7 @@
 /* packet-cgmp.c
  * Routines for the disassembly of the Cisco Group Management Protocol
  *
- * $Id: packet-cgmp.c,v 1.12 2001/12/10 00:25:26 guy Exp $
+ * $Id: packet-cgmp.c,v 1.13 2002/01/21 07:36:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -32,7 +32,7 @@
 #include <string.h>
 
 #include <glib.h>
-#include "packet.h"
+#include <epan/packet.h>
 
 /*
  * See

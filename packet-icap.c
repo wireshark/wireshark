@@ -36,8 +36,8 @@
 #include <ctype.h>
 
 #include <glib.h>
-#include "packet.h"
-#include "strutil.h"
+#include <epan/packet.h>
+#include <epan/strutil.h>
 
 typedef enum _icap_type {
 	ICAP_OPTIONS,

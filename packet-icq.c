@@ -1,7 +1,7 @@
 /* packet-icq.c
  * Routines for ICQ packet disassembly
  *
- * $Id: packet-icq.c,v 1.37 2001/12/10 00:25:28 guy Exp $
+ * $Id: packet-icq.c,v 1.38 2002/01/21 07:36:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -61,8 +61,8 @@
 # include "snprintf.h"
 #endif
 
-#include "packet.h"
-#include "resolv.h"
+#include <epan/packet.h>
+#include <epan/resolv.h>
 
 static int proto_icq = -1;
 static int hf_icq_uin = -1;

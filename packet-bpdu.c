@@ -1,7 +1,7 @@
 /* packet-bpdu.c
  * Routines for BPDU (Spanning Tree Protocol) disassembly
  *
- * $Id: packet-bpdu.c,v 1.30 2001/12/10 00:25:26 guy Exp $
+ * $Id: packet-bpdu.c,v 1.31 2002/01/21 07:36:32 guy Exp $
  *
  * Copyright 1999 Christophe Tronche <ch.tronche@computer.org>
  * 
@@ -39,10 +39,10 @@
 #include <stdio.h>
 #include <string.h>
 #include <glib.h>
-#include "packet.h"
+#include <epan/packet.h>
 #include "llcsaps.h"
 #include "ppptypes.h"
-#include "resolv.h"
+#include <epan/resolv.h>
 
 /* Offsets of fields within a BPDU */
 

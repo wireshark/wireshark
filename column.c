@@ -1,12 +1,11 @@
 /* column.c
  * Routines for handling column preferences
  *
- * $Id: column.c,v 1.34 2001/07/22 21:56:25 guy Exp $
+ * $Id: column.c,v 1.35 2002/01/21 07:36:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -44,10 +43,10 @@
 #include <sys/stat.h>
 #endif
 
-#include "timestamp.h"
+#include <epan/timestamp.h>
 #include "prefs.h"
 #include "column.h"
-#include "packet.h"
+#include <epan/packet.h>
 
 /* Given a format number (as defined in packet.h), returns its equivalent
    string */

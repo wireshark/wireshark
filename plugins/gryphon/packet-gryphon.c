@@ -3,7 +3,7 @@
  * By Steve Limkemann <stevelim@dgtech.com>
  * Copyright 1998 Steve Limkemann
  *
- * $Id: packet-gryphon.c,v 1.26 2001/12/10 00:26:20 guy Exp $
+ * $Id: packet-gryphon.c,v 1.27 2002/01/21 07:37:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -44,7 +44,7 @@
 #ifdef HAVE_NETINET_IN_H
 # include <netinet/in.h>
 #endif
-#include "packet.h"
+#include <epan/packet.h>
 #include "packet-gryphon.h"
 
 #include "plugins/plugin_api_defs.h"

@@ -2,7 +2,7 @@
  * Routines for BOOTP/DHCP packet disassembly
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-bootp.c,v 1.61 2001/12/27 23:53:10 guy Exp $
+ * $Id: packet-bootp.c,v 1.62 2002/01/21 07:36:32 guy Exp $
  *
  * The information used comes from:
  * RFC  951: Bootstrap Protocol
@@ -45,8 +45,8 @@
 
 #include <string.h>
 #include <glib.h>
-#include "int-64bit.h"
-#include "packet.h"
+#include <epan/int-64bit.h>
+#include <epan/packet.h>
 #include "packet-arp.h"
 
 static int proto_bootp = -1;

@@ -1,7 +1,7 @@
 /* packet-dec-bpdu.c
  * Routines for DEC BPDU (DEC Spanning Tree Protocol) disassembly
  *
- * $Id: packet-dec-bpdu.c,v 1.9 2001/12/10 00:25:27 guy Exp $
+ * $Id: packet-dec-bpdu.c,v 1.10 2002/01/21 07:36:33 guy Exp $
  *
  * Copyright 2001 Paul Ionescu <paul@acorp.ro>
  * 
@@ -39,8 +39,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <glib.h>
-#include "packet.h"
-#include "resolv.h"
+#include <epan/packet.h>
+#include <epan/resolv.h>
 #include "etypes.h"
 #include "ppptypes.h"
 

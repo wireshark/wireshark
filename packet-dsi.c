@@ -2,7 +2,7 @@
  * Routines for dsi packet dissection
  * Copyright 2001, Randy McEoin <rmceoin@pe.com>
  *
- * $Id: packet-dsi.c,v 1.7 2001/12/10 00:25:27 guy Exp $
+ * $Id: packet-dsi.c,v 1.8 2002/01/21 07:36:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -41,9 +41,9 @@
 
 #include <string.h>
 #include <glib.h>
-#include "packet.h"
-#include "strutil.h"
-#include "conversation.h"
+#include <epan/packet.h>
+#include <epan/strutil.h>
+#include <epan/conversation.h>
 
 /* The information in this module (DSI) comes from:
 

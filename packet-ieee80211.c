@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB 
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.46 2001/12/10 00:25:28 guy Exp $
+ * $Id: packet-ieee80211.c,v 1.47 2002/01/21 07:36:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -61,10 +61,10 @@
 
 #include <string.h>
 #include <glib.h>
-#include "bitswap.h"
-#include "proto.h"
-#include "packet.h"
-#include "resolv.h"
+#include <epan/bitswap.h>
+#include <epan/proto.h>
+#include <epan/packet.h>
+#include <epan/resolv.h>
 #include "packet-ipx.h"
 #include "packet-llc.h"
 #include "packet-ieee80211.h"

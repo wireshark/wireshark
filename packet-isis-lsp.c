@@ -1,7 +1,7 @@
 /* packet-isis-lsp.c
  * Routines for decoding isis lsp packets and their CLVs
  *
- * $Id: packet-isis-lsp.c,v 1.24 2002/01/20 22:12:26 guy Exp $
+ * $Id: packet-isis-lsp.c,v 1.25 2002/01/21 07:36:36 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -40,13 +40,13 @@
 #endif
 
 #include "epan/ipv4.h"
-#include "packet.h"
+#include <epan/packet.h>
 #include "packet-osi.h"
 #include "packet-ipv6.h"
 #include "packet-isis.h"
 #include "packet-isis-clv.h"
 #include "packet-isis-lsp.h"
-#include "resolv.h"
+#include <epan/resolv.h>
 
 /* lsp packets */
 static int hf_isis_lsp_pdu_length = -1;

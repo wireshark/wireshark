@@ -1,10 +1,10 @@
 /* asn1.c
  * Routines for ASN.1 BER dissection
  *
- * $Id: asn1.c,v 1.7 2001/04/15 07:30:02 guy Exp $
+ * $Id: asn1.c,v 1.8 2002/01/21 07:36:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  *
  * Based on "g_asn1.c" from:
  *
@@ -25,7 +25,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- *
  */
 
 /*
@@ -70,7 +69,7 @@
 #endif
 
 #include <glib.h>
-#include "tvbuff.h"
+#include <epan/tvbuff.h>
 #include "asn1.h"
 
 /*

@@ -1,6 +1,6 @@
 /* follow_dlg.c
  *
- * $Id: follow_dlg.c,v 1.19 2002/01/18 19:46:19 guy Exp $
+ * $Id: follow_dlg.c,v 1.20 2002/01/21 07:37:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -68,10 +68,10 @@
 #include "simple_dialog.h"
 #include "packet-ipv6.h"
 #include "prefs.h"
-#include "resolv.h"
+#include <epan/resolv.h>
 #include "util.h"
 #include "ui_util.h"
-#include "epan_dissect.h"
+#include <epan/epan_dissect.h>
 
 /* Show Stream */
 typedef enum {

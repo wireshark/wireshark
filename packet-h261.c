@@ -2,7 +2,7 @@
  *
  * Routines for ITU-T Recommendation H.261 dissection
  *
- * $Id: packet-h261.c,v 1.10 2001/12/10 00:25:28 guy Exp $
+ * $Id: packet-h261.c,v 1.11 2002/01/21 07:36:35 guy Exp $
  * 
  * Copyright 2000, Philips Electronics N.V.
  * Andreas Sikkema <andreas.sikkema@philips.com>
@@ -39,7 +39,7 @@
 #endif
 
 #include <glib.h>
-#include "packet.h"
+#include <epan/packet.h>
 
 #ifdef HAVE_SYS_TYPES_H
 #  include <sys/types.h>

@@ -1,10 +1,9 @@
 /*
- * $Id: ftype-integer.c,v 1.6 2001/07/13 00:55:56 guy Exp $
+ * $Id: ftype-integer.c,v 1.7 2002/01/21 07:37:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 2001 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -33,7 +32,7 @@
 #include <stdlib.h>
 #include <errno.h>
 #include "ftypes-int.h"
-#include "resolv.h"
+#include <epan/resolv.h>
 
 
 static void

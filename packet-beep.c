@@ -1,7 +1,7 @@
 /* packet-beep.c
  * Routines for BEEP packet disassembly
  *
- * $Id: packet-beep.c,v 1.2 2001/12/10 00:25:26 guy Exp $
+ * $Id: packet-beep.c,v 1.3 2002/01/21 07:36:32 guy Exp $
  *
  * Copyright (c) 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  * Modified 2001 Darren New <dnew@invisible.net> for BEEP.
@@ -46,10 +46,10 @@
 #include <time.h>
 #include <glib.h>
 #include <string.h>
-#include "packet.h"
-#include "resolv.h"
+#include <epan/packet.h>
+#include <epan/resolv.h>
 #include "prefs.h"
-#include "conversation.h"
+#include <epan/conversation.h>
 
 #define TCP_PORT_BEEP 10288
 void proto_reg_handoff_beep(void);

@@ -2,7 +2,7 @@
  * Routines for ISO/OSI network and transport protocol packet disassembly, core
  * bits.
  *
- * $Id: packet-isis.c,v 1.28 2001/12/20 07:33:21 guy Exp $
+ * $Id: packet-isis.c,v 1.29 2002/01/21 07:36:36 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -35,7 +35,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <glib.h>
-#include "packet.h"
+#include <epan/packet.h>
 #include "nlpid.h"
 #include "packet-osi.h"
 #include "packet-isis.h"

@@ -1,10 +1,9 @@
 /*
- * $Id: ftype-tvbuff.c,v 1.5 2001/03/13 21:34:28 gram Exp $
+ * $Id: ftype-tvbuff.c,v 1.6 2002/01/21 07:37:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 2001 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -26,7 +25,7 @@
 #endif
 
 #include <ftypes-int.h>
-#include "gdebug.h"
+#include <epan/gdebug.h>
 
 static void
 value_new(fvalue_t *fv)

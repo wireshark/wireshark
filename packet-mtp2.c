@@ -5,7 +5,7 @@
  *
  * Copyright 2001, Michael Tuexen <michael.tuexen[AT]icn.siemens.de>
  *
- * $Id: packet-mtp2.c,v 1.2 2002/01/20 22:12:26 guy Exp $
+ * $Id: packet-mtp2.c,v 1.3 2002/01/21 07:36:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -34,7 +34,7 @@
 
 #include <glib.h>
 
-#include "packet.h"
+#include <epan/packet.h>
 
 /* Initialize the protocol and registered fields */
 static int proto_mtp2      = -1;

@@ -1,7 +1,7 @@
 /* print.c
  * Routines for printing packet analysis trees.
  *
- * $Id: print.c,v 1.38 2001/12/18 21:31:02 gram Exp $
+ * $Id: print.c,v 1.39 2002/01/21 07:36:48 guy Exp $
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -35,11 +35,11 @@
 # include <sys/types.h>
 #endif
 
-#include "packet.h"
+#include <epan/packet.h>
 #include "print.h"
 #include "ps.h"
 #include "util.h"
-#include "tvbuff.h"
+#include <epan/tvbuff.h>
 
 static void proto_tree_print_node_text(GNode *node, gpointer data);
 static void proto_tree_print_node_ps(GNode *node, gpointer data);

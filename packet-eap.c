@@ -1,7 +1,7 @@
 /* packet-eap.c
  * Routines for EAP Extensible Authentication Protocol header disassembly
  *
- * $Id: packet-eap.c,v 1.4 2001/12/10 00:25:27 guy Exp $
+ * $Id: packet-eap.c,v 1.5 2002/01/21 07:36:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -35,7 +35,7 @@
 #endif
 
 #include <glib.h>
-#include "packet.h"
+#include <epan/packet.h>
 #include "packet-ieee8023.h"
 #include "packet-ipx.h"
 #include "packet-llc.h"

@@ -1,7 +1,7 @@
 /* print.h
  * Definitions for printing packet analysis trees.
  *
- * $Id: print.h,v 1.24 2001/11/13 23:55:30 gram Exp $
+ * $Id: print.h,v 1.25 2002/01/21 07:36:48 guy Exp $
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -27,7 +27,7 @@
 #ifndef __PRINT_H__
 #define __PRINT_H__
 
-#include "packet.h"
+#include <epan/packet.h>
 
 #define PR_FMT_TEXT 0
 #define PR_FMT_PS   1

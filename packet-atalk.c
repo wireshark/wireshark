@@ -1,7 +1,7 @@
 /* packet-atalk.c
  * Routines for Appletalk packet disassembly (DDP, currently).
  *
- * $Id: packet-atalk.c,v 1.61 2002/01/20 22:12:25 guy Exp $
+ * $Id: packet-atalk.c,v 1.62 2002/01/21 07:36:32 guy Exp $
  *
  * Simon Wilkinson <sxw@dcs.ed.ac.uk>
  *
@@ -37,11 +37,11 @@
 #endif
 
 #include <glib.h>
-#include "packet.h"
+#include <epan/packet.h>
 #include "etypes.h"
 #include "ppptypes.h"
 #include "aftypes.h"
-#include "atalk-utils.h"
+#include <epan/atalk-utils.h>
 
 static int proto_llap = -1;
 static int hf_llap_dst = -1;

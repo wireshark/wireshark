@@ -2,7 +2,7 @@
  *
  * Top-most dissector. Decides dissector based on Wiretap Encapsulation Type.
  *
- * $Id: packet-frame.c,v 1.19 2002/01/17 09:28:22 guy Exp $
+ * $Id: packet-frame.c,v 1.20 2002/01/21 07:36:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -28,9 +28,9 @@
 #endif
 
 #include <glib.h>
-#include "packet.h"
-#include "timestamp.h"
-#include "tvbuff.h"
+#include <epan/packet.h>
+#include <epan/timestamp.h>
+#include <epan/tvbuff.h>
 #include "packet-frame.h"
 #include "prefs.h"
 

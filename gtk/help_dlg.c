@@ -1,6 +1,6 @@
 /* help_dlg.c
  *
- * $Id: help_dlg.c,v 1.20 2002/01/11 07:40:31 guy Exp $
+ * $Id: help_dlg.c,v 1.21 2002/01/21 07:37:41 guy Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
@@ -46,7 +46,7 @@
 #include "gtkglobals.h"
 #include "main.h"
 #include "ui_util.h"
-#include "proto.h"
+#include <epan/proto.h>
 
 typedef enum {
   OVERVIEW_HELP,

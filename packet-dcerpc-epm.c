@@ -2,7 +2,7 @@
  * Routines for dcerpc endpoint mapper dissection
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc-epm.c,v 1.3 2001/12/06 23:30:35 guy Exp $
+ * $Id: packet-dcerpc-epm.c,v 1.4 2002/01/21 07:36:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -35,7 +35,7 @@
 #include <string.h>
 
 #include <glib.h>
-#include "packet.h"
+#include <epan/packet.h>
 #include "packet-dcerpc.h"
 
 

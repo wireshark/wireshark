@@ -1,7 +1,7 @@
 /* afn.c
  * RFC 1700 address family numbers
  *
- * $Id: afn.c,v 1.1 2001/07/21 10:27:12 guy Exp $
+ * $Id: afn.c,v 1.2 2002/01/21 07:36:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -26,7 +26,7 @@
 # include "config.h"
 #endif
 
-#include "packet.h"
+#include <epan/packet.h>
 #include "afn.h"
 
 const value_string afn_vals[] = {

@@ -2,7 +2,7 @@
  * Routines for ISO/OSI End System to Intermediate System  
  * Routing Exchange Protocol ISO 9542.
  *
- * $Id: packet-esis.c,v 1.19 2001/12/10 00:25:27 guy Exp $
+ * $Id: packet-esis.c,v 1.20 2002/01/21 07:36:34 guy Exp $
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
  * Ethereal - Network traffic analyzer
@@ -35,7 +35,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <glib.h>
-#include "packet.h"
+#include <epan/packet.h>
 #include "nlpid.h"
 #include "packet-osi.h"
 #include "packet-osi-options.h"

@@ -2,7 +2,7 @@
  * Routines for SMB \\PIPE\\winreg packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-reg.c,v 1.2 2002/01/03 20:42:40 guy Exp $
+ * $Id: packet-dcerpc-reg.c,v 1.3 2002/01/21 07:36:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -28,7 +28,7 @@
 #endif
 
 #include <glib.h>
-#include "packet.h"
+#include <epan/packet.h>
 #include "packet-dcerpc.h"
 #include "packet-dcerpc-reg.h"
 

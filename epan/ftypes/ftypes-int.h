@@ -1,10 +1,9 @@
 /*
- * $Id: ftypes-int.h,v 1.4 2001/03/02 17:17:56 gram Exp $
+ * $Id: ftypes-int.h,v 1.5 2002/01/21 07:37:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 2001 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -24,7 +23,7 @@
 #ifndef FTYPES_INT_H
 #define FTYPES_INT_H
 
-#include "packet.h"
+#include <epan/packet.h>
 #include "ftypes.h"
 
 typedef void (*FvalueNewFunc)(fvalue_t*);

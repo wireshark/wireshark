@@ -4,7 +4,7 @@
  * Jason Lango <jal@netapp.com>
  * Liberally copied from packet-http.c, by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-rtsp.c,v 1.46 2002/01/20 22:12:27 guy Exp $
+ * $Id: packet-rtsp.c,v 1.47 2002/01/21 07:36:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -36,11 +36,11 @@
 #include <stdlib.h>
 
 #include <glib.h>
-#include "packet.h"
+#include <epan/packet.h>
 #include "packet-rtp.h"
 #include "packet-rtcp.h"
-#include "conversation.h"
-#include "strutil.h"
+#include <epan/conversation.h>
+#include <epan/strutil.h>
 
 static int proto_rtsp = -1;
 static gint ett_rtsp = -1;

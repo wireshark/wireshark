@@ -1,7 +1,7 @@
 /* packet-arp.c
  * Routines for ARP packet disassembly
  *
- * $Id: packet-arp.c,v 1.48 2001/12/10 00:25:26 guy Exp $
+ * $Id: packet-arp.c,v 1.49 2002/01/21 07:36:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -32,9 +32,9 @@
 
 #include <string.h>
 #include <glib.h>
-#include "packet.h"
-#include "strutil.h"
-#include "resolv.h"
+#include <epan/packet.h>
+#include <epan/strutil.h>
+#include <epan/resolv.h>
 #include "packet-arp.h"
 #include "etypes.h"
 

@@ -4,7 +4,7 @@
  *
  * Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-auto_rp.c,v 1.16 2001/12/10 00:25:26 guy Exp $
+ * $Id: packet-auto_rp.c,v 1.17 2002/01/21 07:36:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -39,8 +39,8 @@
 
 #include <string.h>
 #include <glib.h>
-#include "packet.h"
-#include "resolv.h"
+#include <epan/packet.h>
+#include <epan/resolv.h>
 
 static gint proto_auto_rp = -1;
 static gint ett_auto_rp = -1;

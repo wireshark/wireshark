@@ -1,10 +1,9 @@
 /*
- * $Id: sttype-range.c,v 1.3 2001/02/27 19:23:28 gram Exp $
+ * $Id: sttype-range.c,v 1.4 2002/01/21 07:37:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 2001 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -32,7 +31,7 @@
 
 #include <glib.h>
 
-#include "proto.h"
+#include <epan/proto.h>
 #include "drange.h"
 #include "sttype-range.h"
 

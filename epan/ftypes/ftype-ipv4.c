@@ -1,5 +1,5 @@
 /*
- * $Id: ftype-ipv4.c,v 1.6 2001/07/13 00:55:56 guy Exp $
+ * $Id: ftype-ipv4.c,v 1.7 2002/01/21 07:37:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -27,8 +27,8 @@
 #include <string.h>
 
 #include <ftypes-int.h>
-#include "ipv4.h"
-#include "resolv.h"
+#include <epan/ipv4.h>
+#include <epan/resolv.h>
 
 
 static void

@@ -1,7 +1,7 @@
 /* nameres_prefs.c
  * Dialog box for name resolution preferences
  *
- * $Id: nameres_prefs.c,v 1.2 2002/01/20 20:05:18 guy Exp $
+ * $Id: nameres_prefs.c,v 1.3 2002/01/21 07:37:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -33,7 +33,7 @@
 #include "globals.h"
 #include "nameres_prefs.h"
 #include "gtkglobals.h"
-#include "resolv.h"
+#include <epan/resolv.h>
 #include "prefs.h"
 #include "prefs_dlg.h"
 #include "ui_util.h"

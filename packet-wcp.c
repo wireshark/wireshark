@@ -2,7 +2,7 @@
  * Routines for Wellfleet Compression frame disassembly
  * Copyright 2001, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-wcp.c,v 1.19 2001/12/10 00:25:41 guy Exp $
+ * $Id: packet-wcp.c,v 1.20 2002/01/21 07:36:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -107,9 +107,9 @@
 #include <stdio.h>
 #include <glib.h>
 #include <string.h>
-#include "packet.h"
+#include <epan/packet.h>
 #include "packet-frame.h"
-#include "conversation.h"
+#include <epan/conversation.h>
 #include "etypes.h"
 #include "nlpid.h"
 

@@ -1,7 +1,7 @@
 /* file.h
  * Definitions for file structures and routines
  *
- * $Id: file.h,v 1.88 2001/12/06 04:25:07 gram Exp $
+ * $Id: file.h,v 1.89 2002/01/21 07:36:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -30,10 +30,10 @@
 #endif
 
 #include "wiretap/wtap.h"
-#include "dfilter/dfilter.h"
+#include <epan/dfilter/dfilter.h>
 #include "print.h"
 #include <errno.h>
-#include <epan.h>
+#include <epan/epan.h>
 
 /* Current state of file. */
 typedef enum {

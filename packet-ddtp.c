@@ -3,7 +3,7 @@
  * see http://ddt.sourceforge.net/
  * Olivier Abad <oabad@cybercable.fr>
  *
- * $Id: packet-ddtp.c,v 1.18 2001/12/10 00:25:27 guy Exp $
+ * $Id: packet-ddtp.c,v 1.19 2002/01/21 07:36:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -41,7 +41,7 @@
 #ifdef HAVE_NETINET_IN_H
 # include <netinet/in.h>
 #endif
-#include "packet.h"
+#include <epan/packet.h>
 #include "packet-ddtp.h"
 
 static int proto_ddtp = -1;

@@ -6,7 +6,7 @@
  * Copyright 2001, Jeff Morriss <jeff.morriss[AT]ulticom.com>, 
  * updated by Michael Tuexen <michael.tuexen[AT]icn.siemens.de>
  *
- * $Id: packet-m2pa.c,v 1.5 2002/01/20 22:12:26 guy Exp $
+ * $Id: packet-m2pa.c,v 1.6 2002/01/21 07:36:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -52,7 +52,7 @@
 # include "snprintf.h"
 #endif
 
-#include "packet.h"
+#include <epan/packet.h>
 #include "prefs.h"
 
 /* Warning:  Neither of these are standardized yet! */

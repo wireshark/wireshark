@@ -1,10 +1,9 @@
 /*
- * $Id: dfilter.h,v 1.3 2001/12/18 19:09:06 gram Exp $
+ * $Id: dfilter.h,v 1.4 2002/01/21 07:37:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 2001 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -29,8 +28,8 @@
 /* Passed back to user */
 typedef struct _dfilter_t dfilter_t;
 
-#include "epan.h"
-#include "proto.h"
+#include <epan/epan.h>
+#include <epan/proto.h>
 
 
 /* Module-level initialization */

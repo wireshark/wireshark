@@ -7,7 +7,7 @@
  * This file is based on packet-aim.c, which is
  * Copyright 2000, Ralf Hoelzer <ralf@well.com>
  *
- * $Id: packet-skinny.c,v 1.7 2001/12/10 00:25:34 guy Exp $
+ * $Id: packet-skinny.c,v 1.8 2002/01/21 07:36:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -57,9 +57,9 @@
  * #endif
  */
 
-#include "packet.h"
+#include <epan/packet.h>
 /* REMOVE?
- * #include "strutil.h"
+ * #include <epan/strutil.h>
  */
 
 #define TCP_PORT_SKINNY 2000

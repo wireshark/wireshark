@@ -2,7 +2,7 @@ include ..\config.nmake
 
 ############### no need to modify below this line #########
 
-CFLAGS=-DHAVE_CONFIG_H /I.. /I../epan /I../wiretap \
+CFLAGS=-DHAVE_CONFIG_H /I.. /I../wiretap \
 	/I$(GLIB_DIR) /I$(GTK_DIR) /I$(GLIB_DIR)/gmodule \
 	/I$(GTK_DIR)\gdk /I$(GTK_DIR)\gdk\win32 \
 	/I$(PCAP_DIR)\WPCAP\LIBPCAP /I$(PCAP_DIR)\WPCAP\LIBPCAP\bpf \

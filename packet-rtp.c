@@ -6,7 +6,7 @@
  * Copyright 2000, Philips Electronics N.V.
  * Written by Andreas Sikkema <andreas.sikkema@philips.com>
  *
- * $Id: packet-rtp.c,v 1.31 2001/12/10 00:25:33 guy Exp $
+ * $Id: packet-rtp.c,v 1.32 2002/01/21 07:36:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -56,7 +56,7 @@
 #endif
 
 #include <glib.h>
-#include "packet.h"
+#include <epan/packet.h>
 
 #ifdef HAVE_SYS_TYPES_H
 #  include <sys/types.h>
@@ -70,7 +70,7 @@
 #include <string.h>
 
 #include "packet-rtp.h"
-#include "conversation.h"
+#include <epan/conversation.h>
 
 /* RTP header fields             */
 static int proto_rtp           = -1;

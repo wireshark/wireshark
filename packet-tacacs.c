@@ -2,7 +2,7 @@
  * Routines for cisco tacacs/xtacacs/tacacs+ packet dissection
  * Copyright 2001, Paul Ionescu <paul@acorp.ro>
  *
- * $Id: packet-tacacs.c,v 1.18 2001/12/10 00:25:39 guy Exp $
+ * $Id: packet-tacacs.c,v 1.19 2002/01/21 07:36:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -46,7 +46,7 @@
 
 #include <string.h>
 #include <glib.h>
-#include "packet.h"
+#include <epan/packet.h>
 
 static int proto_tacacs = -1;
 static int hf_tacacs_version = -1;

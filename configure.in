@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.145 2002/01/20 23:05:22 gerald Exp $
+# $Id: configure.in,v 1.146 2002/01/21 07:36:31 guy Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -114,8 +114,8 @@ else
 	esac
 fi
 
-CFLAGS="$CFLAGS -I\$(top_srcdir) -I\$(top_srcdir)/wiretap -I\$(top_srcdir)/epan"
-CPPFLAGS="$CPPFLAGS -I\$(top_srcdir) -I\$(top_srcdir)/wiretap -I\$(top_srcdir)/epan"
+CFLAGS="$CFLAGS -I\$(top_srcdir) -I\$(top_srcdir)/wiretap"
+CPPFLAGS="$CPPFLAGS -I\$(top_srcdir) -I\$(top_srcdir)/wiretap"
 
 dnl Look in /usr/local for header files and libraries ?
 AC_ARG_ENABLE(usr-local,

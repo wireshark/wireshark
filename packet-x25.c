@@ -2,7 +2,7 @@
  * Routines for x25 packet disassembly
  * Olivier Abad <oabad@cybercable.fr>
  *
- * $Id: packet-x25.c,v 1.62 2001/12/10 00:25:41 guy Exp $
+ * $Id: packet-x25.c,v 1.63 2002/01/21 07:36:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -36,7 +36,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "llcsaps.h"
-#include "packet.h"
+#include <epan/packet.h>
 #include "prefs.h"
 #include "nlpid.h"
 #include "x264_prt_id.h"

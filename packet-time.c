@@ -3,7 +3,7 @@
  *
  * Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-time.c,v 1.16 2001/12/10 00:25:40 guy Exp $
+ * $Id: packet-time.c,v 1.17 2002/01/21 07:36:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -30,7 +30,7 @@
 # include "config.h"
 #endif
 
-#include "packet.h"
+#include <epan/packet.h>
 
 static int proto_time = -1;
 static int hf_time_time = -1;

@@ -2,7 +2,7 @@
  *
  * Utility routines for WAP dissectors
  *
- * $Id: packet-wap.c,v 1.4 2001/12/03 02:10:31 guy Exp $
+ * $Id: packet-wap.c,v 1.5 2002/01/21 07:36:44 guy Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -36,7 +36,7 @@
 #endif
 
 #include <glib.h>
-#include "packet.h"
+#include <epan/packet.h>
 #include "packet-wap.h"
 
 /* 

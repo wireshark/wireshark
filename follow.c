@@ -1,13 +1,12 @@
 /* follow.c
  *
- * $Id: follow.c,v 1.27 2001/05/24 23:07:40 guy Exp $
+ * $Id: follow.c,v 1.28 2002/01/21 07:36:31 guy Exp $
  *
  * Copyright 1998 Mike Hall <mlh@io.com>
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -41,7 +40,7 @@
 #endif
 
 #include <glib.h>
-#include "packet.h"
+#include <epan/packet.h>
 #include "follow.h"
 
 FILE* data_out_file;

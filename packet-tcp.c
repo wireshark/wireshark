@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.127 2002/01/20 22:12:29 guy Exp $
+ * $Id: packet-tcp.c,v 1.128 2002/01/21 07:36:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -43,14 +43,14 @@
 # include "snprintf.h"
 #endif
 
-#include "resolv.h"
+#include <epan/resolv.h>
 #include "ipproto.h"
 #include "follow.h"
 #include "prefs.h"
 #include "packet-tcp.h"
 #include "packet-ip.h"
-#include "conversation.h"
-#include "strutil.h"
+#include <epan/conversation.h>
+#include <epan/strutil.h>
 #include "reassemble.h"
 
 /* Place TCP summary in proto tree */

@@ -1,6 +1,6 @@
 /* proto_hier_stats.h
  *
- * $Id: proto_hier_stats.h,v 1.2 2001/06/12 06:31:14 guy Exp $
+ * $Id: proto_hier_stats.h,v 1.3 2002/01/21 07:36:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -24,7 +24,7 @@
 #ifndef PROTO_HIER_STATS_H
 #define PROTO_HIER_STATS_H
 
-#include "proto.h"
+#include <epan/proto.h>
 
 typedef struct {
 	header_field_info	*hfinfo;

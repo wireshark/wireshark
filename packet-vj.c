@@ -1,7 +1,7 @@
 /* packet-vj.c
  * Routines for Van Jacobson header decompression. 
  *
- * $Id: packet-vj.c,v 1.4 2002/01/10 22:07:49 guy Exp $
+ * $Id: packet-vj.c,v 1.5 2002/01/21 07:36:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -69,7 +69,7 @@
 
 #include <glib.h>
 #include <string.h>
-#include "packet.h"
+#include <epan/packet.h>
 #include "packet-ppp.h"
 #include "ppptypes.h"
 #include "in_cksum.h"

@@ -4,7 +4,7 @@
  * Based on routines from tcpdump patches by
  *   Ken Hornstein <kenh@cmf.nrl.navy.mil>
  *
- * $Id: packet-rx.c,v 1.30 2002/01/20 22:12:27 guy Exp $
+ * $Id: packet-rx.c,v 1.31 2002/01/21 07:36:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -43,9 +43,9 @@
 
 #include <string.h>
 #include <glib.h>
-#include "packet.h"
+#include <epan/packet.h>
 #include "packet-rx.h"
-#include "resolv.h"
+#include <epan/resolv.h>
 
 #define UDP_PORT_RX_LOW		7000
 #define UDP_PORT_RX_HIGH	7009

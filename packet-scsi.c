@@ -2,7 +2,7 @@
  * Routines for decoding SCSI CDBs and responses
  * Author: Dinesh G Dutt (ddutt@cisco.com)
  *
- * $Id: packet-scsi.c,v 1.2 2002/01/16 20:25:07 guy Exp $
+ * $Id: packet-scsi.c,v 1.3 2002/01/21 07:36:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -81,8 +81,8 @@
 
 #include <glib.h>
 #include <string.h>
-#include "strutil.h"
-#include "conversation.h"
+#include <epan/strutil.h>
+#include <epan/conversation.h>
 #include "prefs.h"
 #include "packet-scsi.h"
 

@@ -1,7 +1,7 @@
 /* packet-ipv6.h
  * Definitions for IPv6 packet disassembly 
  *
- * $Id: packet-ipv6.h,v 1.25 2002/01/15 20:11:10 guy Exp $
+ * $Id: packet-ipv6.h,v 1.26 2002/01/21 07:36:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -30,7 +30,7 @@
 #ifndef __PACKET_IPV6_H_DEFINED__
 #define __PACKET_IPV6_H_DEFINED__
 
-#include "ipv6-utils.h"
+#include <epan/ipv6-utils.h>
 
 #define INET6_ADDRSTRLEN	46
 

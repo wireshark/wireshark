@@ -3,7 +3,7 @@
  *
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet_win.c,v 1.31 2002/01/11 07:40:31 guy Exp $
+ * $Id: packet_win.c,v 1.32 2002/01/21 07:37:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -45,10 +45,10 @@
 #include <unistd.h>
 #endif
 
-#include <epan.h>
+#include <epan/epan.h>
 #include "main.h"
-#include "timestamp.h"
-#include "packet.h"
+#include <epan/timestamp.h>
+#include <epan/packet.h>
 #include "summary.h"
 #include "file.h"
 #include "prefs.h"
@@ -56,14 +56,14 @@
 #include "../menu.h"
 #include "column.h"
 #include "print.h"
-#include "resolv.h"
+#include <epan/resolv.h>
 #include "packet_win.h"
 #include "simple_dialog.h"
 #include "proto_draw.h"
 #include "keys.h"
 #include "gtkglobals.h"
-#include "plugins.h"
-#include "epan_dissect.h"
+#include <epan/plugins.h>
+#include <epan/epan_dissect.h>
 
 /* Data structure holding information about a packet-detail window. */
 struct PacketWinData {

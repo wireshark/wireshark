@@ -1,12 +1,11 @@
 /* find_dlg.c
  * Routines for "find frame" window
  *
- * $Id: find_dlg.c,v 1.19 2001/02/01 20:21:21 gram Exp $
+ * $Id: find_dlg.c,v 1.20 2002/01/21 07:37:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -36,8 +35,8 @@
 
 #include <glib.h>
 
-#include "proto.h"
-#include "dfilter/dfilter.h"
+#include <epan/proto.h>
+#include <epan/dfilter/dfilter.h>
 #include "globals.h"
 
 #include "ui_util.h"
