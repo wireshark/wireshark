@@ -1,6 +1,6 @@
 /* file.c
  *
- * $Id: file.c,v 1.55 2000/07/20 09:39:43 guy Exp $
+ * $Id: file.c,v 1.56 2000/07/26 06:04:32 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -229,12 +229,16 @@ const static struct file_type_info {
 	{ "libpcap (tcpdump, Ethereal, etc.)", "libpcap",
 	  libpcap_dump_can_write_encap, libpcap_dump_open },
 
-	/* WTAP_FILE_PCAP_MODIFIED */
-	{ "modified libpcap (tcpdump)", "modlibpcap",
+	/* WTAP_FILE_PCAP_SS990417 */
+	{ "Red Hat Linux 6.1 libpcap (tcpdump)", "rh6_1libpcap",
 	  libpcap_dump_can_write_encap, libpcap_dump_open },
 
-	/* WTAP_FILE_PCAP_RH_6_1 */
-	{ "Red Hat Linux 6.1 libpcap (tcpdump)", "rh6_1libpcap",
+	/* WTAP_FILE_PCAP_SS990915 */
+	{ "SuSE Linux 6.3 libpcap (tcpdump)", "suse6_3libpcap",
+	  libpcap_dump_can_write_encap, libpcap_dump_open },
+
+	/* WTAP_FILE_PCAP_SS991029 */
+	{ "modified libpcap (tcpdump)", "modlibpcap",
 	  libpcap_dump_can_write_encap, libpcap_dump_open },
 
 	/* WTAP_FILE_LANALYZER */

@@ -1,6 +1,6 @@
 /* wtap-int.h
  *
- * $Id: wtap-int.h,v 1.2 2000/05/25 09:00:23 guy Exp $
+ * $Id: wtap-int.h,v 1.3 2000/07/26 06:04:33 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -79,7 +79,6 @@ typedef struct {
 
 typedef struct {
 	gboolean byte_swapped;
-	gboolean modified;
 	guint16	version_major;
 	guint16	version_minor;
 } libpcap_t;

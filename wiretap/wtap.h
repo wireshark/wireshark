@@ -1,6 +1,6 @@
 /* wtap.h
  *
- * $Id: wtap.h,v 1.74 2000/06/27 07:13:42 guy Exp $
+ * $Id: wtap.h,v 1.75 2000/07/26 06:04:34 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -103,27 +103,28 @@
 #define WTAP_FILE_UNKNOWN			0
 #define WTAP_FILE_WTAP				1
 #define WTAP_FILE_PCAP				2
-#define WTAP_FILE_PCAP_MODIFIED			3
-#define WTAP_FILE_PCAP_RH_6_1			4
-#define WTAP_FILE_LANALYZER			5
-#define WTAP_FILE_NGSNIFFER_UNCOMPRESSED	6
-#define WTAP_FILE_NGSNIFFER_COMPRESSED		7
-#define WTAP_FILE_SNOOP				8
-#define WTAP_FILE_IPTRACE_1_0			9
-#define WTAP_FILE_IPTRACE_2_0			10
-#define WTAP_FILE_NETMON_1_x			11
-#define WTAP_FILE_NETMON_2_x			12
-#define WTAP_FILE_NETXRAY_1_0			13
-#define WTAP_FILE_NETXRAY_1_1			14
-#define WTAP_FILE_NETXRAY_2_00x			15
-#define WTAP_FILE_RADCOM			16
-#define WTAP_FILE_ASCEND			17
-#define WTAP_FILE_NETTL				18
-#define WTAP_FILE_TOSHIBA			19
-#define WTAP_FILE_I4BTRACE			20
+#define WTAP_FILE_PCAP_SS990417			3
+#define WTAP_FILE_PCAP_SS990915			4
+#define WTAP_FILE_PCAP_SS991029			5
+#define WTAP_FILE_LANALYZER			6
+#define WTAP_FILE_NGSNIFFER_UNCOMPRESSED	7
+#define WTAP_FILE_NGSNIFFER_COMPRESSED		8
+#define WTAP_FILE_SNOOP				9
+#define WTAP_FILE_IPTRACE_1_0			10
+#define WTAP_FILE_IPTRACE_2_0			11
+#define WTAP_FILE_NETMON_1_x			12
+#define WTAP_FILE_NETMON_2_x			13
+#define WTAP_FILE_NETXRAY_1_0			14
+#define WTAP_FILE_NETXRAY_1_1			15
+#define WTAP_FILE_NETXRAY_2_00x			16
+#define WTAP_FILE_RADCOM			17
+#define WTAP_FILE_ASCEND			18
+#define WTAP_FILE_NETTL				19
+#define WTAP_FILE_TOSHIBA			20
+#define WTAP_FILE_I4BTRACE			21
 
 /* last WTAP_FILE_ value + 1 */
-#define WTAP_NUM_FILE_TYPES			21
+#define WTAP_NUM_FILE_TYPES			22
 
 /*
  * Maximum packet size we'll support.

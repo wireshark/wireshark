@@ -38,9 +38,10 @@ all of the packets in the capture file to the output file.  The B<-F>
 flag can be used to specify the format in which to write the capture
 file; it can write the file in B<libpcap> format (standard B<libpcap>
 format, a modified format used by some patched versions of B<libpcap>,
-or the format used by Red Hat Linux 6.1), B<snoop> format, uncompressed
-B<Sniffer> format, Microsoft B<Network Monitor> 1.x format, and the
-format used by Windows-based versions of the B<Sniffer> software.
+the format used by Red Hat Linux 6.1, or the format used by SuSE Linux
+6.3), B<snoop> format, uncompressed B<Sniffer> format, Microsoft
+B<Network Monitor> 1.x format, and the format used by Windows-based
+versions of the B<Sniffer> software.
 
 A list of packet numbers can be specified on the command line; the
 packets with those numbers will I<not> be written to the capture file,

@@ -1,6 +1,6 @@
 /* libpcap.c
  *
- * $Id: libpcap.c,v 1.35 2000/05/19 23:06:53 gram Exp $
+ * $Id: libpcap.c,v 1.36 2000/07/26 06:04:32 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -84,6 +84,20 @@ struct pcaprec_modified_hdr {
 				   packet came in. */
 	guint16 protocol;	/* Ethernet packet type */
 	guint8 pkt_type;	/* broadcast/multicast/etc. indication */
+	guint8 pad;		/* pad to a 4-byte boundary */
+};
+
+/* "libpcap" record header for Alexey's patched version in its ss990915
+   incarnation; this version shows up in SuSE Linux 6.3. */
+struct pcaprec_ss990915_hdr {
+	struct pcaprec_hdr hdr;	/* the regular header */
+	guint32 ifindex;	/* index, in *capturing* machine's list of
+				   interfaces, of the interface on which this
+				   packet came in. */
+	guint16 protocol;	/* Ethernet packet type */
+	guint8 pkt_type;	/* broadcast/multicast/etc. indication */
+	guint8 cpu1, cpu2;	/* SMP debugging gunk? */
+	guint8 pad[3];		/* pad to a 4-byte boundary */
 };
 
 static int libpcap_read(wtap *wth, int *err);
@@ -169,8 +183,9 @@ int libpcap_open(wtap *wth, int *err)
 	struct pcap_hdr hdr;
 	gboolean byte_swapped;
 	gboolean modified;
-	struct pcaprec_hdr first_rec_hdr;
-	struct pcaprec_hdr second_rec_hdr;
+	struct pcaprec_modified_hdr first_rec_hdr;
+	struct pcaprec_modified_hdr second_rec_hdr;
+	int hdr_len;
 
 	/* Read in the number that should be at the start of a "libpcap" file */
 	file_seek(wth->fh, 0, SEEK_SET);
@@ -188,28 +203,31 @@ int libpcap_open(wtap *wth, int *err)
 	switch (magic) {
 
 	case PCAP_MAGIC:
-		/* Host that wrote it has our byte order. */
+		/* Host that wrote it has our byte order, and was running
+		   a program using either standard or ss990417 libpcap. */
 		byte_swapped = FALSE;
 		modified = FALSE;
 		break;
 
 	case PCAP_MODIFIED_MAGIC:
-		/* Host that wrote it has our byte order, but was running
-		   a program using the patched "libpcap". */
+		/* Host that wrote it has our byte order, and was running
+		   a program using either ss990915 or ss991029 libpcap. */
 		byte_swapped = FALSE;
 		modified = TRUE;
 		break;
 
 	case PCAP_SWAPPED_MAGIC:
-		/* Host that wrote it has a byte order opposite to ours. */
+		/* Host that wrote it has a byte order opposite to ours,
+		   and was running a program using either standard or
+		   ss990417 libpcap. */
 		byte_swapped = TRUE;
 		modified = FALSE;
 		break;
 
 	case PCAP_SWAPPED_MODIFIED_MAGIC:
 		/* Host that wrote it out has a byte order opposite to
-		   ours, and was running a program using the patched
-		   "libpcap". */
+		   ours, and was running a program using either ss990915
+		   or ss991029 libpcap. */
 		byte_swapped = TRUE;
 		modified = TRUE;
 		break;
@@ -253,10 +271,9 @@ int libpcap_open(wtap *wth, int *err)
 	}
 
 	/* This is a libpcap file */
-	wth->file_type = modified ? WTAP_FILE_PCAP_MODIFIED : WTAP_FILE_PCAP;
+	wth->file_type = modified ? WTAP_FILE_PCAP_SS991029 : WTAP_FILE_PCAP;
 	wth->capture.pcap = g_malloc(sizeof(libpcap_t));
 	wth->capture.pcap->byte_swapped = byte_swapped;
-	wth->capture.pcap->modified = modified;
 	wth->capture.pcap->version_major = hdr.version_major;
 	wth->capture.pcap->version_minor = hdr.version_minor;
 	wth->subtype_read = libpcap_read;
@@ -266,100 +283,105 @@ int libpcap_open(wtap *wth, int *err)
 	wth->snapshot_length = hdr.snaplen;
 
 	/*
-	 * Is this a capture file with the non-modified magic number?
+	 * Yes.  Let's look at the header for the first record,
+	 * and see if, interpreting it as a standard header (if the
+	 * magic number was standard) or a modified header (if the
+	 * magic number was modified), the position where it says the
+	 * header for the *second* record is contains a corrupted header.
+	 *
+	 * If so, then:
+	 *
+	 *	If this file had the standard magic number, it may be
+	 *	an ss990417 capture file - in that version of Alexey's
+	 *	patch, the packet header format was changed but the
+	 *	magic number wasn't, and, alas, Red Hat appear to have
+	 *	picked up that version of the patch for RH 6.1, meaning
+	 *	RH 6.1 has a tcpdump that writes out files that can't
+	 *	be read by any software that expects non-modified headers
+	 *	if the magic number isn't the modified magic number (e.g.,
+	 *	any normal version of tcpdump, and Ethereal if we don't
+	 *	do this gross heuristic).
+	 *
+	 *	If this file had the modified magic number, it may be
+	 *	an ss990915 capture file - in that version of Alexey's
+	 *	patch, the magic number was changed, but the record
+	 *	header had some extra fields, and, alas, SuSE appear
+	 *	to have picked up that version of the patch for SuSE
+	 *	6.3, meaning that programs expecting the standard per-
+	 *	packet header in captures with the modified magic number
+	 *	can't read dumps from its tcpdump.
 	 */
-	if (!wth->capture.pcap->modified) {
-		/*
-		 * Yes.  Let's look at the header for the first record,
-		 * and see if, interpreting it as a non-modified header,
-		 * the position where it says the header for the
-		 * *second* record is contains a corrupted header.
-		 *
-		 * If so, this may be a modified capture file with a
-		 * non-modified magic number - in some versions of
-		 * Alexey's patches, the packet header format was
-		 * changed but the magic number wasn't, and, alas,
-		 * Red Hat appear to have picked up one of those
-		 * patches for RH 6.1, meaning RH 6.1 has a "tcpdump"
-		 * that writes out files that can't be read by any software
-		 * that expects non-modified headers if the magic number isn't
-		 * the modified magic number (e.g., any normal version of
-		 * "tcpdump", and Ethereal if we don't do this gross
-		 * heuristic).
-		 */
-		bytes_read = file_read(&first_rec_hdr, 1,
-		    sizeof first_rec_hdr, wth->fh);
-		if (bytes_read != sizeof first_rec_hdr) {
-			*err = file_error(wth->fh);
-			if (*err != 0)
-				return -1;	/* failed to read it */
-
-			/*
-			 * Short read - assume the file isn't modified,
-			 * and put the seek pointer back.  The attempt
-			 * to read the first packet will presumably get
-			 * the same short read.
-			 */
-			goto give_up;
-		}
-
-		adjust_header(wth, &first_rec_hdr);
-
-		if (first_rec_hdr.incl_len > WTAP_MAX_PACKET_SIZE) {
-			/*
-			 * The first record is bogus, so this is probably
-			 * a corrupt file.  Assume the file isn't modified,
-			 * and put the seek pointer back.  The attempt
-			 * to read the first packet will probably get
-			 * the same bogus length.
-			 */
-			goto give_up;
-		}
-
-		file_seek(wth->fh,
-		    wth->data_offset + sizeof first_rec_hdr + first_rec_hdr.incl_len,
-		    SEEK_SET);
-		bytes_read = file_read(&second_rec_hdr, 1,
-		    sizeof second_rec_hdr, wth->fh);
+	hdr_len = modified ? sizeof (struct pcaprec_modified_hdr) :
+			     sizeof (struct pcaprec_hdr);
+	bytes_read = file_read(&first_rec_hdr, 1, hdr_len, wth->fh);
+	if (bytes_read != hdr_len) {
+		*err = file_error(wth->fh);
+		if (*err != 0)
+			return -1;	/* failed to read it */
 
 		/*
-		 * OK, does the next packet's header look sane?
+		 * Short read - assume the file isn't modified,
+		 * and put the seek pointer back.  The attempt
+		 * to read the first packet will presumably get
+		 * the same short read.
 		 */
-		if (bytes_read != sizeof second_rec_hdr) {
-			*err = file_error(wth->fh);
-			if (*err != 0)
-				return -1;	/* failed to read it */
-
-			/*
-			 * Short read - assume the file isn't modified,
-			 * and put the seek pointer back.  The attempt
-			 * to read the second packet will presumably get
-			 * the same short read error.
-			 */
-			goto give_up;
-		}
-
-		adjust_header(wth, &second_rec_hdr);
-		if (second_rec_hdr.incl_len > WTAP_MAX_PACKET_SIZE) {
-			/*
-			 * Oh, dear.  Maybe it's a Capture File
-			 * From Hell, and what looks like the
-			 * "header" of the next packet is actually
-			 * random junk from the middle of a packet.
-			 * Try treating it as a modified file;
-			 * if that doesn't work, it probably *is*
-			 * a corrupt file.
-			 */
-			wth->file_type = WTAP_FILE_PCAP_RH_6_1;
-			wth->capture.pcap->modified = TRUE;
-		}
-
-	give_up:
-		/*
-		 * Restore the seek pointer.
-		 */
-		file_seek(wth->fh, wth->data_offset, SEEK_SET);
+		goto give_up;
 	}
+
+	adjust_header(wth, &first_rec_hdr.hdr);
+
+	if (first_rec_hdr.hdr.incl_len > WTAP_MAX_PACKET_SIZE) {
+		/*
+		 * The first record is bogus, so this is probably
+		 * a corrupt file.  Assume the file has the
+		 * expected header type, and put the seek pointer
+		 * back.  The attempt to read the first packet will
+		 * probably get the same bogus length.
+		 */
+		goto give_up;
+	}
+
+	file_seek(wth->fh,
+	    wth->data_offset + hdr_len + first_rec_hdr.hdr.incl_len, SEEK_SET);
+	bytes_read = file_read(&second_rec_hdr, 1, hdr_len, wth->fh);
+
+	/*
+	 * OK, does the next packet's header look sane?
+	 */
+	if (bytes_read != hdr_len) {
+		*err = file_error(wth->fh);
+		if (*err != 0)
+			return -1;	/* failed to read it */
+
+		/*
+		 * Short read - assume the file has the expected
+		 * header type, and put the seek pointer back.  The
+		 * attempt to read the second packet will presumably get
+		 * the same short read error.
+		 */
+		goto give_up;
+	}
+
+	adjust_header(wth, &second_rec_hdr.hdr);
+	if (second_rec_hdr.hdr.incl_len > WTAP_MAX_PACKET_SIZE) {
+		/*
+		 * Oh, dear.  Maybe it's a Capture File
+		 * From Hell, and what looks like the
+		 * "header" of the next packet is actually
+		 * random junk from the middle of a packet.
+		 * Try treating it as having the other type for
+		 * the magic number it had; if that doesn't work,
+		 * it probably *is* a corrupt file.
+		 */
+		wth->file_type = modified ? WTAP_FILE_PCAP_SS990915 :
+					    WTAP_FILE_PCAP_SS990417;
+	}
+
+give_up:
+	/*
+	 * Restore the seek pointer.
+	 */
+	file_seek(wth->fh, wth->data_offset, SEEK_SET);
 
 	return 1;
 }
@@ -369,13 +391,30 @@ static int libpcap_read(wtap *wth, int *err)
 {
 	guint	packet_size;
 	int	bytes_to_read, bytes_read;
-	struct pcaprec_modified_hdr hdr;
+	struct pcaprec_ss990915_hdr hdr;
 	int	data_offset;
 
 	/* Read record header. */
 	errno = WTAP_ERR_CANT_READ;
-	bytes_to_read = wth->capture.pcap->modified ?
-	    sizeof hdr : sizeof hdr.hdr;
+	switch (wth->file_type) {
+
+	case WTAP_FILE_PCAP:
+		bytes_to_read = sizeof (struct pcaprec_hdr);
+		break;
+
+	case WTAP_FILE_PCAP_SS990417:
+	case WTAP_FILE_PCAP_SS991029:
+		bytes_to_read = sizeof (struct pcaprec_modified_hdr);
+		break;
+
+	case WTAP_FILE_PCAP_SS990915:
+		bytes_to_read = sizeof (struct pcaprec_ss990915_hdr);
+		break;
+
+	default:
+		g_assert_not_reached();
+		bytes_to_read = 0;
+	}
 	bytes_read = file_read(&hdr, 1, bytes_to_read, wth->fh);
 	if (bytes_read != bytes_to_read) {
 		*err = file_error(wth->fh);
@@ -518,11 +557,12 @@ gboolean libpcap_dump_open(wtap_dumper *wdh, int *err)
 	switch (wdh->file_type) {
 
 	case WTAP_FILE_PCAP:
-	case WTAP_FILE_PCAP_RH_6_1:	/* modified, but with the old magic, sigh */
+	case WTAP_FILE_PCAP_SS990417:	/* modified, but with the old magic, sigh */
 		magic = PCAP_MAGIC;
 		break;
 
-	case WTAP_FILE_PCAP_MODIFIED:
+	case WTAP_FILE_PCAP_SS990915:	/* new magic, extra crap */
+	case WTAP_FILE_PCAP_SS991029:
 		magic = PCAP_MODIFIED_MAGIC;
 		break;
 
@@ -566,7 +606,7 @@ gboolean libpcap_dump_open(wtap_dumper *wdh, int *err)
 static gboolean libpcap_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     const union wtap_pseudo_header *pseudo_header, const u_char *pd, int *err)
 {
-	struct pcaprec_modified_hdr rec_hdr;
+	struct pcaprec_ss990915_hdr rec_hdr;
 	int hdr_size;
 	int nwritten;
 
@@ -577,11 +617,11 @@ static gboolean libpcap_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 	switch (wdh->file_type) {
 
 	case WTAP_FILE_PCAP:
-		hdr_size = sizeof rec_hdr.hdr;
+		hdr_size = sizeof (struct pcaprec_hdr);
 		break;
 
-	case WTAP_FILE_PCAP_RH_6_1:	/* modified, but with the old magic, sigh */
-	case WTAP_FILE_PCAP_MODIFIED:
+	case WTAP_FILE_PCAP_SS990417:	/* modified, but with the old magic, sigh */
+	case WTAP_FILE_PCAP_SS991029:
 		/* XXX - what should we supply here?
 
 		   Alexey's "libpcap" looks up the interface in the system's
@@ -604,12 +644,22 @@ static gboolean libpcap_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 		rec_hdr.ifindex = 0;
 		rec_hdr.protocol = 0;
 		rec_hdr.pkt_type = 0;
-		hdr_size = sizeof rec_hdr;
+		hdr_size = sizeof (struct pcaprec_modified_hdr);
+		break;
+
+	case WTAP_FILE_PCAP_SS990915:	/* new magic, extra crap at the end */
+		rec_hdr.ifindex = 0;
+		rec_hdr.protocol = 0;
+		rec_hdr.pkt_type = 0;
+		rec_hdr.cpu1 = 0;
+		rec_hdr.cpu2 = 0;
+		hdr_size = sizeof (struct pcaprec_ss990915_hdr);
 		break;
 
 	default:
 		/* We should never get here - our open routine
 		   should only get called for the types above. */
+		g_assert_not_reached();
 		*err = WTAP_ERR_UNSUPPORTED_FILE_TYPE;
 		return FALSE;
 	}
