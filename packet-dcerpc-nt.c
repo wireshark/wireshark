@@ -2,7 +2,7 @@
  * Routines for DCERPC over SMB packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-nt.c,v 1.6 2002/01/29 09:13:28 guy Exp $
+ * $Id: packet-dcerpc-nt.c,v 1.7 2002/03/06 08:58:01 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -393,3 +393,190 @@ int prs_policy_hnd(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 
 
+/* following are a few functions for dissecting common structures used by NT 
+   services. These might need to be cleaned up at a later time but at least we get
+   them out of the real service dissectors.
+*/
+
+
+/* UNICODE_STRING  BEGIN */
+/* functions to dissect a UNICODE_STRING structure, common to many 
+   NT services
+   struct {
+     short len;
+     short size;
+     [size_is(size/2), length_is(len/2), ptr] unsigned short *string;
+   } UNICODE_STRING;
+
+   these variables can be found in packet-dcerpc-samr.c 
+*/
+extern int hf_nt_str_len;
+extern int hf_nt_str_off;
+extern int hf_nt_str_max_len;
+extern int hf_nt_string_length;
+extern int hf_nt_string_size;
+extern gint ett_nt_unicode_string;
+
+
+/* this function will dissect the
+     [size_is(size/2), length_is(len/2), ptr] unsigned short *string;
+  part of the unicode string
+
+   struct {
+     short len;
+     short size;
+     [size_is(size/2), length_is(len/2), ptr] unsigned short *string;
+   } UNICODE_STRING;
+  structure used by NT to transmit unicode string values.
+
+  This function also looks at di->levels to see if whoever called us wanted us to append
+  the name: string to any higher levels in the tree .
+*/
+int
+dissect_ndr_nt_UNICODE_STRING_string (tvbuff_t *tvb, int offset, 
+                             packet_info *pinfo, proto_tree *parent_tree, 
+                             char *drep)
+{
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
+	guint32 len, off, max_len;
+	guint16 *data16;
+	char *text;
+	int old_offset=offset;
+	header_field_info *hfi;
+	dcerpc_info *di;
+
+	di=pinfo->private_data;
+	if(di->conformant_run){
+		/*just a run to handle conformant arrays, nothing to dissect */
+		return offset;
+	}
+
+	if(parent_tree){
+		item = proto_tree_add_text(parent_tree, tvb, offset, 0,
+			"unicode string");
+		tree = proto_item_add_subtree(item, ett_nt_unicode_string);
+	}
+
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_nt_str_len, &len);
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_nt_str_off, &off);
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_nt_str_max_len, &max_len);
+
+	offset = prs_uint16s(tvb, offset, pinfo, tree, max_len, &data16, NULL);
+	text = fake_unicode(data16, max_len);
+
+	hfi = proto_registrar_get_nth(di->hf_index);
+	proto_tree_add_string_format(tree, di->hf_index, 
+		tvb, old_offset, offset-old_offset,
+		text, "%s: %s", hfi->name, text);
+
+	if(tree){
+		proto_item_set_text(tree, "%s:%s", hfi->name, text);
+	}
+
+	proto_item_set_len(item, offset-old_offset);
+  	return offset;
+}
+
+
+int
+dissect_ndr_nt_UNICODE_STRING_str(tvbuff_t *tvb, int offset, 
+			packet_info *pinfo, proto_tree *tree, 
+			char *drep)
+{
+	guint32 len, off, max_len;
+	guint16 *data16;
+	char *text;
+	int old_offset;
+	header_field_info *hfi;
+	dcerpc_info *di;
+
+	di=pinfo->private_data;
+	if(di->conformant_run){
+		/*just a run to handle conformant arrays, nothing to dissect */
+		return offset;
+	}
+
+	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+			hf_nt_str_len, &len);
+	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+			hf_nt_str_off, &off);
+	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+			hf_nt_str_max_len, &max_len);
+
+	old_offset=offset;
+	offset = prs_uint16s(tvb, offset, pinfo, tree, max_len, &data16, NULL);
+	text = fake_unicode(data16, max_len);
+
+	hfi = proto_registrar_get_nth(di->hf_index);
+	proto_tree_add_string_format(tree, di->hf_index, 
+		tvb, old_offset, offset-old_offset,
+		text, "%s: %s", hfi->name, text);
+
+	if(tree){
+		proto_item_set_text(tree, "%s:%s", hfi->name, text);
+		if(di->levels>-1){
+			tree=tree->parent;
+			proto_item_append_text(tree, "%s:%s", hfi->name, text);
+			while(di->levels>0){
+				tree=tree->parent;
+				proto_item_append_text(tree, "%s ", text);
+				di->levels--;
+			}
+		}
+	}
+  	return offset;
+}
+
+/* this function will dissect the
+   struct {
+     short len;
+     short size;
+     [size_is(size/2), length_is(len/2), ptr] unsigned short *string;
+   } UNICODE_STRING;
+  structure used by NT to transmit unicode string values.
+ 
+  the function takes one additional parameter, level
+  which specifies how many additional levels up in the tree where we should
+  append "Name: string"  If unsure, specify levels as 0.
+*/
+int
+dissect_ndr_nt_UNICODE_STRING(tvbuff_t *tvb, int offset, 
+			packet_info *pinfo, proto_tree *parent_tree, 
+			char *drep, int hf_index, int levels)
+{
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
+	int old_offset=offset;
+	dcerpc_info *di;
+
+	ALIGN_TO_4_BYTES;  /* strcture starts with short, but is aligned for longs */
+
+	di=pinfo->private_data;
+	if(di->conformant_run){
+		/*just a run to handle conformant arrays, nothing to dissect */
+		return offset;
+	}
+
+	if(parent_tree){
+		item = proto_tree_add_text(parent_tree, tvb, offset, 0,
+			"");
+		tree = proto_item_add_subtree(item, ett_nt_unicode_string);
+	}
+
+	offset = dissect_ndr_uint16 (tvb, offset, pinfo, tree, drep,
+			hf_nt_string_length, NULL);
+	offset = dissect_ndr_uint16 (tvb, offset, pinfo, tree, drep,
+			hf_nt_string_size, NULL);
+	di->levels=1;
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+			dissect_ndr_nt_UNICODE_STRING_str, NDR_POINTER_UNIQUE,
+			"", hf_index, levels);
+
+	proto_item_set_len(item, offset-old_offset);
+	return offset;
+}
+/* UNICODE_STRING  END */
