@@ -1,4 +1,4 @@
-$Id: README.win32,v 1.28 2001/10/18 15:44:36 gerald Exp $
+$Id: README.win32,v 1.29 2001/11/07 18:49:57 guy Exp $
 
 Installing Ethereal, Tethereal, and Editcap on Win32
 ====================================================
@@ -230,7 +230,7 @@ work with a Windows build.)
 If you don't have a Unix system handy, most of those tools are available for
 Win32 systems as part of the Cygwin package:
 
-	http://sourceware.cygnus.com/cygwin/
+	http://sources.redhat.com/cygwin/
 
 After installing them, you will probably have to modify the config.nmake
 file to specify where the Cygwin binaries are installed.
