@@ -529,7 +529,7 @@ cf_read(capture_file *cf)
 }
 
 #ifdef HAVE_LIBPCAP
-
+cf_status_t
 cf_start_tail(capture_file *cf, char *fname, gboolean is_tempfile, int *err)
 {
   gchar *capture_msg;
