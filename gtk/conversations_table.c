@@ -265,8 +265,8 @@ ct_sort_column(GtkCList *clist, gconstpointer ptr1, gconstpointer ptr2)
 	char *text2 = NULL;
 	int i1, i2;
 
-	GtkCListRow *row1 = (GtkCListRow *) ptr1;
-	GtkCListRow *row2 = (GtkCListRow *) ptr2;
+	const GtkCListRow *row1 = ptr1;
+	const GtkCListRow *row2 = ptr2;
 
 	text1 = GTK_CELL_TEXT (row1->cell[clist->sort_column])->text;
 	text2 = GTK_CELL_TEXT (row2->cell[clist->sort_column])->text;

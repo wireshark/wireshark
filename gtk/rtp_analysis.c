@@ -3065,8 +3065,8 @@ static gint rtp_sort_column(GtkCList *clist, gconstpointer ptr1, gconstpointer p
 	int i1, i2;
 	double f1, f2;
 
-	const GtkCListRow *row1 = (GtkCListRow *) ptr1;
-	const GtkCListRow *row2 = (GtkCListRow *) ptr2;
+	const GtkCListRow *row1 = ptr1;
+	const GtkCListRow *row2 = ptr2;
 
 	text1 = GTK_CELL_TEXT (row1->cell[clist->sort_column])->text;
 	text2 = GTK_CELL_TEXT (row2->cell[clist->sort_column])->text;

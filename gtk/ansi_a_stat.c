@@ -235,8 +235,8 @@ ansi_a_stat_gtk_sort_column(
     gconstpointer	ptr1,
     gconstpointer	ptr2)
 {
-    GtkCListRow		*row1 = (GtkCListRow *) ptr1;
-    GtkCListRow		*row2 = (GtkCListRow *) ptr2;
+    const GtkCListRow	*row1 = ptr1;
+    const GtkCListRow	*row2 = ptr2;
     char		*text1 = NULL;
     char		*text2 = NULL;
     int			i1, i2;
