@@ -2,7 +2,7 @@
  * Routines for LPR and LPRng packet disassembly
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-lpd.c,v 1.24 2001/01/03 06:55:30 guy Exp $
+ * $Id: packet-lpd.c,v 1.25 2001/01/06 00:02:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -47,15 +47,16 @@ static gint ett_lpd = -1;
 
 enum lpr_type { request, response, unknown };
 
-static char* find_printer_string(const u_char *pd, int offset, int frame_length);
+static gint find_printer_string(tvbuff_t *tvb, int offset);
 
 static void
-dissect_lpd(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
+dissect_lpd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_tree	*lpd_tree;
 	proto_item	*ti;
 	enum lpr_type	lpr_packet_type;
-	char		*printer;
+	guint8		code;
+	gint		printer_len;
 
 	/* This information comes from the LPRng HOWTO, which also describes
 		RFC 1179. http://www.astart.com/lprng/LPRng-HOWTO.html */
@@ -78,101 +79,94 @@ dissect_lpd(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		"Bad job format, do not retry"
 	};
 
-	OLD_CHECK_DISPLAY_AS_DATA(proto_lpd, pd, offset, fd, tree);
+	CHECK_DISPLAY_AS_DATA(proto_lpd, tvb, pinfo, tree);
+
+	pinfo->current_proto = "LPD";
+
+	if (check_col(pinfo->fd, COL_PROTOCOL))
+		col_set_str(pinfo->fd, COL_PROTOCOL, "LPD");
+	if (check_col(pinfo->fd, COL_INFO))
+		col_clear(pinfo->fd, COL_INFO);
 
 	/* rfc1179 states that all responses are 1 byte long */
-	if (END_OF_FRAME == 1) {
+	code = tvb_get_guint8(tvb, 0);
+	if (tvb_reported_length(tvb) == 1) {
 		lpr_packet_type = response;
 	}
-	else if (pd[offset] <= 9) {
+	else if (code <= 9) {
 		lpr_packet_type = request;
 	}
 	else {
 		lpr_packet_type = unknown;
 	}
 
-	if (check_col(fd, COL_PROTOCOL))
-		col_set_str(fd, COL_PROTOCOL, "LPD");
-	if (check_col(fd, COL_INFO)) {
+	if (check_col(pinfo->fd, COL_INFO)) {
 		if (lpr_packet_type == request) {
-			col_add_str(fd, COL_INFO, lpd_client_code[pd[offset]]);
+			col_add_str(pinfo->fd, COL_INFO, lpd_client_code[code]);
 		}
 		else if (lpr_packet_type == response) {
-			col_set_str(fd, COL_INFO, "LPD response");
+			col_set_str(pinfo->fd, COL_INFO, "LPD response");
 		}
 		else {
-			col_set_str(fd, COL_INFO, "LPD continuation");
+			col_set_str(pinfo->fd, COL_INFO, "LPD continuation");
 		}
 	}
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_lpd, NullTVB, offset, 
-					 END_OF_FRAME, FALSE);
+		ti = proto_tree_add_item(tree, proto_lpd, tvb, 0, 
+					 tvb_length(tvb), FALSE);
 		lpd_tree = proto_item_add_subtree(ti, ett_lpd);
 
 		if (lpr_packet_type == response) {
-		  proto_tree_add_boolean_hidden(lpd_tree, hf_lpd_response, NullTVB, 0, 0, TRUE);
+		  proto_tree_add_boolean_hidden(lpd_tree, hf_lpd_response,
+		  				tvb, 0, 0, TRUE);
 		} else {
-		  proto_tree_add_boolean_hidden(lpd_tree, hf_lpd_request, NullTVB, 0, 0, TRUE);
+		  proto_tree_add_boolean_hidden(lpd_tree, hf_lpd_request,
+		  				tvb, 0, 0, TRUE);
 		}
 
 		if (lpr_packet_type == request) {
-			printer = find_printer_string(pd, offset+1, END_OF_FRAME);
+			printer_len = find_printer_string(tvb, 1);
 
-			if (pd[offset] <= 9 && printer) {
-				proto_tree_add_text(lpd_tree, NullTVB, offset,		1,
-					lpd_client_code[pd[offset]]);
-				proto_tree_add_text(lpd_tree, NullTVB, offset+1,
-					strlen(printer), "Printer/options: %s", printer);
+			if (code <= 9 && printer_len != -1) {
+				proto_tree_add_text(lpd_tree, tvb, 0, 1,
+					lpd_client_code[code]);
+				proto_tree_add_text(lpd_tree, tvb, 1, printer_len,
+					 "Printer/options: %s",
+					 tvb_format_text(tvb, 1, printer_len));
 			}
 			else {
-				old_dissect_data(pd, offset, fd, tree);
+				dissect_data(tvb, 0, pinfo, tree);
 			}
-
-			if (printer) 
-				g_free(printer);
 		}
 		else if (lpr_packet_type == response) {
-			int response = pd[offset];
-
-			if (response <= 3) {
-				proto_tree_add_text(lpd_tree, NullTVB, offset, 1, "Response: %s",
-					lpd_server_code[response]);
+			if (code <= 3) {
+				proto_tree_add_text(lpd_tree, tvb, 0, 1,
+					"Response: %s", lpd_server_code[code]);
 			}
 			else {
-				old_dissect_data(pd, offset, fd, tree);
+				dissect_data(tvb, 0, pinfo, tree);
 			}
 		}
 		else {
-				old_dissect_data(pd, offset, fd, tree);
+			dissect_data(tvb, 0, pinfo, tree);
 		}
 	}
 }
 
 
-static char*
-find_printer_string(const u_char *pd, int offset, int frame_length)
+static gint
+find_printer_string(tvbuff_t *tvb, int offset)
 {
-	int	i, final_offset;
-	char	c;
-	char	*string;
-	int	bytes;
+	int	i;
 
-	final_offset = offset + frame_length;
-
-	/* try to find end of string, either 0x0a or 0x00 */
-	for (i = offset; i < final_offset; i++) {
-		c = pd[i];
-		if (c == '\x00' || c == '\x0a') {
-			bytes = i - offset;
-			string = g_malloc(bytes+1);
-			memcpy(string, &pd[offset], bytes);
-			string[bytes] = 0;
-			return string;
-		}
-	}
-
-	return NULL;
+	/* try to find end of string, either '\n' or '\0' */
+	i = tvb_find_guint8(tvb, offset, -1, '\0');
+	if (i == -1)
+		i = tvb_find_guint8(tvb, offset, -1, '\n');
+	if (i == -1)
+		return -1;
+	return i - offset;	/* length of string */
 }
 
 
@@ -202,5 +196,5 @@ proto_register_lpd(void)
 void
 proto_reg_handoff_lpd(void)
 {
-  old_dissector_add("tcp.port", TCP_PORT_PRINTER, &dissect_lpd);
+  dissector_add("tcp.port", TCP_PORT_PRINTER, &dissect_lpd);
 }
