@@ -33,37 +33,14 @@ DISSECTOR_SUPPORT_OBJECTS = $(DISSECTOR_SUPPORT_SRC:.c=.obj)
 .c.obj::
 	$(CC) $(CVARSDLL) $(CFLAGS) -Fd.\ -c $<
 
-OBJECTS=addr_and_mask.obj \
-	addr_resolv.obj   \
-	atalk-utils.obj	\
-	bitswap.obj	\
-	circuit.obj     \
-	column-utils.obj \
-	conversation.obj \
-	epan.obj         \
-	except.obj       \
-	filesystem.obj   \
-	frame_data.obj	\
-	inet_aton.obj	\
-	inet_pton.obj	\
-	inet_ntop.obj	\
-	ipv4.obj         \
-	int-64bit.obj	\
-	osi-utils.obj	\
-	packet.obj       \
-	plugins.obj      \
-	proto.obj        \
-	sna-utils.obj	\
-	strutil.obj      \
-	timestamp.obj \
-	to_str.obj	\
-	tvbuff.obj       \
-	value_string.obj
-
+LIBETHEREAL_OBJECTS = $(LIBETHERAL_SRC:.c=.obj)
 
 EXTRA_OBJECTS = \
 #	snprintf.obj	\
 #	strerror.obj	\
+	inet_aton.obj	\
+	inet_pton.obj	\
+	inet_ntop.obj	\
 	../mkstemp.obj	\
 	../strptime.obj
 
@@ -90,12 +67,14 @@ libethereal.dll: ..\config.h $(OBJECTS) libethereal.def ftypes dfilter dissector
 	$(link) $(dlllflags) $(conlibsdll) \
 		$(LOCAL_LDFLAGS) \
 		/DEF:libethereal.def /OUT:libethereal.dll \
-		/IMPLIB:libethereal.lib $(OBJECTS) $(libethereal_LIBS) \
-		..\image\libethereal.res  dissectors\register.obj \
-		 $(DISSECTOR_SUPPORT_OBJECTS) $(EXTRA_OBJECTS)
+		/IMPLIB:libethereal.lib $(LIBETHEREAL_OBJECTS) \
+		$(libethereal_LIBS) ..\image\libethereal.res \
+		dissectors\register.obj $(DISSECTOR_SUPPORT_OBJECTS) \
+		$(EXTRA_OBJECTS)
 
-ethereal.lib	: ..\config.h $(OBJECTS)
-	link /lib /out:ethereal.lib $(OBJECTS) $(EXTRA_OBJECTS) $(DISSECTOR_SUPPORT_OBJECTS)
+ethereal.lib	: ..\config.h $(LIBETHEREAL_OBJECTS)
+	link /lib /out:ethereal.lib $(LIBETHEREAL_OBJECTS) \
+		$(EXTRA_OBJECTS) $(DISSECTOR_SUPPORT_OBJECTS)
 
 ..\config.h	: ..\config.h.win32 ..\config.nmake
 	cd ..
@@ -103,7 +82,7 @@ ethereal.lib	: ..\config.h $(OBJECTS)
 	cd epan
 
 clean:
-	rm -f $(OBJECTS) $(DISSECTOR_SUPPORT_OBJECTS) $(EXTRA_OBJECTS) ethereal.lib libethereal.dll libethereal.lib libethereal.exp $(PDB_FILE) doxygen.cfg html/*.*
+	rm -f $(LIBETHEREAL_OBJECTS) $(DISSECTOR_SUPPORT_OBJECTS) $(EXTRA_OBJECTS) ethereal.lib libethereal.dll libethereal.lib libethereal.exp $(PDB_FILE) doxygen.cfg html/*.*
 	if exist html rmdir html	
 	cd ftypes
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
