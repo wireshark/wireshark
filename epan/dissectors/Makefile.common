@@ -314,6 +314,7 @@ DISSECTOR_SRC =	\
 	packet-m2tp.c	\
 	packet-m2ua.c	\
 	packet-m3ua.c	\
+	packet-manolito.c	\
 	packet-mbtcp.c	\
 	packet-mdshdr.c	\
 	packet-media.c	\
