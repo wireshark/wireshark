@@ -2,7 +2,7 @@
  *
  * Routines to dissect WTLS component of WAP traffic.
  * 
- * $Id: packet-wtls.c,v 1.1 2001/02/13 00:17:54 guy Exp $
+ * $Id: packet-wtls.c,v 1.2 2001/02/15 19:46:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -382,8 +382,8 @@ dissect_wtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			else {
 				count = tvb_length (tvb)-offset_wtls;
 			}
-			ti = proto_tree_add_item(wtls_tree, hf_wtls_record, tvb, offset_wtls,
-				 count, bo_little_endian);
+			ti = proto_tree_add_uint(wtls_tree, hf_wtls_record, tvb, offset_wtls,
+				 count, pdut);
 			wtls_rec_tree = proto_item_add_subtree(ti, ett_wtls_rec);
 
 			offset = offset_wtls;
@@ -450,6 +450,7 @@ dissect_wtls_handshake(proto_tree *tree, tvbuff_t *tvb, guint offset, guint coun
 	int size = 0;
 	guint public_key = 0;
 	guint signature = 0;
+	char valStr[1024];
 
 	proto_item *ti;
 	proto_item *cli_key_item;
@@ -458,10 +459,10 @@ dissect_wtls_handshake(proto_tree *tree, tvbuff_t *tvb, guint offset, guint coun
 	proto_tree *wtls_msg_type_item_sub_tree;
 	proto_tree *wtls_msg_type_item_sub_sub_tree;
 
-	ti = proto_tree_add_item(tree, hf_wtls_hands, tvb, offset,count, bo_little_endian);
+	pdu_msg_type = tvb_get_guint8 (tvb, offset);
+	ti = proto_tree_add_uint(tree, hf_wtls_hands, tvb, offset,count, pdu_msg_type);
 	wtls_msg_type_tree = proto_item_add_subtree(ti, ett_wtls_msg_type);
 	
-	pdu_msg_type = tvb_get_guint8 (tvb, offset);
 	ti = proto_tree_add_item (wtls_msg_type_tree, hf_wtls_hands_type,
 			tvb,offset,1,bo_big_endian);
 	offset+=1;
@@ -718,11 +719,13 @@ dissect_wtls_handshake(proto_tree *tree, tvbuff_t *tvb, guint offset, guint coun
 								offset+=2;
 								client_size+=2;
 								value =  tvb_get_guint8 (tvb, offset);
-								ti = proto_tree_add_item(
+								strncpy(valStr,tvb_get_ptr (tvb, offset+1, value),value);
+								valStr[value]=0;
+								ti = proto_tree_add_string(
 										wtls_msg_type_item_sub_tree, 
 										hf_wtls_hands_certificate_wtls_issuer_name,
 										tvb, offset,1+value,
-										bo_big_endian);
+										valStr);
 								offset+=1+value;
 								client_size+=1+value;
 								break;
@@ -766,11 +769,13 @@ dissect_wtls_handshake(proto_tree *tree, tvbuff_t *tvb, guint offset, guint coun
 								offset+=2;
 								client_size+=2;
 								value =  tvb_get_guint8 (tvb, offset);
-								ti = proto_tree_add_item(
+								strncpy(valStr,tvb_get_ptr (tvb, offset+1, value),value);
+								valStr[value]=0;
+								ti = proto_tree_add_string(
 										wtls_msg_type_item_sub_tree, 
 										hf_wtls_hands_certificate_wtls_subject_name,
 										tvb, offset,1+value,
-										bo_big_endian);
+										valStr);
 								offset+=1+value;
 								client_size+=1+value;
 								break;
@@ -805,15 +810,15 @@ dissect_wtls_handshake(proto_tree *tree, tvbuff_t *tvb, guint offset, guint coun
 						switch (public_key) {
 							case PUBLIC_KEY_RSA :
 								value = tvb_get_ntohs (tvb, offset);
-								ti = proto_tree_add_item(wtls_msg_type_item_sub_tree,
+								ti = proto_tree_add_uint(wtls_msg_type_item_sub_tree,
 									hf_wtls_hands_certificate_wtls_rsa_exponent,
-									tvb,offset,value+2,bo_big_endian);
+									tvb,offset,value+2,value*8);
 								offset+=2+value;
 								client_size+=2+value;
 								value = tvb_get_ntohs (tvb, offset);
-								ti = proto_tree_add_item(wtls_msg_type_item_sub_tree,
+								ti = proto_tree_add_uint(wtls_msg_type_item_sub_tree,
 									hf_wtls_hands_certificate_wtls_rsa_modules,
-									tvb,offset,value+2,bo_big_endian);
+									tvb,offset,value+2,value*8);
 								offset+=2+value;
 								client_size+=2+value;
 								break;
@@ -823,9 +828,9 @@ dissect_wtls_handshake(proto_tree *tree, tvbuff_t *tvb, guint offset, guint coun
 								break;
 						}
 						value = tvb_get_ntohs (tvb, offset);
-						ti = proto_tree_add_item(wtls_msg_type_item_sub_tree,
+						ti = proto_tree_add_uint(wtls_msg_type_item_sub_tree,
 							hf_wtls_hands_certificate_wtls_signature,
-							tvb,offset,2+value,bo_big_endian);
+							tvb,offset,2+value,value*8);
 						offset+=2+value;
 						client_size+=2+value;
 						break;
@@ -864,14 +869,14 @@ proto_register_wtls(void)
 		{ &hf_wtls_record,
 			{ 	"Record",           
 				"wsp.wtls.record",
-				 FT_NONE, BASE_NONE, NULL, 0x00,
+				 FT_UINT8, BASE_NONE, VALS ( wtls_vals_record_type ), 0x0f,
 				"Record" 
 			}
 		},
 		{ &hf_wtls_record_type,
 			{ 	"Record Type",           
 				"wsp.wtls.rec_type",
-				 FT_UINT8, BASE_DEC, VALS ( wtls_vals_record_type ), 0x0f,
+				 FT_UINT8, BASE_NONE, VALS ( wtls_vals_record_type ), 0x0f,
 				"Record Type" 
 			}
 		},
@@ -899,7 +904,7 @@ proto_register_wtls(void)
 		{ &hf_wtls_hands,
 			{ 	"Handshake",           
 				"wsp.wtls.handshake",
-				 FT_NONE, BASE_DEC, NULL, 0x00,
+				 FT_UINT8, BASE_HEX, VALS ( wtls_vals_handshake_type ), 0x00,
 				"Handshake" 
 			}
 		},
@@ -1177,10 +1182,10 @@ proto_register_wtls(void)
 			}
 		},
 		{ &hf_wtls_hands_certificate_wtls_signature,
-			{ 	"Signature",           
+			{ 	"Signature Size",           
 				"wsp.wtls.handshake.certificate.signature.signature",
-				 FT_NONE, BASE_HEX, NULL, 0x00,
-				"Signature" 
+				 FT_UINT32, BASE_DEC, NULL, 0x00,
+				"Signature Size" 
 			}
 		},
 		{ &hf_wtls_hands_certificate_wtls_issuer_type,
@@ -1200,7 +1205,7 @@ proto_register_wtls(void)
 		{ &hf_wtls_hands_certificate_wtls_issuer_name,
 			{ 	"Name",           
 				"wsp.wtls.handshake.certificate.issuer.name",
-				 FT_NONE, BASE_HEX, NULL, 0x00,
+				 FT_STRING, BASE_NONE, NULL, 0x00,
 				"Name" 
 			}
 		},
@@ -1235,7 +1240,7 @@ proto_register_wtls(void)
 		{ &hf_wtls_hands_certificate_wtls_subject_name,
 			{ 	"Name",           
 				"wsp.wtls.handshake.certificate.subject.name",
-				 FT_NONE, BASE_HEX, NULL, 0x00,
+				 FT_STRING, BASE_NONE, NULL, 0x00,
 				"Name" 
 			}
 		},
@@ -1261,17 +1266,17 @@ proto_register_wtls(void)
 			}
 		},
 		{ &hf_wtls_hands_certificate_wtls_rsa_exponent,
-			{ 	"RSA Exponent",           
+			{ 	"RSA Exponent Size",           
 				"wsp.wtls.handshake.certificate.rsa.exponent",
-				 FT_NONE, BASE_HEX, NULL, 0x00,
-				"RSA Exponent" 
+				 FT_UINT32, BASE_DEC, NULL, 0x00,
+				"RSA Exponent Size" 
 			}
 		},
 		{ &hf_wtls_hands_certificate_wtls_rsa_modules,
-			{ 	"RSA Modulus",           
+			{ 	"RSA Modulus Size",           
 				"wsp.wtls.handshake.certificate.rsa.modulus",
-				 FT_NONE, BASE_HEX, NULL, 0x00,
-				"RSA Modulus" 
+				 FT_UINT32, BASE_DEC, NULL, 0x00,
+				"RSA Modulus Size" 
 			}
 		},
 		{ &hf_wtls_alert,
