@@ -2,7 +2,7 @@
  * Routines for lapb frame disassembly
  * Olivier Abad <abad@daba.dhis.net>
  *
- * $Id: packet-lapb.c,v 1.14 2000/05/18 09:05:44 guy Exp $
+ * $Id: packet-lapb.c,v 1.15 2000/05/19 23:06:09 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -50,7 +50,7 @@ static gint ett_lapb = -1;
 static gint ett_lapb_control = -1;
 
 void
-dissect_lapb(const union pseudo_header *pseudo_header, const u_char *pd,
+dissect_lapb(const union wtap_pseudo_header *pseudo_header, const u_char *pd,
 		frame_data *fd, proto_tree *tree)
 {
     proto_tree *lapb_tree, *ti;

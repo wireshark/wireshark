@@ -1,6 +1,6 @@
 /* ngsniffer.c
  *
- * $Id: ngsniffer.c,v 1.41 2000/05/19 08:18:16 guy Exp $
+ * $Id: ngsniffer.c,v 1.42 2000/05/19 23:06:59 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -63,7 +63,7 @@
 #include <errno.h>
 #include <time.h>
 #include <string.h>
-#include "wtap.h"
+#include "wtap-int.h"
 #include "file_wrappers.h"
 #include "buffer.h"
 #include "ngsniffer.h"
@@ -248,21 +248,21 @@ static double Usec[] = { 15.0, 0.838096, 15.0, 0.5, 2.0, 1.0, 0.1 };
 
 static int ngsniffer_read(wtap *wth, int *err);
 static int ngsniffer_seek_read(wtap *wth, int seek_off,
-    union pseudo_header *pseudo_header, u_char *pd, int packet_size);
+    union wtap_pseudo_header *pseudo_header, u_char *pd, int packet_size);
 static int ngsniffer_read_rec_header(FILE_T fh, guint16 *typep,
     guint16 *lengthp, int *err);
 static int ngsniffer_read_frame2(FILE_T fh, struct frame2_rec *frame2,
     int *err);
-static void set_pseudo_header_frame2(union pseudo_header *pseudo_header,
+static void set_pseudo_header_frame2(union wtap_pseudo_header *pseudo_header,
     struct frame2_rec *frame2);
 static int ngsniffer_read_frame4(FILE_T fh, struct frame4_rec *frame4,
     int *err);
-static void set_pseudo_header_frame4(union pseudo_header *pseudo_header,
+static void set_pseudo_header_frame4(union wtap_pseudo_header *pseudo_header,
     struct frame4_rec *frame4);
 static int ngsniffer_read_rec_data(FILE_T fh, char *pd, int length, int *err);
 static void ngsniffer_close(wtap *wth);
 static gboolean ngsniffer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
-	const union pseudo_header *pseudo_header, const u_char *pd, int *err);
+	const union wtap_pseudo_header *pseudo_header, const u_char *pd, int *err);
 static gboolean ngsniffer_dump_close(wtap_dumper *wdh, int *err);
 
 int ngsniffer_open(wtap *wth, int *err)
@@ -577,7 +577,7 @@ found:
 }
 
 static int ngsniffer_seek_read(wtap *wth, int seek_off,
-    union pseudo_header *pseudo_header, u_char *pd, int packet_size)
+    union wtap_pseudo_header *pseudo_header, u_char *pd, int packet_size)
 {
 	int	ret;
 	int	err;	/* XXX - return this */
@@ -684,7 +684,7 @@ static int ngsniffer_read_frame2(FILE_T fh, struct frame2_rec *frame2,
 	return 0;
 }
 
-static void set_pseudo_header_frame2(union pseudo_header *pseudo_header,
+static void set_pseudo_header_frame2(union wtap_pseudo_header *pseudo_header,
     struct frame2_rec *frame2)
 {
 	/*
@@ -728,7 +728,7 @@ static int ngsniffer_read_frame4(FILE_T fh, struct frame4_rec *frame4,
 	return 0;
 }
 
-static void set_pseudo_header_frame4(union pseudo_header *pseudo_header,
+static void set_pseudo_header_frame4(union wtap_pseudo_header *pseudo_header,
     struct frame4_rec *frame4)
 {
 	pseudo_header->ngsniffer_atm.AppTrafType = frame4->atm_info.AppTrafType;
@@ -834,7 +834,7 @@ gboolean ngsniffer_dump_open(wtap_dumper *wdh, int *err)
 /* Write a record for a packet to a dump file.
    Returns TRUE on success, FALSE on failure. */
 static gboolean ngsniffer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
-    const union pseudo_header *pseudo_header, const u_char *pd, int *err)
+    const union wtap_pseudo_header *pseudo_header, const u_char *pd, int *err)
 {
     ngsniffer_dump_t *priv = wdh->dump.ngsniffer;
     struct frame2_rec rec_hdr;

@@ -1,6 +1,6 @@
 /* ascend.c
  *
- * $Id: ascend.c,v 1.15 2000/05/18 09:09:21 guy Exp $
+ * $Id: ascend.c,v 1.16 2000/05/19 23:06:47 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -23,7 +23,7 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
-#include "wtap.h"
+#include "wtap-int.h"
 #include "buffer.h"
 #include "ascend.h"
 #include "ascend-int.h"
@@ -99,7 +99,7 @@ static const char ascend_w2magic[] = { 'W', 'D', '_', 'D', 'I', 'A', 'L', 'O', '
 
 static int ascend_read(wtap *wth, int *err);
 static int ascend_seek_read (wtap *wth, int seek_off,
-	union pseudo_header *pseudo_header, guint8 *pd, int len);
+	union wtap_pseudo_header *pseudo_header, guint8 *pd, int len);
 static void ascend_close(wtap *wth);
 
 /* Seeks to the beginning of the next packet, and returns the
@@ -229,7 +229,7 @@ static int ascend_read(wtap *wth, int *err)
 }
 
 static int ascend_seek_read (wtap *wth, int seek_off,
-	union pseudo_header *pseudo_header, guint8 *pd, int len)
+	union wtap_pseudo_header *pseudo_header, guint8 *pd, int len)
 {
   file_seek(wth->random_fh, seek_off - 1, SEEK_SET);
   return parse_ascend(wth->random_fh, pd, &pseudo_header->ascend, NULL, len);

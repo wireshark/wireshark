@@ -3,7 +3,7 @@
  *
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet_win.c,v 1.7 2000/05/18 09:08:20 guy Exp $
+ * $Id: packet_win.c,v 1.8 2000/05/19 23:06:32 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -73,7 +73,7 @@
 struct PacketWinData {
 	gint        cap_len;
 	gint        encoding;
-	union pseudo_header pseudo_header; /* Pseudo-header for packet */
+	union wtap_pseudo_header pseudo_header; /* Pseudo-header for packet */
 	guint8     *pd;		   /* Data for packet */
 	proto_tree *protocol_tree; /* Protocol tree for packet */
 	GtkWidget  *main;

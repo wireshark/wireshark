@@ -1,7 +1,7 @@
 /* packet-atm.c
  * Routines for ATM packet disassembly
  *
- * $Id: packet-atm.c,v 1.19 2000/05/18 09:05:40 guy Exp $
+ * $Id: packet-atm.c,v 1.20 2000/05/19 23:06:08 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -372,7 +372,7 @@ dissect_le_control(const u_char *pd, int offset, frame_data *fd, proto_tree *tre
 }
 
 static void
-dissect_lane(const union pseudo_header *pseudo_header, const u_char *pd,
+dissect_lane(const union wtap_pseudo_header *pseudo_header, const u_char *pd,
 		int offset, frame_data *fd, proto_tree *tree) 
 {
   tvbuff_t	*next_tvb;
@@ -485,7 +485,7 @@ static const value_string ipsilon_type_vals[] = {
  * We at least know it's AAL5....
  */
 static void
-atm_guess_content(union pseudo_header *pseudo_header, const u_char *pd,
+atm_guess_content(union wtap_pseudo_header *pseudo_header, const u_char *pd,
     frame_data *fd)
 {
 	if (pseudo_header->ngsniffer_atm.Vpi == 0) {
@@ -550,7 +550,7 @@ atm_guess_content(union pseudo_header *pseudo_header, const u_char *pd,
 }
 
 void
-dissect_atm(union pseudo_header *pseudo_header, const u_char *pd,
+dissect_atm(union wtap_pseudo_header *pseudo_header, const u_char *pd,
 		frame_data *fd, proto_tree *tree) 
 {
   int        offset = 0;

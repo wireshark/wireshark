@@ -1,6 +1,6 @@
 /* i4btrace.c
  *
- * $Id: i4btrace.c,v 1.6 2000/05/19 08:18:15 guy Exp $
+ * $Id: i4btrace.c,v 1.7 2000/05/19 23:06:50 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1999 by Bert Driehuis <driehuis@playbeing.org>
@@ -27,14 +27,14 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <time.h>
-#include "wtap.h"
+#include "wtap-int.h"
 #include "file_wrappers.h"
 #include "buffer.h"
 #include "i4b_trace.h"
 
 static int i4btrace_read(wtap *wth, int *err);
 static int i4btrace_seek_read(wtap *wth, int seek_off,
-    union pseudo_header *pseudo_header, u_char *pd, int length);
+    union wtap_pseudo_header *pseudo_header, u_char *pd, int length);
 static int i4b_read_rec_header(FILE_T fh, i4b_trace_hdr_t *hdr, int *err);
 static void i4b_byte_swap_header(wtap *wth, i4b_trace_hdr_t *hdr);
 static int i4b_read_rec_data(FILE_T fh, char *pd, int length, int *err);
@@ -195,7 +195,7 @@ static int i4btrace_read(wtap *wth, int *err)
 
 static int
 i4btrace_seek_read(wtap *wth, int seek_off,
-    union pseudo_header *pseudo_header, u_char *pd, int length)
+    union wtap_pseudo_header *pseudo_header, u_char *pd, int length)
 {
 	int	ret;
 	int	err;		/* XXX - return this */

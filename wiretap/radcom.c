@@ -1,6 +1,6 @@
 /* radcom.c
  *
- * $Id: radcom.c,v 1.22 2000/05/19 08:18:16 guy Exp $
+ * $Id: radcom.c,v 1.23 2000/05/19 23:07:01 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -27,7 +27,7 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <time.h>
-#include "wtap.h"
+#include "wtap-int.h"
 #include "file_wrappers.h"
 #include "buffer.h"
 #include "radcom.h"
@@ -69,7 +69,7 @@ struct radcomrec_hdr {
 
 static int radcom_read(wtap *wth, int *err);
 static int radcom_seek_read(wtap *wth, int seek_off,
-	union pseudo_header *pseudo_header, u_char *pd, int length);
+	union wtap_pseudo_header *pseudo_header, u_char *pd, int length);
 static int radcom_read_rec_header(FILE_T fh, struct radcomrec_hdr *hdr,
 	int *err);
 static int radcom_read_rec_data(FILE_T fh, char *pd, int length, int *err);
@@ -292,7 +292,7 @@ static int radcom_read(wtap *wth, int *err)
 
 static int
 radcom_seek_read(wtap *wth, int seek_off,
-    union pseudo_header *pseudo_header, u_char *pd, int length)
+    union wtap_pseudo_header *pseudo_header, u_char *pd, int length)
 {
 	int	ret;
 	int	err;		/* XXX - return this */

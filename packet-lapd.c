@@ -2,7 +2,7 @@
  * Routines for LAPD frame disassembly
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-lapd.c,v 1.7 2000/05/18 09:05:46 guy Exp $
+ * $Id: packet-lapd.c,v 1.8 2000/05/19 23:06:09 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -84,7 +84,7 @@ static const value_string lapd_sapi_vals[] = {
 };
 
 void
-dissect_lapd(const union pseudo_header *pseudo_header, const u_char *pd,
+dissect_lapd(const union wtap_pseudo_header *pseudo_header, const u_char *pd,
     frame_data *fd, proto_tree *tree)
 {
 	proto_tree	*lapd_tree, *addr_tree;

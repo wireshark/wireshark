@@ -1,6 +1,6 @@
 /* packet-ascend.h
  *
- * $Id: packet-ascend.h,v 1.3 2000/05/18 09:05:40 guy Exp $
+ * $Id: packet-ascend.h,v 1.4 2000/05/19 23:06:08 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -22,5 +22,4 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-void dissect_ascend(tvbuff_t *, const union pseudo_header *, packet_info *,
-    proto_tree *);
+void dissect_ascend(tvbuff_t *, packet_info *, proto_tree *);

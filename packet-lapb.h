@@ -1,6 +1,6 @@
 /* packet-lapb.h
  *
- * $Id: packet-lapb.h,v 1.2 2000/05/18 09:05:45 guy Exp $
+ * $Id: packet-lapb.h,v 1.3 2000/05/19 23:06:09 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -22,5 +22,5 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-void dissect_lapb(const union pseudo_header *, const u_char *, frame_data *,
+void dissect_lapb(const union wtap_pseudo_header *, const u_char *, frame_data *,
     proto_tree *);

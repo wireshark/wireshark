@@ -1,7 +1,7 @@
 /* packet-ascend.c
  * Routines for decoding Lucent/Ascend packet traces
  *
- * $Id: packet-ascend.c,v 1.13 2000/05/18 09:05:38 guy Exp $
+ * $Id: packet-ascend.c,v 1.14 2000/05/19 23:06:08 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -53,13 +53,13 @@ static const value_string encaps_vals[] = {
   {0,                NULL          } };
 
 void
-dissect_ascend( tvbuff_t *tvb, const union pseudo_header *pseudo_header,
-		packet_info *pinfo, proto_tree *tree)
+dissect_ascend(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  proto_tree *fh_tree;
-  proto_item *ti;
-  const guint8 *pd;
-  int offset;
+  proto_tree			*fh_tree;
+  proto_item			*ti;
+  const guint8			*pd;
+  int				offset;
+  union wtap_pseudo_header	*pseudo_header = pinfo->pseudo_header;
 
   pinfo->current_proto = "Lucent/Ascend";
 

@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.187 2000/05/19 04:54:35 gram Exp $
+ * $Id: packet.h,v 1.188 2000/05/19 23:06:11 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -125,10 +125,7 @@ typedef struct _frame_proto_data {
 
 /* XXX - some of this stuff is used only while a packet is being dissected;
    should we keep around a separate data structure for that, to save
-   memory?
-
-   Also, should the pseudo-header be supplied by Wiretap when you do a
-   seek-and-read, so that we don't have to save it for all frames? */
+   memory? */
 typedef struct _frame_data {
   struct _frame_data *next; /* Next element in list */
   struct _frame_data *prev; /* Previous element in list */
@@ -188,6 +185,7 @@ typedef struct _packet_info {
   const char *current_proto;	/* name of protocol currently being dissected */
   frame_data *fd;
   tvbuff_t *compat_top_tvb;	/* only needed while converting Ethereal to use tvbuffs */
+  union wtap_pseudo_header *pseudo_header;
   int     len;
   int     captured_len;
   address dl_src;		/* link-layer source address */
@@ -344,7 +342,7 @@ void init_dissect_rpc(void);
  * tree *
  * They should never modify the packet data.
  */
-void dissect_packet(union pseudo_header *, const u_char *, frame_data *,
+void dissect_packet(union wtap_pseudo_header *, const u_char *, frame_data *,
     proto_tree *);
 void dissect_data(const u_char *, int, frame_data *, proto_tree *);
 void dissect_data_tvb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);

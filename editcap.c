@@ -1,7 +1,7 @@
 /* Edit capture files.  We can delete records, or simply convert from one 
  * format to another format.
  *
- * $Id: editcap.c,v 1.10 2000/05/18 09:05:29 guy Exp $
+ * $Id: editcap.c,v 1.11 2000/05/19 23:06:06 gram Exp $
  *
  * Originally written by Richard Sharpe.
  * Improved by Guy Harris.
@@ -130,7 +130,7 @@ typedef struct {
 
 static void
 edit_callback(u_char *user, const struct wtap_pkthdr *phdr, int offset,
-    union pseudo_header *pseudo_header, const u_char *buf) 
+    union wtap_pseudo_header *pseudo_header, const u_char *buf) 
 {
   callback_arg *argp = (callback_arg *)user;
   int err;

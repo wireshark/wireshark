@@ -1,6 +1,6 @@
 /* netxray.c
  *
- * $Id: netxray.c,v 1.27 2000/05/18 09:09:39 guy Exp $
+ * $Id: netxray.c,v 1.28 2000/05/19 23:06:58 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -28,7 +28,7 @@
 #include <errno.h>
 #include <time.h>
 #include <string.h>
-#include "wtap.h"
+#include "wtap-int.h"
 #include "file_wrappers.h"
 #include "netxray.h"
 #include "buffer.h"
@@ -93,7 +93,7 @@ struct netxrayrec_2_x_hdr {
 static int netxray_read(wtap *wth, int *err);
 static void netxray_close(wtap *wth);
 static gboolean netxray_dump_1_1(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
-	const union pseudo_header *pseudo_header, const u_char *pd, int *err);
+	const union wtap_pseudo_header *pseudo_header, const u_char *pd, int *err);
 static gboolean netxray_dump_close_1_1(wtap_dumper *wdh, int *err);
 
 int netxray_open(wtap *wth, int *err)
@@ -362,7 +362,7 @@ gboolean netxray_dump_open_1_1(wtap_dumper *wdh, int *err)
 /* Write a record for a packet to a dump file.
    Returns TRUE on success, FALSE on failure. */
 static gboolean netxray_dump_1_1(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
-    const union pseudo_header *pseudo_header, const u_char *pd, int *err)
+    const union wtap_pseudo_header *pseudo_header, const u_char *pd, int *err)
 {
     netxray_dump_t *netxray = wdh->dump.netxray;
     guint32 timestamp;

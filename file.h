@@ -1,7 +1,7 @@
 /* file.h
  * Definitions for file structures and routines
  *
- * $Id: file.h,v 1.67 2000/05/18 09:05:36 guy Exp $
+ * $Id: file.h,v 1.68 2000/05/19 23:06:07 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -100,7 +100,7 @@ typedef struct _capture_file {
 #endif
   gchar       *sfilter;   /* Search filter string */
   gboolean     sbackward;  /* TRUE if search is backward, FALSE if forward */
-  union pseudo_header pseudo_header;      /* Packet pseudo_header */
+  union wtap_pseudo_header pseudo_header;      /* Packet pseudo_header */
   guint8       pd[WTAP_MAX_PACKET_SIZE];  /* Packet data */
   GMemChunk   *plist_chunk; /* Memory chunk for frame_data structures */
   frame_data  *plist;     /* Packet list */

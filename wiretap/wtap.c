@@ -1,6 +1,6 @@
 /* wtap.c
  *
- * $Id: wtap.c,v 1.42 2000/05/19 05:33:32 guy Exp $
+ * $Id: wtap.c,v 1.43 2000/05/19 23:07:04 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -26,7 +26,7 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
-#include "wtap.h"
+#include "wtap-int.h"
 #include "file_wrappers.h"
 #include "buffer.h"
 
@@ -242,7 +242,7 @@ int wtap_loop(wtap *wth, int count, wtap_handler callback, u_char* user,
 }
 
 int wtap_seek_read(wtap *wth, int seek_off,
-	union pseudo_header *pseudo_header, guint8 *pd, int len)
+	union wtap_pseudo_header *pseudo_header, guint8 *pd, int len)
 {
 	return wth->subtype_seek_read(wth, seek_off, pseudo_header, pd, len);
 }

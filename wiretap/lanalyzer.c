@@ -1,6 +1,6 @@
 /* lanalyzer.c
  *
- * $Id: lanalyzer.c,v 1.22 2000/05/18 09:09:31 guy Exp $
+ * $Id: lanalyzer.c,v 1.23 2000/05/19 23:06:52 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -26,7 +26,7 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <time.h>
-#include "wtap.h"
+#include "wtap-int.h"
 #include "file_wrappers.h"
 #include "buffer.h"
 #include "lanalyzer.h"

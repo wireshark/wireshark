@@ -1,6 +1,6 @@
 /* file.c
  *
- * $Id: file.c,v 1.51 2000/05/18 09:09:25 guy Exp $
+ * $Id: file.c,v 1.52 2000/05/19 23:06:48 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -35,7 +35,7 @@
 #include <io.h>	/* open/close on win32 */
 #endif
 
-#include "wtap.h"
+#include "wtap-int.h"
 #include "file_wrappers.h"
 #include "buffer.h"
 #include "lanalyzer.h"
@@ -97,7 +97,7 @@ static int (*open_routines[])(wtap *, int *) = {
 };
 
 int wtap_def_seek_read(wtap *wth, int seek_off,
-	union pseudo_header *pseudo_header, guint8 *pd, int len)
+	union wtap_pseudo_header *pseudo_header, guint8 *pd, int len)
 {
 	file_seek(wth->random_fh, seek_off, SEEK_SET);
 
@@ -444,7 +444,7 @@ FILE* wtap_dump_file(wtap_dumper *wdh)
 }
 
 gboolean wtap_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
-    const union pseudo_header *pseudo_header, const u_char *pd, int *err)
+    const union wtap_pseudo_header *pseudo_header, const u_char *pd, int *err)
 {
 	return (wdh->subtype_write)(wdh, phdr, pseudo_header, pd, err);
 }

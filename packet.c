@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.87 2000/05/19 21:47:38 gram Exp $
+ * $Id: packet.c,v 1.88 2000/05/19 23:06:10 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1066,7 +1066,7 @@ void blank_packetinfo(void)
   pi.ptype = PT_NONE;
   pi.srcport  = 0;
   pi.destport = 0;
-  pi.current_proto = "";
+  pi.current_proto = "<Missing Protocol Name>";
 }
 
 /* Do all one-time initialization. */
@@ -1120,7 +1120,7 @@ init_all_protocols(void)
 
 /* this routine checks the frame type from the cf structure */
 void
-dissect_packet(union pseudo_header *pseudo_header, const u_char *pd,
+dissect_packet(union wtap_pseudo_header *pseudo_header, const u_char *pd,
     frame_data *fd, proto_tree *tree)
 {
 	proto_tree *fh_tree;
@@ -1171,6 +1171,7 @@ dissect_packet(union pseudo_header *pseudo_header, const u_char *pd,
 	tvb = tvb_new_real_data(pd, fd->cap_len, -1);
 	pi.fd = fd;
 	pi.compat_top_tvb = tvb;
+	pi.pseudo_header = pseudo_header;
 
 	TRY {
 		switch (fd->lnk_t) {
@@ -1205,7 +1206,7 @@ dissect_packet(union pseudo_header *pseudo_header, const u_char *pd,
 				dissect_atm(pseudo_header, pd, fd, tree);
 				break;
 			case WTAP_ENCAP_ASCEND :
-				dissect_ascend(tvb, pseudo_header, &pi, tree);
+				dissect_ascend(tvb, &pi, tree);
 				break;
 			case WTAP_ENCAP_LAPD :
 				dissect_lapd(pseudo_header, pd, fd, tree);

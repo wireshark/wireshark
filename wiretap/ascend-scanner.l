@@ -1,7 +1,7 @@
 %{
 /* ascend-scanner.l
  *
- * $Id: ascend-scanner.l,v 1.15 2000/05/19 08:18:14 guy Exp $
+ * $Id: ascend-scanner.l,v 1.16 2000/05/19 23:06:46 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -34,7 +34,7 @@
 #include <io.h> 	/* for isatty() on win32 */
 #endif
 
-#include "wtap.h"
+#include "wtap-int.h"
 #include "ascend.h"
 #include "ascend-grammar.h"
 #include "ascend-int.h"

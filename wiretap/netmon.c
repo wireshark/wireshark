@@ -1,6 +1,6 @@
 /* netmon.c
  *
- * $Id: netmon.c,v 1.30 2000/05/18 09:09:36 guy Exp $
+ * $Id: netmon.c,v 1.31 2000/05/19 23:06:55 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -26,7 +26,7 @@
 #include <errno.h>
 #include <time.h>
 #include <string.h>
-#include "wtap.h"
+#include "wtap-int.h"
 #include "file_wrappers.h"
 #include "buffer.h"
 #include "netmon.h"
@@ -97,7 +97,7 @@ struct netmonrec_2_x_hdr {
 static int netmon_read(wtap *wth, int *err);
 static void netmon_close(wtap *wth);
 static gboolean netmon_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
-    const union pseudo_header *pseudo_header, const u_char *pd, int *err);
+    const union wtap_pseudo_header *pseudo_header, const u_char *pd, int *err);
 static gboolean netmon_dump_close(wtap_dumper *wdh, int *err);
 
 int netmon_open(wtap *wth, int *err)
@@ -472,7 +472,7 @@ gboolean netmon_dump_open(wtap_dumper *wdh, int *err)
 /* Write a record for a packet to a dump file.
    Returns TRUE on success, FALSE on failure. */
 static gboolean netmon_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
-    const union pseudo_header *pseudo_header, const u_char *pd, int *err)
+    const union wtap_pseudo_header *pseudo_header, const u_char *pd, int *err)
 {
 	netmon_dump_t *netmon = wdh->dump.netmon;
 	struct netmonrec_1_x_hdr rec_1_x_hdr;

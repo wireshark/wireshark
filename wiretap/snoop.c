@@ -1,6 +1,6 @@
 /* snoop.c
  *
- * $Id: snoop.c,v 1.27 2000/05/19 08:18:17 guy Exp $
+ * $Id: snoop.c,v 1.28 2000/05/19 23:07:02 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -24,7 +24,7 @@
 #include "config.h"
 #endif
 #include <errno.h>
-#include "wtap.h"
+#include "wtap-int.h"
 #include "file_wrappers.h"
 #include "buffer.h"
 #include "snoop.h"
@@ -57,12 +57,12 @@ struct snooprec_hdr {
 
 static int snoop_read(wtap *wth, int *err);
 static int snoop_seek_read(wtap *wth, int seek_off,
-    union pseudo_header *pseudo_header, u_char *pd, int length);
+    union wtap_pseudo_header *pseudo_header, u_char *pd, int length);
 static int snoop_read_atm_pseudoheader(FILE_T fh,
-    union pseudo_header *pseudo_header, int *err);
+    union wtap_pseudo_header *pseudo_header, int *err);
 static int snoop_read_rec_data(FILE_T fh, char *pd, int length, int *err);
 static gboolean snoop_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
-    const union pseudo_header *pseudo_header, const u_char *pd, int *err);
+    const union wtap_pseudo_header *pseudo_header, const u_char *pd, int *err);
 
 /*
  * See
@@ -320,7 +320,7 @@ static int snoop_read(wtap *wth, int *err)
 
 static int
 snoop_seek_read(wtap *wth, int seek_off,
-    union pseudo_header *pseudo_header, u_char *pd, int length)
+    union wtap_pseudo_header *pseudo_header, u_char *pd, int length)
 {
 	int	ret;
 	int	err;		/* XXX - return this */
@@ -343,7 +343,7 @@ snoop_seek_read(wtap *wth, int seek_off,
 }
 
 static int
-snoop_read_atm_pseudoheader(FILE_T fh, union pseudo_header *pseudo_header,
+snoop_read_atm_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
     int *err)
 {
 	char	atm_phdr[4];
@@ -471,7 +471,7 @@ gboolean snoop_dump_open(wtap_dumper *wdh, int *err)
 /* Write a record for a packet to a dump file.
    Returns TRUE on success, FALSE on failure. */
 static gboolean snoop_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
-    const union pseudo_header *pseudo_header, const u_char *pd, int *err)
+    const union wtap_pseudo_header *pseudo_header, const u_char *pd, int *err)
 {
 	struct snooprec_hdr rec_hdr;
 	int nwritten;

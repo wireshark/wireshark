@@ -1,6 +1,6 @@
 /* file_wrappers.c
  *
- * $Id: file_wrappers.c,v 1.6 2000/03/14 18:27:44 guy Exp $
+ * $Id: file_wrappers.c,v 1.7 2000/05/19 23:06:50 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -99,7 +99,7 @@
 
 #include <errno.h>
 #include <stdio.h>
-#include "wtap.h"
+#include "wtap-int.h"
 #include "file_wrappers.h"
 
 #ifdef HAVE_LIBZ

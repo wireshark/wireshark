@@ -1,6 +1,6 @@
 /* nettl.c
  *
- * $Id: nettl.c,v 1.12 2000/05/19 08:18:15 guy Exp $
+ * $Id: nettl.c,v 1.13 2000/05/19 23:06:57 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -27,7 +27,7 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <time.h>
-#include "wtap.h"
+#include "wtap-int.h"
 #include "file_wrappers.h"
 #include "buffer.h"
 #include "nettl.h"
@@ -66,9 +66,9 @@ struct nettlrec_ns_ls_ip_hdr {
 
 static int nettl_read(wtap *wth, int *err);
 static int nettl_seek_read(wtap *wth, int seek_off,
-		union pseudo_header *pseudo_header, u_char *pd, int length);
+		union wtap_pseudo_header *pseudo_header, u_char *pd, int length);
 static int nettl_read_rec_header(wtap *wth, FILE_T fh,
-		struct wtap_pkthdr *phdr, union pseudo_header *pseudo_header,
+		struct wtap_pkthdr *phdr, union wtap_pseudo_header *pseudo_header,
 		int *err);
 static int nettl_read_rec_data(FILE_T fh, char *pd, int length, int *err);
 static void nettl_close(wtap *wth);
@@ -151,7 +151,7 @@ static int nettl_read(wtap *wth, int *err)
 
 static int
 nettl_seek_read(wtap *wth, int seek_off,
-		union pseudo_header *pseudo_header, u_char *pd, int length)
+		union wtap_pseudo_header *pseudo_header, u_char *pd, int length)
 {
     int ret;
     int err;		/* XXX - return this */
@@ -175,7 +175,7 @@ nettl_seek_read(wtap *wth, int seek_off,
 
 static int
 nettl_read_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
-		union pseudo_header *pseudo_header, int *err)
+		union wtap_pseudo_header *pseudo_header, int *err)
 {
     int bytes_read;
     struct nettlrec_sx25l2_hdr lapb_hdr;

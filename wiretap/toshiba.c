@@ -1,6 +1,6 @@
 /* toshiba.c
  *
- * $Id: toshiba.c,v 1.10 2000/05/19 08:18:17 guy Exp $
+ * $Id: toshiba.c,v 1.11 2000/05/19 23:07:03 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -23,7 +23,7 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
-#include "wtap.h"
+#include "wtap-int.h"
 #include "buffer.h"
 #include "toshiba.h"
 #include "file_wrappers.h"
@@ -105,11 +105,12 @@ static const char toshiba_rec_magic[]  = { '[', 'N', 'o', '.' };
 #define TOSHIBA_REC_MAGIC_SIZE  (sizeof toshiba_rec_magic  / sizeof toshiba_rec_magic[0])
 
 static int toshiba_read(wtap *wth, int *err);
-static int toshiba_seek_read(wtap *wth, int seek_off, union pseudo_header *pseudo_header, guint8 *pd, int len);
+static int toshiba_seek_read(wtap *wth, int seek_off,
+	union wtap_pseudo_header *pseudo_header, guint8 *pd, int len);
 static gboolean parse_single_hex_dump_line(char* rec, guint8 *buf, int byte_offset);
 static int parse_toshiba_hex_dump(FILE_T fh, int pkt_len, guint8* buf, int *err);
 static int parse_toshiba_rec_hdr(wtap *wth, FILE_T fh,
-    union pseudo_header *pseudo_header, int *err);
+    union wtap_pseudo_header *pseudo_header, int *err);
 
 /* Seeks to the beginning of the next packet, and returns the
    byte offset.  Returns -1 on failure. */
@@ -228,7 +229,7 @@ static int toshiba_read(wtap *wth, int *err)
 
 /* Used to read packets in random-access fashion */
 static int
-toshiba_seek_read (wtap *wth, int seek_off, union pseudo_header *pseudo_header,
+toshiba_seek_read (wtap *wth, int seek_off, union wtap_pseudo_header *pseudo_header,
 	guint8 *pd, int len)
 {
 	int	pkt_len;
@@ -251,7 +252,7 @@ toshiba_seek_read (wtap *wth, int seek_off, union pseudo_header *pseudo_header,
 /* Parses a packet record header. */
 static int
 parse_toshiba_rec_hdr(wtap *wth, FILE_T fh,
-    union pseudo_header *pseudo_header, int *err)
+    union wtap_pseudo_header *pseudo_header, int *err)
 {
 	char	line[TOSHIBA_LINE_LENGTH];
 	int	num_items_scanned;

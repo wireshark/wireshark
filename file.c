@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.188 2000/05/18 09:05:30 guy Exp $
+ * $Id: file.c,v 1.189 2000/05/19 23:06:06 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -94,7 +94,7 @@ static guint32 firstsec, firstusec;
 static guint32 prevsec, prevusec;
 
 static void wtap_dispatch_cb(u_char *, const struct wtap_pkthdr *, int,
-    union pseudo_header *, const u_char *);
+    union wtap_pseudo_header *, const u_char *);
 
 static void set_selected_row(int row);
 
@@ -500,7 +500,7 @@ apply_color_filter(gpointer filter_arg, gpointer argp)
 
 static int
 add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
-	union pseudo_header *pseudo_header, const u_char *buf)
+	union wtap_pseudo_header *pseudo_header, const u_char *buf)
 {
   apply_color_filter_args args;
   gint          i, row;
@@ -634,7 +634,7 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
 
 static void
 wtap_dispatch_cb(u_char *user, const struct wtap_pkthdr *phdr, int offset,
-	union pseudo_header *pseudo_header, const u_char *buf)
+	union wtap_pseudo_header *pseudo_header, const u_char *buf)
 {
   frame_data   *fdata;
   capture_file *cf = (capture_file *) user;
@@ -1422,7 +1422,7 @@ save_cap_file(char *fname, capture_file *cf, gboolean save_filtered,
   wtap_dumper  *pdh;
   frame_data   *fdata;
   struct wtap_pkthdr hdr;
-  union pseudo_header pseudo_header;
+  union wtap_pseudo_header pseudo_header;
   guint8        pd[65536];
 
   name_ptr = get_basename(fname);

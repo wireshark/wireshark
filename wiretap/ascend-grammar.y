@@ -1,7 +1,7 @@
 %{
 /* ascend-grammar.y
  *
- * $Id: ascend-grammar.y,v 1.12 2000/05/19 08:18:14 guy Exp $
+ * $Id: ascend-grammar.y,v 1.13 2000/05/19 23:06:46 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -56,7 +56,7 @@ WD_DIALOUT_DISP: chunk 2515EE type IP.
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
-#include "wtap.h"
+#include "wtap-int.h"
 #include "buffer.h"
 #include "ascend.h"
 #include "ascend-int.h"

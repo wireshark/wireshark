@@ -1,6 +1,6 @@
 /* iptrace.c
  *
- * $Id: iptrace.c,v 1.28 2000/05/19 08:18:15 guy Exp $
+ * $Id: iptrace.c,v 1.29 2000/05/19 23:06:51 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -27,22 +27,22 @@
 #include <errno.h>
 #include <time.h>
 #include <string.h>
-#include "wtap.h"
+#include "wtap-int.h"
 #include "file_wrappers.h"
 #include "buffer.h"
 #include "iptrace.h"
 
 static int iptrace_read_1_0(wtap *wth, int *err);
 static int iptrace_seek_read_1_0(wtap *wth, int seek_off,
-    union pseudo_header *pseudo_header, u_char *pd, int packet_size);
+    union wtap_pseudo_header *pseudo_header, u_char *pd, int packet_size);
 static int iptrace_read_2_0(wtap *wth, int *err);
 static int iptrace_seek_read_2_0(wtap *wth, int seek_off,
-    union pseudo_header *pseudo_header, u_char *pd, int packet_size);
+    union wtap_pseudo_header *pseudo_header, u_char *pd, int packet_size);
 static int iptrace_read_rec_header(FILE_T fh, guint8 *header, int header_len,
     int *err);
 static int iptrace_read_rec_data(FILE_T fh, guint8 *data_ptr, int packet_size,
     int *err);
-static void get_atm_pseudo_header(union pseudo_header *pseudo_header,
+static void get_atm_pseudo_header(union wtap_pseudo_header *pseudo_header,
     guint8 *header);
 static int wtap_encap_ift(unsigned int  ift);
 
@@ -164,7 +164,7 @@ static int iptrace_read_1_0(wtap *wth, int *err)
 }
 
 static int iptrace_seek_read_1_0(wtap *wth, int seek_off,
-    union pseudo_header *pseudo_header, u_char *pd, int packet_size)
+    union wtap_pseudo_header *pseudo_header, u_char *pd, int packet_size)
 {
 	int			ret;
 	int			err;	/* XXX - return this */
@@ -277,7 +277,7 @@ static int iptrace_read_2_0(wtap *wth, int *err)
 }
 
 static int iptrace_seek_read_2_0(wtap *wth, int seek_off,
-    union pseudo_header *pseudo_header, u_char *pd, int packet_size)
+    union wtap_pseudo_header *pseudo_header, u_char *pd, int packet_size)
 {
 	int			ret;
 	int			err;	/* XXX - return this */
@@ -354,7 +354,7 @@ iptrace_read_rec_data(FILE_T fh, guint8 *data_ptr, int packet_size, int *err)
  * in some fashion what sort of traffic it is, or being told by the user.
  */
 static void
-get_atm_pseudo_header(union pseudo_header *pseudo_header, guint8 *header)
+get_atm_pseudo_header(union wtap_pseudo_header *pseudo_header, guint8 *header)
 {
 	char	if_text[9];
 	char	*decimal;

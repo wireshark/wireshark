@@ -2,7 +2,7 @@
  * Routines for x25 packet disassembly
  * Olivier Abad <abad@daba.dhis.net>
  *
- * $Id: packet-x25.c,v 1.26 2000/05/18 09:05:49 guy Exp $
+ * $Id: packet-x25.c,v 1.27 2000/05/19 23:06:09 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1366,7 +1366,7 @@ static const value_string sharing_strategy_vals[] = {
 };
 
 void
-dissect_x25(const union pseudo_header *pseudo_header, const u_char *pd,
+dissect_x25(const union wtap_pseudo_header *pseudo_header, const u_char *pd,
 		int offset, frame_data *fd, proto_tree *tree)
 {
     proto_tree *x25_tree=0, *ti;

@@ -2,7 +2,7 @@
  * Routines for v120 frame disassembly
  * Bert Driehuis <driehuis@playbeing.org>
  *
- * $Id: packet-v120.c,v 1.7 2000/05/18 09:05:48 guy Exp $
+ * $Id: packet-v120.c,v 1.8 2000/05/19 23:06:09 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -54,7 +54,7 @@ static gint ett_v120_header = -1;
 static int dissect_v120_header(const u_char *pd, int offset, frame_data *fd, proto_tree *tree);
 
 void
-dissect_v120(const union pseudo_header *pseudo_header, const u_char *pd,
+dissect_v120(const union wtap_pseudo_header *pseudo_header, const u_char *pd,
 		frame_data *fd, proto_tree *tree)
 {
     proto_tree *v120_tree, *ti, *tc, *address_tree;
