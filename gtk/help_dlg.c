@@ -282,7 +282,7 @@ url_page_action(url_page_action_e action)
         browser_open_url ("http://www.ethereal.com/faq.html");
         break;
     case(ONLINEPAGE_SAMPLE_FILES):
-        browser_open_url ("http://www.ethereal.com/sample");
+        browser_open_url ("http://wiki.ethereal.com/SampleCaptures");
         break;
 
     /* local manual pages */
