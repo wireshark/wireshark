@@ -498,7 +498,7 @@ gdouble tvb_get_letohieee_double(tvbuff_t*, gint offset);
 
 proto_item *proto_tree_add_debug_text(proto_tree *tree, const char *format, ...);
 
-void rtp_add_address(packet_info *pinfo, address *addr, int port, int other_port, gchar *setup_method, guint32 setup_frame_number);
+void rtp_add_address(packet_info *pinfo, address *addr, int port, int other_port, gchar *setup_method, guint32 setup_frame_number, int rtp_event_pt);
 void rtcp_add_address(packet_info *pinfo, address *addr, int port, int other_port, gchar *setup_method, guint32 setup_frame_number);
 
 GString *register_tap_listener(char *, void *, char *, tap_reset_cb, tap_packet_cb, tap_draw_cb);
