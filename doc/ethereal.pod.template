@@ -16,6 +16,7 @@ S<[ B<-i> interface ]>
 S<[ B<-k> ]>
 S<[ B<-m> font ]>
 S<[ B<-n> ]>
+S<[ B<-o> preference setting ] ...>
 S<[ B<-P> packet list height ]>
 S<[ B<-Q> ]>
 S<[ B<-r> infile ]>
@@ -122,6 +123,14 @@ Sets the name of the font used by B<Ethereal> for most text.
 
 Disables network object name resolution (such as hostname, TCP and UDP port
 names).
+
+=item -o
+
+Sets a preference value, overriding the default value and any value read
+from a preference file.  The argument to the flag is a string of the
+form I<prefname>B<:>I<value>, where I<prefname> is the name of the
+preference (which is the same name that would appear in the preference
+file), and I<value> is the value to which it should be set.
 
 =item -P
 
@@ -458,6 +467,11 @@ until you press the space bar. If the selection bar has a "select"
 behavior, the arrow keys will move the selection bar and change
 the selection to the new item in the packet list or protocol tree.
 
+=item Protocol Preferences
+
+There are also pages for various protocols that Ethereal dissects,
+controlling the way Ethereal handles those protocols.
+
 =back
 
 =item Filters
@@ -761,6 +775,26 @@ type of the field is also given.
 =insert_dfilter_table
 
 =head1 FILES
+
+F</usr/local/etc/ethereal.conf> and F<$HOME/.ethereal/preferences>
+contain system-wide and personal preference settings, respectively.  The
+file contains preference settings of the form I<prefname>B<:>I<value>,
+one per line, where I<prefname> is the name of the preference (which is
+the same name that would appear in the preference file), and I<value> is
+the value to which it should be set; white space is allowed between B<:>
+and I<value>.  A preference setting can be continued on subsequent lines
+by indenting the continuation lines with white space.  A B<#> character
+starts a comment that runs to the end of the line.
+
+The system-wide preference file is read first, if it exists, overriding
+B<Ethereal>'s default values; the personal preferences file is then
+read, if it exists, overriding default values and values read from the
+system-wide preference file.
+
+Note that whenever the preferences are saved by using the I<Save> button
+in the I<Edit:Preferences> dialog box, F<$HOME/.ethereal/preferences>
+will be overwritten with the new settings, destroying any comments that
+were in the file.
 
 F</etc/ethers> is consulted to correlate 6-byte hardware addresses to
 names.  If an address is not found in F</etc/ethers>, the
