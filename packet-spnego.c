@@ -4,7 +4,7 @@
  * Copyright 2002, Tim Potter <tpot@samba.org>
  * Copyright 2002, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-spnego.c,v 1.4 2002/08/28 01:15:23 sharpe Exp $
+ * $Id: packet-spnego.c,v 1.5 2002/08/28 02:30:18 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -148,7 +148,7 @@ dissect_spnego_mechTypes(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	    goto done;
 	  }
 
-	  oid_string = format_oid(oid, nbytes);
+	  oid_string = format_oid(oid, len);
 
 	  proto_tree_add_text(subtree, tvb, offset, nbytes, "OID: %s", 
 			      oid_string);
@@ -237,6 +237,8 @@ dissect_spnego_negTokenInit(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 			cls, con, tag);
 		goto done;
 	}
+
+	offset = hnd->offset;
 
 	while (len1) {
 
@@ -433,7 +435,7 @@ dissect_spnego(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 }
 
 void
-proto_register_snego(void)
+proto_register_spnego(void)
 {
 	static hf_register_info hf[] = {
 		{ &hf_spnego,

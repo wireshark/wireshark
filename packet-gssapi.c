@@ -2,7 +2,7 @@
  * Dissector for GSS-API tokens as described in rfc2078, section 3.1
  * Copyright 2002, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-gssapi.c,v 1.5 2002/08/27 23:30:34 sharpe Exp $
+ * $Id: packet-gssapi.c,v 1.6 2002/08/28 02:30:18 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -200,10 +200,13 @@ dissect_gssapi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	g_free(oid_string);
 
+	/*
+	 * This is not needed, as the sub-dissector adds a tree
 	sub_item = proto_tree_add_item(subtree, value->proto, tvb, offset,
 				       -1, FALSE);
 
 	oid_subtree = proto_item_add_subtree(sub_item, value->ett);
+	*/
 
 	handle = find_dissector(value->name);
 
@@ -211,7 +214,7 @@ dissect_gssapi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		tvbuff_t *oid_tvb;
 
 		oid_tvb = tvb_new_subset(tvb, offset, -1, -1);
-		call_dissector(handle, oid_tvb, pinfo, oid_subtree);
+		call_dissector(handle, oid_tvb, pinfo, subtree);
 	}
 
  done:
