@@ -6,7 +6,7 @@
  * Magnus Hansson <mah@hms.se>
  * Joakim Wiberg <jow@hms.se>
  *
- * $Id: packet-enip.c,v 1.1 2003/06/11 22:36:18 guy Exp $
+ * $Id: packet-enip.c,v 1.2 2003/06/12 07:33:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -961,7 +961,7 @@ show_epath( tvbuff_t *tvb, proto_item *pi, int offset, int path_length )
    		   if( ( segment_type & CI_LOGICAL_SEG_FORMAT_MASK ) == CI_LOGICAL_SEG_8_BIT )
    		   {
    		      temp_data = tvb_get_guint8( tvb, offset + pathpos + 1 );
-               cia_item = proto_tree_add_text( path_tree, tvb, offset + pathpos, 2, "8-Bit Logical Connection Point Segment (0x%02X)", temp_data );
+               cia_item = proto_tree_add_text( path_tree, tvb, offset + pathpos, 2, "8-Bit Logical Connection Point Segment (0x%02X)", segment_type );
 
                /* Create a sub tree for the connection point */
                cia_tree = proto_item_add_subtree( cia_item, ett_cia_path );
