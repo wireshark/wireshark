@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.125 2003/05/26 21:58:45 guy Exp $
+ * $Id: packet-dcerpc.c,v 1.126 2003/05/27 09:22:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2309,7 +2309,12 @@ dissect_dcerpc_cn_stub (tvbuff_t *tvb, int offset, packet_info *pinfo,
                             tvb_new_subset (tvb, offset, length,
                                             reported_length),
                             0, hdr->drep, di, auth_info);
-        goto end_cn_stub;
+        if (check_col(pinfo->cinfo, COL_INFO)) {
+            col_append_fstr(pinfo->cinfo, COL_INFO,
+                            " [DCE/RPC %s fragment]", fragment_type(hdr->flags));
+        }
+        pinfo->fragmented = save_fragmented;
+        return;
     }
 
     /* if we have already seen this packet, see if it was reassembled
@@ -2392,9 +2397,17 @@ dissect_dcerpc_cn_stub (tvbuff_t *tvb, int offset, packet_info *pinfo,
 		stub_length,
 		TRUE);
 
-
-
 end_cn_stub:
+
+    /* Show the fragment data. */
+    if (dcerpc_tree) {
+	if (length > 0) {
+	    proto_tree_add_text (dcerpc_tree, tvb, offset, length,
+				 "Fragment data (%d byte%s)",
+				 stub_length,
+				 plurality(stub_length, "", "s"));
+	}
+    }
 
     /* if reassembly is complete, dissect the full PDU
     */
