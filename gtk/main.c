@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.300 2003/07/18 20:55:11 oabad Exp $
+ * $Id: main.c,v 1.301 2003/07/19 08:59:29 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -957,11 +957,16 @@ void resolve_name_cb(GtkWidget *widget _U_, gpointer data _U_) {
 void
 set_plist_sel_browse(gboolean val)
 {
-        /* initialize with a mode we don't use, so that the following test will
-         * fail the first time */
+        GtkSelectionMode new_mode;
+        /* initialize with a mode we don't use, so that the mode == new_mode
+         * test will fail the first time */
         static GtkSelectionMode mode = GTK_SELECTION_MULTIPLE;
 
-	if (val == (mode == GTK_SELECTION_SINGLE)) {
+        /* Yeah, GTK uses "browse" in the case where we do not, but oh well. I
+         * think "browse" in Ethereal makes more sense than "SINGLE" in GTK+ */
+        new_mode = val ? GTK_SELECTION_SINGLE : GTK_SELECTION_BROWSE;
+
+	if (mode == new_mode) {
 		/*
 		 * The mode isn't changing, so don't do anything.
 		 * In particular, don't gratuitiously unselect the
@@ -982,14 +987,7 @@ set_plist_sel_browse(gboolean val)
 	if (finfo_selected)
 		unselect_packet(&cfile);
 
-	/* Yeah, GTK uses "browse" in the case where we do not, but oh well. I think
-	 * "browse" in Ethereal makes more sense than "SINGLE" in GTK+ */
-	if (val) {
-                mode = GTK_SELECTION_SINGLE;
-	}
-	else {
-                mode = GTK_SELECTION_BROWSE;
-	}
+        mode = new_mode;
         gtk_clist_set_selection_mode(GTK_CLIST(packet_list), mode);
 }
 
