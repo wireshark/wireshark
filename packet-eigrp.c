@@ -2,7 +2,7 @@
  * Routines for EIGRP dissection
  * Copyright 2000, Paul Ionescu <paul@acorp.ro>
  *
- * $Id: packet-eigrp.c,v 1.25 2002/08/28 21:00:13 jmayer Exp $
+ * $Id: packet-eigrp.c,v 1.26 2004/03/06 02:20:55 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -34,6 +34,12 @@
 #include <epan/atalk-utils.h>
 #include "ipproto.h"
 #include "packet-ipx.h"
+
+/*
+ * See
+ *
+ *	http://www.rhyshaden.com/eigrp.htm
+ */
 
 #define EIGRP_UPDATE    0x01
 #define EIGRP_REQUEST   0x02
@@ -302,6 +308,7 @@ static void dissect_eigrp_nms (tvbuff_t *tvb, proto_tree *tree, proto_item *ti)
 static void dissect_eigrp_ip_int (tvbuff_t *tvb, proto_tree *tree, proto_item *ti)
 {
 	guint8 ip_addr[4],length,addr_len;
+
 	tvb_memcpy(tvb,ip_addr,0,4);
 	proto_tree_add_text (tree,tvb,0,4, "Next Hop    = %s",ip_to_str(ip_addr));
 	proto_tree_add_text (tree,tvb,4,4, "Delay       = %u",tvb_get_ntohl(tvb,4));
@@ -312,17 +319,30 @@ static void dissect_eigrp_ip_int (tvbuff_t *tvb, proto_tree *tree, proto_item *t
 	proto_tree_add_text (tree,tvb,17,1,"Load        = %u",tvb_get_guint8(tvb,17));
 	proto_tree_add_text (tree,tvb,18,2,"Reserved ");
 	length=tvb_get_guint8(tvb,20);
-	proto_tree_add_text (tree,tvb,20,1,"Prefix Length = %u",length);
-	if (length % 8 == 0) addr_len=length/8 ; else addr_len=length/8+1;
-	ip_addr[0]=ip_addr[1]=ip_addr[2]=ip_addr[3]=0;
-	tvb_memcpy(tvb,ip_addr,21,addr_len);
-        proto_tree_add_text (tree,tvb,21,addr_len,"Destination = %s",ip_to_str(ip_addr));
-        proto_item_append_text (ti,"  =   %s/%u%s",ip_to_str(ip_addr),length,((tvb_get_ntohl(tvb,4)==0xffffffff)?" - Destination unreachable":""));
+	if (length > 32) {
+	    proto_tree_add_text (tree,tvb,20,1,"Prefix length = %u (invalid, must be <= 32)",length);
+	    proto_item_append_text (ti,"  [Invalid prefix length %u > 32]",length);
+	} else if (length == 0) {
+	    proto_tree_add_text (tree,tvb,20,1,"Prefix length = %u (invalid, must be > 0)",length);
+	    proto_item_append_text (ti,"  [Invalid prefix length %u]",length);
+	} else {
+	    proto_tree_add_text (tree,tvb,20,1,"Prefix Length = %u",length);
+	    addr_len=(length+7)/8;
+	    ip_addr[0]=ip_addr[1]=ip_addr[2]=ip_addr[3]=0;
+	    /* XXX - the EIGRP page whose URL appears at the top says this
+	       field is 24 bits; what if the prefix length is > 24? */
+	    tvb_memcpy(tvb,ip_addr,21,addr_len);
+	    if (length%8)
+		ip_addr[addr_len - 1] &= ((0xff00 >> (length % 8)) & 0xff);
+	    proto_tree_add_text (tree,tvb,21,addr_len,"Destination = %s",ip_to_str(ip_addr));
+	    proto_item_append_text (ti,"  =   %s/%u%s",ip_to_str(ip_addr),length,((tvb_get_ntohl(tvb,4)==0xffffffff)?" - Destination unreachable":""));
+	}
 }
 
 static void dissect_eigrp_ip_ext (tvbuff_t *tvb, proto_tree *tree, proto_item *ti)
 {
 	guint8 ip_addr[4],length,addr_len;
+
 	tvb_memcpy(tvb,ip_addr,0,4);
 	proto_tree_add_text (tree,tvb,0,4,"Next Hop = %s",ip_to_str(ip_addr));
 	tvb_memcpy(tvb,ip_addr,4,4);
@@ -342,12 +362,24 @@ static void dissect_eigrp_ip_ext (tvbuff_t *tvb, proto_tree *tree, proto_item *t
 	proto_tree_add_text (tree,tvb,37,1,"Load = %u",tvb_get_guint8(tvb,37));
 	proto_tree_add_text (tree,tvb,38,2,"Reserved ");
 	length=tvb_get_guint8(tvb,40);
-	proto_tree_add_text (tree,tvb,40,1,"Prefix Length = %u",length);
-        if (length % 8 == 0) addr_len=length/8 ; else addr_len=length/8+1;
-        ip_addr[0]=ip_addr[1]=ip_addr[2]=ip_addr[3]=0;
-        tvb_memcpy(tvb,ip_addr,41,addr_len);
-        proto_tree_add_text (tree,tvb,41,addr_len,"Destination = %s",ip_to_str(ip_addr));
-        proto_item_append_text (ti,"  =   %s/%u%s",ip_to_str(ip_addr),length,((tvb_get_ntohl(tvb,24)==0xffffffff)?" - Destination unreachable":""));
+	if (length > 32) {
+	    proto_tree_add_text (tree,tvb,40,1,"Prefix length = %u (invalid, must be <= 32)",length);
+	    proto_item_append_text (ti,"  [Invalid prefix length %u > 32]",length);
+	} else if (length == 0) {
+	    proto_tree_add_text (tree,tvb,40,1,"Prefix length = %u (invalid, must be > 0)",length);
+	    proto_item_append_text (ti,"  [Invalid prefix length %u]",length);
+	} else {
+	    proto_tree_add_text (tree,tvb,40,1,"Prefix Length = %u",length);
+	    addr_len=(length+7)/8;
+	    ip_addr[0]=ip_addr[1]=ip_addr[2]=ip_addr[3]=0;
+	    /* XXX - the EIGRP page whose URL appears at the top says this
+	       field is 24 bits; what if the prefix length is > 24? */
+	    tvb_memcpy(tvb,ip_addr,41,addr_len);
+	    if (length%8)
+		ip_addr[addr_len - 1] &= ((0xff00 >> (length % 8)) & 0xff);
+	    proto_tree_add_text (tree,tvb,41,addr_len,"Destination = %s",ip_to_str(ip_addr));
+	    proto_item_append_text (ti,"  =   %s/%u%s",ip_to_str(ip_addr),length,((tvb_get_ntohl(tvb,4)==0xffffffff)?" - Destination unreachable":""));
+	}
 }
 
 
