@@ -1,7 +1,7 @@
-/* display.c
+/* display_opts.c
  * Routines for packet display windows
  *
- * $Id: display.c,v 1.12 1999/09/29 22:19:12 guy Exp $
+ * $Id: display_opts.c,v 1.1 1999/10/18 12:48:13 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -43,7 +43,7 @@
 #endif
 
 #include <time.h>
-
+#if 0
 #ifdef HAVE_SYS_SOCKET_H
 #include <sys/socket.h>
 #endif
@@ -62,6 +62,7 @@
 
 #include <signal.h>
 #include <errno.h>
+#endif
 
 #ifdef NEED_SNPRINTF_H
 # ifdef HAVE_STDARG_H
@@ -80,7 +81,7 @@
 #include "timestamp.h"
 #include "packet.h"
 #include "file.h"
-#include "display.h"
+#include "display_opts.h"
 
 extern capture_file  cf;
 extern GtkWidget *packet_list;

@@ -1,7 +1,7 @@
-/* display.h
+/* display_opts.h
  * Definitions for display option window
  *
- * $Id: display.h,v 1.1 1999/06/19 01:14:48 guy Exp $
+ * $Id: display_opts.h,v 1.1 1999/10/18 12:48:13 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -23,9 +23,9 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef __DISPLAY_H__
-#define __DISPLAY_H__
+#ifndef __DISPLAY_OPTS_H__
+#define __DISPLAY_OPTS_H__
 
 void   display_opt_cb(GtkWidget *, gpointer);
 
-#endif /* display.h */
+#endif /* display_opts.h */
