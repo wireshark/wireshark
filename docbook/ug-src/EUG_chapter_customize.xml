@@ -495,7 +495,7 @@ ethereal [ -vh ] [ -klLnpQS ] [ -a &lt;capture autostop condition> ] ...
     </figure>
   </section>
    
-  <section id="ChAdvProtocolDissectionSection">
+  <section id="ChCustProtocolDissectionSection">
 	<title>Control Protocol dissection</title>
 	<para>
 		There are some ways, to let the user control how protocols are 
