@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\lsarpc packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-lsa.c,v 1.7 2002/01/21 07:36:33 guy Exp $
+ * $Id: packet-dcerpc-lsa.c,v 1.8 2002/03/19 22:09:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -80,7 +80,7 @@ static int prs_UNISTR(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		proto_tree *subtree;
 		guint32 max_len, stroffset, actual_count, i;
 		int old_offset;
-		guint16 *string;
+		int string_offset;
 		char *astring;
 
 		/* Parse data */
@@ -97,33 +97,33 @@ static int prs_UNISTR(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				    &actual_count, "Actual length");
 
 		offset = prs_uint16s(tvb, offset, pinfo, NULL,
-				     actual_count, &string, "Data");
+				     actual_count, &string_offset, "Data");
 
 		/* Insert into display */
 
-		astring = fake_unicode(string, actual_count);
+		astring = fake_unicode(tvb, string_offset, actual_count);
 
 		if (!astring || !astring[0])
-			astring = strdup("(NULL)");
+			astring = g_strdup("(NULL)");
 
 		item = proto_tree_add_text(tree, tvb, old_offset, 
 					   offset - old_offset, "String: %s", 
 					   astring);
 
-		free(astring);
+		g_free(astring);
 
 		subtree = proto_item_add_subtree(item, ett_UNISTR);
 
 		proto_tree_add_text(subtree, tvb, old_offset, 4, 
-				    "Max length: %d", max_len);
+				    "Max length: %u", max_len);
 		old_offset += 4;
 
 		proto_tree_add_text(subtree, tvb, old_offset, 4, 
-				    "Offset: %d", stroffset);
+				    "Offset: %u", stroffset);
 		old_offset += 4;
 
 		proto_tree_add_text(subtree, tvb, old_offset, 4,
-				    "Actual length: %d", actual_count);
+				    "Actual length: %u", actual_count);
 		old_offset += 4;
 
 		if (prs_pop_ptr(ptr_list, "Data"))
@@ -159,7 +159,8 @@ static int prs_SID(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	int old_offset, i;
 	proto_item *item;
 	proto_tree *subtree;
-	guint32 ia, *subauths, subauth_max;
+	guint32 ia, subauth_max;
+	int subauths_offset;
 	guint8 revision;
 	char sid_str[128];
 
@@ -183,13 +184,14 @@ static int prs_SID(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	sprintf(sid_str, "S-%u-%u", revision, ia);
 
 	offset = prs_uint32s(tvb, offset, pinfo, NULL, subauth_count,
-			     &subauths, "Subauth count");
+			     &subauths_offset, "Subauth count");
 
 	for (i = 0; i < subauth_count; i++) {
 		char sa[16];
 
-		sprintf(sa, "-%u", subauths[i]);
+		sprintf(sa, "-%u", tvb_get_letohl(tvb, subauths_offset));
  		strcat(sid_str, sa);
+ 		subauths_offset += 4;
 	}
 
 	/* Insert into display */
@@ -197,17 +199,17 @@ static int prs_SID(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	item = proto_tree_add_text(tree, tvb, offset, 0, "SID: %s", sid_str);
 	subtree = proto_item_add_subtree(item, ett_SID);
 
-	proto_tree_add_text(subtree, tvb, old_offset, 4, 
-			    "Subauth array max count: %d", subauth_max);
+	proto_tree_add_text(subtree, tvb, old_offset, 4,
+			    "Subauth array max count: %u", subauth_max);
 
 	old_offset += 4;
 
-	proto_tree_add_text(subtree, tvb, old_offset, 1, "Revision: %d", 
+	proto_tree_add_text(subtree, tvb, old_offset, 1, "Revision: %u",
 			    revision);
 
 	old_offset++;
 
-	proto_tree_add_text(subtree, tvb, old_offset, 1, "Subauth count: %d",
+	proto_tree_add_text(subtree, tvb, old_offset, 1, "Subauth count: %u",
 			    subauth_count); 
 
 	old_offset++;

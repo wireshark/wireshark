@@ -2,7 +2,7 @@
  * Routines for DCERPC over SMB packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-nt.c,v 1.18 2002/03/15 20:46:04 sharpe Exp $
+ * $Id: packet-dcerpc-nt.c,v 1.19 2002/03/19 22:09:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -63,7 +63,7 @@ int prs_uint8(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	if (name && tree)
 		proto_tree_add_text(tree, tvb, offset - 1, 1, 
-				    "%s: %d", name, i);
+				    "%s: %u", name, i);
 
 	if (data)
 		*data = i;
@@ -72,24 +72,15 @@ int prs_uint8(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 int prs_uint8s(tvbuff_t *tvb, int offset, packet_info *pinfo,
-	       proto_tree *tree, int count, guint8 **data, char *name)
+	       proto_tree *tree, int count, int *data_offset, char *name)
 {
-	const guint8 *ptr;
-	
-	/* The tvb_get_ptr() function fails an assertion if count < -1 */
-	
-	if (count < -1)
-		THROW(BoundsError);
-
 	/* No alignment required */
-
-	ptr = tvb_get_ptr(tvb, offset, count);
 
 	if (name && tree)
 		proto_tree_add_text(tree, tvb, offset, count, "%s", name);
 
-	if (data)
-		*data = (guint8 *)ptr;
+	if (data_offset)
+		*data_offset = offset;
 
 	offset += count;
 
@@ -110,7 +101,7 @@ int prs_uint16(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	if (name && tree)
 		proto_tree_add_text(tree, tvb, offset - 2, 2, 
-				    "%s: %d", name, i);
+				    "%s: %u", name, i);
 	if (data)
 		*data = i;
 
@@ -120,24 +111,15 @@ int prs_uint16(tvbuff_t *tvb, int offset, packet_info *pinfo,
 /* Parse a number of uint16's */
 
 int prs_uint16s(tvbuff_t *tvb, int offset, packet_info *pinfo,
-		proto_tree *tree, int count, guint16 **data, char *name)
+		proto_tree *tree, int count, int *data_offset, char *name)
 {
-	const guint8 *ptr;
-	
-	/* The tvb_get_ptr() function fails an assertion if count < -1 */
-	
-	if (count < -1)
-		THROW(BoundsError);
-
 	offset = prs_align(offset, 2);
 	
-	ptr = tvb_get_ptr(tvb, offset, count * 2);
-
 	if (name && tree)
 		proto_tree_add_text(tree, tvb, offset, count * 2, 
 				    "%s", name);
-	if (data)
-		*data = (guint16 *)ptr;
+	if (data_offset)
+		*data_offset = offset;
 
 	offset += count * 2;
 
@@ -158,7 +140,7 @@ int prs_uint32(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	if (name && tree)
 		proto_tree_add_text(tree, tvb, offset - 4, 4, 
-				    "%s: %d", name, i);
+				    "%s: %u", name, i);
 
 	if (data)
 		*data = i;
@@ -169,24 +151,15 @@ int prs_uint32(tvbuff_t *tvb, int offset, packet_info *pinfo,
 /* Parse a number of 32-bit integers */
 
 int prs_uint32s(tvbuff_t *tvb, int offset, packet_info *pinfo,
-		proto_tree *tree, int count, guint32 **data, char *name)
+		proto_tree *tree, int count, int *data_offset, char *name)
 {
-	const guint8 *ptr;
-	
-	/* The tvb_get_ptr() function fails an assertion if count < -1 */
-	
-	if (count < -1)
-		THROW(BoundsError);
-
 	offset = prs_align(offset, 4);
 	
-	ptr = tvb_get_ptr(tvb, offset, count * 4);
-
 	if (name && tree)
 		proto_tree_add_text(tree, tvb, offset - 4, 4, 
 				    "%s", name);
-	if (data)
-		*data = (guint32 *)ptr;
+	if (data_offset)
+		*data_offset = offset;
 
 	offset += count * 4;
 
@@ -330,17 +303,32 @@ guint32 prs_pop_ptr(GList **ptr_list, char *name)
    fake it by taking every odd byte.  )-:  The caller must free the
    result returned. */
 
-char *fake_unicode(guint16 *data, int len)
+char *fake_unicode(tvbuff_t *tvb, int offset, int len)
 {
 	char *buffer;
 	int i;
+	guint16 character;
 
-	buffer = malloc(len + 1);
+	buffer = g_malloc(len + 1);
 
-	for (i = 0; i < len; i++)
-		buffer[i] = data[i] & 0xff;
+	/*
+	 * Register a cleanup function in case on of our tvbuff accesses
+	 * throws an exception. We need to clean up buffer.
+	 */
+	CLEANUP_PUSH(g_free, buffer);
+
+	for (i = 0; i < len; i++) {
+		character = tvb_get_letohs(tvb, offset);
+		buffer[i] = character & 0xff;
+		offset += 2;
+	}
 
 	buffer[len] = 0;
+
+	/*
+	 * Pop the cleanup function, but don't free the buffer.
+	 */
+	CLEANUP_POP;
 
 	return buffer;
 }
@@ -361,13 +349,13 @@ int prs_UNISTR2(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	}
 
 	if (flags & PARSE_BUFFERS) {
-		guint16 *data16;
+		int data16_offset;
 
 		offset = prs_uint16s(tvb, offset, pinfo, tree, max_len,
-				     &data16, "Buffer");
+				     &data16_offset, "Buffer");
 
 		if (data)
-			*data = fake_unicode(data16, max_len);
+			*data = fake_unicode(tvb, data16_offset, max_len);
 	}
 
 	return offset;
@@ -440,7 +428,7 @@ dissect_ndr_nt_UNICODE_STRING_str(tvbuff_t *tvb, int offset,
 			char *drep)
 {
 	guint32 len, off, max_len;
-	guint16 *data16;
+	int data16_offset;
 	char *text;
 	int old_offset;
 	dcerpc_info *di;
@@ -459,8 +447,9 @@ dissect_ndr_nt_UNICODE_STRING_str(tvbuff_t *tvb, int offset,
 			hf_nt_str_max_len, &max_len);
 
 	old_offset=offset;
-	offset = prs_uint16s(tvb, offset, pinfo, tree, max_len, &data16, NULL);
-	text = fake_unicode(data16, max_len);
+	offset = prs_uint16s(tvb, offset, pinfo, tree, max_len, &data16_offset,
+			NULL);
+	text = fake_unicode(tvb, data16_offset, max_len);
 
 	proto_tree_add_string(tree, di->hf_index, tvb, old_offset,
 		offset-old_offset, text);
@@ -480,6 +469,7 @@ dissect_ndr_nt_UNICODE_STRING_str(tvbuff_t *tvb, int offset,
 			}
 		}
 	}
+	g_free(text);
   	return offset;
 }
 
@@ -549,7 +539,8 @@ dissect_ndr_nt_STRING_string (tvbuff_t *tvb, int offset,
                              char *drep)
 {
 	guint32 len, off, max_len;
-	guint8 *text;
+	int text_offset;
+	const guint8 *text;
 	int old_offset;
 	header_field_info *hfi;
 	dcerpc_info *di;
@@ -572,21 +563,24 @@ dissect_ndr_nt_STRING_string (tvbuff_t *tvb, int offset,
 
 	switch(hfi->type){
 	case FT_STRING:
-		offset = prs_uint8s(tvb, offset, pinfo, tree, max_len, &text, NULL);
+		offset = prs_uint8s(tvb, offset, pinfo, tree, max_len,
+			&text_offset, NULL);
+		text = tvb_get_ptr(tvb, text_offset, max_len);
 		proto_tree_add_string_format(tree, di->hf_index, 
 			tvb, old_offset, offset-old_offset,
 			text, "%s: %s", hfi->name, text);
 		break;
 	case FT_BYTES:
-		text="";
+		text = NULL;
 		proto_tree_add_item(tree, di->hf_index, tvb, offset, max_len, FALSE);
 		offset += max_len;
 		break;
 	default:
+		text = NULL;
 		g_assert_not_reached();
 	}
 
-	if(tree && (di->levels>-1)){
+	if(tree && text && (di->levels>-1)){
 		proto_item_append_text(tree, ": %s", text);
 		if(di->levels>-1){
 			tree=tree->parent;

@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\spoolss packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-spoolss.c,v 1.4 2002/01/21 07:36:33 guy Exp $
+ * $Id: packet-dcerpc-spoolss.c,v 1.5 2002/03/19 22:09:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -578,16 +578,17 @@ static int prs_UNISTR2_dp(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree *subtree;
 	guint32 length, the_offset, max_len;
 	int old_offset = offset;
-	guint16 *data16;
+	int data16_offset;
 	char *text;
 	
 	offset = prs_uint32(tvb, offset, pinfo, tree, &length, NULL);
 	offset = prs_uint32(tvb, offset, pinfo, tree, &the_offset, NULL);
 	offset = prs_uint32(tvb, offset, pinfo, tree, &max_len, NULL);
 
-	offset = prs_uint16s(tvb, offset, pinfo, tree, max_len, &data16, NULL);
+	offset = prs_uint16s(tvb, offset, pinfo, tree, max_len, &data16_offset,
+			     NULL);
 	
-	text = fake_unicode(data16, max_len);
+	text = fake_unicode(tvb, data16_offset, max_len);
 
 	item = proto_tree_add_text(tree, tvb, old_offset, offset - old_offset,
 				   "UNISTR2: %s", text);
@@ -597,18 +598,18 @@ static int prs_UNISTR2_dp(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if (data)
 		*data = text;
 	else
-		free(text);
+		g_free(text);
 
-	proto_tree_add_text(subtree, tvb, old_offset, 4, "Length: %d", length);
+	proto_tree_add_text(subtree, tvb, old_offset, 4, "Length: %u", length);
 
 	old_offset += 4;
 
-	proto_tree_add_text(subtree, tvb, old_offset, 4, "Offset: %d", 
+	proto_tree_add_text(subtree, tvb, old_offset, 4, "Offset: %u", 
 			    the_offset);
 
 	old_offset += 4;
 
-	proto_tree_add_text(subtree, tvb, old_offset, 4, "Max length: %d",
+	proto_tree_add_text(subtree, tvb, old_offset, 4, "Max length: %u",
 			    max_len);
 
 	old_offset += 4;
@@ -653,7 +654,7 @@ static int SpoolssGetPrinterData_q(tvbuff_t *tvb, int offset,
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", value_name);
 
-	free(value_name);
+	g_free(value_name);
 
 	offset = prs_uint32(tvb, offset, pinfo, tree, NULL, "Size");
 
@@ -749,8 +750,8 @@ static int SpoolssGetPrinterDataEx_q(tvbuff_t *tvb, int offset,
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s/%s", 
 				key_name, value_name);
 
-	free(key_name);
-	free(value_name);
+	g_free(key_name);
+	g_free(value_name);
 
 	offset = prs_uint32(tvb, offset, pinfo, tree, NULL, "Size");
 
@@ -841,7 +842,7 @@ static int SpoolssSetPrinterData_q(tvbuff_t *tvb, int offset,
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", value_name);
 
-	free(value_name);
+	g_free(value_name);
 
 	offset = prs_uint32(tvb, offset, pinfo, tree, &type, NULL);
 
@@ -937,8 +938,8 @@ static int SpoolssSetPrinterDataEx_q(tvbuff_t *tvb, int offset,
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s/%s",
 				key_name, value_name);
 
-	free(key_name);
-	free(value_name);
+	g_free(key_name);
+	g_free(value_name);
 
 	offset = prs_uint32(tvb, offset, pinfo, tree, &type, NULL);
 
@@ -998,23 +999,15 @@ static int prs_uint16uni(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			 proto_tree *tree, void **data, char *name)
 {
 	gint len = 0, remaining, i;
-	guint16 *ptr;
 	char *text;
 
 	offset = prs_align(offset, 2);
 
-	/* Get a pointer to remaining data in buffer */
+	/* Get remaining data in buffer as a string */
 
 	remaining = tvb_length_remaining(tvb, offset);
-	ptr = (guint16 *)tvb_get_ptr(tvb, offset, remaining);
-
-	for (i = 0; i < remaining / 2; i++) {
-		if (ptr[i] == 0)
-			break;
-		len++;
-	}
-
-	text = fake_unicode(ptr, len);
+	text = fake_unicode(tvb, offset, remaining);
+	len = strlen(text);
 
 	if (name) 
 		proto_tree_add_text(tree, tvb, offset, (len + 1) * 2, 
@@ -1024,7 +1017,7 @@ static int prs_uint16uni(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if (data)
 		*data = text;
 	else
-		free(text);
+		g_free(text);
 
 	return offset + (len + 1) * 2;
 }
@@ -1137,7 +1130,7 @@ static int prs_relstr(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if (data)
 		*data = text;
 	else
-		free(text);
+		g_free(text);
 
 	proto_tree_add_text(subtree, tvb, offset - 4, 4, 
 			    "Relative offset: %d", relstr_offset);
@@ -1464,7 +1457,7 @@ static int SpoolssOpenPrinterEx_q(tvbuff_t *tvb, int offset,
 							 printer_name);
 		}
 
-		free(printer_name);
+		g_free(printer_name);
 	}
 
 	offset = prs_struct_and_referents(tvb, offset, pinfo, tree,
@@ -1707,6 +1700,7 @@ static int SpoolssRFFPCNEX_q(tvbuff_t *tvb, int offset,
 		if (check_col(pinfo->cinfo, COL_INFO))
 			col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
 					printer_name);
+		g_free(printer_name);
 	}
 
 	offset = prs_uint32(tvb, offset, pinfo, tree, NULL, "Printer local");
@@ -1848,7 +1842,6 @@ static gint ett_BUFFER_DATA = -1;
 static gint ett_BUFFER_DATA_BUFFER = -1;
 
 struct BUFFER_DATA {
-	guint8 *data8;		/* Pointer to buffer data */
 	proto_item *item;	/* proto_item holding proto_tree */
 	proto_tree *tree;	/* proto_tree holding buffer data */
 	tvbuff_t *tvb;		
@@ -1861,7 +1854,7 @@ static int prs_BUFFER_DATA(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_item *item, *subitem;
 	proto_tree *subtree, *subsubtree;
 	guint32 ptr = 0, size;
-	guint8 *data8;
+	int data8_offset;
 
 	item = proto_tree_add_text(tree, tvb, offset, 0, "BUFFER_DATA");
 
@@ -1873,8 +1866,8 @@ static int prs_BUFFER_DATA(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	subsubtree = proto_item_add_subtree(subitem, ett_BUFFER_DATA_BUFFER);
 
-	offset = prs_uint8s(tvb, offset, pinfo, subsubtree, size, &data8, 
-			    NULL);
+	offset = prs_uint8s(tvb, offset, pinfo, subsubtree, size,
+			    &data8_offset, NULL);
 
 	/* Return some info which will help the caller "cast" the buffer
 	   data and dissect it further. */
@@ -1884,11 +1877,10 @@ static int prs_BUFFER_DATA(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 		bd = (struct BUFFER_DATA *)malloc(sizeof(struct BUFFER_DATA));
 
-		bd->data8 = data8;
 		bd->item = subitem;
 		bd->tree = subsubtree;
 		bd->tvb = tvb;
-		bd->offset = offset - size;
+		bd->offset = data8_offset;
 
 		*data = bd;
 	}
@@ -2341,6 +2333,7 @@ static int SpoolssAddPrinterEx_q(tvbuff_t *tvb, int offset,
                offset = prs_struct_and_referents(tvb, offset, pinfo, tree,
                                                  prs_UNISTR2_dp,
                                                  (void *)&printer_name, NULL);
+               g_free(printer_name);
        }
 
        offset = prs_uint32(tvb, offset, pinfo, tree, NULL, "Level");
@@ -2397,7 +2390,7 @@ static int SpoolssAddPrinterEx_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 		policy_hnd = tvb_get_ptr(tvb, start_offset, 20);
 
-		printer_name = strdup("<printer name here>");
+		printer_name = g_strdup("<printer name here>");
 
 		store_printer_name(policy_hnd, printer_name);
 
@@ -2405,7 +2398,7 @@ static int SpoolssAddPrinterEx_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", 
 					printer_name);
 
-		free(printer_name);
+		g_free(printer_name);
 	}
 
 	if (tvb_length_remaining(tvb, offset) != 0)
@@ -2467,7 +2460,7 @@ static int SpoolssEnumPrinterData_r(tvbuff_t *tvb, int offset,
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	request_hash_value *request_info;
 	guint32 data_size, type, value_size;
-	guint16 *uint16s;
+	int uint16s_offset;
 	char *text;
 
 	/* Update informational fields */
@@ -2487,18 +2480,18 @@ static int SpoolssEnumPrinterData_r(tvbuff_t *tvb, int offset,
 	offset = prs_uint32(tvb, offset, pinfo, tree, &value_size, 
 			    "Value size");
 	
-	offset = prs_uint16s(tvb, offset, pinfo, tree, value_size, &uint16s,
-			     NULL);
+	offset = prs_uint16s(tvb, offset, pinfo, tree, value_size,
+			     &uint16s_offset, NULL);
 	
-	text = fake_unicode(uint16s, value_size);
+	text = fake_unicode(tvb, uint16s_offset, value_size);
 	
-	proto_tree_add_text(tree, tvb, offset - value_size * 2, 
+	proto_tree_add_text(tree, tvb, uint16s_offset,
 			    value_size * 2, "Value: %s", text);
        
 	if (text[0] && check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", text);
 	
-	free(text);
+	g_free(text);
 
 	offset = prs_uint32(tvb, offset, pinfo, tree, NULL, "Real value size");
 

@@ -2,7 +2,7 @@
  * Routines for DCERPC over SMB packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-nt.h,v 1.13 2002/03/15 08:59:52 sahlberg Exp $
+ * $Id: packet-dcerpc-nt.h,v 1.14 2002/03/19 22:09:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -34,19 +34,19 @@ int prs_uint8(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	      proto_tree *tree, guint8 *data, char *name);
 
 int prs_uint8s(tvbuff_t *tvb, int offset, packet_info *pinfo,
-	       proto_tree *tree, int count, guint8 **data, char *name);
+	       proto_tree *tree, int count, int *data_offset, char *name);
 
 int prs_uint16(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	       proto_tree *tree, guint16 *data, char *name);
 
 int prs_uint16s(tvbuff_t *tvb, int offset, packet_info *pinfo,
-		proto_tree *tree, int count, guint16 **data, char *name);
+		proto_tree *tree, int count, int *data_offset, char *name);
 
 int prs_uint32(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	       proto_tree *tree, guint32 *data, char *name);
 
 int prs_uint32s(tvbuff_t *tvb, int offset, packet_info *pinfo,
-		proto_tree *tree, int count, guint32 **data, char *name);
+		proto_tree *tree, int count, int *data_offset, char *name);
 
 /* Parse NT status code */
 
@@ -55,7 +55,7 @@ int prs_ntstatus(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 /* Parse some common RPC structures */
 
-char *fake_unicode(guint16 *data, int len);
+char *fake_unicode(tvbuff_t *tvb, int offset, int len);
 
 int prs_UNISTR2(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		proto_tree *tree, int flags, char **data, char *name);
