@@ -109,9 +109,9 @@ capture_open_output(capture_options *capture_opts, gboolean *is_tempfile) {
 
   /* did we fail to open the output file? */
   if (capture_opts->save_file_fd == -1) {
-    if (is_tempfile) {
+    if (*is_tempfile) {
       simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-	"The temporary file to which the capture would be saved (\"%s\")"
+	"The temporary file to which the capture would be saved (\"%s\") "
 	"could not be opened: %s.", capfile_name, strerror(errno));
     } else {
       if (capture_opts->multi_files_on) {
@@ -133,6 +133,18 @@ capture_open_output(capture_options *capture_opts, gboolean *is_tempfile) {
      "g_free(capfile_name)". */
 
   return TRUE;
+}
+
+
+static void
+capture_close_output(capture_options *capture_opts)
+{
+    if (capture_opts->multi_files_on) {
+        ringbuf_free();
+    } else {
+        g_free(capture_opts->save_file);
+    }
+    capture_opts->save_file = NULL;
 }
 
 
@@ -184,24 +196,14 @@ normal_do_capture(capture_options *capture_opts, gboolean is_tempfile)
     if (!capture_succeeded) {
       /* We didn't succeed in doing the capture, so we don't have a save
 	 file. */
-      if (capture_opts->multi_files_on) {
-	ringbuf_free();
-      } else {
-	g_free(capture_opts->save_file);
-      }
-      capture_opts->save_file = NULL;
+      capture_close_output(capture_opts);
       return FALSE;
     }
     /* Capture succeeded; attempt to read in the capture file. */
     if (cf_open(capture_opts->cf, capture_opts->save_file, is_tempfile, &err) != CF_OK) {
       /* We're not doing a capture any more, so we don't have a save
 	 file. */
-      if (capture_opts->multi_files_on) {
-	ringbuf_free();
-      } else {
-	g_free(capture_opts->save_file);
-      }
-      capture_opts->save_file = NULL;
+      capture_close_output(capture_opts);
       return FALSE;
     }
 
@@ -257,12 +259,7 @@ normal_do_capture(capture_options *capture_opts, gboolean is_tempfile)
 
     /* We're not doing a capture any more, so we don't have a save
        file. */
-    if (capture_opts->multi_files_on) {
-      ringbuf_free();
-    } else {
-      g_free(capture_opts->save_file);
-    }
-    capture_opts->save_file = NULL;
+    capture_close_output(capture_opts);
 
     /* if we didn't captured even a single packet, close the file again */
     if(cf_packet_count(capture_opts->cf) == 0) {
