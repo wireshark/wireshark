@@ -1,6 +1,6 @@
 /* iptrace.c
  *
- * $Id: iptrace.c,v 1.14 1999/10/06 03:29:36 guy Exp $
+ * $Id: iptrace.c,v 1.15 1999/10/06 03:30:21 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -143,7 +143,7 @@ static int iptrace_read(wtap *wth, int *err)
 		wth->file_encap = wth->phdr.pkt_encap;
 	else {
 		if (wth->file_encap != wth->phdr.pkt_encap)
-			wth->file_encap= WTAP_ENCAP_PER_PACKET;
+			wth->file_encap = WTAP_ENCAP_PER_PACKET;
 	}
 	return data_offset;
 }
