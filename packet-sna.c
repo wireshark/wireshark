@@ -2,7 +2,7 @@
  * Routines for SNA
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-sna.c,v 1.28 2001/04/19 23:02:44 guy Exp $
+ * $Id: packet-sna.c,v 1.29 2001/06/02 22:18:17 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -158,10 +158,10 @@ static const value_string sna_rh_rri_vals[] = {
 
 /* Request/Response Unit Category */
 static const value_string sna_rh_ru_category_vals[] = {
-	{ 0x00, "Function Management Data (FMD)" },
-	{ 0x01, "Network Control (NC)" },
-	{ 0x10, "Data Flow Control (DFC)" },
-	{ 0x11, "Session Control (SC)" },
+	{ 0, "Function Management Data (FMD)" },
+	{ 1, "Network Control (NC)" },
+	{ 2, "Data Flow Control (DFC)" },
+	{ 3, "Session Control (SC)" },
 	{ 0x0,	NULL }
 };
 
@@ -234,41 +234,41 @@ static const value_string sna_th_ntwk_prty_vals[] = {
 
 /* TGSF */
 static const value_string sna_th_tgsf_vals[] = {
-	{ 0x00, "Not segmented" },
-	{ 0x01, "Last segment" },
-	{ 0x10, "First segment" },
-	{ 0x11, "Middle segment" },
+	{ 0, "Not segmented" },
+	{ 1, "Last segment" },
+	{ 2, "First segment" },
+	{ 3, "Middle segment" },
 	{ 0x0,	NULL }
 };
 
 /* PIUBF */
 static const value_string sna_th_piubf_vals[] = {
-	{ 0x00, "Single PIU frame" },
-	{ 0x01, "Last PIU of a multiple PIU frame" },
-	{ 0x10, "First PIU of a multiple PIU frame" },
-	{ 0x11, "Middle PIU of a multiple PIU frame" },
+	{ 0, "Single PIU frame" },
+	{ 1, "Last PIU of a multiple PIU frame" },
+	{ 2, "First PIU of a multiple PIU frame" },
+	{ 3, "Middle PIU of a multiple PIU frame" },
 	{ 0x0,	NULL }
 };
 
 /* NLPOI */
 static const value_string sna_th_nlpoi_vals[] = {
-	{ 0x0, "NLP starts within this FID4 TH" },
-	{ 0x1, "NLP byte 0 starts after RH byte 0 following NLP C/P pad" },
+	{ 0, "NLP starts within this FID4 TH" },
+	{ 1, "NLP byte 0 starts after RH byte 0 following NLP C/P pad" },
 	{ 0x0,	NULL }
 };
 
 /* TPF */
 static const value_string sna_th_tpf_vals[] = {
-	{ 0x00, "Low Priority" },
-	{ 0x01, "Medium Priority" },
-	{ 0x10, "High Priority" },
+	{ 0, "Low Priority" },
+	{ 1, "Medium Priority" },
+	{ 2, "High Priority" },
 	{ 0x0,	NULL }
 };
 
 /* VR_CWI */
 static const value_string sna_th_vr_cwi_vals[] = {
-	{ 0x0, "Increment window size" },
-	{ 0x1, "Decrement window size" },
+	{ 0, "Increment window size" },
+	{ 1, "Decrement window size" },
 	{ 0x0,	NULL }
 };
 
@@ -278,9 +278,9 @@ static const true_false_string sna_th_tg_nonfifo_ind_truth =
 
 /* VR_SQTI */
 static const value_string sna_th_vr_sqti_vals[] = {
-	{ 0x00, "Non-sequenced, Non-supervisory" },
-	{ 0x01, "Non-sequenced, Supervisory" },
-	{ 0x10, "Singly-sequenced" },
+	{ 0, "Non-sequenced, Non-supervisory" },
+	{ 1, "Non-sequenced, Supervisory" },
+	{ 2, "Singly-sequenced" },
 	{ 0x0,	NULL }
 };
 
